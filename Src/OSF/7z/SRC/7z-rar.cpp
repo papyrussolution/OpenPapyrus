@@ -347,7 +347,6 @@ namespace NCompress {
 		{
 			uint32 flags, newFlagsPlace;
 			uint32 flagsPlace = DecodeNum(PosHf2);
-
 			for(;; ) {
 				flags = ChSetC[flagsPlace];
 				FlagBuf = flags >> 8;
@@ -356,7 +355,6 @@ namespace NCompress {
 					break;
 				CorrHuff(ChSetC, NToPlC);
 			}
-
 			ChSetC[flagsPlace] = ChSetC[newFlagsPlace];
 			ChSetC[newFlagsPlace] = flags;
 		}
@@ -555,11 +553,7 @@ namespace NCompress {
 			m_LastLength = 0;
 			memzero(m_LastLevels, kMaxTableSize);
 		}
-
-		uint32 CDecoder::ReadBits(uint numBits) 
-		{
-			return m_InBitStream.ReadBits(numBits);
-		}
+		uint32 CDecoder::ReadBits(uint numBits) { return m_InBitStream.ReadBits(numBits); }
 
 		#define RIF(x) { if(!(x)) return false;	}
 
@@ -1500,15 +1494,11 @@ namespace NCompress {
 		}
 		#undef RIF
 		/*
-		   class CCoderReleaser
-		   {
+		   class CCoderReleaser {
 		   CDecoder *m_Coder;
 		   public:
 		   CCoderReleaser(CDecoder *coder): m_Coder(coder) {}
-		   ~CCoderReleaser()
-		   {
-			m_Coder->ReleaseStreams();
-		   }
+		   ~CCoderReleaser() { m_Coder->ReleaseStreams(); }
 		   };
 		 */
 
@@ -3274,9 +3264,11 @@ namespace NCompress {
 		static inline unsigned SlotToLen(CBitDecoder &_bitStream, unsigned slot)
 		{
 			if(slot < 8)
-				return slot + 2;
-			unsigned numBits = (slot >> 2) - 1;
-			return 2 + ((4 | (slot & 3)) << numBits) + _bitStream.ReadBits9(numBits);
+				return (slot + 2);
+			else {
+				uint   numBits = (slot >> 2) - 1;
+				return (2 + ((4 | (slot & 3)) << numBits) + _bitStream.ReadBits9(numBits));
+			}
 		}
 
 		static const uint32 kSymbolRep = 258;
@@ -3288,11 +3280,8 @@ namespace NCompress {
 			_bitStream._stream = _inStream;
 			_bitStream._bufBase = _inputBuf;
 			_bitStream.Init();
-
 			uint32 rep0 = _reps[0];
-
 			uint32 remLen = 0;
-
 			size_t limit;
 			{
 				size_t rem = _winSize - _winPos;
@@ -3300,16 +3289,13 @@ namespace NCompress {
 					rem = kWriteStep;
 				limit = _winPos + rem;
 			}
-
 			for(;; ) {
 				if(_winPos >= limit) {
 					RINOK(WriteBuf());
 					if(_unpackSize_Defined && _writtenFileSize > _unpackSize)
 						break;  // return S_FALSE;
-
 					{
 						size_t rem = _winSize - _winPos;
-
 						if(rem == 0) {
 							_winPos = 0;
 							rem = _winSize;
@@ -3318,12 +3304,10 @@ namespace NCompress {
 							rem = kWriteStep;
 						limit = _winPos + rem;
 					}
-
 					if(remLen != 0) {
 						size_t winPos = _winPos;
 						size_t winMask = _winMask;
 						size_t pos = (winPos - (size_t)rep0 - 1) & winMask;
-
 						Byte * win = _window;
 						do {
 							if(winPos >= limit)
@@ -3331,21 +3315,17 @@ namespace NCompress {
 							win[winPos] = win[pos];
 							winPos++;
 							pos = (pos + 1) & winMask;
-						}
-						while(--remLen != 0);
-
+						} while(--remLen != 0);
 						_lzSize += winPos - _winPos;
 						_winPos = winPos;
 						continue;
 					}
 				}
-
 				if(_bitStream._buf >= _bitStream._bufCheck2) {
 					if(_bitStream.InputEofError())
 						break;  // return S_FALSE;
 					if(_bitStream._buf >= _bitStream._bufCheck)
 						_bitStream.Prepare2();
-
 					uint64 processed = _bitStream.GetProcessedSize_Round();
 					if(processed >= _bitStream._blockEnd) {
 						if(processed > _bitStream._blockEnd)
@@ -3357,10 +3337,8 @@ namespace NCompress {
 							if(bits7 == _bitStream._blockEndBits7) {
 								if(_isLastBlock) {
 									_reps[0] = rep0;
-
 									if(_bitStream.InputEofError())
 										break;
-
 									/*
 									   // packSize can be 15 bytes larger for encrypted archive
 									   if(_packSize_Defined && _packSize <
@@ -3490,9 +3468,7 @@ namespace NCompress {
 					}
 				}
 			}
-			if(_bitStream._hres != S_OK)
-				return _bitStream._hres;
-			return S_FALSE;
+			return (_bitStream._hres != S_OK) ? _bitStream._hres : S_FALSE;
 		}
 
 		HRESULT CDecoder::CodeReal()
@@ -4700,8 +4676,7 @@ namespace NArchive {
 
 			/*
 			   int baseFileIndex = -1;
-			   for(unsigned i = 0; i < _refItems.Size(); i++)
-			   {
+			   for(unsigned i = 0; i < _refItems.Size(); i++) {
 			   CItem &item = _items[_refItems[i].ItemIndex];
 			   if(item.IsAltStream)
 				item.BaseFileIndex = baseFileIndex;
@@ -5543,12 +5518,10 @@ namespace NArchive {
 				if(crc != item.CRC)
 					return false;
 			}
-
 			if(_blakeOffset >= 0) {
 				Byte digest[BLAKE2S_DIGEST_SIZE];
 				Blake2sp_Final(&_blake, digest);
-				if(cryptoDecoderSpec)
-					cryptoDecoderSpec->Hmac_Convert_32Bytes(digest);
+				CALLPTRMEMB(cryptoDecoderSpec, Hmac_Convert_32Bytes(digest));
 				if(memcmp(digest, &item.Extra[(uint)_blakeOffset], BLAKE2S_DIGEST_SIZE) != 0)
 					return false;
 			}
@@ -5688,10 +5661,9 @@ namespace NArchive {
 			cryptoDecoderSpec->SetPassword((const Byte*)(const char*)utf8, utf8.Len());
 			return S_OK;
 		}
-
 		bool CInArchive::ReadVar(uint64 &val)
 		{
-			unsigned offset = ReadVarInt(_buf + _bufPos, _bufSize - _bufPos, &val);
+			uint   offset = ReadVarInt(_buf + _bufPos, _bufSize - _bufPos, &val);
 			_bufPos += offset;
 			return (offset != 0);
 		}
@@ -5713,20 +5685,17 @@ namespace NArchive {
 			h.ExtraSize = 0;
 			h.DataSize = 0;
 
-			const uint kStartSize = 4 + 3;
-			const uint kBufSize = AES_BLOCK_SIZE + AES_BLOCK_SIZE; // must be >= kStartSize;
-			Byte buf[kBufSize];
-			unsigned filled;
-
+			const  uint kStartSize = 4 + 3;
+			const  uint kBufSize = AES_BLOCK_SIZE + AES_BLOCK_SIZE; // must be >= kStartSize;
+			Byte   buf[kBufSize];
+			uint   filled;
 			if(m_CryptoMode) {
 				RINOK(ReadStream_Check(buf, kBufSize));
 				memcpy(m_CryptoDecoderSpec->_iv, buf, AES_BLOCK_SIZE);
 				RINOK(m_CryptoDecoderSpec->Init());
-
 				_buf.AllocAtLeast(1 << 12);
 				if(!(Byte*)_buf)
 					return E_OUTOFMEMORY;
-
 				memcpy(_buf, buf + AES_BLOCK_SIZE, AES_BLOCK_SIZE);
 				if(m_CryptoDecoderSpec->Filter(_buf, AES_BLOCK_SIZE) != AES_BLOCK_SIZE)
 					return E_FAIL;
@@ -5737,9 +5706,8 @@ namespace NArchive {
 				RINOK(ReadStream_Check(buf, kStartSize));
 				filled = kStartSize;
 			}
-
 			uint64 val;
-			unsigned offset = ReadVarInt(buf + 4, 3, &val);
+			uint   offset = ReadVarInt(buf + 4, 3, &val);
 			if(offset == 0)
 				return S_FALSE;
 			{
@@ -5749,7 +5717,6 @@ namespace NArchive {
 				if(size < 2)
 					return S_FALSE;
 			}
-
 			size_t allocSize = _bufSize;
 			if(m_CryptoMode)
 				allocSize = (allocSize + AES_BLOCK_SIZE - 1) & ~(size_t)(AES_BLOCK_SIZE - 1);
@@ -5784,19 +5751,15 @@ namespace NArchive {
 
 			return S_OK;
 		}
-
 		/*
 		   int CInArcInfo::FindExtra(unsigned extraID, unsigned &recordDataSize) const
 		   {
 		   recordDataSize = 0;
 		   size_t offset = 0;
-
-		   for(;;)
-		   {
+		   for(;;) {
 			size_t rem = Extra.Size() - offset;
 			if(rem == 0)
 			  return -1;
-
 			{
 			  uint64 size;
 			  unsigned num = ReadVarInt(Extra + offset, rem, &size);
@@ -5844,19 +5807,14 @@ namespace NArchive {
 
 		   num = ReadVarInt(p, size, &locator.Flags);
 		   if(num == 0) return false; p += num; size -= num;
-
-		   if(locator.Is_QuickOpen())
-		   {
+		   if(locator.Is_QuickOpen()) {
 			num = ReadVarInt(p, size, &locator.QuickOpen);
 			if(num == 0) return false; p += num; size -= num;
 		   }
-
-		   if(locator.Is_Recovery())
-		   {
+		   if(locator.Is_Recovery()) {
 			num = ReadVarInt(p, size, &locator.Recovery);
 			if(num == 0) return false; p += num; size -= num;
 		   }
-
 		   return true;
 		   }
 		 */
@@ -5906,14 +5864,11 @@ namespace NArchive {
 					RINOK(stream->Seek(Position, STREAM_SEEK_SET, NULL));
 				}
 			}
-
 			info.StartPos = arcStartPos;
 			_stream = stream;
-
 			CHeader h;
 			RINOK(ReadBlockHeader(h));
 			info.IsEncrypted = false;
-
 			if(h.Type == NHeaderType::kArcEncrypt) {
 				info.IsEncrypted = true;
 				IsArc = true;
@@ -5932,20 +5887,15 @@ namespace NArchive {
 				}
 				RINOK(ReadBlockHeader(h));
 			}
-
 			if(h.Type != NHeaderType::kArc)
 				return S_FALSE;
-
 			IsArc = true;
 			info.VolNumber = 0;
-
 			if(!ReadVar(info.Flags))
 				return S_FALSE;
-
 			if(info.Flags & NArcFlags::kVolNumber)
 				if(!ReadVar(info.VolNumber))
 					return S_FALSE;
-
 			if(h.ExtraSize != 0) {
 				if(_bufSize - _bufPos < h.ExtraSize)
 					return S_FALSE;
@@ -5961,11 +5911,7 @@ namespace NArchive {
 				   locator.Flags = locator.Flags;
 				 */
 			}
-
-			if(_bufPos != _bufSize)
-				return S_FALSE;
-
-			return S_OK;
+			return (_bufPos != _bufSize) ? S_FALSE : S_OK;
 		}
 
 		bool CInArchive::ReadFileHeader(const CHeader &header, CItem &item)
@@ -5973,36 +5919,31 @@ namespace NArchive {
 			item.UnixMTime = 0;
 			item.CRC = 0;
 			item.Flags = 0;
-
 			item.CommonFlags = (uint32)header.Flags;
 			item.PackSize = header.DataSize;
-
 			uint64 flags64;
-			if(!ReadVar(flags64)) return false;
+			if(!ReadVar(flags64)) 
+				return false;
 			item.Flags = (uint32)flags64;
-
-			if(!ReadVar(item.Size)) return false;
-
+			if(!ReadVar(item.Size)) 
+				return false;
 			{
 				uint64 attrib;
 				if(!ReadVar(attrib)) return false;
 				item.Attrib = (uint32)attrib;
 			}
-
 			if(item.Has_UnixMTime()) {
 				if(_bufSize - _bufPos < 4)
 					return false;
 				item.UnixMTime = Get32(_buf + _bufPos);
 				_bufPos += 4;
 			}
-
 			if(item.Has_CRC()) {
 				if(_bufSize - _bufPos < 4)
 					return false;
 				item.CRC = Get32(_buf + _bufPos);
 				_bufPos += 4;
 			}
-
 			{
 				uint64 method;
 				if(!ReadVar(method)) return false;
@@ -6281,45 +6222,18 @@ namespace NArchive {
 					}
 				}
 			}
-
 			return S_OK;
 		}
 
-		static const Byte kProps[] =
-		{
-			kpidPath,
-			kpidIsDir,
-			kpidSize,
-			kpidPackSize,
-			kpidMTime,
-			kpidCTime,
-			kpidATime,
-			kpidAttrib,
+		static const Byte kProps[] = {
+			kpidPath, kpidIsDir, kpidSize, kpidPackSize, kpidMTime, kpidCTime, kpidATime, kpidAttrib,
 
-			kpidIsAltStream,
-			kpidEncrypted,
-			kpidSolid,
-			kpidSplitBefore,
-			kpidSplitAfter,
-			kpidCRC,
-			kpidHostOS,
-			kpidMethod,
-			kpidCharacts,
-			kpidSymLink,
-			kpidHardLink,
-			kpidCopyLink,
+			kpidIsAltStream, kpidEncrypted, kpidSolid, kpidSplitBefore, kpidSplitAfter, kpidCRC, kpidHostOS,
+			kpidMethod, kpidCharacts, kpidSymLink, kpidHardLink, kpidCopyLink,
 		};
 
 		static const Byte kArcProps[] = {
-			kpidTotalPhySize,
-			kpidCharacts,
-			kpidSolid,
-			kpidNumBlocks,
-			kpidEncrypted,
-			kpidIsVolume,
-			kpidVolumeIndex,
-			kpidNumVolumes,
-			kpidComment
+			kpidTotalPhySize, kpidCharacts, kpidSolid, kpidNumBlocks, kpidEncrypted, kpidIsVolume, kpidVolumeIndex, kpidNumVolumes, kpidComment
 		};
 
 		IMP_IInArchive_Props
@@ -6328,7 +6242,7 @@ namespace NArchive {
 		uint64 CHandler::GetPackSize(unsigned refIndex) const
 		{
 			uint64 size = 0;
-			unsigned index = _refs[refIndex].Item;
+			uint index = _refs[refIndex].Item;
 			for(;; ) {
 				const CItem &item = _items[index];
 				size += item.PackSize;
@@ -6413,9 +6327,9 @@ namespace NArchive {
 				/*
 				   case kpidWarningFlags:
 				   {
-				   if(_warningFlags != 0)
-					prop = _warningFlags;
-				   break;
+					   if(_warningFlags != 0)
+						prop = _warningFlags;
+					   break;
 				   }
 				 */
 				case kpidExtension:
@@ -7508,9 +7422,7 @@ namespace NArchive {
 			return S_OK;
 			COM_TRY_END
 		}
-
 		IMPL_ISetCompressCodecsInfo
-
 		REGISTER_ARC_I("Rar5", "rar r00", 0, 0xCC, kMarker, 0, NArcInfoFlags::kFindSignature, NULL)
 	}
 }

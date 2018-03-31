@@ -2965,8 +2965,9 @@ char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 }
 
 #endif /* UNDER_CE */
-
-/* Reset gzip file state */
+//
+// Reset gzip file state 
+//
 static void gz_reset(gz_state * state)
 {
 	state->x.have = 0;          /* no output data available */
@@ -2980,8 +2981,9 @@ static void gz_reset(gz_state * state)
 	state->x.pos = 0;           /* no uncompressed data yet */
 	state->strm.avail_in = 0;   /* no input data yet */
 }
-
-/* Open a gzip file either by name or file descriptor. */
+//
+// Open a gzip file either by name or file descriptor. 
+//
 static gzFile gz_open(const void * path, int fd, const char * mode)
 {
 	gz_state * state;
@@ -3082,8 +3084,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #else
 	strcpy(state->path, path);
 #endif
-
-	/* compute the flags for open() */
+	// compute the flags for open() 
 	oflag =
 #ifdef O_LARGEFILE
 	    O_LARGEFILE |

@@ -1,5 +1,6 @@
 // V_FRGHT.CPP
 // Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -218,15 +219,15 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 				THROW(tra);
 				{
 					//
-					// Èçâëå÷åíèå ñïèñêà ôðàõòîâ ïî âñåì äîêóìåíòàì óñêîðÿåò ðàñ÷åò
-					// òîëüêî â òîì ñëó÷àå, åñëè îáùèé ñïèñîê äîêóìåíòîâ, ïîäïàäàþùèé
-					// ïîä äåéñòâèå îáùèõ êðèòåðèåâ ôèëüòðà (íå îòíîñÿùèõñÿ ê ôðàõòó)
-					// äîñòàòî÷íî âåëèê.
+					// Ð˜Ð·Ð²Ð»ÐµÑ‡ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ° Ñ„Ñ€Ð°Ñ…Ñ‚Ð¾Ð² Ð¿Ð¾ Ð²ÑÐµÐ¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼ ÑƒÑÐºÐ¾Ñ€ÑÐµÑ‚ Ñ€Ð°ÑÑ‡ÐµÑ‚
+					// Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð² Ñ‚Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ, ÐµÑÐ»Ð¸ Ð¾Ð±Ñ‰Ð¸Ð¹ ÑÐ¿Ð¸ÑÐ¾Ðº Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð², Ð¿Ð¾Ð´Ð¿Ð°Ð´Ð°ÑŽÑ‰Ð¸Ð¹
+					// Ð¿Ð¾Ð´ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ Ð¾Ð±Ñ‰Ð¸Ñ… ÐºÑ€Ð¸Ñ‚ÐµÑ€Ð¸ÐµÐ² Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð° (Ð½Ðµ Ð¾Ñ‚Ð½Ð¾ÑÑÑ‰Ð¸Ñ…ÑÑ Ðº Ñ„Ñ€Ð°Ñ…Ñ‚Ñƒ)
+					// Ð´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ Ð²ÐµÐ»Ð¸Ðº.
 					//
-					// Òàêèì îáðàçîì, åñëè â ôèëüòðå óêàçàí êîíòðàãåíò ëèáî óñòàíîâëåí
-					// ïåðèîä äîêóìåíòîâ äî ïîëóãîäà, òî ïðèìåíÿåì ïåðåîáîð "ïî äîêóìåíòàì",
-					// â ïðîòèâíîì ñëó÷àå ïûòàåìñÿ "ïî ôðàõòàì" (ôóíêöèÿ GetListByFreightFilt
-					// ñàìà îïðåäåëèò âîçìîæíîñòü òàêîãî ïåðåáîðà).
+					// Ð¢Ð°ÐºÐ¸Ð¼ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð¼, ÐµÑÐ»Ð¸ Ð² Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ðµ ÑƒÐºÐ°Ð·Ð°Ð½ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚ Ð»Ð¸Ð±Ð¾ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½
+					// Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð´Ð¾ Ð¿Ð¾Ð»ÑƒÐ³Ð¾Ð´Ð°, Ñ‚Ð¾ Ð¿Ñ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿ÐµÑ€ÐµÐ¾Ð±Ð¾Ñ€ "Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼",
+					// Ð² Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ Ð¿Ñ‹Ñ‚Ð°ÐµÐ¼ÑÑ "Ð¿Ð¾ Ñ„Ñ€Ð°Ñ…Ñ‚Ð°Ð¼" (Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ GetListByFreightFilt
+					// ÑÐ°Ð¼Ð° Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒ Ñ‚Ð°ÐºÐ¾Ð³Ð¾ Ð¿ÐµÑ€ÐµÐ±Ð¾Ñ€Ð°).
 					//
 					if(Filt.ObjectID)
 						r = -1;
@@ -543,10 +544,10 @@ int SLAPI PPViewFreight::Print(const void *)
 	return Helper_Print(((Filt.LocID == 0) ? REPORT_FREIGHTLAGGLOC : REPORT_FREIGHTLAGG), Filt.Order);
 }
 
-int SLAPI PPViewFreight::PrintBill(PPID billID, int addCashSummator)
+int SLAPI PPViewFreight::PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/)
 {
 	PPViewBill b_v;
-	return b_v.PrintBill(billID, addCashSummator);
+	return b_v.PrintBill(billID/* @v10.0.0, addCashSummator*/);
 }
 
 int SLAPI PPViewFreight::PrintBillList()
@@ -750,29 +751,17 @@ int SLAPI PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						ok = PPErrorZ();
 				}
 				break;
-			case PPVCMD_EDITBILLFREIGHT:
-				ok = P_BObj->EditBillFreight(id);
-				break;
 			case PPVCMD_REPLACEMENT: // @v9.4.3
 				ok = -1;
 				if(UpdateFeatures() > 0)
 					ok = 1;
 				break;
-			case PPVCMD_PRINTBILL:
-				PrintBill(id, 0);
-				break;
-			case PPVCMD_PRINTCHECK:
-				PrintBill(id, 1);
-				break;
-			case PPVCMD_PRINTBILLLIST:
-				ok = PrintBillList();
-				break;
-			case PPVCMD_PRINTALLBILLS:
-				ok = PrintAllBills();
-				break;
-			case PPVCMD_PRINTBILLINFOLIST:
-				ok = PrintBillInfoList();
-				break;
+			case PPVCMD_EDITBILLFREIGHT: ok = P_BObj->EditBillFreight(id); break;
+			case PPVCMD_PRINTBILL: PrintBill(id/* @v10.0.0, 0*/); break;
+			// @v10.0.0 case PPVCMD_PRINTCHECK: PrintBill(id, 1); break;
+			case PPVCMD_PRINTBILLLIST: ok = PrintBillList(); break;
+			case PPVCMD_PRINTALLBILLS: ok = PrintAllBills(); break;
+			case PPVCMD_PRINTBILLINFOLIST: ok = PrintBillInfoList(); break;
 			case PPVCMD_EXPORT:
 				ok = -1;
 				Export();

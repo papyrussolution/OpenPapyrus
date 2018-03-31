@@ -26,7 +26,7 @@ public:
 	SLAPI  SCS_SYNCSYM(PPID n, char * name, char * port);
 	SLAPI ~SCS_SYNCSYM();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
+	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
@@ -375,8 +375,9 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
+#if 0 // @v10.0.0 {
 // virtual
-int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
+int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -414,6 +415,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v10.0.0
 
 // virtual
 int SLAPI SCS_SYNCSYM::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)

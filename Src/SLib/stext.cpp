@@ -17,7 +17,7 @@ static const char * p_asciictrl[] = {
 	"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 };
 static const char * p_base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-// The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5 
+// The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5
 static const char * p_base64url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 //static
@@ -1353,25 +1353,10 @@ SCodepageIdent::SCodepageIdent(int cp) : Cp(cp)
 {
 }
 
-SCodepageIdent::operator int() const
-{
-	return (int)Cp;
-}
-
-SCodepageIdent::operator SCodepage() const
-{
-	return (SCodepage)Cp;
-}
-
-int FASTCALL SCodepageIdent::operator == (SCodepage cp) const
-{
-	return BIN(Cp == cp);
-}
-
-int FASTCALL SCodepageIdent::operator != (SCodepage cp) const
-{
-	return BIN(Cp != cp);
-}
+SCodepageIdent::operator int() const { return (int)Cp; }
+SCodepageIdent::operator SCodepage() const { return (SCodepage)Cp; }
+int FASTCALL SCodepageIdent::operator == (SCodepage cp) const { return BIN(Cp == cp); }
+int FASTCALL SCodepageIdent::operator != (SCodepage cp) const { return BIN(Cp != cp); }
 
 SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 {
@@ -1924,13 +1909,13 @@ char * FASTCALL stpcpy(char *to, const char *from)
 int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-size_t FASTCALL sstrlen(const char * pStr) 
-{ 
-	return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; 
+size_t FASTCALL sstrlen(const char * pStr)
+{
+	return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0;
 }
-size_t FASTCALL sstrlen(const uchar * pStr) 
-{ 
-	return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0; 
+size_t FASTCALL sstrlen(const uchar * pStr)
+{
+	return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0;
 }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
@@ -2437,7 +2422,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 #ifdef _WIN32_WCE // {
 		GetTextExtentPoint32(hdc, (const ushort*)".", 1, &size);
 #else
-		GetTextExtentPoint32(hdc, _T("."), 1, &size); 
+		GetTextExtentPoint32(hdc, _T("."), 1, &size);
 #endif // } _WIN32_WCE
 		dots_size = size.cx * 3;
 		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
@@ -2669,7 +2654,7 @@ inline double FASTCALL ApproxStrComparator::Score(const dist_weights & w)
 inline void FASTCALL ApproxStrComparator::Distance(dist_components & c)
 	{ c.set(Del1, Del2, Swaps, Subs); }
 
-ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrSrchParam * param) : 
+ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrSrchParam * param) :
 	Del1(0), Del2(0), Swaps(0), Subs(0), MaxSize(0), Pattern(pPattern)
 {
 	P = *param;
@@ -2680,7 +2665,7 @@ ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrS
 double FASTCALL ApproxStrComparator::Next(const char * b2)
 {
 	double result = 1.0;
-	SString & r_temp = SLS.AcquireRvlStr(); // @v9.9.4 
+	SString & r_temp = SLS.AcquireRvlStr(); // @v9.9.4
 	r_temp = b2;
 	if(P.no_case) {
 		r_temp.ToLower();

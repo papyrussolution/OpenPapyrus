@@ -1,6 +1,6 @@
 // BILLDLG.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -562,7 +562,7 @@ public:
 	BillDialog(uint dlgID, PPBillPacket *, int isEdit);
 	int    setDTS(PPBillPacket *);
 	//
-	// Åñëè onCancel != 0, òî ôóíêöèÿ getDTS âûçûâàåò checkCreditOverflow //
+	// Ð•ÑÐ»Ð¸ onCancel != 0, Ñ‚Ð¾ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ getDTS Ð²Ñ‹Ð·Ñ‹Ð²Ð°ÐµÑ‚ checkCreditOverflow //
 	//
 	int    getDTS(int onCancel);
 	int    isModified()
@@ -607,19 +607,19 @@ private:
 	int    EditAgreement();
 	void   SetupPaymDateCtrls();
 	enum {
-		fPctDis            = 0x0001, // Ïðèçíàê òîãî, ÷òî ñêèäêà óêàçàíà â ïðîöåíòàõ
-		fExtMainCurAmount  = 0x0002, // Ïðèçíàê íàëè÷èÿ â äèàëîãå ïîëåé âàëþòû
-			// è âàëþòíîãî êóðñà (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
+		fPctDis            = 0x0001, // ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾ ÑÐºÐ¸Ð´ÐºÐ° ÑƒÐºÐ°Ð·Ð°Ð½Ð° Ð² Ð¿Ñ€Ð¾Ñ†ÐµÐ½Ñ‚Ð°Ñ…
+		fExtMainCurAmount  = 0x0002, // ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº Ð½Ð°Ð»Ð¸Ñ‡Ð¸Ñ Ð² Ð´Ð¸Ð°Ð»Ð¾Ð³Ðµ Ð¿Ð¾Ð»ÐµÐ¹ Ð²Ð°Ð»ÑŽÑ‚Ñ‹
+			// Ð¸ Ð²Ð°Ð»ÑŽÑ‚Ð½Ð¾Ð³Ð¾ ÐºÑƒÑ€ÑÐ° (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
 		fEditMode          = 0x0004,
 		fHasAmtIDList      = 0x0008,
 		fModified          = 0x0010,
 		fSetupObj2ByCliAgt = 0x0020,
-		fCheckAgreement    = 0x0040, // Âêëþ÷àåòñÿ åñëè â òàáëèöå ñòàòåé óñòàíîâëåíî èñïîëüçîâàíèå ñîãëàøåíèé
-		fCheckCreditLim    = 0x0080, // @v7.1.6 Âèä îïåðàöèè, âîçìîæíî, òðåáóåò ïðîâåðêè êðåäèòíîãî ëèìèòà
-		fCheckRetLim       = 0x0100  // @v7.1.6 Âèä îïåðàöèè, âîçìîæíî, òðåáóåò ïðîâåðêè ëèìèòà âîçâðàòîâ
+		fCheckAgreement    = 0x0040, // Ð’ÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ÑÑ ÐµÑÐ»Ð¸ Ð² Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ðµ ÑÑ‚Ð°Ñ‚ÐµÐ¹ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð¾ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ðµ ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ð¹
+		fCheckCreditLim    = 0x0080, // Ð’Ð¸Ð´ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸, Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾, Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ ÐºÑ€ÐµÐ´Ð¸Ñ‚Ð½Ð¾Ð³Ð¾ Ð»Ð¸Ð¼Ð¸Ñ‚Ð°
+		fCheckRetLim       = 0x0100  // Ð’Ð¸Ð´ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸, Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾, Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð»Ð¸Ð¼Ð¸Ñ‚Ð° Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð¾Ð²
 	};
 	long   Flags;
-	int    PaymTerm;       // Ñðîê îïëàòû â äíÿõ (ïî ñîãëàøåíèþ). Èíèöèàëèçèðóåòñÿ â setDTS è â ReplyCntragntSelection
+	int    PaymTerm;       // Ð¡Ñ€Ð¾Ðº Ð¾Ð¿Ð»Ð°Ñ‚Ñ‹ Ð² Ð´Ð½ÑÑ… (Ð¿Ð¾ ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸ÑŽ). Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð² setDTS Ð¸ Ð² ReplyCntragntSelection
 	long   PayDateBase;    // @v8.4.2
 	PPObjGoods GObj;
 	PPObjArticle ArObj;
@@ -629,12 +629,12 @@ private:
 	PPIDArray      ExtAmtIDList;
 	PPClientAgreement CliAgt;
 	double CurrDebt;
-	RAssocArray CDebtList; // Òåêóùèé äîëã ñ ðàçáèâêîé ïî äîëãîâûì ðàçìåðíîñòÿì.
+	RAssocArray CDebtList; // Ð¢ÐµÐºÑƒÑ‰Ð¸Ð¹ Ð´Ð¾Ð»Ð³ Ñ Ñ€Ð°Ð·Ð±Ð¸Ð²ÐºÐ¾Ð¹ Ð¿Ð¾ Ð´Ð¾Ð»Ð³Ð¾Ð²Ñ‹Ð¼ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚ÑÐ¼.
 	TRect  DefaultRect;
 	enum {
 		dummyFirst = 1,
-		brushIllPaymDate,  // Êèñòü äëÿ èíäèêàöèè íåïðàâèëüíîé äàòû îïëàòû (íå ñîãëàñóþùåéñÿ ñ ñîãëàøåíèåì)
-		brushSynced        // Êèñòü äëÿ èäíèêàöèè ñòàòóñà ñèíõðîíèçàöèè (â ïîëå íîìåðà äîêóìåíòà)
+		brushIllPaymDate,  // ÐšÐ¸ÑÑ‚ÑŒ Ð´Ð»Ñ Ð¸Ð½Ð´Ð¸ÐºÐ°Ñ†Ð¸Ð¸ Ð½ÐµÐ¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾Ð¹ Ð´Ð°Ñ‚Ñ‹ Ð¾Ð¿Ð»Ð°Ñ‚Ñ‹ (Ð½Ðµ ÑÐ¾Ð³Ð»Ð°ÑÑƒÑŽÑ‰ÐµÐ¹ÑÑ Ñ ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸ÐµÐ¼)
+		brushSynced        // ÐšÐ¸ÑÑ‚ÑŒ Ð´Ð»Ñ Ð¸Ð´Ð½Ð¸ÐºÐ°Ñ†Ð¸Ð¸ ÑÑ‚Ð°Ñ‚ÑƒÑÐ° ÑÐ¸Ð½Ñ…Ñ€Ð¾Ð½Ð¸Ð·Ð°Ñ†Ð¸Ð¸ (Ð² Ð¿Ð¾Ð»Ðµ Ð½Ð¾Ð¼ÐµÑ€Ð° Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°)
 	};
 	SPaintToolBox Ptb;
 };
@@ -686,12 +686,12 @@ static uint SLAPI GetBillDialogID(PPBillPacket * pack, uint * pPrnForm)
 	return (uint)PPSetError(PPERR_INVOPRKIND);
 }
 //
-// Ïàðàìåòð options ïðèíèìàåò çíà÷åíèå:
-//   0 - ïðè äîáàâëåíèè.
-//   1 - ïðè ðåäàêòèðîâàíèè
-//   2 - ðåäàêòèðîâàíèå ñ ôîðñèðîâàííûì ïðèçíàêîì modified.
-//       Â ñëó÷àå ðåäàêòèðîâàíèÿ íåêîòîðûå ïîëÿ áëîêèðóþòñÿ.
-//   3 - íå âûâîäèòü ñîîáùåíèå î òîì ÷òî äîêóìåíò áûë ìîäèôèöèðîâàí
+// ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ options Ð¿Ñ€Ð¸Ð½Ð¸Ð¼Ð°ÐµÑ‚ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ:
+//   0 - Ð¿Ñ€Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ð¸.
+//   1 - Ð¿Ñ€Ð¸ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ð¸
+//   2 - Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ Ñ„Ð¾Ñ€ÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¼ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð¼ modified.
+//       Ð’ ÑÐ»ÑƒÑ‡Ð°Ðµ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð½ÐµÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¿Ð¾Ð»Ñ Ð±Ð»Ð¾ÐºÐ¸Ñ€ÑƒÑŽÑ‚ÑÑ.
+//   3 - Ð½Ðµ Ð²Ñ‹Ð²Ð¾Ð´Ð¸Ñ‚ÑŒ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ð¾ Ñ‚Ð¾Ð¼ Ñ‡Ñ‚Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð±Ñ‹Ð» Ð¼Ð¾Ð´Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½
 //
 int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 {
@@ -832,8 +832,8 @@ void BillDialog::SetupDiscountCtrls()
 		int rt = P_BObj->CheckRights(BILLOPRT_TOTALDSCNT, 1);
 		if(P_Pack->GetSyncStatus() > 0) {
 			//
-			// Åñëè ó ïîëüçîâàòåëÿ íåò ïðàâ íà èçìåíåíèå ñèíõðîíèçèðîâàííîãî äîêóìåíòà,
-			// òî ìåíÿòü ñêèäêó íà âåñü äîêóìåíò îí íå ìîæåò - ýòî ïðèâåäåò ê èçìåíåíèþ ñóìì ïî ñòðîêàì.
+			// Ð•ÑÐ»Ð¸ Ñƒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ Ð½ÐµÑ‚ Ð¿Ñ€Ð°Ð² Ð½Ð° Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ ÑÐ¸Ð½Ñ…Ñ€Ð¾Ð½Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°,
+			// Ñ‚Ð¾ Ð¼ÐµÐ½ÑÑ‚ÑŒ ÑÐºÐ¸Ð´ÐºÑƒ Ð½Ð° Ð²ÐµÑÑŒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð¾Ð½ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ - ÑÑ‚Ð¾ Ð¿Ñ€Ð¸Ð²ÐµÐ´ÐµÑ‚ Ðº Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸ÑŽ ÑÑƒÐ¼Ð¼ Ð¿Ð¾ ÑÑ‚Ñ€Ð¾ÐºÐ°Ð¼.
 			//
 			if(oneof6(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 				PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
@@ -865,7 +865,9 @@ int BillDialog::getDiscount(double * pDiscount, int * pInPercent, int * pRmvExci
 	char   buf[32];
 	if(getCtrlData(CTL_BILL_DISCOUNT, buf)) {
 		strip(buf);
-		char * p = strpbrk(buf, "aA €");
+		SString excise_symbols("aAÐ°Ð"); // Ð»Ð°Ñ‚Ð¸Ð½ÑÐºÐ¸Ðµ 'a' Ð¸ ÐºÐ¸Ñ€Ð¸Ð»Ð»Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ 'Ð°'
+		excise_symbols.Transf(CTRANSF_UTF8_TO_INNER); // Ð­Ñ‚Ð¾Ñ‚ Ð¸ÑÑ…Ð¾Ð´Ð½Ñ‹Ð¹ Ð¼Ð¾Ð´ÑƒÐ»ÑŒ ÐºÐ¾Ð´Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð² UTF-8 (see header of this file above)
+		char * p = strpbrk(buf, excise_symbols);
 		if(p) {
 			rmve = 1;
 			strcpy(p, p + 1);
@@ -1730,14 +1732,14 @@ IMPL_HANDLE_EVENT(BillDialog)
 	if(event.isCmd(cmExecute)) {
 		if(P_Pack->Rec.Flags & BILLF_CASH && !(Flags & fEditMode))
 			editItems();
-		// Äàëåå óïðàâëåíèå ïåðåäàåòñÿ áàçîâîìó êëàññó
+		// Ð”Ð°Ð»ÐµÐµ ÑƒÐ¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿ÐµÑ€ÐµÐ´Ð°ÐµÑ‚ÑÑ Ð±Ð°Ð·Ð¾Ð²Ð¾Ð¼Ñƒ ÐºÐ»Ð°ÑÑÑƒ
 	}
 	else if(event.isCmd(cmOK))
 		calcAmounts(&tmp);
 	if(!(TVKEYDOWN && TVKEY == KB_CTRLENTER)) {
 		//
-		// Ôóíêöèÿ PPListDialog::handleEvent îáðàáàòûâàåò F11 êàê cmOK.
-		// Çäåñü ýòîãî äåëàòü íåëüçÿ.
+		// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ PPListDialog::handleEvent Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ F11 ÐºÐ°Ðº cmOK.
+		// Ð—Ð´ÐµÑÑŒ ÑÑ‚Ð¾Ð³Ð¾ Ð´ÐµÐ»Ð°Ñ‚ÑŒ Ð½ÐµÐ»ÑŒÐ·Ñ.
 		//
 		PPListDialog::handleEvent(event);
 	}
@@ -1806,8 +1808,8 @@ IMPL_HANDLE_EVENT(BillDialog)
 										P_Pack->Rec.LinkBillID = bill_id;
 										if(!P_Pack->Rec.Object) {
 											P_Pack->Rec.Object = bill_rec.Object;
-											// Ïðèõîäèòñÿ èñïîëüçîâàòü SetupArCombo ïîñêîëüêó èç-çà OLW_LOADDEFONOPEN
-											// setCtrlLong íå óñòàíîâèò çíà÷åíèå.
+											// ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð¸Ñ‚ÑÑ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ SetupArCombo Ð¿Ð¾ÑÐºÐ¾Ð»ÑŒÐºÑƒ Ð¸Ð·-Ð·Ð° OLW_LOADDEFONOPEN
+											// setCtrlLong Ð½Ðµ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ.
 											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
 											ReplyCntragntSelection(1);
 										}
@@ -1842,7 +1844,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			case cmBillTaxes:       EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_BILL_AMOUNT)); break;
 			case cmDetail:          editItems(); break;
 			case cmAdvItems:        editItems(); break;
-			/* @v6.2.4 Ôóíêöèÿ ïå÷àòè èç äîêóìåíòà áëîêèðîâàíà èç-çà âîçìîæíîñòè ðàñïå÷àòàòü íåïðîâåäåííûé äîê.
+			/* @v6.2.4 Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¿ÐµÑ‡Ð°Ñ‚Ð¸ Ð¸Ð· Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð° Ð¸Ð·-Ð·Ð° Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸ Ñ€Ð°ÑÐ¿ÐµÑ‡Ð°Ñ‚Ð°Ñ‚ÑŒ Ð½ÐµÐ¿Ñ€Ð¾Ð²ÐµÐ´ÐµÐ½Ð½Ñ‹Ð¹ Ð´Ð¾Ðº.
 			case cmPrint:           PrintGoodsBill(P_Pack); break;
 			*/
 			case cmRentCondition:   EditRentCondition(&P_Pack->Rent); break;
@@ -1995,7 +1997,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 	}
 	else if(TVKEYDOWN) {
 		switch(TVKEY) {
-			/* @v6.2.4 Ôóíêöèÿ ïå÷àòè èç äîêóìåíòà áëîêèðîâàíà èç-çà âîçìîæíîñòè ðàñïå÷àòàü íåïðîâåäåííûé äîê.
+			/* @v6.2.4 Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¿ÐµÑ‡Ð°Ñ‚Ð¸ Ð¸Ð· Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð° Ð¸Ð·-Ð·Ð° Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸ Ñ€Ð°ÑÐ¿ÐµÑ‡Ð°Ñ‚Ð°ÑŒ Ð½ÐµÐ¿Ñ€Ð¾Ð²ÐµÐ´ÐµÐ½Ð½Ñ‹Ð¹ Ð´Ð¾Ðº.
 			case kbF7:
 				if(getDTS(0))
 					PrintGoodsBill(P_Pack);
@@ -2158,7 +2160,7 @@ void BillDialog::setupByCntragnt()
 void BillDialog::ReplyCntragntSelection(int force)
 {
 	P_Pack->AgtQuotKindID = 0; //
-	PaymTerm = -1;             // Ñðîê îïëàòû ïî äîêóìåíòó (â äíÿõ), âçÿòûé èç ñîãëàøåíèÿ //
+	PaymTerm = -1;             // Ð¡Ñ€Ð¾Ðº Ð¾Ð¿Ð»Ð°Ñ‚Ñ‹ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ (Ð² Ð´Ð½ÑÑ…), Ð²Ð·ÑÑ‚Ñ‹Ð¹ Ð¸Ð· ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ñ //
 	PayDateBase = 0;
 	SString add_msg;
 	PPID   client_id = force ? P_Pack->Rec.Object : getCtrlLong(CTLSEL_BILL_OBJECT);
@@ -2167,7 +2169,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 		P_BObj->SetupQuot(P_Pack, client_id);
 	PPBillPacket::SetupObjectBlock sob;
 	if(P_Pack->SetupObject(client_id, sob)) {
-		PPID   agent_id = 0;     // Àãåíò, âçÿòûé èç ñîãëàøåíèÿ, êîòîðîãî ñëåäóåò óñòàíîâèòü â äîêóìåíò
+		PPID   agent_id = 0;     // ÐÐ³ÐµÐ½Ñ‚, Ð²Ð·ÑÑ‚Ñ‹Ð¹ Ð¸Ð· ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ñ, ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð³Ð¾ ÑÐ»ÐµÐ´ÑƒÐµÑ‚ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð² Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚
 		if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) {
 			if(!(sob.CliAgt.Flags & AGTF_DEFAULT))
 				agent_id = sob.CliAgt.DefAgentID;
@@ -2681,9 +2683,9 @@ int BillDialog::calcAmounts(double * pAmount)
 double BillDialog::getCurrentDebt(PPID debtDimID) const
 {
 	//
-	// Åñëè çàäàíà äîëãîâàÿ ðàçìåðíîñòü, òî òåêóùèé äîëã áåðåòüñÿ òî÷íî ïî íåé.
-	// Òàêèì îáðàçîì, ïðè debtDimID != 0 è îòñóòñòâèè â ñïèñêå CDebtList
-	// çíà÷åíèÿ òåêóùåãî äîëãà ïî ýòîé ðàçìåðíîñòè ñ÷èòàåì, ÷òî äîëã íóëåâîé (à íå ðàâíûé îáùåìó äîëãó CurrDebt).
+	// Ð•ÑÐ»Ð¸ Ð·Ð°Ð´Ð°Ð½Ð° Ð´Ð¾Ð»Ð³Ð¾Ð²Ð°Ñ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚ÑŒ, Ñ‚Ð¾ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹ Ð´Ð¾Ð»Ð³ Ð±ÐµÑ€ÐµÑ‚ÑŒÑÑ Ñ‚Ð¾Ñ‡Ð½Ð¾ Ð¿Ð¾ Ð½ÐµÐ¹.
+	// Ð¢Ð°ÐºÐ¸Ð¼ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð¼, Ð¿Ñ€Ð¸ debtDimID != 0 Ð¸ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ð¸ Ð² ÑÐ¿Ð¸ÑÐºÐµ CDebtList
+	// Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð´Ð¾Ð»Ð³Ð° Ð¿Ð¾ ÑÑ‚Ð¾Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚Ð¸ ÑÑ‡Ð¸Ñ‚Ð°ÐµÐ¼, Ñ‡Ñ‚Ð¾ Ð´Ð¾Ð»Ð³ Ð½ÑƒÐ»ÐµÐ²Ð¾Ð¹ (Ð° Ð½Ðµ Ñ€Ð°Ð²Ð½Ñ‹Ð¹ Ð¾Ð±Ñ‰ÐµÐ¼Ñƒ Ð´Ð¾Ð»Ð³Ñƒ CurrDebt).
 	//
 	return debtDimID ? CDebtList.Get(debtDimID) : CurrDebt;
 }
@@ -2861,7 +2863,7 @@ int BillDialog::getDTS(int onCancel)
 		}
 	}
 	P_Pack->SetQuantitySign(-1);
-	// @v9.3.1 /* @v9.2.11 Ñíèìàåì çàïðåò íà ïðîâåäåíèå ïóñòûõ òîâàðíûõ äîêóìåíòîâ
+	// @v9.3.1 /* @v9.2.11 Ð¡Ð½Ð¸Ð¼Ð°ÐµÐ¼ Ð·Ð°Ð¿Ñ€ÐµÑ‚ Ð½Ð° Ð¿Ñ€Ð¾Ð²ÐµÐ´ÐµÐ½Ð¸Ðµ Ð¿ÑƒÑÑ‚Ñ‹Ñ… Ñ‚Ð¾Ð²Ð°Ñ€Ð½Ñ‹Ñ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²
 	if(oneof5(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 		PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER) && !PPMaster) {
 		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST); // @v9.3.1 BILLOPRT_EMPTY
@@ -2931,7 +2933,7 @@ int BillDialog::editItems()
 						return (PPError(PPERR_INTRDESTNEEDED), 0);
 			}
 		}
-		getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2); // @v7.9.5
+		getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2);
 		getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
 		PPTransferItem * ti;
 		for(uint i = 0; P_Pack->EnumTItems(&i, &ti);)
@@ -3132,7 +3134,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
 			if(P_Pack) {
-				// @v9.1.10 if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT) && DS.CheckExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE)) { // @v7.5.0 PPOPT_GOODSRECEIPT
+				// @v9.1.10 if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT) && DS.CheckExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE)) {
 				// @v9.1.10 {
 				int    dlvr_loc_as_warehouse = 0;
 				if(oneof2(P_Pack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
@@ -3148,11 +3150,10 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 					PPID   person_id = ObjectToPerson(P_Pack->Rec.Object);
 					if(person_id || Data.DlvrAddrID) // @v8.3.7 (|| Data.DlvrAddrID)
 						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, Data.DlvrAddrID);
-					// @v7.1.3 {
 					//
-					// Äëÿ âíóòðåííåé ïåðåäà÷è íåîáõîäèìî îáåñïå÷èòü âîçìîæíîñòü â êà÷åñòâå àäðåñà äîñòàâêè
-					// âûáðàòü ñêëàä-ïîëó÷àòåëü.
-					//
+					// Ð”Ð»Ñ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½ÐµÐ¹ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ð¸ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ Ð¾Ð±ÐµÑÐ¿ÐµÑ‡Ð¸Ñ‚ÑŒ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒ Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ Ð°Ð´Ñ€ÐµÑÐ° Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸
+					// Ð²Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ ÑÐºÐ»Ð°Ð´-Ð¿Ð¾Ð»ÑƒÑ‡Ð°Ñ‚ÐµÐ»ÑŒ.
+					// 
 					else if(IsIntrOp(P_Pack->Rec.OpID) == INTREXPND) {
 						PPID   loc_id = PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object);
 						if(loc_id || Data.DlvrAddrID) {
@@ -3184,7 +3185,6 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 							}
 						}
 					}
-					// } @v7.1.3
 				}
 			}
 			SetupCalDate(CTLCAL_FREIGHT_ISSDT, CTL_FREIGHT_ISSDT);
@@ -3608,8 +3608,8 @@ int SLAPI PPObjBill::EditBillFreight(PPID billID)
 						}
 						else {
 							//
-							// Åñëè ó ïîëüçîâàòåëÿ íåò ïðàâ íà èçìåíåíèå äîêóìåíòà, òî ñóììó ôðàõòà íå ìåíÿåì
-							// òàê êàê îíà âëèÿåò íà ñïèñîê ñóìì äîêóìåíòà.
+							// Ð•ÑÐ»Ð¸ Ñƒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ Ð½ÐµÑ‚ Ð¿Ñ€Ð°Ð² Ð½Ð° Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°, Ñ‚Ð¾ ÑÑƒÐ¼Ð¼Ñƒ Ñ„Ñ€Ð°Ñ…Ñ‚Ð° Ð½Ðµ Ð¼ÐµÐ½ÑÐµÐ¼
+							// Ñ‚Ð°Ðº ÐºÐ°Ðº Ð¾Ð½Ð° Ð²Ð»Ð¸ÑÐµÑ‚ Ð½Ð° ÑÐ¿Ð¸ÑÐ¾Ðº ÑÑƒÐ¼Ð¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°.
 							//
 							if(pack.P_Freight)
 								pack.P_Freight->Cost = prev_freight_cost;
@@ -3649,25 +3649,6 @@ int SLAPI PPObjBill::EditBillFreight(PPID billID)
 
 int SLAPI PPObjBill::EditBillExtData(PPID billID)
 {
-	/*
-	class BillExtModDialog : public TDialog {
-	public:
-		BillExtModDialog() : TDialog(DLG_BILLEXTMOD)
-		{
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			TDialog::handleEvent(event);
-			if(event.isCmd(cmTags)) {
-				ObjTagList tag_list;
-				tag_list.ObjType = PPOBJ_BILL;
-				EditObjTagValList(&tag_list, 0);
-				clearEvent(event);
-			}
-		}
-	};
-	*/
 	int    ok = -1;
 	BillExtDialog * dlg = 0;
 	BillTbl::Rec bill_rec;

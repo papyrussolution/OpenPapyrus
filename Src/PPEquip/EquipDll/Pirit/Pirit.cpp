@@ -169,7 +169,7 @@ struct CheckStruct {
 
 class PiritEquip {
 public:
-	SLAPI  PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0)
+	SLAPI  PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
 	{
 		Check.Clear();
 		{
@@ -257,9 +257,9 @@ private:
 	// Налоговой ставки, установленная в аппарате
 	//
 	struct DvcTaxEntry {
-		DvcTaxEntry()
+		DvcTaxEntry() : Rate(0.0)
 		{
-			THISZERO();
+			PTR32(Name)[0] = 0;
 		}
 		char   Name[64];
 		double Rate;
@@ -276,8 +276,11 @@ private:
 	int    GetTaxTab();
 	void   GetLastCmdName(SString & rName); // new
 	void   SetLastItems(const char * pCmd, const char * pParam);
+	int    ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError);
+	int    WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SString & rError);
 
 	SString LogFileName;
+	StringSet RetTknzr;
 };
 
 static PiritEquip * P_Pirit = 0;
@@ -385,20 +388,21 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	SString out_data;
 	SString r_error;
 	SString cmd;
-	SString params;
+	//SString params;
+	SString temp_buf;
 	if(sstreqi_ascii(pCmd, "CONTINUEPRINT")) {
 		if((LastCmd.CmpNC("PRINTFISCAL") != 0) && (LastCmd.CmpNC("PRINTTEXT") != 0)) { // new
 			cmd = LastCmd;
-			params = LastParams;
+			temp_buf = LastParams;
 			LastCmd.Z();
 			LastParams.Z();
 		}
 	}
 	else {
 		cmd = pCmd;
-		params = pInputData;
+		temp_buf = pInputData;
 	}
-	StringSet pairs(';', params);
+	StringSet pairs(';', temp_buf);
 	if(LastError == PIRIT_NOTENOUGHMEM) {
 		strnzcpy(pOutputData, LastStr, outSize);
 		LastError = 0;
@@ -465,8 +469,51 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(SetLogotype(Cfg.Logo.Path, Cfg.Logo.Size, Cfg.Logo.Height, Cfg.Logo.Width));
 		}
 		else if(cmd.IsEqiAscii("GETCONFIG")) {
+			/*
+				Настройки ККТ
+				1 - Параметры ПУ (битовая маска)
+				2 - Параметры чека (битовая маска)
+				3 - Параметры отчета о закрытии смены (битовая маска)
+				4 - Управление внешними устройствами (битовая маска)
+				5 - Управление расчетами (битовая маска)
+				6 - Управление расчетами и печатью налогов (битовая маска)
+				10 - Логический номер ККТ
+				11 - Дополнительная ячейка
+				20 - Пароль для связи
+				30 - Наименование и адрес организации (Массив 0..3)
+				31 - Строки окончания чеков (Массив 0..4)
+				32 - Названия типов платежей (Массив 0..15)
+				40 - Название ставки налога (Массив 0..5)
+				41 - Процент ставки налога (Массив 0..5)
+				42 - Название налоговой группы в чеке
+				50 - Наименование отдела/секции (Массив 1..16)
+				51 - Название группы отделов/секции на отчете о закрытии
+				52 - Наименование реквизита (Массив 1..5)
+				54 - Реквизиты ЦТО (Массив 0..1)
+				70 - Номер автомата
+				71 - ИНН ОФД
+				72 - Содержание QR-кода
+				73 - IP-адрес ККТ
+				74 - Маска подсети
+				75 - IP-адрес шлюза
+				76 - IP-адрес DNS
+				77 - Адрес сервера ОФД для отправки документов
+				78 - Порт сервера ОФД
+				79 - Таймер ФН
+				80 - Таймер С
+				81 - Наименование ОФД
+				82 - Электронная почта отправителя чека
+				83 - URL сайта ФНС
+				85 - Место расчетов
+			*/
 			SetLastItems(0, 0);
-			str.Z().CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
+			str.Z();
+			if(ReadConfigTab(10, 0, out_data, r_error) && out_data.NotEmptyS()) {
+				RetTknzr.setBuf(out_data);
+				if(RetTknzr.get((uint)0, temp_buf))
+					str.CatEq("LOGNUM", temp_buf);
+			}
+			str.CatDivIfNotEmpty(';', 0).CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
 			if(outSize < str.BufSize()){
 				NotEnoughBuf(str);
 				memcpy(pOutputData, str, outSize);
@@ -933,20 +980,55 @@ int PiritEquip::CloseConnection()
 	return 1;
 }
 
+int PiritEquip::ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError)
+{
+	rOut.Z();
+	rError.Z();
+	int   ok = 1;
+	SString in_data;
+	CreateStr(arg1, in_data);
+	CreateStr(arg2, in_data);
+	{
+		OpLogBlock __oplb(LogFileName, "11", 0);
+		THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(rOut, rError));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PiritEquip::WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SString & rError)
+{
+	rOut.Z();
+	rError.Z();
+	int   ok = 1;
+	SString in_data;
+	CreateStr(arg1, in_data);
+	CreateStr(arg2, in_data);
+	CreateStr(val, in_data);
+	{
+		OpLogBlock __oplb(LogFileName, "12", 0);
+		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
+		THROW(GetWhile(rOut, rError));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PiritEquip::GetTaxTab()
 {
 	int    ok = 1;
 	SString in_data;
 	SString out_data;
 	SString r_error;
-	SString raw_tax_val;
+	//SString raw_tax_val;
+	SString temp_buf;
 	SString log_buf;
 	for(int i = 0; i < 5; i++) { // В пирите не более 6 налоговых ставок
-
 		MEMSZERO(DvcTaxArray[i]);
-
-		in_data = 0;
-		raw_tax_val = 0;
+		//raw_tax_val.Z();
+		//in_data.Z();
+		/*
 		CreateStr(40, in_data); // Наименование i-й налоговой ставки
 		CreateStr(i, in_data);
 		{
@@ -954,10 +1036,15 @@ int PiritEquip::GetTaxTab()
 			THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
 			THROW(GetWhile(out_data, r_error));
 		}
-		if(out_data.NotEmpty()) {
-			STRNSCPY(DvcTaxArray[i].Name, out_data);
-			in_data = 0;
-			out_data = 0;
+		*/
+		THROW(ReadConfigTab(40, i, out_data, r_error)); // Наименование i-й налоговой ставки
+		//if(out_data.NotEmpty()) {
+		RetTknzr.setBuf(out_data);
+		if(RetTknzr.get((uint)0, temp_buf)) {
+			STRNSCPY(DvcTaxArray[i].Name, /*out_data*/temp_buf);
+			/*
+			in_data.Z();
+			out_data.Z();
 			CreateStr(41, in_data); // Значение i-й налоговой ставки
 			CreateStr(i, in_data);
 			{
@@ -965,14 +1052,21 @@ int PiritEquip::GetTaxTab()
 				THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
 				THROW(GetWhile(out_data, r_error));
 			}
-			raw_tax_val = out_data;
-			DvcTaxArray[i].Rate = out_data.ToReal();
+			*/
+			THROW(ReadConfigTab(41, i, out_data, r_error)); // Значение i-й налоговой ставки
+			RetTknzr.setBuf(out_data);
+			if(RetTknzr.get((uint)0, temp_buf)) {
+				//raw_tax_val = out_data;
+				DvcTaxArray[i].Rate = temp_buf.ToReal();
+			}
 		}
+		else
+			temp_buf.Z();
 		if(i == 0)
 			log_buf.Cat("DvcTaxArray").CatDiv(':', 2);
 		else
 			log_buf.CatDiv(';', 2);
-		log_buf.Cat(DvcTaxArray[i].Name).CatDiv(',', 2).Cat(DvcTaxArray[i].Rate, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar('|').Cat(raw_tax_val);
+		log_buf.Cat(DvcTaxArray[i].Name).CatDiv(',', 2).Cat(DvcTaxArray[i].Rate, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar('|').Cat(temp_buf);
 	}
 	if(LogFileName.NotEmpty()) {
 		SLS.LogMessage(LogFileName, log_buf, 8192);
@@ -985,14 +1079,13 @@ int PiritEquip::SetCfg()
 {
 	int    ok = 1;
 	int    err_code = 0;
-	int    flag = 0;
-	uint   i = 0;
 	//SString out;
 	//SString subdata;
 	SString in_data;
 	SString out_data;
 	SString r_error;
 	// Логический номер кассы
+	/*
 	CreateStr(10, in_data);
 	CreateStr(0, in_data);
 	CreateStr((int)Cfg.LogNum, in_data);
@@ -1001,9 +1094,14 @@ int PiritEquip::SetCfg()
 		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
 		THROW(GetWhile(out_data, r_error));
 	}
+	*/
+	THROW(WriteConfigTab(10, 0, (int)Cfg.LogNum, out_data, r_error));
 	{
-		in_data.Z();
+#if 0 // @v10.0.0 {
+		int    flag = 0;
 		// Нумерация чеков ККМ
+		/*
+		in_data.Z();
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
 		{
@@ -1011,10 +1109,12 @@ int PiritEquip::SetCfg()
 			THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
 			THROW(GetWhile(out_data, r_error));
 		}
+		*/
+		THROW(ReadConfigTab(2, 0, out_data, r_error)); 
 		flag = out_data.ToLong();
 		flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
-	}
-	{
+		//
+		/*
 		in_data.Z();
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
@@ -1024,6 +1124,9 @@ int PiritEquip::SetCfg()
 			THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
 			THROW(GetWhile(out_data, r_error));
 		}
+		*/
+		THROW(WriteConfigTab(2, 0, flag, out_data, r_error));
+#endif // } 0 @v10.0.0
 	}
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
@@ -1032,9 +1135,11 @@ int PiritEquip::SetCfg()
 		THROWERR(PutData("01", in_data), PIRIT_NOTSENT); // Запрос номера текущей сессии(смены)
 		THROW(GetWhile(out_data, r_error));
 		{
-			StringSet delim_out(FS, out_data);
-			delim_out.get(&i, out_data); // В out считан номер запроса
-			delim_out.get(&i, out_data); // В out считан номер текущей сессии(смены)
+			//StringSet delim_out(FS, out_data);
+			uint   i = 0;
+			RetTknzr.setBuf(out_data);
+			RetTknzr.get(&i, out_data); // В out считан номер запроса
+			RetTknzr.get(&i, out_data); // В out считан номер текущей сессии(смены)
 			SessID = out_data.ToLong();
 		}
 	}
@@ -1716,7 +1821,10 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 int PiritEquip::PrintLogo(int print)
 {
 	int    ok = 1, flag = 0;
-	SString in_data, out_data, r_error;
+	SString out_data;
+	SString r_error;
+	//SString in_data;
+	/*
 	CreateStr(1, in_data);
 	CreateStr(0, in_data);
 	{
@@ -1725,8 +1833,11 @@ int PiritEquip::PrintLogo(int print)
 		out_data.Destroy();
 		THROW(GetWhile(out_data, r_error));
 	}
+	*/
+	THROW(ReadConfigTab(1, 0, out_data, r_error)); 
 	flag = out_data.ToLong();
 	SETFLAG(flag, 0x04, print);
+	/*
 	in_data.Destroy();
 	CreateStr(1, in_data);
 	CreateStr(0, in_data);
@@ -1736,6 +1847,8 @@ int PiritEquip::PrintLogo(int print)
 		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
 		THROW(GetWhile(out_data, r_error));
 	}
+	*/
+	THROW(WriteConfigTab(1, 0, flag, out_data, r_error));
 	THROW(StartWork());
 	CATCHZOK
 	return ok;

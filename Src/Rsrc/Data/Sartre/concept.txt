@@ -24,9 +24,9 @@
 //
 // Конструкции 
 //   1) ":concept_symb1:concep_symb2" - концепция с символом concept_symb1 является экземпляром концепции concept_symb2
-//   2) ":concept_symb1::concep_symb2" - концепция с символом concept_symb1 является субклассом концепции concept_symb2
+//   2) ":concept_symb1::concep_symb2" - концепция с символом concept_symb1 является подклассом концепции concept_symb2
 //   3) "concept_text:concep_symb2" - текст concept_text представляет n-gram который фиксируется как анонимная концепция, являющаяся экземпляром концепции concept_symb2
-//   4) "concept_text::concep_symb2" - текст concept_text представляет n-gram который фиксируется как анонимная концепция, являющаяся субклассом концепции concept_symb2
+//   4) "concept_text::concep_symb2" - текст concept_text представляет n-gram который фиксируется как анонимная концепция, являющаяся подклассом концепции concept_symb2
 //   5) "[lang]concept_text:concep_symb2" - то же, что и (3) но с уточнением языка
 //   6) "[lang]concept_text::concep_symb2" - то же, что и (4) но с уточнением языка
 //   7) "concept_text=:concep_symb2" - текст concept_text представляет n-gram который является естественно-языковым обозначением концепции concept_symb2
@@ -49,7 +49,7 @@
 	//
 :crp_ngram     // Обозначение понятия на естественном языке (=:)
 :crp_instance  // Концепция является экземпляром концепции-класса (:)
-:crp_subclass  // Концепция является поклассом другой концепции-класса (::)
+:crp_subclass  // Концепция является подклассом другой концепции-класса (::)
 //
 // Другие свойства концепций
 //
@@ -116,7 +116,57 @@
 :stella::corpus_caeleste  // Звезда (является подклассом небесного тела)
 :planeta::corpus_caeleste // Планета (является подклассом небесного тела)
 :planeta_terra:planeta    // Земля (является экземпляром планеты)
+//
+// Биологическая таксономия
+//
+:biotaxonomy_category
+:biotaxonomy_kingdom:biotaxonomy_category
+:biotaxonomy_phylum:biotaxonomy_category
+:biotaxonomy_class:biotaxonomy_category
+:biotaxonomy_order:biotaxonomy_category
+:biotaxonomy_superfamily:biotaxonomy_category
+:biotaxonomy_family:biotaxonomy_category
+:biotaxonomy_genus:biotaxonomy_category
+:biotaxonomy_subgenus:biotaxonomy_category
+:biotaxonomy_species:biotaxonomy_category
+:biotaxonomy_infraspecies:biotaxonomy_category
 
+//species infraspecies kingdom phylum class order family superfamily genus
+
+[la]{
+	regnum=:biotaxonomy_kingdom
+	phylum=:biotaxonomy_phylum
+	classis=:biotaxonomy_class
+	ordo=:biotaxonomy_order
+	familia=:biotaxonomy_family
+	genus=:biotaxonomy_genus
+	species=:biotaxonomy_species
+}
+
+[en]{
+	kingdom=:biotaxonomy_kingdom
+	phylum=:biotaxonomy_phylum
+	class=:biotaxonomy_class
+	order=:biotaxonomy_order
+	superfamily=:biotaxonomy_superfamily
+	family=:biotaxonomy_family
+	genus=:biotaxonomy_genus
+	subgenus=:biotaxonomy_subgenus
+	species=:biotaxonomy_species
+}
+
+[ru]{
+	царство=:biotaxonomy_kingdom
+	тип=:biotaxonomy_phylum
+	класс=:biotaxonomy_class
+	отряд=:biotaxonomy_order
+	семейство=:biotaxonomy_family
+	род=:biotaxonomy_genus
+	вид=:biotaxonomy_species
+}
+//
+//
+//
 :gender // Пол (род)
 :gender_mas::gender  // Мужской
 :gender_fem::gender  // Женский

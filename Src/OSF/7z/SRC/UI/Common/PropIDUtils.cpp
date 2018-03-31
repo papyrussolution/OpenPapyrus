@@ -342,8 +342,7 @@ static void ParseAcl(AString &s, const Byte * p, uint32 size, const char * strNa
 	   size = aclSize;
 	   size -= 8;
 	   p += 8;
-	   for(uint32 i = 0 ; i < num; i++)
-	   {
+	   for(uint32 i = 0 ; i < num; i++) {
 	   if(size <= 8)
 	    return;
 	   // Byte type = p[0];
@@ -491,7 +490,7 @@ bool ConvertNtReparseToString(const Byte * data, uint32 size, UString &s)
 	s.Add_Space();
 	data += 8;
 	for(uint32 i = 0; i < len; i++) {
-		unsigned b = ((const Byte*)data)[i];
+		uint b = ((const Byte*)data)[i];
 		s += (char)GetHex((b >> 4) & 0xF);
 		s += (char)GetHex(b & 0xF);
 	}

@@ -44,6 +44,7 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	CMP_FLD(RetLimPrd);
 	CMP_FLD(RetLimPart);
 	CMP_FLD(PaymDateBase);
+	CMP_FLD(EdiPrvID); // @v10.0.0
 #undef CMP_FLD
 	if(strcmp(Code, rS.Code) != 0)
 		return 0;
@@ -68,7 +69,7 @@ int SLAPI PPClientAgreement::IsEmpty() const
 {
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
-		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || sstrlen(Code) > 0 || DebtLimList.getCount() ||
+		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || EdiPrvID || sstrlen(Code) > 0 || DebtLimList.getCount() ||
 		(RetLimPrd && RetLimPart)) ? 0 : 1;
 }
 
@@ -164,6 +165,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	int16  RetLimPrd;      // @v7.1.5 Период ограничения доли возвратов от суммы товарооборота
 	uint16 RetLimPart;     // @v7.1.5 Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	long   PaymDateBase;   // @v8.4.2
+	long   EdiPrvID;       // @v10.0.0
 };
 
 //static
@@ -189,6 +191,7 @@ int SLAPI PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPCli
 	pAgt->RetLimPrd  = p_agt->RetLimPrd;
 	pAgt->RetLimPart = p_agt->RetLimPart;
 	pAgt->PaymDateBase = p_agt->PaymDateBase; // @v8.4.2
+	pAgt->EdiPrvID = p_agt->EdiPrvID; // @v10.0.0
 	if(loadDebtLimList) {
 		Reference * p_ref = PPRef;
 		if(pAgt->Flags & AGTF_DDLIST715) {
@@ -325,6 +328,7 @@ int SLAPI PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, in
 		_agt.RetLimPrd    = pAgt->RetLimPrd;
 		_agt.RetLimPart   = pAgt->RetLimPart;
 		_agt.PaymDateBase = pAgt->PaymDateBase; // @v8.4.2
+		_agt.EdiPrvID     = pAgt->EdiPrvID; // @v10.0.0
 		STRNSCPY(_agt.Code, pAgt->Code);
 	}
 	{
@@ -623,6 +627,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				PPLoadString("bill_object2", ext_obj); // @v9.1.4
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
 				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 0, AGTF_DONTCALCDEBTINBILL);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 1, AGTF_USEMARKEDGOODSONLY);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY); // @v8.4.4
@@ -677,6 +682,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			getCtrlData(CTLSEL_CLIAGT_AGENT,  &data.DefAgentID);
 			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &data.DefQuotKindID);
 			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &data.ExtObjectID);
+			getCtrlData(CTLSEL_CLIAGT_EDIPRV, &data.EdiPrvID); // @v10.0.0
 			GetClusterData(CTL_CLIAGT_FLAGS, &data.Flags);
 			data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
 			if(data.RetLimPrd) {

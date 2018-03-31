@@ -98,7 +98,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 				PPIDArray op_type_list;
 				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, 0);
 				SetupOprKindCombo(this, CTLSEL_DBXCHGCFG_DROP, Data.DfctRcptOpID, OLW_CANINSERT, &op_type_list, 0);
-				// } @v9.9.6 
+				// } @v9.9.6
 			}
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
 			SetupCtrls(Data.Flags);
@@ -141,7 +141,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 				getCtrlData(CTLSEL_DBXCHGCFG_DROP, &Data.DfctRcptOpID);
 				SetupCtrls(flags);
 			}
-			// } @v9.9.6 
+			// } @v9.9.6
 			else
 				return;
 			clearEvent(event);
@@ -1558,6 +1558,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 	PPObjID dont_process_pair;
 	dont_process_pair.Set(0, 0);
 	SString added_buf, msg_buf;
+	SString temp_buf;
 	THROW(PPCheckUserBreak());
 	if(IS_DYN_OBJTYPE(oi_f.Obj)) {
 		//
@@ -1624,7 +1625,8 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 								p_entry->Id = rec.ObjID;
 							else {
 								PPLoadText(PPTXT_RCVREFUNRESOLVED, added_buf);
-								Ctx.OutReceivingMsg(msg_buf.Printf(added_buf, p_entry->Obj, p_entry->Id));
+								GetObjectTitle(p_entry->Obj, temp_buf.Z()).CatDiv(';', 2).Cat(p_entry->Id);
+								Ctx.OutReceivingMsg(msg_buf.Printf(added_buf, temp_buf.cptr()));
 								p_entry->Id = 0;
 							}
 						}

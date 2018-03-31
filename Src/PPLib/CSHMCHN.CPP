@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -1086,7 +1086,7 @@ int SLAPI PPCashMachine::SyncCheckForSessionOver()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
+/* @v10.0.0 int SLAPI PPCashMachine::SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
 {
 	int    ok = 1;
 	SyncPrintErrCode = 0;
@@ -1101,7 +1101,7 @@ int SLAPI PPCashMachine::SyncPrintCheckByBill(const PPBillPacket * pPack, double
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int SLAPI PPCashMachine::SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName)
 {
@@ -1155,7 +1155,7 @@ int SLAPI PPCashMachine::SyncPrintXReport()
 	int    ok = 0, r = 0;
 	PPObjCSession cs_obj;
 	//
-	// @v7.0.0 Проверка права должна осуществляться в вызывающей функции.
+	// Проверка права должна осуществляться в вызывающей функции.
 	// Причина в том, что регламент CSESSOPRT_XREP может быть переопределен в кассовой панели.
 	// THROW(cs_obj.CheckRights(CSESSOPRT_XREP, 1));
 	//
@@ -1169,7 +1169,7 @@ int SLAPI PPCashMachine::SyncPrintXReport()
 			if(cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_info.Rec) > 0) {
 				CCheckCore cc;
 				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
-				_f |= CCheckCore::gglfUseFullCcPackets; // @v7.5.8
+				_f |= CCheckCore::gglfUseFullCcPackets;
 				r = cc.GetSessTotal(NodeRec.CurSessID, _f, &cs_info.Total, 0);
 			}
 			ok = SyncSetPrintErrCode(P_SyncIntrf->PrintXReport((r > 0) ? &cs_info : 0), 0);
@@ -1239,20 +1239,10 @@ int SLAPI PPCashMachine::SyncAllowPrint()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncLockCashKeyb()
-{
-	return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(0));
-}
-
-int SLAPI PPCashMachine::SyncUnlockCashKeyb()
-{
-	return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(1));
-}
-
+int SLAPI PPCashMachine::SyncLockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(0)); }
+int SLAPI PPCashMachine::SyncUnlockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(1)); }
 int SLAPI PPCashMachine::SyncPrintBnkTermReport(long pinpad, const char * pZCheck)
-{
-	return (pinpad & PPSyncCashNode::btfPinpad) ? (GetSyncIntrf() && P_SyncIntrf->PrintBnkTermReport(pZCheck)) : 1;
-}
+	{ return (pinpad & PPSyncCashNode::btfPinpad) ? (GetSyncIntrf() && P_SyncIntrf->PrintBnkTermReport(pZCheck)) : 1; }
 //
 // Асинхронные методы
 //
@@ -1366,8 +1356,8 @@ IMPL_HANDLE_EVENT(CSPanel)
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		ushort c = TVCMD;
-		if(oneof6(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks) ||
-			oneof6(c, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery)) {
+		if(oneof12(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
+			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery)) {
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this
@@ -1434,7 +1424,7 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 			PPID   sess_id = 0;
 			if(sess_no > 0 && cs_core.SearchByNumber(&sess_id, cn_id, cn_id, sess_no, dt) > 0 && cs_core.Search(sess_id, &cs_info.Rec) > 0) {
 				long   _f = cs_core.GetCcGroupingFlags(cs_info.Rec, 0);
-				_f |= CCheckCore::gglfUseFullCcPackets; // @v7.5.8
+				_f |= CCheckCore::gglfUseFullCcPackets;
 				cc_core.GetSessTotal(sess_id, _f, &cs_info.Total, 0);
 				valid_data = ok = v ? 2 : 1;
 			}
@@ -1449,7 +1439,6 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 }
 
 #if 0 // @construction {
-
 // static
 int SLAPI PPCashMachine::AsyncCloseSession(PPID posNodeID, DateRange * pPeriod)
 {
@@ -1496,7 +1485,6 @@ int SLAPI PPCashMachine::AsyncCloseSession(PPID posNodeID, DateRange * pPeriod)
 	delete p_cm;
 	return ok;
 }
-
 #endif // } @construction
 
 int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
@@ -1652,8 +1640,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 							}
 							break;
 						case cmCSViewCheckList:
-							delete dlg;
-							dlg = 0;
+							ZDELETE(dlg);
 							do_exit_loop = 1;
 							ok =  p_cm->SyncBrowseCheckList(0, 0);
 							break;

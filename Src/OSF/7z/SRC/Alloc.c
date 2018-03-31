@@ -1,6 +1,6 @@
-/* Alloc.c -- Memory allocation functions
-   2017-04-03 : Igor Pavlov : Public domain */
-
+// Alloc.c -- Memory allocation functions
+// 2017-04-03 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
 /* #define _SZ_ALLOC_DEBUG */

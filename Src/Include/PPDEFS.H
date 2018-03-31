@@ -3749,6 +3749,8 @@
 	#define CTL_CLIAGT_ADDEDLIMITVAL     (25 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGT_PAYMDTBASE        (26 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_PAYMDTBASE     (27 + WINDOWS_ID_BIAS)
+	#define CTL_CLIAGT_EDIPRV            (28 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CLIAGT_EDIPRV         (29 + WINDOWS_ID_BIAS)
 #define DLG_RTART                 294 // Права доступа к аналитическим статьям
 	#define CTL_RTART_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTART_SFLAGS             (2 + WINDOWS_ID_BIAS)

@@ -199,7 +199,7 @@ XMLPUBFUN int XMLCALL xmlTextReaderRelaxNGValidate(xmlTextReader * reader, const
 XMLPUBFUN int XMLCALL xmlTextReaderRelaxNGValidateCtxt(xmlTextReader * reader, xmlRelaxNGValidCtxtPtr ctxt, int options);
 XMLPUBFUN int XMLCALL xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema);
 XMLPUBFUN int XMLCALL xmlTextReaderSchemaValidate(xmlTextReader * reader, const char * xsd);
-XMLPUBFUN int XMLCALL xmlTextReaderSchemaValidateCtxt(xmlTextReader * reader, xmlSchemaValidCtxtPtr ctxt, int options);
+XMLPUBFUN int XMLCALL xmlTextReaderSchemaValidateCtxt(xmlTextReader * reader, xmlSchemaValidCtxt * ctxt, int options);
 XMLPUBFUN int XMLCALL xmlTextReaderSetSchema(xmlTextReader * reader, xmlSchemaPtr schema);
 #endif
 XMLPUBFUN const xmlChar * XMLCALL xmlTextReaderConstXmlVersion(xmlTextReader * reader);
@@ -213,7 +213,7 @@ XMLPUBFUN long XMLCALL xmlTextReaderByteConsumed(xmlTextReader * reader);
 /*
  * New more complete APIs for simpler creation and reuse of readers
  */
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderWalker(xmlDocPtr doc);
+XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderWalker(xmlDoc * doc);
 XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options);
 XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForFile(const char * filename, const char * encoding, int options);
 XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForMemory(const char * buffer, int size, const char * URL, const char * encoding, int options);

@@ -638,25 +638,13 @@ public:
 	//   Если value == 0, то список просто очищается.
 	//
 	ObjIdListFilt & FASTCALL operator = (long value);
-	int    SLAPI operator ! () const
-	{
-		return (P_List == 0);
-	}
-	int    SLAPI IsExists() const
-	{
-		return BIN(P_List);
-	}
+	int    SLAPI operator ! () const { return (P_List == 0); }
+	int    SLAPI IsExists() const { return BIN(P_List); }
 	int    FASTCALL IsEqual(const ObjIdListFilt &) const;
 	int    SLAPI IsEmpty() const;
 	int    FASTCALL CheckID(PPID) const;
-	const  PPIDArray & SLAPI Get() const
-	{
-		return *P_List;
-	}
-	PPIDArray * SLAPI GetP() const
-	{
-		return P_List;
-	}
+	const  PPIDArray & SLAPI Get() const { return *P_List; }
+	PPIDArray * SLAPI GetP() const { return P_List; }
 	int    FASTCALL Get(PPIDArray & rResult) const;
 	//
 	// Descr: Распределяет память для массива P_List.
@@ -1435,17 +1423,11 @@ private:
 
 #if /*SL_PROFILE &&*/ !defined(DL600C) // { @v9.8.0 commented(SL_PROFILE)
 	// @v8.0.3 #define PROFILE_INIT // @v8.0.3 delete P_Profiler; P_Profiler = new Profile;
-	#define PROFILE(line) \
-		{DS.GProfileStart(__FILE__, __LINE__); \
-		line;             \
-		DS.GProfileFinish(__FILE__, __LINE__);}
-	#define PROFILE_S(line,s) \
-		{DS.GProfileStart(__FILE__, __LINE__, s); \
-		line;             \
-		DS.GProfileFinish(__FILE__, __LINE__);}
-	#define PROFILE_START        {long ln_num = __LINE__; DS.GProfileStart(__FILE__, ln_num);
-	#define PROFILE_START_S(s)   {long ln_num = __LINE__; DS.GProfileStart(__FILE__, ln_num, s);
-	#define PROFILE_END          DS.GProfileFinish(__FILE__, ln_num); }
+	#define PROFILE(line)        {DS.GProfileStart(__FILE__, __LINE__); line; DS.GProfileFinish(__FILE__, __LINE__);}
+	#define PROFILE_S(line, s)   {DS.GProfileStart(__FILE__, __LINE__, s); line; DS.GProfileFinish(__FILE__, __LINE__);}
+	#define PROFILE_START        {long _profile_start_ln_num = __LINE__; DS.GProfileStart(__FILE__, _profile_start_ln_num);
+	#define PROFILE_START_S(s)   {long _profile_start_ln_num = __LINE__; DS.GProfileStart(__FILE__, _profile_start_ln_num, s);
+	#define PROFILE_END          DS.GProfileFinish(__FILE__, _profile_start_ln_num); }
 	// @v8.0.3 #define PROFILE_REPORT(description) P_Profiler->Output(0, description)
 #else
 	// @v8.0.3 #define PROFILE_INIT
@@ -5766,7 +5748,7 @@ struct PPAdviseEvent {
 	uint   CallerIdP; // Вызывающий номер
 	uint   ConnectedLineNumP; // Номер линии
 	uint   ContextP; // Контекст события
-	uint   ExtenP;   // @? Добавочный номер 
+	uint   ExtenP;   // @? Добавочный номер
 
     ExtObject * ExtraObj; // @notowned
 };
@@ -8503,7 +8485,8 @@ struct PPClientAgreement { // @persistent
 	// @v8.4.2 База для определения даты оплаты по документу.
 	//
 	long   PaymDateBase;
-	uint8  Reserve2[4];    // @reserve
+	PPID   EdiPrvID;       // @v10.0.0 ->Ref(PPOBJ_EDIPROVIDER)
+	// @v10.0.0 uint8  Reserve2[4];    // @reserve
 	TSVector <DebtLimit> DebtLimList; // долговые ограничения по командам агентов // @v9.8.4 TSArray-->TSVector
 };
 
@@ -15312,7 +15295,7 @@ private:
 #define ELNKRT_PAGER           3L
 #define ELNKRT_EMAIL           4L
 #define ELNKRT_WEBADDR         5L
-#define ELNKRT_INTERNALEXTEN   6L // @v9.9.11 Внутренний телефонный номер 
+#define ELNKRT_INTERNALEXTEN   6L // @v9.9.11 Внутренний телефонный номер
 
 #define ELNKF_PREF     0x0001L // Предпочтительный адрес (Flags)
 
@@ -15920,6 +15903,7 @@ public:
 #define OPKFX_DLVRLOCASWH    0x00000200L // @v9.1.10 Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
 #define OPKFX_SOURCESERIAL   0x00000400L // @v9.3.6 (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
 #define OPKFX_IGNORECLISTOP  0x00000800L // @v9.8.4 Игнорировать признак STOP контрагента при создании документа
+#define OPKFX_AUTOGENUUID    0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
 
 #define OPKF_PRT_INCINVC     0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC     0x00000002L // Счет-фактура с отрицательными суммами
@@ -15959,6 +15943,7 @@ public:
 #define OPSUBT_DEBTINVENT             7 // Инвентаризация задолженности
 #define OPSUBT_TRADEPLAN              8 // План торговли (драфт-операции)
 #define OPSUBT_ACCWROFF               9 // PPOPT_ACCTURN Списание по бухгалтерским счетам
+#define OPSUBT_POSCORRECTION         10 // @v10.0.0 Корректировка фискальных сумм по кассовому аппарату
 //
 // Descr: Заголовочная запись вида операций
 //
@@ -17602,7 +17587,7 @@ public:
 	int    SLAPI SyncGetSummator(double *);
 	int    SLAPI SyncAddSummator(double);
 	int    SLAPI SyncPrintCheck(CCheckPacket *, int addSummator);
-	int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
+	// @v10.0.0 int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintXReport();
@@ -18391,10 +18376,7 @@ public:
 	SLAPI  PPSyncCashSession(PPID cnID, const char * pName, const char * pPort);
 	virtual SLAPI ~PPSyncCashSession();
 	int    SLAPI Init(const char * pName, const char * pPort);
-	int    SLAPI IsError() const
-	{
-		return BIN(State & stError);
-	}
+	int    SLAPI IsError() const;
 	virtual int SLAPI InitChannel() { return -1; }
 	//
 	// Функции кассового аппарата уровня приложения //
@@ -18405,10 +18387,29 @@ public:
 	//   обновляет счетчики ККМ. Если pPack == 0, то выводится пустой чек.
 	//
 	virtual int SLAPI PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
-	virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN)
-	{
-		return -1;
-	}
+
+	struct FiscalCorrection {
+		SLAPI  FiscalCorrection();
+		enum {
+			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
+			fByPrecept = 0x0002  // Коррекция по предписанию
+		};
+		double AmtCash;    // @#{>=0} Сумма наличного платежа
+		double AmtBank;    // @#{>=0} Сумма электронного платежа
+		double AmtPrepay;  // @#{>=0} Сумма предоплатой
+		double AmtPostpay; // @#{>=0} Сумма постоплатой
+		double AmtVat18;   // Сумма налога по ставке 18%
+		double AmtVat10;   // Сумма налога по ставке 10%
+		double AmtVat00;   // Сумма расчета по ставке 0%
+		double AmtNoVat;   // Сумма расчета без налога
+		LDATE  Dt;         // Дата документа основания коррекции
+		long   Flags;      // @flags
+		SString Code;      // Номер документа основания коррекции	
+		SString Reason;    // Основание коррекции
+		SString Operator;  // Имя оператора
+	};
+	virtual int SLAPI PrintFiscalCorrection(const FiscalCorrection * pFc) { return -1; }
+	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) { return -1; }
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintXReport(const CSessInfo *) { return -1; }
@@ -19258,7 +19259,7 @@ struct PhnSvcChannelStatus {
 		stBusy,            // Line is busy
 		stDialingOffHook,  // Digits (or equivalent) have been dialed while offhook
 		stPreRing,         // Channel has detected an incoming call and is waiting for ring
-		stMuteFlag = 0x00010000 // Do not transmit voice data 
+		stMuteFlag = 0x00010000 // Do not transmit voice data
 	};
 	enum {
 		typUnkn     = 0,
@@ -22198,6 +22199,7 @@ public:
 private:
 	friend class LocationCache; // Только для использования PPObjLocation(SCtrLite)
 	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrLite)
+	friend class PPQuotArray;   // Только для использования PPObjLocation(SCtrLite)
 
 	void   SLAPI InitInstance(SCtrLite sctr, void * extraPtr);
 	SLAPI  PPObjLocation(SCtrLite);
@@ -26219,7 +26221,7 @@ public:
 	//
 	int    SLAPI FetchUnit(PPID unitID, PPUnit * pUnitRec); // @>>PPObjUnit::Fetch
 	//
-	// Descr: Находит коэффициент перевода одной торговой единицы товара rGoodsRec в 
+	// Descr: Находит коэффициент перевода одной торговой единицы товара rGoodsRec в
 	//   базовую единицу измерения baseUnitID.
 	// Returns:
 	//   >0 - удалось выполнить пересчет. По указателю pRate присвоен коэффициент
@@ -29321,7 +29323,7 @@ public:
 
 	enum {
 		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
-		fSignExport     = 0x0002,  // Подписывать исходящие файлы 'лектронной подписью
+		fSignExport     = 0x0002,  // Подписывать исходящие файлы электронной подписью
 		fEdiImpExp      = 0x0004,  // Импорт/экспорт документов через EDI
 		fCreateCc       = 0x0008,  // @v8.3.2 При создании документа одновременно создавать чек заказа
 		fDisableLogger  = 0x0010,  // @v8.3.2 Не выводить сообщения в окно журнала
@@ -29486,7 +29488,7 @@ public:
 		long   PrvFlags;    // Флаги, специфичные для конкретного провайдера
 		SString Code;       // Код сообщения (номер документа)
 		SString SenderCode; // Код отправителя
-		SString RcvrCode;   // Код получателя  
+		SString RcvrCode;   // Код получателя
 		SString Box;        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
 		SString SId;        // Символьный идентификатор (может быть именем файла)
 	};
@@ -29515,7 +29517,10 @@ public:
 	};
 	class ProviderImplementation {
 	public:
-		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID);
+		enum {
+			ctrfTestMode = 0x0001
+		};
+		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 		virtual SLAPI ~ProviderImplementation();
 		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList) { return -1; }
 		virtual int    SLAPI  ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
@@ -29531,18 +29536,20 @@ public:
 
 		PPEdiProviderPacket Epp;
 		PPID   MainOrgID;
+		long   Flags;
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
 	};
 
-	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID);
+	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
 
 	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
 	SLAPI ~PPEdiProcessor();
-	
+
 	int    SLAPI SendBills(const PPBillExportFilt & rP);
 	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendDESADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
 
 	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
@@ -30027,7 +30034,7 @@ public:
 	int    SLAPI FillTurnList(PPBillPacket *);
 	int    SLAPI UniteGoodsBill(PPBillPacket *, PPID addBillID, int use_ta);
 	int    SLAPI UniteReceiptBill(PPID destBillID, PPIDArray * srcArray, int use_ta);
-	int    SLAPI PrintCheck(PPBillPacket *, int addSummator);
+	int    SLAPI PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSummator);
 	int    SLAPI PosPrintByBill(PPID billID);
 	SArray * SLAPI MakePaymentList(PPID, int charge);
 	int    SLAPI ViewBillInfo(PPID billID);
@@ -34890,7 +34897,7 @@ public:
 	int    SLAPI ShowDetails(PPID billID);
 	int    SLAPI ShowPoolDetail(PPBillPacket *);
 	int    SLAPI ChangeFlags();
-	int    SLAPI PrintBill(PPID billID, int addCashSummator);
+	int    SLAPI PrintBill(PPID billID/* @v10.0.0 , int addCashSummator*/);
 	int    SLAPI PrintAllBills();
 	//
 	// transmitKind:
@@ -35768,7 +35775,7 @@ private:
 	virtual int    SLAPI Print(const void *);
 	virtual int    SLAPI ViewTotal();
 	int    SLAPI GetBillList(ObjIdListFilt * pList);
-	int    SLAPI PrintBill(PPID billID, int addCashSummator);
+	int    SLAPI PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/);
 	int    SLAPI PrintBillList();
 	int    SLAPI PrintAllBills();
 	int    SLAPI PrintBillInfoList();
@@ -43291,8 +43298,8 @@ private:
 		xmlTextWriter * P_Xw;
 		SXml::WDoc * P_Xd;
 		SXml::WNode * P_Root;
-		S_GUID FileUUID;   // @v9.9.12 
-		LDATETIME FileDtm; // @v9.9.12 
+		S_GUID FileUUID;   // @v9.9.12
+		LDATETIME FileDtm; // @v9.9.12
 		PPIDArray NeededQkList;
 		PPIDArray UsedQkList;
 		AsyncCashGoodsIterator * P_Acgi; // @notowned
@@ -43653,7 +43660,7 @@ private:
 	int    FASTCALL Helper_PushQuery(int queryType);
 	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
 	int    SLAPI Accept_Person(PPPosProtocol::PersonBlock & rBlk, PPID kindID);
-	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFolder, PPID * pID);
+	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID);
 	int    SLAPI CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID);
 	int    SLAPI InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo);
 
@@ -43669,6 +43676,7 @@ private:
 	int    SLAPI WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const RouteBlock & rInfo);
 	int    SLAPI WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, PPCashNode & rInfo);
 	int    SLAPI WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
+	int    SLAPI TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix);
 
 	SString EncBuf;
 	PPObjPerson PsnObj;
@@ -46011,7 +46019,8 @@ public:
         fImportHumNames    = 0x0004,
         fTestFlexia        = 0x0008,
         fTestConcepts      = 0x0010,
-		fTestSyntaxParser  = 0x0020
+		fTestSyntaxParser  = 0x0020,
+		fImportBioTaxonomy = 0x0040, // @v10.0.0
 	};
 	uint8  ReserveStart[32]; // @ancor
 	long   Flags;
@@ -46031,6 +46040,7 @@ public:
 	//int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
 private:
 	int    SLAPI ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
+	int    SLAPI ImportBioTaxonomy(const char * pFileName);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 	int    SLAPI TestSyntax();

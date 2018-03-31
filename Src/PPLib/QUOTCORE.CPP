@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // @Kernel
 //
@@ -8,56 +8,26 @@
 //
 //
 //
-SLAPI QuotIdent::QuotIdent(PPID locID, PPID quotKindID, PPID curID, PPID arID)
+SLAPI QuotIdent::QuotIdent(PPID locID, PPID quotKindID, PPID curID, PPID arID) :
+	Flags(0), Dt(ZERODATE), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
-	Flags = 0;
 	Period.SetZero();
-	Dt = ZERODATE;
-	LocID = locID;
-	QuotKindID = quotKindID;
-	CurID = curID;
-	ArID = arID;
-	Qtty_ = SMathConst::Max;
-	PrevBase = 0.0;
 }
 
-SLAPI QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PPID arID)
+SLAPI QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PPID arID) :
+	Flags(0), Dt(dt), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
-	Flags = 0;
 	Period.SetZero();
-	Dt = dt;
-	LocID = locID;
-	QuotKindID = quotKindID;
-	CurID = curID;
-	ArID = arID;
-	Qtty_ = SMathConst::Max;
-	PrevBase = 0.0;
 }
 
-SLAPI QuotIdent::QuotIdent(const QuotIdent & rS)
+SLAPI QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID), 
+	QuotKindID(rS.QuotKindID), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.Qtty_), PrevBase(rS.PrevBase)
 {
-	Flags = rS.Flags;
-	Period = rS.Period;
-	Dt = rS.Dt;
-	LocID = rS.LocID;
-	QuotKindID = rS.QuotKindID;
-	CurID = rS.CurID;
-	ArID = rS.ArID;
-	Qtty_ = rS.Qtty_;
-	PrevBase = rS.PrevBase;
 }
 
-SLAPI QuotIdent::QuotIdent(const PPQuot & rS)
+SLAPI QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(rS.Period), Dt(ZERODATE), LocID(rS.LocID), 
+	QuotKindID(rS.Kind), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.MinQtty), PrevBase(0.0)
 {
-	Flags = (fUsePeriod|fUseQtty);
-	Period = rS.Period;
-	Dt = ZERODATE;
-	LocID = rS.LocID;
-	QuotKindID = rS.Kind;
-	CurID = rS.CurID;
-	ArID = rS.ArID;
-	Qtty_ = rS.MinQtty;
-	PrevBase = 0.0;
 }
 
 void SLAPI QuotIdent::SetBase(double b)
@@ -246,15 +216,8 @@ int SLAPI PPQuot::IsEqual(const PPQuot & rS, long flags) const
 	*/
 }
 
-int SLAPI PPQuot::IsRelative() const
-{
-	return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase));
-}
-
-int SLAPI PPQuot::IsEmpty() const
-{
-	return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative());
-}
+int SLAPI PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
+int SLAPI PPQuot::IsEmpty() const { return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
 
 double SLAPI PPQuot::CalcPrice(double cost, double price) const
 {
@@ -386,15 +349,12 @@ int FASTCALL PPQuot::CheckForFilt(const QuotFilt * pFilt, const PPIDArray * pKin
 {
 	if(!CheckFiltID(pFilt->GoodsID, GoodsID))
 		return 0;
-	// @v7.1.12 {
 	if(pFilt->Flags & QuotFilt::fZeroArOnly) {
 		if(ArID != 0)
 			return 0;
 	}
-	else
-	// } @v7.1.12
-		if(!CheckFiltID(pFilt->ArID, ArID))
-			return 0;
+	else if(!CheckFiltID(pFilt->ArID, ArID))
+		return 0;
 	if(!CheckFiltID(pFilt->CurID, CurID))
 		return 0;
 	if(pFilt->Flags & QuotFilt::fAllLocations && LocID != 0)
@@ -423,14 +383,12 @@ IMPL_CMPFUNC(PPQuot, i1, i2) { RET_CMPCASCADE4((const PPQuot*)i1, (const PPQuot*
 //
 // PPQuotArray
 //
-SLAPI PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>() // @v9.8.4 TSArray-->TSVector
+SLAPI PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>(), GoodsID(goodsID) // @v9.8.4 TSArray-->TSVector
 {
-	GoodsID = goodsID;
 }
 
-SLAPI PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s) // @v9.8.4 TSArray-->TSVector
+SLAPI PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s), GoodsID(s.GoodsID) // @v9.8.4 TSArray-->TSVector
 {
-	GoodsID = s.GoodsID;
 }
 
 PPQuotArray & FASTCALL PPQuotArray::operator = (const PPQuotArray & s)
@@ -479,7 +437,7 @@ int SLAPI PPQuotArray::SetQuot(const QuotIdent & rQi, double v, long flags, long
 	uint   pos = 0;
 	QuotIdent temp_qi(rQi);
 	temp_qi.SetIdentPeriod(pPeriod);
-	temp_qi.SetIdentQtty(&minQtty); // @v7.6.7
+	temp_qi.SetIdentQtty(&minQtty);
 	if(SearchQi(temp_qi, &pos)) {
 		PPQuot & r_quot = at(pos);
 		r_quot.Quot    = R6(v);
@@ -623,7 +581,7 @@ int SLAPI PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 		}
 		if(!r && rQi.LocID) {
 			PPID   loc_id = rQi.LocID;
-			PPObjLocation loc_obj;
+			PPObjLocation loc_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 			LocationTbl::Rec loc_rec;
 			do {
 				int    r2 = loc_obj.Fetch(loc_id, &loc_rec);
@@ -1279,15 +1237,12 @@ struct QuotParamEntry {
 
 class QuotCacheBase {
 public:
-	QuotCacheBase(int qpg) : QpList(sizeof(QuotParamEntry)), QuotProviderGeneration(qpg)
+	explicit QuotCacheBase(int qpg) : QpList(sizeof(QuotParamEntry)), QuotProviderGeneration(qpg), AdvCookie(0), HalfSize(1024), P_QuotProvider(0)
 	{
 		MEMSZERO(LStatData);
-		AdvCookie = 0;
-		HalfSize = 1024;
 		PPObjGoods goods_obj;
 		MtxQkID = goods_obj.GetConfig().MtxQkID;
 		IgnoreFolderMtx = BIN(goods_obj.GetConfig().Flags & GCF_IGNOREFOLDERMATRIX); // @v8.3.4
-		P_QuotProvider = 0;
 	}
 	int    SLAPI Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult);
 	int    SLAPI Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred);
@@ -1300,11 +1255,7 @@ public:
 protected:
 	int    FASTCALL LogDirtyMatrix(PPID goodsID) const;
 	int    SLAPI LogStat();
-	void   FASTCALL SetQuotProvider(void * p)
-	{
-		P_QuotProvider = p;
-	}
-
+	void   FASTCALL SetQuotProvider(void * p) { P_QuotProvider = p; }
 	const  int  QuotProviderGeneration;
 	PPID   MtxQkID; // Вид котировки товарной матрицы
 	int    IgnoreFolderMtx; // @v8.3.4 Если !0, то матрица по группе верхнего уровня игнорируется //

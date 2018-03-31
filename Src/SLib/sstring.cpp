@@ -2693,11 +2693,22 @@ SString & SLAPI SString::Insert(size_t pos, const char * pS)
 
 SString & cdecl SString::Printf(const char * pFormat, ...)
 {
-	const  size_t new_len = 4096; // @v7.9.9 1024-->4096
+	const  size_t new_len = 4096;
 	if(Alloc(new_len)) {
 		va_list argptr;
 		va_start(argptr, pFormat);
 		_vsnprintf(P_Buf, Size-1, pFormat, argptr);
+		P_Buf[Size-1] = 0;
+		L = sstrlen(P_Buf) + 1;
+	}
+	return *this;
+}
+
+SString & __cdecl SString::VPrintf(const char * pFormat, va_list vl)
+{
+	const  size_t new_len = 4096;
+	if(Alloc(new_len)) {
+		_vsnprintf(P_Buf, Size-1, pFormat, vl);
 		P_Buf[Size-1] = 0;
 		L = sstrlen(P_Buf) + 1;
 	}

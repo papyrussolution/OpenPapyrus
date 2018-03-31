@@ -4200,7 +4200,7 @@ static int SLAPI SelectPrintPoolVerb(int * pVerb)
 	return ok;
 }
 
-int SLAPI PPViewBill::PrintBill(PPID billID, int addCashSummator)
+int SLAPI PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
 {
 	int    ok = 1;
 	PPBillPacket pack;
@@ -4217,7 +4217,7 @@ int SLAPI PPViewBill::PrintBill(PPID billID, int addCashSummator)
 					v = 0;
 				delete dlg;
 				if(v == 1) {
-					THROW(P_BObj->PrintCheck(&pack, addCashSummator));
+					THROW(P_BObj->PrintCheck(&pack, 0, /*addCashSummator*/1));
 				}
 				else if(v == 2) {
 					PrintGoodsBill(&pack);
@@ -5775,12 +5775,6 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkCharge)) > 0)
 					update = 1;
 				break;
-			case PPVCMD_ATTACHBILLTOORD:
-				ok = AttachBillToOrder(hdr.ID);
-				break;
-			case PPVCMD_ATTACHBILLTODRAFT:
-				ok = AttachBillToDraft(hdr.ID, pBrw);
-				break;
 			case PPVCMD_GOODSRET:
 				ok = -1;
 				if(r_cfg.Cash) {
@@ -5827,21 +5821,18 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						ViewGoodsBillCmp(hdr.ID, rh_bill_list, 0);
 				}
 				break;
-			case PPVCMD_PRINT:
-				ok = PrintBill(hdr.ID, 1);
-				break;
-			case PPVCMD_PRINTLIST:
-				ok = Print();
-				break;
-			case PPVCMD_PRINTINFOLIST:
-				ok = PrintBillInfoList();
-				break;
-			case PPVCMD_POSPRINTBYBILL:
-				ok = P_BObj->PosPrintByBill(hdr.ID);
-				break;
-			case PPVCMD_PRINTCHECK:
-				ok = PrintBill(hdr.ID, 0);
-				break;
+			case PPVCMD_ATTACHBILLTOORD:   ok = AttachBillToOrder(hdr.ID); break;
+			case PPVCMD_ATTACHBILLTODRAFT: ok = AttachBillToDraft(hdr.ID, pBrw); break;
+			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
+			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
+			case PPVCMD_EXPORT:            ok = ExportGoodsBill(0, 0); break;
+			case PPVCMD_PRINT:             ok = PrintBill(hdr.ID/*@v10.0.0 , 1*/); break;
+			case PPVCMD_PRINTLIST:         ok = Print(); break;
+			case PPVCMD_PRINTINFOLIST:     ok = PrintBillInfoList(); break;
+			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;
+			case PPVCMD_POSPRINTBYBILL:    ok = P_BObj->PosPrintByBill(hdr.ID); break;
+			// @v10.0.0 case PPVCMD_PRINTCHECK:        ok = PrintBill(hdr.ID, 0); break;
+			/* @v10.0.0
 			case PPVCMD_PRINTZEROCHECK:
 				ok = -1;
 				if(r_cfg.Cash) {
@@ -5849,9 +5840,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					ok = 1;
 				}
 				break;
-			case PPVCMD_PRINTALLBILLS:
-				ok = PrintAllBills();
-				break;
+			*/
 			case PPVCMD_CREATEMRPTAB:
 				if(hdr.ID)
 					ok = CreateMrpTab(hdr.ID);
@@ -5870,15 +5859,6 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						delete cm;
 					}
 				}
-				break;
-			case PPVCMD_TRANSMIT:
-				ok = Transmit(hdr.ID, 0);
-				break;
-			case PPVCMD_TRANSMITCHARRY:
-				ok = Transmit(hdr.ID, 1);
-				break;
-			case PPVCMD_EXPORT:
-				ok = ExportGoodsBill(0, 0);
 				break;
 			/* @v8.9.11 case PPVCMD_EXPORTTOEGAIS:
 				ok = ExportToEGAIS();

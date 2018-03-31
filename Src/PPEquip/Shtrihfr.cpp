@@ -215,7 +215,7 @@ public:
 	SLAPI  SCS_SHTRIHFRF(PPID n, char * name, char * port);
 	SLAPI ~SCS_SHTRIHFRF();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
+	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
@@ -1106,7 +1106,8 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN)
+#if 0 // @v10.0.0 {
+int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1, print_tax = 0;
 	uint    pos;
@@ -1209,6 +1210,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	ENDCATCH
 	return ok;
 }
+#endif // } 0 @v10.0.0
 
 int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags)
 {

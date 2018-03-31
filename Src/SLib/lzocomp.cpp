@@ -10,15 +10,11 @@
 
 //#define KB 1024
 
-#ifdef __WIN32__
-	#define huge
-#endif
-
 //#define HEAP_ALLOC(var,size) \
 //	long __LZO_MMODEL var [ ((size) + (sizeof(long) - 1)) / sizeof(long) ]
 
 //static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
-long huge * wrkmem = 0; // @global
+long * wrkmem = 0; // @global
 
 int SLAPI getFileTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif);
 int SLAPI setFileTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif);
@@ -32,7 +28,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		ulong  CRC;
 		char   Reserve[48];
 	} header;
-	EXCEPTVAR(SLibError);
+	// @v10.0.0 EXCEPTVAR(SLibError);
 	int    r = 0;
 	CRC32  _crc32;
 	FILE * fin = 0, * fout = 0;
@@ -41,8 +37,8 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	lzo_uint new_len = 0;
 	lzo_uint old_size = 0;
 	lzo_uint new_size = 0;
-	unsigned char huge * inbuf = 0;
-	unsigned char huge * outbuf = 0;
+	uchar * inbuf = 0;
+	uchar * outbuf = 0;
 	// AHTOXA {
 	char   buf[512];
 #ifdef __WIN32__
@@ -65,14 +61,14 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 // AHTOXA {
 #ifdef __WIN32__
 	srchdl = CreateFile(src, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
-	THROW_V(srchdl >= 0, SLERR_OPENFAULT);
+	THROW_S_S(srchdl >= 0, SLERR_OPENFAULT, src);
 	getFileTime((int)srchdl,  &creation_time, &last_access_time, &last_modif_time);
 	if(srchdl > 0)
 		CloseHandle(srchdl);
 #endif
 // } AHTOXA
-	THROW_V(fin  = fopen(src, "rb"), SLERR_OPENFAULT);
-	THROW_V(fout = fopen(dest, "w+b"), SLERR_OPENFAULT);
+	THROW_S_S(fin  = fopen(src, "rb"), SLERR_OPENFAULT, src);
+	THROW_S_S(fout = fopen(dest, "w+b"), SLERR_OPENFAULT, dest);
 	fstat(fileno(fin), &statbuf);
 	statbuf.st_size >>= 10;
 // AHTOXA {
@@ -120,7 +116,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		}
 		old_size += in_len;
 		if(pf) {
-			THROW_V(pf((old_size >> 10), statbuf.st_size, src, !isdecomp), SLERR_USERBREAK);
+			THROW_S(pf((old_size >> 10), statbuf.st_size, src, !isdecomp), SLERR_USERBREAK);
 		}
 		if(!isdecomp) {
 			fwrite(&out_len, 1, sizeof(out_len), fout);
@@ -136,7 +132,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		fseek(fout, 0L, SEEK_SET);
 		while((out_len = fread(buf, sizeof(buf), 1, fout)) > 0)
 			crc = _crc32.Calc(crc, (uint8 *)buf, (size_t)out_len);
-		THROW_V((long)crc == header.CRC, SLERR_INVALIDCRC);
+		THROW_S_S((long)crc == header.CRC, SLERR_INVALIDCRC, dest); // @v10.0.0 уточнение
 	}
 	if(fout) {
 #ifndef __WIN32__
@@ -146,7 +142,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		fout = 0;
 #ifdef __WIN32__
 		srchdl = CreateFile(dest, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
-		THROW_V(srchdl >= 0, SLERR_OPENFAULT);
+		THROW_S_S(srchdl >= 0, SLERR_OPENFAULT, dest);
 		setFileTime((int)srchdl, &creation_time, &last_access_time, &last_modif_time);
 		if(srchdl > 0)
 			CloseHandle(srchdl);
@@ -163,10 +159,8 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	ENDCATCH
 	if(r && sz)
 		*sz = new_size;
-	if(fin)
-		fclose(fin);
-	if(fout)
-		fclose(fout);
+	SFile::ZClose(&fin);
+	SFile::ZClose(&fout);
 	ZFREE(wrkmem);
 	SAlloc::F(inbuf);
 	SAlloc::F(outbuf);

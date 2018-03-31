@@ -1,8 +1,8 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
-// Кассовые узлы
+// РљР°СЃСЃРѕРІС‹Рµ СѓР·Р»С‹
 //
 #include <pp.h>
 #pragma hdrstop
@@ -307,6 +307,13 @@ int SLAPI PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					filt.DvcID   = id;
 					filt.DvcType = 1;
 					PPView::Execute(PPVIEW_DVCLOADINGSTAT, &filt, 1, 0);
+				}
+				break;
+			case PPVCMD_PRINTZEROCHECK: // @v10.0.0
+				ok = -1;
+				if(id) {
+					BillObj->PrintCheck(0, id, 0);
+					ok = 1;
 				}
 				break;
 		}

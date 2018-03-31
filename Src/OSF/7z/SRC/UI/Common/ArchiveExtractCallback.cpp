@@ -491,12 +491,10 @@ static FString MakePath_from_2_Parts(const FString &prefix, const FString &path)
 /*
    #ifdef SUPPORT_LINKS
 
-   struct CTempMidBuffer
-   {
-   void *Buf;
-
-   CTempMidBuffer(size_t size): Buf(NULL) { Buf = ::MidAlloc(size); }
-   ~CTempMidBuffer() { ::MidFree(Buf); }
+   struct CTempMidBuffer {
+	   CTempMidBuffer(size_t size): Buf(NULL) { Buf = ::MidAlloc(size); }
+	   ~CTempMidBuffer() { ::MidFree(Buf); }
+	   void *Buf;
    };
 
    HRESULT CArchiveExtractCallback::MyCopyFile(ISequentialOutStream *outStream)
@@ -512,58 +510,42 @@ static FString MakePath_from_2_Parts(const FString &prefix, const FString &path)
    if(!inFile.Open(_CopyFile_Path))
     return SendMessageError_with_LastError("Open error", _CopyFile_Path);
 
-   for(;;)
-   {
+   for(;;) {
     uint32 num;
-
     if(!inFile.Read(buf.Buf, kBufSize, num))
       return SendMessageError_with_LastError("Read error", _CopyFile_Path);
-
     if(num == 0)
       return S_OK;
-
-
     RINOK(WriteStream(outStream, buf.Buf, num));
    }
    }
-
    #endif
  */
 
 STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStream ** outStream, int32 askExtractMode)
 {
 	COM_TRY_BEGIN
-
 	* outStream = NULL;
-
   #ifndef _SFX
 	if(_hashStream)
 		_hashStreamSpec->ReleaseStream();
 	_hashStreamWasUsed = false;
   #endif
-
 	_outFileStream.Release();
-
 	_encrypted = false;
 	_position = 0;
 	_isSplit = false;
-
 	_curSize = 0;
 	_curSizeDefined = false;
 	_fileLengthWasSet = false;
 	_index = index;
-
 	_diskFilePath.Empty();
-
 	// _fi.Clear();
-
   #ifdef SUPPORT_LINKS
 	// _CopyFile_Path.Empty();
 	linkPath.Empty();
   #endif
-
 	IInArchive * archive = _arc->Archive;
-
   #ifndef _SFX
 	_item._use_baseParentFolder_mode = _use_baseParentFolder_mode;
 	if(_use_baseParentFolder_mode) {
@@ -573,13 +555,10 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 			_item._baseParentFolder = -1;
 	}
   #endif
-
   #ifdef SUPPORT_ALT_STREAMS
 	_item.WriteToAltStreamIfColon = _ntOptions.WriteToAltStreamIfColon;
   #endif
-
 	RINOK(_arc->GetItem(index, _item));
-
 	{
 		NCOM::CPropVariant prop;
 		RINOK(archive->GetProperty(index, kpidPosition, &prop));
@@ -590,14 +569,11 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 			_isSplit = true;
 		}
 	}
-
   #ifdef SUPPORT_LINKS
-
 	// bool isCopyLink = false;
 	bool isHardLink = false;
 	bool isJunction = false;
 	bool isRelative = false;
-
 	{
 		NCOM::CPropVariant prop;
 		RINOK(archive->GetProperty(index, kpidHardLink, &prop));
@@ -610,7 +586,6 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 		else if(prop.vt != VT_EMPTY)
 			return E_FAIL;
 	}
-
 	/*
 	   {
 	   NCOM::CPropVariant prop;
@@ -639,16 +614,12 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 		else if(prop.vt != VT_EMPTY)
 			return E_FAIL;
 	}
-
 	bool isOkReparse = false;
-
 	if(linkPath.IsEmpty() && _arc->GetRawProps) {
 		const void * data;
 		uint32 dataSize;
 		uint32 propType;
-
 		_arc->GetRawProps->GetRawProp(_index, kpidNtReparse, &data, &dataSize, &propType);
-
 		if(dataSize != 0) {
 			if(propType != NPropDataType::kRaw)
 				return E_FAIL;
@@ -667,18 +638,15 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 			}
 		}
 	}
-
 	if(!linkPath.IsEmpty()) {
     #ifdef _WIN32
 		linkPath.Replace(L'/', WCHAR_PATH_SEPARATOR);
     #endif
-
 		// rar5 uses "\??\" prefix for absolute links
 		if(linkPath.IsPrefixedBy(WSTRING_PATH_SEPARATOR L"??" WSTRING_PATH_SEPARATOR)) {
 			isRelative = false;
 			linkPath.DeleteFrontal(4);
 		}
-
 		for(;; ) {
 			// while (NName::IsAbsolutePath(linkPath))
 			unsigned n = NName::GetRootPrefixSize(linkPath);
@@ -1175,14 +1143,11 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 								// if(::GetLastError() != ERROR_FILE_EXISTS ||
 								// !isSplit)
 								{
-									RINOK(SendMessageError_with_LastError(kCantOpenOutFile,
-										    fullProcessedPath));
+									RINOK(SendMessageError_with_LastError(kCantOpenOutFile, fullProcessedPath));
 									return S_OK;
 								}
 							}
-
-							if(_ntOptions.PreAllocateOutFile && !_isSplit && _curSizeDefined && _curSize >
-							    (1 << 12)) {
+							if(_ntOptions.PreAllocateOutFile && !_isSplit && _curSizeDefined && _curSize > (1 << 12)) {
 								// uint64 ticks = GetCpuTicks();
 								bool res = _outFileStreamSpec->File.SetLength(_curSize);
 								_fileLengthWasSet = res;
@@ -1190,11 +1155,9 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 								// ticks = GetCpuTicks() - ticks;
 								// printf("\nticks = %10d\n", (uint)ticks);
 								if(!res) {
-									RINOK(SendMessageError_with_LastError(kCantSetFileLen,
-										    fullProcessedPath));
+									RINOK(SendMessageError_with_LastError(kCantSetFileLen, fullProcessedPath));
 								}
 							}
-
 	  #ifdef SUPPORT_ALT_STREAMS
 							if(isRenamed && !_item.IsAltStream) {
 								CIndexToPathPair pair(index, fullProcessedPath);
@@ -1204,16 +1167,13 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 									_renamedFiles[insertIndex].Path = fullProcessedPath;
 							}
 	  #endif
-
 							if(_isSplit) {
 								RINOK(_outFileStreamSpec->Seek(_position, STREAM_SEEK_SET, NULL));
 							}
-
 							_outFileStream = outStreamLoc2;
 						}
 					}
 				}
-
 				outStreamLoc = _outFileStream;
 			}
 		}

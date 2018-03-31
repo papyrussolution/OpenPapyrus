@@ -321,7 +321,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const c
 		SString text;
 		va_list argptr;
 		va_start(argptr, pMsg);
-		text.Printf(pMsg, argptr);
+		text.VPrintf(pMsg, argptr);
 		p_this->AddMessage(1, text);
 	}
 }
@@ -334,7 +334,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const
 		SString text;
 		va_list argptr;
 		va_start(argptr, pMsg);
-		text.Printf(pMsg, argptr);
+		text.VPrintf(pMsg, argptr);
 		p_this->AddMessage(2, text);
 	}
 }
@@ -399,7 +399,13 @@ int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, S
 		xmlSchemaValidCtxt * p_sv_ctxt = 0;
 		int ret;
 		p_sv_ctxt = xmlSchemaNewValidCtxt(schema);
-		xmlSchemaSetValidErrors(p_sv_ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+		//xmlSchemaSetValidErrors(p_sv_ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+		if(pMsgList) {
+			//xmlSchemaSetParserErrors(p_sp_ctxt, SXmlValidationMessageList::SchemaValidityError, SXmlValidationMessageList::SchemaValidityWarning, pMsgList);
+			xmlSchemaSetValidErrors(p_sv_ctxt, SXmlValidationMessageList::SchemaValidityError, SXmlValidationMessageList::SchemaValidityWarning, pMsgList);
+		}
+		else 
+			xmlSchemaSetValidErrors(p_sv_ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 		ret = xmlSchemaValidateDoc(p_sv_ctxt, doc);
 		if(ret == 0) {
 			SXmlValidationMessageList::SchemaValidityWarning(pMsgList, "%s validates\n", pXmlFileName);

@@ -491,7 +491,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			SXml::WNode n_scope(wb.P_Xw, "refs");
 			{
 				long   acgi_flags = ACGIF_ALLCODESPERITER;
-				PPQuotArray qlist;
+				PPQuotArray qlist; // "Сырой" список котировок, полученных из БД
+				PPQuotArray qlist_result; // Список котировок, которые следует экспортировать
 				if(updOnly)
 					acgi_flags |= ACGIF_UPDATEDONLY;
 				AsyncCashGoodsIterator acgi(nodeID, acgi_flags, sinceDlsID, &dls);
@@ -552,8 +553,20 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					if(p_group_iter) {
 						while(p_group_iter->Next(&acggi_info) > 0) {
 							qlist.clear();
-							goods_obj.GetQuotList(acggi_info.ID, cn_data.LocID, qlist);
-							{
+							qlist_result.clear();
+							goods_obj.GetQuotList(acggi_info.ID, /*cn_data.LocID*/0, qlist);
+							// @v10.0.0 {
+							for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
+								const PPID qk_id = qk_list.get(qkidx);
+								const QuotIdent qi(cn_data.LocID, qk_id, 0, 0);
+								uint   ql_pos = 0;
+								if(qlist.SearchNearest(qi, &ql_pos) > 0) {
+									qlist_result.insert(&qlist.at(ql_pos));
+									used_qk_list.addUnique(qk_id);
+								}
+							}
+							// } @v10.0.0 
+							/* @v10.0.0 {
 								uint qp = qlist.getCount();
 								if(qp) do {
 									PPQuot & r_q = qlist.at(--qp);
@@ -562,8 +575,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 									else
 										used_qk_list.addUnique(r_q.Kind);
 								} while(qp);
-							}
-							THROW(WriteGoodsGroupInfo(wb, "goodsgroup", acggi_info, &qlist));
+							}*/
+							THROW(WriteGoodsGroupInfo(wb, "goodsgroup", acggi_info, &qlist_result));
 						}
 					}
 				}
@@ -573,8 +586,20 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					wb.P_Acgi = &acgi;
 					while(acgi.Next(&acgi_item) > 0) {
 						qlist.clear();
+						qlist_result.clear();
 						goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
-						{
+						// @v10.0.0 {
+						for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
+							const PPID qk_id = qk_list.get(qkidx);
+							const QuotIdent qi(cn_data.LocID, qk_id, 0, 0);
+							uint   ql_pos = 0;
+							if(qlist.SearchNearest(qi, &ql_pos) > 0) {
+								qlist_result.insert(&qlist.at(ql_pos));
+								used_qk_list.addUnique(qk_id);
+							}
+						}
+						// } @v10.0.0 
+						/*@v10.0.0 {
 							uint qp = qlist.getCount();
 							if(qp) do {
 								PPQuot & r_q = qlist.at(--qp);
@@ -583,8 +608,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 								else
 									used_qk_list.addUnique(r_q.Kind);
 							} while(qp);
-						}
-						THROW(WriteGoodsInfo(wb, "ware", acgi_item, &qlist));
+						}*/
+						THROW(WriteGoodsInfo(wb, "ware", acgi_item, &qlist_result));
 						PPWaitPercent(acgi.GetIterCounter());
 					}
 					wb.P_Acgi = 0;
@@ -652,19 +677,31 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 		if(stat_id)
 			dls.FinishLoading(stat_id, 1, 1);
 	}
-	{
-		int   copy_result = 0;
-		StringSet ss_out_files;
-		THROW(SelectOutFileName(nodeID, "refs", ss_out_files));
-		for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
-			if(SCopyFile(out_file_name, temp_buf, 0, FILE_SHARE_READ, 0))
-				copy_result = 1;
-		}
-		if(copy_result)
-			SFile::Remove(out_file_name);
-	}
+	THROW(TransportFileOut(out_file_name, nodeID, "refs"));
 	CATCHZOK
 	PPWait(0);
+	return ok;
+}
+
+int SLAPI PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix)
+{
+	int   ok = 1;
+	THROW_SL(fileExists(rOutFileName));
+	{
+		StringSet ss_out_files;
+		THROW(SelectOutFileName(srcPosNodeID, pInfix, ss_out_files));
+		{
+			int   copy_result = 0;
+			SString temp_buf;
+			for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
+				if(SCopyFile(rOutFileName, temp_buf, 0, FILE_SHARE_READ, 0))
+					copy_result = 1;
+			}
+			if(copy_result)
+				SFile::Remove(rOutFileName);
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 //
@@ -752,47 +789,27 @@ SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
 }
 
 SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerailP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock(), CodeP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::SCardSeriesBlock::SCardSeriesBlock() : ObjectBlock(), RefP(0), CodeP(0), QuotKindBlkP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBlkP(0), SeriesBlkP(0), Discount(0.0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), ID(0), Code(0), PosBlkP(0), Dtm(ZERODATETIME)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlags(0), SaCcFlags(0), CTableN(0), GuestCount(0), CSessionBlkP(0),
 	AddrBlkP(0), AgentBlkP(0), Amount(0.0), Discount(0.0), Dtm(ZERODATETIME), CreationDtm(ZERODATETIME), SCardBlkP(0), MemoP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0),
 	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
-{
-};
-
+	{}
 SLAPI PPPosProtocol::QueryBlock::QueryBlock()
-{
-	Init(qUnkn);
-}
+	{ Init(qUnkn); }
 
 void FASTCALL PPPosProtocol::QueryBlock::Init(int q)
 {
@@ -831,30 +848,12 @@ void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByDate(const DateRange & r
 	Period = rPeriod;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryRefs()
-{
-	Init(qRefs);
-}
+void SLAPI PPPosProtocol::QueryBlock::SetQueryRefs() { Init(qRefs); }
+void SLAPI PPPosProtocol::QueryBlock::SetQueryTest() { Init(qTest); }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryTest()
-{
-	Init(qTest);
-}
-
-SLAPI PPPosProtocol::QuotBlock::QuotBlock()
-{
-	THISZERO();
-}
-
-SLAPI PPPosProtocol::ParentBlock::ParentBlock()
-{
-	THISZERO();
-}
-
-SLAPI PPPosProtocol::GoodsCode::GoodsCode()
-{
-	THISZERO();
-}
+SLAPI PPPosProtocol::QuotBlock::QuotBlock() { THISZERO(); }
+SLAPI PPPosProtocol::ParentBlock::ParentBlock() { THISZERO(); }
+SLAPI PPPosProtocol::GoodsCode::GoodsCode() { THISZERO(); }
 
 SLAPI PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock(), Direction(0), SystemP(0), VersionP(0), CodeP(0)
 {
@@ -1030,10 +1029,7 @@ struct PPPP_SearchAnalogResult {
 	PPPP_SearchAnalogResult() : Ok(0), RefPos(0)
 	{
 	}
-	int    operator !() const
-	{
-		return (Ok == 0);
-	}
+	int    operator !() const { return (Ok == 0); }
 	void   Found(uint pos)
 	{
 		Ok = 1;
@@ -1181,18 +1177,12 @@ SLAPI PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()
 	}
 }
 
-const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const
-{
-	return P_RbList;
-}
+const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const { return P_RbList; }
 
 SLAPI PPPosProtocol::PPPosProtocol() : P_BObj(BillObj)
-{
-}
-
+	{}
 SLAPI PPPosProtocol::~PPPosProtocol()
-{
-}
+	{}
 
 const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 {
@@ -2547,11 +2537,15 @@ int PPPosProtocol::EndElement(const char * pName)
 				break;
 			case PPHS_VALUE:
 				{
-					const double _value = RdB.TagValue.ToReal();
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
 						case obQuot:
-							((QuotBlock *)p_item)->Value = _value;
+							{
+								PPQuot temp_q;
+								temp_q.GetValFromStr(RdB.TagValue);
+								((QuotBlock *)p_item)->Value = temp_q.Quot;
+								((QuotBlock *)p_item)->QuotFlags = temp_q.Flags;
+							}
 							break;
 					}
 				}
@@ -2951,7 +2945,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	RefList.freeAll();
 }
 
-int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFolder, PPID * pID)
+int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID)
 {
 	int    ok = -1;
 	SString name_buf, code_buf;
@@ -3019,6 +3013,31 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, int isFo
 			ok = 1;
 		}
 	}
+	// @v10.0.0 {
+	if(native_id && !(rBlk.Flags_ & rBlk.fRefItem)) {
+		//
+		// Акцепт котировок
+		//
+		PPQuotArray quot_list;
+		quot_list.GoodsID = native_id;
+		for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
+			const QuotBlock & r_qb = RdB.QuotBlkList.at(k);
+			if(r_qb.GoodsGroupBlkP == refPos) {
+				assert(r_qb.BlkFlags & r_qb.fGroup);
+				int    type_qk = 0;
+				const QuotKindBlock * p_qk_item = (const QuotKindBlock *)RdB.GetItem(r_qb.QuotKindBlkP, &type_qk);
+				if(p_qk_item) {
+					assert(type_qk == obQuotKind);
+					if(p_qk_item->NativeID) {
+						const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
+						quot_list.SetQuot(qi, r_qb.Value, r_qb.QuotFlags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
+					}
+				}
+			}
+		}
+		THROW(GObj.PutQuotList(native_id, &quot_list, 1));
+	}
+	// } @v10.0.0 
 	ASSIGN_PTR(pID, native_id);
 	CATCHZOK
 	return ok;
@@ -3048,7 +3067,9 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 				}
 			}
 			if(this_block) {
-				THROW(ok = CreateGoodsGroup(r_grp_blk, isFolder, &native_id));
+				uint   ref_pos = 0;
+				THROW_PP(RdB.SearchRef(obGoodsGroup, i, &ref_pos), PPERR_PPPP_INNERREFNF_GG);
+				THROW(ok = CreateGoodsGroup(r_grp_blk, ref_pos, isFolder, &native_id));
 				break;
 			}
 		}
@@ -3708,8 +3729,6 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			for(uint i = 0; i < __count; i++) {
 				GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
 				PPID   parent_id = 0;
-				//uint   ref_pos = 0;
-				//THROW_PP(RdB.SearchRef(obGoodsGroup, i, &ref_pos), PPERR_PPPP_INNERREFNF_GG);
 				if(r_blk.ParentBlkP) {
 					int   inner_type = 0;
 					ParentBlock * p_inner_blk = (ParentBlock *)RdB.GetItem(r_blk.ParentBlkP, &inner_type);
@@ -3731,9 +3750,9 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			for(uint i = 0; i < __count; i++) {
 				GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
 				if(r_blk.NativeID == 0) {
-					//uint   ref_pos = 0;
-					//THROW_PP(RdB.SearchRef(obGoodsGroup, i, &ref_pos), PPERR_PPPP_INNERREFNF_GG);
-					THROW(CreateGoodsGroup(r_blk, 0, &r_blk.NativeID));
+					uint   ref_pos = 0;
+					THROW_PP(RdB.SearchRef(obGoodsGroup, i, &ref_pos), PPERR_PPPP_INNERREFNF_GG);
+					THROW(CreateGoodsGroup(r_blk, ref_pos, 0, &r_blk.NativeID));
 				}
 				PPWaitPercent(__count+i+1, __count * 2, wait_msg_buf);
 			}
@@ -3942,8 +3961,8 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			{
 				for(uint i = 0; i < __count; i++) {
 					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
-					uint   ref_pos = 0;
 					PPID   native_id = 0;
+					uint   ref_pos = 0;
 					THROW_PP(RdB.SearchRef(obGoods, i, &ref_pos), PPERR_PPPP_INNERREFNF_G);
 					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, rgp/*def_parent_id, def_unit_id, src_ar_id, loc_id*/, &native_id));
 					r_blk.NativeID = native_id;
@@ -4495,48 +4514,36 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	Reference * p_ref = PPRef;
 	const char * p_base_name = "pppp";
 	const char * p_done_suffix = "-done";
-	SString in_file_name;
 	SString temp_buf;
 	StringSet to_remove_file_list;
-	SPathStruc ps;
 	if(!(rPib.Flags & rPib.fSilent))
 		PPWait(1);
 	{
 		SFileEntryPool fep;
-		SString in_path;
-		SDirEntry de;
-		SString done_plus_xml_suffix;
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
 		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
 		StringSet ss_paths;
 		TSVector <PosProtocolFileProcessedEntry> processed_file_list;
-		(done_plus_xml_suffix = p_done_suffix).Dot().Cat(/*"xml"*/"ppyp");
 		{
 			PPCashNode cn_rec;
 			if(rPib.PosNodeID) {
+				PPAsyncCashNode acn_pack;
+				PPSyncCashNode scn_pack;
 				THROW(CnObj.Search(rPib.PosNodeID, &cn_rec) > 0);
 				THROW(Helper_GetPosNodeInfo_ForInputProcessing(&cn_rec, pos_node_isymb_list, pos_node_uuid_list));
-				if(cn_rec.Flags & CASHF_ASYNC) {
-					PPAsyncCashNode acn_pack;
-					if(CnObj.GetAsync(rPib.PosNodeID, &acn_pack) > 0) {
-						if(acn_pack.ImpFiles.NotEmptyS()) {
-							StringSet ss_row_paths(';', acn_pack.ImpFiles);
-							for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
-								if(isDir(temp_buf.RmvLastSlash())) {
-									ss_paths.add(temp_buf);
-								}
-							}
+				if(cn_rec.Flags & CASHF_ASYNC && CnObj.GetAsync(rPib.PosNodeID, &acn_pack) > 0) {
+					if(acn_pack.ImpFiles.NotEmptyS()) {
+						StringSet ss_row_paths(';', acn_pack.ImpFiles);
+						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
+							if(isDir(temp_buf.RmvLastSlash()))
+								ss_paths.add(temp_buf);
 						}
 					}
 				}
-				else if(cn_rec.Flags & CASHF_SYNC) {
-					PPSyncCashNode scn_pack;
-					if(CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
-						if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
-							if(isDir(temp_buf.RmvLastSlash())) {
-								ss_paths.add(temp_buf);
-							}
-						}
+				else if(cn_rec.Flags & CASHF_SYNC && CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
+					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
+						if(isDir(temp_buf.RmvLastSlash()))
+							ss_paths.add(temp_buf);
 					}
 				}
 			}
@@ -4550,22 +4557,30 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				ss_paths.add(temp_buf.Strip().RmvLastSlash());
 			}
 		}
-		for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
-			ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
-			(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat(/*"*.xml"*/"*.ppyp");
-			for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
-				if(de.IsFile()) {
-					const size_t fnl = sstrlen(de.FileName);
-					if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
-						THROW_SL(fep.Add(in_path, de));
+		{
+			SString in_path;
+			SDirEntry de;
+			SString done_plus_xml_suffix;
+			(done_plus_xml_suffix = p_done_suffix).Dot().Cat(/*"xml"*/"ppyp");
+			for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
+				ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
+				(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat(/*"*.xml"*/"*.ppyp");
+				for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+					if(de.IsFile()) {
+						const size_t fnl = sstrlen(de.FileName);
+						if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
+							THROW_SL(fep.Add(in_path, de));
+						}
 					}
 				}
 			}
 		}
-		fep.Sort(SFileEntryPool::scByWrTime/*|SFileEntryPool::scDesc*/);
-		{
+		if(fep.GetCount()) {
+			fep.Sort(SFileEntryPool::scByWrTime/*|SFileEntryPool::scDesc*/);
+			//
 			S_GUID this_db_uuid;
 			SString this_db_symb;
+			SString in_file_name;
 			DbProvider * p_dict = CurDict;
 			if(p_dict) {
 				p_dict->GetDbUUID(&this_db_uuid);
@@ -4592,9 +4607,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							// данные только в ту базу, которая соответствует этому UUID (сопоставление по символу невозможно).
 							//
 							if(!root_blk.Uuid.IsZero()) {
-								if(root_blk.Uuid == this_db_uuid) {
+								if(root_blk.Uuid == this_db_uuid)
 									is_my_file = 1;
-								}
 								else {
 									for(uint cnuidx = 0; !is_my_file && cnuidx < pos_node_uuid_list.getCount(); cnuidx++) {
 										if(root_blk.Uuid == pos_node_uuid_list.at(cnuidx).Uuid) {
@@ -4685,13 +4699,11 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									else
 										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 								}
-								if(rPib.Flags & rPib.fProcessQueries) {
+								if(rPib.Flags & rPib.fProcessQueries)
 									do_backup_file = 1;
-								}
 								if(rPib.Flags & rPib.fProcessSessions) {
-									if(rPib.Flags & rPib.fBackupProcessed) {
+									if(rPib.Flags & rPib.fBackupProcessed)
 										do_backup_file = 1;
-									}
 								}
 								if(RdB.DestBlkList.getCount() > 1) {
 									//
@@ -4727,15 +4739,10 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										AppendPosProtocolFileProcessedListEntry(in_file_name, new_pfentry);
 									}
 								}
-								if(all_receipients_processed_file) {
-									if(do_backup_file) {
-										int    backup_ok = 1;
-										if(rPib.Flags & rPib.fBackupProcessed) {
-											backup_ok = BackupInputFile(in_file_name);
-										}
-										if(do_remove_file && backup_ok)
-											to_remove_file_list.add(in_file_name);
-									}
+								if(all_receipients_processed_file && do_backup_file) {
+									int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
+									if(do_remove_file && backup_ok)
+										to_remove_file_list.add(in_file_name);
 								}
 								DestroyReadBlock();
 							}
@@ -4755,12 +4762,10 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 						PPCashNode cn_rec;
 						CSessionTbl::Rec cs_rec;
 						if(CnObj.Search(cn_id, &cn_rec) > 0) {
-							if(cn_rec.Flags & CASHF_SYNC) {
+							if(cn_rec.Flags & CASHF_SYNC)
 								sync_cn_id = cn_id;
-							}
-							else if(cn_rec.Flags & CASHF_ASYNC) {
+							else if(cn_rec.Flags & CASHF_ASYNC)
 								async_cn_id = cn_id;
-							}
 						}
 						for(uint qidx = 0; qidx < p_qpb->QL.getCount(); qidx++) {
 							const QueryBlock & r_q = p_qpb->QL.at(qidx);
@@ -4788,36 +4793,29 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										}
 									}
 									if(r_q.Flags & QueryBlock::fCSessLast) {
-										if(CsObj.P_Tbl->SearchLast(cn_id, 1010, 0, &cs_rec) > 0) {
+										if(CsObj.P_Tbl->SearchLast(cn_id, 1010, 0, &cs_rec) > 0)
 											csess_list.add(cs_rec.ID);
-										}
 									}
 									if(r_q.Flags & QueryBlock::fCSessCurrent) {
 										if(sync_cn_id) {
-											if(cn_rec.CurSessID && CsObj.Search(cn_rec.CurSessID, &cs_rec) > 0) {
+											if(cn_rec.CurSessID && CsObj.Search(cn_rec.CurSessID, &cs_rec) > 0)
 												csess_list.add(cs_rec.ID);
-											}
 										}
 										else if(async_cn_id) {
-											if(CsObj.P_Tbl->SearchLast(async_cn_id, 10, 0, &cs_rec) > 0) {
+											if(CsObj.P_Tbl->SearchLast(async_cn_id, 10, 0, &cs_rec) > 0)
 												csess_list.add(cs_rec.ID);
-											}
 										}
 									}
 									if(r_q.CSess) {
-										if(r_q.Flags & QueryBlock::fCSessN) {
-											// сессия по номеру
+										if(r_q.Flags & QueryBlock::fCSessN) { // сессия по номеру
 											PPID   cs_id = 0;
-											if(CsObj.P_Tbl->SearchByNumber(&cs_id, cn_id, cn_id, r_q.CSess, ZERODATE) > 0) {
+											if(CsObj.P_Tbl->SearchByNumber(&cs_id, cn_id, cn_id, r_q.CSess, ZERODATE) > 0)
 												csess_list.add(cs_id);
-											}
 										}
-										else {
-											// сессия по идентификатору
+										else { // сессия по идентификатору
 											if(CsObj.P_Tbl->Search(r_q.CSess, &cs_rec) > 0) {
-												if(cs_rec.CashNodeID == cn_id) {
+												if(cs_rec.CashNodeID == cn_id)
 													csess_list.add(cs_rec.ID);
-												}
 											}
 										}
 									}
@@ -4956,17 +4954,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 		}
 		FinishWriting(wb);
 	}
-	{
-		int   copy_result = 0;
-		StringSet ss_out_files;
-		THROW(SelectOutFileName(srcPosNodeID, "csess", ss_out_files));
-		for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
-			if(SCopyFile(out_file_name, temp_buf, 0, FILE_SHARE_READ, 0))
-				copy_result = 1;
-		}
-		if(copy_result)
-			SFile::Remove(out_file_name);
-	}
+	THROW(TransportFileOut(out_file_name, srcPosNodeID, "csess"));
 	ok = 1;
 	CATCHZOK
 	return ok;
@@ -5185,12 +5173,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 				}
 				else {
 					PPPosProtocol pppp;
-					{
-						//
-						// Первоначальная обработка входящих данных
-						//
-						DoProcess(pppp);
-					}
+					DoProcess(pppp); // Первоначальная обработка входящих данных
 					DirChangeNotification * p_dcn = new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
 					THROW(p_dcn);
 					for(int stop = 0; !stop;) {

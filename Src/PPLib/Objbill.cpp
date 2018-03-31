@@ -695,21 +695,21 @@ int SLAPI PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 	return ok;
 }
 
-int SLAPI PPObjBill::PrintCheck(PPBillPacket * pack, int addSummator)
+int SLAPI PPObjBill::PrintCheck(PPBillPacket * pPack, PPID posNodeID, int addSummator)
 {
 	int    ok = 1;
 	CCheckPacket cp;
-	PPCashMachine * p_cm = PPCashMachine::CreateInstance(pack ? pack->Rec.UserID : LConfig.Cash);
-	if(pack)
-		THROW(ok = pack->ConvertToCheck(&cp));
+	PPCashMachine * p_cm = PPCashMachine::CreateInstance(posNodeID ? posNodeID : (pPack ? pPack->Rec.UserID : LConfig.Cash));
+	THROW(p_cm);
+	if(pPack)
+		THROW(ok = pPack->ConvertToCheck(&cp));
 	if(ok > 0) {
 		int    r = 0, sync_prn_err = 0;
-		THROW(p_cm);
 		if((r = p_cm->SyncPrintCheck(&cp, addSummator)) == 0)
 			sync_prn_err = p_cm->SyncGetPrintErrCode();
-		if(pack && pack->Rec.ID && !(pack->Rec.Flags & BILLF_CHECK) && (r || sync_prn_err == 1)) {
-			pack->Rec.Flags |= BILLF_CHECK;
-			THROW(P_Tbl->Edit(&pack->Rec.ID, pack, 1));
+		if(pPack && pPack->Rec.ID && !(pPack->Rec.Flags & BILLF_CHECK) && (r || sync_prn_err == 1)) {
+			pPack->Rec.Flags |= BILLF_CHECK;
+			THROW(P_Tbl->Edit(&pPack->Rec.ID, pPack, 1));
 		}
 		if(r == 0 && sync_prn_err != 3)
 			PPError();
@@ -892,11 +892,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 								ok = p_cm->SyncPrintCheck(&cp, 1);
 							}
 						}
-						/*
-						if(amt != 0.0) {
-							ok = p_cm->SyncPrintCheckByBill(p_pack, mult, param.DivisionN);
-						}
-						*/
+						// if(amt != 0.0) { ok = p_cm->SyncPrintCheckByBill(p_pack, mult, param.DivisionN); } 
 					}
 					PPWait(0);
 					if(ok == 0)
@@ -995,7 +991,7 @@ int SLAPI PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 					PPWait(0);
 					if(id == 0) {
 						if(pPack->Rec.Flags & BILLF_CASH) {
-							if(!PrintCheck(pPack, 1))
+							if(!PrintCheck(pPack, 0, 1))
 								PPError();
 						}
 						else if(pPack->Rec.StatusID) {

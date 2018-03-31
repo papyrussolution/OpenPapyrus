@@ -125,11 +125,9 @@ static UString GetDefaultName3(const UString &fileName, const UString &extension
 			if(extension.IsEqualTo_NoCase(fileName.Ptr(dotPos + 1)))
 				return fileName.Left(dotPos) + addSubExtension;
 	}
-
 	int dotPos = fileName.ReverseFind_Dot();
 	if(dotPos > 0)
 		return fileName.Left(dotPos) + addSubExtension;
-
 	if(addSubExtension.IsEmpty())
 		return fileName + L'~';
 	else
@@ -380,8 +378,7 @@ void ConvertUInt32ToHex8Digits(uint32 val, char * s) throw()
    void ConvertUInt32ToHex8Digits(uint32 val, wchar_t *s)
    {
    s[8] = 0;
-   for(int i = 7; i >= 0; i--)
-   {
+   for(int i = 7; i >= 0; i--) {
     unsigned t = val & 0xF;
     val >>= 4;
     s[i] = (wchar_t)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));

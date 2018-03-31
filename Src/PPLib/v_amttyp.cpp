@@ -1,8 +1,8 @@
 // V_AMTTYP.CPP
 // Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Типы сумм документа
+// РўРёРїС‹ СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚Р°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -63,16 +63,16 @@ int SLAPI PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		const AmountTypeViewItem * p_item = (AmountTypeViewItem *)pBlk->P_SrcData;
 		switch(pBlk->ColumnN) {
-			case 0: // ИД
+			case 0: // РР”
 				pBlk->Set(p_item->ID);
 				break;
-			case 1: // Наименование
+			case 1: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ
 				GetObjectName(PPOBJ_AMOUNTTYPE, p_item->ID, temp_buf);
 				if(temp_buf.Len() == 0)
 					ideqvalstr(p_item->ID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 2: // Наименование типа налога
+			case 2: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РёРїР° РЅР°Р»РѕРіР°
 				if(p_item->Tax == GTAX_VAT) {
 					// @v9.0.2 PPGetWord(PPWORD_VAT, 0, temp_buf);
 					PPLoadString("vat", temp_buf); // @v9.0.2
@@ -83,15 +83,24 @@ int SLAPI PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				}
 				pBlk->Set(temp_buf);
 				break;
-			case 3: // Налоговая ставка %
+			case 3: // РќР°Р»РѕРіРѕРІР°СЏ СЃС‚Р°РІРєР° %
 				pBlk->Set(p_item->TaxRate);
 				break;
-			case 4: // Комплементарная сумма
-				GetObjectName(PPOBJ_AMOUNTTYPE, p_item->RefAmtTypeID, temp_buf);
+			case 4: // РљРѕРјРїР»РµРјРµРЅС‚Р°СЂРЅР°СЏ СЃСѓРјРјР°
+				if(p_item->RefAmtTypeID)
+					GetObjectName(PPOBJ_AMOUNTTYPE, p_item->RefAmtTypeID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 5: // Формула
+			case 5: // Р¤РѕСЂРјСѓР»Р°
 				pBlk->Set(p_item->Formula);
+				break;
+			case 6: // @v10.0.0 РЎРёРјРІРѕР»
+				{
+					PPAmountType amtt_rec;
+					if(ObjAmtT.Fetch(p_item->ID, &amtt_rec) > 0)
+						temp_buf = amtt_rec.Symb;
+					pBlk->Set(temp_buf);
+				}
 				break;
 		}
 	}
@@ -103,7 +112,7 @@ int SLAPI PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, Amou
 	int    ok = -1;
 	if(pPack && pItem) {
 		pItem->ID           = pPack->Rec.ID;
-		pItem->RefAmtTypeID = pPack->Rec.RefAmtTypeID;
+		pItem->RefAmtTypeID = pPack->Rec.IsComplementary() ? pPack->Rec.RefAmtTypeID : 0;
 		pItem->Flags        = pPack->Rec.Flags;
 		pItem->Tax          = (pPack->Rec.Flags & PPAmountType::fTax) ? pPack->Rec.Tax : 0;
 		pItem->TaxRate      = (pPack->Rec.Flags & PPAmountType::fTax) ? ((double)pPack->Rec.TaxRate) / 100 : 0;
@@ -133,7 +142,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 	ushort v;
 	GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Flags);
 	//
-	// Запрет на признак замещающей суммы для ручных и распределенных сумм
+	// Р—Р°РїСЂРµС‚ РЅР° РїСЂРёР·РЅР°Рє Р·Р°РјРµС‰Р°СЋС‰РµР№ СЃСѓРјРјС‹ РґР»СЏ СЂСѓС‡РЅС‹С… Рё СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С… СЃСѓРјРј
 	//
 	if(Data.Flags & (PPAmountType::fManual|PPAmountType::fStaffAmount|PPAmountType::fDistribCost)) {
 		setCtrlUInt16(CTL_AMOUNTTYPE_REPLACE, 0);
@@ -157,7 +166,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 	disableCtrls(v != 1, CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
 	disableCtrl(CTLSEL_AMOUNTTYPE_REFAMT, !oneof2(v, 2, 3));
 	//
-	// Запрет дистрибутивности для любых видов сумм, кроме обыкновенных
+	// Р—Р°РїСЂРµС‚ РґРёСЃС‚СЂРёР±СѓС‚РёРІРЅРѕСЃС‚Рё РґР»СЏ Р»СЋР±С‹С… РІРёРґРѕРІ СЃСѓРјРј, РєСЂРѕРјРµ РѕР±С‹РєРЅРѕРІРµРЅРЅС‹С…
 	//
 	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 4, (v != 0));
 	if(v != 0 && Data.Flags & PPAmountType::fDistribCost) {
@@ -167,14 +176,14 @@ void AmtTypeFiltDialog::SetupCtrls()
 	//
 	if(v == 1) { // fTax
 		//
-		// Запрет на признак замещающей суммы для ручных сумм
+		// Р—Р°РїСЂРµС‚ РЅР° РїСЂРёР·РЅР°Рє Р·Р°РјРµС‰Р°СЋС‰РµР№ СЃСѓРјРјС‹ РґР»СЏ СЂСѓС‡РЅС‹С… СЃСѓРјРј
 		//
 		setCtrlUInt16(CTL_AMOUNTTYPE_REPLACE, 0);
 		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 1);
 	}
 	else {
 		//
-		// Установка нулевых значений в параметры налоговой суммы
+		// РЈСЃС‚Р°РЅРѕРІРєР° РЅСѓР»РµРІС‹С… Р·РЅР°С‡РµРЅРёР№ РІ РїР°СЂР°РјРµС‚СЂС‹ РЅР°Р»РѕРіРѕРІРѕР№ СЃСѓРјРјС‹
 		//
 		setCtrlLong(CTLSEL_AMOUNTTYPE_TAX, 0);
 		setCtrlReal(CTL_AMOUNTTYPE_TAXRATE, 0.0);
@@ -182,7 +191,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 	}
 	if(!oneof2(v, 2, 3)) {
 		//
-		// Установка нулевого значения в комплементарном типе суммы
+		// РЈСЃС‚Р°РЅРѕРІРєР° РЅСѓР»РµРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РІ РєРѕРјРїР»РµРјРµРЅС‚Р°СЂРЅРѕРј С‚РёРїРµ СЃСѓРјРјС‹
 		//
 		setCtrlLong(CTLSEL_AMOUNTTYPE_REFAMT, 0);
 	}

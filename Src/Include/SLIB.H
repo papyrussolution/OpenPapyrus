@@ -3757,6 +3757,7 @@ public:
 	//
 	SString & SLAPI Insert(size_t pos, const char * pStr);
 	SString & __cdecl Printf(const char * pFormat, ...);
+	SString & __cdecl VPrintf(const char * pFormat, va_list);
 	//
 	// Descr: Добавляет в конец строки обратный слэш ('\\'). Если строка пустая или
 	//   в конце строки уже стоит '\\' или '/', то ничего не делает.

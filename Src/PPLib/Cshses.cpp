@@ -11,6 +11,11 @@
 //
 // PPSyncCashSession
 //
+SLAPI PPSyncCashSession::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
+	AmtVat18(0.0), AmtVat10(0.0), AmtVat00(0.0), AmtNoVat(0.0), Dt(ZERODATE), Flags(0)
+{
+}
+
 SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) :
 	State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
@@ -29,6 +34,11 @@ SLAPI PPSyncCashSession::~PPSyncCashSession()
 	ZDELETE(P_SlipFmt);
 	if(PortType == 0 && Handle >= 0)
 		close(Handle);
+}
+
+int SLAPI PPSyncCashSession::IsError() const
+{
+	return BIN(State & stError);
 }
 
 int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)

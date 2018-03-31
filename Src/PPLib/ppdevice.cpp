@@ -481,63 +481,47 @@ int PPAbstractDevice::RunCmd(int cmdId, const StrAssocArray & rIn, StrAssocArray
 {
 	return -1;
 }
-//
-// ѕреобразует форматированную строку в массив
-// @vmiller
-//
-int StrToArr(SString & s_arr, StrAssocArray & strArr)
-{
-	SString pair;
-	if(s_arr.NotEmpty()) {
-		StringSet sstr(';', s_arr);
-		strArr.Clear();
-		for(uint i = 0, j = 0; sstr.get(&i, pair) > 0; j++)
-			strArr.Add(j, pair, 1);
-	}
-	return 1;
-}
 
 int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArray & rOut)
 {
 	int    ok = 1, r = 0;
 	SString s_arr;
+	SString temp_buf;
+	StringSet ss(";");
 	const   size_t buf_size_quant = 4096; // @v9.7.6 1024-->4096
-	//STempBuffer output(buf_size_quant);
-	//THROW_SL(output.IsValid());
 	if(RetBuf.GetSize() < buf_size_quant)
 		RetBuf.Alloc(buf_size_quant);
 	THROW_SL(RetBuf.IsValid());
-	//THROW_SL(Ib);
 	if(!Ib) {
 		SLS.SetOsError("RunCommand");
 		THROW(0);
 	}
 	do {
-		//memzero(output, output.GetSize());
 		memzero(RetBuf, RetBuf.GetSize());
 		{
 			const char * p_cmd = rCmd.cptr();
 			const char * p_arg = rArg.cptr();
-			//r = Ib.Func(p_cmd, p_arg, output, output.GetSize());
 			r = Ib.Func(p_cmd, p_arg, RetBuf, RetBuf.GetSize());
 		}
 		if(r == 0) {
-			//if(output.IsValid()) {
 			if(RetBuf.IsValid()) {
-				//s_arr.Z().Cat(output);
 				s_arr.Z().Cat(RetBuf);
-				THROW(StrToArr(s_arr, rOut));
+				//THROW(StrToArr(s_arr, rOut));
+				//int StrToArr(SString & s_arr, StrAssocArray & strArr)
+				if(s_arr.NotEmpty()) {
+					ss.setBuf(s_arr);
+					rOut.Clear();
+					for(uint i = 0, j = 0; ss.get(&i, temp_buf) > 0; j++)
+						rOut.Add(j, temp_buf, 1);
+				}
 			}
 		}
 		else if(r == 1) {
-			//THROW(rOut.Add(0, output, 1));
 			THROW(rOut.Add(0, RetBuf, 1));
 			ok = -1;
 			r = 0;
 		}
 		else if(r == 2) {
-			//size_t new_size = output.GetSize() + 1024;
-			//THROW_SL(output.Alloc(new_size));
 			size_t new_size = RetBuf.GetSize() + 1024;
 			THROW_SL(RetBuf.Alloc(new_size));
 		}

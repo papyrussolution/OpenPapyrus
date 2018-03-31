@@ -3280,6 +3280,7 @@ int SLAPI PPBillImporter::Run()
 			ObjIdListFilt cli_list;
 			PPIDArray temp_id_list;
 			PPSupplAgreement suppl_agt;
+			PPClientAgreement cli_agt;
 			PPObjEdiProvider ediprv_obj;
 			PPEdiProvider ediprv_rec;
 			PPEdiProviderPacket ediprv_pack;
@@ -3287,25 +3288,50 @@ int SLAPI PPBillImporter::Run()
 			be_filt.LocID = this->LocID;
 			be_filt.Period = this->Period;
 			GetMainOrgID(&main_org_id);
+			long ediprvimp_ctr_flags = 0;
+			if(Flags & fTestMode)
+				ediprvimp_ctr_flags |= PPEdiProcessor::ProviderImplementation::ctrfTestMode;
 			for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
-				PPEdiProcessor::ProviderImplementation * p_prvimp = PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id);
-				if(p_prvimp && ediprv_rec.Symb[0]) {
-					if(!suppl_list.IsExists()) {
-						ArObj.P_Tbl->GetListBySheet(GetSupplAccSheet(), &temp_id_list, 0);
-						suppl_list.Set(&temp_id_list);
-					}
-					temp_id_list.clear();
-					for(uint i = 0; i < suppl_list.GetCount(); i++) {
-						const PPID ar_id = suppl_list.Get(i);
-						if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 && 
-							suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf) && temp_buf.IsEqiAscii(ediprv_rec.Symb)) {
-							temp_id_list.add(ar_id);
+				PPEdiProcessor::ProviderImplementation * p_prvimp = PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags);
+				if(p_prvimp) {
+					PPEdiProcessor prc(p_prvimp, &Logger);
+					PPEdiProcessor::DocumentInfoList doc_list;
+					prc.GetDocumentList(doc_list);
+					if(ediprv_rec.Symb[0]) {
+						if(!suppl_list.IsExists()) {
+							ArObj.P_Tbl->GetListBySheet(GetSupplAccSheet(), &temp_id_list, 0);
+							suppl_list.Set(&temp_id_list);
+						}
+						temp_id_list.clear();
+						for(uint i = 0; i < suppl_list.GetCount(); i++) {
+							const PPID ar_id = suppl_list.Get(i);
+							if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 && 
+								suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf) && temp_buf.IsEqiAscii(ediprv_rec.Symb)) {
+								temp_id_list.add(ar_id);
+							}
+						}
+						if(temp_id_list.getCount()) {
+							// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
+							prc.SendOrders(be_filt, temp_id_list);
 						}
 					}
-					if(temp_id_list.getCount()) {
-						// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
-						PPEdiProcessor prc(p_prvimp, &Logger);
-						prc.SendOrders(be_filt, temp_id_list);
+					{
+						temp_id_list.clear();
+						if(!cli_list.IsExists()) {
+							ArObj.P_Tbl->GetListBySheet(GetSellAccSheet(), &temp_id_list, 0);
+							cli_list.Set(&temp_id_list);
+						}
+						temp_id_list.clear();
+						for(uint i = 0; i < cli_list.GetCount(); i++) {
+							const PPID ar_id = cli_list.Get(i);
+							if(ArObj.GetClientAgreement(ar_id, &cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID) {
+								temp_id_list.add(ar_id);
+							}
+						}
+						if(temp_id_list.getCount()) {
+							// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
+							prc.SendDESADV(be_filt, temp_id_list);
+						}
 					}
 				}
 				ZDELETE(p_prvimp);

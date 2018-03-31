@@ -63,22 +63,23 @@ static bool EnhancedMaskTest(const wchar_t * mask, const wchar_t * name)
 // --------------------------------------------------
 // Splits path to strings
 
-void SplitPathToParts(const UString &path, UStringVector &pathParts)
+void FASTCALL SplitPathToParts(const UString & path, UStringVector & pathParts)
 {
 	pathParts.Clear();
-	uint len = path.Len();
-	if(len == 0)
-		return;
-	UString name;
-	unsigned prev = 0;
-	for(uint i = 0; i < len; i++)
-		if(IsPathSepar(path[i])) {
-			name.SetFrom(path.Ptr(prev), i - prev);
-			pathParts.Add(name);
-			prev = i + 1;
+	const uint len = path.Len();
+	if(len) {
+		UString name;
+		uint   prev = 0;
+		for(uint i = 0; i < len; i++) {
+			if(IsPathSepar(path[i])) {
+				name.SetFrom(path.Ptr(prev), i - prev);
+				pathParts.Add(name);
+				prev = i + 1;
+			}
 		}
-	name.SetFrom(path.Ptr(prev), len - prev);
-	pathParts.Add(name);
+		name.SetFrom(path.Ptr(prev), len - prev);
+		pathParts.Add(name);
+	}
 }
 
 void SplitPathToParts_2(const UString &path, UString &dirPrefix, UString &name)

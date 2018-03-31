@@ -323,7 +323,7 @@ int LZAriTree::DeleteNode(int p)  /* Delete node p from tree */
 //
 // Arithmetic Compression
 //
-LZAri::LZAri() : TextSize(0), Low(0), High(Q4), Value(0), Shifts(0), P_SymFreq(0), P_SymCum(0), P_PositionCum(0), 
+LZAri::LZAri() : TextSize(0), Low(0), High(Q4), Value(0), Shifts(0), P_SymFreq(0), P_SymCum(0), P_PositionCum(0),
 	P_CharToSym(0), P_SymToChar(0), P_Bit(0), P_Tree(0), P_Header(0), P_Src(0), P_Dest(0), P_InFile(0), P_OutFile(0)
 {
 }
@@ -412,7 +412,7 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 // If you are not familiar with arithmetic compression, you should read
 // I. E. Witten, R. M. Neal, and J. G. Cleary,
 // Communications of the ACM, Vol. 30, pp. 520-540 (1987), from which much have been borrowed.
-// 
+//
 int LZAri::StartModel()  /* Initialize model */
 {
 	int    ok = 1;
@@ -778,7 +778,7 @@ int LZAri::SetFileInfo()
 
 int LZAri::GetFileInfo(int compress)
 {
-	EXCEPTVAR(SLibError);
+	//EXCEPTVAR(SLibError);
 	int    ok = -1;
 	const size_t buf_size = 512;
 	char  * p_buf = 0;
@@ -786,7 +786,7 @@ int LZAri::GetFileInfo(int compress)
 	uint32 len = 0;
 	ulong  crc = 0;
 	CRC32  _crc32;
-	THROW_V(p_buf = new char[buf_size], SLERR_NOMEM);
+	THROW_S(p_buf = new char[buf_size], SLERR_NOMEM);
 	if(P_Header) {
 	   	memzero(P_Header, sizeof(*P_Header));
 		if(compress) {
@@ -795,11 +795,9 @@ int LZAri::GetFileInfo(int compress)
 			SPathStruc ps;
 			SFileUtil::Stat fs;
 			SFileUtil::GetStat(P_Src, &fs);
-			THROW_V((P_InFile = fopen(P_Src, "rb")) != NULL, SLERR_OPENFAULT);
-
+			THROW_S_S((P_InFile = fopen(P_Src, "rb")) != NULL, SLERR_OPENFAULT, P_Src);
 			ps.Split(P_Src);
 			(filename = ps.Nam).Cat(ps.Ext);
-
 			crc = 0;
 			while((len = fread(p_buf, 1, buf_size, P_InFile)) > 0)
 				crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
@@ -813,7 +811,7 @@ int LZAri::GetFileInfo(int compress)
 			filename.CopyTo(P_Header->FileName, sizeof(P_Header->FileName));
 		}
 		else {
-			THROW_V(fread(P_Header, sizeof(LZAriFileHeader), 1, P_InFile), SLERR_READFAULT);
+			THROW_S_S(fread(P_Header, sizeof(LZAriFileHeader), 1, P_InFile), SLERR_READFAULT, P_Src);
 		}
 		ok = 1;
 	}
@@ -824,18 +822,18 @@ int LZAri::GetFileInfo(int compress)
 
 int LZAri::CheckCrc()
 {
-	EXCEPTVAR(SLibError);
+	// @v10.0.0 EXCEPTVAR(SLibError);
 	const size_t buf_size = 512;
 	int    ok = 1;
 	char * p_buf = 0;
 	uint32 len = 0;
 	ulong  crc = 0;
 	CRC32  _crc32;
-	THROW_V(p_buf = new char[buf_size], SLERR_NOMEM);
+	THROW_S(p_buf = new char[buf_size], SLERR_NOMEM);
 	rewind(P_OutFile);
-	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0) 
+	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0)
 		crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
-	THROW_V((long)crc == P_Header->CRC, SLERR_INVALIDCRC);
+	THROW_S_S((long)crc == P_Header->CRC, SLERR_INVALIDCRC, "");
 	CATCHZOK
 	delete [] p_buf;
 	return ok;

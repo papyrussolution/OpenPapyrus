@@ -1262,24 +1262,40 @@ int FASTCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 	char   temp_buf[256];
 	SString _t;
 	temp_buf[0] = 0;
-	if(objType == PPOBJ_PERSON)
-		ok = GetPersonName(objID, _t);
-	else if(objType == PPOBJ_GOODS)
-		ok = GetGoodsNameR(objID, _t);
-	else if(objType == PPOBJ_ARTICLE)
-		ok = GetArticleName(objID, _t);
-	else if(objType == PPOBJ_LOT) {
-		PPObjBill * p_bobj = BillObj;
-		if(p_bobj) {
-			ReceiptTbl::Rec lot_rec;
-			if(p_bobj->trfr->Rcpt.Search(objID, &lot_rec) > 0) {
-				ReceiptCore::MakeCodeString(&lot_rec, 0, _t);
-				ok = 1;
+	switch(objType) {
+		case PPOBJ_PERSON: ok = GetPersonName(objID, _t); break;
+		case PPOBJ_GOODS: ok = GetGoodsNameR(objID, _t); break;
+		case PPOBJ_ARTICLE: ok = GetArticleName(objID, _t); break;
+		case PPOBJ_LOT:
+			{
+				PPObjBill * p_bobj = BillObj;
+				if(p_bobj) {
+					ReceiptTbl::Rec lot_rec;
+					if(p_bobj->trfr->Rcpt.Search(objID, &lot_rec) > 0) {
+						ReceiptCore::MakeCodeString(&lot_rec, 0, _t);
+						ok = 1;
+					}
+				}
 			}
-		}
+			break;
+		case PPOBJ_AMOUNTTYPE: // @v10.0.0
+			{
+				PPObjAmountType amtt_obj;
+				PPAmountType amtt_rec;
+				if(amtt_obj.Fetch(objID, &amtt_rec) > 0) {
+					_t = amtt_rec.Name;
+					ok = 1;
+				}
+				else {
+					ideqvalstr(objID, _t);
+					ok = -1;
+				}
+			}
+			break;
+		default: 
+			ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf)); 
+			break;
 	}
-	else
-		ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf));
 	if(cat) {
 		if(_t.NotEmpty())
 			rBuf.Cat(_t);

@@ -93,7 +93,7 @@ static const xmlChar * xmlNamespaceNs = (const xmlChar*)"http://www.w3.org/2000/
  */
 #define ACTXT_CAST (xmlSchemaAbstractCtxtPtr)
 #define PCTXT_CAST (xmlSchemaParserCtxtPtr)
-#define VCTXT_CAST (xmlSchemaValidCtxtPtr)
+#define VCTXT_CAST (xmlSchemaValidCtxt *)
 #define WXS_BASIC_CAST (xmlSchemaBasicItem *) 
 #define WXS_TREE_CAST (xmlSchemaTreeItem *)
 #define WXS_PTC_CAST (xmlSchemaParticlePtr)
@@ -500,7 +500,7 @@ struct _xmlSchemaParserCtxt {
 	xmlDict * dict;        /* dictionnary for interned string names */
 	xmlSchemaTypePtr ctxtType; /* The current context simple/complex type */
 	int    options;
-	xmlSchemaValidCtxtPtr vctxt;
+	xmlSchemaValidCtxt * vctxt;
 	int    isS4S;
 	int    isRedefine;
 	int    xsiAssemble;
@@ -917,7 +917,7 @@ static int FASTCALL xmlSchemaTypeFixup(xmlSchemaTypePtr type, xmlSchemaAbstractC
 static const xmlChar * xmlSchemaFacetTypeToString(xmlSchemaTypeType type);
 static int xmlSchemaParseImport(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node);
 static int xmlSchemaCheckFacetValues(xmlSchemaTypePtr typeDecl, xmlSchemaParserCtxtPtr ctxt);
-static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt);
+static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxt * vctxt);
 static xmlSchemaWhitespaceValueType xmlSchemaGetWhiteSpaceFacetValue(xmlSchemaTypePtr type);
 static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node, xmlSchemaTypeType type, int withParticle);
 static const xmlChar * xmlSchemaGetComponentTypeStr(xmlSchemaBasicItem * item);
@@ -1669,7 +1669,7 @@ static void xmlSchemaPErrExt(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int 
  *
  * Handle an out of memory condition
  */
-static void FASTCALL xmlSchemaVErrMemory(xmlSchemaValidCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
+static void FASTCALL xmlSchemaVErrMemory(xmlSchemaValidCtxt * ctxt, const char * extra, xmlNode * P_Node)
 {
 	if(ctxt) {
 		ctxt->nberrors++;
@@ -1705,7 +1705,7 @@ static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel error
 	void * data = NULL;
 	if(ctxt) {
 		if(ctxt->type == XML_SCHEMA_CTXT_VALIDATOR) {
-			xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)ctxt;
+			xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctxt;
 			const char * file = NULL;
 			int col = 0;
 			if(errorLevel != XML_ERR_WARNING) {
@@ -1849,7 +1849,7 @@ static xmlChar * xmlSchemaFormatNodeForError(xmlChar ** msg, xmlSchemaAbstractCt
 		*msg = xmlStrcat(*msg, BAD_CAST "': ");
 	}
 	else if(actxt->type == XML_SCHEMA_CTXT_VALIDATOR) {
-		xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)actxt;
+		xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)actxt;
 		/*
 		 * Work on node infos.
 		 */
@@ -1929,42 +1929,42 @@ static void xmlSchemaPInternalErr(xmlSchemaParserCtxtPtr pctxt,
 #endif
 
 static void xmlSchemaCustomErr4(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error,
-    xmlNode * P_Node, xmlSchemaBasicItem * item, const char * message, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
+    xmlNode * pNode, xmlSchemaBasicItem * item, const char * message, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
 {
 	xmlChar * msg = NULL;
-	if(!P_Node && item && (actxt->type == XML_SCHEMA_CTXT_PARSER)) {
-		P_Node = WXS_ITEM_NODE(item);
+	if(!pNode && item && (actxt->type == XML_SCHEMA_CTXT_PARSER)) {
+		pNode = WXS_ITEM_NODE(item);
 		xmlSchemaFormatItemForReport(&msg, NULL, item, 0);
 		msg = xmlStrcat(msg, BAD_CAST ": ");
 	}
 	else
-		xmlSchemaFormatNodeForError(&msg, actxt, P_Node);
+		xmlSchemaFormatNodeForError(&msg, actxt, pNode);
 	msg = xmlStrcat(msg, (const xmlChar*)message);
 	msg = xmlStrcat(msg, BAD_CAST ".\n");
-	xmlSchemaErr4(actxt, error, P_Node, (const char*)msg, str1, str2, str3, str4);
+	xmlSchemaErr4(actxt, error, pNode, (const char*)msg, str1, str2, str3, str4);
 	ZFREE(msg);
 }
 
-static void xmlSchemaCustomErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * P_Node,
+static void xmlSchemaCustomErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * pNode,
     xmlSchemaBasicItem * item, const char * message, const xmlChar * str1, const xmlChar * str2)
 {
-	xmlSchemaCustomErr4(actxt, error, P_Node, item, message, str1, str2, 0, 0);
+	xmlSchemaCustomErr4(actxt, error, pNode, item, message, str1, str2, 0, 0);
 }
 
 static void xmlSchemaCustomWarning(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error,
-    xmlNode * P_Node, xmlSchemaTypePtr type ATTRIBUTE_UNUSED, const char * message,
+    xmlNode * pNode, xmlSchemaTypePtr type ATTRIBUTE_UNUSED, const char * message,
     const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
 	xmlChar * msg = NULL;
-	xmlSchemaFormatNodeForError(&msg, actxt, P_Node);
+	xmlSchemaFormatNodeForError(&msg, actxt, pNode);
 	msg = xmlStrcat(msg, (const xmlChar*)message);
 	msg = xmlStrcat(msg, BAD_CAST ".\n");
 	/* URGENT TODO: Set the error code to something sane. */
-	xmlSchemaErr4Line(actxt, XML_ERR_WARNING, error, P_Node, 0, (const char*)msg, str1, str2, str3, 0);
+	xmlSchemaErr4Line(actxt, XML_ERR_WARNING, error, pNode, 0, (const char*)msg, str1, str2, str3, 0);
 	ZFREE(msg);
 }
 
-static void xmlSchemaKeyrefErr(xmlSchemaValidCtxtPtr vctxt, xmlParserErrors error,
+static void xmlSchemaKeyrefErr(xmlSchemaValidCtxt * vctxt, xmlParserErrors error,
     xmlSchemaPSVIIDCNodePtr idcNode, xmlSchemaTypePtr type ATTRIBUTE_UNUSED,
     const char * message, const xmlChar * str1, const xmlChar * str2)
 {
@@ -1984,8 +1984,8 @@ static int xmlSchemaEvalErrorNodeType(xmlSchemaAbstractCtxtPtr actxt, xmlNode * 
 {
 	if(P_Node)
 		return (P_Node->type);
-	if((actxt->type == XML_SCHEMA_CTXT_VALIDATOR) && ((xmlSchemaValidCtxtPtr)actxt)->inode)
-		return ( ((xmlSchemaValidCtxtPtr)actxt)->inode->nodeType);
+	if((actxt->type == XML_SCHEMA_CTXT_VALIDATOR) && ((xmlSchemaValidCtxt *)actxt)->inode)
+		return ( ((xmlSchemaValidCtxt *)actxt)->inode->nodeType);
 	return -1;
 }
 
@@ -8371,7 +8371,7 @@ static xmlSchemaParserCtxtPtr xmlSchemaNewParserCtxtUseDict(const char * URL, xm
 	return ret;
 }
 
-static int xmlSchemaCreatePCtxtOnVCtxt(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaCreatePCtxtOnVCtxt(xmlSchemaValidCtxt * vctxt)
 {
 	if(vctxt->pctxt == NULL) {
 		if(vctxt->schema)
@@ -18189,7 +18189,7 @@ static xmlSchemaWhitespaceValueType xmlSchemaGetWhiteSpaceFacetValue(xmlSchemaTy
  * Returns 0 if the new schema is correct, a positive error code
  * number otherwise and -1 in case of an internal or API error.
  */
-static int xmlSchemaAssembleByLocation(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPtr schema, xmlNode * P_Node, const xmlChar * nsName, const xmlChar * location)
+static int xmlSchemaAssembleByLocation(xmlSchemaValidCtxt * vctxt, xmlSchemaPtr schema, xmlNode * P_Node, const xmlChar * nsName, const xmlChar * location)
 {
 	int ret = 0;
 	xmlSchemaParserCtxtPtr pctxt;
@@ -18291,7 +18291,7 @@ static xmlSchemaAttrInfo * FASTCALL xmlSchemaGetMetaAttrInfo(xmlSchemaValidCtxt 
  * Returns 0 if the new schema is correct, a positive error code
  * number otherwise and -1 in case of an internal or API error.
  */
-static int xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaAssembleByXSI(xmlSchemaValidCtxt * vctxt)
 {
 	const xmlChar * cur, * end;
 	const xmlChar * nsname = NULL, * location;
@@ -18364,7 +18364,7 @@ static int xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
 	return ret;
 }
 
-static const xmlChar * xmlSchemaLookupNamespace(xmlSchemaValidCtxtPtr vctxt, const xmlChar * prefix)
+static const xmlChar * xmlSchemaLookupNamespace(xmlSchemaValidCtxt * vctxt, const xmlChar * prefix)
 {
 	if(vctxt->sax) {
 		int i, j;
@@ -18405,7 +18405,7 @@ static const xmlChar * xmlSchemaLookupNamespace(xmlSchemaValidCtxtPtr vctxt, con
 /*
  * This one works on the schema of the validation context.
  */
-static int xmlSchemaValidateNotation(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPtr schema, xmlNode * P_Node,
+static int xmlSchemaValidateNotation(xmlSchemaValidCtxt * vctxt, xmlSchemaPtr schema, xmlNode * P_Node,
     const xmlChar * value, xmlSchemaValPtr * val, int valNeeded)
 {
 	int ret;
@@ -18465,7 +18465,7 @@ static int xmlSchemaValidateNotation(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPtr s
 	return ret;
 }
 
-static int xmlSchemaVAddNodeQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar* lname, const xmlChar* nsname)
+static int xmlSchemaVAddNodeQName(xmlSchemaValidCtxt * vctxt, const xmlChar* lname, const xmlChar* nsname)
 {
 	int i;
 	lname = xmlDictLookupSL(vctxt->dict, lname);
@@ -18502,7 +18502,7 @@ static int xmlSchemaVAddNodeQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar* ln
  *
  * Returns the item, or NULL on internal errors.
  */
-static void xmlSchemaAugmentIDC(xmlSchemaIDCPtr idcDef, xmlSchemaValidCtxtPtr vctxt)
+static void xmlSchemaAugmentIDC(xmlSchemaIDCPtr idcDef, xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaIDCAugPtr aidc = (xmlSchemaIDCAugPtr)SAlloc::M(sizeof(xmlSchemaIDCAug));
 	if(aidc == NULL) {
@@ -18521,24 +18521,21 @@ static void xmlSchemaAugmentIDC(xmlSchemaIDCPtr idcDef, xmlSchemaValidCtxtPtr vc
 	/*
 	 * Save if we have keyrefs at all.
 	 */
-	if((vctxt->hasKeyrefs == 0) &&
-	    (idcDef->type == XML_SCHEMA_TYPE_IDC_KEYREF))
+	if((vctxt->hasKeyrefs == 0) && (idcDef->type == XML_SCHEMA_TYPE_IDC_KEYREF))
 		vctxt->hasKeyrefs = 1;
 }
-
 /**
  * xmlSchemaAugmentImportedIDC:
  * @imported: the imported schema
  *
  * Creates an augmented IDC definition for the imported schema.
  */
-static void xmlSchemaAugmentImportedIDC(xmlSchemaImportPtr imported, xmlSchemaValidCtxtPtr vctxt) 
+static void xmlSchemaAugmentImportedIDC(xmlSchemaImportPtr imported, xmlSchemaValidCtxt * vctxt) 
 {
 	if(imported->schema->idcDef) {
 		xmlHashScan(imported->schema->idcDef, (xmlHashScanner)xmlSchemaAugmentIDC, vctxt);
 	}
 }
-
 /**
  * xmlSchemaIDCNewBinding:
  * @idcDef: the IDC definition of this binding
@@ -18571,7 +18568,7 @@ static xmlSchemaPSVIIDCBindingPtr xmlSchemaIDCNewBinding(xmlSchemaIDCPtr idcDef)
  *
  * Returns 0 if succeeded, -1 on internal errors.
  */
-static int xmlSchemaIDCStoreNodeTableItem(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPSVIIDCNodePtr item)
+static int xmlSchemaIDCStoreNodeTableItem(xmlSchemaValidCtxt * vctxt, xmlSchemaPSVIIDCNodePtr item)
 {
 	/*
 	 * Add to gobal list.
@@ -18606,7 +18603,7 @@ static int xmlSchemaIDCStoreNodeTableItem(xmlSchemaValidCtxtPtr vctxt, xmlSchema
  *
  * Returns 0 if succeeded, -1 on internal errors.
  */
-static int xmlSchemaIDCStoreKey(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPSVIIDCKeyPtr key)
+static int xmlSchemaIDCStoreKey(xmlSchemaValidCtxt * vctxt, xmlSchemaPSVIIDCKeyPtr key)
 {
 	/*
 	 * Add to gobal list.
@@ -18673,7 +18670,7 @@ static int xmlSchemaIDCAppendNodeTableItem(xmlSchemaPSVIIDCBindingPtr bind, xmlS
  *
  * Returns an IDC binding or NULL on internal errors.
  */
-static xmlSchemaPSVIIDCBindingPtr xmlSchemaIDCAcquireBinding(xmlSchemaValidCtxtPtr vctxt, xmlSchemaIDCMatcherPtr matcher)
+static xmlSchemaPSVIIDCBindingPtr xmlSchemaIDCAcquireBinding(xmlSchemaValidCtxt * vctxt, xmlSchemaIDCMatcherPtr matcher)
 {
 	xmlSchemaNodeInfo * ielem = vctxt->elemInfos[matcher->depth];
 	if(ielem->idcTable == NULL) {
@@ -18696,12 +18693,11 @@ static xmlSchemaPSVIIDCBindingPtr xmlSchemaIDCAcquireBinding(xmlSchemaValidCtxtP
 	return 0;
 }
 
-static xmlSchemaItemListPtr xmlSchemaIDCAcquireTargetList(xmlSchemaValidCtxtPtr vctxt ATTRIBUTE_UNUSED, xmlSchemaIDCMatcherPtr matcher)
+static xmlSchemaItemListPtr xmlSchemaIDCAcquireTargetList(xmlSchemaValidCtxt * vctxt ATTRIBUTE_UNUSED, xmlSchemaIDCMatcherPtr matcher)
 {
 	SETIFZ(matcher->targets, xmlSchemaItemListCreate());
 	return matcher->targets;
 }
-
 /**
  * xmlSchemaIDCFreeKey:
  * @key: the IDC key
@@ -18789,7 +18785,7 @@ static void xmlSchemaIDCFreeMatcherList(xmlSchemaIDCMatcherPtr matcher)
  *
  * Caches a list of IDC matchers for reuse.
  */
-static void xmlSchemaIDCReleaseMatcherList(xmlSchemaValidCtxtPtr vctxt, xmlSchemaIDCMatcherPtr matcher)
+static void xmlSchemaIDCReleaseMatcherList(xmlSchemaValidCtxt * vctxt, xmlSchemaIDCMatcherPtr matcher)
 {
 	while(matcher) {
 		xmlSchemaIDCMatcher * next = matcher->next;
@@ -18846,7 +18842,7 @@ static void xmlSchemaIDCReleaseMatcherList(xmlSchemaValidCtxtPtr vctxt, xmlSchem
  *
  * Returns 0 on success and -1 on internal errors.
  */
-static int xmlSchemaIDCAddStateObject(xmlSchemaValidCtxtPtr vctxt, xmlSchemaIDCMatcherPtr matcher, xmlSchemaIDCSelectPtr sel, int type)
+static int xmlSchemaIDCAddStateObject(xmlSchemaValidCtxt * vctxt, xmlSchemaIDCMatcherPtr matcher, xmlSchemaIDCSelectPtr sel, int type)
 {
 	xmlSchemaIDCStateObjPtr sto;
 	/*
@@ -18907,7 +18903,7 @@ static int xmlSchemaIDCAddStateObject(xmlSchemaValidCtxtPtr vctxt, xmlSchemaIDCM
  * Returns the number of IC "field" state objects which resolved to
  * this node, 0 if none resolved and -1 on internal errors.
  */
-static int xmlSchemaXPathEvaluate(xmlSchemaValidCtxtPtr vctxt, xmlElementType nodeType)
+static int xmlSchemaXPathEvaluate(xmlSchemaValidCtxt * vctxt, xmlElementType nodeType)
 {
 	xmlSchemaIDCStateObjPtr sto, head = NULL, first;
 	int res, resolved = 0, depth = vctxt->depth;
@@ -19025,7 +19021,7 @@ next_sto:
 	return (resolved);
 }
 
-static const xmlChar * xmlSchemaFormatIDCKeySequence(xmlSchemaValidCtxtPtr vctxt, xmlChar ** buf, xmlSchemaPSVIIDCKeyPtr * seq, int count)
+static const xmlChar * xmlSchemaFormatIDCKeySequence(xmlSchemaValidCtxt * vctxt, xmlChar ** buf, xmlSchemaPSVIIDCKeyPtr * seq, int count)
 {
 	int i, res;
 	xmlChar * value = NULL;
@@ -19058,7 +19054,7 @@ static const xmlChar * xmlSchemaFormatIDCKeySequence(xmlSchemaValidCtxtPtr vctxt
  *
  * Returns 0 on success and -1 on internal errors.
  */
-static int xmlSchemaXPathPop(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaXPathPop(xmlSchemaValidCtxt * vctxt)
 {
 	if(vctxt->xpathStates) {
 		xmlSchemaIDCStateObjPtr sto = vctxt->xpathStates;
@@ -19083,12 +19079,14 @@ static int xmlSchemaXPathPop(xmlSchemaValidCtxtPtr vctxt)
  *
  * Returns 0 on success and -1 on internal errors.
  */
-static int xmlSchemaXPathProcessHistory(xmlSchemaValidCtxtPtr vctxt, int depth)
+static int xmlSchemaXPathProcessHistory(xmlSchemaValidCtxt * vctxt, int depth)
 {
-	xmlSchemaIDCStateObjPtr sto, nextsto;
+	xmlSchemaIDCStateObjPtr sto;
+	xmlSchemaIDCStateObjPtr nextsto;
 	int res, matchDepth;
 	xmlSchemaPSVIIDCKeyPtr key = NULL;
-	xmlSchemaTypePtr type = vctxt->inode->typeDef, simpleType = NULL;
+	xmlSchemaTypePtr type = vctxt->inode->typeDef;
+	xmlSchemaTypePtr simpleType = NULL;
 	if(vctxt->xpathStates == NULL)
 		return 0;
 	sto = vctxt->xpathStates;
@@ -19549,7 +19547,7 @@ deregister_check:
  *
  * Returns 0 if OK and -1 on internal errors.
  */
-static int xmlSchemaIDCRegisterMatchers(xmlSchemaValidCtxtPtr vctxt, xmlSchemaElementPtr elemDecl)
+static int xmlSchemaIDCRegisterMatchers(xmlSchemaValidCtxt * vctxt, xmlSchemaElementPtr elemDecl)
 {
 	xmlSchemaIDCMatcherPtr matcher, last = NULL;
 	xmlSchemaIDCPtr refIdc;
@@ -19656,7 +19654,7 @@ static int xmlSchemaIDCRegisterMatchers(xmlSchemaValidCtxtPtr vctxt, xmlSchemaEl
 	return 0;
 }
 
-static int xmlSchemaIDCFillNodeTables(xmlSchemaValidCtxtPtr vctxt, xmlSchemaNodeInfoPtr ielem)
+static int xmlSchemaIDCFillNodeTables(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfoPtr ielem)
 {
 	xmlSchemaPSVIIDCBindingPtr bind;
 	int res, i, j, k, nbTargets, nbFields, nbDupls, nbNodeTable;
@@ -19836,7 +19834,7 @@ internal_error:
  *
  * Returns 0 if OK and -1 on internal errors.
  */
-static int xmlSchemaBubbleIDCNodeTables(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaBubbleIDCNodeTables(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaPSVIIDCBindingPtr * parTable, parBind = NULL; /* parent IDC bindings. */
 	xmlSchemaPSVIIDCNodePtr P_Node, parNode = NULL, * dupls, * parNodes; /* node-table entries. */
@@ -20104,7 +20102,7 @@ internal_error:
  *
  * Check the cvc-idc-keyref constraints.
  */
-static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaPSVIIDCBindingPtr bind;
 	xmlSchemaIDCMatcherPtr matcher = vctxt->inode->idcMatchers;
@@ -20207,7 +20205,7 @@ static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxtPtr vctxt)
 *									*
 ************************************************************************/
 
-static xmlSchemaAttrInfo * xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctxt)
+static xmlSchemaAttrInfo * xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaAttrInfo * iattr;
 	/*
@@ -20252,7 +20250,7 @@ static xmlSchemaAttrInfo * xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctxt
 	return (iattr);
 }
 
-static int xmlSchemaValidatorPushAttribute(xmlSchemaValidCtxtPtr vctxt, xmlNode * attrNode, int nodeLine,
+static int xmlSchemaValidatorPushAttribute(xmlSchemaValidCtxt * vctxt, xmlNode * attrNode, int nodeLine,
     const xmlChar * localName, const xmlChar * nsName, int ownedNames, xmlChar * value, int ownedValue)
 {
 	xmlSchemaAttrInfo * attr = xmlSchemaGetFreshAttrInfo(vctxt);
@@ -20373,7 +20371,7 @@ static void xmlSchemaClearElemInfo(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfo
  *
  * Returns the element info item or NULL on API or internal errors.
  */
-static xmlSchemaNodeInfo * xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxtPtr vctxt)
+static xmlSchemaNodeInfo * xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaNodeInfo * info = NULL;
 	if(vctxt->depth > vctxt->sizeElemInfos) {
@@ -20641,7 +20639,7 @@ static xmlChar * FASTCALL xmlSchemaNormalizeValue(xmlSchemaTypePtr type, const x
 	}
 }
 
-static int xmlSchemaValidateQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar * value, xmlSchemaValPtr * val, int valNeeded)
+static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * value, xmlSchemaValPtr * val, int valNeeded)
 {
 	const xmlChar * nsName;
 	xmlChar * local, * prefix = NULL;
@@ -20765,10 +20763,10 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxtPtr actxt, xmlNode 
 		if(actxt->type == XML_SCHEMA_CTXT_VALIDATOR) {
 			switch(biType->builtInType) {
 				case XML_SCHEMAS_NOTATION:
-				    ret = xmlSchemaValidateNotation((xmlSchemaValidCtxtPtr)actxt, ((xmlSchemaValidCtxtPtr)actxt)->schema, NULL, value, &val, valNeeded);
+				    ret = xmlSchemaValidateNotation((xmlSchemaValidCtxt *)actxt, ((xmlSchemaValidCtxt *)actxt)->schema, NULL, value, &val, valNeeded);
 				    break;
 				case XML_SCHEMAS_QNAME:
-				    ret = xmlSchemaValidateQName((xmlSchemaValidCtxtPtr)actxt, value, &val, valNeeded);
+				    ret = xmlSchemaValidateQName((xmlSchemaValidCtxt *)actxt, value, &val, valNeeded);
 				    break;
 				default:
 				    /* ws = xmlSchemaGetWhiteSpaceFacetValue(type); */
@@ -20992,7 +20990,7 @@ internal_error:
 	return -1;
 }
 
-static int xmlSchemaVExpandQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar * value, const xmlChar ** nsName, const xmlChar ** localName)
+static int xmlSchemaVExpandQName(xmlSchemaValidCtxt * vctxt, const xmlChar * value, const xmlChar ** nsName, const xmlChar ** localName)
 {
 	int ret = 0;
 	if((nsName == NULL) || (localName == NULL))
@@ -21041,7 +21039,7 @@ static int xmlSchemaVExpandQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar * va
 	return 0;
 }
 
-static int xmlSchemaProcessXSIType(xmlSchemaValidCtxtPtr vctxt, xmlSchemaAttrInfo * iattr, xmlSchemaTypePtr * localType, xmlSchemaElementPtr elemDecl)
+static int xmlSchemaProcessXSIType(xmlSchemaValidCtxt * vctxt, xmlSchemaAttrInfo * iattr, xmlSchemaTypePtr * localType, xmlSchemaElementPtr elemDecl)
 {
 	int ret = 0;
 	/*
@@ -21149,7 +21147,7 @@ internal_error:
 	return -1;
 }
 
-static int xmlSchemaValidateElemDecl(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaValidateElemDecl(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaElementPtr elemDecl = vctxt->inode->decl;
 	xmlSchemaTypePtr actualType;
@@ -21254,7 +21252,7 @@ static int xmlSchemaValidateElemDecl(xmlSchemaValidCtxtPtr vctxt)
 	return 0;
 }
 
-static int xmlSchemaVAttributesSimple(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaVAttributesSimple(xmlSchemaValidCtxt * vctxt)
 {
 	int ret = 0;
 	/*
@@ -21281,7 +21279,7 @@ static int xmlSchemaVAttributesSimple(xmlSchemaValidCtxtPtr vctxt)
 /*
  * Cleanup currently used attribute infos.
  */
-static void xmlSchemaClearAttrInfos(xmlSchemaValidCtxtPtr vctxt)
+static void xmlSchemaClearAttrInfos(xmlSchemaValidCtxt * vctxt)
 {
 	if(vctxt->nbAttrInfos) {
 		for(int i = 0; i < vctxt->nbAttrInfos; i++) {
@@ -21311,7 +21309,7 @@ static void xmlSchemaClearAttrInfos(xmlSchemaValidCtxtPtr vctxt)
  * Only "assessed" attribute information items will be visible to
  * IDCs. I.e. not "lax" (without declaration) and "skip" wild attributes.
  */
-static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaTypePtr type = vctxt->inode->typeDef;
 	xmlSchemaItemListPtr attrUseList;
@@ -21346,10 +21344,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 	 * @nbAttrs is the number of attributes present in the instance.
 	 */
 	nbAttrs = vctxt->nbAttrInfos;
-	if(attrUseList != NULL)
-		nbUses = attrUseList->nbItems;
-	else
-		nbUses = 0;
+	nbUses = attrUseList ? attrUseList->nbItems : 0;
 	for(i = 0; i < nbUses; i++) {
 		found = 0;
 		attrUse = (xmlSchemaAttributeUsePtr)attrUseList->items[i];
@@ -21432,13 +21427,12 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 			tmpiattr->nsName = attrDecl->targetNamespace;
 		}
 	}
-
 	if(vctxt->nbAttrInfos == 0)
 		return 0;
 	/*
 	 * Validate against the wildcard.
 	 */
-	if(type->attributeWildcard != NULL) {
+	if(type->attributeWildcard) {
 		/*
 		 * SPEC (cvc-complex-type)
 		 * (3.2.1) "There must be an {attribute wildcard}."
@@ -21461,8 +21455,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 			 * the wildcard constraint, as defined in Wildcard allows
 			 * Namespace Name ($3.10.4)."
 			 */
-			if(xmlSchemaCheckCVCWildcardNamespace(type->attributeWildcard,
-				    iattr->nsName) == 0) {
+			if(xmlSchemaCheckCVCWildcardNamespace(type->attributeWildcard, iattr->nsName) == 0) {
 				/*
 				 * Handle processContents.
 				 *
@@ -21487,7 +21480,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 				 * Find an attribute declaration.
 				 */
 				iattr->decl = xmlSchemaGetAttributeDecl(vctxt->schema, iattr->localName, iattr->nsName);
-				if(iattr->decl != NULL) {
+				if(iattr->decl) {
 					iattr->state = XML_SCHEMAS_ATTR_ASSESSED;
 					/*
 					 * SPEC (cvc-complex-type)
@@ -21522,7 +21515,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 						 * whose {attribute declaration}'s {type definition}
 						 * is or is derived from ID."
 						 */
-						if(attrUseList != NULL) {
+						if(attrUseList) {
 							for(j = 0; j < attrUseList->nbItems; j++) {
 								if(xmlSchemaIsDerivedFromBuiltInType(WXS_ATTRUSE_TYPEDEF(attrUseList->items[j]), XML_SCHEMAS_ID)) {
 									/* URGENT VAL TODO: implement */
@@ -21800,7 +21793,6 @@ eval_idcs:
 		else if(vctxt->xpathStates)
 			xmlSchemaXPathPop(vctxt);
 	}
-
 	/*
 	 * Report errors.
 	 */
@@ -21835,12 +21827,10 @@ eval_idcs:
 			     * for the following errors.
 			     */
 			    if(type->attributeWildcard == NULL) {
-				    xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt,
-				    XML_SCHEMAV_CVC_COMPLEX_TYPE_3_2_1, iattr, 0);
+				    xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt, XML_SCHEMAV_CVC_COMPLEX_TYPE_3_2_1, iattr, 0);
 			    }
 			    else {
-				    xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt,
-				    XML_SCHEMAV_CVC_COMPLEX_TYPE_3_2_2, iattr, 0);
+				    xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt, XML_SCHEMAV_CVC_COMPLEX_TYPE_3_2_2, iattr, 0);
 			    }
 			    break;
 			default:
@@ -21855,14 +21845,13 @@ internal_error:
 	return -1;
 }
 
-static int xmlSchemaValidateElemWildcard(xmlSchemaValidCtxtPtr vctxt, int * skip)
+static int xmlSchemaValidateElemWildcard(xmlSchemaValidCtxt * vctxt, int * skip)
 {
 	xmlSchemaWildcardPtr wild = (xmlSchemaWildcardPtr)vctxt->inode->decl;
-	/*
-	 * The namespace of the element was already identified to be
-	 * matching the wildcard.
-	 */
-	if((skip == NULL) || (wild == NULL) || (wild->type != XML_SCHEMA_TYPE_ANY)) {
+	// 
+	// The namespace of the element was already identified to be matching the wildcard.
+	// 
+	if(!skip || !wild || wild->type != XML_SCHEMA_TYPE_ANY) {
 		VERROR_INT("xmlSchemaValidateElemWildcard", "bad arguments");
 		return -1;
 	}
@@ -21911,25 +21900,19 @@ static int xmlSchemaValidateElemWildcard(xmlSchemaValidCtxtPtr vctxt, int * skip
 	 *
 	 * Fallback to "anyType".
 	 */
-	vctxt->inode->typeDef =
-	    xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYTYPE);
+	vctxt->inode->typeDef = xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYTYPE);
 	return 0;
 }
-
 /*
  * xmlSchemaCheckCOSValidDefault:
  *
  * This will be called if: not nilled, no content and a default/fixed
  * value is provided.
  */
-
-static int xmlSchemaCheckCOSValidDefault(xmlSchemaValidCtxtPtr vctxt,
-    const xmlChar * value,
-    xmlSchemaValPtr * val)
+static int xmlSchemaCheckCOSValidDefault(xmlSchemaValidCtxt * vctxt, const xmlChar * value, xmlSchemaValPtr * val)
 {
 	int ret = 0;
 	xmlSchemaNodeInfoPtr inode = vctxt->inode;
-
 	/*
 	 * cos-valid-default:
 	 * Schema Component Constraint: Element Default Valid (Immediate)
@@ -21976,7 +21959,7 @@ static int xmlSchemaCheckCOSValidDefault(xmlSchemaValidCtxtPtr vctxt,
 	return ret;
 }
 
-static void xmlSchemaVContentModelCallback(xmlSchemaValidCtxtPtr vctxt ATTRIBUTE_UNUSED,
+static void xmlSchemaVContentModelCallback(xmlSchemaValidCtxt * vctxt ATTRIBUTE_UNUSED,
     const xmlChar * name ATTRIBUTE_UNUSED, xmlSchemaElementPtr item, xmlSchemaNodeInfoPtr inode)
 {
 	inode->decl = item;
@@ -21994,7 +21977,7 @@ static void xmlSchemaVContentModelCallback(xmlSchemaValidCtxtPtr vctxt ATTRIBUTE
 #endif
 }
 
-static int xmlSchemaValidatorPushElem(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaValidatorPushElem(xmlSchemaValidCtxt * vctxt)
 {
 	vctxt->inode = xmlSchemaGetFreshElemInfo(vctxt);
 	if(vctxt->inode == NULL) {
@@ -22005,7 +21988,7 @@ static int xmlSchemaValidatorPushElem(xmlSchemaValidCtxtPtr vctxt)
 	return 0;
 }
 
-static int xmlSchemaVCheckINodeDataType(xmlSchemaValidCtxtPtr vctxt, xmlSchemaNodeInfoPtr inode, xmlSchemaTypePtr type, const xmlChar * value)
+static int xmlSchemaVCheckINodeDataType(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfoPtr inode, xmlSchemaTypePtr type, const xmlChar * value)
 {
 	if(inode->flags & XML_SCHEMA_NODE_INFO_VALUE_NEEDED)
 		return (xmlSchemaVCheckCVCSimpleType(ACTXT_CAST vctxt, NULL, type, value, &(inode->val), 1, 1, 0));
@@ -22015,7 +21998,7 @@ static int xmlSchemaVCheckINodeDataType(xmlSchemaValidCtxtPtr vctxt, xmlSchemaNo
 /*
  * Process END of element.
  */
-static int xmlSchemaValidatorPopElem(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaValidatorPopElem(xmlSchemaValidCtxt * vctxt)
 {
 	int ret = 0;
 	xmlSchemaNodeInfoPtr inode = vctxt->inode;
@@ -22030,10 +22013,9 @@ static int xmlSchemaValidatorPopElem(xmlSchemaValidCtxtPtr vctxt)
 		vctxt->skipDepth = vctxt->depth -1;
 		goto end_elem;
 	}
-	if((inode->typeDef == NULL) || (inode->flags & XML_SCHEMA_NODE_INFO_ERR_BAD_TYPE)) {
+	if(!inode->typeDef || (inode->flags & XML_SCHEMA_NODE_INFO_ERR_BAD_TYPE)) {
 		/*
-		 * 1. the type definition might be missing if the element was
-		 *    error prone
+		 * 1. the type definition might be missing if the element was error prone
 		 * 2. it might be abstract.
 		 */
 		goto end_elem;
@@ -22298,8 +22280,7 @@ default_psvi:
 						 */
 						ret = XML_SCHEMAV_CVC_ELT_5_2_2_2_1;
 						xmlSchemaCustomErr(ACTXT_CAST vctxt, (xmlParserErrors)ret, NULL, NULL,
-						    "The initial value '%s' does not match the fixed value constraint '%s'",
-						    inode->value, inode->decl->value);
+						    "The initial value '%s' does not match the fixed value constraint '%s'", inode->value, inode->decl->value);
 						goto end_elem;
 					}
 				}
@@ -22319,8 +22300,7 @@ default_psvi:
 					if(!sstreq(inode->value, inode->decl->value)) {
 						ret = XML_SCHEMAV_CVC_ELT_5_2_2_2_2;
 						xmlSchemaCustomErr(ACTXT_CAST vctxt, (xmlParserErrors)ret, NULL, NULL,
-						    "The actual value '%s' does not match the fixed value constraint '%s'",
-						    inode->value, inode->decl->value);
+						    "The actual value '%s' does not match the fixed value constraint '%s'", inode->value, inode->decl->value);
 						goto end_elem;
 					}
 				}
@@ -22427,12 +22407,11 @@ internal_error:
 	vctxt->err = -1;
 	return -1;
 }
-
 /*
  * 3.4.4 Complex Type Definition Validation Rules
  * Validation Rule: Element Locally Valid (Complex Type) (cvc-complex-type)
  */
-static int xmlSchemaValidateChildElem(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaNodeInfoPtr pielem;
 	xmlSchemaTypePtr ptype;
@@ -22498,7 +22477,6 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxtPtr vctxt)
 		}
 		return 0;
 	}
-
 	switch(ptype->contentType) {
 		case XML_SCHEMA_CONTENT_EMPTY:
 		    /*
@@ -22623,47 +22601,41 @@ unexpected_elem:
 #define XML_SCHEMA_PUSH_TEXT_CREATED 2
 #define XML_SCHEMA_PUSH_TEXT_VOLATILE 3
 
-static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const xmlChar * value, int len, int mode, int * consumed)
+static int xmlSchemaVPushText(xmlSchemaValidCtxt * vctxt, int nodeType, const xmlChar * value, int len, int mode, int * consumed)
 {
-	/*
-	 * Unfortunately we have to duplicate the text sometimes.
-	 * OPTIMIZE: Maybe we could skip it, if:
-	 *   1. content type is simple
-	 *   2. whitespace is "collapse"
-	 *   3. it consists of whitespace only
-	 *
-	 * Process character content.
-	 */
+	// 
+	// Unfortunately we have to duplicate the text sometimes.
+	// OPTIMIZE: Maybe we could skip it, if:
+	//   1. content type is simple
+	//   2. whitespace is "collapse"
+	//   3. it consists of whitespace only
+	// Process character content.
+	// 
 	ASSIGN_PTR(consumed, 0);
 	if(INODE_NILLED(vctxt->inode)) {
-		/*
-		 * SPEC cvc-elt (3.3.4 - 3.2.1)
-		 * "The element information item must have no character or
-		 * element information item [children]."
-		 */
+		// 
+		// SPEC cvc-elt (3.3.4 - 3.2.1)
+		// "The element information item must have no character or element information item [children]."
+		// 
 		VERROR(XML_SCHEMAV_CVC_ELT_3_2_1, NULL, "Neither character nor element content is allowed because the element is 'nilled'");
 		return (vctxt->err);
 	}
-	/*
-	 * SPEC (2.1) "If the {content type} is empty, then the
-	 * element information item has no character or element
-	 * information item [children]."
-	 */
+	// 
+	// SPEC (2.1) "If the {content type} is empty, then the
+	// element information item has no character or element
+	// information item [children]."
+	// 
 	if(vctxt->inode->typeDef->contentType == XML_SCHEMA_CONTENT_EMPTY) {
 		VERROR(XML_SCHEMAV_CVC_COMPLEX_TYPE_2_1, NULL, "Character content is not allowed, because the content type is empty");
 		return (vctxt->err);
 	}
-
 	if(vctxt->inode->typeDef->contentType == XML_SCHEMA_CONTENT_ELEMENTS) {
-		if((nodeType != XML_TEXT_NODE) || (!xmlSchemaIsBlank((xmlChar*)value, len))) {
-			/*
-			 * SPEC cvc-complex-type (2.3)
-			 * "If the {content type} is element-only, then the
-			 * element information item has no character information
-			 * item [children] other than those whose [character
-			 * code] is defined as a white space in [XML 1.0 (Second
-			 * Edition)]."
-			 */
+		if(nodeType != XML_TEXT_NODE || !xmlSchemaIsBlank((xmlChar*)value, len)) {
+			// 
+			// SPEC cvc-complex-type (2.3)
+			// "If the {content type} is element-only, then the element information item has no character information
+			// item [children] other than those whose [character code] is defined as a white space in [XML 1.0 (Second Edition)]."
+			// 
 			VERROR(XML_SCHEMAV_CVC_COMPLEX_TYPE_2_3, NULL, "Character content other than whitespace is not allowed because the content type is 'element-only'");
 			return (vctxt->err);
 		}
@@ -22671,44 +22643,37 @@ static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const x
 	}
 	if(isempty(value))
 		return 0;
-	/*
-	 * Save the value.
-	 * NOTE that even if the content type is *mixed*, we need the
-	 * *initial value* for default/fixed value constraints.
-	 */
+	// 
+	// Save the value.
+	// NOTE that even if the content type is *mixed*, we need the *initial value* for default/fixed value constraints.
+	// 
 	if((vctxt->inode->typeDef->contentType == XML_SCHEMA_CONTENT_MIXED) && ((vctxt->inode->decl == NULL) || (vctxt->inode->decl->value == NULL)))
 		return 0;
-	if(vctxt->inode->value == NULL) {
-		/*
-		 * Set the value.
-		 */
+	if(!vctxt->inode->value) {
+		// 
+		// Set the value.
+		// 
 		switch(mode) {
 			case XML_SCHEMA_PUSH_TEXT_PERSIST:
-			    /*
-			     * When working on a tree.
-			     */
+			    // 
+			    // When working on a tree.
+			    // 
 			    vctxt->inode->value = value;
 			    break;
 			case XML_SCHEMA_PUSH_TEXT_CREATED:
-			    /*
-			     * When working with the reader.
-			     * The value will be freed by the element info.
-			     */
+			    // 
+			    // When working with the reader. The value will be freed by the element info.
+			    // 
 			    vctxt->inode->value = value;
 				ASSIGN_PTR(consumed, 1);
 			    vctxt->inode->flags |= XML_SCHEMA_NODE_INFO_FLAG_OWNED_VALUES;
 			    break;
 			case XML_SCHEMA_PUSH_TEXT_VOLATILE:
-			    /*
-			     * When working with SAX.
-			     * The value will be freed by the element info.
-			     */
-			    if(len != -1)
-				    vctxt->inode->value = BAD_CAST xmlStrndup(value, len);
-			    else
-				    vctxt->inode->value = BAD_CAST sstrdup(value);
-			    vctxt->inode->flags |=
-			    XML_SCHEMA_NODE_INFO_FLAG_OWNED_VALUES;
+			    // 
+			    // When working with SAX. The value will be freed by the element info.
+			    // 
+			    vctxt->inode->value = (len != -1) ? (BAD_CAST xmlStrndup(value, len)) : (BAD_CAST sstrdup(value));
+			    vctxt->inode->flags |= XML_SCHEMA_NODE_INFO_FLAG_OWNED_VALUES;
 			    break;
 			default:
 			    break;
@@ -22717,9 +22682,9 @@ static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const x
 	else {
 		if(len < 0)
 			len = sstrlen(value);
-		/*
-		 * Concat the value.
-		 */
+		// 
+		// Concat the value.
+		// 
 		if(vctxt->inode->flags & XML_SCHEMA_NODE_INFO_FLAG_OWNED_VALUES) {
 			vctxt->inode->value = BAD_CAST xmlStrncat((xmlChar*)vctxt->inode->value, value, len);
 		}
@@ -22731,7 +22696,7 @@ static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const x
 	return 0;
 }
 
-static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaValidateElem(xmlSchemaValidCtxt * vctxt)
 {
 	int ret = 0;
 	if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth)) {
@@ -22739,34 +22704,30 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
 		goto internal_error;
 	}
 	if(vctxt->xsiAssemble) {
-		/*
-		 * We will stop validation if there was an error during
-		 * dynamic schema construction.
-		 * Note that we simply set @skipDepth to 0, this could
-		 * mean that a streaming document via SAX would be
-		 * still read to the end but it won't be validated any more.
-		 * @todo If we are sure how to stop the validation at once
-		 *   for all input scenarios, then this should be changed to
-		 *   instantly stop the validation.
-		 */
+		// 
+		// We will stop validation if there was an error during dynamic schema construction.
+		// Note that we simply set @skipDepth to 0, this could mean that a streaming document via SAX would be
+		// still read to the end but it won't be validated any more.
+		// @todo If we are sure how to stop the validation at once for all input scenarios, then this should be changed to
+		// instantly stop the validation.
+		// 
 		ret = xmlSchemaAssembleByXSI(vctxt);
-		if(ret != 0) {
+		if(ret) {
 			if(ret == -1)
 				goto internal_error;
 			vctxt->skipDepth = 0;
 			return ret;
 		}
-		/*
-		 * Augment the IDC definitions for the main schema and all imported ones
-		 * NOTE: main schema is the first in the imported list
-		 */
+		// 
+		// Augment the IDC definitions for the main schema and all imported ones
+		// NOTE: main schema is the first in the imported list
+		// 
 		xmlHashScan(vctxt->schema->schemasImports, (xmlHashScanner)xmlSchemaAugmentImportedIDC, vctxt);
 	}
 	if(vctxt->depth > 0) {
-		/*
-		 * Validate this element against the content model
-		 * of the parent.
-		 */
+		// 
+		// Validate this element against the content model of the parent.
+		// 
 		ret = xmlSchemaValidateChildElem(vctxt);
 		if(ret != 0) {
 			if(ret < 0) {
@@ -22777,15 +22738,15 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
 		}
 		if(vctxt->depth == vctxt->skipDepth)
 			goto exit;
-		if((vctxt->inode->decl == NULL) && (vctxt->inode->typeDef == NULL)) {
+		if(!vctxt->inode->decl && !vctxt->inode->typeDef) {
 			VERROR_INT("xmlSchemaValidateElem", "the child element was valid but neither the declaration nor the type was set");
 			goto internal_error;
 		}
 	}
 	else {
-		/*
-		 * Get the declaration of the validation root.
-		 */
+		// 
+		// Get the declaration of the validation root.
+		// 
 		vctxt->inode->decl = xmlSchemaGetElem(vctxt->schema, vctxt->inode->localName, vctxt->inode->nsName);
 		if(!vctxt->inode->decl) {
 			ret = XML_SCHEMAV_CVC_ELT_1;
@@ -22797,9 +22758,9 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
 		goto type_validation;
 	if(vctxt->inode->decl->type == XML_SCHEMA_TYPE_ANY) {
 		int skip;
-		/*
-		 * Wildcards.
-		 */
+		// 
+		// Wildcards.
+		// 
 		ret = xmlSchemaValidateElemWildcard(vctxt, &skip);
 		if(ret != 0) {
 			if(ret < 0) {
@@ -22812,21 +22773,21 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
 			vctxt->skipDepth = vctxt->depth;
 			goto exit;
 		}
-		/*
-		 * The declaration might be set by the wildcard validation,
-		 * when the processContents is "lax" or "strict".
-		 */
+		// 
+		// The declaration might be set by the wildcard validation,
+		// when the processContents is "lax" or "strict".
+		// 
 		if(vctxt->inode->decl->type != XML_SCHEMA_TYPE_ELEMENT) {
-			/*
-			 * Clear the "decl" field to not confuse further processing.
-			 */
+			// 
+			// Clear the "decl" field to not confuse further processing.
+			// 
 			vctxt->inode->decl = NULL;
 			goto type_validation;
 		}
 	}
-	/*
-	 * Validate against the declaration.
-	 */
+	// 
+	// Validate against the declaration.
+	// 
 	ret = xmlSchemaValidateElemDecl(vctxt);
 	if(ret != 0) {
 		if(ret < 0) {
@@ -22835,11 +22796,11 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxtPtr vctxt)
 		}
 		goto exit;
 	}
-	/*
-	 * Validate against the type definition.
-	 */
+	// 
+	// Validate against the type definition.
+	// 
 type_validation:
-	if(vctxt->inode->typeDef == NULL) {
+	if(!vctxt->inode->typeDef) {
 		vctxt->inode->flags |= XML_SCHEMA_NODE_INFO_ERR_BAD_TYPE;
 		ret = XML_SCHEMAV_CVC_TYPE_1;
 		VERROR(ret, NULL, "The type definition is absent");
@@ -22851,11 +22812,10 @@ type_validation:
 		VERROR(ret, NULL, "The type definition is abstract");
 		goto exit;
 	}
-	/*
-	 * Evaluate IDCs. Do it here, since new IDC matchers are registered
-	 * during validation against the declaration. This must be done
-	 * _before_ attribute validation.
-	 */
+	// 
+	// Evaluate IDCs. Do it here, since new IDC matchers are registered
+	// during validation against the declaration. This must be done _before_ attribute validation.
+	// 
 	if(vctxt->xpathStates) {
 		ret = xmlSchemaXPathEvaluate(vctxt, XML_ELEMENT_NODE);
 		vctxt->inode->appliedXPath = 1;
@@ -22864,20 +22824,20 @@ type_validation:
 			goto internal_error;
 		}
 	}
-	/*
-	 * Validate attributes.
-	 */
+	// 
+	// Validate attributes.
+	// 
 	if(WXS_IS_COMPLEX(vctxt->inode->typeDef)) {
-		if((vctxt->nbAttrInfos != 0) || (vctxt->inode->typeDef->attrUses != NULL)) {
+		if(vctxt->nbAttrInfos || vctxt->inode->typeDef->attrUses) {
 			ret = xmlSchemaVAttributesComplex(vctxt);
 		}
 	}
 	else if(vctxt->nbAttrInfos != 0) {
 		ret = xmlSchemaVAttributesSimple(vctxt);
 	}
-	/*
-	 * Clear registered attributes.
-	 */
+	// 
+	// Clear registered attributes.
+	// 
 	if(vctxt->nbAttrInfos != 0)
 		xmlSchemaClearAttrInfos(vctxt);
 	if(ret == -1) {
@@ -22897,7 +22857,7 @@ internal_error:
 }
 
 #ifdef XML_SCHEMA_READER_ENABLED
-static int xmlSchemaVReaderWalk(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaVReaderWalk(xmlSchemaValidCtxt * vctxt)
 {
 	const int WHTSP = 13, SIGN_WHTSP = 14, END_ELEM = 15;
 	int depth, nodeType, ret = 0, consumed;
@@ -22914,13 +22874,10 @@ static int xmlSchemaVReaderWalk(xmlSchemaValidCtxtPtr vctxt)
 		ret = xmlTextReaderRead(vctxt->reader);
 	}
 	goto exit;
-
 root_found:
-
 	do {
 		depth = xmlTextReaderDepth(vctxt->reader);
 		nodeType = xmlTextReaderNodeType(vctxt->reader);
-
 		if(nodeType == XML_ELEMENT_NODE) {
 			vctxt->depth++;
 			if(xmlSchemaValidatorPushElem(vctxt) == -1) {
@@ -23065,16 +23022,12 @@ internal_error:
 }
 
 #endif
-
-/************************************************************************
-*									*
-*			SAX validation handlers				*
-*									*
-************************************************************************/
-
-/*
- * Process text content.
- */
+// 
+// SAX validation handlers
+// 
+// 
+// Process text content.
+// 
 static void xmlSchemaSAXHandleText(void * ctx, const xmlChar * ch, int len)
 {
 	if(ctx) {
@@ -23098,7 +23051,7 @@ static void xmlSchemaSAXHandleText(void * ctx, const xmlChar * ch, int len)
 static void xmlSchemaSAXHandleCDataSection(void * ctx, const xmlChar * ch, int len)
 {
 	if(ctx) {
-		xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)ctx;
+		xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
 		if(vctxt->depth >= 0) {
 			if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
 				return;
@@ -23115,7 +23068,7 @@ static void xmlSchemaSAXHandleCDataSection(void * ctx, const xmlChar * ch, int l
 
 static void xmlSchemaSAXHandleReference(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name ATTRIBUTE_UNUSED)
 {
-	xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)ctx;
+	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
 	if(vctxt->depth < 0)
 		return;
 	if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
@@ -23128,7 +23081,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
     const xmlChar * URI, int nb_namespaces, const xmlChar ** namespaces, int nb_attributes,
     int nb_defaulted ATTRIBUTE_UNUSED, const xmlChar ** attributes)
 {
-	xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)ctx;
+	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
 	int ret;
 	xmlSchemaNodeInfoPtr ielem;
 	int i, j;
@@ -23237,7 +23190,7 @@ internal_error:
 
 static void xmlSchemaSAXHandleEndElementNs(void * ctx, const xmlChar * localname ATTRIBUTE_UNUSED, const xmlChar * prefix ATTRIBUTE_UNUSED, const xmlChar * URI ATTRIBUTE_UNUSED)
 {
-	xmlSchemaValidCtxtPtr vctxt = (xmlSchemaValidCtxtPtr)ctx;
+	xmlSchemaValidCtxt * vctxt = (xmlSchemaValidCtxt *)ctx;
 	int res;
 	/*
 	 * Skip elements if inside a "skip" wildcard or if invalid.
@@ -23271,13 +23224,9 @@ internal_error:
 	xmlStopParser(vctxt->parserCtxt);
 	return;
 }
-
-/************************************************************************
-*									*
-*			Validation interfaces				*
-*									*
-************************************************************************/
-
+//
+// Validation interfaces
+//
 /**
  * xmlSchemaNewValidCtxt:
  * @schema:  a precompiled XML Schemas
@@ -23286,7 +23235,7 @@ internal_error:
  *
  * Returns the validation context or NULL in case of error
  */
-xmlSchemaValidCtxtPtr xmlSchemaNewValidCtxt(xmlSchemaPtr schema)
+xmlSchemaValidCtxt * xmlSchemaNewValidCtxt(xmlSchemaPtr schema)
 {
 	xmlSchemaValidCtxt * ret = (xmlSchemaValidCtxt *)SAlloc::M(sizeof(xmlSchemaValidCtxt));
 	if(!ret) {
@@ -23309,7 +23258,7 @@ xmlSchemaValidCtxtPtr xmlSchemaNewValidCtxt(xmlSchemaPtr schema)
  * Workaround to provide file error reporting information when this is
  * not provided by current APIs
  */
-void xmlSchemaValidateSetFilename(xmlSchemaValidCtxtPtr vctxt, const char * filename) 
+void xmlSchemaValidateSetFilename(xmlSchemaValidCtxt * vctxt, const char * filename) 
 {
 	if(vctxt) {
 		SAlloc::F(vctxt->filename);
@@ -23323,14 +23272,13 @@ void xmlSchemaValidateSetFilename(xmlSchemaValidCtxtPtr vctxt, const char * file
  * Free the resources associated to the schema validation context;
  * leaves some fields alive intended for reuse of the context.
  */
-static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
+static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxt * vctxt)
 {
 	if(vctxt) {
-		/*
-		 * @todo Should we clear the flags?
-		 *   Might be problematic if one reuses the context
-		 *   and assumes that the options remain the same.
-		 */
+		// 
+		// @todo Should we clear the flags?
+		//   Might be problematic if one reuses the context and assumes that the options remain the same.
+		// 
 		vctxt->flags = 0;
 		vctxt->validationRoot = NULL;
 		vctxt->doc = NULL;
@@ -23340,9 +23288,9 @@ static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
 		vctxt->hasKeyrefs = 0;
 		xmlSchemaFreeValue(vctxt->value);
 		vctxt->value = NULL;
-		/*
-		 * Augmented IDC information.
-		 */
+		// 
+		// Augmented IDC information.
+		// 
 		if(vctxt->aidcs) {
 			xmlSchemaIDCAugPtr cur = vctxt->aidcs, next;
 			do {
@@ -23371,34 +23319,33 @@ static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
 			vctxt->nbIdcNodes = 0;
 			vctxt->sizeIdcNodes = 0;
 		}
-		/*
-		 * Note that we won't delete the XPath state pool here.
-		 */
+		// 
+		// Note that we won't delete the XPath state pool here.
+		// 
 		xmlSchemaFreeIDCStateObjList(vctxt->xpathStates);
 		vctxt->xpathStates = NULL;
-		/*
-		 * Attribute info.
-		 */
-		if(vctxt->nbAttrInfos != 0) {
+		// 
+		// Attribute info.
+		// 
+		if(vctxt->nbAttrInfos)
 			xmlSchemaClearAttrInfos(vctxt);
-		}
-		/*
-		 * Element info.
-		 */
+		// 
+		// Element info.
+		// 
 		if(vctxt->elemInfos) {
 			for(int i = 0; i < vctxt->sizeElemInfos; i++) {
 				xmlSchemaNodeInfo * ei = vctxt->elemInfos[i];
-				if(ei == NULL)
+				if(!ei)
 					break;
 				xmlSchemaClearElemInfo(vctxt, ei);
 			}
 		}
 		xmlSchemaItemListClear(vctxt->nodeQNames);
-		/* Recreate the dict. */
+		// Recreate the dict.
 		xmlDictFree(vctxt->dict);
-		/*
-		 * @todo Is is save to recreate it? Do we have a scenario where the user provides the dict?
-		 */
+		// 
+		// @todo Is is save to recreate it? Do we have a scenario where the user provides the dict?
+		// 
 		vctxt->dict = xmlDictCreate();
 		ZFREE(vctxt->filename);
 	}
@@ -23409,7 +23356,7 @@ static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
  *
  * Free the resources associated to the schema validation context
  */
-void xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr ctxt)
+void xmlSchemaFreeValidCtxt(xmlSchemaValidCtxt * ctxt)
 {
 	if(ctxt) {
 		xmlSchemaFreeValue(ctxt->value);
@@ -23476,7 +23423,7 @@ void xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr ctxt)
  *
  * Returns 1 if valid so far, 0 if errors were detected, and -1 in case of internal error.
  */
-int xmlSchemaIsValid(xmlSchemaValidCtxtPtr ctxt)
+int xmlSchemaIsValid(xmlSchemaValidCtxt * ctxt)
 {
 	return ctxt ? (ctxt->err == 0) : -1;
 }
@@ -23489,7 +23436,7 @@ int xmlSchemaIsValid(xmlSchemaValidCtxtPtr ctxt)
  *
  * Set the error and warning callback informations
  */
-void xmlSchemaSetValidErrors(xmlSchemaValidCtxtPtr ctxt, xmlSchemaValidityErrorFunc err, xmlSchemaValidityWarningFunc warn, void * ctx)
+void xmlSchemaSetValidErrors(xmlSchemaValidCtxt * ctxt, xmlSchemaValidityErrorFunc err, xmlSchemaValidityWarningFunc warn, void * ctx)
 {
 	if(ctxt) {
 		ctxt->error = err;
@@ -23507,7 +23454,7 @@ void xmlSchemaSetValidErrors(xmlSchemaValidCtxtPtr ctxt, xmlSchemaValidityErrorF
  *
  * Set the structured error callback
  */
-void xmlSchemaSetValidStructuredErrors(xmlSchemaValidCtxtPtr ctxt, xmlStructuredErrorFunc serror, void * ctx)
+void xmlSchemaSetValidStructuredErrors(xmlSchemaValidCtxt * ctxt, xmlStructuredErrorFunc serror, void * ctx)
 {
 	if(ctxt) {
 		ctxt->serror = serror;
@@ -23529,7 +23476,7 @@ void xmlSchemaSetValidStructuredErrors(xmlSchemaValidCtxtPtr ctxt, xmlStructured
  *
  * Returns -1 in case of error and 0 otherwise
  */
-int xmlSchemaGetValidErrors(xmlSchemaValidCtxtPtr ctxt, xmlSchemaValidityErrorFunc * err, xmlSchemaValidityWarningFunc * warn, void ** ctx)
+int xmlSchemaGetValidErrors(xmlSchemaValidCtxt * ctxt, xmlSchemaValidityErrorFunc * err, xmlSchemaValidityWarningFunc * warn, void ** ctx)
 {
 	if(!ctxt)
 		return -1;
@@ -23547,7 +23494,7 @@ int xmlSchemaGetValidErrors(xmlSchemaValidCtxtPtr ctxt, xmlSchemaValidityErrorFu
  *
  * Returns 0 in case of success, -1 in case of an API error.
  */
-int xmlSchemaSetValidOptions(xmlSchemaValidCtxtPtr ctxt, int options)
+int xmlSchemaSetValidOptions(xmlSchemaValidCtxt * ctxt, int options)
 {
 	if(!ctxt)
 		return -1;
@@ -23572,147 +23519,144 @@ int xmlSchemaSetValidOptions(xmlSchemaValidCtxtPtr ctxt, int options)
  *
  * Returns the option combination or -1 on error.
  */
-int xmlSchemaValidCtxtGetOptions(xmlSchemaValidCtxtPtr ctxt)
+int xmlSchemaValidCtxtGetOptions(xmlSchemaValidCtxt * ctxt)
 {
 	return ctxt ? (ctxt->options) : -1;
 }
 
-static int xmlSchemaVDocWalk(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaVDocWalk(xmlSchemaValidCtxt * vctxt)
 {
 	xmlAttr * attr;
 	int ret = 0;
 	xmlSchemaNodeInfoPtr ielem = NULL;
-	xmlNode * P_Node;
-	xmlNode * valRoot;
 	const xmlChar * nsName;
-	/* DOC VAL TODO: Move this to the start function. */
-	valRoot = (vctxt->validationRoot != NULL) ? vctxt->validationRoot : xmlDocGetRootElement(vctxt->doc);
+	// DOC VAL TODO: Move this to the start function. 
+	xmlNode * valRoot = NZOR(vctxt->validationRoot, xmlDocGetRootElement(vctxt->doc));
 	if(valRoot == NULL) {
-		/* VAL TODO: Error code? */
+		// VAL TODO: Error code? 
 		VERROR(1, NULL, "The document has no document element");
 		return 1;
 	}
-	vctxt->depth = -1;
-	vctxt->validationRoot = valRoot;
-	P_Node = valRoot;
-	while(P_Node) {
-		if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
-			goto next_sibling;
-		if(P_Node->type == XML_ELEMENT_NODE) {
-			/*
-			 * Init the node-info.
-			 */
-			vctxt->depth++;
-			if(xmlSchemaValidatorPushElem(vctxt) == -1)
-				goto internal_error;
-			ielem = vctxt->inode;
-			ielem->P_Node = P_Node;
-			ielem->nodeLine = P_Node->line;
-			ielem->localName = P_Node->name;
-			if(P_Node->ns)
-				ielem->nsName = P_Node->ns->href;
-			ielem->flags |= XML_SCHEMA_ELEM_INFO_EMPTY;
-			// 
-			// Register attributes.
-			// DOC VAL TODO: We do not register namespace declaration attributes yet.
-			// 
-			vctxt->nbAttrInfos = 0;
-			if(P_Node->properties) {
-				attr = P_Node->properties;
-				do {
-					nsName = attr->ns ? attr->ns->href : NULL;
-					ret = xmlSchemaValidatorPushAttribute(vctxt, (xmlNode *)attr,
+	else {
+		vctxt->depth = -1;
+		vctxt->validationRoot = valRoot;
+		for(xmlNode * p_node = valRoot; p_node;) {
+			if(vctxt->skipDepth != -1 && vctxt->depth >= vctxt->skipDepth)
+				goto next_sibling;
+			if(p_node->type == XML_ELEMENT_NODE) {
+				// 
+				// Init the node-info.
+				// 
+				vctxt->depth++;
+				if(xmlSchemaValidatorPushElem(vctxt) == -1)
+					goto internal_error;
+				ielem = vctxt->inode;
+				ielem->P_Node = p_node;
+				ielem->nodeLine = p_node->line;
+				ielem->localName = p_node->name;
+				if(p_node->ns)
+					ielem->nsName = p_node->ns->href;
+				ielem->flags |= XML_SCHEMA_ELEM_INFO_EMPTY;
+				// 
+				// Register attributes.
+				// DOC VAL TODO: We do not register namespace declaration attributes yet.
+				// 
+				vctxt->nbAttrInfos = 0;
+				if(p_node->properties) {
+					attr = p_node->properties;
+					do {
+						nsName = attr->ns ? attr->ns->href : NULL;
 						// Note that we give it the line number of the parent element.
-					    ielem->nodeLine, attr->name, nsName, 0, xmlNodeListGetString(attr->doc, attr->children, 1), 1);
+						ret = xmlSchemaValidatorPushAttribute(vctxt, (xmlNode *)attr, ielem->nodeLine, attr->name, nsName, 0, xmlNodeListGetString(attr->doc, attr->children, 1), 1);
+						if(ret == -1) {
+							VERROR_INT("xmlSchemaDocWalk", "calling xmlSchemaValidatorPushAttribute()");
+							goto internal_error;
+						}
+						attr = attr->next;
+					} while(attr);
+				}
+				// 
+				// Validate the element.
+				// 
+				ret = xmlSchemaValidateElem(vctxt);
+				if(ret != 0) {
 					if(ret == -1) {
-						VERROR_INT("xmlSchemaDocWalk", "calling xmlSchemaValidatorPushAttribute()");
+						VERROR_INT("xmlSchemaDocWalk", "calling xmlSchemaValidateElem()");
 						goto internal_error;
 					}
-					attr = attr->next;
-				} while(attr);
-			}
-			/*
-			 * Validate the element.
-			 */
-			ret = xmlSchemaValidateElem(vctxt);
-			if(ret != 0) {
-				if(ret == -1) {
-					VERROR_INT("xmlSchemaDocWalk", "calling xmlSchemaValidateElem()");
-					goto internal_error;
+					else
+						goto leave_node; // Don't stop validation; just skip the content of this element.
 				}
-				else
-					goto leave_node; // Don't stop validation; just skip the content of this element.
+				if(vctxt->skipDepth != -1 && vctxt->depth >= vctxt->skipDepth)
+					goto leave_node;
 			}
-			if((vctxt->skipDepth != -1) && (vctxt->depth >= vctxt->skipDepth))
-				goto leave_node;
-		}
-		else if(oneof2(P_Node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
-			/*
-			 * Process character content.
-			 */
-			if(ielem && (ielem->flags & XML_SCHEMA_ELEM_INFO_EMPTY))
-				ielem->flags ^= XML_SCHEMA_ELEM_INFO_EMPTY;
-			ret = xmlSchemaVPushText(vctxt, P_Node->type, P_Node->content, -1, XML_SCHEMA_PUSH_TEXT_PERSIST, 0);
-			if(ret < 0) {
-				VERROR_INT("xmlSchemaVDocWalk", "calling xmlSchemaVPushText()");
-				goto internal_error;
-			}
-			/*
-			 * DOC VAL TODO: Should we skip further validation of the element content here?
-			 */
-		}
-		else if(oneof2(P_Node->type, XML_ENTITY_NODE, XML_ENTITY_REF_NODE)) {
-			/*
-			 * DOC VAL TODO: What to do with entities?
-			 */
-			VERROR_INT("xmlSchemaVDocWalk", "there is at least one entity reference in the node-tree "
-			    "currently being validated. Processing of entities with "
-			    "this XML Schema processor is not supported (yet). Please substitute entities before validation.");
-			goto internal_error;
-		}
-		else {
-			goto leave_node;
-			/*
-			 * DOC VAL TODO: XInclude nodes, etc.
-			 */
-		}
-		// Walk the doc.
-		if(P_Node->children) {
-			P_Node = P_Node->children;
-			continue;
-		}
-leave_node:
-		if(P_Node->type == XML_ELEMENT_NODE) {
-			// Leaving the scope of an element.
-			if(P_Node != vctxt->inode->P_Node) {
-				VERROR_INT("xmlSchemaVDocWalk", "element position mismatch");
-				goto internal_error;
-			}
-			ret = xmlSchemaValidatorPopElem(vctxt);
-			if(ret != 0) {
+			else if(oneof2(p_node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
+				// 
+				// Process character content.
+				// 
+				if(ielem && (ielem->flags & XML_SCHEMA_ELEM_INFO_EMPTY))
+					ielem->flags ^= XML_SCHEMA_ELEM_INFO_EMPTY;
+				ret = xmlSchemaVPushText(vctxt, p_node->type, p_node->content, -1, XML_SCHEMA_PUSH_TEXT_PERSIST, 0);
 				if(ret < 0) {
-					VERROR_INT("xmlSchemaVDocWalk", "calling xmlSchemaValidatorPopElem()");
+					VERROR_INT("xmlSchemaVDocWalk", "calling xmlSchemaVPushText()");
 					goto internal_error;
 				}
+				// 
+				// DOC VAL TODO: Should we skip further validation of the element content here?
+				// 
 			}
-			if(P_Node == valRoot)
-				goto exit;
-		}
+			else if(oneof2(p_node->type, XML_ENTITY_NODE, XML_ENTITY_REF_NODE)) {
+				// 
+				// DOC VAL TODO: What to do with entities?
+				// 
+				VERROR_INT("xmlSchemaVDocWalk", "there is at least one entity reference in the node-tree currently being validated. Processing of entities with "
+					"this XML Schema processor is not supported (yet). Please substitute entities before validation.");
+				goto internal_error;
+			}
+			else {
+				goto leave_node;
+				// 
+				// DOC VAL TODO: XInclude nodes, etc.
+				// 
+			}
+			// Walk the doc.
+			if(p_node->children) {
+				p_node = p_node->children;
+				continue;
+			}
+leave_node:
+			if(p_node->type == XML_ELEMENT_NODE) {
+				// Leaving the scope of an element.
+				if(p_node != vctxt->inode->P_Node) {
+					VERROR_INT("xmlSchemaVDocWalk", "element position mismatch");
+					goto internal_error;
+				}
+				ret = xmlSchemaValidatorPopElem(vctxt);
+				if(ret != 0) {
+					if(ret < 0) {
+						VERROR_INT("xmlSchemaVDocWalk", "calling xmlSchemaValidatorPopElem()");
+						goto internal_error;
+					}
+				}
+				if(p_node == valRoot)
+					goto exit;
+			}
 next_sibling:
-		if(P_Node->next)
-			P_Node = P_Node->next;
-		else {
-			P_Node = P_Node->parent;
-			goto leave_node;
+			if(p_node->next)
+				p_node = p_node->next;
+			else {
+				p_node = p_node->parent;
+				goto leave_node;
+			}
 		}
-	}
 exit:
-	return ret;
+		return ret;
 internal_error:
-	return -1;
+		return -1;
+	}
 }
 
-static int xmlSchemaPreRun(xmlSchemaValidCtxtPtr vctxt) 
+static int xmlSchemaPreRun(xmlSchemaValidCtxt * vctxt) 
 {
 	/*
 	 * Some initialization.
@@ -23763,7 +23707,7 @@ static int xmlSchemaPreRun(xmlSchemaValidCtxtPtr vctxt)
 	return 0;
 }
 
-static void xmlSchemaPostRun(xmlSchemaValidCtxtPtr vctxt) 
+static void xmlSchemaPostRun(xmlSchemaValidCtxt * vctxt) 
 {
 	if(vctxt->xsiAssemble) {
 		if(vctxt->schema) {
@@ -23774,7 +23718,7 @@ static void xmlSchemaPostRun(xmlSchemaValidCtxtPtr vctxt)
 	xmlSchemaClearValidCtxt(vctxt);
 }
 
-static int xmlSchemaVStart(xmlSchemaValidCtxtPtr vctxt)
+static int xmlSchemaVStart(xmlSchemaValidCtxt * vctxt)
 {
 	int ret = 0;
 	if(xmlSchemaPreRun(vctxt) < 0)
@@ -23813,7 +23757,7 @@ static int xmlSchemaVStart(xmlSchemaValidCtxtPtr vctxt)
  * Returns 0 if the element and its subtree is valid, a positive error
  * code number otherwise and -1 in case of an internal or API error.
  */
-int xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr ctxt, xmlNode * elem)
+int xmlSchemaValidateOneElement(xmlSchemaValidCtxt * ctxt, xmlNode * elem)
 {
 	int    result = -1;
 	if(ctxt && elem && elem->type == XML_ELEMENT_NODE) {
@@ -23836,7 +23780,7 @@ int xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr ctxt, xmlNode * elem)
  * Returns 0 if the document is schemas valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr ctxt, xmlDoc * doc)
+int xmlSchemaValidateDoc(xmlSchemaValidCtxt * ctxt, xmlDoc * doc)
 {
 	int    result = -1;
 	if(ctxt && doc) {
@@ -24111,7 +24055,7 @@ static void endElementNsSplit(void * ctx, const xmlChar * localname, const xmlCh
  * Returns a pointer to a data structure needed to unplug the validation layer
  *         or NULL in case of errors.
  */
-xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr ctxt, xmlSAXHandler ** sax, void ** user_data)
+xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxt * ctxt, xmlSAXHandler ** sax, void ** user_data)
 {
 	xmlSchemaSAXPlugPtr ret;
 	xmlSAXHandler * old_sax;
@@ -24268,7 +24212,7 @@ int xmlSchemaSAXUnplug(xmlSchemaSAXPlugPtr plug)
  * Setting @f to NULL disable the locator.
  */
 
-void xmlSchemaValidateSetLocator(xmlSchemaValidCtxtPtr vctxt, xmlSchemaValidityLocatorFunc f, void * ctxt)
+void xmlSchemaValidateSetLocator(xmlSchemaValidCtxt * vctxt, xmlSchemaValidityLocatorFunc f, void * ctxt)
 {
 	if(vctxt) {
 		vctxt->locFunc = f;
@@ -24317,7 +24261,7 @@ static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsign
  * Returns 0 if the document is schemas valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc, xmlSAXHandler * sax, void * user_data)
+int xmlSchemaValidateStream(xmlSchemaValidCtxt * ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc, xmlSAXHandler * sax, void * user_data)
 {
 	xmlSchemaSAXPlugPtr plug = NULL;
 	xmlSAXHandler * old_sax = NULL;
@@ -24394,7 +24338,7 @@ done:
  * Returns 0 if the document is valid, a positive error code
  *     number otherwise and -1 in case of an internal or API error.
  */
-int xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int options ATTRIBUTE_UNUSED)
+int xmlSchemaValidateFile(xmlSchemaValidCtxt * ctxt, const char * filename, int options ATTRIBUTE_UNUSED)
 {
 	int ret;
 	xmlParserInputBuffer * input;
@@ -24414,7 +24358,7 @@ int xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int
  *
  * Returns the parser context of the schema validation context or NULL in case of error.
  */
-xmlParserCtxt * xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt)
+xmlParserCtxt * xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxt * ctxt)
 {
 	return ctxt ? ctxt->parserCtxt : 0;
 }

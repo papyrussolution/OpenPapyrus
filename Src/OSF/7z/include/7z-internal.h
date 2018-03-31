@@ -729,10 +729,10 @@ EXTERN_C_BEGIN
 	#ifndef MY_CPU_NAME
 		#ifdef MY_CPU_LE
 			#define MY_CPU_NAME "LE"
-		#elif MY_CPU_BE
+		#elif defined(MY_CPU_BE)
 			#define MY_CPU_NAME "BE"
 		#else
-		//#define MY_CPU_NAME ""
+			//#define MY_CPU_NAME ""
 	#endif
 	#endif
 	#ifdef MY_CPU_LE
@@ -2929,7 +2929,7 @@ int CompareFileNames(const wchar_t * s1, const wchar_t * s2) STRING_UNICODE_THRO
 	int CompareFileNames(const char * s1, const char * s2);
 #endif
 bool IsPath1PrefixedByPath2(const wchar_t * s1, const wchar_t * s2);
-void SplitPathToParts(const UString &path, UStringVector &pathParts);
+void FASTCALL SplitPathToParts(const UString &path, UStringVector &pathParts);
 void SplitPathToParts_2(const UString &path, UString &dirPrefix, UString &name);
 void SplitPathToParts_Smart(const UString &path, UString &dirPrefix, UString &name); // ignores dir delimiter at the end of (path)
 UString ExtractDirPrefixFromPath(const UString &path);
