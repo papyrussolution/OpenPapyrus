@@ -44,6 +44,11 @@ private:
 		if(event.isCbSelected(CTLSEL_PHNCPANE_NAME)) {
 			OnContactSelection();
 		}
+		else if(event.isClusterClk(CTL_PHNCPANE_LISTMODE)) {
+			long   mode = 0;
+			GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
+			ShowList(mode);
+		}
 		else
 			return;
 		clearEvent(event);
@@ -51,6 +56,7 @@ private:
 	void   OnContactSelection();
 	void   ShowList(int mode);
 	State  S;
+	SmartListBox * P_Box;
 	PhoneServiceEventResponder * P_PSER;
 	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
@@ -64,25 +70,78 @@ void PhonePaneDialog::ShowList(int mode)
 	}
 	else if(mode == State::lmBill) {
 		// columns: id; date; code; warehouse; amount; debt
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "@id",         6, 0, 1);
+			P_Box->AddColumn(-1, "@date",       8, 0, 2);
+			P_Box->AddColumn(-1, "@code",      10, 0, 3);
+			P_Box->AddColumn(-1, "@warehouse", 16, 0, 4);
+			P_Box->AddColumn(-1, "@amount",     8, MKSFMTD(0, 2, 0), 5);
+			P_Box->AddColumn(-1, "@debt",       8, MKSFMTD(0, 2, 0), 6);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmTask) {
-		// columns: 
+		// columns: id; datetime; code
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "@id",         6, 0, 1);
+			P_Box->AddColumn(-1, "@time",       8, 0, 2);
+			P_Box->AddColumn(-1, "@code",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmPersonEvent) {
 		// columns: 
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "psnev-1",         6, 0, 1);
+			P_Box->AddColumn(-1, "psnev-2",       8, 0, 2);
+			P_Box->AddColumn(-1, "psnev-3",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmScOp) {
 		// columns: 
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "scop-1",         6, 0, 1);
+			P_Box->AddColumn(-1, "scop-2",       8, 0, 2);
+			P_Box->AddColumn(-1, "scop-3",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmScCCheck) {
 		// columns: 
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "sccc-1",         6, 0, 1);
+			P_Box->AddColumn(-1, "sccc-2",       8, 0, 2);
+			P_Box->AddColumn(-1, "sccc-3",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmLocCCheck) {
 		// columns: 
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "loccc-1",         6, 0, 1);
+			P_Box->AddColumn(-1, "loccc-2",       8, 0, 2);
+			P_Box->AddColumn(-1, "loccc-3",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
 	else if(mode == State::lmSwitchTo) {
 		// columns: 
+		if(S.Mode != mode) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "switchto-1",         6, 0, 1);
+			P_Box->AddColumn(-1, "switchto-2",       8, 0, 2);
+			P_Box->AddColumn(-1, "switchto-3",      10, 0, 3);
+		}
+		S.Mode = mode;
 	}
+	P_Box->Draw_();
 }
 
 void PhonePaneDialog::OnContactSelection()
@@ -95,7 +154,7 @@ void PhonePaneDialog::OnContactSelection()
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
-	if(item_id && item_id > 0 && item_id <= OidList.getCount()) {
+	if(item_id && item_id > 0 && item_id <= (long)OidList.getCount()) {
 		const PPObjID & r_oid = OidList.at(item_id-1);
 		if(r_oid.Obj == PPOBJ_PERSON) {
 			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
@@ -131,9 +190,11 @@ void PhonePaneDialog::OnContactSelection()
 	}
 }
 
-PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : TDialog(DLG_PHNCPANE), P_PSER(pPSER)
+PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : 
+	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0)
 {
 	RVALUEPTR(S, pSt);
+	P_Box = (SmartListBox*)getCtrlView(CTL_PHNCPANE_INFOLIST);
 	SString temp_buf;
 	setCtrlString(CTL_PHNCPANE_PHN, S.ConnectedLine);
 	temp_buf = S.Channel;
@@ -147,6 +208,7 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);
+	SetClusterData(CTL_PHNCPANE_LISTMODE, S.Mode = S.lmSwitchTo);
 	{
 		StrAssocArray name_list;
 		PPID   init_id = 0;

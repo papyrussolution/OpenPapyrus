@@ -2302,11 +2302,6 @@ int SLAPI PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PP
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
-{
-	return P_Tbl->GetQuot(goodsID, rQi, cost, price, pResult, useCache);
-}
-
 int SLAPI PPObjGoods::GetMatrixRestrict(PPID goodsID, PPID locID, int srchNearest, PPID * pGoodsGrpID, long * pResult)
 {
 	int    ok = -1, r;
@@ -2404,12 +2399,10 @@ int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplD
 	if(qk_id) {
 		qi.QuotKindID = qk_id;
 		THROW(r = GetQuotExt(goodsID, qi, &val, useCache));
-		if(r == 1) {
+		if(r == 1)
 			pResult->Cost = val;
-		}
-		else if(r == 2) {
+		else if(r == 2)
 			pResult->IsDisabled = 1;
-		}
 		ok = r;
 	}
 	if(!pResult->IsDisabled) {
@@ -2487,11 +2480,6 @@ int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cos
 	else
 		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, useCache);
 	return ok;
-}
-
-int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double * pResult, int useCache)
-{
-	return Helper_GetQuotExt(goodsID, rQi, 0.0, 0.0, pResult, (useCache == 1000 && pResult) ? 1 : useCache);
 }
 
 int SLAPI PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
@@ -2596,7 +2584,10 @@ int SLAPI PPObjGoods::CheckMatrix(PPID goodsID, PPID locID, PPID opID, PPID bill
 	return ok;
 }
 
-
+int SLAPI PPObjGoods::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
+	{ return P_Tbl->GetQuot(goodsID, rQi, cost, price, pResult, useCache); }
+int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double * pResult, int useCache)
+	{ return Helper_GetQuotExt(goodsID, rQi, 0.0, 0.0, pResult, (useCache == 1000 && pResult) ? 1 : useCache); }
 int SLAPI PPObjGoods::BelongToMatrix(PPID goodsID, PPID locID)
 	{ return P_Tbl->BelongToMatrix(goodsID, locID); }
 int SLAPI PPObjGoods::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
@@ -2708,9 +2699,7 @@ SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), 
 }
 
 RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(PPID quotKindID)
-{
-	QkList.addnz(quotKindID);
-}
+	{ QkList.addnz(quotKindID); }
 
 RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(const PPSCardSerPacket & rScsPack)
 {

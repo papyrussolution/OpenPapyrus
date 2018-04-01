@@ -1344,40 +1344,13 @@ TEvent & TEvent::setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam)
 	return *this;
 }
 
-uint TEvent::getCtlID() const
-{
-	return message.infoView->GetId();
-}
-
-int FASTCALL TEvent::isCtlEvent(uint ctlID) const
-{
-	return message.infoView->TestId(ctlID);
-}
-
-int FASTCALL TEvent::isCmd(uint cmd) const
-{
-	return (what == evCommand && message.command == cmd);
-}
-
-int FASTCALL TEvent::isKeyDown(uint keyCode) const
-{
-	return (what == evKeyDown && keyDown.keyCode == keyCode);
-}
-
-int FASTCALL TEvent::isCbSelected(uint ctlID) const
-{
-	return (what == evCommand && message.command == cmCBSelected && message.infoView->TestId(ctlID));
-}
-
-int FASTCALL TEvent::isClusterClk(uint ctlID) const
-{
-	return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID));
-}
-
-int FASTCALL TEvent::wasFocusChanged(uint ctlID) const
-{
-	return BIN(what == evBroadcast && message.command == cmChangedFocus && message.infoView->TestId(ctlID));
-}
+uint TEvent::getCtlID() const { return message.infoView->GetId(); }
+int FASTCALL TEvent::isCtlEvent(uint ctlID) const { return message.infoView->TestId(ctlID); }
+int FASTCALL TEvent::isCmd(uint cmd) const { return (what == evCommand && message.command == cmd); }
+int FASTCALL TEvent::isKeyDown(uint keyCode) const { return (what == evKeyDown && keyDown.keyCode == keyCode); }
+int FASTCALL TEvent::isCbSelected(uint ctlID) const { return (what == evCommand && message.command == cmCBSelected && message.infoView->TestId(ctlID)); }
+int FASTCALL TEvent::isClusterClk(uint ctlID) const { return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID)); }
+int FASTCALL TEvent::wasFocusChanged(uint ctlID) const { return BIN(what == evBroadcast && message.command == cmChangedFocus && message.infoView->TestId(ctlID)); }
 
 int SLAPI TEvent::wasFocusChanged2(uint ctl01, uint ctl02) const
 {
@@ -1727,18 +1700,6 @@ int FASTCALL TGroup::valid(ushort command)
 // @v9.8.12 void TGroup::lock() {}
 // @v9.8.12 void TGroup::unlock() {}
 
-uint TGroup::GetCurrId() const
-{
-    return P_Current ? P_Current->GetId() : 0;
-}
-
-int FASTCALL TGroup::IsCurrentView(const TView * pV) const
-{
-	return BIN(pV && P_Current == pV);
-}
-
-int FASTCALL TGroup::isCurrCtlID(uint ctlID) const
-{
-	return (P_Current && P_Current->TestId(ctlID));
-}
-
+uint TGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
+int FASTCALL TGroup::IsCurrentView(const TView * pV) const { return BIN(pV && P_Current == pV); }
+int FASTCALL TGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }

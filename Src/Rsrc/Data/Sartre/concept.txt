@@ -50,6 +50,7 @@
 :crp_ngram     // Обозначение понятия на естественном языке (=:)
 :crp_instance  // Концепция является экземпляром концепции-класса (:)
 :crp_subclass  // Концепция является подклассом другой концепции-класса (::)
+:crp_synonym   // Концепция является (скорее всего, формальным) синонимом другой концепции
 //
 // Другие свойства концепций
 //
@@ -130,8 +131,19 @@
 :biotaxonomy_subgenus:biotaxonomy_category
 :biotaxonomy_species:biotaxonomy_category
 :biotaxonomy_infraspecies:biotaxonomy_category
-
-//species infraspecies kingdom phylum class order family superfamily genus
+//
+// Префиксы концепций, соответствующих биологическим таксонам:
+// biotaxon_s_: species
+// biotaxon_infrs_: infraspecies
+// biotaxon_g_: genus
+// biotaxon_subg_: subgenus
+// biotaxon_f_: family
+// biotaxon_supf_: superfamily
+// biotaxon_o_: order
+// biotaxon_c_: class
+// biotaxon_p_: phylum
+// biotaxon_k_: kingdom
+//
 
 [la]{
 	regnum=:biotaxonomy_kingdom

@@ -4230,8 +4230,8 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		SStrScan scan(temp_buf);
 		const  char * p = 0;
 		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
-			SString buf;
-			fname_as_dir_part = isDir((buf = pPath).RmvLastSlash());
+			SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.0
+			fname_as_dir_part = isDir((r_buf = pPath).RmvLastSlash());
 		}
 		if(scan.Is("\\\\") || scan.Is("//")) {
 			Flags |= fUNC;

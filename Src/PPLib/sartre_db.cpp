@@ -1495,8 +1495,12 @@ int SrDatabase::SearchConcept(const char * pSymbUtf8, CONCEPTID * pID)
 			cid = c.ID;
 			ok = 1;
 		}
-		else
+		else {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = pSymbUtf8).Transf(CTRANSF_UTF8_TO_INNER);
+			PPSetError(PPERR_SR_CONCEPTNFOUND, r_temp_buf);
 			ok = -2;
+		}
 	}
 	ASSIGN_PTR(pID, cid);
 	return ok;
@@ -2476,7 +2480,7 @@ int SrDatabase::StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLA
 						uint64 local_outer_id = outer_id_list.at(i);
 						THROW(P_GnT->Add(*p_item, local_outer_id));
 					}
-					THROW(tra.Commit());
+					THROW(tra.Commit(1));
 					PROFILE_END
 					PROFILE(cluster_list.clear());
 					outer_id_list.clear();
@@ -2493,11 +2497,10 @@ int SrDatabase::StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLA
 					uint64 local_outer_id = outer_id_list.at(i);
 					THROW(P_GnT->Add(*p_item, local_outer_id));
 				}
-				THROW(tra.Commit());
+				THROW(tra.Commit(1));
 				PROFILE_END
 				PROFILE(cluster_list.freeAll());
 			}
-			PROFILE(THROW(P_Db->TransactionCheckPoint()));
 		}
 	}
 	else
@@ -2579,10 +2582,9 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 				}
 			}
 			_current_pos = _local_finish;
-			THROW(tra.Commit());
+			THROW(tra.Commit(1));
 			PROFILE_END
 		}
-		PROFILE(THROW(P_Db->TransactionCheckPoint()));
 	}
 	else
 		ok = -1;
@@ -2623,10 +2625,9 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVecto
 				}
 			}
 			_current_pos = _local_finish;
-			THROW(tra.Commit());
+			THROW(tra.Commit(1));
 			PROFILE_END
 		}
-		PROFILE(THROW(P_Db->TransactionCheckPoint()));
 	}
 	else
 		ok = -1;
@@ -2917,8 +2918,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 				THROW_MEM(p_ta = new BDbTransaction(this->P_Db, 1));
 			}
 			if(cur_entries_per_tx++ >= max_entries_per_tx) {
-				THROW_DB(p_ta->Commit());
-				THROW_DB(P_Db->TransactionCheckPoint());
+				THROW_DB(p_ta->Commit(1));
 				THROW_DB(p_ta->Start(1));
 				cur_entries_per_tx = 0;
 			}
@@ -3147,8 +3147,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 		}
 		p_blk->SrcList.clear();
 		if(p_ta) {
+			THROW(p_ta->Commit(1));
 			ZDELETE(p_ta);
-			THROW(P_Db->TransactionCheckPoint());
 		}
 	}
 	CATCHZOK

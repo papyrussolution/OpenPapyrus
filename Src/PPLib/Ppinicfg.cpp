@@ -380,7 +380,7 @@ int SLAPI PPConfigDatabase::DeleteObj(int32 id, int use_ta)
 		THROW_PP_S(P_OT->Search(1, key_buf = id, data_buf), PPERR_CDBOBJNFOUND, id);
 		THROW_DB(P_OT->DeleteRec(key_buf));
 	}
-	THROW_DB(tra.Commit());
+	THROW_DB(tra.Commit(1));
 	CATCHZOK
 	return ok;
 }
@@ -427,7 +427,7 @@ int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rDa
 		THROW_DB(P_OT->InsertRec(key_buf, data_buf));
 	}
 	THROW_DB(P_OtT->InsertRec(key_buf = *pID, data_buf = rData));
-	THROW_DB(tra.Commit());
+	THROW_DB(tra.Commit(1));
 	CATCHZOK
 	return ok;
 }

@@ -6028,7 +6028,7 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					p_o->InnerDlvrLocID = dlvr_addr_id;
 					{
 						PPLocationPacket loc_pack;
-						ArticleTbl::Rec ar_rec;
+						//ArticleTbl::Rec ar_rec;
 						THROW(LocObj.GetPacket(dlvr_addr_id, &loc_pack) > 0);
 						temp_buf.Z();
 						GetArticleName(pack.Rec.Object, temp_buf);

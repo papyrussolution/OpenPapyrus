@@ -1968,6 +1968,7 @@ PPERR_ESME_RUNKNOWNERR           "Unknown Error"
 #!}
 PPERR_SARTREDBUNDEF              "Sartre: не определен путь к базе данных"
 PPERR_SR_WORDNFOUND              "Sartre: слово '%s' в базе данных не найдено"
+PPERR_SR_CONCEPTNFOUND           "Sartre: концепция с символом '%s' в базе данных не найдена"
 PPERR_SR_C_ENEXPECTEDEOF         "SartreConcept: неожиданное завершение файла"
 PPERR_SR_C_PAROPNFOUND           "SartreConcept: не найден родительский оператор"
 PPERR_SR_C_CLOSEDCUR_2CC         "SartreConcept: закрытый текущий элемент перед ::concept"
@@ -5371,6 +5372,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_rtposlist         "48,L,@posnode;8,L,Доступен"
 @lbt_rtacclist         "48,L,@account;8,L,Доступен"
 @lbt_rtquotkindlist    "48,L,@quotkind;8,L,Доступен"
+@lbt_phncpaneinfolist  "10,L,A;10,L,B" // placeholder
 
 @entmanagementsys        "Система управления предприятием"
 @pgmcopylic_owner        "Владелец лицензии"

@@ -46040,7 +46040,7 @@ public:
 	//int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
 private:
 	int    SLAPI ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
-	int    SLAPI ImportBioTaxonomy(const char * pFileName);
+	int    SLAPI ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 	int    SLAPI TestSyntax();

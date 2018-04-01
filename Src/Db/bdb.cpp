@@ -1635,12 +1635,17 @@ int BDbTransaction::Start(int use_ta)
 	return ok;
 }
 
-int BDbTransaction::Commit()
+int BDbTransaction::Commit(int setCheckpoint)
 {
 	int    ok = 1;
 	if(Ta && P_Db) {
-		if(P_Db->CommitWork())
+		if(P_Db->CommitWork()) {
+			if(setCheckpoint) {
+				if(!P_Db->TransactionCheckPoint())
+					ok = 0;
+			}
 			Ta = 0;
+		}
 		else {
 			Err = 1;
 			ok = 0;

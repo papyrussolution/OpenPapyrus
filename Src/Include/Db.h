@@ -4442,7 +4442,7 @@ public:
 	~BDbTransaction();
 	int    operator !() const;
 	int    Start(int use_ta);
-	int    Commit();
+	int    Commit(int setCheckpoint);
 private:
 	int    Ta;
 	int    Err;

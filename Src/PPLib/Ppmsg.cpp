@@ -185,7 +185,7 @@ int FASTCALL PPSetError(int errCode)
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
 		tla.LastErr = errCode;
-		tla.AddedMsgString = 0;
+		tla.AddedMsgString.Z();
 	}
 	return 0; // @v8.7.0 1-->0
 }
