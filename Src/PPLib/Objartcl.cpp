@@ -1114,13 +1114,13 @@ int SLAPI PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const c
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetByPersonList(PPID sheet, const PPIDArray * pPsnList, PPIDArray * pArList)
+int SLAPI PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, PPIDArray * pArList)
 {
 	int    ok = 1;
-	if(sheet) {
+	if(accSheetID) {
 		for(uint i = 0; i < pPsnList->getCount(); i++) {
 			PPID   ar_id = 0;
-			if(P_Tbl->PersonToArticle(pPsnList->at(i), sheet, &ar_id) > 0)
+			if(P_Tbl->PersonToArticle(pPsnList->at(i), accSheetID, &ar_id) > 0)
 				if(pArList && ar_id)
 					THROW(pArList->addUnique(ar_id));
 		}

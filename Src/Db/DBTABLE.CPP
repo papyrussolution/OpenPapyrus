@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <db.h>
@@ -110,52 +110,18 @@ int FASTCALL DBTable::SetPageSize(uint newPageSize)
 	return 1;
 }
 
-void FASTCALL DBTable::SetTableID(BTBLID _id)
-{
-	tableID = _id;
-}
-
-void   SLAPI DBTable::SetIndicesTblRef()
-{
-	indexes.setTableRef(offsetof(DBTable, indexes));
-}
+void   FASTCALL DBTable::SetTableID(BTBLID _id) { tableID = _id; }
+void   SLAPI DBTable::SetIndicesTblRef() { indexes.setTableRef(offsetof(DBTable, indexes)); }
 //
 // Descr: set fileName
 //
-void FASTCALL DBTable::SetName(const char * pN)
-{
-	fileName = pN;
-}
-
-void FASTCALL DBTable::SetTableName(const char * pN)
-{
-	STRNSCPY(tableName, pN);
-}
-
-void FASTCALL DBTable::SetFlag(int f)
-{
-	flags |= f;
-}
-
-void FASTCALL DBTable::ResetFlag(int f)
-{
-	flags &= ~f;
-}
-
-int SLAPI DBTable::AddField(const char * pName, TYPEID fldType, int fldId)
-{
-	return fields.addField(pName, fldType, fldId);
-}
-
-int FASTCALL DBTable::AddField(const BNField & rF)
-{
-	return fields.addField(rF);
-}
-
-int FASTCALL DBTable::AddKey(BNKey & rK)
-{
-	return indexes.addKey(rK);
-}
+void   FASTCALL DBTable::SetName(const char * pN) { fileName = pN; }
+void   FASTCALL DBTable::SetTableName(const char * pN) { STRNSCPY(tableName, pN); }
+void   FASTCALL DBTable::SetFlag(int f) { flags |= f; }
+void   FASTCALL DBTable::ResetFlag(int f) { flags &= ~f; }
+int    SLAPI DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return fields.addField(pName, fldType, fldId); }
+int    FASTCALL DBTable::AddField(const BNField & rF) { return fields.addField(rF); }
+int    FASTCALL DBTable::AddKey(BNKey & rK) { return indexes.addKey(rK); }
 
 int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 {
@@ -280,15 +246,13 @@ int DBTable::Btr_ProcessLobOnReading()
 
 int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 {
-	DbSession::Config dbcfg;
-	DBS.GetConfig(dbcfg);
+	const DbSession::Config & r_dbcfg = DBS.GetConfig();
 	//
 	// Так как функция вызывается очень часто, то код оптимизирован за счет
 	// явного вызова потокобезопасных переменных и методов
 	//
 	if(idx >= 0)
 		index = (int16)idx;
-	DbThreadLocalArea & tla = DBS.GetTLA();
 	int    op = -1;
 	char   temp_buf[MAXKEYLEN];
 	char * p_buf = (char *)P_DBuf;
@@ -297,13 +261,11 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 		*(RECORDNUMBER *)p_buf = *(DBRowId *)pKey;
 		op = B_GETDIRECT;
 		if(sf & sfForUpdate) {
-			if(dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
-				if(dbcfg.NWaitLockTries > 0) {
+			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
+				if(r_dbcfg.NWaitLockTries > 0)
 					op += BL_SNGL_NWT;
-				}
-				else {
+				else
 					op += BL_SNGL_WT;
-				}
 			}
 		}
 	}
@@ -315,13 +277,11 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 			retBufLen = sizeof(temp_buf);
 		}
 		else if(sf & sfForUpdate) {
-			if(dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
-				if(dbcfg.NWaitLockTries > 0) {
+			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
+				if(r_dbcfg.NWaitLockTries > 0)
 					op += BL_SNGL_NWT;
-				}
-				else {
+				else
 					op += BL_SNGL_WT;
-				}
 			}
 		}
 	}
@@ -329,16 +289,16 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	int    _err = 0;
 	int    nwl_try_n = 0;
 	do {
-		if(nwl_try_n && dbcfg.NWaitLockTryTimeout > 0) {
-			SDelay(dbcfg.NWaitLockTryTimeout);
+		if(nwl_try_n && r_dbcfg.NWaitLockTryTimeout > 0) {
+			SDelay(r_dbcfg.NWaitLockTryTimeout);
 		}
 		_err = BTRV(op, FPB, p_buf, (uint16 *)&retBufLen, (char *)pKey, WBTRVTAIL);
-	} while(_err == BE_RECLOCK && ++nwl_try_n < dbcfg.NWaitLockTries);
+	} while(_err == BE_RECLOCK && ++nwl_try_n < r_dbcfg.NWaitLockTries);
 	if(_err == BE_RECLOCK) {
 		SString msg_buf;
 		msg_buf.Cat(getcurdatetime_()).Tab().Cat("Btrieve locking failed").CatDiv(':', 2).
 			Cat(tableName).CatParStr(fileName).Space().
-			CatChar('[').Cat(dbcfg.NWaitLockTries).CatChar(',').Cat(dbcfg.NWaitLockTryTimeout).CatChar(']');
+			CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 		SLS.LogMessage("dbwarn.log", msg_buf);
 	}
 	else if(_err == 0) {
@@ -346,21 +306,24 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 			SString msg_buf;
 			msg_buf.Cat(getcurdatetime_()).Tab().Cat("Btrieve locking acquired after").Space().Cat(nwl_try_n).Space().Cat("tries").CatDiv(':', 2).
 				Cat(tableName).CatParStr(fileName).Space().
-				CatChar('[').Cat(dbcfg.NWaitLockTries).CatChar(',').Cat(dbcfg.NWaitLockTryTimeout).CatChar(']');
+				CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 			SLS.LogMessage("dbwarn.log", msg_buf);
 		}
 	}
-	tla.LastBtrErr = _err;
-	if(sf & sfKeyOnly) {
-		tla.InitErrFileName(OpenedFileName);
-		return (tla.LastBtrErr == 0);
-	}
-	else {
-		if(retBufLen < bufLen)
-			((char *)P_DBuf)[retBufLen] = 0;
-		Btr_ProcessLobOnReading();
-		tla.InitErrFileName(OpenedFileName);
-		return (tla.LastBtrErr == BE_UBUFLEN ? 1 : (tla.LastBtrErr == 0));
+	{
+		DbThreadLocalArea & r_tla = DBS.GetTLA();
+		r_tla.LastBtrErr = _err;
+		if(sf & sfKeyOnly) {
+			r_tla.InitErrFileName(OpenedFileName);
+			return (_err == 0);
+		}
+		else {
+			if(retBufLen < bufLen)
+				PTR8(P_DBuf)[retBufLen] = 0;
+			Btr_ProcessLobOnReading();
+			r_tla.InitErrFileName(OpenedFileName);
+			return ((_err == BE_UBUFLEN) ? 1 : (_err == 0));
+		}
 	}
 }
 
@@ -733,27 +696,16 @@ int SLAPI DBTable::getTabFlags(int16 * pFlags)
 //
 //
 //
-SLAPI ChunkHeader::ChunkHeader(long pos, long func, long aNum)
+SLAPI ChunkHeader::ChunkHeader(long pos, long func, long aNum) : recPos(pos), subFunc(func), numChunks(aNum)
 {
-	recPos = pos;
-	subFunc = func;
-	numChunks = aNum;
 }
 
-SLAPI RandChunkItem::RandChunkItem(long ofs, long aLen, void * p)
+SLAPI RandChunkItem::RandChunkItem(long ofs, long aLen, void * p) : offset(ofs), len(aLen), ptr((long)p)
 {
-	offset = ofs;
-	len = aLen;
-	ptr = (long)p;
 }
 
-SLAPI RectChunk::RectChunk(long ofs, long rs, long pDist, long p, long aDist)
+SLAPI RectChunk::RectChunk(long ofs, long rs, long pDist, long p, long aDist) : offset(ofs), rowSize(rs), ptrDist(pDist), ptr(p), appDist(aDist)
 {
-	offset = ofs;
-	rowSize = rs;
-	ptrDist = pDist;
-	ptr = p;
-	appDist = aDist;
 }
 
 ChunkHeader & SLAPI operator + (ChunkHeader & h, RandChunkItem & i)

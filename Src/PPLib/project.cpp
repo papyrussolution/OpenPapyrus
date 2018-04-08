@@ -209,19 +209,11 @@ SLAPI PPObjProject::~PPObjProject()
 }
 
 int SLAPI PPObjProject::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
-
+	{ return PutPacket(&id, 0, 0); }
 int SLAPI PPObjProject::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
+	{ return SearchByID(P_Tbl, Obj, id, b); }
 const char * SLAPI PPObjProject::GetNamePtr()
-{
-	return MakeCodeString(&P_Tbl->data, NameBuf).cptr();
-}
+	{ return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
 StrAssocArray * SLAPI PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 {
@@ -574,8 +566,8 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int SLAPI PPViewProject::Init_(const PPBaseFilt * pBaseFilt)
 {
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		Filt.StartPeriod.Actualize(ZERODATE);      // @v6.1.10
-		Filt.EstFinishPeriod.Actualize(ZERODATE);  // @v6.1.10
+		Filt.StartPeriod.Actualize(ZERODATE);
+		Filt.EstFinishPeriod.Actualize(ZERODATE);
 		return 1;
 	}
 	else
@@ -816,18 +808,63 @@ int SLAPI PPViewProject::Export()
 //
 // PrjTaskCore
 //
-//static 
+//static
 int FASTCALL PrjTaskCore::IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
-//static 
+//static
 int FASTCALL PrjTaskCore::IsValidPrior(int p) { return (p >= 1 && p <= 5); }
 
 SLAPI PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {
 }
 
-int SLAPI PrjTaskCore::Search(PPID id, void * pBuf)
+int SLAPI PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec)
 {
-	return SearchByID(this, PPOBJ_PRJTASK, id, pBuf);
+	return SearchByID(this, PPOBJ_PRJTASK, id, pRec);
+}
+
+int SLAPI PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec)
+	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int SLAPI PrjTaskCore::DestroyIter(long enumHandle)
+	{ return EnumList.DestroyIterHandler(enumHandle); }
+
+BExtQuery * SLAPI PrjTaskCore::StartupEnumQuery(int idx, int options)
+{
+	BExtQuery * q = new BExtQuery(this, idx);
+	if(q) {
+		q->select(this->ID, this->ProjectID, this->Kind, this->Code, this->CreatorID, this->EmployerID,
+			this->ClientID, this->TemplateID, this->Dt, this->Tm, this->StartDt, this->StartTm,
+			this->EstFinishDt, this->EstFinishTm, this->FinishDt, this->FinishTm, this->Priority,
+			this->Status, this->Flags, this->DlvrAddrID, this->LinkTaskID, this->Amount, 0L);
+	}
+	return q;
+}
+
+SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, DateRange * pPeriod, int options)
+{
+	long   h = -1;
+	int    idx = 5;
+	BExtQuery * q = StartupEnumQuery(idx, options);
+	q->where(this->ClientID == cliPersonID && daterange(this->Dt, pPeriod));
+	PrjTaskTbl::Key5 k5;
+	MEMSZERO(k5);
+	k5.ClientID = cliPersonID;
+	k5.Dt = pPeriod ? pPeriod->low : ZERODATE;
+	q->initIteration(0, &k5, spGe);
+	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
+}
+
+SEnumImp * SLAPI PrjTaskCore::EnumByEmployer(PPID emplPersonID, DateRange * pPeriod, int options)
+{
+	long   h = -1;
+	int    idx = 4;
+	BExtQuery * q = StartupEnumQuery(idx, options);
+	q->where(this->EmployerID == emplPersonID && daterange(this->Dt, pPeriod));
+	PrjTaskTbl::Key4 k4;
+	MEMSZERO(k4);
+	k4.EmployerID = emplPersonID;
+	k4.Dt = pPeriod ? pPeriod->low : ZERODATE;
+	q->initIteration(0, &k4, spGe);
+	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
 int SLAPI PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTbl::Rec * pRec)
@@ -896,14 +933,9 @@ int SLAPI PrjTaskCore::UpdateStatus(PPID id, int newStatus, int use_ta)
 }
 
 int SLAPI PrjTaskCore::Remove(PPID id, int use_ta)
-{
-	return deleteFrom(this, use_ta, this->ID == id) ? 1 : PPSetErrorDB();
-}
-
+	{ return deleteFrom(this, use_ta, this->ID == id) ? 1 : PPSetErrorDB(); }
 int SLAPI PrjTaskCore::RemoveByProject(PPID prjID, int use_ta)
-{
-	return deleteFrom(this, use_ta, this->ProjectID == prjID) ? 1 : PPSetErrorDB();
-}
+	{ return deleteFrom(this, use_ta, this->ProjectID == prjID) ? 1 : PPSetErrorDB(); }
 
 int SLAPI PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {
@@ -995,31 +1027,33 @@ int SLAPI PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, in
 				PrjTaskTbl::Rec rec;
 				if(Search(id, &rec) > 0) {
 					int do_update = 0;
-					if(objType == PPOBJ_PERSON) {
-						if(rec.CreatorID == replacedID) {
-							rec.CreatorID = newID;
-							do_update = 1;
-						}
-						if(rec.EmployerID == replacedID) {
-							rec.EmployerID = newID;
-							do_update = 1;
-						}
-						if(rec.ClientID == replacedID) {
-							rec.ClientID = newID;
-							do_update = 1;
-						}
-					}
-					else if(objType == PPOBJ_ARTICLE) {
-						if(rec.BillArID == replacedID) {
-							rec.BillArID = newID;
-							do_update = 1;
-						}
-					}
-					else if(objType == PPOBJ_LOCATION) {
-						if(rec.DlvrAddrID == replacedID) {
-							rec.DlvrAddrID = newID;
-							do_update = 1;
-						}
+					switch(objType) {
+						case PPOBJ_PERSON:
+							if(rec.CreatorID == replacedID) {
+								rec.CreatorID = newID;
+								do_update = 1;
+							}
+							if(rec.EmployerID == replacedID) {
+								rec.EmployerID = newID;
+								do_update = 1;
+							}
+							if(rec.ClientID == replacedID) {
+								rec.ClientID = newID;
+								do_update = 1;
+							}
+							break;
+						case PPOBJ_ARTICLE:
+							if(rec.BillArID == replacedID) {
+								rec.BillArID = newID;
+								do_update = 1;
+							}
+							break;
+						case PPOBJ_LOCATION:
+							if(rec.DlvrAddrID == replacedID) {
+								rec.DlvrAddrID = newID;
+								do_update = 1;
+							}
+							break;
 					}
 					if(do_update)
 						THROW(Update(id, &rec, 0));
@@ -1092,15 +1126,10 @@ static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
 
 // static
 SString & SLAPI PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
-{
-	return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf);
-}
-
+	{ return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf); }
 // static
 SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
-{
-	return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf);
-}
+	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
 #define GRP_FILENAME 1L
 
@@ -1261,16 +1290,12 @@ SLAPI PPObjPrjTask::~PPObjPrjTask()
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjPrjTask::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, b);
-}
-
+//virtual
+int SLAPI PPObjPrjTask::Search(PPID id, void * pRec)
+	{ return P_Tbl->Search(id, (PrjTaskTbl::Rec *)pRec); }
 //virtual
 const char * SLAPI PPObjPrjTask::GetNamePtr()
-{
-	return P_Tbl->data.Code;
-}
+	{ return P_Tbl->data.Code; }
 
 StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 {

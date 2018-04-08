@@ -1142,7 +1142,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 							// Флаг прав доступа GOODSRT_UPDTAXGRP определяется только для //
 							// объекта PPOBJ_GOODS, но распространяется так же и на        //
 							// объект PPOBJ_GOODSGROUP                                     //
-							PPObjGoods goods_obj;
+							PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 							THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDTAXGRP), PPERR_NRT_GOODS_UPDTAXGRP, pPack->Rec.Name);
 						}
 					}
@@ -1150,7 +1150,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						// Флаг прав доступа GOODSRT_UPDGTYPE определяется только для //
 						// объекта PPOBJ_GOODS, но распространяется так же и на        //
 						// объект PPOBJ_GOODSGROUP                                     //
-						PPObjGoods goods_obj;
+						PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 						THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDGTYPE), PPERR_NRT_GOODS_UPDGTYPE, pPack->Rec.Name);
 					}
 				}
@@ -1234,7 +1234,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			if(pPack->Rec.Kind == PPGDSK_GROUP)
 				THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, *pID, GGPRP_EXSTRTITLES, pPack->ExTitles));
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
-				PPObjGoods goods_obj;
+				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 				THROW_PP(goods_obj.CheckRights(GOODSRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 				pPack->LinkFiles.Save(*pID, 0L);
 			}
@@ -1388,7 +1388,7 @@ int SLAPI PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec,
 				ok = 1;
 			}
 			else if(FetchUnit(rGoodsRec.PhUnitID, &u_rec) > 0 && u_rec.BaseUnitID == baseUnitID && u_rec.BaseRatio > 0.0) {
-				rate = u_rec.BaseRatio;
+				rate = u_rec.BaseRatio * rGoodsRec.PhUPerU;
 				ok = 1;
 			}
 		}

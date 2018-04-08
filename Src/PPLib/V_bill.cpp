@@ -7092,10 +7092,7 @@ PPALDD_CONSTRUCTOR(BillPool)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(BillPool)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillPool) { Destroy(); }
 
 int PPALDD_BillPool::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7191,10 +7188,7 @@ PPALDD_CONSTRUCTOR(GoodsBillModif)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsBillModif)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsBillModif) { Destroy(); }
 
 int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7360,10 +7354,7 @@ PPALDD_CONSTRUCTOR(GoodsReval)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsReval)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsReval) { Destroy(); }
 
 int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7587,10 +7578,7 @@ PPALDD_CONSTRUCTOR(BillPayPlan)
 	}
 }
 
-PPALDD_DESTRUCTOR(BillPayPlan)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillPayPlan) { Destroy(); }
 
 int PPALDD_BillPayPlan::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7641,10 +7629,7 @@ PPALDD_CONSTRUCTOR(CashOrder)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(CashOrder)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CashOrder) { Destroy(); }
 
 int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7761,10 +7746,7 @@ PPALDD_CONSTRUCTOR(GoodsBillQCert)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsBillQCert)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsBillQCert) { Destroy(); }
 
 int PPALDD_GoodsBillQCert::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7861,10 +7843,7 @@ PPALDD_CONSTRUCTOR(BillList)
 	}
 }
 
-PPALDD_DESTRUCTOR(BillList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillList) { Destroy(); }
 
 int PPALDD_BillList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -7911,10 +7890,7 @@ int PPALDD_BillList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_BillList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Bill);
-}
+void PPALDD_BillList::Destroy() { DESTROY_PPVIEW_ALDD(Bill); }
 //
 // Implementation PPALDD_ContentBList
 //
@@ -7926,10 +7902,7 @@ PPALDD_CONSTRUCTOR(ContentBList)
 	}
 }
 
-PPALDD_DESTRUCTOR(ContentBList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ContentBList) { Destroy(); }
 
 int PPALDD_ContentBList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8065,10 +8038,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 	return -1;
 }
 
-void PPALDD_ContentBList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Bill);
-}
+void PPALDD_ContentBList::Destroy() { DESTROY_PPVIEW_ALDD(Bill); }
 //
 // Implementation of PPALDD_AmountType
 //
@@ -8078,10 +8048,7 @@ PPALDD_CONSTRUCTOR(AmountType)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(AmountType)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AmountType) { Destroy(); }
 
 int PPALDD_AmountType::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8115,10 +8082,7 @@ PPALDD_CONSTRUCTOR(AdvanceRep)
 	}
 }
 
-PPALDD_DESTRUCTOR(AdvanceRep)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AdvanceRep) { Destroy(); }
 
 int PPALDD_AdvanceRep::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8184,10 +8148,7 @@ PPALDD_CONSTRUCTOR(BnkPaymOrder)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(BnkPaymOrder)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BnkPaymOrder) { Destroy(); }
 
 int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8263,10 +8224,7 @@ PPALDD_CONSTRUCTOR(BillTotal)
 	}
 }
 
-PPALDD_DESTRUCTOR(BillTotal)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillTotal) { Destroy(); }
 
 int PPALDD_BillTotal::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8336,10 +8294,7 @@ PPALDD_CONSTRUCTOR(AssetReceipt)
 	}
 }
 
-PPALDD_DESTRUCTOR(AssetReceipt)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AssetReceipt) { Destroy(); }
 
 int PPALDD_AssetReceipt::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8398,10 +8353,7 @@ PPALDD_CONSTRUCTOR(Warrant)
 	}
 }
 
-PPALDD_DESTRUCTOR(Warrant)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Warrant) { Destroy(); }
 
 int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8464,10 +8416,7 @@ PPALDD_CONSTRUCTOR(BillInfo)
 	}
 }
 
-PPALDD_DESTRUCTOR(BillInfo)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillInfo) { Destroy(); }
 
 int PPALDD_BillInfo::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8535,10 +8484,7 @@ PPALDD_CONSTRUCTOR(BillInfoList)
 	}
 }
 
-PPALDD_DESTRUCTOR(BillInfoList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BillInfoList) { Destroy(); }
 
 int PPALDD_BillInfoList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -8719,10 +8665,7 @@ PPALDD_CONSTRUCTOR(UhttDraftTransitGoodsRestList)
 	}
 }
 
-PPALDD_DESTRUCTOR(UhttDraftTransitGoodsRestList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttDraftTransitGoodsRestList) { Destroy(); }
 
 int PPALDD_UhttDraftTransitGoodsRestList::InitData(PPFilt & rFilt, long rsrv)
 {

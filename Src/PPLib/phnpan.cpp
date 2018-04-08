@@ -17,7 +17,7 @@ public:
 			lmLocCCheck, // „еки по автономному адресу
 			lmSwitchTo
 		};
-		SLAPI  State() : Mode(lmNone)
+		SLAPI  State() : Mode(lmNone), PersonID(0), SCardID(0), LocID(0)
 		{
 		}
 		long   Mode;
@@ -26,6 +26,9 @@ public:
 		SString ConnectedLine;
 		//
 		PPObjIDArray RelEntries;
+		PPID   PersonID; // ѕерсонали€ ассоциированна€ с выбранным номером звон€щего
+		PPID   SCardID;  // ѕерсональна€ карта ассоциированна€ с выбранным номером звон€щего
+		PPID   LocID;    // Ћокаци€ ассоциированна€ с выбранным номером звон€щего
 	};
 	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
 	static PhonePaneDialog * FindAnalogue(const char * pChannel)
@@ -61,87 +64,247 @@ private:
 	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
 	PPObjSCard ScObj;
+	PPObjPrjTask TodoObj;
 	PPObjIDArray OidList;
+	//
+	// Descr: ”нифицированна€ структура дл€ отображени€ различных данных в общем списке
+	//   ѕримен€етс€ дл€ отражени€ следующих типов данных: документы, задачи, персональные событи€, 
+	//   операции по персональным картам, кассовые чеки, списки телефонов дл€ переключени€ вызова
+	//
+	struct InfoListEntry {
+		InfoListEntry()
+		{
+			THISZERO();
+		}
+		PPID   ID;
+		LDATETIME Dtm;
+		LDATETIME DueDtm;
+		PPID   OpID;
+		PPID   LocID;
+		PPID   ClientID;
+		PPID   ExecutorID;
+		uint   CodeP;
+		uint   TextP;
+		uint   MemoP;
+		double Amount;
+		double Debt;
+	};
+	class InfoListData : public SStrGroup, public TSVector <InfoListEntry> {
+	public:
+		SLAPI  InfoListData() : SStrGroup()
+		{
+		}
+	};
 };
 
 void PhonePaneDialog::ShowList(int mode)
 {
-	if(mode == State::lmNone) {
-	}
-	else if(mode == State::lmBill) {
-		// columns: id; date; code; warehouse; amount; debt
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "@id",         6, 0, 1);
-			P_Box->AddColumn(-1, "@date",       8, 0, 2);
-			P_Box->AddColumn(-1, "@code",      10, 0, 3);
-			P_Box->AddColumn(-1, "@warehouse", 16, 0, 4);
-			P_Box->AddColumn(-1, "@amount",     8, MKSFMTD(0, 2, 0), 5);
-			P_Box->AddColumn(-1, "@debt",       8, MKSFMTD(0, 2, 0), 6);
+	if(P_Box) {
+		SString temp_buf;
+		StringSet ss(SLBColumnDelim);
+		P_Box->freeAll();
+		if(mode == State::lmNone) {
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmTask) {
-		// columns: id; datetime; code
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "@id",         6, 0, 1);
-			P_Box->AddColumn(-1, "@time",       8, 0, 2);
-			P_Box->AddColumn(-1, "@code",      10, 0, 3);
+		else if(mode == State::lmBill) {
+			// columns: id; date; code; warehouse; amount; debt
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@date",      10, 0, 2);
+				P_Box->AddColumn(-1, "@code",      14, 0, 3);
+				P_Box->AddColumn(-1, "@oprkind",   20, 0, 4);
+				P_Box->AddColumn(-1, "@warehouse", 20, 0, 5);
+				P_Box->AddColumn(-1, "@amount",     8, ALIGN_RIGHT, 6);
+				P_Box->AddColumn(-1, "@debt",       8, ALIGN_RIGHT, 7);
+			}
+			S.Mode = mode;
+			if(S.PersonID) {
+				InfoListData new_list;
+				PPIDArray person_id_list;
+				PPIDArray ar_id_list;
+				person_id_list.add(S.PersonID);
+				ArObj.GetByPersonList(0, &person_id_list, &ar_id_list);
+				if(ar_id_list.getCount()) {
+					DateRange period;
+					period.Set(plusdate(getcurdate_(), -365), ZERODATE);
+					for(uint i = 0; i < ar_id_list.getCount(); i++) {
+						const PPID ar_id = ar_id_list.get(i);
+						BillTbl::Rec bill_rec;
+						for(DateIter di(&period); BillObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
+							InfoListEntry new_entry;
+							new_entry.ID = bill_rec.ID;
+							new_entry.Dtm.d = bill_rec.Dt;
+							new_entry.LocID = bill_rec.LocID;
+							new_entry.OpID = bill_rec.OpID;
+							new_entry.Amount = bill_rec.Amount;
+							new_list.AddS(bill_rec.Code, &new_entry.CodeP);
+							new_list.AddS(bill_rec.Memo, &new_entry.MemoP);
+							new_list.insert(&new_entry);
+						}
+					}
+				}
+				if(new_list.getCount()) {
+					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
+						const InfoListEntry & r_entry = new_list.at(ilidx);
+						ss.clear();
+						ss.add(temp_buf.Z().Cat(r_entry.Dtm.d, MKSFMT(0, DATF_DMY)));
+						new_list.GetS(r_entry.CodeP, temp_buf);
+						ss.add(temp_buf);
+						GetOpName(r_entry.OpID, temp_buf);
+						ss.add(temp_buf);
+						GetLocationName(r_entry.LocID, temp_buf);
+						ss.add(temp_buf);
+						ss.add(temp_buf.Z().Cat(r_entry.Amount, MKSFMTD(0, 2, 0)));
+						ss.add(temp_buf.Z().Cat(r_entry.Debt, MKSFMTD(0, 2, 0)));
+						P_Box->addItem(r_entry.ID, ss.getBuf());
+					}
+				}
+			}
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmPersonEvent) {
-		// columns: 
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "psnev-1",         6, 0, 1);
-			P_Box->AddColumn(-1, "psnev-2",       8, 0, 2);
-			P_Box->AddColumn(-1, "psnev-3",      10, 0, 3);
+		else if(mode == State::lmTask) {
+			// columns: id; datetime; code
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@code",        10, 0, 2);
+				P_Box->AddColumn(-1, "@time",        10, 0, 3);
+				P_Box->AddColumn(-1, "@duetime",     10, 0, 4);
+				P_Box->AddColumn(-1, "@executor",    30, 0, 5);
+				P_Box->AddColumn(-1, "@client",      30, 0, 6);
+				P_Box->AddColumn(-1, "@description", 60, 0, 7);
+			}
+			S.Mode = mode;
+			if(S.PersonID) {
+				InfoListData new_list;
+				DateRange period;
+				period.Set(plusdate(getcurdate_(), -365), ZERODATE);
+				PrjTaskTbl::Rec todo_rec;
+				{
+					for(SEnum en = TodoObj.P_Tbl->EnumByClient(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
+						// “ак как Enum заполн€ет не все пол€ в записи нам придетс€ извл€ечь полную запись 
+						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
+							InfoListEntry new_entry;
+							new_entry.ID = todo_rec.ID;
+							new_entry.Dtm.Set(todo_rec.Dt, todo_rec.Tm);
+							new_entry.DueDtm.Set(todo_rec.EstFinishDt, todo_rec.EstFinishTm);
+							new_entry.LocID = todo_rec.DlvrAddrID;
+							new_entry.OpID = 0;
+							new_entry.ClientID = todo_rec.ClientID;
+							new_entry.ExecutorID = todo_rec.EmployerID;
+							new_entry.Amount = todo_rec.Amount;
+							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
+							new_list.AddS(todo_rec.Descr, &new_entry.MemoP);
+							new_list.insert(&new_entry);
+						}
+					}
+				}
+				{
+					for(SEnum en = TodoObj.P_Tbl->EnumByEmployer(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
+						// “ак как Enum заполн€ет не все пол€ в записи нам придетс€ извл€ечь полную запись 
+						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
+							InfoListEntry new_entry;
+							new_entry.ID = todo_rec.ID;
+							new_entry.Dtm.Set(todo_rec.Dt, todo_rec.Tm);
+							new_entry.DueDtm.Set(todo_rec.EstFinishDt, todo_rec.EstFinishTm);
+							new_entry.LocID = todo_rec.DlvrAddrID;
+							new_entry.OpID = 0;
+							new_entry.ClientID = todo_rec.ClientID;
+							new_entry.ExecutorID = todo_rec.EmployerID;
+							new_entry.Amount = todo_rec.Amount;
+							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
+							new_list.AddS(todo_rec.Descr, &new_entry.MemoP);
+							new_list.insert(&new_entry);
+						}
+					}
+				}
+				if(new_list.getCount()) {
+					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
+						const InfoListEntry & r_entry = new_list.at(ilidx);
+						ss.clear();
+						new_list.GetS(r_entry.CodeP, temp_buf);
+						ss.add(temp_buf);
+						ss.add(temp_buf.Z().Cat(r_entry.Dtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM)));
+						ss.add(temp_buf.Z().Cat(r_entry.DueDtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM)));
+						if(r_entry.ExecutorID)
+							GetPersonName(r_entry.ExecutorID, temp_buf);
+						else
+							temp_buf.Z();
+						ss.add(temp_buf);
+						if(r_entry.ClientID)
+							GetPersonName(r_entry.ClientID, temp_buf);
+						else
+							temp_buf.Z();
+						ss.add(temp_buf);
+						new_list.GetS(r_entry.MemoP, temp_buf);
+						ss.add(temp_buf);
+						P_Box->addItem(r_entry.ID, ss.getBuf());
+					}
+				}
+			}
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmScOp) {
-		// columns: 
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "scop-1",         6, 0, 1);
-			P_Box->AddColumn(-1, "scop-2",       8, 0, 2);
-			P_Box->AddColumn(-1, "scop-3",      10, 0, 3);
+		else if(mode == State::lmPersonEvent) {
+			// columns: 
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@time",         10, 0, 2);
+				P_Box->AddColumn(-1, "@oprkind",      10, 0, 3);
+				P_Box->AddColumn(-1, "@person",       30, 0, 4);
+				P_Box->AddColumn(-1, "@contractor",   30, 0, 5);
+				P_Box->AddColumn(-1, "@memo",         60, 0, 6);
+			}
+			S.Mode = mode;
+			if(S.PersonID) {
+			}
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmScCCheck) {
-		// columns: 
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "sccc-1",         6, 0, 1);
-			P_Box->AddColumn(-1, "sccc-2",       8, 0, 2);
-			P_Box->AddColumn(-1, "sccc-3",      10, 0, 3);
+		else if(mode == State::lmScOp) {
+			// columns: 
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@time",     10, 0, 2);
+				P_Box->AddColumn(-1, "@amount",   10, 0, 3);
+				P_Box->AddColumn(-1, "@rest",     10, 0, 4);
+			}
+			S.Mode = mode;
+			if(S.SCardID) {
+			}
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmLocCCheck) {
-		// columns: 
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "loccc-1",         6, 0, 1);
-			P_Box->AddColumn(-1, "loccc-2",       8, 0, 2);
-			P_Box->AddColumn(-1, "loccc-3",      10, 0, 3);
+		else if(mode == State::lmScCCheck) {
+			// columns: 
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@time",         10, 0, 2);
+				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
+				P_Box->AddColumn(-1, "@checkno",      10, 0, 4);
+				P_Box->AddColumn(-1, "@amount",       10, ALIGN_RIGHT, 5);
+				P_Box->AddColumn(-1, "@discount",     10, ALIGN_RIGHT, 6);
+			}
+			S.Mode = mode;
+			if(S.SCardID) {
+			}
 		}
-		S.Mode = mode;
-	}
-	else if(mode == State::lmSwitchTo) {
-		// columns: 
-		if(S.Mode != mode) {
-			P_Box->RemoveColumns();
-			P_Box->AddColumn(-1, "switchto-1",         6, 0, 1);
-			P_Box->AddColumn(-1, "switchto-2",       8, 0, 2);
-			P_Box->AddColumn(-1, "switchto-3",      10, 0, 3);
+		else if(mode == State::lmLocCCheck) {
+			// columns: 
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@time",         10, 0, 2);
+				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
+				P_Box->AddColumn(-1, "@checkno",      10, 0, 4);
+				P_Box->AddColumn(-1, "@amount",       10, ALIGN_RIGHT, 5);
+				P_Box->AddColumn(-1, "@discount",     10, ALIGN_RIGHT, 6);
+			}
+			S.Mode = mode;
+			if(S.LocID) {
+			}
 		}
-		S.Mode = mode;
+		else if(mode == State::lmSwitchTo) {
+			// columns: 
+			if(S.Mode != mode) {
+				P_Box->RemoveColumns();
+				P_Box->AddColumn(-1, "@name",        6, 0, 2);
+				P_Box->AddColumn(-1, "@phone",       8, 0, 3);
+			}
+			S.Mode = mode;
+		}
+		P_Box->Draw_();
 	}
-	P_Box->Draw_();
 }
 
 void PhonePaneDialog::OnContactSelection()
@@ -154,39 +317,55 @@ void PhonePaneDialog::OnContactSelection()
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
+	S.PersonID = 0;
+	S.SCardID = 0;
+	S.LocID = 0;
 	if(item_id && item_id > 0 && item_id <= (long)OidList.getCount()) {
 		const PPObjID & r_oid = OidList.at(item_id-1);
 		if(r_oid.Obj == PPOBJ_PERSON) {
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 0);
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 0);
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
 			//
 			PPID   acs_id_suppl = GetSupplAccSheet();
 			PPID   acs_id_sell = GetSellAccSheet();
 			PPID   ar_id_suppl = 0;
 			PPID   ar_id_sell = 0;
+			S.PersonID = r_oid.Id;
 			if(acs_id_suppl) {
 				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_suppl, &ar_id_suppl);
 			}
 			if(acs_id_sell) {
 				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_sell, &ar_id_sell);
 			}
-			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, !(ar_id_suppl || ar_id_sell));
+			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, !(ar_id_suppl || ar_id_sell));
 		}
 		else if(r_oid.Obj == PPOBJ_LOCATION) {
+			S.LocID = r_oid.Id;
+			LocationTbl::Rec loc_rec;
+			if(PsnObj.LocObj.Fetch(S.LocID, &loc_rec) > 0) {
+				if(loc_rec.OwnerID)
+					S.PersonID = loc_rec.OwnerID;
+			}
 		}
 		else if(r_oid.Obj == PPOBJ_SCARD) {
+			S.SCardID = r_oid.Id;
+			SCardTbl::Rec sc_rec;
+			if(ScObj.Fetch(S.SCardID, &sc_rec) > 0) {
+				if(sc_rec.PersonID)
+					S.PersonID = sc_rec.PersonID;
+			}
 		}
 	}
 	else {
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, 1);
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 1);
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 1);
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
-		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
+		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
 	}
 }
 
@@ -195,19 +374,20 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 {
 	RVALUEPTR(S, pSt);
 	P_Box = (SmartListBox*)getCtrlView(CTL_PHNCPANE_INFOLIST);
+	SetupStrListBox(P_Box);
 	SString temp_buf;
 	setCtrlString(CTL_PHNCPANE_PHN, S.ConnectedLine);
 	temp_buf = S.Channel;
 	if(S.ConnectedLine.NotEmpty())
 		temp_buf.CatDiv(';', 2).Cat(S.ConnectedLine);
 	setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
-	AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmBill);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmTask);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmPersonEvent);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
-	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);
+	AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 6, State::lmSwitchTo);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 0, State::lmBill);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmTask);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmPersonEvent);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmScOp);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmLocCCheck);
 	SetClusterData(CTL_PHNCPANE_LISTMODE, S.Mode = S.lmSwitchTo);
 	{
 		StrAssocArray name_list;

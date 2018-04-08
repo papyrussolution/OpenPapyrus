@@ -339,11 +339,8 @@ int SLAPI GoodsCore::InitQc()
 	return ok;
 }
 
-SLAPI GoodsCore::GoodsCore()
+SLAPI GoodsCore::GoodsCore() : P_Ref(PPRef), P_Qc(0), P_Qc2(0)
 {
-	P_Ref = PPRef;
-	P_Qc = 0;
-	P_Qc2 = 0;
 }
 
 SLAPI GoodsCore::~GoodsCore()
@@ -397,8 +394,7 @@ int SLAPI GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 			if(pRec) {
 				pRec->Flags &= ~(GF_TRANSGLED|GF_TRANSQUOT);
 				THROW(Validate(pRec));
-				// @v7.9.11 THROW(Search(id) > 0);
-				THROW(SearchByID_ForUpdate(this, obj_type, id, 0)); // @v7.9.11
+				THROW(SearchByID_ForUpdate(this, obj_type, id, 0));
 				if(!updateRecBuf(pRec)) { // @sfu
 					if(BtrError == BE_DUP) {
 						SString msg_buf;
@@ -1229,8 +1225,7 @@ int SLAPI GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
 	q.select(this->ID, 0L).where(this->StrucID == strucID);
 	k5.StrucID = strucID;
 	for(q.initIteration(0, &k5, spEq/*&k0, spGt*/); q.nextIteration() > 0;) {
-		if(pList)
-			pList->addUnique(data.ID);
+		CALLPTRMEMB(pList, addUnique(data.ID));
 		ok = 1;
 	}
 	return ok;
@@ -2310,12 +2305,10 @@ private:
 	//
 	class FglArray : public StrAssocArray {
 	public:
-		FglArray(int use) : StrAssocArray()
+		FglArray(int use) : StrAssocArray(), Use(use), Inited(0)
 		{
-			Use = use;
-			Inited = 0;
 		}
-		void   Dirty(PPID goodsID)
+		void   FASTCALL Dirty(PPID goodsID)
 		{
 			DirtyTable.Add((uint32)labs(goodsID));
 		}
@@ -2330,26 +2323,10 @@ private:
 		SingleBarcodeArray() : StrAssocArray()
 		{
 		}
-		/*
-		void   WrLock()
+		void   FASTCALL Dirty(PPID goodsID)
 		{
-			Lck.WriteLock();
-		}
-		void   RdLock()
-		{
-			Lck.ReadLock();
-		}
-		void   Unlock()
-		{
-			Lck.Unlock();
-		}
-		*/
-		void   Dirty(PPID goodsID)
-		{
-			//WrLock();
 			SRWLOCKER(Lck, SReadWriteLocker::Write);
 			DirtyTable.Add((uint32)labs(goodsID));
-			//Unlock();
 		}
 		UintHashTable ExcTable;   // Список товаров, не имеющих штрихкодов
 		UintHashTable DirtyTable;
@@ -2390,7 +2367,6 @@ int GoodsCache::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pT
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
 		if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
-			//TknLock.WriteLock();
 			SRWLOCKER(TknLock, SReadWriteLocker::Write);
 			if(!P_ObjTkn) {
 				P_ObjTkn = new PPObjectTokenizer;
@@ -2401,7 +2377,6 @@ int GoodsCache::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pT
 				}
 			}
 			ok = P_ObjTkn ? P_ObjTkn->SearchGoodsAnalogs(goodsID, rList, pTransitComponentBuf) : 0;
-			//TknLock.Unlock();
 		}
 	}
 	return ok;
@@ -2420,11 +2395,8 @@ const TwoDimBarcodeFormatArray * GoodsCache::GetBc2dSpec()
 int SLAPI GoodsCache::GetConfig(PPGoodsConfig * pCfg, int enforce)
 {
 	{
-		//CfgLock.ReadLock();
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & GCF_VALID) || enforce) {
-			//CfgLock.Unlock();
-			//CfgLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(Cfg.Flags & GCF_VALID) || enforce) {
 				PPObjGoods::ReadConfig(&Cfg);
@@ -2432,7 +2404,6 @@ int SLAPI GoodsCache::GetConfig(PPGoodsConfig * pCfg, int enforce)
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
-		//CfgLock.Unlock();
 	}
 	return 1;
 }
@@ -2454,7 +2425,6 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 {
 	int    ok = 0;
 	{
-		//GslLock.ReadLock();
 		SRWLOCKER(GslLock, SReadWriteLocker::Read);
 		uint   pos = 0;
 		pExt->Init();
@@ -2466,8 +2436,6 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 			ok = 1;
 		}
 		if(!ok) {
-			//GslLock.Unlock();
-			//GslLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
 			// Пока ждали блокировку нашу работу мог сделать другой поток
@@ -2479,7 +2447,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 				ok = 1;
 			}
 			if(!ok) {
-				PPObjGoods goods_obj;
+				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 				GoodsStockExt temp;
 				int    r = goods_obj.P_Tbl->GetStockExt(goodsID, &temp, 0 /* not using cache! */);
 				if(r > 0) {
@@ -2513,7 +2481,6 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 				}
 			}
 		}
-		//GslLock.Unlock();
 	}
 	return ok;
 }
@@ -2525,7 +2492,6 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 	if(goodsID == 0)
 		ok = -1;
 	else {
-		//SbcList.RdLock();
 		SRWLOCKER(SbcList.Lck, SReadWriteLocker::Read);
 		goodsID = labs(goodsID);
 		if(!SbcList.DirtyTable.Has(goodsID)) {
@@ -2535,8 +2501,6 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 				ok = 1;
 		}
 		if(!ok) {
-			//SbcList.Unlock();
-			//SbcList.WrLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
 			// Еще раз попытаемся получить то, что хотим (пока ждали блокировки другой поток мог сделать нашу работу)
@@ -2548,7 +2512,7 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 					ok = 1;
 			}
 			if(!ok) {
-				PPObjGoods goods_obj;
+				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 				SString temp_buf; // Рискованно пользоваться буфером rBuf: маловероятно, но он может быть
 					// одновременно использован другими потоками.
 				int    r = goods_obj.GetSingleBarcode(goodsID, temp_buf);
@@ -2566,7 +2530,6 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 				rBuf = temp_buf;
 			}
 		}
-		//SbcList.Unlock();
 	}
 	return ok;
 }
@@ -2574,11 +2537,9 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 int GoodsCache::ResetFullList()
 {
 	{
-		//FglLock.WriteLock();
 		SRWLOCKER(FglLock, SReadWriteLocker::Write);
 		FullGoodsList.Inited = 0;
 		FullGoodsList.DirtyTable.Clear();
-		//FglLock.Unlock();
 	}
 	return 1;
 }
@@ -2589,7 +2550,6 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 	const  StrAssocArray * p_result = 0;
 	if(FullGoodsList.Use) {
 		if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
-			//FglLock.WriteLock();
 			SRWLOCKER(FglLock, SReadWriteLocker::Write);
 			if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
 				PPObjGoods goods_obj(SConstructorLite);
@@ -2642,7 +2602,6 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					FullGoodsList.Inited = 1;
 				}
 			}
-			//FglLock.Unlock();
 		}
 		if(!err) {
 			#if SLTRACELOCKSTACK
@@ -2675,18 +2634,15 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 		//
 		// Очистка элемента кэша складского расширения товара
 		//
-		//GslLock.WriteLock();
 		SRWLOCKER(GslLock, SReadWriteLocker::Write);
 		PPID   abs_id = labs(id);
 		uint   gsl_pos = 0;
 		ExcGsl.Remove(abs_id);
 		if(Gsl.lsearch(&abs_id, &gsl_pos, CMPF_LONG))
 			Gsl.at(gsl_pos).GoodsID = 0;
-		//GslLock.Unlock();
 	}
 	SbcList.Dirty(id);
 	{
-		//GtlLock.WriteLock();
 		SRWLOCKER(GtlLock, SReadWriteLocker::Write);
 		//
 		// Если измененная группа находится хотя бы в одном терминальном списке, то придется //
@@ -2707,23 +2663,18 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 		}
 		if(gtl_pos)
 			Gtl.atFree(gtl_pos-1);
-		//GtlLock.Unlock();
 	}
 	{
-		//AgflLock.WriteLock();
 		SRWLOCKER(AgflLock, SReadWriteLocker::Write);
 		if(Agfl.lsearch(&id, &pos, CMPF_LONG))
 			Agfl.atFree(pos);
-		//AgflLock.Unlock();
 	}
 	//
 	//
 	//
 	{
-		//FglLock.WriteLock();
 		SRWLOCKER(FglLock, SReadWriteLocker::Write);
 		FullGoodsList.Dirty(id);
-		//FglLock.Unlock();
 	}
 	return ok;
 }

@@ -9,26 +9,29 @@
 //
 //
 //
-class AWStringBuffer : public SBaseBuffer {
-public:
-	explicit AWStringBuffer(size_t sz)
+class AWStringBuffer_Base : public SBaseBuffer {
+protected:
+	AWStringBuffer_Base(SCodepage cp) : Cp(cp)
 	{
 		SBaseBuffer::Init();
-#ifdef _UNICODE
-		Cp = cpUTF16;
-		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
-#else
-		Cp = cpANSI;
-		SBaseBuffer::Alloc(sz * sizeof(char));
-#endif
 	}
-	explicit AWStringBuffer(const char * pSrc)
+	~AWStringBuffer_Base()
 	{
-		SBaseBuffer::Init();
+		SBaseBuffer::Destroy();
+	}
+	SCodepageIdent Cp;
+};
+
+class AWStringBuffer_W : public AWStringBuffer_Base {
+public:
+	explicit AWStringBuffer_W(size_t sz) : AWStringBuffer_Base(cpUTF16)
+	{
+		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
+	}
+	explicit AWStringBuffer_W(const char * pSrc) : AWStringBuffer_Base(cpUTF16)
+	{
 		const size_t len = sstrlen(pSrc);
 		const size_t sz = ALIGNSIZE(len+1, 4);
-#ifdef _UNICODE
-		Cp = cpUTF16;
 		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
 		if(pSrc) {
 			SStringU & r_temp_u = SLS.AcquireRvlStrU();
@@ -37,30 +40,46 @@ public:
 		}
 		else
 			PTR32(P_Buf)[0] = 0;
-#else
-		Cp = cpANSI;
-		SBaseBuffer::Alloc(sz * sizeof(char));
-		if(pSrc)
-			memcpy(P_Buf, pSrc, len+1);
-		else
-			PTR32(P_Buf)[0] = 0;
-#endif
 	}
-	explicit AWStringBuffer(const wchar_t * pSrc)
+	explicit AWStringBuffer_W(const wchar_t * pSrc) : AWStringBuffer_Base(cpUTF16)
 	{
-		SBaseBuffer::Init();
 		const size_t len = sstrlen(pSrc);
 		const size_t sz = ALIGNSIZE(len+1, 4);
-#ifdef _UNICODE
-		Cp = cpUTF16;
 		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
 		if(pSrc) {
 			memcpy(P_Buf, pSrc, (len + 1) * sizeof(wchar_t));
 		}
 		else
 			PTR32(P_Buf)[0] = 0;
-#else
-		Cp = cpANSI;
+	}
+	operator char * ()
+	{
+		// unicode
+		// else
+		// endif
+	}
+};
+
+class AWStringBuffer_A : public AWStringBuffer_Base {
+public:
+	explicit AWStringBuffer_A(size_t sz) : AWStringBuffer_Base(cpANSI)
+	{
+		SBaseBuffer::Alloc(sz * sizeof(char));
+	}
+	explicit AWStringBuffer_A(const char * pSrc) : AWStringBuffer_Base(cpANSI)
+	{
+		const size_t len = sstrlen(pSrc);
+		const size_t sz = ALIGNSIZE(len+1, 4);
+		SBaseBuffer::Alloc(sz * sizeof(char));
+		if(pSrc)
+			memcpy(P_Buf, pSrc, len+1);
+		else
+			PTR32(P_Buf)[0] = 0;
+	}
+	explicit AWStringBuffer_A(const wchar_t * pSrc) : AWStringBuffer_Base(cpANSI)
+	{
+		const size_t len = sstrlen(pSrc);
+		const size_t sz = ALIGNSIZE(len+1, 4);
 		SBaseBuffer::Alloc(sz * sizeof(char));
 		if(pSrc) {
 			SStringU & r_temp_u = SLS.AcquireRvlStrU();
@@ -70,11 +89,6 @@ public:
 		}
 		else
 			PTR32(P_Buf)[0] = 0;
-#endif
-	}
-	~AWStringBuffer()
-	{
-		SBaseBuffer::Destroy();
 	}
 	operator char * ()
 	{
@@ -82,7 +96,6 @@ public:
 		// else
 		// endif
 	}
-	SCodepageIdent Cp;
 };
 //
 //
@@ -954,7 +967,7 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 						i++;
 				} while(i < len);
 			}
-			else { // } @speedcritical 
+			else { // } @speedcritical
 				do {
 					r_temp_buf.Z();
 					while(i < len && !memchr(pDelimChrSet, P_Buf[i], delim_len))
@@ -2746,6 +2759,34 @@ ulong SLAPI SString::ToULong() const
 		return 0;
 }
 
+uint32 FASTCALL _texttodec32(const char * pT, uint len)
+{
+	uint32 result;
+	switch(len) {
+		case 0: result = 0; break;
+		case 1: result = pT[0] - '0'; break;
+		case 2: result = (10 * (pT[0] - '0')) + (pT[1] - '0'); break;
+		case 3: result = (100 * (pT[0] - '0')) + (10 * (pT[1] - '0')) + (pT[2] - '0'); break;
+		case 4: result = (1000 * (pT[0] - '0')) + (100 * (pT[1] - '0')) + (10 * (pT[2] - '0')) + (pT[3] - '0'); break;
+		case 5: result = (10000 * (pT[0] - '0')) + (1000 * (pT[1] - '0')) + (100 * (pT[2] - '0')) + (10 * (pT[3] - '0')) + (pT[4] - '0'); break;
+		default:
+			result = 0;
+			for(uint i = 0; i < len; i++)
+				result = (result * 10) + (pT[i] - '0');
+			break;
+	}
+	return result;
+}
+
+uint32 FASTCALL _texttohex32(const char * pT, uint len)
+{
+	uint32 result = 0;
+	for(uint i = 0; i < len; i++) {
+		result = (result * 16) + hex(pT[i]);
+	}
+	return result;
+}
+
 long SLAPI SString::ToLong() const
 {
 	// @v9.6.1 return (long)ToULong();
@@ -2770,10 +2811,23 @@ long SLAPI SString::ToLong() const
 			is_hex = 1;
 		}
 		if(is_hex) {
-			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+			//if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+			if(ishex(_p[src_pos])) {
+				uint   len = 0;
+				do {
+					len++;
+				} while(ishex(_p[src_pos+len]));
+				result = (long)_texttohex32(_p+src_pos, len);
+			}
 		}
 		else {
-			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+			if(isdec(_p[src_pos])) {
+				uint   len = 0;
+				do {
+					len++;
+				} while(isdec(_p[src_pos+len]));
+				result = (long)_texttodec32(_p+src_pos, len);
+			}
 		}
 		if(is_neg && result)
 			result = -result;
@@ -6745,7 +6799,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			//
 			{
 				const size_t _src_len = 503;
-				str = 0;
+				str.Z();
 				for(uint si = 0; si < _src_len; si++) {
 					uint _v = SLS.GetTLA().Rg.GetUniformInt(100000);
 					char _c = (_v % 26) + ((si & 1) ? 'a' : 'A');
@@ -6772,6 +6826,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
 				SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
 			}
+		}
+		{
+			SLTEST_CHECK_EQ((str = " abc ").Strip(1), " abc");
+			SLTEST_CHECK_EQ((str = " abc ").Strip(2), "abc ");
+			SLTEST_CHECK_EQ((str = " abc ").Strip(0), "abc");
+			SLTEST_CHECK_EQ((str = " abc ").Strip(), "abc");
+			SLTEST_CHECK_EQ((str = "abc").Strip(), "abc");
+			SLTEST_CHECK_EQ((str = "\"abc\"").StripQuotes(), "abc");
+			SLTEST_CHECK_EQ((str = " \"abc\"" ).StripQuotes(), "abc");
+			SLTEST_CHECK_EQ((str = "abc").StripQuotes(), "abc");
 		}
 		//
 		// Тестирование функций EncodeMime64 и DecodeMime64
@@ -6960,6 +7024,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 			{
 				LDATETIME dtm;
+				LDATETIME dtm_converted;
 				dtm.d.encode(29, 2, 2016);
 				dtm.t.encode(21, 17, 2, 250);
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY), "29/02/16");
@@ -7006,6 +7071,17 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
+				//
+				strtotime("211702", TIMF_HMS|TIMF_NODIV, &dtm_converted.t);
+				SLTEST_CHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 0));
+				strtotime("\t21:17:02    ", TIMF_HMS, &dtm_converted.t);
+				SLTEST_CHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 0));
+				strtotime("      21:17:02.047   ", TIMF_HMS, &dtm_converted.t);
+				SLTEST_CHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 4));
+				strtotime(" 21 17 02 ", TIMF_HMS, &dtm_converted.t);
+				SLTEST_CHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 0));
+				strtotime(" 2117 ", TIMF_HM|TIMF_NODIV, &dtm_converted.t);
+				SLTEST_CHECK_EQ(dtm_converted.t, encodetime(21, 17, 00, 0));
 			}
 			{
 				IntRange ir;
@@ -7080,7 +7156,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
 				size_t proof_len = strlen(F.P_StrList->at(i));
 				assert(proof_len < sizeof(buffer1));
-				assert(proof_len > 16);
+				//assert(proof_len > 16);
 				strcpy(buffer1, F.P_StrList->at(i));
 				total_len1 += strlen(buffer1);
 				buffer2[0] = 0;

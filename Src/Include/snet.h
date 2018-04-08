@@ -156,25 +156,20 @@ public:
 	static const char * FASTCALL GetSchemeMnem(int);
 	static int FASTCALL GetSchemeId(const char * pSchemeMnem);
 	static int FASTCALL GetDefProtocolPort(int protocol);
-	static int FASTCALL ValidateComponent(int c)
-	{
-		return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
-	}
+	static int FASTCALL ValidateComponent(int c);
+
 	explicit InetUrl(const char * pUrl = 0);
 	InetUrl(const InetUrl & rS);
 	InetUrl & FASTCALL operator = (const InetUrl & rS);
 	void   FASTCALL Copy(const InetUrl & rS);
 	InetUrl & Clear();
-	long   GetState() const;
+	long   GetState() const { return State; }
 	int    Valid() const;
 	int    IsEmpty() const;
 	int    Parse(const char * pUrl);
 	int    GetComponent(int c, int urlDecode, SString & rBuf) const;
 	int    SetComponent(int c, const char * pBuf);
-	int    GetProtocol() const
-	{
-		return Protocol;
-	}
+	int    GetProtocol() const { return Protocol; }
 	int    SetProtocol(int protocol);
 	int    GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
 	//
@@ -752,7 +747,7 @@ struct SMailMessage : SStrGroup {
 	SLAPI ~SMailMessage();
 	void   SLAPI Init();
 	int    SLAPI IsPpyData() const;
-	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
+	// @v10.0.0 SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
 	//
 	// Parameters:
 	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
@@ -792,7 +787,7 @@ struct SMailMessage : SStrGroup {
 	int    SLAPI IsFrom(const char * pEmail) const;
 	int    SLAPI IsSubj(const char * pSubj, int substr) const;
 
-	int    SLAPI PutToFile(SFile & rF);
+	// @v10.0.0 int    SLAPI PutToFile(SFile & rF);
 	int    SLAPI ReadFromFile(SFile & rF);
 
 	int    SLAPI DebugOutput(SString & rBuf) const;

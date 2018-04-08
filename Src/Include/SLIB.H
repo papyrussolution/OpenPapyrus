@@ -1519,7 +1519,14 @@ struct S_GUID { // @persistent @noctr @size=16
 	int    IsZero() const;
 	void   SetZero();
 	SString & ToStr(long fmt, SString &) const;
-	int    FASTCALL FromStr(const char *);
+	//
+	// Descr: Преобразует строку pStr в GUID.
+	// Note: Если в преобразовать строку в GUID не удалось, то this обнуляется (SetZero())
+	// Returns:
+	//   !0 - преобразование осуществлено успешно
+	//   0  - ошибка
+	//
+	int    FASTCALL FromStr(const char * pStr);
 	int    Generate();
 
 	uint32 Data[4];
@@ -1978,40 +1985,67 @@ private:
 //
 // @construction
 // Descr: Универсальное представление времени, обеспечивающее хранение любых временных
-//   отметок с любой точностью.
+//   отметок с (почти) любой точностью.
 //
 class SUniTime {
 public:
+	enum {
+		indfScale       = 0x80, // Если этот бит нулевой, то время представлено как FILETIME (100ns since 1601-01-01 UTC)
+		indfUncertainty = 0xC0, // Если бит установлен, то значение приблизительное. В этом случае предпоследний
+			// байт может содержать дополнительные признаки представления (например, как диапазон или +/-)
 
+		indInvalid = 0xff, // Используется как внутренний код возврата, означающий ошибку
+
+        indMkSec = 0,  // since 1601-01-01 (UTC).
+		indMSec,       // since 1601-01-01 (UTC).
+		indCSec,       // since 1601-01-01 (UTC).
+        indSec,        // since 1601-01-01 (UTC).
+        indMin,        // since 1601-01-01 (UTC).
+		indMin5,       // since 1601-01-01 (UTC).
+		indMin15,      // since 1601-01-01 (UTC).
+		indMin30,      // since 1601-01-01 (UTC).
+        indHr,         // since 1601-01-01 (UTC).
+		indHr4,        // since 1601-01-01 (UTC).
+		indEpoch,      // since 1970-01-01 00:00:00 GMT
+        indDay,        // since 0001-01-01
+        indMon,        // since 0001-01-01
+		indQuart,      // since 0001-01-01
+		indSmYr,       // since 0001-01-01
+		indYr,         // since 0001-01-01
+		indDYr,        // since 0001-01-01
+		indSmCent,     // since 0001-01-01
+		indCent,         // since 0001-01-01
+		indMillennium,   // since 0001-01-01
+		indDayBC,        // before 0001-01-01
+		indMonBC,        // before 0001-01-01
+		indYrBC,         // before 0001-01-01
+		indDYrBC,        // before 0001-01-01
+		indCentBC,       // before 0001-01-01
+		indMillenniumBC, // before 0001-01-01
+	};
 	SUniTime();
-
 	int    Set(uint day, uint mon, uint year, uint hr, uint mn, uint s, uint mks);
-
-	int    To(LDATE & rD) const;
-	int    To(LDATETIME & rD) const;
-	int    To(time_t & rD) const;
-
-	int    From(const LDATE & rD);
-	int    From(const LDATETIME & rD);
-	int    From(const time_t & rD);
+	int    FASTCALL Set(const LDATE & rD);
+	int    FASTCALL Set(const LDATETIME & rD);
+	int    FASTCALL Set(const time_t & rD);
+	int    FASTCALL Set(const FILETIME & rD);
+	int    FASTCALL Get(LDATE & rD) const;
+	int    FASTCALL Get(LDATETIME & rD) const;
+	int    FASTCALL Get(time_t & rD) const;
+	int    FASTCALL Get(FILETIME & rD) const;
 
 	enum {
-        indMksSince1900 = 0,
-        indMSec,
-        indSec,
-        indMin,
-        indHr,
-        indDay,
-        indMon,
-		indQuart,
-		indSmYr,
-		indYr,
-		indDYr,
-		indSmCent,
-		indCent,
-		indMillennium,
-		indMillionYr
+		cmprSureTrue  = 1,
+		cmprSureFalse = 0,
+		cmprUncertainTrue = 2
 	};
+	int    FASTCALL IsEq(const SUniTime &) const;
+	int    FASTCALL IsLt(const SUniTime &) const;
+	int    FASTCALL IsGt(const SUniTime &) const;
+private:
+	int    FASTCALL SetSignature(uint8 s);
+	int    SLAPI Implement_Set(uint8 signature, const void *);
+	uint8  SLAPI Implement_Get(void *) const;
 	//
 	// Самый старший байт D[7] - индикатор, определяющий разрешение представления и,
 	// возможно, часовой пояс (для indMksSince1900).
@@ -2939,14 +2973,8 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 
 struct DateRange { // @persistent @size=8
 	DECL_INVARIANT_C();
-	int    FASTCALL operator == (const DateRange & rS) const
-	{
-		return IsEqual(rS);
-	}
-	int    FASTCALL operator != (const DateRange & rS) const
-	{
-		return !IsEqual(rS);
-	}
+	int    FASTCALL operator == (const DateRange & rS) const { return IsEqual(rS); }
+	int    FASTCALL operator != (const DateRange & rS) const { return !IsEqual(rS); }
 	int    FASTCALL IsEqual(const DateRange & rS) const;
 	int    FASTCALL Cmp(const DateRange & rS) const;
 	//
@@ -3033,14 +3061,8 @@ struct USize { // @noctr @novtbl
 	USize & Set(double s, int unit = 0, int dir = DIREC_UNKN);
 	void   SetInvalid();
 	int    IsValid() const;
-	int    operator !() const
-	{
-		return !IsValid();
-	}
-	operator double() const
-	{
-		return S;
-	}
+	int    operator !() const { return !IsValid(); }
+	operator double() const { return S; }
 	enum {
 		fmtDefault = 0,
 		fmtSVG
@@ -3537,7 +3559,6 @@ public:
 	//
 	int    SLAPI ToIntRange(IntRange & rRange, long flags) const;
 	SString & SLAPI Sub(size_t startPos, size_t len, SString & rBuf) const;
-
 	SString & SLAPI TrimRight();
 	//
 	// Descr: Обрезает самый правый символ строки, если он равен c.
@@ -3605,12 +3626,15 @@ public:
 	SString & FASTCALL Utf8ToCp(SCodepageIdent cp);
 	SString & SLAPI Utf8ToLower();
 	SString & SLAPI Utf8ToUpper();
-
 	SString & SLAPI ToUpper();
 	SString & SLAPI ToLower();
 	SString & SLAPI ToUpper1251();
 	SString & SLAPI ToLower1251();
 	SString & FASTCALL SetCase(int ccas);
+	//
+	// Descr: Унифицированный транслятор кодировки строки.
+	//   Основное назначение: универсализация преобразования кодировок
+	//   внутри проекта Papyrus между т.н. INNER, OUTER и UTF8 кодировками.
 	//
 	SString & FASTCALL Transf(int ctransf /*CTRANSF_XXX*/);
 	//
@@ -3618,7 +3642,7 @@ public:
 	//
 	SString & NumberToLat(uint value);
 	//
-	// ARG(dir IN): 1 - обрезать справа, 2 - обрезать слева, 0 - обрезать с обоих концов
+	// ARG(dir IN): 1 - обрезать справа, 2 - обрезать слева, 0 - обрезать с обоих концов (аналог Strip())
 	//
 	SString & SLAPI Strip(int dir);
 	SString & SLAPI Strip();
@@ -4236,7 +4260,7 @@ int    FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 size_t FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
-const  char * SLAPI skipws(const char * pStr, size_t * pPos);
+// @v10.0.0 const  char * SLAPI skipws(const char * pStr, size_t * pPos);
 //
 // Descr: Функция заменяет символ 'c' на строку из одиночного того же символа "c".
 // Note: Функция рудиментарная сделана еще во времена DOS с целью снизить размер кода.
@@ -4259,6 +4283,24 @@ int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size
 // @v9.4.10 (unused) char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
 // AHTOXA convert hex or octal representation of symbol to symbol in string
 int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
+//
+// Descr: Низкоуровневая функция преобразования серии последовательных цифр в число.
+//   Никаких проверок не делает и полагается на то, что в строке pT ей передается len
+//   символов, являющихся десятичными цифрами ('0'..'9').
+//   За счет такого минимализма очень быстрая.
+// Returns:
+//   Результат преобразования.
+//
+uint32 FASTCALL _texttodec32(const char * pT, uint len);
+//
+// Descr: Низкоуровневая функция преобразования серии последовательных шестнадцатиричных цифр в число.
+//   Никаких проверок не делает и полагается на то, что в строке pT ей передается len
+//   символов, являющихся шетнадцатиричными цифрами ('0'..'9','A'..'F','a'..'f').
+//   За счет такого минимализма очень быстрая.
+// Returns:
+//   Результат преобразования.
+//
+uint32 FASTCALL _texttohex32(const char * pT, uint len);
 // @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
 // @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
@@ -4378,8 +4420,8 @@ void   FASTCALL _encodedate(int d, int m, int y, void *, int);
 void   FASTCALL _decodedate(int * pD, int * pM, int * pY, const void *, int);
 int    FASTCALL _checkdate(int d, int m, int y);
 char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
-void   SLAPI encodedate(int, int, int, void *);
-void   SLAPI decodedate(int *, int *, int *, const void *);
+void   FASTCALL encodedate(int, int, int, void *);
+void   FASTCALL decodedate(int *, int *, int *, const void *);
 void   SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
 void   SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, LDATETIME *);
 int    FASTCALL checkdate(const void * pBinDate);
@@ -4430,8 +4472,8 @@ int   gettimezone();
 //
 // Date arithmetic
 //
-long  SLAPI _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
-void  SLAPI _plusdate(void * pDest, int numdays, int format, int _360);
+long  FASTCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
+void  FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest.
@@ -4445,7 +4487,7 @@ void  SLAPI _plusdate(void * pDest, int numdays, int format, int _360);
 void  SLAPI _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
 int   FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
 long  SLAPI diffdate(const void *, const void *, int _360);
-void  SLAPI plusdate(void *, int, int _360);
+void  FASTCALL plusdate(void *, int, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest. Функция считает, что бинарный формат представления даты pDest
@@ -4601,12 +4643,12 @@ time_t FASTCALL Sl_Curl_GetDate(const char * p);
 //   Минуты, секунды, сотые доли секунд могут быть пропущены
 //   В качестве разделителя вместо ':' можно использовать пробел или ';'
 // ARG(pBuf   IN) - строка содержащая представление времени
-// ARG(fmt    IN) - параметры форматирования (игнорируется)
+// ARG(fmt    IN) - параметры форматирования
 // ARG(pTime OUT) - указатель на структуру LTIME, в которую будет записано принятое значение времени
 // Returns:
 //   1
 //
-int   SLAPI strtotime(const char * pBuf, long fmt, void * pTime); // @>>::strtok
+int   FASTCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
 int   SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
 //
 // Descr: Обобщанная структура поля данных. Используется в основном для работы
@@ -4614,10 +4656,7 @@ int   SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 // Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
 //
 struct BNField {
-	size_t SLAPI size() const
-	{
-		return stsize(T);
-	}
+	size_t SLAPI size() const { return stsize(T); }
 	int    SLAPI IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
 	int    FASTCALL getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    SLAPI setValue(void * pDataBuf, const void * pValBuf) const;
@@ -4649,7 +4688,7 @@ public:
 	const  BNField & SLAPI getField(uint, int byPosition = 1) const;
 	const  BNField & SLAPI getField(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
-	uint   SLAPI getCount() const;
+	uint   SLAPI getCount() const { return count; }
 	RECORDSIZE SLAPI getRecSize() const;
 	int    SLAPI setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
 	int    SLAPI IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
@@ -6191,7 +6230,10 @@ public:
 	T &    FASTCALL peek() const { return *(T *)SQueue::peek(); }
 	T &    FASTCALL get(uint p) const { return *(T *)SQueue::get(p); }
 };
-
+//
+// Descr: Шаблон для револьверных структур, обеспечивающих повторное использование
+//   созданных и инициализированных ранее экземпляров объектов (SString, SStringU etc)
+//
 template <class T> class TSRevolver {
 public:
 	explicit TSRevolver(uint c) : Count(c), P_List(new T[c]), P(0), AccsCount(0)
@@ -6357,9 +6399,6 @@ public:
 	//
 	int    SLAPI addExclusive(const LongArray * pS, const LongArray * pExcl);
 };
-
-// @v8.6.0 typedef TSArray      <int>  LongArray;
-// @v9.8.6 typedef LongArray IntArray;
 //
 //
 //

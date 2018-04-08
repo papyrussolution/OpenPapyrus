@@ -4110,10 +4110,7 @@ PPALDD_CONSTRUCTOR(CCheckView)
 	}
 }
 
-PPALDD_DESTRUCTOR(CCheckView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CCheckView) { Destroy(); }
 
 static void SetVATData(double * pVATRate, double * pPTrnovr, double * pDscnt, const BVATAccmArray * pInOutList, uint i)
 {

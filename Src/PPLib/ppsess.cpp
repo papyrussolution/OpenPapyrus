@@ -230,9 +230,21 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 						SETIFZ(r_tla.P_TodoObj, new PPObjPrjTask);
 						PPObjPrjTask * p_todo_obj = DS.GetTLA().P_TodoObj;
 						if(p_todo_obj) {
-							PrjTaskTbl * t = p_todo_obj->P_Tbl;
-							PrjTaskTbl::Key4 k4;
+							PrjTaskCore * t = p_todo_obj->P_Tbl;
+							PrjTaskTbl::Rec todo_rec;
 							if(check_new_task) {
+								// @v10.0.0 {
+								for(SEnum en = t->EnumByEmployer(employer, 0, 0); en.Next(&todo_rec) > 0;) {
+									if(!(todo_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
+										//PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
+										PPLoadString("newtask", temp_buf);
+										APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
+										break;
+									}
+								}
+								// } @v10.0.0
+								/* @v10.0.0
+								PrjTaskTbl::Key4 k4;
 								MEMSZERO(k4);
 								k4.EmployerID = employer;
 								if(t->search(4, &k4, spGe) && t->data.EmployerID == employer) {
@@ -243,12 +255,14 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 									for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
 										const PrjTaskTbl::Rec & r_rec = t->data;
 										if(!(r_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-											PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
-											APPL->AddStatusBarItem(temp_buf, ICON_NEWTASK, 0, cmPrjTask_ByStatus);
+											//PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
+											PPLoadString("newtask", temp_buf);
+											APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
 											break;
 										}
 									}
 								}
+								*/
 							}
 							if(rmnd_incompl_task) {
 								DateRange period;
@@ -257,6 +271,17 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 								plusdate(&period.upp, abs(prj_cfg.RemindPrd.low), 0);
 								if(prj_cfg.RemindPrd.low != prj_cfg.RemindPrd.upp)
 									plusdate(&period.low, -abs(prj_cfg.RemindPrd.upp), 0);
+								// @v10.0.0 {
+								for(SEnum en = t->EnumByEmployer(employer, &period, 0); en.Next(&todo_rec) > 0;) {
+									if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
+										//PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
+										PPLoadString("incompletetasks", temp_buf);
+										APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
+										break;
+									}
+								}
+								// } @v10.0.0
+								/* @v10.0.0
 								MEMSZERO(k4);
 								k4.EmployerID = employer;
 								k4.Dt = period.low;
@@ -269,12 +294,14 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 									for(q.initIteration(0, &k4, spGe); q.nextIteration() > 0;) {
 										const PrjTaskTbl::Rec & r_rec = t->data;
 										if(!oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-											PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
-											APPL->AddStatusBarItem(temp_buf, ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
+											//PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
+											PPLoadString("incompletetasks", temp_buf);
+											APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
 											break;
 										}
 									}
 								}
+								*/
 							}
 						}
 					}
@@ -305,7 +332,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 				}
 			}
 		}
-		// } @v9.9.9 
+		// } @v9.9.9
 		//
 		// Уведомление о наличие новых версий Papyrus
 		//
@@ -485,7 +512,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 			rN.PutExtStrData(rN.extssContext, rTempBuf);
 			EvqList.GetS(rSrc.ExtenP, rTempBuf);
 			rN.PutExtStrData(rN.extssExten, rTempBuf);
-			// } @v9.9.12 
+			// } @v9.9.12
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -874,7 +901,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
-	
+
 #if USE_ADVEVQUEUE==2
 	IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
 #endif
@@ -1856,8 +1883,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 			//
 			// @v8.0.2 Теперь флаг устанавливается по умолчанию. Параметром DETECTDBTEXISTBYOPEN его можно отменить
 			//
-			DbSession::Config dbcfg;
-			DBS.GetConfig(dbcfg);
+			DbSession::Config dbcfg = DBS.GetConfig();
 			int    iv = 0;
 			dbcfg.Flags |= DbSession::fDetectExistByOpen;
 			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DETECTDBTEXISTBYOPEN, &iv) > 0) {
@@ -3072,7 +3098,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							AsteriskAmiClient * CreatePhnSvcClient(AsteriskAmiClient * pOldCli)
 							{
 								ZDELETE(pOldCli);
-								AsteriskAmiClient * p_phnsvc_cli = 0; 
+								AsteriskAmiClient * p_phnsvc_cli = 0;
 								if(StartUp_PhnSvcPack.Rec.ID) {
 									SString temp_buf;
 									SString addr_buf, user_buf, secret_buf;
@@ -3176,7 +3202,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 											case (WAIT_OBJECT_0 + 0): // stop event
 												stop = 1; // quit loop
 												break;
-											case WAIT_TIMEOUT: 
+											case WAIT_TIMEOUT:
 												// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
 												// Предполагается, что это событие крайне маловероятно!
 												break;
@@ -3202,7 +3228,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																		local_action = PPEVNT_PHNC_UP;
 																}
 																else if(chnl_status.State == PhnSvcChannelStatus::stRinging) {
-																	if(PhnSvcLocalScanChannelSymb.Empty() || 
+																	if(PhnSvcLocalScanChannelSymb.Empty() ||
 																		PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalScanChannelSymb, chnl_status.Channel) > 0)
 																		local_action = PPEVNT_PHNS_RINGING;
 																}
@@ -3272,14 +3298,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 													}
 													{
 														dtm = getcurdatetime_();
-														// @v9.8.12 { 
+														// @v9.8.12 {
 														// Если время последнего события превышает текущее время, то придется
 														// считать, что Since равно текущему времени.
 														// Такая ситуация возможна при сбое часов одного из компьютеров, генерирующего
 														// события в системном журнале.
 														if(cmp(Since, dtm) > 0)
 															Since = dtm;
-														// } @v9.8.12 
+														// } @v9.8.12
 														last_sj_time = dtm;
 													}
 												}
@@ -3371,7 +3397,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
 				PPLoadText(PPTXT_DBINCONTINUOUSMODE, msg_buf);
-				PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrOrangered), 
+				PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrOrangered),
 					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fTextAlignLeft);
 			}
 #endif
@@ -4246,9 +4272,9 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList) 
-{ 
-	return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); 
+int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList)
+{
+	return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList);
 }
 
 StringSet & SLAPI PPSession::AcquireRvlSsSCD()
@@ -4573,7 +4599,7 @@ int    SLAPI PPSession::GetDriveMapping(int drive, SString & rMapping) const { r
 int    SLAPI PPSession::ConvertPathToUnc(SString & rPath) const { return DrvMap.ConvertPathToUnc(rPath); }
 int    SLAPI PPSession::SetDbLocalObjCache(ObjCache * pCache) { return CMng.AddCache(DBS.GetDbPathID(), pCache); }
 int    SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
-int    SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); } 
+int    SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); }
 void   SLAPI PPSession::SetTempLogFileName(const char * pFileName) { GetTLA().TempLogFile = pFileName; }
 int    SLAPI PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta) { return GetTLA().Cart.Set(pPack, use_ta); }
 PPBasketPacket * SLAPI PPSession::GetPrivateBasket() { return GetTLA().Cart.Get(); }

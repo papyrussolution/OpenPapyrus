@@ -853,6 +853,12 @@ int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 	return port;
 }
 
+//static 
+int FASTCALL InetUrl::ValidateComponent(int c)
+{
+	return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
+}
+
 InetUrl::InetUrl(const char * pUrl) : InetAddr()
 {
 	Clear();
@@ -877,11 +883,6 @@ void FASTCALL InetUrl::Copy(const InetUrl & rS)
 	TermList = rS.TermList;
 	Org = rS.Org;
 	State = rS.State;
-}
-
-long InetUrl::GetState() const
-{
-	return State;
 }
 
 int InetUrl::Valid() const
@@ -1224,7 +1225,6 @@ static const struct ContentDispositionTypeName { const char * P_Name; int Type; 
 	{ "recording-session", SMailMessage::ContentDispositionBlock::tRecordingSession }
 };
 
-
 //static
 int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
 {
@@ -1368,26 +1368,6 @@ void SLAPI SMailMessage::Init()
 	AttachPosL.clear();
 	ReceivedChainL.clear();
 	ClearS();
-}
-
-SString & SLAPI SMailMessage::MakeBoundaryCode(SString & rBuf) const
-{
-	rBuf.Z();
-	uint16 hash[16];
-	rBuf.CatCharN('-', 10);
-	IdeaRandMem(hash, sizeof(hash));
-	for(size_t i = 0; i < SIZEOFARRAY(hash); i++) {
-		uint16 sym = hash[i] % (10 + 26); // digits + upper letters
-		int    c = 0;
-		if(sym < 10)
-			c = '0' + sym;
-		else if(sym < (10 + 26))
-			c = 'A' + (sym - 10);
-		else
-			c = '=';
-		rBuf.CatChar(c);
-	}
-	return rBuf;
 }
 
 SString & SLAPI SMailMessage::GetBoundary(int start, SString & rBuf) const
@@ -1548,17 +1528,6 @@ int SLAPI SMailMessage::IsSubj(const char * pSubj, int substr) const
 		}
 	}
 	return ok;
-}
-
-static int SLAPI _PUTS(const char * pLine, SFile & rOut)
-{
-	rOut.WriteLine(pLine);
-	if(pLine)
-		rOut.WriteLine("\n");
-	/*if(pLine)
-		fputs(pLine, out);
-	fputc('\n', out);*/
-	return 1;
 }
 
 SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SString & rBuf)
@@ -2069,6 +2038,38 @@ int SLAPI SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SStr
 }
 #endif // !NDEBUG
 
+#if 0 // @v10.0.0 {
+SString & SLAPI SMailMessage::MakeBoundaryCode(SString & rBuf) const
+{
+	rBuf.Z();
+	uint16 hash[16];
+	rBuf.CatCharN('-', 10);
+	IdeaRandMem(hash, sizeof(hash));
+	for(size_t i = 0; i < SIZEOFARRAY(hash); i++) {
+		uint16 sym = hash[i] % (10 + 26); // digits + upper letters
+		int    c = 0;
+		if(sym < 10)
+			c = '0' + sym;
+		else if(sym < (10 + 26))
+			c = 'A' + (sym - 10);
+		else
+			c = '=';
+		rBuf.CatChar(c);
+	}
+	return rBuf;
+}
+
+static int SLAPI _PUTS(const char * pLine, SFile & rOut)
+{
+	rOut.WriteLine(pLine);
+	if(pLine)
+		rOut.WriteLine("\n");
+	/*if(pLine)
+		fputs(pLine, out);
+	fputc('\n', out);*/
+	return 1;
+}
+
 int SLAPI SMailMessage::PutToFile(SFile & rF)
 {
 /*
@@ -2202,6 +2203,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	//rFileName = fname;
 	return ok;
 }
+#endif // } 0 @v10.0.0
 
 SMailMessage::Boundary * SLAPI SMailMessage::Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format)
 {
@@ -2420,8 +2422,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		{
 			S_GUID uuid;
 			uuid.Generate();
-			uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-			out_buf.Cat("Message-ID").CatDiv(':', 2).CatChar('<').Cat(temp_buf).CatChar('>').CRB();
+			out_buf.Cat("Message-ID").CatDiv(':', 2).CatChar('<').Cat(uuid.ToStr(S_GUID::fmtIDL, temp_buf)).CatChar('>').CRB();
 		}
 		{
 			R_Msg.GetField(SMailMessage::fldTo, temp_buf);

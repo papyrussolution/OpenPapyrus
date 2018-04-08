@@ -499,19 +499,19 @@ struct __GoodsFilt {
 	long   VatRate;        // v-15 // Ставка НДС (0.01), которой облагается товар
 	LDATE  VatDate;        // v-15 // Дата, на которую рассчитывается VatRate
 	PPID   BrandID;        // v-15 // Брэнд. (Просранство - за счет Reserve)
-	PPID   CodeArID;       // v-18 
-	PPID   BrandOwnerID;   // v-20 
-	int32  MtxLocID;       // 
-	int32  InitOrder;      // 
-	char   Reserve[12];    // v-15 
+	PPID   CodeArID;       // v-18
+	PPID   BrandOwnerID;   // v-20
+	int32  MtxLocID;       //
+	int32  InitOrder;      //
+	char   Reserve[12];    // v-15
 	//SrchStr[]
 	//uint32 GrpIDListCount;
 	//GrpIDList[]
 	//BarcodeLenStr[]      // v-14
 	//GoodsFilt::ExtParams // v-16, v-17
-	//LocList              // v-19 
-	//BrandList            // v-19 
-	//SysJournalFilt       // v-21 
+	//LocList              // v-19
+	//BrandList            // v-19
+	//SysJournalFilt       // v-21
 	//TagFilt              // v-22
 	//BrandOwnerList       // v-23
 };
@@ -2108,11 +2108,11 @@ int SLAPI PPViewGoods::RemoveAll()
 		if(oneof4(GmParam.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgTaxGroup, GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aChgMinStock)) {
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-					if(GmParam.Action == GoodsMoveParam::aMoveToGroup) 
+					if(GmParam.Action == GoodsMoveParam::aMoveToGroup)
 						pack.Rec.ParentID = GmParam.DestGrpID;
-					else if(GmParam.Action == GoodsMoveParam::aChgTaxGroup) 
+					else if(GmParam.Action == GoodsMoveParam::aChgTaxGroup)
 						pack.Rec.TaxGrpID = GmParam.DestGrpID;
-					else if(GmParam.Action == GoodsMoveParam::aChgGoodsType) 
+					else if(GmParam.Action == GoodsMoveParam::aChgGoodsType)
 						pack.Rec.GoodsTypeID = GmParam.DestGrpID;
 					else if(GmParam.Action == GoodsMoveParam::aChgMinStock) {
 						const uint loc_count = GmParam.LocList.GetCount();
@@ -3074,12 +3074,6 @@ int SLAPI PPViewGoods::Export(PPGoodsImpExpParam * pExpCfg)
 }
 
 struct UhttExpGoodsParam {
-	UhttExpGoodsParam()
-	{
-		Flags = 0;
-		CategoryObject = coGoodsGrpName;
-		CategoryTagID = 0;
-	}
 	enum {
 		fOnlyUnassocItems = 0x0001
 	};
@@ -3087,6 +3081,10 @@ struct UhttExpGoodsParam {
 		coGoodsGrpName = 0,
 		coTag
 	};
+
+	UhttExpGoodsParam() : Flags(0), CategoryObject(coGoodsGrpName), CategoryTagID(0)
+	{
+	}
 	long   Flags;
 	long   CategoryObject; // Сущность, которую следует выгружать в качестве наименования категории товара
 	PPID   CategoryTagID;
@@ -3096,9 +3094,8 @@ int SLAPI PPViewGoods::ExportUhtt()
 {
 	class UhttExportGoodsDialog : public TDialog {
 	public:
-		UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS)
+		UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS), P_View(pView)
 		{
-			P_View = pView;
 		}
 		int SLAPI setDTS(const UhttExpGoodsParam * pData)
 		{
@@ -3169,7 +3166,6 @@ int SLAPI PPViewGoods::ExportUhtt()
 					THROW(r = uc.GetUhttGoodsRefList(list, &code_ref_list));
 					list.Sort();
 					{
-						// PPTXT_UHTTEXPGOODS_REFS     "В выборке @int товаров, @int из них сопоставлено с Universe-HTT"
 						uint ref_count = 0;
 						for(uint i = 0; i < list.getCount(); i++) {
 							const PPID goods_id = list.at(i).Key;
@@ -3214,12 +3210,10 @@ int SLAPI PPViewGoods::ExportUhtt()
 			PPObjBrand brand_obj;
 			SString img_path, temp_buf, barcode, msg_buf, fmt_buf;
 			ObjLinkFiles lf(PPOBJ_GOODS);
-			//
 			{
 				GoodsViewItem item;
-				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
 					uniq_id_list.add(item.ID);
-				}
 			}
 			uniq_id_list.sortAndUndup();
 			if(uniq_id_list.getCount()) {
@@ -3247,183 +3241,186 @@ int SLAPI PPViewGoods::ExportUhtt()
 					Goods2Tbl::Rec goods_rec;
 					THROW(GObj.Search(goods_id, &goods_rec) > 0);
 					GObj.ReadBarcodes(goods_id, bc_list);
-					uhtt_id_list.clear();
-					ref_list.GetListByKey(goods_id, uhtt_id_list);
-					for(uint j = 0; j < uhtt_id_list.getCount(); j++) {
-						const PPID temp_uhtt_id = uhtt_id_list.get(j);
-						if(temp_uhtt_id) {
-							if(code_ref_list.GetText(temp_uhtt_id, code_buf) > 0) {
-								if(code_buf[0] > '9') {
-									uint   cp = 0;
-									int    ccr = bc_list.SearchCode(code_buf, &cp);
-									assert(ccr); // Не может быть чтобы код не был найден в списке -
-										// мы же его туда положили когда запрашивали соответсвие через GetUhttGoodsRefList()
-									if(ccr) {
-										uhtt_goods_id = temp_uhtt_id;
-										private_code_pos = cp;
-										is_private_code = 1;
-									}
-								}
-								else
-									SETIFZ(uhtt_goods_id, temp_uhtt_id);
-							}
-							else {
-								; // Неожиданная ситуация - код обязательно должен быть
-							}
-						}
+					// @v10.0.0 Убираем из списка кодов коды алкогольной продукции ЕГАИС {
+					{
+						uint bcidx = bc_list.getCount();
+						if(bcidx) do {
+							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
+							if(sstrlen(r_bc_rec.Code) == 19)
+								bc_list.atFree(bcidx);
+						} while(bcidx);
 					}
-					if(uhtt_goods_id || (!(param.Flags & param.fOnlyUnassocItems) && bc_list.getCount())) {
-						if(!uhtt_goods_id || is_private_code) {
-							PPID   uhtt_brand_id = 0;
-							PPID   uhtt_manuf_id = 0;
-							if(goods_rec.BrandID) {
-								PPID   temp_uhtt_id = 0;
-								if(brand_ref_list.Search(goods_rec.BrandID, &temp_uhtt_id, 0) > 0) {
-									uhtt_brand_id = temp_uhtt_id;
+					// } @v10.0.0
+					if(bc_list.getCount()) { // @v10.0.0
+						uhtt_id_list.clear();
+						ref_list.GetListByKey(goods_id, uhtt_id_list);
+						for(uint j = 0; j < uhtt_id_list.getCount(); j++) {
+							const PPID temp_uhtt_id = uhtt_id_list.get(j);
+							if(temp_uhtt_id) {
+								if(code_ref_list.GetText(temp_uhtt_id, code_buf) > 0) {
+									if(code_buf[0] > '9') {
+										uint   cp = 0;
+										int    ccr = bc_list.SearchCode(code_buf, &cp);
+										assert(ccr); // Не может быть чтобы код не был найден в списке -
+											// мы же его туда положили когда запрашивали соответствие через GetUhttGoodsRefList()
+										if(ccr) {
+											uhtt_goods_id = temp_uhtt_id;
+											private_code_pos = cp;
+											is_private_code = 1;
+										}
+									}
+									else
+										SETIFZ(uhtt_goods_id, temp_uhtt_id);
 								}
 								else {
-									PPBrand brand;
-									if(brand_obj.Fetch(goods_rec.BrandID, &brand) > 0 && brand.Name[0]) {
-										TSCollection <UhttBrandPacket> brand_list;
-										if(uc.GetBrandByName(brand.Name, brand_list) > 0 && brand_list.getCount())
-											uhtt_brand_id = brand_list.at(0)->ID;
-										brand_ref_list.Add(goods_rec.BrandID, uhtt_brand_id, 0);
-									}
-								}
-							}
-							// @v8.3.5 {
-							if(goods_rec.ManufID) {
-								PPID   temp_uhtt_id = 0;
-								if(manuf_ref_list.Search(goods_rec.ManufID, &temp_uhtt_id, 0) > 0) {
-									uhtt_manuf_id = temp_uhtt_id;
-								}
-								else {
-									PersonTbl::Rec psn_rec;
-									if(PsnObj.Fetch(goods_rec.ManufID, &psn_rec) > 0 && psn_rec.Name[0]) {
-										TSCollection <UhttPersonPacket> person_list;
-										if(uc.GetPersonByName(psn_rec.Name, person_list) > 0 && person_list.getCount()) {
-											for(uint k = 0; !uhtt_manuf_id && k < person_list.getCount(); k++) {
-												const UhttPersonPacket * p_pack = person_list.at(k);
-												for(uint n = 0; !uhtt_manuf_id && n < p_pack->KindList.getCount(); n++) {
-													if(sstreqi_ascii(p_pack->KindList.at(n)->Code, "MANUF"))
-														uhtt_manuf_id = p_pack->ID;
-												}
-											}
-										}
-										manuf_ref_list.Add(goods_rec.ManufID, uhtt_manuf_id, 0);
-									}
-								}
-							}
-							// } @v8.3.5
-							if(!uhtt_goods_id) {
-								// PPTXT_LOG_UHTT_GOODSNFOUND В базе данных Universe-HTT не найден товар, соответствующий '@goods': попытка создания.
-								logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNFOUND, &msg_buf, goods_id));
-							}
-							else if(is_private_code) {
-								//PPTXT_LOG_UHTT_GOODSPRVCODEUPD    "В базе данных Universe-HTT найден товар, соответствующий '@goods' по приватному коду: попытка изменения"
-								logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSPRVCODEUPD, &msg_buf, goods_id));
-							}
-							{
-								for(uint m = 0; (!uhtt_goods_id || is_private_code) && m < bc_list.getCount(); m++) {
-									int    one_iter = 0;
-									if((!uhtt_goods_id || is_private_code)) {
-										assert(m < bc_list.getCount());
-										assert(private_code_pos < bc_list.getCount()); // @v8.2.10
-										m = private_code_pos;
-										one_iter = 1;
-									}
-									(barcode = bc_list.at(m).Code).Strip();
-									UhttGoodsPacket new_pack;
-									Goods2Tbl::Rec grp_rec;
-									new_pack.SetName(goods_rec.Name);
-									// @v8.0.7 {
-									new_pack.ID = uhtt_goods_id;
-									new_pack.BrandID = uhtt_brand_id; // @v8.2.10
-									new_pack.ManufID = uhtt_manuf_id; // @v8.3.5
-									// @v8.3.6 {
-									if(param.CategoryObject == UhttExpGoodsParam::coTag) {
-                                        if(param.CategoryTagID) {
-											ObjTagItem tag_item;
-											if(PPRef->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
-												tag_item.GetStr(temp_buf);
-												if(temp_buf.NotEmptyS()) {
-													UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf);
-													THROW_MEM(p_new_item);
-													THROW_SL(new_pack.TagList.insert(p_new_item));
-												}
-											}
-                                        }
-									}
-									else if(param.CategoryObject == UhttExpGoodsParam::coGoodsGrpName) { // } @v8.3.6
-										if(GObj.Fetch(goods_rec.ParentID, &grp_rec) > 0) {
-											UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf = grp_rec.Name);
-											THROW_MEM(p_new_item);
-											THROW_SL(new_pack.TagList.insert(p_new_item));
-										}
-									}
-									{
-										PPGoodsPacket pack;
-										pack.Rec.ID = goods_id; // @trick
-										pack.Rec.Flags |= GF_EXTPROP; // @trick
-										if(GObj.GetValueAddedData(goods_id, &pack) > 0) {
-											if(pack.GetExtStrData(GDSEXSTR_A, temp_buf) > 0)
-												new_pack.SetExt(GDSEXSTR_A, temp_buf);
-											if(pack.GetExtStrData(GDSEXSTR_B, temp_buf) > 0)
-												new_pack.SetExt(GDSEXSTR_B, temp_buf);
-											if(pack.GetExtStrData(GDSEXSTR_C, temp_buf) > 0)
-												new_pack.SetExt(GDSEXSTR_C, temp_buf);
-											if(pack.GetExtStrData(GDSEXSTR_D, temp_buf) > 0)
-												new_pack.SetExt(GDSEXSTR_D, temp_buf);
-											if(pack.GetExtStrData(GDSEXSTR_E, temp_buf) > 0)
-												new_pack.SetExt(GDSEXSTR_E, temp_buf);
-										}
-									}
-									// } @v8.0.7
-									barcode.CopyTo(new_pack.SingleBarcode, sizeof(new_pack.SingleBarcode));
-									{
-										GoodsStockExt gse;
-										if(GObj.GetStockExt(goods_id, &gse, 1) > 0)
-											new_pack.Package = gse.Package;
-									}
-									long   new_goods_id = 0;
-									if(uc.CreateGoods(&new_goods_id, new_pack) > 0) {
-										// PPTXT_LOG_UHTT_GOODSCR "Товар '@goods' со штрихкодом @zstr создан"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCR, &msg_buf, goods_id, barcode.cptr()));
-										uc.GetGoodsByCode(bc_list.at(m).Code, uhtt_goods_list);
-										if(uhtt_goods_list.getCount() == 1) {
-											uhtt_goods_id = uhtt_goods_list.at(0)->ID;
-										}
-										else if(uhtt_goods_list.getCount() > 1) {
-											uhtt_goods_id = uhtt_goods_list.at(0)->ID;
-										}
-									}
-									else {
-										// PPTXT_LOG_UHTT_GOODSCRFAULT "Ошибка создания товара '@goods' со штрихкодом @zstr: @zstr"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCRFAULT, &msg_buf, goods_id, barcode.cptr(), uc.GetLastMessage().cptr()));
-									}
-									if(one_iter)
-										break;
+									; // Неожиданная ситуация - код обязательно должен быть
 								}
 							}
 						}
-						if(uhtt_goods_id) {
-							if(goods_rec.Flags & GF_HASIMAGES) {
-								lf.Load(goods_id, 0L);
-								lf.At(0, img_path.Z());
-								if(img_path.NotEmptyS()) {
-									if(uc.SetObjImage("GOODS", uhtt_goods_id, img_path)) {
-										// PPTXT_LOG_UHTT_GOODSSETIMG "Для товара @goods экспортировано изображение"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMG, &msg_buf, goods_id));
+						if(uhtt_goods_id || (!(param.Flags & param.fOnlyUnassocItems) && bc_list.getCount())) {
+							if(!uhtt_goods_id || is_private_code) {
+								PPID   uhtt_brand_id = 0;
+								PPID   uhtt_manuf_id = 0;
+								if(goods_rec.BrandID) {
+									PPID   temp_uhtt_id = 0;
+									if(brand_ref_list.Search(goods_rec.BrandID, &temp_uhtt_id, 0) > 0) {
+										uhtt_brand_id = temp_uhtt_id;
 									}
 									else {
-										// PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Ошибка экспорта изображения для товара @goods: @zstr"
-										logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMGFAULT, &msg_buf, goods_id, uc.GetLastMessage().cptr()));
+										PPBrand brand;
+										if(brand_obj.Fetch(goods_rec.BrandID, &brand) > 0 && brand.Name[0]) {
+											TSCollection <UhttBrandPacket> brand_list;
+											if(uc.GetBrandByName(brand.Name, brand_list) > 0 && brand_list.getCount())
+												uhtt_brand_id = brand_list.at(0)->ID;
+											brand_ref_list.Add(goods_rec.BrandID, uhtt_brand_id, 0);
+										}
+									}
+								}
+								// @v8.3.5 {
+								if(goods_rec.ManufID) {
+									PPID   temp_uhtt_id = 0;
+									if(manuf_ref_list.Search(goods_rec.ManufID, &temp_uhtt_id, 0) > 0) {
+										uhtt_manuf_id = temp_uhtt_id;
+									}
+									else {
+										PersonTbl::Rec psn_rec;
+										if(PsnObj.Fetch(goods_rec.ManufID, &psn_rec) > 0 && psn_rec.Name[0]) {
+											TSCollection <UhttPersonPacket> person_list;
+											if(uc.GetPersonByName(psn_rec.Name, person_list) > 0 && person_list.getCount()) {
+												for(uint k = 0; !uhtt_manuf_id && k < person_list.getCount(); k++) {
+													const UhttPersonPacket * p_pack = person_list.at(k);
+													for(uint n = 0; !uhtt_manuf_id && n < p_pack->KindList.getCount(); n++) {
+														if(sstreqi_ascii(p_pack->KindList.at(n)->Code, "MANUF"))
+															uhtt_manuf_id = p_pack->ID;
+													}
+												}
+											}
+											manuf_ref_list.Add(goods_rec.ManufID, uhtt_manuf_id, 0);
+										}
+									}
+								}
+								// } @v8.3.5
+								if(!uhtt_goods_id) {
+									logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNFOUND, &msg_buf, goods_id));
+								}
+								else if(is_private_code) {
+									logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSPRVCODEUPD, &msg_buf, goods_id));
+								}
+								{
+									for(uint m = 0; (!uhtt_goods_id || is_private_code) && m < bc_list.getCount(); m++) {
+										int    one_iter = 0;
+										if(!uhtt_goods_id || is_private_code) {
+											assert(m < bc_list.getCount());
+											assert(private_code_pos < bc_list.getCount()); // @v8.2.10
+											m = private_code_pos;
+											one_iter = 1;
+										}
+										(barcode = bc_list.at(m).Code).Strip();
+										UhttGoodsPacket new_pack;
+										Goods2Tbl::Rec grp_rec;
+										new_pack.SetName(goods_rec.Name);
+										new_pack.ID = uhtt_goods_id;
+										new_pack.BrandID = uhtt_brand_id; // @v8.2.10
+										new_pack.ManufID = uhtt_manuf_id; // @v8.3.5
+										// @v8.3.6 {
+										if(param.CategoryObject == UhttExpGoodsParam::coTag) {
+											if(param.CategoryTagID) {
+												ObjTagItem tag_item;
+												if(PPRef->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
+													tag_item.GetStr(temp_buf);
+													if(temp_buf.NotEmptyS()) {
+														UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf);
+														THROW_MEM(p_new_item);
+														THROW_SL(new_pack.TagList.insert(p_new_item));
+													}
+												}
+											}
+										}
+										else if(param.CategoryObject == UhttExpGoodsParam::coGoodsGrpName) { // } @v8.3.6
+											if(GObj.Fetch(goods_rec.ParentID, &grp_rec) > 0) {
+												UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf = grp_rec.Name);
+												THROW_MEM(p_new_item);
+												THROW_SL(new_pack.TagList.insert(p_new_item));
+											}
+										}
+										{
+											PPGoodsPacket pack;
+											pack.Rec.ID = goods_id; // @trick
+											pack.Rec.Flags |= GF_EXTPROP; // @trick
+											if(GObj.GetValueAddedData(goods_id, &pack) > 0) {
+												if(pack.GetExtStrData(GDSEXSTR_A, temp_buf) > 0)
+													new_pack.SetExt(GDSEXSTR_A, temp_buf);
+												if(pack.GetExtStrData(GDSEXSTR_B, temp_buf) > 0)
+													new_pack.SetExt(GDSEXSTR_B, temp_buf);
+												if(pack.GetExtStrData(GDSEXSTR_C, temp_buf) > 0)
+													new_pack.SetExt(GDSEXSTR_C, temp_buf);
+												if(pack.GetExtStrData(GDSEXSTR_D, temp_buf) > 0)
+													new_pack.SetExt(GDSEXSTR_D, temp_buf);
+												if(pack.GetExtStrData(GDSEXSTR_E, temp_buf) > 0)
+													new_pack.SetExt(GDSEXSTR_E, temp_buf);
+											}
+										}
+										barcode.CopyTo(new_pack.SingleBarcode, sizeof(new_pack.SingleBarcode));
+										{
+											GoodsStockExt gse;
+											if(GObj.GetStockExt(goods_id, &gse, 1) > 0)
+												new_pack.Package = gse.Package;
+										}
+										long   new_goods_id = 0;
+										if(uc.CreateGoods(&new_goods_id, new_pack) > 0) {
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCR, &msg_buf, goods_id, barcode.cptr()));
+											uc.GetGoodsByCode(bc_list.at(m).Code, uhtt_goods_list);
+											if(uhtt_goods_list.getCount() == 1)
+												uhtt_goods_id = uhtt_goods_list.at(0)->ID;
+											else if(uhtt_goods_list.getCount() > 1)
+												uhtt_goods_id = uhtt_goods_list.at(0)->ID;
+										}
+										else
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSCRFAULT, &msg_buf, goods_id, barcode.cptr(), uc.GetLastMessage().cptr()));
+										if(one_iter)
+											break;
 									}
 								}
 							}
-							else {
-								// PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
-								logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, goods_id));
+							if(uhtt_goods_id) {
+								if(goods_rec.Flags & GF_HASIMAGES) {
+									lf.Load(goods_id, 0L);
+									lf.At(0, img_path.Z());
+									if(img_path.NotEmptyS()) {
+										if(uc.SetObjImage("GOODS", uhtt_goods_id, img_path)) {
+											// PPTXT_LOG_UHTT_GOODSSETIMG "Для товара @goods экспортировано изображение"
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMG, &msg_buf, goods_id));
+										}
+										else {
+											// PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Ошибка экспорта изображения для товара @goods: @zstr"
+											logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSSETIMGFAULT, &msg_buf, goods_id, uc.GetLastMessage().cptr()));
+										}
+									}
+								}
+								else {
+									// PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
+									logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, goods_id));
+								}
 							}
 						}
 					}
@@ -3573,7 +3570,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					UpdateTempTable(0, pBrw);
 				break;
 			case PPVCMD_UNITEOBJ:
-				{	
+				{
 					PPObjGoods::ExtUniteBlock eub;
 					eub.ResultID = id;
 					// @v9.8.6 {
@@ -3588,7 +3585,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 							}
 						}
 					}
-					// } @v9.8.6 
+					// } @v9.8.6
 					ok = GObj.ReplaceGoods(eub);
 					if(ok > 0)
 						UpdateTempTable(0, pBrw);

@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -401,29 +401,15 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 }
 
 HWND TProgram::CreateDlg(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
-{
-	return ::CreateDialogParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam);
-}
-
+	{ return ::CreateDialogParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
 INT_PTR TProgram::DlgBoxParam(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
-{
-	return ::DialogBoxParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam);
-}
-
+	{ return ::DialogBoxParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
 HBITMAP FASTCALL TProgram::LoadBitmap(uint bmID)
-{
-	return (HBITMAP)::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0);
-}
-
+	{ return (HBITMAP)::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0); }
 HBITMAP FASTCALL TProgram::FetchBitmap(uint bmID)
-{
-	return BmH.Get(bmID);
-}
-
+	{ return BmH.Get(bmID); }
 HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID)
-{
-	return BmH.GetSystem(bmID);
-}
+	{ return BmH.GetSystem(bmID); }
 
 //virtual
 int TProgram::InitStatusBar()
@@ -445,24 +431,13 @@ int TProgram::GetStatusBarRect(RECT * pRect)
 }
 
 int TProgram::ClearStatusBar()
-{
-	return P_Stw ? P_Stw->RemoveItem(-1) : 0;
-}
-
+	{ return P_Stw ? P_Stw->RemoveItem(-1) : 0; }
 int TProgram::AddStatusBarItem(const char * pStr, long icon /* = 0 */, COLORREF color /*=0*/, uint cmd /*=0*/, COLORREF textColor /*=0*/)
-{
-	return P_Stw ? P_Stw->AddItem(pStr, icon, color, cmd, textColor) : 0;
-}
-
+	{ return P_Stw ? P_Stw->AddItem(pStr, icon, color, cmd, textColor) : 0; }
 int TProgram::UpdateStatusBar()
-{
-	return P_Stw ? P_Stw->Update() : 0;
-}
-
+	{ return P_Stw ? P_Stw->Update() : 0; }
 void TProgram::SetupTreeWnd(HMENU hMenu, HTREEITEM hP)
-{
-	CALLPTRMEMB(P_TreeWnd, Setup(hMenu));
-}
+	{ CALLPTRMEMB(P_TreeWnd, Setup(hMenu)); }
 
 int TProgram::GetClientRect(RECT * pClientRC)
 {
@@ -551,20 +526,9 @@ int TProgram::SizeMainWnd(HWND hw)
 	return 1;
 }
 
-int TProgram::IsTreeVisible() const
-{
-	return BIN(P_TreeWnd && P_TreeWnd->IsVisible());
-}
-
-void TProgram::GetTreeRect(RECT & rRect)
-{
-	CALLPTRMEMB(P_TreeWnd, GetRect(rRect));
-}
-
-HWND TProgram::GetTreeHWND() const
-{
-	return (P_TreeWnd) ? P_TreeWnd->Hwnd : 0;
-}
+int  TProgram::IsTreeVisible() const { return BIN(P_TreeWnd && P_TreeWnd->IsVisible()); }
+void TProgram::GetTreeRect(RECT & rRect) { CALLPTRMEMB(P_TreeWnd, GetRect(rRect)); }
+HWND TProgram::GetTreeHWND() const { return (P_TreeWnd) ? P_TreeWnd->Hwnd : 0; }
 
 INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {

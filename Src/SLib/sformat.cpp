@@ -457,16 +457,107 @@ char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, siz
 	return strnzcpy(pBuf, temp_buf, bufLen);
 }
 
-int SLAPI strtotime(const char * pBuf, long fmt, void * v)
+static int FASTCALL checkdeccount(const char * pBuf, uint decCount)
 {
-	int    i = 0;
-	char   b[64];
-	char * p = strtok(strip(strcpy(b, pBuf)), " :;");
-	*(long *)v = 0L;
-	if(p) do {
-		((char *)v)[3-i] = atoi(p);
-	} while(++i < 4 && (p = strtok(NULL, " :;")) != 0);
+	for(uint i = 0; i < decCount; i++) {
+		if(!isdec(pBuf[i]))
+			return 0;
+	}
 	return 1;
+}
+
+int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
+{
+	int    ok = 1;
+	int    h = 0;
+	int    m = 0;
+	int    s = 0;
+	int    ms = 0;
+	if(!isempty(pBuf)) {
+		while(oneof2(pBuf[0], ' ', '\t'))
+			pBuf++;
+		if(fmt & TIMF_NODIV) {
+			switch(fmt & 7) {
+				case TIMF_HMS: 
+					if(checkdeccount(pBuf, 6)) {
+						h = (int)_texttodec32(pBuf, 2);
+						m = (int)_texttodec32(pBuf+2, 2);
+						s = (int)_texttodec32(pBuf+4, 2);
+					}
+					else
+						ok = 0;
+					break;
+				case TIMF_HM:
+					if(checkdeccount(pBuf, 4)) {
+						h = (int)_texttodec32(pBuf, 2);
+						m = (int)_texttodec32(pBuf+2, 2);
+					}
+					else
+						ok = 0;
+					break;
+				case TIMF_MS:
+					if(checkdeccount(pBuf, 4)) {
+						m = (int)_texttodec32(pBuf, 2);
+						s = (int)_texttodec32(pBuf+2, 2);
+					}
+					else
+						ok = 0;
+					break;
+				case TIMF_S:
+					{
+						uint   p = 0;
+						if(isdec(pBuf[p])) {
+							do {
+								p++;
+							} while(isdec(pBuf[p]));
+							s = (int)_texttodec32(pBuf, p);
+						}
+						else
+							ok = 0;
+					}
+					break;
+				default:
+					ok = 0;
+			}
+		}
+		else {
+			uint   p = 0;
+			if(isdec(pBuf[0])) {
+				do { p++; } while(isdec(pBuf[p]));
+				h = (int)_texttodec32(pBuf, p);
+				if(oneof3(pBuf[p], ':', ';', ' ')) {
+					pBuf = pBuf+p+1;
+					p = 0;
+					if(isdec(pBuf[0])) {
+						do { p++; } while(isdec(pBuf[p]));
+						m = (int)_texttodec32(pBuf, p);
+						if(oneof3(pBuf[p], ':', ';', ' ')) {
+							pBuf = pBuf+p+1;
+							p = 0;
+							if(isdec(pBuf[0])) {
+								do { p++; } while(isdec(pBuf[p]));
+								s = (int)_texttodec32(pBuf, p);
+								if(pBuf[p] == '.') {
+									pBuf = pBuf+p+1;
+									p = 0;
+									if(isdec(pBuf[0])) {
+										do { p++; } while(isdec(pBuf[p]));
+										ms = (int)_texttodec32(pBuf, p);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+				ok = 0;
+		}
+	}
+	else
+		ok = 0;
+	encodetime(h, m, s, ms/10, v);
+	return ok;
 }
 //
 //

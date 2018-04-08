@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -1300,7 +1300,7 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 //
 SLAPI STime::STime() : DataType(4) {}
 char * SLAPI STime::tostr(const void * v, long f, char * b) const { return timefmt(*(LTIME *)v, f, b); }
-int SLAPI STime::fromstr(void * v, long f, const char * b) const { return strtotime(b, f, v); }
+int SLAPI STime::fromstr(void * v, long f, const char * b) const { return strtotime(b, f, (LTIME *)v); }
 void SLAPI STime::minval(void * d) const { (((LTIME *)d)->v = 0UL); }
 void SLAPI STime::maxval(void * d) const { ((LTIME *)d)->v = ULONG_MAX; }
 int SLAPI STime::comp(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }

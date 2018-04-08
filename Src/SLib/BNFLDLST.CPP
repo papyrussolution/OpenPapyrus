@@ -203,11 +203,6 @@ const BNField & SLAPI BNFieldList::getField(const char * pName, uint * pPos) con
 	return *(BNField *)0;
 }
 
-uint SLAPI BNFieldList::getCount() const
-{
-	return count;
-}
-
 RECORDSIZE SLAPI BNFieldList::getRecSize() const
 {
 	RECORDSIZE s = 0;

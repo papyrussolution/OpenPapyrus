@@ -105,8 +105,7 @@ int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRe
 			rRec.Flags2 |= BILLF2_EDIAR_DISAGR;
 			break;
 		case PPEDI_RECADVCONF_STATUS_UNDEF:
-			rRec.Flags2 &= ~BILLF2_EDIAR_AGR;
-			rRec.Flags2 &= ~BILLF2_EDIAR_DISAGR;
+			rRec.Flags2 &= ~(BILLF2_EDIAR_AGR|BILLF2_EDIAR_DISAGR);
 			break;
 		default:
 			ok = 0;
@@ -118,24 +117,17 @@ int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRe
 
 // static
 char * FASTCALL BillCore::GetCode(char * code)
-{
-	return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code;
-}
-
+	{ return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
 //static
 SString & FASTCALL BillCore::GetCode(SString & rCode)
-{
-	return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN);
-}
+	{ return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
 
 SLAPI BillCore::BillCore() : BillTbl()
 {
 }
 
 int SLAPI BillCore::Search(PPID id, BillTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_BILL, id, pRec);
-}
+	{ return SearchByID(this, PPOBJ_BILL, id, pRec); }
 
 int SLAPI BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
 {
@@ -1013,14 +1005,9 @@ int SLAPI BillCore::InitEnumByOp(PPID opID, DateRange * pPeriod, int flags, long
 }
 
 int SLAPI BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
-{
-	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
-}
-
+	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
 int SLAPI BillCore::DestroyIter(long enumHandle)
-{
-	return EnumList.DestroyIterHandler(enumHandle);
-}
+	{ return EnumList.DestroyIterHandler(enumHandle); }
 
 SEnumImp * SLAPI BillCore::EnumByOp(PPID opID, DateRange * pPeriod, int options)
 {

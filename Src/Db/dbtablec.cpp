@@ -508,7 +508,7 @@ int SLAPI DBTable::IsOpened() const
 	return (handle != 0);
 }
 
-int SLAPI DBTable::getField(uint fldN, DBField * pFld) const
+int FASTCALL DBTable::getField(uint fldN, DBField * pFld) const
 {
 	if(fldN < fields.getCount()) {
 		DBField fld;
@@ -537,14 +537,9 @@ int SLAPI DBTable::getFieldByName(const char * pName, DBField * pFld) const
 }
 
 int SLAPI DBTable::getFieldValue(uint fldN, void * pBuf, size_t * pSize) const
-{
-	return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].getValue(P_DBuf, pBuf, pSize) : 0;
-}
-
+	{ return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].getValue(P_DBuf, pBuf, pSize) : 0; }
 int SLAPI DBTable::setFieldValue(uint fldN, const void * pBuf)
-{
-	return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].setValue(P_DBuf, pBuf) : 0;
-}
+	{ return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].setValue(P_DBuf, pBuf) : 0; }
 
 int SLAPI DBTable::getFieldValByName(const char * pName, void * pVal, size_t * pSize) const
 {
@@ -661,15 +656,8 @@ int SLAPI DBTable::copyBufToKey(int idx, void * pKey) const
 	return ok;
 }
 
-RECORDSIZE SLAPI DBTable::getBufLen() const
-{
-	return bufLen;
-}
-
-DBRowId * DBTable::getCurRowIdPtr()
-{
-	return &CurRowId;
-}
+RECORDSIZE SLAPI DBTable::getBufLen() const { return bufLen; }
+DBRowId * DBTable::getCurRowIdPtr() { return &CurRowId; }
 
 int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 {
@@ -744,11 +732,6 @@ int SLAPI DBTable::InitLob()
 	//return BIN(State & sHasLob);
 }
 
-uint SLAPI DBTable::GetLobCount() const
-{
-	return LobB.getCount();
-}
-
 int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 {
 	int    ok = 0;
@@ -769,20 +752,10 @@ int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 	return ok;
 }
 
-DBLobBlock * DBTable::getLobBlock()
-{
-	return &LobB;
-}
-
-int DBTable::setLobSize(DBField fld, size_t sz)
-{
-	return LobB.SetSize((uint)fld.fld, sz);
-}
-
-int DBTable::getLobSize(DBField fld, size_t * pSz) const
-{
-	return LobB.GetSize((uint)fld.fld, pSz);
-}
+uint   SLAPI DBTable::GetLobCount() const { return LobB.getCount(); }
+DBLobBlock * DBTable::getLobBlock() { return &LobB; }
+int    DBTable::setLobSize(DBField fld, size_t sz) { return LobB.SetSize((uint)fld.fld, sz); }
+int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSize((uint)fld.fld, pSz); }
 
 int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 {
@@ -1018,9 +991,7 @@ int SLAPI DBTable::getDirect(int idx, void * pKey, const DBRowId & rPos)
 int SLAPI DBTable::rereadForUpdate(int idx, void * pKey)
 {
 	int    ok = 1;
-	DbSession::Config dbcfg;
-	DBS.GetConfig(dbcfg);
-	if(dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.5 нет необходимости перечитывать запись, если блокировки не применяются
+	if(DBS.GetConfig().NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.5 нет необходимости перечитывать запись, если блокировки не применяются
 		uint8  _key[512];
 		if(!pKey) {
 			MEMSZERO(_key);

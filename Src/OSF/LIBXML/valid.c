@@ -392,77 +392,36 @@ static xmlNode * nodeVPop(xmlValidCtxtPtr ctxt)
 }
 
 #ifdef DEBUG_VALID_ALGO
-static void xmlValidPrintNode(xmlNode * cur) {
+static void xmlValidPrintNode(xmlNode * cur) 
+{
 	if(!cur) {
 		xmlGenericError(0, "null");
 		return;
 	}
 	switch(cur->type) {
-		case XML_ELEMENT_NODE:
-		    xmlGenericError(0, "%s ", cur->name);
-		    break;
-		case XML_TEXT_NODE:
-		    xmlGenericError(0, "text ");
-		    break;
-		case XML_CDATA_SECTION_NODE:
-		    xmlGenericError(0, "cdata ");
-		    break;
-		case XML_ENTITY_REF_NODE:
-		    xmlGenericError(0, "&%s; ", cur->name);
-		    break;
-		case XML_PI_NODE:
-		    xmlGenericError(0, "pi(%s) ", cur->name);
-		    break;
-		case XML_COMMENT_NODE:
-		    xmlGenericError(0, "comment ");
-		    break;
-		case XML_ATTRIBUTE_NODE:
-		    xmlGenericError(0, "?attr? ");
-		    break;
-		case XML_ENTITY_NODE:
-		    xmlGenericError(0, "?ent? ");
-		    break;
-		case XML_DOCUMENT_NODE:
-		    xmlGenericError(0, "?doc? ");
-		    break;
-		case XML_DOCUMENT_TYPE_NODE:
-		    xmlGenericError(0, "?doctype? ");
-		    break;
-		case XML_DOCUMENT_FRAG_NODE:
-		    xmlGenericError(0, "?frag? ");
-		    break;
-		case XML_NOTATION_NODE:
-		    xmlGenericError(0, "?nota? ");
-		    break;
-		case XML_HTML_DOCUMENT_NODE:
-		    xmlGenericError(0, "?html? ");
-		    break;
+		case XML_ELEMENT_NODE: xmlGenericError(0, "%s ", cur->name); break;
+		case XML_TEXT_NODE: xmlGenericError(0, "text "); break;
+		case XML_CDATA_SECTION_NODE: xmlGenericError(0, "cdata "); break;
+		case XML_ENTITY_REF_NODE: xmlGenericError(0, "&%s; ", cur->name); break;
+		case XML_PI_NODE: xmlGenericError(0, "pi(%s) ", cur->name); break;
+		case XML_COMMENT_NODE: xmlGenericError(0, "comment "); break;
+		case XML_ATTRIBUTE_NODE: xmlGenericError(0, "?attr? "); break;
+		case XML_ENTITY_NODE: xmlGenericError(0, "?ent? "); break;
+		case XML_DOCUMENT_NODE: xmlGenericError(0, "?doc? "); break;
+		case XML_DOCUMENT_TYPE_NODE: xmlGenericError(0, "?doctype? "); break;
+		case XML_DOCUMENT_FRAG_NODE: xmlGenericError(0, "?frag? "); break;
+		case XML_NOTATION_NODE: xmlGenericError(0, "?nota? "); break;
+		case XML_HTML_DOCUMENT_NODE: xmlGenericError(0, "?html? "); break;
 #ifdef LIBXML_DOCB_ENABLED
-		case XML_DOCB_DOCUMENT_NODE:
-		    xmlGenericError(0, "?docb? ");
-		    break;
+		case XML_DOCB_DOCUMENT_NODE: xmlGenericError(0, "?docb? "); break;
 #endif
-		case XML_DTD_NODE:
-		    xmlGenericError(0, "?dtd? ");
-		    break;
-		case XML_ELEMENT_DECL:
-		    xmlGenericError(0, "?edecl? ");
-		    break;
-		case XML_ATTRIBUTE_DECL:
-		    xmlGenericError(0, "?adecl? ");
-		    break;
-		case XML_ENTITY_DECL:
-		    xmlGenericError(0, "?entdecl? ");
-		    break;
-		case XML_NAMESPACE_DECL:
-		    xmlGenericError(0, "?nsdecl? ");
-		    break;
-		case XML_XINCLUDE_START:
-		    xmlGenericError(0, "incstart ");
-		    break;
-		case XML_XINCLUDE_END:
-		    xmlGenericError(0, "incend ");
-		    break;
+		case XML_DTD_NODE: xmlGenericError(0, "?dtd? "); break;
+		case XML_ELEMENT_DECL: xmlGenericError(0, "?edecl? "); break;
+		case XML_ATTRIBUTE_DECL: xmlGenericError(0, "?adecl? "); break;
+		case XML_ENTITY_DECL: xmlGenericError(0, "?entdecl? "); break;
+		case XML_NAMESPACE_DECL: xmlGenericError(0, "?nsdecl? "); break;
+		case XML_XINCLUDE_START: xmlGenericError(0, "incstart "); break;
+		case XML_XINCLUDE_END: xmlGenericError(0, "incend "); break;
 	}
 }
 
@@ -585,40 +544,32 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 
 		    switch(content->ocur) {
 			    case XML_ELEMENT_CONTENT_ONCE:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am,
-				    ctxt->state, NULL, fullname, 0);
+				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
 				break;
 			    case XML_ELEMENT_CONTENT_OPT:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am,
-				    ctxt->state, NULL, fullname, 0);
+				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
 				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
 				break;
 			    case XML_ELEMENT_CONTENT_PLUS:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am,
-				    ctxt->state, NULL, fullname, 0);
-				xmlAutomataNewTransition(ctxt->am, ctxt->state,
-				    ctxt->state, fullname, 0);
+				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
+				xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
 				break;
 			    case XML_ELEMENT_CONTENT_MULT:
-				ctxt->state = xmlAutomataNewEpsilon(ctxt->am,
-				    ctxt->state, 0);
-				xmlAutomataNewTransition(ctxt->am,
-				    ctxt->state, ctxt->state, fullname, 0);
+				ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
+				xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
 				break;
 		    }
-		    if((fullname != fn) && (fullname != content->name))
+		    if(fullname != fn && fullname != content->name)
 			    SAlloc::F(fullname);
 		    break;
 	    }
 		case XML_ELEMENT_CONTENT_SEQ: {
-		    xmlAutomataStatePtr oldstate, oldend;
-		    xmlElementContentOccur ocur;
-
+		    xmlAutomataStatePtr oldend;
 		    /*
 		     * Simply iterate over the content
 		     */
-		    oldstate = ctxt->state;
-		    ocur = content->ocur;
+		    xmlAutomataStatePtr oldstate = ctxt->state;
+		    xmlElementContentOccur ocur = content->ocur;
 		    if(ocur != XML_ELEMENT_CONTENT_ONCE) {
 			    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, oldstate, 0);
 			    oldstate = ctxt->state;
@@ -626,40 +577,30 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 		    do {
 			    xmlValidBuildAContentModel(content->c1, ctxt, name);
 			    content = content->c2;
-		    } while((content->type == XML_ELEMENT_CONTENT_SEQ) &&
-			    (content->ocur == XML_ELEMENT_CONTENT_ONCE));
+		    } while(content->type == XML_ELEMENT_CONTENT_SEQ && content->ocur == XML_ELEMENT_CONTENT_ONCE);
 		    xmlValidBuildAContentModel(content, ctxt, name);
 		    oldend = ctxt->state;
 		    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, oldend, 0);
 		    switch(ocur) {
-			    case XML_ELEMENT_CONTENT_ONCE:
-				break;
-			    case XML_ELEMENT_CONTENT_OPT:
-				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
-				break;
-			    case XML_ELEMENT_CONTENT_MULT:
-				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
-				xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
-				break;
-			    case XML_ELEMENT_CONTENT_PLUS:
-				xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
-				break;
+			    case XML_ELEMENT_CONTENT_ONCE: break;
+			    case XML_ELEMENT_CONTENT_OPT: xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state); break;
+			    case XML_ELEMENT_CONTENT_MULT: 
+					xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state); 
+					xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
+					break;
+			    case XML_ELEMENT_CONTENT_PLUS: xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate); break;
 		    }
 		    break;
 	    }
-		case XML_ELEMENT_CONTENT_OR: {
+		case XML_ELEMENT_CONTENT_OR: 
+		{
 		    xmlAutomataStatePtr oldstate, oldend;
-		    xmlElementContentOccur ocur;
-
-		    ocur = content->ocur;
-		    if((ocur == XML_ELEMENT_CONTENT_PLUS) ||
-			    (ocur == XML_ELEMENT_CONTENT_MULT)) {
-			    ctxt->state = xmlAutomataNewEpsilon(ctxt->am,
-				    ctxt->state, 0);
+		    xmlElementContentOccur ocur = content->ocur;
+		    if(oneof2(ocur, XML_ELEMENT_CONTENT_PLUS, XML_ELEMENT_CONTENT_MULT)) {
+			    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
 		    }
 		    oldstate = ctxt->state;
 		    oldend = xmlAutomataNewState(ctxt->am);
-
 		    /*
 		     * iterate over the subtypes and remerge the end with an
 		     * epsilon transition
@@ -669,25 +610,19 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 			    xmlValidBuildAContentModel(content->c1, ctxt, name);
 			    xmlAutomataNewEpsilon(ctxt->am, ctxt->state, oldend);
 			    content = content->c2;
-		    } while((content->type == XML_ELEMENT_CONTENT_OR) &&
-			    (content->ocur == XML_ELEMENT_CONTENT_ONCE));
+		    } while((content->type == XML_ELEMENT_CONTENT_OR) && (content->ocur == XML_ELEMENT_CONTENT_ONCE));
 		    ctxt->state = oldstate;
 		    xmlValidBuildAContentModel(content, ctxt, name);
 		    xmlAutomataNewEpsilon(ctxt->am, ctxt->state, oldend);
 		    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, oldend, 0);
 		    switch(ocur) {
-			    case XML_ELEMENT_CONTENT_ONCE:
-				break;
-			    case XML_ELEMENT_CONTENT_OPT:
-				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
-				break;
+			    case XML_ELEMENT_CONTENT_ONCE: break;
+			    case XML_ELEMENT_CONTENT_OPT: xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state); break;
 			    case XML_ELEMENT_CONTENT_MULT:
-				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
-				xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
-				break;
-			    case XML_ELEMENT_CONTENT_PLUS:
-				xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
-				break;
+					xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
+					xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate);
+					break;
+			    case XML_ELEMENT_CONTENT_PLUS: xmlAutomataNewEpsilon(ctxt->am, oldend, oldstate); break;
 		    }
 		    break;
 	    }
@@ -5980,7 +5915,6 @@ int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
  *
  * returns 1 if valid or 0 otherwise
  */
-
 int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc) 
 {
 	int ret;
@@ -6021,20 +5955,16 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 	xmlFreeRefTable((xmlRefTablePtr)doc->refs);
 	doc->refs = NULL;
 	ret = xmlValidateDtdFinal(ctxt, doc);
-	if(!xmlValidateRoot(ctxt, doc)) return 0;
-
+	if(!xmlValidateRoot(ctxt, doc)) 
+		return 0;
 	root = xmlDocGetRootElement(doc);
 	ret &= xmlValidateElement(ctxt, doc, root);
 	ret &= xmlValidateDocumentFinal(ctxt, doc);
 	return ret;
 }
-
-/************************************************************************
-*									*
-*		Routines for dynamic validation editing			*
-*									*
-************************************************************************/
-
+// 
+// Routines for dynamic validation editing
+// 
 /**
  * xmlValidGetPotentialChildren:
  * @ctree:  an element content tree
@@ -6046,48 +5976,44 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc)
  *
  * returns the number of element in the list, or -1 in case of error.
  */
-
-int xmlValidGetPotentialChildren(xmlElementContent * ctree,
-    const xmlChar ** names,
-    int * len, int max) {
+int FASTCALL xmlValidGetPotentialChildren(xmlElementContent * ctree, const xmlChar ** names, int * len, int max) 
+{
 	int i;
-
-	if((ctree == NULL) || (names == NULL) || (len == NULL))
+	if(!ctree || !names || !len)
 		return -1;
-	if(*len >= max) return(*len);
-
+	if(*len >= max) 
+		return *len;
 	switch(ctree->type) {
 		case XML_ELEMENT_CONTENT_PCDATA:
 		    for(i = 0; i < *len; i++)
-			    if(sstreq(BAD_CAST "#PCDATA", names[i])) return(*len);
+			    if(sstreq(BAD_CAST "#PCDATA", names[i])) 
+					return(*len);
 		    names[(*len)++] = BAD_CAST "#PCDATA";
 		    break;
 		case XML_ELEMENT_CONTENT_ELEMENT:
 		    for(i = 0; i < *len; i++)
-			    if(sstreq(ctree->name, names[i])) return(*len);
+			    if(sstreq(ctree->name, names[i])) 
+					return(*len);
 		    names[(*len)++] = ctree->name;
 		    break;
 		case XML_ELEMENT_CONTENT_SEQ:
-		    xmlValidGetPotentialChildren(ctree->c1, names, len, max);
-		    xmlValidGetPotentialChildren(ctree->c2, names, len, max);
+		    xmlValidGetPotentialChildren(ctree->c1, names, len, max); // @recursion
+		    xmlValidGetPotentialChildren(ctree->c2, names, len, max); // @recursion
 		    break;
 		case XML_ELEMENT_CONTENT_OR:
-		    xmlValidGetPotentialChildren(ctree->c1, names, len, max);
-		    xmlValidGetPotentialChildren(ctree->c2, names, len, max);
+		    xmlValidGetPotentialChildren(ctree->c1, names, len, max); // @recursion
+		    xmlValidGetPotentialChildren(ctree->c2, names, len, max); // @recursion
 		    break;
 	}
-
 	return(*len);
 }
-
 /*
  * Dummy function to suppress messages while we try out valid elements
  */
-static void XMLCDECL xmlNoValidityErr(void * ctx ATTRIBUTE_UNUSED,
-    const char * msg ATTRIBUTE_UNUSED, ...) {
+static void XMLCDECL xmlNoValidityErr(void * ctx ATTRIBUTE_UNUSED, const char * msg ATTRIBUTE_UNUSED, ...) 
+{
 	return;
 }
-
 /**
  * xmlValidGetValidElements:
  * @prev:  an element to insert after
@@ -6186,7 +6112,6 @@ int xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** na
 			if(nb_valid_elements >= max) break;
 		}
 	}
-
 	/*
 	 * Restore the tree structure
 	 */

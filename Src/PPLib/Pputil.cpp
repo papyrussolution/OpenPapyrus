@@ -1927,8 +1927,7 @@ int SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
 			encodedate(dayspermonth(12, y), 12, y, &period.upp);
 		}
 		else if(sgd == sgdWeekDay) {
-			if(pPeriod)
-				period = *pPeriod;
+			RVALUEPTR(period, pPeriod);
 		}
 		else if(sgd == sgdWeek) {
 			int dow = dayofweek(&dt, 1);
@@ -2968,9 +2967,12 @@ int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray *
 			goods_obj.ReadBarcodes(goods_id, bc_list);
 			if(bc_list.getCount()) {
 				for(uint j = 0; j < bc_list.getCount(); j++) {
-					assert(goods_id == bc_list.at(j).GoodsID); // @paranoic
-					UhttCodeRefItem ref_item;
-					ref_list.insert(&ref_item.Set(goods_id, bc_list.at(j).Code));
+					const BarcodeTbl::Rec & r_bc_item = bc_list.at(j);
+					if(sstrlen(r_bc_item.Code) != 19) { // @v10.0.0 Алкогольные коды пропускаем
+						assert(goods_id == r_bc_item.GoodsID); // @paranoic
+						UhttCodeRefItem ref_item;
+						ref_list.insert(&ref_item.Set(goods_id, r_bc_item.Code));
+					}
 				}
 			}
 		}

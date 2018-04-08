@@ -2173,7 +2173,7 @@ char * FASTCALL chomp(char * s)
 	return s;
 }
 
-const char * SLAPI skipws(const char * pStr, size_t * pPos)
+/* @v10.0.0 const char * SLAPI skipws(const char * pStr, size_t * pPos)
 {
 	if(pStr) {
 		size_t pos = DEREFPTRORZ(pPos);
@@ -2186,7 +2186,7 @@ const char * SLAPI skipws(const char * pStr, size_t * pPos)
 	}
 	else
 		return 0;
-}
+}*/
 
 /* @v9.6.5 const char * FASTCALL onecstr(char c)
 {

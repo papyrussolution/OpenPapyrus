@@ -1863,10 +1863,7 @@ PPALDD_CONSTRUCTOR(Budget)
 	}
 }
 
-PPALDD_DESTRUCTOR(Budget)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Budget) { Destroy(); }
 
 int PPALDD_Budget::InitData(PPFilt & rFilt, long rsrv)
 {

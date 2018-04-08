@@ -49,8 +49,8 @@ XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewCountTrans2(xmlAutomataPtr a
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, const xmlChar * token, int min, int max, void * data);
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, const xmlChar * token, const xmlChar * token2, int min, int max, void * data);
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int lax);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter);
+XMLPUBFUN xmlAutomataStatePtr /*XMLCALL*/FASTCALL xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to);
+XMLPUBFUN xmlAutomataStatePtr /*XMLCALL*/FASTCALL xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter);
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter);
 XMLPUBFUN int XMLCALL xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max);
 XMLPUBFUN xmlRegexp * XMLCALL xmlAutomataCompile(xmlAutomataPtr am);

@@ -2210,6 +2210,15 @@ int SLAPI PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 		THROW(Get(*pID, &data));
 	}
 	data.GoodsID = (PPID)extraPtr;
+	// @v10.0.0 {
+	if(!data.GoodsID && data.Rec.ID) {
+		PPObjGoods goods_obj;
+		PPIDArray owner_list;
+		goods_obj.P_Tbl->SearchGListByStruc(data.Rec.ID, &owner_list);
+		if(owner_list.getCount() == 1)
+			data.GoodsID = owner_list.get(0);
+	}
+	// } @v10.0.0 
 	if((ok = EditDialog(&data)) > 0) {
 		THROW(Put(pID, &data, 1));
 		ok = cmOK;

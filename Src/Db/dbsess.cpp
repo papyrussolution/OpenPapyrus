@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -291,32 +291,33 @@ void DbSession::SetConfig(const Config * pCfg)
 #define Default_NWaitLockTryTimeout 10
 	ENTER_CRITICAL_SECTION
 	if(pCfg) {
-		SETFLAGBYSAMPLE(Flags, fDetectExistByOpen, pCfg->Flags);
+		SETFLAGBYSAMPLE(Cfg.Flags, fDetectExistByOpen, pCfg->Flags);
 		if(pCfg->NWaitLockTries >= 0)
-			NWaitLockTries = pCfg->NWaitLockTries;
+			Cfg.NWaitLockTries = pCfg->NWaitLockTries;
 		else if(pCfg->NWaitLockTries == BTR_RECLOCKDISABLE) // @v8.6.3
-			NWaitLockTries = BTR_RECLOCKDISABLE;
+			Cfg.NWaitLockTries = BTR_RECLOCKDISABLE;
 		else
-			NWaitLockTries = Default_NWaitLockTries;
+			Cfg.NWaitLockTries = Default_NWaitLockTries;
 		if(pCfg->NWaitLockTryTimeout > 0)
-			NWaitLockTryTimeout = pCfg->NWaitLockTryTimeout;
+			Cfg.NWaitLockTryTimeout = pCfg->NWaitLockTryTimeout;
 		else
-			NWaitLockTryTimeout = Default_NWaitLockTryTimeout;
+			Cfg.NWaitLockTryTimeout = Default_NWaitLockTryTimeout;
 	}
 	else {
-		Flags = Default_Flags;
-		NWaitLockTries = Default_NWaitLockTries;
-		NWaitLockTryTimeout = Default_NWaitLockTryTimeout;
+		Cfg.Flags = Default_Flags;
+		Cfg.NWaitLockTries = Default_NWaitLockTries;
+		Cfg.NWaitLockTryTimeout = Default_NWaitLockTryTimeout;
 	}
 	LEAVE_CRITICAL_SECTION
 }
 
-void FASTCALL DbSession::GetConfig(Config & rCfg)
+/*@v10.0.0 void FASTCALL DbSession::GetConfig(Config & rCfg)
 {
-	rCfg.Flags = Flags;
-	rCfg.NWaitLockTries = NWaitLockTries;
-	rCfg.NWaitLockTryTimeout = NWaitLockTryTimeout;
-}
+	rCfg = Cfg; // @v10.0.0 
+	// @v10.0.0 rCfg.Flags = Flags;
+	// @v10.0.0 rCfg.NWaitLockTries = NWaitLockTries;
+	// @v10.0.0 rCfg.NWaitLockTryTimeout = NWaitLockTryTimeout;
+}*/
 
 #if 0 // {
 void SLAPI DbSession::SetFlag(long f, int set)

@@ -1862,8 +1862,7 @@ int SLAPI CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PP
 	ObjIdListFilt * pCheckList, LDATETIME * pLastCheckDtm)
 {
 	int    ok = -1;
-	LDATETIME last_dtm;
-	last_dtm.SetZero();
+	LDATETIME last_dtm = ZERODATETIME;
 	if(pSessList && pCheckList && pSessList->GetCount()) {
 		const PPIDArray & sess_list = pSessList->Get();
 		for(uint i = 0; i < sess_list.getCount(); i++) {

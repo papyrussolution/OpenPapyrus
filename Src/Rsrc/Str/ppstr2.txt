@@ -3178,15 +3178,15 @@ PPWORD_RECOVERED           "Восстановлен"
 PPWORD_CREATOR             "Создатель"
 PPWORD_EMPLOYER            "Исполнитель"
 // @v9.2.6 PPWORD_CLIENT              "Клиент"
-PPWORD_VIEWONLY            "Только просмотр"
+// @v10.0.0 PPWORD_VIEWONLY            "Только просмотр"
 PPWORD_CHARGE              "Начисление"
 PPWORD_AVGDAYLYSALES       "Среднедневные продажи"
 // @v9.2.6 PPWORD_EXECUTOR            "Исполнитель"
 PPWORD_HOUR                "Час"
 PPWORD_ARGOODSCODE         "Артикул"
 // @v9.2.6 PPWORD_STAX                "Налог с продаж"
-PPWORD_CORRECTED           "Исправлено"
-PPWORD_NEWTASK             "Новая задача"
+// @v10.0.0 PPWORD_CORRECTED           "Исправлено"
+// @v10.0.0 PPWORD_NEWTASK             "Новая задача"
 PPWORD_ABSENCE             "Отсутствует"
 PPWORD_NOTACCESSIBLE       "Недоступен"
 PPWORD_OTHERS              "Остальные"
@@ -3222,7 +3222,7 @@ PPWORD_WORK                "Работа"
 // @v9.3.10 PPWORD_ALLLOCS             "Все склады"
 PPWORD_PRIVATEBASKET       "Приватная корзина"
 PPWORD_SHEET               "Лист"
-PPWORD_INCOMPLETETASK      "Имеются невыполненные задачи"
+// @v10.0.0 PPWORD_INCOMPLETETASK      "Имеются невыполненные задачи"
 PPWORD_ONLYOPEN            "Только открытые"
 PPWORD_DEFICITBUDG         "Дефицитный бюджет"
 PPWORD_PROFICITBUDG        "Профицитный бюджет"
@@ -5113,6 +5113,7 @@ PPSSYM_FORMAT "int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;a
 2007 "Неверный указатель"
 
 3012 "Локальный сервер Btrieve не доступен для маршрутизатора MicroKernel"
+3014 "The MicroKernel router cannot find an engine" // @v10.0.0
 
 9000 "Ошибка SLIB"
 9001 "Ошибка ORACLE: %s"
@@ -5238,6 +5239,7 @@ DVCCMD_PRINTSLIPDOC     "PRINTSLIPDOC"
 DVCCMD_CONTINUEPRINT    "CONTINUEPRINT"
 DVCCMD_GETECRSTATUS     "GETECRSTATUS"
 DVCCMD_SETLOGOTYPE      "SETLOGOTYPE"
+DVCCMD_CHECKCORRECTION  "CHECKCORRECTION" // @v10.0.0
 DVCCMD_TEST             "TEST"
 DVCCMD_SOMETHING        "SOMETHING"
 DVCCMD_CLEARDISPLAY     "CLEARDISPLAY"
@@ -5290,6 +5292,14 @@ DVCPARAM_LABEL          "LABEL"
 DVCPARAM_CODE           "CODE"
 DVCPARAM_VATRATE        "VATRATE"
 DVCPARAM_VATFREE        "VATFREE"
+DVCPARAM_PREPAY	        "PREPAY" // @v10.0.0
+DVCPARAM_POSTPAY	    "POSTPAY" // @v10.0.0
+DVCPARAM_RECKONPAY	    "RECKONPAY" // @v10.0.0
+DVCPARAM_DATE	        "DATE" // @v10.0.0
+DVCPARAM_VATAMOUNT18	"VATAMOUNT18" // @v10.0.0
+DVCPARAM_VATAMOUNT10	"VATAMOUNT10" // @v10.0.0
+DVCPARAM_VATAMOUNT00	"VATAMOUNT00" // @v10.0.0
+DVCPARAM_VATFREEAMOUNT	"VATFREEAMOUNT" // @v10.0.0
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -5975,6 +5985,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @autoorder              "Автозаказ"
 @lastselldate           "Дата последней продажи"
 @globaluseracc          "Глобальная учетная запись"
+@newtask                "Новая задача"
+@incompletetasks        "Имеются невыполненные задачи"
+@viewonly               "Только просмотр"
 
 @cafetable              "Стол"
 @creditlimit            "Макс кредит"
@@ -11106,6 +11119,7 @@ public:
 @ccbybill_paymtype_cash                   "Наличными"
 @ccbybill_paymtype_bank                   "Безналично"
 @ccbybill_paymtype_division               "Номер отдела"
+@ccbybill_posnode                         "Кассовый узел"
 
 @prcssrosm                                "Процессинг данных @{brand_openstreetmap}"
 @prcssrosm_srcfilename                    "@{filename}"

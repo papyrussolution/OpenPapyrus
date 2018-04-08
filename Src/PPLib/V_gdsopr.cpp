@@ -12,10 +12,7 @@
 #define GOA_CACHE_DELTA           0 // Количество элементов, сбрасываемое из кэша в базу данных при переполнении кэша
 
 struct GoaAddingBlock {
-	GoaAddingBlock()
-	{
-		THISZERO();
-	}
+	GoaAddingBlock() { THISZERO(); }
 	enum {
 		fProfitable          = 0x0001, // CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE)
 		fIncomeWithoutExcise = 0x0002, // (profitable && Filt.Flags & GoodsOpAnalyzeFilt::fPriceWithoutExcise)
@@ -52,10 +49,7 @@ struct GoaAddingBlock {
 };
 
 struct GoaCacheItem {      // size=156
-	GoaCacheItem()
-	{
-		THISZERO();
-	}
+	GoaCacheItem() { THISZERO(); }
 	int16  Sign;
 	int16  Reserve;        // @alignment
 	long   Counter;
@@ -303,9 +297,9 @@ void FASTCALL GoodsOpAnalyzeFilt::AddTradePlanBillID(PPID billID)
 
 SString & FASTCALL GoodsOpAnalyzeFilt::GetOpName(SString & rName) const
 {
-	uint   str_id = 0, beg_str_id = 0;
+	uint   str_id = 0;
 	SString temp_buf, buf;
-	beg_str_id = PPTXT_GOODSOPRABC;
+	uint   beg_str_id = PPTXT_GOODSOPRABC;
 	switch(OpGrpID) {
 		case GoodsOpAnalyzeFilt::ogSelected:
 			if(Flags & GoodsOpAnalyzeFilt::fIntrReval) {
@@ -351,7 +345,7 @@ void GoodsOpAnalyzeFilt::ZeroCompareItems()
 //
 //
 SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE), P_BObj(BillObj), P_Psc(0), State(0),
-	P_TempTbl(0), P_TempOrd(0), IterIdx(0), P_GGIter(0), P_TradePlanPacket(0), P_TrfrFilt(0), P_Cache(0), P_CmpView(0), P_Uniq(0), 
+	P_TempTbl(0), P_TempOrd(0), IterIdx(0), P_GGIter(0), P_TradePlanPacket(0), P_TrfrFilt(0), P_Cache(0), P_CmpView(0), P_Uniq(0),
 	P_GoodsList(0), CurrentViewOrder(OrdByDefault)
 {
 	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
@@ -1403,11 +1397,17 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 				pItem->RestPriceSum   = rec.RestPriceSum;
 				pItem->LocID          = rec.LocID;
 				STRNSCPY(pItem->GoodsName, rec.Text);
-				if(Filt.Sgg == sggSuppl) {
-					pItem->SubstArID  = (rec.GoodsID & ~GOODSSUBSTMASK);
-					pItem->SubstPsnID = ObjectToPerson(pItem->SubstArID, 0);
-				}
-				else if(Filt.Sgg == sggSupplAgent) {
+				// @v10.0.0 {
+				if(!!Filt.Sgb) {
+					if(oneof3(Filt.Sgb.S, SubstGrpBill::sgbObject, SubstGrpBill::sgbObject2, SubstGrpBill::sgbAgent)) {
+						pItem->SubstArID  = rec.GoodsID;
+						pItem->SubstPsnID = ObjectToPerson(pItem->SubstArID, 0);
+					}
+					else if(oneof2(Filt.Sgb.S, SubstGrpBill::sgbDlvrLoc, SubstGrpBill::sgbLocation)) {
+						pItem->SubstLocID = rec.GoodsID;
+					}
+				} 
+				else /*} @v10.0.0 */ if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
 					pItem->SubstArID  = (rec.GoodsID & ~GOODSSUBSTMASK);
 					pItem->SubstPsnID = ObjectToPerson(pItem->SubstArID, 0);
 				}
@@ -2217,7 +2217,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		{
 			// @v9.8.4 {
 			TSVector <__GoaBillEntry> bill_entry_list;
-			// } @v9.8.4 
+			// } @v9.8.4
 			for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
 				BillTbl::Rec bill_rec;
 				int    is_paym = 0;
@@ -2273,8 +2273,8 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							entry.Part = part;
 							THROW_SL(bill_entry_list.insert(&entry));
 						}
-						// } @v9.8.4 
-						/* @v9.8.4 
+						// } @v9.8.4
+						/* @v9.8.4
 						THROW(P_BObj->ExtractPacket(id, &pack) > 0);
 						if(is_paym)
 							part = fdivnz(payment, pack.GetAmount());
@@ -2304,7 +2304,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					PPWaitPercent(i+1, bill_entry_list.getCount(), PPObjBill::MakeCodeString(&pack.Rec, 1, wait_msg));
 				}
 			}
-			// } @v9.8.4 
+			// } @v9.8.4
 		}
 	}
 	THROW(FlashCacheItems(0));
@@ -2687,7 +2687,6 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 {
 	int    ok = 1;
 	long   id = 1;
-	SString temp_buf;
 	if(!P_TempTbl)
 		ok = -1;
 	else if(pItem->DbPos) {
@@ -2709,6 +2708,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 		THROW_DB(P_TempTbl->updateRec());
 	}
 	else {
+		SString temp_buf;
 		TempGoodsOprTbl::Rec rec;
 		MEMSZERO(rec);
 		rec.InOutTag = pItem->Sign;
@@ -2716,10 +2716,11 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 		rec.Object   = pItem->ArID;
 		rec.LocID    = pItem->LocID;
 		if(!!Filt.Sgb) {
-			P_BObj->GetSubstText(pItem->GoodsID, &Bsp, temp_buf.Z());
+			P_BObj->GetSubstText(pItem->GoodsID, &Bsp, temp_buf);
 			temp_buf.CopyTo(rec.Text, sizeof(rec.Text));
 		}
 		else {
+			Goods2Tbl::Rec goods_rec;
 			GObj.GetSubstText(pItem->GoodsID, Filt.Sgg, &Gsl, temp_buf);
 			STRNSCPY(rec.Text, temp_buf);
 			if(!(pItem->GoodsID & GOODSSUBSTMASK) && pItem->GoodsID) {
@@ -2728,11 +2729,8 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 					if(GObj.P_Tbl->GetExclusiveAltParent(pItem->GoodsID, Filt.GoodsGrpID, &parent_id) > 0)
 						rec.GoodsGrp = parent_id;
 				}
-				else {
-					Goods2Tbl::Rec goods_rec;
-					if(GObj.Fetch(pItem->GoodsID, &goods_rec) > 0)
-						rec.GoodsGrp = goods_rec.ParentID;
-				}
+				else if(GObj.Fetch(pItem->GoodsID, &goods_rec) > 0)
+					rec.GoodsGrp = goods_rec.ParentID;
 			}
 		}
 		//

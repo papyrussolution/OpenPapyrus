@@ -18,6 +18,8 @@ const LTIME MAXDAYTIME = { 0x173B3B63U }; // 23:59:59.99
 const LDATETIME ZERODATETIME = {{0}, {0}};
 const LDATETIME MAXDATETIME = {{MAXLONG}, {MAXLONG}};
 
+const char daysPerMonth[NUM_MONTHES] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 static const struct { char div, ord; } fmtParams[] = {
 	{47,0}, // DATF_AMERICAN
 	{46,2}, // DATF_ANSI
@@ -49,32 +51,122 @@ int FASTCALL _decode_date_fmt(int style, int * pDiv)
 	return ord;
 }
 
-const char daysPerMonth[NUM_MONTHES] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+int FASTCALL IsLeapYear(uint y)
+{
+	return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
+}
+
+int FASTCALL DateToDaysSinceChristmas(int y, int m, int d)
+{
+	int    n = 0;
+	//
+	// Add days for months in given date
+	//
+	switch(m) {
+		case  1: 
+			if((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0))
+				n--;
+			break;
+		case  2: 
+			if((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0))
+				n += 30;
+			else
+				n += 31;
+			break;
+		case  3: n += 31+28; break;
+		case  4: n += 31+28+31; break;
+		case  5: n += 31+28+31+30; break;
+		case  6: n += 31+28+31+30+31; break;
+		case  7: n += 31+28+31+30+31+30; break;
+		case  8: n += 31+28+31+30+31+30+31; break;
+		case  9: n += 31+28+31+30+31+30+31+31; break;
+		case 10: n += 31+28+31+30+31+30+31+31+30; break;
+		case 11: n += 31+28+31+30+31+30+31+31+30+31; break;
+		case 12: n += 31+28+31+30+31+30+31+31+30+31+30; break;
+	}
+	// Since every leap year is of 366 days,
+	// Add a day for every leap year
+	return d + n + ((y-1) * 365) + ((y / 4) - (y / 100) + (y / 400));
+}
+//
+// convert day number to y,m,d format 
+//
+static int FASTCALL getMon(int * pD, int leap)
+{
+	int    i, nd;
+	if(*pD == 0) {
+		*pD = 31;
+		i  = 12;
+	}
+	else {
+		for(i = nd = 0; *pD > nd;) {
+			*pD -= nd;
+			nd = (leap && i == 1) ? 29 : daysPerMonth[i];
+			i++;
+		}
+	}
+	return i;
+}
+
+int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay) 
+{
+	int    ok = 1;
+	int    day = 0;
+	int    _year = 0;
+	int    mon = 0;
+	if(g >= 0) {
+		const int    h4y = g / (400 * 365 + 97);
+		const int    h4d_rem = g % (400 * 365 + 97);
+		const int    hy = h4d_rem / (100 * 365 + 24);
+		const int    hy_rem = h4d_rem % (100 * 365 + 24);
+		const int    fy = hy_rem / (4 * 365 + 1);
+		const int    fy_rem = hy_rem % (4 * 365 + 1);
+		const int    y = fy_rem / 365;
+		day = fy_rem % 365;
+		_year = (h4y * 400) + (hy * 100) + (fy * 4) + y + 1;
+		mon = 0;
+		if(day == 0) {
+			_year--;
+			mon = 12;
+			day = (y == 4 || hy == 4) ? 30 : 31; // Граничная проблема: конец четверки годов или 400-летия
+		}
+		else if(IsLeapYear(_year)) {
+			for(int nd = 0; day > nd;) {
+				day -= nd;
+				nd = (mon == 1) ? 29 : daysPerMonth[mon];
+				mon++;
+			}
+		}
+		else {
+			for(int nd = 0; day > nd;) {
+				day -= nd;
+				nd = daysPerMonth[mon];
+				mon++;
+			}
+		}
+	}
+	else
+		ok = 0;
+	ASSIGN_PTR(pYear, _year);
+	ASSIGN_PTR(pMon, mon);
+	ASSIGN_PTR(pDay, day);
+	return ok;
+}
 
 int FASTCALL dayspermonth(int month, int year)
 {
 	int    dpm = 0;
 	if(month > 0 && month <= 12) {
 		dpm = daysPerMonth[month-1];
-		if(month == 2 && (year % 4) == 0)
+		if(month == 2 && IsLeapYear(year))
 			dpm++;
 	}
 	return dpm;
 }
 
 const char * monthNames[NUM_MONTHES] = {
-	"Январ[ь|я]",
-	"Феврал[ь|я]",
-	"Март[|а]",
-	"Апрел[ь|я]",
-	"Ма[й|я]",
-	"Июн[ь|я]",
-	"Июл[ь|я]",
-	"Август[|а]",
-	"Сентябр[ь|я]",
-	"Октябр[ь|я]",
-	"Ноябр[ь|я]",
-	"Декабр[ь|я]"
+	"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]", 
+	"Июл[ь|я]", "Август[|а]", "Сентябр[ь|я]", "Октябр[ь|я]", "Ноябр[ь|я]", "Декабр[ь|я]"
 };
 
 static char * FASTCALL extractVarPart(const char * word, char * buf)
@@ -268,27 +360,13 @@ static const int16 __dpm[11] = { 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 
 static inline int FASTCALL getDays360(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((mon-1) * 30) : 0; }
 static inline int FASTCALL getDays(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((leap && mon > 2) ? __dpm[mon-2]+1 : __dpm[mon-2]) : 0; }
 
-static int FASTCALL getMon(int * d, int leap)
-{
-	int    i, nd;
-	if(*d == 0) {
-		*d = 31;
-		i  = 12;
-	}
-	else
-		for(i = nd = 0; *d > nd;) {
-			*d -= nd;
-			nd = (leap && i == 1) ? 29 : daysPerMonth[i];
-			i++;
-		}
-	return i;
-}
-
 static void _ltodate(long nd, void * dt, int format)
 {
-	int    d;
+	int    y, m, d;
+	DaysSinceChristmasToDate(nd, &y, &m, &d);
+	/*
 	ldiv_t xd = ldiv(nd, 1461L);
-	int    y = (int)(4 * xd.quot);
+	y = (int)(4 * xd.quot);
 	xd = ldiv(xd.rem, 365L);
 	y += (int)xd.quot;
 	if(xd.rem) {
@@ -297,7 +375,8 @@ static void _ltodate(long nd, void * dt, int format)
 	}
 	else
 		d = xd.quot ? 365 : 366;
-	int    m = getMon(&d, !(y % 4));
+	m = getMon(&d, !(y % 4));
+	*/
 	_encodedate(d, m, y, dt, format);
 }
 
@@ -315,8 +394,9 @@ static long FASTCALL _datetol(const void * dt, int format)
 	int    d, m, y;
 	_decodedate(&d, &m, &y, dt, format);
 	if(y) {
-		int leap = !(y-- & 3);
-		return (1461L * (y>>2) + 365L * (y&3) + getDays(m, leap) + d);
+		//int leap = !(y-- & 3);
+		//return (1461L * (y>>2) + 365L * (y&3) + getDays(m, leap) + d);
+		return DateToDaysSinceChristmas(y, m, d);
 	}
 	else
 		return 0L;
@@ -470,7 +550,7 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 	}
 }
 
-long SLAPI _diffdate(const void * dest, const void * src, int format, int _360)
+long FASTCALL _diffdate(const void * dest, const void * src, int format, int _360)
 {
 	if(!_360)
 		return (_datetol(dest, format) - _datetol(src, format));
@@ -478,7 +558,7 @@ long SLAPI _diffdate(const void * dest, const void * src, int format, int _360)
 		return (_datetol360(dest, format) - _datetol360(src, format));
 }
 
-void SLAPI _plusdate(void * dt, int nd, int fmt, int _360)
+void FASTCALL _plusdate(void * dt, int nd, int fmt, int _360)
 {
 	if(!_360)
 		_ltodate(_datetol(dt, fmt) + nd, dt, fmt);
@@ -536,13 +616,13 @@ int FASTCALL _dayofweek(const void * pDate, int format)
 	return (int)((4 + _diffdate(pDate, beg, format, 0) % 7) % 7);
 }
 
-void SLAPI encodedate(int day, int mon, int year, void * pBinDate)
+void FASTCALL encodedate(int day, int mon, int year, void * pBinDate)
 	{ _encodedate(day, mon, year, pBinDate, BinDateFmt); }
-void SLAPI decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate)
+void FASTCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate)
 	{ _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
 long SLAPI diffdate(const void * pDest, const void * pSrc, int _360)
 	{ return _diffdate(pDest, pSrc, BinDateFmt, _360); }
-void SLAPI plusdate(void * pDest, int numdays, int _360)
+void FASTCALL plusdate(void * pDest, int numdays, int _360)
 	{ _plusdate(pDest, numdays, BinDateFmt, _360); }
 void SLAPI plusperiod(void * pDest, int period, int numperiods, int _360)
 	{ _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
@@ -1162,13 +1242,13 @@ LDATETIME & FASTCALL LDATETIME::addhs(long n)
 		const long numdays = h / 24;
 		h = h % 24;
 		plusdate(d, numdays);
-		t = encodetime(h % 24, t.minut(), t.sec(), t.hs());
+		t = encodetime(h, t.minut(), t.sec(), t.hs()); // @v10.0.0 @fix (h % 24)-->h
 	}
 	else if(h < 0) {
 		const long numdays = (h / 24) - 1;
 		h = (-h) % 24;
 		plusdate(d, numdays);
-		t = encodetime(h % 24, t.minut(), t.sec(), t.hs());
+		t = encodetime(h, t.minut(), t.sec(), t.hs()); // @v10.0.0 @fix (h % 24)-->h
 	}
 	return *this;
 }
@@ -1626,14 +1706,9 @@ void SLAPI STimeChunk::Init(const LDATETIME & start, long cont)
 }
 
 int FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const
-{
-	return BIN(::cmp(this->Start, rTest.Start) == 0 && ::cmp(this->Finish, rTest.Finish) == 0);
-}
-
+	{ return BIN(::cmp(this->Start, rTest.Start) == 0 && ::cmp(this->Finish, rTest.Finish) == 0); }
 int FASTCALL STimeChunk::operator != (const STimeChunk & rTest) const
-{
-	return BIN(::cmp(this->Start, rTest.Start) != 0 || ::cmp(this->Finish, rTest.Finish) != 0);
-}
+	{ return BIN(::cmp(this->Start, rTest.Start) != 0 || ::cmp(this->Finish, rTest.Finish) != 0); }
 
 int FASTCALL STimeChunk::cmp(const STimeChunk & rTest) const
 {
@@ -2324,12 +2399,140 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 }
 //
 //
+// @construction {
+SUniTime::SUniTime()
+{
+	memzero(D, sizeof(D));
+}
+
+int FASTCALL SUniTime::SetSignature(uint8 s)
+{
+	D[7] = s;
+	return 1;
+}
+
+int FASTCALL SUniTime::Set(const FILETIME & rD)
+{
+	PTR32(D)[0] = rD.dwLowDateTime;
+	PTR32(D)[1] = rD.dwHighDateTime;
+	assert((D[7] & indfScale) == 0);
+	return 1;
+}
+
+int FASTCALL SUniTime::Set(const LDATE & rD)
+{
+	int    ok = 1;
+	if(checkdate(rD, 0)) {
+		PTR64(D)[0] = (((uint64)(indfScale | indDay)) << 56) | DateToDaysSinceChristmas(rD.year(), rD.month(), rD.day());
+	}
+	else {
+		memzero(D, sizeof(D));
+		ok = 0;
+	}
+	return ok;
+}
+
+struct SUniTime_Inner {
+	SUniTime_Inner()
+	{
+		THISZERO();
+	}
+	int    Y;
+	int    M;
+	int    D;
+	int    Hr;
+	int    Mn;
+	int    Sc;
+	int    MkS;
+};
+
+int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
+{
+	int    ok = 0;
+	const SUniTime_Inner * p_inner = (const SUniTime_Inner *)pData;
+	return ok;
+}
+
+static inline uint8 SUniTime_Decode(const uint8 * pD, uint64 * pValue)
+{
+	*pValue = (pD[7] & 0x80) ? (PTR64(pD)[0] & 0x00ffffffffffffffLL) : PTR64(pD)[0];
+	return pD[7];
+}
+
+uint8  SLAPI SUniTime::Implement_Get(void * pData) const
+{
+	uint64 value = 0;
+	const  uint8 signature = SUniTime_Decode(D, &value);
+	long   day_count = 0;
+	SUniTime_Inner * p_inner = (SUniTime_Inner *)pData;
+	if(signature & indfScale) {
+		switch(signature & ~(indfScale|indfUncertainty)) {
+			case indMkSec: break;
+			case indMSec: break;
+			case indCSec: break;
+			case indSec: break;
+			case indMin: break;
+			case indMin5: break;
+			case indMin15: break;
+			case indMin30: break;
+			case indHr: break;
+			case indHr4: break;
+			case indEpoch: 
+				{
+					time_t tt = (time_t)value;
+					const struct tm * p_temp_tm = gmtime(&tt);
+					if(p_temp_tm) {
+						p_inner->Y = p_temp_tm->tm_year + 1900;
+						p_inner->M = p_temp_tm->tm_mon+1;
+						p_inner->D = p_temp_tm->tm_mday;
+					}
+				}
+				break;
+			case indDay:
+				day_count = (long)value;
+				if(DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D)) {
+				}
+				break;
+			case indMon: break;
+			case indQuart: break;
+			case indSmYr: break;
+			case indYr: break;
+			case indDYr: break;
+			case indSmCent: break;
+			case indCent: break;
+			case indMillennium: break;
+			case indDayBC: break;
+			case indMonBC: break;
+			case indYrBC: break;
+			case indDYrBC: break;
+			case indCentBC: break;
+			case indMillenniumBC: break;
+		}
+	}
+	else {
+		//FileTimeToSystemTime()
+	}
+	return signature;
+}
+
+int FASTCALL SUniTime::Get(LDATE & rD) const
+{
+	SUniTime_Inner inner;
+	uint8 signature = Implement_Get(&inner);
+	if(signature != indInvalid) {
+		rD.encode(inner.D, inner.M, inner.Y);
+		return 1;
+	}
+	else
+		return 0;
+}
+// } @construction 
+//
 //
 #if SLTEST_RUNNING // {
 
 SLTEST_R(LDATE)
 {
-	const  LDATE rel = encodedate(7, 11, 2007);
 	struct Pair {
 		char   In[64];
 		char   Out[64];
@@ -2371,7 +2574,6 @@ SLTEST_R(LDATE)
 	_datefmt(12, getcurdate_().month(), getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[4].Out);
 	_datefmt(11, 10, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[9].Out);
 	char   cvt_buf[128];
-
 	for(i = 0; i < SIZEOFARRAY(pair_list_dtm); i++) {
 		const PairDateTime & r_item = pair_list_dtm[i];
 		LDATETIME test_val, cvt_val;
@@ -2383,26 +2585,142 @@ SLTEST_R(LDATE)
 		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
 		SLTEST_CHECK_EQ(test_val, cvt_val);
 	}
-
-	for(i = 0; i < SIZEOFARRAY(pair_list); i++) {
-		const Pair & r_item = pair_list[i];
-		LDATE test_val, pattern_val, cvt_val;
-		strtodate(r_item.In,  DATF_DMY, &test_val);
-		//
-		// Проверяем конвертацию из даты в строку
-		//
-		datefmt(&test_val, DATF_DMY, cvt_buf);
-		strtodate(cvt_buf,  DATF_DMY, &cvt_val);
-		SLTEST_CHECK_EQ(test_val, cvt_val);
-		//
-		test_val = test_val.getactual(rel);
-		strtodate(r_item.Out, DATF_DMY, &pattern_val);
-		SLTEST_CHECK_EQ(test_val, pattern_val);
+	{
+		const  LDATE rel = encodedate(7, 11, 2007);
+		for(i = 0; i < SIZEOFARRAY(pair_list); i++) {
+			const Pair & r_item = pair_list[i];
+			LDATE test_val, pattern_val, cvt_val;
+			strtodate(r_item.In,  DATF_DMY, &test_val);
+			//
+			// Проверяем конвертацию из даты в строку
+			//
+			datefmt(&test_val, DATF_DMY, cvt_buf);
+			strtodate(cvt_buf,  DATF_DMY, &cvt_val);
+			SLTEST_CHECK_EQ(test_val, cvt_val);
+			//
+			test_val = test_val.getactual(rel);
+			strtodate(r_item.Out, DATF_DMY, &pattern_val);
+			SLTEST_CHECK_EQ(test_val, pattern_val);
+		}
 	}
-	for(i = 1; i < 3000; i++) {
-		LDATE test = plusdate(rel, i);
-		SLTEST_CHECK_EQ((long)diffdate(test, rel), (long)i);
-		SLTEST_CHECK_EQ((long)diffdate(rel, test), -(long)i);
+	{
+		int y2, m2, d2;
+		{
+			int y = 2008, m = 12, d = 30;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 2008, m = 12, d = 31;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1600, m = 12, d = 30;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1600, m = 12, d = 31;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 2001, m = 1, d = 1;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 2004, m = 2, d = 29;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1991, m = 3, d = 1;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1879, m = 12, d = 31;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1, m = 1, d = 1;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			int y = 1582, m = 10, d = 15;
+			int dc = DateToDaysSinceChristmas(y, m, d);
+			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)y);
+			SLTEST_CHECK_EQ((long)m2, (long)m);
+			SLTEST_CHECK_EQ((long)d2, (long)d);
+		}
+		{
+			// /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
+			int dc1 = DateToDaysSinceChristmas(1, 3, 1);
+			int dc2 = DateToDaysSinceChristmas(1970, 3, 1);
+			SLTEST_CHECK_EQ((long)(dc2-dc1), /*719527*/719162);
+			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)1);
+			SLTEST_CHECK_EQ((long)m2, (long)3);
+			SLTEST_CHECK_EQ((long)d2, (long)1);
+			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)1970);
+			SLTEST_CHECK_EQ((long)m2, (long)3);
+			SLTEST_CHECK_EQ((long)d2, (long)1);
+		}
+		{
+			int dc1 = DateToDaysSinceChristmas(1996, 12, 31);
+			int dc2 = DateToDaysSinceChristmas(1997, 1, 1);
+			SLTEST_CHECK_EQ((long)(dc2-dc1), 1);
+			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)1996);
+			SLTEST_CHECK_EQ((long)m2, (long)12);
+			SLTEST_CHECK_EQ((long)d2, (long)31);
+			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
+			SLTEST_CHECK_EQ((long)y2, (long)1997);
+			SLTEST_CHECK_EQ((long)m2, (long)1);
+			SLTEST_CHECK_EQ((long)d2, (long)1);
+		}
+	}
+	{
+		//const  LDATE rel = encodedate(7, 11, 2007);
+		const  LDATE rel = encodedate(15, 10, 1582);
+		for(i = 1; i < 200000; i++) {
+			LDATE test = plusdate(rel, i);
+			SLTEST_CHECK_EQ((long)diffdate(test, rel), (long)i);
+			SLTEST_CHECK_EQ((long)diffdate(rel, test), -(long)i);
+		}
 	}
 	{
 		char  txt_mon[128];

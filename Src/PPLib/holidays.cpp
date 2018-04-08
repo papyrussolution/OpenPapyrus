@@ -1,11 +1,11 @@
 // HOLIDAYS.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 
 //static
-int SLAPI PPHolidays::GetKind(LDATE dt)
+int FASTCALL PPHolidays::GetKind(LDATE dt)
 {
 	int    d, m, y;
 	decodedate(&d, &m, &y, &dt);

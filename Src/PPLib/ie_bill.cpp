@@ -2848,27 +2848,18 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
 // @vmiller
 int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, const char * pLocCode, const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
 {
-	int    ok = -1, r = 0;
-	PPID   reg_type_id = 0, ar_id = 0;
+
+	int    ok = -1;
+	PPID   ar_id = 0;
 	SString code;
 	assert(pGLN || pLocCode);
 	THROW_INVARG(pGLN || pLocCode);
 	//
-	if((code = pGLN).NotEmptyS()) {
-		reg_type_id = PPREGT_GLN;
-		PPIDArray psn_list, ar_list;
-		THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list));
-		THROW(ArObj.GetByPersonList(accSheetID, &psn_list, &ar_list));
-		if(ar_list.getCount()) {
-			ASSIGN_PTR(pArID, ar_list.at(0));
-			r = 1;
-			ok = 1;
-		}
-	}
-	//
-	// Если персоналия не найдена по ее GLN или ее GLN вообще не определена, то ищем по GLN склада
-	//
+	ok = PsnObj.ResolveGLN(pGLN, accSheetID, &ar_id);
 	if(ok < 0) {
+		//
+		// Если персоналия не найдена по ее GLN или ее GLN вообще не определена, то ищем по GLN склада
+		//
 		if((code = pLocCode).NotEmptyS()) {
 			PPIDArray loc_list;
 			LocationTbl::Rec loc_rec;
@@ -2882,18 +2873,19 @@ int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, const char * pLocCode, c
 				}
 			}
 		}
-	}
-	if(ok < 0 && logErr) {
-		char   stub[32];
-		SString msg, err;
-		PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg);
-		if(pBillId == 0) {
-			stub[0] = 0;
-			pBillId = stub;
+		if(ok < 0 && logErr) {
+			char   stub[32];
+			SString msg, err;
+			PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg);
+			if(pBillId == 0) {
+				stub[0] = 0;
+				pBillId = stub;
+			}
+			Logger.Log(err.Printf(msg.cptr(), pBillId, ""));
 		}
-		Logger.Log(err.Printf(msg.cptr(), pBillId, ""));
 	}
 	CATCHZOK
+	ASSIGN_PTR(pArID, ar_id);
 	return ok;
 }
 
@@ -3295,8 +3287,18 @@ int SLAPI PPBillImporter::Run()
 				PPEdiProcessor::ProviderImplementation * p_prvimp = PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags);
 				if(p_prvimp) {
 					PPEdiProcessor prc(p_prvimp, &Logger);
-					PPEdiProcessor::DocumentInfoList doc_list;
-					prc.GetDocumentList(doc_list);
+					{
+						PPEdiProcessor::DocumentInfo doc_inf;
+						PPEdiProcessor::DocumentInfoList doc_info_list;
+						TSCollection <PPEdiProcessor::Packet> doc_pack_list;
+						prc.GetDocumentList(doc_info_list);
+						for(uint i = 0; i < doc_info_list.GetCount(); i++) {
+							if(doc_info_list.GetByIdx(i, doc_inf)) { 
+								PPEdiProcessor::Packet doc_pack(doc_inf.EdiOp);
+								prc.ReceiveDocument(&doc_inf, doc_pack_list);
+							}
+						}
+					}
 					if(ediprv_rec.Symb[0]) {
 						if(!suppl_list.IsExists()) {
 							ArObj.P_Tbl->GetListBySheet(GetSupplAccSheet(), &temp_id_list, 0);
@@ -4247,7 +4249,6 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 			// Запишем GUID документа
 			//
 			S_GUID guid;
-			guid.SetZero();
 			if(P_BObj->GetGuid((temp_buf = pBill->ID).ToLong(), &guid) > 0)
 				STRNSCPY(pBill->GUID, guid.ToStr(S_GUID::fmtIDL, temp_buf));
 		}

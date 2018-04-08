@@ -500,10 +500,7 @@ PPALDD_CONSTRUCTOR(GoodsBillCmp)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsBillCmp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsBillCmp) { Destroy(); }
 
 int PPALDD_GoodsBillCmp::InitData(PPFilt & rFilt, long rsrv)
 {

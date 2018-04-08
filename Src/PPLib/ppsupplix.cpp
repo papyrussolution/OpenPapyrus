@@ -5925,7 +5925,7 @@ int SLAPI SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAs
 				p_new_item->SkuID = temp_buf.ToLong();
 				p_new_item->Count = fabs(ti.Quantity_);
 				double ratio = 0.0;
-				if(GObj.TranslateGoodsUnitToBase(goods_rec, UNIT_LITER, &ratio) > 0)
+				if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_LITER, &ratio) > 0)
 					p_new_item->Volume = fabs(ti.Quantity_) * ratio / 100.0; // гекталитры
 				else 
 					p_new_item->Volume = 0.0;

@@ -881,6 +881,28 @@ int SLAPI PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDe
 	return ok;
 }
 
+int SLAPI PPObjCashNode::IsVatFree(PPID id)
+{
+	int    result = -1;
+	PPObjPerson psn_obj;
+	PersonTbl::Rec psn_rec;
+	LocationTbl::Rec loc_rec;
+	if(id) {
+        PPCashNode cn_rec;
+		if(Fetch(id, &cn_rec) > 0 && cn_rec.LocID) {
+			if(psn_obj.LocObj.Fetch(cn_rec.LocID, &loc_rec) > 0 && loc_rec.Flags & LOCF_VATFREE)
+				result = 1;
+		}
+	}
+	if(result < 0) {
+        PPID   main_org_id = 0;
+        GetMainOrgID(&main_org_id);
+        if(main_org_id && psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
+			result = 1;
+	}
+	return result;
+}
+
 int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 {
 	int    ok = 1;

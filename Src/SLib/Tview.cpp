@@ -365,45 +365,20 @@ void TView::Draw_()
 
 //static
 void * TView::SetWindowProp(HWND hWnd, int propIndex, void * ptr)
-{
-	return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr)));
-}
-
+	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr))); }
 //static
 void * FASTCALL TView::SetWindowUserData(HWND hWnd, void * ptr)
-{
-	return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr)));
-}
-
+	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr))); }
 //static
-long TView::SetWindowProp(HWND hWnd, int propIndex, long value)
-{
-	return ::SetWindowLongPtr(hWnd, propIndex, value);
-}
-
+long TView::SetWindowProp(HWND hWnd, int propIndex, long value) { return ::SetWindowLongPtr(hWnd, propIndex, value); }
 //static
-void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex)
-{
-	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, propIndex));
-}
-
+void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, propIndex)); }
 //static 
-void * FASTCALL TView::GetWindowUserData(HWND hWnd)
-{
-	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-}
-
+void * FASTCALL TView::GetWindowUserData(HWND hWnd) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA)); }
 //static
-long FASTCALL TView::GetWindowStyle(HWND hWnd)
-{
-	return ::GetWindowLong(hWnd, GWL_STYLE);
-}
-
+long FASTCALL TView::GetWindowStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_STYLE); }
 //static
-long FASTCALL TView::GetWindowExStyle(HWND hWnd)
-{
-	return ::GetWindowLong(hWnd, GWL_EXSTYLE);
-}
+long FASTCALL TView::GetWindowExStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_EXSTYLE); }
 //
 //
 //
@@ -555,11 +530,6 @@ int TView::IsConsistent() const
 	return ok;
 }
 
-int FASTCALL TView::IsSubSign(uint sign) const
-{
-	return BIN(SubSign == sign);
-}
-
 int TView::OnDestroy(HWND hWnd)
 {
 	int    ok = -1;
@@ -605,11 +575,6 @@ int TView::SetupText(SString * pText)
 	return ok;
 }
 
-void TView::Show(int doShow)
-{
-	::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE);
-}
-
 TView * TView::prev() const
 {
 	TView * res = (TView *)this; // @badcast
@@ -618,30 +583,13 @@ TView * TView::prev() const
 	return res;
 }
 
-int TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return  0;
-}
-
-TView * TView::nextView() const
-{
-	return (this == P_Owner->GetLastView()) ? 0 : P_Next;
-}
-
-TView * TView::prevView() const
-{
-	return (this == P_Owner->GetFirstView()) ? 0 : prev();
-}
-
-int TView::commandEnabled(ushort command) const
-{
-	return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command));
-}
-
-int TView::TransmitData(int dir, void * pData)
-{
-	return 0; // Ничего не передается и не получается. Размер данных - 0.
-}
+int    FASTCALL TView::IsSubSign(uint sign) const { return BIN(SubSign == sign); }
+void   TView::Show(int doShow) { ::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE); }
+int    TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) { return  0; }
+TView * TView::nextView() const { return (this == P_Owner->GetLastView()) ? 0 : P_Next; }
+TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 : prev(); }
+int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
+int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
 
 void FASTCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 {
@@ -720,11 +668,6 @@ void TView::setCommands(const TCommandSet & cmds)
 	}
 }
 
-void TView::select()
-{
-	CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect));
-}
-
 void TView::ResetOwnerCurrent()
 {
 	if(P_Owner && P_Owner->IsCurrentView(this))
@@ -744,36 +687,26 @@ TView & TView::SetId(uint id)
 	return *this;
 }
 
+void TView::select()
+	{ CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect)); }
 uint TView::GetId() const
-{
-	return (this && IsConsistent()) ? (uint)Id : 0;
-}
-
+	{ return (this && IsConsistent()) ? (uint)Id : 0; }
 int FASTCALL TView::TestId(uint id) const
-{
-	return (this && IsConsistent() && id && id == (uint)Id);
-}
-
+	{ return (this && IsConsistent() && id && id == (uint)Id); }
 int FASTCALL TView::IsInState(uint s) const
-{
-	return BIN((Sf & s) == s);
-}
-
+	{ return BIN((Sf & s) == s); }
 void * FASTCALL TView::MessageCommandToOwner(uint command)
-{
-	return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0;
-}
+	{ return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
+HWND TView::getHandle() const
+	{ return GetDlgItem(Parent, Id); }
+int FASTCALL TView::valid(ushort)
+	{ return 1; }
 
 uint TView::getHelpCtx()
 {
 	uint   ctx = 0;
 	TView::messageCommand(this, cmGetHelpContext, &ctx);
 	return ctx;
-}
-
-HWND TView::getHandle() const
-{
-	return GetDlgItem(Parent, Id);
 }
 
 void FASTCALL TView::clearEvent(TEvent & event)
@@ -853,11 +786,6 @@ void TView::changeBounds(const TRect & rBounds)
 		}
 		LEAVE_CRITICAL_SECTION
 	}
-}
-
-int FASTCALL TView::valid(ushort)
-{
-	return 1;
 }
 
 void TView::setBounds(const TRect & bounds)
@@ -1661,11 +1589,10 @@ void TGroup::setState(uint aState, bool enable)
 	if(aState & sfActive) {
 		TView * p_term = P_Last;
 		TView * p_temp = P_Last;
-		if(p_temp)
-			do {
-				p_temp = p_temp->P_Next;
-				p_temp->setState(aState, enable);
-			} while(p_temp != p_term);
+		if(p_temp) do {
+			p_temp = p_temp->P_Next;
+			p_temp->setState(aState, enable);
+		} while(p_temp != p_term);
 	}
 	if(aState & sfFocused && P_Current)
 		P_Current->setState(sfFocused, enable);

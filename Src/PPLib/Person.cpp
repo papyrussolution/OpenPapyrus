@@ -593,12 +593,11 @@ int SLAPI PPELinkArray::GetListByType(PPID eLinkType, StringSet & rSs) const
 	PPELinkKind elk_rec;
 	SString addr;
 	for(uint i = 0; i < getCount(); i++) {
-		addr = at(i).Addr;
-		if(addr.NotEmptyS()) {
-			if(elk_obj.Fetch(at(i).KindID, &elk_rec) > 0 && elk_rec.Type == eLinkType) {
-				rSs.add(addr);
-				ok = 1;
-			}
+		const PPELink & r_item = at(i);
+		addr = r_item.Addr;
+		if(addr.NotEmptyS() && elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == eLinkType) {
+			rSs.add(addr);
+			ok = 1;
 		}
 	}
 	return ok;

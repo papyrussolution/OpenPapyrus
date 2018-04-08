@@ -2859,10 +2859,10 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					PPCommSyncID commid;
 					PPObjID objid;
 					if(p_ilti->LotSyncID) {
-						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotSyncID), &commid.SetZero(), 0));
+						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotSyncID), commid, 0));
 					}
 					if(p_ilti->LotMirrID) {
-						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotMirrID), &commid.SetZero(), 0));
+						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotMirrID), commid, 0));
 					}
 				}
 				THROW(tra.Commit());

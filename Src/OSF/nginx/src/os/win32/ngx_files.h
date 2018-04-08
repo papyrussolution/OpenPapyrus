@@ -116,10 +116,8 @@ ngx_int_t ngx_file_info(u_char * filename, ngx_file_info_t * fi);
 
 /* 116444736000000000 is commented in src/os/win32/ngx_time.c */
 
-#define ngx_file_mtime(fi)						     \
-	(time_t)(((((unsigned __int64)(fi)->ftLastWriteTime.dwHighDateTime << 32) \
-			    | (fi)->ftLastWriteTime.dwLowDateTime)	  \
-		    - 116444736000000000) / 10000000)
+#define ngx_file_mtime(fi) (time_t)(((((unsigned __int64)(fi)->ftLastWriteTime.dwHighDateTime << 32) | \
+	(fi)->ftLastWriteTime.dwLowDateTime) - 116444736000000000) / 10000000)
 
 ngx_int_t ngx_create_file_mapping(ngx_file_mapping_t * fm);
 void ngx_close_file_mapping(ngx_file_mapping_t * fm);

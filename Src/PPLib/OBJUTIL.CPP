@@ -250,15 +250,10 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 
 //static
 void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
-{
-	DS.GetTLA().LastErrObj.Set(objType, objID);
-}
-
+	{ DS.GetTLA().LastErrObj.Set(objType, objID); }
 //static
 int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)
-{
-	return PPSetObjError(PPERR_REFSEXISTS, objType, objID);
-}
+	{ return PPSetObjError(PPERR_REFSEXISTS, objType, objID); }
 
 // static
 SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
@@ -694,35 +689,18 @@ int SLAPI PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 	return ok;
 }
 
-int SLAPI PPObject::Edit(PPID * pID, void * extraPtr)
-{
-	return 0;
-}
-
-int SLAPI PPObject::Search(PPID id, void *)
-{
-	return 0;
-}
-
-int SLAPI PPObject::DeleteObj(PPID id)
-{
-	return 0;
-}
-
+int SLAPI PPObject::Edit(PPID * pID, void * extraPtr) { return 0; }
+int SLAPI PPObject::Search(PPID id, void *) { return 0; }
+int SLAPI PPObject::DeleteObj(PPID id) { return 0; }
 int SLAPI PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx)
-{
-	return 1;
-}
-
-const char * SLAPI PPObject::GetNamePtr()
-{
-	return 0;
-}
-
-StrAssocArray * SLAPI PPObject::MakeStrAssocList(void * extraPtr)
-{
-	return 0;
-}
+	{ return 1; }
+const char * SLAPI PPObject::GetNamePtr() { return 0; }
+StrAssocArray * SLAPI PPObject::MakeStrAssocList(void * extraPtr) { return 0; }
+int SLAPI PPObject::MakeReserved(long flags) { return 1; }
+int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr)
+	{ return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK; }
+int SLAPI PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
+int SLAPI PPObject::Write(PPObjPack * /*pPack*/, PPID * /*pID*/, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
 
 int SLAPI PPObject::GetLastModifEvent(PPID objID, LDATETIME * pMoment, int * pCr, SysJournalTbl::Rec * b)
 {
@@ -750,30 +728,10 @@ int SLAPI PPObject::GetName(PPID id, SString * pBuf)
 	return ok;
 }
 
-int SLAPI PPObject::MakeReserved(long flags)
-{
-	return 1;
-}
-
-int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr)
-{
-	return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK;
-}
-
 void FASTCALL PPObject::Destroy(PPObjPack * pPack)
 {
 	if(pPack)
 		ZDELETE(pPack->Data);
-}
-
-int SLAPI PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx)
-{
-	return 0;
-}
-
-int SLAPI PPObject::Write(PPObjPack * /*pPack*/, PPID * /*pID*/, void * /*stream*/, ObjTransmContext * pCtx)
-{
-	return 0;
 }
 
 ListBoxDef * SLAPI PPObject::Selector(void * extraPtr)
@@ -1292,8 +1250,8 @@ int FASTCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 				}
 			}
 			break;
-		default: 
-			ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf)); 
+		default:
+			ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf));
 			break;
 	}
 	if(cat) {

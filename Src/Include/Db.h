@@ -1657,7 +1657,7 @@ public:
 	int    SLAPI open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    SLAPI close();
 	int    SLAPI IsOpened() const;
-	int    SLAPI getField(uint fldN, DBField *) const;
+	int    FASTCALL getField(uint fldN, DBField *) const;
 	int    SLAPI getFieldByName(const char * pName, DBField *) const;
 	int    SLAPI getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
 	int    SLAPI setFieldValue(uint fldN, const void * pVal);
@@ -2906,15 +2906,14 @@ private:
 
 class DbSession {
 public:
+	enum {
+		fDetectExistByOpen = 0x0001 // Флаг, предписывающий идентифицировать факт
+			// наличия файла посредством попытки открытия (вместо fileExists) - Btreive only
+	};
 	struct Config {
 		long Flags;
 		int  NWaitLockTries;       // Макс количество попыток заблокировать запись блокировкой без ожидания. Если <=0, то применяется блокировка с ожиданием
 		int  NWaitLockTryTimeout;  // Таймаут (ms) между попытками заблокировать запись блокировкой без ожидания. Если <= 0, то применяется значение по умолчанию.
-	};
-
-	enum {
-		fDetectExistByOpen = 0x0001 // @v7.9.9 Флаг, предписывающий идентифицировать факт
-			// наличия файла посредстом мопытки открытия (вместо fileExists) - Btreive only
 	};
 	SLAPI  DbSession();
 	SLAPI ~DbSession();
@@ -2923,7 +2922,8 @@ public:
 	//long   SLAPI GetFlag(long f) const;
 
 	void   SetConfig(const Config * pCfg);
-	void   FASTCALL GetConfig(Config & rCfg);
+	// @v10.0.0 void   FASTCALL GetConfig(Config & rCfg);
+	const  Config & GetConfig() const { return Cfg; } // @v10.0.0 
 
 	int    SLAPI GetTaState();
 	int    SLAPI InitThread();
@@ -2965,9 +2965,10 @@ private:
 	uint16 __dbdata__[32];
 	uint32 _Oe;        // OCIEnv - идентификатор окружения для OCI (Oracle Call Interface)
 	//
-	long   Flags;
-	int    NWaitLockTries;       // Макс количество попыток заблокировать запись блокировкой без ожидания. Если <=0, то применяется блокировка с ожиданием
-	int    NWaitLockTryTimeout;  // Таймаут (ms) между попытками заблокировать запись блокировкой без ожидания. Если <= 0, то применяется значение по умолчанию.
+	Config Cfg; // @v10.0.0
+	// @v10.0.0 long   Flags;
+	// @v10.0.0 int    NWaitLockTries;       // Макс количество попыток заблокировать запись блокировкой без ожидания. Если <=0, то применяется блокировка с ожиданием
+	// @v10.0.0 int    NWaitLockTryTimeout;  // Таймаут (ms) между попытками заблокировать запись блокировкой без ожидания. Если <= 0, то применяется значение по умолчанию.
 	//
 	SStrCollection DbPathList; // Список баз данных, на которые ссылаются открытые потоки.
 };

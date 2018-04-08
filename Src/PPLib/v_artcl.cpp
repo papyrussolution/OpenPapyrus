@@ -127,7 +127,7 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 	AddedLimitTerm = 0;
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_DebtDimList);
-	if(Filt.Flags & (ArticleFilt::fShowAgreement | ArticleFilt::fCheckObj)) {
+	if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fCheckObj)) {
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
 		AgtProp = 0; // ARTPRP_CLIAGT, ARTPRP_SUPPLAGT

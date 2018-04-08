@@ -745,7 +745,9 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 					if(b_rec.LinkBillID) {
 						THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == b_rec.ID), set(P_Tbl->LinkBillID, dbconst(0L))));
 						DS.LogAction(PPACN_BILLCORRECTED, Obj, b_rec.ID, PPACN_EXT_BILLCORRECTED_LINKRESET, 0);
-						msg_buf.CatDiv(';', 2).Cat(PPGetWord(PPWORD_CORRECTED, 0, code));
+						// @v10.0.0 PPGetWord(PPWORD_CORRECTED, 0, code);
+						PPLoadString("corrected", code); // @v10.0.0
+						msg_buf.CatDiv(';', 2).Cat(code);
 					}
 				}
 				logger.Log(msg_buf);

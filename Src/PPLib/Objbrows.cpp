@@ -441,14 +441,9 @@ IMPL_HANDLE_EVENT(PPListDialog)
 }
 
 int SLAPI PPListDialog::getSelection(long * pID)
-{
-	return getCurItem(0, pID);
-}
-
+	{ return getCurItem(0, pID); }
 int SLAPI PPListDialog::addStringToList(long itemId, const char * pText)
-{
-	return (!P_Box || !P_Box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1;
-}
+	{ return (!P_Box || !P_Box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1; }
 
 void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {

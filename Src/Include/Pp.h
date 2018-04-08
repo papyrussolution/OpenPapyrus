@@ -10681,7 +10681,7 @@ public:
 	// 2 - Календарный день
 	// 3 - День недели
 	//
-	static int    SLAPI GetKind(LDATE);
+	static int    FASTCALL GetKind(LDATE);
 	static SString & SLAPI Format(LDATE, SString & rBuf);
 	//
 	// Descr: должна добавить в контейнер новое значение выходного дня или,
@@ -12583,11 +12583,15 @@ private:
 
 class PrjTaskCore : public PrjTaskTbl {
 public:
+	friend class PPTblEnum <PrjTaskCore>;
+
 	static int FASTCALL IsValidStatus(int s);
 	static int FASTCALL IsValidPrior(int p);
 
 	SLAPI  PrjTaskCore();
-	int    SLAPI Search(PPID, void * = 0);
+	int    SLAPI Search(PPID id, PrjTaskTbl::Rec * pRec);
+	SEnumImp * SLAPI EnumByClient(PPID cliPersonID, DateRange * pPeriod, int options);
+	SEnumImp * SLAPI EnumByEmployer(PPID emplPersonID, DateRange * pPeriod, int options);
 	int    SLAPI SearchByTime(const LDATETIME &, PPID * pID, PrjTaskTbl::Rec *);
 	int    SLAPI SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    SLAPI ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta);
@@ -12609,6 +12613,12 @@ public:
 	int    SLAPI UpdateStatus(PPID id, int newStatus, int use_ta);
 	int    SLAPI Remove(PPID id, int use_ta);
 	int    SLAPI RemoveByProject(PPID prjID, int use_ta);
+private:
+	BExtQuery * SLAPI StartupEnumQuery(int idx, int options);
+	int    SLAPI NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec);
+	int    SLAPI DestroyIter(long enumHandle);
+
+	PPTblEnumList EnumList;
 };
 //
 // PredictSalesCore
@@ -17501,6 +17511,19 @@ public:
 	int    SLAPI GetListByLoc(PPID locID, PPIDArray & rList);
 	int    SLAPI GetListByGroup(PPID grpID, PPIDArray & rList);
 	int    SLAPI ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList);
+	//
+	// Descr: Выясняет статус продавца, использующего кассовый узел id как
+	//   освобожденного от НДС. 
+	// Порядок идентификации статуса следующий:
+	//    Если id != 0 и склад, ассоциированный с этим узлом имеет признак особожденного от НДС,
+	//    то продавец особожден от НДС. В противном случае проверяет признак PSNF_NOVATAX у 
+	//    персоналии, являющейся текущей главной организацией.
+	// Returns:
+	//    >0 - продавец освобожден от НДС
+	//    <0 - продавец не освобожден от НДС
+	//     0 - ошибка
+	//
+	int    SLAPI IsVatFree(PPID id);
 private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -17590,6 +17613,31 @@ public:
 	// @v10.0.0 int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SLAPI SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
+
+	struct FiscalCorrection {
+		SLAPI  FiscalCorrection();
+		enum {
+			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
+			fByPrecept = 0x0002, // Коррекция по предписанию
+			fVatFree   = 0x0004  // Продавец освобожден от НДС
+		};
+		double AmtCash;    // @#{>=0} Сумма наличного платежа
+		double AmtBank;    // @#{>=0} Сумма электронного платежа
+		double AmtPrepay;  // @#{>=0} Сумма предоплатой
+		double AmtPostpay; // @#{>=0} Сумма постоплатой
+		double AmtVat18;   // Сумма налога по ставке 18%
+		double AmtVat10;   // Сумма налога по ставке 10%
+		double AmtVat00;   // Сумма расчета по ставке 0%
+		double AmtNoVat;   // Сумма расчета без налога
+		double VatRate;    // Единственная ставка НДС. Если VatRate != 0, тогда AmtVat18, AmtVat10, AmtVat00 и AmtNoVat игнорируются
+		LDATE  Dt;         // Дата документа основания коррекции
+		long   Flags;      // @flags
+		SString Code;      // Номер документа основания коррекции
+		SString Reason;    // Основание коррекции
+		SString Operator;  // Имя оператора
+	};
+
+	int    SLAPI SyncPrintFiscalCorrection(const FiscalCorrection * pFc);
 	int    SLAPI SyncPrintXReport();
 	int    SLAPI SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SLAPI SyncPrintIncasso();
@@ -18388,27 +18436,7 @@ public:
 	//
 	virtual int SLAPI PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
 
-	struct FiscalCorrection {
-		SLAPI  FiscalCorrection();
-		enum {
-			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
-			fByPrecept = 0x0002  // Коррекция по предписанию
-		};
-		double AmtCash;    // @#{>=0} Сумма наличного платежа
-		double AmtBank;    // @#{>=0} Сумма электронного платежа
-		double AmtPrepay;  // @#{>=0} Сумма предоплатой
-		double AmtPostpay; // @#{>=0} Сумма постоплатой
-		double AmtVat18;   // Сумма налога по ставке 18%
-		double AmtVat10;   // Сумма налога по ставке 10%
-		double AmtVat00;   // Сумма расчета по ставке 0%
-		double AmtNoVat;   // Сумма расчета без налога
-		LDATE  Dt;         // Дата документа основания коррекции
-		long   Flags;      // @flags
-		SString Code;      // Номер документа основания коррекции	
-		SString Reason;    // Основание коррекции
-		SString Operator;  // Имя оператора
-	};
-	virtual int SLAPI PrintFiscalCorrection(const FiscalCorrection * pFc) { return -1; }
+	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc) { return -1; }
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) { return -1; }
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
@@ -22919,6 +22947,7 @@ public:
 	int    SLAPI GetRegister(PPID personID, PPID regType, LDATE actualDate, RegisterTbl::Rec * pRec);
 	int    SLAPI GetRegNumber(PPID personID, PPID regType, SString & rBuf);
 	int    SLAPI GetRegNumber(PPID personID, PPID regType, LDATE actualDate, SString & rBuf);
+	int    SLAPI ResolveGLN(const char * pGLN, PPID accSheetID, PPID * pArID);
 	int    SLAPI GetStatus(PPID, PPID * pStatusID, int * pIsPrivate);
 	int    SLAPI GetAddrID(PPID psnID, PPID dlvrAddrID, int option, PPID * pAddrID);
 	//
@@ -27325,10 +27354,7 @@ public:
     //
     int    SLAPI SetConfig(const Config * pCfg);
     int    SLAPI ValidateConfig(const Config & rCfg, long flags);
-	const  Config & GetConfig() const
-	{
-		return Cfg;
-	}
+	const  Config & GetConfig() const { return Cfg; }
 
     struct GoodsItem {
     	GoodsItem();
@@ -29523,7 +29549,7 @@ public:
 		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 		virtual SLAPI ~ProviderImplementation();
 		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList) { return -1; }
-		virtual int    SLAPI  ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
+		virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
 		virtual int    SLAPI  SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
 
 		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
@@ -29540,6 +29566,8 @@ public:
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
+	private:
+		int    SLAPI GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
 	};
 
 	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
@@ -29552,7 +29580,7 @@ public:
 	int    SLAPI SendDESADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
 
 	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
-	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	int    SLAPI GetDocumentList(DocumentInfoList & rList);
 private:
 	ProviderImplementation * P_Prv; // @notowned
@@ -29878,7 +29906,7 @@ public:
 	};
 	SString & SLAPI MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SString & rBuf);
 	//
-	// Descr: загружает в пакет pack информацию о грузовых
+	// Descr: загружает в пакет pPack информацию о грузовых
 	//   таможенных декларациях, ассоциированных с лотами. Если параметр
 	//   pTagCore != 0, то для загрузки используется он, в противном случае
 	//   метод самостоятельно создает объект ObjTagCore и использует его для загрузки.
@@ -29888,7 +29916,7 @@ public:
 	//   Если же force != 0, то номера ГТД загружаются не зависимо от того,
 	//   к какому типу операций относится пакет.
 	//
-	int    SLAPI LoadClbList(PPBillPacket * pPack, int force = 0);
+	int    SLAPI LoadClbList(PPBillPacket * pPack, int force);
 	int    SLAPI GetClbNumberByLot(PPID lotID, int * isParentLot, SString & rBuf);
 	int    SLAPI GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache);
 	int    SLAPI GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList);
@@ -33987,7 +34015,7 @@ struct ObjTransmContext {
 	int    SLAPI ForceRestore(PPObjID);
 	int    SLAPI IsForced(PPObjID) const;
 	int    SLAPI GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrimID);
-	int    SLAPI RegisterDependedNonObject(PPObjID objid, PPCommSyncID * pCommID, int use_ta);
+	int    SLAPI RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
 	int    SLAPI ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID);
 	int    SLAPI AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
 
@@ -34115,7 +34143,7 @@ public:
 	int    SLAPI CommitQueue(const PPIDArray & rSrcDivList, int forceDestroyQueue);
 	int    SLAPI CommitAck();
 	int    SLAPI UpdateSyncCmpItem(TempSyncCmpTbl *, PPID objType, PPCommSyncID commID);
-	int    SLAPI RegisterDependedNonObject(PPObjID objid, PPCommSyncID * pCommID, int use_ta);
+	int    SLAPI RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
 	int    SLAPI AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
 	int    SLAPI SearchQueueItem(PPID objType, PPID objID, PPID dbID, ObjSyncQueueTbl::Rec * pRec);
 	ObjSyncCore SyncTbl;
@@ -41650,7 +41678,7 @@ public:
 
 	SLAPI  PPObjPrjTask(void * extraPtr = 0);
 	SLAPI ~PPObjPrjTask();
-	virtual int SLAPI Search(PPID id, void * b = 0);
+	virtual int SLAPI Search(PPID id, void * pRec = 0);
 	virtual int SLAPI Browse(void * extraPtr);
 	//
 	// Descr: интерактивная функция редактирования новой или существующей задачи.

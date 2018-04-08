@@ -11,11 +11,6 @@
 //
 // PPSyncCashSession
 //
-SLAPI PPSyncCashSession::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
-	AmtVat18(0.0), AmtVat10(0.0), AmtVat00(0.0), AmtNoVat(0.0), Dt(ZERODATE), Flags(0)
-{
-}
-
 SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) :
 	State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
@@ -1352,10 +1347,9 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	int    is_redo = 0; // Признак того, что выгрузка осуществляется в режиме REDO (товары, выгруженные ранее, начиная с заданной sinceDlsID)
 	SString temp_buf;
 	PPIniFile ini_file;
-	LDATETIME last_exp_moment;
+	LDATETIME last_exp_moment = ZERODATETIME;
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
-	last_exp_moment.SetZero();
 	P_Dls = pDls;
 	Flags    = (flags & ~ACGIF_EXCLALTFOLD); // ACGIF_EXCLALTFOLD - internal flag
 	CashNodeID = cashNodeID;
@@ -1472,8 +1466,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	}
 	else if(Flags & ACGIF_UPDATEDONLY) {
 		int    alg = 0;
-		LDATETIME moment;
-		moment.SetZero();
+		LDATETIME moment = ZERODATETIME;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACGIALG, &Algorithm);
 		if(!oneof3(Algorithm, algDefault, algUpdBillsVerify, algUpdBills))
 			Algorithm = algDefault;
@@ -1989,10 +1982,9 @@ int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 // AsyncCashSCardsIterator
 //
 SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
-	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID)
+	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID), Since(ZERODATETIME)
 {
 	MEMSZERO(Rec);
-	Since.SetZero();
 	DefSCardPersonID = SCObj.GetConfig().DefPersonID;
 	PersonTbl::Rec psn_rec;
 	if(PsnObj.Search(DefSCardPersonID, &psn_rec) > 0)

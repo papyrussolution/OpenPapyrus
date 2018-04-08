@@ -2410,11 +2410,8 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 #endif // } 0 @v9.4.9
 
 struct BHT_BillOpEntry {
-	BHT_BillOpEntry()
+	BHT_BillOpEntry() : OpID(0), Flags(0), Bbt(bbtUndef)
 	{
-		OpID = 0;
-		Flags = 0;
-		Bbt = bbtUndef;
 		Period.SetZero();
 		DuePeriod.SetZero();
 	}
@@ -3627,6 +3624,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 		PPObjBill * p_bobj = BillObj;
 		long   rows_count = 0;
 		PPID   common_goods_id = 0;
+		SString serial;
 		PPIDArray  lot_list;
 		PPImpExp ie_brow(&ie_param_brow, 0);
 		ResolveGoodsItemList unknown_goods_list;
@@ -3646,7 +3644,6 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 			//
 			// Поиск товара по серйному номеру, затем, если не найден, по штрихкоду
 			//
-			SString serial;
 			(serial = sdr_brow.Serial).Strip();
 			if(gobj.Search(sdr_brow.GoodsID, 0) <= 0)
 				sdr_brow.GoodsID = 0;
@@ -3739,8 +3736,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 			MEMSZERO(sdr_bill);
 			MEMSZERO(bill_rec);
 			THROW(p_ie_bill->ReadRecord(&sdr_bill, sizeof(sdr_bill)));
-			if(!uuid.FromStr(sdr_bill.Guid))
-				uuid.SetZero();
+			uuid.FromStr(sdr_bill.Guid);
 			(bill_code = sdr_bill.Code).Strip();
 			bill_code.Cat(pPack->P_SBIICfg->DeviceName);
 			SETIFZ(sdr_bill.Date, r_cfg.OperDate);

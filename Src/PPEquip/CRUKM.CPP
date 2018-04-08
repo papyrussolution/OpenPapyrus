@@ -652,8 +652,7 @@ int SLAPI ACS_CRUKM::CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl
 	k0.ZNumber    = sessNo;
 	if(pZReportTbl->search(0, &k0, spEq) == 0) {
 		if(BTROKORNFOUND) {
-			LDATETIME last;
-			last.SetZero();
+			LDATETIME last = ZERODATETIME;
 			Cr_SaleTbl::Key8 k8;
 			BExtQuery q(pSalesTbl, 8);
 			q.select(pSalesTbl->DateOperation, pSalesTbl->Times, 0L).

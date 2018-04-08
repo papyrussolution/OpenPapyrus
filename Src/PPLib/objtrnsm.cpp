@@ -461,8 +461,8 @@ int SLAPI ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID *
 
 int SLAPI ObjTransmContext::IsForced(PPObjID oi) const
 	{ return BIN(P_ForceRestoreObj && P_ForceRestoreObj->lsearch(&oi, 0, PTR_CMPFUNC(_2long))); }
-int SLAPI ObjTransmContext::RegisterDependedNonObject(PPObjID objid, PPCommSyncID * pCommID, int use_ta)
-	{ return P_Ot ? P_Ot->RegisterDependedNonObject(objid, pCommID, use_ta) : 0; }
+int SLAPI ObjTransmContext::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta)
+	{ return P_Ot ? P_Ot->RegisterDependedNonObject(objid, rCommID, use_ta) : 0; }
 int SLAPI ObjTransmContext::ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID)
 	{ return GetPrimaryObjID(objType, foreignID, pPrimID); }
 int SLAPI ObjTransmContext::AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
@@ -1881,10 +1881,10 @@ int SLAPI PPObjectTransmit::SearchQueueItem(PPID objType, PPID objID, PPID dbID,
 	return P_Queue ? P_Queue->SearchObject_(objType, objID, dbID, pRec) : 0;
 }
 
-int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID * pCommID, int use_ta)
+int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta)
 {
+	rCommID.SetZero();
 	int    ok = 1;
-	PPCommSyncID comm_id;
 	ObjSyncQueueTbl::Key1 k;
 	k.ObjType = (short)objid.Obj;
 	k.ObjID   = objid.Id;
@@ -1894,8 +1894,8 @@ int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncI
 	if(P_TmpIdxTbl->searchForUpdate(1, &k, spEq)) {
 		ObjSyncQueueTbl::Rec rec;
 		P_TmpIdxTbl->copyBufTo(&rec);
-		THROW(SyncTbl.TransmitObj(objid, &comm_id, 0));
-		comm_id.Get(&rec);
+		THROW(SyncTbl.TransmitObj(objid, &rCommID, 0));
+		rCommID.Get(&rec);
 		rec.FilePos = 0;
 		THROW_DB(P_TmpIdxTbl->updateRecBuf(&rec)); // @sfu
 	}
@@ -1904,7 +1904,6 @@ int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncI
 	}
 	THROW(tra.Commit());
 	CATCHZOK
-	ASSIGN_PTR(pCommID, comm_id);
 	return ok;
 }
 

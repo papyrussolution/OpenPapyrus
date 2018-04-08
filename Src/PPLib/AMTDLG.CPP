@@ -1,5 +1,5 @@
 // AMTDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,7 +18,7 @@ public:
 	enum {
 		ctlgroupCurAmt = 1
 	};
-	AmountDialog(int isCanEdit, AmtList * pList, PPIDArray * pRestrictList) : 
+	AmountDialog(int isCanEdit, AmtList * pList, PPIDArray * pRestrictList) :
 		TDialog(DLG_BILLAMTCUR), CanEdit(isCanEdit), P_RestrictList(pRestrictList)
 	{
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILLAMT_AMOUNT,
@@ -211,14 +211,9 @@ int AmtListDialog::editAmount(int pos)
 }
 
 int AmtListDialog::editItem(long pos, long /*id*/)
-{
-	return (Options & OLW_CANEDIT && checkupper((uint)pos, PosList.getCount())) ? editAmount((int)pos) : -1;
-}
-
+	{ return (Options & OLW_CANEDIT && checkupper((uint)pos, PosList.getCount())) ? editAmount((int)pos) : -1; }
 int AmtListDialog::addItem(long *, long * /*pID*/)
-{
-	return (Options & OLW_CANINSERT) ? editAmount(-1) : -1;
-}
+	{ return (Options & OLW_CANINSERT) ? editAmount(-1) : -1; }
 
 int AmtListDialog::delItem(long pos, long /*id*/)
 {
@@ -244,8 +239,7 @@ int AmtListDialog::delItem(long pos, long /*id*/)
 //
 class StaffAmtListDialog : public PPListDialog {
 public:
-	StaffAmtListDialog(const char * pTitle, const StaffAmtList * pList) :
-		PPListDialog(DLG_STAFFAMTLIST, CTL_STAFFAMTLIST_LIST)
+	StaffAmtListDialog(const char * pTitle, const StaffAmtList * pList) : PPListDialog(DLG_STAFFAMTLIST, CTL_STAFFAMTLIST_LIST)
 	{
 		setTitle(pTitle);
 		Data = *pList;
@@ -349,12 +343,7 @@ int EditStaffAmtEntry(long idx, StaffAmtList * pAmtList)
 				if(!pAmtList->CheckDup(idx, &entry))
 					PPErrorByDialog(dlg, CTL_BILLAMT_PERIOD);
 				else {
-					if(idx >= 0) {
-						THROW(pAmtList->Put(idx, &entry));
-					}
-					else {
-						THROW(pAmtList->Add(&entry));
-					}
+					THROW((idx >= 0) ? pAmtList->Put(idx, &entry) : pAmtList->Add(&entry));
 					ok = 1;
 				}
 			}
@@ -411,7 +400,9 @@ int SLAPI EditStaffAmtList(StaffAmtList * pData, const char * pTitle, int enable
 		dlg->enableCommand(cmaDelete, enableMod);
 		if(!enableMod) {
 			SString text;
-			dlg->setStaticText(CTL_STAFFAMTLIST_ST_INFO, PPGetWord(PPWORD_VIEWONLY, 0, text));
+			// @v10.0.0 PPGetWord(PPWORD_VIEWONLY, 0, text);
+			PPLoadString("viewonly", text); // @v10.0.0
+			dlg->setStaticText(CTL_STAFFAMTLIST_ST_INFO, text);
 		}
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(!enableMod)
@@ -440,8 +431,8 @@ private:
 	DECL_HANDLE_EVENT;
 	void   calcTotal();
 	void   calcTax(int taxN);
-	int    setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput);
-	int    getBillTaxCtrl(PPID amtTypeID, uint ctlInput);
+	void   setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput);
+	void   getBillTaxCtrl(PPID amtTypeID, uint ctlInput);
 	PPObjAmountType AmtObj;
 	AmtList Data;
 	TaxAmountIDs Tais;
@@ -526,25 +517,23 @@ void BillTaxesDialog::calcTotal()
 	setCtrlReal(CTL_BILLTAX_AMOUNT, amt);
 }
 
-int BillTaxesDialog::setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput)
+void BillTaxesDialog::setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput)
 {
 	PPAmountType amtt_rec;
 	if(amtTypeID) {
-		AmtObj.Search(amtTypeID, &amtt_rec);
+		AmtObj.Fetch(amtTypeID, &amtt_rec); // @v10.0.0 Search-->Fetch
 		setStaticText(ctlText, amtt_rec.Name);
 		setCtrlReal(ctlInput, Data.Get(amtTypeID, 0L /* @curID */));
 		//disableCtrl(ctlInput, !(amtt_rec.Flags & PPAmountType::fManual));
 	}
 	else
 		disableCtrl(ctlInput, 1);
-	return 1;
 }
 
-int BillTaxesDialog::getBillTaxCtrl(PPID amtTypeID, uint ctlInput)
+void BillTaxesDialog::getBillTaxCtrl(PPID amtTypeID, uint ctlInput)
 {
 	if(amtTypeID)
 		Data.Put(amtTypeID, 0L /* @curID */, getCtrlReal(ctlInput), 0, 1);
-	return 1;
 }
 
 int BillTaxesDialog::setDTS(const AmtList * pData, const TaxAmountIDs * pTais)

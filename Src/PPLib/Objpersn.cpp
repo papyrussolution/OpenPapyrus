@@ -1670,6 +1670,29 @@ int SLAPI PPObjPerson::GetRegNumber(PPID personID, PPID regType, LDATE actualDat
 	return (GetRegList(personID, &reg_list, 1) > 0) ? reg_list.GetRegNumber(regType, actualDate, rBuf) : -1;
 }
 
+int SLAPI PPObjPerson::ResolveGLN(const char * pGLN, PPID accSheetID, PPID * pArID)
+{
+	int    ok = -1;
+	SString code = pGLN;
+	assert(pGLN);
+	THROW_INVARG(pGLN);
+	if(code.NotEmptyS()) {
+		const PPID reg_type_id = PPREGT_GLN;
+		PPIDArray psn_list, ar_list;
+		THROW(GetListByRegNumber(reg_type_id, 0, code, psn_list));
+		if(psn_list.getCount()) {
+			PPObjArticle ar_obj;
+			THROW(ar_obj.GetByPersonList(accSheetID, &psn_list, &ar_list));
+			if(ar_list.getCount()) {
+				ASSIGN_PTR(pArID, ar_list.at(0));
+				ok = (ar_list.getCount() > 1) ? 2 : 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindList, PPID exclID, PersonTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -2983,8 +3006,21 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				if(do_index_phones) {
 					StringSet phone_list;
 					pPack->ELA.GetListByType(ELNKRT_PHONE, phone_list);
+					pPack->ELA.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
 					PPObjID objid;
 					objid.Set(Obj, id);
+					// @v10.0.0 {
+					if(action != PPACN_OBJADD) {
+						StringSet org_phone_list;
+						org_pack.ELA.GetListByType(ELNKRT_PHONE, org_phone_list);
+						org_pack.ELA.GetListByType(ELNKRT_INTERNALEXTEN, org_phone_list); 
+						for(uint orgplp = 0; org_phone_list.get(&orgplp, temp_buf);) {
+							if(!phone_list.search(temp_buf, 0, 1)) {
+								THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
+							}
+						}
+					}
+					// } @v10.0.0 
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
 						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 					}
@@ -3043,6 +3079,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				THROW(P_Tbl->GetELinks(id, &ela));
 				StringSet phone_list;
 				ela.GetListByType(ELNKRT_PHONE, phone_list);
+				ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
 				PPObjID objid;
 				objid.Set(Obj, id);
 				for(uint plp = 0; phone_list.get(&plp, temp_buf);) {

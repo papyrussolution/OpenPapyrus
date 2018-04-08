@@ -188,14 +188,14 @@ int SLAPI PPCashMachine::IsAsyncCMT(PPID cmtID)
 	return BIN(GetRegEntry(cmtID, &p) && ((CMRegArray*)P_RegData)->at(p).flags & CMRegEntry::async);
 }
 
-SLAPI PPCashMachine::PPCashMachine(PPID cashID)
+SLAPI PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
+	AmtVat18(0.0), AmtVat10(0.0), AmtVat00(0.0), AmtNoVat(0.0), VatRate(0.0), Dt(ZERODATE), Flags(0)
 {
-	P_SyncIntrf  = 0;
-	P_AsyncIntrf = 0;
-	SyncPrintErrCode = 0;
-	NodeID       = cashID;
-	ParentNodeID = 0;
-	Valid        = (GetNode() > 0);
+}
+
+SLAPI PPCashMachine::PPCashMachine(PPID cashID) : P_SyncIntrf(0), P_AsyncIntrf(0), SyncPrintErrCode(0), NodeID(cashID), ParentNodeID(0)
+{
+	Valid = (GetNode() > 0);
 }
 
 SLAPI PPCashMachine::~PPCashMachine()
@@ -1145,6 +1145,20 @@ int SLAPI PPCashMachine::SyncPrintSlipDocument(CCheckPacket * pPack, const char 
 		SETFLAG(flags, PRNCHK_RETURN, pPack->Rec.Flags & CCHKF_RETURN);
 		SETFLAG(flags, PRNCHK_ROUNDINT, NodeRec.Flags & CASHF_ROUNDINT);
 		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintSlipDoc(pPack, pFormatName, flags), 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
+{
+	int    ok = 0;
+	THROW(GetSyncIntrf());
+	THROW(GetNode() > 0);
+	{
+		CmLocking cml(NodeRec);
+		THROW(cml);
+		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintFiscalCorrection(pFc), 0);
 	}
 	CATCHZOK
 	return ok;

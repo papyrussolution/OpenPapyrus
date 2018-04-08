@@ -224,7 +224,7 @@ XMLPUBFUN xmlNotation * XMLCALL xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlCh
 XMLPUBFUN xmlElement * XMLCALL xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix);
 XMLPUBFUN xmlElement * /*XMLCALL*/FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name);
 #ifdef LIBXML_VALID_ENABLED
-	XMLPUBFUN int XMLCALL xmlValidGetPotentialChildren(xmlElementContent * ctree, const xmlChar ** names, int * len, int max);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlValidGetPotentialChildren(xmlElementContent * ctree, const xmlChar ** names, int * len, int max);
 	XMLPUBFUN int XMLCALL xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** names, int max);
 	XMLPUBFUN int XMLCALL xmlValidateNameValue(const xmlChar * value);
 	XMLPUBFUN int XMLCALL xmlValidateNamesValue(const xmlChar * value);

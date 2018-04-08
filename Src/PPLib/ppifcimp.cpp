@@ -1698,12 +1698,15 @@ ILongList * DL6ICLS_PPUtil::GetSupplInterchangeLocList(int32 supplID)
 int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int32 flags, IFileFormat iff, SString & accsName, SString & accsPassw)
 {
 	SUniformFileTransmParam param;
+	SString enc_buf;
 	param.SrcPath = srcUrl;
 	param.DestPath = destUrl;
 	param.Flags = flags;
 	param.Format = iff;
-	param.AccsName = accsName;
-	param.AccsPassword = accsPassw;
+	// @v10.0.0 param.AccsName = accsName;
+	param.AccsName.EncodeUrl(accsName, 0); // @v10.0.0
+	// @v10.0.0 param.AccsPassword = accsPassw;
+	param.AccsPassword.EncodeUrl(accsPassw, 0); // @v10.0.0
 	return param.Run(0, 0);
 }
 //

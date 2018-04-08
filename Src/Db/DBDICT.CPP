@@ -243,9 +243,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 /*virtual*/ int SLAPI BDictionary::IsFileExists_(const char * pFileName)
 {
 	int    yes = 0;
-	DbSession::Config dbcfg;
-	DBS.GetConfig(dbcfg);
-	if(dbcfg.Flags & DbSession::fDetectExistByOpen) {
+	if(DBS.GetConfig().Flags & DbSession::fDetectExistByOpen) {
 		char   fpb[256];
 		uint16 bl = 0;
 		SString file_name;
@@ -272,14 +270,9 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 }
 
 /*virtual*/ int SLAPI BDictionary::DropFile(const char * pFileName)
-{
-	return (IsFileExists_(pFileName) > 0) ? SFile::Remove(pFileName) : -1;
-}
-
+	{ return (IsFileExists_(pFileName) > 0) ? SFile::Remove(pFileName) : -1; }
 /*virtual*/ int SLAPI BDictionary::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
-{
-	return pTbl->Btr_GetStat(reqItems, pStat);
-}
+	{ return pTbl->Btr_GetStat(reqItems, pStat); }
 
 /*virtual*/ int SLAPI BDictionary::Login(const DbLoginBlock * pBlk, long options)
 {
@@ -338,54 +331,25 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 }
 
 /*virtual*/ int SLAPI BDictionary::CommitWork()
-{
-	return Btrieve::CommitWork();
-}
-
+	{ return Btrieve::CommitWork(); }
 /*virtual*/ int SLAPI BDictionary::RollbackWork()
-{
-	return Btrieve::RollbackWork();
-}
-
+	{ return Btrieve::RollbackWork(); }
 /*virtual*/ int SLAPI BDictionary::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
-{
-	return pTbl->Btr_Open(pFileName, openMode, pPassword);
-}
-
+	{ return pTbl->Btr_Open(pFileName, openMode, pPassword); }
 /*virtual*/ int SLAPI BDictionary::Implement_Close(DBTable * pTbl)
-{
-	return pTbl->Btr_Close();
-}
-
+	{ return pTbl->Btr_Close(); }
 /*virtual*/ int SLAPI BDictionary::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
-{
-	return pTbl->Btr_Implement_Search(idx, pKey, srchMode, sf);
-}
-
+	{ return pTbl->Btr_Implement_Search(idx, pKey, srchMode, sf); }
 /*virtual*/ int SLAPI BDictionary::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
-{
-	return pTbl->Btr_Implement_InsertRec(idx, pKeyBuf, pData);
-}
-
+	{ return pTbl->Btr_Implement_InsertRec(idx, pKeyBuf, pData); }
 /*virtual*/ int SLAPI BDictionary::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
-{
-	return pTbl->Btr_Implement_UpdateRec(pDataBuf, ncc);
-}
-
+	{ return pTbl->Btr_Implement_UpdateRec(pDataBuf, ncc); }
 /*virtual*/ int SLAPI BDictionary::Implement_DeleteRec(DBTable * pTbl)
-{
-	return pTbl->Btr_Implement_DeleteRec();
-}
-
+	{ return pTbl->Btr_Implement_DeleteRec(); }
 /*virtual*/ int SLAPI BDictionary::Implement_BExtInsert(BExtInsert * pBei)
-{
-	return pBei->getTable()->Btr_Implement_BExtInsert(pBei);
-}
-
+	{ return pBei->getTable()->Btr_Implement_BExtInsert(pBei); }
 /*virtual*/ int SLAPI BDictionary::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
-{
-	return pTbl->Btr_Implement_GetPosition(pPos);
-}
+	{ return pTbl->Btr_Implement_GetPosition(pPos); }
 
 SLAPI BDictionary::~BDictionary()
 {
@@ -775,16 +739,8 @@ int DBTablePartitionList::Helper_GetEntry(long andF, long notF, Entry & rEntry) 
 }
 
 int DBTablePartitionList::GetMainEntry(Entry & rEntry) const
-{
-	return Helper_GetEntry(fMain, fBu, rEntry);
-}
-
+	{ return Helper_GetEntry(fMain, fBu, rEntry); }
 int DBTablePartitionList::GetMainBuEntry(Entry & rEntry) const
-{
-	return Helper_GetEntry(fMain|fBu, 0, rEntry);
-}
-
+	{ return Helper_GetEntry(fMain|fBu, 0, rEntry); }
 int DBTablePartitionList::GetConEntry(Entry & rEntry) const
-{
-	return Helper_GetEntry(fCon, 0, rEntry);
-}
+	{ return Helper_GetEntry(fCon, 0, rEntry); }

@@ -12,14 +12,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 				SLS.Init(product_name, (HINSTANCE)hModule);
 			}
 			break;
-		case DLL_THREAD_ATTACH:
-			SLS.InitThread();
-			break;
-		case DLL_THREAD_DETACH:
-			SLS.ReleaseThread();
-			break;
-		case DLL_PROCESS_DETACH:
-			break;
+		case DLL_THREAD_ATTACH: SLS.InitThread(); break;
+		case DLL_THREAD_DETACH: SLS.ReleaseThread(); break;
+		case DLL_PROCESS_DETACH: break;
 	}
 	return TRUE;
 }
@@ -43,47 +38,47 @@ char FS = 0x1C;
 #define CAN	0x18	// Прервать выполнение отчета
 
 // Коды ошибок
-#define PIRIT_ERRSTATUSFORFUNC	  1 // 01h Функция невыполнима при данном статусе ККМ
-#define PIRIT_ERRFUNCNUMINCOMMAND 2 // 02h В команде указан неверный номер функции
-#define PIRIT_ERRCMDPARAMORFORMAT 3 // 03h Некорректный формат или параметр команды
-#define PIRIT_PRNNOTREADY		  9 // 09h Принтер не готов
-#define PIRIT_DIFDATE			 11	// Дата и время на ККМ отличаются от системных на 8 минут
-#define PIRIT_DATELSLASTOP		 12	// Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
-#define PIRIT_FATALERROR		 32 // 20h Фатальная ошибка ККМ
-#define PIRIT_FMOVERFLOW		 33 // 21h Нет свободного места в фискальной памяти ККМ
-#define PIRIT_OFDPROVIDER        54 // Ошибка оператора фискальных данных
-#define PIRIT_ECRRFORMAT		 65 // 41h Некорректный формат или параметр команды ЭКЛЗ
-#define PIRIT_ECRACCIDENT		 67 // 43h Авария ЭКЛЗ
-#define PIRIT_KCACCIDENT		 68 // 44h Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
-#define PIRIT_ECRTIMEOUT		 69 // 45h Исчерпан временной ресурс использования ЭКЛЗ
-#define PIRIT_ECROVERFLOW		 70 // 46h ЭКЛЗ переполнена
-#define PIRIT_ECRERRORDATETIME	 71 // 47h Неверные дата или время
-#define PIRIT_ECRNODATA			 72 // 48h Нет запрошенных данных
-#define PIRIT_ECRTOOMUCH		 73 // 49h Переполнение (отрицательный итог документа, слишком много отделов для клиента)
-#define PIRIT_NOANSWER			 74 // 4Ah Нет ответа от ЭКЛЗ
-#define PIRIT_ECRERREXCHANGE	 75 // 4Bh Ошибка при обмене данными с ЭКЛЗ
+#define PIRIT_ERRSTATUSFORFUNC     1 // 01h Функция невыполнима при данном статусе ККМ
+#define PIRIT_ERRFUNCNUMINCOMMAND  2 // 02h В команде указан неверный номер функции
+#define PIRIT_ERRCMDPARAMORFORMAT  3 // 03h Некорректный формат или параметр команды
+#define PIRIT_PRNNOTREADY          9 // 09h Принтер не готов
+#define PIRIT_DIFDATE             11 // Дата и время на ККМ отличаются от системных на 8 минут
+#define PIRIT_DATELSLASTOP        12 // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
+#define PIRIT_FATALERROR          32 // 20h Фатальная ошибка ККМ
+#define PIRIT_FMOVERFLOW          33 // 21h Нет свободного места в фискальной памяти ККМ
+#define PIRIT_OFDPROVIDER         54 // Ошибка оператора фискальных данных
+#define PIRIT_ECRRFORMAT          65 // 41h Некорректный формат или параметр команды ЭКЛЗ
+#define PIRIT_ECRACCIDENT         67 // 43h Авария ЭКЛЗ
+#define PIRIT_KCACCIDENT          68 // 44h Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
+#define PIRIT_ECRTIMEOUT          69 // 45h Исчерпан временной ресурс использования ЭКЛЗ
+#define PIRIT_ECROVERFLOW         70 // 46h ЭКЛЗ переполнена
+#define PIRIT_ECRERRORDATETIME    71 // 47h Неверные дата или время
+#define PIRIT_ECRNODATA           72 // 48h Нет запрошенных данных
+#define PIRIT_ECRTOOMUCH          73 // 49h Переполнение (отрицательный итог документа, слишком много отделов для клиента)
+#define PIRIT_NOANSWER            74 // 4Ah Нет ответа от ЭКЛЗ
+#define PIRIT_ECRERREXCHANGE      75 // 4Bh Ошибка при обмене данными с ЭКЛЗ
 
 #define PIRIT_NOTENOUGHPARAM	300	// Не достаточно параметров для работы устройства
 #define PIRIT_UNCNKOWNCOMMAND	301	// Передана неизвестная команда
 #define PIRIT_NOTINITED			302	// Ошибка инициализации
 #define PIRIT_NOTCONNECTED		303	// Соединение не установлено
 
-#define PIRIT_ECRERRORSTATUS	401	// Некорректное состояние ЭКЛЗ
-#define PIRIT_ECRFMOVERFLOW		402	// ЭКЛЗ или ФП переполнена
-#define PIRIT_ECRFATALERR		403	// Ошибка ЭКЛЗ. Обратитесь в ЦТО
+#define PIRIT_ECRERRORSTATUS            401	// Некорректное состояние ЭКЛЗ
+#define PIRIT_ECRFMOVERFLOW             402	// ЭКЛЗ или ФП переполнена
+#define PIRIT_ECRFATALERR               403	// Ошибка ЭКЛЗ. Обратитесь в ЦТО
 
-#define PIRIT_NOTSENT			500	// Ошибка передачи данных
-#define PIRIT_NOTENOUGHMEM		501	// Недостаточный размер выходного массива
-#define PIRIT_ERRLOGOSIZE		502	// Изображение должно иметь размеры: ширина - не более 576 точек, высота - 126 точек
-#define PIRIT_ERRLOGOFORMAT		503	// Изображение должно быть монохромным в формате BMP
-#define PIRIT_ECRARCHOPENED		504 // Архив ЭКЛЗ закрыт
-#define PIRIT_ECRNOTACTIVE		505 // ЭКЛЗ не активирована
+#define PIRIT_NOTSENT                   500	// Ошибка передачи данных
+#define PIRIT_NOTENOUGHMEM              501	// Недостаточный размер выходного массива
+#define PIRIT_ERRLOGOSIZE               502	// Изображение должно иметь размеры: ширина - не более 576 точек, высота - 126 точек
+#define PIRIT_ERRLOGOFORMAT             503	// Изображение должно быть монохромным в формате BMP
+#define PIRIT_ECRARCHOPENED             504 // Архив ЭКЛЗ закрыт
+#define PIRIT_ECRNOTACTIVE              505 // ЭКЛЗ не активирована
 #define PIRIT_NOTENOUGHTMEMFORSESSCLOSE	506 // Нет памяти для закрытия смены в ФП
-#define PIRIT_ERRFMPASS			507 // Был введен неверный пароль доступа к ФП
-#define PIRIT_SESSOPENEDTRYAGAIN	508 // Не было завершено закрытие смены, необходимо повторить операцию
-#define PIRIT_PRNTROPENED		509 // 2 Открыта крышка принтера
-#define PIRIT_PRNCUTERR			510 // 3 Ошибка резчика принтера
-#define PIRIT_NOCONCTNWITHPRNTR	511 // 7 Нет связи с принтером
+#define PIRIT_ERRFMPASS                 507 // Был введен неверный пароль доступа к ФП
+#define PIRIT_SESSOPENEDTRYAGAIN        508 // Не было завершено закрытие смены, необходимо повторить операцию
+#define PIRIT_PRNTROPENED               509 // 2 Открыта крышка принтера
+#define PIRIT_PRNCUTERR                 510 // 3 Ошибка резчика принтера
+#define PIRIT_NOCONCTNWITHPRNTR         511 // 7 Нет связи с принтером
 //
 // Значения флагов статуса
 //
@@ -274,10 +269,12 @@ private:
 	// Descr: Получает таблицу налогов из настроек аппарата (DvcTaxArray)
 	//
 	int    GetTaxTab();
+	int    IdentifyTaxEntry(double vatRate, int isVatFree) const;
 	void   GetLastCmdName(SString & rName); // new
 	void   SetLastItems(const char * pCmd, const char * pParam);
 	int    ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError);
 	int    WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SString & rError);
+	int    ExecCmd(const char * pHexCmd, const char * pInput, SString & rOut, SString & rError);
 
 	SString LogFileName;
 	StringSet RetTknzr;
@@ -285,7 +282,7 @@ private:
 
 static PiritEquip * P_Pirit = 0;
 
-ErrMessage ErrMsg[] = {
+static const ErrMessage Pirit_ErrMsg[] = {
 	{PIRIT_ERRSTATUSFORFUNC, "Функция невыполнима при данном статусе ККМ"},
 	{PIRIT_ERRFUNCNUMINCOMMAND, "В команде указан неверный номер функции"},
 	{PIRIT_ERRCMDPARAMORFORMAT, "Некорректный формат или параметр команды"},
@@ -323,8 +320,74 @@ ErrMessage ErrMsg[] = {
 	{PIRIT_SESSOPENEDTRYAGAIN,	 "Не было завершено закрытие смены, необходимо повторить операцию"},
 	{PIRIT_PRNTROPENED,		 "Открыта крышка принтера"},
 	{PIRIT_PRNCUTERR,		 "Ошибка резчика принтера"},
-	{PIRIT_NOCONCTNWITHPRNTR,	 "Нет связи с принтером"}
+	{PIRIT_NOCONCTNWITHPRNTR,	 "Нет связи с принтером"},
+	{0x50, "Превышен размер данных TLV" },
+	{0x51, "Нет транспортного соединения" },
+	{0x52, "Исчерпан ресурс КС" },
+	{0x54, "Исчерпана память хранения документов для ОФД" },
+	{0x55, "Время нахождения в очереди самого старого сообщения на выдачу более 30 календарных дней." },
+	{0x56, "Продолжительность смены ФН более 24 часов" },
+	{0x57, "Разница более чем на 5 минут отличается от разницы, определенной по внутреннему таймеру ФН." },
+	{0x60, "Неверное сообщение от ОФД" },
+	{0x61, "Нет связи с ФН" },
+	{0x62, "Ошибка обмена с ФН" },
+	{0x63, "Слишком длинная команда для посылки в ФН" },
 };
+/*
+	0x00 	Команда выполнена без ошибок
+
+	Ошибки выполнение команд
+	0x01 	Функция невыполнима при данном статусе ККТ
+	0x02 	В команде указан неверный номер функции
+	0x03 	Некорректный формат или параметр команды
+
+	Ошибки протокола передачи данных
+	0x04 	Переполнение буфера коммуникационного порта
+	0x05 	Таймаут при передаче байта информации
+	0x06 	В протоколе указан неверный пароль
+	0x07 	Ошибка контрольной суммы в команде
+
+	Ошибки печатающего устройства
+	0x08 	Конец бумаги
+	0x09 	Принтер не готов
+
+	Ошибки даты/времени
+	0x0A 	Текущая смена больше 24 часов. Установка даты времени больше чем на 24 часа.
+	0x0B 	Разница во времени, ККТ и указанной в команде начала работы, больше 8 минут
+	0x0C 	Вводимая дата более ранняя, чем дата последней фискальной операции
+
+	Прочие ошибки
+	0x0E 	Отрицательный результат
+	0x0F 	Для выполнения команды необходимо закрыть смену
+	0x10 	Нет данных в журнале
+	0x11 	Ошибка контрольной ленты
+	0x12 	Ошибка посылки данных в ОФД
+
+	Фатальные ошибки
+	0x20 	Фатальная ошибка ККТ. Причины возникновения данной ошибки можно уточнить в ”Статусе фатальных ошибок ККТ” 
+
+	Ошибки ФН
+	0x41 	Некорректный формат или параметр команды ФН
+	0x42 	Некорректное состояние ФН
+	0x43 	Ошибка ФН
+	0x44 	Ошибка КС (Криптографического сопроцессора) в составе ФН
+	0x45 	Исчерпан временной ресурс использования ФН
+	0x46 	ФН переполнен
+	0x47 	Неверные дата или время
+	0x48 	Нет запрошенных данных
+	0x49 	Некорректные параметры команды
+	0x50 	Превышен размер данных TLV
+	0x51 	Нет транспортного соединения
+	0x52 	Исчерпан ресурс КС
+	0x54 	Исчерпана память хранения документов для ОФД
+	0x55 	Время нахождения в очереди самого старого сообщения на выдачу более 30 календарных дней.
+	0x56 	Продолжительность смены ФН более 24 часов
+	0x57 	Разница более чем на 5 минут отличается от разницы, определенной по внутреннему таймеру ФН.
+	0x60 	Неверное сообщение от ОФД
+	0x61 	Нет связи с ФН
+	0x62 	Ошибка обмена с ФН
+	0x63 	Слишком длинная команда для посылки в ФН
+*/
 
 int	FASTCALL SetError(int errCode);
 int	FASTCALL SetError(char * pErrCode);
@@ -378,6 +441,103 @@ void PiritEquip::SetLastItems(const char * pCmd, const char * pParam)
 	LastParams = pParam;
 }
 
+int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
+{
+	int    tax_entry_n = 0;
+	int    tax_entry_id_result = -1;
+	double _vat_rate = vatRate;
+	{
+		if(isVatFree)
+			_vat_rate = 0.0;
+		tax_entry_id_result = 0;
+		// Освобожденные от НДС продавцы передают признак VATFREE но таблица не предусматривает такого элемента.
+		// По этому, используя эмпирическое правило, считаем, что второй элемент таблицы, имеющий нулевую
+		// ставку относится к VATFREE-продажам.
+		uint   zero_entry_1 = 0; 
+		uint   zero_entry_2 = 0; 
+		for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
+			if(DvcTaxArray[tidx].Name[0] || tidx == 3) { // @v10.0.0 (|| tidx == 3) костыль - это "освобожден от ндс" в трактовке Дрим Касс
+				const double entry_rate = DvcTaxArray[tidx].Rate;
+				if(entry_rate == 0.0 && _vat_rate == 0.0) {
+					if(!zero_entry_1) {
+						zero_entry_1 = tidx+1;
+						if(!isVatFree) {
+							tax_entry_n = (int)tidx;
+							tax_entry_id_result = tidx+1;
+							break;
+						}
+					}
+					else if(!zero_entry_2) {
+						zero_entry_2 = tidx+1;
+						if(isVatFree) {
+							tax_entry_n = (int)tidx;
+							tax_entry_id_result = tidx+1;
+							break;
+						}
+					}
+				}
+				else if(feqeps(entry_rate, _vat_rate, 1E-5)) {
+					tax_entry_n = (int)tidx;
+					tax_entry_id_result = tidx+1;
+					break;
+				}
+			}
+		}
+		if(!tax_entry_id_result) {
+			if(isVatFree && zero_entry_1) {
+				tax_entry_n = (int)(zero_entry_1-1);
+				tax_entry_id_result = zero_entry_1;
+			}
+			else {
+				//
+				// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
+				//
+				if(_vat_rate == 18.0) {
+					tax_entry_n = 0;
+					tax_entry_id_result = 1;
+				}
+				else if(_vat_rate == 10.0) {
+					tax_entry_n = 1;
+					tax_entry_id_result = 2;
+				}
+				else if(_vat_rate == 0.0) {
+					if(!isVatFree) {
+						tax_entry_n = 2;
+						tax_entry_id_result = 3;
+					}
+					else {
+						tax_entry_n = 3;
+						tax_entry_id_result = 4;
+					}
+				}
+			}
+		}
+	}
+	// @debug {
+	if(LogFileName.NotEmpty()) {
+		SString temp_buf;
+		if(tax_entry_id_result < 0)
+			(temp_buf = "TaxEntry isn't identified").CatDiv(':', 2).Cat(_vat_rate);
+		else if(tax_entry_id_result == 0)
+			(temp_buf = "TaxEntry isn't found").CatDiv(':', 2).Cat(_vat_rate);
+		else if(tax_entry_id_result > 0)
+			(temp_buf = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
+		SLS.LogMessage(LogFileName, temp_buf);
+	}
+	// } @debug 
+	return tax_entry_n;
+}
+
+int PiritEquip::ExecCmd(const char * pHexCmd, const char * pInput, SString & rOut, SString & rError)
+{
+	int    ok = 1;
+	OpLogBlock __oplb(LogFileName, pHexCmd, 0);
+	THROWERR(PutData(pHexCmd, pInput), PIRIT_NOTSENT);
+	THROW(GetWhile(rOut, rError));
+	CATCHZOK
+	return ok;
+}
+
 int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
 	int    ok = 0, val = 0;
@@ -388,7 +548,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	SString out_data;
 	SString r_error;
 	SString cmd;
-	//SString params;
 	SString temp_buf;
 	if(sstreqi_ascii(pCmd, "CONTINUEPRINT")) {
 		if((LastCmd.CmpNC("PRINTFISCAL") != 0) && (LastCmd.CmpNC("PRINTTEXT") != 0)) { // new
@@ -529,11 +688,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
-			{
-				OpLogBlock __oplb(LogFileName, "21", 0);
-				THROWERR(PutData("21", str), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("21", str, out_data, r_error));
 			// Ставлю проверку в двух местах, ибо не знаю, в какой момент этот флаг устанавливается
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
@@ -544,11 +699,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
-			{
-				OpLogBlock __oplb(LogFileName, "20", 0);
-				THROWERR(PutData("20", str), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("20", str, out_data, r_error));
 		}
 		else if(cmd.IsEqiAscii("OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
@@ -576,15 +727,161 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("PAYMCASH") == 0)
+				if(s_param.IsEqiAscii("PAYMCASH"))
 					Check.PaymCash = param_val.ToReal();
-				else if(s_param.CmpNC("PAYMCARD") == 0)
+				else if(s_param.IsEqiAscii("PAYMCARD"))
 					Check.PaymCard = param_val.ToReal();
 			}
 			THROW(RunCheck(1));
 		}
+		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
+			struct CheckCorrectionBlock {
+				CheckCorrectionBlock()
+				{
+					THISZERO();
+					VatRate = -1.0;
+				}
+				char   OperName[32]; // CshrName
+				double CashAmt;
+				double BankAmt;
+				double PrepayAmt;
+				double PostpayAmt;
+				double ReckonAmt; // Сумма встречным представлением
+				int    Type;
+				LDATE  Dt;
+				char   DocNo[32];
+				char   DocMemo[64];
+				double Vat18Amt;
+				double Vat10Amt;
+				double Vat0Amt;
+				double VatFreeAmt;
+				double Vat18_118Amt;
+				double Vat10_110Amt;
+				//
+				int    IsVatFree;
+				double VatRate;
+			};
+			CheckCorrectionBlock blk;
+			STRNSCPY(blk.OperName, CshrName);
+			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
+				s_pair.Divide('=', s_param, param_val);
+				s_param.ToUpper();
+				if(s_param == "PAYMCASH")
+					blk.CashAmt = R2(param_val.ToReal());
+				else if(s_param == "PAYMCARD")
+					blk.BankAmt = R2(param_val.ToReal());
+				else if(s_param == "PREPAY") {
+				}
+				else if(s_param == "POSTPAY") {
+				}
+				else if(s_param == "RECKONPAY") {
+				}
+				else if(s_param == "CODE") {
+					STRNSCPY(blk.DocNo, param_val);
+				}
+				else if(s_param == "DATE") {
+					blk.Dt = strtodate_(param_val, DATF_ISO8601|DATF_CENTURY);
+				}
+				else if(s_param == "TEXT") {
+					STRNSCPY(blk.DocMemo, param_val);
+				}
+				else if(s_param == "VATRATE") {
+					blk.VatRate = R2(param_val.ToReal());
+				}
+				else if(s_param == "VATFREE") {
+					if(param_val.Empty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
+						blk.IsVatFree = 1;
+				}
+				//
+				else if(s_param == "VATAMOUNT18")
+					blk.Vat18Amt = R2(param_val.ToReal());
+				else if(s_param == "VATAMOUNT10")
+					blk.Vat10Amt = R2(param_val.ToReal());
+				else if(s_param == "VATAMOUNT00" || s_param == "VATAMOUNT0")
+					blk.Vat0Amt = R2(param_val.ToReal());
+				else if(s_param == "VATFREEAMOUNT")
+					blk.VatFreeAmt = R2(param_val.ToReal());
+			}
+			if(!checkdate(blk.Dt, 0))
+				blk.Dt = getcurdate_();
+			{
+				int    correction_type = 0;
+				// 
+				// Тип коррекции
+				// Номер бита 	Пояснение
+				// 0 	0 - самостоятельная коррекция, 1 - коррекция по предписанию
+				// 1 	0 - приход, 1 - расход
+				// 2..4 	Система налогообложения (см. ниже)
+				// 5 	Если бит = 0, то вместо суммы налога в поле "Сумма налога по ставке 18%" 
+				//   передается номер ставки налога, по которой исчисляется сумма налога, остальные суммы налогов не воспринимаются
+				// 
+				// Система налогообложения
+				// Значение 	Пояснение
+				// 0 	Основная
+				// 1 	Упрощенная Доход
+				// 2 	Упрощенная Доход минус Расход
+				// 3 	Единый налог на вмененный доход
+				// 4 	Единый сельскохозяйственный налог
+				// 5 	Патентная система налогообложения
+				// 
+				int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : -1;
+				if(vat_entry_n >= 0)
+					correction_type &= ~0x10;
+				else
+					correction_type |= 0x10;
+
+				SString in_data;
+				// 
+				// CMD 0x58
+				// Parameters:
+				//   (Имя оператора) Имя оператора
+				//   (Дробное число) Сумма наличного платежа        "PAYMCASH"
+				//   (Дробное число) Сумма электронного платежа     "PAYMCARD"
+				//   (Дробное число) Сумма предоплатой              "PREPAY"
+				//   (Дробное число) Сумма постоплатой              "POSTPAY"
+				//   (Дробное число) Сумма встречным представлением "RECKONPAY"
+				//   (Число) Тип коррекции
+				//   (Дата) Дата документа основания коррекции           "DATE" 
+				//   (Строка[1..32]) Номер документа основания коррекции "CODE"
+				//   (Строка[1..64]) Наименование основания коррекции    "TEXT"
+				//   (Дробное число) Сумма налога по ставке 18%          "VATAMOUNT18"
+				//   (Дробное число) Сумма налога по ставке 10%          "VATAMOUNT10"
+				//   (Дробное число) Сумма расчета по ставке 0%          "VATAMOUNT00"
+				//   (Дробное число) Сумма расчета без налога            "VATFREEAMOUNT"
+				//   (Дробное число) Сумма расчета по расч. ставке 18/118
+				//   (Дробное число) Сумма расчета по расч. ставке 10/110
+				//   
+				CreateStr(CshrName, in_data);
+				CreateStr(blk.CashAmt, in_data);
+				CreateStr(blk.BankAmt, in_data);
+				CreateStr(blk.PrepayAmt, in_data);
+				CreateStr(blk.PostpayAmt, in_data);
+				CreateStr(blk.ReckonAmt, in_data);
+				CreateStr(correction_type, in_data);
+				CreateStr(temp_buf.Z().Cat(blk.Dt, DATF_DMY|DATF_NODIV), in_data);
+				CreateStr(blk.DocNo, in_data);
+				CreateStr(blk.DocMemo, in_data);
+				if(vat_entry_n >= 0) {
+					CreateStr(vat_entry_n, in_data);
+					CreateStr(0.0, in_data);
+					CreateStr(0.0, in_data);
+					CreateStr(0.0, in_data);
+					CreateStr(0.0, in_data);
+					CreateStr(0.0, in_data);
+				}
+				else {
+					CreateStr(blk.Vat18Amt, in_data);
+					CreateStr(blk.Vat10Amt, in_data);
+					CreateStr(blk.Vat0Amt, in_data);
+					CreateStr(blk.VatFreeAmt, in_data);
+					CreateStr(blk.Vat18_118Amt, in_data);
+					CreateStr(blk.Vat10_110Amt, in_data);
+				}
+				//
+				THROW(ExecCmd("58", in_data, out_data, r_error));
+			}
+		}
 		else if(cmd.IsEqiAscii("PRINTFISCAL")) {
-			int   tax_entry_id_result = -1;
 			double _vat_rate = 0.0;
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
@@ -611,90 +908,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 			}
 			{
-				Check.Tax = 0;
-				// @v9.9.4 {
 				if(Check.Price <= 0.0) {
 					Check.Price = 0.0;
 					is_vat_free = 1;
 				}
-				// } @v9.9.4 
-				if(is_vat_free)
-					_vat_rate = 0.0;
-				tax_entry_id_result = 0;
-				// Освобожденные от НДС продавцы передают признак VATFREE но таблица не предусматривает такого элемента.
-				// По этому, используя эмпирическое правило, считаем, что второй элемент таблицы, имеющий нулевую
-				// ставку относится к VATFREE-продажам.
-				uint   zero_entry_1 = 0; 
-				uint   zero_entry_2 = 0; 
-				for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
-					if(DvcTaxArray[tidx].Name[0]) {
-						const double entry_rate = DvcTaxArray[tidx].Rate;
-						if(entry_rate == 0.0 && _vat_rate == 0.0) {
-							if(!zero_entry_1) {
-								zero_entry_1 = tidx+1;
-								if(!is_vat_free) {
-									Check.Tax = (int)tidx;
-									tax_entry_id_result = tidx+1;
-									break;
-								}
-							}
-							else if(!zero_entry_2) {
-								zero_entry_2 = tidx+1;
-								if(is_vat_free) {
-									Check.Tax = (int)tidx;
-									tax_entry_id_result = tidx+1;
-									break;
-								}
-							}
-						}
-						else if(feqeps(entry_rate, _vat_rate, 1E-5)) {
-							Check.Tax = (int)tidx;
-							tax_entry_id_result = tidx+1;
-							break;
-						}
-					}
-				}
-				if(!tax_entry_id_result) {
-					if(is_vat_free && zero_entry_1) {
-						Check.Tax = (int)(zero_entry_1-1);
-						tax_entry_id_result = zero_entry_1;
-					}
-					else {
-						//
-						// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
-						//
-						if(_vat_rate == 18.0) {
-							Check.Tax = 0;
-							tax_entry_id_result = 1;
-						}
-						else if(_vat_rate == 10.0) {
-							Check.Tax = 1;
-							tax_entry_id_result = 2;
-						}
-						else if(_vat_rate == 0.0) {
-							if(!is_vat_free) {
-								Check.Tax = 2;
-								tax_entry_id_result = 3;
-							}
-							else {
-								Check.Tax = 3;
-								tax_entry_id_result = 4;
-							}
-						}
-					}
-				}
+				Check.Tax = IdentifyTaxEntry(_vat_rate, is_vat_free);
 			}
-			// @debug {
-			if(LogFileName.NotEmpty()) {
-				if(tax_entry_id_result < 0)
-					(str = "TaxEntry isn't identified").CatDiv(':', 2).Cat(_vat_rate);
-				else if(tax_entry_id_result == 0)
-					(str = "TaxEntry isn't found").CatDiv(':', 2).Cat(_vat_rate);
-				else if(tax_entry_id_result > 0)
-					(str = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
-				SLS.LogMessage(LogFileName, str);
-			}
-			// } @debug 
 			THROW(RunCheck(2));
 		}
 		else if(cmd.IsEqiAscii("PRINTTEXT")) {
@@ -775,11 +994,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				CreateStr(bc_entry.Std, in_data);
 				CreateStr(bc_entry.Code, in_data);
 				//
-				{
-					OpLogBlock __oplb(LogFileName, "41", 0);
-					THROWERR(PutData("41", in_data), PIRIT_NOTSENT);
-					THROW(GetWhile(out_data, r_error));
-				}
+				THROW(ExecCmd("41", in_data, out_data, r_error));
 			}
 		}
 		else if(cmd.IsEqiAscii("GETCHECKPARAM")) {
@@ -872,35 +1087,37 @@ int Release()
 SString & PiritEquip::LastErrorText(SString & rMsg)
 {
 	rMsg.Z();
-	SString status_str, cmd_str;
-	char str[16];
-	memzero(str, sizeof(str));
-	for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-		if(LastError == ErrMsg[i].Id) {
-			rMsg.Z().Cat(ErrMsg[i].P_Msg);
+	for(uint i = 0; i < SIZEOFARRAY(Pirit_ErrMsg); i++) {
+		if(LastError == Pirit_ErrMsg[i].Id) {
+			rMsg.Z().Cat(Pirit_ErrMsg[i].P_Msg);
 			break;
 		}
 	}
 	if(LastError == PIRIT_FATALERROR) {
+		char str[16];
+		memzero(str, sizeof(str));
 		rMsg.Space().Cat(_itoa(FatalFlags, str, 10));
 	}
-	else if(LastError == PIRIT_DATELSLASTOP) {
+	else if(LastError == PIRIT_DATELSLASTOP)
 		rMsg.Cat(CashDateTime);
-	}
-	// new {
 	else if(LastError == PIRIT_ERRSTATUSFORFUNC) {
 		// @v9.6.9 GetStatus(status_str);
-		status_str = "unkn"; // @v9.6.9
+		//SString status_str = "unkn"; // @v9.6.9
 		if(LastStatus == CHECKOPENED)
 			rMsg.CatDiv(':', 2).Cat(CHECK_OPENED_STR);
 		else if(LastStatus == CHECKCLOSED)
 			rMsg.CatDiv(':', 2).Cat(CHECK_CLOSED_STR);
-		GetLastCmdName(cmd_str);
-		rMsg.CatDiv(':', 2).Cat(cmd_str);
+		{
+			SString cmd_str;
+			GetLastCmdName(cmd_str);
+			rMsg.CatDiv(':', 2).Cat(cmd_str);
+		}
 	}
-	// } new
-	else
-		rMsg.Cat(LastError);
+	else {
+		if(rMsg.NotEmpty())
+			rMsg.Space();
+		rMsg.CatEq("ErrCode", (long)LastError);
+	}
 	return rMsg;
 }
 
@@ -949,11 +1166,7 @@ int PiritEquip::SetConnection()
 #if 0 // @v9.7.1 {
 	if(Cfg.BaudRate < 6) { // @v9.6.12 (<8)-->(<6)
 		CreateStr(5, in_data);
-		{
-			OpLogBlock __oplb(LogFileName, "93", 0);
-			THROWERR(PutData("93", in_data), PIRIT_NOTSENT); // Устанавливаем скорость ПУ 115200 бит/c
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("93", in_data, out_data, r_error)); // Устанавливаем скорость ПУ 115200 бит/c
 		//
 		// Устанавливаем параметры COM-порта, соответствующие новой скорости ПУ
 		//
@@ -988,11 +1201,7 @@ int PiritEquip::ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rErr
 	SString in_data;
 	CreateStr(arg1, in_data);
 	CreateStr(arg2, in_data);
-	{
-		OpLogBlock __oplb(LogFileName, "11", 0);
-		THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(rOut, rError));
-	}
+	THROW(ExecCmd("11", in_data, rOut, rError));
 	CATCHZOK
 	return ok;
 }
@@ -1006,11 +1215,7 @@ int PiritEquip::WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SStr
 	CreateStr(arg1, in_data);
 	CreateStr(arg2, in_data);
 	CreateStr(val, in_data);
-	{
-		OpLogBlock __oplb(LogFileName, "12", 0);
-		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(rOut, rError));
-	}
+	THROW(ExecCmd("12", in_data, rOut, rError));
 	CATCHZOK
 	return ok;
 }
@@ -1031,11 +1236,7 @@ int PiritEquip::GetTaxTab()
 		/*
 		CreateStr(40, in_data); // Наименование i-й налоговой ставки
 		CreateStr(i, in_data);
-		{
-			OpLogBlock __oplb(LogFileName, "11", 0);
-			THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("11", in_data, out_data, r_error));
 		*/
 		THROW(ReadConfigTab(40, i, out_data, r_error)); // Наименование i-й налоговой ставки
 		//if(out_data.NotEmpty()) {
@@ -1047,11 +1248,7 @@ int PiritEquip::GetTaxTab()
 			out_data.Z();
 			CreateStr(41, in_data); // Значение i-й налоговой ставки
 			CreateStr(i, in_data);
-			{
-				OpLogBlock __oplb(LogFileName, "11", 0);
-				THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("11", in_data, out_data, r_error));
 			*/
 			THROW(ReadConfigTab(41, i, out_data, r_error)); // Значение i-й налоговой ставки
 			RetTknzr.setBuf(out_data);
@@ -1089,11 +1286,7 @@ int PiritEquip::SetCfg()
 	CreateStr(10, in_data);
 	CreateStr(0, in_data);
 	CreateStr((int)Cfg.LogNum, in_data);
-	{
-		OpLogBlock __oplb(LogFileName, "12", 0);
-		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
-	}
+	THROW(ExecCmd("12", in_data, out_data, r_error));
 	*/
 	THROW(WriteConfigTab(10, 0, (int)Cfg.LogNum, out_data, r_error));
 	{
@@ -1104,11 +1297,7 @@ int PiritEquip::SetCfg()
 		in_data.Z();
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
-		{
-			OpLogBlock __oplb(LogFileName, "11", 0);
-			THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("11", in_data, out_data, r_error)); // Получаем параметры чека
 		*/
 		THROW(ReadConfigTab(2, 0, out_data, r_error)); 
 		flag = out_data.ToLong();
@@ -1119,11 +1308,7 @@ int PiritEquip::SetCfg()
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
 		CreateStr(flag, in_data);
-		{
-			OpLogBlock __oplb(LogFileName, "12", 0);
-			THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("12", in_data, out_data, r_error));
 		*/
 		THROW(WriteConfigTab(2, 0, flag, out_data, r_error));
 #endif // } 0 @v10.0.0
@@ -1131,9 +1316,7 @@ int PiritEquip::SetCfg()
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
 	{
-		OpLogBlock __oplb(LogFileName, "01", 0);
-		THROWERR(PutData("01", in_data), PIRIT_NOTSENT); // Запрос номера текущей сессии(смены)
-		THROW(GetWhile(out_data, r_error));
+		THROW(ExecCmd("01", in_data, out_data, r_error)); // Запрос номера текущей сессии(смены)
 		{
 			//StringSet delim_out(FS, out_data);
 			uint   i = 0;
@@ -1160,11 +1343,7 @@ int PiritEquip::StartWork()
 		SString datetime, in_data, out_data, r_error;
 		SYSTEMTIME sys_dt_tm;
 		SString date, time;
-		{
-			OpLogBlock __oplb(LogFileName, "13", 0);
-			THROWERR(PutData("13", in_data), PIRIT_NOTSENT); // Смотрим текщую дату/время на ККМ
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("13", in_data, out_data, r_error)); // Смотрим текщую дату/время на ККМ
 		out_data.Divide(FS, date, time);
 		CashDateTime.Z().Cat("Текущая дата на ККМ: ").Cat(date).Cat(" Текущее время на ККМ: ").Cat(time);
 		in_data.Z();
@@ -1173,11 +1352,7 @@ int PiritEquip::StartWork()
 		CreateStr(datetime, in_data);
 		GetDateTime(sys_dt_tm, datetime, 1);
 		CreateStr(datetime, in_data);
-		{
-			OpLogBlock __oplb(LogFileName, "10", 0);
-			THROWERR(PutData("10", in_data), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
-		}
+		THROW(ExecCmd("10", in_data, out_data, r_error));
 		THROW(GetCurFlags(2, flag));
 		if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
 			in_data.Z();
@@ -1186,11 +1361,7 @@ int PiritEquip::StartWork()
 			CreateStr(datetime, in_data);
 			GetDateTime(sys_dt_tm, datetime, 1);
 			CreateStr(datetime, in_data);
-			{
-				OpLogBlock __oplb(LogFileName, "14", 0);
-				THROWERR(PutData("14", in_data), PIRIT_NOTSENT); // Устанавливаем системные дату и время в ККМ
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("14", in_data, out_data, r_error)); // Устанавливаем системные дату и время в ККМ
 		}
 	}
 	CATCHZOK
@@ -1259,11 +1430,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(CshrName, in_data);
 			// @v9.9.12 CreateStr("", in_data);
 			CreateStr(Check.CheckNum, in_data); // @v9.9.12 
-			{
-				OpLogBlock __oplb(LogFileName, "30", 0);
-				THROWERR(PutData("30", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
@@ -1278,11 +1445,7 @@ int PiritEquip::RunCheck(int opertype)
 						FormatPaym(Check.PaymCard, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);
-						{
-							OpLogBlock __oplb(LogFileName, "47", 0);
-							THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
-							THROW(GetWhile(out_data, r_error));
-						}
+						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
 					in_data = 0;
 					if(Check.PaymCash != 0.0) {
@@ -1290,11 +1453,7 @@ int PiritEquip::RunCheck(int opertype)
 						FormatPaym(Check.PaymCash, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);
-						{
-							OpLogBlock __oplb(LogFileName, "47", 0);
-							THROWERR(PutData("47", in_data), PIRIT_NOTSENT);
-							THROW(GetWhile(out_data, r_error));
-						}
+						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
 				}
 				in_data = 0;
@@ -1302,11 +1461,7 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				{
-					OpLogBlock __oplb(LogFileName, "31", 0);
-					THROWERR(PutData("31", in_data), PIRIT_NOTSENT);
-					THROW(GetWhile(out_data, r_error));
-				}
+				THROW(ExecCmd("31", in_data, out_data, r_error));
 			}
 			// new {
 			else {
@@ -1428,25 +1583,17 @@ int PiritEquip::RunCheck(int opertype)
 			// Проверяем наличие открытого документа
 			THROW(GetCurFlags(3, flag));
 			if((flag >> 4) != 0) {
-				{
-					OpLogBlock __oplb(LogFileName, "32", 0);
-					THROWERR(PutData("32", 0), PIRIT_NOTSENT);
-					THROW(GetWhile(out_data, r_error));
-				}
+				THROW(ExecCmd("32", 0, out_data, r_error));
 			}
 			break;
 		case 5: // Внесение/изъятие наличности
 			{
-				SString str, b_point, a_point;
+				SString str;
 				in_data.Z();
 				CreateStr("", in_data);
 				FormatPaym(Check.IncassAmt, str);
 				CreateStr(str, in_data);
-				{
-					OpLogBlock __oplb(LogFileName, "48", 0);
-					THROWERR(PutData("48", in_data), PIRIT_NOTSENT);
-					THROW(GetWhile(out_data, r_error));
-				}
+				THROW(ExecCmd("48", in_data, out_data, r_error));
 			}
 			break;
 	}
@@ -1465,26 +1612,18 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 		out_data.Z();
 		if(buf.IsEqiAscii("AMOUNT")) {
 			CreateStr(1, in_data);
-			{
-				OpLogBlock __oplb(LogFileName, "03", 0);
-				THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
 				uint k = 0;
 				dataset.get(&k, str); // Номер запроса
 				dataset.get(&k, str);
-				s_output.Cat("AMOUNT").CatChar('=').Cat(str).Semicol();
+				s_output.CatEq("AMOUNT", str).Semicol();
 			}
 		}
 		else if(buf.IsEqiAscii("CHECKNUM")) {
 			CreateStr(2, in_data);
-			{
-				OpLogBlock __oplb(LogFileName, "03", 0);
-				THROWERR(PutData("03", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
 				uint   k = 0;
@@ -1517,22 +1656,18 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 					else if(count == 7)
 						STRNSCPY(_kpk, str);
 				}
-				s_output.Cat("CHECKNUM").CatChar('=').Cat(/*str*/cc_number).Semicol();
+				s_output.CatEq("CHECKNUM", (long)cc_number).Semicol();
 			}
 		}
 		else if(buf.IsEqiAscii("CASHAMOUNT")) {
 			CreateStr(7, in_data);
-			{
-				OpLogBlock __oplb(LogFileName, "02", 0);
-				THROWERR(PutData("02", in_data), PIRIT_NOTSENT);
-				THROW(GetWhile(out_data, r_error));
-			}
+			THROW(ExecCmd("02", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
 				uint k = 0;
 				dataset.get(&k, str); // Номер запроса
 				dataset.get(&k, str);
-				s_output.Cat("CASHAMOUNT").CatChar('=').Cat(str).Semicol();
+				s_output.CatEq("CASHAMOUNT", str).Semicol();
 			}
 		}
 	}
@@ -1553,17 +1688,9 @@ int PiritEquip::OpenBox()
 {
 	int    ok = 1;
 	SString out_data, r_error;
-	{
-		OpLogBlock __oplb(LogFileName, "81", 0);
-		THROWERR(PutData("81", 0), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
-	}
-	if(out_data.ToLong() == 0){
-		{
-			OpLogBlock __oplb(LogFileName, "80", 0);
-			THROWERR(PutData("80", 0), PIRIT_NOTSENT);
-			THROW(GetWhile(out_data, r_error));
-		}
+	THROW(ExecCmd("81", 0, out_data, r_error));
+	if(out_data.ToLong() == 0) {
+		THROW(ExecCmd("80", 0, out_data, r_error));
 	}
 	CATCHZOK
 	return ok;
@@ -1593,35 +1720,50 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 	const  uint max_tries = 10;
 	int    ok = 1;
 	uint   count = 0;
-	rError.Z();
-	//while(rError.Empty() && count < max_tries) {
-		if(GetData(rOutData, rError) < 0) {
-			rError = "00";
-			ok = -1;
-		}
-		else {
-			if(rError.NotEmpty()) {
-				if(rError != "00" && rError != "0B" && rError != "09") {
-					THROWERR(rError.CmpNC("0C"), PIRIT_DATELSLASTOP); // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
-					THROWERR(rError.CmpNC("20"), PIRIT_FATALERROR); // Фатальная ошибка ККМ
-					THROWERR(rError.CmpNC("21"), PIRIT_FMOVERFLOW); // Нет свободного места в фискальной памяти ККМ
-					THROWERR(rError.CmpNC("41"), PIRIT_ECRRFORMAT); // Некорректный формат или параметр команды ЭКЛЗ
-					THROWERR(rError.CmpNC("42"), PIRIT_ECRERRORSTATUS); // Некорректное состояние ЭКЛЗ
-					THROWERR(rError.CmpNC("43"), PIRIT_ECRACCIDENT); // Авария ЭКЛЗ
-					THROWERR(rError.CmpNC("44"), PIRIT_KCACCIDENT); // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
-					THROWERR(rError.CmpNC("45"), PIRIT_ECRTIMEOUT); // Исчерпан временной ресурс использования ЭКЛЗ
-					THROWERR(rError.CmpNC("46"), PIRIT_ECROVERFLOW); // ЭКЛЗ переполнена
-					THROWERR(rError.CmpNC("47"), PIRIT_ECRERRORDATETIME); // Неверные дата или время
-					THROWERR(rError.CmpNC("48"), PIRIT_ECRNODATA); // Нет запрошенных данных
-					THROWERR(rError.CmpNC("49"), PIRIT_ECRTOOMUCH); // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
-					THROWERR(rError.CmpNC("4A"), PIRIT_NOANSWER); // Нет ответа от ЭКЛЗ
-					THROWERR(rError.CmpNC("4B"), PIRIT_ECRERREXCHANGE); // Ошибка при обмене данными с ЭКЛЗ
-					THROWERR(0, rError.ToLong());
+	if(GetData(rOutData, rError) < 0) {
+		rError = "00";
+		ok = -1;
+	}
+	else {
+		if(rError.NotEmpty()) {
+			int  result_err_code = 0;
+			int  src_err_code = -1;
+			if(rError.Len() == 2 && ishex(rError.C(0)) && ishex(rError.C(1)))
+				src_err_code = _texttohex32(rError.cptr(), 2);
+			if(!oneof3(src_err_code, 0, 0x0B, 0x09)) {
+				switch(src_err_code) {
+					case 0x0C: result_err_code = PIRIT_DATELSLASTOP; break; // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
+					case 0x20: result_err_code = PIRIT_FATALERROR; break; // Фатальная ошибка ККМ
+					case 0x21: result_err_code = PIRIT_FMOVERFLOW; break; // Нет свободного места в фискальной памяти ККМ
+					case 0x41: result_err_code = PIRIT_ECRRFORMAT; break; // Некорректный формат или параметр команды ЭКЛЗ
+					case 0x42: result_err_code = PIRIT_ECRERRORSTATUS; break; // Некорректное состояние ЭКЛЗ
+					case 0x43: result_err_code = PIRIT_ECRACCIDENT; break; // Авария ЭКЛЗ
+					case 0x44: result_err_code = PIRIT_KCACCIDENT; break; // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
+					case 0x45: result_err_code = PIRIT_ECRTIMEOUT; break; // Исчерпан временной ресурс использования ЭКЛЗ
+					case 0x46: result_err_code = PIRIT_ECROVERFLOW; break; // ЭКЛЗ переполнена
+					case 0x47: result_err_code = PIRIT_ECRERRORDATETIME; break; // Неверные дата или время
+					case 0x48: result_err_code = PIRIT_ECRNODATA; break; // Нет запрошенных данных
+					case 0x49: result_err_code = PIRIT_ECRTOOMUCH; break; // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
+					case 0x4A: result_err_code = PIRIT_NOANSWER; break; // Нет ответа от ЭКЛЗ
+					case 0x4B: result_err_code = PIRIT_ECRERREXCHANGE; break; // Ошибка при обмене данными с ЭКЛЗ
+					default:
+						{
+							for(uint i = 0; !result_err_code && i < SIZEOFARRAY(Pirit_ErrMsg); i++)
+								if(src_err_code == Pirit_ErrMsg[i].Id)
+									result_err_code = src_err_code;
+						}
+						break;
+				}
+				if(result_err_code) {
+					THROWERR(0, result_err_code);
+				}
+				else {
+					THROWERR(0, src_err_code);
 				}
 			}
-			count++;
 		}
-	//}
+		count++;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1719,12 +1861,8 @@ int PiritEquip::GetStatus(SString & rStatus)
 	long   status = 0;
 	int    flag = 0;
 	SString in_data, out_data, r_error;
-	in_data = 0;
-	{
-		OpLogBlock __oplb(LogFileName, "04", 0);
-		THROWERR(PutData("04", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
-	}
+	in_data.Z();
+	THROW(ExecCmd("04", in_data, out_data, r_error));
 	flag = out_data.ToLong();
 	if(flag & 2) { // В принтере нет бумаги
 		status |= NOPAPER;
@@ -1734,14 +1872,18 @@ int PiritEquip::GetStatus(SString & rStatus)
 			status |= PRINTAFTERNOPAPER;
 		}
 		if(r_error.CmpNC("09") == 0) { // Проверка ошибки здесь, чтобы не потерять статус
-			if(flag & 0x1)
+			if(flag & 0x1) {
 				THROWERR(0, PIRIT_PRNNOTREADY)
-			else if(flag & 0x4)
+			}
+			else if(flag & 0x4) {
 				THROWERR(0, PIRIT_PRNTROPENED)
-			else if(flag & 0x8)
+			}
+			else if(flag & 0x8) {
 				THROWERR(0, PIRIT_PRNCUTERR)
-			else if(flag & 0x80)
+			}
+			else if(flag & 0x80) {
 				THROWERR(0, PIRIT_NOCONCTNWITHPRNTR);
+			}
 		}
 	}
 	THROW(GetCurFlags(3, flag));
@@ -1785,7 +1927,6 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 	SString in_data, out_data, r_error;
 	int n = 0, r = 0;
 	FILE * file = 0;
-
 	THROWERR((height == 126) && (width <= 576), PIRIT_ERRLOGOSIZE);
 	{
 		OpLogBlock __oplb(LogFileName, "16", 0);
@@ -1842,11 +1983,7 @@ int PiritEquip::PrintLogo(int print)
 	CreateStr(1, in_data);
 	CreateStr(0, in_data);
 	CreateStr(flag, in_data);
-	{
-		OpLogBlock __oplb(LogFileName, "12", 0);
-		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
-	}
+	THROW(ExecCmd("12", in_data, out_data, r_error));
 	*/
 	THROW(WriteConfigTab(1, 0, flag, out_data, r_error));
 	THROW(StartWork());
@@ -1883,6 +2020,8 @@ void PiritEquip::GetLastCmdName(SString & rName)
 		rName = "Аннулирование чека";
 	else if(LastCmd.IsEqiAscii("INCASHMENT"))
 		rName = "Внесение/изъятие денег";
+	else if(LastCmd.IsEqiAscii("CHECKCORRECTION"))
+		rName = "Печать чека коррекции (0x58)";
 	else
 		rName = LastCmd;
 }

@@ -155,9 +155,9 @@ time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len)
 	else if(day > mday[month]) {
 		return NGX_ERROR;
 	}
-	/*
-	 * shift new year to March 1 and start months from 1 (not 0), it is needed for Gauss' formula
-	 */
+	// 
+	// shift new year to March 1 and start months from 1 (not 0), it is needed for Gauss' formula
+	// 
 	if(--month <= 0) {
 		month += 12;
 		year -= 1;

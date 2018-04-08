@@ -2786,20 +2786,20 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				ok = -1;
 				CreateAuthFile(hdr.ID);
 				break;
-			case PPVCMD_EVENTS: ok = ViewPersonEvents(hdr.ID); break;
-			case PPVCMD_FOLDER: ok = OpenClientDir(hdr.ID); break;
-			case PPVCMD_REGISTERS: ok = EditRegs(hdr.ID, 0); break;
-			case PPVCMD_AMOUNTS: ok = PsnObj.EditAmountList(hdr.ID); break;
-			case PPVCMD_ADDREL: ok = AddRelation(hdr.ID); break;
-			case PPVCMD_PRINT: ok = Print(0); break;
-			case PPVCMD_TOTAL: ok = ViewTotal(); break;
-			case PPVCMD_TASKS: ok = ViewTasks(hdr.ID); break;
-			case PPVCMD_TRANSMIT: ok = Transmit(hdr.ID, 0); break;
-			case PPVCMD_TRANSMKIND: ok = Transmit(hdr.ID, 1); break;
-			case PPVCMD_EXPORTVCARD: ok = Transmit(hdr.ID, 2); break;
-			case PPVCMD_EXPORTUHTT: ok = ExportUhtt(); break;
+			case PPVCMD_EVENTS:         ok = ViewPersonEvents(hdr.ID); break;
+			case PPVCMD_FOLDER:         ok = OpenClientDir(hdr.ID); break;
+			case PPVCMD_REGISTERS:      ok = EditRegs(hdr.ID, 0); break;
+			case PPVCMD_AMOUNTS:        ok = PsnObj.EditAmountList(hdr.ID); break;
+			case PPVCMD_ADDREL:         ok = AddRelation(hdr.ID); break;
+			case PPVCMD_PRINT:          ok = Print(0); break;
+			case PPVCMD_TOTAL:          ok = ViewTotal(); break;
+			case PPVCMD_TASKS:          ok = ViewTasks(hdr.ID); break;
+			case PPVCMD_TRANSMIT:       ok = Transmit(hdr.ID, 0); break;
+			case PPVCMD_TRANSMKIND:     ok = Transmit(hdr.ID, 1); break;
+			case PPVCMD_EXPORTVCARD:    ok = Transmit(hdr.ID, 2); break;
+			case PPVCMD_EXPORTUHTT:     ok = ExportUhtt(); break;
 			case PPVCMD_RMVHANGEDITEMS: ok = RemoveHangedAddr(); break;
-			case PPVCMD_DORECOVER: ok = Recover(); break;
+			case PPVCMD_DORECOVER:      ok = Recover(); break;
 		}
 	}
 	return ok;
@@ -3034,10 +3034,8 @@ PPALDD_CONSTRUCTOR(PersonCat)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(PersonCat)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonCat) { Destroy(); }
+
 // @Muxa {
 int PPALDD_PersonCat::Set(long iterId, int commit)
 {

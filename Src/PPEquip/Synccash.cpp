@@ -106,7 +106,7 @@ public:
 	SLAPI  SCS_SYNCCASH(PPID n, char * name, char * port);
 	SLAPI ~SCS_SYNCCASH();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintFiscalCorrection(const FiscalCorrection * pFc);
+	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -370,9 +370,84 @@ static void FASTCALL DestrStr(const SString & rStr, SString & rParamName, SStrin
 		rStr.Divide('=', rParamName, rParamVal);
 }
 
-int SLAPI SCS_SYNCCASH::PrintFiscalCorrection(const FiscalCorrection * pFc)
+int SLAPI SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
 {
-	int    ok = -1;
+	int    ok = 1;
+	SString temp_buf;
+	ResCode = RESCODE_NO_ERROR;
+	THROW(Connect());
+	Flags |= sfOpenCheck;
+	Arr_In.Clear();
+	/*
+	struct FiscalCorrection {
+		SLAPI  FiscalCorrection();
+		enum {
+			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
+			fByPrecept = 0x0002  // Коррекция по предписанию
+		};
+		double AmtCash;    // @#{>=0} Сумма наличного платежа
+		double AmtBank;    // @#{>=0} Сумма электронного платежа
+		double AmtPrepay;  // @#{>=0} Сумма предоплатой
+		double AmtPostpay; // @#{>=0} Сумма постоплатой
+		double AmtVat18;   // Сумма налога по ставке 18%
+		double AmtVat10;   // Сумма налога по ставке 10%
+		double AmtVat00;   // Сумма расчета по ставке 0%
+		double AmtNoVat;   // Сумма расчета без налога
+		LDATE  Dt;         // Дата документа основания коррекции
+		long   Flags;      // @flags
+		SString Code;      // Номер документа основания коррекции
+		SString Reason;    // Основание коррекции
+		SString Operator;  // Имя оператора
+	};
+	*/
+	/*
+		"PAYMCASH"
+		"PAYMCARD"
+		"PREPAY"
+		"POSTPAY"
+		"RECKONPAY"
+		"CODE"
+		"DATE"
+		"TEXT"
+		"VATRATE"
+		"VATFREE"
+		"VATAMOUNT18"
+		"VATAMOUNT10"
+		"VATAMOUNT00"
+		"VATFREEAMOUNT"
+	*/
+	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, pFc->AmtCash));
+	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, pFc->AmtBank));
+	THROW(ArrAdd(Arr_In, DVCPARAM_CODE, pFc->Code));
+	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601|DATF_CENTURY)));
+	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, pFc->Reason));
+	if(pFc->Flags & pFc->fVatFree) {
+		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
+		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, (pFc->AmtCash+pFc->AmtBank+pFc->AmtPrepay+pFc->AmtPostpay)));
+	}
+	else {
+		if(pFc->VatRate > 0) {
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, pFc->Reason));
+		}
+		else {
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT18, pFc->AmtVat18));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT10, pFc->AmtVat10));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT00, pFc->AmtVat00));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, pFc->AmtNoVat));
+		}
+	}
+	THROW(ExecPrintOper(DVCCMD_CHECKCORRECTION, Arr_In, Arr_Out));
+	CATCH
+		if(Flags & sfCancelled) {
+			Flags &= ~sfCancelled;
+			ok = -1;
+		}
+		else {
+			SetErrorMessage();
+			ok = 0;
+		}
+	ENDCATCH
+	Flags &= ~sfOpenCheck;
 	return ok;
 }
 
@@ -392,29 +467,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	if(pPack->GetCount() == 0)
 		ok = -1;
 	else {
-		// @v9.8.9 {
-		int    is_vat_free = 0;
-		PPObjPerson psn_obj;
-		if(NodeID) {
-			PPObjCashNode cn_obj;
-            PPCashNode cn_rec;
-			if(cn_obj.Fetch(NodeID, &cn_rec) > 0 && cn_rec.LocID) {
-				LocationTbl::Rec loc_rec;
-				if(psn_obj.LocObj.Fetch(cn_rec.LocID, &loc_rec) > 0 && loc_rec.Flags & LOCF_VATFREE)
-					is_vat_free = 1;
-			}
-		}
-		if(!is_vat_free) {
-            PPID   main_org_id = 0;
-            GetMainOrgID(&main_org_id);
-            if(main_org_id) {
-				PersonTbl::Rec psn_rec;
-				if(psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
-					is_vat_free = 1;
-            }
-		}
-		// } @v9.8.9
 		SlipDocCommonParam sdc_param;
+		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
@@ -777,8 +831,7 @@ int SLAPI SCS_SYNCCASH::PrintXReport(const CSessInfo *) { return PrintReport(0);
 
 int SLAPI SCS_SYNCCASH::PrintReport(int withCleaning)
 {
-	int    ok = 1, mode = 0;
-	long   cshr_pssw = 0;
+	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(Connect());
 	Flags |= sfOpenCheck;
@@ -843,9 +896,6 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 	int     ok = 1;
 	long    cshr_pssw = 0L;
 	int     logical_number = 1; // Логический номер кассы
-	//SString cshr_name;
-	//SString cshr_str;
-	//SString input;
 	SString temp_buf;
 	SString param_name;
 	SString param_val;

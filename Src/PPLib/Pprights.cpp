@@ -1166,7 +1166,7 @@ int SLAPI PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 		if(ok > 0) {
 			if(setROrW == PPAccessRestriction::pparR)
 				RBillPeriod = period;
-			else 
+			else
 				WBillPeriod = period;
 		}
 	}
@@ -1328,7 +1328,8 @@ void FastEditRightsDlg::disableChild(int disable)
 		LONG   style = TView::GetWindowStyle(P_ChildDlg->H());
 		if(disable) {
 			style |= WS_DISABLED;
-			PPGetWord(PPWORD_VIEWONLY, 0, msg_buf);
+			// @v10.0.0 PPGetWord(PPWORD_VIEWONLY, 0, msg_buf);
+			PPLoadString("viewonly", msg_buf); // @v10.0.0
 		}
 		else
 			style &= ~WS_DISABLED;
