@@ -1562,11 +1562,12 @@ int SLAPI PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const cha
 	rList.clear();
 	int    ok = 1;
 	SString msg_buf;
-	RegisterFilt flt;
-	flt.RegTypeID = regTypeID;
-	flt.SerPattern = pSerial;
-	flt.NmbPattern = pNumber;
-	int    r = RegObj.SearchByFilt(&flt, 0, &rList, 0);
+	RegisterFilt reg_flt;
+	reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+	reg_flt.RegTypeID = regTypeID;
+	reg_flt.SerPattern = pSerial;
+	reg_flt.NmbPattern = pNumber;
+	int    r = RegObj.SearchByFilt(&reg_flt, 0, &rList);
 	if(r == 0)
 		ok = 0;
 	else if(r < 0) {
@@ -2017,10 +2018,11 @@ int SLAPI PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				break;
 			case PPOBJ_REGISTERTYPE:
 				{
-					RegisterFilt reg_filt;
-					reg_filt.RegTypeID = _id;
+					RegisterFilt reg_flt;
+					reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+					reg_flt.RegTypeID = _id;
 					PPIDArray psn_list;
-					if(RegObj.SearchByFilt(&reg_filt, 0, &psn_list, 0) > 0 && psn_list.getCount())
+					if(RegObj.SearchByFilt(&reg_flt, 0, &psn_list) > 0 && psn_list.getCount())
 						return RetRefsExistsErr(Obj, psn_list.get(0));
 				}
 				break;

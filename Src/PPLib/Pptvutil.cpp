@@ -3225,6 +3225,7 @@ void ObjTagSelExtra::SetupLotSerialParam(PPID locID, long flags)
 StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 {
 	const int by_lot_serial = BIN(ObjType == PPOBJ_LOT && TagID == PPTAG_LOT_SN);
+	PPObjBill * p_bobj = BillObj;
 	SString pattern, temp_buf, obj_name_buf;
 	StrAssocArray * p_list = 0;
 	pattern = pText;
@@ -3234,7 +3235,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 		if(len >= MinSymbCount) {
 			const StrAssocArray * p_full_list = 0;
 			if(by_lot_serial)
-				p_full_list = BillObj->GetFullSerialList();
+				p_full_list = p_bobj->GetFullSerialList();
 			else
 				p_full_list = &TextBlock;
 			if(p_full_list) {
@@ -3248,7 +3249,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 							int    do_add = 0;
 							if(by_lot_serial) {
 								ReceiptTbl::Rec lot_rec;
-								if(BillObj->trfr->Rcpt.Search(item.Id, &lot_rec) > 0) {
+								if(p_bobj->trfr->Rcpt.Search(item.Id, &lot_rec) > 0) {
 									if((!LocID || lot_rec.LocID == LocID) && (!(Flags & fOpenedSerialsOnly) || lot_rec.Closed == 0)) {
 										ReceiptCore::MakeCodeString(&lot_rec, 0, obj_name_buf);
 										do_add = 1;
@@ -3269,7 +3270,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 					}
 				}
 				if(by_lot_serial) {
-					BillObj->ReleaseFullSerialList(p_full_list);
+					p_bobj->ReleaseFullSerialList(p_full_list);
 				}
 			}
 		}
@@ -3354,24 +3355,24 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 			PPIDArray psn_list;
 			StrAssocArray phone_list;
 			if(len >= MinSymbCount) {
-				RegisterFilt reg_flt;
-				PPIDArray reg_id_list;
-
+				PPIDArray reg_list;
 				// сначала поиск по поисковому регистру
+				RegisterFilt reg_flt;
+				reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 				reg_flt.RegTypeID  = SrchRegTypeID;
 				reg_flt.NmbPattern = pattern;
-				PsnObj.RegObj.SearchByFilt(&reg_flt, 0, &psn_list, &reg_id_list);
+				PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
 				//
 				// Если по поисковому регистру не нашли, то ищем по всем регистрам
 				//
 				if(SrchRegTypeID > 0 && psn_list.getCount() == 0) {
 					reg_flt.RegTypeID  = 0;
-					PsnObj.RegObj.SearchByFilt(&reg_flt, 0, &psn_list, &reg_id_list);
+					PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
 				}
-				//
-				// Если не найдено по номеру регистра, тогда ищем по номеру телефона (поиск неточный)
-				//
-				if(psn_list.getCount() == 0) {
+				if(!psn_list.getCount()) {
+					//
+					// Если не найдено по номеру регистра, тогда ищем по номеру телефона (поиск неточный)
+					//
 					SString phone_buf;
 					LongArray temp_phone_list;
 					pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
@@ -3390,18 +3391,18 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 						}
 					}
 				}
-				//
-				// Персоналии по номеру регистру найдены. Теперь добавим персоналии, которые являются филиалами по отношению к найденым и наследуют регистры
-				//
 				else {
-					PPIDArray temp_list;
-					temp_list = psn_list;
+					//
+					// Персоналии по номеру регистру найдены. Теперь добавим персоналии, которые являются филиалами по отношению к найденым и наследуют регистры
+					//
+					PPIDArray temp_list = psn_list;
+					PPIDArray psn_list2;
 					{
-						PPIDArray psn_list2;
-						const uint _c = psn_list.getCount();
-						for(uint i = 0; i < _c; i++) {
-							const PPID reg_typ = reg_id_list.at(i);
-							if(InhRegTypeList.bsearch(reg_typ, 0) > 0) {
+						reg_list.sortAndUndup();
+						RegisterTbl::Rec reg_rec;
+						for(uint i = 0; i < reg_list.getCount(); i++) {
+							const PPID reg_id = reg_list.get(i);
+							if(PsnObj.RegObj.Fetch(reg_id, &reg_rec) > 0 && reg_rec.ObjType == PPOBJ_PERSON && InhRegTypeList.bsearch(reg_rec.RegTypeID, 0)) {
 								psn_list2.clear();
 								if(PsnObj.GetRelPersonList(psn_list.at(i), PPPSNRELTYP_AFFIL, 1, &psn_list2) > 0)
 									temp_list.add(&psn_list2);

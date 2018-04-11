@@ -686,22 +686,20 @@ int SLAPI PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 		}
 		{
 			PPIDArray bycode_list;
+			SString msg_buf;
+			SString psn_name;
+			LocationTbl::Rec cod_rec;
 			if(P_Tbl->GetListByCode(t, pRec->Code, &bycode_list) > 0) {
 				for(uint i = 0; i < bycode_list.getCount(); i++) {
 					const PPID cid = bycode_list.get(i);
-					if(cid != pRec->ID) {
-						LocationTbl::Rec cod_rec;
-						if(Search(cid, &cod_rec) > 0) {
-							SString msg_buf;
-							msg_buf.CatEq("id", cod_rec.ID).CatDiv(':', 2).Cat(cod_rec.Name);
-							if(cod_rec.OwnerID) {
-								SString psn_name;
-								GetPersonName(cod_rec.OwnerID, psn_name);
-								msg_buf.CatDiv(';', 2).CatEq("owner", psn_name);
-							}
-							THROW_PP_S(oneof3(t, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL), PPERR_DUPLOCSYMB, msg_buf);
-							THROW_PP_S(cod_rec.Type != t || cod_rec.ParentID != pRec->ParentID, PPERR_DUPLOCSYMB, msg_buf);
+					if(cid != pRec->ID && Search(cid, &cod_rec) > 0) {
+						msg_buf.Z().CatEq("id", cod_rec.ID).CatDiv(':', 2).Cat(cod_rec.Name);
+						if(cod_rec.OwnerID) {
+							GetPersonName(cod_rec.OwnerID, psn_name);
+							msg_buf.CatDiv(';', 2).CatEq("owner", psn_name);
 						}
+						THROW_PP_S(oneof3(t, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL), PPERR_DUPLOCSYMB, msg_buf);
+						THROW_PP_S(cod_rec.Type != t || cod_rec.ParentID != pRec->ParentID, PPERR_DUPLOCSYMB, msg_buf);
 					}
 					//THROW(SearchCode(t, pRec->Code, &id, 0) < 0 || id == pRec->ID);
 				}
@@ -990,6 +988,87 @@ int SLAPI PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec
 	return ok;
 }
 
+/*
+int SLAPI PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
+{
+	int    ok = -1;
+	PPID   ar_id = 0;
+	SString code = pCode;
+	if(code.NotEmptyS()) {
+		PPIDArray loc_list;
+		LocationTbl::Rec loc_rec;
+		P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, code, &loc_list);
+		if(loc_list.getCount()) {
+			if(Fetch(loc_list.at(0), &loc_rec)) {
+				PPObjArticle ar_obj;
+				if(ar_obj.GetByPerson(accSheetID, loc_rec.OwnerID, &ar_id) > 0)
+					ok = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pArID, ar_id);
+	return ok;
+}
+*/
+
+int SLAPI PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList)
+{
+	rList.clear();
+	int    ok = 1;
+	SString msg_buf;
+	RegisterFilt reg_flt;
+	reg_flt.Oid.Obj = PPOBJ_LOCATION;
+	reg_flt.RegTypeID = regTypeID;
+	reg_flt.SerPattern = pSerial;
+	reg_flt.NmbPattern = pNumber;
+	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister));
+	int    r = P_RegObj->SearchByFilt(&reg_flt, 0, &rList);
+	if(r == 0)
+		ok = 0;
+	else if(r < 0) {
+		PPSetError(PPERR_LOCBYREGNFOUND, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));
+		ok = -1;
+	}
+	else if(locTyp) {
+		LocationTbl::Rec loc_rec;
+		PPID   single_id = rList.getSingle();
+		uint   c = rList.getCount();
+		if(c) do {
+			const PPID loc_id = rList.get(--c);
+			if(Fetch(loc_id, &loc_rec) <= 0 || loc_rec.Type != locTyp) 
+				rList.atFree(c);
+		} while(c);
+		if(!rList.getCount()) {
+			if(single_id) {
+				Fetch(single_id, &loc_rec);
+				PPSetError(PPERR_LOCBYREGNTYPE, loc_rec.Name);
+			}
+			else
+				PPSetError(PPERR_LOCSBYREGNTYPE, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));
+			ok = -1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList)
+{
+	rList.clear();
+	int    ok = -1;
+	SString code = pGLN;
+	assert(pGLN);
+	THROW_INVARG(pGLN);
+	if(code.NotEmptyS()) {
+		const PPID reg_type_id = PPREGT_GLN;
+		PPIDArray loc_list;
+		THROW(GetListByRegNumber(reg_type_id, locTyp, 0, code, loc_list));
+		ok = loc_list.getCount() ? ((loc_list.getCount() > 1) ? 2 : 1) : -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjLocation::ResolveWarehouse(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
@@ -1006,13 +1085,11 @@ int SLAPI PPObjLocation::ResolveWarehouse(PPID locID, PPIDArray & rDestList, PPI
 		}
 		else if(loc_rec.Type == LOCTYP_WAREHOUSEGROUP) {
 			{
-				SEnum en = P_Tbl->Enum(LOCTYP_WAREHOUSE, locID, 0);
-				while(en.Next(&loc_rec) > 0)
+				for(SEnum en = P_Tbl->Enum(LOCTYP_WAREHOUSE, locID, 0); en.Next(&loc_rec) > 0;)
 					THROW(ResolveWarehouse(loc_rec.ID, rDestList, pRecurTrace)); // @recursion
 			}
 			{
-				SEnum en = P_Tbl->Enum(LOCTYP_WAREHOUSEGROUP, locID, 0);
-				while(en.Next(&loc_rec) > 0)
+				for(SEnum en = P_Tbl->Enum(LOCTYP_WAREHOUSEGROUP, locID, 0); en.Next(&loc_rec) > 0;)
 					THROW(ResolveWarehouse(loc_rec.ID, rDestList, pRecurTrace)); // @recursion
 			}
 		}

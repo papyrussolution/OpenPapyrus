@@ -27,6 +27,6 @@ nginx        1.13.4 (from original hg repo)
 pcre         8.41
 libssh2      1.8.1-dev (from original git repo) 
 7z           18.00-beta
-luz          5.3.4
+lua          5.3.4
 
 @v9.6.12 giflib encapsulated in slib

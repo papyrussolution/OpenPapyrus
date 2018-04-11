@@ -210,7 +210,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 				}
 				if(Filt.P_RegF) {
 					local_list.clear();
-					PsnObj.RegObj.SearchByFilt(Filt.P_RegF, 0, &local_list, 0);
+					PsnObj.RegObj.SearchByFilt(Filt.P_RegF, 0, &local_list);
 					if(use_list)
 						id_list.intersect(&local_list);
 					else {
@@ -1503,8 +1503,12 @@ IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PP
 int SLAPI PersonFilt::Setup()
 {
 	SrchStr_.Strip();
-	if(P_RegF && !P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() && P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero())
+	if(P_RegF && !P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() && P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero()) {
 		ZDELETE(P_RegF);
+	}
+	else {
+		P_RegF->Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+	}
 	if(P_TagF && P_TagF->IsEmpty())
 		ZDELETE(P_TagF);
 	return 1;
@@ -1640,6 +1644,7 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 				ZDELETE(pData->P_RegF);
 			}
 			else {
+				Reg.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 				SETIFZ(pData->P_RegF, new RegisterFilt);
 				*pData->P_RegF = Reg;
 			}

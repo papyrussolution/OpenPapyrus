@@ -2593,7 +2593,7 @@ public:
 	};
 	static int SLAPI LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags);
 	//
-	// Descr: Специиализированная функция, используемая для обработки описаний диалогов.
+	// Descr: Специализированная функция, используемая для обработки описаний диалогов.
 	//
 	static int SLAPI GetSymbolBody(const char * pSymb, SString & rBodyBuf);
 	//
@@ -2677,9 +2677,9 @@ public:
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
 	void   SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);
-	int    SetupCalendar(uint calCtlID, uint inputCtlID, int kind);
-	int    SetupCalDate(uint calCtlID, uint inputCtlID);
-	int    SetupCalPeriod(uint calCtlID, uint inputCtlID);
+	void   SetupCalendar(uint calCtlID, uint inputCtlID, int kind);
+	void   SetupCalDate(uint calCtlID, uint inputCtlID);
+	void   SetupCalPeriod(uint calCtlID, uint inputCtlID);
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
 	//
 	// Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.

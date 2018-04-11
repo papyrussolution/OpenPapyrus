@@ -48,9 +48,9 @@ StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (Regist
 	THROW_MEM(p_list);
 	if(p_filt) {
 		PPIDArray reg_id_list;
-		P_Tbl->SearchByFilt(p_filt, &reg_id_list, 0, 0);
+        RegisterTbl::Rec reg_rec;
+		P_Tbl->SearchByFilt(p_filt, &reg_id_list, 0);
         for(uint i = 0; i < reg_id_list.getCount(); i++) {
-        	RegisterTbl::Rec reg_rec;
             if(Search(reg_id_list.get(i), &reg_rec) > 0) {
 				THROW_SL(p_list->Add(reg_rec.ID, reg_rec.Num));
             }
@@ -63,24 +63,20 @@ StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (Regist
 }
 
 int SLAPI PPObjRegister::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec * pRec)
-{
-	return P_Tbl->SearchByNumber(pID, regTypeID, pSn, pNmbr, pRec);
-}
-
-int SLAPI PPObjRegister::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pPsnList, PPIDArray * pRegTList)
-{
-	return P_Tbl->SearchByFilt(pFilt, pResList, pPsnList, pRegTList); // @todo memory leak
-}
+	{ return P_Tbl->SearchByNumber(pID, regTypeID, pSn, pNmbr, pRec); }
+int SLAPI PPObjRegister::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
+	{ return P_Tbl->SearchByFilt(pFilt, pResList, pObjList); } // @todo memory leak
 
 int SLAPI PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry) const
 {
+	int    ok = 1;
 	PPRegisterType    rt;
 	PPObjRegisterType rt_obj;
 	if(rt_obj.Search(regTypeID, &rt) > 0 && rt.Flags & REGTF_UNIQUE)
-		for(uint i = 0; i < pAry->getCount(); i++)
+		for(uint i = 0; ok && i < pAry->getCount(); i++)
 			if(pAry->at(i).RegTypeID == regTypeID)
-				return PPSetError(PPERR_DUPREGISTER);
-	return 1;
+				ok = PPSetError(PPERR_DUPREGISTER);
+	return ok;
 }
 
 int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const RegisterArray * /*pAry*/, PPID objType, PPID objID)
@@ -91,17 +87,12 @@ int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const 
 		return 1;
 	else if(P_Tbl->SearchByNumber(&id, pRec->RegTypeID, pRec->Serial, pRec->Num, &out_rec) > 0) {
 		if(pRec->ID == 0 || pRec->ID != out_rec.ID) {
-			/* AHTOXA
-			if(pAry)
-				for(uint i = 0; i < pAry->getCount(); i++)
-   	        		if(out_rec.ID == pAry->at(i).ID)
-	   	            	return 1;
-			AHTOXA */
-			if(out_rec.ObjID)
+			if(out_rec.ObjID) {
 				if(objID && out_rec.ObjType == objType && out_rec.ObjID == objID)
 					return 1;
 				else
 					PPSetAddedMsgObjName(out_rec.ObjType, out_rec.ObjID);
+			}
 			return PPSetError(PPERR_DUPREGNUMBER);
 		}
 	}
@@ -1110,7 +1101,6 @@ struct DlPersonRegisterBlock {
 
 PPALDD_CONSTRUCTOR(PersonRegister)
 {
-	//Extra[0].Ptr = new PPObjRegister;
 	Extra[0].Ptr = new DlPersonRegisterBlock;
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
@@ -1118,7 +1108,6 @@ PPALDD_CONSTRUCTOR(PersonRegister)
 PPALDD_DESTRUCTOR(PersonRegister)
 {
 	Destroy();
-	//delete (PPObjRegister *)Extra[0].Ptr;
 	delete (DlPersonRegisterBlock *)Extra[0].Ptr;
 }
 
@@ -1130,8 +1119,6 @@ int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		//PPObjRegister * p_reg_obj = (PPObjRegister *)Extra[0].Ptr;
-		//RegisterTbl::Rec rec;
 		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
 		if(p_blk->RegObj.Search(rFilt.ID, &p_blk->Rec) > 0) {
 			H.ID = p_blk->Rec.ID;

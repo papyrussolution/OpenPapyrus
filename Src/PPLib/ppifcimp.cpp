@@ -604,7 +604,7 @@ int32 DL6ICLS_PPSFile::WriteLine2(SString & rBuf, ISCodepage cp)
 	int    ok = 0;
 	SFile * p_f = (SFile*)ExtraPtr;
 	if(p_f) {
-		if(cp == cpANSI || cp == cp1251)
+		if(oneof2(cp, cpANSI, cp1251))
 			rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 		else if(cp == cpUTF8)
 			rBuf.Transf(CTRANSF_INNER_TO_UTF8);

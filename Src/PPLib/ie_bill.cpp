@@ -2846,34 +2846,21 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
 }
 
 // @vmiller
-int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, const char * pLocCode, const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
+int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
 {
 
 	int    ok = -1;
 	PPID   ar_id = 0;
-	SString code;
-	assert(pGLN || pLocCode);
-	THROW_INVARG(pGLN || pLocCode);
+	assert(pGLN/*|| pLocCode*/);
+	THROW_INVARG(pGLN/*|| pLocCode*/);
 	//
 	ok = PsnObj.ResolveGLN(pGLN, accSheetID, &ar_id);
 	if(ok < 0) {
 		//
-		// ≈сли персонали€ не найдена по ее GLN или ее GLN вообще не определена, то ищем по GLN склада
+		// ≈сли персонали€ не найдена по ее GLN или ее GLN вообще не определена, то ищем по коду склада (тракту€ его как GLN)
 		//
-		if((code = pLocCode).NotEmptyS()) {
-			PPIDArray loc_list;
-			LocationTbl::Rec loc_rec;
-			LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, code, &loc_list);
-			if(loc_list.getCount()) {
-				if(LocObj.Fetch(loc_list.at(0), &loc_rec)) {
-					if(ArObj.GetByPerson(accSheetID, loc_rec.OwnerID, &ar_id) > 0) { // @v9.3.5 @fix (>0)
-						ASSIGN_PTR(pArID, ar_id);
-						ok = 1;
-					}
-				}
-			}
-		}
-		if(ok < 0 && logErr) {
+		//ok = LocObj.ResolveWarehouseByCode(pLocCode, accSheetID, &ar_id);
+		if(/*ok < 0 &&*/logErr) {
 			char   stub[32];
 			SString msg, err;
 			PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg);
@@ -3050,10 +3037,20 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 				//
 				// ј вот так ошибка выведетс€, только если она есть
 				// ≈сли INN пустое, то ищем по GLN
-				if(!ar_id && isempty(pBill->INN) && (!isempty(pBill->GLN) || !isempty(pBill->LocCode)))
-					ResolveGLN(pBill->GLN, pBill->LocCode, pBill->ID, acs_id, &ar_id);
+				if(!ar_id && isempty(pBill->INN)) {
+					if(!isempty(pBill->GLN))
+						ResolveGLN(pBill->GLN, pBill->ID, acs_id, &ar_id);
+					if(!ar_id && !isempty(pBill->LocCode)) {
+						//int SLAPI PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
+						PPIDArray loc_list;
+						LocationTbl::Rec loc_rec;
+						LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, pBill->LocCode, &loc_list);
+						if(loc_list.getCount() && LocObj.Fetch(loc_list.at(0), &loc_rec))
+							ArObj.GetByPerson(acs_id, loc_rec.OwnerID, &ar_id);
+					}
+				}
 				// »наче ищем по INN
-				else if(!ar_id)
+				if(!ar_id)
 					ResolveINN(pBill->INN, pBill->DlvrAddrID, pBill->DlvrAddrCode, pBill->ID, acs_id, &ar_id);
 			}
 			// @v9.3.5 {
@@ -3097,7 +3094,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					pPack->Rec.Object2 = ar_rec.ID;
 				else if(pBill->Obj2INN[0] && ResolveINN(pBill->Obj2INN, 0, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
 					pPack->Rec.Object2 = obj2id;
-				else if(pBill->Obj2GLN[0] && ResolveGLN(pBill->Obj2GLN, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
+				else if(pBill->Obj2GLN[0] && ResolveGLN(pBill->Obj2GLN, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
 					pPack->Rec.Object2 = obj2id;
 			}
 			SETIFZ(pPack->Rec.Dt, pBill->Date);
@@ -3139,7 +3136,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					pPack->Ext.AgentID = agent_id;
 				else if(pBill->AgentINN[0] && ResolveINN(pBill->AgentINN, 0, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
 					pPack->Ext.AgentID = agent_id;
-				else if(pBill->AgentGLN[0] && ResolveGLN(pBill->AgentGLN, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
+				else if(pBill->AgentGLN[0] && ResolveGLN(pBill->AgentGLN, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
 					pPack->Ext.AgentID = agent_id;
 			}
 			// @v8.6.11 {
@@ -3295,7 +3292,8 @@ int SLAPI PPBillImporter::Run()
 						for(uint i = 0; i < doc_info_list.GetCount(); i++) {
 							if(doc_info_list.GetByIdx(i, doc_inf)) { 
 								PPEdiProcessor::Packet doc_pack(doc_inf.EdiOp);
-								prc.ReceiveDocument(&doc_inf, doc_pack_list);
+								if(!prc.ReceiveDocument(&doc_inf, doc_pack_list))
+									Logger.LogLastError();
 							}
 						}
 					}

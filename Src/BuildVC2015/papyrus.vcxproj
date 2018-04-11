@@ -1313,6 +1313,7 @@
     <ClCompile Include="..\PPLib\ppgplot.cpp" />
     <ClCompile Include="..\PPLib\ppidata.cpp" />
     <ClCompile Include="..\PPLib\ppifcimp.cpp" />
+    <ClCompile Include="..\PPLib\ppifclua.cpp" />
     <ClCompile Include="..\PPLib\Ppinicfg.cpp" />
     <ClCompile Include="..\PPLib\ppjob.cpp" />
     <ClCompile Include="..\PPLib\Pplog.cpp" />
@@ -2029,6 +2030,9 @@
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="lualib.vcxproj">
+      <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>
     <ProjectReference Include="nginx.vcxproj">
       <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>

@@ -2535,7 +2535,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		}
 	};
 	int    ok = 1;
-	const  uint max_items_per_tx = 1024;
+	const  uint max_items_per_tx = 512;
 	uint   items_per_tx = 0;
 	BDbTransaction * p_ta = 0;
 	SString line_buf;

@@ -765,9 +765,9 @@
 	#define PPREGT_KPP          10 // Код причины постановки на налоговый учет налогоплательщика
 	#define PPREGT_OKATO        11 // Код фискального органа по ОКАТО
 	#define PPREGT_CERTORGCODE  12 // Код сертифицирующей организации
-	#define PPREGT_GLN          13 // @v7.1.12 GLN, ассоциированный с персоналией (не путать с кодом адреса)
-	#define PPREGT_COUNTRYABBR  14 // @v7.1.12 Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
-	#define PPREGT_COUNTRYCODE  15 // @v7.1.12 Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_GLN          13 // GLN, ассоциированный с персоналией (не путать с кодом адреса)
+	#define PPREGT_COUNTRYABBR  14 // Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_COUNTRYCODE  15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
 	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
 	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
 	//
@@ -1506,14 +1506,22 @@
 //
 #define EDIPARTYQ_BUYER                       1
 #define EDIPARTYQ_CORPOFFICE                  2
-#define EDIPARTYQ_DELIVERY                    3
-#define EDIPARTYQ_INVOICEE                    4
+#define EDIPARTYQ_DELIVERY                    3 // Грузополучатель
+#define EDIPARTYQ_INVOICEE                    4 //
 #define EDIPARTYQ_STORENUMBER                 5
 #define EDIPARTYQ_SUPPLAGENT                  6
 #define EDIPARTYQ_SUPPLIER                    7
 #define EDIPARTYQ_WAREHOUSEKEEPER             8
 #define EDIPARTYQ_CONSIGNOR                   9
 #define EDIPARTYQ_CONSIGNER                   EDIPARTYQ_CONSIGNOR // @synonim
+#define EDIPARTYQ_CONSIGNEE                  10
+#define EDIPARTYQ_SELLER                     11
+#define EDIPARTYQ_PAYEE                      12
+#define EDIPARTYQ_CONSOLIDATOR               13
+#define EDIPARTYQ_ISSUEROFINVOICE            14
+#define EDIPARTYQ_SHIPTO                     15
+#define EDIPARTYQ_BILLANDSHIPTO              16
+#define EDIPARTYQ_BROKERORSALESOFFICE        17
 //
 // Menus
 //
@@ -11266,18 +11274,18 @@
 #define PPERR_RMVLNCOMPLTSESS       1280 // Нельзя удалять строки из списанной техн сессии
 #define PPERR_STARTGTFINISH         1281 // Время начала не должно быть больше времени окончания //
 #define PPERR_UNDEFINNERBASEFILT    1282 // Внутренняя ошибка: неопределенный PPBaseFilt
-#define PPERR_TOKENEXPECTED         1283 // Ожидается лексема: %s
-#define PPERR_SLIPFMT_INVTOKEN      1284 // Недопустимая лексема '%s' в файле описания формата
-#define PPERR_SLIPFMT_INVZONE       1285 // Недопустимый тип зоны '%s' в файле описания формата
-#define PPERR_MISPLACEDELSE         1286 // Недопустимое использование оператора 'else'
-#define PPERR_MISPLACEDENDIF        1287 // Недопустимое использование оператора 'endif'
-#define PPERR_MISPLACEDIF           1288 // Недопустимое использование оператора 'if'
-#define PPERR_SLIPFMT_UNEXPENDOFZONE 1289 // Неожиданное завершение зоны в файле описания формата
+//#define PPERR_TOKENEXPECTED         1283 // Ожидается лексема: %s
+//#define PPERR_SLIPFMT_INVTOKEN      1284 // Недопустимая лексема '%s' в файле описания формата
+//#define PPERR_SLIPFMT_INVZONE       1285 // Недопустимый тип зоны '%s' в файле описания формата
+//#define PPERR_SLIPFMT_UNEXPENDOFZONE 1289 // Неожиданное завершение зоны в файле описания формата
+//#define PPERR_SLIPFMT_UNCOMPPAPER   1291 // Несовместимые источники бумаги в формате этикетки
+//#define PPERR_SLIPFMT_NOTFOUND      1294 // Формат %s не найден в файле описания формата
+//#define PPERR_MISPLACEDELSE         1286 // Недопустимое использование оператора 'else'
+//#define PPERR_MISPLACEDENDIF        1287 // Недопустимое использование оператора 'endif'
+//#define PPERR_MISPLACEDIF           1288 // Недопустимое использование оператора 'if'
 #define PPERR_UNEXPEOF              1290 // Неожиданное завершение файла
-#define PPERR_SLIPFMT_UNCOMPPAPER   1291 // Несовместимые источники бумаги в формате этикетки
 #define PPERR_F_Transfer_EnumItems  1292 // (уточняющее сообщение) Ошибка при переборе строк документа '%s'
 #define PPERR_CSESS_NOTFOUND        1293 // Кассовая сессия не найдена
-#define PPERR_SLIPFMT_NOTFOUND      1294 // Формат %s не найден в файле описания формата
 #define PPERR_DUPWORLDOBJSTATUSCODE 1295 // Дублирование кода статуса географического объекта
 #define PPERR_NONATIVECOUNTRY       1296 // Не удалось идентифицировать собственное государство
 #define PPERR_TSESSCANTMOVETOPRC    1297 // Сессия не может быть перемещена на заданный процессор (%s)

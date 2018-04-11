@@ -608,19 +608,24 @@ int SLAPI RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
 			++eq_count;
 			if(id) {
 				if(eq_count == 10) {
-					obj_name = 0;
-					if(objType == PPOBJ_PERSONEVENT) {
-						ideqvalstr(id, obj_name);
-						PPLoadText(PPTXT_TOOMANYEQREG_PSNEV, fmt_buf);
+					obj_name.Z();
+					int    msg_code = 0;
+					switch(objType) {
+						case PPOBJ_PERSONEVENT:
+							ideqvalstr(id, obj_name);
+							msg_code = PPTXT_TOOMANYEQREG_PSNEV;
+							break;
+						case PPOBJ_PERSON:
+							GetPersonName(id, obj_name);
+							msg_code = PPTXT_TOOMANYEQREG_PSN;
+							break;
+						case PPOBJ_LOCATION:
+							GetLocationName(id, obj_name);
+							msg_code = PPTXT_TOOMANYEQREG_LOC;
+							break;
 					}
-					else if(objType == PPOBJ_PERSON) {
-						GetPersonName(id, obj_name);
-						PPLoadText(PPTXT_TOOMANYEQREG_PSN, fmt_buf);
-					}
-					else if(objType == PPOBJ_LOCATION) {
-						GetLocationName(id, obj_name);
-						PPLoadText(PPTXT_TOOMANYEQREG_LOC, fmt_buf);
-					}
+					if(msg_code)
+						PPLoadText(msg_code, fmt_buf);
 					RegisterCore::GetText(data, reg_text);
 					msg_buf.Printf(fmt_buf, obj_name.cptr(), reg_text.cptr());
 					alarm = 1;
@@ -766,6 +771,8 @@ int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const 
 	if(pFilt) {
 		if(pFilt->RegTypeID && rRec.RegTypeID != pFilt->RegTypeID)
 			ok = 0;
+		else if(pFilt->Oid.Obj != rRec.ObjType && (pFilt->Oid.Obj || rRec.ObjType != PPOBJ_PERSON)) // @v10.0.1
+			ok = 0;
 		else if((pFilt->Oid.Obj && pFilt->Oid.Id) && !pFilt->Oid.IsEqual(rRec.ObjType, rRec.ObjID))
 			ok = 0;
 		else if(pFilt->ExclPersonID && rRec.ObjType == PPOBJ_PERSON && rRec.ObjID == pFilt->ExclPersonID)
@@ -784,7 +791,7 @@ int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const 
 	return ok;
 }
 
-int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pPsnList, PPIDArray * pRegTList)
+int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
 {
 	int    c = 0, sp;
 	DBQ  * dbq = 0;
@@ -803,10 +810,9 @@ int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pRe
 			const RegisterTbl::Rec & r_reg_rec = list.at(i);
 			if(CheckRecForFilt(r_reg_rec, pFilt)) {
 				CALLPTRMEMB(pResList, add(r_reg_rec.ID));
-				CALLPTRMEMB(pRegTList, add(r_reg_rec.RegTypeID));
-				if(data.ObjType == PPOBJ_PERSON) {
-					CALLPTRMEMB(pPsnList, add(r_reg_rec.ObjID));
-				}
+				// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
+					CALLPTRMEMB(pObjList, add(r_reg_rec.ObjID));
+				// @v10.0.1 }
 				c++;
 			}
 		}
@@ -821,10 +827,9 @@ int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pRe
 			if(search(idx, &k, spGe) && data.RegTypeID == pFilt->RegTypeID && pFilt->SerPattern == data.Serial && pFilt->NmbPattern == data.Num) do {
 				if(CheckRecForFilt(data, pFilt)) {
 					CALLPTRMEMB(pResList, add(data.ID));
-					CALLPTRMEMB(pRegTList, add(data.RegTypeID));
-					if(data.ObjType == PPOBJ_PERSON) {
-						CALLPTRMEMB(pPsnList, add(data.ObjID));
-					}
+					// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
+						CALLPTRMEMB(pObjList, add(data.ObjID));
+					// @v10.0.1 }
 					c++;
 				}
 			} while(search(idx, &k, spNext) && data.RegTypeID == pFilt->RegTypeID && pFilt->SerPattern == data.Serial && pFilt->NmbPattern == data.Num);
@@ -836,10 +841,9 @@ int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pRe
 			if(search(idx, &k, spGe) && data.RegTypeID == pFilt->RegTypeID && pFilt->NmbPattern == data.Num) do {
 				if(CheckRecForFilt(data, pFilt)) {
 					CALLPTRMEMB(pResList, add(data.ID));
-					CALLPTRMEMB(pRegTList, add(data.RegTypeID));
-					if(data.ObjType == PPOBJ_PERSON) {
-						CALLPTRMEMB(pPsnList, add(data.ObjID));
-					}
+					// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
+						CALLPTRMEMB(pObjList, add(data.ObjID));
+					// @v10.0.1 }
 					c++;
 				}
 			} while(search(idx, &k, spNext) && data.RegTypeID == pFilt->RegTypeID && pFilt->NmbPattern == data.Num);
@@ -875,10 +879,9 @@ int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pRe
 		for(q.initIteration(0, &k, sp); q.nextIteration() > 0;) {
 			if(CheckRecForFilt(data, pFilt)) {
 				CALLPTRMEMB(pResList, add(data.ID));
-				CALLPTRMEMB(pRegTList, add(data.RegTypeID));
-				if(data.ObjType == PPOBJ_PERSON) {
-					CALLPTRMEMB(pPsnList, add(data.ObjID));
-				}
+				// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
+					CALLPTRMEMB(pObjList, add(data.ObjID));
+				// @v10.0.1 }
 				c++;
 			}
 		}

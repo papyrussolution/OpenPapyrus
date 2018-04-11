@@ -2558,8 +2558,13 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 		RegisterTbl::Rec  reg_rec;
 		const PPID tabnum_reg_id = EqCfg.GetCashierTabNumberRegTypeID();
 		if(tabnum_reg_id && ::fileExists(PathCshrs)) {
-			RegisterFilt  reg_flt;
+			PPIDArray by_name_ary;
+			PPIDArray by_num_ary;
+			RegisterArray reg_ary;
+			StringSet ss(",");
+			RegisterFilt reg_flt;
 			LDATE  last_dt = plusdate(getcurdate_(), -1);
+			reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 			reg_flt.RegTypeID = tabnum_reg_id;
 			psn_obj.GetListByKind(EqCfg.CshrsPsnKindID, &psn_ary, 0);
 			SFile  cf(PathCshrs, SFile::mRead);
@@ -2568,30 +2573,21 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 				int    is_kind = 0, is_reg = 0;
 				uint   i = 0;
 				long   rights = 0;
-				//char   cshr_tabnum[32];
-				//char   cshr_name[64];
-				//char   cshr_password[20];
 				char   cshr_rights[20];
 				PPID   psn_id = 0;
-				PPPersonPacket  psn_pack;
-				PPIDArray  by_name_ary, by_num_ary;
-				StringSet ss(',', 0);
+				PPPersonPacket psn_pack;
+				ss.clear();
+				by_name_ary.clear();
+				by_num_ary.clear();
 				buf.Chomp();
 				ss.add(buf);
-				// @v9.7.4 ss.get(&i, cshr_tabnum, sizeof(cshr_tabnum));       // Табельный номер
-				// @v9.7.4 RemoveQuotations(cshr_tabnum);
-				ss.get(&i, cshr_tabnum_);       // Табельный номер // @v9.7.4
-				cshr_tabnum_.StripQuotes(); // @v9.7.4
-				// @v9.7.4 ss.get(&i, cshr_name, sizeof(cshr_name));           // Имя кассира
-				// @v9.7.4 SCharToOem(cshr_name);
-				// @v9.7.4 RemoveQuotations(cshr_name);
-				ss.get(&i, cshr_name_);                  // Имя кассира // @v9.7.4 
-				cshr_name_.Transf(CTRANSF_INNER_TO_OUTER).StripQuotes(); // @v9.7.4 
-				// @v9.7.4 ss.get(&i, cshr_password, sizeof(cshr_password));   // Пароль
-				// @v9.7.4 RemoveQuotations(cshr_password);
-				ss.get(&i, cshr_password_);   // Пароль // @v9.7.4
-				cshr_password_.StripQuotes(); // @v9.7.4
-				ss.get(&i, cshr_rights, sizeof(cshr_rights));       // Права
+				ss.get(&i, cshr_tabnum_); // Табельный номер
+				cshr_tabnum_.StripQuotes();
+				ss.get(&i, cshr_name_);                  // Имя кассира
+				cshr_name_.Transf(CTRANSF_INNER_TO_OUTER).StripQuotes();
+				ss.get(&i, cshr_password_);   // Пароль
+				cshr_password_.StripQuotes();
+				ss.get(&i, cshr_rights, sizeof(cshr_rights)); // Права
 				strtolong(cshr_rights, &rights);
 				PPObjPerson::SrchAnalogPattern sap(cshr_name_, PPObjPerson::sapfMatchWholeWord);
 				psn_obj.GetListByPattern(&sap, &by_name_ary);
@@ -2605,14 +2601,14 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 					is_kind = 1;
 				}
 				reg_flt.NmbPattern = cshr_tabnum_;
-				reg_obj.SearchByFilt(&reg_flt, 0, &by_num_ary, 0);
+				reg_obj.SearchByFilt(&reg_flt, 0, &by_num_ary);
 				by_name_ary.intersect(&by_num_ary, 0);
 				if(by_name_ary.getCount())
 					psn_id = by_name_ary.at(0);
 				for(pos = 0; pos < by_num_ary.getCount(); pos++) {
 					PPID  psn_w_reg = by_num_ary.at(pos);
 					if(psn_w_reg != psn_id) {
-						RegisterArray  reg_ary;
+						reg_ary.clear();
 						reg_obj.P_Tbl->GetByPerson(psn_w_reg, &reg_ary);
 						for(p = 0; reg_ary.GetRegister(tabnum_reg_id, &p, &reg_rec) > 0;)
 							if(reg_rec.Expiry == ZERODATE || diffdate(reg_rec.Expiry, last_dt) > 0) {

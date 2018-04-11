@@ -927,16 +927,12 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 		}
 		{
 			LocationTbl::Rec loc_rec;
+			RegisterTbl::Rec reg_rec;
 			if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
 				STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
 				// @v9.1.1 {
-				{
-					RegisterTbl::Rec reg_rec;
-					if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0) {
-						if(reg_rec.Num[0]) {
-							STRNSCPY(data_buf.WhKPP, reg_rec.Num);
-						}
-					}
+				if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0]) {
+					STRNSCPY(data_buf.WhKPP, reg_rec.Num);
 				}
 				// } @v9.1.1
 			}

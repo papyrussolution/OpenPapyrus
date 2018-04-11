@@ -326,6 +326,7 @@
     <ClCompile Include="..\PPLib\vetis.cpp" />
     <ClCompile Include="..\PPLib\phnpan.cpp" />
     <ClCompile Include="..\PPLib\ppedi-base.cpp" />
+    <ClCompile Include="..\PPLib\ppifclua.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

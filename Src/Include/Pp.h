@@ -8073,7 +8073,13 @@ public:
 	int    SLAPI PutByPerson(PPID personID, RegisterArray * pList, int use_ta);
 	int    SLAPI PutByLocation(PPID locID, RegisterArray * pList, int use_ta);
 	int    SLAPI SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec *);
-	int    SLAPI SearchByFilt(const RegisterFilt *, PPIDArray * pResList, PPIDArray * pPsnList, PPIDArray * pRegTList);
+	//
+	// Descr: Ищет список регистров, соответствующих фильтру pFilt.
+	// ARG(pFilt IN): Фильтр с набором критериев поиска
+	// ARG(pResList OUT): @#{vptr) Указатель на вектор, в который заносятся идентификаторы регистров, соответствующих фильтру.
+	// ARG(pObjList OUT): @#{vptr) Указатель на вектор, в который заносятся идентификаторы объектов, которым соответствуют найденные регистры.
+	//
+	int    SLAPI SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList);
 	//
 	// Descr: Функция аналогичная Add(), но с безусловным разрешением на дублирование номеров.
 	// Note: @really private Не следует использовть иначе, как в экстренных случаях, требущих
@@ -21968,7 +21974,7 @@ public:
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */);
 	int    SLAPI Fetch(PPID id, RegisterTbl::Rec * pRec);
 	int    SLAPI SearchByNumber(PPID *, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec *);
-	int    SLAPI SearchByFilt(const RegisterFilt *, PPIDArray * pResList, PPIDArray * pPsnList, PPIDArray * pRegTList);
+	int    SLAPI SearchByFilt(const RegisterFilt *, PPIDArray * pResList, PPIDArray * pObjList);
 	int    SLAPI Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID);
 	int    SLAPI EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPPersonPacket * pOuterPack);
 	int    SLAPI EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPLocationPacket * pOuterPack);
@@ -22224,6 +22230,9 @@ public:
 	//
 	int    SLAPI ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache);
 	int    SLAPI GetRegister(PPID locID, PPID regType, LDATE actualDate, int iheritFromOwner, RegisterTbl::Rec * pRec);
+	//int    SLAPI ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID);
+	int    SLAPI ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList);
+	int    SLAPI GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList);
 private:
 	friend class LocationCache; // Только для использования PPObjLocation(SCtrLite)
 	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrLite)
@@ -29445,7 +29454,7 @@ public:
 private:
 	int    SLAPI ResolveINN(const char * pINN, PPID dlvrLocID, const char * pDlvrLocCode,
 		const char * pBillId, PPID accSheetID, PPID * pArID, int logErr = 1);
-	int	   SLAPI ResolveGLN(const char * pGLN, const char * pLocCode, const char * pBillId, PPID accSheetID, PPID * pArId, int logErr = 1); // @vmiller
+	int	   SLAPI ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArId, int logErr = 1); // @vmiller
 	int    SLAPI ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, double * pUpp);
 	int    SLAPI CheckBill(const Sdr_Bill * pBill);
 	int    SLAPI AddBillToList(Sdr_Bill * pBill, long extraBillId);
@@ -29566,6 +29575,7 @@ public:
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
+		PPAlbatrosConfig ACfg;
 	private:
 		int    SLAPI GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
 	};
