@@ -121,7 +121,7 @@ class SaComplex : public TSArray <SaComplexEntry> {
 public:
 	SaComplex();
 	void   Init(PPID goodsID, PPID strucID, double qtty);
-	int    SetQuantity(double qtty);
+	void   SetQuantity(double qtty);
 	int    RecalcFinalPrice();
 	int    Subst(uint itemIdx, uint entryItemIdx);
 	int    IsComplete() const;
@@ -155,9 +155,8 @@ int SaComplex::IsComplete() const
 	return 1;
 }
 
-int SaComplex::SetQuantity(double qtty)
+void SaComplex::SetQuantity(double qtty)
 {
-	int    ok = 1;
 	if(qtty > 0.0) {
 		const uint c = getCount();
 		if(c) {
@@ -173,9 +172,6 @@ int SaComplex::SetQuantity(double qtty)
 		}
 		Qtty = qtty;
 	}
-	else
-		ok = 0;
-	return ok;
 }
 
 int SaComplex::RecalcFinalPrice()
@@ -263,9 +259,11 @@ int CPosProcessor::Packet::ClearGift()
 }
 
 PPID FASTCALL CPosProcessor::Packet::GetAgentID(int actual) const
-{
-	return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__);
-}
+	{ return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__); }
+int CPosProcessor::Packet::HasCur() const
+	{ return BIN(CurPos >= 0); }
+void CPosProcessor::Packet::SetRest(double rest)
+	{ Rest = rest; }
 
 double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
 {
@@ -276,11 +274,6 @@ double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
 			qtty += r_item.Quantity;
 	}
 	return qtty;
-}
-
-int CPosProcessor::Packet::HasCur() const
-{
-	return BIN(CurPos >= 0);
 }
 
 void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
@@ -341,11 +334,6 @@ void CPosProcessor::Packet::SetupInfo(SString & rBuf)
 		PPLoadString("department", word); // @v9.2.7
 		rBuf.Cat(word).CatDiv(':', 2).Cat(GetCur().Division);
 	}
-}
-
-void CPosProcessor::Packet::SetRest(double rest)
-{
-	Rest = rest;
 }
 
 int CPosProcessor::Packet::MoveUp(uint itemIdx)
@@ -459,8 +447,6 @@ SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Qtty((qtty != 0.0) ? qtty
 //
 CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock() : R(1), SyncPrnErr(0), RExt(1), ExtSyncPrnErr(0), Flags(0)
 {
-	//IsPack = 0;
-	//IsExtPack = 0;
 	MEMSZERO(LastChkRec);
 }
 //
@@ -514,16 +500,6 @@ void CPosProcessor::CardState::Reset()
 	ZDELETE(P_DisByAmtRule);
 	ZDELETE(P_Eqb);
 	THISZERO();
-}
-
-PPID CPosProcessor::CardState::GetID() const
-{
-	return SCardID;
-}
-
-const char * CPosProcessor::CardState::GetCode() const
-{
-	return Code;
 }
 
 void CPosProcessor::CardState::SetID(PPID id, const char * pCode)
@@ -638,10 +614,8 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 	int    use_def_ctbl = 0;
 	uint   i;
 	SString temp_buf;
-
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
-
 	TSVector <CCheckViewItem> cc_list;
 	LongArray ctbl_list;
 	if(CTblList.getCount()) {
@@ -1012,7 +986,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	{
 		// @v9.8.4 {
 		struct RtTabEntry { long Orf; long CsR; int8 IsOprRt; };
-		RtTabEntry rt_tab[] = {
+		static const RtTabEntry rt_tab[] = {
 			{ orfReturns,                 CSESSOPRT_RETCHECK,       1 },
 			{ orfEscCheck,                CSESSRT_ESCCHECK,         0 },
 			{ orfEscChkLine,              CSESSOPRT_ESCCLINE,       1 },
@@ -1087,21 +1061,9 @@ int CPosProcessor::InitCashMachine()
 	return ok;
 }
 
-CCheckCore & CPosProcessor::GetCc()
-{
-	//return CC;
-	return *ScObj.P_CcTbl;
-}
-
-PPObjSCard & CPosProcessor::GetScObj()
-{
-	return ScObj;
-}
-
-int CPosProcessor::InitCcView()
-{
-	return BIN(SETIFZ(P_CcView, new PPViewCCheck(GetCc())));
-}
+CCheckCore & CPosProcessor::GetCc() { return *ScObj.P_CcTbl; }
+PPObjSCard & CPosProcessor::GetScObj() { return ScObj; }
+int CPosProcessor::InitCcView() { return BIN(SETIFZ(P_CcView, new PPViewCCheck(GetCc()))); }
 
 //virtual
 int CPosProcessor::MessageError(int errCode, const char * pAddedMsg, long outputMode)
@@ -1118,27 +1080,25 @@ int CPosProcessor::MessageError(int errCode, const char * pAddedMsg, long output
 
 //virtual
 int CPosProcessor::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse)
-{
-	return defaultResponse;
-}
-
+	{ return defaultResponse; }
 //virtual
 int CPosProcessor::CDispCommand(int cmd, int iVal, double rv1, double rv2)
-{
-	return -1;
-}
-
+	{ return -1; }
 //virtual
 int CPosProcessor::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
-{
-	return 1;
-}
-
+	{ return 1; }
 // virtual
 int CPosProcessor::NotifyGift(PPID giftID, SaGiftArray::Gift * pGift)
-{
-	return -1;
-}
+	{ return -1; }
+// virtual
+void CPosProcessor::SetPrintedFlag(int set)
+	{ SETFLAG(Flags, fPrinted, set); }
+//virtual
+void CPosProcessor::SetupInfo(const char * pErrMsg)
+	{ }
+//virtual
+void CPosProcessor::OnUpdateList(int goBottom)
+	{}
 
 int CPosProcessor::GetNewCheckCode(PPID cashNodeID, long * pCode)
 {
@@ -1203,12 +1163,6 @@ int CPosProcessor::SetupState(int st)
 		ok = 1;
 	}
 	return ok;
-}
-
-// virtual
-void CPosProcessor::SetPrintedFlag(int set)
-{
-	SETFLAG(Flags, fPrinted, set);
 }
 
 int CPosProcessor::SetupExt(const CCheckPacket * pPack)
@@ -1403,16 +1357,6 @@ int    CPosProcessor::InitIteration() { return P.InitIteration(); }
 int    FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem) { return P.NextIteration(pItem); }
 double CPosProcessor::GetUsableBonus() const { return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; }
 double CPosProcessor::RoundDis(double d) const { return Round(d, R.DisRoundPrec, R.DisRoundDir); }
-
-//virtual
-void CPosProcessor::SetupInfo(const char * pErrMsg)
-{
-}
-
-//virtual
-void CPosProcessor::OnUpdateList(int goBottom)
-{
-}
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
 {
@@ -5921,10 +5865,8 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 							}
 						}
 						else if(cnl_status.State == PhnSvcChannelStatus::stRinging) {
-							if(cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len())
-								caller_buf = cnl_status.ConnectedLineNum;
-							else
-								caller_buf = cnl_status.CallerId;
+							caller_buf = (cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len()) ? 
+								cnl_status.ConnectedLineNum : cnl_status.CallerId;
 							if(caller_buf.Len() && !phn_list.SearchPhone(caller_buf, 0, 0)) {
 								if(ringing_line.NotEmpty())
 									ringing_line.CR();
@@ -5945,9 +5887,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 										}
 									}
 								}
-								if(contact_buf.Empty())
-									contact_buf = "UNKNOWN";
-								ringing_line.CatDiv(';', 2).Cat(contact_buf);
+								ringing_line.CatDiv(';', 2).Cat(contact_buf.SetIfEmpty("UNKNOWN"));
 							}
 						}
 					}
@@ -5970,48 +5910,44 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 	return ok;
 }
 
-struct SelectGuestCountParam {
-	SelectGuestCountParam()
-	{
-		TableNo = 0;
-		GuestCount = 0;
-	}
-	int    TableNo;
-	int    GuestCount;
-};
-
-class SelectGuestCountDialog : public TDialog {
-public:
-	SelectGuestCountDialog() : TDialog(DLG_SELGUESTCOUNT)
-	{
-	}
-	int    setDTS(const SelectGuestCountParam * pData)
-	{
-		RVALUEPTR(Data, pData);
-		return 1;
-	}
-	int    getDTS(SelectGuestCountParam * pData)
-	{
-		ASSIGN_PTR(pData, Data);
-		return 1;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(TVCMD >= cmSelGuestCount01 && TVCMD <= cmSelGuestCount15) {
-			Data.GuestCount = (TVCMD - cmSelGuestCount01 + 1);
-			endModal(cmOK);
-		}
-	}
-	SelectGuestCountParam Data;
-};
-
 int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 {
+	class SelectGuestCountDialog : public TDialog {
+	public:
+		struct Param {
+			Param() : TableNo(0), GuestCount(0)
+			{
+			}
+			int    TableNo;
+			int    GuestCount;
+		};
+		SelectGuestCountDialog() : TDialog(DLG_SELGUESTCOUNT)
+		{
+		}
+		int    setDTS(const Param * pData)
+		{
+			RVALUEPTR(Data, pData);
+			return 1;
+		}
+		int    getDTS(Param * pData)
+		{
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(TVCMD >= cmSelGuestCount01 && TVCMD <= cmSelGuestCount15) {
+				Data.GuestCount = (TVCMD - cmSelGuestCount01 + 1);
+				endModal(cmOK);
+			}
+		}
+		Param Data;
+	};
 	int    ok = -1;
 	SelectGuestCountDialog * dlg = 0;
-	SelectGuestCountParam param;
+	SelectGuestCountDialog::Param param;
 	if(tableCode) {
 		param.TableNo = tableCode;
 		param.GuestCount = 0;

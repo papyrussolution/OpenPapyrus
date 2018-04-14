@@ -4156,10 +4156,7 @@ PPALDD_CONSTRUCTOR(GoodsOpAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsOpAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsOpAnlz) { Destroy(); }
 
 int PPALDD_GoodsOpAnlz::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4239,10 +4236,7 @@ int PPALDD_GoodsOpAnlz::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsOpAnlz::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsOpAnalyze);
-}
+void PPALDD_GoodsOpAnlz::Destroy() { DESTROY_PPVIEW_ALDD(GoodsOpAnalyze); }
 //
 // Implementation of PPALDD_GoodsOpAnlzCmp
 //
@@ -4254,10 +4248,7 @@ PPALDD_CONSTRUCTOR(GoodsOpAnlzCmp)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsOpAnlzCmp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsOpAnlzCmp) { Destroy(); }
 
 int PPALDD_GoodsOpAnlzCmp::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4336,7 +4327,4 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsOpAnlzCmp::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsOpAnalyze);
-}
+void PPALDD_GoodsOpAnlzCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsOpAnalyze); }

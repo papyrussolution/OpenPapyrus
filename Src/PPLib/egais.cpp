@@ -5843,18 +5843,14 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 						{
 							RepealWb * p_rwb = (RepealWb *)p_new_pack->P_Data;
 							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
-								if(SXml::GetContentByName(p_n, "ClientId", temp_buf) > 0) {
+								if(SXml::GetContentByName(p_n, "ClientId", temp_buf) > 0)
 									p_rwb->ContragentCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								}
-								else if(SXml::GetContentByName(p_n, "RequestNumber", temp_buf) > 0) {
+								else if(SXml::GetContentByName(p_n, "RequestNumber", temp_buf) > 0)
 									p_rwb->ReqNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								}
-								else if(SXml::GetContentByName(p_n, "RequestDate", temp_buf) > 0) {
+								else if(SXml::GetContentByName(p_n, "RequestDate", temp_buf) > 0)
 									strtodatetime(temp_buf, &p_rwb->ReqTime, DATF_ISO8601, TIMF_HMS);
-								}
-								else if(SXml::GetContentByName(p_n, "WBRegId", temp_buf) > 0) {
+								else if(SXml::GetContentByName(p_n, "WBRegId", temp_buf) > 0)
 									p_rwb->TTNCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								}
 							}
 							rs = 1;
 						}
@@ -5978,18 +5974,14 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											QueryBarcode * p_qb = p_qbl->CreateNewItem();
 											THROW_SL(p_qb);
 											for(xmlNode * p_m = p_c->children; p_m; p_m = p_m->next) {
-												if(SXml::GetContentByName(p_m, "Type", temp_buf)) {
+												if(SXml::GetContentByName(p_m, "Type", temp_buf))
 													p_qb->CodeType = temp_buf.ToLong();
-												}
-												else if(SXml::GetContentByName(p_m, "Rank", temp_buf)) {
+												else if(SXml::GetContentByName(p_m, "Rank", temp_buf))
 													p_qb->Rank = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_m, "Number", temp_buf)) {
+												else if(SXml::GetContentByName(p_m, "Number", temp_buf))
 													p_qb->Number = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_m, "Barcode", temp_buf)) {
+												else if(SXml::GetContentByName(p_m, "Barcode", temp_buf))
 													p_qb->Result = temp_buf;
-												}
 											}
 											line_buf.Z().Cat(p_qb->CodeType).Tab().Cat(p_qb->Rank).Tab().Cat(p_qb->Number).Tab().Cat(p_qb->Result).CR();
 											out_file.WriteLine(line_buf);

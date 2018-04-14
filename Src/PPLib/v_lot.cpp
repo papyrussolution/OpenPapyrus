@@ -2206,10 +2206,10 @@ void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 			SString word;
 			pBrw->LoadToolbar(TOOLBAR_ORDLOTS);
 			//PPGetWord(PPWORD_ORDERER, 0, word);
-			PPLoadString("orderer", word);
+			PPLoadString("ordered", word);
 			pBrw->SetColumnTitle(3, word);
 			// @v9.1.8 PPGetWord(PPWORD_ORDERED, 0, word);
-			PPLoadString("ordered", word); // @v9.1.8
+			PPLoadString("orderer", word); // @v9.1.8
 			pBrw->SetColumnTitle(4, word);
 			if(Filt.Flags & LotFilt::fShowBillStatus) {
 				// @v9.1.11 pBrw->InsColumnWord(-1, PPWORD_STATUS, 15, 0, MKSFMT(10, 0), BCO_CAPLEFT);
@@ -2705,10 +2705,7 @@ PPALDD_CONSTRUCTOR(Lots)
 	}
 }
 
-PPALDD_DESTRUCTOR(Lots)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Lots) { Destroy(); }
 
 int PPALDD_Lots::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2762,10 +2759,7 @@ int PPALDD_Lots::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_Lots::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Lot);
-}
+void PPALDD_Lots::Destroy() { DESTROY_PPVIEW_ALDD(Lot); }
 //
 // Import/Export
 //

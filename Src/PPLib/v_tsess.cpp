@@ -1993,10 +1993,7 @@ PPALDD_CONSTRUCTOR(TSessionView)
 	}
 }
 
-PPALDD_DESTRUCTOR(TSessionView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TSessionView) { Destroy(); }
 
 int PPALDD_TSessionView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2026,10 +2023,7 @@ int PPALDD_TSessionView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TSessionView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TSession);
-}
+void PPALDD_TSessionView::Destroy() { DESTROY_PPVIEW_ALDD(TSession); }
 //
 // Implementation of PPALDD_TSessionCipView
 //
@@ -2039,10 +2033,7 @@ PPALDD_CONSTRUCTOR(TSessionCipView)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(TSessionCipView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TSessionCipView) { Destroy(); }
 
 int PPALDD_TSessionCipView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2073,10 +2064,7 @@ int PPALDD_TSessionCipView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TSessionCipView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TSession);
-}
+void PPALDD_TSessionCipView::Destroy() { DESTROY_PPVIEW_ALDD(TSession); }
 //
 // Implementation of PPALDD_TSessionBillView
 //
@@ -2086,10 +2074,7 @@ PPALDD_CONSTRUCTOR(TSessionBillView)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(TSessionBillView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TSessionBillView) { Destroy(); }
 
 int PPALDD_TSessionBillView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2120,10 +2105,7 @@ int PPALDD_TSessionBillView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TSessionBillView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TSession);
-}
+void PPALDD_TSessionBillView::Destroy() { DESTROY_PPVIEW_ALDD(TSession); }
 //
 // Implementation of PPALDD_TSessLineView
 //
@@ -2135,10 +2117,7 @@ PPALDD_CONSTRUCTOR(TSessLineView)
 	}
 }
 
-PPALDD_DESTRUCTOR(TSessLineView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TSessLineView) { Destroy(); }
 
 int PPALDD_TSessLineView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2171,10 +2150,7 @@ int PPALDD_TSessLineView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TSessLineView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TSessLine);
-}
+void PPALDD_TSessLineView::Destroy() { DESTROY_PPVIEW_ALDD(TSessLine); }
 //
 //
 //

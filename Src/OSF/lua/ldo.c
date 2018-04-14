@@ -374,7 +374,8 @@ int luaD_poscall(lua_State * L, CallInfo * ci, StkId firstResult, int nres) {
 ** the execution ('luaV_execute') to the caller, to allow stackless
 ** calls.) Returns true iff function has been executed (C function).
 */
-int luaD_precall(lua_State * L, StkId func, int nresults) {
+int luaD_precall(lua_State * L, StkId func, int nresults) 
+{
 	lua_CFunction f;
 	CallInfo * ci;
 	switch(ttype(func)) {
@@ -447,35 +448,35 @@ static void stackerror(lua_State * L) {
 	else if(L->nCcalls >= (LUAI_MAXCCALLS + (LUAI_MAXCCALLS>>3)))
 		luaD_throw(L, LUA_ERRERR);  /* error while handing stack error */
 }
-
 /*
 ** Call a function (C or Lua). The function to be called is at *func.
 ** The arguments are on the stack, right after the function.
 ** When returns, all the results are on the stack, starting at the original
 ** function position.
 */
-void luaD_call(lua_State * L, StkId func, int nResults) {
+void luaD_call(lua_State * L, StkId func, int nResults) 
+{
 	if(++L->nCcalls >= LUAI_MAXCCALLS)
 		stackerror(L);
 	if(!luaD_precall(L, func, nResults)) /* is a Lua function? */
 		luaV_execute(L);  /* call it */
 	L->nCcalls--;
 }
-
 /*
 ** Similar to 'luaD_call', but does not allow yields during the call
 */
-void luaD_callnoyield(lua_State * L, StkId func, int nResults) {
+void luaD_callnoyield(lua_State * L, StkId func, int nResults) 
+{
 	L->nny++;
 	luaD_call(L, func, nResults);
 	L->nny--;
 }
-
 /*
 ** Completes the execution of an interrupted C function, calling its
 ** continuation function.
 */
-static void finishCcall(lua_State * L, int status) {
+static void finishCcall(lua_State * L, int status) 
+{
 	CallInfo * ci = L->ci;
 	int n;
 	/* must have a continuation and must be able to call it */
@@ -495,7 +496,6 @@ static void finishCcall(lua_State * L, int status) {
 	api_checknelems(L, n);
 	luaD_poscall(L, ci, L->top - n, n); /* finish 'luaD_precall' */
 }
-
 /*
 ** Executes "full continuation" (everything in the stack) of a
 ** previously interrupted coroutine until the stack is empty (or another
@@ -504,7 +504,8 @@ static void finishCcall(lua_State * L, int status) {
 ** be passed to the first continuation function (otherwise the default
 ** status is LUA_YIELD).
 */
-static void unroll(lua_State * L, void * ud) {
+static void unroll(lua_State * L, void * ud) 
+{
 	if(ud != NULL) /* error status? */
 		finishCcall(L, *(int*)ud);  /* finish 'lua_pcallk' callee */
 	while(L->ci != &L->base_ci) { /* something in the stack */
@@ -516,12 +517,12 @@ static void unroll(lua_State * L, void * ud) {
 		}
 	}
 }
-
 /*
 ** Try to find a suspended protected call (a "recover point") for the
 ** given thread.
 */
-static CallInfo * findpcall(lua_State * L) {
+static CallInfo * findpcall(lua_State * L) 
+{
 	CallInfo * ci;
 	for(ci = L->ci; ci != NULL; ci = ci->previous) { /* search for a pcall */
 		if(ci->callstatus & CIST_YPCALL)
@@ -529,13 +530,13 @@ static CallInfo * findpcall(lua_State * L) {
 	}
 	return NULL; /* no pending pcall */
 }
-
 /*
 ** Recovers from an error in a coroutine. Finds a recover point (if
 ** there is one) and completes the execution of the interrupted
 ** 'luaD_pcall'. If there is no recover point, returns zero.
 */
-static int recover(lua_State * L, int status) {
+static int recover(lua_State * L, int status) 
+{
 	StkId oldtop;
 	CallInfo * ci = findpcall(L);
 	if(ci == NULL) return 0;  /* no recovery point */
@@ -550,13 +551,13 @@ static int recover(lua_State * L, int status) {
 	L->errfunc = ci->u.c.old_errfunc;
 	return 1; /* continue running the coroutine */
 }
-
 /*
 ** Signal an error in the call to 'lua_resume', not in the execution
 ** of the coroutine itself. (Such errors should not be handled by any
 ** coroutine error handler and should not kill the coroutine.)
 */
-static int resume_error(lua_State * L, const char * msg, int narg) {
+static int resume_error(lua_State * L, const char * msg, int narg) 
+{
 	L->top -= narg; /* remove args from the stack */
 	setsvalue2s(L, L->top, luaS_new(L, msg)); /* push error message */
 	api_incr_top(L);
@@ -571,7 +572,8 @@ static int resume_error(lua_State * L, const char * msg, int narg) {
 ** function), plus erroneous cases: non-suspended coroutine or dead
 ** coroutine.
 */
-static void resume(lua_State * L, void * ud) {
+static void resume(lua_State * L, void * ud) 
+{
 	int n = *(cast(int*, ud)); /* number of arguments */
 	StkId firstArg = L->top - n; /* first argument */
 	CallInfo * ci = L->ci;
@@ -599,7 +601,8 @@ static void resume(lua_State * L, void * ud) {
 	}
 }
 
-LUA_API int lua_resume(lua_State * L, lua_State * from, int nargs) {
+LUA_API int lua_resume(lua_State * L, lua_State * from, int nargs) 
+{
 	int status;
 	unsigned short oldnny = L->nny; /* save "number of non-yieldable" calls */
 	lua_lock(L);
@@ -637,12 +640,13 @@ LUA_API int lua_resume(lua_State * L, lua_State * from, int nargs) {
 	return status;
 }
 
-LUA_API int lua_isyieldable(lua_State * L) {
+LUA_API int lua_isyieldable(lua_State * L) 
+{
 	return (L->nny == 0);
 }
 
-LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx,
-    lua_KFunction k) {
+LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx, lua_KFunction k) 
+{
 	CallInfo * ci = L->ci;
 	luai_userstateyield(L, nresults);
 	lua_lock(L);
@@ -669,8 +673,8 @@ LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx,
 	return 0; /* return to 'luaD_hook' */
 }
 
-int luaD_pcall(lua_State * L, Pfunc func, void * u,
-    ptrdiff_t old_top, ptrdiff_t ef) {
+int luaD_pcall(lua_State * L, Pfunc func, void * u, ptrdiff_t old_top, ptrdiff_t ef) 
+{
 	int status;
 	CallInfo * old_ci = L->ci;
 	lu_byte old_allowhooks = L->allowhook;
@@ -690,7 +694,6 @@ int luaD_pcall(lua_State * L, Pfunc func, void * u,
 	L->errfunc = old_errfunc;
 	return status;
 }
-
 /*
 ** Execute a protected parser.
 */

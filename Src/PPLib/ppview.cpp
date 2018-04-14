@@ -425,15 +425,17 @@ SLAPI PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : Branc
 
 SLAPI PPBaseFilt::~PPBaseFilt()
 {
-	for(uint i = 0; i < BranchList.getCount(); i++) {
-		const Branch * p_b = (Branch *)BranchList.at(i);
-		if(p_b->Type == Branch::tBaseFiltPtr) {
-			PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
-			ZDELETEFAST(*pp_filt);
+	const uint blc = BranchList.getCount();
+	if(blc) {
+		for(uint i = 0; i < blc; i++) {
+			const Branch * p_b = (Branch *)BranchList.at(i);
+			if(p_b->Type == Branch::tBaseFiltPtr) {
+				PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
+				ZDELETEFAST(*pp_filt);
+			}
 		}
 	}
-	Signature = 0; // @v6.0.9 Очищаем сигнатуру для того, чтобы можно было идентифицировать
-		// указатель на разрущенный объект
+	Signature = 0; // Очищаем сигнатуру для того, чтобы можно было идентифицировать указатель на разрущенный объект
 }
 
 int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
@@ -490,14 +492,14 @@ void FASTCALL PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const cha
 //static
 void FASTCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
 {
-	if(rParam.Len() && sstrlen(pMembName))
+	if(rParam.Len() && !isempty(pMembName))
 		rBuf.Cat(pMembName).Eq().Cat(rParam).Semicol();
 }
 
 //static
 void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
 {
-	if(sstrlen(pMembName) && sstrlen(pParam))
+	if(!isempty(pMembName) && !isempty(pParam))
 		rBuf.Cat(pMembName).Eq().Cat(pParam).Semicol();
 }
 
@@ -505,8 +507,8 @@ void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembNa
 void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
 {
 	if(param != ZERODATE) {
-		SString buf;
-		PutMembToBuf(buf.Cat(param), pMembName, rBuf);
+		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 	}
 }
 
@@ -514,8 +516,8 @@ void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SStr
 void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
 	if(pParam && pParam->IsZero() == 0) {
-		SString buf;
-		PutMembToBuf(buf.Cat(*pParam), pMembName, rBuf);
+		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		PutMembToBuf(r_buf.Cat(*pParam), pMembName, rBuf);
 	}
 }
 
@@ -523,23 +525,23 @@ void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pM
 void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
 {
 	if(pParam && !pParam->IsZero()) {
-		SString buf;
-		PutMembToBuf(buf.Cat(pParam->low).Dot().Dot().Cat(pParam->upp), pMembName, rBuf);
+		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		PutMembToBuf(r_buf.Cat(pParam->low).Dot().Dot().Cat(pParam->upp), pMembName, rBuf);
 	}
 }
 
 //static
 void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
 {
-	SString buf;
-	PutMembToBuf(buf.Cat(param), pMembName, rBuf);
+	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
 //static
 void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
 {
-	SString buf;
-	PutMembToBuf(buf.Cat(param), pMembName, rBuf);
+	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
 void SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
@@ -1613,9 +1615,7 @@ int SLAPI PPView::GetLastUpdatedObjects(long extId, LongArray & rList) const
 		rList.add(extId);
 	if(P_LastUpdatedObjects && P_LastUpdatedObjects->getCount()) {
         for(uint i = 0; i < P_LastUpdatedObjects->getCount(); i++) {
-			const long _id = P_LastUpdatedObjects->get(i);
-			if(_id)
-				rList.add(_id);
+			rList.addnz(P_LastUpdatedObjects->get(i));
         }
 		rList.sortAndUndup();
 	}
@@ -1683,10 +1683,8 @@ int SLAPI PPView::Browse(int modeless)
 	if(modeless) {
 		brw->SetResID(((PPApp *)APPL)->LastCmd);
 		int    r = InsertView(brw);
-		if(r < 0) {
-			if(brw->IsConsistent())
-				OnExecBrowser(brw);
-		}
+		if(r < 0 && brw->IsConsistent())
+			OnExecBrowser(brw);
 	}
 	else
 		ok = (ExecView(brw) == cmOK) ? 1 : -1;

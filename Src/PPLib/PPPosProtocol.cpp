@@ -4000,14 +4000,20 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					if(!name_buf.NotEmptyS())
 						name_buf.Z().CatChar('#').Cat(r_blk.ID);
 					if(code_buf.NotEmptyS()) {
-						if(scs_obj.SearchBySymb(code_buf, &native_id, &scs_rec) > 0)
-							scs_pack.Rec = scs_rec;
+						if(scs_obj.SearchBySymb(code_buf, &native_id, &scs_rec) > 0) {
+							//scs_pack.Rec = scs_rec;
+							assert(scs_rec.ID == native_id); // @paranoic
+							THROW(scs_obj.GetPacket(native_id, &scs_pack) > 0);
+						}
 						else
 							native_id = 0;
 					}
 					else if(name_buf.NotEmpty()) {
-						if(scs_obj.SearchByName(name_buf, &native_id, &scs_rec) > 0)
-							scs_pack.Rec = scs_rec;
+						if(scs_obj.SearchByName(name_buf, &native_id, &scs_rec) > 0) {
+							//scs_pack.Rec = scs_rec;
+							assert(scs_rec.ID == native_id); // @paranoic
+							THROW(scs_obj.GetPacket(native_id, &scs_pack) > 0);
+						}
 						else
 							native_id = 0;
 					}
@@ -4520,8 +4526,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		PPWait(1);
 	{
 		SFileEntryPool fep;
-		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
-		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PosNodeUuidEntry> pos_node_uuid_list;
+		TSVector <PosNodeISymbEntry> pos_node_isymb_list;
 		StringSet ss_paths;
 		TSVector <PosProtocolFileProcessedEntry> processed_file_list;
 		{
@@ -4690,20 +4696,25 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								}
 							}
 							{
+								int    err_on_accept_occured = 0;
 								int    do_backup_file = 0;
 								int    do_remove_file = BIN(rPib.Flags & rPib.fRemoveProcessed);
 								int    all_receipients_processed_file = 1;
 								if(rPib.Flags & rPib.fProcessRefs) {
 									if(AcceptData(my_cn_id, BIN(rPib.Flags & rPib.fSilent)))
 										do_backup_file = 1;
-									else
+									else {
+										err_on_accept_occured = 1;
 										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+									}
 								}
-								if(rPib.Flags & rPib.fProcessQueries)
-									do_backup_file = 1;
-								if(rPib.Flags & rPib.fProcessSessions) {
-									if(rPib.Flags & rPib.fBackupProcessed)
+								if(!err_on_accept_occured) {
+									if(rPib.Flags & rPib.fProcessQueries)
 										do_backup_file = 1;
+									if(rPib.Flags & rPib.fProcessSessions) {
+										if(rPib.Flags & rPib.fBackupProcessed)
+											do_backup_file = 1;
+									}
 								}
 								if(RdB.DestBlkList.getCount() > 1) {
 									//
@@ -4729,7 +4740,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 											}
 										}
 									}
-									if(!i_ve_allready_processed_file) { // ћы уже есть в списке тех, кто обработал файл - не надо ничего добавл€ть
+									if(!i_ve_allready_processed_file && !err_on_accept_occured) { // ћы уже есть в списке тех, кто обработал файл - не надо ничего добавл€ть
 										// ‘айл нельз€ удал€ть - он еще не всеми обработан.
 										// ¬ этом случае мы должны добавить собственную метку, означающую, что нами файл обработан
 										PosProtocolFileProcessedEntry new_pfentry;
@@ -4739,10 +4750,20 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										AppendPosProtocolFileProcessedListEntry(in_file_name, new_pfentry);
 									}
 								}
-								if(all_receipients_processed_file && do_backup_file) {
-									int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
-									if(do_remove_file && backup_ok)
-										to_remove_file_list.add(in_file_name);
+								if(do_backup_file) {
+									if(!all_receipients_processed_file) {
+										//
+										// ≈сли файл еще не всеми обработан, но при этом старше 3 суток, то все равно архивируем и удал€ем его
+										// (вполне возможно, что остальные получатели ждут его в других каталогах).
+										//
+										if(!!RdB.SrcFileDtm && diffdatetimesec(getcurdatetime_(), RdB.SrcFileDtm) > (3600*24*3))
+											all_receipients_processed_file = 1;
+									}
+									if(all_receipients_processed_file) {
+										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
+										if(do_remove_file && backup_ok)
+											to_remove_file_list.add(in_file_name);
+									}
 								}
 								DestroyReadBlock();
 							}
@@ -5172,6 +5193,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 
 				}
 				else {
+					uint   local_force_period_ms = 0;
 					PPPosProtocol pppp;
 					DoProcess(pppp); // ѕервоначальна€ обработка вход€щих данных
 					DirChangeNotification * p_dcn = new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
@@ -5181,11 +5203,19 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 						HANDLE h_list[32];
 						h_list[h_count++] = stop_event;
 						h_list[h_count++] = *p_dcn;
-						if(IB.ForcePeriodMs) {
+						if(local_force_period_ms && (!IB.ForcePeriodMs || local_force_period_ms < IB.ForcePeriodMs)) {
+							LDATETIME dtm = getcurdatetime_();
+							dtm.addsec(local_force_period_ms / 1000);
+							timer.Set(dtm, 0);
+							h_list[h_count++] = timer;
+							local_force_period_ms = 0;
+						}
+						else if(IB.ForcePeriodMs) {
 							LDATETIME dtm = getcurdatetime_();
 							dtm.addsec(IB.ForcePeriodMs / 1000);
 							timer.Set(dtm, 0);
 							h_list[h_count++] = timer;
+							local_force_period_ms = 0;
 						}
 						uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
 						if(r == WAIT_OBJECT_0 + 0) { // stop event

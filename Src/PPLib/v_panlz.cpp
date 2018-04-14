@@ -605,10 +605,7 @@ PPALDD_CONSTRUCTOR(PriceAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(PriceAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PriceAnlz) { Destroy(); }
 
 int PPALDD_PriceAnlz::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -635,7 +632,4 @@ int PPALDD_PriceAnlz::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PriceAnlz::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PriceAnlz);
-}
+void PPALDD_PriceAnlz::Destroy() { DESTROY_PPVIEW_ALDD(PriceAnlz); }

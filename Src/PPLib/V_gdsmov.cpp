@@ -722,10 +722,7 @@ PPALDD_CONSTRUCTOR(GoodsMov)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsMov)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsMov) { Destroy(); }
 
 int PPALDD_GoodsMov::InitData(PPFilt & rFilt, long rsrv)
 {

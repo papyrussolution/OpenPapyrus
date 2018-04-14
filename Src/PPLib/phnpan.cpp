@@ -45,23 +45,24 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_PHNCPANE_NAME)) {
-			OnContactSelection();
+			OnContactSelection(0);
 		}
 		else if(event.isClusterClk(CTL_PHNCPANE_LISTMODE)) {
 			long   mode = 0;
 			GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
-			ShowList(mode);
+			ShowList(mode, 0);
 		}
 		else
 			return;
 		clearEvent(event);
 	}
-	void   OnContactSelection();
-	void   ShowList(int mode);
+	void   OnContactSelection(int onInit);
+	void   ShowList(int mode, int onInit);
 	State  S;
 	SmartListBox * P_Box;
 	PhoneServiceEventResponder * P_PSER;
 	PPObjPerson PsnObj;
+	PPObjPersonEvent PeObj;
 	PPObjArticle ArObj;
 	PPObjSCard ScObj;
 	PPObjPrjTask TodoObj;
@@ -97,7 +98,7 @@ private:
 	};
 };
 
-void PhonePaneDialog::ShowList(int mode)
+void PhonePaneDialog::ShowList(int mode, int onInit)
 {
 	if(P_Box) {
 		SString temp_buf;
@@ -107,7 +108,7 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmBill) {
 			// columns: id; date; code; warehouse; amount; debt
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@date",      10, 0, 2);
 				P_Box->AddColumn(-1, "@code",      14, 0, 3);
@@ -162,11 +163,11 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmTask) {
 			// columns: id; datetime; code
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@code",        10, 0, 2);
-				P_Box->AddColumn(-1, "@time",        10, 0, 3);
-				P_Box->AddColumn(-1, "@duetime",     10, 0, 4);
+				P_Box->AddColumn(-1, "@code",        15, 0, 2);
+				P_Box->AddColumn(-1, "@time",        15, 0, 3);
+				P_Box->AddColumn(-1, "@duetime",     15, 0, 4);
 				P_Box->AddColumn(-1, "@executor",    30, 0, 5);
 				P_Box->AddColumn(-1, "@client",      30, 0, 6);
 				P_Box->AddColumn(-1, "@description", 60, 0, 7);
@@ -198,7 +199,7 @@ void PhonePaneDialog::ShowList(int mode)
 				}
 				{
 					for(SEnum en = TodoObj.P_Tbl->EnumByEmployer(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
-						// Так как Enum заполняет не все поля в записи нам придется извляечь полную запись 
+						// Так как Enum заполняет не все поля в записи нам придется извлечь полную запись 
 						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
 							InfoListEntry new_entry;
 							new_entry.ID = todo_rec.ID;
@@ -222,7 +223,10 @@ void PhonePaneDialog::ShowList(int mode)
 						new_list.GetS(r_entry.CodeP, temp_buf);
 						ss.add(temp_buf);
 						ss.add(temp_buf.Z().Cat(r_entry.Dtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM)));
-						ss.add(temp_buf.Z().Cat(r_entry.DueDtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM)));
+						temp_buf.Z();
+						if(!!r_entry.DueDtm)
+							temp_buf.Cat(r_entry.DueDtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM));
+						ss.add(temp_buf);
 						if(r_entry.ExecutorID)
 							GetPersonName(r_entry.ExecutorID, temp_buf);
 						else
@@ -242,21 +246,57 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmPersonEvent) {
 			// columns: 
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@time",         10, 0, 2);
-				P_Box->AddColumn(-1, "@oprkind",      10, 0, 3);
-				P_Box->AddColumn(-1, "@person",       30, 0, 4);
-				P_Box->AddColumn(-1, "@contractor",   30, 0, 5);
+				P_Box->AddColumn(-1, "@time",         15, 0, 2);
+				P_Box->AddColumn(-1, "@oprkind",      20, 0, 3);
+				P_Box->AddColumn(-1, "@contractor",   40, 0, 5);
 				P_Box->AddColumn(-1, "@memo",         60, 0, 6);
 			}
 			S.Mode = mode;
 			if(S.PersonID) {
+				InfoListData new_list;
+				DateRange period;
+				period.Set(plusdate(getcurdate_(), -365), ZERODATE);
+				PersonEventTbl::Rec pe_rec;
+				for(SEnum en = PeObj.P_Tbl->EnumByPerson(S.PersonID, &period); en.Next(&pe_rec) > 0;) {
+					InfoListEntry new_entry;
+					new_entry.ID = pe_rec.ID;
+					new_entry.Dtm.Set(pe_rec.Dt, pe_rec.Tm);
+					new_entry.OpID = pe_rec.OpID;
+					new_entry.LocID = pe_rec.LocationID;
+					new_entry.ClientID = pe_rec.SecondID; // ! person (not article)
+					new_list.AddS(pe_rec.Memo, &new_entry.MemoP);
+					if(pe_rec.EstDuration)
+						(new_entry.DueDtm = new_entry.Dtm).addsec(pe_rec.EstDuration * 3600 * 24);
+					new_list.insert(&new_entry);
+				}
+				if(new_list.getCount()) {
+					PPObjPsnOpKind pok_obj;
+					PPPsnOpKind pok_rec;
+					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
+						const InfoListEntry & r_entry = new_list.at(ilidx);
+						ss.clear();
+						ss.add(temp_buf.Z().Cat(r_entry.Dtm, DATF_DMY, TIMF_HMS));
+						if(pok_obj.Fetch(r_entry.OpID, &pok_rec) > 0) 
+							temp_buf = pok_rec.Name;
+						else
+							temp_buf.Z();
+						ss.add(temp_buf);
+						temp_buf.Z();
+						if(r_entry.ClientID)
+							GetPersonName(r_entry.ClientID, temp_buf);
+						ss.add(temp_buf);
+						new_list.GetS(r_entry.MemoP, temp_buf);
+						ss.add(temp_buf);
+						P_Box->addItem(r_entry.ID, ss.getBuf());
+					}
+				}
 			}
 		}
 		else if(mode == State::lmScOp) {
 			// columns: 
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",     10, 0, 2);
 				P_Box->AddColumn(-1, "@amount",   10, 0, 3);
@@ -268,7 +308,7 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmScCCheck) {
 			// columns: 
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",         10, 0, 2);
 				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
@@ -282,7 +322,7 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmLocCCheck) {
 			// columns: 
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@time",         10, 0, 2);
 				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
@@ -296,18 +336,31 @@ void PhonePaneDialog::ShowList(int mode)
 		}
 		else if(mode == State::lmSwitchTo) {
 			// columns: 
-			if(S.Mode != mode) {
+			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@name",        6, 0, 2);
-				P_Box->AddColumn(-1, "@phone",       8, 0, 3);
+				P_Box->AddColumn(-1, "@name",        50, 0, 2);
+				P_Box->AddColumn(-1, "@phone",       10, 0, 3);
 			}
 			S.Mode = mode;
+			const StrAssocArray * p_internal_phone_list = P_PSER->GetInternalPhoneList();
+			if(p_internal_phone_list && p_internal_phone_list->getCount()) {
+				PersonTbl::Rec psn_rec;
+				for(uint ilidx = 0; ilidx < p_internal_phone_list->getCount(); ilidx++) {
+					StrAssocArray::Item entry = p_internal_phone_list->at_WithoutParent(ilidx);
+					if(entry.Id && !isempty(entry.Txt) && PsnObj.Fetch(entry.Id, &psn_rec) > 0) {
+						ss.clear();
+						ss.add(temp_buf.Z().Cat(psn_rec.Name).Strip());
+						ss.add(temp_buf.Z().Cat(entry.Txt).Strip());
+						P_Box->addItem(entry.Id, ss.getBuf());
+					}
+				}
+			}
 		}
 		P_Box->Draw_();
 	}
 }
 
-void PhonePaneDialog::OnContactSelection()
+void PhonePaneDialog::OnContactSelection(int onInit)
 {
 	long   item_id = getCtrlLong(CTLSEL_PHNCPANE_NAME);
 	/*AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
@@ -366,6 +419,11 @@ void PhonePaneDialog::OnContactSelection()
 		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
 		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
 		//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+	}
+	{
+		long   mode = 0;
+		GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
+		ShowList(mode, onInit);
 	}
 }
 
@@ -428,7 +486,7 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 			}
 		}
 		SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
-		OnContactSelection();
+		OnContactSelection(1);
 	}
 }
 
@@ -449,7 +507,7 @@ int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneD
 	return ok;
 }
 
-SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0)
+SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0), P_InternalPhoneList(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -472,6 +530,19 @@ SLAPI PhoneServiceEventResponder::~PhoneServiceEventResponder()
 	DS.Unadvise(AdvCookie_Ringing);
 	DS.Unadvise(AdvCookie_Up);
 	ZDELETE(P_PsnObj);
+	ZDELETE(P_InternalPhoneList);
+}
+
+const StrAssocArray * SLAPI PhoneServiceEventResponder::GetInternalPhoneList()
+{
+	if(!P_InternalPhoneList) {
+		THROW_SL(P_InternalPhoneList = new StrAssocArray);
+		THROW(PersonCore::GetELinkList(ELNKRT_INTERNALEXTEN, *P_InternalPhoneList));
+	}
+	CATCH
+		ZDELETE(P_InternalPhoneList);
+	ENDCATCH
+	return P_InternalPhoneList;
 }
 
 int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArray & rList)
@@ -479,20 +550,9 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	rList.clear();
 	int    ok = -1;
 	SString caller_buf;
-	PPObjLocation loc_obj;
-	PPIDArray ea_id_list;
 	PPEAddr::Phone::NormalizeStr(pCaller, caller_buf);
 	THROW_SL(SETIFZ(P_PsnObj, new PPObjPerson));
-	P_PsnObj->LocObj.P_Tbl->SearchPhoneIndex(caller_buf, 0, ea_id_list);
-	if(ea_id_list.getCount()) {
-		for(uint i = 0; i < ea_id_list.getCount(); i++) {
-			EAddrTbl::Rec ea_rec;
-			if(loc_obj.P_Tbl->GetEAddr(ea_id_list.get(i), &ea_rec) > 0) {
-				rList.Add(ea_rec.LinkObjType, ea_rec.LinkObjID);
-				ok = 1;
-			}
-		}
-	}
+	ok = P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, rList);
 	CATCHZOK
 	return ok;
 }
@@ -650,13 +710,14 @@ IMPLEMENT_PPFILT_FACTORY(PhnSvcMonitor); SLAPI PhnSvcMonitorFilt::PhnSvcMonitorF
 	Init(1, 0);
 }
 
-SLAPI PPViewPhnSvcMonitor::PPViewPhnSvcMonitor() : PPView(0, &Filt, PPVIEW_PHNSVCMONITOR), P_Cli(0)
+SLAPI PPViewPhnSvcMonitor::PPViewPhnSvcMonitor() : PPView(0, &Filt, PPVIEW_PHNSVCMONITOR), P_Cli(0), P_PsnObj(0)
 {
 	ImplementFlags |= implBrowseArray;
 }
 
 SLAPI PPViewPhnSvcMonitor::~PPViewPhnSvcMonitor()
 {
+	delete P_PsnObj;
 }
 
 PPBaseFilt * SLAPI PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
@@ -727,6 +788,33 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 				P_Cli->GetChannelStatus(0, List);
 			}
 		}
+		if(List.GetCount() && SETIFZ(P_PsnObj, new PPObjPerson)) {
+			SString contact_buf;
+			PPObjIDArray identified_caller_list;
+			SString caller_buf;
+			PhnSvcChannelStatus status_entry;
+			for(uint i = 0; i < List.GetCount(); i++) {
+				if(List.Get(i, status_entry) && status_entry.IdentifiedCallerName.Empty()) {
+					PPEAddr::Phone::NormalizeStr(status_entry.ConnectedLineNum, caller_buf);
+					identified_caller_list.clear();
+					if(P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, identified_caller_list) > 0) {
+						contact_buf.Z();
+						for(uint i = 0; contact_buf.Empty() && i < identified_caller_list.getCount(); i++) {
+							const PPObjID & r_oid = identified_caller_list.at(i);
+							if(r_oid.Obj == PPOBJ_PERSON) {
+								GetPersonName(r_oid.Id, contact_buf);
+							}
+							else if(r_oid.Obj == PPOBJ_LOCATION) {
+								LocationTbl::Rec loc_rec;
+								if(P_PsnObj->LocObj.Search(r_oid.Id, &loc_rec) > 0)
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
+							}
+						}
+						List.SetIdentifiedCallerName(i, contact_buf);
+					}
+				}
+			}
+		}
 	}
 	else
 		List.Clear();
@@ -777,7 +865,8 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(TempStatusEntry.CallerId);
 					break;
 				case 7: // CallerName
-					pBlk->Set(TempStatusEntry.CallerIdName.Transf(CTRANSF_UTF8_TO_INNER));
+					// @v10.0.01 pBlk->Set(TempStatusEntry.CallerIdName.Transf(CTRANSF_UTF8_TO_INNER));
+					pBlk->Set(TempStatusEntry.IdentifiedCallerName); // @v10.0.01
 					break;
 				case 8: // ConnectedLineNum
 					pBlk->Set(TempStatusEntry.ConnectedLineNum);

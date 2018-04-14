@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147490414
-LastAutoCodeList=1,11182;102,10164;103,10071;110,10000;111,11664;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10087;120,10005;1001,10000;121,10000;122,10000;123,10307;1002,10000;1003,10000;1004,10000;1005,10000;124,10080
+LastSignatureCode=2147490453
+LastAutoCodeList=1,11185;102,10164;103,10071;110,10000;111,11664;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10087;120,10005;1001,10000;121,10000;122,10000;123,10307;1002,10000;1003,10000;1004,10000;1005,10000;124,10080
 
 [SignatureList]
 testsign1=2147484450
@@ -4082,6 +4082,16 @@ scardseries_tag=2147486131
 scardseries_veriftag=2147486503
 scardseries_usagetime=2147487935
 scardseries_parent=2147489375
+trnovrrngdis=2147490431
+trnovrrngdisbonus=2147490432
+trnovrrngdis_range=2147490433
+trnovrrngdis_value=2147490434
+trnovrrngdis_series=2147490435
+trnovrrngdis_loc=2147490436
+trnovrrngdis_flags=2147490437
+trnovrrngdis_fbonusabsolutevalue=2147490438
+trnovrrngdis_fdiscountaddvalue=2147490439
+trnovrrngdis_fdiscountmultvalue=2147490440
 secur_crc=2147486132
 secur_id=2147486133
 secur_name=2147486134
@@ -4847,6 +4857,7 @@ goodsrestprn_disablegrouping=2147488499
 goodsrestprn_printbarcode=2147488500
 goodsrestprn_special=2147488501
 lotfilt=2147487954
+lotfiltorders=2147490423
 lotfilt_costdevrestr=2147487284
 lotfilt_costrange=2147487285
 lotfilt_drnone=2147487286
@@ -4878,6 +4889,10 @@ lotfilt_pricedevrestr=2147487311
 lotfilt_pricerange=2147487312
 lotfilt_qcexpiryprd=2147487313
 lotfilt_suppl=2147487314
+lotfilt_closedtag=2147490424
+lotfilt_closedtag_all=2147490425
+lotfilt_closedtag_opened=2147490426
+lotfilt_closedtag_closed=2147490427
 egaislotchargeon=2147488069
 egaislotchargeon_actchargeon=2147488070
 egaislotchargeon_actchargeonshop=2147488071
@@ -6680,6 +6695,9 @@ PPERR_EDI_OPNDEF_DESADV=76699
 PPERR_EDI_OPNDEF_ORDER=76700
 PPERR_EDI_DESADVBYNEQMAINORG=76717
 PPERR_EDI_UNBLRSLV_GOODS=76718
+PPERR_EDI_UNBLRSLV_BILLOBJ=76719
+PPERR_EDI_UNBLRSLV_BILLWH=76720
+PPERR_EDI_UNBLRSLV_BILLMAINORG=76721
 PPERR_EANCOM_RFFWOQ=76701
 PPERR_EANCOM_NADWOQ=76702
 PPERR_EANCOM_MOAWOQ=76703

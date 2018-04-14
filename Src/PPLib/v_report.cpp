@@ -1094,10 +1094,7 @@ PPALDD_CONSTRUCTOR(RptInfo)
 	}
 }
 
-PPALDD_DESTRUCTOR(RptInfo)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(RptInfo) { Destroy(); }
 
 int PPALDD_RptInfo::InitData(PPFilt & rFilt, long rsrv)
 {

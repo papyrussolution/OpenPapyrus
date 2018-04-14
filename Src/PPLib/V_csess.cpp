@@ -2836,10 +2836,7 @@ PPALDD_CONSTRUCTOR(CSessionView)
 	}
 }
 
-PPALDD_DESTRUCTOR(CSessionView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CSessionView) { Destroy(); }
 
 int PPALDD_CSessionView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2870,10 +2867,7 @@ int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_CSessionView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CSess);
-}
+void PPALDD_CSessionView::Destroy() { DESTROY_PPVIEW_ALDD(CSess); }
 //
 // Implementation of PPALDD_CSessExc
 //
@@ -2885,10 +2879,7 @@ PPALDD_CONSTRUCTOR(CSessExc)
 	}
 }
 
-PPALDD_DESTRUCTOR(CSessExc)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CSessExc) { Destroy(); }
 
 int PPALDD_CSessExc::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2946,7 +2937,4 @@ int PPALDD_CSessExc::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_CSessExc::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CSessExc);
-}
+void PPALDD_CSessExc::Destroy() { DESTROY_PPVIEW_ALDD(CSessExc); }

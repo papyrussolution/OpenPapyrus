@@ -469,27 +469,22 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
 	EffConnectedLineName.Z();
 	Application.Z();
 	Data.Z();
+	IdentifiedCallerName.Z();
 	return *this;
 }
 
 PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)), SStrGroup() // @v9.8.11 SArray-->SVector
 {
-	//Pool.add("$"); // zero index - is empty string
 }
 
 PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 {
-	//Pool.clear();
-	//Pool.add("$"); // zero index - is empty string
 	ClearS();
 	SVector::clear(); // @v9.8.11 SArray-->SVector
 	return *this;
 }
 
-uint PhnSvcChannelStatusPool::GetCount() const
-{
-	return getCount();
-}
+uint PhnSvcChannelStatusPool::GetCount() const { return getCount(); }
 
 int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 {
@@ -517,6 +512,7 @@ int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 	AddS(rStatus.EffConnectedLineName, &item.EffConnectedLineNameP);
 	AddS(rStatus.Application, &item.ApplicationP);
 	AddS(rStatus.Data, &item.DataP);
+	AddS(rStatus.IdentifiedCallerName, &item.IdentifiedCallerNameP); // @v10.0.01
 	insert(&item);
 	return ok;
 }
@@ -548,6 +544,19 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 		GetS(r_item.EffConnectedLineNameP, rStatus.EffConnectedLineName);
 		GetS(r_item.ApplicationP, rStatus.Application);
 		GetS(r_item.DataP, rStatus.Data);
+		GetS(r_item.IdentifiedCallerNameP, rStatus.IdentifiedCallerName); // @v10.0.01
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI PhnSvcChannelStatusPool::SetIdentifiedCallerName(uint idx, const char * pName)
+{
+	int    ok = 1;
+	if(idx < getCount()) {
+		Item_ & r_item = *(Item_ *)at(idx);
+		AddS(pName, &r_item.IdentifiedCallerNameP);
 	}
 	else
 		ok = 0;

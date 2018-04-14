@@ -2915,10 +2915,7 @@ PPALDD_CONSTRUCTOR(PriceListData)
 	}
 }
 
-PPALDD_DESTRUCTOR(PriceListData)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PriceListData) { Destroy(); }
 
 int PPALDD_PriceListData::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2987,7 +2984,4 @@ int PPALDD_PriceListData::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PriceListData::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PriceList);
-}
+void PPALDD_PriceListData::Destroy() { DESTROY_PPVIEW_ALDD(PriceList); }

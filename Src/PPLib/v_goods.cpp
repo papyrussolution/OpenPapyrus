@@ -3821,10 +3821,7 @@ PPALDD_CONSTRUCTOR(GoodsBasket)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsBasket)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsBasket) { Destroy(); }
 
 int PPALDD_GoodsBasket::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3896,10 +3893,7 @@ int PPALDD_GoodsBasket::NextIteration(PPIterID iterId)
 	return ok;
 }
 
-void PPALDD_GoodsBasket::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(GoodsBasket);
-}
+void PPALDD_GoodsBasket::Destroy() { DESTROY_PPVIEW_ALDD(GoodsBasket); }
 //
 // Implementation of PPALDD_GoodsView
 //
@@ -3911,10 +3905,7 @@ PPALDD_CONSTRUCTOR(GoodsView)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsView) { Destroy(); }
 
 int PPALDD_GoodsView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3944,10 +3935,7 @@ int PPALDD_GoodsView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Goods);
-}
+void PPALDD_GoodsView::Destroy() { DESTROY_PPVIEW_ALDD(Goods); }
 //
 // Implementation of PPALDD_GoodsStruc
 //
@@ -3959,16 +3947,11 @@ PPALDD_CONSTRUCTOR(GoodsStruc)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsStruc)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsStruc) { Destroy(); }
 
 struct Dl6_GoodsStruc_Support {
-	SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt)
+	SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt) : P_Iter(0), IsOwnPtr(0)
 	{
-		P_Iter = 0;
-		IsOwnPtr = 0;
 		if(rFilt.Ptr)
 			P_Iter = (GStrucIterator *)rFilt.Ptr;
 		else if(rFilt.ID) {
@@ -4088,10 +4071,7 @@ PPALDD_CONSTRUCTOR(QuotKind)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(QuotKind)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(QuotKind) { Destroy(); }
 
 int PPALDD_QuotKind::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4526,15 +4506,8 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 //
 // Implementation of PPALDD_GoodsFilt
 //
-PPALDD_CONSTRUCTOR(GoodsFilt)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(GoodsFilt)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(GoodsFilt) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(GoodsFilt) { Destroy(); }
 
 int PPALDD_GoodsFilt::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4923,15 +4896,8 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 //
 // Implementation of PPALDD_UhttGoodsArCode
 //
-PPALDD_CONSTRUCTOR(UhttGoodsArCode)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(UhttGoodsArCode)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(UhttGoodsArCode) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(UhttGoodsArCode) { Destroy(); }
 
 int PPALDD_UhttGoodsArCode::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5089,10 +5055,7 @@ PPALDD_CONSTRUCTOR(GoodsType)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(GoodsType)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsType) { Destroy(); }
 
 int PPALDD_GoodsType::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5121,10 +5084,7 @@ PPALDD_CONSTRUCTOR(GoodsTaxGrp)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(GoodsTaxGrp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsTaxGrp) { Destroy(); }
 
 int PPALDD_GoodsTaxGrp::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5158,10 +5118,7 @@ PPALDD_CONSTRUCTOR(GoodsClass)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(GoodsClass)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsClass) { Destroy(); }
 
 int PPALDD_GoodsClass::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5228,10 +5185,7 @@ PPALDD_CONSTRUCTOR(AssetWrOffGrp)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(AssetWrOffGrp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AssetWrOffGrp) { Destroy(); }
 
 int PPALDD_AssetWrOffGrp::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5266,10 +5220,7 @@ PPALDD_CONSTRUCTOR(GoodsClassView)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsClassView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsClassView) { Destroy(); }
 
 int PPALDD_GoodsClassView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -5371,10 +5322,7 @@ PPALDD_CONSTRUCTOR(GoodsLabel)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsLabel)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsLabel) { Destroy(); }
 
 int PPALDD_GoodsLabel::InitData(PPFilt & rFilt, long rsrv)
 {

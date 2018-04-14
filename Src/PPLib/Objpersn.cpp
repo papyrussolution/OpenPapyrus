@@ -168,17 +168,17 @@ VCard::Rec::Rec()
 
 void VCard::Rec::Init()
 {
-	Name.Z(); 
-	Org.Z(); 
-	WorkAddr.Z(); 
-	HomeAddr.Z(); 
-	BirthDay = ZERODATE; 
+	Name.Z();
+	Org.Z();
+	WorkAddr.Z();
+	HomeAddr.Z();
+	BirthDay = ZERODATE;
 	WorkPhone.Z();
-	HomePhone.Z(); 
-	MobilePhone.Z(); 
+	HomePhone.Z();
+	MobilePhone.Z();
 	WorkFax.Z();
-	HomeFax.Z(); 
-	Email1.Z(); 
+	HomeFax.Z();
+	Email1.Z();
 	Email2.Z();
 }
 
@@ -3015,14 +3015,14 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					if(action != PPACN_OBJADD) {
 						StringSet org_phone_list;
 						org_pack.ELA.GetListByType(ELNKRT_PHONE, org_phone_list);
-						org_pack.ELA.GetListByType(ELNKRT_INTERNALEXTEN, org_phone_list); 
+						org_pack.ELA.GetListByType(ELNKRT_INTERNALEXTEN, org_phone_list);
 						for(uint orgplp = 0; org_phone_list.get(&orgplp, temp_buf);) {
 							if(!phone_list.search(temp_buf, 0, 1)) {
 								THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 							}
 						}
 					}
-					// } @v10.0.0 
+					// } @v10.0.0
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
 						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 					}
@@ -4126,7 +4126,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 					if(temp_goods_list.getCount() == 1)
 						auto_goods_id = temp_goods_list.get(0);
 				}
-				// } @v9.8.9 
+				// } @v9.8.9
 				// } @v9.8.6
 				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, (void *)goods_grp_id);
 			}
@@ -6364,12 +6364,7 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 					if(t->search(3, &k3, spGt) && t->data.Object == ar_id && t->data.Dt <= _period.upp) do {
 						const PPID op_id = t->data.OpID;
 						if(ar_op_list.SearchPair(ar_id, op_id, 0)) {
-							if(t->data.Dt < _period.low) {
-								yes = 0; // Не новый клиент
-							}
-							else {
-								yes = 1; // Новый клиент
-							}
+							yes = (t->data.Dt < _period.low) ? 0/*Не новый клиент*/ : 1/*Новый клиент*/;
 							break;
 						}
 					} while(t->search(3, &k3, spNext) && t->data.Object == ar_id && t->data.Dt <= _period.upp);
@@ -6387,12 +6382,7 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 				k3.PersonID = psnID;
 				if(t->search(3, &k3, spGe) && t->data.PersonID == psnID && t->data.Dt <= _period.upp) do {
 					if(PsnOpList.bsearch(t->data.OpID)) {
-						if(t->data.Dt < _period.low) {
-							yes = 0; // Не новый клиент
-						}
-						else {
-							yes = 1; // Новый клиент
-						}
+						yes = (t->data.Dt < _period.low) ? 0/*Не новый клиент*/ : 1/*Новый клиент*/;
 						break;
 					}
 				} while(t->search(3, &k3, spNext) && t->data.PersonID == psnID && t->data.Dt <= _period.upp);

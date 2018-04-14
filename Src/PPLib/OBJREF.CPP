@@ -242,13 +242,13 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 	else {
 		if(Obj == PPOBJ_ACCSHEET) {
 			// @v8.9.0 {
-			SString temp_buf = pSymb;
-			temp_buf.Strip();
-			if(temp_buf.CmpNC("$buyer") == 0 || temp_buf.CmpNC("$client") == 0)
+			SString r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = pSymb).Strip();
+			if(r_temp_buf.IsEqiAscii("$buyer") || r_temp_buf.IsEqiAscii("$client"))
 				id = GetSellAccSheet();
-			else if(temp_buf.CmpNC("$suppl") == 0 || temp_buf.CmpNC("$supplier") == 0)
+			else if(r_temp_buf.IsEqiAscii("$suppl") || r_temp_buf.IsEqiAscii("$supplier"))
 				id = GetSupplAccSheet();
-			else if(temp_buf.CmpNC("$agent") == 0)
+			else if(r_temp_buf.IsEqiAscii("$agent"))
 				id = GetAgentAccSheet();
 			if(id && ref->GetItem(Obj, id, pRec) > 0)
 				r = 1;
@@ -260,13 +260,13 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 		}
 		// @v8.9.0 {
 		else if(Obj == PPOBJ_PRSNKIND) {
-			SString temp_buf = pSymb;
-			temp_buf.Strip();
-			if(temp_buf.CmpNC("$buyer") == 0 || temp_buf.CmpNC("$client") == 0)
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = pSymb).Strip();
+			if(r_temp_buf.IsEqiAscii("$buyer") || r_temp_buf.IsEqiAscii("$client"))
 				id = PPPRK_CLIENT;
-			else if(temp_buf.CmpNC("$suppl") == 0 || temp_buf.CmpNC("$supplier") == 0)
+			else if(r_temp_buf.IsEqiAscii("$suppl") || r_temp_buf.IsEqiAscii("$supplier"))
 				id = PPPRK_SUPPL;
-			else if(temp_buf.CmpNC("$agent") == 0)
+			else if(r_temp_buf.IsEqiAscii("$agent"))
 				id = PPPRK_AGENT;
 			if(id && ref->GetItem(Obj, id, pRec) > 0)
 				r = 1;

@@ -590,10 +590,7 @@ PPALDD_CONSTRUCTOR(AssetView)
 	}
 }
 
-PPALDD_DESTRUCTOR(AssetView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AssetView) { Destroy(); }
 
 int PPALDD_AssetView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -630,8 +627,4 @@ int PPALDD_AssetView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_AssetView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Asset);
-}
-
+void PPALDD_AssetView::Destroy() { DESTROY_PPVIEW_ALDD(Asset); }

@@ -484,10 +484,7 @@ PPALDD_CONSTRUCTOR(ShipmAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(ShipmAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ShipmAnlz) { Destroy(); }
 
 int PPALDD_ShipmAnlz::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -524,8 +521,5 @@ int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_ShipmAnlz::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(ShipmAnalyze);
-}
+void PPALDD_ShipmAnlz::Destroy() { DESTROY_PPVIEW_ALDD(ShipmAnalyze); }
 

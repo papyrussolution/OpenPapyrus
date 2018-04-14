@@ -461,10 +461,7 @@ PPALDD_CONSTRUCTOR(Balance)
 	}
 }
 
-PPALDD_DESTRUCTOR(Balance)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Balance) { Destroy(); }
 
 int PPALDD_Balance::InitData(PPFilt & rFilt, long rsrv)
 {

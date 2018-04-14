@@ -1500,18 +1500,18 @@ IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-int SLAPI PersonFilt::Setup()
+void SLAPI PersonFilt::Setup()
 {
 	SrchStr_.Strip();
-	if(P_RegF && !P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() && P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero()) {
-		ZDELETE(P_RegF);
-	}
-	else {
-		P_RegF->Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+	if(P_RegF) {
+		if(!P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() && P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero()) {
+			ZDELETE(P_RegF);
+		}
+		else
+			P_RegF->Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 	}
 	if(P_TagF && P_TagF->IsEmpty())
 		ZDELETE(P_TagF);
-	return 1;
 }
 
 int SLAPI PersonFilt::IsEmpty() const
@@ -1521,15 +1521,11 @@ int SLAPI PersonFilt::IsEmpty() const
 		Flags & fVatFree || StaffDivID || StaffOrgID || List.GetCount() || (P_TagF && !P_TagF->IsEmpty()) || (P_SjF && !P_SjF->IsEmpty()))
 		yes = 0;
 	else {
-		SString temp_buf;
-		GetExtssData(extssNameText, temp_buf);
-		if(temp_buf.NotEmptyS())
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		if(GetExtssData(extssNameText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
 			yes = 0;
-		else {
-			GetExtssData(extssEmailText, temp_buf);
-			if(temp_buf.NotEmptyS())
-				yes = 0;
-		}
+		else if(GetExtssData(extssEmailText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
+			yes = 0;
 	}
 	return yes;
 }
@@ -1809,8 +1805,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			}
 			else if(event.isCmd(cmSysjFilt2)) {
 				SysJournalFilt sj_filt;
-				if(Data.P_SjF)
-					sj_filt = *Data.P_SjF;
+				RVALUEPTR(sj_filt, Data.P_SjF);
 				sj_filt.ObjType = PPOBJ_PERSON;
 				if(EditSysjFilt2(&sj_filt) > 0) {
 					SETIFZ(Data.P_SjF, new SysJournalFilt);
@@ -1853,7 +1848,6 @@ int SLAPI PPViewPerson::CreateLikenessTable()
 	int ok = -1;
 	return ok;
 }
-
 
 int SLAPI PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
 {
@@ -2942,10 +2936,7 @@ PPALDD_CONSTRUCTOR(RegisterType)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(RegisterType)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(RegisterType) { Destroy(); }
 
 int PPALDD_RegisterType::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2975,10 +2966,7 @@ PPALDD_CONSTRUCTOR(PersonKind)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(PersonKind)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonKind) { Destroy(); }
 
 int PPALDD_PersonKind::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3007,10 +2995,7 @@ PPALDD_CONSTRUCTOR(PersonStatus)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(PersonStatus)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonStatus) { Destroy(); }
 
 int PPALDD_PersonStatus::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3102,10 +3087,7 @@ PPALDD_CONSTRUCTOR(PersonList)
 	}
 }
 
-PPALDD_DESTRUCTOR(PersonList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonList) { Destroy(); }
 
 int PPALDD_PersonList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3162,10 +3144,7 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PersonList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Person);
-}
+void PPALDD_PersonList::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
 //
 // Implementation of PPALDD_World
 //

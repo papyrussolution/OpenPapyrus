@@ -458,7 +458,7 @@ int SLAPI PPViewSysJournal::InitIteration()
 		k.tk1.ID2 = 0;
 	}
 	else if(P_TmpTbl) {
-		P_IterQuery = new BExtQuery(P_TmpTbl, 0);
+		P_IterQuery = new BExtQuery(P_TmpTbl, 0, 512); // @v10.0.01 0)-->0, 512)
 		P_IterQuery->selectAll();
 	}
 	else {
@@ -466,7 +466,7 @@ int SLAPI PPViewSysJournal::InitIteration()
 			idx = 1;
 		else
 			idx = 0;
-		P_IterQuery = new BExtQuery(P_Tbl, idx);
+		P_IterQuery = new BExtQuery(P_Tbl, idx, 512); // @v10.0.01 0)-->0, 512)
 		P_IterQuery->selectAll();
 		dbq = & daterange(P_Tbl->Dt, &Filt.Period);
 		dbq = ppcheckfiltid(dbq, P_Tbl->ObjType, Filt.ObjType);
@@ -1237,10 +1237,7 @@ PPALDD_CONSTRUCTOR(SysJournal)
 	}
 }
 
-PPALDD_DESTRUCTOR(SysJournal)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SysJournal) { Destroy(); }
 
 int PPALDD_SysJournal::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -1281,10 +1278,7 @@ int PPALDD_SysJournal::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_SysJournal::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(SysJournal);
-}
+void PPALDD_SysJournal::Destroy() { DESTROY_PPVIEW_ALDD(SysJournal); }
 //
 //
 //

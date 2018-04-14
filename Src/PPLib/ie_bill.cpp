@@ -3255,6 +3255,7 @@ int SLAPI PPBillImporter::Run()
 	int    ok = 1;
 	SString file_name;
 	SString temp_buf;
+	SString msg_buf;
 	LineIdSeq = 0;
 	PPWait(1);
 	Period.Actualize(ZERODATE);
@@ -3287,13 +3288,43 @@ int SLAPI PPBillImporter::Run()
 					{
 						PPEdiProcessor::DocumentInfo doc_inf;
 						PPEdiProcessor::DocumentInfoList doc_info_list;
-						TSCollection <PPEdiProcessor::Packet> doc_pack_list;
 						prc.GetDocumentList(doc_info_list);
-						for(uint i = 0; i < doc_info_list.GetCount(); i++) {
-							if(doc_info_list.GetByIdx(i, doc_inf)) { 
-								PPEdiProcessor::Packet doc_pack(doc_inf.EdiOp);
-								if(!prc.ReceiveDocument(&doc_inf, doc_pack_list))
-									Logger.LogLastError();
+						if(doc_info_list.GetCount()) {
+							TSCollection <PPEdiProcessor::Packet> doc_pack_list;
+							for(uint i = 0; i < doc_info_list.GetCount(); i++) {
+								if(doc_info_list.GetByIdx(i, doc_inf)) { 
+									PPEdiProcessor::Packet doc_pack(doc_inf.EdiOp);
+									if(!prc.ReceiveDocument(&doc_inf, doc_pack_list))
+										Logger.LogLastError();
+								}
+							}
+							if(doc_pack_list.getCount()) {
+								for(uint didx = 0; didx < doc_pack_list.getCount(); didx++) {
+									PPEdiProcessor::Packet * p_pack = doc_pack_list.at(didx);
+									if(p_pack) {
+										PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
+										if(p_bp && ((!this->LocID || p_bp->Rec.LocID == this->LocID) /*&& this->Period.CheckDate(p_bp->Rec.Dt)*/)) {
+											PPID   ex_bill_id = 0;
+											BillTbl::Rec ex_bill_rec;
+											if(P_BObj->P_Tbl->SearchAnalog(&p_bp->Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+												PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
+												if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
+													Logger.Log(msg_buf);
+											}
+											else {
+												int    is_valuation_modif = 0;
+												if(CheckOpFlags(p_bp->Rec.OpID, OPKF_NEEDVALUATION))
+													P_BObj->AutoCalcPrices(p_bp, 0, &is_valuation_modif);
+												if(P_BObj->__TurnPacket(p_bp, 0, 1, 1)) {
+													Logger.LogAcceptMsg(PPOBJ_BILL, p_bp->Rec.ID, 0);
+												}
+												else {
+													Logger.LogLastError();
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}

@@ -2530,7 +2530,6 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				rSht.GetByAssoc(rIdList.get(i), temp_buf.Z());
 				rF.WriteLine(rLineBuf.Cat(pTitle).Tab().Cat(temp_buf).CR());
 			}
-			//rF.WriteLine(rLineBuf.Z().CR());
 			return ok;
 		}
 	};
@@ -2595,7 +2594,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		int   IsExtinct;
 	};
 	enum {
-		//phasePreprocess,
+		phasePreprocess,
 		phase1
 	};
 	const  int phase_list[] = { phase1 };
@@ -2609,6 +2608,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	LongArray acceptedname_ref_list;
 	LLAssocArray gbif_to_cid_list;
 	BioTaxonomyEntry entry;
+	SrWordForm wordform;
 
 	CONCEPTID cid_biotaxonomy_category = 0;
 	CONCEPTID cid_biotaxonomy_kingdom = 0;
@@ -2702,7 +2702,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						case 31: entry.IsExtinct = temp_buf.IsEqiAscii("true") ? 1 : 0; break;
 					}
 				}
-				if(_phase == phase1) {
+				if(_phase == phasePreprocess) {
 					total_line_count++;
 					if(entry.TaxonID) {
 						acceptedname_ref_list.addnz(entry.AcceptedNameUsageID);
@@ -2733,104 +2733,112 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						generic_name_list.sortAndUndup();
 						genus_list.sortAndUndup();
 					}
-					{
-						//
-						// Префиксы концепций, соответствующих биологическим таксонам:
-						// biotaxon_s_: species
-						// biotaxon_infrs_: infraspecies
-						// biotaxon_g_: genus
-						// biotaxon_subg_: subgenus
-						// biotaxon_f_: family
-						// biotaxon_supf_: superfamily
-						// biotaxon_o_: order
-						// biotaxon_c_: class
-						// biotaxon_p_: phylum
-						// biotaxon_k_: kingdom
-						//
-						CONCEPTID cid_instance_of = 0;
-						name_buf.Z();
-						concept_symb_buf.Z();
-						if(entry.TaxonRank == "species") {
-							cid_instance_of = cid_biotaxonomy_species;
-							concept_symb_buf = "biotaxon_s_";
-							(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
-							if(oneof2(entry.TaxonomicStatusCode, taxstatusAcceptedName, taxstatusProvisionallyAcceptedName)) {
+				}
+				else if(_phase == phase1) {
+					//
+					// Префиксы концепций, соответствующих биологическим таксонам:
+					// biotaxon_s_: species
+					// biotaxon_infrs_: infraspecies
+					// biotaxon_g_: genus
+					// biotaxon_subg_: subgenus
+					// biotaxon_f_: family
+					// biotaxon_supf_: superfamily
+					// biotaxon_o_: order
+					// biotaxon_c_: class
+					// biotaxon_p_: phylum
+					// biotaxon_k_: kingdom
+					//
+					//#define BIOTAXON_C_PFX "biotxn_"
+					const char * p_csymb_pfx = "ebif";
+					CONCEPTID cid_instance_of = 0;
+					name_buf.Z();
+					SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &entry.TaxonID, sizeof(entry.TaxonID), concept_symb_buf);
+					if(entry.TaxonRank == "species") {
+						cid_instance_of = cid_biotaxonomy_species;
+						(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
+						if(oneof2(entry.TaxonomicStatusCode, taxstatusAcceptedName, taxstatusProvisionallyAcceptedName)) {
 
+						}
+					}
+					else if(entry.TaxonRank == "infraspecies") {
+						cid_instance_of = cid_biotaxonomy_infraspecies;
+						(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
+						if(entry.InfraspecificEpithet.NotEmpty()) {
+							name_buf.Space().Cat(entry.InfraspecificEpithet);
+						}
+					}
+					else if(entry.TaxonRank == "genus") {
+						cid_instance_of = cid_biotaxonomy_genus;
+						if(entry.GenericName.NotEmpty())
+							name_buf = entry.GenericName;
+						else
+							name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "family") {
+						cid_instance_of = cid_biotaxonomy_family;
+						name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "superfamily") {
+						cid_instance_of = cid_biotaxonomy_superfamily;
+						name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "order") {
+						cid_instance_of = cid_biotaxonomy_order;
+						name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "class") {
+						cid_instance_of = cid_biotaxonomy_class;
+						name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "phylum") {
+						cid_instance_of = cid_biotaxonomy_phylum;
+						name_buf = entry.ScientificName;
+					}
+					else if(entry.TaxonRank == "kingdom") {
+						cid_instance_of = cid_biotaxonomy_kingdom;
+						name_buf = entry.ScientificName;
+					}
+					else {
+					}
+					/*
+						TaxonomicStatus: "synonym" "accepted name" "ambiguous synonym" "misapplied name" "provisionally accepted name"
+						TaxonRank: species infraspecies kingdom phylum class order family superfamily genus
+					*/
+					if(cid_instance_of) {
+						//(temp_buf = name_buf).ReplaceChar(' ', '_');
+						//concept_symb_buf.Cat(temp_buf);
+						const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
+						CONCEPTID cid = 0;
+						NGID   ngram_id = 0;
+						SrCPropList cpl;
+						SrCProp cp;
+						ngram.clear();
+						name_ss.clear();
+						name_buf.Tokenize(" ", name_ss);
+						for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
+							LEXID  word_id = 0;
+							if(rDb.FetchWord(temp_buf, &word_id) > 0) {
 							}
-						}
-						else if(entry.TaxonRank == "infraspecies") {
-							cid_instance_of = cid_biotaxonomy_infraspecies;
-							concept_symb_buf = "biotaxon_infrs_";
-							(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
-							if(entry.InfraspecificEpithet.NotEmpty()) {
-								name_buf.Space().Cat(entry.InfraspecificEpithet);
-							}
-						}
-						else if(entry.TaxonRank == "genus") {
-							cid_instance_of = cid_biotaxonomy_genus;
-							concept_symb_buf = "biotaxon_g_";
-							if(entry.GenericName.NotEmpty())
-								name_buf = entry.GenericName;
-							else
-								name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "family") {
-							cid_instance_of = cid_biotaxonomy_family;
-							concept_symb_buf = "biotaxon_f_";
-							name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "superfamily") {
-							cid_instance_of = cid_biotaxonomy_superfamily;
-							concept_symb_buf = "biotaxon_supf_";
-							name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "order") {
-							cid_instance_of = cid_biotaxonomy_order;
-							concept_symb_buf = "biotaxon_o_";
-							name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "class") {
-							cid_instance_of = cid_biotaxonomy_class;
-							concept_symb_buf = "biotaxon_c_";
-							name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "phylum") {
-							cid_instance_of = cid_biotaxonomy_phylum;
-							concept_symb_buf = "biotaxon_p_";
-							name_buf = entry.ScientificName;
-						}
-						else if(entry.TaxonRank == "kingdom") {
-							cid_instance_of = cid_biotaxonomy_kingdom;
-							concept_symb_buf = "biotaxon_k_";
-							name_buf = entry.ScientificName;
-						}
-						else {
-						}
-						/*
-							TaxonomicStatus: "synonym" "accepted name" "ambiguous synonym" "misapplied name" "provisionally accepted name"
-							TaxonRank: species infraspecies kingdom phylum class order family superfamily genus
-						*/
-						if(cid_instance_of) {
-							(temp_buf = name_buf).ReplaceChar(' ', '_');
-							concept_symb_buf.Cat(temp_buf);
-							const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
-							CONCEPTID cid = 0;
-							NGID   ngram_id = 0;
-							SrCPropList cpl;
-							SrCProp cp;
-							ngram.clear();
-							name_ss.clear();
-							name_buf.Tokenize(" ", name_ss);
-							for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
-								LEXID  word_id = 0;
-								THROW(rDb.ResolveWord(temp_buf, &word_id));
+							else {
+								const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
+								assert(oneof2(rwr, 2, 0)); 
+								THROW(rwr);
 								assert(word_id);
-								ngram.add(word_id);
+								if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+									wordform.Clear();
+									wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
+									THROW(rDb.SetSimpleWordFlexiaModel(word_id, wordform, 0));
+								}
 							}
-							THROW(rDb.ResolveNGram(ngram, &ngram_id));
-							THROW(rDb.ResolveConcept(concept_symb_buf, &cid));
+							ngram.add(word_id);
+						}
+						THROW(rDb.ResolveNGram(ngram, &ngram_id));
+						{
+							const int rcr = rDb.ResolveConcept(concept_symb_buf, &cid);
+							THROW(rcr);
 							THROW(rDb.P_CNgT->Set(cid, ngram_id));
-							if(rDb.GetConceptPropList(cid, cpl) > 0) {
+							// если rcr == 1, то концепция существовала до вызова ResolveConcept
+							if(rcr == 1 && rDb.GetConceptPropList(cid, cpl) > 0) { 
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
 									if(cpl.GetByPos(pidx, cp) && cp.PropID == prop_instance) {
 										CONCEPTID _val = 0;
@@ -2844,15 +2852,18 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							THROW_SL(gbif_to_cid_list.Add(entry.TaxonID, cid, 0, 0));
 						}
 						items_per_tx++;
-						if(items_per_tx >= max_items_per_tx) {
-							if(p_ta) {
-								THROW_DB(p_ta->Commit(1));
-								ZDELETE(p_ta);
-							}
-							THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-							THROW_DB(*p_ta);
-							items_per_tx = 0;
+					}
+					else {
+						items_per_tx = items_per_tx;
+					}
+					if(items_per_tx >= max_items_per_tx) {
+						if(p_ta) {
+							THROW_DB(p_ta->Commit(1));
+							ZDELETE(p_ta);
 						}
+						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
+						THROW_DB(*p_ta);
+						items_per_tx = 0;
 					}
 				}
 			}
@@ -2863,7 +2874,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				PPWaitPercent(line_no, total_line_count);
 			}
 		}
-		if(_phase == phase1) {
+		if(_phase == phasePreprocess) {
 			taxonomic_status_list.sortAndUndup();
 			taxon_rank_list.sortAndUndup();
 			kingdom_list.sortAndUndup();

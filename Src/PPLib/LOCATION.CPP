@@ -586,6 +586,26 @@ int SLAPI LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, 
 
 int SLAPI LocationCore::SearchPhoneIndex(const char * pPhone, long options, LongArray & rResultList)
 	{ return P_Eac ? P_Eac->SearchPhone(pPhone, options, rResultList) : -1; }
+
+int SLAPI LocationCore::SearchPhoneObjList(const char * pPhone, long options, PPObjIDArray & rList)
+{ 
+	rList.clear();
+	int    ok = -1;
+	if(P_Eac) {
+		LongArray temp_list;
+		if(P_Eac->SearchPhone(pPhone, options, temp_list) > 0 && temp_list.getCount()) {
+			for(uint i = 0; i < temp_list.getCount(); i++) {
+				EAddrTbl::Rec ea_rec;
+				if(GetEAddr(temp_list.get(i), &ea_rec) > 0) {
+					rList.Add(ea_rec.LinkObjType, ea_rec.LinkObjID);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI LocationCore::GetEAddr(PPID id, EAddrTbl::Rec * pRec)
 	{ return P_Eac ? P_Eac->Search(id, pRec) : -1; }
 int SLAPI LocationCore::SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList)

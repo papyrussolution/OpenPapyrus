@@ -3009,10 +3009,7 @@ PPALDD_CONSTRUCTOR(SCardSeries)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(SCardSeries)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SCardSeries) { Destroy(); }
 
 int PPALDD_SCardSeries::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3049,10 +3046,7 @@ PPALDD_CONSTRUCTOR(SCardSerView)
 	}
 }
 
-PPALDD_DESTRUCTOR(SCardSerView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SCardSerView) { Destroy(); }
 
 int PPALDD_SCardSerView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3238,10 +3232,7 @@ PPALDD_CONSTRUCTOR(SCardList)
 	}
 }
 
-PPALDD_DESTRUCTOR(SCardList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SCardList) { Destroy(); }
 
 int PPALDD_SCardList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3278,10 +3269,7 @@ int PPALDD_SCardList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_SCardList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(SCard);
-}
+void PPALDD_SCardList::Destroy() { DESTROY_PPVIEW_ALDD(SCard); }
 //
 // Implementation of PPALDD_SCardOpList
 //
@@ -3293,10 +3281,7 @@ PPALDD_CONSTRUCTOR(SCardOpList)
 	}
 }
 
-PPALDD_DESTRUCTOR(SCardOpList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SCardOpList) { Destroy(); }
 
 int PPALDD_SCardOpList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3342,10 +3327,7 @@ int PPALDD_SCardOpList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_SCardOpList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(SCardOp);
-}
+void PPALDD_SCardOpList::Destroy() { DESTROY_PPVIEW_ALDD(SCardOp); }
 //
 //
 //
@@ -3592,10 +3574,7 @@ PPALDD_CONSTRUCTOR(UhttSCardOpArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(UhttSCardOpArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttSCardOpArray) { Destroy(); }
 
 int PPALDD_UhttSCardOpArray::InitData(PPFilt & rFilt, long rsrv)
 {

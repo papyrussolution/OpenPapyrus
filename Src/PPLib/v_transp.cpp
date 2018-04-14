@@ -441,10 +441,7 @@ PPALDD_CONSTRUCTOR(TransportView)
 	}
 }
 
-PPALDD_DESTRUCTOR(TransportView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TransportView) { Destroy(); }
 
 int PPALDD_TransportView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -472,7 +469,4 @@ int PPALDD_TransportView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TransportView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Transport);
-}
+void PPALDD_TransportView::Destroy() { DESTROY_PPVIEW_ALDD(Transport); }

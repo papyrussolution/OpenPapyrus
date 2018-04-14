@@ -437,22 +437,30 @@ int SLAPI PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, lon
 				if(Fetch(tm_list.get(i), &qk_rec) > 0) {
 					TimeRange tmr;
 					int    trcr = 0;
-					if(qk_rec.GetTimeRange(tmr) > 0 && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
-						suited = 0;
-					else if(dtm.d) {
-						if(!qk_rec.Period.IsZero() && !qk_rec.Period.CheckDate(dtm.d))
+					// @v10.0.01 {
+					if(flags & RTLPF_IGNCONDQUOTS) {
+						if(qk_rec.GetTimeRange(tmr) > 0 || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction()) 
 							suited = 0;
-						else if(qk_rec.HasWeekDayRestriction()) {
-							if(trcr == 2) {
-								if(!qk_rec.CheckWeekDay(plusdate(dtm.d, -1)))
-									suited = 0;
-							}
-							else {
-								if(!qk_rec.CheckWeekDay(dtm.d))
-									suited = 0;
+					}
+					else {
+					// } @v10.0.01
+						if(qk_rec.GetTimeRange(tmr) > 0 && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
+							suited = 0;
+						else if(dtm.d) {
+							if(!qk_rec.Period.IsZero() && !qk_rec.Period.CheckDate(dtm.d))
+								suited = 0;
+							else if(qk_rec.HasWeekDayRestriction()) {
+								if(trcr == 2) {
+									if(!qk_rec.CheckWeekDay(plusdate(dtm.d, -1)))
+										suited = 0;
+								}
+								else {
+									if(!qk_rec.CheckWeekDay(dtm.d))
+										suited = 0;
+								}
 							}
 						}
-					}
+					} // @v10.0.01 
 				}
 				else
 					suited = 0;

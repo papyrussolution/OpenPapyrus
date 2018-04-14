@@ -5037,10 +5037,7 @@ PPALDD_CONSTRUCTOR(AlcoRepConfig)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(AlcoRepConfig)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AlcoRepConfig) { Destroy(); }
 
 int PPALDD_AlcoRepConfig::InitData(PPFilt & rFilt, long rsrv)
 {

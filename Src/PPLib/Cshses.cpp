@@ -1434,7 +1434,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	}
 	{
 		RetailPriceExtractor::ExtQuotBlock eqb(AcnPack.ExtQuotID);
-		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, 0);
+		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, RTLPF_IGNCONDQUOTS); // @v10.0.01 flags 0-->RTLPF_IGNCONDQUOTS
 	}
 	Rec.Init();
 	BcPrefixList.freeAll();

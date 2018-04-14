@@ -211,10 +211,7 @@ int SLAPI BExtQuery::nextIteration()
 	}
 	else {
 		if(++Cur < ActCount) {
-			ok = 1;
-			if(State & stSqlProvider) {
-				ok = P_Stmt ? P_Stmt->GetData(Cur) : 0;
-			}
+			ok = (State & stSqlProvider) ? (P_Stmt ? P_Stmt->GetData(Cur) : 0) : 1;
 		}
 		else if(!(State & stEOF)) {
 			Cur = 0;
@@ -245,13 +242,11 @@ long SLAPI BExtQuery::countIterations(int reverse, void * pInitKey, int initSpMo
 int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 {
 	EXCEPTVAR(BtrError);
-
 	ActCount = 0;
 	RecSize = 0;
 	Cur = 0;
 	State &= ~stEOF;
 	P_Tbl->setIndex(index);
-
 	int    ok = 1, sp;
 	const  uint fields_count = Fields.GetCount();
 	BExtTail * p_tail = 0;

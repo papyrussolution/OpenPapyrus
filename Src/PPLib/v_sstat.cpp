@@ -1560,10 +1560,7 @@ PPALDD_CONSTRUCTOR(SStatView)
 	}
 }
 
-PPALDD_DESTRUCTOR(SStatView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SStatView) { Destroy(); }
 
 int PPALDD_SStatView::InitData(PPFilt & rFilt, long rsrv)
 {

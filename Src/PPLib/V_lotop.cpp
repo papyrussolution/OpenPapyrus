@@ -418,10 +418,7 @@ PPALDD_CONSTRUCTOR(LotOps)
 	}
 }
 
-PPALDD_DESTRUCTOR(LotOps)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(LotOps) { Destroy(); }
 
 int PPALDD_LotOps::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -462,8 +459,5 @@ int PPALDD_LotOps::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_LotOps::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(LotOp);
-}
+void PPALDD_LotOps::Destroy() { DESTROY_PPVIEW_ALDD(LotOp); }
 

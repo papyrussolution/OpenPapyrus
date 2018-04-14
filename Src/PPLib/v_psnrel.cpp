@@ -523,10 +523,7 @@ PPALDD_CONSTRUCTOR(PsnRelList)
 	}
 }
 
-PPALDD_DESTRUCTOR(PsnRelList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PsnRelList) { Destroy(); }
 
 int PPALDD_PsnRelList::InitData(PPFilt & rFilt, long rsrv)
 {

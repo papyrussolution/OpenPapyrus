@@ -2512,10 +2512,7 @@ PPALDD_CONSTRUCTOR(DebtTrnovr)
 	}
 }
 
-PPALDD_DESTRUCTOR(DebtTrnovr)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(DebtTrnovr) { Destroy(); }
 
 int PPALDD_DebtTrnovr::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2596,10 +2593,7 @@ int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_DebtTrnovr::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(DebtTrnovr);
-}
+void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 //
 //
 //
@@ -4758,10 +4752,7 @@ PPALDD_CONSTRUCTOR(DebtorStat)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(DebtorStat)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(DebtorStat) { Destroy(); }
 
 int PPALDD_DebtorStat::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4810,10 +4801,7 @@ int PPALDD_DebtorStat::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_DebtorStat::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(DebtorStat);
-}
+void PPALDD_DebtorStat::Destroy() { DESTROY_PPVIEW_ALDD(DebtorStat); }
 
 #if SLTEST_RUNNING
 

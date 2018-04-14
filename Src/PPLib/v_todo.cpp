@@ -2196,10 +2196,7 @@ PPALDD_CONSTRUCTOR(PrjTaskView)
 	}
 }
 
-PPALDD_DESTRUCTOR(PrjTaskView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PrjTaskView) { Destroy(); }
 
 int PPALDD_PrjTaskView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2242,10 +2239,7 @@ int PPALDD_PrjTaskView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PrjTaskView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PrjTask);
-}
+void PPALDD_PrjTaskView::Destroy() { DESTROY_PPVIEW_ALDD(PrjTask); }
 //
 // Implementation of PPALDD_PrjTaskViewCt
 //
@@ -2257,10 +2251,7 @@ PPALDD_CONSTRUCTOR(PrjTaskViewCt)
 	}
 }
 
-PPALDD_DESTRUCTOR(PrjTaskViewCt)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PrjTaskViewCt) { Destroy(); }
 
 int PPALDD_PrjTaskViewCt::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2340,7 +2331,4 @@ int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PrjTaskViewCt::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PrjTask);
-}
+void PPALDD_PrjTaskViewCt::Destroy() { DESTROY_PPVIEW_ALDD(PrjTask); }

@@ -284,6 +284,9 @@ public:
 			Code = rS.Code;
 			Name = rS.Name;
 			Addr = rS.Addr;
+			City = rS.City;
+			CountrySubEntity = rS.CountrySubEntity;
+			ZIP = rS.ZIP;
 			TSCollection_Copy(RefL, rS.RefL);
 			return *this;
 		}
@@ -291,6 +294,9 @@ public:
 		int    CountryCode;
 		SString Code;
 		SString Name;
+		SString City;
+		SString CountrySubEntity;
+		SString ZIP;
 		SString Addr;
 		TSCollection <RefValue> RefL;
 	};
@@ -316,9 +322,43 @@ public:
 		TSVector <QValue> QtyL;
 	};
 	struct DocumentValue {
-		DocumentValue()
+		DocumentValue() : FuncMsgCode(0)
 		{
 		}
+		LDATE  GetBillDate() const
+		{
+			LDATE   result = ZERODATE;
+			for(uint i = 0; i < DtmL.getCount(); i++) {
+				const DtmValue & r_val = DtmL.at(i);
+				if(r_val.Q == dtmqDocument) {
+					result = r_val.Dtm.d;
+					break;
+				}
+			}
+			return result;
+		}
+		LDATE  GetBillDueDate() const
+		{
+			LDATE   result = ZERODATE;
+			for(uint i = 0; i < DtmL.getCount(); i++) {
+				const DtmValue & r_val = DtmL.at(i);
+				if(oneof2(r_val.Q, dtmqDlvry, dtmqDlvryEstimated))
+					result = r_val.Dtm.d;
+			}
+			return result;
+		}
+		const char * GetFinalBillCode() const
+		{
+			if(BgmIdent.NotEmpty())
+				return BgmIdent;
+			else if(UnhIdent.NotEmpty())
+				return UnhIdent;
+			else
+				return "";
+		}
+		int    FuncMsgCode;
+		SString UnhIdent;
+		SString BgmIdent;
 		TSCollection <RefValue> RefL;
 		TSVector <DtmValue> DtmL;
 		TSVector <QValue> MoaL;
@@ -591,10 +631,14 @@ public:
 		amtqTotalCharges          = 259, // Total charges 
 		amtqTotalAllowances       = 260, // Total allowances
 		amtqInstalmentAmt         = 262, // Instalment amount
-		amtGoodsAndServicesTax    = 369, // Goods and services tax 
+		amtqGoodsAndServicesTax   = 369, // Goods and services tax 
 		amtqTotalAmtInclVAT       = 388, // Total amount including Value Added Tax (VAT)
 		amtqCalcBasisExclAllTaxes = 528, // Calculation basis excluding all taxes 
 		amtqUnloadAndHandlCost    = 542, // Unloading and handling cost
+
+		amtqExtBias               = 10000, // Типы сумм, начинающиеся с этого номера представлены алфавитными кодами
+			// и тарктуются как специализированные (часто справочные) значения.
+		amtqExt_XB5               = 10001 // XB5 Information amount (SWIFT Code). A monetary amount provided for information purposes.
 	};
 	int    SLAPI Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount);
 	//
@@ -687,9 +731,25 @@ public:
 	//
 	int    SLAPI Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack);
 	int    SLAPI Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack);
-	int    SLAPI Read_Document(void * pCtx, const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    SLAPI Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 private:
 	int    SLAPI PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID);
+	struct PartyResolveBlock {
+		SLAPI  PartyResolveBlock()
+		{
+			THISZERO();
+		}
+		long   Flags;
+		PPID   BillObjID;
+		PPID   MainOrgID;
+		PPID   AgentID;
+		PPID   PayerID;
+		PPID   DlvrLocID;
+		PPID   BillLocID;
+	};
+	int    SLAPI PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult);
+	void   SLAPI SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf);
+	int    SLAPI Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal);
 
 	PPEdiProcessor::ProviderImplementation * P_Pi;
 };
@@ -1069,11 +1129,15 @@ int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 				}
 			}
 		}
-		else if(SXml::IsName(p_n, "C819")) { // COUNTRY SUB-ENTITY DETAILS
-		}
 		else if(SXml::GetContentByName(p_n, "E3251", temp_buf)) { // Postal identification code
+			rV.ZIP = temp_buf;
 		}
 		else if(SXml::GetContentByName(p_n, "E3207", temp_buf)) { // Country name code
+		}
+		else if(SXml::GetContentByName(p_n, "E3164", temp_buf)) { // City name
+			rV.City = temp_buf;
+		}
+		else if(SXml::IsName(p_n, "C819")) { // COUNTRY SUB-ENTITY DETAILS
 		}
 	}
 	THROW_PP(party_q, PPERR_EANCOM_NADWOQ);
@@ -1128,7 +1192,10 @@ int SLAPI PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & r
 			for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 				if(SXml::GetContentByName(p_n2, "E5025", temp_buf)) {
 					moa_text = temp_buf;
-					qv.Q = temp_buf.ToLong();
+					if(temp_buf.IsEqiAscii("XB5"))
+						qv.Q = amtqExt_XB5;
+					else
+						qv.Q = temp_buf.ToLong();
 				}
 				else if(SXml::GetContentByName(p_n2, "E5004", temp_buf)) {
 					qv.Value = temp_buf.ToReal();
@@ -1136,7 +1203,7 @@ int SLAPI PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & r
 			}
 		}
 	}
-	if(moa_text.NotEmpty()) {
+	if(!moa_text.NotEmpty()) {
 		ok = -1;
 	}
 	else {
@@ -1653,16 +1720,145 @@ int SLAPI PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack,
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList)
+void SLAPI PPEanComDocument::SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf)
+{
+	rBuf.CatDivIfNotEmpty('/', 1).Cat(pVal->Code);
+	if(pVal->Name.NotEmpty())
+		rBuf.CatChar('[').Cat(pVal->Name).CatChar(']');
+}
+
+int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult)
+{
+	int    ok = 1;
+	const PPID reg_type_id = PPREGT_GLN;
+	SString temp_buf;
+	PPIDArray psn_list;
+	PPIDArray ar_list;
+	PPIDArray loc_list;
+	PPID   consignor_ar_id = 0;
+	PPID   consignee_psn_id = 0;
+	PPID   consignee_loc_id = 0;
+	SString addendum_msg_cli;
+	SString addendum_msg_main;
+	SString addendum_msg_wh;
+	if(ediOpID == PPEDIOP_DESADV) {
+		for(uint i = 0; i < pV->PartyL.getCount(); i++) {
+			const PartyValue * p_val = pV->PartyL.at(i);
+			if(p_val && p_val->Code.NotEmpty()) {
+				PPID   ar_id = 0;
+				switch(p_val->PartyQ) {
+					case EDIPARTYQ_SELLER:
+						SetupPartyAddedMsg(p_val, addendum_msg_cli);
+						if(P_Pi->PsnObj.ResolveGLN(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
+							pResult->BillObjID = ar_id;
+						break;
+					case EDIPARTYQ_BUYER:
+						{
+							SetupPartyAddedMsg(p_val, addendum_msg_main);
+							THROW(P_Pi->GetMainOrgGLN(temp_buf));
+							//THROW_PP_S(temp_buf == p_val->Code, PPERR_EDI_DESADVBYNEQMAINORG, p_val->Code);
+							if(temp_buf == p_val->Code) {
+								pResult->MainOrgID = P_Pi->MainOrgID;
+							}
+							else {
+								THROW(P_Pi->PsnObj.GetListByRegNumber(reg_type_id, PPPRK_MAIN, p_val->Code, psn_list.Z()));
+								if(psn_list.getCount())
+									pResult->MainOrgID = psn_list.get(0);
+							}
+						}
+						break;
+					case EDIPARTYQ_CONSIGNOR:
+						SetupPartyAddedMsg(p_val, addendum_msg_cli);
+						if(P_Pi->PsnObj.ResolveGLN(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
+							consignor_ar_id = ar_id;
+						break;
+					case EDIPARTYQ_CONSIGNEE:
+						SetupPartyAddedMsg(p_val, addendum_msg_wh);
+						if(P_Pi->PsnObj.LocObj.ResolveGLN(LOCTYP_WAREHOUSE, p_val->Code, loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							consignee_loc_id = loc_list.get(0);
+						}
+						else if(P_Pi->PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, p_val->Code, &loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							consignee_loc_id = loc_list.get(0);
+						}
+						break;
+					case EDIPARTYQ_DELIVERY: // Точка доставки
+						SetupPartyAddedMsg(p_val, addendum_msg_wh);
+						if(P_Pi->PsnObj.LocObj.ResolveGLN(LOCTYP_WAREHOUSE, p_val->Code, loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							pResult->BillLocID = loc_list.get(0);
+						}
+						else if(P_Pi->PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, p_val->Code, &loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							pResult->BillLocID = loc_list.get(0);
+						}
+						break;
+				}
+			}
+		}
+		if(!pResult->BillObjID) {
+			pResult->BillObjID = consignor_ar_id;
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_cli;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			THROW_PP_S(pResult->BillObjID, PPERR_EDI_UNBLRSLV_BILLOBJ, temp_buf);
+		}
+		else if(consignor_ar_id && consignor_ar_id != pResult->BillObjID) {
+			// @todo message (Контрагент не тот же, что и грузоотправитель. В общем случае это - нормально,
+			// но возможны и проблемы).
+		}
+		if(!pResult->BillLocID) {
+			pResult->BillLocID = consignee_loc_id;
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_wh;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			THROW_PP_S(pResult->BillLocID, PPERR_EDI_UNBLRSLV_BILLWH, temp_buf);
+		}
+		{
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_main;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			THROW_PP_S(pResult->MainOrgID, PPERR_EDI_UNBLRSLV_BILLMAINORG, temp_buf);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPEanComDocument::Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
+		if(SXml::IsName(p_n, "UNH")) {
+			THROW(Read_MessageHeader(p_n->children, temp_buf, rVal.UnhIdent));
+		}
+		else if(SXml::IsName(p_n, "BGM")) {
+			THROW(Read_BeginningOfMessage(p_n->children, temp_buf, rVal.BgmIdent, &rVal.FuncMsgCode));
+		}
+		else if(SXml::IsName(p_n, "DTM")) {
+			THROW(Read_DTM(p_n->children, rVal.DtmL));
+		}
+		else if(SXml::IsName(p_n, "MOA")) {
+			THROW(Read_MOA(p_n->children, rVal.MoaL));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
 	SString temp_buf;
-	SString unh_ident_buf;
-	SString bgm_ident_buf;
-	SString final_bill_code;
-	//SString ref_buf;
 	SString addendum_msg_buf;
-	int    func_msg_code = 0;
 	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
@@ -1675,21 +1871,9 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, T
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "DESADV")) {
 		THROW_PP(P_Pi->ACfg.Hdr.EdiDesadvOpID, PPERR_EDI_OPNDEF_DESADV);
-		THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
+		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
-			if(SXml::IsName(p_n, "UNH")) {
-				THROW(Read_MessageHeader(p_n->children, temp_buf, unh_ident_buf));
-			}
-			else if(SXml::IsName(p_n, "BGM")) {
-				THROW(Read_BeginningOfMessage(p_n->children, temp_buf, bgm_ident_buf, &func_msg_code));
-			}
-			else if(SXml::IsName(p_n, "DTM")) {
-				THROW(Read_DTM(p_n->children, document.DtmL));
-			}
-			else if(SXml::IsName(p_n, "MOA")) {
-				THROW(Read_MOA(p_n->children, document.MoaL));
-			}
-			else if(SXml::IsName(p_n, "SG1")) {
+			if(SXml::IsName(p_n, "SG1")) {
 				dtm_temp_list.clear();
 				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, "RFF")) {
@@ -1803,26 +1987,8 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, T
 			PPID   bill_op_id = P_Pi->ACfg.Hdr.EdiDesadvOpID;
 			LDATE  bill_dt = ZERODATE;
 			LDATE  bill_due_dt = ZERODATE;
-			PPID   bill_loc_id = 0;
-			PPID   bill_obj_id = 0;
-			PPID   bill_obj2_id = 0;
-			PPID   bill_consignor_ar_id = 0;
-			if(bgm_ident_buf.NotEmpty())
-				final_bill_code = bgm_ident_buf;
-			else if(unh_ident_buf.NotEmpty())
-				final_bill_code = unh_ident_buf;
-			else
-				final_bill_code.Z();
-			p_bpack = (PPBillPacket *)p_pack->P_Data;			
-			STRNSCPY(p_bpack->Rec.Code, bgm_ident_buf);
-			for(i = 0; i < document.DtmL.getCount(); i++) {
-				const DtmValue & r_val = document.DtmL.at(i);
-				switch(r_val.Q) {
-					case dtmqDocument: bill_dt = r_val.Dtm.d; break;
-					case dtmqDlvry: 
-					case dtmqDlvryEstimated: bill_due_dt = r_val.Dtm.d; break;
-				}
-			}
+			bill_dt = document.GetBillDate();
+			bill_due_dt = document.GetBillDueDate();
 			for(i = 0; i < document.MoaL.getCount(); i++) {
 				const QValue & r_val = document.MoaL.at(i);
 				switch(r_val.Q) {
@@ -1832,94 +1998,66 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, T
 					case amtqTaxableAmt: break;
 				}
 			}
-			for(i = 0; i < document.PartyL.getCount(); i++) {
-				const PartyValue * p_val = document.PartyL.at(i);
-				if(p_val) {
-					PPID   ar_id = 0;
-					switch(p_val->PartyQ) {
-						case EDIPARTYQ_SELLER:
-							if(P_Pi->PsnObj.ResolveGLN(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
-								bill_obj_id = ar_id;
-							break;
-						case EDIPARTYQ_BUYER:
+			{
+				PartyResolveBlock parties_blk;
+				PPBillPacket::SetupObjectBlock sob;
+				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
+				THROW(PreprocessPartiesOnReading(p_pack->DocType, &document, &parties_blk));
+				p_bpack = (PPBillPacket *)p_pack->P_Data;			
+				THROW(p_bpack->CreateBlank_WithoutCode(bill_op_id, 0, parties_blk.BillLocID, 1));
+				p_bpack->Rec.EdiOp = p_pack->DocType;
+				STRNSCPY(p_bpack->Rec.Code, document.GetFinalBillCode());
+				p_bpack->Rec.Dt = bill_dt;
+				if(checkdate(bill_due_dt, 0))
+					p_bpack->Rec.DueDate = bill_due_dt;
+				THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+				for(i = 0; i < document.DetailL.getCount(); i++) {
+					const DocumentDetailValue * p_item = document.DetailL.at(i);
+					if(p_item) {
+						PPTransferItem ti;
+						PPID   goods_id = 0;
+						THROW(ti.Init(&p_bpack->Rec, 1));
+						THROW(PreprocessGoodsOnReading(p_bpack, p_item, &goods_id));
+						assert(goods_id);
+						if(goods_id) {
+							ti.SetupGoods(goods_id, 0);
+							double line_amount_total = 0.0; // with VAT
+							double line_amount = 0.0; // without VAT
+							double line_tax_amount = 0.0; 
+							double line_price = 0.0; // without VAT
+							double line_qtty = 0.0;
+							double ordered_qtty = 0.0;
 							{
-								THROW(P_Pi->GetMainOrgGLN(temp_buf));
-								THROW_PP_S(temp_buf == p_val->Code, PPERR_EDI_DESADVBYNEQMAINORG, p_val->Code);
+								for(uint j = 0; j < p_item->QtyL.getCount(); j++) {
+									const QValue & r_qitem = p_item->QtyL.at(j);
+									if(r_qitem.Q == qtyqDespatch)
+										line_qtty = r_qitem.Value;
+									else if(r_qitem.Q == qtyqOrdered)
+										ordered_qtty = r_qitem.Value;
+								}
 							}
-							break;
-						case EDIPARTYQ_CONSIGNOR:
-							break;
-						case EDIPARTYQ_CONSIGNEE:
-							break;
-						case EDIPARTYQ_DELIVERY: // Точка доставки
 							{
-								PPIDArray loc_list;
-								if(P_Pi->PsnObj.LocObj.ResolveGLN(LOCTYP_WAREHOUSE, p_val->Code, loc_list) > 0) {
-									assert(loc_list.getCount());
-									bill_loc_id = loc_list.get(0);
+								for(uint j = 0; j < p_item->MoaL.getCount(); j++) {
+									const QValue & r_qitem = p_item->MoaL.at(j);
+									if(r_qitem.Q == amtqTotalLnItemsAmt)
+										line_amount_total = r_qitem.Value;
+									else if(r_qitem.Q == amtqUnitPrice) // without VAT
+										line_price = r_qitem.Value;
+									else if(r_qitem.Q == amtqLnItemAmt)
+										line_amount = r_qitem.Value;
+									else if(r_qitem.Q == amtqTaxAmt)
+										line_tax_amount = r_qitem.Value;
 								}
-								else {
-									loc_list.clear();
-									if(P_Pi->PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, p_val->Code, &loc_list) > 0) {
-										assert(loc_list.getCount());
-										bill_loc_id = loc_list.get(0);
-									}
-								}
 							}
-							break;
-					}
-				}
-			}
-			THROW(p_bpack->CreateBlank2(bill_op_id, bill_dt, bill_loc_id, 0));
-			STRNSCPY(p_bpack->Rec.Code, final_bill_code);
-			if(checkdate(bill_due_dt, 0))
-				p_bpack->Rec.DueDate = bill_due_dt;
-			for(i = 0; i < document.DetailL.getCount(); i++) {
-				const DocumentDetailValue * p_item = document.DetailL.at(i);
-				if(p_item) {
-					PPTransferItem ti;
-					PPID   goods_id = 0;
-					THROW(ti.Init(&p_bpack->Rec, 1));
-					THROW(PreprocessGoodsOnReading(p_bpack, p_item, &goods_id));
-					assert(goods_id);
-					if(goods_id) {
-						ti.SetupGoods(goods_id, 0);
-						double line_amount_total = 0.0; // with VAT
-						double line_amount = 0.0; // without VAT
-						double line_tax_amount = 0.0; 
-						double line_price = 0.0; // without VAT
-						double line_qtty = 0.0;
-						double ordered_qtty = 0.0;
-						{
-							for(uint j = 0; j < p_item->QtyL.getCount(); j++) {
-								const QValue & r_qitem = p_item->QtyL.at(j);
-								if(r_qitem.Q == qtyqDespatch)
-									line_qtty = r_qitem.Value;
-								else if(r_qitem.Q == qtyqOrdered)
-									ordered_qtty = r_qitem.Value;
+							if(line_qtty > 0.0) {
+								ti.Quantity_ = R6(fabs(line_qtty));
+								if(line_amount_total > 0.0)
+									ti.Cost = R5(line_amount_total / ti.Quantity_);
+								else if(line_amount > 0.0)
+									ti.Cost = R5(line_amount / ti.Quantity_);
+								ti.Price = 0.0;
+								p_bpack->LoadTItem(&ti, 0, 0);
 							}
-						}
-						{
-							for(uint j = 0; j < p_item->MoaL.getCount(); j++) {
-								const QValue & r_qitem = p_item->MoaL.at(j);
-								if(r_qitem.Q == amtqTotalLnItemsAmt)
-									line_amount_total = r_qitem.Value;
-								else if(r_qitem.Q == amtqUnitPrice) // without VAT
-									line_price = r_qitem.Value;
-								else if(r_qitem.Q == amtqLnItemAmt)
-									line_amount = r_qitem.Value;
-								else if(r_qitem.Q == amtqTaxAmt)
-									line_tax_amount = r_qitem.Value;
-							}
-						}
-						if(line_qtty > 0.0) {
-							ti.Quantity_ = R6(fabs(line_qtty));
-							if(line_amount_total > 0.0)
-								ti.Cost = R5(line_amount_total / ti.Quantity_);
-							else if(line_amount > 0.0)
-								ti.Cost = R5(line_amount / ti.Quantity_);
-							ti.Price = 0.0;
-							p_bpack->LoadTItem(&ti, 0, 0);
 						}
 					}
 				}
@@ -1929,24 +2067,13 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, T
 	}
 	else if(SXml::IsName(p_root, "ORDERS")) {
 		THROW_PP(P_Pi->ACfg.Hdr.EdiOrderOpID, PPERR_EDI_OPNDEF_ORDER);
+		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_ORDER));
 		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
-			if(SXml::IsName(p_n, "UNH")) {
-				THROW(Read_MessageHeader(p_n->children, temp_buf, unh_ident_buf));
-			}
-			else if(SXml::IsName(p_n, "BGM")) {
-				THROW(Read_BeginningOfMessage(p_n->children, temp_buf, bgm_ident_buf, &func_msg_code));
-			}
-			else if(SXml::IsName(p_n, "DTM")) {
-				THROW(Read_DTM(p_n->children, document.DtmL));
-			}
-			else if(SXml::IsName(p_n, "MOA")) {
-				THROW(Read_MOA(p_n->children, document.MoaL));
-			}
 			//
 			// ...
 			//
-			else if(SXml::IsName(p_n, "CNT")) {
+			if(SXml::IsName(p_n, "CNT")) {
 				int    cnt_q = 0;
 				double cnt_value = 0.0;
 				THROW(Read_CNT(p_n->children, &cnt_q, &cnt_value));
@@ -1958,6 +2085,8 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, T
 		}
 	}
 	if(p_pack) {
+		if(p_bpack)
+			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent);
 		rList.insert(p_pack);
 		p_pack = 0; // Перед выходом экземпляр разрушается
 	}
@@ -2764,30 +2893,49 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
 	if(pIdent && pIdent->Box.NotEmpty() && pIdent->SId.NotEmpty()) {
-		InetUrl url;
-		if(Epp.MakeUrl(0, url)) {
-			int    prot = url.GetProtocol();
-			if(prot == InetUrl::protUnkn) {
-				url.SetProtocol(InetUrl::protFtp);
+		int    skip = 0;
+		SString temp_buf;
+		if(!pIdent->Uuid.IsZero())
+			pIdent->Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		else {
+			SPathStruc ps(pIdent->SId);
+			temp_buf = ps.Nam;
+		}
+		const SString edi_ident_buf(temp_buf);
+		if(edi_ident_buf.NotEmpty()) {
+			PPIDArray ex_bill_id_list;
+			PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, edi_ident_buf, &ex_bill_id_list);
+			if(ex_bill_id_list.getCount()) {
+				// Документ уже существует ?@todo message
+				skip = 1;
 			}
-			if(prot == InetUrl::protFtp) {
-				const char * p_box = pIdent->Box;
-				SString temp_buf;
-				ScURL  curl;
-				THROW(p_ctx = xmlNewParserCtxt());
-				(temp_buf = p_box).SetLastDSlash().Cat(pIdent->SId);
-				url.SetComponent(url.cPath, temp_buf);
+		}
+		if(!skip) {
+			InetUrl url;
+			if(Epp.MakeUrl(0, url)) {
+				int    prot = url.GetProtocol();
+				if(prot == InetUrl::protUnkn) {
+					url.SetProtocol(InetUrl::protFtp);
+				}
+				if(prot == InetUrl::protFtp) {
+					const char * p_box = pIdent->Box;
+					ScURL  curl;
+					THROW(p_ctx = xmlNewParserCtxt());
+					(temp_buf = p_box).SetLastDSlash().Cat(pIdent->SId);
+					url.SetComponent(url.cPath, temp_buf);
 
-				GetTempInputPath(pIdent->EdiOp, temp_buf);
-				temp_buf.SetLastSlash().Cat(pIdent->SId);
-				if(!fileExists(temp_buf)) {
-					THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
+					GetTempInputPath(pIdent->EdiOp, temp_buf);
+					temp_buf.SetLastSlash().Cat(pIdent->SId);
+					if(!fileExists(temp_buf)) {
+						THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
+					}
+					{
+						PPEanComDocument s_doc(this);
+						const int rdr = s_doc.Read_Document(p_ctx, temp_buf, edi_ident_buf, rList);
+						THROW(rdr);
+					}
+					ok = 1;
 				}
-				{
-					PPEanComDocument s_doc(this);
-					THROW(s_doc.Read_Document(p_ctx, temp_buf, rList));
-				}
-				ok = 1;
 			}
 		}
 	}

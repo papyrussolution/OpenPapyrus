@@ -18,9 +18,7 @@ SLAPI PersonEventCore::PersonEventCore() : PersonEventTbl()
 }
 
 int SLAPI PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec);
-}
+	{ return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec); }
 
 int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEventTbl::Rec * pRec)
 {
@@ -60,6 +58,31 @@ int SLAPI PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_t
 	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
 int SLAPI PersonEventCore::Remove(PPID id, int use_ta)
 	{ return RemoveByID(this, id, use_ta); }
+
+int SLAPI PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle)
+{
+	BExtQuery * q = new BExtQuery(this, 3);
+	DBQ * dbq = &(this->PersonID == prmrPersonID);
+	if(pPeriod) {
+		if(checkdate(pPeriod->low, 0))
+            dbq = &(*dbq && this->Dt >= pPeriod->low);
+		if(checkdate(pPeriod->upp, 0))
+			dbq = &(*dbq && this->Dt <= pPeriod->upp);
+	}
+	q->selectAll().where(*dbq);
+	PersonEventTbl::Key3 k3;
+	MEMSZERO(k3);
+	k3.PersonID = prmrPersonID;
+	k3.OprNo = 0;
+	q->initIteration(0, &k3, spGe);
+	return EnumList.RegisterIterHandler(q, pHandle);
+}
+
+SEnumImp * SLAPI PersonEventCore::EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod)
+{
+	long   h = -1;
+	return InitEnum(prmrPesonID, pPeriod, &h) ? new PPTblEnum <PersonEventCore>(this, h) : 0;
+}
 
 int SLAPI PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount)
 {
@@ -185,10 +208,9 @@ int SLAPI PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, S
 //
 TLP_IMPL(PPObjPersonEvent, PersonEventCore, P_Tbl);
 
-SLAPI PPObjPersonEvent::PPObjPersonEvent(void * extraPtr) : PPObject(PPOBJ_PERSONEVENT)
+SLAPI PPObjPersonEvent::PPObjPersonEvent(void * extraPtr) : PPObject(PPOBJ_PERSONEVENT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	P_ScObj = new PPObjSCard;
 }
 
@@ -220,10 +242,12 @@ SString & FASTCALL PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * 
 	return rBuf;
 }
 
+int SLAPI PPObjPersonEvent::Search(PPID id, void * b)
+	{ return P_Tbl->Search(id, (PersonEventTbl::Rec *)b); }
 const char * SLAPI PPObjPersonEvent::GetNamePtr()
-{
-	return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr();
-}
+	{ return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); }
+int SLAPI PPObjPersonEvent::DeleteObj(PPID id)
+	{ return PutPacket(&id, 0, 0); }
 
 int SLAPI PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -289,11 +313,6 @@ SString & SLAPI PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRe
 	return rBuf;
 }
 
-int SLAPI PPObjPersonEvent::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, (PersonEventTbl::Rec *)b);
-}
-
 int PPObjPersonEvent::SearchPairEvent(PPID evID, int dirArg, PersonEventTbl::Rec * pRec, PersonEventTbl::Rec * pPairRec)
 {
 	int    ok = -1;
@@ -338,11 +357,6 @@ int PPObjPersonEvent::SearchPairEvent(PPID evID, int dirArg, PersonEventTbl::Rec
 	}
 	ASSIGN_PTR(pPairRec, pair_rec);
 	return ok;
-}
-
-int SLAPI PPObjPersonEvent::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
 }
 
 int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID prmrPersonID)
@@ -595,13 +609,9 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 			class EgdcThread : public PPThread {
 			public:
 				EgdcThread(int deviceClass, const char * pEntryName, const char * pCmd, const char * pMutexName) :
-					PPThread(PPThread::kUnknown, pEntryName, 0), Ad(0)
+					PPThread(PPThread::kUnknown, pEntryName, 0), Ad(0), MutexName(pMutexName), Valid(1), P_Mutex(0), CmdText(pCmd)
 				{
-					MutexName = pMutexName;
-					Valid = 1;
-					P_Mutex = 0;
 					Ad.PCpb.Cls = deviceClass;
-					CmdText = pCmd;
 					THROW(CmdText.NotEmptyS());
 					THROW(Ad.IdentifyDevice(deviceClass, pEntryName));
 					//THROW(Ad.GetDllName(deviceClass, pEntryName, Ad.PCpb.DllName));
@@ -892,7 +902,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 												// @v9.9.12 PPUnit unit_rec;
 												// @v9.9.12 if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
 													// @v9.9.12 ratio = unit_rec.BaseRatio;
-												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) { // @v9.9.12 
+												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) { // @v9.9.12
 													if(ratio > 0.0) {
 														PersonEventCore::PairIdent pi;
 														pi.PersonID = psn_id;
@@ -2082,20 +2092,20 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 			int    crit = 0;
 			int    subcrit = 0;
 			int    no_param = 0;
-			if(temp_buf.IsEqNC("OP"))
+			if(temp_buf.IsEqiAscii("OP"))
 				crit = cOp;
-			else if(temp_buf.IsEqNC("PRMRSCARD") || temp_buf.IsEqNC("SCARD"))
+			else if(temp_buf.IsEqiAscii("PRMRSCARD") || temp_buf.IsEqiAscii("SCARD"))
 				crit = cPrmrSCard;
-			else if(temp_buf.IsEqNC("SCNDSCARD"))
+			else if(temp_buf.IsEqiAscii("SCNDSCARD"))
 				crit = cScndSCard;
-			else if(temp_buf.IsEqNC("PRMRPERSON") || temp_buf.IsEqNC("PERSON"))
+			else if(temp_buf.IsEqiAscii("PRMRPERSON") || temp_buf.IsEqiAscii("PERSON"))
 				crit = cPrmrPerson;
-			else if(temp_buf.IsEqNC("SCNDPERSON"))
+			else if(temp_buf.IsEqiAscii("SCNDPERSON"))
 				crit = cScndPerson;
-			else if(temp_buf.IsEqNC("INTERACTIVELEVEL") || temp_buf.IsEqNC("INTERACTLEVEL")) {
+			else if(temp_buf.IsEqiAscii("INTERACTIVELEVEL") || temp_buf.IsEqiAscii("INTERACTLEVEL")) {
 				crit = cInteractLevel;
 			}
-			else if(temp_buf.IsEqNC("NONINTERACTIVE") || temp_buf.IsEqNC("NONINTERACT")) {
+			else if(temp_buf.IsEqiAscii("NONINTERACTIVE") || temp_buf.IsEqiAscii("NONINTERACT")) {
 				crit = cNonInteractive;
 				no_param = 1;
 			}
@@ -2105,9 +2115,9 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 			if(scan[0] == '.') {
 				scan.Incr();
 				THROW(scan.Skip().GetIdent(temp_buf)); // @error
-				if(temp_buf.IsEqNC("ID"))
+				if(temp_buf.IsEqiAscii("ID"))
 					subcrit = scID;
-				else if(temp_buf.IsEqNC("CODE"))
+				else if(temp_buf.IsEqiAscii("CODE"))
 					subcrit = scCode;
 				else {
 					CALLEXCEPT(); // @error InvalidSubcriterion
@@ -2334,9 +2344,8 @@ int SLAPI AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog
 */
 #endif // } 0
 
-SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::ProcessDeviceInputBlock() : Ad(0)
+SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::ProcessDeviceInputBlock() : Ad(0), State(0)
 {
-	State = 0;
 }
 
 const SString & SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::GetDeviceText() const
@@ -2355,10 +2364,10 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 
 	rBlk.State = 0;
 	rBlk.Out.Clear();
-	rBlk.TempBuf = 0;
+	rBlk.TempBuf.Z();
 	rBlk.Filt = rFilt;
-	rBlk.DeviceText = 0;
-	rBlk.InfoText = 0;
+	rBlk.DeviceText.Z();
+	rBlk.InfoText.Z();
 
 	THROW_PP(rFilt.ReaderDvcID, PPERR_ADDPEVUNDEFDVC);
 	THROW_PP(rFilt.OpID, PPERR_UNDEFPEOP);

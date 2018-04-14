@@ -656,11 +656,12 @@ SLAPI SrNGram::SrNGram() : ID(0), Ver(0)
 {
 }
 
-void SLAPI SrNGram::Z()
+SrNGram & SLAPI SrNGram::Z()
 {
 	ID = 0;
 	Ver = 0;
 	WordIdList.clear();
+	return *this;
 }
 
 static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
@@ -908,7 +909,8 @@ struct SrConcept_SurrogatePrefix {
 };
 
 static const SrConcept_SurrogatePrefix SrConcept_SurrogatePrefix_List[] = {
-	{ SrConcept::surrsymbsrcFIAS, "fias" }
+	{ SrConcept::surrsymbsrcFIAS, "fias" },
+	{ SrConcept::surrsymbsrcGBIF, "gbif" }
 };
 
 static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
@@ -926,14 +928,19 @@ int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint
 {
 	int    ok = 0;
 	rSymb.Z();
+	const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+	assert(!isempty(p_prefix));
 	if(surrsymbpfx == surrsymbsrcFIAS) {
 		if(pData && dataSize == sizeof(S_GUID)) {
-			const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
-			assert(p_prefix);
-			SString temp_buf;
-			temp_buf.EncodeMime64(pData, dataSize);
-			rSymb.Cat(p_prefix).Cat(temp_buf);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.EncodeMime64(pData, dataSize);
+			rSymb.Cat(p_prefix).Cat(r_temp_buf);
 			ok = 1;
+		}
+	}
+	else if(surrsymbpfx == surrsymbsrcGBIF) {
+		if(pData && dataSize == sizeof(uint32)) {
+			rSymb.Cat(p_prefix).Cat(*(uint32 *)pData);
 		}
 	}
 	return ok;

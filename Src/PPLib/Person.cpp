@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // @Kernel
 //
@@ -1293,28 +1293,89 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 	return ok;
 }
 
+int SLAPI PersonCore::GetELinkList(int elnkrt, StrAssocArray & rList)
+{
+	rList.Clear();
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPELinkArray temp_list;
+	PPIDArray additional_psn_list; 
+	size_t buf_sz = SKILOBYTE(8);
+	size_t max_req_buf_size = 0;
+	PropertyTbl::Rec * p_buf = 0;
+	PropertyTbl::Key1 k1;
+	PPObjELinkKind elk_obj;
+	PPELinkKind elk_rec;
+	MEMSZERO(k1);
+	k1.ObjType = PPOBJ_PERSON;
+	k1.Prop = PSNPRP_ELINK;
+	THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::M(buf_sz));
+	if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
+		const PPID psn_id = p_ref->Prop.data.ObjID;
+		const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
+		if(buf_sz < rec_sz) {
+			max_req_buf_size = rec_sz;
+			additional_psn_list.add(psn_id);
+		}
+		else {
+			memcpy(p_buf, &p_ref->Prop.data, rec_sz);
+			//
+			temp_list.clear();
+			THROW(Helper_GetELinksFromPropRec(p_buf, rec_sz, &temp_list));
+			for(uint j = 0; j < temp_list.getCount(); j++) {
+				const PPELink & r_item = temp_list.at(j);
+				if(r_item.Addr[0] && (!elnkrt || (elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == elnkrt))) {
+					rList.AddFast(psn_id, r_item.Addr);
+					ok = 1;
+				}
+			}
+		}
+	} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
+	if(additional_psn_list.getCount()) {
+		buf_sz = max_req_buf_size;
+		THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::R(p_buf, buf_sz));
+		for(uint i = 0; i < additional_psn_list.getCount(); i++) {
+			const PPID psn_id = additional_psn_list.get(i);
+			THROW(p_ref->GetProperty(PPOBJ_PERSON, psn_id, PSNPRP_ELINK, p_buf, buf_sz) > 0);
+			const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
+			//
+			temp_list.clear();
+			THROW(Helper_GetELinksFromPropRec(p_buf, rec_sz, &temp_list));
+			for(uint j = 0; j < temp_list.getCount(); j++) {
+				const PPELink & r_item = temp_list.at(j);
+				if(r_item.Addr[0] && (!elnkrt || (elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == elnkrt))) {
+					rList.AddFast(psn_id, r_item.Addr);
+					ok = 1;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 // static
 int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
-	size_t sz = 4096; // @v8.8.1 2048-->4096
-	PropertyTbl::Rec * buf = 0;
+	size_t sz = SKILOBYTE(4); // @v8.8.1 2048-->4096
+	PropertyTbl::Rec * p_buf = 0;
 	ary->clear();
-	THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::M(sz));
-	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
+	THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::M(sz));
+	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz));
 	if(r > 0) {
 		size_t i = sz;
-		sz = (size_t)buf->Val2 + PROPRECFIXSIZE;
+		sz = (size_t)p_buf->Val2 + PROPRECFIXSIZE;
 		if(i < sz) {
-			THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::R(buf, sz));
-			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
+			THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::R(p_buf, sz));
+			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz) > 0);
 		}
-		THROW(Helper_GetELinksFromPropRec(buf, sz, ary));
+		THROW(Helper_GetELinksFromPropRec(p_buf, sz, ary));
 	}
 	THROW(r);
 	CATCHZOK
-	SAlloc::F(buf);
+	SAlloc::F(p_buf);
 	return ok;
 }
 

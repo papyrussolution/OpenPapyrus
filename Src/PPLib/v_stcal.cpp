@@ -796,10 +796,7 @@ PPALDD_CONSTRUCTOR(StaffCalView)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(StaffCalView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(StaffCalView) { Destroy(); }
 
 int PPALDD_StaffCalView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -853,8 +850,4 @@ int PPALDD_StaffCalView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_StaffCalView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(StaffCal);
-}
-
+void PPALDD_StaffCalView::Destroy() { DESTROY_PPVIEW_ALDD(StaffCal); }

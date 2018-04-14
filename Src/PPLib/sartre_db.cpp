@@ -1392,11 +1392,11 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 {
 	int    ok = 1;
 	BDbDatabase::Config cfg;
-	cfg.CacheSize   = SMEGABYTE(256);
+	cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512);
 	cfg.CacheCount  = 1; // @v9.6.4 20-->
-	cfg.MaxLockers  = SKILOBYTE(256); // @v9.6.2 20000-->256*1024
-	cfg.MaxLocks    = SKILOBYTE(128); // @v9.6.4
-	cfg.MaxLockObjs = SKILOBYTE(128); // @v9.6.4
+	cfg.MaxLockers  = (flags & oReadOnly) ? SKILOBYTE(64) : SKILOBYTE(512); // @v9.6.2 20000-->256*1024 // @v10.0.01 256-->512
+	cfg.MaxLocks    = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(256); // @v9.6.4 // @v10.0.01 128-->256
+	cfg.MaxLockObjs = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(256); // @v9.6.4 // @v10.0.01 128-->256
 	cfg.LogBufSize  = SMEGABYTE(8);
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
@@ -1588,7 +1588,7 @@ int SrDatabase::ResolveNGram(const LongArray & rList, NGID * pID)
 		ng.ID = 0;
 		THROW(P_NgT->Add(ng));
 		ASSIGN_PTR(pID, ng.ID);
-		ok = 1;
+		ok = 2;
 	}
 	CATCHZOK
 	return ok;
@@ -1629,12 +1629,11 @@ CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc) const
 CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 {
 	CONCEPTID prop = 0;
-	SString temp_buf;
 	switch(rc) {
-		case rcInstance: if(!PropInstance) { THROW(ResolveConcept((temp_buf = "crp_instance").ToUtf8(), &PropInstance)); } prop = PropInstance; break;
-		case rcSubclass: if(!PropSubclass) { THROW(ResolveConcept((temp_buf = "crp_subclass").ToUtf8(), &PropSubclass)); } prop = PropSubclass; break;
-		case rcType:     if(!PropType)     { THROW(ResolveConcept((temp_buf = "crp_type").ToUtf8(), &PropType)); } prop = PropType; break;
-		case rcHMember:  if(!PropHMember)  { THROW(ResolveConcept((temp_buf = "crp_hmember").ToUtf8(), &PropHMember)); } prop = PropHMember; break;
+		case rcInstance: if(!PropInstance) { THROW(ResolveConcept("crp_instance", &PropInstance)); } prop = PropInstance; break;
+		case rcSubclass: if(!PropSubclass) { THROW(ResolveConcept("crp_subclass", &PropSubclass)); } prop = PropSubclass; break;
+		case rcType:     if(!PropType)     { THROW(ResolveConcept("crp_type", &PropType)); } prop = PropType; break;
+		case rcHMember:  if(!PropHMember)  { THROW(ResolveConcept("crp_hmember", &PropHMember)); } prop = PropHMember; break;
 	}
 	CATCH
 		prop = 0;

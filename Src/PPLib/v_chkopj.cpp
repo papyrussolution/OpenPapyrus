@@ -360,10 +360,7 @@ PPALDD_CONSTRUCTOR(CheckOpJrnl)
 	}
 }
 
-PPALDD_DESTRUCTOR(CheckOpJrnl)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CheckOpJrnl) { Destroy(); }
 
 int PPALDD_CheckOpJrnl::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -399,7 +396,4 @@ int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_CheckOpJrnl::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CheckOpJrnl);
-}
+void PPALDD_CheckOpJrnl::Destroy() { DESTROY_PPVIEW_ALDD(CheckOpJrnl); }

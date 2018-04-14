@@ -692,10 +692,7 @@ PPALDD_CONSTRUCTOR(PaymPlan)
 	}
 }
 
-PPALDD_DESTRUCTOR(PaymPlan)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PaymPlan) { Destroy(); }
 
 int PPALDD_PaymPlan::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -731,7 +728,4 @@ int PPALDD_PaymPlan::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PaymPlan::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PaymPlan);
-}
+void PPALDD_PaymPlan::Destroy() { DESTROY_PPVIEW_ALDD(PaymPlan); }

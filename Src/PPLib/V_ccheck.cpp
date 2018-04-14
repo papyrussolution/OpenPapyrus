@@ -2544,7 +2544,7 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(p_def) {
 				uint   col_width = 20;
 	#define ADDCTCOLUMN(type, caption, format, options, width) \
-				ct_col.P_Text    = newStr(caption); \
+				ct_col.P_Text  = newStr(caption); \
 				ct_col.Type    = type; \
 				ct_col.Format  = format; \
 				ct_col.Options = options;  \
@@ -3534,10 +3534,7 @@ public:
 		}
 		return ok;
 	}
-	int    GetCanModifStatus() const
-	{
-		return CanModif;
-	}
+	int    GetCanModifStatus() const { return CanModif; }
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -3673,7 +3670,6 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		if(P_Ct) {
 			BrwHdr hdr;
 			DateRange ct_period;
-
 			MEMSZERO(hdr);
 			if(GetBrwHdr(pHdr, &hdr)) {
 				uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
@@ -4188,10 +4184,7 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_CCheckView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CCheck);
-}
+void PPALDD_CCheckView::Destroy() { DESTROY_PPVIEW_ALDD(CCheck); }
 //
 // Implementation of PPALDD_CCheckViewDetail
 //
@@ -4430,10 +4423,7 @@ PPALDD_CONSTRUCTOR(CCheckPacket)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(CCheckPacket)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CCheckPacket) { Destroy(); }
 
 int PPALDD_CCheckPacket::InitData(PPFilt & rFilt, long rsrv)
 {

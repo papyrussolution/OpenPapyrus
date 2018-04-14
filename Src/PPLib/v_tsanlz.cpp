@@ -1230,10 +1230,7 @@ PPALDD_CONSTRUCTOR(TSessAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(TSessAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TSessAnlz) { Destroy(); }
 
 int PPALDD_TSessAnlz::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -1332,7 +1329,4 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_TSessAnlz::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(TSessAnlz);
-}
+void PPALDD_TSessAnlz::Destroy() { DESTROY_PPVIEW_ALDD(TSessAnlz); }

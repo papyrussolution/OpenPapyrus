@@ -423,7 +423,7 @@ private:
 class SrNGram {
 public:
 	SLAPI  SrNGram();
-	void   SLAPI Z();
+	SrNGram & SLAPI Z();
 
 	NGID   ID;
 	int32  Ver;
@@ -510,7 +510,8 @@ class SrConcept {
 public:
 	enum {
 		surrsymbsrcUndef = 0, // Не определен
-		surrsymbsrcFIAS  = 1  // База данных ФИАС (российский классификатор адресов) 
+		surrsymbsrcFIAS  = 1, // База данных ФИАС (российский классификатор адресов) 
+		surrsymbsrcGBIF  = 2  // База данных GBIF (биологическая таксономия) 
 	};
 	//
 	// Descr: Создает суррогатный символ концепции, на опираясь на "естественный" уникальный идентификатор,

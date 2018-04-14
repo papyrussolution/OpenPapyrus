@@ -52,8 +52,8 @@ int SLAPI AverageEventTimePrcssr::Enum(uint * pPos, Item ** pItem)
 void PersonEventViewItem::Clear()
 {
 	memzero(this, sizeof(PersonEventTbl::Rec));
-	GrpText1  = 0;
-	GrpText2  = 0;
+	GrpText1.Z();
+	GrpText2.Z();
 	GrpCount  = 0;
 	AvgEvTime = 0;
 }
@@ -305,17 +305,17 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 		PPWaitPercent(Counter.Increment());
 		if(P_TempGrpTbl) {
 			if(pItem) {
+				TempPersonEventTbl::Rec & r_rec = P_TempGrpTbl->data;
 				pItem->Clear();
-				pItem->ID       = P_TempGrpTbl->data.ID;
-				pItem->Dt       = P_TempGrpTbl->data.Dt;
-				pItem->GrpCount = P_TempGrpTbl->data.Count;
-				pItem->GrpText1 = P_TempGrpTbl->data.Name;
-				pItem->GrpText2 = P_TempGrpTbl->data.DtSubst;
-				(buf = P_TempGrpTbl->data.Name).CR().Cat(P_TempGrpTbl->data.DtSubst).CopyTo(pItem->Memo, sizeof(pItem->Memo));
+				pItem->ID       = r_rec.ID;
+				pItem->Dt       = r_rec.Dt;
+				pItem->GrpCount = r_rec.Count;
+				pItem->GrpText1 = r_rec.Name;
+				pItem->GrpText2 = r_rec.DtSubst;
+				(buf = r_rec.Name).CR().Cat(r_rec.DtSubst).CopyTo(pItem->Memo, sizeof(pItem->Memo));
 				{
-					LDATETIME dtm;
-					dtm.SetZero();
-					long days = dtm.settotalsec(P_TempGrpTbl->data.AvgEvTime);
+					LDATETIME dtm = ZERODATETIME;
+					const long days = dtm.settotalsec(r_rec.AvgEvTime);
 					if(days)
 						pItem->AvgEvTime.Cat(days).CatChar('d').Space();
 					pItem->AvgEvTime.Cat(dtm.t, TIMF_HMS);
@@ -445,10 +445,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	return q;
 }
 
-void * SLAPI PPViewPersonEvent::GetEditExtraParam()
-{
-	return (void *)Filt.PrmrID;
-}
+void * SLAPI PPViewPersonEvent::GetEditExtraParam() { return (void *)Filt.PrmrID; }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
@@ -663,10 +660,7 @@ PPALDD_CONSTRUCTOR(PersonEventOp)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(PersonEventOp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonEventOp) { Destroy(); }
 
 int PPALDD_PersonEventOp::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -787,10 +781,7 @@ PPALDD_CONSTRUCTOR(PersonEvent)
 	}
 }
 
-PPALDD_DESTRUCTOR(PersonEvent)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PersonEvent) { Destroy(); }
 
 int PPALDD_PersonEvent::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -826,17 +817,13 @@ int PPALDD_PersonEvent::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PersonEvent::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PersonEvent);
-}
+void PPALDD_PersonEvent::Destroy() { DESTROY_PPVIEW_ALDD(PersonEvent); }
 //
 // Implementation of PPALDD_PsnOpKindView
 //
 struct ALD_PsnOpKindBlock {
-	ALD_PsnOpKindBlock()
+	ALD_PsnOpKindBlock() : P_En(0)
 	{
-		P_En = 0;
 	}
 	~ALD_PsnOpKindBlock()
 	{
@@ -854,10 +841,7 @@ PPALDD_CONSTRUCTOR(PsnOpKindView)
 	}
 }
 
-PPALDD_DESTRUCTOR(PsnOpKindView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PsnOpKindView) { Destroy(); }
 
 int PPALDD_PsnOpKindView::InitData(PPFilt & rFilt, long rsrv)
 {

@@ -732,10 +732,7 @@ PPALDD_CONSTRUCTOR(PrcBusyView)
 	}
 }
 
-PPALDD_DESTRUCTOR(PrcBusyView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PrcBusyView) { Destroy(); }
 
 int PPALDD_PrcBusyView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -768,10 +765,7 @@ int PPALDD_PrcBusyView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_PrcBusyView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(PrcBusy);
-}
+void PPALDD_PrcBusyView::Destroy() { DESTROY_PPVIEW_ALDD(PrcBusy); }
 //
 // STimeChunkBrowser {
 //

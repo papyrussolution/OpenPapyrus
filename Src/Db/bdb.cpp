@@ -200,14 +200,9 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 	return ok;
 }
 
-BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
+BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : State(0), E(0), P_SeqT(0), P_SCtx(new SSerializeContext), HomePathPos(0)
 {
 	int    r = 0;
-	State = 0;
-	E = 0;
-	P_SeqT = 0;
-	P_SCtx = new SSerializeContext;
-	HomePathPos = 0;
 	StrPool.add("$"); // zero index - is empty string
 	SString temp_buf = pHomeDir;
 	if(temp_buf.NotEmptyS())

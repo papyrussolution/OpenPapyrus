@@ -179,13 +179,9 @@ int SLAPI RestoreGoods2()
 		int c = 1;
 		int bad_group = 0;
 		uint i;
-
-		if(rec.Kind == PPGDSK_GROUP && (rec.ID == 1 || rec.ID == 5 || rec.ID == 247 ||
-			rec.ID == 49 || rec.ID == 262 || rec.ID == 271 || rec.ID == 258 || rec.ID == 248 ||
-			rec.ID == 51)) {
+		if(rec.Kind == PPGDSK_GROUP && oneof9(rec.ID, 1, 5, 247, 49, 262, 271, 258, 248, 51)) {
 			bad_group = 1;
 		}
-
 		if(!(rec.ID > 0 && rec.ID < 1000))
 			c = 0;
 		else if(rec.Kind != PPGDSK_GROUP && rec.Kind != PPGDSK_GOODS)
@@ -1636,12 +1632,16 @@ static int TestHttp()
 // } @test
 #endif // } NDEBUG
 
+int SLAPI ExecuteLuaScript(const char * pScriptText);
+int SLAPI ExecuteLuaScriptFile(const char * pFileName);
+
 void PPApp::login(int processCmdLine)
 {
 	int    do_quit = 0;
 	SString arg_buf;
 	SString msg_buf, temp_buf;
 	const  int no_login = GetStartUpOption(cmdlNoLogin, arg_buf);
+	const  int is_batch = GetStartUpOption(cmdlBatch, arg_buf);
 	//TestHttp();
 	//Test_KeywordListGenerator(); // @debug
 	{
@@ -1667,7 +1667,7 @@ void PPApp::login(int processCmdLine)
 			TView::messageCommand(this, cmQuit);
 		}
 		else {
-			PPIniFile  ini_file;
+			PPIniFile ini_file;
 			InitStatusBar();
 			StoreLastBinPath();
 			//
@@ -1753,7 +1753,6 @@ void PPApp::login(int processCmdLine)
 	// @v9.7.8 else if(GetStartUpOption(cmdlSartrTest, arg_buf)) { SartTest(); }
 	else {
 		int    valid = 0, force_prompt = 0, retry_login = 0, sys_acc_login = 0;
-		int    is_batch = 0;
 		int    prot = 0, recover = 0;
 		/*
 		union {
@@ -1762,18 +1761,21 @@ void PPApp::login(int processCmdLine)
 		};
 		*/
 		char   pw[20];
+		SString lua_script; // @v10.0.1 @experimental
 		SString usr_;
-		SString path_;
 		PPIniFile  ini_file;
 		PPID   dbentry_id = 0;
 		PPDbEntrySet2 dbes; // @
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
-			usr_ = _argv[1];
-			// @v9.0.2 SCharToOem(usr); // @v8.7.7
-			usr_.Transf(CTRANSF_OUTER_TO_INNER); // @v9.0.2
+			SPathStruc ps(_argv[1]);
+			if(ps.Nam.NotEmpty() && ps.Ext.NotEmpty() && ps.Ext.IsEqiAscii("lua")) {
+				lua_script = _argv[1];
+			}
+			else {
+				usr_ = _argv[1];
+				usr_.Transf(CTRANSF_OUTER_TO_INNER);
+			}
 		}
-		else
-			usr_ = 0;
 		pw[0] = 0;
 		dbes.ReadFromProfile(&ini_file);
 		if(GetStartUpOption(cmdlDB, arg_buf)) {
@@ -1799,6 +1801,11 @@ void PPApp::login(int processCmdLine)
 		SetDatetimeByServer(&ini_file, 0);
 		LDATE  dt = getcurdate_();
 		PPBackupSystemFiles();
+		// @v10.0.1 @experimental {
+		if(lua_script.NotEmpty()) {
+			ExecuteLuaScriptFile(lua_script);
+		}
+		// } @v10.0.1 
 		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &dt, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());
@@ -1840,7 +1847,6 @@ void PPApp::login(int processCmdLine)
 					DS.SetPath(PPPATH_IN, arg_buf, 0, 1);
 				if(GetStartUpPath(PPPATH_OUT, arg_buf))
 					DS.SetPath(PPPATH_OUT, arg_buf, 0, 1);
-				is_batch = GetStartUpOption(cmdlBatch, arg_buf);
 				if(GetStartUpOption(cmdlImport, arg_buf))
 					ProcessImportJob(arg_buf);
 				if(GetStartUpOption(cmdlExport, arg_buf))

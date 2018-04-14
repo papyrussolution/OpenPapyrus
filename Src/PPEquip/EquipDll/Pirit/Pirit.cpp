@@ -829,6 +829,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					correction_type &= ~0x10;
 				else
 					correction_type |= 0x10;
+				if(blk.CashAmt < 0.0 || blk.BankAmt < 0.0 || blk.PrepayAmt < 0.0)
+					correction_type |= 0x02;
+				else
+					correction_type &= ~0x02;
 
 				SString in_data;
 				// 
@@ -852,11 +856,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				//   (Дробное число) Сумма расчета по расч. ставке 10/110
 				//   
 				CreateStr(CshrName, in_data);
-				CreateStr(blk.CashAmt, in_data);
-				CreateStr(blk.BankAmt, in_data);
-				CreateStr(blk.PrepayAmt, in_data);
-				CreateStr(blk.PostpayAmt, in_data);
-				CreateStr(blk.ReckonAmt, in_data);
+				CreateStr(fabs(blk.CashAmt), in_data);
+				CreateStr(fabs(blk.BankAmt), in_data);
+				CreateStr(fabs(blk.PrepayAmt), in_data);
+				CreateStr(fabs(blk.PostpayAmt), in_data);
+				CreateStr(fabs(blk.ReckonAmt), in_data);
 				CreateStr(correction_type, in_data);
 				CreateStr(temp_buf.Z().Cat(blk.Dt, DATF_DMY|DATF_NODIV), in_data);
 				CreateStr(blk.DocNo, in_data);
@@ -870,12 +874,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					CreateStr(0.0, in_data);
 				}
 				else {
-					CreateStr(blk.Vat18Amt, in_data);
-					CreateStr(blk.Vat10Amt, in_data);
-					CreateStr(blk.Vat0Amt, in_data);
-					CreateStr(blk.VatFreeAmt, in_data);
-					CreateStr(blk.Vat18_118Amt, in_data);
-					CreateStr(blk.Vat10_110Amt, in_data);
+					CreateStr(fabs(blk.Vat18Amt), in_data);
+					CreateStr(fabs(blk.Vat10Amt), in_data);
+					CreateStr(fabs(blk.Vat0Amt), in_data);
+					CreateStr(fabs(blk.VatFreeAmt), in_data);
+					CreateStr(fabs(blk.Vat18_118Amt), in_data);
+					CreateStr(fabs(blk.Vat10_110Amt), in_data);
 				}
 				//
 				THROW(ExecCmd("58", in_data, out_data, r_error));

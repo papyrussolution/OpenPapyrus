@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -18,9 +18,8 @@ IMPLEMENT_PPFILT_FACTORY(MrpTab); SLAPI MrpTabFilt::MrpTabFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-SLAPI PPViewMrpTab::PPViewMrpTab() : PPView(&MrpObj, &Filt, PPVIEW_MRPTAB)
+SLAPI PPViewMrpTab::PPViewMrpTab() : PPView(&MrpObj, &Filt, PPVIEW_MRPTAB), P_TempOrd(0)
 {
-	P_TempOrd = 0;
 }
 
 SLAPI PPViewMrpTab::~PPViewMrpTab()
@@ -851,10 +850,7 @@ PPALDD_CONSTRUCTOR(MrpLines)
 	}
 }
 
-PPALDD_DESTRUCTOR(MrpLines)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(MrpLines) { Destroy(); }
 
 int PPALDD_MrpLines::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -885,7 +881,4 @@ int PPALDD_MrpLines::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_MrpLines::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(MrpLine);
-}
+void PPALDD_MrpLines::Destroy() { DESTROY_PPVIEW_ALDD(MrpLine); }

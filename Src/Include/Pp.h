@@ -8171,6 +8171,7 @@ public:
 
 	static int    SLAPI PutELinks(PPID id, PPELinkArray *, int use_ta);
 	static int    SLAPI GetELinks(PPID id, PPELinkArray *);
+	static int    SLAPI GetELinkList(int elnkrt, StrAssocArray & rList);
 
 	PersonKindTbl Kind;
 	//
@@ -8308,6 +8309,7 @@ public:
 	int    SLAPI GetAddress_(PPID locID, uint flags, SString & rBuf);
 	int    SLAPI IndexPhone(const char * pPhone, const PPObjID * pObjId, int doRemove, int use_ta);
 	int    SLAPI SearchPhoneIndex(const char * pPhone, long options, PPIDArray & rResultList);
+	int    SLAPI SearchPhoneObjList(const char * pPhone, long options, PPObjIDArray & rList);
 	int    SLAPI GetEAddr(PPID id, EAddrTbl::Rec * pRec);
     int    SLAPI SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList);
     int    SLAPI SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult);
@@ -10112,7 +10114,7 @@ public:
 	void   SLAPI destroy();
 	int    FASTCALL Copy(const PPBillPacket & rS);
 	int    SLAPI CreateBlank(PPID opID, PPID linkBill, PPID locID, int use_ta);
-	int    SLAPI CreateBlank_WithoutCode(PPID oprKind, PPID linkBill, PPID locID, int use_ta);
+	int    SLAPI CreateBlank_WithoutCode(PPID opID, PPID linkBill, PPID locID, int use_ta);
 	int    SLAPI CreateBlank2(PPID opID, LDATE dt, PPID locID, int use_ta);
 	//
 	// Descr: пытается из элементов массива ShLots создать теневой пакет. Если ей удается это сделать,
@@ -17519,10 +17521,10 @@ public:
 	int    SLAPI ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList);
 	//
 	// Descr: Выясняет статус продавца, использующего кассовый узел id как
-	//   освобожденного от НДС. 
+	//   освобожденного от НДС.
 	// Порядок идентификации статуса следующий:
 	//    Если id != 0 и склад, ассоциированный с этим узлом имеет признак особожденного от НДС,
-	//    то продавец особожден от НДС. В противном случае проверяет признак PSNF_NOVATAX у 
+	//    то продавец особожден от НДС. В противном случае проверяет признак PSNF_NOVATAX у
 	//    персоналии, являющейся текущей главной организацией.
 	// Returns:
 	//    >0 - продавец освобожден от НДС
@@ -19326,6 +19328,7 @@ struct PhnSvcChannelStatus {
 	SString EffConnectedLineName;
 	SString Application;
 	SString Data;
+	SString IdentifiedCallerName; // @v10.0.01
 };
 
 class PhnSvcChannelStatusPool : SVector, SStrGroup { // @v9.8.11 SArray-->SVector
@@ -19334,6 +19337,7 @@ public:
 	uint   GetCount() const;
 	int    FASTCALL Add(const PhnSvcChannelStatus & rStatus);
 	int    FASTCALL Get(uint idx, PhnSvcChannelStatus & rStatus) const;
+	int    SLAPI SetIdentifiedCallerName(uint idx, const char * pName);
 	PhnSvcChannelStatusPool & Clear();
 private:
 	struct Item_ { // @flat
@@ -19358,8 +19362,8 @@ private:
 		uint   EffConnectedLineNameP;
 		uint   ApplicationP;
 		uint   DataP;
+		uint   IdentifiedCallerNameP; // @v10.0.01 Позиция строки имени, идентифицированного вне телефонного сервера
 	};
-	//StringSet Pool;
 };
 
 class AsteriskAmiClient {
@@ -19426,12 +19430,14 @@ public:
 	SLAPI  PhoneServiceEventResponder();
 	SLAPI ~PhoneServiceEventResponder();
 	int    SLAPI IdentifyCaller(const char * pCaller, PPObjIDArray & rList);
+	const  StrAssocArray * SLAPI GetInternalPhoneList();
 private:
 	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 
 	long   AdvCookie_Ringing;
 	long   AdvCookie_Up;
 	PPObjPerson * P_PsnObj;
+	StrAssocArray * P_InternalPhoneList; // Список персоналий, ассоциированных со внутренними телефонными номерами
 };
 //
 // @ModuleDecl(PPViewJobPool)
@@ -19469,6 +19475,7 @@ private:
 	PhnSvcChannelStatusPool List;
 	PhnSvcMonitorFilt Filt;
 	AsteriskAmiClient * P_Cli;
+	PPObjPerson * P_PsnObj;
 	PhnSvcChannelStatus TempStatusEntry; // @fastreuse
 };
 //
@@ -24080,6 +24087,8 @@ struct PPPsnEventPacket {
 
 class PersonEventCore : public PersonEventTbl {
 public:
+	friend class PPTblEnum <PersonEventCore>;
+
 	SLAPI  PersonEventCore();
 	int    SLAPI Search(PPID id, PersonEventTbl::Rec * pRec = 0);
 	//
@@ -24106,6 +24115,11 @@ public:
 	int    SLAPI Update(PPID id, PersonEventTbl::Rec *, int use_ta);
 	int    SLAPI Remove(PPID id, int use_ta);
 	int    SLAPI CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount);
+	SEnumImp * SLAPI EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod);
+private:
+	int    SLAPI InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle);
+
+	PPTblEnumList EnumList;
 };
 //
 //
@@ -24466,7 +24480,7 @@ struct PersonFilt : public PPBaseFilt {
 	};
 
 	SLAPI  PersonFilt();
-	int    SLAPI Setup();
+	void   SLAPI Setup();
 	//
 	// IsEmpty calls PersonFilt::Setup, than this is not const
 	//
@@ -25366,6 +25380,8 @@ struct RetailGoodsInfo {   // @transient
 #define RTLPF_USEMINEXTQVAL   0x0010L // Если задан RetailPriceExtractor::ExtQuotBlock,
 	// то из указанных там котировок применять минимально возможное значение.
 #define RTLPF_USEOUTERPRICE   0x0020L // @v8.0.12 Использовать цену RetailExtrItem::OuterPrice, заданную извне
+#define RTLPF_IGNCONDQUOTS    0x0040L // @v10.0.10 Игнорировать условные котировки (для которых заданы условия применимости).
+	// Опция важна при экспорте данных, когда получатель самостоятельно определяет применимость котировок.
 
 struct RetailExtrItem { // @transient
 	SLAPI  RetailExtrItem();
@@ -48576,8 +48592,8 @@ protected:
 		CardState();
 		~CardState();
 		void   Reset();
-		PPID   GetID() const;
-		const  char * GetCode() const;
+		PPID   GetID() const { return SCardID; }
+		const  char * GetCode() const { return Code; }
 		void   SetID(PPID id, const char * pCode);
 		double GetDiscount(double ccAmount) const;
 

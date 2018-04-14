@@ -2021,10 +2021,7 @@ PPALDD_CONSTRUCTOR(QuotView)
 	}
 }
 
-PPALDD_DESTRUCTOR(QuotView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(QuotView) { Destroy(); }
 
 int PPALDD_QuotView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2066,7 +2063,4 @@ int PPALDD_QuotView::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_QuotView::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Quot);
-}
+void PPALDD_QuotView::Destroy() { DESTROY_PPVIEW_ALDD(Quot); }

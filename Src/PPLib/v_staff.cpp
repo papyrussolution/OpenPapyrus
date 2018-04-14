@@ -1537,10 +1537,7 @@ PPALDD_CONSTRUCTOR(StaffListView)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(StaffListView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(StaffListView) { Destroy(); }
 
 int PPALDD_StaffListView::InitData(PPFilt & rFilt, long rsrv)
 {

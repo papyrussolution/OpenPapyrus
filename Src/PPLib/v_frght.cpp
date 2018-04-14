@@ -790,10 +790,7 @@ PPALDD_CONSTRUCTOR(FreightList)
 	}
 }
 
-PPALDD_DESTRUCTOR(FreightList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(FreightList) { Destroy(); }
 
 int PPALDD_FreightList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -842,8 +839,5 @@ int PPALDD_FreightList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_FreightList::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(Freight);
-}
+void PPALDD_FreightList::Destroy() { DESTROY_PPVIEW_ALDD(Freight); }
 
