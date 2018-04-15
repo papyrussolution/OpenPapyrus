@@ -501,6 +501,34 @@ int SLAPI PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 //
 // PPELinkArray
 //
+//static 
+int SLAPI PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
+{
+	int    ok = 1;
+	rEntry.KindID = 0;
+	PTR32(rEntry.Addr)[0] = 0;
+	if(!isempty(pPhone)) {
+		PPObjELinkKind elk_obj;
+		PPELinkKind elk_rec;
+		for(SEnum en = elk_obj.Enum(0); en.Next(&elk_rec) > 0;) {
+			if(elk_rec.Type == ELNKRT_PHONE) {
+				if(elk_rec.Flags & ELNKF_PREF) {
+					rEntry.KindID = elk_rec.ID;
+					break;
+				}
+				else if(!rEntry.KindID)
+					rEntry.KindID = elk_rec.ID;
+			}
+		}
+		STRNSCPY(rEntry.Addr, pPhone);
+		if(!rEntry.KindID)
+			ok = -1;
+	}
+	else 
+		ok = 0;
+	return ok;
+}
+
 SLAPI PPELinkArray::PPELinkArray() : TSArray <PPELink>()
 {
 }
@@ -726,11 +754,6 @@ PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 	return *this;
 }
 
-int SLAPI PPPersonPacket::GetAddress(uint f, SString & rBuf)
-{
-	return LocationCore::GetAddress(Loc, f, rBuf);
-}
-
 int SLAPI PPPersonPacket::GetRAddress(uint f, SString & rBuf)
 {
 	LocationTbl::Rec rloc = RLoc;
@@ -739,20 +762,14 @@ int SLAPI PPPersonPacket::GetRAddress(uint f, SString & rBuf)
 	return LocationCore::GetAddress(rloc, f, rBuf);
 }
 
+int SLAPI PPPersonPacket::GetAddress(uint f, SString & rBuf)
+	{ return LocationCore::GetAddress(Loc, f, rBuf); }
 int SLAPI PPPersonPacket::GetPhones(uint maxCount, SString & rBuf)
-{
-	return ELA.GetPhones(maxCount, rBuf);
-}
-
+	{ return ELA.GetPhones(maxCount, rBuf); }
 int SLAPI PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const
-{
-	return Regs.GetRegister(regTyp, pos, 0);
-}
-
+	{ return Regs.GetRegister(regTyp, pos, 0); }
 int SLAPI PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const
-{
-	return Regs.GetRegNumber(regTyp, rBuf);
-}
+	{ return Regs.GetRegNumber(regTyp, rBuf); }
 
 int SLAPI PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 {
@@ -953,10 +970,8 @@ int SLAPI PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate
 	return ok;
 }
 
-//const SCardTbl::Rec * PPPersonPacket::GetSCard() const
 const PPSCardPacket * SLAPI PPPersonPacket::GetSCard() const
 {
-	//return P_SCard;
 	return P_SCardPack;
 }
 //
@@ -1178,8 +1193,7 @@ int SLAPI PersonCore::GetKindList(PPID personID, PPIDArray * pList)
 	k1.PersonID = personID;
 	k1.KindID   = 0;
 	for(int sp = spGe; Kind.search(1, &k1, sp) && k1.PersonID == personID; sp = spNext) {
-		if(pList)
-			pList->addUnique(Kind.data.KindID);
+		CALLPTRMEMB(pList, addUnique(Kind.data.KindID));
 		ok = 1;
 	}
 	return PPDbSearchError() ? ok : 0;

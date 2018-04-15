@@ -796,6 +796,7 @@ public:
 	//   0 - ошибка
 	//
 	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId);
+	int    SetSimpleWordFlexiaModel_Express(LEXID wordID, long baseFormID, int32 * pResultWaId);
 	//
 	// Descr: Реализует базовый механизм извлечения признаков слова wordID из базы данных.
 	//   При извлечении учитываются префикс (pfxID) и суффикс (afxID) слова (если не нулевые).

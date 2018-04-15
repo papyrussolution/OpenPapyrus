@@ -3340,104 +3340,115 @@ PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_Ext
 
 StrAssocArray * PersonSelExtra::GetList(const char * pText)
 {
-	//
-	// сначала обычный поиск по имени (поиск неточный)
-	//
-	StrAssocArray * p_list = WordSel_ExtraBlock::GetList(pText);
-	//
-	// Если не найдено ни одной персоналии/статьи, тогда ищем по номеру регистра (поиск точный)
-	//
-	if(!p_list || p_list->getCount() == 0) {
-		SString pattern = pText;
-		SETIFZ(p_list, new StrAssocArray());
-		if(pattern.Len()) {
-			size_t len = pattern.ShiftLeftChr('*').Len();
+	StrAssocArray * p_list = 0;
+	SString pattern = pText;
+	if(pattern.Len()) {
+		//
+		// сначала обычный поиск по имени (поиск неточный)
+		//
+		int   search_yourself = 1;
+		if(P_OutDlg) {
+			TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
+			if(p_view && p_view->GetSubSign() == TV_SUBSIGN_LISTBOX) {
+				p_list = WordSel_ExtraBlock::GetList(pText);
+				search_yourself = 0;
+			}
+		}
+		if(search_yourself && pattern.ShiftLeftChr('*').Len() >= MinSymbCount) {
+			assert(p_list == 0);
+			p_list = new StrAssocArray;
+			PsnObj.GetListBySubstring(pText, PersonKindID, p_list, 0/*fromBegStr*/);
+		}
+		//
+		// Если не найдено ни одной персоналии/статьи, тогда ищем по номеру регистра (поиск точный)
+		//
+		if((!p_list || !p_list->getCount()) && pattern.ShiftLeftChr('*').Len() >= MinSymbCount) {
+			SETIFZ(p_list, new StrAssocArray());
 			PPIDArray psn_list;
 			StrAssocArray phone_list;
-			if(len >= MinSymbCount) {
-				PPIDArray reg_list;
-				// сначала поиск по поисковому регистру
-				RegisterFilt reg_flt;
-				reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
-				reg_flt.RegTypeID  = SrchRegTypeID;
-				reg_flt.NmbPattern = pattern;
+
+			PPIDArray reg_list;
+			// сначала поиск по поисковому регистру
+			RegisterFilt reg_flt;
+			reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+			reg_flt.RegTypeID  = SrchRegTypeID;
+			reg_flt.NmbPattern = pattern;
+			PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
+			//
+			// Если по поисковому регистру не нашли, то ищем по всем регистрам
+			//
+			if(SrchRegTypeID > 0 && psn_list.getCount() == 0) {
+				reg_flt.RegTypeID  = 0;
 				PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
+			}
+			if(!psn_list.getCount()) {
 				//
-				// Если по поисковому регистру не нашли, то ищем по всем регистрам
+				// Если не найдено по номеру регистра, тогда ищем по номеру телефона (поиск неточный)
 				//
-				if(SrchRegTypeID > 0 && psn_list.getCount() == 0) {
-					reg_flt.RegTypeID  = 0;
-					PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
-				}
-				if(!psn_list.getCount()) {
-					//
-					// Если не найдено по номеру регистра, тогда ищем по номеру телефона (поиск неточный)
-					//
-					SString phone_buf;
-					LongArray temp_phone_list;
-					pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-					PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
-					LocationCore * p_locc = PsnObj.LocObj.P_Tbl;
-					if(phone_buf.Len() >= MIN_PHONE_LEN && p_locc->SearchEAddrMaxLikePhone(phone_buf, 0, temp_phone_list) > 0) {
-						for(uint i = 0; i < temp_phone_list.getCount(); i++) {
-							EAddrTbl::Rec ea_rec;
-							if(p_locc->GetEAddr(temp_phone_list.get(i), &ea_rec) > 0) {
-								if(ea_rec.LinkObjType == PPOBJ_PERSON && ea_rec.LinkObjID > 0) {
-									psn_list.add(ea_rec.LinkObjID);
-									((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
-									phone_list.Add(ea_rec.LinkObjID, (const char*)phone_buf);
-								}
+				SString phone_buf;
+				LongArray temp_phone_list;
+				pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+				PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
+				LocationCore * p_locc = PsnObj.LocObj.P_Tbl;
+				if(phone_buf.Len() >= MIN_PHONE_LEN && p_locc->SearchEAddrMaxLikePhone(phone_buf, 0, temp_phone_list) > 0) {
+					for(uint i = 0; i < temp_phone_list.getCount(); i++) {
+						EAddrTbl::Rec ea_rec;
+						if(p_locc->GetEAddr(temp_phone_list.get(i), &ea_rec) > 0) {
+							if(ea_rec.LinkObjType == PPOBJ_PERSON && ea_rec.LinkObjID > 0) {
+								psn_list.add(ea_rec.LinkObjID);
+								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
+								phone_list.Add(ea_rec.LinkObjID, (const char*)phone_buf);
 							}
-						}
-					}
-				}
-				else {
-					//
-					// Персоналии по номеру регистру найдены. Теперь добавим персоналии, которые являются филиалами по отношению к найденым и наследуют регистры
-					//
-					PPIDArray temp_list = psn_list;
-					PPIDArray psn_list2;
-					{
-						reg_list.sortAndUndup();
-						RegisterTbl::Rec reg_rec;
-						for(uint i = 0; i < reg_list.getCount(); i++) {
-							const PPID reg_id = reg_list.get(i);
-							if(PsnObj.RegObj.Fetch(reg_id, &reg_rec) > 0 && reg_rec.ObjType == PPOBJ_PERSON && InhRegTypeList.bsearch(reg_rec.RegTypeID, 0)) {
-								psn_list2.clear();
-								if(PsnObj.GetRelPersonList(psn_list.at(i), PPPSNRELTYP_AFFIL, 1, &psn_list2) > 0)
-									temp_list.add(&psn_list2);
-							}
-						}
-						psn_list = temp_list;
-						psn_list.sortAndUndup();
-					}
-				}
-				{
-					const  int  use_phone_list = BIN(phone_list.getCount());
-					const  uint _c = psn_list.getCount();
-					SString name, temp_name;
-					for(uint i = 0; i < _c; i++) {
-						PPID   id     = 0;
-						const  PPID psn_id = psn_list.at(i);
-						if(AccSheetID)
-							ArObj.GetByPerson(AccSheetID, psn_id, &id);
-						else
-							id = psn_id;
-						if(id > 0) {
-							GetObjectName((AccSheetID) ? PPOBJ_ARTICLE : PPOBJ_PERSON, id, name.Z());
-							if(use_phone_list) {
-								(temp_name = phone_list.Get(i).Txt).Space().Cat(name);
-								name = temp_name;
-							}
-							p_list->Add(id, 0, name);
 						}
 					}
 				}
 			}
+			else {
+				//
+				// Персоналии по номеру регистру найдены. Теперь добавим персоналии, которые являются филиалами по отношению к найденым и наследуют регистры
+				//
+				PPIDArray temp_list = psn_list;
+				PPIDArray psn_list2;
+				{
+					reg_list.sortAndUndup();
+					RegisterTbl::Rec reg_rec;
+					for(uint i = 0; i < reg_list.getCount(); i++) {
+						const PPID reg_id = reg_list.get(i);
+						if(PsnObj.RegObj.Fetch(reg_id, &reg_rec) > 0 && reg_rec.ObjType == PPOBJ_PERSON && InhRegTypeList.bsearch(reg_rec.RegTypeID, 0)) {
+							psn_list2.clear();
+							if(PsnObj.GetRelPersonList(psn_list.at(i), PPPSNRELTYP_AFFIL, 1, &psn_list2) > 0)
+								temp_list.add(&psn_list2);
+						}
+					}
+					psn_list = temp_list;
+					psn_list.sortAndUndup();
+				}
+			}
+			{
+				const  int  use_phone_list = BIN(phone_list.getCount());
+				const  uint _c = psn_list.getCount();
+				SString name, temp_name;
+				for(uint i = 0; i < _c; i++) {
+					PPID   id     = 0;
+					const  PPID psn_id = psn_list.at(i);
+					if(AccSheetID)
+						ArObj.GetByPerson(AccSheetID, psn_id, &id);
+					else
+						id = psn_id;
+					if(id > 0) {
+						GetObjectName((AccSheetID) ? PPOBJ_ARTICLE : PPOBJ_PERSON, id, name.Z());
+						if(use_phone_list) {
+							(temp_name = phone_list.Get(i).Txt).Space().Cat(name);
+							name = temp_name;
+						}
+						p_list->Add(id, 0, name);
+					}
+				}
+			}
 		}
+		if(p_list && p_list->getCount() == 0)
+			ZDELETE(p_list);
 	}
-	if(p_list && p_list->getCount() == 0)
-		ZDELETE(p_list);
 	return p_list;
 }
 

@@ -426,6 +426,14 @@ int BDbDatabase::TransactionCheckPoint()
 	return ok;
 }
 
+int BDbDatabase::MemPoolSync()
+{
+	int    ok = 1;
+	THROW(ProcessError(E->memp_sync(E, 0/*lsn*/)));
+	CATCHZOK
+	return ok;
+}
+
 int BDbDatabase::LockDetect()
 {
 	int    ok = -1;
@@ -545,7 +553,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	}
 	// } @v9.8.2
 	{
-		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
+		int    opf = (DB_CREATE|DB_AUTO_COMMIT|DB_MULTIVERSION); // @v10.0.1 DB_MULTIVERSION 
 		opf |= DB_THREAD;
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}

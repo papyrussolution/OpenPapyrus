@@ -1400,7 +1400,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	cfg.LogBufSize  = SMEGABYTE(8);
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
-	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
+	cfg.Flags |= (/*cfg.fLogNoSync|*/cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
 	//
 	Flags |= (flags & (oReadOnly|oWriteStatOnClose)); // @v9.7.11
 	//
@@ -1641,26 +1641,17 @@ CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 	return prop;
 }
 
-int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId)
+int SrDatabase::SetSimpleWordFlexiaModel_Express(LEXID wordID, long baseFormID, int32 * pResultWaId)
 {
 	int    ok = -1;
 	int    r;
 	int32  result_wa_id = 0;
-	if(rWf.GetLength()) {
+	if(baseFormID) {
 		SrWordAssoc wa;
-		SString word_utf8;
-		THROW(P_WdT->Search(wordID, word_utf8) > 0);
+		//SString word_utf8;
+		//THROW(P_WdT->Search(wordID, word_utf8) > 0);
 		wa.WordID = wordID;
-		{
-			//
-			// Находим или создаем словоформу по содержанию и получаем ее идентификатор
-			//
-			SrWordForm wf_key = rWf;
-			wf_key.Normalize();
-			THROW(r = P_GrT->Search(&wf_key, &wa.BaseFormID));
-			if(r < 0)
-				THROW(P_GrT->Add(&wf_key, &wa.BaseFormID));
-		}
+		wa.BaseFormID = baseFormID;
 		{
 			//
 			// Находим или создаем модель по содержанию и получаем ее идентификатор
@@ -1678,7 +1669,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 			assert(wa.BaseFormID);
 			assert(wa.FlexiaModelID);
 			int32   wa_id = 0;
-			TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <SrWordAssoc> wa_list;
 			P_WaT->Search(wordID, wa_list);
 			for(uint i = 0; !wa_id && i < wa_list.getCount(); i++) {
 				const SrWordAssoc & r_wa = wa_list.at(i);
@@ -1694,6 +1685,69 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 			}
 			result_wa_id = wa_id;
 		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pResultWaId, result_wa_id);
+	return ok;
+}
+
+int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId)
+{
+	int    ok = -1;
+	int    r;
+	int32  result_wa_id = 0;
+	if(rWf.GetLength()) {
+		//SrWordAssoc wa;
+		long    base_form_id = 0;
+		SString word_utf8;
+		THROW(P_WdT->Search(wordID, word_utf8) > 0);
+		//wa.WordID = wordID;
+		{
+			//
+			// Находим или создаем словоформу по содержанию и получаем ее идентификатор
+			//
+			SrWordForm wf_key = rWf;
+			wf_key.Normalize();
+			THROW(r = P_GrT->Search(&wf_key, &/*wa.BaseFormID*/base_form_id));
+			if(r < 0)
+				THROW(P_GrT->Add(&wf_key, &/*wa.BaseFormID*/base_form_id));
+		}
+		ok = SetSimpleWordFlexiaModel_Express(wordID, base_form_id, &result_wa_id); // @v10.0.01
+		/* @v10.0.01
+		{
+			//
+			// Находим или создаем модель по содержанию и получаем ее идентификатор
+			//
+			SrFlexiaModel fm;
+			SrFlexiaModel::Item fmi;
+			fmi.WordFormID = wa.BaseFormID;
+			fm.Add(fmi);
+			fm.Normalize();
+			THROW(r = P_GrT->Search(&fm, &wa.FlexiaModelID));
+			if(r < 0)
+				THROW(P_GrT->Add(&fm, &wa.FlexiaModelID));
+		}
+		{
+			assert(wa.BaseFormID);
+			assert(wa.FlexiaModelID);
+			int32   wa_id = 0;
+			TSVector <SrWordAssoc> wa_list;
+			P_WaT->Search(wordID, wa_list);
+			for(uint i = 0; !wa_id && i < wa_list.getCount(); i++) {
+				const SrWordAssoc & r_wa = wa_list.at(i);
+				if(r_wa.WordID == wa.WordID && r_wa.BaseFormID == wa.BaseFormID && r_wa.FlexiaModelID == wa.FlexiaModelID) {
+					wa_id = r_wa.ID;
+				}
+			}
+			if(wa_id)
+				ok = 2;
+			else {
+				THROW(r = P_WaT->Add(&wa.Normalize(), &wa_id));
+				ok = 1;
+			}
+			result_wa_id = wa_id;
+		}
+		*/
 	}
 	CATCHZOK
 	ASSIGN_PTR(pResultWaId, result_wa_id);

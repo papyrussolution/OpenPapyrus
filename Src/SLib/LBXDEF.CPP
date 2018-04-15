@@ -6,9 +6,7 @@
 #pragma hdrstop
 
 static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraData)
-{
-	return stcomp((TYPEID)pExtraData, (const void *)i1, (const void *)i2);
-}
+	{ return stcomp((TYPEID)pExtraData, (const void *)i1, (const void *)i2); }
 
 #define ILLEGAL_LISTBOX_BUF_TYPE 0
 //
@@ -263,9 +261,9 @@ int SLAPI ListBoxDef::GetItemColor(long itemID, SColor * pFgColor, SColor * pBck
 
 StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 {
-	int srch_mode = srchFirst;
-	uint prev_pos = _curItem();
-	long id = 0L;
+	int    srch_mode = srchFirst;
+	uint   prev_pos = _curItem();
+	long   id = 0L;
 	SString buf;
 	StrAssocArray * p_list = new StrAssocArray();
 	while(search(pText, PTR_CMPFUNC(_PcharNoCase), srch_mode)) {
@@ -295,6 +293,7 @@ SLAPI StdListBoxDef::~StdListBoxDef()
 int    SLAPI StdListBoxDef::GetFrameSize() { return (int)getRecsCount(); }
 int    SLAPI StdListBoxDef::GetFrameState() { return -1; }
 int    SLAPI StdListBoxDef::valid() { return (P_Data != 0); }
+long   SLAPI StdListBoxDef::getRecsCount() { return SVectorBase::GetCount(P_Data); }
 
 int SLAPI StdListBoxDef::setArray(SArray * pArray)
 {
@@ -303,12 +302,6 @@ int SLAPI StdListBoxDef::setArray(SArray * pArray)
 	P_Data = pArray;
 	top();
 	return 1;
-}
-
-long SLAPI StdListBoxDef::getRecsCount()
-{
-	//return P_Data ? P_Data->getCount() : 0;
-	return SVectorBase::GetCount(P_Data);
 }
 
 int SLAPI StdListBoxDef::getIdList(LongArray & rList)
@@ -571,15 +564,8 @@ int SLAPI StdTreeListBoxDef::getCurData(void * b)
 	return 0;
 }
 
-int SLAPI StdTreeListBoxDef::valid()
-{
-	return BIN(P_SaList);
-}
-
-long SLAPI StdTreeListBoxDef::getRecsCount()
-{
-	return P_SaList ? P_SaList->getCount() : 0;
-}
+int  SLAPI StdTreeListBoxDef::valid() { return BIN(P_SaList); }
+long SLAPI StdTreeListBoxDef::getRecsCount() { return P_SaList ? P_SaList->getCount() : 0; }
 
 int SLAPI StdTreeListBoxDef::getIdList(LongArray & rList)
 {
@@ -616,10 +602,7 @@ int SLAPI StdTreeListBoxDef::go(long pos)
 		return -1;
 }
 
-int SLAPI StdTreeListBoxDef::step(long delta)
-{
-	return go(CurItem + delta);
-}
+int SLAPI StdTreeListBoxDef::step(long delta) { return go(CurItem + delta); }
 
 int SLAPI StdTreeListBoxDef::top()
 {
@@ -648,22 +631,11 @@ void SLAPI StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollP
 	ASSIGN_PTR(pScrollDelta, 0);
 }
 
-int SLAPI StdTreeListBoxDef::GetFrameState()
-{
-	return -1;
-}
+int  SLAPI StdTreeListBoxDef::GetFrameState() { return -1; }
+int  SLAPI StdTreeListBoxDef::GetFrameSize() { return -1; }
+void SLAPI StdTreeListBoxDef::setViewHight(int h) { ListBoxDef::setViewHight(h); }
 
-int SLAPI StdTreeListBoxDef::GetFrameSize()
-{
-	return -1;
-}
-
-void SLAPI StdTreeListBoxDef::setViewHight(int h)
-{
-	ListBoxDef::setViewHight(h);
-}
-
-int SLAPI StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
+int  SLAPI StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r   = 0;
 	if(valid()) {
@@ -709,19 +681,11 @@ int SLAPI StdTreeListBoxDef::GoByID(long id)
 }
 
 int FASTCALL StdTreeListBoxDef::HasChild(long id)
-{
-	return P_SaList ? P_SaList->HasChild(id) : 0;
-}
-
+	{ return P_SaList ? P_SaList->HasChild(id) : 0; }
 int SLAPI StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
-{
-	return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1;
-}
-
+	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
 int SLAPI StdTreeListBoxDef::GetParent(long child, long * pParent)
-{
-	return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0;
-}
+	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
 // StringListBoxDef
 //
@@ -750,14 +714,9 @@ int SLAPI StringListBoxDef::addItem(long id, const char * s, long * pPos)
 }
 
 int SLAPI StringListBoxDef::removeItem(long pos)
-{
-	return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0;
-}
-
+	{ return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0; }
 void SLAPI StringListBoxDef::freeAll()
-{
-	CALLPTRMEMB(P_Data, freeAll());
-}
+	{ CALLPTRMEMB(P_Data, freeAll()); }
 //
 // DBQListBoxDef
 //

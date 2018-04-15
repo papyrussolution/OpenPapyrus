@@ -4337,7 +4337,7 @@ public:
 		oRecover          = 0x00000001,
 		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
-		oWriteStatOnClose = 0x00000008  // @v9.7.11 При закрытии базы сохранять статистику по таблицам
+		oWriteStatOnClose = 0x00000008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам
 	};
 	struct Config {
 		Config();
@@ -4391,6 +4391,7 @@ public:
 	int    RollbackWork();
 	int    CommitWork();
 	int    TransactionCheckPoint();
+	int    MemPoolSync();
 	int    LockDetect();
 	int    CreateSequence(const char * pName, int64 initVal, long * pSeqID);
 	int    CloseSequence(long seqId);

@@ -338,10 +338,8 @@ int SLAPI VCard::GetAddrs(SString &)
 //
 //
 //
-SLAPI PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePattern, long flags)
+SLAPI PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePattern, long flags) : NamePattern(pNamePattern), Flags(flags)
 {
-	NamePattern = pNamePattern;
-	Flags = flags;
 }
 //
 //
@@ -608,14 +606,9 @@ int ExtFieldsDialog::addItem(long * pPos, long * pID)
 }
 
 int ExtFieldsDialog::editItem(long pos, long id)
-{
-	return (pos >= 0 && pos < (long)Data.getCount()) ? Edit(&Data.at(pos)) : -1;
-}
-
+	{ return (pos >= 0 && pos < (long)Data.getCount()) ? Edit(&Data.at(pos)) : -1; }
 int ExtFieldsDialog::delItem(long pos, long id)
-{
-	return Data.atFree(pos);
-}
+	{ return Data.atFree(pos); }
 
 int ExtFieldsDialog::setupList()
 {
@@ -1235,15 +1228,16 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 	return p_def;
 }
 
+int SLAPI PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+	{ return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg); }
+const char * SLAPI PPObjPerson::GetNamePtr() 
+	{ return P_Tbl->data.Name; }
 ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr)
-{
-	return _Selector2(0, extraPtr);
-}
-
+	{ return _Selector2(0, extraPtr); }
 int SLAPI PPObjPerson::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
-{
-	return BIN(_Selector2(pDef, extraPtr));
-}
+	{ return BIN(_Selector2(pDef, extraPtr)); }
+int SLAPI PPObjPerson::Browse(void * extraPtr)
+	{ return ViewPerson(0); }
 
 const PPPersonConfig & SLAPI PPObjPerson::GetConfig()
 {
@@ -1254,11 +1248,6 @@ const PPPersonConfig & SLAPI PPObjPerson::GetConfig()
 //
 //
 //
-int SLAPI PPObjPerson::Browse(void * extraPtr)
-{
-	return ViewPerson(0);
-}
-
 int SLAPI PPObjPerson::GetStatus(PPID id, PPID * pStatusID, int * pIsPrivate)
 {
 	PPID   status_id = 0;
@@ -1525,6 +1514,28 @@ int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssoc
 	// } @v8.9.12
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI PPObjPerson::GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocArray * pList, int /*fromBegStr*/)
+{
+	SString pattern = pSubstr;
+	PPIDArray list_by_kind;
+	PersonTbl * t = P_Tbl;
+	PersonTbl::Key1 k1;
+	BExtQuery pq(t, 0, 128);
+	pq.select(t->ID, t->Name, 0L);
+	if(kindID) {
+		GetListByKind(kindID, &list_by_kind, 0);
+		list_by_kind.sortAndUndup();
+	}
+	MEMSZERO(k1);
+	for(pq.initIteration(0, &k1, spFirst); pq.nextIteration() > 0;) {
+		const PPID id = t->data.ID;
+		if((!kindID || list_by_kind.bsearch(id)) && ExtStrSrch(t->data.Name, pattern)) {
+			pList->AddFast(id, t->data.Name);
+		}
+	}
+	return 1;
 }
 
 int SLAPI PPObjPerson::GetListByPattern(const SrchAnalogPattern * pPattern, PPIDArray * pList)
@@ -1945,16 +1956,6 @@ int SLAPI PPObjPerson::AddSimple(PPID * pID, const char * pName, PPID kindID, PP
 	ENDCATCH
 	ASSIGN_PTR(pID, id);
 	return ok;
-}
-
-int SLAPI PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
-{
-	return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg);
-}
-
-const char * SLAPI PPObjPerson::GetNamePtr()
-{
-	return P_Tbl->data.Name;
 }
 
 //virtual
@@ -3469,6 +3470,7 @@ int AddrListDialog::delItem(long pos, long /*id*/)
 //
 //
 //
+int SLAPI EditELink(PPELink * pLink); // @prototype(elinkdlg.cpp)
 
 #define GRP_IBG 1
 
@@ -3489,6 +3491,10 @@ public:
 		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
+	}
+	void   SetupPhoneOnInit(const char * pPhone)
+	{
+		InitPhone = pPhone;
 	}
 	int    setDTS(const PPPersonPacket * pData)
 	{
@@ -3600,10 +3606,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	PPID   GetDupID() const
-	{
-		return DupID;
-	}
+	PPID   GetDupID() const { return DupID; }
 private:
 	DECL_HANDLE_EVENT;
 	int    EditDlvrLocList()
@@ -3649,6 +3652,7 @@ private:
 	PPPersonPacket Data;
 	SString Name_;
 	SString ImageFolder;
+	SString InitPhone;
 	PPObjPerson PsnObj;
 	PPID   CashiersPsnKindID;
 	PPID   DupID;             //
@@ -3661,13 +3665,22 @@ private:
 //
 class ShortPersonDialog : public TDialog {
 public:
-	ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID);
+	ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId),
+		DupID(0), KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
+		SCardID(0), PhonePos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
+	{
+		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
+		SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
+		showButton(cmCreateSCard, 0);
+		enableCommand(cmCreateSCard, 0);
+	}
+	void   SetupPhoneOnInit(const char * pPhone)
+	{
+		InitPhone = pPhone;
+	}
 	int    setDTS(const PPPersonPacket * pData);
 	int    getDTS(PPPersonPacket * pData);
-	PPID   GetDupID() const
-	{
-		return DupID;
-	}
+	PPID   GetDupID() const { return DupID; }
 private:
 	DECL_HANDLE_EVENT;
 	int    AcceptSCard(uint * pSel);
@@ -3698,21 +3711,12 @@ private:
 	};
 	long   St;
 	SString Name_;
+	SString InitPhone;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
 
 	DateAddDialogParam ScExpiryPeriodParam;
 };
-
-ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId),
-	DupID(0), KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
-	SCardID(0), PhonePos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
-{
-	SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
-	SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
-	showButton(cmCreateSCard, 0);
-	enableCommand(cmCreateSCard, 0);
-}
 
 int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 {
@@ -3735,6 +3739,13 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 	SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
 	setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+	// @v10.0.01 {
+	if(InitPhone.NotEmpty()) {
+		PPELink el;
+		if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
+			Data.ELA.insert(&el);
+	}
+	// } @v10.0.01 
 	if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
 		PhonePos = (int)i;
 		setCtrlString(CTL_PERSON_PHONE, temp_buf);
@@ -4231,7 +4242,8 @@ int SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 	rBlk.InitStatusID = PPPRS_LEGAL;
 	rBlk.ShortDialog = 0;
 	rBlk.SCardSeriesID = 0;
-	rBlk.Name = 0;
+	rBlk.Name.Z();
+	rBlk.InitPhone.Z();
 	rBlk.RetSCardID = 0;
 	rBlk.UpdFlags = 0;
 	if(kindID) {
@@ -4315,7 +4327,10 @@ int SLAPI PPObjPerson::SelectAnalog(const char * pName, PPID * pID)
 
 int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 {
-	int    ok = 1, valid_data = 0, r = cmCancel, is_new = 0;
+	int    ok = 1;
+	int    valid_data = 0;
+	int    r = cmCancel;
+	int    is_new = 0;
 	PPID   short_dlg_kind_id = 0;
 	uint   dlg_id = 0;
 	TDialog * dlg = 0;
@@ -4361,6 +4376,11 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			p_dlg->enableCommand(cmFullPersonDialog, 1); // @v8.5.5 (cmFullPersonDialog, 0)-->(cmFullPersonDialog, 1)
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
+			// @v10.0.01 {
+			if(rBlk.InitPhone.NotEmpty()) {
+				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
+			}
+			// } @v10.0.01 
 			p_dlg->setDTS(&info);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				const  PPID dup_id = p_dlg->GetDupID();
@@ -4382,6 +4402,11 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		THROW(CheckDialogPtr(&(dlg = new PersonDialog(dlg_id))));
 		{
 			PersonDialog * p_dlg = (PersonDialog *)dlg;
+			// @v10.0.01 {
+			if(rBlk.InitPhone.NotEmpty()) {
+				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
+			}
+			// } @v10.0.01 
 			p_dlg->setDTS(&info);
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
@@ -4519,6 +4544,18 @@ IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
 //
 IMPL_HANDLE_EVENT(PersonDialog)
 {
+	// @v10.0.01 {
+	if(event.isCmd(cmExecute)) {
+		if(InitPhone.NotEmpty()) {
+			PPELink el;
+			PPELinkArray::SetupNewPhoneEntry(InitPhone, el);
+			if(EditELink(&el) > 0) {
+				Data.ELA.insert(&el);
+			}
+		}
+		// Далее управление передается базовому классу
+	}
+	// } @v10.0.01 
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
@@ -4683,18 +4720,10 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					}
 				}
 				break;
-			case cmPersonReg:
-				PsnObj.RegObj.EditList(&Data, 0);
-				break;
-			case cmPersonPhones:
-				EditELinks(&Data.ELA);
-				break;
-			case cmPersonBAcct:
-				PsnObj.RegObj.EditBankAccountList(&Data);
-				break;
-			case cmPersonTags:
-				EditObjTagValList(&Data.TagL, 0);
-				break;
+			case cmPersonReg: PsnObj.RegObj.EditList(&Data, 0); break;
+			case cmPersonPhones: EditELinks(&Data.ELA); break;
+			case cmPersonBAcct: PsnObj.RegObj.EditBankAccountList(&Data); break;
+			case cmPersonTags: EditObjTagValList(&Data.TagL, 0); break;
 			case cmPersonAddr:
 			case cmPersonRAddr: {
 					PPObjLocation loc_obj;

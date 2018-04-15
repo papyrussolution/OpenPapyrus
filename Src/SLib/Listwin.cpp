@@ -383,7 +383,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
  			if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 				bool   preserve_text_mode = CtrlTextMode;
 				SetTextMode(true);
-				p_dlg->setCtrlData(ctl_id, (void*)pText);
+				p_dlg->setCtrlData(ctl_id, (void *)pText); // @badcast
 				SetTextMode(preserve_text_mode);
  			}
  			else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
@@ -421,8 +421,14 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 		uint min_symb_count = MinSymbCount;
 		text_len = (pText[0] == '*') ? text_len - 1 : text_len;
 		if(text_len >= min_symb_count) {
-			SmartListBox * p_lbx = (P_OutDlg) ? (SmartListBox*)P_OutDlg->getCtrlView(OutCtlId) : 0;
-			p_list = (p_lbx && p_lbx->def) ? p_lbx->def->GetListByPattern(pText) : 0;
+			if(P_OutDlg) {
+				TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
+				if(p_view && (p_view->IsSubSign(TV_SUBSIGN_LISTBOX) || p_view->IsSubSign(TV_SUBSIGN_COMBOBOX))) {
+					//SmartListBox * p_lbx = (P_OutDlg) ? (SmartListBox *)P_OutDlg->getCtrlView(OutCtlId) : 0;
+					SmartListBox * p_lbx = (SmartListBox *)p_view;
+					p_list = p_lbx->def ? p_lbx->def->GetListByPattern(pText) : 0;
+				}
+			}
 		}
 	}
 	return p_list;

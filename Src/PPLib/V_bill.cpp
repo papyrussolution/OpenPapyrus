@@ -2376,8 +2376,8 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					}
 				}
 				else if(r_col.OrgOffs == 4) { // Memo
-					SString memos;
-					if(P_BObj->FetchExtMemo(p_hdr->ID, memos) > 0) {
+					SString & r_memos = SLS.AcquireRvlStr(); // @v10.0.01
+					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0) {
 						pStyle->Color = GetColorRef(SClrDarkgreen);
 						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 						ok = 1;
@@ -2395,7 +2395,9 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				}
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
-						if(IsDraftOp(bill_rec.OpID)) {
+						const PPID op_type_id = GetOpType(bill_rec.OpID);
+						//if(IsDraftOp(bill_rec.OpID)) {
+						if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 							if(bill_rec.Flags2 & BILLF2_DECLINED) {
 								pStyle->Color = GetColorRef(SClrGrey);
 								pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
@@ -2407,6 +2409,15 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = 1;
 							}
 						}
+						// @v10.0.01 {
+						else if(op_type_id == PPOPT_GOODSORDER) {
+							if(bill_rec.Flags & BILLF_CLOSEDORDER) {
+								pStyle->Color = GetColorRef(SClrOrange);
+								pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+								ok = 1;
+							}
+						}
+						// } @v10.0.01 
 						// @v8.9.5 {
 						{
 							const int edi_user_status = P_BObj->GetEdiUserStatus(bill_rec);

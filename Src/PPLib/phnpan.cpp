@@ -4,6 +4,101 @@
 #include <pp.h>
 #pragma hdrstop
 
+class SelectObjByPhoneDialog : public TDialog {
+public:
+	struct Param {
+		Param() : ExtSelector(0)
+		{
+			Oid.Set(0, 0);
+		}
+		SString Phone;
+		PPObjID Oid;
+		PPID   ExtSelector;
+		SString SearchStr;
+	};
+	SelectObjByPhoneDialog() : TDialog(DLG_SELOBJBYPHN)
+	{
+	}
+	int setDTS(const Param * pData)
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_SELOBJBYPHN_INFO, Data.Phone);
+		AddClusterAssocDef(CTL_SELOBJBYPHN_WHAT, 0, PPOBJ_PERSON);
+		AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 1, PPOBJ_SCARD);
+		AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 2, PPOBJ_LOCATION); // автономный адрес
+		SetClusterData(CTL_SELOBJBYPHN_WHAT, Data.Oid.Obj);
+		SetupCtrls();
+		return 1;
+	}
+	int getDTS(Param * pData)
+	{
+		int    ok = 1;
+		GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
+		Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
+		if(Data.Oid.Obj == PPOBJ_PERSON) {
+			Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
+		}
+		else if(Data.Oid.Obj == PPOBJ_SCARD) {
+			Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
+		}
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_SELOBJBYPHN_WHAT)) {
+			SetupCtrls();
+		}
+		else if(event.isCbSelected(CTLSEL_SELOBJBYPHN_EXT)) {
+			const PPID preserve_ext = Data.ExtSelector;
+			Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
+			if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD)) {
+				SetupCtrls();
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	void   SetupCtrls()
+	{
+		const PPID preserve_obj_type = Data.Oid.Obj;
+		GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
+		if(Data.Oid.Obj != preserve_obj_type)
+			Data.ExtSelector = 0;
+		switch(Data.Oid.Obj) {
+			case PPOBJ_PERSON:
+				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+				SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PRSNKIND, Data.ExtSelector, 0);
+				{
+					PersonSelExtra * p_se = new PersonSelExtra(0, Data.ExtSelector);
+					if(p_se) {
+						p_se->SetTextMode(false);
+						SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 3, 0);
+					}
+				}
+				break;
+			case PPOBJ_SCARD:
+				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+				SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_SCARDSERIES, Data.ExtSelector, 0);
+				{
+					SCardSelExtra * p_se = new SCardSelExtra(Data.ExtSelector);
+					if(p_se) {
+						SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 5, 0);
+					}
+				}
+				break;
+			default:
+				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 1);
+				ResetWordSelector(CTL_SELOBJBYPHN_SRCH);
+				break;
+		}
+	}
+	Param  Data;
+};
+
 class PhonePaneDialog : public TDialog {
 public:
 	struct State {
@@ -52,12 +147,46 @@ private:
 			GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
 			ShowList(mode, 0);
 		}
+		else if(event.isCmd(cmNewContact)) {
+			NewContact();
+		}
 		else
 			return;
 		clearEvent(event);
 	}
 	void   OnContactSelection(int onInit);
 	void   ShowList(int mode, int onInit);
+	void   NewContact()
+	{
+		SelectObjByPhoneDialog * dlg = new SelectObjByPhoneDialog;
+		if(CheckDialogPtrErr(&dlg)) {
+			const char * p_phone = S.ConnectedLine.cptr();
+			SelectObjByPhoneDialog::Param param;
+			param.Phone = p_phone;
+			param.Oid.Set(PPOBJ_PERSON, 0);
+			dlg->setDTS(&param);
+			if(ExecView(dlg) == cmOK) {
+				dlg->getDTS(&param);
+				if(param.Oid.Obj == PPOBJ_PERSON) {
+					PersonTbl::Rec psn_rec;
+					PPID   psn_id = 0;
+					if(param.Oid.Id && PsnObj.Search(param.Oid.Id, &psn_rec) > 0) {
+						psn_id = param.Oid.Id;
+					}
+					PPObjPerson::EditBlock eb;
+					PsnObj.InitEditBlock(param.ExtSelector, eb);
+					eb.InitPhone = p_phone;
+					if(PsnObj.Edit_(&psn_id, eb) > 0) {
+					}
+				}
+				else if(param.Oid.Obj == PPOBJ_SCARD) {
+				}
+				else if(param.Oid.Obj == PPOBJ_LOCATION) {
+				}
+			}
+		}
+		delete dlg;
+	}
 	State  S;
 	SmartListBox * P_Box;
 	PhoneServiceEventResponder * P_PSER;
@@ -799,8 +928,8 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 					identified_caller_list.clear();
 					if(P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, identified_caller_list) > 0) {
 						contact_buf.Z();
-						for(uint i = 0; contact_buf.Empty() && i < identified_caller_list.getCount(); i++) {
-							const PPObjID & r_oid = identified_caller_list.at(i);
+						for(uint j = 0; contact_buf.Empty() && j < identified_caller_list.getCount(); j++) {
+							const PPObjID & r_oid = identified_caller_list.at(j);
 							if(r_oid.Obj == PPOBJ_PERSON) {
 								GetPersonName(r_oid.Id, contact_buf);
 							}

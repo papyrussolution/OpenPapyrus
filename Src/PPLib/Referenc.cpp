@@ -734,7 +734,9 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 {
 	rBuf.Z();
 	int    ok = 1;
+	uint8  pm_fixed_buf[1024]; // @v10.0.01 (обход динамического распределения памяти)
 	PropVlrString * pm = 0;
+	int    is_pm_allocated = 0;
 	PropertyTbl::Key0 k;
 	k.ObjType = obj;
 	k.ObjID   = id;
@@ -744,7 +746,14 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 		RECORDSIZE fix_size = Prop.getRecSize();
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
-		THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
+		// +32 - страховка
+		if((actual_size+32) <= sizeof(pm_fixed_buf)) { 
+			pm = (PropVlrString *)pm_fixed_buf;
+		}
+		else {
+			THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size+32)); 
+			is_pm_allocated = 1;
+		}
 		ReadPropBuf(pm, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		(rBuf = (const char *)(pm + 1)).Strip();
@@ -752,7 +761,9 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 	else
 		ok = PPDbSearchError();
 	CATCHZOK
-	SAlloc::F(pm);
+	if(is_pm_allocated) {
+		SAlloc::F(pm);
+	}
 	return ok;
 }
 

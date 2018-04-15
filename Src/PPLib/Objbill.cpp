@@ -4307,17 +4307,11 @@ public:
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	int    SLAPI FetchExtMemo(PPID id, SString & rBuf) // @sync_w
-	{
-		return EmBlk.Fetch(id, rBuf, 0);
-	}
+		{ return EmBlk.Fetch(id, rBuf, 0); }
 	int    SLAPI FetchExt(PPID id, PPBillExt * pExt) // @sync_w
-	{
-		return ExtCache.Get(id, pExt);
-	}
+		{ return ExtCache.Get(id, pExt); }
 	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight) // @sync_w
-	{
-		return FreightCache.Get(id, pFreight);
-	}
+		{ return FreightCache.Get(id, pFreight); }
 	int    SLAPI GetCrBillEntry(long & rTempID, PPBillPacket * pPack); // @sync_w
 	int    SLAPI SetCrBillEntry(long tempID, PPBillPacket * pPack);    // @sync_w
 	int    SLAPI GetPrjConfig(PPProjectConfig * pCfg, int enforce);    // @sync_w

@@ -2534,8 +2534,9 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		}
 	};
 	int    ok = 1;
-	const  uint max_items_per_tx = 512;
+	const  uint max_items_per_tx = SKILOBYTE(12);
 	uint   items_per_tx = 0;
+	uint   items_per_tx_total = 0;
 	BDbTransaction * p_ta = 0;
 	SString line_buf;
 	SString temp_buf;
@@ -2606,9 +2607,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	LongArray ngram;
 	LongArray parent_ref_list;
 	LongArray acceptedname_ref_list;
-	LLAssocArray gbif_to_cid_list;
+	//LLAssocArray gbif_to_cid_list;
 	BioTaxonomyEntry entry;
 	SrWordForm wordform;
+	StringSet words_to_append;
 
 	CONCEPTID cid_biotaxonomy_category = 0;
 	CONCEPTID cid_biotaxonomy_kingdom = 0;
@@ -2824,7 +2826,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 								assert(oneof2(rwr, 2, 0)); 
 								THROW(rwr);
 								assert(word_id);
-								if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+								if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 									wordform.Clear();
 									wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
 									THROW(rDb.SetSimpleWordFlexiaModel(word_id, wordform, 0));
@@ -2849,12 +2851,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 								}
 							}
 							THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
-							THROW_SL(gbif_to_cid_list.Add(entry.TaxonID, cid, 0, 0));
+							//THROW_SL(gbif_to_cid_list.Add(entry.TaxonID, cid, 0, 0));
 						}
 						items_per_tx++;
-					}
-					else {
-						items_per_tx = items_per_tx;
+						items_per_tx_total++;
 					}
 					if(items_per_tx >= max_items_per_tx) {
 						if(p_ta) {
@@ -2908,6 +2908,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	if(p_ta) {
 		THROW_DB(p_ta->Commit(1));
 		ZDELETE(p_ta);
+		THROW_DB(rDb.P_Db->MemPoolSync());
 	}
 	CATCHZOK
 	delete p_ta;

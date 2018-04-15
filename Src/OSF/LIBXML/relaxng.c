@@ -1691,7 +1691,7 @@ static xmlRelaxNGDocumentPtr xmlRelaxNGLoadExternalRef(xmlRelaxNGParserCtxtPtr c
 
 static const char * FASTCALL xmlRelaxNGDefName(xmlRelaxNGDefine * def)
 {
-	if(def == NULL)
+	if(!def)
 		return ("none");
 	switch(def->type) {
 		case XML_RELAXNG_EMPTY: return ("empty");
@@ -2314,7 +2314,7 @@ static int xmlRelaxNGTryCompile(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGDefinePt
 static int FASTCALL xmlRelaxNGIsCompileable(xmlRelaxNGDefine * def)
 {
 	int ret = -1;
-	if(def == NULL) {
+	if(!def) {
 		return -1;
 	}
 	if((def->type != XML_RELAXNG_ELEMENT) && (def->dflags & IS_COMPILABLE))
@@ -2863,7 +2863,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseValue(xmlRelaxNGParserCtxtPtr ctxt, xm
 	xmlChar * library;
 	int success = 0;
 	xmlRelaxNGDefine * def = xmlRelaxNGNewDefine(ctxt, P_Node);
-	if(def == NULL)
+	if(!def)
 		return 0;
 	def->type = XML_RELAXNG_VALUE;
 	type = xmlGetProp(P_Node, BAD_CAST "type");
@@ -2949,7 +2949,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseData(xmlRelaxNGParserCtxtPtr ctxt, xml
 	library = xmlRelaxNGGetDataTypeLibrary(ctxt, P_Node);
 	SETIFZ(library, sstrdup(BAD_CAST "http://relaxng.org/ns/structure/1.0"));
 	def = xmlRelaxNGNewDefine(ctxt, P_Node);
-	if(def == NULL) {
+	if(!def) {
 		SAlloc::F(type);
 		return 0;
 	}
@@ -3642,7 +3642,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseInterleave(xmlRelaxNGParserCtxtPtr ctx
 	xmlRelaxNGDefinePtr last = NULL, cur;
 	xmlNode * child;
 	def = xmlRelaxNGNewDefine(ctxt, P_Node);
-	if(def == NULL) {
+	if(!def) {
 		return 0;
 	}
 	def->type = XML_RELAXNG_INTERLEAVE;
@@ -3749,7 +3749,7 @@ static int xmlRelaxNGParseDefine(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node)
 			xmlRngPErr(ctxt, P_Node, XML_RNGP_INVALID_DEFINE_NAME, "define name '%s' is not an NCName\n", name, 0);
 		}
 		def = xmlRelaxNGNewDefine(ctxt, P_Node);
-		if(def == NULL) {
+		if(!def) {
 			SAlloc::F(name);
 			return -1;
 		}
@@ -3940,7 +3940,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "empty")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_EMPTY;
 			if(P_Node->children)
@@ -3948,7 +3948,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "text")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_TEXT;
 			if(P_Node->children)
@@ -3956,7 +3956,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "zeroOrMore")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_ZEROORMORE;
 			if(P_Node->children == NULL)
@@ -3966,7 +3966,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "oneOrMore")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_ONEORMORE;
 			if(P_Node->children == NULL)
@@ -3976,7 +3976,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "optional")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_OPTIONAL;
 			if(P_Node->children == NULL)
@@ -3986,7 +3986,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "choice")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_CHOICE;
 			if(P_Node->children == NULL)
@@ -3996,7 +3996,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "group")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_GROUP;
 			if(P_Node->children == NULL)
@@ -4006,7 +4006,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(P_Node, "ref")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_REF;
 			def->name = xmlGetProp(P_Node, BAD_CAST "name");
@@ -4050,7 +4050,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 			def = xmlRelaxNGParseValue(ctxt, P_Node);
 		else if(IS_RELAXNG(P_Node, "list")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_LIST;
 			if(P_Node->children == NULL)
@@ -4064,7 +4064,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 			def = xmlRelaxNGProcessExternalRef(ctxt, P_Node);
 		else if(IS_RELAXNG(P_Node, "notAllowed")) {
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_NOT_ALLOWED;
 			if(P_Node->children)
@@ -4098,7 +4098,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 				return 0;
 			}
 			def = xmlRelaxNGNewDefine(ctxt, P_Node);
-			if(def == NULL)
+			if(!def)
 				return 0;
 			def->type = XML_RELAXNG_PARENTREF;
 			def->name = xmlGetProp(P_Node, BAD_CAST "name");
@@ -4519,7 +4519,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePatterns(xmlRelaxNGParserCtxtPtr ctxt,
 	while(nodes) {
 		if(IS_RELAXNG(nodes, "element")) {
 			xmlRelaxNGDefine * cur = xmlRelaxNGParseElement(ctxt, nodes);
-			if(def == NULL) {
+			if(!def) {
 				def = last = cur;
 			}
 			else {
@@ -4536,7 +4536,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePatterns(xmlRelaxNGParserCtxtPtr ctxt,
 		else {
 			xmlRelaxNGDefine * cur = xmlRelaxNGParsePattern(ctxt, nodes);
 			if(cur) {
-				if(def == NULL) {
+				if(!def) {
 					def = last = cur;
 				}
 				else {
@@ -4569,7 +4569,7 @@ static int xmlRelaxNGParseStart(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * nodes)
 	}
 	if(IS_RELAXNG(nodes, "empty")) {
 		def = xmlRelaxNGNewDefine(ctxt, nodes);
-		if(def == NULL)
+		if(!def)
 			return -1;
 		def->type = XML_RELAXNG_EMPTY;
 		if(nodes->children)
@@ -4577,7 +4577,7 @@ static int xmlRelaxNGParseStart(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * nodes)
 	}
 	else if(IS_RELAXNG(nodes, "notAllowed")) {
 		def = xmlRelaxNGNewDefine(ctxt, nodes);
-		if(def == NULL)
+		if(!def)
 			return -1;
 		def->type = XML_RELAXNG_NOT_ALLOWED;
 		if(nodes->children)

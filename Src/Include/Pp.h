@@ -15358,6 +15358,8 @@ struct PPELink {
 
 class PPELinkArray : public TSArray <PPELink> {
 public:
+	static int SLAPI SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry);
+
 	SLAPI  PPELinkArray();
 	int    FASTCALL IsEqual(const PPELinkArray & rS) const;
 	int    SLAPI AddItem(PPID kindID, const char * pAddr);
@@ -22812,6 +22814,7 @@ public:
 			// другое - идентификатор диалога, который следует использовать.
 		PPID   SCardSeriesID;
 		SString Name;
+		SString InitPhone;   // @v10.0.01
 		//
 		PPID   RetSCardID;   // @out Ид дисконтной карты, созданной (выбранной) в сокращенном диалоге
 		long   UpdFlags;     // -> PPPersonPacket::UpdFlags
@@ -22915,6 +22918,7 @@ public:
 	// Remark: Реализация опции sapfMatchWholeWord - отвратительна
 	//
 	int    SLAPI GetListByPattern(const SrchAnalogPattern * pPattern, PPIDArray * pList);
+	int    SLAPI GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocArray * pList, int fromBegStr);
 #if 0 // @construction {
 	struct Idb {
 		Idb();

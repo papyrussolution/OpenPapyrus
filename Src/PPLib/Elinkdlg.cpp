@@ -1,5 +1,5 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -142,7 +142,7 @@ int ELinkListDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	PPELink link;
 	MEMSZERO(link);
-	if(EditELink(&link) == cmOK)
+	if(EditELink(&link) == cmOK) {
 		if(!Data.insert(&link))
 			ok = PPSetErrorSLib();
 		else {
@@ -150,6 +150,7 @@ int ELinkListDialog::addItem(long * pPos, long * pID)
 			ASSIGN_PTR(pID, Data.getCount());
 			ok = 1;
 		}
+	}
 	return ok;
 }
 
@@ -174,7 +175,7 @@ int ELinkListDialog::delItem(long, long id)
 	return -1;
 }
 
-static int SLAPI CompareELinkKinds2(PPELinkKind * k1, PPELinkKind * k2)
+static int SLAPI CompareELinkKinds2(const PPELinkKind * k1, const PPELinkKind * k2)
 {
 	if(k1->Type == k2->Type)
 		return stricmp866(k1->Name, k2->Name);
@@ -188,8 +189,8 @@ static int SLAPI CompareELinkKinds2(PPELinkKind * k1, PPELinkKind * k2)
 
 static IMPL_CMPFUNC(PPELinkKind, i1, i2)
 {
-	PPELinkKind * k1 = (PPELinkKind*)i1;
-	PPELinkKind * k2 = (PPELinkKind*)i2;
+	const PPELinkKind * k1 = (const PPELinkKind *)i1;
+	const PPELinkKind * k2 = (const PPELinkKind *)i2;
 	if(k1->Flags & ELNKF_PREF)
 		if(k2->Flags & ELNKF_PREF)
 			return CompareELinkKinds2(k1, k2);
@@ -231,101 +232,93 @@ static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 	return ok;
 }
 
-class ELinkDialog : public TDialog {
-public:
-	ELinkDialog(PPELinkArray * ary) : TDialog(DLG_ELNKSET), kinds(sizeof(PPELinkKind))
-	{
-		PPELinkKind k;
-		PPObjELinkKind elk_obj;
-		for(PPID id = 0; elk_obj.EnumItems(&id, &k) > 0;)
-			kinds.insert(&k);
-		kinds.sort(PTR_CMPFUNC(PPELinkKind));
-		data.copy(*ary);
-		setup();
-	}
-	int  getDTS(PPELinkArray *);
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCmd(cmaMore)) {
-			editList();
-			clearEvent(event);
-		}
-	}
-	void   setup();
-	void   editList();
-
-	SArray kinds;
-	PPELinkArray data;
-};
-
-int ELinkDialog::getDTS(PPELinkArray * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	PPELink * p_item;
-	for(uint i = 0; i < 5 && i < data.getCount(); i++) {
-		p_item = & data.at(i);
-		getCtrlData(sel = (i * 3 + 2 + WINDOWS_ID_BIAS), &p_item->KindID);
-		getCtrlData(sel = (i * 3 + 3 + WINDOWS_ID_BIAS), p_item->Addr);
-		strip(p_item->Addr);
-		if(p_item->KindID == PPELK_EMAIL && p_item->Addr[0]) {
-			STokenRecognizer tr;
-			SNaturalTokenArray nta;
-			tr.Run((const uchar *)p_item->Addr, -1, nta, 0);
-			THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
-		}
-	}
-	for(int j = data.getCount() - 1; j >= 0; j--) {
-		p_item = & data.at(j);
-		if(p_item->KindID == 0 || p_item->Addr[0] == 0)
-			data.atFree(j);
-	}
-	CALLPTRMEMB(pData, copy(data));
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
-	return ok;
-}
-
-void ELinkDialog::setup()
-{
-	uint   i;
-	PPELink lnk;
-	OrderELinkArray(&data, &kinds);
-	if(data.getCount() < 5) {
-		for(i = 0; i < kinds.getCount() && data.getCount() <= 5; i++) {
-			PPID k = ((PPELinkKind*)kinds.at(i))->ID;
-			if(!data.lsearch(&k, 0, CMPF_LONG)) {
-				MEMSZERO(lnk);
-				lnk.KindID = k;
-				data.insert(&lnk);
-			}
-		}
-	}
-	for(i = 0; i < 5 && i < data.getCount(); i++) {
-		lnk = data.at(i);
-		SetupPPObjCombo(this, i * 3 + 2 + WINDOWS_ID_BIAS, PPOBJ_ELINKKIND, lnk.KindID, OLW_CANINSERT, 0);
-		setCtrlData(i * 3 + 3 + WINDOWS_ID_BIAS, lnk.Addr);
-	}
-}
-
-void ELinkDialog::editList()
-{
-	ELinkListDialog * dlg = 0;
-	getDTS(0);
-	if(CheckDialogPtrErr(&(dlg = new ELinkListDialog(&data)))) {
-		if(ExecView(dlg) == cmOK) {
-			dlg->getDTS(&data);
-			setup();
-		}
-		delete dlg;
-	}
-}
-
 int SLAPI EditELinks(PPELinkArray * pList)
 {
+	class ELinkDialog : public TDialog {
+	public:
+		ELinkDialog(PPELinkArray * ary) : TDialog(DLG_ELNKSET), kinds(sizeof(PPELinkKind))
+		{
+			PPELinkKind k;
+			PPObjELinkKind elk_obj;
+			for(PPID id = 0; elk_obj.EnumItems(&id, &k) > 0;)
+				kinds.insert(&k);
+			kinds.sort(PTR_CMPFUNC(PPELinkKind));
+			data.copy(*ary);
+			setup();
+		}
+		int  getDTS(PPELinkArray * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			PPELink * p_item;
+			for(uint i = 0; i < 5 && i < data.getCount(); i++) {
+				p_item = & data.at(i);
+				getCtrlData(sel = (i * 3 + 2 + WINDOWS_ID_BIAS), &p_item->KindID);
+				getCtrlData(sel = (i * 3 + 3 + WINDOWS_ID_BIAS), p_item->Addr);
+				strip(p_item->Addr);
+				if(p_item->KindID == PPELK_EMAIL && p_item->Addr[0]) {
+					STokenRecognizer tr;
+					SNaturalTokenArray nta;
+					tr.Run((const uchar *)p_item->Addr, -1, nta, 0);
+					THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
+				}
+			}
+			for(int j = data.getCount() - 1; j >= 0; j--) {
+				p_item = & data.at(j);
+				if(p_item->KindID == 0 || p_item->Addr[0] == 0)
+					data.atFree(j);
+			}
+			CALLPTRMEMB(pData, copy(data));
+			CATCH
+				ok = PPErrorByDialog(this, sel);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmaMore)) {
+				editList();
+				clearEvent(event);
+			}
+		}
+		void   setup()
+		{
+			uint   i;
+			PPELink lnk;
+			OrderELinkArray(&data, &kinds);
+			if(data.getCount() < 5) {
+				for(i = 0; i < kinds.getCount() && data.getCount() <= 5; i++) {
+					PPID k = ((PPELinkKind*)kinds.at(i))->ID;
+					if(!data.lsearch(&k, 0, CMPF_LONG)) {
+						MEMSZERO(lnk);
+						lnk.KindID = k;
+						data.insert(&lnk);
+					}
+				}
+			}
+			for(i = 0; i < 5 && i < data.getCount(); i++) {
+				lnk = data.at(i);
+				SetupPPObjCombo(this, i * 3 + 2 + WINDOWS_ID_BIAS, PPOBJ_ELINKKIND, lnk.KindID, OLW_CANINSERT, 0);
+				setCtrlData(i * 3 + 3 + WINDOWS_ID_BIAS, lnk.Addr);
+			}
+		}
+		void   editList()
+		{
+			ELinkListDialog * dlg = 0;
+			getDTS(0);
+			if(CheckDialogPtrErr(&(dlg = new ELinkListDialog(&data)))) {
+				if(ExecView(dlg) == cmOK) {
+					dlg->getDTS(&data);
+					setup();
+				}
+				delete dlg;
+			}
+		}
+		SArray kinds;
+		PPELinkArray data;
+	};
 	int    r = -1;
 	ELinkDialog * dlg = new ELinkDialog(pList);
 	if(CheckDialogPtrErr(&dlg)) {
