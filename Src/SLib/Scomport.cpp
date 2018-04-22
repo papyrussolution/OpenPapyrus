@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -108,7 +108,7 @@ SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf
 #define CHANGE_DSR      0x02
 #define CHANGE_CTS      0x01
 
-SLAPI SCommPort::SCommPort()
+SLAPI SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0)
 {
 	CPP.Cbr = cbr9600;
 	CPP.ByteSize = 8;
@@ -121,9 +121,6 @@ SLAPI SCommPort::SCommPort()
 	CPT.Put_NumTries = 400;
 	CPT.Put_Delay = 5;
 	CPT.W_Get_Delay = 150;
-
-	ReadCycleCount = 0;
-	ReadCycleDelay = 0;
 #ifdef __WIN32__
 	H_Port = INVALID_HANDLE_VALUE;
 #endif
@@ -131,10 +128,7 @@ SLAPI SCommPort::SCommPort()
 
 SLAPI SCommPort::~SCommPort()
 {
-#ifdef __WIN32__
-	if(H_Port != INVALID_HANDLE_VALUE)
-		CloseHandle(H_Port);
-#endif
+	ClosePort();
 }
 
 void SLAPI SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
@@ -143,25 +137,10 @@ void SLAPI SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
 	ReadCycleDelay = cycleDelay;
 }
 
-void FASTCALL SCommPort::GetParams(CommPortParams * pParams) const
-{
-	*pParams = CPP;
-}
-
-void FASTCALL SCommPort::GetTimeouts(CommPortTimeouts * pParam) const
-{
-	*pParam = CPT;
-}
-
-void FASTCALL SCommPort::SetParams(const CommPortParams * pParam)
-{
-	CPP = *pParam;
-}
-
-void FASTCALL SCommPort::SetTimeouts(const CommPortTimeouts * pParam)
-{
-	CPT = *pParam;
-}
+void FASTCALL SCommPort::GetParams(CommPortParams * pParams) const { *pParams = CPP; }
+void FASTCALL SCommPort::GetTimeouts(CommPortTimeouts * pParam) const { *pParam = CPT; }
+void FASTCALL SCommPort::SetParams(const CommPortParams * pParam) { CPP = *pParam; }
+void FASTCALL SCommPort::SetTimeouts(const CommPortTimeouts * pParam) { CPT = *pParam; }
 
 static void __OutLastErr()
 {
@@ -173,6 +152,19 @@ static void __OutLastErr()
 	LocalFree(p_msg_buf);
 }
 
+int SLAPI SCommPort::ClosePort()
+{
+	int    ok = -1;
+#ifdef __WIN32__
+	if(H_Port != INVALID_HANDLE_VALUE) {
+		CloseHandle(H_Port);
+		H_Port = INVALID_HANDLE_VALUE;
+		ok = 1;
+	}
+#endif
+	return ok;
+}
+
 int SLAPI SCommPort::InitPort(int portNo)
 {
 	PortNo = portNo;
@@ -182,10 +174,7 @@ int SLAPI SCommPort::InitPort(int portNo)
 	COMMTIMEOUTS cto;
 	SString name;
 	GetComDvcSymb(comdvcsCom, portNo+1, 1, name);
-	if(H_Port != INVALID_HANDLE_VALUE) {
-		CloseHandle(H_Port);
-		H_Port = INVALID_HANDLE_VALUE;
-	}
+	ClosePort();
 	H_Port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	SLS.SetAddedMsgString(name);
 	THROW(H_Port != INVALID_HANDLE_VALUE);

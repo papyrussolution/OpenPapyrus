@@ -36,9 +36,8 @@ void DbTableStat::Clear()
 	IdxList.reset();
 }
 
-SLAPI DbDictionary::DbDictionary()
+SLAPI DbDictionary::DbDictionary() : State(0)
 {
-	State = 0;
 }
 
 SLAPI DbDictionary::~DbDictionary()
@@ -101,14 +100,9 @@ int SLAPI BDictionary::Init(const char * pDataPath, const char * pTempPath)
 }
 
 SLAPI BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
-{
-	Init(pDataPath, pTempPath);
-}
-
+	{ Init(pDataPath, pTempPath); }
 SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
-{
-	Init(0, 0);
-}
+	{ Init(0, 0); }
 
 //virtual 
 int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
@@ -326,10 +320,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 }
 
 /*virtual*/ int SLAPI BDictionary::StartTransaction()
-{
-	return Btrieve::StartTransaction(1, 0);
-}
-
+	{ return Btrieve::StartTransaction(1, 0); }
 /*virtual*/ int SLAPI BDictionary::CommitWork()
 	{ return Btrieve::CommitWork(); }
 /*virtual*/ int SLAPI BDictionary::RollbackWork()
@@ -597,14 +588,9 @@ int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & r
 //
 //
 DBTablePartitionList::DBTablePartitionList()
-{
-	Init(0, 0, 0);
-}
-
+	{ Init(0, 0, 0); }
 DBTablePartitionList::DBTablePartitionList(const char * pPath, const char * pFileName, long options)
-{
-	Init(pPath, pFileName, options);
-}
+	{ Init(pPath, pFileName, options); }
 
 int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long options)
 {
@@ -654,7 +640,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 						Pool.add(temp_buf, &entry.P);
 						List.insert(&entry);
 					}
-					else if(sp_n.Ext.CmpNC("btr") == 0) {
+					else if(sp_n.Ext.IsEqiAscii("btr")) {
 						assert(GetMainEntry(test_entry) == 0);
 						entry.Id = ++counter;
 						entry.Flags |= fMain;
@@ -717,7 +703,7 @@ int DBTablePartitionList::Get(uint p, Entry & rEntry) const
 	else {
 		rEntry.Id = 0;
 		rEntry.Flags = 0;
-		rEntry.Path = 0;
+		rEntry.Path.Z();
 		ok = 0;
 	}
 	return ok;

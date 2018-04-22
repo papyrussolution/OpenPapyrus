@@ -429,7 +429,103 @@ int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, S
 	//xmlMemoryDump();
 	return ok;
 }
+//
+//
+//
+SXmlSaxParser::SXmlSaxParser(long flags) : State(0), Flags(flags), P_SaxCtx(0)
+{
+}
 
+SXmlSaxParser::~SXmlSaxParser()
+{
+}
+
+extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
+void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
+
+int SXmlSaxParser::ParseFile(const char * pFileName)
+{
+	int    ok = 1;
+	THROW(fileExists(pFileName));
+	{
+		xmlSAXHandler saxh;
+		MEMSZERO(saxh);
+		if(Flags & fStartDocument)
+			saxh.startDocument = Scb_StartDocument;
+		if(Flags & fEndDocument)
+			saxh.endDocument = Scb_EndDocument;
+		if(Flags & fStartElement)
+			saxh.startElement = Scb_StartElement;
+		if(Flags & fEndElement)
+			saxh.endElement = Scb_EndElement;
+		if(Flags & fCharacters)
+			saxh.characters = Scb_Characters;
+
+		xmlFreeParserCtxt(P_SaxCtx);
+		THROW(P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0));
+		if(P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
+			SAlloc::F(P_SaxCtx->sax);
+		P_SaxCtx->sax = &saxh;
+		xmlDetectSAX2(P_SaxCtx);
+		P_SaxCtx->userData = this;
+		SrcFileName = pFileName;
+		xmlParseDocument(P_SaxCtx);
+	}
+	CATCHZOK
+	if(P_SaxCtx) {
+		P_SaxCtx->sax = 0;
+		xmlFreeParserCtxt(P_SaxCtx);
+	}
+	P_SaxCtx = 0;
+	return ok;
+}
+
+void SXmlSaxParser::SaxStop()
+{
+	xmlStopParser(P_SaxCtx);
+}
+
+//virtual 
+int SXmlSaxParser::StartDocument()
+{
+	TagValue.Z();
+	return 1;
+}
+//virtual 
+int SXmlSaxParser::EndDocument()
+{
+	return 1;
+}
+//virtual 
+int SXmlSaxParser::StartElement(const char * pName, const char ** ppAttrList)
+{
+	TagValue.Z();
+	return 1;
+}
+//virtual 
+int SXmlSaxParser::EndElement(const char * pName)
+{
+	return 1;
+}
+//virtual 
+int SXmlSaxParser::Characters(const char * pS, size_t len)
+{
+	//
+	// Одна строка может быть передана несколькими вызовами. По этому StartElement обнуляет
+	// буфер RdB.TagValue, а здесь каждый вызов дополняет существующую строку входящими символами
+	//
+	TagValue.CatN(pS, len);
+	return 1;
+}
+
+void SXmlSaxParser::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, StartDocument()); }
+void SXmlSaxParser::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, EndDocument()); }
+void SXmlSaxParser::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
+void SXmlSaxParser::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, EndElement((const char *)pName)); }
+void SXmlSaxParser::Scb_Characters(void * ptr, const uchar * pC, int len) { CALLTYPEPTRMEMB(SXmlSaxParser, ptr, Characters((const char *)pC, len)); }
+//
+//
+//
 #if 0 // @construction {
 
 class XmlList;

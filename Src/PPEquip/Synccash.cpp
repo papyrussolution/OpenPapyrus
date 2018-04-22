@@ -6,8 +6,6 @@
 #pragma hdrstop
 #include <comdisp.h>
 
-#define DEF_BAUD_RATE		   10	// Скорость обмена по умолчанию 128000 бод
-#define MAX_BAUD_RATE		   10	// Max скорость обмена 128000 бод
 #define DEF_STRLEN             36   // Длина строки
 #define DEF_DRAWER_NUMBER		0	// Номер денежного ящика
 #define DEF_FONTSIZE			3	// Средний размер шрифта
@@ -274,12 +272,14 @@ static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const char * str)
 
 int SLAPI SCS_SYNCCASH::Connect()
 {
+//#define DEF_BAUD_RATE		   10	// Скорость обмена по умолчанию 128000 бод
+//#define MAX_BAUD_RATE		   10	// Max скорость обмена 128000 бод
+
 	int    ok = 1;
 	int    model_type = 0;
 	int    major_prot_ver = 0;
 	int    minor_prot_ver = 0;
 	int    not_use_wght_sensor = 0;
-	int    def_baud_rate = DEF_BAUD_RATE;
 	SString buf, buf1;
 	PPIniFile ini_file;
 	if(Flags & sfConnected) {
@@ -296,24 +296,55 @@ int SLAPI SCS_SYNCCASH::Connect()
 	buf.Divide(',', buf1, AdmName);
 	CashierPassword = AdmPassword = buf1.ToLong();
 	AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
-		SString  buf2;
-		if(buf.Divide(',', buf1, buf2) > 0)
-			def_baud_rate = buf1.ToLong();
-		if(def_baud_rate > MAX_BAUD_RATE)
-			def_baud_rate = DEF_BAUD_RATE;
+	{
+		const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
+		const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
+		static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
+		/*
+			0: cbr2400  1: cbr4800   2: cbr9600    3: cbr14400    4: cbr19200  5: cbr38400  
+			6: cbr56000 7: cbr57600  8: cbr115200  9: cbr128000  10: cbr256000
+		*/
+		//int    def_baud_rate = __def_baud_rate;
+		int    settled_baud_rate = __def_baud_rate;
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
+			SString  buf2;
+			if(buf.Divide(',', buf1, buf2) > 0)
+				settled_baud_rate = buf1.ToLong();
+			if(settled_baud_rate < 0 || settled_baud_rate > __max_baud_rate)
+				settled_baud_rate = __def_baud_rate;
+		}
+		for(uint baud_rate_idx = 0; baud_rate_idx < SIZEOFARRAY(__baud_rate_list); baud_rate_idx++) {
+			int try_baud_rate = __baud_rate_list[baud_rate_idx];
+			if(try_baud_rate != settled_baud_rate) {
+				if(try_baud_rate == -1)
+					try_baud_rate = settled_baud_rate;
+				Arr_In.Clear();
+				THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
+				THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, try_baud_rate));
+				ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
+				if(ok == 1) {
+					settled_baud_rate = try_baud_rate;
+					break;
+				}
+				else {
+					THROW(ResCode == RESCODE_NO_CONNECTION);
+				}
+			}
+		}
+		/*
+		do {
+			Arr_In.Clear();
+			THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
+			THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, def_baud_rate));
+			ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
+			def_baud_rate--;
+			if((ok != 1) && (ResCode != RESCODE_NO_CONNECTION))
+				THROW(ok);
+		} while((ok != 1) && (def_baud_rate >= 0));
+		*/
+		THROW(ok);
+		Flags |= sfConnected;
 	}
-	do {
-		Arr_In.Clear();
-		THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
-		THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, def_baud_rate));
-		ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
-		def_baud_rate--;
-		if((ok != 1) && (ResCode != RESCODE_NO_CONNECTION))
-			THROW(ok);
-	} while((ok != 1) && (def_baud_rate >= 0));
-	THROW(ok);
-	Flags |= sfConnected;
 	THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
 	SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
 	THROW(ExchangeParams());

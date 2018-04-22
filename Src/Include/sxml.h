@@ -91,5 +91,45 @@ public:
     static int SLAPI GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
     static int SLAPI GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
 };
+//
+//
+//
+class SXmlSaxParser {
+protected:
+	enum {
+		fStartDocument = 0x0001,
+		fEndDocument   = 0x0002,
+		fStartElement  = 0x0004,
+		fEndElement    = 0x0008,
+		fCharacters    = 0x0010
+	};
+	SXmlSaxParser(long flags);
+	~SXmlSaxParser();
+	int    ParseFile(const char * pFileName);
+	void   SaxStop();
 
+	virtual int StartDocument();
+	virtual int EndDocument();
+	virtual int StartElement(const char * pName, const char ** ppAttrList);
+	virtual int EndElement(const char * pName);
+	virtual int Characters(const char * pS, size_t len);
+
+	enum {
+		stError = 0x0002
+	};
+	int    State;
+	long   Flags;
+	SString TagValue;
+	SString SrcFileName;
+	xmlParserCtxt * P_SaxCtx;
+private:
+	static void Scb_StartDocument(void * ptr);
+	static void Scb_EndDocument(void * ptr);
+	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
+	static void Scb_EndElement(void * ptr, const xmlChar * pName);
+	static void Scb_Characters(void * ptr, const uchar * pC, int len);
+};
+//
+//
+//
 #endif // __SXML_H

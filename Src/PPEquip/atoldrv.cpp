@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018
 // @codepage windows-1251
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -31,9 +31,6 @@
 
 #define REPORT_TYPE_Z          1L
 #define REPORT_TYPE_X          2L
-
-#define PAYTYPE_CASH           0L
-#define PAYTYPE_BANKING        3L
 //
 //
 //
@@ -526,8 +523,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			Exec(Beep);
 			wait_prn_err = 1;
 			r = PPError();
-			if((!send_msg && r != cmOK) || (send_msg && Exec(Beep) &&
-				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
+			if((!send_msg && r != cmOK) || (send_msg && Exec(Beep) && PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}
@@ -724,28 +720,19 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						if(line_buf.NotEmptyS()) {
 							{
 								int    atol_bctype = 0;
-								if(sl_param.BarcodeStd == BARCSTD_CODE39)
-									atol_bctype = 1;
-								else if(sl_param.BarcodeStd == BARCSTD_UPCA)
-									atol_bctype = 0;
-								else if(sl_param.BarcodeStd == BARCSTD_UPCE)
-									atol_bctype = 4;
-								else if(sl_param.BarcodeStd == BARCSTD_EAN13)
-									atol_bctype = 2;
-								else if(sl_param.BarcodeStd == BARCSTD_EAN8)
-									atol_bctype = 3;
-								else if(sl_param.BarcodeStd == BARCSTD_ANSI)
-									atol_bctype = 6;
-								else if(sl_param.BarcodeStd == BARCSTD_CODE93)
-									atol_bctype = 7;
-								else if(sl_param.BarcodeStd == BARCSTD_CODE128)
-									atol_bctype = 8;
-								else if(sl_param.BarcodeStd == BARCSTD_PDF417)
-									atol_bctype = 10;
-								else if(sl_param.BarcodeStd == BARCSTD_QR)
-									atol_bctype = 84;
-								else
-									atol_bctype = 84; // QR by default
+								switch(sl_param.BarcodeStd) {
+									case BARCSTD_CODE39: atol_bctype = 1; break;
+									case BARCSTD_UPCA: atol_bctype = 0; break;
+									case BARCSTD_UPCE: atol_bctype = 4; break;
+									case BARCSTD_EAN13: atol_bctype = 2; break;
+									case BARCSTD_EAN8: atol_bctype = 3; break;
+									case BARCSTD_ANSI: atol_bctype = 6; break;
+									case BARCSTD_CODE93: atol_bctype = 7; break;
+									case BARCSTD_CODE128: atol_bctype = 8; break;
+									case BARCSTD_PDF417: atol_bctype = 10; break;
+									case BARCSTD_QR: atol_bctype = 84; break;
+									default: atol_bctype = 84; break; // QR by default
+								}
 								THROW(SetProp(BarcodeType, atol_bctype));
 							}
 							THROW(SetProp(Barcode, line_buf));
@@ -850,61 +837,46 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				else
 					_paym_bnk = R2(sum);
 			}
-			if(nonfiscal > 0.0) {
-				if(fiscal > 0.0) {
-					const double _paym_cash = R2(fiscal - _paym_bnk);
+			{
+				//#define PAYTYPE_CASH           0L
+				//#define PAYTYPE_BANKING        3L
+				int   atol_paytype_cash = 0;
+				int   atol_paytype_bank = 3;
+				// @v10.0.02 {
+				if(SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15))
+					atol_paytype_bank = 1;
+				// } @v10.0.02 
+				if(nonfiscal > 0.0) {
+					if(fiscal > 0.0) {
+						const double _paym_cash = R2(fiscal - _paym_bnk);
+						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
+						if(_paym_cash > 0.0) {
+							THROW(SetProp(Summ, R2(_paym_cash)));
+							THROW(SetProp(TypeClose, atol_paytype_cash));
+							THROW(ExecOper(Payment));
+						}
+						if(_paym_bnk > 0.0) {
+							THROW(SetProp(Summ, R2(_paym_bnk)));
+							THROW(SetProp(TypeClose, atol_paytype_bank));
+							THROW(ExecOper(Payment));
+						}
+					}
+				}
+				else {
+					const double _paym_cash = R2(sum - _paym_bnk);
 					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
 					if(_paym_cash > 0.0) {
-						THROW(SetProp(Summ, R2(_paym_cash)));
-						THROW(SetProp(TypeClose, PAYTYPE_CASH));
+						THROW(SetProp(Summ, _paym_cash));
+						THROW(SetProp(TypeClose, atol_paytype_cash));
 						THROW(ExecOper(Payment));
 					}
 					if(_paym_bnk > 0.0) {
-						THROW(SetProp(Summ, R2(_paym_bnk)));
-						THROW(SetProp(TypeClose, PAYTYPE_BANKING));
+						THROW(SetProp(Summ, _paym_bnk));
+						THROW(SetProp(TypeClose, atol_paytype_bank));
 						THROW(ExecOper(Payment));
 					}
 				}
 			}
-// @v8.5.9 {
-			else {
-				const double _paym_cash = R2(sum - _paym_bnk);
-				debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
-				if(_paym_cash > 0.0) {
-					THROW(SetProp(Summ, _paym_cash));
-					THROW(SetProp(TypeClose, PAYTYPE_CASH));
-					THROW(ExecOper(Payment));
-				}
-				if(_paym_bnk > 0.0) {
-					THROW(SetProp(Summ, _paym_bnk));
-					THROW(SetProp(TypeClose, PAYTYPE_BANKING));
-					THROW(ExecOper(Payment));
-				}
-			}
-// } @v8.5.9
-#if 0 // @v8.5.9 {
-			else if(flags & PRNCHK_BANKING) {
-				double  add_paym = intmnytodbl(pPack->Ext.AddPaym);
-				if(add_paym) {
-					THROW(SetProp(Summ, R2(sum - amt + add_paym)));
-					THROW(SetProp(TypeClose, PAYTYPE_CASH));
-					THROW(ExecOper(Payment));
-					THROW(SetProp(Summ, R2(amt - add_paym)));
-					THROW(SetProp(TypeClose, PAYTYPE_BANKING));
-					THROW(ExecOper(Payment));
-				}
-				else {
-					THROW(SetProp(Summ, R2(sum)));
-					THROW(SetProp(TypeClose, PAYTYPE_BANKING));
-					THROW(ExecOper(Payment));
-				}
-			}
-			else {
-				THROW(SetProp(Summ, R2(sum)));
-				THROW(SetProp(TypeClose, PAYTYPE_CASH));
-				THROW(ExecOper(Payment));
-			}
-#endif // } 0 @v8.5.9
 		}
 		THROW(ExecOper(CloseCheck));
 		THROW(Exec(ResetMode));

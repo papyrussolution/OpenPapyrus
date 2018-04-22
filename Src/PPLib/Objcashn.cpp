@@ -1124,7 +1124,7 @@ int DivGrpAsscListDialog::editItem(int pos, PPGenCashNode::DivGrpAssc * pItem)
 	TDialog * dlg = new TDialog(DLG_DIVGRPASSCITM);
 	PPGenCashNode::DivGrpAssc temp_item = *pItem;
 	if(CheckDialogPtrErr(&dlg)) {
-		SetupPPObjCombo(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPOBJ_GOODSGROUP, temp_item.GrpID, OLW_CANINSERT, 0);
+		SetupPPObjCombo(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPOBJ_GOODSGROUP, temp_item.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0); // @v10.0.02 OLW_CANSELUPLEVEL
 		dlg->setCtrlData(CTL_DIVGRPASSCITM_DIV, &temp_item.DivN);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			int  all_ok = 1;

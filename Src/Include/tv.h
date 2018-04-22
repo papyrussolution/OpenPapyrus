@@ -1728,19 +1728,10 @@ public:
 
 	SLAPI  TWindow(const TRect& bounds, const char * pTitle, short aNumber);
 	SLAPI ~TWindow();
-	/*
-	operator HWND() const
-	{
-		return this ? hWnd : (HWND)0;
-	}
-	*/
 	/* @v9.0.4 virtual*/ void  endModal(ushort command);
 	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
-	HWND   SLAPI H() const
-	{
-		return this ? /*hWnd*/HW : (HWND)0;
-	}
+	HWND   SLAPI H() const { return this ? /*hWnd*/HW : (HWND)0; }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
 	void   FASTCALL setCtrlReadOnly(ushort ctlID, int set);
 	void   FASTCALL disableCtrl(ushort ctl, int toDisable);
@@ -3914,7 +3905,7 @@ public:
 	DECL_HANDLE_EVENT;
 	virtual void run();
 	TView * validView(TView *p);
-	void   idle();
+	// @v10.0.02 void   idle();
 	void   SetupTreeWnd(HMENU hMenu, HTREEITEM hP);
 	int    SizeMainWnd(HWND);
 	int    GetStatusBarRect(RECT *);

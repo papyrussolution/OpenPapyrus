@@ -3072,9 +3072,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	SString tech_buf;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 	{
-		//PPTXT_LOG_SUPPLIX_IMPORD_S    "Импорт заказов @zstr"
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_S, &msg_buf, tech_buf.cptr());
-		//R_Logger.Log(msg_buf);
 		PPWaitMsg(msg_buf);
 	}
 	THROW(State & stInited);
@@ -3088,9 +3086,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	}
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
-		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_E, &msg_buf, (long)p_result->getCount(), tech_buf.cptr());
-		//R_Logger.Log(msg_buf);
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
@@ -4340,7 +4336,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 			//R_Logger.Log(msg_buf);
 			PPWaitMsg(msg_buf);
 		}
-		const  uint max_fraction_size = 20;
+		const  uint max_fraction_size = 10; // @v10.0.02 20-->10
 		long   total_error_count = 0;
 		ISALESPUTBILLS_PROC func = 0;
 		THROW_SL(func = (ISALESPUTBILLS_PROC)P_Lib->GetProcAddr("iSalesPutBills"));
@@ -5228,19 +5224,6 @@ int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgLis
 int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList)
 {
     int    ok = 1;
-	//SString temp_buf;
-	//TSCollection <SapEfesDebtReportEntry> outp_list;
-	//TSCollection <SapEfesDebtDetailReportEntry> outp_detail_list;
-	//TSCollection <SapEfesLogMsg> * p_result = 0;
-	//PPSoapClientSession sess;
-	//SapEfesCallHeader sech;
-	//EFESSETDEBTSYNC_PROC func = 0;
-	//THROW(State & stInited);
-	//THROW(State & stEpDefined);
-	//THROW(P_Lib);
-	//THROW_SL(func = (EFESSETDEBTSYNC_PROC)P_Lib->GetProcAddr("EfesSetDebtSync"));
-	//sess.Setup(SvcUrl, UserName, Password);
-	//InitCallHeader(sech);
 	{
 		const int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 		PPViewBill bill_view;
@@ -5322,8 +5305,6 @@ int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rLis
     int    ok = -1;
 	if(rList.getCount()) {
 		SString temp_buf;
-		//TSCollection <SapEfesDebtReportEntry> outp_list;
-		//TSCollection <SapEfesDebtDetailReportEntry> outp_detail_list;
 		TSCollection <SapEfesLogMsg> * p_result = 0;
 		PPSoapClientSession sess;
 		SapEfesCallHeader sech;
@@ -5398,6 +5379,7 @@ public:
 	int    SLAPI SendSales();
 	void   SLAPI GetLogFileName(SString & rFileName) const;
 	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
+	int    SLAPI SendDebts();
 private:
 	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList);
 	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList);
@@ -5701,7 +5683,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	// @v10.0.1 {
 	if(checkdate(P.ExpPeriod.low, 0) && P.ExpPeriod.upp == P.ExpPeriod.low)
 		query_date = P.ExpPeriod.low;
-	// } @v10.0.1 
+	// } @v10.0.1
 	p_result = func(sess, query_date, 0/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
@@ -5932,7 +5914,7 @@ int SLAPI SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAs
 				double ratio = 0.0;
 				if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_LITER, &ratio) > 0)
 					p_new_item->Volume = fabs(ti.Quantity_) * ratio / 100.0; // гекталитры
-				else 
+				else
 					p_new_item->Volume = 0.0;
 				p_new_item->Amount = ti.CalcAmount();
 			}
@@ -6110,6 +6092,60 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 		}
 	}
     CATCHZOK
+	return ok;
+}
+
+int SLAPI SfaHeineken::SendDebts()
+{
+	int    ok = -1;
+#if 1 // {
+	PPSoapClientSession sess;
+	SString temp_buf;
+	SString msg_buf;
+	SString * p_result = 0;
+	TSCollection <SfaHeinekenDebetEntry> list;
+	SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC func = 0;
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
+	{
+		PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_S, &msg_buf, temp_buf.cptr(), P.SupplID);
+		PPWaitMsg(msg_buf);
+	}
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)P_Lib->GetProcAddr("SfaHeineken_SendAllContragentDebet"));
+	{
+		Reference * p_ref = PPRef;
+		PPViewDebtTrnovr debt_view;
+		DebtTrnovrViewItem debt_item;
+		DebtTrnovrFilt debt_filt;
+		debt_filt.AccSheetID = GetSellAccSheet();
+		debt_filt.Flags |= (DebtTrnovrFilt::fSkipPassive|DebtTrnovrFilt::fDebtOnly);
+		debt_filt.Sgb.S = SubstGrpBill::sgbDlvrLoc;
+		THROW(debt_view.Init_(&debt_filt));
+		for(debt_view.InitIteration(PPViewDebtTrnovr::OrdByDefault); debt_view.NextIteration(&debt_item) > 0;) {
+			PPID   dlvr_addr_id = debt_item.ID_;
+			if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_addr_id, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
+				PPID foreign_dlvr_addr_id = temp_buf.ToLong();
+				if(foreign_dlvr_addr_id > 0) {
+					SfaHeinekenDebetEntry * p_new_entry = list.CreateNewItem();
+					THROW_SL(p_new_entry);
+					p_new_entry->ContragentID = foreign_dlvr_addr_id;
+					p_new_entry->DebetSum = debt_item.Debt;
+					p_new_entry->DebetLimit = 0.0;
+				}
+			}
+		}
+	}
+	sess.Setup(SvcUrl, UserName, Password);
+	if(list.getCount()) {
+		p_result = func(sess, list);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		DestroyResult((void **)&p_result);
+		ok = 1;
+	}
+	CATCHZOK
+#endif // }
 	return ok;
 }
 
@@ -6634,6 +6670,10 @@ int SLAPI PrcssrSupplInterchange::Run()
 		}
 		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportSales) {
 			if(!cli.SendSales())
+				logger.LogLastError();
+		}
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
+			if(!cli.SendDebts())
 				logger.LogLastError();
 		}
 		cli.GetLogFileName(log_file_name);

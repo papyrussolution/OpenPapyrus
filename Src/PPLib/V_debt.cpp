@@ -1222,11 +1222,12 @@ int SLAPI PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & 
 		}
 	}
 	else if(rBlk.IterPath == ProcessBlock::ipByAgentList) {
-		while(ok < 0 && rBlk.ExtBillList.getPointer() < rBlk.ExtBillList.getCount()) {
+		PPIDArray & r_ext_list = rBlk.ExtBillList;
+		while(ok < 0 && r_ext_list.getPointer() < r_ext_list.getCount()) {
 			rBlk.Cntr.Increment();
-			if(P_BObj->Search(rBlk.ExtBillList.get(rBlk.ExtBillList.getPointer()), &rRec) > 0)
+			if(P_BObj->Search(r_ext_list.get(r_ext_list.getPointer()), &rRec) > 0)
 				ok = 1;
-			rBlk.ExtBillList.incPointer();
+			r_ext_list.incPointer();
 		}
 	}
 	return ok;
@@ -1248,7 +1249,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 			rBlk.ReckonAccSheetID = op_rec.AccSheetID;
 			DBQ * dbq = 0;
 			BillTbl::Key2 k2;
-			THROW_MEM(rBlk.P_Q = new BExtQuery(t, 2, 256));
+			THROW_MEM(rBlk.P_Q = new BExtQuery(t, 2, 1024)); // @v10.0.02 256-->1024
 			rBlk.P_Q->select(t->ID, t->Dt, t->OpID, t->Object, t->Object2, t->StatusID, t->Flags, t->CurID, t->Amount, t->PaymAmount, 0L);
 			dbq = & (t->OpID == reckonOpID && daterange(t->Dt, &Filt.Period));
 			if(Filt.CurID >= 0)
@@ -1304,7 +1305,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 				const PPID  op_id = PayableOpList.get(rBlk.IterN++);
 				DBQ * dbq = 0;
 				BillTbl::Key2 k2;
-				THROW_MEM(rBlk.P_Q = new BExtQuery(t, 2, 256));
+				THROW_MEM(rBlk.P_Q = new BExtQuery(t, 2, 1024)); // @v10.0.02 256-->1024
 				rBlk.P_Q->select(t->ID, t->Dt, t->OpID, t->Object, t->Object2, t->StatusID, t->Flags, t->CurID, t->Amount, t->PaymAmount, 0L);
 				dbq = & (t->OpID == op_id && daterange(t->Dt, &Filt.Period));
 				if(Filt.CurID >= 0)

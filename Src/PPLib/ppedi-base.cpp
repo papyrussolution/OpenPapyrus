@@ -64,6 +64,8 @@ int SEancomXmlSegment::GetMsgType(const char * pText) const
 			msg_type = PPEDIOP_RECADV;
 		else if(IsText(pText, "APERAK"))
 			msg_type = PPEDIOP_APERAK;
+		else if(IsText(pText, "PARTIN"))
+			msg_type = PPEDIOP_PARTIN;
 	}
 	return msg_type;
 }

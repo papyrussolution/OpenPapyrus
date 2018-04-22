@@ -737,7 +737,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 					//
 					// Закрываем <dt></dt><dd>...
 					//
-					if(p_first_brc_arg->Text.CmpNC("description") == 0 || p_first_brc_arg->Text.CmpNC("itemize") == 0 || p_first_brc_arg->Text.CmpNC("enumerate") == 0) {
+					if(p_first_brc_arg->Text.IsEqiAscii("description") || p_first_brc_arg->Text.IsEqiAscii("itemize") || p_first_brc_arg->Text.IsEqiAscii("enumerate")) {
 						list_item = 0;
 					}
 				}
@@ -1082,7 +1082,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					//
 					// Закрываем <dt></dt><dd>...
 					//
-					if(p_first_brc_arg->Text.CmpNC("description") == 0 || p_first_brc_arg->Text.CmpNC("itemize") == 0 || p_first_brc_arg->Text.CmpNC("enumerate") == 0) {
+					if(p_first_brc_arg->Text.IsEqiAscii("description") || p_first_brc_arg->Text.IsEqiAscii("itemize") || p_first_brc_arg->Text.IsEqiAscii("enumerate")) {
 						if(list_item == 2)
 							WriteText(rOut, line_buf.Z().CatTagBrace("dd", 1));
 						else
@@ -1302,7 +1302,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("label") == 0) {
+				else if(p_blk->Text.IsEqiAscii("label")) {
 					if(p_first_brc_arg) {
 						temp_buf.Z().CatChar('\"').Cat(p_first_brc_arg->Text).CatChar('\"');
 						line_buf.Z().CatChar('<').Cat("a").Space().CatEq("name", temp_buf).CatChar('>').CatTagBrace("a", 1);

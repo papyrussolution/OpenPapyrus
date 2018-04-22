@@ -23,8 +23,8 @@ void SLAPI PPGoodsPacket::destroy()
 	MEMSZERO(Rec);
 	MEMSZERO(ExtRec);
 	Stock.Init();
-	Codes.freeAll();
-	ArCodes.freeAll();
+	Codes.clear(); // @v10.0.02 freeAll()-->clear()
+	ArCodes.clear(); // @v10.0.02 freeAll()-->clear()
 	ExtString.Z();
 	ZDELETE(P_Filt);
 	ZDELETE(P_Quots);

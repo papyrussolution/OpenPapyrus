@@ -427,9 +427,9 @@ int SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 		size_t h  = Hash(pSymb);
 		const  Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
-			SString temp_buf;
+			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.02
 			uint   pos = (uint)r_entry.Val.Key;
-			if(NamePool.get(pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
+			if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEqual(pSymb)) {
 				ASSIGN_PTR(pVal, r_entry.Val.Val);
 				ASSIGN_PTR(pPos, pos);
 				ok = 1;
@@ -437,7 +437,7 @@ int SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
 					pos = (uint)r_entry.P_Ext[i-1].Key;
-					if(NamePool.get(pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
+					if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEqual(pSymb)) {
 						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
 						ASSIGN_PTR(pPos, pos);
 						ok = 1;

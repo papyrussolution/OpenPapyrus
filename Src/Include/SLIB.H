@@ -2001,11 +2001,12 @@ public:
 		indCSec,       // since 1601-01-01 (UTC).
         indSec,        // since 1601-01-01 (UTC).
         indMin,        // since 1601-01-01 (UTC).
-		indMin5,       // since 1601-01-01 (UTC).
-		indMin15,      // since 1601-01-01 (UTC).
-		indMin30,      // since 1601-01-01 (UTC).
         indHr,         // since 1601-01-01 (UTC).
-		indHr4,        // since 1601-01-01 (UTC).
+		indMSecTz,     // since 1601-01-01 (UTC). // timezone - lowest 8 bit
+		indCSecTz,     // since 1601-01-01 (UTC). // timezone - lowest 8 bit
+        indSecTz,      // since 1601-01-01 (UTC). // timezone - lowest 8 bit
+        indMinTz,      // since 1601-01-01 (UTC). // timezone - lowest 8 bit
+        indHrTz,       // since 1601-01-01 (UTC). // timezone - lowest 8 bit
 		indEpoch,      // since 1970-01-01 00:00:00 GMT
         indDay,        // since 0001-01-01
         indMon,        // since 0001-01-01
@@ -4538,9 +4539,9 @@ int   FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
-int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
-int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
-int   FASTCALL encodetime(int h, int m, int s, int ts, void *);
+// @v10.0.02 int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
+// @v10.0.02 int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
+void  FASTCALL encodetime(int h, int m, int s, int ts, void *);
 void  FASTCALL decodetime(int * h, int * m, int * s, int * ts, void *);
 LTIME FASTCALL encodetime(int h, int m, int s, int ts);
 /*
@@ -5620,6 +5621,7 @@ public:
 	void   FASTCALL SetParams(const CommPortParams *);
 	void   FASTCALL SetTimeouts(const CommPortTimeouts *);
 	int    SLAPI InitPort(int portNo /* 0..3 */);
+	int    SLAPI ClosePort();
 	int    FASTCALL PutChr(int c);
 	int    SLAPI GetChr();
 	int    FASTCALL GetChr(int * pChr);

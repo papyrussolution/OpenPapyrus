@@ -365,7 +365,7 @@ int BDbDatabase::StartTransaction()
 	THROW(E);
 	THROW_D(!T.T, BE_DBD_INNERTXN);
 	{
-		const uint32 ta_flags = DB_TXN_SNAPSHOT | DB_TXN_BULK;
+		const uint32 ta_flags = /*DB_TXN_SNAPSHOT |*/DB_TXN_BULK/*| DB_TXN_NOSYNC*/;
 		int r = E->txn_begin(E, 0, &T.T, ta_flags);
 		THROW(ProcessError(r));
 	}
@@ -553,7 +553,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	}
 	// } @v9.8.2
 	{
-		int    opf = (DB_CREATE|DB_AUTO_COMMIT|DB_MULTIVERSION); // @v10.0.1 DB_MULTIVERSION 
+		int    opf = (DB_CREATE|DB_AUTO_COMMIT/*|DB_MULTIVERSION*/); // @v10.0.1 DB_MULTIVERSION 
 		opf |= DB_THREAD;
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}

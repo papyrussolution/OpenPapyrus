@@ -3037,13 +3037,13 @@ static int SLAPI SelectAddByRcptAction(SelAddBySampleParam * pData)
 	return ok;
 }
 
-static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
+static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode)
 {
 	static const char * WrParam_StoreFlags = "SelectAddBillBySampleFlags";
 
 	class SelAddByOrdDialog : public TDialog {
 	public:
-		SelAddByOrdDialog() : TDialog(DLG_SELOBSMPL)
+		SelAddByOrdDialog(int allowBulkMode) : TDialog(DLG_SELOBSMPL), AllowBulkMode(allowBulkMode)
 		{
 		}
 		int    setDTS(const SelAddBySampleParam * pData)
@@ -3055,9 +3055,14 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 3, SelAddBySampleParam::acnDraftExpRestByOrder); // @v9.9.6
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 4, SelAddBySampleParam::acnDraftRcpByOrder); // @v9.9.6 (3, 3)-->(4, 3)
 			SetClusterData(CTL_SELBBSMPL_WHAT, Data.Action);
-			AddClusterAssoc(CTL_SELBBSMPL_SAMECODE, 0, SelAddBySampleParam::fCopyBillCode);
-			SetClusterData(CTL_SELBBSMPL_SAMECODE, Data.Flags);
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 0, SelAddBySampleParam::fCopyBillCode);
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 1, SelAddBySampleParam::fNonInteractive); // @v10.0.02
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 2, SelAddBySampleParam::fAll); // @v10.0.02
+			SetClusterData(CTL_SELBBSMPL_FLAGS, Data.Flags);
+			DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
 			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0); // @v10.0.02
+			setCtrlDate(CTL_SELBBSMPL_DT, Data.Dt); // @v10.0.02
 			setupOpCombo();
 			restoreFlags();
 			return 1;
@@ -3069,6 +3074,8 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &Data.Flags);
 			getCtrlData(CTLSEL_SELBBSMPL_LOC, &Data.LocID);
 			getCtrlData(CTLSEL_SELBBSMPL_OP, &Data.OpID);
+			getCtrlData(CTLSEL_SELBBSMPL_QK, &Data.QuotKindID); // @v10.0.02
+			Data.Dt = getCtrlDate(CTL_SELBBSMPL_DT); // @v10.0.02
 			if(oneof4(Data.Action, SelAddBySampleParam::acnShipmByOrder, SelAddBySampleParam::acnDraftExpByOrder, 
 				SelAddBySampleParam::acnDraftExpRestByOrder, SelAddBySampleParam::acnDraftRcpByOrder)) {
 				if(Data.OpID == 0)
@@ -3089,6 +3096,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			int    process_reg = 0;
 			if(event.isClusterClk(CTL_SELBBSMPL_WHAT)) {
 				setupOpCombo();
+				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
 				process_reg = 1;
 				clearEvent(event);
 			}
@@ -3115,7 +3123,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(Data.OpID).CatChar('-').Cat(Data.Action);
-			val.Z().Cat(flags);
+			val.Z().Cat(flags & SelAddBySampleParam::fCopyBillCode);
 			reg_key.PutString(param, val);
 		}
 		void   restoreFlags()
@@ -3128,8 +3136,10 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			GetClusterData(CTL_SELBBSMPL_WHAT, &action);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(op_id).CatChar('-').Cat(action);
 			long   flags = 0;
-			if(reg_key.GetString(param, val_buf, sizeof(val_buf)))
-				flags = atoi(val_buf);
+			if(reg_key.GetString(param, val_buf, sizeof(val_buf))) {
+				long rf = atoi(val_buf);
+				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fCopyBillCode, rf);
+			}
 			SetClusterData(CTL_SELBBSMPL_SAMECODE, flags);
 		}
 		void   setupOpCombo()
@@ -3153,8 +3163,9 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			SetupOprKindCombo(this, CTLSEL_SELBBSMPL_OP, op_list.getSingle(), 0, &op_list, OPKLF_OPLIST);
 		}
 		SelAddBySampleParam Data;
+		int    AllowBulkMode;
 	};
-	DIALOG_PROC_BODY(SelAddByOrdDialog, pData);
+	DIALOG_PROC_BODY_P1(SelAddByOrdDialog, allowBulkMode, pData);
 }
 
 int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
@@ -3174,8 +3185,14 @@ int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 				param.Action = param.acnUndef;
 				param.LocID = bill_rec.LocID;
 				const PPID op_type_id = GetOpType(bill_rec.OpID);
-				if(op_type_id == PPOPT_GOODSORDER)
-					SelectAddByOrderAction(&param);
+				int    allow_bulk_mode = 0; 
+				if(op_type_id == PPOPT_GOODSORDER) {
+					// @v10.0.02 {
+					if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)
+						allow_bulk_mode = 1;
+					// } @v10.0.02
+					SelectAddByOrderAction(&param, allow_bulk_mode);
+				}
 				else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
 					SelectAddByRcptAction(&param);
 				else
@@ -3189,16 +3206,72 @@ int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						}
 						break;
 					case SelAddBySampleParam::acnShipmByOrder:
-						if(op_type_id == PPOPT_GOODSORDER)
-							ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+						if(op_type_id == PPOPT_GOODSORDER) {
+							if(allow_bulk_mode && param.Flags & param.fAll) {
+								param.Flags |= param.fNonInteractive;
+								PPIDArray bill_id_list;
+								BillViewItem item;
+								for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
+									bill_id_list.add(item.ID);
+								if(bill_id_list.getCount()) {
+									bill_id_list.sortAndUndup();
+									PPLogger logger;
+									PPWait(1);
+									for(uint i = 0; i < bill_id_list.getCount(); i++) {
+										const PPID sample_bill_id = bill_id_list.get(i);
+										const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+										if(!local_result)
+											logger.LogLastError();
+										else if(local_result == cmOK) {
+											logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
+											ok = cmOK;
+										}
+										PPWaitPercent(i+1, bill_id_list.getCount());
+									}
+									PPWait(0);
+								}
+							}
+							else {
+								ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+							}
+						}
 						else
 							ok = -1;
 						break;
 					case SelAddBySampleParam::acnDraftExpByOrder:
 					case SelAddBySampleParam::acnDraftExpRestByOrder:
 					case SelAddBySampleParam::acnDraftRcpByOrder:
-						if(op_type_id == PPOPT_GOODSORDER)
-							ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
+						if(op_type_id == PPOPT_GOODSORDER) {
+							if(allow_bulk_mode && param.Flags & param.fAll) {
+								param.Flags |= param.fNonInteractive; // !
+								PPIDArray bill_id_list;
+								BillViewItem item;
+								for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
+									bill_id_list.add(item.ID);
+								if(bill_id_list.getCount()) {
+									bill_id_list.sortAndUndup();
+									PPLogger logger;
+									PPWait(1);
+									for(uint i = 0; i < bill_id_list.getCount(); i++) {
+										const PPID sample_bill_id = bill_id_list.get(i);
+										const int  local_result = P_BObj->AddDraftByOrder(&bill_id, sample_bill_id, &param);
+										if(!local_result)
+											logger.LogLastError();
+										else if(local_result == cmOK) {
+											logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
+											ok = cmOK;
+										}
+										PPWaitPercent(i+1, bill_id_list.getCount());
+									}
+									PPWait(0);
+								}
+								else
+									ok = cmCancel;
+							}
+							else {
+								ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
+							}
+						}
 						else
 							ok = -1;
 						break;
@@ -4897,7 +4970,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					if(inet_acc_id && inet_addr_list.getCount()) {
 						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
 							temp_buf = inet_addr_list.Get(ai).Txt;
-							if(temp_buf.CmpNC("@bycontext") == 0 || temp_buf == "@@")
+							if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
 								use_mail_addr_by_context = 1;
 						}
 					}
@@ -4971,7 +5044,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						temp_buf.Z();
 						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
 							temp_buf = inet_addr_list.Get(ai).Txt;
-							if(temp_buf.CmpNC("@bycontext") == 0 || temp_buf == "@@")
+							if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
 								temp_buf.Z();
 							else
 								break;

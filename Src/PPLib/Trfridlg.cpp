@@ -2535,7 +2535,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 		const  PPID loc_id = GetQuotLocID();
 		if(loc_id) {
 			quot = Item.Price;
-			gqr = P_BObj->SelectQuotKind(P_Pack, &Item, (autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1, 0, &quot);
+			gqr = P_BObj->SelectQuotKind(P_Pack, &Item, ((autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1), &quot);
 			if(gqr > 0) {
 				;
 			}

@@ -487,23 +487,23 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 				text_buf.CatChar(c);
 			if(text_buf == "@")
 				rM.Tok = tString;
-			else if(text_buf.CmpNC("codepage") == 0)
+			else if(text_buf.IsEqiAscii("codepage"))
 				rM.Tok = tCodepage;
-			else if(text_buf.CmpNC("pragma") == 0)
+			else if(text_buf.IsEqiAscii("pragma"))
 				rM.Tok = tPragma;
-			else if(text_buf.CmpNC("start") == 0)
+			else if(text_buf.IsEqiAscii("start"))
 				rM.Tok = tStart;
-			else if(text_buf.CmpNC("rem") == 0)
+			else if(text_buf.IsEqiAscii("rem"))
 				rM.Tok = tRem;
-			else if(text_buf.CmpNC("end") == 0)
+			else if(text_buf.IsEqiAscii("end"))
 				rM.Tok = tEnd;
-			else if(text_buf.CmpNC("iter") == 0)
+			else if(text_buf.IsEqiAscii("iter"))
 				rM.Tok = tIter;
-			else if(text_buf.CmpNC("itercount") == 0)
+			else if(text_buf.IsEqiAscii("itercount"))
 				rM.Tok = tIterCount;
-			else if(text_buf.CmpNC("text") == 0)
+			else if(text_buf.IsEqiAscii("text"))
 				rM.Tok = tText;
-			else if(text_buf.CmpNC("include") == 0)
+			else if(text_buf.IsEqiAscii("include"))
 				rM.Tok = tInclude;
 			else {
 				rM.Tok = tNone;
@@ -904,9 +904,9 @@ int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & r
 				switch(meta.Tok) {
 					// #pragma(htmlencode)
 					case tPragma:
-						if(meta.Text.CmpNC("htmlencode") == 0)
+						if(meta.Text.IsEqiAscii("htmlencode"))
 							Flags |= fHtmlEncode;
-						else if(meta.Text.CmpNC("-htmlencode") == 0)
+						else if(meta.Text.IsEqiAscii("-htmlencode"))
 							Flags &= ~fHtmlEncode;
 						break;
 					case tCodepage:

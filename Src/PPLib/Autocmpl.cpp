@@ -706,8 +706,7 @@ int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplB
 	return ok;
 }
 
-int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList,
-	int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
+int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
 	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя.

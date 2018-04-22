@@ -13,7 +13,6 @@ SLAPI TrfrAnlzViewItem::TrfrAnlzViewItem()
 
 void SLAPI TrfrAnlzViewItem::Clear()
 {
-	//THISZERO();
 	memzero(this, offsetof(TrfrAnlzViewItem, BillCode_));
 	BillCode_.Z();
 	DtText_.Z();
@@ -312,10 +311,11 @@ void SLAPI TrfrAnlzViewItem_AlcRep::Init()
 	MEMSZERO(OrgLotRec);
 	PersonID = 0;
 	OrgLot_Prsn_SupplID = 0;
-	IsImport = 0;
-	IsExport = 0;
-	IsManuf  = 0;
-	IsOptBuyer = 0;
+	//IsImport = 0;
+	//IsExport = 0;
+	//IsManuf  = 0;
+	//IsOptBuyer = 0;
+	Flags = 0;
 }
 //
 //
@@ -3467,12 +3467,11 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 		// } @v9.1.12
 		{
 			ObjTagItem tag;
-
-			pItem->IsImport   = 0;
-			pItem->IsExport   = 0;
-			pItem->IsManuf    = 0;
-			pItem->IsOptBuyer = 0;
-
+			//pItem->IsImport   = 0;
+			//pItem->IsExport   = 0;
+			//pItem->IsManuf    = 0;
+			//pItem->IsOptBuyer = 0;
+			pItem->Flags = 0;
 			psn_id = ObjectToPerson(item.ArticleID);
 			pItem->PersonID = psn_id;
 			pItem->OrgLot_Prsn_SupplID = ObjectToPerson(pItem->OrgLotRec.SupplID);
@@ -3480,23 +3479,29 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 				if(TagObj.FetchTag(psn_id, AlcRepParam.ImpExpTag, &tag) > 0) {
 					tag.GetStr(temp_buf);
 					const long val = temp_buf.ToLong();
-					pItem->IsOptBuyer = BIN(val == 1);
-					pItem->IsExport   = BIN(val == 2);
+					//pItem->IsOptBuyer = BIN(val == 1);
+					//pItem->IsExport   = BIN(val == 2);
+					SETFLAG(pItem->Flags, pItem->fIsOptBuyer, (val == 1));
+					SETFLAG(pItem->Flags, pItem->fIsExport,   (val == 2));
 				}
 			}
 			if(AlcRepParam.ManufOptBuyerTag) {
 				if(TagObj.FetchTag(psn_id, AlcRepParam.ManufOptBuyerTag, &tag) > 0) {
 					tag.GetStr(temp_buf);
 					const long val = temp_buf.ToLong();
-					pItem->IsManuf  = BIN(val == 1);
-					pItem->IsImport = BIN(val == 2);
+					//pItem->IsManuf  = BIN(val == 1);
+					//pItem->IsImport = BIN(val == 2);
+					SETFLAG(pItem->Flags, pItem->fIsManuf,  (val == 1));
+					SETFLAG(pItem->Flags, pItem->fIsImport, (val == 2));
 				}
 			}
 			else {
-				if(AlcRepParam.ImportKindID)
-        			pItem->IsImport = PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID);
-				if(AlcRepParam.ManufKindID)
-					pItem->IsManuf = PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID);
+				if(AlcRepParam.ImportKindID) {
+        			SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
+				}
+				if(AlcRepParam.ManufKindID) {
+					SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
+				}
 			}
 		}
 		ok = 1;

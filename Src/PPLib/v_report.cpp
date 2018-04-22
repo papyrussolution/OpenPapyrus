@@ -810,7 +810,7 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, SStrin
 			if(codepage == 866)
 				descr.Transf(CTRANSF_OUTER_TO_INNER);
 			descr.CopyTo(item.Descr, sizeof(item.Descr));
-			if(par.CmpNC("std")) {
+			if(!par.IsEqiAscii("std")) {
 				par.CopyTo(item.Path, sizeof(item.Path));
 				item.Type = ReportFilt::rpttLocal;
 			}

@@ -881,6 +881,7 @@ public:
 	//   0 - ошибка
 	//
 	int    ResolveWord(const char * pWordUtf8, LEXID * pID);
+	int    ResolveWordForm(const SrWordForm & rWf, long * pWordFormID);
 	int    ResolveNGram(const LongArray & rList, NGID * pID);
 	int    ResolveCPropSymb(const char * pSymbUtf8, LEXID * pID);
 	int    MakeConceptPropC(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, const char * pConceptSymb);

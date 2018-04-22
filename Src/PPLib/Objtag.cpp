@@ -1017,19 +1017,19 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 			long   extra = 0;
 			pack.Rec.ObjTypeID = GetObjectTypeBySymb(obj_type_symb, &extra);
 			if(pack.Rec.ObjTypeID) {
-				if(data_type_symb.CmpNC("STRING") == 0)
+				if(data_type_symb.IsEqiAscii("STRING"))
 					pack.Rec.TagDataType = OTTYP_STRING;
-				else if(data_type_symb.CmpNC("INT") == 0)
+				else if(data_type_symb.IsEqiAscii("INT"))
 					pack.Rec.TagDataType = OTTYP_INT;
-				else if(data_type_symb.CmpNC("NUMBER") == 0 || data_type_symb.CmpNC("REAL") == 0)
+				else if(data_type_symb.IsEqiAscii("NUMBER") || data_type_symb.IsEqiAscii("REAL"))
 					pack.Rec.TagDataType = OTTYP_NUMBER;
-				else if(data_type_symb.CmpNC("DATE") == 0)
+				else if(data_type_symb.IsEqiAscii("DATE"))
 					pack.Rec.TagDataType = OTTYP_DATE;
-				else if(data_type_symb.CmpNC("TIMESTAMP") == 0)
+				else if(data_type_symb.IsEqiAscii("TIMESTAMP"))
 					pack.Rec.TagDataType = OTTYP_TIMESTAMP;
-				else if(data_type_symb.CmpNC("GUID") == 0 || data_type_symb.CmpNC("UUID") == 0)
+				else if(data_type_symb.IsEqiAscii("GUID") || data_type_symb.IsEqiAscii("UUID"))
 					pack.Rec.TagDataType = OTTYP_GUID;
-				else if(data_type_symb.CmpNC("ENUM") == 0) // @v9.4.7
+				else if(data_type_symb.IsEqiAscii("ENUM")) // @v9.4.7
 					pack.Rec.TagDataType = OTTYP_ENUM;
 				if(pack.Rec.TagDataType) {
 					//

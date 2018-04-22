@@ -3092,9 +3092,7 @@ int SLAPI PPBillPacket::InsertRow(const PPTransferItem * pTI, LongArray * pRows,
 		THROW(InsertAutoComplRow(pos, pcug));
 	}
 	if(Rec.Flags & BILLF_RECOMPLETE) {
-		//
 		// Нельзя добавлять строку независимого выхода в документ рекомплектации
-		//
 		THROW_PP(!(pTI->Flags & PPTFR_PLUS) || !(pTI->Flags & PPTFR_RECEIPT), PPERR_LOTGENONRECOMPL);
 	}
 	CATCHZOK
@@ -3763,7 +3761,7 @@ int SLAPI PPBillPacket::RestByOrderLot(PPID lotID, const PPTransferItem * pItem,
 	int    ok = 1;
 	double rest = 0.0;
 	PPTransferItem * p_ti;
-	if(lotID)
+	if(lotID) {
 		if(P_BObj->trfr->GetRest(lotID, Rec.Dt, &rest)) {
 			if(P_ShLots && Rec.Flags & (BILLF_GEXPEND | BILLF_GRECEIPT)) {
 				PPIDArray exclude;
@@ -3781,6 +3779,7 @@ int SLAPI PPBillPacket::RestByOrderLot(PPID lotID, const PPTransferItem * pItem,
 		}
 		else
 			ok = 0;
+	}
 	ASSIGN_PTR(pRest, rest);
 	return ok;
 }

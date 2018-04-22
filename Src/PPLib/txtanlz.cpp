@@ -2148,7 +2148,7 @@ int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rRe
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); SLAPI PrcssrObjTextFilt::PrcssrObjTextFilt() : 
+IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); SLAPI PrcssrObjTextFilt::PrcssrObjTextFilt() :
 	PPBaseFilt(PPFILT_PRCSSROBJTEXTPARAM, 0, 0), P_GoodsF(0), P_BrandF(0), P_PsnF(0)
 {
 	SetFlatChunk(offsetof(PrcssrObjTextFilt, ReserveStart),
@@ -3911,6 +3911,17 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				}
 				temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
 				pDetectTypeOutFile->WriteLine(temp_buf);
+				// @v10.0.02 {
+				if(ff == SFileFormat::Xml) {
+					PPXmlFileDetector xfd;
+					int   xml_format = 0;
+					xfd.Run(dest_path, &xml_format);
+					if(xml_format) {
+                        temp_buf.Z().CatEq("xmlformat", (long)xml_format).CR();
+                        pDetectTypeOutFile->WriteLine(temp_buf);
+					}
+				}
+				// } @v10.0.02
 			}
 			aa.Clear();
 			if(aa.CollectFileData(dest_path)) {
@@ -3998,7 +4009,7 @@ int SLAPI CollectLldFileStat()
     SFile  f_freqorder(freqorder_file_name, SFile::mWrite);
     // "D:\\Papyrus\\Universe-HTT\\DATA"
 	// "D:\\Papyrus\\Universe-HTT"
-	ok = Helper_CollectLldFileStat("d:\\papyrus\\src", &f_out, &f_detect, &f_freqorder);
+	ok = Helper_CollectLldFileStat("d:\\papyrus\\ppy\\data\\temp", &f_out, &f_detect, &f_freqorder);
 #endif // }
     return ok;
 }

@@ -62,11 +62,6 @@ int SfaHeineken_DeleteReturn() // DRP_DeleteReturn
 	return -1;
 }
 
-int SfaHeineken_SendAllContragentDebet() // DRP_SendAllContragentDebet
-{
-	return -1;
-}
-
 static SString * FASTCALL PreprocessAnyResult(char * pAny)
 {
 	SString * p_result = 0;
@@ -361,5 +356,39 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSes
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
+	return p_result;
+}
+
+extern "C" __declspec(dllexport) SString * SfaHeineken_SendAllContragentDebet(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList) // DRP_SendAllContragentDebet
+{
+	SString * p_result = 0;
+	SString temp_buf;
+	DRPServiceSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	gSoapClientInit(&proxi, 0, 0);
+	_ns1__DRP_USCORESendAllContragentDebet param;
+	_ns1__DRP_USCORESendAllContragentDebetResponse resp;
+	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
+	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
+	THROW(param._USCOREcontragentDebets = new ns1__ArrayOfDistributorDebet);
+	param._USCOREcontragentDebets->__sizeDistributorDebet = (int)rList.getCount();
+	THROW(param._USCOREcontragentDebets->DistributorDebet = (ns1__DistributorDebet **)SAlloc::C(rList.getCount(), sizeof(ns1__DistributorDebet *)));
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const SfaHeinekenDebetEntry * p_entry = rList.at(i);
+		THROW(param._USCOREcontragentDebets->DistributorDebet[i] = new ns1__DistributorDebet);
+		param._USCOREcontragentDebets->DistributorDebet[i]->ContragentID = p_entry->ContragentID;
+		param._USCOREcontragentDebets->DistributorDebet[i]->DebetSum = p_entry->DebetSum;
+		param._USCOREcontragentDebets->DistributorDebet[i]->DebetLimit = p_entry->DebetLimit;
+	}
+	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCORESendAllContragentDebet(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	p_result = PreprocessAnyResult(resp.DRP_USCORESendAllContragentDebetResult->__any);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	for(uint i = 0; i < rList.getCount(); i++) {
+		delete param._USCOREcontragentDebets->DistributorDebet[i];
+	}	
+	ZFREE(param._USCOREcontragentDebets->DistributorDebet);
+	ZDELETE(param._USCOREcontragentDebets);
 	return p_result;
 }

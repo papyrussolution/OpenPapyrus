@@ -624,14 +624,11 @@ void SLAPI TWindow::showCtrl(ushort ctlID, int s)
 }
 
 void FASTCALL TWindow::setTitle(const char * pBuf)
-{
-	return Helper_SetTitle(pBuf, 0);
-}
-
+	{ return Helper_SetTitle(pBuf, 0); }
 void FASTCALL TWindow::setOrgTitle(const char * pBuf)
-{
-	return Helper_SetTitle(pBuf, 1);
-}
+	{ return Helper_SetTitle(pBuf, 1); }
+const SString & TWindow::getTitle() const
+	{ return Title; }
 
 void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 {
@@ -646,11 +643,6 @@ void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 		TView::SSetWindowText(HW, temp_title);
 		APPL->UpdateItemInMenu(temp_title, this);
 	}
-}
-
-const SString & TWindow::getTitle() const
-{
-	return Title;
 }
 
 void FASTCALL TWindow::setSubTitle(const char * pBuf)

@@ -7684,10 +7684,10 @@ int32 DL6ICLS_PPViewTrfrAnlz::NextIteration_AlcRep(SPpyVI_TrfrAnlz_AlcRep * pIte
 		FillTrfrAnlzViewItem(&item.Item, &pItem->Item);
 		FillLotRec(&item.OrgLotRec, &pItem->OrgLotRec);
 		FillGoodsRec_AlcRep(&item.GoodsRec, &item.GCPack, &item.GoodsStock, &item.GoodsExt, &pItem->GoodsRec);
-		pItem->IsImport     = item.IsImport;
-		pItem->IsExport     = item.IsExport;
-		pItem->IsManuf      = item.IsManuf;
-		pItem->IsOptBuyer   = item.IsOptBuyer;
+		pItem->IsImport     = BIN(item.Flags & item.fIsImport);
+		pItem->IsExport     = BIN(item.Flags & item.fIsExport);
+		pItem->IsManuf      = BIN(item.Flags & item.fIsManuf);
+		pItem->IsOptBuyer   = BIN(item.Flags & item.fIsOptBuyer);
 		pItem->PersonID     = item.PersonID;
 		pItem->OrgLot_Prsn_SupplID = item.OrgLot_Prsn_SupplID;
 		ok = 1;

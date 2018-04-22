@@ -1439,79 +1439,53 @@ int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssoc
 	CALLPTRMEMB(pNameList, Clear());
 	int    ok = -1;
 	PPIDArray temp_list;
-	{
-		PersonKindTbl::Key0 k0;
-		PersonKindTbl * t = &P_Tbl->Kind;
-		MEMSZERO(k0);
-		BExtQuery q(t, 0);
-		/* @v8.9.12
-		if(pNameList)
-			q.select(t->PersonID, t->Name, 0L);
-		else
-			q.select(t->PersonID, 0L);
-		*/
-		q.select(t->PersonID, 0L); // @v8.9.12
-		q.where(t->KindID == psnKindID);
-		k0.KindID = psnKindID;
-		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-			THROW_SL(temp_list.add(t->data.PersonID));
-			/* @v8.9.12
-			CALLPTRMEMB(pList, add(t->data.PersonID));
-			if(pNameList)
-				pNameList->Add(t->data.PersonID, t->data.Name);
-			*/
-		}
-	}
-	// @v8.9.12 {
-	{
-		const uint c = temp_list.getCount();
-		if(c) {
-			ok = 1;
-			temp_list.sortAndUndup();
-			if(pNameList || pList) {
-				PersonTbl::Rec psn_rec;
-				if(pNameList) {
-					if(c <= 1000) {
-						for(uint i = 0; i < c; i++) {
-							const PPID id = temp_list.get(i);
-							if(Fetch(id, &psn_rec) > 0) {
-								if(pList) {
-									THROW_SL(pList->add(id));
-								}
-								if(pNameList) {
-									THROW_SL(pNameList->AddFast(id, psn_rec.Name));
-								}
+	THROW(P_Tbl->GetListByKind(psnKindID, &temp_list));
+	const uint c = temp_list.getCount();
+	if(c) {
+		ok = 1;
+		temp_list.sortAndUndup();
+		if(pNameList || pList) {
+			PersonTbl::Rec psn_rec;
+			if(pNameList) {
+				if(c <= 1000) {
+					for(uint i = 0; i < c; i++) {
+						const PPID id = temp_list.get(i);
+						if(Fetch(id, &psn_rec) > 0) {
+							if(pList) {
+								THROW_SL(pList->add(id));
 							}
-						}
-					}
-					else {
-						const PPID id_min = temp_list.get(0);
-						const PPID id_max = temp_list.get(c-1);
-						BExtQuery qp(P_Tbl, 0);
-						qp.select(P_Tbl->ID, P_Tbl->Name, 0L).where(P_Tbl->ID >= id_min && P_Tbl->ID <= id_max);
-						PersonTbl::Key0 k0;
-						MEMSZERO(k0);
-						k0.ID = id_min;
-						for(qp.initIteration(0, &k0, spGe); qp.nextIteration() > 0;) {
-                            const PPID id = P_Tbl->data.ID;
-                            if(temp_list.bsearch(id)) {
-								if(pList) {
-									THROW_SL(pList->add(id));
-								}
-								if(pNameList) {
-									THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
-								}
-                            }
+							if(pNameList) {
+								THROW_SL(pNameList->AddFast(id, psn_rec.Name));
+							}
 						}
 					}
 				}
 				else {
-                    ASSIGN_PTR(pList, temp_list);
+					const PPID id_min = temp_list.get(0);
+					const PPID id_max = temp_list.get(c-1);
+					BExtQuery qp(P_Tbl, 0);
+					qp.select(P_Tbl->ID, P_Tbl->Name, 0L).where(P_Tbl->ID >= id_min && P_Tbl->ID <= id_max);
+					PersonTbl::Key0 k0;
+					MEMSZERO(k0);
+					k0.ID = id_min;
+					for(qp.initIteration(0, &k0, spGe); qp.nextIteration() > 0;) {
+                        const PPID id = P_Tbl->data.ID;
+                        if(temp_list.bsearch(id)) {
+							if(pList) {
+								THROW_SL(pList->add(id));
+							}
+							if(pNameList) {
+								THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
+							}
+                        }
+					}
 				}
+			}
+			else {
+                ASSIGN_PTR(pList, temp_list);
 			}
 		}
 	}
-	// } @v8.9.12
 	CATCHZOK
 	return ok;
 }
@@ -1682,7 +1656,26 @@ int SLAPI PPObjPerson::GetRegNumber(PPID personID, PPID regType, LDATE actualDat
 	return (GetRegList(personID, &reg_list, 1) > 0) ? reg_list.GetRegNumber(regType, actualDate, rBuf) : -1;
 }
 
-int SLAPI PPObjPerson::ResolveGLN(const char * pGLN, PPID accSheetID, PPID * pArID)
+int SLAPI PPObjPerson::ResolveGLN(const char * pGLN, PPID * pID)
+{
+	int    ok = -1;
+	SString code = pGLN;
+	assert(pGLN);
+	THROW_INVARG(pGLN);
+	if(code.NotEmptyS()) {
+		const PPID reg_type_id = PPREGT_GLN;
+		PPIDArray psn_list;
+		THROW(GetListByRegNumber(reg_type_id, 0, code, psn_list));
+		if(psn_list.getCount()) {
+			ASSIGN_PTR(pID, psn_list.at(0));
+			ok = (psn_list.getCount() > 1) ? 2 : 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjPerson::ResolveGLN_Article(const char * pGLN, PPID accSheetID, PPID * pArID)
 {
 	int    ok = -1;
 	SString code = pGLN;

@@ -2216,12 +2216,16 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 							assert(len <= sign_buf.GetSize());
 							if(len <= sign_buf.GetSize() && file.Read(sign_buf, len, &actual_size)) {
 								int    r = -1;
-								for(size_t j = 0; r < 0 && j < actual_size;) {
+								size_t j = 0;
+								//"EFBBBF"
+								if(sign_buf.ucptr()[0] == 0xEF && sign_buf.ucptr()[1] == 0xBB && sign_buf.ucptr()[2] == 0xBF) // BOM UTF8 
+									j += 3;
+								while(r < 0 && j < actual_size) {
 									const char c = ((const char *)sign_buf)[j];
 									if(oneof4(c, ' ', '\t', '\x0D', '\x0A')) {
                                         j++;
 									}
-									else if(entry_sign.CmpL(sign_buf, 1) == 0)
+									else if(entry_sign.CmpL(sign_buf+j, 1) == 0) // @v10.0.02 @fix sign_buf-->sign_buf+j
 										r = 1;
 									else
 										r = 0;

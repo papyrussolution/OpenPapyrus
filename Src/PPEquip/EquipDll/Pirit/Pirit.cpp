@@ -1140,10 +1140,6 @@ int PiritEquip::SetConnection()
 	int    r = 0;
 	int    is_ready = 0;
 	CommPortParams port_params;
-	//SString in_data;
-	//SString out_data;
-	//SString r_error;
-	//SString log_str;
 	CommPort.GetParams(&port_params);
 	port_params.ByteSize = 8;
 	port_params.Parity = NOPARITY;
@@ -1186,7 +1182,10 @@ int PiritEquip::SetConnection()
 #endif // } 0 @v9.7.1
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
-	CATCHZOK
+	CATCH
+		CommPort.ClosePort(); // @v10.0.02
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -1194,6 +1193,7 @@ int PiritEquip::CloseConnection()
 {
 	/*if(H_Port != INVALID_HANDLE_VALUE)
 		CloseHandle(H_Port);*/
+	CommPort.ClosePort(); // @v10.0.02
 	return 1;
 }
 

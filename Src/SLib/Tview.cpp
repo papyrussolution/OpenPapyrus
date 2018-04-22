@@ -131,24 +131,13 @@ void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * 
 //
 //
 TCommandSet::TCommandSet()
-{
-	resetbitstring(cmds, sizeof(cmds));
-}
-
+	{ resetbitstring(cmds, sizeof(cmds)); }
 TCommandSet::TCommandSet(const TCommandSet & tc)
-{
-	memcpy(cmds, tc.cmds, sizeof(cmds));
-}
-
+	{ memcpy(cmds, tc.cmds, sizeof(cmds)); }
 int TCommandSet::has(int cmd) const
-{
-	return getbit32(cmds, sizeof(cmds), cmd);
-}
-
+	{ return getbit32(cmds, sizeof(cmds), cmd); }
 void TCommandSet::enableAll()
-{
-	memset(cmds, 0xff, sizeof(cmds));
-}
+	{ memset(cmds, 0xff, sizeof(cmds)); }
 
 void TCommandSet::enableCmd(int cmd, int is_enable)
 {
@@ -687,20 +676,13 @@ TView & TView::SetId(uint id)
 	return *this;
 }
 
-void TView::select()
-	{ CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect)); }
-uint TView::GetId() const
-	{ return (this && IsConsistent()) ? (uint)Id : 0; }
-int FASTCALL TView::TestId(uint id) const
-	{ return (this && IsConsistent() && id && id == (uint)Id); }
-int FASTCALL TView::IsInState(uint s) const
-	{ return BIN((Sf & s) == s); }
-void * FASTCALL TView::MessageCommandToOwner(uint command)
-	{ return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
-HWND TView::getHandle() const
-	{ return GetDlgItem(Parent, Id); }
-int FASTCALL TView::valid(ushort)
-	{ return 1; }
+void   TView::select() { CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect)); }
+uint   TView::GetId() const { return (this && IsConsistent()) ? (uint)Id : 0; }
+int    FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == (uint)Id); }
+int    FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
+void * FASTCALL TView::MessageCommandToOwner(uint command) { return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
+HWND   TView::getHandle() const { return GetDlgItem(Parent, Id); }
+int    FASTCALL TView::valid(ushort) { return 1; }
 
 uint TView::getHelpCtx()
 {
@@ -1459,7 +1441,7 @@ struct handleStruct {
 static void doHandleEvent(TView * p, void *s)
 {
 	handleStruct * ptr = (handleStruct *)s;
-	if(p && !(p->IsInState(sfDisabled) && (ptr->event->what & (positionalEvents|focusedEvents)))) {
+	if(ptr->event->what && p && p->IsConsistent() && !(p->IsInState(sfDisabled) && (ptr->event->what & (positionalEvents|focusedEvents)))) {
 		switch(ptr->phase) {
 			case TView::phPreProcess:
 				if(p->options & ofPreProcess)

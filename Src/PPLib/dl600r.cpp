@@ -925,7 +925,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 		int    idn_iter_inc = 0;
 		for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
 			int    is_hdr = 0;
-			if(p_child->Name.CmpNC("hdr") == 0) {
+			if(p_child->Name.IsEqiAscii("hdr")) {
 				suffix = "_Head";
 				PPGetFileName(PPFILNAM_HEAD_BTR, fname);
 				is_hdr = 1;
@@ -1112,7 +1112,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				StringSet dtd(',', 0);
 				for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 					int    is_hdr = 0;
-					if(p_child->Name.CmpNC("hdr") == 0) {
+					if(p_child->Name.IsEqiAscii("hdr")) {
 						suffix = "Head";
 						is_hdr = 1;
 					}
@@ -1132,7 +1132,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
-				if(p_child->Name.CmpNC("hdr") == 0)
+				if(p_child->Name.IsEqiAscii("hdr"))
 					suffix = "Head";
 				else if(p_child->Name == "iter@def")
 					suffix = "Iter";
@@ -1150,7 +1150,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 			SXml::WNode hnode(p_writer, head_name);
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				int    is_hdr = 0;
-				if(p_child->Name.CmpNC("hdr") == 0) {
+				if(p_child->Name.IsEqiAscii("hdr")) {
 					suffix = "Head";
 					is_hdr = 1;
 					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
@@ -1232,7 +1232,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				StringSet dtd(',', 0);
 				for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 					int    is_hdr = 0;
-					if(p_child->Name.CmpNC("hdr") == 0) {
+					if(p_child->Name.IsEqiAscii("hdr")) {
 						suffix = "Head";
 						is_hdr = 1;
 					}
@@ -1252,7 +1252,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
-				if(p_child->Name.CmpNC("hdr") == 0)
+				if(p_child->Name.IsEqiAscii("hdr"))
 					suffix = "Head";
 				else if(p_child->Name == "iter@def")
 					suffix = "Iter";
@@ -1275,7 +1275,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(h_i >= 2)
 					break;
-				else if(p_child->Name.CmpNC("hdr") == 0) {
+				else if(p_child->Name.IsEqiAscii("hdr")) {
 					h_i++;
 					suffix = "Head";
 				}
@@ -1305,7 +1305,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		}
 		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 			int    is_hdr = 0;
-			if(p_child->Name.CmpNC("hdr") == 0) {
+			if(p_child->Name.IsEqiAscii("hdr")) {
 				suffix = "Head";
 				is_hdr = 1;
 				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
@@ -1375,7 +1375,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 	DlScope * p_child = 0;
 	json_t  * p_hdr_obj = new json_t(json_t::tOBJECT);
 	for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
-		if(p_child->Name.CmpNC("hdr") == 0) {
+		if(p_child->Name.IsEqiAscii("hdr")) {
 			THROW(InitData(*pFilt, 0));
 			Helper_PutScopeToJson(p_child, p_hdr_obj);
 		}

@@ -210,26 +210,15 @@ int SLAPI PPCashMachine::ValidateCheck(CCheckTbl::Rec *, int /*correct*/, char *
 	return 2; // not supported
 }
 
-const PPCashNode & SLAPI PPCashMachine::GetNodeData() const
-{
-	return NodeRec;
-}
-
 PPID SLAPI PPCashMachine::GetCurSessID()
 {
 	PPCashNode cn_rec;
 	return (PPRef->GetItem(PPOBJ_CASHNODE, NodeRec.ID, &cn_rec) > 0) ? cn_rec.CurSessID : 0;
 }
 
-int SLAPI PPCashMachine::IsValid() const
-{
-	return Valid;
-}
-
-void SLAPI PPCashMachine::SetParentNode(PPID parentNodeID)
-{
-	ParentNodeID = parentNodeID;
-}
+const PPCashNode & SLAPI PPCashMachine::GetNodeData() const { return NodeRec; }
+int SLAPI PPCashMachine::IsValid() const { return Valid; }
+void SLAPI PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
 
 int SLAPI PPCashMachine::GetSyncIntrf()
 {
@@ -815,14 +804,9 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 }
 
 int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
-{
-	return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum));
-}
-
+	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
 int SLAPI PPCashMachine::SyncAddSummator(double add)
-{
-	return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add));
-}
+	{ return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add)); }
 
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {

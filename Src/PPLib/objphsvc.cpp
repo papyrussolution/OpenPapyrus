@@ -439,6 +439,31 @@ int SLAPI PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 	CATCHZOK
 	return ok;
 }
+
+AsteriskAmiClient * SLAPI PPObjPhoneService::InitAsteriskAmiClient(PPID id)
+{
+	AsteriskAmiClient * p_cli = 0;
+	PPPhoneServicePacket ps_pack;
+	THROW(GetPacket(id, &ps_pack) > 0);
+	{
+		SString addr_buf, user_buf, secret_buf;
+		SString temp_buf;
+		ps_pack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
+		ps_pack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
+		int    port = temp_buf.ToLong();
+		ps_pack.GetExField(PHNSVCEXSTR_USER, user_buf);
+		ps_pack.GetPassword(secret_buf);
+		long   aacf = (CConfig.Flags & CCFLG_DEBUG) ? AsteriskAmiClient::fDoLog : 0;
+		THROW_MEM(p_cli = new AsteriskAmiClient(aacf));
+		THROW(p_cli->Connect(addr_buf, port));
+		THROW(p_cli->Login(user_buf, secret_buf));
+		secret_buf.Obfuscate();
+	}
+	CATCH
+		ZDELETE(p_cli);
+	ENDCATCH
+	return p_cli;
+}
 //
 //
 //
@@ -469,6 +494,7 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
 	EffConnectedLineName.Z();
 	Application.Z();
 	Data.Z();
+	BridgeId.Z();
 	IdentifiedCallerName.Z();
 	return *this;
 }
@@ -485,6 +511,28 @@ PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 }
 
 uint PhnSvcChannelStatusPool::GetCount() const { return getCount(); }
+
+int SLAPI PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const
+{
+	rList.Clear();
+	int    ok = -1;
+	if(!isempty(pBridgeId)) {
+		SString temp_buf;
+		PhnSvcChannelStatus entry;
+		for(uint i = 0; i < getCount(); i++) {
+			if((int)i != excludePos) {
+				const Item_ & r_item = *(const Item_ *)at(i);
+				GetS(r_item.BridgeIdP, temp_buf);
+				if(temp_buf.IsEqiAscii(pBridgeId)) {
+					Get(i, entry);
+					rList.Add(entry);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 {
@@ -512,6 +560,7 @@ int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 	AddS(rStatus.EffConnectedLineName, &item.EffConnectedLineNameP);
 	AddS(rStatus.Application, &item.ApplicationP);
 	AddS(rStatus.Data, &item.DataP);
+	AddS(rStatus.BridgeId, &item.BridgeIdP); // @v10.0.02
 	AddS(rStatus.IdentifiedCallerName, &item.IdentifiedCallerNameP); // @v10.0.01
 	insert(&item);
 	return ok;
@@ -544,6 +593,7 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 		GetS(r_item.EffConnectedLineNameP, rStatus.EffConnectedLineName);
 		GetS(r_item.ApplicationP, rStatus.Application);
 		GetS(r_item.DataP, rStatus.Data);
+		GetS(r_item.BridgeIdP, rStatus.BridgeId); // @v10.0.02
 		GetS(r_item.IdentifiedCallerNameP, rStatus.IdentifiedCallerName); // @v10.0.01
 	}
 	else
@@ -633,70 +683,72 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 					int    do_insert = 0;
 					for(uint p = 0; reply.get(&p, temp_buf);) {
 						temp_buf.Divide(':', key_buf, val_buf);
-						key_buf.Strip();
+						key_buf.Strip().ToLower();
 						val_buf.Strip();
-						if(key_buf.IsEqiAscii("State") || key_buf.IsEqiAscii("ChannelState") || key_buf.IsEqiAscii("ChannelStateDesc")) {
+						if(key_buf == "state" || key_buf == "channelstate" || key_buf == "channelstatedesc") {
 							if(cnl_status.State == cnl_status.stUndef) {
 								do_insert = 1;
 								if(!GetStateVal(val_buf, &cnl_status.State))
 									cnl_status.State = val_buf.ToLong();
 							}
 						}
-						else if(key_buf.IsEqiAscii("Type")) {
+						else if(key_buf == "type") {
 							if(val_buf.IsEqiAscii("SIP"))
 								cnl_status.Type = cnl_status.typSip;
 						}
-						else if(key_buf.IsEqiAscii("Priority"))
+						else if(key_buf == "priority")
 							cnl_status.Priority = val_buf.ToLong();
-						else if(key_buf.IsEqiAscii("Seconds"))
+						else if(key_buf == "seconds")
 							cnl_status.Seconds = val_buf.ToLong();
-						else if(key_buf.IsEqiAscii("Duration")) {
+						else if(key_buf == "duration") {
 							LTIME t;
 							strtotime(val_buf, TIMF_HMS, &t);
 							cnl_status.Seconds = t.totalsec();
 						}
-						else if(key_buf.IsEqiAscii("TimeToHangup"))
+						else if(key_buf == "timetohangup")
 							cnl_status.TimeToHungUp = val_buf.ToLong();
-						else if(key_buf.IsEqiAscii("Callgroup"))
+						else if(key_buf == "callgroup")
 							cnl_status.CallGroup = val_buf.ToInt64();
-						else if(key_buf.IsEqiAscii("Pickupgroup"))
+						else if(key_buf == "pickupgroup")
 							cnl_status.PickUpGroup = val_buf.ToInt64();
-						else if(key_buf.IsEqiAscii("Channel")) {
+						else if(key_buf == "channel") {
 							do_insert = 1;
 							cnl_status.Channel = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("CallerIDNum")) {
+						else if(key_buf == "calleridnum") {
 							do_insert = 1;
 							cnl_status.CallerId = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("ConnectedLineNum")) {
+						else if(key_buf == "connectedlinenum") {
 							do_insert = 1;
 							cnl_status.ConnectedLineNum = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("ConnectedLineName")) {
+						else if(key_buf == "connectedlinename") {
 							do_insert = 1;
 							cnl_status.ConnectedLineName = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("EffectiveConnectedLineNum")) {
+						else if(key_buf == "effectiveconnectedlinenum") {
 							do_insert = 1;
 							cnl_status.EffConnectedLineNum = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("EffectiveConnectedLineName")) {
+						else if(key_buf == "effectiveconnectedlinename") {
 							do_insert = 1;
 							cnl_status.EffConnectedLineName = val_buf;
 						}
-						else if(key_buf.IsEqiAscii("Accountcode"))
+						else if(key_buf == "accountcode")
 							cnl_status.AccountCode = val_buf;
-						else if(key_buf.IsEqiAscii("Context"))
+						else if(key_buf == "context")
 							cnl_status.Context = val_buf;
-						else if(key_buf.IsEqiAscii("Exten"))
+						else if(key_buf == "exten")
 							cnl_status.Exten = val_buf;
-						else if(key_buf.IsEqiAscii("DNID"))
+						else if(key_buf == "dnid")
 							cnl_status.DnId = val_buf;
-						else if(key_buf.IsEqiAscii("Application"))
+						else if(key_buf == "application")
 							cnl_status.Application = val_buf;
-						else if(key_buf.IsEqiAscii("Data"))
+						else if(key_buf == "data")
 							cnl_status.Data = val_buf;
+						else if(key_buf == "bridgeid") // @v10.0.02
+							cnl_status.BridgeId = val_buf;
 					}
 					if(do_insert)
 						rList.Add(cnl_status);
@@ -734,70 +786,72 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 				int    do_insert = 0;
 				for(uint p = 0; reply.get(&p, temp_buf);) {
 					temp_buf.Divide(':', key_buf, val_buf);
-					key_buf.Strip();
+					key_buf.Strip().ToLower();
 					val_buf.Strip();
-					if(key_buf.IsEqiAscii("State") || key_buf.IsEqiAscii("ChannelState") || key_buf.IsEqiAscii("ChannelStateDesc")) {
+					if(key_buf == "state" || key_buf == "channelstate" || key_buf == "channelstatedesc") {
 						if(cnl_status.State == cnl_status.stUndef) {
 							do_insert = 1;
 							if(!GetStateVal(val_buf, &cnl_status.State))
 								cnl_status.State = val_buf.ToLong();
 						}
 					}
-					else if(key_buf.IsEqiAscii("Type")) {
+					else if(key_buf == "type") {
 						if(val_buf.IsEqiAscii("SIP"))
 							cnl_status.Type = cnl_status.typSip;
 					}
-					else if(key_buf.IsEqiAscii("Priority"))
+					else if(key_buf == "priority")
 						cnl_status.Priority = val_buf.ToLong();
-					else if(key_buf.IsEqiAscii("Seconds"))
+					else if(key_buf == "seconds")
 						cnl_status.Seconds = val_buf.ToLong();
-					else if(key_buf.IsEqiAscii("Duration")) {
+					else if(key_buf == "duration") {
 						LTIME t;
 						strtotime(val_buf, TIMF_HMS, &t);
 						cnl_status.Seconds = t.totalsec();
 					}
-					else if(key_buf.IsEqiAscii("TimeToHangup"))
+					else if(key_buf == "timetohangup")
 						cnl_status.TimeToHungUp = val_buf.ToLong();
-					else if(key_buf.IsEqiAscii("Callgroup"))
+					else if(key_buf == "callgroup")
 						cnl_status.CallGroup = val_buf.ToInt64();
-					else if(key_buf.IsEqiAscii("Pickupgroup"))
+					else if(key_buf == "pickupgroup")
 						cnl_status.PickUpGroup = val_buf.ToInt64();
-					else if(key_buf.IsEqiAscii("Channel")) {
+					else if(key_buf == "channel") {
 						do_insert = 1;
 						cnl_status.Channel = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("CallerIDNum")) {
+					else if(key_buf == "calleridnum") {
 						do_insert = 1;
 						cnl_status.CallerId = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("ConnectedLineNum")) {
+					else if(key_buf == "connectedlinenum") {
 						do_insert = 1;
 						cnl_status.ConnectedLineNum = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("ConnectedLineName")) {
+					else if(key_buf == "connectedlinename") {
 						do_insert = 1;
 						cnl_status.ConnectedLineName = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("EffectiveConnectedLineNum")) {
+					else if(key_buf == "effectiveconnectedlinenum") {
 						do_insert = 1;
 						cnl_status.EffConnectedLineNum = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("EffectiveConnectedLineName")) {
+					else if(key_buf == "effectiveconnectedlinename") {
 						do_insert = 1;
 						cnl_status.EffConnectedLineName = val_buf;
 					}
-					else if(key_buf.IsEqiAscii("Accountcode"))
+					else if(key_buf == "accountcode")
 						cnl_status.AccountCode = val_buf;
-					else if(key_buf.IsEqiAscii("Context"))
+					else if(key_buf == "context")
 						cnl_status.Context = val_buf;
-					else if(key_buf.IsEqiAscii("Exten"))
+					else if(key_buf == "exten")
 						cnl_status.Exten = val_buf;
-					else if(key_buf.IsEqiAscii("DNID"))
+					else if(key_buf == "dnid")
 						cnl_status.DnId = val_buf;
-					else if(key_buf.IsEqiAscii("Application"))
+					else if(key_buf == "application")
 						cnl_status.Application = val_buf;
-					else if(key_buf.IsEqiAscii("Data"))
+					else if(key_buf == "data")
 						cnl_status.Data = val_buf;
+					else if(key_buf == "bridgeid") // @v10.0.02
+						cnl_status.BridgeId = val_buf;
 				}
 				if(do_insert)
 					rList.Add(cnl_status);
@@ -1014,6 +1068,32 @@ int AsteriskAmiClient::ExecCommand(const Message & rIn, Message * pOut)
 	if(pOut) {
 		THROW(ReadReply(*pOut));
 	}
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pContext, int priority)
+{
+	/*
+		Action: Redirect
+		Channel: Zap/73-1
+		ExtraChannel: SIP/199testphone-1f3c
+		Exten: 8600029
+		Context: default
+		Priority: 1
+	*/
+	int    ok = 1;
+	SString temp_buf;
+	Message msg, reply;
+	Message::ReplyStatus rs;
+	THROW_PP(S.IsValid(), PPERR_PHNSVC_NOTCONNECTED);
+	msg.AddAction("Redirect");
+	msg.Add("Channel", pChannelFrom);
+	msg.Add("Exten", pExtenTo);
+	msg.Add("Context", isempty(pContext) ? "default" : pContext);
+	msg.Add("Priority", temp_buf.Z().Cat((priority > 0) ? priority : 1));
+	THROW(ExecCommand(msg, &reply));
+	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 	CATCHZOK
 	return ok;
 }

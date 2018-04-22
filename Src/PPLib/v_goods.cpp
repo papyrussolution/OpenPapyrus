@@ -3245,7 +3245,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 					{
 						uint bcidx = bc_list.getCount();
 						if(bcidx) do {
-							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
+							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcidx); // @v10.0.02 @fix --i-->--bcidx
 							if(sstrlen(r_bc_rec.Code) == 19)
 								bc_list.atFree(bcidx);
 						} while(bcidx);

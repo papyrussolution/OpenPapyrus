@@ -892,7 +892,33 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_TIMER:
 		case WM_ENTERIDLE:
-			APPL->idle();
+			//APPL->idle(); // @v10.0.02 
+			// @v10.0.02 {
+			{
+				TGroup * targets[] = { APPL->P_DeskTop, APPL };
+				for(uint i = 0; i < SIZEOFARRAY(targets); i++) {
+					TGroup * p_tgt = targets[i];
+					TView::messageBroadcast(p_tgt, cmIdle);
+					//
+					// Далее следует специальный цикл, призванный закрыть те окна, которые об этом
+					// "попросили" выставив флаг состояния sfCloseMe
+					//
+					for(int is_there_closeme = 1; is_there_closeme;) {
+						is_there_closeme = 0;
+						TView * p_term = p_tgt->GetLastView();
+						TView * p_temp = p_term;
+						if(p_temp) do {
+							p_temp = p_temp->P_Next;
+							if(p_temp->IsInState(sfCloseMe)) {
+								TView::messageCommand(p_temp, cmClose);
+								is_there_closeme = 1;
+								break;
+							}
+						} while(p_temp != p_term);
+					}
+				}
+			}
+			// } @v10.0.02
 			break;
 		case WM_TIMECHANGE:
 			TView::messageCommand((TProgram *)TView::GetWindowUserData(hWnd), cmTimeChange);
@@ -965,11 +991,12 @@ void TProgram::NotifyFrame(int post)
 			::SendMessage(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 }
 
+/* @v10.0.02 
 void TProgram::idle()
 {
 	TView::messageBroadcast(P_DeskTop, cmIdle);
 	TView::messageBroadcast(this, cmIdle);
-}
+}*/
 
 // Public variables
 

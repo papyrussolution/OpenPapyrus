@@ -6434,7 +6434,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 						SFontDescr fd(0, 0, 0);
 						fd.SetLogFont(&f);
 						fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(SLS.GetTLA().GetFontDC(), LOGPIXELSY));
-						if(fd.Face.Cmp("MS Sans Serif", 0) != 0 || fd.Size != 8 || fd.Flags || fd.Weight != 0.0f) {
+						if(!fd.Face.IsEqiAscii("MS Sans Serif") || fd.Size != 8 || fd.Flags || fd.Weight != 0.0f) {
 							fd.ToStr(temp_buf, 0);
 						}
 					}
@@ -6503,7 +6503,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 								f_out_text.WriteLine(text_line_buf);
 							}
 							TView::SGetWindowClassName(h, cls_name);
-							if(cls_name.CmpNC("Edit") == 0) {
+							if(cls_name.IsEqiAscii("Edit")) {
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 									TInputLine * p_il = (TInputLine *)p_view;
 									if(p_label)
@@ -6562,7 +6562,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									TakeInCountCtrl(h, child_list, seen_pos_list);
 								}
 							}
-							else if(cls_name.CmpNC("Button") == 0) {
+							else if(cls_name.IsEqiAscii("Button")) {
 								const int bt = (wi.dwStyle & BS_TYPEMASK);
 								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
@@ -6674,7 +6674,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									}
 								}
 							}
-							else if(cls_name.CmpNC("Static") == 0) {
+							else if(cls_name.IsEqiAscii("Static")) {
 								//
 								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
 								//
@@ -6696,7 +6696,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									TakeInCountCtrl(h, child_list, seen_pos_list);
 								}
 							}
-							else if(cls_name.CmpNC("SysListView32") == 0 || cls_name.CmpNC("ListBox") == 0) {
+							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = (SmartListBox *)p_view;
 									if(p_label)
@@ -6711,7 +6711,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									TakeInCountCtrl(h, child_list, seen_pos_list);
 								}
 							}
-							else if(cls_name.CmpNC("SysTreeView32")) {
+							else if(!cls_name.IsEqiAscii("SysTreeView32")) {
 								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = (SmartListBox *)p_view;

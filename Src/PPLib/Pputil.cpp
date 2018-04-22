@@ -4398,5 +4398,65 @@ int    PPI_ReqFunctional(int function, int * pReply);
 int    PPI_GetErrorMessage(char * pMsgBuf, uint * pBufLen);
 int    PPI_EDI_Init(const PPI_EDI_InitBlock * pBlk);
 PPI_OBJECT * PPI_EDI_GetMessageList(int ediMsgType);
+//
+//
+//
+PPXmlFileDetector::PPXmlFileDetector() : SXmlSaxParser(SXmlSaxParser::fStartElement), 
+	ElementCount(0), Result(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+{
+}
 
+PPXmlFileDetector::~PPXmlFileDetector()
+{
+}
+
+int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
+{
+	ElementCount = 0;
+	Result = 0;
+	int    ok = ParseFile(pFileName);
+	ASSIGN_PTR(pResult, Result);
+	return ok;
+}
+
+//virtual 
+int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList)
+{
+	ElementCount++;
+	int    ok = 1;
+    int    tok = 0;
+	int    do_continue = 0;
+    if(P_ShT) {
+		uint   _ut = 0;
+		uint   colon_pos = 0;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = pName).ToLower();
+		if(r_temp_buf.StrChr(':', &colon_pos))
+			r_temp_buf.ShiftLeft(colon_pos+1);
+		P_ShT->Search(r_temp_buf, &_ut, 0);
+		tok = _ut;
+		if(ElementCount == 1) {
+			switch(tok) {
+				case PPHS_ORDERS: 
+				case PPHS_ORDRSP:
+				case PPHS_DESADV:
+				case PPHS_ALCDES:
+				case PPHS_RECADV:
+				case PPHS_PARTIN: Result = Eancom; break;
+				case PPHS_EDIMESSAGE: Result = KonturEdi; break;
+				case PPHS_DOCUMENTS: Result = EgaisDoc; break;
+				case PPHS_PPPP_START: Result = PpyAsyncPosIx; break;
+				case PPHS_URLSET: Result = Sitemap; break;
+				case PPHS_PROJECT: Result = ProjectAbstract; break;
+				case PPHS_RESOURCES: Result = ResourcesAbstract; break;
+				case PPHS_VALUES: Result = ValuesAbstract; break;
+				case PPHS_CHEQUE: Result = EgaisCheque; break;
+			}
+		}
+    }
+	if(!do_continue) {
+		SaxStop();
+	}
+	return ok;
+}
 

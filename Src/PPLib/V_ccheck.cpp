@@ -502,7 +502,12 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  1, 1);
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  2, 2);
 		SetClusterData(CTL_CCHECKFLT_CASHORBANK, cob);
-
+		// @v10.0.02 {
+		AddClusterAssocDef(CTL_CCHECKFLT_ALTREG, 0, 0);
+		AddClusterAssoc(CTL_CCHECKFLT_ALTREG, 1, +1);
+		AddClusterAssoc(CTL_CCHECKFLT_ALTREG, 2, -1);
+		SetClusterData(CTL_CCHECKFLT_ALTREG, Data.AltRegF);
+		// } @v10.0.02
 		SetupSubstGoodsCombo(this, CTLSEL_CCHECKFLT_SUBST, Data.Sgg);
 		SetupCtrls();
 		selectCtrl(CTL_CCHECKFLT_PERIOD);
@@ -558,6 +563,7 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 		Data.Flags |= CCheckFilt::fCashOnly;
 	else if(temp_long == 2)
 		Data.Flags |= CCheckFilt::fBankingOnly;
+	Data.AltRegF = (int8)GetClusterData(CTL_CCHECKFLT_ALTREG); // @v10.0.02
 	getCtrlData(CTLSEL_CCHECKFLT_SUBST, &Data.Sgg);
 	if(ok)
 		ASSIGN_PTR(pFilt, Data);
@@ -667,6 +673,12 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(Filt.WeekDays && !(Filt.WeekDays & (1 << dayofweek(&pRec->Dt, 0))))
 				return 0;
+			// @v10.0.02 {
+			else if(Filt.AltRegF > 0 && !(f & CCHKF_ALTREG))
+				return 0;
+			else if(Filt.AltRegF < 0 && (f & CCHKF_ALTREG))
+				return 0;
+			// } @v10.0.02
 			else if(Filt.HourBefore) {
 				LTIME  hour_low = encodetime(Filt.HourBefore-1, 0, 0, 0);
 				LTIME  hour_upp = encodetime(Filt.HourBefore,   0, 0, 0);
@@ -2380,8 +2392,12 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					p_q->addField(p_ext->EndOrdDtm);   // #17 // @v8.1.11 #+1
 				}
 			}
-			if(Filt.Flags & (CCheckFilt::fCashOnly | CCheckFilt::fBankingOnly))
+			if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))
 				dbq = ppcheckflag(dbq, t->Flags, CCHKF_BANKING, (Filt.Flags & CCheckFilt::fBankingOnly) ? 1 : -1);
+			// @v10.0.02 {
+			if(Filt.AltRegF)
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_ALTREG, Filt.AltRegF);
+			// } @v10.0.02
 			dbq = ppcheckfiltid(dbq, t->CashID, Filt.CashNumber);
 			dbq = ppcheckfiltid(dbq, t->UserID, Filt.CashierID);
 			dbq = & (*dbq && daterange(t->Dt, &Filt.Period));
@@ -3244,6 +3260,8 @@ int SLAPI PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 		pTotal->AmtSCard = cs_total.CSCardAmount;
 		pTotal->AmtCash = (cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount);
 		pTotal->AmtReturn = cs_total.RetAmount;
+		pTotal->AmtAltReg = cs_total.AltRegAmount; // @v10.0.02
+		pTotal->CountAltReg = cs_total.AltRegCount; // @v10.0.02
 		if(Filt.Grp == CCheckFilt::gNone && pTotal->Count)
 			pTotal->AvrgCheckSum = pTotal->Amount / pTotal->Count;
 		else

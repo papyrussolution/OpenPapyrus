@@ -3652,6 +3652,8 @@ int FASTCALL PPEdiProviderPacket::IsEqual(const PPEdiProviderPacket & rS) const
 		eq = 0;
 	else if(PPCmpExtStrData(extssAddr2, ExtString, rS.ExtString, 0) != 0)
 		eq = 0;
+	else if(PPCmpExtStrData(extssFormatSymb, ExtString, rS.ExtString, 0) != 0) // @v10.0.02
+		eq = 0;
 	return eq;
 }
 //
@@ -3749,6 +3751,8 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_EDIPRV_FLAGS, 0, PPEdiProvider::fPassive);
 			SetClusterData(CTL_EDIPRV_FLAGS, Data.Rec.Flags);
 
+			Data.GetExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf); // @v10.0.02
+			setCtrlString(CTL_EDIPRV_FORMAT, temp_buf); // @v10.0.02
 			Data.GetExtStrData(PPEdiProviderPacket::extssDllModuleName, temp_buf);
 			setCtrlString(CTL_EDIPRV_MODULE, temp_buf);
 			Data.GetExtStrData(PPEdiProviderPacket::extssAddr, temp_buf);
@@ -3774,6 +3778,8 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			THROW(P_Obj->CheckDupSymb(Data.Rec.ID, strip(Data.Rec.Symb)));
 			GetClusterData(CTL_EDIPRV_SUPPOPS, &Data.Rec.SuppOpFlags);
 			GetClusterData(CTL_EDIPRV_FLAGS, &Data.Rec.Flags);
+			getCtrlString(CTL_EDIPRV_FORMAT, temp_buf.Z()); // @v10.0.02
+			Data.PutExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf); // @v10.0.02
 			getCtrlString(CTL_EDIPRV_MODULE, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssDllModuleName, temp_buf);
 			getCtrlString(CTL_EDIPRV_ADDR1, temp_buf.Z());

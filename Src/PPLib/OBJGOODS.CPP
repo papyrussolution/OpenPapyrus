@@ -4746,7 +4746,7 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 			attr = 0;
 			THROW_PP_S(scan.GetIdent(temp_buf), PPERR_ATTRBYTEXT_SYNTAX, pLine);
 			scan.Skip();
-			if(temp_buf.CmpNC("tag") == 0) {
+			if(temp_buf.IsEqiAscii("tag")) {
 				THROW_PP_S(scan[0] == '(', PPERR_ATTRBYTEXT_SYNTAX, pLine);
 				scan.Incr();
 				THROW_PP_S(scan.SearchChar(')'), PPERR_ATTRBYTEXT_SYNTAX, pLine);

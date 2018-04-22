@@ -1392,9 +1392,8 @@ int SLAPI PPEanComDocument::Read_LIN(xmlNode * pFirstNode, int * pLineN, SString
 	int    line_n = 0;
 	SString temp_buf;
 	for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
-		if(SXml::GetContentByName(p_n, "E1082", temp_buf)) {
+		if(SXml::GetContentByName(p_n, "E1082", temp_buf))
 			line_n = temp_buf.ToLong();
-		}
 		else if(SXml::IsName(p_n, "C212")) {
 			int   is_srv = 0;
 			for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
@@ -1749,7 +1748,7 @@ int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const Docume
 				switch(p_val->PartyQ) {
 					case EDIPARTYQ_SELLER:
 						SetupPartyAddedMsg(p_val, addendum_msg_cli);
-						if(P_Pi->PsnObj.ResolveGLN(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
+						if(P_Pi->PsnObj.ResolveGLN_Article(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
 							pResult->BillObjID = ar_id;
 						break;
 					case EDIPARTYQ_BUYER:
@@ -1769,7 +1768,7 @@ int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const Docume
 						break;
 					case EDIPARTYQ_CONSIGNOR:
 						SetupPartyAddedMsg(p_val, addendum_msg_cli);
-						if(P_Pi->PsnObj.ResolveGLN(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
+						if(P_Pi->PsnObj.ResolveGLN_Article(p_val->Code, GetSupplAccSheet(), &ar_id) > 0)
 							consignor_ar_id = ar_id;
 						break;
 					case EDIPARTYQ_CONSIGNEE:
@@ -2066,7 +2065,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 		ok = 1;
 	}
 	else if(SXml::IsName(p_root, "ORDERS")) {
-		THROW_PP(P_Pi->ACfg.Hdr.EdiOrderOpID, PPERR_EDI_OPNDEF_ORDER);
+		THROW_PP(P_Pi->ACfg.Hdr.OpID, PPERR_EDI_OPNDEF_ORDER);
 		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_ORDER));
 		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
@@ -2342,7 +2341,8 @@ static const EdiIdSymb EdiMsgTypeSymbols_EanCom[] = {
 	{ PPEDIOP_DESADV,       "DESADV" },
 	{ PPEDIOP_DECLINEORDER, "DECLNORDER" },
 	{ PPEDIOP_RECADV,       "RECADV" },
-	{ PPEDIOP_ALCODESADV,   "ALCODESADV" }
+	{ PPEDIOP_ALCODESADV,   "ALCODESADV" },
+	{ PPEDIOP_PARTIN,       "PARTIN" },
 };
 
 //static 
@@ -2548,6 +2548,375 @@ public:
 	virtual int    SLAPI  GetDocumentList(PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+private:
+	struct OwnFormatCommonAttr {
+		OwnFormatCommonAttr() : Dt(ZERODATE)
+		{
+		}
+		void    Clear()
+		{
+			Id.Z();
+			Num.Z();
+			Dt = ZERODATE;
+			Status.Z();
+			UOM.Z();
+		}
+		SString Id; // "id"
+		SString Num; // "number"
+		LDATE  Dt; // "date"
+		SString Status; // "status"
+		SString Revision; // "revisionNumber"
+		SString UOM; // "unitOfMeasure"
+	};
+	struct OwnFormatAddress {
+		OwnFormatAddress()
+		{
+			CountryCode[0] = 0;
+		}
+		OwnFormatAddress & Z()
+		{
+			CountryCode[0] = 0;
+			AddressText.Z();
+			RegionIsoCode.Z();
+			District.Z();
+			City.Z();
+			Settlement.Z();
+			Street.Z();
+			House.Z();
+			Flat.Z();
+			ZIP.Z();
+			return *this;
+		}
+		char   CountryCode[4]; // 2-letter code
+		SString AddressText; // foreign address
+		SString RegionIsoCode;
+		SString District;
+		SString City;       // Город 
+		SString Settlement; // Населенный пункт
+		SString Street;
+		SString House;
+		SString Flat;
+		SString ZIP;
+	};
+	struct OwnFormatContractor {
+		OwnFormatContractor()
+		{
+		}
+		OwnFormatContractor & Z()
+		{
+			Name.Z();
+			GLN.Z();
+			INN.Z();
+			KPP.Z();
+			Addr.Z();
+			return *this;
+		}
+		SString Name;
+		SString GLN;
+		SString INN;
+		SString KPP;
+		//
+		OwnFormatAddress Addr;
+	};
+	int    SLAPI ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
+	{
+		int    ok = 1;
+		if(pPack) {
+			SString msg_buf;
+			const PPID reg_type_id = PPREGT_GLN;
+			PPIDArray psn_list_by_gln;
+			PPIDArray ar_list;
+			if(rC.GLN.NotEmpty()) {
+				msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.GLN);
+				THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, rC.GLN, psn_list_by_gln));
+			}
+			if(rC.INN.NotEmpty())
+				msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.INN);
+			if(rC.KPP.NotEmpty())
+				msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.KPP);
+			if(rC.Name.NotEmpty())
+				msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.Name);
+			if(msg_buf.Empty())
+				msg_buf = "*";
+			msg_buf.CatDiv('-', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
+			if(partyQ == EDIPARTYQ_SELLER) {
+				if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
+					THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf); 
+				}
+				else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+					PPID   main_org_id = 0;
+					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+						const PPID _id = psn_list_by_gln.get(i);
+						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+				}
+			}
+			else if(partyQ == EDIPARTYQ_BUYER) {
+				if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
+					PPID   main_org_id = 0;
+					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+						const PPID _id = psn_list_by_gln.get(i);
+						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+				}
+				else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+					THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf); 
+				}
+			}
+			else if(partyQ == EDIPARTYQ_INVOICEE) {
+			}
+			else if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
+				if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
+				}
+				else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+				}
+			}
+			else if(partyQ == EDIPARTYQ_CONSIGNOR) {
+			}
+		}
+		else
+			ok = -1;
+		CATCHZOK
+		return ok;
+	}
+	int    SLAPI ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		rA.Clear();
+		if(SXml::GetAttrib(pNode, "id", rA.Id))
+			ok = 1;
+		if(SXml::GetAttrib(pNode, "number", rA.Num)) {
+			rA.Num.Transf(CTRANSF_UTF8_TO_INNER);
+			ok = 1;
+		}
+		if(SXml::GetAttrib(pNode, "status", rA.Status))
+			ok = 1;
+		if(SXml::GetAttrib(pNode, "revisionNumber", rA.Revision))
+			ok = 1;
+		if(SXml::GetAttrib(pNode, "unitOfMeasure", rA.UOM))
+			ok = 1;
+		if(SXml::GetAttrib(pNode, "date", temp_buf) > 0) {
+			rA.Dt = strtodate_(temp_buf, DATF_DMY);
+			ok = 1;
+		}
+		return ok;
+	}
+	int    SLAPI ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	//int    SLAPI WriteOwnFormatContractor(SXml::WDoc & rDoc, const OwnFormatContractor & rC);
+	int    SLAPI ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		rC.Z();
+		for(xmlNode * p_cn = pNode; p_cn; p_cn = p_cn->next) {
+			if(SXml::GetContentByName(p_cn, "gln", temp_buf)) {
+				rC.GLN = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_cn, "additionalIdentificator", temp_buf)) {
+			}
+			else if(SXml::GetContentByName(p_cn, "additionalnfo", temp_buf)) {
+				for(xmlNode * p_n = p_cn->children; p_n; p_n = p_n->next) {
+				}
+			}
+			else if(SXml::GetContentByName(p_cn, "taxSystem", temp_buf)) {
+			}
+			else if(SXml::IsName(p_cn, "organization")) {
+				for(xmlNode * p_n = p_cn->children; p_n; p_n = p_n->next) {
+					if(SXml::GetContentByName(p_n, "name", temp_buf))
+						rC.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "inn", temp_buf))
+						rC.INN = temp_buf;
+					else if(SXml::GetContentByName(p_n, "kpp", temp_buf))
+						rC.KPP = temp_buf;
+				}
+			}
+			else if(SXml::IsName(p_cn, "foreignAddress")) {
+				for(xmlNode * p_n = p_cn->children; p_n; p_n = p_n->next) {
+					if(SXml::GetContentByName(p_n, "countryISOCode", temp_buf))
+						STRNSCPY(rC.Addr.CountryCode, temp_buf);
+					else if(SXml::GetContentByName(p_n, "address", temp_buf))
+						rC.Addr.AddressText = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+			}
+			else if(SXml::IsName(p_cn, "russianAddress")) {
+				for(xmlNode * p_n = p_cn->children; p_n; p_n = p_n->next) {
+					if(SXml::GetContentByName(p_n, "regionISOCode", temp_buf))
+						rC.Addr.RegionIsoCode = temp_buf;
+					else if(SXml::GetContentByName(p_n, "district", temp_buf))
+						rC.Addr.District = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "city", temp_buf))
+						rC.Addr.City = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "settlement", temp_buf))
+						rC.Addr.Settlement = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "street", temp_buf))
+						rC.Addr.Street = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "house", temp_buf))
+						rC.Addr.House = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "flat", temp_buf))
+						rC.Addr.Flat = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					else if(SXml::GetContentByName(p_n, "postalCode", temp_buf))
+						rC.Addr.ZIP = temp_buf;
+				}
+			}
+		}
+		return ok;
+	}
+	int   SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const PPBillPacket & rBp)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SXml::WDoc _doc(pX, cpUTF8);
+		SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+		{
+			SXml::WNode n_hdr(_doc, "interchangeHeader");
+			n_hdr.PutInner("sender", "");
+			n_hdr.PutInner("recipient", "");
+			n_hdr.PutInner("documentType", "");
+			n_hdr.PutInner("creationDateTime", "");
+			n_hdr.PutInner("isTest", "0");
+		}
+		{
+			SXml::WNode n_b(_doc, "order"); // <order number="OR012012552011" date="2014-02-07" status="Replace" revisionNumber="02">
+			{
+				SXml::WNode n_i(_doc, "proposalOrdersIdentificator"); // <proposalOrdersIdentificator number="001" date="2014-02-06"/>
+			}
+			n_b.PutInnerSkipEmpty("promotionDealNumber", ""); // <!--номер промоакции-->
+			{
+				SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
+			}
+			n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+			{
+				SXml::WNode n_i(_doc, "seller");
+			}
+			{
+				SXml::WNode n_i(_doc, "buyer");
+			}
+			{
+				SXml::WNode n_i(_doc, "invoicee");
+			}
+			{
+				SXml::WNode n_i(_doc, "deliveryInfo");
+			}
+			n_b.PutInnerSkipEmpty("comment", ""); // <!--номер промоакции-->
+			{
+				SXml::WNode n_dtl(_doc, "lineItems");
+				n_dtl.PutInner("currencyISOCode", "RUB");
+				for(uint i = 0; i < rBp.GetTCount(); i++) {
+					const PPTransferItem & r_ti = rBp.ConstTI(i);
+					SXml::WNode n_item(_doc, "lineItem");
+					n_item.PutInner("gtin", "");
+					n_item.PutInner("internalBuyerCode", "");
+					n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
+					n_item.PutInnerSkipEmpty("comment", "");
+					{
+						SXml::WNode n_q(_doc, "requestedQuantity", temp_buf.Z().Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
+						n_q.PutAttrib("unitOfMeasure", "PCE");
+					}
+					n_item.PutInnerSkipEmpty("flowType", ""); // Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
+					n_item.PutInner("netPrice", "");
+					n_item.PutInner("netPriceWithVAT", "");
+					n_item.PutInner("netAmount", "");
+					n_item.PutInner("amount", "");
+				}
+				n_dtl.PutInner("totalSumExcludingTaxes", "");
+			}
+		}
+		return ok;
+	}
+	int   SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const PPBillPacket & rBp)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SXml::WDoc _doc(pX, cpUTF8);
+		SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+		{
+			SXml::WNode n_hdr(_doc, "interchangeHeader");
+			n_hdr.PutInner("sender", "");
+			n_hdr.PutInner("recipient", "");
+			n_hdr.PutInner("documentType", "");
+			n_hdr.PutInner("creationDateTime", "");
+			n_hdr.PutInner("isTest", "0");
+		}
+		{
+			SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
+			{
+				SXml::WNode n_i(_doc, "originOrder"); // <originOrder number="ORSP0012" date="2014-02-07"/>
+			}
+			{
+				SXml::WNode n_i(_doc, "orderResponse"); // <orderResponse number="ORSP0012" date="2014-02-07"/>
+			}
+			{
+				SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+			}
+			{
+				SXml::WNode n_i(_doc, "egaisRegistrationIdentificator"); // <egaisRegistrationIdentificator number="123_TEST"/>
+			}
+			{
+				SXml::WNode n_i(_doc, "egaisFixationIdentificator"); // <egaisFixationIdentificator number="12223" date="2016-05-04"/>
+			}
+			{
+				SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
+			}
+			{
+				SXml::WNode n_i(_doc, "seller");
+			}
+			{
+				SXml::WNode n_i(_doc, "buyer");
+			}
+			{
+				SXml::WNode n_i(_doc, "invoicee");
+			}
+			{
+				SXml::WNode n_i(_doc, "deliveryInfo");
+			}
+			n_b.PutInnerSkipEmpty("comment", ""); // <!--номер промоакции-->
+			{
+				SXml::WNode n_dtl(_doc, "lineItems");
+				n_dtl.PutInner("currencyISOCode", "RUB");
+				for(uint i = 0; i < rBp.GetTCount(); i++) {
+					const PPTransferItem & r_ti = rBp.ConstTI(i);
+					SXml::WNode n_item(_doc, "lineItem");
+					n_item.PutInner("gtin", "");
+					n_item.PutInner("internalSupplierCode", "");
+					n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
+					n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
+					n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
+					// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
+					n_item.PutInnerSkipEmpty("comment", "");
+					{
+						SXml::WNode n_q(_doc, "orderedQuantity", temp_buf.Z().Cat(0.0, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
+						n_q.PutAttrib("unitOfMeasure", "PCE");
+					}
+					{
+						SXml::WNode n_q(_doc, "despatchedQuantity", temp_buf.Z().Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
+						n_q.PutAttrib("unitOfMeasure", "PCE");
+					}
+					if(r_ti.UnitPerPack > 0.0) {
+						SXml::WNode n_q(_doc, "onePlaceQuantity", temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
+						n_q.PutAttrib("unitOfMeasure", "PCE");
+					}
+					if(checkdate(r_ti.Expiry, 0))
+						n_item.PutInner("expireDate", temp_buf.Z().Cat(r_ti.Expiry, DATF_ISO8601|DATF_CENTURY));
+					n_item.PutInner("netAmount", ""); // сумма по позиции без НДС
+					n_item.PutInner("amount", ""); // сумма по позиции с НДС
+
+				}
+				n_dtl.PutInner("totalSumExcludingTaxes", ""); // Общая сумма отгруженных товарных позиций без НДС
+				n_dtl.PutInner("totalVATAmount", ""); //  Общая сумма НДС по всему документу
+				n_dtl.PutInner("totalAmount", ""); // Общая сумма с НДС по документу
+			}
+		}
+		return ok;
+	}
 };
 
 SLAPI PPEdiProcessor::DocumentInfo::DocumentInfo() : ID(0), EdiOp(0), Time(ZERODATETIME), Status(0), Flags(0), PrvFlags(0)
@@ -2800,42 +3169,6 @@ SLAPI EdiProviderImplementation_Kontur::~EdiProviderImplementation_Kontur()
 {
 }
 
-/*
-int ImportCls::ParseFileName(const char * pFileName, PPEdiMessageEntry * pEntry) const
-{
-	int    ok = 0;
-	SString left, right;
-    SPathStruc ps(pFileName);
-    pEntry->EdiOp = 0;
-	if(ps.Nam.Divide('_', left, right) > 0) {
-		if(left.CmpNC("OrdRsp") == 0)
-			pEntry->EdiOp = PPEDIOP_ORDERRSP;
-		else if(left.CmpNC("Desadv") == 0)
-			pEntry->EdiOp = PPEDIOP_DESADV;
-		else if(left.CmpNC("Aperak") == 0)
-			pEntry->EdiOp = PPEDIOP_APERAK;
-		else if(left.CmpNC("alcodesadv") == 0 || left.CmpNC("alcrpt") == 0 || left.CmpNC("alcdes") == 0)
-			pEntry->EdiOp = PPEDIOP_ALCODESADV;
-		pEntry->Uuid.FromStr(right);
-		STRNSCPY(pEntry->SId, pFileName);
-	}
-	else {
-		if(left.CmpPrefix("ordrsp", 1) == 0)
-			pEntry->EdiOp = PPEDIOP_ORDERRSP;
-		else if(left.CmpPrefix("Desadv", 1) == 0)
-			pEntry->EdiOp = PPEDIOP_DESADV;
-		else if(left.CmpPrefix("Aperak", 1) == 0)
-			pEntry->EdiOp = PPEDIOP_APERAK;
-		else if(left.CmpPrefix("alcodesadv", 1) == 0 || left.CmpPrefix("alcrpt", 1) == 0 || left.CmpPrefix("alcdes", 1) == 0)
-			pEntry->EdiOp = PPEDIOP_ALCODESADV;
-	}
-	if(pEntry->EdiOp) {
-		ok = 1;
-	}
-	return ok;
-}
-*/
-
 int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
@@ -2888,6 +3221,522 @@ int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(PPEdiProcessor::Docu
 	return ok;
 }
 
+int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString addendum_msg_buf;
+	SString serial;
+	SString goods_name;
+	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+	xmlDoc * p_doc = 0;
+	xmlNode * p_root = 0;
+	PPEdiProcessor::Packet * p_pack = 0;
+	PPBillPacket * p_bpack = 0; // is owned by p_pack
+	PPID   goods_id_by_gtin = 0;
+	PPID   goods_id_by_arcode = 0;
+	Goods2Tbl::Rec goods_rec;
+	BarcodeTbl::Rec bc_rec;
+	OwnFormatCommonAttr attrs;
+	OwnFormatContractor contractor;
+	THROW_SL(fileExists(pFileName));
+	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
+	THROW(p_root = xmlDocGetRootElement(p_doc));
+	if(SXml::IsName(p_root, "eDIMessage")) {
+		int    edi_op = 0;
+		int    is_test = 0;
+		PPID   sender_psn_id = 0;
+		PPID   rcvr_psn_id = 0;
+		LDATETIME cr_dtm = ZERODATETIME;
+		LDATETIME cr_dtm_by_sender = ZERODATETIME;
+		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+			if(SXml::IsName(p_n, "interchangeHeader")) {
+				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+					if(SXml::GetContentByName(p_n2, "sender", temp_buf)) {
+						PsnObj.ResolveGLN(temp_buf, &sender_psn_id);
+					}
+					else if(SXml::GetContentByName(p_n2, "recipient", temp_buf)) {
+						PsnObj.ResolveGLN(temp_buf, &rcvr_psn_id);
+					}
+					else if(SXml::GetContentByName(p_n2, "documentType", temp_buf)) {
+						THROW(edi_op == 0); // @todo err
+						edi_op = PPEanComDocument::GetMsgTypeBySymb(temp_buf);
+					}
+					else if(SXml::GetContentByName(p_n2, "creationDateTime", temp_buf))
+						strtodatetime(temp_buf, &cr_dtm, DATF_ISO8601, 0);
+					else if(SXml::GetContentByName(p_n2, "creationDateTimeBySender", temp_buf))
+						strtodatetime(temp_buf, &cr_dtm_by_sender, DATF_ISO8601, 0);
+					else if(SXml::GetContentByName(p_n2, "isTest", temp_buf)) {
+						if(temp_buf.ToLong() == 1)
+							is_test = 1;
+					}
+				}
+			}
+			else if(SXml::IsName(p_n, "order")) {
+				THROW(edi_op == PPEDIOP_ORDER);
+				THROW_PP(ACfg.Hdr.OpID, PPERR_EDI_OPNDEF_ORDER);
+				THROW(ReadCommonAttributes(p_n, attrs));
+				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_ORDER));
+				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
+				STRNSCPY(p_bpack->Rec.Code, attrs.Num);
+				p_bpack->Rec.Dt = attrs.Dt;
+				p_bpack->Rec.EdiOp = edi_op;
+				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+					if(SXml::GetContentByName(p_n2, "proposalOrdersIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "promotionDealNumber", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "contractIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "comment", temp_buf)) {
+						STRNSCPY(p_bpack->Rec.Memo, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+					}
+					else if(SXml::IsName(p_n2, "seller")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SELLER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "buyer")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_BUYER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "invoicee")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_INVOICEE, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "deliveryInfo")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "requestedDeliveryDateTime", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "exportDateTimeFromSupplier", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "transportBy", temp_buf)) {
+							}
+							else if(SXml::IsName(p_n3, "shipFrom")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_CONSIGNOR, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "shipTo")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SHIPTO, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "ultimateCustomer")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+							}
+							else if(SXml::IsName(p_n3, "transportation")) {
+							}
+						}
+					}
+					else if(SXml::IsName(p_n2, "lineItems")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "currencyISOCode", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "totalSumExcludingTaxes", temp_buf)) {
+							}
+							else if(SXml::IsName(p_n3, "lineItem")) {
+								PPTransferItem ti;
+								double price_wo_taxes = 0.0;
+								double full_price = 0.0;
+								double vat_rate = -1.0;
+ 								goods_id_by_gtin = 0;
+								goods_id_by_arcode = 0;
+								serial.Z();
+								ti.Init(&p_bpack->Rec);
+								for(xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
+									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
+										if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec) > 0)
+											goods_id_by_gtin = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "internalBuyerCode", temp_buf)) {
+										if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+											goods_id_by_arcode = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "lineNumber", temp_buf)) {
+										ti.RByBill = (int16)temp_buf.ToLong();
+										if(ti.RByBill < 0)
+											ti.RByBill = 0;
+									}
+									else if(SXml::GetContentByName(p_li, "comment", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "requestedQuantity", temp_buf)) {
+										ti.Quantity_ = temp_buf.ToReal();
+									}
+									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "flowType", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netPrice", temp_buf)) {
+										price_wo_taxes = temp_buf.ToReal();
+									}
+									else if(SXml::GetContentByName(p_li, "netPriceWithVAT", temp_buf)) {
+										full_price = temp_buf.ToReal();
+									}
+									else if(SXml::GetContentByName(p_li, "VATRate", temp_buf)) {
+										vat_rate = temp_buf.ToReal();
+									}
+									else if(SXml::GetContentByName(p_li, "netAmount", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "amount", temp_buf)) {
+									}
+									else if(SXml::IsName(p_li, "ultimateCustomer")) {
+										//
+									}
+								}
+								if(goods_id_by_gtin) {
+									ti.GoodsID = goods_id_by_gtin;
+									if(goods_id_by_arcode && goods_id_by_arcode != goods_id_by_gtin) {
+										// @todo message ambiguity
+									}
+								}
+								else if(goods_id_by_arcode)
+									ti.GoodsID = goods_id_by_arcode;
+								if(ti.GoodsID) {
+									if(ti.Quantity_ > 0.0) {
+										if(full_price > 0.0) {
+											ti.Price = full_price;
+										}
+										else if(price_wo_taxes > 0.0) {
+
+										}
+									}
+									else {
+									}
+								}
+								else {
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(SXml::IsName(p_n, "orderResponse")) {
+				THROW(edi_op == PPEDIOP_ORDERRSP);
+				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
+					}
+					else if(SXml::IsName(p_n2, "seller")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SELLER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "buyer")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_BUYER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "invoicee")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_INVOICEE, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "deliveryInfo")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "requestedDeliveryDateTime", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "exportDateTimeFromSupplier", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "transportBy", temp_buf)) {
+							}
+							else if(SXml::IsName(p_n3, "shipFrom")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_CONSIGNOR, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "shipTo")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SHIPTO, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "ultimateCustomer")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+							}
+							else if(SXml::IsName(p_n3, "transportation")) {
+							}
+						}
+					}
+					else if(SXml::IsName(p_n2, "lineItems")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "currencyISOCode", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "lineItem", temp_buf)) {
+								PPTransferItem ti;
+								goods_id_by_gtin = 0;
+								goods_id_by_arcode = 0;
+								serial.Z();
+								goods_name.Z();
+								ti.Init(&p_bpack->Rec);
+								for(xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
+									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
+										if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec) > 0)
+											goods_id_by_gtin = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "internalSupplierCode", temp_buf)) {
+										if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+											goods_id_by_arcode = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "serialNumber", temp_buf)) {
+										serial = temp_buf;
+									}
+									else if(SXml::GetContentByName(p_li, "orderLineNumber", temp_buf)) {
+										ti.RByBill = (int16)temp_buf.ToLong();
+										if(ti.RByBill < 0)
+											ti.RByBill = 0;
+									}
+									else if(SXml::GetContentByName(p_li, "description", temp_buf)) {
+										goods_name = temp_buf;
+									}
+									else if(SXml::GetContentByName(p_li, "comment", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "confirmedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "expireDate", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "manufactoringDate", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "estimatedDeliveryDate", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netPrice", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netPriceWithVAT", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netAmount", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "amount", temp_buf)) {
+									}
+									else if(SXml::IsName(p_li, "ultimateCustomer")) {
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(SXml::IsName(p_n, "despatchAdvice")) {
+				THROW(edi_op == PPEDIOP_DESADV);
+				THROW_PP(ACfg.Hdr.EdiDesadvOpID, PPERR_EDI_OPNDEF_DESADV);
+				THROW(ReadCommonAttributes(p_n, attrs));
+				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
+				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.EdiDesadvOpID, 0, 0, 1));
+				STRNSCPY(p_bpack->Rec.Code, attrs.Num);
+				p_bpack->Rec.Dt = attrs.Dt;
+				p_bpack->Rec.EdiOp = edi_op;
+				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "orderResponse", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "egaisRegistrationIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "egaisFixationIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "deliveryNoteIdentificator", temp_buf)) {
+					}
+					else if(SXml::IsName(p_n2, "seller")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SELLER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "buyer")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_BUYER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "invoicee")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_INVOICEE, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "deliveryInfo")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "requestedDeliveryDateTime", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "exportDateTimeFromSupplier", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "transportBy", temp_buf)) {
+							}
+							else if(SXml::IsName(p_n3, "shipFrom")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_CONSIGNOR, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "shipTo")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+								THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SHIPTO, p_bpack));
+							}
+							else if(SXml::IsName(p_n3, "ultimateCustomer")) {
+								THROW(ReadOwnFormatContractor(p_n3->children, contractor));
+							}
+							else if(SXml::IsName(p_n3, "transportation")) {
+							}
+						}
+					}
+					else if(SXml::GetContentByName(p_n2, "packages", temp_buf)) {
+					}
+					else if(SXml::IsName(p_n2, "lineItems")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::GetContentByName(p_n3, "currencyISOCode", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "totalSumExcludingTaxes", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "totalVATAmount", temp_buf)) {
+							}
+							else if(SXml::GetContentByName(p_n3, "totalAmount", temp_buf)) {
+							}
+							else if(SXml::IsName(p_n3, "lineItem")) {
+								PPTransferItem ti;
+								double price_wo_taxes = 0.0;
+								double full_price = 0.0;
+ 								goods_id_by_gtin = 0;
+								goods_id_by_arcode = 0;
+								serial.Z();
+								goods_name.Z();
+								ti.Init(&p_bpack->Rec);
+								for(xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
+									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
+										if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec) > 0)
+											goods_id_by_gtin = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "internalSupplierCode", temp_buf)) {
+										if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+											goods_id_by_arcode = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "packageLevel", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "codeOfEgais", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "lotNumberEgais", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "orderLineNumber", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "description", temp_buf)) {
+										goods_name = temp_buf;
+									}
+									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "despatchedQuantity", temp_buf)) {
+										ti.Quantity_ = R6(temp_buf.ToReal());
+									}
+									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
+										ti.UnitPerPack = R6(temp_buf.ToReal());
+									}
+									else if(SXml::GetContentByName(p_li, "expireDate", temp_buf)) {
+										ti.Expiry = strtodate_(temp_buf, DATF_YMD);
+									}
+									else if(SXml::GetContentByName(p_li, "freshnessDate", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netAmount", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "amount", temp_buf)) {
+									}
+									else if(SXml::IsName(p_li, "ultimateCustomer")) {
+										//
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(SXml::IsName(p_n, "receivingAdvice")) {
+				THROW(edi_op == PPEDIOP_RECADV);
+				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "despatchIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "receivingAdviceIdentificatorInBuyerSystem", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "egaisRegistrationIdentificator", temp_buf)) {
+					}
+					else if(SXml::GetContentByName(p_n2, "egaisFixationIdentificator", temp_buf)) {
+					}
+					else if(SXml::IsName(p_n2, "seller")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_SELLER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "buyer")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_BUYER, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "invoicee")) {
+						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
+						THROW(ResolveOwnFormatContractor(contractor, EDIPARTYQ_INVOICEE, p_bpack));
+					}
+					else if(SXml::IsName(p_n2, "deliveryInfo")) {
+					}
+					else if(SXml::IsName(p_n2, "lineItems")) {
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::IsName(p_n3, "lineItem")) {
+								PPTransferItem ti;
+								double price_wo_taxes = 0.0;
+								double full_price = 0.0;
+ 								goods_id_by_gtin = 0;
+								goods_id_by_arcode = 0;
+								serial.Z();
+								goods_name.Z();
+								ti.Init(&p_bpack->Rec);
+								for(xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
+									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
+										if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec) > 0)
+											goods_id_by_gtin = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "internalBuyerCode", temp_buf)) {
+										if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+											goods_id_by_arcode = goods_rec.ID;
+									}
+									else if(SXml::GetContentByName(p_li, "codeOfEgais", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "lotNumberEgais", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "orderLineNumber", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "description", temp_buf)) {
+										goods_name = temp_buf;
+									}
+									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "despatchedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "deliveredQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "acceptedQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netPrice", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netPriceWithVAT", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "netAmount", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "exciseDuty", temp_buf)) {
+									}
+									else if(SXml::GetContentByName(p_li, "amount", temp_buf)) {
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(p_pack) {
+		if(p_bpack)
+			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent);
+		rList.insert(p_pack);
+		p_pack = 0; // Перед выходом экземпляр разрушается
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	delete p_pack;
+	return ok;
+}
+
 int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
@@ -2930,9 +3779,19 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 						THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
 					}
 					{
-						PPEanComDocument s_doc(this);
-						const int rdr = s_doc.Read_Document(p_ctx, temp_buf, edi_ident_buf, rList);
-						THROW(rdr);
+						int    format = 0;
+						PPXmlFileDetector xfd;
+						if(xfd.Run(temp_buf, &format)) {
+							if(format == xfd.Eancom) {
+								PPEanComDocument s_doc(this);
+								const int rdr = s_doc.Read_Document(p_ctx, temp_buf, edi_ident_buf, rList);
+								THROW(rdr);
+							}
+							else if(format == xfd.KonturEdi) {
+								const int rdr = ReadOwnFormatDocument(p_ctx, temp_buf, edi_ident_buf, rList);
+								THROW(rdr);
+							}
+						}
 					}
 					ok = 1;
 				}
@@ -2950,18 +3809,39 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 	xmlTextWriter * p_x = 0;
 	SString path;
 	if(oneof2(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_DESADV)) {
+		S_GUID msg_uuid;
+		msg_uuid.Generate();
+		//
 		SString temp_buf;
-		PPEanComDocument s_doc(this);
 		GetTempOutputPath(rPack.DocType, path);
 		THROW_SL(::createDir(path.RmvLastSlash()));
-		MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
-		path = temp_buf;
+		//
+		//MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
+		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
+		path.SetLastSlash().Cat(temp_buf);
+		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+		path.CatChar('_').Cat(temp_buf).Dot().Cat("xml");
+		//
 		THROW(p_x = xmlNewTextWriterFilename(path, 0));
 		if(rPack.DocType == PPEDIOP_ORDER) {
-			THROW(s_doc.Write_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
+			Epp.GetExtStrData(Epp.extssFormatSymb, temp_buf);
+			if(temp_buf == "2") {
+				THROW(Write_OwnFormat_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
+			}
+			else {
+				PPEanComDocument s_doc(this);
+				THROW(s_doc.Write_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
+			}
 		}
 		else if(rPack.DocType == PPEDIOP_DESADV) {
-			THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
+			Epp.GetExtStrData(Epp.extssFormatSymb, temp_buf);
+			if(temp_buf == "2") {
+				THROW(Write_OwnFormat_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
+			}
+			else {
+				PPEanComDocument s_doc(this);
+				THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
+			}
 		}
 		if(!(Flags & ctrfTestMode)) {
 			InetUrl url;

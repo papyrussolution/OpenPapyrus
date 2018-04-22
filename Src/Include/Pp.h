@@ -377,6 +377,7 @@ class  TSessAnlzList;
 class  PhoneServiceEventResponder;
 struct StTspResponse; // Описание в ppeds.cpp
 struct LotViewItem;
+class  AsteriskAmiClient;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -5742,13 +5743,14 @@ struct PPAdviseEvent {
 	int32  Priority; // Для обработки телефонных событий
 	int32  Duration; // Для обработки телефонных событий
 	//
-	// Следующие три поля являются позициями соответствующих строк в пуле PPAdviseEventVector
+	// Следующие поля являются позициями соответствующих строк в пуле PPAdviseEventVector
 	//
 	uint   ChannelP;  // Символ телефонного канала
 	uint   CallerIdP; // Вызывающий номер
 	uint   ConnectedLineNumP; // Номер линии
 	uint   ContextP; // Контекст события
 	uint   ExtenP;   // @? Добавочный номер
+	uint   BridgeP;  // @v10.0.02 Ид моста (BridgeId) для телефонного события
 
     ExtObject * ExtraObj; // @notowned
 };
@@ -6063,7 +6065,8 @@ struct PPNotifyEvent : public PPExtStrContainer {
 		extssCallerId         = 3,
 		extssConnectedLineNum = 4,
 		extssContext          = 5,
-		extssExten            = 6
+		extssExten            = 6,
+		extssBridgeId         = 7 // @v10.0.02
 	};
 	SLAPI  PPNotifyEvent();
 	void   SLAPI Clear();
@@ -8145,6 +8148,7 @@ public:
 	//   0  - персоналия personID не принадлежит виду kindID
 	//
 	int    SLAPI IsBelongToKind(PPID personID, PPID kindID);
+	int    SLAPI GetListByKind(PPID kindID, PPIDArray * pList);
 	int    SLAPI Put(PPID * pID, PPPerson * pPack, int use_ta);
 	int    SLAPI Get(PPID id, PPPerson * pPack);
 	int    SLAPI Search(PPID id, PersonTbl::Rec * pRec = 0);
@@ -8171,7 +8175,8 @@ public:
 
 	static int    SLAPI PutELinks(PPID id, PPELinkArray *, int use_ta);
 	static int    SLAPI GetELinks(PPID id, PPELinkArray *);
-	static int    SLAPI GetELinkList(int elnkrt, StrAssocArray & rList);
+
+	int    SLAPI GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList);
 
 	PersonKindTbl Kind;
 	//
@@ -13117,25 +13122,27 @@ struct CSessTotal {
 	double AggrRest;       // Сумма излишков по агрегирующим строкам
 	long   WrOffBillCount; // Количество документов списания //
 	double WrOffAmount;    // Списанная сумма
-	double WrOffCost;      // AHTOXA
-	double Income;         // AHTOXA
+	double WrOffCost;      //
+	double Income;         //
 	double BnkAmount;      // Безналичная оплата
-	double RetAmount;      // @v7.5.0 Общая сумма возвратов
-	double RetBnkAmount;   // @v7.5.0 Сумма возвратов с оплатой через банк
+	double RetAmount;      // Общая сумма возвратов
+	double RetBnkAmount;   // Сумма возвратов с оплатой через банк
 	double WORetAmount;    // Сумма по чекам без чеков возврата
 	double WORetBnkAmount; // Сумма безнал оплат без чеков возврата
 	double BnkDiscount;    // Сумма безналичных скидок
 	double CSCardAmount;   // Сумма по корпоративным кредитным картам
-	double FiscalAmount;   // @v7.5.8 Фискальная сумма чеков
+	double FiscalAmount;   // Фискальная сумма чеков
+	double AltRegAmount;   // @v10.0.02 Сумма чеков, проведенных через альтернативный регистратор
 	long   SaleCheckCount; // Количество чеков продаж
-	long   SaleBnkCount;   // @v7.5.0 Количество чеков продаж с оплатой через банк
+	long   SaleBnkCount;   // Количество чеков продаж с оплатой через банк
 	long   RetCheckCount;  // Количество чеков возврата
-	long   RetBnkCount;    // @v7.5.0 Количество чеков возврата с оплатой через банк
+	long   RetBnkCount;    // Количество чеков возврата с оплатой через банк
+	long   AltRegCount;    // @v10.0.02 Количество чеков, проведенных через альтернативный регистратор
 };
 
 struct CSessInfo {
-	CSessionTbl::Rec  Rec;
-	CSessTotal        Total;
+	CSessionTbl::Rec Rec;
+	CSessTotal Total;
 };
 //
 // Степени незавершенности кассовых сессий
@@ -15872,84 +15879,85 @@ public:
 //
 // Флаги видов операций
 //
-#define OPKF_NEEDPAYMENT     0x00000001L // Операция требует платежного документа
-#define OPKF_GRECEIPT        0x00000002L // Приход товара
-#define OPKF_GEXPEND         0x00000004L // Расход товара
-#define OPKF_BUYING          0x00000008L // Номинал операции в ценах поступления //
-#define OPKF_SELLING         0x00000010L // Номинал операции в ценах реализации  //
-#define OPKF_NOUPDLOTREST    0x00000020L // Товарная операция, не изменяющая остаток по лоту
-#define OPKF_ADVACC          0x00000040L // Бухгалтерская операция, позволяющая документу содержать строки расширения //
-#define OPKF_PROFITABLE      0x00000080L // Операция доходная //
-#define OPKF_ONORDER         0x00000100L // Операция продажи, допускающая продажу по заказу
-#define OPKF_FREIGHT         0x00000200L // Операция поддерживает ввод данных фрахта
-#define OPKF_PCKGMOUNTING    0x00000400L // Расходная операция только для формирования пакетов
-#define OPKF_ORDEXSTONLY     0x00000800L // В заказах видны только те товары, которые есть на остатке
-#define OPKF_ORDRESERVE      0x00001000L // Резервирующий заказ
-#define OPKF_CALCSTAXES      0x00002000L // Считать налоги с продаж (НДС и акциз)
-#define OPKF_CHARGENEGPAYM   0x00004000L // Начисление ренты интерпретировать как отрицательную оплату основного документа
-#define OPKF_AUTOWL          0x00008000L // Автоматическая метка в документе
-#define OPKF_ATTACHFILES     0x00010000L // Присоединять файлы к документам
-#define OPKF_USEPAYER        0x00020000L // Использовать поле PPBill::Payer плательщика
-#define OPKF_ORDERBYLOC      0x00040000L // Заказ привязан к складу (заказ от подразделения)
-#define OPKF_NEEDVALUATION   0x00080000L // Операция требует расценки @only(PPOPT_GOODSRECEIPT)
-#define OPKF_OUTBALACCTURN   0x00100000L // Забалансовая бух проводка
-#define OPKF_EXTACCTURN      0x00200000L // Расширенная бух проводка
-#define OPKF_EXTAMTLIST      0x00400000L // Операция поддерживает список доп сумм
-#define OPKF_DENYREVALCOST   0x00800000L // Не допускается переоценка цен поступления @only(PPOPT_GOODSREVAL)
-#define OPKF_RENT            0x01000000L // С документом может быть ассоциирован договор ренты
-#define OPKF_NEEDACK         0x02000000L // Документ требует подтверждения      //
-#define OPKF_NOCALCTIORD     0x04000000L // Не расчитывать заказ товара в строках документа
-#define OPKF_RECKON          0x08000000L // Операция используется как платежная //
-#define OPKF_BANKING         0x10000000L // Банковский платежный документ
-#define OPKF_PASSIVE         0x20000000L // Пассивная операция (не видна в списках выбора)
-#define OPKF_CURTRANSIT      0x40000000L // Транзитная валютная операция        //
-#define OPKF_RESTRICTBYMTX   0x80000000L // Ограничивать выбор товара по операции товарной матрицей
-#define OPKF_GOODS           (OPKF_GRECEIPT|OPKF_GEXPEND)
+#define OPKF_NEEDPAYMENT       0x00000001L // Операция требует платежного документа
+#define OPKF_GRECEIPT          0x00000002L // Приход товара
+#define OPKF_GEXPEND           0x00000004L // Расход товара
+#define OPKF_BUYING            0x00000008L // Номинал операции в ценах поступления //
+#define OPKF_SELLING           0x00000010L // Номинал операции в ценах реализации  //
+#define OPKF_NOUPDLOTREST      0x00000020L // Товарная операция, не изменяющая остаток по лоту
+#define OPKF_ADVACC            0x00000040L // Бухгалтерская операция, позволяющая документу содержать строки расширения //
+#define OPKF_PROFITABLE        0x00000080L // Операция доходная //
+#define OPKF_ONORDER           0x00000100L // Операция продажи, допускающая продажу по заказу
+#define OPKF_FREIGHT           0x00000200L // Операция поддерживает ввод данных фрахта
+#define OPKF_PCKGMOUNTING      0x00000400L // Расходная операция только для формирования пакетов
+#define OPKF_ORDEXSTONLY       0x00000800L // В заказах видны только те товары, которые есть на остатке
+#define OPKF_ORDRESERVE        0x00001000L // Резервирующий заказ
+#define OPKF_CALCSTAXES        0x00002000L // Считать налоги с продаж (НДС и акциз)
+#define OPKF_CHARGENEGPAYM     0x00004000L // Начисление ренты интерпретировать как отрицательную оплату основного документа
+#define OPKF_AUTOWL            0x00008000L // Автоматическая метка в документе
+#define OPKF_ATTACHFILES       0x00010000L // Присоединять файлы к документам
+#define OPKF_USEPAYER          0x00020000L // Использовать поле PPBill::Payer плательщика
+#define OPKF_ORDERBYLOC        0x00040000L // Заказ привязан к складу (заказ от подразделения)
+#define OPKF_NEEDVALUATION     0x00080000L // Операция требует расценки @only(PPOPT_GOODSRECEIPT)
+#define OPKF_OUTBALACCTURN     0x00100000L // Забалансовая бух проводка
+#define OPKF_EXTACCTURN        0x00200000L // Расширенная бух проводка
+#define OPKF_EXTAMTLIST        0x00400000L // Операция поддерживает список доп сумм
+#define OPKF_DENYREVALCOST     0x00800000L // Не допускается переоценка цен поступления @only(PPOPT_GOODSREVAL)
+#define OPKF_RENT              0x01000000L // С документом может быть ассоциирован договор ренты
+#define OPKF_NEEDACK           0x02000000L // Документ требует подтверждения      //
+#define OPKF_NOCALCTIORD       0x04000000L // Не расчитывать заказ товара в строках документа
+#define OPKF_RECKON            0x08000000L // Операция используется как платежная //
+#define OPKF_BANKING           0x10000000L // Банковский платежный документ
+#define OPKF_PASSIVE           0x20000000L // Пассивная операция (не видна в списках выбора)
+#define OPKF_CURTRANSIT        0x40000000L // Транзитная валютная операция        //
+#define OPKF_RESTRICTBYMTX     0x80000000L // Ограничивать выбор товара по операции товарной матрицей
+#define OPKF_GOODS             (OPKF_GRECEIPT|OPKF_GEXPEND)
 //
 // Расширенные флаги видов операций
 //
-#define OPKFX_RESTRICTPRICE  0x00000001L // Ограничивать цену реализации формулой
-#define OPKFX_ALLOWPARTSTR   0x00000002L // Допускается распределение частичных структур по документам
-#define OPKFX_UNLINKRET      0x00000004L // @v7.1.10 Непривязанный возврат (от покупателя или поставщику)
+#define OPKFX_RESTRICTPRICE    0x00000001L // Ограничивать цену реализации формулой
+#define OPKFX_ALLOWPARTSTR     0x00000002L // Допускается распределение частичных структур по документам
+#define OPKFX_UNLINKRET        0x00000004L // @v7.1.10 Непривязанный возврат (от покупателя или поставщику)
 	// Специализированный флаг, не используемый в учете, но лишь для расчета лимита возвратов.
-#define OPKFX_USESUPPLDEAL   0x00000008L // @v7.2.11 (для драфт-приходов) При вводе строки применять контрактную цену
+#define OPKFX_USESUPPLDEAL     0x00000008L // @v7.2.11 (для драфт-приходов) При вводе строки применять контрактную цену
 	// поставщика как цену поступления.
-#define OPKFX_CANBEDECLINED  0x00000010L // @v8.3.3 (для драфт-документов) Допускается функция отклонения документа
-#define OPKFX_MCR_GROUP      0x00000020L // @v8.8.6 Ограничение комплементарности позиций в документе модификации (общая группа)
-#define OPKFX_MCR_SUBSTSTRUC 0x00000040L // @v8.8.6 Ограничение комплементарности позиций в документе модификации (подстановочная структура)
-#define OPKFX_MCR_EQQTTY     0x00000080L // @v8.8.7 Ограничение комплементарности позиций в документе модификации (одинаковое количество)
-#define OPKFX_DSBLHALFMODIF  0x00000100L // @v9.0.0 Запрет "половинчатой" модификации. То есть, в документе модификации
+#define OPKFX_CANBEDECLINED    0x00000010L // @v8.3.3 (для драфт-документов) Допускается функция отклонения документа
+#define OPKFX_MCR_GROUP        0x00000020L // @v8.8.6 Ограничение комплементарности позиций в документе модификации (общая группа)
+#define OPKFX_MCR_SUBSTSTRUC   0x00000040L // @v8.8.6 Ограничение комплементарности позиций в документе модификации (подстановочная структура)
+#define OPKFX_MCR_EQQTTY       0x00000080L // @v8.8.7 Ограничение комплементарности позиций в документе модификации (одинаковое количество)
+#define OPKFX_DSBLHALFMODIF    0x00000100L // @v9.0.0 Запрет "половинчатой" модификации. То есть, в документе модификации
 	// должны быть и вход и выход
-#define OPKFX_DLVRLOCASWH    0x00000200L // @v9.1.10 Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
-#define OPKFX_SOURCESERIAL   0x00000400L // @v9.3.6 (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
-#define OPKFX_IGNORECLISTOP  0x00000800L // @v9.8.4 Игнорировать признак STOP контрагента при создании документа
-#define OPKFX_AUTOGENUUID    0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
+#define OPKFX_DLVRLOCASWH      0x00000200L // @v9.1.10 Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
+#define OPKFX_SOURCESERIAL     0x00000400L // @v9.3.6 (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
+#define OPKFX_IGNORECLISTOP    0x00000800L // @v9.8.4 Игнорировать признак STOP контрагента при создании документа
+#define OPKFX_AUTOGENUUID      0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
+#define OPKFX_WROFFTODRAFTORD  0x00002000L // @v10.0.2 Специализированная операция заказа, списываемая в драфт-документ
 
-#define OPKF_PRT_INCINVC     0x00000001L // Входящая счет-фактура на предоплату
-#define OPKF_PRT_NEGINVC     0x00000002L // Счет-фактура с отрицательными суммами
-#define OPKF_PRT_CHECK       0x00000004L // Печатать чек по документу
-#define OPKF_PRT_CHECKTI     0x00000008L // Печатать чек по документу с товарными строками
-#define OPKF_PRT_SRVACT      0x00000010L // Печатать акт выполненных работ
-#define OPKF_PRT_BUYING      0x00000020L // Печатать в ценах поступления //
-#define OPKF_PRT_SELLING     0x00000040L // Печатать в ценах реализации  //
-#define OPKF_PRT_EXTOBJ2OBJ  0x00000080L // В структуре GoodsBillBase вместо object подставлять extobject
-#define OPKF_PRT_TARESALDO   0x00000100L // Печатать сальдо по таре (только если определено PPGoodsConfig::TareGrpID)
-#define OPKF_PRT_QCERT       0x00000200L // Печатать сертификаты
-#define OPKF_PRT_NBILLN      0x00000400L // В первичном документе не печатать номер
-#define OPKF_PRT_VATAX       0x00000800L // В накладной печатать колонки НДС
-#define OPKF_PRT_INVOICE     0x00001000L // Печатать счет-фактуру
-#define OPKF_PRT_QCG         0x00004000L // Печатать сертификаты с товаром
-#define OPKF_PRT_SHRTORG     0x00010000L // Печатать сокращ. наименование гл. организации
-#define OPKF_PRT_CASHORD     0x00080000L // Печатать кассовый ордер
-#define OPKF_PRT_SELPRICE    0x00100000L // Печать цен в накладной на выбор
-#define OPKF_PRT_NDISCNT     0x00800000L // Не печатать скидку в накладной
-#define OPKF_PRT_PAYPLAN     0x02000000L // Печатать план платежей по документу
-#define OPKF_PRT_LADING      0x04000000L // Печатать товарно-транспортную накладную
-#define OPKF_PRT_MERGETI     0x08000000L // Объединять товарные строки
-#define OPKF_PRT_PLABEL      0x10000000L // Печатать ценник
-#define OPKF_PRT_BCODELIST   0x20000000L // Печатать в накладной список штрихкодов
-#define OPKF_PRT_QCERTLIST   0x40000000L // Печатать список сертификатов
-#define OPKF_PRT_LOTTAGIMG   0x80000000L // Печать изображений из тегов лотов
+#define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
+#define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
+#define OPKF_PRT_CHECK         0x00000004L // Печатать чек по документу
+#define OPKF_PRT_CHECKTI       0x00000008L // Печатать чек по документу с товарными строками
+#define OPKF_PRT_SRVACT        0x00000010L // Печатать акт выполненных работ
+#define OPKF_PRT_BUYING        0x00000020L // Печатать в ценах поступления //
+#define OPKF_PRT_SELLING       0x00000040L // Печатать в ценах реализации  //
+#define OPKF_PRT_EXTOBJ2OBJ    0x00000080L // В структуре GoodsBillBase вместо object подставлять extobject
+#define OPKF_PRT_TARESALDO     0x00000100L // Печатать сальдо по таре (только если определено PPGoodsConfig::TareGrpID)
+#define OPKF_PRT_QCERT         0x00000200L // Печатать сертификаты
+#define OPKF_PRT_NBILLN        0x00000400L // В первичном документе не печатать номер
+#define OPKF_PRT_VATAX         0x00000800L // В накладной печатать колонки НДС
+#define OPKF_PRT_INVOICE       0x00001000L // Печатать счет-фактуру
+#define OPKF_PRT_QCG           0x00004000L // Печатать сертификаты с товаром
+#define OPKF_PRT_SHRTORG       0x00010000L // Печатать сокращ. наименование гл. организации
+#define OPKF_PRT_CASHORD       0x00080000L // Печатать кассовый ордер
+#define OPKF_PRT_SELPRICE      0x00100000L // Печать цен в накладной на выбор
+#define OPKF_PRT_NDISCNT       0x00800000L // Не печатать скидку в накладной
+#define OPKF_PRT_PAYPLAN       0x02000000L // Печатать план платежей по документу
+#define OPKF_PRT_LADING        0x04000000L // Печатать товарно-транспортную накладную
+#define OPKF_PRT_MERGETI       0x08000000L // Объединять товарные строки
+#define OPKF_PRT_PLABEL        0x10000000L // Печатать ценник
+#define OPKF_PRT_BCODELIST     0x20000000L // Печатать в накладной список штрихкодов
+#define OPKF_PRT_QCERTLIST     0x40000000L // Печатать список сертификатов
+#define OPKF_PRT_LOTTAGIMG     0x80000000L // Печать изображений из тегов лотов
 
 #define OPKF_PRT_EXTFORMFLAGS (OPKF_PRT_CASHORD|OPKF_PRT_INVOICE|OPKF_PRT_QCERT|OPKF_PRT_LADING|OPKF_PRT_SRVACT|OPKF_PRT_PLABEL|OPKF_PRT_TARESALDO|OPKF_PRT_LOTTAGIMG)
 
@@ -15968,11 +15976,7 @@ public:
 // Descr: Заголовочная запись вида операций
 //
 struct PPOprKind2 {        // @persistent @store(Reference2Tbl+)
-	SLAPI  PPOprKind2()
-	{
-		THISZERO();
-	}
-
+	SLAPI  PPOprKind2();
 	long   Tag;            // Const=PPOBJ_OPRKIND
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -16870,7 +16874,8 @@ public:
 		extssAddr          = 11,
 		extssAddr2         = 12,
 		extssLogin         = 13,
-		extssPassword      = 14
+		extssPassword      = 14,
+		extssFormatSymb    = 15  // @v10.0.02 Символ формата обмена (зависит от провайдера)
 	};
 
 	SLAPI  PPEdiProviderPacket();
@@ -19280,6 +19285,8 @@ public:
 	virtual int SLAPI Browse(void * extraPtr);
 	int    SLAPI PutPacket(PPID * pID, PPPhoneServicePacket *, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPPhoneServicePacket *);
+
+	AsteriskAmiClient * SLAPI InitAsteriskAmiClient(PPID id);
 };
 //
 //
@@ -19330,6 +19337,7 @@ struct PhnSvcChannelStatus {
 	SString EffConnectedLineName;
 	SString Application;
 	SString Data;
+	SString BridgeId; // @v10.0.01
 	SString IdentifiedCallerName; // @v10.0.01
 };
 
@@ -19339,6 +19347,7 @@ public:
 	uint   GetCount() const;
 	int    FASTCALL Add(const PhnSvcChannelStatus & rStatus);
 	int    FASTCALL Get(uint idx, PhnSvcChannelStatus & rStatus) const;
+	int    SLAPI GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const;
 	int    SLAPI SetIdentifiedCallerName(uint idx, const char * pName);
 	PhnSvcChannelStatusPool & Clear();
 private:
@@ -19364,6 +19373,7 @@ private:
 		uint   EffConnectedLineNameP;
 		uint   ApplicationP;
 		uint   DataP;
+		uint   BridgeIdP; // @v10.0.02
 		uint   IdentifiedCallerNameP; // @v10.0.01 Позиция строки имени, идентифицированного вне телефонного сервера
 	};
 };
@@ -19408,6 +19418,7 @@ public:
 	int    Logout();
 	int    GetChannelList(const char * pChannelName, PhnSvcChannelStatusPool & rList);
 	int    GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList);
+	int    Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pContext, int priority);
 	int    ExecCommand(const Message & rIn, Message * pOut);
 	int    ReadReply(Message & rOut);
 	int    Read(Message & rMsg);
@@ -19431,11 +19442,13 @@ class PhoneServiceEventResponder {
 public:
 	SLAPI  PhoneServiceEventResponder();
 	SLAPI ~PhoneServiceEventResponder();
+	int    SLAPI IsConsistent() const;
 	int    SLAPI IdentifyCaller(const char * pCaller, PPObjIDArray & rList);
 	const  StrAssocArray * SLAPI GetInternalPhoneList();
 private:
 	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 
+	uint32 Signature;
 	long   AdvCookie_Ringing;
 	long   AdvCookie_Up;
 	PPObjPerson * P_PsnObj;
@@ -22967,7 +22980,8 @@ public:
 	int    SLAPI GetRegister(PPID personID, PPID regType, LDATE actualDate, RegisterTbl::Rec * pRec);
 	int    SLAPI GetRegNumber(PPID personID, PPID regType, SString & rBuf);
 	int    SLAPI GetRegNumber(PPID personID, PPID regType, LDATE actualDate, SString & rBuf);
-	int    SLAPI ResolveGLN(const char * pGLN, PPID accSheetID, PPID * pArID);
+	int    SLAPI ResolveGLN(const char * pGLN, PPID * pID);
+	int    SLAPI ResolveGLN_Article(const char * pGLN, PPID accSheetID, PPID * pArID);
 	int    SLAPI GetStatus(PPID, PPID * pStatusID, int * pIsPrivate);
 	int    SLAPI GetAddrID(PPID psnID, PPID dlvrAddrID, int option, PPID * pAddrID);
 	//
@@ -29594,6 +29608,7 @@ public:
 		long   Flags;
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
+		PPObjArticle ArObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
 		PPAlbatrosConfig ACfg;
 	private:
@@ -29662,7 +29677,10 @@ typedef TSCollection <PPGPaymentOrder> PPGPaymentOrderList;
 //
 struct SelAddBySampleParam {
 	enum {
-		fCopyBillCode = 0x0001
+		fCopyBillCode   = 0x0001,
+		fNonInteractive = 0x0002,
+		fAll            = 0x0004, // @v10.0.02 Сформировать документы для всей выборки (только если выборка по
+			// одному виду операции). Автоматически предполагате fNonInteractive
 	};
 	enum {
 		acnUndef               = -1, // Не определено
@@ -29676,6 +29694,8 @@ struct SelAddBySampleParam {
 	long   Action;
 	PPID   OpID;
 	PPID   LocID;
+	PPID   QuotKindID; // @v10.0.02 Вид котировки для установки цен в создаваемом документе
+	LDATE  Dt;         // @v10.0.02 Дата нового документа. Если ZERODATE, то равняется документу образца
 	long   Flags;
 };
 //
@@ -29847,10 +29867,7 @@ public:
 		friend class PPObjBill;
 
 		SLAPI  TBlock();
-		int16 & SLAPI Rbb()
-		{
-			return CurRByBill;
-		}
+		int16 & SLAPI Rbb() { return CurRByBill; }
 		int16  SLAPI GetNewRbb();
 	private:
 		PPID   BillID;
@@ -30117,6 +30134,7 @@ public:
 	//   строку в документ (например, из-за недостатка товара pItem->GoodsID).
 	//
 	int    SLAPI ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
+	int    SLAPI InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, int interactive);
 	int    SLAPI AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    SLAPI CmpSnrWithLotSnr(PPID lotID, const char * pSerial);
 	int    SLAPI ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack);
@@ -30207,7 +30225,7 @@ public:
 	int    SLAPI AutoCharge(PPID);
 	int    SLAPI AutoCharge();
 	int    SLAPI AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsModified);
-	int    SLAPI SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, int interactive, PPID * pQkID, double * pQuot);
+	int    SLAPI SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, int interactive, double * pQuot);
 	int    SLAPI SetupQuot(PPBillPacket * pPack, PPID forceArID);
 	int    SLAPI ViewLotComplete(PPID lotID, PPID * pSelectedLotID);
 	int    SLAPI SearchPaymWOLinkBill();
@@ -39081,7 +39099,8 @@ public:
 		// Пнд (WeekDays & (1 << 1)), Вт (WeekDays & (1 << 2)), ..., Вскр (WeekDays & (1 << 0))
 	int16  GuestCount;       // Количество гостей за столом
 	int16  Div;              // Номер отдела (по строкам)
-	uint16 Reserve;          // @alignment
+	int8   AltRegF;          // @v10.0.02 >0 - только то, что по альт регистратору, <0 - только то, что не по альт регистратору, 0 - без разницы
+	uint8  Reserve;          // @alignment // @v10.0.02 uint16-->uint8
 	long   CashNumber;       //
 	long   Flags;            //
 	PPID   GoodsGrpID;       //
@@ -39119,12 +39138,14 @@ public:
 
 struct CCheckTotal {
 	long   Count;
+	long   CountAltReg; // @v10.0.02 Количество чеков, проведенных через альтернативный регистратор
 	double Amount;
 	double Discount;
-	double AmtCash;  // @v6.5.12 Сумма, оплаченная наличными
-	double AmtBank;  // @v6.5.12 Сумма, оплаченная банковскими картами
-	double AmtSCard; // @v6.5.12 Сумма, оплаченная по корпоративным кредитным картам
-	double AmtReturn; // @7.x.x  Сумма возвратов
+	double AmtCash;   // Сумма, оплаченная наличными
+	double AmtBank;   // Сумма, оплаченная банковскими картами
+	double AmtSCard;  // Сумма, оплаченная по корпоративным кредитным картам
+	double AmtReturn; // Сумма возвратов
+	double AmtAltReg; // @v10.0.02 Сумма, проведенная через альтернативный регистратор
 	double Qtty;
 	//
 	// Статистики по суммам чеков
@@ -39602,10 +39623,17 @@ struct TrfrAnlzViewItem_AlcRep {
 	ReceiptTbl::Rec   OrgLotRec;
 	long   PersonID;
 	long   OrgLot_Prsn_SupplID;
-	int    IsImport;
-	int    IsExport;
-	int    IsManuf;
-	int    IsOptBuyer;
+	enum {
+		fIsImport   = 0x0001,
+		fIsExport   = 0x0002,
+		fIsManuf    = 0x0004,
+		fIsOptBuyer = 0x0008
+	};
+	long   Flags;
+	//int    IsImport;
+	//int    IsExport;
+	//int    IsManuf;
+	//int    IsOptBuyer;
 };
 
 class PPViewTrfrAnlz : public PPView {
@@ -48170,6 +48198,34 @@ private:
 	SString Serial_;
 };
 //
+//
+//
+class PPXmlFileDetector : public SXmlSaxParser {
+public:
+	enum {
+		Unkn = 0,          //
+		Eancom,            // "DESADV" "ALCDES" "ORDRSP" "ORDERS"
+		KonturEdi,         // "eDIMessage"
+		EgaisDoc,          // "Documents"
+		EgaisCheque,       // "Cheque"
+		PpyAsyncPosIx,     // "PapyrusAsyncPosInterchange"
+		Sitemap,           // "urlset"
+		ProjectAbstract,   // "project"
+		ResourcesAbstract, // "resources"
+		ValuesAbstract,    // "values"
+	};
+	PPXmlFileDetector();
+	~PPXmlFileDetector();
+	int    Run(const char * pFileName, int * pResult);
+protected:
+	virtual int StartElement(const char * pName, const char ** ppAttrList);
+
+	TSStack <int> TokPath;
+	uint   ElementCount;
+	int    Result;
+	const  SymbHashTable * P_ShT;
+};
+//
 // Панель чеков
 //
 //
@@ -48376,10 +48432,7 @@ public:
 	int    GetCheckInfo(CCheckPacket * pPack);
 	void   CalcTotal(double * pTotal, double * pDiscount) const;
 	double GetUsableBonus() const;
-	int    GetState() const
-	{
-		return State_p;
-	}
+	int    GetState() const { return State_p; }
 	int    FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;
 	long   GetTableCode() const;

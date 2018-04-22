@@ -6185,6 +6185,7 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 	"DnId",                 14,  zstring(40), 0,   6, BCO_USERPROC
 	"Application",          15,  zstring(64), 0,  20, BCO_USERPROC
 	"Data",                 16,  zstring(64), 0,  20, BCO_USERPROC
+	"BridgeId",             17,  zstring(64), 0,  12, BCO_USERPROC // @v10.0.02
 }
 //
 // -------------- Описания команд меню и рабочих столов

@@ -2963,6 +2963,13 @@ int CheckPaneDialog::PhnSvcConnect()
 		PPObjPhoneService ps_obj(0);
 		PPPhoneServicePacket ps_pack;
 		if(ps_obj.GetPacket(CnPhnSvcID, &ps_pack) > 0) {
+			// @v10.0.02 {
+			P_PhnSvcClient = ps_obj.InitAsteriskAmiClient(CnPhnSvcID);
+			if(P_PhnSvcClient) {
+				PhnSvcLocalChannelSymb = ps_pack.LocalChannelSymb;
+			}
+			// } @v10.0.02 
+			/* @v10.0.02 {
 			SString addr_buf, user_buf, secret_buf, temp_buf;
 			int    port = 0;
 			ps_pack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
@@ -2989,6 +2996,7 @@ int CheckPaneDialog::PhnSvcConnect()
 				}
 			}
 			delete p_client; // ≈сли соединение с сервером прошло успешно, то p_client == 0, а P_PhnSvcClient != 0
+			*/
 		}
 	}
 	return ok;
@@ -3001,7 +3009,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	PhnSvcTimer(1000), UhttImportTimer(180000)
 {
 	SString font_face, temp_buf;
-
+	
 	UiFlags = 0;
 	BarrierViolationCounter = 0; // @debug
 	TouchScreenID = 0;
@@ -4879,19 +4887,20 @@ int SplitSuspCheckDialog::removeItem()
 	int    ok  = 1;
 	uint   pos = 0;
 	long   id = 0;
-	SmartListBox * l = GetRightList();
-	SArray * p_rl = GetRight(), * p_ll = GetLeft();
-	if(l && l->getCurID(&id) && id && p_rl->lsearch(&id, &pos, CMPF_LONG, 0) > 0) {
+	SmartListBox * p_lb = GetRightList();
+	SArray * p_rl = GetRight();
+	SArray * p_ll = GetLeft();
+	if(p_lb && p_lb->getCurID(&id) && id && p_rl->lsearch(&id, &pos, CMPF_LONG, 0) > 0) {
 		uint lpos = 0;
-		ListItem * p_ritem = (ListItem*)p_rl->at(pos);
+		ListItem * p_ritem = (ListItem *)p_rl->at(pos);
 		if(p_ll->lsearch(p_ritem, &lpos, CMPF_LONG, 0) > 0) {
 			ListItem * p_litem = (ListItem*)p_ll->at(lpos);
 			p_litem->Quantity += p_ritem->Quantity;
 		}
 		else {
-			ListItem item;
-			MEMSZERO(item);
-			item = *p_ritem;
+			ListItem item(*p_ritem); // @v10.0.02 ()-->(*p_ritem)
+			// @v10.0.02 MEMSZERO(item);
+			// @v10.0.02 item = *p_ritem;
 			THROW_SL(p_ll->insert(&item));
 		}
 		THROW_SL(p_rl->atFree(pos) > 0);

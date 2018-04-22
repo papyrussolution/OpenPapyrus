@@ -19,6 +19,12 @@ SLAPI PersonEventCore::PersonEventCore() : PersonEventTbl()
 
 int SLAPI PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec); }
+int SLAPI PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
+	{ return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
+int SLAPI PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
+	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
+int SLAPI PersonEventCore::Remove(PPID id, int use_ta)
+	{ return RemoveByID(this, id, use_ta); }
 
 int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEventTbl::Rec * pRec)
 {
@@ -51,13 +57,6 @@ int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, Per
 	}
 	return BTROKORNFOUND ? ok : PPSetErrorDB();
 }
-
-int SLAPI PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
-	{ return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
-int SLAPI PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
-	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
-int SLAPI PersonEventCore::Remove(PPID id, int use_ta)
-	{ return RemoveByID(this, id, use_ta); }
 
 int SLAPI PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle)
 {
@@ -624,10 +623,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 				{
 					delete P_Mutex;
 				}
-				int    operator !() const
-				{
-					return (Valid == 0);
-				}
+				int    operator !() const { return (Valid == 0); }
 			private:
 				virtual void Run()
 				{
@@ -2349,14 +2345,9 @@ SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::ProcessDeviceInputBlock() : Ad(
 }
 
 const SString & SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::GetDeviceText() const
-{
-	return DeviceText;
-}
-
+	{ return DeviceText; }
 const SString & SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::GetInfoText() const
-{
-	return InfoText;
-}
+	{ return InfoText; }
 
 int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBlk, const AddPersonEventFilt & rFilt)
 {

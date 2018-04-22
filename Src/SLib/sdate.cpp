@@ -56,6 +56,8 @@ int FASTCALL IsLeapYear(uint y)
 	return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
 }
 
+// ReactOS: static __inline int IsLeapYear(int Year) { return Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0) ? 1 : 0; }
+
 int FASTCALL DateToDaysSinceChristmas(int y, int m, int d)
 {
 	int    n = 0;
@@ -644,13 +646,14 @@ LDATE FASTCALL encodedate(int day, int month, int year)
 
 LDATE FASTCALL plusdate(LDATE d, long a)
 {
-	plusdate(&d, (int)a, 0);
+	if(a) // @v10.0.02
+		plusdate(&d, (int)a, 0);
 	return d;
 }
 
 long FASTCALL diffdate(LDATE d, LDATE s)
 {
-	return diffdate(&d, &s, 0);
+	return (d != s) ? diffdate(&d, &s, 0) : 0; // @v10.0.02 (x)-->(d != s) ? (x) : 0
 }
 //
 //
@@ -815,10 +818,9 @@ LTIME & FASTCALL LTIME::addhs(long n)
 
 #define __ENCODEDATE(h, m, s, ts, pTm) PTR8(pTm)[0] = ts; PTR8(pTm)[1] = s; PTR8(pTm)[2] = m; PTR8(pTm)[3] = h;
 
-int FASTCALL encodetime(int h, int m, int s, int ts, void * tm)
+void FASTCALL encodetime(int h, int m, int s, int ts, void * tm)
 {
 	__ENCODEDATE(h, m, s, ts, tm);
-	return 1;
 }
 
 LTIME FASTCALL encodetime(int h, int m, int s, int ts)
@@ -947,8 +949,10 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 #if defined(__WIN32__) || defined(_WIN32_WCE)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
-	if(pDt)
-		_encodedate((char)st.wDay, (char)st.wMonth, (int)st.wYear, pDt, DF_BTRIEVE);
+	if(pDt) {
+		// @v10.0.02 _encodedate((char)st.wDay, (char)st.wMonth, (int)st.wYear, pDt, DF_BTRIEVE);
+		pDt->encode(st.wDay, st.wMonth, st.wYear); // @v10.0.02
+	}
 	if(pTm) {
 		char * _tm = (char *)pTm;
 		_tm[0] = (char)(st.wMilliseconds/10);
@@ -1134,8 +1138,8 @@ time_t SLAPI LDATETIME::GetTimeT() const
 		return 0;
 	else {
 		struct tm _t;
-		_t.tm_year = d.year() - 1900;
-		_t.tm_mon = d.month();
+		_t.tm_year = d.year()-1900;
+		_t.tm_mon = d.month()-1; // @v10.0.02 @fix (-1)
 		_t.tm_mday = d.day();
 		_t.tm_hour = t.hour();
 		_t.tm_min = t.minut();
@@ -1193,9 +1197,8 @@ LDATETIME FASTCALL LDATETIME::operator = (const FILETIME & rS)
 LDATETIME::operator OleDate() const
 {
 	OleDate od;
-	if(d.v == 0 && t.v == 0) {
+	if(d.v == 0 && t.v == 0)
 		od.v = 0;
-	}
 	else {
 		SYSTEMTIME st;
 		SystemTimeToVariantTime(&Get(st), &od.v);
@@ -1304,8 +1307,8 @@ time_t SLAPI LDATE::GetTimeT() const
 		return 0;
 	else {
 		struct tm _t;
-		_t.tm_year = year() - 1900;
-		_t.tm_mon = month();
+		_t.tm_year = year()-1900;
+		_t.tm_mon = month()-1; // @v10.0.02 @fix (-1)
 		_t.tm_mday = day();
 		_t.tm_hour = 0;
 		_t.tm_min = 0;
@@ -1453,9 +1456,6 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 	int    ok = 1;
 	if(*this == MAXDATE) {
 		ok = MAXDATEVALID.decode(pD, pM, pY);
-		//d = 31;
-		//m = 12;
-		//y = 3000;
 	}
 	else {
 		int    d, m, y;
@@ -2443,8 +2443,308 @@ struct SUniTime_Inner {
 	int    Hr;
 	int    Mn;
 	int    Sc;
-	int    MkS;
+	int    MSc;  // milliseconds
+	int    MkSc; // microseconds
+	int    Weekday;
 };
+
+#if 0 // {
+
+#define TICKSPERMIN        600000000
+#define TICKSPERSEC        10000000
+#define TICKSPERMSEC       10000
+#define SECSPERDAY         86400
+#define SECSPERHOUR        3600
+#define SECSPERMIN         60
+#define MINSPERHOUR        60
+#define HOURSPERDAY        24
+#define EPOCHWEEKDAY       1
+#define DAYSPERWEEK        7
+#define EPOCHYEAR          1601
+#define DAYSPERNORMALYEAR  365
+#define DAYSPERLEAPYEAR    366
+#define MONSPERYEAR        12
+#define WEEKDAY_OF_1601     1 // This is the week day that January 1st, 1601 fell on (a Monday)
+#if defined(__GNUC__)
+	#define TICKSTO1970         0x019db1ded53e8000LL
+	#define TICKSTO1980         0x01a8e79fe1d58000LL
+#else
+	#define TICKSTO1970         0x019db1ded53e8000i64
+	#define TICKSTO1980         0x01a8e79fe1d58000i64
+#endif
+//
+//  ULONG
+//  NumberOfLeapYears (IN ULONG ElapsedYears);
+//
+//  The number of leap years is simply the number of years divided by 4
+//  minus years divided by 100 plus years divided by 400.  This says
+//  that every four years is a leap year except centuries, and the
+//  exception to the exception is the quadricenturies
+//
+#define NumberOfLeapYears(YEARS) (((YEARS)/4) - ((YEARS)/100) + ((YEARS)/400))
+//
+//  ULONG ElapsedYearsToDays (IN ULONG ElapsedYears);
+//
+//  The number of days contained in elapsed years is simply the number
+//  of years times 365 (because every year has at least 365 days) plus
+//  the number of leap years there are (i.e., the number of 366 days years)
+//
+#define ElapsedYearsToDays(YEARS) (((YEARS) * 365) + NumberOfLeapYears(YEARS))
+
+/*static const unsigned int YearLengths[2] = { DAYSPERNORMALYEAR, DAYSPERLEAPYEAR };
+static const uint8 MonthLengths[2][MONSPERYEAR] = {
+    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+    { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+};*/
+//
+//  The following two tables map a day offset within a year to the month
+//  containing the day.  Both tables are zero based.  For example, day
+//  offset of 0 to 30 map to 0 (which is Jan).
+//
+static const uint8 LeapYearDayToMonth[366] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // January
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,     // February
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // March
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,  // April
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, // May
+	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  // June
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, // July
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // August
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,  // September
+	9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, // October
+	10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, // November
+	11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11
+};                                                                                                 // December
+
+static const uint8 NormalYearDayToMonth[365] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // January
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,        // February
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // March
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,  // April
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, // May
+	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  // June
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, // July
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // August
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,  // September
+	9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, // October
+	10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, // November
+	11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11
+};                                                                                                 // December
+//
+//  The following two tables map a month index to the number of days preceding
+//  the month in the year.  Both tables are zero based.  For example, 1 (Feb)
+//  has 31 days preceding it.  To help calculate the maximum number of days
+//  in a month each table has 13 entries, so the number of days in a month
+//  of index i is the table entry of i+1 minus the table entry of i.
+//
+static const int16 LeapYearDaysPrecedingMonth[13] = {
+	0,                             // January
+	31,                            // February
+	31+29,                         // March
+	31+29+31,                      // April
+	31+29+31+30,                   // May
+	31+29+31+30+31,                // June
+	31+29+31+30+31+30,             // July
+	31+29+31+30+31+30+31,          // August
+	31+29+31+30+31+30+31+31,       // September
+	31+29+31+30+31+30+31+31+30,    // October
+	31+29+31+30+31+30+31+31+30+31, // November
+	31+29+31+30+31+30+31+31+30+31+30, // December
+	31+29+31+30+31+30+31+31+30+31+30+31
+};
+
+static const int16 NormalYearDaysPrecedingMonth[13] = {
+	0,                             // January
+	31,                            // February
+	31+28,                         // March
+	31+28+31,                      // April
+	31+28+31+30,                   // May
+	31+28+31+30+31,                // June
+	31+28+31+30+31+30,             // July
+	31+28+31+30+31+30+31,          // August
+	31+28+31+30+31+30+31+31,       // September
+	31+28+31+30+31+30+31+31+30,    // October
+	31+28+31+30+31+30+31+31+30+31, // November
+	31+28+31+30+31+30+31+31+30+31+30, // December
+	31+28+31+30+31+30+31+31+30+31+30+31
+};
+
+static int FASTCALL DaysSinceEpoch(int year)
+{
+    year--; // Don't include a leap day from the current year 
+    int days = year * DAYSPERNORMALYEAR + year / 4 - year / 100 + year / 400;
+    days -= (EPOCHYEAR-1) * DAYSPERNORMALYEAR + (EPOCHYEAR-1) / 4 - (EPOCHYEAR-1) / 100 + (EPOCHYEAR-1) / 400;
+    return days;
+}
+
+#define Convert100nsToMilliseconds(v) ((v) / 10000LL)
+#define ConvertMillisecondsToDays(v)  ((v) / (SECSPERDAY * 1000))
+#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SECSPERDAY * 1000))
+// 
+// Descr: This routine converts an input 64-bit time value to the number
+//   of total elapsed days and the number of milliseconds in the partial day.
+// ARG(Time IN): Supplies the input time to convert from
+// ARG(Milliseconds OUT): Receives the number of milliseconds in the partial day
+// Returns:
+//   ElapsedDays
+//
+static uint32 FASTCALL __TimeToDaysAndFraction(int64 Time, uint32 * pMilliseconds)
+{
+	int64  TotalMilliseconds = Convert100nsToMilliseconds(Time); // Convert the input time to total milliseconds
+	int64  Temp = ConvertMillisecondsToDays(TotalMilliseconds); // Convert milliseconds to total days
+	//
+	//  Set the elapsed days from temp, we've divided it enough so that the high part must be zero.
+	//
+	uint32 elapsed_days = Temp & 0xffffffffLL;
+	//
+	//  Calculate the exact number of milliseconds in the elapsed days
+	//  and subtract that from the total milliseconds to figure out
+	//  the number of milliseconds left in the partial day
+	//
+	Temp = ConvertDaysToMilliseconds(elapsed_days);
+	Temp = TotalMilliseconds - Temp;
+	//
+	//  Set the fraction part from temp, the total number of milliseconds in a day guarantees that the high part must be zero.
+	//
+	*pMilliseconds = Temp & 0xffffffffLL;
+	return elapsed_days;
+}
+//   
+// Descr: This routine computes the number of total years contained in the indicated
+//   number of elapsed days.  The computation is to first compute the number of
+//   400 years and subtract that it, then do the 100 years and subtract that out,
+//   then do the number of 4 years and subtract that out.  Then what we have left
+//   is the number of days with in a normalized 4 year block.  Normalized being that
+//   the first three years are not leap years.
+// ARG(ElapsedDays IN): Supplies the number of days to use
+// Returns:
+//   ULONG - Returns the number of whole years contained within the input number of days.
+//   
+static uint32 FASTCALL ElapsedDaysToYears(uint32 elapsedDays)
+{
+	//
+	// A 400 year time block is 365*400 + 400/4 - 400/100 + 400/400 = 146097 days long.  
+	// So we simply compute the number of whole 400 year block and the the number days 
+	// contained in those whole blocks, and subtract if from the elapsed day total
+	//
+	uint32 NumberOf400s = elapsedDays / 146097;
+	elapsedDays -= NumberOf400s * 146097;
+	//
+	// A 100 year time block is 365*100 + 100/4 - 100/100 = 36524 days long.
+	// The computation for the number of 100 year blocks is biased by 3/4 days per
+	// 100 years to account for the extra leap day thrown in on the last year of each 400 year block.
+	//
+	uint32 NumberOf100s = (elapsedDays * 100 + 75) / 3652425;
+	elapsedDays -= NumberOf100s * 36524;
+	//
+	// A 4 year time block is 365*4 + 4/4 = 1461 days long.
+	//
+	uint32 NumberOf4s = elapsedDays / 1461;
+	elapsedDays -= NumberOf4s * 1461;
+	//
+	// Now the number of whole years is the number of 400 year blocks times 400,
+	// 100 year blocks time 100, 4 year blocks times 4, and the number of elapsed
+	// whole years, taking into account the 3/4 day per year needed to handle the leap year.
+	//
+	return (NumberOf400s * 400) + (NumberOf100s * 100) + (NumberOf4s * 4) + (elapsedDays * 100 + 75) / 36525;
+}
+// 
+// Routine Description:
+//   This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
+//   time field record.  It will tell the caller the year, month, day, hour,
+//   minute, second, millisecond, and weekday corresponding to the input time variable.
+// Arguments:
+//   Time - Supplies the time value to interpret
+//   TimeFields - Receives a value corresponding to Time
+//
+static void FASTCALL __RtlTimeToTimeFields(int64 Time, /*InternalTimeFields*/SUniTime_Inner * TimeFields)
+{
+	uint32 month;
+	uint32 hours;
+	uint32 minutes;
+	uint32 seconds;
+	uint32 milliseconds;
+	//
+	//  First divide the input time 64 bit time variable into
+	//  the number of whole days and part days (in milliseconds)
+	//
+	uint32 days = __TimeToDaysAndFraction(Time, &milliseconds);
+	//
+	//  Compute which weekday it is and save it away now in the output
+	//  variable.  We add the weekday of the base day to bias our computation
+	//  which means that if one day has elapsed then we the weekday we want
+	//  is the Jan 2nd, 1601.
+	//
+	TimeFields->Weekday = (int16)((days + WEEKDAY_OF_1601) % 7);
+	//
+	//  Calculate the number of whole years contained in the elapsed days
+	//  For example if Days = 500 then Years = 1
+	//
+	uint32 years = ElapsedDaysToYears(days);
+	//
+	//  And subtract the number of whole years from our elapsed days
+	//  For example if Days = 500, Years = 1, and the new days is equal
+	//  to 500 - 365 (normal year).
+	//
+	days = days - ElapsedYearsToDays(years);
+	//
+	//  Now test whether the year we are working on (i.e., The year
+	//  after the total number of elapsed years) is a leap year or not.
+	//
+	if(IsLeapYear(years + 1)) {
+		//
+		//  The current year is a leap year, so figure out what month
+		//  it is, and then subtract the number of days preceding the
+		//  month from the days to figure out what day of the month it is
+		//
+		month = LeapYearDayToMonth[days];
+		days = days - LeapYearDaysPrecedingMonth[month];
+	}
+	else {
+		//
+		//  The current year is a normal year, so figure out the month
+		//  and days as described above for the leap year case
+		//
+		month = NormalYearDayToMonth[days];
+		days = days - NormalYearDaysPrecedingMonth[month];
+	}
+	//
+	//  Now we need to compute the elapsed hour, minute, second, milliseconds
+	//  from the millisecond variable.  This variable currently contains
+	//  the number of milliseconds in our input time variable that did not
+	//  fit into a whole day.  To compute the hour, minute, second part
+	//  we will actually do the arithmetic backwards computing milliseconds
+	//  seconds, minutes, and then hours.  We start by computing the
+	//  number of whole seconds left in the day, and then computing
+	//  the millisecond remainder.
+	//
+	seconds = milliseconds / 1000;
+	milliseconds = milliseconds % 1000;
+	//
+	//  Now we compute the number of whole minutes left in the day
+	//  and the number of remainder seconds
+	//
+	minutes = seconds / 60;
+	seconds = seconds % 60;
+	//
+	//  Now compute the number of whole hours left in the day
+	//  and the number of remainder minutes
+	//
+	hours = minutes / 60;
+	minutes = minutes % 60;
+	//
+	//  As our final step we put everything into the time fields output variable
+	//
+	TimeFields->Y   = (int)(years + 1601);
+	TimeFields->M   = (int)(month + 1);
+	TimeFields->D   = (int)(days + 1);
+	TimeFields->Hr  = (int)hours;
+	TimeFields->Mn  = (int)minutes;
+	TimeFields->Sc  = (int)seconds;
+	TimeFields->MSc = (int)milliseconds;
+	TimeFields->MkSc = (int)(milliseconds * 1000);
+}
+#endif // } 0
 
 int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 {
@@ -2472,11 +2772,7 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 			case indCSec: break;
 			case indSec: break;
 			case indMin: break;
-			case indMin5: break;
-			case indMin15: break;
-			case indMin30: break;
 			case indHr: break;
-			case indHr4: break;
 			case indEpoch: 
 				{
 					time_t tt = (time_t)value;

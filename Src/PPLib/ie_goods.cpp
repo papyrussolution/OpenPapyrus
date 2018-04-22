@@ -1452,7 +1452,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				//
 				// Для алкоголя после процентов иногда следует "vol" - это опускаем.
 				//
-				if(lex_next == reWord && next_buf.CmpNC("vol") == 0) {
+				if(lex_next == reWord && next_buf.IsEqiAscii("vol")) {
 					lex_next = 0;
 					next_buf.Z();
 				}
@@ -1465,7 +1465,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 					StringSet uss(',', 0);
 					SString unit_abbr, first_unit_abbr;
 					(temp_buf = next_buf).ToLower().TrimRightChr('.').Strip();
-					if(temp_buf.CmpNC("cl") == 0) {
+					if(temp_buf.IsEqiAscii("cl")) {
 						temp_buf = "ml";
 						val *= 10.0;
 					}
@@ -1534,7 +1534,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 			*/
 			if(single_measure.NotEmpty() && single_measure_idx == idx)
 				continue;
-			int this_is_mult = BIN(TempBuf.CmpNC("x") == 0 || TempBuf.CmpNC("+") == 0);
+			int this_is_mult = BIN(TempBuf.IsEqiAscii("x") || TempBuf == "+");
 			const uchar last = (uchar)new_text.Last();
 			const uchar first = (uchar)TempBuf[0];
 			if(last == '(' && first == ')') {
@@ -1712,11 +1712,11 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 				temp_buf = rRec.PhUnitName;
 				if(temp_buf.NotEmptyS()) {
 					val_buf = temp_buf;
-					if(val_buf.CmpNC("g") == 0 || stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
+					if(val_buf.IsEqiAscii("g") || stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
 						PPLoadString("munit_kg", val_buf);
 						phperu /= 1000L;
 					}
-					else if(val_buf.CmpNC("kg") == 0) {
+					else if(val_buf.IsEqiAscii("kg")) {
 						PPLoadString("munit_kg", val_buf);
 					}
 					else if(stricmp1251(val_buf, "л") == 0) {
@@ -2353,7 +2353,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								if(dyn_fld.Formula.NotEmptyS()) {
 									scan.Set(dyn_fld.Formula, 0);
 									if(scan.GetIdent(temp_buf2.Z())) {
-										if(temp_buf2.CmpNC("tag") == 0) {
+										if(temp_buf2.IsEqiAscii("tag")) {
 											scan.Skip();
 											if(scan[0] == '.') {
 												scan.Incr(1);

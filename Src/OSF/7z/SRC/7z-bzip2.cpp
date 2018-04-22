@@ -29,13 +29,7 @@ void CBZip2Crc::InitTable()
 	}
 }
 
-class CBZip2CrcTableInit {
-public:
-	CBZip2CrcTableInit() 
-	{
-		CBZip2Crc::InitTable();
-	}
-} g_BZip2CrcTableInit;
+class CBZip2CrcTableInit { public: CBZip2CrcTableInit() { CBZip2Crc::InitTable(); } } g_BZip2CrcTableInit;
 //
 // BZip2Encoder.cpp BZip2Decoder.cpp
 namespace NCompress {

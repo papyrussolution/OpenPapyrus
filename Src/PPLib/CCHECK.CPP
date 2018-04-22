@@ -1427,6 +1427,8 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 	WORetAmount    += pSubTotal->WORetAmount;
 	WORetBnkAmount += pSubTotal->WORetBnkAmount;
 	BnkDiscount    += pSubTotal->BnkDiscount;
+	AltRegCount    += pSubTotal->AltRegCount; // @v10.0.02
+	AltRegAmount   += pSubTotal->AltRegAmount; // @v10.0.02
 }
 //
 // CCheckCore
@@ -2736,7 +2738,12 @@ int SLAPI CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal 
 			CCheckExtTbl::Rec ext_rec;
 			pTotal->Amount   += amount;
 			pTotal->Discount += MONEYTOLDBL(pRec->Discount);
-
+			// @v10.0.02 {
+			if(pRec->Flags & CCHKF_ALTREG) {
+				pTotal->AltRegCount++;
+				pTotal->AltRegAmount += amount;
+			}
+			// } @v10.0.02
 			int    pmr = 0;
 			CcAmountList _pl;
 			if(pRec->Flags & CCHKF_PAYMLIST) {

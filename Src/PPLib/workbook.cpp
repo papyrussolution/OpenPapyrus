@@ -1728,7 +1728,7 @@ void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 												SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
 												SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
 										}
-										else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.CmpNC("vm") == 0) {
+										else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.IsEqiAscii("vm")) {
 											PPViewTextBrowser(file_name, rec.Name, TOOLBAR_TEXTBROWSER_WB_HTML);
 										}
 										else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
@@ -2907,9 +2907,8 @@ int SLAPI ImportWorkbook()
 //
 //
 //
-SLAPI PPWorkbookExporter::PPWorkbookExporter()
+SLAPI PPWorkbookExporter::PPWorkbookExporter() : P_IEWorkbook(0)
 {
-	P_IEWorkbook = 0;
 }
 
 SLAPI PPWorkbookExporter::~PPWorkbookExporter()

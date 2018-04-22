@@ -10,9 +10,8 @@
 //   BillTaxArray
 //
 struct BillTaxEntry { // @flat
-	SLAPI  BillTaxEntry()
+	SLAPI  BillTaxEntry() : VAT(0), SalesTax(0), Amount(0.0)
 	{
-		THISZERO();
 	}
 	long   VAT;      // prec 0.01
 	long   SalesTax; // prec 0.01
@@ -74,8 +73,6 @@ int SLAPI BillTaxArray::Add(BillTaxEntry * e)
 typedef ComDispInterface  FR_INTRF;
 
 #define COM_PORT                   2
-#define DEF_BAUD_RATE              2   // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
-#define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
 #define MAX_TIMEOUT              255   // Для Штрих-ФР max таймаут 255 мсек
 #define CASH_AMOUNT_REG          241   // Денежный регистр, содержащий наличность в кассе за смену
 #define CHECK_NUMBER_REG         152   // Операционный регистр, содержащий текущий номер чека
@@ -1877,12 +1874,17 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		}
 	}
 	else {
+		//#define DEF_BAUD_RATE              2   
+		//#define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
+		const int __def_baud_rate = 2; // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
+		const int __max_baud_rate = 6; // Для Штрих-ФР max скорость обмена 115200 бод
+
 		int    baud_rate;
 		int    model_type = 0;
 		int    major_prot_ver = 0;
 		int    minor_prot_ver = 0;
 		int    not_use_wght_sensor = 0;
-		long   def_baud_rate = DEF_BAUD_RATE;
+		long   def_baud_rate = __def_baud_rate;
 		int    def_timeout = -1;
 		SString buf, buf1;
 		PPIniFile ini_file;
@@ -1895,15 +1897,15 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 			if(buf.Divide(',', buf1, buf2) > 0)
 				def_timeout = buf2.ToLong();
 			def_baud_rate = buf1.ToLong();
-			if(def_baud_rate > MAX_BAUD_RATE)
-				def_baud_rate = DEF_BAUD_RATE;
+			if(def_baud_rate > __max_baud_rate)
+				def_baud_rate = __def_baud_rate;
 		}
 		THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
 		THROW(SetFR(ComNumber, Handle));
 		if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT)
 			THROW(SetFR(Timeout, def_timeout));
 		THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
-		for(baud_rate = 0; !ok && baud_rate <= MAX_BAUD_RATE; baud_rate++) {
+		for(baud_rate = 0; !ok && baud_rate <= __max_baud_rate; baud_rate++) {
 			THROW(SetFR(BaudRate, baud_rate));
 			THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
 		}

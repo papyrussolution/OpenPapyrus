@@ -406,6 +406,29 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 	PrintStringRight(so, s, 8);
 }
 
+// @construction {
+int __ListArchiveContent(const char * pFileName)
+{
+	int    ok = 0;
+	HRESULT hresultMain = S_OK;
+	CArcCmdLineOptions options;
+	CREATE_CODECS_OBJECT
+	ThrowException_if_Error(codecs->Load());
+	//
+	/*
+	hresultMain = ListArchives(codecs, types, excludedFormats, options.StdInMode,
+		ArchivePathsSorted, ArchivePathsFullSorted, options.ExtractOptions.NtOptions.AltStreams.Val,
+		options.AltStreams.Val, // we don't want to show AltStreams by default
+		options.Censor.Pairs.Front().Head, options.EnableHeaders, options.TechMode,
+#ifndef _NO_CRYPTO
+		options.PasswordEnabled, options.Password,
+#endif
+		&options.Properties, numErrors, numWarnings);
+	*/
+	return ok;
+}
+// } @construction 
+
 #ifndef _WIN32
     static int Main2(int numArgs, char * args[])
 #else

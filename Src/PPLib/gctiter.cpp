@@ -519,14 +519,9 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 }
 
 const GCTIterator::GoodsRestArray * GCTIterator::GetGoodsRestList() const
-{
-    return P_GoodsRestList;
-}
-
+	{ return P_GoodsRestList; }
 int FASTCALL GCTIterator::SetupGoodsRest(TransferTbl::Rec * pRec)
-{
-	return P_GoodsRestList ? P_GoodsRestList->SetAccumItem(pRec->GoodsID, pRec->LocID, pRec->Dt, pRec->Quantity) : -1;
-}
+	{ return P_GoodsRestList ? P_GoodsRestList->SetAccumItem(pRec->GoodsID, pRec->LocID, pRec->Dt, pRec->Quantity) : -1; }
 
 int SLAPI GCTIterator::InitQuery(int cpMode)
 {
@@ -562,13 +557,11 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 			THROW(g_obj.GetGenericList(Filt.GoodsID, &GoodsArray));
 			State |= stUseGoodsList;
 		}
-		else {
-			if(State & stOnlyOrders)
-				Filt.GoodsID = -labs(Filt.GoodsID);
-			else if(State & stThereAreOrders) {
-				GoodsArray.addUnique(labs(Filt.GoodsID));
-				State |= stUseGoodsList;
-			}
+		else if(State & stOnlyOrders)
+			Filt.GoodsID = -labs(Filt.GoodsID);
+		else if(State & stThereAreOrders) {
+			GoodsArray.addUnique(labs(Filt.GoodsID));
+			State |= stUseGoodsList;
 		}
 	}
 	else if(Filt.GoodsGrpID || Filt.BrandID) {
@@ -791,7 +784,7 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 				PPObjBill * p_bobj = BillObj;
 				PPBillExt ext_rec;
 				int    article_notvalid = !ArList.CheckID(pBillRec->Object);
-				int    goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @v7.1.3 labs()
+				int    goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
 				int    agent_notvalid = 0;
 				if(Filt.Flags & OPG_BYZEROAGENT) {
 					if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
@@ -956,10 +949,12 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	}
 	else if(ByWhat_ == bwBill) {
 		// @v9.7.3 {
+		BillTbl::Rec bill_rec;
 		Cbb.Clear();
-		if(Filt.Flags & OPG_COMPAREWROFF) {
-			BillTbl::Rec bill_rec;
-			if(BCache && BCache->Get(CurrID, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) {
+		if(Filt.Flags & OPG_COMPAREWROFF && BCache && BCache->Get(CurrID, &bill_rec) > 0) {
+			PPOprKind op_rec;
+			GetOpData(bill_rec.OpID, &op_rec);
+			if(op_rec.OpTypeID == PPOPT_GOODSORDER && !(op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {
 				PPObjBill * p_bobj = BillObj;
 				PPTransferItem ti;
 				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
@@ -1066,48 +1061,53 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 	Cbb.Clear();
 	if(Filt.Flags & OPG_COMPAREWROFF && ByWhat_ == bwBill) {
 		BillTbl::Rec bill_rec;
-        if(BCache && BCache->Get(CurrID, &bill_rec) > 0 && IsDraftOp(bill_rec.OpID)) {
-			PPObjBill * p_bobj = BillObj;
-			PPTransferItem ti;
-            THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
-			if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
-				PPID   single_wroff_bill_id = 0;
-				for(DateIter di; BT->EnumLinks(Cbb.P_Pack->Rec.ID, &di, BLNK_ALL, &bill_rec) > 0;) {
-					PPBillPacket temp_pack;
-					THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
-					if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
-						for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
-							THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
-						}
-						if(!single_wroff_bill_id)
-							single_wroff_bill_id = temp_pack.Rec.ID;
-						else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
-							single_wroff_bill_id = -1;
-					}
-				}
-				if(Cbb.P_WrOffPack) {
-					if(single_wroff_bill_id > 0)
-						Cbb.P_WrOffPack->Rec.ID = single_wroff_bill_id;
-					for(Cbb.P_WrOffPack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); Cbb.P_WrOffPack->EnumTItemsExt(0, &ti) > 0;) {
-						if(!Cbb.P_Pack->SearchGoods(ti.GoodsID, 0)) {
-							ti.Quantity_ = 0.0;
-							ti.Cost = 0.0;
-							ti.Price = 0.0;
-							ti.Discount = 0.0;
-							ti.WtQtty = 0.0;
-							THROW(Cbb.P_Pack->LoadTItem(&ti, 0, 0));
+        if(BCache && BCache->Get(CurrID, &bill_rec) > 0) {
+			PPOprKind op_rec;
+			GetOpData(bill_rec.OpID, &op_rec);
+			const PPID opt_id = op_rec.OpTypeID;
+			if(oneof3(opt_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT) || (opt_id == PPOPT_GOODSORDER && op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {
+				PPObjBill * p_bobj = BillObj;
+				PPTransferItem ti;
+				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
+				if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
+					PPID   single_wroff_bill_id = 0;
+					for(DateIter di; BT->EnumLinks(Cbb.P_Pack->Rec.ID, &di, BLNK_ALL, &bill_rec) > 0;) {
+						PPBillPacket temp_pack;
+						THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
+						if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
+							for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
+								THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+							}
+							if(!single_wroff_bill_id)
+								single_wroff_bill_id = temp_pack.Rec.ID;
+							else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
+								single_wroff_bill_id = -1;
 						}
 					}
+					if(Cbb.P_WrOffPack) {
+						if(single_wroff_bill_id > 0)
+							Cbb.P_WrOffPack->Rec.ID = single_wroff_bill_id;
+						for(Cbb.P_WrOffPack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); Cbb.P_WrOffPack->EnumTItemsExt(0, &ti) > 0;) {
+							if(!Cbb.P_Pack->SearchGoods(ti.GoodsID, 0)) {
+								ti.Quantity_ = 0.0;
+								ti.Cost = 0.0;
+								ti.Price = 0.0;
+								ti.Discount = 0.0;
+								ti.WtQtty = 0.0;
+								THROW(Cbb.P_Pack->LoadTItem(&ti, 0, 0));
+							}
+						}
+					}
+					Cbb.P_Pack->InitExtTIter(ETIEF_UNITEBYGOODS, 0);
+					ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
 				}
-				Cbb.P_Pack->InitExtTIter(ETIEF_UNITEBYGOODS, 0);
-				ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
+				else {
+					Cbb.Clear();
+					ok = -1;
+				}
+				done = 1;
 			}
-			else {
-				Cbb.Clear();
-				ok = -1;
-			}
-			done = 1;
-        }
+		}
 	}
 	// } @v9.4.10
 	if(!done && oneof2(ByWhat_, bwBill, bwGoods)) {

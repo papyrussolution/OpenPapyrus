@@ -1120,9 +1120,8 @@ public:
 		CloseInput();
 		LineBuf.Z();
 		LineNo = 0;
-		if(F.Open(pFileName, SFile::mRead)) {
+		if(F.Open(pFileName, SFile::mRead))
 			return 1;
-		}
 		else
 			return 0;
 	}
@@ -2541,7 +2540,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	SString line_buf;
 	SString temp_buf;
 	StringSet ss("\t");
-	SymbHashTable sht(SKILOBYTE(512), 0);
+	SymbHashTable sht(SKILOBYTE(1024), 0);
 	LongArray taxonomic_status_list;
 	LongArray taxon_rank_list;
 	LongArray kingdom_list;
@@ -2596,7 +2595,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	};
 	enum {
 		phasePreprocess,
-		phase1
+		phase1,
+		phase2
 	};
 	const  int phase_list[] = { phase1 };
 	uint   last_symb_id = 0;
@@ -2607,10 +2607,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	LongArray ngram;
 	LongArray parent_ref_list;
 	LongArray acceptedname_ref_list;
-	//LLAssocArray gbif_to_cid_list;
 	BioTaxonomyEntry entry;
-	SrWordForm wordform;
+
 	StringSet words_to_append;
+	LongArray taxon_symb_to_append; // gbif-идентификаторы таксонов, которые должны быть добавлены в БД
 
 	CONCEPTID cid_biotaxonomy_category = 0;
 	CONCEPTID cid_biotaxonomy_kingdom = 0;
@@ -2623,7 +2623,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	CONCEPTID cid_biotaxonomy_subgenus = 0;
 	CONCEPTID cid_biotaxonomy_species = 0;
 	CONCEPTID cid_biotaxonomy_infraspecies = 0;
-
+	long   wordform_id = 0;
 	PPWait(1);
 	SFile f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
@@ -2639,11 +2639,27 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	THROW(rDb.SearchConcept("biotaxonomy_subgenus", &cid_biotaxonomy_subgenus));
 	THROW(rDb.SearchConcept("biotaxonomy_species", &cid_biotaxonomy_species));
 	THROW(rDb.SearchConcept("biotaxonomy_infraspecies", &cid_biotaxonomy_infraspecies));
-
-	THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-	THROW_DB(*p_ta);
+	{
+		SrWordForm wordform;
+		BDbTransaction local_tra(rDb, 1);
+		wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
+		THROW(rDb.ResolveWordForm(wordform, &wordform_id));
+		THROW_DB(local_tra.Commit(1));
+	}
+	const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
 	for(uint phase_idx = 0; phase_idx < SIZEOFARRAY(phase_list); phase_idx++) {
 		const int _phase = phase_list[phase_idx];
+		if(_phase == phase2) {
+			if(!p_ta) {
+				THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
+				THROW_DB(*p_ta);
+			}
+			{
+				SrWordForm wordform;
+				wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
+				THROW(rDb.ResolveWordForm(wordform, &wordform_id));
+			}
+		}
 		f_in.Seek(0);
 		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
 			line_buf.Chomp();
@@ -2704,6 +2720,52 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						case 31: entry.IsExtinct = temp_buf.IsEqiAscii("true") ? 1 : 0; break;
 					}
 				}
+				CONCEPTID cid_instance_of = 0;
+				name_buf.Z();
+				SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &entry.TaxonID, sizeof(entry.TaxonID), concept_symb_buf);
+				if(entry.TaxonRank == "species") {
+					cid_instance_of = cid_biotaxonomy_species;
+					(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
+					if(oneof2(entry.TaxonomicStatusCode, taxstatusAcceptedName, taxstatusProvisionallyAcceptedName)) {
+
+					}
+				}
+				else if(entry.TaxonRank == "infraspecies") {
+					cid_instance_of = cid_biotaxonomy_infraspecies;
+					(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
+					if(entry.InfraspecificEpithet.NotEmpty())
+						name_buf.Space().Cat(entry.InfraspecificEpithet);
+				}
+				else if(entry.TaxonRank == "genus") {
+					cid_instance_of = cid_biotaxonomy_genus;
+					name_buf = entry.GenericName.NotEmpty() ? entry.GenericName : entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "family") {
+					cid_instance_of = cid_biotaxonomy_family;
+					name_buf = entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "superfamily") {
+					cid_instance_of = cid_biotaxonomy_superfamily;
+					name_buf = entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "order") {
+					cid_instance_of = cid_biotaxonomy_order;
+					name_buf = entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "class") {
+					cid_instance_of = cid_biotaxonomy_class;
+					name_buf = entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "phylum") {
+					cid_instance_of = cid_biotaxonomy_phylum;
+					name_buf = entry.ScientificName;
+				}
+				else if(entry.TaxonRank == "kingdom") {
+					cid_instance_of = cid_biotaxonomy_kingdom;
+					name_buf = entry.ScientificName;
+				}
+				else {
+				}
 				if(_phase == phasePreprocess) {
 					total_line_count++;
 					if(entry.TaxonID) {
@@ -2737,79 +2799,37 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					}
 				}
 				else if(_phase == phase1) {
-					//
-					// Префиксы концепций, соответствующих биологическим таксонам:
-					// biotaxon_s_: species
-					// biotaxon_infrs_: infraspecies
-					// biotaxon_g_: genus
-					// biotaxon_subg_: subgenus
-					// biotaxon_f_: family
-					// biotaxon_supf_: superfamily
-					// biotaxon_o_: order
-					// biotaxon_c_: class
-					// biotaxon_p_: phylum
-					// biotaxon_k_: kingdom
-					//
-					//#define BIOTAXON_C_PFX "biotxn_"
-					const char * p_csymb_pfx = "ebif";
-					CONCEPTID cid_instance_of = 0;
-					name_buf.Z();
-					SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &entry.TaxonID, sizeof(entry.TaxonID), concept_symb_buf);
-					if(entry.TaxonRank == "species") {
-						cid_instance_of = cid_biotaxonomy_species;
-						(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
-						if(oneof2(entry.TaxonomicStatusCode, taxstatusAcceptedName, taxstatusProvisionallyAcceptedName)) {
-
+					if(cid_instance_of) {
+						name_ss.clear();
+						name_buf.Tokenize(" ", name_ss);
+						for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
+							LEXID  word_id = 0;
+							if(rDb.FetchWord(temp_buf, &word_id) > 0) {
+							}
+							else {
+								uint   sht_id = 0;
+								if(!sht.Search(temp_buf, &sht_id, 0)) {
+									words_to_append.add(temp_buf);
+									sht.Add(temp_buf, (sht_id = ++last_symb_id));
+								}
+							}
+						}
+						{
+							LEXID  clex_id = 0;
+							if(rDb.SearchSpecialWord(SrWordTbl::spcConcept, concept_symb_buf, &clex_id) > 0) {
+							}
+							else {
+								taxon_symb_to_append.add(entry.TaxonID);
+							}
 						}
 					}
-					else if(entry.TaxonRank == "infraspecies") {
-						cid_instance_of = cid_biotaxonomy_infraspecies;
-						(name_buf = entry.GenericName).Space().Cat(entry.SpecificEpithet);
-						if(entry.InfraspecificEpithet.NotEmpty()) {
-							name_buf.Space().Cat(entry.InfraspecificEpithet);
-						}
-					}
-					else if(entry.TaxonRank == "genus") {
-						cid_instance_of = cid_biotaxonomy_genus;
-						if(entry.GenericName.NotEmpty())
-							name_buf = entry.GenericName;
-						else
-							name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "family") {
-						cid_instance_of = cid_biotaxonomy_family;
-						name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "superfamily") {
-						cid_instance_of = cid_biotaxonomy_superfamily;
-						name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "order") {
-						cid_instance_of = cid_biotaxonomy_order;
-						name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "class") {
-						cid_instance_of = cid_biotaxonomy_class;
-						name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "phylum") {
-						cid_instance_of = cid_biotaxonomy_phylum;
-						name_buf = entry.ScientificName;
-					}
-					else if(entry.TaxonRank == "kingdom") {
-						cid_instance_of = cid_biotaxonomy_kingdom;
-						name_buf = entry.ScientificName;
-					}
-					else {
-					}
+				}
+				else if(_phase == phase2) {
 					/*
 						TaxonomicStatus: "synonym" "accepted name" "ambiguous synonym" "misapplied name" "provisionally accepted name"
 						TaxonRank: species infraspecies kingdom phylum class order family superfamily genus
 					*/
 					if(cid_instance_of) {
-						//(temp_buf = name_buf).ReplaceChar(' ', '_');
-						//concept_symb_buf.Cat(temp_buf);
-						const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
 						CONCEPTID cid = 0;
 						NGID   ngram_id = 0;
 						SrCPropList cpl;
@@ -2822,16 +2842,15 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							if(rDb.FetchWord(temp_buf, &word_id) > 0) {
 							}
 							else {
-								const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
+								/*const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
 								assert(oneof2(rwr, 2, 0)); 
 								THROW(rwr);
 								assert(word_id);
 								if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
-									wordform.Clear();
-									wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
-									THROW(rDb.SetSimpleWordFlexiaModel(word_id, wordform, 0));
-								}
+									THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
+								}*/
 							}
+							assert(word_id);
 							ngram.add(word_id);
 						}
 						THROW(rDb.ResolveNGram(ngram, &ngram_id));
@@ -2856,25 +2875,110 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						items_per_tx++;
 						items_per_tx_total++;
 					}
-					if(items_per_tx >= max_items_per_tx) {
-						if(p_ta) {
-							THROW_DB(p_ta->Commit(1));
-							ZDELETE(p_ta);
+					if(_phase == phase2) {
+						if(items_per_tx >= max_items_per_tx) {
+							if(p_ta) {
+								THROW_DB(p_ta->Commit(1));
+								THROW_DB(p_ta->Start(1));
+							}
+							items_per_tx = 0;
 						}
-						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-						THROW_DB(*p_ta);
-						items_per_tx = 0;
 					}
 				}
 			}
-			if(_phase == phase1 || total_line_count == 0) {
+			if(_phase != phasePreprocess || total_line_count == 0) {
 				PPWaitMsg(temp_buf.Z().Cat(line_no));
 			}
 			else {
 				PPWaitPercent(line_no, total_line_count);
 			}
 		}
-		if(_phase == phasePreprocess) {
+		if(_phase == phase1) {
+			{
+				if(!p_ta) {
+					THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
+					THROW_DB(*p_ta);
+				}
+				else if(!p_ta->IsStarted()) {
+					THROW_DB(p_ta->Start(1));
+				}
+				{
+					uint  items_per_tx = 0;
+					const uint ssc = words_to_append.getCount();
+					for(uint ssp = 0, ssi = 0; words_to_append.get(&ssp, temp_buf); ssi++) {
+						LEXID  word_id = 0;
+						const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
+						assert(oneof2(rwr, 2, 0)); 
+						THROW(rwr);
+						assert(word_id);
+						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
+							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
+							if(++items_per_tx > 1024) {
+								THROW_DB(p_ta->Commit(1));
+								THROW_DB(p_ta->Start(1));
+								items_per_tx = 0;
+							}
+						}
+						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");
+					}
+				}
+				THROW_DB(p_ta->Commit(1));
+			}
+			{
+				LongArray symb_list; // Список ид символов концепций в том же порядке, что и taxon_symb_to_append
+				const uint tsc = taxon_symb_to_append.getCount();
+				{
+					uint  items_per_tx = 0;
+					if(!p_ta) {
+						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
+						THROW_DB(*p_ta);
+					}
+					else if(!p_ta->IsStarted()) {
+						THROW_DB(p_ta->Start(1));
+					}
+					for(uint item_idx = 0; item_idx < tsc; item_idx++) {
+						const long taxon_id = taxon_symb_to_append.get(item_idx);
+						SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &taxon_id, sizeof(taxon_id), concept_symb_buf);
+						LEXID lex_id = 0;
+						THROW(rDb.P_WdT->AddSpecial(SrWordTbl::spcConcept, concept_symb_buf, &lex_id));
+						symb_list.add(lex_id);
+						if(++items_per_tx > 512) {
+							THROW_DB(p_ta->Commit(1));
+							THROW_DB(p_ta->Start(1));
+							items_per_tx = 0;
+						}
+						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts symb)");
+					}
+					THROW_DB(p_ta->Commit(1));
+				}
+				{
+					assert(symb_list.getCount() == tsc);
+					uint  items_per_tx = 0;
+					if(!p_ta) {
+						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
+						THROW_DB(*p_ta);
+					}
+					else if(!p_ta->IsStarted()) {
+						THROW_DB(p_ta->Start(1));
+					}
+					for(uint item_idx = 0; item_idx < tsc; item_idx++) {
+						const LEXID lex_id = symb_list.get(item_idx);
+						SrConcept c;
+						c.ID = 0;
+						c.SymbID  = lex_id;
+						THROW(rDb.P_CT->Add(c));
+						if(++items_per_tx > 512) {
+							THROW_DB(p_ta->Commit(1));
+							THROW_DB(p_ta->Start(1));
+							items_per_tx = 0;
+						}
+						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts)");
+					}
+					THROW_DB(p_ta->Commit(1));
+				}
+			}
+		}
+		else if(_phase == phasePreprocess) {
 			taxonomic_status_list.sortAndUndup();
 			taxon_rank_list.sortAndUndup();
 			kingdom_list.sortAndUndup();
@@ -2908,7 +3012,6 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	if(p_ta) {
 		THROW_DB(p_ta->Commit(1));
 		ZDELETE(p_ta);
-		THROW_DB(rDb.P_Db->MemPoolSync());
 	}
 	CATCHZOK
 	delete p_ta;

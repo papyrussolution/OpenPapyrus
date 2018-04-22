@@ -1700,158 +1700,9 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 
 int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 {
-	int    ok = -1;
-	uint   j;
-	int    is_row_inserted = 0;
-	if(pOrderPack->ChkTIdx(line)) {
-		SString temp_buf;
-		int      zero_rest = 1;
-		PPID     loc_id = P_Pack->Rec.LocID;
-		DateIter diter;
-		double   rest, qtty;
-		double   reserve = 0.0; // Количество, занятое резервирующими заказами
-		PPTransferItem ti, * tmp_sti = 0;
-		PPTransferItem * p_ord_item = & pOrderPack->TI(line);
-		PPID     goods_id = labs(p_ord_item->GoodsID);
-		Goods2Tbl::Rec  goods_rec;
-		LotArray lot_list;
-		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
-		THROW(P_Pack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
-		if(P_Pack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
-			uint   i;
-			//
-			// @v7.0.0 {
-			// Если данная отгрузка осуществляется по резервирующему заказу, то
-			// не проверяем наличие других резервирующих заказов на этот товар:
-			// действует правило "кто первый встал - того и сапоги".
-			//
-			int    i_am_reserve_order = 0;
-			{
-				ReceiptTbl::Rec ord_lot_rec;
-				if(P_T->Rcpt.Search(p_ord_item->LotID, &ord_lot_rec) > 0 && ord_lot_rec.Flags & LOTF_ORDRESERVE)
-					i_am_reserve_order = 1;
-			}
-			if(!i_am_reserve_order) {
-			// } @v7.0.0
-				//
-				// Уменьшаем отгружаемое количество на величину зарезервированного
-				// товара (резервирующий заказ не принадлежит данному контрагенту и
-				// не является собственно заказом, по которому осуществляется данная отгрузка.
-				//
-				P_T->Rcpt.GetListOfOpenedLots(-1, -goods_id, loc_id, MAXDATE, &lot_list);
-				for(i = 0; i < lot_list.getCount(); i++) {
-					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-					if(r_lot_rec.Flags & LOTF_ORDRESERVE && r_lot_rec.SupplID != P_Pack->Rec.Object &&
-						r_lot_rec.BillID != pOrderPack->Rec.ID) {
-						P_T->GetRest(r_lot_rec.ID, MAXDATE, &rest);
-						reserve += rest;
-					}
-				}
-			}
-			lot_list.clear();
-			P_T->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, P_Pack->Rec.Dt, &lot_list);
-			for(i = 0; i < lot_list.getCount() && qtty > 0.0; i++) {
-				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-				THROW(P_Pack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
-				if(reserve > 0.0) {
-					//
-					// Снижаем доступный остаток на величину резерва.
-					//
-					const double decr = MIN(rest, reserve);
-					rest -= decr;
-					reserve -= decr;
-				}
-				rest = MIN(rest, qtty);
-				if(rest > 0.0) {
-					const int ord_price_low_prior = BIN(P_BObj->GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
-					const int is_isales_order = BIN(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER &&
-						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("ISALES-PEPSI"));
-					const double ord_qtty = fabs(p_ord_item->Quantity_);
-					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
-					const double ord_dis   = p_ord_item->Discount * ord_qtty;
-					const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-					THROW(ti.Init(&P_Pack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
-					if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
-						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
-						double quot = 0.0;
-						if(P_BObj->SelectQuotKind(P_Pack, &ti, 0, 0, &quot) > 0) {
-							if(is_isales_order && ord_pct_dis > 0.0) {
-								quot = R5(quot * (1 - ord_pct_dis));
-							}
-							ti.Discount = ti.Price - quot;
-							ti.SetupQuot(quot, 1);
-						}
-					}
-					else if(is_isales_order && ord_pct_dis > 0.0) {
-						const double quot = R5(ti.Price * (1 - ord_pct_dis));
-						ti.Discount = ti.Price - quot;
-						ti.SetupQuot(quot, 1);
-					}
-					else if(p_ord_item->NetPrice() > 0.0)
-						ti.Discount = ti.Price - p_ord_item->NetPrice();
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = rest;
-					//
-					// После двух следующих строк индекс j правильно указывает
-					// позицию строки теневого документа, которой соответствует наша новая строка
-					//
-					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
-						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
-					THROW(P_Pack->InsertRow(&ti, 0));
-					ok = 1;
-					tmp_sti = &P_Pack->P_ShLots->at(j);
-					THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
-					qtty -= rest;
-					zero_rest = 0;
-					is_row_inserted = 1;
-				}
-			}
-			if(zero_rest) {
-				if(goods_rec.Flags & GF_UNLIM) {
-					THROW(ti.Init(&P_Pack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					ti.LotID    = 0;
-					ti.Price    = p_ord_item->Price;
-					ti.Discount = 0.0;
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = p_ord_item->LotID ? qtty : fabs(p_ord_item->Quantity_);
-					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
-						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
-					THROW(P_Pack->InsertRow(&ti, 0));
-					if(p_ord_item->LotID) {
-						tmp_sti = &P_Pack->P_ShLots->at(j);
-						THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
-					}
-					is_row_inserted = 1;
-					ok = 1;
-				}
-				else if(goods_rec.Flags & GF_AUTOCOMPL) {
-					THROW(ti.Init(&P_Pack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					ti.LotID    = 0;
-					ti.Price    = p_ord_item->Price;
-					ti.Discount = 0.0;
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= (PPTFR_ONORDER | PPTFR_AUTOCOMPL);
-					ti.Quantity_ = qtty;
-					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
-						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
-					THROW(P_Pack->InsertRow(&ti, 0, PCUG_USERCHOICE));
-					tmp_sti = &P_Pack->P_ShLots->at(j);
-					THROW(P_Pack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
-					is_row_inserted = 1;
-					ok = 1;
-				}
-			}
-		}
-	}
-	if(is_row_inserted && P_Pack->Rec.SCardID == 0 && pOrderPack->Rec.SCardID > 0)
+	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 1);
+	if(ok > 0 && !P_Pack->Rec.SCardID && pOrderPack->Rec.SCardID > 0)
 		P_Pack->Rec.SCardID = pOrderPack->Rec.SCardID;
-	CATCHZOK
 	return ok;
 }
 
@@ -3345,14 +3196,8 @@ public:
 		return 1;
 	}
 	int    FASTCALL NextIteration(CompleteItem * pItem);
-	PPID   GetParentLot() const
-	{
-		return Data.LotID;
-	}
-	PPID   GetBillID() const
-	{
-		return Data.BillID;
-	}
+	PPID   GetParentLot() const { return Data.LotID; }
+	PPID   GetBillID() const { return Data.BillID; }
 private:
 	struct _Entry {
 		PPID   GoodsID;

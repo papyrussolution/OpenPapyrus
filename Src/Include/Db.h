@@ -4443,6 +4443,7 @@ public:
 	BDbTransaction(BDbDatabase * pDb, int use_ta);
 	~BDbTransaction();
 	int    operator !() const;
+	int    IsStarted() const { return Ta; }
 	int    Start(int use_ta);
 	int    Commit(int setCheckpoint);
 private:

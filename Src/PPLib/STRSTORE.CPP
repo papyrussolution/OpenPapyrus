@@ -1310,7 +1310,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					int    slang = 0;
 					THROW_V(TempBuf.Last() == '/', sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
 					TempBuf.TrimRight().ShiftLeft(1).Strip();
-					if(TempBuf == "0" || TempBuf.CmpNC("default") == 0)
+					if(TempBuf == "0" || TempBuf.IsEqiAscii("default"))
 						slang = 0;
 					else {
 						slang = RecognizeLinguaSymb(TempBuf, 0);
@@ -1367,7 +1367,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					THROW_V(rScan.Is('/'), sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
 					if(temp_buf == "!")
 						rItem.Flags |= rItem.fNoTranslate;
-					else if(temp_buf == "0" || temp_buf.CmpNC("default") == 0)
+					else if(temp_buf == "0" || temp_buf.IsEqiAscii("default"))
 						slang = 0;
 					else {
 						slang = RecognizeLinguaSymb(temp_buf, 0);
@@ -1426,7 +1426,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					THROW_V(slang == -1, sc2eLangDescrDup);
 					if(temp_buf == "!")
 						rItem.Flags |= rItem.fNoTranslate;
-					else if(temp_buf == "0" || temp_buf.CmpNC("default") == 0)
+					else if(temp_buf == "0" || temp_buf.IsEqiAscii("default"))
 						slang = 0;
 					else {
 						slang = RecognizeLinguaSymb(temp_buf, 0);

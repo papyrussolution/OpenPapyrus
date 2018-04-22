@@ -1136,6 +1136,28 @@ int SLAPI PersonCore::IsBelongToKind(PPID id, PPID kind)
 	return (_SearchKind(id, kind) > 0) ? 1 : PPSetError(PPERR_PSNDONTBELONGTOKIND);
 }
 
+int SLAPI PersonCore::GetListByKind(PPID kindID, PPIDArray * pList)
+{
+	int    ok = -1;
+	PersonKindTbl::Key0 k0;
+	PersonKindTbl * t = &this->Kind;
+	MEMSZERO(k0);
+	BExtQuery q(t, 0, pList ? 512 : 4);
+	q.select(t->PersonID, 0L);
+	q.where(t->KindID == kindID);
+	k0.KindID = kindID;
+	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+		ok = 1;
+		if(pList) {
+			THROW_SL(pList->add(t->data.PersonID));
+		}
+		else
+			break;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PersonCore::AddKind(PPID id, PPID kind, int use_ta)
 {
 	int    ok = 1, r;
@@ -1307,7 +1329,7 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 	return ok;
 }
 
-int SLAPI PersonCore::GetELinkList(int elnkrt, StrAssocArray & rList)
+int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList)
 {
 	rList.Clear();
 	int    ok = -1;
@@ -1320,27 +1342,34 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, StrAssocArray & rList)
 	PropertyTbl::Key1 k1;
 	PPObjELinkKind elk_obj;
 	PPELinkKind elk_rec;
+	PPIDArray list_by_kind;
+	if(personKindID) {
+		GetListByKind(personKindID, &list_by_kind);
+		list_by_kind.sortAndUndup();
+	}
 	MEMSZERO(k1);
 	k1.ObjType = PPOBJ_PERSON;
 	k1.Prop = PSNPRP_ELINK;
 	THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::M(buf_sz));
 	if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
 		const PPID psn_id = p_ref->Prop.data.ObjID;
-		const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
-		if(buf_sz < rec_sz) {
-			max_req_buf_size = rec_sz;
-			additional_psn_list.add(psn_id);
-		}
-		else {
-			memcpy(p_buf, &p_ref->Prop.data, rec_sz);
-			//
-			temp_list.clear();
-			THROW(Helper_GetELinksFromPropRec(p_buf, rec_sz, &temp_list));
-			for(uint j = 0; j < temp_list.getCount(); j++) {
-				const PPELink & r_item = temp_list.at(j);
-				if(r_item.Addr[0] && (!elnkrt || (elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == elnkrt))) {
-					rList.AddFast(psn_id, r_item.Addr);
-					ok = 1;
+		if(!personKindID || list_by_kind.bsearch(psn_id)) {
+			const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
+			if(buf_sz < rec_sz) {
+				max_req_buf_size = rec_sz;
+				additional_psn_list.add(psn_id);
+			}
+			else {
+				memcpy(p_buf, &p_ref->Prop.data, rec_sz);
+				//
+				temp_list.clear();
+				THROW(Helper_GetELinksFromPropRec(p_buf, rec_sz, &temp_list));
+				for(uint j = 0; j < temp_list.getCount(); j++) {
+					const PPELink & r_item = temp_list.at(j);
+					if(r_item.Addr[0] && (!elnkrt || (elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == elnkrt))) {
+						rList.AddFast(psn_id, r_item.Addr);
+						ok = 1;
+					}
 				}
 			}
 		}

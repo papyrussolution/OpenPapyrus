@@ -80,11 +80,11 @@ int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 		double value;
         SStrScan scan(src_buf);
         while(scan.Skip().GetEqN(key_buf, value)) {
-			if(key_buf.CmpNC("x") == 0)
+			if(key_buf.IsEqiAscii("x"))
 				X = value;
-			else if(key_buf.CmpNC("y") == 0)
+			else if(key_buf.IsEqiAscii("y"))
 				Y = value;
-			else if(key_buf.CmpNC("z") == 0)
+			else if(key_buf.IsEqiAscii("z"))
 				Z = value;
         }
 	}

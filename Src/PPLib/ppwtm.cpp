@@ -2520,14 +2520,14 @@ int SLAPI DoConstructionTest()
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
 	//TestSArchive();
-	Test_MakeEmailMessage();
+	//Test_MakeEmailMessage();
+	//CollectLldFileStat();
 #endif
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
 	//TestFrameWindow::Run();
 	//TestSuffixTree();
 	//TestFann();
-	//CollectLldFileStat();
 	{
 		//TSCollection <PPBarcode::Entry> bc_list;
 		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);

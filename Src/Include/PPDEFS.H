@@ -1413,6 +1413,7 @@
 #define PPEDIOP_DECLINEORDER                   6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
 #define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
 #define PPEDIOP_SALESORDER                     8 // @v9.2.1 Заказ от покупателя
+#define PPEDIOP_PARTIN                         9 // @v10.0.02
 //
 // Типы операций обмена с системой ЕГАИС
 //
@@ -3925,6 +3926,7 @@
 	#define CTL_CCHECKFLT_SUBST          (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCHECKFLT_SUBST       (25 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_STARTSRVCP     (26 + WINDOWS_ID_BIAS)
+	#define CTL_CCHECKFLT_ALTREG         (27 + WINDOWS_ID_BIAS)
 #define DLG_CORLOTS               306 // C_LOTS Корректировка лотов
 	#define CTL_CORLOTS_LOG              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)
@@ -5195,7 +5197,12 @@
 	#define CTLSEL_SELBBSMPL_OP          (3 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_LOC            (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELBBSMPL_LOC         (5 + WINDOWS_ID_BIAS)
-	#define CTL_SELBBSMPL_SAMECODE       (6 + WINDOWS_ID_BIAS)
+	#define CTL_SELBBSMPL_FLAGS          (6 + WINDOWS_ID_BIAS)
+	#define CTL_SELBBSMPL_SAMECODE       (6 + WINDOWS_ID_BIAS) // @obsolete synonim of CTL_SELBBSMPL_FLAGS
+	#define CTL_SELBBSMPL_QK             (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SELBBSMPL_QK          (8 + WINDOWS_ID_BIAS)
+	#define CTL_SELBBSMPL_DT             (9 + WINDOWS_ID_BIAS)
+	#define CTLCAL_SELBBSMPL_DT          (10 + WINDOWS_ID_BIAS)
 #define DLG_SELPCKG               493 // Выбор пакета
 	#define CTL_SELPCKG_LIST             (1 + WINDOWS_ID_BIAS)
 #define DLG_GOODSOPR2             494 // Расширение фильтра товарного отчета по операции
@@ -10048,6 +10055,7 @@
 	#define CTL_EDIPRV_PORT2            (11 + WINDOWS_ID_BIAS)
 	#define CTL_EDIPRV_GUA              (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EDIPRV_GUA           (13 + WINDOWS_ID_BIAS)
+	#define CTL_EDIPRV_FORMAT           (14 + WINDOWS_ID_BIAS)
 #define DLG_BILLCFGEXT            1276 // Диалог дополнительных параметров конфигурации документов
 	// CTL_BILLCFG_XXX
 #define DLG_IMPEXPQUOT            1277
@@ -10313,6 +10321,7 @@
 	#define CTL_PHNCPANE_INFSEL       (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PHNCPANE_INFSEL    (7 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_LISTMODE     (8 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_AUTOCLOSE    (9 + WINDOWS_ID_BIAS)
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334

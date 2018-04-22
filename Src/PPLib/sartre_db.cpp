@@ -1400,7 +1400,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	cfg.LogBufSize  = SMEGABYTE(8);
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
-	cfg.Flags |= (/*cfg.fLogNoSync|*/cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
+	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
 	//
 	Flags |= (flags & (oReadOnly|oWriteStatOnClose)); // @v9.7.11
 	//
@@ -1412,7 +1412,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		}
 		THROW_PP(db_path.NotEmpty() && pathValid(db_path, 1), PPERR_SARTREDBUNDEF);
 		{
-			long   db_options = BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/;
+			long   db_options = 0/*BDbDatabase::oPrivate*//*|BDbDatabase::oRecover*/;
 			if(Flags & oReadOnly)
 				db_options |= BDbDatabase::oReadOnly;
 			if(Flags & oWriteStatOnClose)
@@ -1691,6 +1691,26 @@ int SrDatabase::SetSimpleWordFlexiaModel_Express(LEXID wordID, long baseFormID, 
 	return ok;
 }
 
+int SrDatabase::ResolveWordForm(const SrWordForm & rWf, long * pWordFormID)
+{
+	int    ok = 1;
+	int    r;
+	long   form_id = 0;
+	SrWordForm wf_key = rWf;
+	wf_key.Normalize();
+	THROW(r = P_GrT->Search(&wf_key, &form_id));
+	if(r > 0) {
+		ok = 1;
+	}
+	else {
+		THROW(P_GrT->Add(&wf_key, &form_id));
+		ok = 2;
+	}
+	CATCHZOK
+	ASSIGN_PTR(pWordFormID, form_id);
+	return ok;
+}
+
 int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId)
 {
 	int    ok = -1;
@@ -1702,16 +1722,11 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 		SString word_utf8;
 		THROW(P_WdT->Search(wordID, word_utf8) > 0);
 		//wa.WordID = wordID;
-		{
-			//
-			// Находим или создаем словоформу по содержанию и получаем ее идентификатор
-			//
-			SrWordForm wf_key = rWf;
-			wf_key.Normalize();
-			THROW(r = P_GrT->Search(&wf_key, &/*wa.BaseFormID*/base_form_id));
-			if(r < 0)
-				THROW(P_GrT->Add(&wf_key, &/*wa.BaseFormID*/base_form_id));
-		}
+		//
+		// Находим или создаем словоформу по содержанию и получаем ее идентификатор
+		//
+		THROW(ResolveWordForm(rWf, &base_form_id));
+		assert(base_form_id != 0);
 		ok = SetSimpleWordFlexiaModel_Express(wordID, base_form_id, &result_wa_id); // @v10.0.01
 		/* @v10.0.01
 		{

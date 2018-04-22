@@ -4973,11 +4973,11 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 								PPLoadString("yes", tok_buf);
 								if(sdr_rec.ClosedTag[0]) {
 									(temp_buf = sdr_rec.ClosedTag).Strip();
-									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0);
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0);
 								}
 								else if(sdr_rec.OpenedTag[0]) {
 									(temp_buf = sdr_rec.OpenedTag).Strip();
-									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !((temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)));
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !((temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0)));
 								}
 							}
 							THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
@@ -5017,11 +5017,11 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									PPLoadString("yes", tok_buf);
 									if(sdr_rec.ClosedTag[0]) {
 										(temp_buf = sdr_rec.ClosedTag).Strip();
-										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, (temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0));
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, (temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0));
 									}
 									else if(sdr_rec.OpenedTag[0]) {
 										(temp_buf = sdr_rec.OpenedTag).Strip();
-										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0));
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !(temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0));
 									}
 								}
 								THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));

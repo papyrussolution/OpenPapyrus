@@ -592,7 +592,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 	int    use_ps = 0;
 	char   cntr[128];
 	uint   cn = 0;
-	if(FileName.CmpNC(":buffer:") == 0) {
+	if(FileName.IsEqiAscii(":buffer:")) {
 		rResult = FileName;
 	}
 	else {
@@ -1294,7 +1294,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					TdfParam.Flags |= TextDbFile::fVerticalRec;
 				break;
 			case iefCodepage:
-				if(val.CmpNC("windows-1251") == 0 || val == "1251") {
+				if(val.IsEqiAscii("windows-1251") || val == "1251") {
 					SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 0);
 				}
 				else
@@ -1754,7 +1754,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	W_RecNo = 0;
 	SString filename = isempty(pFileName) ? P.FileName : pFileName;
 	THROW_PP(filename.NotEmpty(), PPERR_UNDEFIMPEXPFILENAME);
-	const int is_buffer = BIN(filename.CmpNC(":buffer:") == 0);
+	const int is_buffer = BIN(filename.IsEqiAscii(":buffer:"));
 	THROW_PP(!is_buffer || P.DataFormat == PPImpExpParam::dfXml, PPERR_IMPEXPUNSUPPBUFFORMAT);
 	if(!is_buffer) {
 		if(readOnly) {

@@ -1119,11 +1119,19 @@ struct SfaHeinekenInvoice {
 	TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
 };
 
+struct SfaHeinekenDebetEntry {
+	int    ContragentID;
+	double DebetSum;
+	double DebetLimit;
+};
+
 typedef SString * (*SFAHEINEKENGETSKUASSORTIMENT_PROC)(PPSoapClientSession & rSess);
 typedef SString * (*SFAHEINEKENGETORDERS_PROC)(PPSoapClientSession & rSess, LDATE dt, int demo);
 typedef SString * (*SFAHEINEKENSENDORDERSSTATUSES_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)(PPSoapClientSession & rSess, const TSVector <SfaHeinekenWarehouseBalanceEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDSELLOUT_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList);
+typedef SString * (*SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList);
+//extern "C" __declspec(dllexport) SString * SfaHeineken_SendAllContragentDebet(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList) // DRP_SendAllContragentDebet
 //extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSession & rSess, LDATE dt, int demo) // DRP_GetOrders
 //
 //

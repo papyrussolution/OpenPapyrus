@@ -500,6 +500,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 		void   FASTCALL SetupPhoneEvent(PPNotifyEvent & rN, const PPAdviseEvent & rSrc, SString & rTempBuf)
 		{
 			rN.Clear();
+			rN.ObjType = rSrc.Oid.Obj; // @v10.0.02
+			rN.ObjID = rSrc.Oid.Id; // @v10.0.02
 			rN.Action = rSrc.Action;
 			EvqList.GetS(rSrc.ChannelP, rTempBuf);
 			rN.PutExtStrData(rN.extssChannel, rTempBuf);
@@ -3235,6 +3237,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																if(local_action) {
 																	PPAdviseEvent ev;
 																	ev.Action = local_action;
+																	ev.Oid.Set(PPOBJ_PHONESERVICE, StartUp_PhnSvcPack.Rec.ID); // @v10.0.02
 																	ev.Dtm = getcurdatetime_();
 																	ev.Priority = chnl_status.Priority;
 																	ev.Duration = chnl_status.Seconds;
@@ -3243,6 +3246,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																	temp_list.AddS(chnl_status.ConnectedLineNum, &ev.ConnectedLineNumP);
 																	temp_list.AddS(chnl_status.Context, &ev.ContextP); // @v9.9.12
 																	temp_list.AddS(chnl_status.Exten, &ev.ExtenP); // @v9.9.12
+																	temp_list.AddS(chnl_status.BridgeId, &ev.BridgeP); // @v10.0.02
 																	temp_list.insert(&ev);
 																}
 															}
@@ -4651,6 +4655,7 @@ uint FASTCALL PPAdviseEventVector::MoveItemTo(uint pos, PPAdviseEventVector & rD
 			GetS(item.ConnectedLineNumP, temp_buf); rDest.AddS(temp_buf, &item.ConnectedLineNumP);
 			GetS(item.ContextP, temp_buf); rDest.AddS(temp_buf, &item.ContextP); // @v9.9.12
 			GetS(item.ExtenP, temp_buf); rDest.AddS(temp_buf, &item.ExtenP); // @v9.9.12
+			GetS(item.BridgeP, temp_buf); rDest.AddS(temp_buf, &item.BridgeP); // @v10.0.02
 		}
 		rDest.insert(&item);
 		result = rDest.getCount();
@@ -4672,6 +4677,7 @@ int SLAPI PPAdviseEventVector::Pack()
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ConnectedLineNumP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ContextP)); // @v9.9.12
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ExtenP)); // @v9.9.12
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.BridgeP)); // @v10.0.02
 		}
 		Pack_Finish(p_pack_handle);
 		ok = 1;
@@ -4691,15 +4697,8 @@ PPAdviseEventQueue::Client::~Client()
 	Sign = 0;
 }
 
-int PPAdviseEventQueue::Client::IsConsistent() const
-{
-	return BIN(Sign == ADVEVQCLISIGN);
-}
-
-int64 PPAdviseEventQueue::Client::GetMarker() const
-{
-	return Marker;
-}
+int PPAdviseEventQueue::Client::IsConsistent() const { return BIN(Sign == ADVEVQCLISIGN); }
+int64 PPAdviseEventQueue::Client::GetMarker() const { return Marker; }
 
 int PPAdviseEventQueue::Client::Register(long dbPathID, PPAdviseEventQueue * pQueue)
 {

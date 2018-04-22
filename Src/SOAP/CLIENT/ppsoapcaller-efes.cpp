@@ -45,11 +45,11 @@ static int DecodeEfesUnitType(const char * pUnitTypeStr)
 {
 	SString temp_buf;
 	(temp_buf = pUnitTypeStr).Transf(CTRANSF_UTF8_TO_INNER);
-	if(temp_buf.CmpNC("PCG") == 0)
+	if(temp_buf.IsEqiAscii("PCG"))
 		return sapefesUnitPack;
-	else if(temp_buf.CmpNC("MPK") == 0)
+	else if(temp_buf.IsEqiAscii("MPK"))
 		return sapefesUnitMultipack;
-	else if(temp_buf.CmpNC("ST") == 0)
+	else if(temp_buf.IsEqiAscii("ST"))
 		return sapefesUnitItem;
 	else
 		return 0;

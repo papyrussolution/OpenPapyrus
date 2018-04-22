@@ -2854,7 +2854,7 @@ int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,
 	assert(pGLN/*|| pLocCode*/);
 	THROW_INVARG(pGLN/*|| pLocCode*/);
 	//
-	ok = PsnObj.ResolveGLN(pGLN, accSheetID, &ar_id);
+	ok = PsnObj.ResolveGLN_Article(pGLN, accSheetID, &ar_id);
 	if(ok < 0) {
 		//
 		// Если персоналия не найдена по ее GLN или ее GLN вообще не определена, то ищем по коду склада (трактуя его как GLN)

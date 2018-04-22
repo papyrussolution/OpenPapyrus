@@ -1748,7 +1748,7 @@ void PPPosProtocol::Scb_Characters(void * ptr, const uchar * pC, int len)
 
 int PPPosProtocol::StartDocument()
 {
-	RdB.TagValue = 0;
+	RdB.TagValue.Z();
 	return 1;
 }
 
@@ -2084,7 +2084,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 		}
 	}
 	RdB.TokPath.push(tok);
-	RdB.TagValue = 0;
+	RdB.TagValue.Z();
 	CATCH
 		SaxStop();
 		RdB.State |= RdB.stError;
@@ -4595,7 +4595,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			else
 				this_db_uuid.SetZero();
 			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, 0, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 60000)) {
+				if(fep.Get(i, 0, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) { // @v10.0.02 60000-->6000
 					DestroyReadBlock();
 					PPID   my_cn_id = 0;
 					S_GUID  my_pos_node_uuid; 
@@ -5196,36 +5196,57 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 					uint   local_force_period_ms = 0;
 					PPPosProtocol pppp;
 					DoProcess(pppp); // Первоначальная обработка входящих данных
-					DirChangeNotification * p_dcn = new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
-					THROW(p_dcn);
+					DirChangeNotification * p_dcn = 0; // new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
+					//THROW(p_dcn);
 					for(int stop = 0; !stop;) {
-						uint   h_count = 0;
+						int    h_count = 0;
+						int    evidx_stop = -1;
+						int    evidx_dcn = -1;
+						int    evidx_forceperiod = -1;
+						int    evidx_localforceperiod = -1;
 						HANDLE h_list[32];
-						h_list[h_count++] = stop_event;
-						h_list[h_count++] = *p_dcn;
+						{
+							evidx_stop = h_count++;
+							h_list[evidx_stop] = stop_event;
+						}
+						if(p_dcn) {
+							evidx_dcn = h_count++;
+							h_list[evidx_dcn] = *p_dcn;
+						}
+						else if(local_force_period_ms == 0)
+							local_force_period_ms = 10000;
 						if(local_force_period_ms && (!IB.ForcePeriodMs || local_force_period_ms < IB.ForcePeriodMs)) {
 							LDATETIME dtm = getcurdatetime_();
 							dtm.addsec(local_force_period_ms / 1000);
 							timer.Set(dtm, 0);
-							h_list[h_count++] = timer;
+							{
+								evidx_localforceperiod = h_count++;
+								h_list[evidx_localforceperiod] = timer;
+							}
 							local_force_period_ms = 0;
 						}
 						else if(IB.ForcePeriodMs) {
 							LDATETIME dtm = getcurdatetime_();
 							dtm.addsec(IB.ForcePeriodMs / 1000);
 							timer.Set(dtm, 0);
-							h_list[h_count++] = timer;
+							{
+								evidx_forceperiod = h_count++;
+								h_list[evidx_forceperiod] = timer;
+							}
 							local_force_period_ms = 0;
 						}
 						uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
-						if(r == WAIT_OBJECT_0 + 0) { // stop event
+						if(evidx_stop >= 0 && r == (WAIT_OBJECT_0 + evidx_stop)) { // stop event
 							stop = 1; // quit loop
 						}
-						else if(r == WAIT_OBJECT_0 + 1) { // file created
+						else if(evidx_dcn >= 0 && r == (WAIT_OBJECT_0 + evidx_dcn)) { // file created
 							DoProcess(pppp);
 							p_dcn->Next();
 						}
-						else if(r == WAIT_OBJECT_0 + 2) { // timer
+						else if(evidx_localforceperiod >= 0 && (r == (WAIT_OBJECT_0 + evidx_localforceperiod))) { // timer
+							DoProcess(pppp);
+						}
+						else if(evidx_forceperiod >= 0 && (r == (WAIT_OBJECT_0 + evidx_forceperiod))) { // timer
 							DoProcess(pppp);
 						}
 						else if(r == WAIT_FAILED) {
@@ -5265,6 +5286,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0 && tag_item.GetGuid(&host_uuid) > 0) {
 				const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 				PosInputProcessThread::InitBlock ib(posNodeID);
+				ib.ForcePeriodMs = 15000;
 				ib.DbSymb = db_symb;
 				ib.UserName = r_tla.UserName;
 				THROW(p_ref->SearchName(PPOBJ_USR, &user_id, ib.UserName, &usr_rec) > 0);

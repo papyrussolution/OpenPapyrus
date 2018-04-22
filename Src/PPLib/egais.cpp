@@ -1135,19 +1135,19 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 			}
 			// @v9.5.5 {
 			if(!doc_type) {
-				if(tag.CmpNC("FORMBREGINFO") == 0)
+				if(tag.IsEqiAscii("FORMBREGINFO"))
 					doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
-				else if(tag.CmpNC("FORM2REGINFO") == 0)
+				else if(tag.IsEqiAscii("FORM2REGINFO"))
 					doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
-				else if(tag.CmpNC("ReplyPartner") == 0)
+				else if(tag.IsEqiAscii("ReplyPartner"))
 					doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
-				else if(tag.CmpNC("ReplyAP") == 0)
+				else if(tag.IsEqiAscii("ReplyAP"))
 					doc_type = PPEDIOP_EGAIS_REPLYAP;
-				else if(tag.CmpNC("INVENTORYREGINFO") == 0) {
+				else if(tag.IsEqiAscii("INVENTORYREGINFO")) {
 					// @v9.7.12 (version 1) doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
 					doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG; // @v9.7.12 (version 2)
 				}
-				else if(tag.CmpNC("WayBillTicket") == 0)
+				else if(tag.IsEqiAscii("WayBillTicket"))
 					doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
 			}
 			// } @v9.5.5
@@ -3153,7 +3153,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 			; // Не используем - здесь всегда "АП"
 		// @v9.5.10 {
 		else if(SXml::GetContentByName(p_n, "UnitType", temp_buf)) {
-			if(temp_buf.CmpNC("Unpacked") == 0) {
+			if(temp_buf.IsEqiAscii("Unpacked")) {
 				is_unpacked = 1;
 			}
 		}
@@ -3463,7 +3463,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 	int    j_status = 0;
 	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		//
-		// Для 2-й версии протокола есть дополнетельная обрамляющая зона идентифицирующая юридичесткий статус персоналии
+		// Для 2-й версии протокола есть дополнительная обрамляющая зона идентифицирующая юридический статус персоналии
 		//
 		int    is_v2_js = 0;
 		if(!j_status) {
@@ -3806,11 +3806,11 @@ int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketTy
 	for(xmlNode * p_r = pFirstNode; p_r; p_r = p_r->next) {
 		if(ticketType == 1) {
 			if(SXml::GetContentByName(p_r, "Conclusion", temp_buf)) {
-				if(temp_buf.CmpNC("Accepted") == 0) {
+				if(temp_buf.IsEqiAscii("Accepted")) {
 					rResult.Conclusion = 1;
 					ok = 1;
 				}
-				else if(temp_buf.CmpNC("Rejected") == 0) {
+				else if(temp_buf.IsEqiAscii("Rejected")) {
 					rResult.Conclusion = 0;
 					ok = 1;
 				}
@@ -3824,11 +3824,11 @@ int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketTy
 		}
 		else if(ticketType == 2) {
 			if(SXml::GetContentByName(p_r, "OperationResult", temp_buf)) {
-				if(temp_buf.CmpNC("Accepted") == 0) {
+				if(temp_buf.IsEqiAscii("Accepted")) {
 					rResult.Conclusion = 1;
 					ok = 1;
 				}
-				else if(temp_buf.CmpNC("Rejected") == 0) {
+				else if(temp_buf.IsEqiAscii("Rejected")) {
 					rResult.Conclusion = 0;
 					ok = 1;
 				}
@@ -3848,9 +3848,8 @@ int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketTy
 		PPLoadText(PPTXT_EGAIS_TKT_UNREL_ATTEMPT, temp_buf); // Зафиксирована попытка подачи недостоверных данных
 		if(rResult.Comment.Search(temp_buf, 0, 1, 0)) {
 			PPLoadText(PPTXT_EGAIS_TKT_ALRREGISTERED, temp_buf); // уже зарегистрирована в системе
-			if(rResult.Comment.Search(temp_buf, 0, 1, 0)) {
+			if(rResult.Comment.Search(temp_buf, 0, 1, 0))
 				rResult.Special = rResult.spcDup;
-			}
 		}
 	}
 	return ok;
@@ -4024,9 +4023,9 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 			was_header_accepted = 1;
             for(xmlNode * p_h = p_n->children; ok > 0 && p_h; p_h = p_h->next) {
 				if(SXml::GetContentByName(p_h, "IsAccept", temp_buf)) {
-					if(temp_buf.CmpNC("Accepted") == 0)
+					if(temp_buf.IsEqiAscii("Accepted"))
 						is_accepted = 1;
-					else if(temp_buf.CmpNC("Rejected") == 0)
+					else if(temp_buf.IsEqiAscii("Rejected"))
 						is_accepted = 0;
 				}
                 else if(SXml::GetContentByName(p_h, "ACTNUMBER", temp_buf))
@@ -4247,7 +4246,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					wb_type = RecognizeWayBillTypeText(temp_buf.Utf8ToChar());
                 }
                 else if(SXml::GetContentByName(p_h, "UnitType", temp_buf)) {
-					if(temp_buf.CmpNC("Unpacked") == 0)
+					if(temp_buf.IsEqiAscii("Unpacked"))
 						unpacked = 1;
                 }
 				else if(SXml::IsName(p_h, "Shipper")) {
@@ -5538,6 +5537,8 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 	PPBillPacket * p_bp = pPack ? (PPBillPacket *)pPack->P_Data : 0;
 	PPBillPacket * p_shop_rest_bp = 0;
     SString temp_buf;
+	PPGoodsPacket goods_pack;
+	GoodsItem alc_ext;
     BillTbl::Rec bhdr;
     MEMSZERO(bhdr);
     TSVector <EgaisRestItem> items; // @v9.8.4 TSArray-->TSVector
@@ -5549,22 +5550,18 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 		else if(SXml::IsName(p_n, "Products")) {
 			for(xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
 				if(SXml::IsName(p_c, "StockPosition") || SXml::IsName(p_c, "ShopPosition")) {
-					GoodsItem alc_ext;
+					alc_ext.Clear();
 					EgaisRestItem rest_item;
 					int    product_refc_pos = -1;
 					for(xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {
-						if(SXml::GetContentByName(p_pos, "Quantity", temp_buf)) {
+						if(SXml::GetContentByName(p_pos, "Quantity", temp_buf))
 							rest_item.Rest = temp_buf.ToReal();
-						}
-						else if(SXml::GetContentByName(p_pos, "InformARegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF1RegId", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "InformARegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF1RegId", temp_buf))
 							temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(rest_item.InformAIdent, sizeof(rest_item.InformAIdent));
-						}
-						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf))
 							temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(rest_item.InformBIdent, sizeof(rest_item.InformBIdent));
-						}
 						else if(SXml::IsName(p_pos, "Product")) {
 							int   rs = 0;
-							PPGoodsPacket goods_pack;
 							THROW(rs = Read_ProductInfo(p_pos->children, p_bp ? &goods_pack : 0, &alc_ext, pRefC, 0));
 							if(pRefC && pRefC->LastProductP > 0) {
 								product_refc_pos = pRefC->LastProductP;
@@ -5610,8 +5607,9 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
         	for(DateIter di(&period); !do_skip && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 				LDATETIME ts;
 				if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
-                    if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0)
-                        do_skip = 1;
+                    // @v10.0.02 if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0)
+					if(tag_item.GetTimestamp(&ts) > 0 && diffdatetimesec(ts, rest_dtm) >= 0) // @v10.0.02
+						do_skip = 1;
 				}
 			}
         }
@@ -6396,7 +6394,7 @@ int SLAPI PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollec
 		else {
 			(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
 			ps.Split(temp_buf);
-			if(ps.Ext.CmpNC("xml") == 0) {
+			if(ps.Ext.IsEqiAscii("xml")) {
 				PPEgaisProcessor::Reply * p_new_reply = rList.CreateNewItem();
 				THROW_SL(p_new_reply);
 				p_new_reply->Status |= Reply::stOffline;
@@ -8184,7 +8182,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 		}
 	}
 	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+3000)) {
-		const int rmv_debug_mode = (rParam.ParamString.CmpNC("yes") == 0) ? 0 : 1;
+		const int rmv_debug_mode = rParam.ParamString.IsEqiAscii("yes") ? 0 : 1;
 		THROW(GetUtmList(rParam.LocID, utm_list));
 		PPWait(1);
 		for(uint i = 0; i < utm_list.getCount(); i++) {
