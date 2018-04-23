@@ -1225,6 +1225,7 @@ public:
 	static int IdBillFrghtStrgLoc;  // @v8.8.6 (billID)
 	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
 	static int IdStrByStrGroupPos;  // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
 
 	static int SLAPI Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -17325,6 +17326,8 @@ public:
 	int    FASTCALL Copy(const PPGenCashNode & rS);
 	int    SLAPI SetRoundParam(const RoundParam * pParam);
 	int    SLAPI GetRoundParam(RoundParam * pParam) const;
+	void   SLAPI DrvVerToStr(SString & rS) const;
+	int    SLAPI DrvVerFromStr(const char * pS);
 
 	PPID   ID;               // @id
 	char   Name[48];         // @name

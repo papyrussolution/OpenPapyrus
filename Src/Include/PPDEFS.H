@@ -2865,6 +2865,7 @@
 	#define CTLBRW_CASHN_SLIPFMTPATH    (44 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_PASSIVE           (45 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_ST_CRBILL         (46 + WINDOWS_ID_BIAS)
+	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS) // @v10.0.03 вместо CTL_CASHN_DRVVERMAJOR/CTL_CASHN_DRVVERMINOR
 #define DLG_CALCPRICE             144 // Спец. калькулятор (расчет наценки)
 	#define CTL_CALCPRICE_COST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PERCENT        (2 + WINDOWS_ID_BIAS)
@@ -8342,6 +8343,7 @@
 	#define CTLSEL_EXTDEV_ALTREG        (25 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_HOSTICURL        (26 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EXTDEV_HOSTICURL     (27 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_DRVVER           (28 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101

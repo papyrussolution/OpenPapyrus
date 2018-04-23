@@ -6390,38 +6390,36 @@ BEGIN
     LTEXT           "@device",4003,10,40,135,8
     EDITTEXT        CTL_CASHN_DEVICE,10,50,135,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CASHN_DEVICE,145,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cashnode_drvvermajor",4004,10,70,70,8
-    EDITTEXT        CTL_CASHN_DRVVERMAJOR,85,70,25,13,ES_AUTOHSCROLL
-    LTEXT           "@cashnode_drvverminor",4005,110,75,8,8
-    EDITTEXT        CTL_CASHN_DRVVERMINOR,120,70,25,13,ES_AUTOHSCROLL
+    LTEXT           "@cashnode_drvver",4004,10,65,130,8
+    EDITTEXT        CTL_CASHN_DRVVER,10,75,75,13,ES_AUTOHSCROLL
     GROUPBOX        "",IDC_STATIC,170,30,245,65
-    LTEXT           "@cashnode_loc",4007,175,40,180,8
+    LTEXT           "@cashnode_loc",4006,175,40,180,8
     EDITTEXT        CTL_CASHN_LOC,175,50,220,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CASHN_LOC,395,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cashnode_extquot",4008,175,65,210,8
+    LTEXT           "@cashnode_extquot",4007,175,65,210,8
     EDITTEXT        CTL_CASHN_EXTQUOT,175,75,220,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CASHN_EXTQUOT,395,75,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@group",4006,10,100,140,8
+    LTEXT           "@group",4005,10,100,140,8
     EDITTEXT        CTL_CASHN_GROUP,10,110,135,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CASHN_GROUP,145,110,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cashnode_goodslocassoc",4009,175,100,220,8
+    LTEXT           "@cashnode_goodslocassoc",4008,175,100,220,8
     EDITTEXT        CTL_CASHN_NOA,175,110,220,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_CASHN_NOA,395,110,13,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "@cashnode_cashfx_glassocprintonly_async",5328,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,175,125,220,13
     GROUPBOX        "",IDC_STATIC,5,160,290,125
     EDITTEXT        CTL_CASHN_GOODSGRP,10,145,265,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@cashnode_goodsgrp",4010,10,135,160,8
+    LTEXT           "@cashnode_goodsgrp",4009,10,135,160,8
     PUSHBUTTON      "",CTLSEL_CASHN_GOODSGRP,275,145,12,13,BS_BITMAP | NOT WS_TABSTOP
     CONTROL         "@cashnode_cashfx_passive",5341,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,305,290,120,13
-    LTEXT           "@cashnode_async_impfiles",4011,10,170,195,8
+    LTEXT           "@cashnode_async_impfiles",4010,10,170,195,8
     EDITTEXT        CTL_CASHN_IMPFILES,10,180,265,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_CASHN_IMPFILES,275,180,14,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cashnode_async_exppaths",4012,10,195,200,8
+    LTEXT           "@cashnode_async_exppaths",4011,10,195,200,8
     EDITTEXT        CTL_CASHN_EXPPATHS,10,205,265,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_CASHN_EXPPATHS,275,205,14,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cashnode_async_lognumlist",4013,10,220,260,8
+    LTEXT           "@cashnode_async_lognumlist",4012,10,220,260,8
     EDITTEXT        CTL_CASHN_LOGNUMS,10,230,280,13,ES_AUTOHSCROLL
-    LTEXT           "@cashnode_async_addedmsgsign",4014,10,245,185,8
+    LTEXT           "@cashnode_async_addedmsgsign",4013,10,245,185,8
     EDITTEXT        CTL_CASHN_ADDEDMSGSIGN,10,255,180,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_CASHN_FLAGS,300,140,240,145,WS_GROUP
     CONTROL         "@cashnode_cashf_expcheckd",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,305,150,230,10
@@ -6436,10 +6434,10 @@ BEGIN
     CONTROL         "@cashnode_cashfx_createobjsonimp",42171,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,305,240,225,10
     CONTROL         "@cashnode_cashfx_separatercpprn",46267,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,305,250,225,10
     CONTROL         "@cashnode_cashfx_ignlookbackprices",50363,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,305,260,230,10
-    PUSHBUTTON      "@{group}-@{department}...",4015,5,305,105,13
+    PUSHBUTTON      "@{group}-@{department}...",4014,5,305,105,13
     PUSHBUTTON      "Параметры импорта...",CTL_CASHN_IMPPARAM,120,305,105,13
     PUSHBUTTON      "@but_tags",STDCTL_TAGSBUTTON,235,305,60,13
-    PUSHBUTTON      "Корреспондирующие узлы",4016,415,125,125,13
+    PUSHBUTTON      "Корреспондирующие узлы",4015,415,125,125,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,425,305,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,490,305,50,13
     LTEXT           "",CTL_CASHN_ST_CRBILL,5,290,290,13,0,WS_EX_STATICEDGE
@@ -9738,9 +9736,11 @@ BEGIN
     EDITTEXT        CTL_EXTDEV_KBELLPORT,245,159,90,13,ES_AUTOHSCROLL
     LTEXT           "@cashnode_scn_kitchenbell_cmd",4012,340,150,75,8
     EDITTEXT        CTL_EXTDEV_KBELLCMD,340,159,90,13,ES_AUTOHSCROLL
-    LTEXT           "@cashnode_scn_manufserial",4013,10,204,205,8
+    LTEXT           "@cashnode_scn_manufserial",4013,10,204,140,8
     EDITTEXT        CTL_EXTDEV_MANUFSERIAL,10,215,105,13,ES_AUTOHSCROLL
-    LTEXT           "@cashnode_sync_exchangeurl",4014,10,230,210,8
+    LTEXT           "@cashnode_drvver",4014,170,205,85,8
+    EDITTEXT        CTL_EXTDEV_DRVVER,170,215,50,13,ES_AUTOHSCROLL
+    LTEXT           "@cashnode_sync_exchangeurl",4015,10,230,210,8
     EDITTEXT        CTL_EXTDEV_HOSTICURL,10,240,210,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_EXTDEV_HOSTICURL,220,240,15,13,NOT WS_TABSTOP
     GROUPBOX        "@cashnode_egaismode",CTL_EXTDEV_EGAISMODE,275,180,160,60,WS_GROUP
@@ -9748,12 +9748,12 @@ BEGIN
     CONTROL         "@cashnode_egaismode_dontuse",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,200,145,10
     CONTROL         "@cashnode_egaismode_testmode",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,210,145,10
     CONTROL         "@cashnode_egaismode_scanmarkonly",17605,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,280,220,145,10
-    PUSHBUTTON      "@{cashnode_sync_custdisp}...",4016,10,260,90,13
+    PUSHBUTTON      "@{cashnode_sync_custdisp}...",4017,10,260,90,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,320,260,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,385,260,50,13
     LTEXT           "@cashnode_sync_localtouchscr_prompt",IDC_STATIC,15,66,185,19
     GROUPBOX        "",IDC_STATIC,5,0,210,90
-    PUSHBUTTON      "@{cashnode_sync_bnkterm}...",4017,130,260,90,13
+    PUSHBUTTON      "@{cashnode_sync_bnkterm}...",4018,130,260,90,13
     GROUPBOX        "@cashnode_scn_cashdrawer",IDC_STATIC,240,95,195,45
     GROUPBOX        "@cashnode_scn_kitchenbell",IDC_STATIC,240,140,195,40
     GROUPBOX        "",IDC_STATIC,240,0,195,90

@@ -1655,7 +1655,7 @@ PPERR_INVDATEREP                    "Не допустимые параметр�
 
 PPERR_CUSTDISP				        "Ошибка дисплея покупателя [%s]"
 PPERR_BNKTERM				        "Ошибка банковского терминала [%s]"
-PPERR_INVSCARDHASH                  "Неверный код пластиковой карты"
+PPERR_INVSCARDHASH                  "Неверный код персональной карты"
 PPERR_EDSERROR				        "Ошибка ЭЦП"
 PPERR_EDS_OPENCERTSTORE				"Ошибка открытия хранилища сертификатов"
 PPERR_EDS_GETCERT					"Ошибка получения контекста сертификата"
@@ -2027,6 +2027,7 @@ PPERR_SLIPFMT_NOTFOUND           "Формат '%s' не найден в фай�
 PPERR_MISPLACEDELSE              "Недопустимое использование оператора 'else'"
 PPERR_MISPLACEDENDIF             "Недопустимое использование оператора 'endif'"
 PPERR_MISPLACEDIF                "Недопустимое использование оператора 'if'"
+PPERR_INVVERSIONTEXT             "Неверно задан номер версии '%s'"
 
 // LastError
 
@@ -7491,6 +7492,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_disrounding                     "Округление скидки" // generic
 @cashnode_amtroundprec                    "@{precision}"
 @cashnode_disroundprec                    "@{precision}"
+@cashnode_drvver                          "Версия драйвера" // generic (объединяет @cashnode_drvvermajor и @cashnode_drvverminor)
 @cashnode_drvvermajor                     "Версия драйвера"
 @cashnode_drvverminor                     "."
 @cashnode_extquot                         "Дополнительная котировка для дисконтных карт"

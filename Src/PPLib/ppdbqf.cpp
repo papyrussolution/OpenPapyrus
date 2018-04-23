@@ -31,10 +31,10 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 			if(rec.Name[0] == 0)
 				ideqvalstr(id, rec.Name, sizeof(rec.Name));
 		}
-		// @v9.9.4 
+		// @v9.9.4
 		//result->init(rec.Name);
-		
-		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name); // @v9.9.4 
+
+		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name); // @v9.9.4
 	}
 }
 
@@ -160,6 +160,16 @@ static IMPL_DBE_PROC(dbqf_billfrghtissuedt_i)
 {
 	PPFreight freight;
 	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.IssueDate : ZERODATE);
+}
+
+static IMPL_DBE_PROC(dbqf_billdate_i)
+{
+	BillTbl::Rec bill_rec;
+	const PPID bill_id = params[0].lval;
+	if(bill_id && BillObj->Fetch(bill_id, &bill_rec) > 0)
+		result->init(bill_rec.Dt);
+	else
+		result->init(ZERODATE);
 }
 
 static IMPL_DBE_PROC(dbqf_billfrghtarrvldt_i)
@@ -1236,6 +1246,7 @@ int PPDbqFuncPool::IdDateBase          = 0; // @v8.6.11 (dateValue, baseDate) Те
 int PPDbqFuncPool::IdBillFrghtStrgLoc  = 0; // @v8.8.6
 int PPDbqFuncPool::IdSCardExtString    = 0; // @v9.6.1 (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos  = 0; // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+int PPDbqFuncPool::IdBillDate          = 0; // @v10.0.03
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1457,6 +1468,7 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   BTS_STRING, dbqf_billfrghtdlvraddr_i, 1, BTS_INT)); // @v8.7.9
 	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    BTS_STRING, dbqf_billfrghtstrgloc_i, 1, BTS_INT)); // @v8.8.6
 	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,  1, BTS_INT)); // @v8.3.6
+	THROW(DbqFuncTab::RegisterDyn(&IdBillDate,            BTS_DATE,   dbqf_billdate_i, 1, BTS_INT)); // @v10.0.03
 	THROW(DbqFuncTab::RegisterDyn(&IdCQtty,               BTS_STRING, dbqf_cqtty_rrii, 4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBillStatus,   BTS_STRING, dbqf_objname_billstatus_i,  1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameOprKind,      BTS_STRING, dbqf_objname_oprkind_i,     1, BTS_INT));

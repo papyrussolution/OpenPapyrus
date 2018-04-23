@@ -9347,6 +9347,7 @@ private:
 #define SNTOK_TIME          20 // time
 #define SNTOK_SOFTWAREVER   21 // 9.9.9
 #define SNTOK_COLORHEX      22 // #hhhhhh
+#define SNTOK_REALNUMBER    23 // 9.9 || .9 || 9.
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -9362,10 +9363,10 @@ private:
 #define SNTOKSEQ_DECHYPHEN  0X00000800 // ТОЛЬКО DEC && -
 #define SNTOKSEQ_HEXCOLON   0X00001000 // ТОЛЬКО HEX && :
 #define SNTOKSEQ_DECCOLON   0X00002000 // ТОЛЬКО DEC && :
-#define SNTOKSEQ_HEXDOT     0X00001000 // ТОЛЬКО HEX && .
-#define SNTOKSEQ_DECDOT     0X00002000 // ТОЛЬКО DEC && .
-#define SNTOKSEQ_DECSLASH   0X00004000 // ТОЛЬКО DEC && /
-#define SNTOKSEQ_LEADSHARP  0X00008000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_HEXDOT     0X00004000 // ТОЛЬКО HEX && .
+#define SNTOKSEQ_DECDOT     0X00008000 // ТОЛЬКО DEC && .
+#define SNTOKSEQ_DECSLASH   0X00010000 // ТОЛЬКО DEC && /
+#define SNTOKSEQ_LEADSHARP  0X00020000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
 
 struct SNaturalTokenStat {
 	SLAPI  SNaturalTokenStat();

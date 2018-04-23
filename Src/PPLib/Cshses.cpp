@@ -1730,12 +1730,12 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					updated = 0;
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
+					DlsObjTbl::Rec dlso_rec;
 					PROFILE_START
 					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(grec.ID, UserOnlyGoodsGrpID))
 						updated = 0;
 					else if(!UpdGoods.bsearch(grec.ID)) {
 						if(P_Dls) {
-							DlsObjTbl::Rec dlso_rec;
 							if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, grec.ID, CurDate, &dlso_rec) > 0) {
 								old_price = dlso_rec.Val;
 								if(dbl_cmp(old_price, price_) == 0)
@@ -1753,6 +1753,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				}
 				if(updated && price_ > 0.0) {
 					uint  i;
+					PPUnit unit_rec;
 					PPQuotArray quot_list(grec.ID);
 					if(Algorithm == algUpdBillsVerify && !IterGoodsList.bsearch(grec.ID)) {
 						PPFormat(VerMissMsg, &temp_buf, grec.ID, grec.Name, UpdGoods.bsearch(grec.ID), old_price, price_);
@@ -1775,11 +1776,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					Rec.Cost     = rtl_ext_item.Cost;
 					Rec.Price    = price_;
 					Rec.Precision = fpow10i(-3);
-					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND) {
-						PPUnit unit_rec;
-						if(GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding > 0.0)
-							Rec.Precision = unit_rec.Rounding;
-					}
+					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding > 0.0)
+						Rec.Precision = unit_rec.Rounding;
 					Rec.GoodsFlags = grec.Flags;
 					if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;

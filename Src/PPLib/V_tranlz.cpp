@@ -486,13 +486,9 @@ public:
 	{
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
-	{
-		return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
-	}
+		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
 	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-	{
-		return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
-	}
+		{ return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0; }
 protected:
 	PPViewTrfrAnlz * P_V;
 };
@@ -1962,6 +1958,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	DBE    dbe_serial;    // @v8.4.11
 	DBE    dbe_rest;      // @v9.1.3
 	DBE    dbe_trnovr;    // @v9.1.5
+	DBE    dbe_linkdate;  // @v10.0.03
 	DBQ  * dbq = 0, * dbq2 = 0;
 	DBQuery * q = 0;
 	if(P_Ct) {
@@ -2093,10 +2090,17 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
                         else {
 							q->addField(tat->ID__);   // #18 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
                         }
+						{
+							dbe_linkdate.init();
+							dbe_linkdate.push(tat->LinkBillID);
+							dbe_linkdate.push((DBFunc)PPDbqFuncPool::IdBillDate);
+							q->addField(dbe_linkdate); // #19 @v10.0.03
+						}
 					}
 					else {
 						q->addField(tat->ID__);  // #17 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17
 						q->addField(tat->ID__);  // #18 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
+						q->addField(tat->ID__);  // #19 @stub
 					}
 					// } @v8.4.11
 				}
@@ -2431,6 +2435,11 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				if(Filt.Flags & Filt.fCmpWrOff) {
 					uint pos = 0;
 					if(p_q) {
+						// @v10.0.03 {
+						if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
+							pBrw->InsColumn(-1, "LinkDate", 19, 0, DATF_DMY, 0);
+						}
+						// } @v10.0.03 
 						if(p_q->getFieldPosByName("LinkQtty", &pos))
 							pBrw->InsColumn(-1, "LinkQtty", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
 						if(p_q->getFieldPosByName("LinkCost", &pos))

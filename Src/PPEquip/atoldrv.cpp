@@ -144,16 +144,17 @@ private:
 		ReportType,
 		DocNumber,
 		PointPosition,
-		PrintBarcode,      // @v9.1.4
-		Barcode,           // @v9.1.4
-		BarcodeType,       // @v9.1.4
-		Height,            // @v9.1.4
-		PrintBarcodeText,  // @v9.1.4
-		AutoSize,          // @v9.1.8
-		Alignment,         // @v9.1.8
-		Scale,             // @v9.1.8
-		PrintPurpose,      // @v9.1.8
-		BarcodeControlCode // @v9.1.8
+		PrintBarcode,       // @v9.1.4
+		Barcode,            // @v9.1.4
+		BarcodeType,        // @v9.1.4
+		Height,             // @v9.1.4
+		PrintBarcodeText,   // @v9.1.4
+		AutoSize,           // @v9.1.8
+		Alignment,          // @v9.1.8
+		Scale,              // @v9.1.8
+		PrintPurpose,       // @v9.1.8
+		BarcodeControlCode, // @v9.1.8
+		TaxTypeNumber,      // @v10.0.03 1..5
 	};
 
 	enum AtolDrvFlags {
@@ -200,14 +201,12 @@ PPSyncCashSession * SLAPI CM_ATOLDRV::SyncInterface()
 
 REGISTER_CMT(ATOLDRV,1,0);
 
-SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port)
+SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR)
 {
 	RefToIntrf++;
 	SETIFZ(P_Disp, InitDisp());
-	Flags = 0;
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
-	ResCode = RESCODE_NO_ERROR;
 }
 
 SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
@@ -288,6 +287,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);     // @v9.1.8
 	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);       // @v9.1.8
 	THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0); // @v9.1.8
+	THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
 	CATCH
 		ZDELETE(p_disp);
 	ENDCATCH
@@ -335,49 +335,23 @@ int SLAPI SCS_ATOLDRV::InitChannel()
 }
 
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, bool propValue)
-{
-	return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, int propValue)
-{
-	return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, long propValue)
-{
-	return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, double propValue)
-{
-	return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, const char * pPropValue)
-{
-	return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::GetProp(uint propID, bool  * pPropValue)
-{
-	return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::GetProp(uint propID, int * pPropValue)
-{
-	return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::GetProp(uint propID, long * pPropValue)
-{
-	return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1);
-}
-
+	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::GetProp(uint propID, double * pPropValue)
-{
-	return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1);
-}
+	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 
 int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 {
@@ -651,7 +625,9 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash);
 		double running_total = 0.0;
-		double fiscal = 0.0, nonfiscal = 0.0;
+		double fiscal = 0.0;
+		double nonfiscal = 0.0;
+		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
 		THROW(Connect());
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		fiscal = fabs(fiscal); // @v8.5.9
@@ -707,6 +683,25 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
 						}
+						// @v10.0.03 {
+						{
+							int    tax_type_number = 1;
+							if(is_vat_free)
+								tax_type_number = 4;
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									tax_type_number = 1;
+								else if(vatrate == 10.0)
+									tax_type_number = 2;
+								else if(vatrate == 0.0)
+									tax_type_number = 3;
+								else
+									tax_type_number = 1; // @defaul5
+							}
+							THROW(SetProp(TaxTypeNumber, tax_type_number));
+						}
+						// } @v10.0.03 
 						THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  (int32)sl_param.DivID));
 						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						Flags |= sfOpenCheck;
