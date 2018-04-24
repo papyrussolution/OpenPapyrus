@@ -242,6 +242,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 //
 #else // } !_PPSERVER && !_PPDLL {
 
+int SLAPI SGetAudioVolume(int decibels, double * pVolume); // @debug
+int SLAPI SSetAudioVolume(int decibels, double volume); // @debug
+
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	int    ret = 0;
@@ -255,6 +258,11 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 		if(DS.Init(PPSession::fInitPaths)) {
 //#if SLTEST_RUNNING
 			TestNoLogin();
+			/*
+			double curr_volume = 0.0;
+			SGetAudioVolume(0, &curr_volume);
+			SSetAudioVolume(0, 1.0);
+			*/
 //#endif
 			if(!PEOpenEngine()) {
 				PPSetError(PPERR_CRYSTAL_REPORT);

@@ -947,13 +947,10 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 		Capability = preserve_capability;
 		if(PPErrCode == PPERR_INVFILTVERSION) {
 			PPView::Rc rc;
-			if(PPView::LoadResource(1, Signature, rc) > 0) {
+			if(PPView::LoadResource(1, Signature, rc) > 0)
 				PPSetAddedMsgString(rc.Symb);
-			}
-			else {
-				temp_buf.Z().Cat(Signature);
-				PPSetAddedMsgString(rc.Symb);
-			}
+			else
+				PPSetAddedMsgString(temp_buf.Z().Cat(Signature));
 		}
 		ok = 0;
 	ENDCATCH

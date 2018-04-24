@@ -34,8 +34,8 @@ int PPCliBnkImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader &
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
-		BnkCode = 0;
-		PaymMethodTransl = 0;
+		BnkCode.Z();
+		PaymMethodTransl.Z();
 		DefPayerByAmtSign = 0;
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
@@ -87,8 +87,8 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 	SString params, fld_name, param_val;
 	StringSet excl;
 	RVALUEPTR(excl, pExclParamList);
-	BnkCode = 0;
-	PaymMethodTransl = 0;
+	BnkCode.Z();
+	PaymMethodTransl.Z();
 	THROW(PPLoadText(PPTXT_CLIENTBANKPARAMS, params));
 	if(PPGetSubStr(params, PPCLBNKPAR_BANKCODE, fld_name)) {
 		excl.add(fld_name);
@@ -216,6 +216,7 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 	}
 	const char * SLAPI GetContragentName() const { return WeArePayer ? ReceiverName : PayerName; }
 	const char * SLAPI GetContragentINN()  const { return WeArePayer ? ReceiverINN  : PayerINN;  }
+	const char * SLAPI GetContragentBnkAcc() const { return WeArePayer ? ReceiverBankAcc  : PayerBankAcc;  } // @v10.0.03
 	const char * SLAPI GetOurBIC() const { return WeArePayer ? PayerBankCode : ReceiverBankCode; }
 	SString & SLAPI MakeDescrText(SString &) const;
 
@@ -243,38 +244,7 @@ public:
 		pItem->AddedAssocTag = -1;
 		int    ok = P_ImEx ? P_ImEx->ReadRecord(pItem, sizeof(*pItem)) : 0;
 		if(ok > 0) {
-			P_ImEx->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, pItem); // @v9.3.10
-			// @v9.3.10 SCharToOem(pItem->Code);
-			// @v9.3.10 SCharToOem(pItem->Purpose);
-			// @v9.3.10 SCharToOem(pItem->PurposePlusVat);
-			// @v9.3.10 SCharToOem(pItem->PayerName);
-			// @v9.3.10 SCharToOem(pItem->PayerINN);
-			// @v9.3.10 SCharToOem(pItem->PayerBankAcc);
-			// @v9.3.10 SCharToOem(pItem->PayerBankName);
-			// @v9.3.10 SCharToOem(pItem->PayerBankCode);
-			// @v9.3.10 SCharToOem(pItem->PayerBankCorr);
-			// @v9.3.10 SCharToOem(pItem->ReceiverName);
-			// @v9.3.10 SCharToOem(pItem->ReceiverINN);
-			// @v9.3.10 SCharToOem(pItem->ReceiverBankAcc);
-			// @v9.3.10 SCharToOem(pItem->ReceiverBankName);
-			// @v9.3.10 SCharToOem(pItem->ReceiverBankCode);
-			// @v9.3.10 SCharToOem(pItem->ReceiverBankCorr);
-			// @v9.3.10 SCharToOem(pItem->Obj2INN);
-			// @v9.3.10 SCharToOem(pItem->Obj2Name);
-			// @v9.3.10 SCharToOem(pItem->TaxPayerKPP);
-			// @v9.3.10 SCharToOem(pItem->TaxReceiverKPP);
-			// @v9.3.10 SCharToOem(pItem->TaxPayerStatus);
-			// @v9.3.10 SCharToOem(pItem->TaxClass);
-			// @v9.3.10 SCharToOem(pItem->OKATO);
-			// @v9.3.10 SCharToOem(pItem->TaxReason);
-			// @v9.3.10 SCharToOem(pItem->TaxPeriod);
-			// @v9.3.10 SCharToOem(pItem->TaxDocNumber);
-			// @v9.3.10 SCharToOem(pItem->TaxDocDate);
-			// @v9.3.10 SCharToOem(pItem->TaxPaymType);
-			// @v9.3.10 SCharToOem(pItem->AgentINN);
-			// @v9.3.10 SCharToOem(pItem->AgentName);
-			// @v9.3.10 SCharToOem(pItem->LocSymb);
-			// @v9.3.10 SCharToOem(pItem->DebtBillCode);
+			P_ImEx->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, pItem);
 		}
 		return ok;
 	}
@@ -286,7 +256,6 @@ public:
 	{
 		int    ok = 1;
 		if(P_ImEx) {
-			// @v7.4.6 {
 			if(!Period.IsZero()) {
 				Sdr_ImpExpHeader hdr_data;
 				MEMSZERO(hdr_data);
@@ -296,7 +265,6 @@ public:
 			}
 			else
 				P_ImEx->SetHeaderData(0);
-			// } @v7.4.6
 			P_ImEx->OpenFileForWriting(0, 1);
 		}
 		else
@@ -659,8 +627,15 @@ int SLAPI ClientBankImportDef::ImportAll()
 				THROW(psn_obj.GetListByRegNumber(PPREGT_TPID, 0, contragent_inn, psn_list));
 				THROW(ar_obj.GetByPersonList(0, &psn_list, &ar_list));
 			}
-			else
-				ar_list.add((long)0);
+			else {
+				contragent_inn = item.GetContragentBnkAcc();
+				if(contragent_inn.NotEmptyS()) {
+					THROW(psn_obj.GetListByRegNumber(PPREGT_BANKACCOUNT, 0, contragent_inn, psn_list));
+					THROW(ar_obj.GetByPersonList(0, &psn_list, &ar_list));
+				}
+				else
+					ar_list.add((long)0);
+			}
 			for(i = 0; i < ar_list.getCount(); i++) {
 				const PPID ar_id = ar_list.get(i);
 				ArticleTbl::Rec ar_rec;
@@ -767,12 +742,8 @@ int SLAPI ClientBankImportDef::ImportAll()
 	return ok;
 }
 
-Helper_ClientBank2::Helper_ClientBank2(const DateRange * pPeriod)
+Helper_ClientBank2::Helper_ClientBank2(const DateRange * pPeriod) : AcceptedCount(0), RejectedCount(0), AcceptedAmount(0.0), P_ImEx(0)
 {
-	AcceptedCount = 0;
-	RejectedCount = 0;
-	AcceptedAmount = 0;
-	P_ImEx = 0;
 	Period.Set(pPeriod);
 }
 
@@ -843,10 +814,7 @@ SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & 
 }
 
 static SString & FASTCALL _EncodeStr(const char * pStr, SString & rBuf)
-{
-	//SOemToChar
-	return (rBuf = pStr).Transf(CTRANSF_INNER_TO_OUTER);
-}
+	{ return (rBuf = pStr).Transf(CTRANSF_INNER_TO_OUTER); }
 
 int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
 {

@@ -685,9 +685,17 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						// @v10.0.03 {
 						{
+							//
+							// 1 - 18
+							// 2 - 10
+							// 3 - 18/118
+							// 4 - 10/110
+							// 5 - 0
+							// 6 - áåç ÍÄÑ
+							//
 							int    tax_type_number = 1;
 							if(is_vat_free)
-								tax_type_number = 4;
+								tax_type_number = 6;
 							else {
 								const double vatrate = fabs(sl_param.VatRate);
 								if(vatrate == 18.0)
@@ -695,7 +703,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								else if(vatrate == 10.0)
 									tax_type_number = 2;
 								else if(vatrate == 0.0)
-									tax_type_number = 3;
+									tax_type_number = 5;
 								else
 									tax_type_number = 1; // @defaul5
 							}

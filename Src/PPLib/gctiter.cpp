@@ -954,25 +954,43 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		if(Filt.Flags & OPG_COMPAREWROFF && BCache && BCache->Get(CurrID, &bill_rec) > 0) {
 			PPOprKind op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
-			if(op_rec.OpTypeID == PPOPT_GOODSORDER && !(op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {
+			if(op_rec.OpTypeID == PPOPT_GOODSORDER) {
 				PPObjBill * p_bobj = BillObj;
 				PPTransferItem ti;
 				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
 				if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
 					PPID   single_wroff_bill_id = 0;
-					BillTbl::Rec sh_rec;
 					PPBillPacket temp_pack;
-					for(DateIter di; p_bobj->P_Tbl->EnumByObj(CurrID, &di, &sh_rec) > 0;) {
-						if(sh_rec.OpID == 0) {
-							THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
-							if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
-								for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
-									THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+					BillTbl::Rec sh_rec;
+					if(op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD) {
+						for(DateIter di; p_bobj->P_Tbl->EnumLinks(CurrID, &di, BLNK_ALL, &sh_rec) > 0;) {
+							if(IsDraftOp(sh_rec.OpID)) {
+								THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
+								if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
+									for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
+										THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+									}
+									if(!single_wroff_bill_id)
+										single_wroff_bill_id = temp_pack.Rec.ID;
+									else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
+										single_wroff_bill_id = -1;
 								}
-								if(!single_wroff_bill_id)
-									single_wroff_bill_id = temp_pack.Rec.ID;
-								else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
-									single_wroff_bill_id = -1;
+							}
+						}
+					}
+					else {
+						for(DateIter di; p_bobj->P_Tbl->EnumByObj(CurrID, &di, &sh_rec) > 0;) {
+							if(sh_rec.OpID == 0) {
+								THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
+								if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
+									for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
+										THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+									}
+									if(!single_wroff_bill_id)
+										single_wroff_bill_id = temp_pack.Rec.ID;
+									else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
+										single_wroff_bill_id = -1;
+								}
 							}
 						}
 					}

@@ -1996,9 +1996,7 @@ public:
 
 		indInvalid = 0xff, // Используется как внутренний код возврата, означающий ошибку
 
-        indMkSec = 0,  // since 1601-01-01 (UTC).
-		indMSec,       // since 1601-01-01 (UTC).
-		indCSec,       // since 1601-01-01 (UTC).
+		indMSec  = 0,  // since 1601-01-01 (UTC).
         indSec,        // since 1601-01-01 (UTC).
         indMin,        // since 1601-01-01 (UTC).
         indHr,         // since 1601-01-01 (UTC).

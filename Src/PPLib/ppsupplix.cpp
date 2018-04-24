@@ -2532,7 +2532,6 @@ public:
 	SLAPI  iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~iSalesPepsi();
 	int    SLAPI Init(/*PPID arID*/);
-	void   SLAPI GetLogFileName(SString & rFileName) const;
 	int    SLAPI ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const;
 	int    SLAPI ReceiveGoods(int forceSettings, int useStorage);
 	int    SLAPI ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
@@ -2593,7 +2592,6 @@ private:
 	SString UserName;
 	SString Password;
 	SString LastMsg;
-	SString LogFileName;
 	TSCollection <iSalesGoodsPacket> GoodsMapping;
 	PPObjPerson PsnObj;
 	PPLogger & R_Logger;
@@ -2620,11 +2618,6 @@ SLAPI iSalesPepsi::~iSalesPepsi()
 {
 	P_DestroyFunc = 0;
 	delete P_Lib;
-}
-
-void SLAPI iSalesPepsi::GetLogFileName(SString & rFileName) const
-{
-	rFileName = LogFileName;
 }
 
 int SLAPI iSalesPepsi::Init(/*PPID arID*/)
@@ -4418,7 +4411,6 @@ public:
 	SLAPI  SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~SapEfes();
 	void   SLAPI Init();
-	void   SLAPI GetLogFileName(SString & rFileName) const;
 	int    SLAPI ReceiveOrders();
 	int    SLAPI SendStocks();
 	int    SLAPI SendInvoices();
@@ -4456,12 +4448,6 @@ private:
 	SString Wareh;
 	//
 	SString LastMsg;
-	SString LogFileName;
-
-	//PPObjBill * P_BObj;
-	//PPObjLocation LocObj;
-	//PPObjGoods GObj;
-
 	PPLogger & R_Logger;
 };
 
@@ -4517,11 +4503,6 @@ void SLAPI SapEfes::Init()
 	Wareh.SetIfEmpty("DDJ0");
 	InitGoodsList(iglfWithArCodesOnly); // @v9.5.1
 	State |= stInited;
-}
-
-void SLAPI SapEfes::GetLogFileName(SString & rFileName) const
-{
-	rFileName = LogFileName;
 }
 
 int SLAPI SapEfes::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
@@ -5377,7 +5358,6 @@ public:
 	int    SLAPI ReceiveOrders();
 	int    SLAPI SendStocks();
 	int    SLAPI SendSales();
-	void   SLAPI GetLogFileName(SString & rFileName) const;
 	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 	int    SLAPI SendDebts();
 private:
@@ -5593,7 +5573,6 @@ private:
 	SString SalesOrg;
 	//
 	SString LastMsg;
-	SString LogFileName;
 	PPLogger & R_Logger;
 };
 
@@ -5636,11 +5615,6 @@ void SLAPI SfaHeineken::Init()
 	State |= stInited;
 }
 
-void SLAPI SfaHeineken::GetLogFileName(SString & rFileName) const
-{
-	rFileName = LogFileName;
-}
-
 int SLAPI SfaHeineken::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
 	LastMsg = rSess.GetMsg();
@@ -5681,8 +5655,9 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
 	sess.Setup(SvcUrl, UserName, Password);
 	// @v10.0.1 {
-	if(checkdate(P.ExpPeriod.low, 0) && P.ExpPeriod.upp == P.ExpPeriod.low)
+	if(checkdate(P.ExpPeriod.low, 0) && P.ExpPeriod.upp == P.ExpPeriod.low) {
 		query_date = P.ExpPeriod.low;
+	}
 	// } @v10.0.1
 	p_result = func(sess, query_date, 0/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
@@ -5714,7 +5689,6 @@ int SLAPI SfaHeineken::ReceiveOrders()
 					}
 				}
 				if(!wh_id) {
-					//PPTXT_LOG_SUPPLIX_WAREHOUSENTAG     "Не удалость идентифицировать склад документа '@zstr' по тегу @zstr"
 					temp_buf.Z().Cat(p_src_pack->WarehouseID);
 					R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_WAREHOUSENTAG, &msg_buf, bill_uuid_text.cptr(), temp_buf.cptr()));
 				}
@@ -5728,7 +5702,6 @@ int SLAPI SfaHeineken::ReceiveOrders()
 									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, op_rec.AccSheetID, &ar_id);
 								}
 								if(!ar_id) {
-									//PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG "Не удалось сопоставить с покупателем адрес доставки с тегом '@zstr'"
 									temp_buf.Space().CatParStr(p_src_pack->ForeignDlvrAddrText);
 									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG, &msg_buf, temp_buf.cptr()));
 								}
@@ -5737,7 +5710,6 @@ int SLAPI SfaHeineken::ReceiveOrders()
 					}
 				}
 				if(!dlvr_loc_id) {
-					//PPTXT_LOG_SUPPLIX_DLVRLOCNTAG       "Не удалость идентифицировать адрес доставки документа '@zstr' по тегу @zstr"
 					temp_buf.Z().Cat(p_src_pack->ForeignDlvrAddrID).Space().CatParStr(p_src_pack->ForeignDlvrAddrText);
 					R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNTAG, &msg_buf, bill_uuid_text.cptr(), temp_buf.cptr()));
 				}
@@ -5974,13 +5946,9 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				}
 			}
 			if(order_uuid.IsZero() && inner_order_code.Empty()) {
-				// @todo message
-				//PPTXT_LOG_SUPPLIX_EBILLHASNTORDER   "Документ '@zstr' не привязан к заказу. Не передается."
 				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTORDER, &msg_buf, bill_text.cptr()));
 			}
 			else if(!dlvr_addr_id) {
-				// @todo message
-				//PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC "Документ '@zstr' не имеет адреса доставки. Не передается."
 				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC, &msg_buf, bill_text.cptr()));
 			}
 			else {
@@ -6015,7 +5983,6 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					p_o->InnerDlvrLocID = dlvr_addr_id;
 					{
 						PPLocationPacket loc_pack;
-						//ArticleTbl::Rec ar_rec;
 						THROW(LocObj.GetPacket(dlvr_addr_id, &loc_pack) > 0);
 						temp_buf.Z();
 						GetArticleName(pack.Rec.Object, temp_buf);
@@ -6381,9 +6348,9 @@ int FASTCALL PrcssrSupplInterchange::ExecuteBlock::IsGoodsUsed(PPID goodsID) con
 }
 
 const PPIDArray * PrcssrSupplInterchange::ExecuteBlock::GetGoodsList() const
-{
-	return (BaseState & bstGoodsListInited && !(BaseState & bstAnyGoods)) ? &GoodsList : 0;
-}
+	{ return (BaseState & bstGoodsListInited && !(BaseState & bstAnyGoods)) ? &GoodsList : 0; }
+void SLAPI PrcssrSupplInterchange::ExecuteBlock::GetLogFileName(SString & rFileName) const
+	{ rFileName = LogFileName; }
 
 int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use_ta)
 {
@@ -6476,7 +6443,7 @@ int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
 	SupplInterchangeFilt temp_filt;
-	State &= stInited;
+	State &= ~stInited; // @v10.0.03 @fix stInited-->~stInited
 	ZDELETE(P_Eb);
 	THROW(temp_filt.IsA(pBaseFilt));
 	temp_filt = *(SupplInterchangeFilt *)pBaseFilt;

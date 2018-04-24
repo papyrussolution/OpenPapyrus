@@ -664,6 +664,9 @@
 				RelativePath="..\SLib\Sarray.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\saudio.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Sbrodef.cpp">
 			</File>
 			<File

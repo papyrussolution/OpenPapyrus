@@ -86,6 +86,31 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString 
 	return ok;
 }
 
+int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode)
+{
+	rGtin.Z();
+	rArCode.Z();
+	int    ok = 1;
+	Goods2Tbl::Rec goods_rec;
+	BarcodeArray bc_list;
+	THROW(GObj.Search(goodsID, &goods_rec) > 0);
+	GObj.P_Tbl->ReadBarcodes(goodsID, bc_list);
+	for(uint bcidx = 0; rGtin.Empty() && bcidx < bc_list.getCount(); bcidx++) {
+		int    d = 0;
+		int    std = 0;
+		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
+		if(GObj.DiagBarcode(r_bc_item.Code, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
+			rGtin = r_bc_item.Code;
+	}
+	THROW_PP_S(rGtin.NotEmpty(), PPERR_EDI_WAREHASNTVALIDCODE, goods_rec.Name);
+	if(arID) {
+		GObj.P_Tbl->GetArCode(arID, goodsID, rArCode, 0);
+	}
+	CATCHZOK
+	ASSIGN_PTR(pRec, goods_rec);
+	return ok;
+}
+
 int SLAPI PPEdiProcessor::ProviderImplementation::GetIntermediatePath(const char * pSub, int docType, SString & rBuf)
 {
 	rBuf.Z();
@@ -1536,19 +1561,8 @@ int SLAPI PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, 
 	SString goods_code;
 	SString goods_ar_code;
 	Goods2Tbl::Rec goods_rec;
-	BarcodeArray bc_list;
 	THROW(qtty > 0.0); // @todo error (бессмысленная строка с нулевым количеством, но пока не ясно, что с ней делать - возможно лучше просто пропустить с замечанием).
-	THROW(P_Pi->GObj.Search(rTi.GoodsID, &goods_rec) > 0);
-	P_Pi->GObj.P_Tbl->ReadBarcodes(rTi.GoodsID, bc_list);
-	for(uint bcidx = 0; goods_code.Empty() && bcidx < bc_list.getCount(); bcidx++) {
-		int    d = 0;
-		int    std = 0;
-		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
-		if(P_Pi->GObj.DiagBarcode(r_bc_item.Code, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE)) {
-			goods_code = r_bc_item.Code;
-		}
-	}
-	THROW_PP_S(goods_code.NotEmpty(), PPERR_EDI_WAREHASNTVALIDCODE, goods_rec.Name);
+	THROW(P_Pi->GetGoodsInfo(rTi.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
 	{
 		THROW(Write_LIN(rDoc, rTi.RByBill, goods_code));
 		rTotal.SegCount++;
@@ -2711,7 +2725,11 @@ private:
 		return ok;
 	}
 	int    SLAPI ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	//int    SLAPI WriteOwnFormatContractor(SXml::WDoc & rDoc, const OwnFormatContractor & rC);
+	int    SLAPI WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID)
+	{
+		int    ok = 1;
+		return ok;
+	}
 	int    SLAPI ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC)
 	{
 		int    ok = 1;
@@ -2782,10 +2800,13 @@ private:
 			n_hdr.PutInner("recipient", "");
 			n_hdr.PutInner("documentType", "");
 			n_hdr.PutInner("creationDateTime", "");
-			n_hdr.PutInner("isTest", "0");
+			//n_hdr.PutInner("isTest", "1");
 		}
 		{
 			SXml::WNode n_b(_doc, "order"); // <order number="OR012012552011" date="2014-02-07" status="Replace" revisionNumber="02">
+			n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+			n_b.PutAttrib("status", "Original");
 			{
 				SXml::WNode n_i(_doc, "proposalOrdersIdentificator"); // <proposalOrdersIdentificator number="001" date="2014-02-06"/>
 			}
@@ -2796,25 +2817,33 @@ private:
 			n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
 			{
 				SXml::WNode n_i(_doc, "seller");
+				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
 			}
 			{
 				SXml::WNode n_i(_doc, "buyer");
+				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
 			}
 			{
 				SXml::WNode n_i(_doc, "invoicee");
 			}
 			{
 				SXml::WNode n_i(_doc, "deliveryInfo");
+				THROW(WriteOwnFormatContractor(_doc, MainOrgID, rBp.Rec.LocID));
 			}
 			n_b.PutInnerSkipEmpty("comment", ""); // <!--номер промоакции-->
 			{
+				SString goods_code;
+				SString goods_ar_code;
+				Goods2Tbl::Rec goods_rec;
+
 				SXml::WNode n_dtl(_doc, "lineItems");
 				n_dtl.PutInner("currencyISOCode", "RUB");
 				for(uint i = 0; i < rBp.GetTCount(); i++) {
 					const PPTransferItem & r_ti = rBp.ConstTI(i);
 					SXml::WNode n_item(_doc, "lineItem");
-					n_item.PutInner("gtin", "");
-					n_item.PutInner("internalBuyerCode", "");
+					THROW(GetGoodsInfo(r_ti.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
+					n_item.PutInner("gtin", goods_code);
+					n_item.PutInner("internalBuyerCode", temp_buf.Z().Cat(goods_rec.ID));
 					n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 					n_item.PutInnerSkipEmpty("comment", "");
 					{
@@ -2830,6 +2859,7 @@ private:
 				n_dtl.PutInner("totalSumExcludingTaxes", "");
 			}
 		}
+		CATCHZOK
 		return ok;
 	}
 	int   SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const PPBillPacket & rBp)
@@ -2848,6 +2878,9 @@ private:
 		}
 		{
 			SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
+			n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+			n_b.PutAttrib("status", "Original");
 			{
 				SXml::WNode n_i(_doc, "originOrder"); // <originOrder number="ORSP0012" date="2014-02-07"/>
 			}
@@ -2868,28 +2901,36 @@ private:
 			}
 			{
 				SXml::WNode n_i(_doc, "seller");
+				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
 			}
 			{
 				SXml::WNode n_i(_doc, "buyer");
+				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
 			}
 			{
-				SXml::WNode n_i(_doc, "invoicee");
+				//SXml::WNode n_i(_doc, "invoicee");
 			}
-			{
+			if(rBp.P_Freight && rBp.P_Freight->DlvrAddrID) {
 				SXml::WNode n_i(_doc, "deliveryInfo");
+				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
 			}
 			n_b.PutInnerSkipEmpty("comment", ""); // <!--номер промоакции-->
 			{
+				SString goods_code;
+				SString goods_ar_code;
+				Goods2Tbl::Rec goods_rec;
+
 				SXml::WNode n_dtl(_doc, "lineItems");
 				n_dtl.PutInner("currencyISOCode", "RUB");
 				for(uint i = 0; i < rBp.GetTCount(); i++) {
 					const PPTransferItem & r_ti = rBp.ConstTI(i);
 					SXml::WNode n_item(_doc, "lineItem");
-					n_item.PutInner("gtin", "");
-					n_item.PutInner("internalSupplierCode", "");
-					n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
-					n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
-					n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
+					THROW(GetGoodsInfo(r_ti.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
+					n_item.PutInner("gtin", goods_code);
+					n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
+					//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
+					//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
+					//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
 					// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 					n_item.PutInnerSkipEmpty("comment", "");
 					{
@@ -2915,6 +2956,7 @@ private:
 				n_dtl.PutInner("totalAmount", ""); // Общая сумма с НДС по документу
 			}
 		}
+		CATCHZOK
 		return ok;
 	}
 };

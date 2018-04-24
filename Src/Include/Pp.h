@@ -29603,8 +29603,9 @@ public:
 		int    SLAPI GetArticleGLN(PPID arID, SString & rGLN);
 		int    SLAPI GetMainOrgGLN(SString & rGLN);
 		int    SLAPI GetLocGLN(PPID locID, SString & rGLN);
+		int    SLAPI GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
 
-		int    SLAPI ProviderImplementation::ValidateGLN(const SString & rGLN);
+		int    SLAPI ValidateGLN(const SString & rGLN);
 
 		PPEdiProviderPacket Epp;
 		PPID   MainOrgID;
@@ -36301,6 +36302,7 @@ public:
 		SLAPI  ExecuteBlock();
 		SLAPI  ExecuteBlock(const ExecuteBlock & rS);
 		int    SLAPI GetSequence(long * pSeq, int use_ta);
+		void   SLAPI GetLogFileName(SString & rFileName) const;
 
 		PPSupplAgreement::ExchangeParam Ep;
 		SupplInterchangeFilt P;
@@ -36323,6 +36325,7 @@ public:
 		PPObjLocation LocObj;
 		PPObjPerson   PsnObj;
 		PPObjBill * P_BObj;
+		SString LogFileName;
 	private:
 		PPID   SeqID;
 		long   BaseState;
