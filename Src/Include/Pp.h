@@ -17215,6 +17215,8 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается прожажа абстрактного товара по цене (в конфигурации товаров
 	// должен быть указан DefGoodsID).
 #define CASHFX_EXTNODEASALT       0x00400000L // @v9.6.9 (sync) Дополнительный кассовый узел используется как альтернативный принтер
+#define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
+	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
 //
 // Идентификаторы строковых свойств кассоых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent

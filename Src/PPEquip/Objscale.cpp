@@ -3161,7 +3161,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		} /*dif*/;
 		if(P_ScaleData && pScalePLU) {
 			out_rec.Printf("A%-07ld00000%015ld0001%04ld00%08.2lf%03ld0000%-80s\n",
-				pScalePLU->Barcode + 2000000L, pScalePLU->GoodsNo, IntGrpCode, pScalePLU->Price, expiry, pScalePLU->GoodsName);
+				pScalePLU->Barcode + 2000000L, pScalePLU->GoodsNo, IntGrpCode, pScalePLU->Price, expiry, pScalePLU->GoodsName.cptr());
 			fputs(out_rec.Transf(CTRANSF_INNER_TO_OUTER), P_ScaleData);
 			ok = 1;
 		}

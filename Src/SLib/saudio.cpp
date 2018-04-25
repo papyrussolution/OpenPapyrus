@@ -6,6 +6,7 @@
 #pragma hdrstop
 
 #if _MSC_VER >= 1600
+
 #include <mmdeviceapi.h>
 #include <endpointvolume.h> 
 

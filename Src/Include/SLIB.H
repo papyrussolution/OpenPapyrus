@@ -48,7 +48,6 @@
 	#include <winsock2.h>
 	#include <windows.h>
 	#define _Windows
-	// @v8.9.8 #define asm __asm
 	// @v9.6.4 #define far
 	// @v9.6.4 #define _FARFUNC
 	// @v9.6.4 #define farcalloc calloc
@@ -131,7 +130,6 @@
 	#define MAXFLOAT    3.37E+38f
 	#define MINDOUBLE   2.225074E-308
 	#define MINFLOAT    8.43E-37
-	// @v8.9.8 #define MAXINT      0x7FFF
 #endif
 #define DSIGNIF     53
 #define FSIGNIF     24
@@ -1975,7 +1973,7 @@ private:
 //
 class SCycleTimer {
 public:
-	SCycleTimer(uint32 msDelay);
+	explicit SCycleTimer(uint32 msDelay);
 	void   FASTCALL Restart(uint32 msDelay);
 	int    FASTCALL Check(LDATETIME * pLast);
 private:
@@ -8294,21 +8292,21 @@ public:
 		Ico              =  7,
 		Cur              =  8,
 		Svg              =  9,
-		Html             = 10,  // @v8.1.0
-		Xml              = 11,  // @v8.1.0
-		Ini              = 12,  // @v8.1.0
-		TxtBomUTF8       = 13,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF16BE    = 14,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF16LE    = 15,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF32BE    = 16,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF32LE    = 17,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF7       = 18,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF1       = 19,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF_EBCDIC = 20,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomSCSU       = 21,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomBOCU1      = 22,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomGB18030    = 23,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		Latex            = 24,  // @v8.8.3 LATEX
+		Html             = 10,  // 
+		Xml              = 11,  // 
+		Ini              = 12,  // 
+		TxtBomUTF8       = 13,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF16BE    = 14,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF16LE    = 15,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF32BE    = 16,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF32LE    = 17,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF7       = 18,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF1       = 19,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF_EBCDIC = 20,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomSCSU       = 21,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomBOCU1      = 22,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomGB18030    = 23,  // Текстовый файл с сигнатурой типа кодировка (BOM)
+		Latex            = 24,  // LATEX
 		Pdf              = 25,
 		Rtf              = 26,
 		Mdb              = 27,
@@ -12070,20 +12068,20 @@ public:
 	int    LastOsErr;       // Код ошибка операционной системы (сохраняет значение в момент
 		// инициирования LastErr = SLERR_WINDOWS)
 	int    LastSockErr;     // Код последней ошибки WinSock
-	int    LastCurlErr;     // @v8.8.1 Код последней ошибки библиотеки LibCURL
+	int    LastCurlErr;     // Код последней ошибки библиотеки LibCURL
 	int    BinDateFmt_;
-	long   TxtDateFmt_;     // @v8.6.7 int-->long
+	long   TxtDateFmt_;     // 
 	int    DefaultYear_;
 	int    DefaultMonth_;
 	int    UiLanguageId;
 	long   UiFlags;            // @v9.1.1 sluifXXX
-	SCodepageIdent CurrentCp;  // @v7.8.5
+	SCodepageIdent CurrentCp;  // 
 	// @v9.6.5 char   OneCStrBuf[4];      // used in onecstr()
 	CompFunc SAry_OrgFCMP;
 	int    SAry_PtrContainer;
 	void * SAry_SortExtraData;
 	SString AddedMsgString; // @anchor
-	SString LogPath;        // @v8.0.2
+	SString LogPath;        // 
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
@@ -12095,7 +12093,7 @@ private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
 		// (Window-функции, оперирующие со шрифтами требуют HDC с установленным в нем текущим шрифтом).
-	TPoint NextDialogLuPos;  // @v8.5.3 Позиция, в которую необходимо установить верхний левый угол диалога.
+	TPoint NextDialogLuPos;  // Позиция, в которую необходимо установить верхний левый угол диалога.
 		// Функция вызова диалога сразу после получения позиции сбрасывает ее в {-1, -1}
 };
 
@@ -12267,12 +12265,12 @@ private:
 		// Положение переменной должно быть выровнено по 64-битной границе.
 	// @v9.8.1 ACount LastThread;      //
 	int    WsaInitCounter;
-	ACount SslInitCounter;  // @v8.3.5
-	int    StopFlag;
+	ACount SslInitCounter;  // 
+	int    StopFlag;        //
 	uint   DragndropObjIdx; // Индекс объекта для перетаскивания в таблице глобальных объектов GlobalObjList
 	uint32 HelpCookie;
 	Evnt * P_StopEvnt;
-	S_GUID SessUuid;        // @v8.0.2 Уникальный идентификатор сессии
+	S_GUID SessUuid;        // Уникальный идентификатор сессии
 	int    UiLanguageId;
 	// @v9.9.5 const SSystem SSys;
 	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
@@ -12305,8 +12303,7 @@ extern SlSession SLS;
 #define TxtDateFmt   (SLS.GetTLA().TxtDateFmt_)
 #define DefaultYear  (SLS.GetTLA().DefaultYear_)
 #define DefaultMonth (SLS.GetTLA().DefaultMonth_)
-// @v8.1.11 #define P_SlRez      (SLS.GetTLA().P_Rez)
-#define P_SlRez      (SLS.GetTLA().GetRez()) // @v8.1.11
+#define P_SlRez      (SLS.GetTLA().GetRez())
 //
 // Descr: Интерфейс к некоторым методам библиотеки GDI+ (Microsoft)
 //

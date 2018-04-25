@@ -3719,7 +3719,7 @@ int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 				}
 			}
 			else
-				ok = MessageError(PPERR_GDSBYBARCODENFOUND, pCode, eomBeep|eomStatusLine);
+				ok = MessageError(PPERR_GDSBYBARCODENFOUND, pCode, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
 		}
 		if(try_next && oneof2(mode, crmodeAuto, crmodeGoods)) {
 			ok = 0;
@@ -3971,14 +3971,14 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									else
 										MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomBeep|eomStatusLine);
 								else
-									MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomStatusLine);
+									MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
 							}
 						}
 						else
-							MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomStatusLine);
+							MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
 					}
 					else
-						MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomStatusLine);
+						MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
 				}
 				Flags &= ~fSuspSleepTimeout;
 				ClearInput(0);

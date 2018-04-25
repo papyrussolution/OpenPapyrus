@@ -25,8 +25,8 @@
 //   LastText
 //   LastToolbar
 //
-#define WINDOWS_ID_BIAS   1200   // @v2.4.10
-#define TXTREF_PROP_BIAS 20000   // @v8.6.2 Смещение идентификаторов текстовых свойств, хранящихся в TextRefTbl
+#define WINDOWS_ID_BIAS   1200   // 
+#define TXTREF_PROP_BIAS 20000   // Смещение идентификаторов текстовых свойств, хранящихся в TextRefTbl
 
 #ifdef __WIN32__
 	#define KB_CTRLENTER   kbF11
@@ -114,7 +114,7 @@
 	#define ROD_PERSONRELTYPE   16   // Типы персональных отношений
 	#define ROD_QUOTKIND        17   // Виды котировок
 	#define ROD_TAG             18   // Типы тегов
-	#define ROD_OPCOUNTER       19   // @v8.1.0 Счетчики
+	#define ROD_OPCOUNTER       19   // Счетчики
 #define PP_RCDECLSTRUC        502   // Тип ресурса для деклараций структур экспорта/импорта данных
 #define PP_RCDECLOBJ          503   // Тип ресурса для деклараций типов объектов PPObject
 	//
@@ -276,7 +276,7 @@
 #define PPPATH_WTM           15 // Каталог хранения ватманов и графических панелей инструментов (.wtm, .wta)
 #define PPPATH_PACK          16 // Каталог хранения некоторых файлов, распространяемых с дистрибутивом
 #define PPPATH_DOC           17 // Каталог хранения документации на систему
-#define PPPATH_SPII          18 // @v8.5.10 Каталог обмена между мобильными устройствами и JobServer'ом
+#define PPPATH_SPII          18 // Каталог обмена между мобильными устройствами и JobServer'ом
 #define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
 #define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
 	// не относящиеся к дистрибутиву, из BIN
@@ -326,10 +326,10 @@
 #define PPPRP_LOCATIONCFG          134L  // Конфигурация локаций
 #define PPPRP_PERSONCFGEXTFLDLIST  135L  // Список дополнительных полей для адресов доставки
 #define PPPRP_STOCKOPTCFG          136L  // Конфигурация оптимизации запасов
-#define PPPRP_GLOBALUSERACCCFG     137L  // @v7.4.7 Конфигурация глобальных учетных записей
-#define PPPRP_WORKBOOKCFG          138L  // @v8.1.7 Конфигурация рабочих книг
+#define PPPRP_GLOBALUSERACCCFG     137L  // Конфигурация глобальных учетных записей
+#define PPPRP_WORKBOOKCFG          138L  // Конфигурация рабочих книг
 #define PPPRP_PERSONDETECTIONLIST  139L  // @vmiller Список конфигураций для определения новизны клиента
-#define PPPRP_ALCREPORTCFG         140L  // @v8.4.3 Конфигурация алкогольной декларации
+#define PPPRP_ALCREPORTCFG         140L  // Конфигурация алкогольной декларации
 //
 // Layout of extra record of access rights
 //
@@ -343,12 +343,12 @@
 #define PPPRP_RT_LOCLIST   4002L  // Список доступных складов
 #define PPPRP_RT_CFG       4003L  // Список прав доступа по конфигурациям
 #define PPPRP_RT_ACCLIST   4004L  // Права на список счетов
-#define PPPRP_RT_POSLIST   4005L  // @v8.9.1 Права на список кассовых узлов
-#define PPPRP_RT_QKLIST    4006L  // @v8.9.1 Права на список видов товарных котировок
+#define PPPRP_RT_POSLIST   4005L  // Права на список кассовых узлов
+#define PPPRP_RT_QKLIST    4006L  // Права на список видов товарных котировок
 
 #define PPPRP_FIRSTOBJMEMO 5001L  // Первое свойство объекта, в котором хранится произвольное примечание к нему
 #define PPPRP_BILLMEMO     5002L  // Произвольное примечание к документу
-#define PPPRP_CHKINPMEMO   5003L  // @v7.8.10 Пул примечаний к списку персональных регистраций PPCheckInPersonArray
+#define PPPRP_CHKINPMEMO   5003L  // Пул примечаний к списку персональных регистраций PPCheckInPersonArray
 #define PPPRP_LASTOBJMEMO  5999L  // Максимальное свойство объекта, в котором хранится примечание
 //
 // Типы объектов и зарезервированные объекты
@@ -397,9 +397,9 @@
 #define PPCFGOBJ_DEBTORSTAT       (PPOBJ_FIRST_CFG_OBJ + 27)
 #define PPCFGOBJ_LOCATION         (PPOBJ_FIRST_CFG_OBJ + 28)
 #define PPCFGOBJ_STOCKOPT         (PPOBJ_FIRST_CFG_OBJ + 29)
-#define PPCFGOBJ_GLOBALUSERACC    (PPOBJ_FIRST_CFG_OBJ + 30) // @v7.4.7
-#define PPCFGOBJ_WORKBOOK         (PPOBJ_FIRST_CFG_OBJ + 31) // @v8.1.7
-#define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32) // @v8.4.3
+#define PPCFGOBJ_GLOBALUSERACC    (PPOBJ_FIRST_CFG_OBJ + 30)
+#define PPCFGOBJ_WORKBOOK         (PPOBJ_FIRST_CFG_OBJ + 31)
+#define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32)
 //
 #define PPOBJ_CONFIG         1L  // $(PPSecur) Конфигурация системы
 	#define PPCFG_MAIN           1L
@@ -516,9 +516,9 @@
 	#define _PPOPK_RETAILRET           9L // Левый возврат в розницу (без ссылки)
 	#define PPOPK_INVENTORY           10L // Инвентаризация //
 	#define PPOPK_CASHSESS            11L // @unused Кассовая сессия (тип PPOPT_CASHSESS)
-	#define PPOPK_EDI_ACTCHARGEON     12L // @v8.8.3 Постановка лотов на баланс в ЕГАИС
-	#define PPOPK_EDI_RECADV          13L // @v8.8.6 Драфт-операция подтверждения отгрузки, поступившего из EDI
-	#define PPOPK_EDI_STOCK           14L // @v8.8.6 Драфт-операция подтверждения остатков, учитываемых сервисом EDI
+	#define PPOPK_EDI_ACTCHARGEON     12L // Постановка лотов на баланс в ЕГАИС
+	#define PPOPK_EDI_RECADV          13L // Драфт-операция подтверждения отгрузки, поступившего из EDI
+	#define PPOPK_EDI_STOCK           14L // Драфт-операция подтверждения остатков, учитываемых сервисом EDI
 	#define PPOPK_EDI_SHOPCHARGEON    15L // @v9.2.11 Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
 	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // @v9.2.11 Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
 	#define PPOPK_EDI_WRITEOFFSHOP    17L // @v9.3.19 Списание с баланса торгового зала в ЕГАИС (регистр 2)
@@ -595,7 +595,7 @@
 	#define CNPRP_CUSTDISP       6L  // Дисплей покупателя - obsolete
 	#define CNPRP_TOUCHSCREEN    7L  // TouchScreen        - obsolete
 	#define CNPRP_EXTDEVICES     8L  // Дополнительные устройства
-	#define CNPRP_CTBLLIST       9L  // @v7.6.4 Список номеров столов
+	#define CNPRP_CTBLLIST       9L  // Список номеров столов
 	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
 #define PPOBJ_ACTION        18L  // # События, регистрируемые в системном журнале *
 	#define PPACN_LOGIN             1L
@@ -671,35 +671,35 @@
 	#define PPACN_UPDTSESSPRC      56L // Изменен процессор в техн сессии. Доп параметр - ID предыдущего значения процессора
 	#define PPACN_UNMODIFBILLTRANS 57L // Часть изменений принятого документа не могут быть акцептированы.
 		// Доп параметр - ID раздела-отправителя //
-	#define PPACN_MTXGOODSADD      58L // @v7.0.2 Создан товар, один из членов родительской ветки которого принадлежит
+	#define PPACN_MTXGOODSADD      58L // Создан товар, один из членов родительской ветки которого принадлежит
 		// товарной матрице (по любому складу). Это событие необходимо для обновления кэша товарной матрицы другими
 		// сеансами для адекватной вставки товара в матрицу.
 		// Доп параметр: ID родительской группы, принадлежащей матрице //
-	#define PPACN_CCHECKTOGGLEDLVR 59L // @v7.0.11 Изменен признак завершения доставки по чеку.
+	#define PPACN_CCHECKTOGGLEDLVR 59L // Изменен признак завершения доставки по чеку.
 		// Доп параметр: 1 - признак установлен, 0 - признак снят
-	#define PPACN_UNDOCSESSWROFF   60L // @v7.1.4  Откат списания кассовой сессии
-	#define PPACN_UNDOCSESSGRPNG   61L // @v7.1.4  Откат группировки кассовой сессии
-	#define PPACN_SUPPLDEALUPD     62L // @v7.1.10 Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
+	#define PPACN_UNDOCSESSWROFF   60L // Откат списания кассовой сессии
+	#define PPACN_UNDOCSESSGRPNG   61L // Откат группировки кассовой сессии
+	#define PPACN_SUPPLDEALUPD     62L // Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
 	#define PPACN_QUOTUPD2         63L // Изменена котировка (2) товара. Доп параметр: ИД транзакции.
 	#define PPACN_QUOTRMV2         64L // Удалена котировка (2) товара. Доп параметр: ИД транзакции.
-	#define PPACN_DISPOSEBILL      65L // @v7.2.0 Товарный документ был размещен по складским ячейкам
-	#define PPACN_EVENTTOKEN       66L // @v7.2.1 Событийная метка с объектом типа PPOBJ_EVENTTOKEN
-	#define PPACN_UNITECCHECK      67L // @v7.2.8 Объединены два чека. ИД объекта - чек, который остался,
+	#define PPACN_DISPOSEBILL      65L // Товарный документ был размещен по складским ячейкам
+	#define PPACN_EVENTTOKEN       66L // Событийная метка с объектом типа PPOBJ_EVENTTOKEN
+	#define PPACN_UNITECCHECK      67L // Объединены два чека. ИД объекта - чек, который остался,
 		// доп параметр: ИД чека, который был влит в первый.
-	#define PPACN_SCARDBONUSCHARGE 68L // @v7.3.9 По бонусной карте начислен бонус. Доп параметр: сжатое значение
+	#define PPACN_SCARDBONUSCHARGE 68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение
 		// периода начисления.
-	#define PPACN_OBJTAGRMV        69L // @v7.7.0 Удален тег объекта. Доп параметр - ID тега.
-	#define PPACN_PERSONEVENTREDO  70L // @v7.9.0 Повтор персонального события //
-	#define PPACN_SCARDOPMOV       71L // @v8.0.0 Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
-	#define PPACN_SMSSENDED        72L // @v8.0.0 Отправлено SMS персоналии
-	#define PPACN_OBJTAGADD        73L // @v8.0.1 Создан тег объекта. Доп параметр - ID тега.
-	#define PPACN_SCARDTRNOVRUPD   74L // @v8.1.4 Изменено значение оборота по персональной карте
-	#define PPACN_UPDBILLWLABEL    75L // @v8.1.8 Изменен признак WhiteLabel по документу
-	#define PPACN_SCARDACTIVATED   76L // @v8.1.8 Персональная карта активирована
-	#define PPACN_STYLOREGISTERING 77L // @v8.7.8 Зарегистрировано устройство Stylo
-	#define PPACN_ATTACHMENTUPD    78L // @v8.7.8 Приклепленный к объекту файл изменен (доп параметр - номер файла)
-	#define PPACN_BILLWROFF        79L // @v8.8.3 Документ списан
-	#define PPACN_BILLWROFFUNDO    80L // @v8.8.3 Откат списания документа
+	#define PPACN_OBJTAGRMV        69L // Удален тег объекта. Доп параметр - ID тега.
+	#define PPACN_PERSONEVENTREDO  70L // Повтор персонального события //
+	#define PPACN_SCARDOPMOV       71L // Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
+	#define PPACN_SMSSENDED        72L // Отправлено SMS персоналии
+	#define PPACN_OBJTAGADD        73L // Создан тег объекта. Доп параметр - ID тега.
+	#define PPACN_SCARDTRNOVRUPD   74L // Изменено значение оборота по персональной карте
+	#define PPACN_UPDBILLWLABEL    75L // Изменен признак WhiteLabel по документу
+	#define PPACN_SCARDACTIVATED   76L // Персональная карта активирована
+	#define PPACN_STYLOREGISTERING 77L // Зарегистрировано устройство Stylo
+	#define PPACN_ATTACHMENTUPD    78L // Приклепленный к объекту файл изменен (доп параметр - номер файла)
+	#define PPACN_BILLWROFF        79L // Документ списан
+	#define PPACN_BILLWROFFUNDO    80L // Откат списания документа
 	#define PPACN_GOODSPASSVSET    81L // @v9.5.0 Установлен признак "Пассивный" для товара
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
 	#define PPACN_LAST             81L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
@@ -807,7 +807,7 @@
 #define PPOBJ_CURRENCY      34L // Валюты
 #define PPOBJ_CURRATETYPE   35L // Типы валютных курсов
 #define PPOBJ_OPCOUNTER     36L // Счетчики документов
-	#define PPOPCNTR_WORKBOOK    1L // @v8.1.0 Зарезервированных счетчик для символов обьектов PPObjWorkbook_Pre813
+	#define PPOPCNTR_WORKBOOK    1L // Зарезервированных счетчик для символов обьектов PPObjWorkbook_Pre813
 #define PPOBJ_GOODSCLASS    37L // Отраслевые классы товаров
 	//
 	// Extra records of PPOBJ_GOODSCLASS
@@ -834,8 +834,8 @@
 	#define SCARDSERIES_RULE2      3L // Правило для серии персональных карт (вторая версия)
 	#define SCARDSERIES_CCHECKRULE 4L // Правило для чеков
 	#define SCARDSERIES_BONUSRULE  5L // Правило расчета бонусов
-	#define SCARDSERIES_QKLIST     6L // @v7.4.0 Список видов котировок, ассоциированных с серией
-	#define SCARDSERIES_EXT        7L // @v8.7.12 Блок расширения данных серии
+	#define SCARDSERIES_QKLIST     6L // Список видов котировок, ассоциированных с серией
+	#define SCARDSERIES_EXT        7L // Блок расширения данных серии
 #define PPOBJ_STYLOPALM     43L // $ PDA Palm
 	//
 	// Extra records of PPOBJ_STYLOPALM
@@ -2723,8 +2723,8 @@
 	#define CTLSEL_GTO_CYCLESTAT        (41 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_PRICEKIND           (42 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_OLDALG              (43 + WINDOWS_ID_BIAS)
-	#define CTL_GTO_ACS                 (44 + WINDOWS_ID_BIAS) // @v8.4.1
-	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS) // @v8.4.1
+	#define CTL_GTO_ACS                 (44 + WINDOWS_ID_BIAS) 
+	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS) 
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -6554,9 +6554,9 @@
 	#define cmFreeList                 103 // Показывает список доступных периодов процессора
 	#define cmTSessDetail              104 // Строки сессии
 	#define cmCreateGoods              105 // Создание товара (при выбранном процессоре и наличии автотехнологии)
-	#define cmChkInP                   107 // @v7.7.2 Регистрация персоналий
+	#define cmChkInP                   107 // Регистрация персоналий
 	#define cmBrowseTSessByAr          108
-	#define cmAddPaym                  109 // @v8.0.3
+	#define cmAddPaym                  109
 	#define CTL_TSESS_NUMBER             (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_STATUS             (3 + WINDOWS_ID_BIAS)
@@ -6896,7 +6896,7 @@
 	#define CTL_ALBTRCFG_TTNTAG          (23 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALBTRCFG_TTNTAG       (24 + WINDOWS_ID_BIAS)
 
-	#define CTL_ALBTRCFG_EGAISURL        (25 + WINDOWS_ID_BIAS) // @v8.8.0
+	#define CTL_ALBTRCFG_EGAISURL        (25 + WINDOWS_ID_BIAS)
 	#define CTL_ALBTRCFG_EGRCPTOP        (26 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALBTRCFG_EGRCPTOP     (27 + WINDOWS_ID_BIAS)
 	#define CTL_ALBTRCFG_FLAGS           (28 + WINDOWS_ID_BIAS)
@@ -9930,7 +9930,7 @@
 	#define CTL_UHTTEXPGOODS_CO        (3  + IMPEXP_CTL_BIAS)
 	#define CTL_UHTTEXPGOODS_COT       (4  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_UHTTEXPGOODS_COT    (5  + IMPEXP_CTL_BIAS)
-#define DLG_GUART                 1265 // @v8.3.2 Права доступа глобальной учетной записи
+#define DLG_GUART                 1265 // Права доступа глобальной учетной записи
 	#define CTL_GUART_FLAGS            (1 + WINDOWS_ID_BIAS)
 #define DLG_TEX2HTM               1266
 	#define CTL_TEX2HTM_INFILE         (1 + WINDOWS_ID_BIAS)
@@ -10638,13 +10638,6 @@
 #define PPERR_INVPERIODINPUT       66 // Неправильный ввод периода
 #define PPERR_ACCNEEDED            67 // Необходимо ввести (выбрать) счет
 #define PPERR_PASSNOTIDENT         68 // Два ввода пароля не совпадают
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_TURNBYBILLNFOUND     69 // Попытка найти проводку по заданному документу и строке оказалась неудачной
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_USERINPUT            70 // Ошибка ввода пользователя //
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_GGROUPHASBRANCHES    71 // Группа товаров имеет подгруппы (ей нельзя присваивать товар)
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_DUPACCOUNTNUM        72
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_ACCRELABSENCE        73 // Отсутсутствует сочетание {счет, статья} - не было проводок по счету
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_NEGACCLIMIT          74
-// @v8.0.3 (Перенесено в ppstr2.txt) #define PPERR_TRFRBYBILLNFOUND     75 // Аналогично PPERR_TURNBYBILLNFOUND, но для товарной проводки
 #define PPERR_TOOFEWFILES          76
 #define PPERR_NOPERSBYLOT          77 // На указанную дату по лоту операций не было
 #define PPERR_FWLOTRESTBOUND       78

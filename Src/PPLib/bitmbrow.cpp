@@ -2273,6 +2273,16 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					THROW(addStringToList(idx, temp_buf));
 				}
 			}
+			{
+				temp_buf.Z().CatEq("COUNT", idx_list.getCount());
+				if(RowIdx > 0 && RowIdx <= P_Pack->GetTCount()) {
+					SString name_buf;
+					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
+					GetGoodsName(r_ti.GoodsID, name_buf);
+					temp_buf.CatDiv('-', 1).Cat(name_buf);
+				}
+				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
+			}
 			CATCHZOK
 			return ok;
 		}
@@ -2299,7 +2309,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				ok = 1;
 			return ok;
 		}
-		int SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar)
+		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar)
 		{
 			int    ok = -1;
 			uint   sel = 0;

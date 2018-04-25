@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147490539
+LastSignatureCode=2147490550
 LastAutoCodeList=1,11186;102,10164;103,10071;110,10000;111,11665;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10087;120,10005;1001,10000;121,10000;122,10000;123,10320;1002,10000;1003,10000;1004,10000;1005,10000;124,10080
 
 [SignatureList]
@@ -2046,6 +2046,7 @@ cashnode_cashfx_extscardsel=2147486540
 cashnode_cashfx_unitegrpwroff=2147486793
 cashnode_cashfx_abstrgoodsallowed=2147488925
 cashnode_cashfx_fextnodeasalt=2147489111
+cashnode_cashfx_igncondquots=2147490548
 cashnode_cashtype=2147486417
 cashnode_curdate=2147484751
 cashnode_cursess=2147484752

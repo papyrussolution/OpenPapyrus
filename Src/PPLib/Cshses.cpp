@@ -1247,15 +1247,13 @@ SLAPI AsyncCashGoodsIterator::~AsyncCashGoodsIterator()
 	delete P_AlcPrc; // @v8.9.8
 }
 
-AsyncCashGoodsGroupIterator * AsyncCashGoodsIterator::GetGroupIterator()
-{
-	return P_AcggIter;
-}
-
+AsyncCashGoodsGroupIterator * AsyncCashGoodsIterator::GetGroupIterator() { return P_AcggIter; }
+PPID SLAPI AsyncCashGoodsIterator::GetTobaccoGoodsCls() const { return TobaccoGoodsClsID; }
+PPID SLAPI AsyncCashGoodsIterator::GetGiftCardGoodsCls() const { return GiftCardGoodsClsID; }
 const IterCounter & SLAPI AsyncCashGoodsIterator::GetIterCounter() const
-{
-	return (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) ? InnerCounter : Iter.GetIterCounter();
-}
+	{ return (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) ? InnerCounter : Iter.GetIterCounter(); }
+int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
+	{ return AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(goodsID, LocID, basePrice, PricesLookBackPeriod, rList); }
 
 //static
 int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
@@ -1295,12 +1293,6 @@ int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goo
     return ok;
 }
 
-
-int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
-{
-	return AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(goodsID, LocID, basePrice, PricesLookBackPeriod, rList);
-}
-
 PPID SLAPI AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString * pVolumeExpr) const
 {
 	if(AlcoGoodsClsID) {
@@ -1312,16 +1304,6 @@ PPID SLAPI AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString
 		ASSIGN_PTR(pVolumeExpr, 0);
 	}
 	return AlcoGoodsClsID;
-}
-
-PPID SLAPI AsyncCashGoodsIterator::GetTobaccoGoodsCls() const
-{
-	return TobaccoGoodsClsID;
-}
-
-PPID SLAPI AsyncCashGoodsIterator::GetGiftCardGoodsCls() const
-{
-	return GiftCardGoodsClsID;
 }
 
 int SLAPI AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID, PrcssrAlcReport::GoodsItem & rExt)
@@ -1434,7 +1416,12 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	}
 	{
 		RetailPriceExtractor::ExtQuotBlock eqb(AcnPack.ExtQuotID);
-		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, RTLPF_IGNCONDQUOTS); // @v10.0.01 flags 0-->RTLPF_IGNCONDQUOTS
+		// @v10.0.03 {
+		long   rtlpf = 0;
+		if(AcnPack.ExtFlags & CASHFX_IGNCONDQUOTS)
+			rtlpf |= RTLPF_IGNCONDQUOTS;
+		// } @v10.0.03 
+		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, rtlpf); // @v10.0.01 flags 0-->RTLPF_IGNCONDQUOTS // @v10.0.03 flags RTLPF_IGNCONDQUOTS-->rtlpf
 	}
 	Rec.Init();
 	BcPrefixList.freeAll();
@@ -1947,7 +1934,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
 	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));
 	for(uint i = 0; i < QuotList.getCount(); i++)
-		QuotList.at(i).Val = 0;
+		QuotList.at(i).Val = 0.0;
 	P_QuotByQttyList = 0;
 }
 

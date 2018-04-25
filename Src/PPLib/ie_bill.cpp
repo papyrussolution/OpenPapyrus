@@ -2817,11 +2817,9 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
                     PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_ADDRESS, pDlvrLocCode, &loc_list);
                     for(uint loc_idx = 0; !ar_id && loc_idx < loc_list.getCount(); loc_idx++) {
 						const PPID loc_id = loc_list.get(loc_idx);
-                        if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0) {
-							uint   _ppos = 0;
-							if(loc_rec.OwnerID && psn_list.lsearch(loc_rec.OwnerID, &_ppos))
-								ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, accSheetID, &ar_id);
-                        }
+						uint   _ppos = 0;
+                        if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.OwnerID && psn_list.lsearch(loc_rec.OwnerID, &_ppos))
+							ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, accSheetID, &ar_id);
                     }
 				}
 			}

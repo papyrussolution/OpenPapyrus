@@ -622,9 +622,16 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PPID   alc_cls_id = 0;
 	PPID   tobacco_cls_id = 0;
 	PPID   giftcard_cls_id = 0;
-	SString path, path_goods, path_cashiers, path_cards, temp_buf;
-	SString iter_msg, alc_proof, alc_vol;
+	SString temp_buf;
+	SString path;
+	SString path_goods;
+	SString path_cashiers;
+	SString path_cards;
+	SString iter_msg;
+	SString alc_proof;
+	SString alc_vol;
 	SString store_index; // Индекс магазина (извлекается из тега склада по конфигурационному параметру PPLocationConfig::StoreIdxTag)
+	SString grp_code;
 	BarcodeArray barcodes;
 	PPUnit    unit_rec;
 	PPObjUnit unit_obj;
@@ -793,7 +800,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			LDATE  expiry = ZERODATE;
 			PPID   country_id = 0;
 			PPGoodsPacket goods_pack;
-
 			PPQuotKind qk_rec;
 			temp_buf.Z();
 			if(CConfig.Flags & CCFLG_DEBUG)
@@ -863,8 +869,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			// Иерархия товарных групп
 			//
 			if(cn_data.Flags & CASHF_EXPGOODSGROUPS && prev_gds_info.ParentID) {
-				SString grp_code;
 				Goods2Tbl::Rec ggrec;
+				grp_code.Z();
 				if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
 					grp_code.ShiftLeftChr('@'); // @v7.5.3
 				else
@@ -963,7 +969,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				}
 				// @v9.1.3 (перенесено наверх) p_writer->PutPlugin("precision", prev_gds_info.Precision);
 				if(expiry != ZERODATE) {
-					long   hours = diffdate(expiry, beg_dtm.d) * 24; // @v7.0.0 (*24)
+					long   hours = diffdate(expiry, beg_dtm.d) * 24;
 					p_writer->PutPlugin("good-for-hours", hours);
 					// p_writer->PutPlugin("best-before", expiry);
 				}
