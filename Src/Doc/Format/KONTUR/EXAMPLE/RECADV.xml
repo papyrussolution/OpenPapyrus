@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="000001525" creationDateTime="2013-09-27T00:00:00"> <!--идентификатор сообщения, время сообщения-->
+  <interchangeHeader>
+    <sender>0000000000000</sender>  <!--GLN отправителя сообщения-->
+    <recipient>3921089137876</recipient> <!--GLN получателя сообщения-->
+    <documentType>RECADV</documentType>  <!--тип документа-->
+    <creationDateTime>2014-02-07T13:00:01.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>2014-02-07T13:00:00.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    <isTest>1</isTest>  <!--тестовый флаг-->
+  </interchangeHeader>
+  <receivingAdvice number="REC004" date="2014-02-08">    <!--номер приёмки, дата уведомления о приёмке-->
+    <originOrder number="OR012012552011" date="2014-02-07"/>  <!--номер заказа, дата заказа-->
+    <despatchIdentificator number="DES003" date="2014-02-07"/>   <!--номер накладной, дата накладной  (DESADV)-->
+    <blanketOrderIdentificator number="1122500345"/>    <!--номер серии заказов-->
+	<receivingAdviceIdentificatorInBuyerSystem number="ReceivingAdviceNumberInBuyerSystem"/> <!--номер приемки в системе покупателя-->
+	<egaisRegistrationIdentificator number="123_TEST" />   <!--идентификатор ТТН в ЕГАИС-->
+	<egaisFixationIdentificator number="12223" date="2016-05-04" />   <!--идентификатор фиксации ТТН в ЕГАИС-->	
+    <seller>
+      <gln>4049111000000</gln>   <!--gln поставщика-->
+	  <taxSystem>Simplified</taxSystem> <!--признак УСН, если поставщик использует УСН, передаем поле с фиксированным значением "Simplified"-->
+    </seller>
+    <buyer>
+      <gln>2342342423429</gln>   <!--gln покупателя-->
+    </buyer>
+    <invoicee>
+      <gln>4607816190053</gln>                <!--gln получателя счёта-->
+      <organization>
+        <name>Элемент-трейд-Челябинск</name>     <!--наименование получателя счёта для ЮЛ-->
+        <inn>7451214632</inn>     <!--ИНН получателя счёта для ЮЛ-->
+        <kpp>745101001</kpp>     <!--КПП получателя счёта только для ЮЛ-->
+	  </organization>
+	  <russianAddress>
+          <postalCode>620000</postalCode> 
+          <regionISOCode>RU-SVE</regionISOCode>		
+          <city>Москва г</city>
+	  </russianAddress>
+    </invoicee>
+    <deliveryInfo>
+      <receptionDateTime>2013-09-27T00:00:00</receptionDateTime>   <!--дата приёмки-->      
+      <shipTo>
+        <gln>4607816196376</gln>     <!--gln грузополучателя-->
+      </shipTo>
+	  <ultimateCustomer>
+        <gln>2342342423429</gln>  <!--gln конечной точки доставки-->
+      </ultimateCustomer>
+    </deliveryInfo>
+    <lineItems>
+      <lineItem>
+        <gtin>8414564310031</gtin>       <!--GTIN товара-->
+        <internalBuyerCode>0001</internalBuyerCode>    <!--внутренний код присвоенный покупателем-->
+     	<codeOfEgais>456</codeOfEgais>       <!--код товара в ЕГАИС-->
+		<lotNumberEgais>123</lotNumberEgais>       <!--номер товара в ТТН ЕГАИС-->		
+        <orderLineNumber>1</orderLineNumber>    <!--порядковый номер товара-->
+        <description>Невозможно-устоять-хрустящие-палочки-NEW</description>    <!--название товара-->
+        <orderedQuantity unitOfMeasure="KGM">30.000</orderedQuantity>      <!--заказанное количество-->
+        <despatchedQuantity unitOfMeasure="KGM">30.000</despatchedQuantity>  <!--отгруженное поставщиком количество-->
+        <deliveredQuantity unitOfMeasure="KGM">30.000</deliveredQuantity>     <!--поставленное покупателю количество-->
+        <acceptedQuantity unitOfMeasure="KGM">30.000</acceptedQuantity >     <!--принятое количество-->
+        <onePlaceQuantity unitOfMeasure="KGM">2</onePlaceQuantity>   <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPrice>57.0000</netPrice>  <!--цена единицы товара без НДС-->
+        <netPriceWithVAT>67.2500</netPriceWithVAT>   <!--цена единицы товара с НДС-->
+        <netAmount>1710.0000</netAmount>   <!--сумма по позиции без НДС-->
+        <exciseDuty>0.0000</exciseDuty>   <!--акциз товара-->
+        <amount>2017.8000</amount>    <!--сумма по позиции с НДС-->
+      </lineItem>
+      <lineItem>
+        <gtin>8414564101233</gtin>
+        <internalBuyerCode>0002</internalBuyerCode>
+     	<codeOfEgais>456</codeOfEgais>       <!--код товара в ЕГАИС-->
+		<lotNumberEgais>123</lotNumberEgais>       <!--номер товара в ТТН ЕГАИС-->				
+        <orderLineNumber>2</orderLineNumber>
+        <description>Шампунь для очень сухих волос, Лореаль</description>
+        <orderedQuantity unitOfMeasure="PCE">20.000</orderedQuantity>     <!--заказанное количество-->
+        <despatchedQuantity unitOfMeasure="PCE">20.000</despatchedQuantity>  <!--отгруженное поставщиком количество-->
+        <deliveredQuantity unitOfMeasure="PCE">20.000</deliveredQuantity>  <!--поставленное покупателю количество-->
+        <acceptedQuantity unitOfMeasure="PCE">20.000</acceptedQuantity>
+        <onePlaceQuantity unitOfMeasure="PCE">1.000</onePlaceQuantity>     <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPrice>50.0000</netPrice>      <!--цена единицы товара без НДС-->
+        <netPriceWithVAT>59.0000</netPriceWithVAT>    <!--цена единицы товара с НДС-->
+        <netAmount>1000.0000</netAmount>    <!--сумма по позиции без НДС-->
+        <exciseDuty>0.0000</exciseDuty>     <!--акциз товара-->
+        <amount>1180.0000</amount>    <!--сумма по позиции с НДС-->
+      </lineItem>
+      <lineItem>
+        <internalSupplierCode>100</internalSupplierCode>
+        <typeOfUnit>RС</typeOfUnit>  <!--признак возвратной тары, если это не тара, то строки нет -->
+        <description>Ведро пластиковое</description>
+        <despatchedQuantity unitOfMeasure="PCE">1.000</despatchedQuantity> <!--отгруженное количество-->
+      </lineItem>
+    </lineItems>
+  </receivingAdvice>
+</eDIMessage>

@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="0000301540" creationDateTime="2013-09-27T00:00:00"> <!--идентификатор сообщения, время сообщения-->
+  <interchangeHeader>
+    <sender>3921089137876</sender>  <!--GLN отправителя сообщения-->
+    <recipient>0000000000000</recipient> <!--GLN получателя сообщения-->
+    <documentType>INVOIC</documentType>  <!--тип документа-->
+    <creationDateTime>2014-02-07T18:00:10.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>2014-02-07T18:00:01.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    <isTest>1</isTest>   <!--тестовый флаг-->
+  </interchangeHeader>
+  <invoice number="INV005" date="2014-02-07" type="Original">    <!--номер и дата INVOIC (совпадает с датой и номером СФ)-->
+    <originOrder number="ORSP0012" date="2014-02-07"/>   <!--номер заказа, дата заказа-->
+    <despatchIdentificator number="DES003" date="2014-02-07"/>  <!--номер и дата DESADV'а (совпадает с датой и номером ТОРГ-12)-->
+    <receivingIdentificator number="REC004" date="2014-02-08"/>  <!-- номер и дата RECADV'а-->
+    <blanketOrderIdentificator number="1122500345"/>    <!--номер серии заказов-->
+	<egaisRegistrationIdentificator number="123_TEST" />   <!--идентификатор ТТН в ЕГАИС-->
+	<egaisFixationIdentificator number="12223" date="2016-05-04" />   <!--идентификатор фиксации ТТН в ЕГАИС-->	
+	<receivingAdviceIdentificatorInBuyerSystem number="ReceivingAdviceNumberInBuyerSystem"/> <!--номер приемки в системе покупателя. Понимаем только во входящих в Контур.EDI сообщениях, в исходящих - не передаем-->
+	<factoringEncription>уступочная запись</factoringEncription>    <!--уступочная запись-->
+    <seller>
+      <gln>4049111000000</gln>      <!--gln поставщика-->
+      <organization>
+        <name>Полянка</name> <!--наименование поставщика для ЮЛ-->
+        <inn>1111111117</inn>     <!--ИНН поставщика для ЮЛ-->
+        <kpp>222222222</kpp>    <!--КПП поставщика только для ЮЛ-->
+      </organization>
+      <russianAddress>          <!--российский адрес-->
+        <regionISOCode>RU-TYU</regionISOCode>
+      </russianAddress>
+      <additionalIdentificator>7659876</additionalIdentificator>   <!--код поставщика в системе покупателя-->
+	  <taxSystem>Simplified</taxSystem> <!--признак УСН, если поставщик использует УСН, передаем поле с фиксированным значением "Simplified"-->
+    </seller>
+    <buyer>
+      <gln>2342342423429</gln>    <!--gln покупателя-->
+      <organization>
+        <name>Звёздный путь</name>    <!--наименование покупателя-->
+        <inn>3333333330</inn>     <!--ИНН покупателя для ЮЛ-->
+        <kpp>444444444</kpp>    <!--КПП покупателя только для ЮЛ-->
+      </organization>
+      <russianAddress>       <!--российский адрес-->
+        <regionISOCode>RU-CHE</regionISOCode>
+      </russianAddress>
+    </buyer>
+    <invoicee>
+      <gln>4607816190053</gln>    <!--gln получателя счёта-->
+      <organization>
+        <name>Элемент-трейд-Челябинск</name>     <!--наименование получателя счёта для ЮЛ-->
+        <inn>7451214632</inn>     <!--ИНН получателя счёта для ЮЛ-->
+        <kpp>745101001</kpp>     <!--КПП получателя счёта только для ЮЛ-->
+      </organization>
+      <russianAddress>   <!--российский адрес-->
+        <regionISOCode>RU-CHE</regionISOCode>
+      </russianAddress>
+    </invoicee>
+    <deliveryInfo>
+      <actualDeliveryDateTime>2014-02-07T13:54:00.000Z</actualDeliveryDateTime>  <!--фактические время и дата доставки-->
+      <shipFrom>
+        <gln>4049111000000</gln>        <!--gln грузоотправителя-->
+        <organization>
+          <name>Полянка</name>    <!--наименование грузоотправителя для ЮЛ-->
+          <inn>1111111117</inn>       <!--ИНН грузоотправителя для ЮЛ-->
+          <kpp>222222222</kpp>     <!--КПП грузоотправителя только для ЮЛ-->
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-TYU</regionISOCode>     <!-- код региона по справочнику ISO 3166-2 -->
+        </russianAddress>
+      </shipFrom>
+      <shipTo>
+        <gln>4607816196376</gln>        <!--gln грузополучателя-->
+        <organization>
+          <name>Лужайка</name>         <!--наименование грузоотправителя для ЮЛ-->
+          <inn>5555555552</inn>      <!--ИНН грузоотправителя для ЮЛ-->
+          <kpp>666666666</kpp>    <!--КПП грузоотправителя только для ЮЛ-->
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-TYU</regionISOCode> <!-- код региона по справочнику ISO 3166-2 -->
+        </russianAddress>
+      </shipTo>
+	  <ultimateCustomer>
+        <gln>2342342423429</gln>  <!--gln конечной точки доставки-->
+      </ultimateCustomer>
+    </deliveryInfo>
+    <lineItems>
+      <currencyISOCode>RUB</currencyISOCode>     <!--код валюты (по умолчанию рубли)-->
+      <lineItem>
+        <gtin>8414564310031</gtin>      <!--GTIN товара-->
+        <internalSupplierCode>0010</internalSupplierCode>    <!--артикул товара (код товара присвоенный продавцом)-->
+     	<codeOfEgais>456</codeOfEgais>       <!--код товара в ЕГАИС-->
+		<lotNumberEgais>123</lotNumberEgais>       <!--номер товара в ТТН ЕГАИС-->			
+        <orderLineNumber>1</orderLineNumber>     <!--порядковый номер товара-->
+        <description>Невозможно-устоять-хрустящие-палочки-NEW</description>     <!--название товара-->
+        <quantity unitOfMeasure="KGM">30.000</quantity>     <!--количество-->
+        <onePlaceQuantity unitOfMeasure="KGM">2</onePlaceQuantity>    <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPrice>57.0000</netPrice>    <!--цена товара без НДС-->
+        <netPriceWithVAT>67.2500</netPriceWithVAT>     <!--цена товара с НДС-->
+        <netAmount>1710.0000</netAmount>     <!--сумма по позиции без НДС-->
+        <vATRate>18</vATRate>   <!--Ставка НДС-->
+        <vATAmount>307.0000</vATAmount>          <!--сумма НДС-->         
+        <amount>2017.8000</amount>      <!--сумма по позиции с НДС-->
+      </lineItem>
+      <lineItem>
+        <gtin>8414564101233</gtin>
+        <internalSupplierCode>0020</internalSupplierCode>
+     	<codeOfEgais>456</codeOfEgais>       <!--код товара в ЕГАИС-->
+		<lotNumberEgais>123</lotNumberEgais>       <!--номер товара в ТТН ЕГАИС-->				
+        <orderLineNumber>2</orderLineNumber>
+        <description>Шампунь для очень сухих волос, Лореаль</description>
+        <quantity unitOfMeasure="PCE">20.000</quantity>
+        <onePlaceQuantity unitOfMeasure="PCE">1</onePlaceQuantity> <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPrice>50.0000</netPrice>    <!--цена товара без НДС-->
+        <netPriceWithVAT>59.0000</netPriceWithVAT>    <!--цена товара с НДС-->
+        <netAmount>1000.0000</netAmount>      <!--сумма по позиции без НДС-->
+        <vATRate>18</vATRate>  <!--Ставка НДС-->
+        <vATAmount>180.0000</vATAmount>         <!--сумма НДС-->
+        <amount>1180.0000</amount>    <!--сумма по позиции с НДС-->
+      </lineItem>
+      <lineItem status="Changed">
+        <internalSupplierCode>100</internalSupplierCode>
+        <typeOfUnit>RС</typeOfUnit>     <!--признак возвратной тары, если это не тара, то строки нет -->
+        <description>Ведро пластиковое</description>
+        <quantity unitOfMeasure="PCE">1.000</quantity>   <!--количество-->
+      </lineItem>
+      <totalSumExcludingTaxes>2710.0000</totalSumExcludingTaxes>    <!--сумма без НДС-->
+      <totalVATAmount>487.8000</totalVATAmount>   <!--сумма НДС, значение берем из orders/ordrsp-->
+      <totalAmount>3197.8000</totalAmount>   <!--общая сумма по товарам-->
+      <totalSumExcludingTaxesForDQ documentNumber = "DES003">2710.0000</totalSumExcludingTaxesForDQ>      <!--сумма для торг-12 без НДС-->
+      <totalVATAmountForDQ numberOfDocument = "DES003">487.8000</totalVATAmountForDQ>     <!--общая для торг-12 сумма с НДС по товарам-->
+      <totalAmountForDQ numberOfDocument = "DES003">3197.8000</totalAmountForDQ>      <!--сумма НДС для торг-12, значение берем из orders/ordrsp-->
+      <totalSumExcludingTaxesForIV documentNumber = "INV005">2710.0000</totalSumExcludingTaxesForIV>  <!--сумма для счета-фактуры без НДС-->
+      <totalVATAmountForIV  documentNumber = "INV005">487.8000</totalVATAmountForIV>     <!--общая сумма для счета-фактуры  с НДС по товарам-->
+      <totalAmountForIV documentNumber = "INV005">3197.8000</totalAmountForIV>    <!--сумма НДС для счета-фактуры , значение берем из orders/ordrsp-->
+      <transportationCosts>
+        <vATRate>0</vATRate> <!--НДС на транспортные расходы-->
+        <totalSumExcludingTaxes>100.0000</totalSumExcludingTaxes> <!--сумма без налога по транспортным расходам-->
+        <totalVATAmount>0.0000</totalVATAmount> <!-- сумма налога по транспортным расходам-->
+        <totalAmount>100.0000</totalAmount> <!--сумма с налогом по транспортным расходам-->
+      </transportationCosts>
+    </lineItems>
+  </invoice>
+</eDIMessage>

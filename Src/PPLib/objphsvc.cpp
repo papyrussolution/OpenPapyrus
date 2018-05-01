@@ -207,6 +207,33 @@ SLAPI PPPhoneServicePacket::PPPhoneServicePacket()
 {
 }
 
+int FASTCALL PPPhoneServicePacket::GetPrimaryOriginateSymb(SString & rChannel)
+{
+	rChannel.Z();
+	int    ok = 0;
+	if(LocalChannelSymb.NotEmpty() && !LocalChannelSymb.IsEqiAscii("@all")) {
+		SString temp_buf;
+		if(LocalChannelSymb.HasChr(';') || LocalChannelSymb.HasChr(',') || LocalChannelSymb.HasChr(' ')) {
+			StringSet ss;
+			LocalChannelSymb.Tokenize(" ;,", ss);
+			for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
+				if(temp_buf.NotEmptyS()) {
+					rChannel = temp_buf;
+					ok = 1;
+				}
+			}
+		}
+		else {
+			temp_buf = LocalChannelSymb;
+			if(temp_buf.NotEmptyS()) {
+				rChannel = temp_buf;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
 {
 	int    ok = -1;
@@ -512,6 +539,24 @@ PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 
 uint PhnSvcChannelStatusPool::GetCount() const { return getCount(); }
 
+int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcChannelStatus & rStatus) const
+{
+	int    ok = -1;
+	rStatus.Clear();
+	if(!isempty(pChannel)) {
+		SString temp_buf;
+		for(uint i = 0; ok < 0 && i < getCount(); i++) {
+			const Item_ & r_item = *(const Item_ *)at(i);
+			GetS(r_item.ChannelPos, temp_buf);
+			if(temp_buf.IsEqiAscii(pChannel)) {
+				Get(i, rStatus);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const
 {
 	rList.Clear();
@@ -755,6 +800,23 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 				}
 			}
 		} while(rs.EventListFlag <= 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::GetChannelListLinkedByBridge(const char * pChannel, PhnSvcChannelStatusPool & rList)
+{
+	int    ok = -1;
+	rList.Clear();
+	if(!isempty(pChannel)) {
+		PhnSvcChannelStatusPool temp_pool;
+		THROW(GetChannelStatus(0, temp_pool));
+		{
+			PhnSvcChannelStatus item;
+			if(temp_pool.GetByChannel(pChannel, item) > 0 && item.BridgeId.NotEmpty())
+				ok = temp_pool.GetListWithSameBridge(item.BridgeId, -1, rList);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1072,7 +1134,35 @@ int AsteriskAmiClient::ExecCommand(const Message & rIn, Message * pOut)
 	return ok;
 }
 
-int AsteriskAmiClient::Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pContext, int priority)
+int AsteriskAmiClient::Originate(const char * pChannelFrom, const char * pPhontTo, const char * pContext, int priority)
+{
+	/*
+		Action: originate
+		Channel: $CHANEL/$CALL-FROM-NUMBER
+		CallerId: 0
+		Exten: $CALL-TO-NUMBER
+		Context: $CONTEXT
+		Priority: 1
+	*/
+	int    ok = 1;
+	SString temp_buf;
+	Message msg, reply;
+	Message::ReplyStatus rs;
+	THROW_PP(S.IsValid(), PPERR_PHNSVC_NOTCONNECTED);
+	msg.AddAction("Originate");
+	msg.Add("Channel", pChannelFrom);
+	msg.Add("Exten", pPhontTo);
+	temp_buf.Z().Cat("-->").Cat(pPhontTo);
+	msg.Add("CallerID", temp_buf);
+	msg.Add("Context", isempty(pContext) ? "from-internal" : pContext);
+	msg.Add("Priority", temp_buf.Z().Cat((priority > 0) ? priority : 1));
+	THROW(ExecCommand(msg, &reply));
+	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pExtraChannel, const char * pContext, int priority)
 {
 	/*
 		Action: Redirect
@@ -1090,6 +1180,9 @@ int AsteriskAmiClient::Redirect(const char * pChannelFrom, const char * pExtenTo
 	msg.AddAction("Redirect");
 	msg.Add("Channel", pChannelFrom);
 	msg.Add("Exten", pExtenTo);
+	if(!isempty(pExtraChannel)) {
+		msg.Add("ExtraChannel", pExtraChannel);
+	}
 	msg.Add("Context", isempty(pContext) ? "default" : pContext);
 	msg.Add("Priority", temp_buf.Z().Cat((priority > 0) ? priority : 1));
 	THROW(ExecCommand(msg, &reply));

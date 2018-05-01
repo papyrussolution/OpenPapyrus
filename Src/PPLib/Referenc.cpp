@@ -42,7 +42,7 @@ int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw,
 		pwBufSize = 20;
 	}
 	// @v9.9.6 if(sl == (pwBufSize*3)) {
-	if((sl % 3) == 0) { // @v9.9.6 
+	if((sl % 3) == 0) { // @v9.9.6
 		for(size_t i = 0, p = 0; i < pwBufSize; i++) {
 			char   nmb[16];
 			nmb[0] = temp_str[p];
@@ -747,11 +747,11 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 		// +32 - страховка
-		if((actual_size+32) <= sizeof(pm_fixed_buf)) { 
+		if((actual_size+32) <= sizeof(pm_fixed_buf)) {
 			pm = (PropVlrString *)pm_fixed_buf;
 		}
 		else {
-			THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size+32)); 
+			THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size+32));
 			is_pm_allocated = 1;
 		}
 		ReadPropBuf(pm, actual_size, &test_actual_size);
@@ -2145,6 +2145,17 @@ int SLAPI UuidRefCore::Remove(long id, int use_ta)
 }
 //
 //
+//
+/*void TagIdentToObjProp(long tagID, int16 * pO, int16 * pP) // @v10.0.04 @construction
+{
+	*pO = ((tagID >> 17) & 0x7000);
+	*pP = ((tagID & 0x7fff)) & 0x7000);
+}
+
+long ObjPropToTagIdent(int16 o, int16 p) // @v10.0.04 @construction
+{
+	return MakeLong((p & ~0x7000), (o & ~0x7000);
+}*/
 //
 TextRefIdent::TextRefIdent()
 {

@@ -1158,28 +1158,22 @@ int PiritEquip::SetConnection()
 		case 10: port_params.Cbr = cbr256000; break;
 	}
 	CommPort.SetParams(&port_params);
-	THROW(CommPort.InitPort(Cfg.Port));
+	{
+		int ipr = CommPort.InitPort(Cfg.Port);
+		if(!ipr) {
+			if(LogFileName.NotEmpty())
+				SLS.LogMessage(LogFileName, "Error CommPort.InitPort", 8192);
+			CALLEXCEPT();
+		}
+	}
 	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
-	THROW(r == ACK);
-#if 0 // @v9.7.1 {
-	if(Cfg.BaudRate < 6) { // @v9.6.12 (<8)-->(<6)
-		CreateStr(5, in_data);
-		THROW(ExecCmd("93", in_data, out_data, r_error)); // Устанавливаем скорость ПУ 115200 бит/c
-		//
-		// Устанавливаем параметры COM-порта, соответствующие новой скорости ПУ
-		//
-		port_params.Cbr = cbr115200;
-		THROW(CommPort.SetParams(&port_params));
-
-		THROW(CommPort.InitPort(Cfg.Port));
-		// @v9.5.7 delay(200);
-		CommPort.PutChr(ENQ); // Проверка связи с ККМ
-		r = CommPort.GetChr();
-		THROW(r == ACK);
+	if(r != ACK) {
+		if(LogFileName.NotEmpty())
+			SLS.LogMessage(LogFileName, "Error (CommPort.GetChr() != ACK)", 8192);
+		CALLEXCEPT();
 	}
-#endif // } 0 @v9.7.1
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
 	CATCH

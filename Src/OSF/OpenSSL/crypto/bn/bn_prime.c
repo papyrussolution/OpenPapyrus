@@ -191,14 +191,12 @@ err:
 	return found;
 }
 
-int BN_is_prime_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed,
-    BN_GENCB * cb)
+int BN_is_prime_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed, BN_GENCB * cb)
 {
 	return BN_is_prime_fasttest_ex(a, checks, ctx_passed, 0, cb);
 }
 
-int BN_is_prime_fasttest_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed,
-    int do_trial_division, BN_GENCB * cb)
+int BN_is_prime_fasttest_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed, int do_trial_division, BN_GENCB * cb)
 {
 	int i, j, ret = -1;
 	int k;

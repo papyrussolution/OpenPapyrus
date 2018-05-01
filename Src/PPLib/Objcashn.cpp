@@ -876,16 +876,14 @@ int SLAPI PPObjCashNode::Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAss
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
-	if(id && Fetch(id, &cn_rec) > 0) {
-		if(!rDestList.lsearch(id)) {
-			rDestList.add(id);
-			ok = 1;
-			if(cn_rec.CashType == PPCMT_CASHNGROUP) {
-				PPIDArray inner_list;
-				rFullList.GetListByKey(id, inner_list);
-				for(uint i = 0; i < inner_list.getCount(); i++) {
-					Helper_ResolveItem(inner_list.get(i), rDestList, rFullList); // @recursion
-				}
+	if(id && !rDestList.lsearch(id) && Fetch(id, &cn_rec) > 0) {
+		rDestList.add(id);
+		ok = 1;
+		if(cn_rec.CashType == PPCMT_CASHNGROUP) {
+			PPIDArray inner_list;
+			rFullList.GetListByKey(id, inner_list);
+			for(uint i = 0; i < inner_list.getCount(); i++) {
+				Helper_ResolveItem(inner_list.get(i), rDestList, rFullList); // @recursion
 			}
 		}
 	}
@@ -1223,8 +1221,7 @@ int DivGrpAsscListDialog::addItem(long * pPos, long * pID)
 
 int DivGrpAsscListDialog::editItem(long pos, long /*id*/)
 {
-	if(pos >= 0 && pos < (long)P_Data->getCount() &&
-		editItem((int)pos, (PPGenCashNode::DivGrpAssc *)P_Data->at((uint)pos)) > 0)
+	if(pos >= 0 && pos < (long)P_Data->getCount() && editItem((int)pos, (PPGenCashNode::DivGrpAssc *)P_Data->at((uint)pos)) > 0)
 		return 1;
 	return -1;
 }

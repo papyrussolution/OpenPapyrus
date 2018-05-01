@@ -112,12 +112,16 @@ public:
 			lmLocCCheck, // Чеки по автономному адресу
 			lmSwitchTo
 		};
-		SLAPI  State() : Mode(lmNone), Status(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),
+		enum {
+			fLockAutoExit = 0x0001
+		};
+		SLAPI  State() : Mode(lmNone), Status(0), Flags(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),
 			SinceDown(ZERODATETIME)
 		{
 		}
 		long   Mode;
 		int    Status; // PhnSvcChannelStatus::stXXX
+		long   Flags;
 		LDATETIME SinceUp;   // Момент времени отсчета поднятой трубки
 		LDATETIME SinceDown; // Момент времени отсчета опущенной трубки
 		PPID   PhnSvcID;
@@ -161,10 +165,12 @@ public:
 				long sec_left = (s < time_to_close) ? (time_to_close - s) : 0;
 				PPFormatS(PPSTR_TEXT, PPTXT_CLOSEWINAFTERXSEC, &temp_buf, sec_left);
 				SetClusterItemText(CTL_PHNCPANE_AUTOCLOSE, 0, temp_buf);
-				if(sec_left <= 0 && GetClusterData(CTL_PHNCPANE_AUTOCLOSE) == 1) {
-					// (выбивает сеанс) messageCommand(this, cmClose);
-					Sf |= sfCloseMe;
-					result = 100;
+				if(!(S.Flags & S.fLockAutoExit)) {
+					if(sec_left <= 0 && GetClusterData(CTL_PHNCPANE_AUTOCLOSE) == 1) {
+						// (выбивает сеанс) messageCommand(this, cmClose);
+						Sf |= sfCloseMe;
+						result = 100;
+					}
 				}
 			}
 		}
@@ -315,11 +321,15 @@ private:
 						const StrAssocArray * p_internal_phone_list = P_PSER->GetInternalPhoneList();
 						if(p_internal_phone_list && ci <= (long)p_internal_phone_list->getCount()) {
 							StrAssocArray::Item item = p_internal_phone_list->Get(ci-1);
-							if(!isempty(item.Txt)) {
-								if(P_PhnSvcCli) {
-									PhnSvcChannelStatusPool sp;
-									P_PhnSvcCli->GetChannelStatus(S.Channel, sp);
-									P_PhnSvcCli->Redirect(S.Channel, item.Txt, 0, 1);
+							PhnSvcChannelStatusPool sp;
+							PhnSvcChannelStatus status;
+							if(!isempty(item.Txt) && P_PhnSvcCli && P_PhnSvcCli->GetChannelListLinkedByBridge(S.Channel, sp) > 0) {
+								for(uint i = 0; i < sp.GetCount(); i++) {
+									if(sp.Get(i, status) && !status.Channel.IsEqiAscii(S.Channel)) {
+										P_PhnSvcCli->Redirect(status.Channel, item.Txt, /*S.Channel*/0, 0, 1);
+										//P_PhnSvcCli->Redirect(S.Channel, item.Txt, status.Channel, 0, 1);
+										break;
+									}
 								}
 							}
 						}
@@ -342,6 +352,7 @@ private:
 			param.Phone = p_phone;
 			param.Oid.Set(PPOBJ_PERSON, 0);
 			dlg->setDTS(&param);
+			S.Flags |= S.fLockAutoExit;
 			if(ExecView(dlg) == cmOK) {
 				dlg->getDTS(&param);
 				if(param.Oid.Obj == PPOBJ_PERSON) {
@@ -363,6 +374,7 @@ private:
 			}
 		}
 		delete dlg;
+		S.Flags &= ~S.fLockAutoExit;
 	}
 	State  S;
 	SmartListBox * P_Box;
@@ -375,7 +387,6 @@ private:
 	PPObjPrjTask TodoObj;
 	PPObjIDArray OidList;
 	SCycleTimer ChnlStatusReqTmr;
-	//long   SecToClose; // Количество секунд до авто-закрытия окна (при повешенной трубке)
 	//
 	// Descr: Унифицированная структура для отображения различных данных в общем списке
 	//   Применяется для отражения следующих типов данных: документы, задачи, персональные события, 
@@ -479,7 +490,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
 				P_Box->AddColumn(-1, "@code",        15, 0, 2);
-				P_Box->AddColumn(-1, "@time",        15, 0, 3);
+				P_Box->AddColumn(-1, "@time",        20, 0, 3);
 				P_Box->AddColumn(-1, "@duetime",     15, 0, 4);
 				P_Box->AddColumn(-1, "@executor",    30, 0, 5);
 				P_Box->AddColumn(-1, "@client",      30, 0, 6);
@@ -561,7 +572,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			// columns: 
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@time",         15, 0, 2);
+				P_Box->AddColumn(-1, "@time",         20, 0, 2);
 				P_Box->AddColumn(-1, "@oprkind",      20, 0, 3);
 				P_Box->AddColumn(-1, "@contractor",   40, 0, 5);
 				P_Box->AddColumn(-1, "@memo",         60, 0, 6);
@@ -611,19 +622,44 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			// columns: 
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@time",     10, 0, 2);
+				P_Box->AddColumn(-1, "@time",     20, 0, 2);
 				P_Box->AddColumn(-1, "@amount",   10, 0, 3);
 				P_Box->AddColumn(-1, "@rest",     10, 0, 4);
 			}
 			S.Mode = mode;
 			if(S.SCardID) {
+				SCardOpFilt flt;
+				SCardOpViewItem item;
+				PPViewSCardOp   view;
+				flt.SCardID = S.SCardID;
+				if(view.Init_(&flt)) {
+					view.InitIteration();
+					for(uint i = 1; view.NextIteration(&item) > 0; i++) {
+						ss.clear();
+						LDATETIME dtm;
+						dtm.Set(item.Dt, item.Tm);
+						ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
+						if(item.Flags & SCARDOPF_FREEZING) {
+							DateRange frz_prd;
+							frz_prd.Set(item.FreezingStart, item.FreezingEnd);
+							ss.add(temp_buf.Z().Cat(frz_prd));
+							ss.add(temp_buf.Z());
+						}
+						else {
+							ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
+							ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
+						}
+						P_Box->addItem(i+1, ss.getBuf());
+						//addStringToList(i, ss.getBuf());
+					}
+				}
 			}
 		}
 		else if(mode == State::lmScCCheck) {
 			// columns: 
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@time",         10, 0, 2);
+				P_Box->AddColumn(-1, "@time",         20, 0, 2);
 				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
 				P_Box->AddColumn(-1, "@checkno",      10, 0, 4);
 				P_Box->AddColumn(-1, "@amount",       10, ALIGN_RIGHT, 5);
@@ -631,13 +667,32 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 			S.Mode = mode;
 			if(S.SCardID) {
+				CCheckFilt flt;
+				CCheckViewItem item;
+				PPViewCCheck view;
+				flt.SCardID = S.SCardID;
+				if(view.Init_(&flt)) {
+					for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
+						if(!(item.Flags & CCHKF_SKIP)) {
+							ss.clear();
+							LDATETIME dtm;
+							dtm.Set(item.Dt, item.Tm);
+							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
+							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+							P_Box->addItem(item.ID, ss.getBuf());
+						}
+					}
+				}
 			}
 		}
 		else if(mode == State::lmLocCCheck) {
 			// columns: 
 			if(onInit || S.Mode != mode) {
 				P_Box->RemoveColumns();
-				P_Box->AddColumn(-1, "@time",         10, 0, 2);
+				P_Box->AddColumn(-1, "@time",         20, 0, 2);
 				P_Box->AddColumn(-1, "@posnode_s",     8, 0, 3);
 				P_Box->AddColumn(-1, "@checkno",      10, 0, 4);
 				P_Box->AddColumn(-1, "@amount",       10, ALIGN_RIGHT, 5);
@@ -645,6 +700,25 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 			S.Mode = mode;
 			if(S.LocID) {
+				CCheckFilt flt;
+				CCheckViewItem item;
+				PPViewCCheck view;
+				flt.DlvrAddrID = S.LocID;
+				if(view.Init_(&flt)) {
+					for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
+						if(!(item.Flags & CCHKF_SKIP)) {
+							ss.clear();
+							LDATETIME dtm;
+							dtm.Set(item.Dt, item.Tm);
+							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
+							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+							P_Box->addItem(item.ID, ss.getBuf());
+						}
+					}
+				}
 			}
 		}
 		else if(mode == State::lmSwitchTo) {

@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -110,8 +110,7 @@ int SLAPI IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 	}
 	else
 		ret = -1;
-	if(pResult)
-		pResult->Set(c1, c2);
+	CALLPTRMEMB(pResult, Set(c1, c2));
 	return ret;
 }
 
@@ -153,24 +152,13 @@ SSzChunk & SSzChunk::SetRange(int begin, int end)
 }
 
 int SSzChunk::operator !() const
-{
-	return (Len <= 0);
-}
-
+	{ return (Len <= 0); }
 int SSzChunk::operator == (const SSzChunk & rS) const
-{
-	return (Begin == rS.Begin && Len == rS.Len);
-}
-
+	{ return (Begin == rS.Begin && Len == rS.Len); }
 int SSzChunk::GetEnd() const
-{
-	return (Begin+Len-1);
-}
-
+	{ return (Begin+Len-1); }
 int SSzChunk::IsEmpty() const
-{
-	return BIN(Len <= 0);
-}
+	{ return BIN(Len <= 0); }
 //
 //
 //
@@ -182,39 +170,19 @@ RealRange & RealRange::Clear()
 }
 
 RealRange & FASTCALL RealRange::operator = (const IntRange & rS)
-{
-	return Set((double)rS.low, (double)rS.upp);
-}
-
+	{ return Set((double)rS.low, (double)rS.upp); }
 int FASTCALL RealRange::IsEqual(const RealRange & rS) const
-{
-	return BIN(low == rS.low && upp == rS.upp);
-}
-
+	{ return BIN(low == rS.low && upp == rS.upp); }
 int FASTCALL RealRange::operator != (const RealRange & rS) const
-{
-	return !IsEqual(rS);
-}
-
+	{ return !IsEqual(rS); }
 int SLAPI RealRange::IsZero() const
-{
-	return BIN(low == 0.0 && upp == 0.0);
-}
-
+	{ return BIN(low == 0.0 && upp == 0.0); }
 int SLAPI RealRange::CheckVal(double v) const
-{
-	return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp));
-}
-
+	{ return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
 int SLAPI RealRange::Check(double v) const
-{
-	return BIN(v >= low && v <= upp);
-}
-
+	{ return BIN(v >= low && v <= upp); }
 int SLAPI RealRange::CheckX(double v) const
-{
-	return BIN((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low));
-}
+	{ return BIN((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low)); }
 
 double SLAPI RealRange::Clip(double v) const
 {
@@ -281,20 +249,9 @@ RealRange & SLAPI RealRange::SetMiddle(double middle, double delta)
 	return *this;
 }
 
-double SLAPI RealRange::GetDistance() const
-{
-	return (upp-low);
-}
-
-double SLAPI RealRange::GetActualLow() const
-{
-	return MIN(low, upp);
-}
-
-double SLAPI RealRange::GetActualUpp() const
-{
-	return MAX(low, upp);
-}
+double SLAPI RealRange::GetDistance() const { return (upp-low); }
+double SLAPI RealRange::GetActualLow() const { return MIN(low, upp); }
+double SLAPI RealRange::GetActualUpp() const { return MAX(low, upp); }
 //
 //
 //
@@ -344,22 +301,13 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 		//
 		assert(upp != rS.upp); // paranoic assertion
 		if(upp) {
-			if(rS.upp) {
+			if(rS.upp)
 				return (upp < rS.upp) ? -1 : +1;
-			}
-			else {
-				//
-				// rS.upp - бесконечность, а this->upp - определенная дата, следовательно this < rS
-				//
-				return -1;
-			}
+			else
+				return -1; // rS.upp - бесконечность, а this->upp - определенная дата, следовательно this < rS
 		}
-		else {
-			//
-			// this->upp - бесконечность, а rS.upp - определенная дата, следовательно this > rS
-			//
-			return +1;
-		}
+		else
+			return +1; // this->upp - бесконечность, а rS.upp - определенная дата, следовательно this > rS
 	}
 }
 

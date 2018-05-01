@@ -99,14 +99,10 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EDIORDSP, Data.Hdr.EdiOrderSpOpID, OLW_CANINSERT, &op_type_list, 0);
 	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_DESADV, Data.Hdr.EdiDesadvOpID, OLW_CANINSERT, &op_type_list, 0);
-	// @v8.8.0 {
 	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EGRCPTOP, Data.Hdr.EgaisRcptOpID, OLW_CANINSERT, &op_type_list, 0);
-	// } @v8.8.0
-	// @v8.9.6 {
 	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EGRETOP, Data.Hdr.EgaisRetOpID, OLW_CANINSERT, &op_type_list, 0);
-	// } @v8.9.6
 	{
 		ObjTagFilt tf(PPOBJ_BILL);
 		SetupObjTagCombo(this, CTLSEL_ALBTRCFG_RCVTAG, Data.Hdr.RcptTagID, OLW_CANINSERT, &tf);
@@ -115,14 +111,13 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 		ObjTagFilt tf(PPOBJ_BILL);
 		SetupObjTagCombo(this, CTLSEL_ALBTRCFG_TTNTAG, Data.Hdr.TtnTagID, OLW_CANINSERT, &tf);
 	}
-	// @v8.8.3 {
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 0, PPAlbatrosCfgHdr::fSkipBillWithUnresolvedItems);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 1, PPAlbatrosCfgHdr::fRecadvEvalByCorrBill);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 2, PPAlbatrosCfgHdr::fUncondAcceptEdiIntrMov); // @v9.0.0
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 3, PPAlbatrosCfgHdr::fUseOwnEgaisObjects); // @v9.0.2
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 4, PPAlbatrosCfgHdr::fUseDateInBillAnalog); // @v9.1.9
+	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 5, PPAlbatrosCfgHdr::fStrictExpGtinCheck); // @v10.0.04
 	SetClusterData(CTL_ALBTRCFG_FLAGS, Data.Hdr.Flags);
-	// } @v8.8.3
 	return ok;
 }
 
@@ -140,17 +135,17 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
 	Data.PutExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTPASSW, temp_buf);
 	Data.SetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
-	getCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/); // @v8.8.0
+	getCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/);
 	Data.PutExtStrData(ALBATROSEXSTR_EGAISSRVURL, temp_buf);
 
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORD, &Data.Hdr.EdiOrderOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORDSP, &Data.Hdr.EdiOrderSpOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_DESADV, &Data.Hdr.EdiDesadvOpID);
-	getCtrlData(CTLSEL_ALBTRCFG_EGRCPTOP, &Data.Hdr.EgaisRcptOpID); // @v8.8.0
-	getCtrlData(CTLSEL_ALBTRCFG_EGRETOP, &Data.Hdr.EgaisRetOpID); // @v8.9.6
+	getCtrlData(CTLSEL_ALBTRCFG_EGRCPTOP, &Data.Hdr.EgaisRcptOpID);
+	getCtrlData(CTLSEL_ALBTRCFG_EGRETOP, &Data.Hdr.EgaisRetOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_RCVTAG, &Data.Hdr.RcptTagID);
 	getCtrlData(CTLSEL_ALBTRCFG_TTNTAG, &Data.Hdr.TtnTagID);
-	GetClusterData(CTL_ALBTRCFG_FLAGS, &Data.Hdr.Flags); // @v8.8.3
+	GetClusterData(CTL_ALBTRCFG_FLAGS, &Data.Hdr.Flags);
 
 	ASSIGN_PTR(pCfg, Data);
 	return 1;
@@ -165,10 +160,6 @@ PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
 {
 	MEMSZERO(Hdr);
 	ExtString.Z();
-	//UhttUrn = 0;
-	//UhttUrlPrefix = 0;
-	//UhttAccount = 0;
-	//UhttPassword = 0;
 	return *this;
 }
 

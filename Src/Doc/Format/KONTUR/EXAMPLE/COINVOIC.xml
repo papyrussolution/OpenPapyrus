@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="ab75b373-563f-4c71-bf2c-870cacf850f9">
+  <interchangeHeader>
+    <sender>0999999999993</sender>
+    <recipient>4600500199981</recipient>
+    <documentType>COINVOIC</documentType>
+    <isTest>1</isTest>
+    <creationDateTime>2014-09-02T10:00:00.000Z</creationDateTime>
+    <creationDateTimeBySender>2014-09-02T10:00:00.000Z</creationDateTimeBySender>
+  </interchangeHeader>
+  <correctiveInvoice number="CINV90025" date="2015-08-12" type="Replace" revisionNumber="32" revisionDate="2005-01-02">
+    <factoringEncription>Factoring Encription</factoringEncription>
+    <originInvoic number="IN432097" date="2002-03-08" revisionNumber="23" revisionDate="2012-03-08" diadocInvoicId="DiadocMessadgeId_123:DiadocInvoicId_321" ediInvoicId="inv_id_123" />
+    <originOrder number="ORD9523" date="2002-02-12" />
+    <orderResponse number="Ordrsp01" date="2015-02-12" />
+    <receivingIdentificator number="ALO99523" date="2002-01-01" />
+    <despatchIdentificator number="53662" date="2002-02-15" />
+    <seller>
+      <gln>4012345500004</gln>
+      <organization>
+        <name>nameSU</name>
+        <inn>6658033077</inn>
+        <kpp>665601001</kpp>
+      </organization>
+      <russianAddress>
+        <regionISOCode>RU-AD</regionISOCode>
+        <city>cityName2</city>
+        <street>street2</street>
+        <postalCode>567876</postalCode>
+      </russianAddress>
+      <additionalInfo>
+        <phone>8(945)654-876-244447</phone>
+        <fax>8(945)654-876-234444</fax> 
+        <nameOfCEO>ChiefName</nameOfCEO>
+        <nameOfAccountant>BookkeeperName</nameOfAccountant>
+        <orderContact>OrderContactName</orderContact>
+      </additionalInfo>
+      <contactInfo>
+        <CEO>
+          <name>ChiefName</name>
+          <phone>TelephoneNumber</phone>
+          <fax>FaxNumber</fax>
+          <email>Email</email>
+        </CEO>
+        <accountant>
+          <name>BookkeeperName</name>
+          <phone>TelephoneNumber</phone>
+          <fax>FaxNumber</fax>
+          <email>Email</email>
+        </accountant>
+        <orderContact>
+          <name>OrderContactName</name>
+          <phone>8(945)654-876-244447</phone>
+          <fax>8(945)654-876-234444</fax>
+          <email>Email</email>
+        </orderContact>
+      </contactInfo>
+    </seller>
+    <buyer>
+      <gln>5412345000013</gln>
+      <selfEmployed>
+        <fullName>
+          <lastName>lastNameBY</lastName>
+          <firstName>firstNameBY</firstName>
+          <middleName>middleNameBY</middleName>
+        </fullName>
+      </selfEmployed>
+      <russianAddress>
+        <regionISOCode>RU-AD</regionISOCode>
+        <city>cityName1</city>
+        <street>street1</street>
+        <postalCode>345654</postalCode>
+      </russianAddress>
+      <additionalInfo>
+        <phone>8(945)654-876-234567</phone>
+        <fax>8(945)654-876-23ghjo</fax>
+        <nameOfCEO>ChiefName4</nameOfCEO>
+        <nameOfAccountant>bookkeeper</nameOfAccountant>
+      </additionalInfo>
+      <contactInfo>
+        <CEO>
+          <name>ChiefName4</name>
+          <phone>8(945)654-876-234567</phone>
+          <fax>8(945)654-876-23ghjo</fax>
+        </CEO>
+        <accountant>
+          <name>bookkeeper</name>
+        </accountant>
+      </contactInfo>
+    </buyer>
+    <invoicee>
+      <gln>4444444444444</gln>
+      <organization>
+        <name>nameIV</name>
+        <inn>6658033077</inn>
+        <kpp>665601001</kpp>
+      </organization>
+      <russianAddress>
+        <regionISOCode>RU-SVE</regionISOCode>
+        <city>cityName4</city>
+        <street>street4</street>
+        <postalCode>357986</postalCode>
+      </russianAddress>
+    </invoicee>
+    <deliveryInfo>
+    <shipFrom>
+      <gln>4012345500004</gln>
+    </shipFrom>
+    <shipTo>
+      <gln>4444444444444</gln>
+    </shipTo>
+      <ultimateCustomer>
+        <gln>4444444444444</gln>
+        <organization>
+          <name>nameIV</name>
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-SVE</regionISOCode>
+          <city>cityName4</city>
+          <street>street4</street>
+          <postalCode>357953</postalCode>
+        </russianAddress>
+      </ultimateCustomer>
+    </deliveryInfo>
+    <lineItems>
+      <currencyISOCode>USD</currencyISOCode>
+      <lineItem>
+        <gtin>4000862141404</gtin>
+        <internalBuyerCode>ProductId1</internalBuyerCode>
+        <internalSupplierCode>Article1</internalSupplierCode>
+        <typeOfUnit>RC</typeOfUnit>
+        <description>goodItemName1</description>
+        <comment>just comment</comment>
+        <quantityBefore unitOfMeasure="PA">40.000</quantityBefore>
+        <quantityAfter unitOfMeasure="PA">43.000</quantityAfter>
+        <quantityIncrease unitOfMeasure="PA">3.000</quantityIncrease>
+        <quantityDecrease unitOfMeasure="PA">0.000</quantityDecrease>
+        <onePlaceQuantity unitOfMeasure="PA">20.000</onePlaceQuantity>
+        <netPriceWithVAT>77.0000</netPriceWithVAT>
+        <netPriceBefore>60.0000</netPriceBefore>
+        <netPriceAfter>70.0000</netPriceAfter>
+        <netPriceIncrease>10.0000</netPriceIncrease>
+        <netPriceDecrease>0.0000</netPriceDecrease>
+        <netAmountBefore>2160.0250</netAmountBefore>
+        <netAmountAfter>2161.0000</netAmountAfter>
+        <netAmountIncrease>1.0000</netAmountIncrease>
+        <netAmountDecrease>2.0000</netAmountDecrease>
+        <exciseDutyBefore>146.0000</exciseDutyBefore>
+        <exciseDutyAfter>100.0000</exciseDutyAfter>
+        <exciseDutyIncrease>103.0000</exciseDutyIncrease>
+        <exciseDutyDecrease>46.0000</exciseDutyDecrease>
+        <vatAmountBefore>453.6000</vatAmountBefore>
+        <vatAmountAfter>484.7030</vatAmountAfter>
+        <vatAmountIncrease>31.1030</vatAmountIncrease>
+        <vatAmountDecrease>0.0000</vatAmountDecrease>
+        <amountBefore>10000.0000</amountBefore>
+        <amountAfter>9999.0000</amountAfter>
+        <amountIncrease>0.0000</amountIncrease>
+        <amountDecrease>1.0000</amountDecrease>
+        <vatRateBefore>18</vatRateBefore>
+        <vatRateAfter>10</vatRateAfter>
+        <customsDeclarationNumber>12345678/901234/5678901/234</customsDeclarationNumber>
+        <countryOfOriginISOCode>AL</countryOfOriginISOCode>
+      </lineItem>
+      <lineItem>
+        <gtin>5412345111115</gtin>
+        <internalBuyerCode>ProductId2</internalBuyerCode>
+        <description>goodItemName2</description>
+        <quantityBefore unitOfMeasure="KGM">12.650</quantityBefore>
+        <netPriceBefore>200.0000</netPriceBefore>
+        <netPriceAfter>300.0000</netPriceAfter>
+        <netPriceIncrease>100.0000</netPriceIncrease>
+        <netPriceDecrease>0.0000</netPriceDecrease>
+        <netAmountBefore>2530.0000</netAmountBefore>
+        <netAmountAfter>2530.0000</netAmountAfter>
+        <netAmountIncrease>0.0000</netAmountIncrease>
+        <netAmountDecrease>0.0000</netAmountDecrease>
+        <exciseDutyBefore>14.0000</exciseDutyBefore>
+        <exciseDutyAfter>10.0000</exciseDutyAfter>
+        <exciseDutyDecrease>4.0000</exciseDutyDecrease>
+        <vatAmountBefore>480.7000</vatAmountBefore>
+        <vatAmountAfter>484.7000</vatAmountAfter>
+        <vatAmountIncrease>485.7000</vatAmountIncrease>
+        <vatAmountDecrease>486.7000</vatAmountDecrease>
+        <amountBefore>1000.0000</amountBefore>
+        <amountAfter>999.0000</amountAfter>
+        <amountIncrease>0.0000</amountIncrease>
+        <amountDecrease>1.0000</amountDecrease>
+        <vatRateBefore>10</vatRateBefore>
+        <vatRateAfter>10</vatRateAfter>
+        <countryOfOriginISOCode>AZ</countryOfOriginISOCode>
+      </lineItem>
+      <totalSumExcludingTaxesDecrease>4810.00</totalSumExcludingTaxesDecrease>
+      <totalSumExcludingTaxesIncrease>810.00</totalSumExcludingTaxesIncrease>
+      <totalVATAmountDecrease>957.10</totalVATAmountDecrease>
+      <totalAmountIncrease>5767.10</totalAmountIncrease>
+      <totalVATAmountIncrease>7.10</totalVATAmountIncrease>
+      <totalAmountDecrease>767.10</totalAmountDecrease>
+      <totalSumExcludingTaxesForIVIncrease documentNumber="CINV90025">443.00</totalSumExcludingTaxesForIVIncrease>
+      <totalVATAmountForIVDecrease documentNumber="CINV90025">55123.89</totalVATAmountForIVDecrease>
+      <totalAmountForIVIncrease documentNumber="CINV90025">123.00</totalAmountForIVIncrease>        
+      <totalSumExcludingTaxesForIVDecrease documentNumber="CINV90025">43.00</totalSumExcludingTaxesForIVDecrease>
+      <totalVATAmountForIVIncrease documentNumber="CINV90025">5123.89</totalVATAmountForIVIncrease>
+      <totalAmountForIVDecrease documentNumber="CINV90025">23.00</totalAmountForIVDecrease>
+    </lineItems>
+  </correctiveInvoice>
+</eDIMessage>

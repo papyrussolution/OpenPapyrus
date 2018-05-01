@@ -1738,16 +1738,24 @@ PPERR_EDI_INVTAXQ                "@{err_internal}: недопустимое зн
 PPERR_EDI_INVTAXTYPE             "@{err_internal}: недопустимое значение типа налога '%s'"
 PPERR_EDI_WAREHASNTVALIDCODE     "Товар '%s' не имеет допустимого кода"
 PPERR_EDI_ARHASNTVALUDGLN        "Статья '%s' не имеет валидного GLN"
+PPERR_EDI_PSNHASNTVALUDGLN       "Персоналия '%s' не имеет валидного GLN"
 PPERR_EDI_MAINORGHASNTVALUDGLN   "Главная организация '%s' не имеет валидного GLN"
 PPERR_EDI_LOCHASNTVALUDGLN       "Адрес или склад '%s' не имеет валидного GLN"
 PPERR_EDI_THEREISNTPRVIMP        "Поддержка провайдера '%s' не реализована"
 PPERR_EDI_OPNDEF_DESADV          "Не определен вид операции DESADV в конфигурации глобального обмена"
 PPERR_EDI_OPNDEF_ORDER           "Не определен вид операции ORDER в конфигурации глобального обмена"
+PPERR_EDI_OPNDEF_ORDERRSP        "Не определен вид операции ORDERRSP в конфигурации глобального обмена"
 PPERR_EDI_DESADVBYNEQMAINORG     "Покупатель '%s' в сообщении DESADV не соответствует главной огранизации"
 PPERR_EDI_UNBLRSLV_GOODS         "Не удалость распознать товар в строке документа (%s)"
 PPERR_EDI_UNBLRSLV_BILLOBJ       "Не удалость распознать контрагента по документу (%s)"
 PPERR_EDI_UNBLRSLV_BILLWH        "Не удалость распознать склад-получатель по документу (%s)"
 PPERR_EDI_UNBLRSLV_BILLMAINORG   "Не удалость распознать главную организацию по документу (%s)"
+PPERR_EDI_UNBLRSLV_BILLDLVRLOC   "Не удалость распознать адрес доставки по документу (%s)"
+PPERR_EDI_UNBLRSLV_SENDER        "Не удалость распознать оправителя документа (%s)"
+PPERR_EDI_UNBLRSLV_RCVR          "Не удалость распознать получателя документа (%s)"
+PPERR_EDI_UNBLRSLV_INVQTTY       "Не допустимое количество в строке документа (%s)"
+PPERR_EDI_DESADV_NOORDER         "Документ отгрузки '%s' не привязан к заказу"
+PPERR_EDI_INBILLNOTINITED        "@{err_internal}: пакет для приема документа '%s' не инициализирован"
 PPERR_EANCOM_RFFWOQ              "EANCOM: в сегменте RFF не определен квалификатор"
 PPERR_EANCOM_NADWOQ              "EANCOM: в сегменте NAD не определен квалификатор"
 PPERR_EANCOM_MOAWOQ              "EANCOM: в сегменте MOA не определен квалификатор"
@@ -2478,34 +2486,6 @@ description for teststring
 date;time;user;serial;billdate;billno;qtty;phqtty;pack;brutto;objname;obj2name;ext_a;ext_b;ext_c;ext_d;ext_e;prcname;goodsgrpname;\
 brand;gcdimx;gcdimy;gcdimz;gcdimw;gckind;gcgrade;gcaddprop2;gcaddprop;linecost;lineprice;manufdate;manuf;quot:;goodscode;mainorg;warehouse;\
 memory;codepage;load;file;serxnom;wrap"
-98 "6,Эмулятор (синхронный);\
-19,Группа кассовых узлов;\
-10,Кассовый сервер Кристалл Сет;\
-11,Штрих-ФР;\
-5,СуперМаг УКМ;\
-14,Papyrus;\
-16,Штрих-М-ФР-К;\
-17,Фронтол;\
-18,Универсальный драйвер АТОЛ;\
-21,Распределенный кассовый узел;\
-22,Set Start;\
-9,Кристалл УКМ;\
-12,Атол;\
-15,Атол без АТОЛ-CARD;\
-2,Електроника-92-Аквариус-Ф;\
-1,ОКА-500.1;\
-3,АМС-100Ф;\
-8,АМС-200Ф;\
-4,ЭКР-4110Ф;\
-13,Unused;\
-20,Unused;\
-7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф)"
-
-// @v9.5.1 13,Кристалл-АЗС-->13,Unused
-
-99  /!/ "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
-100 "1,CAS Electronics;2,Масса-К;3,Mettler Toledo;4,Кассовый сервер Кристалл;5,Весовой терминал ТВ;6,DIGI;\
-7,Bizerba;8,Штрих-Принт;9,CAS CL5000J;10,Группа весов;11,Экспорт в файл;12,Штрих PC200 CE"
 
 121 "Закрытие незавершенных сессий"
 122 "Импорт кассовых чеков"
@@ -3069,8 +3049,39 @@ PPFILNAM_EGAIS_REFA_TXT        "egais-refa.txt"
 PPFILNAM_GENVER_DAT            "genver.dat"
 PPFILNAM_GENVEROPEN_DAT        "genver-open.dat"
 PPFILNAM_REPLACERRULEGOODS     "replacer-rule-goods.sr"
-
 #!} // dont_translate
+
+//98
+PPTXT_CMT "6,Эмулятор (синхронный);\
+19,Группа кассовых узлов;\
+10,Кассовый сервер Кристалл Сет;\
+11,Штрих-ФР;\
+5,СуперМаг УКМ;\
+14,Papyrus;\
+16,Штрих-М-ФР-К;\
+17,Фронтол;\
+18,Универсальный драйвер АТОЛ;\
+21,Распределенный кассовый узел;\
+22,Set Start;\
+9,Кристалл УКМ;\
+12,Атол;\
+15,Атол без АТОЛ-CARD;\
+2,Електроника-92-Аквариус-Ф;\
+1,ОКА-500.1;\
+3,АМС-100Ф;\
+8,АМС-200Ф;\
+4,ЭКР-4110Ф;\
+13,Unused;\
+20,Unused;\
+7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);\
+501,Дрим Кас"
+// @v9.5.1 13,Кристалл-АЗС-->13,Unused
+
+//99 Список типов принтеров штрихкодов
+PPTXT_BCPT /!/ "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
+//100 Список типов электронных весов
+PPTXT_SCLT "1,CAS Electronics;2,Масса-К;3,Mettler Toledo;4,Кассовый сервер Кристалл;5,Весовой терминал ТВ;6,DIGI;\
+7,Bizerba;8,Штрих-Принт;9,CAS CL5000J;10,Группа весов;11,Экспорт в файл;12,Штрих PC200 CE"
 
 PPTXT_ERRACCEPTARTICLE                 "Ошибка акцепта статьи (%ld %s): %s"
 PPTXT_PRNTYPE                          "1,Epson;2,PCL-принтер"
@@ -4631,7 +4642,7 @@ PPTXT_FIASTOSR_OBJSKIPPED_TYPE      "ФИАС->Sartre: объект '@zstr' не
 PPTXT_LOGCACHEHEADER          /!/   "Time;DbPath;ObjType;Count;Hits;Misses;HC ratio;Collisions;NumEntries;UnusedEntries;UT ratio;DirtyEntries;SsSize;SsDataLen\n"
 PPTXT_YOUARETELEPHONED              "Вам звонят с телефона %s"
 PPTXT_CLOSEWINAFTERXSEC             "Закрыть окно через @int сек"
-
+PPTXT_ACGIFENSUREUUID_IGNORED       "AsyncCashGoodsIterator: флаг, предписывающий инициировать UUID товаров, проигнорирован поскольку отсутствует тег GOODSUUID"
 //
 // LastText
 
@@ -6395,6 +6406,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_complementarybill                   "Формальная ссылка на комплементарный документ"
 @rtag_personvetisuuid                     "ВЕТИС идентификатор предприятия"
 @rtag_gualogin                            "Имя для авторизации"
+@rtag_goodsuuid                           "UUID товара"
 //
 // Текстовые представления view и filter
 //
@@ -7622,6 +7634,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalbatros_funcondacceptediintrmov      "Безусловный акцепт внутренних перемещений, продублированных по EDI"
 @cfgalbatros_fuseownegaisobjects          "Использовать собственную базу объектов @{brand_egais}"
 @cfgalbatros_fusedateinbillanalog         "При нахождении аналога документа использовать дату как критерий"
+@cfgalbatros_fstrictexpgtincheck          "Строгая проверка передаваемых кодов товаров"
 @cfgalbatros_hdr                          "Конфигурация глобального обмена"
 @cfgalbatros_id                           "@{id}"
 @cfgalbatros_mailacc                      "Почтовая учетная запись"
@@ -10888,6 +10901,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_supplagent                  "@{supplagent}"
 @trfranlzfilt_period                      "@{daterange}"
 @trfranlzfilt_lotsperiod                  "Период поступления товаров"
+@trfranlzfilt_duedateperiod               "Период даты исполнения"
 @trfranlzfilt_op                          "@{oprkind}"
 @trfranlzfilt_suppl                       "@{supplier}"
 @trfranlzfilt_ar                          "@{contractor}" // Одиночный контрагент
@@ -10929,6 +10943,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_ctk_date                    "По дате"
 @trfranlzfilt_ctk_cntragent               "По контрагенту"
 @trfranlzfilt_ctk_location                "По складу"
+@trfranlzfilt_btn_grouping                "Параметры группировки"
 @trfranlzfilt_title_grouping              "Параметры группировки анализа товарных операций" // Обобщающее понятие (заголовок диалога)
 @trfranlzfilt_grouping                    "@{grouping}" // Параметр группировки
 @trfranlzfilt_g_none                      "@{no}"
@@ -10959,6 +10974,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_arlist                      "@{contractor}"
 @trfranlzfilt_agentlist                   "@{agent}"
 @trfranlzfilt_extval1                     "Дополнительный показатель"
+@trfranlzfilt_ord_bydate                  "По дате"
+@trfranlzfilt_ord_bygoods                 "По товару"
+@trfranlzfilt_ord_byarticle               "По контрагенту"
 
 @trfranlz_enum_extval                     "1,Сумма скидки в связанном заказе;2,Превышение цены в связанном заказе над ценой отгрузки"
 

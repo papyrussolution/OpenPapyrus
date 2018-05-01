@@ -24,18 +24,22 @@ SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNOD
 	ImplementFlags |= PPView::implDontEditNullFilter; // @v9.6.1
 	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
-	int    s = 0, a = 0, idx = 0;
+	int    s = 0, a = 0;
+	//int    idx = 0;
 	SString line_buf;
-	SString symbol, drv_name, drv_path;
-	while(PPGetSubStr(PPTXT_CMT, idx, line_buf) > 0)
-		idx++;
-	for(long i = idx; GetStrFromDrvIni(PPINISECT_DRV_SYNCPOS, i, idx, line_buf) > 0; i++) {
+	SString symbol, drv_name;
+	SString path;
+	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
+	PPIniFile ini_file(path);
+	/*while(PPGetSubStr(PPTXT_CMT, idx, line_buf) > 0)
+		idx++;*/
+	for(long i = /*idx*/PPCMT_FIRST_DYN_DVC; GetStrFromDrvIni(ini_file, PPINISECT_DRV_SYNCPOS, i, PPCMT_FIRST_DYN_DVC, line_buf) > 0; i++) {
 		int    drv_impl = 0;
-		if(PPAbstractDevice::ParseRegEntry(line_buf, symbol = 0, drv_name = 0, drv_path = 0, &drv_impl)) {
+		if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
 			if(CashTypeNames.Empty())
-				CashTypeNames.Cat(i).Comma().Cat(drv_name.ToOem());
+				CashTypeNames.Cat(i).Comma().Cat(drv_name.Transf(CTRANSF_OUTER_TO_INNER));
 			else
-				CashTypeNames.Semicol().Cat(i).Comma().Cat(drv_name.ToOem());
+				CashTypeNames.Semicol().Cat(i).Comma().Cat(drv_name.Transf(CTRANSF_OUTER_TO_INNER));
 		}
 	}
 	// } @vmiller

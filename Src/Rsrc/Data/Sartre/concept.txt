@@ -185,7 +185,7 @@
 :gender_fem::gender  // Женский
 :gender_neu::gender  // Средний род
 
-:hum_name_freq(#int) // Относительная популярность человеческого имени. Значение само по себе бессмысленное, имеет значение только в сравнении с другим именем
+:hum_name_freq(#int) // Относительная популярность человеческого имени. Величина сама по себе бессмысленная, имеет значение только в сравнении с другим именем
                       
 :hum_name+(:gender gender, :hum_name_freq freq) // Человеческое имя (generic)
 :hum_fname::hum_name // Имя человека (first name)
@@ -2222,49 +2222,6 @@ z39.50s:urischeme
 [ru]цех::gener_apartment
 [ru]склад::gener_apartment
 //
-// Примеры синтаксиса определения понятия на натуральном языке //
-//
-[ru]широта=:geolat
-[ru]долгота=:geolon
-
-//[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
-[ru]петрозаводск:urbs(:statu_ru)
-[ru]ростов-на-дону:urbs(:statu_ru)
-
-[ru]вологодская область:cregion(statu= :statu_ru)
-
-[ru] рубль{ =:curr_rub =:curr_rur =:curr_sur }
-
-[ru]{
-	россия=:statu_ru
-	украина=:statu_ua
-	бразилия=:statu_br
-	соединенные штаты америки=:statu_us
-	сша=:statu_us	
-}
-
-[ru]{
-	республика карелия:cregion(:statu_ru)
-	москва:cregion(:statu_ru)
-	московскя область:cregion(:statu_ru)
-}
-
-[ru]{
-	техас:cregion(:statu_us)
-	аляска:cregion(:statu_us)
-	мичиган:cregion(:statu_us)
-	аризона:cregion(:statu_us)
-}
-
-[ru]{
-	иосиф:hum_fname(:gender_mas)
-	анна:hum_fname(:gender_fem)
-	максим:hum_fname(:gender_mas)
-	антон:hum_fname(:gender_mas)
-	дарья:hum_fname(:gender_fem)
-	дмитрий:hum_fname(:gender_mas)
-}
-//
 // Сокращения
 //
 [ru]{
@@ -2432,4 +2389,51 @@ z39.50s:urischeme
 	"окт"=.октябрь
 	"нояб"=.ноябрь
 	"дек"=.декабрь
+}
+//
+// Рыночные понятия
+//
+
+//
+// Примеры синтаксиса определения понятия на натуральном языке //
+//
+[ru]широта=:geolat
+[ru]долгота=:geolon
+
+//[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
+[ru]петрозаводск:urbs(:statu_ru)
+[ru]ростов-на-дону:urbs(:statu_ru)
+
+[ru]вологодская область:cregion(statu= :statu_ru)
+
+[ru] рубль{ =:curr_rub =:curr_rur =:curr_sur }
+
+[ru]{
+	россия=:statu_ru
+	украина=:statu_ua
+	бразилия=:statu_br
+	соединенные штаты америки=:statu_us
+	сша=:statu_us	
+}
+
+[ru]{
+	республика карелия:cregion(:statu_ru)
+	москва:cregion(:statu_ru)
+	московскя область:cregion(:statu_ru)
+}
+
+[ru]{
+	техас:cregion(:statu_us)
+	аляска:cregion(:statu_us)
+	мичиган:cregion(:statu_us)
+	аризона:cregion(:statu_us)
+}
+
+[ru]{
+	иосиф:hum_fname(:gender_mas)
+	анна:hum_fname(:gender_fem)
+	максим:hum_fname(:gender_mas)
+	антон:hum_fname(:gender_mas)
+	дарья:hum_fname(:gender_fem)
+	дмитрий:hum_fname(:gender_mas)
 }

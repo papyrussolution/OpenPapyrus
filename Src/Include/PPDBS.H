@@ -190,6 +190,29 @@ public:
 	DBField VT;
 	};
 
+	class TimeSeriesTbl : public DBTable {
+public:
+	TimeSeriesTbl(const char * pFileName = 0);
+
+	struct Rec {
+		int32  ObjID;
+		int16  ObjType;
+		int16  Prop;
+		int32  Size;
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		int16  ObjType;
+		int16  Prop;
+		int32  ObjID;
+	};
+	DBField ObjID;
+	DBField ObjType;
+	DBField Prop;
+	DBField Size;
+	DBField VT;
+	};
+
 	class ObjLikenessTbl : public DBTable {
 public:
 	ObjLikenessTbl(const char * pFileName = 0);

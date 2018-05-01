@@ -144,13 +144,11 @@ TrfrAnlzFilt & FASTCALL TrfrAnlzFilt::operator = (const TrfrAnlzFilt & rS)
 int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 {
 #define NEQ_FLD(f) (f) != (rS.f)
-	if(NEQ_FLD(Period.low))
+	if(NEQ_FLD(Period))
 		return 0;
-	if(NEQ_FLD(Period.upp))
+	if(NEQ_FLD(LotsPeriod))
 		return 0;
-	if(NEQ_FLD(LotsPeriod.low))
-		return 0;
-	if(NEQ_FLD(LotsPeriod.upp))
+	if(NEQ_FLD(DueDatePeriod)) // @v10.0.04
 		return 0;
 	if(NEQ_FLD(OpID))
 		return 0;
@@ -212,6 +210,7 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 	SString temp_buf;
 	PutMembToBuf(&Period,     STRINGIZE(Period), rBuf);
 	PutMembToBuf(&LotsPeriod, STRINGIZE(LotsPeriod), rBuf);
+	PutMembToBuf(&DueDatePeriod, STRINGIZE(DueDatePeriod), rBuf); // @v10.0.04
 
 	PutObjMembToBuf(PPOBJ_OPRKIND,      OpID,        STRINGIZE(OpID),      rBuf);
 	PutObjMembToBuf(PPOBJ_ARTICLE,      SupplID,    STRINGIZE(SupplID),    rBuf);
@@ -221,29 +220,23 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembToBuf(PPOBJ_PRSNCATEGORY, PsnCatID,   STRINGIZE(PsnCatID),   rBuf);
 	PutObjMembToBuf(PPOBJ_LOCATION,     DlvrAddrID, STRINGIZE(DlvrAddrID), rBuf);
 	{
-		if(CtKind == ctNone)
-			temp_buf = STRINGIZE(ctNone);
-		else if(CtKind == ctDate)
-			temp_buf = STRINGIZE(ctDate);
-		else if(CtKind == ctCntragent)
-			temp_buf = STRINGIZE(ctCntragent);
-		else if(CtKind == ctLocation)
-			temp_buf = STRINGIZE(ctLocation);
-		else
-			temp_buf.Z();
+		temp_buf.Z();
+		switch(CtKind) {
+			case ctNone: temp_buf = STRINGIZE(ctNone); break;
+			case ctDate: temp_buf = STRINGIZE(ctDate); break;
+			case ctCntragent: temp_buf = STRINGIZE(ctCntragent); break;
+			case ctLocation: temp_buf = STRINGIZE(ctLocation); break;
+		}
 		PutMembToBuf(temp_buf, STRINGIZE(CtKind), rBuf);
 	}
 	{
-		if(InitOrd == PPViewTrfrAnlz::OrdByDefault)
-			temp_buf = STRINGIZE(OrdByDefault);
-		else if(InitOrd == PPViewTrfrAnlz::OrdByDate)
-			temp_buf = STRINGIZE(OrdByDate);
-		else if(InitOrd == PPViewTrfrAnlz::OrdByGoods)
-			temp_buf = STRINGIZE(OrdByGoods);
-		else if(InitOrd == PPViewTrfrAnlz::OrdByArticle)
-			temp_buf = STRINGIZE(OrdByArticle);
-		else
-			temp_buf.Z();
+		temp_buf.Z();
+		switch(InitOrd) {
+			case PPViewTrfrAnlz::OrdByDefault: temp_buf = STRINGIZE(OrdByDefault); break;
+			case PPViewTrfrAnlz::OrdByDate: temp_buf = STRINGIZE(OrdByDate); break;
+			case PPViewTrfrAnlz::OrdByGoods: temp_buf = STRINGIZE(OrdByGoods); break;
+			case PPViewTrfrAnlz::OrdByArticle: temp_buf = STRINGIZE(OrdByArticle); break;
+		}
 	 	PutMembToBuf(temp_buf, STRINGIZE(InitOrd), rBuf);
 	}
 	{
@@ -263,28 +256,37 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 		PutMembToBuf(temp_buf, STRINGIZE(Grp), rBuf);
 	}
 	{
-		long id = 1;
+		long   id = 1;
 		StrAssocArray flag_list;
-		if(Flags & fLabelOnly)          flag_list.Add(id++, STRINGIZE(fLabelOnly));
-		if(Flags & fGByDate)            flag_list.Add(id++, STRINGIZE(fGByDate));
-		if(Flags & fGetRest)            flag_list.Add(id++, STRINGIZE(fGetRest));
-		if(Flags & fSubstPersonRAddr)   flag_list.Add(id++, STRINGIZE(fSubstPersonRAddr));
-		if(Flags & fSubstDlvrAddr)      flag_list.Add(id++, STRINGIZE(fSubstDlvrAddr));
-		if(Flags & fDiffByDlvrAddr)     flag_list.Add(id++, STRINGIZE(fDiffByDlvrAddr));
-		if(Flags & fDontInitSubstNames) flag_list.Add(id++, STRINGIZE(fDontInitSubstNames));
-		if(Flags & fInitLocCount)       flag_list.Add(id++, STRINGIZE(fInitLocCount));
-		if(Flags & fCalcRest)           flag_list.Add(id++, STRINGIZE(fCalcRest));
-		if(Flags & fShowAllArticles)    flag_list.Add(id++, STRINGIZE(fShowAllArticles));
-		if(Flags & fShowAllAgents)      flag_list.Add(id++, STRINGIZE(fShowAllAgents));
-		if(Flags & fShowAllGoods)       flag_list.Add(id++, STRINGIZE(fShowAllGoods));
-		if(Flags & fByZeroAgent)        flag_list.Add(id++, STRINGIZE(fByZeroAgent));
+#define REGISTERFLAG(f) if(Flags & f) flag_list.AddFast(id++, #f);
+		REGISTERFLAG(fLabelOnly)
+		REGISTERFLAG(fGByDate)
+		REGISTERFLAG(fGetRest)
+		REGISTERFLAG(fSubstPersonRAddr)
+		REGISTERFLAG(fSubstDlvrAddr)
+		REGISTERFLAG(fDiffByDlvrAddr)
+		REGISTERFLAG(fDontInitSubstNames)
+		REGISTERFLAG(fInitLocCount)
+		REGISTERFLAG(fCalcRest)
+		REGISTERFLAG(fShowAllArticles)
+		REGISTERFLAG(fShowAllAgents)
+		REGISTERFLAG(fShowAllGoods)
+		REGISTERFLAG(fByZeroAgent)
+		REGISTERFLAG(fCalcVat)
+		REGISTERFLAG(fCWoVat)
+		REGISTERFLAG(fByZeroDlvrAddr)
+		REGISTERFLAG(fForceInitDlvrAddr)
+		REGISTERFLAG(fShowGoodsCode)
+		REGISTERFLAG(fShowSerial)
+		REGISTERFLAG(fCalcAvgRest)
+		REGISTERFLAG(fCmpWrOff)
+		REGISTERFLAG(fCmpWrOff_DiffOnly)
+#undef REGISTERFLAG
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
-
 	PutSggMembToBuf(Sgg, STRINGIZE(Sgg), rBuf);
 	PutSgpMembToBuf(Sgp, STRINGIZE(Sgp), rBuf);
 	PutSgdMembToBuf(Sgd, STRINGIZE(Sgd), rBuf);
-
 	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,     STRINGIZE(BillList),     rBuf);
 	PutObjMembListToBuf(PPOBJ_BILL,     &RcptBillList, STRINGIZE(RcptBillList), rBuf);
 	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,      STRINGIZE(LocList),      rBuf);
@@ -567,6 +569,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
 	Filt.LotsPeriod.Actualize(ZERODATE);
+	Filt.DueDatePeriod.Actualize(ZERODATE); // @v10.0.04
 	THROW(AdjustPeriodToRights(Filt.Period, 0));
 	ZDELETE(P_InnerIterItem);
 	if(!(Flags & fOnceInited) || !Filt.IsEqualExcept(prev_filt, TrfrAnlzFilt::eqxOrder|TrfrAnlzFilt::eqxCrosstab)) {
@@ -629,6 +632,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			BillTbl::Rec bill_rec;
 			GCTIterator::ItemExtension gct_ext;
 			GCTFilt gct_filt;
+			gct_filt.DueDatePeriod = Filt.DueDatePeriod; // @v10.0.04
 			gct_filt.Period  = Filt.Period;
 			gct_filt.LotsPeriod = Filt.LotsPeriod;
 			gct_filt.LocList.Set(&LocList);
@@ -2439,7 +2443,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 						if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
 							pBrw->InsColumn(-1, "LinkDate", 19, 0, DATF_DMY, 0);
 						}
-						// } @v10.0.03 
+						// } @v10.0.03
 						if(p_q->getFieldPosByName("LinkQtty", &pos))
 							pBrw->InsColumn(-1, "LinkQtty", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
 						if(p_q->getFieldPosByName("LinkCost", &pos))
@@ -2836,6 +2840,7 @@ public:
 		addGroup(ctlgroupAgent, new ArticleCtrlGroup(0, 0, CTLSEL_GTO_AGENT,  cmAgentList, GetAgentAccSheet()));
 		SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 		SetupCalPeriod(CTLCAL_GTO_LOTPERIOD, CTL_GTO_LOTPERIOD);
+		SetupCalPeriod(CTLCAL_GTO_DUEPERIOD, CTL_GTO_DUEPERIOD); // @v10.0.04
 	}
 	int    setDTS(const TrfrAnlzFilt * pData);
 	int    getDTS(TrfrAnlzFilt * pData);
@@ -2910,6 +2915,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 
 	SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
 	SetPeriodInput(this, CTL_GTO_LOTPERIOD, &Data.LotsPeriod);
+	SetPeriodInput(this, CTL_GTO_DUEPERIOD, &Data.DueDatePeriod); // @v10.0.04
 	{
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &loc_rec);
@@ -2974,6 +2980,7 @@ int TrfrAnlzFiltDialog::getDTS(TrfrAnlzFilt * pData)
 	GoodsFiltCtrlGroup::Rec gf_rec;
 	THROW(GetPeriodInput(this, CTL_GTO_PERIOD,    &Data.Period));
 	THROW(GetPeriodInput(this, CTL_GTO_LOTPERIOD, &Data.LotsPeriod));
+	THROW(GetPeriodInput(this, CTL_GTO_DUEPERIOD, &Data.DueDatePeriod)); // @v10.0.04
 	{
 		LocationCtrlGroup::Rec loc_rec;
 		getGroupData(ctlgroupLoc, &loc_rec);

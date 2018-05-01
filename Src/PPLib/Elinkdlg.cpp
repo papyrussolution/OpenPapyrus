@@ -70,6 +70,31 @@ int SLAPI EditELink(PPELink * pLink)
 				}
 				setStaticText(CTL_ELINK_INFO, info_buf);
 			}	
+			else if(event.isKeyDown(kbF2)) { // test
+				SString addr;
+				getCtrlString(CTL_ELINK_ADDR, addr);
+				if(addr.Len()) {
+					SString phone_to;
+					addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+					PPEAddr::Phone::NormalizeStr(addr, phone_to);
+					if(phone_to.NotEmpty()) {
+						SString channel_from;
+						PPObjPhoneService ps_obj(0);
+						PPPhoneServicePacket ps_pack;
+						PPEquipConfig eq_cfg;
+						ReadEquipConfig(&eq_cfg);
+						if(eq_cfg.PhnSvcID && ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0) {
+							if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
+								AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(eq_cfg.PhnSvcID);
+								if(p_phnsvccli) {
+									p_phnsvccli->Originate(channel_from, phone_to, 0, 1);
+								}
+								delete p_phnsvccli;
+							}
+						}
+					}
+				}
+			}
 			else
 				return;
 			clearEvent(event);

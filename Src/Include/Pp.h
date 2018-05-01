@@ -603,7 +603,7 @@ struct PPLicData {
 	int16  Transport;
 	int16  Version;         // 0..
 	char   Reserve2[24];
-	uint32 ExtFunc;         // @v6.0.1 Битовые флаги доступности дополнительных функций
+	uint32 ExtFunc;         // Битовые флаги доступности дополнительных функций
 	int32  FreeLicCount;    //
 	uint32 DbDivArray[8];   // Битовый массив доступных разделов БД
 	uint32 SrvJobArray[16]; // Битовый массив доступных задач сервера
@@ -9493,6 +9493,7 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 //
 struct PPFreight {         // @persistent @store(PropertyTbl)
 	SLAPI  PPFreight();
+	PPFreight & SLAPI Z();
 	int    SLAPI IsEmpty() const;
 	int    FASTCALL IsEqual(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
@@ -9696,7 +9697,15 @@ public:
 	// Descr: Очищает список плана платежей и затем вызывает функцию PPBill::AddPayDate
 	//
 	int    SLAPI SetPayDate(LDATE dt, double amount);
-	int    FASTCALL SetFreight(const PPFreight *);
+	//
+	// Descr: Присваивает по указателю pFreight блок данных о фрайхте документа.
+	// ARG(pFreight IN): @#{vptr0}
+	// Returns:
+	//   >0 - this->P_Freight != 0
+	//   <0 - this->P_Freight == 0 (блок по указателю pFreight инициализируется как пустой)
+	//
+	int    FASTCALL GetFreight(PPFreight * pFreight) const;
+	int    FASTCALL SetFreight(const PPFreight * pFreight);
 
 	BillTbl::Rec Rec;
 	AmtList      Amounts;
@@ -19274,6 +19283,10 @@ public:
 	int    SLAPI SetExField(int fldId, const char * pBuf);
 	int    SLAPI GetPassword(SString & rBuf) const;
 	int    SLAPI SetPassword(const char * pPassword);
+	//
+	// Descr: Возвращает символ канала, с которого можно совершать звонки
+	//
+	int    FASTCALL GetPrimaryOriginateSymb(SString & rChannel);
 
 	PPPhoneService Rec;
 	SString Tail;
@@ -19352,6 +19365,7 @@ public:
 	uint   GetCount() const;
 	int    FASTCALL Add(const PhnSvcChannelStatus & rStatus);
 	int    FASTCALL Get(uint idx, PhnSvcChannelStatus & rStatus) const;
+	int    SLAPI GetByChannel(const char * pChannel, PhnSvcChannelStatus & rStatus) const;
 	int    SLAPI GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const;
 	int    SLAPI SetIdentifiedCallerName(uint idx, const char * pName);
 	PhnSvcChannelStatusPool & Clear();
@@ -19423,7 +19437,9 @@ public:
 	int    Logout();
 	int    GetChannelList(const char * pChannelName, PhnSvcChannelStatusPool & rList);
 	int    GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList);
-	int    Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pContext, int priority);
+	int    GetChannelListLinkedByBridge(const char * pChannelName, PhnSvcChannelStatusPool & rList);
+	int    Redirect(const char * pChannelFrom, const char * pExtenTo, const char * pExtraChannel, const char * pContext, int priority);
+	int    Originate(const char * pChannelFrom, const char * pPhontTo, const char * pContext, int priority);
 	int    ExecCommand(const Message & rIn, Message * pOut);
 	int    ReadReply(Message & rOut);
 	int    Read(Message & rMsg);
@@ -20533,11 +20549,11 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	char   Name[48];         // @name
 	char   Symb[20];         //
 	char   Reserve[24];      // @reserve
-	float  GiftLimit;        // @v7.0.0 Предельное количество подарков, которое может быть выдано на чек по данной структуре
-	PPID   GiftQuotKindID;   // @v6.5.12 Вид котировки, применяемый для установки цен на товары, к которым применяется подарок.
+	float  GiftLimit;        // Предельное количество подарков, которое может быть выдано на чек по данной структуре
+	PPID   GiftQuotKindID;   // Вид котировки, применяемый для установки цен на товары, к которым применяется подарок.
 		// Если GiftQuotKindID & 0x40000000, то этот идентификатор представляет специальное правило установки скидки
 		// на позиции, составляющие подарочную комбинацию (GSGIFTQ_XXX).
-	double GiftAmtRestrict;  // @v6.4.4 Сумма, которой должна достичь комбинация компонентов для начисления подарка.
+	double GiftAmtRestrict;  // Сумма, которой должна достичь комбинация компонентов для начисления подарка.
 	PPID   VariedPropObjType; // Тип объекта изменяющейся характиристики заголовочного товара структуры и элементов структуры.
 	DateRange Period;        // Период актуальности структуры
 	double CommDenom;        // Общий делитель для компонентов структуры.
@@ -20779,10 +20795,10 @@ public:
 	PPID   StrucID;        // Ид товарной структуры (подарочной)
 	PPID   OrgStrucID;     // Структура, родительская к StrucID самого верхнего уровня.
 		// Если StrucID не имеет родительской структуры, то OrgStrucID == StrucID
-	PPID   QuotKindID;     // @v6.5.12 Вид котировки, применяемый как подарочная цена на купленные товары
-	long   Flags;          // @v6.6.2
-	float  Limit;          // @v7.0.0 Предельное количество подарков, которое может быть выдано по одному чеку.
-	double AmtRestrict;    // @v6.4.6 Минимальная сумма продажи, на которую начисляется подарок
+	PPID   QuotKindID;     // Вид котировки, применяемый как подарочная цена на купленные товары
+	long   Flags;          // 
+	float  Limit;          // Предельное количество подарков, которое может быть выдано по одному чеку.
+	double AmtRestrict;    // Минимальная сумма продажи, на которую начисляется подарок
 	PPIDArray GiftList;    // Список идентификаторов товаров-подарков
 	TSCollection <SaGiftItem::Entry> List; // Список проданных товаров, по которым полагается подарок
 };
@@ -20967,7 +20983,7 @@ private:
 #define GTAXVF_EXCISE      0x00000004L
 #define GTAXVF_SALESTAX    0x00000008L
 #define GTAXVF_BEFORETAXES 0x80000000L // With all operational taxes
-#define GTAXVF_NOMINAL     0x08000000L // @v6.5.6 Специальный флаг, применяемый для того,
+#define GTAXVF_NOMINAL     0x08000000L // Специальный флаг, применяемый для того,
 	// чтобы рассчитать суммы налогов исходя из номинальных налоговых групп по товарам
 	// (опиская признаки освобождения от НДС и входящие налоговые группы по лотам).
 	// Может быть использован только в аргументе exclFlags функции GTaxVect::CalcTi().
@@ -21046,7 +21062,7 @@ struct PPRegisterType2 {   // @persistent @store(Reference2Tbl+)
 		//   0 - продавать только эту группу,
 		//   1 - запретить эту группу,
 		//   2 - разрешить продавать эту группу при наличие регистра (ggrpaXXX)
-	PPID   RestrictGoodsGrpID;     // @v6.4.3 Товарная группа
+	PPID   RestrictGoodsGrpID;     // Товарная группа
 	char   Reserve[48];    // @reserve
 	PPID   RegOrgKind;     // ->Ref(PPOBJ_PRSNKIND) Вид регистрирующей организации
 	long   Flags;          // @flags
@@ -21168,9 +21184,9 @@ struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name
 	char   Symb[20];       //
 	char   Reserve[24];    // @reserve
-	int16  SerialTerm;     // @v7.1.12 Ограничение на количество хранимых значений
+	int16  SerialTerm;     // Ограничение на количество хранимых значений
 	int16  Reserve2;       // @alignment
-	IntRange AmtRestr;     // @v6.8.6 Диапазон суммы покупки, при которой действует этот вид котировки
+	IntRange AmtRestr;     // Диапазон суммы покупки, при которой действует этот вид котировки
 	double Discount;       // Скидка
 	DateRange Period;      // Период действия розничной котировки
 	int16  BeginTm;        // Время начала действия розничной котировки
@@ -21502,7 +21518,7 @@ public:
 		short  StatusType;     // PSNSTT_XXX Категория статуса персоналии
 		short  Reserve1;       // @reserve
 		PPID   DefaultID;      // ->Person.ID (Default Person)
-		PPID   RestrictTagID;  // @v6.2.0 Ограничивающий тег (если его значение <=0, то событие вводить нельзя)
+		PPID   RestrictTagID;  // Ограничивающий тег (если его значение <=0, то событие вводить нельзя)
 		PPIDArray RestrictScSerList; // @v7.8.9 Список серий карт, которые можно использовать для идентификации персоналии
 	};
 
@@ -22070,9 +22086,9 @@ struct PPLocationConfig {  // @transient @store(PropertyTbl)
 	int16  WhCodingDiv;    // Разделитель кодов складских позиций  (0 - dot, 1 - defis, 2 - none)
 	int16  Reserve;        // @alignment
 	long   Flags;          // @flags
-	PPID   DefPalletID;    // @v6.7.0
-	PPID   StoreIdxTagID;  // @v8.9.11 Идентификатор тега, отвечающий за индекс магазина в сети (только для LOCTYP_WAREHOUSE)
-	char   AddrCodeTempl[32]; // @v7.3.8 Шаблон кода нового адреса
+	PPID   DefPalletID;    // 
+	PPID   StoreIdxTagID;  // Идентификатор тега, отвечающий за индекс магазина в сети (только для LOCTYP_WAREHOUSE)
+	char   AddrCodeTempl[32]; // Шаблон кода нового адреса
 };
 //
 // Descr: Специализированная структура для унифицированного обмена информацией о государстве.
@@ -22513,21 +22529,21 @@ public:
 
 struct PPBank {
 	PPID   ID;
-	char   Name[128];     // @v6.3.14 [48]-->[128]
+	char   Name[128];
 	char   BIC[24];
 	char   CorrAcc[24];
-	char   City[48];      // @v6.3.14 [30]-->[48]
+	char   City[48];
 	char   ExtName[128];
 };
 
 struct BnkAcctData {
-	SLAPI  BnkAcctData(long initFlags = BADIF_INITALLBR);
+	explicit SLAPI BnkAcctData(long initFlags = BADIF_INITALLBR);
 	int    SLAPI Format(const char * pTitle, char * pBuf, size_t bufLen) const;
 
 	long   InitFlags; // BADIF_XXX
 	PPID   BnkAcctID;
 	PPID   OwnerID;
-	char   Acct[28];  // @v6.2.8 [24]-->[28]
+	char   Acct[28];  
 	PPBank Bnk;
 };
 //
@@ -23526,9 +23542,9 @@ struct PPSalCharge2 {      // @persistent @store(Reference2Tbl+)
 	PPID   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       // Символ
-	char   Reserve[48];    // @reserve @v6.3.3 [56]-->[48]
-	PPID   EnumObjType;    // @v6.3.3 @#{0||PPOBJ_PERSONEVENT} Тип объекта для перечисления //
-	PPID   EnumExtVal;     // @v6.3.3 Дополнительный параметр для перечисления по объектам EnumObjType
+	char   Reserve[48];    // @reserve 
+	PPID   EnumObjType;    // @#{0||PPOBJ_PERSONEVENT} Тип объекта для перечисления //
+	PPID   EnumExtVal;     // Дополнительный параметр для перечисления по объектам EnumObjType
 	PPID   AmtID;          // ->Ref(PPOBJ_AMOUNTTYPE) Тип учетной суммы для этого начисления //
 	long   Flags;          //
 	PPID   CalID;          // ->Ref(PPOBJ_STAFFCAL)   Календарь, используемый для этого начисления //
@@ -25286,7 +25302,7 @@ public:
 	int    SLAPI ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 	int    SLAPI WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 
-	char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve @v6.0.7 [24]-->[20]
+	char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve
 	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
 	PPID   RestrictQuotKindID; // Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
 	int32  InitOrder;          //
@@ -26365,8 +26381,8 @@ public:
 	//   если это равенство не выполняется возвращает 0 и PPErrCode = PPERR_INVQUOTLIST.
 	//
 	int    SLAPI PutQuotList(PPID goodsID, PPQuotArray * pList, int use_ta);
-	int    SLAPI ImportOld(int use_ta); // @v6.1.12 Импорт по устаревшей технологии
-	int    SLAPI Import(const char * pCfgName, int analyze, int use_ta);  // @v6.1.12 Импорт по новой технологии
+	int    SLAPI ImportOld(int use_ta); // Импорт по устаревшей технологии
+	int    SLAPI Import(const char * pCfgName, int analyze, int use_ta); // Импорт по новой технологии
 	int    SLAPI ImportQuotOld(int use_ta);
 	int    SLAPI ImportQuot(const char * pCfgName, int use_ta);
 	//
@@ -27106,7 +27122,8 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 			// накладных, привязанных к учетному документу прихода (если таких нет, то считается, что совпадение полное).
 		fUncondAcceptEdiIntrMov      = 0x0004, // @v9.0.0 Безусловный акцепт внутренних перемещений, продублированных по каналу EDI
 		fUseOwnEgaisObjects          = 0x0008, // @v9.0.2 Использовать собственную базу данных объектов ЕГАИС
-		fUseDateInBillAnalog         = 0x0010  // @v9.1.9 Использовать критерий даты при поиске аналога документа
+		fUseDateInBillAnalog         = 0x0010, // @v9.1.9 Использовать критерий даты при поиске аналога документа
+		fStrictExpGtinCheck          = 0x0020  // @v10.0.04 Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
@@ -27140,11 +27157,6 @@ public:
 
 	PPAlbatrosCfgHdr Hdr;
 	SString ExtString; // Идентификаторы полей: ALBATROSEXSTR_XXX
-	//SString UhttUrn;
-	//SString UhttUrlPrefix;
-	//SString UhttAccount;
-	//SString UhttPassword;
-	//SString EgaisServerURL; // @v8.8.0
 };
 
 class PPAlbatrosCfgMngr {
@@ -28210,6 +28222,7 @@ struct AsyncCashGoodsInfo { // @transient
 	PPID   AsscPosNodeID;       // @v7.9.7 Ассоциированный с товаром кассовый аппарат
 	char   AsscPosNodeSymb[20]; // @v7.9.7 Символ ассоциированного с товаров кассового аппарата
 	double VatRate;        // Ставка НДС
+	S_GUID Uuid;           // @v10.0.04 UUID товара, извлеченный из тега PPTAG_GOODS_UUID
 	RAssocArray QuotList;  // Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
 		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими
@@ -28234,6 +28247,7 @@ struct AsyncCashGoodsInfo { // @transient
 	// эксклюзивных альтернат групп.
 #define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
 #define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
+#define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией. 
 
 class AsyncCashGoodsIterator {
 public:
@@ -28245,7 +28259,7 @@ public:
 	int    SLAPI Next(AsyncCashGoodsInfo *);
 	const  IterCounter & SLAPI GetIterCounter() const;
 	int    SLAPI UpdateCPrice(PPID goodsID, double price);
-	AsyncCashGoodsGroupIterator * GetGroupIterator(); // @v7.3.0
+	AsyncCashGoodsGroupIterator * GetGroupIterator();
 	//
 	// Descr: Находит список уникальных и отличающихся от basePrice цен по открытым лотам товара goodsID
 	//   за период getcurdate_()-PricesLookBackPeriod..
@@ -29541,9 +29555,10 @@ private:
 class PPEdiProcessor {
 public:
 	struct Packet {
-		Packet(int docType);
+		explicit Packet(int docType);
 		~Packet();
 		void * P_Data;
+		void * P_ExtData;
 		const  int  DocType;
 		long   Flags;
 	};
@@ -29602,6 +29617,7 @@ public:
 
 		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
 		int    SLAPI GetTempInputPath(int docType, SString & rBuf);
+		int    SLAPI GetPersonGLN(PPID psnID, SString & rGLN);
 		int    SLAPI GetArticleGLN(PPID arID, SString & rGLN);
 		int    SLAPI GetMainOrgGLN(SString & rGLN);
 		int    SLAPI GetLocGLN(PPID locID, SString & rGLN);
@@ -29612,6 +29628,7 @@ public:
 		PPEdiProviderPacket Epp;
 		PPID   MainOrgID;
 		long   Flags;
+		PPObjBill * P_BObj; // @notowned
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
 		PPObjArticle ArObj;
@@ -29619,6 +29636,7 @@ public:
 		PPAlbatrosConfig ACfg;
 	private:
 		int    SLAPI GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
+		int    SLAPI Helper_GetPersonGLN(PPID psnID, SString & rGLN);
 	};
 
 	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
@@ -29628,6 +29646,7 @@ public:
 
 	int    SLAPI SendBills(const PPBillExportFilt & rP);
 	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendOrderRsp(const PPBillExportFilt & rP, const PPIDArray & rArList);
 	int    SLAPI SendDESADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
 
 	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
@@ -29638,6 +29657,7 @@ private:
 	PPLogger * P_Logger; // @notowned
 	PPObjBill * P_BObj;
 	PPObjPerson PsnObj;
+	PPAlbatrosConfig ACfg;
 };
 //
 //
@@ -29808,6 +29828,19 @@ public:
 	int    SLAPI ExtractPacket(PPID id, PPBillPacket * pPack);
 	int    SLAPI ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */);
 	int    SLAPI ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */, const PPIDArray * pGoodsList);
+	//
+	// Descr: Извлекает из истории объектов оригинальный пакет документа (каким он был при первом проведении).
+	//   Функция будет успешной только в том случае, если включена история изменений документов или же документ
+	//   не менялся.
+	// Returns:
+	//   -1 - документ менялся, однако история измений не ведется, следовательно найти оригинальную копию не возможно
+	//   -2 - не удалось найти в системном журнале событие создания документа
+	//   1  - документ не менялся. По указателю pPack ничего не присваивается (с целью сократить издержки на, возможно,
+	//      избыточную операцию извлечения текущего пакета).
+	//   2  - документ менялся и удалось извлечь из истории оригинал, который присваивается по указателю pPack.
+	//   0  - ошибка
+	//
+	int    SLAPI GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec, PPBillPacket * pPack);
 	int    SLAPI RemovePacket(PPID, int use_ta);
 	int    SLAPI UpdatePool(PPID poolID, int use_ta);
 	int    SLAPI RecalcTurns(PPID, long flags /* BORTF_XXX */, int use_ta);
@@ -31058,7 +31091,8 @@ struct GCTFilt : public PPBaseFilt {
 		ordByGoods,
 		ordByArticle
 	};
-	uint8  ReserveStart[32];      // @anchor @v9.3.6
+	uint8  ReserveStart[24];      // @anchor @v9.3.6 // @v10.0.04 [32]-->[24]
+	DateRange DueDatePeriod;      // @v10.0.04 Период даты исполнения документа
 	DateRange Period;             // Период обзора операций
 	DateRange LotsPeriod;         // Период приходов
 	DateRange ShipmentPeriod;     // Период отгрузки
@@ -34087,20 +34121,20 @@ struct ObjTransmContext {
 	const  DBDivPack * P_DestDbDivPack; // Пакет раздела-получателя данных (в режиме приема - 0)
 	PPID   Extra;                       // Дополнительный параметр
 		// в случае передачи документов, содержит id операции в которую требуется преобразовать текущую операцию
-	long   LastStreamId;                // @v6.2.3 Идентификатор последнего потока, из которого извлекались данные.
+	long   LastStreamId;                // Идентификатор последнего потока, из которого извлекались данные.
 		// Необходим для правильного переключения состояний контекстов сериализации данных (SCtx)
-	SSerializeContext  SCtx;            // @v6.2.2 Контекст сериализации данных
+	SSerializeContext  SCtx;            // Контекст сериализации данных
 private:
-	const void * P_Rb;                  // @v6.4.5 @*PPObjectTransmit::CommitQueue Указатель на блок восстановления.
+	const void * P_Rb;                  // @*PPObjectTransmit::CommitQueue Указатель на блок восстановления.
 	enum {
 		stOuterLogger = 0x0001
 	};
 	long   State;
-	PPObjIDArray * P_ForceRestoreObj;   // @v6.4.5 Список объектов, которые должны быть изменены обязательно.
+	PPObjIDArray * P_ForceRestoreObj;   // Список объектов, которые должны быть изменены обязательно.
 		// Список формируется в процессе приема данных. Некоторые объекты при приеме могут потребовать
 		// обязательной модификации объекта, от которого они зависят.
 		// Идентификаторы объектов здесь храняться в терминах раздела-отправителя (ссылки неразрешенные).
-	PPObjectTransmit * P_Ot;            // @v7.6.1 @notowned
+	PPObjectTransmit * P_Ot;            // @notowned
 	PPLogger * P_Logger;                // Журнал, в который записывается информация о процессе
 };
 
@@ -36501,7 +36535,7 @@ struct GoodsRestViewItem { // @transient
 	PPID   LocID;
 	PPID   LotID;          // @v8.1.1
 	// @v8.1.3 const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsRest instance
-	char   GoodsName[128]; // @v6.3.8 [64]-->[128]
+	char   GoodsName[128]; // 
 	char   GoodsGrpName[128]; // @v8.1.3
 	char   UnitName[48];   // Наименование единицы измерения // @v7.2.6 [32]-->[48]
 	char   Serial[24];     // @v8.1.0
@@ -37014,8 +37048,8 @@ struct GoodsTaxAnalyzeViewItem {
 	char   BillNo[24];     // Номер документа
 	PPID   GoodsID;
 	PPID   GoodsGrpID;
-	char   Name[128];      // @v6.6.2 [64]-->[128]
-	char   TaxStr[48];     //
+	char   Name[128];
+	char   TaxStr[48];
 	const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsTaxAnalyze instance
 
 	double Qtty;
@@ -38226,14 +38260,14 @@ struct AccAnlzViewItem {
 	PPID   BillID;
 	short  RByBill;
 	short  Reverse;
-	PPID   ThisAccRelID;      // @v6.2.3
+	PPID   ThisAccRelID;      // 
 	PPID   AccID;
 	PPID   AccRelID;          // If grouping by ACO_1 or ACO_2 then AccRelID = 0
 	PPID   RelPersonID;       // Связанная со статьей счета персоналия //
 		// Для оборотки по статьям счета, то это - персоналия, связанная со статьей
 		// Для анализа - это персоналия, связанная с корр счетом.
 	PPID   CurID;             // Валюта
-	char   AccName[128];      // Наименование счета @v6.2.3 [48]-->[128]
+	char   AccName[128];      // Наименование счета 
 	long   Count;             // In case of grouping Count > 1
 	double InRest;            // Входящий остаток
 	double DbtAmt;            // Оборот по кредиту
@@ -38496,7 +38530,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 		fInclAccOps         = 0x0080   // @v8.6.1 Включать в отчет бухгалтерские операции (OPG_INCLACCOPS)
 	};
 	char   ReserveStart[28];  // @anchor
-	long   CycleStat;         // @v6.2.4
+	long   CycleStat;         // 
 	DateRange Period;         //
 	DateRange LotsPeriod;     //
 	DateRange ShipmentPeriod; // Период отгрузки
@@ -38707,7 +38741,7 @@ private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.4.10
+	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
@@ -38763,7 +38797,7 @@ private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.4.10
+	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
@@ -38791,7 +38825,7 @@ public:
 	CSessFilt & FASTCALL operator = (const CSessFilt &);
 
 	char   ReserveStart[28]; // @anchor
-	long   InitOrder;        // @v6.6.8 PPViewCSess::ordByXXX Порядок сортировки
+	long   InitOrder;        // PPViewCSess::ordByXXX Порядок сортировки
 	DateRange Period;
 	long   CashNumber;
 	PPID   SuperSessID;
@@ -39186,12 +39220,12 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	long   CashNodeID;     //
 	long   LinesCount;     // Количество строк в чеке (инициализируется только если
 		// в фильтре установлен флаг fInitLinesCount
-	long   LinkCheckID;    // @v6.7.11 Связанный чек (обычно, чек заказа)
+	long   LinkCheckID;    // Связанный чек (обычно, чек заказа)
 	long   RByCheck;       // @v8.3.7  Номер строки по чеку
 	long   LineFlags;      // @v8.3.7  Флаги строки чека
 	long   LineQueue;      // @v8.3.7  Очередь подачи (для ресторанов)
-	STimeChunk OrderTime;  // @v6.8.1 Отрезок времени, на который заказан стол
-	LDATETIME CreationDtm; // @v7.6.1 Время создания чека (начало обслуживания)
+	STimeChunk OrderTime;  // Отрезок времени, на который заказан стол
+	LDATETIME CreationDtm; // Время создания чека (начало обслуживания)
 	char   G_Text[128];    // Текст наименования группы. При итерации по строкам - серийный номер
 };
 
@@ -39235,7 +39269,7 @@ private:
 	virtual int    SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	virtual int    SLAPI ViewTotal();
 	virtual int    SLAPI Print(const void *);
-	virtual int    SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.6.8
+	virtual int    SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	SString & SLAPI GetCtColumnTitle(int ct, SString & rBuf);
 	int    SLAPI IsTempTblNeeded() const;
 	int    SLAPI DoProcessLines() const;
@@ -39447,10 +39481,10 @@ public:
 		fShowAllArticles    = 0x00000200,   // Показывать отсутствующие позиции контрагентов
 		fShowAllAgents      = 0x00000400,   // Показывать отсутствующие позиции агентов
 		fShowAllGoods       = 0x00000800,   // Показывать отсутствующие позиции товаров
-		fByZeroAgent        = 0x00001000,   // @v6.0.5  Фильтрация по нулевому агенту по документу
-		fCalcVat            = 0x00002000,   // @v6.4.2  Рассчитывать суммы НДС
-		fCWoVat             = 0x00008000,   // @v6.6.1  Показывать цены без НДС
-		fByZeroDlvrAddr     = 0x00010000,   // @v7.1.5  Фильтрация по пустому адресу доставки
+		fByZeroAgent        = 0x00001000,   // Фильтрация по нулевому агенту по документу
+		fCalcVat            = 0x00002000,   // Рассчитывать суммы НДС
+		fCWoVat             = 0x00008000,   // Показывать цены без НДС
+		fByZeroDlvrAddr     = 0x00010000,   // Фильтрация по пустому адресу доставки
 		fForceInitDlvrAddr  = 0x00020000,   // @v8.3.0  Инициализировать адрес доставки без группировки
 		fShowGoodsCode      = 0x00040000,   // @v8.4.11 Показывать код (single) товара
 		fShowSerial         = 0x00080000,   // @v8.4.11 Показывать серийный номер лота
@@ -39512,7 +39546,8 @@ public:
 		// @v9.3.4 ravPrice        = 0x0010  // Суммовое значение показателя в терминах цен реализации
 	};
 
-	uint8  ReserveStart[12]; // @anchor
+	uint8  ReserveStart[4]; // @anchor // @v10.0.04 [12]-->[4]
+	DateRange DueDatePeriod; // @v10.0.04 Период даты исполнения документов
 	long   ExtValueParam[2];  // @v9.3.4 Параметры, определяющие вычисление дополнительных показателей отчета
 	long   RestAddendumValue; // @v9.1.3 Параметр, определяющий варинат отображения значений, базирующихся на остатках
 	PPID   AcsID;        // @v8.4.1 Таблица статей для выбора контрагента (если не выбран вид операции)
@@ -39584,8 +39619,8 @@ struct TrfrAnlzViewItem {
 	double ExtValue[2];    // @v9.3.4 Дополнительные показатели, определяемые специальными опциями фильтра
 	SString BillCode_;     // @anchor Номер документа
 	SString DtText_;       // Текстовое представление даты (при подстановке возможны вариации)
-	SString GoodsText_;    // Текстовое представление товара (при подстановке возможны вариации) @v6.3.0 [64]-->[128]
-	SString PersonText_;   // Текстовое представление персоналии (при подстановке возможны вариации) @v6.3.0 [80]-->[128]
+	SString GoodsText_;    // Текстовое представление товара (при подстановке возможны вариации)
+	SString PersonText_;   // Текстовое представление персоналии (при подстановке возможны вариации)
 };
 
 struct TrfrAnlzTotal {
@@ -39912,7 +39947,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 
 	char   ReserveStart[8];    // @anchor @v8.1.12 [12]-->[8]
 	PPID   FreightAgentID;     // @v8.1.12 ->Person.ID Транспортный брокер
-	SubstGrpBill Sgb;          // @v6.4.0 Подстановка документа.
+	SubstGrpBill Sgb;          // Подстановка документа.
 		// Если !!Sgb то отчет строится не в разрезе товаров (или их подстановок), а в разрезе подстановочного
 		// атрибута документов.
 		// При этом отключаются следующие возможности:
@@ -40104,7 +40139,7 @@ private:
 	TempGoodsOprTbl * P_TempTbl;
 	TempOrderTbl    * P_TempOrd;
 	GoodsSubstList    Gsl;
-	PPObjBill::SubstParam Bsp;           // @v6.4.0 Параметр подстановки по документам
+	PPObjBill::SubstParam Bsp;           // Параметр подстановки по документам
 	GoodsOpAnalyzeTotal Total;
 	TrfrAnlzFilt * P_TrfrFilt;
 	PPTrfrArray  * P_TradePlanPacket;
@@ -40463,7 +40498,7 @@ private:
 //
 #define GBASKF_DEFAULT   0x0001L // Корзина используемая по умолчанию
 #define GBASKF_SORTITEMS 0x0002L // Сортировать строки по наименованию товаров
-#define GBASKF_PRIVATE   0x0004L // @transient @v6.4.0 Приватная корзина. Удерживается в текущем
+#define GBASKF_PRIVATE   0x0004L // @transient Приватная корзина. Удерживается в текущем
 	// сеансе и не сохраняется в базе пока пользователь не завершит сеанс или не
 	// снимет признак приватности.
 //
@@ -40683,7 +40718,7 @@ struct PaymPlanFilt : public PPBaseFilt {
 	long   Flags;            // PaymPlanFilt::fXXX
 	PPID   AgentID;          // Агент по документу
 	long   Reserve;          // @anchor
-	ObjIdListFilt LocList;   // @v6.3.8
+	ObjIdListFilt LocList;   // 
 };
 
 struct PaymPlanTotal {
@@ -41466,7 +41501,7 @@ public:
 	PPID   PoolLocID;
 	long   Flags;
 	SString MrpTabName;      // @anchor
-	PPIDArray CSessList;     // @v6.7.3 Список кассовых сессий, по которым надо списать документы.
+	PPIDArray CSessList;     // Список кассовых сессий, по которым надо списать документы.
 		// Если список не пуст, то поле Period игнорируется.
 };
 
@@ -41612,7 +41647,7 @@ struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
 	long   WorkHoursEnd;   //
 	int16  RefreshTime;    //
 	PPID   BillOpID;       //
-	IntRange RemindPrd;    // @v6.4.15 AHTOXA Период напоминания о не выполненных задачах [-x..y]
+	IntRange RemindPrd;    // Период напоминания о не выполненных задачах [-x..y]
 };
 
 //
@@ -42214,8 +42249,8 @@ public:
 	PPID   ScaleTypeID;
 	PPID   AltGoodsGrpID;
 	long   Protocol;
-	PPID   GroupID;         // @v6.x.x. AHTOXA
-	long   Flags;           // SCALF_XXX // @v6.x.x. AHTOXA
+	PPID   GroupID;         // 
+	long   Flags;           // SCALF_XXX
 	long   ReserveEnd;
 };
 
@@ -46855,7 +46890,7 @@ public:
 		existsGoodsOnly                   = 0x0004, // Выбирать только те товар, которые есть на складе
 		enableInsertGoods                 = 0x0008, // Разрешить создание нового товара
 		activateGoodsListOnGroupSelection = 0x0010, // Активизировать список товаров при выборе группы
-		ignoreRtOnlyGroup                 = 0x0020  // @v6.2.10 Игнорировать ограничение правам доступа единственной группы
+		ignoreRtOnlyGroup                 = 0x0020  // Игнорировать ограничение правам доступа единственной группы
 	};
 	struct Rec {
 		SLAPI  Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
@@ -47653,11 +47688,11 @@ public:
 	void   SLAPI updateList(long, int byPos = 1);
 protected:
 	DECL_HANDLE_EVENT;
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID); // @<<PPListDialog::_addItem (reply on cmaInsert)
-	virtual int editItem(long pos, long id); // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
-	virtual int delItem(long pos, long id); // @<<PPListDialog::_delItem (reply on cmaDelete)
-	virtual int sendItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID); // @<<PPListDialog::_addItem (reply on cmaInsert)
+	virtual int  editItem(long pos, long id); // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
+	virtual int  delItem(long pos, long id); // @<<PPListDialog::_delItem (reply on cmaDelete)
+	virtual int  sendItem(long pos, long id);
 	//
 	// Descr: Должна переместить элемент в позиции pos и идентификатором id вверх или вниз по списку.
 	//   Если параметр up != 0, то функция должна переместить элемент вверх по списку, если up == 0,
@@ -47706,10 +47741,10 @@ public:
 	void   setCRateDate(LDATE);
 	int    getDTS(AmtList *);
 protected:
-	virtual int setupList();
-	virtual int addItem(long * pos, long * id);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  addItem(long * pos, long * id);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 	int    editAmount(int pos);
 	int    setupListEntry(PPID idx, AmtEntry *);
 
@@ -47756,10 +47791,10 @@ public:
 	int    setDTS(const PPTagEnumList *);
 	int    getDTS(PPTagEnumList *);
 private:
-	virtual int setupList();
-	virtual int addItem(long * pos, long * id);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  addItem(long * pos, long * id);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 
 	PPTagEnumList  Data;
 };
@@ -47846,10 +47881,10 @@ private:
 	enum {
 		ctlgroupEmailList = 1
 	};
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 
 	Rec    Data;
 };
@@ -47993,11 +48028,11 @@ public:
 	ImpExpCfgListDialog(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
 	int    SetParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
 private:
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
-	virtual int EditParam(const char *);
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
+	virtual int  EditParam(const char *);
 
 	uint   IniFileID;
 	uint   SDRecID;
@@ -48118,10 +48153,10 @@ public:
 	int    getDTS(PPPsnEventPacket *);
 private:
 	DECL_HANDLE_EVENT;
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 	void   editRegister();
 	int    setupPost(int fromDialog);
 	int    setupPair();
@@ -49482,7 +49517,9 @@ int    FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf);
 int    SLAPI PPOutputMessage(const char * msg, uint option);
 int    FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo);
 int    FASTCALL PPMessage(uint options, int msgcode);
-int    FASTCALL PPError(int errcode, const char * pAddInfo = 0/*, int tooltip = 0*/);
+int    FASTCALL PPError(int errcode);
+int    FASTCALL PPError(int errcode, const char * pAddInfo);
+int    FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
 int    SLAPI PPTooltipMessage(uint options, int msgcode, const char * pAddInfo);
 int    SLAPI PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
 
@@ -50186,7 +50223,7 @@ int    SLAPI RemoveEmptyAcctRels();
 int    SLAPI EditSysjFilt2(SysJournalFilt * pFilt);
 #define OBJTRNSMDLGF_SEARCHDTTM 0x00000001
 int    SLAPI ObjTransmDialog(uint dlgID, ObjTransmitParam *, long dlgFlags = 0);
-int    SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags = 0); // @v6.4.3 AHTOXA
+int    SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags = 0);
 //
 // Descr: Проверяет корректность создания и загрузки диалога.
 //   С этой функцией вышел легкий прокол. Фактически ей должен
@@ -50281,7 +50318,7 @@ int    FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const ch
 // @v9.5.0 int    SLAPI SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
 int    SLAPI SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
-int		SLAPI GetStrFromDrvIni(int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
+int		SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
 // @v9.3.4 (используется только в одном месте - теперь static) int    SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const SArray * pStrings, long initID, uint /*flags*/, size_t offs = 0, int ownerDrawListBox = 0);
 int    FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
 int    SLAPI SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);
@@ -50649,9 +50686,9 @@ int SLAPI Convert5207();    // @v5.2.7 AHTOXA
 int SLAPI Convert5501();    // @v5.5.1
 // [Перенесено в Convert6202()] int SLAPI Convert5506();    // @v5.5.6 VADIM
 // [Перенесено в Convert6202()] int SLAPI Convert5512();    // @v5.5.12 Добавился индекс к таблице World
-int SLAPI Convert5608();    // @v5.6.08 ObjSync Значительное изменение
-int SLAPI Convert5810();    // @v5.8.10 Reference-->Reference2; CGoodsLine
-int SLAPI Convert6202();    // @v6.2.2  (SpecSeries значительное изменение) +
+int SLAPI Convert5608();    // ObjSync Значительное изменение
+int SLAPI Convert5810();    // Reference-->Reference2; CGoodsLine
+int SLAPI Convert6202();    // (SpecSeries значительное изменение) +
 int SLAPI Convert6303();    // @v6.3.3
 int SLAPI Convert6407();    // @v6.4.7
 int SLAPI Convert6611();    // @v6.6.11

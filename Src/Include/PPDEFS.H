@@ -25,7 +25,7 @@
 //   LastText
 //   LastToolbar
 //
-#define WINDOWS_ID_BIAS   1200   // 
+#define WINDOWS_ID_BIAS   1200   //
 #define TXTREF_PROP_BIAS 20000   // Смещение идентификаторов текстовых свойств, хранящихся в TextRefTbl
 
 #ifdef __WIN32__
@@ -1239,6 +1239,7 @@
 #define PPTAG_PERSON_VETISUUID      66L // @v9.8.9  UUID предприятия в системе Меркурий (интерфейс ВЕТИС)
 #define PPTAG_GUA_LOGIN             67L // @v9.9.12 Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
+#define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
 // @construction(VETIS) {
 #define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 
@@ -1288,7 +1289,12 @@
 	// применяемый для централизованного управления хранением кассовых чеков, генерируемых разными предприятиями.
 	// Кассовые сессии, привязанные к такому узлу в качестве номера кассы используют идент адреса магазина.
 #define PPCMT_SETSTART       22L // @v8.9.1 SETSTART
-#define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - Последняя попытка сделать собственный асинхронный кассовый узел
+// @v10.0.04 (попытка удалась, но ид не используется) #define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - Последняя попытка сделать собственный асинхронный кассовый узел
+#define PPCMT_FIRST_DYN_DVC  23L // @v10.0.04 Идентификатор первого динамически подгружаемого драйвера
+#define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 Последний допустимый идентификатор динамически подгружаемого драйвера
+// Все новые статически идентифицируемые устройсва должны иметь идент >PPCMT_LAST_DYN_DVC
+#define PPCMT_DREAMKAS      501L // @v10.0.04 DREAMKAS
+
 //
 // Типы принтеров штрихкодов
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_BCPT.
@@ -2723,8 +2729,10 @@
 	#define CTLSEL_GTO_CYCLESTAT        (41 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_PRICEKIND           (42 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_OLDALG              (43 + WINDOWS_ID_BIAS)
-	#define CTL_GTO_ACS                 (44 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS) 
+	#define CTL_GTO_ACS                 (44 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS)
+	#define CTL_GTO_DUEPERIOD           (46 + WINDOWS_ID_BIAS)
+	#define CTLCAL_GTO_DUEPERIOD        (47 + WINDOWS_ID_BIAS)
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -11457,9 +11465,9 @@
 //#define PPTXT_PREPTRANSMOBJ        90 // Подготовка к передаче объектов
 //#define PPTXT_PUTTINGOBJTOSTRM     91 // Сохранение объектов в потоке
 //#define PPTXT_RCVREFUNRESOLVED     94 // Ошибка разрешения ссылки при приеме объекта
-#define PPTXT_CMT                  98 // Список типов кассовых аппаратов
-#define PPTXT_BCPT                 99 // Список типов принтеров штрихкодов
-#define PPTXT_SCLT                100 // Список типов электронных весов
+//#define PPTXT_CMT                  98 // Список типов кассовых аппаратов
+//#define PPTXT_BCPT                 99 // Список типов принтеров штрихкодов
+//#define PPTXT_SCLT                100 // Список типов электронных весов
 //
 // Сообщения при закрытии кассовых сессий
 //

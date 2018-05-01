@@ -29,12 +29,13 @@ DECLARE_CMT(FRONTOL);
 DECLARE_CMT(ATOLDRV);
 DECLARE_CMT(SYNCCASH); // @vmiller
 DECLARE_CMT(SETSTART); // @v8.9.1
+DECLARE_CMT(DREAMKAS); // @v10.0.04
 //
 // Регистрация интерфейсов кассовых аппаратов
 //
 void * PPCashMachine::P_RegData = 0; // @global @threadsafe
 
-struct CMRegEntry {
+struct CMRegEntry { // @flat
 	enum {
 		sync  = 1,
 		async = 2
@@ -44,14 +45,14 @@ struct CMRegEntry {
 	RegCashMachineFunc func;
 };
 
-typedef TSArray <CMRegEntry> CMRegArray;
+typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 
 // static
 int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
 {
 	ENTER_CRITICAL_SECTION
 	SETIFZ(P_RegData, new CMRegArray);
-	CMRegArray * ary = (CMRegArray*)P_RegData;
+	CMRegArray * p_ary = (CMRegArray*)P_RegData;
 	CMRegEntry entry;
 	entry.cmt = cmt;
 	entry.func = func;
@@ -60,34 +61,39 @@ int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int 
 		entry.flags |= entry.sync;
 	if(_async)
 		entry.flags |= entry.async;
-	ary->insert(&entry);
+	p_ary->insert(&entry);
 	LEAVE_CRITICAL_SECTION
 	return 1;
 }
 
 // @vmiller {
-int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & s)
+int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 {
+	rS = 0;
 	int    ok = 1;
 	int    local_pos_id = 0;
-	uint   sync_count = 0, idx = 0;
-	SString path_str, line_buf;
-	StringSet set;
-	PPGetPath(PPPATH_BIN, path_str);
-	path_str.Cat("ppdrv.ini");
+	uint   sync_count = 0;
+	SString path_str;
+	//PPGetPath(PPPATH_BIN, path_str);
+	//path_str.Cat("ppdrv.ini");
+	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path_str);
 	PPIniFile ini_file(path_str);
-	s = 0;
+	/*
+	SString line_buf;
+	uint   idx = 0;
 	while(PPGetSubStr(PPTXT_CMT, idx, line_buf) > 0)
 		idx++;
-	local_pos_id = cashID - idx;
-	if(local_pos_id <= 0)
+	*/
+	local_pos_id = cashID - PPCMT_FIRST_DYN_DVC/*idx*/;
+	if(local_pos_id < 0) // @v10.0.04 (<=)-->(<)
 		ok = -1;
 	else {
+		StringSet set;
 		THROW(ini_file.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
 		sync_count = set.getCount();
 		THROW(ini_file.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
-		if(local_pos_id <= (int)sync_count)
-			s = 1;
+		if(local_pos_id < (int)sync_count) // @v10.0.04 (<=)-->(<)
+			rS = 1;
 		else if(local_pos_id > (int)set.getCount())
 			ok = -1;
 	}
@@ -119,8 +125,9 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 		DYN_LINK_CMT(ATOLDRV);
 		DYN_LINK_CMT(SYNCCASH); // @vmiller
 		DYN_LINK_CMT(SETSTART); // @v8.9.1
+		DYN_LINK_CMT(DREAMKAS); // @v10.0.04
 	}
-	CMRegArray * p_ary = (CMRegArray*)P_RegData;
+	CMRegArray * p_ary = (CMRegArray *)P_RegData;
 	if(p_ary) {
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
@@ -261,7 +268,7 @@ int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 					ok = cmOK;
 					*pDt = dt;
 				}
-				else 
+				else
 					ok = cmCancel;
 			}
 			else {
@@ -888,7 +895,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 			double fiscal = 0.0, nonfiscal = 0.0;
 			out_buf.Z().Cat("CCHECK").Space().CatChar('{').CR();
 			{
-				const long _mfmt = MKSFMTD(0, 12, NMBF_NOTRAILZ);				
+				const long _mfmt = MKSFMTD(0, 12, NMBF_NOTRAILZ);
 				{
 					CCheckLineTbl::Rec line_rec;
 					out_buf.Tab().CatEq("ID", pPack->Rec.ID).CatDiv(';', 2).CatEq("Code", pPack->Rec.Code).CatDiv(';', 2).

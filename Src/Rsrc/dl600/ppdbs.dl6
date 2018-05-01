@@ -123,6 +123,24 @@ file:
 	vlr;
 }
 //
+// @construction {
+// @v10.0.04
+// Временные серии. Ассоциируются с объектами данных и (специальным образом) с тегами.
+//
+table TimeSeries {
+    long   ObjID;
+    int16  ObjType;
+    int16  Prop;
+    long   Size;
+    blob   VT[2048];
+index:
+	ObjType, Prop, ObjID (unique mod);
+file:
+	"ts.btr";
+	vlr;
+}
+// } @construction
+//
 //
 //
 table ObjLikeness {

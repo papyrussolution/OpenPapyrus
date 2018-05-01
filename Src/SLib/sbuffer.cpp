@@ -153,7 +153,6 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 		}
 		const size_t new_size = (WrOffs + size);
 		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения
-			// @v8.4.2 {
 			void * _ptr = Ptr(WrOffs);
 			switch(size) {
 				case 1: *PTR8(_ptr) = *PTR8(pBuf); break;
@@ -174,8 +173,6 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 				default:
 					memcpy(_ptr, pBuf, size);
 			}
-			// } @v8.4.2
-			// @v8.4.2 memcpy(Ptr(WrOffs), pBuf, size);
 			WrOffs += size;
 		}
 		else
@@ -904,7 +901,6 @@ int SLAPI SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 
 	else {
 		uint8  ind = 0;
 		if(dir > 0) {
-			//SBuffer temp_buf;
 			TempSBuf.Clear();
 			THROW(stype(typ, &_t).Serialize(dir, pData, &ind, TempSBuf, this));
 			THROW(rBuf.Write(&ind, sizeof(ind)));

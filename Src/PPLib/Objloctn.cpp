@@ -1061,9 +1061,8 @@ int SLAPI PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & 
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
 		const PPID reg_type_id = PPREGT_GLN;
-		PPIDArray loc_list;
-		THROW(GetListByRegNumber(reg_type_id, locTyp, 0, code, loc_list));
-		ok = loc_list.getCount() ? ((loc_list.getCount() > 1) ? 2 : 1) : -1;
+		THROW(GetListByRegNumber(reg_type_id, locTyp, 0, code, rList));
+		ok = rList.getCount() ? ((rList.getCount() > 1) ? 2 : 1) : -1;
 	}
 	CATCHZOK
 	return ok;

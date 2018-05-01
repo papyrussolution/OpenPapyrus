@@ -507,17 +507,13 @@ static void _cairo_scaled_font_placeholder_wait_for_creation_to_finish(cairo_sca
 {
 	/* reference the place holder so it doesn't go away */
 	cairo_scaled_font_reference(placeholder_scaled_font);
-
 	/* now unlock the fontmap mutex so creation has a chance to finish */
 	CAIRO_MUTEX_UNLOCK(_cairo_scaled_font_map_mutex);
-
 	/* wait on placeholder mutex until we are awaken */
 	CAIRO_MUTEX_LOCK(placeholder_scaled_font->mutex);
-
 	/* ok, creation done.  just clean up and back out */
 	CAIRO_MUTEX_UNLOCK(placeholder_scaled_font->mutex);
 	cairo_scaled_font_destroy(placeholder_scaled_font);
-
 	CAIRO_MUTEX_LOCK(_cairo_scaled_font_map_mutex);
 }
 

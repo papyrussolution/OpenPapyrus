@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<eDIMessage id="messageId" creationDateTime="creationDateTime">    <!--идентификатор сообщения, время сообщения-->
+  <!-- начало заголовка сообщения -->
+  <interchangeHeader>
+    <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+    <recipient>RecipientGLN</recipient>      <!--GLN получателя сообщения-->
+    <documentType>DESADV</documentType>  <!--тип документа-->
+    <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>creationDateTimeBySenderT00:00:00.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    <isTest>1</isTest>      <!--тестовый флаг-->
+  </interchangeHeader>
+  <!-- конец заголовка сообщения -->
+  <despatchAdvice number="desadvNumber" date="desadvDate" status="desadvType">  <!--номер накладной, дата накладной, статус (тип) накладной: Original по умолчанию, может быть и Changed-->
+    <originOrder number="ordersNumber" date="ordersDate" />    <!--номер заказа, дата заказа-->
+    <orderResponse number="orderspNumber" date="orderspDate" />    <!--номер уведомления о подтверждении заказа-->
+    <contractIdentificator number="contractNumber" date="contractDate" />    <!--номер договора/ контракта, дата договора/ контракта-->
+    <invoiceIdentificator number="invoiceNumber" date="invoiceDateTime" />    <!--номер счёта-фактуры, дата счёта-фактуры-->
+    <blanketOrderIdentificator number="BlanketOrdersNumber" />   <!--номер серии заказов-->
+	<egaisRegistrationIdentificator number="egaisRegistrationIdentificator" />   <!--идентификатор ТТН в ЕГАИС-->
+    <egaisFixationIdentificator number="EgaisFixationNumber" date="EgaisFixationDate" />    <!--номер и дата фиксации ТТН в ЕГАИС-->
+	<deliveryNoteIdentificator number="DeliveryNoteNumber" date="DeliveryNoteDate" />   <!--номер и дата ТОРГ-12-->
+
+    <!-- начало блока данных о поставщике -->
+    <seller>
+      <gln>SupplierGln</gln>    <!--gln поставщика-->
+      <organization>
+        <name>SupplierName</name>      <!--наименование поставщика для ЮЛ-->
+        <inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+        <kpp>SupplierKpp</kpp>      <!--КПП поставщика только для ЮЛ-->
+      </organization>
+      <russianAddress>     <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>District</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+      <additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>
+      <!--код поставщика в системе покупателя-->
+	  <taxSystem>Simplified</taxSystem> <!--признак УСН, если поставщик использует УСН, передаем поле с фиксированным значением "Simplified"-->
+      <additionalInfo>
+        <phone>TelephoneNumber</phone>   <!--телефон контактного лица-->
+        <fax>FaxNumber</fax>     <!--факс контактного лица-->
+        <bankAccountNumber>BankAccountNumber</bankAccountNumber>        <!--номер счёта в банке-->
+        <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		
+        <bankName>BankName</bankName>       <!--наименование банка-->
+        <BIK>BankId</BIK>        <!--БИК-->
+        <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+      </additionalInfo>
+    </seller>
+    <!-- конец блока данных о поставщике -->
+    <!-- начало блока с данными о покупателе -->
+    <buyer>
+      <gln>BuyerGln</gln>     <!--gln покупателя-->
+      <organization>
+        <name>Buyer</name>       <!--наименование покупателя-->
+        <inn>BuyerInn(10)</inn>      <!--ИНН покупателя для ЮЛ-->
+        <kpp>BuyerKpp</kpp>       <!--КПП покупателя только для ЮЛ-->
+      </organization>
+      <russianAddress>        <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>>PostalCode</postalCode>
+      </russianAddress>
+      <contactlInfo>
+        <CEO>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </CEO>
+        <accountant>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </accountant>
+        <salesManager>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </salesManager>
+        <orderContact>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </orderContact>
+      </contactlInfo>
+    </buyer>
+    <!-- конец блока данных о покупателе -->
+    <!-- начало блока данных о получателе счета-->
+    <invoicee>
+      <gln>InvoiceeGln</gln>   <!--gln получателя счёта-->
+      <selfEmployed>
+        <fullName>     <!--ФИО получателя счёта для ИП-->
+          <lastName>Фамилия</lastName>
+          <firstName>Имя</firstName>
+          <middleName>Отчество</middleName>
+        </fullName>
+        <inn>InvoiceeInn(12)</inn>  <!--ИНН получателя счёта-->
+      </selfEmployed>
+      <russianAddress>                   <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>>PostalCode</postalCode>
+      </russianAddress>
+      <additionalInfo>
+        <phone>TelephoneNumber</phone>          <!--телефон контактного лица-->
+        <fax>FaxNumber</fax>     <!--факс контактного лица-->
+        <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+        <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		
+        <bankName>BankName</bankName>
+        <BIK>BankId</BIK>
+        <nameOfAccountant>BookkeeperName</nameOfAccountant>       <!--ФИО бухгалтера-->
+      </additionalInfo>
+    </invoicee>
+    <!-- конец блока данных о получателе счета-->
+    <!-- начало блока данных о грузоотправителе и грузополучателе -->
+    <deliveryInfo>
+      <estimatedDeliveryDateTime>deliveryDateT00:00:00.000Z</estimatedDeliveryDateTime>    <!--дата доставки-->
+      <shippingDateTime>ShippingDateT00:00:00.000Z</shippingDateTime>          <!--дата отгрузки-->
+      <shipFrom>
+        <gln>shipFromGln</gln>       <!--gln грузоотправителя-->
+        <organization>
+          <name>shipFromName</name>         <!--наименование грузоотправителя-->
+          <inn>shipFromInn(10)</inn>
+          <kpp>shipFromKpp</kpp>
+        </organization>
+        <russianAddress>          <!--российский адрес-->
+          <regionISOCode>regionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>       <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>       <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfAccountant>BookkeeperName</nameOfAccountant>          <!--ФИО бухгалтера-->
+        </additionalInfo>
+      </shipFrom>
+      <shipTo>
+        <gln>DeliveryGln</gln>      <!--gln грузополучателя-->
+        <organization>
+          <name>DeliveryName</name>         <!--наименование грузополучателя-->
+          <inn>DeliveryInn(10)</inn>         <!--ИНН грузополучателя-->
+          <kpp>DeliveryKpp</kpp>         <!--КПП грузополучателя-->
+        </organization>
+        <russianAddress>         <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>        <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>       <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя-->
+        </additionalInfo>
+      </shipTo>
+	  <ultimateCustomer>
+        <gln>UltimateCustomerGln</gln>  <!--gln конечной точки доставки-->
+        <organization>
+          <name>UltimateCustomerName</name>  <!--наименование конечной точки доставки-->
+          <inn>UltimateCustomerInn(10)</inn>  <!--ИНН конечной точки доставки-->
+          <kpp>UltimateCustomerKpp</kpp>  <!--КПП конечной точки доставки-->
+        </organization>
+        <russianAddress>  <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>   <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfCEO>ChiefName</nameOfCEO>   <!--ФИО руководителя-->
+        </additionalInfo>
+      </ultimateCustomer>
+      <transportation>   <!--информация о машине-->
+        <transportMode>TransportMode</transportMode>
+        <!--режим перевозки: railTransport (20) - железнодорожный транспорт
+roadTransport (30) - автодорожный транспорт
+airTransport (40) - авиатранспорт-->
+        <vehicleNumber>VehicleNumber</vehicleNumber>  <!--номер тарнспортного средства-->
+        <vehicleBrand>VehicleBrand</vehicleBrand>  <!--марка транспортного средства-->
+        <nameOfCarrier>NameOfCarrier</nameOfCarrier>  <!--имя водителя-->
+      </transportation>
+    </deliveryInfo>
+    <!-- конец блока данных о грузоотправителе и грузополучателе -->
+    <!-- начало блока с данными об упаковках. Используется только в DESADV с SSCC -->
+    <packages>
+      <package>
+        <packageLevel>LevelNumber</packageLevel> <!-- Уровень иерархии упаковки-->
+        <parentLevel>ParentNumber</parentLevel> <!--Ссылка на родительский уровень иерархии-->
+        <SSCC>SerialShippingContainerCode</SSCC> <!--SSCC код упаковки-->
+        <packageQuantity typeOfPackage="201">PackageQuantity.Value</packageQuantity> <!--Количество упаковок на данном уровне иерархии и тип упаковок. "201" - Pallet ISO 1 - 1/1 EURO Pallet  -->
+      </package>
+      <!-- каждая последующая упаковка должна идти в отдельном теге <package> -->
+    </packages>
+    <!-- конец блока с данными об упаковках-->
+    <!-- начало блока с данными о товаре -->
+    <lineItems>
+      <currencyISOCode>CurrencyCode</currencyISOCode>   <!--код валюты (по умолчанию рубли)-->
+      <lineItem>
+        <packageLevel>PackageLevel</packageLevel> <!--Уровень иерархии родительской упаковки-->
+        <gtin>GTIN</gtin>     <!--GTIN товара-->
+        <internalBuyerCode>BuyerProductId</internalBuyerCode>        <!--внутренний код присвоенный покупателем-->
+        <internalSupplierCode>SupplierProductId</internalSupplierCode>        <!--артикул товара (код товара присвоенный продавцом)-->
+     	<codeOfEgais>codeOfEgais</codeOfEgais>       <!--код товара в ЕГАИС-->
+		<lotNumberEgais>lotNumberEgais</lotNumberEgais>   <!--идентификатор позиции в ТТН ЕГАИС-->
+		<serialNumber>SerialNumber</serialNumber>  <!--серийный номер товара-->
+        <orderLineNumber>orderLineNumber</orderLineNumber>  <!--порядковый номер товара (номер строки в заказе)-->
+        <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->
+        <description>Name</description>       <!--название товара-->
+        <comment>LineItemComment</comment>          <!--комментарий к товарной позиции-->
+        <orderedQuantity unitOfMeasure="MeasurementUnitCode">OrdersQuantity</orderedQuantity>        <!--заказанное количество-->
+        <despatchedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</despatchedQuantity>        <!--отгруженное количество-->
+        <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>        <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <expireDate>expireDate</expireDate>  <!--срок годности-->
+        <freshnessDate>freshnessDate</freshnessDate>  <!--срок хранения-->
+		<manufactoringDate>manufactoringDate</manufactoringDate>  <!--дата производства-->
+		<ultimateCustomer>
+        <gln>UltimateCustomerGln</gln>  <!--gln конечной точки доставки-->
+        </ultimateCustomer>
+        <netPrice>Price</netPrice>       <!--цена единицы товара без НДС-->
+        <netPriceWithVAT>Price</netPriceWithVAT>    <!--цена единицы товара с НДС-->
+        <netAmount>PriceSummary</netAmount>      <!--сумма по позиции без НДС-->
+        <exciseDuty>exciseSum</exciseDuty>      <!--акциз товара-->
+        <vATRate>VATRate</vATRate>  <!--ставка НДС (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
+        <vATAmount>VATSummary</vATAmount>     <!--сумма НДС по позиции-->
+        <amount>PriceSummaryWithVAT</amount>     <!--сумма по позиции с НДС-->
+        <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>      <!--код страны производства-->
+        <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>
+        <!--номер таможенной декларации-->
+      </lineItem>
+      <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
+
+      <totalSumExcludingTaxes>DesadvTotal</totalSumExcludingTaxes>    <!--сумма без НДС-->
+      <totalVATAmount>DesadvTotalVAT</totalVATAmount>      <!--сумма НДС, значение берем из orders/ordrsp-->
+      <totalAmount>DesadvTotalWithVAT</totalAmount>
+      <!--общая сумма по товарам, на которую начисляется НДС (125/86), значение берем из orders/ordrsp-->
+    </lineItems>
+  </despatchAdvice>
+</eDIMessage>

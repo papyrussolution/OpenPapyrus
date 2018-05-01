@@ -2168,22 +2168,7 @@ PrcssrObjTextFilt & FASTCALL PrcssrObjTextFilt::operator = (const PrcssrObjTextF
 
 int SLAPI PrcssrObjTextFilt::IsEmpty() const
 {
-	if(ObjType)
-		return 0;
-	else if(ObjTextIdent)
-		return 0;
-	else if(Flags)
-		return 0;
-	else if(RuleFileName.NotEmpty())
-		return 0;
-	else if(P_GoodsF)
-		return 0;
-	else if(P_BrandF)
-		return 0;
-	else if(P_PsnF)
-		return 0;
-	else
-		return 1;
+	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.Empty() && !P_GoodsF && !P_BrandF && !P_PsnF);
 }
 
 SLAPI PrcssrObjText::PrcssrObjText() : P_Rpl(0)
@@ -3480,9 +3465,8 @@ int PPGenerateKeywordSequence(const char * pContext, SString & rResult, void * p
 
 class RandomGenTest {
 public:
-	RandomGenTest(double step, double limit)
+	RandomGenTest(double step, double limit) : _Divider(9999)
 	{
-		_Divider = 9999;
 		do {
 			if(IsPrime(_Divider)) {
 				break;

@@ -1367,8 +1367,11 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
 	if(ini_sect_id) {
 		int    idx = 0;
-		uint   old_dev_count = 0;
+		//uint   old_dev_count = 0;
 		SString line_buf, item_buf, id_buf, txt_buf;
+		SString path;
+		PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
+		PPIniFile ini_file(path);
 		if(str_id && PPLoadText(str_id, line_buf)) {
 			for(idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
 				long   id = 0;
@@ -1382,13 +1385,13 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 					rBuf = txt_buf;
 					ok = 1;
 				}
-				old_dev_count++;
+				//old_dev_count++;
 			}
 		}
-		if(ok < 0 && GetStrFromDrvIni(ini_sect_id, deviceTypeID, old_dev_count, line_buf)) {
-			SString symbol, drv_name, drv_path;
+		if(ok < 0 && GetStrFromDrvIni(ini_file, ini_sect_id, deviceTypeID, /*old_dev_count*/PPCMT_FIRST_DYN_DVC, line_buf)) {
+			SString symbol, drv_name;
 			int    drv_impl = 0;
-			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl)) {
+			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
 				rBuf = drv_name.Transf(CTRANSF_OUTER_TO_INNER);
 				ok = 1;
 			}
@@ -1405,16 +1408,19 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID, uint /*flags*/)
 {
 	int    ok = 1;
-	int    list_count = 0;
+	//int    list_count = 0;
 	int    str_id = 0;
-	ComboBox * p_cb = 0;
 	StrAssocArray * p_list = 0;
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
 	if(ini_sect_id) {
-		if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+		ComboBox * p_cb = (ComboBox*)dlg->getCtrlView(ctlID);
+		if(p_cb) {
 			int    idx = 0;
 			SString line_buf, item_buf, id_buf, txt_buf;
-			SString symbol, drv_name, drv_path;
+			SString symbol, drv_name;
+			SString path;
+			PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
+			PPIniFile ini_file(path);
 			THROW_MEM(p_list = new StrAssocArray());
 			if(str_id && PPLoadText(str_id, line_buf)) {
 				for(idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
@@ -1427,11 +1433,11 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 					}
 					THROW_SL(p_list->Add(id, txt_buf));
 				}
-				list_count = p_list->getCount();
+				//list_count = p_list->getCount();
 			}
-			for(int i = (idx + 1); GetStrFromDrvIni(ini_sect_id, i, list_count, line_buf) > 0; i++) {
+			for(int i = /*(idx + 1)*/PPCMT_FIRST_DYN_DVC; GetStrFromDrvIni(ini_file, ini_sect_id, i, /*list_count*/PPCMT_FIRST_DYN_DVC, line_buf) > 0; i++) {
 				int    drv_impl = 0;
-				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl)) {
+				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
 					THROW_SL(p_list->Add((int)i, drv_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}

@@ -459,7 +459,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 	return 1;
 }
 
-int FASTCALL PPError(int errcode, const char * pAddInfo)
+static int FASTCALL Helper_PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
 {
 	int    r = 0;
 	//
@@ -467,7 +467,7 @@ int FASTCALL PPError(int errcode, const char * pAddInfo)
 	// для вывода в журнал последней отображенной ошибки
 	//
 	PPSaveErrContext();
-	int    ok = PPMessage(mfError|mfOK, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);
+	int    ok = PPMessage(mfError|mfOK|extraMfOptions, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);
 	if(ok > 0) {
 		if(!CS_SERVER) {
 			PPRestoreErrContext();
@@ -480,10 +480,14 @@ int FASTCALL PPError(int errcode, const char * pAddInfo)
 	return ok;
 }
 
+int FASTCALL PPError(int errcode, const char * pAddInfo)
+	{ return Helper_PPError(errcode, pAddInfo, 0); }
+int FASTCALL PPError(int errcode)
+	{ return Helper_PPError(errcode, 0, 0); }
+int FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
+	{ return Helper_PPError(errcode, pAddInfo, extraMfOptions); }
 int SLAPI PPError()
-{
-	return PPError(-1, 0);
-}
+	{ return Helper_PPError(-1, 0, 0); }
 
 int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 {

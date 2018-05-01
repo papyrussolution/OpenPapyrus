@@ -3358,7 +3358,8 @@ int SLAPI PPBillImporter::Run()
 							}
 						}
 						if(temp_id_list.getCount()) {
-							// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
+							// temp_id_list содержит идентификаторы покупателей, которые, согласно соглашению, используют данного провайдера
+							prc.SendOrderRsp(be_filt, temp_id_list);
 							prc.SendDESADV(be_filt, temp_id_list);
 						}
 					}

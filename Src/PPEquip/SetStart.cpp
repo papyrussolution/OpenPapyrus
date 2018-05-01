@@ -58,10 +58,7 @@ public:
 	SLAPI CM_SETSTART(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface()
-	{
-		return new ACS_SETSTART(NodeID);
-	}
+	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_SETSTART(NodeID); }
 };
 
 #define CM_ATOLWOATOLCARD  CM_ATOL
@@ -69,23 +66,17 @@ public:
 
 REGISTER_CMT(SETSTART, 0, 1);
 
-SLAPI ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id)
+SLAPI ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0)
 {
-	ImpExpTimeout = 0;
-	ImportDelay = 0;
-	CrdCardAsDsc = 0;
 	SkipExportingDiscountSchemes = 0;
-
 	int    v = 0;
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_TIMEOUT, &ImpExpTimeout);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FRONTOL_IMPORTDELAY, &ImportDelay);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FRONTOLCRDCARDASDSC, &CrdCardAsDsc);
-	// @v8.2.3 {
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FRONTOLSKIPDISCOUNTSCHEMES, &(v = 0)) > 0 && v == 1) {
 		SkipExportingDiscountSchemes = 1;
 	}
-	// } @v8.2.3
 	UseAltImport = 0;
 	StatID = 0;
 	ChkRepPeriod.SetZero();
@@ -134,7 +125,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	PPIDArray retail_quot_list;
 	PPIDArray scard_series_list;
 	BitArray used_retail_quot;
-	PPIniFile ini_file; // @v8.2.0
+	PPIniFile ini_file;
 	FILE * p_file = 0;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 
@@ -142,7 +133,6 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
 		p_load_symb = "#";
 	//
-	// @v8.2.0 {
 	// Извлечем информацию о классе алкогольного товара
 	//
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf) > 0 && temp_buf.NotEmptyS()) {
@@ -198,7 +188,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				THROW_SL(scard_quot_list.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 				for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-					f_str = 0;
+					f_str.Z();
 					f_str.Cat(info.Rec.ID).Semicol();   // Card ID
 					f_str.Cat(ser_rec.ID).Semicol();    // Series ID
 					f_str.Cat(info.Rec.Code).Semicol(); // Code
@@ -247,7 +237,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					}
 					fputs((f_str = "$$$ADDCARDGROUPS").CR(), p_file);
 				}
-				f_str = 0;
+				f_str.Z();
 				f_str.Cat(ser_rec.ID).Semicol();   // #1 Series ID
 				f_str.Cat(ser_rec.Name).Semicol(); // #2 Name
 				f_str.Cat(ser_rec.Name).Semicol(); // #3 Текст для чека
@@ -296,7 +286,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							0 — неактивный;
 							1 — активный
 						*/
-						f_str = 0;
+						f_str.Z();
 						f_str.Cat(ser_rec.ID).Semicol();    // #1 Series ID
 						f_str.Cat(info.Rec.ID).Semicol();   // #2 Card ID
 						f_str.Cat(info.Rec.Code).Semicol(); // #3 Code
@@ -343,7 +333,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			AsyncCashGoodsGroupIterator * p_group_iter = goods_iter.GetGroupIterator();
 			if(p_group_iter) {
 				while(p_group_iter->Next(&grp_info) > 0) {
-					f_str = 0;
+					f_str.Z();
 					f_str.Cat(grp_info.ID).CatCharN(';', 2);      // #1 - ИД группы товаров, #2 - не используется //
 					tail = grp_info.Name;
 					tail.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4).Semicol();
@@ -383,11 +373,9 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
 							THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 						}
-						// @v8.2.0 {
 						if(gc_alc_id && gc_alc_code.NotEmpty() && gds_info.GdsClsID == gc_alc_id) {
 							alc_goods_list.add(gds_info.ID);
 						}
-						// } @v8.2.0
 						//
 						// Формирование массива скидок по котировкам
 						//
@@ -416,7 +404,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							}
 						}
 						next_barcode = 0;
-						f_str = 0;
+						f_str.Z();
 						f_str.Cat(gds_info.ID).Semicol();               // #1 - ИД товара
 						tail = gds_info.Name;
 						tail.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4).Semicol(); // #3 - Наименование товара
@@ -425,7 +413,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						if(CheckCnFlag(CASHF_EXPGOODSREST))
 							tail.Cat(gds_info.Rest, SFMT_QTTY);
 						tail.Semicol();                                 // #6 - Остаток
-						if(dscnt_scheme_id && gds_info.NoDis <= 0)      // && gds_info.NoDis <= 0 - @v6.0.1 VADIM
+						if(dscnt_scheme_id && gds_info.NoDis <= 0)      // && gds_info.NoDis <= 0
 							tail.Cat(dscnt_scheme_id);
 						tail.Semicol();                                 // #7 - Код схемы внутренней автоматической скидки
 						// #8 - Флаги {
@@ -446,7 +434,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							tail.Cat(gds_info.Price, SFMT_MONEY); // #9 - Min цена товара
 						tail.Semicol();
 						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
-						if(gds_info.NoDis <= 0)                         // @v6.0.1 VADIM
+						if(gds_info.NoDis <= 0)                         // 
 							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
 						tail.Semicol();
 						tail.CatCharN(';', 2);                          // #14-#15 - Не используем
@@ -457,12 +445,12 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						tail.Semicol();
 						tail.CatChar('1').Semicol();                    // #17 - Признак товара (1)
 						tail.Cat(level + 1).Semicol();                  // #18 - Номер уровня иерархического списка
-						tail.CatCharN(';', 3);                          // #19-#21 - Не используем                                     @v7.9.7 tail.CatCharN(';', 4)-->tail.CatCharN(';', 3)
-						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром @v7.9.7
+						tail.CatCharN(';', 3);                          // #19-#21 - Не используем
+						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром
 						tail.Semicol();                                 // #23 Налоговую группу не грузим
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
-						tail.CatCharN(';', 22);                         // @v8.9.8 #31-#52 - Не используем
+						tail.CatCharN(';', 22);                         // #31-#52 - Не используем
 						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
 							tail.Cat(agi.CategoryCode).Semicol();                               // #53 Код вида алкогольной продукции
                             tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Емкость тары
@@ -501,7 +489,6 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			}
 			//
-			// @v7.4.12 {
 			// Список товаров на удаление.
 			//
 			if(rmv_goods_list.getCount()) {
@@ -511,9 +498,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					fputs(f_str.CR(), p_file);
 				}
 			}
-			// } @v7.4.12
 			//
-			// @v8.2.0 {
 			// Список алкогольных товаров
 			//
 			if(alc_goods_list.getCount()) {
@@ -524,7 +509,6 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					fputs(f_str, p_file);
 				}
 			}
-			// } @v8.2.0
 			// @9.4.1 {
 			const long default_scheme_id = 999999L;
 			fputs((f_str = "$$$ADDSETTINGS").CR(), p_file);
@@ -549,7 +533,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 								fputs((f_str = "$$$ADDAUTODISCCONDS").CR(), p_file);
 								is_first = 0;
 							}
-							f_str = 0;
+							f_str.Z();
 							// Для Сет-Старт default-scheme = 999999
 							f_str.Cat(default_scheme_id).Semicol();               // #1 - код схемы внутренней авт.скидки
 							f_str.Cat(scs_id).Semicol();                          // #2 - код скидки
@@ -609,7 +593,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			}
 			// } @9.4.1
 #if 0 // @v9.4.1 {
-			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { // @v8.2.3 !SkipExportingDiscountSchemes
+			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { 
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;
 				SString card_code_low, card_code_upp;
@@ -636,7 +620,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					if(r_ent.QuotKindID)
 						scard_quot_list.SearchByVal(r_ent.QuotKindID, &sc_ser_id, 0);
 					TimeRange tmr;
-					f_str = 0;
+					f_str.Z();
 					// Для Сет-Старт default-scheme = default_scheme_id
 					f_str.Cat(NZOR(r_ent.QuotKindID, default_scheme_id)).Semicol(); // #1 - код схемы внутренней авт.скидки
 					f_str.Cat(++dscnt_code).Semicol();                    // #2 - код скидки
@@ -957,7 +941,7 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 			}
 			if(!PathFlag.NotEmptyS()) {
 				//THROW(PPGetFileName(PPFILNAM_ATOL_EXP_FLAG,  PathFlag));
-				PathFlag = 0; // "atolexp.flg";
+				PathFlag.Z(); // "atolexp.flg";
 			}
 			if(!PathGoods.NotEmptyS())
 				THROW(PPGetFileName(PPFILNAM_ATOL_GOODS_TXT, PathGoods));
@@ -1054,7 +1038,6 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 				else
 					THROW(CS.CreateSess(&sess_id, NodeID, cash_no, nsmena, dtm, 0));
 				SessAry.addUnique(sess_id);
-				//zrep_ary.Add(cash_no, nsmena, &(pos = 0));
 				{
 					_FrontolZRepEntry z_entry;
 					z_entry.PosN = cash_no;
@@ -1210,29 +1193,27 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 				double price = 0.0;
 				double dscnt_price = 0.0;
 				double dscnt = 0.0;
-				int    div = 0; // @v8.8.6 Номер отдела
+				int    div = 0; // Номер отдела
 				const  int is_free_price = oneof2(op_type, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE);
 				ss.get(&pos, goods_ident_txt); // #08 ID товара
 				ss.get(&pos, buf);          // #09 Коды значений разрезов
 				ss.get(&pos, buf);          // #10 Цена
 				price = buf.ToReal();
 				ss.get(&pos, buf);          // #11 Количество
-				qtty = buf.ToReal();        
+				qtty = buf.ToReal();
 				ss.get(&pos, buf);          // #12 Сумма товара + сумма округления (пропускаем)
 				ss.get(&pos, buf);          // #13 Операция (пропускаем)
 				ss.get(&pos, buf);          // #14 Номер смены (пропускаем)
 				ss.get(&pos, buf);          // #15 Цена  со скидками
-				dscnt_price = buf.ToReal(); // 
+				dscnt_price = buf.ToReal(); //
 				ss.get(&pos, buf);          // #16 Сумма со скидками
-				dscnt = buf.ToReal();       
-				// @v8.8.6 {
+				dscnt = buf.ToReal();
 				ss.get(&pos, buf);          // #17 пропускаем
 				ss.get(&pos, buf);          // #18 пропускаем
 				ss.get(&pos, barcode);          // #19 barcode
 				ss.get(&pos, buf);          // #20 пропускаем
 				ss.get(&pos, buf.Z());      // #21 Номер отдела
 				div = buf.ToLong();
-				// } @v8.8.6
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
 				if(r > 0) {
 					double line_amount;
@@ -1243,7 +1224,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 						}
 						else {
 							Goods2Tbl::Rec goods_rec;
-							goods_id = goods_ident_txt.ToLong(); 
+							goods_id = goods_ident_txt.ToLong();
 							if(UseAltImport) {
 								goods_ident_txt.Divide('|', arcode, goods_name);
 								if(!goods_name.NotEmptyS())
@@ -1303,7 +1284,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 							qtty = -qtty;
 						}
 						else {
-							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div /* @v8.8.6 */, goods_id);
+							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
 							if(is_free_price)
 								SetTempCcLineValues(0, qtty, dscnt_price, 0.0);
 							else

@@ -225,10 +225,7 @@ int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserve
 	int    sect_id = 0;
 	int    rts_id = 0;
 	switch(dvcClass) {
-		case DVCCLS_TOGGLE:
-			sect_id = PPINISECT_DRV_TOGGLE;
-			break;
-		case DVCCLS_SCALES:
+		case DVCCLS_SCALES: 
 			sect_id = PPINISECT_DRV_SCALE;
 			rts_id = PPTXT_SCLT;
 			break;
@@ -240,12 +237,9 @@ int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserve
 			sect_id = PPINISECT_DRV_CUSTDISP;
 			rts_id = PPTXT_CUSTDISP;
 			break;
-		case DVCCLS_BNKTERM:
-			sect_id = PPINISECT_DRV_BNKTERM;
-			break;
-		case DVCCLS_READER:
-			sect_id = PPINISECT_DRV_READER;
-			break;
+		case DVCCLS_TOGGLE: sect_id = PPINISECT_DRV_TOGGLE; break;
+		case DVCCLS_BNKTERM: sect_id = PPINISECT_DRV_BNKTERM; break;
+		case DVCCLS_READER: sect_id = PPINISECT_DRV_READER; break;
 	}
 	if(pSectName) {
 		(*pSectName) = 0;
@@ -268,21 +262,21 @@ PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096), State(
 }
 
 // @vmiller {
-int SLAPI GetStrFromDrvIni(int iniSectID, long devTypeId, int numOfOldDev, SString & rBuf)
+int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & rBuf)
 {
 	int    ok = 1;
 	uint   pos = 0, sync_count = 0, localDevId = 0;
-	SString path;
 	StringSet set;
-	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
-	PPIniFile ini_file(path);
+	//SString path;
+	//PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
+	//PPIniFile ini_file(path);
 	localDevId = devTypeId - numOfOldDev;
 	if(oneof2(iniSectID, PPINISECT_DRV_SYNCPOS, PPINISECT_DRV_ASYNCPOS)) {
-		THROW(ini_file.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
-		THROW(ini_file.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
+		THROW(rIniFile.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
+		THROW(rIniFile.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
 	}
 	else {
-		THROW(ini_file.GetEntryList(iniSectID, &set, 1));
+		THROW(rIniFile.GetEntryList(iniSectID, &set, 1));
 	}
 	if(localDevId <= set.getCount()) {
 		for(uint i = 1; i <= set.getCount(); i++) {
@@ -343,27 +337,31 @@ int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPat
 {
 	rDllPath.Z();
 
-	int    ok = 1, idx = 0;
+	int    ok = 1;
+	//int    idx = 0;
 	SString line_buf = ""; // А то ошибка может быть // @vmiller
 	int    rts_id = 0;
 	int    sect_id = GetDrvIniSectByDvcClass(dvcClass, &rts_id, 0);
-	if(rts_id) {
+	SString path;
+	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
+	PPIniFile ini_file(path);
+	/*if(rts_id) {
 		while(PPGetSubStr(rts_id, idx, line_buf) > 0)
 			idx++;
-	}
-	THROW(GetStrFromDrvIni(sect_id, devTypeId, idx, line_buf));
+	}*/
+	THROW(GetStrFromDrvIni(ini_file, sect_id, devTypeId, /*idx*/PPCMT_FIRST_DYN_DVC, line_buf));
 	{
-		SString symbol, drv_name, drv_path;
+		SString symbol, drv_name;
 		int    drv_impl = 0;
 		SPathStruc ps;
-		THROW(ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl));
-		ps.Split(drv_path);
+		THROW(ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl));
+		ps.Split(path);
 		if(ps.Drv.Empty() && ps.Dir.Empty()) {
 			PPGetPath(PPPATH_BIN, rDllPath);
-			rDllPath.SetLastSlash().Cat("DRV").SetLastSlash().Cat(drv_path);
+			rDllPath.SetLastSlash().Cat("DRV").SetLastSlash().Cat(path);
 		}
 		else
-			rDllPath = drv_path;
+			rDllPath = path;
 	}
 	CATCHZOK;
 	return ok;

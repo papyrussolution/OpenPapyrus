@@ -359,7 +359,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	PPID   RegStaffCalID;     // Регулярный штатный календарь
 	long   StaffCalQuant;     // Квант времени в сек. для временной диаграммы анализа штатных календарей.
 	SVerT  Ver;               // Версия системы, создавшей запись
-	long   SendSmsSamePersonTimeout; // @v8.0.6
+	long   SendSmsSamePersonTimeout;
 	char   Reserve[40];
 	long   Reserve1[2];
 	//char   ExtString[];
@@ -401,7 +401,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			p_cfg->RegStaffCalID     = pCfg->RegStaffCalID;
 			p_cfg->StaffCalQuant     = pCfg->StaffCalQuant;
 			p_cfg->Ver               = DS.GetVersion();
-			p_cfg->SendSmsSamePersonTimeout = pCfg->SendSmsSamePersonTimeout; // @v8.0.6
+			p_cfg->SendSmsSamePersonTimeout = pCfg->SendSmsSamePersonTimeout;
 			if(ext_size) {
 				size_t pos = 0;
 				char * p_buf = (char *)(p_cfg+1);
@@ -453,7 +453,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->RegStaffCalID     = p_cfg->RegStaffCalID;
 		pCfg->StaffCalQuant     = p_cfg->StaffCalQuant;
 		//pCfg->Ver               = p_cfg->Ver; // @vmiller
-		pCfg->SendSmsSamePersonTimeout = p_cfg->SendSmsSamePersonTimeout; // @v8.0.6
+		pCfg->SendSmsSamePersonTimeout = p_cfg->SendSmsSamePersonTimeout;
 		if(p_cfg->StrPosTopFolder)
 			pCfg->TopFolder = ((char *)(p_cfg+1)) + p_cfg->StrPosTopFolder;
 		else
@@ -505,10 +505,7 @@ class ExtFieldsDialog : public PPListDialog {
 public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
-		// @v9.2.5 SString list_title;
-		// @v9.2.5 list_title = "10,L,;50,L,Наименование";
 		if(P_Box) {
-			// @v9.2.5 P_Box->SetupColumns(list_title.ToOem());
 			if(P_Box->def)
 				P_Box->def->SetOption(lbtFocNotify, 1);
 		}
@@ -907,13 +904,13 @@ int SLAPI PPObjPerson::EditConfig()
 			SetupPPObjCombo(this, CTLSEL_PSNCFG_TRADELIC, PPOBJ_REGISTERTYPE, Data.TradeLicRegTypeID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNCFG_REGCAL, PPOBJ_STAFFCAL,       Data.RegStaffCalID,     OLW_CANINSERT, 0);
 			setCtrlData(CTL_PSNCFG_CALQUANT, &Data.StaffCalQuant);
-			setCtrlData(CTL_PSNCFG_SMSTIMEOUT, &Data.SendSmsSamePersonTimeout); // @v8.0.6
+			setCtrlData(CTL_PSNCFG_SMSTIMEOUT, &Data.SendSmsSamePersonTimeout);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 0, PPPersonConfig::fSyncByName);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 1, PPPersonConfig::fSyncBySrchReg);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 2, PPPersonConfig::fSyncDeclineUpdate);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 3, PPPersonConfig::fShowPsnImageAfterCmdAssoc);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 4, PPPersonConfig::fSyncMergeRegList);
-			AddClusterAssoc(CTL_PSNCFG_FLAGS, 5, PPPersonConfig::fSendAttachment); // @v8.2.3
+			AddClusterAssoc(CTL_PSNCFG_FLAGS, 5, PPPersonConfig::fSendAttachment);
 			SetClusterData(CTL_PSNCFG_FLAGS, Data.Flags);
 			return 1;
 		}
@@ -924,7 +921,7 @@ int SLAPI PPObjPerson::EditConfig()
 			getCtrlData(CTLSEL_PSNCFG_TRADELIC, &Data.TradeLicRegTypeID);
 			getCtrlData(CTLSEL_PSNCFG_REGCAL,   &Data.RegStaffCalID);
 			getCtrlData(CTL_PSNCFG_CALQUANT,    &Data.StaffCalQuant);
-			getCtrlData(CTL_PSNCFG_SMSTIMEOUT,  &Data.SendSmsSamePersonTimeout); // @v8.0.6
+			getCtrlData(CTL_PSNCFG_SMSTIMEOUT,  &Data.SendSmsSamePersonTimeout);
 			GetClusterData(CTL_PSNCFG_FLAGS,    &Data.Flags);
 			getCtrlString(CTL_PSNCFG_IMGFOLDER,  Data.AddImageFolder);
 			THROW_PP_S(!Data.AddImageFolder.Len() || pathValid(Data.AddImageFolder, 1), PPERR_DIRNOTEXISTS, Data.AddImageFolder);
@@ -1102,14 +1099,9 @@ int SLAPI PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPack
 }
 
 int SLAPI PPObjPerson::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
+	{ return SearchByID(P_Tbl, Obj, id, b); }
 int SLAPI PPObjPerson::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
+	{ return PutPacket(&id, 0, 0); }
 
 ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 {
@@ -1596,7 +1588,6 @@ int SLAPI PPObjPerson::GetRegList(PPID personID, RegisterArray * pList, int useI
 					const PPID reg_type_id = prt_pack.InhRegTypeList.at(j);
 					reg_list.clear();
 					if(pList->GetRegister(reg_type_id, 0, 0) <= 0 && RegObj.P_Tbl->GetByPerson(p_rel->Key, &reg_list) > 0) {
-						// @v8.4.9 {
 						for(uint k = 0; k < reg_list.getCount(); k++) {
 							const RegisterTbl::Rec & r_item = reg_list.at(k);
 							if(r_item.RegTypeID == reg_type_id) {
@@ -1606,17 +1597,6 @@ int SLAPI PPObjPerson::GetRegList(PPID personID, RegisterArray * pList, int useI
 								ok = 1; // @v9.2.9 @fix
 							}
 						}
-						// } @v8.4.9
-						/* @v8.4.9
-						{
-							RegisterTbl::Rec reg_rec;
-							if(reg_list.GetRegister(reg_type_id, 0, &reg_rec) > 0) {
-								reg_rec.Flags |= PREGF_INHERITED;
-								pList->insert(&reg_rec);
-								ok = 1;
-							}
-						}
-						*/
 					}
 				}
 			}
@@ -1635,7 +1615,7 @@ int SLAPI PPObjPerson::GetRegister(PPID personID, PPID regType, LDATE actualDate
 {
 	RegisterArray reg_list;
 	if(GetRegList(personID, &reg_list, 1) > 0) {
-		reg_list.Sort(); // @v8.2.8
+		reg_list.Sort();
 		return reg_list.GetRegister(regType, actualDate, 0, pRec);
 	}
 	else
@@ -2153,7 +2133,7 @@ int SLAPI PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer 
 	// @v9.0.4 THROW_SL(BaObj.P_Tbl->SerializeArrayOfRecords(dir, &pPack->BAA, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
-	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & PPPersonConfig::fSendAttachment) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
+	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & PPPersonConfig::fSendAttachment) ? 0 : 1, rBuf, pSCtx));
 	if(dir < 0) {
 		pPack->SetExtName(ext_name);
 		for(i = 0; i < addr_id_list.getCount(); i++) {
@@ -2179,12 +2159,10 @@ int SLAPI PPObjPerson::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCont
 	PPPersonPacket * p_pack = (PPPersonPacket*)p->Data;
 	if(stream == 0) {
 		THROW(GetPacket(id, p_pack, 0) > 0);
-		// @v8.2.3 {
 		if(GetConfig().Flags & PPPersonConfig::fSendAttachment) {
 			p_pack->LinkFiles.Init(Obj);
 			p_pack->LinkFiles.Load(p_pack->Rec.ID, 0L);
 		}
-		// } @v8.2.3
 	}
 	else {
 		SBuffer buffer;
@@ -2260,7 +2238,7 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 			if(*pID) {
 				if(!(r_cfg.Flags & PPPersonConfig::fSyncDeclineUpdate)) {
 					p_pack->Rec.ID = *pID;
-					if(p_pack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported) // @v8.2.3
+					if(p_pack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported)
 						p_pack->UpdFlags |= PPPersonPacket::ufDontChgImgFlag;
 					p_pack->UpdFlags |= PPPersonPacket::ufDontRmvDlvrLoc;
 					THROW(PreventDupRegister(*pID, p_pack));
@@ -2837,7 +2815,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	PPID   dirty_id = 0;
 	SString temp_buf;
 	Reference * p_ref = PPRef;
-	PPPersonPacket org_pack; // @v8.0.2
+	PPPersonPacket org_pack;
 	PPObjSCard * p_sc_obj = 0;
 	PPLocationPacket loc_pack;
 	PPIDArray dlvr_loc_list, * p_dlvr_loc_list = 0;
@@ -2854,7 +2832,6 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	else {
 		if(pPack) {
 			if(id) {  // Update packet
-				// @v8.0.2 {
 				THROW(GetPacket(id, &org_pack, 0) > 0);
 				{
 					for(i = 0; i < pPack->Regs.getCount(); i++) {
@@ -2866,13 +2843,10 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						no_changes = 1;
 					}
 				}
-				// } @v8.0.2
-				// @v8.0.5 {
 				for(i = 0; !is_in_db_mism_owner_loc && org_pack.EnumDlvrLoc(&i, &loc_pack) > 0;) {
 					if(loc_pack.OwnerID != id)
 						is_in_db_mism_owner_loc = 1;
 				}
-				// } @v8.0.5
 				if(no_changes) {
 					ok = -1;
 					//
@@ -2892,7 +2866,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					PersonTbl::Rec org_rec;
 					PPIDArray losed_kinds;
 					PPIDArray kind_list;
-					THROW(CheckRights(PPR_MOD)); // @v8.0.0
+					THROW(CheckRights(PPR_MOD));
 
 					THROW(P_Tbl->GetKindList(pPack->Rec.ID, &kind_list));
 					THROW_SL(losed_kinds.addUniqueExclusive(&kind_list, &pPack->Kinds));
@@ -2978,7 +2952,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				}
 			}
 			else { // Add packet
-				THROW(CheckRights(PPR_INS)); // @v8.0.0
+				THROW(CheckRights(PPR_INS));
 				SETIFZ(pPack->Loc.Type, LOCTYP_ADDRESS);
 				THROW(LocObj.PutRecord(&pPack->Rec.MainLoc, &pPack->Loc, 0));
 				SETIFZ(pPack->RLoc.Type, LOCTYP_ADDRESS);
@@ -3049,7 +3023,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 		}
 		else if(id) { // Remove packet
 			ObjLinkFiles _lf(PPOBJ_PERSON);
-			THROW(CheckRights(PPR_DEL)); // @v8.0.0
+			THROW(CheckRights(PPR_DEL));
 			_lf.Save(id, 0L);
 			THROW(Search(id, 0) > 0);
 			if(P_Tbl->data.MainLoc || P_Tbl->data.RLoc) {
@@ -3171,8 +3145,7 @@ int SLAPI PPObjPerson::SetupDlvrLocCombo(TDialog * dlg, uint ctlID, PPID personI
 				p_list->Add(loc_id, temp_buf);
 			}
 		}
-		// @v8.9.11 ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
-		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_LOCATION, p_list, 0, 0); // @v8.9.11
+		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_LOCATION, p_list, 0, 0);
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, locID);
 			ok = 1;
@@ -3467,9 +3440,27 @@ int SLAPI EditELink(PPELink * pLink); // @prototype(elinkdlg.cpp)
 
 #define GRP_IBG 1
 
-class PersonDialog : public TDialog {
+class PersonDialogBase : public TDialog {
 public:
-	PersonDialog(int dlgID) : TDialog(dlgID), DupID(0), IsCashier(0)
+	PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
+	{
+	}
+	void   SetupPhoneOnInit(const char * pPhone)
+	{
+		InitPhone = pPhone;
+	}
+	PPID   GetDupID() const { return DupID; }
+protected:
+	PPObjPerson PsnObj;
+	PPPersonPacket Data;
+	PPID   DupID;
+	SString Name_;
+	SString InitPhone;
+};
+
+class PersonDialog : public PersonDialogBase {
+public:
+	PersonDialog(int dlgID) : PersonDialogBase(dlgID), IsCashier(0)
 	{
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
 			enableCommand(cmPersonReg, 0);
@@ -3485,14 +3476,9 @@ public:
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
 	}
-	void   SetupPhoneOnInit(const char * pPhone)
-	{
-		InitPhone = pPhone;
-	}
 	int    setDTS(const PPPersonPacket * pData)
 	{
 		Data = *pData;
-		//ushort v = 0;
 		SString temp_buf;
 		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_PERSON_KIND);
 		LocationFilt loc_flt(LOCTYP_DIVISION);
@@ -3537,7 +3523,6 @@ public:
 	{
 		int    ok  = 1;
 		uint   sel = 0, i;
-		//ushort v   = 0;
 		SString temp_buf;
 		getCtrlData(sel = CTLSEL_PERSON_STATUS, &Data.Rec.Status);
 		getCtrlData(sel = CTLSEL_PERSON_DIV, &Data.Rec.Division);
@@ -3599,7 +3584,6 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	PPID   GetDupID() const { return DupID; }
 private:
 	DECL_HANDLE_EVENT;
 	int    EditDlvrLocList()
@@ -3642,13 +3626,8 @@ private:
 		brushHumanNameMus,
 	};
 	ListBoxDef * createKindListDef();
-	PPPersonPacket Data;
-	SString Name_;
 	SString ImageFolder;
-	SString InitPhone;
-	PPObjPerson PsnObj;
 	PPID   CashiersPsnKindID;
-	PPID   DupID;             //
 	int    IsCashier;
 	PPIDArray PrevKindList;   // Список видов, которым принадлежала персоанлия до редактирования //
 	SPaintToolBox Ptb;
@@ -3656,10 +3635,10 @@ private:
 //
 //
 //
-class ShortPersonDialog : public TDialog {
+class ShortPersonDialog : public PersonDialogBase {
 public:
-	ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId),
-		DupID(0), KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
+	ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : PersonDialogBase(dlgId),
+		KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
 		SCardID(0), PhonePos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
 	{
 		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
@@ -3667,13 +3646,8 @@ public:
 		showButton(cmCreateSCard, 0);
 		enableCommand(cmCreateSCard, 0);
 	}
-	void   SetupPhoneOnInit(const char * pPhone)
-	{
-		InitPhone = pPhone;
-	}
 	int    setDTS(const PPPersonPacket * pData);
 	int    getDTS(PPPersonPacket * pData);
-	PPID   GetDupID() const { return DupID; }
 private:
 	DECL_HANDLE_EVENT;
 	int    AcceptSCard(uint * pSel);
@@ -3684,7 +3658,6 @@ private:
 	void   GetDOB();
 	int    SetupDOB();
 
-	PPPersonPacket Data;
 	PPID   KindID;
 	PPID   CodeRegTypeID;
 	PPID   SCardSerID;
@@ -3697,15 +3670,11 @@ private:
 	PPID   SCardID;
 	int    PhonePos;
 	int    CodeRegPos;
-	PPID   DupID;
 	enum {
 		stSCardAutoCreate = 0x0001,
 		stSCardOnInput    = 0x0002 // Устанавливается при поиске карты по мере ввода номера пользователем
 	};
 	long   St;
-	SString Name_;
-	SString InitPhone;
-	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
 
 	DateAddDialogParam ScExpiryPeriodParam;
@@ -3863,7 +3832,6 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 		loc_obj.EditDialog(LOCTYP_ADDRESS, p_loc_rec);
 	}
 	else if(event.isCmd(cmFullPersonDialog)) {
-		// @v8.5.5 {
 		PPPersonPacket fdata;
 		if(getDTS(&fdata)) {
 			PersonDialog * fdlg = new PersonDialog(DLG_PERSON);
@@ -3879,7 +3847,6 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 				ZDELETE(fdlg);
 			}
 		}
-		// } @v8.5.5
 	}
 	else if(event.isCmd(cmFullSCardDialog)) {
 		if(AcceptSCard(0) > 0) {
@@ -4141,12 +4108,10 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				showButton(cmCreateSCard, 0);
 				enableCommand(cmCreateSCard, 0);
 				enable_auto_create = 1;
-				// @v8.8.0 {
 				if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) {
 					sc_rec.Flags |= SCRDF_INHERITED;
 					ScObj.SetInheritance(&scs_pack, &sc_rec);
 				}
-				// } @v8.8.0
 				// @v9.2.8 {
 				else if(Data.Rec.ID) {
 					SCardTbl::Rec dbc_rec;
@@ -4366,7 +4331,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
 			ShortPersonDialog * p_dlg = (ShortPersonDialog *)dlg;
-			p_dlg->enableCommand(cmFullPersonDialog, 1); // @v8.5.5 (cmFullPersonDialog, 0)-->(cmFullPersonDialog, 1)
+			p_dlg->enableCommand(cmFullPersonDialog, 1);
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
 			// @v10.0.01 {
@@ -6140,7 +6105,7 @@ int SLAPI PPObjPersonKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 		PPPersonKind * p_rec = (PPPersonKind *)p->Data;
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->CodeRegTypeID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->FolderRegTypeID, ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_PRSNSTATUS,   &p_rec->DefStatusID, ary, replace)); // @v8.0.3
+		THROW(ProcessObjRefInArray(PPOBJ_PRSNSTATUS,   &p_rec->DefStatusID, ary, replace));
 	}
 	else
 		ok = -1;
@@ -6666,7 +6631,6 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 		*/
 	}
-	// @v8.2.8 {
 	else if(pF->Name == "?GetRegisterD") {
 		RegisterTbl::Rec reg_rec;
 		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec) ? reg_rec.ID : 0; // @v9.6.11
@@ -6681,7 +6645,6 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 		*/
 	}
-	// } @v8.2.8
 	if(pF->Name == "?FormatRegister") {
 		_RET_STR = 0;
 		RegisterTbl::Rec reg_rec;
@@ -6896,14 +6859,12 @@ int PPALDD_UhttPerson::NextIteration(long iterId)
 	if(iterId == GetIterID("iter@KindList")) {
 		if(r_blk.Pack.Kinds.getPointer() < r_blk.Pack.Kinds.getCount()) {
 			I_KindList.KindID = r_blk.Pack.Kinds.at(r_blk.Pack.Kinds.getPointer());
-			// @v8.9.0 {
 			PPObjPersonKind pk_obj;
 			PPPersonKind pk_rec;
 			if(pk_obj.Fetch(I_KindList.KindID, &pk_rec) > 0) {
 				STRNSCPY(I_KindList.Code, pk_rec.Symb);
 				STRNSCPY(I_KindList.Name, pk_rec.Name);
 			}
-			// } @v8.9.0
 			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.Pack.Kinds.incPointer();
@@ -7212,7 +7173,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		if(psnobj.Fetch(H.ID, &psn_rec) > 0)
 			H.IsPrivateEnt = BIN(psn_rec.Status == PPPRS_FREE);
 		{
-			DS.GetTLA().InitMainOrgData(0); // @v8.6.1
+			DS.GetTLA().InitMainOrgData(0);
 			if(psnobj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
 				STRNSCPY(H.Director, psn_rec.Name);
 			if(psnobj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)

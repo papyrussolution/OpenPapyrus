@@ -340,7 +340,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 										PPBillPacket pack;
 										PPObjBill * p_bobj = (PPObjBill *)ppobj;
 										if(p_bobj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
-											pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
+											pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited); // @v9.9.12
 											PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, temp_buf);
 											if(r_rec.Action == PPACN_RMVBILL)
 												ev_entry.Flags |= ev_entry.fAmtDn;

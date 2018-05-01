@@ -242,7 +242,13 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 //
 SLAPI PPFreight::PPFreight()
 {
+	Z();
+}
+
+PPFreight & SLAPI PPFreight::Z()
+{
 	THISZERO();
+	return *this;
 }
 
 int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
@@ -491,6 +497,18 @@ int SLAPI PPBill::SetPayDate(LDATE dt, double amount)
 	return AddPayDate(dt, amount);
 }
 
+int FASTCALL PPBill::GetFreight(PPFreight * pFreight) const
+{
+	int    ok = -1;
+	if(P_Freight) {
+		ASSIGN_PTR(pFreight, *P_Freight);
+		ok = 1;
+	}
+	else 
+		CALLPTRMEMB(pFreight, Z());
+	return ok;
+}
+
 int FASTCALL PPBill::SetFreight(const PPFreight * pFreight)
 {
 	int    ok = 1;
@@ -498,14 +516,12 @@ int FASTCALL PPBill::SetFreight(const PPFreight * pFreight)
 		ZDELETE(P_Freight);
 		Rec.Flags &= ~BILLF_FREIGHT;
 	}
+	else if(!SETIFZ(P_Freight, new PPFreight)) {
+		ok = PPSetErrorNoMem();
+	}
 	else {
-		if(!SETIFZ(P_Freight, new PPFreight)) {
-			ok = PPSetErrorNoMem();
-		}
-		else {
-			memcpy(P_Freight, pFreight, sizeof(*P_Freight));
-			Rec.Flags |= BILLF_FREIGHT;
-		}
+		memcpy(P_Freight, pFreight, sizeof(*P_Freight));
+		Rec.Flags |= BILLF_FREIGHT;
 	}
 	return ok;
 }
@@ -1872,7 +1888,7 @@ int SLAPI PPBillExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-double FASTCALL setsign(double v, int minus)
+static double FASTCALL setsign(double v, int minus)
 {
 	v = fabs(v);
 	return minus ? -v : v;
@@ -2127,11 +2143,6 @@ int SLAPI PPBillPacket::UngetCounter()
 	return ok;
 }
 
-int FASTCALL PPBillPacket::AddShadowItem(const PPTransferItem * pTI)
-{
-	return SETIFZ(P_ShLots, new PPTrfrArray) ? (P_ShLots->insert(pTI) ? 1 : PPSetErrorSLib()) : PPSetErrorNoMem();
-}
-
 int SLAPI PPBillPacket::AddShadowItem(const PPTransferItem * pOrdItem, uint * pPos)
 {
 	int    ok = 0;
@@ -2146,6 +2157,8 @@ int SLAPI PPBillPacket::AddShadowItem(const PPTransferItem * pOrdItem, uint * pP
 	return ok;
 }
 
+int FASTCALL PPBillPacket::AddShadowItem(const PPTransferItem * pTI)
+	{ return SETIFZ(P_ShLots, new PPTrfrArray) ? (P_ShLots->insert(pTI) ? 1 : PPSetErrorSLib()) : PPSetErrorNoMem(); }
 int SLAPI PPBillPacket::CreateBlank(PPID opID, PPID linkBillID, PPID locID, int use_ta)
 	{ return _CreateBlank(opID, linkBillID, locID, 0, use_ta); }
 int SLAPI PPBillPacket::CreateBlank_WithoutCode(PPID opID, PPID linkBillID, PPID locID, int use_ta)
@@ -2550,16 +2563,6 @@ int SLAPI PPBillPacket::GetSyncStatus()
 	return SyncStatus;
 }
 
-int FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const
-{
-	return Lots.enumItems(pI, (void**)ppTI);
-}
-
-uint SLAPI PPBillPacket::GetTCount() const
-{
-	return Lots.getCount();
-}
-
 int FASTCALL PPBillPacket::SetTPointer(int pos)
 {
 	if((pos >= 0 && pos < (int)Lots.getCount()) || pos == -1) {
@@ -2570,30 +2573,31 @@ int FASTCALL PPBillPacket::SetTPointer(int pos)
 		return 0;
 }
 
+static IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
+{
+	const PPTransferItem * p_ti1 = (const PPTransferItem *)p1;
+	const PPTransferItem * p_ti2 = (const PPTransferItem *)p2;
+	return CMPSIGN(p_ti1->RByBill, p_ti2->RByBill);
+}
+
+void SLAPI PPBillPacket::SortTI()
+	{ Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill)); }
+int FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const
+	{ return Lots.enumItems(pI, (void**)ppTI); }
+uint SLAPI PPBillPacket::GetTCount() const
+	{ return Lots.getCount(); }
 int SLAPI PPBillPacket::GetTPointer() const
-{
-	return (int)Lots.getPointer();
-}
-
+	{ return (int)Lots.getPointer(); }
 PPTransferItem & FASTCALL PPBillPacket::TI(uint p) const
-{
-	return Lots.at(p);
-}
-
+	{ return Lots.at(p); }
 const  PPTransferItem & FASTCALL PPBillPacket::ConstTI(uint p) const
-{
-	return Lots.at(p);
-}
-
+	{ return Lots.at(p); }
 const PPTrfrArray & SLAPI PPBillPacket::GetLots() const
-{
-	return Lots;
-}
-
+	{ return Lots; }
 void SLAPI PPBillPacket::SetLots(const PPTrfrArray & rS)
-{
-	Lots = rS;
-}
+	{ Lots = rS; }
+int FASTCALL PPBillPacket::ChkTIdx(int idx) const
+	{ return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX); }
 
 int FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 {
@@ -2609,11 +2613,6 @@ int FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 	}
 	ASSIGN_PTR(pPos, pos);
 	return ok;
-}
-
-int FASTCALL PPBillPacket::ChkTIdx(int idx) const
-{
-	return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX);
 }
 
 int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, const char * pSerial)
@@ -2647,18 +2646,6 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 				p_ti->WtQtty = setsign(p_ti->WtQtty, minus);
 		}
 	}
-}
-
-IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
-{
-	const PPTransferItem * p_ti1 = (const PPTransferItem *)p1;
-	const PPTransferItem * p_ti2 = (const PPTransferItem *)p2;
-	return CMPSIGN(p_ti1->RByBill, p_ti2->RByBill);
-}
-
-void SLAPI PPBillPacket::SortTI()
-{
-	Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill));
 }
 
 // static

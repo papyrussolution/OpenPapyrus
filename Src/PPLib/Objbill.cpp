@@ -1156,6 +1156,46 @@ int SLAPI PPObjBill::CheckModificationAfterLoading(const PPBillPacket & rPack)
 	return ok;
 }
 
+int SLAPI PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec, PPBillPacket * pPack)
+{
+	int    ok = -1;
+	SysJournal * p_sj = DS.GetTLA().P_SysJ;
+	SysJournalTbl::Rec ev_cr;
+	SysJournalTbl::Rec ev_mod;
+	THROW(p_sj);
+	if(p_sj->GetObjCreationEvent(Obj, billID, &ev_cr) > 0) {
+		ASSIGN_PTR(pSjRec, ev_cr);
+		PPIDArray acn_list;
+		acn_list.add(PPACN_UPDBILL);
+		LDATETIME since;
+		since.Set(ev_cr.Dt, ev_cr.Tm);
+		if(p_sj->GetNextObjEvent(Obj, billID, &acn_list, since, &ev_mod) > 0) {
+			ObjVersioningCore * p_ovc = PPRef->P_OvT; 
+			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				SSerializeContext & r_sctx = p_ovc->GetSCtx();
+				long   vv = 0;
+				SBuffer ov_buf; 
+				PPObjID oid;
+				oid.Set(0, 0);
+				ov_buf.Clear();
+				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(ev_mod.ObjType, ev_mod.ObjID)) {
+					PPBillPacket org_pack;
+					THROW(SerializePacket__(-1, &org_pack, ov_buf, &r_sctx));
+					org_pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited);
+					ASSIGN_PTR(pPack, org_pack);
+					ok = 2;
+				}
+			}
+		}
+		else
+			ok = 1; // Документ не менялся
+	}
+	else
+		ok = -2;
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 {
 	int    ok = cmCancel;
@@ -4486,7 +4526,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 //
 class BillCache : public ObjCacheHash {
 public:
-	struct Data : public ObjCacheEntry { // size=48+16 // @v8.8.0 44-->48
+	struct Data : public ObjCacheEntry { // size=48+16 // @v8.8.0 44-->48 // @v10.0.04 48-->52
 		LDATE  Dt;
 		PPID   OpID;
 		PPID   LocID;
@@ -4498,6 +4538,7 @@ public:
 		int16  EdiOp;
 		long   Flags;
 		long   Flags2;
+		LDATE  DueDate; // @v10.0.04
 		double Amount;
 	};
 	SLAPI  BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
@@ -4724,6 +4765,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 			FLD(EdiOp); // @v8.8.0
 			FLD(Flags);
 			FLD(Flags2);
+			FLD(DueDate); // @v10.0.04
 			FLD(Amount);
 			#undef FLD
 
@@ -4753,6 +4795,7 @@ void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	FLD(EdiOp); // @v8.8.0
 	FLD(Flags);
 	FLD(Flags2);
+	FLD(DueDate); // @v10.0.04
 	FLD(Amount);
 	#undef FLD
 	MultTextBlock b(this, pEntry);

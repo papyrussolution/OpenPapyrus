@@ -6,6 +6,21 @@
 #include <sartre.h>
 #include <locale.h>
 
+static int RechargeTransaction(BDbTransaction * pTa, uint & rItemsPerTx, const uint maxItemsPerTx)
+{
+	int    ok = -1;
+	if(rItemsPerTx >= maxItemsPerTx) {
+		if(pTa) {
+			THROW_DB(pTa->Commit(1));
+			THROW_DB(pTa->Start(1));
+		}
+		rItemsPerTx = 0;
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordForm & rForm)
 {
 	int    ok = 1;
@@ -462,139 +477,99 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 				while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
 					temp_buf.CatChar(*p++);
 				if(temp_buf.NotEmpty()) {
-					if(temp_buf == "ADJECTIVE") {
+					if(temp_buf == "ADJECTIVE")
 						rForm.SetTag(SRWG_CLASS, SRWC_ADJECTIVE);
-					}
-					else if(temp_buf == "ADVERB") {
+					else if(temp_buf == "ADVERB")
 						rForm.SetTag(SRWG_CLASS, SRWC_ADVERB);
-					}
-					else if(temp_buf == "ARTICLE") {
+					else if(temp_buf == "ARTICLE")
 						rForm.SetTag(SRWG_CLASS, SRWC_ARTICLE);
-					}
-					else if(temp_buf == "NOUN") {
+					else if(temp_buf == "NOUN")
 						rForm.SetTag(SRWG_CLASS, SRWC_NOUN);
-					}
-					else if(temp_buf == "NUMERAL") {
+					else if(temp_buf == "NUMERAL")
 						rForm.SetTag(SRWG_CLASS, SRWC_NUMERAL);
-					}
-					else if(temp_buf == "ORDNUM") {
+					else if(temp_buf == "ORDNUM")
 						rForm.SetTag(SRWG_CLASS, SRWC_NUMERALORD);
-					}
-					else if(temp_buf == "CONJ") {
+					else if(temp_buf == "CONJ")
 						rForm.SetTag(SRWG_CLASS, SRWC_CONJUNCTION);
-					}
-					else if(temp_buf == "PN") {
+					else if(temp_buf == "PN")
 						rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
-					}
-					else if(temp_buf == "PN_ADJ") {
+					else if(temp_buf == "PN_ADJ")
 						rForm.SetTag(SRWG_CLASS, SRWC_PRONOUNPOSS);
-					}
-					else if(temp_buf == "INT") {
+					else if(temp_buf == "INT")
 						rForm.SetTag(SRWG_CLASS, SRWC_INTERJECTION);
-					}
 					else if(temp_buf == "MOD") {
 						rForm.SetTag(SRWG_CLASS, SRWC_VERB);
 						rForm.SetTag(SRWG_MODAL, 1);
 					}
-					else if(temp_buf == "PART") { // Частица
+					else if(temp_buf == "PART") // Частица
 						rForm.SetTag(SRWG_CLASS, SRWC_PARTICLE);
-					}
-					else if(temp_buf == "PREP") {
+					else if(temp_buf == "PREP")
 						rForm.SetTag(SRWG_CLASS, SRWC_PREPOSITION);
-					}
-					else if(temp_buf == "PRON") { // Не изменяемые местоимения-существительные (all, anybody, etc)
+					else if(temp_buf == "PRON") // Не изменяемые местоимения-существительные (all, anybody, etc)
 						rForm.SetTag(SRWG_CLASS, SRWC_PRONOUN);
-					}
 					else if(temp_buf == "VBE") { // Специальный случай - глагол "to be"
 						rForm.SetTag(SRWG_CLASS, SRWC_VERB);
 						rForm.SetTag(SRWG_TOBE, 1);
 					}
-					else if(temp_buf == "VERB") {
+					else if(temp_buf == "VERB")
 						rForm.SetTag(SRWG_CLASS, SRWC_VERB);
-					}
-					else if(temp_buf == "comp") {
+					else if(temp_buf == "comp")
 						rForm.SetTag(SRWG_ADJCMP, SRADJCMP_COMPARATIVE);
-					}
-					else if(temp_buf == "f") {
+					else if(temp_buf == "f")
 						rForm.SetTag(SRWG_GENDER, SRGENDER_FEMININE);
-					}
-					else if(temp_buf == "fut") {
+					else if(temp_buf == "fut")
 						rForm.SetTag(SRWG_TENSE, SRTENSE_FUTURE); // Будущая форма (вероятно, только для to be)
-					}
-					else if(temp_buf == "if") { // Вопросительная форма глагола to be
+					else if(temp_buf == "if") // Вопросительная форма глагола to be
 						rForm.SetTag(SRWG_QUEST, 1);
-					}
-					else if(temp_buf == "inf") {
+					else if(temp_buf == "inf")
 						rForm.SetTag(SRWG_ASPECT, SRASPECT_INFINITIVE);
-					}
-					else if(temp_buf == "m") {
+					else if(temp_buf == "m")
 						rForm.SetTag(SRWG_GENDER, SRGENDER_MASCULINE);
-					}
-					else if(temp_buf == "geo") {
+					else if(temp_buf == "geo")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_GEO);
-					}
-					else if(temp_buf == "name") {
+					else if(temp_buf == "name")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PERSONNAME);
-					}
-					else if(temp_buf == "org") {
+					else if(temp_buf == "org")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_ORG);
-					}
 					else if(temp_buf == "narr") { // Нарицательное существительное
 						// (не учитываем - считаем все не собственные существительные нарицательными)
 					}
-					else if(temp_buf == "nom") {
+					else if(temp_buf == "nom")
 						rForm.SetTag(SRWG_CASE, SRCASE_NOMINATIVE); // Именительный падеж
-					}
-					else if(temp_buf == "obj") {
+					else if(temp_buf == "obj")
 						rForm.SetTag(SRWG_CASE, SRCASE_OBJECTIVE); // Объектный падеж местоимений
-					}
-					else if(temp_buf == "pasa") {
+					else if(temp_buf == "pasa")
 						rForm.SetTag(SRWG_TENSE, SRTENSE_PAST); // Past Indefinite (2-я форма глагола)
-					}
-					else if(temp_buf == "pers") {
+					else if(temp_buf == "pers")
 						rForm.SetTag(SRWG_PRONOUN, SRPRON_PERSONAL);
-					}
-					else if(temp_buf == "pl") {
+					else if(temp_buf == "pl")
 						rForm.SetTag(SRWG_COUNT, SRCNT_PLURAL);
-					}
-					else if(temp_buf == "pp") {
+					else if(temp_buf == "pp")
 						rForm.SetTag(SRWG_TENSE, SRTENSE_PASTPARTICIPLE); // Past Participle (3-я форма глагола)
-					}
-					else if(temp_buf == "poss") {
+					else if(temp_buf == "poss")
 						rForm.SetTag(SRWG_POSSESSIVE, 1);
-					}
-					else if(temp_buf == "pred") { // предикатив (форма притяжательных местоимений, напр.:yours)
+					else if(temp_buf == "pred") // предикатив (форма притяжательных местоимений, напр.:yours)
 						rForm.SetTag(SRWG_PREDICATIVE, 1);
-					}
 					else if(temp_buf == "attr") { // @unused атрибутив (форма притяжательных местоимений, напр.:your);
 					}
-					else if(temp_buf == "prop") {
+					else if(temp_buf == "prop")
 						rForm.SetTag(SRWG_PROPERNAME, SRPROPN_PERSONNAME);
-					}
-					else if(temp_buf == "prsa") {
+					else if(temp_buf == "prsa")
 						rForm.SetTag(SRWG_TENSE, SRTENSE_PRESENT); // Present (1-я форма глагола)
-					}
-					else if(temp_buf == "sg") {
+					else if(temp_buf == "sg")
 						rForm.SetTag(SRWG_COUNT, SRCNT_SINGULAR);
-					}
-					else if(temp_buf == "sup") {
+					else if(temp_buf == "sup")
 						rForm.SetTag(SRWG_ADJCMP, SRADJCMP_SUPERLATIVE);
-					}
-					else if(temp_buf == "uncount") {
+					else if(temp_buf == "uncount")
 						rForm.SetTag(SRWG_COUNTAB, SRCTB_UNCOUNTABLE);
-					}
-					else if(temp_buf == "mass") {
+					else if(temp_buf == "mass")
 						rForm.SetTag(SRWG_COUNTAB, SRCTB_MASS);
-					}
-					else if(temp_buf == "1") {
+					else if(temp_buf == "1")
 						rForm.SetTag(SRWG_PERSON, SRPERSON_FIRST);
-					}
-					else if(temp_buf == "2") {
+					else if(temp_buf == "2")
 						rForm.SetTag(SRWG_PERSON, SRPERSON_SECOND);
-					}
-					else if(temp_buf == "3") {
+					else if(temp_buf == "3")
 						rForm.SetTag(SRWG_PERSON, SRPERSON_THIRD);
-					}
 					/* покрывается случаями "yc", "yd" обработанными выше
 					else if(temp_buf == "POSS") {
 					}
@@ -645,10 +620,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 		SStrScan scan;
 		THROW(rParam.GetField(rParam.fldAncodeFileName, temp_buf) > 0);
 		THROW(anc_file.Open(temp_buf, SFile::mRead));
-		{
-			(line_buf = "ImportFlexiaModel").Space().Cat(temp_buf);
-			PPWaitMsg(line_buf);
-		}
+		PPWaitMsg((line_buf = "ImportFlexiaModel").Space().Cat(temp_buf));
 		//
 		THROW(rParam.GetField(rParam.fldFlexiaModelFileName, temp_buf) > 0);
 		THROW(fm_file.Open(temp_buf, SFile::mRead));
@@ -1168,9 +1140,9 @@ SrConceptParser::Operator & SrConceptParser::Operator::Clear()
 }
 
 int SrConceptParser::Operator::IsEmpty() const
-{
-	return BIN(!CID && !CLexID && !NgID__ && !LangID && !P_Child);
-}
+	{ return BIN(!CID && !CLexID && !NgID__ && !LangID && !P_Child); }
+int SrConceptParser::Operator::IsClosed() const
+	{ return BIN(Flags & fClosed); }
 
 int SrConceptParser::Operator::Close(int ifNeeded)
 {
@@ -1181,11 +1153,6 @@ int SrConceptParser::Operator::Close(int ifNeeded)
 	}
 	else
 		return -1;
-}
-
-int SrConceptParser::Operator::IsClosed() const
-{
-	return BIN(Flags & fClosed);
 }
 
 int SrConceptParser::Operator::GetLangID() const
@@ -2472,18 +2439,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 									}
 								}
 							}
-							{
-								items_per_tx++;
-								if(items_per_tx >= max_items_per_tx) {
-									if(p_ta) {
-										THROW_DB(p_ta->Commit(1));
-										ZDELETE(p_ta);
-									}
-									THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-									THROW_DB(*p_ta);
-									items_per_tx = 0;
-								}
-							}
+							THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 						}
 						{
 							(msg_buf = "ImportHumanName").Space().Cat(src_file_name);
@@ -2593,16 +2549,12 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		SString References;
 		int   IsExtinct;
 	};
-	enum {
-		phasePreprocess,
-		phase1,
-		phase2
-	};
-	const  int phase_list[] = { phase1 };
 	uint   last_symb_id = 0;
 	uint   total_line_count = 0; // Рассчитывается на фазе phasePreprocess
 	SString name_buf;
 	SString concept_symb_buf;
+	SString parent_concept_symb_buf;
+	SString synon_concept_symb_buf;
 	StringSet name_ss;
 	LongArray ngram;
 	LongArray parent_ref_list;
@@ -2647,6 +2599,13 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		THROW_DB(local_tra.Commit(1));
 	}
 	const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
+	const CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
+	enum {
+		phasePreprocess,
+		phase1,
+		phase2,
+	};
+	const  int phase_list[] = { phase1, phase2 };
 	for(uint phase_idx = 0; phase_idx < SIZEOFARRAY(phase_list); phase_idx++) {
 		const int _phase = phase_list[phase_idx];
 		if(_phase == phase2) {
@@ -2654,10 +2613,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
 				THROW_DB(*p_ta);
 			}
-			{
-				SrWordForm wordform;
-				wordform.SetTag(SRWG_LANGUAGE, slangLA); // Вся импортируемая био-таксономия на латинском языке
-				THROW(rDb.ResolveWordForm(wordform, &wordform_id));
+			if(!p_ta->IsStarted()) {
+				THROW_DB(p_ta->Start(1));
 			}
 		}
 		f_in.Seek(0);
@@ -2765,6 +2722,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					name_buf = entry.ScientificName;
 				}
 				else {
+					temp_buf = "undefinstance";
 				}
 				if(_phase == phasePreprocess) {
 					total_line_count++;
@@ -2831,9 +2789,18 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					*/
 					if(cid_instance_of) {
 						CONCEPTID cid = 0;
+						CONCEPTID parent_cid = 0;
+						CONCEPTID synon_cid = 0;
 						NGID   ngram_id = 0;
 						SrCPropList cpl;
 						SrCProp cp;
+						if(entry.ParentNameUsageID) {
+							SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcGBIF, &entry.ParentNameUsageID, sizeof(entry.ParentNameUsageID), parent_concept_symb_buf);
+							const int rcr = rDb.SearchConcept(parent_concept_symb_buf, &parent_cid);
+							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
+						}
+						else
+							parent_concept_symb_buf.Z();
 						ngram.clear();
 						name_ss.clear();
 						name_buf.Tokenize(" ", name_ss);
@@ -2842,46 +2809,58 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							if(rDb.FetchWord(temp_buf, &word_id) > 0) {
 							}
 							else {
-								/*const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
-								assert(oneof2(rwr, 2, 0)); 
-								THROW(rwr);
-								assert(word_id);
-								if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
-									THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-								}*/
+								// Все слова созданы на фазе 1. Так что здесь - ошибка
 							}
 							assert(word_id);
 							ngram.add(word_id);
 						}
-						THROW(rDb.ResolveNGram(ngram, &ngram_id));
 						{
-							const int rcr = rDb.ResolveConcept(concept_symb_buf, &cid);
-							THROW(rcr);
+							const int rngr = rDb.ResolveNGram(ngram, &ngram_id);
+							THROW(rngr);
+							if(rngr == 2) {
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+							}
+						}
+						{
+							int    skip_instance = 0;
+							int    skip_subclass = 0;
+							const int rcr = rDb.SearchConcept(concept_symb_buf, &cid);
+							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
 							THROW(rDb.P_CNgT->Set(cid, ngram_id));
 							// если rcr == 1, то концепция существовала до вызова ResolveConcept
-							if(rcr == 1 && rDb.GetConceptPropList(cid, cpl) > 0) { 
+							if(rDb.GetConceptPropList(cid, cpl) > 0) { 
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
-									if(cpl.GetByPos(pidx, cp) && cp.PropID == prop_instance) {
+									if(cpl.GetByPos(pidx, cp)) {
 										CONCEPTID _val = 0;
-										if(cp.Get(_val) && _val != cid_instance_of) {
-											; // @todo сообщение (мы нашли таксон, который по имени соответствует более чем одной категории таксонов)
+										if(cp.PropID == prop_instance) {
+											if(cp.Get(_val)) {
+												if(_val == cid_instance_of)
+													skip_instance = 1;
+												else {
+													; // @todo сообщение (мы нашли таксон, который по имени соответствует более чем одной категории таксонов)
+												}
+											}
+										}
+										else if(cp.PropID == prop_subclass) {
+											if(parent_cid && cp.Get(_val)) {
+												if(_val == parent_cid)
+													skip_subclass = 1;
+												else {
+													; // @todo сообщение (мы нашли таксон, который по имени соответствует более чем одному родительскому таксону)
+												}
+											}
 										}
 									}
 								}
 							}
-							THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
-							//THROW_SL(gbif_to_cid_list.Add(entry.TaxonID, cid, 0, 0));
-						}
-						items_per_tx++;
-						items_per_tx_total++;
-					}
-					if(_phase == phase2) {
-						if(items_per_tx >= max_items_per_tx) {
-							if(p_ta) {
-								THROW_DB(p_ta->Commit(1));
-								THROW_DB(p_ta->Start(1));
+							if(!skip_instance) {
+								THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
 							}
-							items_per_tx = 0;
+							if(parent_cid && !skip_subclass) {
+								THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+							}
 						}
 					}
 				}
@@ -2899,7 +2878,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
 					THROW_DB(*p_ta);
 				}
-				else if(!p_ta->IsStarted()) {
+				if(!p_ta->IsStarted()) {
 					THROW_DB(p_ta->Start(1));
 				}
 				{
@@ -2913,11 +2892,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-							if(++items_per_tx > 1024) {
-								THROW_DB(p_ta->Commit(1));
-								THROW_DB(p_ta->Start(1));
-								items_per_tx = 0;
-							}
+							THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
 						}
 						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");
 					}
@@ -2929,11 +2904,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				const uint tsc = taxon_symb_to_append.getCount();
 				{
 					uint  items_per_tx = 0;
-					if(!p_ta) {
-						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-						THROW_DB(*p_ta);
-					}
-					else if(!p_ta->IsStarted()) {
+					if(!p_ta->IsStarted()) {
 						THROW_DB(p_ta->Start(1));
 					}
 					for(uint item_idx = 0; item_idx < tsc; item_idx++) {
@@ -2942,11 +2913,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						LEXID lex_id = 0;
 						THROW(rDb.P_WdT->AddSpecial(SrWordTbl::spcConcept, concept_symb_buf, &lex_id));
 						symb_list.add(lex_id);
-						if(++items_per_tx > 512) {
-							THROW_DB(p_ta->Commit(1));
-							THROW_DB(p_ta->Start(1));
-							items_per_tx = 0;
-						}
+						THROW(RechargeTransaction(p_ta, ++items_per_tx, 512));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts symb)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -2954,11 +2921,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				{
 					assert(symb_list.getCount() == tsc);
 					uint  items_per_tx = 0;
-					if(!p_ta) {
-						THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
-						THROW_DB(*p_ta);
-					}
-					else if(!p_ta->IsStarted()) {
+					if(!p_ta->IsStarted()) {
 						THROW_DB(p_ta->Start(1));
 					}
 					for(uint item_idx = 0; item_idx < tsc; item_idx++) {
@@ -2967,11 +2930,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						c.ID = 0;
 						c.SymbID  = lex_id;
 						THROW(rDb.P_CT->Add(c));
-						if(++items_per_tx > 512) {
-							THROW_DB(p_ta->Commit(1));
-							THROW_DB(p_ta->Start(1));
-							items_per_tx = 0;
-						}
+						THROW(RechargeTransaction(p_ta, ++items_per_tx, 512));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -3317,77 +3276,32 @@ int SLAPI PrcssrSartre::TestSearchWords()
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
+	SString word_buf;
 	TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
 	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
 	if(p_db) {
+		PPGetPath(PPPATH_TESTROOT, temp_buf);
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("sartre_test_words.txt");
+		SFile in_file(temp_buf, SFile::mRead); // Данные в файле в кодировке UTF-8
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
-			static const char * p_words[] = {
-				"респ",
-				"ф/х",
-				"р-он",
-				"пойду",
-				"ЧАЙКА",
-				"СЕМЬЮ",
-				"ЁЖИК",
-				"ПЕТРОПАВЛОВСКАЯ",
-				"Петропавловские",
-				"МАРКСА",
-				"ТЕХНОЛОГИЧЕСКУЮ",
-				"ТЕХНОЛОГИЧЕСКИЕ",
-				"МОРОЗОУСТОЙЧИВОГО",
-				"КАК-БЫ",
-				"СОБОЛЕВЫХ",
-				"МАКСИМЕ",
-				"ПОМЕНЬШЕ",
-				"ЗЕЛЕНОГЛАЗУЮ",
-				"КРАСИВОГЛАЗАЯ",
-				"ПРЕДЛОЖЕНИЕМ",
-				"СУПЕРПРЕДЛОЖЕНИЕМ",
-				"ПОГОВОРИЛ",
-				"РАСТОПЛЮ",
-				"ОТЫГРАЕШЬСЯ",
-				"ПРОВОНЯЛИ",
-				"МЫ",
-				"ОНИ",
-				"Я",
-				"ОПЯТЬ",
-				"ТРИДЦАТИ",
-				"БЛЯДЯМ",
-				"ПЕРВЫЙ",
-				"ПЕРВОГО",
-				"ВТОРОМ",
-				"ТРЕТЬЕГО",
-				"СВЕРХПРОВОДИМОСТЬЮ",
-				"СВЕРХПРОВОДНИКОВЫМ",
-				"ГЕОГИЕВИЧУ",
-				"САВВИШНА",
-				"ПОДУМАЮ",
-				"ХОТЯТ",
-
-				"algorithms",
-				"management",
-				"going",
-				"damn",
-				"ж/д_оп",
-				"ппс",
-				"мин"
-			};
-			for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
-				(temp_buf = p_words[i]).ToUtf8();
-				info_list.clear();
-				if(p_db->GetWordInfo(temp_buf, 0, info_list) > 0) {
-					for(uint j = 0; j < info_list.getCount(); j++) {
-						p_db->WordInfoToStr(info_list.at(j), temp_buf);
-						temp_buf.Utf8ToChar();
-						(line_buf = p_words[i]).Cat("\t-->\t").Cat(temp_buf).CR();
+			while(in_file.ReadLine(word_buf)) {
+				word_buf.Chomp().Strip();
+				if(word_buf.NotEmpty()) {
+					temp_buf = word_buf;
+					info_list.clear();
+					if(p_db->GetWordInfo(temp_buf, 0, info_list) > 0) {
+						for(uint j = 0; j < info_list.getCount(); j++) {
+							p_db->WordInfoToStr(info_list.at(j), temp_buf);
+							(line_buf = word_buf).Cat("\t-->\t").Cat(temp_buf).CR();
+							out_file.WriteLine(line_buf);
+						}
+					}
+					else {
+						(line_buf = word_buf).Cat("\t-->\t").Cat("not found").CR();
 						out_file.WriteLine(line_buf);
 					}
-				}
-				else {
-					(line_buf = p_words[i]).Cat("\t-->\t").Cat("not found").CR();
-					out_file.WriteLine(line_buf);
 				}
 			}
 		}
@@ -3402,8 +3316,8 @@ int SLAPI PrcssrSartre::TestSearchWords()
 			if(p_db->Transform_(temp_buf, wf, info_list) > 0) {
 				for(uint j = 0; j < info_list.getCount(); j++) {
 					p_db->WordInfoToStr(info_list.at(j), temp_buf);
-					temp_buf.Utf8ToChar();
-					(line_buf = p_word).Cat("\t-->\t").Cat(temp_buf).CR();
+					(line_buf = p_word).Transf(CTRANSF_OUTER_TO_UTF8);
+					line_buf.Cat("\t-->\t").Cat(temp_buf).CR();
 					out_file.WriteLine(line_buf);
 				}
 			}
@@ -3418,96 +3332,70 @@ int PrcssrSartre::TestConcept()
 	SString line_buf, temp_buf, symb;
 	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
 	if(p_db) {
-		static const char * p_words[] = {
-			"zoheret",
-			"адавье",
-			"сергей",
-			"маргарита",
-			"востриков",
-			"дарья",
-			"максим",
-			"россия",
-			"неодим",
-			"neodymum",
-			"рубль",
-			"москва",
-			"вологодская область",
-			"аризона",
-			"широта",
-			"долгота",
-			"петрозаводск",
-			"соединенные штаты америки",
-			"республика карелия",
-			"четырнадцать",
-			"fourteen",
-			"oxygenium",
-			"atom_p",
-			"центральная африка",
-			"ling_cs",
-			"планировочный район",
-			"железнодорожная казарма",
-			"лисициной",
-			"воздвиженка"
-		};
+		PPGetPath(PPPATH_TESTROOT, temp_buf);
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("sartre_test_concepts.txt");
+		SFile in_file(temp_buf, SFile::mRead); // Данные в файле в кодировке UTF-8
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		StringSet tok_list;
 		LongArray ng;
-		for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
-			temp_buf = p_words[i];
-			line_buf.Z().Cat(temp_buf).CR();
-			tok_list.clear();
-			temp_buf.Tokenize(0, tok_list);
-			int    unkn_word = 0;
-			ng.clear();
-			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
-				temp_buf.ToUtf8();
-				LEXID word_id = 0;
-				if(p_db->FetchWord(temp_buf, &word_id) > 0)
-					ng.add(word_id);
-				else
-					unkn_word = 1;
-			}
-			if(!unkn_word) {
-				NGID  ng_id = 0;
-				if(p_db->SearchNGram(ng, &ng_id) > 0) {
-					Int64Array clist, hlist;
-					if(p_db->GetNgConceptList(ng_id, 0, clist) > 0) {
-						for(uint j = 0; j < clist.getCount(); j++) {
-							CONCEPTID cid = clist.get(j);
-							SrCPropList cpl;
-							SrCProp cp;
-							p_db->GetConceptSymb(cid, symb);
-							line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
-							line_buf.CatChar('(');
-							if(p_db->GetConceptPropList(cid, cpl) > 0) {
-								for(uint k = 0; k < cpl.GetCount(); k++) {
-									if(cpl.GetByPos(k, cp)) {
-										p_db->FormatProp(cp, 0, temp_buf);
-										if(k)
-											line_buf.CatDiv(',', 2);
-										line_buf.Cat(temp_buf);
+		while(in_file.ReadLine(line_buf)) {
+			line_buf.Chomp().Strip();
+			if(line_buf.NotEmpty()) {
+				temp_buf = line_buf;
+				line_buf.Z().Cat(temp_buf).CR();
+				tok_list.clear();
+				temp_buf.Tokenize(0, tok_list);
+				int    unkn_word = 0;
+				ng.clear();
+				for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
+					LEXID word_id = 0;
+					if(p_db->FetchWord(temp_buf, &word_id) > 0)
+						ng.add(word_id);
+					else
+						unkn_word = 1;
+				}
+				if(!unkn_word) {
+					NGID  ng_id = 0;
+					if(p_db->SearchNGram(ng, &ng_id) > 0) {
+						Int64Array clist, hlist;
+						if(p_db->GetNgConceptList(ng_id, 0, clist) > 0) {
+							for(uint j = 0; j < clist.getCount(); j++) {
+								CONCEPTID cid = clist.get(j);
+								SrCPropList cpl;
+								SrCProp cp;
+								p_db->GetConceptSymb(cid, symb);
+								line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
+								line_buf.CatChar('(');
+								if(p_db->GetConceptPropList(cid, cpl) > 0) {
+									for(uint k = 0; k < cpl.GetCount(); k++) {
+										if(cpl.GetByPos(k, cp)) {
+											p_db->FormatProp(cp, 0, temp_buf);
+											if(k)
+												line_buf.CatDiv(',', 2);
+											line_buf.Cat(temp_buf);
+										}
 									}
 								}
-							}
-							line_buf.CatChar(')');
-							if(p_db->GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
-								line_buf.Space().CatDiv(':', 2);
-								for(uint k = 0; k < hlist.getCount(); k++) {
-									CONCEPTID hcid = hlist.get(k);
-									p_db->GetConceptSymb(hcid, symb);
-									if(k)
-										line_buf.CatDiv(',', 2);
-									line_buf.Cat((temp_buf = symb).Utf8ToChar());
+								line_buf.CatChar(')');
+								if(p_db->GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
+									line_buf.Space().CatDiv(':', 2);
+									for(uint k = 0; k < hlist.getCount(); k++) {
+										CONCEPTID hcid = hlist.get(k);
+										p_db->GetConceptSymb(hcid, symb);
+										if(k)
+											line_buf.CatDiv(',', 2);
+										line_buf.Cat((temp_buf = symb).Utf8ToChar());
+									}
 								}
+								line_buf.CR();
 							}
-							line_buf.CR();
 						}
 					}
 				}
+				line_buf.CR();
+				out_file.WriteLine(line_buf);
 			}
-			line_buf.CR();
-			out_file.WriteLine(line_buf);
 		}
 	}
 	return ok;

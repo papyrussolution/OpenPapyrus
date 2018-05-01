@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+  <eDIMessage id="messageId" creationDateTime="creationDateTime">
+    <interchangeHeader>
+      <sender>0000000000000</sender>   
+      <recipient>3921089137876</recipient>
+      <documentType>RETANN</documentType>   
+      <isTest>1</isTest> 
+    </interchangeHeader>
+    <announcementForReturns  number="1" date="2014-02-10">   
+      <originOrder number="OR012012552011" date="2014-02-07"/>   
+      <contractIdentificator number="357951" date="2012-05-06"/>   
+      <seller>
+        <gln>3921089137876</gln>  
+        <organization>
+          <name>ООО “Тест+”</name>
+          <inn>4444444446</inn>
+          <kpp>444444444</kpp>
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-CHE</regionISOCode>
+          <district>район Челябинской обл.</district>
+          <city>Некий город N</city>
+          <settlement>N-кий н.п.</settlement>
+          <street>Какая-то улица</street>
+          <house>дом</house>
+          <flat>квартира</flat>
+          <postalCode>789789</postalCode>
+        </russianAddress>
+        <additionalIdentificator>7659876</additionalIdentificator>
+        <additionalInfo>   
+          <phone>546445464</phone>
+          <fax>45645</fax>
+          <nameOfCEO>director</nameOfCEO>
+          <nameOfAccountant>buh</nameOfAccountant>
+        </additionalInfo>
+      </seller>
+      <buyer>
+        <gln>0000000000000</gln>     
+        <organization>
+          <name>Звёздный путь</name>
+          <inn>3333333330</inn>
+          <kpp>444444444</kpp>
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-CHE</regionISOCode>
+          <city>г. Челябинск</city>
+          <settlement>п.Сосенское, п.Коммунарка</settlement>
+          <street>ул. Ленина</street>
+          <house>67</house>
+          <flat>87</flat>
+          <postalCode>454087</postalCode>
+        </russianAddress>
+      </buyer>
+      <invoicee>
+        <gln>4607816190053</gln>
+        <organization>
+          <name>Элемент-трейд-Челябинск</name>
+          <inn>7451214632</inn>
+          <kpp>745101001</kpp>
+        </organization>
+        <russianAddress>
+          <regionISOCode>RU-CHE</regionISOCode>
+        </russianAddress>
+        <additionalInfo>
+          <bankAccountNumber>1234567899999</bankAccountNumber>
+          <BIK>111111111</BIK>
+        </additionalInfo>
+      </invoicee>
+      <deliveryInfo>
+        <deliveryDate>2014-02-08T00:00:00</deliveryDate>   
+        <availabilityDate>2014-02-08T00:00:00</availabilityDate>  
+        <shipFrom>
+          <gln>4049111000000</gln>        
+          <organization>
+            <name>Полянка</name>
+            <inn>1111111117</inn>
+            <kpp>222222222</kpp>
+          </organization>
+          <russianAddress>
+            <regionISOCode>RU-TYU</regionISOCode>
+            <city>г. Тюмень</city>
+            <street>Ленина</street>
+            <house>24</house>
+            <postalCode>720000</postalCode>
+          </russianAddress>
+        </shipFrom>
+        <shipTo>
+          <gln>4607816196376</gln> 
+          <organization>
+            <name>Лужайка</name>
+            <inn>7451214632</inn>
+            <kpp>745101001</kpp>
+          </organization>
+          <russianAddress>
+            <regionISOCode>RU-TYU</regionISOCode>
+            <city>Тюмень</city>
+            <street>Широтная, 108, г</street>
+            <postalCode>720000</postalCode>
+          </russianAddress>
+        </shipTo>
+		<ultimateCustomer>
+         <gln>2342342423429</gln>  <!--gln конечной точки доставки-->
+        </ultimateCustomer>
+      </deliveryInfo>
+      <lineItems>
+        <currencyISOCode>RUR</currencyISOCode> 
+        <lineItem>
+          <internalBuyerCode>56EWE</internalBuyerCode>     
+          <internalBuyerGroupCode>49</internalBuyerGroupCode>    
+          <internalSupplierCode>dw456</internalSupplierCode>  
+          <description>Name001</description>   
+          <returnQuantity unitOfMeasure="KGM">45.000</returnQuantity> 
+          <physicalOrlogicalState>   
+            <stateDescription>битая тара</stateDescription>       
+          </physicalOrlogicalState>
+          <physicalOrLogicalState>
+            <stateDescription>товар будет храниться до 25.03.2014</stateDescription> 
+          </physicalOrlogicalState>
+          <netPrice>50.0000</netPrice>    
+          <netPriceWithVAT>59.0000</netPriceWithVAT>    
+          <netAmount>1000.0000</netAmount>    
+          <exciseDuty>10.0000</exciseDuty>    
+          <vATAmount>180.0000</vATAmount>     
+          <amount>1190.0000</amount>      
+        </lineItem>
+        <lineItem>
+          <gtin>8414564101233</gtin>    
+          <internalBuyerCode>456464</internalBuyerCode>     
+          <internalBuyerGroupCode>09</internalBuyerGroupCode>      
+          <internalSupplierCode>уке54</internalSupplierCode>    
+          <description>Name002</description>   
+          <returnQuantity unitOfMeasure="PCE">50.000</returnQuantity>  
+          <physicalOrLogicalState>                      
+            <stateDescription>битая тара</stateDescription>  
+          </physicalOrlogicalState>
+          <physicalOrlogicalState>
+            <stateDescription>товар будет храниться до 03.24.2014</stateDescription>
+          </physicalOrlogicalState>
+          <onePlaceQuantity unitOfMeasure="PCE">5.000</onePlaceQuantity>  
+          <netAmount>50.4500</netAmount>      
+        </lineItem>
+      </lineItems>
+    </announcementForReturns>
+  </eDIMessage>

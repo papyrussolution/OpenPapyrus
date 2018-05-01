@@ -439,8 +439,7 @@ int tls1_set_curves_list(uchar ** pext, size_t * pextlen, const char * str)
 }
 
 /* For an EC key set TLS id and required compression based on parameters */
-static int tls1_set_ec_id(uchar * curve_id, uchar * comp_id,
-    EC_KEY * ec)
+static int tls1_set_ec_id(uchar * curve_id, uchar * comp_id, EC_KEY * ec)
 {
 	int id;
 	const EC_GROUP * grp;
@@ -475,8 +474,7 @@ static int tls1_set_ec_id(uchar * curve_id, uchar * comp_id,
 }
 
 /* Check an EC key is compatible with extensions */
-static int tls1_check_ec_key(SSL * s,
-    uchar * curve_id, uchar * comp_id)
+static int tls1_check_ec_key(SSL * s, uchar * curve_id, uchar * comp_id)
 {
 	const uchar * pformats, * pcurves;
 	size_t num_formats, num_curves, i;
@@ -524,8 +522,7 @@ static int tls1_check_ec_key(SSL * s,
 	return 1;
 }
 
-static void tls1_get_formatlist(SSL * s, const uchar ** pformats,
-    size_t * num_formats)
+static void tls1_get_formatlist(SSL * s, const uchar ** pformats, size_t * num_formats)
 {
 	/*
 	 * If we have a custom point format list use it otherwise use default

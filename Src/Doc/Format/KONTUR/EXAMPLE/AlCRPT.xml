@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<eDIMessage id="ad5c4ad3-2b77-41ec-a258-6fe97da6f482">
+  <interchangeHeader>
+    <sender>3921089137876</sender>
+    <recipient>0000000000000</recipient>
+    <documentType>ALCRPT</documentType>
+    <creationDateTime>2015-11-26T14:36:22.015Z</creationDateTime>
+    <creationDateTimeBySender>2015-11-26T14:33:00.000Z</creationDateTimeBySender>
+  </interchangeHeader>
+  <alcoholReport number="alc_87_2" date="2013-02-23">
+    <originOrder number="87_2" date="2013-02-21" />
+    <despatchIdentificator number="des87_2" date="2013-02-22" />
+    <receivingIdentificator number="rec87_2" date="2013-02-22" />
+    <invoiceIdentificator number="inv87_2" date="2013-02-22" />
+    <seller>
+      <gln>3921089137876</gln>
+      <organization>
+        <inn>4444444446</inn>
+        <kpp>123321111</kpp>
+        <name>Поставщик Алкоголя</name>
+      </organization>
+      <russianAddress>
+        <regionCode>66</regionCode>
+        <city>Екатеринбург</city>
+        <street>Ленина</street>
+        <house>12</house>
+        <flat>33</flat>
+        <postalCode>620020</postalCode>
+      </russianAddress>
+      <additionalIdentificator>21546</additionalIdentificator>
+    </seller>
+    <buyer>
+      <gln>2342342423429</gln>
+      <organization>
+        <inn>6607010794</inn>
+        <kpp>660701001</kpp>
+        <name>Торговая сеть "Красное и Белое"</name>
+      </organization>
+      <russianAddress>
+        <regionCode>66</regionCode>
+        <city>Екатеринбург</city>
+        <settlement />
+        <street>Малышева</street>
+        <house>58</house>
+        <postalCode>620020</postalCode>
+      </russianAddress>
+      <additionalIdentificator>12</additionalIdentificator>
+    </buyer>
+    <transportation transportMode="roadTransport" typeOfTransport="Легковой" transportIdentificator="c968хн" vehicleCapacity="10" />
+    <deliveryInfo>
+      <waybill number="382419/40000" date="2013-02-22" />
+      <carrier>
+        <gln>3564321365745</gln>
+        <organization>
+          <inn>7701345292</inn>
+          <kpp>770601001</kpp>
+          <name>Перевозчик Алкоголя</name>
+        </organization>
+        <russianAddress>
+          <regionCode>66</regionCode>
+          <city>Екатеринбург</city>
+          <settlement />
+          <street>Малышева</street>
+          <house>152</house>
+          <postalCode>620020</postalCode>
+        </russianAddress>
+      </carrier>
+      <shipFrom>
+        <gln>3921089137876</gln>
+        <organization>
+          <inn>7701345292</inn>
+          <kpp>770601001</kpp>
+          <name>Грузоотправитель Алкоголя</name>
+        </organization>
+        <russianAddress>
+          <regionCode>66</regionCode>
+          <city>Екатеринбург</city>
+          <settlement />
+          <street>Восточная</street>
+          <house>56</house>
+          <postalCode>620020</postalCode>
+        </russianAddress>
+      </shipFrom>
+      <shipTo>
+        <gln>2342342423429</gln>
+        <organization>
+          <inn>6607010794</inn>
+          <kpp>660701001</kpp>
+          <name>Торговая точка "Красное и Белое" на Чапаева</name>
+        </organization>
+        <russianAddress>
+          <regionCode>66</regionCode>
+          <city>Екатеринбург</city>
+          <street>Чапаева</street>
+          <house>16</house>
+          <postalCode>620020</postalCode>
+        </russianAddress>
+      </shipTo>
+    </deliveryInfo>
+    <lineItems>
+      <lineItem>
+        <gtin>00012000245114</gtin>
+        <internalBuyerCode>123456</internalBuyerCode>
+        <internalSupplierCode>123123</internalSupplierCode>
+        <lot>
+          <description>Пиво "Сокол"</description>
+		  <codeOfEgais>1240</codeOfEgais>       
+		  <lotNumberEgais>03</lotNumberEgais>
+          <volume volumeTypeQualifier="acceptedVolume" unitOfMeasure="DKL">5.27500</volume>
+          <manufacturer>
+            <organization>
+              <inn>4825022080</inn>
+              <kpp>482501001</kpp>
+              <name>Производитель Пива "Сокол"</name>
+            </organization>
+            <russianAddress>
+              <regionCode>63</regionCode>
+              <city>Клин г</city>
+              <street>Московская ул</street>
+              <house>88</house>			  
+            </russianAddress>			
+          </manufacturer>
+          <certificate number="65456/65456" startdate="2011-06-01" enddate="2015-06-01" issuerOf="Росстандарт" />
+          <typeOfAlco>500</typeOfAlco>
+          <bottlingDate>2013-02-11</bottlingDate>
+          <countryOfOriginISOCode>PL</countryOfOriginISOCode>
+          <customsDeclarationNumber>12345678/060901/0005034/1</customsDeclarationNumber>
+        </lot>
+      </lineItem>
+      <lineItem>
+        <gtin>00014000246565</gtin>
+        <internalBuyerCode>21561</internalBuyerCode>
+        <internalSupplierCode>565656</internalSupplierCode>
+        <lot>
+          <description>Виски "Jameson"</description>
+		  <codeOfEgais>1245</codeOfEgais>       
+		  <lotNumberEgais>01</lotNumberEgais>
+          <volume volumeTypeQualifier="acceptedVolume" unitOfMeasure="PCE">4</volume>
+          <volumeOfUnitInLiter>1.25</volumeOfUnitInLiter>
+          <manufacturer>
+            <foreignOrganization countryCode="KZ">
+              <tin>600400000099</tin>
+              <name>Первый импортер алкоголя</name>
+            </foreignOrganization>
+          </manufacturer>
+          <licenseSeller seriesNumber="А,608845" startdate="2011-01-01" enddate="2015-01-01" issuerOf="ФС по регулированию алкогольного рынка" />
+          <certificate number="014354-5640" startdate="2012-07-25" enddate="2013-07-30" issuerOf="Росстандарт" />
+          <typeOfAlco>241</typeOfAlco>
+          <bottlingDate>2009-06-01</bottlingDate>
+          <countryOfOriginISOCode>US</countryOfOriginISOCode>
+          <customsDeclarationNumber>12345678/060901/0005034/2</customsDeclarationNumber>
+        </lot>
+        <lot>
+          <description>Виски "Jameson"</description>
+		  <codeOfEgais>1246</codeOfEgais>       
+		  <lotNumberEgais>02</lotNumberEgais>
+          <volume volumeTypeQualifier="acceptedVolume" unitOfMeasure="DKL">2.10000</volume>
+		  <volumeOfUnitInLiter>0.7</volumeOfUnitInLiter>
+          <manufacturer>
+            <foreignOrganization countryCode="KZ">
+              <tin>600400000090</tin>
+              <name>Второй импортер алкоголя</name>
+            </foreignOrganization>
+          </manufacturer>
+          <foreignManufacturer>
+            <foreignOrganization countryCode="US">
+              <name>Производитель алкоголя</name>
+            </foreignOrganization>
+          </foreignManufacturer>
+          <licenseSeller seriesNumber="А,608845" startdate="2011-01-01" enddate="2015-01-01" issuerOf="ФС по регулированию алкогольного рынка" />
+          <certificate number="128-158189-04" startdate="2011-03-10" enddate="2015-03-10" issuerOf="Росстандарт" />
+          <typeOfAlco>241</typeOfAlco>
+          <bottlingDate>2013-02-11</bottlingDate>
+          <countryOfOriginISOCode>US</countryOfOriginISOCode>
+          <customsDeclarationNumber>12345678/060901/0005034/3</customsDeclarationNumber>
+        </lot>
+      </lineItem>
+    </lineItems>
+  </alcoholReport>
+</eDIMessage>

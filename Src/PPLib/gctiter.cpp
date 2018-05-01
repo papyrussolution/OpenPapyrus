@@ -129,6 +129,8 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 	else if((Filt.Flags & OPG_SKIPNOUPDLOTREST) && CheckOpFlags(pRec->OpID, OPKF_NOUPDLOTREST, 0))
 		return 0;
 	// } @v8.9.0
+	if(!Filt.DueDatePeriod.CheckDate(pRec->DueDate)) // @v10.0.04 
+		return 0;
 	if(!Filt.SoftRestrict) {
 		if(!ArList.CheckID(pRec->Object))
 			return 0;
@@ -175,7 +177,7 @@ int FASTCALL GCTIterator::GCT_BillCache::Get(PPID id, BillTbl::Rec * pRec)
 IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry, p1, p2) { RET_CMPCASCADE3((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt); }
 IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2) { RET_CMPCASCADE2((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID); }
 
-SLAPI GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> () 
+SLAPI GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> ()
 {
 	Init();
 }
@@ -488,6 +490,8 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 		return 0;
 	else if(!Period.CheckDate(rBillRec.Dt))
 		return 0;
+	else if(!Filt.DueDatePeriod.CheckDate(rBillRec.DueDate)) // @v10.0.04
+		return 0;
 	else if(!OpList.CheckID(rBillRec.OpID))
 		return 0;
 	else if(!soft_restr && !ArList.CheckID(rBillRec.Object))
@@ -643,8 +647,9 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 						k2.OpID = op_id;
 						k2.Dt = Period.low;
 						BExtQuery q(p_bt, 2, 256);
-						q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
-							where(p_bt->OpID == op_id && daterange(p_bt->Dt, &Period));
+						q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object,
+							p_bt->Flags, p_bt->LocID, 0L).where(p_bt->OpID == op_id && daterange(p_bt->Dt, &Period) &&
+							daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
 						for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 							if(CheckBillForFilt(p_bt->data)) {
 								BillList.add(p_bt->data.ID);
@@ -661,8 +666,8 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 					k3.Object = ar_id;
 					k3.Dt = Period.low;
 					BExtQuery q(p_bt, 3, 256);
-					q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
-						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period));
+					q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
+						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period) && daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
 					for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
 						if(CheckBillForFilt(p_bt->data)) {
 							BillList.add(p_bt->data.ID);
@@ -841,7 +846,7 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 				pExt->LinkCost = fdivnz(sum_cost, sum_qtty_abs);
 				pExt->LinkPrice = fdivnz(sum_price, sum_qtty_abs);
 			}
-			// } @v9.7.3 
+			// } @v9.7.3
 		}
 	}
 	return ok;
@@ -1283,8 +1288,7 @@ int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pB
 int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
-	if(pExt)
-		memzero(pExt, sizeof(*pExt));
+	memzero(pExt, sizeof(*pExt));
 	if(IterPhase == iterphaseInit) {
 		SurrOprNo = 0;
 		IterPhase = iterphaseTrfr;

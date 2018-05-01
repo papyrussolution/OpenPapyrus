@@ -478,14 +478,11 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 	int    ok = -1;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	// @v9.9.2 key_buf = id;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(id, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pRec) {
@@ -494,14 +491,11 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 			// @v9.9.9 @paranoic {
 			{
 				NGID   temp_id = 0;
-				// @v9.9.2 key_buf.Get(&temp_id);
-				// @v9.9.2 {
 				{
 					size_t dbsz = 0;
 					const void * p_dbptr = key_buf.GetPtr(&dbsz);
 					temp_id = sexpanduint64(p_dbptr, dbsz);
 				}
-				// } @v9.9.2 
 				assert(temp_id == id);
 			}
 			// } @v9.9.9 @paranoic 
@@ -524,14 +518,11 @@ int SrNGramTbl::Search(const SrNGram & rKey, NGID * pID)
 	}
 	data_buf.Alloc(512);
 	if(BDbTable::Search(1, key_buf, data_buf)) {
-		// @v9.9.2 key_buf.Get(pID);
-		// @v9.9.2 {
 		if(pID) {
 			size_t dbsz = 0;
 			const void * p_dbptr = key_buf.GetPtr(&dbsz);
 			*pID = sexpanduint64(p_dbptr, dbsz);
 		}
-		// } @v9.9.2 
 		ok = 1;
 	}
 	return ok;
@@ -560,14 +551,11 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 					}
 					if(eq_prefix) {
 						NGID id = 0;
-						// @v9.9.2 key_buf.Get(&id);
-						// @v9.9.2 {
 						{
 							size_t dbsz = 0;
 							const void * p_dbptr = key_buf.GetPtr(&dbsz);
 							id = sexpanduint64(p_dbptr, dbsz);
 						}
-						// } @v9.9.2 
 						rList.insert(&id);
 						ok = 1;
 					}
@@ -632,27 +620,21 @@ int SrConceptTbl::SearchByID(CONCEPTID id, SrConcept * pRec)
 	int    ok = -1;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	// @v9.9.2 key_buf = id;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(id, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
-			// @v9.9.2 key_buf.Get(&pRec->ID);
-			// @v9.9.2 {
 			{
 				size_t dbsz = 0;
 				const void * p_dbptr = key_buf.GetPtr(&dbsz);
 				pRec->ID = sexpanduint64(p_dbptr, dbsz);
 			}
-			// } @v9.9.2 
 			assert(pRec->ID == id);
 		}
 		ok = 1;
@@ -672,14 +654,11 @@ int SrConceptTbl::SearchBySymb(LEXID symbId, SrConcept * pRec)
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
-			// @v9.9.2 key_buf.Get(&pRec->ID);
-			// @v9.9.2 {
 			{
 				size_t dbsz = 0;
 				const void * p_dbptr = key_buf.GetPtr(&dbsz);
 				pRec->ID = sexpanduint64(p_dbptr, dbsz);
 			}
-			// } @v9.9.2 
 		}
 		ok = 1;
 	}
@@ -695,14 +674,11 @@ int SrConceptTbl::Add(SrConcept & rRec)
 	int64 __id = 0;
 	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
-	// @v9.9.2 key_buf = __id;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(__id, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
 	THROW_DB(InsertRec(key_buf, data_buf));
@@ -719,14 +695,11 @@ int SrConceptTbl::Update(SrConcept & rRec)
 	SrConcept org_rec;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	// @v9.9.2 key_buf = rRec.ID;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(rRec.ID, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2 
 	data_buf.Alloc(512);
 	THROW_DB(BDbTable::Search(key_buf, data_buf));
 	data_buf.Get(rec_buf);
@@ -748,14 +721,11 @@ int SrConceptTbl::Remove(CONCEPTID id)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf;
-	// @v9.9.2 key_buf = id;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(id, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2 
 	THROW(DeleteRec(key_buf));
 	CATCHZOK
 	return ok;
@@ -1412,7 +1382,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		}
 		THROW_PP(db_path.NotEmpty() && pathValid(db_path, 1), PPERR_SARTREDBUNDEF);
 		{
-			long   db_options = 0/*BDbDatabase::oPrivate*//*|BDbDatabase::oRecover*/;
+			long   db_options = BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/;
 			if(Flags & oReadOnly)
 				db_options |= BDbDatabase::oReadOnly;
 			if(Flags & oWriteStatOnClose)
@@ -3080,7 +3050,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 							const CONCEPTID first_hier_cid = concept_hier.get(0);
 							switch(aolevel) {
 								case 1: 
-									//if(concept_hier.lsearch(p_blk->CUrbs)) {
 									if(first_hier_cid == p_blk->CUrbs) {
 										candidate_concept_list.add(item_id);
 										break;
@@ -3088,27 +3057,22 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 									// @fallthrough
 								case 2: 
 								case 3:
-									//if(concept_hier.lsearch(p_blk->CRegion))
 									if(first_hier_cid == p_blk->CRegion)
 										candidate_concept_list.add(item_id);
 									break;
 								case 4: case 6:
-									//if(concept_hier.lsearch(p_blk->CUrbs))
 									if(first_hier_cid == p_blk->CUrbs)
 										candidate_concept_list.add(item_id);
 									break;
 								case 7:
-									//if(concept_hier.lsearch(p_blk->CVici))
 									if(first_hier_cid == p_blk->CVici)
 										candidate_concept_list.add(item_id);
 									break;
 								case 8:
-									//if(concept_hier.lsearch(p_blk->CAedificium))
 									if(first_hier_cid == p_blk->CAedificium)
 										candidate_concept_list.add(item_id);
 									break;
 								case 9:
-									//if(concept_hier.lsearch(p_blk->CApartment))
 									if(first_hier_cid == p_blk->CApartment)
 										candidate_concept_list.add(item_id);
 									break;

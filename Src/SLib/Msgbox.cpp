@@ -5,9 +5,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-static const char * P_Titles[] = {
-	"warn", "error", "info", "confirm"
-};
+static const char * P_Titles[] = { "warn", "error", "info", "confirm" };
 
 struct MsgBoxDlgFuncParam {
 	const char * P_Msg;
@@ -51,46 +49,44 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			{
 				SString title_buf;
 				if(p_param && p_param->P_Msg) {
-					// @v9.1.5 char   buf[1024];
 					ConvertMsgString(p_param->P_Msg, title_buf);
-					// @v9.1.5 ::SendDlgItemMessage(hwndDlg, CTL_WMSGBOX_TEXT, WM_SETTEXT, 0, (LPARAM)buf);
-					TView::SSetWindowText(GetDlgItem(hwndDlg, CTL_WMSGBOX_TEXT), title_buf); // @v9.1.5
+					TView::SSetWindowText(GetDlgItem(hwndDlg, CTL_WMSGBOX_TEXT), title_buf);
 				}
 				uint   msg_idx = (p_param->Options & 0x03);
 				if(msg_idx >= SIZEOFARRAY(P_Titles))
 					msg_idx = 2; // "info"
 				SLS.LoadString(P_Titles[msg_idx], title_buf);
-				// @v9.1.5 ::SendMessage(hwndDlg, WM_SETTEXT, 0, (LPARAM)(const char *)title_buf.Transf(CTRANSF_INNER_TO_OUTER));
-				TView::SSetWindowText(hwndDlg, title_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @v9.1.5
+				TView::SSetWindowText(hwndDlg, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
+				HWND   h_prev_focus = 0;
 				uint   button_count = 0;
-				for(i = 0; i < SIZEOFARRAY(button_list); i++)
+				for(i = 0; i < SIZEOFARRAY(button_list); i++) {
 					if(p_param->Options & (0x0100 << i))
 						button_count++;
+				}
 				if(button_count > 0) {
-					for(i = 0, j = 0; i < SIZEOFARRAY(button_list); i++)
+					for(i = 0, j = 0; i < SIZEOFARRAY(button_list); i++) {
 						if(p_param->Options & (0x0100 << i)) {
 							int    id = CTL_WMSGBOX_FIRSTBUTTON + button_n[button_count-1][j++] - 1;
 							HWND   w_ctl = GetDlgItem(hwndDlg, id);
 							if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
-								// @v9.1.5 ::SendMessage(w_ctl, WM_SETTEXT, 0, (LPARAM)(const char *)title_buf.Transf(CTRANSF_INNER_TO_OUTER));
-								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @v9.1.5
+								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
 								long   wl = TView::GetWindowStyle(w_ctl);
 								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
 							}
 						}
+					}
 				}
 				if((p_param->Options & mfConf)  == mfConf)
 					TDialog::centerDlg(hwndDlg);
+				ret = (p_param->Options & mfNoFocus) ? FALSE : TRUE; // @v10.0.04
 			}
-			ret = TRUE;
 			break;
 		case WM_COMMAND:
 			if(LOWORD(wParam) == 2 && HIWORD(wParam) == 0)
 				EndDialog(hwndDlg, cmCancel);
 			else if(HIWORD(wParam) == BN_CLICKED) {
 				SString title_buf;
-				// @v9.1.5 SendDlgItemMessage(hwndDlg, LOWORD(wParam), WM_GETTEXT, sizeof(buf)-1, (long)buf);
-				TView::SGetWindowText(::GetDlgItem(hwndDlg, LOWORD(wParam)), temp_buf); // @v9.1.5
+				TView::SGetWindowText(::GetDlgItem(hwndDlg, LOWORD(wParam)), temp_buf);
 				for(i = 0; i < SIZEOFARRAY(button_list); i++) {
 					if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
 						if(title_buf.Transf(CTRANSF_INNER_TO_OUTER) == temp_buf) {
@@ -104,24 +100,6 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	}
 	return ret;
 }
-
-/* @v9.3.4 ushort messageBoxRect(const TRect & r, ushort aOptions, const char *fmt, ...)
-{
-	va_list argptr;
-	va_start(argptr, fmt);
-	char msg[1024];
-	vsprintf(msg, fmt, argptr);
-	return messageBoxRect(r, msg, aOptions);
-}*/
-
-/* @v9.3.4 ushort messageBox(ushort aOptions, const char *fmt,...)
-{
-	va_list argptr;
-	va_start(argptr, fmt);
-	char msg[1024];
-	vsprintf(msg, fmt, argptr);
-	return messageBoxRect(APPL->MakeCenterRect(60, 10), msg, aOptions);
-}*/
 
 ushort messageBox(const char * pMsg, ushort aOptions)
 {
@@ -161,3 +139,21 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 	}
 	return ret;
 }
+
+/* @v9.3.4 ushort messageBoxRect(const TRect & r, ushort aOptions, const char *fmt, ...)
+{
+	va_list argptr;
+	va_start(argptr, fmt);
+	char msg[1024];
+	vsprintf(msg, fmt, argptr);
+	return messageBoxRect(r, msg, aOptions);
+}*/
+
+/* @v9.3.4 ushort messageBox(ushort aOptions, const char *fmt,...)
+{
+	va_list argptr;
+	va_start(argptr, fmt);
+	char msg[1024];
+	vsprintf(msg, fmt, argptr);
+	return messageBoxRect(APPL->MakeCenterRect(60, 10), msg, aOptions);
+}*/

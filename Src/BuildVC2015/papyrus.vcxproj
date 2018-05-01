@@ -1117,6 +1117,7 @@
     <ClCompile Include="..\PPEquip\Crukm.cpp" />
     <ClCompile Include="..\PPEquip\Custdisp.cpp" />
     <ClCompile Include="..\PPEquip\dls.cpp" />
+    <ClCompile Include="..\PPEquip\DreamKas.cpp" />
     <ClCompile Include="..\PPEquip\Ecr930.cpp" />
     <ClCompile Include="..\PPEquip\El92aq.cpp" />
     <ClCompile Include="..\PPEquip\emu_scs.cpp" />

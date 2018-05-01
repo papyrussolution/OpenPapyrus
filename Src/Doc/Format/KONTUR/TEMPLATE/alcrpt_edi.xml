@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+  <eDIMessage id="messageId">    <!--идентификатор сообщения-->
+    <!-- начало заголовка сообщения -->
+    <interchangeHeader>
+      <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+      <recipient>RecipientGLN</recipient>      <!--GLN получателя сообщения-->
+      <documentType>ALCRPT</documentType>  <!--тип документа-->
+      <isTest>1</isTest>      <!--тестовый флаг-->
+      <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+      <creationDateTimeBySender>creationDateTimeBySenderT00:00:00.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    </interchangeHeader>
+    <!-- конец заголовка сообщения -->
+    <alcoholReport  number="desadvNumber" date="desadvDate">  <!--номер накладной, дата накладной-->
+      <originOrder number="ordersNumber" date="ordersDate"/>    <!--номер заказа, дата заказа-->
+      <despatchIdentificator number="DespatchAdviceNumber" date="DespatchDate"/>  <!--номер отгрузки, дата отгрузки-->
+      <receivingIdentificator number="ReceivingNumber" date="ReceivingDate0000"/>   <!--номер приемки, дата приемки-->
+      <contractIdentificator number="contractNumber" date="contractDate"/>   <!--номер договора/ контракта, дата договора/ контракта-->
+      <invoiceIdentificator number="invoiceNumber" date="invoiceDateTime" />    <!--номер счёта-фактуры, дата счёта-фактуры-->
+      <egaisRegistrationIdentificator number="egaisRegistrationIdentificator" />   <!--идентификатор ТТН в ЕГАИС-->
+      <egaisFixationIdentificator number="EgaisFixationNumber" date="EgaisFixationDate" />    <!--номер и дата фиксации ТТН в ЕГАИС-->	 	  
+      <blanketOrderIdentificator number="BlanketOrdersNumber"/>   <!--номер серии заказов-->
+      <!-- начало блока данных о поставщике -->
+      <seller>
+        <gln>SupplierGln</gln>    <!--gln поставщика-->
+        <organization>
+          <name>SupplierName</name>      <!--наименование поставщика для ЮЛ-->
+          <inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+          <kpp>SupplierKpp</kpp>      <!--КПП поставщика только для ЮЛ-->
+        </organization>
+        <russianAddress>     <!--российский адрес-->
+          <regionISOCode>regionISOCode</regionISOCode>  
+		  <regionCode>regionCode</regionCode>
+          <district>District</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>PostalCode</postalCode>
+        </russianAddress>
+        <additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>       <!--код поставщика в системе покупателя-->
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>   <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>     <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>        <!--номер счёта в банке-->
+          <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->  
+          <bankName>BankName</bankName>       <!--наименование банка-->
+          <BIK>BankId</BIK>        <!--БИК-->
+          <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+        </additionalInfo>
+      </seller>
+      <!-- конец блока данных о поставщике -->
+      <!-- начало блока с данными о покупателе -->
+      <buyer>
+        <gln>BuyerGln</gln>     <!--gln покупателя-->
+        <organization>
+          <name>Buyer</name>       <!--наименование покупателя-->
+          <inn>BuyerInn(10)</inn>      <!--ИНН покупателя для ЮЛ-->
+          <kpp>BuyerKpp</kpp>       <!--КПП покупателя только для ЮЛ-->
+        </organization>
+        <russianAddress>        <!--российский адрес-->
+          <regionISOCode>regionISOCode</regionISOCode>  
+		  <regionCode>regionCode</regionCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>       <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+          <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+          <bankName>BankName</bankName>       <!--наименование банка-->
+          <BIK>BankId</BIK>       <!--БИК-->
+          <nameOfSales>SalesAdministrationName</nameOfSales>       <!--ФИО руководителя по продажам-->
+        </additionalInfo>
+      </buyer>
+      <!-- конец блока данных о покупателе -->
+      <!-- начало блока данных о получателе счета-->
+      <invoicee>
+        <gln>InvoiceeGln</gln>   <!--gln получателя счёта-->
+        <selfEmployed>
+          <fullName>     <!--ФИО получателя счёта для ИП-->
+            <lastName>Фамилия</lastName>
+            <firstName>Имя</firstName>
+            <middleName>Отчество</middleName>
+          </fullName>
+          <inn>InvoiceeInn(12)</inn>  <!--ИНН получателя счёта-->
+        </selfEmployed>
+        <russianAddress>                   <!--российский адрес-->
+          <regionISOCode>regionISOCode</regionISOCode>  
+		  <regionCode>regionCode</regionCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>          <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>     <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfAccountant>BookkeeperName</nameOfAccountant>       <!--ФИО бухгалтера-->
+        </additionalInfo>
+      </invoicee>
+      <!-- конец блока данных о получателе счета-->
+        <transportation>   <!--информация о машине-->
+          <transportMode>TransportMode</transportMode>   <!--режим перевозки: railTransport (20) - железнодорожный транспорт
+roadTransport (30) - автодорожный транспорт
+airTransport (40) - авиатранспорт-->
+          <vehicleNumber>VehicleNumber</vehicleNumber>  <!--номер тарнспортного средства-->
+          <vehicleBrand>VehicleBrand</vehicleBrand>  <!--марка транспортного средства-->
+          <nameOfCarrier>NameOfCarrier</nameOfCarrier>  <!--имя водителя-->
+        </transportation>	  
+      <!-- начало блока данных о грузоотправителе и грузополучателе, перевозчике -->
+      <deliveryInfo>
+        <waybill number="WaybillNumber" date = "WaybillDate0000"/>    <!--дата и номер товарно-транспортной накладной-->
+        <customsDeclaration number="CustomDeclarationNumber" date = "CustomDeclarationDate0000"/>   <!--дата и номер ГТД-->
+        <carrier>
+          <gln>shipFromGln</gln>    <!--gln грузоотправителя-->
+          <organization>
+            <name>shipFromName</name>  <!--наименование грузоотправителя-->
+            <inn>shipFromInn(10)</inn>
+            <kpp>shipFromKpp</kpp>
+          </organization>
+          <russianAddress>        <!--российский адрес-->
+            <regionISOCode>regionISOCode</regionISOCode>  
+		    <regionCode>regionCode</regionCode>
+            <district>district</district>
+            <city>City</city>
+            <settlement>Village</settlement>
+            <street>Street</street>
+            <house>House</house>
+            <flat>Flat</flat>
+            <postalCode>>PostalCode</postalCode>
+          </russianAddress>
+          <additionalInfo>
+            <phone>TelephoneNumber</phone>   <!--телефон контактного лица-->
+            <fax>FaxNumber</fax>         <!--факс контактного лица-->
+            <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+            <bankName>BankName</bankName>
+            <BIK>BankId</BIK>
+            <nameOfAccountant>BookkeeperName</nameOfAccountant>  <!--ФИО бухгалтера-->
+          </additionalInfo>
+        </carrier>
+        <shipFrom>
+          <gln>shipFromGln</gln>       <!--gln грузоотправителя-->
+          <organization>
+            <name>shipFromName</name>         <!--наименование грузоотправителя-->
+            <inn>shipFromInn(10)</inn>
+            <kpp>shipFromKpp</kpp>
+          </organization>
+          <russianAddress>          <!--российский адрес-->
+            <regionISOCode>regionISOCode</regionISOCode>  
+		    <regionCode>regionCode</regionCode> 
+            <district>district</district>
+            <city>City</city>
+            <settlement>Village</settlement>
+            <street>Street</street>
+            <house>House</house>
+            <flat>Flat</flat>
+            <postalCode>PostalCode</postalCode>
+          </russianAddress>
+          <additionalInfo>
+            <phone>TelephoneNumber</phone>       <!--телефон контактного лица-->
+            <fax>FaxNumber</fax>       <!--факс контактного лица-->
+            <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+            <bankName>BankName</bankName>
+            <BIK>BankId</BIK>
+            <nameOfAccountant>BookkeeperName</nameOfAccountant>          <!--ФИО бухгалтера-->
+          </additionalInfo>
+        </shipFrom>
+        <shipTo>
+          <gln>DeliveryGln</gln>      <!--gln грузополучателя-->
+          <organization>
+            <name>DeliveryName</name>         <!--наименование грузополучателя-->
+            <inn>DeliveryInn(10)</inn>         <!--ИНН грузополучателя-->
+            <kpp>DeliveryKpp</kpp>         <!--КПП грузополучателя-->
+          </organization>
+          <russianAddress>         <!--российский адрес-->
+            <regionISOCode>regionISOCode</regionISOCode>  
+		    <regionCode>regionCode</regionCode>
+            <district>district</district>
+            <city>City</city>
+            <settlement>Village</settlement>
+            <street>Street</street>
+            <house>House</house>
+            <flat>Flat</flat>
+            <postalCode>PostalCode</postalCode>
+          </russianAddress>
+          <additionalInfo>
+            <phone>TelephoneNumber</phone>        <!--телефон контактного лица-->
+            <fax>FaxNumber</fax>       <!--факс контактного лица-->
+            <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+            <bankName>BankName</bankName>
+            <BIK>BankId</BIK>
+            <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя-->
+          </additionalInfo>
+        </shipTo>
+      </deliveryInfo>
+      <!-- конец блока данных о грузоотправителе и грузополучателе -->
+      <!-- начало блока с данными о товаре -->
+      <lineItem>
+        <gtin>GTIN</gtin> <!--штрихкод товара-->
+        <internalBuyerCode>BuyerProductId</internalBuyerCode>     <!--внутренний код, присвоенный покупателем-->
+        <internalSupplierCode>SupplierProductId</internalSupplierCode>   <!--артикул товара (код товара присвоенный продавцом)-->
+        <orderLineNumber>orderLineNumber</orderLineNumber>     <!--порядковый номер товара (номер строки в заказе)-->       
+        <lot>
+          <description>Name</description>       <!--название товара-->
+		  <codeOfEgais>codeOfEgais</codeOfEgais>       <!--код товара в ЕГАИС-->
+		  <lotNumberEgais>lotNumberEgais</lotNumberEgais>       <!--идентификатор позиции в ТТН ЕГАИС-->
+          <volume orderedVolume="MeasurementUnitCode">VolumeOfUnitInLiter</volume>    <!--заказанное кол-во. В lot должен быть только один тег volume, т.е. указываем только одно из количеств-->
+          <volume despatchVolume="MeasurementUnitCode">VolumeOfUnitInLiter</volume>    <!--отгруженное кол-во-->
+          <volume acceptedVolume="MeasurementUnitCode">VolumeOfUnitInLiter</volume>    <!--подтвержденное кол-во-->
+          <volumeOfUnitInLiter>VolumeOfUnitInLiter</volumeOfUnitInLiter>     <!--литраж единицы продукции-->
+          <manufacturer>      <!--информация о первом импортере/ производителе товара-->
+            <gln>ManufacturGln</gln>
+            <organization>      <!--если организация из Беларуссии/ Казахстана/ Армении/ Киргизии, то пишем в "foreignOrganization"-->
+              <inn>ManufacturerInn</inn>
+              <kpp>ManufacturerKpp</kpp>
+              <name>ManufacturerName</name>
+            </organization> 
+            <russianAddress>
+              <regionISOCode>regionCode</regionISOCode>  <!--информация о первом импортере/ производителе товара-->
+              <regionCode>regionCode</regionCode>
+              <district>district</district>
+              <city>City</city>
+              <settlement>Village</settlement>
+              <street>Street</street>
+              <house>House</house>
+              <flat>Flat</flat>
+              <postalCode>PostalCode</postalCode>
+            </russianAddress>
+          </manufacturer>
+          <foreignManufacturer>       <!--информация о иностранном производителе товара НЕ из Киргизии, Казахстана, Белоруссии, Армении-->
+            <gln>foreignManufacturerGLN</gln>
+            <foreignOrganization countryCode="CountryCode">
+              <name>foreignManufacturerName</name>
+            </foreignOrganization>
+          </foreignManufacturer>
+          <licenseSeller seriesNumber="SeriesNumber" startdate= "StartDate" enddate = "EndDate" issuerOf = "IssuerOf"/>
+          <certificate number="Number" startdate="StartDate" enddate="EndDate" issuerOf="IssuerOf"/>
+          <typeOfAlco>ProductCode</typeOfAlco>    <!--Код алкоголя-->
+          <bottlingDate>BottlingDate</bottlingDate>   <!--Дата розлива (для российского алкоголя)/ дата ввоза продукции в страну ТС (для иностранного алкоголя)-->
+          <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>    <!--Код страны производства-->
+          <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>     <!--Номер ГТД. Если номеров несколько, то пишем несколько тегов "customsDeclarationNumber"-->
+        </lot>
+        <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
+      </lineItem>
+    </alcoholReport>
+  </eDIMessage>

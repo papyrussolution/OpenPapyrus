@@ -1,5 +1,5 @@
 // PRIME.CPP
-// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -75,7 +75,7 @@ ulong  FASTCALL Lcm(ulong a, ulong b)
     return result;
 }
 
-static ushort FirstPrimeNumbers[] = {
+static const ushort FirstPrimeNumbers[] = {
 	  2,     3,     5,     7,    11,    13,    17,    19,    23,    29,
 	 31,    37,    41,    43,    47,    53,    59,    61,    67,    71,
 	 73,    79,    83,    89,    97,   101,   103,   107,   109,   113,
@@ -178,26 +178,52 @@ static ushort FirstPrimeNumbers[] = {
    7841,  7853,  7867,  7873,  7877,  7879,  7883,  7901,  7907,  7919
 };
 
+static int FASTCALL SearchPrimeTab(ulong u)
+{
+	const ushort * p_org = FirstPrimeNumbers;
+	const uint count = SIZEOFARRAY(FirstPrimeNumbers);
+	for(uint i = 0, lo = 0, up = count-1; lo <= up;) {
+		const ushort * p = p_org + (i = (lo + up) >> 1);
+		const int cmp = CMPSIGN((ulong)*p, u);
+		if(cmp < 0)
+			lo = i + 1;
+		else if(cmp) {
+			if(i)
+				up = i - 1;
+			else
+				return 0;
+		}
+		else
+			return 1;
+	}
+	return 0;
+}
+
 static int FASTCALL Helper_IsPrime(ulong val, int test)
 {
 	static const ushort last_tabbed_value = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
 	int    yes = 1;
-	if(val > last_tabbed_value || test) {
-		if(val > 2) {
-			ulong n = (ulong)sqrt((double)val);
-			for(ulong j = 2; j <= n; j++)
-				if((val % j) == 0)
-					yes = 0;
-		}
-		else if(val != 2)
-			yes = 0;
+	if(val < 2)
+		yes = 0;
+	else if(val == 2)
+		yes = 1;
+	else if((val & 1) == 0)
+		yes = 0;
+	else if(val > last_tabbed_value || test) {
+		ulong n = (ulong)sqrt((double)val);
+		for(ulong j = 2; j <= n; j++)
+			if((val % j) == 0)
+				yes = 0;
 	}
 	else {
+		/*
 		yes = 0;
 		for(uint i = 0; !yes && i < SIZEOFARRAY(FirstPrimeNumbers); i++) {
             if((ulong)FirstPrimeNumbers[i] == val)
                 yes = 1;
 		}
+		*/
+		yes = SearchPrimeTab(val);
 	}
 	return yes;
 }
@@ -254,6 +280,9 @@ SLTEST_R(Prime)
     for(ulong i = 0; i < last_tabbed_prime; i++) {
 		const long isp = Helper_IsPrime(i, 1);
 		long is_tabbed_prime = 0;
+		if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
+			SLTEST_CHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
+		}
 		for(uint j = 0; !is_tabbed_prime && j < SIZEOFARRAY(FirstPrimeNumbers); j++) {
 			const ushort tv = FirstPrimeNumbers[j];
 			if(tv == i)
@@ -262,6 +291,7 @@ SLTEST_R(Prime)
 				break;
 		}
 		SLTEST_CHECK_EQ(is_tabbed_prime, isp);
+		SLTEST_CHECK_EQ(Helper_IsPrime(i, 0), isp);
     }
     {
         struct TestSValue {

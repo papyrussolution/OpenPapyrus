@@ -123,16 +123,13 @@ public:
 	}
 	virtual const char * GetCharSetName() = 0;
 	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen) = 0;
-	virtual nsProbingState GetState() const
-	{
-		return mState;
-	}
+	virtual nsProbingState GetState() const { return mState; }
 	virtual void  Reset()  = 0;
 	virtual float GetConfidence() const = 0;
 #ifdef DEBUG_chardet
 	virtual void  DumpStatus() 
 	{
-	};
+	}
 #endif
 	// Helper functions used in the Latin1 and Group probers.
 	// both functions Allocate a new buffer for newBuf. This buffer should be
@@ -151,10 +148,7 @@ protected:
 		void   HandleOneChar(const char * aStr, uint32 aCharLen);
 		float  GetConfidence() const;
 		void   Reset(bool aIsPreferredLanguage);
-		bool   GotEnoughData() const
-		{
-			return (mTotalRel > ENOUGH_REL_THRESHOLD);
-		}
+		bool   GotEnoughData() const { return (mTotalRel > ENOUGH_REL_THRESHOLD); }
 	protected:
 		virtual int32 GetOrder(const char * str, uint32 * charLen) const = 0;
 		virtual int32 GetOrder(const char * str) const = 0;
@@ -188,11 +182,6 @@ protected:
 	virtual void Report(const char* aCharset) = 0;
 	virtual void Reset();
 	nsInputState mInputState;
-	//bool   mNbspFound;
-	//bool   mDone;
-	//bool   mInTag;
-	//bool   mStart;
-	//bool   mGotData;
 	enum {
 		fNbspFound = 0x0001,
 		fDone      = 0x0002,

@@ -8000,7 +8000,7 @@ int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outp
 	}
 	if(dest == eomMsgWindow) {
 		Flags |= fSuspSleepTimeout;
-		PPError(errCode, pAddedMsg);
+		PPError(errCode, pAddedMsg, mfNoFocus);
 		Flags &= ~fSuspSleepTimeout;
 	}
 	else if(dest == eomStatusLine) {

@@ -357,10 +357,7 @@ public:
 	SLAPI CM_ATOLWOATOLCARD(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface()
-	{
-		return new ACS_ATOLWOATOLCARD(NodeID);
-	}
+	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_ATOLWOATOLCARD(NodeID); }
 };
 
 REGISTER_CMT(ATOLWOATOLCARD,0,1);
