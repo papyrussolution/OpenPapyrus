@@ -1896,6 +1896,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_TABLE_ORDERS:  dv_id = PPDV_TABLEORDER02; break;
 					case IDB_DELIVERY:      dv_id = PPDV_DELIVERY01; break;
 					case IDB_CLOCK:         dv_id = PPDV_CLOCK02; break; // @v9.2.11
+					case IDB_PHONE:         dv_id = PPDV_PHONE01; break; // @v10.0.04
+					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break; // @v10.0.04
 					default:
 						{
 							const uint button_id = p_btn->GetId();

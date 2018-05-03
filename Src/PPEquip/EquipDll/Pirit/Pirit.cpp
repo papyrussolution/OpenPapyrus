@@ -1167,12 +1167,26 @@ int PiritEquip::SetConnection()
 		}
 	}
 	// @v9.5.7 delay(200);
-	CommPort.PutChr(ENQ); // Проверка связи с ККМ
-	r = CommPort.GetChr();
-	if(r != ACK) {
-		if(LogFileName.NotEmpty())
-			SLS.LogMessage(LogFileName, "Error (CommPort.GetChr() != ACK)", 8192);
-		CALLEXCEPT();
+	{
+		const uint max_tries = 3;
+		int sh_ok = 1; 
+		for(uint try_no = 0; !sh_ok && try_no < max_tries; try_no++) {
+			CommPort.PutChr(ENQ); // Проверка связи с ККМ
+			r = CommPort.GetChr();
+			if(r != ACK) {
+				if(LogFileName.NotEmpty()) {
+					SString msg_buf;
+					(msg_buf = "Error (CommPort.GetChr() != ACK)").Space().CatEq("Try", try_no+1);
+					SLS.LogMessage(LogFileName, msg_buf, 8192);
+				}
+				//CALLEXCEPT();
+				SDelay(200);
+				sh_ok = 0;
+			}
+			else
+				sh_ok = 1;
+		}
+		THROW(sh_ok);
 	}
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);

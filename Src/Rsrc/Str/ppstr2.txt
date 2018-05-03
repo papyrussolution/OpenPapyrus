@@ -11350,6 +11350,9 @@ public:
 @palmpane_fexclexpdebts                   "Исключить расчет долгов при подготовке данных"
 @palmpane_fignoremutex                    "Игнорировать мьютекс (опасная опция!)"
 
+@elinkarray                               "Электронные адреса"
+@elinkarray_list                          "Весь список"
+
 @setpassword                              "@{password}"
 @setpassword_input1                       "Введите пароль здесь"
 @setpassword_input2                       "А здесь повторите"

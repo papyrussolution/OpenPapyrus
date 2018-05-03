@@ -2469,39 +2469,7 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 }
 //
 //
-// @construction {
-SUniTime::SUniTime()
-{
-	memzero(D, sizeof(D));
-}
-
-int FASTCALL SUniTime::SetSignature(uint8 s)
-{
-	D[7] = s;
-	return 1;
-}
-
-int FASTCALL SUniTime::Set(const FILETIME & rD)
-{
-	PTR32(D)[0] = rD.dwLowDateTime;
-	PTR32(D)[1] = rD.dwHighDateTime;
-	assert((D[7] & indfScale) == 0);
-	return 1;
-}
-
-int FASTCALL SUniTime::Set(const LDATE & rD)
-{
-	int    ok = 1;
-	if(checkdate(rD, 0)) {
-		PTR64(D)[0] = (((uint64)(indfScale | indDay)) << 56) | DateToDaysSinceChristmas(rD.year(), rD.month(), rD.day());
-	}
-	else {
-		memzero(D, sizeof(D));
-		ok = 0;
-	}
-	return ok;
-}
-
+// 
 struct SUniTime_Inner {
 	SUniTime_Inner()
 	{
@@ -2615,25 +2583,6 @@ static uint32 FASTCALL __TimeToDaysAndFraction_ms(uint64 Time, uint32 * pMillise
 	temp = total_milliseconds - temp;
 	*pMilliseconds = temp & 0xffffffffLL; // Set the fraction part from temp, the total number of milliseconds in a day guarantees that the high part must be zero.
 	return elapsed_days;
-}
-// 
-// Descr: This routine converts an input elapsed day count and partial time
-//   in milliseconds to a 64-bit time value.
-// ARG(ElapsedDays  IN): Supplies the number of elapsed days
-// ARG(Milliseconds IN): Supplies the number of milliseconds in the partial day
-// Returns:
-//   Number of 0.1mks 
-//
-static uint64 FASTCALL DaysAndFractionToTime(uint32 elapsedDays, uint32 milliseconds)
-{
-	// Calculate the exact number of milliseconds in the elapsed days.
-	uint64 temp = ConvertDaysToMilliseconds(elapsedDays);
-	// Convert milliseconds to a large integer
-	uint64 temp2 = milliseconds;
-	// add milliseconds to the whole day milliseconds
-	temp = temp + temp2;
-	// Finally convert the milliseconds to 100ns resolution
-	return ConvertMillisecondsTo100ns(temp);
 }
 //   
 // Descr: This routine computes the number of total years contained in the indicated
@@ -2816,28 +2765,30 @@ static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint6
 		//
 		// Now compute the total number of milliseconds in the fractional part of the day
 		//
-		uint32 elapsed_milliseconds = (((hour*60) + minute)*60 + second)*1000 + milliseconds;
+		//uint32 elapsed_milliseconds = ((((hour*60) + minute)*60 + second)*1000 + milliseconds);
 		//
 		// Given the elapsed days and milliseconds we can now build the output time variable
 		//
-		*pTime = DaysAndFractionToTime(elapsed_days, elapsed_milliseconds);
+		//*pTime = DaysAndFractionToTime(elapsed_days, elapsed_milliseconds);
+		*pTime = ((((uint64)elapsed_days) * (86400LL * 1000LL)) + ((uint64)((((hour*60) + minute)*60 + second)*1000 + milliseconds))) * 10000LL;
 		return TRUE; // And return to our caller
 	}
 }
 
-static void FASTCALL __EpochTimeToTimeFields(int64 epochTime, SUniTime_Inner * pTimeFields)
+static void FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Inner * pTimeFields)
 {
 	__TimeToTimeFields(epochTime * TICKSPERSEC + EPOCH_BIAS, pTimeFields);
 }
 
-static int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, int64 * pEpochTime)
+static int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, uint64 * pEpochTime)
 {
 	int    ok = 1;
 	uint64 t;
 	if(__TimeFieldsToTime(pTimeFields, &t)) {
-		*pEpochTime = (((int64)t) - EPOCH_BIAS) / TICKSPERSEC;
-		if(*pEpochTime < 0)
+		if(t < EPOCH_BIAS)
 			ok = 0;
+		else
+			*pEpochTime = (t - EPOCH_BIAS) / TICKSPERSEC;
 	}
 	else
 		ok = 0;
@@ -2846,10 +2797,24 @@ static int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, 
 
 #endif // } 0
 
+#define UNITIME_VALUE_MASK 0x00ffffffffffffffLL
+
 static inline uint8 SUniTime_Decode(const uint8 * pD, uint64 * pValue)
 {
-	*pValue = (pD[7] & 0x80) ? (PTR64(pD)[0] & 0x00ffffffffffffffLL) : PTR64(pD)[0];
+	*pValue = (pD[7] & 0x80) ? (PTR64(pD)[0] & UNITIME_VALUE_MASK) : PTR64(pD)[0];
 	return pD[7];
+}
+
+static inline void SUniTime_Encode(uint8 * pD, uint8 signature, uint64 value)
+{
+	if(signature & 0x80) {
+		assert((value & ~UNITIME_VALUE_MASK) == 0);
+		PTR64(pD)[0] = (value & UNITIME_VALUE_MASK);
+		pD[7] = signature;
+	}
+	else {
+		PTR64(pD)[0] = value;
+	}
 }
 
 int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
@@ -2883,8 +2848,56 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 				ok = 0;
 			break;
 		case indEpoch: 
+			if(!__TimeFieldsToEpochTime(p_inner, &value))
+				ok = 0;
+			break;
+		case indDay: 
+			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, p_inner->D);
+			break;
+		case indMon: 
+			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, 2);
+			break;
+		case indQuart: 
+			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 3) * 3) + 1, 2);
+			break;
+		case indSmYr:
+			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 6) * 6) + 1, 2);
+			break;
+		case indYr:
+			value = p_inner->Y;
+			break;
+		case indDYr:
+			value = (((p_inner->Y-1) / 10) * 10) + 1;
+			break;
+		case indSmCent:
+			value = (((p_inner->Y-1) / 50) * 50) + 1;
+			break;
+		case indCent:
+			value = (((p_inner->Y-1) / 100) * 100) + 1;
+			break;
+		case indMillennium:
+			value = (((p_inner->Y-1) / 1000) * 1000) + 1;
+			break;
+		case indDayBC: 
+			ok = 0; // @construction
+			break;
+		case indMonBC: 
+			ok = 0; // @construction
+			break;
+		case indYrBC: 
+			ok = 0; // @construction
+			break;
+		case indDYrBC: 
+			ok = 0; // @construction
+			break;
+		case indCentBC: 
+			ok = 0; // @construction
+			break;
+		case indMillenniumBC: 
+			ok = 0; // @construction
 			break;
 	}
+	SUniTime_Encode(D, signature, value);
 	return ok;
 }
 
@@ -2902,57 +2915,44 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 			case indHr: __TimeToTimeFields(value * 60*60*10000000LL, p_inner); break;
 			case indEpoch: __EpochTimeToTimeFields(value, p_inner); break;
 			case indDay:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
+				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
 				break;
 			case indMon:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
+				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
 				p_inner->D = 2;
 				break;
 			case indQuart:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
+				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
 				p_inner->M = (((p_inner->M-1) / 3) * 3) + 1;
 				p_inner->D = 2;
 				break;
 			case indSmYr:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
+				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
 				p_inner->M = (((p_inner->M-1) / 6) * 6) + 1;
 				p_inner->D = 2;
 				break;
 			case indYr:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
+				p_inner->Y = (long)value;
 				p_inner->M = 1;
 				p_inner->D = 2;
 				break;
 			case indDYr:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->Y = (((p_inner->Y-1) / 10) * 10) + 1;
+				p_inner->Y = (((((long)value)-1) / 10) * 10) + 1;
 				p_inner->M = 1;
 				p_inner->D = 2;
 				break;
 			case indSmCent:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->Y = (((p_inner->Y-1) / 50) * 50) + 1;
+				p_inner->Y = (((((long)value)-1) / 50) * 50) + 1;
 				p_inner->M = 1;
 				p_inner->D = 2;
 				break;
 			case indCent:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->Y = (((p_inner->Y-1) / 100) * 100) + 1;
+				p_inner->Y = (((((long)value)-1) / 100) * 100) + 1;
 				p_inner->M = 1;
 				p_inner->D = 2;
 				break;
 			case indMillennium:
-				day_count = (long)value;
-				DaysSinceChristmasToDate(day_count, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->Y = (((p_inner->Y-1) / 1000) * 1000) + 1;
+				p_inner->Y = (((((long)value)-1) / 1000) * 1000) + 1;
 				p_inner->M = 1;
 				p_inner->D = 2;
 				break;
@@ -2982,18 +2982,119 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 	return signature;
 }
 
+SUniTime::SUniTime()
+{
+	memzero(D, sizeof(D));
+}
+
+int FASTCALL SUniTime::SetSignature(uint8 s)
+{
+	D[7] = s;
+	return 1;
+}
+
+SUniTime & SUniTime::Z()
+{
+	memzero(D, sizeof(D));
+	return *this;
+}
+
+int FASTCALL SUniTime::Set(LDATE d)
+{
+	SUniTime_Inner inner;
+	inner.D = d.day();
+	inner.M = d.month();
+	inner.Y = d.year();
+	return Implement_Set(indfScale|indDay, &inner);
+}
+
+int FASTCALL SUniTime::Set(const LDATETIME & rD)
+{
+	SUniTime_Inner inner;
+	inner.D = rD.d.day();
+	inner.M = rD.d.month();
+	inner.Y = rD.d.year();
+	inner.Hr = rD.t.hour();
+	inner.Mn = rD.t.minut();
+	inner.Sc = rD.t.sec();
+	inner.MSc = rD.t.hs() * 10;
+	return Implement_Set(indfScale|indMSec, &inner);
+}
+
+int FASTCALL SUniTime::Set(time_t t)
+{
+	int    ok = 1;
+	if(t >= 0) {
+		SUniTime_Encode(D, indfScale|indEpoch, t * TICKSPERSEC + EPOCH_BIAS);
+	}
+	else {
+		Z();
+		ok = 0;
+	}
+	return ok;
+}
+
+int FASTCALL SUniTime::Set(const FILETIME & rD)
+{
+	SUniTime_Encode(D, 0, ((uint64)rD.dwLowDateTime) | (((uint64)rD.dwHighDateTime) << 32));
+	return 1;
+}
+
 int FASTCALL SUniTime::Get(LDATE & rD) const
 {
+	int    ok = 1;
 	SUniTime_Inner inner;
 	uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		rD.encode(inner.D, inner.M, inner.Y);
-		return 1;
 	}
 	else
-		return 0;
+		ok = 0;
+	return ok;
 }
-// } @construction 
+
+int FASTCALL SUniTime::Get(LDATETIME & rD) const
+{
+	int    ok = 1;
+	SUniTime_Inner inner;
+	uint8 signature = Implement_Get(&inner);
+	if(signature != indInvalid) {
+		rD.d.encode(inner.D, inner.M, inner.Y);
+		rD.t.encode(inner.Hr, inner.Mn, inner.Sc, inner.MSc);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int FASTCALL SUniTime::Get(time_t & rD) const
+{
+	int    ok = 1;
+	SUniTime_Inner inner;
+	uint8 signature = Implement_Get(&inner);
+	if(signature != indInvalid) {
+		uint64 et = 0;
+		__TimeFieldsToEpochTime(&inner, &et);
+		rD = (time_t)et;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int FASTCALL SUniTime::Get(FILETIME & rD) const
+{
+	int    ok = 1;
+	SUniTime_Inner inner;
+	uint8 signature = Implement_Get(&inner);
+	if(signature != indInvalid) {
+		__TimeFieldsToTime(&inner, (uint64 *)&rD);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+//
 //
 //
 #if SLTEST_RUNNING // {
@@ -3033,7 +3134,8 @@ SLTEST_R(LDATE)
 		{"Sun/Nov/6/94/GMT",                "6/11/1994"},
 		{"Sun, 06 Nov 1994 08:49:37 CET",   "6/11/1994 8:49:37"},
 		{"Sun, 12 Sep 2004 15:05:58 -0700", "12/09/2004 15:05:58"},
-		{"Sat, 11 Sep 2004 21:32:11 +0200", "11/09/2004 21:32:11"}
+		{"Tue, 30 Dec 2008 21:32:11 +0200", "30/12/2008 21:32:11"},
+		{"Wed, 11 Dec 2008 01:17:02 +0200", "31/12/2008 01:17:02"}
 	};
 
 	uint i;
@@ -3051,6 +3153,23 @@ SLTEST_R(LDATE)
 		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
 		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
 		SLTEST_CHECK_EQ(test_val, cvt_val);
+		//
+		{
+			SUniTime_Inner uti;
+			__time64_t tt = test_val.GetTimeT();
+			const struct tm * p_tm = _gmtime64(&tt);
+			__EpochTimeToTimeFields(tt, &uti);
+			SLTEST_CHECK_EQ((long)p_tm->tm_year, (long)(uti.Y-1900));
+			SLTEST_CHECK_EQ((long)p_tm->tm_mon+1, (long)uti.M);
+			SLTEST_CHECK_EQ((long)p_tm->tm_mday, (long)uti.D);
+			SLTEST_CHECK_EQ((long)p_tm->tm_hour, (long)uti.Hr);
+			SLTEST_CHECK_EQ((long)p_tm->tm_min, (long)uti.Mn);
+			SLTEST_CHECK_EQ((long)p_tm->tm_sec, (long)uti.Sc);
+			SLTEST_CHECK_EQ((long)p_tm->tm_wday, (long)uti.Weekday);
+			uint64 epoch_tm = 0;
+			__TimeFieldsToEpochTime(&uti, &epoch_tm);
+			SLTEST_CHECK_EQ(epoch_tm, (uint64)tt);
+		}
 	}
 	{
 		const  LDATE rel = encodedate(7, 11, 2007);

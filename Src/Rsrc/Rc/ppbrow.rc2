@@ -265,6 +265,7 @@ bitmap "..\\rsrc\\bitmap" {
 	BM_PERSON
 	BM_USER
 	BM_USERGROUP
+	BM_PHONEFORWARDED
 }
 //
 // } @construction
@@ -8475,6 +8476,10 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_CATEGORYFAW02 #010002
 	PPDV_GUESTCOUNT01
 	PPDV_DELIVERY01
+	PPDV_PHONE01
+	PPDV_PHONE02
+	PPDV_PHONE03
+	PPDV_PHONEFORWARDED01
 }
 //
 // Следующие изображения используются без замещения цвета

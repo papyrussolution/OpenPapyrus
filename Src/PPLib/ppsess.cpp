@@ -394,9 +394,9 @@ SLAPI PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 
 SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 {
-	ZDELETE(P_WObj);  // @v8.3.6
-	ZDELETE(P_WbObj); // @v8.3.6
-	ZDELETE(P_TodoObj); // @v8.5.11
+	ZDELETE(P_WObj);
+	ZDELETE(P_WbObj);
+	ZDELETE(P_TodoObj);
 	ZDELETE(P_BObj);
 	ZDELETE(P_Ref);
 	ZDELETE(P_SysJ);
@@ -897,7 +897,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateBizScoreOnDesktop);
 	IdleCmdList.insert(new IdleCmdUpdateObjList(5, PPOBJ_PRJTASK, PPAdviseBlock::evTodoChanged));
 	IdleCmdList.insert(new IdleCmdUpdateObjList(30, PPOBJ_BILL, PPAdviseBlock::evBillChanged));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(5, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged)); // @v8.0.3
+	IdleCmdList.insert(new IdleCmdUpdateObjList(5, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged));
 	IdleCmdList.insert(new IdleCmdUpdateTSessList(30, PPAdviseBlock::evTSessChanged));
 	IdleCmdList.insert(new IdleCmdUpdateObjList(5,  -1, PPAdviseBlock::evSysJournalChanged));
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
@@ -1620,7 +1620,7 @@ static void InitTest()
 	assert(sizeof(TDialog) % 4 == 0);
 	assert(sizeof(DBFH) == 32);
 	assert(sizeof(DBFF) == 32);
-	assert(DBRPL_ERROR == 0); // @v8.8.2
+	assert(DBRPL_ERROR == 0);
 	assert(sizeof(DBRowId) == 32);
 	//
 	// Так как множество классов наследуются от DBTable важно, чтобы
@@ -1639,7 +1639,7 @@ static void InitTest()
 	assert(sizeof(PPEAddr) == 16);
 	assert(sizeof(PPEAddr) == sizeof(((EAddrTbl::Rec *)0)->Addr));
 	//
-	assert(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec)); // @v8.2.3
+	assert(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
 	assert(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec)); // @v9.0.3
 	{
@@ -1703,16 +1703,16 @@ static void InitTest()
 	assert(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	assert(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT)); // @v7.2.7
+	assert(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
 
 	assert(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
 	assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
 	assert(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
 
 	assert(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec)); // @v7.6.1
+	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
 
-	assert(sizeof(PPGeoTrackingMode) == 8); // @v8.6.8
+	assert(sizeof(PPGeoTrackingMode) == 8);
 	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
 	// @v9.0.11 {
 	//
@@ -1879,11 +1879,11 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 			//SLS.SetLoadStringFunc(PPLoadStringFunc);
 			//SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11
 			//SLS.SetCallHelpFunc(PPCallHelp);
-			//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig); // @v7.6.7
+			//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
 		}
 		{
 			//
-			// @v8.0.2 Теперь флаг устанавливается по умолчанию. Параметром DETECTDBTEXISTBYOPEN его можно отменить
+			// Флаг устанавливается по умолчанию. Параметром DETECTDBTEXISTBYOPEN его можно отменить
 			//
 			DbSession::Config dbcfg = DBS.GetConfig();
 			int    iv = 0;
@@ -1894,9 +1894,8 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 				else if(iv == 100)
 					SetExtFlag(ECF_DETECTCRDBTEXISTBYOPEN, 1);
 			}
-			// @v8.0.2 {
 			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BTRNWLOCK, temp_buf) > 0) {
-				if(temp_buf.CmpNC("disable") == 0) { // @v8.6.3
+				if(temp_buf.CmpNC("disable") == 0) {
 					dbcfg.NWaitLockTries = BTR_RECLOCKDISABLE;
 					dbcfg.NWaitLockTryTimeout = 0;
 				}
@@ -1912,17 +1911,14 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 						dbcfg.NWaitLockTries = temp_buf.ToLong();
 				}
 			}
-			// } @v8.0.2
 			DBS.SetConfig(&dbcfg);
 			{
-				// @v8.0.6 {
 				int    max_log_file_size = 0;
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_MAXLOGFILESIZE, &max_log_file_size) > 0) {
 					if(max_log_file_size > 0 && max_log_file_size <= (1024*1024)) {
-						MaxLogFileSize = max_log_file_size; // @v8.0.6
+						MaxLogFileSize = max_log_file_size;
 					}
 				}
-				// } @v8.0.6
 			}
 			if(flags & PPSession::fInitPaths) {
 				MemLeakTracer mlt;
@@ -1982,7 +1978,6 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 			}
 		}
 	}
-	// @v8.9.12 {
 	if(!(flags & fDenyLogQueue)) { // @v9.2.6 Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
@@ -1990,7 +1985,6 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 			p_sess->Start(0);
 		}
 	}
-	// } @v8.9.12
 	SetExtFlag(ECF_DBDICTDL600, 1);
 	if(CheckExtFlag(ECF_DBDICTDL600))
 		DbDictionary::SetCreateInstanceProc(DbDict_DL600::CreateInstance);
@@ -2573,12 +2567,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 		PPConfig & r_lc = r_tla.Lc;
 		PPCommConfig & r_cc = r_tla.Cc;
 		STRNSCPY(user_name, pUserName);
-		r_tla.State &= ~PPThreadLocalArea::stAuth; // @v8.6.11
+		r_tla.State &= ~PPThreadLocalArea::stAuth;
 		THROW(OpenDictionary2(&blk, 0));
 		debug_r = 4;
-		r_tla.Prf.InitUserProfile(user_name); // @v8.0.6 Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
-		r_tla.UfpSess.Begin(PPUPRF_SESSION); // @v8.0.6 Профилирование всей сессии работы в БД (Login..Logout)
-		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // @v8.0.6 Профилирование собственно процесса авторизации в базе данных
+		r_tla.Prf.InitUserProfile(user_name); // Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
+		r_tla.UfpSess.Begin(PPUPRF_SESSION);  // Профилирование всей сессии работы в БД (Login..Logout)
+		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // Профилирование собственно процесса авторизации в базе данных
 		const long db_path_id = DBS.GetDbPathID();
 		DbProvider * p_dict = CurDict;
 		assert(p_dict);
@@ -2883,7 +2877,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
 					if(!CheckExtFlag(ECF_INITONLOGIN)) {
 						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
-						SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v8.0.3 // @v8.2.4 ECF_DETECTCRDBTEXISTBYOPEN // @v9.4.9 ECF_OPENSOURCE
+						SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v9.4.9 ECF_OPENSOURCE
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GRPACK,                  ECF_GOODSRESTPACK,          1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_TIDPACK,                 ECF_TRFRITEMPACK,           1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT,                ECF_GOODSBILLFILTSHOWDEBT,  1);
@@ -2899,16 +2893,13 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_DEBUG_MTX_DIRTY,         ECF_DEBUGDIRTYMTX,          999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USE_CDB,                 ECF_USECDB,                 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
-						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999); // @v8.2.5
-						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST,        ECF_CODEPREFIXEDLIST,       999)) // @v8.4.11
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999);
+						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST,        ECF_CODEPREFIXEDLIST,       999))
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
-						// @v8.5.12 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 1);
 						else
 							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 0);
-						// } @v8.5.12
-						// @v8.5.7 {
 						{
 							SetExtFlag(ECF_TRACESYNCLOT, 0);
 							if(ini_file.GetParam("config", "tracesynclot", temp_buf.Z()) > 0) {
@@ -2917,11 +2908,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									SetExtFlag(ECF_TRACESYNCLOT, 1);
 							}
 						}
-						// } @v8.5.7
-						// @v8.6.11 {
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_USEGEOTRACKING, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_USEGEOTRACKING, 1);
-						// } @v8.6.11
 						SetExtFlag(ECF_INITONLOGIN, 1);
 					}
 				}
@@ -2983,26 +2971,20 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
 				else
 					r_cc.Flags2 &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
-				// @v8.1.9 {
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DONTUSE3TIERGMTX, &(iv = 0)) > 0 && iv != 0)
 					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
 				else
 					r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
-				// } @v8.1.9
-				// @v8.6.0 {
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
 					if(checkdate(dt, 0))
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
-				// } @v8.6.0
 				r_tla.Bac.Load();
 			}
-			// @v8.2.5 {
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))
 				LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
-			// } @v8.2.5
 			if(p_dict->GetCapability() & DbProvider::cSQL) {
 				//
 				// Для Oracle необходимо, чтобы все регулярные таблицы были созданы ради того,
@@ -3343,26 +3325,30 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						int    cycle_ms = 0;
 						const PPPhoneServicePacket * p_phnsvc_pack = 0; // @v9.8.11
 						PPPhoneServicePacket ps_pack; // @v9.8.11
+						// @v10.0.04 {
+						{
+							PPEquipConfig eq_cfg;
+							ReadEquipConfig(&eq_cfg);
+							if(eq_cfg.PhnSvcID) {
+								PPObjPhoneService ps_obj(0);
+								if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0) 
+									r_tla.DefPhnSvcID = eq_cfg.PhnSvcID; 
+							}
+						}
+						// } @v10.0.04 
 						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
 						if(cycle_ms <= 0 || cycle_ms > 600000)
 							cycle_ms = 5113;
 						// @v9.8.11 {
-						{
+						if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
 							UserInterfaceSettings ui_cfg;
-							if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService) {
-								PPEquipConfig eq_cfg;
-								ReadEquipConfig(&eq_cfg);
-								if(eq_cfg.PhnSvcID) {
-									PPObjPhoneService ps_obj(0);
-									if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0)
-										p_phnsvc_pack = &ps_pack;
-								}
-							}
+							if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
+								p_phnsvc_pack = &ps_pack;
 						}
 						// } @v9.8.11
 						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, cycle_ms);
 						p_evc->Start(0);
-						r_tla.P_AeqThrd = p_evc; // @v8.6.7
+						r_tla.P_AeqThrd = p_evc;
 #endif // USE_ADVEVQUEUE
 					}
 					int    r = 0;
@@ -3383,7 +3369,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				}
 			}
 			r_tla.SetupPhoneServiceEventResponder(); // @v9.8.12
-			// @v8.1.12 {
 			{
 				char   domain_user[128];
 				DWORD  duser_len = sizeof(domain_user);
@@ -3394,9 +3379,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				msg_buf.Printf(temp_buf, domain_user);
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
 			}
-			r_tla.State |= PPThreadLocalArea::stAuth; // @v8.6.11
+			r_tla.State |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
-			// } @v8.1.12
 			// @v9.9.0 {
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
@@ -3537,16 +3521,16 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						PPACN_UPDBILLEXT,
 						PPACN_MTXGOODSADD,
 						PPACN_QUOTUPD2,
-						PPACN_UPDBILLWLABEL, // @v8.1.8
-						PPACN_BILLWROFF,     // @v8.8.3
-						PPACN_BILLWROFFUNDO, // @v8.8.3
+						PPACN_UPDBILLWLABEL,
+						PPACN_BILLWROFF,
+						PPACN_BILLWROFFUNDO,
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;
 					p_addendum_ev_list->addzlist(
 						PPACN_OBJTAGUPD,
 						PPACN_OBJTAGRMV,
-						PPACN_OBJTAGADD, // @v8.0.5
+						PPACN_OBJTAGADD,
 						0L);
 					p_addendum_ev_list->sort();
 					p_ev_list = new PPIDArray;
@@ -3667,16 +3651,16 @@ int SLAPI CreateBackupCopy(const char *, int);
 
 void SLAPI PPThreadLocalArea::OnLogout()
 {
-	State &= ~stAuth; // @v8.6.11
+	State &= ~stAuth;
 	SrvViewList.freeAll();
-	ZDELETE(P_WObj);  // @v8.3.6
-	ZDELETE(P_WbObj); // @v8.3.6
-	ZDELETE(P_TodoObj); // @v8.5.11
+	ZDELETE(P_WObj);
+	ZDELETE(P_WbObj);
+	ZDELETE(P_TodoObj);
 	ZDELETE(P_Ref);
 	ZDELETE(P_BObj);
-	ZDELETE(P_GtaJ); // @v7.4.10
+	ZDELETE(P_GtaJ);
 	if(P_SysJ) {
-		if(DS.CheckExtFlag(ECF_USESJLOGINEVENT)) // @v8.2.5
+		if(DS.CheckExtFlag(ECF_USESJLOGINEVENT))
 			P_SysJ->LogEvent(PPACN_LOGOUT, 0, 0, 0, 1);
 		ZDELETE(P_SysJ);
 	}
@@ -3708,8 +3692,8 @@ int SLAPI PPSession::Logout()
 		if(CCfg().Flags & CCFLG_DEBUG)
 			CMng.LogCacheStat();
 		r_tla.OnLogout();
-		r_tla.Prf.FlashUserProfileAccumEntries(); // @v8.1.3
-		r_tla.UfpSess.Commit(); // @v8.0.6
+		r_tla.Prf.FlashUserProfileAccumEntries();
+		r_tla.UfpSess.Commit();
 		DBS.CloseDictionary();
 		Btrieve::Reset(0);
 		if(!CheckExtFlag(ECF_SYSSERVICE) && active_user.NotEmpty())
@@ -4318,78 +4302,8 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf); // @v9.9.3 Add-->AddFast
 	}
 	TitleList.SortByID(); // @v9.9.3
-	{
-		P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
-		/*
-		SymbList.Add("UNIT",           PPOBJ_UNIT);
-		SymbList.Add("QUOTKIND",       PPOBJ_QUOTKIND);
-		SymbList.Add("LOCATION",       PPOBJ_LOCATION);
-		SymbList.Add("GOODS",          PPOBJ_GOODS);
-		SymbList.Add("GOODSGROUP",     PPOBJ_GOODSGROUP);
-		SymbList.Add("BRAND",          PPOBJ_BRAND);
-		SymbList.Add("GOODSTYPE",      PPOBJ_GOODSTYPE);
-		SymbList.Add("GOODSCLASS",     PPOBJ_GOODSCLASS);
-		SymbList.Add("GOODSARCODE",    PPOBJ_GOODSARCODE);
-		SymbList.Add("PERSON",         PPOBJ_PERSON);
-		SymbList.Add("PERSONKIND",     PPOBJ_PRSNKIND);
-		SymbList.Add("PERSONSTATUS",   PPOBJ_PRSNSTATUS);
-		SymbList.Add("PERSONCATEGORY", PPOBJ_PRSNCATEGORY);
-		SymbList.Add("GLOBALUSER",     PPOBJ_GLOBALUSERACC);
-		SymbList.Add("DL600",          PPOBJ_DL600DATA);
-		SymbList.Add("WORLD",          PPOBJ_WORLD);
-		SymbList.Add("CITY",           PPOBJ_WORLD | (WORLDOBJ_CITY << 16));
-		SymbList.Add("COUNTRY",        PPOBJ_WORLD | (WORLDOBJ_COUNTRY << 16));
-		SymbList.Add("QUOT",           PPOBJ_QUOT2);
-		SymbList.Add("CURRENCY",       PPOBJ_CURRENCY);
-		SymbList.Add("CURRATETYPE",    PPOBJ_CURRATETYPE);
-		SymbList.Add("SPECSERIES",     PPOBJ_SPECSERIES);
-		SymbList.Add("SCARD",          PPOBJ_SCARD);
-		SymbList.Add("POSNODE",        PPOBJ_CASHNODE);
-		SymbList.Add("CURRATEIDENT",   PPOBJ_CURRATEIDENT);
-		SymbList.Add("UHTTSCARDOP",    PPOBJ_UHTTSCARDOP);
-		SymbList.Add("LOT",            PPOBJ_LOT);
-		SymbList.Add("BILL",           PPOBJ_BILL);
-		SymbList.Add("UHTTSTORE",      PPOBJ_UHTTSTORE);
-		SymbList.Add("OPRKIND",        PPOBJ_OPRKIND);
-		SymbList.Add("WORKBOOK",       PPOBJ_WORKBOOK);
-		SymbList.Add("CCHECK",         PPOBJ_CCHECK);       // @v8.2.11
-		SymbList.Add("PROCESSOR",      PPOBJ_PROCESSOR);    // @v8.7.0
-		SymbList.Add("TSESSION",       PPOBJ_TSESSION);     // @v8.7.0
-		SymbList.Add("STYLOPALM",      PPOBJ_STYLOPALM);    // @v8.7.0
-		SymbList.Add("STYLODEVICE",    PPOBJ_STYLOPALM);    // @v8.7.2
-		*/
-	}
+	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 }
-
-/*int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
-{
-	rBuf.Z();
-	long   ext = 0;
-	if(!P_ObjIdentBlk)
-		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
-	return P_ObjIdentBlk ? P_ObjIdentBlk->SymbList.GetByAssoc(objType, rBuf) : 0;
-}
-
-PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
-{
-	PPID   obj_type = 0;
-	long   ext = 0;
-	if(!P_ObjIdentBlk)
-		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
-	if(P_ObjIdentBlk) {
-		SString symb = pSymb;
-		uint   val = 0;
-		if(P_ObjIdentBlk->SymbList.Search(symb.ToUpper(), &val, 0)) {
-			obj_type = LoWord(val);
-			ext = HiWord(val);
-		}
-		else {
-			PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb);
-		}
-	}
-	ASSIGN_PTR(pExtraParam, ext);
-	return obj_type;
-}*/
 
 int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 {

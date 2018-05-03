@@ -2393,7 +2393,66 @@ z39.50s:urischeme
 //
 // Рыночные понятия
 //
+:stockticker        // биржевой тикер
+:negotium_sector    // сектор бизнеса
+:negotium_industria // сектор индустрии
+:negotium_coeptis   // предприятие/компания
+:negotium_partem    // сторона сделки
+:negotium_rebus     // товар
+:negotium_coeptis_commutationem::negotium_coeptis // биржа
+:negotium_commodum::negotium_rebus  // сырьевой товар
+//
+// Биржи
+//
+:negotium_coeptis_commutationem_nyse:negotium_coeptis_commutationem // New York Stock Exchange
+:negotium_coeptis_commutationem_nymex:negotium_coeptis_commutationem // New York Merchantile Exchange
+:negotium_coeptis_commutationem_comex:negotium_coeptis_commutationem // New York Commodity Exchange
+:negotium_coeptis_commutationem_nasdaq:negotium_coeptis_commutationem // NASDAQ Stock Exchange
+:negotium_coeptis_commutationem_amex:negotium_coeptis_commutationem // American Stock Exchange
+:negotium_coeptis_commutationem_lse:negotium_coeptis_commutationem // London Stock Exchange
+:negotium_coeptis_commutationem_forex:negotium_coeptis_commutationem // Foreign Exchange
+:negotium_coeptis_commutationem_cme:negotium_coeptis_commutationem // Chicago Merchantile Exchange
+:negotium_coeptis_commutationem_cfe:negotium_coeptis_commutationem // Chicago Futures Exchange
+:negotium_coeptis_commutationem_cbot:negotium_coeptis_commutationem // Chicago Board of Trade 
+:negotium_coeptis_commutationem_hkex:negotium_coeptis_commutationem // Hong Kong Stock Exchange
+:negotium_coeptis_commutationem_sgx:negotium_coeptis_commutationem // Singapore Stock Exchange
 
+[en]{
+	new york stock exchange=:negotium_coeptis_commutationem_nyse
+	new york merchantile exchange=:negotium_coeptis_commutationem_nymex
+	new york commodity exchange=:negotium_coeptis_commutationem_comex
+	nasdaq stock exchange=:negotium_coeptis_commutationem_nasdaq
+	american stock exchange=:negotium_coeptis_commutationem_amex
+	london stock exchange=:negotium_coeptis_commutationem_lse
+	foreign exchange=:negotium_coeptis_commutationem_forex
+	chicago merchantile exchange=:negotium_coeptis_commutationem_cme
+	chicago futures exchange=:negotium_coeptis_commutationem_cfe
+	chicago board of trade=:negotium_coeptis_commutationem_cbot
+	hong kong stock exchange=:negotium_coeptis_commutationem_hkex
+	singapore stock exchange=:negotium_coeptis_commutationem_sgx
+	
+	nyse=$new york stock exchange
+	nymex=$new york merchantile exchange
+	comex=$new york commodity exchange
+	nasdaq=$nasdaq stock exchange
+	amex=$american stock exchange
+	lse=$london stock exchange
+	forex=$foreign exchange
+	cme=$chicago merchantile exchange
+	cfe=$chicago futures exchange
+	cbot=$chicago board of trade
+	hkex=$hong kong stock exchange
+	sgx=$singapore stock exchange
+}
+
+:negotium_partem_seller::negotium_partem      // продавец
+:negotium_partem_buyer::negotium_partem       // покупатель
+:negotium_partem_corpoffice::negotium_partem  // штаб-квартира
+:negotium_partem_delivery::negotium_partem    // грузоперевозчик
+:negotium_partem_selleragent::negotium_partem // агент продавца
+:negotium_partem_consignor::negotium_partem   // грузоотправитель
+:negotium_partem_consignee::negotium_partem   // грузополучатель
+:negotium_partem_payee::negotium_partem       // плательщик
 //
 // Примеры синтаксиса определения понятия на натуральном языке //
 //

@@ -2877,12 +2877,14 @@ private:
 		}
 		return ok;
 	}
-	int   SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const PPBillPacket & rBp)
+	int   SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 	{
 		int    ok = 1;
 		SString temp_buf;
 		SXml::WDoc _doc(pX, cpUTF8);
 		SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+		rIdent.ToStr(S_GUID::fmtIDL, temp_buf);
+		n_docs.PutAttrib("id", temp_buf);
 		{
 			SXml::WNode n_hdr(_doc, "interchangeHeader");
 			THROW(GetMainOrgGLN(temp_buf));
@@ -2966,13 +2968,49 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int   SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+	//
+	// Returns:
+	//   1 - accepted
+	//   2 - rejected 
+	//   3 - changed
+	//
+	int   SLAPI IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+	{
+		int    status = 1; 
+		if(pExtBp != 0 && pExtBp != &rBp) {
+			int    all_rejected = 1;
+			const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
+			for(uint i = 0; i < r_org_pack.GetTCount(); i++) {
+				uint   current_ti_pos = 0;
+				const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
+				const PPTransferItem * p_current_ti = rBp.SearchTI(r_ti.RByBill, &current_ti_pos) ? &rBp.ConstTI(current_ti_pos) : 0;
+				PPID   goods_id = r_ti.GoodsID;
+				PPID   confirm_goods_id = p_current_ti ? p_current_ti->GoodsID : goods_id;
+				double qtty = fabs(r_ti.Quantity_);
+				double confirm_qtty = p_current_ti ? fabs(p_current_ti->Quantity_) : 0.0;
+				double price = (r_ti.Price - r_ti.Discount);
+				double confirm_price = p_current_ti ? (p_current_ti->Price - p_current_ti->Discount) : price;
+				if(confirm_qtty != 0.0) {
+					all_rejected = 0;
+					if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id) 
+						status = 3;
+				}
+			}
+			if(all_rejected) {
+				status = 2;
+			}
+		}
+		return status;
+	}
+	int   SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 	{
 		int    ok = 1;
 		const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
 		SString temp_buf;
 		SXml::WDoc _doc(pX, cpUTF8);
 		SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+		rIdent.ToStr(S_GUID::fmtIDL, temp_buf);
+		n_docs.PutAttrib("id", temp_buf);
 		{
 			SXml::WNode n_hdr(_doc, "interchangeHeader");
 			THROW(GetMainOrgGLN(temp_buf));
@@ -2987,7 +3025,17 @@ private:
 			SXml::WNode n_b(_doc, "orderResponse"); // <order number="OR012012552011" date="2014-02-07" status="Replace" revisionNumber="02">
 			n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 			n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
-			n_b.PutAttrib("status", "Original");
+			{
+				int ordrsp_status = IdentifyOrderRspStatus(rBp, pExtBp);
+				const char * p_status_text = 0;
+				switch(ordrsp_status) {
+					case 1: p_status_text = "Accepted"; break;
+					case 2: p_status_text = "Rejected"; break;
+					case 3: p_status_text = "Changed"; break;
+				}
+				assert(!isempty(p_status_text));
+				n_b.PutAttrib("status", p_status_text); // [Accepted,Rejected,Changed]
+			}
 			{
 				//SXml::WNode n_i(_doc, "proposalOrdersIdentificator"); // <proposalOrdersIdentificator number="001" date="2014-02-06"/>
 			}
@@ -3073,7 +3121,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int   SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const PPBillPacket & rBp)
+	int   SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -3081,6 +3129,8 @@ private:
 		PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName, bill_text);
 		SXml::WDoc _doc(pX, cpUTF8);
 		SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+		rIdent.ToStr(S_GUID::fmtIDL, temp_buf);
+		n_docs.PutAttrib("id", temp_buf);
 		{
 			SXml::WNode n_hdr(_doc, "interchangeHeader");
 			THROW(GetMainOrgGLN(temp_buf));
@@ -3469,7 +3519,7 @@ int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillExportFilt & rP, const PPIDAr
 			PPEdiProcessor::Packet pack(PPEDIOP_ORDERRSP);
 			if(P_BObj->ExtractPacket(bill_id, (PPBillPacket *)pack.P_Data) > 0) {
 				int gopr = P_BObj->GetOriginalPacket(bill_id, 0, (PPBillPacket *)pack.P_ExtData);
-				if(gopr <= 0) {
+				if(gopr <= 0 || gopr == 1/*документ не менялся*/) {
 					delete (PPBillPacket *)pack.P_ExtData;
 					pack.P_ExtData = 0;
 				}
@@ -4231,7 +4281,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
 		if(rPack.DocType == PPEDIOP_ORDER) {
 			if(edi_format_symb == "2") {
-				THROW(Write_OwnFormat_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
+				THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
 			}
 			else {
 				PPEanComDocument s_doc(this);
@@ -4240,7 +4290,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		}
 		else if(rPack.DocType == PPEDIOP_ORDERRSP) {
 			if(edi_format_symb == "2") {
-				THROW(Write_OwnFormat_ORDERRSP(p_x, *(const PPBillPacket *)rPack.P_Data, (const PPBillPacket *)rPack.P_ExtData));
+				THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data, (const PPBillPacket *)rPack.P_ExtData));
 			}
 			else {
 				PPEanComDocument s_doc(this);
@@ -4249,13 +4299,15 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		}
 		else if(rPack.DocType == PPEDIOP_DESADV) {
 			if(edi_format_symb == "2") {
-				THROW(Write_OwnFormat_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
+				THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
 			}
 			else {
 				PPEanComDocument s_doc(this);
 				THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
 			}
 		}
+		xmlFreeTextWriter(p_x);
+		p_x = 0;
 		if(!(Flags & ctrfTestMode)) {
 			InetUrl url;
 			if(Epp.MakeUrl(0, url)) {

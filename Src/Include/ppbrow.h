@@ -840,6 +840,7 @@
 #define BM_PERSON                    233
 #define BM_USER                      234
 #define BM_USERGROUP                 235
+#define BM_PHONEFORWARDED            236
 //
 // PPVIEW COMMAND definitions
 //
@@ -4620,5 +4621,9 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_CATEGORYFAW02           105
 #define PPDV_GUESTCOUNT01            106
 #define PPDV_DELIVERY01              107
-#define PPDV_LOGOPAPYRUS             108
+#define PPDV_PHONE01                 108
+#define PPDV_PHONE02                 109
+#define PPDV_PHONE03                 110
+#define PPDV_PHONEFORWARDED01        111
+#define PPDV_LOGOPAPYRUS             112
 

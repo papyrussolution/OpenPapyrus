@@ -1994,23 +1994,23 @@ public:
 
 		indInvalid = 0xff, // Используется как внутренний код возврата, означающий ошибку
 
-		indMSec  = 0,  // since 1601-01-01 (UTC).
-        indSec,        // since 1601-01-01 (UTC).
-        indMin,        // since 1601-01-01 (UTC).
-        indHr,         // since 1601-01-01 (UTC).
-		indMSecTz,     // since 1601-01-01 (UTC). // timezone - lowest 8 bit
-		indCSecTz,     // since 1601-01-01 (UTC). // timezone - lowest 8 bit
-        indSecTz,      // since 1601-01-01 (UTC). // timezone - lowest 8 bit
-        indMinTz,      // since 1601-01-01 (UTC). // timezone - lowest 8 bit
-        indHrTz,       // since 1601-01-01 (UTC). // timezone - lowest 8 bit
-		indEpoch,      // since 1970-01-01 00:00:00 GMT
-        indDay,        // since 0001-01-01
-        indMon,        // since 0001-01-01
-		indQuart,      // since 0001-01-01
-		indSmYr,       // since 0001-01-01
-		indYr,         // since 0001-01-01
-		indDYr,        // since 0001-01-01
-		indSmCent,     // since 0001-01-01
+		indMSec  = 0,    // since 1601-01-01 (UTC).
+        indSec,          // since 1601-01-01 (UTC).
+        indMin,          // since 1601-01-01 (UTC).
+        indHr,           // since 1601-01-01 (UTC).
+		indMSecTz,       // since 1601-01-01. // timezone - lowest 8 bit
+		indCSecTz,       // since 1601-01-01. // timezone - lowest 8 bit
+        indSecTz,        // since 1601-01-01. // timezone - lowest 8 bit
+        indMinTz,        // since 1601-01-01. // timezone - lowest 8 bit
+        indHrTz,         // since 1601-01-01. // timezone - lowest 8 bit
+		indEpoch,        // since 1970-01-01 00:00:00 GMT seconds
+        indDay,          // since 0001-01-01
+        indMon,          // since 0001-01-01
+		indQuart,        // since 0001-01-01
+		indSmYr,         // since 0001-01-01
+		indYr,           // since 0001-01-01
+		indDYr,          // since 0001-01-01
+		indSmCent,       // since 0001-01-01
 		indCent,         // since 0001-01-01
 		indMillennium,   // since 0001-01-01
 		indDayBC,        // before 0001-01-01
@@ -2019,12 +2019,14 @@ public:
 		indDYrBC,        // before 0001-01-01
 		indCentBC,       // before 0001-01-01
 		indMillenniumBC, // before 0001-01-01
+		indMlnYrAgo,
+		indBlnYrAgo
 	};
 	SUniTime();
-	int    Set(uint day, uint mon, uint year, uint hr, uint mn, uint s, uint mks);
-	int    FASTCALL Set(const LDATE & rD);
+	SUniTime & Z();
+	int    FASTCALL Set(LDATE d);
 	int    FASTCALL Set(const LDATETIME & rD);
-	int    FASTCALL Set(const time_t & rD);
+	int    FASTCALL Set(time_t t);
 	int    FASTCALL Set(const FILETIME & rD);
 	int    FASTCALL Get(LDATE & rD) const;
 	int    FASTCALL Get(LDATETIME & rD) const;

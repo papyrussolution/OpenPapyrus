@@ -833,7 +833,7 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString 
 					rResult.CatChar(*p++);
 				} while(isdec(*p));
 			}
-			break; // Не зависито от того, был добавочный номер правильный или нет, выходим. Добавочный номер - может быть только в конце.
+			break; // Не зависимо от того, был добавочный номер правильный или нет, выходим. Добавочный номер - может быть только в конце.
 		}
 	}
 	return rResult;

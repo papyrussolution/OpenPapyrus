@@ -4679,7 +4679,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 				}
 				break;
 			case cmPersonReg: PsnObj.RegObj.EditList(&Data, 0); break;
-			case cmPersonPhones: EditELinks(&Data.ELA); break;
+			case cmPersonPhones: EditELinks(Data.Rec.Name, &Data.ELA); break;
 			case cmPersonBAcct: PsnObj.RegObj.EditBankAccountList(&Data); break;
 			case cmPersonTags: EditObjTagValList(&Data.TagL, 0); break;
 			case cmPersonAddr:

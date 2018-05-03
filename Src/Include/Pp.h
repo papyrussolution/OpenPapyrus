@@ -5954,21 +5954,22 @@ public:
 	PPID   SupplDevDnQuotKindID; // Вид котировки, определяющий нижние отклонения от контрактных цен поставщиков
 	int16  InvalidSupplDealQuotAction; // действие при неверной контрактной цене
 	int16  Reserve;              // @alignment
-	PPID   GlobAccID;            // @v7.2.3 Текущий ИД глобальной учетной записи
-	PPID   AgentAccSheetID;      // @v8.7.2 0 - не инициализирован, -1 - не удалось идентифицировать, >0 - валидное значение
+	PPID   GlobAccID;            // Текущий ИД глобальной учетной записи
+	PPID   AgentAccSheetID;      // 0 - не инициализирован, -1 - не удалось идентифицировать, >0 - валидное значение
+	PPID   DefPhnSvcID;          // @v10.0.04 Ид телефонного сервиса по умолчанию (PPEquipConfig::PhnSvcID)
 	//
 	// Descr: Флаги состояния State
 	//
 	enum {
 		stExpTariffTa = 0x0001,
 		stMainOrgInit = 0x0002,
-		stAuth        = 0x0004  // @v8.6.11 Поток авторизован в базе данных Papyrus
+		stAuth        = 0x0004  // Поток авторизован в базе данных Papyrus
 	};
 	int    State;                // @Muxa @v7.3.8 Флаги
 	SysJournal * P_SysJ;
 	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось
 		// ее открывать при каждом удалении объекта (в транзакции)
-	GtaJournalCore * P_GtaJ;     // @v7.3.8
+	GtaJournalCore * P_GtaJ;     // 
 	Reference  * P_Ref;
 	PPObjBill  * P_BObj;
 	// @v8.3.6 Следущие два экземпляру инициализируются нулями и используются только в специальных случаях
@@ -5976,7 +5977,7 @@ public:
 	PPObjWorld * P_WObj;
 	PPObjWorkbook * P_WbObj;
 	// }
-	PPObjPrjTask * P_TodoObj;    // @v8.5.11
+	PPObjPrjTask * P_TodoObj;    // 
 	PPObjID  LastErrObj;         // Object's ID, by last generated error
 	PPLastInputData Lid;
 	int    PrnDirId;
@@ -50389,8 +50390,8 @@ enum {
 
 int    SLAPI CCheckPane(PPID cashNodeID, PPID checkID, const char * pInitLine = 0, long flags = 0);
 int    SLAPI ViewCashNodes();
-int    SLAPI EditELinks(PPELinkArray *);
 int    SLAPI ViewPerson(const PersonFilt *);
+int    SLAPI EditELinks(const char * pInfo, PPELinkArray * pList);
 int    SLAPI EditMainOrg();
 int    SLAPI ViewShipmAnalyze(ShipmAnalyzeFilt *);
 int    SLAPI ViewGoodsRest(const GoodsRestFilt *, int);

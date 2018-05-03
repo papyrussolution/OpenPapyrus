@@ -5,6 +5,25 @@
 #include <pp.h>
 #pragma hdrstop
 
+static int __PhoneTo(SString & rPhone)
+{
+	int    ok = -1;
+	if(rPhone.NotEmpty()) {
+		SString channel_from;
+		PPObjPhoneService ps_obj(0);
+		PPPhoneServicePacket ps_pack;
+		const PPID phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+		if(phn_svc_id && ps_obj.GetPacket(phn_svc_id, &ps_pack) > 0) {
+			if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
+				AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(phn_svc_id);
+				ok = p_phnsvccli ? p_phnsvccli->Originate(channel_from, rPhone, 0, 1) : 0;
+				delete p_phnsvccli;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI EditELink(PPELink * pLink)
 {
 	class ELinkDialog : public TDialog {
@@ -77,22 +96,7 @@ int SLAPI EditELink(PPELink * pLink)
 					SString phone_to;
 					addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 					PPEAddr::Phone::NormalizeStr(addr, phone_to);
-					if(phone_to.NotEmpty()) {
-						SString channel_from;
-						PPObjPhoneService ps_obj(0);
-						PPPhoneServicePacket ps_pack;
-						PPEquipConfig eq_cfg;
-						ReadEquipConfig(&eq_cfg);
-						if(eq_cfg.PhnSvcID && ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0) {
-							if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
-								AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(eq_cfg.PhnSvcID);
-								if(p_phnsvccli) {
-									p_phnsvccli->Originate(channel_from, phone_to, 0, 1);
-								}
-								delete p_phnsvccli;
-							}
-						}
-					}
+					__PhoneTo(phone_to);
 				}
 			}
 			else
@@ -257,27 +261,28 @@ static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 	return ok;
 }
 
-int SLAPI EditELinks(PPELinkArray * pList)
+int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 {
+	static const uint SlotCount = 5;
 	class ELinkDialog : public TDialog {
 	public:
-		ELinkDialog(PPELinkArray * ary) : TDialog(DLG_ELNKSET), kinds(sizeof(PPELinkKind))
+		ELinkDialog(PPELinkArray * pArray) : TDialog(DLG_ELNKSET), KindList(sizeof(PPELinkKind))
 		{
 			PPELinkKind k;
 			PPObjELinkKind elk_obj;
 			for(PPID id = 0; elk_obj.EnumItems(&id, &k) > 0;)
-				kinds.insert(&k);
-			kinds.sort(PTR_CMPFUNC(PPELinkKind));
-			data.copy(*ary);
-			setup();
+				KindList.insert(&k);
+			KindList.sort(PTR_CMPFUNC(PPELinkKind));
+			Data.copy(*pArray);
+			Setup();
 		}
 		int  getDTS(PPELinkArray * pData)
 		{
 			int    ok = 1;
 			uint   sel = 0;
 			PPELink * p_item;
-			for(uint i = 0; i < 5 && i < data.getCount(); i++) {
-				p_item = & data.at(i);
+			for(uint i = 0; i < SlotCount && i < Data.getCount(); i++) {
+				p_item = & Data.at(i);
 				getCtrlData(sel = (i * 3 + 2 + WINDOWS_ID_BIAS), &p_item->KindID);
 				getCtrlData(sel = (i * 3 + 3 + WINDOWS_ID_BIAS), p_item->Addr);
 				strip(p_item->Addr);
@@ -288,12 +293,12 @@ int SLAPI EditELinks(PPELinkArray * pList)
 					THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
 				}
 			}
-			for(int j = data.getCount() - 1; j >= 0; j--) {
-				p_item = & data.at(j);
+			for(int j = Data.getCount() - 1; j >= 0; j--) {
+				p_item = &Data.at(j);
 				if(p_item->KindID == 0 || p_item->Addr[0] == 0)
-					data.atFree(j);
+					Data.atFree(j);
 			}
-			CALLPTRMEMB(pData, copy(data));
+			CALLPTRMEMB(pData, copy(Data));
 			CATCH
 				ok = PPErrorByDialog(this, sel);
 			ENDCATCH
@@ -303,50 +308,109 @@ int SLAPI EditELinks(PPELinkArray * pList)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isCmd(cmaMore)) {
-				editList();
-				clearEvent(event);
-			}
-		}
-		void   setup()
-		{
-			uint   i;
-			PPELink lnk;
-			OrderELinkArray(&data, &kinds);
-			if(data.getCount() < 5) {
-				for(i = 0; i < kinds.getCount() && data.getCount() <= 5; i++) {
-					PPID k = ((PPELinkKind*)kinds.at(i))->ID;
-					if(!data.lsearch(&k, 0, CMPF_LONG)) {
-						MEMSZERO(lnk);
-						lnk.KindID = k;
-						data.insert(&lnk);
+			if(TVCOMMAND) {
+				if(event.isCmd(cmaMore)) {
+					editList();
+					clearEvent(event);
+				}
+				else {
+					for(uint i = 0; i < SlotCount; i++) {
+						if(event.message.command == (cmELnkSetAction1+i)) {
+							SString phone_buf;
+							if(IsPhoneNumber(i, phone_buf)) {
+								__PhoneTo(phone_buf);
+							}
+							break;
+						}
 					}
 				}
 			}
-			for(i = 0; i < 5 && i < data.getCount(); i++) {
-				lnk = data.at(i);
+		}
+		int    IsPhoneNumber(uint position, SString & rPhone)
+		{
+			int    ok = 0;
+			rPhone.Z();
+			if(position >= 0 && position < SlotCount) {
+				int   mode = 0; // 0 - hide button, 1 - phone button, 2 - mail button (reserved)
+				const uint ctl_id = CTL_ELNKSET_ACN1 + position;
+				if(position < Data.getCount()) {
+					const PPELinkKind * p_elk = (PPELinkKind *)KindList.at(position);
+					if(oneof2(p_elk->Type, ELNKRT_PHONE, ELNKRT_INTERNALEXTEN)) {
+						SString addr_buf;
+						getCtrlString(position * 3 + 3 + WINDOWS_ID_BIAS, addr_buf);
+						if(addr_buf.Len()) {
+							addr_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+							PPEAddr::Phone::NormalizeStr(addr_buf, rPhone);
+							if(rPhone.Len())
+								mode = 1;
+						}
+					}
+
+				}
+				if(mode == 1)
+					ok = 1;
+			}
+			return ok;
+		}
+		void   SetupActionButton(uint position)
+		{
+			SString phone_buf;
+			if(position >= 0 && position < SlotCount) {
+				const uint ctl_id = CTL_ELNKSET_ACN1 + position;
+				const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+				if(def_phn_svc_id && IsPhoneNumber(position, phone_buf)) {
+					showCtrl(ctl_id, 1);
+					setButtonBitmap(cmELnkSetAction1+position, IDB_PHONEFORWARDED);
+				}
+				else {
+					showCtrl(ctl_id, 0);
+				}
+			}
+		}
+		void   Setup()
+		{
+			uint   i;
+			PPELink lnk;
+			OrderELinkArray(&Data, &KindList);
+			if(Data.getCount() < SlotCount) {
+				for(i = 0; i < KindList.getCount() && Data.getCount() <= SlotCount; i++) {
+					PPID k = ((PPELinkKind *)KindList.at(i))->ID;
+					if(!Data.lsearch(&k, 0, CMPF_LONG)) {
+						MEMSZERO(lnk);
+						lnk.KindID = k;
+						Data.insert(&lnk);
+					}
+				}
+			}
+			for(i = 0; i < SlotCount && i < Data.getCount(); i++) {
+				lnk = Data.at(i);
 				SetupPPObjCombo(this, i * 3 + 2 + WINDOWS_ID_BIAS, PPOBJ_ELINKKIND, lnk.KindID, OLW_CANINSERT, 0);
 				setCtrlData(i * 3 + 3 + WINDOWS_ID_BIAS, lnk.Addr);
 			}
+			for(i = 0; i < SlotCount; i++)
+				SetupActionButton(i);
 		}
 		void   editList()
 		{
 			ELinkListDialog * dlg = 0;
 			getDTS(0);
-			if(CheckDialogPtrErr(&(dlg = new ELinkListDialog(&data)))) {
+			if(CheckDialogPtrErr(&(dlg = new ELinkListDialog(&Data)))) {
 				if(ExecView(dlg) == cmOK) {
-					dlg->getDTS(&data);
-					setup();
+					dlg->getDTS(&Data);
+					Setup();
 				}
 				delete dlg;
 			}
 		}
-		SArray kinds;
-		PPELinkArray data;
+		SArray KindList;
+		PPELinkArray Data;
+		PPObjELinkKind ElkObj;
 	};
 	int    r = -1;
 	ELinkDialog * dlg = new ELinkDialog(pList);
 	if(CheckDialogPtrErr(&dlg)) {
+		SString temp_buf = pInfo;
+		dlg->setCtrlString(CTL_ELNKSET_INFO, temp_buf);
 		while(r < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pList))
 				r = 1;

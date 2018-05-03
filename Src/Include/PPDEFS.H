@@ -1606,6 +1606,7 @@
 #define IDB_SELMODIFIER           BM_SELMODIFIER
 #define IDB_PASTE                 BM_PASTE
 #define IDB_PHONE                 BM_PHONE
+#define IDB_PHONEFORWARDED        BM_PHONEFORWARDED
 #define IDB_DELIVERY              BM_DELIVERY
 //
 // Virtual Buttons
@@ -4001,6 +4002,11 @@
 	#define CTL_ELNKK_FLAGS              (4 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_SYMB               (5 + WINDOWS_ID_BIAS)
 #define DLG_ELNKSET               313 // Електронные адреса персоналии
+	#define cmELnkSetAction1             101
+	#define cmELnkSetAction2             102
+	#define cmELnkSetAction3             103
+	#define cmELnkSetAction4             104
+	#define cmELnkSetAction5             105
 	#define CTL_ELNKSET_KIND1            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ELNKSET_KIND1         (2 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKSET_ADDR1            (3 + WINDOWS_ID_BIAS)
@@ -4016,6 +4022,13 @@
 	#define CTL_ELNKSET_KIND5           (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ELNKSET_KIND5        (14 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKSET_ADDR5           (15 + WINDOWS_ID_BIAS)
+
+	#define CTL_ELNKSET_ACN1            (61 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKSET_ACN2            (62 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKSET_ACN3            (63 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKSET_ACN4            (64 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKSET_ACN5            (65 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKSET_INFO            (81 + WINDOWS_ID_BIAS)
 #define DLG_ELNKLST               314 // Список эл адресов персоналии
 	#define CTL_ELNKLST_LIST             (1 + WINDOWS_ID_BIAS)
 #define DLG_REGLST                315 // Список регистров
