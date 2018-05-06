@@ -2243,6 +2243,7 @@
 	#define cmExtFields                  110
 	#define cmLocRegisters               111
 	#define cmLocTags                    112
+	#define cmLocAction1                 113
 	#define CTL_LOCATION_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_CODE            (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_FLAGS           (3 + WINDOWS_ID_BIAS)
@@ -2278,6 +2279,7 @@
 	#define CTL_LOCATION_PHONE          (33 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_CONTACT        (34 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_EMAIL          (35 + WINDOWS_ID_BIAS)
+	#define CTL_LOCATION_ACN1           (36 + WINDOWS_ID_BIAS)
 
 #define DLG_ATURN                  74 // Бух. проводка
 #define DLG_REGATURN               78 // Регистровая проводка
@@ -5527,6 +5529,7 @@
 	#define CTLSEL_SCARDSER_PARENT       (27 + WINDOWS_ID_BIAS)
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
+	#define cmSCardAction1               102
 	#define CTL_SCARD_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_SERIES             (3 + WINDOWS_ID_BIAS)
@@ -5554,6 +5557,7 @@
 	#define CTL_SCARD_ADDRINFO           (25 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_PHONEINPUT         (26 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_PHONE              (27 + WINDOWS_ID_BIAS)
+	#define CTL_SCARD_ACN1               (28 + WINDOWS_ID_BIAS)
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -10336,6 +10340,7 @@
 #define DLG_PHNCPANE              1332
 	#define cmNewContact              101
 	#define cmAttachContact           102
+	#define cmPhnCPaneAction          103
 	#define CTL_PHNCPANE_PHN          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_NAME         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PHNCPANE_NAME      (3 + WINDOWS_ID_BIAS)
@@ -10345,6 +10350,7 @@
 	#define CTLSEL_PHNCPANE_INFSEL    (7 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_LISTMODE     (8 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_AUTOCLOSE    (9 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_ACTION       (10 + WINDOWS_ID_BIAS)
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334
@@ -10373,6 +10379,15 @@
 	#define CTL_SELOBJBYPHN_EXT       (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELOBJBYPHN_EXT    (4 + WINDOWS_ID_BIAS)
 	#define CTL_SELOBJBYPHN_SRCH      (5 + WINDOWS_ID_BIAS)
+#define DLG_CORCC                 1337
+	#define CTL_CORCC_LOG             (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_CORCC_LOG          (2 + WINDOWS_ID_BIAS)
+	#define CTL_CORCC_FLAGS           (3 + WINDOWS_ID_BIAS)
+#define DLG_SELACNBYPHN           1338
+	#define CTL_SELACNBYPHN_WHAT      (1 + WINDOWS_ID_BIAS)
+	#define CTL_SELACNBYPHN_INFO      (2 + WINDOWS_ID_BIAS)
+	#define CTL_SELACNBYPHN_EXT       (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SELACNBYPHN_EXT    (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

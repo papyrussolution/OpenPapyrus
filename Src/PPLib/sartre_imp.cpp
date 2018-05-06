@@ -2459,7 +2459,6 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 	return ok;
 }
 
-// @construction {
 int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 {
 	struct InnerMethods {
@@ -2977,7 +2976,68 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	PPWait(0);
 	return ok;
 }
-// } @construction
+//
+//
+//
+int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, const char * pFileName)
+{
+	int    ok = 1;
+	struct Entry {
+		Entry & Z()
+		{
+			Ticker.Z();
+			Name.Z();
+			LastSaleQuote = 0.0;
+			MarketCap = 0.0;
+			IPOYear = 0;
+			Sector.Z();
+			Industry.Z();
+			return *this;
+		}
+		SString Ticker;
+		SString Name;
+		double LastSaleQuote;
+		double MarketCap;
+		int    IPOYear;
+		SString Sector;
+		SString Industry;
+	};
+	// "Symbol","Name","LastSale","MarketCap","ADR TSO","IPOyear","Sector","Industry","Summary Quote",
+	SString temp_buf;
+	SString line_buf;
+	Entry entry;
+	SFile f_in(pFileName, SFile::mRead);
+	THROW_SL(f_in.IsValid());
+	for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
+		if(line_no > 1) {
+			line_buf.Chomp().Strip();
+			SStrScan scan(line_buf);
+			uint   fld_no = 0;
+			entry.Z();
+			while(scan.GetQuotedString(temp_buf)) {
+				fld_no++;
+				if(temp_buf.IsEqiAscii("n/a"))
+					temp_buf.Z();
+				switch(fld_no) {
+					case 1: entry.Ticker = temp_buf; break;
+					case 2: entry.Name = temp_buf; break;
+					case 3: entry.LastSaleQuote = temp_buf.ToReal(); break;
+					case 4: entry.MarketCap = temp_buf.ToReal(); break;
+					case 5: break; // adr tso
+					case 6: entry.IPOYear = temp_buf.ToLong(); break;
+					case 7: entry.Sector = temp_buf; break;
+					case 8: entry.Industry = temp_buf; break;
+					case 9: break; // summary quote
+				}
+				if(!scan.IncrChr(','))
+					break;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 
 #if 0 // {
 //

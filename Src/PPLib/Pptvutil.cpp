@@ -384,6 +384,34 @@ void FASTCALL DisableOKButton(TDialog * dlg)
 	}
 }
 
+int FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd)
+{
+	int    ok = -1;
+	if(pDlg && btnCmd) {
+		if(inputCtlId) {
+			const  PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+			if(def_phn_svc_id) {
+				SString temp_buf;
+				pDlg->getCtrlString(inputCtlId, temp_buf);
+				if(temp_buf.NotEmptyS()) {
+					SString phone_buf;
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+					PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
+					if(phone_buf.Len() >= 5)
+						ok = 1;
+				}
+			}
+		}
+		if(ok > 0) {
+			pDlg->showButton(btnCmd, 1);
+			pDlg->setButtonBitmap(btnCmd, IDB_PHONEFORWARDED);
+		}
+		else
+			pDlg->showButton(btnCmd, 0);
+	}
+	return ok;
+}
+
 void ViewAsyncEventQueueStat()
 {
 	class AsyncEventQueueStatDialog : public TDialog {

@@ -5233,6 +5233,12 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 													if(!p_wroff_bp) {
 														THROW_MEM(p_wroff_bp = new PPBillPacket);
 														THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+														// @v10.0.04 {
+														{
+															PPLoadString(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf); // "Реализация"
+															p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf);
+														}
+														// } @v10.0.04
 													}
 													if(ex_row_list.getCount()) {
 														const uint ex_pos = ex_row_list.get(0);

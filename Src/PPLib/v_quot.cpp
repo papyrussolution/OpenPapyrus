@@ -1882,7 +1882,7 @@ int SLAPI PPViewQuot::Recover()
 					P_Qc->copyBufTo(&rec);
 
 					DBRowId dbpos;
-					THROW_DB(P_Qc->getPosition(&dbpos)); // @v8.0.0
+					THROW_DB(P_Qc->getPosition(&dbpos));
 					PPWaitPercent(cntr.Increment());
 					if(rec.Actual) {
 						PPQuot quot(rec);
@@ -1917,7 +1917,7 @@ int SLAPI PPViewQuot::Recover()
 							}
 						}
 					}
-					THROW_DB(P_Qc->getDirect(2, &k2, dbpos)); // @v8.0.0
+					THROW_DB(P_Qc->getDirect(2, &k2, dbpos));
 				} while(P_Qc->search(2, &k2, spNext));
 				if(quot_list.GoodsID) {
 					if(quot_list.Correct721(&logger) > 0) {

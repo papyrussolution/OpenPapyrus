@@ -4,101 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-class SelectObjByPhoneDialog : public TDialog {
-public:
-	struct Param {
-		Param() : ExtSelector(0)
-		{
-			Oid.Set(0, 0);
-		}
-		SString Phone;
-		PPObjID Oid;
-		PPID   ExtSelector;
-		SString SearchStr;
-	};
-	SelectObjByPhoneDialog() : TDialog(DLG_SELOBJBYPHN)
-	{
-	}
-	int setDTS(const Param * pData)
-	{
-		RVALUEPTR(Data, pData);
-		setCtrlString(CTL_SELOBJBYPHN_INFO, Data.Phone);
-		AddClusterAssocDef(CTL_SELOBJBYPHN_WHAT, 0, PPOBJ_PERSON);
-		AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 1, PPOBJ_SCARD);
-		AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 2, PPOBJ_LOCATION); // автономный адрес
-		SetClusterData(CTL_SELOBJBYPHN_WHAT, Data.Oid.Obj);
-		SetupCtrls();
-		return 1;
-	}
-	int getDTS(Param * pData)
-	{
-		int    ok = 1;
-		GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
-		Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
-		if(Data.Oid.Obj == PPOBJ_PERSON) {
-			Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
-		}
-		else if(Data.Oid.Obj == PPOBJ_SCARD) {
-			Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
-		}
-		ASSIGN_PTR(pData, Data);
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isClusterClk(CTL_SELOBJBYPHN_WHAT)) {
-			SetupCtrls();
-		}
-		else if(event.isCbSelected(CTLSEL_SELOBJBYPHN_EXT)) {
-			const PPID preserve_ext = Data.ExtSelector;
-			Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
-			if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD)) {
-				SetupCtrls();
-			}
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	void   SetupCtrls()
-	{
-		const PPID preserve_obj_type = Data.Oid.Obj;
-		GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
-		if(Data.Oid.Obj != preserve_obj_type)
-			Data.ExtSelector = 0;
-		switch(Data.Oid.Obj) {
-			case PPOBJ_PERSON:
-				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
-				SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PRSNKIND, Data.ExtSelector, 0);
-				{
-					PersonSelExtra * p_se = new PersonSelExtra(0, Data.ExtSelector);
-					if(p_se) {
-						p_se->SetTextMode(false);
-						SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 3, 0);
-					}
-				}
-				break;
-			case PPOBJ_SCARD:
-				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
-				SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_SCARDSERIES, Data.ExtSelector, 0);
-				{
-					SCardSelExtra * p_se = new SCardSelExtra(Data.ExtSelector);
-					if(p_se) {
-						SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 5, 0);
-					}
-				}
-				break;
-			default:
-				disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 1);
-				ResetWordSelector(CTL_SELOBJBYPHN_SRCH);
-				break;
-		}
-	}
-	Param  Data;
-};
-
 class PhonePaneDialog : public TDialog {
 public:
 	struct State {
@@ -135,247 +40,169 @@ public:
 		PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
 		PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
 	};
-	int    SetupInfo()
-	{
-		int   result = 1;
-		SString temp_buf;
-		setCtrlString(CTL_PHNCPANE_PHN, S.ConnectedLine);
-		temp_buf = S.Channel;
-		if(S.ConnectedLine.NotEmpty())
-			temp_buf.CatDivIfNotEmpty(';', 2).Cat(S.ConnectedLine);
-		if(S.Status == PhnSvcChannelStatus::stUp) {
-			if(!!S.SinceUp) {
-				long   up_time = diffdatetimesec(getcurdatetime_(), S.SinceUp);
-				temp_buf.CatDivIfNotEmpty(';', 2).CatEq("UpTime", up_time);
-			}
-			showCtrl(CTL_PHNCPANE_AUTOCLOSE, 0);
-		}
-		else {
-			temp_buf.CatDivIfNotEmpty(';', 2).Cat("DOWN");
-		}
-		setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
-		if(S.Status != PhnSvcChannelStatus::stUp) {
-			showCtrl(CTL_PHNCPANE_AUTOCLOSE, 1);
-			if(!S.SinceDown) {
-				SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
-			}
-			else {
-				const   long time_to_close = 15;
-				long s = diffdatetimesec(getcurdatetime_(), S.SinceDown);
-				long sec_left = (s < time_to_close) ? (time_to_close - s) : 0;
-				PPFormatS(PPSTR_TEXT, PPTXT_CLOSEWINAFTERXSEC, &temp_buf, sec_left);
-				SetClusterItemText(CTL_PHNCPANE_AUTOCLOSE, 0, temp_buf);
-				if(!(S.Flags & S.fLockAutoExit)) {
-					if(sec_left <= 0 && GetClusterData(CTL_PHNCPANE_AUTOCLOSE) == 1) {
-						// (выбивает сеанс) messageCommand(this, cmClose);
-						Sf |= sfCloseMe;
-						result = 100;
-					}
-				}
-			}
-		}
-		return result;
-	}
-	void   Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
-	{
-		if(pSt->Channel != S.Channel) {
-			SString temp_buf;
-			RVALUEPTR(S, pSt);
-			ZDELETE(P_PhnSvcCli);
-			if(S.Channel.NotEmpty()) {
-				if(S.PhnSvcID) {
-					PPObjPhoneService ps_obj(0);
-					P_PhnSvcCli = ps_obj.InitAsteriskAmiClient(S.PhnSvcID);
-				}
-			}
-			SetClusterData(CTL_PHNCPANE_LISTMODE, S.Mode);
-			SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
-			if(SetupInfo() == 100)
-				return;
-			else {
-				StrAssocArray name_list;
-				PPID   init_id = 0;
-				SString list_item_buf;
-				if(P_PSER && P_PSER->IsConsistent())
-					P_PSER->IdentifyCaller(S.ConnectedLine, OidList);
-				else
-					OidList.clear();
-				for(uint i = 0; i < OidList.getCount(); i++) {
-					const PPObjID & r_oid = OidList.at(i);
-					list_item_buf.Z();
-					if(r_oid.Obj == PPOBJ_PERSON) {
-						GetPersonName(r_oid.Id, temp_buf);
-						GetObjectTitle(r_oid.Obj, list_item_buf);
-						list_item_buf.CatDiv(':', 2).Cat(temp_buf);
-					}
-					else if(r_oid.Obj == PPOBJ_LOCATION) {
-						LocationTbl::Rec loc_rec;
-						if(PsnObj.LocObj.Search(r_oid.Id, &loc_rec) > 0) {
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-							GetObjectTitle(r_oid.Obj, list_item_buf);
-							list_item_buf.CatDiv(':', 2).Cat(temp_buf);
-						}
-					}
-					else if(r_oid.Obj == PPOBJ_SCARD) {
-						SCardTbl::Rec sc_rec;
-						if(ScObj.Search(r_oid.Id, &sc_rec) > 0) {
-							GetObjectTitle(r_oid.Obj, list_item_buf);
-							list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
-							PersonTbl::Rec psn_rec;
-							if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
-								list_item_buf.Space().Cat(psn_rec.Name);
-							}
-						}
-					}
-					if(list_item_buf.NotEmpty()) {
-						name_list.Add(i+1, list_item_buf);
-						if(init_id == 0)
-							init_id = i+1;
-					}
-				}
-				SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
-				OnContactSelection(1);
-			}
-		}
-	}
-	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : 
-		TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
-	{
-		P_Box = (SmartListBox*)getCtrlView(CTL_PHNCPANE_INFOLIST);
-		SetupStrListBox(P_Box);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 0, State::lmBill);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmTask);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmPersonEvent);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmScOp);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScCCheck);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmLocCCheck);
-		AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmSwitchTo);
-		AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 7, State::lmNone);
-
-		AddClusterAssoc(CTL_PHNCPANE_AUTOCLOSE, 0, 1);
-		Setup(pPSER, pSt);
-	}
-	~PhonePaneDialog()
-	{
-		ZDELETE(P_PhnSvcCli);
-	}
-	static PhonePaneDialog * FindAnalogue(const char * pChannel)
-	{
-		const long res_id = DLG_PHNCPANE;
-		for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
-			if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && ((TDialog *)p)->resourceID == res_id)
-				return (PhonePaneDialog *)p;
-		}
-		return 0;
-	}
+	static PhonePaneDialog * FindAnalogue(const char * pChannel);
+	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
+	~PhonePaneDialog();
+	int    SetupInfo();
+	void   Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
 private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(TVBROADCAST && TVCMD == cmIdle) {
-			if(ChnlStatusReqTmr.Check(0)) {
-				int    still_up = 0;
-				int    state = 0;
-				if(P_PhnSvcCli && S.Channel) {
-					PhnSvcChannelStatusPool status_list;
-					PhnSvcChannelStatus cnl_status;
-					P_PhnSvcCli->GetChannelStatus(S.Channel, status_list);
-					for(uint i = 0; !still_up && i < status_list.GetCount(); i++) {
-						status_list.Get(i, cnl_status);
-						if(cnl_status.Channel == S.Channel) {
-							state = cnl_status.State;
-							if(cnl_status.State == PhnSvcChannelStatus::stUp)
-								still_up = 1;
-						}
-					}
-				}
-				if(!still_up) {
-					S.Status = 0;
-					if(!S.SinceDown)
-						S.SinceDown = getcurdatetime_();
-				}
-				if(state == 0)
-					S.Channel.Z();
-				if(SetupInfo() == 100) {
-					clearEvent(event);
-					return;
+	class ActionByPhoneDialog : public TDialog {
+	public:
+		enum {
+			acnUndef = 0,
+			acnGoodsOrder,
+			acnPurchase,
+			acnPersonalEvent,
+			acnPrjTask,
+			acnCcOrder
+		};
+		struct Param {
+			Param() : ExtSelector(0), Action(acnUndef), PersonID(0), SCardID(0), LocID(0)
+			{
+			}
+			SString Phone;
+			PPID   PersonID; // Персоналия ассоциированная с выбранным номером звонящего
+			PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
+			PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
+			long   Action;
+			PPID   ExtSelector;
+		};
+		ActionByPhoneDialog() : TDialog(DLG_SELACNBYPHN)
+		{
+		}
+		int setDTS(const Param * pData)
+		{
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_SELACNBYPHN_INFO, Data.Phone);
+			AddClusterAssocDef(CTL_SELACNBYPHN_WHAT, 0, acnGoodsOrder);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 1, acnPurchase);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 2, acnPersonalEvent);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 3, acnPrjTask);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 4, acnCcOrder);
+			SetClusterData(CTL_SELACNBYPHN_WHAT, Data.Action);
+			return 1;
+		}
+		int getDTS(Param * pData)
+		{
+			int    ok = 1;
+			GetClusterData(CTL_SELACNBYPHN_WHAT, &Data.Action);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		Param  Data;
+	};
+
+	class SelectObjByPhoneDialog : public TDialog {
+	public:
+		struct Param {
+			Param() : ExtSelector(0)
+			{
+				Oid.Set(0, 0);
+			}
+			SString Phone;
+			PPObjID Oid;
+			PPID   ExtSelector;
+			SString SearchStr;
+		};
+		SelectObjByPhoneDialog() : TDialog(DLG_SELOBJBYPHN)
+		{
+		}
+		int setDTS(const Param * pData)
+		{
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_SELOBJBYPHN_INFO, Data.Phone);
+			AddClusterAssocDef(CTL_SELOBJBYPHN_WHAT, 0, PPOBJ_PERSON);
+			AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 1, PPOBJ_SCARD);
+			AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 2, PPOBJ_LOCATION); // автономный адрес
+			SetClusterData(CTL_SELOBJBYPHN_WHAT, Data.Oid.Obj);
+			SetupCtrls();
+			return 1;
+		}
+		int getDTS(Param * pData)
+		{
+			int    ok = 1;
+			GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
+			Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
+			if(Data.Oid.Obj == PPOBJ_PERSON) {
+				Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
+			}
+			else if(Data.Oid.Obj == PPOBJ_SCARD) {
+				Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
+			}
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_SELOBJBYPHN_WHAT)) {
+				SetupCtrls();
+			}
+			else if(event.isCbSelected(CTLSEL_SELOBJBYPHN_EXT)) {
+				const PPID preserve_ext = Data.ExtSelector;
+				Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
+				if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD)) {
+					SetupCtrls();
 				}
 			}
+			else
+				return;
+			clearEvent(event);
 		}
-		else if(event.isCbSelected(CTLSEL_PHNCPANE_NAME)) {
-			OnContactSelection(0);
-		}
-		else if(event.isClusterClk(CTL_PHNCPANE_LISTMODE)) {
-			long   mode = 0;
-			GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
-			ShowList(mode, 0);
-		}
-		else if(event.isCmd(cmNewContact)) {
-			NewContact();
-		}
-		else if(event.isCmd(cmLBDblClk)) {
-			if(event.isCtlEvent(CTL_PHNCPANE_INFOLIST) && P_Box) {
-				if(S.Mode == S.lmSwitchTo && S.PhnSvcID) {
-					long   ci = 0;
-					if(P_Box->getCurID(&ci) && ci > 0 && P_PSER && P_PSER->IsConsistent()) {
-						const StrAssocArray * p_internal_phone_list = P_PSER->GetInternalPhoneList();
-						if(p_internal_phone_list && ci <= (long)p_internal_phone_list->getCount()) {
-							StrAssocArray::Item item = p_internal_phone_list->Get(ci-1);
-							PhnSvcChannelStatusPool sp;
-							PhnSvcChannelStatus status;
-							if(!isempty(item.Txt) && P_PhnSvcCli && P_PhnSvcCli->GetChannelListLinkedByBridge(S.Channel, sp) > 0) {
-								for(uint i = 0; i < sp.GetCount(); i++) {
-									if(sp.Get(i, status) && !status.Channel.IsEqiAscii(S.Channel)) {
-										P_PhnSvcCli->Redirect(status.Channel, item.Txt, /*S.Channel*/0, 0, 1);
-										//P_PhnSvcCli->Redirect(S.Channel, item.Txt, status.Channel, 0, 1);
-										break;
-									}
-								}
-							}
+		void   SetupCtrls()
+		{
+			const PPID preserve_obj_type = Data.Oid.Obj;
+			GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
+			if(Data.Oid.Obj != preserve_obj_type)
+				Data.ExtSelector = 0;
+			switch(Data.Oid.Obj) {
+				case PPOBJ_PERSON:
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PRSNKIND, Data.ExtSelector, 0);
+					{
+						PersonSelExtra * p_se = new PersonSelExtra(0, Data.ExtSelector);
+						if(p_se) {
+							p_se->SetTextMode(false);
+							SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 3, 0);
 						}
 					}
-				}
+					break;
+				case PPOBJ_SCARD:
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_SCARDSERIES, Data.ExtSelector, 0);
+					{
+						SCardSelExtra * p_se = new SCardSelExtra(Data.ExtSelector);
+						if(p_se) {
+							SetupWordSelector(CTL_SELOBJBYPHN_SRCH, p_se, 0, 5, 0);
+						}
+					}
+					break;
+				default:
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 1);
+					ResetWordSelector(CTL_SELOBJBYPHN_SRCH);
+					break;
 			}
 		}
-		else
-			return;
-		clearEvent(event);
-	}
+		Param  Data;
+	};
+
+	DECL_HANDLE_EVENT;
 	void   OnContactSelection(int onInit);
 	void   ShowList(int mode, int onInit);
-	void   NewContact()
+	void   DoAction()
 	{
-		SelectObjByPhoneDialog * dlg = new SelectObjByPhoneDialog;
+		ActionByPhoneDialog * dlg = new ActionByPhoneDialog;
 		if(CheckDialogPtrErr(&dlg)) {
 			const char * p_phone = S.ConnectedLine.cptr();
-			SelectObjByPhoneDialog::Param param;
+			ActionByPhoneDialog::Param param;
 			param.Phone = p_phone;
-			param.Oid.Set(PPOBJ_PERSON, 0);
-			dlg->setDTS(&param);
-			S.Flags |= S.fLockAutoExit;
-			if(ExecView(dlg) == cmOK) {
-				dlg->getDTS(&param);
-				if(param.Oid.Obj == PPOBJ_PERSON) {
-					PersonTbl::Rec psn_rec;
-					PPID   psn_id = 0;
-					if(param.Oid.Id && PsnObj.Search(param.Oid.Id, &psn_rec) > 0) {
-						psn_id = param.Oid.Id;
-					}
-					PPObjPerson::EditBlock eb;
-					PsnObj.InitEditBlock(param.ExtSelector, eb);
-					eb.InitPhone = p_phone;
-					if(PsnObj.Edit_(&psn_id, eb) > 0) {
-					}
-				}
-				else if(param.Oid.Obj == PPOBJ_SCARD) {
-				}
-				else if(param.Oid.Obj == PPOBJ_LOCATION) {
-				}
-			}
+			//param.Oid = 
 		}
 		delete dlg;
-		S.Flags &= ~S.fLockAutoExit;
 	}
+	void   NewContact();
 	State  S;
 	SmartListBox * P_Box;
 	PhoneServiceEventResponder * P_PSER;
@@ -417,6 +244,255 @@ private:
 		}
 	};
 };
+
+//static 
+PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
+{
+	const long res_id = DLG_PHNCPANE;
+	for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
+		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && ((TDialog *)p)->resourceID == res_id)
+			return (PhonePaneDialog *)p;
+	}
+	return 0;
+}
+
+PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : 
+	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
+{
+	P_Box = (SmartListBox*)getCtrlView(CTL_PHNCPANE_INFOLIST);
+	SetupStrListBox(P_Box);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 0, State::lmBill);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmTask);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmPersonEvent);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmScOp);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmLocCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmSwitchTo);
+	AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 7, State::lmNone);
+
+	AddClusterAssoc(CTL_PHNCPANE_AUTOCLOSE, 0, 1);
+	Setup(pPSER, pSt);
+}
+
+PhonePaneDialog::~PhonePaneDialog()
+{
+	ZDELETE(P_PhnSvcCli);
+}
+	
+int PhonePaneDialog::SetupInfo()
+{
+	int   result = 1;
+	SString temp_buf;
+	setCtrlString(CTL_PHNCPANE_PHN, S.ConnectedLine);
+	temp_buf = S.Channel;
+	if(S.ConnectedLine.NotEmpty())
+		temp_buf.CatDivIfNotEmpty(';', 2).Cat(S.ConnectedLine);
+	if(S.Status == PhnSvcChannelStatus::stUp) {
+		if(!!S.SinceUp) {
+			long   up_time = diffdatetimesec(getcurdatetime_(), S.SinceUp);
+			temp_buf.CatDivIfNotEmpty(';', 2).CatEq("UpTime", up_time);
+		}
+		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 0);
+	}
+	else {
+		temp_buf.CatDivIfNotEmpty(';', 2).Cat("DOWN");
+	}
+	setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
+	if(S.Status != PhnSvcChannelStatus::stUp) {
+		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 1);
+		if(!S.SinceDown) {
+			SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
+		}
+		else {
+			const   long time_to_close = 15;
+			long s = diffdatetimesec(getcurdatetime_(), S.SinceDown);
+			long sec_left = (s < time_to_close) ? (time_to_close - s) : 0;
+			PPFormatS(PPSTR_TEXT, PPTXT_CLOSEWINAFTERXSEC, &temp_buf, sec_left);
+			SetClusterItemText(CTL_PHNCPANE_AUTOCLOSE, 0, temp_buf);
+			if(!(S.Flags & S.fLockAutoExit)) {
+				if(sec_left <= 0 && GetClusterData(CTL_PHNCPANE_AUTOCLOSE) == 1) {
+					// (выбивает сеанс) messageCommand(this, cmClose);
+					Sf |= sfCloseMe;
+					result = 100;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+void PhonePaneDialog::Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
+{
+	if(pSt->Channel != S.Channel) {
+		SString temp_buf;
+		RVALUEPTR(S, pSt);
+		ZDELETE(P_PhnSvcCli);
+		if(S.Channel.NotEmpty()) {
+			if(S.PhnSvcID) {
+				PPObjPhoneService ps_obj(0);
+				P_PhnSvcCli = ps_obj.InitAsteriskAmiClient(S.PhnSvcID);
+			}
+		}
+		SetClusterData(CTL_PHNCPANE_LISTMODE, S.Mode);
+		SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
+		if(SetupInfo() == 100)
+			return;
+		else {
+			StrAssocArray name_list;
+			PPID   init_id = 0;
+			SString list_item_buf;
+			if(P_PSER && P_PSER->IsConsistent())
+				P_PSER->IdentifyCaller(S.ConnectedLine, OidList);
+			else
+				OidList.clear();
+			for(uint i = 0; i < OidList.getCount(); i++) {
+				const PPObjID & r_oid = OidList.at(i);
+				list_item_buf.Z();
+				if(r_oid.Obj == PPOBJ_PERSON) {
+					GetPersonName(r_oid.Id, temp_buf);
+					GetObjectTitle(r_oid.Obj, list_item_buf);
+					list_item_buf.CatDiv(':', 2).Cat(temp_buf);
+				}
+				else if(r_oid.Obj == PPOBJ_LOCATION) {
+					LocationTbl::Rec loc_rec;
+					if(PsnObj.LocObj.Search(r_oid.Id, &loc_rec) > 0) {
+						LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+						GetObjectTitle(r_oid.Obj, list_item_buf);
+						list_item_buf.CatDiv(':', 2).Cat(temp_buf);
+					}
+				}
+				else if(r_oid.Obj == PPOBJ_SCARD) {
+					SCardTbl::Rec sc_rec;
+					if(ScObj.Search(r_oid.Id, &sc_rec) > 0) {
+						GetObjectTitle(r_oid.Obj, list_item_buf);
+						list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
+						PersonTbl::Rec psn_rec;
+						if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
+							list_item_buf.Space().Cat(psn_rec.Name);
+						}
+					}
+				}
+				if(list_item_buf.NotEmpty()) {
+					name_list.Add(i+1, list_item_buf);
+					if(init_id == 0)
+						init_id = i+1;
+				}
+			}
+			SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+			OnContactSelection(1);
+		}
+	}
+}
+
+IMPL_HANDLE_EVENT(PhonePaneDialog)
+{
+	TDialog::handleEvent(event);
+	if(TVBROADCAST && TVCMD == cmIdle) {
+		if(ChnlStatusReqTmr.Check(0)) {
+			int    still_up = 0;
+			int    state = 0;
+			if(P_PhnSvcCli && S.Channel) {
+				PhnSvcChannelStatusPool status_list;
+				PhnSvcChannelStatus cnl_status;
+				P_PhnSvcCli->GetChannelStatus(S.Channel, status_list);
+				for(uint i = 0; !still_up && i < status_list.GetCount(); i++) {
+					status_list.Get(i, cnl_status);
+					if(cnl_status.Channel == S.Channel) {
+						state = cnl_status.State;
+						if(cnl_status.State == PhnSvcChannelStatus::stUp)
+							still_up = 1;
+					}
+				}
+			}
+			if(!still_up) {
+				S.Status = 0;
+				if(!S.SinceDown)
+					S.SinceDown = getcurdatetime_();
+			}
+			if(state == 0)
+				S.Channel.Z();
+			if(SetupInfo() == 100) {
+				clearEvent(event);
+				return;
+			}
+		}
+	}
+	else if(event.isCbSelected(CTLSEL_PHNCPANE_NAME)) {
+		OnContactSelection(0);
+	}
+	else if(event.isClusterClk(CTL_PHNCPANE_LISTMODE)) {
+		long   mode = 0;
+		GetClusterData(CTL_PHNCPANE_LISTMODE, &mode);
+		ShowList(mode, 0);
+	}
+	else if(event.isCmd(cmNewContact)) {
+		NewContact();
+	}
+	else if(event.isCmd(cmPhnCPaneAction)) {
+		DoAction();
+	}
+	else if(event.isCmd(cmLBDblClk)) {
+		if(event.isCtlEvent(CTL_PHNCPANE_INFOLIST) && P_Box) {
+			if(S.Mode == S.lmSwitchTo && S.PhnSvcID) {
+				long   ci = 0;
+				if(P_Box->getCurID(&ci) && ci > 0 && P_PSER && P_PSER->IsConsistent()) {
+					const StrAssocArray * p_internal_phone_list = P_PSER->GetInternalPhoneList();
+					if(p_internal_phone_list && ci <= (long)p_internal_phone_list->getCount()) {
+						StrAssocArray::Item item = p_internal_phone_list->Get(ci-1);
+						PhnSvcChannelStatusPool sp;
+						PhnSvcChannelStatus status;
+						if(!isempty(item.Txt) && P_PhnSvcCli && P_PhnSvcCli->GetChannelListLinkedByBridge(S.Channel, sp) > 0) {
+							for(uint i = 0; i < sp.GetCount(); i++) {
+								if(sp.Get(i, status) && !status.Channel.IsEqiAscii(S.Channel)) {
+									P_PhnSvcCli->Redirect(status.Channel, item.Txt, /*S.Channel*/0, 0, 1);
+									//P_PhnSvcCli->Redirect(S.Channel, item.Txt, status.Channel, 0, 1);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+		return;
+	clearEvent(event);
+}
+
+void PhonePaneDialog::NewContact()
+{
+	SelectObjByPhoneDialog * dlg = new SelectObjByPhoneDialog;
+	if(CheckDialogPtrErr(&dlg)) {
+		const char * p_phone = S.ConnectedLine.cptr();
+		SelectObjByPhoneDialog::Param param;
+		param.Phone = p_phone;
+		param.Oid.Set(PPOBJ_PERSON, 0);
+		dlg->setDTS(&param);
+		S.Flags |= S.fLockAutoExit;
+		if(ExecView(dlg) == cmOK) {
+			dlg->getDTS(&param);
+			if(param.Oid.Obj == PPOBJ_PERSON) {
+				PersonTbl::Rec psn_rec;
+				PPID   psn_id = 0;
+				if(param.Oid.Id && PsnObj.Search(param.Oid.Id, &psn_rec) > 0) {
+					psn_id = param.Oid.Id;
+				}
+				PPObjPerson::EditBlock eb;
+				PsnObj.InitEditBlock(param.ExtSelector, eb);
+				eb.InitPhone = p_phone;
+				if(PsnObj.Edit_(&psn_id, eb) > 0) {
+				}
+			}
+			else if(param.Oid.Obj == PPOBJ_SCARD) {
+			}
+			else if(param.Oid.Obj == PPOBJ_LOCATION) {
+			}
+		}
+	}
+	delete dlg;
+	S.Flags &= ~S.fLockAutoExit;
+}
 
 void PhonePaneDialog::ShowList(int mode, int onInit)
 {

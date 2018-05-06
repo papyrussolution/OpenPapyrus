@@ -2942,12 +2942,16 @@ private:
 				for(uint i = 0; i < rBp.GetTCount(); i++) {
 					const PPTransferItem & r_ti = rBp.ConstTI(i);
 					SXml::WNode n_item(_doc, "lineItem");
+					const PPID goods_id = labs(r_ti.GoodsID);
 					double qtty = fabs(r_ti.Quantity_);
 					double cost = r_ti.Cost;
 					double amount = cost * qtty;
-					THROW(GetGoodsInfo(r_ti.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
+					THROW(GetGoodsInfo(goods_id, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 					n_item.PutInner("gtin", goods_code);
 					n_item.PutInner("internalBuyerCode", temp_buf.Z().Cat(goods_rec.ID));
+					if(goods_ar_code.NotEmpty()) {
+						n_item.PutInner("internalSupplierCode", (temp_buf = goods_ar_code).Transf(CTRANSF_INNER_TO_UTF8));
+					}
 					n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 					//n_item.PutInnerSkipEmpty("comment", "");
 					{
@@ -2984,8 +2988,8 @@ private:
 				uint   current_ti_pos = 0;
 				const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
 				const PPTransferItem * p_current_ti = rBp.SearchTI(r_ti.RByBill, &current_ti_pos) ? &rBp.ConstTI(current_ti_pos) : 0;
-				PPID   goods_id = r_ti.GoodsID;
-				PPID   confirm_goods_id = p_current_ti ? p_current_ti->GoodsID : goods_id;
+				const  PPID   goods_id = labs(r_ti.GoodsID);
+				PPID   confirm_goods_id = p_current_ti ? labs(p_current_ti->GoodsID) : goods_id;
 				double qtty = fabs(r_ti.Quantity_);
 				double confirm_qtty = p_current_ti ? fabs(p_current_ti->Quantity_) : 0.0;
 				double price = (r_ti.Price - r_ti.Discount);
@@ -3046,11 +3050,11 @@ private:
 			n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
 			{
 				SXml::WNode n_i(_doc, "seller");
-				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
+				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
 			}
 			{
 				SXml::WNode n_i(_doc, "buyer");
-				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
+				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
 			}
 			/*{
 				SXml::WNode n_i(_doc, "invoicee");
@@ -3066,6 +3070,10 @@ private:
 					SXml::WNode n_i2(_doc, "shipTo");
 					THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.P_Freight->DlvrAddrID));
 				}
+				{
+					SXml::WNode n_i2(_doc, "shipFrom");
+					THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.Rec.LocID));
+				}
 			}
 			n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
 			{
@@ -3079,8 +3087,8 @@ private:
 					uint   current_ti_pos = 0;
 					const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
 					const PPTransferItem * p_current_ti = rBp.SearchTI(r_ti.RByBill, &current_ti_pos) ? &rBp.ConstTI(current_ti_pos) : 0;
-					PPID   goods_id = r_ti.GoodsID;
-					PPID   confirm_goods_id = p_current_ti ? p_current_ti->GoodsID : goods_id;
+					const  PPID   goods_id = labs(r_ti.GoodsID);
+					const  PPID   confirm_goods_id = p_current_ti ? labs(p_current_ti->GoodsID) : goods_id;
 					double qtty = fabs(r_ti.Quantity_);
 					double confirm_qtty = p_current_ti ? fabs(p_current_ti->Quantity_) : 0.0;
 					double price = (r_ti.Price - r_ti.Discount);
@@ -3093,9 +3101,12 @@ private:
 					else if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id) 
 						p_line_status = "Changed";
 					n_item.PutAttrib("status", p_line_status);
-					THROW(GetGoodsInfo(confirm_goods_id, 0, &goods_rec, goods_code, goods_ar_code));
+					THROW(GetGoodsInfo(confirm_goods_id, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 					n_item.PutInner("gtin", goods_code);
-					n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
+					// @debug n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
+					if(goods_ar_code.NotEmpty()) {
+						n_item.PutInner("internalBuyerCode", (temp_buf = goods_ar_code).Transf(CTRANSF_INNER_TO_UTF8));
+					}
 					n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 					//n_item.PutInnerSkipEmpty("comment", "");
 					{
@@ -3226,7 +3237,7 @@ private:
 					double qtty = fabs(r_ti.Quantity_);
 					double price = (r_ti.Price - r_ti.Discount);
 					double amount = qtty * price;
-					THROW(GetGoodsInfo(r_ti.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
+					THROW(GetGoodsInfo(r_ti.GoodsID, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 					n_item.PutInner("gtin", goods_code);
 					n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
 					//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->

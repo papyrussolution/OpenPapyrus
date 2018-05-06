@@ -1394,12 +1394,12 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 			while(NextIteration(iter_id) > 0) {
 				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
 				Helper_PutScopeToJson(p_child, p_iter_obj);
-				json_insert_child(p_iter_ary, p_iter_obj);
+				THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 			}
-			json_insert_pair_into_object(p_hdr_obj, suffix.cptr(), p_iter_ary);
+			THROW_SL(json_insert_pair_into_object(p_hdr_obj, suffix.cptr(), p_iter_ary));
 		}
 	}
-	json_insert_child(pRoot, p_hdr_obj);
+	THROW_SL(json_insert_child(pRoot, p_hdr_obj));
 	CATCHZOK
 	if(!ok)
 		json_free_value(&p_hdr_obj);

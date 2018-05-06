@@ -2888,7 +2888,6 @@ int SLAPI PPViewSCardOp::Recover()
 	PPLogger logger;
 	SString msg_buf, fmt_buf, temp_buf;
 	SCardOpTbl::Key0 k0;
-	//SCardID, Dt, Tm (unique mod);
 	MEMSZERO(k0);
 	PPWait(1);
 	if(t.search(0, &k0, spFirst)) do {

@@ -1676,6 +1676,22 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		else
 			return;
 	}
+	else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_LOCATION_PHONE)) {
+		SetupPhoneButton(this, CTL_LOCATION_PHONE, cmLocAction1);
+	}
+	else if(event.isCmd(cmLocAction1)) {
+		const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+		if(def_phn_svc_id) {
+			SString temp_buf;
+			getCtrlString(CTL_LOCATION_PHONE, temp_buf);
+			if(temp_buf.Len() >= 5) {
+				SString phone_buf;
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+				if(PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf).Len() >= 5)
+					PPObjPhoneService::PhoneTo(phone_buf);
+			}
+		}
+	}
 	else if(event.isCmd(cmAddress)) {
 		const int  save_loc_typ = Data.Type;
 		//
@@ -1788,6 +1804,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		SetGeoCoord();
 		LocationCore::GetExField(&Data, LOCEXSTR_PHONE, temp_buf);
 		setCtrlString(CTL_LOCATION_PHONE, temp_buf);
+		SetupPhoneButton(this, CTL_LOCATION_PHONE, cmLocAction1);
 		LocationCore::GetExField(&Data, LOCEXSTR_CONTACT, temp_buf);
 		setCtrlString(CTL_LOCATION_CONTACT, temp_buf);
 		// @v8.3.6 {
@@ -1965,7 +1982,7 @@ int SLAPI PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long 
 		case LOCTYP_WAREPLACE: dlg_id = DLG_WAREPLACE; break;
 		case LOCTYP_WHCOLUMN:  dlg_id = DLG_WHCOLUMN;  break;
 		case LOCTYP_WHCELL:    dlg_id = DLG_WHCELL;    break;
-		case LOCTYP_WHCELLAUTOGEN: dlg_id = DLG_WHCELLSAMPLE; break; // @v6.7.8
+		case LOCTYP_WHCELLAUTOGEN: dlg_id = DLG_WHCELLSAMPLE; break;
 		case LOCTYP_ADDRESS:   dlg_id = DLG_ADDRESS;   break;
 		case LOCTYP_DIVISION:  dlg_id = DLG_DIVISION;  break;
 		default: return (PPError(PPERR_INVPARAM, 0), 0);

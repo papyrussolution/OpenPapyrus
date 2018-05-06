@@ -20,6 +20,7 @@ protected:
 	PPID   StatID;
 private:
 	int    SLAPI ConvertWareList(const char * pImpPath);
+	int    SLAPI ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID);
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -48,6 +49,92 @@ public:
 };
 
 REGISTER_CMT(DREAMKAS, 0, 1);
+
+int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID)
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPObjGoods goods_obj;
+	AsyncCashGoodsInfo gds_info;
+	PPIDArray rmv_goods_list;
+	PrcssrAlcReport::GoodsItem agi;
+	json_t * p_iter_ary = new json_t(json_t::tARRAY);
+	THROW_SL(p_iter_ary);
+	while(rIter.Next(&gds_info) > 0) {
+		if(gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
+			rmv_goods_list.addUnique(gds_info.ID);
+		}
+		else {
+			long   level = 0;
+			PPID   dscnt_scheme_id = 0;
+			/*if(gcAlcID && gc_alc_code.NotEmpty() && gds_info.GdsClsID == gcAlcID) {
+				alc_goods_list.add(gds_info.ID);
+			}*/
+			if(rIter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
+			}
+			else {
+			}
+			{
+				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
+				THROW_SL(p_iter_obj);
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "id", json_new_string(temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL))));
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "name", json_new_string(temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8))));
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "type", json_new_string("COUNTABLE")));
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "departmentId", json_new_number(temp_buf.Z().Cat(gds_info.DivN))));
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "quantity", json_new_number(temp_buf.Z().Cat(1000))));
+				THROW_SL(json_insert_pair_into_object(p_iter_obj, "price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
+				if(gds_info.P_CodeList) {
+					LongArray normal_bc_pos_list;
+					LongArray etc_bc_pos_list;
+					for(uint i = 0; i < gds_info.P_CodeList->getCount(); i++) {
+						const BarcodeTbl::Rec & r_bc_item = gds_info.P_CodeList->at(i);
+						int    d = 0;
+						int    std = 0;
+						if(goods_obj.DiagBarcode(r_bc_item.Code, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE)) {
+							normal_bc_pos_list.add(i+1);
+						}
+						else {
+							etc_bc_pos_list.add(i+1);
+						}
+					}
+					if(normal_bc_pos_list.getCount()) {
+						json_t * p_array = new json_t(json_t::tARRAY);
+						for(uint j = 0; j < normal_bc_pos_list.getCount(); j++) {
+							const char * p_code = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code;
+							THROW_SL(json_insert_child(p_array, json_new_string(p_code)));
+						}
+						json_insert_pair_into_object(p_iter_obj, "barcodes", p_array);
+					}
+					{
+						json_t * p_array = new json_t(json_t::tARRAY);
+						THROW_SL(json_insert_child(p_array, json_new_string(temp_buf.Z().Cat(gds_info.ID))));
+						if(etc_bc_pos_list.getCount()) {
+							for(uint j = 0; j < normal_bc_pos_list.getCount(); j++) {
+								(temp_buf = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code).Escape().Transf(CTRANSF_INNER_TO_UTF8);
+								THROW_SL(json_insert_child(p_array, json_new_string(temp_buf)));
+							}
+						}
+						THROW_SL(json_insert_pair_into_object(p_iter_obj, "vendorCodes", p_array));
+					}
+				}
+				THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
+			}
+		}
+		PPWaitPercent(rIter.GetIterCounter());
+	}
+	{
+		PPGetFilePath(PPPATH_OUT, "dreamkas-export-debug.json", temp_buf);
+		SFile f_out_test(temp_buf, SFile::mWrite);
+		char * p_json_buf = 0;
+		json_tree_to_string(p_iter_ary, &p_json_buf);
+		json_format_string(p_json_buf, temp_buf.Z());
+		f_out_test.WriteLine(temp_buf);
+		SAlloc::F(p_json_buf);
+	}
+	CATCHZOK
+	json_free_value(&p_iter_ary);
+	return ok;
+}
 
 //virtual 
 int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
@@ -133,64 +220,16 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 		}
 		if(cn_data.ExtFlags & CASHFX_EXPLOCPRNASSOC)
 			acgif |= ACGIF_INITLOCPRN;
+		acgif |= (ACGIF_ALLCODESPERITER|ACGIF_ENSUREUUID);
 		AsyncCashGoodsIterator goods_iter(NodeID, acgif, SinceDlsID, P_Dls);
 		{
-			PPID   prev_goods_id = 0;
 			AsyncCashGoodsInfo gds_info;
 			PPIDArray rmv_goods_list;
 			PrcssrAlcReport::GoodsItem agi;
 			for(i = 0; i < retail_quot_list.getCount(); i++) {
 				gds_info.QuotList.Add(retail_quot_list.get(i), 0, 1);
 			}
-			json_t * p_iter_ary = new json_t(json_t::tARRAY);
-			while(goods_iter.Next(&gds_info) > 0) {
-				if(gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
-					rmv_goods_list.addUnique(gds_info.ID);
-				}
-				else {
-	   				if(gds_info.ID != prev_goods_id) {
-						long   level = 0;
-						PPID   dscnt_scheme_id = 0;
-						if(prev_goods_id) {
-							json_t * p_iter_obj = new json_t(json_t::tOBJECT);
-							json_insert_pair_into_object(p_iter_obj, "id", json_new_string(temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
-							json_insert_pair_into_object(p_iter_obj, "name", json_new_string(temp_buf.Z().Cat(gds_info.Name).Transf(CTRANSF_INNER_TO_UTF8)));
-							json_insert_pair_into_object(p_iter_obj, "type", json_new_string("COUNTABLE"));
-							json_insert_pair_into_object(p_iter_obj, "departmentId", json_new_number(temp_buf.Z().Cat(gds_info.DivN)));
-							json_insert_pair_into_object(p_iter_obj, "quantity", json_new_number(temp_buf.Z().Cat(1000)));
-							json_insert_pair_into_object(p_iter_obj, "price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0))));
-						}
-						if(gc_alc_id && gc_alc_code.NotEmpty() && gds_info.GdsClsID == gc_alc_id) {
-							alc_goods_list.add(gds_info.ID);
-						}
-						next_barcode = 0;
-						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
-						}
-						else {
-						}
-					}
-					const size_t bclen = sstrlen(gds_info.BarCode);
-					if(bclen) {
-						gds_info.AdjustBarcode(check_dig);
-						int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
-						if(wp == 1)
-							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtPrefix));
-						else if(wp == 2)
-							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtCntPrefix));
-						else
-							AddCheckDigToBarcode(gds_info.BarCode);
-						if(next_barcode) {
-							;
-						}
-						next_barcode = 1;
-					}
-				}
-	   			prev_goods_id = gds_info.ID;
-				PPWaitPercent(goods_iter.GetIterCounter());
-			}
-			if(prev_goods_id) {
-				;
-			}
+			THROW(ExportGoods(goods_iter, cn_data, gc_alc_id));
 			//
 			// Список товаров на удаление.
 			//

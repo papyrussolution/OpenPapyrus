@@ -197,17 +197,17 @@ void FASTCALL json_free_value(json_t ** value);
 // Inserts a child node into a parent node, as well as performs some document tree integrity checks.
 // @param parent the parent node
 // @param child the node being added as a child to parent
-// @return the error code corresponding to the operation result
+// @return /*the error code corresponding to the operation result*/
 //
-enum json_error FASTCALL json_insert_child(json_t * parent, json_t * child);
+/*enum json_error*/int FASTCALL json_insert_child(json_t * parent, json_t * child);
 //
 // Inserts a label:value pair into a parent node, as well as performs some document tree integrity checks.
 // @param parent the parent node
 // @param text_label a char string which serves as the label in the label:value pair
 // @param value the value in the label:value pair
-// @return the error code corresponding to the operation result
+// @return /*the error code corresponding to the operation result*/
 //
-enum json_error FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
+/*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
 //
 // Produces a JSON markup text document from a document tree
 // @param root The document's root node
@@ -257,9 +257,9 @@ void json_jpi_init(json_parsing_info *jpi);
 // Produces a document tree sequentially from a JSON markup text fragment
 // @param info the information necessary to resume parsing any incomplete document
 // @param buffer a null-terminated c-string containing a JSON document fragment
-// @return a code describing how the operation ended up
+// @return /*a code describing how the operation ended up*/
 //
-enum json_error json_parse_fragment(json_parsing_info * info, const char * buffer);
+/*enum json_error*/int FASTCALL json_parse_fragment(json_parsing_info * info, const char * buffer);
 //
 // Produces a document tree from a JSON markup text string that contains a complete document
 // @param root a reference to a pointer to a json_t type. The function allocates memory to the passed pointer and sets up the value

@@ -1992,35 +1992,35 @@ public:
 		indfUncertainty = 0xC0, // Если бит установлен, то значение приблизительное. В этом случае предпоследний
 			// байт может содержать дополнительные признаки представления (например, как диапазон или +/-)
 
-		indInvalid = 0xff, // Используется как внутренний код возврата, означающий ошибку
+		indInvalid      = 0xff, // Используется как внутренний код возврата, означающий ошибку
 
-		indMSec  = 0,    // since 1601-01-01 (UTC).
-        indSec,          // since 1601-01-01 (UTC).
-        indMin,          // since 1601-01-01 (UTC).
-        indHr,           // since 1601-01-01 (UTC).
-		indMSecTz,       // since 1601-01-01. // timezone - lowest 8 bit
-		indCSecTz,       // since 1601-01-01. // timezone - lowest 8 bit
-        indSecTz,        // since 1601-01-01. // timezone - lowest 8 bit
-        indMinTz,        // since 1601-01-01. // timezone - lowest 8 bit
-        indHrTz,         // since 1601-01-01. // timezone - lowest 8 bit
-		indEpoch,        // since 1970-01-01 00:00:00 GMT seconds
-        indDay,          // since 0001-01-01
-        indMon,          // since 0001-01-01
-		indQuart,        // since 0001-01-01
-		indSmYr,         // since 0001-01-01
-		indYr,           // since 0001-01-01
-		indDYr,          // since 0001-01-01
-		indSmCent,       // since 0001-01-01
-		indCent,         // since 0001-01-01
-		indMillennium,   // since 0001-01-01
-		indDayBC,        // before 0001-01-01
-		indMonBC,        // before 0001-01-01
-		indYrBC,         // before 0001-01-01
-		indDYrBC,        // before 0001-01-01
-		indCentBC,       // before 0001-01-01
-		indMillenniumBC, // before 0001-01-01
-		indMlnYrAgo,
-		indBlnYrAgo
+		indDefault      = 0x00, // 0.1mks since 1601-01-01 (UTC).
+		indMSec         = 0x80, // since 1601-01-01 (UTC).
+        indSec          = 0x81, // since 1601-01-01 (UTC).
+        indMin          = 0x82, // since 1601-01-01 (UTC).
+        indHr           = 0x83, // since 1601-01-01 (UTC).
+		indMSecTz       = 0x84, // since 1601-01-01. // timezone - lowest 8 bit
+		indCSecTz       = 0x85, // since 1601-01-01. // timezone - lowest 8 bit
+        indSecTz        = 0x86, // since 1601-01-01. // timezone - lowest 8 bit
+        indMinTz        = 0x87, // since 1601-01-01. // timezone - lowest 8 bit
+        indHrTz         = 0x88, // since 1601-01-01. // timezone - lowest 8 bit
+        indDay          = 0x89, // since 0001-01-01
+        indMon          = 0x8A, // since 0001-01-01
+		indQuart        = 0x8B, // since 0001-01-01
+		indSmYr         = 0x8C, // since 0001-01-01
+		indYr           = 0x8D, // since 0001-01-01
+		indDYr          = 0x8E, // since 0001-01-01
+		indSmCent       = 0x8F, // since 0001-01-01
+		indCent         = 0x90, // since 0001-01-01
+		indMillennium   = 0x91, // since 0001-01-01
+		indDayBC        = 0x92, // before 0001-01-01
+		indMonBC        = 0x93, // before 0001-01-01
+		indYrBC         = 0x94, // before 0001-01-01
+		indDYrBC        = 0x95, // before 0001-01-01
+		indCentBC       = 0x96, // before 0001-01-01
+		indMillenniumBC = 0x97, // before 0001-01-01
+		indMlnYrAgo     = 0x98,
+		indBlnYrAgo     = 0x99
 	};
 	SUniTime();
 	SUniTime & Z();
@@ -2042,7 +2042,6 @@ public:
 	int    FASTCALL IsLt(const SUniTime &) const;
 	int    FASTCALL IsGt(const SUniTime &) const;
 private:
-	int    FASTCALL SetSignature(uint8 s);
 	int    SLAPI Implement_Set(uint8 signature, const void *);
 	uint8  SLAPI Implement_Get(void *) const;
 	//

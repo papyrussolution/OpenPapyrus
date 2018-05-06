@@ -265,12 +265,8 @@ PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096), State(
 int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & rBuf)
 {
 	int    ok = 1;
-	uint   pos = 0, sync_count = 0, localDevId = 0;
 	StringSet set;
-	//SString path;
-	//PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
-	//PPIniFile ini_file(path);
-	localDevId = devTypeId - numOfOldDev;
+	const  uint local_dev_id = devTypeId - numOfOldDev;
 	if(oneof2(iniSectID, PPINISECT_DRV_SYNCPOS, PPINISECT_DRV_ASYNCPOS)) {
 		THROW(rIniFile.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
 		THROW(rIniFile.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
@@ -278,10 +274,12 @@ int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, 
 	else {
 		THROW(rIniFile.GetEntryList(iniSectID, &set, 1));
 	}
-	if(localDevId <= set.getCount()) {
-		for(uint i = 1; i <= set.getCount(); i++) {
+	const uint ss_count = set.getCount();
+	if(local_dev_id < ss_count) {
+		uint   pos = 0;
+		for(uint i = 0; i < ss_count; i++) {
 			set.get(&pos, rBuf);
-			if(localDevId == i)
+			if(local_dev_id == i)
 				break;
 		}
 	}

@@ -297,6 +297,26 @@ int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, 
 	return ok;
 }
 
+//static 
+int SLAPI PPObjPhoneService::PhoneTo(SString & rPhone)
+{
+	int    ok = -1;
+	if(rPhone.NotEmpty()) {
+		SString channel_from;
+		PPObjPhoneService ps_obj(0);
+		PPPhoneServicePacket ps_pack;
+		const PPID phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+		if(phn_svc_id && ps_obj.GetPacket(phn_svc_id, &ps_pack) > 0) {
+			if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
+				AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(phn_svc_id);
+				ok = p_phnsvccli ? p_phnsvccli->Originate(channel_from, rPhone, 0, 1) : 0;
+				delete p_phnsvccli;
+			}
+		}
+	}
+	return ok;
+}
+
 SLAPI PPObjPhoneService::PPObjPhoneService(void * extraPtr) : PPObjReference(PPOBJ_PHONESERVICE, extraPtr)
 {
 }

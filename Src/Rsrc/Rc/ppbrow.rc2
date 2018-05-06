@@ -2803,7 +2803,7 @@ browser GOODSTAXANLZ north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 	"Товар (группа)",         2, notype, 0, 30
 	"Схема\nналогообложения", 3, notype, 0, 15
 	"@primecost",             9, notype, NMBF_NOZERO, 10.2
-	"Реализация",             4, notype, NMBF_NOZERO, 10.2
+	"@selling",               4, notype, NMBF_NOZERO, 10.2
 	"@income",                5, notype, NMBF_NOZERO, 9.2
 	"Сумма\nНДС",             6, notype, NMBF_NOZERO, 9.2
 	"Сумма\nакциза",          7, notype, NMBF_NOZERO, 9.2
@@ -2824,7 +2824,7 @@ browser GOODSTAXANLZ_D north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 
 	"Товар (группа)",         2, notype, 0, 30
 	"Схема\nналогообложения", 3, notype, 0, 15
 	"@primecost",             9, notype, NMBF_NOZERO, 10.2
-	"Реализация",             4, notype, NMBF_NOZERO, 10.2
+	"@selling",               4, notype, NMBF_NOZERO, 10.2
 	"@income",                5, notype, NMBF_NOZERO, 9.2
 	"Сумма\nНДС",             6, notype, NMBF_NOZERO, 9.2
 	"Сумма\nакциза",          7, notype, NMBF_NOZERO, 9.2

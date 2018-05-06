@@ -2847,10 +2847,6 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 			else
 				ok = 0;
 			break;
-		case indEpoch: 
-			if(!__TimeFieldsToEpochTime(p_inner, &value))
-				ok = 0;
-			break;
 		case indDay: 
 			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, p_inner->D);
 			break;
@@ -2907,77 +2903,72 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 	uint8  signature = SUniTime_Decode(D, &value);
 	long   day_count = 0;
 	SUniTime_Inner * p_inner = (SUniTime_Inner *)pData;
-	if(signature & indfScale) {
-		switch(signature & ~(indfScale|indfUncertainty)) {
-			case indMSec: __TimeToTimeFields(value * 10000LL, p_inner); break;
-			case indSec: __TimeToTimeFields(value * 10000000LL, p_inner); break;
-			case indMin: __TimeToTimeFields(value * 60*10000000LL, p_inner); break;
-			case indHr: __TimeToTimeFields(value * 60*60*10000000LL, p_inner); break;
-			case indEpoch: __EpochTimeToTimeFields(value, p_inner); break;
-			case indDay:
-				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
-				break;
-			case indMon:
-				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->D = 2;
-				break;
-			case indQuart:
-				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->M = (((p_inner->M-1) / 3) * 3) + 1;
-				p_inner->D = 2;
-				break;
-			case indSmYr:
-				DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
-				p_inner->M = (((p_inner->M-1) / 6) * 6) + 1;
-				p_inner->D = 2;
-				break;
-			case indYr:
-				p_inner->Y = (long)value;
-				p_inner->M = 1;
-				p_inner->D = 2;
-				break;
-			case indDYr:
-				p_inner->Y = (((((long)value)-1) / 10) * 10) + 1;
-				p_inner->M = 1;
-				p_inner->D = 2;
-				break;
-			case indSmCent:
-				p_inner->Y = (((((long)value)-1) / 50) * 50) + 1;
-				p_inner->M = 1;
-				p_inner->D = 2;
-				break;
-			case indCent:
-				p_inner->Y = (((((long)value)-1) / 100) * 100) + 1;
-				p_inner->M = 1;
-				p_inner->D = 2;
-				break;
-			case indMillennium:
-				p_inner->Y = (((((long)value)-1) / 1000) * 1000) + 1;
-				p_inner->M = 1;
-				p_inner->D = 2;
-				break;
-			case indDayBC: 
-				signature = indInvalid; // @construction
-				break;
-			case indMonBC: 
-				signature = indInvalid; // @construction
-				break;
-			case indYrBC: 
-				signature = indInvalid; // @construction
-				break;
-			case indDYrBC: 
-				signature = indInvalid; // @construction
-				break;
-			case indCentBC: 
-				signature = indInvalid; // @construction
-				break;
-			case indMillenniumBC: 
-				signature = indInvalid; // @construction
-				break;
-		}
-	}
-	else {
-		__TimeToTimeFields(value, p_inner);
+	switch(signature) {
+		case indDefault: __TimeToTimeFields(value, p_inner); break;
+		case indMSec: __TimeToTimeFields(value * 10000LL, p_inner); break;
+		case indSec: __TimeToTimeFields(value * 10000000LL, p_inner); break;
+		case indMin: __TimeToTimeFields(value * 60*10000000LL, p_inner); break;
+		case indHr: __TimeToTimeFields(value * 60*60*10000000LL, p_inner); break;
+		case indDay:
+			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			break;
+		case indMon:
+			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->D = 2;
+			break;
+		case indQuart:
+			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->M = (((p_inner->M-1) / 3) * 3) + 1;
+			p_inner->D = 2;
+			break;
+		case indSmYr:
+			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->M = (((p_inner->M-1) / 6) * 6) + 1;
+			p_inner->D = 2;
+			break;
+		case indYr:
+			p_inner->Y = (long)value;
+			p_inner->M = 1;
+			p_inner->D = 2;
+			break;
+		case indDYr:
+			p_inner->Y = (((((long)value)-1) / 10) * 10) + 1;
+			p_inner->M = 1;
+			p_inner->D = 2;
+			break;
+		case indSmCent:
+			p_inner->Y = (((((long)value)-1) / 50) * 50) + 1;
+			p_inner->M = 1;
+			p_inner->D = 2;
+			break;
+		case indCent:
+			p_inner->Y = (((((long)value)-1) / 100) * 100) + 1;
+			p_inner->M = 1;
+			p_inner->D = 2;
+			break;
+		case indMillennium:
+			p_inner->Y = (((((long)value)-1) / 1000) * 1000) + 1;
+			p_inner->M = 1;
+			p_inner->D = 2;
+			break;
+		case indDayBC: 
+			signature = indInvalid; // @construction
+			break;
+		case indMonBC: 
+			signature = indInvalid; // @construction
+			break;
+		case indYrBC: 
+			signature = indInvalid; // @construction
+			break;
+		case indDYrBC: 
+			signature = indInvalid; // @construction
+			break;
+		case indCentBC: 
+			signature = indInvalid; // @construction
+			break;
+		case indMillenniumBC: 
+			signature = indInvalid; // @construction
+			break;
 	}
 	return signature;
 }
@@ -2985,12 +2976,6 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 SUniTime::SUniTime()
 {
 	memzero(D, sizeof(D));
-}
-
-int FASTCALL SUniTime::SetSignature(uint8 s)
-{
-	D[7] = s;
-	return 1;
 }
 
 SUniTime & SUniTime::Z()
@@ -3025,7 +3010,7 @@ int FASTCALL SUniTime::Set(time_t t)
 {
 	int    ok = 1;
 	if(t >= 0) {
-		SUniTime_Encode(D, indfScale|indEpoch, t * TICKSPERSEC + EPOCH_BIAS);
+		SUniTime_Encode(D, indfScale|indSec, t * TICKSPERSEC + EPOCH_BIAS);
 	}
 	else {
 		Z();

@@ -5,25 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-static int __PhoneTo(SString & rPhone)
-{
-	int    ok = -1;
-	if(rPhone.NotEmpty()) {
-		SString channel_from;
-		PPObjPhoneService ps_obj(0);
-		PPPhoneServicePacket ps_pack;
-		const PPID phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
-		if(phn_svc_id && ps_obj.GetPacket(phn_svc_id, &ps_pack) > 0) {
-			if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
-				AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(phn_svc_id);
-				ok = p_phnsvccli ? p_phnsvccli->Originate(channel_from, rPhone, 0, 1) : 0;
-				delete p_phnsvccli;
-			}
-		}
-	}
-	return ok;
-}
-
 int SLAPI EditELink(PPELink * pLink)
 {
 	class ELinkDialog : public TDialog {
@@ -96,7 +77,7 @@ int SLAPI EditELink(PPELink * pLink)
 					SString phone_to;
 					addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 					PPEAddr::Phone::NormalizeStr(addr, phone_to);
-					__PhoneTo(phone_to);
+					PPObjPhoneService::PhoneTo(phone_to);
 				}
 			}
 			else
@@ -318,7 +299,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 						if(event.message.command == (cmELnkSetAction1+i)) {
 							SString phone_buf;
 							if(IsPhoneNumber(i, phone_buf)) {
-								__PhoneTo(phone_buf);
+								PPObjPhoneService::PhoneTo(phone_buf);
 							}
 							break;
 						}
@@ -362,9 +343,8 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 					showCtrl(ctl_id, 1);
 					setButtonBitmap(cmELnkSetAction1+position, IDB_PHONEFORWARDED);
 				}
-				else {
+				else
 					showCtrl(ctl_id, 0);
-				}
 			}
 		}
 		void   Setup()

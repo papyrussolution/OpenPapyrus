@@ -4381,45 +4381,75 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 {
 	int    ok = 1;
+	int    use_arc = 0;
 	long   n = 0;
-	SString arc_file_name;
 	SString src_file_name;
 	SString src_file_ext;
 	SPathStruc ps(pFileName);
 	src_file_name = ps.Nam;
 	src_file_ext = ps.Ext;
-    ps.Nam = "pppp-backup";
-    ps.Ext = "zip";
-    ps.Merge(arc_file_name);
-    {
-		SArchive arc;
-		SString temp_buf;
-		SString to_arc_name;
-		THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite));
+	if(!use_arc) {
+		SString backup_path;
+		ps.Nam = "backup";
+		ps.Ext.Z();
+		ps.Merge(backup_path);
+		THROW_SL(createDir(backup_path));
 		{
-			const int64 zec = arc.GetEntriesCount();
 			int   _found = 0;
+			SString to_backup_name;
 			do {
 				_found = 0;
-				to_arc_name = src_file_name;
+				(to_backup_name = backup_path).SetLastSlash().Cat(src_file_name);
 				if(n)
-					to_arc_name.CatChar('-').CatLongZ(n, 4);
+					to_backup_name.CatChar('-').CatLongZ(n, 4);
 				if(src_file_ext.NotEmpty()) {
 					if(src_file_ext.C(0) != '.')
-						to_arc_name.Dot();
-					to_arc_name.Cat(src_file_ext);
+						to_backup_name.Dot();
+					to_backup_name.Cat(src_file_ext);
 				}
-				for(int64 i = 0; !_found && i < zec; i++) {
-					arc.GetEntryName(i, temp_buf);
-					if(temp_buf.CmpNC(to_arc_name) == 0) {
-						n++;
-						_found = 1;
-					}
+				if(fileExists(to_backup_name)) {
+					n++;
+					_found = 1;
 				}
 			} while(_found);
+			THROW_SL(copyFileByName(pFileName, to_backup_name));
 		}
-		THROW_SL(arc.AddEntry(pFileName, to_arc_name, 0));
-    }
+	}
+	else {
+		SString arc_file_name;
+		ps.Nam = "pppp-backup";
+		ps.Ext = "zip";
+		ps.Merge(arc_file_name);
+		{
+			SArchive arc;
+			SString temp_buf;
+			SString to_arc_name;
+			THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite));
+			{
+				const int64 zec = arc.GetEntriesCount();
+				int   _found = 0;
+				do {
+					_found = 0;
+					to_arc_name = src_file_name;
+					if(n)
+						to_arc_name.CatChar('-').CatLongZ(n, 4);
+					if(src_file_ext.NotEmpty()) {
+						if(src_file_ext.C(0) != '.')
+							to_arc_name.Dot();
+						to_arc_name.Cat(src_file_ext);
+					}
+					for(int64 i = 0; !_found && i < zec; i++) {
+						arc.GetEntryName(i, temp_buf);
+						if(temp_buf.CmpNC(to_arc_name) == 0) {
+							n++;
+							_found = 1;
+						}
+					}
+				} while(_found);
+			}
+			THROW_SL(arc.AddEntry(pFileName, to_arc_name, 0));
+		}
+	}
     CATCH
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
 		ok = 0;

@@ -2394,13 +2394,83 @@ z39.50s:urischeme
 // Рыночные понятия
 //
 :stockticker        // биржевой тикер
-:negotium_sector    // сектор бизнеса
-:negotium_industria // сектор индустрии
-:negotium_coeptis   // предприятие/компания
+:negotiumtaxonomy_category  // базовое обобщенное понятие таксономии бизнес-юнитов
+:negotiumtaxonomy_genusrerum::negotiumtaxonomy_category // форма собственности предприятия
+:negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
+:negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии
+:negotiumtaxonomy_coeptis   // предприятие/компания
 :negotium_partem    // сторона сделки
 :negotium_rebus     // товар
-:negotium_coeptis_commutationem::negotium_coeptis // биржа
 :negotium_commodum::negotium_rebus  // сырьевой товар
+
+:negotium_coeptis_commutationem::negotiumtaxonomy_coeptis // биржа
+:negotium_coeptis_ripae::negotiumtaxonomy_coeptis // банк
+
+[en]{
+	exchange=:negotium_coeptis_commutationem
+	bank=:negotium_coeptis_ripae	
+	ware=:negotium_rebus
+}
+[ru]{
+	биржа=:negotium_coeptis_commutationem
+	банк=:negotium_coeptis_ripae
+	товар=:negotium_rebus
+}
+
+[ru]акционерное общество::negotiumtaxonomy_genusrerum
+[ru]закрытое акционерное общество::negotiumtaxonomy_genusrerum
+[ru]открытое акционерное общество::negotiumtaxonomy_genusrerum
+[ru]публичное акционерное общество::negotiumtaxonomy_genusrerum
+[ru]общество с ограниченной ответственностью::negotiumtaxonomy_genusrerum
+[ru]индивидуальный предприниматель::negotiumtaxonomy_genusrerum
+[ru]некоммерческая организация::negotiumtaxonomy_genusrerum
+
+[en]public limited company::negotiumtaxonomy_genusrerum
+[en]limited::negotiumtaxonomy_genusrerum
+[en]incorporated::negotiumtaxonomy_genusrerum
+[en]corporation::negotiumtaxonomy_genusrerum
+[en]limited liability company::negotiumtaxonomy_genusrerum
+[en]limited duration company::negotiumtaxonomy_genusrerum
+[en]international business company::negotiumtaxonomy_genusrerum
+[en]international company::negotiumtaxonomy_genusrerum
+[en]limited partnership::negotiumtaxonomy_genusrerum
+
+[es]sociedad anónima::negotiumtaxonomy_genusrerum
+
+[fr]société anonyme::negotiumtaxonomy_genusrerum
+[fr]société à responsabilité limitée::negotiumtaxonomy_genusrerum
+
+[de]gesellschaft mit beschränkter haftung::negotiumtaxonomy_genusrerum
+[de]aktiengesellschaft::negotiumtaxonomy_genusrerum
+
+[en]plc=$public limited company
+[en]ltd=$limited
+[en]corp=.corporation
+[en]inc=.incorporated
+[en]llc=$limited liability company
+[en]ldc=$limited duration company
+[en]ibc=$international business company
+[en]ic=$international company
+[en]lp=$limited partnership
+
+[es]sa=$sociedad anónima
+[es]s.a.=$sociedad anónima
+
+[fr]sa=$société anonyme
+[fr]s.a.=$société anonyme
+[fr]sàrl=$société à responsabilité limitée
+[fr]sarl=$société à responsabilité limitée
+[de]gmbh=$gesellschaft mit beschränkter haftung
+[de]ag=$aktiengesellschaft
+
+[ru]ао=$акционерное общество
+[ru]зао=$закрытое акционерное общество
+[ru]оао=$открытое акционерное общество
+[ru]пао=$публичное акционерное общество
+[ru]ооо=$общество с ограниченной ответственностью
+[ru]ип=$индивидуальный предприниматель
+[ru]нко=$некоммерческая организация
+
 //
 // Биржи
 //

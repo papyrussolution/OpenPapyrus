@@ -140,18 +140,21 @@ json_t::~json_t()
 
 enum json_error json_stream_parse(FILE * file, json_t ** document)
 {
-	char buffer[1024];	/* hard-coded value */
-	enum json_error error = JSON_INCOMPLETE_DOCUMENT;
+	char   buffer[1024];	/* hard-coded value */
+	enum   json_error error = JSON_INCOMPLETE_DOCUMENT;
 	json_parsing_info state;
 	assert(file); // must be an open stream
 	assert(document); // must be a valid pointer reference
 	assert(*document == NULL); // only accepts a null json_t pointer, to avoid memory leaks
 	json_jpi_init(&state);	/* initializes the json_parsing_info object */
-	while((error == JSON_WAITING_FOR_EOF) || (error == JSON_INCOMPLETE_DOCUMENT)) {
+	while(oneof4(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, SLERR_JSON_INCOMPLETE_DOCUMENT, JSON_INCOMPLETE_DOCUMENT)) {
 		if(fgets(buffer, 1024, file)) {
-			switch(error = json_parse_fragment(&state, buffer)) {
+			error = json_parse_fragment(&state, buffer) ? JSON_OK : (enum json_error)SLibError;
+			switch(error) {
 				case JSON_OK:
+				case SLERR_JSON_WAITING_FOR_EOF:
 				case JSON_WAITING_FOR_EOF:
+				case SLERR_JSON_INCOMPLETE_DOCUMENT:
 				case JSON_INCOMPLETE_DOCUMENT:
 					break;
 				default:
@@ -289,8 +292,9 @@ void FASTCALL json_free_value(json_t ** ppValue)
 	}
 }
 
-enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
+/*enum json_error*/int FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 {
+	int    ok = 1;
 	// @todo change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
 	assert(pParent); // the parent must exist
 	assert(pChild); // the child must exist
@@ -306,20 +310,19 @@ enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 				case json_t::tTRUE:
 				case json_t::tFALSE:
 				case json_t::tNULL:
-					if(pChild->P_Child)
-						return JSON_BAD_TREE_STRUCTURE;
+					THROW_S(!pChild->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE);
 					break;
 				case json_t::tOBJECT:
 				case json_t::tARRAY:
 					break;
 				default:
-					return JSON_BAD_TREE_STRUCTURE; // this part should never be reached
+					//return JSON_BAD_TREE_STRUCTURE; 
+					CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); // this part should never be reached
 					break;
 			}
 			break;
 		case json_t::tOBJECT: // JSON objects may only accept JSON string objects which already have child nodes of their own
-			if(pChild->Type != json_t::tSTRING)
-				return JSON_BAD_TREE_STRUCTURE;
+			THROW_S(pChild->Type == json_t::tSTRING, SLERR_JSON_BAD_TREE_STRUCTURE);
 			break;
 		case json_t::tARRAY:
 			switch(pChild->Type) {
@@ -328,18 +331,19 @@ enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 				case json_t::tFALSE:
 				case json_t::tNULL:
 				case json_t::tNUMBER:
-					if(pChild->P_Child)
-						return JSON_BAD_TREE_STRUCTURE;
+					THROW_S(!pChild->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE);
 					break;
 				case json_t::tOBJECT:
 				case json_t::tARRAY:
 					break;
 				default:
-					return JSON_BAD_TREE_STRUCTURE;
+					CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
+					break;
 			}
 			break;
 		default:
-			return JSON_BAD_TREE_STRUCTURE;
+			CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
+			break;
 	}
 	pChild->P_Parent = pParent;
 	if(pParent->P_Child) {
@@ -351,12 +355,15 @@ enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 		pParent->P_Child = pChild;
 		pParent->P_ChildEnd = pChild;
 	}
-	return JSON_OK;
+	CATCHZOK
+	//return JSON_OK;
+	return ok;
 }
 
-enum json_error FASTCALL json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
+/*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
 {
-	enum     json_error error;
+	//enum     json_error error;
+	int    ok = 1;
 	// verify if the parameters are valid
 	assert(pParent);
 	assert(pTextLabel);
@@ -366,15 +373,13 @@ enum json_error FASTCALL json_insert_pair_into_object(json_t * pParent, const ch
 	assert(pParent->Type == json_t::tOBJECT);
 	// create label json_value
 	json_t * label = json_new_string(pTextLabel);
-	if(label == NULL)
-		error = JSON_MEMORY;
-	else {
-		// insert value and check for error
-		error = json_insert_child(label, pValue);
-		if(error == JSON_OK)
-			error = json_insert_child(pParent, label); // insert value and check for error
-	}
-	return error;
+	THROW(label);
+	// insert value and check for error
+	THROW(json_insert_child(label, pValue));
+	THROW(json_insert_child(pParent, label)); // insert value and check for error
+	CATCHZOK
+	//return error;
+	return ok;
 }
 
 enum json_error json_tree_to_string(json_t * pRoot, char ** ppText)
@@ -716,8 +721,9 @@ int json_format_string(const char * pText, SString & rBuf)
 {
 	int    ok = 1;
 	size_t pos = 0;
-	uint indentation = 0; // the current indentation level
-	char loop;
+	uint   indentation = 0; // the current indentation level
+	uint   line_no = 0;
+	char   loop;
 	size_t text_length = sstrlen(pText);
 	//RcString * p_output = rcs_create(text_length);
 	rBuf.Z();
@@ -732,6 +738,7 @@ int json_format_string(const char * pText, SString & rBuf)
 			case '{':
 				indentation++;
 				rBuf.CatChar('{').CR();
+				line_no++;
 				rBuf.Tab(indentation);
 				pos++;
 				break;
@@ -739,6 +746,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				THROW(indentation > 0);
 				indentation--;
 				rBuf.CR();
+				line_no++;
 				rBuf.Tab(indentation);
 				rBuf.CatChar('}');
 				pos++;
@@ -749,33 +757,25 @@ int json_format_string(const char * pText, SString & rBuf)
 				break;
 			case ',':
 				rBuf.Comma().CR();
+				line_no++;
 				rBuf.Tab(indentation);
 				pos++;
 				break;
 			case '\"':	// open string
-				rBuf.CatChar(pText[pos]);
-				pos++;
-				loop = 1; // inner string loop trigger is enabled
-				while(loop) {
-					if(pText[pos] == '\\') { // escaped sequence
-						rBuf.CatChar('\\');
-						pos++;
-						if(pText[pos] == '\"') { // don't consider a \" escaped sequence as an end of string
-							rBuf.CatChar('\"');
-							pos++;
-						}
-					}
-					else if(pText[pos] == '\"') // reached end of string
+				rBuf.CatChar(pText[pos++]);
+				for(loop = 1; loop;) { // inner string loop trigger is enabled
+					const char cc = pText[pos];
+					if(cc == '\\') // escaped sequence
+						rBuf.CatChar(pText[pos++]);
+					else if(cc == '\"') // reached end of string
 						loop = 0;
-					rBuf.CatChar(pText[pos]);
-					pos++;
+					rBuf.CatChar(pText[pos++]);
 					if(pos >= text_length)
 						loop = 0;
 				}
 				break;
 			default:
-				rBuf.CatChar(pText[pos]);
-				pos++;
+				rBuf.CatChar(pText[pos++]);
 				break;
 		}
 	}
@@ -1396,8 +1396,9 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 	return LEX_MORE;
 }
 
-enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
+/*enum json_error*/int FASTCALL json_parse_fragment(json_parsing_info *info, const char *buffer)
 {
+	int    ok = 1;
 	json_t * p_temp = 0;
 	assert(info);
 	assert(buffer);
@@ -1408,22 +1409,19 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_BEGIN_OBJECT: info->state = 1; break; // begin object
 					case LEX_BEGIN_ARRAY:  info->state = 7; break; // begin array
-					case LEX_INVALID_CHARACTER: return JSON_MALFORMED_DOCUMENT; break;
-					default: return JSON_MALFORMED_DOCUMENT;
+					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
 				}
 				break;
 			case 1: // open object
-				if(info->cursor == NULL) {
-					if((info->cursor = new json_t(json_t::tOBJECT)) == NULL)
-						return JSON_MEMORY;
+				if(!info->cursor) {
+					THROW(info->cursor = new json_t(json_t::tOBJECT));
 				}
 				else {
 					// perform tree sanity check
 					assert(oneof2(info->cursor->Type, json_t::tSTRING, json_t::tARRAY));
-					if((p_temp = new json_t(json_t::tOBJECT)) == NULL)
-						return JSON_MEMORY;
-					if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-						return JSON_UNKNOWN_PROBLEM;
+					THROW(p_temp = new json_t(json_t::tOBJECT));
+					THROW(json_insert_child(info->cursor, p_temp));
 					info->cursor = p_temp;
 					p_temp = NULL;
 				}
@@ -1437,14 +1435,11 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				assert(info->cursor->Type == json_t::tOBJECT);
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
-						if((p_temp = new json_t(json_t::tSTRING)) == NULL)
-							return JSON_MEMORY;
+						THROW(p_temp = new json_t(json_t::tSTRING));
 						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
-						if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-							return JSON_UNKNOWN_PROBLEM; // @todo return value according to the value returned from json_insert_child()
-						}
+						THROW(json_insert_child(info->cursor, p_temp));
 						info->cursor = p_temp;
 						p_temp = NULL;
 						info->state = 5; // label, pre label:value separator
@@ -1458,20 +1453,16 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 								case json_t::tSTRING: // perform tree sanity checks
 									assert(info->cursor->P_Parent);
 									info->cursor = info->cursor->P_Parent;
-									if(info->cursor->Type != json_t::tOBJECT)
-										return JSON_BAD_TREE_STRUCTURE;
-									else
-										info->state = 3; // finished adding a field to an object
+									THROW_S(info->cursor->Type == json_t::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+									info->state = 3; // finished adding a field to an object
 									break;
-								case json_t::tARRAY:
-									info->state = 9;
-									break;
-								default: return JSON_BAD_TREE_STRUCTURE;
+								case json_t::tARRAY: info->state = 9; break;
+								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); break;
 							}
 						}
 						break;
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-					default: return JSON_MALFORMED_DOCUMENT;
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT); break;
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
 				}
 				break;
 			case 3: // finished adding a field to an object
@@ -1491,20 +1482,18 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 								case json_t::tSTRING: // perform tree sanity checks
 									assert(info->cursor->P_Parent);
 									info->cursor = info->cursor->P_Parent;
-									if(info->cursor->Type != json_t::tOBJECT)
-										return JSON_BAD_TREE_STRUCTURE;
-									else
-										info->state = 3; // finished adding a field to an object
+									THROW_S(info->cursor->Type == json_t::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+									info->state = 3; // finished adding a field to an object
 									break;
 								case json_t::tARRAY:
 									info->state = 9;
 									break;
-								default: return JSON_BAD_TREE_STRUCTURE;
+								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); break;
 							}
 						}
 						break;
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-					default: return JSON_MALFORMED_DOCUMENT;
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT); break;
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
 				}
 				break;
 			case 4: // sibling, post-object
@@ -1512,23 +1501,20 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				assert(info->cursor->Type == json_t::tOBJECT);
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
-						if((p_temp = new json_t(json_t::tSTRING)) == NULL)
-							return JSON_MEMORY;
+						THROW(p_temp = new json_t(json_t::tSTRING));
 						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
-						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
+						THROW(json_insert_child(info->cursor, p_temp));
 						info->cursor = p_temp;
 						p_temp = 0;
 						info->state = 5;
 						break;
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-					case LEX_INVALID_CHARACTER: return JSON_ILLEGAL_CHARACTER;
-					default:
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT); 
+					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 						//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
-						return JSON_MALFORMED_DOCUMENT;
-						break;
+						
 				}
 				break;
 			case 5: // label, pre name separator
@@ -1537,11 +1523,9 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				assert(info->cursor->Type == json_t::tSTRING);
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT; break;
-					default:
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 						//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
-						return JSON_MALFORMED_DOCUMENT;
-						break;
 				}
 				break;
 			case 6: // label, pos name separator
@@ -1552,14 +1536,11 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					assert(info->cursor->Type == json_t::tSTRING);
 					switch(value = lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
-							if((p_temp = new json_t(json_t::tSTRING)) == NULL)
-								return JSON_MEMORY;
+							THROW(p_temp = new json_t(json_t::tSTRING));
 							//p_temp->P_Text = rcs_unwrap(info->lex_text);
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
-							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
-							}
+							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
@@ -1568,14 +1549,11 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_NUMBER:
-							if((p_temp = new json_t(json_t::tNUMBER)) == NULL)
-								return JSON_MEMORY;
+							THROW(p_temp = new json_t(json_t::tNUMBER));
 							//p_temp->P_Text = rcs_unwrap(info->lex_text);
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
-							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
-							}
+							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
@@ -1584,11 +1562,8 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_TRUE:
-							if((p_temp = new json_t(json_t::tTRUE)) == NULL)
-								return JSON_MEMORY;
-							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
-							}
+							THROW(p_temp = new json_t(json_t::tTRUE));
+							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
@@ -1597,10 +1572,8 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_FALSE:
-							if((p_temp = new json_t(json_t::tFALSE)) == NULL)
-								return JSON_MEMORY;
-							if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
+							THROW(p_temp = new json_t(json_t::tFALSE));
+							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
@@ -1609,11 +1582,8 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_NULL:
-							if((p_temp = new json_t(json_t::tNULL)) == NULL)
-								return JSON_MEMORY;
-							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
-							}
+							THROW(p_temp = new json_t(json_t::tNULL));
+							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99;	/* finished document. only accepts whitespaces until EOF */
 							else
@@ -1623,30 +1593,22 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							break;
 						case LEX_BEGIN_OBJECT: info->state = 1; break;
 						case LEX_BEGIN_ARRAY:  info->state = 7; break;
-						case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-						case LEX_MEMORY: return JSON_MEMORY;
-						case LEX_INVALID_CHARACTER: return JSON_ILLEGAL_CHARACTER;
-						default:
+						case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
+						case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
+						case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
+						default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 							//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
-							return JSON_MALFORMED_DOCUMENT;
-							break;
 					}
 				}
 				break;
 			case 7: // open array
 				if(info->cursor == NULL) {
-					if((info->cursor = new json_t(json_t::tARRAY)) == NULL) {
-						return JSON_MEMORY;
-					}
+					THROW(info->cursor = new json_t(json_t::tARRAY));
 				}
 				else { // perform tree sanity checks
 					assert(oneof2(info->cursor->Type, json_t::tARRAY, json_t::tSTRING));
-					if((p_temp = new json_t(json_t::tARRAY)) == NULL) {
-						return JSON_MEMORY;
-					}
-					if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-						return JSON_UNKNOWN_PROBLEM;
-					}
+					THROW(p_temp = new json_t(json_t::tARRAY));
+					THROW(json_insert_child(info->cursor, p_temp));
 					info->cursor = p_temp;
 					p_temp = 0;
 				}
@@ -1658,49 +1620,37 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				assert(info->cursor->Type == json_t::tARRAY);
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
-						if((p_temp = new json_t(json_t::tSTRING)) == NULL)
-							return JSON_MEMORY;
+						THROW(p_temp = new json_t(json_t::tSTRING));
 						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
-						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
+						THROW(json_insert_child(info->cursor, p_temp));
 						p_temp = 0;
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NUMBER:
-						if((p_temp = new json_t(json_t::tNUMBER)) == NULL)
-							return JSON_MEMORY;
+						THROW(p_temp = new json_t(json_t::tNUMBER));
 						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
-						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
+						THROW(json_insert_child(info->cursor, p_temp));
 						p_temp = NULL;
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_TRUE:
-						if((p_temp = new json_t(json_t::tTRUE)) == NULL)
-							return JSON_MEMORY;
-						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
+						THROW(p_temp = new json_t(json_t::tTRUE));
+						THROW(json_insert_child(info->cursor, p_temp));
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_FALSE:
-						if((p_temp = new json_t(json_t::tFALSE)) == NULL)
-							return JSON_MEMORY;
-						else if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
-						else
-							info->state = 9;	/* label, pre label:value separator */
+						THROW(p_temp = new json_t(json_t::tFALSE));
+						THROW(json_insert_child(info->cursor, p_temp));
+						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NULL:
-						if((p_temp = new json_t(json_t::tNULL)) == NULL)
-							return JSON_MEMORY;
-						else if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-							return JSON_UNKNOWN_PROBLEM;
-						else
-							info->state = 9;	/* label, pre label:value separator */
+						THROW(p_temp = new json_t(json_t::tNULL));
+						THROW(json_insert_child(info->cursor, p_temp));
+						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_BEGIN_ARRAY: info->state = 7; break; // open array
 					case LEX_END_ARRAY:
@@ -1712,28 +1662,21 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->cursor = info->cursor->P_Parent;
 							switch(info->cursor->Type) {
 							case json_t::tSTRING:
-								if(!info->cursor->P_Parent)
-									return JSON_BAD_TREE_STRUCTURE;
-								else {
-									info->cursor = info->cursor->P_Parent;
-									if(info->cursor->Type != json_t::tOBJECT) {
-										return JSON_BAD_TREE_STRUCTURE;
-									}
-									info->state = 3;	/* followup to adding child to array */
-								}
+								THROW_S(info->cursor->P_Parent, SLERR_JSON_BAD_TREE_STRUCTURE);
+								info->cursor = info->cursor->P_Parent;
+								THROW_S(info->cursor->Type == json_t::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+								info->state = 3;	/* followup to adding child to array */
 								break;
 							case json_t::tARRAY: info->state = 9; break; // followup to adding child to array
-							default: return JSON_BAD_TREE_STRUCTURE;
+							default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
 							}
 						}
 						break;
 					case LEX_BEGIN_OBJECT: info->state = 1; break; // open object
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-					case LEX_INVALID_CHARACTER: return JSON_ILLEGAL_CHARACTER;
-					default:
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
+					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 						// fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
-						return JSON_MALFORMED_DOCUMENT;
-						break;
 				}
 				break;
 			case 9: // followup to adding child to array
@@ -1755,39 +1698,42 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 									}
 									else {
 										info->cursor = info->cursor->P_Parent;
-										if(info->cursor->Type != json_t::tOBJECT)
-											return JSON_BAD_TREE_STRUCTURE;
-										else
-											info->state = 3; // followup to adding child to array
+										THROW_S(info->cursor->Type == json_t::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+										info->state = 3; // followup to adding child to array
 									}
 									break;
 								case json_t::tARRAY: info->state = 9; break; // followup to adding child to array
-								default:
-									return JSON_BAD_TREE_STRUCTURE;
+								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
 							}
 						}
 						break;
-					case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT;
-					default: return JSON_MALFORMED_DOCUMENT;
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 				}
 				break;
 			case 99: // finished document. only accept whitespaces until EOF
 				// perform tree sanity check
 				assert(info->cursor->P_Parent == NULL);
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
-					case LEX_MORE: return JSON_WAITING_FOR_EOF; break;
-					case LEX_MEMORY: return JSON_MEMORY; break;
-					default: return JSON_MALFORMED_DOCUMENT; break;
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_WAITING_FOR_EOF);
+					case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
+					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 				}
 				break;
-			default: return JSON_UNKNOWN_PROBLEM;
+			default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM);
 		}
 	}
 	info->p = NULL;
+	/*
 	if(info->state == 99)
 		return JSON_WAITING_FOR_EOF;
 	else
 		return JSON_INCOMPLETE_DOCUMENT;
+	*/
+	THROW_S(info->state != 99, SLERR_JSON_WAITING_FOR_EOF);
+	CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
+	CATCHZOK
+	return ok;
 }
 
 enum json_error json_parse_document(json_t ** root, const char *text)
@@ -1803,8 +1749,8 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 	}
 	else {
 		json_jpi_init(jpi);
-		error = json_parse_fragment(jpi, text);
-		if(oneof2(error, JSON_WAITING_FOR_EOF, JSON_OK)) {
+		error = json_parse_fragment(jpi, text) ? JSON_OK : (enum json_error)SLibError;
+		if(oneof3(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, JSON_OK)) {
 			*root = jpi->cursor;
 			SAlloc::F(jpi);
 			error = JSON_OK;

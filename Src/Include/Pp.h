@@ -19298,6 +19298,7 @@ public:
 class PPObjPhoneService : public PPObjReference {
 public:
 	static int FASTCALL IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel);
+	static int SLAPI PhoneTo(SString & rPhone);
 
 	SLAPI  PPObjPhoneService(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
@@ -39288,8 +39289,9 @@ private:
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr * pHdr) const;
 	int    SLAPI ToggleDlvrTag(PPID checkID);
 	int    SLAPI GetReportId() const;
+	int    SLAPI Recover();
 
-	CCheckCore  * P_CC; // @v8.6.12 CC--> *P_CC
+	CCheckCore  * P_CC;
 	PPObjCSession CsObj;
 	PPObjGoods  GdsObj;
 	PPObjPerson PsnObj;
@@ -46171,6 +46173,7 @@ public:
 private:
 	int    SLAPI ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName);
+	int    SLAPI ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, const char * pFileName);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 	int    SLAPI TestSyntax();
@@ -50003,6 +50006,7 @@ ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toC
 ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 int    FASTCALL GetModelessStatus(int outerModeless = 1);
 void   FASTCALL DisableOKButton(TDialog *);
+int    FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    FASTCALL PPWait(int begin);
 int    FASTCALL PPWaitMsg(const char *);
 int    FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);

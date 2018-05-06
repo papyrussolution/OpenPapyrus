@@ -2973,9 +2973,6 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 
 int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode); // @prototype
 
-//#define GRP_SPCDVCINP 1
-//#define GRP_LOC       2
-
 class SCardDialog : public TDialog {
 public:
 	enum {
@@ -3013,6 +3010,22 @@ private:
 			PPID   series_id = getCtrlLong(CTLSEL_SCARD_SERIES);
 			Data.Rec.AutoGoodsID = getCtrlLong(CTLSEL_SCARD_AUTOGOODS);
 			SetupSeries(series_id, person_id);
+		}
+		else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SCARD_PHONE)) {
+			SetupPhoneButton(this, CTL_SCARD_PHONE, cmSCardAction1);
+		}
+		else if(event.isCmd(cmSCardAction1)) {
+			const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+			if(def_phn_svc_id) {
+				SString temp_buf;
+				getCtrlString(CTL_SCARD_PHONE, temp_buf);
+				if(temp_buf.Len() >= 5) {
+					SString phone_buf;
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+					if(PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf).Len() >= 5)
+						PPObjPhoneService::PhoneTo(phone_buf);
+				}
+			}
 		}
 		else if(event.isCmd(cmInputUpdated)) {
 			if(event.isCtlEvent(CTL_SCARD_PHONE)) {
@@ -3244,6 +3257,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	setCtrlUInt16(CTL_SCARD_PRDCOUNT, Data.Rec.PeriodCount);
 	SetupSpin(CTLSPN_SCARD_PRDCOUNT, CTL_SCARD_PRDCOUNT, 0, 365*4+1, Data.Rec.PeriodCount);
 	SetupCtrls();
+	SetupPhoneButton(this, CTL_SCARD_PHONE, cmSCardAction1); // @v10.0.04
 	if(Data.Rec.SeriesID)
 		selectCtrl(CTL_SCARD_CODE);
 	return ok;
