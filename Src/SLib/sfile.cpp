@@ -1955,13 +1955,11 @@ private:
 	int    Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, int & rMimeType, SString & rMimeSubtype) const;
 	int    Helper_Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc);
 
-	//StringSet Pool;
 	uint   MaxSignSize;
 };
 
 FileFormatRegBase::FileFormatRegBase() : SVector(sizeof(Entry)), MaxSignSize(0)
 {
-	//Pool.add("$"); // zero index - is empty string
 }
 
 FileFormatRegBase::~FileFormatRegBase()
@@ -1972,6 +1970,21 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 {
 	rMime.Z();
 	int    ok = 0;
+	// @v10.0.05 {
+	for(uint pos = 0; !ok && SVector::lsearch(&id, &pos, CMPF_LONG); pos++) {
+		const Entry * p_entry = (const Entry *)at(pos);
+		assert(p_entry->FmtId == id);
+		if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
+			SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			GetS(p_entry->MimeSubtypeIdx, r_temp_buf);
+			rMime.CatChar('/').Cat(r_temp_buf);
+			ok = 1;
+		}
+		break;
+	}
+	// } @v10.0.05 
+	/* @v10.0.05
 	for(uint i = 0; !ok && i < getCount(); i++) {
 		const Entry * p_entry = (const Entry *)at(i);
 		if(p_entry && p_entry->FmtId == id) {
@@ -1985,6 +1998,7 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 			break;
 		}
 	}
+	*/
 	return ok;
 }
 
@@ -2240,7 +2254,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 							// За пределами 512-байтовой зоны ничего читать не будем!
 							//
 							used_offs_list.clear();
-							binary_chunk_list.Clear();
+							binary_chunk_list.Z();
 							ss_subsigns.clear();
 							if(entry_sign.HasChr(' ')) {
 								entry_sign.Tokenize(" ", ss_subsigns);
@@ -2406,12 +2420,7 @@ int SFileFormat::GetContentTransferEncName(int cte, SString & rBuf)
 	return ok;
 }
 
-struct __MimeTypeNameEntry {
-	int    Type;
-	const char * P_Name;
-};
-
-static __MimeTypeNameEntry MimeTypeNameList[] = {
+static const SIntToSymbTabEntry MimeTypeNameList[] = {
 	{ SFileFormat::mtMultipart, "multipart" },
 	{ SFileFormat::mtText, "text" },
 	{ SFileFormat::mtApplication, "application" },
@@ -2426,30 +2435,10 @@ static __MimeTypeNameEntry MimeTypeNameList[] = {
 
 //static
 int SFileFormat::IdentifyMimeType(const char * pMimeType)
-{
-	int    mt = mtUndef;
-	if(!isempty(pMimeType)) {
-		for(uint i = 0; mt == mtUndef && i < SIZEOFARRAY(MimeTypeNameList); i++) {
-			if(sstreqi_ascii(MimeTypeNameList[i].P_Name, pMimeType))
-				mt = MimeTypeNameList[i].Type;
-		}
-	}
-	return mt;
-}
-
+	{ return SIntToSymbTab_GetId(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), pMimeType); }
 //static
 int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
-{
-	rBuf.Z();
-	int    ok = 0;
-	for(uint i = 0; i < SIZEOFARRAY(MimeTypeNameList); i++) {
-		if(MimeTypeNameList[i].Type == mimeType) {
-			rBuf = MimeTypeNameList[i].P_Name;
-			ok = 1;
-		}
-	}
-	return ok;
-}
+	{ return SIntToSymbTab_GetSymb(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), mimeType, rBuf); }
 
 //static
 int SFileFormat::GetMime(int id, SString & rMime)
@@ -2533,13 +2522,13 @@ int SFileFormat::Register()
 	Register(Bmp,    mtImage, "bmp", "bmp", "424D");                // BMP
 	Register(Ico,    mtImage, "x-icon", "ico", "0001");             // ICO
 	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
-	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML  @v8.1.0
+	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML
 	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
-	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
-	Register(Ini,    mtText,  "plain", "ini", (const char *)0);  // INI  @v8.1.0
+	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML
+	Register(Ini,    mtText,  "plain", "ini", (const char *)0);  // INI
 
-	Register(Latex,            mtApplication, "x-latex", "tex", (const char *)0);  // LATEX @v8.8.3
-	Register(Latex,            "latex", (const char *)0);         // LATEX @v8.8.3
+	Register(Latex,            mtApplication, "x-latex", "tex", (const char *)0);  // LATEX
+	Register(Latex,            "latex", (const char *)0);         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
 	Register(TxtBomUTF16BE,    "txt;csv", "FEFF");
 	Register(TxtBomUTF16LE,    "txt;csv", "FFFE");
@@ -2555,7 +2544,7 @@ int SFileFormat::Register()
 	Register(TxtBomBOCU1,      "txt;csv", "FBEE28");
 	Register(TxtBomGB18030,    "txt;csv", "84319533");
 
-	Register(Pdf, mtApplication, "pdf", "pdf", "25504446"); // @v8.8.12
+	Register(Pdf, mtApplication, "pdf", "pdf", "25504446");
 
 	Register(Rtf,        "rtf",     "7B5C72746631");
 	Register(Mdb,        "mdb",     "000100005374616E64617264204A6574204442");
@@ -2670,7 +2659,7 @@ int SFileFormat::Register()
 	Register(Properties, "properties", 0); // @v9.7.1
 	Register(Css,        "css", 0); // @v9.7.1
 	Register(JavaScript, "js",  0); // @v9.7.1
-	Register(Json,       "json", "T{"); // @v9.7.2
+	Register(Json,       mtApplication, "json", "json", "T{"); // @v9.7.2
 	Register(Json,       "json", "T["); // @v9.7.2
 	Register(Pbxproj,    "pbxproj", 0); // @v9.8.1
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53"); // @v9.8.11

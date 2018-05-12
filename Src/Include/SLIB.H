@@ -1503,8 +1503,9 @@ private:
 //
 //
 //
-struct S_GUID { // @persistent @noctr @size=16
-	S_GUID & FASTCALL Init(REFIID);
+class S_GUID_Base { // @persistent @noctr @size=16
+public:
+	S_GUID_Base & FASTCALL Init(REFIID);
 	operator GUID & ();
 	enum {
 		fmtIDL = 0,
@@ -1512,10 +1513,10 @@ struct S_GUID { // @persistent @noctr @size=16
 		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
-	int    FASTCALL operator == (const S_GUID &) const;
-	int    FASTCALL operator != (const S_GUID &) const;
+	int    FASTCALL operator == (const S_GUID_Base &) const;
+	int    FASTCALL operator != (const S_GUID_Base &) const;
 	int    IsZero() const;
-	void   SetZero();
+	S_GUID_Base & Z();
 	SString & ToStr(long fmt, SString &) const;
 	//
 	// Descr: Преобразует строку pStr в GUID.
@@ -1528,6 +1529,14 @@ struct S_GUID { // @persistent @noctr @size=16
 	int    Generate();
 
 	uint32 Data[4];
+};
+
+class S_GUID : public S_GUID_Base {
+public:
+	S_GUID();
+	S_GUID(const S_GUID_Base & rS);
+	S_GUID(const S_GUID & rS);
+	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
 };
 //
 // Descr: Представление даты в формате MS-DOS.
@@ -1733,7 +1742,7 @@ struct LDATETIME {
 	operator OleDate() const;
 	LDATETIME FASTCALL operator = (OleDate);
 	LDATETIME & SLAPI Set(LDATE _d, LTIME _t);
-	LDATETIME & SLAPI SetZero();
+	LDATETIME & SLAPI Z();
 	LDATETIME & SLAPI SetFar();
 	LDATETIME & FASTCALL SetTimeT(time_t t);
 	time_t SLAPI GetTimeT() const;
@@ -4629,10 +4638,16 @@ int   SLAPI strtodate(const char * pBuf, long fmt, void *);
 LDATE FASTCALL strtodate_(const char * pBuf, long fmt);
 //
 // Descr: Заимствованная у CURL функция преобразования строки в дату/время.
-// Note: поскольку встроенная библиотеку libcurl зависит от SLIB, то оригинальный код
+// Note: поскольку встроенная библиотека libcurl зависит от SLIB, то оригинальный код
 //   также использует эту функцию.
 //
 time_t FASTCALL Sl_Curl_GetDate(const char * p);
+//
+// Descr: Заимствованная у CURL функция преобразования ip-адреса в строку.
+// Note: поскольку встроенная библиотека libcurl зависит от SLIB, то оригинальный код
+//   также использует эту функцию.
+//
+char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize);
 //
 // Descr: Преобразует строку pBuf в представление времени в формате LTIME
 //   Строка может иметь вид "hh:mm:ss:hs", где
@@ -5637,7 +5652,35 @@ private:
 	int    NumGetColl;      // Количество коллизий при чтении
 	int    MaxGetCollIters; // Максимальное число итераций чтения из-за коллизий
 };
-
+//
+// Descr: Структура и 2 функции для извлечения значений из статических таблиц,
+//   элементами которых являются пары {int, const char *}.
+//   Это - очень популярная конструкция, потому данный блок (структура SIntToSymbTabEntry вкупе с
+//   с функциями SIntToSymbTab_GetSymb и SIntToSymbTab_GetId) призван унифицировать ее применение.
+//
+struct SIntToSymbTabEntry {
+	int    Id;
+	const  char * P_Symb;
+};
+//
+// Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
+//   (Id == id) из в буфере rSymb возвращает значение соответствующего символа (SIntToSymbTabEntry::P_Symb).
+// Returns:
+//   >0 - искомый элемент найден
+//   0  - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
+//
+int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+//
+// Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
+//   P_Symb равное параметру pSymb (сравнение осуществляется функцией sstreqi_ascii).
+// Note: Чтобы избежать неоднозначности в работе функции таблица pTab не должна содержать
+//   элементов, у которых Id == 0.
+// Returns:
+//   Если искомый символ найден, то возвращает соответствующее значение SIntToSymbTabEntry::Id,
+//   в противном случае 0.
+//   Если pSymb == 0 || pSymb[0] == 0, то возвращает 0.
+//
+int FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
 //
 // Dynamic Array structures
 //
@@ -6641,7 +6684,7 @@ public:
 	SLAPI  UUIDAssocArray();
 	int    SLAPI Add(long key, const S_GUID & rVal, uint * pPos);
 	int    SLAPI Search(long key, S_GUID * pVal, uint * pPos) const;
-	int    SLAPI SearchVal(const S_GUID &, long * pKey, uint * pPos) const;
+	int    SLAPI SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
 };
 #endif // } _WIN32_WCE
 //
@@ -6752,7 +6795,7 @@ public:
 	SLAPI  StrAssocArray(const StrAssocArray & rS);
 	StrAssocArray & FASTCALL operator = (const StrAssocArray & rS);
 	int    FASTCALL Copy(const StrAssocArray & rS);
-	StrAssocArray & SLAPI Clear();
+	StrAssocArray & SLAPI Z();
 	void   FASTCALL SetTextCmpProc(CompFunc fcmp);
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром src.
@@ -7261,7 +7304,7 @@ public:
 private:
 	class HolidayArray : public STimeChunkArray {
 	public:
-		HolidayArray(long id);
+		explicit HolidayArray(long id);
 		long   Id;
 	};
 	TSCollection <HolidayArray> HL;
@@ -8293,9 +8336,9 @@ public:
 		Ico              =  7,
 		Cur              =  8,
 		Svg              =  9,
-		Html             = 10,  // 
-		Xml              = 11,  // 
-		Ini              = 12,  // 
+		Html             = 10,  //
+		Xml              = 11,  //
+		Ini              = 12,  //
 		TxtBomUTF8       = 13,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16BE    = 14,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16LE    = 15,  // Текстовый файл с сигнатурой типа кодировка (BOM)
@@ -9344,7 +9387,9 @@ private:
 #define SNTOK_TIME          20 // time
 #define SNTOK_SOFTWAREVER   21 // 9.9.9
 #define SNTOK_COLORHEX      22 // #hhhhhh
-#define SNTOK_REALNUMBER    23 // 9.9 || .9 || 9.
+#define SNTOK_REALNUMBER    23 // 9.9 || .9 || 9. || 9,9
+#define SNTOK_INTNUMBER     24 // 9 || -9
+#define SNTOK_PECENTAGE     25 //
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -9356,14 +9401,17 @@ private:
 #define SNTOKSEQ_1251       0x00000080 // Вся последовательность состоит из символов, соответствующих кодировке cp1251
 #define SNTOKSEQ_866        0x00000100 // Вся последовательность состоит из символов, соответствующих кодировке cp866
 #define SNTOKSEQ_DECLAT     0x00000200 // 0-9||A-F||a-f
-#define SNTOKSEQ_HEXHYPHEN  0X00000400 // ТОЛЬКО HEX && -
-#define SNTOKSEQ_DECHYPHEN  0X00000800 // ТОЛЬКО DEC && -
-#define SNTOKSEQ_HEXCOLON   0X00001000 // ТОЛЬКО HEX && :
-#define SNTOKSEQ_DECCOLON   0X00002000 // ТОЛЬКО DEC && :
-#define SNTOKSEQ_HEXDOT     0X00004000 // ТОЛЬКО HEX && .
-#define SNTOKSEQ_DECDOT     0X00008000 // ТОЛЬКО DEC && .
-#define SNTOKSEQ_DECSLASH   0X00010000 // ТОЛЬКО DEC && /
-#define SNTOKSEQ_LEADSHARP  0X00020000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_HEXHYPHEN  0x00000400 // ТОЛЬКО HEX && -
+#define SNTOKSEQ_DECHYPHEN  0x00000800 // ТОЛЬКО DEC && -
+#define SNTOKSEQ_HEXCOLON   0x00001000 // ТОЛЬКО HEX && :
+#define SNTOKSEQ_DECCOLON   0x00002000 // ТОЛЬКО DEC && :
+#define SNTOKSEQ_HEXDOT     0x00004000 // ТОЛЬКО HEX && .
+#define SNTOKSEQ_DECDOT     0x00008000 // ТОЛЬКО DEC && .
+#define SNTOKSEQ_DECSLASH   0x00010000 // ТОЛЬКО DEC && /
+#define SNTOKSEQ_LEADSHARP  0x00020000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_LEADMINUS  0x00040000 // Лидирующий символ - (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_LEADDOLLAR 0x00080000 // Лидирующий символ $ (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_BACKPCT    0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
 
 struct SNaturalTokenStat {
 	SLAPI  SNaturalTokenStat();
@@ -10986,7 +11034,7 @@ public:
 	};
 
 	SLAPI  STab();
-	STab & SLAPI Clear();
+	STab & SLAPI Z();
 	uint   SLAPI GetCount() const;
 	int    SLAPI Find(uint columnPos, const char * pKey, uint * pRowPos) const;
 	int    SLAPI Find(uint columnPos, double key, uint * pRowPos) const;
@@ -12071,18 +12119,18 @@ public:
 	int    LastSockErr;     // Код последней ошибки WinSock
 	int    LastCurlErr;     // Код последней ошибки библиотеки LibCURL
 	int    BinDateFmt_;
-	long   TxtDateFmt_;     // 
+	long   TxtDateFmt_;     //
 	int    DefaultYear_;
 	int    DefaultMonth_;
 	int    UiLanguageId;
 	long   UiFlags;            // @v9.1.1 sluifXXX
-	SCodepageIdent CurrentCp;  // 
+	SCodepageIdent CurrentCp;  //
 	// @v9.6.5 char   OneCStrBuf[4];      // used in onecstr()
 	CompFunc SAry_OrgFCMP;
 	int    SAry_PtrContainer;
 	void * SAry_SortExtraData;
 	SString AddedMsgString; // @anchor
-	SString LogPath;        // 
+	SString LogPath;        //
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
@@ -12266,7 +12314,7 @@ private:
 		// Положение переменной должно быть выровнено по 64-битной границе.
 	// @v9.8.1 ACount LastThread;      //
 	int    WsaInitCounter;
-	ACount SslInitCounter;  // 
+	ACount SslInitCounter;  //
 	int    StopFlag;        //
 	uint   DragndropObjIdx; // Индекс объекта для перетаскивания в таблице глобальных объектов GlobalObjList
 	uint32 HelpCookie;

@@ -23,12 +23,11 @@ public:
 	struct Param : public PPExtStrContainer {
 		SLAPI  Param() 
 		{
-			IssuerUUID.SetZero();
 		}
 		void   Clear()
 		{
 			SetBuffer(0);
-			IssuerUUID.SetZero();
+			IssuerUUID.Z();
 		}
 		S_GUID IssuerUUID;
 	};

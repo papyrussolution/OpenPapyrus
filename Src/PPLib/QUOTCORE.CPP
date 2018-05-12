@@ -20,12 +20,12 @@ SLAPI QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PP
 	Period.SetZero();
 }
 
-SLAPI QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID), 
+SLAPI QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID),
 	QuotKindID(rS.QuotKindID), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.Qtty_), PrevBase(rS.PrevBase)
 {
 }
 
-SLAPI QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(rS.Period), Dt(ZERODATE), LocID(rS.LocID), 
+SLAPI QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(rS.Period), Dt(ZERODATE), LocID(rS.LocID),
 	QuotKindID(rS.Kind), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.MinQtty), PrevBase(0.0)
 {
 }
@@ -86,6 +86,40 @@ PPQuotItem_::PPQuotItem_(const PPQuot & rS)
 	Val = rS.Quot;
 }
 
+int FASTCALL PPQuotItem_::Get(PPQuot & rDest) const
+{
+	int    ok = 1;
+	rDest.Clear();
+	rDest.GoodsID = GoodsID;
+	rDest.Kind = KindID;
+	rDest.LocID = LocID;
+	rDest.ArID = ArID;
+	rDest.CurID = CurID;
+	rDest.Period = Period;
+	rDest.MinQtty = MinQtty;
+	rDest.Dtm = Dtm;
+	rDest.Flags = Flags;
+	rDest.Quot = Val;
+	return ok;
+}
+
+int SLAPI PPQuotItem_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, GoodsID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, KindID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, LocID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ArID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CurID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MinQtty, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Period, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Dtm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Val, rBuf));
+	CATCHZOK
+	return ok;
+}
+
 IMPL_CMPFUNC(PPQuotItem_, i1, i2) { RET_CMPCASCADE6((const PPQuotItem_ *)i1, (const PPQuotItem_ *)i2, GoodsID, KindID, LocID, ArID, CurID, Period); }
 
 PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArray-->TSVector
@@ -93,14 +127,31 @@ PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArra
 }
 
 int FASTCALL PPQuotItemArray::Add(const PPQuotItem_ & rItem)
-{
-	return SVector::insert(&rItem) ? 1 : PPSetErrorSLib(); // @v9.8.4 SArray-->SVector
-}
+	{ return SVector::insert(&rItem) ? 1 : PPSetErrorSLib(); }
 
 int FASTCALL PPQuotItemArray::Add(const PPQuot & rQ)
 {
 	PPQuotItem_ item(rQ);
 	return Add(item);
+}
+
+int SLAPI PPQuotItemArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	int32  c = (int32)getCount();
+	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
+	for(int32 i = 0; i < c; i++) {
+		PPQuotItem_ item;
+		if(dir > 0) {
+			item = at(i);
+		}
+		THROW(item.Serialize(dir, rBuf, pSCtx));
+		if(dir < 0) {
+			THROW_SL(insert(&item));
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
@@ -377,6 +428,25 @@ int FASTCALL PPQuot::CheckForFilt(const QuotFilt * pFilt, const PPIDArray * pKin
 			return 0;
 	}
 	return 1;
+}
+
+int SLAPI PPQuot::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, ID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ArID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, GoodsID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, LocID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Kind, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CurID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MinQtty, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Quot, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Dtm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Period.low, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Period.upp, rBuf));
+	CATCHZOK
+	return ok;
 }
 
 IMPL_CMPFUNC(PPQuot, i1, i2) { RET_CMPCASCADE4((const PPQuot*)i1, (const PPQuot*)i2, LocID, Kind, CurID, ArID); }
@@ -1432,7 +1502,7 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPI
 					QuotFilt qfilt;
 					qfilt.QuotKindID = MtxQkID;
 					// @v8.1.6 qfilt.Flags |= QuotFilt::fAllLocations;
-					((Quotation2Core *)P_QuotProvider)->GetRelListByFilt(&qfilt, &rel_list);
+					((Quotation2Core *)P_QuotProvider)->GetRelListByFilt(&qfilt, rel_list);
 					rel_list.sort();
 				}
 				const uint mc = Matrix.getCount();
@@ -2196,9 +2266,7 @@ int SLAPI Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID,
 			qfilt.QuotKindID = quotKindID;
 			if(locID)
 				qfilt.LocID = locID;
-			/* @v8.2.1 else
-				qfilt.Flags |= QuotFilt::fAllLocations; */
-			THROW(GetRelListByFilt(&qfilt, &rel_list));
+			THROW(GetRelListByFilt(&qfilt, rel_list));
 		}
 		rel_list.sort();
 		for(uint i = 0; i < rel_list.getCount(); i++) {
@@ -2290,7 +2358,7 @@ int SLAPI Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray
 		qfilt.LocID = locID;
 	else
 		qfilt.Flags |= QuotFilt::fAllLocations;
-	THROW(GetRelListByFilt(&qfilt, &rel_list));
+	THROW(GetRelListByFilt(&qfilt, rel_list));
 	rel_list.sort();
 	{
 		Quotation2Tbl::Key2 k2;
@@ -2347,7 +2415,7 @@ int SLAPI Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQu
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * pList)
+int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 {
 	class SellerLocWorldCritBlock {
 	public:
@@ -2375,26 +2443,26 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 	SellerLocWorldCritBlock * p_slwcb = 0;
 	ObjIdListFilt loc_list;
 	PPIDArray kind_list;
-	if(pFilt->QuotKindID)
+	if(pFilt && pFilt->QuotKindID)
 		kind_list.add(pFilt->QuotKindID);
 	else {
 		PPObjQuotKind qk_obj;
 		PPQuotKind qk_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_QUOTKIND, 0); en.Next(&qk_rec) > 0;) {
 			int    cls = 0;
-			if(qk_obj.Classify(qk_rec.ID, &cls) > 0 && cls == pFilt->QkCls)
+			if(!pFilt || (qk_obj.Classify(qk_rec.ID, &cls) > 0 && cls == pFilt->QkCls))
 				kind_list.add(qk_rec.ID);
 		}
 		kind_list.sortAndUndup();
 	}
-	if(pList)
-		pList->clear();
-	if(pFilt->Flags & QuotFilt::fAllLocations)
-		loc_list.AddNotIgnoringZero(0);
-	if(pFilt->LocID)
+	rList.clear();
+	if(pFilt) {
+		if(pFilt->Flags & QuotFilt::fAllLocations)
+			loc_list.AddNotIgnoringZero(0);
 		loc_list.Add(pFilt->LocID);
-	loc_list.Add(&pFilt->LocList.Get());
-	if(loc_list.GetCount() == 0 && pFilt->SellerID) {
+		loc_list.Add(&pFilt->LocList.Get());
+	}
+	if(loc_list.GetCount() == 0 && pFilt && pFilt->SellerID) {
 		PPID   seller_psn_id = ObjectToPerson(pFilt->SellerID, 0);
 		loc_list.InitEmpty();
 		if(seller_psn_id) {
@@ -2413,13 +2481,15 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 	if(!loc_list.IsExists() || loc_list.GetCount()) {
 		const PPID single_qk_id = kind_list.getSingle();
 		DBQ * dbq = 0;
-		const LDATE eff_date = pFilt->EffDate.getactual(ZERODATE);
+		const LDATE eff_date = pFilt ? pFilt->EffDate.getactual(ZERODATE) : ZERODATE;
 		dbq = ppcheckfiltid(dbq, RelT.QuotKindID, single_qk_id);
-		dbq = ppcheckfiltid(dbq, RelT.CurID, pFilt->CurID);
-		if(pFilt->Flags & QuotFilt::fZeroArOnly)
-			dbq = &(*dbq && RelT.ArID == 0L);
-		else
-			dbq = ppcheckfiltid(dbq, RelT.ArID, pFilt->ArID);
+		if(pFilt) {
+			dbq = ppcheckfiltid(dbq, RelT.CurID, pFilt->CurID);
+			if(pFilt->Flags & QuotFilt::fZeroArOnly)
+				dbq = &(*dbq && RelT.ArID == 0L);
+			else
+				dbq = ppcheckfiltid(dbq, RelT.ArID, pFilt->ArID);
+		}
 		if(loc_list.GetCount() && loc_list.GetCount() <= 16) {
 			dbq = ppcheckfiltidlist(dbq, RelT.LocID, &loc_list.Get());
 		}
@@ -2430,9 +2500,9 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 			if(loc_list.GetSingle())
 				k1.LocID = loc_list.GetSingle();
 		}
-		BExtQuery q(&RelT, 1);
-		q.selectAll().where(*dbq);
-		if(pFilt->SellerLocWorldID) {
+		BExtQuery q(&RelT, 1, 512);
+		q.select(RelT.ID, RelT.QuotKindID, RelT.LocID, RelT.ArID, RelT.CurID, RelT.MinQtty, RelT.PeriodIdx, 0L).where(*dbq);
+		if(pFilt && pFilt->SellerLocWorldID) {
 			THROW_MEM(p_slwcb = new SellerLocWorldCritBlock(pFilt->SellerLocWorldID));
 		}
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
@@ -2444,8 +2514,7 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 					if(!period.CheckDate(eff_date))
 						continue;
 				}
-				if(pList)
-					THROW_SL(pList->add(RelT.data.ID));
+				THROW_SL(rList.add(RelT.data.ID));
 				ok = 1;
 			}
 		}
@@ -3189,6 +3258,77 @@ int SLAPI Quotation2Core::Verify()
 		}
 	}
 	PPWait(0);
+	CATCHZOK
+	return ok;
+}
+
+static const uint64 Quotation2_DumpHeader_Signature = 0x7654321098fedcbaLL; // @persistent
+
+struct Quotation2_DumpHeader {
+	Quotation2_DumpHeader() : Signature(Quotation2_DumpHeader_Signature), Dtm(ZERODATETIME), CRC(0)
+	{
+		memzero(Reserve, sizeof(Reserve));
+	}
+	uint64 Signature;
+	LDATETIME Dtm;
+	uint32 CRC; // crc32
+	uint8  Reserve[44];
+};
+
+int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, int64 * pItemsCount)
+{
+	int    ok = 1;
+	rBuf.Clear();
+	SSerializeContext sctx;
+	PPQuot quot;
+	PPIDArray rel_list;
+	PPQuotItemArray qilist;
+	GetRelListByFilt(0, rel_list);
+	rel_list.sort();
+	const uint rc = rel_list.getCount();
+	for(uint i = 0; i < rc; i++) {
+		const PPID rel_id = rel_list.get(i);
+		quot.Clear();
+		if(FetchRel(rel_id, &quot) > 0) {
+			Quotation2Tbl::Key2 k2;
+			BExtQuery q(this, 2);
+			q.selectAll().where(this->Actual == 1L && this->RelID == rel_id);
+			MEMSZERO(k2);
+			k2.Actual = 1;
+			k2.RelID = rel_id;
+			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+				RecToQuotRel(&data, quot);
+				THROW(qilist.Add(quot));
+			}
+		}
+		PPWaitPercent(i+1, rc);
+	}
+	THROW(qilist.Serialize(+1, rBuf, &sctx));
+	CATCHZOK
+	ASSIGN_PTR(pItemsCount, (int64)qilist.getCount());
+	return ok;
+}
+
+int SLAPI Quotation2Core::UndumpCurrent(SBuffer & rBuf, int use_ta)
+{
+	int    ok = 1;
+	long   qta_id = 0;
+	SSerializeContext sctx;
+	PPQuotItemArray qilist;
+	THROW(DS.GetConstTLA().IsAuth());
+	THROW(qilist.Serialize(-1, rBuf, &sctx));
+	{
+		const uint _c = qilist.getCount();
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		for(uint i = 0; i < _c; i++) {
+			PPQuot q;
+			qilist.at(i).Get(q);
+			THROW(Set(q, qta_id, 1, 0));
+			PPWaitPercent(i+1, _c);
+		}
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }

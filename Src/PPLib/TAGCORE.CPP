@@ -221,7 +221,7 @@ int FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
 	}
 	else {
 		PPSetError(PPERR_INVOBJTAGTYPE, "GUID");
-		CALLPTRMEMB(pGuid, SetZero());
+		CALLPTRMEMB(pGuid, Z());
 	}
 	return ok;
 }
@@ -229,21 +229,12 @@ int FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
 int FASTCALL ObjTagItem::GetTimestamp(LDATETIME * pDtm) const
 {
 	int    ok = 1;
-	LDATETIME dtm;
-	dtm.SetZero();
+	LDATETIME dtm = ZERODATETIME;
 	switch(TagDataType) {
-		case OTTYP_DATE:
-			dtm.d = Val.DtVal;
-			break;
-		case OTTYP_TIMESTAMP:
-			dtm = Val.DtmVal;
-			break;
-		case OTTYP_STRING:
-			strtodatetime(Val.PStr, &dtm, DATF_ISO8601, TIMF_HMS);
-			break;
-		default:
-			ok = -1;
-			break;
+		case OTTYP_DATE: dtm.d = Val.DtVal; break;
+		case OTTYP_TIMESTAMP: dtm = Val.DtmVal; break;
+		case OTTYP_STRING: strtodatetime(Val.PStr, &dtm, DATF_ISO8601, TIMF_HMS); break;
+		default: ok = -1; break;
 	}
 	ASSIGN_PTR(pDtm, dtm);
 	return ok;
@@ -399,7 +390,7 @@ int SLAPI ObjTagItem::AddKeyword(PPID tagID, const char * pKeyword)
 	return ok;
 }
 
-int SLAPI ObjTagItem::SetGuid(PPID tagID, const S_GUID * pGuid)
+int SLAPI ObjTagItem::SetGuid(PPID tagID, const S_GUID_Base * pGuid)
 {
 	int    ok = 0;
 	if(Init(tagID)) {
@@ -1423,7 +1414,7 @@ int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * 
 
 int SLAPI ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList)
 {
-	rList.Clear();
+	rList.Z();
 
 	int    ok = -1;
 	ObjTagTbl::Key3 k3;

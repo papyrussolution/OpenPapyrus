@@ -5,6 +5,30 @@
 #include <tv.h>
 #pragma hdrstop
 
+int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb)
+{
+	rSymb.Z();
+	int    ok = 0;
+	for(uint i = 0; !ok && i < tabSize; i++) {
+		if(pTab[i].Id == id) {
+			rSymb = pTab[i].P_Symb;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
+{
+	if(!isempty(pSymb)) {
+		for(uint i = 0; i < tabSize; i++) {
+			if(sstreqi_ascii(pSymb, pTab[i].P_Symb))
+				return pTab[i].Id;
+		}
+	}
+	return 0;
+}
+
 #if 0 // (moved to sformat.cpp as static) {
 struct i_tbl {
 	int  a;
@@ -38,9 +62,8 @@ int SLAPI ai_tab(const void * tbl, int req, int def)
 //
 #define STAB_ROW_SIGN 0x54425257
 
-SLAPI STab::Row::Row() : Set("^\001")
+SLAPI STab::Row::Row() : Set("^\001"), Sign(STAB_ROW_SIGN)
 {
-	Sign = STAB_ROW_SIGN;
 	Set.add("$."); // Zero position is invalid
 }
 
@@ -148,14 +171,13 @@ int FASTCALL STab::Row::FromStr(const char * pStr)
 	return ok;
 }
 
-SLAPI STab::STab()
+SLAPI STab::STab() : LastRecId(0)
 {
-	LastRecId = 0;
 }
 
-STab & STab::SLAPI Clear()
+STab & SLAPI STab::Z()
 {
-	Data.Clear();
+	Data.Z();
 	return *this;
 }
 
@@ -230,14 +252,12 @@ int SLAPI STab::Find(uint columnPos, long key, uint * pRowPos) const
 //
 //
 //
-SLAPI STabFile::STabFile()
+SLAPI STabFile::STabFile() : Flags(0)
 {
-	Flags = 0;
 }
 
-SLAPI STabFile::STabFile(const char * pFileName, int updateMode)
+SLAPI STabFile::STabFile(const char * pFileName, int updateMode) : Flags(0)
 {
-	Flags = 0;
 	Open(pFileName, updateMode);
 }
 

@@ -350,10 +350,9 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 	SString temp_buf, fname, line_buf;
 	const ThreadID thread_id = DS.GetConstTLA().GetThreadID();
 
-	UPSB.LogFileName_Start = 0;
-	UPSB.LogFileName_Finish = 0;
-	UPSB.LogItemPrefix = 0;
-
+	UPSB.LogFileName_Start.Z();
+	UPSB.LogFileName_Finish.Z();
+	UPSB.LogItemPrefix.Z();
 	UPSB.SessUuid = SLS.GetSessUuid();
 	if(p_dict) {
 		p_dict->GetDbUUID(&UPSB.DbUuid);
@@ -392,7 +391,7 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 		}
 	}
 	else {
-		UPSB.DbUuid.SetZero();
+		UPSB.DbUuid.Z();
 		UPSB.DbSymb = "nologin";
 	}
 	{
@@ -692,14 +691,14 @@ SLAPI PPUserProfileCore::StateItem::StateItem()
 
 PPUserProfileCore::StateItem & SLAPI PPUserProfileCore::StateItem::Clear()
 {
-	DbID.SetZero();
-	SessCrDtm.SetZero();
-	StartCrDtm.SetZero();
-	FinishCrDtm.SetZero();
+	DbID.Z();
+	SessCrDtm.Z();
+	StartCrDtm.Z();
+	FinishCrDtm.Z();
 	SessOffs = 0;
 	StartOffs = 0;
 	FinishOffs = 0;
-	DbSymb = 0;
+	DbSymb.Z();
 	return *this;
 }
 

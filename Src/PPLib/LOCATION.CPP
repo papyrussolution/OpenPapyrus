@@ -651,7 +651,7 @@ int SLAPI LocationCore::DumpEaList(const char * pFileName)
 int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
 {
 	int    ok = 1;
-	rList.Clear();
+	rList.Z();
     if(P_Eac) {
 		EAddrTbl::Key1 k1;
 		BExtQuery q(P_Eac, 1);

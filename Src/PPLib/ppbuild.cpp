@@ -374,7 +374,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
 {
 	int    ok = -1;
-	rList.Clear();
+	rList.Z();
 	const char * p_sub_msvs = "Software\\Microsoft\\VisualStudio";
 	WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs, 1); // @v9.2.0 readonly 0-->1
 	SString temp_buf, major, minor, subkey_buf, path_buf;

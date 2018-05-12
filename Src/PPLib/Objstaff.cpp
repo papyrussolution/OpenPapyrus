@@ -1069,7 +1069,7 @@ int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staf
 	PersonPostArray post_list;
 	PersonPostTbl::Rec * p_post_rec;
 	THROW_INVARG(pList);
-	pList->Clear();
+	pList->Z();
 	if(staffID) {
 		THROW_SL(staff_list.add(staffID));
 	}
@@ -1089,7 +1089,7 @@ int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staf
 	}
 	CATCH
 		ok = 0;
-		pList->Clear();
+		pList->Z();
 	ENDCATCH
 	return ok;
 }

@@ -1,5 +1,6 @@
 // QUOT.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -57,7 +58,7 @@ public:
 	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral)
 	{
 		PPObjQuotKind::GetSpecialKinds(&QkSpc, 1);
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt)); // @v7.9.11
+		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt));
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));
 		{
 			PPIDArray ext_loc_list, * p_ext_loc_list = 0;
@@ -78,7 +79,7 @@ private:
 	int    editAdvOptions();
 	void   setupQuot();
 	QuotUpdFilt Data;
-	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - котировки, 2 - контрактные цены, 3 - матрица)
+	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - РєРѕС‚РёСЂРѕРІРєРё, 2 - РєРѕРЅС‚СЂР°РєС‚РЅС‹Рµ С†РµРЅС‹, 3 - РјР°С‚СЂРёС†Р°)
 	PPObjQuotKind::Special QkSpc;
 	PPObjQuotKind QkObj;
 	PPObjGoods GObj;
@@ -168,10 +169,8 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 		quot.PutValToStr(temp_buf);
 	}
 	setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
-	// @v7.3.5 {
 	temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 	setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
-	// } @v7.3.5
 	return 1;
 }
 
@@ -190,27 +189,21 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 		// getCtrlData(CTLSEL_QUOTUPD_LOC,  &Data.LocID);
 	}
 	{
-		// @v7.9.11 {
 		GoodsFiltCtrlGroup::Rec gf_rec;
 		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
-		// } @v7.9.11
 		{
-			// @v7.3.8 getCtrlData(CTLSEL_QUOTUPD_GGRP, &Data.GoodsGrpID);
 			GoodsCtrlGroup::Rec ggrp_rec;
 			getGroupData(GRP_GOODS, &ggrp_rec);
-			SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // @v7.9.11 Если была выбрана динамическая группа выше, то не переопределяем ее.
+			SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // Р•СЃР»Рё Р±С‹Р»Р° РІС‹Р±СЂР°РЅР° РґРёРЅР°РјРёС‡РµСЃРєР°СЏ РіСЂСѓРїРїР° РІС‹С€Рµ, С‚Рѕ РЅРµ РїРµСЂРµРѕРїСЂРµРґРµР»СЏРµРј РµРµ.
 			Data.GoodsID    = ggrp_rec.GoodsID;
 		}
 	}
 	{
-		// @v7.3.5 {
 		ArticleCtrlGroup::Rec ar_grp_rec;
 		getGroupData(GRP_ARTICLE, &ar_grp_rec);
 		Data.ArList = ar_grp_rec.ArList;
 		Data.ArticleID = Data.ArList.GetSingle();
-		// } @v7.3.5
-		// @v7.3.5 getCtrlData(CTLSEL_QUOTUPD_AR,   &Data.ArticleID);
 	}
 	Data.ByWhat = GetClusterData(CTL_QUOTUPD_HOW);
 	getCtrlData(CTL_QUOTUPD_NEXS, &(v = 0));
@@ -229,7 +222,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 		Data.Formula = temp_buf;
 		{
 			//
-			// Тест формулы
+			// РўРµСЃС‚ С„РѕСЂРјСѓР»С‹
 			//
 			double _val = 0.0;
 			GoodsContext::Param gcp;
@@ -451,7 +444,7 @@ public:
 	PPID   AdvOptQuotKindID; //
 	PPID   AdvOptLocID;      //
 	double AdvOptQuot;       //
-	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
+	long   Reserve;          // @anchor Р—Р°РіР»СѓС€РєР° РґР»СЏ РѕС‚РјРµСЂР° "РїР»РѕСЃРєРѕРіРѕ" СѓС‡Р°СЃС‚РєР° С„РёР»СЊС‚СЂР°
 	ObjIdListFilt LocList;   //
 	ObjIdListFilt EventList; //
 	SString Formula;         //
@@ -468,13 +461,13 @@ SLAPI QuotUpdFilt_v1::QuotUpdFilt_v1() : PPBaseFilt(PPFILT_QUOTUPD, 0, 1)
 }
 
 
-IMPLEMENT_PPFILT_FACTORY(QuotUpd); SLAPI QuotUpdFilt::QuotUpdFilt() : PPBaseFilt(PPFILT_QUOTUPD, 0, 2) // @v7.3.5 ver 1-->2
+IMPLEMENT_PPFILT_FACTORY(QuotUpd); SLAPI QuotUpdFilt::QuotUpdFilt() : PPBaseFilt(PPFILT_QUOTUPD, 0, 2)
 {
 	SetFlatChunk(offsetof(QuotUpdFilt, ReserveStart),
 		offsetof(QuotUpdFilt, Reserve)-offsetof(QuotUpdFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(QuotUpdFilt, LocList));
 	SetBranchObjIdListFilt(offsetof(QuotUpdFilt, EventList));
-	SetBranchObjIdListFilt(offsetof(QuotUpdFilt, ArList)); // @v7.3.5
+	SetBranchObjIdListFilt(offsetof(QuotUpdFilt, ArList));
 	SetBranchSString(offsetof(QuotUpdFilt, Formula));
 	Init(1, 0);
 }
@@ -608,13 +601,13 @@ static int SLAPI _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, 
     if(ret > 0) {
     	SString fmt_buf, log_msg_buf;
         if(ret == (int)(preserve_list.getCount()+1)) {
-            // "Добавлено новое значение котировки"
+            // "Р”РѕР±Р°РІР»РµРЅРѕ РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕС‚РёСЂРѕРІРєРё"
             const PPQuot & r_new_q = pList->at(ret-1);
             PPQuot::PutValToStr(r_new_q.Quot, r_new_q.Flags, r_new_q.Period, r_new_q.MinQtty, new_q_buf);
             PPFormatT(PPTXT_LOG_QUOTUPD_QINSERTED, &log_msg_buf, pList->GoodsID, new_q_buf.cptr());
         }
         else {
-			// "Изменено значение котировки"
+			// "РР·РјРµРЅРµРЅРѕ Р·РЅР°С‡РµРЅРёРµ РєРѕС‚РёСЂРѕРІРєРё"
             const PPQuot & r_new_q = pList->at(ret-1);
             const PPQuot & r_prev_q = preserve_list.at(ret-1);
             PPQuot::PutValToStr(r_prev_q.Quot, r_prev_q.Flags, r_prev_q.Period, r_prev_q.MinQtty, prev_q_buf);
@@ -639,7 +632,6 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 	double price = 0.0;
 	PPQuotArray * p_dest_list = NZOR(pUpdList, pList);
 	LongArray qp_list;
-	// @v7.3.5 {
 	PPIDArray ar_list;
 	for(i = 0; i < rFilt.ArList.GetCount(); i++) {
 		ar_list.addUnique(rFilt.ArList.Get(i));
@@ -650,9 +642,8 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 	DateRange _period = rFilt.QuotValPeriod;
 	_period.Actualize(ZERODATE);
 	const DateRange * p_period = _period.IsZero() ? 0 : &_period;
-	// } @v7.3.5
 	switch(rFilt.ByWhat) {
-		case QuotUpdFilt::byLots: // Установка котировок по цене реализации в последнем лоте
+		case QuotUpdFilt::byLots: // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕС‚РёСЂРѕРІРѕРє РїРѕ С†РµРЅРµ СЂРµР°Р»РёР·Р°С†РёРё РІ РїРѕСЃР»РµРґРЅРµРј Р»РѕС‚Рµ
 			THROW(r = ::GetCurGoodsPrice(goodsID, locID, GPRET_MOSTRECENT, &price));
 			if(oneof3(r, GPRET_PRESENT, GPRET_CLOSEDLOTS, GPRET_OTHERLOC)) {
 				for(i = 0; pQuotKindList->enumItems(&i, (void **)&p_qk_id);) {
@@ -660,13 +651,13 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 						const  PPID    ar_id = ar_list.get(j);
 						const  QuotIdent qi(locID, *p_qk_id, 0L /* @curID */, ar_id);
 						const  int is_exist = BIN(pList->SearchQiList(qi, qp_list) > 0);
-						assert(!is_exist || qp_list.getCount()); // Уверенность в корректности SearchQiList
+						assert(!is_exist || qp_list.getCount()); // РЈРІРµСЂРµРЅРЅРѕСЃС‚СЊ РІ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё SearchQiList
 						if(is_exist) {
 							if(!(rFilt.Flags & QuotUpdFilt::fNonExistOnly)) {
 								for(uint p = 0; p < qp_list.getCount(); p++) {
 									const uint pos = (uint)qp_list.get(p);
 									const PPQuot & r_ex_q = pList->at(pos);
-									assert(r_ex_q.ArID == ar_id); // Тест инварианта
+									assert(r_ex_q.ArID == ar_id); // РўРµСЃС‚ РёРЅРІР°СЂРёР°РЅС‚Р°
 									if(rFilt.IsQuotSuitesToAdvOpt(r_ex_q) && !(rFilt.Flags & QuotUpdFilt::fSkipDatedQuot) || r_ex_q.Period.IsZero()) {
 										QuotIdent temp_qi(r_ex_q);
 										THROW(_SetQuot(p_dest_list, temp_qi, price, 0, r_ex_q.MinQtty, &r_ex_q.Period));
@@ -683,16 +674,15 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 				}
 			}
 			break;
-		case QuotUpdFilt::byFormula: // Установка котировок по формуле
-		case QuotUpdFilt::byAbsVal: // Установка котировок по абсолютной величине
+		case QuotUpdFilt::byFormula: // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕС‚РёСЂРѕРІРѕРє РїРѕ С„РѕСЂРјСѓР»Рµ
+		case QuotUpdFilt::byAbsVal: // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕС‚РёСЂРѕРІРѕРє РїРѕ Р°Р±СЃРѕР»СЋС‚РЅРѕР№ РІРµР»РёС‡РёРЅРµ
 			for(i = 0; pQuotKindList->enumItems(&i, (void **)&p_qk_id);) {
 				for(uint j = 0; j < ar_list.getCount(); j++) {
-					//uint   pos = 0;
 					const  PPID    ar_id = ar_list.get(j);
 					QuotIdent qi(locID, *p_qk_id, 0L /* @curID */, ar_id);
-					qi.SetIdentPeriod(p_period); // @v8.5.3
+					qi.SetIdentPeriod(p_period);
 					const  int is_exist = BIN(pList->SearchQiList(qi, qp_list) > 0);
-					assert(!is_exist || qp_list.getCount()); // Уверенность в корректности SearchQiList
+					assert(!is_exist || qp_list.getCount()); // РЈРІРµСЂРµРЅРЅРѕСЃС‚СЊ РІ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё SearchQiList
 
 					double qval = 0.0;
 					long   qf = 0;
@@ -713,7 +703,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 							for(uint p = 0; p < qp_list.getCount(); p++) {
 								const uint pos = (uint)qp_list.get(p);
 								const PPQuot & r_ex_q = pList->at(pos);
-								assert(r_ex_q.ArID == ar_id); // Тест инварианта
+								assert(r_ex_q.ArID == ar_id); // РўРµСЃС‚ РёРЅРІР°СЂРёР°РЅС‚Р°
 								if(rFilt.IsQuotSuitesToAdvOpt(r_ex_q)) {
 									if(!(rFilt.Flags & QuotUpdFilt::fSkipDatedQuot) || r_ex_q.Period.IsZero() || r_ex_q.Period == _period) {
 										int    skip = 0;
@@ -756,7 +746,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 				}
 			}
 			break;
-		case QuotUpdFilt::byPctVal: // Установка котировок по относительному изменению (только для существующих)
+		case QuotUpdFilt::byPctVal: // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕС‚РёСЂРѕРІРѕРє РїРѕ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРјСѓ РёР·РјРµРЅРµРЅРёСЋ (С‚РѕР»СЊРєРѕ РґР»СЏ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС…)
 			if(rFilt.QuotVal) {
 				for(i = 0; pList->enumItems(&i, (void**)&p_quot);) {
 					for(uint j = 0; j < ar_list.getCount(); j++) {
@@ -805,7 +795,7 @@ static int SLAPI SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray &
 				PPTransferItem reg_ti(&p_reg_pack->Rec, TISIGN_UNDEF);
 				reg_ti.GoodsID = r_q.GoodsID;
 				reg_ti.Price = r_q.Quot;
-				reg_ti.Quantity_ = 1.0; // @v7.3.12
+				reg_ti.Quantity_ = 1.0;
 				THROW(p_reg_pack->InsertRow(&reg_ti, 0, 0));
 				ok = 1;
 			}
@@ -842,7 +832,6 @@ static int SLAPI FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, i
 int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 {
 	int    ok = -1, r = 0, for_all = 0;
-	//PPLogger logger;
 	SString log_msg_buf, temp_buf;
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;
@@ -869,7 +858,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 				PPID   bill_id = 0;
 				{
 					//
-					// @todo Оптимизировать поиск по видам операций переоценки
+					// @todo РћРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ РїРѕРёСЃРє РїРѕ РІРёРґР°Рј РѕРїРµСЂР°С†РёР№ РїРµСЂРµРѕС†РµРЅРєРё
 					//
 					BillTbl::Key1 k;
 					k.Dt     = MAXDATE;
@@ -946,11 +935,11 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 				q_filt.QuotKindID = flt.AdvOptQuotKindID;
 				q_filt.LocList.Add(flt.AdvOptLocID);
 				q_filt.GoodsGrpID = flt.GoodsGrpID;
-				q_filt.GoodsID    = flt.GoodsID; // @v7.3.8
+				q_filt.GoodsID    = flt.GoodsID;
 				THROW_PP(flt.AdvOptQuotKindID, PPERR_QUOTKINDNEEDED);
 				THROW(q_view.Init_(&q_filt));
 				{
-					PPWait(1); // q_view.Init_ убрал с экрана окно ожидания //
+					PPWait(1); // q_view.Init_ СѓР±СЂР°Р» СЃ СЌРєСЂР°РЅР° РѕРєРЅРѕ РѕР¶РёРґР°РЅРёСЏ //
 					PPTransaction tra(1);
 					THROW(tra);
 					for(q_view.InitIteration(); q_view.NextIteration(&q_item) > 0;) {
@@ -959,7 +948,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 						if(!flt.GoodsID || goods_id == flt.GoodsID) {
 							if(flt.GoodsID || !(flt.Flags & flt.fSkipNoDisGoods) || !goods_obj.CheckFlag(goods_id, GF_NODISCOUNT)) {
 
-								//PPTXT_LOG_QUOTUPD_SAMPLEFOUND "Для товара '@goods' шаблонная котировка"
+								//PPTXT_LOG_QUOTUPD_SAMPLEFOUND "Р”Р»СЏ С‚РѕРІР°СЂР° '@goods' С€Р°Р±Р»РѕРЅРЅР°СЏ РєРѕС‚РёСЂРѕРІРєР°"
 								PPFormatT(PPTXT_LOG_QUOTUPD_SAMPLEFOUND, &log_msg_buf, goods_id);
 
 								QuotIdent qi(q_item.LocID, flt.AdvOptQuotKindID, 0, q_item.ArticleID);
@@ -993,9 +982,9 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 										q = qary.at(qpos);
 										int    upd = 0;
 										//
-										// Временный фильтр temp_filt будет использоваться для установки нового
-										// значения котировки функцией SetupQuotList (в этом варианте работа функции
-										// аналогична опции QuotUpdFilt::byAbsVal).
+										// Р’СЂРµРјРµРЅРЅС‹Р№ С„РёР»СЊС‚СЂ temp_filt Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё РЅРѕРІРѕРіРѕ
+										// Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё С„СѓРЅРєС†РёРµР№ SetupQuotList (РІ СЌС‚РѕРј РІР°СЂРёР°РЅС‚Рµ СЂР°Р±РѕС‚Р° С„СѓРЅРєС†РёРё
+										// Р°РЅР°Р»РѕРіРёС‡РЅР° РѕРїС†РёРё QuotUpdFilt::byAbsVal).
 										//
 										QuotUpdFilt temp_filt;
 										temp_filt = flt;
@@ -1046,13 +1035,11 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 				PPLogMessage(PPFILNAM_QUOTUPD_LOG, PPSTR_TEXT, PPTXT_LOG_QUOTUPD_GENERIC, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
 				PPIDArray goods_list;
 				if(flt.GoodsID) {
-					// @v8.8.0 {
 					Goods2Tbl::Rec goods_rec;
 					THROW(goods_obj.Fetch(flt.GoodsID, &goods_rec) > 0);
 					if(goods_rec.Flags & GF_GENERIC)
 						goods_obj.GetGenericList(flt.GoodsID, &goods_list);
 					else
-					// } @v8.8.0
 						goods_list.add(flt.GoodsID);
 				}
 				else {
@@ -1155,23 +1142,23 @@ private:
 	int    GenerateQuot(PPQuot * pQuot);
 	int    Test_SetQuot(const PPQuot & rQuot, int use_ta);
 
-	PPID   SupplDealQkID;  // Вид котировки, определяющий контрактные цены поставщиков
-	PPID   SupplDevUpQkID; // Вид котировки, определяющий верхние отклонения от контрактных цен поставщиков
-	PPID   SupplDevDnQkID; // Вид котировки, определяющий нижние отклонения от контрактных цен поставщиков
-	PPID   MtxQkID;        // Вид котировки для товарной матрицы
-	PPID   MtxRestrQkID;   // Вид котировки ограничений по товарной матрице
+	PPID   SupplDealQkID;  // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РєРѕРЅС‚СЂР°РєС‚РЅС‹Рµ С†РµРЅС‹ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+	PPID   SupplDevUpQkID; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РІРµСЂС…РЅРёРµ РѕС‚РєР»РѕРЅРµРЅРёСЏ РѕС‚ РєРѕРЅС‚СЂР°РєС‚РЅС‹С… С†РµРЅ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+	PPID   SupplDevDnQkID; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РЅРёР¶РЅРёРµ РѕС‚РєР»РѕРЅРµРЅРёСЏ РѕС‚ РєРѕРЅС‚СЂР°РєС‚РЅС‹С… С†РµРЅ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+	PPID   MtxQkID;        // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё РґР»СЏ С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†С‹
+	PPID   MtxRestrQkID;   // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё РѕРіСЂР°РЅРёС‡РµРЅРёР№ РїРѕ С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†Рµ
 	PPObjGoods GObj;       //
 	QuotationCore Qc;
-	PPIDArray GoodsList;   // Список всех товаров
-	PPIDArray GoodsGrpList; // Список всех обыкновенных товарных групп и групп верхнего уровня //
-	PPIDArray LocList;     // Список всех складов
-	PPIDArray QkList;      // Список видов котировок
+	PPIDArray GoodsList;   // РЎРїРёСЃРѕРє РІСЃРµС… С‚РѕРІР°СЂРѕРІ
+	PPIDArray GoodsGrpList; // РЎРїРёСЃРѕРє РІСЃРµС… РѕР±С‹РєРЅРѕРІРµРЅРЅС‹С… С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї Рё РіСЂСѓРїРї РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ //
+	PPIDArray LocList;     // РЎРїРёСЃРѕРє РІСЃРµС… СЃРєР»Р°РґРѕРІ
+	PPIDArray QkList;      // РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє
 
 	SRng * P_RngCount;     //
-	SRng * P_RngGoods;     // Генератор товаров
-	SRng * P_RngGoodsGrp;  // Генератор товарных групп
-	SRng * P_RngLoc;       // Генератор складов
-	SRng * P_RngQ;         // Генератор значения котировки
+	SRng * P_RngGoods;     // Р“РµРЅРµСЂР°С‚РѕСЂ С‚РѕРІР°СЂРѕРІ
+	SRng * P_RngGoodsGrp;  // Р“РµРЅРµСЂР°С‚РѕСЂ С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+	SRng * P_RngLoc;       // Р“РµРЅРµСЂР°С‚РѕСЂ СЃРєР»Р°РґРѕРІ
+	SRng * P_RngQ;         // Р“РµРЅРµСЂР°С‚РѕСЂ Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё
 };
 
 PrcssrQuotTester::PrcssrQuotTester() : P_RngCount(0), P_RngGoods(0), P_RngGoodsGrp(0), P_RngLoc(0), P_RngQ(0)
@@ -1329,14 +1316,14 @@ int PrcssrQuotTester::GenerateQuot(PPQuot * pQuot)
 					int    is_rel = 0;
 					uint   d = P_RngCount->Get();
 					if(is_group) {
-						if((d % 2) == 0) { // Относительная по COST
+						if((d % 2) == 0) { // РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕ COST
 							double dev = 2.0;
 							while(fabs(dev) > 0.9)
 								dev = P_RngCount->GetGaussian(1.0);
 							q.Quot = round(fabs(dev), 1);
 							q.Flags |= PPQuot::fPctOnCost;
 						}
-						else { // Относительная по PRICE
+						else { // РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕ PRICE
 							double dev = 2.0;
 							while(fabs(dev) > 0.2)
 								dev = P_RngCount->GetGaussian(0.4);
@@ -1344,7 +1331,7 @@ int PrcssrQuotTester::GenerateQuot(PPQuot * pQuot)
 							q.Flags |= PPQuot::fPctOnPrice;
 						}
 					}
-					else if((d % 3) == 0) { // Абсолютное значение
+					else if((d % 3) == 0) { // РђР±СЃРѕР»СЋС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 						double price = 0.0;
 						GetCurGoodsPrice(id, loc_id, 0, &price, &lot_rec);
 						if(price > 0.0) {
@@ -1360,7 +1347,7 @@ int PrcssrQuotTester::GenerateQuot(PPQuot * pQuot)
 						q.Quot = 0.0;
 						q.Flags |= PPQuot::fPctDisabled;
 					}
-					else if((d % 3) == 1) { // Относительная по COST
+					else if((d % 3) == 1) { // РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕ COST
 						double dev = 2.0;
 						while(fabs(dev) > 0.9)
 							dev = P_RngCount->GetGaussian(1.0);
@@ -1400,7 +1387,7 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 		{
 			int diff_count = q_list.getCount() - q_list2.getCount();
 			if(diff_count != 0 && diff_count != -1 && diff_count != 1) {
-				// @error Удалено либо создано более одной котировки
+				// @error РЈРґР°Р»РµРЅРѕ Р»РёР±Рѕ СЃРѕР·РґР°РЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕР№ РєРѕС‚РёСЂРѕРІРєРё
 				ok = -1;
 			}
 			else {
@@ -1414,13 +1401,13 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 							found = 1;
 							if(r_item.ID != rQuot.ID) {
 								if(!r_item.IsEqual(r_item2)) {
-									// @error Исказилась котировка, отличная от rQuot
+									// @error РСЃРєР°Р·РёР»Р°СЃСЊ РєРѕС‚РёСЂРѕРІРєР°, РѕС‚Р»РёС‡РЅР°СЏ РѕС‚ rQuot
 									ok = -1;
 								}
 							}
 							else {
 								if(!r_item.IsEqual(rQuot)) {
-									// @error Исказаласть котировка rQuot
+									// @error РСЃРєР°Р·Р°Р»Р°СЃС‚СЊ РєРѕС‚РёСЂРѕРІРєР° rQuot
 									ok = -1;
 								}
 							}
@@ -1428,12 +1415,12 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 					}
 					if(!found) {
 						//
-						// После записи в списке не найден элемент r_item.
-						// Это может означать, что rQuot.IsEmpty() (тогда правильно),
-						// или элемент исчез (не правильно).
+						// РџРѕСЃР»Рµ Р·Р°РїРёСЃРё РІ СЃРїРёСЃРєРµ РЅРµ РЅР°Р№РґРµРЅ СЌР»РµРјРµРЅС‚ r_item.
+						// Р­С‚Рѕ РјРѕР¶РµС‚ РѕР·РЅР°С‡Р°С‚СЊ, С‡С‚Рѕ rQuot.IsEmpty() (С‚РѕРіРґР° РїСЂР°РІРёР»СЊРЅРѕ),
+						// РёР»Рё СЌР»РµРјРµРЅС‚ РёСЃС‡РµР· (РЅРµ РїСЂР°РІРёР»СЊРЅРѕ).
 						//
 						if(!rQuot.IsEmpty()) {
-							// @error Котировка r_item исчезла
+							// @error РљРѕС‚РёСЂРѕРІРєР° r_item РёСЃС‡РµР·Р»Р°
 							ok = -1;
 						}
 					}
@@ -1447,13 +1434,13 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 							found = 1;
 							if(r_item.ID != rQuot.ID) {
 								if(!r_item.IsEqual(r_item2)) {
-									// @error Исказилась котировка, отличная от rQuot
+									// @error РСЃРєР°Р·РёР»Р°СЃСЊ РєРѕС‚РёСЂРѕРІРєР°, РѕС‚Р»РёС‡РЅР°СЏ РѕС‚ rQuot
 									ok = -1;
 								}
 							}
 							else {
 								if(!r_item.IsEqual(rQuot)) {
-									// @error Исказаласть котировка rQuot
+									// @error РСЃРєР°Р·Р°Р»Р°СЃС‚СЊ РєРѕС‚РёСЂРѕРІРєР° rQuot
 									ok = -1;
 								}
 							}
@@ -1461,13 +1448,13 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 					}
 					if(!found) {
 						//
-						// После записи в списке появился новый элемент r_item.
+						// РџРѕСЃР»Рµ Р·Р°РїРёСЃРё РІ СЃРїРёСЃРєРµ РїРѕСЏРІРёР»СЃСЏ РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ r_item.
 						//
 						if(!rQuot.IsEqual(r_item2, PPQuot::cmpNoID)) {
-							// @error Появилась котировка не эквивалентная той, что мы передавали
+							// @error РџРѕСЏРІРёР»Р°СЃСЊ РєРѕС‚РёСЂРѕРІРєР° РЅРµ СЌРєРІРёРІР°Р»РµРЅС‚РЅР°СЏ С‚РѕР№, С‡С‚Рѕ РјС‹ РїРµСЂРµРґР°РІР°Р»Рё
 						}
 						else if(rQuot.IsEmpty()) {
-							// @error Пустая котировка rQuot была записана
+							// @error РџСѓСЃС‚Р°СЏ РєРѕС‚РёСЂРѕРІРєР° rQuot Р±С‹Р»Р° Р·Р°РїРёСЃР°РЅР°
 							ok = -1;
 						}
 					}

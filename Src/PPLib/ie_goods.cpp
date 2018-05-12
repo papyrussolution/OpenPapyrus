@@ -220,9 +220,8 @@ int SLAPI EditQuotImpExpParam(const char * pIniSection)
 //
 class PPQuotImporter {
 public:
-	SLAPI  PPQuotImporter()
+	SLAPI  PPQuotImporter() : P_IE(0)
 	{
-		P_IE = 0;
 	}
 	SLAPI ~PPQuotImporter()
 	{
@@ -2782,13 +2781,13 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
 											// @v9.8.11 THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
 										}
 										(temp_buf2 = sdr_rec.Serial).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
 											// @v9.8.11 THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
 										}
 									}
 								}

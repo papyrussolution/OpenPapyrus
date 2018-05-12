@@ -505,8 +505,7 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 			StrPool.GetS(P_SubstTbl->data.DtSubstP, pItem->GrpText1); // @v9.9.0 
 			StrPool.GetS(P_SubstTbl->data.NameP, pItem->ObjName); // @v9.9.0 
 			{
-				LDATETIME dtm;
-				dtm.SetZero();
+				LDATETIME dtm = ZERODATETIME;
 				long days = dtm.settotalsec(P_SubstTbl->data.AvgEvTime);
 				if(days)
 					pItem->AvgEvTime.Cat(days).CatChar('d').Space();

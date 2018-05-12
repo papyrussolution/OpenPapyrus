@@ -714,7 +714,7 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 		}
 		else if(p_b->Type == Branch::tStrAssocArray) {
 			StrAssocArray * p_ary = (StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
-			p_ary->Clear();
+			p_ary->Z();
 		}
 		else if(p_b->Type == Branch::tDisplayExtList) {
 			PPViewDisplayExtList * p_list = (PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);

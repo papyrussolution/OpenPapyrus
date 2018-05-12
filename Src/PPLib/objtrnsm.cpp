@@ -268,7 +268,7 @@ void SLAPI ObjTransmitParam::Init()
 	DestDBDivList.InitEmpty();
 	ObjList.FreeAll();
 	ObjList.InitEmpty();
-	Since_.SetZero();
+	Since_.Z();
 	UpdProtocol   = 0;
 	Flags         = 0;
 	TrnsmFlags    = 0;
@@ -338,10 +338,9 @@ int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 //
 //
 SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger) : State(0), P_Ot(0), P_Btd(0), P_ThisDbDivPack(0), P_SrcDbDivPack(0), P_DestDbDivPack(0),
-	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1)
+	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1), TransmitSince(ZERODATETIME)
 {
 	MEMSZERO(Cfg);
-	TransmitSince.SetZero();
 	if(pLogger) {
 		P_Logger = pLogger;
 		State |= stOuterLogger;
@@ -2717,8 +2716,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 				else {
 					if(!mode)
 						since = min_since;
-					LDATETIME prev;
-					prev.SetZero();
+					LDATETIME prev = ZERODATETIME;
 					while(ok < 0 && p_sj->GetEvent(PPACN_TRANSMOD, 1, &since, 0, 0) > 0) {
 						if(!db_div_id || p_sj->data.ObjID == db_div_id) {
 							if(cmp(min_since, Since) > 0) {
@@ -2995,15 +2993,12 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 		ZDELETE(P_TmpIdxTbl);
 		THROW(P_TmpIdxTbl = CreateTempIndex());
 		SETFLAG(Ctx.Flags, ObjTransmContext::fConsolid, p_hdr->Flags & PPOTF_CONSOLID);
-		// @v8.2.3 {
 		if(p_hdr->Flags & PPOTF_RECOVER) {
 			RecoverTransmission = 1;
 			Ctx.Flags |= ObjTransmContext::fRecover;
 		}
 		else
 			Ctx.Flags &= ~ObjTransmContext::fRecover;
-		// } @v8.2.3
-
 	}
 	CATCHZOK
 	return ok;
@@ -3014,7 +3009,7 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 {
 	int    ok = -1;
 	PPID   primary_id = 0;
-	CALLPTRMEMB(pModDtm, SetZero());
+	CALLPTRMEMB(pModDtm, Z());
 	ASSIGN_PTR(pObjName, 0);
 	int    r = SyncTbl.SearchCommonObj(objType, commID, &primary_id, 0);
 	if(r > 0) {

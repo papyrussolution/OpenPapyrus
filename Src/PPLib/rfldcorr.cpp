@@ -2565,7 +2565,7 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 
 int SLAPI GetImpExpSectionsCDb(PPConfigDatabase & rCDb, uint sdRecID, StrAssocArray & rList, int kind)
 {
-	rList.Clear();
+	rList.Z();
 
 	int    ok = 1;
 	PPConfigDatabase::CObjHeader cobj_hdr;

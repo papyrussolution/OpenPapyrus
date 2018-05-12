@@ -47,7 +47,7 @@ IMPL_INVARIANT_C(PPCheckInPersonItem)
 	S_ASSERT_P((Flags & fAnonym) || PersonID, pInvP);
 	S_ASSERT_P((Flags & fAnonym) || (PersonID & 0xFFC00000) == 0, pInvP);
 	S_ASSERT_P(!(Flags & fAnonym) || (PersonID & ~0xFFC00000) == 0, pInvP);
-	S_ASSERT_P(!ID || oneof3(GetStatus(), statusRegistered, statusCheckedIn, statusCanceled), pInvP); // @v8.8.4 (!ID ||)
+	S_ASSERT_P(!ID || oneof3(GetStatus(), statusRegistered, statusCheckedIn, statusCanceled), pInvP);
 	S_ASSERT_P(Kind == kTSession, pInvP);
 	S_ASSERT_P(PrmrID != 0, pInvP);
 	S_ASSERT_P(checkdate(RegDtm.d, 1), pInvP);
@@ -262,7 +262,7 @@ int FASTCALL PPCheckInPersonItem::IsEqual(const PPCheckInPersonItem & rS, long o
 		THROW(FLDEQ(CCheckID));
 		THROW(FLDEQ(SCardID));
 		THROW(FLDEQ(MemoPos));
-		THROW(stricmp(PlaceCode, rS.PlaceCode) == 0); // @v8.6.5
+		THROW(stricmp(PlaceCode, rS.PlaceCode) == 0);
 	}
 	#undef FLDEQ
 	CATCHZOK
@@ -791,7 +791,7 @@ struct PPCheckInPersonItem_Strg {
 	PPID   CCheckID;       // Кассовый чек, которым оплачено подтверждение регистрации
 	PPID   SCardID;        // Карта, с которой ассоциирована зерегистрированная персоналия //
 	uint   MemoPos;        // @internal
-	char   PlaceCode[8];   // @v8.7.0 Номер места (для регистрации, ассоциированной с посадочным местом)
+	char   PlaceCode[8];   // Номер места (для регистрации, ассоциированной с посадочным местом)
 	uint8  Reserve[12];
 };
 
@@ -847,7 +847,7 @@ int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rIte
 	FLD(SCardID);
 	FLD(MemoPos);
 	#undef FLD
-	STRNSCPY(r_rec.PlaceCode, rItem.PlaceCode); // @v8.7.0
+	STRNSCPY(r_rec.PlaceCode, rItem.PlaceCode);
 	r_rec.AsscType = GetAssocType(rItem.Kind);
 	if(!r_rec.AsscType)
 		ok = 0;
@@ -876,7 +876,7 @@ int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, P
 	FLD(SCardID);
 	FLD(MemoPos);
 	#undef FLD
-	STRNSCPY(rItem.PlaceCode, r_rec.PlaceCode); // @v8.7.0
+	STRNSCPY(rItem.PlaceCode, r_rec.PlaceCode);
 	rItem.Kind = GetKind(r_rec.AsscType);
 	if(!rItem.Kind)
 		ok = 0;
@@ -922,7 +922,7 @@ public:
 		AddClusterAssoc(CTL_CHKINP_STATUS, 2, PPCheckInPersonItem::statusCanceled);
 		SetClusterData(CTL_CHKINP_STATUS, status);
 
-		setCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode); // @v8.7.0
+		setCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode);
 
 		setCtrlData(CTL_CHKINP_REGDT, &Data.RegDtm.d);
 		setCtrlData(CTL_CHKINP_REGTM, &Data.RegDtm.t);
@@ -964,7 +964,7 @@ public:
 		}
 		GetClusterData(CTL_CHKINP_STATUS, &status);
 		Data.SetStatus(status);
-		getCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode); // @v8.7.0
+		getCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode);
 		getCtrlData(CTL_CHKINP_REGDT, &Data.RegDtm.d);
 		getCtrlData(CTL_CHKINP_REGTM, &Data.RegDtm.t);
 		getCtrlData(CTL_CHKINP_CIDT,  &Data.CiDtm.d);
@@ -1003,7 +1003,7 @@ private:
 				}
 				else {
 					Data.CiCount = 0;
-					Data.CiDtm.SetZero();
+					Data.CiDtm.Z();
 					setCtrlData(CTL_CHKINP_CIDT,  &Data.CiDtm.d);
 					setCtrlData(CTL_CHKINP_CITM,  &Data.CiDtm.t);
 				}
@@ -1019,12 +1019,10 @@ private:
 			if(event.isCtlEvent(CTL_CHKINP_CICOUNT)) {
 				SetupPrice();
 			}
-			// @v8.8.2 {
 			else if(event.isCtlEvent(CTL_CHKINP_PLACE)) {
 				getCtrlData(CTL_CHKINP_PLACE, Data.PlaceCode);
 				SetupPinCode();
 			}
-			// } @v8.8.2
 			else
 				return;
 		}

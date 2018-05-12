@@ -90,7 +90,7 @@ public:
 
 class UhttDate {
 public:
-	UhttDate & Clear();
+	UhttDate & Z();
 	UhttDate & FASTCALL operator = (const char * pStr);
 	UhttDate & FASTCALL operator = (LDATE dt);
 	operator LDATE () const;
@@ -102,7 +102,7 @@ public:
 //
 class UhttTimestamp {
 public:
-	UhttTimestamp & Clear();
+	UhttTimestamp & Z();
 	UhttTimestamp & FASTCALL operator = (LDATE dt);
 	UhttTimestamp & FASTCALL operator = (LTIME tm);
 	UhttTimestamp & FASTCALL operator = (const LDATETIME & rDtm);
@@ -115,7 +115,7 @@ public:
 
 class UhttDateTime {
 public:
-	UhttDateTime & Clear();
+	UhttDateTime & Z();
 	UhttDateTime & FASTCALL operator = (LDATE dt);
 	UhttDateTime & FASTCALL operator = (LTIME tm);
 	UhttDateTime & FASTCALL operator = (const LDATETIME & rDtm);
@@ -128,7 +128,7 @@ public:
 
 class UhttDatePeriod {
 public:
-	UhttDatePeriod & Clear();
+	UhttDatePeriod & Z();
 	UhttDatePeriod & FASTCALL operator = (const DateRange & rRng);
 	SString Low;
 	SString Upp;
@@ -1415,7 +1415,6 @@ struct VetisProduct : public VetisNamedGenericVersioningEntity {
 struct VetisSubProduct : public VetisNamedGenericVersioningEntity {
 	VetisSubProduct() : VetisNamedGenericVersioningEntity()
 	{
-		ProductGuid.SetZero();
 	}
 	SString Code;
 	SString EnglishName;
@@ -1425,7 +1424,6 @@ struct VetisSubProduct : public VetisNamedGenericVersioningEntity {
 struct VetisUnit : public VetisNamedGenericVersioningEntity {
 	VetisUnit() : VetisNamedGenericVersioningEntity(), Factor(0)
 	{
-		CommonUnitGuid.SetZero();
 	}
 	SString FullName;
 	S_GUID CommonUnitGuid;
@@ -1825,7 +1823,6 @@ class VetisGetStockEntryListRequest : public VetisApplicationData {
 public:
 	VetisGetStockEntryListRequest() : VetisApplicationData()
 	{
-		EnterpriseGuid.SetZero();
 	}
 	VetisListOptions ListOptions;
 	S_GUID EnterpriseGuid;

@@ -2779,7 +2779,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	THROW_INVARG(pItem);
 	pItem->QuotKindUsedForPrice = 0;
 	pItem->QuotKindUsedForExtPrice = 0;
-	pItem->ManufDtm.SetZero();
+	pItem->ManufDtm.Z();
 	if(LocID == 0)
 		gp_flags |= GPRET_OTHERLOC;
 	assert(P_GObj);

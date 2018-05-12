@@ -4045,7 +4045,7 @@ int SLAPI ShtrihCE::SetConnection()
 {
 	int    ok = 1;
 	ZDELETE(P_FOut);
-	MsgResLines.Clear();
+	MsgResLines.Z();
 	{
 		SString file_name;
 		PPGetFilePath(PPPATH_OUT, "pcscale.txt", file_name);

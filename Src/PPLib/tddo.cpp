@@ -197,7 +197,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			STypEx ret_t;
 			item_name = temp_buf;
 			long   arg_count = 0;
-			arg_list.Clear();
+			arg_list.Z();
 			do {
 				rScan.Incr();
 				if(rScan.Skip()[0] != ')') {

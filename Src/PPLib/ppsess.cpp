@@ -910,20 +910,9 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	return ok;
 }
 
-int  SLAPI PPThreadLocalArea::IsAuth() const
-{
-	return BIN(State & stAuth);
-}
-
-int SLAPI PPThreadLocalArea::IsConsistent() const
-{
-	return BIN(Sign == SIGN_PPTLA);
-}
-
-PPView * SLAPI PPThreadLocalArea::GetPPViewPtr(int32 id) const
-{
-	return (id > 0 && id <= (int32)SrvViewList.getCount()) ? SrvViewList.at(id-1) : 0;
-}
+int    SLAPI PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
+int    SLAPI PPThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPTLA); }
+PPView * SLAPI PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= (int32)SrvViewList.getCount()) ? SrvViewList.at(id-1) : 0; }
 
 int32 SLAPI PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
 {
@@ -4168,7 +4157,7 @@ void SLAPI PPNotifyEvent::Clear()
 	ObjType = 0;
 	ObjID = 0;
 	ExtInt_ = 0;
-	ExtDtm.SetZero();
+	ExtDtm.Z();
 	ExtString.Z();
 }
 

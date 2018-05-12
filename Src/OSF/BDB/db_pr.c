@@ -20,12 +20,9 @@ static int __db_qmeta(ENV*, DB*, QMETA*, uint32);
 static void __db_prdb(DB*, uint32);
 static int __db_prtree(DB*, DB_TXN*, uint32, db_pgno_t, db_pgno_t);
 #endif
-
 /*
  * __db_loadme --
  *	A nice place to put a breakpoint.
- *
- * PUBLIC: void __db_loadme();
  */
 void __db_loadme()
 {

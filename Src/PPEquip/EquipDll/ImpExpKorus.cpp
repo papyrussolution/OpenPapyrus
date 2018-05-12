@@ -1635,13 +1635,13 @@ struct AperakInfoSt {
 	}
 	void Clear()
 	{
-		DocNum = 0;
-		Code = 0;
-		Msg = 0;
-		AddedMsg = 0;
-		SupplGLN = 0;
-		BuyerGLN = 0;
-		AddrGLN = 0;
+		DocNum.Z();
+		Code.Z();
+		Msg.Z();
+		AddedMsg.Z();
+		SupplGLN.Z();
+		BuyerGLN.Z();
+		AddrGLN.Z();
 		DocDate = ZERODATE;
 	}
 	SString DocNum;		// Номер документа заказа
@@ -1694,20 +1694,11 @@ public:
 	//TSCollection <MessageInfoBlock> MsgInfoList;
 	PPEdiMessageList MsgList;
 
-	ImportCls()
+	ImportCls() : GoodsCount(0), Id(0), ObjId(0), ObjType(0), MessageType_(0), Inited(0), IncomMessagesCounter(0),
+		BillSumWithoutVat(0.0)
 	{
-		GoodsCount = 0;
-		Id = 0;
-		ObjId = 0;
-		ObjType = 0;
-		MessageType_ = 0;
-		Inited = 0;
-		IncomMessagesCounter = 0;
-		BillSumWithoutVat = 0.0;
 		ErrorCode = 0;
 		WebServcErrorCode = 0;
-		AperakInfo.Clear();
-		TrackIds.Clear();
 	}
 	~ImportCls()
 	{

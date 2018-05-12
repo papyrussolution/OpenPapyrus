@@ -86,14 +86,12 @@ int SLAPI PPObjAmountType::GetFormulaList(StrAssocArray * pList)
 	int    ok = -1;
 	PPAmountType rec;
 	SString formula;
-	if(pList)
-		pList->Clear();
+	CALLPTRMEMB(pList, Z());
 	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(rec.Flags & PPAmountType::fFormula) {
 			GetFormula(rec.ID, formula);
 			if(formula.NotEmptyS()) {
-				if(pList)
-					pList->Add(rec.ID, formula);
+				CALLPTRMEMB(pList, Add(rec.ID, formula));
 				ok = 1;
 			}
 		}

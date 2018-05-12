@@ -416,7 +416,7 @@ int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
 			StrAssocArray list;
 			PPCommandFolder::GetMenuList(0, &list, 1);
 			SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, Cfg.DesktopID, 0);
-			PPCommandFolder::GetMenuList(0, &list.Clear(), 0);
+			PPCommandFolder::GetMenuList(0, &list.Z(), 0);
 			SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, Cfg.MenuID, 0);
 		}
 		AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 0, RLZORD_FIFO);
@@ -571,8 +571,7 @@ IMPL_HANDLE_EVENT(ActiveUserListDlg)
 int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, SString & rWorkDtm)
 {
 	int    ok = -1;
-	LDATETIME login_dtm;
-	login_dtm.SetZero();
+	LDATETIME login_dtm = ZERODATETIME;
 	rWorkDtm.Z();
 	if(DS.CheckExtFlag(ECF_USESJLOGINEVENT)) {
 		long   sec = 0, dd = 0;

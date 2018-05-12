@@ -3043,7 +3043,7 @@ int FASTCALL OpCache::Dirty(PPID opID)
 			ZDELETE(P_ReckonOpList);
 		}
 		if(State & stOpSymbListInited) {
-			OpSymbList.Clear();
+			OpSymbList.Z();
 			State &= ~stOpSymbListInited;
 		}
 		IoeC.Dirty(opID);
@@ -3063,7 +3063,7 @@ PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(State & stOpSymbListInited)) {
-				OpSymbList.Clear();
+				OpSymbList.Z();
 				PPOprKind op_rec;
 				for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, Reference::eoIdSymb); en.Next(&op_rec) > 0;) {
 					if(op_rec.Symb[0]) {

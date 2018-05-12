@@ -542,8 +542,7 @@ int SLAPI TablePartsEnum::Init(const char * pPath)
 		MainPart = pPath;
 		//
 		long   i = 0;
-		List.Clear();
-		List.setPointer(0);
+		List.Z().setPointer(0);
 		List.Add(++i, MainPart);
 		SDirEntry fb;
 		while(direc.Next(&fb) > 0)

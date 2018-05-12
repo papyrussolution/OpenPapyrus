@@ -35,7 +35,7 @@ SCollection PPSoapResultPtrBase::ResultPtrList;
 int FASTCALL PPSoapDestroyResultPtr(void * p)
 {
 	int    ok = 0;
-	uint c = PPSoapResultPtrBase::ResultPtrList.getCount();
+	uint   c = PPSoapResultPtrBase::ResultPtrList.getCount();
 	if(c) do {
 		PPSoapResultPtrBase * p_item = (PPSoapResultPtrBase *)PPSoapResultPtrBase::ResultPtrList.at(--c);
 		if(p_item && *p_item == p) {
@@ -158,7 +158,7 @@ UhttStatus::UhttStatus() : Code(0), Index(-1), Id(-1)
 //
 //
 //
-UhttDate & UhttDate::Clear()
+UhttDate & UhttDate::Z()
 {
 	Date.Z();
 	return *this;
@@ -185,7 +185,7 @@ UhttDate::operator LDATE () const
 //
 // Descr: ƒата/врем€, передаваемые одной строкой в формате ISO-8601 (yyyy-mm-dd Thh:mm:ss)
 //
-UhttTimestamp & UhttTimestamp::Clear()
+UhttTimestamp & UhttTimestamp::Z()
 {
 	T.Z();
 	return *this;
@@ -215,8 +215,7 @@ UhttTimestamp & FASTCALL UhttTimestamp::operator = (const LDATETIME & rDtm)
 
 UhttTimestamp::operator LDATE () const
 {
-	LDATETIME temp;
-	temp.SetZero();
+	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
 		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
 	return temp.d;
@@ -224,8 +223,7 @@ UhttTimestamp::operator LDATE () const
 
 UhttTimestamp::operator LTIME () const
 {
-	LDATETIME temp;
-	temp.SetZero();
+	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
 		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
 	return temp.t;
@@ -233,8 +231,7 @@ UhttTimestamp::operator LTIME () const
 
 UhttTimestamp::operator LDATETIME () const
 {
-	LDATETIME temp;
-	temp.SetZero();
+	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
 		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
 	return temp;
@@ -242,7 +239,7 @@ UhttTimestamp::operator LDATETIME () const
 //
 //
 //
-UhttDateTime & UhttDateTime::Clear()
+UhttDateTime & UhttDateTime::Z()
 {
 	Date.Z();
 	Time.Z();
@@ -294,7 +291,7 @@ UhttDateTime::operator LDATETIME () const
 //
 //
 //
-UhttDatePeriod & UhttDatePeriod::Clear()
+UhttDatePeriod & UhttDatePeriod::Z()
 {
 	Low.Z();
 	Upp.Z();
@@ -554,7 +551,6 @@ UhttPersonPacket::AddressP::AddressP() : UhttLocationPacket(), Kind(0)
 //
 UhttBillPacket::UhttBillPacket() : ID(0), LocID(0), ArID(0), DlvrLocID(0), CurrID(0), AgentID(0), StatusID(0), Flags(0)
 {
-	Uuid.SetZero();
 }
 //
 //
@@ -857,11 +853,11 @@ iSalesBillAmountEntry::iSalesBillAmountEntry()
 
 iSalesBillPacket::iSalesBillPacket() : NativeID(0), DocType(0), ExtDocType(0), Status(0), DueDate(ZERODATE)
 {
-	Dtm.SetZero();
-	IncDtm.SetZero();
-	ExtDtm.SetZero();
-	CreationDtm.SetZero();
-	LastUpdDtm.SetZero();
+	Dtm.Z();
+	IncDtm.Z();
+	ExtDtm.Z();
+	CreationDtm.Z();
+	LastUpdDtm.Z();
 }
 //
 //
@@ -894,31 +890,22 @@ VetisEntityList::VetisEntityList() : Count(0), Total(0), Offset(0), Flags(0)
 
 VetisGenericEntity::VetisGenericEntity()
 {
-	Uuid.SetZero();
 }
 
 VetisGenericVersioningEntity::VetisGenericVersioningEntity() : VetisGenericEntity(), Flags(0), Status(0), CreateDate(ZERODATETIME), UpdateDate(ZERODATETIME)
 {
-	Guid.SetZero();
-	Previous.SetZero();
-	Next.SetZero();
 }
 
 VetisAddressObjectView::VetisAddressObjectView() : Flags(0)
 {
-	CountryGUID.SetZero();
 }
 
 VetisDistrict::VetisDistrict() : VetisAddressObjectView()
 {
-	RegionGUID.SetZero();
 }
 
 VetisLocality::VetisLocality() : VetisAddressObjectView()
 {
-	RegionGUID.SetZero();
-	DistrictGUID.SetZero();
-	CityGUID.SetZero();
 }
 
 VetisEnterpriseOfficialRegistration::VetisEnterpriseOfficialRegistration() : P_BusinessEntity(0)
@@ -970,7 +957,6 @@ VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & 
 
 VetisStreet::VetisStreet() : VetisAddressObjectView()
 {
-	LocalityGUID.SetZero();
 }
 
 VetisDocument::VetisDocument() : IssueDate(ZERODATE), DocumentType(0)
@@ -1047,12 +1033,12 @@ void VetisApplicationBlock::Clear()
 	LocalTransactionId = 0;
 	ServiceId.Z();
 	User.Z();
-	ApplicationId.SetZero();
-	IssuerId.SetZero();
-	EnterpriseId.SetZero();
-	IssueDate.SetZero();
-	RcvDate.SetZero();
-	PrdcRsltDate.SetZero();
+	ApplicationId.Z();
+	IssuerId.Z();
+	EnterpriseId.Z();
+	IssueDate.Z();
+	RcvDate.Z();
+	PrdcRsltDate.Z();
 	ErrList.freeAll();
 	ZDELETE(P_GselReq);
 	ZDELETE(P_LoReq);

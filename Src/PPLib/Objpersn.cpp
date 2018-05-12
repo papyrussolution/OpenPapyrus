@@ -1428,7 +1428,7 @@ int SLAPI PPObjPerson::GetBnkAcctData(PPID bnkAcctID, BankAccountTbl::Rec * pBaR
 int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssocArray * pNameList)
 {
 	CALLPTRMEMB(pList, clear());
-	CALLPTRMEMB(pNameList, Clear());
+	CALLPTRMEMB(pNameList, Z());
 	int    ok = -1;
 	PPIDArray temp_list;
 	THROW(P_Tbl->GetListByKind(psnKindID, &temp_list));
@@ -7287,7 +7287,6 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 	else if(pF->Name == "?GetDbUUID") {
 		S_GUID dbuuid;
-		dbuuid.SetZero();
 		DbProvider * p_dict = CurDict;
 		CALLPTRMEMB(p_dict, GetDbUUID(&dbuuid));
 		dbuuid.ToStr(S_GUID::fmtIDL, _RET_STR);

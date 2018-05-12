@@ -312,11 +312,11 @@ static void _GetGenericVersioningEntity(VetisGenericVersioningEntity & rDest, co
 		if(pSrc->createDate)
 			rDest.CreateDate.SetTimeT(*pSrc->createDate);
 		else
-			rDest.CreateDate.SetZero();
+			rDest.CreateDate.Z();
 		if(pSrc->updateDate)
 			rDest.UpdateDate.SetTimeT(*pSrc->updateDate);
 		else
-			rDest.UpdateDate.SetZero();
+			rDest.UpdateDate.Z();
 	}
 }
 

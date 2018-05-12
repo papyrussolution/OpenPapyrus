@@ -6427,7 +6427,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		uint32 f = 0;
 		uint   i;
 		LAssocArray chr_list;
-		h = 0xffffffffU & ~SNTOKSEQ_LEADSHARP;
+		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		for(i = 0; i < stat.Len; i++) {
             const uchar c = pToken[i];
 			const size_t ul = IsUtf8(pToken+i, stat.Len-i);
@@ -6453,48 +6453,60 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		}
 		else {
 			const uint clc = chr_list.getCount();
-			for(i = 0; i < chr_list.getCount(); i++) {
-				const uchar c = (uchar)chr_list.at(i).Key;
-				if(i == 0 && c == '#')
+			i = 0;
+			{
+				const uchar c = (uchar)chr_list.at(0).Key;
+				if(c == '#') {
 					h |= SNTOKSEQ_LEADSHARP;
-				else {
-					if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
-						h &= ~SNTOKSEQ_ASCII;
-					else {
-						if(h & SNTOKSEQ_LAT && !IsLetterASCII(c))
-							h &= ~SNTOKSEQ_LAT;
-						else {
-							if(h & SNTOKSEQ_LATLWR && !(c >= 'a' && c <= 'z'))
-								h &= ~SNTOKSEQ_LATLWR;
-							if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
-								h &= ~SNTOKSEQ_LATUPR;
-						}
-						if(h & SNTOKSEQ_HEX && !ishex(c))
-							h &= ~SNTOKSEQ_HEX;
-						else if(h & SNTOKSEQ_DEC && !isdec(c))
-							h &= ~SNTOKSEQ_DEC;
-						if(h & SNTOKSEQ_DECHYPHEN && !(c == '-' || isdec(c)))
-							h &= ~SNTOKSEQ_DECHYPHEN;
-						if(h & SNTOKSEQ_HEXHYPHEN && !(c == '-' || ishex(c)))
-							h &= ~SNTOKSEQ_HEXHYPHEN;
-						if(h & SNTOKSEQ_DECLAT && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c)))
-							h &= ~SNTOKSEQ_DECLAT;
-						if(h & SNTOKSEQ_DECCOLON && !(c == ':' || isdec(c)))
-							h &= ~SNTOKSEQ_DECCOLON;
-						if(h & SNTOKSEQ_HEXCOLON && !(c == ':' || ishex(c)))
-							h &= ~SNTOKSEQ_HEXCOLON;
-						if(h & SNTOKSEQ_DECDOT && !(c == '.' || isdec(c)))
-							h &= ~SNTOKSEQ_DECDOT;
-						if(h & SNTOKSEQ_HEXDOT && !(c == '.' || ishex(c)))
-							h &= ~SNTOKSEQ_HEXDOT;
-						if(h & SNTOKSEQ_DECSLASH && !(c == '/' || isdec(c)))
-							h &= ~SNTOKSEQ_DECSLASH;
-					}
-					if(h & SNTOKSEQ_866 && !IsLetter866(c))
-						h &= ~SNTOKSEQ_866;
-					if(h & SNTOKSEQ_1251 && !IsLetter1251(c))
-						h &= ~SNTOKSEQ_1251;
+					i++;
 				}
+				else if(c == '-') {
+					h |= SNTOKSEQ_LEADMINUS;
+					i++;
+				}
+				else if(c == '$') {
+					h |= SNTOKSEQ_LEADDOLLAR;
+					i++;
+				}
+			}
+			for(; i < clc; i++) {
+				const uchar c = (uchar)chr_list.at(i).Key;
+				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
+					h &= ~SNTOKSEQ_ASCII;
+				else {
+					if(h & SNTOKSEQ_LAT && !IsLetterASCII(c))
+						h &= ~SNTOKSEQ_LAT;
+					else {
+						if(h & SNTOKSEQ_LATLWR && !(c >= 'a' && c <= 'z'))
+							h &= ~SNTOKSEQ_LATLWR;
+						if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
+							h &= ~SNTOKSEQ_LATUPR;
+					}
+					if(h & SNTOKSEQ_HEX && !ishex(c))
+						h &= ~SNTOKSEQ_HEX;
+					else if(h & SNTOKSEQ_DEC && !isdec(c))
+						h &= ~SNTOKSEQ_DEC;
+					if(h & SNTOKSEQ_DECHYPHEN && !(c == '-' || isdec(c)))
+						h &= ~SNTOKSEQ_DECHYPHEN;
+					if(h & SNTOKSEQ_HEXHYPHEN && !(c == '-' || ishex(c)))
+						h &= ~SNTOKSEQ_HEXHYPHEN;
+					if(h & SNTOKSEQ_DECLAT && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c)))
+						h &= ~SNTOKSEQ_DECLAT;
+					if(h & SNTOKSEQ_DECCOLON && !(c == ':' || isdec(c)))
+						h &= ~SNTOKSEQ_DECCOLON;
+					if(h & SNTOKSEQ_HEXCOLON && !(c == ':' || ishex(c)))
+						h &= ~SNTOKSEQ_HEXCOLON;
+					if(h & SNTOKSEQ_DECDOT && !(c == '.' || isdec(c)))
+						h &= ~SNTOKSEQ_DECDOT;
+					if(h & SNTOKSEQ_HEXDOT && !(c == '.' || ishex(c)))
+						h &= ~SNTOKSEQ_HEXDOT;
+					if(h & SNTOKSEQ_DECSLASH && !(c == '/' || isdec(c)))
+						h &= ~SNTOKSEQ_DECSLASH;
+				}
+				if(h & SNTOKSEQ_866 && !IsLetter866(c))
+					h &= ~SNTOKSEQ_866;
+				if(h & SNTOKSEQ_1251 && !IsLetter1251(c))
+					h &= ~SNTOKSEQ_1251;
 			}
 			if(!(h & SNTOKSEQ_ASCII)) {
 				h &= ~(SNTOKSEQ_LAT|SNTOKSEQ_LATUPR|SNTOKSEQ_LATLWR|SNTOKSEQ_HEX|SNTOKSEQ_DEC|SNTOKSEQ_DECLAT|
@@ -6621,6 +6633,12 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(h & SNTOKSEQ_HEX && stat.Len == 7) {
 				rResultList.Add(SNTOK_COLORHEX, 0.9f);
 			}
+		}
+		else if(h & SNTOKSEQ_LEADMINUS) {
+		}
+		else if(h & SNTOKSEQ_LEADDOLLAR) {
+		}
+		else if(h & SNTOKSEQ_BACKPCT) {
 		}
 		else {
 			if(h & SNTOKSEQ_DEC) {

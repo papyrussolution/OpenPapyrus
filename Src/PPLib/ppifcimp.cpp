@@ -496,7 +496,7 @@ void DL6ICLS_StrAssocList::Clear()
 {
 	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
 	if(SetAppError(BIN(p_data)))
-		p_data->Clear();
+		p_data->Z();
 }
 
 void DL6ICLS_StrAssocList::Add(int32 itemId, int32 parentId, SString & text)
@@ -5843,7 +5843,7 @@ int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_B
 		PPID id = 0;
 		PPBillPacket bpack;
 		FillBillPacket(pSample, &bpack);
-		if(p_e->P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, &id, 0) > 0 && p_e->P_BObj->ExtractPacket(id, &bpack) > 0) {
+		if(p_e->P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &id, 0) > 0 && p_e->P_BObj->ExtractPacket(id, &bpack) > 0) {
 			FillBillRec(&bpack, pRec);
 			ASSIGN_PTR(pID, (int32)id);
 			ok = 1;
@@ -5858,7 +5858,7 @@ int32 DL6ICLS_PPObjBill::PutPacket(IPapyrusBillPacket * pPack)
 	PPBillPacket * p_pack = (PPBillPacket *)SCoClass::GetExtraPtrByInterface(pPack);
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_pack && p_e->P_BObj) {
-		if(p_e->P_BObj->P_Tbl->SearchAnalog(&p_pack->Rec, 0, 0) > 0)
+		if(p_e->P_BObj->P_Tbl->SearchAnalog(&p_pack->Rec, BillCore::safDefault, 0, 0) > 0)
 			ok = -2;
 		else {
 			p_pack->InitAmounts();
@@ -5946,7 +5946,6 @@ int32 DL6ICLS_PPObjBill::SearchByGuid(SString & rGuidStr, SPpyO_Bill * pRec)
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_e && p_e->P_BObj) {
 		S_GUID uuid;
-		uuid.SetZero();
 		if(uuid.FromStr(rGuidStr) > 0) {
 			BillTbl::Rec bill_rec;
 			PPBillPacket bpack;
@@ -5966,7 +5965,6 @@ int32 DL6ICLS_PPObjBill::PutGuid(long billID, SString & rGuidStr)
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_e && p_e->P_BObj) {
 		S_GUID  uuid;
-		uuid.SetZero();
 		if(uuid.FromStr(rGuidStr) > 0) {
 			BillTbl::Rec bill_rec;
 			MEMSZERO(bill_rec);

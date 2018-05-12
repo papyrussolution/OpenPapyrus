@@ -1320,7 +1320,7 @@ int SLAPI PPBillPacket::GetGuid(S_GUID & rGuid)
 		ok = 1;
 	}
 	else {
-		rGuid.SetZero();
+		rGuid.Z();
 		ok = 0;
 	}
 	return ok;

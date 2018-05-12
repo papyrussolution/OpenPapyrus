@@ -1613,8 +1613,8 @@ ImportCls::ImportCls() : GoodsCount(0), Id(0), ObjId(0), ObjType(0), MessageType
 	ErrorCode = 0;
 	WebServcErrorCode = 0;
 	AperakInfo.Clear();
-	InboxFiles.Clear();
-	FilesForDel.Clear();
+	InboxFiles.Z();
+	FilesForDel.Z();
 }
 
 ImportCls::~ImportCls()

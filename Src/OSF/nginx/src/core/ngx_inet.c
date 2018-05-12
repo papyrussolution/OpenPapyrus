@@ -154,12 +154,10 @@ size_t ngx_sock_ntop(struct sockaddr * sa, socklen_t socklen, u_char * text, siz
 		    sin = (struct sockaddr_in*)sa;
 		    p = (u_char*)&sin->sin_addr;
 		    if(port) {
-			    p = ngx_snprintf(text, len, "%ud.%ud.%ud.%ud:%d",
-			    p[0], p[1], p[2], p[3], ntohs(sin->sin_port));
+			    p = ngx_snprintf(text, len, "%ud.%ud.%ud.%ud:%d", p[0], p[1], p[2], p[3], ntohs(sin->sin_port));
 		    }
 		    else {
-			    p = ngx_snprintf(text, len, "%ud.%ud.%ud.%ud",
-			    p[0], p[1], p[2], p[3]);
+			    p = ngx_snprintf(text, len, "%ud.%ud.%ud.%ud", p[0], p[1], p[2], p[3]);
 		    }
 		    return (p - text);
 #if (NGX_HAVE_INET6)

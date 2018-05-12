@@ -196,7 +196,7 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf);
 	{
 		id = 1;
-		flag_list.Clear();
+		flag_list.Z();
 #define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, #f)
 		__ADD_FLAG(fShowDebt);
 		__ADD_FLAG(fDebtOnly);
@@ -4505,7 +4505,7 @@ int SLAPI PPViewBill::UpdateAttributes()
 							do_upd = 1;
 						}
 						rec.Flags &= ~BILLF_NOLOADTRFR;
-						rec.Flags2 &= ~BILLF2_DONTCLOSDRAFT; // @v8.3.2
+						rec.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
 						if(rec.Flags != org_rec_flags || rec.Flags2 != org_rec_flags2)
 							do_upd = 1;
 						if(do_upd) {
@@ -5798,11 +5798,9 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				{
 					PPOprKind op_rec;
-					// @v8.4.4 {
 					if(!SingleLocID) {
 						ok = (PPError(PPERR_NONSINGLELOCFORBILLUN), 0);
 					}
-					// } @v8.4.4
 					else if(Filt.OpID && (Filt.ObjectID || GetOpType(Filt.OpID, &op_rec) == PPOPT_INVENTORY || !op_rec.AccSheetID))
 						if(P_BObj->CheckRights(BILLOPRT_UNITEBILLS, 1)) {
 							if(GetOpType(Filt.OpID) == PPOPT_GOODSEXPEND)
@@ -6414,14 +6412,12 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		if(p_pack->EnumTItemsExt(0, &temp_ti, &tiie) > 0) {
 			n++;
 			p_ti = &temp_ti;
-			// @v8.5.1 {
 			if(p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods && goods_obj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 				PPObjGoodsType gt_obj;
 				PPGoodsType gt_rec;
 				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM))
 					treat_as_unlim = 1;
 			}
-			// } @v8.5.1
 			if(qk_id) {
 				const double base = extprice_by_base ? p_ti->Price : p_ti->NetPrice();
 				const QuotIdent qi(p_ti->LocID, qk_id, p_ti->CurID, p_pack->Rec.Object);
@@ -6467,14 +6463,12 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	}
 	else if(H.RowOrder == TiIter::ordByStorePlaceGrpGoods && goods_obj.Fetch(p_ti->GoodsID, &goods_rec) > 0) {
 		PPIDArray loc_list;
-		// @v8.3.2 LocationTbl::Rec wp_rec;
 		PPObjLocation loc_obj;
 		GoodsToObjAssoc gto_assc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1);
 		gto_assc.Load();
 		temp_buf.Z();
 		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
 			for(uint j = 0; temp_buf.Empty() && j < loc_list.getCount(); j++) {
-				// @v8.3.0 if(loc_obj.Fetch(loc_list.get(j), &wp_rec) > 0 && wp_rec.ParentID == p_pack->Rec.LocID) { // @v8.3.0
 				const PPID loc_id = loc_list.get(j);
 				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf)) {
 					break;
@@ -6874,15 +6868,13 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 // Implementation of PPALDD_Bill
 //
 struct DL600_BillExt {
-	DL600_BillExt(BillCore * pT)
+	DL600_BillExt(BillCore * pT) : P_Bill(pT), CrEventSurID(0)
 	{
-		P_Bill = pT;
-		CrEventSurID = 0;
 		MEMSZERO(Rec);
 	}
 	BillCore * P_Bill;
 	long   CrEventSurID;
-	BillTbl::Rec Rec; // @v8.0.2
+	BillTbl::Rec Rec;
 };
 
 PPALDD_CONSTRUCTOR(Bill)
@@ -7158,14 +7150,12 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 	else if(pF->Name == "?GetTag") {
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_BILL, H.ID, _ARG_STR(1));
 	}
-	// @v8.0.2 {
 	else if(pF->Name == "?GetMemo") {
 		if(p_ext->Rec.ID)
 			_RET_STR = p_ext->Rec.Memo;
 		else
 			_RET_STR = 0;
 	}
-	// } @v8.0.2
 }
 //
 // Implementation of PPALDD_BillPool
@@ -7620,7 +7610,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			I.NewCost  = new_cost;
 			I.OldPrice = old_price;
 			I.OldCost  = old_cost;
-			I.VATRate  = gtx_cost.GetVatRate(); // @v8.8.3
+			I.VATRate  = gtx_cost.GetVatRate();
 			I.VATSumOldCost = vatsum_oldcost;
 			I.VATSumNewCost = vatsum_newcost;
 			I.VATSumOldPrice = vatsum_oldprice;
@@ -8089,7 +8079,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			vect.CalcTI(&ti, item.OpID, TIAMT_AMOUNT);
 		   	I.VaTax    = vect.GetTaxRate(GTAX_VAT, 0);
 			I.VatSum   = vect.GetValue(GTAXVF_VAT);
-			I.ExTax    = vect.GetTaxRate(GTAXVF_EXCISE, 0);
+			I.ExTax    = vect.GetTaxRate(GTAX_EXCISE, 0); // @v10.0.05 @fix GTAXVF_EXCISE-->GTAX_EXCISE
 			I.ExtSum   = vect.GetValue(GTAXVF_EXCISE);
 			I.StTax    = vect.GetTaxRate(GTAX_SALES, 0);
 			I.StSum    = vect.GetValue(GTAXVF_SALESTAX);

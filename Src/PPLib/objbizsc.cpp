@@ -2039,8 +2039,7 @@ int SLAPI GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray
 {
 	int    ok = -1;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
-	LDATETIME since;
-	since.SetZero();
+	LDATETIME since = ZERODATETIME;
 	SysJournalTbl::Rec sj_rec;
 	if(p_sj->GetLastEvent(PPACN_GLOBBIZSCOREUPD, &since, 14, &sj_rec) > 0) {
 		PPObjGlobalUserAcc gua_obj;
@@ -2072,8 +2071,7 @@ int SLAPI GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use
 	int    ok = -1;
 	long   counter = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
-	LDATETIME since;
-	since.SetZero();
+	LDATETIME since = ZERODATETIME;
 	SysJournalTbl::Rec sj_rec;
 	if(p_sj->GetLastEvent(PPACN_GLOBBIZSCOREUPD, &since, 7, &sj_rec) > 0)
 		counter = sj_rec.Extra+1;
@@ -2280,10 +2278,7 @@ int PPALDD_BizScoreValView::NextIteration(long iterId)
 	{
 		S_GUID dbuuid;
 		DbProvider * p_dict = CurDict;
-		if(p_dict)
-			p_dict->GetDbUUID(&dbuuid);
-		else
-			dbuuid.SetZero();
+		CALLPTRMEMB(p_dict, GetDbUUID(&dbuuid));
 		SString dbuuid_buf;
 		dbuuid.ToStr(S_GUID::fmtIDL, dbuuid_buf).CopyTo(I.DbUUID, sizeof(I.DbUUID));
 	}

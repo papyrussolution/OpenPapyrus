@@ -608,8 +608,8 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
 		}
 		//
 		{
-			SignatureList.Clear();
-			P_Pb->Saved_SignatureList.Clear();
+			SignatureList.Z();
+			P_Pb->Saved_SignatureList.Z();
 			ss.clear();
 			ini_file.GetEntries("SignatureList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
@@ -620,8 +620,8 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
 		}
 		//
 		{
-			/*P_Pb->*/GrpSymbList.Clear();
-			P_Pb->Saved_GrpSymbList.Clear();
+			/*P_Pb->*/GrpSymbList.Z();
+			P_Pb->Saved_GrpSymbList.Z();
 			ss.clear();
 			ini_file.GetEntries("GrpSymbList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
@@ -632,8 +632,8 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
 		}
 		//
 		{
-			P_Pb->StrSymbList.Clear();
-			P_Pb->Saved_StrSymbList.Clear();
+			P_Pb->StrSymbList.Z();
+			P_Pb->Saved_StrSymbList.Z();
 			ss.clear();
 			ini_file.GetEntries("StrSymbList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {

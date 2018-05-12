@@ -66,7 +66,7 @@ int PrcBusyFiltDialog::setDTS(const PrcBusyFilt * pData)
 	setCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
 	setCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
 	if(Data.Period.Finish.IsFar())
-		Data.Period.Finish.SetZero();
+		Data.Period.Finish.Z();
 	setCtrlData(CTL_PRCBUSYFLT_FNDT,   &Data.Period.Finish.d);
 	setCtrlData(CTL_PRCBUSYFLT_FNTM,   &Data.Period.Finish.t);
 	setCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);

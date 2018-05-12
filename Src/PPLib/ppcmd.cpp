@@ -115,7 +115,7 @@ int SLAPI PPCommandDescr::GetResourceList(int loadText, StrAssocArray * pList)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
-	pList->Clear();
+	pList->Z();
 	if(p_rez) {
 		ulong pos = 0;
 		for(uint   rsc_id = 0; p_rez->enumResources(PP_RCDECLCMD, &rsc_id, &pos) > 0;) {
@@ -644,7 +644,7 @@ int SLAPI PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders
 		long   id = ID;
 		_ParentList _list;
 		_list.P_List = pList;
-		_list.P_List->Clear();
+		_list.P_List->Z();
 		_list.OnlyFolders = onlyFolders;
 		ID = 0;
 		ok = Enumerate(_GetIdParentList, 0, &_list);

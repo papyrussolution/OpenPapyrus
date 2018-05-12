@@ -233,11 +233,8 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 						y = DefaultYear;
 						ret_flags |= strtodatefDefYear;
 					}
-					// @v8.7.2 {
-					else {
+					else
 						y = 2000;
-					}
-					// } @v8.7.2
 				}
 				if(!m) {
 					m = DefaultMonth;
@@ -286,7 +283,7 @@ LDATE FASTCALL strtodate_(const char * pBuf, long fmt)
 
 int SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
 {
-	pDtm->SetZero();
+	pDtm->Z();
 	const char * p = pBuf;
 	if(p) {
 		int    done = 0;
@@ -304,8 +301,8 @@ int SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long t
 			const  char * p_div = strchr(p, ' ');
 			dt_buf[0] = 0;
 			tm_buf[0] = 0;
-			SETIFZ(p_div, strchr(p, 'T')); // @v8.7.2
-			SETIFZ(p_div, strchr(p, 't')); // @v8.7.2
+			SETIFZ(p_div, strchr(p, 'T'));
+			SETIFZ(p_div, strchr(p, 't'));
 			if(p_div) {
 				size_t dp = 0;
 				while(p != p_div && (dp+1) < sizeof(dt_buf))

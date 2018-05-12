@@ -1331,7 +1331,7 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 
 int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList)
 {
-	rList.Clear();
+	rList.Z();
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	PPELinkArray temp_list;

@@ -861,9 +861,7 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 			}
 			else {
 				LocationCore::GetAddress(*p_loc_rec, 0, temp_buf);
-				//temp_buf.CopyTo(pItem->Address, sizeof(pItem->Address));
 				StrPool.AddS(temp_buf, &pItem->AddressP);
-				// @v8.6.12 {
 				if(Filt.Flags & PersonFilt::fShowFiasRcgn && SETIFZ(P_Fr, new PPFiasReference)) {
 					PPLocAddrStruc las(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), P_Fr);
 					S_GUID uuid;
@@ -872,7 +870,6 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						if(P_Fr->FT.SearchAddrByID(las.FiasStreetID, &fa_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fa_rec.IdUuRef, uuid) > 0) {
 								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
-								//STRNSCPY(pItem->FiasAddrGuid, temp_buf);
 								StrPool.AddS(temp_buf, &pItem->FiasAddrGuidP);
 							}
 						}
@@ -882,27 +879,19 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						if(P_Fr->FT.SearchHouse(las.FiasHouseID, &fh_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fh_rec.IdUuRef, uuid) > 0) {
 								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
-								//STRNSCPY(pItem->FiasHouseGuid, temp_buf);
 								StrPool.AddS(temp_buf, &pItem->FiasHouseGuidP);
 							}
 						}
 					}
 				}
-				// } @v8.6.12
-				//STRNSCPY(pItem->BnkAcct, p_loc_rec->Code); // Код из адреса доставки
 				StrPool.AddS(p_loc_rec->Code, &pItem->BnkAcctP);
 				pItem->CityID = p_loc_rec->CityID;
 				if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_PHONE, temp_buf);
-					//temp_buf.CopyTo(pItem->Phone, sizeof(pItem->Phone));
 					StrPool.AddS(temp_buf, &pItem->PhoneP);
-					// @v8.3.2 {
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_EMAIL, temp_buf);
-					//temp_buf.CopyTo(pItem->RAddress, sizeof(pItem->RAddress));
 					StrPool.AddS(temp_buf, &pItem->RAddressP);
-					// } @v8.3.2
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_CONTACT, temp_buf);
-					//temp_buf.CopyTo(pItem->BnkName, sizeof(pItem->BnkName));
 					StrPool.AddS(temp_buf, &pItem->BnkNameP);
 				}
 				ok = 1;

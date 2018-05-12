@@ -186,9 +186,9 @@ SLAPI SFileEntryPool::Entry::Entry()
 void SLAPI SFileEntryPool::Entry::Clear()
 {
 	Attr = 0;
-	CreateTime.SetZero();
-	AccessTime.SetZero();
-	WriteTime.SetZero();
+	CreateTime.Z();
+	AccessTime.Z();
+	WriteTime.Z();
 	Size = 0;
 	Name.Z();
 	Path.Z();

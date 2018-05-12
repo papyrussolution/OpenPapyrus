@@ -326,7 +326,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 	if(!oneof2(pack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 		BillItemBrowser * p_brw = new BillItemBrowser(res_id, pBObj, pack, 0, -1, 0, (int)options);
 		if(p_brw == 0)
-			r = (PPError(PPERR_NOMEM, 0), 0);
+			r = (PPError(PPERR_NOMEM), 0);
 		else {
 			if(pack->Rec.Flags & BILLF_CASH) {
 				PPObjCashNode cn_obj;
@@ -396,7 +396,7 @@ int BillItemBrowser::subtractRetsFromLinkPack()
 					double sub_qtty = ti.Quantity_;
 					for(uint pos = 0; sub_qtty > 0.0 && P_LinkPack->SearchLot(ti.LotID, &pos) > 0; pos++) {
 						PPTransferItem & r_ti = P_LinkPack->TI(pos);
-						double decr = MIN(-r_ti.Quantity_, sub_qtty);
+						const double decr = MIN(-r_ti.Quantity_, sub_qtty);
 						r_ti.Quantity_ += decr;
 						sub_qtty -= decr;
 					}
@@ -501,19 +501,15 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 				uint   qsip = 0;
 				if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
 					const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
-					if(r_qsi.Flags & r_qsi.fInvalidQuot) {
+					if(r_qsi.Flags & r_qsi.fInvalidQuot)
 						pStyle->Color = GetColorRef(SClrRed);
-					}
-					else if(r_qsi.Flags & r_qsi.fMissingQuot) {
+					else if(r_qsi.Flags & r_qsi.fMissingQuot)
 						pStyle->Color = GetColorRef(SClrOrange);
-					}
-					else {
+					else
 						pStyle->Color = GetColorRef(SClrGreen);
-					}
 				}
-				else {
+				else
 					pStyle->Color = GetColorRef(SClrYellow);
-				}
 				ok = 1;
 			}
 			if(pos >= 0 && pos < (long)r_price_dev_list.getCount()) {
@@ -588,33 +584,21 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 				pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 				ok = 1;
 			}
-			// @v7.5.5 {
 			const PPBillPacket * p_pack = p_brw->GetPacket();
 			if(p_pack && pos >= 0 && pos < (int)p_pack->GetTCount() && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
 				pStyle->Color = GetColorRef(SClrGrey);
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				ok = 1;
 			}
-			// } @v7.5.5
 		}
 	}
 	return ok;
 }
 
-const LongArray & SLAPI BillItemBrowser::GetPriceDevList() const
-{
-	return PriceDevList;
-}
-
-const StrAssocArray & SLAPI BillItemBrowser::GetProblemsList() const
-{
-	return ProblemsList;
-}
-
+const LongArray & SLAPI BillItemBrowser::GetPriceDevList() const { return PriceDevList; }
+const StrAssocArray & SLAPI BillItemBrowser::GetProblemsList() const { return ProblemsList; }
 int SLAPI BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange)
-{
-	return P_BObj->GetPriceRestrictions(*P_Pack, rTi, itemPos, pRange);
-}
+	{ return P_BObj->GetPriceRestrictions(*P_Pack, rTi, itemPos, pRange); }
 
 long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos)
 {
@@ -704,7 +688,7 @@ int SLAPI BillItemBrowser::CheckRows()
 	SString buf;
 	QuotIdent qi(QIDATE(P_Pack->Rec.Dt), P_Pack->Rec.LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, P_Pack->Rec.Object);
 	PPTransferItem * p_ti = 0;
-	ProblemsList.Clear();
+	ProblemsList.Z();
 	for(uint idx = 0; P_Pack->EnumTItems(&idx, &p_ti) > 0;) {
 		ReceiptTbl::Rec lot_rec;
 		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) <= 0) {
@@ -930,6 +914,8 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	SString temp_buf, lines;
 	uint   i, lines_count = 0;
 	BillGoodsBrwItem item;
+	GoodsStockExt gse;
+	BarcodeArray bc_list;
 	Total.Init();
 	OrdQttyList.clear();
 	THROW_MEM(p_packed_list = new BillGoodsBrwItemArray);
@@ -998,7 +984,6 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		{
 			double upp = p_ti->UnitPerPack;
 			if(upp <= 0.0) {
-				GoodsStockExt gse;
 				if(GObj.GetStockExt(p_ti->GoodsID, &gse, 1) > 0)
 					upp = gse.Package;
 			}
@@ -1014,7 +999,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			}
 		}
 		item.Pos = i-1;
-		item.RByBill = p_ti->RByBill; // @v8.0.3
+		item.RByBill = p_ti->RByBill;
 		{
 			if(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
 				// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
@@ -1037,7 +1022,6 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GdsClsID == AlcoGoodsClsID) {
 				int    has_egais_code = 0;
-				BarcodeArray bc_list;
 				GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
 				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
@@ -1467,9 +1451,7 @@ double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 }
 
 double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) const
-{
-	return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0;
-}
+	{ return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0; }
 
 //static
 int BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
@@ -2275,7 +2257,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			{
 				temp_buf.Z().CatEq("COUNT", idx_list.getCount());
-				if(RowIdx > 0 && RowIdx <= P_Pack->GetTCount()) {
+				if(RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) {
 					SString name_buf;
 					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
 					GetGoodsName(r_ti.GoodsID, name_buf);
@@ -2989,7 +2971,7 @@ void BillItemBrowser::addItemExt(int mode)
 								text_buf = item.Txt;
 							temp_array.AddFast(item.Id, text_buf);
 						}
-						goods_list.Clear();
+						goods_list.Z();
 						dlg->setSelectionByGoodsList(&temp_array);
 					}
 					else

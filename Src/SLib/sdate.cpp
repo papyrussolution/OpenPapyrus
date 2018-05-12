@@ -210,21 +210,11 @@ int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay
 			mon = LeapYearDayToMonth[day-1];
 			day -= LeapYearDaysPrecedingMonth[mon];
 			mon++;
-			/*for(int nd = 0; day > nd;) {
-				day -= nd;
-				nd = (mon == 1) ? 29 : daysPerMonth[mon];
-				mon++;
-			}*/
 		}
 		else {
 			mon = NormalYearDayToMonth[day-1];
 			day -= NormalYearDaysPrecedingMonth[mon];
 			mon++;
-			/*for(int nd = 0; day > nd;) {
-				day -= nd;
-				nd = daysPerMonth[mon];
-				mon++;
-			}*/
 		}
 	}
 	else
@@ -372,8 +362,6 @@ static const char * SLAPI _selectVarPart(const char * word, int n, SString & rBu
 static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 {
 	rBuf.Z();
-	//char   temp[32];
-	//char * t = temp;
 	if(fmt & MONF_SHORT) {
 		rBuf.CatN(pPattern, 3);
 	}
@@ -1200,7 +1188,7 @@ LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 		t = encodetime(p_temp_tm->tm_hour, p_temp_tm->tm_min, p_temp_tm->tm_sec, 0);
 	}
 	else
-		SetZero();
+		Z();
 	return *this;
 }
 
@@ -1262,7 +1250,7 @@ LDATETIME FASTCALL LDATETIME::operator = (const FILETIME & rS)
 		encodetime(st.wHour, st.wMinute, st.wSecond, st.wMilliseconds / 10, &t);
 	}
 	else
-		SetZero();
+		Z();
 	return *this;
 };
 
@@ -1294,7 +1282,7 @@ LDATETIME FASTCALL LDATETIME::operator = (OleDate od)
 
 #endif // }
 
-LDATETIME & SLAPI LDATETIME::SetZero()
+LDATETIME & SLAPI LDATETIME::Z()
 {
 	d = ZERODATE;
 	t = ZEROTIME;
@@ -1801,8 +1789,8 @@ int FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult
 	int    is = 0;
 	LDATETIME st, fn;
 	if(::cmp(Start, test.Finish) > 0 || ::cmp(Finish, test.Start) < 0) {
-		st.SetZero();
-		fn.SetZero();
+		st.Z();
+		fn.Z();
 	}
 	else {
 		st = (::cmp(Start, test.Start) > 0) ? Start : test.Start;

@@ -2953,7 +2953,7 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 
 int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCodeList)
 {
-	CALLPTRMEMB(pByCodeList, Clear());
+	CALLPTRMEMB(pByCodeList, Z());
 
 	int    ok = -1;
 	SString temp_buf;

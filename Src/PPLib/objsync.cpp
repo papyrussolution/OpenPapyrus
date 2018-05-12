@@ -422,8 +422,7 @@ int SLAPI ObjSyncCore::SelfSync(PPID obj, PPID id, PPID destDbID, int use_ta)
 		}
 		THROW(foreign_found = SearchPrivate(obj, id, destDbID));
 		if(foreign_found < 0 || prim_found < 0) {
-			LDATETIME moment;
-			moment.SetZero();
+			LDATETIME moment = ZERODATETIME;
 			CALLPTRMEMB(p_sj, GetLastObjModifEvent(obj, id, &moment, 0));
 			if(prim_found < 0) {
 				clearDataBuf();
@@ -488,9 +487,8 @@ int SLAPI ObjSyncCore::RemoveByCommID(PPID objType, PPCommSyncID commID, PPID db
 //
 //
 //
-SLAPI ObjSyncQueueCore::FileInfo::FileInfo() : QueueID(0), Flags(0)
+SLAPI ObjSyncQueueCore::FileInfo::FileInfo() : QueueID(0), Flags(0), Mod(ZERODATETIME)
 {
-	Mod.SetZero();
 }
 
 int SLAPI ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo & rInfo, int use_ta)

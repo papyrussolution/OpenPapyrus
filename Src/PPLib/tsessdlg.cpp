@@ -542,7 +542,7 @@ void TSessionDialog::selectFreeEntry()
 				if(dlg->getSelectedPeriod(&start, &finish) > 0) {
 					setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, start);
 					if(finish.IsFar())
-						finish.SetZero();
+						finish.Z();
 					setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, finish);
 					setupTiming(1);
 				}

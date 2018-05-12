@@ -7,7 +7,6 @@
 
 SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N(0)
 {
-	Uuid.SetZero();
 }
 
 int SLAPI PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -1244,7 +1243,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 
 	THROW_MEM(p_list);
 	SPrinting::GetListOfPrinters(&prn_list);
-	p_list->Clear();
+	p_list->Z();
 	//
 	// ѕеремещаем принтер по умолчанию на верх списка
 	//

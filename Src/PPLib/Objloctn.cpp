@@ -425,21 +425,57 @@ SLAPI PPObjLocation::~PPObjLocation()
 SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int options, SString & rBuf)
 {
 	rBuf.Z();
-	SString temp_buf;
-	LocationTbl::Rec rec = *pRec;
-	PPLocationConfig cfg;
-	PPObjLocation::FetchConfig(&cfg);
-	rBuf.Cat(rec.Code);
-	if(oneof3(rec.Type, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)) {
-		while(rec.ParentID && Fetch(rec.ParentID, &rec) > 0 && rec.Type != LOCTYP_WAREHOUSEGROUP) {
-			if(rec.Code[0] && (rec.Type != LOCTYP_WAREHOUSE || options & mcsWhCodePrefix)) {
-				temp_buf.Z().Cat(rec.Code);
-				if(cfg.WhCodingDiv == 0)
-					temp_buf.CatChar('.');
-				else if(cfg.WhCodingDiv == 1)
-					temp_buf.CatChar('-');
-				temp_buf.Cat(rBuf);
-				rBuf = temp_buf;
+	if(pRec) {
+		SString temp_buf;
+		LocationTbl::Rec rec = *pRec;
+		rBuf.Cat(rec.Code);
+		if(oneof3(rec.Type, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)) {
+			PPLocationConfig cfg;
+			PPObjLocation::FetchConfig(&cfg);
+			while(rec.ParentID && Fetch(rec.ParentID, &rec) > 0 && rec.Type != LOCTYP_WAREHOUSEGROUP) {
+				if(rec.Code[0] && (rec.Type != LOCTYP_WAREHOUSE || options & mcsWhCodePrefix)) {
+					temp_buf.Z().Cat(rec.Code);
+					if(cfg.WhCodingDiv == 0)
+						temp_buf.CatChar('.');
+					else if(cfg.WhCodingDiv == 1)
+						temp_buf.CatChar('-');
+					temp_buf.Cat(rBuf);
+					rBuf = temp_buf;
+				}
+			}
+		}
+		else if(oneof2(rec.Type, LOCTYP_ADDRESS, LOCTYP_WAREHOUSE)) {
+			if((!options || options & mcsCode) && rec.Code[0])
+				rBuf.CatDivIfNotEmpty('-', 1).Cat(rec.Code);
+			if((!options || options & mcsName) && rec.Name[0])
+				rBuf.CatDivIfNotEmpty('-', 1).Cat(rec.Name);
+			if(!options || options & mcsContact) {
+				LocationCore::GetExField(&rec, LOCEXSTR_CONTACT, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			}
+			if(options & mcsShortAddr) {
+				LocationCore::GetExField(&rec, LOCEXSTR_SHORTADDR, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			}
+			else if(!options || options & mcsAddr) {
+				LocationCore::GetAddress(rec, 0, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			}
+			if(!options || options & mcsPhone) {
+				LocationCore::GetExField(&rec, LOCEXSTR_PHONE, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			}
+			if(!options || options & mcsEmail) {
+				LocationCore::GetExField(&rec, LOCEXSTR_EMAIL, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
+			}
+			if(rBuf.Empty()) {
+				ideqvalstr(rec.ID, rBuf);
 			}
 		}
 	}
@@ -1564,7 +1600,7 @@ int LocationExtFieldsDialog::setDTS(const LocationTbl::Rec * pData)
 	SString temp_buf;
 	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
-	Fields.Clear();
+	Fields.Z();
 	for(int id = 1; id <= MAX_DLVRADDRFLDS; id++) {
 		if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf.Z()) > 0)
 			Fields.Add(id + LOCEXSTR_EXTFLDSOFFS, 0, temp_buf);
@@ -1807,10 +1843,8 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		SetupPhoneButton(this, CTL_LOCATION_PHONE, cmLocAction1);
 		LocationCore::GetExField(&Data, LOCEXSTR_CONTACT, temp_buf);
 		setCtrlString(CTL_LOCATION_CONTACT, temp_buf);
-		// @v8.3.6 {
 		LocationCore::GetExField(&Data, LOCEXSTR_EMAIL, temp_buf);
 		setCtrlString(CTL_LOCATION_EMAIL, temp_buf);
-		// } @v8.3.6
 		if(Data.OwnerID) {
 			GetPersonName(Data.OwnerID, temp_buf);
 			setCtrlString(CTL_LOCATION_OWNERNAME, temp_buf);
@@ -2895,8 +2929,8 @@ public:
 	PPID   SLAPI GetSingleWarehouse();
 	uint   SLAPI GetWarehouseList(PPIDArray * pList);
 	int    SLAPI CheckWarehouseFlags(PPID locID, long f);
-	PPID   FASTCALL ObjToWarehouse(PPID arID);
-	PPID   FASTCALL WarehouseToObj(PPID locID);
+	PPID   FASTCALL ObjToWarehouse(PPID arID, int ignoreRights);
+	PPID   FASTCALL WarehouseToObj(PPID locID, int ignoreRights);
 	int    SLAPI GetConfig(PPLocationConfig * pCfg, int enforce);
 	int    SLAPI GetCellList(PPID locID, PPIDArray * pList); // @sync_w
 	int    SLAPI DirtyCellList(PPID locID); // @sync_w
@@ -2906,7 +2940,7 @@ public:
 
 	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
-	struct WHObjEntry {
+	struct WHObjEntry { // @flat
 		PPID   LocID;
 		PPID   ObjID;
 		long   Flags;
@@ -2941,7 +2975,7 @@ private:
 	ReadWriteLock FealLock;
 
 	int    IsWhObjTabInited;
-	SArray WhObjList;
+	SVector WhObjList; // @v10.0.05 SArray-->SVector
 	TSCollection <WHCellEntry> WhCellList;
 	PPLocationConfig Cfg;
 	//
@@ -3030,15 +3064,12 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 	int    ok = 0;
 	uint   pos = 0;
 	if(locID) {
-		//WhclLock.ReadLock();
 		SRWLOCKER(WhclLock, SReadWriteLocker::Read);
 		if(WhCellList.lsearch(&locID, &pos, CMPF_LONG)) {
 			ASSIGN_PTR(pList, WhCellList.at(pos)->List);
 			ok = 1;
 		}
 		else {
-			//WhclLock.Unlock();
-			//WhclLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
 			// Повторная попытка поиска после установки блокировки
@@ -3059,7 +3090,6 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 				}
 			}
 		}
-		//WhclLock.Unlock();
 	}
 	return ok;
 }
@@ -3090,7 +3120,6 @@ int SLAPI PPObjLocation::GetDirtyCellParentsList(PPID locID, PPIDArray & rDestLi
 int SLAPI LocationCache::DirtyCellList(PPID locID)
 {
 	{
-		//WhclLock.WriteLock();
 		SRWLOCKER(WhclLock, SReadWriteLocker::Write);
 		{
 			PPObjLocation loc_obj(SConstructorLite);
@@ -3103,7 +3132,6 @@ int SLAPI LocationCache::DirtyCellList(PPID locID)
 					WhCellList.atFree(pos);
 			}
 		}
-		//WhclLock.Unlock();
 	}
 	return 1;
 }
@@ -3111,11 +3139,8 @@ int SLAPI LocationCache::DirtyCellList(PPID locID)
 int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 {
 	{
-		//CfgLock.ReadLock();
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPLocationConfig::fValid) || enforce) {
-			//CfgLock.Unlock();
-			//CfgLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(Cfg.Flags & PPLocationConfig::fValid) || enforce) {
 				PPObjLocation::ReadConfig(&Cfg);
@@ -3123,7 +3148,6 @@ int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
-		//CfgLock.Unlock();
 	}
 	return 1;
 }
@@ -3132,21 +3156,17 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 {
 	PPObjLocation loc_obj(SConstructorLite);
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		{
 			LocationTbl::Rec loc_rec;
+			uint pos = 0;
 			if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
 				AddWarehouseEntry(&loc_rec);
 			}
-			else {
-				uint pos = 0;
-				if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
-					WhObjList.atFree(pos);
-			}
+			else if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
+				WhObjList.atFree(pos);
 			Helper_Dirty(locID);
 		}
-		//RwL.Unlock();
 	}
 	return 1;
 }
@@ -3161,11 +3181,18 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
 	uint pos = 0;
 	if(WhObjList.lsearch(&entry.LocID, &pos, CMPF_LONG))
 		WhObjList.atFree(pos);
-	if(ObjRts.CheckLocID(entry.LocID, 0)) {
-		PPObjAccTurn * p_atobj = BillObj->atobj;
-		if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, entry.LocID) > 0)
-			entry.ObjID = p_atobj->P_Tbl->Art.data.ID;
-		ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
+	{
+		const int is_enabled = ObjRts.CheckLocID(entry.LocID, 0);
+		// @v10.0.05 {
+		if(!is_enabled)
+			entry.Flags |= LOCF_INTERNAL_DISABLED;
+		// } @v10.0.05 
+		// @v10.0.05 if(ObjRts.CheckLocID(entry.LocID, 0)) {
+			PPObjAccTurn * p_atobj = BillObj->atobj;
+			if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, entry.LocID) > 0)
+				entry.ObjID = p_atobj->P_Tbl->Art.data.ID;
+			ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
+		// @v10.0.05 }
 	}
 	return ok;
 }
@@ -3174,12 +3201,9 @@ int SLAPI LocationCache::LoadWarehouseTab()
 {
 	int    ok = 1;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!IsWhObjTabInited) {
 			PPObjLocation lobj(SConstructorLite);
-			//RwL.Unlock();
-			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!IsWhObjTabInited) {
 				long   c = 0;
@@ -3195,7 +3219,6 @@ int SLAPI LocationCache::LoadWarehouseTab()
 					IsWhObjTabInited = 1;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -3205,10 +3228,19 @@ PPID SLAPI LocationCache::GetSingleWarehouse()
 	PPID   id = 0;
 	LoadWarehouseTab();
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
-		id = (WhObjList.getCount() == 1) ? ((WHObjEntry *)WhObjList.at(0))->LocID : 0;
-		//RwL.Unlock();
+		//id = (WhObjList.getCount() == 1) ? ((WHObjEntry *)WhObjList.at(0))->LocID : 0;
+		for(uint i = 0; i < WhObjList.getCount(); i++) {
+			const WHObjEntry * p_entry = (const WHObjEntry *)WhObjList.at(i);
+			if(!(p_entry->Flags & LOCF_INTERNAL_DISABLED)) {
+				if(!id)
+					id = p_entry->LocID;
+				else {
+					id = 0;
+					break;
+				}
+			}
+		}
 	}
 	return id;
 }
@@ -3218,16 +3250,16 @@ uint SLAPI LocationCache::GetWarehouseList(PPIDArray * pList)
 	uint   c = 0;
 	LoadWarehouseTab();
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		WHObjEntry * p_entry;
 		for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
-			CALLPTRMEMB(pList, add(p_entry->LocID)); // @v8.0.5 addUnique-->add
-			c++;
+			if(!(p_entry->Flags & LOCF_INTERNAL_DISABLED)) {
+				CALLPTRMEMB(pList, add(p_entry->LocID));
+				c++;
+			}
 		}
-		//RwL.Unlock();
 	}
-	CALLPTRMEMB(pList, sortAndUndup()); // @v8.0.5
+	CALLPTRMEMB(pList, sortAndUndup());
 	return c;
 }
 
@@ -3236,28 +3268,25 @@ int SLAPI LocationCache::CheckWarehouseFlags(PPID locID, long f)
 	int    ok = 0;
 	LoadWarehouseTab();
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		WHObjEntry * p_entry;
 		for(uint i = 0; !ok && WhObjList.enumItems(&i, (void **)&p_entry);)
 			if(p_entry->LocID == locID && p_entry->Flags & f)
 				ok = 1;
-		//RwL.Unlock();
 	}
 	return ok;
 }
 
-PPID FASTCALL LocationCache::ObjToWarehouse(PPID arID)
+PPID FASTCALL LocationCache::ObjToWarehouse(PPID arID, int ignoreRights)
 {
 	PPID   id = 0;
 	if(arID) {
 		LoadWarehouseTab();
 		{
-			//RwL.ReadLock();
 			SRWLOCKER(RwL, SReadWriteLocker::Read);
 			WHObjEntry * p_entry;
-			for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);)
-				if(p_entry->ObjID == arID) {
+			for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
+				if(p_entry->ObjID == arID && (ignoreRights || !(p_entry->Flags & LOCF_INTERNAL_DISABLED))) {
 					if(p_entry->LocID == 0) {
 						PPSetAddedMsgObjName(PPOBJ_ARTICLE, arID);
 						PPSetError(PPERR_INVAR2LOCASSOC);
@@ -3265,25 +3294,24 @@ PPID FASTCALL LocationCache::ObjToWarehouse(PPID arID)
 					id = p_entry->LocID;
 					break;
 				}
+			}
 			if(id == 0)
 				PPSetError(PPERR_LOCNFOUND);
-			//RwL.Unlock();
 		}
 	}
 	return id;
 }
 
-PPID FASTCALL LocationCache::WarehouseToObj(PPID locID)
+PPID FASTCALL LocationCache::WarehouseToObj(PPID locID, int ignoreRights)
 {
 	PPID   id = 0;
 	if(locID) {
 		LoadWarehouseTab();
 		{
 			WHObjEntry * p_entry;
-			//RwL.ReadLock();
 			SRWLOCKER(RwL, SReadWriteLocker::Read);
 			for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
-				if(p_entry->LocID == locID) {
+				if(p_entry->LocID == locID && (ignoreRights || !(p_entry->Flags & LOCF_INTERNAL_DISABLED))) {
 					if(p_entry->ObjID == 0) {
 						PPSetAddedMsgObjName(PPOBJ_LOCATION, locID);
 						PPErrCode = PPERR_INVLOC2ARASSOC;
@@ -3294,7 +3322,6 @@ PPID FASTCALL LocationCache::WarehouseToObj(PPID locID)
 			}
 			if(id == 0)
 				PPSetError(PPERR_LOCNFOUND);
-			//RwL.Unlock();
 		}
 	}
 	return id;
@@ -3319,10 +3346,9 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->Depth     = rec.Depth;
 		p_cache_rec->Counter   = rec.Counter;
 		if(rec.Type == LOCTYP_WAREHOUSE) {
-			//PPObjAccTurn * p_atobj = BillObj->atobj;
 			ArticleCore & r_arc = BillObj->atobj->P_Tbl->Art;
-			if(/*p_atobj->P_Tbl->Art*/r_arc.SearchObjRef(LConfig.LocAccSheetID, id) > 0)
-				p_cache_rec->ArID = /*p_atobj->P_Tbl->Art*/r_arc.data.ID;
+			if(r_arc.SearchObjRef(LConfig.LocAccSheetID, id) > 0)
+				p_cache_rec->ArID = r_arc.data.ID;
 		}
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -3541,14 +3567,21 @@ int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
 PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
-	return p_cache ? p_cache->ObjToWarehouse(arID) : 0;
+	return p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
+}
+
+// static
+PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights(PPID arID)
+{
+	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
+	return p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
 }
 
 // static
 PPID FASTCALL PPObjLocation::WarehouseToObj(PPID locID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
-	return p_cache ? p_cache->WarehouseToObj(locID) : 0;
+	return p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;
 }
 //
 // Implementation of PPALDD_Location
@@ -4610,7 +4643,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 	ZDELETE(P_AmbigMatchEntry);
 	ZDELETE(P_AmbigMatchList);
 	TokList.freeAll();
-	Clear();
+	Z();
 	if(pText) {
 		PPIDArray fao_list;
 		SString text = pText;
@@ -5372,7 +5405,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText, TSCollection <AddrTok> &
 	CountryID = 0;
 	CityID = 0;
 	StreetID = 0;
-	Clear();
+	Z();
 	if(pText) {
 		SString kind_text;
 		Scan.Set(pText, 0);

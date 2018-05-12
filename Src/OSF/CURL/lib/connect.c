@@ -551,8 +551,7 @@ static bool getaddressinfo(struct sockaddr * sa, char * addr, long * port)
 #ifdef ENABLE_IPV6
 		case AF_INET6:
 		    si6 = (struct sockaddr_in6*)(void*)sa;
-		    if(Curl_inet_ntop(sa->sa_family, &si6->sin6_addr,
-			    addr, MAX_IPADR_LEN)) {
+		    if(Curl_inet_ntop(sa->sa_family, &si6->sin6_addr, addr, MAX_IPADR_LEN)) {
 			    us_port = ntohs(si6->sin6_port);
 			    *port = us_port;
 			    return TRUE;
@@ -1156,7 +1155,7 @@ CURLcode Curl_socket(struct connectdata * conn, const Curl_addrinfo * ai, struct
 		return CURLE_COULDNT_CONNECT;
 #if defined(ENABLE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
 	if(conn->scope_id && (addr->family == AF_INET6)) {
-		struct sockaddr_in6 * const sa6 = (void*)&addr->sa_addr;
+		struct sockaddr_in6 * const sa6 = (struct sockaddr_in6 *)&addr->sa_addr;
 		sa6->sin6_scope_id = conn->scope_id;
 	}
 #endif

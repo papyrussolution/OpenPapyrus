@@ -324,7 +324,7 @@ int SLAPI PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
-	ObjNameList.Clear();
+	ObjNameList.Z();
 	CalList.clear();
 	if(Filt.CalList.IsEmpty()) {
 		PPStaffCal cal_rec;
@@ -840,8 +840,7 @@ int PPALDD_StaffCalView::NextIteration(long iterId)
 		GetObjectName(I.LinkObjType, I.LinkObjID, temp_buf);
 	temp_buf.CopyTo(I.LinkObjName, sizeof(I.LinkObjName));
 	temp_buf.Z();
-	LDATETIME dtm;
-	dtm.SetZero();
+	LDATETIME dtm = ZERODATETIME;
 	long days = dtm.settotalsec(item.Duration);
 	if(days)
 		temp_buf.Cat(days).CatChar('d').Space();

@@ -82,6 +82,328 @@
 :dimension   // Размерность (физическая величина)
 :atom        // Химический элемент
 
+//
+// Размерности
+//
+:dim_time:dimension                    // Время
+:dim_quantity:dimension                // Количество 
+:dim_length:dimension                  // Длина   meter
+:dim_area:dimension                    // Площадь length^2
+:dim_volume:dimension                  // Объем   length^3
+:dim_mass:dimension                    // Масса   kilogram
+:dim_current:dimension                 // Сила тока ampere
+:dim_amount:dimension                  // Количество вещества mole
+:dim_angle:dimension                   // Угол radian
+:dim_solid_angle:dimension             // Сплошной угол steradian
+:dim_force:dimension                   // Сила newton
+:dim_pressure:dimension                // Давление force / area
+:dim_charge:dimension                  // Электрический заряд coulomb
+:dim_capacitance:dimension             // Электрическая емкость farad
+:dim_resistance:dimension              // Электрическое сопротивление ohm
+:dim_conductance:dimension             // Электрическая проводимость siemens
+:dim_inductance:dimension              // Электрическая индуктивность henry
+:dim_frequency:dimension               // Частота колебаний hertz
+:dim_velocity:dimension                // Скорость length / time
+:dim_acceleration:dimension            // Ускорение velocity / time
+:dim_density:dimension                 // Плотность вещества mass / volume
+:dim_linear_density:dimension          // Линейная плотность вещества mass / length
+:dim_viscosity:dimension               // Вязкость вещества force time / area
+:dim_kinematic_viscosity:dimension     // Кинематическая вязкость вещества viscosity / density
+:dim_energy                            // Энергия (работа)
+:dim_power                             // Мощность watt
+:dim_money::dimention                  // Денежная размерность us$
+:dim_concentration::dimention          // Концентрация (относительное значение, как то, процент, промилле etc)
+:dim_temperature                       // Температура kelvin
+//
+//
+//
+:uom+(:dimension dim) // Единица измерения
+
+:uom_kilogram:uom(:dim_mass)   // Mass of the international prototype
+:uom_second:uom(:dim_time)     // Duration of 9192631770 periods of the radiation corresponding to the transition between the two hyperfine
+	// levels of the ground state of the cesium-133 atom
+:uom_meter:uom(:dim_length)      // Length of the path traveled by light in a vacuum during 1|299792458 seconds.  Originally meant 
+	// to be 1e-7 of the length along a meridian from the equator to a pole.
+:uom_ampere:uom     // The current which produces a force of 2e-7 N/m between two infinitely long wires that are 1 meter apart
+:uom_candela:uom    // Luminous intensity in a given direction of a source which emits monochromatic radiation at 540e12 Hz with radiant
+	// intensity 1|683 W/steradian.  (This differs from radiant intensity (W/sr) in that it is adjusted for human
+	// perceptual dependence on wavelength.  The frequency of 540e12 Hz (yellow) is where human perception is most efficient.)
+:uom_mole:uom(:dim_amount)       // The amount of substance of a system which contains as many elementary entities as there are atoms in 0.012 kg of
+	// carbon 12.  The elementary entities must be specified and may be atoms, molecules, ions, electrons, or other
+	// particles or groups of particles.  It is understood that unbound atoms of carbon 12, at rest and in the ground state, are referred to.
+:uom_kelvin:uom(:dim_temperature)    // 1|273.16 of the thermodynamic temperature of the triple point of water
+:uom_radian:uom(:dim_angle)          // The angle subtended at the center of a circle by an arc equal in length to the radius of the circle
+:uom_steradian:uom(:dim_solid_angle) // Solid angle which cuts off an area of the surface of the sphere equal to that of a square with sides of length equal to the radius of the sphere
+
+:uom_newton:uom(:dim_force)     // force
+:uom_pascal:uom(:dim_pressure)  // pressure or stress
+:uom_joule:uom(:dim_energy)     // energy
+:uom_watt:uom(:dim_power)       // power
+:uom_coulomb:uom    // charge
+:uom_volt:uom       // potential difference
+:uom_ohm:uom(:dim_resistance)         // electrical resistance
+:uom_siemens:uom(:dim_conductance)    // electrical conductance 
+:uom_farad:uom(:dim_capacitance)      // capacitance
+:uom_weber:uom      // magnetic flux
+:uom_henry:uom(:dim_inductance)      // inductance
+:uom_tesla:uom      // magnetic flux density
+:uom_hertz:uom(:dim_frequency)      // frequency
+
+:uom_gram:uom(:dim_mass)
+:uom_tonne:uom(:dim_mass)
+:uom_sthene:uom
+:uom_pieze:uom
+:uom_quintal:uom
+:uom_bar:uom        // About 1 atm
+:uom_vac:uom
+:uom_micron:uom     // One millionth of a meter
+:uom_bicron:uom     // One brbillionth of a meter
+:uom_are:uom        // 100 m^2 
+:uom_liter:uom(:dim_volume)
+:uom_oldliter:uom
+:uom_angstrom:uom
+:uom_xunit_cu:uom
+:uom_xunit_mo:uom
+:uom_angstromstar:uom
+:uom_fermi:uom
+:uom_barn:uom
+:uom_shed:uom
+:uom_brewster:uom
+:uom_diopter:uom
+:uom_fresnel:uom
+:uom_shake:uom
+:uom_svedberg:uom
+:uom_spat:uom
+:uom_preece:uom
+:uom_planck:uom
+:uom_sturgeon:uom
+:uom_daraf:uom
+:uom_leo:uom
+:uom_poiseuille:uom
+:uom_mayer:uom
+:uom_mired:uom
+:uom_metricounce:uom
+:uom_finsenunit:uom
+:uom_fluxunit:uom      // Used in radio astronomy to measure the energy incident on the receiving
+	// body across a specified frequency bandwidth.  [12]
+:uom_flick:uom
+:uom_pfu:uom
+:uom_pyron:uom
+:uom_katal:uom
+:uom_solarluminosity:uom
+:uom_solarirradiance:uom
+
+:uom_minute:uom(:dim_time)
+:uom_hour:uom(:dim_time)
+:uom_day:uom(:dim_time)
+:uom_week:uom(:dim_time)
+:uom_fortnight:uom(:dim_time)
+:uom_cron:uom(:dim_time)
+//
+// angular measure
+//
+:uom_circle:uom(:dim_angle)     // 2 pi radian
+:uom_degree:uom(:dim_angle)     // 1|360 circle
+:uom_arcminute:uom(:dim_angle)  // 1|60 degree
+:uom_arcsecond:uom(:dim_angle)  // 1|60 arcmin
+:uom_rightangle:uom(:dim_angle) // 90 degrees
+:uom_quadrant:uom(:dim_angle)   // 1|4 circle
+:uom_quintant:uom(:dim_angle)   // 1|5 circle
+:uom_sextant:uom(:dim_angle)    // 1|6 circle
+:uom_sign:uom(:dim_angle)       // 1|12 circle Angular extent of one sign of the zodiac
+:uom_pulsatance:uom(:dim_angle)
+:uom_grade:uom(:dim_angle)
+:uom_centesimalminute:uom(:dim_angle)
+:uom_centesimalsecond:uom(:dim_angle)
+:uom_milangle:uom(:dim_angle)
+:uom_pointangle:uom(:dim_angle)
+:uom_centrad:uom(:dim_angle)
+:uom_mas:uom(:dim_angle)
+:uom_seclongitude:uom(:dim_angle)
+//
+// Solid angle measure
+//
+:uom_sphere:uom(:dim_solid_angle)               // 4 pi sr
+:uom_squaredegree:uom(:dim_solid_angle)         // 1|180^2 pi^2 sr
+:uom_squareminute:uom(:dim_solid_angle)         // 1|60^2 squaredegree
+:uom_squaresecond:uom(:dim_solid_angle)         // 1|60^2 squareminute
+:uom_sphericalrightangle:uom(:dim_solid_angle)  // 0.5 pi sr
+
+:uom_percent:uom(:dim_concentration)
+:uom_mill:uom(:dim_concentration)
+:uom_proof:uom(:dim_concentration)
+:uom_partspermillion:uom(:dim_concentration) // 1e-6
+:uom_partsperbillion:uom(:dim_concentration) // 1e-9 USA billion
+:uom_partspertrillion:uom(:dim_concentration) // 1e-12 USA trillion
+:uom_karat:uom(:dim_concentration) // 1|24 measure of gold purity
+:uom_gammil:uom(:dim_concentration) // mg/l
+:uom_basispoint:uom(:dim_concentration) // 0.01% Used in finance
+:uom_fine:uom(:dim_concentration) // 1|1000 Measure of gold purity
+
+:uom_ph:uom(:dim_concentration)   // pH The pH scale is used to measure the concentration of hydronium (H3O+) ions in
+	// a solution. A neutral solution has a pH of 7 as a result of dissociated water molecules.
+
+:uom_inch:uom(:dim_length)             // 2.54 cm
+:uom_foot:uom(:dim_length)             // 12 inch
+:uom_yard:uom(:dim_length)             // 3 ft
+:uom_mile:uom(:dim_length)             // 5280 ft // The mile was enlarged from 5000 ft to this number in order to make
+	// it an even number of furlongs. (The Roman mile is 5000 romanfeet.)
+:uom_line:uom(:dim_length)             // 1|12 inch  // Also defined as '.1 in' or as '1e-8 Wb'
+:uom_rod:uom(:dim_length)              // 5.5 yard
+:uom_furlong:uom(:dim_length)          // 40 rod // From "furrow long"
+:uom_league:uom(:dim_length)           // 3 mile // Intended to be an an hour's walk
+//
+// nautical measure
+//
+:uom_fathom:uom           // 6ft // Originally defined as the distance from fingertip to fingertip with arms fully extended.
+:uom_nauticalmile:uom     // 1852m // Supposed to be one minute of latitude at the equator.  That value is about 1855 m.
+	// Early estimates of the earth's circumference were a bit off.  The value of 1852 m was made the international standard in 1929.
+	// The US did not accept this value until 1954.  The UK switched in 1970.
+:uom_intcable:uom         // 1|10 nauticalmile
+:uom_uscable:uom          // 100 USfathom
+:uom_navycablelength:uom  // 720 USft // used for depth in water
+:uom_marineleague:uom     // 3 nauticalmile
+:uom_brnauticalmile:uom   // 6080ft // Used until 1970 when the UK
+:uom_knot:uom             // nauticalmile / hr
+//
+// Avoirdupois weight
+//
+:uom_pound:uom(:dim_mass)              // 0.45359237 kg // The one normally used
+:uom_grain:uom(:dim_mass)              // 1|7000 pound  // The grain is the same in all three weight systems.  It was originally
+	// defined as the weight of a barley corn taken from the middle of the ear.
+:uom_ounce:uom(:dim_mass)              // 1|16 pound
+:uom_dram:uom(:dim_mass)               // 1|16 ounce
+:uom_ushundredweight:uom(:dim_mass)    // 100 pounds
+:uom_shortton:uom(:dim_mass)           // 2000 lb
+:uom_shortquarterweight:uom(:dim_mass) // 1|4 shortton
+//
+// Troy Weight.  In 1828 the troy pound was made the first United States
+// standard weight.  It was to be used to regulate coinage.
+// 
+:uom_troypound:uom(:dim_mass)          // 5760 grain
+:uom_troyounce:uom(:dim_mass)          // 1|12 troypound
+:uom_pennyweight:uom(:dim_mass)        // 1|20 troyounce // Abbreviated "d" in reference to a
+:uom_assayton:uom(:dim_mass)           // mg ton / troyounce // mg / assayton = troyounce / ton
+:uom_usassayton:uom(:dim_mass)         // mg uston / troyounce
+:uom_brassayton:uom(:dim_mass)         // mg brton / troyounce
+//
+// Some other jewelers units
+//
+:uom_metriccarat:uom(:dim_mass)        // 0.2 gram // Defined in 1907
+:uom_metricgrain:uom(:dim_mass)        // 50 mg
+:uom_jewelerspoint:uom(:dim_mass)      // 1|100 carat
+:uom_silversmithpoint:uom(:dim_length)   // 1|4000 inch
+:uom_momme:uom(:dim_mass)              // 3.75 grams // Traditional Japanese unit based on the chinese mace.  It is used for
+	// pearls in modern times and also for silk density.  The definition here was adopted in 1891.
+//	
+// Liquid measure
+//
+:uom_usgallon:uom(:dim_volume)           // 231 in^3 // US liquid measure is derived from
+:uom_usquart:uom(:dim_volume)            // 1|4 usgallon
+:uom_uspint:uom(:dim_volume)             // 1|2 usquart
+:uom_usgill:uom(:dim_volume)             // 1|4 uspint
+:uom_usfluidounce:uom(:dim_volume)       // 1|16 uspint
+:uom_fluiddram:uom(:dim_volume)          // 1|8 usfloz
+:uom_minimvolume:uom(:dim_volume)        // 1|60 fluiddram
+:uom_liquidbarrel:uom(:dim_volume)       // 31.5 usgallon
+:uom_usbeerbarrel:uom(:dim_volume)       // 2 beerkegs
+:uom_beerkeg:uom(:dim_volume)            // 15.5 usgallon // Various among brewers
+:uom_ponykeg:uom(:dim_volume)            // 1|2 beerkeg
+:uom_winekeg:uom(:dim_volume)            // 12 usgallon
+:uom_petroleumbarrel:uom(:dim_volume)    // 42 usgallon   // Originated in Pennsylvania oil
+:uom_ushogshead:uom(:dim_volume)         // 2 liquidbarrel
+:uom_usfirkin:uom(:dim_volume)           // 9 usgallon	
+
+[en]{
+	kilogram=:uom_kilogram
+	second=:uom_second
+	meter=:uom_meter
+	ampere=:uom_ampere
+	minute=:uom_minute
+	hour=:uom_hour
+	day=:uom_day
+	week=:uom_week
+	fortnight=:uom_fortnight
+	cron=:uom_cron	
+	newton=:uom_newton
+	pascal=:uom_pascal
+	joule=:uom_joule
+	watt=:uom_watt
+	coulomb=:uom_coulomb
+	volt=:uom_volt
+	ohm=:uom_ohm
+	siemens=:uom_siemens
+	farad=:uom_farad
+	weber=:uom_weber
+	henry=:uom_henry
+	tesla=:uom_tesla
+	hertz=:uom_hertz
+	
+	gram=:uom_gram
+	tonne=:uom_tonne	
+
+	inch=:uom_inch
+	foot=:uom_foot
+	feet=:uom_foot
+	yard=:uom_yard
+	mile=:uom_mile
+	pound=:uom_pound
+	ounce=:uom_ounce
+
+	percent=:uom_percent
+	parts per million=:uom_partspermillion
+	parts per billion=:uom_partsperbillion
+	parts per trillion=:uom_partspertrillion			
+	
+	gm=$gram
+	g=$gram	
+	kg=$kilogram	
+	s=$second	
+	m=$meter	
+	a=$ampere
+	amp=$ampere
+	hr=$hour	
+	in=$inch
+	ft=$foot
+	oz=$uom_ounce	
+	
+	ppm=$parts per million
+	ppb=$parts per billion
+	ppt=$parts per trillion	
+}
+[ru]{
+	килограмм=:uom_kilogram
+	секунда=:uom_second
+	метр=:uom_meter
+	ампер=:uom_ampere
+	минута=:uom_minute
+	час=:uom_hour
+	день=:uom_day
+	сутки=:uom_day
+	неделя=:uom_week
+	
+	грамм=:uom_gram
+	тонна=:uom_tonne
+	
+	дюйм=:uom_inch
+	фут=:uom_foot
+	ярд=:uom_yard
+	миля=:uom_mile
+	фунт=:uom_pound
+	унция=:uom_ounce	
+	
+	процент=:uom_percent
+	
+	кг=$килограмм	
+	м=$метр	
+	с=$секунда
+	сек=.секунда
+	сут=.uom_day
+	г=$грамм
+	гр=.грамм
+	т=.тонна
+}	
+
 :anno        // год
 :mensis      // месяц
 :mensis_01::mensis // первый месяц в году
@@ -96,10 +418,6 @@
 :mensis_10::mensis // десятый месяц в году
 :mensis_11::mensis // одиннадцатый месяц в году
 :mensis_12::mensis // двенадцатый месяц в году
-:septem      // неделя
-:hora        // час
-:minute      // минута
-:secundus    // секунда
 :dayofweek   // день недели
 // Отсчет дней недели идет от ПОНЕДЕЛЬНИКА
 :dayofweek_1::dayofweek // первый день недели
@@ -191,6 +509,129 @@
 :hum_fname::hum_name // Имя человека (first name)
 :hum_sname::hum_name // Фамилия человека (surname)
 :hum_pname::hum_name // Отчество человека (patronimic)
+
+:titulus_socialis+(:gender gender) // Социальный титул (доктор, царь, маркиз, лейтенант etc)
+:titulus_professional::titulus_socialis // Профессиональный титул (доктор, магистр etc)
+:titulus_militum::titulus_professional // Военный титул (генерал, майор etc)
+:titulus_academic::titulus_professional // Академически титул
+:titulus_religionis::titulus_professional // Религиозный титул
+:titulus_imperium::titulus_socialis // Правительственный титул (царь, президент, премьер-министр, министр etc)
+:titulus_nobilitatis::titulus_socialis // Сословный титул. Включает в себя и обозначения низших сословий (король, герцог, граф, идальго, раб etc)
+:titulus_honorific::titulus_socialis // Вежливое обращение или упоминание (господин, госпожа, мадемуазель, миссис etc)
+
+
+[es]{
+	señor::titulus_honorific(:gender_mas)
+	señora::titulus_honorific(:gender_fem)
+	señorita::titulus_honorific(:gender_fem)
+}
+
+[ru]{
+	господин::titulus_honorific(:gender_mas)
+	госпожа::titulus_honorific(:gender_fem)
+	гражданин::titulus_honorific(:gender_mas)
+	гражданка::titulus_honorific(:gender_fem)
+	товарищ::titulus_honorific
+	мистер::titulus_honorific(:gender_mas)
+	миссис::titulus_honorific(:gender_fem)
+	мисс::titulus_honorific(:gender_fem)
+	сэр::titulus_honorific(:gender_mas)
+	пан::titulus_honorific(:gender_mas)
+	пани::titulus_honorific(:gender_fem)
+	сеньор::titulus_honorific(:gender_mas)
+	сеньора::titulus_honorific(:gender_fem)
+	сеньорита::titulus_honorific(:gender_fem)	
+
+	царь::titulus_nobilitatis(:gender_mas)
+	царица::titulus_nobilitatis(:gender_fem)
+	король::titulus_nobilitatis(:gender_mas)
+	королева::titulus_nobilitatis(:gender_fem)
+	цесаревич::titulus_nobilitatis(:gender_mas)
+	монсеньор::titulus_nobilitatis(:gender_mas)
+	кронпринц::titulus_nobilitatis(:gender_mas)
+	курфюрст::titulus_nobilitatis
+	великий князь::titulus_nobilitatis(:gender_mas)
+	великий герцог::titulus_nobilitatis(:gender_mas)
+	князь императорской крови::titulus_nobilitatis(:gender_mas)
+	князь::titulus_nobilitatis(:gender_mas)
+	княгиня::titulus_nobilitatis(:gender_fem)
+	герцог::titulus_nobilitatis(:gender_mas)
+	герцогиня::titulus_nobilitatis(:gender_fem)
+	великий боярин::titulus_nobilitatis(:gender_mas)
+	маркиз::titulus_nobilitatis(:gender_mas)
+	маркиза::titulus_nobilitatis(:gender_fem)
+	граф::titulus_nobilitatis(:gender_mas)
+	графиня::titulus_nobilitatis(:gender_fem)
+	барон::titulus_nobilitatis(:gender_mas)
+	баронесса::titulus_nobilitatis(:gender_fem)
+	лорд::titulus_nobilitatis(:gender_mas)
+	баронет::titulus_nobilitatis(:gender_mas)
+	баннерет::titulus_nobilitatis(:gender_mas)
+	боярин::titulus_nobilitatis(:gender_mas)
+	боярыня::titulus_nobilitatis(:gender_fem)
+	виконт::titulus_nobilitatis(:gender_mas)
+	шевалье::titulus_nobilitatis
+	идальго::titulus_nobilitatis
+	кадзоку::titulus_nobilitatis
+	бан::titulus_nobilitatis
+	эрл::titulus_nobilitatis
+	эсквайр::titulus_nobilitatis
+	президент::titulus_imperium
+	премьер-министр::titulus_imperium
+	министр::titulus_imperium
+	профессор::titulus_academic
+	академик::titulus_academic
+	доктор::titulus_academic
+	кандидат наук::titulus_academic
+	магистр::titulus_academic
+	бакалавр::titulus_academic
+	рядовой::titulus_militum
+	ефрейтор::titulus_militum
+	младший сержант::titulus_militum
+	сержант::titulus_militum
+	старший сержант::titulus_militum
+	старшина::titulus_militum
+	прапорщик::titulus_militum
+	мичман::titulus_militum
+	корнет::titulus_militum
+	подпоручик::titulus_militum
+	поручик::titulus_militum
+	вахмистр::titulus_militum
+	лейтенант::titulus_militum
+	младший лейтенант::titulus_militum
+	старший лейтенант::titulus_militum
+	ротмистр::titulus_militum
+	капитан::titulus_militum
+	майор::titulus_militum
+	подполковник::titulus_militum
+	полковник::titulus_militum
+	генерал::titulus_militum
+	генерал-бригадир::titulus_militum
+	генерал-поручик::titulus_militum
+	генерал-майор::titulus_militum
+	генерал-лейтенант::titulus_militum
+	генерал-полковник::titulus_militum
+	маршал::titulus_militum
+	генералиссимус::titulus_militum
+	патриарх::titulus_religionis
+	кардинал::titulus_religionis
+	аббат::titulus_religionis
+	митрополит::titulus_religionis
+	архиепископ::titulus_religionis
+	епископ::titulus_religionis
+	архимандрит::titulus_religionis
+	игумен::titulus_religionis
+	священноинок::titulus_religionis
+	архидиакон::titulus_religionis
+	священнодиакон::titulus_religionis
+	иподиакон::titulus_religionis
+	иеромонах::titulus_religionis
+	протопресвитер::titulus_religionis
+	протоиерей::titulus_religionis
+	иерей::titulus_religionis
+	протодиакон::titulus_religionis
+	диакон::titulus_religionis
+}
 //
 // Языки
 //
@@ -1500,35 +1941,8 @@
 	миллион=:million       // 1E6
 }
 //
-// Размерности
-//
-:dim_quantity:dimension                // Количество 
-:dim_length:dimension                  // Длина   meter
-:dim_area:dimension                    // Площадь length^2
-:dim_volume:dimension                  // Объем   length^3
-:dim_mass:dimension                    // Масса   kilogram
-:dim_current:dimension                 // Сила тока ampere
-:dim_amount:dimension                  // Количество вещества mole
-:dim_angle:dimension                   // Угол radian
-:dim_solid_angle:dimension             // Сплошной угол steradian
-:dim_force:dimension                   // Сила newton
-:dim_pressure:dimension                // Давление force / area
-:dim_charge:dimension                  // Электрический заряд coulomb
-:dim_capacitance:dimension             // Электрическая емкость farad
-:dim_resistance:dimension              // Электрическое сопротивление ohm
-:dim_conductance:dimension             // Электрическая проводимость siemens
-:dim_inductance:dimension              // Электрическая индуктивность henry
-:dim_frequency:dimension               // Частота колебаний hertz
-:dim_velocity:dimension                // Скорость length / time
-:dim_acceleration:dimension            // Ускорение velocity / time
-:dim_density:dimension                 // Плотность вещества mass / volume
-:dim_linear_density:dimension          // Линейная плотность вещества mass / length
-:dim_viscosity:dimension               // Вязкость вещества force time / area
-:dim_kinematic_viscosity:dimension     // Кинематическая вязкость вещества viscosity / density
 //
 //
-//
-:dim_money::dimention // Денежная размерность us$
 :currency::dim_money  // Валюта
 //
 // Валюты
@@ -2523,6 +2937,217 @@ z39.50s:urischeme
 :negotium_partem_consignor::negotium_partem   // грузоотправитель
 :negotium_partem_consignee::negotium_partem   // грузополучатель
 :negotium_partem_payee::negotium_partem       // плательщик
+//
+//
+//
+:bio_parte_corporis_comm // часть тела биологического организма
+:bio_parte_corporis_caput:bio_parte_corporis_comm // голова
+:bio_parte_corporis_auris:bio_parte_corporis_comm // ухо
+:bio_parte_corporis_oculus:bio_parte_corporis_comm // глаз
+:bio_parte_corporis_os:bio_parte_corporis_comm // рот
+:bio_parte_corporis_lingua:bio_parte_corporis_comm // язык
+:bio_parte_corporis_nasus:bio_parte_corporis_comm // нос
+:bio_parte_corporis_frons_tua:bio_parte_corporis_comm // лоб
+:bio_parte_corporis_truncus:bio_parte_corporis_comm // туловище
+:bio_parte_corporis_crus:bio_parte_corporis_comm // нога
+:bio_parte_corporis_genu:bio_parte_corporis_comm // колено
+:bio_parte_corporis_femur:bio_parte_corporis_comm // бедро
+:bio_parte_corporis_pes:bio_parte_corporis_comm // ступня
+:bio_parte_corporis_manibus:bio_parte_corporis_comm // рука
+:bio_parte_corporis_palm:bio_parte_corporis_comm // ладонь
+:bio_parte_corporis_humero:bio_parte_corporis_comm // плечо
+:bio_parte_corporis_collum:bio_parte_corporis_comm // шея
+:bio_parte_corporis_pectus:bio_parte_corporis_comm // грудь
+:bio_parte_corporis_stomachum:bio_parte_corporis_comm // живот
+:bio_parte_corporis_rursus:bio_parte_corporis_comm // спина
+:bio_parte_corporis_cordis:bio_parte_corporis_comm // сердце
+:bio_parte_corporis_iecur:bio_parte_corporis_comm // печень
+:bio_parte_corporis_pulmonis:bio_parte_corporis_comm // легкие
+:bio_parte_corporis_cerebrum:bio_parte_corporis_comm // мозг
+:bio_parte_corporis_ventri:bio_parte_corporis_comm // желудок
+:bio_parte_corporis_penis:bio_parte_corporis_comm // пенис
+:bio_parte_corporis_vaginae:bio_parte_corporis_comm // влагалище
+:bio_parte_corporis_nates:bio_parte_corporis_comm // ягодицы
+:bio_parte_corporis_clunibus:bio_parte_corporis_comm // ягодица
+
+[ru]{
+	голова=:bio_parte_corporis_caput
+	ухо=:bio_parte_corporis_auris
+	глаз=:bio_parte_corporis_oculus
+	рот=:bio_parte_corporis_os
+	язык=:bio_parte_corporis_lingua
+	нос=:bio_parte_corporis_nasus
+	лоб=:bio_parte_corporis_frons_tua
+	туловище=:bio_parte_corporis_truncus
+	нога=:bio_parte_corporis_crus
+	колено=:bio_parte_corporis_genu
+	бедро=:bio_parte_corporis_femur
+	ступня=:bio_parte_corporis_pes
+	рука=:bio_parte_corporis_manibus
+	плечо=:bio_parte_corporis_humero
+	ладонь=:bio_parte_corporis_palm
+	шея=:bio_parte_corporis_collum
+	грудь=:bio_parte_corporis_pectus
+	живот=:bio_parte_corporis_stomachum
+	спина=:bio_parte_corporis_rursus
+	сердце=:bio_parte_corporis_cordis
+	печень=:bio_parte_corporis_iecur
+	легкие=:bio_parte_corporis_pulmonis
+	мозг=:bio_parte_corporis_cerebrum
+	желудок=:bio_parte_corporis_ventri
+	пенис=:bio_parte_corporis_penis
+	влагалище=:bio_parte_corporis_vaginae
+	ягодица:bio_parte_corporis_clunibus
+	ягодицы:bio_parte_corporis_nates
+}
+
+[en]{
+	head=:bio_parte_corporis_caput
+	ear=:bio_parte_corporis_auris
+	eye=:bio_parte_corporis_oculus
+	mouth=:bio_parte_corporis_os
+	tongue=:bio_parte_corporis_lingua
+	nose=:bio_parte_corporis_nasus
+	forehead=:bio_parte_corporis_frons_tua
+	leg=:bio_parte_corporis_crus
+	knee=:bio_parte_corporis_genu
+	hip=:bio_parte_corporis_femur
+	foot=:bio_parte_corporis_pes
+	arm=:bio_parte_corporis_manibus
+	shoulder=:bio_parte_corporis_humero
+	palm=:bio_parte_corporis_palm
+	neck=:bio_parte_corporis_collum
+	chest=:bio_parte_corporis_pectus
+	stomach=:bio_parte_corporis_stomachum
+	back=:bio_parte_corporis_rursus
+	heart=:bio_parte_corporis_cordis
+	liver=:bio_parte_corporis_iecur
+	lungs=:bio_parte_corporis_pulmonis
+	brain=:bio_parte_corporis_cerebrum
+	stomach=:bio_parte_corporis_ventri
+	penis=:bio_parte_corporis_penis
+	vagina=:bio_parte_corporis_vaginae
+	buttock:bio_parte_corporis_clunibus
+	buttocks:bio_parte_corporis_nates
+}
+//
+// Глагольные концепции (понятия, означающие действия)
+//
+:verbum
+:verbum_motus::verbum // базовая концепция "двигать" motus(subject object)
+:verbum_stabit::verbum // базовая концепция "стоять" stabit(subject)
+:verbum_nutritor::verbum // базовая концепция "питаться" nutritor(subject object)
+:verbum_respirare::verbum // базовая концепция "дышать" respirare(subject)
+:verbum_sentire::verbum // базовая концепция "чувствовать" respirare(subject)
+:verbum_vide:::verbum_sentire // базовая концепция "видеть"
+:verbum_audite:::verbum_sentire // базовая концепция "слышать"
+:verbum_loqui::verbum // базовая концепция "говорить" loqui(subject)
+:verbum_cogitare::verbum // базовая концепция "думать" cogitare(subject)
+:verbum_facite::verbum // базовая концепция "делать" facite(subject)
+:verbum_opus::verbum // базовая концепция "работать" verbum(subject)
+//
+// Потенциально оскорбительные концепции (используются для идентификации грубых, оскорбительных слов и выражений)
+//
+:conceptu_ingrata
+:conceptu_ingrata_genus::conceptu_ingrata // по расе, национальности
+:conceptu_ingrata_parte_corporis::conceptu_ingrata // часть тела
+:conceptu_ingrata_mulier::conceptu_ingrata // женщина
+:conceptu_ingrata_animalis::conceptu_ingrata // сравнение с животным
+:conceptu_ingrata_propensionissexualis::conceptu_ingrata // сексуальная ориентация
+:conceptu_ingrata_actio::conceptu_ingrata // действия
+
+//a fat person
+//angry
+//bad
+//bad breath
+//bathroom
+//breast
+//breasts
+//butt
+//buttlicker
+//butts
+//cork
+//darn
+//defecator
+//dirty girl
+//drunk
+//dummy
+//ejaculate
+//erection
+//female dog
+//female dogs
+//female genitalia
+//female genitals
+//female hygene accessory
+//female hygene product
+//female reproductive organ
+//fired
+//foreigner
+//fornicate
+//fornicating with mother
+//fornicator
+//freaking
+//go away
+//goshdarn
+//goshdarnit
+//had intercourse
+//hands
+//heck
+//homosexual
+//hussy
+//idiot
+//illegitimate child
+//jerk
+//loser
+//male genitalia
+//masturbate
+//mean
+//mentally challenged
+//mess up
+//moron
+//mother lover
+//mother loving
+//orgasm
+//overweight individual
+//penis
+//penises
+//phallace face
+//pooface
+//poop
+//pooping
+//prostitute
+//racial slur
+//rear-loving
+//african american
+//asian
+//mexican
+//mexican american
+//german
+//irish
+//italian
+//japanesse person
+//caucasian
+//chinese
+//jewish person
+//middle eastern
+//pakistanien
+//polish person
+//russian
+//white person
+//semen
+//sexual act
+//sexual fluids
+//sexual toy
+//sexually popular woman
+//small penis
+//sperm
+//urinate
+//urinated
+//vagina
+//vaginal fart
+//vaginas
+//woman
+//worst
 //
 // Примеры синтаксиса определения понятия на натуральном языке //
 //

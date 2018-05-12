@@ -1961,7 +1961,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	VatRate = 0.0;
 	LocPrnID = 0;
 	AsscPosNodeID = 0;
-	Uuid.SetZero(); // @v10.0.04
+	Uuid.Z(); // @v10.0.04
 	AddedMsgList.clear();
 	LabelName.Z();
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
@@ -2044,7 +2044,7 @@ SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updO
 				p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, Since, UpdSCardList);
 			}
 			else {
-				Since.SetZero();
+				Since.Z();
 				UpdatedOnly = 0;
 			}
 		}
@@ -2162,7 +2162,7 @@ int SLAPI AsyncCashiersIterator::Init(PPID cashNodeID)
 					is_event = 1;
 		}
 		if(!is_event)
-			Since.SetZero();
+			Since.Z();
 		PersonKindTbl::Key0  k0;
 		MEMSZERO(k0);
 		k0.KindID = psn_kind_id;

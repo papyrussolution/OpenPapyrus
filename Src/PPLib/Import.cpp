@@ -3711,7 +3711,7 @@ int ReadDBSR25::GetFoodArr(StrAssocArray & rArr)
 
 	PPGetFilePath(PPPATH_IN, "FOOD_DES.txt", file_path);
 	THROW_SL(file.Open(file_path, SFile::mRead));
-	rArr.Clear();
+	rArr.Z();
 	while(file.ReadLine(str)) {
 		food.Clear();
 		for(uint pos = 0; (pos < 3) && (str.Divide('^', left, right) > 0);) {
@@ -4283,7 +4283,7 @@ int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, 
 	long  status = 0;
 	rObjName.Z();
 	rDt = ZERODATE;
-	rUuid.SetZero();
+	rUuid.Z();
 	SPathStruc ps(pFileName);
 	if(ps.Ext.CmpNC("xml") == 0) {
 		StringSet ss('_', ps.Nam);

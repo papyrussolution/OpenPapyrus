@@ -9,35 +9,25 @@
 //uuid(52D5E7CA-F613-4333-A04E-125DE29D715F)
 //uuid(52D5E7CAF6134333A04E125DE29D715F)
 
-S_GUID & FASTCALL S_GUID::Init(REFIID rIID)
+S_GUID_Base & FASTCALL S_GUID_Base::Init(REFIID rIID)
 {
 	memcpy(Data, &rIID, sizeof(Data));
 	return *this;
 }
 
-S_GUID::operator GUID & ()
-{
-	return *(GUID *)Data;
-}
+S_GUID_Base::operator GUID & ()
+	{ return *(GUID *)Data; }
+int FASTCALL S_GUID_Base::operator == (const S_GUID_Base & s) const
+	{ return BIN(memcmp(Data, s.Data, sizeof(Data)) == 0); }
+int FASTCALL S_GUID_Base::operator != (const S_GUID_Base & s) const
+	{ return BIN(memcmp(Data, s.Data, sizeof(Data)) != 0); }
+int S_GUID_Base::IsZero() const
+	{ return BIN(Data[0] == 0 && Data[1] == 0 && Data[2] == 0 && Data[3] == 0); }
 
-int FASTCALL S_GUID::operator == (const S_GUID & s) const
-{
-	return BIN(memcmp(Data, s.Data, sizeof(Data)) == 0);
-}
-
-int FASTCALL S_GUID::operator != (const S_GUID & s) const
-{
-	return BIN(memcmp(Data, s.Data, sizeof(Data)) != 0);
-}
-
-int S_GUID::IsZero() const
-{
-	return BIN(Data[0] == 0 && Data[1] == 0 && Data[2] == 0 && Data[3] == 0);
-}
-
-void S_GUID::SetZero()
+S_GUID_Base & S_GUID_Base::Z()
 {
 	memzero(Data, sizeof(Data));
+	return *this;
 }
 
 static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, int useLower, char * pBuf)
@@ -57,7 +47,7 @@ static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, in
 	return pBuf;
 }
 
-SString & S_GUID::ToStr(long fmt__, SString & rBuf) const
+SString & S_GUID_Base::ToStr(long fmt__, SString & rBuf) const
 {
 	char   temp_buf[64];
 	uint   i;
@@ -119,7 +109,7 @@ SString & S_GUID::ToStr(long fmt__, SString & rBuf) const
 	return rBuf;
 }
 
-int FASTCALL S_GUID::FromStr(const char * pBuf)
+int FASTCALL S_GUID_Base::FromStr(const char * pBuf)
 {
 	int    ok = 1;
 	const  char * p = pBuf;
@@ -152,13 +142,13 @@ int FASTCALL S_GUID::FromStr(const char * pBuf)
 	return ok;
 }
 
-int S_GUID::Generate()
+int S_GUID_Base::Generate()
 {
 #ifdef _DEBUG
 	GUID guid;
 	if(CoCreateGuid(&guid) == S_OK) {
 		Init(guid);
-		S_GUID test;
+		S_GUID_Base test;
 		SString s_buf;
 		ToStr(fmtIDL, s_buf);
 		test.FromStr(s_buf);
@@ -170,6 +160,27 @@ int S_GUID::Generate()
 #else
 	return BIN(CoCreateGuid((GUID *)Data) == S_OK);
 #endif
+}
+
+S_GUID::S_GUID()
+{
+	Z();
+}
+
+S_GUID::S_GUID(const S_GUID_Base & rS)
+{
+	memcpy(Data, rS.Data, sizeof(Data));
+}
+
+S_GUID::S_GUID(const S_GUID & rS)
+{
+	memcpy(Data, rS.Data, sizeof(Data));
+}
+
+S_GUID & FASTCALL S_GUID::operator = (const S_GUID_Base & rS)
+{
+	memcpy(Data, rS.Data, sizeof(Data));
+	return *this;
 }
 //
 //

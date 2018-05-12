@@ -407,12 +407,10 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 				v = (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0);
 				dlg->setCtrlData(CTL_BILLEXTFLT_STAXTGGL, &v);
 			}
-			// @v8.3.3 {
 			{
 				v = (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0);
 				dlg->setCtrlData(CTL_BILLEXTFLT_DCLTGGL, &v);
 			}
-			// } @v8.3.3
 			// @v9.1.6 {
             {
                 dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
@@ -474,12 +472,10 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 					v = dlg->getCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL);
 					pData->Ft_STax = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
 				}
-				// @v8.3.3 {
 				{
 					v = dlg->getCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL);
 					pData->Ft_Declined = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
 				}
-				// } @v8.3.3
 				// @v9.1.6 {
 				pData->EdiRecadvStatus = (int16)dlg->GetClusterData(CTL_BILLEXTFLT_RECADV);
 				pData->EdiRecadvConfStatus = (int16)dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM);
@@ -620,7 +616,7 @@ private:
 	};
 	long   Flags;
 	int    PaymTerm;       // Срок оплаты в днях (по соглашению). Инициализируется в setDTS и в ReplyCntragntSelection
-	long   PayDateBase;    // @v8.4.2
+	long   PayDateBase;    // 
 	PPObjGoods GObj;
 	PPObjArticle ArObj;
 	PPObjBill    * P_BObj;
@@ -712,7 +708,6 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 		THROW(dlg->setDTS(pPack));
 		if(egbFlags & PPObjBill::efEdit && egbFlags & PPObjBill::efForceModify/*options == 2*/)
 			dlg->Flags |= BillDialog::fModified;
-		// @v8.6.1 {
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
 			if(!BillObj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
 				dlg->enableCommand(cmOK, 0);
@@ -720,7 +715,6 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 				egbFlags |= PPObjBill::efNoUpdNotif;
 			}
 		}
-		// } @v8.6.1
 		if(egbFlags & PPObjBill::efCascade)
 			dlg->ToCascade();
 		while((r = ExecView(dlg)) == cmOK || (/*options != 3*/!(egbFlags & PPObjBill::efNoUpdNotif) && r == cmCancel && dlg->isModified() && !CONFIRM(PPCFM_WARNCANCEL))) {
@@ -1759,11 +1753,9 @@ IMPL_HANDLE_EVENT(BillDialog)
 	}
 	else if(TVCOMMAND) {
 		switch(TVCMD) {
-			// @v8.2.4 {
 			case cmAgreement:
 				EditAgreement();
 				break;
-			// } @v8.2.4
 			case cmEdiAckBill:
 				{
 					long   recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
@@ -1948,7 +1940,6 @@ IMPL_HANDLE_EVENT(BillDialog)
 							if(PaymTerm >= 0) {
 								getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
 								LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
-								// @v8.4.2 {
 								LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
 								if(!paymdate || paymdate != new_paymdate) {
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
@@ -1956,15 +1947,6 @@ IMPL_HANDLE_EVENT(BillDialog)
 									p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllPaymDate);
 									clearEvent(event);
 								}
-								// } @v8.4.2
-								/* @v8.4.2
-								if(!paymdate || paymdate != plusdate(getCtrlDate(CTL_BILL_DATE), PaymTerm)) {
-									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-									p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllPaymDate);
-									clearEvent(event);
-								}
-								*/
 							}
 						}
 						else if(getCtrlHandle(CTL_BILL_DOC) == p_dc->H_Ctl) {
@@ -2300,7 +2282,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 		setCtrlLong(CTLSEL_BILL_OBJECT, P_Pack->Rec.Object);
 	setupParentOfContragent();
 	setupDebtText();
-	SetupAgreementButton(); // @v8.2.4
+	SetupAgreementButton();
 }
 
 int BillDialog::setAdvanceRepData(PPAdvanceRep * pAR)
@@ -2471,7 +2453,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	}
 	else
 		dsbl_object = 1;
-	SetupAgreementButton(); // @v8.2.4
+	SetupAgreementButton();
 	if(op_pack.Rec.AccSheet2ID) {
 		PPClientAgreement ca_rec;
 		SETFLAG(Flags, fSetupObj2ByCliAgt, ArObj.GetClientAgreement(0, &ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
@@ -2580,7 +2562,6 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			if(P_BObj->Search(z_link_rec.LinkBillID) > 0)
 				disabled_cntrag = 1;
 	disableCtrl(CTLSEL_BILL_OBJECT, disabled_cntrag);
-	// @v8.3.3 {
 	if(op_pack.Rec.ExtFlags & OPKFX_CANBEDECLINED) {
 		AddClusterAssoc(CTL_BILL_DECLINE, 0, BILLF2_DECLINED);
 		SetClusterData(CTL_BILL_DECLINE, P_Pack->Rec.Flags2);
@@ -2589,8 +2570,6 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	}
 	else
 		showCtrl(CTL_BILL_DECLINE, 0);
-	// } @v8.3.3
-	// @v8.8.8 {
 	showCtrl(CTL_BILL_EDIACKRESP, 0);
 	showCtrl(CTL_BILL_EDIACKSTATUS, 0);
 	showButton(cmEdiAckBill, 0);
@@ -2618,7 +2597,6 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 				showButton(cmEdiAckBill, 1);
         }
 	}
-	// } @v8.8.8
 	if(P_Pack->Rec.ID == 0 && P_Pack->Rec.Object)
 		ReplyCntragntSelection(1);
 	else {
@@ -2869,7 +2847,6 @@ int BillDialog::getDTS(int onCancel)
 		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST); // @v9.3.1 BILLOPRT_EMPTY
 	}
 	// @v9.3.1 */
-	// @v8.3.3 {
 	{
 		PPOprKind op_rec;
 		GetOpData(P_Pack->Rec.OpID, &op_rec);
@@ -2877,15 +2854,12 @@ int BillDialog::getDTS(int onCancel)
 			GetClusterData(CTL_BILL_DECLINE, &P_Pack->Rec.Flags2);
 		}
 	}
-	// } @v8.3.3
-	// @v8.8.8 {
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
         if(P_Pack->Rec.Flags2 & (BILLF2_RECADV_ACCP|BILLF2_RECADV_DECL)) {
         	int recadv_conf_status = GetClusterData(CTL_BILL_EDIACKRESP);
             BillCore::SetRecadvConfStatus(recadv_conf_status, P_Pack->Rec);
         }
 	}
-	// } @v8.8.8
 	THROW(P_BObj->ValidatePacket(P_Pack, 0));
 	CATCHZOK
 	if(strcmp(strip(P_Pack->Rec.Code), strip(Pattern.Code)) == 0)
@@ -2978,7 +2952,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 		}
 		int getDTS(PPBillPacket *)
 		{
-			getCtrlData(CTL_BILLINFO_OMTPAYM, &P_Pack->Rec.PaymAmount); // @v8.5.8
+			getCtrlData(CTL_BILLINFO_OMTPAYM, &P_Pack->Rec.PaymAmount);
 			AmtListDialog::getDTS(&P_Pack->Amounts);
 			P_Pack->Rec.Amount = BR2(P_Pack->Amounts.Get(PPAMT_MAIN, P_Pack->Rec.CurID));
 			return 1;
@@ -3008,7 +2982,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 		SString buf;
 		S_GUID guid;
 		THROW(CheckRights(BILLRT_SYSINFO));
-		THROW(ExtractPacket(billID, &pack) > 0); // @v8.8.0 BPLD_SKIPTRFR-->0
+		THROW(ExtractPacket(billID, &pack) > 0);
 		{
 			const long org_flags = pack.Rec.Flags;
 			const long org_flags2 = pack.Rec.Flags2;
@@ -3021,24 +2995,20 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 			THROW(CheckDialogPtr(&(dlg = new BillInfoDialog(&pack))));
 			dlg->setCtrlLong(CTL_BILLINFO_ID, pack.Rec.ID);
 			dlg->setCtrlLong(CTL_BILLINFO_LINKBILLID, pack.Rec.LinkBillID);
-			// @v8.0.3 {
 			dlg->setCtrlData(CTL_BILLINFO_RBB, &pack.Rec.LastRByBill);
 			dlg->AddClusterAssoc(CTL_BILLINFO_FLAGS2, 0, BILLF2_FULLSYNC);
 			dlg->AddClusterAssoc(CTL_BILLINFO_FLAGS2, 1, BILLF2_ACKPENDING);
 			dlg->SetClusterData(CTL_BILLINFO_FLAGS2, pack.Rec.Flags2);
-			// } @v8.0.3
-			// @v8.8.6 {
 			dlg->AddClusterAssocDef(CTL_BILLINFO_RECADV, 0, 0);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 1, 1);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 2, 2);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 3, 3);
 			dlg->SetClusterData(CTL_BILLINFO_RECADV, recadv_status);
-			// } @v8.8.6
 			GetObjectName(PPOBJ_USR, pack.Rec.UserID, buf, 0);
 			dlg->setCtrlString(CTL_BILLINFO_USER, buf.Strip());
 			guid.ToStr(S_GUID::fmtIDL, buf);
 			dlg->setCtrlString(CTL_BILLINFO_UUID, buf.Strip());
-			dlg->setCtrlReal(CTL_BILLINFO_OMTPAYM, pack.Rec.PaymAmount); // @v8.5.8
+			dlg->setCtrlReal(CTL_BILLINFO_OMTPAYM, pack.Rec.PaymAmount);
 
 			PPGetSubStrById(PPTXT_EDIOP, pack.Rec.EdiOp, buf.Z());
 			dlg->setCtrlString(CTL_BILLINFO_EDIOP, buf);
@@ -3053,12 +3023,9 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 				dlg->getDTS(&pack);
 				dlg->GetClusterData(CTL_BILLINFO_FLAGS, &pack.Rec.Flags);
 				dlg->GetClusterData(CTL_BILLINFO_FLAGS2, &f2);
-				// @v8.8.6 {
 				dlg->GetClusterData(CTL_BILLINFO_RECADV, &recadv_status);
 				BillCore::SetRecadvStatus(recadv_status, pack.Rec);
-				// } @v8.8.6
 				SETFLAGBYSAMPLE(pack.Rec.Flags2, BILLF2_ACKPENDING, f2);
-				// @v8.8.0 pack.Rec.Flags |= BILLF_NOLOADTRFR;
 				THROW(FillTurnList(&pack));
 				THROW(UpdatePacket(&pack, 1));
 				ok = 1;
@@ -3148,7 +3115,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 				}
 				else {
 					PPID   person_id = ObjectToPerson(P_Pack->Rec.Object);
-					if(person_id || Data.DlvrAddrID) // @v8.3.7 (|| Data.DlvrAddrID)
+					if(person_id || Data.DlvrAddrID) 
 						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, Data.DlvrAddrID);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
@@ -3636,7 +3603,7 @@ int SLAPI PPObjBill::EditBillFreight(PPID billID)
 							DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, billID, 0, 0);
 					}
 					THROW(tra.Commit());
-					Dirty(billID); // @v8.5.2
+					Dirty(billID);
 					ok = 1;
 				}
 			}

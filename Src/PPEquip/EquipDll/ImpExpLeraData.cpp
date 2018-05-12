@@ -1610,13 +1610,13 @@ ImportCls::ImportCls()
 	Inited = 0;
 	InboxReadIndex = 0;
 	BillSumWithoutVat = 0.0;
-	ImpFileName = 0;
-	LogFileName = 0;
+	ImpFileName.Z();
+	LogFileName.Z();
 	ErrorCode = 0;
 	WebServcErrorCode = 0;
 	AperakInfo.Clear();
-	InboxFiles.Clear();
-	FilesForDel.Clear();
+	InboxFiles.Z();
+	FilesForDel.Z();
 }
 
 ImportCls::~ImportCls()

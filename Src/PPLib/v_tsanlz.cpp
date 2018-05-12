@@ -840,8 +840,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					else
 						Filt.Flags &= ~TSessAnlzFilt::fInterpolPlanToAr;
 				}
-				LDATETIME max_dtm;
-				max_dtm.SetZero();
+				LDATETIME max_dtm = ZERODATETIME;
 				TSessionFilt ts_filt;
 				PPViewTSession ts_view;
 				TSessionViewItem ts_item;

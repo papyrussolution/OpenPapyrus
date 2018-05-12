@@ -244,7 +244,7 @@ int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME *
 		copyBufTo(pRec);
 	}
 	else {
-		CALLPTRMEMB(pMoment, SetZero());
+		CALLPTRMEMB(pMoment, Z());
 	}
 	return ok;
 }
@@ -298,7 +298,7 @@ int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray 
 		copyBufTo(pRec);
 	}
 	else {
-		CALLPTRMEMB(pMoment, SetZero());
+		CALLPTRMEMB(pMoment, Z());
 	}
 	return ok;
 }

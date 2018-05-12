@@ -647,7 +647,7 @@ int GuidHashTable::Get(uint pos, S_GUID & rUuid) const
 		return 1;
 	}
 	else {
-		rUuid.SetZero();
+		rUuid.Z();
 		return 0;
 	}
 }
@@ -655,7 +655,7 @@ int GuidHashTable::Get(uint pos, S_GUID & rUuid) const
 int GuidHashTable::GetByAssoc(uint val, S_GUID & rUuid) const
 {
 	int    ok = 1;
-	rUuid.SetZero();
+	rUuid.Z();
 	if(Flags & fUseAssoc) {
 		long   p = 0;
 		if(Assoc.BSearch((long)val, &p, 0))

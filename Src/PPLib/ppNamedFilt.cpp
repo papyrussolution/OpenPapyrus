@@ -180,13 +180,10 @@ int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt *
 	return ok;
 }
 
-SLAPI PPNamedFiltMngr::PPNamedFiltMngr()
+SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 {
 	SString name;
-	long   PP  = 0x00005050L; // "PP"
-	long   EXT = 0x00534552L; // "RES"
-	P_Rez = new TVRez(makeExecPathFileName((const char*)&PP, (const char*)&EXT, name), 1);
-	LastLoading.SetZero();
+	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
 }
 
@@ -216,8 +213,8 @@ int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocA
 	SString text;
 	SString symb;
 	long flags;
-	pSymbList->Clear();
-	pTextList->Clear();
+	pSymbList->Z();
+	pTextList->Z();
 	if(P_Rez) {
 		ulong pos = 0;
 		for(uint   rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {

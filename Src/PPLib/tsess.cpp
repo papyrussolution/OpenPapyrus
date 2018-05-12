@@ -433,7 +433,7 @@ int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, con
 	TSessionTbl::Key4 k4;
 	MEMSZERO(k4);
 	k4.PrcID = prcID;
-	BExtQuery q(this, 4, 128);
+	BExtQuery q(this, 4, 1024); // @v10.0.05 128-->1024
 	THROW_INVARG(oneof3(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE));
 	dbq = &(this->PrcID == prcID);
 	if(pPeriod) {

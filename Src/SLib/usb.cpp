@@ -50,7 +50,6 @@ int GetDevProperty(HDEVINFO handle, SP_DEVINFO_DATA * pDevInfo, int property, SS
 
 UsbDevDescrSt::UsbDevDescrSt()
 {
-	ClassGUID.SetZero();
 }
 
 UsbDevDescrSt::UsbDevDescrSt(const UsbDevDescrSt & rSrc)
@@ -70,7 +69,7 @@ UsbDevDescrSt::UsbDevDescrSt(const UsbDevDescrSt & rSrc)
 
 UsbDevDescrSt & UsbDevDescrSt::Clear()
 {
-	ClassGUID.SetZero();
+	ClassGUID.Z();
 	Path.Z();
 	Type.Z();
 	Class.Z();
@@ -249,19 +248,17 @@ private:
 
 };
 
-SUsbDvcIfcData::SUsbDvcIfcData()
+SUsbDvcIfcData::SUsbDvcIfcData() : P_DvcInfo(0), Flags(0), DevInst(0)
 {
-	P_DvcInfo = 0;
-	Reset();
 }
 
 void SUsbDvcIfcData::Reset()
 {
-	ClsGuid.SetZero();
-	IfcClsGuid.SetZero();
+	ClsGuid.Z();
+	IfcClsGuid.Z();
 	DevInst = 0;
 	Flags = 0;
-	Path = 0;
+	Path.Z();
 	ZFREE(P_DvcInfo);
 }
 

@@ -230,9 +230,9 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 						if(!temp_buf.NotEmptyS())
 							temp_buf = "#EMPTY";
 						else if(!name_used && rec.Name[0]) {
-							SString tt;
-							(tt = rec.Name).CatDiv('-', 1).Cat(temp_buf);
-							temp_buf = tt;
+							SString & r_tt = SLS.AcquireRvlStr();
+							(r_tt = rec.Name).CatDiv('-', 1).Cat(temp_buf);
+							temp_buf = r_tt;
 						}
 					}
 				}
@@ -372,8 +372,7 @@ static IMPL_DBE_PROC(dbqf_durationtotime_dt)
 	if(option == CALC_SIZE)
 		result->init((long)field_len);
 	else {
-		LDATETIME dtm;
-		dtm.SetZero();
+		LDATETIME dtm = ZERODATETIME;
 		long days = dtm.settotalsec(params[0].lval);
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(days)

@@ -37,7 +37,7 @@ char * SLAPI PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
 	return temp_buf.CopyTo(pBuf, bufLen);
 }
 
-int FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
+void FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
 {
 	if(pEntry) {
 		pEntry->TaxGrpID = ID;
@@ -48,10 +48,9 @@ int FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
 		pEntry->Order = Order;
 		pEntry->UnionVect = UnionVect;
 	}
-	return 1;
 }
 
-int FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
+void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 {
 	//pEntry->TaxGrpID = ID;
 	VAT      = fdiv100i(pEntry->VAT);      // @divtax
@@ -60,7 +59,6 @@ int FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 	Flags = pEntry->Flags;
 	Order = pEntry->Order;
 	UnionVect = pEntry->UnionVect;
-	return 1;
 }
 
 SLAPI PPGoodsTaxPacket::PPGoodsTaxPacket() : SArray(sizeof(PPGoodsTaxEntry))
@@ -116,9 +114,8 @@ void SLAPI PPGoodsTaxPacket::Sort()
 //
 //
 //
-SLAPI GTaxVect::GTaxVect(int roundPrec)
+SLAPI GTaxVect::GTaxVect(int roundPrec) : RoundPrec(roundPrec)
 {
-	RoundPrec = roundPrec;
 }
 
 int FASTCALL GTaxVect::TaxToVect(int taxIdx) const
@@ -170,14 +167,14 @@ double FASTCALL GTaxVect::GetValue(long flags) const
 
 double SLAPI GTaxVect::CalcTaxValByBase(int idx, double base) const
 {
-	double v = (AbsVect & (1 << idx)) ? Qtty : base;
+	const double v = (AbsVect & (1 << idx)) ? Qtty : base;
 	return round(RateVect[idx] * v, RoundPrec);
 }
 //
 // amount - сумма, включающая налоги 1..n (n<=N)
 // Расчитывает сумму без налогов (AmountAfterTaxes) GTaxVect::Vect[0]
 //
-int SLAPI GTaxVect::CalcForward(int n, double amount)
+void SLAPI GTaxVect::CalcForward(int n, double amount)
 {
 	Vect[0] = amount;
 	double prev_sum = 0.0;
@@ -211,13 +208,12 @@ int SLAPI GTaxVect::CalcForward(int n, double amount)
 			Vect[0]  -= Vect[i];
 		}
 	}
-	return 1;
 }
 //
 // amount - сумма, не включающая налоги (n+1)..N (1 <= n <= N)
 // Расчитывает полную сумму со всеми налогами GTaxVect::Amount
 //
-int SLAPI GTaxVect::CalcBackward(int n, double amount)
+void SLAPI GTaxVect::CalcBackward(int n, double amount)
 {
 	Amount = round(amount, RoundPrec);
 	double prev_sum = 0.0;
@@ -229,7 +225,6 @@ int SLAPI GTaxVect::CalcBackward(int n, double amount)
 		prev_sum += Vect[i];
 		Amount   += Vect[i];
 	}
-	return 1;
 }
 
 void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
@@ -908,7 +903,6 @@ SLAPI GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
 int FASTCALL GTaxCache::Dirty(PPID id)
 {
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		uint   c = P_Ary->getCount();
 		if(c) do {
@@ -917,7 +911,6 @@ int FASTCALL GTaxCache::Dirty(PPID id)
 			if((item_id & 0x00ffffffL) == id)
 				P_Ary->atFree(c);
 		} while(c);
-		//RwL.Unlock();
 	}
 	return 1;
 }

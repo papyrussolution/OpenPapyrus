@@ -145,7 +145,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД
 		// равен sizeof(PPTSessionConfig) + ExtStrSiz
 	uint16 SmsConfigPos;
-	PPID   DefTimeTechID; // @v8.7.6
+	PPID   DefTimeTechID;
 	char   Reserve[12];
 };
 
@@ -190,7 +190,7 @@ int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 			p_cfg->ColorClosedStatus = pCfg->ColorClosedStatus;
 			p_cfg->ColorCanceledStatus = pCfg->ColorCanceledStatus;
 			p_cfg->Ver = DS.GetVersion();
-			p_cfg->DefTimeTechID = pCfg->DefTimeTechID; // @v8.7.6
+			p_cfg->DefTimeTechID = pCfg->DefTimeTechID;
 			p_cfg->SmsConfigPos = (uint16)sizeof(Storage_PPTSessionConfig);
 			p_cfg->ExtStrSize = (uint16)ext_size;
 			if(ext_size)
@@ -238,7 +238,7 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 			pCfg->ColorClosedStatus = p_cfg->ColorClosedStatus;
 			pCfg->ColorCanceledStatus = p_cfg->ColorCanceledStatus;
 			pCfg->Ver = p_cfg->Ver;
-			pCfg->DefTimeTechID = p_cfg->DefTimeTechID; // @v8.7.6
+			pCfg->DefTimeTechID = p_cfg->DefTimeTechID;
 			if(p_cfg->SmsConfigPos && p_cfg->ExtStrSize) {
 				SBuffer buf;
 				SSerializeContext sctx;
@@ -260,7 +260,7 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 			pCfg->ColorInProgressStatus = 0;
 			pCfg->ColorClosedStatus = 0;
 			pCfg->ColorCanceledStatus = 0;
-			pCfg->DefTimeTechID = 0; // @v8.7.6
+			pCfg->DefTimeTechID = 0;
 			ok = -1;
 		}
 	}
@@ -395,7 +395,7 @@ public:
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 2, PPTSessConfig::fAllowLinesInPendingSessions);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 3, PPTSessConfig::fAllowLinesInWrOffSessions);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 4, PPTSessConfig::fSnapInTimeChunkBrowser);
-		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 5, PPTSessConfig::fUpdLinesByAutocompl); // @v8.8.6
+		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 5, PPTSessConfig::fUpdLinesByAutocompl);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 6, PPTSessConfig::fFreeGoodsSelection); // @v9.3.4
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 7, PPTSessConfig::fSetupCcPricesInCPane); // @v9.9.7
 		SetClusterData(CTL_TSESSCFG_FLAGS, Data.Flags);
@@ -454,7 +454,7 @@ void SLAPI TSessionPacket::destroy()
 	CiList.Init(PPCheckInPersonItem::kTSession, 0);
 	Lines.clear();
 	TagL.Destroy();
-	Ext.destroy(); // @v8.8.0
+	Ext.destroy();
 }
 //
 //
@@ -673,7 +673,7 @@ int SLAPI PPObjTSession::Search(PPID id, void * b)
 	return P_Tbl->Search(id, (TSessionTbl::Rec *)b);
 }
 
-int SLAPI PPObjTSession::SearchByGuid(const S_GUID & rUuid, TSessionTbl::Rec * pRec)
+int SLAPI PPObjTSession::SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Rec * pRec)
 {
 	int    ok = -1;
 	TSessionTbl::Rec _rec;
@@ -681,8 +681,7 @@ int SLAPI PPObjTSession::SearchByGuid(const S_GUID & rUuid, TSessionTbl::Rec * p
 	PPIDArray id_list;
 	THROW(tag.SetGuid(PPTAG_TSESS_UUID, &rUuid));
 	if(PPRef->Ot.SearchObjectsByStr(Obj, PPTAG_TSESS_UUID, tag.Val.PStr, &id_list) > 0) {
-		LDATETIME max_dtm;
-		max_dtm.SetZero();
+		LDATETIME max_dtm = ZERODATETIME;
 		PPID  _id = 0;
 		//
 		// Следующий цикл решает параноидальную проблему существования нескольких документов с одинаковым UUID'ом
@@ -1187,7 +1186,7 @@ int SLAPI PPObjTSession::ReplaceGoodsInLines(PPID sessID, PPID replacedGoodsID, 
 
 int SLAPI PPObjTSession::Correct(long sessID, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	int    do_update = 0;
 	PPID   main_goods_id = 0;
 	TSessionTbl::Rec sess_rec;
@@ -1195,35 +1194,35 @@ int SLAPI PPObjTSession::Correct(long sessID, int use_ta)
 	TSessGoodsTotal total;
 	MEMSZERO(total);
 	THROW(CheckRights(PPR_MOD));
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(Search(sessID, &sess_rec) > 0);
-	if(sess_rec.TechID && TecObj.Fetch(sess_rec.TechID, &tec_rec) > 0)
-		main_goods_id = labs(tec_rec.GoodsID);
-	if(main_goods_id) {
-		THROW(P_Tbl->CalcGoodsTotal(sessID, main_goods_id, &total));
-		if(total.Qtty != sess_rec.ActQtty) {
-			sess_rec.ActQtty = total.Qtty;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(Search(sessID, &sess_rec) > 0);
+		if(sess_rec.TechID && TecObj.Fetch(sess_rec.TechID, &tec_rec) > 0)
+			main_goods_id = labs(tec_rec.GoodsID);
+		if(main_goods_id) {
+			THROW(P_Tbl->CalcGoodsTotal(sessID, main_goods_id, &total));
+			if(total.Qtty != sess_rec.ActQtty) {
+				sess_rec.ActQtty = total.Qtty;
+				do_update = 1;
+			}
+		}
+		MEMSZERO(total);
+		THROW(P_Tbl->CalcGoodsTotal(sessID, 0, &total));
+		if(total.Amount != sess_rec.Amount) {
+			sess_rec.Amount = total.Amount;
 			do_update = 1;
 		}
+		if(do_update) {
+			THROW(P_Tbl->Put(&sessID, &sess_rec, 0));
+			ok = 1;
+		}
+		if(sess_rec.Flags & TSESF_SUPERSESS) {
+			THROW(P_Tbl->UpdateSuperSessCompleteness(sessID, 0));
+		}
+		THROW(tra.Commit());
 	}
-	MEMSZERO(total);
-	THROW(P_Tbl->CalcGoodsTotal(sessID, 0, &total));
-	if(total.Amount != sess_rec.Amount) {
-		sess_rec.Amount = total.Amount;
-		do_update = 1;
-	}
-	if(do_update) {
-		THROW(P_Tbl->Put(&sessID, &sess_rec, 0));
-		ok = 1;
-	}
-	if(sess_rec.Flags & TSESF_SUPERSESS) {
-		THROW(P_Tbl->UpdateSuperSessCompleteness(sessID, 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1235,9 +1234,9 @@ int SLAPI PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSess
 	k4.PrcID = rSessRec.PrcID;
 	k4.StDt = rSessRec.StDt;
 	k4.StTm = rSessRec.StTm;
-	LDATETIME end, recent_end;
-	recent_end.SetZero();
-	while((r = P_Tbl->search(4, &k4, spLt)) != 0 && k4.PrcID == rSessRec.PrcID)
+	LDATETIME end;
+	LDATETIME recent_end = ZERODATETIME;
+	while((r = P_Tbl->search(4, &k4, spLt)) != 0 && k4.PrcID == rSessRec.PrcID) {
 		if(GetSessionKind(P_Tbl->data) == TSESK_SESSION) {
 			end.Set(P_Tbl->data.FinDt, P_Tbl->data.FinTm);
 			if(cmp(end, rSessRec.StDt, rSessRec.StTm) < 0 && cmp(end, recent_end) > 0) {
@@ -1246,6 +1245,7 @@ int SLAPI PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSess
 				break;
 			}
 		}
+	}
 	if(r == 0 && BtrError && !BTRNFOUND)
 		ok = 0;
 	else if(recent_end.d)
@@ -1362,7 +1362,6 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 				}
 			}
 			else {
-				// @v7.5.10 THROW_PP(tses_rec.Status == TSESST_CLOSED, PPERR_WROFFUNCLOSEDTSESS);
 				THROW(P_Tbl->InitLineEnum(sessID, &hdl_ln_enum));
 				while(P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0) {
 					if(line_rec.Flags & TSESLF_AUTOCOMPL)
@@ -1753,11 +1752,9 @@ int SLAPI PPObjTSession::Helper_SetSessionState(TSessionTbl::Rec * pRec, int new
 				CALLEXCEPT_PP(PPERR_INVTSESSTTRANSITION);
 		}
 		else if(pRec->Status == TSESST_CLOSED) {
-			// @v8.2.9 {
 			if(newState == TSESST_CANCELED && GetPrc(pRec->PrcID, &prc_rec, 1, 1) > 0 && prc_rec.Flags & PRCF_ALLOWCANCELAFTERCLOSE) {
 			}
 			else {
-			// } @v8.2.9
 				CALLEXCEPT_PP(PPERR_INVTSESSTTRANSITION);
 			}
 		}
@@ -1868,8 +1865,7 @@ int SLAPI PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 			if(sup_rec.TechID && TecObj.Fetch(sup_rec.TechID, &sup_tec_rec) > 0) {
 				TSessionTbl::Rec last_sess_rec;
 				PPID   last_sess_id = 0;
-				LDATETIME last_sess_finish;
-				last_sess_finish.SetZero();
+				LDATETIME last_sess_finish = ZERODATETIME;
 				TSessionTbl::Key6 k6;
 				MEMSZERO(k6);
 				BExtQuery q(P_Tbl, 6);
@@ -2024,14 +2020,12 @@ int SLAPI PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX 
 	if(ValidateStatus(status))
 		rec.Status = status;
 	else {
-		// @v8.2.9 {
 		PPProcessorPacket::ExtBlock prc_ext;
 		if(PrcObj.GetExtWithInheritance(labs(prcID), &prc_ext) > 0 && ValidateStatus(prc_ext.InitSessStatus)) {
 			rec.Status = (int16)prc_ext.InitSessStatus;
 		}
 		else
 			rec.Status = TSESST_PLANNED;
-		// } @v8.2.9
 	}
 	if(kind == TSESK_SUPERSESS) {
 		rec.Flags |= TSESF_SUPERSESS;
@@ -2044,13 +2038,11 @@ int SLAPI PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX 
 		if(GetConfig().InitTime)
 			rec.StTm = GetConfig().InitTime;
 	}
-	// @v7.5.7 {
 	else if(kind == TSESK_SUBSESS) {
 		rec.Flags |= TSESF_SUBSESS;
 		if(GetConfig().InitTime)
 			rec.StTm = GetConfig().InitTime;
 	}
-	// } @v7.5.7
 	if(superSessID) {
 		TSessionTbl::Rec sup_rec;
 		THROW(CheckSuperSessLink(&rec, superSessID, &sup_rec));
@@ -2183,14 +2175,9 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 }
 
 int SLAPI PPObjTSession::GetTagList(PPID id, ObjTagList * pTagList)
-{
-	return PPRef->Ot.GetList(Obj, id, pTagList);
-}
-
+	{ return PPRef->Ot.GetList(Obj, id, pTagList); }
 int SLAPI PPObjTSession::SetTagList(PPID id, const ObjTagList * pTagList, int use_ta)
-{
-	return PPRef->Ot.PutList(Obj, id, pTagList, use_ta);
-}
+	{ return PPRef->Ot.PutList(Obj, id, pTagList, use_ta); }
 
 int SLAPI PPObjTSession::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
 {
@@ -2235,8 +2222,8 @@ int SLAPI PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options
 			}
 			pPack->Flags |= TSessionPacket::fLinesInited;
 		}
-		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL)); // @v8.7.4
-		THROW(GetExtention(pPack->Rec.ID, &pPack->Ext)); // @v8.8.0
+		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
+		THROW(GetExtention(pPack->Rec.ID, &pPack->Ext));
 		ok = 1;
 	}
 	else {
@@ -2279,7 +2266,7 @@ int SLAPI PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_t
 					THROW(Helper_SetSessionState(&pPack->Rec, pPack->Rec.Status, 1, 1));
 			}
 			THROW(P_Tbl->Put(pID, &pPack->Rec, 0));
-			THROW(NormalizePacket(pPack, 0)); // @v7.7.2
+			THROW(NormalizePacket(pPack, 0));
 			//
 			// В функции PutLine, которая вызывается из PutTimingLine не должна срабатывать
 			// защита от изменения строк в списанной сессии
@@ -2288,20 +2275,15 @@ int SLAPI PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_t
 			preserve_cfg_flags = Cfg.Flags;
 			Cfg.Flags |= PPTSessConfig::fAllowLinesInWrOffSessions;
 			THROW(PutTimingLine(&pPack->Rec));
-			// @v7.7.2 {
-			// @v7.8.10 pPack->CiList.PrmrID = *pID;
 			THROW(ci_mgr.Put(pPack->CiList, 0));
-			// } @v7.7.2
-			// @v8.7.6 {
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 				pPack->LinkFiles.Save(*pID, 0L);
 			}
-			// } @v8.7.6
-			THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v8.7.4
-			THROW(PutExtention(*pID, &pPack->Ext, 0)); // @v8.8.0
+			THROW(SetTagList(*pID, &pPack->TagL, 0));
+			THROW(PutExtention(*pID, &pPack->Ext, 0));
 		}
 		if(acn)
-			DS.LogAction(acn, Obj, *pID, 0, 0); // @v8.7.10
+			DS.LogAction(acn, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
 		if(*pID)
 			Dirty(*pID);
@@ -2663,13 +2645,11 @@ int SLAPI PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, 
 		}
 		SETFLAG(pRec->Flags, TSESLF_INDEPPHQTTY, GObj.CheckFlag(goodsID, GF_USEINDEPWT));
 		if(GetConfig().Flags & PPTSessConfig::fUsePricing && GetPrc(tses_rec.PrcID, &prc_rec, 1) > 0) {
-			// @v8.5.7 {
 			PPID   agent_ar_id = 0;
 			PPObjTSession::WrOffAttrib attrib;
 			if(GetWrOffAttrib(&tses_rec, &attrib) > 0) {
 				agent_ar_id = attrib.AgentID;
 			}
-			// } @v8.5.7
 			RetailExtrItem rpi;
 			RetailPriceExtractor rpe(prc_rec.LocID, 0, agent_ar_id, ZERODATETIME, 0);
 			rpe.GetPrice(goodsID, 0, 0.0, &rpi);
@@ -2863,7 +2843,7 @@ int SLAPI PPObjTSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint 
 		else if(level == 0) {
 			THROW(UndoWritingOff(sessID, 0));
 			THROW(P_Tbl->Put(&sessID, 0, 0));
-			THROW(SetTagList(sessID, 0, 0)); // @v8.7.4
+			THROW(SetTagList(sessID, 0, 0));
 			THROW(RemoveSync(sessID));
 			DS.LogAction(PPACN_OBJRMV, Obj, sessID, 0, 0);
 		}
@@ -2886,8 +2866,7 @@ int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign
 	int    ok = -1;
 	TSessLineTbl::Rec line_rec, temp_line_rec;
 	MEMSZERO(line_rec);
-	LDATETIME dtm;
-	dtm.SetZero();
+	LDATETIME dtm = ZERODATETIME;
 	long   hdl_ln_enum = -1;
 	InitLineEnumBySerial(pSerial, sign, &hdl_ln_enum);
 	while(NextLineEnum(hdl_ln_enum, &temp_line_rec) > 0)
@@ -3946,7 +3925,7 @@ void SLAPI PPObjTSession::BhtCurSessData::Reset()
 	IsProperSess = 0;
 	PrcID = 0;
 	ArID = 0;
-	Dtm.SetZero();
+	Dtm.Z();
 }
 //
 //
@@ -4537,7 +4516,7 @@ int SLAPI PPObjTSession::GetPlaceStatus(PPID tsessID, const char * pPlaceCode, P
 					else // Строго говоря, это состояние невозможно
 						rStatus.Status = -1;
 					rStatus.RegPersonID = r_ci.GetPerson();
-					rStatus.CipID = r_ci.ID; // @v8.8.2
+					rStatus.CipID = r_ci.ID;
 					r_ci.CalcPinCode(rStatus.PinCode);
 					break;
 				}
@@ -4916,10 +4895,8 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
 			STRNSCPY(H.StTime, temp_buf);
 			STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
-			// @v8.8.0 {
 			r_blk.Pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf.Z());
 			STRNSCPY(H.Detail, temp_buf);
-			// } @v8.8.0
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
@@ -5004,7 +4981,6 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 		r_blk.CipPos++;
 	}
 	else if(iterId == GetIterID("iter@Places")) {
-		// @v8.8.0 {
 		PPProcessorPacket::PlaceDescription pd_item;
 		if(r_blk.Pack.Ext.GetPlaceDescription(r_blk.PlacePos++, pd_item)) {
             I_Places.GoodsID = pd_item.GoodsID;
@@ -5012,7 +4988,6 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
             STRNSCPY(I_Places.Descr, pd_item.Descr);
 			ok = DlRtm::NextIteration(iterId);
 		}
-		// } @v8.8.0
 	}
 	else if(iterId == GetIterID("iter@TagList")) {
 		if(r_blk.TagPos < r_blk.Pack.TagL.GetCount()) {
@@ -5084,16 +5059,16 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 			//r_blk.Pack.Rec.Status = (int16)H.Status;
 			r_blk.Pack.Rec.Flags = H.Flags;
 			r_blk.Pack.Rec.Incomplete = 10;
-			strtodatetime(H.StTime, &dtm.SetZero(), DATF_ISO8601, 0);
+			strtodatetime(H.StTime, &dtm, DATF_ISO8601, 0);
 			r_blk.Pack.Rec.StDt = dtm.d;
 			r_blk.Pack.Rec.StTm = dtm.t;
 
-			strtodatetime(H.FinTime, &dtm.SetZero(), DATF_ISO8601, 0);
+			strtodatetime(H.FinTime, &dtm, DATF_ISO8601, 0);
 			r_blk.Pack.Rec.FinDt = dtm.d;
 			r_blk.Pack.Rec.FinTm = dtm.t;
 
 			STRNSCPY(r_blk.Pack.Rec.Memo, H.Memo);
-			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_DETAILDESCR, H.Detail); // @v8.8.0
+			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_DETAILDESCR, H.Detail);
 			THROW(r_blk.TSesObj.SetSessionState(&r_blk.Pack.Rec, H.Status, 0));
 		}
 		else if(iterId == GetIterID("iter@Lines")) {
@@ -5211,10 +5186,10 @@ int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId)
 		I.GoodsID = p_item->GoodsID;
 		I.Price = p_item->Price;
 		I.Status = p_item->Status;
-		I.PersonID = p_item->RegPersonID; // @v8.8.2
-		I.CipID = p_item->CipID; // @v8.8.2
+		I.PersonID = p_item->RegPersonID;
+		I.CipID = p_item->CipID;
 		STRNSCPY(I.Code, p_item->PlaceCode);
-		STRNSCPY(I.PinCode, p_item->PinCode); // @v8.8.0
+		STRNSCPY(I.PinCode, p_item->PinCode);
 		STRNSCPY(I.Descr, p_item->Descr);
 		p_list->incPointer();
 		ok = DlRtm::NextIteration(iterId);

@@ -2424,10 +2424,10 @@ void FASTCALL GoodsCache::AssignGoodsStockExtCacheRec(const GoodsCache::StockExt
 int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 {
 	int    ok = 0;
+	pExt->Init();
 	{
 		SRWLOCKER(GslLock, SReadWriteLocker::Read);
 		uint   pos = 0;
-		pExt->Init();
 		goodsID = labs(goodsID);
 		if(goodsID == 0 || ExcGsl.Has(goodsID))
 			ok = -1;
@@ -2563,12 +2563,11 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					Goods2Tbl * p_tbl = goods_obj.P_Tbl;
 					BExtQuery q(p_tbl, 0, 24);
 					q.select(p_tbl->ID, p_tbl->ParentID, p_tbl->Name, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
-					FullGoodsList.Clear();
+					FullGoodsList.Z();
 					Goods2Tbl::Key0 k0;
 					for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
-						// @v8.0.9 if(!FullGoodsList.Add(p_tbl->data.ID, p_tbl->data.ParentID, p_tbl->data.Name, 1)) {
 						_mc++;
-						if(!FullGoodsList.AddFast(p_tbl->data.ID, p_tbl->data.Name)) { // @v8.0.9
+						if(!FullGoodsList.AddFast(p_tbl->data.ID, p_tbl->data.Name)) {
 							PPSetErrorSLib();
 							err = 1;
 						}

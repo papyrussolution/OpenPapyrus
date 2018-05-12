@@ -64,13 +64,10 @@ int SLAPI PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
 //
 //
 //
-SLAPI PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0)
+SLAPI PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
 {
 	SString name;
-	long   PP  = 0x00005050L; // "PP"
-	long   EXT = 0x00534552L; // "RES"
-	P_Rez = new TVRez(makeExecPathFileName((const char*)&PP, (const char*)&EXT, name), 1);
-	LastLoading.SetZero();
+	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
 }
 
@@ -127,7 +124,7 @@ int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray * pList)
 {
 	int    ok = 1;
-	pList->Clear();
+	pList->Z();
 	if(P_Rez) {
 		ulong pos = 0;
 		for(uint   rsc_id = 0; P_Rez->enumResources(PP_RCDECLJOB, &rsc_id, &pos) > 0;) {
@@ -363,10 +360,9 @@ int FASTCALL PPJobDescr::Read(SBuffer & rBuf)
 //
 //
 //
-SLAPI PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME)
+SLAPI PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME), LastRunningTime(ZERODATETIME)
 {
 	MEMSZERO(Dtr);
-	LastRunningTime.SetZero();
 	Ver = 1; // @v9.2.3 0-->1
 	memzero(Symb, sizeof(Symb));
 	memzero(Reserve, sizeof(Reserve));
@@ -946,8 +942,8 @@ int GetLastTransmit(const ObjIdListFilt * pDBDivList, LDATETIME * pSince)
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	if(p_sj && pDBDivList) {
 		const PPIDArray & rary = pDBDivList->Get();
-		LDATETIME since, min_since;
-		since.SetZero();
+		LDATETIME since = ZERODATETIME;
+		LDATETIME min_since;
 		for(uint i = 0; i < rary.getCount(); i++) {
 			PPID db_div_id = rary.at(i);
 			while(ok < 0 && p_sj->GetLastEvent(PPACN_TRANSMOD, &since, 7) > 0)
@@ -1979,7 +1975,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 			Data.BRowParam = 0;
 			if(Data.Flags & ExpBillsFilt::fEdi) {
 				// Заполняем списком типов документов
-				HdrList.Clear();
+				HdrList.Z();
 				SString buf;
 				StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, buf));
 				for(uint i = 0; ss.get(&i, buf);) {
@@ -1996,7 +1992,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
 			}
 			else {
-				HdrList.Clear();
+				HdrList.Z();
 				GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &bill_param, &HdrList, 1);
 				bill_param.Init();
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
@@ -2039,7 +2035,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		PPBillImpExpParam bill_param, brow_param;
 		disableCtrls((Data.Flags & ExpBillsFilt::fEdi), CTLSEL_BILLEXPFILT_RCFG, 0L);
 		// Заполняем списком типов документов
-		HdrList.Clear();
+		HdrList.Z();
 		SString buf;
 		StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, buf));
 		for(uint i = 0; ss.get(&i, buf);) {
@@ -2787,7 +2783,7 @@ int RFIDDevPrcssr::Run()
 			p_dvc->GetConnParam(&cp);
 			if(BadComList.lsearch(&cp, 0, PTR_CMPFUNC(ConnectionParam)) <= 0 && IsWait(i) == 0) {
 				StrAssocArray in_params, out_params;
-				in_params.Clear();
+				in_params.Z();
 				if(p_dvc->RunCmd(DVCCMD_PING, in_params, out_params)) {
 					int cmd = 0;
 					SString temp_buf;
@@ -2832,7 +2828,7 @@ int RFIDDevPrcssr::Run()
 						}
 						else
 							msg.Printf(CardNotFound.cptr(), temp_buf.cptr());
-						in_params.Clear().Add(DVCCMDPAR_TEXT, msg.cptr());
+						in_params.Z().Add(DVCCMDPAR_TEXT, msg.cptr());
 						in_params.Add(DVCCMDPAR_COUNT, temp_buf.Z().Cat(rele_count));
 
 						/*
@@ -2843,7 +2839,7 @@ int RFIDDevPrcssr::Run()
 					}
 					else {
 						cmd = DVCCMD_SETTEXT;
-						in_params.Clear().Add(DVCCMDPAR_TEXT, (const char*)GetCard);
+						in_params.Z().Add(DVCCMDPAR_TEXT, (const char*)GetCard);
 					}
 					if(!p_dvc->RunCmd(cmd, in_params, out_params))
 						AddToBadList(&cp);

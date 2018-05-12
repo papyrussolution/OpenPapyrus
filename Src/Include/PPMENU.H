@@ -510,5 +510,6 @@
 #define cmTestTddo2                    615 // @v9.8.3 Тестирование технологии TDDO-II
 #define cmTestVetis                    616 // @v9.8.9 Тестирование интерфейса ВЕТИС
 #define cmViewPhnSvcMonitor            617 // @v9.9.10 Монитор состояний телефонного сервера
+#define cmDumpData                     618 // @v10.0.05 Dump/Undump данных
 
 #endif /* __PPMENU_H */

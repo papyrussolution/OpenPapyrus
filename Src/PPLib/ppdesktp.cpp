@@ -17,7 +17,7 @@ PPDesktopAssocCmd::PPDesktopAssocCmd() : CmdID(0), Flags(0)
 {
 }
 
-PPDesktopAssocCmd & PPDesktopAssocCmd::Clear()
+PPDesktopAssocCmd & PPDesktopAssocCmd::Z()
 {
 	CmdID = 0;
 	Flags = 0;
@@ -426,7 +426,7 @@ int PPBizScoreWindow::LoadData()
 	k0.ActualDate = _curdate;
 	k0.ScoreID = MAXLONG;
 	k0.ObjID   = MAXLONG;
-	BizScoreList.Clear();
+	BizScoreList.Z();
 	q.select(Tbl.ScoreID, Tbl.Val, Tbl.Dt, Tbl.Tm, Tbl.ActualDate, Tbl.Str, 0L).where(Tbl.UserID == cur_user_id/* && Tbl.ActualDate >= _curdate*/);
 	for(q.initIteration(1, &k0, spLe); q.nextIteration() > 0;) {
 		_scount++; // @debug
@@ -1382,8 +1382,8 @@ int PPDesktop::WaitCommand()
 			if(event.isCmd(cmWinKeyDown)) {
 				SString code;
 				KeyDownCommand * p_cmd = (KeyDownCommand *)event.message.infoPtr;
-				Command.Clear();
-				Addendum = 0;
+				Command.Z();
+				Addendum.Z();
 				if(p_cmd && p_cmd->GetKeyName(code, 1) > 0) {
 					CodeBuf = code;
 					if(AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0 || CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0)
@@ -1397,9 +1397,9 @@ int PPDesktop::WaitCommand()
 				if(event.isCtlEvent(CTL_WAITCMD_INPUT)) {
 					if(!__Locking) {
 						__Locking = 1;
-						Command.Clear();
-						Addendum = 0;
-						getCtrlString(CTL_WAITCMD_INPUT, CodeBuf = 0);
+						Command.Z();
+						Addendum.Z();
+						getCtrlString(CTL_WAITCMD_INPUT, CodeBuf.Z());
 						AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0 || CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0;
 						__Locking = 0;
 					}
@@ -1412,7 +1412,7 @@ int PPDesktop::WaitCommand()
 			PPLoadString(PPMSG_ERROR, PPERR_CMDASSCNOTFOUND, buf);
 			msg.Printf(buf.cptr(), pCode);
 			setStaticText(CTL_WAITCMD_STATUS, msg);
-			setCtrlString(CTL_WAITCMD_INPUT, (buf = 0));
+			setCtrlString(CTL_WAITCMD_INPUT, buf.Z());
 			return 1;
 		}
 		PPDesktopAssocCmdPool AssocList;
@@ -1432,8 +1432,7 @@ int PPDesktop::WaitCommand()
 		if(p_dlg->getDTS(&cmd, &addendum) > 0)
 			ok = 1;
 	}
-	delete p_dlg;
-	p_dlg = 0;
+	ZDELETE(p_dlg);
 	if(ok > 0) {
 		int    use_buf = 0;
 		SBuffer buf;

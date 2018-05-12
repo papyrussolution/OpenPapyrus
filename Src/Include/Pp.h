@@ -3346,7 +3346,7 @@ public:
 	int    SLAPI SetReal(PPID tagID, double);
 	int    SLAPI SetStr(PPID tagID, const char *);
 	int    SLAPI SetDate(PPID tagID, LDATE dt);
-	int    SLAPI SetGuid(PPID tagID, const S_GUID *);
+	int    SLAPI SetGuid(PPID tagID, const S_GUID_Base *);
 	int    SLAPI SetTimestamp(PPID tagID, LDATETIME dtm);
 	int    SLAPI AddKeyword(PPID tagID, const char * pKeyword);
 
@@ -3886,7 +3886,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 	//
 	static int FASTCALL IsQuotAcceptableForLoc(PPID locID, const PPIDArray & rLocList);
 
-	SLAPI  PPQuot(PPID goodsID = 0);
+	explicit SLAPI PPQuot(PPID goodsID = 0);
 	SLAPI  PPQuot(const QuotationTbl::Rec &);
 	PPQuot & FASTCALL operator = (const QuotationTbl::Rec &);
 	QuotIdent & FASTCALL MakeIdent(QuotIdent & rQi) const;
@@ -3905,6 +3905,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 	SString & FASTCALL PutValToStr(SString & rBuf) const;
 	int    FASTCALL CheckForVal(const RealRange * pRange) const;
 	int    FASTCALL CheckForFilt(const QuotFilt * pFilt, const PPIDArray * pKindList) const;
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	PPID   ID;
 	PPID   ArID;
@@ -3914,7 +3915,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 	PPID   CurID;
 	long   Flags;
 	long   MinQtty;
-	DateRange Period;  // @v7.3.5 Период действия котировки
+	DateRange Period;  // Период действия котировки
 	double Quot;
 
 	PPID   SellerArID; // @transient (special for UHTT) ИД статьи-поставщика
@@ -4024,16 +4025,18 @@ private:
 // Descr: Специализированная структура для обмена значениями котировок с внешними приложениями.
 //
 struct PPQuotItem_ { // @persistent
-	PPQuotItem_();
-	PPQuotItem_(const PPQuot & rS);
+	SLAPI  PPQuotItem_();
+	SLAPI  PPQuotItem_(const PPQuot & rS);
+	int    FASTCALL Get(PPQuot & rDest) const;
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	int32  GoodsID;
 	int32  KindID;
 	int32  LocID;
 	int32  ArID;
 	int32  CurID;
-	int32  MinQtty;   // @v7.3.5
-	DateRange Period; // @v7.3.5
+	int32  MinQtty;
+	DateRange Period;
 	LDATETIME Dtm;
 	int32  Flags;
 	double Val;
@@ -4041,9 +4044,10 @@ struct PPQuotItem_ { // @persistent
 
 class PPQuotItemArray : public TSVector <PPQuotItem_> { // @v9.8.4 TSArray-->TSVector
 public:
-	PPQuotItemArray();
+	SLAPI  PPQuotItemArray();
 	int    FASTCALL Add(const PPQuotItem_ & rItem);
 	int    FASTCALL Add(const PPQuot & rQ);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Флаги функции PPQuotItemArray::Replace
 	//
@@ -4127,7 +4131,7 @@ public:
 	int    SLAPI Verify();
 	int    SLAPI GetRelByID(PPID relID, PPQuot * pVal);
 	int    SLAPI GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists, int use_ta);
-	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * pList);
+	int    SLAPI GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList);
 	int    SLAPI Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList);
 	int    SLAPI GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList);
 	int    SLAPI GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList);
@@ -4171,8 +4175,9 @@ public:
 	//   все товарные матрицы.
 	//
 	int    SLAPI DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred);
-
 	int    SLAPI ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta);
+	int    SLAPI DumpCurrent(SBuffer & rBuf, int64 * pItemsCount);
+	int    SLAPI UndumpCurrent(SBuffer & rBuf, int use_ta);
 
 	Quot2RelTbl RelT;
 private:
@@ -5969,7 +5974,7 @@ public:
 	SysJournal * P_SysJ;
 	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось
 		// ее открывать при каждом удалении объекта (в транзакции)
-	GtaJournalCore * P_GtaJ;     // 
+	GtaJournalCore * P_GtaJ;     //
 	Reference  * P_Ref;
 	PPObjBill  * P_BObj;
 	// @v8.3.6 Следущие два экземпляру инициализируются нулями и используются только в специальных случаях
@@ -5977,7 +5982,7 @@ public:
 	PPObjWorld * P_WObj;
 	PPObjWorkbook * P_WbObj;
 	// }
-	PPObjPrjTask * P_TodoObj;    // 
+	PPObjPrjTask * P_TodoObj;    //
 	PPObjID  LastErrObj;         // Object's ID, by last generated error
 	PPLastInputData Lid;
 	int    PrnDirId;
@@ -8218,19 +8223,19 @@ protected:
 //
 // Флаги локаций
 //
-#define LOCF_VATFREE        0x0001L // Операции по складу освобождены от НДС
-#define LOCF_MANUALADDR     0x0002L // Полный адрес задается в ручную //
-#define LOCF_VOLUMEVAL      0x0004L // Объем места хранения задается одним значением
-#define LOCF_COMPARABLE     0x0008L // Сравниваемый склад (обычно применяется в отношении магазинов для анализа данных)
-#define LOCF_ADJINTRPRICE   0x0010L // При поступлении товара на этот склад через внутреннюю передачу
+#define LOCF_VATFREE           0x00000001L // Операции по складу освобождены от НДС
+#define LOCF_MANUALADDR        0x00000002L // Полный адрес задается в ручную //
+#define LOCF_VOLUMEVAL         0x00000004L // Объем места хранения задается одним значением
+#define LOCF_COMPARABLE        0x00000008L // Сравниваемый склад (обычно применяется в отношении магазинов для анализа данных)
+#define LOCF_ADJINTRPRICE      0x00000010L // При поступлении товара на этот склад через внутреннюю передачу
 	//  с другого склада выравнивать учетную цену реализации по последенму лоту.
-#define LOCF_WHAUTONAME     0x0020L // Автоматическое наименование для складской зоны/колонны/ячейки
-	// (и для дочерних объектов)
-#define LOCF_WHCODEPREFIX   0x0040L // @v7.1.11 В коды складских объектов добавлять как префикс код склада
-#define LOCF_SEQCOLCODE     0x0080L // @v7.1.11 Сквозная нумерация колонн (не зависимо от принадлежности зоне)
-#define LOCF_DISPOSEBILLS   0x0100L // @v7.1.12 Применять функции складского размещения для документов, принадлежащих этому складу
-#define LOCF_STANDALONE     0x0200L // @v7.3.3  Автономный адрес. То есть, может быть не привязан ни к какому объекту.
+#define LOCF_WHAUTONAME        0x00000020L // Автоматическое наименование для складской зоны/колонны/ячейки (и для дочерних объектов)
+#define LOCF_WHCODEPREFIX      0x00000040L // В коды складских объектов добавлять как префикс код склада
+#define LOCF_SEQCOLCODE        0x00000080L // Сквозная нумерация колонн (не зависимо от принадлежности зоне)
+#define LOCF_DISPOSEBILLS      0x00000100L // Применять функции складского размещения для документов, принадлежащих этому складу
+#define LOCF_STANDALONE        0x00000200L // Автономный адрес. То есть, может быть не привязан ни к какому объекту.
 	// Одновременно, если такой адрес привязан к объекту, то удаление объекта не влечет удаление адреса.
+#define LOCF_INTERNAL_DISABLED 0x80000000L // @v10.0.05 @internal @transient Флаг, ассоциированный со складом, на который у пользователя нет прав
 
 struct LocationFilt : public PPBaseFilt {
 	SLAPI  LocationFilt(PPID locType = 0, PPID ownerID = 0, PPID parentID = 0);
@@ -9029,16 +9034,19 @@ public:
 	//   документам и оплатам, а также при заполнении книги продаж/покупок.
 	//
 	int    SLAPI InitAccturnInvoice(const PPBillPacket * pPack);
-	// @v8.0.3 int    FASTCALL IsModified(const PPTransferItem * pattern) const;
-	int    FASTCALL IsEqual(const PPTransferItem & rS) const; // @v8.0.3
-	int    SLAPI IsCorrectionRcpt() const
-	{
-		return BIN(Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL);
-	}
-	int    SLAPI IsCorrectionExp() const
-	{
-		return BIN(Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL));
-	}
+	int    FASTCALL IsEqual(const PPTransferItem & rS) const;
+	//
+	// Descr: Возвращает !0 если строка является корректировкой прихода.
+	// Note: Признаком такой корректировки является одновременно установленные флаги
+	//   PPTFR_CORRECTION и PPTFR_REVAL.
+	//
+	int    SLAPI IsCorrectionRcpt() const;
+	//
+	// Descr: Возвращает !0 если строка является корректировкой расхода.
+	// Note: Признаком такой корректировки является установленный флаг PPTFR_CORRECTION
+	//   при одновременной отключенным флагом PPTFR_REVAL.
+	//
+	int    SLAPI IsCorrectionExp() const;
 	//
 	// Descr: Реализует установку параметров структуры в зависимости от идентификатора
 	//   товара goodsID.
@@ -10853,7 +10861,12 @@ public:
 	int    SLAPI CalcPayment(PPID billID, int byLinks, const DateRange *, PPID curID, double * pPaymentAmount);
 	int    SLAPI CalcPaymentSieve(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym);
 	int    SLAPI GetCreditList(PPID id, PctChargeArray * pList);
-	int    SLAPI SearchAnalog(const BillTbl::Rec * pSample, PPID * pID, BillTbl::Rec * pRec);
+	enum {
+		safDefault    = 0x0000,
+		safIgnoreOp   = 0x0001,
+		safCheckEdiOp = 0x0002
+	};
+	int    SLAPI SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec);
 
 	int    SLAPI GetRentCondition(PPID, PPRentCondition *);
 	int    SLAPI SetFreight(PPID id, PPFreight * pFreight, int use_ta);
@@ -16687,7 +16700,7 @@ struct PPGlobalUserAcc {
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       // Символ //
-	S_GUID LocalDbUuid;    // GUID локальной базы данных
+	S_GUID_Base LocalDbUuid;    // GUID локальной базы данных
 	char   Password[40];   // Пароль (зашифрован и свернут в строку кодировкой MIME64)
 	long   Reserve;        // @reserve
 	long   Flags;          // @flags
@@ -17286,7 +17299,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	uint16 Speciality;     // PPCashNode::spXXX Специализация кассового узла
 	PPID   CurRestBillID;  // Временный документ текущих остатков по незакрытым кассовым сессиям
 	PPID   ParentID;       // Ссылка на родительскую группу
-	PPID   GoodsGrpID;     // @v7.2.12 Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
+	PPID   GoodsGrpID;     // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
 		// отбор товаров в синхронном узле. // Reserve4-->GoodsGrpID
 	//
 	// Поле DownBill имеет специальное назначение.
@@ -20798,7 +20811,7 @@ public:
 	PPID   OrgStrucID;     // Структура, родительская к StrucID самого верхнего уровня.
 		// Если StrucID не имеет родительской структуры, то OrgStrucID == StrucID
 	PPID   QuotKindID;     // Вид котировки, применяемый как подарочная цена на купленные товары
-	long   Flags;          // 
+	long   Flags;          //
 	float  Limit;          // Предельное количество подарков, которое может быть выдано по одному чеку.
 	double AmtRestrict;    // Минимальная сумма продажи, на которую начисляется подарок
 	PPIDArray GiftList;    // Список идентификаторов товаров-подарков
@@ -20912,8 +20925,8 @@ struct PPGoodsTaxEntry {
 };
 
 struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
-	int    FASTCALL ToEntry(PPGoodsTaxEntry *) const;
-	int    FASTCALL FromEntry(const PPGoodsTaxEntry *);
+	void   FASTCALL ToEntry(PPGoodsTaxEntry *) const;
+	void   FASTCALL FromEntry(const PPGoodsTaxEntry *);
 	PPID   Tag;            // Const=PPOBJ_GOODSTAX
 	PPID   ID;             //
 	char   Name[48];       // @name
@@ -20931,7 +20944,6 @@ class PPGoodsTaxPacket : public SArray {
 public:
 	SLAPI  PPGoodsTaxPacket();
 	PPGoodsTaxPacket & FASTCALL operator = (const PPGoodsTaxPacket &);
-	int    SLAPI GetEntry(LDATE, PPID opID, PPGoodsTaxEntry *);
 	int    SLAPI PutEntry(int pos, const PPGoodsTaxEntry *);
 	void   SLAPI Sort();
 
@@ -21002,8 +21014,8 @@ public:
 private:
 	int    FASTCALL TaxToVect(int) const;
 	int    FASTCALL VectToTax(int) const;
-	int    SLAPI CalcForward(int n, double amount);
-	int    SLAPI CalcBackward(int n, double amount);
+	void   SLAPI CalcForward(int n, double amount);
+	void   SLAPI CalcBackward(int n, double amount);
 	double SLAPI CalcTaxValByBase(int idx, double base) const;
 
 	int    RoundPrec;
@@ -22088,7 +22100,7 @@ struct PPLocationConfig {  // @transient @store(PropertyTbl)
 	int16  WhCodingDiv;    // Разделитель кодов складских позиций  (0 - dot, 1 - defis, 2 - none)
 	int16  Reserve;        // @alignment
 	long   Flags;          // @flags
-	PPID   DefPalletID;    // 
+	PPID   DefPalletID;    //
 	PPID   StoreIdxTagID;  // Идентификатор тега, отвечающий за индекс магазина в сети (только для LOCTYP_WAREHOUSE)
 	char   AddrCodeTempl[32]; // Шаблон кода нового адреса
 };
@@ -22131,8 +22143,9 @@ public:
 	static int SLAPI DirtyConfig();
 
 	static int  SLAPI SelectWarehouse(PPID owner = 0, PPID level = 0);
-	static PPID FASTCALL ObjToWarehouse(PPID);
-	static PPID FASTCALL WarehouseToObj(PPID);
+	static PPID FASTCALL ObjToWarehouse(PPID arID);
+	static PPID FASTCALL ObjToWarehouse_IgnoreRights(PPID arID);
+	static PPID FASTCALL WarehouseToObj(PPID locID);
 	static int  FASTCALL CheckWarehouseFlags(PPID locID, long);
 	static int  SLAPI ViewWarehouse();
 	static int  SLAPI ViewDivision();
@@ -22161,7 +22174,15 @@ public:
 	// Descr: Опции формирования строки кода локации
 	//
 	enum {
-		mcsWhCodePrefix = 0x0001 // Добавлять в качестве префикса код склада
+		mcsDefault      = 0x0000,
+		mcsWhCodePrefix = 0x0001, // Добавлять в качестве префикса код склада (LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)
+		mcsName         = 0x0002,
+		mcsCode         = 0x0004,
+		mcsAddr         = 0x0008,
+		mcsShortAddr    = 0x0010,
+		mcsPhone        = 0x0020,
+		mcsContact      = 0x0040,
+		mcsEmail        = 0x0080
 	};
 	SString & MakeCodeString(const LocationTbl::Rec * pRec, int options, SString & rBuf);
 	int    SLAPI Validate(LocationTbl::Rec * pRec, int /*chkRefs*/);
@@ -22545,7 +22566,7 @@ struct BnkAcctData {
 	long   InitFlags; // BADIF_XXX
 	PPID   BnkAcctID;
 	PPID   OwnerID;
-	char   Acct[28];  
+	char   Acct[28];
 	PPBank Bnk;
 };
 //
@@ -23544,7 +23565,7 @@ struct PPSalCharge2 {      // @persistent @store(Reference2Tbl+)
 	PPID   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       // Символ
-	char   Reserve[48];    // @reserve 
+	char   Reserve[48];    // @reserve
 	PPID   EnumObjType;    // @#{0||PPOBJ_PERSONEVENT} Тип объекта для перечисления //
 	PPID   EnumExtVal;     // Дополнительный параметр для перечисления по объектам EnumObjType
 	PPID   AmtID;          // ->Ref(PPOBJ_AMOUNTTYPE) Тип учетной суммы для этого начисления //
@@ -28249,7 +28270,7 @@ struct AsyncCashGoodsInfo { // @transient
 	// эксклюзивных альтернат групп.
 #define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
 #define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
-#define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией. 
+#define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией.
 
 class AsyncCashGoodsIterator {
 public:
@@ -29536,6 +29557,7 @@ private:
 	int	   SLAPI GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus); // @vmiller
 	int    SLAPI AssignFnFieldToRecord(const StrAssocArray & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
 	int    SLAPI ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
+	int    SLAPI DoFullEdiProcess();
 
 	PPID   AccSheetID;
 	long   LineIdSeq;
@@ -29547,7 +29569,7 @@ private:
 	PPObjQCert   QcObj;
 	CCheckCore * P_Cc;
 	BillTransmDeficit * P_Btd;
-	StringSet ToRemoveFiles; // @v8.4.7
+	StringSet ToRemoveFiles;
 
 	PPLotTagContainer TagC;
 };
@@ -29556,6 +29578,15 @@ private:
 //
 class PPEdiProcessor {
 public:
+	struct RecadvPacket {
+		RecadvPacket();
+
+		PPBillPacket Bp;
+		SString DesadvBillCode;
+		LDATE   DesadvBillDate;
+		int     AllRowsAccepted;
+		RAssocArray DesadvQttyList;
+	};
 	struct Packet {
 		explicit Packet(int docType);
 		~Packet();
@@ -29646,7 +29677,6 @@ public:
 	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
 	SLAPI ~PPEdiProcessor();
 
-	int    SLAPI SendBills(const PPBillExportFilt & rP);
 	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
 	int    SLAPI SendOrderRsp(const PPBillExportFilt & rP, const PPIDArray & rArList);
 	int    SLAPI SendDESADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
@@ -32966,7 +32996,7 @@ public:
 	virtual int SLAPI EditRights(uint bufSize, ObjRights * pRt, EmbedDialog * pDlg);
 	const  PPTSessConfig & SLAPI GetConfig();
 	int    SLAPI SearchAnalog(const TSessionTbl::Rec & rKey, PPID * pID, TSessionTbl::Rec * pRec);
-	int    SLAPI SearchByGuid(const S_GUID & rUuid, TSessionTbl::Rec * pRec);
+	int    SLAPI SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Rec * pRec);
 	//
 	// Descr: Ищет сессию, закончившуюся непосредственно перед rSessRec.ID
 	//
@@ -36537,7 +36567,7 @@ struct GoodsRestViewItem { // @transient
 	PPID   LocID;
 	PPID   LotID;          // @v8.1.1
 	// @v8.1.3 const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsRest instance
-	char   GoodsName[128]; // 
+	char   GoodsName[128]; //
 	char   GoodsGrpName[128]; // @v8.1.3
 	char   UnitName[48];   // Наименование единицы измерения // @v7.2.6 [32]-->[48]
 	char   Serial[24];     // @v8.1.0
@@ -38262,14 +38292,14 @@ struct AccAnlzViewItem {
 	PPID   BillID;
 	short  RByBill;
 	short  Reverse;
-	PPID   ThisAccRelID;      // 
+	PPID   ThisAccRelID;      //
 	PPID   AccID;
 	PPID   AccRelID;          // If grouping by ACO_1 or ACO_2 then AccRelID = 0
 	PPID   RelPersonID;       // Связанная со статьей счета персоналия //
 		// Для оборотки по статьям счета, то это - персоналия, связанная со статьей
 		// Для анализа - это персоналия, связанная с корр счетом.
 	PPID   CurID;             // Валюта
-	char   AccName[128];      // Наименование счета 
+	char   AccName[128];      // Наименование счета
 	long   Count;             // In case of grouping Count > 1
 	double InRest;            // Входящий остаток
 	double DbtAmt;            // Оборот по кредиту
@@ -38532,7 +38562,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 		fInclAccOps         = 0x0080   // @v8.6.1 Включать в отчет бухгалтерские операции (OPG_INCLACCOPS)
 	};
 	char   ReserveStart[28];  // @anchor
-	long   CycleStat;         // 
+	long   CycleStat;         //
 	DateRange Period;         //
 	DateRange LotsPeriod;     //
 	DateRange ShipmentPeriod; // Период отгрузки
@@ -40721,7 +40751,7 @@ struct PaymPlanFilt : public PPBaseFilt {
 	long   Flags;            // PaymPlanFilt::fXXX
 	PPID   AgentID;          // Агент по документу
 	long   Reserve;          // @anchor
-	ObjIdListFilt LocList;   // 
+	ObjIdListFilt LocList;   //
 };
 
 struct PaymPlanTotal {
@@ -42252,7 +42282,7 @@ public:
 	PPID   ScaleTypeID;
 	PPID   AltGoodsGrpID;
 	long   Protocol;
-	PPID   GroupID;         // 
+	PPID   GroupID;         //
 	long   Flags;           // SCALF_XXX
 	long   ReserveEnd;
 };
@@ -44064,9 +44094,11 @@ public:
 		wbtRetToMe         // Возврат от контрагента ко мне
 	};
 
-    static const char * FASTCALL GetDocTypeTag(int docType);
+    // @v10.0.05 static const char * FASTCALL GetDocTypeTag(int docType);
+	static int FASTCALL GetDocTypeTag(int docType, SString & rTag); // @v10.0.05
     static int FASTCALL RecognizeDocTypeTag(const char * pTag);
-	static const char * FASTCALL GetWayBillTypeText(int wbType);
+	// @v10.0.05 static const char * FASTCALL GetWayBillTypeText(int wbType);
+	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf); // @v10.0.05
 	static int FASTCALL RecognizeWayBillTypeText(const char * pText);
 	static int SLAPI EditInformAReg(InformAReg & rData);
 	//
@@ -48491,7 +48523,7 @@ public:
 	int    FASTCALL NextIteration(CCheckItem * pItem);
 	int    SetupCTable(int tableNo, int guestCount);
 	int    SetupAgent(PPID agentID, int asAuthAgent);
-	void   SetupSessUuid(const S_GUID & rUuid);
+	void   SetupSessUuid(const S_GUID_Base & rUuid);
 	int    OpenSession(LDATE * pDt, int ifClosed);
 	int    RestoreSuspendedCheck(PPID ccID); // private->public
 	int    Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId);
@@ -49072,7 +49104,7 @@ struct PPDesktopAssocCmd { // @transient
 	};
 
 	PPDesktopAssocCmd();
-	PPDesktopAssocCmd & Clear();
+	PPDesktopAssocCmd & Z();
 	int    ParseCode(CodeBlock & rBlk) const;
 
 	long   CmdID;
@@ -50628,6 +50660,7 @@ int    SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckIn
 int    SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData);
 void   SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId = -1);
 int    SLAPI PPEditTextFile(const char * pFileName);
+int    SLAPI DoDbDump(PPDbEntrySet2 * pDbes);
 
 struct ResolveGoodsItem {
 	ResolveGoodsItem(PPID goodsID = 0);
@@ -50637,7 +50670,7 @@ struct ResolveGoodsItem {
 	PPID   ArID;              // Статья, с которой связан код ArCode
 	char   GoodsName[128];
 	char   Barcode[24];
-	char   ArCode[24];        // Код, ассоциированный со статьей ArID. @v8.8.0 [16]-->[24]
+	char   ArCode[24];        // Код, ассоциированный со статьей ArID
 	double Quantity;
 };
 

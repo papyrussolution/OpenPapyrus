@@ -110,7 +110,7 @@ int CallbackCompress(long, long, const char *, int)
 	DlScope::Attr scattr;
 	char * sval;
 	const  char * scval;
-	S_GUID uuid;
+	S_GUID_Base uuid;
 	UiCoord uipos;
 	UiRelRect uirect;
 }

@@ -50,9 +50,9 @@ BILL_EDI_USER_STATE
 static const char * P_TempOutputDirName = "temp-query";
 static const char * P_IntrExpndNotePrefix = "$INTREXPND";
 
-PPEgaisProcessor::Ack::Ack()
+PPEgaisProcessor::Ack::Ack() : Ver(0), SignSize(0), Status(0)
 {
-	Clear();
+	PTR32(Sign)[0] = 0;
 }
 
 void PPEgaisProcessor::Ack::Clear()
@@ -60,7 +60,7 @@ void PPEgaisProcessor::Ack::Clear()
 	Ver = 0;
 	SignSize = 0;
 	Sign[0] = 0;
-	Id.SetZero();
+	Id.Z();
 	Status = 0;
 	Url.Z();
 	Message.Z();
@@ -68,7 +68,6 @@ void PPEgaisProcessor::Ack::Clear()
 
 PPEgaisProcessor::Reply::Reply() : Status(0)
 {
-	Id.SetZero();
 }
 
 PPEgaisProcessor::Ticket::Result::Result()
@@ -80,21 +79,20 @@ void PPEgaisProcessor::Ticket::Result::Clear()
 {
     Conclusion = -1;
     Special = spcNone; // @v9.8.6
-    Time.SetZero();
+    Time.Z();
     OpName.Z();
     Comment.Z();
 }
 
-PPEgaisProcessor::Ticket::Ticket()
+PPEgaisProcessor::Ticket::Ticket() : TicketTime(ZERODATETIME), DocType(0)
 {
-	Clear();
 }
 
 void PPEgaisProcessor::Ticket::Clear()
 {
-	TicketTime.SetZero();
-	DocUUID.SetZero();
-	TranspUUID.SetZero();
+	TicketTime.Z();
+	DocUUID.Z();
+	TranspUUID.Z();
 	DocType = 0;
 	RegIdent.Z();
 	R.Clear();
@@ -292,7 +290,8 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 		case PPEDIOP_EGAIS_QUERYRESTS:
 		case PPEDIOP_EGAIS_QUERYRESTS_V2: // @v9.7.5
 			PPLoadText(PPTXT_EGAIS_QS_QUERY, msg_buf);
-			msg_buf.CatDiv(':', 2).Cat(PPEgaisProcessor::GetDocTypeTag(rPack.DocType));
+			PPEgaisProcessor::GetDocTypeTag(rPack.DocType, temp_buf);
+			msg_buf.CatDiv(':', 2).Cat(temp_buf);
 			if(rPack.P_Data) {
 				const StrStrAssocArray * p_list = (const StrStrAssocArray *)rPack.P_Data;
 				if(p_list->getCount()) {
@@ -1050,12 +1049,12 @@ const SString & FASTCALL PPEgaisProcessor::EncText(const SString & rS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
-struct EgaisDocTypeEntry {
+/*struct EgaisDocTypeEntry {
 	int    DocType;
 	const  char * P_Tag;
-};
+};*/
 
-static const EgaisDocTypeEntry _EgaisDocTypes[] = {
+static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_TICKET,           "Ticket" },
 	{ PPEDIOP_EGAIS_WAYBILLACT,       "WayBillAct" },
 	{ PPEDIOP_EGAIS_WAYBILL,          "WayBill" },
@@ -1107,7 +1106,7 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_ACTWRITEOFF_V3,   "ActWriteOff_v3" }, // @v9.9.5
 };
 
-const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
+/*const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
 {
     for(uint i = 0; i < SIZEOFARRAY(_EgaisDocTypes); i++) {
 		const EgaisDocTypeEntry & r_entry = _EgaisDocTypes[i];
@@ -1115,6 +1114,12 @@ const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
 			return r_entry.P_Tag;
     }
     return 0;
+}*/
+
+//static 
+int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
+{
+	return SIntToSymbTab_GetSymb(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), docType, rTag);
 }
 
 // static
@@ -1128,11 +1133,12 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 			tag = ntag;
 		}
 		if(tag.NotEmptyS()) {
-			for(uint i = 0; !doc_type && i < SIZEOFARRAY(_EgaisDocTypes); i++) {
+			/*for(uint i = 0; !doc_type && i < SIZEOFARRAY(_EgaisDocTypes); i++) {
 				const EgaisDocTypeEntry & r_entry = _EgaisDocTypes[i];
 				if(tag.CmpNC(r_entry.P_Tag) == 0)
 					doc_type = r_entry.DocType;
-			}
+			}*/
+			doc_type = SIntToSymbTab_GetId(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), tag);
 			// @v9.5.5 {
 			if(!doc_type) {
 				if(tag.IsEqiAscii("FORMBREGINFO"))
@@ -1158,19 +1164,25 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 //
 //
 //
-struct EgaisWayBillTypeEntry {
+/*struct EgaisWayBillTypeEntry {
 	int    Wbt;
 	const char * P_Text;
-};
+};*/
 
-EgaisWayBillTypeEntry _EgaisWayBillTypes[] = {
+static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 	{ PPEgaisProcessor::wbtInvcFromMe, "WBInvoiceFromMe" },
 	{ PPEgaisProcessor::wbtInvcToMe, "WBInvoiceToMe" },
 	{ PPEgaisProcessor::wbtRetFromMe, "WBReturnFromMe" },
 	{ PPEgaisProcessor::wbtRetToMe, "WBReturnToMe" }
 };
 
-const char * FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType)
+//static 
+int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf) // @v10.0.05
+{
+	return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf);
+}
+
+/*const char * FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType)
 {
     for(uint i = 0; i < SIZEOFARRAY(_EgaisWayBillTypes); i++) {
 		const EgaisWayBillTypeEntry & r_entry = _EgaisWayBillTypes[i];
@@ -1178,18 +1190,19 @@ const char * FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType)
 			return r_entry.P_Text;
     }
     return 0;
-}
+}*/
 
 int FASTCALL PPEgaisProcessor::RecognizeWayBillTypeText(const char * pText)
 {
-	if(!isempty(pText)) {
+	/*if(!isempty(pText)) {
 		for(uint i = 0; i < SIZEOFARRAY(_EgaisWayBillTypes); i++) {
 			const EgaisWayBillTypeEntry & r_entry = _EgaisWayBillTypes[i];
 			if(stricmp(pText, r_entry.P_Text) == 0)
 				return r_entry.Wbt;
 		}
 	}
-    return 0;
+    return 0;*/
+	return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText);
 }
 
 int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
@@ -1919,7 +1932,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	const  int doc_type = rPack.DocType;
-	const  char * p_doc_type_tag = GetDocTypeTag(doc_type);
+	//const  char * p_doc_type_tag = GetDocTypeTag(doc_type);
+	SString doc_type_tag;
 	PPID   main_org_id = 0;
 	ReceiptTbl::Rec lot_rec;
 	SString fsrar_ident;
@@ -1930,7 +1944,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	PrcssrAlcReport::GoodsItem agi;
 	assert(pX);
 	THROW_INVARG(pX);
-	THROW(p_doc_type_tag);
+	//THROW(p_doc_type_tag);
+	THROW(GetDocTypeTag(doc_type, doc_type_tag));
 	THROW(GetFSRARID(locID, fsrar_ident, &main_org_id));
 	if(rPack.P_Data || oneof5(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTS_V2, PPEDIOP_EGAIS_QUERYRESTSSHOP,
 		PPEDIOP_EGAIS_NOTIFY_WBVER2, PPEDIOP_EGAIS_NOTIFY_WBVER3)) {
@@ -2031,7 +2046,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 			{
 				SXml::WNode n_d(_doc, "ns:Document");
 				{
-					(temp_buf = "ns").CatChar(':').Cat(p_doc_type_tag);
+					(temp_buf = "ns").CatChar(':').Cat(doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
 					if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) { // @v9.9.5 PPEDIOP_EGAIS_WAYBILL_V3
 						const  PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
@@ -2136,7 +2151,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								}
 								THROW_PP_S(gppf & gppfAlc, PPERR_EGAIS_NOALCINBILL, bill_text);
 								THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
-								temp_buf = GetWayBillTypeText(wb_type);
+								GetWayBillTypeText(wb_type, temp_buf);
 								THROW(temp_buf.NotEmpty());
 								n_h.PutInner("wb:Type", temp_buf);
 								BillCore::GetCode(temp_buf = p_bp->Rec.Code);
@@ -4012,6 +4027,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     SString act_code;
     PPBillPacket * p_bp = (PPBillPacket *)pPack->P_Data;
     SString bill_ident;
+	SString bill_text;
     SString memo_note; // <note>
     SString temp_buf;
     PPObjOprKind op_obj;
@@ -4055,121 +4071,114 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 			}
         }
     }
-    {
-		SString bill_text;
-		if(ok < 0) {
-			PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-			LogTextWithAddendum(PPTXT_EGAIS_BILLREJECTEDUNR, bill_text);
-		}
-		else {
-			int    do_skip = 0;
-			//int    is_valuation_modif = 0;
-			if(bill_ident.NotEmptyS()) {
-				PPIDArray ex_bill_id_list;
-				PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_ident, &ex_bill_id_list);
-				for(uint i = 0; !do_skip && i < ex_bill_id_list.getCount(); i++) {
-					const PPID ex_bill_id = ex_bill_id_list.get(i);
-					BillTbl::Rec ex_bill_rec;
-					if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0) {
-                        PPBillPacket bp;
-						PPBillPacket link_pack;
-                        int    do_turn_link_pack = 0;
-                        int    recadv_status = PPEDI_RECADV_STATUS_UNDEF;
-						THROW(P_BObj->ExtractPacket(ex_bill_id, &bp) > 0);
-                        if(is_accepted != 0) { // @v8.9.5 (is_accepted > 0)-->(is_accepted != 0)
-							if(items.getCount() == 0 && is_accepted > 0) { // @v8.9.5 (&& is_accepted > 0)
+	if(ok < 0) {
+		PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+		LogTextWithAddendum(PPTXT_EGAIS_BILLREJECTEDUNR, bill_text);
+	}
+	else {
+		int    do_skip = 0;
+		if(bill_ident.NotEmptyS()) {
+			PPIDArray ex_bill_id_list;
+			PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_ident, &ex_bill_id_list);
+			for(uint i = 0; !do_skip && i < ex_bill_id_list.getCount(); i++) {
+				const PPID ex_bill_id = ex_bill_id_list.get(i);
+				BillTbl::Rec ex_bill_rec;
+				if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0) {
+                    PPBillPacket bp;
+					PPBillPacket link_pack;
+                    int    do_turn_link_pack = 0;
+                    int    recadv_status = PPEDI_RECADV_STATUS_UNDEF;
+					THROW(P_BObj->ExtractPacket(ex_bill_id, &bp) > 0);
+                    if(is_accepted != 0) {
+						if(items.getCount() == 0 && is_accepted > 0)
+							recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
+						else {
+                            PPID   op_id = 0;
+                            THROW(op_obj.GetEdiRecadvOp(&op_id, 1));
+                            {
+								int    edirecadv_found = 0;
+                                BillTbl::Rec link_rec;
+								for(DateIter di; !do_skip && P_BObj->P_Tbl->EnumLinks(ex_bill_id, &di, BLNK_EDIRECADV, &link_rec) > 0;) {
+									do_skip = 1;
+									edirecadv_found = 1;
+								}
 								recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
-							}
-							else {
-                                PPID   op_id = 0;
-                                THROW(op_obj.GetEdiRecadvOp(&op_id, 1));
-                                {
-									int    edirecadv_found = 0;
-                                	BillTbl::Rec link_rec;
-									for(DateIter di; !do_skip && P_BObj->P_Tbl->EnumLinks(ex_bill_id, &di, BLNK_EDIRECADV, &link_rec) > 0;) {
-										do_skip = 1;
-										edirecadv_found = 1;
-									}
-									recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
-									if(edirecadv_found) {
-										for(uint k = 0; k < bp.GetTCount(); k++) {
-											const PPTransferItem & r_ti = bp.ConstTI(k);
-											uint item_idx = 0;
-											if(items.lsearch(&r_ti.RByBill, &item_idx, CMPF_LONG)) {
-												const double real_qtty = fabs(items.at(item_idx).RealQtty);
-												if(!feqeps(real_qtty, fabs(r_ti.Quantity_), 1e-06))
-													recadv_status = PPEDI_RECADV_STATUS_PARTACCEPT;
-											}
+								if(edirecadv_found) {
+									for(uint k = 0; k < bp.GetTCount(); k++) {
+										const PPTransferItem & r_ti = bp.ConstTI(k);
+										uint item_idx = 0;
+										if(items.lsearch(&r_ti.RByBill, &item_idx, CMPF_LONG)) {
+											const double real_qtty = fabs(items.at(item_idx).RealQtty);
+											if(!feqeps(real_qtty, fabs(r_ti.Quantity_), 1e-06))
+												recadv_status = PPEDI_RECADV_STATUS_PARTACCEPT;
 										}
 									}
-									else if(!do_skip) {
-										THROW(link_pack.CreateBlank_WithoutCode(op_id, ex_bill_id, bp.Rec.LocID, 1));
-										STRNSCPY(link_pack.Rec.Code, act_code);
-										link_pack.Rec.Dt = checkdate(act_date, 0) ? act_date : getcurdate_();
-										link_pack.Rec.EdiOp = PPEDIOP_RECADV;
-										for(uint k = 0; k < bp.GetTCount(); k++) {
-											const PPTransferItem & r_ti = bp.ConstTI(k);
-											PPTransferItem ti;
-											uint item_idx = 0;
-											THROW(ti.Init(&link_pack.Rec));
-											ti.GoodsID = r_ti.GoodsID;
-											if(items.lsearch(&r_ti.RByBill, &item_idx, CMPF_LONG)) {
-												const double real_qtty = fabs(items.at(item_idx).RealQtty);
-												ti.Quantity_ = real_qtty;
-												if(!feqeps(real_qtty, fabs(r_ti.Quantity_), 1e-06))
-													recadv_status = PPEDI_RECADV_STATUS_PARTACCEPT;
-											}
-											else
-												ti.Quantity_ = r_ti.Quantity_;
-											// @v8.9.10 {
-											{
-												GoodsItem _agi;
-												PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
-												if(_agi.UnpackedVolume > 0.0) {
-													const double mult = _agi.UnpackedVolume / 10.0;
-													ti.Quantity_ = (ti.Quantity_ / mult); // Неупакованная продукция передается в декалитрах
-												}
-											}
-											// } @v8.9.10
-											ti.Cost = r_ti.Cost;
-											ti.Price = r_ti.NetPrice();
-											THROW(link_pack.LoadTItem(&ti, 0, 0));
+								}
+								else if(!do_skip) {
+									THROW(link_pack.CreateBlank_WithoutCode(op_id, ex_bill_id, bp.Rec.LocID, 1));
+									STRNSCPY(link_pack.Rec.Code, act_code);
+									link_pack.Rec.Dt = checkdate(act_date, 0) ? act_date : getcurdate_();
+									link_pack.Rec.EdiOp = PPEDIOP_RECADV;
+									for(uint k = 0; k < bp.GetTCount(); k++) {
+										const PPTransferItem & r_ti = bp.ConstTI(k);
+										PPTransferItem ti;
+										uint item_idx = 0;
+										THROW(ti.Init(&link_pack.Rec));
+										ti.GoodsID = r_ti.GoodsID;
+										if(items.lsearch(&r_ti.RByBill, &item_idx, CMPF_LONG)) {
+											const double real_qtty = fabs(items.at(item_idx).RealQtty);
+											ti.Quantity_ = real_qtty;
+											if(!feqeps(real_qtty, fabs(r_ti.Quantity_), 1e-06))
+												recadv_status = PPEDI_RECADV_STATUS_PARTACCEPT;
 										}
-										do_turn_link_pack = 1;
+										else
+											ti.Quantity_ = r_ti.Quantity_;
+										{
+											GoodsItem _agi;
+											PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
+											if(_agi.UnpackedVolume > 0.0) {
+												const double mult = _agi.UnpackedVolume / 10.0;
+												ti.Quantity_ = (ti.Quantity_ / mult); // Неупакованная продукция передается в декалитрах
+											}
+										}
+										ti.Cost = r_ti.Cost;
+										ti.Price = r_ti.NetPrice();
+										THROW(link_pack.LoadTItem(&ti, 0, 0));
 									}
-                                }
+									do_turn_link_pack = 1;
+								}
+                            }
+						}
+                    }
+					else if(is_accepted == 0)
+						recadv_status = PPEDI_RECADV_STATUS_REJECT;
+					{
+						const int srsr = BillCore::SetRecadvStatus(recadv_status, bp.Rec);
+						if(do_turn_link_pack || srsr > 0) {
+							PPTransaction tra(1);
+							THROW(tra);
+							if(do_turn_link_pack) {
+								link_pack.InitAmounts();
+								THROW(P_BObj->TurnPacket(&link_pack, 0));
 							}
-                        }
-						else if(is_accepted == 0)
-							recadv_status = PPEDI_RECADV_STATUS_REJECT;
-						{
-							const int srsr = BillCore::SetRecadvStatus(recadv_status, bp.Rec);
-							if(do_turn_link_pack || srsr > 0) {
-								PPTransaction tra(1);
-								THROW(tra);
-								if(do_turn_link_pack) {
-									link_pack.InitAmounts();
-									THROW(P_BObj->TurnPacket(&link_pack, 0));
-								}
-								if(srsr > 0) {
-									THROW(SearchByID_ForUpdate(P_BObj->P_Tbl, PPOBJ_BILL, bp.Rec.ID, &ex_bill_rec) > 0);
-									ex_bill_rec.Flags2 = bp.Rec.Flags2;
-									THROW_DB(P_BObj->P_Tbl->updateRecBuf(&ex_bill_rec)); // @sfu
-								}
-								THROW(tra.Commit());
-								{
-									PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-									LogTextWithAddendum(PPTXT_EDI_BILLRECADVACCEPTED, bill_text);
-								}
+							if(srsr > 0) {
+								THROW(SearchByID_ForUpdate(P_BObj->P_Tbl, PPOBJ_BILL, bp.Rec.ID, &ex_bill_rec) > 0);
+								ex_bill_rec.Flags2 = bp.Rec.Flags2;
+								THROW_DB(P_BObj->P_Tbl->updateRecBuf(&ex_bill_rec)); // @sfu
+							}
+							THROW(tra.Commit());
+							{
+								PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+								LogTextWithAddendum(PPTXT_EDI_BILLRECADVACCEPTED, bill_text);
 							}
 						}
-						break;
 					}
+					break;
 				}
 			}
-			pPack->Flags |= Packet::fDoDelete; // @v9.0.0
 		}
-    }
+		pPack->Flags |= Packet::fDoDelete; // @v9.0.0
+	}
 	CATCHZOK
     return ok;
 }
@@ -6097,7 +6106,8 @@ int SLAPI PPEgaisProcessor::DebugReadInput(PPID locID)
 
 void SLAPI PPEgaisProcessor::LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec)
 {
-	SString temp_buf = GetDocTypeTag(pTicket->DocType);
+	SString temp_buf;
+	GetDocTypeTag(pTicket->DocType, temp_buf);
 	if(pBillRec) {
 		SString bill_text;
 		PPObjBill::MakeCodeString(pBillRec, PPObjBill::mcsAddOpName, bill_text);
@@ -6345,20 +6355,16 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 					// что в противном случае при отправке документов в пределах одной базы между родственными организациями
 					// драфт-документ прихода может перехватить тикет, предназначенный отправленному документу.
 					//
-					if(guid.NotEmpty()) {
+					if(guid.NotEmpty())
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIACK, guid, &bill_id_list);
-					}
-					if(!bill_id_list.getCount() && pT->RegIdent.NotEmpty()) {
+					if(!bill_id_list.getCount() && pT->RegIdent.NotEmpty())
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pT->RegIdent, &bill_id_list);
-					}
 				}
 				else {
-					if(pT->RegIdent.NotEmpty()) {
+					if(pT->RegIdent.NotEmpty())
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pT->RegIdent, &bill_id_list);
-					}
-					if(!bill_id_list.getCount() && guid.NotEmpty()) {
+					if(!bill_id_list.getCount() && guid.NotEmpty())
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIACK, guid, &bill_id_list);
-					}
 				}
 			}
 			bill_id_list.sortAndUndup();
@@ -6631,15 +6637,13 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 				ok = 1;
 			}
 			else {
-				// @v8.9.5 {
 				if(!(p_reply->Status & Reply::stOffline)) {
 					if(MakeOutputFileName(p_reply, temp_path, temp_buf))
 						AcceptDoc(*p_reply, temp_buf);
 					else
 						LogLastError();
 				}
-				// } @v8.9.5
-				temp_buf = GetDocTypeTag(doc_type);
+				GetDocTypeTag(doc_type, temp_buf);
 				if(temp_buf.Empty())
 					temp_buf.Cat(doc_type);
 				LogTextWithAddendum(PPTXT_EGAIS_GOTUNPROCESSEDDOC, temp_buf);
@@ -6663,7 +6667,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		DateIter last_restshop_di;
 		//
 		// Акцептируем данные в 2 прохода. На втором проходе акцептируются те объекты,
-		// которые могут зависить от того, что принято на 1-м проходе.
+		// которые могут зависеть от того, что принято на 1-м проходе.
 		// На текущий момент это - справки Б.
 		//
 		uint   packidx = 0;

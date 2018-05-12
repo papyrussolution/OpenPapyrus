@@ -330,9 +330,8 @@ int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, 
 int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 {
 	int    ok = 0;
-	LDATETIME dtm;
+	LDATETIME dtm = ZERODATETIME;
 	size_t sn_len = pServerName ? strlen(pServerName) : 0;
-	dtm.SetZero();
 	if(sn_len) {
 		typedef NET_API_STATUS (WINAPI * NETREMOTETOD)(LPCWSTR UncServerName, LPBYTE* BufferPtr);
 		typedef NET_API_STATUS (WINAPI * NETAPIBUFFERFREE)(LPVOID Buffer);

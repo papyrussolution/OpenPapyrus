@@ -333,8 +333,8 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	ZDELETE(P_TmpTbl);
 	BExtQuery::ZDelete(&P_IterQuery);
-	List.Clear();
-	ExcludeOwnerList.Set(0); // @v8.4.2
+	List.Z();
+	ExcludeOwnerList.Set(0);
 	Counter.Init();
 	SETMAX(Filt.PDisR.low, 0.0);
 	SETMAX(Filt.PDisR.upp, 0.0);

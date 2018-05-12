@@ -584,7 +584,7 @@ struct CtmToken {
 		LTIME  T;
 		DLSYMBID ID;
 		char * S;
-		S_GUID Uuid;
+		S_GUID_Base Uuid;
 	} U;
 };
 
@@ -922,9 +922,9 @@ public:
 	//
 	// COM-инфраструктура
 	//
-	DLSYMBID FASTCALL SearchUuid(const S_GUID & rUuid) const;
+	DLSYMBID FASTCALL SearchUuid(const S_GUID_Base & rUuid) const;
 	int    SLAPI GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const;
-	int    SLAPI GetInterface(const S_GUID & rIID, DLSYMBID * pID, const DlScope ** ppScope) const;
+	int    SLAPI GetInterface(const S_GUID_Base & rIID, DLSYMBID * pID, const DlScope ** ppScope) const;
 	//
 	// Descr: Перебирает интефейсы класса pCls.
 	// Returns:

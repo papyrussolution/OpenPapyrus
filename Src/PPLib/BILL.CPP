@@ -1078,12 +1078,13 @@ int SLAPI BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, PPID * pID, BillTbl::Rec * pRec)
+int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
 {
 	int    ok = -1;
 	char   scode[32];
 	DBQ  * dbq = 0;
 	union {
+		BillTbl::Key1 k1;
 		BillTbl::Key2 k2;
 		BillTbl::Key3 k3;
 	} k;
@@ -1094,23 +1095,34 @@ int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, PPID * pID, BillT
 	if(pSample->Object) {
 		k.k3.Object = pSample->Object;
 		k.k3.Dt     = pSample->Dt;
-		dbq = & (this->Object == pSample->Object && this->Dt == pSample->Dt && this->OpID == pSample->OpID);
+		dbq = & (this->Object == pSample->Object && this->Dt == pSample->Dt);
+		if(!(flags & safIgnoreOp))
+			dbq = &(*dbq && this->OpID == pSample->OpID);
 		idx = 3;
 	}
-	else {
+	else if(!(flags & safIgnoreOp)) {
 		k.k2.OpID = pSample->OpID;
 		k.k2.Dt   = pSample->Dt;
 		dbq = & (this->OpID == pSample->OpID && this->Dt == pSample->Dt);
 		idx = 2;
 	}
-	BExtQuery q(this, idx);
-	q.selectAll().where(*dbq);
+	else {
+		k.k1.Dt = pSample->Dt;
+		dbq = & (this->Dt == pSample->Dt);
+		idx = 1;
+	}
+	BExtQuery q(this, idx, 256);
+	q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
 	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
-		GetCode(data.Code);
-		if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
-			ASSIGN_PTR(pID, data.ID);
-			ASSIGN_PTR(pRec, data);
-			ok = 1;
+		if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
+			GetCode(data.Code);
+			if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
+				const PPID bill_id = data.ID;
+				if(!pRec || Search(bill_id, pRec) > 0) {
+					ASSIGN_PTR(pID, bill_id);
+					ok = 1;
+				}
+			}
 		}
 	}
 	return ok;

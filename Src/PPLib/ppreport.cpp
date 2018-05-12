@@ -1023,7 +1023,7 @@ public:
 		SetupStrAssocCombo(this, CTLSEL_PRINT2_REPORT, &list, 1, 0);
 		{
 			SPrinting::GetListOfPrinters(&PrnList);
-			list.Clear();
+			list.Z();
 			long   sel_prn_id = 0;
 			//
 			// ѕеремещаем принтер по умолчанию на верх списка

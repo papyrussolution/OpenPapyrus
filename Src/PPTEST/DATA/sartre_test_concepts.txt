@@ -30,3 +30,17 @@ ling_cs
 железнодорожная казарма
 лисициной
 воздвиженка
+протодиакон
+архидиакон
+генерал-полковник
+герцогиня
+nyse
+пос
+ср
+кг
+г
+malus domestica
+malus
+malus sylvestris
+malus pumila
+

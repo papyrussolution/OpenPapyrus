@@ -3,13 +3,13 @@
 #include <pp.h>
 #pragma hdrstop
 
-int DispArrAdd(StrAssocArray & rArr, int pos, int value)
+static int DispArrAdd(StrAssocArray & rArr, int pos, int value)
 {
 	SString str;
 	return rArr.Add(pos, str.Cat(value), 1);
 }
 
-int DispArrAdd(StrAssocArray & rArr, int pos, const char* pValue)
+static int DispArrAdd(StrAssocArray & rArr, int pos, const char* pValue)
 {
 	return rArr.Add(pos, pValue, 1);
 }
@@ -27,13 +27,8 @@ int PPCustDisp::IsComPort(const char * pPortName)
 	return ok;
 }
 
-SLAPI PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*/)
+SLAPI PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*/) : Port(portNo), DispStrLen(0), State(0), Flags(flags), P_DispBuf(0)
 {
-	Port = portNo;
-	DispStrLen = 0;
-	State = 0;
-	Flags = flags;
-	P_DispBuf  = 0;
 	P_AbstrDvc = new PPAbstractDevice(0);
 	P_AbstrDvc->PCpb.Cls = DVCCLS_DISPLAY;
 	P_AbstrDvc->GetDllName(DVCCLS_DISPLAY, dispType, P_AbstrDvc->PCpb.DllName);
@@ -47,8 +42,8 @@ SLAPI PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*
 SLAPI PPCustDisp::~PPCustDisp()
 {
 	delete P_DispBuf;
-	ExecOper(DVCCMD_DISCONNECT, Arr_In.Clear(), Arr_Out.Clear());
-	ExecOper(DVCCMD_RELEASE, Arr_In.Clear(), Arr_Out.Clear());
+	ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out.Z());
+	ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z());
 	ZDELETE(P_AbstrDvc);
 }
 
@@ -56,7 +51,7 @@ int SLAPI PPCustDisp::GetConfig()
 {
 	int    ok = 1;
 	SString buf, param_name, param_val;
-	Arr_In.Clear();
+	Arr_In.Z();
 	THROW(State & stConnected);
 	THROW(ExecOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
 	if(Arr_Out.getCount())
@@ -74,9 +69,9 @@ int SLAPI PPCustDisp::Init(int usb /*=0*/)
 	int    ok = 1;
 	SString usb_dll_catalog;
 	PPGetPath(PPPATH_BIN, usb_dll_catalog);
-	Arr_In.Clear();
+	Arr_In.Z();
 	THROW(DispArrAdd(Arr_In, DVCPARAM_DLLPATH, usb_dll_catalog));
-	THROW(ExecOper(DVCCMD_INIT, Arr_In, Arr_Out.Clear()));
+	THROW(ExecOper(DVCCMD_INIT, Arr_In, Arr_Out.Z()));
 	THROW(DispArrAdd(Arr_In, DVCPARAM_FLAGS, usb));
 	THROW(DispArrAdd(Arr_In, DVCPARAM_PORT, Port));
 	THROW(ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out));
@@ -97,22 +92,16 @@ int SLAPI PPCustDisp::PutString(const char * pStr, int align/*= ALIGN_LEFT*/, in
 	int    ok = 1;
 	if(State & stConnected) {
 		switch(align) {
-			case ALIGN_RIGHT:
-				align = HORZNT_RIGHT;
-				break;
-			case ALIGN_LEFT:
-				align = HORZNT_LEFT;
-				break;
-			case ALIGN_CENTER:
-				align = HORZNT_CENTER;
-				break;
+			case ALIGN_RIGHT: align = HORZNT_RIGHT; break;
+			case ALIGN_LEFT: align = HORZNT_LEFT; break;
+			case ALIGN_CENTER: align = HORZNT_CENTER; break;
 		}
 		strnzcpy(P_DispBuf, pStr, DispStrLen + 1);
-		Arr_In.Clear();
+		Arr_In.Z();
 		DispArrAdd(Arr_In, DVCPARAM_TEXT, P_DispBuf);
 		DispArrAdd(Arr_In, DVCPARAM_VERTAB, verTab);
 		DispArrAdd(Arr_In, DVCPARAM_ALIGN, align);
-		THROW(ExecOper(DVCCMD_PUTLINE, Arr_In, Arr_Out.Clear()));
+		THROW(ExecOper(DVCCMD_PUTLINE, Arr_In, Arr_Out.Z()));
 	}
 	CATCHZOK
 	return ok;
@@ -142,7 +131,7 @@ int SLAPI PPCustDisp::ClearDisplay()
 {
 	int    ok = 1;
 	if(State & stConnected)
-		ok = ExecOper(DVCCMD_CLEARDISPLAY, Arr_In.Clear(), Arr_Out.Clear());
+		ok = ExecOper(DVCCMD_CLEARDISPLAY, Arr_In.Z(), Arr_Out.Z());
 	return ok;
 }
 
@@ -259,7 +248,7 @@ int SLAPI PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOu
 	if((ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut)) != 1) {
 		SString err_msg;
 		rOut.GetText(0, err_msg);
-		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn.Clear(), rOut.Clear()))
+		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn.Z(), rOut.Z()))
 			rOut.GetText(0, err_msg);
 		if(err_msg.NotEmpty())
 			PPSetError(PPERR_CUSTDISP, err_msg.Transf(CTRANSF_OUTER_TO_INNER));

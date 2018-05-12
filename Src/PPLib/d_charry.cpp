@@ -835,7 +835,7 @@ int SLAPI PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 			STRNSCPY(pack.Rec.Code, Data.Rec.Code);
 			STRNSCPY(pack.Rec.Memo, Data.Rec.Memo);
 			pack.Pays.copy(Data.Pays);
-			if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, 0, 0) <= 0) {
+			if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) <= 0) {
 				int    skip = 0;
 				for(uint i = 0; Data.EnumTItems(&i, &p_ti) > 0;) {
 					if(pack.CheckGoodsForRestrictions((int)(i-1), p_ti->GoodsID, p_ti->GetSign(pack.Rec.OpID), p_ti->Qtty(), PPBillPacket::cgrfAll, 0)) {

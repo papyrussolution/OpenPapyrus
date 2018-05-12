@@ -484,7 +484,7 @@ public:
 	SrCPropDeclList(const SrCPropDeclList & rS);
 	SrCPropDeclList & FASTCALL operator = (const SrCPropDeclList & rS);
 	SrCPropDeclList & FASTCALL Copy(const SrCPropDeclList & rS);
-	SrCPropDeclList & Clear();
+	SrCPropDeclList & Z();
 	uint   GetCount() const { return D.getCount(); }
 	int    FASTCALL Add(const SrCPropDecl & rP);
 	int    Replace(uint pos, const SrCPropDecl & rP);
@@ -533,7 +533,7 @@ public:
 
 	SrConcept();
 	int    FASTCALL IsEqual(const SrConcept & rS) const;
-	SrConcept & Clear();
+	SrConcept & Z();
 
 	CONCEPTID ID;
 	LEXID  SymbID;
@@ -571,7 +571,7 @@ public:
 	SrCProp();
 	SrCProp(CONCEPTID cID, CONCEPTID propID);
 	int    FASTCALL IsEqual(const SrCProp & rS) const;
-	SrCProp & Clear();
+	SrCProp & Z();
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);
 	SrCProp & FASTCALL operator = (double);
@@ -589,7 +589,7 @@ class SrCPropList {
 public:
 	SrCPropList();
 	int    Set(CONCEPTID cID, CONCEPTID propID, const void * pData, size_t dataLen);
-	SrCPropList & Clear();
+	SrCPropList & Z();
 	int    Search(CONCEPTID cID, CONCEPTID propID, uint * pPos) const;
 	size_t FASTCALL GetDataLen(uint pos) const;
 	const  void * GetDataPtr(uint pos, size_t * pDataLen) const;
@@ -709,7 +709,7 @@ public:
 
 struct SrWordInfo { // @flat
 	SrWordInfo();
-	SrWordInfo & Clear();
+	SrWordInfo & Z();
 
 	LEXID  BaseID;     // Идентификатор неизменяемой базы слова
 	LEXID  PrefixID;   // Идентификатор приставки слова

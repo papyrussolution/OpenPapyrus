@@ -5582,9 +5582,9 @@ private:
 			p_data->AddPaym_unused = p_old_rec_6708->AddPaym; // @v9.0.4 _unused
 			p_data->GuestCount = p_old_rec_6708->GuestCount;
 
-			p_data->StartOrdDtm.SetZero();
-			p_data->EndOrdDtm.SetZero();
-			p_data->CreationDtm.SetZero();
+			p_data->StartOrdDtm.Z();
+			p_data->EndOrdDtm.Z();
+			p_data->CreationDtm.Z();
 		}
 		else {
 			p_data->CheckID = p_old_rec_7601->CheckID;
@@ -5599,8 +5599,8 @@ private:
 			p_data->LinkCheckID = p_old_rec_7601->LinkCheckID;
 			p_data->EndOrdDtm = p_old_rec_7601->EndOrdDtm;
 			if(!p_old_rec_7601->StartOrdDtm) {
-				p_data->StartOrdDtm.SetZero();
-				p_data->CreationDtm.SetZero();
+				p_data->StartOrdDtm.Z();
+				p_data->CreationDtm.Z();
 			}
 			else {
 				CCheckTbl::Key0 k0;
@@ -5608,16 +5608,16 @@ private:
 				if(P_CcT && P_CcT->search(0, &k0, spEq)) {
 					if(P_CcT->data.Flags & CCHKF_DELIVERY) {
 						p_data->StartOrdDtm = p_old_rec_7601->StartOrdDtm;
-						p_data->CreationDtm.SetZero();
+						p_data->CreationDtm.Z();
 					}
 					else {
-						p_data->StartOrdDtm.SetZero();
+						p_data->StartOrdDtm.Z();
 						p_data->CreationDtm = p_old_rec_7601->StartOrdDtm;
 					}
 				}
 				else {
-					p_data->StartOrdDtm.SetZero();
-					p_data->CreationDtm.SetZero();
+					p_data->StartOrdDtm.Z();
+					p_data->CreationDtm.Z();
 				}
 			}
 			STRNSCPY(p_data->Memo, p_old_rec_7601->Memo);

@@ -885,21 +885,14 @@ void FASTCALL InetUrl::Copy(const InetUrl & rS)
 	State = rS.State;
 }
 
-int InetUrl::Valid() const
-{
-	return BIN(!(State & stError));
-}
-
-int InetUrl::IsEmpty() const
-{
-	return BIN(State & stEmpty);
-}
+int InetUrl::Valid() const { return BIN(!(State & stError)); }
+int InetUrl::IsEmpty() const { return BIN(State & stEmpty); }
 
 InetUrl & InetUrl::Clear()
 {
 	InetAddr::Clear();
 	State = stEmpty;
-	TermList.Clear();
+	TermList.Z();
 	Org.Z();
 	Protocol = protUnkn;
 	return *this;
@@ -1261,9 +1254,9 @@ void SLAPI SMailMessage::ContentDispositionBlock::Destroy()
 	NameP = 0;
 	FileNameP = 0;
 	Size = 0;
-	ModifDtm.SetZero();
-	CrDtm.SetZero();
-	RdDtm.SetZero();
+	ModifDtm.Z();
+	CrDtm.Z();
+	RdDtm.Z();
 }
 
 SLAPI SMailMessage::ContentTypeBlock::ContentTypeBlock()
@@ -2804,9 +2797,9 @@ SHttpClient::Response & SHttpClient::Response::Reset()
 	TransferType = transftypUndef;
 	ContentLength = 0;
 	State = 0;
-	Descr = 0;
+	Descr.Z();
 	SBuffer::Clear();
-	Header.Clear();
+	Header.Z();
 	return *this;
 }
 //
@@ -2827,7 +2820,7 @@ int SHttpClient::SetHeader(int hdrTag, const char * pValue)
 
 void SHttpClient::ClearHeader()
 {
-	Header.Clear();
+	Header.Z();
 }
 
 static const char * HttpHeader[] = {
@@ -3253,7 +3246,7 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
             u.ToStr(S_GUID::fmtIDL, cname);
 		}
 		if(!curl_formadd((struct curl_httppost **)&FH, (struct curl_httppost **)&LH,
-			CURLFORM_COPYNAME, (const char *)cname, CURLFORM_FILE, pFileName, CURLFORM_CONTENTTYPE, (const char *)ctype, CURLFORM_END))
+			CURLFORM_COPYNAME, cname.cptr(), CURLFORM_FILE, pFileName, CURLFORM_CONTENTTYPE, ctype.cptr(), CURLFORM_END))
 			ok = 0;
     }
     else
@@ -3454,6 +3447,116 @@ int ScURL::Execute()
 	return SetError(curl_easy_perform(_CURLH));
 }
 
+//static
+int ScURL::ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount)
+{
+	int    ok = -1;
+	uint   flds_count = 0;
+	rBuf.Z();
+	if(pFields) {
+		SString temp_buf;
+		for(uint i = 0; i < pFields->getCount(); i++) {
+			StrStrAssocArray::Item item = pFields->at(i);
+            if(!isempty(item.Key)) {
+				if(flds_count)
+					rBuf.CatChar('&');
+                rBuf.Cat((temp_buf = item.Key).Strip().ToUrl());
+                if(!isempty(item.Val))
+					rBuf.CatChar('=').Cat((temp_buf = item.Val).Strip().ToUrl());
+                flds_count++;
+            }
+		}
+	}
+	if(flds_count)
+		ok = 1;
+	ASSIGN_PTR(pCount, flds_count);
+	return ok;
+}
+
+//static
+void * ScURL::ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields)
+{
+	int    ok = 1;
+	uint   flds_count = 0;
+	struct curl_slist * p_chunk = 0;
+	if(pHttpHeaderFields && pHttpHeaderFields->getCount()) {
+		SString temp_buf;
+		SString fld_buf;
+		for(uint i = 0; i < pHttpHeaderFields->getCount(); i++) {
+			StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
+			temp_buf = item.Key;
+            if(temp_buf.NotEmptyS()) {
+				fld_buf.Z().Cat(temp_buf);
+				temp_buf = item.Val;
+				if(temp_buf.NotEmptyS()) {
+					fld_buf.CatDiv(':', 2);
+					fld_buf.Cat(temp_buf);
+				}
+				else
+					fld_buf.CatChar(':');
+				p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
+                flds_count++;
+            }
+		}
+	}
+	return p_chunk;
+}
+
+int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
+	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+	if(p_chunk)
+		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
+	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "PATCH")));
+	THROW(SetCommonOptions(mflags, 0, 0))
+	if(pBody) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, sstrlen(pBody))));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, pBody)));
+	}
+	THROW(SetupCbWrite(pReplyStream));
+	THROW(Execute());
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const StrStrAssocArray * pFields, SFile * pReplyStream)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	uint   flds_count = 0;
+	SString flds_buf;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
+	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+	if(p_chunk)
+		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
+	ComposeFieldList(pFields, flds_buf, &flds_count);
+	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "PATCH")));
+	THROW(SetCommonOptions(mflags, 0, 0))
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, flds_buf.cptr())));
+	THROW(SetupCbWrite(pReplyStream));
+	THROW(Execute());
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	CleanCbRW();
+	return ok;
+}
+
 int ScURL::HttpPost(const char * pUrl, int mflags, HttpForm & rF, SFile * pReplyStream)
 {
 	int    ok = 1;
@@ -3492,21 +3595,7 @@ int ScURL::HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFie
 	int    ok = 1;
 	uint   flds_count = 0;
 	SString flds_buf;
-	if(pFields) {
-		SString temp_buf;
-		for(uint i = 0; i < pFields->getCount(); i++) {
-			StrStrAssocArray::Item item = pFields->at(i);
-            if(!isempty(item.Key)) {
-				if(flds_count)
-					flds_buf.CatChar('&');
-                flds_buf.Cat((temp_buf = item.Key).Strip().ToUrl());
-                if(!isempty(item.Val)) {
-					flds_buf.CatChar('=').Cat((temp_buf = item.Val).Strip().ToUrl());
-                }
-                flds_count++;
-            }
-		}
-	}
+	ComposeFieldList(pFields, flds_buf, &flds_count);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
 	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
@@ -3534,7 +3623,6 @@ int ScURL::HttpGet(const char * pUrl, int mflags, SFile * pReplyStream)
 int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream)
 {
 	int    ok = 1;
-	uint   flds_count = 0;
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
 	InetUrl url_local = rUrl;
@@ -3546,27 +3634,9 @@ int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 		THROW(SetCommonOptions(mflags, 0, 0))
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
 		THROW(SetupCbWrite(pReplyStream));
-		if(pHttpHeaderFields && pHttpHeaderFields->getCount()) {
-			SString fld_buf;
-			for(uint i = 0; i < pHttpHeaderFields->getCount(); i++) {
-				StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
-				temp_buf = item.Key;
-				if(temp_buf.NotEmptyS()) {
-					fld_buf.Z().Cat(temp_buf);
-					temp_buf = item.Val;
-					if(temp_buf.NotEmptyS()) {
-						fld_buf.CatDiv(':', 2);
-						fld_buf.Cat(temp_buf);
-					}
-					else
-						fld_buf.CatChar(':');
-					p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
-					flds_count++;
-				}
-			}
-			if(p_chunk)
-				curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-		}
+		p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+		if(p_chunk)
+			curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
 		THROW(Execute());
 	}
 	CATCHZOK
@@ -3584,28 +3654,9 @@ int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttp
 	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
 	THROW(SetupCbWrite(pReplyStream));
-	if(pHttpHeaderFields && pHttpHeaderFields->getCount()) {
-		SString temp_buf;
-		SString fld_buf;
-		for(uint i = 0; i < pHttpHeaderFields->getCount(); i++) {
-			StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
-			temp_buf = item.Key;
-            if(temp_buf.NotEmptyS()) {
-				fld_buf.Z().Cat(temp_buf);
-				temp_buf = item.Val;
-				if(temp_buf.NotEmptyS()) {
-					fld_buf.CatDiv(':', 2);
-					fld_buf.Cat(temp_buf);
-				}
-				else
-					fld_buf.CatChar(':');
-				p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
-                flds_count++;
-            }
-		}
-		if(p_chunk)
-			curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-	}
+	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+	if(p_chunk)
+		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
 	THROW(Execute());
 	CATCHZOK
 	curl_slist_free_all(p_chunk);

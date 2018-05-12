@@ -404,7 +404,7 @@ long   SLAPI StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCou
 int    SLAPI StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
 int    SLAPI StrAssocListBoxDef::GetFrameState() { return -1; }
 int    SLAPI StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree((uint)pos) : 0; }
-void   SLAPI StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Clear()); }
+void   SLAPI StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Z()); }
 
 int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
 {

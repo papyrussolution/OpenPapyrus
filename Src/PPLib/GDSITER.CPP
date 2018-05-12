@@ -12,8 +12,8 @@ GoodsIterator::Ext & GoodsIterator::Ext::Clear()
 	GoodsID = 0;
 	Price = 0.0;
 	Rest = 0.0;
-	PriceDtm.SetZero();
-	SfList.Clear();
+	PriceDtm.Z();
+	SfList.Z();
 	return *this;
 }
 
@@ -369,7 +369,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	SfClsID = 0;
 	ExtList.clear();
 	ZDELETE(P_UhttsPack);
-	ExtSfTitleList.Clear();
+	ExtSfTitleList.Z();
 	Order = oneof2(aOrder, ordByName, ordByAbbr) ? aOrder : 0;
 	if(pFilt) {
 		Filt = *pFilt;
@@ -699,7 +699,7 @@ int SLAPI GoodsIterator::GetSelectorListInfo(PPID * pClsID, StrAssocArray & rLis
 	}
 	else {
 		ASSIGN_PTR(pClsID, 0);
-		rList.Clear();
+		rList.Z();
 		ok = 0;
 	}
 	return ok;

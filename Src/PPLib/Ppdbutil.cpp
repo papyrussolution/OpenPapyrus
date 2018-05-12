@@ -660,9 +660,14 @@ int ConfigBackup()
 //
 class PrcssrDbDump {
 public:
+	enum {
+		spcobNone = 0,
+		spcobQuot
+	};
 	struct Param {
 		long   Mode;       // 0 - read, 1 - write
 		long   TblID;      // Идентификатор единственной таблицы, которую следует обработать.
+		int32  SpcOb;      // @v10.0.05 Специальный объект дампирования (spcobXXX)
 		SString DbSymb;
 		SString TableName;
 		SString FileName;
@@ -672,20 +677,19 @@ public:
 	~PrcssrDbDump();
 	int    SLAPI IsValid() const;
 	int    SLAPI GetTableListInFile(const char * pFileName, StrAssocArray * pList);
-
 	int	   SLAPI InitParam(Param *);
 	int	   SLAPI EditParam(Param *);
 	int	   SLAPI Init(const Param *);
 	int	   SLAPI Run();
-
 private:
 	struct DumpHeader {
 		uint32 Signature;   // PPDD 0x44445050
 		uint32 Crc32;
-		SVerT Ver;
+		SVerT  Ver;
 		uint32 Flags;
 		int64  CtxOffs;
-		uint8  Reserve[40];
+		uint32 SpecialObject; // @v10.0.04
+		uint8  Reserve[36];
 	};
 	struct TableEntry {
 		long   Id;
@@ -749,6 +753,14 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 0, 1);
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 1, 0);
 			SetClusterData(CTL_DBDUMP_ACTION, Data.Mode);
+			// @v10.0.05 {
+			AddClusterAssoc(CTL_DBDUMP_SPCOB, 0, spcobNone);
+			AddClusterAssoc(CTL_DBDUMP_SPCOB, 1, spcobQuot);
+			SetClusterData(CTL_DBDUMP_SPCOB, Data.SpcOb);
+			disableCtrl(CTLSEL_DBDUMP_TBL, Data.SpcOb != spcobNone);
+			DisableClusterItem(CTL_DBDUMP_ACTION, 1, (Data.SpcOb != spcobNone && !DS.GetConstTLA().IsAuth()));
+			DisableClusterItem(CTL_DBDUMP_SPCOB, 0, DS.GetConstTLA().IsAuth());
+			// } @v10.0.05 
 			/*
 			DbLoginBlock blk;
 			if(Dbes.GetBySymb(Data.DbSymb, &blk)) {
@@ -795,6 +807,11 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 					SetupTblCombo(new_mode);
 					Data.Mode = new_mode;
 				}
+			}
+			else if(event.isClusterClk(CTL_DBDUMP_SPCOB)) {
+				GetClusterData(CTL_DBDUMP_SPCOB, &Data.SpcOb);
+				disableCtrl(CTLSEL_DBDUMP_TBL, Data.SpcOb != spcobNone);
+				DisableClusterItem(CTL_DBDUMP_ACTION, 1, (Data.SpcOb != spcobNone && !DS.GetConstTLA().IsAuth()));
 			}
 			else if(TVBROADCAST && TVCMD == cmCommitInput) {
 				GetClusterData(CTL_DBDUMP_ACTION, &Data.Mode);
@@ -851,6 +868,19 @@ int SLAPI PrcssrDbDump::InitParam(Param * pData)
 	if(pData) {
 		pData->TblID = 0;
 		pData->Mode = 1;
+		if(DS.GetConstTLA().IsAuth()) {
+			pData->SpcOb = spcobQuot;
+			CurDict->GetDbSymb(pData->DbSymb);
+			if(pData->DbSymb.NotEmpty()) {
+				int   db_id = P_Dbes->GetBySymb(pData->DbSymb, 0);
+				if(db_id > 0)
+					P_Dbes->SetSelection(db_id);
+			}
+		}
+		else {
+			pData->SpcOb = spcobNone;
+			pData->DbSymb.Z();
+		}
 	}
 	return 1;
 }
@@ -866,38 +896,49 @@ int SLAPI PrcssrDbDump::Run()
 	int    ok = 1;
 	int    db_locked = 0;
 	THROW(OpenStream(P.FileName));
-	{
+	if(P.SpcOb == spcobNone) {
 		DbLoginBlock dlb;
 		PPIniFile ini_file;
 		PPDbEntrySet2 dbes;
+		THROW(DS.GetConstTLA().IsAuth() == 0);
 		dbes.ReadFromProfile(&ini_file);
 		THROW_SL(dbes.GetBySymb(P.DbSymb, &dlb));
 		THROW(DS.OpenDictionary2(&dlb, 0));
+		THROW(DS.GetSync().LockDB());
+		db_locked = 1;
 	}
-	THROW(DS.GetSync().LockDB());
-	db_locked = 1;
 	PPWait(1);
 	if(P.Mode == 1) {
-		if(P.TblID) {
-			THROW(Helper_Dump(P.TblID));
-		}
-		else {
-			StrAssocArray tbl_list;
-			CurDict->GetListOfTables(0, &tbl_list);
-			SString path;
-			for(uint j = 0; j < tbl_list.getCount(); j++) {
-				THROW(Helper_Dump(tbl_list.Get(j).Id));
+		if(P.SpcOb == spcobNone) {
+			if(P.TblID) {
+				THROW(Helper_Dump(P.TblID));
 			}
+			else {
+				StrAssocArray tbl_list;
+				CurDict->GetListOfTables(0, &tbl_list);
+				SString path;
+				for(uint j = 0; j < tbl_list.getCount(); j++) {
+					THROW(Helper_Dump(tbl_list.Get(j).Id));
+				}
+			}
+		}
+		else if(P.SpcOb == spcobQuot) {
+			THROW(Helper_Dump(0));
 		}
 	}
 	else if(P.Mode == 0) {
-		if(P.TblID) {
-			THROW(Helper_Undump(P.TblID));
-		}
-		else {
-			for(uint j = 0; j < TblNameList.getCount(); j++) {
-				THROW(Helper_Undump(TblNameList.Get(j).Id));
+		if(P.SpcOb == spcobNone) {
+			if(P.TblID) {
+				THROW(Helper_Undump(P.TblID));
 			}
+			else {
+				for(uint j = 0; j < TblNameList.getCount(); j++) {
+					THROW(Helper_Undump(TblNameList.Get(j).Id));
+				}
+			}
+		}
+		else if(P.SpcOb == spcobQuot) {
+			THROW(Helper_Undump(0));
 		}
 	}
 	THROW(CloseStream());
@@ -987,56 +1028,75 @@ int SLAPI PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray
 int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 {
 	int    ok = 1;
+	int    ref_allocated = 0;
 	uint   pos = 0;
+	SBuffer buffer;
 	THROW(P.Mode == 0);
-	if(TblEntryList.lsearch(&tblID, &pos, PTR_CMPFUNC(long))) {
+	if(P.SpcOb == spcobNone) {
+		if(TblEntryList.lsearch(&tblID, &pos, PTR_CMPFUNC(long))) {
+			const TableEntry & r_entry = *(TableEntry *)TblEntryList.at(pos);
+			SString tbl_name;
+			TblNameList.GetText(tblID, tbl_name);
+			THROW_SL(FDump.Seek64(r_entry.Offs));
+			{
+				DbProvider * p_dict = CurDict;
+				IterCounter cntr;
+				DBTable tbl(tbl_name);
+				int    has_lob = 0;
+				DBField lob_fld;
+				RECORDSIZE fix_rec_size = tbl.getRecSize();
+				THROW(tbl.allocOwnBuffer(16*1024));
+				if(tbl.HasLob(&lob_fld) > 0) {
+					has_lob = 1;
+				}
+				THROW_DB(p_dict->RenewFile(tbl, 0, 0));
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					cntr.Init((long)r_entry.NumRecs); // @32-64
+					for(int64 i = 0; i < r_entry.NumChunks; i++) {
+						int64  local_count = 0;
+						buffer.Clear();
+						THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
+						THROW_SL(FDump.Read(buffer));
+						for(int64 j = 0; j < local_count; j++) {
+							tbl.clearDataBuf();
+							THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
+							if(has_lob) {
+								const SLob * p_lob = (SLob *)lob_fld.getValuePtr();
+								tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
+							}
+							THROW_DB(tbl.insertRec());
+							if(has_lob) {
+								//
+								// Так как сериализация LOB-поля восстанавливает его в канонизированном
+								// виде, то очищаем канонизированный буфер во избежании утечки памяти.
+								//
+								tbl.writeLobData(lob_fld, 0, 0, 0);
+							}
+							PPWaitPercent(cntr.Increment(), tbl_name);
+						}
+					}
+					THROW(tra.Commit());
+				}
+				THROW(p_dict->PostProcessAfterUndump(&tbl));
+			}
+		}
+	}
+	else if(P.SpcOb == spcobQuot) {
+		THROW(TblEntryList.getCount() == 1);
+		THROW(DS.GetConstTLA().IsAuth());
 		const TableEntry & r_entry = *(TableEntry *)TblEntryList.at(pos);
-		SBuffer buffer;
-		SString tbl_name;
-		TblNameList.GetText(tblID, tbl_name);
 		THROW_SL(FDump.Seek64(r_entry.Offs));
 		{
-			DbProvider * p_dict = CurDict;
-			IterCounter cntr;
-			DBTable tbl(tbl_name);
-			int    has_lob = 0;
-			DBField lob_fld;
-			RECORDSIZE fix_rec_size = tbl.getRecSize();
-			THROW(tbl.allocOwnBuffer(16*1024));
-			if(tbl.HasLob(&lob_fld) > 0) {
-				has_lob = 1;
+			Quotation2Core qc2;
+			for(int64 i = 0; i < r_entry.NumChunks; i++) {
+				int64  local_count = 0;
+				buffer.Clear();
+				THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
+				THROW_SL(FDump.Read(buffer));
+				THROW(qc2.UndumpCurrent(buffer, 1));
 			}
-			THROW_DB(p_dict->RenewFile(tbl, 0, 0));
-			{
-				PPTransaction tra(1);
-				THROW(tra);
-				cntr.Init((long)r_entry.NumRecs); // @32-64
-				for(int64 i = 0; i < r_entry.NumChunks; i++) {
-					int64  local_count = 0;
-					buffer.Clear();
-					THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
-					THROW_SL(FDump.Read(buffer));
-					for(int64 j = 0; j < local_count; j++) {
-						tbl.clearDataBuf();
-						THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
-						if(has_lob) {
-							const SLob * p_lob = (SLob *)lob_fld.getValuePtr();
-							tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
-						}
-						THROW_DB(tbl.insertRec());
-						if(has_lob) {
-							//
-							// Так как сериализация LOB-поля восстанавливает его в канонизированном
-							// виде, то очищаем канонизированный буфер во избежании утечки памяти.
-							//
-							tbl.writeLobData(lob_fld, 0, 0, 0);
-						}
-						PPWaitPercent(cntr.Increment(), tbl_name);
-					}
-				}
-				THROW(tra.Commit());
-			}
-			THROW(p_dict->PostProcessAfterUndump(&tbl));
 		}
 	}
 	CATCHZOK
@@ -1046,77 +1106,103 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 {
 	int    ok = -1;
+	int    ref_allocated = 0;
 	DbTableStat ts;
+	SBuffer buffer;
+	int64  recs_count = 0;  // Общее количество записей
+	const  int64 start_offs = FDump.Tell();
 	THROW(P.Mode == 1);
-	if(CurDict->GetTableInfo(tblID, &ts) && !(ts.Flags & XTF_DICT)) {
-		SBuffer buffer, lob_buf;
-		char   key[MAXKEYLEN];
-		int64  recs_count = 0;  // Общее количество записей
-		int64  local_count = 0; // Количество записей в отрезке
-		int64  chunk_count = 0; // Количество отрезков
-		int64  start_offs = 0;
-		int    has_lob = 0;
-		IterCounter cntr;
-		DBField lob_fld;
-		DBTable tbl(ts.TblName);
-		THROW(tbl.allocOwnBuffer(16*1024));
-		start_offs = FDump.Tell();
-		if(tbl.HasLob(&lob_fld) > 0) {
-			has_lob = 1;
-		}
-		PPInitIterCounter(cntr, &tbl);
-		MEMSZERO(key);
-		tbl.clearDataBuf();
-		if(tbl.search(0, &key, spFirst)) do {
-			if(has_lob) {
-				//
-				// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
-				// правильно сохранить его в потоке.
-				//
-				lob_buf.Clear();
-				tbl.readLobData(lob_fld, lob_buf);
-				tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
+	if(P.SpcOb == spcobNone) {
+		if(CurDict->GetTableInfo(tblID, &ts) && !(ts.Flags & XTF_DICT)) {
+			SBuffer lob_buf;
+			char   key[MAXKEYLEN];
+			int64  local_count = 0; // Количество записей в отрезке
+			int64  chunk_count = 0; // Количество отрезков
+			int    has_lob = 0;
+			IterCounter cntr;
+			DBField lob_fld;
+			DBTable tbl(ts.TblName);
+			THROW(tbl.allocOwnBuffer(16*1024));
+			if(tbl.HasLob(&lob_fld) > 0) {
+				has_lob = 1;
 			}
-			THROW_SL(Ctx.Serialize(tbl.GetTableName(), &tbl.GetFieldsNonConst(), tbl.getDataBuf(), buffer));
-			if(has_lob) {
-				//
-				// Очищаем канонизированный буфер LOB-поля во избежании утечки памяти.
-				//
-				tbl.writeLobData(lob_fld, 0, 0, 0);
-			}
-			local_count++;
-			recs_count++;
-			if(buffer.GetAvailableSize() >= MaxBufLen) {
+			PPInitIterCounter(cntr, &tbl);
+			MEMSZERO(key);
+			tbl.clearDataBuf();
+			if(tbl.search(0, &key, spFirst)) do {
+				if(has_lob) {
+					//
+					// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
+					// правильно сохранить его в потоке.
+					//
+					lob_buf.Clear();
+					tbl.readLobData(lob_fld, lob_buf);
+					tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
+				}
+				THROW_SL(Ctx.Serialize(tbl.GetTableName(), &tbl.GetFieldsNonConst(), tbl.getDataBuf(), buffer));
+				if(has_lob) {
+					//
+					// Очищаем канонизированный буфер LOB-поля во избежании утечки памяти.
+					//
+					tbl.writeLobData(lob_fld, 0, 0, 0);
+				}
+				local_count++;
+				recs_count++;
+				if(buffer.GetAvailableSize() >= MaxBufLen) {
+					THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
+					THROW_SL(FDump.Write(buffer));
+					buffer.Clear();
+					local_count = 0;
+					chunk_count++;
+				}
+				tbl.clearDataBuf();
+				PPWaitPercent(cntr.Increment(), tbl.GetTableName());
+			} while(tbl.search(0, &key, spNext));
+			THROW_DB(BTROKORNFOUND);
+			if(local_count) {
 				THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
 				THROW_SL(FDump.Write(buffer));
 				buffer.Clear();
 				local_count = 0;
 				chunk_count++;
 			}
-			tbl.clearDataBuf();
-			PPWaitPercent(cntr.Increment(), tbl.GetTableName());
-		} while(tbl.search(0, &key, spNext));
-		THROW_DB(BTROKORNFOUND);
-		if(local_count) {
-			THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
-			THROW_SL(FDump.Write(buffer));
-			buffer.Clear();
-			local_count = 0;
-			chunk_count++;
+			if(recs_count) {
+				TableEntry entry;
+				MEMSZERO(entry);
+				entry.Id = tblID;
+				entry.Offs = start_offs;
+				entry.NumRecs = recs_count;
+				entry.NumChunks = chunk_count;
+				THROW_SL(TblEntryList.insert(&entry));
+				THROW_SL(TblNameList.Add(tblID, ts.TblName));
+				ok = 1;
+			}
 		}
-		if(recs_count) {
+	}
+	else if(P.SpcOb == spcobQuot) {
+		Quotation2Core qc2;
+		if(!PPRef) {
+			THROW_MEM(PPRef = new Reference);
+			ref_allocated = 1;
+		}
+		THROW(qc2.DumpCurrent(buffer, &recs_count));
+		THROW_SL(FDump.Write(&recs_count, sizeof(recs_count)));
+		THROW_SL(FDump.Write(buffer));
+		{
 			TableEntry entry;
 			MEMSZERO(entry);
-			entry.Id = tblID;
+			entry.Id = 0;
 			entry.Offs = start_offs;
 			entry.NumRecs = recs_count;
-			entry.NumChunks = chunk_count;
+			entry.NumChunks = 1;
 			THROW_SL(TblEntryList.insert(&entry));
 			THROW_SL(TblNameList.Add(tblID, ts.TblName));
-			ok = 1;
 		}
 	}
 	CATCHZOK
+	if(ref_allocated) {
+		ZDELETE(PPRef);
+	}
 	return ok;
 }
 
@@ -2197,8 +2283,7 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 		(wildcard = copy_dir).SetLastSlash().Cat("*.*");
 		SDirec file_enum(wildcard);
 		SDirEntry f_data;
-		LDATETIME last_modif;
-		last_modif.SetZero();
+		LDATETIME last_modif = ZERODATETIME;
 		while(file_enum.Next(&f_data) > 0) {
 			copy_size += f_data.Size;
 			if(cmp(f_data.AccessTime, last_modif) == 1)

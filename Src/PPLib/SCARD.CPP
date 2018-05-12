@@ -865,13 +865,12 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 {
 	int    ok = 1;
 	if(billID) {
-		LDATETIME dtm;
+		LDATETIME dtm = ZERODATETIME;
 		SCardOpTbl::Rec rec;
 		SCardOpTbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.LinkObjType = PPOBJ_BILL;
 		k1.LinkObjID = billID;
-		dtm.SetZero();
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(ScOp.search(1, &k1, spGe) && ScOp.data.LinkObjType == PPOBJ_BILL && ScOp.data.LinkObjID == billID) {

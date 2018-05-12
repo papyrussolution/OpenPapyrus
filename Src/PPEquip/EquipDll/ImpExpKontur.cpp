@@ -1431,13 +1431,10 @@ class ImportCls : public ImportExportCls {
 public:
 	ImportCls() : P_FtpCli(0), GoodsCount(0), Id(0), ObjType(0), MessageType(0), State(0), BillSumWithoutVat(0.0)
 	{
-		//ObjId = 0;
-		//InboxReadIndex = 0;
 		ErrorCode = 0;
 		WebServcErrorCode = 0;
 		AperakInfo.Clear();
-		//InboxFiles.Clear();
-		FilesForDel.Clear();
+		FilesForDel.Z();
 	}
 	~ImportCls()
 	{

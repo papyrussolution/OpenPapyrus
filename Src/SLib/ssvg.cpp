@@ -199,7 +199,7 @@ int SSvg::GetAttr(xmlNode * pNode, const char * pAttr, SString & rVal)
 int SSvg::GetAttrList(xmlNode * pNode, StrAssocArray & rList)
 {
 	int    ok = 1;
-	rList.Clear();
+	rList.Z();
 	if(pNode && pNode->type == XML_ELEMENT_NODE) {
 		xmlAttr * p_prop = pNode->properties;
 		for(xmlAttr * p_prop = pNode->properties; p_prop; p_prop = p_prop->next) {

@@ -1,5 +1,5 @@
 // UI.CPP
-// Copyright (c) A.Sobolev 2011, 2016
+// Copyright (c) A.Sobolev 2011, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,7 +10,7 @@
 int UiItemKind::GetTextList(StrAssocArray & rList)
 {
 	int    ok = 1;
-	rList.Clear();
+	rList.Z();
 	UiItemKind item;
 	for(int i = kDialog; i < kCount; i++) {
 		if(item.Init(i)) {

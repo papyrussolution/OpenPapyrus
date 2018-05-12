@@ -1548,27 +1548,21 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 
 // Структура для хранения некоторых данных, полученных из ответа от сервера штампа времени
 struct StTspResponse {
-	StTspResponse() {
-		ResponseLen = 0;
-		PKIStatus = 0; // Статус запроса
-		PKIFreeText = ""; // Какое-то описание
-		PKIFailureInfo = ""; // Описание в случае ошибки выполнения запроса
+	StTspResponse() : ResponseLen(0), PKIStatus(0), Time(ZERODATETIME), Accuracy(0)
+	{
 		HashAlg = ""; // Алгоритм хеширования
 		Hash = ""; // Хеш
-		Time.SetZero(); // Время формирования штампа
-		Accuracy = 0; // Точность времени
 		Nonce = ""; // Поле из восьми чисел, идентификатор запроса
 	}
 	int ResponseLen;
-	int PKIStatus;
-	SString PKIFreeText;
-	SString PKIFailureInfo;
+	int PKIStatus; // Статус запроса
+	SString PKIFreeText; // Какое-то описание
+	SString PKIFailureInfo; // Описание в случае ошибки выполнения запроса
 	SString HashAlg; // можно использовать для проверки, на тот ли запрос пришел ответ
 	SString Hash; // опять же как часть проверки
-	LDATETIME Time;
+	LDATETIME Time; // Время формирования штампа
 	int Accuracy; // Точность времени генерации штампа
-	SString Nonce; // Это совбственно и исспользуется для проверки, но только в случае,
-					// если в запросе было передано это поле
+	SString Nonce; // Это совбственно и исспользуется для проверки, но только в случае, если в запросе было передано это поле
 };
 
 int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd) {
@@ -1613,10 +1607,9 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 	THROW((c = pResponse[byte_pos++]) == 1); // длина 1
 	rResponseFmtd.PKIStatus = pResponse[byte_pos++]; // Собственно сам статус
 	if((rResponseFmtd.PKIStatus == 0) || (rResponseFmtd.PKIStatus == 1)) { // Если другие значения, то штамп не был выдан.
-								// Конечно, потом можно посмотреть сообщения об ошибке, которые пойдут дальше,
-								// но пока обойдемся этим.
-		byte_pos += block_len - 3; // Пропускаем возможную инфу о причинах невыдачи штампа PKIFreeText
-									// и PKIFailureInfo
+		// Конечно, потом можно посмотреть сообщения об ошибке, которые пойдут дальше,
+		// но пока обойдемся этим.
+		byte_pos += block_len - 3; // Пропускаем возможную инфу о причинах невыдачи штампа PKIFreeText и PKIFailureInfo
 		// Дальше смотрим структуру TimeStampToken
 		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
 		c = pResponse[byte_pos++]; // Здесь нам важно знать не длину блока, а количество байт под длину

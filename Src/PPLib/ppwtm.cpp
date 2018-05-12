@@ -510,11 +510,11 @@ private:
 
 IMPLEMENT_WTMOBJ_FACTORY(Processor, "@wtmo_processor");
 
-WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000), PrcID(0), BusyStatus(0), AdvCookie(0)
+WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000), PrcID(0), BusyStatus(0), 
+	AdvCookie(0), BusyDtm(ZERODATETIME)
 {
 	Options |= oSelectable;
 	MEMSZERO(PrcRec);
-	BusyDtm.SetZero();
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
 	tp.AlongSize = -1.0f;
@@ -553,7 +553,7 @@ int WhatmanObjectProcessor::RefreshBusyStatus(int force)
 	if(PrcID == 0) {
 		if(BusyStatus != 1 || !!BusyDtm) {
 			BusyStatus = 1;
-			BusyDtm.SetZero();
+			BusyDtm.Z();
 			Redraw();
 			ok = 1;
 		}
@@ -580,12 +580,12 @@ int WhatmanObjectProcessor::RefreshBusyStatus(int force)
 			}
 			else {
 				BusyStatus = 1;
-				BusyDtm.SetZero();
+				BusyDtm.Z();
 			}
 		}
 		else {
 			BusyStatus = 0;
-			BusyDtm.SetZero();
+			BusyDtm.Z();
 		}
 		Redraw();
 	}

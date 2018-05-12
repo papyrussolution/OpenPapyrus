@@ -686,9 +686,9 @@ void SLAPI CCheckPacket::Init()
 	UhttScHash.Z();
 	Items_.clear();
 	ExtList.clear();
-	LnTextList.Clear();
+	LnTextList.Z();
 	ZDELETE(P_DlvrAddr);
-	CcAl.clear(); // @v8.0.0
+	CcAl.clear();
 }
 
 int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
@@ -899,7 +899,7 @@ int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
 int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
 {
 	int   ok = 1;
-	rList.Clear();
+	rList.Z();
 	SString temp_buf;
 	SString line_buf;
 	PPExtStringStorage ess;
@@ -1036,7 +1036,7 @@ void SLAPI CCheckPacket::ClearLines()
 {
 	Items_.clear();
 	ExtList.clear();
-	LnTextList.Clear();
+	LnTextList.Z();
 }
 
 int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
@@ -2983,7 +2983,7 @@ int SLAPI CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDt
 			}
 			if(ext_rec.CheckID) {
 				if(!set && !!ext_rec.EndOrdDtm) {
-					ext_rec.EndOrdDtm.SetZero();
+					ext_rec.EndOrdDtm.Z();
 					THROW(UpdateExt(checkID, &ext_rec, 0));
 					ok = 1;
 				}

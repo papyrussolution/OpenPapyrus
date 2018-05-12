@@ -48,15 +48,15 @@ public:
 private:
 	class ActionByPhoneDialog : public TDialog {
 	public:
-		enum {
-			acnUndef = 0,
-			acnGoodsOrder,
-			acnPurchase,
-			acnPersonalEvent,
-			acnPrjTask,
-			acnCcOrder
-		};
 		struct Param {
+			enum {
+				acnUndef = 0,
+				acnGoodsOrder,
+				acnPurchase,
+				acnPersonalEvent,
+				acnPrjTask,
+				acnCcOrder
+			};
 			Param() : ExtSelector(0), Action(acnUndef), PersonID(0), SCardID(0), LocID(0)
 			{
 			}
@@ -73,13 +73,49 @@ private:
 		int setDTS(const Param * pData)
 		{
 			RVALUEPTR(Data, pData);
+			PPID   buyer_ar_id = 0;
+			PPID   suppl_ar_id = 0;
+			SString temp_buf;
 			setCtrlString(CTL_SELACNBYPHN_INFO, Data.Phone);
-			AddClusterAssocDef(CTL_SELACNBYPHN_WHAT, 0, acnGoodsOrder);
-			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 1, acnPurchase);
-			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 2, acnPersonalEvent);
-			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 3, acnPrjTask);
-			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 4, acnCcOrder);
+			AddClusterAssocDef(CTL_SELACNBYPHN_WHAT, 0, Param::acnGoodsOrder);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 1, Param::acnPurchase);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 2, Param::acnPersonalEvent);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 3, Param::acnPrjTask);
+			AddClusterAssoc(CTL_SELACNBYPHN_WHAT, 4, Param::acnCcOrder);
 			SetClusterData(CTL_SELACNBYPHN_WHAT, Data.Action);
+			if(Data.PersonID) {
+				GetPersonName(Data.PersonID, temp_buf);
+				setCtrlString(CTL_SELACNBYPHN_PERSON, temp_buf);
+				PPObjArticle ar_obj;
+				ar_obj.P_Tbl->PersonToArticle(Data.PersonID, GetSellAccSheet(), &buyer_ar_id);
+				ar_obj.P_Tbl->PersonToArticle(Data.PersonID, GetSupplAccSheet(), &suppl_ar_id);
+			}
+			else {
+				showCtrl(CTL_SELACNBYPHN_PERSON, 0);
+			}
+			if(Data.SCardID) {
+				SCardTbl::Rec sc_rec;
+				temp_buf.Z();
+				if(ScObj.Fetch(Data.SCardID, &sc_rec) > 0) {
+					temp_buf = sc_rec.Code;
+				}
+				setCtrlString(CTL_SELACNBYPHN_SCARD, temp_buf);
+			}
+			else 
+				showCtrl(CTL_SELACNBYPHN_SCARD, 0);
+			if(Data.LocID) {
+				LocationTbl::Rec loc_rec;
+				if(PsnObj.LocObj.Fetch(Data.LocID, &loc_rec) > 0) {
+					PsnObj.LocObj.MakeCodeString(&loc_rec, PPObjLocation::mcsDefault, temp_buf);
+					setCtrlString(CTL_SELACNBYPHN_LOC, temp_buf);
+				}
+			}
+			else
+				showCtrl(CTL_SELACNBYPHN_LOC, 0);
+			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 0, !buyer_ar_id);
+			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 1, !suppl_ar_id);
+			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 2, !Data.PersonID);
+			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 3, !Data.PersonID);
 			return 1;
 		}
 		int getDTS(Param * pData)
@@ -91,6 +127,8 @@ private:
 		}
 	private:
 		Param  Data;
+		PPObjSCard ScObj;
+		PPObjPerson PsnObj;
 	};
 
 	class SelectObjByPhoneDialog : public TDialog {
@@ -198,7 +236,15 @@ private:
 			const char * p_phone = S.ConnectedLine.cptr();
 			ActionByPhoneDialog::Param param;
 			param.Phone = p_phone;
-			//param.Oid = 
+			param.PersonID = S.PersonID;
+			param.SCardID = S.SCardID;
+			param.LocID = S.LocID;
+			dlg->setDTS(&param);
+			if(ExecView(dlg) == cmOK) {
+				if(dlg->getDTS(&param)) {
+
+				}
+			}
 		}
 		delete dlg;
 	}

@@ -868,6 +868,7 @@ int PPApp::processCommand(uint cmd)
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
+		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
 		case cmConstructionTest:        DoConstructionTest(); break;
 		case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break; // @v8.3.2
 		case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break; // @v8.3.6
@@ -1203,7 +1204,6 @@ static int SLAPI GetGoodsInfoIDByName(PPID * pID, const char * pName)
 
 SLAPI PPVerHistory::Info::Info()
 {
-	DbUUID.SetZero();
 }
 
 SLAPI PPVerHistory::PPVerHistory()
@@ -1803,7 +1803,7 @@ void PPApp::login(int processCmdLine)
 		if(lua_script.NotEmpty()) {
 			ExecuteLuaScriptFile(lua_script);
 		}
-		// } @v10.0.1 
+		// } @v10.0.1
 		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &dt, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());

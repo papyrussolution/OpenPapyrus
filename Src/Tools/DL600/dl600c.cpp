@@ -1005,10 +1005,10 @@ int SLAPI DlContext::Write_DialogReverse()
 	for(uint i = 0; i < scope_id_list.getCount(); i++) {
 		const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
 		if(p_scope) {
-			prop_list.Clear();
+			prop_list.Z();
 			(line_buf = 0).CR().Cat("dialog").Space().Cat(p_scope->Name);
 			{
-				text_buf = 0;
+				text_buf.Z();
 				if(GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = (const char *)c_buf;
 				line_buf.Space().CatQStr(text_buf);
@@ -1029,7 +1029,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				uint32 kind = 0;
 				UiRelRect rect;
 				rect.Reset();
-				prop_list.Clear();
+				prop_list.Z();
 				(line_buf = 0).CatChar('\t');
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
 					kind = *(uint32 *)c_buf;
@@ -1038,7 +1038,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				//
 				// Находим строку текста элемента
 				//
-				text_buf = 0;
+				text_buf.Z();
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = (const char *)c_buf;
 				//

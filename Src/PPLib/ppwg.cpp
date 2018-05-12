@@ -100,8 +100,8 @@ int SLAPI PPDutySchedPacket::Normalyze()
 		Cp.Init(CpList.at(0).Dtm, CpList.at(CpList.getCount()-1).Dtm);
 	}
 	else {
-		Cp.Start.SetZero();
-		Cp.Finish.SetZero();
+		Cp.Start.Z();
+		Cp.Finish.Z();
 	}
 	{
 		PPObjDateTimeRep dtr_obj;

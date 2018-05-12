@@ -185,7 +185,7 @@ const STimeChunkArray * STimeChunkGrid::GetCollapseList() const
 int FASTCALL STimeChunkGrid::GetBounds(STimeChunk & rBounds) const
 {
 	int    r = 0;
-	rBounds.Start.SetZero();
+	rBounds.Start.Z();
 	rBounds.Finish.SetFar();
 	for(uint i = 0; i < getCount(); i++)
 		r |= at(i)->GetBounds(&rBounds, 1);
@@ -844,7 +844,7 @@ void STimeChunkBrowser::OnUpdateData()
 		long   dur = St.Bounds.GetDuration();
 		St.QBounds = (dur > 0) ? (dur / P.Quant) : 1000;
 	}
-	ChunkTextCache.Clear();
+	ChunkTextCache.Z();
 	SetupScroll();
 }
 
@@ -2637,12 +2637,9 @@ void STimeChunkBrowser::Paint()
 				//
 				uint   first_x = a2.Right.b.x;
 				long   prev_s = MAXLONG;
-				LDATETIME prev_dtm;
-				prev_dtm.SetZero();
+				LDATETIME prev_dtm = ZERODATETIME;
 				LDATE  prev_date = ZERODATE; // Используется для идентификации нового дня.
-
 				LAssocArray last_collapsed_day_list; // key - x, val - date
-
 				for(LDATETIME dtm = St.Bounds.Start; cmp(dtm, view_time_bounds.Finish) <= 0; dtm.addsec(unit)) {
 					if(!p_collapse_list || p_collapse_list->IsFreeEntry(dtm, unit, 0)) {
 						s = DiffTime(dtm, view_time_bounds.Start);

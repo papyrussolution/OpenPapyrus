@@ -506,7 +506,7 @@ int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArra
 				//int StrToArr(SString & s_arr, StrAssocArray & strArr)
 				if(s_arr.NotEmpty()) {
 					ss.setBuf(s_arr);
-					rOut.Clear();
+					rOut.Z();
 					for(uint i = 0, j = 0; ss.get(&i, temp_buf) > 0; j++)
 						rOut.Add(j, temp_buf, 1);
 				}
@@ -743,7 +743,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 	uint8  cs = 0;
 	uint8  data_buf[512];
 	size_t data_size = 0;
-	rOut.Clear();
+	rOut.Z();
 	if(State & stConnected && P_Cp) {
 		uint16 get_num_tries = (ConnP.Cpt.Get_NumTries) ? ConnP.Cpt.Get_NumTries : 1, num_tries = 0;
 		switch(cmdId) {

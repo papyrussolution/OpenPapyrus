@@ -729,12 +729,11 @@ void PPPosProtocol::WriteBlock::Destroy()
 
 SLAPI PPPosProtocol::RouteBlock::RouteBlock()
 {
-	Uuid.SetZero();
 }
 
 void SLAPI PPPosProtocol::RouteBlock::Destroy()
 {
-	Uuid.SetZero();
+	Uuid.Z();
 	System.Z();
 	Version.Z();
 	Code.Z();
@@ -767,7 +766,6 @@ SLAPI PPPosProtocol::ObjectBlock::ObjectBlock() : Flags_(0), ID(0), NativeID(0),
 
 SLAPI PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), CodeI(0)
 {
-	Uuid.SetZero();
 }
 
 SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
@@ -857,7 +855,6 @@ SLAPI PPPosProtocol::GoodsCode::GoodsCode() { THISZERO(); }
 
 SLAPI PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock(), Direction(0), SystemP(0), VersionP(0), CodeP(0)
 {
-	Uuid.SetZero();
 }
 
 SLAPI PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos) : Type(t), P(pos)
@@ -2895,7 +2892,6 @@ void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 SLAPI PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SrcFileDtm(ZERODATETIME)
 {
-	SrcFileUUID.SetZero();
 }
 
 SLAPI PPPosProtocol::ReadBlock::~ReadBlock()
@@ -2919,8 +2915,8 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	TempBuf.Z();
 	TagValue.Z();
 	SrcFileName.Z();
-	SrcFileUUID.SetZero(); // @v9.9.12
-	SrcFileDtm.SetZero(); // @v9.9.12
+	SrcFileUUID.Z(); // @v9.9.12
+	SrcFileDtm.Z(); // @v9.9.12
 	TokPath.freeAll();
 	RefPosStack.clear();
 	SrcBlkList.freeAll();
@@ -4622,14 +4618,11 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				p_dict->GetDbUUID(&this_db_uuid);
 				p_dict->GetDbSymb(this_db_symb);
 			}
-			else
-				this_db_uuid.SetZero();
 			for(uint i = 0; i < fep.GetCount(); i++) {
 				if(fep.Get(i, 0, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) { // @v10.0.02 60000-->6000
 					DestroyReadBlock();
 					PPID   my_cn_id = 0;
 					S_GUID  my_pos_node_uuid; 
-					my_pos_node_uuid.SetZero();
 					int    pr = SaxParseFile(in_file_name, 1 /* preprocess */, BIN(rPib.Flags & rPib.fSilent));
 					THROW(pr);
 					if(pr > 0) {

@@ -1714,7 +1714,7 @@ SLAPI DlContext::~DlContext()
 	delete P_M;
 }
 
-DLSYMBID FASTCALL DlContext::SearchUuid(const S_GUID & rUuid) const
+DLSYMBID FASTCALL DlContext::SearchUuid(const S_GUID_Base & rUuid) const
 {
 	long   key = 0;
 	if(!UuidList.SearchVal(rUuid, &key, 0)) {
@@ -1735,7 +1735,7 @@ int SLAPI DlContext::GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const
 	return ok;
 }
 
-int SLAPI DlContext::GetInterface(const S_GUID & rIID, DLSYMBID * pScopeID, const DlScope ** ppScope) const
+int SLAPI DlContext::GetInterface(const S_GUID_Base & rIID, DLSYMBID * pScopeID, const DlScope ** ppScope) const
 {
 	int    ok = 0;
 	DLSYMBID scope_id = SearchUuid(rIID);

@@ -323,7 +323,7 @@ SArray  * SLAPI PPViewLinkedBill::CreateBrowserArray(uint * pBrwId, SString * pS
 int SLAPI PPViewLinkedBill::MakeList()
 {
 	List.freeAll();
-	MemoList.Clear();
+	MemoList.Z();
 
 	int    ok = 1;
 	BillCore * p_bt = P_BObj->P_Tbl;

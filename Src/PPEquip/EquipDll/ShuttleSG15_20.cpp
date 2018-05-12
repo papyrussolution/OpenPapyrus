@@ -53,16 +53,8 @@ public:
 		sg20
 	};
 	struct StIniParam {
-		StIniParam() 
+		StIniParam() : Port(0), HideWindow(0)
 		{
-			Port = 0;
-			HideWindow = 0;
-			DataBaseName = 0;
-			UserName = 0;
-			Password = 0;
-			ArrStorage.Clear();
-			SG15Format = 0;
-			SG20Format = 0;
 		}
 		int IsValid() 
 		{

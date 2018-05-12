@@ -463,7 +463,7 @@ static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pIte
 		pack.Ext.AgentID = agentID;
 		STRNSCPY(pack.Rec.Code, pItem->Code);
 		STRNSCPY(pack.Rec.Memo, pItem->Purpose);
-		if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, 0, 0) < 0) {
+		if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) < 0) {
 			AmtList amt_list;
 			amt_list.Put(PPAMT_MAIN, pack.Rec.CurID, fabs(pItem->Amount), 0, 1);
 			pack.InitAmounts(&amt_list);

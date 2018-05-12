@@ -1842,7 +1842,7 @@ int SLAPI UUIDAssocArray::Search(long key, S_GUID * pVal, uint * pPos) const
 		return 0;
 }
 
-int SLAPI UUIDAssocArray::SearchVal(const S_GUID & rVal, long * pKey, uint * pPos) const
+int SLAPI UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint * pPos) const
 {
 	uint   pos = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -2295,7 +2295,7 @@ int SLAPI StrAssocArray::Remove(long id)
 	return ok;
 }
 
-StrAssocArray & SLAPI StrAssocArray::Clear()
+StrAssocArray & SLAPI StrAssocArray::Z()
 {
 	//
 	// @v9.8.0 Теперь память, занятая массивами не освобождается (freeAll-->clear)
@@ -3367,14 +3367,11 @@ int SLAPI STimeChunkArray::Excise(const STimeChunk * pItem)
 	int    ok = -1;
 	if(pItem) {
 		STimeChunk test, sect, * p_entry;
-		// @v8.4.11 {
 		if(getCount() == 0) {
 			STimeChunk inf;
-			inf.Start.SetZero();
 			inf.Finish.SetFar();
 			insert(&inf);
 		}
-		// } @v8.4.11
 		for(uint i = 0; enumItems(&i, (void **)&p_entry);) {
 			if(p_entry->Intersect(*pItem, &sect)) {
 				if(*p_entry == sect) {
@@ -3466,8 +3463,7 @@ int SLAPI STimeChunkArray::IsFreeEntry(const LDATETIME & start, long cont, uint 
 int SLAPI STimeChunkArray::GetFreeList(STimeChunkArray * pList) const
 {
 	STimeChunk free_entry;
-	LDATETIME last;
-	last.SetZero();
+	LDATETIME last = ZERODATETIME;
 	for(uint i = 0; i < getCount(); i++) {
 		const STimeChunk & entry = *(STimeChunk *)at(i);
 		if(cmp(last, entry.Start) < 0) {
@@ -3496,10 +3492,8 @@ int SLAPI STimeChunkArray::GetBounds(STimeChunk * pBounds, int update) const
 		STimeChunk bounds;
 		if(update)
 			bounds = *pBounds;
-		else {
-			bounds.Start.SetZero();
+		else
 			bounds.Finish.SetFar();
-		}
 		for(uint i = 0; enumItems(&i, (void **)&p_chunk);) {
 			if(!bounds.Start.d || cmp(p_chunk->Start, bounds.Start) < 0)
 				bounds.Start = p_chunk->Start;

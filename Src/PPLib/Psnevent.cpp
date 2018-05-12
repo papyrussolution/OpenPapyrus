@@ -2354,7 +2354,7 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 	int    ok = 1;
 
 	rBlk.State = 0;
-	rBlk.Out.Clear();
+	rBlk.Out.Z();
 	rBlk.TempBuf.Z();
 	rBlk.Filt = rFilt;
 	rBlk.DeviceText.Z();
@@ -2377,12 +2377,12 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 
 		rBlk.Ad.PCpb.Cls = gd_pack.Rec.DeviceClass;
 		THROW(rBlk.Ad.IdentifyDevice(gd_pack.Rec.DeviceClass, temp_buf));
-		THROW(rBlk.Ad.RunCmd("INIT", rBlk.Out.Clear()));
+		THROW(rBlk.Ad.RunCmd("INIT", rBlk.Out.Z()));
 		rBlk.State |= rBlk.stInitialized;
 
 		gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf.Z());
 		if(temp_buf.NotEmptyS()) {
-			THROW(rBlk.Ad.RunCmd(temp_buf, rBlk.Out.Clear()));
+			THROW(rBlk.Ad.RunCmd(temp_buf, rBlk.Out.Z()));
 		}
 		(rBlk.DeviceText = gd_pack.Rec.Name).CatDiv('-', 1).Cat(rBlk.PokPack.Rec.Name);
 	}
@@ -2395,7 +2395,7 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 
 int SLAPI PPObjPersonEvent::FinalizeProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
 {
-	return (rBlk.State & rBlk.stInitialized) ? rBlk.Ad.RunCmd("RELEASE", rBlk.Out.Clear()) : 0;
+	return (rBlk.State & rBlk.stInitialized) ? rBlk.Ad.RunCmd("RELEASE", rBlk.Out.Z()) : 0;
 }
 
 int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
@@ -2403,7 +2403,7 @@ int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & 
 	int    ok = 1;
 	rBlk.InfoText = 0;
 	if(rBlk.State & rBlk.stInitialized) {
-		rBlk.Ad.RunCmd("LISTEN", rBlk.Out.Clear());
+		rBlk.Ad.RunCmd("LISTEN", rBlk.Out.Z());
 		if(rBlk.Out.GetText(0, rBlk.TempBuf) > 0 && rBlk.TempBuf.NotEmptyS()) {
 			rBlk.InfoText = rBlk.TempBuf;
 

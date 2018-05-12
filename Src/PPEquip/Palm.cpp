@@ -1387,7 +1387,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 	int    ok = 0;
 	if(sstrlen(pPath) && pList) {
 		SString fname;
-		pList->Clear();
+		pList->Z();
 		if(isAndr) {
 			SString mask;
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
@@ -1764,7 +1764,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		if(GetOpData(opID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 			pack.Rec.Object = pSrcPack->Hdr.ClientID;
 	}
-	if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, &analog_bill_id, &analog_bill_rec) < 0) {
+	if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &analog_bill_id, &analog_bill_rec) < 0) {
 		int    skip = 0;
 		PalmBillItem item;
 		ObjTagItem tag;
@@ -1895,7 +1895,7 @@ int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, 
 			pack.Rec.Object = pSrcPack->Hdr.ClientID;
 	}
 	STRNSCPY(pack.Rec.Memo, pSrcPack->Hdr.Memo);
-	if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, 0, 0) > 0) {
+	if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) > 0) {
 		ok = -100;
 	}
 	else {
@@ -2192,7 +2192,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 							else if(r == 0)
 								send_ok = 0;
 							if(r <= 0)
-								files_dtms[i].P_LocalDTMS->SetZero();
+								files_dtms[i].P_LocalDTMS->Z();
 						}
 						else if(pLogger)
 							pLogger->LogString(PPTXT_FTPSPIISRVDATAOBSOLETE, PPGetFileName(files_dtms[i].FileID, fname));
@@ -3143,10 +3143,9 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 {
 	int    r = -1;
 	const  char * p_tag = "StyloPalm";
-	LDATETIME dtm;
+	LDATETIME dtm = ZERODATETIME;
 	xmlDoc * p_doc = 0;
 	xmlTextReader * p_reader  = 0;
-	dtm.SetZero();
 	if(pXmlPath)
 		p_reader = xmlReaderForFile(pXmlPath, NULL, XML_PARSE_NOENT);
 	if(p_reader) {
@@ -3328,7 +3327,7 @@ int SLAPI PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
 int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
 {
 	int    ok = 1;
-	rBlk.QkList.Clear();
+	rBlk.QkList.Z();
 	PPObjQuotKind qk_obj;
 	QuotKindFilt qk_filt;
 	qk_filt.Flags = (QuotKindFilt::fExclNotForBill|QuotKindFilt::fSortByRankName);

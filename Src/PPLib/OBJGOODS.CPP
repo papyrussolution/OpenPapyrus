@@ -3236,7 +3236,7 @@ StrAssocArray * SLAPI PPObjGoods::CreateListByPrice(PPID locID, double price)
 
 int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 {
-	CALLPTRMEMB(pList, Clear());
+	CALLPTRMEMB(pList, Z());
 	int    ok = -1;
 	int    r = -1;
 	Goods2Tbl::Rec rec;
@@ -3630,6 +3630,7 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 			PPQuot item;
 			if(dir > 0)
 				item = quot_list.at(i);
+			/* @v10.0.05
 			THROW_SL(pSCtx->Serialize(dir, item.ID, rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.ArID, rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.GoodsID, rBuf));
@@ -3642,6 +3643,8 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 			THROW_SL(pSCtx->Serialize(dir, item.Dtm, rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.Period.low,  rBuf));
 			THROW_SL(pSCtx->Serialize(dir, item.Period.upp,  rBuf));
+			*/
+			THROW(item.Serialize(dir, rBuf, pSCtx)); // @v10.0.05
 			if(dir < 0) {
 				item.ID = 0;
 				THROW_SL(quot_list.insert(&item));

@@ -754,7 +754,7 @@ int ColorCtrlGroup::Rec::AddUndefColorItem()
 
 void ColorCtrlGroup::Rec::SetupStdColorList()
 {
-	ColorList.Clear();
+	ColorList.Z();
 	AddColorItem(SClrRed,      0);
 	AddColorItem(SClrOrange,   0);
 	AddColorItem(0x00ccff,     0); // Насыщенный желтый

@@ -854,9 +854,9 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 	SLAPI  PPSupplExchangeCfg()
 	{
-		Clear();
+		Z();
 	}
-	PPSupplExchangeCfg & Clear()
+	PPSupplExchangeCfg & Z()
 	{
 		THISZERO();
 		return *this;

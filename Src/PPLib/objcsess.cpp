@@ -1120,8 +1120,7 @@ int SLAPI EditDueToKeyboardRights()
 //
 CTableOrder::Packet::Packet() : SCardID(0)
 {
-	LDATETIME dtm;
-	dtm.SetZero();
+	LDATETIME dtm = ZERODATETIME;
 	Init(0, dtm, 0);
 }
 
@@ -1130,7 +1129,7 @@ void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDurat
 	PosNodeID = posNodeID;
 	ChkID = 0;
 	CcNo = 0;
-	CcDtm.SetZero();
+	CcDtm.Z();
 	TableNo = 0;
 	Status = 0;
 	PrepayAmount = 0.0;
@@ -1624,8 +1623,7 @@ int CTableOrder::GetCheck(const CCheckTbl::Rec * pCcRec, const CCheckExtTbl::Rec
 	if(pCcRec && pCcRec->Flags & CCHKF_ORDER) {
 		ok = 1;
 		if(pPack) {
-			LDATETIME zero_dtm;
-			zero_dtm.SetZero();
+			LDATETIME zero_dtm = ZERODATETIME;
 			pPack->Init(0, zero_dtm, 0);
 			pPack->ChkID = pCcRec->ID;
 			pPack->CcNo = pCcRec->Code;

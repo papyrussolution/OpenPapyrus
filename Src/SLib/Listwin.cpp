@@ -144,8 +144,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 				::SendMessage(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
 				PrepareSearchLetter = 0;
 			}
-			LDATETIME lost_focus_start_tm;
-			lost_focus_start_tm.SetZero();
+			LDATETIME lost_focus_start_tm = ZERODATETIME;
 			do {
 				::GetMessage(&msg, 0, 0, 0);
 				HWND h_focus_wnd = GetFocus();

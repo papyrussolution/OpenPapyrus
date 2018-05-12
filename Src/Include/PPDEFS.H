@@ -1167,54 +1167,54 @@
 #define PPTAG_BILL_CREATEDTMEND      7L // Дата создания документа. В данный момент используется для отражения информации о окончании создания заказа на КПК.
 #define PPTAG_BILL_GPSCOORD          8L // GPS координаты агента при начале создания заказа на КПК.
 #define PPTAG_BILL_GPSCOORDEND       9L // GPS координаты агента при окончании создания заказа на КПК.
-#define PPTAG_GUA_GOODSRIGHTS       10L // @v7.3.8 Права глобальной учетной записи на доступ/изменение товара
-#define PPTAG_GUA_PERSONRIGHTS      11L // @v7.3.8 Права глобальной учетной записи на доступ/изменение персоналий
-#define PPTAG_GUA_SCARDRIGHTS       12L // @v7.3.8 Права глобальной учетной записи на доступ/изменение пластиковых карт
-#define PPTAG_GUA_SCARDPREFIX       13L // @v7.3.9 Префикс номеров пластиковых карт
-#define PPTAG_LOT_MANUFTIME         14L // @v7.5.0 Дата/время производства товара, оприходованного лотом.
-#define PPTAG_GUA_FILESRIGHTS       15L // @v7.3.8 Права глобальной учетной записи на доступ/изменение файлов
-#define PPTAG_BILL_UUID             16L // @v7.6.1 UUID документа
-#define PPTAG_GOODS_KEYWORDS        17L // @v7.9.12 Ключевые слова товара
-#define PPTAG_BILL_KEYWORDS         18L // @v7.9.12 Ключевые слова документа
-#define PPTAG_GUA_PGGTAG            19L // @v8.0.7  Символ тега приватной группы товара для данной глобальной учетной записи
-#define PPTAG_WORKBOOK_KEYWORDS     20L // @v8.1.2  Ключевые слова рабочих книг
-#define PPTAG_WORKBOOK_KWSYN        21L // @v8.1.12 Синонимы ключевых слов рабочих книг
-#define PPTAG_WORKBOOK_KWLOC        22L // @v8.1.12 Локации, ассоциированные с ключевыми словами рабочих книг (пока - наименования городов)
-#define PPTAG_CCHECK_JS_UUID        23L // @v8.2.11 UUID сессии, создавшей JUNK-чек (для того, чтобы можно было быстро восстановить чек после сбоя сеанса)
-#define PPTAG_GUA_SALOCRIGHTS       24L // @v8.3.2  Права глобальной учетной записи на доступ/изменение к автономным адресам
-#define PPTAG_GUA_WBRIGHTS          25L // @v8.3.2  Права глобальной учетной записи на доступ/изменение к рабочим книгам
-#define PPTAG_WORKBOOK_LONGCODE     26L // @v8.3.3  Длинный уникальный код записи рабочей книги (уникальность обеспечивается программно,
+#define PPTAG_GUA_GOODSRIGHTS       10L // Права глобальной учетной записи на доступ/изменение товара
+#define PPTAG_GUA_PERSONRIGHTS      11L // Права глобальной учетной записи на доступ/изменение персоналий
+#define PPTAG_GUA_SCARDRIGHTS       12L // Права глобальной учетной записи на доступ/изменение пластиковых карт
+#define PPTAG_GUA_SCARDPREFIX       13L // Префикс номеров пластиковых карт
+#define PPTAG_LOT_MANUFTIME         14L // Дата/время производства товара, оприходованного лотом.
+#define PPTAG_GUA_FILESRIGHTS       15L // Права глобальной учетной записи на доступ/изменение файлов
+#define PPTAG_BILL_UUID             16L // UUID документа
+#define PPTAG_GOODS_KEYWORDS        17L // Ключевые слова товара
+#define PPTAG_BILL_KEYWORDS         18L // Ключевые слова документа
+#define PPTAG_GUA_PGGTAG            19L // Символ тега приватной группы товара для данной глобальной учетной записи
+#define PPTAG_WORKBOOK_KEYWORDS     20L // Ключевые слова рабочих книг
+#define PPTAG_WORKBOOK_KWSYN        21L // Синонимы ключевых слов рабочих книг
+#define PPTAG_WORKBOOK_KWLOC        22L // Локации, ассоциированные с ключевыми словами рабочих книг (пока - наименования городов)
+#define PPTAG_CCHECK_JS_UUID        23L // UUID сессии, создавшей JUNK-чек (для того, чтобы можно было быстро восстановить чек после сбоя сеанса)
+#define PPTAG_GUA_SALOCRIGHTS       24L // Права глобальной учетной записи на доступ/изменение к автономным адресам
+#define PPTAG_GUA_WBRIGHTS          25L // Права глобальной учетной записи на доступ/изменение к рабочим книгам
+#define PPTAG_WORKBOOK_LONGCODE     26L // Длинный уникальный код записи рабочей книги (уникальность обеспечивается программно,
 	// поскольку соответствующий индекс в таблице ObjTag дублируемый
-#define PPTAG_BILL_AUTOCREATION     27L // @v8.5.1  Текстовая метка специальной структуры, помечающая автоматически созданные документы.
+#define PPTAG_BILL_AUTOCREATION     27L // Текстовая метка специальной структуры, помечающая автоматически созданные документы.
 	// Основное назначение - предотвращение дублирования документов при автоматическом формировании.
-#define PPTAG_BILL_OUTERCODE        28L // @v8.5.2 Номер документа у контрагента
-#define PPTAG_BILL_OUTERDATE        29L // @v8.5.2 Дата документа у контрагента
-#define PPTAG_PERSON_ENALOGDEST     30L // @v8.5.6 Код назначения для отправки электронных налоговых документов (для главных организаций)
-#define PPTAG_LOC_FIASGUID_ADR      31L // @v8.6.11 Идентификатор терминального адреса по справочнику ФИАС
-#define PPTAG_LOC_FIASGUID_HSE      32L // @v8.6.11 Идентификатор здания по справочнику ФИАС
-#define PPTAG_GUA_STYLORIGHTS       33L // @v8.7.0 Права глобальной учетной записи на доступ/изменение записей устройств Stylo
-#define PPTAG_GUA_PRCRIGHTS         34L // @v8.7.1 Права глобальной учетной записи на доступ/изменение записей процессоров
-#define PPTAG_GUA_TSESSRIGHTS       35L // @v8.7.1 Права глобальной учетной записи на доступ/изменение технологических сессий
-#define PPTAG_TSESS_UUID            36L // @v8.7.5 UUID технологической сессии
-#define PPTAG_TSESS_DESCR           37L // @v8.7.6 Описание технологической сессии
-#define PPTAG_LOC_FSRARID           38L // @v8.8.0 Идентификатор склада в системе ЕГАИС
-#define PPTAG_PERSON_FSRARID        39L // @v8.8.0 Идентификатор организации в системе ЕГАИС
-// #define PPTAG_GOODS_FSRARCODE       40L // @v8.8.0 Код товара в системе ЕГАИС
-#define PPTAG_LOT_FSRARINFA         41L // @v8.8.0 Номер справки А на алкогольную продукцию
-#define PPTAG_LOT_FSRARINFB         42L // @v8.8.0 Номер справки Б на алкогольную продукцию
-#define PPTAG_LOT_FSRARLOTGOODSCODE 43L // @v8.8.0 Код товара ЕГАИС привязанный к лоту. Так как один товар может соответствовать
+#define PPTAG_BILL_OUTERCODE        28L // Номер документа у контрагента
+#define PPTAG_BILL_OUTERDATE        29L // Дата документа у контрагента
+#define PPTAG_PERSON_ENALOGDEST     30L // Код назначения для отправки электронных налоговых документов (для главных организаций)
+#define PPTAG_LOC_FIASGUID_ADR      31L // Идентификатор терминального адреса по справочнику ФИАС
+#define PPTAG_LOC_FIASGUID_HSE      32L // Идентификатор здания по справочнику ФИАС
+#define PPTAG_GUA_STYLORIGHTS       33L // Права глобальной учетной записи на доступ/изменение записей устройств Stylo
+#define PPTAG_GUA_PRCRIGHTS         34L // Права глобальной учетной записи на доступ/изменение записей процессоров
+#define PPTAG_GUA_TSESSRIGHTS       35L // Права глобальной учетной записи на доступ/изменение технологических сессий
+#define PPTAG_TSESS_UUID            36L // UUID технологической сессии
+#define PPTAG_TSESS_DESCR           37L // Описание технологической сессии
+#define PPTAG_LOC_FSRARID           38L // Идентификатор склада в системе ЕГАИС
+#define PPTAG_PERSON_FSRARID        39L // Идентификатор организации в системе ЕГАИС
+// #define PPTAG_GOODS_FSRARCODE       40L // Код товара в системе ЕГАИС
+#define PPTAG_LOT_FSRARINFA         41L // Номер справки А на алкогольную продукцию
+#define PPTAG_LOT_FSRARINFB         42L // Номер справки Б на алкогольную продукцию
+#define PPTAG_LOT_FSRARLOTGOODSCODE 43L // Код товара ЕГАИС привязанный к лоту. Так как один товар может соответствовать
 	// нескольким кодам ЕГАИС для того, чтобы исключить рассогласования, в этот тег записывается код ЕГАИС оприходованного товара
-#define PPTAG_BILL_EDIACK           44L // @v8.8.0 По каналу EDI отправлено подтверждение на импортированный документ, либо получено
+#define PPTAG_BILL_EDIACK           44L // По каналу EDI отправлено подтверждение на импортированный документ, либо получено
 	// подтверждение на экспортированный. Если в записи установлен флаг BILLF2_ACKPENDING, то это означает, что было
 	// отправлено уведомление о получении импортированного документа, но ответ по каналу EDI еще был не получен.
-#define PPTAG_BILL_EDIIDENT         45L // @v8.8.0 Идентификатор документа у провайдера EDI (обычно отличается и от собственных
+#define PPTAG_BILL_EDIIDENT         45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных
 	// номеров/идентификаторов и от оных у контрагента).
-#define PPTAG_LOC_EGAISSRVURL       46L // @v8.8.6 URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrosConfig)
-#define PPTAG_LOT_EGIASINFAREG      47L // @v8.8.4 Подробная информация о справке А (сжатая в одну строку)
-#define PPTAG_PERSON_EGAISSRVURL    48L // @v8.8.8 URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrosConfig)
-#define PPTAG_BILL_EDIRECADVCONFIRM 49L // @v8.8.9 Номер отправлено по каналу EDI нашего согласия/не согласия с полученным RECADV
-#define PPTAG_LOT_DIMENTIONS        50L // @v8.9.1 Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы)
-#define PPTAG_BILL_EDIREJECTACK     51L // @v8.9.6 По каналу EDI отправлено требование отменить ранее совершенную передачу документа
+#define PPTAG_LOC_EGAISSRVURL       46L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrosConfig)
+#define PPTAG_LOT_EGIASINFAREG      47L // Подробная информация о справке А (сжатая в одну строку)
+#define PPTAG_PERSON_EGAISSRVURL    48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrosConfig)
+#define PPTAG_BILL_EDIRECADVCONFIRM 49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
+#define PPTAG_LOT_DIMENTIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы)
+#define PPTAG_BILL_EDIREJECTACK     51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
 #define PPTAG_GOODS_OUTERPOSCODE    52L // @v9.1.3 (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
 #define PPTAG_BILL_EDICHANNEL       53L // @v9.2.1 Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
 	// Этот тег может быть автоматически установлен у документов, имеющих не нулевой признак BillTbl::Rec::EdiOp
@@ -1240,6 +1240,7 @@
 #define PPTAG_GUA_LOGIN             67L // @v9.9.12 Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
 #define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
+#define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
 // @construction(VETIS) {
 #define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 
@@ -8885,6 +8886,7 @@
 	#define CTL_DBDUMP_ACTION          (5 + WINDOWS_ID_BIAS)
 	#define CTL_DBDUMP_FILE            (6 + WINDOWS_ID_BIAS)
 	#define CTLBRW_DBDUMP_FILE         (7 + WINDOWS_ID_BIAS)
+	#define CTL_DBDUMP_SPCOB           (8 + WINDOWS_ID_BIAS)
 #define DLG_IMPEXPVIEW              1084 // ieview
 #define DLG_IMPEXPBILH              1085 // IE_BILH Параметры импорта/экспорта заголовков документов
 	#define CTL_IMPEXPBILH_FLAGS       (IMPEXP_CTL_BIAS+1)
@@ -10388,6 +10390,9 @@
 	#define CTL_SELACNBYPHN_INFO      (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELACNBYPHN_EXT       (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELACNBYPHN_EXT    (4 + WINDOWS_ID_BIAS)
+	#define CTL_SELACNBYPHN_PERSON    (5 + WINDOWS_ID_BIAS)
+	#define CTL_SELACNBYPHN_SCARD     (6 + WINDOWS_ID_BIAS)
+	#define CTL_SELACNBYPHN_LOC       (7 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

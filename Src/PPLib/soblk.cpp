@@ -106,7 +106,7 @@ public:
 		cTag,
 		cPerson,
 		cTagExist,
-		cTagValue,  // @v8.0.6 Подкритерием (обязательным) служит символ т'га
+		cTagValue,  // Подкритерием (обязательным) служит символ тега
 
 		cClass,
 		cGcDimX,
@@ -120,15 +120,15 @@ public:
 		cQuotKind,
 
 		cSeparate,
-		cStripSSfx, // @v8.1.9
-		cPhone,     // @v8.3.2
-		cSince,     // @v8.3.2
-		cUUID,      // @v8.7.5
-		cProcessor, // @v8.7.5
-		cPlace,     // @v8.7.8
-		cTSession,  // @v8.7.8
-		cPinCode,   // @v8.8.2
-		cCip        // @v8.8.2
+		cStripSSfx, // 
+		cPhone,     // 
+		cSince,     // 
+		cUUID,      // 
+		cProcessor, // 
+		cPlace,     // 
+		cTSession,  // 
+		cPinCode,   // 
+		cCip        // 
 	};
 	//
 	// Подкритерии
@@ -326,7 +326,7 @@ private:
 			char   Name[48];
 			char   Symb[20];
 			char   Password[40];
-			S_GUID LocalDbUuid;
+			S_GUID_Base LocalDbUuid;
 			long   LocalUserID;
 			PPID   PersonID;
 		};
@@ -354,9 +354,9 @@ private:
 			PPID   CurID;
 
 			PPID   GoodsID;
-			PPID   TSessID;        // @v8.7.8
+			PPID   TSessID;
 			char   Serial[24];
-			char   PlaceCode[24];  // @v8.7.8
+			char   PlaceCode[24];
 			double Qtty;
 			double Cost;
 			double Price;
@@ -380,7 +380,7 @@ private:
 		};
 		struct TSessionBlock {
 			PPID   TSessID;
-            S_GUID TSessUUID;
+            S_GUID_Base TSessUUID;
             PPID   CipID;
             PPID   PersonID;
             PPID   UhttStoreID;
@@ -985,10 +985,10 @@ Backend_SelectObjectBlock::SetBlock::~SetBlock()
 	delete P_Rtm;
 }
 
-Backend_SelectObjectBlock::Backend_SelectObjectBlock() : Operator(0), ObjType(0), ObjTypeExt(0), P_ScObj(0), 
+Backend_SelectObjectBlock::Backend_SelectObjectBlock() : Operator(0), ObjType(0), ObjTypeExt(0), P_ScObj(0),
 	P_TSesObj(0), P_GoodsF(0), P_PsnF(0), P_PsnRelF(0), P_GgF(0), P_BrF(0), P_QF(0), P_GaF(0), P_LocF(0),
-	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0), 
-	P_DtGrF(0), P_UhttStorF(0), P_WorkbookF(0), P_TSesF(0), P_PrcF(0), P_Qc(0), P_SetBlk(0), P_TagBlk(0), 
+	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0),
+	P_DtGrF(0), P_UhttStorF(0), P_WorkbookF(0), P_TSesF(0), P_PrcF(0), P_Qc(0), P_SetBlk(0), P_TagBlk(0),
 	P_DCc(0), OutFormat(fmtXml), Separate(0), P_UuidList(0)
 {
 	Page = 0;
@@ -1005,11 +1005,11 @@ Backend_SelectObjectBlock::~Backend_SelectObjectBlock()
 
 int Backend_SelectObjectBlock::Parse(const char * pStr)
 {
-	struct SymbItem {
+	/*struct SymbItem {
 		long   ID;
 		const  char * P_Text;
-	};
-	static const SymbItem crit_titles[] = {
+	};*/
+	static const SIntToSymbTabEntry crit_titles[] = {
 		{ cID,            "ID"   },
 		{ cCode,          "CODE" },
 		{ cName,          "NAME" },
@@ -1073,7 +1073,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cTag,           "TAG"           },
 		{ cPerson,        "PERSON"        },
 		{ cTagExist,      "TAGEXIST"      },
-		{ cTagValue,      "TAGVALUE"      }, // @v8.0.6
+		{ cTagValue,      "TAGVALUE"      },
 
 		{ cClass,         "CLASS"         },
 		{ cGcDimX,        "GCDIMX"        },
@@ -1087,23 +1087,23 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cQuotKind,      "QUOTKIND"      },
 
 		{ cSeparate,      "SEPARATE"  },
-		{ cStripSSfx,     "STRIPSSFX" },  // @v8.1.9
-		{ cPhone,		  "PHONE"     },  // @v8.3.2
-		{ cSince,         "SINCE"     },  // @v8.3.2
-		{ cUUID,          "GUID"      },  // @v8.7.5
-		{ cUUID,          "UUID"      },  // @v8.7.5
-		{ cProcessor,     "PROCESSOR" },  // @v8.7.5
-		{ cPlace,         "PLACE"     },  // @v8.7.8
-		{ cTSession,      "TSESSION"  },  // @v8.7.8
-		{ cPinCode,       "PINCODE"   },  // @v8.8.2
-		{ cCip,           "CIP"       },  // @v8.8.2
+		{ cStripSSfx,     "STRIPSSFX" },
+		{ cPhone,		  "PHONE"     },
+		{ cSince,         "SINCE"     },
+		{ cUUID,          "GUID"      },
+		{ cUUID,          "UUID"      },
+		{ cProcessor,     "PROCESSOR" },
+		{ cPlace,         "PLACE"     },
+		{ cTSession,      "TSESSION"  },
+		{ cPinCode,       "PINCODE"   },
+		{ cCip,           "CIP"       },
 
 		/*
 		{ cCountry,  "COUNTRY" },
 		{ cCity,     "CITY" }
 		*/
 	};
-	static const SymbItem subcrit_titles[] = {
+	static const SIntToSymbTabEntry subcrit_titles[] = {
 		{ scID,      "ID"   },
 		{ scCode,    "CODE" },
 		{ scName,    "NAME" },
@@ -1112,7 +1112,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ scTddo,    "TDDO" },
 		{ scBinary,  "BIN"  },
 		{ scJson,    "JSON" },
-		{ scXmlUtf8, "XMLUTF8" } // @v8.6.8
+		{ scXmlUtf8, "XMLUTF8" }
 	};
 	struct OperatorItem {
 		const char * P_Word;
@@ -1195,20 +1195,25 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 				THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_CRITERION);
 			}
 			do {
-				int    criterion = 0;
 				int    sub_criterion = 0;
 				arg_buf.Z();
-				for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
+				/* @v10.0.05 for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
 					if(temp_buf.IsEqNC(crit_titles[i].P_Text)) {
 						crit = temp_buf;
 						criterion = crit_titles[i].ID;
 						(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
 					}
+				}*/
+				// @v10.0.05 {
+				const int criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf); 
+				if(criterion) {
+					crit = temp_buf;
+					(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
 				}
-				if(oneof4(criterion, cActual, cMatrix, cLast, cStripSSfx)) { // @v8.1.9 cStripSSfx
+				// } @v10.0.05
+				if(oneof4(criterion, cActual, cMatrix, cLast, cStripSSfx)) {
 					//
-					// Одиночные критерии (не требующие параметров):
-					// 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
+					// Одиночные критерии (не требующие параметров): 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
 					//
 					sub_criterion = 0;
 					arg_buf.Z();
@@ -1219,7 +1224,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 						THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
 						if(criterion == cTagValue) {
 							//
-							// Специальный случай: для запроса TAGVALUE подкритерием является символ т'га
+							// Специальный случай: для запроса TAGVALUE подкритерием является символ тега
 							//
 							PPID   tag_id = 0;
 							THROW(TagObj.FetchBySymb(temp_buf, &tag_id) > 0);
@@ -1227,13 +1232,20 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 							sub_criterion = tag_id;
 						}
 						else {
-							for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
+							/* @v10.0.05 for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
 								if(temp_buf.IsEqNC(subcrit_titles[i].P_Text)) {
 									sub_crit = temp_buf;
 									sub_criterion = subcrit_titles[i].ID;
 									(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 								}
+							}*/
+							// @v10.0.05 {
+							sub_criterion = SIntToSymbTab_GetId(subcrit_titles, SIZEOFARRAY(subcrit_titles), temp_buf);
+							if(sub_criterion) {
+								sub_crit = temp_buf;
+								(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 							}
+							// } @v10.0.05
 						}
 					}
 					THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
@@ -1412,7 +1424,7 @@ int FASTCALL Backend_SelectObjectBlock::TrimResultListByPage(StrAssocArray & rLi
 			end_pos = (uint)Page.upp - 1;
 		if(end_pos >= start_pos) {
 			if(start_pos >= c)
-				rList.Clear();
+				rList.Z();
 			else {
 				//
 				// Сначала удаляем хвостовые элементы
@@ -1552,8 +1564,8 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 												p_new_item->Status = -1;
 											else // Строго говоря, это состояние невозможно
 												p_new_item->Status = -1;
-											p_new_item->CipID = r_ci.ID; // @v8.8.2
-											p_new_item->RegPersonID = r_ci.GetPerson(); // @v8.8.2
+											p_new_item->CipID = r_ci.ID; 
+											p_new_item->RegPersonID = r_ci.GetPerson();
 										}
 									}
 									p_new_item->TSessID = tsess_id;
@@ -2008,7 +2020,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 	PPGta  gta_blk;
 	PPID   temp_id = 0;
 	SString temp_buf, o_buf, txt_buf;
-	ResultList.Clear();
+	ResultList.Z();
 	ResultText.Z();
 	const PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
 	const SCodepageIdent _xmlcp((OutFormat == fmtXmlUtf8) ? cpUTF8 : cpANSI);
@@ -4283,9 +4295,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Cur(int subcriterion, const SString &
 	PPID   id = 0;
 	switch(subcriterion) {
 		case 0:
-		case scID:
-			id = rArg.ToLong();
-			break;
+		case scID: id = rArg.ToLong(); break;
 		case scCode:
 			{
 				PPObjCurrency c_obj;
@@ -4329,13 +4339,9 @@ int Backend_SelectObjectBlock::ResolveCrit_Person(int subcriterion, const SStrin
 	PPID   id = 0;
 	switch(subcriterion) {
 		case 0:
-		case scID:
-			id = rArg.ToLong();
-			break;
+		case scID: id = rArg.ToLong(); break;
 		case scCode:
-		case scName:
-			PsnObj.P_Tbl->SearchByName(rArg, &id, 0);
-			break;
+		case scName: PsnObj.P_Tbl->SearchByName(rArg, &id, 0); break;
 		default:
 			PPSetError(PPERR_CMDSEL_INVSUBCRITERION);
 			ASSIGN_PTR(pID, 0);
@@ -4351,16 +4357,10 @@ int Backend_SelectObjectBlock::ResolveCrit_Tag(int subcriterion, const SString &
 	Reference * p_ref = PPRef;
 	switch(subcriterion) {
 		case 0:
-		case scID:
-			id = rArg.ToLong();
-			break;
-		case scCode:
-			p_ref->SearchSymb(PPOBJ_TAG, &id, rArg, offsetof(PPObjectTag, Symb));
-			break;
-		case scName:
-			p_ref->SearchName(PPOBJ_TAG, &id, rArg);
-			break;
-		default:
+		case scID: id = rArg.ToLong(); break;
+		case scCode: p_ref->SearchSymb(PPOBJ_TAG, &id, rArg, offsetof(PPObjectTag, Symb)); break;
+		case scName: p_ref->SearchName(PPOBJ_TAG, &id, rArg); break;
+		default: 
 			PPSetError(PPERR_CMDSEL_INVSUBCRITERION);
 			ASSIGN_PTR(pID, 0);
 			return 0;
@@ -4891,23 +4891,15 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				else if(Operator == oBillFinish) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cID:
-							P_SetBlk->U.B.ID = rArg.ToLong();
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cID: P_SetBlk->U.B.ID = rArg.ToLong(); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				break;
 			case PPOBJ_DL600DATA:
 				switch(criterion) {
-					case cID:
-						IdList.addUnique(rArg.ToLong());
-						break;
-					default:
-						CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-						break;
+					case cID: IdList.addUnique(rArg.ToLong()); break;
+					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 				}
 				break;
 			case PPOBJ_TAGVALUE:
@@ -4960,13 +4952,9 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				if(Operator == oSelect) {
 					SETIFZ(P_QF, new LocalQuotFilt);
 					switch(criterion) {
-						case cActual:
-							P_QF->Flags |= QuotFilt::fActualOnly;
-							break;
+						case cActual: P_QF->Flags |= QuotFilt::fActualOnly; break;
 						case cKind:
-						case cQuotKind:
-							THROW(ResolveCrit_QuotKind(subcriterion, rArg, &P_QF->QuotKindID));
-							break;
+						case cQuotKind: THROW(ResolveCrit_QuotKind(subcriterion, rArg, &P_QF->QuotKindID)); break;
 						case cSeller:
 						case cBuyer:
 							THROW(ResolveCrit_ArByPerson(subcriterion, rArg, GetSupplAccSheet(), &(temp_id = 0)))
@@ -4986,9 +4974,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							temp_id = 0;
 							switch(subcriterion) {
 								case 0:
-								case scID:
-									temp_id = rArg.ToLong();
-									break;
+								case scID: temp_id = rArg.ToLong(); break;
 								case scCode:
 									{
 										PPObjWorld w_obj;
@@ -5004,24 +4990,12 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							if(temp_id)
 								P_QF->SellerLocWorldID = temp_id;
 							break;
-						case cGoods:
-							THROW(ResolveCrit_Goods(subcriterion, rArg, &P_QF->GoodsID));
-							break;
-						case cGoodsGroup:
-							THROW(ResolveCrit_GoodsGrp(subcriterion, rArg, &P_QF->GoodsGrpID));
-							break;
-						case cBrand:
-							THROW(ResolveCrit_Brand(subcriterion, rArg, &P_QF->BrandID));
-							break;
-						case cSubName:
-							P_QF->GoodsSubText = rArg;
-							break;
-						case cCurrency:
-							THROW(ResolveCrit_Cur(subcriterion, rArg, &P_QF->CurID));
-							break;
-						case cPage:
-							THROW(ResolveCrit_Page(rArg));
-							break;
+						case cGoods: THROW(ResolveCrit_Goods(subcriterion, rArg, &P_QF->GoodsID)); break;
+						case cGoodsGroup: THROW(ResolveCrit_GoodsGrp(subcriterion, rArg, &P_QF->GoodsGrpID)); break;
+						case cBrand: THROW(ResolveCrit_Brand(subcriterion, rArg, &P_QF->BrandID)); break;
+						case cSubName: P_QF->GoodsSubText = rArg; break;
+						case cCurrency: THROW(ResolveCrit_Cur(subcriterion, rArg, &P_QF->CurID)); break;
+						case cPage: THROW(ResolveCrit_Page(rArg)); break;
 						case cUhttStore:
 							{
 								PPID   uhtts_id = 0;
@@ -5148,7 +5122,6 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							TagExistList.addUnique(tag_id);
 						}
 						break;
-					// @v8.0.6 {
 					case cTagValue:
 						{
 							SString norm_buf;
@@ -5162,15 +5135,8 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							P_GoodsF->P_TagF->TagsRestrict.Add(tag_id, temp_buf);
 						}
 						break;
-					// } @v8.0.6
-					case cName:
-						P_GoodsF->PutExtssData(P_GoodsF->extssNameText, rArg); // @v8.2.12
-						// @v8.2.12 P_GoodsF->SrchStr_ = rArg;
-						break;
-					case cSubName:
-						P_GoodsF->PutExtssData(P_GoodsF->extssNameText, rArg); // @v8.2.12
-						// @v8.2.12 P_GoodsF->SrchStr_ = rArg;
-						break;
+					case cName: P_GoodsF->PutExtssData(P_GoodsF->extssNameText, rArg); break;
+					case cSubName: P_GoodsF->PutExtssData(P_GoodsF->extssNameText, rArg); break;
 					case cParent:
 						temp_id = 0;
 						THROW(ResolveCrit_GoodsGrp(subcriterion, rArg, &temp_id));
@@ -5205,18 +5171,10 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						if(temp_id)
 							P_GoodsF->Ep.GdsClsID = temp_id;
 						break;
-					case cGcDimX:
-						strtorrng(rArg, P_GoodsF->Ep.DimX_Rng);
-						break;
-					case cGcDimY:
-						strtorrng(rArg, P_GoodsF->Ep.DimY_Rng);
-						break;
-					case cGcDimZ:
-						strtorrng(rArg, P_GoodsF->Ep.DimZ_Rng);
-						break;
-					case cGcGimW:
-						strtorrng(rArg, P_GoodsF->Ep.DimW_Rng);
-						break;
+					case cGcDimX: strtorrng(rArg, P_GoodsF->Ep.DimX_Rng); break;
+					case cGcDimY: strtorrng(rArg, P_GoodsF->Ep.DimY_Rng); break;
+					case cGcDimZ: strtorrng(rArg, P_GoodsF->Ep.DimZ_Rng); break;
+					case cGcGimW: strtorrng(rArg, P_GoodsF->Ep.DimW_Rng); break;
 					case cGcKind:
 						THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eKind, subcriterion, rArg, P_GoodsF->Ep.KindList));
 						break;
@@ -5340,9 +5298,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				if(Operator == oCreate) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cName:
-							rArg.CopyTo(P_SetBlk->U.P.Name, sizeof(P_SetBlk->U.P.Name));
-							break;
+						case cName: rArg.CopyTo(P_SetBlk->U.P.Name, sizeof(P_SetBlk->U.P.Name)); break;
 						case cStatus:
 							THROW(ResolveCrit_PersonStatus(subcriterion, rArg, &temp_id));
 							if(temp_id)
@@ -5366,25 +5322,15 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				else if(Operator == oSelect) {
 					SETIFZ(P_PsnF, new PersonFilt);
 					switch(criterion) {
-						case cID:
-							IdList.addUnique(rArg.ToLong());
-							break;
+						case cID: IdList.addUnique(rArg.ToLong()); break;
 						case cName:
 							P_PsnF->PutExtssData(PersonFilt::extssNameText, rArg);
 							P_PsnF->Flags |= PersonFilt::fPrecName;
 							break;
-						case cSubName:
-							P_PsnF->PutExtssData(PersonFilt::extssNameText, rArg);
-							break;
-						case cKind:
-							THROW(ResolveCrit_PersonKind(subcriterion, rArg, &P_PsnF->Kind));
-							break;
-						case cStatus:
-							THROW(ResolveCrit_PersonStatus(subcriterion, rArg, &P_PsnF->Status));
-							break;
-						case cCategory:
-							THROW(ResolveCrit_PersonCat(subcriterion, rArg, &P_PsnF->Category));
-							break;
+						case cSubName: P_PsnF->PutExtssData(PersonFilt::extssNameText, rArg); break;
+						case cKind: THROW(ResolveCrit_PersonKind(subcriterion, rArg, &P_PsnF->Kind)); break;
+						case cStatus: THROW(ResolveCrit_PersonStatus(subcriterion, rArg, &P_PsnF->Status)); break;
+						case cCategory: THROW(ResolveCrit_PersonCat(subcriterion, rArg, &P_PsnF->Category)); break;
 						case cRegister:
 							SETIFZ(P_PsnF->P_RegF, new RegisterFilt);
 							{
@@ -5428,46 +5374,26 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 								P_PsnF->P_RegF->SerPattern = serial_buf;
 							}
 							break;
-						case cPage:
-							THROW(ResolveCrit_Page(rArg));
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cPage: THROW(ResolveCrit_Page(rArg)); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				else if(Operator == oSetPersonRel) {
 					SETIFZ(P_PsnRelF, new PersonRelFilt);
 					switch(criterion) {
-						case cPrimary:
-							THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->PrmrPersonID));
-							break;
-						case cSecondary:
-							THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->ScndPersonID));
-							break;
-						case cPersonRelType:
-							THROW(ResolveCrit_PersonRelType(subcriterion, rArg, &P_PsnRelF->RelTypeID));
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cPrimary: THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->PrmrPersonID)); break;
+						case cSecondary: THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->ScndPersonID)); break;
+						case cPersonRelType: THROW(ResolveCrit_PersonRelType(subcriterion, rArg, &P_PsnRelF->RelTypeID)); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				else if(Operator == oGetPersonRel) {
 					SETIFZ(P_PsnRelF, new PersonRelFilt);
 					switch(criterion) {
-						case cPrimary:
-							THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->PrmrPersonID));
-							break;
-						case cSecondary:
-							THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->ScndPersonID));
-							break;
-						case cPersonRelType:
-							THROW(ResolveCrit_PersonRelType(subcriterion, rArg, &P_PsnRelF->RelTypeID));
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cPrimary: THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->PrmrPersonID)); break;
+						case cSecondary: THROW(ResolveCrit_Person(subcriterion, rArg, &P_PsnRelF->ScndPersonID)); break;
+						case cPersonRelType: THROW(ResolveCrit_PersonRelType(subcriterion, rArg, &P_PsnRelF->RelTypeID)); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				break;
@@ -5475,76 +5401,44 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 			case PPOBJ_PRSNCATEGORY:
 			case PPOBJ_PRSNSTATUS:
 				switch(criterion) {
-					case cID:
-						IdList.addUnique(rArg.ToLong());
-						break;
-					case cName:
-						AddSrchCode_ByName(rArg);
-						break;
-					case cCode:
-						AddSrchCode_BySymb(rArg);
-						break;
-					case cPage:
-						THROW(ResolveCrit_Page(rArg));
-						break;
-					default:
-						CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-						break;
+					case cID: IdList.addUnique(rArg.ToLong()); break;
+					case cName: AddSrchCode_ByName(rArg); break;
+					case cCode: AddSrchCode_BySymb(rArg); break;
+					case cPage: THROW(ResolveCrit_Page(rArg)); break;
+					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 				}
 				break;
 			case PPOBJ_GLOBALUSERACC:
 				if(Operator == oCreate) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cName:
-							rArg.CopyTo(P_SetBlk->U.GA.Name, sizeof(P_SetBlk->U.GA.Name));
-							break;
-						case cPassword:
-							rArg.CopyTo(P_SetBlk->U.GA.Password, sizeof(P_SetBlk->U.GA.Password));
-							break;
-						case cOwner:
-							THROW(ResolveCrit_Person(subcriterion, rArg, &P_SetBlk->U.GA.PersonID));
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cName: rArg.CopyTo(P_SetBlk->U.GA.Name, sizeof(P_SetBlk->U.GA.Name)); break;
+						case cPassword: rArg.CopyTo(P_SetBlk->U.GA.Password, sizeof(P_SetBlk->U.GA.Password)); break;
+						case cOwner: THROW(ResolveCrit_Person(subcriterion, rArg, &P_SetBlk->U.GA.PersonID)); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				else if(Operator == oSelect) {
 					SETIFZ(P_GaF, new LocalGlobalAccFilt);
 					switch(criterion) {
-						case cID:
-							IdList.addUnique(rArg.ToLong());
-							break;
-						case cName:
-							AddSrchCode_ByName(rArg);
-							break;
-						case cCode:
-							AddSrchCode_BySymb(rArg);
-							break;
+						case cID: IdList.addUnique(rArg.ToLong()); break;
+						case cName: AddSrchCode_ByName(rArg); break;
+						case cCode: AddSrchCode_BySymb(rArg); break;
 						case cOwner:
 							THROW(ResolveCrit_Person(subcriterion, rArg, &temp_id));
 							if(temp_id)
 								P_GaF->OwnerList.add(temp_id);
 							break;
-						case cPage:
-							THROW(ResolveCrit_Page(rArg));
-							break;
-						default:
-							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
-							break;
+						case cPage: THROW(ResolveCrit_Page(rArg)); break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}
 				break;
 			case PPOBJ_LOCATION:
 				SETIFZ(P_LocF, new LocationFilt);
 				switch(criterion) {
-					case cID:
-						IdList.addUnique(rArg.ToLong());
-						break;
-					case cCode:
-						SrchCodeList.add(rArg);
-						break;
+					case cID: IdList.addUnique(rArg.ToLong()); break;
+					case cCode: SrchCodeList.add(rArg); break;
 					case cOwner:
 						THROW(ResolveCrit_Person(subcriterion, rArg, &temp_id));
 						if(temp_id)

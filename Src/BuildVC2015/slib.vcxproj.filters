@@ -123,6 +123,7 @@
     <ClCompile Include="..\SLib\test-cairo.cpp" />
     <ClCompile Include="..\SLib\test-openssl.cpp" />
     <ClCompile Include="..\SLib\saudio.cpp" />
+    <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">

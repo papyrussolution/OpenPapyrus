@@ -1136,7 +1136,7 @@ SOraDbProvider::SOraDbProvider(const char * pDataPath) :
 	Err = OhAlloc(OCI_HTYPE_ERROR);
 	Svr = OhAlloc(OCI_HTYPE_SERVER);
 	{
-		CrsfcNameList.Clear();
+		CrsfcNameList.Z();
 		CrsfcNameList.Add(/*csrfpa*/ 2, "OSQL");
 		CrsfcNameList.Add(/*csrfex*/ 4, "OEXEC");
 		CrsfcNameList.Add(/*csrfbi*/ 6, "OBIND");

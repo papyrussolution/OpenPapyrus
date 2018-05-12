@@ -3707,7 +3707,6 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 	InventoryCore & r_inv_tbl = p_bobj->GetInvT();
 	PPObjBHT bht_obj;
 
-	uuid.SetZero();
 	THROW(InitImpExpDbfParam(PPREC_SBIIBILL, &ie_param_bill, pHName, 0));
 	THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
 	THROW_INVARG(pPack);
@@ -4183,7 +4182,7 @@ int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLNa
 						r = -1;
 				}
 				if(r > 0) {
-					THROW(r = p_bobj->P_Tbl->SearchAnalog(&b_pack.Rec, 0, &same_rec));
+					THROW(r = p_bobj->P_Tbl->SearchAnalog(&b_pack.Rec, BillCore::safDefault, 0, &same_rec));
 					if(r > 0 && pLog) {
 						SString msg_buf, bill_code;
 						PPObjBill::MakeCodeString(&same_rec, 1, bill_code).Quot('(', ')');
@@ -4646,7 +4645,7 @@ int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, 
 			THROW(b_pack.CreateBlank(pBhtRec->ExpendOpID, 0, 0, 0))
 			b_pack.Rec.Dt = be_dt;
 			STRNSCPY(b_pack.Rec.Code, beid);
-			THROW(r = p_bobj->P_Tbl->SearchAnalog(&b_pack.Rec, 0, &same_rec));
+			THROW(r = p_bobj->P_Tbl->SearchAnalog(&b_pack.Rec, BillCore::safDefault, 0, &same_rec));
 			if(r < 0) {
 				for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 					char   lbeid[12], barcode[14];

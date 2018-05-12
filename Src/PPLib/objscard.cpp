@@ -3459,8 +3459,7 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 					//
 					// Если претендентов несколько, то выбираем по последнему времени создания/изменения скидки
 					//
-					LDATETIME last_upd_moment;
-					last_upd_moment.SetZero();
+					LDATETIME last_upd_moment = ZERODATETIME;
 					PPID   last_upd_sc_id = 0;
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
 					if(p_sj) {
@@ -3798,7 +3797,7 @@ SLAPI SCardTransmitPacket::SCardTransmitPacket() : Since(ZERODATETIME)
 void SLAPI SCardTransmitPacket::destroy()
 {
 	P.Clear();
-	Since.SetZero();
+	Since.Z();
 	CheckList.freeAll();
 	ScOpList.freeAll();
 }
@@ -4376,7 +4375,7 @@ void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 
 		#define CPY_FLD(f) p_data_rec->f = p_cache_rec->f
 
-		CPY_FLD(ID); // @fix @v8.0.2
+		CPY_FLD(ID);
 		CPY_FLD(SeriesID);
 		CPY_FLD(PersonID);
 		CPY_FLD(LocID);
@@ -4405,11 +4404,8 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 	const StrAssocArray * p_result = 0;
 	if(FullCardList.Use) {
 		{
-			//FclLock.ReadLock(); // @v8.1.4
 			SRWLOCKER(FclLock, SReadWriteLocker::Read);
 			if(!FullCardList.Inited || FullCardList.DirtyTable.GetCount()) {
-				//FclLock.Unlock(); // @v8.1.4
-				//FclLock.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				if(!FullCardList.Inited || FullCardList.DirtyTable.GetCount()) {
 					PPObjSCard sc_obj;
@@ -4422,7 +4418,7 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 						SCardCore * p_tbl = sc_obj.P_Tbl;
 						BExtQuery q(p_tbl, 0, 24);
 						q.select(p_tbl->ID, p_tbl->SeriesID, p_tbl->Code, 0L);
-						FullCardList.Clear();
+						FullCardList.Z();
 						SCardTbl::Key0 k0;
 						for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
 							_mc++;
@@ -4454,8 +4450,6 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 						FullCardList.Inited = 1;
 					}
 				}
-				//FclLock.Unlock();
-				//FclLock.ReadLock(); // @v8.1.3
 			}
 		}
 		if(!err) {

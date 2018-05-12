@@ -2255,8 +2255,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 		}
 	}
 	CATCHZOK;
-	StatusCodesArr.Clear();
-	ErrorSubmitArr.Clear();
+	StatusCodesArr.Z();
+	ErrorSubmitArr.Z();
 	AddStatusCodeNum = 0;
 	AddErrorSubmitNum = 0;
 	MessageCount = 0;

@@ -121,13 +121,6 @@ static char * FASTCALL rcs_unwrap(RcString * rcs)
 	return out;
 }
 
-/*static size_t FASTCALL rcs_length(RcString * rcs)
-{
-	// @todo account for UTF8
-	assert(rcs);
-	return rcs->length;
-}*/
-
 // end of rc_string part
 
 json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0)
@@ -316,7 +309,7 @@ void FASTCALL json_free_value(json_t ** ppValue)
 				case json_t::tARRAY:
 					break;
 				default:
-					//return JSON_BAD_TREE_STRUCTURE; 
+					//return JSON_BAD_TREE_STRUCTURE;
 					CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); // this part should never be reached
 					break;
 			}
@@ -643,80 +636,6 @@ void json_strip_white_spaces(char * text)
 	text[out] = '\0';
 }
 
-#if 0 // {
-char * json_format_string(const char * text)
-{
-	size_t pos = 0;
-	uint indentation = 0; // the current indentation level
-	uint i; // loop iterator variable
-	char loop;
-	size_t text_length = sstrlen(text);
-	RcString * p_output = rcs_create(text_length);
-	while(pos < text_length) {
-		switch(text[pos]) {
-			case '\x20':
-			case '\x09':
-			case '\x0A':
-			case '\x0D': // JSON insignificant white spaces
-				pos++;
-				break;
-			case '{':
-				indentation++;
-				rcs_catcs(p_output, "{\n", 2);
-				for(i = 0; i < indentation; i++)
-					rcs_catc(p_output, '\t');
-				pos++;
-				break;
-			case '}':
-				indentation--;
-				rcs_catc(p_output, '\n');
-				for(i = 0; i < indentation; i++)
-					rcs_catc(p_output, '\t');
-				rcs_catc(p_output, '}');
-				pos++;
-				break;
-			case ':':
-				rcs_catcs(p_output, ": ", 2);
-				pos++;
-				break;
-			case ',':
-				rcs_catcs(p_output, ",\n", 2);
-				for(i = 0; i < indentation; i++)
-					rcs_catc(p_output, '\t');
-				pos++;
-				break;
-			case '\"':	/* open string */
-				rcs_catc(p_output, text[pos]);
-				pos++;
-				loop = 1; // inner string loop trigger is enabled
-				while(loop) {
-					if(text[pos] == '\\') { // escaped sequence
-						rcs_catc(p_output, '\\');
-						pos++;
-						if(text[pos] == '\"') { // don't consider a \" escaped sequence as an end of string
-							rcs_catc(p_output, '\"');
-							pos++;
-						}
-					}
-					else if(text[pos] == '\"') // reached end of string
-						loop = 0;
-					rcs_catc(p_output, text[pos]);
-					pos++;
-					if(pos >= text_length)
-						loop = 0;
-				}
-				break;
-
-			default:
-				rcs_catc(p_output, text[pos]);
-				pos++;
-				break;
-		}
-	}
-	return rcs_unwrap(p_output);
-}
-#endif // } 0
-
 int json_format_string(const char * pText, SString & rBuf)
 {
 	int    ok = 1;
@@ -780,167 +699,8 @@ int json_format_string(const char * pText, SString & rBuf)
 		}
 	}
 	CATCHZOK
-	//return rcs_unwrap(p_output);
 	return ok;
 }
-
-#if 0 // @v9.7.10 @obsolte {
-char * json_escape(const char * pText)
-{
-	RcString * output;
-	size_t i, length;
-	char buffer[6];
-	// check if pre-conditions are met
-	assert(pText);
-	// defining the temporary variables
-	length = sstrlen(pText);
-	output = rcs_create(length);
-	if(!output)
-		return NULL;
-	for(i = 0; i < length; i++) {
-		if(pText[i] == '\\')
-			rcs_catcs(output, "\\\\", 2);
-		else if(pText[i] == '\"')
-			rcs_catcs(output, "\\\"", 2);
-		else if(pText[i] == '/')
-			rcs_catcs(output, "\\/", 2);
-		else if(pText[i] == '\b')
-			rcs_catcs(output, "\\b", 2);
-		else if(pText[i] == '\f')
-			rcs_catcs(output, "\\f", 2);
-		else if(pText[i] == '\n')
-			rcs_catcs(output, "\\n", 2);
-		else if(pText[i] == '\r')
-			rcs_catcs(output, "\\r", 2);
-		else if(pText[i] == '\t')
-			rcs_catcs(output, "\\t", 2);
-		else if(pText[i] < 0) // non-BMP character
-			rcs_catc(output, pText[i]);
-		else if(pText[i] < 0x20) {
-			sprintf(buffer, "\\u%4.4x", pText[i]);
-			rcs_catcs(output, buffer, 6);
-		}
-		else
-			rcs_catc(output, pText[i]);
-	}
-	return rcs_unwrap(output);
-}
-
-char * json_unescape(char * text)
-{
-	assert(text);
-	char * result = (char *)SAlloc::M(sstrlen(text) + 1);
-	size_t r; // read cursor
-	size_t w; // write cursor
-	for(r = w = 0; text[r]; r++) {
-		switch(text[r]) {
-			case '\\':
-				switch(text[++r]) {
-					case '\"':
-					case '\\':
-					case '/': result[w++] = text[r]; break; // literal translation
-					case 'b': result[w++] = '\b'; break;
-					case 'f': result[w++] = '\f'; break;
-					case 'n': result[w++] = '\n'; break;
-					case 'r': result[w++] = '\r'; break;
-					case 't': result[w++] = '\t'; break;
-					case 'u':
-					{
-						char buf[5];
-						__int64 unicode;
-						buf[0] = text[++r];
-						buf[1] = text[++r];
-						buf[2] = text[++r];
-						buf[3] = text[++r];
-						buf[4] = '\0';
-						unicode = strtol(buf, NULL, 16);
-						if(unicode < 0x80)
-							result[w++] = (char)unicode; // ASCII: map to UTF-8 literally
-						else if(unicode < 0x800) {
-							/* two-byte-encoding */
-							char one = (char)0xC0; /* 110 00000 */
-							char two = (char)0x80; /* 10 000000 */
-							two += (char)(unicode & 0x3F);
-							unicode >>= 6;
-							one += (char)(unicode & 0x1F);
-							result[w++] = one;
-							result[w++] = two;
-						}
-						else if(unicode < 0x10000) {
-							if(unicode < 0xD800 || 0xDBFF < unicode) {
-								/* three-byte-encoding */
-								char one = (char)0xE0;   /* 1110 0000 */
-								char two = (char)0x80;   /* 10 000000 */
-								char three = (char)0x80; /* 10 000000 */
-								three += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								two += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								one += (char)(unicode & 0xF);
-
-								result[w++] = one;
-								result[w++] = two;
-								result[w++] = three;
-							}
-							else {
-								// unicode is a UTF-16 high surrogate, continue with the low surrogate
-								__int64 high_surrogate = unicode;	// 110110 00;00000000
-								__int64 low_surrogate;
-								char one   = (char)0xF0; // 11110 000
-								char two   = (char)0x80; // 10 000000
-								char three = (char)0x80; // 10 000000
-								char four  = (char)0x80; // 10 000000
-								if(text[++r] != '\\')
-									break;
-								if(text[++r] != 'u')
-									break;
-
-								buf[0] = text[++r];
-								buf[1] = text[++r];
-								buf[2] = text[++r];
-								buf[3] = text[++r];
-
-								low_surrogate = strtol(buf, NULL, 16); /* 110111 00;00000000 */
-
-								// strip surrogate markers
-								high_surrogate -= 0xD800; // 11011000;00000000
-								low_surrogate -= 0xDC00; // 11011100;00000000
-
-								unicode = (high_surrogate << 10) + (low_surrogate) + 0x10000;
-
-								// now encode into four-byte UTF-8 (as we are larger than 0x10000)
-								four += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								three += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								two += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								one += (char)(unicode & 0x7);
-
-								result[w++] = one;
-								result[w++] = two;
-								result[w++] = three;
-								result[w++] = four;
-							}
-						}
-						/*else
-							fprintf(stderr, "JSON: unsupported unicode value: 0x%lX\n", (ulong)unicode);*/
-						break;
-					}
-					default:
-						assert(0);
-						break;
-				}
-				break;
-			default:
-				result[w++] = text[r];
-				break;
-		}
-	}
-	result[w] = '\0';
-	return result;
-}
-#endif // } 0 @v9.7.10 @obsolte
 
 void json_jpi_init(json_parsing_info * jpi)
 {
@@ -1436,7 +1196,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
 						THROW(json_insert_child(info->cursor, p_temp));
@@ -1502,7 +1261,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
 						THROW(json_insert_child(info->cursor, p_temp));
@@ -1510,11 +1268,11 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 						p_temp = 0;
 						info->state = 5;
 						break;
-					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT); 
+					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
 						//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
-						
+
 				}
 				break;
 			case 5: // label, pre name separator
@@ -1537,7 +1295,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 					switch(value = lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
 							THROW(p_temp = new json_t(json_t::tSTRING));
-							//p_temp->P_Text = rcs_unwrap(info->lex_text);
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
 							THROW(json_insert_child(info->cursor, p_temp));
@@ -1550,7 +1307,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 							break;
 						case LEX_NUMBER:
 							THROW(p_temp = new json_t(json_t::tNUMBER));
-							//p_temp->P_Text = rcs_unwrap(info->lex_text);
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
 							THROW(json_insert_child(info->cursor, p_temp));
@@ -1621,7 +1377,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
 						THROW(json_insert_child(info->cursor, p_temp));
@@ -1630,7 +1385,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 						break;
 					case LEX_NUMBER:
 						THROW(p_temp = new json_t(json_t::tNUMBER));
-						//p_temp->P_Text = rcs_unwrap(info->lex_text);
 						p_temp->AssignAllocatedText(info->lex_text);
 						info->lex_text = NULL;
 						THROW(json_insert_child(info->cursor, p_temp));

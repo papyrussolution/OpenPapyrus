@@ -125,7 +125,7 @@ void SLAPI PPServerCmd::Init()
 
 void SLAPI PPServerCmd::ClearParams()
 {
-	ParamL.Clear();
+	ParamL.Z();
 }
 
 int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
@@ -957,8 +957,7 @@ int SLAPI PPJobServer::GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, ui
 	int    ok = -1;
 	uint   count = 0;
 	if(P_Stat) {
-		LDATETIME dtm;
-		dtm.SetZero();
+		LDATETIME dtm = ZERODATETIME;
 		uint   idx = 0;
 		StatItem * p_item;
 		for(uint i = 0; P_Stat->enumItems(&i, (void **)&p_item);) {
@@ -1282,12 +1281,12 @@ private:
 	int    SLAPI ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID);
 	int    SLAPI ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID);
 	int    SLAPI GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList);
-	int    SLAPI OpenSession(PPID cnId, S_GUID * pUuid);
+	int    SLAPI OpenSession(PPID cnId, S_GUID_Base * pUuid);
 
 	struct CashNodeBlock {
 		PPID   ID;
 		PPID   AgentID;
-		S_GUID Uuid;
+		S_GUID_Base Uuid;
 	};
 	struct SelectTableBlock {
 		long   TblId;
@@ -1348,7 +1347,6 @@ void SLAPI CPosNodeBlock::CommandBlock::Clear()
 
 SLAPI CPosNodeBlock::CPosNodeBlock() : P_Prcssr(0)
 {
-	DeviceUuid.SetZero();
 }
 
 SLAPI CPosNodeBlock::~CPosNodeBlock()
@@ -1596,7 +1594,7 @@ int SLAPI CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pLis
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::OpenSession(PPID cnId, S_GUID * pUuid)
+int SLAPI CPosNodeBlock::OpenSession(PPID cnId, S_GUID_Base * pUuid)
 {
 	int    ok = 1;
 	LDATE  cur_dt = getcurdate_();
@@ -1656,7 +1654,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 		do {
 			int    criterion = 0;
 			int    sub_criterion = 0;
-			arg_buf = 0;
+			arg_buf.Z();
 			for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
 				if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
 					crit = temp_buf;

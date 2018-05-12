@@ -219,7 +219,7 @@ void CPosProcessor::Packet::Clear()
 	GuestCount = 0;
 	Reserve = 0;
 	AgentID__ = 0;
-	OrgAgentID = 0; // @v8.2.0
+	OrgAgentID = 0;
 	OrderCheckID = 0;
 	OrgUserID = 0;
 	freeAll();
@@ -279,15 +279,12 @@ double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
 void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
 {
 	if(pPack) {
-		// @v8.2.11 {
 		if(OrgUserID) {
 			pPack->Rec.UserID = OrgUserID;
 		}
 		else {
 			PPObjPerson::GetCurUserPerson(&pPack->Rec.UserID, 0);
 		}
-		// } @v8.2.11
-		// @v8.2.11 pPack->Rec.UserID = NZOR(OrgUserID, LConfig.User); // @v8.2.5 OrgUserID-->NZOR(OrgUserID, LConfig.User)
 		pPack->Ext.SalerID = GetAgentID(0);
 		pPack->Ext.TableNo = TableCode;
 		pPack->Ext.GuestCount = GuestCount;
@@ -295,7 +292,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) con
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
 		Eccd.Memo.CopyTo(pPack->Ext.Memo, sizeof(pPack->Ext.Memo));
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
-		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice); // @v8.7.7
+		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished); // @v9.7.7
 		if(Eccd.Flags & Eccd.fDelivery) {
 			pPack->SetDlvrAddr(&Eccd.Addr_);
@@ -461,8 +458,8 @@ void CPosProcessor::ExtCcData::Clear()
 {
 	Flags = 0;
 	SCardID_ = 0;
-	DlvrDtm.SetZero();
-	InitDtm.SetZero();
+	DlvrDtm.Z();
+	InitDtm.Z();
 	MEMSZERO(Addr_);
 	Memo.Z();
 }
@@ -595,7 +592,7 @@ int CPosProcessor::Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> 
         flt.LostJunkUUID = SessUUID;
     }
 	flt.TableCode = ctblId;
-	flt.AgentID = P.GetAgentID(); // @v8.7.7
+	flt.AgentID = P.GetAgentID();
 	flt.NodeList.Add(GetPosNodeID());
 	flt.Period.upp = getcurdate_();
 	flt.Period.low = plusdate(flt.Period.upp, -Scf.DaysPeriod);
@@ -927,7 +924,6 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 {
 	OuterOi.Set(0, 0);
 	MEMSZERO(R);
-	SessUUID.SetZero();
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !CashNodeID));
 	PPCashNode    cn_rec;
 	CnObj.Search(CashNodeID, &cn_rec);
@@ -935,11 +931,9 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		PPSyncCashNode cn_pack;
 		if(CnObj.GetSync(CashNodeID, &cn_pack) > 0) {
 			CTblList = cn_pack.CTblList;
-			Scf      = cn_pack.Scf; // @v8.6.12
-			// @v8.8.3 {
+			Scf      = cn_pack.Scf;
 			cn_pack.GetPropString(SCN_RPTPRNPORT, RptPrnPort);
 			RptPrnPort.Strip();
-			// } @v8.8.3
 			// @v9.0.9 {
 			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) { // @v9.8.12 (3)
 				EgaisMode = cn_pack.EgaisMode;
@@ -954,7 +948,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		}
 	}
 	CnName = cn_rec.Name;
-	CnSymb = cn_rec.Symb; // @v8.8.3
+	CnSymb = cn_rec.Symb;
 	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE |
 		CASHF_SHOWREST | CASHF_KEYBOARDWKEY | CASHF_WORKWHENLOCK | CASHF_DISABLEZEROAGENT |
 		CASHF_UNIFYGDSATCHECK | CASHF_UNIFYGDSTOPRINT | CASHF_CHECKFORPRESENT | CASHF_ABOVEZEROSALE | CASHF_SYNC);
@@ -1175,7 +1169,7 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 	if(pPack) {
 		P.Eccd.Memo = pPack->Ext.Memo;
 		SETFLAG(P.Eccd.Flags, P.Eccd.fDelivery,   pPack->Rec.Flags & CCHKF_DELIVERY);
-		SETFLAG(P.Eccd.Flags, P.Eccd.fFixedPrice, pPack->Rec.Flags & CCHKF_FIXEDPRICE); // @v8.7.7
+		SETFLAG(P.Eccd.Flags, P.Eccd.fFixedPrice, pPack->Rec.Flags & CCHKF_FIXEDPRICE);
 		SETFLAG(P.Eccd.Flags, P.Eccd.fSpFinished, pPack->Rec.Flags & CCHKF_SPFINISHED); // @v9.7.7
 		if(pPack->Ext.AddrID) {
 			LocationTbl::Rec loc_rec;
@@ -1194,7 +1188,7 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
 		if(P.Eccd.Flags & P.Eccd.fDelivery)
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
-		P.AmL = pPack->AL_Const(); // @v8.0.0
+		P.AmL = pPack->AL_Const();
 	}
 	return 1;
 }
@@ -1233,10 +1227,10 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 			SETFLAG(f, orfXReport,     ort & CSESSOPRT_XREP);
 			//x SETFLAG(f, orfCTblOrd,         ort & CSESSOPRT_CTBLORD);
 			SETFLAG(f, orfSplitCheck,      ort & CSESSOPRT_SPLITCHK);
-			SETFLAG(f, orfMergeChecks,     ort & CSESSOPRT_MERGECHK); // @v8.5.5
+			SETFLAG(f, orfMergeChecks,     ort & CSESSOPRT_MERGECHK);
 			SETFLAG(f, orfChgPrintedCheck, ort & CSESSOPRT_CHGPRINTEDCHK);
-			SETFLAG(f, orfChgAgentInCheck, ort & CSESSOPRT_CHGCCAGENT); // @v8.2.1
-			SETFLAG(f, orfEscChkLineBeforeOrder, ort & CSESSOPRT_ESCCLINEBORD); // @v8.7.3
+			SETFLAG(f, orfChgAgentInCheck, ort & CSESSOPRT_CHGCCAGENT);
+			SETFLAG(f, orfEscChkLineBeforeOrder, ort & CSESSOPRT_ESCCLINEBORD);
 			OperRightsFlags = f;
 			Flags |= fUsedRighsByAgent;
 			{
@@ -1255,14 +1249,10 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 		DS.GetTLA().AddedMsgStrNoRights = 0;
 	}
 	P.AgentID__ = agentID;
-	// @v8.6.10 {
 	if(asAuthAgent)
 		AuthAgentID = agentID;
-	// } @v8.6.10
-	// @v8.2.0 {
 	if(SuspCheckID) {
 		SETIFZ(P.OrgAgentID, agentID);
-		// @v8.2.1 {
 		if(OperRightsFlags & orfChgAgentInCheck && agentID && P.OrgAgentID != agentID) {
 			SString added_msg_buf;
 			GetArticleName(P.OrgAgentID, added_msg_buf);
@@ -1284,11 +1274,9 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 				P.OrgAgentID = agentID;
 			}
 		}
-		// } @v8.2.1
 	}
 	else
 		P.OrgAgentID = agentID;
-	// } @v8.2.0
 	CATCHZOK
 	return ok;
 }
@@ -1348,7 +1336,7 @@ PPID CPosProcessor::GetAuthAgentID() const
 
 int    FASTCALL CPosProcessor::IsState(int s) const { return BIN(State_p == s); }
 int    FASTCALL CPosProcessor::F(long f) const { return BIN(Flags & f); }
-void   CPosProcessor::SetupSessUuid(const S_GUID & rUuid) { SessUUID = rUuid; }
+void   CPosProcessor::SetupSessUuid(const S_GUID_Base & rUuid) { SessUUID = rUuid; }
 PPID   CPosProcessor::GetPosNodeID() const { return CashNodeID; }
 long   CPosProcessor::GetTableCode() const { return P.TableCode; }
 int    CPosProcessor::GetGuestCount() const { return P.GuestCount; }
@@ -1450,10 +1438,8 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 		else {
 			int    skip_crd_processing = 0;
 			double init_rest = R2((scs_rec.Flags & SCRDSF_UHTTSYNC) ? CSt.UhttRest : sc_rec.Rest);
-			// @v8.0.2 {
 			if(init_rest < 0.0 && scst == scstBonus) // @v8.2.0 (&& scst == scstBonus)
 				init_rest = 0.0;
-			// } @v8.0.2
 			double rest = 0.0;
 			Flags |= fSCardCredit;
 			CSt.RestByCrdCard = init_rest;
@@ -1461,13 +1447,11 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				PPSCardConfig sc_cfg;
 				ScObj.FetchConfig(&sc_cfg);
 				//
-				// @v8.0.6 {
 				// Необходимо различать случаи использования бонусов и начисления бонусов.
 				// Флаг fSCardBonusReal позволяет начислить на бонусную карту деньги, но не позволяет
 				// списывать, флаг же fSCardBonus позволяет списывать (остаток не нулевой).
 				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards))
 					Flags |= fSCardBonusReal;
-				// } @v8.0.6
 				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards) && init_rest > 0.0)
 					Flags |= fSCardBonus;
 				else {
@@ -1490,7 +1474,6 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					cc = MIN(cc_, CSt.RestByCrdCard);
 					add_paym = total-cc;
 				}
-				// @v8.2.0 {
 				else if(scst == scstCredit && CSt.MaxCreditByCrdCard > 0.0 && cc > (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard)) {
 					//
 					// Если по карте установлен положительный кредитный лимит и он исчерпан, то перестаем воспринимать
@@ -1501,10 +1484,9 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					skip_crd_processing = 1;
 					MessageError(PPERR_CHKPAN_SCOUTOFCRDLIMIT, sc_rec.Code, /*eomMsgWindow*/eomPopup|eomBeep); // @v8.2.2
 				}
-				// } @v8.2.0
 				else
 					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
-				if(!skip_crd_processing) { // @v8.2.0
+				if(!skip_crd_processing) {
 					if(add_paym <= 0.0)
 						add_paym = non_crd_amt;
 					else
@@ -1608,7 +1590,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 				no_calcprice = 1;
 				no_discount = 1;
 			}
-			if(is_rounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) // @v8.7.7 (p_item->Flags & cifFixedPrice)
+			if(is_rounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) 
 				no_calcprice = 1;
 			{
 				RetailGoodsInfo rgi;
@@ -1643,8 +1625,8 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 					//
 					if(_gpr > 0)
 						p_item->Price = rgi.Price;
-					if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) { // @v8.7.11 (rgi.ExtPrice)-->(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)
-						if(rgi.Flags & rgi.fDisabledQuot) { // @v8.7.12 Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
+					if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) { 
+						if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
 							p_item->Price = rgi.ExtPrice;
 							p_item->Discount = 0.0;
 						}
@@ -1829,7 +1811,7 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 void CPosProcessor::ResetSCard()
 {
 	CSt.Reset();
-	Flags &= ~(fSCardCredit|fSCardBonus|fSCardBonusReal|fPctDis); // @scard // @v8.2.2 (|fSCardBonus|fSCardBonusReal)
+	Flags &= ~(fSCardCredit|fSCardBonus|fSCardBonusReal|fPctDis); // @scard 
 	SetupDiscount();
 }
 
@@ -2136,7 +2118,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	pPack->Rec.SCardID = CSt.GetID();
 	pPack->UhttScHash = CSt.UhttHash;
 	P.SetupCCheckPacket(pPack);
-	pPack->SetupPaymList(pCcPl); // @v8.0.0
+	pPack->SetupPaymList(pCcPl);
 	if(options & iccpSetCurTime)
 		getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
 	CATCHZOK
@@ -2187,7 +2169,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 		AcceptCheckProcessBlock epb;
 		if(!(Flags & fNoEdit)) {
 			THROW_PP(!(CnFlags & CASHF_DISABLEZEROAGENT) || P.GetAgentID(), PPERR_CHKPAN_SALERNEEDED);
-			THROW_PP(!(CnExtFlags & CASHFX_DISABLEZEROSCARD) || CSt.GetID(), PPERR_CHKPAN_SCARDNEEDED); // @v8.3.4
+			THROW_PP(!(CnExtFlags & CASHFX_DISABLEZEROSCARD) || CSt.GetID(), PPERR_CHKPAN_SCARDNEEDED);
 		}
 		THROW(InitCashMachine());
 		if(mode == accmAveragePrinting) {
@@ -2537,7 +2519,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					pPack->Ext.AddrID = P.Eccd.Addr_.ID;
 				}
 			}
-			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice); // @v8.7.7
+			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice);
 			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished); // @v9.7.7
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt()); // @v9.4.5
@@ -2611,15 +2593,14 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					// Здесь нам остается только начислить деньги на карту (если необходимо)
 					//
 					if(!F(fRetCheck)) {
-						if(CSt.GetID() && CSt.Flags & CSt.fUhtt && F(fSCardBonusReal|fSCardCredit) && bonus_charge_amt != 0.0) { // @v8.0.6 fSCardBonus-->fSCardBonusReal
+						if(CSt.GetID() && CSt.Flags & CSt.fUhtt && F(fSCardBonusReal|fSCardCredit) && bonus_charge_amt != 0.0) { 
 							if(CSt.UhttCode[0]) {
 								int    is_error = 0;
 								PPUhttClient uhtt_cli;
 								if(uhtt_cli.Auth()) {
-									if(F(fSCardBonusReal) && bonus_charge_amt > 0.0) { // @v8.0.6 fSCardBonus-->fSCardBonusReal
+									if(F(fSCardBonusReal) && bonus_charge_amt > 0.0) {
 										UhttCheckPacket uhtt_cc_pack;
 										double finish_bonus_charge_amt = bonus_charge_amt;
-										// @v8.2.10 {
 										{
 											PPObjSCardSeries scs_obj;
 											PPSCardSeries scs_rec;
@@ -2632,7 +2613,6 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 												}
 											}
 										}
-										// } @v8.2.10
 										uhtt_cc_pack.Amount = finish_bonus_charge_amt;
 										LocationTbl::Rec loc_rec;
 										if(PsnObj.LocObj.Fetch(CnLocID, &loc_rec) > 0 && !isempty(loc_rec.Code)) {
@@ -2685,14 +2665,10 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						}
 					}
 					else {
-						// @v8.1.0 SCardOpTbl::Rec scop_rec;
 						double bonus_withdraw_amt = 0.0;
 						if(_charge != 0.0) {
-		#if 0 // @v8.1.0 Списание с бонусных (кредитных) карт осуществляется теперь функцией проведения чека {
-		#endif // } 0 @v8.1.0
 						}
-						// @v8.0.6 if(CSt.GetID() && CSt.Flags & CSt.fUhtt && F(fSCardBonusReal|fSCardCredit) && (bonus_withdraw_amt != 0.0 || bonus_charge_amt != 0.0)) {
-						if(CSt.GetID() && (CSt.Flags & CSt.fUhtt) && ((F(fSCardBonusReal) && bonus_charge_amt != 0.0) || (F(fSCardBonus|fSCardCredit) && bonus_withdraw_amt != 0.0))) { // @v8.0.6
+						if(CSt.GetID() && (CSt.Flags & CSt.fUhtt) && ((F(fSCardBonusReal) && bonus_charge_amt != 0.0) || (F(fSCardBonus|fSCardCredit) && bonus_withdraw_amt != 0.0))) {
 							if(CSt.UhttCode[0]) {
 								int    is_error = 0;
 								PPUhttClient uhtt_cli;
@@ -2703,10 +2679,9 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 											is_error = 1;
 										}
 									}
-									if(F(fSCardBonusReal) && bonus_charge_amt > 0.0) { // @v8.0.6 fSCardBonus-->fSCardBonusReal
+									if(F(fSCardBonusReal) && bonus_charge_amt > 0.0) {
 										UhttCheckPacket uhtt_cc_pack;
 										double finish_bonus_charge_amt = bonus_charge_amt;
-										// @v8.2.10 {
 										{
 											PPObjSCardSeries scs_obj;
 											PPSCardSeries scs_rec;
@@ -2719,7 +2694,6 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 												}
 											}
 										}
-										// } @v8.2.10
 										uhtt_cc_pack.Amount = finish_bonus_charge_amt;
 										LocationTbl::Rec loc_rec;
 										if(PsnObj.LocObj.Fetch(CnLocID, &loc_rec) > 0 && !isempty(loc_rec.Code)) {
@@ -2905,16 +2879,16 @@ int CheckPaneDialog::InitGroupList(const PPTouchScreenPacket & rTsPack)
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray grp_id_list(rTsPack.GrpIDList);
 	PPID   grp_id = 0;
-	GroupList.freeAll(); // @v8.6.9 @fix
+	GroupList.freeAll();
 	if(grp_id_list.getCount() == 0) {
 		for(GoodsGroupIterator gg_iter(0); gg_iter.Next(&grp_id, temp_buf) > 0;) {
 			while(grp_id && GObj.Fetch(grp_id, &goods_rec) > 0) {
-				grp_id_list.add(grp_id); // @v8.0.10 addUnique-->add
+				grp_id_list.add(grp_id); 
 				grp_id = goods_rec.ParentID;
 			}
 		}
 	}
-	grp_id_list.sortAndUndup(); // @v8.0.10
+	grp_id_list.sortAndUndup();
 	{
 		StrAssocArray temp_list;
 		for(uint p = 0; p < grp_id_list.getCount(); p++) {
@@ -3053,13 +3027,11 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	P_PhnSvcClient = 0;
 	if(!(Flags & fNoEdit)) {
 		P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
-		// @v8.1.6 {
 		{
 			UserInterfaceSettings uis;
 			if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fDisableBeep)
 				EnableBeep(0);
 		}
-		// } @v8.1.6
 		if(CnFlags & CASHF_SYNC) {
 			PPIniFile ini_file;
 			PPSyncCashNode  scn;
@@ -3097,21 +3069,12 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				if(ExtCashNodeID) {
 					if(CnObj.GetSync(ExtCashNodeID, &scn) > 0)
 						ExtCnLocID = scn.LocID;
-					// @v8.2.1 {
 					P_GTOA = DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ?
 						new GoodsToObjAssoc(PPASS_GOODS2LOC, PPOBJ_LOCATION) : new GoodsToObjAssoc(PPASS_GOODS2CASHNODE, PPOBJ_CASHNODE);
 					CALLPTRMEMB(P_GTOA, Load());
-					// } @v8.2.1
 				}
 				TableSelWhatman = scn.TableSelWhatman;
 				{
-					// @v7.8.1 {
-					/* @v7.8.1 @construction {
-					scn.GetPropString(SCN_KITCHENBELL_CMD, temp_buf);
-					KitchenBellCmd = temp_buf.NotEmptyS() ? temp_buf : "1B70000505";
-					scn.GetPropString(SCN_KITCHENBELL_PORT, temp_buf);
-					KitchenBellPort = temp_buf.Strip();
-					} @v7.8.1 */
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_KITCHENBELLCMD, temp_buf);
 					KitchenBellCmd = temp_buf.NotEmptyS() ? temp_buf : "1B70000505";
 					int    is_err = 0;
@@ -3138,7 +3101,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 						AutoInputTolerance = ait;
 				}
 				PhnSvcConnect();
-				// @v8.3.2 {
 				if(scn.ExtFlags & CASHFX_UHTTORDIMPORT) {
 					PPAlbatrosConfig acfg;
 					PPAlbatrosCfgMngr::Get(&acfg);
@@ -3148,7 +3110,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 						P_UhttImporter = new PPBillImporter;
 					}
 				}
-				// } @v8.3.2
 				RunInputProcessThread(CashNodeID); // @v9.6.7
 			}
 			CDispCommand(cdispcmdText, cdisptxtOpened, 0.0, 0.0);
@@ -3199,7 +3160,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	P_EGSDlg = 0;
 	disableCtrl(CTL_CHKPAN_INPUT, Flags & fNoEdit);
 	showCtrl(STDCTL_ALLBUTTON, Flags & fAsSelector);
-	showCtrl(STDCTL_SYSINFOBUTTON, !(Flags & fAsSelector)); // @v8.2.8
+	showCtrl(STDCTL_SYSINFOBUTTON, !(Flags & fAsSelector));
 	showCtrl(STDCTL_OKBUTTON,  Flags & fAsSelector);
 	showCtrl(STDCTL_PRINT,    !(Flags & fAsSelector));
 	setCtrlOption(CTL_CHKPAN_INPUT, ofFramed, 1);
@@ -3220,8 +3181,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		SetCtrlFont(CTL_CHKPAN_INPUT, font_face, 20);
 		enableCommand(cmaAltSelect, BIN(AltGoodsGrpID));
-		// @v8.8.3 selectCtrl(CTL_CHKPAN_GRPLIST);
-		selectCtrl((Flags & fNoEdit) ? CTL_CHKPAN_GRPLIST : CTL_CHKPAN_INPUT); // @v8.8.3
+		selectCtrl((Flags & fNoEdit) ? CTL_CHKPAN_GRPLIST : CTL_CHKPAN_INPUT);
 		// @v9.1.1 DS.SetLCfgFlags(DS.GetTLA().Lc.Flags | CCFLG_USELARGEDIALOG);
 		SLS.SetUiFlag(sluifUseLargeDialogs, 1); // @v9.1.1
 	}
@@ -3261,7 +3221,7 @@ CheckPaneDialog::~CheckPaneDialog()
 	delete P_BNKTERM;
 	delete P_PalmWaiter;
 	delete P_PhnSvcClient;
-	delete P_UhttImporter; // @v8.3.2
+	delete P_UhttImporter;
 }
 
 int CheckPaneDialog::SetupState(int st)
@@ -3282,7 +3242,7 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 	int    r = 1;
 	Flags |= fSuspSleepTimeout;
 	const int prev_state = GetState();
-	const PPID prev_agent_id = P.GetAgentID(1); // @v8.2.0
+	const PPID prev_agent_id = P.GetAgentID(1);
 	if(command == cmCancel && !(Flags & fNoEdit)) {
 		r = 0;
 		if(GetInput())
@@ -3348,7 +3308,7 @@ int CheckPaneDialog::SuspendCheck()
 {
 	int    ok = -1;
 	const int  prev_state = GetState();
-	const PPID prev_agent_id = P.GetAgentID(1); // @v8.2.0
+	const PPID prev_agent_id = P.GetAgentID(1);
 	if(IsState(sEMPTYLIST_EMPTYBUF)) {
 		SelectSuspendedCheck();
 	}
@@ -3534,7 +3494,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	const  int unified_paym_interface = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPayment);
 	double non_crd_amt = 0.0;
 	const  double credit_charge = CalcCreditCharge(0, 0, 0, &non_crd_amt, 0);
-	/* @v8.2.2 const*/ double addpaym_r2 = R2(CSt.AdditionalPayment);
+	double addpaym_r2 = R2(CSt.AdditionalPayment);
 	uint   v = 0;
 	double diff = 0.0;
 	rBlk.Init(this);
@@ -3614,12 +3574,10 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		}
 		else {
 			if(fabs(addpaym_r2) > add_paym_epsilon) {
-				// @v8.2.2 {
 				if(addpaym_r2 > fabs(rBlk.GetTotal())) { // @v8.5.5 Модифицировано для случая возврата
 					MessageError(PPERR_CHKPAN_ADDPAYMABOVEAMT, 0, eomBeep|eomPopup);
 					addpaym_r2 = rBlk.GetTotal() - rBlk.GetUsableBonus();
 				}
-				// } @v8.2.2
 				rBlk.AmtToPaym = addpaym_r2;
 				assert(CSt.GetID() != 0); // Если карта не установлена, то попасть в эту ветку кода невозможно
 				if(rBlk.Kind == cpmBank) {
@@ -3754,7 +3712,7 @@ static void FASTCALL InformCashNoteAndDelivery(HWND hParentWnd, const PosPayment
 void CheckPaneDialog::ProcessEnter(int selectInput)
 {
 	const int  prev_state = GetState();
-	const PPID prev_agent_id = P.GetAgentID(1); // @v8.2.0
+	const PPID prev_agent_id = P.GetAgentID(1);
 	SString temp_buf;
 	if(selectInput)
 		selectCtrl(CTL_CHKPAN_INPUT);
@@ -3786,9 +3744,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					if(OperRightsFlags & orfRestoreSuspWithoutAgent || P.GetAgentID()) {
 						if(bis.PosId == CashNodeID) {
 							uint   candid_count = 0;
-							LDATETIME max_dtm;
+							LDATETIME max_dtm = ZERODATETIME;
 							uint   _pos = 0;
-							max_dtm.SetZero();
 							TSVector <CCheckTbl::Rec> cc_list; // @v9.8.5 TSArray-->TSVector
 							if(GetCc().GetListByCode(bis.PosId, bis.CcCode, &cc_list) > 0) {
                                 for(uint i = 0; i < cc_list.getCount(); i++) {
@@ -3883,10 +3840,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			}
 			else if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 				Flags |= fSuspSleepTimeout;
-				/* @v8.2.9
-				if(CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID())
-					MessageError(PPERR_CHKPAN_SALERNEEDED, 0, eomBeep|eomStatusLine);
-				*/
 				if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck))
 					MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 				else {
@@ -3992,10 +3945,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			//
 			// Проведение и печать чека
 			//
-			// @v8.3.4 {
 			if(CnExtFlags & CASHFX_DISABLEZEROSCARD && !CSt.GetID())
 				MessageError(PPERR_CHKPAN_SCARDNEEDED, 0, eomBeep|eomStatusLine);
-			// } @v8.3.4
 			else if(!(OperRightsFlags & orfPrintCheck))
 				MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 			else {
@@ -4461,7 +4412,7 @@ private:
 		setCtrlData(CTL_SELCHECK_DATE, &LastDate);
 		if(!SetupStrListBox(this, CTL_SELCHECK_ITEMLIST))
 			PPError();
-		FmtList.Clear();
+		FmtList.Z();
 		LastChkNo = -1;
 		LastChkID = 0;
 		State &= ~(stInputUpdated | stListUpdated);
@@ -4696,7 +4647,7 @@ int SelCheckListDialog::setupList()
 				ss.add(tm_chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec));
 				if(r_chk_rec.SCardID) {
 					SCardTbl::Rec sc_rec;
-					if(P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) { // @v8.4.3 Search-->Fetch
+					if(P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) {
 						scard_no = sc_rec.Code;
 						if(sc_rec.PersonID)
 							GetPersonName(sc_rec.PersonID, scard_psn);
@@ -4862,7 +4813,7 @@ int SplitSuspCheckDialog::addItem()
 			qtty = (qtty > p_litem->Quantity) ? p_litem->Quantity : qtty;
 			if(p_rl->lsearch(p_litem, &pos, CMPF_LONG, 0) > 0) {
 				ListItem * p_ritem = (ListItem*)p_rl->at(pos);
-				p_ritem->Quantity += qtty; // @v8.2.12 @fix (= qtty)-->(+= qtty)
+				p_ritem->Quantity += qtty; 
 			}
 			else {
 				ListItem item;
@@ -5020,10 +4971,8 @@ int SelCheckListDialog::SplitCheck()
 							pack.SetupAmount(0, 0);
 							add_pack.SetupAmount(0, 0);
 						}
-						// @v8.9.8 THROW(r_cc.RemovePacket(chk_id, 0));
-						// @v8.9.8 THROW(r_cc.TurnCheck(&pack, 0));
-						pack.Rec.ID = chk_id; // @v8.9.8
-						THROW(r_cc.UpdateCheck(&pack, 0)); // @v8.9.8
+						pack.Rec.ID = chk_id;
+						THROW(r_cc.UpdateCheck(&pack, 0));
 						THROW(r_cc.TurnCheck(&add_pack, 0));
 						THROW(tra.Commit());
 					}
@@ -5062,7 +5011,7 @@ int SelCheckListDialog::UniteChecks()
 	if(chk1_id && ChkList.getCount() > 1 && oneof2(resourceID, DLG_SELSUSCHECK_L, DLG_SELSUSCHECK)) {
 		uint   pos = 0;
 		TSVector <CCheckViewItem> list;
-		THROW_PP(!P_AddParam || P_AddParam->Rights & CheckPaneDialog::orfMergeChecks, PPERR_NORIGHTS); // @v8.5.5
+		THROW_PP(!P_AddParam || P_AddParam->Rights & CheckPaneDialog::orfMergeChecks, PPERR_NORIGHTS);
 		list.copy(ChkList);
 		THROW_SL(list.lsearch(&chk1_id, &pos, PTR_CMPFUNC(long)) > 0);
 		list.atFree(pos);
@@ -5089,12 +5038,10 @@ int SelCheckListDialog::UniteChecks()
 					for(pos = 0; pack2.EnumLines(&pos, &chk_item, &serial) > 0;) {
 						THROW(pack1.InsertItem_(&chk_item, serial));
 					}
-					// @v8.9.8 THROW(r_cc.RemovePacket(chk1_id, 0));
 					THROW(r_cc.RemovePacket(check2.CheckID, 0));
 					pack1.SetupAmount(0, 0);
-					// @v8.9.8 THROW(r_cc.TurnCheck(&pack1, 0));
-					pack1.Rec.ID = chk1_id; // @v8.9.8
-					THROW(r_cc.UpdateCheck(&pack1, 0)); // @v8.9.8
+					pack1.Rec.ID = chk1_id;
+					THROW(r_cc.UpdateCheck(&pack1, 0));
 					DS.LogAction(PPACN_UNITECCHECK, PPOBJ_CCHECK, pack1.Rec.ID, pack2.Rec.ID, 0);
 					THROW(tra.Commit());
 				}
@@ -5245,543 +5192,540 @@ struct AddrByPhoneItem { // @flat
 	char   Contact[128];
 };
 
-int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
-{
-	class CheckDlvrDialog : public TDialog {
-	public:
-		CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), Channel(pChannel),
-			LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
+class CheckDlvrDialog : public TDialog {
+public:
+	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), Channel(pChannel),
+		LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
+	{
+		addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
+		MEMSZERO(OrgLocRec);
+		Data.SCardID_ = scardID;
+		SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
+		SetupTimePicker(this, CTL_CCHKDLVR_TM, CTLTM_CCHKDLVR_TM);
+		setStaticText(CTL_CCHKDLVR_ST_SIP, Channel);
+		GetMainCityID(&DefCityID);
+	}
+	int    setDTS(const CheckPaneDialog::ExtCcData * pData)
+	{
+		int    ok = 1;
 		{
-			addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
-			MEMSZERO(OrgLocRec);
-			Data.SCardID_ = scardID;
-			SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
-			SetupTimePicker(this, CTL_CCHKDLVR_TM, CTLTM_CCHKDLVR_TM);
-			setStaticText(CTL_CCHKDLVR_ST_SIP, Channel);
-			GetMainCityID(&DefCityID);
+			const  PPID preserve_sc_id = Data.SCardID_;
+			Data = *pData;
+			SETIFZ(Data.SCardID_, preserve_sc_id);
 		}
-		int    setDTS(const CheckPaneDialog::ExtCcData * pData)
-		{
-			int    ok = 1;
-			{
-				const  PPID preserve_sc_id = Data.SCardID_;
-				Data = *pData;
-				SETIFZ(Data.SCardID_, preserve_sc_id);
-			}
-			setCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
-			AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
-			AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished); // @v9.7.7
+		setCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
+		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
+		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished); // @v9.7.7
+		SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
+		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/),
+			0/*OLW_LOADDEFONOPEN*/, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+		SetupDeliveryCtrls(0);
+		if(DlvrPhone.NotEmpty()) {
+			Data.Flags |= Data.fDelivery;
 			SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
-			SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/),
-				0/*OLW_LOADDEFONOPEN*/, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
-			SetupDeliveryCtrls(0);
-			if(DlvrPhone.NotEmpty()) {
-				Data.Flags |= Data.fDelivery;
-				SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
-				SetupDeliveryCtrls(DlvrPhone);
-				ReplyPhone(1);
-			}
-			if(Data.Flags & Data.fDelivery)
-				selectCtrl(CTL_CCHKDLVR_ADDR);
-			// @v9.4.5 {
-			{
-				SCardCtrlGroup::Rec screc;
-				screc.SCardID = Data.SCardID_;
-				setGroupData(GRP_SCARD, &screc);
-			}
-			// } @v9.4.5
-			// @v9.4.11 {
-			{
-				AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
-				SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
-			}
-			// } @v9.4.11
-			return ok;
+			SetupDeliveryCtrls(DlvrPhone);
+			ReplyPhone(1);
 		}
-		int    getDTS(CheckPaneDialog::ExtCcData * pData)
+		if(Data.Flags & Data.fDelivery)
+			selectCtrl(CTL_CCHKDLVR_ADDR);
+		// @v9.4.5 {
 		{
-			int    ok = 1;
-			SString temp_buf;
-			const  PPID preserve_loc_id = CheckAddrModif(0) ? 0 : Data.Addr_.ID;
-			const  LDATETIME preserve_init_dtm = Data.InitDtm;
-			Data.Clear();
-			Data.Addr_.ID = preserve_loc_id;
-			Data.InitDtm = preserve_init_dtm;
-			getCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
+			SCardCtrlGroup::Rec screc;
+			screc.SCardID = Data.SCardID_;
+			setGroupData(GRP_SCARD, &screc);
+		}
+		// } @v9.4.5
+		// @v9.4.11 {
+		{
+			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
+			SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+		}
+		// } @v9.4.11
+		return ok;
+	}
+	int    getDTS(CheckPaneDialog::ExtCcData * pData)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		const  PPID preserve_loc_id = CheckAddrModif(0) ? 0 : Data.Addr_.ID;
+		const  LDATETIME preserve_init_dtm = Data.InitDtm;
+		Data.Clear();
+		Data.Addr_.ID = preserve_loc_id;
+		Data.InitDtm = preserve_init_dtm;
+		getCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
+		GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
+		if(Data.Flags & Data.fDelivery) {
+			Data.Addr_.Type = LOCTYP_ADDRESS;
+			Data.Addr_.CityID = getCtrlLong(CTLSEL_CCHKDLVR_CITY);
+			getCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
+			LocationCore::SetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
+			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+			LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, temp_buf);
+			getCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
+			LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
+			Data.DlvrDtm.d = getCtrlDate(CTL_CCHKDLVR_DT);
+			Data.DlvrDtm.t = getCtrlTime(CTL_CCHKDLVR_TM);
+			GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags); // @v9.4.11
+		}
+		else {
+		}
+		// @v9.4.5 {
+		{
+			SCardCtrlGroup::Rec screc;
+			getGroupData(GRP_SCARD, &screc);
+			Data.SCardID_ = screc.SCardID;
+		}
+		// } @v9.4.5
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+	int    getSCardID(PPID * pScID) const
+	{
+		if(Data.SCardID_) {
+			ASSIGN_PTR(pScID, Data.SCardID_);
+			return 1;
+		}
+		else
+			return 0;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_CCHKDLVR_FLAGS)) {
 			GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
-			if(Data.Flags & Data.fDelivery) {
-				Data.Addr_.Type = LOCTYP_ADDRESS;
-				Data.Addr_.CityID = getCtrlLong(CTLSEL_CCHKDLVR_CITY);
-				getCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
-				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
-				getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
-				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, temp_buf);
-				getCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
-				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
-				Data.DlvrDtm.d = getCtrlDate(CTL_CCHKDLVR_DT);
-				Data.DlvrDtm.t = getCtrlTime(CTL_CCHKDLVR_TM);
-				GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags); // @v9.4.11
-			}
-			else {
-			}
-			// @v9.4.5 {
-			{
-				SCardCtrlGroup::Rec screc;
-				getGroupData(GRP_SCARD, &screc);
-				Data.SCardID_ = screc.SCardID;
-			}
-			// } @v9.4.5
-			ASSIGN_PTR(pData, Data);
-			return ok;
+			SetupDeliveryCtrls(0);
 		}
-		int    getSCardID(PPID * pScID) const
-		{
-			if(Data.SCardID_) {
-				ASSIGN_PTR(pScID, Data.SCardID_);
-				return 1;
-			}
-			else
-				return 0;
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			TDialog::handleEvent(event);
-			if(event.isClusterClk(CTL_CCHKDLVR_FLAGS)) {
-				GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
-				SetupDeliveryCtrls(0);
-			}
-			/* @v9.4.5 else if(event.isCbSelected(CTLSEL_CCHKDLVR_SCARD)) {
-				SCardID = getCtrlLong(CTLSEL_CCHKDLVR_SCARD);
-			} */
-			else if(event.isCmd(cmSelAddrByPhone)) {
-				const  uint c = AddrByPhoneList.getCount();
-				if(Data.Flags & Data.fDelivery && c) {
-					if(c == 1)
-						SetupAddr(&AddrByPhoneList.at(0));
-					else
-						SelectAddrByPhone();
-				}
-			}
-			else if(TVCMD == cmInputUpdated) {
-				if(event.isCtlEvent(CTL_CCHKDLVR_PHONE)) {
-					static int __lock = 0;
-					if(!__lock) {
-						__lock = 1;
-						ReplyPhone(0); // @v9.4.5 0-->1 // @v9.4.7 1-->0
-						CheckAddrModif(1);
-						__lock = 0;
-					}
-				}
-				else if(event.isCtlEvent(CTL_CCHKDLVR_ADDR) || event.isCtlEvent(CTL_CCHKDLVR_CONTACT))
-					CheckAddrModif(1);
+		/* @v9.4.5 else if(event.isCbSelected(CTLSEL_CCHKDLVR_SCARD)) {
+			SCardID = getCtrlLong(CTLSEL_CCHKDLVR_SCARD);
+		} */
+		else if(event.isCmd(cmSelAddrByPhone)) {
+			const  uint c = AddrByPhoneList.getCount();
+			if(Data.Flags & Data.fDelivery && c) {
+				if(c == 1)
+					SetupAddr(&AddrByPhoneList.at(0));
 				else
-					return;
-			}
-			else if(TVCMD == cmWSSelected) {
-				if(event.isCtlEvent(CTL_CCHKDLVR_SCARD)) {
-					SCardCtrlGroup::Rec scgrec;
-					getGroupData(GRP_SCARD, &scgrec);
-					if(scgrec.SCardID) {
-						int    local_ok = 0;
-						SCardTbl::Rec sc_rec;
-						if(ScObj.Fetch(scgrec.SCardID, &sc_rec) > 0) { // @v9.4.11 Search-->Fetch
-							if((!sc_rec.LocID || sc_rec.LocID == Data.Addr_.ID) && (!sc_rec.PersonID || sc_rec.PersonID == Data.Addr_.OwnerID)) {
-								Data.SCardID_ = scgrec.SCardID;
-								local_ok = 1;
-							}
-						}
-						if(!local_ok && scgrec.SCardID) {
-							scgrec.SCardID = 0;
-							setGroupData(GRP_SCARD, &scgrec);
-						}
-					}
-					else
-						Data.SCardID_ = 0;
-					SetupDeliveryCtrls(0); // @v9.4.11
-				}
-			}
-			else
-				return;
-			clearEvent(event);
-		}
-		int  CheckAddrModif(int doSetupCtrls)
-		{
-			int    is_mod = 0;
-			SString org_buf, now_buf;
-			if(!LockAddrModChecking && Data.Addr_.ID && Data.Addr_.ID == OrgLocRec.ID) {
-				if(Data.Addr_.CityID != OrgLocRec.CityID)
-					is_mod = 1;
-				else {
-					getCtrlString(CTL_CCHKDLVR_ADDR, now_buf);
-					LocationCore::GetExField(&OrgLocRec, LOCEXSTR_SHORTADDR, org_buf);
-					if(now_buf.CmpNC(org_buf) != 0)
-						is_mod = 1;
-					else {
-						getCtrlString(CTL_CCHKDLVR_PHONE, now_buf);
-						LocationCore::GetExField(&OrgLocRec, LOCEXSTR_PHONE, org_buf);
-						if(now_buf.CmpNC(org_buf) != 0)
-							is_mod = 1;
-						else {
-							getCtrlString(CTL_CCHKDLVR_CONTACT, now_buf);
-							LocationCore::GetExField(&OrgLocRec, LOCEXSTR_CONTACT, org_buf);
-							if(now_buf.CmpNC(org_buf) != 0)
-								is_mod = 1;
-						}
-					}
-				}
-			}
-			if(doSetupCtrls) {
-				if(is_mod)
-					PPLoadText(PPTXT_DLVRADDRMODIFIED, now_buf);
-				else
-					now_buf.Z();
-				setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, now_buf);
-			}
-			return is_mod;
-		}
-		void SetupAddr(const AddrByPhoneItem * pEntry)
-		{
-			if(pEntry) {
-				SString temp_buf;
-				PersonID = 0;
-				if(pEntry->ObjType == PPOBJ_LOCATION && (pEntry->ObjFlags & LOCF_STANDALONE) && PsnObj.LocObj.Search(pEntry->ObjID, &Data.Addr_) > 0) {
-					OrgLocRec = Data.Addr_;
-				}
-				else if(pEntry->ObjType == PPOBJ_PERSON) {
-					PersonID = pEntry->ObjID;
-					if(pEntry->Phone[0])
-						DlvrPhone = pEntry->Phone;
-					if(pEntry->AddrID && PsnObj.LocObj.Search(pEntry->AddrID, &Data.Addr_) > 0)
-						OrgLocRec = Data.Addr_;
-				}
-				else {
-					MEMSZERO(OrgLocRec);
-					if(pEntry->CityID)
-						Data.Addr_.CityID = pEntry->CityID;
-					LocationCore::SetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, pEntry->Addr);
-					LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, pEntry->Phone);
-					LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, pEntry->Contact);
-					Data.Addr_.Flags |= LOCF_STANDALONE;
-					SETIFZ(Data.Addr_.Type, LOCTYP_ADDRESS);
-				}
-				setStaticText(CTL_CCHKDLVR_ST_ADDRID,  temp_buf.Z().Cat(Data.Addr_.ID));
-				setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, temp_buf.Z());
-				// @v9.4.5 {
-				{
-					PPIDArray sc_list;
-					PPID   sc_id = 0;
-					if(pEntry->Phone[0]) {
-						PPEAddr::Phone::NormalizeStr(pEntry->Phone, temp_buf);
-						if(temp_buf.NotEmptyS()) {
-							PPIDArray phone_id_list;
-							PsnObj.LocObj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
-							for(uint i = 0; i < phone_id_list.getCount(); i++) {
-								const PPID ea_id = phone_id_list.get(i);
-								EAddrTbl::Rec ea_rec;
-								if(PsnObj.LocObj.P_Tbl->GetEAddr(ea_id, &ea_rec) > 0 && ea_rec.LinkObjType == PPOBJ_SCARD) {
-									sc_list.add(ea_rec.LinkObjID);
-								}
-							}
-						}
-					}
-					if(!sc_list.getCount()) {
-						if(PersonID) {
-							ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
-						}
-						else if(Data.Addr_.ID) {
-							ScObj.P_Tbl->GetListByLoc(Data.Addr_.ID, 0, &sc_list);
-						}
-					}
-					if(sc_list.getCount()) {
-						sc_id = sc_list.get(0);
-					}
-					setCtrlLong(CTL_CCHKDLVR_SCARD, sc_id);
-				}
-				// } @v9.4.5
-				SetupDeliveryCtrls(0);
+					SelectAddrByPhone();
 			}
 		}
-		void SelectAddrByPhone()
-		{
-			class SelAddrByPhoneDialog : public PPListDialog {
-			public:
-				SelAddrByPhoneDialog(const TSVector <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST) // @v9.8.6 TSArray-->TSVector
-				{
-					RVALUEPTR(Data, pData);
-					updateList(-1);
-				}
-				const AddrByPhoneItem * getSelectedItem()
-				{
-					long   sel_id = 0;
-					return (getSelection(&sel_id) && sel_id > 0 && sel_id <= (long)Data.getCount()) ? &Data.at(sel_id-1) : 0;
-				}
-			private:
-				DECL_HANDLE_EVENT
-				{
-					if(event.isCmd(cmLBDblClk)) {
-						long   idx = 0;
-						if(getSelection(&idx) && idx > 0 && idx <= (long)Data.getCount())
-							TVCMD = cmOK;
-					}
-					PPListDialog::handleEvent(event);
-				}
-				virtual int setupList()
-				{
-					int    ok = 1;
-					SString temp_buf;
-					PPIDArray sc_list;
-					StringSet ss(SLBColumnDelim);
-					for(uint i = 0; i < Data.getCount(); i++) {
-						const AddrByPhoneItem & r_entry = Data.at(i);
-						ss.clear();
-						sc_list.clear();
-						if(r_entry.ObjType == PPOBJ_LOCATION) {
-							PPLoadString("address", temp_buf);
-							ScObj.P_Tbl->GetListByLoc(r_entry.ObjID, 0, &sc_list);
-						}
-						else if(r_entry.ObjType == PPOBJ_PERSON) {
-							PPLoadString("person", temp_buf);
-							ScObj.P_Tbl->GetListByPerson(r_entry.ObjID, 0, &sc_list);
-						}
-						else
-							temp_buf.Z().Cat(r_entry.ObjType);
-						ss.add(temp_buf);
-						ss.add(temp_buf.Z().Cat(r_entry.ObjID));
-						ss.add(temp_buf = r_entry.Contact);
-						ss.add(temp_buf = r_entry.Addr);
-						{
-							temp_buf.Z();
-							if(sc_list.getCount()) {
-								PPID   sc_id = sc_list.get(0);
-								SCardTbl::Rec sc_rec;
-								if(sc_list.getCount() > 1)
-									temp_buf.Cat("...");
-								if(ScObj.Fetch(sc_id, &sc_rec) > 0)
-									temp_buf.Cat(sc_rec.Code);
-							}
-							ss.add(temp_buf);
-						}
-						addStringToList(i+1, ss.getBuf());
-					}
-					return ok;
-				}
-				TSVector <AddrByPhoneItem> Data; // @v9.8.6 TSArray-->TSVector
-				PPObjSCard ScObj;
-			};
-			{
+		else if(TVCMD == cmInputUpdated) {
+			if(event.isCtlEvent(CTL_CCHKDLVR_PHONE)) {
 				static int __lock = 0;
 				if(!__lock) {
 					__lock = 1;
-					SelAddrByPhoneDialog * dlg = new SelAddrByPhoneDialog(&AddrByPhoneList);
-					if(CheckDialogPtrErr(&dlg)) {
-						if(ExecView(dlg) == cmOK)
-							SetupAddr(dlg->getSelectedItem());
-					}
-					delete dlg;
+					ReplyPhone(0); // @v9.4.5 0-->1 // @v9.4.7 1-->0
+					CheckAddrModif(1);
 					__lock = 0;
 				}
 			}
+			else if(event.isCtlEvent(CTL_CCHKDLVR_ADDR) || event.isCtlEvent(CTL_CCHKDLVR_CONTACT))
+				CheckAddrModif(1);
+			else
+				return;
 		}
-		int    ReplyPhone(int immSelect)
+		else if(TVCMD == cmWSSelected) {
+			if(event.isCtlEvent(CTL_CCHKDLVR_SCARD)) {
+				SCardCtrlGroup::Rec scgrec;
+				getGroupData(GRP_SCARD, &scgrec);
+				if(scgrec.SCardID) {
+					int    local_ok = 0;
+					SCardTbl::Rec sc_rec;
+					if(ScObj.Fetch(scgrec.SCardID, &sc_rec) > 0) { // @v9.4.11 Search-->Fetch
+						if((!sc_rec.LocID || sc_rec.LocID == Data.Addr_.ID) && (!sc_rec.PersonID || sc_rec.PersonID == Data.Addr_.OwnerID)) {
+							Data.SCardID_ = scgrec.SCardID;
+							local_ok = 1;
+						}
+					}
+					if(!local_ok && scgrec.SCardID) {
+						scgrec.SCardID = 0;
+						setGroupData(GRP_SCARD, &scgrec);
+					}
+				}
+				else
+					Data.SCardID_ = 0;
+				SetupDeliveryCtrls(0); // @v9.4.11
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	int  CheckAddrModif(int doSetupCtrls)
+	{
+		int    is_mod = 0;
+		SString org_buf, now_buf;
+		if(!LockAddrModChecking && Data.Addr_.ID && Data.Addr_.ID == OrgLocRec.ID) {
+			if(Data.Addr_.CityID != OrgLocRec.CityID)
+				is_mod = 1;
+			else {
+				getCtrlString(CTL_CCHKDLVR_ADDR, now_buf);
+				LocationCore::GetExField(&OrgLocRec, LOCEXSTR_SHORTADDR, org_buf);
+				if(now_buf.CmpNC(org_buf) != 0)
+					is_mod = 1;
+				else {
+					getCtrlString(CTL_CCHKDLVR_PHONE, now_buf);
+					LocationCore::GetExField(&OrgLocRec, LOCEXSTR_PHONE, org_buf);
+					if(now_buf.CmpNC(org_buf) != 0)
+						is_mod = 1;
+					else {
+						getCtrlString(CTL_CCHKDLVR_CONTACT, now_buf);
+						LocationCore::GetExField(&OrgLocRec, LOCEXSTR_CONTACT, org_buf);
+						if(now_buf.CmpNC(org_buf) != 0)
+							is_mod = 1;
+					}
+				}
+			}
+		}
+		if(doSetupCtrls) {
+			if(is_mod)
+				PPLoadText(PPTXT_DLVRADDRMODIFIED, now_buf);
+			else
+				now_buf.Z();
+			setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, now_buf);
+		}
+		return is_mod;
+	}
+	void SetupAddr(const AddrByPhoneItem * pEntry)
+	{
+		if(pEntry) {
+			SString temp_buf;
+			PersonID = 0;
+			if(pEntry->ObjType == PPOBJ_LOCATION && (pEntry->ObjFlags & LOCF_STANDALONE) && PsnObj.LocObj.Search(pEntry->ObjID, &Data.Addr_) > 0) {
+				OrgLocRec = Data.Addr_;
+			}
+			else if(pEntry->ObjType == PPOBJ_PERSON) {
+				PersonID = pEntry->ObjID;
+				if(pEntry->Phone[0])
+					DlvrPhone = pEntry->Phone;
+				if(pEntry->AddrID && PsnObj.LocObj.Search(pEntry->AddrID, &Data.Addr_) > 0)
+					OrgLocRec = Data.Addr_;
+			}
+			else {
+				MEMSZERO(OrgLocRec);
+				if(pEntry->CityID)
+					Data.Addr_.CityID = pEntry->CityID;
+				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, pEntry->Addr);
+				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, pEntry->Phone);
+				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, pEntry->Contact);
+				Data.Addr_.Flags |= LOCF_STANDALONE;
+				SETIFZ(Data.Addr_.Type, LOCTYP_ADDRESS);
+			}
+			setStaticText(CTL_CCHKDLVR_ST_ADDRID,  temp_buf.Z().Cat(Data.Addr_.ID));
+			setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, temp_buf.Z());
+			// @v9.4.5 {
+			{
+				PPIDArray sc_list;
+				PPID   sc_id = 0;
+				if(pEntry->Phone[0]) {
+					PPEAddr::Phone::NormalizeStr(pEntry->Phone, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						PPIDArray phone_id_list;
+						PsnObj.LocObj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
+						for(uint i = 0; i < phone_id_list.getCount(); i++) {
+							const PPID ea_id = phone_id_list.get(i);
+							EAddrTbl::Rec ea_rec;
+							if(PsnObj.LocObj.P_Tbl->GetEAddr(ea_id, &ea_rec) > 0 && ea_rec.LinkObjType == PPOBJ_SCARD)
+								sc_list.add(ea_rec.LinkObjID);
+						}
+					}
+				}
+				if(!sc_list.getCount()) {
+					if(PersonID)
+						ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
+					else if(Data.Addr_.ID)
+						ScObj.P_Tbl->GetListByLoc(Data.Addr_.ID, 0, &sc_list);
+				}
+				if(sc_list.getCount()) {
+					sc_id = sc_list.get(0);
+				}
+				setCtrlLong(CTL_CCHKDLVR_SCARD, sc_id);
+			}
+			// } @v9.4.5
+			SetupDeliveryCtrls(0);
+		}
+	}
+	void SelectAddrByPhone()
+	{
+		class SelAddrByPhoneDialog : public PPListDialog {
+		public:
+			SelAddrByPhoneDialog(const TSVector <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST) // @v9.8.6 TSArray-->TSVector
+			{
+				RVALUEPTR(Data, pData);
+				updateList(-1);
+			}
+			const AddrByPhoneItem * getSelectedItem()
+			{
+				long   sel_id = 0;
+				return (getSelection(&sel_id) && sel_id > 0 && sel_id <= (long)Data.getCount()) ? &Data.at(sel_id-1) : 0;
+			}
+		private:
+			DECL_HANDLE_EVENT
+			{
+				if(event.isCmd(cmLBDblClk)) {
+					long   idx = 0;
+					if(getSelection(&idx) && idx > 0 && idx <= (long)Data.getCount())
+						TVCMD = cmOK;
+				}
+				PPListDialog::handleEvent(event);
+			}
+			virtual int setupList()
+			{
+				int    ok = 1;
+				SString temp_buf;
+				PPIDArray sc_list;
+				StringSet ss(SLBColumnDelim);
+				for(uint i = 0; i < Data.getCount(); i++) {
+					const AddrByPhoneItem & r_entry = Data.at(i);
+					ss.clear();
+					sc_list.clear();
+					if(r_entry.ObjType == PPOBJ_LOCATION) {
+						PPLoadString("address", temp_buf);
+						ScObj.P_Tbl->GetListByLoc(r_entry.ObjID, 0, &sc_list);
+					}
+					else if(r_entry.ObjType == PPOBJ_PERSON) {
+						PPLoadString("person", temp_buf);
+						ScObj.P_Tbl->GetListByPerson(r_entry.ObjID, 0, &sc_list);
+					}
+					else
+						temp_buf.Z().Cat(r_entry.ObjType);
+					ss.add(temp_buf);
+					ss.add(temp_buf.Z().Cat(r_entry.ObjID));
+					ss.add(temp_buf = r_entry.Contact);
+					ss.add(temp_buf = r_entry.Addr);
+					{
+						temp_buf.Z();
+						if(sc_list.getCount()) {
+							PPID   sc_id = sc_list.get(0);
+							SCardTbl::Rec sc_rec;
+							if(sc_list.getCount() > 1)
+								temp_buf.Cat("...");
+							if(ScObj.Fetch(sc_id, &sc_rec) > 0)
+								temp_buf.Cat(sc_rec.Code);
+						}
+						ss.add(temp_buf);
+					}
+					addStringToList(i+1, ss.getBuf());
+				}
+				return ok;
+			}
+			TSVector <AddrByPhoneItem> Data; // @v9.8.6 TSArray-->TSVector
+			PPObjSCard ScObj;
+		};
 		{
-			AddrByPhoneList.clear();
-			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
-				SString temp_buf, phone_buf;
-				getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
-				temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-				PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
-				if(phone_buf.NotEmptyS()) {
-					PPIDArray addr_list, dlvr_addr_list;
-					PPIDArray phone_id_list;
-					PsnObj.LocObj.P_Tbl->SearchPhoneIndex(phone_buf, 0, phone_id_list);
-					for(uint i = 0; i < phone_id_list.getCount(); i++) {
-						EAddrTbl::Rec ea_rec;
-						LocationTbl::Rec loc_rec;
-						PersonTbl::Rec psn_rec;
-						if(PsnObj.LocObj.P_Tbl->GetEAddr(phone_id_list.get(i), &ea_rec) > 0) {
-							if(ea_rec.LinkObjType == PPOBJ_LOCATION && PsnObj.LocObj.Search(ea_rec.LinkObjID, &loc_rec) > 0) {
+			static int __lock = 0;
+			if(!__lock) {
+				__lock = 1;
+				SelAddrByPhoneDialog * dlg = new SelAddrByPhoneDialog(&AddrByPhoneList);
+				if(CheckDialogPtrErr(&dlg)) {
+					if(ExecView(dlg) == cmOK)
+						SetupAddr(dlg->getSelectedItem());
+				}
+				delete dlg;
+				__lock = 0;
+			}
+		}
+	}
+	int    ReplyPhone(int immSelect)
+	{
+		AddrByPhoneList.clear();
+		if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
+			SString temp_buf, phone_buf;
+			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+			PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
+			if(phone_buf.NotEmptyS()) {
+				PPIDArray addr_list, dlvr_addr_list;
+				PPIDArray phone_id_list;
+				PsnObj.LocObj.P_Tbl->SearchPhoneIndex(phone_buf, 0, phone_id_list);
+				for(uint i = 0; i < phone_id_list.getCount(); i++) {
+					EAddrTbl::Rec ea_rec;
+					LocationTbl::Rec loc_rec;
+					PersonTbl::Rec psn_rec;
+					if(PsnObj.LocObj.P_Tbl->GetEAddr(phone_id_list.get(i), &ea_rec) > 0) {
+						if(ea_rec.LinkObjType == PPOBJ_LOCATION && PsnObj.LocObj.Search(ea_rec.LinkObjID, &loc_rec) > 0) {
+							AddrByPhoneItem ap_item;
+							MEMSZERO(ap_item);
+							ap_item.ObjType = ea_rec.LinkObjType;
+							ap_item.ObjID = ea_rec.LinkObjID;
+							ap_item.ObjFlags = loc_rec.Flags;
+							ap_item.CityID = loc_rec.CityID;
+							phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
+							LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+							temp_buf.CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
+							LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
+							temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+							AddrByPhoneList.insert(&ap_item);
+						}
+						else if(ea_rec.LinkObjType == PPOBJ_PERSON && PsnObj.Search(ea_rec.LinkObjID, &psn_rec) > 0) {
+							uint j;
+							addr_list.clear();
+							addr_list.addnz(psn_rec.RLoc);
+							PsnObj.GetDlvrLocList(psn_rec.ID, &dlvr_addr_list);
+							for(j = 0; j < dlvr_addr_list.getCount(); j++) {
+								addr_list.addnz(dlvr_addr_list.get(j));
+							}
+							addr_list.addnz(psn_rec.MainLoc);
+							if(addr_list.getCount() == 0) {
+								//
+								// Если у персоналии нет ни одного адреса, то все равно необходимо
+								// отобразить эту персоналию в списке с пустым адресом, дабы
+								// пользователь мог ее выбрать и ввести адрес, который ему назовет клиент.
+								//
+								addr_list.add(0L);
+							}
+							for(j = 0; j < addr_list.getCount(); j++) {
+								const PPID addr_id = addr_list.get(j);
 								AddrByPhoneItem ap_item;
 								MEMSZERO(ap_item);
 								ap_item.ObjType = ea_rec.LinkObjType;
 								ap_item.ObjID = ea_rec.LinkObjID;
-								ap_item.ObjFlags = loc_rec.Flags;
-								ap_item.CityID = loc_rec.CityID;
 								phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
-								LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-								temp_buf.CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
-								LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
-								temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+								STRNSCPY(ap_item.Contact, psn_rec.Name);
+								ap_item.AddrID = addr_id;
+								if(addr_id) {
+									// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
+									PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
+									temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+								}
 								AddrByPhoneList.insert(&ap_item);
 							}
-							else if(ea_rec.LinkObjType == PPOBJ_PERSON && PsnObj.Search(ea_rec.LinkObjID, &psn_rec) > 0) {
-								uint j;
-								addr_list.clear();
-								addr_list.addnz(psn_rec.RLoc);
-								PsnObj.GetDlvrLocList(psn_rec.ID, &dlvr_addr_list);
-								for(j = 0; j < dlvr_addr_list.getCount(); j++) {
-									addr_list.addnz(dlvr_addr_list.get(j));
-								}
-								addr_list.addnz(psn_rec.MainLoc);
-								if(addr_list.getCount() == 0) {
-									//
-									// Если у персоналии нет ни одного адреса, то все равно необходимо
-									// отобразить эту персоналию в списке с пустым адресом, дабы
-									// пользователь мог ее выбрать и ввести адрес, который ему назовет клиент.
-									//
-									addr_list.add(0L);
-								}
-								for(j = 0; j < addr_list.getCount(); j++) {
-									const PPID addr_id = addr_list.get(j);
-									AddrByPhoneItem ap_item;
-									MEMSZERO(ap_item);
-									ap_item.ObjType = ea_rec.LinkObjType;
-									ap_item.ObjID = ea_rec.LinkObjID;
-									phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
-									STRNSCPY(ap_item.Contact, psn_rec.Name);
-									ap_item.AddrID = addr_id;
-									if(addr_id) {
-										// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
-										PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
-										temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
-									}
-									AddrByPhoneList.insert(&ap_item);
-								}
-							}
 						}
 					}
 				}
-			}
-			{
-				const  uint c = AddrByPhoneList.getCount();
-				enableCommand(cmSelAddrByPhone, BIN(c));
-				if(c && immSelect)
-					if(c == 1)
-						SetupAddr(&AddrByPhoneList.at(0));
-					else
-						SelectAddrByPhone();
-				return BIN(c);
 			}
 		}
-		void   SetupDeliveryCtrls(const char * pPhone)
 		{
-			SString temp_buf;
-			SString loc_phone;
-			SString sc_phone;
-			SCardTbl::Rec sc_rec;
-			LockAddrModChecking = 1;
-			if(Data.Flags & Data.fDelivery) {
-				if(LocationCore::IsEmptyAddressRec(Data.Addr_)) {
-					if(!isempty(pPhone)) {
-						LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, pPhone);
-					}
-					else if(Data.SCardID_) {
-						PPPersonPacket pack;
-						if(ScObj.Search(Data.SCardID_, &sc_rec) > 0 && sc_rec.PersonID && PsnObj.GetPacket(sc_rec.PersonID, &pack, 0) > 0) {
-							PersonID = sc_rec.PersonID;
-							LocationTbl::Rec loc_rec;
+			const  uint c = AddrByPhoneList.getCount();
+			enableCommand(cmSelAddrByPhone, BIN(c));
+			if(c && immSelect)
+				if(c == 1)
+					SetupAddr(&AddrByPhoneList.at(0));
+				else
+					SelectAddrByPhone();
+			return BIN(c);
+		}
+	}
+	void   SetupDeliveryCtrls(const char * pPhone)
+	{
+		SString temp_buf;
+		SString loc_phone;
+		SString sc_phone;
+		SCardTbl::Rec sc_rec;
+		LockAddrModChecking = 1;
+		if(Data.Flags & Data.fDelivery) {
+			if(LocationCore::IsEmptyAddressRec(Data.Addr_)) {
+				if(!isempty(pPhone)) {
+					LocationCore::SetExField(&Data.Addr_, LOCEXSTR_PHONE, pPhone);
+				}
+				else if(Data.SCardID_) {
+					PPPersonPacket pack;
+					if(ScObj.Search(Data.SCardID_, &sc_rec) > 0 && sc_rec.PersonID && PsnObj.GetPacket(sc_rec.PersonID, &pack, 0) > 0) {
+						PersonID = sc_rec.PersonID;
+						LocationTbl::Rec loc_rec;
+						loc_rec.ID = 0;
+						if(!pack.RLoc.IsEmptyAddress())
+							loc_rec = pack.RLoc;
+						else if(!pack.Loc.IsEmptyAddress())
+							loc_rec = pack.Loc;
+						if(loc_rec.ID) {
+							pack.GetPhones(1, temp_buf);
+							if(temp_buf.NotEmptyS())
+								LocationCore::SetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf);
+							//
+							// Обнуляем идентификатор адреса поскольку эта запись станет собственностью чека.
+							//
 							loc_rec.ID = 0;
-							if(!pack.RLoc.IsEmptyAddress())
-								loc_rec = pack.RLoc;
-							else if(!pack.Loc.IsEmptyAddress())
-								loc_rec = pack.Loc;
-							if(loc_rec.ID) {
-								pack.GetPhones(1, temp_buf);
-								if(temp_buf.NotEmptyS())
-									LocationCore::SetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf);
-								//
-								// Обнуляем идентификатор адреса поскольку эта запись станет
-								// собственностью чека.
-								//
-								loc_rec.ID = 0;
-								Data.Addr_ = loc_rec;
+							Data.Addr_ = loc_rec;
+						}
+					}
+				}
+			}
+			setCtrlLong(CTL_CCHKDLVR_ADDRID, Data.Addr_.ID);
+			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
+			LocationCore::GetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
+			setCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
+			{
+				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, loc_phone);
+				if(loc_phone.Empty() && PersonID)
+					loc_phone = DlvrPhone;
+				setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
+			}
+			LocationCore::GetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
+			if(temp_buf.Empty() && PersonID)
+				GetPersonName(PersonID, temp_buf);
+			setCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
+			SETIFZ(Data.DlvrDtm.d, getcurdate_());
+			setCtrlDate(CTL_CCHKDLVR_DT, Data.DlvrDtm.d);
+			setCtrlTime(CTL_CCHKDLVR_TM, Data.DlvrDtm.t);
+			ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_CCHKDLVR_SCARD);
+			if(PersonID && p_cb) {
+				PPIDArray sc_list;
+				ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
+				if(sc_list.getCount()) {
+					StrAssocArray * p_list = new StrAssocArray;
+					if(p_list) {
+						for(uint i = 0; i < sc_list.getCount(); i++) {
+							if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0) // @v9.4.11 Search-->Fetch
+								p_list->Add(sc_rec.ID, sc_rec.Code);
+						}
+						ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+						if(p_lw) {
+							p_cb->setListWindow(p_lw);
+							if(Data.SCardID_)
+								p_cb->TransmitData(+1, &Data.SCardID_);
+							else {
+								p_cb->setInputLineText(0);
+								p_cb->setUndefTag(1);
 							}
 						}
 					}
 				}
-				setCtrlLong(CTL_CCHKDLVR_ADDRID, Data.Addr_.ID);
-				setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
-				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
-				setCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
-				{
-					LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, loc_phone);
-					if(loc_phone.Empty() && PersonID)
-						loc_phone = DlvrPhone;
-					setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
-				}
-				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
-				if(temp_buf.Empty() && PersonID)
-					GetPersonName(PersonID, temp_buf);
-				setCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
-				SETIFZ(Data.DlvrDtm.d, getcurdate_());
-				setCtrlDate(CTL_CCHKDLVR_DT, Data.DlvrDtm.d);
-				setCtrlTime(CTL_CCHKDLVR_TM, Data.DlvrDtm.t);
-				ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_CCHKDLVR_SCARD);
-				if(PersonID && p_cb) {
-					PPIDArray sc_list;
-					ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
-					if(sc_list.getCount()) {
-						StrAssocArray * p_list = new StrAssocArray;
-						if(p_list) {
-							for(uint i = 0; i < sc_list.getCount(); i++) {
-								if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0) // @v9.4.11 Search-->Fetch
-									p_list->Add(sc_rec.ID, sc_rec.Code);
-							}
-							ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
-							if(p_lw) {
-								p_cb->setListWindow(p_lw);
-								if(Data.SCardID_)
-									p_cb->TransmitData(+1, &Data.SCardID_);
-								else {
-									p_cb->setInputLineText(0);
-									p_cb->setUndefTag(1);
-								}
-							}
-						}
-					}
-				}
-				// @v9.4.11 {
-				{
-					int    is_attachm_phn_to_sc_allowed = 0;
-					if(Data.SCardID_ && loc_phone.NotEmpty() && ScObj.Fetch(Data.SCardID_, &sc_rec) > 0) {
-						is_attachm_phn_to_sc_allowed = 1;
-						if(sc_rec.PersonID || sc_rec.LocID)
-							is_attachm_phn_to_sc_allowed = 0;
-						else {
-							PPSCardPacket sc_pack;
-							if(ScObj.GetPacket(Data.SCardID_, &sc_pack) > 0) {
-								if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone) > 0 && sc_phone.NotEmptyS())
-									is_attachm_phn_to_sc_allowed = 0;
-							}
-							else
+			}
+			// @v9.4.11 {
+			{
+				int    is_attachm_phn_to_sc_allowed = 0;
+				if(Data.SCardID_ && loc_phone.NotEmpty() && ScObj.Fetch(Data.SCardID_, &sc_rec) > 0) {
+					is_attachm_phn_to_sc_allowed = 1;
+					if(sc_rec.PersonID || sc_rec.LocID)
+						is_attachm_phn_to_sc_allowed = 0;
+					else {
+						PPSCardPacket sc_pack;
+						if(ScObj.GetPacket(Data.SCardID_, &sc_pack) > 0) {
+							if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone) > 0 && sc_phone.NotEmptyS())
 								is_attachm_phn_to_sc_allowed = 0;
 						}
-					}
-					DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 0, !is_attachm_phn_to_sc_allowed);
-					if(!is_attachm_phn_to_sc_allowed) {
-                        Data.Flags &= ~Data.fAttachPhoneToSCard;
-						SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+						else
+							is_attachm_phn_to_sc_allowed = 0;
 					}
 				}
-				// } @v9.4.11
+				DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 0, !is_attachm_phn_to_sc_allowed);
+				if(!is_attachm_phn_to_sc_allowed) {
+                    Data.Flags &= ~Data.fAttachPhoneToSCard;
+					SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+				}
 			}
-			disableCtrls(!(Data.Flags & Data.fDelivery), CTL_CCHKDLVR_ADDRID, CTLSEL_CCHKDLVR_CITY,
-				CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT,
-				CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
-			LockAddrModChecking = 0;
+			// } @v9.4.11
 		}
+		disableCtrls(!(Data.Flags & Data.fDelivery), CTL_CCHKDLVR_ADDRID, CTLSEL_CCHKDLVR_CITY,
+			CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT,
+			CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
+		LockAddrModChecking = 0;
+	}
 
-		CheckPaneDialog::ExtCcData Data;
-		LocationTbl::Rec OrgLocRec;
-		PPID   DefCityID;
-		PPID   PersonID;
-		int    LockAddrModChecking;
-		SString DlvrPhone;
-		const SString Channel;
-		TSVector <AddrByPhoneItem> AddrByPhoneList; // @v9.8.6 TSArray-->TSVector
-		PPObjPerson PsnObj;
-		PPObjSCard ScObj;
-	};
+	CheckPaneDialog::ExtCcData Data;
+	LocationTbl::Rec OrgLocRec;
+	PPID   DefCityID;
+	PPID   PersonID;
+	int    LockAddrModChecking;
+	SString DlvrPhone;
+	const SString Channel;
+	TSVector <AddrByPhoneItem> AddrByPhoneList; // @v9.8.6 TSArray-->TSVector
+	PPObjPerson PsnObj;
+	PPObjSCard ScObj;
+};
+
+int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
+{
 	int    ok = -1;
 	PPID   sc_id = 0;
 	int    preserve_delivery_flag = BIN(P.Eccd.Flags & P.Eccd.fDelivery);
@@ -5979,7 +5923,7 @@ int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 IMPL_HANDLE_EVENT(CheckPaneDialog)
 {
 	const int  prev_state = GetState();
-	const PPID prev_agent_id = P.GetAgentID(1); // @v8.2.0
+	const PPID prev_agent_id = P.GetAgentID(1);
 	if(TVCOMMAND) {
 		if(TVCMD == cmInputUpdated)
 			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
@@ -6093,7 +6037,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			if(PhnSvcTimer.Check(0)) {
 				ProcessPhnSvc(1);
 			}
-			// @v8.3.2 {
 			if(UhttImportTimer.Check(0) && P_UhttImporter) {
 				PPAlbatrosConfig acfg;
 				PPAlbatrosCfgMngr::Get(&acfg);
@@ -6109,7 +6052,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 				}
 			}
-			// } @v8.3.2
 			clearEvent(event);
 			return;
 		}
@@ -6461,7 +6403,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(!Barrier()) {
 					if(CnSpeciality == PPCashNode::spCafe) {
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
-							SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID */0, P.TableCode, P.GetAgentID(), OperRightsFlags);
+							SelCheckListDialog::AddedParam param(0, P.TableCode, P.GetAgentID(), OperRightsFlags);
 							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
 							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (TSVector <CCheckViewItem> *)0, 0, this, &param);
 							if(CheckDialogPtrErr(&dlg)) {
@@ -6486,14 +6428,12 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case cmMemo:
 				BARRIER(EditMemo(0, 0));
 				break;
-			// @v8.2.8 {
 			case cmSysInfo:
 				if(P_ChkPack) {
 					CCheckPacket pack = *P_ChkPack;
 					PPViewCCheck::EditCCheckSystemInfo(pack);
 				}
 				break;
-			// } @v8.2.8
 			default:
 				return;
 		}
@@ -7218,7 +7158,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID)
 		const long _ccf = cc_pack.Rec.Flags;
 		THROW_PP_S(_ccf & CCHKF_SUSPENDED && (!(_ccf & CCHKF_JUNK) || r_cc.IsLostJunkCheck(ccID, &SessUUID, 0)), PPERR_CCHKNOMORESUSPENDED, msg_buf);
 		THROW(r_cc.UpdateFlags(ccID, _ccf|CCHKF_JUNK, 0));
-		Helper_SetupSessUuidForCheck(ccID); // @v8.2.11
+		Helper_SetupSessUuidForCheck(ccID);
 		THROW(tra.Commit());
 	}
 	//
@@ -7244,8 +7184,8 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID)
 	SetPrintedFlag(cc_pack.Rec.Flags & CCHKF_PREPRINT);
 	Flags  |= fWaitOnSCard;
 	SetupSCard(cc_pack.Rec.SCardID, 0);
-	Flags &= ~fWaitOnSCard; // @v8.0.3
-	SetupInfo(0); // @v8.0.3
+	Flags &= ~fWaitOnSCard;
+	SetupInfo(0);
 	SuspCheckID = ccID;
 	ProcessGift(); // Добавляем в чек подарочные позиции
 	GetCc().WriteCCheckLogFile(&cc_pack, 0, CCheckCore::logRestored, 1);
@@ -7270,7 +7210,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
 		TSVector <CCheckViewItem> list;
-		SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID*/0, P.TableCode, single_agent_id, OperRightsFlags);
+		SelCheckListDialog::AddedParam param(0, P.TableCode, single_agent_id, OperRightsFlags);
 		THROW(InitCcView());
 		const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
 		dlg = new SelCheckListDialog(dlg_id, &list, 0, this, &param);
@@ -7283,7 +7223,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 				CCheckFilt cc_filt;
 				cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
 				cc_filt.Flags |= (CCheckFilt::fSuspendedOnly | CCheckFilt::fShowSuspended);
-				cc_filt.Flags |= CCheckFilt::fLostJunkAsSusp; // @v8.2.12
+				cc_filt.Flags |= CCheckFilt::fLostJunkAsSusp;
 				if(do_filter_by_node)
 					cc_filt.NodeList.Add(CashNodeID);
 				cc_filt.TableCode = P.TableCode;
@@ -7479,7 +7419,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							r_cur_item.GoodsID = cclr.GoodsID;
 							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
 								STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);
-								GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf.Z()); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
+								GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf.Z());
 								temp_buf.CopyTo(r_cur_item.BarCode, sizeof(r_cur_item.BarCode));
 							}
 							else
@@ -7601,7 +7541,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			}
 		}
 	}
-	setStaticText(CTL_CHKPAN_INFO, buf);
+	setCtrlString(CTL_CHKPAN_INFO, buf);
 	//
 	P.SetupInfo(buf);
 	if(CnFlags & CASHF_SHOWREST && P.GetCur().GoodsID) {
@@ -7618,10 +7558,8 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			const long cur = p_list->def ? p_list->def->_curItem() : -1;
 			if(cur >= 0 && cur < (long)P.getCount()) {
 				const CCheckItem & r_item = P.at(cur);
-				if(r_item.EgaisMark[0]) {
-					buf = r_item.EgaisMark;
-					setStaticText(CTL_CHKPAN_INFO, buf);
-				}
+				if(r_item.EgaisMark[0])
+					setCtrlString(CTL_CHKPAN_INFO, buf = r_item.EgaisMark);
 			}
 		}
 	}
@@ -7727,7 +7665,7 @@ int CPosProcessor::Helper_RemoveRow(long rowNo, const CCheckItem & rItem)
 	Helper_PrintRemovedRow(rItem);
 	ProcessGift();
 	//ReplyOnRemoveItem();
-	AutosaveCheck(); // @v8.7.7
+	AutosaveCheck();
 	DS.LogAction(PPACN_RMVCHKLINE, PPOBJ_CCHECK, 0, rItem.GoodsID, 1);
 	if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 		SetupDiscount();
@@ -8102,7 +8040,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	ReceiptTbl::Rec lot_rec;
 	StringSet seek_serial_list;
-	const   PPID loc_id = GetCnLocID(goodsID); // @v8.8.0
+	const   PPID loc_id = GetCnLocID(goodsID);
 	THROW(p_ary = SelLotBrowser::CreateArray());
 	diter.Init(0, curdt);
 	THROW(GetCc().CalcActiveExpendByGoods(goodsID, loc_id, 0, &total_exp));
@@ -8165,13 +8103,11 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 		// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
 		ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
 	}
-	// @v8.8.0 {
 	else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
 		SCardTbl::Rec sc_rec;
 		if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, getcurdatetime_()))
 			ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep | eomPopup/*eomStatusLine*/);
 	}
-	// } @v8.8.0
 	if(ok) {
 		SaComplex complex;
 		if(LoadComplex(goodsID, complex) > 0) {
@@ -8430,7 +8366,6 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 					};
 					CpSelModDialog * dlg = new CpSelModDialog(mlist);
 					if(CheckDialogPtr(&dlg)) {
-						// @v8.9.0 {
 						{
 							SString label_text, goods_name, new_label_text;
 							GetGoodsName(main_goods_id, goods_name);
@@ -8438,7 +8373,6 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							new_label_text.Printf(label_text, goods_name.cptr());
 							dlg->setLabelText(CTL_CPSELMOD_ELEMENTS, new_label_text);
 						}
-						// @v8.9.0 {
 						dlg->enableCommand(cmClear, BIN(P.CurModifList.getCount()));
 						int    cmd = ExecView(dlg);
 						if(cmd == cmOK) {
@@ -8621,9 +8555,8 @@ void CheckPaneDialog::AcceptQuantity()
 					PPUnit u_rec;
 					if(GObj.Fetch(goods_id, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 						if(u_rec.Rounding > 0.0) {
-							const double _r = round(qtty, u_rec.Rounding, 0); // @v8.8.1 direction: -1-->0
-							// @v8.8.1 if(_r != qtty) {
-							if(!feqeps(_r, qtty, 1E-7)) { // @v8.8.1
+							const double _r = round(qtty, u_rec.Rounding, 0);
+							if(!feqeps(_r, qtty, 1E-7)) {
 								temp_buf.Z().Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 								ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
 							}
@@ -8701,11 +8634,11 @@ int CheckPaneDialog::AcceptRowDiscount()
 			is_row_dis = 0;
 		if(is_row_dis) {
 			if(pct_dis >= 0.0 && pct_dis <= 100.0) {
-				if(OperRightsFlags & orfRowDiscount) { // @v8.4.8 @fix orfPrintCheck-->orfRowDiscount
+				if(OperRightsFlags & orfRowDiscount) {
 					const  double price = P.GetCur().Price;
 					double discount = round((price / 100.0) * pct_dis, 2);
 					P.GetCur().Price = price - discount;
-					P.GetCur().Flags |= cifFixedPrice; // @v8.8.1
+					P.GetCur().Flags |= cifFixedPrice;
 					Flags &= ~fWaitOnSCard;
 					SetupRowData(1);
 					{
@@ -8814,7 +8747,7 @@ private:
 		modeOpView,          // Режим просмотра операций начисления/списания по кредитной карте
 		modeSelectByOwner,   // Режим выбора карты по владельцу
 		modeMovCrd,          // Режим переноса кредитных остатков с других карт на выбранную карту
-		modeSelectByMultCode // @v8.1.6 Режим выбора одной из карт, имеющих один и тот же код
+		modeSelectByMultCode // Режим выбора одной из карт, имеющих один и тот же код
 	};
 	enum {
 		stCreditCard     = 0x0002,
@@ -9073,7 +9006,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		setGroupData(GRP_IBG, &ibg_rec);
 		{
 			const int enbl_psn = BIN(OwnerID && PsnObj.CheckRights(PPR_MOD));
-			const int enbl_pic = BIN(/* @v8.5.10 enbl_psn &&*/ PsnObj.CheckRights(PSNRT_UPDIMAGE));
+			const int enbl_pic = BIN(PsnObj.CheckRights(PSNRT_UPDIMAGE));
 			enableCommand(cmAddImage, enbl_pic);
 			enableCommand(cmDelImage, enbl_pic);
 			enableCommand(cmPasteImage, enbl_pic);
@@ -9551,7 +9484,7 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)
 			if(temp_eqb.QkList.getCount()) {
 				CSt.P_Eqb = new RetailPriceExtractor::ExtQuotBlock(scs_pack);
 			}
-			SETFLAG(CSt.Flags, CardState::fUseDscntIfNQuot, scs_pack.Rec.Flags & SCRDSF_USEDSCNTIFNQUOT || !scs_pack.Rec.QuotKindID_s); // @v8.6.7 (|| !scs_pack.Rec.QuotKindID_s)
+			SETFLAG(CSt.Flags, CardState::fUseDscntIfNQuot, scs_pack.Rec.Flags & SCRDSF_USEDSCNTIFNQUOT || !scs_pack.Rec.QuotKindID_s);
 			SETFLAG(CSt.Flags, CardState::fUseMinQuotVal,   scs_pack.Rec.Flags & SCRDSF_MINQUOTVAL);
 			if(scs_pack.Rec.Flags & SCRDSF_UHTTSYNC) {
 				int   uhtt_err = 1;
@@ -9687,7 +9620,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, int ignoreRights)
 						Flags |= fPctDis;
 						SetupDiscount(); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
 						if(CalcRestByCrdCard_(0)) {
-							AutosaveCheck(); // @v8.7.11
+							AutosaveCheck();
 						}
 						else {
 							ResetSCard();
@@ -9850,7 +9783,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 								Flags |= fPctDis;
 								SetupDiscount(); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
 								if(CalcRestByCrdCard_(0)) {
-									AutosaveCheck(); // @v8.7.11
+									AutosaveCheck();
 								}
 								else
 									ResetSCard();
@@ -9954,7 +9887,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 					GObj.FetchSingleBarcode(goodsID, temp_buf);
 					temp_buf.CopyTo(rgi.BarCode, sizeof(rgi.BarCode));
 				}
-				rBlk.Qtty = 0.0; // @v8.7.10 1.0-->0.0
+				rBlk.Qtty = 0.0;
 				if(r <= 0)
 					rgi.Price = 1.0;
 				r = 2000;
@@ -9962,7 +9895,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 			if(r > 0 || (r == -2 && (CnFlags & CASHF_USEQUOT || gift_money))) {
 				double price = 0.0;
 				int    use_ext_price = 0;
-				if(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0 && !(rgi.Flags & rgi.fDisabledExtQuot)) // @v8.7.11 (rgi.ExtPrice > 0.0)-->(rgi.ExtPrice >= 0.0)
+				if(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0 && !(rgi.Flags & rgi.fDisabledExtQuot)) 
 					use_ext_price = 1;
 				else if(rgi.Flags & rgi.fDisabledQuot) {
 					GetGoodsName(goodsID, temp_buf);
@@ -10047,7 +9980,7 @@ void CheckPaneDialog::SetSCard(const char * pStr)
 	Flags |= fWaitOnSCard;
 	SString temp_buf = pStr;
 	setCtrlString(CTL_CHKPAN_INPUT, temp_buf);
-	UiFlags |= uifAutoInput; // @v7.0.10 @trick AcceptSCard(1, ) может отклонить номер карты из-за отсутствия данного флага.
+	UiFlags |= uifAutoInput; // @trick AcceptSCard(1, ) может отклонить номер карты из-за отсутствия данного флага.
 	AcceptSCard(1, 0);
 	UiFlags &= ~uifAutoInput; // @trick (see above)
 }
@@ -10084,7 +10017,7 @@ int CheckPaneDialog::NotifyGift(PPID giftID, SaGiftArray::Gift * pGift)
 		// @v9.2.6 PPGetWord(PPWORD_GIFT, 0, msg_buf);
 		PPLoadString("gift", msg_buf); // @v9.2.6
 		GetGoodsName(giftID, goods_name);
-		setStaticText(CTL_CHKPAN_INFO, msg_buf.Space().Cat(goods_name.Quot(39, 39)));
+		setCtrlString(CTL_CHKPAN_INFO, msg_buf.Space().Cat(goods_name.Quot(39, 39)));
 		if(!(Flags & fDisableBeep))
 			Beep(500, 200);
 		Flags &= ~fPresent;
@@ -10186,13 +10119,11 @@ int CPosProcessor::ProcessGift()
 									gift.RestorePotential(ppot);
 							}
 						}
-						// @v8.8.0 {
 						for(uint gi = 0; do_process && gi < _gift_list.getCount(); gi++) {
 							const SaGiftArray::Gift * p_gift = _gift_list.at(gi);
 							if(p_gift && p_gift->IsEqualForResult(gift))
 								do_process = 0;
 						}
-						// } @v8.8.0
 						if(do_process) {
 							SaGiftArray::Gift * p_new_item = new SaGiftArray::Gift(gift);
 							_gift_list.insert(p_new_item);
@@ -10549,14 +10480,14 @@ int CPosProcessor::AcceptRow(PPID giftID)
 			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 				SetupDiscount();
 			CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
-			AutosaveCheck(); // @v8.7.7
+			AutosaveCheck();
 			OnUpdateList(1);
 			SelLines = sl_ary;
 		}
 	}
 	// Это условие никогда не выполняется //
 	else if(P.CurPos < (int)P.getCount() && P.HasCur()) {
-		assert(0); // @v8.7.7
+		assert(0);
 		P.at(P.CurPos) = P.GetCurC();
 		SetupDiscount();
 		OnUpdateList(0);
@@ -10566,7 +10497,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 		ClearRow();
 		if(!F(fRetCheck) && !giftID) {
 			if(ProcessGift() > 0) {
-				CalcRestByCrdCard_(0); // @v7.5.12 Предыдущий вызов (@01) не учел подарочную скидку
+				CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел подарочную скидку
 			}
 		}
 	}
@@ -10607,7 +10538,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 			cc_item.Flags    |= cc_item.Quantity ? 0 : cifGift;
 			if(GObj.Fetch(cc_item.GoodsID, &goods_rec) > 0) {
 				STRNSCPY(cc_item.GoodsName, goods_rec.Name);
-				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf.Z()); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
+				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf.Z());
 				temp_buf.CopyTo(cc_item.BarCode, sizeof(cc_item.BarCode));
 			}
 			if(!P.insert(&cc_item)) {
@@ -10677,8 +10608,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		pack.Rec.CashID = CashNodeID;
 		pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 		SETFLAG(pack.Rec.Flags, CCHKF_INCORPCRD, CSt.GetID() && Flags & fSCardCredit);
-		// @v8.0.2 SETFLAG(pack.Rec.Flags, CCHKF_BONUSCARD, CSt.GetID() && Flags & fSCardBonus);
-		pack.Rec.Flags &= ~CCHKF_BONUSCARD; // @v8.0.2
+		pack.Rec.Flags &= ~CCHKF_BONUSCARD;
 		SETFLAG(pack.Rec.Flags, CCHKF_SUSPENDED | CCHKF_SKIP, 0);
 		SETFLAG(pack.Rec.Flags, CCHKF_PREPRINT, Flags & fPrinted);
 		{
@@ -10872,7 +10802,7 @@ int CheckPaneDialog::PrintSlipDocument()
 				else
 					GetNewCheckCode(CashNodeID, &pack.Rec.Code);
 				THROW(Helper_InitCcPacket(&pack, 0, 0, iccpSetCurTime));
-				r = 1; // @v7.2.10 (из-за того, что значение оставалось меньше нуля документ не печатался)
+				r = 1; // Если значение оставается меньше нуля документ не печатается
 			}
 			else {
 				if(chk_id)
@@ -10903,7 +10833,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		PView  pv(this);
 		CCheckItemArray saved_items(P);
 		PPReportEnv env;
-		env.ContextSymb = CnSymb; // @v8.8.3
+		env.ContextSymb = CnSymb;
 		env.PrnFlags = noAsk ? SReport::PrintingNoAsk : 0;
 		if(CnFlags & CASHF_UNIFYGDSTOPRINT) {
 			//
@@ -10937,12 +10867,10 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 				is_print_dvc_setted = 1;
 			}
 		}
-		// @v8.8.3 {
 		else if(RptPrnPort.NotEmpty()) {
 			DS.GetTLA().PrintDevice = RptPrnPort;
 			is_print_dvc_setted = 1;
 		}
-		// } @v8.8.3
 		PPAlddPrint(rpt_id, &pv, &env);
 		P = saved_items;
 		if(pLocPrn) {
@@ -11107,14 +11035,14 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType)
 				for(i = 0; i < printed_pos_list.getCount(); i++)
 					saved_check.at(printed_pos_list.at(i)).Flags |= cifIsPrinted;
 				P = saved_check;
-				AutosaveCheck(); // @v8.7.11
+				AutosaveCheck();
 				OnUpdateList(0);
 				if(do_debug_log)
 					PPLogMessageList(PPFILNAM_DEBUG_LOG, debug_rep_list, LOGMSGF_TIME|LOGMSGF_USER);
 			}
 			else if(to_local_prn == 0) {
 				Print((selPrnType ? 0 : 1), 0, 0);
-				AutosaveCheck(); // @v8.7.11
+				AutosaveCheck();
 			}
 			ok = 1;
 		}
@@ -11146,10 +11074,10 @@ int CheckPaneDialog::ResetOperRightsByKey()
 			SETFLAG(f, orfRowDiscount, oper_rights_ary.lsearch(CSESSOPRT_ROWDISCOUNT));
 			SETFLAG(f, orfXReport,     oper_rights_ary.lsearch(CSESSOPRT_XREP << 16));
 			SETFLAG(f, orfSplitCheck,      oper_rights_ary.lsearch(CSESSOPRT_SPLITCHK));
-			SETFLAG(f, orfMergeChecks,     oper_rights_ary.lsearch(CSESSOPRT_MERGECHK));      // @v8.5.5
+			SETFLAG(f, orfMergeChecks,     oper_rights_ary.lsearch(CSESSOPRT_MERGECHK));
 			SETFLAG(f, orfChgPrintedCheck, oper_rights_ary.lsearch(CSESSOPRT_CHGPRINTEDCHK));
-			SETFLAG(f, orfChgAgentInCheck, oper_rights_ary.lsearch(CSESSOPRT_CHGCCAGENT));    // @v8.2.1
-			SETFLAG(f, orfEscChkLineBeforeOrder, oper_rights_ary.lsearch(CSESSOPRT_ESCCLINEBORD)); // @v8.7.3
+			SETFLAG(f, orfChgAgentInCheck, oper_rights_ary.lsearch(CSESSOPRT_CHGCCAGENT));
+			SETFLAG(f, orfEscChkLineBeforeOrder, oper_rights_ary.lsearch(CSESSOPRT_ESCCLINEBORD));
 			if(!(Flags & fUsedRighsByAgent))
 				OrgOperRights = OperRightsFlags = f;
 			else
@@ -11353,12 +11281,10 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 	THROW_PP(tses_rec.Status == TSESST_CLOSED, PPERR_TSESSCCHECKNOTCLOSED);
 	{
 		PPObjTSession::WrOffAttrib attrib;
-		// @v8.5.7 @1 {
 		THROW(P_TSesObj->GetWrOffAttrib(&tses_rec, &attrib));
 		SetupAgent(attrib.AgentID, 0);
 		if(attrib.SCardID)
 			AcceptSCard(0, attrib.SCardID);
-		// }
 		const int do_setup_price = BIN(P_TSesObj->GetConfig().Flags & PPTSessConfig::fSetupCcPricesInCPane); // @v9.9.7
 		for(SEnum en = P_TSesObj->P_Tbl->EnumLines(tsessID); en.Next(&ln_rec) > 0;) {
 			if(ln_rec.Sign < 0) {
@@ -11369,12 +11295,6 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 			}
 		}
 		AcceptRow();
-		/* @v8.5.7 @moved to @1
-		THROW(P_TSesObj->GetWrOffAttrib(&tses_rec, &attrib));
-		SetupAgent(attrib.AgentID, 0);
-		if(attrib.SCardID)
-			AcceptSCard(0, attrib.SCardID);
-		*/
 		OuterOi.Set(PPOBJ_TSESSION, tsessID);
 		SetupInfo(0);
 		ClearInput(0);

@@ -436,7 +436,7 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 				Reference * p_ref = PPRef;
 				Reference2Tbl::Rec rec;
 				if(!Inited) {
-					Clear();
+					Z();
 					for(SEnum en = p_ref->Enum(ObjType, 0); ok && en.Next(&rec) > 0;) {
 						if(!Add(rec.ObjID, rec.Symb))
 							ok = 0;
@@ -795,13 +795,11 @@ void SLAPI ObjCacheStat::Init()
 LDATETIME FASTCALL DbLocalCacheMng::GetLastUpdate(long dbPathID)
 {
 	uint   pos = 0;
-	LDATETIME dtm;
+	LDATETIME dtm = ZERODATETIME;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG))
 			dtm = ((CDbEntry *)DbEntryList.at(pos))->LastCacheUpdate;
-		else
-			dtm.SetZero();
 	}
 	return dtm;
 }

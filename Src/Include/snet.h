@@ -929,6 +929,8 @@ public:
     int    HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
+	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const StrStrAssocArray * pFields, SFile * pReplyStream);
+	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const char * pBody, SFile * pReplyStream);
 	//
 	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
 	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDataMoveProgressInfo * pProgress);
@@ -945,6 +947,8 @@ public:
 
 	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg);
 private:
+	static int    ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount);
+	static void * ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields);
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
 	static int    CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow);

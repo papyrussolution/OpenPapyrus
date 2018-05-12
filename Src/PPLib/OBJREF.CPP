@@ -2735,7 +2735,7 @@ void SLAPI PPUhttStorePacket::destroy()
 int SLAPI PPUhttStorePacket::GetSelectorListInfo(PPID clsID, StrAssocArray & rList) const
 {
 	int    ok = -1;
-	rList.Clear();
+	rList.Z();
 	SString title_buf;
 	PPUhttStoreSelDescr::Entry entry;
 	for(uint i = 0; i < Sd.GetCount(); i++) {

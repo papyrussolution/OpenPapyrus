@@ -1357,13 +1357,13 @@ struct AperakInfoSt {
 	}
 	void Clear()
 	{
-		DocID = 0;
-		OrderNum = 0;
-		Code = 0;
-		Msg = 0;
-		SupplGLN = 0;
-		BuyerGLN = 0;
-		AddrGLN = 0;
+		DocID.Z();
+		OrderNum.Z();
+		Code.Z();
+		Msg.Z();
+		SupplGLN.Z();
+		BuyerGLN.Z();
+		AddrGLN.Z();
 		OrderDate = ZERODATE;
 	}
 	SString DocID;      // »ƒ документа статуса (чтобы поставить ему стоатус read)
@@ -1410,24 +1410,11 @@ private:
 							   // «аполн€етс€ при чтении товарных строк, потому что структура, которую надо заполн€ть, находитс€ в Sdr_BRow
 };
 
-ImportCls::ImportCls()
+ImportCls::ImportCls() : GoodsCount(0), Id(0), ObjId(0), ObjType(0), MessageType(0), Inited(0), IncomMessagesCounter(0), BillSumWithoutVat(0.0)
 {
-	GoodsCount = 0;
-	Id = 0;
-	ObjId = 0;
-	ObjType = 0;
-	MessageType = 0;
-	Inited = 0;
-	IncomMessagesCounter = 0;
-	BillSumWithoutVat = 0.0;
-	ImpFileName = 0;
-	LastTrackId = 0;
 	ErrorCode = 0;
 	WebServcErrorCode = 0;
 	HasSellerCertificate = 0;
-	TTN = 0;
-	AperakInfo.Clear();
-	TrackIds.Clear();
 }
 
 ImportCls::~ImportCls()

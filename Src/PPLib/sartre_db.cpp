@@ -810,7 +810,7 @@ int SrConceptPropTbl::GetPropIdList(CONCEPTID cID, Int64Array & rPropIdList)
 
 int SrConceptPropTbl::GetPropList(CONCEPTID cID, SrCPropList & rPropList)
 {
-	rPropList.Clear();
+	rPropList.Z();
 
 	int    ok = -1;
 	SrCProp prop;
@@ -821,8 +821,7 @@ int SrConceptPropTbl::GetPropList(CONCEPTID cID, SrCPropList & rPropList)
 	BDbCursor curs(*this, 1);
 	if(curs.Search(key_buf, data_buf, spEq)) {
 		do {
-			prop.Clear();
-			DecodePrimeKey(key_buf, prop);
+			DecodePrimeKey(key_buf, prop.Z());
 			if(prop.CID == cID) {
 				data_buf.Get(rec_buf.Clear());
 				SerializeRecBuf(-1, &prop, rec_buf);
@@ -1684,7 +1683,7 @@ int SrDatabase::ResolveWordForm(const SrWordForm & rWf, long * pWordFormID)
 int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId)
 {
 	int    ok = -1;
-	int    r;
+	//int    r;
 	int32  result_wa_id = 0;
 	if(rWf.GetLength()) {
 		//SrWordAssoc wa;
@@ -2104,7 +2103,7 @@ int SrDatabase::GetNgConceptList(NGID ngID, long flags, Int64Array & rConceptLis
 		uint i = rConceptList.getCount();
 		if(i) do {
 			CONCEPTID cid = rConceptList.get(--i);
-			if(P_CT->SearchByID(cid, &c.Clear()) > 0) {
+			if(P_CT->SearchByID(cid, &c.Z()) > 0) {
 				if(c.SymbID != 0) {
 					rConceptList.atFree(i);
 				}
@@ -2179,7 +2178,7 @@ int SrDatabase::GetConceptPropList(CONCEPTID cID, SrCPropList & rPl)
 int SrDatabase::GetPropDeclList(CONCEPTID cID, SrCPropDeclList & rPdl)
 {
 	int    ok = -1;
-	rPdl.Clear();
+	rPdl.Z();
 	Int64Array chier;
 	Helper_GetConceptHier(0, 0, cID, chier);
 	uint c = chier.getCount();

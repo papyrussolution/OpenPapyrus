@@ -604,8 +604,8 @@ IMPL_HANDLE_EVENT(TDialog)
 				TView::messageCommand(this, cmSetupResizeParams);
 				APPL->SetWindowViewByKind(H(), TProgram::wndtypDialog);
 				::ShowWindow(H(), SW_SHOW);
-				::SetForegroundWindow(H()); // @v8.2.6
-				::SetActiveWindow(H());     // @v8.2.6
+				::SetForegroundWindow(H());
+				::SetActiveWindow(H());
 				::EnableWindow(PrevInStack, 0);
 				if(P_Next && P_Next->IsConsistent() && P_Next->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog*)P_Next)->resourceID == -1) {
 					is_list_win = TRUE;

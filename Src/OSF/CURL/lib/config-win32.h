@@ -483,5 +483,6 @@ Vista
 #if defined(__POCC__) || defined(USE_IPV6)
 	#define ENABLE_IPV6 1
 #endif
+#define ENABLE_IPV6 1 // @v10.0.05
 
 #endif /* HEADER_CURL_CONFIG_WIN32_H */

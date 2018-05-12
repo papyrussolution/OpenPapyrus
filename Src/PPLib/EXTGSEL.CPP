@@ -361,7 +361,7 @@ void ExtGoodsSelDialog::setSelectionByGroup()
 		Flags &= ~(fSelByPrice|fSelByList|fSelByStrList);
 		Price = 0.0;
 		IdList.freeAll();
-		StrIdList.Clear();
+		StrIdList.Z();
 		disableCtrl(CTLSEL_EXTGSEL_GGRP, 0);
 		if(UseBrand)
 			disableCtrl(CTLSEL_EXTGSEL_BRAND, 0);
@@ -400,7 +400,7 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const PPIDArray * pList, const c
 	}
 	Flags |= fSelByList;
 	Flags &= ~fSelByStrList;
-	StrIdList.Clear();
+	StrIdList.Z();
 	if(!RVALUEPTR(IdList, pList))
 		IdList.freeAll();
 	disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
@@ -442,7 +442,7 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const StrAssocArray * pList, con
 	Flags |= fSelByStrList;
 	IdList.freeAll();
 	if(!RVALUEPTR(StrIdList, pList))
-		StrIdList.Clear();
+		StrIdList.Z();
 	disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
 	if(UseBrand)
 		disableCtrl(CTLSEL_EXTGSEL_BRAND, 1);

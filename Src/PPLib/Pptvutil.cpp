@@ -2889,10 +2889,10 @@ SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGro
 				THROW_MEM(P_Ad = new PPAbstractDevice(0));
 				P_Ad->PCpb.Cls = gd_pack.Rec.DeviceClass;
 				THROW(P_Ad->IdentifyDevice(gd_pack.Rec.DeviceClass, temp_buf));
-				THROW(P_Ad->RunCmd("INIT", Out.Clear()));
+				THROW(P_Ad->RunCmd("INIT", Out.Z()));
 				gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf.Z());
 				if(temp_buf.NotEmptyS()) {
-					THROW(P_Ad->RunCmd(temp_buf, Out.Clear()));
+					THROW(P_Ad->RunCmd(temp_buf, Out.Z()));
 				}
 			}
 		}
@@ -2907,7 +2907,7 @@ SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGro
 SpecialInputCtrlGroup::~SpecialInputCtrlGroup()
 {
 	if(P_Ad) {
-		P_Ad->RunCmd("RELEASE", Out.Clear());
+		P_Ad->RunCmd("RELEASE", Out.Z());
 		ZDELETE(P_Ad);
 	}
 }
@@ -2919,7 +2919,7 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			TView * p_il = pDlg->getCtrlView(CtlId);
 			if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 				if(RdTimer.Check(0) && !p_il->IsInState(sfDisabled|sfReadOnly)) {
-					P_Ad->RunCmd("LISTEN", Out.Clear());
+					P_Ad->RunCmd("LISTEN", Out.Z());
 					SString temp_buf;
 					if(Out.GetText(0, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 						temp_buf.Chomp();
@@ -2928,7 +2928,7 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				}
 			}
 			else {
-				P_Ad->RunCmd("RELEASE", Out.Clear());
+				P_Ad->RunCmd("RELEASE", Out.Z());
 				ZDELETE(P_Ad);
 				RdTimer.Restart(0);
 			}
@@ -3558,7 +3558,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
 
 								temp_name = phone_buf;
-								name = 0;
+								name.Z();
 								if(name.Empty() && loc_rec.Name[0])
 									name = loc_rec.Name;
 								if(name.Empty())
@@ -4220,7 +4220,6 @@ int FiasSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 SLAPI FiasAddressCtrlGroup::Rec::Rec() : TerminalFiasID(0)
 {
-	TerminalFiasUUID.SetZero();
 }
 
 FiasAddressCtrlGroup::FiasAddressCtrlGroup(uint ctlEdit, uint ctlInfo) : CtlEdit(ctlEdit), CtlInfo(ctlInfo)
@@ -5294,7 +5293,7 @@ int EditMemosDialog::setDTS(const char * pMemos)
 {
 	SString buf;
 	StringSet ss(MemosDelim);
-	Memos.Clear();
+	Memos.Z();
 	const size_t mlen = sstrlen(pMemos);
 	if(mlen)
 		ss.setBuf(pMemos, mlen + 1);
@@ -5975,7 +5974,7 @@ int EmailCtrlGroup::getData(TDialog * pDlg, void * pData)
 	Rec * p_rec = (Rec*)pData;
 	if(p_rec) {
 		StringSet ss(";");
-		p_rec->AddrList.Clear();
+		p_rec->AddrList.Z();
 		if(addr_list.NotEmptyS())
 			ss.setBuf(addr_list, addr_list.Len() + 1);
 		for(uint p = 0; ss.get(&p, buf) > 0;)
@@ -6434,7 +6433,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 	}
 	SFile f_out_manual(temp_buf, SFile::mWrite);
 	while(P_SlRez->enumResources(TV_DIALOG, &res_id, &res_pos) > 0) {
-		prop_list.Clear();
+		prop_list.Z();
 		WINDOWINFO wi;
 		dlg = new TDialog(res_id, TDialog::coExport);
 		if(CheckDialogPtr(&dlg)) {
@@ -6442,7 +6441,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 			//char   text_buf[1024];
 			SString dlg_symb_body;
 			TSArray <HWND> child_list;
-			prop_list.Clear();
+			prop_list.Z();
 			dlg->GetCtlSymb(-1000, symb);
 			if(symb.Empty()) {
 				dlg_symb_body.Z().Cat(dlg->GetId());
@@ -6497,7 +6496,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 			if(EnumChildWindows(dlg->H(), GetChildWindowsList, (LPARAM)&child_list)) {
 				for(uint i = 0; i < child_list.getCount(); i++) {
 					if(!seen_pos_list.lsearch((long)i)) {
-						prop_list.Clear();
+						prop_list.Z();
 						line_buf.Z();
 						label_text.Z();
 						const HWND h = child_list.at(i);

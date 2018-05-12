@@ -10,6 +10,7 @@ class ACS_DREAMKAS : public PPAsyncCashSession {
 public:
 	SLAPI  ACS_DREAMKAS(PPID id) : PPAsyncCashSession(id)
 	{
+		GetNodeData(&Acn);
 	}
 	virtual int SLAPI ExportData(int updOnly);
 	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
@@ -21,6 +22,7 @@ protected:
 private:
 	int    SLAPI ConvertWareList(const char * pImpPath);
 	int    SLAPI ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID);
+	int    SLAPI MakeAuthField(SString & rBuf);
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -49,6 +51,43 @@ public:
 };
 
 REGISTER_CMT(DREAMKAS, 0, 1);
+
+int SLAPI ACS_DREAMKAS::MakeAuthField(SString & rBuf)
+{
+	int    ok = 0;
+	rBuf.Z();
+	for(uint tagidx = 0; tagidx < Acn.TagL.GetCount(); tagidx++) {
+		const ObjTagItem * p_tag_item = Acn.TagL.GetItemByPos(tagidx);
+		if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_GLOBALUSERACC) {
+			PPID gua_id = p_tag_item->Val.IntVal;
+			PPObjGlobalUserAcc gua_obj;
+
+			PPGlobalUserAcc gua_rec;
+			if(gua_obj.Search(gua_id, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
+				SString pwd;
+				SString login;
+				SString temp_buf;
+				Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
+				if(PPRef->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_LOGIN, login) > 0) {
+					;
+				}
+				else {
+					login = gua_rec.Name;
+				}
+				if(login.NotEmptyS()) {
+					login.CatChar(':').Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
+					temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
+					rBuf.Cat("Basic").Space().Cat(temp_buf);
+					pwd.Obfuscate();
+					login.Obfuscate();
+					ok = 1;
+				}
+			}
+			break;
+		}
+	}
+	return ok;
+}
 
 int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID)
 {
@@ -127,6 +166,32 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyn
 		SFile f_out_test(temp_buf, SFile::mWrite);
 		char * p_json_buf = 0;
 		json_tree_to_string(p_iter_ary, &p_json_buf);
+		{
+			ScURL c;
+			SBuffer ack_buf;
+			InetUrl url("https://kabinet.dreamkas.ru/api/v2/products/id");
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			ScURL::HttpForm hf;
+			StrStrAssocArray hdr_flds;
+			
+			{
+				SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+				hdr_flds.Add("Content-Type", temp_buf);
+				//
+				THROW(MakeAuthField(temp_buf));
+				hdr_flds.Add("Authorization", temp_buf);
+			}
+			THROW_SL(c.HttpPatch(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, p_json_buf, &wr_stream));
+			//
+			{
+				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				if(p_ack_buf) {
+					const int avl_size = (int)p_ack_buf->GetAvailableSize();
+					temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+					f_out_test.WriteLine(temp_buf.CR().CR());
+				}
+			}
+		}
 		json_format_string(p_json_buf, temp_buf.Z());
 		f_out_test.WriteLine(temp_buf);
 		SAlloc::F(p_json_buf);

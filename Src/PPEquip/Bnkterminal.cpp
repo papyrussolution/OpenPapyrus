@@ -49,11 +49,10 @@ int PPBnkTerminal::IsConnected() const
 int PPBnkTerminal::Init(const char * pPath)
 {
 	int    ok = 1;
-	Arr_In.Clear();
+	Arr_In.Z();
 	if(!isempty(pPath))
 		BnkTermArrAdd(Arr_In, DVCPARAM_DLLPATH, pPath);
-	Arr_Out.Clear();
-	ok = ExecOper(DVCCMD_INIT, Arr_In, Arr_Out);
+	ok = ExecOper(DVCCMD_INIT, Arr_In, Arr_Out.Z());
 	if(ok)
 		State |= stInited;
 	else
@@ -63,20 +62,16 @@ int PPBnkTerminal::Init(const char * pPath)
 
 int PPBnkTerminal::Release()
 {
-	int    ok = 1;
-	Arr_In.Clear();
-	Arr_Out.Clear();
-	ok = ExecOper(DVCCMD_RELEASE, Arr_In, Arr_Out);
-	return ok;
+	return ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z());
 }
 
 int PPBnkTerminal::Connect(int port)
 {
 	int    ok = 1;
 	SString msg;
-	Arr_In.Clear();
+	Arr_In.Z();
 	BnkTermArrAdd(Arr_In, DVCPARAM_PORT, port);
-	Arr_Out.Clear();
+	Arr_Out.Z();
 	PPWait(1);
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_TESTCONN, msg));
 	ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
@@ -95,10 +90,9 @@ int PPBnkTerminal::Disconnect()
 
 int PPBnkTerminal::SetConfig(uint logNum)
 {
-	Arr_In.Clear();
-	Arr_Out.Clear();
+	Arr_In.Z();
 	BnkTermArrAdd(Arr_In, DVCPARAM_LOGNUM, logNum);
-	return ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out);
+	return ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out.Z());
 }
 
 int PPBnkTerminal::Pay(double amount, SString & rSlip)
@@ -106,8 +100,8 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	rSlip.Z();
 	int    ok = 1;
 	SString msg;
-	Arr_In.Clear();
-	Arr_Out.Clear();
+	Arr_In.Z();
+	Arr_Out.Z();
 	amount *= 100; // Переведем в копейки
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
 	PPWait(1);
@@ -125,8 +119,8 @@ int PPBnkTerminal::Refund(double amount, SString & rSlip)
 	rSlip.Z();
 	int    ok = 1;
 	SString msg;
-	Arr_In.Clear();
-	Arr_Out.Clear();
+	Arr_In.Z();
+	Arr_Out.Z();
 	amount *= 100; // Переведем в копейки
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
 	PPWait(1);
@@ -143,8 +137,8 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 {
 	int    ok = 1;
 	SString msg;
-	Arr_In.Clear();
-	Arr_Out.Clear();
+	Arr_In.Z();
+	Arr_Out.Z();
 	PPLoadTextS(PPTXT_BNKTRM_CLOSESESS, msg);
 	PPWait(1);
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
@@ -158,8 +152,8 @@ int PPBnkTerminal::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
 	if(P_AbstrDvc->RunCmd__(cmd, rIn, rOut) != 1) {
-		rIn.Clear();
-		rOut.Clear();
+		rIn.Z();
+		rOut.Z();
 		SString err_msg;
 		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn, rOut))
 			rOut.GetText(0, err_msg);

@@ -3041,12 +3041,10 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 									temp_buf.CopyTo(sdr_lot.UhttArCode, sizeof(sdr_lot.UhttArCode));
 									break;
 								}
-								// @v8.3.11 {
 								else if(!_cd && UhttCli.GetGoodsArCode(AddBarcodeCheckDigit(adj_code = org_code), inn, temp_buf) && temp_buf.NotEmptyS()) {
 									temp_buf.CopyTo(sdr_lot.UhttArCode, sizeof(sdr_lot.UhttArCode));
 									break;
 								}
-								// } @v8.3.11
 								else {
 									int d = 0, std = 0;
 									int r = GObj.DiagBarcode(org_code, &d, &std, &adj_code);

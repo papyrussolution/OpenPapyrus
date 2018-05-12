@@ -3624,9 +3624,8 @@ int SLAPI Test_KeywordListGenerator()
 //
 //
 //
-SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0)
+SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
 {
-	AuthTime.SetZero();
 	MEMSZERO(S);
 }
 
@@ -3645,7 +3644,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 {
 	Token.Z();
 	ExpirySec = 0;
-	AuthTime.SetZero();
+	AuthTime.Z();
 	AuthName.Z();
 	AuthSecret.Z();
 	LastStatusCode = 0;

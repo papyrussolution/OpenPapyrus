@@ -978,7 +978,7 @@ public:
 	class Operator {
 	public:
 		Operator(SrConceptParser & rMaster);
-		Operator & Clear();
+		Operator & Z();
 		int    IsEmpty() const;
 		int    Close(int ifNeeded);
 		int    IsClosed() const;
@@ -1115,10 +1115,10 @@ public:
 
 SrConceptParser::Operator::Operator(SrConceptParser & rMaster) : R_Master(rMaster)
 {
-	Clear();
+	Z();
 }
 
-SrConceptParser::Operator & SrConceptParser::Operator::Clear()
+SrConceptParser::Operator & SrConceptParser::Operator::Z()
 {
 	CID = 0;
 	InstanceOf = 0;
@@ -1134,7 +1134,7 @@ SrConceptParser::Operator & SrConceptParser::Operator::Clear()
 	P_Child = 0;
 	P_Next = 0;
 	P_Prev = 0;
-	Pdl.Clear();
+	Pdl.Z();
 	EqToList.clear();
 	return *this;
 }
@@ -1920,7 +1920,7 @@ int SrConceptParser::Run(const char * pFileName)
 							break;
 						case tokLPar:
 							{
-								temp_token_list.Clear();
+								temp_token_list.Z();
 								for(int do_get_next_prop = 1; do_get_next_prop;) {
 									//
 									// (свойство, свойство, ..., свойство)
@@ -3398,7 +3398,11 @@ int PrcssrSartre::TestConcept()
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		StringSet tok_list;
+		TSVector <SrWordInfo> info_list;
+		Int64Array abbr_concept_list; // Список концепций, сопоставленных с аббревиатурой
+		Int64Array clist, hlist;
 		LongArray ng;
+		SrNGram ng_abbr; // N-gram сопоставленная с аббревиатурой
 		while(in_file.ReadLine(line_buf)) {
 			line_buf.Chomp().Strip();
 			if(line_buf.NotEmpty()) {
@@ -3408,7 +3412,17 @@ int PrcssrSartre::TestConcept()
 				temp_buf.Tokenize(0, tok_list);
 				int    unkn_word = 0;
 				ng.clear();
+				info_list.clear();
+				abbr_concept_list.clear();
+				const uint tok_count = tok_list.getCount();
 				for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
+					if(tok_count == 1 && p_db->GetWordInfo(temp_buf, 0, info_list) > 0) {
+						for(uint i = 0; i < info_list.getCount(); i++) {
+							const SrWordInfo & r_wi = info_list.at(i);
+							if(r_wi.AbbrExpID && p_db->P_NgT->Search(r_wi.AbbrExpID, &ng_abbr.Z()) > 0)
+								p_db->GetNgConceptList(ng_abbr.ID, 0, abbr_concept_list);
+						}
+					}
 					LEXID word_id = 0;
 					if(p_db->FetchWord(temp_buf, &word_id) > 0)
 						ng.add(word_id);
@@ -3416,41 +3430,43 @@ int PrcssrSartre::TestConcept()
 						unkn_word = 1;
 				}
 				if(!unkn_word) {
+					clist.clear();
+					hlist.clear();
 					NGID  ng_id = 0;
 					if(p_db->SearchNGram(ng, &ng_id) > 0) {
-						Int64Array clist, hlist;
-						if(p_db->GetNgConceptList(ng_id, 0, clist) > 0) {
-							for(uint j = 0; j < clist.getCount(); j++) {
-								CONCEPTID cid = clist.get(j);
-								SrCPropList cpl;
-								SrCProp cp;
-								p_db->GetConceptSymb(cid, symb);
-								line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
-								line_buf.CatChar('(');
-								if(p_db->GetConceptPropList(cid, cpl) > 0) {
-									for(uint k = 0; k < cpl.GetCount(); k++) {
-										if(cpl.GetByPos(k, cp)) {
-											p_db->FormatProp(cp, 0, temp_buf);
-											if(k)
-												line_buf.CatDiv(',', 2);
-											line_buf.Cat(temp_buf);
-										}
-									}
+						p_db->GetNgConceptList(ng_id, 0, clist);
+					}
+					clist.add(&abbr_concept_list);
+					clist.sortAndUndup();
+					for(uint j = 0; j < clist.getCount(); j++) {
+						CONCEPTID cid = clist.get(j);
+						SrCPropList cpl;
+						SrCProp cp;
+						p_db->GetConceptSymb(cid, symb);
+						line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
+						line_buf.CatChar('(');
+						if(p_db->GetConceptPropList(cid, cpl) > 0) {
+							for(uint k = 0; k < cpl.GetCount(); k++) {
+								if(cpl.GetByPos(k, cp)) {
+									p_db->FormatProp(cp, 0, temp_buf);
+									if(k)
+										line_buf.CatDiv(',', 2);
+									line_buf.Cat(temp_buf);
 								}
-								line_buf.CatChar(')');
-								if(p_db->GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
-									line_buf.Space().CatDiv(':', 2);
-									for(uint k = 0; k < hlist.getCount(); k++) {
-										CONCEPTID hcid = hlist.get(k);
-										p_db->GetConceptSymb(hcid, symb);
-										if(k)
-											line_buf.CatDiv(',', 2);
-										line_buf.Cat((temp_buf = symb).Utf8ToChar());
-									}
-								}
-								line_buf.CR();
 							}
 						}
+						line_buf.CatChar(')');
+						if(p_db->GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
+							line_buf.Space().CatDiv(':', 2);
+							for(uint k = 0; k < hlist.getCount(); k++) {
+								CONCEPTID hcid = hlist.get(k);
+								p_db->GetConceptSymb(hcid, symb);
+								if(k)
+									line_buf.CatDiv(',', 2);
+								line_buf.Cat((temp_buf = symb).Utf8ToChar());
+							}
+						}
+						line_buf.CR();
 					}
 				}
 				line_buf.CR();

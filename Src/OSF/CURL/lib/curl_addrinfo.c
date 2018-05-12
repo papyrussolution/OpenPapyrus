@@ -287,7 +287,7 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 			    break;
 #ifdef ENABLE_IPV6
 			case AF_INET6:
-			    addr6 = (void*)ai->ai_addr; /* storage area for this info */
+			    addr6 = (struct sockaddr_in6 *)ai->ai_addr; /* storage area for this info */
 			    memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
 			    addr6->sin6_family = (ushort)(he->h_addrtype);
 			    addr6->sin6_port = htons((ushort)port);
@@ -355,7 +355,7 @@ Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * hostname,
 #ifdef ENABLE_IPV6
 		case AF_INET6:
 		    addrsize = sizeof(struct in6_addr);
-		    addrentry = (void*)&buf->addrentry.ina6;
+		    addrentry = (char *)&buf->addrentry.ina6;
 		    memcpy(addrentry, inaddr, sizeof(struct in6_addr));
 		    break;
 #endif

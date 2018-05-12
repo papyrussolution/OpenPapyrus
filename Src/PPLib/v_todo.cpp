@@ -13,11 +13,11 @@ VCalendar::Todo::Todo()
 
 void VCalendar::Todo::Init()
 {
-	CreatedDtm.SetZero();
-	CompletedDtm.SetZero();
-	StartDtm.SetZero();
-	EndDtm.SetZero();
-	DueDtm.SetZero();
+	CreatedDtm.Z();
+	CompletedDtm.Z();
+	StartDtm.Z();
+	EndDtm.Z();
+	DueDtm.Z();
 	Sequence = 0;
 	Priority = 0;
 	Status = stNeedsAction;

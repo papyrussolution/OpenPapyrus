@@ -740,7 +740,7 @@ SrCPropDeclList & FASTCALL SrCPropDeclList::Copy(const SrCPropDeclList & rS)
 	return *this;
 }
 
-SrCPropDeclList & SrCPropDeclList::Clear()
+SrCPropDeclList & SrCPropDeclList::Z()
 {
 	D.clear();
 	PoolP = 4;
@@ -999,12 +999,12 @@ int FASTCALL SrConcept::IsEqual(const SrConcept & rS) const
 	return ok;
 }
 
-SrConcept & SrConcept::Clear()
+SrConcept & SrConcept::Z()
 {
 	ID = 0;
 	SymbID = 0;
 	Ver = 0;
-	Pdl.Clear();
+	Pdl.Z();
 	return *this;
 }
 //
@@ -1030,7 +1030,7 @@ int FASTCALL SrCProp::IsEqual(const SrCProp & rS) const
 	return ok;
 }
 
-SrCProp & SrCProp::Clear()
+SrCProp & SrCProp::Z()
 {
 	CID = 0;
 	PropID = 0;
@@ -1077,7 +1077,7 @@ SrCPropList::SrCPropList()
 	D.Write(zero); // zero offset
 }
 
-SrCPropList & SrCPropList::Clear()
+SrCPropList & SrCPropList::Z()
 {
 	L.clear();
 	D.Clear();
@@ -1109,7 +1109,7 @@ int SrCPropList::Search(CONCEPTID cID, CONCEPTID propID, uint * pPos) const
 
 int SrCPropList::Get(CONCEPTID cID, CONCEPTID propID, SrCProp & rProp) const
 {
-	rProp.Clear();
+	rProp.Z();
 	int    ok = 0;
 	const uint c = L.getCount();
 	for(uint i = 0; !ok && i < c; i++) {
@@ -1131,7 +1131,7 @@ int SrCPropList::Get(CONCEPTID cID, CONCEPTID propID, SrCProp & rProp) const
 int SrCPropList::GetByPos(uint pos, SrCProp & rProp) const
 {
 	int    ok = 1;
-	rProp.Clear();
+	rProp.Z();
 	if(pos < L.getCount()) {
 		const Item & r_item = L.at(pos);
 		rProp.CID = r_item.CID;
@@ -1231,10 +1231,10 @@ int SrCPropList::Set(CONCEPTID cID, CONCEPTID propID, const void * pData, size_t
 //
 SrWordInfo::SrWordInfo()
 {
-	Clear();
+	Z();
 }
 
-SrWordInfo & SrWordInfo::Clear()
+SrWordInfo & SrWordInfo::Z()
 {
 	BaseID = 0;
 	PrefixID = 0;

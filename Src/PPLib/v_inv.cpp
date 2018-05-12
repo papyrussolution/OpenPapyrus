@@ -410,7 +410,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	int    is_subst = 0;
 	const uint bill_count = Filt.BillList.GetCount();
 	ExtraList.clear();
-	TextPool.Clear();
+	TextPool.Z();
 
 	Bsp.Init(Filt.Sgb);
 	if(!!Filt.Sgb) {

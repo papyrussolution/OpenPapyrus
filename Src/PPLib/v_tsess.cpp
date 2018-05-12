@@ -68,7 +68,7 @@ TSessionViewItem & SLAPI TSessionViewItem::Init()
 PPViewTSession::UhttStoreExt & PPViewTSession::UhttStoreExt::Clear()
 {
 	ID = 0;
-	SfList.Clear();
+	SfList.Z();
 	return *this;
 }
 
@@ -825,12 +825,11 @@ int SLAPI PPViewTSession::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_TSESSTOTAL_COUNT, total.Count);
 		{
-			long   h, m, s;
 			SString temp_buf;
 			if(total.Duration > 0) {
-				h = total.Duration / 3600;
-				m = (total.Duration % 3600) / 60;
-				s = (total.Duration % 60);
+				long   h = total.Duration / 3600;
+				long   m = (total.Duration % 3600) / 60;
+				long   s = (total.Duration % 60);
 				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			dlg->setCtrlString(CTL_TSESSTOTAL_DURATION, temp_buf);
@@ -1117,7 +1116,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 								_local_error = 1;
 							if(_local_error) {
 								logger.LogLastError();
-								uuid.SetZero();
+								uuid.Z();
 							}
 						}
 						else {
@@ -1831,7 +1830,7 @@ int SLAPI PPViewTSession::GetSelectorListInfo(StrAssocArray & rList) const
 		return 1;
 	}
 	else {
-		rList.Clear();
+		rList.Z();
 		return 0;
 	}
 }
@@ -2292,7 +2291,6 @@ int SLAPI PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long fla
 		uint   i;
 		PPObjTag tag_obj;
 		S_GUID   uuid;
-		uuid.SetZero();
         for(i = 0; i < pSrc->TagList.getCount(); i++) {
 			const UhttTagItem * p_uhtt_tag_item = pSrc->TagList.at(i);
 			PPID   tag_id = 0;
@@ -2355,9 +2353,7 @@ int SLAPI PPObjTSession::ImportUHTT()
 	THROW(uhtt_cli.Auth());
 	{
 		PPID   prc_id = 0;
-		LDATETIME since;
-		since.SetZero();
-
+		LDATETIME since = ZERODATETIME;
 		TSCollection <UhttTSessionPacket> uhtt_tses_list;
 		THROW(uhtt_cli.GetTSessionByPrc(prc_id, since, uhtt_tses_list));
 		for(uint i = 0; i < uhtt_tses_list.getCount(); i++) {

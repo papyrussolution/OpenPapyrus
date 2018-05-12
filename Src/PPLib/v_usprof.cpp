@@ -69,7 +69,7 @@ int UserProfileFiltDialog::getDTS(UserProfileFilt * pFilt)
 	if(db_pos >= 0)
 		Filt.DbID = R_UfpDbList.at(db_pos).DbID;
 	else
-		Filt.DbID.SetZero();
+		Filt.DbID.Z();
 	GetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Filt.Period);
 	GetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Filt.TmPeriod);
 	ASSIGN_PTR(pFilt, Filt);

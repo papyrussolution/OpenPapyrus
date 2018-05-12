@@ -1998,7 +1998,6 @@
   <ItemGroup>
     <ProjectReference Include="BDB.vcxproj">
       <Project>{151f44bb-2aaa-4e54-91a6-79ba38f41639}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="cairo-1.14.2.vcxproj">
       <Project>{1022ff32-79e9-44df-b5e3-9130f0c4252d}</Project>

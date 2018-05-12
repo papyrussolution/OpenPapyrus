@@ -520,7 +520,7 @@ int SLAPI PPViewReport::SendMail(long id)
 				Data.DB = 0;
 				Data.RptPath = 0;
 				Data.Struc = 0;
-				Data.Dtm.SetZero();
+				Data.Dtm.Z();
 			}
 			SString buf;
 			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);

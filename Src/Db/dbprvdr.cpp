@@ -308,7 +308,6 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
 //
 SLAPI DbProvider::DbProvider(DbDictionary * pDict, long capability) : P_Dict(pDict), Capability(capability), State(0), DbPathID(0)
 {
-	DbUUID.SetZero();
 }
 
 SLAPI DbProvider::~DbProvider()

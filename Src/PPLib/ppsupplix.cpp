@@ -2989,7 +2989,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d, 0) ? p_src_pack->Dtm.d : getcurdate_();
 					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 						;
 					}
 					else {
@@ -3155,7 +3155,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &(ar_id = 0)) > 0) {
 						pack.Ext.AgentID = ar_id;
 					}
-					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 						;
 					}
 					else {
@@ -3815,7 +3815,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			p_new_pack->DocType = outerDocType;
 			p_new_pack->ExtDocType = 0;
 			p_new_pack->ExtCode = 0;
-			p_new_pack->ExtDtm.SetZero();
+			p_new_pack->ExtDtm.Z();
 			//
 			BillCore::GetCode(p_new_pack->Code = pack.Rec.Code);
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
@@ -3854,9 +3854,9 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					// @v9.6.2 Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7/2", R_Logger); // @v9.5.11
 				}
 			}
-			p_new_pack->IncDtm.SetZero();
+			p_new_pack->IncDtm.Z();
 			pack.Pays.GetLast(&p_new_pack->DueDate, 0, 0);
-			p_new_pack->Status = do_cancel ? 1 : 0;
+			p_new_pack->Status = BIN(do_cancel);
 			// @v9.4.9 (p_new_pack->Memo = pack.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
 			p_new_pack->Memo = 0; // @v9.4.9
 			if(outerDocType == 6) { // Приход (подтверждение)
@@ -3875,7 +3875,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
-					p_new_ref->Dtm.SetZero();
+					p_new_ref->Dtm.Z();
 				}
 			}
 			else if(outerDocType == 5) { // Возврат
@@ -3924,7 +3924,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 								// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-6", R_Logger); // @v9.5.11
-								p_new_ref->Dtm.SetZero();
+								p_new_ref->Dtm.Z();
 							}
 						}
 					}
@@ -3938,14 +3938,14 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, pack.Rec.ID, &sj_rec) > 0)
 				p_new_pack->CreationDtm.Set(sj_rec.Dt, sj_rec.Tm);
 			else
-				p_new_pack->CreationDtm.SetZero();
+				p_new_pack->CreationDtm.Z();
 			{
 				int    is_creation = 0;
 				LDATETIME moment;
 				if(p_sj && p_sj->GetLastObjModifEvent(PPOBJ_BILL, pack.Rec.ID, &moment, &is_creation, &sj_rec) > 0 && !is_creation)
 					p_new_pack->LastUpdDtm = moment;
 				else
-					p_new_pack->LastUpdDtm.SetZero();
+					p_new_pack->LastUpdDtm.Z();
 			}
 			long   tiiterpos = 0;
 			for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
@@ -4694,7 +4694,7 @@ int SLAPI SapEfes::ReceiveOrders()
 						}
 						// } @v9.5.11
 						STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-						if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+						if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 							PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
 							if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
 								R_Logger.Log(msg_buf);
@@ -5926,7 +5926,6 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			S_GUID  order_uuid;
 			SString inner_order_code;
 			SString bill_text;
-			order_uuid.SetZero();
 			P_BObj->MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, bill_text);
 			pack.GetOrderList(order_id_list);
 			for(uint ordidx = 0; !is_own_order && ordidx < order_id_list.getCount(); ordidx++) {
