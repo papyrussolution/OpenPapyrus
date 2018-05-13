@@ -116,16 +116,45 @@ private:
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 1, !suppl_ar_id);
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 2, !Data.PersonID);
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 3, !Data.PersonID);
+			SetupCtrls();
 			return 1;
 		}
 		int getDTS(Param * pData)
 		{
 			int    ok = 1;
 			GetClusterData(CTL_SELACNBYPHN_WHAT, &Data.Action);
+			getCtrlData(CTLSEL_SELACNBYPHN_EXT, &Data.ExtSelector);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_SELACNBYPHN_WHAT)) {
+				GetClusterData(CTL_SELACNBYPHN_WHAT, &Data.Action);
+				SetupCtrls();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupCtrls()
+		{
+			if(Data.Action == Param::acnPersonalEvent) {
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 0);
+				SetupPPObjCombo(this, CTLSEL_SELACNBYPHN_EXT, PPOBJ_PERSONOPKIND,  Data.ExtSelector = 0, 0);
+			}
+			else if(Data.Action == Param::acnCcOrder) {
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 0);
+				PPObjCashNode::SelFilt f;
+				f.LocID = 0;
+				f.SyncGroup = 2; // only async nodes
+				SetupPPObjCombo(this, CTLSEL_SELACNBYPHN_EXT, PPOBJ_CASHNODE,  Data.ExtSelector = 0, 0, &f);
+			}
+			else
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 1);
+		}
 		Param  Data;
 		PPObjSCard ScObj;
 		PPObjPerson PsnObj;
@@ -242,7 +271,92 @@ private:
 			dlg->setDTS(&param);
 			if(ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&param)) {
-
+					switch(param.Action) {
+						case param.acnGoodsOrder:
+							{
+								PPID   new_bill_id = 0;
+								PPIDArray op_list;
+								GetOpList(PPOPT_GOODSORDER, &op_list);
+								if(op_list.getCount()) {
+									PPObjBill::AddBlock ab;
+									ArObj.P_Tbl->PersonToArticle(param.PersonID, GetSellAccSheet(), &ab.ObjectID);
+									if(ab.ObjectID) {
+										PPAlbatrosConfig acfg;
+										PPAlbatrosCfgMngr::Get(&acfg);
+										ab.OpID = acfg.Hdr.OpID;
+										SETIFZ(ab.OpID, op_list.getSingle());
+										{
+											S.Flags |= S.fLockAutoExit;
+											if(ab.OpID || BillPrelude(&op_list, OPKLF_OPLIST, 0, &ab.OpID, &ab.LocID) > 0) {
+												BillObj->AddGoodsBill(&new_bill_id, &ab);
+											}
+											S.Flags &= ~S.fLockAutoExit;
+										}
+									}
+								}
+							}
+							break;
+						case param.acnPurchase:
+							{
+								PPID   new_bill_id = 0;
+								PPIDArray op_list;
+								GetOpList(PPOPT_DRAFTRECEIPT, &op_list);
+								if(op_list.getCount()) {
+									PPObjBill::AddBlock ab;
+									ArObj.P_Tbl->PersonToArticle(param.PersonID, GetSupplAccSheet(), &ab.ObjectID);
+									if(ab.ObjectID) {
+										PPPredictConfig pr_cfg;
+										PrcssrPrediction::GetPredictCfg(&pr_cfg);
+										ab.OpID = pr_cfg.PurchaseOpID;
+										SETIFZ(ab.OpID, op_list.getSingle());
+										{
+											S.Flags |= S.fLockAutoExit;
+											if(ab.OpID || BillPrelude(&op_list, OPKLF_OPLIST, 0, &ab.OpID, &ab.LocID) > 0) {
+												BillObj->AddGoodsBill(&new_bill_id, &ab);
+											}
+											S.Flags &= ~S.fLockAutoExit;
+										}
+									}
+								}
+							}
+							break;
+						case param.acnPersonalEvent:
+							if(param.ExtSelector && param.PersonID) {
+								PPID   pe_id = 0;
+								PPID   op_id = param.ExtSelector;
+								PPPsnEventPacket pack;
+								if(PeObj.InitPacket(&pack, op_id, param.PersonID)) {
+									getcurdatetime(&pack.Rec.Dt, &pack.Rec.Tm);
+									PsnEventDialog::Param pe_param;
+									PsnEventDialog::GetParam(op_id, &pe_param);
+									PsnEventDialog * p_dlg = new PsnEventDialog(&pe_param, &PeObj);
+									if(CheckDialogPtrErr(&p_dlg)) {
+										if(p_dlg->setDTS(&pack) > 0) {
+											int    r = -1;
+											S.Flags |= S.fLockAutoExit;
+											while(r <= 0 && ExecView(p_dlg) == cmOK) {
+												r = p_dlg->getDTS(&pack) ? 1 : PPErrorZ();
+											}
+											if(r > 0) {
+												if(!PeObj.PutPacket(&pe_id, &pack, 1))
+													PPError();
+											}
+											S.Flags &= ~S.fLockAutoExit;
+										}
+										else
+											PPError();
+									}
+									ZDELETE(p_dlg);
+								}
+								else
+									PPError();
+							}
+							break;
+						case param.acnPrjTask:
+							break;
+						case param.acnCcOrder:
+							break;
+					}
 				}
 			}
 		}

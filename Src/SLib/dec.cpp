@@ -1,5 +1,5 @@
 // DEC.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017
+// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -36,8 +36,7 @@ static const IEEE80 expo[10] =
 double FASTCALL dectobin(const char * dc, int16 len, int16 prec)
 {
 	char   buf[64];
-	double result = atof(dectostr(dc, len, prec, buf));
-	return result;
+	return atof(dectostr(dc, len, prec, buf));
 }
 
 void FASTCALL dectobcd(char * dc, char * bcd, int16 len)
@@ -55,7 +54,9 @@ void FASTCALL dectobcd(char * dc, char * bcd, int16 len)
 
 char * FASTCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
 {
-	uchar _dl = 0, _al, *buf = (uchar *)b;
+	uchar _dl = 0;
+	uchar _al;
+	uchar * buf = (uchar *)b;
 	if((dc[len-1] & 0x0f) == 0x0d)
 		*buf++ = '-';
 	for(; len > 0; len--) {

@@ -1780,12 +1780,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					}
 				}
 				{
-					char * p_json_buf = 0;
-					json_tree_to_string(p_jpack, &p_json_buf);
-					ResultText = p_json_buf;
+					THROW_SL(json_tree_to_string(p_jpack, ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					SAlloc::F(p_json_buf);
 					json_free_value(&p_jpack);
 					ok = 1;
 				}
@@ -1956,12 +1953,9 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					}
 				}
 				{
-					char * p_json_buf = 0;
-					json_tree_to_string(p_jpack, &p_json_buf);
-					ResultText = p_json_buf;
+					THROW_SL(json_tree_to_string(p_jpack, ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					SAlloc::F(p_json_buf);
 					json_free_value(&p_jpack);
 					ok = 1;
 				}

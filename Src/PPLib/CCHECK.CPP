@@ -54,7 +54,7 @@ CcAmountList::CcAmountList() : TSVector <CcAmountEntry> () // @v9.8.4 TSArray-->
 {
 }
 
-CcAmountList & CcAmountList::Clear()
+CcAmountList & CcAmountList::Z()
 {
 	clear();
 	return *this;
@@ -92,7 +92,7 @@ double CcAmountList::ScaleTo(double targetAmount)
 {
 	double result = 0.0;
 	if(targetAmount == 0.0) {
-		Clear();
+		Z();
 	}
 	else {
 		double total = GetTotal();
@@ -2027,7 +2027,7 @@ int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack
 int SLAPI CCheckCore::Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList)
 {
 	int    ok = -1;
-	rList.clear();
+	rList.Z();
 	if(pCpTbl) {
 		CCheckPaymTbl::Key0 cpk0;
 		MEMSZERO(cpk0);

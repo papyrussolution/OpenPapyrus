@@ -586,7 +586,7 @@ static int FASTCALL is_zero(const char * c)
 	return 1;
 }
 
-static char * SLAPI fmtnumber(const char * ptr, int dec, int sign, long fmt, char * buf)
+static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, char * buf)
 {
 	int16  prec = (int16)(signed char)SFMTPRC(fmt);
 	uint16 flags = SFMTFLAG(fmt);
@@ -655,7 +655,7 @@ char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf)
 	return fmtnumber(s, sstrlen(s) - prec, sign, fmt, pBuf);
 }
 
-char * SLAPI realfmt(double val, long fmt, char * pBuf)
+char * FASTCALL realfmt(double val, long fmt, char * pBuf)
 {
 	int    dec, sign;
 	int    prc = (int)(signed char)SFMTPRC(fmt);
@@ -663,7 +663,7 @@ char * SLAPI realfmt(double val, long fmt, char * pBuf)
 		val = val * fpow10i(prc);
 		prc = 0;
 	}
-	else if(prc > 0) { // Papyrus @v3.6.6
+	else if(prc > 0) { 
 		val = round(val, prc);
 	}
 	if(val > -1.e-10 && val < 1.e-10)
@@ -729,30 +729,30 @@ char * SLAPI realfmt(double val, long fmt, char * pBuf)
 	}
 }
 
-char * SLAPI intfmt(long val, long fmt, char * pBuf)
+char * FASTCALL intfmt(long val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ltoa(labs(val), s, 10);
 	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
-char * SLAPI int64fmt(int64 val, long fmt, char * pBuf)
+char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf)
 {
-	char   s[64];
+	char   s[128];
 	_i64toa(_abs64(val), s, 10);
 	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
-char * SLAPI uintfmt(ulong val, long fmt, char * pBuf)
+char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ultoa(val, s, 10);
 	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }
 
-char * SLAPI uint64fmt(uint64 val, long fmt, char * pBuf)
+char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf)
 {
-	char   s[64];
+	char   s[128];
 	_ui64toa(val, s, 10);
 	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }

@@ -13432,7 +13432,7 @@ struct CcAmountEntry {
 class CcAmountList : public TSVector <CcAmountEntry> { // @v9.8.4 TSArray-->TSVector
 public:
 	CcAmountList();
-	CcAmountList & Clear();
+	CcAmountList & Z();
 	int    GetSign() const;
 	int    Search(int type, int32 addedID, uint * pPos) const;
 	int    SearchAddedID(int32 addedID, uint * pPos) const;
@@ -18676,7 +18676,7 @@ protected:
 	// Temp Session {
 	TempCCheckTbl     * P_TmpCcTbl;
 	TempCCheckLineTbl * P_TmpCclTbl;
-	CCheckPaymTbl * P_TmpCpTbl;     // @v8.1.0
+	CCheckPaymTbl * P_TmpCpTbl;
 	// }
 	DeviceLoadingStat * P_Dls;
 private:
@@ -18684,14 +18684,12 @@ private:
 	int    SLAPI SetLastSess(long cashNumber, long sessNumber, PPID sessID, LDATETIME dtm);
 	int    SLAPI GetCashSessID(LDATETIME dtm, long cashNumber, long sessNumber, int forwardSess, int temporary, PPID * pSessID);
 	int    SLAPI CalcSessionTotal(PPID sessID, CSessTotal *);
-	//int    SLAPI GroupingSessList(const PPIDArray * pSessList, PPIDArray * pOutList, PPIDArray * pOutTempList, int use_ta);
-	int    SLAPI ConvertTempSession(int forwardSess, PPIDArray * pSessList);
-	//int    SLAPI ConvertSessListToBills(PPIDArray * pSessList, PPID locID, int use_ta);
+	int    SLAPI ConvertTempSession(int forwardSess, PPIDArray & rSessList, void * pTotalLogData);
 	int    SLAPI FlashTempCcLines(const SVector *, LAssocArray * pHasExLineList);
 
 	LDATE  Beg, End;
 	long   CnFlags;     // Флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
-	long   CnExtFlags;  // @v8.9.10 Расширенные флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
+	long   CnExtFlags;  // Расширенные флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
 	PPGoodsConfig * P_GCfg;
 
 	struct LastSess {

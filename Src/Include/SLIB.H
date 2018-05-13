@@ -4281,8 +4281,8 @@ char * FASTCALL chomp(char * pStr);
 // Returns:
 //   pStr
 //
-char * SLAPI padleft(char  * pStr, char pad, size_t n);
-char * SLAPI padright(char * pStr, char pad, size_t n);
+char * FASTCALL padleft(char  * pStr, char pad, size_t n);
+char * FASTCALL padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
 // @v9.5.1 (obsolete) int    SLAPI getTextHight(char * pStr, int width);
 int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
@@ -4570,9 +4570,9 @@ long  FASTCALL diffdate(LDATE d, LDATE s);
 
 char * FASTCALL _commfmt(long fmt, char * pBuf);
 SString & FASTCALL _commfmt(long fmt, SString & rBuf);
-char * SLAPI realfmt(double val, long fmt, char * pBuf);
-char * SLAPI intfmt(long val, long fmt, char * pBuf);
-char * SLAPI int64fmt(int64 val, long fmt, char * pBuf);
+char * FASTCALL realfmt(double val, long fmt, char * pBuf);
+char * FASTCALL intfmt(long val, long fmt, char * pBuf);
+char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
 //
 // Descr: форматирует длинное целое число val в строку pBuf
 //   Если numdigits > 0, то форматирутся с количеством символов равным numDigits
@@ -4582,8 +4582,8 @@ char * SLAPI int64fmt(int64 val, long fmt, char * pBuf);
 //   pBuf
 //
 char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
-char * SLAPI uintfmt(ulong val, long fmt, char * pBuf);
-char * SLAPI uint64fmt(uint64 val, long fmt, char * pBuf);
+char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf);
+char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf);
 char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf);
 char * SLAPI datefmt(const void *, long fmt, char *);
 char * SLAPI timefmt(LTIME, long fmt, char *);

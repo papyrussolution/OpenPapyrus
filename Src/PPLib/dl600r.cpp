@@ -1409,7 +1409,6 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	char * p_temp_buf = 0;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(pAry);
@@ -1418,10 +1417,8 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 		if(filt.ID > 0)
 			THROW(Helper_PutItemToJson(&filt, p_root_ary));
 	}
-	json_tree_to_string(p_root_ary, &p_temp_buf);
-	rBuf.Z().Cat(p_temp_buf);
+	THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	CATCHZOK
-	SAlloc::F(p_temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }
@@ -1429,18 +1426,15 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	char * p_temp_buf = 0;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(ptr);
 	{
 		PPFilt filt(ptr);
 		THROW(Helper_PutItemToJson(&filt, p_root_ary));
-		json_tree_to_string(p_root_ary, &p_temp_buf);
-		rBuf.Z().Cat(p_temp_buf);
+		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	}
 	CATCHZOK
-	SAlloc::F(p_temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }

@@ -1521,7 +1521,6 @@ private:
 	Rec    Data;
 	PPPersonKind PsnKindRec;
 	PPPersonKind PsnScndKindRec;
-	//SCardCore   SCardTbl;
 	PPObjSCard ScObj;
 	PPObjPerson PsnObj;
 };
@@ -1658,7 +1657,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 				THROW(pev_obj.InitPacket(&pack, pop_rec.ID, prmr_psn_id));
 				pack.Rec.SecondID   = scnd_psn_id;
 				pack.Rec.LocationID = LConfig.Location;
-				pack.Rec.PrmrSCardID = psn_data.Sc.ID; // @v8.5.7
+				pack.Rec.PrmrSCardID = psn_data.Sc.ID;
 				if(psn_obj.GetConfig().Flags & PPPersonConfig::fShowPsnImageAfterCmdAssoc) {
 					uint   pos = 0;
 					SString info, warn, buf, reg_buf;

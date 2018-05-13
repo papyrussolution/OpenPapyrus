@@ -83,14 +83,8 @@ struct json_t {
 	};
 	explicit json_t(int aType);
 	~json_t();
-	void   FASTCALL AssignAllocatedText(RcString * pRcs)
-	{
-		assert(pRcs);
-		if(pRcs) {
-			Text = pRcs->P_Text;
-			SAlloc::F(pRcs);
-		}
-	}
+	void   FASTCALL AssignAllocatedText(RcString * pRcs);
+
 	int    Type; // the type of node
 	//char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
 	SString Text;
@@ -214,7 +208,8 @@ void FASTCALL json_free_value(json_t ** value);
 // @param text a pointer to a char string that will hold the JSON document text.
 // @return  a json_error code describing how the operation went
 //
-enum json_error json_tree_to_string(json_t * root, char **text);
+//enum   json_error json_tree_to_string(json_t * root, char **text);
+int    FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf);
 //
 // Produces a JSON markup text document from a json_t document tree to a text stream
 // @param file a opened file stream

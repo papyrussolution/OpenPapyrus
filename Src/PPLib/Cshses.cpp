@@ -83,7 +83,7 @@ int SLAPI PPSyncCashSession::CompleteSession(PPID sessID)
 		THROW_PP(!(eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
 		{
 			PPWait(1);
-			PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF); // @v8.6.1
+			PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 			PPTransaction tra(1);
 			THROW(tra);
 			if(sess_rec.Incomplete == CSESSINCMPL_CHECKS) {
@@ -121,26 +121,11 @@ SLAPI PPAsyncCashSession::~PPAsyncCashSession()
 	delete P_Dls;
 }
 
-int SLAPI PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList)
-{
-	return -1;
-}
-
-int SLAPI PPAsyncCashSession::IsReadyForExport()
-{
-	return -1;
-}
-
-int SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly)
-{
-	return -1;
-}
-
+int SLAPI PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList) { return -1; }
+int SLAPI PPAsyncCashSession::IsReadyForExport() { return -1; }
+int SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly) { return -1; }
 //virtual
-int SLAPI PPAsyncCashSession::InteractiveQuery()
-{
-	return -1;
-}
+int SLAPI PPAsyncCashSession::InteractiveQuery() { return -1; }
 
 const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
 {
@@ -160,7 +145,7 @@ PPID SLAPI PPAsyncCashSession::GetLocation()
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckTbl,     TempCCheck);
 PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckLineTbl, TempCCheckLine);
-PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckPaymTbl, CCheckPaym); // @v8.1.0
+PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckPaymTbl, CCheckPaym);
 
 int SLAPI PPAsyncCashSession::CreateTables()
 {
@@ -168,7 +153,7 @@ int SLAPI PPAsyncCashSession::CreateTables()
 	DestroyTables();
 	THROW(P_TmpCcTbl  = CreateTempCCheckTbl());
 	THROW(P_TmpCclTbl = CreateTempCCheckLineTbl());
-	THROW(P_TmpCpTbl = CreateTempCCheckPaymTbl()); // @v8.1.0
+	THROW(P_TmpCpTbl = CreateTempCCheckPaymTbl());
 	CATCH
 		DestroyTables();
 		ok = 0;
@@ -180,7 +165,7 @@ void SLAPI PPAsyncCashSession::DestroyTables()
 {
    	ZDELETE(P_TmpCcTbl);
    	ZDELETE(P_TmpCclTbl);
-	ZDELETE(P_TmpCpTbl); // @v8.1.0
+	ZDELETE(P_TmpCpTbl);
 }
 
 void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
@@ -215,8 +200,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 			SString msg_buf, fmt_buf, cc_text_buf;
 			CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
 			// PPTXT_DUPNEWCCHECKCODEZAMT        "В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)"
-			PPLoadText(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf);
-			msg_buf.Printf(fmt_buf, cc_text_buf.cptr());
+			msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf), cc_text_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 
 			temp_replace_id = CC.data.ID;
@@ -246,8 +230,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 				CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"
-				PPLoadText(PPTXT_DUPNEWCCHECKCODE, fmt_buf);
-				msg_buf.Printf(fmt_buf, cc_text_buf.cptr(), time_buf.cptr());
+				msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODE, fmt_buf), cc_text_buf.cptr(), time_buf.cptr());
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 
 				temp_replace_id = CC.data.ID;
@@ -272,16 +255,15 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 	PPID cashID, PPID code, PPID user, PPID cardID, LDATETIME * pDT, double amt, double dscnt/*, double addPaym, double extAmt*/)
 {
 	int    ok = 1;
-	SString msg_buf, fmt_buf, chk_buf;
+	SString msg_buf;
 	if(CConfig.Flags & CCFLG_DEBUG) {
-		msg_buf.Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT);
-		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, 0);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT), 0);
 	}
 	PPID   temp_replace_id = 0;
-	int    ice = IsCheckExistence(cashID, code, pDT, &temp_replace_id);
+	const  int ice = IsCheckExistence(cashID, code, pDT, &temp_replace_id);
 	assert(ice != 100 || temp_replace_id);
 	if(!ice || ice == 100) {
-		int    is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, pDT) > 0);
+		const int is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, pDT) > 0);
 		if(!is_temp_check_exists) {
 			TempCCheckTbl::Rec new_rec;
 			MEMSZERO(new_rec);
@@ -294,8 +276,6 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 			new_rec.Tm     = pDT->t;
 			LDBLTOMONEY(amt,   new_rec.Amount);
 			LDBLTOMONEY(dscnt, new_rec.Discount);
-			// @v8.1.0 new_rec.AddPaym    = addPaym;
-			// @v8.1.0 new_rec.ExtAmount  = extAmt;
 			if(ice == 100) {
 				assert(temp_replace_id);
 				flags |= CCHKF_TEMPREPLACE;
@@ -306,6 +286,8 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 			THROW_DB(P_TmpCcTbl->insertRec(0, pID));
 		}
 		else {
+			SString chk_buf;
+			SString fmt_buf;
 			chk_buf.Z().Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT);
 			msg_buf.Printf(PPLoadTextS(PPTXT_DUPTEMPCCHECK, fmt_buf), chk_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -325,10 +307,11 @@ int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, doub
 	CCheckTbl::Key0 k0;
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
-		double a = MONEYTOLDBL(P_TmpCcTbl->data.Amount) + amt;
-		double d = MONEYTOLDBL(P_TmpCcTbl->data.Discount) + dis;
-		LDBLTOMONEY(a, P_TmpCcTbl->data.Amount);
-		LDBLTOMONEY(d, P_TmpCcTbl->data.Discount);
+		TempCCheckTbl::Rec & r_rec = P_TmpCcTbl->data;
+		double a = MONEYTOLDBL(r_rec.Amount) + amt;
+		double d = MONEYTOLDBL(r_rec.Discount) + dis;
+		LDBLTOMONEY(a, r_rec.Amount);
+		LDBLTOMONEY(d, r_rec.Discount);
 		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
 	}
 	return ok;
@@ -566,10 +549,11 @@ int SLAPI PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	p_q->selectAll().where(CC.SessID == sessID);
 	pTotal->SessID = sessID;
 	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
-		if(!(CC.data.Flags & CCHKF_ZCHECK)) {
+		const CCheckTbl::Rec & r_rec = CC.data;
+		if(!(r_rec.Flags & CCHKF_ZCHECK)) {
 			pTotal->CheckCount++;
-			pTotal->Amount   += MONEYTOLDBL(CC.data.Amount);
-			pTotal->Discount += MONEYTOLDBL(CC.data.Discount);
+			pTotal->Amount   += MONEYTOLDBL(r_rec.Amount);
+			pTotal->Discount += MONEYTOLDBL(r_rec.Discount);
 		}
 	}
 	BExtQuery::ZDelete(&p_q);
@@ -577,7 +561,7 @@ int SLAPI PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	p_q->selectAll().where(GL.SessID == sessID);
 	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
 		pTotal->AggrAmount += GL.data.Sum;
-		if(GL.data.Qtty != 0)
+		if(GL.data.Qtty != 0.0)
 			pTotal->AggrRest += (GL.data.Rest * GL.data.Sum) / GL.data.Qtty;
 	}
 	delete p_q;
@@ -606,7 +590,7 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 		TempCCheckLineTbl * t = P_TmpCclTbl;
 		BExtQuery q(t, 2, 64);
 		TempCCheckLineTbl::Key2 k2;
-		TSArray <CCheckLineExtTbl::Rec> ccext_items;
+		TSVector <CCheckLineExtTbl::Rec> ccext_items; // @v10.0.05 TSArray-->TSVector
 
 		MEMSZERO(k2);
 		q.select(t->CheckID, t->DivID, t->GoodsID, t->Quantity, t->Price, t->Dscnt/*t->Discount*/, t->Serial, 0L);
@@ -614,7 +598,8 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 		uint   last_chk_pos = 0;
 		for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
 			uint   p = 0;
-			PPID   temp_chk_id = t->data.CheckID;
+			const TempCCheckLineTbl::Rec & r_rec = t->data;
+			PPID   temp_chk_id = r_rec.CheckID;
 			CCheckLineExtTbl::Rec ext_rec;
 			MEMSZERO(ext_rec);
 			if(last_temp_chk_id && temp_chk_id == last_temp_chk_id)
@@ -629,15 +614,15 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			CCheckLineTbl::Rec  line_rec;
 			line_rec.CheckID  = p_item->ChkID;
 			line_rec.RByCheck = ++p_item->RByCheck;
-			line_rec.DivID    = t->data.DivID;
-			line_rec.GoodsID  = t->data.GoodsID;
-			line_rec.Quantity = t->data.Quantity;
-			line_rec.Price    = t->data.Price;
-			line_rec.Dscnt    = t->data.Dscnt;
-			//line_rec.Discount = t->data.Discount;
+			line_rec.DivID    = r_rec.DivID;
+			line_rec.GoodsID  = r_rec.GoodsID;
+			line_rec.Quantity = r_rec.Quantity;
+			line_rec.Price    = r_rec.Price;
+			line_rec.Dscnt    = r_rec.Dscnt;
+			//line_rec.Discount = r_rec.Discount;
 			THROW_DB(bei.insert(&line_rec));
-			if(use_ext && sstrlen(t->data.Serial)) {
-				STRNSCPY(ext_rec.Serial, t->data.Serial);
+			if(use_ext && sstrlen(r_rec.Serial)) {
+				STRNSCPY(ext_rec.Serial, r_rec.Serial);
 				ext_rec.CheckID  = line_rec.CheckID;
 				ext_rec.RByCheck = line_rec.RByCheck;
 				THROW(ccext_items.insert(&ext_rec));
@@ -660,16 +645,27 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pSessList)
+struct TotalLogCSessEntry { // @flat
+	TotalLogCSessEntry()
+	{
+		THISZERO();
+	}
+	PPID   SessID;
+	uint   CcCount;
+	double CcAmount;
+};
+
+int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessList, void * pTotalLogData)
 {
 	P_LastSessList = 0;
 
 	int    ok = 1;
 	const  int use_ext = BIN(CConfig.Flags & CCFLG_USECCHECKEXT);
+	TSVector <TotalLogCSessEntry> * p_total_log_list = (TSVector <TotalLogCSessEntry> *)pTotalLogData; // @v10.0.05
 	uint   i;
-	PPID   loc = GetLocation();
+	CcAmountList cp_list;
 	PPObjSCardSeries scs_obj;
-	THROW(loc);
+	THROW(GetLocation());
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -692,13 +688,28 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 				P_TmpCcTbl->copyBufTo(&temp_chk_rec);
 				LDATETIME dtm;
 				PPID   sess_id = 0;
+				TotalLogCSessEntry * p_tl_entry = 0;
 				CCheckExtTbl::Rec ext_rec;
 				MEMSZERO(ext_rec);
 				memcpy(&chk_rec, &temp_chk_rec, sizeof(chk_rec));
 				dtm.Set(chk_rec.Dt, chk_rec.Tm);
 				THROW(GetCashSessID(dtm, chk_rec.CashID, chk_rec.SessID, forwardSess, BIN(chk_rec.Flags & CCHKF_TEMPSESS), &sess_id));
-				if(sess_id && pSessList)
-					THROW(pSessList->addUnique(sess_id));
+				if(sess_id) {
+					THROW(rSessList.addUnique(sess_id));
+					// @v10.0.05 {
+					if(p_total_log_list) {
+						uint   tl_pos = 0;
+						if(p_total_log_list->lsearch(&sess_id, &tl_pos, CMPF_LONG))
+							p_tl_entry = &p_total_log_list->at(tl_pos);
+						else {
+							TotalLogCSessEntry new_tl_entry;
+							new_tl_entry.SessID = sess_id;
+							THROW_SL(p_total_log_list->insert(&new_tl_entry));
+							p_tl_entry = &p_total_log_list->at(p_total_log_list->getCount()-1);
+						}
+					}
+					// } @v10.0.05 
+				}
 				chk_rec.SessID = sess_id;
 				if(Beg == 0 || dtm.d < Beg)
 					Beg = dtm.d;
@@ -715,49 +726,15 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 					}
 					chk_rec.Flags &= ~CCHKF_TEMPREPLACE;
 				}
-	#if 0 // @v8.1.0 {
-				if(temp_chk_rec.CrdSCardID) {
-					if(!chk_rec.SCardID) {
-						// Коллизия: придется убрать ссылку на дисконтную карту ради платежной карты.
-					}
-					chk_rec.SCardID = temp_chk_rec.CrdSCardID;
-				}
-				if(temp_chk_rec.GiftCardID && use_ext) {
-					if(!chk_rec.SCardID) {
-						chk_rec.SCardID = temp_chk_rec.GiftCardID;
-						chk_rec.Flags |= CCHKF_INCORPCRD;
-					}
-					else {
-						ext_rec.AddCrdCardID   = temp_chk_rec.GiftCardID;
-						ext_rec.AddCrdCardPaym = dbltointmny(temp_chk_rec.ExtAmount);
-						chk_rec.Flags |= (CCHKF_EXT|CCHKF_ADDPAYM|CCHKF_ADDINCORPCRD);
-					}
-				}
-				if(temp_chk_rec.AddPaym > 0.0) {
-					if(use_ext) {
-						ext_rec.AddPaym = dbltointmny(temp_chk_rec.AddPaym);
-						chk_rec.Flags |= (CCHKF_EXT|CCHKF_ADDPAYM);
-					}
-					else {
-						// Коллизия: не удалось сохранить сумму доплаты по причине того, что конфигурация не поддерживает
-						// расширения чеков.
-					}
-				}
-	#endif // } 0 @v8.1.0
 				cc_flags_after_turn = chk_rec.Flags;
 				THROW(CC.Add(&check_id, &chk_rec, 0)); // @use BExtInsert ?
-	#if 0 // @v8.1.0 {
-				//
-				// Данные об оплатах
-				//
-				if(use_ext && (chk_rec.Flags & CCHKF_EXT)) {
-					chk_rec.ID = check_id;
-					THROW(CC.PutExt(&chk_rec, &ext_rec, 0));
+				// @v10.0.05 {
+				if(p_tl_entry) {
+					p_tl_entry->CcCount++;
+					p_tl_entry->CcAmount += MONEYTOLDBL(chk_rec.Amount);
 				}
-	#endif // } 0 @v8.1.0
-				// @v8.1.0 {
+				// } @v10.0.05 
 				{
-					CcAmountList cp_list;
 					THROW(CCheckCore::Helper_GetPaymList(P_TmpCpTbl, tmp_chk_id, cp_list));
 					const uint plc = cp_list.getCount();
 					if(plc) {
@@ -766,6 +743,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 						int16  rbc = 0;
 						for(uint i = 0; i < plc; i++) {
 							const CcAmountEntry & r_entry = cp_list.at(i);
+							SCardTbl::Rec sc_rec;
 							CCheckPaymTbl::Rec cp_rec;
 							MEMSZERO(cp_rec);
 							cp_rec.CheckID = check_id;
@@ -776,29 +754,25 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 							cp_rec.CurID = r_entry.CurID; // @v9.0.4
 							cp_rec.CurAmount = dbltointmny(r_entry.CurAmount); // @v9.0.4
 							THROW_DB(CC.PaymT.insertRecBuf(&cp_rec));
-							if(cp_rec.SCardID && do_turn_sc_op) {
-								SCardTbl::Rec sc_rec;
-								if(CC.Cards.Search(cp_rec.SCardID, &sc_rec) > 0) {
-									int    scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
-									if(oneof2(scst, scstCredit, scstBonus)) {
-										SCardOpTbl::Rec scop_rec;
-										MEMSZERO(scop_rec);
-										scop_rec.SCardID = sc_rec.ID;
-										scop_rec.Dt      = chk_rec.Dt;
-										scop_rec.Tm      = chk_rec.Tm;
-										scop_rec.LinkObjType = PPOBJ_CCHECK;
-										scop_rec.LinkObjID   = chk_rec.ID;
-										scop_rec.UserID  = chk_rec.UserID;
-										scop_rec.Amount  = -r_entry.Amount;
-										THROW(CC.Cards.PutOpRec(&scop_rec, 0, 0));
-									}
+							if(cp_rec.SCardID && do_turn_sc_op && CC.Cards.Search(cp_rec.SCardID, &sc_rec) > 0) {
+								const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+								if(oneof2(scst, scstCredit, scstBonus)) {
+									SCardOpTbl::Rec scop_rec;
+									MEMSZERO(scop_rec);
+									scop_rec.SCardID = sc_rec.ID;
+									scop_rec.Dt      = chk_rec.Dt;
+									scop_rec.Tm      = chk_rec.Tm;
+									scop_rec.LinkObjType = PPOBJ_CCHECK;
+									scop_rec.LinkObjID   = chk_rec.ID;
+									scop_rec.UserID  = chk_rec.UserID;
+									scop_rec.Amount  = -r_entry.Amount;
+									THROW(CC.Cards.PutOpRec(&scop_rec, 0, 0));
 								}
 							}
 						}
 						THROW(CC.UpdateFlags(check_id, cc_flags_after_turn | CCHKF_PAYMLIST, 0));
 					}
 				}
-				// } @v8.1.0
 				ccla_item.TempChkID = tmp_chk_id;
 				ccla_item.ChkID     = check_id;
 				ccla_item.RByCheck  = 0;
@@ -841,8 +815,8 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 				}
 			}
 		}
-		for(i = 0; i < pSessList->getCount(); i++) {
-			const  PPID sess_id = pSessList->at(i);
+		for(i = 0; i < rSessList.getCount(); i++) {
+			const  PPID sess_id = rSessList.at(i);
 			THROW(CC.UpdateSCardOpsBySess(sess_id, 0));
 			THROW(CS.SetSessIncompletness(sess_id, CSESSINCMPL_CHECKS, 0));
 		}
@@ -953,15 +927,26 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 	THROW(GetSessionData(&sess_count, &is_forward_sess, pPrd));
 	LOG_DEBUG(GetSessionData);
 	if(sess_count) {
+		TSVector <TotalLogCSessEntry> total_log_data; // @v10.0.05 
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_IMPORT, 0);
 		for(i = 0; i < sess_count; i++) {
 			THROW(r = ImportSession(i));
 			LOG_DEBUG(ImportSession);
 			if(r > 0) {
-				THROW(ConvertTempSession(is_forward_sess, &sess_list));
+				THROW(ConvertTempSession(is_forward_sess, sess_list, &total_log_data));
 				LOG_DEBUG(ConvertTempSession);
 			}
 		}
+		// @v10.0.05 {
+		if(total_log_data.getCount()) {
+			for(uint j = 0; j < total_log_data.getCount(); j++) {
+				const TotalLogCSessEntry & r_total_log_entry = total_log_data.at(j);
+				msg_buf.Z().Cat("Imported CSession").CatDiv(':', 2).CatEq("CSessID", r_total_log_entry.SessID).Space().CatEq("CcCount", r_total_log_entry.CcCount).Space().
+					CatEq("CcAmount", r_total_log_entry.CcAmount, MKSFMTD(0, 2, 0));
+				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			}
+		}
+		// } @v10.0.05 
 		THROW(FinishImportSession(&sess_list));
 		LOG_DEBUG(FinishImportSession);
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_TOBILLS, 0);
@@ -2067,8 +2052,8 @@ int SLAPI AsyncCashSCardsIterator::Init(PPSCardSerPacket * pScsPack)
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(SCObj.P_Tbl, 2));
 	P_IterQuery->selectAll().where(SCObj.P_Tbl->SeriesID == ScsPack.Rec.ID);
-	Counter.Init(P_IterQuery->countIterations(0, &k2_, spGe)); // @v8.1.0 // @v8.5.4 spFirst-->spGe
-	P_IterQuery->initIteration(0, &k2, spGe); // @v8.5.4 spFirst-->spGe
+	Counter.Init(P_IterQuery->countIterations(0, &k2_, spGe));
+	P_IterQuery->initIteration(0, &k2, spGe);
 	CATCHZOK
 	return ok;
 }
@@ -2080,7 +2065,7 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 		memzero(pInfo, sizeof(*pInfo));
 		PersonTbl::Rec psn_rec;
 		while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
-			Counter.Increment(); // @v8.1.0
+			Counter.Increment();
 			Rec = SCObj.P_Tbl->data;
 			if(NodeRec.Flags & CASHF_EXPCHECKD) {
 				if(sstrlen(Rec.Code) == 12)
@@ -2093,7 +2078,7 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 				if(pInfo->Rec.PersonID) {
 					if(pInfo->Rec.PersonID == DefSCardPersonID)
 						STRNSCPY(pInfo->PsnName, DefPersonName);
-					else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0) // @v8.1.0 Search-->Fetch
+					else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0)
 						STRNSCPY(pInfo->PsnName, psn_rec.Name);
 				}
 				pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, LConfig.OperDate) < 0));
@@ -2294,43 +2279,40 @@ int SLAPI AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceL
 	PPIDArray grp_id_list;
 	Goods2Tbl::Rec goods_rec, cn_grp_rec;
 	PPObjCashNode  cn_obj;
+	const  long gf_exclaltfolt = (GF_FOLDER|GF_EXCLALTFOLD);
 	CashNodeID = cashNodeID;
 	Flags = flags;
 	P_Dls = pDls;
 	Pos   = 0;
 	QuotByQttyList.freeAll();
 	THROW(cn_obj.GetAsync(CashNodeID, &AcnPack) > 0);
-	if(AcnPack.GoodsGrpID && GObj.Fetch(AcnPack.GoodsGrpID, &cn_grp_rec) > 0) {
-		if(cn_grp_rec.Flags & GF_FOLDER && cn_grp_rec.Flags & GF_EXCLALTFOLD) {
-			PPIDArray child_list;
-			if(GObj.P_Tbl->GetGroupTerminalList(AcnPack.GoodsGrpID, &child_list, 0) > 0 && child_list.getCount()) {
-				for(uint i = 0; i < child_list.getCount(); i++) {
-					grp_id = child_list.get(i);
-					if(GObj.Fetch(grp_id, &goods_rec) > 0)
-						grp_id_list.add(grp_id); // @v8.0.10 addUnique-->add
-				}
+	if(AcnPack.GoodsGrpID && GObj.Fetch(AcnPack.GoodsGrpID, &cn_grp_rec) > 0 && (cn_grp_rec.Flags & gf_exclaltfolt) == gf_exclaltfolt) {
+		PPIDArray child_list;
+		if(GObj.P_Tbl->GetGroupTerminalList(AcnPack.GoodsGrpID, &child_list, 0) > 0 && child_list.getCount()) {
+			for(uint i = 0; i < child_list.getCount(); i++) {
+				grp_id = child_list.get(i);
+				if(GObj.Fetch(grp_id, &goods_rec) > 0)
+					grp_id_list.add(grp_id);
 			}
 		}
 	}
 	if(!grp_id_list.getCount()) {
 		for(GoodsGroupIterator gg_iter(0); gg_iter.Next(&grp_id, temp_buf) > 0;) {
-			if(GObj.Fetch(grp_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {
-				if(!pTermGrpList || pTermGrpList->lsearch(grp_id)) {
-					do {
-						grp_id_list.add(grp_id); // @v8.0.10 addUnique-->add
-						grp_id = goods_rec.ParentID;
-					} while(GObj.Fetch(grp_id, &goods_rec) > 0);
-				}
+			if(GObj.Fetch(grp_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP) && (!pTermGrpList || pTermGrpList->lsearch(grp_id))) {
+				do {
+					grp_id_list.add(grp_id);
+					grp_id = goods_rec.ParentID;
+				} while(GObj.Fetch(grp_id, &goods_rec) > 0);
 			}
 		}
 	}
 	{
 		StrAssocArray temp_list;
-		grp_id_list.sortAndUndup(); // @v8.0.10 sort-->sortAndUndup
+		grp_id_list.sortAndUndup();
 		for(uint p = 0; p < grp_id_list.getCount(); p++) {
 			if(GObj.Fetch(grp_id_list.at(p), &goods_rec) > 0) {
 				const PPID par_id = goods_rec.ParentID;
-				temp_list.AddFast(goods_rec.ID, (par_id && grp_id_list.bsearch(par_id)) ? par_id : 0, goods_rec.Name); // @v8.0.10 Add-->AddFast
+				temp_list.AddFast(goods_rec.ID, (par_id && grp_id_list.bsearch(par_id)) ? par_id : 0, goods_rec.Name);
 			}
 		}
 		temp_list.SortByText();

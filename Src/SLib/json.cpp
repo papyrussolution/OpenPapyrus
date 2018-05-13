@@ -129,6 +129,18 @@ json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Pr
 
 json_t::~json_t()
 {
+	delete P_Next;
+	delete P_Child;
+}
+
+void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)
+{
+	assert(pRcs);
+	if(pRcs) {
+		Text = pRcs->P_Text;
+		SAlloc::F(pRcs->P_Text); // @v10.0.05 @fix
+		SAlloc::F(pRcs);
+	}
 }
 
 enum json_error json_stream_parse(FILE * file, json_t ** document)
@@ -241,9 +253,10 @@ json_t * json_new_number(const char * pText)
 void FASTCALL json_free_value(json_t ** ppValue)
 {
 	if(ppValue && *ppValue) {
+		delete *ppValue;
+		*ppValue = 0;
+		/*
 		json_t * p_cursor = *ppValue;
-		//assert(value);
-		//assert(*value);
 		while(*ppValue) {
 			if(p_cursor->P_Child) {
 				p_cursor = p_cursor->P_Child;
@@ -252,8 +265,6 @@ void FASTCALL json_free_value(json_t ** ppValue)
 				json_t * p_parent = p_cursor->P_Parent;
 				if(p_cursor == *ppValue)
 					*ppValue = NULL;
-				//intern_json_free_value(&cursor);
-				//static void FASTCALL intern_json_free_value(json_t ** ppValue)
 				{
 					assert(p_cursor);
 					assert(p_cursor->P_Child == NULL);
@@ -282,6 +293,7 @@ void FASTCALL json_free_value(json_t ** ppValue)
 				p_cursor = p_parent;
 			}
 		}
+		*/
 	}
 }
 
@@ -375,6 +387,7 @@ void FASTCALL json_free_value(json_t ** ppValue)
 	return ok;
 }
 
+#if 0 // {
 enum json_error json_tree_to_string(json_t * pRoot, char ** ppText)
 {
 	assert(pRoot);
@@ -489,6 +502,109 @@ error:
 end:
 	*ppText = rcs_unwrap(output);
 	return JSON_OK;
+}
+#endif
+
+int FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf)
+{
+	int    ok = 1;
+	assert(pRoot);
+	rBuf.Z();
+	const json_t * cursor = pRoot;
+	//RcString * output = rcs_create(RSTRING_DEFAULT); // set up the output and temporary rwstrings
+	// start the convoluted fun
+state1: // open value
+	if(cursor->P_Previous && cursor != pRoot) { // if cursor is children and not root than it is a followup sibling
+		rBuf.Comma();
+	}
+	switch(cursor->Type) {
+		case json_t::tSTRING:
+			// append the "text"\0, which means 1 + wcslen(cursor->text) + 1 + 1
+			// set the new output size
+			rBuf.CatChar('\"').Cat(cursor->Text).CatChar('\"');
+			if(cursor->P_Parent) {
+				if(cursor->P_Parent->Type == json_t::tOBJECT)	{ // cursor is label in label:value pair
+					// error checking: if parent is object and cursor is string then cursor must have a single child
+					THROW_S(cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
+					rBuf.CatChar(':');
+				}
+			}
+			else {	// does not have a parent
+				// is root label in label:value pair
+				THROW_S(cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
+				rBuf.CatChar(':');
+			}
+			break;
+		case json_t::tNUMBER: // must not have any children
+			// set the new size
+			rBuf.Cat(cursor->Text);
+			goto state2; // close value
+			break;
+		case json_t::tOBJECT:
+			rBuf.CatChar('{');
+			if(cursor->P_Child) {
+				cursor = cursor->P_Child;
+				goto state1; // open value
+			}
+			else
+				goto state2; // close value
+			break;
+		case json_t::tARRAY:
+			rBuf.CatChar('[');
+			if(cursor->P_Child) {
+				cursor = cursor->P_Child;
+				goto state1;
+			}
+			else
+				goto state2; // close value
+			break;
+		case json_t::tTRUE: // must not have any children
+			rBuf.Cat("true");
+			goto state2; // close value
+			break;
+		case json_t::tFALSE: // must not have any children
+			rBuf.Cat("false");
+			goto state2; // close value
+			break;
+		case json_t::tNULL: // must not have any children
+			rBuf.Cat("null");
+			goto state2; // close value
+			break;
+		default: 
+			CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); 
+			break;
+	}
+	if(cursor->P_Child) {
+		cursor = cursor->P_Child;
+		goto state1; // open value */
+	}
+	else // does not have any children
+		goto state2; // close value
+state2: // close value
+	switch(cursor->Type) {
+		case json_t::tOBJECT: rBuf.CatChar('}'); break;
+		case json_t::tARRAY:  rBuf.CatChar(']'); break;
+		case json_t::tSTRING: break;
+		case json_t::tNUMBER: break;
+		case json_t::tTRUE:   break;
+		case json_t::tFALSE:  break;
+		case json_t::tNULL:   break;
+		default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); break;
+	}
+	if(!cursor->P_Parent || cursor == pRoot)
+		goto end;
+	else if(cursor->P_Next) {
+		cursor = cursor->P_Next;
+		goto state1; // open value
+	}
+	else {
+		cursor = cursor->P_Parent;
+		goto state2; // close value
+	}
+end:
+	//*ppText = rcs_unwrap(output);
+	CATCHZOK
+	return ok;
 }
 
 enum json_error json_stream_output(json_t * root, SString & rBuf)

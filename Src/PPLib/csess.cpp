@@ -1,6 +1,6 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -13,9 +13,11 @@ SLAPI CSessionCore::CSessionCore() : CSessionTbl()
 }
 
 int SLAPI CSessionCore::Search(PPID id, CSessionTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_CSESSION, id, pRec);
-}
+	{ return SearchByID(this, PPOBJ_CSESSION, id, pRec); }
+int SLAPI CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta)
+	{ return updateFor(this, use_ta, (this->ID == id), set(this->Incomplete, dbconst((long)grade))) ? 1 : PPSetErrorDB(); }
+int SLAPI CSessionCore::ResetTempSessTag(PPID id, int use_ta)
+	{ return updateFor(this, use_ta, (this->ID == id), set(this->Temporary, dbconst(0L))) ? 1 : PPSetErrorDB(); }
 
 int SLAPI CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATE dt)
 {
@@ -116,30 +118,20 @@ int SLAPI CSessionCore::SetSessDateTime(PPID sessID, const LDATETIME & rDtm, int
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		k0.ID = sessID;
-		THROW(SearchByKey(this, 0, &k0, &rec) > 0); // @v8.5.7 SearchByKey_ForUpdate-->SearchByKey
+		THROW(SearchByKey(this, 0, &k0, &rec) > 0);
 		if(rec.Dt == dtm.d && rec.Tm == dtm.t) {
 			ok = -1;
 		}
 		else {
 			rec.Dt = dtm.d;
 			rec.Tm = dtm.t;
-			THROW_DB(rereadForUpdate(0, &k0)); // @v8.5.7
+			THROW_DB(rereadForUpdate(0, &k0));
 			THROW_DB(updateRecBuf(&rec)); // @sfu
 		}
 		THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;
-}
-
-int SLAPI CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta)
-{
-	return updateFor(this, use_ta, (this->ID == id), set(this->Incomplete, dbconst((long)grade))) ? 1 : PPSetErrorDB();
-}
-
-int SLAPI CSessionCore::ResetTempSessTag(PPID id, int use_ta)
-{
-	return updateFor(this, use_ta, (this->ID == id), set(this->Temporary, dbconst(0L))) ? 1 : PPSetErrorDB();
 }
 
 int SLAPI CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDArray * pSessList)
@@ -172,9 +164,9 @@ int SLAPI CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDAr
 int SLAPI CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LDATE * pDt, LTIME * pTm)
 {
 	//
-	// Проверяем уникальность даты и времени для новой записи.
-	// Если они не уникальны, то прибавляем по одной микросекунде
-	// до тех пор, пока не найдем уникальное время.
+	// РџСЂРѕРІРµСЂСЏРµРј СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РґР°С‚С‹ Рё РІСЂРµРјРµРЅРё РґР»СЏ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё.
+	// Р•СЃР»Рё РѕРЅРё РЅРµ СѓРЅРёРєР°Р»СЊРЅС‹, С‚Рѕ РїСЂРёР±Р°РІР»СЏРµРј РїРѕ РѕРґРЅРѕР№ РјРёРєСЂРѕСЃРµРєСѓРЅРґРµ
+	// РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РЅР°Р№РґРµРј СѓРЅРёРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ.
 	//
 	int    ok = 1;
 	LDATE  dt = *pDt;
@@ -223,9 +215,9 @@ int SLAPI CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LD
 int SLAPI CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm)
 {
 	//
-	// Проверяем уникальность даты и времени для новой записи.
-	// Если они не уникальны, то прибавляем по одной микросекунде
-	// до тех пор, пока не найдем уникальное время.
+	// РџСЂРѕРІРµСЂСЏРµРј СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РґР°С‚С‹ Рё РІСЂРµРјРµРЅРё РґР»СЏ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё.
+	// Р•СЃР»Рё РѕРЅРё РЅРµ СѓРЅРёРєР°Р»СЊРЅС‹, С‚Рѕ РїСЂРёР±Р°РІР»СЏРµРј РїРѕ РѕРґРЅРѕР№ РјРёРєСЂРѕСЃРµРєСѓРЅРґРµ
+	// РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РЅР°Р№РґРµРј СѓРЅРёРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ.
 	//
 	int    ok = 1;
 	LDATE  dt = *pDt;
@@ -389,8 +381,7 @@ int CSessionCore::GetTempAsyncSessList(PPID nodeID, const DateRange * pPeriod, P
 	q.select(ID, Dt, Temporary, 0L).where(CashNodeID == nodeID);
 	for(q.initIteration(0, &k1); q.nextIteration();) {
 		if(data.Temporary > 0 && (!pPeriod || pPeriod->CheckDate(data.Dt))) {
-			if(pSessList)
-				pSessList->addUnique(data.ID);
+			CALLPTRMEMB(pSessList, addUnique(data.ID));
 			ok = 1;
 		}
 	}

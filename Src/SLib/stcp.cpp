@@ -3590,6 +3590,33 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * 
 	return ok;
 }
 
+int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
+	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
+	if(p_chunk)
+		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
+	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "POST")));
+	THROW(SetCommonOptions(mflags, 0, 0))
+	if(pBody) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, sstrlen(pBody))));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, pBody)));
+	}
+	THROW(SetupCbWrite(pReplyStream));
+	THROW(Execute());
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	CleanCbRW();
+	return ok;
+}
+
 int ScURL::HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream)
 {
 	int    ok = 1;

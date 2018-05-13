@@ -2228,14 +2228,14 @@ char * FASTCALL chomp(char * s)
 // Предполагается, что под строку выделено
 // достаточно места, чтобы вместить набивку
 //
-char * SLAPI padleft(char * pStr, char pad, size_t n)
+char * FASTCALL padleft(char * pStr, char pad, size_t n)
 {
 	memmove(pStr+n, pStr, sstrlen(pStr)+1);
 	memset(pStr, pad, n);
 	return pStr;
 }
 
-char * SLAPI padright(char * pStr, char pad, size_t n)
+char * FASTCALL padright(char * pStr, char pad, size_t n)
 {
 	size_t len = sstrlen(pStr);
 	memset(pStr + len, pad, n);
@@ -2281,7 +2281,7 @@ int SLAPI getTextHight(char * str, int width)
 }
 #endif // } 0
 
-static int SLAPI iswordchar(int ch, const char * /*pWordChars*/)
+static int FASTCALL iswordchar(int ch, const char * /*pWordChars*/)
 {
 	return (ch && (isalnum(ch) || ch == '_' || IsLetter866(ch)));
 }
@@ -2295,7 +2295,7 @@ int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg,
 	const  char * wch = rParam.P_WordChars;
 	int    f   = rParam.Flags;
 	if(!isempty(pStr) && !isempty(pat)) {
-		while(1)
+		while(1) {
 			if((p = (f & SSPF_NOCASE) ? stristr866(s, pat) : strstr(s, pat)) != 0) {
 				size_t len = sstrlen(pat);
 				pos += (uint)(p - s);
@@ -2316,6 +2316,7 @@ int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg,
 			}
 			else
 				return 0;
+		}
 	}
 	return 0;
 }

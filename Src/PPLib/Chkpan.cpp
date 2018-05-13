@@ -476,7 +476,7 @@ CPosProcessor::RetBlock & CPosProcessor::RetBlock::Clear()
 	SellCheckID = 0;
 	SellCheckAmount = 0.0;
 	SellCheckCredit = 0.0;
-	AmL.Clear();
+	AmL.Z();
 	return *this;
 }
 //
