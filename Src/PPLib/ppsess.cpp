@@ -1761,15 +1761,8 @@ static void FpeCatcher(int sig, int fpe)
 int PPCallHelp(uint32 wnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
 int ExecDateCalendar(/*HWND*/uint32 hParent, LDATE * pDate); // @prototype(calendar.cpp)
 
-static int PPLoadStringFunc(const char * pSignature, SString & rBuf)
-{
-	return PPLoadString(pSignature, rBuf);
-}
-
-static int PPExpandStringFunc(SString & rBuf, int ctransf)
-{
-	return PPExpandString(rBuf, ctransf);
-}
+static int PPLoadStringFunc(const char * pSignature, SString & rBuf) { return PPLoadString(pSignature, rBuf); }
+static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandString(rBuf, ctransf); }
 
 static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
 {
@@ -3080,20 +3073,20 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									int    port = temp_buf.ToLong();
 									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_USER, user_buf);
 									StartUp_PhnSvcPack.GetPassword(secret_buf);
-									p_phnsvc_cli = new AsteriskAmiClient(AsteriskAmiClient::fDoLog);
+									p_phnsvc_cli = new AsteriskAmiClient(/*AsteriskAmiClient::fDoLog*/0);
 									if(p_phnsvc_cli && p_phnsvc_cli->Connect(addr_buf, port)) {
 										if(p_phnsvc_cli->Login(user_buf, secret_buf)) {
 											PhnSvcLocalUpChannelSymb = StartUp_PhnSvcPack.LocalChannelSymb;
 											PhnSvcLocalScanChannelSymb = StartUp_PhnSvcPack.ScanChannelSymb;
 										}
 										else {
+											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
 											ZDELETE(p_phnsvc_cli);
-											// @error
 										}
 									}
 									else {
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
 										ZDELETE(p_phnsvc_cli);
-										// @error
 									}
 									secret_buf.Obfuscate();
 								}
@@ -3192,7 +3185,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
 														}
 														if(gcs_ret && chnl_status_list.GetCount()) {
-															PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 															for(uint si = 0; si < chnl_status_list.GetCount(); si++) {
 																chnl_status_list.Get(si, chnl_status);
 																int32   local_action = 0;
@@ -3589,7 +3581,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 			if(ev_count) {
 				SjEntry * p_item;
 				uint   i = 0;
-				for(i = 0; list.enumItems(&i, (void **)&p_item);) {
+				while(list.enumItems(&i, (void **)&p_item)) {
 					if(p_item->ObjType && p_item->ObjID && p_comm_dirty_cache_ev_list->bsearch(p_item->Action)) {
 						ObjCache * p_cache = GetDbLocalObjCache(p_item->ObjType);
 						if(p_cache) {
@@ -3688,10 +3680,16 @@ int SLAPI PPSession::Logout()
 		if(!CheckExtFlag(ECF_SYSSERVICE) && active_user.NotEmpty())
 			CreateBackupCopy(active_user, 0);
 		GetSync().Release(); // @todo ReleaseSync()
-		GPrf.Output(0, 0); // @v8.0.3 PROFILE_REPORT(0)-->GPrf.Output(0, 0)
+		GPrf.Output(0, 0); 
 		// @v8.6.7 {
 		// @todo Аккуратно остановить поток PPAdviseEventCollectorSjSession
 		// } @v8.6.7
+		// @v10.0.06 {
+		if(r_tla.P_AeqThrd) {
+			r_tla.P_AeqThrd->Stop(30);
+			r_tla.P_AeqThrd = 0;
+		}
+		// } @v10.0.06 
 	}
 	return 1;
 }
@@ -3747,49 +3745,6 @@ short SLAPI PPSession::SetRealizeOrder(short s)
 	GetTLA().Lc.RealizeOrder = s;
 	return c;
 }
-
-#if 0 // Вариант функции до v8.6.1 {
-
-int SLAPI PPSession::SetMainOrgID(PPID id, int enforce)
-{
-	PPThreadLocalArea & tla = GetTLA();
-	PPCommConfig & cc = tla.Cc;
-	if(!enforce && (id == cc.MainOrgID))
-		return 1;
-	else {
-		PPObjStaffList stlobj;
-		if(stlobj.PsnObj.P_Tbl->IsBelongToKind(id, PPPRK_MAIN) > 0) {
-			PersonTbl::Rec psn_rec;
-			cc.MainOrgID = id;
-			cc.MainOrgDirector = 0;
-			cc.MainOrgAccountant = 0;
-			if(stlobj.PsnObj.Search(id, &psn_rec) > 0) {
-				PersonPostTbl::Rec post_rec;
-				stlobj.GetFixedPostOnDate(id, PPFIXSTF_DIRECTOR, ZERODATE, &post_rec);
-				cc.MainOrgDirector = post_rec.PersonID;
-				stlobj.GetFixedPostOnDate(id, PPFIXSTF_ACCOUNTANT, ZERODATE, &post_rec);
-				cc.MainOrgAccountant = post_rec.PersonID;
-				tla.MainOrgName.Id = id;
-				tla.MainOrgName.CopyFrom(psn_rec.Name);
-			}
-			else {
-				tla.MainOrgName.Id = 0;
-				tla.MainOrgName.CopyFrom(0);
-			}
-			if(!cc.MainOrgDirector || !cc.MainOrgAccountant) {
-				PPCommConfig temp_cfg_rec;
-				GetCommConfig(&temp_cfg_rec);
-				SETIFZ(cc.MainOrgDirector, temp_cfg_rec.MainOrgDirector);
-				SETIFZ(cc.MainOrgAccountant, temp_cfg_rec.MainOrgAccountant);
-			}
-			return 1;
-		}
-		else
-			return PPSetError(PPERR_NOMAINORGID);
-	}
-}
-
-#endif // } 0 Вариант функции до v8.6.1
 
 int SLAPI PPSession::SetMainOrgID(PPID id, int enforce)
 {
@@ -3887,12 +3842,14 @@ int PPDriveMapping::Load(PPIniFile * pIniFile)
 
 int PPDriveMapping::Get(int drive, SString & rMapping) const
 {
-	SString entry, drv, map;
-	for(uint i = 0; get(&i, entry) > 0;)
-		if(entry.Divide('=', drv, map) > 0 && toupper(drv[0]) == toupper(drive)) {
-			rMapping = map;
+	SString entry, drv;
+	for(uint i = 0; get(&i, entry) > 0;) {
+		if(entry.Divide('=', drv, rMapping) > 0 && toupper(drv[0]) == toupper(drive)) {
+			rMapping.Strip();
 			return 1;
 		}
+	}
+	rMapping.Z();
 	return 0;
 }
 
@@ -4110,7 +4067,7 @@ DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint
 	if(*ppCtx == 0) {
 		if(crit) {
 			p_csd = new SCriticalSection::Data;
-			p_csd->Enter();
+			CALLPTRMEMB(p_csd, Enter());
 		}
 		if(*ppCtx == 0) {
 			SString file_name;
@@ -4250,14 +4207,9 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 }
 
 int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList)
-{
-	return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList);
-}
-
+	{ return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); }
 StringSet & SLAPI PPSession::AcquireRvlSsSCD()
-{
-	return GetTLA().RvlSsSCD.Get();
-}
+	{ return GetTLA().RvlSsSCD.Get(); }
 
 void SLAPI PPSession::ProcessIdle()
 {
@@ -4699,7 +4651,6 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 	// серверный поток получит очередную порцию данных от источника.
 	//
 	{
-		//if(Lck.ReadLockT(0) > 0) {
 		SRWLOCKERTIMEOUT(Lck, SReadWriteLocker::Read, 0);
 		if(!_rwl) {
 			declined = 1;
@@ -4729,7 +4680,6 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 					MoveItemTo(_pos, rList); // @v9.8.11
 				}
 			}
-			//Lck.Unlock();
 			ok = 1;
 		}
 	}

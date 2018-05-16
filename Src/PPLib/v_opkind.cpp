@@ -18,7 +18,7 @@ IMPLEMENT_PPFILT_FACTORY(OprKind); SLAPI OprKindFilt::OprKindFilt() : PPBaseFilt
 SLAPI PPViewOprKind::PPViewOprKind() : PPView(&OpkObj, &Filt, PPVIEW_OPRKIND), OpListIdx(0), TmplsIdx(0), P_OpList(0)
 {
 	DefReportId = REPORT_OPRKINDLIST;
-	ImplementFlags |= implBrowseArray;
+	ImplementFlags |= (implBrowseArray|implOnAddSetupPos); // @v10.0.06 @fix (|implOnAddSetupPos)
 }
 
 SLAPI PPViewOprKind::~PPViewOprKind()

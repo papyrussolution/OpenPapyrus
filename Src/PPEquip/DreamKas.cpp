@@ -264,12 +264,12 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyn
 			{
 				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
 				THROW_SL(p_iter_obj);
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "id", json_new_string(temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL))));
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "name", json_new_string(temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8))));
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "type", json_new_string("COUNTABLE")));
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "departmentId", json_new_number(temp_buf.Z().Cat(gds_info.DivN))));
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "quantity", json_new_number(temp_buf.Z().Cat(1000))));
-				THROW_SL(json_insert_pair_into_object(p_iter_obj, "price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
+				THROW_SL(p_iter_obj->Insert("id", json_new_string(temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL))));
+				THROW_SL(p_iter_obj->Insert("name", json_new_string(temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8))));
+				THROW_SL(p_iter_obj->Insert("type", json_new_string("COUNTABLE")));
+				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new json_t(json_t::tNULL)));
+				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
+				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
 				if(gds_info.P_CodeList) {
 					normal_bc_pos_list.clear();
 					etc_bc_pos_list.clear();
@@ -290,7 +290,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyn
 							const char * p_code = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code;
 							THROW_SL(json_insert_child(p_array, json_new_string(p_code)));
 						}
-						json_insert_pair_into_object(p_iter_obj, "barcodes", p_array);
+						p_iter_obj->Insert("barcodes", p_array);
 					}
 					{
 						json_t * p_array = new json_t(json_t::tARRAY);
@@ -301,7 +301,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyn
 								THROW_SL(json_insert_child(p_array, json_new_string(temp_buf)));
 							}
 						}
-						THROW_SL(json_insert_pair_into_object(p_iter_obj, "vendorCodes", p_array));
+						THROW_SL(p_iter_obj->Insert("vendorCodes", p_array));
 					}
 				}
 				{
@@ -457,21 +457,13 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 
 //virtual 
 int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
-{
-	return -1;
-}
+	{ return -1; }
 //virtual 
 int SLAPI ACS_DREAMKAS::ImportSession(int)
-{
-	return -1;
-}
+	{ return -1; }
 //virtual 
 int SLAPI ACS_DREAMKAS::FinishImportSession(PPIDArray *)
-{
-	return -1;
-}
+	{ return -1; }
 //virtual 
 int SLAPI ACS_DREAMKAS::SetGoodsRestLoadFlag(int updOnly)
-{
-	return -1;
-}
+	{ return -1; }

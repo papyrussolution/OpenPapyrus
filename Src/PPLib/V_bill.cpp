@@ -342,9 +342,9 @@ void BillFiltDialog::viewOptions()
 			flags |= 0x0004;
 		if(Data.Dl.GetItemByDataId(BillFilt::dliAgentName, 0))
 			flags |= 0x0008;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0)) // @v8.4.4
+		if(Data.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0))
 			flags |= 0x0010;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0)) // @v8.7.9
+		if(Data.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0))
 			flags |= 0x0020;
 		const long preserve_flags = flags;
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 0, 0x01);
@@ -378,18 +378,14 @@ void BillFiltDialog::viewOptions()
 					Data.Dl.SetItem(BillFilt::dliAgentName, 0, 0);
 				else
 					Data.Dl.RemoveItem(BillFilt::dliAgentName);
-				// @v8.4.4 {
 				if(flags & 0x0010)
 					Data.Dl.SetItem(BillFilt::dliAlcoLic, 0, 0);
 				else
 					Data.Dl.RemoveItem(BillFilt::dliAlcoLic);
-				// } @v8.4.4
-				// @v8.7.9 {
 				if(flags & 0x0020)
 					Data.Dl.SetItem(BillFilt::dliDlvrAddr, 0, 0);
 				else
 					Data.Dl.RemoveItem(BillFilt::dliDlvrAddr);
-				// } @v8.7.9
 			}
 		}
 	}

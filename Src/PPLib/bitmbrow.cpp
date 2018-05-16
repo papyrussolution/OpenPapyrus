@@ -1847,14 +1847,17 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 			if(P_Pack->OpTypeID == PPOPT_GOODSMODIF) {
 				if(!p_ti->IsRecomplete()) {
 					PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, -1L, GSF_PARTITIAL, P_Pack->Rec.Dt);
-					if(sign > 0)
-						gs_ident.AndFlags = GSF_COMPL;
-					else if(sign < 0)
-						gs_ident.AndFlags = GSF_DECOMPL;
+					if(sign > 0) {
+						gs_ident.AndFlags = (GSF_COMPL);
+					}
+					else if(sign < 0) {
+						gs_ident.AndFlags = (GSF_DECOMPL);
+					}
 					TSCollection <PPGoodsStruc> gs_list;
 					if(GObj.LoadGoodsStruc(&gs_ident, gs_list) > 0) {
 						if(gs_list.getCount() == 1) {
 							const uint gs_pos = 0;
+							PPGoodsStruc * p_gs = gs_list.at(gs_pos);
 							THROW(P_Pack->InsertComplete(gs_list.at(gs_pos), pos, 0, 0));
 						}
 						else if(gs_list.getCount() > 1) {

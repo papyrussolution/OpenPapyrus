@@ -2118,12 +2118,11 @@ public:
 		bfDeleteSrcFiles = 0x0002
 	};
 	uint   RecId;
-	long   DataFormat;      // dfXXX
-	long   Direction;       // 0 - экспорт, 1 - импорт
-	// @v8.4.6 long   ImpExpByDll;		// 0 - по-старому, 1 - через dll // @vmiller
-	long   EDIDocType;      // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
-	long   BaseFlags;       // @v8.4.6 PPImpExpParam::bfXXX
-	PPID   InetAccID;      // @v8.6.1 Учетная запись интернет-соединения
+	long   DataFormat;     // dfXXX
+	long   Direction;      // 0 - экспорт, 1 - импорт
+	long   EDIDocType;     // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
+	long   BaseFlags;      // PPImpExpParam::bfXXX
+	PPID   InetAccID;      // Учетная запись интернет-соединения
 	TextDbFile::Param  TdfParam;
 	XmlDbFile::Param   XdfParam;
 	SoapDbFile::Param  SdfParam;
@@ -2224,7 +2223,7 @@ private:
 		sOpened   = 0x0001, // Файл открыт
 		sReadOnly = 0x0002, // Объект работает в режиме "Чтение"
 		sCtrError = 0x0004, // Если в контструкторе возникла ошибка, то этот флаг устанавливается //
-		sBuffer   = 0x0008  // @v8.6.8 Обмен осуществляется посредством буфера, а не файла (пока доступно только для экспорта в XML)
+		sBuffer   = 0x0008  // Обмен осуществляется посредством буфера, а не файла (пока доступно только для экспорта в XML)
 	};
 	// @vmiller
 	struct StateBlock {
@@ -2286,7 +2285,7 @@ protected:
 
 struct PPDbTableXmlExportParam_TrfrBill : public PPDbTableXmlExporter::BaseParam {
 public:
-	static int SLAPI SLAPI Edit(PPDbTableXmlExportParam_TrfrBill * pData);
+	static int SLAPI Edit(PPDbTableXmlExportParam_TrfrBill * pData);
 	SLAPI  PPDbTableXmlExportParam_TrfrBill();
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
@@ -2348,10 +2347,7 @@ public:
 	ImpExpDll();
 	~ImpExpDll();
 	int    operator !() const;
-	const  int IsInited()
-	{
-		return Inited;
-	}
+	const  int IsInited() { return Inited; }
 	// pDllName - полный путь к dll
 	// op - операция. 1 - экспорт, 2 - импорт
 	int InitLibrary(const char * pDllName, uint op);
@@ -2400,15 +2396,15 @@ enum SubstGrpGoods { // @persistent
 	sggSupplAgent,         // PPObjArticle  Агент поставщика
 	sggLocation,           // PPObjLocation Склад
 	sggBrandOwner,         // PPOBJ_PERSON(PPPRK_MANUF)
-	sggVatRate,            // @v8.3.3 Ставка НДС в ценах реализации
-	sggCVatRate,           // @v8.3.3 Ставка НДС в ценах поступления
-	sggAlcoCategory,       // @v8.4.4 Категория алкогольной продукции по классификации РосАлкогольРегулирования
+	sggVatRate,            // Ставка НДС в ценах реализации
+	sggCVatRate,           // Ставка НДС в ценах поступления
+	sggAlcoCategory,       // Категория алкогольной продукции по классификации РосАлкогольРегулирования
 		// Доступно только в случае, если правильно определенаконфигруация алкогольной декларации
-	sggDimW,               // @v8.6.1 Размерность W
-	sggLocAssoc,           // @v8.6.1 Ассоциированное с товаром место хранения //
+	sggDimW,               // Размерность W
+	sggLocAssoc,           // Ассоциированное с товаром место хранения //
 	sggType,               // @v9.6.0 Тип товара
 	sggGroupSecondLvl = 100,   // PPObjGoodsGroup Группа уровня 2 и далее идут группы уровня 2 и т.д.
-	sggTagBias        = 100000 // @v7.5.4 Смещение для группировки по тегам товаров.
+	sggTagBias        = 100000 // Смещение для группировки по тегам товаров.
 };
 //
 // Строки соответствующие SubstGrpDate: PPTXT_SUBSTDATELIST
@@ -2475,8 +2471,8 @@ struct SubstGrpBill { // @size=8
 		sgbStatus,
 		sgbAgent,
 		sgbPayer,
-		sgbDebtDim,    // @v7.0.1
-		sgbStorageLoc, // @v8.8.6 Место хранения, ассоциированное с фрахтом документа
+		sgbDebtDim,    //
+		sgbStorageLoc, // Место хранения, ассоциированное с фрахтом документа
 		sgbDlvrLoc     // @v9.1.5 Адрес доставки
 	} S;
 	union {
@@ -19443,7 +19439,7 @@ public:
 	enum {
 		fDoLog = 0x0001 // Записывать в журнал phnsvc.log информацию об обмене данными с сервером
 	};
-	AsteriskAmiClient(long flags);
+	explicit AsteriskAmiClient(long flags);
 	~AsteriskAmiClient();
 	int    Connect(const char * pServerAddr, int serverPort);
 	int    Login(const char * pUserName, const char * pPassword);
@@ -20546,6 +20542,7 @@ public:
 #define GSF_POSMODIFIER    0x00008000L // POS-модификаторы (только в комбинации с GSF_PARTITIAL)
 #define GSF_OVRLAPGIFT     0x00010000L // Подарок с "перекрытием": такой подарок назначается независимо от того,
 	// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
+// #define GSF_RECOMPL        0x00020000L // @v10.0.06 Допускается рекомплектацию //
 //
 // Descr: Дескрипторы, определяющие специальные правила установки цен на товарные позиции,
 //   составляющие подарочную комбинацию.
@@ -20625,7 +20622,11 @@ class PPGoodsStruc {
 public:
 	struct Ident {
 		SLAPI  Ident(PPID goodsID = 0, long andF = 0, long notF = 0, LDATE = ZERODATE);
+		enum {
+			oAnyOfAndFlags = 0x0001
+		};
 		PPID   GoodsID;
+		long   Options;
 		long   AndFlags;
 		long   NotFlags;
 		LDATE  Dt;
@@ -20635,7 +20636,7 @@ public:
 	//
 	enum {
 		kUndef = 0, // Неопределенный
-		kBOM   = 1, // Комплектация/декомплектация //  GSF_COMPL|GSF_DECOMPL
+		kBOM   = 1, // Комплектация/декомплектация //  GSF_COMPL|GSF_DECOMPL|GSF_RECOMPL
 		kPart,      // Частичная структура             GSF_PARTITIAL
 		kSubst,     // Подстановочная структура        GSF_SUBST
 		kGift,      // Подарочная //                   GSF_PRESENT
@@ -27295,7 +27296,6 @@ public:
     // Descr: Удаляет все записи из таблицы
     //
     int    SLAPI Clear(int use_ta);
-
     int    SLAPI Export(long fmt, const char * pFileName);
 };
 
@@ -27327,7 +27327,6 @@ public:
     // Descr: Удаляет все записи из таблицы
     //
     int    SLAPI Clear(int use_ta);
-
     int    SLAPI Export(long fmt, const char * pFileName);
 };
 
@@ -27341,7 +27340,7 @@ public:
 		SLAPI  Config(const Config & rS);
 		SLAPI ~Config();
 		Config & FASTCALL operator = (const Config & rS);
-		Config & SLAPI Clear();
+		Config & SLAPI Z();
 		int    FASTCALL Copy(const Config & rS);
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
@@ -27389,8 +27388,8 @@ public:
 		//
 		struct ExtBlock {
 			PPID   TransportLicRegTypeID;
-			PPID   AlcGoodsClsID; // @v8.8.0 ИД класса алкогольной продукции
-			int16  ProofClsDim;   // @v8.8.0 PPGdsCls2::e... Размерность класса, определяющая крепость алкоголя в одной торговой единице (в объемных %)
+			PPID   AlcGoodsClsID; // ИД класса алкогольной продукции
+			int16  ProofClsDim;   // PPGdsCls2::e... Размерность класса, определяющая крепость алкоголя в одной торговой единице (в объемных %)
 			uint16 Reserve2;
 			PPID   ImporterPersonKindID; // @v8.9.0 Вид персоналии, идентифицирующий импортера
 			long   Flags;         // @v9.0.10
@@ -27435,11 +27434,12 @@ public:
     //
     int    SLAPI SetConfig(const Config * pCfg);
     int    SLAPI ValidateConfig(const Config & rCfg, long flags);
-	const  Config & GetConfig() const { return Cfg; }
+	const  Config & SLAPI GetConfig() const { return Cfg; }
+	int    SLAPI UseOwnEgaisObjects() const;//  BIN(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects && P_RefC);
 
     struct GoodsItem {
-    	GoodsItem();
-    	GoodsItem & Clear();
+    	SLAPI  GoodsItem();
+    	GoodsItem & SLAPI Z();
 
     	enum {
     		stClass                = 0x0001,  // Товар классифицирован
@@ -27458,12 +27458,12 @@ public:
     	long   StatusFlags;
     	PPID   GoodsID;
     	PPID   LotID;
-    	PPID   MnfOrImpPsnID;   // @v8.8.0 ИД персоналии производителя или импортера (для импортного товара)
+    	PPID   MnfOrImpPsnID;   // ИД персоналии производителя или импортера (для импортного товара)
     	double Volume;
     	double Brutto;
-    	double Proof;           // @v8.7.12 Крепость в объемных процентах
-    	uint   CategoryCodePos; // @v8.4.4 Позиция (1..) кода категории в PrcssrAlcReport::CategoryNameList
-    	double UnpackedVolume;  // @v8.9.0 Если товар имеет единицу измерения, производную от литра (PPUNIT_LITER),
+    	double Proof;           // Крепость в объемных процентах
+    	uint   CategoryCodePos; // Позиция (1..) кода категории в PrcssrAlcReport::CategoryNameList
+    	double UnpackedVolume;  // Если товар имеет единицу измерения, производную от литра (PPUNIT_LITER),
 			// то считается не неупакованным и измеряется в литрах. В этом случае это поле содержит
 			// количество литров в одное торговой единице (PPUnit::BaseRatio). В противном случае это поле 0.0
 		LDATE  BottlingDate;    // @v9.0.3 Дата розлива
@@ -27473,9 +27473,9 @@ public:
     	SString CategoryCode;
     	SString CategoryName;
     	SString MsgPool;   // Список сообщений, разделенных символом '\t'
-    	SString EgaisCode; // @v8.8.0 Код товара в системе ЕГАИС
-    	SString InformA;   // @v8.8.0 Код справки А
-    	SString InformB;   // @v8.8.0 Код справки Б
+    	SString EgaisCode; // Код товара в системе ЕГАИС
+    	SString InformA;   // Код справки А
+    	SString InformB;   // Код справки Б
     	//
     	// Descr: Следующие поля извлекаются из внутренних таблиц базы данных,
     	//   отражающих значения, хранящиеся в ЕГАИС.
@@ -27534,6 +27534,7 @@ public:
     int    SLAPI GetCategoryNameByCode(const char * pCode, SString & rBuf);
     int    SLAPI SearchGoodsByRarCode(const char * pCode, PPID * pGoodsID);
     int    SLAPI SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PPID * pLocID);
+	int    SLAPI GetEgaisPersonByCode(const char * pCode, EgaisPersonCore::Item & rItem);
 
     enum {
     	wkrAlcLic       = 1,
@@ -29477,6 +29478,10 @@ public:
 
 	PPObjBill * P_BObj;
 	PPObjLocation LocObj;
+	PPObjPerson PsnObj;
+	PPObjQCert  QcObj;
+	PPObjArticle ArObj;
+	PPObjGoods  GObj;
 };
 
 class PPBillExporter : public PPBillImpExpBaseProcessBlock {
@@ -29497,10 +29502,6 @@ private:
 
 	PPImpExp * P_IEBill;
 	PPImpExp * P_IEBRow;
-	PPObjGoods  GObj;
-	PPObjPerson PsnObj;
-	PPObjQCert  QcObj;
-	PPObjArticle ArObj;
 	PPObjPersonKind PsnKObj;
 };
 
@@ -29562,9 +29563,6 @@ private:
 	PPLogger Logger;
 	SdrBillArray Bills;
 	SdrBillRowArray BillsRows;
-	PPObjPerson  PsnObj;
-	PPObjArticle ArObj;
-	PPObjQCert   QcObj;
 	CCheckCore * P_Cc;
 	BillTransmDeficit * P_Btd;
 	StringSet ToRemoveFiles;
@@ -29655,6 +29653,7 @@ public:
 		int    SLAPI GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
 
 		int    SLAPI ValidateGLN(const SString & rGLN);
+		int    SLAPI GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
 
 		PPEdiProviderPacket Epp;
 		PPID   MainOrgID;
@@ -29665,6 +29664,7 @@ public:
 		PPObjArticle ArObj;
 		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
 		PPAlbatrosConfig ACfg;
+		PrcssrAlcReport Arp;
 	private:
 		int    SLAPI GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
 		int    SLAPI Helper_GetPersonGLN(PPID psnID, SString & rGLN);
@@ -29677,7 +29677,7 @@ public:
 
 	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
 	int    SLAPI SendOrderRsp(const PPBillExportFilt & rP, const PPIDArray & rArList);
-	int    SLAPI SendDESADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendDESADV(int ediOp, const PPBillExportFilt & rP, const PPIDArray & rArList);
 
 	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
@@ -32628,6 +32628,7 @@ private:
 #define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
 #define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора
 	// (не зависимо от количества обоабатываемой позиции).
+#define TECF_RVRSCMAINGOODS   0x0020 // @v10.0.06 Обратный расчет количества основого товара по заданным в строках сессии компонентам 
 //
 //
 //

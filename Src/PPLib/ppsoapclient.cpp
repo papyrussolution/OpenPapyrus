@@ -1005,7 +1005,7 @@ VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
 }
 
 VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(VetisApplicationData::signNone), 
-	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0)
+	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0), P_Ent(0)
 {
 }
 
@@ -1042,6 +1042,7 @@ void VetisApplicationBlock::Clear()
 	ErrList.freeAll();
 	ZDELETE(P_GselReq);
 	ZDELETE(P_LoReq);
+	ZDELETE(P_Ent);
 }
 
 int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
@@ -1066,6 +1067,9 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	}
 	if(rS.P_LoReq) {
 		THROW(P_LoReq = new VetisListOptionsRequest(*rS.P_LoReq));
+	}
+	if(rS.P_Ent) {
+		P_Ent = new VetisEnterprise(*rS.P_Ent);
 	}
 	CATCHZOK
 	return ok;

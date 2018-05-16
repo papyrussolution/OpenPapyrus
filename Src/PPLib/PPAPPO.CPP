@@ -856,7 +856,7 @@ int PPApp::processCommand(uint cmd)
 			}
 			break;
 		case cmProcessObjText:     DoProcessObjText(0); break;
-		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break; // @v8.2.10
+		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break;
 		case cmLotPacking:         ReceiptPacking();        break;
 		case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
 		case cmCorrectCCheckLine01:
@@ -870,17 +870,17 @@ int PPApp::processCommand(uint cmd)
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
 		case cmConstructionTest:        DoConstructionTest(); break;
-		case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break; // @v8.3.2
-		case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break; // @v8.3.6
-		case cmTestFias:                TestFias(); break; // @v8.6.10
-		case cmTestCURL:                TestCURL(); break; // @v8.8.0
-		case cmTestEGAIS:               TestEGAIS(0); break; // @v8.8.0
-		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break; // @v8.8.9
+		case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break;
+		case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break;
+		case cmTestFias:                TestFias(); break;
+		case cmTestCURL:                TestCURL(); break;
+		case cmTestEGAIS:               TestEGAIS(0); break;
+		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break;
 		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
-		case cmConvertLatexToHtml:      PPTex2Html(); break; // @v8.1.12
-		case cmConvertVersionToHtml:    PPVer2Html(); break; // @v8.3.12 // @construction
+		case cmConvertLatexToHtml:      PPTex2Html(); break;
+		case cmConvertVersionToHtml:    PPVer2Html(); break; 
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v3.7.2 case cmConvert229:           Convert229();         break;
 		// @v3.7.2 case cmConvert253:           Convert253();         break;

@@ -1,5 +1,5 @@
 // PPSOAPCALLER-VETIS.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 //
 #include <ppsoapclient.h>
 #include <sstream>
@@ -696,3 +696,4 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetsi_ReceiveApplicatio
 	ENDCATCH
 	return p_result;
 }
+

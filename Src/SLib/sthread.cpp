@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -679,26 +679,17 @@ int SLAPI SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLi
 //
 #define SIGN_SLTHREAD 0x09970199UL
 
-SLAPI SlThread::SlThread(void * pInitData, long stopTimeout)
+SLAPI SlThread::SlThread(void * pInitData, long stopTimeout) : Sign(SIGN_SLTHREAD), P_StartupSignal(0), P_Creation(0), P_Tla(0)
 {
-	Sign = SIGN_SLTHREAD;
-	P_StartupSignal = 0;
-	P_Creation = 0;
-	P_Tla = 0;
 	Reset(pInitData, 1, stopTimeout);
 }
 
 SLAPI SlThread::~SlThread()
 {
-	Stop();
+	Stop(0);
 	delete P_Creation;
 	delete P_StartupSignal;
 	Sign = 0;
-}
-
-int SLAPI SlThread::IsConsistent() const
-{
-	return BIN(Sign == SIGN_SLTHREAD);
 }
 
 int SLAPI SlThread::InitStartupSignal()
@@ -711,20 +702,10 @@ int SLAPI SlThread::InitStartupSignal()
 	}
 }
 
-int SLAPI SlThread::SignalStartup()
-{
-	return P_StartupSignal ? P_StartupSignal->Signal() : 0;
-}
-
-void SLAPI SlThread::SetIdleState()
-{
-	State |= stIdle;
-}
-
-void SLAPI SlThread::ResetIdleState()
-{
-	State &= ~stIdle;
-}
+int  SLAPI SlThread::IsConsistent() const { return BIN(Sign == SIGN_SLTHREAD); }
+int  SLAPI SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
+void SLAPI SlThread::SetIdleState() { State |= stIdle; }
+void SLAPI SlThread::ResetIdleState() { State &= ~stIdle; }
 
 void SLAPI SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 {
@@ -752,10 +733,8 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 			CALLPTRMEMB(P_Creation, Signal());
 		}
 	}
-	// @v8.5.10 {
 	if(waitOnStartup)
 		assert(P_StartupSignal);
-	// } @v8.5.10
 	if(P_StartupSignal) {
 		P_StartupSignal->Wait();
 		ZDELETE(P_StartupSignal);
@@ -763,10 +742,10 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 	return BIN(State & stRunning);
 }
 
-void SLAPI SlThread::Stop()
+void SLAPI SlThread::Stop(long timeout)
 {
 	if(State & stRunning) {
-		if(WaitForSingleObject(Handle, StopTimeout) == WAIT_TIMEOUT)
+		if(WaitForSingleObject(Handle, NZOR(timeout, StopTimeout)) == WAIT_TIMEOUT)
 			Terminate();
 	}
 }

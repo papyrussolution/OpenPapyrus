@@ -83,7 +83,9 @@ struct json_t {
 	};
 	explicit json_t(int aType);
 	~json_t();
-	void   FASTCALL AssignAllocatedText(RcString * pRcs);
+	//void   FASTCALL AssignAllocatedText(RcString * pRcs);
+	void   FASTCALL AssignText(const SString & rT);
+	int    FASTCALL Insert(const char * pTextLabel, json_t * pValue);
 
 	int    Type; // the type of node
 	//char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
@@ -101,9 +103,16 @@ struct json_t {
 // The structure holding all information needed to resume parsing
 //
 struct json_parsing_info {
+	json_parsing_info() : state(0), lex_state(0), p(0), cursor(0), string_length_limit_reached(0)
+	{
+	}
+	~json_parsing_info()
+	{
+	}
 	uint   state; // the state where the parsing was left on the last parser run
 	uint   lex_state;
-	RcString * lex_text;
+	//RcString * lex_text;
+	SString Text;
 	char * p;
 	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
 	json_t * cursor; // pointers to nodes belonging to the document tree which aid the document parsing
@@ -201,7 +210,7 @@ void FASTCALL json_free_value(json_t ** value);
 // @param value the value in the label:value pair
 // @return /*the error code corresponding to the operation result*/
 //
-/*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
+// /*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
 //
 // Produces a JSON markup text document from a document tree
 // @param root The document's root node
@@ -243,11 +252,6 @@ int json_format_string(const char * pText, SString & rBuf);
 // @return a newly allocated UTF-8 c-string; free with free()
 //
 // @v9.7.10 @obsolte char * json_unescape(char *text);
-//
-// This function takes care of the tedious task of initializing any instance of json_parsing_info
-// @param jpi a pointer to a struct json_parsing_info instance
-//
-void json_jpi_init(json_parsing_info *jpi);
 //
 // Produces a document tree sequentially from a JSON markup text fragment
 // @param info the information necessary to resume parsing any incomplete document

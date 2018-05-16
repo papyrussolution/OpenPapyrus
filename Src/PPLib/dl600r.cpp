@@ -1360,7 +1360,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 			if(fld.T.IsZStr(0))
 				buf.Transf(CTRANSF_INNER_TO_OUTER);
 			buf.Escape();
-			json_insert_pair_into_object(pJsonObj, fld.Name.cptr(), json_new_string(buf));
+			pJsonObj->Insert(fld.Name.cptr(), json_new_string(buf));
 		}
 	}
 	CATCHZOK
@@ -1396,7 +1396,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 				Helper_PutScopeToJson(p_child, p_iter_obj);
 				THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 			}
-			THROW_SL(json_insert_pair_into_object(p_hdr_obj, suffix.cptr(), p_iter_ary));
+			THROW_SL(p_hdr_obj->Insert(suffix.cptr(), p_iter_ary));
 		}
 	}
 	THROW_SL(json_insert_child(pRoot, p_hdr_obj));

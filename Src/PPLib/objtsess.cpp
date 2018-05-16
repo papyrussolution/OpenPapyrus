@@ -3360,15 +3360,10 @@ int SLAPI PPObjTSession::GetWrOffAttrib(const TSessionTbl::Rec * pRec, WrOffAttr
 int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLogger, int use_ta)
 {
 	struct RecomplItem {
-		RecomplItem(int t)
+		explicit RecomplItem(int t) : IsRecompl(t), Count(0), Qtty(0.0), WtQtty(0.0)
 		{
-			THISZERO();
-			IsRecompl = t;
 		}
-		operator int() const
-		{
-			return IsRecompl;
-		}
+		operator int() const { return IsRecompl; }
 		int    IsRecompl;
 		uint   Count;
 		double Qtty;

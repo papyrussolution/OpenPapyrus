@@ -3894,6 +3894,7 @@ int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 	setCtrlLong(CTL_LOTINFO_ID,       Data.ID);
 	setCtrlReal(CTL_LOTINFO_QTTY,     Data.Quantity);
 	setCtrlReal(CTL_LOTINFO_REST,     Data.Rest);
+	setCtrlReal(CTL_LOTINFO_PHREST,   Data.WtRest);
 	setCtrlReal(CTL_LOTINFO_UPP,      Data.UnitPerPack);
 	setCtrlReal(CTL_LOTINFO_COST,     P_BObj->CheckRights(BILLRT_ACCSCOST) ? Data.Cost : 0.0);
 	setCtrlData(CTL_LOTINFO_PRICE,    &Data.Price);
@@ -3930,6 +3931,11 @@ int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
 	getCtrlData(CTL_LOTINFO_ID,    &Data.ID);
 	getCtrlData(CTL_LOTINFO_QTTY,  &Data.Quantity);
 	getCtrlData(CTL_LOTINFO_REST,  &Data.Rest);
+	{
+		double ph_rest = Data.WtRest;
+		if(getCtrlData(CTL_LOTINFO_REST,  &ph_rest))
+			Data.WtRest = ph_rest;
+	}
 	getCtrlData(CTL_LOTINFO_UPP,   &Data.UnitPerPack);
 	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
 		getCtrlData(CTL_LOTINFO_COST, &Data.Cost);
@@ -3957,6 +3963,11 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 	else if(event.isCmd(cmObjSyncTab)) {
 		PPObjID oid;
 		ViewObjSyncTab(oid.Set(PPOBJ_LOT, Data.ID));
+	}
+	else if(event.isCmd(cmTags)) {
+		ObjTagList tag_list;
+		PPRef->Ot.GetList(PPOBJ_LOT, Data.ID, &tag_list);
+		EditObjTagValList(&tag_list, 0);
 	}
 	else if(event.isKeyDown(kbBack))
 		setupLinkedLot(0);

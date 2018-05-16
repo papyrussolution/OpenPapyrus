@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -113,7 +113,7 @@ public:
 	int    SLAPI AddBusinessEntityUser(); // addBusinessEntityUserRequest
 	int    SLAPI GetAppliedUserAuthorityList();
 
-	int    SLAPI GetRussianEnterpriseList(TSCollection <VetisEnterprise> & rResult);
+	int    SLAPI GetRussianEnterpriseList(uint offs, uint count, TSCollection <VetisEnterprise> & rResult);
 	int    SLAPI GetProductItemList(uint offs, uint count, TSCollection <VetisProductItem> & rResult);
 
 	static int SLAPI SetupParam(Param & rP);
@@ -223,11 +223,17 @@ int SLAPI PPVetisInterface::PrepareAppReqData(VetisApplicationBlock & rBlk, cons
 		rBlk.P_LoReq->ListOptions.Count = 20;
 		ok = 1;
 	}
+	else if(rBlk.Func == VetisApplicationData::signGetVetDocumentListRequest) {
+		rBlk.P_LoReq = new VetisListOptionsRequest;
+		rBlk.P_LoReq->Initiator.Login = rBlk.User;
+		rBlk.P_LoReq->ListOptions.Count = 20;
+		ok = 1;
+	}
 	return ok;
 }
 
-//static const char * P_VetisSoapUrl = "https://api.vetrf.ru/platform/services/ApplicationManagementService"; // product
-static const char * P_VetisSoapUrl = "https://api2.vetrf.ru:8002/platform/services/ApplicationManagementService"; // test
+static const char * P_VetisSoapUrl = "https://api.vetrf.ru/platform/services/ApplicationManagementService"; // product
+//static const char * P_VetisSoapUrl = "https://api2.vetrf.ru:8002/platform/services/ApplicationManagementService"; // test
 
 int SLAPI PPVetisInterface::SubmitRequest(int appFuncId, const void * pAppData, VetisApplicationBlock & rResult)
 {
@@ -268,6 +274,7 @@ int SLAPI PPVetisInterface::SubmitRequest(int appFuncId, const void * pAppData, 
 int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
 {
 	int    ok = -1;
+	SString temp_buf;
 	SString user, password, api_key;
 	VetisApplicationBlock * p_result = 0; 
 	PPSoapClientSession sess;
@@ -285,6 +292,14 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		rResult = *p_result;
 		//LogResultMsgList(p_result);
+		for(uint erridx = 0; erridx < rResult.ErrList.getCount(); erridx++) {
+			const VetisErrorEntry * p_err_entry = rResult.ErrList.at(erridx);
+			if(p_err_entry) {
+				temp_buf.Z().Cat("vetis error").CatDiv(':', 2).Cat(p_err_entry->Item).CatDiv(';', 2).Cat(p_err_entry->Code).CatDiv(';', 2).Cat(p_err_entry->Qualifier);
+				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				PPLogMessage(PPFILNAM_ERR_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+		}
 		DestroyResult((void **)&p_result);
 		ok = 1;
 	}
@@ -319,7 +334,7 @@ int SLAPI PPVetisInterface::GetProductItemList(uint offs, uint count, TSCollecti
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetRussianEnterpriseList(TSCollection <VetisEnterprise> & rResult)
+int SLAPI PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, TSCollection <VetisEnterprise> & rResult)
 {
 	int    ok = -1;
 	SString user, password, api_key;
@@ -333,6 +348,9 @@ int SLAPI PPVetisInterface::GetRussianEnterpriseList(TSCollection <VetisEnterpri
 	P.GetExtStrData(extssPassword, password);
 	sess.Setup(/*P_VetisSoapUrl*/0, user, password);
 	{
+		VetisListOptionsRequest lstopt;
+		lstopt.ListOptions.Count = count;
+		lstopt.ListOptions.Offset = offs;
 		p_result = func(sess, 0, 0);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		TSCollection_Copy(rResult, *p_result);
@@ -349,6 +367,20 @@ int SLAPI PPVetisInterface::GetAppliedUserAuthorityList()
 	VetisApplicationBlock submit_result;
 	VetisApplicationBlock receive_result;
 	THROW(SubmitRequest(VetisApplicationData::signGetAppliedUserAuthorityListRequest, 0, submit_result));
+	if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+		SDelay(1000);
+		THROW(ReceiveResult(submit_result.ApplicationId, receive_result));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetVetDocumentList()
+{
+	int    ok = 1;
+	VetisApplicationBlock submit_result;
+	VetisApplicationBlock receive_result;
+	THROW(SubmitRequest(VetisApplicationData::signGetVetDocumentListRequest, 0, submit_result));
 	if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 		SDelay(1000);
 		THROW(ReceiveResult(submit_result.ApplicationId, receive_result));
@@ -385,6 +417,19 @@ static void Debug_OutputProductItem(const VetisProductItem & rItem, SString & rB
 		rBuf.Tab().Cat(rItem.Gost);
 }
 
+static void Debug_OutputEntItem(const VetisEnterprise & rItem, SString & rBuf)
+{
+	SString temp_buf;
+	rBuf.Z();
+	rBuf.Cat(rItem.Uuid).Tab().Cat(rItem.Guid);
+	rBuf.Tab().Cat(rItem.Name).Tab().Cat(rItem.EnglishName);
+	rBuf.Tab().Cat(rItem.Address.AddressView);
+	rBuf.Tab();
+	for(uint ssp = 0; rItem.NumberList.get(&ssp, temp_buf);) {
+		rBuf.Cat(temp_buf).Space();
+	}
+}
+
 int SLAPI TestVetis()
 {
 	int    ok = 1;
@@ -398,9 +443,32 @@ int SLAPI TestVetis()
 		THROW(ifc.Init(param));
 		//THROW(ifc.GetStockEntryList());
 		//THROW(ifc.GetAppliedUserAuthorityList());
-		//THROW(ifc.GetRussianEnterpriseList(ent_list));
 		{
-
+			//ifc.GetVetDocumentList();
+			ifc.GetStockEntryList();
+		}
+		{
+			ifc.GetAppliedUserAuthorityList();
+		}
+		{
+			PPGetFilePath(PPPATH_LOG, "vetis_ent_list.log", temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			uint req_count = 50;
+			for(uint req_offs = 0; ifc.GetRussianEnterpriseList(req_offs, req_count, ent_list);) {
+				for(uint i = 0; i < ent_list.getCount(); i++) {
+					const VetisEnterprise * p_item = ent_list.at(i);
+					if(p_item) {
+						Debug_OutputEntItem(*p_item, temp_buf);
+						f_out.WriteLine(temp_buf.CR());
+					}
+				}
+				if(ent_list.getCount() < req_count)
+					break;
+				else
+					req_offs += ent_list.getCount();
+			}
+		}
+		{
 			PPGetFilePath(PPPATH_LOG, "vetis_product_list.log", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			uint req_count = 50;

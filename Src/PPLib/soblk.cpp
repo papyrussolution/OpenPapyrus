@@ -1337,13 +1337,13 @@ struct LocalSelectorDescr {
 	{
 		json_t * p_jsel = new json_t(json_t::tOBJECT);
 		SString temp_buf, o_buf, txt_buf;
-		json_insert_pair_into_object(p_jsel, "ID", json_new_string(temp_buf.Z().Cat(ID)));
-		json_insert_pair_into_object(p_jsel, "Attr", json_new_string(temp_buf.Z().Cat(Attr)));
-		json_insert_pair_into_object(p_jsel, "Clsf", json_new_string(temp_buf.Z().Cat(Clsf)));
-		json_insert_pair_into_object(p_jsel, "Title", json_new_string((temp_buf = Title).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-		json_insert_pair_into_object(p_jsel, "Crit", json_new_string((temp_buf = Crit).Escape()));
-		json_insert_pair_into_object(p_jsel, "Subcrit", json_new_string(temp_buf.Z()));
-		json_insert_pair_into_object(p_jsel, "Part", json_new_string(Part));
+		p_jsel->Insert("ID", json_new_string(temp_buf.Z().Cat(ID)));
+		p_jsel->Insert("Attr", json_new_string(temp_buf.Z().Cat(Attr)));
+		p_jsel->Insert("Clsf", json_new_string(temp_buf.Z().Cat(Clsf)));
+		p_jsel->Insert("Title", json_new_string((temp_buf = Title).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+		p_jsel->Insert("Crit", json_new_string((temp_buf = Crit).Escape()));
+		p_jsel->Insert("Subcrit", json_new_string(temp_buf.Z()));
+		p_jsel->Insert("Part", json_new_string(Part));
 		//
 		json_t * p_jsel_val_ary = new json_t(json_t::tARRAY);
 		if(Attr != PPUhttStoreSelDescr::attrName) {
@@ -1351,9 +1351,9 @@ struct LocalSelectorDescr {
 			for(uint j = 0, k = Values.getCount(); j < k; j++) {
 				json_t * p_jsel_val = new json_t(json_t::tOBJECT);
 				StrAssocArray::Item _val = Values.Get(j);
-				json_insert_pair_into_object(p_jsel_val, "ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
-				json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
-				json_insert_pair_into_object(p_jsel_val, "PID", json_new_string(temp_buf.Z().Cat(_val.ParentId)));
+				p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
+				p_jsel_val->Insert("Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
+				p_jsel_val->Insert("PID", json_new_string(temp_buf.Z().Cat(_val.ParentId)));
 				named_id_list.add(_val.Id);
 				if(_val.ParentId)
 					parent_id_list.add(_val.ParentId);
@@ -1376,9 +1376,9 @@ struct LocalSelectorDescr {
 								const PPID next_parent_id = tag_item_rec.Val2;
 								assert(tag_item_rec.ObjID == parent_id);
 								json_t * p_jsel_val = new json_t(json_t::tOBJECT);
-								json_insert_pair_into_object(p_jsel_val, "ID", json_new_string(temp_buf.Z().Cat(parent_id)));
-								json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = tag_item_rec.ObjName).Transf(CTRANSF_INNER_TO_OUTER)));
-								json_insert_pair_into_object(p_jsel_val, "PID", json_new_string(temp_buf.Z().Cat(next_parent_id)));
+								p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(parent_id)));
+								p_jsel_val->Insert("Txt", json_new_string((temp_buf = tag_item_rec.ObjName).Transf(CTRANSF_INNER_TO_OUTER)));
+								p_jsel_val->Insert("PID", json_new_string(temp_buf.Z().Cat(next_parent_id)));
 								json_insert_child(p_jsel_val_ary, p_jsel_val);
 								named_id_list.add(parent_id);
 								if(next_parent_id && !parent_id_list.lsearch(next_parent_id))
@@ -1389,7 +1389,7 @@ struct LocalSelectorDescr {
 				}
 			}
 		}
-		json_insert_pair_into_object(p_jsel, "Values", p_jsel_val_ary);
+		p_jsel->Insert("Values", p_jsel_val_ary);
 		//json_insert_child(p_jsel_ary, p_jsel);
 		return p_jsel;
 	}
@@ -1660,10 +1660,10 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
 					json_t * p_jitem_list = new json_t(json_t::tARRAY);
 					//
-					json_insert_pair_into_object(p_jpack, "Header", p_jhdr);
-					json_insert_pair_into_object(p_jhdr, "Class", json_new_string(temp_buf.Z().Cat(0L)));
-					json_insert_pair_into_object(p_jhdr, "Selectors", p_jsel_ary);
-					json_insert_pair_into_object(p_jpack, "Items", p_jitem_list);
+					p_jpack->Insert("Header", p_jhdr);
+					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(0L)));
+					p_jhdr->Insert("Selectors", p_jsel_ary);
+					p_jpack->Insert("Items", p_jitem_list);
 					//
 					if(Separate == 1) {
 						uint pos = 0;
@@ -1726,27 +1726,27 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								}
 								json_t * p_jitem = new json_t(json_t::tOBJECT);
 								//
-								json_insert_pair_into_object(p_jitem, "ID", json_new_string(temp_buf.Z().Cat(tses_rec.ID)));
-								json_insert_pair_into_object(p_jitem, "PrcID", json_new_string(temp_buf.Z().Cat(tses_rec.PrcID)));
-								json_insert_pair_into_object(p_jitem, "Num", json_new_string(temp_buf.Z().Cat(tses_rec.Num)));
-								json_insert_pair_into_object(p_jitem, "Status", json_new_string(temp_buf.Z().Cat(tses_rec.Status)));
-								json_insert_pair_into_object(p_jitem, "Flags", json_new_string(temp_buf.Z().Cat(tses_rec.Flags)));
-								json_insert_pair_into_object(p_jitem, "StDate", json_new_string(temp_buf.Z().Cat(tses_rec.StDt, DATF_DMY|DATF_CENTURY)));
-								json_insert_pair_into_object(p_jitem, "StTime", json_new_string(temp_buf.Z().Cat(tses_rec.StTm, TIMF_HMS)));
-								json_insert_pair_into_object(p_jitem, "FinDate", json_new_string(temp_buf.Z().Cat(tses_rec.FinDt, DATF_DMY|DATF_CENTURY)));
-								json_insert_pair_into_object(p_jitem, "FinTime", json_new_string(temp_buf.Z().Cat(tses_rec.FinTm, TIMF_HMS)));
+								p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(tses_rec.ID)));
+								p_jitem->Insert("PrcID", json_new_string(temp_buf.Z().Cat(tses_rec.PrcID)));
+								p_jitem->Insert("Num", json_new_string(temp_buf.Z().Cat(tses_rec.Num)));
+								p_jitem->Insert("Status", json_new_string(temp_buf.Z().Cat(tses_rec.Status)));
+								p_jitem->Insert("Flags", json_new_string(temp_buf.Z().Cat(tses_rec.Flags)));
+								p_jitem->Insert("StDate", json_new_string(temp_buf.Z().Cat(tses_rec.StDt, DATF_DMY|DATF_CENTURY)));
+								p_jitem->Insert("StTime", json_new_string(temp_buf.Z().Cat(tses_rec.StTm, TIMF_HMS)));
+								p_jitem->Insert("FinDate", json_new_string(temp_buf.Z().Cat(tses_rec.FinDt, DATF_DMY|DATF_CENTURY)));
+								p_jitem->Insert("FinTime", json_new_string(temp_buf.Z().Cat(tses_rec.FinTm, TIMF_HMS)));
 								{
 									temp_buf.Z();
 									ObjTagItem tag;
 									// @v8.8.2 if(PPRef->Ot.GetTag(PPOBJ_TSESSION, tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0)
 									if(TagObj.FetchTag(tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0) // @v8.8.2
 										tag.GetStr(temp_buf);
-									json_insert_pair_into_object(p_jitem, "Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+									p_jitem->Insert("Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
-								json_insert_pair_into_object(p_jitem, "Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								p_jitem->Insert("Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								temp_buf.Z();
 								if(tses_ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf) > 0) {
-									json_insert_pair_into_object(p_jitem, "Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+									p_jitem->Insert("Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
 								//uint   reg_count = 0;
 								//uint   ci_count = 0;
@@ -1755,9 +1755,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								ss_places.clear();
 								ss_places_busy.clear();
 								//
-								json_insert_pair_into_object(p_jitem, "PrcName", json_new_string((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								json_insert_pair_into_object(p_jitem, "PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v8.8.2
-								json_insert_pair_into_object(p_jitem, "CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
+								p_jitem->Insert("PrcName", json_new_string((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								p_jitem->Insert("PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v8.8.2
+								p_jitem->Insert("CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
 								ci_list.Clear();
 								if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tses_rec.ID, ci_list) > 0) {
 									//ci_list.Count(&reg_count, &ci_count, &cancel_count);
@@ -1770,9 +1770,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 									}
 								}
 								//
-								json_insert_pair_into_object(p_jitem, "CipAvl", json_new_string(temp_buf.Z().Cat((long)prc_rec.CipMax - (long)rcount.RegCount)));
-								json_insert_pair_into_object(p_jitem, "Places", json_new_string((temp_buf = ss_places.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								json_insert_pair_into_object(p_jitem, "PlacesBusy", json_new_string((temp_buf = ss_places_busy.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								p_jitem->Insert("CipAvl", json_new_string(temp_buf.Z().Cat((long)prc_rec.CipMax - (long)rcount.RegCount)));
+								p_jitem->Insert("Places", json_new_string((temp_buf = ss_places.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								p_jitem->Insert("PlacesBusy", json_new_string((temp_buf = ss_places_busy.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								//
 								json_insert_child(p_jitem_list, p_jitem);
 							}
@@ -1898,10 +1898,10 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
 					json_t * p_jitem_list = new json_t(json_t::tARRAY);
 					//
-					json_insert_pair_into_object(p_jpack, "Header", p_jhdr);
-					json_insert_pair_into_object(p_jhdr, "Class", json_new_string(temp_buf.Z().Cat(cls_id)));
-					json_insert_pair_into_object(p_jhdr, "Selectors", p_jsel_ary);
-					json_insert_pair_into_object(p_jpack, "Items", p_jitem_list);
+					p_jpack->Insert("Header", p_jhdr);
+					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(cls_id)));
+					p_jhdr->Insert("Selectors", p_jsel_ary);
+					p_jpack->Insert("Items", p_jitem_list);
 					//
 					if(Separate == 1) {
 						GoodsIterator::Ext iter_ext;
@@ -1936,17 +1936,13 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 						while(iter.Next(&goods_rec, &iter_ext) > 0) {
 							json_t * p_jitem = new json_t(json_t::tOBJECT);
 							//
-							json_insert_pair_into_object(p_jitem, "ID", json_new_string(temp_buf.Z().Cat(goods_rec.ID)));
-							json_insert_pair_into_object(p_jitem, "Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-							json_insert_pair_into_object(p_jitem, "CurID", json_new_string(temp_buf.Z().Cat(iter_ext.CurID)));
-							temp_buf.Z().Cat(iter_ext.Price, SFMT_MONEY);
-							json_insert_pair_into_object(p_jitem, "Price", json_new_string(temp_buf));
-							temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0));
-							json_insert_pair_into_object(p_jitem, "Rest", json_new_string(temp_buf));
-							temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY);
-							json_insert_pair_into_object(p_jitem, "PriceDt", json_new_string(temp_buf.Escape()));
-							temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM);
-							json_insert_pair_into_object(p_jitem, "PriceTm", json_new_string(temp_buf.Escape()));
+							p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(goods_rec.ID)));
+							p_jitem->Insert("Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+							p_jitem->Insert("CurID", json_new_string(temp_buf.Z().Cat(iter_ext.CurID)));
+							p_jitem->Insert("Price", json_new_string(temp_buf.Z().Cat(iter_ext.Price, SFMT_MONEY)));
+							p_jitem->Insert("Rest", json_new_string(temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0))));
+							p_jitem->Insert("PriceDt", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY).Escape()));
+							p_jitem->Insert("PriceTm", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM).Escape()));
 							//
 							json_insert_child(p_jitem_list, p_jitem);
 						}

@@ -612,6 +612,7 @@ Global
 		{265B05E1-A149-4509-9A4E-594253F8D417}.ServerRelease|Any CPU.ActiveCfg = ServerRelease|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{265B05E1-A149-4509-9A4E-594253F8D417}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
+		{265B05E1-A149-4509-9A4E-594253F8D417}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Universe-HTT|Any CPU.ActiveCfg = Universe-HTT|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Universe-HTT|x64.ActiveCfg = Universe-HTT|x64
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Universe-HTT|x64.Build.0 = Universe-HTT|x64
@@ -816,6 +817,7 @@ Global
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.ServerRelease|Any CPU.ActiveCfg = ServerRelease|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
+		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Universe-HTT|Any CPU.Build.0 = ServerRelease|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Universe-HTT|x64.ActiveCfg = Release|Win32
@@ -843,6 +845,7 @@ Global
 		{B79D078C-53B3-4A33-A458-6483BE512611}.ServerRelease|Any CPU.ActiveCfg = ServerRelease|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{B79D078C-53B3-4A33-A458-6483BE512611}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
+		{B79D078C-53B3-4A33-A458-6483BE512611}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Universe-HTT|Any CPU.Build.0 = ServerRelease|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Universe-HTT|x64.ActiveCfg = ServerRelease|Win32
@@ -1630,6 +1633,7 @@ Global
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug|x64.ActiveCfg = Debug|x64
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug|x86.ActiveCfg = Debug|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug|x86.Build.0 = Debug|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.MtDllDebug|Any CPU.ActiveCfg = MtDllDebug|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.MtDllDebug|x64.ActiveCfg = MtDllDebug|x64
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.MtDllDebug|x86.ActiveCfg = MtDllDebug|Win32
@@ -1639,12 +1643,14 @@ Global
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release|Any CPU.ActiveCfg = Release|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release|x64.ActiveCfg = Release|x64
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release|x86.ActiveCfg = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release|x86.Build.0 = Release|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerDebug|Any CPU.ActiveCfg = ServerDebug|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerDebug|x64.ActiveCfg = ServerDebug|x64
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerDebug|x86.ActiveCfg = ServerDebug|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease|Any CPU.ActiveCfg = ServerRelease|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT|Any CPU.Build.0 = ServerRelease|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT|x64.ActiveCfg = ServerRelease|Win32
@@ -1789,6 +1795,7 @@ Global
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease|x64.ActiveCfg = Release|x64
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease|x64.Build.0 = Release|x64
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Universe-HTT|Any CPU.ActiveCfg = Release|Win32
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Universe-HTT|Any CPU.Build.0 = Release|Win32
 		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Universe-HTT|x64.ActiveCfg = Release|Win32

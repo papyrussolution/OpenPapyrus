@@ -1241,6 +1241,10 @@
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
 #define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
 #define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
+#define PPTAG_BILL_EDIDESADVSENT    70L // @v10.0.06 Информация об отправленном DESADV
+#define PPTAG_BILL_EDIORDRSPSENT    71L // @v10.0.06 Информация об отправленном ORDRSP
+#define PPTAG_BILL_EDIALCDESADVSENT 72L // @v10.0.06 Информация об отправленном ALCODESADV
+#define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 Информация об отправленном INVOIC
 // @construction(VETIS) {
 #define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 
@@ -1421,6 +1425,7 @@
 #define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
 #define PPEDIOP_SALESORDER                     8 // @v9.2.1 Заказ от покупателя
 #define PPEDIOP_PARTIN                         9 // @v10.0.02
+#define PPEDIOP_INVOIC                        10 // @v10.0.06
 //
 // Типы операций обмена с системой ЕГАИС
 //
@@ -3812,6 +3817,7 @@
 	#define CTLSEL_LOTINFO_SUPPL         (17 + WINDOWS_ID_BIAS)
 	#define CTL_LOTINFO_INTAXGRP         (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOTINFO_INTAXGRP      (19 + WINDOWS_ID_BIAS)
+	#define CTL_LOTINFO_PHREST           (20 + WINDOWS_ID_BIAS)
 #define DLG_RECOVER               302
 	#define CTL_RECOVER_DB               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RECOVER_DB            (2 + WINDOWS_ID_BIAS)

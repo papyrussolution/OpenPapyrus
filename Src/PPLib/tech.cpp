@@ -802,6 +802,7 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	AddClusterAssoc(CTL_TECH_FLAGS, 0, TECF_RECOMPLMAINGOODS);
 	AddClusterAssoc(CTL_TECH_FLAGS, 1, TECF_CALCTIMEBYROWS);
 	AddClusterAssoc(CTL_TECH_FLAGS, 2, TECF_AUTOMAIN);
+	AddClusterAssoc(CTL_TECH_FLAGS, 3, TECF_RVRSCMAINGOODS); // @v10.0.06
 	SetClusterData (CTL_TECH_FLAGS, Data.Rec.Flags);
 	setCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
 	setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);

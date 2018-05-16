@@ -1670,7 +1670,6 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 	SString inn;
 	SString bill_ident;
 	StrAssocArray articles;
-	PPObjGoods gobj;
 	PPObjTag tag_obj;
 	SdRecord dyn_rec;
 	SdbField dyn_fld, inner_fld;
@@ -1746,7 +1745,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				PPID   goods_id = 0;
 				Goods2Tbl::Rec goods_rec;
 				ArGoodsCodeTbl::Rec code_rec;
-				if(brow_.GoodsID && gobj.Fetch(brow_.GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
+				if(brow_.GoodsID && GObj.Fetch(brow_.GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 					goods_id = goods_rec.ID;
 				}
 				else if(CConfig.Flags & CCFLG_USEARGOODSCODE && (brow_.Barcode[0] || brow_.ArCode[0])) {
@@ -1769,21 +1768,21 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 					}
 					if(ar_id > 0) {
 						brow_.CntragID = ar_id;
-						if(brow_.ArCode[0] && gobj.P_Tbl->SearchByArCode(ar_id, brow_.ArCode, &code_rec) > 0)
+						if(brow_.ArCode[0] && GObj.P_Tbl->SearchByArCode(ar_id, brow_.ArCode, &code_rec) > 0)
 							goods_id = code_rec.GoodsID;
-						else if(brow_.Barcode[0] && gobj.P_Tbl->SearchByArCode(ar_id, brow_.Barcode, &code_rec) > 0)
+						else if(brow_.Barcode[0] && GObj.P_Tbl->SearchByArCode(ar_id, brow_.Barcode, &code_rec) > 0)
 							goods_id = code_rec.GoodsID;
 					}
 				}
 				if(!goods_id) {
-					if(brow_.Barcode[0] && gobj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
+					if(brow_.Barcode[0] && GObj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
 						goods_id = bcrec.GoodsID;
-					else if(gobj.SearchByName(brow_.GoodsName, &id) > 0)
+					else if(GObj.SearchByName(brow_.GoodsName, &id) > 0)
 						goods_id = id;
 				}
 				// @v9.8.4 {
 				if(!goods_id && ar_id_by_code2 && brow_.ArCode[0]) {
-					if(gobj.P_Tbl->SearchByArCode(ar_id_by_code2, brow_.ArCode, &code_rec) > 0)
+					if(GObj.P_Tbl->SearchByArCode(ar_id_by_code2, brow_.ArCode, &code_rec) > 0)
 						goods_id = code_rec.GoodsID;
 				}
 				// } @v9.8.4
@@ -1827,7 +1826,6 @@ int SLAPI PPBillImporter::ReadSpecXmlData()
 	StrAssocArray articles;
 	PPImpExp ie(&BillParam, 0);
 	PPImpExp * p_ie_row = 0;
-	PPObjGoods gobj;
 	THROW(ie.OpenFileForReading(0));
 	p_ie_row = &ie;
 	ie.GetNumRecs(&count);
@@ -1976,7 +1974,6 @@ int SLAPI PPBillImporter::ReadData()
 	_err_buf[0] = 0;
 	ImpExpDll imp_dll;
 	SString err_msg, path, wildcard, filename, temp_buf;
-	PPObjGoods gobj;
 	//PPFileNameArray file_list;
 	StringSet ss_files;
 	Sdr_Bill bill;
@@ -2028,9 +2025,9 @@ int SLAPI PPBillImporter::ReadData()
 							uint   p = 0;
 							PPID   id = 0;
 							BarcodeTbl::Rec bcrec;
-							if(brow.Barcode[0] && gobj.SearchByBarcode(brow.Barcode, &bcrec, 0, 1) > 0)
+							if(brow.Barcode[0] && GObj.SearchByBarcode(brow.Barcode, &bcrec, 0, 1) > 0)
 								brow.GoodsID = bcrec.GoodsID;
-							else if(gobj.SearchByName(brow.GoodsName, &id) > 0)
+							else if(GObj.SearchByName(brow.GoodsName, &id) > 0)
 								brow.GoodsID = id;
 							STRNSCPY(brow.BillID, bill.ID);
 							STRNSCPY(brow.BillCode, bill.Code);
@@ -2056,9 +2053,9 @@ int SLAPI PPBillImporter::ReadData()
 							uint   p = 0;
 							PPID   id = 0;
 							BarcodeTbl::Rec bcrec;
-							if(brow.Barcode[0] && gobj.SearchByBarcode(brow.Barcode, &bcrec, 0, 1) > 0)
+							if(brow.Barcode[0] && GObj.SearchByBarcode(brow.Barcode, &bcrec, 0, 1) > 0)
 								brow.GoodsID = bcrec.GoodsID;
-							else if(gobj.SearchByName(brow.GoodsName, &id) > 0)
+							else if(GObj.SearchByName(brow.GoodsName, &id) > 0)
 								brow.GoodsID = id;
 							STRNSCPY(brow.BillID, bill.ID);
 							STRNSCPY(brow.BillCode, bill.Code);
@@ -2343,7 +2340,6 @@ int SLAPI PPBillImporter::Import(int useTa)
 	SString serial, sn_templt;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	PPObjGoods goods_obj;
 	ObjTransmContext ot_ctx(&Logger); //  онтекст, необходимый дл€ автоматического приходовани€ дефицита классом BillTransmDeficit
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
@@ -2529,7 +2525,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 						if(!r_row.GoodsID) {
 							;
 						}
-						else if(restrict_by_matrix && !goods_obj.BelongToMatrix(r_row.GoodsID, pack.Rec.LocID)) {
+						else if(restrict_by_matrix && !GObj.BelongToMatrix(r_row.GoodsID, pack.Rec.LocID)) {
 							Logger.LogLastError();
 						}
 						else if(pack.OpTypeID == PPOPT_GOODSEXPEND) {
@@ -2609,7 +2605,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 							else if(r_row.PckgQtty != 0.0) {
 								if(upp <= 0.0) {
 									GoodsStockExt gse;
-									if(goods_obj.GetStockExt(ti.GoodsID, &gse, 1) > 0)
+									if(GObj.GetStockExt(ti.GoodsID, &gse, 1) > 0)
 										upp = gse.Package;
 								}
 								if(upp <= 0.0 && !upp_inited) {
@@ -2651,7 +2647,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 									P_BObj->AdjustSerialForUniq(ti.GoodsID, ti.LotID, 0, serial);
 								}
 								else if(P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
-									sn_templt = (goods_obj.IsAsset(ti.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+									sn_templt = (GObj.IsAsset(ti.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 									P_BObj->GetSnByTemplate(pack.Rec.Code, labs(ti.GoodsID), &pack.LTagL/*SnL*/, sn_templt, serial);
 								}
 							}
@@ -3324,12 +3320,10 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 										else {
 											ObjTagItem tag_item;
 											temp_buf.Z();
-											if(p_recadv_pack->AllRowsAccepted) {
+											if(p_recadv_pack->AllRowsAccepted)
 												temp_buf.Cat("ACCEPTED");
-											}
-											else {
+											else
 												temp_buf.Cat("CHANGED");
-											}
 											temp_buf.Space().Cat(p_recadv_pack->Bp.Rec.Code).Space().Cat(p_recadv_pack->Bp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
 											if(!tag_item.SetStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, desadv_bill_id, &tag_item, 1)) {
 												Logger.LogLastError();
@@ -3382,7 +3376,13 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 				if(temp_id_list.getCount()) {
 					// temp_id_list содержит идентификаторы покупателей, которые, согласно соглашению, используют данного провайдера
 					prc.SendOrderRsp(be_filt, temp_id_list);
-					prc.SendDESADV(be_filt, temp_id_list);
+					prc.SendDESADV(PPEDIOP_DESADV, be_filt, temp_id_list);
+					if(ediprv_rec.SuppOpFlags & (1 << PPEDIOP_INVOIC)) {
+						prc.SendDESADV(PPEDIOP_INVOIC, be_filt, temp_id_list);						
+					}
+					if(ediprv_rec.SuppOpFlags & (1 << PPEDIOP_ALCODESADV)) {
+						prc.SendDESADV(PPEDIOP_ALCODESADV, be_filt, temp_id_list);
+					}
 				}
 			}
 		}
@@ -3727,7 +3727,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			else if(edi_op_symb.IsEqNC("ORDER"))
 				edi_op = PPEDIOP_ORDER;
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
-            pPack->Rec.EdiOp = edi_op; // @v8.6.12
+            pPack->Rec.EdiOp = edi_op; 
 			THROW(BillRecToBill(pPack, &bill));
 			THROW_PP_S(edi_op != PPEDIOP_RECADV || bill.DesadvBillNo[0], PPERR_EDI_SPRRECADVWOTTN, temp_buf);
 			// ≈сли отклоненный заказ
@@ -3755,7 +3755,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			BarcodeArray bcd_ary;
 			MEMSZERO(brow);
 			STRNSCPY(brow.BillID, bill.ID);
-			brow.LineNo = i; // @v8.1.2 // @v8.1.12 @fix (i+1)-->i
+			brow.LineNo = i; 
 			brow.GoodsID = goods_id;
 			brow.LotID = p_ti->LotID;
 			if(GObj.Fetch(goods_id, &goods_rec) <= 0)
@@ -3773,7 +3773,6 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				bcd_ary.GetSingle(temp_buf);
 				temp_buf.CopyTo(brow.Barcode, sizeof(brow.Barcode));
 			}
-			// @v8.2.3 {
 			if(goods_rec.ManufID) {
 				PPID   country_id = 0;
 				PPCountryBlock mcb;
@@ -3781,7 +3780,6 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				mcb.Name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCountryName, sizeof(brow.ManufCountryName)); // @v8.2.4 ToChar()
 				mcb.Code.CopyTo(brow.ManufCountryOKSM, sizeof(brow.ManufCountryOKSM));
 			}
-			// } @v8.2.3
 			{
 				PPID   org_lot_id = 0;
 				ReceiptTbl::Rec org_lot_rec;
@@ -3978,11 +3976,9 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							upp = gse.Package;
 					}
 					if(upp <= 0.0) {
-						if(p_rcpt) {
-							ReceiptTbl::Rec lot_rec;
-							if(p_rcpt->GetLastLot(p_ti->GoodsID, pPack->Rec.LocID, pPack->Rec.Dt, &lot_rec) > 0)
-								upp = lot_rec.UnitPerPack;
-						}
+						ReceiptTbl::Rec lot_rec;
+						if(p_rcpt && p_rcpt->GetLastLot(p_ti->GoodsID, pPack->Rec.LocID, pPack->Rec.Dt, &lot_rec) > 0)
+							upp = lot_rec.UnitPerPack;
 					}
 					if(upp > 0.0) {
 						brow.UnitPerPack = upp;
@@ -4326,16 +4322,13 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 		// «апишем номер и дату регистра контрагента
 		{
 			const  PPBillConfig & cfg = DS.GetTLA().P_BObj->GetConfig(); //P_BObj->GetConfig();
-			if(cfg.ContractRegTypeID) {
-				RegisterTbl::Rec reg_rec;
-				if(PsnObj.GetRegister(ObjectToPerson(pPack->Rec.Object), cfg.ContractRegTypeID, &reg_rec) > 0) {
-					STRNSCPY(pBill->CntractCode, reg_rec.Num);
-					pBill->CntractDt = reg_rec.Dt;
-					pBill->CntractExpry = reg_rec.Expiry;
-				}
+			RegisterTbl::Rec reg_rec;
+			if(cfg.ContractRegTypeID && PsnObj.GetRegister(ObjectToPerson(pPack->Rec.Object), cfg.ContractRegTypeID, &reg_rec) > 0) {
+				STRNSCPY(pBill->CntractCode, reg_rec.Num);
+				pBill->CntractDt = reg_rec.Dt;
+				pBill->CntractExpry = reg_rec.Expiry;
 			}
 		}
-
 		// } @vmiller
 		ok = 1;
 	}
@@ -4344,14 +4337,12 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 
 int SLAPI PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 {
-	int    ok = -1;
 	rRegNum.Z();
-	if(arID && regTypeID) {
-		RegisterTbl::Rec reg_rec;
-		if(PsnObj.GetRegister(ObjectToPerson(arID), regTypeID, &reg_rec) > 0) {
-			rRegNum = reg_rec.Num;
-			ok = 1;
-		}
+	int    ok = -1;
+	RegisterTbl::Rec reg_rec;
+	if(arID && regTypeID && PsnObj.GetRegister(ObjectToPerson(arID), regTypeID, &reg_rec) > 0) {
+		rRegNum = reg_rec.Num;
+		ok = 1;
 	}
 	return ok;
 }

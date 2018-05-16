@@ -705,7 +705,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								else if(vatrate == 0.0)
 									tax_type_number = 5;
 								else
-									tax_type_number = 1; // @defaul5
+									tax_type_number = 1; // @default
 							}
 							THROW(SetProp(TaxTypeNumber, tax_type_number));
 						}

@@ -179,13 +179,7 @@ int SLAPI CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const 
 		rec.QCertID    = pTi->QCert;
 		rec.InTaxGrpID = pTi->LotTaxGrpID;
 		rec.Flags      = pTi->Flags;
-		CpTransfCore::PutExt__(rec, pExt); // @v8.9.10
-		/* @v8.9.10
-		if(pExt) {
-			STRNSCPY(rec.PartNo, pExt->PartNo);
-			STRNSCPY(rec.Clb,    pExt->Clb);
-		}
-		*/
+		CpTransfCore::PutExt__(rec, pExt);
 		if(is_new) {
 			THROW_DB(insertRecBuf(&rec));
 		}
@@ -262,7 +256,7 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 	PPOprKind wroff_op_rec;
 	PPBillExt bill_ext;
 	ArticleTbl::Rec ar_rec;
-	THROW(pPack->CreateBlank_WithoutCode(pWrOffParam->WrOffOpID, 0, pDraftRec->LocID, use_ta)); // @v8.6.10 0-->use_ta // @v8.8.12 CreateBlank-->CreateBlank_WithoutCode
+	THROW(pPack->CreateBlank_WithoutCode(pWrOffParam->WrOffOpID, 0, pDraftRec->LocID, use_ta));
 	THROW(GetOpData(pWrOffParam->WrOffOpID, &wroff_op_rec) > 0);
 	STRNSCPY(pPack->Rec.Code, pDraftRec->Code);
 	pPack->Rec.Dt = (pWrOffParam->Flags & DROXF_WROFFCURDATE) ? getcurdate_() : pDraftRec->Dt;
@@ -329,13 +323,9 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 					if(!(ca_rec.Flags & AGTF_DEFAULT))
 						if(GetAgentAccSheet() && ca_rec.DefAgentID && !pPack->Ext.AgentID)
 							pPack->Ext.AgentID = ca_rec.DefAgentID;
-					// @v8.4.2 {
 					if(pPack->Rec.Flags & BILLF_NEEDPAYMENT) {
 						pPack->SetupDefaultPayDate(ca_rec.DefPayPeriod, ca_rec.PaymDateBase);
 					}
-					// } @v8.4.2
-					// @v8.4.2 if(ca_rec.DefPayPeriod >= 0 && pPack->Rec.Flags & BILLF_NEEDPAYMENT)
-					// @v8.4.2 pPack->SetPayDate(plusdate(pPack->Rec.Dt, ca_rec.DefPayPeriod), 0);
 				}
 			}
 		}
@@ -558,8 +548,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
 				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
 				ILTI ilti(&r_src_ti);
-				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
-					// @v8.4.8 CILTIF_SUBSTSERIAL // @v9.2.1 CILTIF_ALLOWZPRICE
+				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE; // @v9.2.1 CILTIF_ALLOWZPRICE
 				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT)) // @v9.3.4
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
 				THROW(ConvertILTI(&ilti, p_pack, &rows, ciltif, serial_buf));
@@ -939,7 +928,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ExtractPacket(billID, &blk.SrcDraftPack) > 0); // @v8.5.8
+		THROW(ExtractPacket(billID, &blk.SrcDraftPack) > 0);
 		if(blk.P_WrOffParam->WrOffOpID == 0) {
 			// Если операция списания не определена, то, естественно, никаких документов
 			// формировать не требуется. Все, что мы должны сделать - пометить документ как списанный
@@ -1089,7 +1078,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 								const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
 								THROW(ti.Init(&p_pack->Rec));
 								THROW(ti.SetupGoods(r_src_ti.GoodsID));
-								ti.RByBill = r_src_ti.RByBill; // @v8.9.8
+								ti.RByBill = r_src_ti.RByBill;
 								ti.UnitPerPack = r_src_ti.UnitPerPack;
 								ti.Quantity_ = r_src_ti.Quantity_;
 								ti.Cost  = r_src_ti.Cost;
@@ -1107,7 +1096,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									ti.Expiry = r_src_ti.Expiry;
 								ti.Flags = r_src_ti.Flags;
 								ti.Flags &= ~PPTFR_DRAFT;
-								ti.TFlags |= PPTransferItem::tfForceNew; // @v8.9.8
+								ti.TFlags |= PPTransferItem::tfForceNew;
 								ti.TFlags &= ~PPTransferItem::tfDirty;
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
@@ -1126,7 +1115,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									}
 								}
 							}
-							p_pack->ProcessFlags |= PPBillPacket::pfForceRByBill; // @v8.9.8
+							p_pack->ProcessFlags |= PPBillPacket::pfForceRByBill;
 						}
 						THROW_SL(blk.ResultList.insert(p_pack));
 						p_pack = 0;
@@ -1208,7 +1197,7 @@ int SLAPI PPObjBill::WriteOffDraft(PPID billID, PPIDArray * pResultList, PUGL * 
 	int    ok = -1;
 	BillTbl::Rec bill_rec;
 	if(Search(billID, &bill_rec) > 0 && !(bill_rec.Flags & BILLF_WRITEDOFF) && IsDraftOp(bill_rec.OpID)) {
-		PPObjSecur::Exclusion ose(PPEXCLRT_DRAFTWROFF); // @v8.6.4
+		PPObjSecur::Exclusion ose(PPEXCLRT_DRAFTWROFF);
 		PPOprKindPacket op_pack;
 		THROW(P_OpObj->GetPacket(bill_rec.OpID, &op_pack) > 0);
 		THROW_PP(op_pack.P_DraftData, PPERR_UNDEFWROFFOP);
@@ -1226,12 +1215,10 @@ int SLAPI PPObjBill::RollbackWrOffDraft(PPID billID, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(Search(billID, &bill_rec) > 0 && IsDraftOp(bill_rec.OpID) && bill_rec.Flags & BILLF_WRITEDOFF) {
-			PPObjSecur::Exclusion ose(PPEXCLRT_DRAFTWROFFROLLBACK); // @v8.6.4
+			PPObjSecur::Exclusion ose(PPEXCLRT_DRAFTWROFFROLLBACK);
 			for(DateIter di; P_Tbl->EnumLinks(billID, &di, BLNK_ALL, &link_rec) > 0;)
 				THROW(RemovePacket(link_rec.ID, 0));
-			// @v8.8.3 bill_rec.Flags &= ~BILLF_WRITEDOFF;
-			// @v8.8.3 THROW(tbl->EditRec(&billID, &bill_rec, 0));
-			THROW(P_Tbl->SetRecFlag(billID, BILLF_WRITEDOFF, 0, 0)); // @v8.8.3
+			THROW(P_Tbl->SetRecFlag(billID, BILLF_WRITEDOFF, 0, 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());

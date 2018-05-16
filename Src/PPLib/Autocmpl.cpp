@@ -756,13 +756,13 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 					ilti.SetQtty(ps->NeedQty, 0, PPTFR_RECEIPT | PPTFR_PLUS);
 					SETFLAG(ilti.Flags, PPTFR_COSTWOVAT, pGS->Rec.Flags & GSF_OUTPWOVAT);
 					if(ps->GoodsFlags & GF_UNLIM) {
-						QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
+						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
 						if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
 							out_quot = 0.0;
 					}
 					else {
 						if(out_price_by_quot) {
-							QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
+							const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
 							if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
 								out_quot = 0.0;
 						}
@@ -773,14 +773,13 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 					ilti.Price = NZOR(out_quot, out_price);
 				}
 				else {
-					// @v8.8.6 {
 					if(ps->GoodsFlags & GF_UNLIM) {
-						QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
+						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
 						if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
 							out_quot = 0.0;
 						ilti.Cost = out_quot;
 						ilti.Price = out_quot;
-					} // } @v8.8.6
+					}
 					else if(ps->GsiFlags & GSIF_QUERYEXPLOT) {
 						// @v9.0.4 {
 						int    r = 0;

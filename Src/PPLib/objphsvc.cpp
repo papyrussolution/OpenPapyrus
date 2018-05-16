@@ -500,7 +500,7 @@ AsteriskAmiClient * SLAPI PPObjPhoneService::InitAsteriskAmiClient(PPID id)
 		int    port = temp_buf.ToLong();
 		ps_pack.GetExField(PHNSVCEXSTR_USER, user_buf);
 		ps_pack.GetPassword(secret_buf);
-		long   aacf = (CConfig.Flags & CCFLG_DEBUG) ? AsteriskAmiClient::fDoLog : 0;
+		long   aacf = 0; // (CConfig.Flags & CCFLG_DEBUG) ? AsteriskAmiClient::fDoLog : 0;
 		THROW_MEM(p_cli = new AsteriskAmiClient(aacf));
 		THROW(p_cli->Connect(addr_buf, port));
 		THROW(p_cli->Login(user_buf, secret_buf));
@@ -1095,6 +1095,10 @@ AsteriskAmiClient::AsteriskAmiClient(long flags) : S(1000), Flags(flags), State(
 AsteriskAmiClient::~AsteriskAmiClient()
 {
 	Logout();
+	// @v10.0.06 {
+	if(State & stConnected)
+		S.Disconnect(); 
+	// } @v10.0.06 
 }
 
 int AsteriskAmiClient::Connect(const char * pServerAddr, int serverPort)

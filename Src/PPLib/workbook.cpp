@@ -810,17 +810,14 @@ private:
 		SString temp_buf;
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			// @v8.1.12 {
 			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
 			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
-			// } @v8.1.12
 			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
 			Data.TagL.ObjType = PPOBJ_WORKBOOK;
 			EditObjTagValList(&Data.TagL, 0);
-			// @v8.1.12 {
 			if(getCtrlView(CTL_WORKBOOK_KWSYN)) {
 				const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWSYN);
 				if(p_tag && p_tag->GetStr(temp_buf.Z()))
@@ -831,7 +828,6 @@ private:
 				if(p_tag && p_tag->GetStr(temp_buf.Z()))
 					setCtrlString(CTL_WORKBOOK_KWLOC, temp_buf);
 			}
-			// } @v8.1.12
 			if(getCtrlView(CTL_WORKBOOK_KEYWORDS)) {
 				const ObjTagItem * p_tag_kw = Data.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
 				if(p_tag_kw && p_tag_kw->GetStr(temp_buf.Z()))

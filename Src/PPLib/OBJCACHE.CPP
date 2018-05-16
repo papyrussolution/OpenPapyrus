@@ -745,7 +745,6 @@ PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID
 	if(dbPathID) {
 		p_queue = (PPAdviseEventQueue *)Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 1);
 		if(!p_queue) {
-			//RwL.WriteLock();
 			SRWLOCKER(RwL, SReadWriteLocker::Write);
 			//
 			// Возможно, пока мы ждали, объект уже был создан
@@ -767,7 +766,6 @@ PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID
 					PPSetErrorNoMem();
 				}
 			}
-			//RwL.Unlock();
 		}
 	}
 	return p_queue;

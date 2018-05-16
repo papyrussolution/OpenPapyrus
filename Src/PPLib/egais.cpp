@@ -1043,8 +1043,7 @@ const SString & FASTCALL PPEgaisProcessor::EncText(const char * pS)
 
 const SString & FASTCALL PPEgaisProcessor::EncText(const SString & rS)
 {
-	EncBuf = rS;
-	EncBuf.ReplaceChar('\x07', ' '); // @v9.4.8
+	(EncBuf = rS).ReplaceChar('\x07', ' '); // @v9.4.8
 	PROFILE(XMLReplaceSpecSymb(EncBuf, "&<>\'"));
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
@@ -1562,14 +1561,29 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag,
-	PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList)
+int SLAPI PrcssrAlcReport::GetEgaisPersonByCode(const char * pCode, EgaisPersonCore::Item & rItem)
+{
+	int    ok = -1;
+	rItem.Clear();
+	if(!isempty(pCode) && P_RefC) {
+		TSVector <EgaisPersonTbl::Rec> epr_list;
+		const int idx = P_RefC->PsC.SearchByCode(pCode, epr_list);
+		if(idx > 0) {
+            const EgaisPersonTbl::Rec & r_rec = epr_list.at(idx-1);
+            P_RefC->PsC.RecToItem(r_rec, rItem);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
 	PrcssrAlcReport::GoodsItem agi;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && PreprocessGoodsItem(goodsID, lotID, pLotTagList, 0, agi) > 0) {
-		const int use_refc_data = BIN(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects && P_RefC);
+		const int use_refc_data = UseOwnEgaisObjects();
 		SString temp_buf, added_msg_buf;
 		PPID   manuf_id = 0;
 		PPID   importer_id = 0;
@@ -1577,9 +1591,8 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		SXml::WNode w_s(rXmlDoc, pScopeXmlTag /*"wb:Product"*/);
 		if(!(flags & wpifVersion2))
 			w_s.PutInner("pref:Identity", temp_buf.Z().Cat(goodsID));
-		if(flags & wpifVersion2) {
+		if(flags & wpifVersion2)
 			w_s.PutInner("pref:UnitType", EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
-		}
 		{
 			PPLoadText(PPTXT_EGAIS_AP, temp_buf); // @v9.7.5
 			w_s.PutInner("pref:Type", EncText(temp_buf)); // АП или что-то еще
@@ -1610,22 +1623,21 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		if(agi.UnpackedVolume > 0.0) {
 		}
 		else {
-			if(use_refc_data && agi.RefcVolume)
-				w_s.PutInner("pref:Capacity", temp_buf.Z().Cat(agi.RefcVolume, MKSFMTD(0, 4, 0)));
-			else
-				w_s.PutInner("pref:Capacity", temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 4, 0)));
+			const double volume = (use_refc_data && agi.RefcVolume) ? agi.RefcVolume : agi.Volume;
+			w_s.PutInner("pref:Capacity", temp_buf.Z().Cat(volume, MKSFMTD(0, 4, 0)));
 		}
-		if(use_refc_data && agi.RefcProof)
-			w_s.PutInner("pref:AlcVolume", temp_buf.Z().Cat(agi.RefcProof, MKSFMTD(0, 3, 0)));
-		else
-			w_s.PutInner("pref:AlcVolume", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 3, 0)));
-		if(use_refc_data && agi.RefcCategoryCode.NotEmpty())
-			w_s.PutInner("pref:ProductVCode", agi.RefcCategoryCode);
-		else
-			w_s.PutInner("pref:ProductVCode", agi.CategoryCode);
+		{
+			const double proof = (use_refc_data && agi.RefcProof) ? agi.RefcProof : agi.Proof;
+			w_s.PutInner("pref:AlcVolume", temp_buf.Z().Cat(proof, MKSFMTD(0, 3, 0)));
+		}
+		{
+			temp_buf = (use_refc_data && agi.RefcCategoryCode.NotEmpty()) ? agi.RefcCategoryCode : agi.CategoryCode;
+			w_s.PutInner("pref:ProductVCode", temp_buf);
+		}
 		if(flags & wpifPutManufInfo) {
 			const  long woif = (flags & wpifVersion2) ? (woifDontSendWithoutFSRARID|woifVersion2) : woifDontSendWithoutFSRARID;
 			if(use_refc_data && (agi.RefcImporterCode.NotEmpty() || agi.RefcManufCode.NotEmpty())) {
+				/*
 				TSVector <EgaisPersonTbl::Rec> epr_list; // @v9.8.4 TSArray-->TSVector
 				if(agi.RefcManufCode.NotEmpty()) {
 					const int idx = P_RefC->PsC.SearchByCode(agi.RefcManufCode, epr_list);
@@ -1647,6 +1659,18 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 						manuf_done = 1;
 					}
 				}
+				*/
+				// @v10.0.06 {
+				EgaisPersonCore::Item epr_item;
+				if(GetEgaisPersonByCode(agi.RefcManufCode, epr_item) > 0) {
+					WriteOrgInfo(rXmlDoc, "pref:Producer", epr_item, woif);
+					manuf_done = 1;
+				}
+				if(!(flags & wpifVersion2) && GetEgaisPersonByCode(agi.RefcImporterCode, epr_item) > 0) {
+					WriteOrgInfo(rXmlDoc, "pref:Importer", epr_item, woif);
+					manuf_done = 1;
+				}
+				// } @v10.0.06 
 			}
 			if(!manuf_done) {
 				if(lotID) {
@@ -5565,7 +5589,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 		else if(SXml::IsName(p_n, "Products")) {
 			for(xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
 				if(SXml::IsName(p_c, "StockPosition") || SXml::IsName(p_c, "ShopPosition")) {
-					alc_ext.Clear();
+					alc_ext.Z();
 					EgaisRestItem rest_item;
 					int    product_refc_pos = -1;
 					for(xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {

@@ -3746,6 +3746,7 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 2, (1 << PPEDIOP_DESADV));
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 3, (1 << PPEDIOP_RECADV));
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 4, (1 << PPEDIOP_ALCODESADV));
+			AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 5, (1 << PPEDIOP_INVOIC)); // @v10.0.06
             SetClusterData(CTL_EDIPRV_SUPPOPS, Data.Rec.SuppOpFlags);
 
 			AddClusterAssoc(CTL_EDIPRV_FLAGS, 0, PPEdiProvider::fPassive);
@@ -3803,8 +3804,8 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel;
 	int    r = cmCancel, valid_data = 0, is_new = 0;
 	PPEdiProviderPacket pack;
-	EdiProviderDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new EdiProviderDialog(this))));
+	EdiProviderDialog * dlg = new EdiProviderDialog(this);
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);

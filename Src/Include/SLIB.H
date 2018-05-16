@@ -11910,10 +11910,7 @@ public:
 	SLAPI  SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 	virtual SLAPI ~SlThread();
 	int    SLAPI IsConsistent() const;
-	operator HANDLE() const
-	{
-		return Handle;
-	}
+	operator HANDLE() const { return Handle; }
 	//
 	// Descr: Создает поток и запускает его на исполнение.
 	//   Если waitOnStartup != 0, то ожидает сигнала от события P_StarupSignal.
@@ -11930,7 +11927,7 @@ public:
 	//   Функция устанавливает флаг статуса stStop по которому функции потока
 	//   могут определить, что выставлено требование на остановку.
 	//
-	void   SLAPI Stop();
+	void   SLAPI Stop(long timeout);
 	//
 	// Descr: Terminate the execution thread brutally
 	//

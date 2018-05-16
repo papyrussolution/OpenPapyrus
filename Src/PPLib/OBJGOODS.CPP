@@ -1794,8 +1794,9 @@ PPID SLAPI GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 	if(P_Arp == 0) {
 		P_Arp = new PrcssrAlcReport;
 		if(P_Arp) {
+			// @v10.0.06 @fix поменял местами SetConfig и Init
+			P_Arp->SetConfig(0); 
 			P_Arp->Init();
-			P_Arp->SetConfig(0);
 		}
 	}
 	if(P_Arp) {

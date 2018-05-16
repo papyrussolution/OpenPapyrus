@@ -104,7 +104,7 @@ private:
 	double OrdReserved;    // Зарезервированное количество (OrdReserved <= OrdRest)
 	double MinQtty;        // Минимальное количество, которое может быть введено
 	double MaxQtty;        // Максимальное количество, которое может быть введено
-	double OrgQtty;        // @v7.8.10 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество,
+	double OrgQtty;        // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество,
 		// поступившее в оригинальном документе.
 	double OrgPrice;       // @v9.4.3 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации
 		// в оригинальном документе
@@ -115,7 +115,7 @@ private:
 		strOrderQtty = 2
 	};
 	SString Strings;
-	ObjTagList InheritedLotTagList; // @v7.4.5 Список тегов, унаследованных от предыдущего лота того же товара
+	ObjTagList InheritedLotTagList; // Список тегов, унаследованных от предыдущего лота того же товара
 		// Список необходимо отделить от общего пула тегов из-за необходимость отличать создаваемые в ручную
 		// теги от тегов унаследованных.
 
@@ -844,7 +844,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					break;
 				case cmTags:
 					{
-						getManuf(); // @v8.4.11
+						getManuf();
 						ObjTagList tag_list;
 						ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
 						RVALUEPTR(tag_list, p_list);
@@ -854,7 +854,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						if(EditObjTagValList(&tag_list, 0) > 0) {
 							P_Pack->LTagL.Set(ItemNo, &tag_list);
 							setupPriceLimit();
-							setupManuf(); // @v8.4.11
+							setupManuf();
 						}
 					}
 					break;
@@ -878,7 +878,6 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							if(!skip && ReceiptCore::LotDimensions::EditTag(&gc_pack, &dim_tagitem) > 0) {
 								tag_list.PutItem(PPTAG_LOT_DIMENTIONS, &dim_tagitem);
 								P_Pack->LTagL.Set(ItemNo, &tag_list);
-								// @v8.9.12 {
 								if(gc_pack.LotDimQtty_Formula.NotEmpty()) {
 									SString temp_buf;
 									GoodsContext gctx(&Item, P_Pack);
@@ -892,7 +891,6 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 										}
 									}
 								}
-								// } @v8.9.12
 							}
 						}
 					}
@@ -1219,17 +1217,15 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 		if(GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
 			setStaticText(CTL_LOT_ST_PHQTTY, unit_rec.Name);
 		GetObjectName(PPOBJ_GOODSTAX, goods_rec.TaxGrpID, tax_grp_name);
-		// @v8.9.9 {
 		if(goods_rec.GdsClsID) {
 			PPGdsClsPacket gc_pack;
 			if(GObj.FetchCls(goods_rec.ID, 0, &gc_pack) > 0 && gc_pack.Rec.LotDimCount > 0)
                 allow_dim_button = 1;
 		}
-		// } @v8.9.9
 	}
 	showCtrl(CTL_LOT_PHQTTY, !(Item.Flags & PPTFR_INDEPPHQTTY));
 	showCtrl(CTL_LOT_INDEPPHQTTY, Item.Flags & PPTFR_INDEPPHQTTY);
-	showButton(cmLotDim, allow_dim_button); // @v8.9.9
+	showButton(cmLotDim, allow_dim_button);
 	setStaticText(CTL_LOT_ST_GOODSTAXGRP, tax_grp_name);
 	setQuotSign();
 }
@@ -1699,7 +1695,7 @@ int TrfrItemDialog::setupManuf()
 			const ObjTagItem * p_mnf_tag = P_Pack->LTagL.GetTag(ItemNo, mnf_lot_tag_id);
 			CALLPTRMEMB(p_mnf_tag, GetInt(&manuf_id));
 			SetupPersonCombo(this, CTLSEL_LOT_MANUF, manuf_id, OLW_CANINSERT, tag_rec.LinkObjGrp, 1);
-            setLabelText(CTL_LOT_MANUF, tag_rec.Name); // @v8.5.0
+            setLabelText(CTL_LOT_MANUF, tag_rec.Name);
 			ok = 1;
 		}
 	}
@@ -1868,7 +1864,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 				GenerateSerial();
 		}
 		else {
-			SetupInheritedSerial(); // @v7.8.2
+			SetupInheritedSerial();
 		}
 	}
 	// @v9.3.6 {
@@ -2140,7 +2136,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	else {
 		sel = CTL_LOT_PRICE;
-		THROW_PP(pc > 0.0 || (pc == 0.0 && isAllowZeroPrice()) || OpID == PPOPK_EDI_ACTCHARGEON, PPERR_INVPRICE); // @v8.9.7 PPOPK_EDI_ACTCHARGEON
+		THROW_PP(pc > 0.0 || (pc == 0.0 && isAllowZeroPrice()) || OpID == PPOPK_EDI_ACTCHARGEON, PPERR_INVPRICE);
 		if(OpTypeID == PPOPT_GOODSORDER) {
 			// @v9.2.9 ds = 0.0;
 		}
@@ -2272,7 +2268,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11 
 		}
 	}
-	getManuf(); // @v8.4.11
+	getManuf();
 	*pItem = Item;
 	CATCH
 		if(!no_err_msg)
@@ -2657,7 +2653,7 @@ int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * p
 		entry.Price = lot_rec.Price;
 		entry.Rest  = rest;
 		entry.GoodsID = labs(lot_rec.GoodsID);
-		entry.Expiry  = lot_rec.Expiry; // @v7.2.11
+		entry.Expiry  = lot_rec.Expiry;
 		entry.SupplID = lot_rec.SupplID; // @v9.3.7
 		sr = p_bobj->GetSerialNumberByLot(lot_rec.ID, serial, 1);
 		serial.CopyTo(entry.Serial, sizeof(entry.Serial));

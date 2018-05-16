@@ -25,7 +25,7 @@ struct _GSItem {           // @persistent @store(ObjAssocTbl)
 //
 //
 //
-SLAPI PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), AndFlags(andF), NotFlags(notF), Dt(dt)
+SLAPI PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), AndFlags(andF), NotFlags(notF), Dt(dt), Options(0)
 {
 }
 
@@ -158,23 +158,6 @@ int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
 		return kUndef;
 }
 
-int SLAPI PPGoodsStruc::GetKind() const
-{
-	return PPGoodsStruc::GetStrucKind(Rec.Flags);
-	/*if(Rec.Flags & GSF_COMPLEX)
-		return kComplex;
-	else if(Rec.Flags & GSF_PRESENT)
-		return kGift;
-	else if(Rec.Flags & GSF_SUBST)
-		return kSubst;
-	else if(Rec.Flags & GSF_PARTITIAL)
-		return kPart;
-	else if(Rec.Flags & (GSF_COMPL|GSF_DECOMPL))
-		return kBOM;
-	else
-		return kUndef;*/
-}
-
 //static 
 SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
 {
@@ -196,26 +179,10 @@ SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID pare
 	return rBuf;
 }
 
+int SLAPI PPGoodsStruc::GetKind() const 
+	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
-{
-	return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf);
-	/*rBuf.Z();
-	if(Rec.ID)
-		rBuf.CatChar('E');
-	if(Rec.Flags & GSF_COMPL)
-		rBuf.CatChar('C');
-	if(Rec.Flags & GSF_DECOMPL)
-		rBuf.CatChar('D');
-	if(Rec.Flags & GSF_PARTITIAL)
-		rBuf.CatChar('P');
-	if(Rec.Flags & GSF_SUBST)
-		rBuf.CatChar('S');
-	if(Rec.Flags & GSF_PRESENT)
-		rBuf.CatChar('G');
-	if(Rec.ParentID)
-		rBuf.CatChar('F');
-	return rBuf;*/
-}
+	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
 
 int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 {
@@ -261,27 +228,32 @@ int SLAPI PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGood
 	else {
 		DateRange period = Rec.Period;
 		if(!pIdent->Dt || period.Actualize(ZERODATE).CheckDate(pIdent->Dt)) {
-			if(!pIdent->AndFlags || (Rec.Flags & pIdent->AndFlags) == pIdent->AndFlags) {
-				if(!(Rec.Flags & pIdent->NotFlags)) {
-					// ((Rec.Flags & pIdent->NotFlags) != pIdent->NotFlags)-->!(Rec.Flags & pIdent->NotFlags)
+			int    suit_by_and_flags = 0;
+			if(!pIdent->AndFlags)
+				suit_by_and_flags = 1;
+			else if(pIdent->Options & pIdent->oAnyOfAndFlags && (Rec.Flags & pIdent->AndFlags))
+				suit_by_and_flags = 1;
+			else if(!(pIdent->Options & pIdent->oAnyOfAndFlags) && (Rec.Flags & pIdent->AndFlags) == pIdent->AndFlags)
+				suit_by_and_flags = 1;
+			if(suit_by_and_flags && !(Rec.Flags & pIdent->NotFlags)) {
+				// ((Rec.Flags & pIdent->NotFlags) != pIdent->NotFlags)-->!(Rec.Flags & pIdent->NotFlags)
 
-					//
-					// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
-					//
-					int    found = 0;
-					for(uint i = 0; !found && i < rList.getCount(); i++) {
-						const PPGoodsStruc * p_item = rList.at(i);
-						if(p_item && p_item->Rec.ID == Rec.ID)
-							found = 1;
-					}
-					if(!found) {
-						PPGoodsStruc * p_new_item = new PPGoodsStruc;
-						THROW_MEM(p_new_item);
-						*p_new_item = *this;
-						p_new_item->GoodsID = pIdent->GoodsID;
-						THROW_SL(rList.insert(p_new_item));
-						ok = 1;
-					}
+				//
+				// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
+				//
+				int    found = 0;
+				for(uint i = 0; !found && i < rList.getCount(); i++) {
+					const PPGoodsStruc * p_item = rList.at(i);
+					if(p_item && p_item->Rec.ID == Rec.ID)
+						found = 1;
+				}
+				if(!found) {
+					PPGoodsStruc * p_new_item = new PPGoodsStruc;
+					THROW_MEM(p_new_item);
+					*p_new_item = *this;
+					p_new_item->GoodsID = pIdent->GoodsID;
+					THROW_SL(rList.insert(p_new_item));
+					ok = 1;
 				}
 			}
 		}

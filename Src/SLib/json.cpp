@@ -113,13 +113,13 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	return RS_OK;
 }
 
-static char * FASTCALL rcs_unwrap(RcString * rcs)
+/*static char * FASTCALL rcs_unwrap(RcString * rcs)
 {
 	assert(rcs);
 	char * out = rcs->P_Text ? (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (sstrlen(rcs->P_Text) + 1)) : 0;
 	SAlloc::F(rcs);
 	return out;
-}
+}*/
 
 // end of rc_string part
 
@@ -133,7 +133,7 @@ json_t::~json_t()
 	delete P_Child;
 }
 
-void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)
+/*void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)
 {
 	assert(pRcs);
 	if(pRcs) {
@@ -141,6 +141,11 @@ void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)
 		SAlloc::F(pRcs->P_Text); // @v10.0.05 @fix
 		SAlloc::F(pRcs);
 	}
+}*/
+
+void FASTCALL json_t::AssignText(const SString & rT)
+{
+	Text = rT;
 }
 
 enum json_error json_stream_parse(FILE * file, json_t ** document)
@@ -151,7 +156,6 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 	assert(file); // must be an open stream
 	assert(document); // must be a valid pointer reference
 	assert(*document == NULL); // only accepts a null json_t pointer, to avoid memory leaks
-	json_jpi_init(&state);	/* initializes the json_parsing_info object */
 	while(oneof4(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, SLERR_JSON_INCOMPLETE_DOCUMENT, JSON_INCOMPLETE_DOCUMENT)) {
 		if(fgets(buffer, 1024, file)) {
 			error = json_parse_fragment(&state, buffer) ? JSON_OK : (enum json_error)SLibError;
@@ -365,6 +369,26 @@ void FASTCALL json_free_value(json_t ** ppValue)
 	return ok;
 }
 
+int FASTCALL json_t::Insert(const char * pTextLabel, json_t * pValue)
+{
+	int    ok = 1;
+	// verify if the parameters are valid
+	assert(pTextLabel);
+	assert(pValue);
+	assert(this != pValue);
+	// enforce type coherence
+	assert(Type == json_t::tOBJECT);
+	// create label json_value
+	json_t * p_label = json_new_string(pTextLabel);
+	THROW(p_label);
+	// insert value and check for error
+	THROW(json_insert_child(p_label, pValue));
+	THROW(json_insert_child(this, p_label)); // insert value and check for error
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // {
 /*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
 {
 	//enum     json_error error;
@@ -386,6 +410,7 @@ void FASTCALL json_free_value(json_t ** ppValue)
 	//return error;
 	return ok;
 }
+#endif
 
 #if 0 // {
 enum json_error json_tree_to_string(json_t * pRoot, char ** ppText)
@@ -818,17 +843,7 @@ int json_format_string(const char * pText, SString & rBuf)
 	return ok;
 }
 
-void json_jpi_init(json_parsing_info * jpi)
-{
-	assert(jpi);
-	jpi->state = 0;
-	jpi->lex_state = 0;
-	jpi->lex_text = NULL;
-	jpi->p = NULL;
-	jpi->cursor = NULL;
-	jpi->string_length_limit_reached = 0;
-}
-
+#if 0 // {
 static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcString ** text)
 {
 	assert(pBuffer);
@@ -1202,7 +1217,6 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 					case ',':
 						*state = 0;
 						return LEX_NUMBER;
-						break;
 					case 'e':
 					case 'E':
 						rcs_catc(*text, **p);
@@ -1271,8 +1285,392 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 	*p = NULL;
 	return LEX_MORE;
 }
+#endif // } 0
 
-/*enum json_error*/int FASTCALL json_parse_fragment(json_parsing_info *info, const char *buffer)
+static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString & rText)
+{
+	assert(pBuffer);
+	assert(p);
+	assert(state);
+	//assert(text);
+	rText.Z();
+	if(*p == NULL)
+		*p = (char *)pBuffer;
+	while(**p != '\0') {
+		switch(*state) {
+			case 0:	/* Root document */
+				switch(*(*p)++) {
+					case '\x20': // space 
+					case '\x09': // horizontal tab 
+					case '\x0A': // line feed or new line 
+					case '\x0D': // Carriage return 
+						break;
+					case '{': return LEX_BEGIN_OBJECT;
+					case '}': return LEX_END_OBJECT;
+					case '[': return LEX_BEGIN_ARRAY;
+					case ']': return LEX_END_ARRAY;
+					case ':': return LEX_NAME_SEPARATOR;
+					case ',': return LEX_VALUE_SEPARATOR;
+					case '\"':
+						rText.Z();
+						*state = 1;	/* inside a JSON string */
+						break;
+					case 't': *state =  7; break; // true: 1
+					case 'f': *state = 10; break; // false: 1
+					case 'n': *state = 14; break; // false: 1
+					case '-':
+						rText.Z().CatChar('-');
+						*state = 17; // number: '0'
+						break;
+					case '0':
+						rText.Z().CatChar('0');
+						*state = 18; // number: '0' 
+						break;
+					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.Z().CatChar(*(*p - 1));
+						*state = 19; // number: decimal followup
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 1:	// inside a JSON string
+				switch(**p) {
+					case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+					case 10: // line feed
+					case 11: case 12:
+					case 13: // carriage return
+					case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22:
+					case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31:
+						// ASCII control characters can only be present in a JSON string if they are escaped. If not then the document is invalid
+						return LEX_INVALID_CHARACTER;
+						break;
+					case '\"':	// close JSON string
+						// it is expected that, in the routine that calls this function, text is set to NULL
+						*state = 0;
+						++*p;
+						return LEX_STRING;
+						break;
+					case '\\':
+						rText.CatChar('\\');
+						*state = 2;	// inside a JSON string: start escape sequence
+						break;
+					default:
+						rText.CatChar(**p);
+						break;
+				}
+				++*p;
+				break;
+			case 2: // inside a JSON string: start escape sequence
+				switch(**p) {
+					case '\\':
+					case '\"':
+					case '/':
+					case 'b':
+					case 'f':
+					case 'n':
+					case 'r':
+					case 't':
+						rText.CatChar(**p);
+						*state = 1;	// inside a JSON string
+						break;
+					case 'u':
+						rText.CatChar(**p);
+						*state = 3;	// inside a JSON string: escape unicode
+						break;
+					default:
+						return LEX_INVALID_CHARACTER;
+				}
+				++*p;
+				break;
+			case 3: // inside a JSON string: escape unicode
+				if((**p >= 'a') && (**p <= 'f')) {
+					rText.CatChar(**p);
+					*state = 4; // inside a JSON string: escape unicode
+				}
+				else if((**p >= 'A') && (**p <= 'F')) {
+					rText.CatChar(**p);
+					*state = 4;	// inside a JSON string: escape unicode
+				}
+				else if((**p >= '0') && (**p <= '9')) {
+					rText.CatChar(**p);
+					*state = 4;	// inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++*p;
+				break;
+			case 4:	// inside a JSON string: escape unicode
+				if((**p >= 'a') && (**p <= 'f')) {
+					rText.CatChar(**p);
+					*state = 5;	// inside a JSON string: escape unicode
+				}
+				else if((**p >= 'A') && (**p <= 'F')) {
+					rText.CatChar(**p);
+					*state = 5;	// inside a JSON string: escape unicode
+				}
+				else if((**p >= '0') && (**p <= '9')) {
+					rText.CatChar(**p);
+					*state = 5;	// inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++*p;
+				break;
+			case 5:	// inside a JSON string: escape unicode
+				if((**p >= 'a') && (**p <= 'f')) {
+					rText.CatChar(**p);
+					*state = 6;	// inside a JSON string: escape unicode
+				}
+				else if((**p >= 'A') && (**p <= 'F')) {
+					rText.CatChar(**p);
+					*state = 6;	// inside a JSON string: escape unicode
+				}
+				else if((**p >= '0') && (**p <= '9')) {
+					rText.CatChar(**p);
+					*state = 6;	// inside a JSON string: escape unicode
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++*p;
+				break;
+			case 6:	// inside a JSON string: escape unicode
+				if((**p >= 'a') && (**p <= 'f')) {
+					rText.CatChar(**p);
+					*state = 1;	/* inside a JSON string: escape unicode */
+				}
+				else if((**p >= 'A') && (**p <= 'F')) {
+					rText.CatChar(**p);
+					*state = 1;	/* inside a JSON string: escape unicode */
+				}
+				else if((**p >= '0') && (**p <= '9')) {
+					rText.CatChar(**p);
+					*state = 1;	/* inside a JSON string: escape unicode */
+				}
+				else
+					return LEX_INVALID_CHARACTER;
+				++*p;
+				break;
+			case 7:	/* true: 1 */
+				switch(*(*p)++) {
+					case 'r': *state = 8; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 8:	/* true: 2 */
+				switch(*(*p)++) {
+					case 'u': *state = 9; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 9:	/* true: 3 */
+				switch(*(*p)++) {
+					case 'e': *state = 0; return LEX_TRUE;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 10:	/* false: 1 */
+				switch(*(*p)++) {
+					case 'a': *state = 11; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 11:	/* false: 2 */
+				switch(*(*p)++) {
+					case 'l': *state = 12; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 12:	/* false: 3 */
+				switch(*(*p)++) {
+					case 's': *state = 13; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 13:	/* false: 4 */
+				switch(*(*p)++) {
+					case 'e': *state = 0; return LEX_FALSE;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 14:	/* null: 1 */
+				switch(*(*p)++) {
+					case 'u': *state = 15; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 15:	/* null: 2 */
+				switch(*(*p)++) {
+					case 'l': *state = 16; break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 16:	/* null: 3 */
+				switch(*(*p)++) {
+					case 'l': *state = 0; return LEX_NULL;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 17: // number: minus sign
+				switch(**p) {
+					case '0':
+						rText.CatChar(**p);
+						++*p;
+						*state = 18; // number: '0'
+						break;
+					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						*state = 19;	/* number: decimal followup */
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 18:	/* number: '0' */
+				switch(**p) {
+					case '\x20':	/* space */
+					case '\x09':	/* horizontal tab */
+					case '\x0A':	/* line feed or new line */
+					case '\x0D':	/* Carriage return */
+						++*p;
+					case ']':
+					case '}':
+					case ',':
+						*state = 0;
+						return LEX_NUMBER;
+					case '.':
+						rText.CatChar(**p);
+						++*p;
+						*state = 20;	/* number: frac start */
+						break;
+					case 'e':
+					case 'E':
+						rText.CatChar(**p);
+						++*p;
+						*state = 22;	/* number: exp start */
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 19: // number: int followup
+				switch(**p) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++*p;
+					case ']':
+					case '}':
+					case ',':
+						*state = 0;
+						return LEX_NUMBER;
+					case '.':
+						rText.CatChar(**p);
+						++*p;
+						*state = 20; // number: frac start
+						break;
+					case 'e':
+					case 'E':
+						rText.CatChar(**p);
+						++*p;
+						*state = 22; // number: exp start
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 20: // number: frac start
+				{
+					switch(**p) {
+						case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+							rText.CatChar(**p);
+							++*p;
+							*state = 21;	/* number: frac continue */
+							break;
+						default: return LEX_INVALID_CHARACTER;
+					}
+				}
+				break;
+			case 21: // number: frac continue
+				switch(**p) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++*p;
+					case ']':
+					case '}':
+					case ',':
+						*state = 0;
+						return LEX_NUMBER;
+					case 'e':
+					case 'E':
+						rText.CatChar(**p);
+						++*p;
+						*state = 22;	/* number: exp start */
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 22: // number: exp start
+				switch(**p) {
+					case '-':
+					case '+':
+						rText.CatChar(**p);
+						++*p;
+						*state = 23;	/* number: exp continue */
+						break;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						*state = 24;	/* number: exp end */
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 23: // number: exp continue
+				switch(**p) {
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						*state = 24;	/* number: exp end */
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			case 24: // number: exp end
+				switch(**p) {
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
+						++*p;
+					case ']':
+					case '}':
+					case ',':
+						*state = 0;
+						return LEX_NUMBER;
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						rText.CatChar(**p);
+						++*p;
+						break;
+					default: return LEX_INVALID_CHARACTER;
+				}
+				break;
+			default: return LEX_INVALID_CHARACTER;
+		}
+	}
+	*p = NULL;
+	return LEX_MORE;
+}
+
+/*enum json_error*/int FASTCALL json_parse_fragment(json_parsing_info * info, const char * buffer)
 {
 	int    ok = 1;
 	json_t * p_temp = 0;
@@ -1281,8 +1679,8 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 	info->p = (char *)buffer;
 	while(*info->p != '\0') {
 		switch(info->state) {
-			case 0:	/* starting point */
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+			case 0:	// starting point 
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_BEGIN_OBJECT: info->state = 1; break; // begin object
 					case LEX_BEGIN_ARRAY:  info->state = 7; break; // begin array
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
@@ -1309,11 +1707,10 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				//
 				assert(info->cursor);
 				assert(info->cursor->Type == json_t::tOBJECT);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						p_temp->AssignAllocatedText(info->lex_text);
-						info->lex_text = NULL;
+						p_temp->AssignText(info->Text);
 						THROW(json_insert_child(info->cursor, p_temp));
 						info->cursor = p_temp;
 						p_temp = NULL;
@@ -1344,7 +1741,7 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				// perform tree sanity checks
 				assert(info->cursor);
 				assert(info->cursor->Type == json_t::tOBJECT);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_VALUE_SEPARATOR:
 						info->state = 4; // sibling, post-object
 						break;
@@ -1374,11 +1771,10 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 			case 4: // sibling, post-object
 				assert(info->cursor);
 				assert(info->cursor->Type == json_t::tOBJECT);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						p_temp->AssignAllocatedText(info->lex_text);
-						info->lex_text = NULL;
+						p_temp->AssignText(info->Text);
 						THROW(json_insert_child(info->cursor, p_temp));
 						info->cursor = p_temp;
 						p_temp = 0;
@@ -1395,7 +1791,7 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				/* perform tree sanity checks */
 				assert(info->cursor);
 				assert(info->cursor->Type == json_t::tSTRING);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
@@ -1404,15 +1800,14 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				break;
 			case 6: // label, pos name separator
 				{
-					uint value;	/* to avoid redundant code */
-					/* perform tree sanity checks */
+					// perform tree sanity checks 
 					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tSTRING);
-					switch(value = lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+					const uint value = Lexer(buffer, &info->p, &info->lex_state, info->Text);
+					switch(value) {
 						case LEX_STRING:
 							THROW(p_temp = new json_t(json_t::tSTRING));
-							p_temp->AssignAllocatedText(info->lex_text);
-							info->lex_text = NULL;
+							p_temp->AssignText(info->Text);
 							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
@@ -1423,8 +1818,7 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 							break;
 						case LEX_NUMBER:
 							THROW(p_temp = new json_t(json_t::tNUMBER));
-							p_temp->AssignAllocatedText(info->lex_text);
-							info->lex_text = NULL;
+							p_temp->AssignText(info->Text);
 							THROW(json_insert_child(info->cursor, p_temp));
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
@@ -1490,19 +1884,17 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 				// perform tree sanity checks
 				assert(info->cursor);
 				assert(info->cursor->Type == json_t::tARRAY);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new json_t(json_t::tSTRING));
-						p_temp->AssignAllocatedText(info->lex_text);
-						info->lex_text = NULL;
+						p_temp->AssignText(info->Text);
 						THROW(json_insert_child(info->cursor, p_temp));
 						p_temp = 0;
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NUMBER:
 						THROW(p_temp = new json_t(json_t::tNUMBER));
-						p_temp->AssignAllocatedText(info->lex_text);
-						info->lex_text = NULL;
+						p_temp->AssignText(info->Text);
 						THROW(json_insert_child(info->cursor, p_temp));
 						p_temp = NULL;
 						info->state = 9;	/* label, pre label:value separator */
@@ -1552,7 +1944,7 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 			case 9: // followup to adding child to array
 				// TODO perform tree sanity checks
 				assert(info->cursor);
-				switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_VALUE_SEPARATOR:
 						info->state = 8;
 						break;
@@ -1584,7 +1976,7 @@ static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcStrin
 			case 99: // finished document. only accept whitespaces until EOF
 				// perform tree sanity check
 				assert(info->cursor->P_Parent == NULL);
-				switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
+				switch(Lexer(buffer, &info->p, &info->lex_state, info->Text)) {
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_WAITING_FOR_EOF);
 					case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
@@ -1613,25 +2005,16 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 	assert(*root == NULL);
 	assert(text);
 	// initialize the parsing structure
-	json_parsing_info * jpi = (json_parsing_info *)SAlloc::M(sizeof(json_parsing_info));
-	if(jpi == NULL) {
-		error = JSON_MEMORY;
-	}
-	else {
-		json_jpi_init(jpi);
-		error = json_parse_fragment(jpi, text) ? JSON_OK : (enum json_error)SLibError;
-		if(oneof3(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, JSON_OK)) {
-			*root = jpi->cursor;
-			SAlloc::F(jpi);
-			error = JSON_OK;
-		}
-		else
-			SAlloc::F(jpi);
+	json_parsing_info jpi;
+	error = json_parse_fragment(&jpi, text) ? JSON_OK : (enum json_error)SLibError;
+	if(oneof3(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, JSON_OK)) {
+		*root = jpi.cursor;
+		error = JSON_OK;
 	}
 	return error;
 }
 
-enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functions * jsf, char c)
+enum json_error json_saxy_parse(json_saxy_parser_status * jsps, json_saxy_functions * jsf, char c)
 {
 	// @todo handle a string instead of a single char
 	//RcString * temp = 0;
