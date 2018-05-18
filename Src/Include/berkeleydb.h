@@ -80,8 +80,8 @@ extern "C" {
 	typedef short int16;
 	typedef unsigned short uint16;
 	//typedef int int32;
-	typedef __int64 int64_t;
-	typedef unsigned __int64 u_int64_t;
+	typedef __int64 int64;
+	typedef unsigned __int64 uint64;
 #endif
 #ifndef _WINSOCKAPI_
 	// @sobolev typedef unsigned char u_char;
@@ -111,10 +111,10 @@ typedef unsigned short u_short;
 #if defined(_MSC_VER) && _MSC_VER < 1300
 	typedef uint32 uintmax_t;
 #else
-	typedef u_int64_t uintmax_t;
+	typedef uint64 uintmax_t;
 #endif
 #ifdef _WIN64
-	typedef u_int64_t uintptr_t;
+	typedef uint64 uintptr_t;
 #else
 	typedef unsigned int uintptr_t;
 #endif
@@ -124,7 +124,7 @@ typedef unsigned short u_short;
  * file offsets, so we declare our own.
  */
 #define off_t   __db_off_t
-typedef int64_t off_t;
+typedef int64 off_t;
 typedef int32 pid_t;
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
 	typedef uint32 db_size_t;
@@ -132,7 +132,7 @@ typedef int32 pid_t;
 	typedef size_t db_size_t;
 #endif
 #ifdef _WIN64
-	typedef int64_t ssize_t;
+	typedef int64 ssize_t;
 #else
 	typedef int32 ssize_t;
 #endif
@@ -142,7 +142,7 @@ typedef int32 pid_t;
 	typedef ssize_t db_ssize_t;
 #endif
 
-typedef int64_t   db_seq_t;      /* Sequences are only available on machines with 64-bit integral types. */
+typedef int64   db_seq_t;      /* Sequences are only available on machines with 64-bit integral types. */
 typedef uint32 db_threadid_t; /* Thread and process identification. */
 // Basic types that are exported or quasi-exported.
 typedef uint32 db_pgno_t;       /* Page number type. */

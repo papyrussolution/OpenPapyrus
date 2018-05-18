@@ -47,8 +47,8 @@ extern "C" {
  */
 #undef	M_64_SWAP
 #define	M_64_SWAP(a) {							\
-	u_int64_t _tmp;							\
-	_tmp = (u_int64_t)a;						\
+	uint64 _tmp;							\
+	_tmp = (uint64)a;						\
 	((uint8 *)&a)[0] = ((uint8 *)&_tmp)[7];			\
 	((uint8 *)&a)[1] = ((uint8 *)&_tmp)[6];			\
 	((uint8 *)&a)[2] = ((uint8 *)&_tmp)[5];			\
@@ -71,7 +71,7 @@ extern "C" {
 }
 #undef	P_64_SWAP
 #define	P_64_SWAP(a) {							\
-	u_int64_t _tmp;							\
+	uint64 _tmp;							\
 	P_64_COPY(a, &_tmp);						\
 	((uint8 *)a)[0] = ((uint8 *)&_tmp)[7];			\
 	((uint8 *)a)[1] = ((uint8 *)&_tmp)[6];			\

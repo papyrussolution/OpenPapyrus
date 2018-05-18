@@ -1,0 +1,146 @@
+/* DO NOT EDIT: automatically built by dist/s_include. */
+#ifndef	_btree_ext_h_
+#define	_btree_ext_h_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+int __bam_compact_int __P((DBC *, DBT *, DBT *, uint32, int *, DB_COMPACT *, int *));
+int __bam_compact_opd __P((DBC *, db_pgno_t, PAGE **, uint32, DB_COMPACT *, int *));
+int __bam_truncate_ipages __P((DB *, DB_THREAD_INFO *, DB_TXN *, DB_COMPACT *, int *));
+int __bam_cmp __P((DBC *, const DBT *, PAGE *, uint32, int (*)(DB *, const DBT *, const DBT *, size_t *), int *, size_t *));
+size_t __bam_defpfx __P((DB *, const DBT *, const DBT *));
+int __bam_compress_dupcmp __P((DB *, const DBT *, const DBT *, size_t *));
+int __bam_defcompress __P((DB *, const DBT *, const DBT *, const DBT *, const DBT *, DBT *));
+int __bam_defdecompress __P((DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *));
+int __bamc_compress_get __P((DBC *, DBT *, DBT *, uint32));
+int __bamc_compress_put __P((DBC *, DBT *, DBT *, uint32));
+int __bamc_compress_del __P((DBC *, uint32));
+int __bamc_compress_bulk_del __P((DBC *, DBT *, uint32));
+int __bamc_compress_count __P((DBC *, db_recno_t *));
+int __bamc_compress_cmp __P((DBC *, DBC *, int *));
+int __bamc_compress_dup __P((DBC *, DBC *, uint32));
+int __bam_compress_salvage __P((DB *, VRFY_DBINFO *, void *, int (*)(void *, const void *), DBT *, DBT *));
+int __bam_compress_count __P((DBC *, uint32 *, uint32 *));
+int __bam_pgin __P((DB *, db_pgno_t, void *, DBT *));
+int __bam_pgout __P((DB *, db_pgno_t, void *, DBT *));
+int __bam_mswap __P((ENV *, PAGE *));
+int __bam_ca_delete __P((DB *, db_pgno_t, uint32, int, uint32 *));
+int __ram_ca_delete __P((DB *, db_pgno_t, uint32 *));
+int __bam_ca_di __P((DBC *, db_pgno_t, uint32, int));
+int __bam_ca_dup __P((DBC *, uint32, db_pgno_t, uint32, db_pgno_t, uint32));
+int __bam_ca_undodup __P((DB *, uint32, db_pgno_t, uint32, uint32));
+int __bam_ca_rsplit __P((DBC *, db_pgno_t, db_pgno_t));
+int __bam_ca_split __P((DBC *, db_pgno_t, db_pgno_t, db_pgno_t, uint32, int));
+int __bam_ca_undosplit __P((DB *, db_pgno_t, db_pgno_t, db_pgno_t, uint32));
+int __bamc_init __P((DBC *, DBTYPE));
+int __bamc_refresh __P((DBC *));
+int __bamc_cmp __P((DBC *, DBC *, int *));
+int __bamc_count __P((DBC *, db_recno_t *));
+int __bamc_dup __P((DBC *, DBC *, uint32));
+int __bam_bulk_overflow __P((DBC *, uint32, db_pgno_t, uint8 *));
+int __bam_bulk_duplicates __P((DBC *, db_pgno_t, uint8 *, int32 *, int32 **, uint8 **, uint32 *, int));
+int __bamc_rget __P((DBC *, DBT *));
+int  __bam_opd_exists __P((DBC *, db_pgno_t));
+int __bam_ditem __P((DBC *, PAGE *, uint32));
+int __bam_adjindx __P((DBC *, PAGE *, uint32, uint32, int));
+int __bam_dpages __P((DBC *, int, int));
+int __bam_pupdate __P((DBC *, PAGE *));
+int __bam_db_create __P((DB *));
+int __bam_db_close __P((DB *));
+void __bam_map_flags __P((DB *, uint32 *, uint32 *));
+int __bam_set_flags __P((DB *, uint32 *flagsp));
+int __bam_set_bt_compare __P((DB *, int (*)(DB *, const DBT *, const DBT *, size_t *)));
+int __bam_set_bt_compress __P((DB *, int (*)(DB *, const DBT *, const DBT *, const DBT *, const DBT *, DBT *), int (*)(DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *)));
+int __bam_get_bt_minkey __P((DB *, uint32 *));
+void __bam_copy_config __P((const DB *, DB *, uint32));
+void __ram_map_flags __P((DB *, uint32 *, uint32 *));
+int __ram_set_flags __P((DB *, uint32 *flagsp));
+int __ram_get_re_len __P((DB *, uint32 *));
+int __ram_get_re_pad __P((DB *, int *));
+int __bam_open __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, db_pgno_t, uint32));
+int __bam_metachk __P((DB *, const char *, BTMETA *));
+int __bam_read_root __P((DB *, DB_THREAD_INFO *, DB_TXN *, db_pgno_t, uint32));
+int __bam_new_file __P((DB *, DB_THREAD_INFO *, DB_TXN *, DB_FH *, const char *));
+int __bam_new_subdb __P((DB *, DB *, DB_THREAD_INFO *, DB_TXN *));
+int __bam_iitem __P((DBC *, DBT *, DBT *, uint32, uint32));
+int __bam_ritem __P((DBC *, PAGE *, uint32, DBT *, uint32));
+int __bam_ritem_nolog __P((DBC *, PAGE *, uint32, DBT *, DBT *, uint32));
+int __bam_irep __P((DBC *, PAGE *, uint32, DBT *, DBT *));
+int __bam_split_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_split_48_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_split_42_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_rsplit_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_adj_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_cadjust_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_cdel_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_repl_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_irep_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_root_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_curadj_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_rcuradj_recover __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_reclaim __P((DB *, DB_THREAD_INFO *, DB_TXN *, uint32));
+int __bam_truncate __P((DBC *, uint32 *));
+int __ram_open __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, db_pgno_t, uint32));
+int __ram_append __P((DBC *, DBT *, DBT *));
+int __ramc_del __P((DBC *, uint32));
+int __ramc_get __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
+int __ramc_put __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
+int __ram_ca __P((DBC *, ca_recno_arg, int *));
+int __ram_getno __P((DBC *, const DBT *, db_recno_t *, int));
+int __ram_writeback __P((DB *));
+int __bam_rsearch __P((DBC *, db_recno_t *, uint32, int, int *));
+int __bam_adjust __P((DBC *, int32));
+int __bam_nrecs __P((DBC *, db_recno_t *));
+db_recno_t __bam_total __P((DB *, PAGE *));
+int __bam_get_root __P((DBC *, db_pgno_t, int, uint32, int *));
+int __bam_search __P((DBC *, db_pgno_t, const DBT *, uint32, int, db_recno_t *, int *));
+int __bam_stkrel __P((DBC *, uint32));
+int __bam_stkgrow __P((ENV *, BTREE_CURSOR *));
+int __bam_split __P((DBC *, void *, db_pgno_t *));
+int __bam_broot __P((DBC *, PAGE *, uint32, PAGE *, PAGE *));
+int __ram_root __P((DBC *, PAGE *, PAGE *, PAGE *));
+int __bam_pinsert __P((DBC *, EPG *, uint32, PAGE *, PAGE *, int));
+int __bam_copy __P((DB *, PAGE *, PAGE *, uint32, uint32));
+int __bam_stat __P((DBC *, void *, uint32));
+int __bam_stat_print __P((DBC *, uint32));
+int __bam_stat_callback __P((DBC *, PAGE *, void *, int *));
+void __bam_print_cursor __P((DBC *));
+int __bam_key_range __P((DBC *, DBT *, DB_KEY_RANGE *, uint32));
+int __bam_traverse __P((DBC *, db_lockmode_t, db_pgno_t, int (*)(DBC *, PAGE *, void *, int *), void *));
+int __bam_30_btreemeta __P((DB *, char *, uint8 *));
+int __bam_31_btreemeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+int __bam_31_lbtree __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+int __bam_60_btreemeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+int __bam_60_lbtree __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+int __bam_vrfy_meta __P((DB *, VRFY_DBINFO *, BTMETA *, db_pgno_t, uint32));
+int __ram_vrfy_leaf __P((DB *, VRFY_DBINFO *, PAGE *, db_pgno_t, uint32));
+int __bam_vrfy __P((DB *, VRFY_DBINFO *, PAGE *, db_pgno_t, uint32));
+int __bam_vrfy_itemorder __P((DB *, VRFY_DBINFO *, DB_THREAD_INFO *, PAGE *, db_pgno_t, uint32, int, int, uint32));
+int __bam_vrfy_structure __P((DB *, VRFY_DBINFO *, db_pgno_t, void *, void *, uint32));
+int __bam_vrfy_subtree __P((DB *, VRFY_DBINFO *, db_pgno_t, void *, void *, uint32, uint32 *, uint32 *, uint32 *));
+int __bam_salvage __P((DB *, VRFY_DBINFO *, db_pgno_t, uint32, PAGE *, void *, int (*)(void *, const void *), DBT *, uint32));
+int __bam_salvage_walkdupint __P((DB *, VRFY_DBINFO *, PAGE *, DBT *, void *, int (*)(void *, const void *), uint32));
+int __bam_meta2pgset __P((DB *, VRFY_DBINFO *, BTMETA *, uint32, DB *));
+int __bam_init_recover __P((ENV *, DB_DISTAB *));
+int __bam_split_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_split_48_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_split_42_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_rsplit_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_adj_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_cadjust_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_cdel_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_repl_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_irep_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_root_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_curadj_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_rcuradj_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_relink_43_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_merge_44_print __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+int __bam_init_print __P((ENV *, DB_DISTAB *));
+
+#if defined(__cplusplus)
+}
+#endif
+#endif /* !_btree_ext_h_ */

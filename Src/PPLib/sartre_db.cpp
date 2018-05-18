@@ -6,7 +6,8 @@
 #pragma hdrstop
 #include <sartre.h>
 #include <locale.h>
-#include <BerkeleyDB.h>
+//#include <berkeleydb.h>
+#include <berkeleydb-6232.h>
 //
 //
 //

@@ -742,7 +742,7 @@ static int __seq_chk_cachesize(ENV * env, int32 cachesize, db_seq_t max, db_seq_
 	 * the difference will fit in an unsigned variable of the same type.
 	 * Assume a 2's complement machine, and simply subtract.
 	 */
-	if((uint32)cachesize > (u_int64_t)max-(u_int64_t)min) {
+	if((uint32)cachesize > (uint64)max-(uint64)min) {
 		__db_errx(env, DB_STR("4014", "Number of items to be cached is larger than the sequence range"));
 		return EINVAL;
 	}

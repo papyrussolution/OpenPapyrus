@@ -477,25 +477,16 @@ SLAPI PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 SLAPI PPObjGoods::~PPObjGoods()
 {
 	delete P_PsnObj;
-	// @v8.0.9 {
 	/* @v9.8.11
 	if(HistGoods) {
 		TLP_CLOSE(HistGoods);
 	}*/
-	// } @v8.0.9
 	TLP_CLOSE(P_Tbl);
 	delete P_Cfg;
 }
 
-int SLAPI PPObjGoods::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
-const char * SLAPI PPObjGoods::GetNamePtr()
-{
-	return P_Tbl->data.Name;
-}
+int SLAPI PPObjGoods::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+const char * SLAPI PPObjGoods::GetNamePtr() { return P_Tbl->data.Name; }
 
 int SLAPI PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
 {
@@ -515,8 +506,7 @@ int SLAPI PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
 
 int SLAPI PPObjGoods::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
-	return (Kind == PPGDSK_GOODS) ?
-		EditSpcRightFlags(DLG_RTGOODS, 0, 0, bufSize, rt, pDlg) : PPObject::EditRights(bufSize, rt, pDlg);
+	return (Kind == PPGDSK_GOODS) ? EditSpcRightFlags(DLG_RTGOODS, 0, 0, bufSize, rt, pDlg) : PPObject::EditRights(bufSize, rt, pDlg);
 }
 
 static PPID SetSingleRefAsEnumProp(PPID objTypeID, PPID * pRefID)
@@ -1029,7 +1019,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	PPObjTech * p_tec_obj = 0;
 	PPObjProcessor * p_prc_obj = 0;
-	PPUserFuncProfiler ufp(PPUPRF_GOODSPUT); // @v8.1.3
+	PPUserFuncProfiler ufp(PPUPRF_GOODSPUT);
 	//
 	// Выясняем возможность создания автотехнологии по новому товару
 	//
@@ -1324,7 +1314,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				SupplyAddingToAltGrp(*pID, use_ta);
 		}
 	}
-	ufp.Commit(); // @v8.1.3
+	ufp.Commit();
 	CATCH
 		if(is_new) {
 			*pID = 0;
@@ -1404,8 +1394,7 @@ int SLAPI PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec,
 int SLAPI PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
 	Goods2Tbl::Rec grec;
-	if(pGtx)
-		memzero(pGtx, sizeof(*pGtx));
+	memzero(pGtx, sizeof(*pGtx));
 	return (Fetch(goodsID, &grec) > 0 && grec.TaxGrpID) ? GTxObj.Fetch(grec.TaxGrpID, dt, opID, pGtx) : -1;
 }
 
@@ -1626,9 +1615,7 @@ int SLAPI GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 }
 
 const char * FASTCALL GoodsSubstList::GetTextPtr(uint pos) const
-{
-	return (pos < Pool.getDataLen()) ? (Pool.getBuf() + pos) : 0;
-}
+	{ return (pos < Pool.getDataLen()) ? (Pool.getBuf() + pos) : 0; }
 
 IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 {
@@ -1898,16 +1885,12 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 			else
 				goods_id = GOODSSUBSTMASK;
 		}
-		// @v8.4.4 {
 		else if(sgg == sggAlcoCategory) {
 			goods_id = pGsl ? pGsl->SubstAlcoCategory(srcID) : GOODSSUBSTMASK;
 		}
-		// } @v8.4.4
-		// @v8.6.1 {
 		else if(sgg == sggLocAssoc) {
 			goods_id = pGsl ? pGsl->SubstLocAssoc(srcID) : GOODSSUBSTMASK;
 		}
-		// } @v8.6.1
 		else if(Fetch(srcID, &goods_rec) <= 0)
 			ok = -1;
 		else if(sgg == sggGeneric) {
@@ -1949,8 +1932,7 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 			else if(sgg >= sggGroupSecondLvl) {
 				PPObjGoodsGroup ggrp_obj;
 				long level = 1;
-				Goods2Tbl::Rec temp_grec;
-				temp_grec = goods_rec;
+				Goods2Tbl::Rec temp_grec = goods_rec;
 				ggrp_obj.GetLevel(goods_rec.ParentID, &level);
 				level = MIN(level, sgg - sggGroupSecondLvl + 2);
 				for(long idx = 1; idx < level && ggrp_obj.Fetch(temp_grec.ParentID, &temp_grec) > 0; idx++)
@@ -2092,16 +2074,12 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 			rBuf.Cat(fdiv100i(v), fmt);
 		}
 	}
-	// @v8.4.4 {
 	else if(sgg == sggAlcoCategory) {
 		CALLPTRMEMB(pGsl, GetAlcoCategoryText(id, rBuf));
 	}
-	// } @v8.4.4
-	// @v8.6.1 {
 	else if(sgg == sggLocAssoc) {
 		CALLPTRMEMB(pGsl, GetLocAssocText(id, rBuf));
 	}
-	// } @v8.6.1
 	else if(oneof4(sgg, sggNone, sggGeneric, sggGroup, sggBrand) || sgg >= sggGroupSecondLvl || !(id & GOODSSUBSTMASK)) {
 		// @v9.5.5 GetGoodsName(id, rBuf);
 		FetchNameR(id, rBuf); // @v9.5.5
@@ -2151,7 +2129,7 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 					gc_pack.GetExtDim(&gext_rec, PPGdsCls::eZ, &val);
 					rBuf.Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 				}
-				else if(sgg == sggDimW) { // @v8.6.1
+				else if(sgg == sggDimW) {
 					gext_rec.W = gsitem.Par1;
 					gc_pack.GetExtDim(&gext_rec, PPGdsCls::eW, &val);
 					rBuf.Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
@@ -2300,14 +2278,9 @@ int SLAPI PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // 
 }
 
 int SLAPI PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, char * pBuf)
-{
-	return P_Tbl->GetBarcodeByTemplate(grp, GetConfig()/*GetConfig().WghtPrefix*/, pTempl, pBuf);
-}
+	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig()/*GetConfig().WghtPrefix*/, pTempl, pBuf); }
 
-/* @v9.1.4 int SLAPI PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle)
-{
-	return tbl->GetGoodsArticle(id, pArticle);
-} */
+/* @v9.1.4 int SLAPI PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle) { return tbl->GetGoodsArticle(id, pArticle); } */
 
 int SLAPI PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 {
@@ -2604,10 +2577,8 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fHasImages && !(rec.Flags & GF_HASIMAGES))
 		CFF_RET;
-	// @v8.3.9 {
 	if(pFilt->Flags & GoodsFilt::fUseIndepWtOnly && !(rec.Flags & GF_USEINDEPWT))
 		CFF_RET;
-	// } @v8.3.9
 	if(pFilt->ManufID && pFilt->ManufID != rec.ManufID)
 		CFF_RET;
 	{
@@ -3169,14 +3140,9 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 }
 
 int SLAPI PPObjGoods::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
-{
-	return P_Tbl->SearchBy2dBarcode(pCodeLine, pRec, pGoodsRec);
-}
-
+	{ return P_Tbl->SearchBy2dBarcode(pCodeLine, pRec, pGoodsRec); }
 int SLAPI PPObjGoods::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
+	{ return PutPacket(&id, 0, 0); }
 
 StrAssocArray * SLAPI PPObjGoods::CreateListByList(const PPIDArray * pIdList)
 {
@@ -3260,14 +3226,9 @@ int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 }
 
 ListBoxDef * SLAPI PPObjGoods::Selector(void * extraPtr)
-{
-	return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, (long)extraPtr, 0, 0, 0, 0);
-}
-
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, (long)extraPtr, 0, 0, 0, 0); }
 int SLAPI PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
-{
-	return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, (long)extraPtr, 0, 0, 0, 0));
-}
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, (long)extraPtr, 0, 0, 0, 0)); }
 
 int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
@@ -3282,14 +3243,9 @@ int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 }
 
 const PPGoodsConfig & SLAPI PPObjGoods::GetConfig() const
-{
-	return *P_Cfg;
-}
-
+	{ return *P_Cfg; }
 int SLAPI PPObjGoods::Edit(PPID * pID, void * extraPtr /*group*/)
-{
-	return Edit(pID, gpkndGoods, (PPID)extraPtr, 0, 0);
-}
+	{ return Edit(pID, gpkndGoods, (PPID)extraPtr, 0, 0); }
 
 int SLAPI PPObjGoods::ViewVersion(PPID histID)
 {
@@ -3681,7 +3637,6 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 			GetGenericList(id, &generic_list);
 			gp->GenericList.Set(&generic_list);
 		}
-		// @v8.1.12 {
 		else if(gp->Rec.Kind == PPGDSK_GROUP && (_gf & GF_ALTGROUP) && !(_gf & GF_DYNAMIC)) {
 			if(P_Tbl->FetchConfig(&cfg) > 0 && cfg.Flags & GCF_XCHG_SENDALTGROUP) {
 				PPIDArray member_list;
@@ -3689,15 +3644,12 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 				gp->GenericList.Set(&member_list);
 			}
 		}
-		// } @v8.1.12
-		// @v8.2.3 {
 		if(oneof2(gp->Rec.Kind, PPGDSK_GOODS, PPGDSK_BRAND)) {
 			if(P_Tbl->FetchConfig(&cfg) > 0 && cfg.Flags & GCF_XCHG_SENDATTACHMENT) {
 				gp->LinkFiles.Init(Obj);
 				gp->LinkFiles.Load(gp->Rec.ID, 0L);
 			}
 		}
-		// } @v8.2.3
 	}
 	else {
 		SBuffer buffer;
@@ -3804,7 +3756,6 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSGENLIST, pPack->Rec.ID, pPack->Rec.Name);
 					}
 				}
-				// @v8.1.12 {
 				else if(pPack->Rec.Kind == PPGDSK_GROUP && (_gf & GF_ALTGROUP) && !(_gf & GF_DYNAMIC)) {
 					if(!!pPack->GenericList) {
 						ok = P_Tbl->SetAltGrpList(*pID, pPack->GenericList.Get(), 1);
@@ -3813,7 +3764,6 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 						}
 					}
 				}
-				// } @v8.1.12
 				if(ok > 0) {
 					ok = unchanged ? 1 : (is_new ? 101 : 102); // @ObjectCreated : @ObjectUpdated
 				}
@@ -3881,9 +3831,7 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 //
 //
 int SLAPI GoodsStockExt::Pallet::IsValid() const
-{
-	return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0);
-}
+	{ return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0); }
 
 SLAPI GoodsStockExt::GoodsStockExt()
 {
@@ -3977,9 +3925,7 @@ double SLAPI GoodsStockExt::CalcVolume(double qtty) const
 }
 
 int SLAPI GoodsStockExt::SetVolume(double volume)
-{
-	return PckgDim.SetVolumeM(volume);
-}
+	{ return PckgDim.SetVolumeM(volume); }
 
 void SLAPI GoodsStockExt::Init()
 {
@@ -4164,9 +4110,7 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 }
 
 int SLAPI PPObjGoods::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
-{
-	return P_Tbl->GetStockExt(id, pData, useCache);
-}
+	{ return P_Tbl->GetStockExt(id, pData, useCache); }
 
 int SLAPI PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 {
@@ -4275,14 +4219,9 @@ double SLAPI PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2
 }
 
 int SLAPI PPObjGoods::GetTagList(PPID goodsID, ObjTagList * pTagList)
-{
-	return PPRef->Ot.GetList(Obj, goodsID, pTagList);
-}
-
+	{ return PPRef->Ot.GetList(Obj, goodsID, pTagList); }
 int SLAPI PPObjGoods::SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta)
-{
-	return PPRef->Ot.PutList(Obj, goodsID, pTagList, use_ta);
-}
+	{ return PPRef->Ot.PutList(Obj, goodsID, pTagList, use_ta); }
 
 SLAPI PPObjGoodsInfo::PPObjGoodsInfo(void * extraPtr) : PPObjReference(PPOBJ_GOODSINFO, extraPtr)
 {
@@ -4411,7 +4350,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath)
 			addr_list.add(&local_addr_list);
 		}
 		addr_list.sortAndUndup();
-		addr_list.shuffle(); // @v8.4.0
+		addr_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
@@ -4621,10 +4560,8 @@ int UhttIndexBrands(SString & rOutPath)
 				}
 			}
 		}
-		// @v8.4.0 id_list.sort();
-		id_list.shuffle(); // @v8.4.0
-		// @v8.4.0 id_image_list.sort();
-		id_image_list.shuffle(); // @v8.4.0
+		id_list.shuffle();
+		id_image_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
@@ -4716,7 +4653,6 @@ int SLAPI PPObjGoods::ProcessName(ProcessNameBlock & rBlk, SString & rResult)
 //
 //
 /*
-
 	class=tire; gcdimx=155; gcdimy=70; gcdimz=13;
 	tag(priceseg)=premium
 
@@ -4726,9 +4662,7 @@ int SLAPI PPObjGoods::ProcessName(ProcessNameBlock & rBlk, SString & rResult)
 	value := string | ident | number
 	string := '"' [.]* '"'
 	ident := [A-Za-z][A-Za-z0-9_]*
-
 */
-
 int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 {
 	int    ok = -1;

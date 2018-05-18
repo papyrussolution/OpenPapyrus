@@ -2268,8 +2268,6 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 		CONCEPTID gender_cid = 0;
 		CONCEPTID gender_fem_cid = 0;
 		CONCEPTID gender_mas_cid = 0;
-		//SrDatabase db;
-		//THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
 		THROW(rDb.ResolveConcept(p_parent_concept, &parent_cid));
 		THROW(rDb.ResolveConcept("gender", &gender_cid));
 		THROW(rDb.ResolveConcept("gender_mas", &gender_mas_cid));
@@ -2296,7 +2294,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 						ss.setBuf(line_buf);
 						uint   fld_no = 0;
 						double freq = 0.0;
-						entry.Name = 0;
+						entry.Name.Z();
 						entry.Gender = 0;
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							fld_no++;
@@ -3299,6 +3297,9 @@ int SLAPI PrcssrSartre::Run()
 				logger.LogLastError();
 			}
 			if(!ImportHumanNames(db, "name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0)) {
+				logger.LogLastError();
+			}
+			if(!ImportHumanNames(db, "name-firstname-es.csv", "es", SRPROPN_PERSONNAME, 0)) { // @v10.0.06
 				logger.LogLastError();
 			}
 		}

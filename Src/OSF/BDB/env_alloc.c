@@ -98,7 +98,7 @@ typedef struct __alloc_element {
 #define SET_QUEUE_FOR_SIZE(head, q, i, len) do {                        \
 		for(i = 0; i < DB_SIZE_Q_COUNT; ++i) {                         \
 			q = &(head)->sizeq[i];                                  \
-			if((len) <= (u_int64_t)1024<<i)                      \
+			if((len) <= (uint64)1024<<i)                      \
 				break;                                          \
 		}                                                               \
 } while(0)

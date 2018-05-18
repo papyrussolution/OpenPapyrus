@@ -361,6 +361,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include"
+				StructMemberAlignment="1"
 				ObjectFile="$(IntDir)"
 				ProgramDataBaseFileName="$(IntDir)vc70.pdb"/>
 			<Tool

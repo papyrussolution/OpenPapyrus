@@ -4268,6 +4268,7 @@ protected:
 	static int VerifyStatic();
 	static int ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult);
 	static int CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2);
+	static int CmpCallback_6232(DB * pDb, const DBT * pDbt1, const DBT * pDbt2, size_t *);
 	static uint32 PartitionCallback(DB * pDb, DBT * pDbt);
 	//
 	// Descr: Реализует сравнение ключей.

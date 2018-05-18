@@ -1160,6 +1160,7 @@ void SLAPI PPPosProtocol::ProcessInputBlock::Helper_Construct()
 {
 	P_ACS = 0;
 	P_RbList = 0;
+	P_ProcessedFiles = 0;
 	Flags = 0;
 	PosNodeID = 0;
 	SessionCount = 0;
@@ -1172,6 +1173,21 @@ SLAPI PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()
 		delete (TSCollection <PPPosProtocol::ReadBlock> *)P_RbList;
 		P_RbList = 0;
 	}
+}
+
+void FASTCALL PPPosProtocol::ProcessInputBlock::SetOuterProcessedFileList(SymbHashTable * pT)
+{
+	P_ProcessedFiles = pT;
+}
+
+int FASTCALL PPPosProtocol::ProcessInputBlock::CheckFileForProcessedFileList(const SDirEntry & rDe)
+{
+	return -1;
+}
+
+int FASTCALL PPPosProtocol::ProcessInputBlock::RegisterProcessedFile(const SDirEntry & rDe)
+{
+	return -1;
 }
 
 const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const { return P_RbList; }
@@ -1212,7 +1228,6 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		w_s.PutInner("code", temp_buf.Z().Cat(rInfo.SessNumber));
 		if(rInfo.CashNodeID) {
-			//PPObjCashNode cn_obj;
 			PPCashNode cn_rec;
 			if(CnObj.Search(rInfo.CashNodeID, &cn_rec) > 0) {
 				THROW(WritePosNode(rB, "pos", cn_rec));
@@ -1241,14 +1256,9 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 						SXml::WNode w_cc(rB.P_Xw, "cc");
                         w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
                         w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
-						{
-							dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm);
-							temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
-							w_cc.PutInner("time", EncText(temp_buf));
-						}
+						w_cc.PutInner("time", EncText(temp_buf.Z().Cat(dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0)));
 						if(cc_pack.Rec.Flags) {
-							temp_buf.Z().CatHex(cc_pack.Rec.Flags);
-							w_cc.PutInner("flags", EncText(temp_buf));
+							w_cc.PutInner("flags", EncText(temp_buf.Z().CatHex(cc_pack.Rec.Flags)));
 						}
 						if(cc_pack.Rec.Flags & CCHKF_RETURN) {
 							w_cc.PutInner("return", "");

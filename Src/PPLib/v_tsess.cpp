@@ -1032,7 +1032,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					else if(Filt.SuperSessID && Filt.Flags & Filt.fSubSess)
 						tses_id = Filt.SuperSessID;
 					if(tses_id) {
-						ok = TSesObj.Complete(tses_id, 1);
+						ok = TSesObj.CompleteSession(tses_id, 1);
 						if(!ok)
 							PPError();
 					}
@@ -1795,7 +1795,7 @@ int SLAPI PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				{
 					const PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();
 					if(tses_id) {
-						ok = TSesObj.Complete(tses_id, 1);
+						ok = TSesObj.CompleteSession(tses_id, 1);
 						if(!ok)
 							PPError();
 					}

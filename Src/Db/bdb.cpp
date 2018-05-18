@@ -5,7 +5,8 @@
 #include <db.h>
 #pragma hdrstop
 #include <errno.h>
-#include <BerkeleyDB.h>
+//#include <berkeleydb.h>
+#include <berkeleydb-6232.h>
 
 BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */), T(0)
 {
@@ -460,10 +461,10 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 			DBTYPE db_type = (DBTYPE)0;
 			if(p_db->get_type(p_db, &db_type) == 0) {
 				if(db_type == DB_BTREE) {
-					p_db->set_bt_compare(p_db, BDbTable::CmpCallback);
+					p_db->set_bt_compare(p_db, BDbTable::CmpCallback_6232);
 				}
 				else if(db_type == DB_HASH) {
-					p_db->set_h_compare(p_db, BDbTable::CmpCallback);
+					p_db->set_h_compare(p_db, BDbTable::CmpCallback_6232);
 				}
 			}
 		}
@@ -1117,6 +1118,12 @@ int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pDa
 	}
 	assert(_found);
 	return r;
+}
+
+//static 
+int BDbTable::CmpCallback_6232(DB * pDb, const DBT * pDbt1, const DBT * pDbt2, size_t * locp)
+{
+	return CmpCallback(pDb, pDbt1, pDbt2);
 }
 
 //static

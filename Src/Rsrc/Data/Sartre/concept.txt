@@ -109,11 +109,11 @@
 :dim_linear_density:dimension          // Линейная плотность вещества mass / length
 :dim_viscosity:dimension               // Вязкость вещества force time / area
 :dim_kinematic_viscosity:dimension     // Кинематическая вязкость вещества viscosity / density
-:dim_energy                            // Энергия (работа)
-:dim_power                             // Мощность watt
-:dim_money::dimention                  // Денежная размерность us$
-:dim_concentration::dimention          // Концентрация (относительное значение, как то, процент, промилле etc)
-:dim_temperature                       // Температура kelvin
+:dim_energy::dimension                 // Энергия (работа)
+:dim_power::dimension                  // Мощность watt
+:dim_money::dimension                  // Денежная размерность us$
+:dim_concentration::dimension          // Концентрация (относительное значение, как то, процент, промилле etc)
+:dim_temperature::dimension            // Температура kelvin
 //
 //
 //
@@ -510,6 +510,38 @@
 :hum_sname::hum_name // Фамилия человека (surname)
 :hum_pname::hum_name // Отчество человека (patronimic)
 
+:hum_ethnicity // человеческая раса
+:hum_ethnicgroup+(:hum_ethnicity race) // человеческая этническая группа
+:hum_nationis  // человеческая национальность
+
+:hum_ethnicity_europoid::hum_ethnicity // европиоид
+:hum_ethnicity_negroid::hum_ethnicity // негроид
+:hum_ethnicity_mongoloid::hum_ethnicity // монголоид
+
+:hum_ethnicgroup_russians::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_germans::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_french::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_british::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_italians::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_ukrainians::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_spanish::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_polish::hum_ethnicgroup(:hum_ethnicity_europoid)
+
+:hum_ethnicgroup_han::hum_ethnicgroup(:hum_ethnicity_mongoloid) // китайцы
+:hum_ethnicgroup_joseon::hum_ethnicgroup(:hum_ethnicity_mongoloid) // корейцы
+:hum_ethnicgroup_yamato::hum_ethnicgroup(:hum_ethnicity_mongoloid) // японцы
+:hum_ethnicgroup_bai::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_hui::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_tibetans::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_manchus::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_ryukyuan::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_ainu::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_zhuang::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+:hum_ethnicgroup_mongols::hum_ethnicgroup(:hum_ethnicity_mongoloid)
+
+:hum_ethnicgroup_turkic::hum_ethnicgroup(:hum_ethnicity_europoid) // тюркская группа
+:hum_ethnicgroup_indo_iranian::hum_ethnicgroup(:hum_ethnicity_europoid) // индо-иранская группа
+
 :titulus_socialis+(:gender gender) // Социальный титул (доктор, царь, маркиз, лейтенант etc)
 :titulus_professional::titulus_socialis // Профессиональный титул (доктор, магистр etc)
 :titulus_militum::titulus_professional // Военный титул (генерал, майор etc)
@@ -518,7 +550,6 @@
 :titulus_imperium::titulus_socialis // Правительственный титул (царь, президент, премьер-министр, министр etc)
 :titulus_nobilitatis::titulus_socialis // Сословный титул. Включает в себя и обозначения низших сословий (король, герцог, граф, идальго, раб etc)
 :titulus_honorific::titulus_socialis // Вежливое обращение или упоминание (господин, госпожа, мадемуазель, миссис etc)
-
 
 [es]{
 	señor::titulus_honorific(:gender_mas)
@@ -552,6 +583,7 @@
 	курфюрст::titulus_nobilitatis
 	великий князь::titulus_nobilitatis(:gender_mas)
 	великий герцог::titulus_nobilitatis(:gender_mas)
+	великая герцогиня::titulus_nobilitatis(:gender_fem)
 	князь императорской крови::titulus_nobilitatis(:gender_mas)
 	князь::titulus_nobilitatis(:gender_mas)
 	княгиня::titulus_nobilitatis(:gender_fem)
@@ -582,9 +614,32 @@
 	профессор::titulus_academic
 	академик::titulus_academic
 	доктор::titulus_academic
-	кандидат наук::titulus_academic
+	доктор наук::titulus_academic
+	доктор технических наук::titulus_academic
+	доктор экономических наук::titulus_academic	
+	доктор юридических наук::titulus_academic	
+	доктор философских наук::titulus_academic
+	доктор филологических наук::titulus_academic
+	доктор медицинских наук::titulus_academic
+	доктор исторических наук::titulus_academic
+	доктор биологических наук::titulus_academic
+	доктор географических наук::titulus_academic
+	доктор психологических наук::titulus_academic
+	доктор архитектуры::titulus_academic
 	магистр::titulus_academic
 	бакалавр::titulus_academic
+	кандидат наук::titulus_academic
+	кандидат технических наук::titulus_academic
+	кандидат экономических наук::titulus_academic
+	кандидат юридических наук::titulus_academic	
+	кандидат философских наук::titulus_academic
+	кандидат филологических наук::titulus_academic
+	кандидат медицинских наук::titulus_academic
+	кандидат исторических наук::titulus_academic
+	кандидат биологических наук::titulus_academic
+	кандидат географических наук::titulus_academic
+	кандидат психологических наук::titulus_academic
+	кандидат архитектуры::titulus_academic	
 	рядовой::titulus_militum
 	ефрейтор::titulus_militum
 	младший сержант::titulus_militum
@@ -2937,6 +2992,19 @@ z39.50s:urischeme
 :negotium_partem_consignor::negotium_partem   // грузоотправитель
 :negotium_partem_consignee::negotium_partem   // грузополучатель
 :negotium_partem_payee::negotium_partem       // плательщик
+
+[ru]{
+	продавец=:negotium_partem_seller
+	покупатель=:negotium_partem_buyer
+	штаб-квартира=:negotium_partem_corpoffice
+	центральный офис=:negotium_partem_corpoffice
+	грузоперевозчик=:negotium_partem_delivery
+	агент продавца=:negotium_partem_selleragent
+	торговый агент=:negotium_partem_selleragent
+	грузоотправитель=:negotium_partem_consignor
+	грузополучатель=:negotium_partem_consignee
+	плательщик=:negotium_partem_payee
+}
 //
 //
 //
@@ -2945,6 +3013,8 @@ z39.50s:urischeme
 :bio_parte_corporis_auris:bio_parte_corporis_comm // ухо
 :bio_parte_corporis_oculus:bio_parte_corporis_comm // глаз
 :bio_parte_corporis_os:bio_parte_corporis_comm // рот
+:bio_parte_corporis_labia:bio_parte_corporis_comm // губы
+:bio_parte_corporis_labrum:bio_parte_corporis_comm // губа
 :bio_parte_corporis_lingua:bio_parte_corporis_comm // язык
 :bio_parte_corporis_nasus:bio_parte_corporis_comm // нос
 :bio_parte_corporis_frons_tua:bio_parte_corporis_comm // лоб
@@ -2956,6 +3026,7 @@ z39.50s:urischeme
 :bio_parte_corporis_manibus:bio_parte_corporis_comm // рука
 :bio_parte_corporis_palm:bio_parte_corporis_comm // ладонь
 :bio_parte_corporis_humero:bio_parte_corporis_comm // плечо
+:bio_parte_corporis_cubitus:bio_parte_corporis_comm // локоть
 :bio_parte_corporis_collum:bio_parte_corporis_comm // шея
 :bio_parte_corporis_pectus:bio_parte_corporis_comm // грудь
 :bio_parte_corporis_stomachum:bio_parte_corporis_comm // живот
@@ -2975,6 +3046,8 @@ z39.50s:urischeme
 	ухо=:bio_parte_corporis_auris
 	глаз=:bio_parte_corporis_oculus
 	рот=:bio_parte_corporis_os
+	губы=:bio_parte_corporis_labia
+	губа=:bio_parte_corporis_labrum
 	язык=:bio_parte_corporis_lingua
 	нос=:bio_parte_corporis_nasus
 	лоб=:bio_parte_corporis_frons_tua
@@ -2985,6 +3058,7 @@ z39.50s:urischeme
 	ступня=:bio_parte_corporis_pes
 	рука=:bio_parte_corporis_manibus
 	плечо=:bio_parte_corporis_humero
+	локоть=:bio_parte_corporis_cubitus
 	ладонь=:bio_parte_corporis_palm
 	шея=:bio_parte_corporis_collum
 	грудь=:bio_parte_corporis_pectus
@@ -3006,6 +3080,8 @@ z39.50s:urischeme
 	ear=:bio_parte_corporis_auris
 	eye=:bio_parte_corporis_oculus
 	mouth=:bio_parte_corporis_os
+	lips=:bio_parte_corporis_labia
+	lip=:bio_parte_corporis_labrum
 	tongue=:bio_parte_corporis_lingua
 	nose=:bio_parte_corporis_nasus
 	forehead=:bio_parte_corporis_frons_tua
@@ -3015,6 +3091,7 @@ z39.50s:urischeme
 	foot=:bio_parte_corporis_pes
 	arm=:bio_parte_corporis_manibus
 	shoulder=:bio_parte_corporis_humero
+	elbow=:bio_parte_corporis_cubitus
 	palm=:bio_parte_corporis_palm
 	neck=:bio_parte_corporis_collum
 	chest=:bio_parte_corporis_pectus
@@ -3048,13 +3125,16 @@ z39.50s:urischeme
 //
 // Потенциально оскорбительные концепции (используются для идентификации грубых, оскорбительных слов и выражений)
 //
-:conceptu_ingrata
-:conceptu_ingrata_genus::conceptu_ingrata // по расе, национальности
-:conceptu_ingrata_parte_corporis::conceptu_ingrata // часть тела
-:conceptu_ingrata_mulier::conceptu_ingrata // женщина
-:conceptu_ingrata_animalis::conceptu_ingrata // сравнение с животным
-:conceptu_ingrata_propensionissexualis::conceptu_ingrata // сексуальная ориентация
-:conceptu_ingrata_actio::conceptu_ingrata // действия
+:ingrata
+:ingrata_genus::ingrata // по расе, национальности
+:ingrata_parte_corporis+(:bio_parte_corporis_nates parte)::ingrata // часть тела
+:ingrata_physiologica_substantia::ingrata // физиологическая субстанция
+:ingrata_mulier::ingrata // женщина
+:ingrata_animalis::ingrata // сравнение с животным
+:ingrata_propensionissexualis::ingrata // сексуальная ориентация
+:ingrata_actio+(:verbum verb)::ingrata // действия
+:ingrata_mentis::ingrata // ментальность (дурак, сторонник иного восприятия действительности и т.д.)
+:ingrata_interiectio::ingrata // грубость, применяемая в виде междометия (блядь, fuck). Сильно пересекается с оскорблениями, однако не имеет объекта изречения (ср. "она - блядь" vs "блядь, я опять проиграл")
 
 //a fat person
 //angry

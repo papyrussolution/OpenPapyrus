@@ -1019,7 +1019,7 @@ int __os_fdlock(ENV * env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 	 * Windows file locking interferes with read/write operations, so we
 	 * map the ranges to an area past the end of the file.
 	 */
-	DB_ASSERT(env, offset < (u_int64_t)INT64_MAX);
+	DB_ASSERT(env, offset < (uint64)INT64_MAX);
 	offset = UINT64_MAX-offset;
 	low = (DWORD)offset;
 	high = (DWORD)(offset>>32);

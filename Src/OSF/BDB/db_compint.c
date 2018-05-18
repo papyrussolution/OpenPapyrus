@@ -106,9 +106,9 @@ static const uint8 __db_marshaled_int_size[] = {
  *	Return the number of bytes that the compressed version
  *	of the argument will occupy.
  *
- * PUBLIC: uint32 __db_compress_count_int __P((u_int64_t));
+ * PUBLIC: uint32 __db_compress_count_int __P((uint64));
  */
-uint32 __db_compress_count_int(u_int64_t i)
+uint32 __db_compress_count_int(uint64 i)
 {
 	if(i <= CMP_INT_1BYTE_MAX)
 		return 1;
@@ -135,9 +135,9 @@ uint32 __db_compress_count_int(u_int64_t i)
  *	Compresses the integer into the buffer, returning the number of
  *	bytes occupied.
  *
- * PUBLIC: int __db_compress_int __P((uint8 *, u_int64_t));
+ * PUBLIC: int __db_compress_int __P((uint8 *, uint64));
  */
-int __db_compress_int(uint8 * buf, u_int64_t i)
+int __db_compress_int(uint8 * buf, uint64 i)
 {
 	if(i <= CMP_INT_1BYTE_MAX) {
 		/* no swapping for one byte value */
@@ -316,12 +316,12 @@ uint32 __db_decompress_count_int(const uint8 * buf)
  *	Decompresses the compressed integer pointer to by buf into i,
  *	returning the number of bytes read.
  *
- * PUBLIC: int __db_decompress_int __P((const uint8 *, u_int64_t *));
+ * PUBLIC: int __db_decompress_int __P((const uint8 *, uint64 *));
  */
-int __db_decompress_int(const uint8 * buf, u_int64_t * i)
+int __db_decompress_int(const uint8 * buf, uint64 * i)
 {
 	int len;
-	u_int64_t tmp;
+	uint64 tmp;
 	uint8 * p;
 	uint8 c;
 	tmp = 0;

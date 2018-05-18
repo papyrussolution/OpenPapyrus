@@ -18528,7 +18528,6 @@ public:
 	int    SLAPI OpenSession(int updOnly, PPID sinceDlsID);
 	int    SLAPI CloseSession(int asTempSess = 0, DateRange * pPrd = 0);
 	PPID   SLAPI GetLocation();
-	//int    SLAPI CompleteSession(PPID sessID);
 	//
 	// Descr: производит действие, определяемое параметром action над файлом, определенным параметром //
 	//   pFileName относительно набора каталогов экспорта, заданного полем PPAsyncCashNode::P_ExpPaths.
@@ -20554,6 +20553,10 @@ public:
 // Descr: Заголовок товарной структуры.
 //
 struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
+	PPGoodsStrucHeader2()
+	{
+		THISZERO();
+	}
 	long   Tag;              // Const=PPOBJ_GOODSSTRUC
 	long   ID;               //
 	char   Name[48];         // @name
@@ -20648,8 +20651,10 @@ public:
 	static SString & SLAPI MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf);
 
 	SLAPI  PPGoodsStruc();
+	SLAPI  PPGoodsStruc(const PPGoodsStruc & rS);
 	void   SLAPI Init();
 	PPGoodsStruc & FASTCALL operator = (const PPGoodsStruc &);
+	PPGoodsStruc & FASTCALL Copy(const PPGoodsStruc & rS);
 	int    FASTCALL IsEqual(const PPGoodsStruc &) const;
 	int    SLAPI IsEmpty() const;
 	int    SLAPI IsNamed() const;
@@ -32933,9 +32938,9 @@ public:
 	TSessionTbl::Rec Rec;
 	PPCheckInPersonArray CiList;
 	TSVector <TSessLineTbl::Rec> Lines; // @v9.8.6 TSArray-->TSVector
-	ObjTagList TagL;        // @v8.7.4  Список тегов
-	ObjLinkFiles LinkFiles; // @v8.7.6
-	PPProcessorPacket::ExtBlock Ext; // @v8.8.0 Некоторые параметры процессора могут быть переопределены в этом блоке.
+	ObjTagList TagL;        // Список тегов
+	ObjLinkFiles LinkFiles; // 
+	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
 		// Кроме того, здесь же хранится подробное описание сессии.
 };
 //
@@ -33081,7 +33086,8 @@ public:
 	//   0  - ошибка
 	// @nointeract
 	//
-	int    SLAPI Complete(PPID sessID, int use_ta);
+	int    SLAPI CompleteSession(PPID sessID, int use_ta);
+	int    SLAPI RecalcSessionPacket(TSessionPacket & rPack);
 	//
 	// Descr: Заменяет товар replacedGoodsID в приходных строках сессии sessID на товар substGoodsID.
 	//   Замещаются только строки, имеющие знак +1 (Sign == 1)
@@ -33331,13 +33337,13 @@ public:
 		PPID   TSessID;
 		int    Status;      // 0 - место не идентифицировано, 1 - место свободно, -1 - место занято
 		PPID   GoodsID;     // Товар, ассоциированный с местом
-		PPID   RegPersonID; // @v8.8.0 ИД персоналии, загеристрированной на этом месте
-		PPID   CipID;       // @v8.8.2 ИД позиции в таблице персональных регистраций сессии
+		PPID   RegPersonID; // ИД персоналии, загеристрированной на этом месте
+		PPID   CipID;       // ИД позиции в таблице персональных регистраций сессии
 			// (может понадобиться для осуществления дополнительных операций по регистрации: подстверждение, отмена и т.д.)
 		double Price;       // Цена (по товарной котировке)
 		SString PlaceCode;  // Собственно, код места
 		SString Descr;      // Текстовое описание места
-		SString PinCode;    // @v8.8.0 PIN-код. Если на месте никто не зарегистрирован, то - пусто.
+		SString PinCode;    // PIN-код. Если на месте никто не зарегистрирован, то - пусто.
 	};
 	//
 	// Descr: Возвращает информацию о статусе процессорного места в контексте сессии tsessID
@@ -43423,6 +43429,9 @@ public:
 		SLAPI  ProcessInputBlock();
 		SLAPI  ProcessInputBlock(PPAsyncCashSession * pAcs);
 		SLAPI ~ProcessInputBlock();
+		void   FASTCALL SetOuterProcessedFileList(SymbHashTable * pT);
+		int    FASTCALL CheckFileForProcessedFileList(const SDirEntry & rDe);
+		int    FASTCALL RegisterProcessedFile(const SDirEntry & rDe);
 		const  void * SLAPI GetStoredReadBlocks() const;
 		long   Flags;            // IN
 		PPID   PosNodeID;        // IN Кассовый узел, запрашивающий вызов обработки входных данных.
@@ -43435,6 +43444,7 @@ public:
 			// структура PPPosProtocol::ReadBlock приватная и определена ниже, используем трюк с opaque-указателем.
 			// Фактически, это TSCollection <PPPosProtocol::ReadBlock>
 		PPAsyncCashSession * P_ACS;
+		SymbHashTable * P_ProcessedFiles; // @notowned
 	};
 
 	static int SLAPI EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList); // @v9.8.4 TSArray-->TSVector

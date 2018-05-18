@@ -77,11 +77,12 @@ Abdikarim;Male;1000;African
 Abdimelech;Male;0;African
 Abdiraxman;Male;146;African
 Abdul;Male;504000;Arabic
-Abdul- Matin;Male;698;Arabic
-Abdul- Qadir;Male;3000;Arabic
-Abdul- Rashid;Male;3000;Arabic
-Abdul- Sami;Male;834;Arabic
-Abdul, Abdel;Male;17;Arabic
+Abdul-Matin;Male;698;Arabic
+Abdul-Qadir;Male;3000;Arabic
+Abdul-Rashid;Male;3000;Arabic
+Abdul-Sami;Male;834;Arabic
+Abdul;Male;17;Arabic
+Abdel;Male;17;Arabic
 Abdul-Alim;Male;1000;Arabic
 Abdul-Aliyy;Male;11;Arabic
 Abdul-Azim;Male;742;Arabic
@@ -104,7 +105,8 @@ Abdul-Karim;Male;6000;Arabic
 Abdul-Khaliq;Male;2000;Arabic
 Abdulla;Male;65000;Arabic
 Abdullah;Male;669000;Arabic
-Abdullah, Abdul;Male;474;Arabic
+Abdullah;Male;474;Arabic
+Abdul;Male;474;Arabic
 Abdul-Latif;Male;13000;Arabic
 Abdul-Majid;Male;4000;Arabic
 Abdul-Malik;Male;5000;Arabic

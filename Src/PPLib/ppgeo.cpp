@@ -1,10 +1,11 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-#include <BerkeleyDB.h>
+//#include <berkeleydb.h>
+//#include <berkeleydb-6232.h>
 //
 //
 //

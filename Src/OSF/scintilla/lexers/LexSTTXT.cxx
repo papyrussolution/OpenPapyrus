@@ -154,55 +154,39 @@ static void ColouriseSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int i
 				sc.SetState(SCE_STTXT_OPERATOR);
 		}
 	}
-
 	if(sc.state == SCE_STTXT_IDENTIFIER && setWord.Contains(sc.chPrev))
 		ClassifySTTXTWord(keywordlists, sc);
-
 	sc.Complete();
 }
 
-static const char * const STTXTWordListDesc[] = {
-	"Keywords",
-	"Types",
-	"Functions",
-	"FB",
-	"Local_Var",
-	"Local_Pragma",
-	0
-};
+static const char * const STTXTWordListDesc[] = { "Keywords", "Types", "Functions", "FB", "Local_Var", "Local_Pragma", 0 };
 
 static bool IsCommentLine(Sci_Position line, Accessor &styler, bool type)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line + 1) - 1;
-
 	for(Sci_Position i = pos; i < eolPos; i++) {
 		char ch = styler[i];
 		char chNext = styler.SafeGetCharAt(i + 1);
 		int style = styler.StyleAt(i);
-
 		if(type) {
 			if(ch == '/' && chNext == '/' && style == SCE_STTXT_COMMENTLINE)
 				return true;
 		}
 		else if(ch == '(' && chNext == '*' && style == SCE_STTXT_COMMENT)
 			break;
-
 		if(!IsASpaceOrTab(ch))
 			return false;
 	}
-
 	for(Sci_Position i = eolPos-2; i>pos; i--) {
 		char ch = styler[i];
 		char chPrev = styler.SafeGetCharAt(i-1);
 		int style = styler.StyleAt(i);
-
 		if(ch == ')' && chPrev == '*' && style == SCE_STTXT_COMMENT)
 			return true;
 		if(!IsASpaceOrTab(ch))
 			return false;
 	}
-
 	return false;
 }
 
@@ -210,11 +194,9 @@ static bool IsPragmaLine(Sci_Position line, Accessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line+1) - 1;
-
 	for(Sci_Position i = pos; i < eolPos; i++) {
 		char ch = styler[i];
 		int style = styler.StyleAt(i);
-
 		if(ch == '{' && style == SCE_STTXT_PRAGMA)
 			return true;
 		else if(!IsASpaceOrTab(ch))

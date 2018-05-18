@@ -29,9 +29,14 @@ SLAPI PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) :
 {
 }
 
-SLAPI PPGoodsStruc::PPGoodsStruc()
+SLAPI PPGoodsStruc::PPGoodsStruc() : P_Cb(0)
 {
 	Init();
+}
+
+SLAPI PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : P_Cb(0)
+{
+	Copy(rS);
 }
 
 void SLAPI PPGoodsStruc::Init()
@@ -39,16 +44,23 @@ void SLAPI PPGoodsStruc::Init()
 	GoodsID = 0;
 	P_Cb = 0;
 	MEMSZERO(Rec);
-	Items.freeAll();
+	Items.clear();
 	Childs.freeAll();
 }
 
+PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { return Copy(rS); }
 int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
 int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
 int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
 int    SLAPI PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0; }
 double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
 int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
+SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
+	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
+int    SLAPI PPGoodsStruc::GetKind() const 
+	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
+SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
+	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
 
 int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 {
@@ -179,11 +191,6 @@ SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID pare
 	return rBuf;
 }
 
-int SLAPI PPGoodsStruc::GetKind() const 
-	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
-SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
-	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
-
 int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 {
 	if(Rec.Flags & GSF_FOLDER) {
@@ -271,15 +278,15 @@ int SLAPI PPGoodsStruc::Select(const Ident * pIdent, TSCollection <PPGoodsStruc>
 	return Helper_Select(pIdent, rList);
 }
 
-PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & src)
+PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 {
 	Init();
-	GoodsID = src.GoodsID;
-	Rec = src.Rec;
-	Items.copy(src.Items);
-	for(uint i = 0; i < src.Childs.getCount(); i++) {
+	GoodsID = rS.GoodsID;
+	Rec = rS.Rec;
+	Items.copy(rS.Items);
+	for(uint i = 0; i < rS.Childs.getCount(); i++) {
 		PPGoodsStruc * p_child = new PPGoodsStruc;
-		*p_child = *src.Childs.at(i);
+		*p_child = *rS.Childs.at(i);
 		Childs.insert(p_child);
 	}
 	return *this;
@@ -533,11 +540,6 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 	return ok;
 }
 
-SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
-{
-	return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1);
-}
-
 int SLAPI PPGoodsStruc::Expand()
 {
 	int    ok = 1;
@@ -789,9 +791,8 @@ int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goods
 //static 
 SString & FASTCALL PPGoodsStrucItem::MakeEstimationString(double median, double denom, SString & rBuf, long format)
 {
-	rBuf.Z();
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-	rBuf.Cat(median, fmt);
+	rBuf.Z().Cat(median, fmt);
 	if(denom != 0.0 && denom != 1.0)
 		rBuf.CatChar('/').Cat(denom, fmt);
 	return rBuf;
@@ -905,8 +906,7 @@ private:
 					for(uint i = 0; i < Data.P_List->getCount(); i++) {
 						const PPGoodsStruc * p_gs = Data.P_List->at(i);
 						if(p_gs && p_gs->Rec.ID == gs_id) {
-							PPGoodsStruc temp_gs;
-							temp_gs = *p_gs;
+							PPGoodsStruc temp_gs(*p_gs);
 							PPObjGoodsStruc::EditDialog(&temp_gs, 0);
 							break;
 						}
@@ -1014,7 +1014,8 @@ private:
 
 int GSDialog::IsChanged()
 {
-	PPGoodsStruc temp = Data, gs;
+	PPGoodsStruc temp = Data;
+	PPGoodsStruc gs;
 	return NZOR(Changed, (getDTS(&gs), Data = temp, !temp.IsEqual(gs)));
 }
 
@@ -1229,7 +1230,6 @@ void GSDialog::selNamedGS()
 		if(GsObj.SelectorDialog(&id) > 0) {
 			PPGoodsStruc temp;
 			if(id == 0) {
-				temp.Init();
 				temp.GoodsID = Data.GoodsID;
 				setDTS(&temp);
 				Changed = 1;
@@ -1291,7 +1291,7 @@ int GSDialog::setupList()
 				p_item->GetQtty(price / Data.GetDenom(), &sum);
 			}
 			else {
-				price = 0;
+				price = 0.0;
 				PPError(PPERR_CYCLEGOODSSTRUC);
 			}
 		}
@@ -1330,7 +1330,8 @@ int GSDialog::delItem(long pos, long)
 		Changed = 1;
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int GSDialog::moveItem(long pos, long id, int up)
@@ -1462,7 +1463,6 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 				else
 					return;
 			}
-			// @v8.0.0 {
 			else if(event.isKeyDown(kbF4)) {
 				if(P_Struc && P_Struc->GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 					SString temp_buf;
@@ -1478,7 +1478,6 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 				else
 					return;
 			}
-			// } @v8.0.0
 			else
 				return;
 			clearEvent(event);
@@ -1806,7 +1805,6 @@ void GSExtDialog::selNamedGS()
 			PPGoodsStruc temp;
 			dlg->getCtrlData(CTLSEL_GSDATA_NAMEDSTRUC, &id);
 			if(id == 0) {
-				temp.Init();
 				temp.GoodsID = Data.GoodsID;
 				setDTS(&temp);
 			}
@@ -1856,8 +1854,7 @@ int GSExtDialog::addItem(long * pPos, long * pID)
 	item.Rec.VariedPropObjType = Data.Rec.VariedPropObjType;
 	Data.MakeChildDefaultName(name_buf).CopyTo(item.Rec.Name, sizeof(item.Rec.Name));
 	if(PPObjGoodsStruc::EditDialog(&item) > 0) {
-		PPGoodsStruc * p_child = new PPGoodsStruc;
-		*p_child = item;
+		PPGoodsStruc * p_child = new PPGoodsStruc(item);
 		if(Data.Childs.insert(p_child)) {
 			ASSIGN_PTR(pPos, Data.Childs.getCount()-1);
 			ASSIGN_PTR(pID, Data.Childs.getCount());
@@ -3128,10 +3125,8 @@ int FASTCALL GoodsStrucCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
-		//RwL.Unlock();
 	}
 	if(P_GiftList) {
 		PPGoodsStrucHeader temp_rec;

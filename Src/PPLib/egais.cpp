@@ -234,6 +234,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: P_Data = new ActInform; break;
 		case PPEDIOP_EGAIS_CONFIRMTICKET: P_Data = new ConfirmTicket(); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
+		case PPEDIOP_EGAIS_REQUESTREPEALAWO: // @v10.0.07
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: P_Data = new RepealWb(); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: P_Data = new TSCollection <QueryBarcode>; break;
@@ -274,6 +275,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete ((ActInform *)P_Data); break;
 		case PPEDIOP_EGAIS_CONFIRMTICKET: delete ((ConfirmTicket *)P_Data); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
+		case PPEDIOP_EGAIS_REQUESTREPEALAWO: // @v10.0.07
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete ((RepealWb *)P_Data); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: delete ((TSCollection <QueryBarcode> *)P_Data); break;
@@ -1088,6 +1090,7 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_ACTWRITEOFF,      "ActWriteOff" },
 	{ PPEDIOP_EGAIS_ACTWRITEOFF_V2,   "ActWriteOff_v2" }, // @v9.3.12
 	{ PPEDIOP_EGAIS_REQUESTREPEALWB,  "RequestRepealWB" }, // @v9.2.8
+	{ PPEDIOP_EGAIS_REQUESTREPEALAWO, "RequestRepealAWO" }, // @v10.0.07
 	{ PPEDIOP_EGAIS_CONFIRMREPEALWB,  "ConfirmRepealWB" }, // @v9.2.8
 	{ PPEDIOP_EGAIS_QUERYBARCODE,     "QueryBarcode" },    // @v9.2.8
 	{ PPEDIOP_EGAIS_REPLYBARCODE,     "ReplyBarcode" },    // @v9.2.8
@@ -3068,6 +3071,19 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner("qp:RequestNumber", EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
 						n_dt.PutInner("qp:RequestDate", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
 						n_dt.PutInner("qp:WBRegId", EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
+					}
+					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07 
+						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
+						/*
+						<qp:ClientId>030000194005</qp:ClientId>
+						<qp:RequestNumber>011</qp:RequestNumber>
+						<qp:RequestDate>2016-05-06T13:00:00</qp:RequestDate>
+						<qp:AWORegId>TTN-0021795603</qp:WBRegId>
+						*/
+						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
+						n_dt.PutInner("qp:RequestNumber", EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
+						n_dt.PutInner("qp:RequestDate", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner("qp:AWORegId", EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
 						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
@@ -6738,9 +6754,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
                             if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
                                 const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
 								if(psn_id) {
-									if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0) {
+									if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
 										candid_bill_list.add(bill_id);
-									}
 									else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID) {
 										if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
 											candid_bill_list.add(bill_id);

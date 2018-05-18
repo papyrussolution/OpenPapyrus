@@ -405,7 +405,7 @@ char * __env_thread_id_string(DB_ENV * dbenv, pid_t pid, db_threadid_t tid, char
  #ifdef UINT64_FMT
 	char fmt[20];
 	snprintf(fmt, sizeof(fmt), "%s/%s", UINT64_FMT, UINT64_FMT);
-	snprintf(buf, DB_THREADID_STRLEN, fmt, (u_int64_t)pid, (u_int64_t)(uintptr_t)tid);
+	snprintf(buf, DB_THREADID_STRLEN, fmt, (uint64)pid, (uint64)(uintptr_t)tid);
  #else
 	snprintf(buf, DB_THREADID_STRLEN, "%lu/%lu", (ulong)pid, (ulong)tid);
  #endif
@@ -413,7 +413,7 @@ char * __env_thread_id_string(DB_ENV * dbenv, pid_t pid, db_threadid_t tid, char
  #ifdef UINT64_FMT
 	char fmt[20];
 	snprintf(fmt, sizeof(fmt), "%s/TID", UINT64_FMT);
-	snprintf(buf, DB_THREADID_STRLEN, fmt, (u_int64_t)pid);
+	snprintf(buf, DB_THREADID_STRLEN, fmt, (uint64)pid);
  #else
 	snprintf(buf, DB_THREADID_STRLEN, "%lu/TID", (ulong)pid);
  #endif

@@ -1050,7 +1050,7 @@ int SLAPI PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, in
 int SLAPI PPObjTSession::PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
-	int    use_price = (GetConfig().Flags & PPTSessConfig::fUsePricing) ? 1 : 0;
+	const  int use_price = (GetConfig().Flags & PPTSessConfig::fUsePricing) ? 1 : 0;
 	PPID   main_goods_id = 0;
 	double qtty = 0.0;
 	double amount = 0.0;
@@ -1293,7 +1293,40 @@ int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStr
 	return ok;
 }
 
-int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
+int SLAPI PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack)
+{
+	int    ok = -1;
+	TechTbl::Rec tec_rec;
+	if(rPack.Rec.TechID && TecObj.Fetch(rPack.Rec.TechID, &tec_rec) > 0) {
+		PPGoodsStruc gs;
+		if(TecObj.GetGoodsStruc(rPack.Rec.TechID, &gs) > 0) {
+			if(tec_rec.Flags & TECF_RVRSCMAINGOODS) {
+				uint   single_main_line_pos = 0;
+				for(uint i = 0; i < rPack.Lines.getCount(); i++) {
+					const TSessLineTbl::Rec & r_item = rPack.Lines.at(i);
+					if(r_item.GoodsID == tec_rec.GoodsID) {
+						if(!single_main_line_pos)
+							single_main_line_pos = i+1;
+						else {
+							single_main_line_pos = 0;
+							break;
+						}
+					}
+				}
+				if(single_main_line_pos) {
+					TSessLineTbl::Rec & r_main_item = rPack.Lines.at(single_main_line_pos-1);
+					assert(r_main_item.GoodsID == tec_rec.GoodsID);
+					for(uint giidx = 0; giidx < gs.Items.getCount(); giidx++) {
+
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 {
 	int    ok = -1;
 	uint   i, j;
@@ -1309,7 +1342,7 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 			PPIDArray child_list;
 			THROW(P_Tbl->GetChildIDList(sessID, 0, &child_list));
 			for(i = 0; i < child_list.getCount(); i++)
-				THROW(Complete(child_list.at(i), 0)); // @recursion
+				THROW(CompleteSession(child_list.at(i), 0)); // @recursion
 		}
 		else {
 			PPID   tec_goods_id = 0;
@@ -1340,7 +1373,7 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 						if(sub_ses_rec.TechID) {
 							PPID   sub_ses_id = 0;
 							//
-							// –ассичтываем и устанавливаем планируемое врем€ работы, а так же планируемое врем€ окончани€ сессии
+							// –ассчитываем и устанавливаем планируемое врем€ работы, а так же планируемое врем€ окончани€ сессии
 							//
 							THROW(SetPlannedTiming(&sub_ses_rec));
 							if(sub_ses_rec.PlannedTiming > 0) {
@@ -1355,7 +1388,7 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 							}
 							//
 							THROW(PutRec(&sub_ses_id, &sub_ses_rec, 0));
-							THROW(Complete(sub_ses_id, 0)); // @recursion
+							THROW(CompleteSession(sub_ses_id, 0)); // @recursion
 							ok = 1;
 						}
 					}
@@ -1373,14 +1406,9 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 					}
 				}
 				if(tec_struc_id && tec_goods_id) {
-					PPObjGoodsStruc gs_obj;
 					PPGoodsStrucHeader gs_rec;
 					if(gs_obj.Fetch(tec_struc_id, &gs_rec) > 0 && gs_rec.Flags & GSF_PARTITIAL) {
-						double qtty = 0.0;
-						if(tses_rec.ActQtty != 0.0)
-							qtty = tses_rec.ActQtty;
-						else
-							qtty = tses_rec.PlannedQtty;
+						const double qtty = (tses_rec.ActQtty != 0.0) ? tses_rec.ActQtty : tses_rec.PlannedQtty;
 						//
 						// ‘ункци€ CompleteStruc измен€ет знак в количестве. ѕоэтому здесь умножает количество на -1
 						//
@@ -4763,16 +4791,14 @@ int SLAPI PrcssrTSessMaintenance::Run()
 									if(cto > 0) {
 										if(rtm.d) {
 											diffsec = diffdatetimesec(curdtm, rtm);
-											if(diffsec > cto) {
+											if(diffsec > cto)
 												do_cancel_reserve = 1;
-											}
 										}
 									}
 									if(lto > 0) {
 										diffsec = diffdatetimesec(stdtm, curdtm);
-										if(diffsec < lto) {
+										if(diffsec < lto)
 											do_cancel_reserve = 2;
-										}
 									}
 									if(do_cancel_reserve) {
 										PPCheckInPersonItem ci_item = r_ci_item;
@@ -4824,9 +4850,8 @@ struct UhttTSessionBlock {
 		stFetch = 0,
 		stSet
 	};
-	UhttTSessionBlock()
+	UhttTSessionBlock() : LinePos(0), CipPos(0), PlacePos(0), TagPos(0), State(stFetch)
 	{
-		Clear();
 	}
 	void Clear()
 	{
@@ -5000,16 +5025,10 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 					p_item->GetStr(temp_buf.Z());
 					STRNSCPY(I_TagList.StrVal, temp_buf);
 					break;
-				case OTTYP_NUMBER:
-					p_item->GetReal(&I_TagList.RealVal);
-					break;
+				case OTTYP_NUMBER: p_item->GetReal(&I_TagList.RealVal); break;
 				case OTTYP_BOOL:
-				case OTTYP_INT:
-					p_item->GetInt(&I_TagList.IntVal);
-					break;
-				case OTTYP_DATE:
-					p_item->GetDate(&I_TagList.DateVal);
-					break;
+				case OTTYP_INT: p_item->GetInt(&I_TagList.IntVal); break;
+				case OTTYP_DATE: p_item->GetDate(&I_TagList.DateVal); break;
 			}
 			ok = DlRtm::NextIteration(iterId);
 		}

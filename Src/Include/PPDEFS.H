@@ -1478,6 +1478,7 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
