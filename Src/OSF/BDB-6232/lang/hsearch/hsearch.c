@@ -86,7 +86,7 @@ ENTRY * __db_hsearch(ENTRY item, ACTION action)
 		return (NULL);
 	}
 	DB_INIT_DBT(key, item.key, strlen(item.key) + 1);
-	memset(&val, 0, sizeof(val));
+	memzero(&val, sizeof(val));
 	switch(action) {
 		case ENTER:
 		    DB_SET_DBT(val, item.data, strlen(item.data) + 1);

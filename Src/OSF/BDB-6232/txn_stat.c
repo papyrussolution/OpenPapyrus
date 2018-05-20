@@ -38,11 +38,11 @@ int __txn_stat_pp(DB_ENV *dbenv, DB_TXN_STAT ** statp, uint32 flags)
 	env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->tx_handle, "DB_ENV->txn_stat", DB_INIT_TXN);
 	if((ret = __db_fchk(env, "DB_ENV->txn_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__txn_stat(env, statp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_stat --
@@ -70,7 +70,7 @@ static int __txn_stat(ENV *env, DB_TXN_STAT ** statp, uint32 flags)
 	nbytes += maxtxn * env->dbenv->slice_cnt * sizeof(DB_TXN_ACTIVE_SLICE);
 	if((ret = __os_umalloc(env, nbytes, &stats)) != 0) {
 		TXN_SYSTEM_UNLOCK(env);
-		return (ret);
+		return ret;
 	}
 
 	memcpy(stats, &region->stat, sizeof(region->stat));
@@ -123,19 +123,15 @@ static int __txn_stat(ENV *env, DB_TXN_STAT ** statp, uint32 flags)
 	if(LF_ISSET(DB_STAT_CLEAR)) {
 		if(!LF_ISSET(DB_STAT_SUBSYSTEM))
 			__mutex_clear(env, region->mtx_region);
-		memset(&region->stat, 0, sizeof(region->stat));
+		memzero(&region->stat, sizeof(region->stat));
 		region->stat.st_maxtxns = region->maxtxns;
 		region->stat.st_inittxns = region->inittxns;
-		region->stat.st_maxnactive =
-		    region->stat.st_nactive = stats->st_nactive;
-		region->stat.st_maxnsnapshot =
-		    region->stat.st_nsnapshot = stats->st_nsnapshot;
+		region->stat.st_maxnactive = region->stat.st_nactive = stats->st_nactive;
+		region->stat.st_maxnsnapshot = region->stat.st_nsnapshot = stats->st_nsnapshot;
 	}
-
 	TXN_SYSTEM_UNLOCK(env);
-
 	*statp = stats;
-	return (0);
+	return 0;
 }
 /*
  * __txn_stat_print_pp --
@@ -151,11 +147,11 @@ int __txn_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->tx_handle, "DB_ENV->txn_stat_print", DB_INIT_TXN);
 	if((ret = __db_fchk(env, "DB_ENV->txn_stat_print", flags, DB_STAT_ALL | DB_STAT_ALLOC | DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__txn_stat_print(env, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_stat_print
@@ -172,14 +168,14 @@ int __txn_stat_print(ENV *env, uint32 flags)
 	if(flags == 0 || LF_ISSET(DB_STAT_ALL)) {
 		ret = __txn_print_stats(env, orig_flags);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 
 	if(LF_ISSET(DB_STAT_ALL) &&
 	    (ret = __txn_print_all(env, orig_flags)) != 0)
-		return (ret);
+		return ret;
 
-	return (0);
+	return 0;
 }
 
 #ifdef HAVE_SLICES
@@ -223,7 +219,7 @@ static int __txn_print_stats(ENV *env, uint32 flags)
 	dbenv = env->dbenv;
 
 	if((ret = __txn_stat(env, &sp, flags)) != 0)
-		return (ret);
+		return ret;
 
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default transaction region information:");
@@ -301,7 +297,7 @@ static int __txn_print_stats(ENV *env, uint32 flags)
 
 	__os_ufree(env, sp);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -352,7 +348,7 @@ static int __txn_print_all(ENV *env, uint32 flags)
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	TXN_SYSTEM_UNLOCK(env);
 
-	return (0);
+	return 0;
 }
 
 static char * __txn_status(DB_TXN_ACTIVE *txn)
@@ -421,7 +417,7 @@ static int __txn_compare(const void * a1, const void *b1)
 		return (1);
 	if(a->txnid < b->txnid)
 		return (-1);
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */

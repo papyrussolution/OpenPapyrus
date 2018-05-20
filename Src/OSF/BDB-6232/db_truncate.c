@@ -45,26 +45,21 @@ int __db_truncate_pp(DB *dbp, DB_TXN * txn, uint32 * countp, uint32 flags)
 	STRIP_AUTO_COMMIT(flags);
 	/* Check for invalid flags. */
 	if(F_ISSET(dbp, DB_AM_SECONDARY)) {
-		__db_errx(env, DB_STR("0685",
-		    "DB->truncate forbidden on secondary indices"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("0685", "DB->truncate forbidden on secondary indices"));
+		return EINVAL;
 	}
 	if((ret = __db_fchk(env, "DB->truncate", flags, 0)) != 0)
-		return (ret);
-
+		return ret;
 	ENV_ENTER(env, ip);
 	XA_CHECK_TXN(ip, txn);
-
 	/*
 	 * Make sure there are no active cursors on this db.  Since we drop
 	 * pages we cannot really adjust cursors.
 	 */
 	if((ret = __db_cursor_check(dbp)) != 0) {
-		__db_errx(env, DB_STR("0686",
-		    "DB->truncate not permitted with active cursors"));
+		__db_errx(env, DB_STR("0686", "DB->truncate not permitted with active cursors"));
 		goto err;
 	}
-
 #ifdef CONFIG_TEST
 	if(IS_REP_MASTER(env))
 		DB_TEST_WAIT(env, env->test_check);
@@ -120,7 +115,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -147,21 +142,21 @@ int __db_truncate(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 	 */
 	if(dbp->type != DB_QUEUE && DB_IS_PRIMARY(dbp)) {
 		if((ret = __db_s_first(dbp, &sdbp)) != 0)
-			return (ret);
+			return ret;
 		for(; sdbp != NULL && ret == 0; ret = __db_s_next(&sdbp, txn))
 			if((ret = __db_truncate(sdbp, ip, txn, &scount)) != 0)
 				break;
 		if(sdbp != NULL)
 			(void)__db_s_done(sdbp, txn);
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 
 	DB_TEST_RECOVERY(dbp, DB_TEST_PREDESTROY, ret, NULL);
 
 	/* Acquire a cursor. */
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 
 	DEBUG_LWRITE(dbc, txn, "DB->truncate", NULL, NULL, 0);
 #ifdef HAVE_PARTITION
@@ -201,7 +196,7 @@ int __db_truncate(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 
 	DB_TEST_RECOVERY_LABEL
 
-	return (ret);
+	return ret;
 }
 
 static int __db_cursor_check_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pgno, uint32 indx, void * args)
@@ -214,7 +209,7 @@ static int __db_cursor_check_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgn
 		*foundp = 1;
 		return (EEXIST);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_cursor_check --

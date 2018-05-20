@@ -41,12 +41,12 @@ int __crdel_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __crdel_metasub_recover, DB___crdel_metasub)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __crdel_inmem_create_recover, DB___crdel_inmem_create)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __crdel_inmem_rename_recover, DB___crdel_inmem_rename)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __crdel_inmem_remove_recover, DB___crdel_inmem_remove)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

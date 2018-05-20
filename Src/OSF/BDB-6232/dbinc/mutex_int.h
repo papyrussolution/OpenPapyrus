@@ -192,7 +192,7 @@ typedef msemaphore tsl_t;
 #ifdef HAVE_MUTEX_PLAN9
 typedef Lock tsl_t;
 
-#define	MUTEX_INIT(x)	(memset(x, 0, sizeof(Lock)), 0)
+#define	MUTEX_INIT(x)	(memzero(x, sizeof(Lock)), 0)
 #define	MUTEX_SET(x)	canlock(x)
 #define	MUTEX_UNSET(x)	unlock(x)
 #endif

@@ -24,5 +24,5 @@ int __db_util_version_check(const char * progname)
 			progname, DB_VERSION_MAJOR, DB_VERSION_MINOR, v_major, v_minor);
 		return (DB_VERSION_MISMATCH);
 	}
-	return (0);
+	return 0;
 }

@@ -35,7 +35,7 @@ int __os_tmpdir(ENV *env, uint32 flags)
 		tdir = tdir_buf;
 		if((ret = __os_getenv(
 			    env, "TMPDIR", &tdir, sizeof(tdir_buf))) != 0)
-			return (ret);
+			return ret;
 		if(tdir != NULL && tdir[0] != '\0')
 			goto found;
 
@@ -45,14 +45,14 @@ int __os_tmpdir(ENV *env, uint32 flags)
 		tdir = tdir_buf;
 		if((ret = __os_getenv(
 			    env, "TEMP", &tdir, sizeof(tdir_buf))) != 0)
-			return (ret);
+			return ret;
 		if(tdir != NULL && tdir[0] != '\0')
 			goto found;
 
 		tdir = tdir_buf;
 		if((ret = __os_getenv(
 			    env, "TMP", &tdir, sizeof(tdir_buf))) != 0)
-			return (ret);
+			return ret;
 		if(tdir != NULL && tdir[0] != '\0')
 			goto found;
 
@@ -60,7 +60,7 @@ int __os_tmpdir(ENV *env, uint32 flags)
 		tdir = tdir_buf;
 		if((ret = __os_getenv(
 			    env, "TempFolder", &tdir, sizeof(tdir_buf))) != 0)
-			return (ret);
+			return ret;
 
 		if(tdir != NULL && tdir[0] != '\0')
 found:                  return (__os_strdup(env, tdir, &dbenv->db_tmp_dir));
@@ -84,7 +84,7 @@ found:                  return (__os_strdup(env, tdir, &dbenv->db_tmp_dir));
 		if(GetTempPath(DB_MAXPATHLEN, tpath) > 2) {
 			FROM_TSTRING(env, tpath, path, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 
 			eos = path + strlen(path) - 1;
 			if(*eos == '\\' || *eos == '/')
@@ -93,7 +93,7 @@ found:                  return (__os_strdup(env, tdir, &dbenv->db_tmp_dir));
 				ret = __os_strdup(env,
 					path, &dbenv->db_tmp_dir);
 				FREE_STRING(env, path);
-				return (ret);
+				return ret;
 			}
 			FREE_STRING(env, path);
 		}

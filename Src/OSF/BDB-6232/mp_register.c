@@ -26,12 +26,12 @@ int __memp_register_pp(DB_ENV *dbenv, int ftype, int (*pgin)(DB_ENV *, db_pgno_t
 	ENV_REQUIRES_CONFIG(env, env->mp_handle, "DB_ENV->memp_register", DB_INIT_MPOOL);
 	if(REP_ON(env)) {
 		__db_errx(env, DB_STR_A("3001", "%smethod not permitted when replication is configured", "%s"), "DB_ENV->memp_register: ");
-		return (EINVAL);
+		return EINVAL;
 	}
 	ENV_ENTER(env, ip);
 	ret = __memp_register(env, ftype, pgin, pgout);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -56,13 +56,13 @@ int __memp_register(ENV *env, int ftype, int (*pgin)(DB_ENV *, db_pgno_t, void *
 	 */
 	if(ftype == DB_FTYPE_SET) {
 		if(dbmp->pg_inout != NULL)
-			return (0);
+			return 0;
 		if((ret = __os_malloc(env, sizeof(DB_MPREG), &dbmp->pg_inout)) != 0)
-			return (ret);
+			return ret;
 		dbmp->pg_inout->ftype = ftype;
 		dbmp->pg_inout->pgin = pgin;
 		dbmp->pg_inout->pgout = pgout;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -79,12 +79,12 @@ int __memp_register(ENV *env, int ftype, int (*pgin)(DB_ENV *, db_pgno_t, void *
 
 	if(mpreg == NULL) {                     /* New entry. */
 		if((ret = __os_malloc(env, sizeof(DB_MPREG), &mpreg)) != 0)
-			return (ret);
+			return ret;
 		mpreg->ftype = ftype;
 		mpreg->pgin = pgin;
 		mpreg->pgout = pgout;
 		LIST_INSERT_HEAD(&dbmp->dbregq, mpreg, q);
 	}
 	MUTEX_UNLOCK(env, dbmp->mutex);
-	return (0);
+	return 0;
 }

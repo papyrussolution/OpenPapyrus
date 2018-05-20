@@ -24,7 +24,7 @@ int __txn_env_create(DB_ENV *dbenv)
 	 * the panic state or acquire a mutex in the DB_ENV create path.
 	 */
 	dbenv->tx_max = 0;
-	return (0);
+	return 0;
 }
 /*
  * __txn_env_destroy --
@@ -49,7 +49,7 @@ int __txn_get_tx_max(DB_ENV *dbenv, uint32 * tx_maxp)
 	}
 	else
 		*tx_maxp = dbenv->tx_max;
-	return (0);
+	return 0;
 }
 /*
  * __txn_set_tx_max --
@@ -62,7 +62,7 @@ int __txn_set_tx_max(DB_ENV *dbenv, uint32 tx_max)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_tx_max");
 	dbenv->tx_max = tx_max;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __txn_get_tx_timestamp __P((DB_ENV *, time_t *));
@@ -70,7 +70,7 @@ int __txn_set_tx_max(DB_ENV *dbenv, uint32 tx_max)
 int __txn_get_tx_timestamp(DB_ENV *dbenv, time_t * timestamp)
 {
 	*timestamp = dbenv->tx_timestamp;
-	return (0);
+	return 0;
 }
 /*
  * __txn_set_tx_timestamp --
@@ -83,5 +83,5 @@ int __txn_set_tx_timestamp(DB_ENV *dbenv, time_t * timestamp)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_tx_timestamp");
 	dbenv->tx_timestamp = *timestamp;
-	return (0);
+	return 0;
 }

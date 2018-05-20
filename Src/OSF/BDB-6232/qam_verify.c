@@ -43,17 +43,14 @@ int __qam_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, ui
 		return DB_VERIFY_FATAL;
 	}
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Queue can't be used in subdatabases, so if this isn't set
 	 * something very odd is going on.
 	 */
 	if(!F_ISSET(pip, VRFY_INCOMPLETE))
-		EPRINT((env, DB_STR_A("1146",
-		    "Page %lu: queue databases must be one-per-file",
-		    "%lu"), (u_long)pgno));
-
+		EPRINT((env, DB_STR_A("1146", "Page %lu: queue databases must be one-per-file", "%lu"), (u_long)pgno));
 	/*
 	 * We have already checked the common fields in __db_vrfy_pagezero.
 	 * However, we used the on-disk metadata page, it may have been stale.
@@ -79,18 +76,14 @@ int __qam_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, ui
 	 * return DB_VERIFY_FATAL
 	 */
 	if(meta->rec_page == 0) {
-		EPRINT((env, DB_STR_A("1214",
-		    "Page %lu: the number of records per page %lu is bad",
-		    "%lu %lu"), (u_long)pgno, (u_long)meta->rec_page));
+		EPRINT((env, DB_STR_A("1214", "Page %lu: the number of records per page %lu is bad", "%lu %lu"), (u_long)pgno, (u_long)meta->rec_page));
 		ret = DB_VERIFY_FATAL;
 		goto err;
 	}
 	else if(DB_ALIGN(meta->re_len +
 	    sizeof(QAMDATA) - 1, sizeof(uint32)) *
 	    meta->rec_page + QPAGE_SZ(dbp) > dbp->pgsize) {
-		EPRINT((env, DB_STR_A("1147",
-		    "Page %lu: queue record length %lu too high for page size and recs/page",
-		    "%lu %lu"), (u_long)pgno, (u_long)meta->re_len));
+		EPRINT((env, DB_STR_A("1147", "Page %lu: queue record length %lu too high for page size and recs/page", "%lu %lu"), (u_long)pgno, (u_long)meta->re_len));
 		ret = DB_VERIFY_FATAL;
 		goto err;
 	}
@@ -121,9 +114,7 @@ int __qam_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, ui
 	 */
 	if(F_ISSET(vdp, SALVAGE_QMETA_SET)) {
 		isbad = 1;
-		EPRINT((env, DB_STR_A("1148",
-		    "Page %lu: database contains multiple Queue metadata pages",
-		    "%lu"), (u_long)pgno));
+		EPRINT((env, DB_STR_A("1148", "Page %lu: database contains multiple Queue metadata pages", "%lu"), (u_long)pgno));
 		goto err;
 	}
 	F_SET(vdp, SALVAGE_QMETA_SET);
@@ -179,8 +170,7 @@ int __qam_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, ui
 		}
 	}
 	if(nextents > 0)
-		__db_errx(env, DB_STR_A("1149",
-		    "Warning: %d extra extent files found", "%d"), nextents);
+		__db_errx(env, DB_STR_A("1149", "Warning: %d extra extent files found", "%d"), nextents);
 	vdp->nextents = nextents;
 	vdp->extents = extents;
 
@@ -219,7 +209,7 @@ int __qam_meta2pgset(DB *dbp, VRFY_DBINFO * vdp, DB * pgset)
 	ret = 0;
 	h = NULL;
 	if(vdp->last_recno <= vdp->first_recno)
-		return (0);
+		return 0;
 	pg_ext = vdp->page_ext;
 	first = QAM_RECNO_PAGE(dbp, vdp->first_recno);
 	/*
@@ -246,10 +236,10 @@ int __qam_meta2pgset(DB *dbp, VRFY_DBINFO * vdp, DB * pgset)
 			for(pgno = 1; pgno <= last; pgno++)
 				if((ret = __db_vrfy_pgset_inc(pgset, vdp->thread_info, vdp->txn, pgno)) != 0)
 					break;
-		return (ret);
+		return ret;
 	}
 	if((ret = __db_cursor(dbp, vdp->thread_info, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Check if we can get the first page of each extent.  If we can, then
 	 * add all of that extent's pages to the pgset.  If we can't, assume the
@@ -291,7 +281,7 @@ err:
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -308,8 +298,7 @@ int __qam_vrfy_data(DB *dbp, VRFY_DBINFO * vdp, QPAGE * h, db_pgno_t pgno, uint3
 	QAMDATA * qp;
 	db_recno_t i;
 	if(dbp->type != DB_QUEUE) {
-		EPRINT((dbp->env, DB_STR_A("1215", "Page %lu: invalid page type %u for %s database",
-		    "%lu %u %s"), (u_long)pgno, TYPE(h), __db_dbtype_to_string(dbp->type)));
+		EPRINT((dbp->env, DB_STR_A("1215", "Page %lu: invalid page type %u for %s database", "%lu %u %s"), (u_long)pgno, TYPE(h), __db_dbtype_to_string(dbp->type)));
 		return DB_VERIFY_BAD;
 	}
 	/*
@@ -325,18 +314,16 @@ int __qam_vrfy_data(DB *dbp, VRFY_DBINFO * vdp, QPAGE * h, db_pgno_t pgno, uint3
 	for(i = 0; i < vdp->rec_page; i++) {
 		qp = QAM_GET_RECORD(&fakedb, h, i);
 		if((uint8*)qp >= (uint8*)h + dbp->pgsize) {
-			EPRINT((dbp->env, DB_STR_A("1150", "Page %lu: queue record %lu extends past end of page",
-			    "%lu %lu"), (u_long)pgno, (u_long)i));
+			EPRINT((dbp->env, DB_STR_A("1150", "Page %lu: queue record %lu extends past end of page", "%lu %lu"), (u_long)pgno, (u_long)i));
 			return (DB_VERIFY_BAD);
 		}
 
 		if(qp->flags & ~(QAM_VALID | QAM_SET)) {
-			EPRINT((dbp->env, DB_STR_A("1151", "Page %lu: queue record %lu has bad flags (%#lx)",
-			    "%lu %lu %#lx"), (u_long)pgno, (u_long)i, (u_long)qp->flags));
+			EPRINT((dbp->env, DB_STR_A("1151", "Page %lu: queue record %lu has bad flags (%#lx)", "%lu %lu %#lx"), (u_long)pgno, (u_long)i, (u_long)qp->flags));
 			return (DB_VERIFY_BAD);
 		}
 	}
-	return (0);
+	return 0;
 }
 /*
  * __qam_vrfy_structure --
@@ -353,12 +340,10 @@ int __qam_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 	isbad = 0;
 
 	if((ret = __db_vrfy_getpageinfo(vdp, PGNO_BASE_MD, &pip)) != 0)
-		return (ret);
+		return ret;
 
 	if(pip->type != P_QAMMETA) {
-		EPRINT((dbp->env, DB_STR_A("1152",
-		    "Page %lu: queue database has no meta page", "%lu"),
-		    (u_long)PGNO_BASE_MD));
+		EPRINT((dbp->env, DB_STR_A("1152", "Page %lu: queue database has no meta page", "%lu"), (u_long)PGNO_BASE_MD));
 		isbad = 1;
 		goto err;
 	}
@@ -372,14 +357,10 @@ int __qam_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 		if(!LF_ISSET(DB_SALVAGE))
 			__db_vrfy_struct_feedback(dbp, vdp);
 
-		if((ret = __db_vrfy_putpageinfo(dbp->env, vdp, pip)) != 0 ||
-		    (ret = __db_vrfy_getpageinfo(vdp, i, &pip)) != 0)
-			return (ret);
-		if(!F_ISSET(pip, VRFY_IS_ALLZEROES) &&
-		    pip->type != P_QAMDATA && !F_ISSET(pip, VRFY_NONEXISTENT)) {
-			EPRINT((dbp->env, DB_STR_A("1153",
-			    "Page %lu: queue database page of incorrect type %lu",
-			    "%lu %lu"), (u_long)i, (u_long)pip->type));
+		if((ret = __db_vrfy_putpageinfo(dbp->env, vdp, pip)) != 0 || (ret = __db_vrfy_getpageinfo(vdp, i, &pip)) != 0)
+			return ret;
+		if(!F_ISSET(pip, VRFY_IS_ALLZEROES) && pip->type != P_QAMDATA && !F_ISSET(pip, VRFY_NONEXISTENT)) {
+			EPRINT((dbp->env, DB_STR_A("1153", "Page %lu: queue database page of incorrect type %lu", "%lu %lu"), (u_long)i, (u_long)pip->type));
 			isbad = 1;
 			goto err;
 		}
@@ -389,7 +370,7 @@ int __qam_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 	}
 
 err:    if((ret = __db_vrfy_putpageinfo(dbp->env, vdp, pip)) != 0)
-		return (ret);
+		return ret;
 	return (isbad == 1 ? DB_VERIFY_BAD : 0);
 }
 
@@ -422,7 +403,7 @@ int __qam_vrfy_walkqueue(DB *dbp, VRFY_DBINFO * vdp, void * handle, int (*callba
 
 	/* If this database has no extents, we've seen all the pages already. */
 	if(pg_ext == 0)
-		return (0);
+		return 0;
 
 	first = QAM_RECNO_PAGE(dbp, vdp->first_recno);
 	last = QAM_RECNO_PAGE(dbp, vdp->last_recno);
@@ -436,7 +417,7 @@ int __qam_vrfy_walkqueue(DB *dbp, VRFY_DBINFO * vdp, void * handle, int (*callba
 
 	/* Verify/salvage each page. */
 	if((ret = __db_cursor(dbp, vdp->thread_info, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 begin:  for(; i <= stop; i++) {
 		/*
 		 * If DB_SALVAGE is set, we inspect our database of completed
@@ -499,9 +480,7 @@ begin:  for(; i <= stop; i++) {
 			if(F_ISSET(pip, VRFY_IS_ALLZEROES))
 				goto put;
 			if(pip->type != P_QAMDATA) {
-				EPRINT((env, DB_STR_A("1154",
-				    "Page %lu: queue database page of incorrect type %lu",
-				    "%lu %lu"), (u_long)i, (u_long)pip->type));
+				EPRINT((env, DB_STR_A("1154", "Page %lu: queue database page of incorrect type %lu", "%lu %lu"), (u_long)i, (u_long)pip->type));
 				isbad = 1;
 				goto err;
 			}
@@ -578,8 +557,8 @@ int __qam_salvage(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * h
 	int ret, err_ret, t_ret;
 	uint32 pagesize, qlen;
 	uint32 i;
-	memset(&dbt, 0, sizeof(DBT));
-	memset(&key, 0, sizeof(DBT));
+	memzero(&dbt, sizeof(DBT));
+	memzero(&key, sizeof(DBT));
 	err_ret = ret = 0;
 	pagesize = (uint32)dbp->mpf->mfp->pagesize;
 	qlen = ((QUEUE*)dbp->q_internal)->re_len;

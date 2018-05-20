@@ -91,7 +91,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 	add_bytes = nval->size + (F_ISSET(nval, DB_DBT_PARTIAL) ? nval->doff : 0);
 	add_bytes = DUP_SIZE(add_bytes);
 	if((ret = __ham_check_move(dbc, add_bytes)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Check if resulting duplicate set is going to need to go
@@ -117,7 +117,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 	    (HPAGE_PTYPE(hk) == H_OFFPAGE || ISBIG(hcp, new_size) ||
 	    add_bytes > P_FREESPACE(dbp, hcp->page))) {
 		if((ret = __ham_dup_convert(dbc)) != 0)
-			return (ret);
+			return ret;
 		return (hcp->opd->am_put(hcp->opd,
 		       NULL, nval, flags, NULL));
 	}
@@ -130,7 +130,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 			pval.size = LEN_HDATA(dbp, hcp->page, dbp->pgsize,
 				hcp->indx);
 			if((ret = __ham_make_dup(env, &pval, &tmp_val, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0 || (ret = __ham_replpair(dbc, &tmp_val, H_DUPLICATE)) != 0)
-				return (ret);
+				return ret;
 			hk = H_PAIRDATA(dbp, hcp->page, hcp->indx);
 			HPAGE_PTYPE(hk) = H_DUPLICATE;
 
@@ -145,7 +145,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 		}
 		/* Now make the new entry a duplicate. */
 		if((ret = __ham_make_dup(env, nval, &tmp_val, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0)
-			return (ret);
+			return ret;
 		tmp_val.dlen = 0;
 		switch(flags) {                         /* On page. */
 			case DB_KEYFIRST:
@@ -191,7 +191,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 		if((ret = __memp_dirty(mpf, &hcp->page,
 		    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0 ||
 		    (ret = __ham_replpair(dbc, &tmp_val, H_DUPLICATE)) != 0)
-			return (ret);
+			return ret;
 
 		/* Now, update the cursor if necessary. */
 		switch(flags) {
@@ -212,7 +212,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 			    return (__db_unknown_path(env, "__ham_add_dup"));
 		}
 		ret = __hamc_update(dbc, tmp_val.size, DB_HAM_CURADJ_ADD, 1);
-		return (ret);
+		return ret;
 	}
 
 	/*
@@ -220,7 +220,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 	 * return so the common code can handle it.
 	 */
 	memcpy(pgnop, HOFFDUP_PGNO(H_PAIRDATA(dbp, hcp->page, hcp->indx)), sizeof(db_pgno_t));
-	return (ret);
+	return ret;
 }
 /*
  * Convert an on-page set of duplicates to an offpage set of duplicates.
@@ -253,7 +253,7 @@ int __ham_dup_convert(DBC *dbc)
 	 */
 	if((ret = __db_new(dbc,
 	    dbp->dup_compare == NULL ? P_LRECNO : P_LDUP, NULL, &dp)) != 0)
-		return (ret);
+		return ret;
 	P_INIT(dp, dbp->pgsize,
 	    dp->pgno, PGNO_INVALID, PGNO_INVALID, LEAFLEVEL, TYPE(dp));
 
@@ -370,7 +370,7 @@ err:    if((t_ret = __memp_fput(mpf,
 	if(hcs != NULL)
 		__os_free(env, hcs);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -393,7 +393,7 @@ int __ham_make_dup(ENV *env, const DBT * notdup, DBT * duplicate, void ** bufp, 
 		item_size += notdup->doff;
 	tsize = DUP_SIZE(item_size);
 	if((ret = __ham_init_dbt(env, duplicate, tsize, bufp, sizep)) != 0)
-		return (ret);
+		return ret;
 	duplicate->dlen = 0;
 	duplicate->flags = notdup->flags;
 	F_SET(duplicate, DB_DBT_PARTIAL);
@@ -401,7 +401,7 @@ int __ham_make_dup(ENV *env, const DBT * notdup, DBT * duplicate, void ** bufp, 
 	memcpy(p, &item_size, sizeof(db_indx_t));
 	p += sizeof(db_indx_t);
 	if(F_ISSET(notdup, DB_DBT_PARTIAL)) {
-		memset(p, 0, notdup->doff);
+		memzero(p, notdup->doff);
 		p += notdup->doff;
 	}
 	memcpy(p, notdup->data, notdup->size);
@@ -409,7 +409,7 @@ int __ham_make_dup(ENV *env, const DBT * notdup, DBT * duplicate, void ** bufp, 
 	memcpy(p, &item_size, sizeof(db_indx_t));
 	duplicate->doff = 0;
 	duplicate->dlen = notdup->size;
-	return (0);
+	return 0;
 }
 /*
  * __ham_check_move --
@@ -440,14 +440,11 @@ static int __ham_check_move(DBC *dbc, uint32 add_len)
 	 * then we know we can do whatever we need to do in-place
 	 */
 	if(HPAGE_PTYPE(hk) == H_OFFDUP || HPAGE_PTYPE(hk) == H_OFFPAGE)
-		return (0);
-
-	old_len =
-	    LEN_HITEM(dbp, hcp->page, dbp->pgsize, H_DATAINDEX(hcp->indx));
+		return 0;
+	old_len = LEN_HITEM(dbp, hcp->page, dbp->pgsize, H_DATAINDEX(hcp->indx));
 	new_datalen = (old_len - HKEYDATA_SIZE(0)) + add_len;
 	if(HPAGE_PTYPE(hk) != H_DUPLICATE)
 		new_datalen += DUP_SIZE(0);
-
 	/*
 	 * We need to add a new page under two conditions:
 	 * 1. The addition makes the total data length cross the BIG
@@ -456,100 +453,72 @@ static int __ham_check_move(DBC *dbc, uint32 add_len)
 	 *    threshold, but the new data won't fit on the page.
 	 * If neither of these is true, then we can return.
 	 */
-	if(ISBIG(hcp, new_datalen) && (old_len > HOFFDUP_SIZE ||
-	    HOFFDUP_SIZE - old_len <= P_FREESPACE(dbp, hcp->page)))
-		return (0);
-
-	if(!ISBIG(hcp, new_datalen) &&
-	    (new_datalen - old_len) <= P_FREESPACE(dbp, hcp->page))
-		return (0);
-
+	if(ISBIG(hcp, new_datalen) && (old_len > HOFFDUP_SIZE || HOFFDUP_SIZE - old_len <= P_FREESPACE(dbp, hcp->page)))
+		return 0;
+	if(!ISBIG(hcp, new_datalen) && (new_datalen - old_len) <= P_FREESPACE(dbp, hcp->page))
+		return 0;
 	/*
 	 * If we get here, then we need to move the item to a new page.
 	 * Check if there are more pages in the chain.  We now need to
 	 * update new_datalen to include the size of both the key and
 	 * the data that we need to move.
 	 */
-
-	new_datalen = ISBIG(hcp, new_datalen) ?
-	    HOFFDUP_SIZE : HKEYDATA_SIZE(new_datalen);
-	new_datalen +=
-	    LEN_HITEM(dbp, hcp->page, dbp->pgsize, H_KEYINDEX(hcp->indx));
-
+	new_datalen = ISBIG(hcp, new_datalen) ? HOFFDUP_SIZE : HKEYDATA_SIZE(new_datalen);
+	new_datalen += LEN_HITEM(dbp, hcp->page, dbp->pgsize, H_KEYINDEX(hcp->indx));
 	new_pagep = NULL;
 	next_pagep = (PAGE *)hcp->page;
-	for(next_pgno = NEXT_PGNO(hcp->page); next_pgno != PGNO_INVALID;
-	    next_pgno = NEXT_PGNO(next_pagep)) {
+	for(next_pgno = NEXT_PGNO(hcp->page); next_pgno != PGNO_INVALID; next_pgno = NEXT_PGNO(next_pagep)) {
 		if(next_pagep != hcp->page && (ret = __memp_fput(mpf,
 		    dbc->thread_info, next_pagep, dbc->priority)) != 0)
-			return (ret);
-
-		if((ret = __memp_fget(mpf,
-		    &next_pgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_CREATE, &next_pagep)) != 0)
-			return (ret);
-
+			return ret;
+		if((ret = __memp_fget(mpf, &next_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE, &next_pagep)) != 0)
+			return ret;
 		if(P_FREESPACE(dbp, next_pagep) >= new_datalen) {
 			found = 1;
 			break;
 		}
 	}
-
 	if(found != 0) {
 		/* Found a page with space, dirty it and the original. */
 		new_pagep = next_pagep;
-		if((ret = __memp_dirty(mpf, &hcp->page,
-		    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			goto err;
-		if((ret = __memp_dirty(mpf, &new_pagep,
-		    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &new_pagep, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			goto err;
 	}
 	else {
-		if((ret = __memp_dirty(mpf, &next_pagep,
-		    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &next_pagep, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			goto err;
-
 		/* Add new page at the end of the chain. */
 		new_pagep = next_pagep;
 		if((ret = __ham_add_ovflpage(dbc, &new_pagep)) != 0)
 			goto err;
-
 		if(next_pagep != hcp->page) {
-			if((ret = __memp_fput(mpf,
-			    dbc->thread_info, next_pagep, dbc->priority)) != 0)
+			if((ret = __memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority)) != 0)
 				goto err;
 			next_pagep = NULL;
 			/* Dirty the original page to update it. */
-			if((ret = __memp_dirty(mpf, &hcp->page,
-			    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+			if((ret = __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 				goto err;
 		}
 	}
-
 	/* Copy the item to the new page. */
 	if(DBC_LOGGING(dbc)) {
-		memset(&k, 0, sizeof(DBT));
+		memzero(&k, sizeof(DBT));
 		d.flags = 0;
-		if(HPAGE_PTYPE(
-			    H_PAIRKEY(dbp, hcp->page, hcp->indx)) == H_OFFPAGE) {
+		if(HPAGE_PTYPE(H_PAIRKEY(dbp, hcp->page, hcp->indx)) == H_OFFPAGE) {
 			k.data = H_PAIRKEY(dbp, hcp->page, hcp->indx);
 			k.size = HOFFPAGE_SIZE;
 			key_type = H_OFFPAGE;
 		}
 		else {
-			k.data =
-			    HKEYDATA_DATA(H_PAIRKEY(dbp, hcp->page, hcp->indx));
-			k.size =
-			    LEN_HKEY(dbp, hcp->page, dbp->pgsize, hcp->indx);
+			k.data = HKEYDATA_DATA(H_PAIRKEY(dbp, hcp->page, hcp->indx));
+			k.size = LEN_HKEY(dbp, hcp->page, dbp->pgsize, hcp->indx);
 			key_type = H_KEYDATA;
 		}
-
 		/* Resolve the insert index so it can be written to the log. */
-		if((ret = __ham_getindex(dbc, new_pagep, &k,
-		    key_type, &match, &new_indx)) != 0)
-			return (ret);
-
+		if((ret = __ham_getindex(dbc, new_pagep, &k, key_type, &match, &new_indx)) != 0)
+			return ret;
 		if((data_type = HPAGE_PTYPE(hk)) == H_OFFPAGE) {
 			d.data = hk;
 			d.size = HOFFPAGE_SIZE;
@@ -570,7 +539,7 @@ static int __ham_check_move(DBC *dbc, uint32 add_len)
 		    OP_SET(data_type, new_pagep), &d)) != 0) {
 			(void)__memp_fput(mpf,
 			    dbc->thread_info, new_pagep, dbc->priority);
-			return (ret);
+			return ret;
 		}
 	}
 	else {
@@ -621,14 +590,14 @@ static int __ham_check_move(DBC *dbc, uint32 add_len)
 	F_SET(hcp, H_EXPAND);
 	F_CLR(hcp, H_DELETED);
 
-	return (ret);
+	return ret;
 
 err:    
 	if(new_pagep != NULL)
 		(void)__memp_fput(mpf, dbc->thread_info, new_pagep, dbc->priority);
 	if(next_pagep != NULL && next_pagep != hcp->page && next_pagep != new_pagep)
 		(void)__memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority);
-	return (ret);
+	return ret;
 }
 /*
  * __ham_move_offpage --
@@ -676,7 +645,7 @@ static int __ham_move_offpage(DBC *dbc, PAGE * pagep, uint32 ndx, db_pgno_t pgno
 		    PGNO(pagep), (uint32)ndx, &LSN(pagep), -1,
 		    OP_SET(hk->type, pagep), &old_dbt,
 		    OP_SET(H_OFFDUP, pagep), &new_dbt)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(pagep));
@@ -701,7 +670,7 @@ static int __ham_move_offpage(DBC *dbc, PAGE * pagep, uint32 ndx, db_pgno_t pgno
 	}
 	/* Now copy the offdup entry onto the page. */
 	memcpy(P_ENTRY(dbp, pagep, ndx), &od, HOFFDUP_SIZE);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -771,7 +740,7 @@ static int __ham_dcursor(DBC *dbc, db_pgno_t pgno, uint32 indx)
 	dbp = dbc->dbp;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	if((ret = __dbc_newopd(dbc, pgno, hcp->opd, &hcp->opd)) != 0)
-		return (ret);
+		return ret;
 	dcp = (BTREE_CURSOR*)hcp->opd->internal;
 	dcp->pgno = pgno;
 	dcp->indx = indx;
@@ -793,7 +762,7 @@ static int __ham_dcursor(DBC *dbc, db_pgno_t pgno, uint32 indx)
 		F_CLR(hcp, H_DELETED);
 	}
 
-	return (0);
+	return 0;
 }
 
 struct __hamc_chgpg_args {
@@ -807,7 +776,7 @@ static int __hamc_chgpg_func(DBC *cp, DBC *my_dbc, uint32 * foundp, db_pgno_t ol
 	HASH_CURSOR * hcp;
 	struct __hamc_chgpg_args * args;
 	if(cp == my_dbc || cp->dbtype != DB_HASH)
-		return (0);
+		return 0;
 	hcp = (HASH_CURSOR*)cp->internal;
 	/*
 	 * If a cursor is deleted, it doesn't refer to this
@@ -815,7 +784,7 @@ static int __hamc_chgpg_func(DBC *cp, DBC *my_dbc, uint32 * foundp, db_pgno_t ol
 	 * it points to a former neighbor.  Don't move it.
 	 */
 	if(F_ISSET(hcp, H_DELETED))
-		return (0);
+		return 0;
 	args = (struct __hamc_chgpg_args *)vargs;
 	if(hcp->pgno == old_pgno && hcp->indx == old_index && !MVCC_SKIP_CURADJ(cp, old_pgno)) {
 		hcp->pgno = args->new_pgno;
@@ -823,7 +792,7 @@ static int __hamc_chgpg_func(DBC *cp, DBC *my_dbc, uint32 * foundp, db_pgno_t ol
 		if(args->my_txn != NULL && cp->txn != args->my_txn)
 			*foundp = 1;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __hamc_chgpg --
@@ -846,10 +815,10 @@ static int __hamc_chgpg(DBC *dbc, db_pgno_t old_pgno, uint32 old_index, db_pgno_
 	args.new_pgno = new_pgno;
 	args.new_index = new_index;
 	if((ret = __db_walk_cursors(dbp, dbc, __hamc_chgpg_func, &found, old_pgno, old_index, &args)) != 0)
-		return (ret);
+		return ret;
 	if(found != 0 && DBC_LOGGING(dbc)) {
 		if((ret = __ham_chgpg_log(dbp, args.my_txn, &lsn, 0, DB_HAM_CHGPG, old_pgno, new_pgno, old_index, new_index)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }

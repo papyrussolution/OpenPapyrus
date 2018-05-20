@@ -1324,7 +1324,7 @@ int __bam_repl_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		bk = GET_BKEYDATA(file_dbp, pagep, argp->indx);
 		dp = bk->data;
 		len = bk->len;
-		memset(&dbt, 0, sizeof(dbt));
+		memzero(&dbt, sizeof(dbt));
 		dbt.size = argp->prefix + argp->suffix + argp->repl.size;
 		if((ret = __os_malloc(env, dbt.size, &dbt.data)) != 0)
 			goto out;
@@ -1334,7 +1334,6 @@ int __bam_repl_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		memcpy(p, argp->repl.data, argp->repl.size);
 		p += argp->repl.size;
 		memcpy(p, dp + (len - argp->suffix), argp->suffix);
-
 		ret = __bam_ritem(dbc, pagep, argp->indx, &dbt, 0);
 		__os_free(env, dbt.data);
 		if(ret != 0)
@@ -1352,7 +1351,7 @@ int __bam_repl_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		bk = GET_BKEYDATA(file_dbp, pagep, argp->indx);
 		dp = bk->data;
 		len = bk->len;
-		memset(&dbt, 0, sizeof(dbt));
+		memzero(&dbt, sizeof(dbt));
 		dbt.size = argp->prefix + argp->suffix + argp->orig.size;
 		if((ret = __os_malloc(env, dbt.size, &dbt.data)) != 0)
 			goto out;

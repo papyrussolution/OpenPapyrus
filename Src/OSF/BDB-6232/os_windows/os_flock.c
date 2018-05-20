@@ -46,7 +46,7 @@ int __os_fdlock(ENV *env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 		if(nowait)
 			RETRY_CHK_EINTR_ONLY(!LockFile(fhp->handle, low, high, 1, 0), ret);
 		else if(__os_is_winnt()) {
-			memset(&over, 0, sizeof(over));
+			memzero(&over, sizeof(over));
 			over.Offset = low;
 			over.OffsetHigh = high;
 			RETRY_CHK_EINTR_ONLY(!LockFileEx(fhp->handle, LOCKFILE_EXCLUSIVE_LOCK, 0, 1, 0, &over), ret);

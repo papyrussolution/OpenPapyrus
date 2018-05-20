@@ -44,7 +44,7 @@
 	// #int
 	// #real
 	// #str
-	// #hdate
+	// #unitime
 	// #hperiod
 	//
 :crp_ngram     // Обозначение понятия на естественном языке (=:)
@@ -55,9 +55,9 @@
 //
 // Другие свойства концепций
 //
-:cp_startdate(#hdate)        // Дата рождения, основания, возникновения и т.д. //
-:cp_finishdate(#hdate)       // Дата смерти, исчезновения, упразднения и т.д. //
-:cp_dscvrdate(#hdate)        // Дата открытия //
+:cp_startdate(#unitime)        // Дата рождения, основания, возникновения и т.д. //
+:cp_finishdate(#unitime)       // Дата смерти, исчезновения, упразднения и т.д. //
+:cp_dscvrdate(#unitime)        // Дата открытия //
 :geolat(#real)
 :geolon(#real)
 //
@@ -557,6 +557,21 @@
 	señorita::titulus_honorific(:gender_fem)
 }
 
+[en]{
+	mister::titulus_honorific(:gender_mas)
+	missis::titulus_honorific(:gender_fem)
+	miss::titulus_honorific(:gender_fem)
+	
+	doctor::titulus_academic
+	doctor::titulus_professional
+	officer::titulus_militum
+	
+	mr=.mister
+	mrs=.missis
+	ms=.miss
+	dr=.doctor
+}
+
 [ru]{
 	господин::titulus_honorific(:gender_mas)
 	госпожа::titulus_honorific(:gender_fem)
@@ -686,6 +701,17 @@
 	иерей::titulus_religionis
 	протодиакон::titulus_religionis
 	диакон::titulus_religionis
+	
+	"г-н"=$господин
+	"г-жа"=$госпожа
+	акад=.академик
+	гр=.гражданин
+	"гр-н"=$гражданин
+	"гр-ка"=$гражданка
+	мин=.министр
+	т=.товарищ
+	тов=.товарищ
+	проф=.профессор
 }
 //
 // Языки
@@ -2862,18 +2888,21 @@ z39.50s:urischeme
 //
 // Рыночные понятия
 //
-:stockticker        // биржевой тикер
 :negotiumtaxonomy_category  // базовое обобщенное понятие таксономии бизнес-юнитов
 :negotiumtaxonomy_genusrerum::negotiumtaxonomy_category // форма собственности предприятия
 :negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
 :negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии
-:negotiumtaxonomy_coeptis   // предприятие/компания
+:negotiumtaxonomy_coeptis+(:negotiumtaxonomy_genusrerum gr)   // предприятие/компания
 :negotium_partem    // сторона сделки
 :negotium_rebus     // товар
 :negotium_commodum::negotium_rebus  // сырьевой товар
 
 :negotium_coeptis_commutationem::negotiumtaxonomy_coeptis // биржа
 :negotium_coeptis_ripae::negotiumtaxonomy_coeptis // банк
+
+:tradeticker           // торговый тикер 
+:stockticker+(:negotiumtaxonomy_coeptis c)::tradeticker // фондовый тикер 
+:forexticker+(:currency c1, :currency c2)::tradeticker // валютный тикер 
 
 [en]{
 	exchange=:negotium_coeptis_commutationem
@@ -2923,10 +2952,10 @@ z39.50s:urischeme
 [en]lp=$limited partnership
 
 [es]sa=$sociedad anónima
-[es]s.a.=$sociedad anónima
+[es]"s.a."=$sociedad anónima
 
 [fr]sa=$société anonyme
-[fr]s.a.=$société anonyme
+[fr]"s.a."=$société anonyme
 [fr]sàrl=$société à responsabilité limitée
 [fr]sarl=$société à responsabilité limitée
 [de]gmbh=$gesellschaft mit beschränkter haftung

@@ -102,7 +102,7 @@ int __ham_quick_delete(DBC *dbc)
 	hcp = (HASH_CURSOR*)dbc->internal;
 	mpf = dbc->dbp->mpf;
 	if((ret = __ham_get_meta(dbc)) != 0)
-		return (ret);
+		return ret;
 
 	if((ret = __hamc_writelock(dbc)) == 0) {
 		ret = __ham_del_pair(dbc, 0, NULL);
@@ -120,7 +120,7 @@ int __ham_quick_delete(DBC *dbc)
 	}
 	if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /* ****************** CURSORS ********************************** */
@@ -136,10 +136,10 @@ int __hamc_init(DBC *dbc)
 	int ret;
 	ENV * env = dbc->env;
 	if((ret = __os_calloc(env, 1, sizeof(struct cursor_t), &new_curs)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_malloc(env, dbc->dbp->pgsize, &new_curs->split_buf)) != 0) {
 		__os_free(env, new_curs);
-		return (ret);
+		return ret;
 	}
 	dbc->internal = (DBC_INTERNAL*)new_curs;
 	dbc->close = dbc->c_close = __dbc_close_pp;
@@ -220,7 +220,7 @@ out:    if(ret != 0)
 
 done:   if((t_ret = __ham_item_init(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -233,7 +233,7 @@ static int __hamc_destroy(DBC *dbc)
 	if(hcp->split_buf != NULL)
 		__os_free(dbc->env, hcp->split_buf);
 	__os_free(dbc->env, hcp);
-	return (0);
+	return 0;
 }
 /*
  * __hamc_count --
@@ -254,7 +254,7 @@ int __hamc_count(DBC *dbc, db_recno_t * recnop)
 	hcp = (HASH_CURSOR*)dbc->internal;
 	recno = 0;
 	if((ret = __ham_get_cpage(dbc, DB_LOCK_READ)) != 0)
-		return (ret);
+		return ret;
 	if(hcp->indx >= NUM_ENT(hcp->page)) {
 		*recnop = 0;
 		goto err;
@@ -287,7 +287,7 @@ err:    if((t_ret = __memp_fput(mpf,
 	    dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	hcp->page = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -312,7 +312,7 @@ int __hamc_cmp(DBC *dbc, DBC *other_dbc, int * result)
 		*result = 1;
 	else
 		*result = 0;
-	return (0);
+	return 0;
 }
 
 static int __hamc_del(DBC *dbc, uint32 flags)
@@ -376,7 +376,7 @@ out:    if(hcp->page != NULL) {
 	}
 	if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -399,7 +399,7 @@ int __hamc_dup(DBC *orig_dbc, DBC *new_dbc)
 		F_SET(p_new, H_DELETED);
 	if(F_ISSET(orig, H_ISDUP))
 		F_SET(p_new, H_ISDUP);
-	return (0);
+	return 0;
 }
 
 static int __hamc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
@@ -422,7 +422,7 @@ static int __hamc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 		lock_type = DB_LOCK_READ;
 
 	if((ret = __ham_get_meta(dbc)) != 0)
-		return (ret);
+		return ret;
 	hcp->seek_size = 0;
 
 	ret = 0;
@@ -487,18 +487,15 @@ next:                       ret = __ham_item_next(dbc, lock_type, pgnop);
 		if(ret != 0 && ret != DB_NOTFOUND)
 			goto err;
 		else if(F_ISSET(hcp, H_OK)) {
-			if(*pgnop == PGNO_INVALID && HPAGE_PTYPE(
-				    H_PAIRDATA(dbp, hcp->page, hcp->indx)) != H_BLOB)
+			if(*pgnop == PGNO_INVALID && HPAGE_PTYPE(H_PAIRDATA(dbp, hcp->page, hcp->indx)) != H_BLOB)
 				ret = __ham_dup_return(dbc, data, flags);
 			break;
 		}
 		else if(!F_ISSET(hcp, H_NOMORE)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("1130",
-			    "H_NOMORE returned to __hamc_get"));
+			__db_errx(env, DB_STR("1130", "H_NOMORE returned to __hamc_get"));
 			break;
 		}
-
 		/*
 		 * Ran out of entries in a bucket; change buckets.
 		 */
@@ -569,7 +566,7 @@ err:    if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 	F_CLR(hcp, H_DUPONLY);
 	F_CLR(hcp, H_NEXT_NODUP);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -638,14 +635,13 @@ next_pg:
 					goto get_key_space;
 				if((ret = __bam_bulk_overflow(
 					    dbc, key_size, pgno, np)) != 0)
-					return (ret);
+					return ret;
 				space -= key_size;
 				key_off = (uint32)(np - dbuf);
 				np += key_size;
 			}
 			else if(HPAGE_PTYPE(hk) == H_BLOB) {
-				__db_errx(dbp->env, DB_STR("1185",
-				    "External file key."));
+				__db_errx(dbp->env, DB_STR("1185", "External file key."));
 				(void)__env_panic(dbp->env, DB_RUNRECOVERY);
 			}
 			else {
@@ -727,11 +723,11 @@ back_up:
 					    if((ret = __ham_item_prev(dbc,
 						lock_mode, &pgno)) != 0) {
 						    if(ret != DB_NOTFOUND)
-							    return (ret);
+							    return ret;
 						    if((ret = __memp_fput(mpf,
 							dbc->thread_info, cp->page,
 							dbc->priority)) != 0)
-							    return (ret);
+							    return ret;
 						    cp->page = NULL;
 						    if(cp->bucket == 0) {
 							    cp->indx = indx =
@@ -740,7 +736,7 @@ back_up:
 						    }
 						    if((ret =
 							__ham_get_meta(dbc)) != 0)
-							    return (ret);
+							    return ret;
 
 						    cp->bucket--;
 						    cp->pgno = BUCKET_TO_PAGE(cp,
@@ -748,7 +744,7 @@ back_up:
 						    cp->indx = NDX_INVALID;
 						    if((ret = __ham_release_meta(
 								dbc)) != 0)
-							    return (ret);
+							    return ret;
 						    /*
 						     * Not an error to get
 						     * DB_NOTFOUND, we're just at
@@ -757,7 +753,7 @@ back_up:
 						    if((ret = __ham_item_prev(dbc,
 							lock_mode, &pgno)) != 0) {
 							    if(ret != DB_NOTFOUND)
-								    return (ret);
+								    return ret;
 							    else
 								    ret = 0;
 						    }
@@ -898,7 +894,7 @@ get_space:
 					    }
 					    goto get_space;
 				    }
-				    return (ret);
+				    return ret;
 			    }
 			    break;
 			case H_OFFPAGE:
@@ -913,7 +909,7 @@ get_space:
 
 			    if((ret =
 				__bam_bulk_overflow(dbc, size, pgno, np)) != 0)
-				    return (ret);
+				    return ret;
 
 			    if(is_key) {
 				    *offp-- = (int32)key_off;
@@ -935,7 +931,7 @@ get_space:
 			    blob_id = (db_seq_t)hblob.id;
 			    GET_BLOB_SIZE(dbc->env, hblob, blob_size, ret);
 			    if(ret != 0)
-				    return (ret);
+				    return ret;
 			    if(blob_size > UINT32_MAX) {
 				    size = UINT32_MAX;
 				    goto back_up;
@@ -945,7 +941,7 @@ get_space:
 				    goto back_up;
 
 			    if((ret = __blob_bulk(dbc, size, blob_id, np)) != 0)
-				    return (ret);
+				    return ret;
 
 			    if(is_key) {
 				    *offp-- = (int32)key_off;
@@ -974,13 +970,13 @@ get_space:
 		if((ret = __ham_item_next(dbc, lock_mode, &pgno)) == 0)
 			goto next_pg;
 		if(ret != DB_NOTFOUND)
-			return (ret);
+			return ret;
 		if((ret = __memp_fput(dbc->dbp->mpf,
 		    dbc->thread_info, cp->page, dbc->priority)) != 0)
-			return (ret);
+			return ret;
 		cp->page = NULL;
 		if((ret = __ham_get_meta(dbc)) != 0)
-			return (ret);
+			return ret;
 
 		cp->bucket++;
 		if(cp->bucket > cp->hdr->max_bucket) {
@@ -1014,10 +1010,10 @@ get_space:
 		if(ret == 0)
 			goto next_pg;
 		if(ret != DB_NOTFOUND)
-			return (ret);
+			return ret;
 	}
 	*offp = -1;
-	return (0);
+	return 0;
 }
 
 static int __hamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
@@ -1076,7 +1072,7 @@ static int __hamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 				     */
 				    if((ret = __ham_init_dbt(dbp->env, &tmp_val, data->size + data->doff, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0)
 					    goto err2;
-				    memset(tmp_val.data, 0, data->doff);
+				    memzero(tmp_val.data, data->doff);
 				    memcpy((uint8*)tmp_val.data +
 					data->doff, data->data, data->size);
 				    myval = &tmp_val;
@@ -1150,7 +1146,7 @@ done:   if(hcp->page != NULL) {
 err2:   if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-err1:   return (ret);
+err1:   return ret;
 }
 
 /********************************* UTILITIES ************************/
@@ -1172,12 +1168,12 @@ int __ham_contract_table(DBC *dbc, DB_COMPACT * c_data)
 	mpf = dbp->mpf;
 	h = NULL;
 	if((ret = __ham_dirty_meta(dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	hdr = hcp->hdr;
 
 	if((ret = __ham_merge_pages(dbc, hdr->max_bucket & hdr->low_mask, hdr->max_bucket, c_data)) != 0)
-		return (ret);
+		return ret;
 	maxpgno = BUCKET_TO_PAGE(hcp, hdr->max_bucket);
 	drop_segment = hdr->max_bucket == (hdr->low_mask + 1);
 
@@ -1212,7 +1208,7 @@ int __ham_contract_table(DBC *dbc, DB_COMPACT * c_data)
 		LOCK_CHECK_ON(dbc->thread_info);
 	}
 err:    
-	return (ret);
+	return ret;
 }
 /*
  * __ham_expand_table --
@@ -1234,7 +1230,7 @@ static int __ham_expand_table(DBC *dbc)
 	mpf = dbp->mpf;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	if((ret = __ham_dirty_meta(dbc, 0)) != 0)
-		return (ret);
+		return ret;
 
 	LOCK_INIT(metalock);
 	mmeta = (DBMETA*)hcp->hdr;
@@ -1369,7 +1365,7 @@ err:    if(got_meta)
 		ret = __ham_split_page(dbc, old_bucket, new_bucket);
 	LOCK_CHECK_ON(dbc->thread_info);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1426,7 +1422,7 @@ static int __ham_dup_return(DBC *dbc, DBT * val, uint32 flags)
 
 	/* Case 1 */
 	if(type != H_DUPLICATE && flags != DB_GET_BOTH && flags != DB_GET_BOTHC && flags != DB_GET_BOTH_RANGE)
-		return (0);
+		return 0;
 	/*
 	 * Here we check for the case where we just stumbled onto a
 	 * duplicate.  In this case, we do initialization and then
@@ -1478,7 +1474,7 @@ static int __ham_dup_return(DBC *dbc, DBT * val, uint32 flags)
 				memcpy(&tlen, HOFFPAGE_TLEN(hk), sizeof(uint32));
 				memcpy(&pgno, HOFFPAGE_PGNO(hk), sizeof(db_pgno_t));
 				if((ret = __db_moff(dbc, val, pgno, tlen, dbp->dup_compare, &cmp, NULL)) != 0)
-					return (ret);
+					return ret;
 				cmp = -cmp;
 			}
 			else if(((HKEYDATA*)hk)->type == H_BLOB) {
@@ -1508,7 +1504,7 @@ static int __ham_dup_return(DBC *dbc, DBT * val, uint32 flags)
 	 */
 	if(F_ISSET(dbc, DBC_MULTIPLE | DBC_MULTIPLE_KEY) ||
 	    F_ISSET(val, DB_DBT_ISSET))
-		return (0);
+		return 0;
 
 	/*
 	 * Now, everything is initialized, grab a duplicate if
@@ -1556,7 +1552,7 @@ static int __ham_dup_return(DBC *dbc, DBT * val, uint32 flags)
 	if((ret = __db_ret(dbc, pp, ndx, myval, &dbc->rdata->data, &dbc->rdata->ulen)) != 0) {
 		if(ret == DB_BUFFER_SMALL)
 			val->size = myval->size;
-		return (ret);
+		return ret;
 	}
 	/*
 	 * In case we sent a temporary off to db_ret, set the real
@@ -1565,7 +1561,7 @@ static int __ham_dup_return(DBC *dbc, DBT * val, uint32 flags)
 	val->data = myval->data;
 	val->size = myval->size;
 	F_SET(val, DB_DBT_ISSET);
-	return (0);
+	return 0;
 }
 /*
  * Overwrite a record.
@@ -1604,9 +1600,9 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 			 * construct the record, do any padding and do a
 			 * replace.
 			 */
-			memset(&tmp_val, 0, sizeof(tmp_val));
+			memzero(&tmp_val, sizeof(tmp_val));
 			if((ret = __ham_dup_return(dbc, &tmp_val, DB_CURRENT)) != 0)
-				return (ret);
+				return ret;
 			/* Figure out new size. */
 			nondup_size = tmp_val.size;
 			newsize = (db_indx_t)nondup_size;
@@ -1628,18 +1624,14 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 			 * the onpage duplicate size in which case we need
 			 * to convert to off-page duplicates.
 			 */
-			if(ISBIG(hcp,
-			    (hcp->dup_tlen - nondup_size) + newsize)) {
+			if(ISBIG(hcp, (hcp->dup_tlen - nondup_size) + newsize)) {
 				if((ret = __ham_dup_convert(dbc)) != 0)
-					return (ret);
-				return (hcp->opd->am_put(hcp->opd,
-				       NULL, nval, flags, NULL));
+					return ret;
+				return (hcp->opd->am_put(hcp->opd, NULL, nval, flags, NULL));
 			}
-
-			if((ret = __os_malloc(env,
-			    DUP_SIZE(newsize), &newrec)) != 0)
-				return (ret);
-			memset(&tmp_val2, 0, sizeof(tmp_val2));
+			if((ret = __os_malloc(env, DUP_SIZE(newsize), &newrec)) != 0)
+				return ret;
+			memzero(&tmp_val2, sizeof(tmp_val2));
 			F_SET(&tmp_val2, DB_DBT_PARTIAL);
 
 			/* Construct the record. */
@@ -1656,25 +1648,20 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 
 			if(nval->doff > tmp_val.size) {
 				/* Padding */
-				memset(p, 0, nval->doff - tmp_val.size);
+				memzero(p, nval->doff - tmp_val.size);
 				p += nval->doff - tmp_val.size;
 			}
-
 			/* New bytes */
 			memcpy(p, nval->data, nval->size);
 			p += nval->size;
-
 			/* End of original record (if there is any) */
 			if(nval->doff + nval->dlen < tmp_val.size) {
 				len = (tmp_val.size - nval->doff) - nval->dlen;
-				memcpy(p, (uint8*)tmp_val.data +
-				    nval->doff + nval->dlen, len);
+				memcpy(p, (uint8*)tmp_val.data + nval->doff + nval->dlen, len);
 				p += len;
 			}
-
 			/* Final size. */
 			memcpy(p, &newsize, sizeof(db_indx_t));
-
 			/*
 			 * Make sure that the caller isn't corrupting
 			 * the sort order.
@@ -1700,71 +1687,59 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 
 			/* Update cursor */
 			if(ret != 0)
-				return (ret);
+				return ret;
 
 			if(newsize > nondup_size) {
 				if((ret = __hamc_update(dbc,
 				    (newsize - nondup_size),
 				    DB_HAM_CURADJ_ADDMOD, 1)) != 0)
-					return (ret);
+					return ret;
 				hcp->dup_tlen += (newsize - nondup_size);
 			}
 			else {
 				if((ret = __hamc_update(dbc,
 				    (nondup_size - newsize),
 				    DB_HAM_CURADJ_DELMOD, 1)) != 0)
-					return (ret);
+					return ret;
 				hcp->dup_tlen -= (nondup_size - newsize);
 			}
 			hcp->dup_len = newsize;
-			return (0);
+			return 0;
 		}
 		else {
 			/* Check whether we need to convert to off page. */
 			if(ISBIG(hcp,
 			    (hcp->dup_tlen - hcp->dup_len) + nval->size)) {
 				if((ret = __ham_dup_convert(dbc)) != 0)
-					return (ret);
+					return ret;
 				return (hcp->opd->am_put(hcp->opd,
 				       NULL, nval, flags, NULL));
 			}
 
 			/* Make sure we maintain sort order. */
 			if(dbp->dup_compare != NULL) {
-				tmp_val2.data =
-				    HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page,
-					hcp->indx)) + hcp->dup_off +
-				    sizeof(db_indx_t);
+				tmp_val2.data = HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page, hcp->indx)) + hcp->dup_off + sizeof(db_indx_t);
 				tmp_val2.size = hcp->dup_len;
-				if(dbp->dup_compare(
-					    dbp, nval, &tmp_val2, NULL) != 0) {
-					__db_errx(env, DB_STR("1131",
-					    "Existing data sorts differently from put data"));
-					return (EINVAL);
+				if(dbp->dup_compare(dbp, nval, &tmp_val2, NULL) != 0) {
+					__db_errx(env, DB_STR("1131", "Existing data sorts differently from put data"));
+					return EINVAL;
 				}
 			}
 			/* Overwriting a complete duplicate. */
-			if((ret =
-			    __ham_make_dup(dbp->env, nval, &tmp_val,
-			    &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0)
-				return (ret);
+			if((ret = __ham_make_dup(dbp->env, nval, &tmp_val, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0)
+				return ret;
 			/* Now fix what we are replacing. */
 			tmp_val.doff = hcp->dup_off;
 			tmp_val.dlen = DUP_SIZE(hcp->dup_len);
-
 			/* Update cursor */
 			if(nval->size > hcp->dup_len) {
-				if((ret = __hamc_update(dbc,
-				    (nval->size - hcp->dup_len),
-				    DB_HAM_CURADJ_ADDMOD, 1)) != 0)
-					return (ret);
+				if((ret = __hamc_update(dbc, (nval->size - hcp->dup_len), DB_HAM_CURADJ_ADDMOD, 1)) != 0)
+					return ret;
 				hcp->dup_tlen += (nval->size - hcp->dup_len);
 			}
 			else {
-				if((ret = __hamc_update(dbc,
-				    (hcp->dup_len - nval->size),
-				    DB_HAM_CURADJ_DELMOD, 1)) != 0)
-					return (ret);
+				if((ret = __hamc_update(dbc, (hcp->dup_len - nval->size), DB_HAM_CURADJ_DELMOD, 1)) != 0)
+					return ret;
 				hcp->dup_tlen -= (hcp->dup_len - nval->size);
 			}
 			hcp->dup_len = (db_indx_t)nval->size;
@@ -1775,15 +1750,13 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 	hk = H_PAIRDATA(dbp, hcp->page, hcp->indx);
 	if(HPAGE_PTYPE(hk) == H_BLOB) {
 		memcpy(&hblob, hk, HBLOB_SIZE);
-		memset(&old_rec, 0, sizeof(DBT));
-		memset(&new_rec, 0, sizeof(DBT));
+		memzero(&old_rec, sizeof(DBT));
+		memzero(&new_rec, sizeof(DBT));
 		if(DBC_LOGGING(dbc)) {
 			new_rec.data = HKEYDATA_DATA(&hblob);
-			if((ret = __os_malloc(
-				    env, HBLOB_SIZE, &old_rec.data)) != 0)
-				return (ret);
-			memcpy(old_rec.data,
-			    HKEYDATA_DATA(&hblob), HBLOB_DSIZE);
+			if((ret = __os_malloc(env, HBLOB_SIZE, &old_rec.data)) != 0)
+				return ret;
+			memcpy(old_rec.data, HKEYDATA_DATA(&hblob), HBLOB_DSIZE);
 			new_rec.size = old_rec.size = HBLOB_DSIZE;
 		}
 		/*
@@ -1809,7 +1782,7 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 			blob_id = (db_seq_t)hblob.id;
 			GET_BLOB_SIZE(env, hblob, blob_size, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			if((ret = __blob_repl(dbc,
 			    nval, blob_id, &new_blob_id, &blob_size)) == 0) {
 				SET_BLOB_ID(&hblob, new_blob_id, HBLOB);
@@ -1829,7 +1802,7 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 					memcpy(HKEYDATA_DATA(&hblob),
 					    old_rec.data, HBLOB_DSIZE);
 					__os_free(env, old_rec.data);
-					return (ret);
+					return ret;
 				}
 			}
 			else
@@ -1839,7 +1812,7 @@ int __ham_overwrite(DBC *dbc, DBT * nval, uint32 flags)
 		memcpy(hk, &hblob, HBLOB_SIZE);
 		if(old_rec.data != NULL)
 			__os_free(env, old_rec.data);
-		return (ret);
+		return ret;
 	}
 	else if(!F_ISSET(nval, DB_DBT_PARTIAL)) {
 		/* Put/overwrite */
@@ -1886,13 +1859,13 @@ int __ham_lookup(DBC *dbc, const DBT * key, uint32 sought, db_lockmode_t mode, d
 	 * as we cycle through the pages looking for the key.
 	 */
 	if((ret = __ham_item_reset(dbc)) != 0)
-		return (ret);
+		return ret;
 	hcp->seek_size = sought;
 	hcp->bucket = __ham_call_hash(dbc, (uint8*)key->data, key->size);
 	hcp->pgno = BUCKET_TO_PAGE(hcp, hcp->bucket);
 	/* look though all pages in the bucket for the key */
 	if((ret = __ham_get_cpage(dbc, mode)) != 0)
-		return (ret);
+		return ret;
 
 	*pgnop = PGNO_INVALID;
 	if(hcp->indx == NDX_INVALID) {
@@ -1906,7 +1879,7 @@ int __ham_lookup(DBC *dbc, const DBT * key, uint32 sought, db_lockmode_t mode, d
 			hcp->seek_found_indx = NDX_INVALID;
 		}
 		if((ret = __ham_getindex(dbc, (PAGE *)hcp->page, key, H_KEYDATA, &match, &hcp->indx)) != 0)
-			return (ret);
+			return ret;
 
 		/*
 		 * If this is the first page in the bucket with space for
@@ -1921,7 +1894,7 @@ int __ham_lookup(DBC *dbc, const DBT * key, uint32 sought, db_lockmode_t mode, d
 			dk = H_PAIRDATA(dbp, hcp->page, hcp->indx);
 			if(HPAGE_PTYPE(dk) == H_OFFDUP)
 				memcpy(pgnop, HOFFDUP_PGNO(dk), sizeof(db_pgno_t));
-			return (0);
+			return 0;
 		}
 
 		/* move the cursor to the next page. */
@@ -1930,7 +1903,7 @@ int __ham_lookup(DBC *dbc, const DBT * key, uint32 sought, db_lockmode_t mode, d
 		next_pgno = NEXT_PGNO(hcp->page);
 		hcp->indx = 0;
 		if((ret = __ham_next_cpage(dbc, next_pgno)) != 0)
-			return (ret);
+			return ret;
 	}
 	F_SET(hcp, H_NOMORE);
 	return (DBC_ERR(dbc, DB_NOTFOUND));
@@ -1946,17 +1919,17 @@ int __ham_lookup(DBC *dbc, const DBT * key, uint32 sought, db_lockmode_t mode, d
 int __ham_init_dbt(ENV *env, DBT * dbt, uint32 size, void ** bufp, uint32 * sizep)
 {
 	int ret;
-	memset(dbt, 0, sizeof(*dbt));
+	memzero(dbt, sizeof(*dbt));
 	if(*sizep < size) {
 		if((ret = __os_realloc(env, size, bufp)) != 0) {
 			*sizep = 0;
-			return (ret);
+			return ret;
 		}
 		*sizep = size;
 	}
 	dbt->data = *bufp;
 	dbt->size = size;
-	return (0);
+	return 0;
 }
 /*
  * Adjust the cursor after an insert or delete.  The cursor passed is
@@ -1978,12 +1951,12 @@ static int __hamc_update_getorder(DBC *cp, DBC *dbc, uint32 * orderp, db_pgno_t 
 	COMPQUIET(pgno, 0);
 	hcp = (HASH_CURSOR*)dbc->internal;
 	if(cp == dbc || cp->dbtype != DB_HASH)
-		return (0);
+		return 0;
 	lcp = (HASH_CURSOR*)cp->internal;
 	if(F_ISSET(lcp, H_DELETED) && hcp->pgno == lcp->pgno && hcp->indx == lcp->indx && *orderp < lcp->order && 
 		(!is_dup || hcp->dup_off == lcp->dup_off) && !MVCC_SKIP_CURADJ(cp, lcp->pgno))
 		*orderp = lcp->order;
-	return (0);
+	return 0;
 }
 
 struct __hamc_update_setorder_args {
@@ -1998,11 +1971,11 @@ static int __hamc_update_setorder(DBC * cp, DBC *dbc, uint32 * foundp, db_pgno_t
 	struct __hamc_update_setorder_args * args;
 	COMPQUIET(pgno, 0);
 	if(cp == dbc || cp->dbtype != DB_HASH)
-		return (0);
+		return 0;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	lcp = (HASH_CURSOR*)cp->internal;
 	if(lcp->pgno != hcp->pgno || lcp->indx == NDX_INVALID || MVCC_SKIP_CURADJ(cp, lcp->pgno))
-		return (0);
+		return 0;
 	args = (struct __hamc_update_setorder_args *)vargs;
 	/*
 	 * We're about to move things out from under this
@@ -2090,7 +2063,7 @@ static int __hamc_update_setorder(DBC * cp, DBC *dbc, uint32 * foundp, db_pgno_t
 			}
 		}
 	}
-	return (0);
+	return 0;
 }
 
 int __hamc_update(DBC *dbc, uint32 len, db_ham_curadj operation, int is_dup)
@@ -2128,7 +2101,7 @@ int __hamc_update(DBC *dbc, uint32 len, db_ham_curadj operation, int is_dup)
 		    args.was_add = 1;
 		    break;
 		default:
-		    return (EINVAL);
+		    return EINVAL;
 	}
 
 	/*
@@ -2138,17 +2111,17 @@ int __hamc_update(DBC *dbc, uint32 len, db_ham_curadj operation, int is_dup)
 	 */
 	if(args.was_add == 0) {
 		if((ret = __db_walk_cursors(dbp, dbc, __hamc_update_getorder, &args.order, 0, (uint32)is_dup, NULL)) != 0)
-			return (ret);
+			return ret;
 		args.order++;
 		hcp->order = args.order;
 	}
 	if((ret = __db_walk_cursors(dbp, dbc, __hamc_update_setorder, &found, 0, (uint32)is_dup, &args)) != 0)
-		return (ret);
+		return ret;
 	if(found != 0 && DBC_LOGGING(dbc)) {
 		if((ret = __ham_curadj_log(dbp, args.my_txn, &lsn, 0, hcp->pgno, hcp->indx, len, hcp->dup_off, (int)operation, is_dup, args.order)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 
 struct __ham_get_clist_args {
@@ -2172,11 +2145,11 @@ static int __ham_get_clist_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 		if(args->nused >= args->nalloc) {
 			args->nalloc += 10;
 			if((ret = __os_realloc(dbc->dbp->env, args->nalloc * sizeof(HASH_CURSOR *), &args->listp)) != 0)
-				return (ret);
+				return ret;
 		}
 		args->listp[args->nused++] = dbc;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __ham_get_clist --
@@ -2198,17 +2171,17 @@ int __ham_get_clist(DB *dbp, db_pgno_t pgno, uint32 indx, DBC *** listp)
 	args.listp = NULL;
 	args.nalloc = args.nused = 0;
 	if((ret = __db_walk_cursors(dbp, NULL, __ham_get_clist_func, &count, pgno, indx, &args)) != 0)
-		return (ret);
+		return ret;
 	if(args.listp != NULL) {
 		if(args.nused >= args.nalloc) {
 			args.nalloc++;
 			if((ret = __os_realloc(env, args.nalloc * sizeof(HASH_CURSOR *), &args.listp)) != 0)
-				return (ret);
+				return ret;
 		}
 		args.listp[args.nused] = NULL;
 	}
 	*listp = args.listp;
-	return (0);
+	return 0;
 }
 
 static int __hamc_writelock(DBC *dbc)
@@ -2221,7 +2194,7 @@ static int __hamc_writelock(DBC *dbc)
 	 * dup tree do its thing.
 	 */
 	if(!STD_LOCKING(dbc))
-		return (0);
+		return 0;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	ret = 0;
 	if((!LOCK_ISSET(hcp->lock) || hcp->lock_mode != DB_LOCK_WRITE)) {
@@ -2229,5 +2202,5 @@ static int __hamc_writelock(DBC *dbc)
 		if((ret = __ham_lock_bucket(dbc, DB_LOCK_WRITE)) == 0 && tmp_lock.mode != DB_LOCK_WWRITE)
 			ret = __LPUT(dbc, tmp_lock);
 	}
-	return (ret);
+	return ret;
 }

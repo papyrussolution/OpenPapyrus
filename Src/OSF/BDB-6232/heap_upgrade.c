@@ -30,7 +30,7 @@ int __heap_60_heapmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAG
 	hmeta = (HEAPMETA*)h;
 	hmeta->dbmeta.version = 2;
 	*dirtyp = 1;
-	return (0);
+	return 0;
 }
 /*
  * __heap_60_heap --
@@ -60,20 +60,20 @@ int __heap_60_heap(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * 
 		hdr = (HEAPHDR*)P_ENTRY(dbp, h, indx);
 		if(F_ISSET(hdr, HEAP_RECBLOB)) {
 			memcpy(&hb60, hdr, HEAPBLOBREC60_SIZE);
-			memset(&hb60p1, 0, HEAPBLOBREC_SIZE);
+			memzero(&hb60p1, HEAPBLOBREC_SIZE);
 			hb60p1.std_hdr.flags = hb60.flags;
 			hb60p1.std_hdr.size = hb60.size;
 			hb60p1.encoding = hb60.encoding;
 			hb60p1.lsn = hb60.lsn;
 			GET_BLOB60_ID(dbp->env, hb60, blob_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_SIZE(dbp->env, hb60, blob_size, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_FILE_ID(dbp->env, &hb60, file_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			SET_BLOB_ID(&hb60p1, blob_id, HEAPBLOBHDR60P1);
 			SET_BLOB_SIZE(&hb60p1, blob_size, HEAPBLOBHDR60P1);
 			SET_BLOB_FILE_ID(&hb60p1, file_id, HEAPBLOBHDR60P1);
@@ -82,5 +82,5 @@ int __heap_60_heap(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * 
 		}
 	}
 
-	return (ret);
+	return ret;
 }

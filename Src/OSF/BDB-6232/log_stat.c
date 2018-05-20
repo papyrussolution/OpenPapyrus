@@ -29,11 +29,11 @@ int __log_stat_pp(DB_ENV *dbenv, DB_LOG_STAT ** statp, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_ENV->log_stat", DB_INIT_LOG);
 	if((ret = __db_fchk(env, "DB_ENV->log_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__log_stat(env, statp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __log_stat --
@@ -49,12 +49,12 @@ static int __log_stat(ENV *env, DB_LOG_STAT ** statp, uint32 flags)
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	if((ret = __os_umalloc(env, sizeof(DB_LOG_STAT), &stats)) != 0)
-		return (ret);
+		return ret;
 	/* Copy out the global statistics. */
 	LOG_SYSTEM_LOCK(env);
 	*stats = lp->stat;
 	if(LF_ISSET(DB_STAT_CLEAR))
-		memset(&lp->stat, 0, sizeof(lp->stat));
+		memzero(&lp->stat, sizeof(lp->stat));
 	stats->st_magic = lp->persist.magic;
 	stats->st_version = lp->persist.version;
 	stats->st_mode = lp->filemode;
@@ -70,7 +70,7 @@ static int __log_stat(ENV *env, DB_LOG_STAT ** statp, uint32 flags)
 	stats->st_disk_offset = lp->s_lsn.offset;
 	LOG_SYSTEM_UNLOCK(env);
 	*statp = stats;
-	return (0);
+	return 0;
 }
 /*
  * __log_stat_print_pp --
@@ -85,11 +85,11 @@ int __log_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_ENV->log_stat_print", DB_INIT_LOG);
 	if((ret = __db_fchk(env, "DB_ENV->log_stat_print", flags, DB_STAT_ALL | DB_STAT_ALLOC | DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__log_stat_print(env, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -106,11 +106,11 @@ int __log_stat_print(ENV *env, uint32 flags)
 	if(flags == 0 || LF_ISSET(DB_STAT_ALL)) {
 		ret = __log_print_stats(env, orig_flags);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __log_print_all(env, orig_flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __log_print_stats --
@@ -121,7 +121,7 @@ static int __log_print_stats(ENV *env, uint32 flags)
 	DB_LOG_STAT * sp;
 	int ret;
 	if((ret = __log_stat(env, &sp, flags)) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default logging region information:");
 	STAT_HEX("Log magic number", sp->st_magic);
@@ -155,7 +155,7 @@ static int __log_print_stats(ENV *env, uint32 flags)
 	__db_dl_pct(env, "The number of region locks that required waiting",
 	    (u_long)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait + sp->st_region_nowait), NULL);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 /*
  * __log_print_all --
@@ -215,7 +215,7 @@ static int __log_print_all(ENV *env, uint32 flags)
 	STAT_ULONG("transactions waiting to commit", lp->ncommit);
 	STAT_LSN("LSN of first commit", &lp->t_lsn);
 	LOG_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */

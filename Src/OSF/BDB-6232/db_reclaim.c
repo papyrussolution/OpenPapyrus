@@ -30,7 +30,7 @@ int __db_traverse_big(DBC *dbc, db_pgno_t pgno, int (*callback)(DBC *, PAGE *, v
 	do {
 		did_put = 0;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &p)) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * If we are freeing pages only process the overflow
 		 * chain if the head of the chain has a refcount of 1.
@@ -44,7 +44,7 @@ int __db_traverse_big(DBC *dbc, db_pgno_t pgno, int (*callback)(DBC *, PAGE *, v
 				dbc->thread_info, p, dbc->priority);
 	} while(ret == 0 && pgno != PGNO_INVALID);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -68,11 +68,11 @@ int __db_reclaim_callback(DBC *dbc, PAGE * p, void * cookie, int * putp)
 	 * the free.
 	 */
 	if((dbp->type == DB_BTREE || dbp->type == DB_RECNO) && PGNO(p) == ((BTREE*)dbp->bt_internal)->bt_root)
-		return (0);
+		return 0;
 	if((ret = __db_free(dbc, p, *(uint32*)cookie)) != 0)
-		return (ret);
+		return ret;
 	*putp = 1;
-	return (0);
+	return 0;
 }
 
 /*
@@ -116,10 +116,10 @@ int __db_truncate_callback(DBC *dbc, PAGE * p, void * cookie, int * putp)
 		    break;
 		case P_OVERFLOW:
 		    if((ret = __memp_dirty(mpf, &p, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
-			    return (ret);
+			    return ret;
 		    if(DBC_LOGGING(dbc)) {
 			    if((ret = __db_ovref_log(dbp, dbc->txn, &LSN(p), 0, p->pgno, -1, &LSN(p))) != 0)
-				    return (ret);
+				    return ret;
 		    }
 		    else
 			    LSN_NOT_LOGGED(LSN(p));
@@ -175,22 +175,21 @@ int __db_truncate_callback(DBC *dbc, PAGE * p, void * cookie, int * putp)
 		    if(PREV_PGNO(p) == PGNO_INVALID) {
 			    type = P_HASH;
 
-reinit:                     if((ret = __memp_dirty(mpf, &p,
-				dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
-				    return (ret);
+reinit:                     
+				if((ret = __memp_dirty(mpf, &p, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+				    return ret;
 			    *putp = 0;
 			    if(DBC_LOGGING(dbc)) {
-				    memset(&ldbt, 0, sizeof(ldbt));
-				    memset(&ddbt, 0, sizeof(ddbt));
+				    memzero(&ldbt, sizeof(ldbt));
+				    memzero(&ddbt, sizeof(ddbt));
 				    ldbt.data = p;
 				    ldbt.size = P_OVERHEAD(dbp);
 				    ldbt.size += p->entries * sizeof(db_indx_t);
 				    ddbt.data = (uint8*)p + HOFFSET(p);
 				    ddbt.size = dbp->pgsize - HOFFSET(p);
-				    if((ret = __db_pg_init_log(dbp,
-					dbc->txn, &LSN(p), 0,
+				    if((ret = __db_pg_init_log(dbp, dbc->txn, &LSN(p), 0,
 					p->pgno, &ldbt, &ddbt)) != 0)
-					    return (ret);
+					    return ret;
 			    }
 			    else
 				    LSN_NOT_LOGGED(LSN(p));
@@ -205,14 +204,14 @@ reinit:                     if((ret = __memp_dirty(mpf, &p,
 
 	if(*putp == 1) {
 		if((ret = __db_free(dbc, p, 0)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		if((ret = __memp_fput(mpf, dbc->thread_info, p,
 		    dbc->priority)) != 0)
-			return (ret);
+			return ret;
 		*putp = 1;
 	}
 
-	return (0);
+	return 0;
 }

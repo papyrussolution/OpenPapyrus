@@ -594,36 +594,28 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	DelFiles("spbills1.xml");
 	DelFiles("spbills2.xml");
 	DelFiles("spdlvadr.xml");
-	// if(filt_flags & SupplExpFilt::expPrice) {
 	if(P.Actions & P.opExportPrices) {
 		THROW(ExportPrice());
 	}
-	//if(filt_flags & SupplExpFilt::expRest) {
 	if(P.Actions & P.opExportStocks) {
 		THROW(ExportRest());
 		THROW(ExportRestParties());
 	}
-	//if(filt_flags & SupplExpFilt::expBills) {
 	if(P.Actions & P.opExportBills) {
 		THROW(ExportBills(expEtc, client_code, rLogger));
 		if(ini_file.IsValid()) {
 			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWEAKALCCODE, buf) > 0) {
-				//STRNSCPY(Filt.ClientCode, buf);
 				THROW(ExportBills(expWeakAlc, buf, rLogger));
 			}
 			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, buf) > 0) {
-				//STRNSCPY(Filt.ClientCode, buf);
 				THROW(ExportBills(expWoTareBeer, buf, rLogger));
 			}
 		}
-		//STRNSCPY(Filt.ClientCode, client_code);
 	}
-	//if(filt_flags & SupplExpFilt::expSaldo) {
 	if(P.Actions & P.opExportDebts) {
 		PPIDArray excl_ar_list;
 		SString temp_client_code = client_code;
 		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKASALDOCODE, buf.Z()) > 0) {
-			//STRNSCPY(Filt.ClientCode, buf);
 			temp_client_code = buf;
 		}
 		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAEXCLSALDOCONTRAGENTS, buf.Z()) > 0) {
@@ -639,7 +631,7 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	{
 		PPSupplAgreement suppl_agr;
 		THROW(ArObj.GetSupplAgreement(/*Filt.SupplID*/P.SupplID, &suppl_agr, 0) > 0);
-		suppl_agr.Ep.LastDt = NZOR(/*Filt.Period.upp*/P.ExpPeriod.upp, getcurdate_()); // @v8.5.0 LConfig.OperDate-->getcurdate_()
+		suppl_agr.Ep.LastDt = NZOR(/*Filt.Period.upp*/P.ExpPeriod.upp, getcurdate_());
 		THROW(ArObj.PutSupplAgreement(/*Filt.SupplID*/P.SupplID, &suppl_agr, 1) > 0);
 	}
 	CATCHZOK
@@ -669,11 +661,7 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 //#define SOAP_SCHEMESALDODOC       "CRMSaldoDoc"
 //#define SOAP_SCHEMESALDOWARE      "CRMSaldoWare"
 
-const char * SLAPI PPSupplExchange_Baltika::GetEaText() const
-{
-	//return (Filt.ProtVer == 0) ? "ea" : "кг";
-	return (Ep.ProtVer == 0) ? "ea" : "кг";
-}
+const char * SLAPI PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "кг"; }
 
 int SLAPI PPSupplExchange_Baltika::ExportPrice()
 {
@@ -681,10 +669,7 @@ int SLAPI PPSupplExchange_Baltika::ExportPrice()
 	uint   count = 0;
 	SString path;
 	SString client_code;
-	//SupplExpFilt se_filt;
 	SoapExporter soap_e;
-	//se_filt = Filt;
-	//se_filt.MaxFileSizeKB = 0;
 	{
 		Goods2Tbl::Rec grec;
 		GoodsIterator  giter(/*se_filt*/Ep.GoodsGrpID, 0);
@@ -702,11 +687,9 @@ int SLAPI PPSupplExchange_Baltika::ExportPrice()
 				THROW(BillObj->trfr->Rcpt.GetCurrentGoodsPrice(grec.ID, LConfig.Location, 0, &rec.Price));
 				STRNSCPY(rec.PriceTypeId, "001");
 				STRNSCPY(rec.UnitId, GetEaText());
-				// @v8.9.8 {
 				if(bc_pack > 1.0) {
 					rec.Price = R5(rec.Price * bc_pack);
 				}
-				// } @v8.9.8
 				THROW(soap_e.AppendRecP(&rec, sizeof(rec), 0, 0, 0/*headRecForNewFile*/));
 				count++;
 			}
@@ -774,15 +757,12 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	PPID   weakalc_locid = 0, weakalc_ggrpid = 0, wotarebeer_locid = 0, wotarebeer_ggrpid = 0, tare_ggrpid = 0;
 	PPIDArray loc_list, spoilage_loc_list;
 	TSVector <Sdr_Baltika_RestPartLine> wotarebeerrest_list; // @v9.8.4 TSArray-->TSVector
-	//SupplExpFilt  se_filt;
 	GoodsRestFilt filt;
 	SoapExporter soap_e;
 	GoodsRestViewItem item;
 	PPViewGoodsRest gr_view;
 	PPIniFile ini_file(0, 0, 0, 1);
 
-	//se_filt = Filt;
-	//se_filt.MaxFileSizeKB = 0;
 	PPGetFilePath(PPPATH_OUT, "sprestp.xml", path);
 	MEMSZERO(item);
 	filt.GoodsGrpID = Ep.GoodsGrpID;
@@ -834,7 +814,6 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 			// @v9.2.5 head_rec.SkipDelete = skip_delete; // (Filt.Flags & SupplExpFilt::expDelRecentBills) ? 0 : 1;
 			head_rec.SkipDelete = (P.Flags & P.fDeleteRecentBills) ? 0 : 1; // @v9.2.5
 			THROW(soap_e.AppendRecP(&head_rec, sizeof(head_rec), 0, 0, 0/*headRecForNewFile*/));
-			// @v8.7.8 skip_delete = 1;
 		}
 		if(loc_list.at(i) != wotarebeer_locid) {
 			TSVector <Sdr_Baltika_RestPartLine> items_list; // @v9.8.4 TSArray-->TSVector
@@ -852,11 +831,9 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 					}
 					ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
 					GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, 0);
-					// @v8.9.8 {
 					if(bc_pack > 1.0) {
 						line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 					}
-					// } @v8.9.8
 					if(wotarebeer_ggrpid && GObj.BelongToGroup(item.GoodsID, wotarebeer_ggrpid) > 0) {
 						GetQtty(item.GoodsID, IsKegUnit(item.GoodsID), &line_rec.Quantity, 0);
 						ltoa(wotarebeer_locid, line_rec.WareHouseId, 10);
@@ -877,7 +854,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 				for(uint j = 0; j < items_list.getCount(); j++) {
 					Sdr_Baltika_RestPartLine line_rec = items_list.at(j);
 					THROW(soap_e.AppendRecP(0, 0, &line_rec, sizeof(line_rec), 0/*headRecForNewFile*/));
-					skip_delete = 1; // @v8.7.8
+					skip_delete = 1;
 				}
 			}
 		}
@@ -908,11 +885,9 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 							STRNSCPY(line_rec.PartNumber, item.Serial);
 							ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
 							GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, 0);
-							// @v8.9.8 {
 							if(bc_pack > 1.0) {
 								line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 							}
-							// } @v8.9.8
 							if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)) > 0)
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
@@ -927,7 +902,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 				for(uint j = 0; j < items_list.getCount(); j++) {
 					Sdr_Baltika_RestPartLine line_rec = items_list.at(j);
 					THROW(soap_e.AppendRecP(0, 0, &line_rec, sizeof(line_rec), 0/*headRecForNewFile*/));
-					skip_delete = 1; // @v8.7.8
+					skip_delete = 1;
 				}
 			}
 			//STRNSCPY(se_filt.ClientCode, Filt.ClientCode);
@@ -1028,11 +1003,9 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 						uint   idx = 0;
 						line_rec.Quantity = item.Rest;
 						STRNSCPY(line_rec.UnitId, GetEaText());
-						// @v8.9.8 {
 						if(bc_pack > 1.0) {
 							line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 						}
-						// } @v8.9.8
 						if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
 							items_list.at(idx).Quantity += line_rec.Quantity;
 						else
@@ -1063,11 +1036,9 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 					uint idx = 0;
 					line_rec.Quantity = rest;
 					STRNSCPY(line_rec.UnitId, GetEaText());
-					// @v8.9.8 {
 					if(bc_pack > 1.0) {
 						line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 					}
-					// } @v8.9.8
 					if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
 						items_list.at(idx).Quantity += line_rec.Quantity;
 					else
@@ -1152,10 +1123,9 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 				is_wotare = 1;
 			}
 			line_rec.Quantity = item.Rest;
-			// @v8.9.8 {
 			if(!is_wotare && bc_pack > 1.0) {
 				line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
-			} // } @v8.9.8
+			}
 			STRNSCPY(line_rec.UnitId, GetEaText());
 			if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
 				items_list.at(idx).Quantity += line_rec.Quantity;
@@ -1211,7 +1181,7 @@ int SLAPI PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t 
 			temp_buf = barcode_list.at(i).Code;
 			if(temp_buf.C(0) == '=' || temp_buf.C(0) == '*') {
 				barcode = temp_buf;
-				mult = barcode_list.at(i).Qtty; // @v8.9.8
+				mult = barcode_list.at(i).Qtty;
 			}
 			/*
 			GObj.GetSingleBarcode(goodsID, barcode); // @todo сделать перебор всех штрихкодов
@@ -1476,12 +1446,10 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					else
 						GetInfoFromMemo(item.Memo, &ord_dt, ord_num, 1);
 				}
-				// @v8.7.5 {
 				else if(oneof2(doc_type_idx, BALTIKA_DOCTYPES_MOVINGTO, BALTIKA_DOCTYPES_MOVINGFROM)) {
 					ord_num = bpack.Rec.Code;
 					ord_dt = bpack.Rec.Dt;
 				}
-				// } @v8.7.5
 			}
 		}
 		if(doc_type_str.NotEmpty()) {
@@ -1519,7 +1487,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 							ltoa(dlvr_addr_id, line_rec.AddressId, 10);
 						line_rec.DocumentDate    = trfr_item.Date;
 						line_rec.ActionDate      = trfr_item.Date; // @v9.4.12
-						STRNSCPY(line_rec.SrcCRMDbId, pClientCode); // @v8.7.4
+						STRNSCPY(line_rec.SrcCRMDbId, pClientCode);
 						if(IsOpBelongTo(item.OpID, Ep.ExpendOp)) {
 							LDATE pay_dt = ZERODATE;
 							if(GetOpType(item.OpID) == PPOPT_GOODSMODIF)
@@ -1960,16 +1928,14 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 													if(P_BObj->GetGoodsSaldo(goods_id, ar_id, dlvr_loc_id, sdr_saldo_ware.Date, MAXLONG, &sdr_saldo_ware.Quantity, &sdr_saldo_ware.Summ) > 0 && sdr_saldo_ware.Quantity != 0.0) {
 														//sdr_saldo_ware.Quantity = 1.0; // @debug
 														//sdr_saldo_ware.Summ = 1.0;      // @debug
-														if(sdr_saldo_ware.Quantity < 0.0) { // @v8.8.0
+														if(sdr_saldo_ware.Quantity < 0.0) {
 															sdr_saldo_ware.Quantity = fabs(sdr_saldo_ware.Quantity);
 															sdr_saldo_ware.Summ = fabs(sdr_saldo_ware.Summ);
 														}
-														// @v8.8.0 {
 														else {
 															sdr_saldo_ware.Quantity = 0.0;
 															sdr_saldo_ware.Summ = 0.0;
 														}
-														// } @v8.8.0
 														ltoa(person_id, sdr_saldo_ware.CompanyId, 10);
 														//memzero(sdr_saldo_ware.AddressId, sizeof(sdr_saldo_ware.AddressId)); // не указываем, так как передаем тару
 														temp_buf.Z();
@@ -2162,7 +2128,7 @@ int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, doubl
 	if(calcByPhPerU) {
 		double phuperu = 0.0;
 		PPGoodsPacket g_pack;
-		if(GObj.GetPacket(goodsID, &g_pack, PPObjGoods::gpoSkipQuot) > 0 && g_pack.Rec.GdsClsID && g_pack.ExtRec.W) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+		if(GObj.GetPacket(goodsID, &g_pack, PPObjGoods::gpoSkipQuot) > 0 && g_pack.Rec.GdsClsID && g_pack.ExtRec.W) { 
 			phuperu = g_pack.ExtRec.W;
 			/*
 			PPGdsClsPacket  gc_pack;
@@ -2302,13 +2268,9 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 					//InetAddr
 					Data.Port   = suppl_agr.Ep.ConnAddr.GetPort();
 					Data.IP     = (ulong)suppl_agr.Ep.ConnAddr;
-					// @v8.5.0 Data.TechID = suppl_agr.ExchCfg.TechID;
 					Data.PriceQuotID = suppl_agr.Ep.PriceQuotID;
-					// @v8.5.0 {
 					suppl_agr.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf.Z());
 					STRNSCPY(Data.ClientCode, temp_buf);
-					// } @v8.5.0
-					// @v8.5.0 STRNSCPY(Data.ClientCode, suppl_agr.ExchCfg.ClientCode);
 				}
 			}
 			else if(event.isCmd(cmaMore)) {
@@ -6064,7 +6026,6 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 int SLAPI SfaHeineken::SendDebts()
 {
 	int    ok = -1;
-#if 1 // {
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -6111,7 +6072,6 @@ int SLAPI SfaHeineken::SendDebts()
 		ok = 1;
 	}
 	CATCHZOK
-#endif // }
 	return ok;
 }
 
@@ -6170,8 +6130,7 @@ int SLAPI SfaHeineken::SendStocks()
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
 		SString ar_code;
-
-		gr_filt.Date = ZERODATE;
+		gr_filt.Date = P.ExpPeriod.upp; // @v10.0.07 ZERODATE-->P.ExpPeriod.upp
 		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
 		gr_filt.LocList = P.LocList;
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;

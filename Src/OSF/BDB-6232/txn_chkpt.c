@@ -67,7 +67,7 @@ int __txn_checkpoint_pp(DB_ENV *dbenv, uint32 kbytes, uint32 minutes, uint32 fla
 	 * master and a client.
 	 */
 	if(IS_REP_CLIENT(env))
-		return (0);
+		return 0;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__txn_checkpoint(env, kbytes, minutes, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
@@ -75,7 +75,7 @@ int __txn_checkpoint_pp(DB_ENV *dbenv, uint32 kbytes, uint32 minutes, uint32 fla
 		SLICE_FOREACH(dbenv, slice, i)
 		if((ret = __txn_checkpoint_pp(slice, kbytes, minutes, flags)) != 0)
 			break;
-	return (ret);
+	return ret;
 }
 /*
  * __txn_checkpoint --
@@ -107,15 +107,12 @@ int __txn_checkpoint(ENV *env, uint32 kbytes, uint32 minutes, uint32 flags)
 	 * truncation due to syncup.
 	 */
 	if(IS_REP_CLIENT(env)) {
-		if(MPOOL_ON(env) &&
-		    (ret = __memp_sync(env, DB_SYNC_CHECKPOINT, NULL)) != 0) {
-			__db_err(env, ret, DB_STR("4518",
-			    "txn_checkpoint: failed to flush the buffer cache"));
-			return (ret);
+		if(MPOOL_ON(env) && (ret = __memp_sync(env, DB_SYNC_CHECKPOINT, NULL)) != 0) {
+			__db_err(env, ret, DB_STR("4518", "txn_checkpoint: failed to flush the buffer cache"));
+			return ret;
 		}
-		return (0);
+		return 0;
 	}
-
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	mgr = env->tx_handle;
@@ -224,19 +221,13 @@ do_ckp:
 		 * they have applied all txns up to this point.
 		 */
 		if(env->rep_handle->send != NULL)
-			(void)__rep_send_message(env, DB_EID_BROADCAST,
-			    REP_START_SYNC, &msg_lsn, NULL, 0, 0);
+			(void)__rep_send_message(env, DB_EID_BROADCAST, REP_START_SYNC, &msg_lsn, NULL, 0, 0);
 	}
-
 	/* Flush the cache. */
-	if(MPOOL_ON(env) &&
-	    (ret = __memp_sync_int(
-		    env, NULL, 0, DB_SYNC_CHECKPOINT, NULL, NULL)) != 0) {
-		__db_err(env, ret, DB_STR("4519",
-		    "txn_checkpoint: failed to flush the buffer cache"));
+	if(MPOOL_ON(env) && (ret = __memp_sync_int(env, NULL, 0, DB_SYNC_CHECKPOINT, NULL, NULL)) != 0) {
+		__db_err(env, ret, DB_STR("4519", "txn_checkpoint: failed to flush the buffer cache"));
 		goto err;
 	}
-
 	/*
 	 * The client won't have more dirty pages to flush from its cache than
 	 * the master did, but there may be differences between the hardware,
@@ -287,13 +278,8 @@ do_ckp:
 			logflags |= DB_FLUSH;
 		else if(region->stat.st_nrestores == 0)
 			op = DBREG_RCLOSE;
-		if((ret = __dbreg_log_files(env, op)) != 0 ||
-		    (ret = __txn_ckp_log(env, NULL, &ckp_lsn, logflags,
-		    &ckp_lsn, &last_ckp, (int32)time(NULL), id, 0)) != 0) {
-			__db_err(env, ret, DB_STR_A("4520",
-			    "txn_checkpoint: log failed at LSN [%ld %ld]",
-			    "%ld %ld"),
-			    (long)ckp_lsn.file, (long)ckp_lsn.offset);
+		if((ret = __dbreg_log_files(env, op)) != 0 || (ret = __txn_ckp_log(env, NULL, &ckp_lsn, logflags, &ckp_lsn, &last_ckp, (int32)time(NULL), id, 0)) != 0) {
+			__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.offset);
 			goto err;
 		}
 
@@ -304,7 +290,7 @@ do_ckp:
 err:    MUTEX_UNLOCK(env, region->mtx_ckp);
 	if(ret == 0 && lp->db_log_autoremove)
 		__log_autoremove(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -331,7 +317,7 @@ int __txn_getactive(ENV *env, DB_LSN * lsnp)
 	if(td->begin_lsn.file != 0 && td->begin_lsn.offset != 0 && LOG_COMPARE(&td->begin_lsn, lsnp) < 0)
 		*lsnp = td->begin_lsn;
 	TXN_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * __txn_getckp --
@@ -350,7 +336,7 @@ int __txn_getckp(ENV *env, DB_LSN * lsnp)
 	if(IS_ZERO_LSN(lsn))
 		return (USR_ERR(env, DB_NOTFOUND));
 	*lsnp = lsn;
-	return (0);
+	return 0;
 }
 /*
  * __txn_updateckp --
@@ -376,5 +362,5 @@ int __txn_updateckp(ENV *env, DB_LSN * lsnp)
 		(void)time(&region->time_ckp);
 	}
 	TXN_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }

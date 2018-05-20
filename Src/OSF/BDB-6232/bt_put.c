@@ -109,7 +109,7 @@ int __bam_iitem(DBC *dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	if(F_ISSET(data, DB_DBT_PARTIAL)) {
 		if((ret = __bam_partsize(
 			    dbp, op, data, h, indx, &data_size)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		data_size = data->size;
@@ -165,7 +165,7 @@ int __bam_iitem(DBC *dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 				if((ret = __db_goff(
 					    dbc, &tdbt, ((BOVERFLOW*)bk)->tlen,
 					    ((BOVERFLOW*)bk)->pgno, NULL, NULL)) != 0)
-					return (ret);
+					return ret;
 			}
 
 			/*
@@ -196,7 +196,7 @@ int __bam_iitem(DBC *dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 		tdbt = *data;
 		if((ret =
 		    __bam_build(dbc, op, &tdbt, h, indx, data_size)) != 0)
-			return (ret);
+			return ret;
 		data = &tdbt;
 	}
 
@@ -210,11 +210,11 @@ int __bam_iitem(DBC *dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 dup_cmp: 
 	if(op == DB_CURRENT && dbp->dup_compare != NULL) {
 		if((ret = __bam_cmp(dbc, data, h, indx + (TYPE(h) == P_LBTREE ? O_INDX : 0), dbp->dup_compare, &cmp, NULL)) != 0)
-			return (ret);
+			return ret;
 		if(cmp != 0) {
 			ret = USR_ERR(env, EINVAL);
 			__db_errx(env, DB_STR("1004", "Existing data sorts differently from put data"));
-			return (ret);
+			return ret;
 		}
 	}
 
@@ -349,7 +349,7 @@ dup_cmp:
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * The code breaks it up into five cases:
@@ -365,14 +365,14 @@ dup_cmp:
 		    if(bigkey) {
 			    if((ret = __bam_ovput(dbc,
 				B_OVERFLOW, PGNO_INVALID, h, indx, key)) != 0)
-				    return (ret);
+				    return ret;
 		    }
 		    else if((ret = __db_pitem(dbc, h, indx,
 			BKEYDATA_SIZE(key->size), NULL, key)) != 0)
-			    return (ret);
+			    return ret;
 
 		    if((ret = __bam_ca_di(dbc, PGNO(h), indx, 1)) != 0)
-			    return (ret);
+			    return ret;
 		    ++indx;
 		    break;
 		case DB_AFTER:          /* 2. Append a new data item. */
@@ -380,10 +380,10 @@ dup_cmp:
 			    /* Copy the key for the duplicate and adjust cursors. */
 			    if((ret =
 				__bam_adjindx(dbc, h, indx + P_INDX, indx, 1)) != 0)
-				    return (ret);
+				    return ret;
 			    if((ret =
 				__bam_ca_di(dbc, PGNO(h), indx + P_INDX, 1)) != 0)
-				    return (ret);
+				    return ret;
 
 			    indx += 3;
 
@@ -398,9 +398,9 @@ dup_cmp:
 		    if(TYPE(h) == P_LBTREE) {
 			    /* Copy the key for the duplicate and adjust cursors. */
 			    if((ret = __bam_adjindx(dbc, h, indx, indx, 1)) != 0)
-				    return (ret);
+				    return ret;
 			    if((ret = __bam_ca_di(dbc, PGNO(h), indx, 1)) != 0)
-				    return (ret);
+				    return ret;
 
 			    ++indx;
 		    }
@@ -414,7 +414,7 @@ dup_cmp:
 		     * flag is set.
 		     */
 		    if((ret = __bam_ca_delete(dbp, PGNO(h), indx, 0, NULL)) != 0)
-			    return (ret);
+			    return ret;
 
 		    if(TYPE(h) == P_LBTREE)
 			    ++indx;
@@ -452,10 +452,10 @@ dup_cmp:
 			    if(F_ISSET(data, DB_DBT_STREAMING)) {
 				    if((ret = __db_ditem(
 						dbc, h, indx, BOVERFLOW_SIZE)) != 0)
-					    return (ret);
+					    return ret;
 			    }
 			    else if((ret = __bam_ditem(dbc, h, indx)) != 0)
-				    return (ret);
+				    return ret;
 			    del = 1;
 			    break;
 		    }
@@ -546,7 +546,7 @@ err:
 			__db_err(env, t_ret, DB_STR("1005", "cursor adjustment after delete failed"));
 			return (__env_panic(env, t_ret));
 		}
-		return (ret);
+		return ret;
 	}
 	/*
 	 * Re-position the cursors if necessary and reset the current cursor
@@ -554,7 +554,7 @@ err:
 	 */
 	if(op != DB_CURRENT) {
 		if((ret = __bam_ca_di(dbc, PGNO(h), indx, 1)) != 0)
-			return (ret);
+			return ret;
 		cp->indx = TYPE(h) == P_LBTREE ? indx - O_INDX : indx;
 	}
 
@@ -565,7 +565,7 @@ err:
 	 */
 	if(F_ISSET(cp, C_RECNUM) && (op != DB_CURRENT || was_deleted))
 		if((ret = __bam_adjust(dbc, 1)) != 0)
-			return (ret);
+			return ret;
 
 	/*
 	 * If a Btree leaf page is at least 50% full and we may have added or
@@ -575,13 +575,13 @@ err:
 	 */
 	if(dupadjust &&
 	    (ret = __bam_dup_convert(dbc, h, indx - O_INDX, cnt)) != 0)
-		return (ret);
+		return ret;
 
 	/* If we've modified a recno file, set the flag. */
 	if(dbc->dbtype == DB_RECNO)
 		t->re_modified = 1;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -601,7 +601,7 @@ static int __bam_partsize(DB *dbp, uint32 op, DBT * data, PAGE * h, uint32 indx,
 	 */
 	if(op != DB_CURRENT) {
 		*data_size = data->doff + data->size;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -614,7 +614,7 @@ static int __bam_partsize(DB *dbp, uint32 op, DBT * data, PAGE * h, uint32 indx,
 		    memcpy(&bl, bk, BBLOB_SIZE);
 		    GET_BLOB_SIZE(dbp->env, bl, blob_size, ret);
 		    if(ret != 0)
-			    return (ret);
+			    return ret;
 		    /*
 		     * It is not possible to add data past UINT32_MAX in the
 		     * partial API, so this is safe.
@@ -633,7 +633,7 @@ static int __bam_partsize(DB *dbp, uint32 op, DBT * data, PAGE * h, uint32 indx,
 
 	*data_size = __db_partsize(nbytes, data);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -660,7 +660,7 @@ static int __bam_build(DBC *dbc, uint32 op, DBT * dbt, PAGE * h, uint32 indx, ui
 		if((ret = __os_realloc(dbp->env, nbytes, &rdata->data)) != 0) {
 			rdata->ulen = 0;
 			rdata->data = NULL;
-			return (ret);
+			return ret;
 		}
 		rdata->ulen = nbytes;
 	}
@@ -702,7 +702,7 @@ static int __bam_build(DBC *dbc, uint32 op, DBT * dbt, PAGE * h, uint32 indx, ui
 		 */
 		memzero(&copy, sizeof(copy));
 		if((ret = __db_goff(dbc, &copy, bo->tlen, bo->pgno, &rdata->data, &rdata->ulen)) != 0)
-			return (ret);
+			return ret;
 		/* Skip any leading data from the original record. */
 		tlen = dbt->doff;
 		p = (uint8*)rdata->data + dbt->doff;
@@ -753,7 +753,7 @@ user_copy:
 	rdata->doff = 0;
 	rdata->flags = 0;
 	*dbt = *rdata;
-	return (0);
+	return 0;
 }
 
 /*
@@ -803,7 +803,7 @@ int __bam_ritem(DBC *dbc, PAGE * h, uint32 indx, DBT * data, uint32 typeflag)
 		if((ret = __bam_repl_log(dbp, dbc->txn, &LSN(h), 0, PGNO(h),
 		    &LSN(h), (uint32)indx, typeflag,
 		    &orig, &repl, (uint32)prefix, (uint32)suffix)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(h));
@@ -890,7 +890,7 @@ int __bam_ritem_nolog(DBC *dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data, ui
 		B_TSET(bk->type, type);
 		memcpy(bk->data, data->data, bk->len);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -908,12 +908,12 @@ int __bam_irep(DBC *dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data)
 	BINTERNAL * bn = (BINTERNAL*)hdr->data;
 	DB_ASSERT(dbc->env, B_TYPE(bi->type) != B_BLOB);
 	if(B_TYPE(bi->type) == B_OVERFLOW && (ret = __db_doff(dbc, ((BOVERFLOW*)bi->data)->pgno)) != 0)
-		return (ret);
+		return ret;
 	if(DBC_LOGGING(dbc)) {
 		dbt.data = bi;
 		dbt.size = BINTERNAL_SIZE(bi->len);
 		if((ret = __bam_irep_log(dbp, dbc->txn, &LSN(h), 0, PGNO(h), &LSN(h), (uint32)indx, TYPE(h), hdr, data, &dbt)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(h));
@@ -964,7 +964,7 @@ static int __bam_dup_check(DBC *dbc, uint32 op, PAGE * h, uint32 indx, uint32 sz
 	 * this check when it wasn't a duplicate item after all.
 	 */
 	if(cnt == 1)
-		return (0);
+		return 0;
 
 	/*
 	 * If this set of duplicates is using more than 25% of the page, move
@@ -973,7 +973,7 @@ static int __bam_dup_check(DBC *dbc, uint32 op, PAGE * h, uint32 indx, uint32 sz
 	 * on two different pages.
 	 */
 	if(sz < dbp->pgsize / 4)
-		return (0);
+		return 0;
 
 	*cntp = cnt;
 	return (1);
@@ -1003,7 +1003,7 @@ static int __bam_dup_convert(DBC *dbc, PAGE * h, uint32 indx, uint32 cnt)
 		indx -= P_INDX;
 	/* Get a new page. */
 	if((ret = __db_new(dbc, dbp->dup_compare == NULL ? P_LRECNO : P_LDUP, &lock, &dp)) != 0)
-		return (ret);
+		return ret;
 	P_INIT(dp, dbp->pgsize, dp->pgno, PGNO_INVALID, PGNO_INVALID, LEAFLEVEL, TYPE(dp));
 	/*
 	 * Move this set of duplicates off the page.  First points to the first
@@ -1079,7 +1079,7 @@ err:    if((t_ret = __memp_fput(mpf,
 		ret = t_ret;
 
 	(void)__TLPUT(dbc, lock);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1102,7 +1102,7 @@ static int __bam_ovput(DBC *dbc, uint32 type, db_pgno_t pgno, PAGE * h, uint32 i
 	 */
 	if(type == B_OVERFLOW) {
 		if((ret = __db_poff(dbc, item, &bo.pgno)) != 0)
-			return (ret);
+			return ret;
 		bo.tlen = item->size;
 	}
 	else {

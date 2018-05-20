@@ -259,10 +259,10 @@ void __db_SHA1Final(unsigned char * digest, SHA1_CTX * context)
 	}
 	/* Wipe variables */
 	i = 0;  /* JHB */
-	memset(context->buffer, 0, 64);
-	memset(context->state, 0, 20);
-	memset(context->count, 0, 8);
-	memset(finalcount, 0, 8); /* SWR */
+	memzero(context->buffer, 64);
+	memzero(context->state, 20);
+	memzero(context->count, 8);
+	memzero(finalcount, 8); /* SWR */
 #ifdef SHA1HANDSOFF  /* make SHA1Transform overwrite it's own static vars */
 	__db_SHA1Transform(context->state, context->buffer);
 #endif

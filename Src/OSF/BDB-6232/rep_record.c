@@ -146,12 +146,12 @@ int __rep_process_message_pp(DB_ENV *dbenv, DBT * control, DBT * rec, int eid, D
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_process_message", DB_INIT_REP);
 	if(APP_IS_REPMGR(env)) {
 		__db_errx(env, DB_STR_A("3512", "%s cannot call from Replication Manager application", "%s"), "DB_ENV->rep_process_message:");
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* Control argument must be non-Null. */
 	if(control == NULL || control->size == 0) {
 		__db_errx(env, DB_STR("3513", "DB_ENV->rep_process_message: control argument must be specified"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/*
 	 * Make sure site is a master or a client, which implies that
@@ -159,18 +159,18 @@ int __rep_process_message_pp(DB_ENV *dbenv, DBT * control, DBT * rec, int eid, D
 	 */
 	if(!IS_REP_MASTER(env) && !IS_REP_CLIENT(env)) {
 		__db_errx(env, DB_STR("3514", "Environment not configured as replication master or client"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if((ret = __dbt_usercopy(env, control)) != 0 || (ret = __dbt_usercopy(env, rec)) != 0) {
 		__dbt_userfree(env, control, rec, NULL);
 		__db_errx(env, DB_STR("3515", "DB_ENV->rep_process_message: error retrieving DBT contents"));
-		return (ret);
+		return ret;
 	}
 	ENV_ENTER(env, ip);
 	ret = __rep_process_message_int(env, control, rec, eid, ret_lsnp, NULL);
 	ENV_LEAVE(env, ip);
 	__dbt_userfree(env, control, rec, NULL);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_process_message_int --
@@ -208,7 +208,7 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
 	if((ret = __rep_control_unmarshal(env, &tmprp, (uint8 *)control->data, control->size, NULL)) != 0)
-		return (ret);
+		return ret;
 	rp = &tmprp;
 	if(ret_lsnp != NULL)
 		ZERO_LSN(*ret_lsnp);
@@ -222,7 +222,7 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 		if(rp->rep_version < DB_REPVERSION_MIN) {
 			__db_errx(env, DB_STR_A("3516", "unsupported old replication message version %lu, minimum version %d",
 			    "%lu %d"), (u_long)rp->rep_version, DB_REPVERSION_MIN);
-			return (EINVAL);
+			return EINVAL;
 		}
 		VPRINT(env, (env, DB_VERB_REP_MSGS, "Received record %lu with old rep version %lu",
 		    (u_long)rp->rectype, (u_long)rp->rep_version));
@@ -238,13 +238,13 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 	else if(rp->rep_version > DB_REPVERSION) {
 		__db_errx(env, DB_STR_A("3517", "unexpected replication message version %lu, expected %d",
 		    "%lu %d"), (u_long)rp->rep_version, DB_REPVERSION);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(rp->log_version < DB_LOGVERSION) {
 		if(rp->log_version < DB_LOGVERSION_MIN) {
 			__db_errx(env, DB_STR_A("3518", "unsupported old replication log version %lu, minimum version %d",
 			    "%lu %d"), (u_long)rp->log_version, DB_LOGVERSION_MIN);
-			return (EINVAL);
+			return EINVAL;
 		}
 		VPRINT(env, (env, DB_VERB_REP_MSGS, "Received record %lu with old log version %lu",
 		    (u_long)rp->rectype, (u_long)rp->log_version));
@@ -252,7 +252,7 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 	else if(rp->log_version > DB_LOGVERSION) {
 		__db_errx(env, DB_STR_A("3519", "unexpected log record version %lu, expected %d",
 		    "%lu %d"), (u_long)rp->log_version, DB_LOGVERSION);
-		return (EINVAL);
+		return EINVAL;
 	}
 	/*
 	 * Acquire the replication lock.
@@ -313,12 +313,9 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 	 * message requesting a lease, and I'm not using leases, that
 	 * is an error.
 	 */
-	if(!IS_USING_LEASES(env) &&
-	    (F_ISSET(rp, REPCTL_LEASE) || rp->rectype == REP_LEASE_GRANT)) {
-		__db_errx(env, DB_STR("3520",
-		    "Inconsistent lease configuration"));
-		RPRINT(env, (env, DB_VERB_REP_MSGS,
-		    "Client received lease message and not using leases"));
+	if(!IS_USING_LEASES(env) && (F_ISSET(rp, REPCTL_LEASE) || rp->rectype == REP_LEASE_GRANT)) {
+		__db_errx(env, DB_STR("3520", "Inconsistent lease configuration"));
+		RPRINT(env, (env, DB_VERB_REP_MSGS, "Client received lease message and not using leases"));
 		ret = EINVAL;
 		ret = __env_panic(env, ret);
 		goto errlock;
@@ -442,7 +439,7 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 		     */
 		    ANYSITE(rep);
 		    if((ret = __rep_egen_unmarshal(env, &egen_arg, (uint8 *)rec->data, rec->size, NULL)) != 0)
-			    return (ret);
+			    return ret;
 		    REP_SYSTEM_LOCK(env);
 		    if(egen_arg.egen > rep->egen) {
 			    /*
@@ -960,9 +957,7 @@ int __rep_process_message_int(ENV *env, DBT * control, DBT * rec, int eid, DB_LS
 		    ret = __rep_vote2(env, rec, eid);
 		    break;
 		default:
-		    __db_errx(env, DB_STR_A("3521",
-			"DB_ENV->rep_process_message: unknown replication message: type %lu",
-			"%lu"), (u_long)rp->rectype);
+		    __db_errx(env, DB_STR_A("3521", "DB_ENV->rep_process_message: unknown replication message: type %lu", "%lu"), (u_long)rp->rectype);
 		    ret = EINVAL;
 		    break;
 	}
@@ -993,7 +988,7 @@ out:
 			*ret_lsnp = rp->lsn;
 		ret = DB_REP_NOTPERM;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1029,8 +1024,8 @@ int __rep_apply(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * re
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	event = ret = set_apply = 0;
-	memset(&control_dbt, 0, sizeof(control_dbt));
-	memset(&rec_dbt, 0, sizeof(rec_dbt));
+	memzero(&control_dbt, sizeof(control_dbt));
+	memzero(&rec_dbt, sizeof(rec_dbt));
 	ZERO_LSN(max_lsn);
 	timespecclear(&max_ts);
 	timespecset(&msg_time, rp->msg_sec, rp->msg_nsec);
@@ -1200,7 +1195,7 @@ gap_check:
 		 * for new records.
 		 */
 		REP_SYSTEM_UNLOCK(env);
-		memset(&key_dbt, 0, sizeof(key_dbt));
+		memzero(&key_dbt, sizeof(key_dbt));
 		key_dbt.data = rp;
 		key_dbt.size = sizeof(*rp);
 		ret = __db_put(dbp, ip, NULL, &key_dbt, rec, DB_NOOVERWRITE);
@@ -1454,7 +1449,7 @@ out:
 		    break;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1493,8 +1488,7 @@ int __rep_process_txn(ENV *env, DBT * rec)
 	txn42_args = NULL;
 	prep_args = NULL;
 	txninfo = NULL;
-
-	memset(&data_dbt, 0, sizeof(data_dbt));
+	memzero(&data_dbt, sizeof(data_dbt));
 	if(F_ISSET(env, ENV_THREAD))
 		F_SET(&data_dbt, DB_DBT_REALLOC);
 
@@ -1508,18 +1502,17 @@ int __rep_process_txn(ENV *env, DBT * rec)
 	 * appropriately.
 	 */
 	LOGCOPY_32(env, &rectype, rec->data);
-	memset(&lc, 0, sizeof(lc));
+	memzero(&lc, sizeof(lc));
 	if(rectype == DB___txn_regop) {
 		/*
 		 * We're the end of a transaction.  Make sure this is
 		 * really a commit and not an abort!
 		 */
-		if((ret = __txn_regop_read(
-			    env, rec->data, &txn_args)) != 0)
-			return (ret);
+		if((ret = __txn_regop_read(env, rec->data, &txn_args)) != 0)
+			return ret;
 		if(txn_args->opcode != TXN_COMMIT) {
 			__os_free(env, txn_args);
-			return (0);
+			return 0;
 		}
 		prev_lsn = txn_args->prev_lsn;
 		lock_dbt = &txn_args->locks;
@@ -1530,7 +1523,7 @@ int __rep_process_txn(ENV *env, DBT * rec)
 
 		if((ret = __txn_prepare_read(
 			    env, rec->data, &prep_args)) != 0)
-			return (ret);
+			return ret;
 		prev_lsn = prep_args->prev_lsn;
 		lock_dbt = &prep_args->locks;
 	}
@@ -1576,22 +1569,17 @@ int __rep_process_txn(ENV *env, DBT * rec)
 		goto err;
 	for(lsnp = &lc.array[0], i = 0; i < lc.nlsns; i++, lsnp++) {
 		if((ret = __logc_get(logc, lsnp, &data_dbt, DB_SET)) != 0) {
-			__db_errx(env, DB_STR_A("3522",
-			    "failed to read the log at [%lu][%lu]", "%lu %lu"),
-			    (u_long)lsnp->file, (u_long)lsnp->offset);
+			__db_errx(env, DB_STR_A("3522", "failed to read the log at [%lu][%lu]", "%lu %lu"), (u_long)lsnp->file, (u_long)lsnp->offset);
 			goto err;
 		}
-		if((ret = __db_dispatch(env, &env->recover_dtab,
-		    &data_dbt, lsnp, DB_TXN_APPLY, txninfo)) != 0) {
-			__db_errx(env, DB_STR_A("3523",
-			    "transaction failed at [%lu][%lu]", "%lu %lu"),
-			    (u_long)lsnp->file, (u_long)lsnp->offset);
+		if((ret = __db_dispatch(env, &env->recover_dtab, &data_dbt, lsnp, DB_TXN_APPLY, txninfo)) != 0) {
+			__db_errx(env, DB_STR_A("3523", "transaction failed at [%lu][%lu]", "%lu %lu"), (u_long)lsnp->file, (u_long)lsnp->offset);
 			goto err;
 		}
 		LOGCOPY_32(env, &rectype, data_dbt.data);
 	}
-
-err:    memset(&req, 0, sizeof(req));
+err:    
+	memzero(&req, sizeof(req));
 	req.op = DB_LOCK_PUT_ALL;
 	if((t_ret =
 	    __lock_vec(env, locker, 0, &req, 1, &lvp)) != 0 && ret == 0)
@@ -1632,7 +1620,7 @@ err1:   if(txn_args != NULL)
 		rep->stat.st_txns_applied++;
 #endif
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1655,12 +1643,12 @@ static int __rep_collect_txn(ENV *env, DB_LSN * lsnp, LSN_COLLECTION * lc, DELAY
 	int ret, t_ret, view_partial;
 	char * name;
 
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	F_SET(&data, DB_DBT_REALLOC);
 	skip_txnid = TXN_INVALID;
 
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * For partial replication we assume a certain sequence of
@@ -1771,7 +1759,7 @@ err:
 		ret = t_ret;
 	if(data.data != NULL)
 		__os_ufree(env, data.data);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_remove_delayed_blobs --
@@ -1787,17 +1775,17 @@ static int __rep_remove_delayed_blobs(ENV *env, db_seq_t blob_file_id, uint32 ch
 {
 	DELAYED_BLOB_LIST * ent, * next, * prev;
 	if(*dbl == NULL)
-		return (0);
+		return 0;
 	/*
 	 * If the child transaction has not been set, then a new entry was just
 	 * added to the list.
 	 */
 	if((*dbl)->child == 0) {
 		(*dbl)->child = child;
-		return (0);
+		return 0;
 	}
 	if(blob_file_id == 0)
-		return (0);
+		return 0;
 	/*
 	 * This blob meta database should not be replicated if its associated
 	 * database is not replicated.  Remove it from the delayed
@@ -1817,7 +1805,7 @@ static int __rep_remove_delayed_blobs(ENV *env, db_seq_t blob_file_id, uint32 ch
 			break;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1851,10 +1839,10 @@ static int __rep_newfile(ENV *env, __rep_control_args * rp, DBT * rec)
 	 * If a newfile is already in progress, just ignore.
 	 */
 	if(F_ISSET(rep, REP_F_NEWFILE))
-		return (0);
+		return 0;
 	if(rp->lsn.file + 1 > lp->ready_lsn.file) {
 		if((ret = __rep_newfile_unmarshal(env, &nf_args, (uint8 *)rec->data, rec->size, NULL)) != 0)
-			return (ret);
+			return ret;
 		RPRINT(env, (env, DB_VERB_REP_MISC, "rep_newfile: File %lu vers %lu", (u_long)rp->lsn.file + 1, (u_long)nf_args.version));
 		/*
 		 * We drop the mtx_clientdb mutex during
@@ -1878,11 +1866,11 @@ static int __rep_newfile(ENV *env, __rep_control_args * rp, DBT * rec)
 		REP_SYSTEM_UNLOCK(env);
 		if(ret == 0)
 			lp->ready_lsn = tmplsn;
-		return (ret);
+		return ret;
 	}
 	else
 		/* We've already applied this NEWFILE.  Just ignore it. */
-		return (0);
+		return 0;
 }
 
 /*
@@ -1900,7 +1888,7 @@ static int __rep_do_ckp(ENV *env, DBT * rec, __rep_control_args * rp, DB_LSN * c
 	dbenv = env->dbenv;
 	/* Crack the log record and extract the checkpoint LSN. */
 	if((ret = __txn_ckp_read(env, rec->data, &ckp_args)) != 0)
-		return (ret);
+		return ret;
 	*ckp_lsnp = ckp_args->ckp_lsn;
 	__os_free(env, ckp_args);
 	rep = env->rep_handle->region;
@@ -1927,14 +1915,12 @@ static int __rep_do_ckp(ENV *env, DBT * rec, __rep_control_args * rp, DB_LSN * c
 	if(ret == 0)
 		ret = __txn_updateckp(env, &rp->lsn);
 	else {
-		__db_errx(env, DB_STR_A("3525",
-		    "Error syncing ckp [%lu][%lu]", "%lu %lu"),
-		    (u_long)ckp_lsnp->file, (u_long)ckp_lsnp->offset);
+		__db_errx(env, DB_STR_A("3525", "Error syncing ckp [%lu][%lu]", "%lu %lu"), (u_long)ckp_lsnp->file, (u_long)ckp_lsnp->offset);
 		ret = __env_panic(env, ret);
 	}
 
 	MUTEX_LOCK(env, rep->mtx_clientdb);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1950,7 +1936,7 @@ static int __rep_remfirst(ENV *env, DB_THREAD_INFO * ip, DBT * cntrl, DBT * rec)
 	db_rep = env->rep_handle;
 	dbp = db_rep->rep_db;
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	/* The DBTs need to persist through another call. */
 	F_SET(cntrl, DB_DBT_REALLOC);
 	F_SET(rec, DB_DBT_REALLOC);
@@ -1958,7 +1944,7 @@ static int __rep_remfirst(ENV *env, DB_THREAD_INFO * ip, DBT * cntrl, DBT * rec)
 		ret = __dbc_del(dbc, 0);
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __rep_getnext --
@@ -1979,7 +1965,7 @@ static int __rep_getnext(ENV *env, DB_THREAD_INFO * ip)
 	db_rep = env->rep_handle;
 	dbp = db_rep->rep_db;
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Update waiting_lsn.  We need to move it
 	 * forward to the LSN of the next record
@@ -1990,10 +1976,10 @@ static int __rep_getnext(ENV *env, DB_THREAD_INFO * ip)
 	 * interested in its contents, just in its LSN.
 	 * Optimize by doing a partial get of the data item.
 	 */
-	memset(&nextrec_dbt, 0, sizeof(nextrec_dbt));
+	memzero(&nextrec_dbt, sizeof(nextrec_dbt));
 	F_SET(&nextrec_dbt, DB_DBT_PARTIAL);
 	nextrec_dbt.ulen = nextrec_dbt.dlen = 0;
-	memset(&lsn_dbt, 0, sizeof(lsn_dbt));
+	memzero(&lsn_dbt, sizeof(lsn_dbt));
 	ret = __dbc_get(dbc, &lsn_dbt, &nextrec_dbt, DB_FIRST);
 	if(ret != DB_NOTFOUND && ret != 0)
 		goto err;
@@ -2012,7 +1998,7 @@ static int __rep_getnext(ENV *env, DB_THREAD_INFO * ip)
 err:    
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2036,18 +2022,16 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 	db_timespec msg_time;
 	uint32 rectype, txnid;
 	int ret, t_ret;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	dbp = db_rep->rep_db;
 	ret = 0;
-
-	memset(&rec_dbt, 0, sizeof(rec_dbt));
+	memzero(&rec_dbt, sizeof(rec_dbt));
 	if(rp->rectype == REP_NEWFILE) {
 		if((ret = __rep_newfile(env, rp, rec)) != 0)
-			return (ret);
+			return ret;
 
 		/*
 		 * In SYNC_LOG, in case the end-of-log sync point happens to be
@@ -2057,19 +2041,17 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 		 */
 		if(rep->sync_state == SYNC_LOG) {
 			if((ret = __log_cursor(env, &logc)) != 0)
-				return (ret);
+				return ret;
 			if((ret = __logc_get(logc, &lsn, &rec_dbt, DB_LAST)) == 0)
 				*ret_lsnp = lsn;
 			if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 				ret = t_ret;
 		}
-		return (ret);
+		return ret;
 	}
-
 	LOGCOPY_32(env, &rectype, rec->data);
-	memset(&control_dbt, 0, sizeof(control_dbt));
+	memzero(&control_dbt, sizeof(control_dbt));
 	timespecset(&msg_time, rp->msg_sec, rp->msg_nsec);
-
 	/*
 	 * We write all records except for checkpoint records here.
 	 * All non-checkpoint records need to appear in the log before
@@ -2090,7 +2072,7 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 	 */
 	if(rectype != DB___txn_ckp || rep->sync_state == SYNC_LOG) {
 		if((ret = __log_rep_put(env, &rp->lsn, rec, 0)) != 0)
-			return (ret);
+			return ret;
 		STAT(rep->stat.st_log_records++);
 		if(rep->sync_state == SYNC_LOG) {
 			*ret_lsnp = rp->lsn;
@@ -2158,10 +2140,7 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 		     * Save the biggest prepared LSN we've seen.
 		     */
 		    rep->max_prep_lsn = rp->lsn;
-		    VPRINT(env, (env, DB_VERB_REP_MSGS,
-			"process_rec: prepare at [%lu][%lu]",
-			(u_long)rep->max_prep_lsn.file,
-			(u_long)rep->max_prep_lsn.offset));
+		    VPRINT(env, (env, DB_VERB_REP_MSGS, "process_rec: prepare at [%lu][%lu]", (u_long)rep->max_prep_lsn.file, (u_long)rep->max_prep_lsn.offset));
 		    break;
 		case DB___txn_ckp:
 		    /*
@@ -2173,10 +2152,9 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 		     * then some other thread will process it, so simply return
 		     * REP_NOTPERM.
 		     */
-		    memset(&key_dbt, 0, sizeof(key_dbt));
+		    memzero(&key_dbt, sizeof(key_dbt));
 		    key_dbt.data = rp;
 		    key_dbt.size = sizeof(*rp);
-
 		    /*
 		     * We want to put this record into the tmp DB only if
 		     * it doesn't exist, so use DB_NOOVERWRITE.
@@ -2200,10 +2178,8 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 		     * checkpoint.
 		     */
 		    if((ret = __rep_do_ckp(env, rec, rp, &lsn)) == 0)
-			    ret = __log_rep_put(env, &rp->lsn, rec,
-				    DB_LOG_CHKPNT);
-		    if((t_ret = __rep_remfirst(env, ip,
-			&control_dbt, &rec_dbt)) != 0 && ret == 0)
+			    ret = __log_rep_put(env, &rp->lsn, rec, DB_LOG_CHKPNT);
+		    if((t_ret = __rep_remfirst(env, ip, &control_dbt, &rec_dbt)) != 0 && ret == 0)
 			    ret = t_ret;
 		    /*
 		     * If we're successful putting the log record in the
@@ -2225,8 +2201,7 @@ static int __rep_process_rec(ENV *env, DB_THREAD_INFO * ip, __rep_control_args *
 out:
 	if(ret == 0 && F_ISSET(rp, REPCTL_PERM))
 		*ret_lsnp = rp->lsn;
-	if(IS_USING_LEASES(env) &&
-	    F_ISSET(rp, REPCTL_LEASE))
+	if(IS_USING_LEASES(env) && F_ISSET(rp, REPCTL_LEASE))
 		*ret_tsp = msg_time;
 	/*
 	 * Set ret_lsnp before flushing the log because if the
@@ -2240,7 +2215,7 @@ out:
 	if(rec_dbt.data != NULL)
 		__os_ufree(env, rec_dbt.data);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2253,34 +2228,26 @@ out:
  */
 int __rep_resend_req(ENV *env, int rereq)
 {
-	DB_LOG * dblp;
-	DB_LSN lsn, * lsnp;
-	DB_REP * db_rep;
-	LOG * lp;
-	REP * rep;
-	int blob_sync, master, ret;
-	repsync_t sync_state;
-	uint32 gapflags, msgtype, repflags, sendflags;
-
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	ret = 0;
-	lsnp = NULL;
-	msgtype = REP_INVALID;
-	sendflags = 0;
-
-	repflags = rep->flags;
-	sync_state = rep->sync_state;
-	blob_sync = rep->blob_sync;
+	DB_LSN lsn;
+	DB_LSN * lsnp = 0;
+	int master;
+	uint32 gapflags;
+	uint32 sendflags = 0;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	int ret = 0;
+	uint32 msgtype = REP_INVALID;
+	uint32 repflags = rep->flags;
+	repsync_t sync_state = rep->sync_state;
+	int blob_sync = rep->blob_sync;
 	/*
 	 * If we are delayed we do not rerequest anything.
 	 */
 	if(FLD_ISSET(repflags, REP_F_DELAY))
-		return (ret);
+		return ret;
 	gapflags = rereq ? REP_GAP_REREQUEST : 0;
-
 	if(sync_state == SYNC_VERIFY) {
 		MUTEX_LOCK(env, rep->mtx_clientdb);
 		lsn = lp->verify_lsn;
@@ -2327,7 +2294,7 @@ int __rep_resend_req(ENV *env, int rereq)
 			    master, msgtype, lsnp, NULL, 0, sendflags);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2415,7 +2382,7 @@ static int __rep_skip_msg(ENV *env, REP * rep, int eid, uint32 rectype)
 		else if(F_ISSET(rep, REP_F_CLIENT))     /* Case 3. */
 			(void)__rep_send_message(env, eid, REP_REREQUEST, NULL, NULL, 0, 0);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2522,7 +2489,7 @@ int __rep_check_missing(ENV *env, uint32 gen, DB_LSN * master_perm_lsn)
 	rep->msg_th--;
 	REP_SYSTEM_UNLOCK(env);
 
-out:    return (ret);
+out:    return ret;
 }
 
 static int __rep_fire_newmaster(ENV *env, uint32 gen, int master)
@@ -2539,7 +2506,7 @@ static int __rep_fire_newmaster(ENV *env, uint32 gen, int master)
 		rep->newmaster_event_gen = gen;
 	}
 	REP_EVENT_UNLOCK(env);
-	return (0);
+	return 0;
 }
 
 static int __rep_fire_startupdone(ENV *env, uint32 gen, int master)
@@ -2568,5 +2535,5 @@ static int __rep_fire_startupdone(ENV *env, uint32 gen, int master)
 	if(rep->newmaster_event_gen == gen)
 		__rep_fire_event(env, DB_EVENT_REP_STARTUPDONE, NULL);
 	REP_EVENT_UNLOCK(env);
-	return (0);
+	return 0;
 }

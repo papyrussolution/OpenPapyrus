@@ -49,7 +49,7 @@ int __repmgr_schedule_connection_attempt(ENV *env, int eid, int immediate)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	if((ret = __os_malloc(env, sizeof(*retry), &retry)) != 0)
-		return (ret);
+		return ret;
 	DB_ASSERT(env, IS_VALID_EID(eid));
 	site = SITE_FROM_EID(eid);
 	__os_gettime(env, &t, 1);
@@ -127,7 +127,7 @@ static int __repmgr_addrcmp(repmgr_netaddr_t *addr1, repmgr_netaddr_t *addr2)
 		return (-1);
 	else if(addr1->port > addr2->port)
 		return (1);
-	return (0);
+	return 0;
 }
 /*
  * Initialize the necessary control structures to begin reading a new input
@@ -152,15 +152,15 @@ int __repmgr_new_connection(ENV *env, REPMGR_CONNECTION ** connp, socket_t s, in
 	REPMGR_CONNECTION * c;
 	int ret;
 	if((ret = __os_calloc(env, 1, sizeof(REPMGR_CONNECTION), &c)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __repmgr_alloc_cond(&c->drained)) != 0) {
 		__os_free(env, c);
-		return (ret);
+		return ret;
 	}
 	if((ret = __repmgr_init_waiters(env, &c->response_waiters)) != 0) {
 		(void)__repmgr_free_cond(&c->drained);
 		__os_free(env, c);
-		return (ret);
+		return ret;
 	}
 	c->fd = s;
 	c->state = state;
@@ -173,7 +173,7 @@ int __repmgr_new_connection(ENV *env, REPMGR_CONNECTION ** connp, socket_t s, in
 	__repmgr_reset_for_reading(c);
 	*connp = c;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -191,7 +191,7 @@ int __repmgr_set_keepalive(ENV *env, REPMGR_CONNECTION * conn)
 		(void)__repmgr_destroy_conn(env, conn);
 	}
 #endif
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_new_site __P((ENV *, REPMGR_SITE**,
@@ -211,7 +211,7 @@ int __repmgr_new_site(ENV *env, REPMGR_SITE ** sitep, const char * host, u_int p
 	if(db_rep->site_cnt >= db_rep->site_max) {
 		new_site_max = db_rep->site_max == 0 ? INITIAL_SITES_ALLOCATION : db_rep->site_max * 2;
 		if((ret = __os_malloc(env, sizeof(REPMGR_SITE) * new_site_max, &sites)) != 0)
-			return (ret);
+			return ret;
 		if(db_rep->site_max > 0) {
 			/*
 			 * For each site in the array, copy the old struct to
@@ -243,7 +243,7 @@ int __repmgr_new_site(ENV *env, REPMGR_SITE ** sitep, const char * host, u_int p
 	}
 	if((ret = __os_strdup(env, host, &p)) != 0) {
 		/* No harm in leaving the increased site_max intact. */
-		return (ret);
+		return ret;
 	}
 	site = &db_rep->sites[db_rep->site_cnt++];
 
@@ -266,7 +266,7 @@ int __repmgr_new_site(ENV *env, REPMGR_SITE ** sitep, const char * host, u_int p
 	site->config = 0;
 
 	*sitep = site;
-	return (0);
+	return 0;
 }
 
 /*
@@ -281,7 +281,7 @@ int __repmgr_create_mutex(ENV *env, mgr_mutex_t ** mtxp)
 	}
 	if(ret == 0)
 		*mtxp = mtx;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_destroy_mutex __P((ENV *, mgr_mutex_t *));
@@ -290,7 +290,7 @@ int __repmgr_destroy_mutex(ENV *env, mgr_mutex_t * mtx)
 {
 	int ret = __repmgr_destroy_mutex_pf(mtx);
 	__os_free(env, mtx);
-	return (ret);
+	return ret;
 }
 /*
  * Kind of like a destructor for a repmgr_netaddr_t: cleans up any subordinate
@@ -420,7 +420,7 @@ int __repmgr_prepare_my_addr(ENV *env, DBT * dbt)
 	port_buffer = htons(addr.port);
 	size = sizeof(port_buffer) + (hlen = strlen(addr.host) + 1);
 	if((ret = __os_malloc(env, size, &ptr)) != 0)
-		return (ret);
+		return ret;
 
 	DB_INIT_DBT(*dbt, ptr, size);
 
@@ -428,7 +428,7 @@ int __repmgr_prepare_my_addr(ENV *env, DBT * dbt)
 	ptr = &ptr[sizeof(port_buffer)];
 	memcpy(ptr, addr.host, hlen);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -446,10 +446,10 @@ int __repmgr_get_nsites(ENV *env, uint32 * nsitesp)
 	DB_REP * db_rep = env->rep_handle;
 	if((nsites = db_rep->region->config_nsites) == 0) {
 		__db_errx(env, DB_STR("3672", "Nsites unknown before repmgr_start()"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	*nsitesp = nsites;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __repmgr_thread_failure __P((ENV *, int));
@@ -510,7 +510,7 @@ int __repmgr_repstart(ENV *env, uint32 flags, uint32 startopts)
 	int ret;
 	/* Include "cdata" in case sending to old-version site. */
 	if((ret = __repmgr_prepare_my_addr(env, &my_addr)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * force_role_chg and hold_client_gen are used by preferred master
 	 * mode to help control site startup.
@@ -519,7 +519,7 @@ int __repmgr_repstart(ENV *env, uint32 flags, uint32 startopts)
 	__os_free(env, my_addr.data);
 	if(ret != 0)
 		__db_err(env, ret, DB_STR("3673", "rep_start"));
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_become_master __P((ENV *, uint32));
@@ -571,7 +571,7 @@ int __repmgr_become_master(ENV *env, uint32 startopts)
 	UNLOCK_MUTEX(db_rep->mutex);
 
 	if((ret = __repmgr_repstart(env, DB_REP_MASTER, startopts)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Make sure member_version_gen is current so that this master
@@ -581,7 +581,7 @@ int __repmgr_become_master(ENV *env, uint32 startopts)
 
 	/* If there is already a gmdb, we are finished. */
 	if(db_rep->have_gmdb)
-		return (0);
+		return 0;
 
 	/* There isn't a gmdb.  Create one from the in-memory site list. */
 	if((ret = __repmgr_hold_master_role(env, NULL, 0)) != 0)
@@ -636,7 +636,7 @@ err:
 	if((t_ret = __repmgr_rlse_master_role(env)) != 0 && ret == 0)
 		ret = t_ret;
 leave:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -688,7 +688,7 @@ int __repmgr_each_connection(ENV *env, CONNECTION_ACTION callback, void * info, 
 				HANDLE_ERROR;
 		}
 	}
-	return (0);
+	return 0;
 }
 /*
  * Initialize repmgr's portion of the shared region area.  Note that we can't
@@ -707,12 +707,12 @@ int __repmgr_open(ENV *env, void * rep_)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = (REP *)rep_;
 	if((ret = __mutex_alloc(env, MTX_REPMGR, 0, &rep->mtx_repmgr)) != 0)
-		return (ret);
+		return ret;
 	DB_ASSERT(env, rep->siteinfo_seq == 0 && db_rep->siteinfo_seq == 0);
 	rep->siteinfo_off = INVALID_ROFF;
 	rep->siteinfo_seq = 0;
 	if((ret = __repmgr_share_netaddrs(env, rep, 0, db_rep->site_cnt)) != 0)
-		return (ret);
+		return ret;
 	rep->self_eid = db_rep->self_eid;
 	rep->perm_policy = db_rep->perm_policy;
 	rep->ack_timeout = db_rep->ack_timeout;
@@ -729,7 +729,7 @@ int __repmgr_open(ENV *env, void * rep_)
 	__repmgr_set_incoming_queue_redzone(rep, rep->inqueue_max_gbytes,
 	    rep->inqueue_max_bytes);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -846,7 +846,7 @@ int __repmgr_join(ENV *env, void * rep_)
 	}
 unlock:
 	MUTEX_UNLOCK(env, rep->mtx_repmgr);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -875,7 +875,7 @@ int __repmgr_env_refresh(ENV *env)
 			rep->siteinfo_off = INVALID_ROFF;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -949,7 +949,7 @@ out:
 	if(touched)
 		db_rep->siteinfo_seq = ++rep->siteinfo_seq;
 	MUTEX_UNLOCK(env, renv->mtx_regenv);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -981,7 +981,7 @@ int __repmgr_copy_in_added_sites(ENV *env)
 		p = &base[i];
 		host = (char *)R_ADDR(infop, p->addr.host);
 		if((ret = __repmgr_new_site(env, &site, host, p->addr.port)) != 0)
-			return (ret);
+			return ret;
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Site %s:%lu found at EID %u", host, (u_long)p->addr.port, i));
 	}
 	/* Make sure info is up to date for all sites, old and new. */
@@ -1001,7 +1001,7 @@ out:
 	 */
 	DB_ASSERT(env, db_rep->site_cnt == rep->site_cnt);
 	db_rep->siteinfo_seq = rep->siteinfo_seq;
-	return (0);
+	return 0;
 }
 /*
  * Initialize a range of sites newly added to our site list array.  Process each
@@ -1018,14 +1018,14 @@ int __repmgr_init_new_sites(ENV *env, int from, int limit)
 	int i, ret;
 	DB_REP * db_rep = env->rep_handle;
 	if(db_rep->selector == NULL)
-		return (0);
+		return 0;
 	DB_ASSERT(env, IS_VALID_EID(from) && IS_VALID_EID(limit) && from <= limit);
 	for(i = from; i < limit; i++) {
 		site = SITE_FROM_EID(i);
 		if(site->membership == SITE_PRESENT && (ret = __repmgr_schedule_connection_attempt(env, i, TRUE)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __repmgr_failchk __P((ENV *));
@@ -1052,7 +1052,7 @@ int __repmgr_failchk(ENV *env)
 		rep->listener = 0;
 	MUTEX_UNLOCK(env, rep->mtx_repmgr);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1106,7 +1106,7 @@ int __repmgr_stable_lsn(ENV *env, DB_LSN * stable_lsn)
 	    (u_long)stable_lsn->file, (u_long)stable_lsn->offset,
 	    (u_long)rep->sites_avail, (u_long)rep->min_log_file));
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1122,7 +1122,7 @@ int __repmgr_make_request_conn(ENV *env, repmgr_netaddr_t * addr, REPMGR_CONNECT
 	int ret, unused;
 	int alloc = FALSE;
 	if((ret = __repmgr_connect(env, addr, &conn, &unused)) != 0)
-		return (ret);
+		return ret;
 	conn->type = APP_CONNECTION;
 	/* Read a handshake msg, to get version confirmation and parameters. */
 	if((ret = __repmgr_read_conn(conn)) != 0)
@@ -1169,7 +1169,7 @@ err:
 		(void)__repmgr_close_connection(env, conn);
 		(void)__repmgr_destroy_conn(env, conn);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1235,7 +1235,7 @@ int __repmgr_read_own_msg(ENV *env, REPMGR_CONNECTION * conn, uint32 * typep, ui
 	*typep = type;
 	*lenp = size;
 err:
-	return (ret);
+	return ret;
 }
 /*
  * Returns TRUE if we are connected to the other site in a preferred
@@ -1289,13 +1289,13 @@ int __repmgr_restart_site_as_client(ENV *env, int eid)
 	db_rep = env->rep_handle;
 	conn = NULL;
 	if(!IS_PREFMAS_MODE(env))
-		return (0);
+		return 0;
 
 	LOCK_MUTEX(db_rep->mutex);
 	addr = SITE_FROM_EID(eid)->net_addr;
 	UNLOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_make_request_conn(env, &addr, &conn)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * No payload needed, but must send at least a dummy byte for the
@@ -1323,7 +1323,7 @@ err:
 		    conn)) != 0 && ret != 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1353,13 +1353,13 @@ int __repmgr_make_site_readonly_master(ENV *env, int eid, uint32 * gen, DB_LSN *
 	ZERO_LSN(*sync_lsnp);
 
 	if(!IS_PREFMAS_MODE(env))
-		return (0);
+		return 0;
 
 	LOCK_MUTEX(db_rep->mutex);
 	addr = SITE_FROM_EID(eid)->net_addr;
 	UNLOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_make_request_conn(env, &addr, &conn)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * No payload needed, but must send at least a dummy byte for the
@@ -1398,7 +1398,7 @@ err:
 	}
 	if(response_buf != NULL)
 		__os_free(env, response_buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1423,10 +1423,10 @@ int __repmgr_lsnhist_match(ENV *env, DB_THREAD_INFO * ip, int eid, int * match)
 	my_gen = rep->gen;
 	found_commit = FALSE;
 	if(!IS_PREFMAS_MODE(env))
-		return (0);
+		return 0;
 	/* Get local LSN history information for comparison. */
 	if((ret = __rep_get_lsnhist_data(env, ip, my_gen, &my_lsnhist)) != 0)
-		return (ret);
+		return ret;
 	/* Get remote LSN history information for comparison. */
 	ret = __repmgr_remote_lsnhist(env, eid, my_gen, &remote_lsnhist);
 	/*
@@ -1488,7 +1488,7 @@ int __repmgr_lsnhist_match(ENV *env, DB_THREAD_INFO * ip, int eid, int * match)
 		ret = 0;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC,
 	    "lsnhist_match match %d returning %d", *match, ret));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1508,7 +1508,7 @@ static int __repmgr_find_commit(ENV *env, DB_LSN * low_lsn, DB_LSN * high_lsn, i
 	ret = 0;
 	lsn = *low_lsn;
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 	memzero(&rec, sizeof(rec));
 	if(__logc_get(logc, &lsn, &rec, DB_SET) == 0) {
 		do {
@@ -1528,7 +1528,7 @@ static int __repmgr_find_commit(ENV *env, DB_LSN * low_lsn, DB_LSN * high_lsn, i
 close_cursor:
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * Used by a preferred master site to get remote LSN history information
@@ -1551,13 +1551,13 @@ static int __repmgr_remote_lsnhist(ENV *env, int eid, uint32 gen, __repmgr_lsnhi
 	response_buf = NULL;
 
 	if(!IS_KNOWN_REMOTE_SITE(eid))
-		return (0);
+		return 0;
 
 	LOCK_MUTEX(db_rep->mutex);
 	addr = SITE_FROM_EID(eid)->net_addr;
 	UNLOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_make_request_conn(env, &addr, &conn)) != 0)
-		return (ret);
+		return ret;
 	/* Marshal generation for which to request remote lsnhist data. */
 	lsnhist_key.version = REP_LSN_HISTORY_FMT_VERSION;
 	lsnhist_key.gen = gen;
@@ -1595,7 +1595,7 @@ err:
 	}
 	if(response_buf != NULL)
 		__os_free(env, response_buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1617,7 +1617,7 @@ int __repmgr_prefmas_get_wait(ENV *env, uint32 * tries, u_long * yield_usecs)
 	if((rep->ack_timeout * 3) > max_wait)
 		max_wait = rep->ack_timeout * 3;
 	*tries = max_wait / (uint32)*yield_usecs;
-	return (0);
+	return 0;
 }
 /*
  * Produce a membership list from the known info currently in memory.
@@ -1646,7 +1646,7 @@ int __repmgr_marshal_member_list(ENV *env, uint32 msg_version, uint8 ** bufp, si
 	/* Compute a (generous) upper bound on needed buffer size. */
 	bufsize = __REPMGR_MEMBR_VERS_SIZE + db_rep->site_cnt * (__REPMGR_SITE_INFO_SIZE + MAXHOSTNAMELEN + 1);
 	if((ret = __os_malloc(env, bufsize, &buf)) != 0)
-		return (ret);
+		return ret;
 	p = buf;
 	membr_vers.version = db_rep->membership_version;
 	membr_vers.gen = rep->gen;
@@ -1678,7 +1678,7 @@ int __repmgr_marshal_member_list(ENV *env, uint32 msg_version, uint8 ** bufp, si
 	*bufp = buf;
 	*lenp = len;
 	DB_ASSERT(env, ret == 0);
-	return (0);
+	return 0;
 }
 /*
  * Produce a membership list by reading the database.
@@ -1708,7 +1708,7 @@ static int read_gmdb(ENV *env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * lenp
 	buf = NULL;
 	COMPQUIET(len, 0);
 	if((ret = __rep_get_datagen(env, &gen)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __txn_begin(env, ip, NULL, &txn, DB_IGNORE_LEASE)) != 0)
 		goto err;
 	if((ret = __rep_open_sysdb(env, ip, txn, REPMEMBERSHIP, 0, &dbp)) != 0)
@@ -1789,7 +1789,7 @@ err:
 	}
 	else if(buf != NULL)
 		__os_free(env, buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1877,7 +1877,7 @@ static int convert_gmdb(ENV *env, DB_THREAD_INFO * ip, DB * dbp, DB_TXN * txn)
 err:
 	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * Refresh our sites array from the given membership list.
@@ -1907,10 +1907,10 @@ int __repmgr_refresh_membership(ENV *env, uint8 * buf, size_t len, uint32 versio
 	ret = __repmgr_membr_vers_unmarshal(env, &membr_vers, buf, len, &p);
 	DB_ASSERT(env, ret == 0);
 	if(db_rep->repmgr_status == repmsgstStopped)
-		return (0);
+		return 0;
 	/* Ignore obsolete versions. */
 	if(__repmgr_gmdb_version_cmp(env, membr_vers.gen, membr_vers.version) <= 0)
-		return (0);
+		return 0;
 
 	LOCK_MUTEX(db_rep->mutex);
 
@@ -1962,7 +1962,7 @@ int __repmgr_refresh_membership(ENV *env, uint8 * buf, size_t len, uint32 versio
 	}
 err:
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_reload_gmdb __P((ENV *));
@@ -1979,7 +1979,7 @@ int __repmgr_reload_gmdb(ENV *env)
 		ret = __repmgr_refresh_membership(env, buf, len, DB_REPMGR_VERSION);
 		__os_free(env, buf);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2018,7 +2018,7 @@ int __repmgr_init_save(ENV *env, DBT * dbt)
 		dbt->size = (uint32)len;
 	}
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_init_restore __P((ENV *, DBT *));
@@ -2028,7 +2028,7 @@ int __repmgr_init_restore(ENV *env, DBT * dbt)
 	DB_REP * db_rep = env->rep_handle;
 	db_rep->restored_list = (uint8 *)dbt->data;
 	db_rep->restored_list_length = dbt->size;
-	return (0);
+	return 0;
 }
 /*
  * Generates an internal request for a deferred operation, to be performed on a
@@ -2050,12 +2050,12 @@ int __repmgr_defer_op(ENV *env, uint32 op)
 	 * Leave msg->v.gmdb_msg.conn NULL to show no conn to be cleaned up.
 	 */
 	if((ret = __os_calloc(env, 1, sizeof(*msg), &msg)) != 0)
-		return (ret);
+		return ret;
 	msg->size = sizeof(*msg);
 	msg->msg_hdr.type = REPMGR_OWN_MSG;
 	REPMGR_OWN_MSG_TYPE(msg->msg_hdr) = op;
 	ret = __repmgr_queue_put(env, msg);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2145,12 +2145,12 @@ int __repmgr_find_site(ENV *env, const char * host, u_int port, int * eidp)
 	else {
 		if((site = __repmgr_lookup_site(env, host, port)) == NULL &&
 		    (ret = __repmgr_new_site(env, &site, host, port)) != 0)
-			return (ret);
+			return ret;
 		eid = EID_FROM_SITE(site);
 	}
 	if(ret == 0)
 		*eidp = eid;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2166,13 +2166,13 @@ static int get_eid(ENV *env, const char * host, u_int port, int * eidp)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	if((ret = __repmgr_copy_in_added_sites(env)) != 0)
-		return (ret);
+		return ret;
 	if((site = __repmgr_lookup_site(env, host, port)) == NULL) {
 		/*
 		 * Store both locally and in shared region.
 		 */
 		if((ret = __repmgr_new_site(env, &site, host, port)) != 0)
-			return (ret);
+			return ret;
 		eid = EID_FROM_SITE(site);
 		DB_ASSERT(env, (u_int)eid == db_rep->site_cnt - 1);
 		if((ret = __repmgr_share_netaddrs(env, rep, (u_int)eid, db_rep->site_cnt)) == 0) {
@@ -2192,7 +2192,7 @@ static int get_eid(ENV *env, const char * host, u_int port, int * eidp)
 		eid = EID_FROM_SITE(site);
 	if(ret == 0)
 		*eidp = eid;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2290,7 +2290,7 @@ int __repmgr_set_membership(ENV *env, const char * host, u_int port, uint32 stat
 		 * lease table adjustment.
 		 */
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2315,7 +2315,7 @@ int __repmgr_bcast_parm_refresh(ENV *env)
 	__repmgr_parm_refresh_marshal(env, &parms, buf);
 	ret = __repmgr_bcast_own_msg(env, REPMGR_PARM_REFRESH, buf, __REPMGR_PARM_REFRESH_SIZE);
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2325,7 +2325,7 @@ int __repmgr_chg_prio(ENV *env, uint32 prev, uint32 cur)
 {
 	if((prev == 0 && cur != 0) || (prev != 0 && cur == 0))
 		return (__repmgr_bcast_parm_refresh(env));
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __repmgr_bcast_own_msg __P((ENV *,
@@ -2341,7 +2341,7 @@ int __repmgr_bcast_own_msg(ENV *env, uint32 type, uint8 * buf, size_t len)
 	u_int i;
 	DB_REP * db_rep = env->rep_handle;
 	if(!SELECTOR_RUNNING(db_rep))
-		return (0);
+		return 0;
 	FOR_EACH_REMOTE_SITE_INDEX(i) {
 		site = SITE_FROM_EID(i);
 		if(site->state != SITE_CONNECTED)
@@ -2349,13 +2349,13 @@ int __repmgr_bcast_own_msg(ENV *env, uint32 type, uint8 * buf, size_t len)
 		if((conn = site->ref.conn.in) != NULL && conn->state == CONN_READY &&
 		    (ret = __repmgr_send_own_msg(env, conn, type, buf, (uint32)len)) != 0 &&
 		    (ret = __repmgr_bust_connection(env, conn)) != 0)
-			return (ret);
+			return ret;
 		if((conn = site->ref.conn.out) != NULL && conn->state == CONN_READY &&
 		    (ret = __repmgr_send_own_msg(env, conn, type, buf, (uint32)len)) != 0 &&
 		    (ret = __repmgr_bust_connection(env, conn)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __repmgr_bcast_member_list __P((ENV *));
@@ -2374,7 +2374,7 @@ int __repmgr_bcast_member_list(ENV *env)
 	u_int i;
 	DB_REP * db_rep = env->rep_handle;
 	if(!SELECTOR_RUNNING(db_rep))
-		return (0);
+		return 0;
 	buf = NULL;
 	v4buf = NULL;
 	LOCK_MUTEX(db_rep->mutex);
@@ -2407,7 +2407,7 @@ out:
 		__os_free(env, buf);
 	if(v4buf != NULL)
 		__os_free(env, v4buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2451,7 +2451,7 @@ int __repmgr_forward_single_write(uint32 optype, DB * dbp, DBT * key, DBT * data
 	 */
 	if(db_rep->msg_dispatch == NULL && (ret = __repmgr_set_write_forwarding(env, 1)) != 0) {
 		__db_err(env, ret, "forward_single set_wf subordinate");
-		return (ret);
+		return ret;
 	}
 	/*
 	 * Cannot support a bulk put or del because repmgr channels does
@@ -2490,7 +2490,7 @@ int __repmgr_forward_single_write(uint32 optype, DB * dbp, DBT * key, DBT * data
 	/* Pack write operation type and metapgno. */
 	if(optype == 0 || optype > REPMGR_WF_MAX_V1_MSG_TYPE) {
 		__db_err(env, ret, "forward_single invalid optype %u", optype);
-		return (EINVAL);
+		return EINVAL;
 	}
 	opmeta.unum64 = 0;
 	opmeta.unum32[0] = optype;
@@ -2543,7 +2543,7 @@ int __repmgr_forward_single_write(uint32 optype, DB * dbp, DBT * key, DBT * data
 		    }
 		    break;
 		default:
-		    return (EINVAL);
+		    return EINVAL;
 	}
 
 	if((ret = __repmgr_channel(dbenv,
@@ -2552,7 +2552,7 @@ int __repmgr_forward_single_write(uint32 optype, DB * dbp, DBT * key, DBT * data
 		if(ret == DB_REP_UNAVAIL)
 			ret = EACCES;
 		__db_err(env, ret, "forward_single repmgr_channel");
-		return (ret);
+		return ret;
 	}
 
 	if((ret = __repmgr_send_request(wfchannel, msgdbts,
@@ -2580,7 +2580,7 @@ close_channel:
 	}
 	VPRINT(env, (env, DB_VERB_REPMGR_MISC,
 	    "repmgr_forward_single_write: returning %d", ret));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2773,5 +2773,5 @@ int __repmgr_set_write_forwarding(ENV *env, int turn_on)
 		ret = __repmgr_set_msg_dispatch(dbenv, __repmgr_msgdispatch, 0);
 	else
 		ret = __repmgr_set_msg_dispatch(dbenv, NULL, 0);
-	return (ret);
+	return ret;
 }

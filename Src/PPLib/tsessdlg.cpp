@@ -238,88 +238,11 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-class PrcFreeListDialog : public PPListDialog {
-public:
-	PrcFreeListDialog() : PPListDialog(DLG_PRCFREELIST, CTL_PRCFREELIST_LIST), Capacity(0)
-	{
-	}
-	int    setDTS(const PrcBusyArray * pBusyList, double capacity);
-	int    getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish);
-private:
-	DECL_HANDLE_EVENT
-	{
-		if(TVCOMMAND && TVCMD == cmLBDblClk) {
-			if(IsInState(sfModal))
-				endModal(cmOK);
-			clearEvent(event);
-		}
-		PPListDialog::handleEvent(event);
-	}
-	virtual int setupList();
-
-	PrcBusyArray FreeList;
-	double Capacity;
-};
-
-int PrcFreeListDialog::getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish)
-{
-	long   pos = 0, id = 0;
-	if(getCurItem(&pos, &id) && id > 0 && id <= (long)FreeList.getCount()) {
-		const PrcBusy & entry = *(PrcBusy *)FreeList.at(id-1);
-		ASSIGN_PTR(pStart, entry.Start);
-		ASSIGN_PTR(pFinish, entry.Finish);
-		return 1;
-	}
-	return 0;
-}
-
-int PrcFreeListDialog::setDTS(const PrcBusyArray * pBusyList, double capacity)
-{
-	PrcBusyArray temp_list;
-	temp_list.copy(*pBusyList);
-	temp_list.Sort();
-	FreeList.freeAll();
-	temp_list.GetFreeList(&FreeList);
-	FreeList.Sort(1);
-	Capacity = capacity;
-	updateList(-1);
-	return 1;
-}
-
-int PrcFreeListDialog::setupList()
-{
-	int    ok = 1;
-	StringSet  ss(SLBColumnDelim);
-	SString sub;
-	for(uint i = 0; i < FreeList.getCount(); i++) {
-		PrcBusy & entry = *(PrcBusy *)FreeList.at(i);
-		ss.clear();
-		ss.add(entry.ToStr(sub.Z()), 0);
-		long   dur = entry.GetDuration();
-		sub.Z();
-		if(dur >= 0) {
-			LTIME tm_dur;
-			tm_dur.settotalsec(dur);
-			sub.Cat(tm_dur);
-		}
-		ss.add(sub, 0);
-		sub.Z();
-		if(Capacity > 0 && dur > 0)
-			sub.Cat(Capacity * dur, MKSFMTD(0, 3, NMBF_NOTRAILZ | NMBF_NOZERO));
-		ss.add(sub, 0);
-		THROW(addStringToList(i+1, ss.getBuf()));
-	}
-	CATCHZOK
-	return ok;
-}
-//
-//
-//
 #define GRP_PRCTECH 2
 
 class TSessionDialog : public TDialog {
 public:
-	TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0)
+	TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0), P_BObj(BillObj)
 	{
 		SetupCalDate(CTLCAL_TSESS_STDT, CTL_TSESS_STDT);
 		SetupCalDate(CTLCAL_TSESS_FNDT, CTL_TSESS_FNDT);
@@ -340,10 +263,7 @@ public:
 		ASSIGN_PTR(pID, Data.Rec.ID);
 		return SessUpdated;
 	}
-	PPID   GetCCheckID() const
-	{
-		return Data.Rec.CCheckID_;
-	}
+	PPID   GetCCheckID() const { return Data.Rec.CCheckID_; }
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupSCard();
@@ -359,7 +279,7 @@ private:
 	void   detail();
 	int    setupCCheckButton();
 	int    setupCipButton();
-	int    SetPlannedTiming(long sec);
+	void   SetPlannedTiming(long sec);
 	long   GetPlannedTiming();
 
 	int    SetupPayment();
@@ -370,7 +290,7 @@ private:
 	int    OrgStatus;
 	int    SessUpdated; // ѕолучает значение !0, если сесси€ была сохранена в
 		// процессе редактировани€ (переход в режим чека, либо переход в строки).
-	int    InnerGetDTS; // @v7.6.4
+	int    InnerGetDTS;
 	long   InpUpdLock;
 	//
 	// Ѕлок параметров перенстройки процессора.
@@ -386,6 +306,7 @@ private:
 	} TB;
 	PPObjTSession TSesObj;
 	PPObjSCard ScObj;
+	PPObjBill * P_BObj;
 };
 
 int TSessionDialog::SetupPayment()
@@ -416,7 +337,7 @@ int TSessionDialog::SetupPayment()
 				if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.Flags & OPKF_NEEDPAYMENT) {
 					ReckonOpArList op_list;
 					PPIDArray finish_op_list;
-					BillObj->GetPaymentOpListByDebtOp(prc_rec.WrOffOpID, Data.Rec.ArID, &op_list);
+					P_BObj->GetPaymentOpListByDebtOp(prc_rec.WrOffOpID, Data.Rec.ArID, &op_list);
 					for(uint i = 0; i < op_list.getCount(); i++) {
 						const ReckonOpArItem & r_item = op_list.at(i);
 						if(r_item.PayableOpID)
@@ -449,7 +370,7 @@ int TSessionDialog::AddPayment()
 			if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.Flags & OPKF_NEEDPAYMENT) {
 				ReckonOpArList op_list;
 				PPIDArray finish_op_list; // —писок зачетных операций, приемлемых дл€ ввода документа оплаты
-				BillObj->GetPaymentOpListByDebtOp(prc_rec.WrOffOpID, Data.Rec.ArID, &op_list);
+				P_BObj->GetPaymentOpListByDebtOp(prc_rec.WrOffOpID, Data.Rec.ArID, &op_list);
 				for(uint i = 0; i < op_list.getCount(); i++) {
 					const ReckonOpArItem & r_item = op_list.at(i);
 					if(r_item.PayableOpID)
@@ -472,7 +393,7 @@ int TSessionDialog::AddPayment()
 						ab.PoolID = Data.Rec.ID;
 						ab.Pk = PPBillPacket::bpkTSessPaym;
 						PPID   bill_id = 0;
-						int    r = BillObj->AddGoodsBill(&bill_id, &ab);
+						int    r = P_BObj->AddGoodsBill(&bill_id, &ab);
 						if(r > 0) {
 							SetupPayment();
 						}
@@ -516,6 +437,74 @@ long TSessionDialog::getToolingTiming()
 
 void TSessionDialog::selectFreeEntry()
 {
+	class PrcFreeListDialog : public PPListDialog {
+	public:
+		PrcFreeListDialog() : PPListDialog(DLG_PRCFREELIST, CTL_PRCFREELIST_LIST), Capacity(0)
+		{
+		}
+		int    setDTS(const PrcBusyArray * pBusyList, double capacity)
+		{
+			PrcBusyArray temp_list;
+			temp_list.copy(*pBusyList);
+			temp_list.Sort();
+			FreeList.freeAll();
+			temp_list.GetFreeList(&FreeList);
+			FreeList.Sort(1);
+			Capacity = capacity;
+			updateList(-1);
+			return 1;
+		}
+		int    getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish)
+		{
+			long   pos = 0, id = 0;
+			if(getCurItem(&pos, &id) && id > 0 && id <= (long)FreeList.getCount()) {
+				const PrcBusy & entry = *(PrcBusy *)FreeList.at(id-1);
+				ASSIGN_PTR(pStart, entry.Start);
+				ASSIGN_PTR(pFinish, entry.Finish);
+				return 1;
+			}
+			return 0;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(TVCOMMAND && TVCMD == cmLBDblClk) {
+				if(IsInState(sfModal))
+					endModal(cmOK);
+				clearEvent(event);
+			}
+			PPListDialog::handleEvent(event);
+		}
+		virtual int setupList()
+		{
+			int    ok = 1;
+			StringSet  ss(SLBColumnDelim);
+			SString sub;
+			for(uint i = 0; i < FreeList.getCount(); i++) {
+				PrcBusy & entry = *(PrcBusy *)FreeList.at(i);
+				ss.clear();
+				ss.add(entry.ToStr(sub.Z()), 0);
+				long   dur = entry.GetDuration();
+				sub.Z();
+				if(dur >= 0) {
+					LTIME tm_dur;
+					tm_dur.settotalsec(dur);
+					sub.Cat(tm_dur);
+				}
+				ss.add(sub, 0);
+				sub.Z();
+				if(Capacity > 0 && dur > 0)
+					sub.Cat(Capacity * dur, MKSFMTD(0, 3, NMBF_NOTRAILZ | NMBF_NOZERO));
+				ss.add(sub, 0);
+				THROW(addStringToList(i+1, ss.getBuf()));
+			}
+			CATCHZOK
+			return ok;
+		}
+
+		PrcBusyArray FreeList;
+		double Capacity;
+	};
 	PrcFreeListDialog * dlg = 0;
 	getCtrlData(CTLSEL_TSESS_PRC, &Data.Rec.PrcID);
 	if(Data.Rec.PrcID) {
@@ -557,13 +546,13 @@ void TSessionDialog::setupOrder()
 	SString order_buf;
 	ReceiptTbl::Rec lot_rec;
 	if(Data.Rec.OrderLotID)
-		if(BillObj->trfr->Rcpt.Search(Data.Rec.OrderLotID, &lot_rec) > 0) {
+		if(P_BObj->trfr->Rcpt.Search(Data.Rec.OrderLotID, &lot_rec) > 0) {
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
 			const  PPID prev_ar_id = Data.Rec.ArID;
 			const  PPID prev_ar2_id = Data.Rec.Ar2ID;
 			SString temp_buf, serial;
-			BillObj->GetSerialNumberByLot(lot_rec.ID, serial, 0);
+			P_BObj->GetSerialNumberByLot(lot_rec.ID, serial, 0);
 			if(ar_obj.Fetch(lot_rec.SupplID, &ar_rec) > 0) {
 				ProcessorTbl::Rec prc_rec;
 				PPOprKind op_rec;
@@ -886,22 +875,23 @@ static int PPCheckInPersonTurnProc_TSess(const PPCheckInPersonConfig * pCfg, PPC
 	return ok;
 }
 
-int TSessionDialog::SetPlannedTiming(long sec)
+void TSessionDialog::SetPlannedTiming(long sec)
 {
-	SString temp_buf;
-	long   as_ = labs(sec);
-	LTIME tm = ZEROTIME;
+	const  long   as_ = labs(sec);
+	LTIME  tm = ZEROTIME;
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.07
 	if((as_ / 3600) < 3) {
 		tm.settotalsec(as_);
-		temp_buf.Cat(tm, TIMF_HMS);
+		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
 	else {
-		long   nd = as_ / (3600 * 24);
+		const long nd = as_ / (3600 * 24);
+		if(nd)
+			r_temp_buf.Cat(nd).CatChar('d').Space();
 		tm.settotalsec(as_ % (3600 * 24));
-		temp_buf.Cat(nd).CatChar('d').Space().Cat(tm, TIMF_HMS);
+		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
-	setCtrlString(CTL_TSESS_PLANTIMING, temp_buf);
-	return 1;
+	setCtrlString(CTL_TSESS_PLANTIMING, r_temp_buf);
 }
 
 long TSessionDialog::GetPlannedTiming()
@@ -916,9 +906,7 @@ long TSessionDialog::GetPlannedTiming()
 	if(scan.GetDigits(temp_buf)) {
 		long   n1 = temp_buf.ToLong();
 		scan.Skip();
-		const char * p_days_word[] = {
-			"days", "day", "d", "дней", "день", "д", "суток", "сутки", "сут"
-		};
+		const char * p_days_word[] = { "days", "day", "d", "дней", "день", "д", "суток", "сутки", "сут" };
 		for(uint i = 0; i < SIZEOFARRAY(p_days_word); i++) {
 			const char * p = p_days_word[i];
 			if(scan.Is(p)) {
@@ -955,7 +943,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				PPObjBill::SelectLotParam slp(-labs(goods_id), 0, 0, PPObjBill::SelectLotParam::fFillLotRec);
 				slp.RetLotID = Data.Rec.OrderLotID;
 				//if(SelectLot(0, -labs(goods_id), 0, &sel_lot_id, &sel_lot_rec) > 0) {
-				if(BillObj->SelectLot2(slp) > 0) {
+				if(P_BObj->SelectLot2(slp) > 0) {
 					//Data.Rec.OrderLotID = sel_lot_id;
 					Data.Rec.OrderLotID = slp.RetLotID;
 					setupOrder();
@@ -1077,10 +1065,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 						ProcessorTbl::Rec prc_rec;
 						if(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0 && prc_rec.SuperSessTiming) {
 							Data.Rec.PlannedTiming = prc_rec.SuperSessTiming;
-							SetPlannedTiming(Data.Rec.PlannedTiming); // @v8.1.3
-							/* @v8.1.3 LTIME tm = ZEROTIME;
-							tm.settotalsec(Data.Rec.PlannedTiming);
-							setCtrlData(CTL_TSESS_PLANTIMING, &tm); @v8.1.3 */
+							SetPlannedTiming(Data.Rec.PlannedTiming);
 							setupTiming(0);
 						}
 					}
@@ -1103,9 +1088,9 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					void * extra_ptr = PPObjTSession::MakeExtraParam(0, prc_id, 1);
 					SetupPPObjCombo(this, CTLSEL_TSESS_SUPERSES, PPOBJ_TSESSION, Data.Rec.ParentID, OLW_LOADDEFONOPEN, extra_ptr);
 					setupCCheckButton();
-					setupCipButton(); // @v7.7.2
+					setupCipButton();
 				}
-				SetupPayment(); // @v8.0.3
+				SetupPayment();
 			}
 			else
 				return;
@@ -1129,7 +1114,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		else if(event.isCbSelected(CTLSEL_TSESS_OBJ)) {
 			Data.Rec.ArID = getCtrlLong(CTLSEL_TSESS_OBJ);
 			enableCommand(cmBrowseTSessByAr, Data.Rec.ArID);
-			SetupPayment(); // @v8.0.3
+			SetupPayment();
 		}
 		else if(event.isCbSelected(CTLSEL_TSESS_OBJ2)) {
 			Data.Rec.Ar2ID = getCtrlLong(CTLSEL_TSESS_OBJ2);
@@ -1215,10 +1200,7 @@ void TSessionDialog::setupCapacity()
 		Data.Rec.PlannedQtty = planned_qtty;
 		getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong использовать нельз€, ибо поле может отсутствовать
 		TSesObj.SetPlannedTiming(&Data.Rec);
-		SetPlannedTiming(Data.Rec.PlannedTiming); // @v8.1.3
-		/* @v8.1.3 LTIME  tm = ZEROTIME;
-		tm.settotalsec(Data.Rec.PlannedTiming);
-		setCtrlData(CTL_TSESS_PLANTIMING, &tm); @v8.1.3 */
+		SetPlannedTiming(Data.Rec.PlannedTiming);
 		setupTiming(0);
 		InpUpdLock--;
 	}
@@ -1237,9 +1219,7 @@ int TSessionDialog::setupTiming(int master)
 	getCtrlData(CTL_TSESS_STTM, &Data.Rec.StTm);
 	start.Set(Data.Rec.StDt, Data.Rec.StTm);
 	if(master == 0) {
-		// @v8.1.3 getCtrlData(CTL_TSESS_PLANTIMING, &tm);
-		// @v8.1.3 Data.Rec.PlannedTiming = tm.totalsec();
-		Data.Rec.PlannedTiming = GetPlannedTiming(); // @v8.1.3
+		Data.Rec.PlannedTiming = GetPlannedTiming();
 		force_timing = timing = Data.Rec.PlannedTiming /*+ getToolingTiming()*/;
 	}
 	else {
@@ -1263,9 +1243,7 @@ int TSessionDialog::setupTiming(int master)
 		}
 		else {
 			Data.Rec.PlannedTiming = timing;
-			SetPlannedTiming(Data.Rec.PlannedTiming); // @v8.1.3
-			/* @v8.1.3 tm.settotalsec(Data.Rec.PlannedTiming);
-			setCtrlData(CTL_TSESS_PLANTIMING, &tm); @v8.1.3 */
+			SetPlannedTiming(Data.Rec.PlannedTiming);
 		}
 		{
 			double qtty = 0.0;
@@ -1390,10 +1368,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	setCtrlReal(CTL_TSESS_PLANQTTY,   Data.Rec.PlannedQtty);
 	setCtrlReal(CTL_TSESS_AMOUNT,     Data.Rec.Amount);
 
-	SetPlannedTiming(Data.Rec.PlannedTiming); // @v8.1.3
-	/* @v8.1.3 LTIME  tm;
-	tm.settotalsec(Data.Rec.PlannedTiming);
-	setCtrlData(CTL_TSESS_PLANTIMING, &tm); @v8.1.3 */
+	SetPlannedTiming(Data.Rec.PlannedTiming);
 	setCtrlData(CTL_TSESS_ACTQTTY,    &Data.Rec.ActQtty);
 	setCtrlData(CTL_TSESS_INCOMPL,    &Data.Rec.Incomplete);
 	disableCtrls(1, CTL_TSESS_ID, CTL_TSESS_ACTQTTY, CTL_TSESS_ACTTIMING, CTL_TSESS_INCOMPL, 0);
@@ -1409,10 +1384,10 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	disableCtrl(CTL_TSESS_IDLE, Data.Rec.ID);
 	disableCtrl(CTLSEL_TSESS_TECH, Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN));
 	enableCommand(cmSelTechByGoods, !(Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN)));
-	enableCommand(cmBrowseTSessByAr, Data.Rec.ArID); // @v7.9.3
+	enableCommand(cmBrowseTSessByAr, Data.Rec.ArID);
 	setupCCheckButton();
-	setupCipButton(); // @v7.7.2
-	SetupPayment(); // @v8.0.3
+	setupCipButton();
+	SetupPayment();
 	InpUpdLock--;
 	return ok;
 }
@@ -1448,7 +1423,6 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 			Data.Rec.ArID   = ptcg_rec.ArID;
 			Data.Rec.Ar2ID  = ptcg_rec.Ar2ID;
 		}
-		// @v7.6.4 {
 		if(!InnerGetDTS && Data.Rec.Status == TSESST_CLOSED) {
 			//
 			// ѕроверка на необходимость ввода чека по закрытой тех сессии
@@ -1458,7 +1432,6 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 				THROW(Data.Rec.CCheckID_ || !(prc_rec.Flags & PRCF_NEEDCCHECK) || TSesObj.CheckRights(TSESRT_CLOSEWOCC));
 			}
 		}
-		// } @v7.6.4
 	}
 	getCtrlData(CTL_TSESS_MEMO, Data.Rec.Memo);
 	getCtrlData(sel = CTL_TSESS_FNDT, &Data.Rec.FinDt);
@@ -1532,12 +1505,10 @@ private:
 void TSessLineDialog::setupCtrlsOnGoodsSelection()
 {
 	Goods2Tbl::Rec goods_rec;
+	PPUnit unit_rec;
 	setStaticText(CTL_TSESSLN_ST_PHQTTY, 0);
-	if(Data.GoodsID && GObj.Fetch(labs(Data.GoodsID), &goods_rec) > 0) {
-		PPUnit unit_rec;
-		if(GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
-			setStaticText(CTL_TSESSLN_ST_PHQTTY, unit_rec.Name);
-	}
+	if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
+		setStaticText(CTL_TSESSLN_ST_PHQTTY, unit_rec.Name);
 	showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
 	showCtrl(CTL_TSESSLN_INDEPPHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
 	showCtrl(CTLMNU_TSESSLN_PHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
@@ -1745,10 +1716,8 @@ int TSessLineDialog::setDTS(const TSessLineTbl::Rec * pData)
 	disableCtrl(CTL_TSESSLN_FLAG_REST, Data.OprNo != 0);
 	if(Data.GoodsID)
 		selectCtrl(CTL_TSESSLN_QTTY);
-	// @v8.8.6 {
 	disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
 	enableCommand(cmSelSerial, BIN(Data.Sign < 0));
-	// } @v8.8.6
 	setupCtrlsOnGoodsSelection();
 	CATCHZOKPPERR
 	return ok;
@@ -1792,7 +1761,6 @@ int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
 	int    ok = -1;
 	uint   dlg_id = 0;
 	ProcessorTbl::Rec prc_rec;
-
 	MEMSZERO(prc_rec);
 	if(pData->Rec.Flags & TSESF_SUPERSESS)
 		dlg_id = DLG_TSES_SUP;
@@ -1831,8 +1799,7 @@ int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
 			if(dlg->GetUpdatedStatus(&temp_id)) {
 				// @v8.6.4 »зменени€ в блоке с целью избежать потери св€зи с чеком при отмене редактировани€
 				if(pData) {
-					if(pData->Rec.ID != temp_id)
-						pData->Rec.ID = temp_id;
+					pData->Rec.ID = temp_id;
 					SETIFZ(pData->Rec.CCheckID_, dlg->GetCCheckID());
 					ok = 2;
 				}

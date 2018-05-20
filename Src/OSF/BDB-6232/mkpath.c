@@ -25,7 +25,7 @@ int __db_mkpath(ENV * env, const char * name)
 	 */
 	len = strlen(name) + 1;
 	if((ret = __os_malloc(env, len, &t)) != 0)
-		return (ret);
+		return ret;
 	memcpy(t, name, len);
 	/*
 	 * Cycle through the path, creating intermediate directories.
@@ -54,5 +54,5 @@ int __db_mkpath(ENV * env, const char * name)
 			}
 
 	__os_free(env, t);
-	return (ret);
+	return ret;
 }

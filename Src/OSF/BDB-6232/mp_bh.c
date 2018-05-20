@@ -71,10 +71,9 @@ int __memp_bhwrite(DB_MPOOL *dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bhp
 				ret = 0;
 			MUTEX_UNLOCK(env, dbmp->mutex);
 			if(ret != 0) {
-				__db_errx(env, DB_STR("3014",
-				    "unable to create temporary backing file"));
+				__db_errx(env, DB_STR("3014", "unable to create temporary backing file"));
 				--dbmfp->ref;
-				return (ret);
+				return ret;
 			}
 		}
 
@@ -137,7 +136,7 @@ int __memp_bhwrite(DB_MPOOL *dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bhp
 	 * that we have previously tried (and failed) to open.
 	 */
 	if((ret = __memp_fcreate(env, &dbmfp)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * The open will set MP_FLUSH and so we need to keep
 	 * a checkpoint from closing this before we finish with it.
@@ -154,7 +153,7 @@ int __memp_bhwrite(DB_MPOOL *dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bhp
 		 * was removed from under us.
 		 */
 		if(!mfp->deadfile)
-			return (ret);
+			return ret;
 
 		dbmfp = NULL;
 	}
@@ -164,7 +163,7 @@ pgwrite:
 	    PROT_READ | PROT_WRITE | PROT_EXEC);
 	ret = __memp_pgwrite(env, dbmfp, hp, bhp);
 	if(dbmfp == NULL)
-		return (ret);
+		return ret;
 
 	/*
 	 * Discard our reference, and, if we're the last reference, make sure
@@ -194,7 +193,7 @@ pgwrite:
 		--dbmfp->ref;
 	MUTEX_UNLOCK(env, dbmp->mutex);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -226,8 +225,7 @@ int __memp_pgread(DB_MPOOLFILE *dbmfp, BH * bhp, int can_create)
 	nr = 0;
 	if(dbmfp->fhp != NULL) {
 		PERFMON3(env, mpool, read, __memp_fn(dbmfp), bhp->pgno, bhp);
-		if((ret = __os_io(env, DB_IO_READ, dbmfp->fhp,
-		    bhp->pgno, pagesize, 0, pagesize, bhp->buf, &nr)) != 0)
+		if((ret = __os_io(env, DB_IO_READ, dbmfp->fhp, bhp->pgno, pagesize, 0, pagesize, bhp->buf, &nr)) != 0)
 			goto err;
 	}
 
@@ -248,12 +246,9 @@ int __memp_pgread(DB_MPOOLFILE *dbmfp, BH * bhp, int can_create)
 			ret = USR_ERR(env, DB_PAGE_NOTFOUND);
 			goto err;
 		}
-
 		/* Clear any bytes that need to be cleared. */
-		len = mfp->clear_len == DB_CLEARLEN_NOTSET ?
-		    pagesize : mfp->clear_len;
-		memset(bhp->buf, 0, len);
-
+		len = mfp->clear_len == DB_CLEARLEN_NOTSET ? pagesize : mfp->clear_len;
+		memzero(bhp->buf, len);
 #if defined(DIAGNOSTIC) || defined(UMRW)
 		/*
 		 * If we're running in diagnostic mode, corrupt any bytes on
@@ -262,25 +257,20 @@ int __memp_pgread(DB_MPOOLFILE *dbmfp, BH * bhp, int can_create)
 		if(len < pagesize)
 			memset(bhp->buf + len, CLEAR_BYTE, pagesize - len);
 #endif
-		STAT_INC_VERB(env, mpool, page_create,
-		    mfp->stat.st_page_create, __memp_fn(dbmfp), bhp->pgno);
+		STAT_INC_VERB(env, mpool, page_create, mfp->stat.st_page_create, __memp_fn(dbmfp), bhp->pgno);
 	}
 	else
-		STAT_INC_VERB(env, mpool, page_in,
-		    mfp->stat.st_page_in, __memp_fn(dbmfp), bhp->pgno);
-
+		STAT_INC_VERB(env, mpool, page_in, mfp->stat.st_page_in, __memp_fn(dbmfp), bhp->pgno);
 	/* Call any pgin function. */
 	ret = mfp->ftype == 0 ? 0 : __memp_pg(dbmfp, bhp->pgno, bhp->buf, 1);
-
 	/*
-	 * If no errors occurred, the data is now valid, clear the BH_TRASH
-	 * flag.
+	 * If no errors occurred, the data is now valid, clear the BH_TRASH flag.
 	 */
 	if(ret == 0)
 		F_CLR(bhp, BH_TRASH);
-err:    return (ret);
+err:    
+	return ret;
 }
-
 /*
  * __memp_pgwrite --
  *	Write a page to a file.
@@ -297,7 +287,7 @@ static int __memp_pgwrite(ENV *env, DB_MPOOLFILE * dbmfp, DB_MPOOL_HASH * hp, BH
 	 * could have already written this buffer.
 	 */
 	if(!F_ISSET(bhp, BH_DIRTY))
-		return (0);
+		return 0;
 	mfp = dbmfp == NULL ? NULL : dbmfp->mfp;
 	ret = 0;
 	buf = NULL;
@@ -444,7 +434,7 @@ file_dead:
 		}
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __memp_pg --
@@ -473,7 +463,7 @@ int __memp_pg(DB_MPOOLFILE *dbmfp, db_pgno_t pgno, void * buf, int is_pgin)
 		MUTEX_UNLOCK(env, dbmp->mutex);
 	}
 	if(mpreg == NULL)
-		return (0);
+		return 0;
 
 	if(mfp->pgcookie_len == 0)
 		dbtp = NULL;
@@ -490,10 +480,10 @@ int __memp_pg(DB_MPOOLFILE *dbmfp, db_pgno_t pgno, void * buf, int is_pgin)
 	}
 	else if(mpreg->pgout != NULL && (ret = mpreg->pgout(env->dbenv, pgno, buf, dbtp)) != 0)
 		goto err;
-	return (0);
+	return 0;
 err:    
 	__db_errx(env, DB_STR_A("3016", "%s: %s failed for page %lu", "%s %s %lu"), __memp_fn(dbmfp), is_pgin ? DB_STR_P("pgin") : DB_STR_P("pgout"), (u_long)pgno);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -591,7 +581,7 @@ no_hp:  if(mfp != NULL)
 	 * done.
 	 */
 	if(LF_ISSET(BH_FREE_REUSE))
-		return (ret);
+		return ret;
 
 	/*
 	 * If we're not reusing the buffer immediately, free the buffer for
@@ -601,7 +591,7 @@ no_hp:  if(mfp != NULL)
 		MUTEX_UNLOCK(env, bhp->mtx_buf);
 	if(LF_ISSET(BH_FREE_FREEMEM)) {
 		if((ret = __mutex_free(env, &bhp->mtx_buf)) != 0)
-			return (ret);
+			return ret;
 		MPOOL_REGION_LOCK(env, infop);
 
 		MVCC_BHUNALIGN(bhp);
@@ -613,7 +603,7 @@ no_hp:  if(mfp != NULL)
 	}
 
 	if(mfp == NULL)
-		return (ret);
+		return ret;
 
 	/*
 	 * Decrement the reference count of the underlying MPOOLFILE.
@@ -626,7 +616,7 @@ no_hp:  if(mfp != NULL)
 	}
 	else
 		MUTEX_UNLOCK(env, mfp->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_bh_clear_dirty --

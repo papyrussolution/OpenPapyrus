@@ -112,7 +112,7 @@ int __rep_bulk_message(ENV *env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN *
 		STAT(rep->stat.st_bulk_fills++);
 		if((ret = __rep_send_bulk(env, bulk, flags)) != 0) {
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
-			return (ret);
+			return ret;
 		}
 	}
 
@@ -131,14 +131,14 @@ int __rep_bulk_message(ENV *env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN *
 		if((ret = __rep_send_throttle(env,
 		    bulk->eid, repth, REP_THROTTLE_ONLY, flags)) != 0) {
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
-			return (ret);
+			return ret;
 		}
 		if(repth->type == typemore) {
 			VPRINT(env, (env, DB_VERB_REP_MSGS,
 			    "bulk_msg: Record %lu (0x%lx) hit throttle limit.",
 			    (u_long)recsize, (u_long)recsize));
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
-			return (ret);
+			return ret;
 		}
 	}
 
@@ -173,7 +173,7 @@ int __rep_bulk_message(ENV *env, REP_BULK * bulk, REP_THROTTLE * repth, DB_LSN *
 	}
 err:
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -194,7 +194,7 @@ int __rep_send_bulk(ENV *env, REP_BULK * bulkp, uint32 ctlflags)
 	 * If the offset is 0, we're done.  There is nothing to send.
 	 */
 	if(*(bulkp->offp) == 0)
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 
@@ -221,7 +221,7 @@ int __rep_send_bulk(ENV *env, REP_BULK * bulkp, uint32 ctlflags)
 	 */
 	*(bulkp->offp) = 0;
 	FLD_CLR(*(bulkp->flagsp), BULK_XMIT);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -236,11 +236,11 @@ int __rep_send_bulk(ENV *env, REP_BULK * bulkp, uint32 ctlflags)
 int __rep_bulk_alloc(ENV *env, REP_BULK * bulkp, int eid, uintptr_t * offp, uint32 * flagsp, uint32 type)
 {
 	int ret;
-	memset(bulkp, 0, sizeof(REP_BULK));
+	memzero(bulkp, sizeof(REP_BULK));
 	*offp = *flagsp = 0;
 	bulkp->len = MEGABYTE;
 	if((ret = __os_malloc(env, bulkp->len, &bulkp->addr)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * The cast is safe because offp is an "out" parameter. The value
 	 * of offp is meaningless when calling __rep_bulk_alloc.
@@ -249,7 +249,7 @@ int __rep_bulk_alloc(ENV *env, REP_BULK * bulkp, int eid, uintptr_t * offp, uint
 	bulkp->type = type;
 	bulkp->eid = eid;
 	bulkp->flagsp = flagsp;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -266,7 +266,7 @@ int __rep_bulk_free(ENV *env, REP_BULK * bulkp, uint32 flags)
 	ret = __rep_send_bulk(env, bulkp, flags);
 	MUTEX_UNLOCK(env, db_rep->region->mtx_clientdb);
 	__os_free(env, bulkp->addr);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_send_message --
@@ -297,14 +297,12 @@ int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	ret = 0;
-
 #if defined(DEBUG_ROP) || defined(DEBUG_WOP)
 	if(db_rep->send == NULL)
-		return (0);
+		return 0;
 #endif
-
 	/* Set up control structure. */
-	memset(&cntrl, 0, sizeof(cntrl));
+	memzero(&cntrl, sizeof(cntrl));
 	if(lsnp == NULL)
 		ZERO_LSN(cntrl.lsn);
 	else
@@ -321,11 +319,10 @@ int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT
 		    (u_long)rtype, (u_long)rep->version,
 		    (u_long)cntrl.rectype));
 		if(cntrl.rectype == REP_INVALID)
-			return (ret);
+			return ret;
 	}
 	else {
-		__db_errx(env, DB_STR_A("3503",
-		    "rep_send_message: Unknown rep version %lu, my version %lu",
+		__db_errx(env, DB_STR_A("3503", "rep_send_message: Unknown rep version %lu, my version %lu",
 		    "%lu %lu"), (u_long)rep->version, (u_long)DB_REPVERSION);
 		return (__env_panic(env, EINVAL));
 	}
@@ -336,7 +333,7 @@ int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT
 
 	/* Don't assume the send function will be tolerant of NULL records. */
 	if(dbt == NULL) {
-		memset(&scrap_dbt, 0, sizeof(DBT));
+		memzero(&scrap_dbt, sizeof(DBT));
 		dbt = &scrap_dbt;
 	}
 
@@ -405,14 +402,10 @@ int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT
 	/*
 	 * If DB_REP_PERMANENT is set, the LSN better be non-zero.
 	 */
-	DB_ASSERT(env, !FLD_ISSET(myflags, DB_REP_PERMANENT) ||
-	    !IS_ZERO_LSN(cntrl.lsn));
-
-	memset(&cdbt, 0, sizeof(cdbt));
-	(void)__rep_control_marshal(env, &cntrl, buf,
-	    __REP_CONTROL_SIZE, &len);
+	DB_ASSERT(env, !FLD_ISSET(myflags, DB_REP_PERMANENT) || !IS_ZERO_LSN(cntrl.lsn));
+	memzero(&cdbt, sizeof(cdbt));
+	(void)__rep_control_marshal(env, &cntrl, buf, __REP_CONTROL_SIZE, &len);
 	DB_INIT_DBT(cdbt, buf, len);
-
 	/*
 	 * We set the LSN above to something valid.  Give the master the
 	 * actual LSN so that they can coordinate with permanent records from
@@ -439,7 +432,7 @@ int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT
 #else
 	}
 #endif
-	return (ret);
+	return ret;
 }
 
 #ifdef REP_DIAGNOSTIC
@@ -517,7 +510,7 @@ int __rep_new_master(ENV *env, __rep_control_args * cntrl, int eid)
 	 * would change the gen.
 	 */
 	if(F_ISSET(rep, REP_F_HOLD_GEN))
-		return (ret);
+		return ret;
 
 	REP_SYSTEM_LOCK(env);
 	change = rep->gen != cntrl->gen || rep->master_id != eid;
@@ -722,7 +715,7 @@ int __rep_new_master(ENV *env, __rep_control_args * cntrl, int eid)
 			FLD_CLR(rep->lockout_flags, REP_LOCKOUT_ARCHIVE);
 			REP_SYSTEM_UNLOCK(env);
 		}
-		return (ret);
+		return ret;
 	}
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
 
@@ -740,7 +733,7 @@ int __rep_new_master(ENV *env, __rep_control_args * cntrl, int eid)
 		goto newmaster_complete;
 	}
 
-	memset(&dbt, 0, sizeof(dbt));
+	memzero(&dbt, sizeof(dbt));
 	/*
 	 * If this client is farther ahead on the log file than the master, see
 	 * if there is any overlap in the logs.  If not, the client is too
@@ -794,7 +787,7 @@ errlck: if(lockout_msg) {
 	F_CLR(rep, REP_F_DELAY);
 	CLR_RECOVERY_SETTINGS(rep);
 lckout: REP_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 
 notfound:
 	/*
@@ -816,7 +809,7 @@ notfound:
 		ret = __log_vtruncate(env, &lsn, &lsn, NULL);
 	}
 	if(ret != 0 && ret != DB_NOTFOUND)
-		return (ret);
+		return ret;
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
 	REP_SYSTEM_LOCK(env);
@@ -875,7 +868,7 @@ static int __rep_newmaster_empty(ENV *env, int eid)
 	if(msg)
 		(void)__rep_send_message(env, eid, REP_UPDATE_REQ,
 		    NULL, NULL, 0, 0);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -934,7 +927,7 @@ int __env_rep_enter(ENV *env, int checklock)
 
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
@@ -949,7 +942,7 @@ int __env_rep_enter(ENV *env, int checklock)
 		 * the timestamp.
 		 */
 		if(F_ISSET(renv, DB_REGENV_REPLOCKED))
-			return (EINVAL);
+			return EINVAL;
 	}
 
 	REP_SYSTEM_LOCK(env);
@@ -961,21 +954,18 @@ int __env_rep_enter(ENV *env, int checklock)
 		 */
 		PANIC_CHECK(env);
 		if(FLD_ISSET(rep->config, REP_C_NOWAIT)) {
-			__db_errx(env, DB_STR("3504",
-			    "Operation locked out.  Waiting for replication lockout to complete"));
+			__db_errx(env, DB_STR("3504", "Operation locked out.  Waiting for replication lockout to complete"));
 			return (DB_REP_LOCKOUT);
 		}
 		__os_yield(env, 1, 0);
-		if(++cnt % 60 == 0 &&
-		    (ret = __rep_show_progress(env,
-		    DB_STR_P("DB_ENV handle"), cnt / 60)) != 0)
-			return (ret);
+		if(++cnt % 60 == 0 && (ret = __rep_show_progress(env, DB_STR_P("DB_ENV handle"), cnt / 60)) != 0)
+			return ret;
 		REP_SYSTEM_LOCK(env);
 	}
 	rep->handle_cnt++;
 	REP_SYSTEM_UNLOCK(env);
 
-	return (0);
+	return 0;
 }
 
 static int __rep_show_progress(ENV *env, const char * which, int mins)
@@ -998,38 +988,30 @@ static int __rep_show_progress(ENV *env, const char * which, int mins)
 	REP_SYSTEM_LOCK(env);
 	switch(rep->sync_state) {
 		case SYNC_PAGE:
-#define PAGE_MSG DB_STR_A("3506",                                       \
-	    "SYNC_PAGE: files %lu/%lu; pages %lu (%lu next)", "%lu %lu %lu %lu")
-#define PAGE_ARGS (u_long)rep->curfile, (u_long)rep->nfiles, \
-	(u_long)rep->npages, (u_long)rep->ready_pg
+#define PAGE_MSG DB_STR_A("3506", "SYNC_PAGE: files %lu/%lu; pages %lu (%lu next)", "%lu %lu %lu %lu")
+#define PAGE_ARGS (u_long)rep->curfile, (u_long)rep->nfiles, (u_long)rep->npages, (u_long)rep->ready_pg
 		    __db_errx(env, PAGE_MSG, PAGE_ARGS);
 		    RPRINT(env, (env, DB_VERB_REP_SYNC, PAGE_MSG, PAGE_ARGS));
 		    break;
 		case SYNC_LOG:
 #define LSN_ARG(lsn) (u_long)(lsn).file, (u_long)(lsn).offset
-#define LOG_LSN_ARGS LSN_ARG(ready_lsn),                                \
-	LSN_ARG(rep->first_lsn), LSN_ARG(rep->last_lsn)
+#define LOG_LSN_ARGS LSN_ARG(ready_lsn), LSN_ARG(rep->first_lsn), LSN_ARG(rep->last_lsn)
 #ifdef  HAVE_STATISTICS
-#define LOG_MSG DB_STR_A("3507",                                        \
-	    "SYNC_LOG: thru [%lu][%lu] from [%lu][%lu]/[%lu][%lu] (%lu queued)", \
-	    "%lu %lu %lu %lu %lu %lu %lu")
+#define LOG_MSG DB_STR_A("3507", "SYNC_LOG: thru [%lu][%lu] from [%lu][%lu]/[%lu][%lu] (%lu queued)", "%lu %lu %lu %lu %lu %lu %lu")
 #define LOG_ARGS LOG_LSN_ARGS, (u_long)rep->stat.st_log_queued
 #else
-#define LOG_MSG DB_STR_A("3508",                                        \
-	    "SYNC_LOG: thru [%lu][%lu] from [%lu][%lu]/[%lu][%lu]",             \
-	    "%lu %lu %lu %lu %lu %lu")
+#define LOG_MSG DB_STR_A("3508", "SYNC_LOG: thru [%lu][%lu] from [%lu][%lu]/[%lu][%lu]", "%lu %lu %lu %lu %lu %lu")
 #define LOG_ARGS LOG_LSN_ARGS
 #endif
 		    __db_errx(env, LOG_MSG, LOG_ARGS);
 		    RPRINT(env, (env, DB_VERB_REP_SYNC, LOG_MSG, LOG_ARGS));
 		    break;
 		default:
-		    RPRINT(env, (env, DB_VERB_REP_SYNC,
-			"sync state %d", (int)rep->sync_state));
+		    RPRINT(env, (env, DB_VERB_REP_SYNC, "sync state %d", (int)rep->sync_state));
 		    break;
 	}
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1045,7 +1027,7 @@ int __env_db_rep_exit(ENV *env)
 	REP * rep;
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
@@ -1053,8 +1035,7 @@ int __env_db_rep_exit(ENV *env)
 	DB_ASSERT(env, rep->handle_cnt != 0);
 	rep->handle_cnt--;
 	REP_SYSTEM_UNLOCK(env);
-
-	return (0);
+	return 0;
 }
 
 /*
@@ -1086,7 +1067,7 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 	env = dbp->env;
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	infop = env->reginfo;
@@ -1100,7 +1081,7 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 		 * the timestamp.
 		 */
 		if(F_ISSET(renv, DB_REGENV_REPLOCKED))
-			return (EINVAL);
+			return EINVAL;
 	}
 
 	/*
@@ -1137,7 +1118,7 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 	}
 	rep->handle_cnt++;
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * Check for permission to increment handle_cnt, and do so if possible.  Used in
@@ -1158,7 +1139,7 @@ int __op_handle_enter(ENV *env)
 		ret = 0;
 	}
 	REP_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1179,7 +1160,7 @@ int __op_rep_enter(ENV *env, int local_nowait, int obey_user)
 	int cnt, ret;
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
@@ -1201,13 +1182,13 @@ int __op_rep_enter(ENV *env, int local_nowait, int obey_user)
 		if(++cnt % 60 == 0 &&
 		    (ret = __rep_show_progress(env,
 		    "__op_rep_enter", cnt / 60)) != 0)
-			return (ret);
+			return ret;
 		REP_SYSTEM_LOCK(env);
 	}
 	rep->op_cnt++;
 	REP_SYSTEM_UNLOCK(env);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1224,7 +1205,7 @@ int __op_rep_exit(ENV *env)
 	REP * rep;
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
@@ -1232,7 +1213,7 @@ int __op_rep_exit(ENV *env)
 	DB_ASSERT(env, rep->op_cnt != 0);
 	rep->op_cnt--;
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * __archive_rep_enter
@@ -1268,7 +1249,7 @@ int __archive_rep_enter(ENV *env)
 	}
 
 	if(!REP_ON(env))
-		return (0);
+		return 0;
 
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
@@ -1278,7 +1259,7 @@ int __archive_rep_enter(ENV *env)
 	else
 		rep->arch_th++;
 	REP_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1292,13 +1273,13 @@ int __archive_rep_exit(ENV *env)
 	DB_REP * db_rep;
 	REP * rep;
 	if(!REP_ON(env))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
 	rep->arch_th--;
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1332,10 +1313,10 @@ int __rep_lockout_api(ENV *env, REP * rep)
 	 * always lockout REP_LOCKOUT_OP first, then REP_LOCKOUT_API.
 	 */
 	if((ret = __rep_lockout_int(env, rep, &rep->op_cnt, 0, "op_cnt", REP_LOCKOUT_OP)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __rep_lockout_int(env, rep, &rep->handle_cnt, 0, "handle_cnt", REP_LOCKOUT_API)) != 0)
 		FLD_CLR(rep->lockout_flags, REP_LOCKOUT_OP);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1350,7 +1331,7 @@ int __rep_take_apilockout(ENV *env)
 	REP_SYSTEM_LOCK(env);
 	ret = __rep_lockout_api(env, rep);
 	REP_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __rep_clear_apilockout __P((ENV *));
@@ -1361,7 +1342,7 @@ int __rep_clear_apilockout(ENV *env)
 	REP_SYSTEM_LOCK(env);
 	CLR_LOCKOUT_BDB(rep);
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * __rep_lockout_apply --
@@ -1408,7 +1389,7 @@ static int __rep_lockout_int(ENV *env, REP * rep, uint32 * fieldp, uint32 field_
 	FLD_SET(rep->lockout_flags, lockout_flag);
 	for(wait_cnt = 0; *fieldp > field_val;) {
 		if((ret = __rep_notify_threads(env, LOCKOUT)) != 0)
-			return (ret);
+			return ret;
 		REP_SYSTEM_UNLOCK(env);
 		/* We're spinning - environment may be hung.  Check if
 		 * recovery has been initiated.
@@ -1433,7 +1414,7 @@ static int __rep_lockout_int(ENV *env, REP * rep, uint32 * fieldp, uint32 field_
 	}
 
 	COMPQUIET(msg, NULL);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1462,7 +1443,7 @@ int __rep_send_throttle(ENV *env, int eid, REP_THROTTLE * repth, uint32 flags, u
 	 * turned on, return immediately.
 	 */
 	if(!check_limit && LF_ISSET(REP_THROTTLE_ONLY))
-		return (0);
+		return 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	typemore = 0;
@@ -1508,7 +1489,7 @@ snd:    if((repth->type == typemore || !LF_ISSET(REP_THROTTLE_ONLY)) &&
 	    (__rep_send_message(env, eid, repth->type,
 	    &repth->lsn, repth->data_dbt, (REPCTL_RESEND | ctlflags), 0) != 0))
 		return (DB_REP_UNAVAIL);
-	return (0);
+	return 0;
 }
 
 /*
@@ -2041,7 +2022,7 @@ int __rep_print_system(ENV * env, uint32 verbose, const char * fmt, ...)
 	va_start(ap, fmt);
 	ret = __rep_print_int(env, verbose | DB_VERB_REP_SYSTEM, fmt, ap);
 	va_end(ap);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2059,7 +2040,7 @@ int __rep_print(ENV * env, uint32 verbose, const char * fmt, ...)
 	va_start(ap, fmt);
 	ret = __rep_print_int(env, verbose, fmt, ap);
 	va_end(ap);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2085,7 +2066,7 @@ static int __rep_print_int(ENV *env, uint32 verbose, const char * fmt, va_list a
 
 	tmp_verbose = env->dbenv->verbose;
 	if(FLD_ISSET(tmp_verbose, verbose | DB_VERB_REPLICATION) == 0)
-		return (0);
+		return 0;
 	DB_MSGBUF_INIT(&mb);
 
 	diag_msg = 0;
@@ -2116,7 +2097,7 @@ static int __rep_print_int(ENV *env, uint32 verbose, const char * fmt, va_list a
 	 * getting set up and we want to skip that.
 	 */
 	if(diag_msg == 0 && regular_msg == 0)
-		return (0);
+		return 0;
 	s = NULL;
 	if(env->dbenv->db_errpfx != NULL)
 		s = env->dbenv->db_errpfx;
@@ -2141,7 +2122,7 @@ static int __rep_print_int(ENV *env, uint32 verbose, const char * fmt, va_list a
 	DB_MSGBUF_REP_FLUSH(env, &mb, diag_msg, regular_msg);
 	if(diag_msg)
 		MUTEX_UNLOCK(env, rep->mtx_diag);
-	return (0);
+	return 0;
 }
 
 /*
@@ -2460,7 +2441,7 @@ int __rep_notify_threads(ENV *env, rep_waitreason_t wake_reason)
 	}
 
 out:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2523,7 +2504,7 @@ int __rep_check_goal(ENV *env, struct rep_waitgoal * goal)
 		default:
 		    DB_ASSERT(env, 0);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2538,15 +2519,13 @@ int __rep_log_backup(ENV *env, DB_LOGC * logc, DB_LSN * lsn, uint32 match)
 	DBT mylog;
 	uint32 rectype;
 	int ret = 0;
-	memset(&mylog, 0, sizeof(mylog));
+	memzero(&mylog, sizeof(mylog));
 	while((ret = __logc_get(logc, lsn, &mylog, DB_PREV)) == 0) {
 		LOGCOPY_32(env, &rectype, mylog.data);
 		/*
 		 * Check the record type against the desired match type(s).
 		 */
-		if((match == REP_REC_COMMIT && rectype == DB___txn_regop) ||
-		    ((match == REP_REC_PERM || match == REP_REC_PERM_DEL) &&
-		    IS_PERM_RECTYPE(rectype)))
+		if((match == REP_REC_COMMIT && rectype == DB___txn_regop) || ((match == REP_REC_PERM || match == REP_REC_PERM_DEL) && IS_PERM_RECTYPE(rectype)))
 			break;
 		/*
 		 * Break early if a file remove is discovered in the logs.
@@ -2559,7 +2538,7 @@ int __rep_log_backup(ENV *env, DB_LOGC * logc, DB_LSN * lsn, uint32 match)
 			break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2582,7 +2561,7 @@ int __rep_get_maxpermlsn(ENV *env, DB_LSN * max_perm_lsnp)
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	*max_perm_lsnp = lp->max_perm_lsn;
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
-	return (0);
+	return 0;
 }
 
 /*
@@ -2623,7 +2602,7 @@ int __rep_get_datagen(ENV *env, uint32 * data_genp)
 	flags = DB_LAST;
 retry:
 	if((ret = __txn_begin(env, NULL, NULL, &txn, DB_IGNORE_LEASE)) != 0)
-		return (ret);
+		return ret;
 
 	MUTEX_LOCK(env, db_rep->mtx_lsnhist);
 	if((dbp = db_rep->lsn_db) == NULL) {
@@ -2651,14 +2630,12 @@ retry:
 	DB_INIT_DBT(key_dbt, key_buf, __REP_LSN_HIST_KEY_SIZE);
 	key_dbt.ulen = __REP_LSN_HIST_KEY_SIZE;
 	F_SET(&key_dbt, DB_DBT_USERMEM);
-
-	memset(&data_dbt, 0, sizeof(data_dbt));
+	memzero(&data_dbt, sizeof(data_dbt));
 	data_dbt.data = data_buf;
 	data_dbt.ulen = __REP_LSN_HIST_DATA_SIZE;
 	F_SET(&data_dbt, DB_DBT_USERMEM);
 	if((ret = __dbc_get(dbc, &key_dbt, &data_dbt, flags)) != 0) {
-		if((ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) &&
-		    ++tries < 5) /* Limit of 5 is an arbitrary choice. */
+		if((ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) && ++tries < 5) /* Limit of 5 is an arbitrary choice. */
 			ret = 0;
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;
@@ -2692,7 +2669,7 @@ noclose:
 	else
 		t_ret = __txn_abort(txn);
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2762,7 +2739,7 @@ errclearlockouts:
 		CLR_LOCKOUT_BDB(rep);
 errunlock:
 	REP_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2789,5 +2766,5 @@ int __rep_get_lsnhist_data(ENV *env, DB_THREAD_INFO * ip, uint32 gen, __rep_lsn_
 		ret = t_ret;
 	if(txn != NULL && (t_ret = __db_txn_auto_resolve(env, txn, 1, ret)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

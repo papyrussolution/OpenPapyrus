@@ -138,7 +138,7 @@ extern "C" {
 	(FLD_ISSET(((env)->rep_handle->region)->config, REP_C_FORWARD_WRITES))
 
 #define	REPMGR_WF_DUMP_FILEID(fileid, i, str)				\
-	memset(str, 0, REPMGR_WF_FILEID_STRLEN);			\
+	memzero(str, REPMGR_WF_FILEID_STRLEN);			\
 	for (i = 0; i < DB_FILE_ID_LEN; i++)				\
 		(void)sprintf(str, "%s%x ", str, fileid[i]);
 

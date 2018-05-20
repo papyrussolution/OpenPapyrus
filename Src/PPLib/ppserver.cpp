@@ -391,12 +391,12 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		case tPing:
 			for(i = 1; GetWord(rLine, &p); i++) {
-				PutParam(i, Term); // PPPutExtStrData(i, Params, Term);
+				PutParam(i, Term);
 			}
 			break;
 		case tSetTxtCmdTerm:
 			if(GetWord(rLine, &p)) {
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 			}
 			break;
 		case tLogin:
@@ -412,14 +412,14 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PutParam(1, db_symb); // PPPutExtStrData(1, Params, db_symb);
-			PutParam(2, name); // PPPutExtStrData(2, Params, name);
-			PutParam(3, pw); // PPPutExtStrData(3, Params, pw);
+			PutParam(1, db_symb);
+			PutParam(2, name);
+			PutParam(3, pw); 
 			break;
 		case tSuspend:
 			if(GetWord(rLine, &p)) {
 				name = Term;
-				PutParam(1, name); // PPPutExtStrData(1, Params, name);
+				PutParam(1, name);
 			}
 			break;
 		case tResume:
@@ -429,7 +429,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				name.Z();
 				ok = 0;
 			}
-			PutParam(1, name); // PPPutExtStrData(1, Params, name);
+			PutParam(1, name);
 			break;
 		case tResetCache:
 			ok = 0;
@@ -441,8 +441,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 					temp_buf = Term;
 				ok = 1;
 			}
-			PutParam(1, name); // PPPutExtStrData(1, Params, name);
-			PutParam(2, temp_buf); // PPPutExtStrData(2, Params, temp_buf);
+			PutParam(1, name);
+			PutParam(2, temp_buf);
 			break;
 		case tLogLockStack:
 			break;
@@ -458,9 +458,9 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 					}
 				}
 			}
-			PutParam(1, db_symb); // PPPutExtStrData(1, Params, db_symb);
-			PutParam(2, name); // PPPutExtStrData(2, Params, name);
-			PutParam(3, pw); // PPPutExtStrData(3, Params, pw);
+			PutParam(1, db_symb);
+			PutParam(2, name);
+			PutParam(3, pw);
 			break;
 		case tGetBizScores:
 			if(GetWord(rLine, &p)) {
@@ -472,8 +472,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PutParam(1, name); // PPPutExtStrData(1, Params, name);
-			PutParam(2, pw); // PPPutExtStrData(2, Params, pw);
+			PutParam(1, name);
+			PutParam(2, pw);
 			break;
 		case tCheckGlobalCredential:
 			if(GetWord(rLine, &p)) {
@@ -485,22 +485,22 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PutParam(1, name); // PPPutExtStrData(1, Params, name);
-			PutParam(2, pw); // PPPutExtStrData(2, Params, pw);
+			PutParam(1, name);
+			PutParam(2, pw);
 			break;
 		case tGetTDDO:
 			if(GetWord(rLine, &p)) {
 				int    fld_n = 0;
-				PutParam(++fld_n, Term); // PPPutExtStrData(++fld_n, Params, Term);
+				PutParam(++fld_n, Term);
 				if(Term.CmpNC("INLINE") == 0) {
 					// inline код
 					(temp_buf = rLine).ShiftLeft(p);
-					PutParam(++fld_n, temp_buf); // PPPutExtStrData(++fld_n, Params, temp_buf);
+					PutParam(++fld_n, temp_buf);
 				}
 				else {
 					//
 					while(GetWord(rLine, &p)) {
-						PutParam(++fld_n, Term); // PPPutExtStrData(++fld_n, Params, Term);
+						PutParam(++fld_n, Term);
 					}
 				}
 			}
@@ -509,23 +509,23 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		case tGetImage:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJTYPE, rLine);
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJID, rLine);
-			PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+			PutParam(2, Term);
 			break;
 		case tSetImageMime:
 			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
 			{
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJTYPE, rLine); // ObjTypeSymb
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJID, rLine); // ObjID
-				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_UPDATEFLAGS, rLine); // UpdateFlags
-				PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
+				PutParam(3, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_CONTENTTYPE, rLine); // ContentType
-				PutParam(4, Term); // PPPutExtStrData(4, Params, Term);
+				PutParam(4, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_CONTENTMIME, rLine); // ContentMime64
-				PutParam(5, Term); // PPPutExtStrData(5, Params, Term);
+				PutParam(5, Term);
 			}
 			break;
 		case tGetFile:
@@ -538,11 +538,11 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				SString path = Term;
 				while(GetWord(rLine, &p))
 					path.Space().Cat(Term);
-				PutParam(1, path); // PPPutExtStrData(1, Params, path);
+				PutParam(1, path);
 				if(GetWord(rLine, &p)) {
-					PutParam(2, temp_buf = Term); // PPPutExtStrData(2, Params, temp_buf = Term);
+					PutParam(2, temp_buf = Term);
 					if(GetWord(rLine, &p)) {
-						PutParam(3, temp_buf = Term); // PPPutExtStrData(3, Params, temp_buf = Term);
+						PutParam(3, temp_buf = Term);
 					}
 				}
 			}
@@ -554,97 +554,96 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tAckFile:
 		case tCancelFile:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_FILECOOKIE, rLine);
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term); // cookie
+			PutParam(1, Term);
 			break;
 		case tExecViewNF:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NAMEDFILT, rLine); // символ именованного фильтра
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			if(GetWord(rLine, &p)) // [наименование структуры DL600 для экспорта]
-				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term);
 			break;
 		case tSoBlock:
 			SETIFZ(P_SoBlk, new SelectObjectBlock);
 			ok = P_SoBlk ? P_SoBlk->Parse(rLine) : PPSetErrorNoMem();
 			break;
 		case tCPosProcessorCommand:
-			PutParam(1, rLine); // PPPutExtStrData(1, Params, rLine);
+			PutParam(1, rLine);
 			break;
 		case tPreparePalmInData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); 
 			if(GetWord(rLine, &p)) // UUID устройства
-				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term);
 			break;
 		case tPreparePalmOutData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); 
 			if(GetWord(rLine, &p)) { // UUID устройства
-				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term); 
 				if(GetWord(rLine, &p)) { // Дата последнего обмена
-					PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
-					if(GetWord(rLine, &p)) { // Время последнего обмена
-						PutParam(4, Term); // PPPutExtStrData(4, Params, Term);
-					}
+					PutParam(3, Term); 
+					if(GetWord(rLine, &p)) // Время последнего обмена
+						PutParam(4, Term); 
 				}
 			}
 			break;
 		case tSetGlobalUser:
 			// SETGLOBALUSER name
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_GLOBALUSERNAME, rLine); // Имя глобальной учетной записи
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			break;
 		case tExpTariffTA:
 			break;
 		case tSendSMS:
 			if(GetWord(rLine, &p)) { // Номер телефона
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 				if(GetWord(rLine, &p)) { // От кого
-					PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+					PutParam(2, Term);
 					if(GetWord(rLine, &p)) // Сообщение (зашифрованное в Mime64)
-						PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
+						PutParam(3, Term);
 				}
 			}
 			break;
 		case tGetDisplayInfo:
 			if(GetWord(rLine, &p)) // ид устройства из DisplayList
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 			break;
 		case tGetWorkbookContent:
 			if(GetWord(rLine, &p)) // ид контента
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 			break;
 		case tSetWorkbookContent:
 			break;
 		case tGetKeywordSeq:
 			if(GetWord(rLine, &p)) // контекст
-				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term);
 			break;
 		case tRegisterStylo:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_MAGICSYMBOL, rLine); // magic symbol
-			PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
+			PutParam(2, Term);
 			break;
 		case tQueryNaturalToken:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NATURALTOKEN, rLine); // Необходимый параметр - собственно запрашиваемый токен
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			{
 				uint   arg_n = 1;
 				while(GetWord(rLine, &p)) {
-					PutParam(++arg_n, Term); // PPPutExtStrData(++arg_n, Params, Term);
+					PutParam(++arg_n, Term);
 				}
 			}
 			break;
 		case tGetArticleByPerson:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_ARBYPSNID, rLine); // Необходимый параметр - идентификатор персоналии
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			if(GetWord(rLine, &p)) {
-				PutParam(2, Term); // PPPutExtStrData(2, Params, Term); // Идентификация таблицы статей
+				PutParam(2, Term); // Идентификация таблицы статей
 			}
 			break;
 		case tGetPersonByArticle:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // Необходимый параметр - идентификатор статьи
-			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term);
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -663,7 +662,7 @@ public:
 	SLAPI  PPJobSession(PPJob * p, const PPJobPool & rPool) : PPThread(PPThread::kJob, p->Name, p), P_Pool(&rPool)
 	{
 		SetJobID(p->ID);
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_JOB_LOG, _LogFileName); // @v8.6.1 PPFILNAM_SERVER_LOG-->PPFILNAM_JOB_LOG
+		PPGetFilePath(PPPATH_LOG, PPFILNAM_JOB_LOG, _LogFileName);
 		InitStartupSignal();
 	}
 private:

@@ -39,11 +39,11 @@ int __memp_stat_pp(DB_ENV *dbenv, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mp_handle, "DB_ENV->memp_stat", DB_INIT_MPOOL);
 	if((ret = __db_fchk(env, "DB_ENV->memp_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_stat(env, gspp, fspp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_stat --
@@ -73,8 +73,8 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 	if(gspp != NULL) {
 		*gspp = NULL;
 		if((ret = __os_umalloc(env, sizeof(**gspp), gspp)) != 0)
-			return (ret);
-		memset(*gspp, 0, sizeof(**gspp));
+			return ret;
+		memzero(*gspp, sizeof(**gspp));
 		sp = *gspp;
 		/*
 		 * Initialization and information that is not maintained on
@@ -147,7 +147,7 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 			if(LF_ISSET(DB_STAT_CLEAR)) {
 				if(!LF_ISSET(DB_STAT_SUBSYSTEM))
 					__mutex_clear(env, c_mp->mtx_region);
-				memset(&c_mp->stat, 0, sizeof(c_mp->stat));
+				memzero(&c_mp->stat, sizeof(c_mp->stat));
 			}
 		}
 		/*
@@ -159,7 +159,7 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 		 * add the per-file information.
 		 */
 		if((ret = __memp_walk_files(env, mp, __memp_file_stats, sp, NULL, fspp == NULL ? LF_ISSET(DB_STAT_CLEAR) : 0)) != 0)
-			return (ret);
+			return ret;
 	}
 	/* Per-file statistics. */
 	if(fspp != NULL) {
@@ -174,9 +174,9 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 			 */
 			len = sizeof(uintmax_t);
 			if((ret = __memp_walk_files(env, mp, __memp_count_files, &len, &i, flags)) != 0)
-				return (ret);
+				return ret;
 			if(i == 0)
-				return (0);
+				return 0;
 			/*
 			 * Copy the number of DB_MPOOL_FSTAT entries and the
 			 * number of bytes allocated for them into fsp_len. Do
@@ -190,7 +190,7 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 
 			/* Allocate space */
 			if((ret = __os_umalloc(env, len, fspp)) != 0)
-				return (ret);
+				return ret;
 
 			tfsp = *fspp;
 			*tfsp = NULL;
@@ -209,14 +209,14 @@ static int __memp_stat(ENV *env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp,
 					tfsp = NULL;
 				}
 				else
-					return (ret);
+					return ret;
 			}
 		}
 
 		*++tfsp = NULL;
 	}
 
-	return (0);
+	return 0;
 }
 
 static int __memp_file_stats(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * countp, uint32 flags)
@@ -232,8 +232,8 @@ static int __memp_file_stats(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * co
 	sp->st_page_in += mfp->stat.st_page_in;
 	sp->st_page_out += mfp->stat.st_page_out;
 	if(LF_ISSET(DB_STAT_CLEAR))
-		memset(&mfp->stat, 0, sizeof(mfp->stat));
-	return (0);
+		memzero(&mfp->stat, sizeof(mfp->stat));
+	return 0;
 }
 /*
  * __memp_count_files --
@@ -250,7 +250,7 @@ static int __memp_count_files(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * c
 	(*countp)++;
 	len += sizeof(DB_MPOOL_FSTAT *) + sizeof(DB_MPOOL_FSTAT) + strlen(__memp_fns(dbmp, mfp)) + 1;
 	*(size_t*)argp = len;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_files --
@@ -319,23 +319,17 @@ static int __memp_get_files(ENV *env, MPOOLFILE * mfp, void * argp, uint32 fsp_l
 	else
 		/* Count down the number of bytes left in argp. */
 		fsp_len[1] -= tlen;
-
 	memcpy(tname, name, nlen);
 	memcpy(tstruct, &mfp->stat, sizeof(mfp->stat));
 	tstruct->file_name = tname;
-
 	/* Grab the pagesize from the mfp. */
 	tstruct->st_pagesize = mfp->pagesize;
-
 	*(DB_MPOOL_FSTAT***)argp = tfsp;
-
 	/* Count down the number of entries left in argp. */
 	fsp_len[0]--;
-
 	if(LF_ISSET(DB_STAT_CLEAR))
-		memset(&mfp->stat, 0, sizeof(mfp->stat));
-
-	return (0);
+		memzero(&mfp->stat, sizeof(mfp->stat));
+	return 0;
 }
 
 /*
@@ -353,11 +347,11 @@ int __memp_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 #define DB_STAT_MEMP_FLAGS                                              \
 	(DB_STAT_ALL | DB_STAT_ALLOC | DB_STAT_CLEAR | DB_STAT_MEMP_HASH)
 	if((ret = __db_fchk(env, "DB_ENV->memp_stat_print", flags, DB_STAT_MEMP_FLAGS)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_stat_print(env, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 #define FMAP_ENTRIES    200                     /* Files we map. */
@@ -376,11 +370,11 @@ int __memp_stat_print(ENV *env, uint32 flags)
 	if(flags == 0 || LF_ISSET(DB_STAT_ALL)) {
 		ret = __memp_print_stats(env, LF_ISSET(DB_STAT_ALL) ? flags : orig_flags);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(LF_ISSET(DB_STAT_ALL | DB_STAT_MEMP_HASH) && (ret = __memp_print_all(env, orig_flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __memp_print_stats --
@@ -392,7 +386,7 @@ static int __memp_print_stats(ENV *env, uint32 flags)
 	DB_MPOOL_STAT * gsp;
 	int ret;
 	if((ret = __memp_stat(env, &gsp, &fsp, flags)) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default cache region information:");
 	__db_dlbytes(env, "Total cache size", (u_long)gsp->st_gbytes, (u_long)0, (u_long)gsp->st_bytes);
@@ -452,7 +446,7 @@ static int __memp_print_stats(ENV *env, uint32 flags)
 	}
 	__os_ufree(env, fsp);
 	__os_ufree(env, gsp);
-	return (0);
+	return 0;
 }
 /*
  * __memp_print_all --
@@ -518,7 +512,7 @@ static int __memp_print_all(ENV *env, uint32 flags)
 	ret = __memp_walk_files(env, mp, __memp_print_files, fmap, &cnt, flags);
 	MPOOL_SYSTEM_UNLOCK(env);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	if(cnt < FMAP_ENTRIES)
 		fmap[cnt] = INVALID_ROFF;
 	else
@@ -532,7 +526,7 @@ static int __memp_print_all(ENV *env, uint32 flags)
 		if((ret = __memp_print_hash(env, dbmp, &dbmp->reginfo[i], fmap, flags)) != 0)
 			break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int __memp_print_files(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * countp, uint32 flags)
@@ -583,7 +577,7 @@ static int __memp_print_files(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * c
 		fmap[*countp] = R_OFFSET(dbmp->reginfo, mfp);
 	(*countp)++;
 	MUTEX_UNLOCK(env, mfp->mutex);
-	return (0);
+	return 0;
 }
 
 /*
@@ -645,7 +639,7 @@ static int __memp_print_hash(ENV *env, DB_MPOOL * dbmp, REGINFO * reginfo, roff_
 		__db_msg(env, "free frozen %lu pgno %lu mtx_buf %lu", (u_long)R_OFFSET(dbmp->reginfo, bhp), (u_long)bhp->pgno, (u_long)bhp->mtx_buf);
 	}
 #endif
-	return (0);
+	return 0;
 }
 /*
  * __memp_print_bh --

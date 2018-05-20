@@ -24,11 +24,11 @@ int __lock_set_timeout(ENV *env, DB_LOCKER * locker, db_timeout_t timeout, uint3
 {
 	int ret;
 	if(locker == NULL)
-		return (0);
+		return 0;
 	LOCK_REGION_LOCK(env);
 	ret = __lock_set_timeout_internal(env, locker, timeout, op);
 	LOCK_REGION_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 /*
  * __lock_set_timeout_internal
@@ -62,8 +62,8 @@ int __lock_set_timeout_internal(ENV *env, DB_LOCKER * sh_locker, db_timeout_t ti
 			region->next_timeout = sh_locker->lk_expire;
 	}
 	else
-		return (EINVAL);
-	return (0);
+		return EINVAL;
+	return 0;
 }
 /*
  * __lock_inherit_timeout
@@ -96,5 +96,5 @@ int __lock_inherit_timeout(ENV *env, DB_LOCKER * parent, DB_LOCKER * locker)
 	}
 err:    
 	LOCK_REGION_UNLOCK(env);
-	return (ret);
+	return ret;
 }

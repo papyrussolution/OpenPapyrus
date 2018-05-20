@@ -33,14 +33,13 @@ int __aes_setup(ENV *env, DB_CIPHER * db_cipher)
 	int ctx_size = 0;
 	IppStatus ipp_ret;
 #endif
-
 	db_cipher->adj_size = __aes_adj_size;
 	db_cipher->close = __aes_close;
 	db_cipher->decrypt = __aes_decrypt;
 	db_cipher->encrypt = __aes_encrypt;
 	db_cipher->init = __aes_init;
 	if((ret = __os_calloc(env, 1, sizeof(AES_CIPHER), &aes_cipher)) != 0)
-		return (ret);
+		return ret;
 #ifdef  HAVE_CRYPTO_IPP
 	/*
 	 * IPP AES encryption context size can only be obtained through this
@@ -53,11 +52,11 @@ int __aes_setup(ENV *env, DB_CIPHER * db_cipher)
 	}
 	if((ret = __os_malloc(env, ctx_size, &aes_cipher->ipp_ctx)) != 0) {
 		__os_free(env, aes_cipher);
-		return (ret);
+		return ret;
 	}
 #endif
 	db_cipher->data = aes_cipher;
-	return (0);
+	return 0;
 }
 /*
  * __aes_adj_size --
@@ -69,7 +68,7 @@ int __aes_setup(ENV *env, DB_CIPHER * db_cipher)
 u_int __aes_adj_size(size_t len)
 {
 	if(len % DB_AES_CHUNK == 0)
-		return (0);
+		return 0;
 	return (DB_AES_CHUNK - (u_int)(len % DB_AES_CHUNK));
 }
 /*
@@ -85,7 +84,7 @@ int __aes_close(ENV *env, void * data)
 	__os_free(env, aes_cipher->ipp_ctx);
 #endif
 	__os_free(env, data);
-	return (0);
+	return 0;
 }
 /*
  * __aes_decrypt --
@@ -104,9 +103,9 @@ int __aes_decrypt(ENV *env, void * aes_data, void * iv, uint8 * cipher, size_t c
 	int ret;
 	AES_CIPHER * aes = (AES_CIPHER*)aes_data;
 	if(iv == NULL || cipher == NULL)
-		return (EINVAL);
+		return EINVAL;
 	if((cipher_len % DB_AES_CHUNK) != 0)
-		return (EINVAL);
+		return EINVAL;
 
 #ifdef  HAVE_CRYPTO_IPP
 	if((ipp_ret = ippsRijndael128DecryptCBC((const Ipp8u*)cipher,
@@ -129,7 +128,7 @@ int __aes_decrypt(ENV *env, void * aes_data, void * iv, uint8 * cipher, size_t c
 		return (EAGAIN);
 	}
 #endif
-	return (0);
+	return 0;
 }
 /*
  * __aes_encrypt --
@@ -150,9 +149,9 @@ int __aes_encrypt(ENV *env, void * aes_data, void * iv, uint8 * data, size_t dat
 	int ret;
 	aes = (AES_CIPHER*)aes_data;
 	if(aes == NULL || data == NULL)
-		return (EINVAL);
+		return EINVAL;
 	if((data_len % DB_AES_CHUNK) != 0)
-		return (EINVAL);
+		return EINVAL;
 	/*
 	 * Generate the IV here.  We store it in a tmp IV because
 	 * the IV might be stored within the data we are encrypting
@@ -163,7 +162,7 @@ int __aes_encrypt(ENV *env, void * aes_data, void * iv, uint8 * data, size_t dat
 	 * want on here.
 	 */
 	if((ret = __db_generate_iv(env, tmp_iv)) != 0)
-		return (ret);
+		return ret;
 
 #ifdef  HAVE_CRYPTO_IPP
 	if((ipp_ret = ippsRijndael128EncryptCBC((const Ipp8u*)data, (Ipp8u*)data, data_len, (IppsRijndael128Spec*)aes->ipp_ctx, (const Ipp8u*)tmp_iv, 0)) != ippStsNoErr) {
@@ -186,7 +185,7 @@ int __aes_encrypt(ENV *env, void * aes_data, void * iv, uint8 * data, size_t dat
 	}
 #endif
 	memcpy(iv, tmp_iv, DB_IV_BYTES);
-	return (0);
+	return 0;
 }
 /*
  * __aes_init --
@@ -211,7 +210,7 @@ static int __aes_derivekeys(ENV *env, DB_CIPHER * db_cipher, uint8 * passwd, siz
 #endif
 	uint32 temp[DB_MAC_KEY/4];
 	if(passwd == NULL)
-		return (EINVAL);
+		return EINVAL;
 	aes = (AES_CIPHER*)db_cipher->data;
 	/* Derive the crypto keys */
 	__db_SHA1Init(&ctx);
@@ -235,7 +234,7 @@ static int __aes_derivekeys(ENV *env, DB_CIPHER * db_cipher, uint8 * passwd, siz
 		return (EAGAIN);
 	}
 #endif
-	return (0);
+	return 0;
 }
 /*
  * __aes_err --

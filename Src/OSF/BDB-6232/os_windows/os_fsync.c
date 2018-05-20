@@ -21,7 +21,7 @@ int __os_fsync(ENV *env, DB_FH * fhp)
 	 * any sync to disk.
 	 */
 	if(F_ISSET(fhp, DB_FH_NOSYNC))
-		return (0);
+		return 0;
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0023", "fileops: flush %s", "%s"), fhp->name);
 	RETRY_CHK((!FlushFileBuffers(fhp->handle)), ret);
@@ -29,5 +29,5 @@ int __os_fsync(ENV *env, DB_FH * fhp)
 		__db_syserr(env, ret, DB_STR("0024", "FlushFileBuffers"));
 		ret = __os_posix_err(ret);
 	}
-	return (ret);
+	return ret;
 }

@@ -82,7 +82,7 @@ int __ham_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 	if((ret = __db_cursor(dbp, ip, txn, &dbc,
 	    (LF_ISSET(DB_CREATE) && CDB_LOCKING(env) ?  DB_WRITECURSOR : 0) |
 	    (F_ISSET(dbp, DB_AM_RECOVER) ? DB_RECOVER : 0))) != 0)
-		return (ret);
+		return ret;
 
 	hcp = (HASH_CURSOR*)dbc->internal;
 	hashp = (HASH *)dbp->h_internal;
@@ -124,7 +124,7 @@ int __ham_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 err:    if((t_ret  = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -157,15 +157,15 @@ int __ham_metachk(DB *dbp, const char * name, HMETA * hashm)
 		    break;
 		default:
 		    __db_errx(env, DB_STR_A("1126", "%s: unsupported hash version: %lu", "%s %lu"), name, (u_long)vers);
-		    return (EINVAL);
+		    return EINVAL;
 	}
 
 	/* Swap the page if we need to. */
 	if(F_ISSET(dbp, DB_AM_SWAP) && (ret = __ham_mswap(env, (PAGE*)hashm)) != 0)
-		return (ret);
+		return ret;
 	/* Check the type. */
 	if(dbp->type != DB_HASH && dbp->type != DB_UNKNOWN)
-		return (EINVAL);
+		return EINVAL;
 	dbp->type = DB_HASH;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	/*
@@ -173,18 +173,18 @@ int __ham_metachk(DB *dbp, const char * name, HMETA * hashm)
 	 * and type based on metadata info.
 	 */
 	if((ret = __db_fchk(env, "DB->open", hashm->dbmeta.flags, HASHM_MASK)) != 0)
-		return (ret);
+		return ret;
 	if(F_ISSET(&hashm->dbmeta, HASHM_DUP))
 		F_SET(dbp, DB_AM_DUP);
 	else if(F_ISSET(dbp, DB_AM_DUP)) {
 		__db_errx(env, DB_STR_A("1127", "%s: DB_DUP specified to open method but not set in database", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(F_ISSET(&hashm->dbmeta, HASHM_SUBDB))
 		F_SET(dbp, DB_AM_SUBDB);
 	else if(F_ISSET(dbp, DB_AM_SUBDB)) {
 		__db_errx(env, DB_STR_A("1128", "%s: multiple databases specified but not supported in file", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(F_ISSET(&hashm->dbmeta, HASHM_DUPSORT)) {
 		if(dbp->dup_compare == NULL)
@@ -192,31 +192,31 @@ int __ham_metachk(DB *dbp, const char * name, HMETA * hashm)
 	}
 	else if(dbp->dup_compare != NULL) {
 		__db_errx(env, DB_STR_A("1129", "%s: duplicate sort function specified but not set in database", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* Set the page size. */
 	dbp->pgsize = hashm->dbmeta.pagesize;
 	dbp->blob_threshold = hashm->blob_threshold;
 	GET_BLOB_FILE_ID(env, hashm, dbp->blob_file_id, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	GET_BLOB_SDB_ID(env, hashm, dbp->blob_sdb_id, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	/* Blob databases must be upgraded. */
 	if(vers == 9 && (dbp->blob_file_id != 0 || dbp->blob_sdb_id != 0)) {
 		__db_errx(env, DB_STR_A("1208", "%s: databases that support external files must be upgraded.", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 #ifndef HAVE_64BIT_TYPES
 	if(dbp->blob_file_id != 0 || dbp->blob_sdb_id != 0) {
 		__db_errx(env, DB_STR_A("1202", "%s: external files require 64 integer compiler support.", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 	/* Copy the file's ID. */
 	memcpy(dbp->fileid, hashm->dbmeta.uid, DB_FILE_ID_LEN);
-	return (0);
+	return 0;
 }
 /*
  * __ham_init_meta --
@@ -243,11 +243,9 @@ static db_pgno_t __ham_init_meta(DB *dbp, HMETA * meta, db_pgno_t pgno, DB_LSN *
 	}
 	else
 		l2 = 1;
-
 	/* Now make number of buckets a power of two. */
 	nbuckets = (db_pgno_t)(1 << l2);
-
-	memset(meta, 0, sizeof(HMETA));
+	memzero(meta, sizeof(HMETA));
 	meta->dbmeta.lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;
 	meta->dbmeta.magic = DB_HASHMAGIC;
@@ -350,7 +348,7 @@ int __ham_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 		lpgno = PGNO_BASE_MD;
 		if((ret = __memp_fget(mpf, &lpgno,
 		    ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
-			return (ret);
+			return ret;
 		LSN_NOT_LOGGED(lsn);
 		lpgno = __ham_init_meta(dbp, meta, PGNO_BASE_MD, &lsn);
 		meta->dbmeta.last_pgno = lpgno;
@@ -363,14 +361,11 @@ int __ham_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 			goto err;
 
 		/* Allocate the final hash bucket. */
-		if((ret = __memp_fget(mpf, &lpgno,
-		    ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &page)) != 0)
+		if((ret = __memp_fget(mpf, &lpgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &page)) != 0)
 			goto err;
-		P_INIT(page,
-		    dbp->pgsize, lpgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
+		P_INIT(page, dbp->pgsize, lpgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 		LSN_NOT_LOGGED(page->lsn);
-		if((ret =
-		    __db_log_page(dbp, txn, &page->lsn, lpgno, page)) != 0)
+		if((ret = __db_log_page(dbp, txn, &page->lsn, lpgno, page)) != 0)
 			goto err;
 		ret = __memp_fput(mpf, ip, page, dbp->priority);
 		page = NULL;
@@ -378,55 +373,46 @@ int __ham_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 			goto err;
 	}
 	else {
-		memset(&pdbt, 0, sizeof(pdbt));
-
+		memzero(&pdbt, sizeof(pdbt));
 		/* Build meta-data page. */
 		pginfo.db_pagesize = dbp->pgsize;
 		pginfo.type = dbp->type;
-		pginfo.flags =
-		    F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
+		pginfo.flags = F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
 		pdbt.data = &pginfo;
 		pdbt.size = sizeof(pginfo);
 		if(dbp->blob_threshold) {
-			if((ret = __blob_generate_dir_ids(
-				    dbp, txn, &dbp->blob_file_id)) != 0)
-				return (ret);
+			if((ret = __blob_generate_dir_ids(dbp, txn, &dbp->blob_file_id)) != 0)
+				return ret;
 		}
 		if((ret = __os_calloc(dbp->env, 1, dbp->pgsize, &buf)) != 0)
-			return (ret);
+			return ret;
 		meta = (HMETA*)buf;
 		LSN_NOT_LOGGED(lsn);
 		lpgno = __ham_init_meta(dbp, meta, PGNO_BASE_MD, &lsn);
 		meta->dbmeta.last_pgno = lpgno;
-		if((ret =
-		    __db_pgout(env->dbenv, PGNO_BASE_MD, meta, &pdbt)) != 0)
+		if((ret = __db_pgout(env->dbenv, PGNO_BASE_MD, meta, &pdbt)) != 0)
 			goto err;
 		if((ret = __fop_write(env, txn, name, dbp->dirname,
-		    DB_APP_DATA, fhp,
-		    dbp->pgsize, 0, 0, buf, dbp->pgsize, 1, F_ISSET(
-			    dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
+		    DB_APP_DATA, fhp, dbp->pgsize, 0, 0, buf, dbp->pgsize, 1, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
 			goto err;
 		meta = NULL;
 
 		/* Allocate the final hash bucket. */
 #ifdef DIAGNOSTIC
-		memset(buf, 0, dbp->pgsize);
+		memzero(buf, dbp->pgsize);
 #endif
 		page = (PAGE*)buf;
-		P_INIT(page,
-		    dbp->pgsize, lpgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
+		P_INIT(page, dbp->pgsize, lpgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 		LSN_NOT_LOGGED(page->lsn);
 		if((ret = __db_pgout(env->dbenv, lpgno, buf, &pdbt)) != 0)
 			goto err;
-		if((ret = __fop_write(env, txn, name, dbp->dirname,
-		    DB_APP_DATA, fhp,
-		    dbp->pgsize, lpgno, 0, buf, dbp->pgsize, 1, F_ISSET(
-			    dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
+		if((ret = __fop_write(env, txn, name, dbp->dirname, DB_APP_DATA, fhp,
+		    dbp->pgsize, lpgno, 0, buf, dbp->pgsize, 1, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
 			goto err;
 		page = NULL;
 	}
-
-err:    if(buf != NULL)
+err:    
+	if(buf != NULL)
 		__os_free(env, buf);
 	else {
 		if(meta != NULL)
@@ -434,7 +420,7 @@ err:    if(buf != NULL)
 		if(page != NULL)
 			(void)__memp_fput(mpf, ip, page, dbp->priority);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -468,12 +454,12 @@ int __ham_new_subdb(DB *mdbp, DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 	if(dbp->blob_threshold) {
 		if((ret = __blob_generate_dir_ids(
 			    dbp, txn, &dbp->blob_sdb_id)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	if((ret = __db_cursor(mdbp, ip, txn,
 	    &dbc, CDB_LOCKING(env) ?  DB_WRITECURSOR : 0)) != 0)
-		return (ret);
+		return ret;
 
 	/* Get and lock the new meta data page. */
 	if((ret = __db_lget(dbc,
@@ -560,5 +546,5 @@ err:    /* Now put the master-metadata page back. */
 	if(dbc != NULL)
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;
-	return (ret);
+	return ret;
 }

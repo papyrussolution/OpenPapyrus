@@ -52,7 +52,7 @@ int __os_io(ENV *env, int op, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, uint32
 		}
 		if(nbytes == io_len) {
 			*niop = (size_t)nbytes;
-			return (0);
+			return 0;
 		}
 	}
 
@@ -73,7 +73,7 @@ slow:
 	}
 err:    
 	MUTEX_UNLOCK(env, fhp->mtx_fh);
-	return (ret);
+	return ret;
 }
 /*
  * __os_read --
@@ -105,7 +105,7 @@ int __os_read(ENV *env, DB_FH * fhp, void * addr, size_t len, size_t * nrp)
 		__db_syserr(env, ret, DB_STR_A("0016", "read: 0x%lx, %lu", "%lx %lu"), P_TO_ULONG(taddr), (u_long)len - offset);
 		ret = __os_posix_err(ret);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __os_write --
@@ -117,7 +117,7 @@ int __os_write(ENV *env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
 #ifdef HAVE_FILESYSTEM_NOTZERO
 	/* Zero-fill as necessary. */
 	if(__os_fs_notzero() && (ret = __db_zero_fill(env, fhp)) != 0)
-		return (ret);
+		return ret;
 #endif
 	return (__os_physwrite(env, fhp, addr, len, nwp));
 }
@@ -153,5 +153,5 @@ int __os_physwrite(ENV *env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
 		ret = __os_posix_err(ret);
 		DB_EVENT(env, DB_EVENT_WRITE_FAILED, NULL);
 	}
-	return (ret);
+	return ret;
 }

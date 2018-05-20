@@ -30,11 +30,9 @@ int __db_stream_init(DBC *dbc, DB_STREAM ** dbsp, uint32 flags)
 	off_t size;
 	dbs = NULL;
 	env = dbc->env;
-
 	if((ret = __os_malloc(env, sizeof(DB_STREAM), &dbs)) != 0)
-		return (ret);
-	memset(dbs, 0, sizeof(DB_STREAM));
-
+		return ret;
+	memzero(dbs, sizeof(DB_STREAM));
 	ENV_ENTER(env, ip);
 	/* Should the copy be transient? */
 	if((ret = __dbc_idup(dbc, &dbs->dbc, DB_POSITION)) != 0)
@@ -64,14 +62,14 @@ int __db_stream_init(DBC *dbc, DB_STREAM ** dbsp, uint32 flags)
 	dbs->write = __db_stream_write;
 
 	*dbsp = dbs;
-	return (0);
+	return 0;
 
 err:    if(dbs != NULL && dbs->dbc != NULL)
 		(void)__dbc_close(dbs->dbc);
 	ENV_LEAVE(env, ip);
 	if(dbs != NULL)
 		__os_free(env, dbs);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -86,11 +84,11 @@ static int __db_stream_close(DB_STREAM *dbs, uint32 flags)
 	int ret;
 	env = dbs->dbc->env;
 	if((ret = __db_fchk(env, "DB_STREAM->close", flags, 0)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	ret = __db_stream_close_int(dbs);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_stream_close_int --
@@ -109,7 +107,7 @@ int __db_stream_close_int(DB_STREAM *dbs)
 	if((t_ret = __dbc_close(dbs->dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, dbs);
-	return (ret);
+	return ret;
 }
 /*
  * __db_stream_read --
@@ -123,7 +121,7 @@ static int __db_stream_read(DB_STREAM *dbs, DBT * data, db_off_t offset, uint32 
 	DBC * dbc = dbs->dbc;
 	ENV * env = dbc->dbp->env;
 	if((ret = __db_fchk(env, "DB_STREAM->read", flags, 0)) != 0)
-		return (ret);
+		return ret;
 	if(F_ISSET(data, DB_DBT_PARTIAL)) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("0212", "Error, do not use DB_DBT_PARTIAL with DB_STREAM."));
@@ -140,7 +138,7 @@ static int __db_stream_read(DB_STREAM *dbs, DBT * data, db_off_t offset, uint32 
 		goto err;
 	ret = __blob_file_read(env, dbs->fhp, data, offset, size);
 err:    
-	return (ret);
+	return ret;
 }
 
 /*
@@ -152,9 +150,9 @@ static int __db_stream_size(DB_STREAM *dbs, db_off_t * size, uint32 flags)
 {
 	int ret;
 	if((ret = __db_fchk(dbs->dbc->env, "DB_STREAM->size", flags, 0)) != 0)
-		return (ret);
+		return ret;
 	*size = dbs->file_size;
-	return (0);
+	return 0;
 }
 /*
  * __db_stream_write --
@@ -169,21 +167,21 @@ static int __db_stream_write(DB_STREAM *dbs, DBT * data, db_off_t offset, uint32
 	uint32 wflags;
 	ENV * env = dbs->dbc->env;
 	if((ret = __db_fchk(env, "DB_STREAM->write", flags, DB_STREAM_SYNC_WRITE)) != 0)
-		return (ret);
+		return ret;
 	if(F_ISSET(dbs, DB_FOP_READONLY)) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("0213", "Error, external file is read only."));
-		return (ret);
+		return ret;
 	}
 	if(F_ISSET(data, DB_DBT_PARTIAL)) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("0214", "Error, do not use DB_DBT_PARTIAL with DB_STREAM."));
-		return (ret);
+		return ret;
 	}
 	if(offset < 0) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR_A("0215", "Error, invalid offset value: %lld", "%lld"), (long long)offset);
-		return (ret);
+		return ret;
 	}
 	/*
 	 * Catch offset overflow. After the above test, offset >= 0 is true, and
@@ -198,7 +196,7 @@ static int __db_stream_write(DB_STREAM *dbs, DBT * data, db_off_t offset, uint32
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR_A("0216", "Error, this write would exceed the maximum external file size: %lu %lld", 
 			"%lu %lld"), (u_long)data->size, (long long)offset);
-		return (ret);
+		return ret;
 	}
 	ENV_ENTER(env, ip);
 	wflags = 0;
@@ -214,5 +212,5 @@ static int __db_stream_write(DB_STREAM *dbs, DBT * data, db_off_t offset, uint32
 	}
 err:    ENV_LEAVE(env, ip);
 
-	return (ret);
+	return ret;
 }

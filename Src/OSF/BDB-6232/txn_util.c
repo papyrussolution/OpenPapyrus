@@ -61,12 +61,12 @@ int __txn_closeevent(ENV *env, DB_TXN * txn, DB * dbp)
 	int ret;
 	TXN_EVENT * e = NULL;
 	if((ret = __os_calloc(env, 1, sizeof(TXN_EVENT), &e)) != 0)
-		return (ret);
+		return ret;
 	e->u.c.dbp = dbp;
 	e->op = TXN_CLOSE;
 	TXN_TOP_PARENT(txn);
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
-	return (0);
+	return 0;
 }
 /*
  * __txn_remevent --
@@ -81,7 +81,7 @@ int __txn_remevent(ENV *env, DB_TXN * txn, const char * name, uint8 * fileid, in
 	int ret;
 	TXN_EVENT * e = NULL;
 	if((ret = __os_calloc(env, 1, sizeof(TXN_EVENT), &e)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_strdup(env, name, &e->u.r.name)) != 0)
 		goto err;
 	if(fileid != NULL) {
@@ -94,10 +94,10 @@ int __txn_remevent(ENV *env, DB_TXN * txn, const char * name, uint8 * fileid, in
 	e->u.r.inmem = inmem;
 	e->op = TXN_REMOVE;
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
-	return (0);
+	return 0;
 err:    
 	__os_free(env, e);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_remrem --
@@ -135,10 +135,10 @@ int __txn_lockevent(ENV *env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER 
 	TXN_EVENT * e;
 	int ret;
 	if(!LOCKING_ON(env))
-		return (0);
+		return 0;
 	e = NULL;
 	if((ret = __os_calloc(env, 1, sizeof(TXN_EVENT), &e)) != 0)
-		return (ret);
+		return ret;
 	e->u.t.locker = locker;
 	e->u.t.lock = *lock;
 	e->u.t.dbp = dbp;
@@ -149,7 +149,7 @@ int __txn_lockevent(ENV *env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER 
 	/* This event goes on the current transaction, not its parent. */
 	TAILQ_INSERT_TAIL(&txn->events, e, links);
 	dbp->cur_txn = txn;
-	return (0);
+	return 0;
 }
 /*
  * __txn_remlock --
@@ -185,7 +185,7 @@ void __txn_remlock(ENV *env, DB_TXN * txn, DB_LOCK * lock, DB_LOCKER * locker)
  * only with the handle. Mark the locker so failcheck will know.
  */
 #define DO_TRADE do {                                                   \
-		memset(&req, 0, sizeof(req));                                   \
+		memzero(&req, sizeof(req)); \
 		req.lock = e->u.t.lock;                                         \
 		req.op = DB_LOCK_TRADE;                                         \
 		t_ret = __lock_vec(env, txn->parent ?                           \
@@ -231,7 +231,7 @@ int __txn_doevents(ENV *env, DB_TXN * txn, int opcode, int preprocess)
 			if(!(opcode == TXN_COMMIT && e->op == TXN_XTRADE) && (e->op != TXN_TRADE || IS_WRITELOCK(e->u.t.lock.mode))) {
 				if(opcode == TXN_PREPARE && e->op == TXN_REMOVE) {
 					__db_errx(env, DB_STR_A("4501", "TXN->prepare is not allowed because this transaction removes \"%s\"", "%s"), e->u.r.name);
-					return (EINVAL);
+					return EINVAL;
 				}
 				continue;
 			}
@@ -242,7 +242,7 @@ int __txn_doevents(ENV *env, DB_TXN * txn, int opcode, int preprocess)
 					&txn->parent->events, e, links);
 			}
 		}
-		return (ret);
+		return ret;
 	}
 	/*
 	 * Prepare should only cause a preprocess, since the transaction
@@ -349,7 +349,7 @@ dofree:
 		__os_free(env, e);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -365,7 +365,7 @@ int __txn_record_fname(ENV *env, DB_TXN * txn, FNAME * fname)
 	uint32 i;
 	int ret;
 	if((td = (TXN_DETAIL *)txn->td) == NULL)
-		return (0);
+		return 0;
 	mgr = env->tx_handle;
 	dblp = env->lg_handle;
 	fname_off = R_OFFSET(&dblp->reginfo, fname);
@@ -374,14 +374,14 @@ int __txn_record_fname(ENV *env, DB_TXN * txn, FNAME * fname)
 	ldbs = (roff_t *)R_ADDR(&mgr->reginfo, td->log_dbs);
 	for(i = 0, np = ldbs; i < td->nlog_dbs; i++, np++)
 		if(*np == fname_off)
-			return (0);
+			return 0;
 
 	if(td->nlog_slots <= td->nlog_dbs) {
 		TXN_SYSTEM_LOCK(env);
 		if((ret = __env_alloc(&mgr->reginfo,
 		    sizeof(roff_t) * (td->nlog_slots << 1), &np)) != 0) {
 			TXN_SYSTEM_UNLOCK(env);
-			return (ret);
+			return ret;
 		}
 
 		memcpy(np, ldbs, td->nlog_dbs * sizeof(roff_t));
@@ -398,7 +398,7 @@ int __txn_record_fname(ENV *env, DB_TXN * txn, FNAME * fname)
 	td->nlog_dbs++;
 	fname->txn_ref++;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -419,7 +419,7 @@ int __txn_dref_fname(ENV *env, DB_TXN * txn)
 	int ret;
 	TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
 	if(td->nlog_dbs == 0)
-		return (0);
+		return 0;
 	mgr = env->tx_handle;
 	dblp = env->lg_handle;
 	ret = 0;
@@ -463,7 +463,7 @@ int __txn_dref_fname(ENV *env, DB_TXN * txn)
 		}
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -557,9 +557,9 @@ int __txn_flush_fe_files(DB_TXN *txn)
 #endif
 	TAILQ_FOREACH(db, &txn->femfs, felink) {
 		if(db->mpf->mfp->fe_nlws > 0 && (ret = __memp_sync_int(env, db->mpf, 0, DB_SYNC_FILE, NULL, NULL)))
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __txn_pg_above_fe_watermark --
@@ -578,7 +578,7 @@ int __txn_pg_above_fe_watermark(DB_TXN *txn, MPOOLFILE * mpf, db_pgno_t pgno)
 	ENV * env;
 	int skip;
 	if(txn == NULL || (!F_ISSET(txn, TXN_BULK)) || mpf->fe_watermark == PGNO_INVALID)
-		return (0);
+		return 0;
 	env = txn->mgrp->env;
 	skip = 0;
 	TXN_SYSTEM_LOCK(env);
@@ -586,7 +586,7 @@ int __txn_pg_above_fe_watermark(DB_TXN *txn, MPOOLFILE * mpf, db_pgno_t pgno)
 		skip = 1;
 	TXN_SYSTEM_UNLOCK(env);
 	if(skip)
-		return (0);
+		return 0;
 	/*
 	 * If the watermark is a valid page number, then the extending
 	 * transaction should be the current outermost transaction.

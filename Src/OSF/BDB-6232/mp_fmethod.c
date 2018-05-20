@@ -31,16 +31,16 @@ int __memp_fcreate_pp(DB_ENV *dbenv, DB_MPOOLFILE ** retp, uint32 flags)
 	ENV * env = dbenv->env;
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB_ENV->memp_fcreate", flags, DB_VERIFY)) != 0)
-		return (ret);
+		return ret;
 	/* We look the other way on mpool operations if we're verifying. */
 	if(REP_ON(env) && !LF_ISSET(DB_VERIFY)) {
 		__db_errx(env, DB_STR("3029", "DB_ENV->memp_fcreate: method not permitted when replication is configured"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	ENV_ENTER(env, ip);
 	ret = __memp_fcreate(env, retp);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -55,7 +55,7 @@ int __memp_fcreate(ENV *env, DB_MPOOLFILE ** retp)
 	int ret;
 	/* Allocate and initialize the per-process structure. */
 	if((ret = __os_calloc(env, 1, sizeof(DB_MPOOLFILE), &dbmfp)) != 0)
-		return (ret);
+		return ret;
 	dbmfp->ref = 1;
 	dbmfp->lsn_offset = DB_LSN_OFF_NOTSET;
 	dbmfp->env = env;
@@ -84,7 +84,7 @@ int __memp_fcreate(ENV *env, DB_MPOOLFILE ** retp)
 	dbmfp->set_priority = __memp_set_priority;
 	dbmfp->sync = __memp_fsync_pp;
 	*retp = dbmfp;
-	return (0);
+	return 0;
 }
 
 /*
@@ -94,7 +94,7 @@ int __memp_fcreate(ENV *env, DB_MPOOLFILE ** retp)
 static int __memp_get_clear_len(DB_MPOOLFILE * dbmfp, uint32 * clear_lenp)
 {
 	*clear_lenp = dbmfp->clear_len;
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_clear_len --
@@ -106,7 +106,7 @@ int __memp_set_clear_len(DB_MPOOLFILE *dbmfp, uint32 clear_len)
 {
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_clear_len");
 	dbmfp->clear_len = clear_len;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_fileid --
@@ -118,10 +118,10 @@ int __memp_get_fileid(DB_MPOOLFILE *dbmfp, uint8 * fileid)
 {
 	if(!F_ISSET(dbmfp, MP_FILEID_SET)) {
 		__db_errx(dbmfp->env, DB_STR("3030", "get_fileid: file ID not set"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	memcpy(fileid, dbmfp->fileid, DB_FILE_ID_LEN);
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_fileid --
@@ -134,7 +134,7 @@ int __memp_set_fileid(DB_MPOOLFILE *dbmfp, uint8 * fileid)
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_fileid");
 	memcpy(dbmfp->fileid, fileid, DB_FILE_ID_LEN);
 	F_SET(dbmfp, MP_FILEID_SET);
-	return (0);
+	return 0;
 }
 
 /*
@@ -155,7 +155,7 @@ int __memp_get_flags(DB_MPOOLFILE *dbmfp, uint32 * flagsp)
 		if(mfp->unlink_on_close)
 			FLD_SET(*flagsp, DB_MPOOL_UNLINK);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -190,10 +190,10 @@ int __memp_set_flags(DB_MPOOLFILE *dbmfp, uint32 flags, int onoff)
 		    break;
 		default:
 		    if((ret = __db_fchk(env, "DB_MPOOLFILE->set_flags", flags, DB_MPOOL_NOFILE | DB_MPOOL_UNLINK)) != 0)
-			    return (ret);
+			    return ret;
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -205,7 +205,7 @@ int __memp_set_flags(DB_MPOOLFILE *dbmfp, uint32 flags, int onoff)
 int __memp_get_ftype(DB_MPOOLFILE *dbmfp, int * ftypep)
 {
 	*ftypep = dbmfp->ftype;
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_ftype --
@@ -217,7 +217,7 @@ int __memp_set_ftype(DB_MPOOLFILE *dbmfp, int ftype)
 {
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_ftype");
 	dbmfp->ftype = ftype;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_lsn_offset --
@@ -226,7 +226,7 @@ int __memp_set_ftype(DB_MPOOLFILE *dbmfp, int ftype)
 static int __memp_get_lsn_offset(DB_MPOOLFILE *dbmfp, int32 * lsn_offsetp)
 {
 	*lsn_offsetp = dbmfp->lsn_offset;
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_lsn_offset --
@@ -238,7 +238,7 @@ int __memp_set_lsn_offset(DB_MPOOLFILE *dbmfp, int32 lsn_offset)
 {
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_lsn_offset");
 	dbmfp->lsn_offset = lsn_offset;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_maxsize --
@@ -275,7 +275,7 @@ static int __memp_get_maxsize(DB_MPOOLFILE *dbmfp, uint32 * gbytesp, uint32 * by
 		MUTEX_UNLOCK(env, mfp->mutex);
 		ENV_LEAVE(env, ip);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_maxpgno --
@@ -319,7 +319,7 @@ static int __memp_set_maxsize(DB_MPOOLFILE *dbmfp, uint32 gbytes, uint32 bytes)
 		MUTEX_UNLOCK(env, mfp->mutex);
 		ENV_LEAVE(env, ip);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_pgcookie --
@@ -335,7 +335,7 @@ int __memp_get_pgcookie(DB_MPOOLFILE *dbmfp, DBT * pgcookie)
 	}
 	else
 		memcpy(pgcookie, dbmfp->pgcookie, sizeof(DBT));
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_pgcookie --
@@ -351,15 +351,15 @@ int __memp_set_pgcookie(DB_MPOOLFILE *dbmfp, DBT * pgcookie)
 	MPF_ILLEGAL_AFTER_OPEN(dbmfp, "DB_MPOOLFILE->set_pgcookie");
 	env = dbmfp->env;
 	if((ret = __os_calloc(env, 1, sizeof(*cookie), &cookie)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_malloc(env, pgcookie->size, &cookie->data)) != 0) {
 		__os_free(env, cookie);
-		return (ret);
+		return ret;
 	}
 	memcpy(cookie->data, pgcookie->data, pgcookie->size);
 	cookie->size = pgcookie->size;
 	dbmfp->pgcookie = cookie;
-	return (0);
+	return 0;
 }
 
 /*
@@ -378,9 +378,9 @@ int __memp_get_priority(DB_MPOOLFILE *dbmfp, DB_CACHE_PRIORITY * priorityp)
 		case MPOOL_PRI_VERY_HIGH: *priorityp = DB_PRIORITY_VERY_HIGH; break;
 		default:
 		    __db_errx(dbmfp->env, DB_STR_A("3031", "DB_MPOOLFILE->get_priority: unknown priority value: %d", "%d"), dbmfp->priority);
-		    return (EINVAL);
+		    return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_priority --
@@ -396,12 +396,12 @@ static int __memp_set_priority(DB_MPOOLFILE *dbmfp, DB_CACHE_PRIORITY priority)
 		case DB_PRIORITY_VERY_HIGH: dbmfp->priority = MPOOL_PRI_VERY_HIGH; break;
 		default:
 		    __db_errx(dbmfp->env, DB_STR_A("3032", "DB_MPOOLFILE->set_priority: unknown priority value: %d", "%d"), priority);
-		    return (EINVAL);
+		    return EINVAL;
 	}
 	/* Update the underlying file if we've already opened it. */
 	if(dbmfp->mfp != NULL)
 		dbmfp->mfp->priority = dbmfp->priority;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_last_pgno --
@@ -420,7 +420,7 @@ int __memp_get_last_pgno(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr)
 	MUTEX_LOCK(env, mfp->mutex);
 	*pgnoaddr = mfp->last_pgno;
 	MUTEX_UNLOCK(env, mfp->mutex);
-	return (0);
+	return 0;
 }
 
 /*
@@ -435,7 +435,7 @@ static int __memp_get_last_pgno_pp(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr)
 	ENV_ENTER(dbmfp->env, ip);
 	ret = __memp_get_last_pgno(dbmfp, pgnoaddr);
 	ENV_LEAVE(dbmfp->env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_fn --

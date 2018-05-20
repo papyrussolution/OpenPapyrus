@@ -31,7 +31,7 @@ int __db_util_arg(char * arg0, char *str, int * argcp, char ***argvp)
 	char ** ap, ** argv;
 #define MAXARGS 25
 	if((ret = __os_malloc(NULL, (MAXARGS + 1) * sizeof(char **), &argv)) != 0)
-		return (ret);
+		return ret;
 	ap = argv;
 	*ap++ = arg0;
 	for(n = 1; (*ap = strsep(&str, " \t")) != NULL;)
@@ -43,7 +43,7 @@ int __db_util_arg(char * arg0, char *str, int * argcp, char ***argvp)
 	*ap = NULL;
 	*argcp = (int)(ap - argv);
 	*argvp = argv;
-	return (0);
+	return 0;
 }
 /*
  * __db_util_arg_progname --
@@ -68,16 +68,16 @@ const char * __db_util_arg_progname(const char * arg0)
 int __db_util_arg_password(const char * progname, char * opt_arg, char ** passwdp)
 {
 	if(passwdp == NULL)
-		return (EINVAL);
+		return EINVAL;
 	if(*passwdp != NULL) {
 		fprintf(stderr, DB_STR("5130", "Password may not be specified twice"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	*passwdp = strdup(opt_arg);
-	memset(opt_arg, 0, strlen(opt_arg));
+	memzero(opt_arg, strlen(opt_arg));
 	if(*passwdp == NULL) {
 		fprintf(stderr, DB_STR_A("5005", "%s: strdup: %s\n", "%s %s\n"), progname, strerror(errno));
 		return (errno);
 	}
-	return (0);
+	return 0;
 }

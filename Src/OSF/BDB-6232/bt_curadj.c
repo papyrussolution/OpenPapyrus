@@ -87,7 +87,7 @@ static int __bam_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 
 		++(*countp);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -114,10 +114,10 @@ int __bam_ca_delete(DB *dbp, db_pgno_t pgno, uint32 indx, int del, uint32 * coun
 	 * list of DBs and then the list of cursors in each DB.
 	 */
 	if((ret = __db_walk_cursors(dbp, NULL, __bam_ca_delete_func, &count, pgno, indx, &del)) != 0)
-		return (ret);
+		return ret;
 	if(countp != NULL)
 		*countp = count;
-	return (0);
+	return 0;
 }
 
 static int __ram_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_t root_pgno, uint32 indx, void * args)
@@ -129,7 +129,7 @@ static int __ram_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 		(*countp)++;
 		return (EEXIST);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -142,8 +142,8 @@ int __ram_ca_delete(DB *dbp, db_pgno_t root_pgno, uint32 * foundp)
 {
 	int ret;
 	if((ret = __db_walk_cursors(dbp, NULL, __ram_ca_delete_func, foundp, root_pgno, 0, NULL)) != 0 && ret != EEXIST)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 struct __bam_ca_di_args {
@@ -156,7 +156,7 @@ static int __bam_ca_di_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pg
 	DBC_INTERNAL * cp;
 	struct __bam_ca_di_args * args;
 	if(dbc->dbtype == DB_RECNO)
-		return (0);
+		return 0;
 	cp = dbc->internal;
 	args = (struct __bam_ca_di_args *)vargs;
 	if(cp->pgno == pgno && cp->indx >= indx && (dbc == my_dbc || !MVCC_SKIP_CURADJ(dbc, pgno))) {
@@ -170,7 +170,7 @@ static int __bam_ca_di_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pg
 		if(args->my_txn != NULL && args->my_txn != dbc->txn)
 			*foundp = 1;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __bam_ca_di --
@@ -180,27 +180,23 @@ static int __bam_ca_di_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pg
  */
 int __bam_ca_di(DBC *my_dbc, db_pgno_t pgno, uint32 indx, int adjust)
 {
-	DB * dbp;
 	DB_LSN lsn;
 	int ret;
 	uint32 found;
 	struct __bam_ca_di_args args;
-	dbp = my_dbc->dbp;
+	DB * dbp = my_dbc->dbp;
 	args.adjust = adjust;
 	args.my_txn = IS_SUBTRANSACTION(my_dbc->txn) ? my_dbc->txn : NULL;
 	/*
 	 * Adjust the cursors.  See the comment in __bam_ca_delete().
 	 */
-	if((ret = __db_walk_cursors(dbp, my_dbc, __bam_ca_di_func,
-	    &found, pgno, indx, &args)) != 0)
-		return (ret);
-
+	if((ret = __db_walk_cursors(dbp, my_dbc, __bam_ca_di_func, &found, pgno, indx, &args)) != 0)
+		return ret;
 	if(found != 0 && DBC_LOGGING(my_dbc)) {
 		if((ret = __bam_curadj_log(dbp, my_dbc->txn, &lsn, 0, DB_CA_DI, pgno, 0, 0, (uint32)adjust, indx, 0)) != 0)
-			return (ret);
+			return ret;
 	}
-
-	return (0);
+	return 0;
 }
 /*
  * __bam_opd_cursor -- create a new opd cursor.
@@ -222,7 +218,7 @@ static int __bam_opd_cursor(DB *dbp, DBC * dbc, uint32 first, db_pgno_t tpgno, u
 	 */
 	DB_ASSERT(dbp->env, orig_cp->opd == NULL);
 	if((ret = __dbc_newopd(dbc, tpgno, orig_cp->opd, &dbc_nopd)) != 0)
-		return (ret);
+		return ret;
 
 	cp = (BTREE_CURSOR*)dbc_nopd->internal;
 	cp->pgno = tpgno;
@@ -249,7 +245,7 @@ static int __bam_opd_cursor(DB *dbp, DBC * dbc, uint32 first, db_pgno_t tpgno, u
 	/* Stack the cursors and reset the initial cursor's index. */
 	orig_cp->opd = dbc_nopd;
 	orig_cp->indx = (db_indx_t)first;
-	return (0);
+	return 0;
 }
 
 struct __bam_ca_dup_args {
@@ -271,16 +267,16 @@ static int __bam_ca_dup_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t 
 	 */
 	orig_cp = (BTREE_CURSOR*)dbc->internal;
 	if(orig_cp->opd != NULL)
-		return (0);
+		return 0;
 	/* Find cursors pointing to this record. */
 	if(orig_cp->pgno != fpgno || orig_cp->indx != fi || MVCC_SKIP_CURADJ(dbc, fpgno))
-		return (0);
+		return 0;
 	dbp = dbc->dbp;
 	args = (struct __bam_ca_dup_args *)vargs;
 	MUTEX_UNLOCK(dbp->env, dbp->mutex);
 	if((ret = __bam_opd_cursor(dbp, dbc, args->first, args->tpgno, args->ti)) != 0) {
 		MUTEX_LOCK(dbp->env, dbp->mutex);
-		return (ret);
+		return ret;
 	}
 	if(args->my_txn != NULL && args->my_txn != dbc->txn)
 		*foundp = 1;
@@ -308,13 +304,13 @@ int __bam_ca_dup(DBC *my_dbc, uint32 first, db_pgno_t fpgno, uint32 fi, db_pgno_
 	args.ti = (db_indx_t)ti;
 	args.my_txn = IS_SUBTRANSACTION(my_dbc->txn) ? my_dbc->txn : NULL;
 	if((ret = __db_walk_cursors(dbp, my_dbc, __bam_ca_dup_func, &found, fpgno, fi, &args)) != 0)
-		return (ret);
+		return ret;
 	if(found != 0 && DBC_LOGGING(my_dbc)) {
 		if((t_ret = __bam_curadj_log(dbp, my_dbc->txn, &lsn, 0, DB_CA_DUP, fpgno, tpgno, 0, first, fi, ti)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 
-	return (ret);
+	return ret;
 }
 
 static int __bam_ca_undodup_func(DBC *dbc, DBC * my_dbc, uint32 * countp, db_pgno_t fpgno, uint32 fi, void * vargs)
@@ -337,11 +333,11 @@ static int __bam_ca_undodup_func(DBC *dbc, DBC * my_dbc, uint32 * countp, db_pgn
 	 */
 	if(orig_cp->pgno != fpgno || orig_cp->indx != args->first || orig_cp->opd == NULL || 
 		((BTREE_CURSOR*)orig_cp->opd->internal)->indx != args->ti || MVCC_SKIP_CURADJ(dbc, fpgno))
-		return (0);
+		return 0;
 	MUTEX_UNLOCK(dbp->env, dbp->mutex);
 	if((ret = __dbc_close(orig_cp->opd)) != 0) {
 		MUTEX_LOCK(dbp->env, dbp->mutex);
-		return (ret);
+		return ret;
 	}
 	orig_cp->opd = NULL;
 	orig_cp->indx = (db_indx_t)fi;
@@ -375,7 +371,7 @@ static int __bam_ca_rsplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno
 	db_pgno_t tpgno;
 	COMPQUIET(indx, 0);
 	if(dbc->dbtype == DB_RECNO)
-		return (0);
+		return 0;
 	tpgno = *(db_pgno_t*)args;
 	if(dbc->internal->pgno == fpgno && !MVCC_SKIP_CURADJ(dbc, fpgno)) {
 		dbc->internal->pgno = tpgno;
@@ -386,9 +382,8 @@ static int __bam_ca_rsplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno
 		if(IS_SUBTRANSACTION(my_dbc->txn) && dbc->txn != my_dbc->txn)
 			*foundp = 1;
 	}
-	return (0);
+	return 0;
 }
-
 /*
  * __bam_ca_rsplit --
  *	Adjust the cursors when doing reverse splits.
@@ -402,12 +397,12 @@ int __bam_ca_rsplit(DBC* my_dbc, db_pgno_t fpgno, db_pgno_t tpgno)
 	uint32 found;
 	DB * dbp = my_dbc->dbp;
 	if((ret = __db_walk_cursors(dbp, my_dbc, __bam_ca_rsplit_func, &found, fpgno, 0, &tpgno)) != 0)
-		return (ret);
+		return ret;
 	if(found != 0 && DBC_LOGGING(my_dbc)) {
 		if((ret = __bam_curadj_log(dbp, my_dbc->txn, &lsn, 0, DB_CA_RSPLIT, fpgno, tpgno, 0, 0, 0, 0)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 
 struct __bam_ca_split_args {
@@ -422,7 +417,7 @@ static int __bam_ca_split_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_
 	struct __bam_ca_split_args * args;
 	COMPQUIET(my_dbc, NULL);
 	if(dbc->dbtype == DB_RECNO)
-		return (0);
+		return 0;
 	cp = dbc->internal;
 	args = (struct __bam_ca_split_args *)vargs;
 	if(cp->pgno == ppgno && !MVCC_SKIP_CURADJ(dbc, ppgno)) {
@@ -441,7 +436,7 @@ static int __bam_ca_split_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_
 			cp->indx -= split_indx;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -470,18 +465,13 @@ int __bam_ca_split(DBC *my_dbc, db_pgno_t ppgno, db_pgno_t lpgno, db_pgno_t rpgn
 	args.rpgno = rpgno;
 	args.cleft = cleft;
 	args.my_txn = IS_SUBTRANSACTION(my_dbc->txn) ? my_dbc->txn : NULL;
-	if((ret = __db_walk_cursors(dbp, my_dbc,
-	    __bam_ca_split_func, &found, ppgno, split_indx, &args)) != 0)
-		return (ret);
-
+	if((ret = __db_walk_cursors(dbp, my_dbc, __bam_ca_split_func, &found, ppgno, split_indx, &args)) != 0)
+		return ret;
 	if(found != 0 && DBC_LOGGING(my_dbc)) {
-		if((ret = __bam_curadj_log(dbp,
-		    my_dbc->txn, &lsn, 0, DB_CA_SPLIT, ppgno, rpgno,
-		    cleft ? lpgno : PGNO_INVALID, 0, split_indx, 0)) != 0)
-			return (ret);
+		if((ret = __bam_curadj_log(dbp, my_dbc->txn, &lsn, 0, DB_CA_SPLIT, ppgno, rpgno, cleft ? lpgno : PGNO_INVALID, 0, split_indx, 0)) != 0)
+			return ret;
 	}
-
-	return (0);
+	return 0;
 }
 
 static int __bam_ca_undosplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t frompgno, uint32 split_indx, void * vargs)
@@ -491,7 +481,7 @@ static int __bam_ca_undosplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_p
 	COMPQUIET(my_dbc, NULL);
 	COMPQUIET(foundp, NULL);
 	if(dbc->dbtype == DB_RECNO)
-		return (0);
+		return 0;
 	cp = dbc->internal;
 	args = (struct __bam_ca_split_args *)vargs;
 	if(cp->pgno == args->rpgno && !MVCC_SKIP_CURADJ(dbc, args->rpgno)) {
@@ -500,7 +490,7 @@ static int __bam_ca_undosplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_p
 	}
 	else if(cp->pgno == args->lpgno && !MVCC_SKIP_CURADJ(dbc, args->lpgno))
 		cp->pgno = frompgno;
-	return (0);
+	return 0;
 }
 /*
  * __bam_ca_undosplit --

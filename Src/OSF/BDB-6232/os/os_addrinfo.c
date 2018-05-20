@@ -27,7 +27,7 @@ int __os_getaddrinfo(ENV *env, const char * nodename, u_int port, const char * s
 #ifdef HAVE_GETADDRINFO
 	int ret;
 	if((ret = getaddrinfo(nodename, servname, hints, res)) == 0)
-		return (0);
+		return 0;
 	__db_errx(env, DB_STR_A("0153", "%s(%u): host lookup failed: %s", "%s %u %s"), nodename == NULL ? "" : nodename, port,
 #ifdef DB_WIN32
 	    gai_strerrorA(ret));
@@ -51,7 +51,7 @@ int __os_getaddrinfo(ENV *env, const char * nodename, u_int port, const char * s
 	 * Basic implementation of IPv4 component of getaddrinfo.
 	 * Limited to the functionality used by repmgr.
 	 */
-	memset(&sin, 0, sizeof(sin));
+	memzero(&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 	if(nodename) {
 		if(nodename[0] == '\0')
@@ -116,10 +116,10 @@ int __os_getaddrinfo(ENV *env, const char * nodename, u_int port, const char * s
 	sin.sin_port = htons((uint16)port);
 
 	if((ret = __os_calloc(env, 1, sizeof(ADDRINFO), &answer)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_malloc(env, sizeof(sin), &answer->ai_addr)) != 0) {
 		__os_free(env, answer);
-		return (ret);
+		return ret;
 	}
 
 	answer->ai_family = AF_INET;
@@ -129,7 +129,7 @@ int __os_getaddrinfo(ENV *env, const char * nodename, u_int port, const char * s
 	memcpy(answer->ai_addr, &sin, sizeof(sin));
 	*res = answer;
 
-	return (0);
+	return 0;
 #endif /* HAVE_GETADDRINFO */
 }
 

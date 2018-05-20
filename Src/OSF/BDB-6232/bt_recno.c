@@ -106,7 +106,7 @@ int __ram_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 	t = (BTREE *)dbp->bt_internal;
 	/* Start up the tree. */
 	if((ret = __bam_read_root(dbp, ip, txn, base_pgno, flags)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * If the user specified a source tree, open it and map it in.
@@ -117,13 +117,13 @@ int __ram_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 	 * doing!
 	 */
 	if(t->re_source != NULL && (ret = __ram_source(dbp)) != 0)
-		return (ret);
+		return ret;
 
 	/* If we're snapshotting an underlying source file, do it now. */
 	if(F_ISSET(dbp, DB_AM_SNAPSHOT)) {
 		/* Allocate a cursor. */
 		if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-			return (ret);
+			return ret;
 
 		/* Do the snapshot. */
 		if((ret = __ram_update(dbc,
@@ -134,7 +134,7 @@ int __ram_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __ram_append --
@@ -163,7 +163,7 @@ int __ram_append(DBC *dbc, DBT * key, DBT * data)
 		ret = __db_retcopy(dbc->env, key, &cp->recno, sizeof(cp->recno), &dbc->rkey->data, &dbc->rkey->ulen);
 	if(!DB_RETOK_DBCPUT(ret))
 		F_SET(dbc, DBC_ERROR);
-	return (ret);
+	return ret;
 }
 /*
  * __ramc_del --
@@ -316,7 +316,7 @@ err:
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, prev_lock)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __ramc_get --
@@ -532,7 +532,7 @@ retry:  switch(flags) {
 		if(flags == DB_GET_BOTH ||
 		    flags == DB_GET_BOTHC || flags == DB_GET_BOTH_RANGE) {
 			if((ret = __bam_cmp(dbc, data, (PAGE *)cp->page, cp->indx, __dbt_defcmp, &cmp, NULL)) != 0)
-				return (ret);
+				return ret;
 			if(cmp == 0)
 				break;
 			if(!F_ISSET(dbc, DBC_OPD)) {
@@ -553,7 +553,7 @@ retry:  switch(flags) {
 	/* The cursor was reset, no further delete adjustment is necessary. */
 err:    
 	CD_CLR(cp);
-	return (ret);
+	return ret;
 }
 /*
  * __ramc_put --
@@ -593,13 +593,13 @@ int __ramc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
 			case DB_KEYLAST:
 			    if((ret = __ram_add(dbc,
 				&cp->recno, data, DB_APPEND, 0)) != 0)
-				    return (ret);
+				    return ret;
 			    if(CURADJ_LOG(dbc) &&
 				(ret = __bam_rcuradj_log(dbp, dbc->txn,
 				&lsn, 0, CA_ICURRENT,
 				BAM_ROOT_PGNO(dbc), cp->recno, cp->order)) != 0)
-				    return (ret);
-			    return (0);
+				    return ret;
+			    return 0;
 			default:
 			    break;
 		}
@@ -614,7 +614,7 @@ int __ramc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
 		ret = __ram_getno(dbc, key, &cp->recno, 1);
 		if(ret == 0 || ret == DB_NOTFOUND)
 			ret = __ram_add(dbc, &cp->recno, data, flags, 0);
-		return (ret);
+		return ret;
 	}
 
 	/*
@@ -719,7 +719,7 @@ err:    CD_CLR(cp);
 
 	if(!DB_RETOK_DBCDEL(ret))
 		F_SET(dbc, DBC_ERROR);
-	return (ret);
+	return ret;
 }
 
 static int __ram_ca_getorder(DBC *dbc, DBC *my_dbc, uint32 * orderp, db_pgno_t root_pgno, uint32 recno, void * args)
@@ -730,7 +730,7 @@ static int __ram_ca_getorder(DBC *dbc, DBC *my_dbc, uint32 * orderp, db_pgno_t r
 	cp = (BTREE_CURSOR*)dbc->internal;
 	if(root_pgno == BAM_ROOT_PGNO(dbc) && recno == cp->recno && CD_ISSET(cp) && *orderp <= cp->order && !MVCC_SKIP_CURADJ(dbc, BAM_ROOT_PGNO(dbc)))
 		*orderp = cp->order;
-	return (0);
+	return 0;
 }
 
 static int __ram_ca_setorder(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pgno, uint32 order, void * args)
@@ -748,7 +748,7 @@ static int __ram_ca_setorder(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t p
 
 	if(cp_arg->root != cp->root ||
 	    MVCC_SKIP_CURADJ(dbc, BAM_ROOT_PGNO(dbc)))
-		return (0);
+		return 0;
 	++(*foundp);
 	adjusted = 0;
 	recno = cp_arg->recno;
@@ -819,7 +819,7 @@ iafter:             if(!adjusted && C_LESSTHAN(cp_arg, cp)) {
 			    cp->order -= (cp_arg->order - 1);
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -856,22 +856,18 @@ int __ram_ca(DBC *dbc_arg, ca_recno_arg op, int * foundp)
 	 * the cursor list.
 	 */
 	if(op == CA_DELETE) {
-		if((ret = __db_walk_cursors(dbp, NULL, __ram_ca_getorder,
-		    &order, BAM_ROOT_PGNO(dbc_arg), recno, NULL)) != 0)
-			return (ret);
+		if((ret = __db_walk_cursors(dbp, NULL, __ram_ca_getorder, &order, BAM_ROOT_PGNO(dbc_arg), recno, NULL)) != 0)
+			return ret;
 		order++;
 	}
 	else
 		order = INVALID_ORDER;
-
-	if((ret = __db_walk_cursors(dbp, dbc_arg,
-	    __ram_ca_setorder, &found, 0, order, &op)) != 0)
-		return (ret);
+	if((ret = __db_walk_cursors(dbp, dbc_arg, __ram_ca_setorder, &found, 0, order, &op)) != 0)
+		return ret;
 	if(foundp != NULL)
 		*foundp = (int)found;
-	return (0);
+	return 0;
 }
-
 /*
  * __ram_getno --
  *	Check the user's record number, and make sure we've seen it.
@@ -885,12 +881,12 @@ int __ram_getno(DBC *dbc, const DBT * key, db_recno_t * rep, int can_create)
 	/* If passed an empty DBT from Java, key->data may be NULL */
 	if(key->size != sizeof(db_recno_t)) {
 		__db_errx(dbp->env, DB_STR("1001", "illegal record number size"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* Check the user's record number. */
 	if((recno = *(db_recno_t*)key->data) == 0) {
 		__db_errx(dbp->env, DB_STR("1002", "illegal record number of 0"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(rep != NULL)
 		*rep = recno;
@@ -920,19 +916,19 @@ static int __ram_update(DBC *dbc, db_recno_t recno, int can_create)
 	 * file, we're done.
 	 */
 	if(!can_create && t->re_eof)
-		return (0);
+		return 0;
 
 	/*
 	 * If we haven't seen this record yet, try to get it from the original
 	 * file.
 	 */
 	if((ret = __bam_nrecs(dbc, &nrecs)) != 0)
-		return (ret);
+		return ret;
 	if(!t->re_eof && recno > nrecs) {
 		if((ret = __ram_sread(dbc, recno)) != 0 && ret != DB_NOTFOUND)
-			return (ret);
+			return ret;
 		if((ret = __bam_nrecs(dbc, &nrecs)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	/*
@@ -940,15 +936,15 @@ static int __ram_update(DBC *dbc, db_recno_t recno, int can_create)
 	 * record.
 	 */
 	if(!can_create || recno <= nrecs + 1)
-		return (0);
+		return 0;
 
 	rdata = &dbc->my_rdata;
 	rdata->flags = 0;
 	rdata->size = 0;
 	while(recno > ++nrecs)
 		if((ret = __ram_add(dbc, &nrecs, rdata, 0, BI_DELETED)) != 0)
-			return (ret);
-	return (0);
+			return ret;
+	return 0;
 }
 /*
  * __ram_source --
@@ -967,7 +963,7 @@ static int __ram_source(DB *dbp)
 	/* Find the real name, and swap out the one we had before. */
 	if((ret = __db_appname(env,
 	    DB_APP_DATA, t->re_source, NULL, &source)) != 0)
-		return (ret);
+		return ret;
 	__os_free(env, t->re_source);
 	t->re_source = source;
 
@@ -980,10 +976,10 @@ static int __ram_source(DB *dbp)
 	if((t->re_fp = fopen(t->re_source, "rb")) == NULL) {
 		ret = __os_get_errno();
 		__db_err(env, ret, "%s", t->re_source);
-		return (ret);
+		return ret;
 	}
 	t->re_eof = 0;
-	return (0);
+	return 0;
 }
 /*
  * __ram_writeback --
@@ -1010,12 +1006,12 @@ int __ram_writeback(DB *dbp)
 
 	/* If the file wasn't modified, we're done. */
 	if(!t->re_modified)
-		return (0);
+		return 0;
 
 	/* If there's no backing source file, we're done. */
 	if(t->re_source == NULL) {
 		t->re_modified = 0;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -1024,16 +1020,16 @@ int __ram_writeback(DB *dbp)
 	 * and write out "deleted" or non-existent records.  The DB handle may
 	 * be threaded, so allocate memory as we go.
 	 */
-	memset(&key, 0, sizeof(key));
+	memzero(&key, sizeof(key));
 	key.size = sizeof(db_recno_t);
 	key.data = &keyno;
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	F_SET(&data, DB_DBT_REALLOC);
 
 	/* Allocate a cursor. */
 	ENV_GET_THREAD_INFO(env, ip);
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Read any remaining records into the tree.
@@ -1106,16 +1102,13 @@ int __ram_writeback(DB *dbp)
 			default:
 			    goto err;
 		}
-		if(!F_ISSET(dbp, DB_AM_FIXEDLEN) &&
-		    fwrite(&delim, 1, 1, fp) != 1) {
-write_err:              ret = __os_get_errno();
-			__db_err(env, ret, DB_STR_A("1003",
-			    "%s: write failed to backing file", "%s"),
-			    t->re_source);
+		if(!F_ISSET(dbp, DB_AM_FIXEDLEN) && fwrite(&delim, 1, 1, fp) != 1) {
+write_err:              
+			ret = __os_get_errno();
+			__db_err(env, ret, DB_STR_A("1003", "%s: write failed to backing file", "%s"), t->re_source);
 			goto err;
 		}
 	}
-
 err:
 done:   /* Close the file descriptor. */
 	if(fp != NULL && fclose(fp) != 0) {
@@ -1124,11 +1117,9 @@ done:   /* Close the file descriptor. */
 		if(ret == 0)
 			ret = t_ret;
 	}
-
 	/* Discard the cursor. */
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/* Discard memory allocated to hold the data items. */
 	if(data.data != NULL)
 		__os_ufree(env, data.data);
@@ -1136,7 +1127,7 @@ done:   /* Close the file descriptor. */
 		__os_free(env, pad);
 	if(ret == 0)
 		t->re_modified = 0;
-	return (ret);
+	return ret;
 }
 /*
  * __ram_sread --
@@ -1156,7 +1147,7 @@ static int __ram_sread(DBC *dbc, db_recno_t top)
 	was_modified = t->re_modified;
 
 	if((ret = __bam_nrecs(dbc, &recno)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Use the record key return memory, it's only a short-term use.
@@ -1170,12 +1161,12 @@ static int __ram_sread(DBC *dbc, db_recno_t top)
 			    dbp->env, len, &rdata->data)) != 0) {
 			rdata->ulen = 0;
 			rdata->data = NULL;
-			return (ret);
+			return ret;
 		}
 		rdata->ulen = (uint32)len;
 	}
 
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	while(recno < top) {
 		data.data = rdata->data;
 		data.size = 0;
@@ -1205,7 +1196,7 @@ static int __ram_sread(DBC *dbc, db_recno_t top)
 					    &rdata->data)) != 0) {
 						rdata->ulen = 0;
 						rdata->data = NULL;
-						return (ret);
+						return ret;
 					}
 					else
 						data.data = rdata->data;
@@ -1234,7 +1225,7 @@ eof:
 err:    
 	if(!was_modified)
 		t->re_modified = 0;
-	return (ret);
+	return ret;
 }
 /*
  * __ram_add --
@@ -1250,7 +1241,7 @@ static int __ram_add(DBC *dbc, db_recno_t * recnop, DBT * data, uint32 flags, ui
 retry:  /* Find the slot for insertion. */
 	if((ret = __bam_rsearch(dbc, recnop,
 	    SR_INSERT | (flags == DB_APPEND ? SR_APPEND : 0), 1, &exact)) != 0)
-		return (ret);
+		return ret;
 	stack = 1;
 
 	/* Copy the page into the cursor. */
@@ -1313,5 +1304,5 @@ retry:  /* Find the slot for insertion. */
 err:    
 	if(stack && (t_ret = __bam_stkrel(dbc, STK_CLRDBC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

@@ -56,15 +56,13 @@ void ApplicationManagementServiceBindingProxy::ApplicationManagementServiceBindi
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
 	{"app", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
 	{"base", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
-	{"ent", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
+	{"dic", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
 	{"vd", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
-	{"ns1", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns2", "http://api.vetrf.ru/schema/cdm/base/ws-definitions", NULL, NULL},
-	{"ns8", "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2", NULL, NULL},
-	{"ns3", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
+	{"apps", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
 	{"ws", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
-	{"ns4", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
-	{"merc", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
+	{"g2b", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
+	{"g2ba", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
 	soap_set_namespaces(this, namespaces);
@@ -141,22 +139,23 @@ char *ApplicationManagementServiceBindingProxy::soap_sprint_fault(char *buf, siz
 int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const char *endpoint, const char *soap_action, _ws__submitApplicationRequest *ws__submitApplicationRequest, _ws__submitApplicationResponse *ws__submitApplicationResponse)
 {
 	struct soap *soap = this;
-	struct __ns3__submitApplicationRequest soap_tmp___ns3__submitApplicationRequest;
+	struct __apps__submitApplicationRequest soap_tmp___apps__submitApplicationRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
+	SETIFZ(soap_endpoint, "https://api.vetrf.ru/platform/services/ApplicationManagementService");
 	SETIFZ(soap_action, "submitApplicationRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns3__submitApplicationRequest.ws__submitApplicationRequest = ws__submitApplicationRequest;
+	soap_tmp___apps__submitApplicationRequest.ws__submitApplicationRequest = ws__submitApplicationRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest);
+	soap_serialize___apps__submitApplicationRequest(soap, &soap_tmp___apps__submitApplicationRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest, "-ns3:submitApplicationRequest", NULL)
+		 || soap_put___apps__submitApplicationRequest(soap, &soap_tmp___apps__submitApplicationRequest, "-apps:submitApplicationRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -167,7 +166,7 @@ int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const cha
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest, "-ns3:submitApplicationRequest", NULL)
+	 || soap_put___apps__submitApplicationRequest(soap, &soap_tmp___apps__submitApplicationRequest, "-apps:submitApplicationRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -193,22 +192,23 @@ int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const cha
 int ApplicationManagementServiceBindingProxy::receiveApplicationResult(const char *endpoint, const char *soap_action, _ws__receiveApplicationResultRequest *ws__receiveApplicationResultRequest, _ws__receiveApplicationResultResponse *ws__receiveApplicationResultResponse)
 {
 	struct soap *soap = this;
-	struct __ns3__receiveApplicationResult soap_tmp___ns3__receiveApplicationResult;
+	struct __apps__receiveApplicationResult soap_tmp___apps__receiveApplicationResult;
 	if(endpoint)
 		soap_endpoint = endpoint;
+	SETIFZ(soap_endpoint, "https://api.vetrf.ru/platform/services/ApplicationManagementService");
 	SETIFZ(soap_action, "receiveApplicationResult");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns3__receiveApplicationResult.ws__receiveApplicationResultRequest = ws__receiveApplicationResultRequest;
+	soap_tmp___apps__receiveApplicationResult.ws__receiveApplicationResultRequest = ws__receiveApplicationResultRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult);
+	soap_serialize___apps__receiveApplicationResult(soap, &soap_tmp___apps__receiveApplicationResult);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult, "-ns3:receiveApplicationResult", NULL)
+		 || soap_put___apps__receiveApplicationResult(soap, &soap_tmp___apps__receiveApplicationResult, "-apps:receiveApplicationResult", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -219,7 +219,7 @@ int ApplicationManagementServiceBindingProxy::receiveApplicationResult(const cha
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult, "-ns3:receiveApplicationResult", NULL)
+	 || soap_put___apps__receiveApplicationResult(soap, &soap_tmp___apps__receiveApplicationResult, "-apps:receiveApplicationResult", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))

@@ -79,6 +79,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luac", "luac.vcproj", "{E24
 		{86B30CD8-8C99-4CFF-804E-16EB5891A1D8} = {86B30CD8-8C99-4CFF-804E-16EB5891A1D8}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TurboPFor", "TurboPFor.vcproj", "{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -467,6 +471,26 @@ Global
 		{E240C2DA-7D35-4604-81E7-54EB49656E35}.ServerDebug.Build.0 = Debug|Win32
 		{E240C2DA-7D35-4604-81E7-54EB49656E35}.ServerRelease.ActiveCfg = Release|Win32
 		{E240C2DA-7D35-4604-81E7-54EB49656E35}.ServerRelease.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.Debug.ActiveCfg = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.Debug.Build.0 = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.DebugU.ActiveCfg = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.DebugU.Build.0 = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MinSizeRel.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MinSizeRel.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MtDllDebug.ActiveCfg = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MtDllDebug.Build.0 = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MtDllRelease.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.MtDllRelease.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.Release.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.Release.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ReleaseU.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ReleaseU.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.RelWithDebInfo.Build.0 = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerDebug.ActiveCfg = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerDebug.Build.0 = Debug|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerRelease.ActiveCfg = Release|Win32
+		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerRelease.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -22,11 +22,10 @@
 #define _DB_H_
 
 #ifndef __NO_SYSTEM_INCLUDES
-#include <sys/types.h>
-#include <stddef.h>
-#include <stdio.h>
+	#include <sys/types.h>
+	#include <stddef.h>
+	#include <stdio.h>
 #endif
-
 /*
  * Turn off inappropriate compiler warnings
  */
@@ -257,13 +256,11 @@ typedef struct __db_logvrfy_config DB_LOG_VERIFY_CONFIG;
 
 /* Key/data structure -- a Data-Base Thang. */
 struct __db_dbt {
-	void     * data;                 /* Key/data */
+	void * data;                 /* Key/data */
 	uint32 size;                 /* key/data length */
-
 	uint32 ulen;                 /* RO: length of user buffer. */
 	uint32 dlen;                 /* RO: get/put record length. */
 	uint32 doff;                 /* RO: get/put record offset. */
-
 	void * app_data;
 
 #define DB_DBT_APPMALLOC        0x0001  /* Callback allocated memory. */
@@ -576,27 +573,23 @@ struct __db_lsn { /* SHARED */
  */
 struct __db_log_cursor {
 	ENV      * env;                  /* Environment */
-
 	DB_FH    * fhp;                  /* File handle. */
 	DB_LSN lsn;                     /* Cursor: LSN */
 	uint32 len;                  /* Cursor: record length */
 	uint32 prev;                 /* Cursor: previous record's offset */
-
 	DBT dbt;                        /* Return DBT. */
 	DB_LSN p_lsn;                   /* Persist LSN. */
 	uint32 p_version;            /* Persist version. */
-
 	uint8 * bp;                   /* Allocated read buffer. */
 	uint32 bp_size;              /* Read buffer length in bytes. */
 	uint32 bp_rlen;              /* Read buffer valid data length. */
 	DB_LSN bp_lsn;                  /* Read buffer first byte LSN. */
-
 	uint32 bp_maxrec;            /* Max record length in the log file. */
 
 	/* DB_LOGC PUBLIC HANDLE LIST BEGIN */
-	int (*close)__P((DB_LOGC *, uint32));
-	int (*get)__P((DB_LOGC *, DB_LSN *, DBT *, uint32));
-	int (*version)__P((DB_LOGC *, uint32 *, uint32));
+	int (*close)(DB_LOGC *, uint32);
+	int (*get)(DB_LOGC *, DB_LSN *, DBT *, uint32);
+	int (*version)(DB_LOGC *, uint32 *, uint32);
 	/* DB_LOGC PUBLIC HANDLE LIST END */
 
 #define DB_LOG_DISK             0x01    /* Log record came from disk. */
@@ -744,29 +737,28 @@ struct __db_mpoolfile {
 	uint32 config_flags;         /* Flags to DB_MPOOLFILE->set_flags. */
 
 	/* DB_MPOOLFILE PUBLIC HANDLE LIST BEGIN */
-	int (*close)__P((DB_MPOOLFILE *, uint32));
-	int (*get)
-	__P((DB_MPOOLFILE *, db_pgno_t *, DB_TXN *, uint32, void *));
-	int (*get_clear_len)__P((DB_MPOOLFILE *, uint32 *));
-	int (*get_fileid)__P((DB_MPOOLFILE *, uint8 *));
-	int (*get_flags)__P((DB_MPOOLFILE *, uint32 *));
-	int (*get_ftype)__P((DB_MPOOLFILE *, int *));
-	int (*get_last_pgno)__P((DB_MPOOLFILE *, db_pgno_t *));
-	int (*get_lsn_offset)__P((DB_MPOOLFILE *, int32 *));
-	int (*get_maxsize)__P((DB_MPOOLFILE *, uint32 *, uint32 *));
-	int (*get_pgcookie)__P((DB_MPOOLFILE *, DBT *));
-	int (*get_priority)__P((DB_MPOOLFILE *, DB_CACHE_PRIORITY *));
-	int (*open)__P((DB_MPOOLFILE *, const char *, uint32, int, size_t));
-	int (*put)__P((DB_MPOOLFILE *, void *, DB_CACHE_PRIORITY, uint32));
-	int (*set_clear_len)__P((DB_MPOOLFILE *, uint32));
-	int (*set_fileid)__P((DB_MPOOLFILE *, uint8 *));
-	int (*set_flags)__P((DB_MPOOLFILE *, uint32, int));
-	int (*set_ftype)__P((DB_MPOOLFILE *, int));
-	int (*set_lsn_offset)__P((DB_MPOOLFILE *, int32));
-	int (*set_maxsize)__P((DB_MPOOLFILE *, uint32, uint32));
-	int (*set_pgcookie)__P((DB_MPOOLFILE *, DBT *));
-	int (*set_priority)__P((DB_MPOOLFILE *, DB_CACHE_PRIORITY));
-	int (*sync)__P((DB_MPOOLFILE *));
+	int (*close)(DB_MPOOLFILE *, uint32);
+	int (*get)(DB_MPOOLFILE *, db_pgno_t *, DB_TXN *, uint32, void *);
+	int (*get_clear_len)(DB_MPOOLFILE *, uint32 *);
+	int (*get_fileid)(DB_MPOOLFILE *, uint8 *);
+	int (*get_flags)(DB_MPOOLFILE *, uint32 *);
+	int (*get_ftype)(DB_MPOOLFILE *, int *);
+	int (*get_last_pgno)(DB_MPOOLFILE *, db_pgno_t *);
+	int (*get_lsn_offset)(DB_MPOOLFILE *, int32 *);
+	int (*get_maxsize)(DB_MPOOLFILE *, uint32 *, uint32 *);
+	int (*get_pgcookie)(DB_MPOOLFILE *, DBT *);
+	int (*get_priority)(DB_MPOOLFILE *, DB_CACHE_PRIORITY *);
+	int (*open)(DB_MPOOLFILE *, const char *, uint32, int, size_t);
+	int (*put)(DB_MPOOLFILE *, void *, DB_CACHE_PRIORITY, uint32);
+	int (*set_clear_len)(DB_MPOOLFILE *, uint32);
+	int (*set_fileid)(DB_MPOOLFILE *, uint8 *);
+	int (*set_flags)(DB_MPOOLFILE *, uint32, int);
+	int (*set_ftype)(DB_MPOOLFILE *, int);
+	int (*set_lsn_offset)(DB_MPOOLFILE *, int32);
+	int (*set_maxsize)(DB_MPOOLFILE *, uint32, uint32);
+	int (*set_pgcookie)(DB_MPOOLFILE *, DBT *);
+	int (*set_priority)(DB_MPOOLFILE *, DB_CACHE_PRIORITY);
+	int (*sync)(DB_MPOOLFILE *);
 	/* DB_MPOOLFILE PUBLIC HANDLE LIST END */
 
 	/*
@@ -989,17 +981,17 @@ struct __db_txn {
 	void    * xml_internal;          /* XML API private. */
 
 	/* DB_TXN PUBLIC HANDLE LIST BEGIN */
-	int       (*abort)__P((DB_TXN *));
-	int       (*commit)__P((DB_TXN *, uint32));
-	int       (*discard)__P((DB_TXN *, uint32));
-	int       (*get_name)__P((DB_TXN *, const char **));
-	int       (*get_priority)__P((DB_TXN *, uint32 *));
-	uint32(*id) __P((DB_TXN *));
-	int       (*prepare)__P((DB_TXN *, uint8 *));
-	int       (*set_commit_token)__P((DB_TXN *, DB_TXN_TOKEN *));
-	int       (*set_name)__P((DB_TXN *, const char *));
-	int       (*set_priority)__P((DB_TXN *, uint32));
-	int       (*set_timeout)__P((DB_TXN *, db_timeout_t, uint32));
+	int       (*abort)(DB_TXN *);
+	int       (*commit)(DB_TXN *, uint32);
+	int       (*discard)(DB_TXN *, uint32);
+	int       (*get_name)(DB_TXN *, const char **);
+	int       (*get_priority)(DB_TXN *, uint32 *);
+	uint32(*id)(DB_TXN *);
+	int       (*prepare)(DB_TXN *, uint8 *);
+	int       (*set_commit_token)(DB_TXN *, DB_TXN_TOKEN *);
+	int       (*set_name)(DB_TXN *, const char *);
+	int       (*set_priority)(DB_TXN *, uint32);
+	int       (*set_timeout)(DB_TXN *, db_timeout_t, uint32);
 	/* DB_TXN PUBLIC HANDLE LIST END */
 
 	/* DB_TXN PRIVATE HANDLE LIST BEGIN */
@@ -1373,23 +1365,19 @@ struct __db_sequence {
 
 	/* DB_SEQUENCE PUBLIC HANDLE LIST BEGIN */
 	int             (*close)__P((DB_SEQUENCE *, uint32));
-	int             (*get)__P((DB_SEQUENCE *,
-	    DB_TXN *, uint32, db_seq_t *, uint32));
+	int             (*get)__P((DB_SEQUENCE *, DB_TXN *, uint32, db_seq_t *, uint32));
 	int             (*get_cachesize)__P((DB_SEQUENCE *, uint32 *));
 	int             (*get_db)__P((DB_SEQUENCE *, DB **));
 	int             (*get_flags)__P((DB_SEQUENCE *, uint32 *));
 	int             (*get_key)__P((DB_SEQUENCE *, DBT *));
-	int             (*get_range)__P((DB_SEQUENCE *,
-	    db_seq_t *, db_seq_t *));
+	int             (*get_range)__P((DB_SEQUENCE *, db_seq_t *, db_seq_t *));
 	int             (*initial_value)__P((DB_SEQUENCE *, db_seq_t));
-	int             (*open)__P((DB_SEQUENCE *,
-	    DB_TXN *, DBT *, uint32));
+	int             (*open)__P((DB_SEQUENCE *, DB_TXN *, DBT *, uint32));
 	int             (*remove)__P((DB_SEQUENCE *, DB_TXN *, uint32));
 	int             (*set_cachesize)__P((DB_SEQUENCE *, uint32));
 	int             (*set_flags)__P((DB_SEQUENCE *, uint32));
 	int             (*set_range)__P((DB_SEQUENCE *, db_seq_t, db_seq_t));
-	int             (*stat)__P((DB_SEQUENCE *,
-	    DB_SEQUENCE_STAT **, uint32));
+	int             (*stat)__P((DB_SEQUENCE *, DB_SEQUENCE_STAT **, uint32));
 	int             (*stat_print)__P((DB_SEQUENCE *, uint32));
 	/* DB_SEQUENCE PUBLIC HANDLE LIST END */
 };
@@ -1934,7 +1922,6 @@ struct __db {
 struct __db_stream {
 	DBC             * dbc;   /* Cursor pointing to the db ext file record. */
 	DB_FH           * fhp;
-
 	/* DB_STREAM PUBLIC HANDLE LIST BEGIN */
 	int  (*close)__P((DB_STREAM *, uint32));
 	int  (*read)__P((DB_STREAM *, DBT *, db_off_t, uint32, uint32));
@@ -1974,9 +1961,7 @@ struct __db_stream {
  * | d1 |..| dN |..| 0 | dNLen | dNOff | recnoN |..| d1Len | d1Off | recno1 |
  * --------------------------------------------------------------------------
  */
-#define DB_MULTIPLE_INIT(pointer, dbt)                                  \
-	(pointer = (uint8*)(dbt)->data +                            \
-	(dbt)->ulen - sizeof(uint32))
+#define DB_MULTIPLE_INIT(pointer, dbt) (pointer = (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32))
 
 #define DB_MULTIPLE_NEXT(pointer, dbt, retdata, retdlen)                \
 	do {                                                            \
@@ -2027,18 +2012,15 @@ struct __db_stream {
 #define DB_MULTIPLE_WRITE_INIT(pointer, dbt)                            \
 	do {                                                            \
 		(dbt)->flags |= DB_DBT_BULK;                            \
-		pointer = (uint8*)(dbt)->data +                     \
-		    (dbt)->ulen - sizeof(uint32);                    \
+		pointer = (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32); \
 		*(uint32*)(pointer) = (uint32)-1;                \
 	} while(0)
 
 #define DB_MULTIPLE_RESERVE_NEXT(pointer, dbt, writedata, writedlen)    \
 	do {                                                            \
 		uint32 * __p = (uint32*)(pointer);                \
-		uint32 __off = ((pointer) == (uint8*)(dbt)->data + \
-		    (dbt)->ulen - sizeof(uint32)) ?  0 : __p[1] + __p[2]; \
-		if((uint8*)(dbt)->data + __off + (writedlen) >     \
-		    (uint8*)(__p - 2))                              \
+		uint32 __off = ((pointer) == (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32)) ?  0 : __p[1] + __p[2]; \
+		if((uint8*)(dbt)->data + __off + (writedlen) > (uint8*)(__p - 2)) \
 			writedata = NULL;                               \
 		else {                                                  \
 			writedata = (uint8*)(dbt)->data + __off;    \
@@ -2052,8 +2034,7 @@ struct __db_stream {
 #define DB_MULTIPLE_WRITE_NEXT(pointer, dbt, writedata, writedlen)      \
 	do {                                                            \
 		void * __destd;                                          \
-		DB_MULTIPLE_RESERVE_NEXT((pointer), (dbt),              \
-		    __destd, (writedlen));                              \
+		DB_MULTIPLE_RESERVE_NEXT((pointer), (dbt), __destd, (writedlen)); \
 		if(__destd == NULL)                                    \
 			pointer = NULL;                                 \
 		else                                                    \
@@ -2063,8 +2044,7 @@ struct __db_stream {
 #define DB_MULTIPLE_KEY_RESERVE_NEXT(pointer, dbt, writekey, writeklen, writedata, writedlen) \
 	do {                                                            \
 		uint32 * __p = (uint32*)(pointer);                \
-		uint32 __off = ((pointer) == (uint8*)(dbt)->data + \
-		    (dbt)->ulen - sizeof(uint32)) ?  0 : __p[1] + __p[2]; \
+		uint32 __off = ((pointer) == (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32)) ?  0 : __p[1] + __p[2]; \
 		if((uint8*)(dbt)->data + __off + (writeklen) +     \
 		    (writedlen) > (uint8*)(__p - 4)) {              \
 			writekey = NULL;                                \
@@ -2086,8 +2066,7 @@ struct __db_stream {
 #define DB_MULTIPLE_KEY_WRITE_NEXT(pointer, dbt, writekey, writeklen, writedata, writedlen) \
 	do {                                                            \
 		void * __destk, * __destd;                                \
-		DB_MULTIPLE_KEY_RESERVE_NEXT((pointer), (dbt),          \
-		    __destk, (writeklen), __destd, (writedlen));        \
+		DB_MULTIPLE_KEY_RESERVE_NEXT((pointer), (dbt), __destk, (writeklen), __destd, (writedlen)); \
 		if(__destk == NULL)                                    \
 			pointer = NULL;                                 \
 		else {                                                  \
@@ -2100,18 +2079,15 @@ struct __db_stream {
 #define DB_MULTIPLE_RECNO_WRITE_INIT(pointer, dbt)                      \
 	do {                                                            \
 		(dbt)->flags |= DB_DBT_BULK;                            \
-		pointer = (uint8*)(dbt)->data +                     \
-		    (dbt)->ulen - sizeof(uint32);                    \
+		pointer = (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32); \
 		*(uint32*)(pointer) = 0;                            \
 	} while(0)
 
 #define DB_MULTIPLE_RECNO_RESERVE_NEXT(pointer, dbt, recno, writedata, writedlen) \
 	do {                                                            \
 		uint32 * __p = (uint32*)(pointer);                \
-		uint32 __off = ((pointer) == (uint8*)(dbt)->data + \
-		    (dbt)->ulen - sizeof(uint32)) ? 0 : __p[1] + __p[2]; \
-		if(((uint8*)(dbt)->data + __off) + (writedlen) >   \
-		    (uint8*)(__p - 3))                              \
+		uint32 __off = ((pointer) == (uint8*)(dbt)->data + (dbt)->ulen - sizeof(uint32)) ? 0 : __p[1] + __p[2]; \
+		if(((uint8*)(dbt)->data + __off) + (writedlen) > (uint8*)(__p - 3)) \
 			writedata = NULL;                               \
 		else {                                                  \
 			writedata = (uint8*)(dbt)->data + __off;    \
@@ -2126,8 +2102,7 @@ struct __db_stream {
 #define DB_MULTIPLE_RECNO_WRITE_NEXT(pointer, dbt, recno, writedata, writedlen) \
 	do {                                                            \
 		void * __destd;                                          \
-		DB_MULTIPLE_RECNO_RESERVE_NEXT((pointer), (dbt),        \
-		    (recno), __destd, (writedlen));                     \
+		DB_MULTIPLE_RECNO_RESERVE_NEXT((pointer), (dbt), (recno), __destd, (writedlen)); \
 		if(__destd == NULL)                                    \
 			pointer = NULL;                                 \
 		else if((writedlen) != 0)                              \
@@ -2148,15 +2123,11 @@ struct __dbc {
 	DB * dbp;                        /* Backing database */
 	DB_ENV * dbenv;                  /* Backing environment */
 	ENV * env;                       /* Backing environment */
-
 	DB_THREAD_INFO * thread_info;    /* Thread that owns this cursor. */
 	DB_TXN   * txn;                  /* Associated transaction. */
 	DB_CACHE_PRIORITY priority;     /* Priority in cache. */
-
 	db_slice_t dbc_curslice;        /* Current DB of an all-slice DBC. */
-	DBC * dbc_slices[1];             /* A containing dbc's array of DBC
-	                                    handles for its slices. */
-
+	DBC * dbc_slices[1];             /* A containing dbc's array of DBC handles for its slices. */
 	/*
 	 * Active/free cursor queues.
 	 *
@@ -2168,7 +2139,6 @@ struct __dbc {
 		DBC * tqe_next;
 		DBC ** tqe_prev;
 	} links;
-
 	/*
 	 * Cursor queue of the owning transaction.
 	 *
@@ -2180,7 +2150,6 @@ struct __dbc {
 		DBC * tqe_next;  /* next element */
 		DBC ** tqe_prev; /* address of previous next element */
 	} txn_cursors;
-
 	/*
 	 * The DBT *'s below are used by the cursor routines to return
 	 * data to the user when DBT flags indicate that DB should manage
@@ -2192,60 +2161,53 @@ struct __dbc {
 	 * will be whatever handle the user originally used for the current
 	 * DB interface call.
 	 */
-	DBT      * rskey;                /* Returned secondary key. */
-	DBT      * rkey;                 /* Returned [primary] key. */
-	DBT      * rdata;                /* Returned data. */
-
-	DBT my_rskey;                   /* Space for returned secondary key. */
-	DBT my_rkey;                    /* Space for returned [primary] key. */
-	DBT my_rdata;                   /* Space for returned data. */
-
-	DBT      * cur_key;
-
+	DBT  * rskey;                /* Returned secondary key. */
+	DBT  * rkey;                 /* Returned [primary] key. */
+	DBT  * rdata;                /* Returned data. */
+	DBT    my_rskey;                   /* Space for returned secondary key. */
+	DBT    my_rkey;                    /* Space for returned [primary] key. */
+	DBT    my_rdata;                   /* Space for returned data. */
+	DBT  * cur_key;
 	DB_LOCKER * lref;                /* Reference to default locker. */
 	DB_LOCKER * locker;              /* Locker for this operation. */
-	DBT lock_dbt;                   /* DBT referencing lock. */
+	DBT    lock_dbt;                   /* DBT referencing lock. */
 	DB_LOCK_ILOCK lock;             /* Object to be locked. */
 	DB_LOCK mylock;                 /* CDB lock held on this cursor. */
-
 	DBTYPE dbtype;                  /* Cursor type. */
-
 	DBC_INTERNAL * internal;         /* Access method private. */
-
 	/* DBC PUBLIC HANDLE LIST BEGIN */
-	int (*close)__P((DBC *));
-	int (*cmp)__P((DBC *, DBC *, int *, uint32));
-	int (*count)__P((DBC *, db_recno_t *, uint32));
-	int (*db_stream)__P((DBC *, DB_STREAM **, uint32));
-	int (*del)__P((DBC *, uint32));
-	int (*dup)__P((DBC *, DBC **, uint32));
-	int (*get)__P((DBC *, DBT *, DBT *, uint32));
-	int (*get_priority)__P((DBC *, DB_CACHE_PRIORITY *));
-	int (*pget)__P((DBC *, DBT *, DBT *, DBT *, uint32));
-	int (*put)__P((DBC *, DBT *, DBT *, uint32));
-	int (*set_priority)__P((DBC *, DB_CACHE_PRIORITY));
+	int (*close)(DBC *);
+	int (*cmp)(DBC *, DBC *, int *, uint32);
+	int (*count)(DBC *, db_recno_t *, uint32);
+	int (*db_stream)(DBC *, DB_STREAM **, uint32);
+	int (*del)(DBC *, uint32);
+	int (*dup)(DBC *, DBC **, uint32);
+	int (*get)(DBC *, DBT *, DBT *, uint32);
+	int (*get_priority)(DBC *, DB_CACHE_PRIORITY *);
+	int (*pget)(DBC *, DBT *, DBT *, DBT *, uint32);
+	int (*put)(DBC *, DBT *, DBT *, uint32);
+	int (*set_priority)(DBC *, DB_CACHE_PRIORITY);
 	/* DBC PUBLIC HANDLE LIST END */
 
 	/* The following are the method names deprecated in the 4.6 release. */
-	int (*c_close)__P((DBC *));
-	int (*c_count)__P((DBC *, db_recno_t *, uint32));
-	int (*c_del)__P((DBC *, uint32));
-	int (*c_dup)__P((DBC *, DBC **, uint32));
-	int (*c_get)__P((DBC *, DBT *, DBT *, uint32));
-	int (*c_pget)__P((DBC *, DBT *, DBT *, DBT *, uint32));
-	int (*c_put)__P((DBC *, DBT *, DBT *, uint32));
+	int (*c_close)(DBC *);
+	int (*c_count)(DBC *, db_recno_t *, uint32);
+	int (*c_del)(DBC *, uint32);
+	int (*c_dup)(DBC *, DBC **, uint32);
+	int (*c_get)(DBC *, DBT *, DBT *, uint32);
+	int (*c_pget)(DBC *, DBT *, DBT *, DBT *, uint32);
+	int (*c_put)(DBC *, DBT *, DBT *, uint32);
 
 	/* DBC PRIVATE HANDLE LIST BEGIN */
-	int (*am_bulk)__P((DBC *, DBT *, uint32));
-	int (*am_close)__P((DBC *, db_pgno_t, int *));
-	int (*am_del)__P((DBC *, uint32));
-	int (*am_destroy)__P((DBC *));
-	int (*am_get)__P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
-	int (*am_put)__P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
-	int (*am_writelock)__P((DBC *));
+	int (*am_bulk)(DBC *, DBT *, uint32);
+	int (*am_close)(DBC *, db_pgno_t, int *);
+	int (*am_del)(DBC *, uint32);
+	int (*am_destroy)(DBC *);
+	int (*am_get)(DBC *, DBT *, DBT *, uint32, db_pgno_t *);
+	int (*am_put)(DBC *, DBT *, DBT *, uint32, db_pgno_t *);
+	int (*am_writelock)(DBC *);
 	/* DBC PRIVATE HANDLE LIST END */
-
-	uint32 open_flags;           /* Flags passed to DB->cursor. */
+	uint32 open_flags; /* Flags passed to DB->cursor. */
 /*
  * DBC_DONTLOCK and DBC_RECOVER are used during recovery and transaction
  * abort.  If a transaction is being aborted or recovered then DBC_RECOVER
@@ -2435,16 +2397,16 @@ struct __db_env {
 	FILE            * db_msgfile;    /* Other message file stream */
 	const char      * db_msgpfx;     /* Other message prefix */
 	/* Other application callback functions */
-	int   (*app_dispatch)__P((DB_ENV *, DBT *, DB_LSN *, db_recops));
-	void  (*db_event_func)__P((DB_ENV *, uint32, void *));
-	void  (*db_feedback)__P((DB_ENV *, int, int));
-	void  (*db_free)__P((void *));
-	void  (*db_paniccall)__P((DB_ENV *, int));
-	void *(*db_malloc)__P((size_t));
-	void *(*db_realloc)__P((void *, size_t));
-	int   (*is_alive)__P((DB_ENV *, pid_t, db_threadid_t, uint32));
-	void  (*thread_id)__P((DB_ENV *, pid_t *, db_threadid_t *));
-	char *(*thread_id_string)__P((DB_ENV *, pid_t, db_threadid_t, char *));
+	int   (*app_dispatch)(DB_ENV *, DBT *, DB_LSN *, db_recops);
+	void  (*db_event_func)(DB_ENV *, uint32, void *);
+	void  (*db_feedback)(DB_ENV *, int, int);
+	void  (*db_free)(void *);
+	void  (*db_paniccall)(DB_ENV *, int);
+	void *(*db_malloc)(size_t);
+	void *(*db_realloc)(void *, size_t);
+	int   (*is_alive)(DB_ENV *, pid_t, db_threadid_t, uint32);
+	void  (*thread_id)(DB_ENV *, pid_t *, db_threadid_t *);
+	char *(*thread_id_string)(DB_ENV *, pid_t, db_threadid_t, char *);
 
 	/* Application specified paths */
 	char    * db_blob_dir;           /* External file directory */
@@ -2528,7 +2490,7 @@ struct __db_env {
 	 * The following fields are not strictly user-owned, but they outlive
 	 * the ENV structure, and so are stored here.
 	 */
-	DB_FH           * registry;      /* DB_REGISTER file handle */
+	DB_FH * registry;      /* DB_REGISTER file handle */
 	uint32 registry_off;         /* Offset of our slot.  We can't use off_t because its size depends on build settings. */
 	db_timeout_t envreg_timeout;    /* DB_REGISTER wait timeout */
 	/*
@@ -2561,234 +2523,230 @@ struct __db_env {
 	uint32 flags;
 
 	/* DB_ENV PUBLIC HANDLE LIST BEGIN */
-	int  (*add_data_dir)__P((DB_ENV *, const char *));
-	int  (*backup)__P((DB_ENV *, const char *, uint32));
-	int  (*cdsgroup_begin)__P((DB_ENV *, DB_TXN **));
-	int  (*close)__P((DB_ENV *, uint32));
-	int  (*dbbackup)__P((DB_ENV *, const char *, const char *, uint32));
-	int  (*dbremove)__P((DB_ENV *, DB_TXN *, const char *, const char *, uint32));
-	int  (*dbrename)__P((DB_ENV *, DB_TXN *, const char *, const char *, const char *, uint32));
-	void (*err)__P((const DB_ENV *, int, const char *, ...));
-	void (*errx)__P((const DB_ENV *, const char *, ...));
-	int  (*failchk)__P((DB_ENV *, uint32));
-	int  (*fileid_reset)__P((DB_ENV *, const char *, uint32));
-	int  (*get_alloc)__P((DB_ENV *, void *(**)(size_t), void *(**)(void *, size_t), void(**)(void *)));
-	int  (*get_app_dispatch)__P((DB_ENV *, int(**)(DB_ENV *, DBT *, DB_LSN *, db_recops)));
-	int  (*get_blob_dir)__P((DB_ENV *, const char **));
-	int  (*get_blob_threshold)__P((DB_ENV*, uint32 *));
-	int  (*get_cache_max)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*get_cachesize)__P((DB_ENV *, uint32 *, uint32 *, int *));
-	int  (*get_create_dir)__P((DB_ENV *, const char **));
-	int  (*get_data_dirs)__P((DB_ENV *, const char ***));
-	int  (*get_data_len)__P((DB_ENV *, uint32 *));
-	int  (*get_backup_callbacks)__P((DB_ENV *,
-	    int(**)(DB_ENV *, const char *, const char *, void **),
-	    int(**)(DB_ENV *, uint32, uint32, uint32, uint8 *, void *),
-	    int(**)(DB_ENV *, const char *, void *)));
-	int  (*get_backup_config)__P((DB_ENV *, DB_BACKUP_CONFIG, uint32 *));
-	int  (*get_encrypt_flags)__P((DB_ENV *, uint32 *));
-	void (*get_errcall)__P((DB_ENV *, void(**)(const DB_ENV *, const char *, const char *)));
-	void (*get_errfile)__P((DB_ENV *, FILE **));
-	void (*get_errpfx)__P((DB_ENV *, const char **));
-	int  (*get_ext_file_dir)__P((DB_ENV *, const char **));
-	int  (*get_ext_file_threshold)__P((DB_ENV*, uint32 *));
-	int  (*get_feedback)__P((DB_ENV *, void(**)(DB_ENV *, int, int)));
-	int  (*get_flags)__P((DB_ENV *, uint32 *));
-	int  (*get_home)__P((DB_ENV *, const char **));
-	int  (*get_intermediate_dir_mode)__P((DB_ENV *, const char **));
-	int  (*get_isalive)__P((DB_ENV *, int(**)(DB_ENV *, pid_t, db_threadid_t, uint32)));
-	int  (*get_lg_bsize)__P((DB_ENV *, uint32 *));
-	int  (*get_lg_dir)__P((DB_ENV *, const char **));
-	int  (*get_lg_filemode)__P((DB_ENV *, int *));
-	int  (*get_lg_max)__P((DB_ENV *, uint32 *));
-	int  (*get_lg_regionmax)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_conflicts)__P((DB_ENV *, const uint8 **, int *));
-	int  (*get_lk_detect)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_max_lockers)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_max_locks)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_max_objects)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_partitions)__P((DB_ENV *, uint32 *));
-	int  (*get_lk_priority)__P((DB_ENV *, uint32, uint32 *));
-	int  (*get_lk_tablesize)__P((DB_ENV *, uint32 *));
-	int  (*get_memory_init)__P((DB_ENV *, DB_MEM_CONFIG, uint32 *));
-	int  (*get_memory_max)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*get_metadata_dir)__P((DB_ENV *, const char **));
-	int  (*get_mp_max_openfd)__P((DB_ENV *, int *));
-	int  (*get_mp_max_write)__P((DB_ENV *, int *, db_timeout_t *));
-	int  (*get_mp_mmapsize)__P((DB_ENV *, size_t *));
-	int  (*get_mp_mtxcount)__P((DB_ENV *, uint32 *));
-	int  (*get_mp_pagesize)__P((DB_ENV *, uint32 *));
-	int  (*get_mp_tablesize)__P((DB_ENV *, uint32 *));
-	void (*get_msgcall)__P((DB_ENV *, void(**)(const DB_ENV *, const char *, const char *)));
-	void (*get_msgfile)__P((DB_ENV *, FILE **));
-	void (*get_msgpfx)__P((DB_ENV *, const char **));
-	int  (*get_open_flags)__P((DB_ENV *, uint32 *));
-	int  (*get_region_dir)__P((DB_ENV *, const char **));
-	int  (*get_slice_count)__P((DB_ENV *, uint32 *));
-	int  (*get_slices)__P((DB_ENV *, DB_ENV ***));
-	int  (*get_shm_key)__P((DB_ENV *, long *));
-	int  (*get_thread_count)__P((DB_ENV *, uint32 *));
-	int  (*get_thread_id_fn)__P((DB_ENV *, void(**)(DB_ENV *, pid_t *, db_threadid_t *)));
-	int  (*get_thread_id_string_fn)__P((DB_ENV *, char *(**)(DB_ENV *, pid_t, db_threadid_t, char *)));
-	int  (*get_timeout)__P((DB_ENV *, db_timeout_t *, uint32));
-	int  (*get_tmp_dir)__P((DB_ENV *, const char **));
-	int  (*get_tx_max)__P((DB_ENV *, uint32 *));
-	int  (*get_tx_timestamp)__P((DB_ENV *, time_t *));
-	int  (*get_verbose)__P((DB_ENV *, uint32, int *));
-	int  (*is_bigendian)__P((void));
-	int  (*lock_detect)__P((DB_ENV *, uint32, uint32, int *));
-	int  (*lock_get)__P((DB_ENV *, uint32, uint32, DBT *, db_lockmode_t, DB_LOCK *));
-	int  (*lock_id)__P((DB_ENV *, uint32 *));
-	int  (*lock_id_free)__P((DB_ENV *, uint32));
-	int  (*lock_put)__P((DB_ENV *, DB_LOCK *));
-	int  (*lock_stat)__P((DB_ENV *, DB_LOCK_STAT **, uint32));
-	int  (*lock_stat_print)__P((DB_ENV *, uint32));
-	int  (*lock_vec)__P((DB_ENV *, uint32, uint32, DB_LOCKREQ *, int, DB_LOCKREQ **));
-	int  (*log_archive)__P((DB_ENV *, char **[], uint32));
-	int  (*log_cursor)__P((DB_ENV *, DB_LOGC **, uint32));
-	int  (*log_file)__P((DB_ENV *, const DB_LSN *, char *, size_t));
-	int  (*log_flush)__P((DB_ENV *, const DB_LSN *));
-	int  (*log_get_config)__P((DB_ENV *, uint32, int *));
-	int  (*log_printf)__P((DB_ENV *, DB_TXN *, const char *, ...));
-	int  (*log_put)__P((DB_ENV *, DB_LSN *, const DBT *, uint32));
-	int  (*log_put_record)__P((DB_ENV *, DB *, DB_TXN *, DB_LSN *, uint32, uint32, uint32, uint32, DB_LOG_RECSPEC *, ...));
-	int  (*log_read_record)__P((DB_ENV *, DB **, void *, void *, DB_LOG_RECSPEC *, uint32, void **));
-	int  (*log_set_config)__P((DB_ENV *, uint32, int));
-	int  (*log_stat)__P((DB_ENV *, DB_LOG_STAT **, uint32));
-	int  (*log_stat_print)__P((DB_ENV *, uint32));
-	int  (*log_verify)__P((DB_ENV *, const DB_LOG_VERIFY_CONFIG *));
-	int  (*lsn_reset)__P((DB_ENV *, const char *, uint32));
-	int  (*memp_fcreate)__P((DB_ENV *, DB_MPOOLFILE **, uint32));
-	int  (*memp_register)__P((DB_ENV *, int, int (*)(DB_ENV *, db_pgno_t, void *, DBT *), int (*)(DB_ENV *, db_pgno_t, void *, DBT *)));
-	int  (*memp_stat)__P((DB_ENV *, DB_MPOOL_STAT **, DB_MPOOL_FSTAT ***, uint32));
-	int  (*memp_stat_print)__P((DB_ENV *, uint32));
-	int  (*memp_sync)__P((DB_ENV *, DB_LSN *));
-	int  (*memp_trickle)__P((DB_ENV *, int, int *));
-	void (*msg)__P((const DB_ENV *, const char *, ...));
-	int  (*mutex_alloc)__P((DB_ENV *, uint32, db_mutex_t *));
-	int  (*mutex_free)__P((DB_ENV *, db_mutex_t));
-	int  (*mutex_get_align)__P((DB_ENV *, uint32 *));
-	int  (*mutex_get_increment)__P((DB_ENV *, uint32 *));
-	int  (*mutex_get_init)__P((DB_ENV *, uint32 *));
-	int  (*mutex_get_max)__P((DB_ENV *, uint32 *));
-	int  (*mutex_get_tas_spins)__P((DB_ENV *, uint32 *));
-	int  (*mutex_lock)__P((DB_ENV *, db_mutex_t));
-	int  (*mutex_set_align)__P((DB_ENV *, uint32));
-	int  (*mutex_set_increment)__P((DB_ENV *, uint32));
-	int  (*mutex_set_init)__P((DB_ENV *, uint32));
-	int  (*mutex_set_max)__P((DB_ENV *, uint32));
-	int  (*mutex_set_tas_spins)__P((DB_ENV *, uint32));
-	int  (*mutex_stat)__P((DB_ENV *, DB_MUTEX_STAT **, uint32));
-	int  (*mutex_stat_print)__P((DB_ENV *, uint32));
-	int  (*mutex_unlock)__P((DB_ENV *, db_mutex_t));
-	int  (*open)__P((DB_ENV *, const char *, uint32, int));
-	int  (*remove)__P((DB_ENV *, const char *, uint32));
-	int  (*rep_elect)__P((DB_ENV *, uint32, uint32, uint32));
-	int  (*rep_flush)__P((DB_ENV *));
-	int  (*rep_get_clockskew)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*rep_get_config)__P((DB_ENV *, uint32, int *));
-	int  (*rep_get_limit)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*rep_get_nsites)__P((DB_ENV *, uint32 *));
-	int  (*rep_get_priority)__P((DB_ENV *, uint32 *));
-	int  (*rep_get_request)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*rep_get_timeout)__P((DB_ENV *, int, uint32 *));
-	int  (*rep_process_message)__P((DB_ENV *, DBT *, DBT *, int, DB_LSN *));
-	int  (*rep_set_clockskew)__P((DB_ENV *, uint32, uint32));
-	int  (*rep_set_config)__P((DB_ENV *, uint32, int));
-	int  (*rep_set_limit)__P((DB_ENV *, uint32, uint32));
-	int  (*rep_set_nsites)__P((DB_ENV *, uint32));
-	int  (*rep_set_priority)__P((DB_ENV *, uint32));
-	int  (*rep_set_request)__P((DB_ENV *, uint32, uint32));
-	int  (*rep_set_timeout)__P((DB_ENV *, int, db_timeout_t));
-	int  (*rep_set_transport)__P((DB_ENV *, int, int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32)));
-	int  (*rep_set_view)__P((DB_ENV *, int (*)(DB_ENV *, const char *, int *, uint32)));
-	int  (*rep_start)__P((DB_ENV *, DBT *, uint32));
-	int  (*rep_stat)__P((DB_ENV *, DB_REP_STAT **, uint32));
-	int  (*rep_stat_print)__P((DB_ENV *, uint32));
-	int  (*rep_sync)__P((DB_ENV *, uint32));
-	int  (*repmgr_channel)__P((DB_ENV *, int, DB_CHANNEL **, uint32));
-	int  (*repmgr_get_ack_policy)__P((DB_ENV *, int *));
-	int  (*repmgr_get_incoming_queue_max)__P((DB_ENV *, uint32 *, uint32 *));
-	int  (*repmgr_local_site)__P((DB_ENV *, DB_SITE **));
-	int  (*repmgr_msg_dispatch)__P((DB_ENV *, void (*)(DB_ENV *, DB_CHANNEL *, DBT *, uint32, uint32), uint32));
-	int  (*repmgr_set_ack_policy)__P((DB_ENV *, int));
-	int  (*repmgr_set_incoming_queue_max)__P((DB_ENV *, uint32, uint32));
-	int  (*repmgr_set_socket)__P((DB_ENV *, int (*)(DB_ENV *, DB_REPMGR_SOCKET, int *, uint32)));
-	int  (*repmgr_site)__P((DB_ENV *, const char *, u_int, DB_SITE**, uint32));
-	int  (*repmgr_site_by_eid)__P((DB_ENV *, int, DB_SITE**));
-	int  (*repmgr_site_list)__P((DB_ENV *, u_int *, DB_REPMGR_SITE **));
-	int  (*repmgr_start)__P((DB_ENV *, int, uint32));
-	int  (*repmgr_stat)__P((DB_ENV *, DB_REPMGR_STAT **, uint32));
-	int  (*repmgr_stat_print)__P((DB_ENV *, uint32));
-	int  (*set_alloc)__P((DB_ENV *, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *)));
-	int  (*set_app_dispatch)__P((DB_ENV *, int (*)(DB_ENV *, DBT *, DB_LSN *, db_recops)));
-	int  (*set_blob_dir)__P((DB_ENV *, const char *));
-	int  (*set_blob_threshold)__P((DB_ENV *, uint32, uint32));
-	int  (*set_cache_max)__P((DB_ENV *, uint32, uint32));
-	int  (*set_cachesize)__P((DB_ENV *, uint32, uint32, int));
-	int  (*set_create_dir)__P((DB_ENV *, const char *));
-	int  (*set_data_dir)__P((DB_ENV *, const char *));
-	int  (*set_data_len)__P((DB_ENV *, uint32));
-	int  (*set_backup_callbacks)__P((DB_ENV *, int (*)(DB_ENV *, const char *, const char *, void **),
-	    int (*)(DB_ENV *, uint32, uint32, uint32, uint8 *, void *), int (*)(DB_ENV *, const char *, void *)));
-	int  (*set_backup_config)__P((DB_ENV *, DB_BACKUP_CONFIG, uint32));
-	int  (*set_encrypt)__P((DB_ENV *, const char *, uint32));
-	void (*set_errcall)__P((DB_ENV *, void (*)(const DB_ENV *, const char *, const char *)));
-	void (*set_errfile)__P((DB_ENV *, FILE *));
-	void (*set_errpfx)__P((DB_ENV *, const char *));
-	int  (*set_event_notify)__P((DB_ENV *, void (*)(DB_ENV *, uint32, void *)));
-	int  (*set_ext_file_dir)__P((DB_ENV *, const char *));
-	int  (*set_ext_file_threshold)__P((DB_ENV *, uint32, uint32));
-	int  (*set_feedback)__P((DB_ENV *, void (*)(DB_ENV *, int, int)));
-	int  (*set_flags)__P((DB_ENV *, uint32, int));
-	int  (*set_intermediate_dir_mode)__P((DB_ENV *, const char *));
-	int  (*set_isalive)__P((DB_ENV *, int (*)(DB_ENV *, pid_t, db_threadid_t, uint32)));
-	int  (*set_lg_bsize)__P((DB_ENV *, uint32));
-	int  (*set_lg_dir)__P((DB_ENV *, const char *));
-	int  (*set_lg_filemode)__P((DB_ENV *, int));
-	int  (*set_lg_max)__P((DB_ENV *, uint32));
-	int  (*set_lg_regionmax)__P((DB_ENV *, uint32));
-	int  (*set_lk_conflicts)__P((DB_ENV *, uint8 *, int));
-	int  (*set_lk_detect)__P((DB_ENV *, uint32));
-	int  (*set_lk_max_lockers)__P((DB_ENV *, uint32));
-	int  (*set_lk_max_locks)__P((DB_ENV *, uint32));
-	int  (*set_lk_max_objects)__P((DB_ENV *, uint32));
-	int  (*set_lk_partitions)__P((DB_ENV *, uint32));
-	int  (*set_lk_priority)__P((DB_ENV *, uint32, uint32));
-	int  (*set_lk_tablesize)__P((DB_ENV *, uint32));
-	int  (*set_memory_init)__P((DB_ENV *, DB_MEM_CONFIG, uint32));
-	int  (*set_memory_max)__P((DB_ENV *, uint32, uint32));
-	int  (*set_metadata_dir)__P((DB_ENV *, const char *));
-	int  (*set_mp_max_openfd)__P((DB_ENV *, int));
-	int  (*set_mp_max_write)__P((DB_ENV *, int, db_timeout_t));
-	int  (*set_mp_mmapsize)__P((DB_ENV *, size_t));
-	int  (*set_mp_mtxcount)__P((DB_ENV *, uint32));
-	int  (*set_mp_pagesize)__P((DB_ENV *, uint32));
-	int  (*set_mp_tablesize)__P((DB_ENV *, uint32));
-	void (*set_msgcall)__P((DB_ENV *, void (*)(const DB_ENV *, const char *, const char *)));
-	void (*set_msgfile)__P((DB_ENV *, FILE *));
-	void (*set_msgpfx)__P((DB_ENV *, const char *));
-	int  (*set_paniccall)__P((DB_ENV *, void (*)(DB_ENV *, int)));
-	int  (*set_region_dir)__P((DB_ENV *, const char *));
-	int  (*set_shm_key)__P((DB_ENV *, long));
-	int  (*set_thread_count)__P((DB_ENV *, uint32));
-	int  (*set_thread_id)__P((DB_ENV *, void (*)(DB_ENV *, pid_t *, db_threadid_t *)));
-	int  (*set_thread_id_string)__P((DB_ENV *, char *(*)(DB_ENV *, pid_t, db_threadid_t, char *)));
-	int  (*set_timeout)__P((DB_ENV *, db_timeout_t, uint32));
-	int  (*set_tmp_dir)__P((DB_ENV *, const char *));
-	int  (*set_tx_max)__P((DB_ENV *, uint32));
-	int  (*set_tx_timestamp)__P((DB_ENV *, time_t *));
-	int  (*set_verbose)__P((DB_ENV *, uint32, int));
-	int  (*txn_applied)__P((DB_ENV *, DB_TXN_TOKEN *, db_timeout_t, uint32));
-	int  (*stat_print)__P((DB_ENV *, uint32));
-	int  (*txn_begin)__P((DB_ENV *, DB_TXN *, DB_TXN **, uint32));
-	int  (*txn_checkpoint)__P((DB_ENV *, uint32, uint32, uint32));
-	int  (*txn_recover)__P((DB_ENV *, DB_PREPLIST *, long, long *, uint32));
-	int  (*txn_stat)__P((DB_ENV *, DB_TXN_STAT **, uint32));
-	int  (*txn_stat_print)__P((DB_ENV *, uint32));
+	int  (*add_data_dir)(DB_ENV *, const char *);
+	int  (*backup)(DB_ENV *, const char *, uint32);
+	int  (*cdsgroup_begin)(DB_ENV *, DB_TXN **);
+	int  (*close)(DB_ENV *, uint32);
+	int  (*dbbackup)(DB_ENV *, const char *, const char *, uint32);
+	int  (*dbremove)(DB_ENV *, DB_TXN *, const char *, const char *, uint32);
+	int  (*dbrename)(DB_ENV *, DB_TXN *, const char *, const char *, const char *, uint32);
+	void (*err)(const DB_ENV *, int, const char *, ...);
+	void (*errx)(const DB_ENV *, const char *, ...);
+	int  (*failchk)(DB_ENV *, uint32);
+	int  (*fileid_reset)(DB_ENV *, const char *, uint32);
+	int  (*get_alloc)(DB_ENV *, void *(**)(size_t), void *(**)(void *, size_t), void(**)(void *));
+	int  (*get_app_dispatch)(DB_ENV *, int(**)(DB_ENV *, DBT *, DB_LSN *, db_recops));
+	int  (*get_blob_dir)(DB_ENV *, const char **);
+	int  (*get_blob_threshold)(DB_ENV*, uint32 *);
+	int  (*get_cache_max)(DB_ENV *, uint32 *, uint32 *);
+	int  (*get_cachesize)(DB_ENV *, uint32 *, uint32 *, int *);
+	int  (*get_create_dir)(DB_ENV *, const char **);
+	int  (*get_data_dirs)(DB_ENV *, const char ***);
+	int  (*get_data_len)(DB_ENV *, uint32 *);
+	int  (*get_backup_callbacks)(DB_ENV *, int(**)(DB_ENV *, const char *, const char *, void **), int(**)(DB_ENV *, uint32, uint32, uint32, uint8 *, void *), int(**)(DB_ENV *, const char *, void *));
+	int  (*get_backup_config)(DB_ENV *, DB_BACKUP_CONFIG, uint32 *);
+	int  (*get_encrypt_flags)(DB_ENV *, uint32 *);
+	void (*get_errcall)(DB_ENV *, void(**)(const DB_ENV *, const char *, const char *));
+	void (*get_errfile)(DB_ENV *, FILE **);
+	void (*get_errpfx)(DB_ENV *, const char **);
+	int  (*get_ext_file_dir)(DB_ENV *, const char **);
+	int  (*get_ext_file_threshold)(DB_ENV*, uint32 *);
+	int  (*get_feedback)(DB_ENV *, void(**)(DB_ENV *, int, int));
+	int  (*get_flags)(DB_ENV *, uint32 *);
+	int  (*get_home)(DB_ENV *, const char **);
+	int  (*get_intermediate_dir_mode)(DB_ENV *, const char **);
+	int  (*get_isalive)(DB_ENV *, int(**)(DB_ENV *, pid_t, db_threadid_t, uint32));
+	int  (*get_lg_bsize)(DB_ENV *, uint32 *);
+	int  (*get_lg_dir)(DB_ENV *, const char **);
+	int  (*get_lg_filemode)(DB_ENV *, int *);
+	int  (*get_lg_max)(DB_ENV *, uint32 *);
+	int  (*get_lg_regionmax)(DB_ENV *, uint32 *);
+	int  (*get_lk_conflicts)(DB_ENV *, const uint8 **, int *);
+	int  (*get_lk_detect)(DB_ENV *, uint32 *);
+	int  (*get_lk_max_lockers)(DB_ENV *, uint32 *);
+	int  (*get_lk_max_locks)(DB_ENV *, uint32 *);
+	int  (*get_lk_max_objects)(DB_ENV *, uint32 *);
+	int  (*get_lk_partitions)(DB_ENV *, uint32 *);
+	int  (*get_lk_priority)(DB_ENV *, uint32, uint32 *);
+	int  (*get_lk_tablesize)(DB_ENV *, uint32 *);
+	int  (*get_memory_init)(DB_ENV *, DB_MEM_CONFIG, uint32 *);
+	int  (*get_memory_max)(DB_ENV *, uint32 *, uint32 *);
+	int  (*get_metadata_dir)(DB_ENV *, const char **);
+	int  (*get_mp_max_openfd)(DB_ENV *, int *);
+	int  (*get_mp_max_write)(DB_ENV *, int *, db_timeout_t *);
+	int  (*get_mp_mmapsize)(DB_ENV *, size_t *);
+	int  (*get_mp_mtxcount)(DB_ENV *, uint32 *);
+	int  (*get_mp_pagesize)(DB_ENV *, uint32 *);
+	int  (*get_mp_tablesize)(DB_ENV *, uint32 *);
+	void (*get_msgcall)(DB_ENV *, void(**)(const DB_ENV *, const char *, const char *));
+	void (*get_msgfile)(DB_ENV *, FILE **);
+	void (*get_msgpfx)(DB_ENV *, const char **);
+	int  (*get_open_flags)(DB_ENV *, uint32 *);
+	int  (*get_region_dir)(DB_ENV *, const char **);
+	int  (*get_slice_count)(DB_ENV *, uint32 *);
+	int  (*get_slices)(DB_ENV *, DB_ENV ***);
+	int  (*get_shm_key)(DB_ENV *, long *);
+	int  (*get_thread_count)(DB_ENV *, uint32 *);
+	int  (*get_thread_id_fn)(DB_ENV *, void(**)(DB_ENV *, pid_t *, db_threadid_t *));
+	int  (*get_thread_id_string_fn)(DB_ENV *, char *(**)(DB_ENV *, pid_t, db_threadid_t, char *));
+	int  (*get_timeout)(DB_ENV *, db_timeout_t *, uint32);
+	int  (*get_tmp_dir)(DB_ENV *, const char **);
+	int  (*get_tx_max)(DB_ENV *, uint32 *);
+	int  (*get_tx_timestamp)(DB_ENV *, time_t *);
+	int  (*get_verbose)(DB_ENV *, uint32, int *);
+	int  (*is_bigendian)(void);
+	int  (*lock_detect)(DB_ENV *, uint32, uint32, int *);
+	int  (*lock_get)(DB_ENV *, uint32, uint32, DBT *, db_lockmode_t, DB_LOCK *);
+	int  (*lock_id)(DB_ENV *, uint32 *);
+	int  (*lock_id_free)(DB_ENV *, uint32);
+	int  (*lock_put)(DB_ENV *, DB_LOCK *);
+	int  (*lock_stat)(DB_ENV *, DB_LOCK_STAT **, uint32);
+	int  (*lock_stat_print)(DB_ENV *, uint32);
+	int  (*lock_vec)(DB_ENV *, uint32, uint32, DB_LOCKREQ *, int, DB_LOCKREQ **);
+	int  (*log_archive)(DB_ENV *, char **[], uint32);
+	int  (*log_cursor)(DB_ENV *, DB_LOGC **, uint32);
+	int  (*log_file)(DB_ENV *, const DB_LSN *, char *, size_t);
+	int  (*log_flush)(DB_ENV *, const DB_LSN *);
+	int  (*log_get_config)(DB_ENV *, uint32, int *);
+	int  (*log_printf)(DB_ENV *, DB_TXN *, const char *, ...);
+	int  (*log_put)(DB_ENV *, DB_LSN *, const DBT *, uint32);
+	int  (*log_put_record)(DB_ENV *, DB *, DB_TXN *, DB_LSN *, uint32, uint32, uint32, uint32, DB_LOG_RECSPEC *, ...);
+	int  (*log_read_record)(DB_ENV *, DB **, void *, void *, DB_LOG_RECSPEC *, uint32, void **);
+	int  (*log_set_config)(DB_ENV *, uint32, int);
+	int  (*log_stat)(DB_ENV *, DB_LOG_STAT **, uint32);
+	int  (*log_stat_print)(DB_ENV *, uint32);
+	int  (*log_verify)(DB_ENV *, const DB_LOG_VERIFY_CONFIG *);
+	int  (*lsn_reset)(DB_ENV *, const char *, uint32);
+	int  (*memp_fcreate)(DB_ENV *, DB_MPOOLFILE **, uint32);
+	int  (*memp_register)(DB_ENV *, int, int (*)(DB_ENV *, db_pgno_t, void *, DBT *), int (*)(DB_ENV *, db_pgno_t, void *, DBT *));
+	int  (*memp_stat)(DB_ENV *, DB_MPOOL_STAT **, DB_MPOOL_FSTAT ***, uint32);
+	int  (*memp_stat_print)(DB_ENV *, uint32);
+	int  (*memp_sync)(DB_ENV *, DB_LSN *);
+	int  (*memp_trickle)(DB_ENV *, int, int *);
+	void (*msg)(const DB_ENV *, const char *, ...);
+	int  (*mutex_alloc)(DB_ENV *, uint32, db_mutex_t *);
+	int  (*mutex_free)(DB_ENV *, db_mutex_t);
+	int  (*mutex_get_align)(DB_ENV *, uint32 *);
+	int  (*mutex_get_increment)(DB_ENV *, uint32 *);
+	int  (*mutex_get_init)(DB_ENV *, uint32 *);
+	int  (*mutex_get_max)(DB_ENV *, uint32 *);
+	int  (*mutex_get_tas_spins)(DB_ENV *, uint32 *);
+	int  (*mutex_lock)(DB_ENV *, db_mutex_t);
+	int  (*mutex_set_align)(DB_ENV *, uint32);
+	int  (*mutex_set_increment)(DB_ENV *, uint32);
+	int  (*mutex_set_init)(DB_ENV *, uint32);
+	int  (*mutex_set_max)(DB_ENV *, uint32);
+	int  (*mutex_set_tas_spins)(DB_ENV *, uint32);
+	int  (*mutex_stat)(DB_ENV *, DB_MUTEX_STAT **, uint32);
+	int  (*mutex_stat_print)(DB_ENV *, uint32);
+	int  (*mutex_unlock)(DB_ENV *, db_mutex_t);
+	int  (*open)(DB_ENV *, const char *, uint32, int);
+	int  (*remove)(DB_ENV *, const char *, uint32);
+	int  (*rep_elect)(DB_ENV *, uint32, uint32, uint32);
+	int  (*rep_flush)(DB_ENV *);
+	int  (*rep_get_clockskew)(DB_ENV *, uint32 *, uint32 *);
+	int  (*rep_get_config)(DB_ENV *, uint32, int *);
+	int  (*rep_get_limit)(DB_ENV *, uint32 *, uint32 *);
+	int  (*rep_get_nsites)(DB_ENV *, uint32 *);
+	int  (*rep_get_priority)(DB_ENV *, uint32 *);
+	int  (*rep_get_request)(DB_ENV *, uint32 *, uint32 *);
+	int  (*rep_get_timeout)(DB_ENV *, int, uint32 *);
+	int  (*rep_process_message)(DB_ENV *, DBT *, DBT *, int, DB_LSN *);
+	int  (*rep_set_clockskew)(DB_ENV *, uint32, uint32);
+	int  (*rep_set_config)(DB_ENV *, uint32, int);
+	int  (*rep_set_limit)(DB_ENV *, uint32, uint32);
+	int  (*rep_set_nsites)(DB_ENV *, uint32);
+	int  (*rep_set_priority)(DB_ENV *, uint32);
+	int  (*rep_set_request)(DB_ENV *, uint32, uint32);
+	int  (*rep_set_timeout)(DB_ENV *, int, db_timeout_t);
+	int  (*rep_set_transport)(DB_ENV *, int, int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32));
+	int  (*rep_set_view)(DB_ENV *, int (*)(DB_ENV *, const char *, int *, uint32));
+	int  (*rep_start)(DB_ENV *, DBT *, uint32);
+	int  (*rep_stat)(DB_ENV *, DB_REP_STAT **, uint32);
+	int  (*rep_stat_print)(DB_ENV *, uint32);
+	int  (*rep_sync)(DB_ENV *, uint32);
+	int  (*repmgr_channel)(DB_ENV *, int, DB_CHANNEL **, uint32);
+	int  (*repmgr_get_ack_policy)(DB_ENV *, int *);
+	int  (*repmgr_get_incoming_queue_max)(DB_ENV *, uint32 *, uint32 *);
+	int  (*repmgr_local_site)(DB_ENV *, DB_SITE **);
+	int  (*repmgr_msg_dispatch)(DB_ENV *, void (*)(DB_ENV *, DB_CHANNEL *, DBT *, uint32, uint32), uint32);
+	int  (*repmgr_set_ack_policy)(DB_ENV *, int);
+	int  (*repmgr_set_incoming_queue_max)(DB_ENV *, uint32, uint32);
+	int  (*repmgr_set_socket)(DB_ENV *, int (*)(DB_ENV *, DB_REPMGR_SOCKET, int *, uint32));
+	int  (*repmgr_site)(DB_ENV *, const char *, u_int, DB_SITE**, uint32);
+	int  (*repmgr_site_by_eid)(DB_ENV *, int, DB_SITE**);
+	int  (*repmgr_site_list)(DB_ENV *, u_int *, DB_REPMGR_SITE **);
+	int  (*repmgr_start)(DB_ENV *, int, uint32);
+	int  (*repmgr_stat)(DB_ENV *, DB_REPMGR_STAT **, uint32);
+	int  (*repmgr_stat_print)(DB_ENV *, uint32);
+	int  (*set_alloc)(DB_ENV *, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *));
+	int  (*set_app_dispatch)(DB_ENV *, int (*)(DB_ENV *, DBT *, DB_LSN *, db_recops));
+	int  (*set_blob_dir)(DB_ENV *, const char *);
+	int  (*set_blob_threshold)(DB_ENV *, uint32, uint32);
+	int  (*set_cache_max)(DB_ENV *, uint32, uint32);
+	int  (*set_cachesize)(DB_ENV *, uint32, uint32, int);
+	int  (*set_create_dir)(DB_ENV *, const char *);
+	int  (*set_data_dir)(DB_ENV *, const char *);
+	int  (*set_data_len)(DB_ENV *, uint32);
+	int  (*set_backup_callbacks)(DB_ENV *, int (*)(DB_ENV *, const char *, const char *, void **), int (*)(DB_ENV *, uint32, uint32, uint32, uint8 *, void *), int (*)(DB_ENV *, const char *, void *));
+	int  (*set_backup_config)(DB_ENV *, DB_BACKUP_CONFIG, uint32);
+	int  (*set_encrypt)(DB_ENV *, const char *, uint32);
+	void (*set_errcall)(DB_ENV *, void (*)(const DB_ENV *, const char *, const char *));
+	void (*set_errfile)(DB_ENV *, FILE *);
+	void (*set_errpfx)(DB_ENV *, const char *);
+	int  (*set_event_notify)(DB_ENV *, void (*)(DB_ENV *, uint32, void *));
+	int  (*set_ext_file_dir)(DB_ENV *, const char *);
+	int  (*set_ext_file_threshold)(DB_ENV *, uint32, uint32);
+	int  (*set_feedback)(DB_ENV *, void (*)(DB_ENV *, int, int));
+	int  (*set_flags)(DB_ENV *, uint32, int);
+	int  (*set_intermediate_dir_mode)(DB_ENV *, const char *);
+	int  (*set_isalive)(DB_ENV *, int (*)(DB_ENV *, pid_t, db_threadid_t, uint32));
+	int  (*set_lg_bsize)(DB_ENV *, uint32);
+	int  (*set_lg_dir)(DB_ENV *, const char *);
+	int  (*set_lg_filemode)(DB_ENV *, int);
+	int  (*set_lg_max)(DB_ENV *, uint32);
+	int  (*set_lg_regionmax)(DB_ENV *, uint32);
+	int  (*set_lk_conflicts)(DB_ENV *, uint8 *, int);
+	int  (*set_lk_detect)(DB_ENV *, uint32);
+	int  (*set_lk_max_lockers)(DB_ENV *, uint32);
+	int  (*set_lk_max_locks)(DB_ENV *, uint32);
+	int  (*set_lk_max_objects)(DB_ENV *, uint32);
+	int  (*set_lk_partitions)(DB_ENV *, uint32);
+	int  (*set_lk_priority)(DB_ENV *, uint32, uint32);
+	int  (*set_lk_tablesize)(DB_ENV *, uint32);
+	int  (*set_memory_init)(DB_ENV *, DB_MEM_CONFIG, uint32);
+	int  (*set_memory_max)(DB_ENV *, uint32, uint32);
+	int  (*set_metadata_dir)(DB_ENV *, const char *);
+	int  (*set_mp_max_openfd)(DB_ENV *, int);
+	int  (*set_mp_max_write)(DB_ENV *, int, db_timeout_t);
+	int  (*set_mp_mmapsize)(DB_ENV *, size_t);
+	int  (*set_mp_mtxcount)(DB_ENV *, uint32);
+	int  (*set_mp_pagesize)(DB_ENV *, uint32);
+	int  (*set_mp_tablesize)(DB_ENV *, uint32);
+	void (*set_msgcall)(DB_ENV *, void (*)(const DB_ENV *, const char *, const char *));
+	void (*set_msgfile)(DB_ENV *, FILE *);
+	void (*set_msgpfx)(DB_ENV *, const char *);
+	int  (*set_paniccall)(DB_ENV *, void (*)(DB_ENV *, int));
+	int  (*set_region_dir)(DB_ENV *, const char *);
+	int  (*set_shm_key)(DB_ENV *, long);
+	int  (*set_thread_count)(DB_ENV *, uint32);
+	int  (*set_thread_id)(DB_ENV *, void (*)(DB_ENV *, pid_t *, db_threadid_t *));
+	int  (*set_thread_id_string)(DB_ENV *, char *(*)(DB_ENV *, pid_t, db_threadid_t, char *));
+	int  (*set_timeout)(DB_ENV *, db_timeout_t, uint32);
+	int  (*set_tmp_dir)(DB_ENV *, const char *);
+	int  (*set_tx_max)(DB_ENV *, uint32);
+	int  (*set_tx_timestamp)(DB_ENV *, time_t *);
+	int  (*set_verbose)(DB_ENV *, uint32, int);
+	int  (*txn_applied)(DB_ENV *, DB_TXN_TOKEN *, db_timeout_t, uint32);
+	int  (*stat_print)(DB_ENV *, uint32);
+	int  (*txn_begin)(DB_ENV *, DB_TXN *, DB_TXN **, uint32);
+	int  (*txn_checkpoint)(DB_ENV *, uint32, uint32, uint32);
+	int  (*txn_recover)(DB_ENV *, DB_PREPLIST *, long, long *, uint32);
+	int  (*txn_stat)(DB_ENV *, DB_TXN_STAT **, uint32);
+	int  (*txn_stat_print)(DB_ENV *, uint32);
 	/* DB_ENV PUBLIC HANDLE LIST END */
 	/* DB_ENV PRIVATE HANDLE LIST BEGIN */
-	int  (*prdbt)__P((DBT *, int, const char *, void *, int (*)(void *, const void *), int, int, int));
+	int  (*prdbt)(DBT *, int, const char *, void *, int (*)(void *, const void *), int, int, int);
 	/* DB_ENV PRIVATE HANDLE LIST END */
 };
 
@@ -2800,8 +2758,8 @@ struct __db_env {
  * rather than a byte count.
  */
 struct __db_distab {
-	int   (**int_dispatch)__P((ENV *, DBT *, DB_LSN *, db_recops, void *));
-	int   (**ext_dispatch)__P((DB_ENV *, DBT *, DB_LSN *, db_recops));
+	int   (**int_dispatch)(ENV *, DBT *, DB_LSN *, db_recops, void *);
+	int   (**ext_dispatch)(DB_ENV *, DBT *, DB_LSN *, db_recops);
 	size_t int_size;
 	size_t ext_size;
 };
@@ -2824,11 +2782,10 @@ struct __db_channel {
 	db_timeout_t timeout;
 
 	/* DB_CHANNEL PUBLIC HANDLE LIST BEGIN */
-	int (*close)__P((DB_CHANNEL *, uint32));
-	int (*send_msg)__P((DB_CHANNEL *, DBT *, uint32, uint32));
-	int (*send_request)__P((DB_CHANNEL *,
-	    DBT *, uint32, DBT *, db_timeout_t, uint32));
-	int  (*set_timeout)__P((DB_CHANNEL *, db_timeout_t));
+	int (*close)(DB_CHANNEL *, uint32);
+	int (*send_msg)(DB_CHANNEL *, DBT *, uint32, uint32);
+	int (*send_request)(DB_CHANNEL *, DBT *, uint32, DBT *, db_timeout_t, uint32);
+	int (*set_timeout)(DB_CHANNEL *, db_timeout_t);
 	/* DB_CHANNEL PUBLIC HANDLE LIST END */
 };
 
@@ -2840,12 +2797,12 @@ struct __db_site {
 	uint32 flags;
 
 	/* DB_SITE PUBLIC HANDLE LIST BEGIN */
-	int (*get_address)__P((DB_SITE *, const char **, u_int *));
-	int (*get_config)__P((DB_SITE *, uint32, uint32 *));
-	int (*get_eid)__P((DB_SITE *, int *));
-	int (*set_config)__P((DB_SITE *, uint32, uint32));
-	int (*remove)__P((DB_SITE *));
-	int (*close)__P((DB_SITE *));
+	int (*get_address)(DB_SITE *, const char **, u_int *);
+	int (*get_config)(DB_SITE *, uint32, uint32 *);
+	int (*get_eid)(DB_SITE *, int *);
+	int (*set_config)(DB_SITE *, uint32, uint32);
+	int (*remove)(DB_SITE *);
+	int (*close)(DB_SITE *);
 	/* DB_SITE PUBLIC HANDLE LIST END */
 };
 
@@ -2857,11 +2814,10 @@ typedef struct __db DBM;
 
 #define DBM_INSERT      0               /* Flags to dbm_store(). */
 #define DBM_REPLACE     1
-
-/*
- * The DB support for ndbm(3) always appends this suffix to the
- * file name to avoid overwriting the user's original database.
- */
+// 
+// The DB support for ndbm(3) always appends this suffix to the
+// file name to avoid overwriting the user's original database.
+// 
 #define DBM_SUFFIX      ".db"
 
 #if defined(_XPG4_2)
@@ -2875,11 +2831,9 @@ typedef struct {
 	int dsize;
 } datum;
 #endif
-
-/*
- * Translate NDBM calls into DB calls so that DB doesn't step on the
- * application's name space.
- */
+// 
+// Translate NDBM calls into DB calls so that DB doesn't step on the application's name space.
+// 
 #define dbm_clearerr(a)         __db_ndbm_clearerr(a)
 #define dbm_close(a)            __db_ndbm_close(a)
 #define dbm_delete(a, b)        __db_ndbm_delete(a, b)
@@ -2891,9 +2845,7 @@ typedef struct {
 #define dbm_open(a, b, c)       __db_ndbm_open(a, b, c)
 #define dbm_pagfno(a)           __db_ndbm_pagfno(a)
 #define dbm_rdonly(a)           __db_ndbm_rdonly(a)
-#define dbm_store(a, b, c, d) \
-	__db_ndbm_store(a, b, c, d)
-
+#define dbm_store(a, b, c, d)   __db_ndbm_store(a, b, c, d)
 /*
  * Translate DBM calls into DB calls so that DB doesn't step on the
  * application's name space.
@@ -2904,16 +2856,15 @@ typedef struct {
 #define dbminit(a)      __db_dbm_init(a)
 #define dbmclose        __db_dbm_close
 #if !defined(__cplusplus)
-#define delete(a)       __db_dbm_delete(a)
+	#define delete(a)       __db_dbm_delete(a)
 #endif
 #define fetch(a)        __db_dbm_fetch(a)
 #define firstkey        __db_dbm_firstkey
 #define nextkey(a)      __db_dbm_nextkey(a)
 #define store(a, b)     __db_dbm_store(a, b)
-
-/*******************************************************
-* Hsearch historic interface.
-*******************************************************/
+// 
+// Hsearch historic interface.
+// 
 typedef enum {
 	FIND, ENTER
 } ACTION;
@@ -3190,64 +3141,64 @@ typedef struct entry {
 extern "C" {
 #endif
 
-int db_copy __P((DB_ENV *, const char *, const char *, const char *));
-int db_create __P((DB **, DB_ENV *, uint32));
-char * db_strerror __P((int));
-int db_env_set_func_assert __P((void (*)(const char *, const char *, int)));
-int db_env_set_func_close __P((int (*)(int)));
-int db_env_set_func_dirfree __P((void (*)(char **, int)));
-int db_env_set_func_dirlist __P((int (*)(const char *, char ***, int *)));
-int db_env_set_func_exists __P((int (*)(const char *, int *)));
-int db_env_set_func_free __P((void (*)(void *)));
-int db_env_set_func_fsync __P((int (*)(int)));
-int db_env_set_func_ftruncate __P((int (*)(int, off_t)));
-int db_env_set_func_ioinfo __P((int (*)(const char *, int, uint32 *, uint32 *, uint32 *)));
-int db_env_set_func_malloc __P((void *(*)(size_t)));
-int db_env_set_func_file_map __P((int (*)(DB_ENV *, char *, size_t, int, void **), int (*)(DB_ENV *, void *)));
-int db_env_set_func_region_map __P((int (*)(DB_ENV *, char *, size_t, int *, void **), int (*)(DB_ENV *, void *)));
-int db_env_set_func_pread __P((ssize_t (*)(int, void *, size_t, off_t)));
-int db_env_set_func_pwrite __P((ssize_t (*)(int, const void *, size_t, off_t)));
-int db_env_set_func_open __P((int (*)(const char *, int, ...)));
-int db_env_set_func_read __P((ssize_t (*)(int, void *, size_t)));
-int db_env_set_func_realloc __P((void *(*)(void *, size_t)));
-int db_env_set_func_rename __P((int (*)(const char *, const char *)));
-int db_env_set_func_seek __P((int (*)(int, off_t, int)));
-int db_env_set_func_unlink __P((int (*)(const char *)));
-int db_env_set_func_write __P((ssize_t (*)(int, const void *, size_t)));
-int db_env_set_func_yield __P((int (*)(u_long, u_long)));
-int db_env_create __P((DB_ENV **, uint32));
-char * db_version __P((int *, int *, int *));
-char * db_full_version __P((int *, int *, int *, int *, int *));
-int log_compare __P((const DB_LSN *, const DB_LSN *));
+int db_copy(DB_ENV *, const char *, const char *, const char *);
+int db_create(DB **, DB_ENV *, uint32);
+char * db_strerror(int);
+int db_env_set_func_assert(void (*)(const char *, const char *, int));
+int db_env_set_func_close(int (*)(int));
+int db_env_set_func_dirfree(void (*)(char **, int));
+int db_env_set_func_dirlist(int (*)(const char *, char ***, int *));
+int db_env_set_func_exists(int (*)(const char *, int *));
+int db_env_set_func_free(void (*)(void *));
+int db_env_set_func_fsync(int (*)(int));
+int db_env_set_func_ftruncate(int (*)(int, off_t));
+int db_env_set_func_ioinfo(int (*)(const char *, int, uint32 *, uint32 *, uint32 *));
+int db_env_set_func_malloc(void *(*)(size_t));
+int db_env_set_func_file_map(int (*)(DB_ENV *, char *, size_t, int, void **), int (*)(DB_ENV *, void *));
+int db_env_set_func_region_map(int (*)(DB_ENV *, char *, size_t, int *, void **), int (*)(DB_ENV *, void *));
+int db_env_set_func_pread(ssize_t (*)(int, void *, size_t, off_t));
+int db_env_set_func_pwrite(ssize_t (*)(int, const void *, size_t, off_t));
+int db_env_set_func_open(int (*)(const char *, int, ...));
+int db_env_set_func_read(ssize_t (*)(int, void *, size_t));
+int db_env_set_func_realloc(void *(*)(void *, size_t));
+int db_env_set_func_rename(int (*)(const char *, const char *));
+int db_env_set_func_seek(int (*)(int, off_t, int));
+int db_env_set_func_unlink(int (*)(const char *));
+int db_env_set_func_write(ssize_t (*)(int, const void *, size_t));
+int db_env_set_func_yield(int (*)(u_long, u_long));
+int db_env_create(DB_ENV **, uint32);
+char * db_version(int *, int *, int *);
+char * db_full_version(int *, int *, int *, int *, int *);
+int log_compare(const DB_LSN *, const DB_LSN *);
 #if defined(DB_WIN32) && !defined(DB_WINCE)
-int db_env_set_win_security __P((SECURITY_ATTRIBUTES * sa));
+int db_env_set_win_security(SECURITY_ATTRIBUTES * sa);
 #endif
-int db_sequence_create __P((DB_SEQUENCE **, DB *, uint32));
+int db_sequence_create(DB_SEQUENCE **, DB *, uint32);
 #if DB_DBM_HSEARCH != 0
-int __db_ndbm_clearerr __P((DBM *));
-void __db_ndbm_close __P((DBM *));
-int __db_ndbm_delete __P((DBM *, datum));
-int __db_ndbm_dirfno __P((DBM *));
-int __db_ndbm_error __P((DBM *));
-datum __db_ndbm_fetch __P((DBM *, datum));
-datum __db_ndbm_firstkey __P((DBM *));
-datum __db_ndbm_nextkey __P((DBM *));
-DBM     * __db_ndbm_open __P((const char *, int, int));
-int __db_ndbm_pagfno __P((DBM *));
-int __db_ndbm_rdonly __P((DBM *));
-int __db_ndbm_store __P((DBM *, datum, datum, int));
-int __db_dbm_close __P((void));
-int __db_dbm_delete __P((datum));
-datum __db_dbm_fetch __P((datum));
-datum __db_dbm_firstkey __P((void));
-int __db_dbm_init __P((char *));
-datum __db_dbm_nextkey __P((datum));
-int __db_dbm_store __P((datum, datum));
+int __db_ndbm_clearerr(DBM *);
+void __db_ndbm_close(DBM *);
+int __db_ndbm_delete(DBM *, datum);
+int __db_ndbm_dirfno(DBM *);
+int __db_ndbm_error(DBM *);
+datum __db_ndbm_fetch(DBM *, datum);
+datum __db_ndbm_firstkey(DBM *);
+datum __db_ndbm_nextkey(DBM *);
+DBM     * __db_ndbm_open(const char *, int, int);
+int __db_ndbm_pagfno(DBM *);
+int __db_ndbm_rdonly(DBM *);
+int __db_ndbm_store(DBM *, datum, datum, int);
+int __db_dbm_close(void);
+int __db_dbm_delete(datum);
+datum __db_dbm_fetch(datum);
+datum __db_dbm_firstkey(void);
+int __db_dbm_init(char *);
+datum __db_dbm_nextkey(datum);
+int __db_dbm_store(datum, datum);
 #endif
 #if DB_DBM_HSEARCH != 0
-int __db_hcreate __P((size_t));
-ENTRY * __db_hsearch __P((ENTRY, ACTION));
-void __db_hdestroy __P((void));
+int __db_hcreate(size_t);
+ENTRY * __db_hsearch(ENTRY, ACTION);
+void __db_hdestroy(void);
 #endif
 
 #if defined(__cplusplus)

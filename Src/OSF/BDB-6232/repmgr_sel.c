@@ -84,7 +84,7 @@ int __repmgr_bow_out(ENV *env)
 	 */
 	rep->sites_avail = 0;
 	DB_EVENT(env, DB_EVENT_REP_LOCAL_SITE_REMOVED, NULL);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_accept __P((ENV *));
@@ -130,23 +130,23 @@ int __repmgr_accept(ENV *env)
 #endif
 			    VPRINT(env, (env, DB_VERB_REPMGR_MISC,
 				"accept error %d considered innocuous", ret));
-			    return (0);
+			    return 0;
 			default:
 			    __db_err(env, ret, DB_STR("3615", "accept error"));
-			    return (ret);
+			    return ret;
 		}
 	}
 	__repmgr_print_addr(env, (struct sockaddr *)&siaddr, "accepted new connection", 1, 0);
 	if((ret = __repmgr_new_connection(env, &conn, s, CONN_NEGOTIATE)) != 0) {
 		(void)closesocket(s);
-		return (ret);
+		return ret;
 	}
 	if((ret = __repmgr_set_keepalive(env, conn)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __repmgr_set_nonblock_conn(conn)) != 0) {
 		__db_err(env, ret, DB_STR("3616", "can't set nonblock after accept"));
 		(void)__repmgr_destroy_conn(env, conn);
-		return (ret);
+		return ret;
 	}
 
 	/*
@@ -159,7 +159,7 @@ int __repmgr_accept(ENV *env)
 	TAILQ_INSERT_TAIL(&db_rep->connections, conn, entries);
 	conn->ref_count++;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -341,14 +341,14 @@ static int __repmgr_send_heartbeat(ENV *env)
 		__os_gettime(env, &db_rep->last_hbeat, 1);
 	permlsn.generation = rep->gen;
 	if((ret = __rep_get_maxpermlsn(env, &permlsn.lsn)) != 0)
-		return (ret);
+		return ret;
 	__repmgr_permlsn_marshal(env, &permlsn, buf);
 	control.data = buf;
 	control.size = __REPMGR_PERMLSN_SIZE;
 	DB_INIT_DBT(rec, NULL, 0);
 	ret = __repmgr_send_broadcast(env, REPMGR_HEARTBEAT, &control, &rec, &unused1, &unused2, &unused3);
 	DB_TEST_RECOVERY_LABEL
-	return (ret);
+	return ret;
 }
 
 /*
@@ -377,17 +377,17 @@ static int __repmgr_call_election(ENV *env)
 
 	master = __repmgr_connected_master(env);
 	if(master == NULL)
-		return (0);
+		return 0;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC,
 	    "heartbeat monitor timeout expired"));
 	STAT(env->rep_handle->region->mstat.st_connection_drop++);
 	if((conn = master->ref.conn.in) != NULL &&
 	    (ret = __repmgr_bust_connection(env, conn)) != 0)
-		return (ret);
+		return ret;
 	if((conn = master->ref.conn.out) != NULL &&
 	    (ret = __repmgr_bust_connection(env, conn)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 /*
@@ -408,16 +408,16 @@ int __repmgr_check_timeouts(ENV *env)
 	if(__repmgr_next_timeout(env, &when, &action)) {
 		__os_gettime(env, &now, 1);
 		if(timespeccmp(&when, &now, <=) && (ret = (*action)(env)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	/* Check the existence of local listener. */
 	if((ret = __repmgr_check_listener(env)) != 0)
-		return (ret);
+		return ret;
 
 	/* Check the existence of master listener. */
 	if((ret = __repmgr_check_master_listener(env)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Check test hook preventing heartbeats and connection attempts.
@@ -429,7 +429,7 @@ int __repmgr_check_timeouts(ENV *env)
 	ret = __repmgr_retry_connections(env);
 
 	DB_TEST_RECOVERY_LABEL
-	return (ret);
+	return ret;
 }
 
 /*
@@ -453,7 +453,7 @@ static int __repmgr_check_listener(ENV *env)
 	 * no need to check listener in listener process or rep unaware process.
 	 */
 	if(!IS_LISTENER_CAND(db_rep))
-		return (0);
+		return 0;
 
 	/*
 	 * If the listener quits due to site removal, no subordinate process
@@ -465,7 +465,7 @@ static int __repmgr_check_listener(ENV *env)
 	 */
 	sites = (SITEINFO *)R_ADDR(env->reginfo, rep->siteinfo_off);
 	if(sites[rep->self_eid].status == SITE_DELETING)
-		return (0);
+		return 0;
 
 	/*
 	 * Check the listener after timeout.  If there is no listener, we
@@ -482,12 +482,12 @@ static int __repmgr_check_listener(ENV *env)
 		/* Check if site address information needs to be refreshed. */
 		if((rep->siteinfo_seq > db_rep->siteinfo_seq) &&
 		    (ret = __repmgr_sync_siteaddr(env)) != 0)
-			return (ret);
+			return ret;
 
 		if(rep->listener == 0)
 			ret = __repmgr_start_takeover(env);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -505,23 +505,23 @@ static int __repmgr_start_takeover(ENV *env)
 	if(th == NULL) {
 		if((ret = __os_calloc(env, 1, sizeof(REPMGR_RUNNABLE),
 		    &th)) != 0)
-			return (ret);
+			return ret;
 		db_rep->takeover_thread = th;
 	}
 	else if(th->finished) {
 		if((ret = __repmgr_thread_join(th)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "takeover thread still running"));
-		return (0);
+		return 0;
 	}
 	th->run = __repmgr_takeover_thread;
 	if((ret = __repmgr_thread_start(env, th)) != 0) {
 		__os_free(env, th);
 		db_rep->takeover_thread = NULL;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -612,7 +612,7 @@ static int __repmgr_reset_last_rcvd(ENV *env)
 	if((master = __repmgr_connected_master(env)) != NULL)
 		__os_gettime(env, &master->last_rcvd_timestamp, 1);
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (0);
+	return 0;
 }
 
 /*
@@ -636,7 +636,7 @@ static int __repmgr_check_master_listener(ENV *env)
 	 * If rep->master_id is invalid, wait until it is ready to check.
 	 */
 	if(!FLD_ISSET((db_rep)->region->config, REP_C_AUTOTAKEOVER) || !timespecisset(&db_rep->m_listener_chk) || !IS_VALID_EID(rep->master_id))
-		return (0);
+		return 0;
 	__os_gettime(env, &t, 1);
 	if(timespeccmp(&t, &db_rep->m_listener_chk, >=)) {
 		master = SITE_FROM_EID(db_rep->region->master_id);
@@ -665,7 +665,7 @@ static int __repmgr_check_master_listener(ENV *env)
 		 */
 		timespecclear(&db_rep->m_listener_chk);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -687,7 +687,7 @@ int __repmgr_refresh_selector(ENV *env)
 	rep = db_rep->region;
 
 	if((ret = __repmgr_wake_main_thread(env)) != 0)
-		return (ret);
+		return ret;
 
 	FOR_EACH_REMOTE_SITE_INDEX(eid) {
 		SET_LISTENER_CAND(1, = 0);
@@ -715,9 +715,9 @@ int __repmgr_refresh_selector(ENV *env)
 		 */
 		if(site->membership == SITE_PRESENT &&
 		    (ret = __repmgr_try_one(env, eid, TRUE)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -751,12 +751,12 @@ static int __repmgr_retry_connections(ENV *env)
 
 		if(site->membership == SITE_PRESENT) {
 			if((ret = __repmgr_try_one(env, eid, FALSE)) != 0)
-				return (ret);
+				return ret;
 		}
 		else
 			site->state = SITE_IDLE;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -797,10 +797,10 @@ int __repmgr_first_try_connections(ENV *env)
 		if(site->state == SITE_IDLE &&
 		    site->membership == SITE_PRESENT &&
 		    (ret = __repmgr_try_one(env, eid, FALSE)) != 0)
-			return (ret);
+			return ret;
 	}
 	DB_TEST_RECOVERY_LABEL
-	return (0);
+	return 0;
 }
 
 /*
@@ -820,12 +820,12 @@ static int __repmgr_try_one(ENV *env, int eid, int refresh)
 	th = site->connector;
 	if(th == NULL) {
 		if((ret = __os_malloc(env, sizeof(REPMGR_RUNNABLE), &th)) != 0)
-			return (ret);
+			return ret;
 		site->connector = th;
 	}
 	else if(th->finished) {
 		if((ret = __repmgr_thread_join(th)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC,
@@ -852,7 +852,7 @@ static int __repmgr_try_one(ENV *env, int eid, int refresh)
 		__os_free(env, th);
 		site->connector = NULL;
 	}
-	return (ret);
+	return ret;
 }
 
 static void * __repmgr_connector_thread(void * argsp)
@@ -982,7 +982,7 @@ cleanup:
 unlock:
 	UNLOCK_MUTEX(db_rep->mutex);
 out:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -996,26 +996,22 @@ int __repmgr_send_v1_handshake(ENV *env, REPMGR_CONNECTION * conn, void * buf, s
 	repmgr_netaddr_t * my_addr;
 	DB_REPMGR_V1_HANDSHAKE buffer;
 	DBT cntrl, rec;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	my_addr = &SITE_FROM_EID(db_rep->self_eid)->net_addr;
-
 	/*
 	 * We're about to send from a structure that has padding holes in it.
 	 * Initializing it keeps Valgrind happy, plus we really shouldn't be
 	 * sending out random garbage anyway (pro forma privacy issue).
 	 */
-	memset(&buffer, 0, sizeof(buffer));
+	memzero(&buffer, sizeof(buffer));
 	buffer.version = 1;
 	buffer.priority = htonl(rep->priority);
 	buffer.port = my_addr->port;
 	cntrl.data = &buffer;
 	cntrl.size = sizeof(buffer);
-
 	rec.data = buf;
 	rec.size = (uint32)len;
-
 	/*
 	 * It would of course be disastrous to block the select() thread, so
 	 * pass the "maxblock" argument as 0.  Fortunately blocking should
@@ -1023,8 +1019,7 @@ int __repmgr_send_v1_handshake(ENV *env, REPMGR_CONNECTION * conn, void * buf, s
 	 * thing we send.  Which is a good thing, because it would be almost as
 	 * disastrous if we allowed ourselves to drop a handshake.
 	 */
-	return (__repmgr_send_one(env,
-	       conn, REPMGR_HANDSHAKE, &cntrl, &rec, 0));
+	return (__repmgr_send_one(env, conn, REPMGR_HANDSHAKE, &cntrl, &rec, 0));
 }
 
 /*
@@ -1054,7 +1049,7 @@ int __repmgr_read_from_site(ENV *env, REPMGR_CONNECTION * conn)
 			case DB_REPMGR_EAGAIN:
 #endif
 			case WOULDBLOCK:
-			    return (0);
+			    return 0;
 
 			case DB_REP_UNAVAIL:
 			    /* Error 0 is understood to mean EOF. */
@@ -1105,14 +1100,14 @@ int __repmgr_read_conn(REPMGR_CONNECTION *conn)
 	 */
 	for(;;) {
 		if((ret = __repmgr_readv(conn->fd, &conn->iovecs.vectors[conn->iovecs.offset], conn->iovecs.count - conn->iovecs.offset, &nr)) != 0)
-			return (ret);
+			return ret;
 
 		if(nr == 0)
 			return (DB_REP_UNAVAIL);
 
 		if(__repmgr_update_consumed(&conn->iovecs, nr)) {
 			/* We've fully read as much as we wanted. */
-			return (0);
+			return 0;
 		}
 	}
 }
@@ -1194,7 +1189,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		    else
 			    COMPQUIET(rec_offset, 0);
 		    if((ret = __os_malloc(env, memsize, &membase)) != 0)
-			    return (ret);
+			    return ret;
 		    conn->input.rep_message = (REPMGR_MESSAGE *)membase;
 		    conn->input.rep_message->size = memsize;
 		    conn->input.rep_message->msg_hdr = msg_hdr;
@@ -1220,7 +1215,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		    size = DB_ALIGN((size_t)(sizeof(REPMGR_MESSAGE) + APP_MSG_SEGMENT_COUNT(msg_hdr) * sizeof(DBT)), MEM_ALIGN);
 		    memsize = size + APP_MSG_BUFFER_SIZE(msg_hdr);
 		    if((ret = __os_malloc(env, memsize, &membase)) != 0)
-			    return (ret);
+			    return ret;
 		    conn->input.rep_message = (REPMGR_MESSAGE *)membase;
 		    conn->input.rep_message->size = memsize;
 		    conn->input.rep_message->msg_hdr = msg_hdr;
@@ -1232,7 +1227,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		case REPMGR_OWN_MSG:
 		    size = sizeof(REPMGR_MESSAGE) + REPMGR_OWN_BUF_SIZE(msg_hdr);
 		    if((ret = __os_malloc(env, size, &membase)) != 0)
-			    return (ret);
+			    return ret;
 		    conn->input.rep_message = (REPMGR_MESSAGE *)membase;
 		    conn->input.rep_message->size = size;
 		    conn->input.rep_message->msg_hdr = msg_hdr;
@@ -1273,7 +1268,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		    if(!F_ISSET(resp, RESP_THREAD_WAITING)) {
 			    /* Caller already timed out; allocate dummy buffer. */
 			    if(size > 0) {
-				    memset(dbt, 0, sizeof(*dbt));
+				    memzero(dbt, sizeof(*dbt));
 				    ret = __os_malloc(env, size, &dbt->data);
 				    F_SET(resp, RESP_DUMMY_BUF);
 			    }
@@ -1292,7 +1287,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		    }
 		    dbt->size = size;
 		    if(ret != 0)
-			    return (ret);
+			    return ret;
 
 		    if(size > 0) {
 			    __repmgr_add_dbt(&conn->iovecs, dbt);
@@ -1304,7 +1299,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 				    F_SET(resp, RESP_COMPLETE);
 				    if((ret = __repmgr_wake_waiters(env,
 					&conn->response_waiters)) != 0)
-					    return (ret);
+					    return ret;
 			    }
 		    }
 		    break;
@@ -1324,7 +1319,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 			    resp->ret = -((int)RESP_ERROR_CODE(msg_hdr));
 			    if((ret = __repmgr_wake_waiters(env,
 				&conn->response_waiters)) != 0)
-				    return (ret);
+				    return ret;
 		    }
 		    else
 			    F_CLR(resp, RESP_IN_USE);
@@ -1333,7 +1328,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 		case REPMGR_HANDSHAKE:
 		case REPMGR_PERMLSN:
 		    if((ret = __repmgr_prepare_simple_input(env, conn, &msg_hdr)) != 0)
-			    return (ret);
+			    return ret;
 		    break;
 
 		default:
@@ -1351,7 +1346,7 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 	else
 		conn->reading_phase = DATA_PHASE;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1368,7 +1363,7 @@ int __repmgr_prepare_simple_input(ENV *env, REPMGR_CONNECTION * conn, __repmgr_m
 	dbt = &conn->input.repmgr_msg.cntrl;
 	if((dbt->size = control_size) > 0) {
 		if((ret = __os_malloc(env, dbt->size, &dbt->data)) != 0)
-			return (ret);
+			return ret;
 		__repmgr_add_dbt(&conn->iovecs, dbt);
 	}
 
@@ -1379,11 +1374,11 @@ int __repmgr_prepare_simple_input(ENV *env, REPMGR_CONNECTION * conn, __repmgr_m
 			dbt = &conn->input.repmgr_msg.cntrl;
 			if(dbt->size > 0)
 				__os_free(env, dbt->data);
-			return (ret);
+			return ret;
 		}
 		__repmgr_add_dbt(&conn->iovecs, dbt);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1427,13 +1422,13 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 		    th = site->connector;
 		    if(th != NULL && th->finished) {
 			    if((ret = __repmgr_thread_join(th)) != 0)
-				    return (ret);
+				    return ret;
 			    __os_free(env, th);
 			    site->connector = NULL;
 		    }
 
 		    if((ret = read_version_response(env, conn)) != 0)
-			    return (ret);
+			    return ret;
 		    break;
 
 		case CONN_NEGOTIATE:
@@ -1445,7 +1440,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 		     */
 		    ONLY_HANDSHAKE(env, conn);
 		    if((ret = send_version_response(env, conn)) != 0)
-			    return (ret);
+			    return ret;
 		    break;
 
 		case CONN_PARAMETERS:
@@ -1461,7 +1456,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 				hostname[dbt->size-1] = '\0';
 				if((ret = accept_handshake(env,
 				    conn, hostname, &subord)) != 0)
-					return (ret);
+					return ret;
 				conn->state = CONN_READY;
 				site = SITE_FROM_EID(conn->eid);
 				/*
@@ -1493,7 +1488,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 				conn->input.rep_message->v.gmdb_msg.conn = conn;
 				TAILQ_REMOVE(&db_rep->connections, conn, entries);
 				if((ret = __repmgr_queue_put(env, conn->input.rep_message)) != 0)
-					return (ret);
+					return ret;
 				break;
 
 			    default:
@@ -1514,7 +1509,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 		    switch(conn->msg_type) {
 			    case REPMGR_PERMLSN:
 				if((ret = record_permlsn(env, conn)) != 0)
-					return (ret);
+					return ret;
 				break;
 
 			    case REPMGR_HEARTBEAT:
@@ -1522,7 +1517,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 			    case REPMGR_REP_MESSAGE:
 				if((ret = __repmgr_queue_put(env,
 				    conn->input.rep_message)) != 0)
-					return (ret);
+					return ret;
 				/*
 				 * The queue has taken over responsibility for the
 				 * rep_message buffer, and will free it later.
@@ -1543,7 +1538,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 				 */
 				conn->input.rep_message->v.gmdb_msg.conn = NULL;
 				if((ret = process_own_msg(env, conn)) != 0)
-					return (ret);
+					return ret;
 				break;
 
 			    case REPMGR_APP_RESPONSE:
@@ -1556,7 +1551,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 					F_SET(resp, RESP_COMPLETE);
 					if((ret = __repmgr_wake_waiters(env,
 					    &conn->response_waiters)) != 0)
-						return (ret);
+						return ret;
 				}
 				else {
 					/*
@@ -1601,7 +1596,7 @@ static int dispatch_msgin(ENV *env, REPMGR_CONNECTION * conn)
 		    break;
 	}
 	__repmgr_reset_for_reading(conn);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1689,11 +1684,11 @@ static int process_own_msg(ENV *env, REPMGR_CONNECTION * conn)
 		    else
 			    ret = DB_REP_UNAVAIL;
 		    DB_ASSERT(env, ret != 0);
-		    return (ret);
+		    return ret;
 
 		case REPMGR_SHARING:
 		    if((ret = __repmgr_queue_put(env, msg)) != 0)
-			    return (ret);
+			    return ret;
 		    /* Show that we no longer own this memory. */
 		    msg = NULL;
 		    break;
@@ -1736,7 +1731,7 @@ static int process_own_msg(ENV *env, REPMGR_CONNECTION * conn)
 	 */
 	if(msg != NULL)
 		__os_free(env, msg);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1758,15 +1753,15 @@ static int send_version_response(ENV *env, REPMGR_CONNECTION * conn)
 	my_addr = &SITE_FROM_EID(db_rep->self_eid)->net_addr;
 
 	if((ret = __repmgr_find_version_info(env, conn, &vi)) != 0)
-		return (ret);
+		return ret;
 	if(vi.size == 0) {
 		/* No version info, so we must be talking to a v1 site. */
 		hostname = (char *)conn->input.repmgr_msg.rec.data;
 		if((ret = accept_v1_handshake(env, conn, hostname)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __repmgr_send_v1_handshake(env,
 		    conn, my_addr->host, strlen(my_addr->host) + 1)) != 0)
-			return (ret);
+			return ret;
 		conn->state = CONN_READY;
 	}
 	else {
@@ -1789,10 +1784,10 @@ static int send_version_response(ENV *env, REPMGR_CONNECTION * conn)
 		buf[__REPMGR_VERSION_CONFIRMATION_SIZE] = '\0';
 		DB_ASSERT(env, !IS_SUBORDINATE(db_rep));
 		if((ret = __repmgr_send_handshake(env, conn, buf, sizeof(buf), 0)) != 0)
-			return (ret);
+			return ret;
 		conn->state = CONN_PARAMETERS;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1851,7 +1846,7 @@ int __repmgr_send_handshake(ENV *env, REPMGR_CONNECTION * conn, void * opt, size
 	    (opt == NULL ? 0 : optlen);
 
 	if((ret = __os_malloc(env, cntrl_len + rec_len, &buf)) != 0)
-		return (ret);
+		return ret;
 
 	cntrl.data = p = (uint8 *)buf;
 	switch(conn->version) {
@@ -1896,7 +1891,7 @@ int __repmgr_send_handshake(ENV *env, REPMGR_CONNECTION * conn, void * opt, size
 	/* Never block on select thread: pass maxblock as 0. */
 	ret = __repmgr_send_one(env, conn, REPMGR_HANDSHAKE, &cntrl, &rec, 0);
 	__os_free(env, buf);
-	return (ret);
+	return ret;
 }
 
 static int read_version_response(ENV *env, REPMGR_CONNECTION * conn)
@@ -1912,11 +1907,11 @@ static int read_version_response(ENV *env, REPMGR_CONNECTION * conn)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	if((ret = __repmgr_find_version_info(env, conn, &vi)) != 0)
-		return (ret);
+		return ret;
 	hostname = (char *)conn->input.repmgr_msg.rec.data;
 	if(vi.size == 0) {
 		if((ret = accept_v1_handshake(env, conn, hostname)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		if((ret = __repmgr_version_confirmation_unmarshal(env, &conf, (uint8 *)vi.data, vi.size, NULL)) != 0)
@@ -1932,7 +1927,7 @@ static int read_version_response(ENV *env, REPMGR_CONNECTION * conn)
 			return (DB_REP_UNAVAIL);
 		}
 		if((ret = accept_handshake(env, conn, hostname, &subord)) != 0)
-			return (ret);
+			return ret;
 		if(!IS_SUBORDINATE(db_rep))
 			flags = 0;
 		else {
@@ -1944,7 +1939,7 @@ static int read_version_response(ENV *env, REPMGR_CONNECTION * conn)
 				flags |= REPMGR_AUTOTAKEOVER;
 		}
 		if((ret = __repmgr_send_handshake(env, conn, NULL, 0, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	conn->state = CONN_READY;
 	site = SITE_FROM_EID(conn->eid);
@@ -1958,7 +1953,7 @@ static int read_version_response(ENV *env, REPMGR_CONNECTION * conn)
 		    "vers_resp: EID %lu CONNECTED, READY.  sites_avail %lu",
 		    (u_long)conn->eid, (u_long)rep->sites_avail));
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2001,7 +1996,7 @@ int __repmgr_find_version_info(ENV *env, REPMGR_CONNECTION * conn, DBT * vi)
 		vi->data = &((uint8*)dbt->data)[hostname_len + 1];
 		vi->size = (dbt->size - (hostname_len+1)) - 1;
 	}
-	return (0);
+	return 0;
 }
 
 static int accept_handshake(ENV *env, REPMGR_CONNECTION * conn, char * hostname, int * subordinate)
@@ -2106,7 +2101,7 @@ static int process_parameters(ENV *env, REPMGR_CONNECTION * conn, char * host, u
 		 */
 		if(LF_ISSET(APP_CHANNEL_CONNECTION)) {
 			conn->type = APP_CONNECTION;
-			return (0);
+			return 0;
 		}
 		else
 			conn->type = REP_CONNECTION;
@@ -2162,7 +2157,7 @@ static int process_parameters(ENV *env, REPMGR_CONNECTION * conn, char * host, u
 						host, port, eid));
 					    if((ret = resolve_collision(env,
 						site, conn)) != 0)
-						    return (ret);
+						    return ret;
 					    break;
 					case SITE_CONNECTING:
 					    RPRINT(env, (env, DB_VERB_REPMGR_MISC,
@@ -2215,7 +2210,7 @@ static int process_parameters(ENV *env, REPMGR_CONNECTION * conn, char * host, u
 			if((ret = __repmgr_send_own_msg(env, conn,
 			    REPMGR_CONNECT_REJECT, reject_buf,
 			    __REPMGR_CONNECT_REJECT_SIZE)) != 0)
-				return (ret);
+				return ret;
 
 			/*
 			 * Since we haven't set conn->eid, bust_connection will
@@ -2246,10 +2241,10 @@ static int process_parameters(ENV *env, REPMGR_CONNECTION * conn, char * host, u
 		    "handshake with no known master to wake election thread"));
 		db_rep->new_connection = TRUE;
 		if((ret = __repmgr_signal(&db_rep->check_election)) != 0)
-			return (ret);
+			return ret;
 	}
 
-	return (0);
+	return 0;
 }
 
 static int resolve_collision(ENV *env, REPMGR_SITE * site, REPMGR_CONNECTION * conn)
@@ -2271,15 +2266,15 @@ static int resolve_collision(ENV *env, REPMGR_SITE * site, REPMGR_CONNECTION * c
 		ret = __repmgr_disable_connection(env, site->ref.conn.in);
 		site->ref.conn.in = NULL;
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(site->ref.conn.out != NULL && conn->version >= CONN_COLLISION_VERSION && __repmgr_is_server(env, site)) {
 		ret = __repmgr_disable_connection(env, site->ref.conn.out);
 		site->ref.conn.out = NULL;
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 
 static int record_permlsn(ENV *env, REPMGR_CONNECTION * conn)
@@ -2321,7 +2316,7 @@ static int record_permlsn(ENV *env, REPMGR_CONNECTION * conn)
 	gen = db_rep->region->gen;
 	if(ackp->generation < gen) {
 		VPRINT(env, (env, DB_VERB_REPMGR_MISC, "ignoring stale ack (%lu<%lu), from %s", (u_long)ackp->generation, (u_long)gen, __repmgr_format_site_loc(site, location)));
-		return (0);
+		return 0;
 	}
 	VPRINT(env, (env, DB_VERB_REPMGR_MISC, "got ack [%lu][%lu](%lu) from %s", (u_long)ackp->lsn.file,
 	    (u_long)ackp->lsn.offset, (u_long)ackp->generation, __repmgr_format_site_loc(site, location)));
@@ -2338,14 +2333,14 @@ static int record_permlsn(ENV *env, REPMGR_CONNECTION * conn)
 			check_min_log_file(env, &ackp->lsn, site);
 		if((ret = __repmgr_wake_waiters(env,
 		    &db_rep->ack_waiters)) != 0)
-			return (ret);
+			return ret;
 	}
 	/*
 	 * If we received a checkpoint message, check the lowest log file.
 	 */
 	if(ackp->generation == gen && ackp->lsn.offset == 0)
 		check_min_log_file(env, &ackp->lsn, site);
-	return (0);
+	return 0;
 }
 
 /*
@@ -2452,7 +2447,7 @@ int __repmgr_write_some(ENV *env, REPMGR_CONNECTION * conn)
 #if defined(DB_REPMGR_EAGAIN) && DB_REPMGR_EAGAIN != WOULDBLOCK
 				case DB_REPMGR_EAGAIN:
 #endif
-				    return (0);
+				    return 0;
 				default:
 				    __repmgr_fire_conn_err_event(env, conn, ret);
 				    STAT(env->rep_handle->region->mstat.st_connection_drop++);
@@ -2477,9 +2472,9 @@ int __repmgr_write_some(ENV *env, REPMGR_CONNECTION * conn)
 			 */
 			conn->state = CONN_READY;
 			if((ret = __repmgr_signal(&conn->drained)) != 0)
-				return (ret);
+				return ret;
 		}
 	}
 
-	return (0);
+	return 0;
 }

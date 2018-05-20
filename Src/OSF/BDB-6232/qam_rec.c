@@ -50,10 +50,10 @@ static int __qam_adjust_first(DB *file_dbp, DBC * dbc, QMETA * meta, db_recno_t 
 	    !QAM_BEFORE_FIRST(meta, recno)) {
 		if((ret = __qam_position(dbc,
 		    &meta->first_recno, 0, &exact)) != 0)
-			return (ret);
+			return ret;
 		if(cp->page != NULL && (ret = __qam_fput(dbc,
 		    cp->pgno, cp->page, dbc->priority)) != 0)
-			return (ret);
+			return ret;
 
 		if(exact == 1)
 			break;
@@ -61,12 +61,12 @@ static int __qam_adjust_first(DB *file_dbp, DBC * dbc, QMETA * meta, db_recno_t 
 		    rec_ext != 0 && meta->first_recno % rec_ext == 0)
 			if((ret =
 			    __qam_fremove(file_dbp, cp->pgno)) != 0)
-				return (ret);
+				return ret;
 		REC_DIRTY(file_dbp->mpf,
 		    dbc->thread_info, dbc->priority, &meta);
 		QAM_INC_RECNO(meta->first_recno);
 	}
-out:    return (ret);
+out:    return ret;
 }
 
 /*

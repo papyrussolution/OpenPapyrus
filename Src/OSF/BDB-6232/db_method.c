@@ -89,7 +89,7 @@ int db_create(DB **dbpp, DB_ENV * dbenv, uint32 flags)
 		case DB_XA_CREATE:
 		    if(dbenv != NULL) {
 			    __db_errx(env, DB_STR("0504", "XA applications may not specify an environment to db_create"));
-			    return (EINVAL);
+			    return EINVAL;
 		    }
 		    /*
 		     * If it's an XA database, open it within the XA environment,
@@ -100,7 +100,7 @@ int db_create(DB **dbpp, DB_ENV * dbenv, uint32 flags)
 		    env = TAILQ_FIRST(&DB_GLOBAL(envq));
 		    if(env == NULL) {
 			    __db_errx(env, DB_STR("0505", "Cannot open XA database before XA is enabled"));
-			    return (EINVAL);
+			    return EINVAL;
 		    }
 		    break;
 		default:
@@ -121,7 +121,7 @@ int db_create(DB **dbpp, DB_ENV * dbenv, uint32 flags)
 err:    
 	if(env != NULL)
 		ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_create_internal --
@@ -139,7 +139,7 @@ int __db_create_internal(DB **dbpp, ENV * env, uint32 flags)
 	// If we don't have an environment yet, allocate a local one. 
 	if(env == NULL) {
 		if((ret = db_env_create(&dbenv, 0)) != 0)
-			return (ret);
+			return ret;
 		env = dbenv->env;
 		F_SET(env, ENV_DBLOCAL);
 	}
@@ -173,7 +173,7 @@ int __db_create_internal(DB **dbpp, ENV * env, uint32 flags)
 		goto err;
 	dbp->type = DB_UNKNOWN;
 	*dbpp = dbp;
-	return (0);
+	return 0;
 err:    
 	if(dbp != NULL) {
 		if(dbp->mpf != NULL)
@@ -182,7 +182,7 @@ err:
 			(void)__env_close(dbp->dbenv, 0);
 		__os_free(env, dbp);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __db_init --
@@ -300,20 +300,20 @@ static int __db_init(DB *dbp, uint32 flags)
 	/* DB PUBLIC HANDLE LIST END */
 
 	if((ret = __env_get_blob_threshold_int(dbp->env, &bytes)) != 0)
-		return (ret);
+		return ret;
 	dbp->blob_threshold = bytes;
 
 	/* Access method specific. */
 	if((ret = __bam_db_create(dbp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __ham_db_create(dbp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __heap_db_create(dbp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __qam_db_create(dbp)) != 0)
-		return (ret);
+		return ret;
 	COMPQUIET(flags, 0);
-	return (0);
+	return 0;
 }
 /*
  * __dbh_am_chk --
@@ -334,10 +334,10 @@ int __dbh_am_chk(DB *dbp, uint32 flags)
 	    (LF_ISSET(DB_OK_QUEUE) && FLD_ISSET(dbp->am_ok, DB_OK_QUEUE)) ||
 	    (LF_ISSET(DB_OK_RECNO) && FLD_ISSET(dbp->am_ok, DB_OK_RECNO))) {
 		FLD_CLR(dbp->am_ok, ~flags);
-		return (0);
+		return 0;
 	}
 	__db_errx(dbp->env, DB_STR("0506", "call implies an access method which is inconsistent with previous calls"));
-	return (EINVAL);
+	return EINVAL;
 }
 
 /*
@@ -377,7 +377,7 @@ static int __db_get_byteswapped(DB *dbp, int * isswapped)
 {
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->get_byteswapped");
 	*isswapped = F_ISSET(dbp, DB_AM_SWAP) ? 1 : 0;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_dbname --
@@ -390,7 +390,7 @@ static int __db_get_dbname(DB *dbp, const char ** fnamep, const char ** dnamep)
 		*fnamep = dbp->fname;
 	if(dnamep != NULL)
 		*dnamep = dbp->dname;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_env --
@@ -441,7 +441,7 @@ static int __db_get_type(DB *dbp, DBTYPE * dbtype)
 {
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->get_type");
 	*dbtype = dbp->type;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_append_recno --
@@ -452,7 +452,7 @@ static int __db_get_append_recno(DB *dbp, int (**funcp)(DB *, DBT *, db_recno_t)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_QUEUE | DB_OK_RECNO);
 	if(funcp)
 		*funcp = dbp->db_append_recno;
-	return (0);
+	return 0;
 }
 /*
  * __db_set_append_recno --
@@ -463,7 +463,7 @@ static int __db_set_append_recno(DB *dbp, int (*func)(DB *, DBT *, db_recno_t))
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_append_recno");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_QUEUE | DB_OK_RECNO);
 	dbp->db_append_recno = func;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_blob_threshold --
@@ -480,7 +480,7 @@ int __db_get_blob_threshold(DB *dbp, uint32 * bytes)
 	 */
 	*bytes = dbp->blob_threshold;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -492,22 +492,22 @@ int __db_get_blob_threshold(DB *dbp, uint32 * bytes)
 int __db_set_blob_threshold(DB *dbp, uint32 bytes, uint32 flags)
 {
 	if(__db_fchk(dbp->env, "DB->set_ext_file_threshold", flags, 0) != 0)
-		return (EINVAL);
+		return EINVAL;
 
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_ext_file_threshold");
 
 	if(bytes != 0 && F_ISSET(dbp, (DB_AM_DUP | DB_AM_DUPSORT))) {
 		__db_errx(dbp->env, DB_STR("0760", "Cannot enable external files in databases with duplicates."));
-		return (EINVAL);
+		return EINVAL;
 	}
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp) && bytes != 0) {
 		__db_errx(dbp->env, DB_STR("0761", "Cannot enable external files in databases with compression."));
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 	dbp->blob_threshold = bytes;
-	return (0);
+	return 0;
 }
 /*
  * __db_blobs_enabled --
@@ -519,29 +519,29 @@ int __db_blobs_enabled(DB *dbp)
 {
 	/* Blob threshold must be non-0. */
 	if(!dbp->blob_threshold)
-		return (0);
+		return 0;
 	/* Blobs do not support compression, but that may change. */
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp))
-		return (0);
+		return 0;
 #endif
 	if(dbp->env->dbenv != NULL && F_ISSET(dbp->env->dbenv, DB_ENV_TXN_SNAPSHOT))
-		return (0);
+		return 0;
 	/* Cannot support blobs in recno or queue. */
 	if(dbp->type == DB_RECNO || dbp->type == DB_QUEUE)
-		return (0);
+		return 0;
 	/*
 	 * Cannot support dups because that would require comparing
 	 * blob data items.
 	 */
 	if(F_ISSET(dbp, (DB_AM_DUP | DB_AM_DUPSORT)))
-		return (0);
+		return 0;
 	/* No place to put blob files when using an in-memory db. */
 	if(F_ISSET(dbp, (DB_AM_INMEM)))
-		return (0);
+		return 0;
 	/* BDB managed databases should not support blobs. */
 	if((dbp->fname != NULL && IS_DB_FILE(dbp->fname)) || (dbp->dname != NULL && IS_DB_FILE(dbp->dname)))
-		return (0);
+		return 0;
 	return (1);
 }
 
@@ -556,7 +556,7 @@ static int __db_get_blob_sub_dir(DB *dbp, const char ** dir)
 {
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->get_blob_sub_dir");
 	*dir = dbp->blob_sub_dir;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_blob_dir --
@@ -569,12 +569,12 @@ static int __db_get_blob_dir(DB *dbp, const char ** dir)
 	DB_ENV * dbenv = dbp->env->dbenv;
 	*dir = NULL;
 	if(dbenv == NULL)
-		return (0);
+		return 0;
 	if(dbenv->db_blob_dir != NULL)
 		*dir = dbenv->db_blob_dir;
 	else if(env->db_home != NULL)
 		*dir = BLOB_DEFAULT_DIR;
-	return (0);
+	return 0;
 }
 /*
  * __db_set_blob_dir --
@@ -590,7 +590,7 @@ static int __db_set_blob_dir(DB *dbp, const char * dir)
 	env = dbp->env;
 	dbenv = dbp->env->dbenv;
 	if(dbenv == NULL)
-		return (0);
+		return 0;
 	if(dbenv->db_blob_dir != NULL)
 		__os_free(env, dbenv->db_blob_dir);
 	dbenv->db_blob_dir = NULL;
@@ -625,16 +625,16 @@ static int __db_set_create_dir(DB *dbp, const char * dir)
 			break;
 	if(i == dbenv->data_next) {
 		__db_errx(dbp->env, DB_STR_A("0507", "Directory %s not in environment list.", "%s"), dir);
-		return (EINVAL);
+		return EINVAL;
 	}
 	dbp->dirname = dbenv->db_data_dir[i];
-	return (0);
+	return 0;
 }
 
 static int __db_get_create_dir(DB *dbp, const char ** dirp)
 {
 	*dirp = dbp->dirname;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_dup_compare --
@@ -652,7 +652,7 @@ static int __db_get_dup_compare(DB *dbp, int (**funcp)(DB *, const DBT *, const 
 #endif
 		*funcp = dbp->dup_compare;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_set_dup_compare --
@@ -667,7 +667,7 @@ int __db_set_dup_compare(DB *dbp, int (*func)(DB *, const DBT *, const DBT *, si
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_dup_compare");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE | DB_OK_HASH);
 	if((ret = __db_set_flags(dbp, DB_DUPSORT)) != 0)
-		return (ret);
+		return ret;
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp)) {
 		dbp->dup_compare = __bam_compress_dupcmp;
@@ -676,7 +676,7 @@ int __db_set_dup_compare(DB *dbp, int (*func)(DB *, const DBT *, const DBT *, si
 	else
 #endif
 	dbp->dup_compare = func;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_encrypt_flags --
@@ -697,14 +697,14 @@ static int __db_set_encrypt(DB *dbp, const char * passwd, uint32 flags)
 	DB_ILLEGAL_IN_ENV(dbp, "DB->set_encrypt");
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_encrypt");
 	if((ret = __env_set_encrypt(dbp->dbenv, passwd, flags)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * In a real env, this gets initialized with the region.  In a local
 	 * env, we must do it here.
 	 */
 	db_cipher = dbp->env->crypto_handle;
 	if(!F_ISSET(db_cipher, CIPHER_ANY) && (ret = db_cipher->init(dbp->env, db_cipher)) != 0)
-		return (ret);
+		return ret;
 	return (__db_set_flags(dbp, DB_ENCRYPT));
 }
 
@@ -742,20 +742,20 @@ static int __db_get_feedback(DB *dbp, void (**feedbackp)(DB *, int, int))
 {
 	if(feedbackp != NULL)
 		*feedbackp = dbp->db_feedback;
-	return (0);
+	return 0;
 }
 
 static int __db_set_feedback(DB *dbp, void (*feedback)(DB *, int, int))
 {
 	dbp->db_feedback = feedback;
-	return (0);
+	return 0;
 }
 
 static int __db_get_lk_exclusive(DB *dbp, int * onoff, int * nowait)
 {
 	*onoff = (F2_ISSET(dbp, DB2_AM_EXCL) ? 1 : 0);
 	*nowait = (F2_ISSET(dbp, DB2_AM_NOWAIT) ? 1 : 0);
-	return (0);
+	return 0;
 }
 
 static int __db_set_lk_exclusive(DB *dbp, int nowait)
@@ -763,7 +763,7 @@ static int __db_set_lk_exclusive(DB *dbp, int nowait)
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_lk_exclusive");
 	F2_CLR(dbp, DB2_AM_NOWAIT);
 	F2_SET(dbp, (nowait ? DB2_AM_NOWAIT|DB2_AM_EXCL : DB2_AM_EXCL));
-	return (0);
+	return 0;
 }
 /*
  * __db_map_flags --
@@ -794,7 +794,7 @@ static int __db_get_assoc_flags(DB *dbp, uint32 * flagsp)
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->get_assoc_flags");
 
 	*flagsp = dbp->s_assoc_flags;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_flags --
@@ -835,7 +835,7 @@ int __db_get_flags(DB *dbp, uint32 * flagsp)
 			LF_SET(db_flags[i]);
 	}
 	*flagsp = flags;
-	return (0);
+	return 0;
 }
 /*
  * __db_set_flags --
@@ -849,7 +849,7 @@ int __db_set_flags(DB *dbp, uint32 flags)
 	ENV * env = dbp->env;
 	if(LF_ISSET(DB_ENCRYPT) && !CRYPTO_ON(env)) {
 		__db_errx(env, DB_STR("0508", "Database environment not configured for encryption"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(LF_ISSET(DB_TXN_NOT_DURABLE))
 		ENV_REQUIRES_CONFIG(env, env->tx_handle, "DB_NOT_DURABLE", DB_INIT_TXN);
@@ -857,16 +857,16 @@ int __db_set_flags(DB *dbp, uint32 flags)
 	if(dbp->blob_threshold &&
 	    LF_ISSET(DB_DUP | DB_DUPSORT)) {
 		__db_errx(dbp->env, DB_STR("0763", "Cannot enable duplicates with external file support."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	__db_map_flags(dbp, &flags, &dbp->flags);
 	if((ret = __bam_set_flags(dbp, &flags)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __ram_set_flags(dbp, &flags)) != 0)
-		return (ret);
+		return ret;
 #ifdef HAVE_QUEUE
 	if((ret = __qam_set_flags(dbp, &flags)) != 0)
-		return (ret);
+		return ret;
 #endif
 	return (flags == 0 ? 0 : __db_ferr(env, "DB->set_flags", 0));
 }
@@ -888,10 +888,10 @@ int __db_get_lorder(DB *dbp, int * db_lorderp)
 		    *db_lorderp = F_ISSET(dbp, DB_AM_SWAP) ? 1234 : 4321;
 		    break;
 		default:
-		    return (ret);
+		    return ret;
 		    /* NOTREACHED */
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_set_lorder --
@@ -912,10 +912,10 @@ int __db_set_lorder(DB *dbp, int db_lorder)
 		    F_SET(dbp, DB_AM_SWAP);
 		    break;
 		default:
-		    return (ret);
+		    return ret;
 		    /* NOTREACHED */
 	}
-	return (0);
+	return 0;
 }
 
 static int __db_get_alloc(DB *dbp, void *(**mal_funcp)(size_t), void *(**real_funcp)(void *, size_t), void (**free_funcp)(void *))
@@ -964,7 +964,7 @@ static void __db_set_msgpfx(DB *dbp, const char * msgpfx)
 static int __db_get_pagesize(DB *dbp, uint32 * db_pagesizep)
 {
 	*db_pagesizep = dbp->pgsize;
-	return (0);
+	return 0;
 }
 /*
  * __db_set_pagesize --
@@ -977,11 +977,11 @@ int __db_set_pagesize(DB *dbp, uint32 db_pagesize)
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_pagesize");
 	if(db_pagesize < DB_MIN_PGSIZE) {
 		__db_errx(dbp->env, DB_STR_A("0509", "page sizes may not be smaller than %lu", "%lu"), (u_long)DB_MIN_PGSIZE);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(db_pagesize > DB_MAX_PGSIZE) {
 		__db_errx(dbp->env, DB_STR_A("0510", "page sizes may not be larger than %lu", "%lu"), (u_long)DB_MAX_PGSIZE);
-		return (EINVAL);
+		return EINVAL;
 	}
 	/*
 	 * We don't want anything that's not a power-of-2, as we rely on that
@@ -989,10 +989,10 @@ int __db_set_pagesize(DB *dbp, uint32 db_pagesize)
 	 */
 	if(!POWER_OF_TWO(db_pagesize)) {
 		__db_errx(dbp->env, DB_STR("0511", "page sizes must be a power-of-2"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	dbp->pgsize = db_pagesize;
-	return (0);
+	return 0;
 }
 
 static int __db_set_paniccall(DB *dbp, void (*paniccall)(DB_ENV *, int))
@@ -1003,7 +1003,7 @@ static int __db_set_paniccall(DB *dbp, void (*paniccall)(DB_ENV *, int))
 static int __db_set_priority(DB *dbp, DB_CACHE_PRIORITY priority)
 {
 	dbp->priority = priority;
-	return (0);
+	return 0;
 }
 
 static int __db_get_priority(DB *dbp, DB_CACHE_PRIORITY * priority)
@@ -1012,7 +1012,7 @@ static int __db_get_priority(DB *dbp, DB_CACHE_PRIORITY * priority)
 		return (__memp_get_priority(dbp->mpf, priority));
 	else
 		*priority = dbp->priority;
-	return (0);
+	return 0;
 }
 
 /*
@@ -1026,7 +1026,7 @@ int __db_slice_notsup(DB *dbp)
 {
 	int ret = USR_ERR(dbp->env, EINVAL);
 	__db_err(dbp->env, ret, "This sliced database handle for %s does not support this api call", dbp->fname);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1052,7 +1052,7 @@ int __db_slice_get_slices(DB *dbp, DB *** slices)
 	int ret = 0;
 	if((*slices = dbp->db_slices) == NULL)
 		ret = __db_not_sliced(dbp);
-	return (ret);
+	return ret;
 }
 /*
  * __db_set_slice_callback -
@@ -1064,7 +1064,7 @@ int __db_set_slice_callback(DB *dbp, int (*func)__P((const DB *, const DBT *, DB
 {
 #ifdef HAVE_SLICES
 	dbp->slice_callback = func;
-	return (0);
+	return 0;
 #else
 	COMPQUIET(func, NULL);
 	return (__env_no_slices(dbp->env));
@@ -1088,5 +1088,5 @@ int __db_not_sliced(DB *dbp)
 #else
 	ret = __env_no_slices(env);
 #endif
-	return (ret);
+	return ret;
 }

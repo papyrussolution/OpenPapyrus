@@ -68,7 +68,7 @@ int __db_generate_iv(ENV *env, uint32 * iv)
 	MUTEX_LOCK(env, env->mtx_mt);
 	if(env->mt == NULL) {
 		if((ret = __os_calloc(env, 1, N*sizeof(unsigned long), &env->mt)) != 0)
-			return (ret);
+			return ret;
 		/* mti==N+1 means mt[N] is not initialized */
 		env->mti = N + 1;
 	}
@@ -81,7 +81,7 @@ int __db_generate_iv(ENV *env, uint32 * iv)
 		} while(iv[i] == 0);
 	}
 	MUTEX_UNLOCK(env, env->mtx_mt);
-	return (0);
+	return 0;
 }
 
 /* Initializing the array with a seed */

@@ -19,20 +19,20 @@ int __dbt_usercopy(ENV *env, DBT * dbt)
 	void * buf;
 	int ret;
 	if(dbt == NULL || !F_ISSET(dbt, DB_DBT_USERCOPY) || dbt->size == 0 || dbt->data != NULL)
-		return (0);
+		return 0;
 	buf = NULL;
 	if((ret = __os_umalloc(env, dbt->size, &buf)) != 0 || (ret = env->dbt_usercopy(dbt, 0, buf, dbt->size, DB_USERCOPY_GETDATA)) != 0)
 		goto err;
 	dbt->data = buf;
 
-	return (0);
+	return 0;
 
 err:    if(buf != NULL) {
 		__os_ufree(env, buf);
 		dbt->data = NULL;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*

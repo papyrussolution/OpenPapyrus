@@ -51,5 +51,5 @@ int __heap_backup(DB_ENV *dbenv, DB * dbp, DB_THREAD_INFO * ip, DB_FH * fp, void
 			break;
 	}
 
-	return (ret);
+	return ret;
 }

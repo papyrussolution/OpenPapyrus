@@ -110,13 +110,13 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 		if((ret = __db_lget(dbc, 0,
 		    root_pgno == PGNO_INVALID ? BAM_ROOT_PGNO(dbc) : root_pgno,
 		    lock_mode, 0, &lock)) != 0)
-			return (ret);
+			return ret;
 		goto retry;
 	}
 	if(ret != 0) {
 		/* Did not read it, so we can release the lock */
 		(void)__LPUT(dbc, lock);
-		return (ret);
+		return ret;
 	}
 	DB_ASSERT(dbp->env, TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO ||
 	    TYPE(h) == P_LBTREE || TYPE(h) == P_LRECNO || TYPE(h) == P_LDUP);
@@ -135,7 +135,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 			if(lock_mode == DB_LOCK_WRITE)
 				goto done;
 			if((ret = __LPUT(dbc, lock)) != 0)
-				return (ret);
+				return ret;
 		}
 
 		/*
@@ -147,7 +147,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 			lock_mode = DB_LOCK_WRITE;
 			/* Drop the read lock if we got it above. */
 			if((ret = __LPUT(dbc, lock)) != 0)
-				return (ret);
+				return ret;
 		}
 		else if(LOCK_ISSET(lock))
 			goto done;
@@ -159,7 +159,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 				if(h != NULL)
 					(void)__memp_fput(mpf,
 					    dbc->thread_info, h, dbc->priority);
-				return (ret);
+				return ret;
 			}
 		}
 		else {
@@ -173,7 +173,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 						(void)__memp_fput(mpf,
 						    dbc->thread_info, h,
 						    dbc->priority);
-					return (ret);
+					return ret;
 				}
 				goto done;
 			}
@@ -189,14 +189,14 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 				ret = t_ret;
 
 			if(ret != 0)
-				return (ret);
+				return ret;
 			get_mode = 0;
 			if(lock_mode == DB_LOCK_WRITE)
 				get_mode = DB_MPOOL_DIRTY;
 
 			if((ret = __db_lget(dbc,
 			    0, root_pgno, lock_mode, 0, &lock)) != 0)
-				return (ret);
+				return ret;
 			if((ret = __memp_fget(mpf,
 			    &root_pgno, dbc->thread_info, dbc->txn,
 			    (atomic_read(&mpf->mfp->multiversion) == 0 &&
@@ -204,7 +204,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 			    &h)) != 0) {
 				/* Did not read it, release the lock */
 				(void)__LPUT(dbc, lock);
-				return (ret);
+				return ret;
 			}
 		}
 		/*
@@ -222,7 +222,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 			if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 				ret = t_ret;
 			if(ret != 0)
-				return (ret);
+				return ret;
 			goto try_again;
 		}
 		else if(atomic_read(&mpf->mfp->multiversion) != 0 &&
@@ -232,12 +232,12 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 				(void)__memp_fput(mpf,
 				    dbc->thread_info, h, dbc->priority);
 			(void)__LPUT(dbc, lock);
-			return (ret);
+			return ret;
 		}
 	}
 done:   
 	BT_STK_ENTER(dbp->env, cp, h, 0, lock, lock_mode, ret);
-	return (ret);
+	return ret;
 }
 /*
  * __bam_search --
@@ -856,8 +856,8 @@ done:
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
 	if((ret = __LPUT(dbc, saved_lock)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 err:    
 	if(ret == 0)
 		ret = t_ret;
@@ -873,7 +873,7 @@ err:
 	(void)__bam_stkrel(dbc, 0);
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
-	return (ret);
+	return ret;
 }
 /*
  * __bam_stkrel --
@@ -926,7 +926,7 @@ int __bam_stkrel(DBC *dbc, uint32 flags)
 	/* Clear the stack, all pages have been released. */
 	if(!LF_ISSET(STK_PGONLY))
 		BT_STK_CLR(cp);
-	return (ret);
+	return ret;
 }
 /*
  * __bam_stkgrow --
@@ -940,12 +940,12 @@ int __bam_stkgrow(ENV *env, BTREE_CURSOR * cp)
 	int ret;
 	size_t entries = cp->esp - cp->sp;
 	if((ret = __os_calloc(env, entries * 2, sizeof(EPG), &p)) != 0)
-		return (ret);
+		return ret;
 	memcpy(p, cp->sp, entries * sizeof(EPG));
 	if(cp->sp != cp->stack)
 		__os_free(env, cp->sp);
 	cp->sp = p;
 	cp->csp = p + entries;
 	cp->esp = p + entries * 2;
-	return (0);
+	return 0;
 }

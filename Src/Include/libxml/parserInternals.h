@@ -288,7 +288,7 @@ XMLPUBFUN void XMLCALL xmlParseDocTypeDecl(xmlParserCtxt * ctxt);
 	XMLPUBFUN void XMLCALL xmlParseEndTag(xmlParserCtxt * ctxt);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN void XMLCALL xmlParseCDSect(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlParseContent(xmlParserCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseContent(xmlParserCtxt * ctxt);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseElement(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseVersionNum(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseVersionInfo(xmlParserCtxt * ctxt);

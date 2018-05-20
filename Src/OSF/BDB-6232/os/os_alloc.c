@@ -66,22 +66,17 @@ int __os_umalloc(ENV *env, size_t size, void * storep)
 				ret = ENOMEM;
 				__os_set_errno(ENOMEM);
 			}
-			__db_err(env, ret, DB_STR_A("0143", "malloc: %lu",
-			    "%lu"), (u_long)size);
-			return (ret);
+			__db_err(env, ret, DB_STR_A("0143", "malloc: %lu", "%lu"), (u_long)size);
+			return ret;
 		}
-		return (0);
+		return 0;
 	}
-
 	if((*(void**)storep = dbenv->db_malloc(size)) == NULL) {
-		__db_errx(env, DB_STR("0144",
-		    "user-specified malloc function returned NULL"));
+		__db_errx(env, DB_STR("0144", "user-specified malloc function returned NULL"));
 		return (ENOMEM);
 	}
-
-	return (0);
+	return 0;
 }
-
 /*
  * __os_urealloc --
  *	Allocate memory to be used by the application.
@@ -116,20 +111,17 @@ int __os_urealloc(ENV *env, size_t size, void * storep)
 				ret = ENOMEM;
 				__os_set_errno(ENOMEM);
 			}
-			__db_err(env, ret, DB_STR_A("0145",
-			    "realloc: %lu", "%lu"), (u_long)size);
-			return (ret);
+			__db_err(env, ret, DB_STR_A("0145", "realloc: %lu", "%lu"), (u_long)size);
+			return ret;
 		}
-		return (0);
+		return 0;
 	}
-
 	if((*(void**)storep = dbenv->db_realloc(ptr, size)) == NULL) {
-		__db_errx(env, DB_STR("0146",
-		    "User-specified realloc function returned NULL"));
+		__db_errx(env, DB_STR("0146", "User-specified realloc function returned NULL"));
 		return (ENOMEM);
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -164,10 +156,10 @@ int __os_strdup(ENV *env, const char * str, void * storep)
 	*(void**)storep = NULL;
 	size = strlen(str) + 1;
 	if((ret = __os_malloc(env, size, &p)) != 0)
-		return (ret);
+		return ret;
 	memcpy(p, str, size);
 	*(void**)storep = p;
-	return (0);
+	return 0;
 }
 /*
  * __os_calloc --
@@ -180,9 +172,9 @@ int __os_calloc(const ENV *env, size_t num, size_t size, void * storep)
 	int ret;
 	size *= num;
 	if((ret = __os_malloc(env, size, storep)) != 0)
-		return (ret);
-	memset(*(void**)storep, 0, size);
-	return (0);
+		return ret;
+	memzero(*(void**)storep, size);
+	return 0;
 }
 /*
  * __os_malloc --
@@ -221,13 +213,12 @@ int __os_malloc(const ENV *env, size_t size, void * storep)
 			(void)USR_ERR(env, ret);
 		__db_err(env, ret, DB_STR_A("0147", "malloc: %lu", "%lu"),
 		    (u_long)size);
-		return (ret);
+		return ret;
 	}
 
 #ifdef DIAGNOSTIC
 	/* Overwrite memory. */
 	memset(p, CLEAR_BYTE, size);
-
 	/*
 	 * Guard bytes: if #DIAGNOSTIC is defined, we allocate an additional
 	 * byte after the memory and set it to a special value that we check
@@ -240,7 +231,7 @@ int __os_malloc(const ENV *env, size_t size, void * storep)
 #endif
 	*(void**)storep = p;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -292,7 +283,7 @@ int __os_realloc(const ENV *env, size_t size, void * storep)
 		}
 		__db_err(env, ret, DB_STR_A("0148", "realloc: %lu", "%lu"),
 		    (u_long)size);
-		return (ret);
+		return ret;
 	}
 #ifdef DIAGNOSTIC
 	((uint8*)p)[size - 1] = CLEAR_BYTE;  /* Initialize guard byte. */
@@ -301,7 +292,7 @@ int __os_realloc(const ENV *env, size_t size, void * storep)
 	p = &((db_allocinfo_t*)p)[1];
 #endif
 	*(void**)storep = p;
-	return (0);
+	return 0;
 }
 /*
  * __os_free --
@@ -314,14 +305,11 @@ void __os_free(const ENV *env, void * ptr)
 #ifdef DIAGNOSTIC
 	size_t size;
 #endif
-
 	/*
-	 * ANSI C requires free(NULL) work.  Don't depend on the underlying
-	 * library.
+	 * ANSI C requires free(NULL) work.  Don't depend on the underlying library.
 	 */
 	if(ptr == NULL)
 		return;
-
 #ifdef DIAGNOSTIC
 	/*
 	 * Check that the guard byte (one past the end of the memory) is

@@ -60,7 +60,7 @@ int __lock_open(ENV *env)
 	region_locked = 0;
 	/* Create the lock table structure. */
 	if((ret = __os_calloc(env, 1, sizeof(DB_LOCKTAB), &lt)) != 0)
-		return (ret);
+		return ret;
 	lt->env = env;
 	/* Join/create the lock region. */
 	if((ret = __env_region_share(env, &lt->reginfo)) != 0)
@@ -98,43 +98,34 @@ int __lock_open(ENV *env)
 		 * We allow applications to turn on the lock detector, and we
 		 * ignore attempts to set it to the default or current value.
 		 */
-		if(region->detect != DB_LOCK_NORUN &&
-		    dbenv->lk_detect != DB_LOCK_DEFAULT &&
-		    region->detect != dbenv->lk_detect) {
+		if(region->detect != DB_LOCK_NORUN && dbenv->lk_detect != DB_LOCK_DEFAULT && region->detect != dbenv->lk_detect) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("2041",
-			    "lock_open: incompatible deadlock detector mode"));
+			__db_errx(env, DB_STR("2041", "lock_open: incompatible deadlock detector mode"));
 			goto err;
 		}
 		if(region->detect == DB_LOCK_NORUN)
 			region->detect = dbenv->lk_detect;
 	}
-
 	/*
 	 * Lock and transaction timeouts will be ignored when joining the
 	 * environment, so print a warning if either was set.
 	 */
 	if(dbenv->lk_timeout != 0 && region->lk_timeout != dbenv->lk_timeout)
-		__db_msg(env, DB_STR("2058",
-		    "Warning: Ignoring DB_SET_LOCK_TIMEOUT when joining the environment."));
+		__db_msg(env, DB_STR("2058", "Warning: Ignoring DB_SET_LOCK_TIMEOUT when joining the environment."));
 	if(dbenv->tx_timeout != 0 && region->tx_timeout != dbenv->tx_timeout)
-		__db_msg(env, DB_STR("2059",
-		    "Warning: Ignoring DB_SET_TXN_TIMEOUT when joining the environment."));
-
+		__db_msg(env, DB_STR("2059", "Warning: Ignoring DB_SET_TXN_TIMEOUT when joining the environment."));
 	LOCK_REGION_UNLOCK(env);
 	region_locked = 0;
-
-	return (0);
-
-err:    if(lt->reginfo.addr != NULL) {
+	return 0;
+err:    
+	if(lt->reginfo.addr != NULL) {
 		if(region_locked)
 			LOCK_REGION_UNLOCK(env);
 		(void)__env_region_detach(env, &lt->reginfo, 0);
 	}
 	env->lk_handle = NULL;
-
 	__os_free(env, lt);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -158,11 +149,9 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 		goto mem_err;
 	((REGENV*)env->reginfo->primary)->lt_primary = R_OFFSET(&lt->reginfo, lt->reginfo.primary);
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
-	memset(region, 0, sizeof(*region));
-
+	memzero(region, sizeof(*region));
 	/* We share the region so we need the same mutex. */
 	region->mtx_region = ((REGENV*)env->reginfo->primary)->mtx_regenv;
-
 	/* Select a conflict matrix if none specified. */
 	if(dbenv->lk_modes == 0)
 		if(CDB_LOCKING(env)) {
@@ -189,21 +178,17 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 	region->lock_id = 0;
 	region->cur_maxid = DB_LOCK_MAXID;
 	region->nmodes = lk_modes;
-	memset(&region->stat, 0, sizeof(region->stat));
+	memzero(&region->stat, sizeof(region->stat));
 	region->stat.st_maxlocks = dbenv->lk_max;
 	region->stat.st_maxlockers = dbenv->lk_max_lockers;
 	region->stat.st_maxobjects = dbenv->lk_max_objects;
 	region->stat.st_initlocks = region->stat.st_locks = dbenv->lk_init;
-	region->stat.st_initlockers =
-	    region->stat.st_lockers = dbenv->lk_init_lockers;
-	region->stat.st_initobjects  =
-	    region->stat.st_objects = dbenv->lk_init_objects;
+	region->stat.st_initlockers = region->stat.st_lockers = dbenv->lk_init_lockers;
+	region->stat.st_initobjects  = region->stat.st_objects = dbenv->lk_init_objects;
 	region->stat.st_partitions = dbenv->lk_partitions;
 	region->stat.st_tablesize = dbenv->object_t_size;
-
 	/* Allocate room for the conflict matrix and initialize it. */
-	if((ret = __env_alloc(
-		    &lt->reginfo, (size_t)(lk_modes * lk_modes), &addr)) != 0)
+	if((ret = __env_alloc(&lt->reginfo, (size_t)(lk_modes * lk_modes), &addr)) != 0)
 		goto mem_err;
 	memcpy(addr, lk_conflicts, (size_t)(lk_modes * lk_modes));
 	region->conf_off = R_OFFSET(&lt->reginfo, addr);
@@ -217,41 +202,30 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 
 #ifdef HAVE_STATISTICS
 	/* Allocate room for the object hash stats table and initialize it. */
-	if((ret = __env_alloc(&lt->reginfo,
-	    region->object_t_size * sizeof(DB_LOCK_HSTAT), &addr)) != 0)
+	if((ret = __env_alloc(&lt->reginfo, region->object_t_size * sizeof(DB_LOCK_HSTAT), &addr)) != 0)
 		goto mem_err;
-	memset(addr, 0, region->object_t_size * sizeof(DB_LOCK_HSTAT));
+	memzero(addr, region->object_t_size * sizeof(DB_LOCK_HSTAT));
 	region->stat_off = R_OFFSET(&lt->reginfo, addr);
 #endif
-
 	/* Allocate room for the partition table and initialize its mutexes. */
-	if((ret = __env_alloc(&lt->reginfo,
-	    region->part_t_size * sizeof(DB_LOCKPART), &part)) != 0)
+	if((ret = __env_alloc(&lt->reginfo, region->part_t_size * sizeof(DB_LOCKPART), &part)) != 0)
 		goto mem_err;
-	memset(part, 0, region->part_t_size * sizeof(DB_LOCKPART));
+	memzero(part, region->part_t_size * sizeof(DB_LOCKPART));
 	region->part_off = R_OFFSET(&lt->reginfo, part);
 	for(i = 0; i < region->part_t_size; i++) {
-		if((ret = __mutex_alloc(
-			    env, MTX_LOCK_REGION, 0, &part[i].mtx_part)) != 0)
-			return (ret);
+		if((ret = __mutex_alloc(env, MTX_LOCK_REGION, 0, &part[i].mtx_part)) != 0)
+			return ret;
 	}
-	if((ret = __mutex_alloc(
-		    env, MTX_LOCK_REGION, 0, &region->mtx_dd)) != 0)
-		return (ret);
-
-	if((ret = __mutex_alloc(
-		    env, MTX_LOCK_REGION, 0, &region->mtx_lockers)) != 0)
-		return (ret);
-
+	if((ret = __mutex_alloc(env, MTX_LOCK_REGION, 0, &region->mtx_dd)) != 0)
+		return ret;
+	if((ret = __mutex_alloc(env, MTX_LOCK_REGION, 0, &region->mtx_lockers)) != 0)
+		return ret;
 	/* Allocate room for the locker hash table and initialize it. */
-	if((ret = __env_alloc(&lt->reginfo,
-	    region->locker_t_size * sizeof(DB_HASHTAB), &addr)) != 0)
+	if((ret = __env_alloc(&lt->reginfo, region->locker_t_size * sizeof(DB_HASHTAB), &addr)) != 0)
 		goto mem_err;
 	__db_hashinit(addr, region->locker_t_size);
 	region->locker_off = R_OFFSET(&lt->reginfo, addr);
-
 	SH_TAILQ_INIT(&region->dd_objs);
-
 	/*
 	 * If the locks and objects don't divide evenly, spread them around.
 	 */
@@ -277,13 +251,11 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 			goto mem_err;
 		part[j].lock_mem_off = R_OFFSET(&lt->reginfo, lp);
 		for(i = 0; i < max; ++i) {
-			memset(lp, 0, sizeof(*lp));
+			memzero(lp, sizeof(*lp));
 			lp->status = DB_LSTAT_FREE;
-			SH_TAILQ_INSERT_HEAD(
-				&part[j].free_locks, lp, links, __db_lock);
+			SH_TAILQ_INSERT_HEAD(&part[j].free_locks, lp, links, __db_lock);
 			++lp;
 		}
-
 		/* Initialize objects onto a free list.  */
 		max = region->stat.st_objects / region->part_t_size;
 		if(extra_objects > 0) {
@@ -291,17 +263,12 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 			extra_objects--;
 		}
 		SH_TAILQ_INIT(&part[j].free_objs);
-
-		if((ret =
-		    __env_alloc(&lt->reginfo,
-		    sizeof(DB_LOCKOBJ) * max,
-		    &op)) != 0)
+		if((ret = __env_alloc(&lt->reginfo, sizeof(DB_LOCKOBJ) * max, &op)) != 0)
 			goto mem_err;
 		part[j].lockobj_mem_off = R_OFFSET(&lt->reginfo, op);
 		for(i = 0; i < max; ++i) {
-			memset(op, 0, sizeof(*op));
-			SH_TAILQ_INSERT_HEAD(
-				&part[j].free_objs, op, links, __db_lockobj);
+			memzero(op, sizeof(*op));
+			SH_TAILQ_INSERT_HEAD(&part[j].free_objs, op, links, __db_lockobj);
 			++op;
 		}
 	}
@@ -318,17 +285,16 @@ static int __lock_region_init(ENV *env, DB_LOCKTAB * lt)
 
 		region->locker_mem_off = R_OFFSET(&lt->reginfo, lidp);
 		for(i = 0; i < region->stat.st_lockers; ++i) {
-			memset(lidp, 0, sizeof(*lidp));
-			SH_TAILQ_INSERT_HEAD(&region->free_lockers,
-			    lidp, links, __db_locker);
+			memzero(lidp, sizeof(*lidp));
+			SH_TAILQ_INSERT_HEAD(&region->free_lockers, lidp, links, __db_locker);
 			++lidp;
 		}
 	}
 
-	return (0);
+	return 0;
 mem_err:
 	__db_errx(env, DB_STR("2042", "unable to allocate memory for the lock table"));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -384,7 +350,7 @@ int __lock_env_refresh(ENV *env)
 
 	ret = __lock_region_detach(env, lt);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -401,7 +367,7 @@ int __lock_region_detach(ENV *env, DB_LOCKTAB * lt)
 		__os_free(env, lt);
 		env->lk_handle = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __lock_region_mutex_count --
@@ -436,7 +402,7 @@ uint32 __lock_region_mutex_max(ENV *env)
 	if(count > dbenv->lk_init_lockers)
 		return (count - dbenv->lk_init_lockers);
 	else
-		return (0);
+		return 0;
 }
 /*
  * __lock_region_max --

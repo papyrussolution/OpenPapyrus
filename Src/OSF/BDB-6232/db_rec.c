@@ -212,8 +212,7 @@ int __db_big_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 	else if(cmp_p == 0 && DB_REDO(op) && opcode == DB_APPEND_BIG) {
 		/* We are redoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
-		memcpy((uint8*)pagep + P_OVERHEAD(file_dbp) +
-		    OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
+		memcpy((uint8*)pagep + P_OVERHEAD(file_dbp) + OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
 		OV_LEN(pagep) += argp->dbt.size;
 		modified = 1;
 	}
@@ -221,31 +220,27 @@ int __db_big_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 		/* We are undoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		OV_LEN(pagep) -= argp->dbt.size;
-		memset((uint8*)pagep + P_OVERHEAD(file_dbp) +
-		    OV_LEN(pagep), 0, argp->dbt.size);
+		memzero((uint8*)pagep + P_OVERHEAD(file_dbp) + OV_LEN(pagep), argp->dbt.size);
 		modified = 1;
 	}
 	if(modified)
 		LSN(pagep) = DB_REDO(op) ? *lsnp : argp->pagelsn;
-
 	ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 	pagep = NULL;
 	if(ret != 0)
 		goto out;
-
 	/*
 	 * We only delete a whole chain of overflow items, and appends only
 	 * apply to a single page.  Adding a page is the only case that
 	 * needs to update the chain.
 	 */
-ppage:  if(opcode != DB_ADD_BIG)
+ppage:  
+	if(opcode != DB_ADD_BIG)
 		goto done;
-
 	/* Now check the previous page. */
 	if(argp->prev_pgno != PGNO_INVALID) {
 		REC_FGET(mpf, ip, argp->prev_pgno, &pagep, npage);
 		modified = 0;
-
 		cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 		cmp_p = LOG_COMPARE(&LSN(pagep), &argp->prevlsn);
 		CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->prevlsn);
@@ -364,8 +359,7 @@ int __db_big_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	else if(cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_APPEND_BIG) {
 		/* We are redoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
-		memcpy((uint8*)pagep + P_OVERHEAD(file_dbp) +
-		    OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
+		memcpy((uint8*)pagep + P_OVERHEAD(file_dbp) + OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
 		OV_LEN(pagep) += argp->dbt.size;
 		modified = 1;
 	}
@@ -373,13 +367,11 @@ int __db_big_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 		/* We are undoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		OV_LEN(pagep) -= argp->dbt.size;
-		memset((uint8*)pagep + P_OVERHEAD(file_dbp) +
-		    OV_LEN(pagep), 0, argp->dbt.size);
+		memzero((uint8*)pagep + P_OVERHEAD(file_dbp) + OV_LEN(pagep), argp->dbt.size);
 		modified = 1;
 	}
 	if(modified)
 		LSN(pagep) = DB_REDO(op) ? *lsnp : argp->pagelsn;
-
 	ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 	pagep = NULL;
 	if(ret != 0)
@@ -999,7 +991,7 @@ out:    if(pagep != NULL)
 	if(meta != NULL)
 		(void)__memp_fput(mpf, ip,  meta, file_dbp->priority);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1044,19 +1036,17 @@ int __db_pg_freedata_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	DB_THREAD_INFO * ip;
 	int ret;
-	ip = ((DB_TXNHEAD*)info)->thread_info;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__db_pg_freedata_print);
 	REC_INTRO(__db_pg_freedata_read, ip, 0);
 	if((ret = __db_pg_free_recover_int(env, ip, argp, file_dbp, lsnp, mpf, op, 1)) != 0)
 		goto out;
-
-done:   *lsnp = argp->prev_lsn;
+done:   
+	*lsnp = argp->prev_lsn;
 out:
 	REC_CLOSE;
 }
-
 /*
  * __db_cksum_recover --
  *	Recovery function for checksum failure log record.
@@ -1070,7 +1060,7 @@ int __db_cksum_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	int ret;
 	REC_PRINT(__db_cksum_print);
 	if((ret = __db_cksum_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * We had a checksum failure -- the only option is to run catastrophic
 	 * recovery.
@@ -1078,20 +1068,15 @@ int __db_cksum_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	if(F_ISSET(env, ENV_RECOVER_FATAL))
 		ret = 0;
 	else {
-		__db_errx(env, DB_STR("0642",
-		    "Checksum failure requires catastrophic recovery"));
+		__db_errx(env, DB_STR("0642", "Checksum failure requires catastrophic recovery"));
 		ret = __env_panic(env, DB_RUNRECOVERY);
 	}
-
 	__os_free(env, argp);
-
 	COMPQUIET(info, NULL);
 	COMPQUIET(lsnp, NULL);
 	COMPQUIET(op, DB_TXN_ABORT);
-
-	return (ret);
+	return ret;
 }
-
 /*
  * __db_pg_init_recover --
  *	Recovery function to reinit pages after truncation.
@@ -1362,7 +1347,7 @@ out:    REC_CLOSE;
 	COMPQUIET(lsnp, NULL);
 	COMPQUIET(op,  DB_TXN_ABORT);
 	COMPQUIET(info, NULL);
-	return (EINVAL);
+	return EINVAL;
 #endif
 }
 /*
@@ -1626,7 +1611,7 @@ out:    REC_CLOSE;
 	COMPQUIET(lsnp, NULL);
 	COMPQUIET(op,  DB_TXN_ABORT);
 	COMPQUIET(info, NULL);
-	return (EINVAL);
+	return EINVAL;
 #endif
 }
 
@@ -1849,22 +1834,17 @@ do_lsn:         pagep->lsn = *lsnp;
 				if((ret = __fop_lock_handle(file_dbp->env, file_dbp, dbc->locker, DB_LOCK_READ, NULL, 0)) != 0)
 					goto err;
 				handle_lock = file_dbp->handle_lock;
-
 				file_dbp->meta_pgno = argp->pgno;
-				if((ret = __fop_lock_handle(file_dbp->env,
-				    file_dbp, dbc->locker, DB_LOCK_READ,
+				if((ret = __fop_lock_handle(file_dbp->env, file_dbp, dbc->locker, DB_LOCK_READ,
 				    NULL, 0)) != 0)
 					goto err;
-
 				/* Move the other handles to the new lock. */
-				ret = __lock_change(file_dbp->env,
-					&handle_lock, &file_dbp->handle_lock);
+				ret = __lock_change(file_dbp->env, &handle_lock, &file_dbp->handle_lock);
 
-err:                            memset(&request, 0, sizeof(request));
+err:                            
+				memzero(&request, sizeof(request));
 				request.op = DB_LOCK_PUT_ALL;
-				if((t_ret = __lock_vec(
-					    file_dbp->env, dbc->locker,
-					    0, &request, 1, NULL)) != 0 && ret == 0)
+				if((t_ret = __lock_vec(file_dbp->env, dbc->locker, 0, &request, 1, NULL)) != 0 && ret == 0)
 					ret = t_ret;
 				F_SET(file_dbp, DB_AM_RECOVER);
 				if(ret != 0)

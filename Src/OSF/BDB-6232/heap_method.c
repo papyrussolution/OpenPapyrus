@@ -22,7 +22,7 @@ int __heap_db_create(DB *dbp)
 	HEAP * h;
 	int ret;
 	if((ret = __os_calloc(dbp->env, 1, sizeof(HEAP), &h)) != 0)
-		return (ret);
+		return ret;
 	dbp->heap_internal = h;
 	h->region_size = 0;
 
@@ -31,7 +31,7 @@ int __heap_db_create(DB *dbp)
 	dbp->set_heapsize = __heap_set_heapsize;
 	dbp->set_heap_regionsize = __heap_set_heap_regionsize;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -47,7 +47,7 @@ int __heap_db_close(DB *dbp)
 		__os_free(dbp->env, h);
 		dbp->heap_internal = NULL;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -63,7 +63,7 @@ int __heap_get_heapsize(DB *dbp, uint32 * gbytes, uint32 * bytes)
 	h = (HEAP *)dbp->heap_internal;
 	*gbytes = h->gbytes;
 	*bytes = h->bytes;
-	return (0);
+	return 0;
 }
 
 /*
@@ -78,7 +78,7 @@ int __heap_get_heap_regionsize(DB *dbp, uint32 * npages)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HEAP);
 	h = (HEAP *)dbp->heap_internal;
 	*npages = h->region_size;
-	return (0);
+	return 0;
 }
 
 /*
@@ -96,7 +96,7 @@ int __heap_set_heapsize(DB *dbp, uint32 gbytes, uint32 bytes, uint32 flags)
 	h = (HEAP *)dbp->heap_internal;
 	h->gbytes = gbytes;
 	h->bytes = bytes;
-	return (0);
+	return 0;
 }
 
 /*
@@ -112,11 +112,11 @@ int __heap_set_heap_regionsize(DB *dbp, uint32 npages)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HEAP);
 	if(npages == 0) {
 		__db_errx(dbp->env, DB_STR("1168", "region size may not be 0"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	h = (HEAP *)dbp->heap_internal;
 	h->region_size = npages;
-	return (0);
+	return 0;
 }
 
 /*

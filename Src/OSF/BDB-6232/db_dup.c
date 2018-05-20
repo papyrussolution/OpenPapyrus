@@ -35,7 +35,7 @@ int __db_ditem_nolog(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes)
 	if(NUM_ENT(pagep) == 1) {
 		NUM_ENT(pagep) = 0;
 		HOFFSET(pagep) = (db_indx_t)dbp->pgsize;
-		return (0);
+		return 0;
 	}
 
 	inp = P_INP(dbp, pagep);
@@ -60,7 +60,7 @@ int __db_ditem_nolog(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes)
 		memmove(&inp[indx], &inp[indx + 1],
 		    sizeof(db_indx_t) * (NUM_ENT(pagep) - indx));
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -79,7 +79,7 @@ int __db_ditem(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes)
 		ldbt.size = nbytes;
 		if((ret = __db_addrem_log(dbp, dbc->txn, &LSN(pagep), 0, OP_SET(DB_REM_DUP, pagep), PGNO(pagep),
 		    (uint32)indx, nbytes, &ldbt, NULL, &LSN(pagep))) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(pagep));
@@ -104,7 +104,7 @@ int __db_pitem_nolog(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * h
 	DB_ASSERT(dbp->env, IS_DIRTY(pagep));
 	if(nbytes > P_FREESPACE(dbp, pagep)) {
 		DB_ASSERT(dbp->env, nbytes <= P_FREESPACE(dbp, pagep));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(hdr == NULL) {
 		B_TSET(bk.type, B_KEYDATA);
@@ -128,7 +128,7 @@ int __db_pitem_nolog(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * h
 	if(data != NULL)
 		memcpy(p + hdr->size, data->data, data->size);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -171,7 +171,7 @@ int __db_pitem(DBC *dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * hdr, DB
 		else if((ret = __db_addrem_log(dbp, dbc->txn, &LSN(pagep),
 		    0, OP_SET(DB_ADD_DUP, pagep), PGNO(pagep),
 		    (uint32)indx, nbytes, hdr, data, &LSN(pagep)))) {
-			return (ret);
+			return ret;
 		}
 	}
 	else

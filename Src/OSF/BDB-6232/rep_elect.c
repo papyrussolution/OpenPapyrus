@@ -55,32 +55,24 @@ int __rep_elect_pp(DB_ENV *dbenv, uint32 given_nsites, uint32 nvotes, uint32 fla
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_elect", DB_INIT_REP);
 	if(APP_IS_REPMGR(env)) {
 		__db_errx(env, DB_STR("3527", "DB_ENV->rep_elect: cannot call from Replication Manager application"));
-		return (EINVAL);
+		return EINVAL;
 	}
-
 	/* We need a transport function because we send messages. */
 	if(db_rep->send == NULL) {
-		__db_errx(env, DB_STR("3528",
-		    "DB_ENV->rep_elect: must be called after DB_ENV->rep_set_transport"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3528", "DB_ENV->rep_elect: must be called after DB_ENV->rep_set_transport"));
+		return EINVAL;
 	}
-
 	if(!IS_REP_STARTED(env)) {
-		__db_errx(env, DB_STR("3529",
-		    "DB_ENV->rep_elect: must be called after DB_ENV->rep_start"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3529", "DB_ENV->rep_elect: must be called after DB_ENV->rep_start"));
+		return EINVAL;
 	}
-
 	if(IS_USING_LEASES(env) && given_nsites != 0) {
-		__db_errx(env, DB_STR("3530",
-		    "DB_ENV->rep_elect: nsites must be zero if leases configured"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3530", "DB_ENV->rep_elect: nsites must be zero if leases configured"));
+		return EINVAL;
 	}
-
 	ENV_ENTER(env, ip);
 	ret = __rep_elect_int(env, given_nsites, nvotes, flags);
 	ENV_LEAVE(env, ip);
-
 	/*
 	 * The DB_REP_IGNORE return code can be of use to repmgr (which of
 	 * course calls __rep_elect_int directly), but it may too subtle to be
@@ -89,7 +81,7 @@ int __rep_elect_pp(DB_ENV *dbenv, uint32 given_nsites, uint32 nvotes, uint32 fla
 	 */
 	if(ret == DB_REP_IGNORE)
 		ret = 0;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -128,11 +120,9 @@ int __rep_elect_int(ENV *env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 	 * View sites never participate in elections.
 	 */
 	if(IS_VIEW_SITE(env)) {
-		__db_errx(env, DB_STR("3687",
-		    "View sites may not participate in elections"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3687", "View sites may not participate in elections"));
+		return EINVAL;
 	}
-
 	/*
 	 * Specifying 0 for nsites signals us to use the value configured
 	 * previously via rep_set_nsites.  Similarly, if the given nvotes is 0,
@@ -149,24 +139,14 @@ int __rep_elect_int(ENV *env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 	 * sub-majority values, but give a warning.
 	 */
 	if(ack <= (nsites / 2)) {
-		__db_errx(env, DB_STR_A("3531",
-		    "DB_ENV->rep_elect:WARNING: nvotes (%d) is sub-majority with nsites (%d)",
-		    "%d %d"), nvotes, nsites);
+		__db_errx(env, DB_STR_A("3531", "DB_ENV->rep_elect:WARNING: nvotes (%d) is sub-majority with nsites (%d)", "%d %d"), nvotes, nsites);
 	}
-
 	if(nsites < ack) {
-		__db_errx(env, DB_STR_A("3532",
-		    "DB_ENV->rep_elect: nvotes (%d) is larger than nsites (%d)",
-		    "%d %d"), ack, nsites);
-		return (EINVAL);
+		__db_errx(env, DB_STR_A("3532", "DB_ENV->rep_elect: nvotes (%d) is larger than nsites (%d)", "%d %d"), ack, nsites);
+		return EINVAL;
 	}
-
 	realpri = rep->priority;
-
-	RPRINT(env, (env, DB_VERB_REP_ELECT,
-	    "Start election nsites %d, ack %d, priority %d",
-	    nsites, ack, realpri));
-
+	RPRINT(env, (env, DB_VERB_REP_ELECT, "Start election nsites %d, ack %d, priority %d", nsites, ack, realpri));
 	/*
 	 * Special case when having an election while running with
 	 * sites of potentially mixed versions.  We set a bit indicating
@@ -179,15 +159,14 @@ int __rep_elect_int(ENV *env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 	 * real, configured priority, as retrieved from REP region.
 	 */
 	ctlflags = realpri != 0 ? REPCTL_ELECTABLE : 0;
-
 	orig_tally = 0;
 	/* If we are already master, simply broadcast that fact and return. */
 	if(F_ISSET(rep, REP_F_MASTER)) {
-master:         LOG_SYSTEM_LOCK(env);
+master:         
+		LOG_SYSTEM_LOCK(env);
 		lsn = lp->lsn;
 		LOG_SYSTEM_UNLOCK(env);
-		(void)__rep_send_message(env,
-		    DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
+		(void)__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		if(IS_USING_LEASES(env))
 			ret = __rep_lease_refresh(env);
 		if(ret == 0)
@@ -497,13 +476,9 @@ vote:
 	if(send_vote == DB_EID_INVALID) {
 		/* We do not have enough votes to elect. */
 		if(rep->sites >= rep->nvotes)
-			__db_errx(env, DB_STR_A("3533",
-			    "No electable site found: recvd %d of %d votes from %d sites",
-			    "%d %d %d"), rep->sites, rep->nvotes, rep->nsites);
+			__db_errx(env, DB_STR_A("3533", "No electable site found: recvd %d of %d votes from %d sites", "%d %d %d"), rep->sites, rep->nvotes, rep->nsites);
 		else
-			__db_errx(env, DB_STR_A("3534",
-			    "Not enough votes to elect: recvd %d of %d from %d sites",
-			    "%d %d %d"), rep->sites, rep->nvotes, rep->nsites);
+			__db_errx(env, DB_STR_A("3534", "Not enough votes to elect: recvd %d of %d from %d sites", "%d %d %d"), rep->sites, rep->nvotes, rep->nsites);
 		ret = DB_REP_UNAVAIL;
 		goto err_locked;
 	}
@@ -633,7 +608,7 @@ out:
 unlck_lv:       REP_SYSTEM_UNLOCK(env);
 	}
 envleave:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -674,12 +649,12 @@ int __rep_vote1(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 		LOG_SYSTEM_UNLOCK(env);
 		(void)__rep_send_message(env,
 		    DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
-		return (ret);
+		return ret;
 	}
 
 	if(rp->rep_version < DB_REPVERSION_52) {
 		if((ret = __rep_vote_info_v5_unmarshal(env, &tmpvi5, (uint8 *)rec->data, rec->size, NULL)) != 0)
-			return (ret);
+			return ret;
 		tmpvi.egen = tmpvi5.egen;
 		tmpvi.nsites = tmpvi5.nsites;
 		tmpvi.nvotes = tmpvi5.nvotes;
@@ -688,7 +663,7 @@ int __rep_vote1(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 		tmpvi.data_gen = 0;
 	}
 	else if((ret = __rep_vote_info_unmarshal(env, &tmpvi, (uint8 *)rec->data, rec->size, NULL)) != 0)
-		return (ret);
+		return ret;
 	vi = &tmpvi;
 	REP_SYSTEM_LOCK(env);
 
@@ -704,10 +679,10 @@ int __rep_vote1(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 		egen_arg.egen = rep->egen;
 		REP_SYSTEM_UNLOCK(env);
 		if((ret = __rep_egen_marshal(env, &egen_arg, buf, __REP_EGEN_SIZE, &len)) != 0)
-			return (ret);
+			return ret;
 		DB_INIT_DBT(data_dbt, buf, len);
 		(void)__rep_send_message(env, eid, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
-		return (0);
+		return 0;
 	}
 	if(vi->egen > rep->egen) {
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Received VOTE1 from egen %lu, my egen %lu", (u_long)vi->egen, (u_long)rep->egen));
@@ -829,7 +804,7 @@ err:            REP_SYSTEM_UNLOCK(env);
 		ret = __rep_fire_elected(env, rep, egen);
 	else if(resend)
 		__rep_send_vote(env, &vote1.lsn, vote1.nsites, vote1.nvotes, vote1.priority, vote1.tiebreaker, egen, vote1.data_gen, eid, REP_VOTE1, vote1.ctlflags);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_vote2 --
@@ -862,7 +837,7 @@ int __rep_vote2(ENV *env, DBT * rec, int eid)
 		    DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		if(IS_USING_LEASES(env))
 			ret = __rep_lease_refresh(env);
-		return (ret);
+		return ret;
 	}
 
 	REP_SYSTEM_LOCK(env);
@@ -877,7 +852,7 @@ int __rep_vote2(ENV *env, DBT * rec, int eid)
 	 * already received.
 	 */
 	if((ret = __rep_vote_info_unmarshal(env, &tmpvi, (uint8 *)rec->data, rec->size, NULL)) != 0)
-		return (ret);
+		return ret;
 	vi = &tmpvi;
 	if(!IN_ELECTION_TALLY(rep) && vi->egen >= rep->egen) {
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Not in election gen %lu, at %lu, got vote", (u_long)vi->egen, (u_long)rep->egen));
@@ -931,7 +906,7 @@ int __rep_vote2(ENV *env, DBT * rec, int eid)
 err:    REP_SYSTEM_UNLOCK(env);
 	if(ret == DB_REP_NEWMASTER)
 		ret = __rep_fire_elected(env, rep, egen);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -953,7 +928,7 @@ static int __rep_tally(ENV *env, REP * rep, int eid, uint32 * countp, uint32 ege
 	int ret;
 	if(rep->nsites > rep->asites && (ret = __rep_grow_sites(env, rep->nsites)) != 0) {
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Grow sites returned error %d", ret));
-		return (ret);
+		return ret;
 	}
 	if(phase == 1)
 		tally = (REP_VTALLY *)R_ADDR(env->reginfo, rep->tally_off);
@@ -978,7 +953,7 @@ static int __rep_tally(ENV *env, REP * rep, int eid, uint32 * countp, uint32 ege
 				return (DB_REP_IGNORE);
 			else {
 				vtp->egen = egen;
-				return (0);
+				return 0;
 			}
 		}
 		i++;
@@ -992,7 +967,7 @@ static int __rep_tally(ENV *env, REP * rep, int eid, uint32 * countp, uint32 ege
 	vtp->eid = eid;
 	vtp->egen = egen;
 	(*countp)++;
-	return (0);
+	return 0;
 }
 /*
  * __rep_cmp_vote --
@@ -1139,7 +1114,7 @@ static int __rep_elect_init(ENV *env, uint32 nsites, uint32 nvotes, int * beginp
 	}
 	DB_TEST_RECOVERY_LABEL
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1166,7 +1141,7 @@ static int __rep_fire_elected(ENV *env, REP * rep, uint32 egen)
 		rep->notified_egen = egen;
 	}
 	REP_EVENT_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * Compute a sleep interval.
@@ -1238,7 +1213,7 @@ static int __rep_wait(ENV *env, db_timeout_t * timeoutp, int full_elect, uint32 
 			done = 1;
 		REP_SYSTEM_UNLOCK(env);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1306,7 +1281,7 @@ static int __rep_grow_sites(ENV *env, uint32 nsites)
 		}
 	}
 	MUTEX_UNLOCK(env, renv->mtx_regenv);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1323,21 +1298,17 @@ static void __rep_send_vote(ENV *env, DB_LSN * lsnp, uint32 nsites, uint32 nvote
 	__rep_vote_info_v5_args vi5;
 	uint8 buf[__REP_VOTE_INFO_SIZE];
 	size_t len;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
-
-	memset(&vi, 0, sizeof(vi));
-	memset(&vote_dbt, 0, sizeof(vote_dbt));
-
+	memzero(&vi, sizeof(vi));
+	memzero(&vote_dbt, sizeof(vote_dbt));
 	if(rep->version < DB_REPVERSION_52) {
 		vi5.egen = egen;
 		vi5.priority = pri;
 		vi5.nsites = nsites;
 		vi5.nvotes = nvotes;
 		vi5.tiebreaker = tie;
-		(void)__rep_vote_info_v5_marshal(env, &vi5, buf,
-		    __REP_VOTE_INFO_SIZE, &len);
+		(void)__rep_vote_info_v5_marshal(env, &vi5, buf, __REP_VOTE_INFO_SIZE, &len);
 		DB_INIT_DBT(vote_dbt, buf, len);
 	}
 	else {

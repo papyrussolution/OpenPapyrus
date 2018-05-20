@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // @Kernel
 //
@@ -171,7 +171,6 @@ int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 		lot_rec.BillID      = ti->BillID;
 		lot_rec.LocID       = ti->LocID;
 		lot_rec.Dt          = ti->Date;
-		THROW(GetLotOprNo(lot_rec.Dt, &lot_rec.OprNo));
 		lot_rec.PrevLotID   = prev_lot;
 		lot_rec.GoodsID     = ti->GoodsID;
 		lot_rec.QCertID     = ti->QCert;
@@ -196,6 +195,7 @@ int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 			lot_rec.Flags |= LOTF_COMPLETE;
 		if(lot_rec.Flags & LOTF_CLOSEDORDER)
 			lot_rec.Closed = 1;
+		THROW(GetLotOprNo(lot_rec.Dt, &lot_rec.OprNo));
 		THROW(Rcpt.Add(&ti->LotID, &lot_rec, 0));
 	}
 	CATCH
@@ -237,12 +237,10 @@ int SLAPI Transfer::UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno,
 			}
 			else {
 				next_rec.Cost  = TR5(cost);
-
 				const double p0 = TR5(next_rec.Price);
 				const double d0 = TR5(next_rec.Discount);
 				next_rec.Price = TR5(price);
 				next_rec.Discount = TR5(price - p0 + d0);
-
 				THROW_DB(updateRecBuf(&next_rec));
 			}
 		}
@@ -322,17 +320,17 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 	// Находим список документов переоценки с датой, не превышающей Date
 	//
 	{
-		DateRange period;
-		period.Set(ZERODATE, Date);
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			BillTbl::Rec bill_rec;
-			for(DateIter di(Date); BillObj->P_Tbl->EnumByOpr(op_list.get(i), &di, &bill_rec) > 0;) {
+			for(DateIter di(Date, ZERODATE); BillObj->P_Tbl->EnumByOpr(op_list.get(i), &di, &bill_rec) > 0;) {
 				if(!pLocList || pLocList->lsearch(bill_rec.LocID))
 					bill_list.Add((ulong)bill_rec.ID);
 			}
 		}
 		/*
 		 Этот участок выполняетмя медленнее, чем тот, что выше.
+		DateRange period;
+		period.Set(ZERODATE, Date);
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			BillTbl::Rec bill_rec;
 			for(SEnum en = BillObj->tbl->EnumByOp(op_list.get(i), &period, 0); en.Next(&bill_rec) > 0;) {
@@ -357,9 +355,9 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 			q.select(t->LotID, t->Flags, 0L).where(t->BillID == bill_id && t->LotID > 0L);
 			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
 				if(t->data.Flags & PPTFR_REVAL)
-					RLotList.add(t->data.LotID); // @v8.1.0 addUnique-->add
+					RLotList.add(t->data.LotID);
 		}
-		RLotList.sortAndUndup(); // @v8.1.0 sort-->sortAndUndup
+		RLotList.sortAndUndup();
 	}
 }
 
@@ -401,7 +399,7 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 {
 	Count = 0;
 	if(pLotRec) {
-		LotID = pLotRec->ID; // @v8.1.1
+		LotID = pLotRec->ID;
 		LocID = pLotRec->LocID;
 		Expiry = pLotRec->Expiry; // @v9.7.11
 		UnitsPerPack = pLotRec->UnitPerPack;
@@ -457,7 +455,7 @@ GoodsRestParam & FASTCALL GoodsRestParam::operator = (const GoodsRestParam & src
 	copy(src);
 	CalcMethod = src.CalcMethod;
 	Flags_     = src.Flags_;
-	DiffParam  = src.DiffParam; // @v8.1.0
+	DiffParam  = src.DiffParam;
 	Date       = src.Date;
 	OprNo      = src.OprNo;
 	LocID      = src.LocID;
@@ -532,7 +530,6 @@ PPID SLAPI GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag 
 
 int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
 {
-	// @v8.1.0 {
 	int    yes = 1;
 	if(DiffParam & _diffLoc && a->LocID != v->LocID)
 		yes = 0;
@@ -551,17 +548,6 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 	else if(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0)
 		yes = 0;
 	return yes;
-	// } @v8.1.0
-	/* @v8.1.0
-	return (
-		!(Flags & diffByCost  && a->Cost  != v->Cost) &&
-		!(Flags & diffByPrice && a->Price != v->Price) &&
-		!(Flags & diffByPack  && a->UnitsPerPack != v->UnitsPerPack) &&
-		!(Flags & diffByLoc   && a->LocID != v->LocID) &&
-		!(Flags & fDiffBySerial && strcmp(a->Serial, v->Serial) != 0) &&
-		!(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0) // @v7.2.8
-	);
-	*/
 }
 
 int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
@@ -582,20 +568,20 @@ int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pA
 		if(up || uc) {
 			if(CalcMethod == pcmLastLot) {
    		        if(!Md_ || dt > Md_ || (dt == Md_ && opn >= Mo_)) {
-					v->LotID = pAdd->LotID; // @v8.1.1
+					v->LotID = pAdd->LotID;
 					v->Cost  = pAdd->Cost;
 				   	v->Price = pAdd->Price;
-					Md_ = dt;  // @v8.0.6
-					Mo_ = opn; // @v8.0.6
+					Md_ = dt;
+					Mo_ = opn;
 			   	}
 			}
 			else if(CalcMethod == pcmFirstLot) {
 				if(!Md_ || dt < Md_ || (dt == Md_ && opn <= Mo_)) {
-					v->LotID = pAdd->LotID; // @v8.1.1
+					v->LotID = pAdd->LotID;
 					v->Cost  = pAdd->Cost;
 					v->Price = pAdd->Price;
-					Md_ = dt;  // @v8.0.6
-					Mo_ = opn; // @v8.0.6
+					Md_ = dt;
+					Mo_ = opn;
 				}
 			}
 			else if(nr != 0.0) {
@@ -682,33 +668,28 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 		}
 	}
 	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry) || DiffByTag()) { // @v9.7.11 _diffExpiry
-		// @v8.1.0 if(Flags & fDiffBySerial) {
-		if(DiffParam & _diffSerial) { // @v8.1.0
+		SString temp_buf;
+		if(DiffParam & _diffSerial) {
 			PPObjBill * p_bobj = BillObj;
-			SString serial;
-			if(p_bobj->GetSerialNumberByLot(pLotRec->ID, serial, 1) > 0)
-				serial.CopyTo(add.Serial, sizeof(add.Serial));
-			// @v8.1.12 {
+			if(p_bobj->GetSerialNumberByLot(pLotRec->ID, temp_buf, 1) > 0)
+				temp_buf.CopyTo(add.Serial, sizeof(add.Serial));
 			else if(pLotRec->PrevLotID) {
 				ReceiptTbl::Rec org_lot_rec;
 				if(pTrfr->Rcpt.SearchOrigin(pLotRec->PrevLotID, 0, 0, &org_lot_rec)) {
-					if(p_bobj->GetSerialNumberByLot(org_lot_rec.ID, serial, 1) > 0)
-						STRNSCPY(add.Serial, serial);
+					if(p_bobj->GetSerialNumberByLot(org_lot_rec.ID, temp_buf, 1) > 0)
+						STRNSCPY(add.Serial, temp_buf);
 				}
 			}
-			// } @v8.1.12
 		}
 		PPID   diff_tag_id = DiffByTag();
 		if(diff_tag_id) {
-			SString tag_buf;
 			ObjTagItem tag_item;
-			PPObjTag tag_obj; // @v8.1.0
-			if(tag_obj.FetchTag(pLotRec->ID, diff_tag_id, &tag_item) > 0) { // @v8.1.0
-			// @v8.1.0 if(PPRef->Ot.GetTag(PPOBJ_LOT, pLotRec->ID, diff_tag_id, &tag_item) > 0) {
-			   tag_item.GetStr(tag_buf);
-			   STRNSCPY(add.LotTagText, tag_buf);
+			PPObjTag tag_obj;
+			if(tag_obj.FetchTag(pLotRec->ID, diff_tag_id, &tag_item) > 0) {
+			   tag_item.GetStr(temp_buf);
+			   STRNSCPY(add.LotTagText, temp_buf);
 			   if(!(DiffParam & _diffSerial)) {
-				   STRNSCPY(add.Serial, tag_buf);
+				   STRNSCPY(add.Serial, temp_buf);
 			   }
 			}
 		}
@@ -949,9 +930,8 @@ int SLAPI Transfer::GetRest(GoodsRestParam * pGrParam)
 				else {
 					idx     = 5;
 					k.k5.SupplID = pGrParam->SupplID;
-					// @v8.5.0 dbq     = & (Rcpt.SupplID == pGrParam->SupplID);
 				}
-				dbq = ppcheckfiltid(dbq, Rcpt.SupplID, pGrParam->SupplID); // @v8.5.0
+				dbq = ppcheckfiltid(dbq, Rcpt.SupplID, pGrParam->SupplID);
 			}
 			assert(oneof3(tag_closed, -1, 0, 1));
 			dbq = & (*dbq && Rcpt.Dt <= pGrParam->Date);
@@ -961,10 +941,6 @@ int SLAPI Transfer::GetRest(GoodsRestParam * pGrParam)
 				dbq = & (*dbq && Rcpt.CloseDate > pGrParam->Date);
 			else
 				dbq = & (*dbq && Rcpt.Closed == 0L);
-			/* @v8.5.0
-			if(pGrParam->SupplID && idx == 2)
-				dbq = & (*dbq && Rcpt.SupplID == pGrParam->SupplID);
-			*/
 			BExtQuery q(&Rcpt, idx);
 			q.select(Rcpt.ID, Rcpt.BillID, Rcpt.LocID, Rcpt.SupplID, Rcpt.PrevLotID, Rcpt.Dt, Rcpt.OprNo,
 				Rcpt.UnitPerPack, Rcpt.Cost, Rcpt.Price, Rcpt.Flags, Rcpt.InTaxGrpID, 0L).where(*dbq);
@@ -1311,7 +1287,7 @@ long FASTCALL MASK_TFR_FLAGS(long f)
 		PPTFR_ORDER | PPTFR_UNLIM | PPTFR_ODDGOODS | PPTFR_FORCESUPPL | PPTFR_PLUS | PPTFR_MINUS | PPTFR_MODIF |
 		PPTFR_QUOT | PPTFR_RMVEXCISE | PPTFR_ACK | PPTFR_NODISCOUNT | PPTFR_COSTWOVAT | PPTFR_COSTWSTAX | PPTFR_PCKG |
 		PPTFR_PCKGGEN | PPTFR_PRICEWOTAXES | PPTFR_ASSETEXPL | PPTFR_INDEPPHQTTY | PPTFR_FIXMODIFCOST |
-		PPTFR_CORRECTION | PPTFR_LOTSYNC)); // @v8.0.3 PPTFR_LOTSYNC
+		PPTFR_CORRECTION | PPTFR_LOTSYNC));
 }
 //
 // Ненулевое поле ti->RByBill является признаком зеркальной проводки
@@ -1410,10 +1386,9 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				THROW_PP((ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost), PPERR_ZEROREVAL);
 			THROW(UpdateFwRevalCostAndPrice2(ti->LotID, dt, 0, ti->Cost, ti->Price, 0)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 			if(ti->Flags & PPTFR_CORRECTION) {
-				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0); // @v8.9.0 @fix (перенесено снизу вверх)
+				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
 				THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
 				THROW_PP(qtty >= 0.0, PPERR_INVQTTY);
-				// @v8.9.0 @fix THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
 				qtty = ti->Quantity_ - lot_rec.Quantity;
 				ti->SetSignFlags(0, (qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);
 			}
@@ -2472,11 +2447,11 @@ int SLAPI Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 		THROW(ti.SetupLot(param->DestLotID, &param->DestLot, TISL_ADJPRICE));
 		{
 			PPObjBill * p_bobj = BillObj;
-			PPObjBill::TBlock tb_; // @v8.0.3
-			THROW(p_bobj->BeginTFrame(ti.BillID, tb_)); // @v8.0.3
+			PPObjBill::TBlock tb_;
+			THROW(p_bobj->BeginTFrame(ti.BillID, tb_));
 			THROW(UpdateItem(&ti, tb_.Rbb(), 0, 0));
 			THROW(p_bobj->RecalcTurns(ti.BillID, 0, 0));
-			THROW(p_bobj->FinishTFrame(ti.BillID, tb_)); // @v8.0.3
+			THROW(p_bobj->FinishTFrame(ti.BillID, tb_));
 		}
 		THROW(tra.Commit());
 	}
@@ -2500,7 +2475,7 @@ int SLAPI Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 			double src_price = R5(param->SrcLot.Price);
 			double src_qtty  = param->SrcLot.Quantity;
 			double sum_qtty  = param->DestLot.Quantity + src_qtty;
-			PPObjBill::TBlock tb_; // @v8.0.3
+			PPObjBill::TBlock tb_;
 
 			copyBufTo(&param->TrRec);
 			ti.SetupByRec(&param->TrRec);
@@ -2512,9 +2487,9 @@ int SLAPI Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 					ti.Price = R2((ti.Price * ti.Quantity_ + src_price * src_qtty) / sum_qtty);
 			}
 			ti.Quantity_ = sum_qtty;
-			THROW(p_bobj->BeginTFrame(ti.BillID, tb_)); // @v8.0.3
+			THROW(p_bobj->BeginTFrame(ti.BillID, tb_));
 			THROW(UpdateItem(&ti, tb_.Rbb(), 0, 0));
-			THROW(p_bobj->FinishTFrame(ti.BillID, tb_)); // @v8.0.3
+			THROW(p_bobj->FinishTFrame(ti.BillID, tb_));
 		}
 		THROW(tra.Commit());
 	}

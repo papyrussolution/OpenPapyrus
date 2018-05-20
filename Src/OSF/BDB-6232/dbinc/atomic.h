@@ -164,7 +164,7 @@ static inline int __atomic_compare_exchange_int(
 	expected = oldval;
 	ret = __atomic_compare_exchange_n(&p->value, &expected,
 	    newval, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
-	return (ret);
+	return ret;
 }
 #endif
 

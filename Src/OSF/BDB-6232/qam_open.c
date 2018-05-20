@@ -40,11 +40,11 @@ int __qam_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 	qmeta = NULL;
 	if(name == NULL && t->page_ext != 0) {
 		__db_errx(env, DB_STR("1134", "Extent size may not be specified for in-memory queue database"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(MULTIVERSION(dbp)) {
 		__db_errx(env, DB_STR("1135", "Multiversion queue databases are not supported"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/* Initialize the remaining fields/methods of the DB. */
@@ -60,7 +60,7 @@ int __qam_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db
 	if((ret = __db_cursor(dbp, ip, txn, &dbc,
 	    LF_ISSET(DB_CREATE) && CDB_LOCKING(env) ?
 	    DB_WRITECURSOR : 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Get the meta data page.  It must exist, because creates of
@@ -100,7 +100,7 @@ err:    if(qmeta != NULL && (t_ret =
 		ret = t_ret;
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __qam_set_ext_data --
@@ -120,7 +120,7 @@ int __qam_set_ext_data(DB *dbp, const char * name)
 	t->pgcookie.size = sizeof(DB_PGINFO);
 
 	if((ret = __os_strdup(dbp->env, name,  &t->path)) != 0)
-		return (ret);
+		return ret;
 	t->dir = t->path;
 	if((t->name = __db_rpath(t->path)) == NULL) {
 		t->name = t->path;
@@ -129,7 +129,7 @@ int __qam_set_ext_data(DB *dbp, const char * name)
 	else
 		*t->name++ = '\0';
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -165,17 +165,17 @@ int __qam_metachk(DB *dbp, const char * name, QMETA * qmeta)
 		    __db_errx(env, DB_STR_A("1138",
 			"%s: unsupported qam version: %lu", "%s %lu"),
 			name, (u_long)vers);
-		    return (EINVAL);
+		    return EINVAL;
 	}
 
 	/* Swap the page if we need to. */
 	if(F_ISSET(dbp, DB_AM_SWAP) &&
 	    (ret = __qam_mswap(env, (PAGE*)qmeta)) != 0)
-		return (ret);
+		return ret;
 
 	/* Check the type. */
 	if(dbp->type != DB_QUEUE && dbp->type != DB_UNKNOWN)
-		return (EINVAL);
+		return EINVAL;
 	dbp->type = DB_QUEUE;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_QUEUE);
 
@@ -189,7 +189,7 @@ int __qam_metachk(DB *dbp, const char * name, QMETA * qmeta)
 	dbp->db_am_rename = __qam_rename;
 	dbp->db_am_remove = __qam_remove;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -200,7 +200,7 @@ static int __qam_init_meta(DB *dbp, QMETA * meta)
 {
 	ENV * env = dbp->env;
 	QUEUE * t = (QUEUE *)dbp->q_internal;
-	memset(meta, 0, sizeof(QMETA));
+	memzero(meta, sizeof(QMETA));
 	LSN_NOT_LOGGED(meta->dbmeta.lsn);
 	meta->dbmeta.pgno = PGNO_BASE_MD;
 	meta->dbmeta.last_pgno = 0;
@@ -229,10 +229,10 @@ static int __qam_init_meta(DB *dbp, QMETA * meta)
 		__db_errx(env, DB_STR_A("1139",
 		    "Record size of %lu too large for page size of %lu",
 		    "%lu %lu"), (u_long)t->re_len, (u_long)dbp->pgsize);
-		return (EINVAL);
+		return EINVAL;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -267,7 +267,7 @@ int __qam_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 		pgno = PGNO_BASE_MD;
 		if((ret = __memp_fget(mpf, &pgno, ip, txn,
 		    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __qam_init_meta(dbp, meta)) != 0)
 			goto err1;
@@ -282,7 +282,7 @@ err1:           if((t_ret =
 	else {
 		env = dbp->env;
 		if((ret = __os_calloc(env, 1, dbp->pgsize, &meta)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __qam_init_meta(dbp, meta)) != 0)
 			goto err2;
@@ -302,5 +302,5 @@ err1:           if((t_ret =
 err2:           __os_free(env, meta);
 	}
 
-	return (ret);
+	return ret;
 }

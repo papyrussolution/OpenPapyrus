@@ -1057,6 +1057,12 @@ SrCProp & FASTCALL SrCProp::operator = (double val)
 	return *this;
 }
 
+SrCProp & FASTCALL SrCProp::operator = (const SUniTime & rUtVal)
+{
+	Value.Write(&rUtVal, sizeof(rUtVal));
+	return *this;
+}
+
 int FASTCALL SrCProp::Get(int64 & rIntVal) const
 {
 	size_t s = Value.ReadStatic(&rIntVal, sizeof(rIntVal));
@@ -1067,6 +1073,12 @@ int FASTCALL SrCProp::Get(double & rRealVal) const
 {
 	size_t s = Value.ReadStatic(&rRealVal, sizeof(rRealVal));
 	return BIN(s == sizeof(rRealVal));
+}
+
+int FASTCALL SrCProp::Get(SUniTime & rUtVal) const
+{
+	size_t s = Value.ReadStatic(&rUtVal, sizeof(rUtVal));
+	return BIN(s == sizeof(rUtVal));
 }
 //
 //

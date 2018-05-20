@@ -1061,7 +1061,8 @@ public:
 		tokTypeInt,         // #int
 		tokTypeReal,        // #real
 		tokTypeStr,         // #str
-		tokTypeHDate,       // #hdate
+		//tokTypeHDate,       // #hdate
+		tokTypeUniTime,     // #unitime
 		tokTypeHPeriod,     // #hperiod
 		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм
 		tokEqAbbrevDot,     // @v9.8.12 =. ул=.улица    ул или ул.
@@ -1294,7 +1295,7 @@ static const SrCTypeSymb _CTypeSymbList[] = {
 	{ SRPROPT_INT,     SrConceptParser::tokTypeInt,     "int" },
 	{ SRPROPT_STRING,  SrConceptParser::tokTypeStr,     "str" },
 	{ SRPROPT_REAL,    SrConceptParser::tokTypeReal,    "real" },
-	{ SRPROPT_HDATE,   SrConceptParser::tokTypeHDate,   "hdate" },
+	{ SRPROPT_UNITIME,   SrConceptParser::tokTypeUniTime,   /*"hdate"*/"unitime" },
 	{ SRPROPT_HPERIOD, SrConceptParser::tokTypeHPeriod, "hperiod" }
 };
 
@@ -3004,31 +3005,51 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	SString temp_buf;
 	SString line_buf;
 	Entry entry;
+	SPathStruc ps(pFileName);
+	ps.Nam.CatChar('-').Cat(pExchangeSymb);
+	ps.Ext = "txt";
+	ps.Merge(temp_buf);
+	SFile f_debug_out(temp_buf, SFile::mWrite);
 	SFile f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
-	for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
-		if(line_no > 1) {
-			line_buf.Chomp().Strip();
-			SStrScan scan(line_buf);
-			uint   fld_no = 0;
-			entry.Z();
-			while(scan.GetQuotedString(temp_buf)) {
-				fld_no++;
-				if(temp_buf.IsEqiAscii("n/a"))
-					temp_buf.Z();
-				switch(fld_no) {
-					case 1: entry.Ticker = temp_buf; break;
-					case 2: entry.Name = temp_buf; break;
-					case 3: entry.LastSaleQuote = temp_buf.ToReal(); break;
-					case 4: entry.MarketCap = temp_buf.ToReal(); break;
-					case 5: break; // adr tso
-					case 6: entry.IPOYear = temp_buf.ToLong(); break;
-					case 7: entry.Sector = temp_buf; break;
-					case 8: entry.Industry = temp_buf; break;
-					case 9: break; // summary quote
+	{
+		STokenizer::Item titem;
+		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
+		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
+			if(line_no > 1) {
+				line_buf.Chomp().Strip();
+				SStrScan scan(line_buf);
+				uint   fld_no = 0;
+				entry.Z();
+				while(scan.GetQuotedString(temp_buf)) {
+					fld_no++;
+					temp_buf.Strip();
+					if(temp_buf.IsEqiAscii("n/a"))
+						temp_buf.Z();
+					switch(fld_no) {
+						case 1: entry.Ticker = temp_buf; break;
+						case 2: entry.Name = temp_buf; break;
+						case 3: entry.LastSaleQuote = temp_buf.ToReal(); break;
+						case 4: entry.MarketCap = temp_buf.ToReal(); break;
+						case 5: break; // adr tso
+						case 6: entry.IPOYear = temp_buf.ToLong(); break;
+						case 7: entry.Sector = temp_buf; break;
+						case 8: entry.Industry = temp_buf; break;
+						case 9: break; // summary quote
+					}
+					if(!scan.IncrChr(','))
+						break;
 				}
-				if(!scan.IncrChr(','))
-					break;
+				{
+					uint   idx_first = 0;
+					uint   idx_count = 0;
+					tknz.RunSString(0, 0, entry.Name, &idx_first, &idx_count);
+					for(uint tidx = 0; tidx < idx_count; tidx++) {
+						if(tknz.Get(idx_first+tidx, titem)) {
+							//titem.Text
+						}
+					}
+				}
 			}
 		}
 	}
@@ -4003,9 +4024,7 @@ int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::PutMatchEntryOnSuccess(uint txtIdxS
 }
 
 uint SLAPI SrSyntaxRuleSet::ResolveRuleBlock::GetMatchListPreservedP()
-{
-	return MatchList.getCount();
-}
+	{ return MatchList.getCount(); }
 
 void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::TrimMatchListOnFailure(uint preservedP)
 {
@@ -4190,14 +4209,9 @@ SLAPI SrSyntaxRuleSet::~SrSyntaxRuleSet()
 }
 
 uint SLAPI SrSyntaxRuleSet::GetRuleCount() const
-{
-	return RL.getCount();
-}
-
+	{ return RL.getCount(); }
 const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::GetRule(uint pos) const
-{
-	return (pos < RL.getCount()) ? RL.at(pos) : 0;
-}
+	{ return (pos < RL.getCount()) ? RL.at(pos) : 0; }
 
 int SLAPI SrSyntaxRuleSet::GetRuleName(uint pos, SString & rBuf) const
 {

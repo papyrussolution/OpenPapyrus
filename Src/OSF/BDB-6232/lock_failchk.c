@@ -70,11 +70,10 @@ retry:
 				__db_msg(env, DB_STR_A("2053", "Freeing read locks for locker %#lx: %s", "%#lx %s"), (u_long)lip->id, 
 					dbenv->thread_id_string(dbenv, lip->pid, lip->tid, buf));
 				UNLOCK_LOCKERS(env, lrp);
-				memset(&request, 0, sizeof(request));
+				memzero(&request, sizeof(request));
 				request.op = DB_LOCK_PUT_READ;
-				if((ret = __lock_vec(env,
-				    lip, 0, &request, 1, NULL)) != 0)
-					return (ret);
+				if((ret = __lock_vec(env, lip, 0, &request, 1, NULL)) != 0)
+					return ret;
 			}
 			else
 				UNLOCK_LOCKERS(env, lrp);
@@ -86,11 +85,11 @@ retry:
 			 * assume the dead thread will never release it.
 			 */
 			if(lip->id < TXN_MINIMUM && (ret = __lock_freelocker(lt, lip)) != 0)
-				return (ret);
+				return ret;
 			goto retry;
 		}
 
 		UNLOCK_LOCKERS(env, lrp);
 
-	return (ret);
+	return ret;
 }

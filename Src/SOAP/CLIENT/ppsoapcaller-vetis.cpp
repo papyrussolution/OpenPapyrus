@@ -3,10 +3,13 @@
 //
 #include <ppsoapclient.h>
 #include <sstream>
-#include "vetis\vetisamsAMSMercuryG2BBindingProxy.h"
+#include "vetis\vetisamsH.h"
 #include "vetis\vetisamsApplicationManagementServiceBindingProxy.h"
-#include "vetis\vetisamsEnterpriseServiceBindingProxy.h"
-#include "vetis\vetisamsProductServiceBindingProxy.h"
+//#include "vetis\vetisamsEnterpriseServiceBindingProxy.h"
+
+//#include "vetis\vetisamsApplicationManagementServiceBindingProxy.h"
+//#include "vetis\vetisamsEnterpriseServiceBindingProxy.h"
+//#include "vetis\vetisprdProductServiceBindingProxy.h"
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
@@ -28,17 +31,17 @@ static int FASTCALL ProcessError(ApplicationManagementServiceBindingProxy & rPro
 static int FASTCALL PreprocessCall(ApplicationManagementServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
 
-static int FASTCALL ProcessError(EnterpriseServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
+/*static int FASTCALL ProcessError(EnterpriseServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
 {
 	char   temp_err_buf[1024];
 	rProxi.soap_sprint_fault(temp_err_buf, sizeof(temp_err_buf));
 	rSess.SetMsg(temp_err_buf);
 	return 0;
-}
-static int FASTCALL PreprocessCall(EnterpriseServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
-	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
+}*/
+/*static int FASTCALL PreprocessCall(EnterpriseServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }*/
 
-static int FASTCALL ProcessError(ProductServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
+/*static int FASTCALL ProcessError(ProductServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
 {
 	char   temp_err_buf[1024];
 	rProxi.soap_sprint_fault(temp_err_buf, sizeof(temp_err_buf));
@@ -46,7 +49,7 @@ static int FASTCALL ProcessError(ProductServiceBindingProxy & rProxi, PPSoapClie
 	return 0;
 }
 static int FASTCALL PreprocessCall(ProductServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
-	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
+	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }*/
 
 #define VETIS_STRUC_APPLICATION app__Application
 
@@ -114,6 +117,7 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 	switch(rBlk.Func) {
 		case VetisApplicationData::signGetAppliedUserAuthorityListRequest:
 			if(rBlk.P_LoReq) {
+				/*
 				merc__GetAppliedUserAuthorityListRequest * p = new merc__GetAppliedUserAuthorityListRequest; // (pilot) 
 				// (product) ns6__GetApplicableUserAuthorityListRequest * p = new ns6__GetApplicableUserAuthorityListRequest;
 				if(p) {
@@ -145,11 +149,13 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 					}
 					delete p;
 				}
+				*/
 			}
 			break;
 		case VetisApplicationData::signGetRussianEnterpriseListRequest:
 			if(rBlk.P_LoReq) {
-				_ns8__getRussianEnterpriseListRequest * p = new _ns8__getRussianEnterpriseListRequest; // (pilot) 
+				/*
+				_entd__getRussianEnterpriseListRequest * p = new _entd__getRussianEnterpriseListRequest; // (pilot) 
 				if(p) {
 					p->base__listOptions = new base__ListOptions;
 					p->base__listOptions->count = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_LoReq->ListOptions.Count), rPool);
@@ -159,7 +165,7 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 							struct soap * p_app_soap = soap_new1(SOAP_XML_CANONICAL|SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 							std::stringstream ss;
 							p_app_soap->os = &ss;
-							soap_write__ns8__getRussianEnterpriseListRequest(p_app_soap, p); // (pilot) 
+							soap_write__entd__getRussianEnterpriseListRequest(p_app_soap, p); // (pilot) 
 							// (product) soap_write_ns6__GetApplicableUserAuthorityListRequest(p_app_soap, p);
 							p_app_soap->os = NULL; // no longer writing to the string
 							soap_end(p_app_soap); // warning: this deletes str with XML too!
@@ -170,16 +176,17 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 					}
 					delete p;
 				}
+				*/
 			}
 			break;
 		case VetisApplicationData::signGetStockEntryListRequest:
 			if(rBlk.P_GselReq) {
-				merc__GetStockEntryListRequest * p = new merc__GetStockEntryListRequest;
+				g2ba__GetStockEntryListRequest * p = new g2ba__GetStockEntryListRequest;
 				if(p) {
 					p->initiator = new vd__User;
 					p->initiator->login = GetDynamicParamString((temp_buf = rBlk.P_GselReq->Initiator.Login).Transf(CTRANSF_INNER_TO_UTF8), rPool);
 					p->localTransactionId = GetDynamicParamString(temp_buf.Z().Cat(rBlk.LocalTransactionId), rPool);
-					p->ent__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL), rPool);
+					p->dic__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL), rPool);
 					p->base__listOptions = new base__ListOptions;
 					p->base__listOptions->count = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Count), rPool);
 					p->base__listOptions->offset = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Offset), rPool);
@@ -191,7 +198,7 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 							int r = soap_begin_send(p_app_soap);
 							if(!r) {
 								p->soap_serialize(p_app_soap);
-								r = p->soap_put(p_app_soap, "merc:getStockEntryListRequest", NULL);
+								r = p->soap_put(p_app_soap, "g2ba:getStockEntryListRequest", NULL);
 								SETIFZ(r, soap_end_send(p_app_soap));
 							}
 							p_app_soap->os = NULL; // no longer writing to the string
@@ -213,7 +220,7 @@ static void DestroyAppData(const VetisApplicationBlock & rBlk, void * pData)
 {
 }
 
-static void _GetAddressObjectView(VetisAddressObjectView & rDest, const ent__AddressObjectView * pSrc)
+static void _GetAddressObjectView(VetisAddressObjectView & rDest, const dic__AddressObjectView * pSrc)
 {
 	if(pSrc) {
 		rDest.CountryGUID.FromStr(pSrc->countryGuid);
@@ -226,7 +233,7 @@ static void _GetAddressObjectView(VetisAddressObjectView & rDest, const ent__Add
 	}
 }
 
-static void _GetDistrict(VetisDistrict & rDest, const ent__District * pSrc)
+static void _GetDistrict(VetisDistrict & rDest, const dic__District * pSrc)
 {
 	if(pSrc) {
 		_GetAddressObjectView(rDest, pSrc);
@@ -234,7 +241,7 @@ static void _GetDistrict(VetisDistrict & rDest, const ent__District * pSrc)
 	}
 }
 
-static void _GetLocality(VetisLocality & rDest, const ent__Locality * pSrc)
+static void _GetLocality(VetisLocality & rDest, const dic__Locality * pSrc)
 {
 	if(pSrc) {
 		_GetAddressObjectView(rDest, pSrc);
@@ -243,7 +250,7 @@ static void _GetLocality(VetisLocality & rDest, const ent__Locality * pSrc)
 	}
 }
 
-static void _GetStreet(VetisStreet & rDest, const ent__Street * pSrc)
+static void _GetStreet(VetisStreet & rDest, const dic__Street * pSrc)
 {
 	if(pSrc) {
 		_GetAddressObjectView(rDest, pSrc);
@@ -251,7 +258,7 @@ static void _GetStreet(VetisStreet & rDest, const ent__Street * pSrc)
 	}
 }
 
-static void _GetFederalDistrict(VetisFederalDistrict & rDest, const ent__FederalDistrict * pSrc)
+static void _GetFederalDistrict(VetisFederalDistrict & rDest, const dic__FederalDistrict * pSrc)
 {
 	if(pSrc) {
 		(rDest.FullName = pSrc->fullName).Transf(CTRANSF_UTF8_TO_INNER);
@@ -260,7 +267,7 @@ static void _GetFederalDistrict(VetisFederalDistrict & rDest, const ent__Federal
 	}
 }
 
-static void _GetCountry(VetisCountry & rDest, const ent__Country * pSrc)
+static void _GetCountry(VetisCountry & rDest, const dic__Country * pSrc)
 {
 	if(pSrc) {
 		(rDest.Name = pSrc->name).Transf(CTRANSF_UTF8_TO_INNER);
@@ -271,7 +278,7 @@ static void _GetCountry(VetisCountry & rDest, const ent__Country * pSrc)
 	}
 }
 
-static void _GetAddress(VetisAddress & rDest, const ent__Address * pSrc)
+static void _GetAddress(VetisAddress & rDest, const dic__Address * pSrc)
 {
 	if(pSrc) {
 		(rDest.AddressView = pSrc->addressView ? *pSrc->addressView : 0).Transf(CTRANSF_UTF8_TO_INNER);
@@ -281,7 +288,7 @@ static void _GetAddress(VetisAddress & rDest, const ent__Address * pSrc)
 		(rDest.Room = pSrc->room).Transf(CTRANSF_UTF8_TO_INNER);
 		(rDest.PostBox = pSrc->postBox).Transf(CTRANSF_UTF8_TO_INNER);
 		(rDest.PostIndex = pSrc->postIndex).Transf(CTRANSF_UTF8_TO_INNER);
-		(rDest.AdditionalInfo = pSrc->additionalInfo ? *pSrc->additionalInfo : 0).Transf(CTRANSF_UTF8_TO_INNER);
+		//(rDest.AdditionalInfo = pSrc->additionalInfo ? pSrc->additionalInfo : 0).Transf(CTRANSF_UTF8_TO_INNER);
 		_GetLocality(rDest.Locality, pSrc->locality);
 		_GetLocality(rDest.SubLocality, pSrc->subLocality);
 		_GetAddressObjectView(rDest.Region, pSrc->region);
@@ -320,19 +327,19 @@ static void _GetGenericVersioningEntity(VetisGenericVersioningEntity & rDest, co
 	}
 }
 
-static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc); // @prototype
+static void _GetEnterprise(VetisEnterprise & rDest, const dic__Enterprise * pSrc); // @prototype
 
-static void _GetBusinessEntity_activityLocation(VetisBusinessEntity_activityLocation & rDest, const _ent__BusinessEntity_activityLocation * pSrc)
+static void _GetBusinessEntity_activityLocation(VetisBusinessEntity_activityLocation & rDest, const _dic__BusinessEntity_activityLocation * pSrc)
 {
 	if(pSrc) {
 		rDest.GlobalID.clear();
-		if(pSrc->globalID)
-			rDest.GlobalID.add(*pSrc->globalID);
+		/*if(pSrc->globalID)
+			rDest.GlobalID.add(*pSrc->globalID);*/
 		_GetEnterprise(rDest.Enterprise, pSrc->enterprise);
 	}
 }
 
-static void _GetIncorporationForm(VetisIncorporationForm & rDest, const ent__IncorporationForm * pSrc)
+static void _GetIncorporationForm(VetisIncorporationForm & rDest, const dic__IncorporationForm * pSrc)
 {
 	if(pSrc) {
 		_GetGenericEntity(rDest, pSrc);
@@ -342,7 +349,7 @@ static void _GetIncorporationForm(VetisIncorporationForm & rDest, const ent__Inc
 	}
 }
 
-static void _GetBusinessEntity(VetisBusinessEntity & rDest, const ent__BusinessEntity * pSrc)
+static void _GetBusinessEntity(VetisBusinessEntity & rDest, const dic__BusinessEntity * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
@@ -361,14 +368,14 @@ static void _GetBusinessEntity(VetisBusinessEntity & rDest, const ent__BusinessE
 			for(int i = 0; i < pSrc->__sizeactivityLocation; i++) {
 				VetisBusinessEntity_activityLocation * p_new_loc = rDest.ActivityLocationList.CreateNewItem();
 				if(p_new_loc) {
-					_GetBusinessEntity_activityLocation(*p_new_loc, &pSrc->activityLocation[i]);
+					_GetBusinessEntity_activityLocation(*p_new_loc, pSrc->activityLocation+i);
 				}
 			}
 		}
 	}
 }
 
-static void _GetEnterpriseOfficialRegistration(VetisEnterpriseOfficialRegistration & rDest, const ent__EnterpriseOfficialRegistration * pSrc)
+/*static void _GetEnterpriseOfficialRegistration(VetisEnterpriseOfficialRegistration & rDest, const ent__EnterpriseOfficialRegistration * pSrc)
 {
 	if(pSrc) {
 		rDest.ID = pSrc->ID;
@@ -381,7 +388,7 @@ static void _GetEnterpriseOfficialRegistration(VetisEnterpriseOfficialRegistrati
 			}
 		}
 	}
-}
+}*/
 
 static void _GetEntityList(VetisEntityList & rDest, const base__EntityList * pSrc)
 {
@@ -393,7 +400,7 @@ static void _GetEntityList(VetisEntityList & rDest, const base__EntityList * pSr
 	}
 }
 
-static void _GetEnterpriseActivityList(VetisEnterpriseActivityList & rDest, const ent__EnterpriseActivityList * pSrc)
+static void _GetEnterpriseActivityList(VetisEnterpriseActivityList & rDest, const dic__EnterpriseActivityList * pSrc)
 {
 	if(pSrc) {
 		_GetEntityList(rDest, pSrc);
@@ -410,7 +417,7 @@ static void _GetEnterpriseActivityList(VetisEnterpriseActivityList & rDest, cons
 	}
 }
 
-static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc)
+static void _GetEnterprise(VetisEnterprise & rDest, const dic__Enterprise * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
@@ -425,6 +432,7 @@ static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc
 				_GetBusinessEntity(*rDest.P_Owner, pSrc->owner);
 		}
 		rDest.OfficialRegistration.freeAll();
+		/*
 		if(pSrc->__sizeofficialRegistration > 0 && pSrc->officialRegistration) {
 			for(int i = 0; i < pSrc->__sizeofficialRegistration; i++) {
 				VetisEnterpriseOfficialRegistration * p_new_item = rDest.OfficialRegistration.CreateNewItem();
@@ -433,6 +441,7 @@ static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc
 				}
 			}
 		}
+		*/
 		_GetEnterpriseActivityList(rDest.ActivityList, pSrc->activityList);
 		rDest.NumberList.clear();
 		if(pSrc->numberList && pSrc->numberList->__sizeenterpriseNumber > 0 && pSrc->numberList->enterpriseNumber) {
@@ -446,7 +455,7 @@ static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc
 	}
 }
 
-static void _GetProduct(VetisProduct & rDest, const ent__Product * pSrc)
+static void _GetProduct(VetisProduct & rDest, const dic__Product * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
@@ -457,7 +466,7 @@ static void _GetProduct(VetisProduct & rDest, const ent__Product * pSrc)
 	}
 }
 
-static void _GetSubProduct(VetisSubProduct & rDest, const ent__SubProduct * pSrc)
+static void _GetSubProduct(VetisSubProduct & rDest, const dic__SubProduct * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
@@ -468,16 +477,16 @@ static void _GetSubProduct(VetisSubProduct & rDest, const ent__SubProduct * pSrc
 	}
 }
 
-static void _GetPackingType(VetisPackingType & rDest, const ent__PackingType * pSrc)
+/*static void _GetPackingType(VetisPackingType & rDest, const ent__PackingType * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
 		(rDest.Name = pSrc->name).Transf(CTRANSF_UTF8_TO_INNER);
 		rDest.GlobalID = pSrc->globalID ? *pSrc->globalID : 0;
 	}
-}
+}*/
 
-static void _GetUnit(VetisUnit & rDest, const ent__Unit * pSrc)
+/*static void _GetUnit(VetisUnit & rDest, const ent__Unit * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
@@ -486,42 +495,42 @@ static void _GetUnit(VetisUnit & rDest, const ent__Unit * pSrc)
 		rDest.CommonUnitGuid.FromStr(pSrc->commonUnitGuid);
 		rDest.Factor = pSrc->factor ? atoi(pSrc->factor) : 0;
 	}
-}
+}*/
 
-static void _GetPackaging(VetisPackaging & rDest, const ent__Packaging * pSrc)
+/*static void _GetPackaging(VetisPackaging & rDest, const ent__Packaging * pSrc)
 {
 	if(pSrc) {
-		_GetPackingType(rDest.PackagingType, pSrc->packagingType);
+		//_GetPackingType(rDest.PackagingType, pSrc->packagingType);
 		rDest.Quantity = pSrc->quantity ? atoi(pSrc->quantity) : 0;
 		rDest.Volume = pSrc->volume ? atof(*pSrc->volume) : 0.0;
 		_GetUnit(rDest.Unit, pSrc->unit);
 	}
-}
+}*/
 
-static void _GetProductItem(VetisProductItem & rDest, const ent__ProductItem * pSrc)
+static void _GetProductItem(VetisProductItem & rDest, const dic__ProductItem * pSrc)
 {
 	if(pSrc) {
 		_GetGenericVersioningEntity(rDest, pSrc);
-		(rDest.GlobalID = pSrc->globalID).Transf(CTRANSF_UTF8_TO_INNER);
+		//(rDest.GlobalID = pSrc->globalID).Transf(CTRANSF_UTF8_TO_INNER);
 		(rDest.Name = pSrc->name).Transf(CTRANSF_UTF8_TO_INNER);
 		(rDest.Code = pSrc->code).Transf(CTRANSF_UTF8_TO_INNER);
 		rDest.ProductType = pSrc->productType ? *pSrc->productType : vptUndef;
 		(rDest.Gost = pSrc->gost).Transf(CTRANSF_UTF8_TO_INNER);
 		SETFLAG(rDest.Flags, rDest.fCorrespondsToGost, pSrc->correspondsToGost && *pSrc->correspondsToGost);
-		SETFLAG(rDest.Flags, rDest.fIsPublic, pSrc->isPublic && *pSrc->isPublic);
+		//SETFLAG(rDest.Flags, rDest.fIsPublic, pSrc->isPublic && *pSrc->isPublic);
 		_GetProduct(rDest.Product, pSrc->product);
 		_GetSubProduct(rDest.SubProduct, pSrc->subProduct);
-		_GetBusinessEntity(rDest.Producer, pSrc->producer);
-		_GetBusinessEntity(rDest.TmOwner, pSrc->tmOwner);
-		_GetPackaging(rDest.Packaging, pSrc->packaging);
-		for(int i = 0; i < pSrc->__sizeproducing; i++) {
+		//_GetBusinessEntity(rDest.Producer, pSrc->producer);
+		//_GetBusinessEntity(rDest.TmOwner, pSrc->tmOwner);
+		//_GetPackaging(rDest.Packaging, pSrc->packaging);
+		/*for(int i = 0; i < pSrc->__sizeproducing; i++) {
 			const ent__ProductItemProducing * p_src_item = pSrc->producing[i];
 			if(p_src_item && p_src_item->location) {
 				VetisEnterprise * p_dest_item = rDest.Producing.CreateNewItem();
 				if(p_dest_item)
 					_GetEnterprise(*p_dest_item, p_src_item->location);
 			}
-		}
+		}*/
 	}
 }
 
@@ -530,12 +539,13 @@ extern "C" __declspec(dllexport) TSCollection <VetisProductItem> * Vetis_GetProd
 	void * p_app_req = 0;
 	int    embed_id = 0;
 	TSCollection <VetisProductItem> * p_result = 0;
+#if 0 // {
 	ProductServiceBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
 
-	_ns8__getProductItemListRequest param;
-	_ns8__getProductItemListResponse resp;
+	_prodd__getProductItemListRequest param;
+	_prodd__getProductItemListResponse resp;
 	gSoapClientInit(&proxi, 0, 0);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -550,12 +560,12 @@ extern "C" __declspec(dllexport) TSCollection <VetisProductItem> * Vetis_GetProd
 
 	}
 	THROW(PreprocessCall(proxi, rSess, proxi.GetProductItemList(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
-	if(resp.ent__productItemList) {
+	if(resp.prod__productItemList) {
 		THROW(p_result = new TSCollection <VetisProductItem>);
 		PPSoapRegisterResultPtr(p_result);
-		const int ec = *resp.ent__productItemList->count;
+		const int ec = *resp.prod__productItemList->count;
 		for(int i = 0; i < ec; i++) {
-			ent__ProductItem * p_ent = resp.ent__productItemList->productItem[i];
+			prod__ProductItem * p_ent = resp.prod__productItemList->productItem[i];
 			if(p_ent) {
 				VetisProductItem * p_new_item = p_result->CreateNewItem();
 				THROW(p_new_item);
@@ -567,7 +577,8 @@ extern "C" __declspec(dllexport) TSCollection <VetisProductItem> * Vetis_GetProd
 		ZDELETE(p_result);
 	ENDCATCH
 	ZDELETE(param.base__listOptions);
-	ZDELETE(param.ent__enterprise);
+	ZDELETE(param.ent__enterpriseGuid);
+#endif // } 0
 	return p_result;
 }
 
@@ -576,12 +587,13 @@ extern "C" __declspec(dllexport) TSCollection <VetisEnterprise> * Vetis_GetRussi
 	void * p_app_req = 0;
 	int    embed_id = 0;
 	TSCollection <VetisEnterprise> * p_result = 0;
+#if 0 // {
 	EnterpriseServiceBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
 
-	_ns8__getRussianEnterpriseListRequest param;
-	_ns8__getRussianEnterpriseListResponse resp;
+	_entd__getRussianEnterpriseListRequest param;
+	_entd__getRussianEnterpriseListResponse resp;
 	gSoapClientInit(&proxi, 0, 0);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -614,6 +626,7 @@ extern "C" __declspec(dllexport) TSCollection <VetisEnterprise> * Vetis_GetRussi
 	ENDCATCH
 	ZDELETE(param.base__listOptions);
 	ZDELETE(param.ent__enterprise);
+#endif // } 0
 	return p_result;
 }
 

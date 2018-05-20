@@ -33,7 +33,7 @@ int __os_openhandle(ENV *env, const char * name, int flags, int mode, DB_FH ** f
 	 * Lock the ENV handle and insert the new file handle on the list.
 	 */
 	if((ret = __os_calloc(env, 1, sizeof(DB_FH), &fhp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_strdup(env, name, &fhp->name)) != 0)
 		goto err;
 	if(env != NULL) {
@@ -83,11 +83,11 @@ int __os_openhandle(ENV *env, const char * name, int flags, int mode, DB_FH ** f
 	if(ret == 0) {
 		F_SET(fhp, DB_FH_OPENED);
 		*fhpp = fhp;
-		return (0);
+		return 0;
 	}
 
 err:    (void)__os_closehandle(env, fhp);
-	return (ret);
+	return ret;
 #endif
 }
 
@@ -141,5 +141,5 @@ int __os_closehandle(ENV *env, DB_FH * fhp)
 	if(fhp->name != NULL)
 		__os_free(env, fhp->name);
 	__os_free(env, fhp);
-	return (ret);
+	return ret;
 }

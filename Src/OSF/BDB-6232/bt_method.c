@@ -37,7 +37,7 @@ int __bam_db_create(DB *dbp)
 	int ret;
 	/* Allocate and initialize the private btree structure. */
 	if((ret = __os_calloc(dbp->env, 1, sizeof(BTREE), &t)) != 0)
-		return (ret);
+		return ret;
 	dbp->bt_internal = t;
 
 	t->bt_minkey = DEFMINKEYPAGE;           /* Btree */
@@ -54,7 +54,7 @@ int __bam_db_create(DB *dbp)
 	 */
 	if(F_ISSET(dbp, DB_AM_COMPRESS) &&
 	    (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
-		return (ret);
+		return ret;
 #endif
 
 	dbp->get_bt_compare = __bam_get_bt_compare;
@@ -79,7 +79,7 @@ int __bam_db_create(DB *dbp)
 	dbp->get_re_source = __ram_get_re_source;
 	dbp->set_re_source = __ram_set_re_source;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -92,7 +92,7 @@ int __bam_db_close(DB *dbp)
 {
 	BTREE * t;
 	if((t = (BTREE *)dbp->bt_internal) == NULL)
-		return (0);
+		return 0;
 	/* Recno */
 	/* Close any backing source file descriptor. */
 	if(t->re_fp != NULL)
@@ -102,7 +102,7 @@ int __bam_db_close(DB *dbp)
 		__os_free(dbp->env, t->re_source);
 	__os_free(dbp->env, t);
 	dbp->bt_internal = NULL;
-	return (0);
+	return 0;
 }
 /*
  * __bam_map_flags --
@@ -172,12 +172,12 @@ int __bam_set_flags(DB *dbp, uint32 * flagsp)
 	/* DB_RECNUM is incompatible with compression */
 	if(LF_ISSET(DB_RECNUM) && DB_IS_COMPRESSED(dbp)) {
 		__db_errx(dbp->env, DB_STR("1024", "DB_RECNUM cannot be used with compression"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* DB_DUP without DB_DUPSORT is incompatible with compression */
 	if(LF_ISSET(DB_DUP) && !LF_ISSET(DB_DUPSORT) && !F_ISSET(dbp, DB_AM_DUPSORT) && DB_IS_COMPRESSED(dbp)) {
 		__db_errx(dbp->env, DB_STR("1025", "DB_DUP cannot be used with compression without DB_DUPSORT"));
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 
@@ -192,7 +192,7 @@ int __bam_set_flags(DB *dbp, uint32 * flagsp)
 		dbp->dup_compare = __dbt_defcmp;
 	}
 	__bam_map_flags(dbp, flagsp, &dbp->flags);
-	return (0);
+	return 0;
 incompat:
 	return (__db_ferr(dbp->env, "DB->set_flags", 1));
 }
@@ -208,7 +208,7 @@ static int __bam_get_bt_compare(DB *dbp, int (**funcp)(DB *, const DBT *, const 
 	t = (BTREE *)dbp->bt_internal;
 	if(funcp != NULL)
 		*funcp = t->bt_compare;
-	return (0);
+	return 0;
 }
 
 /*
@@ -232,7 +232,7 @@ int __bam_set_bt_compare(DB *dbp, int (*func)(DB *, const DBT *, const DBT *, si
 	if(t->bt_prefix == __bam_defpfx)
 		t->bt_prefix = NULL;
 
-	return (0);
+	return 0;
 }
 /*
  * __bam_get_bt_compress --
@@ -250,12 +250,12 @@ static int __bam_get_bt_compress(DB *dbp,
 		*compressp = t->bt_compress;
 	if(decompressp != NULL)
 		*decompressp = t->bt_decompress;
-	return (0);
+	return 0;
 #else
 	COMPQUIET(compressp, NULL);
 	COMPQUIET(decompressp, NULL);
 	__db_errx(dbp->env, DB_STR("1026", "compression support has not been compiled in"));
-	return (EINVAL);
+	return EINVAL;
 #endif
 }
 
@@ -280,18 +280,18 @@ int __bam_set_bt_compress(DB *dbp,
 	/* compression is incompatible with DB_RECNUM */
 	if(F_ISSET(dbp, DB_AM_RECNUM)) {
 		__db_errx(dbp->env, DB_STR("1027", "compression cannot be used with DB_RECNUM"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* compression is incompatible with DB_DUP without DB_DUPSORT */
 	if(F_ISSET(dbp, DB_AM_DUP) && !F_ISSET(dbp, DB_AM_DUPSORT)) {
 		__db_errx(dbp->env, DB_STR("1028", "compression cannot be used with DB_DUP without DB_DUPSORT"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/* Compression is incompatible with blob storage. */
 	if(dbp->blob_threshold > 0) {
 		__db_errx(dbp->env, DB_STR("1198", "compression cannot be used with external files."));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	if(compress != 0 && decompress != 0) {
@@ -304,7 +304,7 @@ int __bam_set_bt_compress(DB *dbp,
 	}
 	else {
 		__db_errx(dbp->env, DB_STR("1029", "to enable compression you need to supply both function arguments"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	F_SET(dbp, DB_AM_COMPRESS);
 	// Copy dup_compare to compress_dup_compare, and use the compression duplicate compare 
@@ -312,12 +312,12 @@ int __bam_set_bt_compress(DB *dbp,
 		t->compress_dup_compare = dbp->dup_compare;
 		dbp->dup_compare = __bam_compress_dupcmp;
 	}
-	return (0);
+	return 0;
 #else
 	COMPQUIET(compress, NULL);
 	COMPQUIET(decompress, NULL);
 	__db_errx(dbp->env, DB_STR("1030", "compression support has not been compiled in"));
-	return (EINVAL);
+	return EINVAL;
 #endif
 }
 
@@ -333,7 +333,7 @@ int __bam_get_bt_minkey(DB *dbp, uint32 * bt_minkeyp)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
 	t = (BTREE *)dbp->bt_internal;
 	*bt_minkeyp = t->bt_minkey;
-	return (0);
+	return 0;
 }
 /*
  * __bam_set_bt_minkey --
@@ -347,10 +347,10 @@ static int __bam_set_bt_minkey(DB *dbp, uint32 bt_minkey)
 	t = (BTREE *)dbp->bt_internal;
 	if(bt_minkey < 2) {
 		__db_errx(dbp->env, DB_STR("1031", "minimum bt_minkey value is 2"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	t->bt_minkey = bt_minkey;
-	return (0);
+	return 0;
 }
 /*
  * __bam_get_bt_prefix --
@@ -363,7 +363,7 @@ static int __bam_get_bt_prefix(DB *dbp, size_t(**funcp)(DB *, const DBT *, const
 	t = (BTREE *)dbp->bt_internal;
 	if(funcp != NULL)
 		*funcp = t->bt_prefix;
-	return (0);
+	return 0;
 }
 /*
  * __bam_set_bt_prefix --
@@ -376,7 +376,7 @@ static int __bam_set_bt_prefix(DB *dbp, size_t (*func)(DB *, const DBT *, const 
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
 	t = (BTREE *)dbp->bt_internal;
 	t->bt_prefix = func;
-	return (0);
+	return 0;
 }
 /*
  * __bam_copy_config --
@@ -435,7 +435,7 @@ int __ram_set_flags(DB *dbp, uint32 * flagsp)
 	}
 
 	__ram_map_flags(dbp, flagsp, &dbp->flags);
-	return (0);
+	return 0;
 }
 
 /*
@@ -448,7 +448,7 @@ static int __ram_get_re_delim(DB *dbp, int * re_delimp)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
 	t = (BTREE *)dbp->bt_internal;
 	*re_delimp = t->re_delim;
-	return (0);
+	return 0;
 }
 
 /*
@@ -463,7 +463,7 @@ static int __ram_set_re_delim(DB *dbp, int re_delim)
 	t = (BTREE *)dbp->bt_internal;
 	t->re_delim = re_delim;
 	F_SET(dbp, DB_AM_DELIMITER);
-	return (0);
+	return 0;
 }
 /*
  * __db_get_re_len --
@@ -492,7 +492,7 @@ int __ram_get_re_len(DB *dbp, uint32 * re_lenp)
 		*re_lenp = t->re_len;
 	}
 
-	return (0);
+	return 0;
 }
 /*
  * __ram_set_re_len --
@@ -513,7 +513,7 @@ static int __ram_set_re_len(DB *dbp, uint32 re_len)
 	q->re_len = re_len;
 #endif
 	F_SET(dbp, DB_AM_FIXEDLEN);
-	return (0);
+	return 0;
 }
 /*
  * __db_get_re_pad --
@@ -541,7 +541,7 @@ int __ram_get_re_pad(DB *dbp, int * re_padp)
 		t = (BTREE *)dbp->bt_internal;
 		*re_padp = t->re_pad;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __ram_set_re_pad --
@@ -562,7 +562,7 @@ static int __ram_set_re_pad(DB *dbp, int re_pad)
 	q->re_pad = re_pad;
 #endif
 	F_SET(dbp, DB_AM_PAD);
-	return (0);
+	return 0;
 }
 /*
  * __db_get_re_source --
@@ -574,7 +574,7 @@ static int __ram_get_re_source(DB *dbp, const char ** re_sourcep)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
 	t = (BTREE *)dbp->bt_internal;
 	*re_sourcep = t->re_source;
-	return (0);
+	return 0;
 }
 /*
  * __ram_set_re_source --

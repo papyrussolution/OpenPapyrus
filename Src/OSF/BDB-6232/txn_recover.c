@@ -32,14 +32,14 @@ int __txn_recover_pp(DB_ENV *dbenv, DB_PREPLIST * preplist, long count, long * r
 	if(F_ISSET((DB_TXNREGION*)env->tx_handle->reginfo.primary,
 	    TXN_IN_RECOVERY)) {
 		__db_errx(env, DB_STR("4505", "operation not permitted while in recovery"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(flags != DB_FIRST && flags != DB_NEXT)
 		return (__db_ferr(env, "DB_ENV->txn_recover", 0));
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__txn_recover(env, preplist, count, retp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -193,7 +193,7 @@ int __txn_get_prepared(ENV *env, XID * xids, DB_PREPLIST * txns, long count/* Th
 	if(0) {
 err:            TXN_SYSTEM_UNLOCK(env);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -217,20 +217,12 @@ int __txn_openfiles(ENV *env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 	logc = NULL;
 	if((ret = __log_cursor(env, &logc)) != 0)
 		goto err;
-
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	if((ret = __txn_getckp(env, &open_lsn)) == 0)
-		while(!IS_ZERO_LSN(open_lsn) && (ret =
-		    __logc_get(logc, &open_lsn, &data, DB_SET)) == 0 &&
-		    (force ||
-		    (min != NULL && LOG_COMPARE(min, &open_lsn) < 0))) {
+		while(!IS_ZERO_LSN(open_lsn) && (ret = __logc_get(logc, &open_lsn, &data, DB_SET)) == 0 && (force || (min != NULL && LOG_COMPARE(min, &open_lsn) < 0))) {
 			/* Format the log record. */
-			if((ret = __txn_ckp_read(
-				    env, data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("4506",
-				    "Invalid checkpoint record at [%lu][%lu]",
-				    "%lu %lu"), (u_long)open_lsn.file,
-				    (u_long)open_lsn.offset);
+			if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0) {
+				__db_errx(env, DB_STR_A("4506", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (u_long)open_lsn.file, (u_long)open_lsn.offset);
 				goto err;
 			}
 			/*
@@ -238,12 +230,10 @@ int __txn_openfiles(ENV *env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 			 * to go back far enough to open files.
 			 * Use ckp_lsn and then break out of the loop.
 			 */
-			open_lsn = force ? ckp_args->ckp_lsn :
-			    ckp_args->last_ckp;
+			open_lsn = force ? ckp_args->ckp_lsn : ckp_args->last_ckp;
 			__os_free(env, ckp_args);
 			if(force) {
-				if((ret = __logc_get(logc, &open_lsn,
-				    &data, DB_SET)) != 0)
+				if((ret = __logc_get(logc, &open_lsn, &data, DB_SET)) != 0)
 					goto err;
 				break;
 			}
@@ -258,21 +248,17 @@ int __txn_openfiles(ENV *env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 	 *	need to start at the beginning of the log.
 	 * - We are forcing an openfiles and we have our ckp_lsn.
 	 */
-	if((ret == DB_NOTFOUND || IS_ZERO_LSN(open_lsn)) && (ret =
-	    __logc_get(logc, &open_lsn, &data, DB_FIRST)) != 0) {
+	if((ret == DB_NOTFOUND || IS_ZERO_LSN(open_lsn)) && (ret = __logc_get(logc, &open_lsn, &data, DB_FIRST)) != 0) {
 		__db_errx(env, DB_STR("4507", "No log records"));
 		goto err;
 	}
-
 	if((ret = __db_txnlist_init(env, ip, 0, 0, NULL, &txninfo)) != 0)
 		goto err;
-	ret = __env_openfiles(env,
-		logc, txninfo, &data, &open_lsn, NULL, (double)0, 0);
+	ret = __env_openfiles(env, logc, txninfo, &data, &open_lsn, NULL, (double)0, 0);
 	if(txninfo != NULL)
 		__db_txnlist_end(env, txninfo);
-
 err:
 	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

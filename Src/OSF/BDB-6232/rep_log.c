@@ -39,8 +39,8 @@ int __rep_allreq(ENV *env, __rep_control_args * rp, int eid)
 	end_flag = 0;
 	arch_flag = 0;
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
-	memset(&data_dbt, 0, sizeof(data_dbt));
+		return ret;
+	memzero(&data_dbt, sizeof(data_dbt));
 	/*
 	 * If we're doing bulk transfer, allocate a bulk buffer to put our
 	 * log records in.  We still need to initialize the throttle info
@@ -55,7 +55,7 @@ int __rep_allreq(ENV *env, __rep_control_args * rp, int eid)
 	bulk.addr = NULL;
 	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid, &bulkoff, &bulkflags, REP_BULK_LOG)) != 0)
 		goto err;
-	memset(&repth, 0, sizeof(repth));
+	memzero(&repth, sizeof(repth));
 	REP_SYSTEM_LOCK(env);
 	if((ret = __rep_lockout_archive(env, rep)) != 0) {
 		REP_SYSTEM_UNLOCK(env);
@@ -137,7 +137,7 @@ int __rep_allreq(ENV *env, __rep_control_args * rp, int eid)
 		if(repth.lsn.file != oldfilelsn.file) {
 			if((ret = __logc_version(logc, &nf_args.version)) != 0)
 				break;
-			memset(&newfiledbt, 0, sizeof(newfiledbt));
+			memzero(&newfiledbt, sizeof(newfiledbt));
 			if((ret = __rep_newfile_marshal(env, &nf_args, buf, __REP_NEWFILE_SIZE, &len)) != 0)
 				goto err;
 			DB_INIT_DBT(newfiledbt, buf, len);
@@ -195,7 +195,7 @@ err:
 	}
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -306,7 +306,7 @@ int __rep_log(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec,
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 	}
 out:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -339,7 +339,7 @@ int __rep_bulk_log(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT *
 		default:
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -358,8 +358,7 @@ static int __rep_log_split(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * r
 	int is_dup, ret, save_ret;
 	uint32 save_flags;
 	uint8 * p, * ep;
-
-	memset(&logrec, 0, sizeof(logrec));
+	memzero(&logrec, sizeof(logrec));
 	ZERO_LSN(next_new_lsn);
 	ZERO_LSN(save_lsn);
 	ZERO_LSN(tmp_lsn);
@@ -387,7 +386,7 @@ static int __rep_log_split(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * r
 		 */
 		if((ret = __rep_bulk_unmarshal(env,
 		    &b_args, p, rec->size, &p)) != 0)
-			return (ret);
+			return ret;
 		tmprp.lsn = b_args.lsn;
 		logrec.data = b_args.bulkdata.data;
 		logrec.size = b_args.len;
@@ -470,7 +469,7 @@ out:
 		ret = save_ret;
 		*ret_lsnp = save_lsn;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -502,7 +501,7 @@ int __rep_logreq(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 	ZERO_LSN(lr_args.endlsn);
 	if(rec != NULL && rec->size != 0) {
 		if((ret = __rep_logreq_unmarshal(env, &lr_args, (uint8 *)rec->data, rec->size, NULL)) != 0)
-			return (ret);
+			return ret;
 		RPRINT(env, (env, DB_VERB_REP_MISC, "[%lu][%lu]: LOG_REQ max lsn: [%lu][%lu]",
 		    (u_long)rp->lsn.file, (u_long)rp->lsn.offset, (u_long)lr_args.endlsn.file, (u_long)lr_args.endlsn.offset));
 	}
@@ -521,10 +520,10 @@ int __rep_logreq(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 	 * it, the sender is asking for a chunk of log records.
 	 * Then we need to send all records up to the LSN in the data dbt.
 	 */
-	memset(&data_dbt, 0, sizeof(data_dbt));
+	memzero(&data_dbt, sizeof(data_dbt));
 	oldfilelsn = lsn = rp->lsn;
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 	REP_SYSTEM_LOCK(env);
 	if((ret = __rep_lockout_archive(env, rep)) != 0) {
 		REP_SYSTEM_UNLOCK(env);
@@ -590,10 +589,7 @@ int __rep_logreq(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 			 * we are the client.
 			 */
 			if(F_ISSET(rep, REP_F_MASTER)) {
-				__db_errx(env, DB_STR_A("3501",
-				    "Request for LSN [%lu][%lu] not found",
-				    "%lu %lu"), (u_long)rp->lsn.file,
-				    (u_long)rp->lsn.offset);
+				__db_errx(env, DB_STR_A("3501", "Request for LSN [%lu][%lu] not found", "%lu %lu"), (u_long)rp->lsn.file, (u_long)rp->lsn.offset);
 				ret = 0;
 				goto err;
 			}
@@ -618,10 +614,9 @@ int __rep_logreq(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 	 * on/off bulk in the middle of our call.
 	 */
 	use_bulk = FLD_ISSET(rep->config, REP_C_BULK);
-	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid,
-	    &bulkoff, &bulkflags, REP_BULK_LOG)) != 0)
+	if(use_bulk && (ret = __rep_bulk_alloc(env, &bulk, eid, &bulkoff, &bulkflags, REP_BULK_LOG)) != 0)
 		goto err;
-	memset(&repth, 0, sizeof(repth));
+	memzero(&repth, sizeof(repth));
 	REP_SYSTEM_LOCK(env);
 	repth.gbytes = rep->gbytes;
 	repth.bytes = rep->bytes;
@@ -646,14 +641,11 @@ int __rep_logreq(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 		if(repth.lsn.file != oldfilelsn.file) {
 			if((ret = __logc_version(logc, &nf_args.version)) != 0)
 				break;
-			memset(&newfiledbt, 0, sizeof(newfiledbt));
-			if((ret = __rep_newfile_marshal(env, &nf_args,
-			    buf, __REP_NEWFILE_SIZE, &len)) != 0)
+			memzero(&newfiledbt, sizeof(newfiledbt));
+			if((ret = __rep_newfile_marshal(env, &nf_args, buf, __REP_NEWFILE_SIZE, &len)) != 0)
 				goto err;
 			DB_INIT_DBT(newfiledbt, buf, len);
-			(void)__rep_send_message(env,
-			    eid, REP_NEWFILE, &oldfilelsn, &newfiledbt,
-			    REPCTL_RESEND, 0);
+			(void)__rep_send_message(env, eid, REP_NEWFILE, &oldfilelsn, &newfiledbt, REPCTL_RESEND, 0);
 		}
 		/*
 		 * If we are configured for bulk, try to send this as a bulk
@@ -701,7 +693,7 @@ err:
 	REP_SYSTEM_UNLOCK(env);
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -743,7 +735,7 @@ int __rep_loggap_req(ENV *env, REP * rep, DB_LSN * lsnp, uint32 gapflags)
 	 * to do while recovery is running.
 	 */
 	if(rep->sync_state == SYNC_LOG && IS_ZERO_LSN(rep->last_lsn))
-		return (0);
+		return 0;
 
 	/*
 	 * Check if we need to ask for the gap.
@@ -788,10 +780,9 @@ int __rep_loggap_req(ENV *env, REP * rep, DB_LSN * lsnp, uint32 gapflags)
 		}
 		if(IS_ZERO_LSN(lp->max_wait_lsn))
 			type = REP_ALL_REQ;
-		memset(&max_lsn_dbt, 0, sizeof(max_lsn_dbt));
+		memzero(&max_lsn_dbt, sizeof(max_lsn_dbt));
 		lr_args.endlsn = lp->max_wait_lsn;
-		if((ret = __rep_logreq_marshal(env, &lr_args, buf,
-		    __REP_LOGREQ_SIZE, &len)) != 0)
+		if((ret = __rep_logreq_marshal(env, &lr_args, buf, __REP_LOGREQ_SIZE, &len)) != 0)
 			goto err;
 		DB_INIT_DBT(max_lsn_dbt, buf, len);
 		max_lsn_dbtp = &max_lsn_dbt;
@@ -824,7 +815,7 @@ int __rep_loggap_req(ENV *env, REP * rep, DB_LSN * lsnp, uint32 gapflags)
 		(void)__rep_send_message(env, DB_EID_BROADCAST,
 		    REP_MASTER_REQ, NULL, NULL, 0, 0);
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -859,16 +850,12 @@ int __rep_logready(ENV *env, REP * rep, time_t savetime, DB_LSN * last_lsnp)
 	REP_SYSTEM_UNLOCK(env);
 	if(ret != 0)
 		goto err;
-
-	return (0);
-
+	return 0;
 err:
 	DB_ASSERT(env, ret != DB_REP_WOULDROLLBACK);
-	__db_errx(env, DB_STR("3502",
-	    "Client initialization failed.  Need to manually restore client"));
+	__db_errx(env, DB_STR("3502", "Client initialization failed.  Need to manually restore client"));
 	return (__env_panic(env, ret));
 }
-
 /*
  * __rep_chk_newfile --
  *     Determine if getting DB_NOTFOUND is because we're at the
@@ -900,7 +887,7 @@ static int __rep_chk_newfile(ENV *env, DB_LOGC * logc, REP * rep, __rep_control_
 	ret = 0;
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
-	memset(&data_dbt, 0, sizeof(data_dbt));
+	memzero(&data_dbt, sizeof(data_dbt));
 	LOG_SYSTEM_LOCK(env);
 	endlsn = lp->lsn;
 	LOG_SYSTEM_UNLOCK(env);
@@ -942,32 +929,23 @@ static int __rep_chk_newfile(ENV *env, DB_LOGC * logc, REP * rep, __rep_control_
 			 */
 			if(F_ISSET(rep, REP_F_MASTER)) {
 				ret = 0;
-				(void)__rep_send_message(env, eid,
-				    REP_VERIFY_FAIL, &rp->lsn,
-				    NULL, 0, 0);
+				(void)__rep_send_message(env, eid, REP_VERIFY_FAIL, &rp->lsn, NULL, 0, 0);
 			}
 			else
 				ret = USR_ERR(env, DB_NOTFOUND);
 		}
 		else {
 			endlsn.offset += logc->len;
-			if((ret = __logc_version(logc,
-			    &nf_args.version)) == 0) {
-				memset(&newfiledbt, 0,
-				    sizeof(newfiledbt));
-				if((ret = __rep_newfile_marshal(env,
-				    &nf_args, buf, __REP_NEWFILE_SIZE,
-				    &len)) != 0)
-					return (ret);
+			if((ret = __logc_version(logc, &nf_args.version)) == 0) {
+				memzero(&newfiledbt, sizeof(newfiledbt));
+				if((ret = __rep_newfile_marshal(env, &nf_args, buf, __REP_NEWFILE_SIZE, &len)) != 0)
+					return ret;
 				DB_INIT_DBT(newfiledbt, buf, len);
-				(void)__rep_send_message(env, eid,
-				    REP_NEWFILE, &endlsn,
-				    &newfiledbt, REPCTL_RESEND, 0);
+				(void)__rep_send_message(env, eid, REP_NEWFILE, &endlsn, &newfiledbt, REPCTL_RESEND, 0);
 			}
 		}
 	}
 	else
 		ret = USR_ERR(env, DB_NOTFOUND);
-
-	return (ret);
+	return ret;
 }

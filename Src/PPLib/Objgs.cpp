@@ -377,7 +377,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const
+void SLAPI PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const
 {
 	int    uncertainty = 0;
 	double price = 0.0;
@@ -412,7 +412,6 @@ int SLAPI PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty,
 	}
 	ASSIGN_PTR(pPrice, price);
 	ASSIGN_PTR(pUncertainty, uncertainty);
-	return 1;
 }
 
 int FASTCALL PPGoodsStruc::HasGoods(PPID goodsID) const
@@ -521,10 +520,34 @@ int SLAPI PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * p
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+int SLAPI PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	int    ok = -1;
+	if(pos < Items.getCount()) {
+		double qtty = 0.0;
+		PPGoodsStrucItem item = Items.at(pos);
+		item.GetQtty(srcQtty / GetDenom(), &qtty);
+		THROW(SubstVariedProp(parentGoodsID, &item));
+		ASSIGN_PTR(pItem, item);
+		ASSIGN_PTR(pQtty, qtty);
+		ok = item.Formula__[0] ? 2 : 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+{
 	uint   p = DEREFPTRORZ(pPos);
+	// @v10.0.07 {
+	int    ok = GetItemExt(p, pItem, parentGoodsID, srcQtty, pQtty);
+	if(ok > 0) {
+		p++;
+		ASSIGN_PTR(pPos, p);
+	}
+	// } @v10.0.07 
+	/* @v10.0.07
+	int    ok = -1;
 	if(p < Items.getCount()) {
 		double qtty = 0.0;
 		PPGoodsStrucItem item = Items.at(p);
@@ -537,6 +560,7 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 		ok = 1;
 	}
 	CATCHZOK
+	*/
 	return ok;
 }
 
@@ -686,7 +710,7 @@ int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
 #undef CMPF
 	if(!sstreq(Symb, rS.Symb))
 		return 0;
-	if(!sstreq(Formula, rS.Formula))
+	if(!sstreq(Formula__, rS.Formula__))
 		return 0;
 	return 1;
 }
@@ -698,12 +722,12 @@ int SLAPI PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * p
 {
 	int    ok = 1;
 	double v = 0.0;
-	memzero(Formula, sizeof(Formula));
+	memzero(Formula__, sizeof(Formula__));
 	SString temp_buf = pStr;
 	if(temp_buf.NotEmptyS()) {
 		GdsClsCalcExprContext ctx(pStruc);
 		if(PPCalcExpression(temp_buf, &v, &ctx))
-			STRNSCPY(Formula, temp_buf);
+			STRNSCPY(Formula__, temp_buf);
 		else
 			ok = 0;
 	}
@@ -1372,7 +1396,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 			GoodsCtrlGroup::Rec rec(0, P_Data->GoodsID, 0, goods_sel_flags);
 			setGroupData(GRP_GOODS, &rec);
 			setCtrlString(CTL_GSITEM_VALUE, P_Data->GetEstimationString(buf));
-			buf = P_Data->Formula;
+			buf = P_Data->Formula__;
 			setCtrlString(CTL_GSITEM_FORMULA, buf);
 			if(P_Data->Flags & GSIF_QTTYASPRICE)
 				v = 3;
@@ -1985,7 +2009,7 @@ int SLAPI PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 		item.Netto   = p_raw_item->Netto;
 		STRNSCPY(item.Symb, p_raw_item->Symb);
 		PPGetExtStrData(i, temp_buf, formula);
-		formula.CopyTo(item.Formula, sizeof(item.Formula));
+		formula.CopyTo(item.Formula__, sizeof(item.Formula__));
 		THROW_SL(pData->Items.insert(&item));
 	}
 	CATCHZOK
@@ -2097,7 +2121,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				gsi.Num    = i;
 				THROW(ref->Assc.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
 				THROW(ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
-				THROW(PPPutExtStrData(i, ext_buf, strip(pi->Formula)));
+				THROW(PPPutExtStrData(i, ext_buf, strip(pi->Formula__)));
 			}
 			THROW(ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
 		}
@@ -2215,7 +2239,7 @@ int SLAPI PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffe
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Denom)), &item.Denom, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Netto)), &item.Netto, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(item.Symb)), item.Symb, 0, rBuf));
-		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(item.Formula)), item.Formula, 0, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(item.Formula__)), item.Formula__, 0, rBuf));
 		if(dir < 0) {
 			THROW_SL(pPack->Items.insert(&item));
 		}

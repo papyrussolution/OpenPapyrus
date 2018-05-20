@@ -31,7 +31,7 @@ int __os_open(ENV *env, const char * name, uint32 page_size, uint32 flags, int m
 #define OKFLAGS (DB_OSO_ABSMODE | DB_OSO_CREATE | DB_OSO_DIRECT | DB_OSO_DSYNC | \
 	DB_OSO_EXCL | DB_OSO_RDONLY | DB_OSO_REGION |   DB_OSO_SEQ | DB_OSO_TEMP | DB_OSO_TRUNC)
 	if((ret = __db_fchk(env, "__os_open", flags, OKFLAGS)) != 0)
-		return (ret);
+		return ret;
 	TO_TSTRING(env, name, tname, ret);
 	if(ret != 0)
 		goto err;
@@ -45,7 +45,7 @@ int __os_open(ENV *env, const char * name, uint32 page_size, uint32 flags, int m
 	 * Lock the ENV handle and insert the new file handle on the list.
 	 */
 	if((ret = __os_calloc(env, 1, sizeof(DB_FH), &fhp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_strdup(env, name, &fhp->name)) != 0)
 		goto err;
 	if(env != NULL) {
@@ -217,10 +217,10 @@ int __os_open(ENV *env, const char * name, uint32 page_size, uint32 flags, int m
 		F_SET(fhp, DB_FH_REGION);
 	F_SET(fhp, DB_FH_OPENED);
 	*fhpp = fhp;
-	return (0);
+	return 0;
 err:    
 	FREE_STRING(env, tname);
 	if(fhp != NULL)
 		(void)__os_closehandle(env, fhp);
-	return (ret);
+	return ret;
 }

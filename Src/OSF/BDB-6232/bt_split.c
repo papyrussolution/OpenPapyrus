@@ -198,7 +198,7 @@ done:   (void)__LPUT(dbc, meta_lock);
 		LOCK_CHECK_ON(dbc->thread_info);
 	if(F_ISSET(dbc->env->dbenv, DB_ENV_YIELDCPU))
 		__os_yield(dbc->env, 0, 0);
-	return (ret);
+	return ret;
 }
 /*
  * __bam_root --
@@ -315,7 +315,7 @@ err:    if(cp->page != NULL && (t_ret = __memp_fput(mpf,
 	    dbc->thread_info, rp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -523,7 +523,7 @@ static int __bam_page(DBC *dbc, EPG * pp, EPG * cp)
 	}
 	if((t_ret = __bam_stkrel(dbc, STK_CLRDBC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 
 err:    if(lp != NULL)
 		__os_free(dbp->env, lp);
@@ -557,7 +557,7 @@ err:    if(lp != NULL)
 	if(dbc->txn == NULL || ret == DB_NEEDSPLIT)
 		(void)__LPUT(dbc, cp->lock);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -592,7 +592,7 @@ int __bam_broot(DBC *dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 				DB_SET_DBT(hdr, &bi, SSZA(BINTERNAL, data));
 				if((ret = __os_malloc(dbp->env,
 				    child_bi->len, &data.data)) != 0)
-					return (ret);
+					return ret;
 				memcpy(data.data, child_bi->data, child_bi->len);
 				data.size = child_bi->len;
 				break;
@@ -626,7 +626,7 @@ int __bam_broot(DBC *dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 				DB_SET_DBT(hdr, &bi, SSZA(BINTERNAL, data));
 				if((ret = __os_malloc(dbp->env,
 				    child_bk->len, &data.data)) != 0)
-					return (ret);
+					return ret;
 				memcpy(data.data, child_bk->data, child_bk->len);
 				data.size = child_bk->len;
 				break;
@@ -642,7 +642,7 @@ int __bam_broot(DBC *dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 				if(hdr.data != NULL)
 					__os_free(dbp->env, hdr.data);
 				if(ret != 0)
-					return (ret);
+					return ret;
 				bi.len = BOVERFLOW_SIZE;
 				B_TSET(bi.type, B_OVERFLOW);
 				bi.pgno = rp->pgno;
@@ -686,7 +686,7 @@ pgfmt:              return (__db_pgfmt(dbp->env, rp->pgno));
 err:    
 	if(data.data != NULL && child_bo == NULL)
 		__os_free(dbp->env, data.data);
-	return (ret);
+	return ret;
 }
 /*
  * __ram_root --
@@ -716,15 +716,15 @@ int __ram_root(DBC *dbc, PAGE * rootp, PAGE * lp, PAGE * rp)
 	ri.nrecs = __bam_total(dbp, lp);
 	if((ret = __db_pitem_nolog(dbc,
 	    rootp, 0, RINTERNAL_SIZE, &hdr, NULL)) != 0)
-		return (ret);
+		return ret;
 	RE_NREC_SET(rootp, ri.nrecs);
 	ri.pgno = rp->pgno;
 	ri.nrecs = __bam_total(dbp, rp);
 	if((ret = __db_pitem_nolog(dbc,
 	    rootp, 1, RINTERNAL_SIZE, &hdr, NULL)) != 0)
-		return (ret);
+		return ret;
 	RE_NREC_ADJ(rootp, ri.nrecs);
-	return (0);
+	return 0;
 }
 
 /*
@@ -826,7 +826,7 @@ int __bam_pinsert(DBC *dbc, EPG * parent, uint32 split, PAGE * lchild, PAGE * rc
 		    if(P_FREESPACE(dbp, ppage) + oldsize < nbytes)
 			    return (DB_NEEDSPLIT);
 		    if(LF_ISSET(BPI_SPACEONLY))
-			    return (0);
+			    return 0;
 
 		    switch(B_TYPE(child_bi->type)) {
 			    case B_KEYDATA:
@@ -857,7 +857,7 @@ int __bam_pinsert(DBC *dbc, EPG * parent, uint32 split, PAGE * lchild, PAGE * rc
 					if(hdr.data != NULL)
 						__os_free(dbp->env, hdr.data);
 					if(ret != 0)
-						return (ret);
+						return ret;
 				}
 				else
 					bo.pgno = child_bo->pgno;
@@ -929,7 +929,7 @@ noprefix:
 				if(P_FREESPACE(dbp, ppage) + oldsize < nbytes)
 					return (DB_NEEDSPLIT);
 				if(LF_ISSET(BPI_SPACEONLY))
-					return (0);
+					return 0;
 				memzero(&bi, sizeof(bi));
 				bi.len = (db_indx_t)nksize;
 				B_TSET(bi.type, B_KEYDATA);
@@ -945,7 +945,7 @@ noprefix:
 				if(P_FREESPACE(dbp, ppage) + oldsize < nbytes)
 					return (DB_NEEDSPLIT);
 				if(LF_ISSET(BPI_SPACEONLY))
-					return (0);
+					return 0;
 
 				/* Copy the overflow key. */
 				child_bo = (BOVERFLOW*)child_bk;
@@ -958,7 +958,7 @@ noprefix:
 				if(hdr.data != NULL)
 					__os_free(dbp->env, hdr.data);
 				if(ret != 0)
-					return (ret);
+					return ret;
 
 				memzero(&bi, sizeof(bi));
 				bi.len = BOVERFLOW_SIZE;
@@ -982,7 +982,7 @@ noprefix:
 		    if(P_FREESPACE(dbp, ppage) + oldsize < nbytes)
 			    return (DB_NEEDSPLIT);
 		    if(LF_ISSET(BPI_SPACEONLY))
-			    return (0);
+			    return 0;
 
 		    /* Add a new record for the right page. */
 		    DB_SET_DBT(hdr, &ri, RINTERNAL_SIZE);
@@ -996,7 +996,7 @@ noprefix:
 		     */
 		    if(LF_ISSET(BPI_REPLACE)) {
 			    if((ret = __bam_ditem(dbc, ppage, off)) != 0)
-				    return (ret);
+				    return ret;
 			    LF_CLR(BPI_REPLACE);
 		    }
 		    break;
@@ -1007,7 +1007,7 @@ pgfmt:              return (__db_pgfmt(dbp->env, PGNO(child->page)));
 	if(LF_ISSET(BPI_REPLACE)) {
 		DB_ASSERT(dbp->env, !LF_ISSET(BPI_NOLOGGING));
 		if((ret = __bam_irep(dbc, ppage, off, &hdr, &data)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		if(LF_ISSET(BPI_NOLOGGING))
@@ -1017,7 +1017,7 @@ pgfmt:              return (__db_pgfmt(dbp->env, PGNO(child->page)));
 
 		if((ret = pitem(dbc, ppage,
 		    off, size, &hdr, data.size != 0 ? &data : NULL)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	/*
@@ -1030,7 +1030,7 @@ pgfmt:              return (__db_pgfmt(dbp->env, PGNO(child->page)));
 			if((ret = __bam_cadjust_log(dbp, dbc->txn,
 			    &LSN(ppage), 0, PGNO(ppage), &LSN(ppage),
 			    parent->indx, -(int32)nrecs, 0)) != 0)
-				return (ret);
+				return ret;
 		}
 		else
 			LSN_NOT_LOGGED(LSN(ppage));
@@ -1041,7 +1041,7 @@ pgfmt:              return (__db_pgfmt(dbp->env, PGNO(child->page)));
 		else
 			GET_BINTERNAL(dbp, ppage, parent->indx)->nrecs -= nrecs;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __bam_psplit --
@@ -1231,11 +1231,11 @@ sort:   splitp = off;
 
 	/* We're going to split at splitp. */
 	if((ret = __bam_copy(dbp, pp, lp, 0, splitp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __bam_copy(dbp, pp, rp, splitp, NUM_ENT(pp))) != 0)
-		return (ret);
+		return ret;
 	*splitret = splitp;
-	return (0);
+	return 0;
 }
 /*
  * __bam_copy --
@@ -1309,5 +1309,5 @@ int __bam_copy(DB * dbp, PAGE * pp, PAGE * cp, uint32 nxt, uint32 stop)
 		else
 			memcpy(P_ENTRY(dbp, cp, off), bi, nbytes);
 	}
-	return (0);
+	return 0;
 }

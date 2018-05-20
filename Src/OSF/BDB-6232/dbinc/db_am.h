@@ -121,7 +121,7 @@ struct __db_foreign_info {
 #define REC_NOOP_INTRO(func) do {                                       \
 		argp = NULL;                                                    \
 		if((ret = func(env, dbtp->data, &argp)) != 0)          \
-			return (ret);                                           \
+			return ret;                                           \
 } while(0)
 #define REC_NOOP_CLOSE                                                  \
 	if(argp != NULL)                                               \

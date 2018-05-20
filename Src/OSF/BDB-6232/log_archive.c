@@ -36,20 +36,20 @@ int __log_archive_pp(DB_ENV *dbenv, char *** listp, uint32 flags)
 	if(flags != 0) {
 		if((ret = __db_fchk(
 			    env, "DB_ENV->log_archive", flags, OKFLAGS)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __db_fcchk(env, "DB_ENV->log_archive",
 		    flags, DB_ARCH_DATA, DB_ARCH_LOG)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __db_fcchk(env, "DB_ENV->log_archive",
 		    flags, DB_ARCH_REMOVE,
 		    DB_ARCH_ABS | DB_ARCH_DATA | DB_ARCH_LOG)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__log_archive(env, listp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -86,7 +86,7 @@ int __log_archive(ENV *env, char *** listp, uint32 flags)
 	if(lp->db_log_inmemory) {
 		LF_CLR(~DB_ARCH_DATA);
 		if(flags == 0)
-			return (0);
+			return 0;
 	}
 
 	/*
@@ -105,7 +105,7 @@ int __log_archive(ENV *env, char *** listp, uint32 flags)
 		if(handle_check && (ret = __archive_rep_enter(env)) != 0) {
 			if(ret == DB_REP_LOCKOUT)
 				ret = 0;
-			return (ret);
+			return ret;
 		}
 	}
 
@@ -126,8 +126,7 @@ int __log_archive(ENV *env, char *** listp, uint32 flags)
 		__os_set_errno(0);
 		if(getcwd(path, sizeof(path)) == NULL) {
 			ret = USR_ERR(env, __os_get_errno());
-			__db_err(env, ret, DB_STR("2570",
-			    "no absolute path for the current directory"));
+			__db_err(env, ret, DB_STR("2570", "no absolute path for the current directory"));
 			goto err;
 		}
 		pref = path;
@@ -142,7 +141,7 @@ int __log_archive(ENV *env, char *** listp, uint32 flags)
 		    ret = __build_data(env, pref, listp);
 		    goto err;
 		case DB_ARCH_LOG:
-		    memset(&rec, 0, sizeof(rec));
+		    memzero(&rec, sizeof(rec));
 		    if((ret = __log_cursor(env, &logc)) != 0)
 			    goto err;
 #ifdef UMRW
@@ -259,7 +258,7 @@ err:            if(array != NULL) {
 	if(handle_check && (t_ret = __archive_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -277,7 +276,7 @@ int __log_get_stable_lsn(ENV *env, DB_LSN * stable_lsn, int group_wide)
 	int ret, t_ret;
 	lp = (LOG *)env->lg_handle->reginfo.primary;
 	ret = 0;
-	memset(&rec, 0, sizeof(rec));
+	memzero(&rec, sizeof(rec));
 	if(!TXN_ON(env)) {
 		if((ret = __log_get_cached_ckp_lsn(env, stable_lsn)) != 0)
 			goto err;
@@ -332,7 +331,7 @@ int __log_get_stable_lsn(ENV *env, DB_LSN * stable_lsn, int group_wide)
 	COMPQUIET(group_wide, 0);
 #endif
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -353,8 +352,7 @@ void __log_autoremove(ENV *env)
 	 */
 	if((ret = __log_archive(env, &list, DB_ARCH_ABS)) != 0) {
 		if(ret != DB_NOTFOUND)
-			__db_err(env, ret, DB_STR("2571",
-			    "log file auto-remove"));
+			__db_err(env, ret, DB_STR("2571", "log file auto-remove"));
 		return;
 	}
 
@@ -365,7 +363,6 @@ void __log_autoremove(ENV *env)
 		__os_ufree(env, begin);
 	}
 }
-
 /*
  * __build_data --
  *	Build a list of datafiles for return.
@@ -383,30 +380,25 @@ static int __build_data(ENV *env, char * pref, char *** listp)
 
 	/* Get some initial space. */
 	array_size = 64;
-	if((ret = __os_malloc(env,
-	    sizeof(char *) * array_size, &array)) != 0)
-		return (ret);
+	if((ret = __os_malloc(env, sizeof(char *) * array_size, &array)) != 0)
+		return ret;
 	array[0] = NULL;
-
-	memset(&rec, 0, sizeof(rec));
+	memzero(&rec, sizeof(rec));
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 	for(n = 0; (ret = __logc_get(logc, &lsn, &rec, DB_PREV)) == 0;) {
 		if(rec.size < sizeof(rectype)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("2572",
-			    "DB_ENV->log_archive: bad log record"));
+			__db_errx(env, DB_STR("2572", "DB_ENV->log_archive: bad log record"));
 			break;
 		}
-
 		LOGCOPY_32(env, &rectype, rec.data);
 		if(rectype != DB___dbreg_register)
 			continue;
 		if((ret =
 		    __dbreg_register_read(env, rec.data, &argp)) != 0) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("2573",
-			    "DB_ENV->log_archive: unable to read log record"));
+			__db_errx(env, DB_STR("2573", "DB_ENV->log_archive: unable to read log record"));
 			break;
 		}
 
@@ -521,7 +513,7 @@ free_continue:  __os_free(env, argp);
 		goto err1;
 
 	*listp = array;
-	return (0);
+	return 0;
 
 err2:   /*
 	 * XXX
@@ -538,7 +530,7 @@ err1:   if(array != NULL) {
 			__os_free(env, *arrayp);
 		__os_free(env, array);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -557,7 +549,7 @@ static int __absname(ENV *env, char * pref, char * name, char ** newnamep)
 	/* Malloc space for concatenating the two. */
 	if((ret = __os_malloc(env,
 	    l_pref + l_name + 2, &newname)) != 0)
-		return (ret);
+		return ret;
 	*newnamep = newname;
 
 	/* Build the name.  If `name' is an absolute path, ignore any prefix. */
@@ -568,7 +560,7 @@ static int __absname(ENV *env, char * pref, char * name, char ** newnamep)
 	}
 	memcpy(newname + l_pref, name, l_name + 1);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -588,7 +580,7 @@ static int __usermem(ENV *env, char *** listp)
 
 	/* Allocate it and set up the pointers. */
 	if((ret = __os_umalloc(env, len, &array)) != 0)
-		return (ret);
+		return ret;
 
 	strp = (char*)(array + (orig - *listp) + 1);
 
@@ -604,7 +596,7 @@ static int __usermem(ENV *env, char *** listp)
 	*arrayp = NULL;
 	__os_free(env, *listp);
 	*listp = array;
-	return (0);
+	return 0;
 }
 
 static int __cmpfunc(const void * p1, const void *p2)

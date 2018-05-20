@@ -3827,6 +3827,7 @@ public:
 	int    SLAPI DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	SString & SLAPI Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen);
 	int    SLAPI Decode_QuotedPrintable(SString & rBuf) const;
+	int    FASTCALL Decode_XMLENT(SString & rBuf) const; // @construction
 	//
 	// Descr: Способы кодировки encoded-word RFC2047
 	//
@@ -5899,7 +5900,7 @@ protected:
 	uint   count;   // Количество элементов, находящихся в массиве
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
 	uint   isize;   // Размер одного элемента (bytes)
-	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
+	uint   Limit;   // Максимальное количество элементов (not bytes), которое может вместить буфер
 	uint   flags;
 	uint8 * data;   //
 };

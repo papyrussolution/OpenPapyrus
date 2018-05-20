@@ -10,9 +10,8 @@
 #define NGX_HTTP_NO_CHARSET     -3
 #define NGX_HTTP_CHARSET_VAR    0x10000
 
-/* 1 byte length and up to 3 bytes for the UTF-8 encoding of the UCS-2 */
+// 1 byte length and up to 3 bytes for the UTF-8 encoding of the UCS-2 
 #define NGX_UTF_LEN             4
-
 #define NGX_HTML_ENTITY_LEN     (sizeof("&#1114111;") - 1)
 
 struct ngx_http_charset_t {
@@ -510,12 +509,10 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 			if(cl == NULL) {
 				return NULL;
 			}
-			if(out) {
+			if(out)
 				out->next = cl;
-			}
-			else {
+			else
 				out = cl;
-			}
 			b = cl->buf;
 			dst = b->pos;
 			goto recode;
@@ -541,10 +538,9 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 	c = '\0';
 	if(n < 0x10000) {
 		table = (u_char**)ctx->table;
-		p = table[n >> 8];
-		if(p) {
-			c = p[n & 0xff];
-		}
+		p = table[n>>8];
+		if(p)
+			c = p[n&0xff];
 	}
 	else if(n == 0xfffffffe) {
 		// incomplete UTF-8 symbol 

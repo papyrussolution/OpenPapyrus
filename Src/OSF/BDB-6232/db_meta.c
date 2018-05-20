@@ -69,7 +69,7 @@ static void __db_init_meta(DB *dbp, void * p, db_pgno_t pgno, uint32 pgtype)
 	DB_LSN save_lsn;
 	DBMETA * meta = (DBMETA*)p;
 	save_lsn = meta->lsn;
-	memset(meta, 0, sizeof(DBMETA));
+	memzero(meta, sizeof(DBMETA));
 	meta->lsn = save_lsn;
 	meta->pagesize = dbp->pgsize;
 	if(F_ISSET(dbp, DB_AM_CHKSUM))
@@ -162,46 +162,33 @@ int __db_new(DBC *dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		lsn = h->lsn;
 		extend = 0;
 		DB_ASSERT(env, TYPE(h) == P_INVALID);
-
 		if(TYPE(h) != P_INVALID) {
-			__db_errx(env, DB_STR_A("0689",
-			    "%s page %lu is on free list with type %lu",
-			    "%s %lu %lu"), dbp->fname, (u_long)PGNO(h),
-			    (u_long)TYPE(h));
+			__db_errx(env, DB_STR_A("0689", "%s page %lu is on free list with type %lu", "%s %lu %lu"), dbp->fname, (u_long)PGNO(h), (u_long)TYPE(h));
 			return (__env_panic(env, EINVAL));
 		}
 	}
-
 	FLD_CLR(type, P_DONTEXTEND);
-
 	/*
 	 * Log the allocation before fetching the new page.  If we
 	 * don't have room in the log then we don't want to tell
 	 * mpool to extend the file.
 	 */
 	if(DBC_LOGGING(dbc)) {
-		if((ret = __db_pg_alloc_log(dbp, dbc->txn, &LSN(meta), 0,
-		    &LSN(meta), PGNO_BASE_MD, &lsn,
-		    pgno, (uint32)type, newnext, meta->last_pgno)) != 0)
+		if((ret = __db_pg_alloc_log(dbp, dbc->txn, &LSN(meta), 0, &LSN(meta), PGNO_BASE_MD, &lsn, pgno, (uint32)type, newnext, meta->last_pgno)) != 0)
 			goto err;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(meta));
-
 	meta->free = newnext;
-
 	if(extend == 1) {
-		if(lockp != NULL && (ret =
-		    __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
+		if(lockp != NULL && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
 			goto err;
-		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_NEW, &h)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_NEW, &h)) != 0)
 			goto err;
 		DB_ASSERT(env, last == pgno);
 		meta->last_pgno = pgno;
 		ZERO_LSN(h->lsn);
 		h->pgno = pgno;
-
 		/*
 		 * If the file was extended for the first time in this
 		 * transaction, set the MPOOLFILE's file extension
@@ -210,7 +197,6 @@ int __db_new(DBC *dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		__txn_add_fe_watermark(dbc->txn, dbp, h->pgno);
 	}
 	LSN(h) = LSN(meta);
-
 	if(hash == 0 && (ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0)
 		goto err;
 	meta = NULL;
@@ -243,10 +229,10 @@ int __db_new(DBC *dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 #endif
 
 	if((ret = __TLPUT(dbc, metalock)) != 0)
-		return (ret);
+		return ret;
 	*pagepp = h;
 	PERFMON6(env, alloc, new, dbp->fname, dbp->dname, pgno, type, h, 0);
-	return (0);
+	return 0;
 
 err:    if(h != NULL)
 		(void)__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
@@ -257,7 +243,7 @@ err:    if(h != NULL)
 		(void)__LPUT(dbc, *lockp);
 	/* Failure return - report 0 pgno, null page address. */
 	PERFMON6(env, alloc, new, dbp->fname, dbp->dname, 0, type, NULL, ret);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -421,7 +407,7 @@ no_sort:
 	 * previous page in the sorted list.
 	 */
 	if(DBC_LOGGING(dbc)) {
-		memset(&ldbt, 0, sizeof(ldbt));
+		memzero(&ldbt, sizeof(ldbt));
 		ldbt.data = h;
 		ldbt.size = P_OVERHEAD(dbp);
 		/*
@@ -533,15 +519,13 @@ logged:
 		 * reinitialize it and put it at the head of
 		 * the free list.
 		 */
-		if((ret = __memp_dirty(mpf,
-		    &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			goto err1;
 		LSN(h) = *lsnp;
 		P_INIT(h, dbp->pgsize,
 		    h->pgno, PGNO_INVALID, next_pgno, 0, P_INVALID);
 #ifdef DIAGNOSTIC
-		memset((uint8*)h + P_OVERHEAD(dbp),
-		    CLEAR_BYTE, dbp->pgsize - P_OVERHEAD(dbp));
+		memset((uint8*)h + P_OVERHEAD(dbp), CLEAR_BYTE, dbp->pgsize - P_OVERHEAD(dbp));
 #endif
 		if(prev_pgno == PGNO_INVALID)
 			meta->free = h->pgno;
@@ -569,7 +553,7 @@ err:    if(h != NULL && (t_ret = __memp_fput(mpf,
 	 * !!!
 	 * We have to unlock the caller's page in the caller!
 	 */
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -786,7 +770,7 @@ err:            if(h != NULL)
 			(void)__memp_fput(mpf,
 			    dbc->thread_info, h, dbc->priority);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -828,7 +812,7 @@ int __db_free_truncate(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags,
 	}
 
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, DB_WRITELOCK)) != 0)
-		return (ret);
+		return ret;
 
 	pgno = PGNO_BASE_MD;
 	if((ret = __db_lget(dbc,
@@ -921,7 +905,7 @@ err:    if(list != NULL)
 		ret = t_ret;
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static int __db_truncate_freelist(DBC *dbc, DBMETA * meta, PAGE * h, db_pgno_t * list, uint32 start, uint32 nelem)
@@ -1049,7 +1033,7 @@ err:    if(plist != NULL)
 		(void)__memp_fput(mpf,
 		    dbc->thread_info, last_free, dbc->priority);
 
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -1069,7 +1053,7 @@ int __db_lprint(DBC *dbc)
 		req.op = DB_LOCK_DUMP;
 		(void)__lock_vec(env, dbc->locker, 0, &req, 1, NULL);
 	}
-	return (0);
+	return 0;
 }
 #endif
 
@@ -1098,7 +1082,7 @@ int __db_lget(DBC *dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 l
 	    (action != LCK_ROLLBACK || IS_REP_CLIENT(env))) ||
 	    (action != LCK_ALWAYS && F_ISSET(dbc, DBC_OPD))) {
 		LOCK_INIT(*lockp);
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -1127,21 +1111,21 @@ int __db_lget(DBC *dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 l
 				if(!IS_REAL_TXN(txn))
 					dbc->mylock = *lockp;
 				LOCK_INIT(*lockp);
-				return (0);
+				return 0;
 			}
 		}
 		else if(ret == DB_LOCK_NOTGRANTED &&
 		    (lkflags & DB_LOCK_NOWAIT) == 0) {
 			if((ret = __lock_get(env, dbc->locker, 0,
 			    &dbc->lock_dbt, DB_LOCK_WRITE, lockp)) != 0)
-				return (ret);
+				return ret;
 			F_CLR(dbp->mpf->mfp, MP_DATABASE_LOCKING);
 			if((ret = __lock_put(env, lockp)) != 0)
-				return (ret);
+				return ret;
 			LOCK_INIT(*lockp);
 		}
 		else if(ret != 0)
-			return (ret);
+			return ret;
 	}
 
 	dbc->lock.pgno = pgno;
@@ -1242,7 +1226,7 @@ int __db_haslock(ENV *env, DB_LOCKER * locker, DB_MPOOLFILE * dbmfp, db_pgno_t p
 	DBT lkdata;
 	DB_LOCK lock;
 	DB_LOCK_ILOCK ilock;
-	memset(&lkdata, 0, sizeof(lkdata));
+	memzero(&lkdata, sizeof(lkdata));
 	lkdata.data = &ilock;
 	lkdata.size = sizeof(ilock);
 	memcpy(ilock.fileid, dbmfp->fileid, DB_FILE_ID_LEN);
@@ -1269,10 +1253,10 @@ int __db_has_pagelock(ENV *env, DB_LOCKER * locker, DB_MPOOLFILE * dbmfp, PAGE *
 		case P_QAMDATA:
 		case P_QAMMETA:
 		case P_IHEAP:
-		    return (0);
+		    return 0;
 		case P_HASH:
 		    if(PREV_PGNO(pagep) != PGNO_INVALID)
-			    return (0);
+			    return 0;
 		    break;
 		default:
 		    break;
@@ -1281,7 +1265,7 @@ int __db_has_pagelock(ENV *env, DB_LOCKER * locker, DB_MPOOLFILE * dbmfp, PAGE *
 	    locker, dbmfp, pagep->pgno, mode, DB_PAGE_LOCK)) != 0)
 		ret = __db_haslock(env,
 			locker, dbmfp, PGNO_BASE_MD, mode, DB_DATABASE_LOCK);
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -1336,5 +1320,5 @@ int __db_lput(DBC *dbc, DB_LOCK * lockp)
 		    break;
 	}
 
-	return (ret);
+	return ret;
 }

@@ -83,7 +83,7 @@ int __bam_ditem(DBC *dbc, PAGE * h, uint32 indx)
 				nbytes = BINTERNAL_SIZE(bi->len);
 				if((ret =
 				    __db_doff(dbc, ((BOVERFLOW*)bi->data)->pgno)) != 0)
-					return (ret);
+					return ret;
 				break;
 			    default:
 				return (__db_pgfmt(dbp->env, PGNO(h)));
@@ -109,18 +109,15 @@ int __bam_ditem(DBC *dbc, PAGE * h, uint32 indx)
 			     * data item, otherwise the "indx + P_INDX" calculation
 			     * won't work!
 			     */
-			    if(indx + P_INDX < (uint32)NUM_ENT(h) &&
-				inp[indx] == inp[indx + P_INDX])
-				    return (__bam_adjindx(dbc,
-					   h, indx, indx + O_INDX, 0));
+			    if(indx + P_INDX < (uint32)NUM_ENT(h) && inp[indx] == inp[indx + P_INDX])
+				    return (__bam_adjindx(dbc, h, indx, indx + O_INDX, 0));
 			    /*
 			     * Check for a duplicate before us on the page.  It
 			     * doesn't matter if we delete the key item before or
 			     * after the data item for the purposes of this one.
 			     */
 			    if(indx > 0 && inp[indx] == inp[indx - P_INDX])
-				    return (__bam_adjindx(dbc,
-					   h, indx, indx - P_INDX, 0));
+				    return (__bam_adjindx(dbc, h, indx, indx - P_INDX, 0));
 		    }
 		/* FALLTHROUGH */
 		case P_LDUP:
@@ -132,16 +129,15 @@ int __bam_ditem(DBC *dbc, PAGE * h, uint32 indx)
 				break;
 			    case B_OVERFLOW:
 				nbytes = BOVERFLOW_SIZE;
-				if((ret = __db_doff(
-					    dbc, (GET_BOVERFLOW(dbp, h, indx))->pgno)) != 0)
-					return (ret);
+				if((ret = __db_doff(dbc, (GET_BOVERFLOW(dbp, h, indx))->pgno)) != 0)
+					return ret;
 				break;
 			    case B_BLOB:
 				nbytes = BBLOB_SIZE;
 				memcpy(&bl, bk, BBLOB_SIZE);
 				blob_id = (db_seq_t)bl.id;
 				if((ret = __blob_del(dbc, blob_id)) != 0)
-					return (ret);
+					return ret;
 				break;
 			    case B_KEYDATA:
 				nbytes = BKEYDATA_SIZE(bk->len);
@@ -153,12 +149,10 @@ int __bam_ditem(DBC *dbc, PAGE * h, uint32 indx)
 		default:
 		    return (__db_pgfmt(dbp->env, PGNO(h)));
 	}
-
 	/* Delete the item and mark the page dirty. */
 	if((ret = __db_ditem(dbc, h, indx, nbytes)) != 0)
-		return (ret);
-
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __bam_adjindx --
@@ -176,7 +170,7 @@ int __bam_adjindx(DBC *dbc, PAGE * h, uint32 indx, uint32 indx_copy, int is_inse
 	/* Log the change. */
 	if(DBC_LOGGING(dbc)) {
 		if((ret = __bam_adj_log(dbp, dbc->txn, &LSN(h), 0, PGNO(h), &LSN(h), indx, indx_copy, (uint32)is_insert)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(h));
@@ -193,7 +187,7 @@ int __bam_adjindx(DBC *dbc, PAGE * h, uint32 indx, uint32 indx_copy, int is_inse
 		if(indx != NUM_ENT(h))
 			memmove(&inp[indx], &inp[indx + O_INDX], sizeof(db_indx_t) * (NUM_ENT(h) - indx));
 	}
-	return (0);
+	return 0;
 }
 /*
  * __bam_dpages --
@@ -348,7 +342,7 @@ err:            for(; epg <= cp->csp; ++epg) {
 			(void)__TLPUT(dbc, epg->lock);
 		}
 		BT_STK_CLR(cp);
-		return (ret);
+		return ret;
 	}
 	BT_STK_CLR(cp);
 
@@ -361,10 +355,10 @@ err:            for(; epg <= cp->csp; ++epg) {
 	 * cannot change as we have it locked.
 	 */
 	if(nitems != 1)
-		return (0);
+		return 0;
 	root_pgno = BAM_ROOT_PGNO(dbc);
 	if(pgno != root_pgno)
-		return (0);
+		return 0;
 
 	for(done = 0; !done;) {
 		/* Initialize. */
@@ -400,27 +394,20 @@ err:            for(; epg <= cp->csp; ++epg) {
 			default:
 			    goto stop;
 		}
-
 		/* Lock the child page. */
-		if((ret =
-		    __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &c_lock)) != 0)
+		if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &c_lock)) != 0)
 			goto stop;
-		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_DIRTY, &child)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &child)) != 0)
 			goto stop;
-
 		/* Log the change. */
 		if(DBC_LOGGING(dbc)) {
-			memset(&a, 0, sizeof(a));
+			memzero(&a, sizeof(a));
 			a.data = child;
 			a.size = dbp->pgsize;
-			memset(&b, 0, sizeof(b));
+			memzero(&b, sizeof(b));
 			b.data = P_ENTRY(dbp, parent, 0);
-			b.size = TYPE(parent) == P_IRECNO ? RINTERNAL_SIZE :
-			    BINTERNAL_SIZE(((BINTERNAL*)b.data)->len);
-			if((ret = __bam_rsplit_log(dbp, dbc->txn,
-			    &child->lsn, 0, PGNO(child), &a, PGNO(parent),
-			    RE_NREC(parent), &b, &parent->lsn)) != 0)
+			b.size = TYPE(parent) == P_IRECNO ? RINTERNAL_SIZE : BINTERNAL_SIZE(((BINTERNAL*)b.data)->len);
+			if((ret = __bam_rsplit_log(dbp, dbc->txn, &child->lsn, 0, PGNO(child), &a, PGNO(parent), RE_NREC(parent), &b, &parent->lsn)) != 0)
 				goto stop;
 		}
 		else
@@ -478,7 +465,7 @@ stop:                   done = 1;
 			ret = t_ret;
 	}
 
-	return (ret);
+	return ret;
 }
 /*
  * __bam_pupdate --
@@ -502,7 +489,7 @@ int __bam_pupdate(DBC *dbc, PAGE * lpg)
 	 */
 	for(epg = &cp->csp[-1]; epg >= cp->sp; epg--) {
 		if((ret = __memp_dirty(dbc->dbp->mpf, &epg->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
-			return (ret);
+			return ret;
 		epg->indx--;
 		if((ret = __bam_pinsert(dbc, epg, 0,
 		    lpg, epg[1].page, BPI_NORECNUM | BPI_REPLACE)) != 0) {
@@ -512,9 +499,9 @@ int __bam_pupdate(DBC *dbc, PAGE * lpg)
 				ret = __env_panic(env, EINVAL);
 			}
 			epg->indx++;
-			return (ret);
+			return ret;
 		}
 		epg->indx++;
 	}
-	return (ret);
+	return ret;
 }

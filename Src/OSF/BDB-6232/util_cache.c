@@ -20,7 +20,7 @@ int __db_util_cache(DB *dbp, uint32 * cachep, int * resizep)
 	int ret;
 	/* Get the current page size. */
 	if((ret = dbp->get_pagesize(dbp, &pgsize)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * The current cache size is in cachep.  If it's insufficient, set the
 	 * the memory referenced by resizep to 1 and set cachep to the minimum
@@ -35,5 +35,5 @@ int __db_util_cache(DB *dbp, uint32 * cachep, int * resizep)
 	}
 	else
 		*resizep = 0;
-	return (0);
+	return 0;
 }

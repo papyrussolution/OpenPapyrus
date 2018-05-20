@@ -33,36 +33,29 @@ int __memp_fopen_pp(DB_MPOOLFILE *dbmfp, const char * path, uint32 flags, int mo
 	ENV * env = dbmfp->env;
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB_MPOOLFILE->open", flags, DB_CREATE | DB_DIRECT | DB_EXTENT | DB_MULTIVERSION|DB_NOMMAP | DB_ODDFILESIZE | DB_RDONLY | DB_TRUNCATE)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Require a power-of-two pagesize, smaller than the clear length.  A
 	 * non-zero page size is only allowed if opening an existing, in-memory
 	 * db.
 	 */
-	if(!POWER_OF_TWO(pagesize) ||
-	    (pagesize == 0 && (LF_ISSET(DB_CREATE) ||
-	    !FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE)))) {
-		__db_errx(env, DB_STR("3033",
-		    "DB_MPOOLFILE->open: page sizes must be a power-of-2"));
-		return (EINVAL);
+	if(!POWER_OF_TWO(pagesize) || (pagesize == 0 && (LF_ISSET(DB_CREATE) || !FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE)))) {
+		__db_errx(env, DB_STR("3033", "DB_MPOOLFILE->open: page sizes must be a power-of-2"));
+		return EINVAL;
 	}
 	if(pagesize != 0 && dbmfp->clear_len > pagesize) {
-		__db_errx(env, DB_STR("3034",
-		    "DB_MPOOLFILE->open: clear length larger than page size"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3034", "DB_MPOOLFILE->open: clear length larger than page size"));
+		return EINVAL;
 	}
 
 	/* Read-only checks, and local flag. */
 	if(LF_ISSET(DB_RDONLY) && path == NULL) {
-		__db_errx(env, DB_STR("3035",
-		    "DB_MPOOLFILE->open: temporary files can't be readonly"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3035", "DB_MPOOLFILE->open: temporary files can't be readonly"));
+		return EINVAL;
 	}
-
 	if(LF_ISSET(DB_MULTIVERSION) && !TXN_ON(env)) {
-		__db_errx(env, DB_STR("3036",
-		    "DB_MPOOLFILE->open: DB_MULTIVERSION requires transactions"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("3036", "DB_MPOOLFILE->open: DB_MULTIVERSION requires transactions"));
+		return EINVAL;
 	}
 
 	ENV_ENTER(env, ip);
@@ -70,7 +63,7 @@ int __memp_fopen_pp(DB_MPOOLFILE *dbmfp, const char * path, uint32 flags, int mo
 	    (__memp_fopen(dbmfp, NULL,
 	    path, NULL, flags, mode, pagesize)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -104,7 +97,7 @@ int __memp_fopen(DB_MPOOLFILE *dbmfp, MPOOLFILE * mfp, const char * path, const 
 
 	/* If this handle is already open, return. */
 	if(F_ISSET(dbmfp, MP_OPEN_CALLED))
-		return (0);
+		return 0;
 
 	env = dbmfp->env;
 	dbmp = env->mp_handle;
@@ -229,14 +222,12 @@ int __memp_fopen(DB_MPOOLFILE *dbmfp, MPOOLFILE * mfp, const char * path, const 
 		if(!mfp->deadfile) {
 			if(LF_ISSET(DB_MULTIVERSION)) {
 				MUTEX_UNLOCK(env, mfp->mutex);
-				if(MFP_OPEN_CNT(mfp) > 0 &&
-				    atomic_read(&mfp->multiversion) == 0) {
-mvcc_err:                               __db_errx(env, DB_STR("3041",
-					    "DB_MULTIVERSION cannot be specified on a database file that is already open"));
+				if(MFP_OPEN_CNT(mfp) > 0 && atomic_read(&mfp->multiversion) == 0) {
+mvcc_err:                               
+					__db_errx(env, DB_STR("3041", "DB_MULTIVERSION cannot be specified on a database file that is already open"));
 					ret = USR_ERR(env, EINVAL);
 					goto err;
 				}
-
 				(void)atomic_inc(env, &mfp->multiversion);
 				F_SET(dbmfp, MP_MULTIVERSION);
 			}
@@ -300,8 +291,7 @@ mvcc_err:                               __db_errx(env, DB_STR("3041",
 		/* This detects when a metadata page has a bad size. [#24223] */
 		if(pagesize == 0 || !IS_VALID_PAGESIZE(pagesize)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0511",
-			    "page sizes must be a power-of-2"));
+			__db_errx(env, DB_STR("0511", "page sizes must be a power-of-2"));
 			goto err;
 		}
 		/* Convert MP open flags to DB OS-layer open flags. */
@@ -414,9 +404,7 @@ mvcc_err:                               __db_errx(env, DB_STR("3041",
 					}
 				}
 				if(tries == MP_IOINFO_RETRIES) {
-					__db_errx(env, DB_STR_A("3043",
-					    "%s: file size (%lu %lu) not a multiple of the pagesize %lu",
-					    "%s %lu %lu %lu"),
+					__db_errx(env, DB_STR_A("3043", "%s: file size (%lu %lu) not a multiple of the pagesize %lu", "%s %lu %lu %lu"),
 					    rpath, (u_long)mbytes, (u_long)bytes, (u_long)pagesize);
 					ret = USR_ERR(env, EINVAL);
 					goto err;
@@ -476,16 +464,10 @@ check:  MUTEX_LOCK(env, hp->mtx_hash);
 		 * We do not check to see if the pgcookie information changed,
 		 * or update it if it is.
 		 */
-		if((dbmfp->clear_len != DB_CLEARLEN_NOTSET &&
-		    mfp->clear_len != DB_CLEARLEN_NOTSET &&
-		    dbmfp->clear_len != mfp->clear_len) ||
-		    (pagesize != 0 && pagesize != mfp->pagesize) ||
-		    (dbmfp->lsn_offset != DB_LSN_OFF_NOTSET &&
-		    mfp->lsn_off != DB_LSN_OFF_NOTSET &&
-		    dbmfp->lsn_offset != mfp->lsn_off)) {
-			__db_errx(env, DB_STR_A("3038",
-			    "%s: clear length, page size or LSN location changed",
-			    "%s"), path);
+		if((dbmfp->clear_len != DB_CLEARLEN_NOTSET && mfp->clear_len != DB_CLEARLEN_NOTSET &&
+		    dbmfp->clear_len != mfp->clear_len) || (pagesize != 0 && pagesize != mfp->pagesize) ||
+		    (dbmfp->lsn_offset != DB_LSN_OFF_NOTSET && mfp->lsn_off != DB_LSN_OFF_NOTSET && dbmfp->lsn_offset != mfp->lsn_off)) {
+			__db_errx(env, DB_STR_A("3038", "%s: clear length, page size or LSN location changed", "%s"), path);
 			MUTEX_UNLOCK(env, hp->mtx_hash);
 			ret = USR_ERR(env, EINVAL);
 			goto err;
@@ -569,10 +551,8 @@ have_mfp:
 				F_SET(mfp, MP_NOT_DURABLE);
 			F_CLR(mfp, MP_DURABLE_UNKNOWN);
 		}
-		else if(!LF_ISSET(DB_TXN_NOT_DURABLE) !=
-		    !F_ISSET(mfp, MP_NOT_DURABLE)) {
-			__db_errx(env, DB_STR("3039",
-			    "Cannot open DURABLE and NOT DURABLE handles in the same file"));
+		else if(!LF_ISSET(DB_TXN_NOT_DURABLE) != !F_ISSET(mfp, MP_NOT_DURABLE)) {
+			__db_errx(env, DB_STR("3039", "Cannot open DURABLE and NOT DURABLE handles in the same file"));
 			ret = USR_ERR(env, EINVAL);
 			goto err;
 		}
@@ -668,7 +648,7 @@ err:            if(refinc) {
 	}
 	if(rpath != NULL)
 		__os_free(env, rpath);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -758,7 +738,7 @@ static int __memp_mpf_find(ENV *env, DB_MPOOLFILE * dbmfp, DB_MPOOL_HASH * hp, c
 	}
 
 	*mfpp = mfp;
-	return (0);
+	return 0;
 }
 
 static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * path, uint32 pagesize, uint32 flags, MPOOLFILE ** retmfp)
@@ -770,7 +750,7 @@ static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * p
 	/* Allocate and initialize a new MPOOLFILE. */
 	if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, sizeof(MPOOLFILE), NULL, &mfp)) != 0)
 		goto err;
-	memset(mfp, 0, sizeof(MPOOLFILE));
+	memzero(mfp, sizeof(MPOOLFILE));
 	mfp->mpf_cnt = 1;
 	if(LF_ISSET(DB_FLUSH | DB_RDONLY))
 		mfp->neutral_cnt = 1;
@@ -851,7 +831,7 @@ static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * p
 #endif
 	*retmfp = mfp;
 err:    
-	return (ret);
+	return ret;
 }
 
 /*
@@ -873,7 +853,7 @@ int __memp_fclose_pp(DB_MPOOLFILE *dbmfp, uint32 flags)
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_fclose(dbmfp, 0)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -920,28 +900,22 @@ int __memp_fclose(DB_MPOOLFILE *dbmfp, uint32 flags)
 		dbmfp->fhp = NULL;
 	MUTEX_UNLOCK(env, dbmp->mutex);
 	if(ref != 0)
-		return (0);
+		return 0;
 
 	/* Complain if pinned blocks never returned. */
 	if(dbmfp->pinref != 0) {
-		__db_errx(env, DB_STR_A("3040",
-		    "%s: close: %lu blocks left pinned", "%s %lu"),
-		    __memp_fn(dbmfp), (u_long)dbmfp->pinref);
+		__db_errx(env, DB_STR_A("3040", "%s: close: %lu blocks left pinned", "%s %lu"), __memp_fn(dbmfp), (u_long)dbmfp->pinref);
 		ret = __env_panic(env, DB_RUNRECOVERY);
 	}
-
 	/* Discard any mmap information. */
-	if(dbmfp->addr != NULL && dbmfp->fhp != NULL &&
-	    (ret = __os_unmapfile(env, dbmfp->addr, dbmfp->len)) != 0)
+	if(dbmfp->addr != NULL && dbmfp->fhp != NULL && (ret = __os_unmapfile(env, dbmfp->addr, dbmfp->len)) != 0)
 		__db_err(env, ret, "%s", __memp_fn(dbmfp));
-
 	/*
 	 * Close the file and discard the descriptor structure; temporary
 	 * files may not yet have been created.
 	 */
 	if(dbmfp->fhp != NULL) {
-		if((t_ret =
-		    __mutex_free(env, &dbmfp->fhp->mtx_fh)) != 0 && ret == 0)
+		if((t_ret = __mutex_free(env, &dbmfp->fhp->mtx_fh)) != 0 && ret == 0)
 			ret = t_ret;
 		if((t_ret = __os_closehandle(env, dbmfp->fhp)) != 0) {
 			__db_err(env, t_ret, "%s", __memp_fn(dbmfp));
@@ -1026,7 +1000,7 @@ done:   /* Discard the DB_MPOOLFILE structure. */
 	}
 	__os_free(env, dbmfp);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1129,7 +1103,7 @@ int __memp_mf_discard(DB_MPOOL *dbmp, MPOOLFILE * mfp, int hp_locked)
 
 	MPOOL_SYSTEM_UNLOCK(env);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1172,7 +1146,7 @@ int __memp_inmemlist(ENV *env, char *** namesp, int * cntp)
 	}
 	*namesp = names;
 	*cntp = cnt;
-	return (0);
+	return 0;
 nomem:  
 	MUTEX_UNLOCK(env, hp->mtx_hash);
 	if(names != NULL) {
@@ -1184,7 +1158,7 @@ nomem:
 	/* Make sure we don't return any garbage. */
 	*cntp = 0;
 	*namesp = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1270,6 +1244,6 @@ static int __memp_count_dead_mutex(DB_MPOOL *dbmp, uint32 * dead_mutex)
 		}
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 	}
-	return (0);
+	return 0;
 }
 #endif

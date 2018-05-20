@@ -52,7 +52,7 @@ loop:   renv = NULL;
 
 	/* Set up the ENV's REG_INFO structure. */
 	if((ret = __os_calloc(env, 1, sizeof(REGINFO), &infop)) != 0)
-		return (ret);
+		return ret;
 	infop->env = env;
 	infop->type = REGION_TYPE_ENV;
 	infop->id = REGION_ID_ENV;
@@ -187,49 +187,36 @@ loop:   renv = NULL;
 			F_SET(env, ENV_SYSTEM_MEM);
 		else if(F_ISSET(env, ENV_SYSTEM_MEM)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_err(env, ret, DB_STR_A("1535",
-			    "%s: existing environment not created in system memory",
-			    "%s"), infop->name);
+			__db_err(env, ret, DB_STR_A("1535", "%s: existing environment not created in system memory", "%s"), infop->name);
 			goto err;
 		}
 		else {
-			if((ret = __os_read(env, env->lockfhp, &rbuf,
-			    sizeof(rbuf), &nrw)) != 0 ||
-			    nrw < (size_t)sizeof(rbuf) ||
-			    (ret = __os_seek(env,
-			    env->lockfhp, 0, 0, rbuf.region_off)) != 0) {
+			if((ret = __os_read(env, env->lockfhp, &rbuf, sizeof(rbuf), &nrw)) != 0 || nrw < (size_t)sizeof(rbuf) || (ret = __os_seek(env, env->lockfhp, 0, 0, rbuf.region_off)) != 0) {
 				ret = USR_ERR(env, ret);
-				__db_err(env, ret, DB_STR_A("1536",
-				    "%s: unable to read region info", "%s"),
-				    infop->name);
+				__db_err(env, ret, DB_STR_A("1536", "%s: unable to read region info", "%s"), infop->name);
 				goto err;
 			}
 		}
 
-		if((ret = __os_read(env, env->lockfhp, &ref,
-		    sizeof(ref), &nrw)) != 0 || nrw < (size_t)sizeof(ref)) {
+		if((ret = __os_read(env, env->lockfhp, &ref, sizeof(ref), &nrw)) != 0 || nrw < (size_t)sizeof(ref)) {
 			if(ret == 0)
 				ret = USR_ERR(env, EIO);
 			(void)USR_ERR(env, ret);
-			__db_err(env, ret, DB_STR_A("1537",
-			    "%s: unable to read system-memory information",
-			    "%s"), infop->name);
+			__db_err(env, ret, DB_STR_A("1537", "%s: unable to read system-memory information", "%s"), infop->name);
 			goto err;
 		}
 		size = ref.size;
 		max = ref.max;
 		segid = ref.segid;
 	}
-
 	/*
 	 * We no longer need the file handle; the less contact between the
 	 * buffer cache and the VM, the better.
 	 */
 	(void)__os_closehandle(env, env->lockfhp);
 	env->lockfhp = NULL;
-
 	/* Call the region join routine to acquire the region. */
-	memset(&tregion, 0, sizeof(tregion));
+	memzero(&tregion, sizeof(tregion));
 	tregion.type = REGION_TYPE_ENV;
 	tregion.size = (roff_t)size;
 	tregion.max = (roff_t)max;
@@ -251,13 +238,10 @@ user_map_functions:
 	 * Make sure the region matches our build.  Special case a region
 	 * that's all nul bytes, just treat it like any other corruption.
 	 */
-	if(renv->majver != DB_VERSION_MAJOR ||
-	    renv->minver != DB_VERSION_MINOR) {
+	if(renv->majver != DB_VERSION_MAJOR || renv->minver != DB_VERSION_MINOR) {
 		if(renv->majver != 0 || renv->minver != 0) {
-			__db_errx(env, DB_STR_A("1538",
-			    "Program version %d.%d doesn't match environment version %d.%d",
-			    "%d %d %d %d"), DB_VERSION_MAJOR, DB_VERSION_MINOR,
-			    renv->majver, renv->minver);
+			__db_errx(env, DB_STR_A("1538", "Program version %d.%d doesn't match environment version %d.%d",
+			    "%d %d %d %d"), DB_VERSION_MAJOR, DB_VERSION_MINOR, renv->majver, renv->minver);
 			ret = USR_ERR(env, DB_VERSION_MISMATCH);
 		}
 		else
@@ -265,12 +249,10 @@ user_map_functions:
 		goto err;
 	}
 	if(renv->signature != signature) {
-		__db_errx(env, DB_STR("1539",
-		    "Build signature doesn't match environment"));
+		__db_errx(env, DB_STR("1539", "Build signature doesn't match environment"));
 		ret = USR_ERR(env, DB_VERSION_MISMATCH);
 		goto err;
 	}
-
 	/*
 	 * Check if the environment has had a catastrophic failure.
 	 *
@@ -299,18 +281,13 @@ user_map_functions:
 		if(renv->magic == DB_REGION_MAGIC_RECOVER)
 			create_time = renv->timestamp;
 		else {
-			DB_DEBUG_MSG(env, "attach sees bad region magic 0x%lx",
-			    (u_long)renv->magic);
+			DB_DEBUG_MSG(env, "attach sees bad region magic 0x%lx", (u_long)renv->magic);
 			create_time = 0;
 		}
 		goto retry;
 	}
-
-	if(dbenv->blob_threshold != 0 &&
-	    renv->blob_threshold != dbenv->blob_threshold)
-		__db_msg(env, DB_STR("1591",
-		    "Warning: Ignoring ext_file_threshold size when joining environment"));
-
+	if(dbenv->blob_threshold != 0 && renv->blob_threshold != dbenv->blob_threshold)
+		__db_msg(env, DB_STR("1591", "Warning: Ignoring ext_file_threshold size when joining environment"));
 	/*
 	 * Get a reference to the underlying REGION information for this
 	 * environment.
@@ -318,7 +295,6 @@ user_map_functions:
 	if((ret = __env_des_get(env, infop, infop, &rp)) != 0 || rp == NULL)
 		goto find_err;
 	infop->rp = rp;
-
 	/*
 	 * There's still a possibility for inconsistent data.  When we acquired
 	 * the size of the region and attached to it, it might have still been
@@ -348,8 +324,7 @@ user_map_functions:
 	if(init_flagsp != NULL) {
 		FLD_CLR(*init_flagsp, renv->init_flags);
 		if(*init_flagsp != 0) {
-			__db_errx(env, DB_STR("1540",
-			    "configured environment flags incompatible with existing environment"));
+			__db_errx(env, DB_STR("1540", "configured environment flags incompatible with existing environment"));
 			ret = USR_ERR(env, EINVAL);
 			goto err;
 		}
@@ -364,16 +339,15 @@ user_map_functions:
 
 	/* Everything looks good, we're done. */
 	env->reginfo = infop;
-	return (0);
+	return 0;
 
 creation:
 	/* Create the environment region. */
 	F_SET(infop, REGION_CREATE);
-
 	/*
 	 * Allocate room for REGION structures plus overhead.
 	 */
-	memset(&tregion, 0, sizeof(tregion));
+	memzero(&tregion, sizeof(tregion));
 	nregions = __memp_max_regions(env) + 5;
 	size = nregions * sizeof(REGION);
 	size += dbenv->passwd_len;
@@ -484,8 +458,7 @@ creation:
 	 */
 	renv->region_cnt = nregions;
 	if((ret = __env_alloc(infop, nregions * sizeof(REGION), &rp)) != 0) {
-		__db_err(env, ret, DB_STR("1543",
-		    "unable to create new master region array"));
+		__db_err(env, ret, DB_STR("1543", "unable to create new master region array"));
 		goto err;
 	}
 	renv->region_off = R_OFFSET(infop, rp);
@@ -553,7 +526,7 @@ find_err:       if(ret == 0)
 
 	/* Everything looks good, we're done. */
 	env->reginfo = infop;
-	return (0);
+	return 0;
 
 err:
 retry:  /* Close any open file handle. */
@@ -597,7 +570,7 @@ retry:  /* Close any open file handle. */
 		}
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -612,13 +585,13 @@ int __env_turn_on(ENV *env)
 	REGENV * renv = (REGENV *)infop->primary;
 	/* If we didn't create the region, there's no need for further work. */
 	if(!F_ISSET(infop, REGION_CREATE))
-		return (0);
+		return 0;
 	/*
 	 * Validate the file.  All other threads of control are waiting
 	 * on this value to be written -- "Let slip the hounds of war!"
 	 */
 	renv->magic = DB_REGION_MAGIC;
-	return (0);
+	return 0;
 }
 /*
  * __env_turn_off --
@@ -639,7 +612,7 @@ int __env_turn_off(ENV *env, uint32 flags)
 	 * If the environment exists, attach and lock the environment.
 	 */
 	if(__env_attach(env, NULL, 0, 1) != 0)
-		return (0);
+		return 0;
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
 	MUTEX_LOCK(env, renv->mtx_regenv);
@@ -669,7 +642,7 @@ int __env_turn_off(ENV *env, uint32 flags)
 	if((t_ret = __env_detach(env, 0)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -712,7 +685,7 @@ int __env_ref_increment(ENV *env)
 	/* If we're creating the primary region, allocate a mutex. */
 	if(F_ISSET(infop, REGION_CREATE)) {
 		if((ret = __mutex_alloc(env, MTX_ENV_REGION, 0, &renv->mtx_regenv)) != 0)
-			return (ret);
+			return ret;
 		renv->refcnt = 1;
 	}
 	else {
@@ -723,7 +696,7 @@ int __env_ref_increment(ENV *env)
 	}
 
 	F_SET(env, ENV_REF_COUNTED);
-	return (0);
+	return 0;
 }
 
 /*
@@ -738,7 +711,7 @@ int __env_ref_decrement(ENV *env)
 	REGINFO * infop;
 	/* Be cautious -- we may not have an environment. */
 	if((infop = env->reginfo) == NULL)
-		return (0);
+		return 0;
 	renv = (REGENV *)infop->primary;
 	/* Even if we have an environment, may not have reference counted it. */
 	if(F_ISSET(env, ENV_REF_COUNTED)) {
@@ -769,7 +742,7 @@ int __env_ref_get(DB_ENV *dbenv, uint32 * countp)
 	REGINFO * infop = env->reginfo;
 	REGENV * renv = (REGENV *)infop->primary;
 	*countp = renv->refcnt;
-	return (0);
+	return 0;
 }
 /*
  * __env_region_cleanup --
@@ -791,7 +764,7 @@ int __env_region_cleanup(ENV *env)
 		/* Remember the panic state after detaching. */
 		F_SET(env, ENV_REMEMBER_PANIC);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -853,7 +826,7 @@ int __env_detach(ENV *env, int destroy)
 	/* Discard the ENV->reginfo field's memory. */
 	__os_free(env, infop);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -914,10 +887,9 @@ int __env_remove_env(ENV *env)
 		 * away, in which case the underlying OS region code requires
 		 * callers be prepared to create the region in order to join it.
 		 */
-		memset(&reginfo, 0, sizeof(reginfo));
+		memzero(&reginfo, sizeof(reginfo));
 		reginfo.id = rp->id;
 		reginfo.flags = REGION_CREATE_OK;
-
 		/*
 		 * If we get here and can't attach and/or detach to the
 		 * region, it's a mess.  Ignore errors, there's nothing
@@ -950,7 +922,7 @@ remfiles:
 	F_CLR(dbenv, DB_ENV_NOLOCKING | DB_ENV_NOPANIC);
 	F_SET(dbenv, flags_orig);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1068,7 +1040,7 @@ int __env_region_attach(ENV *env, REGINFO * infop, size_t init, size_t max)
 	 */
 	F_CLR(infop, REGION_CREATE);
 	if((ret = __env_des_get(env, env->reginfo, infop, &rp)) != 0)
-		return (ret);
+		return ret;
 	infop->env = env;
 	infop->rp = rp;
 	infop->type = rp->type;
@@ -1110,7 +1082,7 @@ int __env_region_attach(ENV *env, REGINFO * infop, size_t init, size_t max)
 	if(F_ISSET(infop, REGION_CREATE))
 		__env_alloc_init(infop, rp->size);
 
-	return (0);
+	return 0;
 
 err:    /* Discard the underlying region. */
 	if(infop->addr != NULL)
@@ -1129,7 +1101,7 @@ err:    /* Discard the underlying region. */
 		F_CLR(infop, REGION_CREATE);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1151,7 +1123,7 @@ int __env_region_share(ENV *env, REGINFO * infop)
 	infop->fhp = envinfo->fhp;
 	infop->type = rp->type;
 	infop->id = rp->id;
-	return (0);
+	return 0;
 }
 /*
  * __env_region_detach --
@@ -1167,7 +1139,7 @@ int __env_region_detach(ENV *env, REGINFO * infop, int destroy)
 	if(F_ISSET(env, ENV_PRIVATE))
 		destroy = 1;
 	else if(F_ISSET(infop, REGION_SHARED))
-		return (0);
+		return 0;
 	rp = infop->rp;
 	/*
 	 * When discarding the regions as we shut down a database environment,
@@ -1184,7 +1156,7 @@ int __env_region_detach(ENV *env, REGINFO * infop, int destroy)
 	}
 
 	if(F_ISSET(infop, REGION_SHARED))
-		return (0);
+		return 0;
 
 	/* Detach from the underlying OS region. */
 	ret = __env_sys_detach(env, infop, destroy);
@@ -1197,7 +1169,7 @@ int __env_region_detach(ENV *env, REGINFO * infop, int destroy)
 	if(infop->name != NULL)
 		__os_free(env, infop->name);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1257,16 +1229,13 @@ static int __env_sys_attach(ENV *env, REGINFO * infop, REGION * rp)
 		 * be threaded.
 		 */
 		if(F_ISSET(env, ENV_THREAD)) {
-			__db_errx(env, DB_STR("1550",
-			    "architecture does not support locks inside process-local (malloc) memory"));
-			__db_errx(env, DB_STR("1551",
-			    "application may not specify both DB_PRIVATE and DB_THREAD"));
+			__db_errx(env, DB_STR("1550", "architecture does not support locks inside process-local (malloc) memory"));
+			__db_errx(env, DB_STR("1551", "application may not specify both DB_PRIVATE and DB_THREAD"));
 			return (USR_ERR(env, EINVAL));
 		}
 #endif
-		if((ret = __os_malloc(
-			    env, sizeof(REGENV), &infop->addr)) != 0)
-			return (ret);
+		if((ret = __os_malloc(env, sizeof(REGENV), &infop->addr)) != 0)
+			return ret;
 	}
 	else {
 #if !defined(HAVE_MMAP_EXTEND)
@@ -1274,7 +1243,7 @@ static int __env_sys_attach(ENV *env, REGINFO * infop, REGION * rp)
 		rp->size = rp->max;
 #endif
 		if((ret = __os_attach(env, infop, rp)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	/* Set the start of the allocation region. */
@@ -1286,14 +1255,12 @@ static int __env_sys_attach(ENV *env, REGINFO * infop, REGION * rp)
 	 * would have to memcpy every value before reading it.
 	 */
 	if(infop->addr != ALIGNP_INC(infop->addr, sizeof(uintmax_t))) {
-		__db_errx(env, DB_STR("1552",
-		    "region memory was not correctly aligned"));
-		(void)__env_sys_detach(env, infop,
-		    F_ISSET(infop, REGION_CREATE));
+		__db_errx(env, DB_STR("1552", "region memory was not correctly aligned"));
+		(void)__env_sys_detach(env, infop, F_ISSET(infop, REGION_CREATE));
 		return (USR_ERR(env, EINVAL));
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1305,7 +1272,7 @@ static int __env_sys_detach(ENV *env, REGINFO * infop, int destroy)
 	/* If a region is private, free the memory. */
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		__os_free(env, infop->addr);
-		return (0);
+		return 0;
 	}
 	return (__os_detach(env, infop, destroy));
 }
@@ -1362,7 +1329,7 @@ static int __env_des_get(ENV *env, REGINFO * env_infop, REGINFO * infop, REGION 
 		rp = first_type;
 	if(rp != NULL) {
 		*rpp = rp;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -1377,29 +1344,24 @@ static int __env_des_get(ENV *env, REGINFO * env_infop, REGINFO * infop, REGION 
 	 * fail with an error message, there's a sizing problem.
 	 */
 	if(empty_slot == NULL) {
-		__db_errx(env, DB_STR("1553",
-		    "no room remaining for additional REGIONs"));
+		__db_errx(env, DB_STR("1553", "no room remaining for additional REGIONs"));
 		return (USR_ERR(env, ENOENT));
 	}
-
 	/*
 	 * Initialize a REGION structure for the caller.  If id was set, use
 	 * that value, otherwise we use the next available ID.
 	 */
-	memset(empty_slot, 0, sizeof(REGION));
+	memzero(empty_slot, sizeof(REGION));
 	empty_slot->segid = INVALID_REGION_SEGID;
-
 	/*
 	 * Set the type and ID; if no region ID was specified,
 	 * allocate one.
 	 */
 	empty_slot->type = infop->type;
 	empty_slot->id = infop->id == INVALID_REGION_ID ? maxid + 1 : infop->id;
-
 	F_SET(infop, REGION_CREATE);
-
 	*rpp = empty_slot;
-	return (0);
+	return 0;
 }
 
 /*
@@ -1421,7 +1383,7 @@ static int __env_faultmem(ENV *env, void * addr, size_t size, int created)
 	uint8 * p, * t;
 	/* Ignore heap regions. */
 	if(F_ISSET(env, ENV_PRIVATE))
-		return (0);
+		return 0;
 	/*
 	 * It's sometimes significantly faster to page-fault in all of the
 	 * region's pages before we run the application, as we see nasty
@@ -1447,5 +1409,5 @@ static int __env_faultmem(ENV *env, void * addr, size_t size, int created)
 				ret |= p[0];
 	}
 
-	return (ret);
+	return ret;
 }

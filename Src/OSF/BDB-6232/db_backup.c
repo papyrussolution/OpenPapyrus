@@ -37,11 +37,11 @@ int __db_dbbackup_pp(DB_ENV *dbenv, const char * dbfile, const char * target, ui
 	DB_THREAD_INFO * ip;
 	int ret;
 	if((ret = __db_fchk(dbenv->env, "DB_ENV->dbbackup", flags, DB_EXCL)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(dbenv->env, ip);
 	REPLICATION_WRAP(dbenv->env, (__db_dbbackup(dbenv, ip, dbfile, target, flags, 0, NULL)), 0, ret);
 	ENV_LEAVE(dbenv->env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -65,7 +65,7 @@ retry:
 			(void)__db_close(dbp, NULL, DB_NOSYNC);
 			dbp = NULL;
 			if(++retry_count > 100)
-				return (ret);
+				return ret;
 			__db_errx(dbenv->env, DB_STR_A("0702", "Deadlock while opening %s, retrying", "%s"), dbfile);
 			__os_yield(dbenv->env, 1, 0);
 			goto retry;
@@ -122,7 +122,7 @@ err:    if(dbp != NULL &&
 
 	if(ret != 0)
 		__db_err(dbenv->env, ret, "Backup Failed");
-	return (ret);
+	return ret;
 }
 
 /*
@@ -141,7 +141,7 @@ static int backup_dir_clean(DB_ENV *dbenv, const char * backup_dir, const char *
 		    sizeof(buf), backup_dir, log_dir)) != 0) {
 			buf[sizeof(buf) - 1] = '\0';
 			__db_errx(env,  DB_STR_A("0717", "%s: path too long", "%s"), buf);
-			return (EINVAL);
+			return EINVAL;
 		}
 		dir = buf;
 	}
@@ -151,10 +151,10 @@ static int backup_dir_clean(DB_ENV *dbenv, const char * backup_dir, const char *
 	/* Get a list of file names. */
 	if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0) {
 		if(log_dir != NULL && !LF_ISSET(DB_BACKUP_UPDATE))
-			return (0);
+			return 0;
 		__db_err(env,
 		    ret, DB_STR_A("0718", "%s: directory read", "%s"), dir);
-		return (ret);
+		return ret;
 	}
 	for(cnt = fcnt; --cnt >= 0;) {
 		/*
@@ -173,13 +173,13 @@ static int backup_dir_clean(DB_ENV *dbenv, const char * backup_dir, const char *
 		if((ret = __os_concat_path(path, sizeof(path), dir, names[cnt])) != 0) {
 			path[sizeof(path) - 1] = '\0';
 			__db_errx(env, DB_STR_A("0714", "%s: path too long", "%s"), path);
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(FLD_ISSET(dbenv->verbose, DB_VERB_BACKUP))
 			__db_msg(env, DB_STR_A("0715", "removing %s",
 			    "%s"),  path);
 		if((ret = __os_unlink(env, path, 0)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	__os_dirfree(env, names, fcnt);
@@ -189,7 +189,7 @@ static int backup_dir_clean(DB_ENV *dbenv, const char * backup_dir, const char *
 		    "highest numbered log file removed: %d", "%d"),
 		    *remove_maxp);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -235,7 +235,7 @@ int backup_data_copy(DB_ENV *dbenv, const char * file, const char * from_dir, co
 	if((ret = __os_malloc(env, MEGABYTE, &buf)) != 0) {
 		__db_err(env, ret, DB_STR_A("0727",
 		    "%lu buffer allocation", "%lu"), (u_long)MEGABYTE);
-		return (ret);
+		return ret;
 	}
 
 	/* Open the input file. */
@@ -310,7 +310,7 @@ done:   if(buf != NULL)
 	if(wfhp != NULL &&
 	    (t_ret = __os_closehandle(env, wfhp)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static void save_error(const DB_ENV *dbenv, const char * prefix, const char * errstr)
@@ -336,12 +336,10 @@ static int backup_read_data_dir(DB_ENV *dbenv, DB_THREAD_INFO * ip, const char *
 	char ** names, buf[DB_MAXPATHLEN], bbuf[DB_MAXPATHLEN];
 	char fullpath[DB_MAXPATHLEN];
 	void (* savecall) (const DB_ENV *, const char *, const char *);
-
 	env = dbenv->env;
-	memset(bbuf, 0, sizeof(bbuf));
-	memset(fullpath, 0, sizeof(fullpath));
+	memzero(bbuf, sizeof(bbuf));
+	memzero(fullpath, sizeof(fullpath));
 	len = 0;
-
 	bd = backup_dir;
 	if(!LF_ISSET(DB_BACKUP_SINGLE_DIR) && dir != env->db_home) {
 		cnt = sizeof(bbuf);
@@ -360,7 +358,7 @@ static int backup_read_data_dir(DB_ENV *dbenv, DB_THREAD_INFO * ip, const char *
 				bbuf[cnt] = PATH_SEPARATOR[0];
 			if((ret = __db_mkpath(env, bbuf)) != 0) {
 				__db_err(env,  ret, DB_STR_A("0721", "%s: cannot create", "%s"), bbuf);
-				return (ret);
+				return ret;
 			}
 			/* step on the trailing '/' */
 			bbuf[cnt] = '\0';
@@ -372,7 +370,7 @@ static int backup_read_data_dir(DB_ENV *dbenv, DB_THREAD_INFO * ip, const char *
 		if((ret = __os_concat_path(buf, sizeof(buf), env->db_home, dir)) != 0) {
 			buf[sizeof(buf) - 1] = '\0';
 			__db_errx(env, DB_STR_A("0722", "%s: path too long", "%s"), buf);
-			return (EINVAL);
+			return EINVAL;
 		}
 		/* Save the original dir. */
 		if(!LF_ISSET(DB_BACKUP_SINGLE_DIR)) {
@@ -386,7 +384,7 @@ static int backup_read_data_dir(DB_ENV *dbenv, DB_THREAD_INFO * ip, const char *
 	if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0) {
 		__db_err(env, ret, DB_STR_A("0723", "%s: directory read",
 		    "%s"), dir);
-		return (ret);
+		return ret;
 	}
 	for(cnt = (size_t)fcnt; cnt-- > 0;) {
 		/*
@@ -467,7 +465,7 @@ static int backup_read_data_dir(DB_ENV *dbenv, DB_THREAD_INFO * ip, const char *
 
 	__os_dirfree(env, names, fcnt);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -486,7 +484,7 @@ static int backup_read_log_dir(DB_ENV *dbenv, const char * backup_dir, int * cop
 	env = dbenv->env;
 	ret = 0;
 	begin = NULL;
-	memset(to, 0, sizeof(to));
+	memzero(to, sizeof(to));
 	/*
 	 * Figure out where the log files are and create the log
 	 * destination directory if necessary.
@@ -624,7 +622,7 @@ err:    if(logd != dbenv->db_log_dir && logd != env->db_home)
 	if(begin != NULL)
 		__os_ufree(env, begin);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -646,16 +644,16 @@ int __db_backup_pp(DB_ENV *dbenv, const char * target, uint32 flags)
 	DB_BACKUP_UPDATE | DB_BACKUP_NO_LOGS | DB_BACKUP_CLEAN)
 
 	if((ret = __db_fchk(env, "DB_ENV->backup", flags, OKFLAGS)) != 0)
-		return (ret);
+		return ret;
 	if(target == NULL) {
 		__db_errx(env, DB_STR("0716", "Target directory may not be null."));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/* Hot backup requires DB_LOG_BLOB/DB_LOG_EXT_FILE. */
 	if((ret = __env_get_blob_threshold_int(env, &bytes)) != 0 ||
 	    (bytes != 0 && (ret = backup_lgconf_chk(dbenv)) != 0))
-		return (ret);
+		return ret;
 
 	/*
 	 * If the target directory for the backup does not exist, create it
@@ -671,17 +669,17 @@ int __db_backup_pp(DB_ENV *dbenv, const char * target, uint32 flags)
 		    dbenv->db_log_dir != NULL &&
 		    (ret = backup_dir_clean(dbenv, target,
 		    dbenv->db_log_dir, &remove_max, flags)) != 0)
-			return (ret);
+			return ret;
 		if((ret = backup_dir_clean(dbenv,
 		    target, NULL, &remove_max, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env,
 	    (__db_backup(dbenv, target, ip, remove_max, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -763,7 +761,7 @@ static int __db_backup(DB_ENV *dbenv, const char * target, DB_THREAD_INFO * ip, 
 
 err:    F_CLR(dbenv, DB_ENV_HOTBACKUP);
 	(void)__env_set_backup(env, 0);
-end:    return (ret);
+end:    return ret;
 }
 
 /*
@@ -779,5 +777,5 @@ static int backup_lgconf_chk(DB_ENV *dbenv)
 			ret = USR_ERR(dbenv->env, EINVAL);
 		__db_errx(dbenv->env, DB_STR("0782", "Hot backup requires DB_LOG_EXT_FILE"));
 	}
-	return (ret);
+	return ret;
 }

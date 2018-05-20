@@ -59,7 +59,7 @@ int __log_verify_pp(DB_ENV *dbenv, const DB_LOG_VERIFY_CONFIG * lvconfig)
 	REPLICATION_WRAP(dbenv->env, (__log_verify(dbenv, lvconfig, ip)), 0, ret);
 	ENV_LEAVE(dbenv->env, ip);
 err:    
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __log_verify __P((DB_ENV *, const DB_LOG_VERIFY_CONFIG *,
@@ -85,17 +85,16 @@ int __log_verify(DB_ENV *dbenv, const DB_LOG_VERIFY_CONFIG * lvconfig, DB_THREAD
 	env = dbenv->env;
 	logc = NULL;
 	logvrfy_hdl = NULL;
-	memset(&dtab, 0, sizeof(dtab));
-	memset(&data, 0, sizeof(data));
+	memzero(&dtab, sizeof(dtab));
+	memzero(&data, sizeof(data));
 	version = newversion = 0;
 	ZERO_LSN(verslsn);
-	memset(&start, 0, sizeof(DB_LSN));
-	memset(&start2, 0, sizeof(DB_LSN));
-	memset(&stop, 0, sizeof(DB_LSN));
-	memset(&stop2, 0, sizeof(DB_LSN));
-	memset(&key, 0, sizeof(DB_LSN));
-	memset(&verslsn, 0, sizeof(DB_LSN));
-
+	memzero(&start, sizeof(DB_LSN));
+	memzero(&start2, sizeof(DB_LSN));
+	memzero(&stop, sizeof(DB_LSN));
+	memzero(&stop2, sizeof(DB_LSN));
+	memzero(&key, sizeof(DB_LSN));
+	memzero(&verslsn, sizeof(DB_LSN));
 	start = lvconfig->start_lsn;
 	stop = lvconfig->end_lsn;
 	starttime = lvconfig->start_time;
@@ -178,7 +177,7 @@ vrfyscroll:
 
 startscroll:
 
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 
 	for(;;) {
 		/*
@@ -265,32 +264,23 @@ startscroll:
 					logcflag = DB_SET;
 					continue;
 				}
-				if((ret = __env_init_verify(env, version,
-				    &dtab)) != 0) {
-					__db_err(dbenv->env, ret,
-					    DB_STR("2503",
-					    "callback: initialization"));
+				if((ret = __env_init_verify(env, version, &dtab)) != 0) {
+					__db_err(dbenv->env, ret, DB_STR("2503", "callback: initialization"));
 					goto err;
 				}
 			}
 			verslsn = key;
 		}
-
-		ret = __db_dispatch(dbenv->env, &dtab, &data, &key,
-			DB_TXN_LOG_VERIFY, logvrfy_hdl);
-
+		ret = __db_dispatch(dbenv->env, &dtab, &data, &key, DB_TXN_LOG_VERIFY, logvrfy_hdl);
 		if(!fwdscroll && ret != 0) {
 			if(!F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_CAF)) {
-				__db_err(dbenv->env, ret,
-				    "[%lu][%lu] __db_dispatch",
-				    (u_long)key.file, (u_long)key.offset);
+				__db_err(dbenv->env, ret, "[%lu][%lu] __db_dispatch", (u_long)key.file, (u_long)key.offset);
 				goto err;
 			}
 			else
 				F_SET(logvrfy_hdl, DB_LOG_VERIFY_ERR);
 		}
 	}
-
 	if(fwdscroll) {
 		fwdscroll = 0;
 		F_CLR(logvrfy_hdl, DB_LOG_VERIFY_FORWARD);
@@ -304,8 +294,7 @@ out:
 	ret = 0;
 
 	/* If continuing after fail, we can complete the entire log. */
-	if(F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_ERR) ||
-	    F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_INTERR))
+	if(F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_ERR) || F_ISSET(logvrfy_hdl, DB_LOG_VERIFY_INTERR))
 		ret = DB_LOG_VERIFY_BAD;
 	/*
 	 * This function can be called when the environment is alive, so
@@ -318,24 +307,18 @@ out:
 		DB_ASSERT(dbenv->env, ret == 0);
 		okmsg = DB_STR_P("SUCCEEDED");
 	}
-
-	__db_msg(dbenv->env, DB_STR_A("2504",
-	    "Log verification ended and %s.", "%s"), okmsg);
-
+	__db_msg(dbenv->env, DB_STR_A("2504", "Log verification ended and %s.", "%s"), okmsg);
 err:
 	if(logc != NULL)
 		(void)__logc_close(logc);
-	if(logvrfy_hdl != NULL &&
-	    (tret = __destroy_log_vrfy_info(logvrfy_hdl)) != 0 && ret == 0)
+	if(logvrfy_hdl != NULL && (tret = __destroy_log_vrfy_info(logvrfy_hdl)) != 0 && ret == 0)
 		ret = tret;
 	if(dtab.int_dispatch != NULL)
 		__os_free(dbenv->env, dtab.int_dispatch);
 	if(dtab.ext_dispatch != NULL)
 		__os_free(dbenv->env, dtab.ext_dispatch);
-
-	return (ret);
+	return ret;
 }
-
 /*
  * __env_init_verify--
  */
@@ -381,7 +364,7 @@ static int __env_init_verify(ENV *env, uint32 version, DB_DISTAB * dtabp)
 		    break;
 	}
 err:    
-	return (ret);
+	return ret;
 }
 /*
  * __log_verify_wrap --
@@ -397,7 +380,7 @@ int __log_verify_wrap(ENV *env, const char * envhome, uint32 cachesize, const ch
 	uint32 stfile, uint32 stoffset, uint32 efile, uint32 eoffset, int caf, int verbose)
 {
 	DB_LOG_VERIFY_CONFIG cfg;
-	memset(&cfg, 0, sizeof(cfg));
+	memzero(&cfg, sizeof(cfg));
 	cfg.cachesize = cachesize;
 	cfg.temp_envhome = envhome;
 	cfg.dbfile = dbfile;

@@ -121,19 +121,14 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 				__db_errx(env, DB_STR("0635", "DB_CREATE must be specified to create databases."));
 				return (USR_ERR(env, ENOENT));
 			}
-
 			F_SET(dbp, DB_AM_INMEM);
 			F_SET(dbp, DB_AM_CREATED);
-
 			if(dbp->type == DB_UNKNOWN) {
-				__db_errx(env, DB_STR("0636",
-				    "DBTYPE of unknown without existing file"));
-				return (EINVAL);
+				__db_errx(env, DB_STR("0636", "DBTYPE of unknown without existing file"));
+				return EINVAL;
 			}
-
 			if(dbp->pgsize == 0)
 				dbp->pgsize = DB_DEF_IOSIZE;
-
 			/*
 			 * If the file is a temporary file and we're
 			 * doing locking, then we have to create a
@@ -156,7 +151,7 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 			 */
 			if(LOCKING_ON(env) && (ret = __lock_id(env,
 			    (uint32*)dbp->fileid, NULL)) != 0)
-				return (ret);
+				return ret;
 		}
 		else
 			MAKE_INMEM(dbp);
@@ -171,7 +166,7 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 		/* Open/create the underlying file.  Acquire locks. */
 		if((ret = __fop_file_setup(dbp, ip,
 		    txn, fname, mode, flags, &id)) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * If we are creating the first sub-db then this is the
 		 * call to create the master db and we tried to open it
@@ -183,20 +178,16 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 	}
 	else {
 		if(dbp->p_internal != NULL) {
-			__db_errx(env, DB_STR("0637",
-			    "Partitioned databases may not be included with multiple databases."));
+			__db_errx(env, DB_STR("0637", "Partitioned databases may not be included with multiple databases."));
 			return (USR_ERR(env, ENOENT));
 		}
-		if((ret = __fop_subdb_setup(dbp, ip,
-		    txn, fname, dname, mode, flags)) != 0)
-			return (ret);
+		if((ret = __fop_subdb_setup(dbp, ip, txn, fname, dname, mode, flags)) != 0)
+			return ret;
 		meta_pgno = dbp->meta_pgno;
 	}
-
 	/* Set up the underlying environment. */
 	if((ret = __env_setup(dbp, txn, fname, dname, id, flags)) != 0)
-		return (ret);
-
+		return ret;
 	/* For in-memory databases, we now need to open/create the database. */
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
 		if(dname == NULL)
@@ -286,7 +277,7 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 err:
 	PERFMON4(env,
 	    db, open, (char*)fname, (char*)dname, flags, &dbp->fileid[0]);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -299,7 +290,7 @@ int __db_get_open_flags(DB *dbp, uint32 * flagsp)
 {
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->get_open_flags");
 	*flagsp = dbp->open_flags;
-	return (0);
+	return 0;
 }
 /*
  * __db_new_file --
@@ -335,24 +326,19 @@ int __db_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, const
 		case DB_UNKNOWN:
 		default:
 		    ret = USR_ERR(dbp->env, EINVAL);
-		    __db_errx(dbp->env, DB_STR_A("0638",
-			"%s: Invalid type %d specified", "%s %d"),
+		    __db_errx(dbp->env, DB_STR_A("0638", "%s: Invalid type %d specified", "%s %d"),
 			name, dbp->type);
 		    break;
 	}
-
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTLOGMETA, ret, name);
 	/* Sync the file in preparation for moving it into place. */
 	if(ret == 0 && fhp != NULL)
 		ret = __os_fsync(dbp->env, fhp);
-
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTSYNC, ret, name);
-
 	if(F_ISSET(dbp, DB_AM_INMEM))
 		LOCK_CHECK_ON(ip);
-
 	DB_TEST_RECOVERY_LABEL
-	return (ret);
+	return ret;
 }
 
 /*
@@ -399,13 +385,11 @@ int __db_init_subdb(DB *mdbp, DB *dbp, const char * name, DB_THREAD_INFO * ip, D
 		    break;
 		case DB_UNKNOWN:
 		default:
-		    __db_errx(dbp->env, DB_STR_A("0639",
-			"Invalid subdatabase type %d specified", "%d"),
-			dbp->type);
-		    return (EINVAL);
+		    __db_errx(dbp->env, DB_STR_A("0639", "Invalid subdatabase type %d specified", "%d"), dbp->type);
+		    return EINVAL;
 	}
 
-err:    return (ret);
+err:    return ret;
 }
 
 /*
@@ -451,7 +435,7 @@ int __db_chk_meta(ENV *env, DB * dbp, DBMETA * meta, uint32 flags)
 		if(!IS_REP_CLIENT(env) && !IS_NOT_LOGGED_LSN(swap_lsn) &&
 		    !IS_ZERO_LSN(swap_lsn) && (ret =
 		    __log_check_page_lsn(env, dbp, &swap_lsn)) != 0)
-			return (ret);
+			return ret;
 	}
 	if(FLD_ISSET(meta->metaflags, DBMETA_CHKSUM)) {
 		if(dbp != NULL)
@@ -486,7 +470,7 @@ int __db_chk_meta(ENV *env, DB * dbp, DBMETA * meta, uint32 flags)
 	    dbp, (uint8*)meta, LF_ISSET(DB_CHK_META)) != 0)
 		ret = USR_ERR(env, DB_META_CHKSUM_FAIL);
 #endif
-	return (ret);
+	return ret;
 }
 
 /*
@@ -543,20 +527,15 @@ int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32
 	 * If DB_SKIP_CHK is set, it means the checksum was already checked
 	 * and the page was already decrypted.
 	 */
-	if(!LF_ISSET(DB_SKIP_CHK) &&
-	    (ret = __db_chk_meta(env, dbp, meta, flags)) != 0) {
+	if(!LF_ISSET(DB_SKIP_CHK) && (ret = __db_chk_meta(env, dbp, meta, flags)) != 0) {
 		if(ret == DB_META_CHKSUM_FAIL)
-			__db_errx(env, DB_STR_A("0640",
-			    "%s: metadata page checksum error", "%s"), name);
+			__db_errx(env, DB_STR_A("0640", "%s: metadata page checksum error", "%s"), name);
 		goto bad_format;
 	}
-
 	switch(magic) {
 		case DB_BTREEMAGIC:
-		    if(dbp->type != DB_UNKNOWN &&
-			dbp->type != DB_RECNO && dbp->type != DB_BTREE)
+		    if(dbp->type != DB_UNKNOWN && dbp->type != DB_RECNO && dbp->type != DB_BTREE)
 			    goto bad_format;
-
 		    flags = meta->flags;
 		    if(F_ISSET(dbp, DB_AM_SWAP))
 			    M_32_SWAP(flags);
@@ -564,27 +543,22 @@ int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32
 			    dbp->type = DB_RECNO;
 		    else
 			    dbp->type = DB_BTREE;
-		    if((oflags & DB_TRUNCATE) == 0 && (ret =
-			__bam_metachk(dbp, name, (BTMETA*)meta)) != 0)
-			    return (ret);
+		    if((oflags & DB_TRUNCATE) == 0 && (ret = __bam_metachk(dbp, name, (BTMETA*)meta)) != 0)
+			    return ret;
 		    break;
 		case DB_HASHMAGIC:
 		    if(dbp->type != DB_UNKNOWN && dbp->type != DB_HASH)
 			    goto bad_format;
-
 		    dbp->type = DB_HASH;
-		    if((oflags & DB_TRUNCATE) == 0 && (ret =
-			__ham_metachk(dbp, name, (HMETA*)meta)) != 0)
-			    return (ret);
+		    if((oflags & DB_TRUNCATE) == 0 && (ret = __ham_metachk(dbp, name, (HMETA*)meta)) != 0)
+			    return ret;
 		    break;
 		case DB_HEAPMAGIC:
 		    if(dbp->type != DB_UNKNOWN && dbp->type != DB_HEAP)
 			    goto bad_format;
-
 		    dbp->type = DB_HEAP;
-		    if((oflags & DB_TRUNCATE) == 0 && (ret =
-			__heap_metachk(dbp, name, (HEAPMETA*)meta)) != 0)
-			    return (ret);
+		    if((oflags & DB_TRUNCATE) == 0 && (ret = __heap_metachk(dbp, name, (HEAPMETA*)meta)) != 0)
+			    return ret;
 		    break;
 		case DB_QAMMAGIC:
 		    if(dbp->type != DB_UNKNOWN && dbp->type != DB_QUEUE)
@@ -592,7 +566,7 @@ int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32
 		    dbp->type = DB_QUEUE;
 		    if((oflags & DB_TRUNCATE) == 0 && (ret =
 			__qam_metachk(dbp, name, (QMETA*)meta)) != 0)
-			    return (ret);
+			    return ret;
 		    break;
 		case DB_RENAMEMAGIC:
 		    F_SET(dbp, DB_AM_IN_RENAME);
@@ -604,14 +578,11 @@ int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32
 		default:
 		    goto bad_format;
 	}
-
-	if(FLD_ISSET(meta->metaflags,
-	    DBMETA_PART_RANGE | DBMETA_PART_CALLBACK) &&
-	    (ret = __partition_init(dbp, meta->metaflags)) != 0)
-		return (ret);
+	if(FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE | DBMETA_PART_CALLBACK) && (ret = __partition_init(dbp, meta->metaflags)) != 0)
+		return ret;
 	if(FLD_ISSET(meta->metaflags, DBMETA_SLICED))
 		FLD_SET(dbp->open_flags, DB_SLICED);
-	return (0);
+	return 0;
 bad_format:
 	if(F_ISSET(dbp, DB_AM_RECOVER))
 		ret = USR_ERR(env, ENOENT);
@@ -643,16 +614,14 @@ int __db_get_metaflags(ENV *env, const char * name, uint32 * metaflagsp)
 	*metaflagsp = 0;
 	/* This catches any in-memory databases, which are never sliced. */
 	if(name == NULL)
-		return (0);
+		return 0;
 	real_name = NULL;
 	meta = (DBMETA*)mbuf;
 	if((ret = __db_appname(env, DB_APP_DATA, name, NULL, &real_name)) != 0)
-		return (ret);
+		return ret;
 
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) == 0) {
-		if((ret = __fop_read_meta(env,
-		    name, mbuf, DBMETASIZE, fhp, 1, NULL)) == 0 &&
-		    (ret = __db_chk_meta(env, NULL, meta, DB_CHK_META)) == 0)
+		if((ret = __fop_read_meta(env, name, mbuf, DBMETASIZE, fhp, 1, NULL)) == 0 && (ret = __db_chk_meta(env, NULL, meta, DB_CHK_META)) == 0)
 			*metaflagsp = meta->metaflags;
 		(void)__os_closehandle(env, fhp);
 	}
@@ -671,7 +640,7 @@ int __db_get_metaflags(ENV *env, const char * name, uint32 * metaflagsp)
 		ret = __env_no_slices(env);
 #endif
 
-	return (ret);
+	return ret;
 }
 /*
  * __db_reopen --
@@ -709,11 +678,11 @@ int __db_reopen(DBC *arg_dbc)
 	if(TXN_ON(dbp->env) && (txn = dbc->txn) == NULL) {
 		if((ret = __txn_begin(dbp->env,
 		    dbc->thread_info, NULL, &txn, 0)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __db_cursor(dbp,
 		    dbc->thread_info, txn, &dbc, 0)) != 0) {
 			(void)__txn_abort(txn);
-			return (ret);
+			return ret;
 		}
 	}
 
@@ -789,7 +758,7 @@ err:
 		if((t_ret = __txn_commit(txn, 0)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 static int __db_handle_lock(DB *dbp)
@@ -818,5 +787,5 @@ static int __db_handle_lock(DB *dbp)
 err:    /* End exclusive handle lockout. */
 	dbp->mpf->mfp->excl_lockout = 0;
 	dbp->flags = old_flags;
-	return (ret);
+	return ret;
 }

@@ -93,7 +93,7 @@ int __fop_lock_handle(ENV *env, DB * dbp, DB_LOCKER * locker, db_lockmode_t mode
 	DB_LOCK_ILOCK lock_desc;
 	int ret;
 	if(!LOCKING_ON(env) || F_ISSET(dbp, DB_AM_COMPENSATE | DB_AM_RECOVER))
-		return (0);
+		return 0;
 	/*
 	 * If we are in recovery, the only locking we should be
 	 * doing is on the global environment.  The one exception
@@ -105,7 +105,7 @@ int __fop_lock_handle(ENV *env, DB * dbp, DB_LOCKER * locker, db_lockmode_t mode
 	memcpy(lock_desc.fileid, dbp->fileid, DB_FILE_ID_LEN);
 	lock_desc.pgno = dbp->meta_pgno;
 	lock_desc.type = DB_HANDLE_LOCK;
-	memset(&fileobj, 0, sizeof(fileobj));
+	memzero(&fileobj, sizeof(fileobj));
 	fileobj.data = &lock_desc;
 	fileobj.size = sizeof(lock_desc);
 	DB_TEST_SUBLOCKS(env, flags);
@@ -129,7 +129,7 @@ int __fop_lock_handle(ENV *env, DB * dbp, DB_LOCKER * locker, db_lockmode_t mode
 			LOCK_INIT(*elockp);
 	}
 	dbp->cur_locker = locker;
-	return (ret);
+	return ret;
 }
 /*
  * __fop_file_setup --
@@ -339,7 +339,7 @@ reopen:         if(!F_ISSET(dbp, DB_AM_INMEM) && (ret =
 		if(F_ISSET(dbp, DB_AM_INMEM)) {
 			if(LOGGING_ON(env) && (ret = __env_dbreg_setup(dbp,
 			    txn, NULL, name, TXN_INVALID)) != 0)
-				return (ret);
+				return ret;
 			ret = __fop_inmem_read_meta(
 				dbp, txn, name, flags, DB_CHK_META|DB_CHK_ONLY);
 		}
@@ -555,24 +555,19 @@ reopen:         if(!F_ISSET(dbp, DB_AM_INMEM) && (ret =
 	 * the environment lock, while for on-disk files, we drop the env lock
 	 * and create into a temporary.
 	 */
-	if(!F_ISSET(dbp, DB_AM_INMEM) &&
-	    (ret = __ENV_LPUT(env, elock)) != 0)
+	if(!F_ISSET(dbp, DB_AM_INMEM) && (ret = __ENV_LPUT(env, elock)) != 0)
 		goto err;
-
-create: if(txn != NULL && IS_REP_CLIENT(env) &&
-	    !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
+create: 
+	if(txn != NULL && IS_REP_CLIENT(env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0003",
-		    "Transactional create on replication client disallowed"));
+		__db_errx(env, DB_STR("0003", "Transactional create on replication client disallowed"));
 		goto err;
 	}
-
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
-		if(LOGGING_ON(env) && (ret =
-		    __env_dbreg_setup(dbp, txn, NULL, name, TXN_INVALID)) != 0)
-			return (ret);
+		if(LOGGING_ON(env) && (ret = __env_dbreg_setup(dbp, txn, NULL, name, TXN_INVALID)) != 0)
+			return ret;
 		if((ret = __fop_inmem_create(dbp, name, txn, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	else {
 		if((ret = __db_backup_name(env, name, txn, &tmpname)) != 0)
@@ -624,7 +619,7 @@ creat2: if(!F_ISSET(dbp, DB_AM_INMEM)) {
 	/* Output the REOPEN record after we create. */
 	if(F_ISSET(dbp, DB_AM_INMEM) && dbp->log_filename != NULL && (ret =
 	    __dbreg_log_id(dbp, txn, dbp->log_filename->id, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * We need to close the handle here on platforms where remove and
@@ -724,7 +719,7 @@ done:   /*
 		__os_free(env, real_tmpname);
 	CLOSE_HANDLE(dbp, fhp);
 
-	return (ret);
+	return ret;
 }
 /*
  * __fop_set_pgsize --
@@ -743,7 +738,7 @@ static int __fop_set_pgsize(DB *dbp, DB_FH * fhp, const char * name)
 	 */
 	if((ret = __os_ioinfo(env, name, fhp, NULL, NULL, &iopsize)) != 0) {
 		__db_err(env, ret, "%s", name);
-		return (ret);
+		return ret;
 	}
 	if(iopsize < 512)
 		iopsize = 512;
@@ -759,7 +754,7 @@ static int __fop_set_pgsize(DB *dbp, DB_FH * fhp, const char * name)
 		iopsize = DB_DEF_IOSIZE;
 	dbp->pgsize = iopsize;
 	F_SET(dbp, DB_AM_PGDEF);
-	return (0);
+	return 0;
 }
 /*
  * __fop_subdb_setup --
@@ -788,7 +783,7 @@ int __fop_subdb_setup(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * m
 	mflags = flags | DB_RDONLY;
 retry:  
 	if((ret = __db_master_open(dbp, ip, txn, mname, mflags, mode, &mdbp)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * If we created this file, then we need to set the DISCARD flag so
 	 * that if we fail in the middle of this routine, we discard from the
@@ -908,7 +903,7 @@ err:
 	 */
 	if((t_ret = __db_close(mdbp, txn, F_ISSET(dbp, DB_AM_CREATED_MSTR) ? 0 : DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __fop_remove_setup --
@@ -1026,7 +1021,7 @@ err:
 	 */
 	if(ret == 0 && !F_ISSET(dbp, DB_AM_INMEM))
 		F_SET(dbp, DB_AM_DISCARD);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1061,7 +1056,7 @@ int __fop_read_meta(ENV *env, const char * name, uint8 * buf, size_t size, DB_FH
 			__db_errx(env, DB_STR_A("0004", "fop_read_meta: %s: unexpected file type or format", "%s"), name);
 	}
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1102,7 +1097,7 @@ int __fop_dummy(DB *dbp, DB_TXN * txn, const char * old, const char * pNew, APPN
 	if(F_ISSET(dbp, DB_AM_NOT_DURABLE) && (ret = __db_set_flags(tmpdbp, DB_TXN_NOT_DURABLE)) != 0)
 		goto err;
 	tmpdbp->dirname = dbp->dirname;
-	memset(mbuf, 0, sizeof(mbuf));
+	memzero(mbuf, sizeof(mbuf));
 	ret = F_ISSET(dbp, DB_AM_INMEM) ? __fop_inmem_dummy(tmpdbp, stxn, back, mbuf) : __fop_ondisk_dummy(tmpdbp, stxn, back, mbuf, appname);
 	if(ret != 0)
 		goto err;
@@ -1119,7 +1114,7 @@ err:
 		ret = t_ret;
 	if(back != NULL)
 		__os_free(env, back);
-	return (ret);
+	return ret;
 }
 /*
  * __fop_dbrename --
@@ -1172,7 +1167,7 @@ err:
 		__os_free(env, real_old);
 	if(!F_ISSET(dbp, DB_AM_INMEM) && real_new != NULL)
 		__os_free(env, real_new);
-	return (ret);
+	return ret;
 }
 
 static int __fop_inmem_create(DB *dbp, const char * name, DB_TXN * txn, uint32 flags)
@@ -1229,7 +1224,7 @@ static int __fop_inmem_create(DB *dbp, const char * name, DB_TXN * txn, uint32 f
 #endif
 	    name != NULL) {
 		DB_INIT_DBT(name_dbt, name, strlen(name) + 1);
-		memset(&fid_dbt, 0, sizeof(fid_dbt));
+		memzero(&fid_dbt, sizeof(fid_dbt));
 		fid_dbt.data = dbp->fileid;
 		fid_dbt.size = DB_FILE_ID_LEN;
 		lfid = dbp->log_filename == NULL ? DB_LOGFILEID_INVALID : dbp->log_filename->id;
@@ -1238,7 +1233,7 @@ static int __fop_inmem_create(DB *dbp, const char * name, DB_TXN * txn, uint32 f
 	}
 	F_SET(dbp, DB_AM_CREATED);
 err:
-	return (ret);
+	return ret;
 }
 
 static int __fop_inmem_read_meta(DB *dbp, DB_TXN * txn, const char * name, uint32 flags, uint32 chkflags)
@@ -1253,7 +1248,7 @@ static int __fop_inmem_read_meta(DB *dbp, DB_TXN * txn, const char * name, uint3
 		ip = txn->thread_info;
 	pgno  = PGNO_BASE_MD;
 	if((ret = __memp_fget(dbp->mpf, &pgno, ip, txn, 0, &metap)) != 0)
-		return (ret);
+		return ret;
 	if(FLD_ISSET(chkflags, DB_CHK_ONLY)) {
 		if((ret = __db_chk_meta(dbp->env, dbp, metap, chkflags)) == 0)
 			memcpy(dbp->fileid, ((DBMETA*)metap)->uid, DB_FILE_ID_LEN);
@@ -1262,7 +1257,7 @@ static int __fop_inmem_read_meta(DB *dbp, DB_TXN * txn, const char * name, uint3
 		ret = __db_meta_setup(dbp->env, dbp, name, metap, flags, chkflags);
 	if((t_ret = __memp_fput(dbp->mpf, ip, metap, dbp->priority)) && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static int __fop_ondisk_dummy(DB *dbp, DB_TXN * txn, const char * name, uint8 * mbuf, APPNAME appname)
@@ -1284,7 +1279,7 @@ static int __fop_ondisk_dummy(DB *dbp, DB_TXN * txn, const char * name, uint8 * 
 err:    
 	if(realname != NULL)
 		__os_free(env, realname);
-	return (ret);
+	return ret;
 }
 
 static int __fop_inmem_dummy(DB *dbp, DB_TXN * txn, const char * name, uint8 * mbuf)
@@ -1294,14 +1289,14 @@ static int __fop_inmem_dummy(DB *dbp, DB_TXN * txn, const char * name, uint8 * m
 	db_pgno_t pgno;
 	int ret, t_ret;
 	if((ret = __fop_inmem_create(dbp, name, txn, DB_CREATE)) != 0)
-		return (ret);
+		return ret;
 	if(txn == NULL)
 		ENV_GET_THREAD_INFO(dbp->env, ip);
 	else
 		ip = txn->thread_info;
 	pgno  = PGNO_BASE_MD;
 	if((ret = __memp_fget(dbp->mpf, &pgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &metap)) != 0)
-		return (ret);
+		return ret;
 	/* Check file existed. */
 	if(metap->magic != 0)
 		ret = EEXIST;
@@ -1315,7 +1310,7 @@ static int __fop_inmem_dummy(DB *dbp, DB_TXN * txn, const char * name, uint8 * m
 		goto err;
 	((DBMETA*)mbuf)->magic = DB_RENAMEMAGIC;
 err:    
-	return (ret);
+	return ret;
 }
 
 static int __fop_ondisk_swap(DB *dbp, DB *tmpdbp, DB_TXN * txn, const char * old, const char * pNew, const char * back, DB_LOCKER * locker, APPNAME appname)
@@ -1454,10 +1449,10 @@ retry:
 	if(F_ISSET(tmpdbp, DB_AM_IN_RENAME))
 		__txn_remrem(env, parent, realnew);
 	/* Now log the child information in the parent. */
-	memset(&fiddbt, 0, sizeof(fiddbt));
+	memzero(&fiddbt, sizeof(fiddbt));
 	fiddbt.data = dbp->fileid;
 	fiddbt.size = DB_FILE_ID_LEN;
-	memset(&tmpdbt, 0, sizeof(fiddbt));
+	memzero(&tmpdbt, sizeof(fiddbt));
 	tmpdbt.data = tmpdbp->fileid;
 	tmpdbt.size = DB_FILE_ID_LEN;
 	DB_INIT_DBT(namedbt, old, strlen(old) + 1);
@@ -1479,7 +1474,7 @@ err:
 		__os_free(env, realnew);
 	if(realold != NULL)
 		__os_free(env, realold);
-	return (ret);
+	return ret;
 }
 
 static int __fop_inmem_swap(DB *olddbp, DB *backdbp, DB_TXN * txn, const char * old, const char * pNew, const char * back, DB_LOCKER * locker)
@@ -1496,7 +1491,7 @@ static int __fop_inmem_swap(DB *olddbp, DB *backdbp, DB_TXN * txn, const char * 
 retry:  
 	LOCK_INIT(elock);
 	if((ret = __db_create_internal(&tmpdbp, env, 0)) != 0)
-		return (ret);
+		return ret;
 	MAKE_INMEM(tmpdbp);
 	GET_ENVLOCK(env, locker, &elock);
 	if((ret = __env_mpool(tmpdbp, pNew, 0)) == 0) {
@@ -1590,5 +1585,5 @@ err:
 		(void)__txn_abort(txn);
 	if((t_ret = __db_close(tmpdbp, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

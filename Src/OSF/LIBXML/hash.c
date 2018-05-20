@@ -685,16 +685,14 @@ void * FASTCALL xmlHashLookup3(xmlHashTable * table, const xmlChar * name, const
  *
  * Returns the a pointer to the userdata
  */
-void * xmlHashQLookup3(xmlHashTable * table,
-    const xmlChar * prefix, const xmlChar * name,
-    const xmlChar * prefix2, const xmlChar * name2,
-    const xmlChar * prefix3, const xmlChar * name3)
+void * xmlHashQLookup3(xmlHashTable * table, const xmlChar * prefix, const xmlChar * name,
+    const xmlChar * prefix2, const xmlChar * name2, const xmlChar * prefix3, const xmlChar * name3)
 {
 	if(table && name) {
 		ulong key = xmlHashComputeQKey(table, prefix, name, prefix2, name2, prefix3, name3);
 		if(table->table[key].valid) {
 			for(xmlHashEntry * entry = &(table->table[key]); entry; entry = entry->next) {
-				if((xmlStrQEqual(prefix, name, entry->name)) && (xmlStrQEqual(prefix2, name2, entry->name2)) && (xmlStrQEqual(prefix3, name3, entry->name3)))
+				if(xmlStrQEqual(prefix, name, entry->name) && xmlStrQEqual(prefix2, name2, entry->name2) && xmlStrQEqual(prefix3, name3, entry->name3))
 					return(entry->payload);
 			}
 		}

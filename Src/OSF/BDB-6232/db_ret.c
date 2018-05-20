@@ -36,7 +36,7 @@ int __db_ret(DBC *dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 * 
 	uint8 * hk;
 	void * data;
 	if(F_ISSET(dbt, DB_DBT_READONLY))
-		return (0);
+		return 0;
 	ret = 0;
 	dbp = dbc->dbp;
 	env = dbp->env;
@@ -61,7 +61,7 @@ int __db_ret(DBC *dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 * 
 			    blob_id = (db_seq_t)hblob.id;
 			    GET_BLOB_SIZE(env, hblob, blob_size, ret);
 			    if(ret != 0)
-				    return (ret);
+				    return ret;
 			    return (__blob_get(
 					   dbc, dbt, blob_id, blob_size, memp, memsize));
 		    }
@@ -83,7 +83,7 @@ int __db_ret(DBC *dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 * 
 			    blob_id = (db_seq_t)bhdr.id;
 			    GET_BLOB_SIZE(env, bhdr, blob_size, ret);
 			    if(ret != 0)
-				    return (ret);
+				    return ret;
 			    return (__blob_get(
 					   dbc, dbt, blob_id, blob_size, memp, memsize));
 		    }
@@ -110,7 +110,7 @@ int __db_ret(DBC *dbc, PAGE * h, uint32 indx, DBT * dbt, void ** memp, uint32 * 
 			    blob_id = (db_seq_t)bl.id;
 			    GET_BLOB_SIZE(env, bl, blob_size, ret);
 			    if(ret != 0)
-				    return (ret);
+				    return ret;
 			    return (__blob_get(
 					   dbc, dbt, blob_id, blob_size, memp, memsize));
 		    }
@@ -135,7 +135,7 @@ int __db_retcopy(ENV *env, DBT * dbt, void * data, uint32 len, void ** memp, uin
 {
 	int ret;
 	if(F_ISSET(dbt, DB_DBT_READONLY))
-		return (0);
+		return 0;
 	ret = 0;
 	/* If returning a partial record, reset the length. */
 	if(F_ISSET(dbt, DB_DBT_PARTIAL)) {
@@ -202,7 +202,7 @@ int __db_retcopy(ENV *env, DBT * dbt, void * data, uint32 len, void ** memp, uin
 	 */
 	dbt->size = len;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -225,17 +225,17 @@ int __db_dbt_clone(ENV *env, DBT * dest, const DBT * src)
 	err_flags = DB_DBT_MALLOC | DB_DBT_REALLOC | DB_DBT_MULTIPLE | DB_DBT_PARTIAL;
 	if(F_ISSET(src, err_flags)) {
 		__db_errx(env, DB_STR("0758", "Unsupported flags when cloning the DBT."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if((ret = __os_malloc(env, src->size, &dest->data)) != 0)
-		return (ret);
+		return ret;
 
 	memcpy(dest->data, src->data, src->size);
 	dest->ulen = src->size;
 	dest->size = src->size;
 	dest->flags = DB_DBT_USERMEM;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -249,10 +249,10 @@ int __db_dbt_clone_free(ENV *env, DBT * dbt)
 	/* Currently only DB_DBT_USERMEM is supported. */
 	if(dbt->flags != DB_DBT_USERMEM) {
 		__db_errx(env, DB_STR("0759", "Unsupported flags when freeing the cloned DBT."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(dbt->data != NULL)
 		__os_free(env, dbt->data);
 	dbt->size = dbt->ulen = 0;
-	return (0);
+	return 0;
 }

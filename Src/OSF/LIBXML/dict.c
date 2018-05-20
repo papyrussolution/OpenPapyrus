@@ -52,7 +52,7 @@
 
 #ifdef WITH_BIG_KEY
 #define xmlDictComputeKey(dict, name, len) (((dict)->size == MIN_DICT_SIZE) ? xmlDictComputeFastKey(name, len, (dict)->seed) : xmlDictComputeBigKey(name, len, (dict)->seed))
-#define xmlDictComputeQKey(dict, prefix, plen, name, len) (((prefix) == NULL) ? (xmlDictComputeKey(dict, name, len)) : \
+#define xmlDictComputeQKey(dict, prefix, plen, name, len) ((!(prefix)) ? (xmlDictComputeKey(dict, name, len)) : \
 	(((dict)->size == MIN_DICT_SIZE) ? xmlDictComputeFastQKey(prefix, plen, name, len, (dict)->seed) : xmlDictComputeBigQKey(prefix, plen, name, len, (dict)->seed)))
 
 #else /* !WITH_BIG_KEY */
@@ -72,7 +72,7 @@ struct xmlDictEntry {
 	ulong  okey;
 };
 
-typedef xmlDictEntry * xmlDictEntryPtr;
+//typedef xmlDictEntry * xmlDictEntryPtr;
 
 //typedef struct _xmlDictStrings xmlDictStrings;
 //typedef xmlDictStrings * xmlDictStringsPtr;
@@ -323,7 +323,7 @@ found_pool:
  * Hash function by "One-at-a-Time Hash" see
  * http://burtleburtle.net/bob/hash/doobs.html
  */
-static uint32 xmlDictComputeBigKey(const xmlChar * data, int namelen, int seed)
+static uint32 FASTCALL xmlDictComputeBigKey(const xmlChar * data, int namelen, int seed)
 {
 	uint32 hash = 0;
 	if(namelen > 0 && data) {
@@ -350,7 +350,7 @@ static uint32 xmlDictComputeBigKey(const xmlChar * data, int namelen, int seed)
  *
  * Neither of the two strings must be NULL.
  */
-static ulong xmlDictComputeBigQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
+static ulong FASTCALL xmlDictComputeBigQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
 {
 	int i;
 	uint32 hash = seed;
@@ -374,14 +374,12 @@ static ulong xmlDictComputeBigQKey(const xmlChar * prefix, int plen, const xmlCh
 }
 
 #endif /* WITH_BIG_KEY */
-
 /*
  * xmlDictComputeFastKey:
  *
- * Calculate a hash key using a fast hash function that works well
- * for low hash table fill.
+ * Calculate a hash key using a fast hash function that works well for low hash table fill.
  */
-static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
+static ulong FASTCALL xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
 {
 	ulong value = seed;
 	if(!name)
@@ -406,7 +404,6 @@ static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
 	}
 	return value;
 }
-
 /*
  * xmlDictComputeFastQKey:
  *
@@ -415,7 +412,7 @@ static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
  *
  * Neither of the two strings must be NULL.
  */
-static ulong xmlDictComputeFastQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
+static ulong FASTCALL xmlDictComputeFastQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
 {
 	ulong value = (ulong)seed;
 	if(plen == 0)
@@ -461,7 +458,6 @@ static ulong xmlDictComputeFastQKey(const xmlChar * prefix, int plen, const xmlC
 	}
 	return value;
 }
-
 /**
  * xmlDictCreate:
  *
@@ -494,13 +490,12 @@ xmlDict * xmlDictCreate()
 #else
 			dict->seed = 0;
 #endif
-			return(dict);
+			return dict;
 		}
 		SAlloc::F(dict);
 	}
 	return 0;
 }
-
 /**
  * xmlDictCreateSub:
  * @sub: an existing dictionnary
@@ -558,7 +553,8 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 {
 	ulong key, okey;
 	size_t oldsize, i;
-	xmlDictEntryPtr iter, next;
+	xmlDictEntry * iter;
+	xmlDictEntry * next;
 	xmlDictEntry * olddict;
 #ifdef DEBUG_GROW
 	ulong nbElem = 0;
@@ -603,7 +599,7 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 				dict->dict[key].okey = okey;
 			}
 			else {
-				xmlDictEntryPtr entry = (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
+				xmlDictEntry * entry = (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
 				if(entry) {
 					entry->name = olddict[i].name;
 					entry->len = olddict[i].len;
@@ -626,9 +622,9 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 		iter = olddict[i].next;
 		while(iter) {
 			next = iter->next;
-			/*
-			 * put back the entry in the new dict
-			 */
+			// 
+			// put back the entry in the new dict
+			// 
 			okey = keep_keys ? iter->okey : xmlDictComputeKey(dict, iter->name, iter->len);
 			key = okey % dict->size;
 			if(dict->dict[key].valid == 0) {
@@ -667,8 +663,8 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 void FASTCALL xmlDictFree(xmlDict * dict)
 {
 	size_t i;
-	xmlDictEntryPtr iter;
-	xmlDictEntryPtr next;
+	xmlDictEntry * iter;
+	xmlDictEntry * next;
 	int inside_dict = 0;
 	if(dict) {
 		if(!xmlDictInitialized)
@@ -728,8 +724,8 @@ const xmlChar * FASTCALL xmlDictLookupSL(xmlDict * dict, const xmlChar * name)
 const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
 {
 	ulong key, okey, nbi = 0;
-	xmlDictEntryPtr entry;
-	xmlDictEntryPtr insert;
+	xmlDictEntry * entry;
+	xmlDictEntry * insert;
 	const xmlChar * ret;
 	uint l;
 	if(!dict || !name)
@@ -808,7 +804,7 @@ const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int
 			entry = &(dict->dict[key]);
 		}
 		else {
-			entry = (xmlDictEntryPtr)SAlloc::M(sizeof(xmlDictEntry));
+			entry = (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
 			if(!entry)
 				return 0;
 		}
@@ -840,7 +836,7 @@ const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int
 const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar * name, int len)
 {
 	ulong key, okey, nbi = 0;
-	xmlDictEntryPtr insert;
+	xmlDictEntry * insert;
 	uint l;
 	if((dict == NULL) || (name == NULL))
 		return 0;
@@ -888,7 +884,7 @@ const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar * name, int len)
 			skey = okey;
 		key = skey % dict->subdict->size;
 		if(dict->subdict->dict[key].valid != 0) {
-			xmlDictEntryPtr tmp;
+			xmlDictEntry * tmp;
 			for(tmp = &(dict->subdict->dict[key]); tmp->next; tmp = tmp->next) {
 #ifdef __GNUC__
 				if((tmp->okey == skey) && (tmp->len == l)) {
@@ -926,77 +922,72 @@ const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar * name, int len)
  */
 const xmlChar * xmlDictQLookup(xmlDict * dict, const xmlChar * prefix, const xmlChar * name)
 {
-	ulong okey, key, nbi = 0;
-	xmlDictEntryPtr entry;
-	xmlDictEntryPtr insert;
-	const xmlChar * ret;
-	uint len, plen, l;
-	if((dict == NULL) || (name == NULL))
-		return 0;
-	if(!prefix)
-		return xmlDictLookupSL(dict, name);
-	l = len = sstrlen(name);
-	plen = sstrlen(prefix);
-	len += 1 + plen;
-	/*
-	 * Check for duplicate and insertion location.
-	 */
-	okey = xmlDictComputeQKey(dict, prefix, plen, name, l);
-	key = okey % dict->size;
-	if(dict->dict[key].valid == 0) {
-		insert = NULL;
-	}
-	else {
-		for(insert = &(dict->dict[key]); insert->next; insert = insert->next) {
-			if((insert->okey == okey) && (insert->len == len) && (xmlStrQEqual(prefix, name, insert->name)))
-				return insert->name;
-			nbi++;
-		}
-		if((insert->okey == okey) && (insert->len == len) && (xmlStrQEqual(prefix, name, insert->name)))
-			return insert->name;
-	}
-	if(dict->subdict) {
-		ulong skey;
-		/* we cannot always reuse the same okey for the subdict */
-		if(((dict->size == MIN_DICT_SIZE) && (dict->subdict->size != MIN_DICT_SIZE)) || ((dict->size != MIN_DICT_SIZE) && (dict->subdict->size == MIN_DICT_SIZE)))
-			skey = xmlDictComputeQKey(dict->subdict, prefix, plen, name, l);
-		else
-			skey = okey;
-		key = skey % dict->subdict->size;
-		if(dict->subdict->dict[key].valid != 0) {
-			xmlDictEntryPtr tmp;
-			for(tmp = &(dict->subdict->dict[key]); tmp->next; tmp = tmp->next) {
-				if((tmp->okey == skey) && (tmp->len == len) && (xmlStrQEqual(prefix, name, tmp->name)))
-					return tmp->name;
-				nbi++;
+	const xmlChar * ret = 0;
+	if(dict && name) {
+		if(!prefix)
+			ret = xmlDictLookupSL(dict, name);
+		else {
+			const uint l = sstrlen(name);
+			const uint plen = sstrlen(prefix);
+			const uint len = l + 1 + plen;
+			//len += 1 + plen;
+			// 
+			// Check for duplicate and insertion location.
+			// 
+			const ulong okey = xmlDictComputeQKey(dict, prefix, plen, name, l);
+			ulong key = okey % dict->size;
+			ulong nbi = 0;
+			xmlDictEntry * insert = 0;
+			if(dict->dict[key].valid) {
+				for(insert = &(dict->dict[key]); insert->next; insert = insert->next) {
+					if(insert->okey == okey && insert->len == len && xmlStrQEqual(prefix, name, insert->name))
+						return insert->name;
+					nbi++;
+				}
+				if(insert->okey == okey && insert->len == len && xmlStrQEqual(prefix, name, insert->name))
+					return insert->name;
 			}
-			if((tmp->okey == skey) && (tmp->len == len) && (xmlStrQEqual(prefix, name, tmp->name)))
-				return tmp->name;
+			if(dict->subdict) {
+				ulong skey;
+				// we cannot always reuse the same okey for the subdict 
+				if((dict->size == MIN_DICT_SIZE && dict->subdict->size != MIN_DICT_SIZE) || (dict->size != MIN_DICT_SIZE && dict->subdict->size == MIN_DICT_SIZE))
+					skey = xmlDictComputeQKey(dict->subdict, prefix, plen, name, l);
+				else
+					skey = okey;
+				key = skey % dict->subdict->size;
+				if(dict->subdict->dict[key].valid != 0) {
+					xmlDictEntry * tmp;
+					for(tmp = &(dict->subdict->dict[key]); tmp->next; tmp = tmp->next) {
+						if(tmp->okey == skey && tmp->len == len && xmlStrQEqual(prefix, name, tmp->name))
+							return tmp->name;
+						nbi++;
+					}
+					if(tmp->okey == skey && tmp->len == len && xmlStrQEqual(prefix, name, tmp->name))
+						return tmp->name;
+				}
+				key = okey % dict->size;
+			}
+			ret = xmlDictAddQString(dict, prefix, plen, name, l);
+			if(ret) {
+				xmlDictEntry * p_entry = (!insert) ? &dict->dict[key] : (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
+				if(p_entry) {
+					p_entry->name = ret;
+					p_entry->len = len;
+					p_entry->next = NULL;
+					p_entry->valid = 1;
+					p_entry->okey = okey;
+					if(insert)
+						insert->next = p_entry;
+					dict->nbElems++;
+					if(nbi > MAX_HASH_LEN && (dict->size <= ((MAX_DICT_HASH / 2) / MAX_HASH_LEN)))
+						xmlDictGrow(dict, MAX_HASH_LEN * 2 * dict->size);
+					// Note that entry may have been freed at this point by xmlDictGrow 
+				}
+				else
+					ret = 0;
+			}
 		}
-		key = okey % dict->size;
 	}
-	ret = xmlDictAddQString(dict, prefix, plen, name, l);
-	if(!ret)
-		return 0;
-	if(insert == NULL) {
-		entry = &(dict->dict[key]);
-	}
-	else {
-		entry = (xmlDictEntryPtr)SAlloc::M(sizeof(xmlDictEntry));
-		if(entry == NULL)
-			return 0;
-	}
-	entry->name = ret;
-	entry->len = len;
-	entry->next = NULL;
-	entry->valid = 1;
-	entry->okey = okey;
-	if(insert != NULL)
-		insert->next = entry;
-	dict->nbElems++;
-	if((nbi > MAX_HASH_LEN) && (dict->size <= ((MAX_DICT_HASH / 2) / MAX_HASH_LEN)))
-		xmlDictGrow(dict, MAX_HASH_LEN * 2 * dict->size);
-	/* Note that entry may have been freed at this point by xmlDictGrow */
 	return ret;
 }
 /**
@@ -1039,10 +1030,7 @@ void FASTCALL XmlDestroyStringWithDict(xmlDict * pDict, xmlChar * pStr)
  */
 int xmlDictSize(xmlDict * dict) 
 {
-	if(!dict)
-		return -1;
-	else
-		return dict->subdict ? (dict->nbElems + dict->subdict->nbElems) : dict->nbElems;
+	return dict ? (dict->subdict ? (dict->nbElems + dict->subdict->nbElems) : dict->nbElems) : -1;
 }
 /**
  * xmlDictSetLimit:

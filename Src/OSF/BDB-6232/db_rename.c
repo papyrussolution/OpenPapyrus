@@ -40,7 +40,7 @@ int __env_dbrename_pp(DB_ENV *dbenv, DB_TXN * txn, const char * name, const char
 	 * the replication block.
 	 */
 	if((ret = __db_fchk(env, "DB->rename", flags, DB_AUTO_COMMIT | DB_NOSYNC)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	XA_NO_TXN(ip, ret);
 	if(ret != 0)
@@ -124,7 +124,7 @@ err:    if(txn_local && (t_ret =
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_rename_pp
@@ -155,11 +155,11 @@ int __db_rename_pp(DB *dbp, const char * name, const char * subdb, const char * 
 
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB->rename", flags, DB_NOSYNC)) != 0)
-		return (ret);
+		return ret;
 
 	/* Check for consistent transaction usage. */
 	if((ret = __db_check_txn(dbp, NULL, DB_LOCK_INVALIDID, 0)) != 0)
-		return (ret);
+		return ret;
 
 	ENV_ENTER(env, ip);
 
@@ -178,7 +178,7 @@ int __db_rename_pp(DB *dbp, const char * name, const char * subdb, const char * 
 		ret = t_ret;
 err:    
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_rename
@@ -191,7 +191,7 @@ static int __db_rename(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * 
 	int ret = __db_rename_int(dbp, ip, txn, name, subdb, newname, flags);
 	if((t_ret = __db_close(dbp, txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __db_rename_int
@@ -269,7 +269,7 @@ int __db_rename_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * nam
 err:    if(!F_ISSET(dbp, DB_AM_INMEM) && real_name != NULL)
 		__os_free(env, real_name);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -334,5 +334,5 @@ err:
 	    ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }

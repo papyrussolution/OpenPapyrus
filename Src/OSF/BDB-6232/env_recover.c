@@ -108,22 +108,16 @@ int __db_apprec(ENV *env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * truncl
 				    &dbenv->tx_timestamp, time_buf), sizeof(t1) - 1);
 			if((p = strchr(t1, '\n')) != NULL)
 				*p = '\0';
-
 			t2[sizeof(t2) - 1] = '\0';
 			tlow = (time_t)low;
-			(void)strncpy(t2, __os_ctime(
-				    &tlow, time_buf), sizeof(t2) - 1);
+			(void)strncpy(t2, __os_ctime(&tlow, time_buf), sizeof(t2) - 1);
 			if((p = strchr(t2, '\n')) != NULL)
 				*p = '\0';
-
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR_A("1509",
-			    "Invalid recovery timestamp %s; earliest time is %s",
-			    "%s %s"), t1, t2);
+			__db_errx(env, DB_STR_A("1509", "Invalid recovery timestamp %s; earliest time is %s", "%s %s"), t1, t2);
 			goto err;
 		}
 	}
-
 	/*
 	 * Recovery is done in three passes:
 	 * Pass #0:
@@ -196,7 +190,7 @@ int __db_apprec(ENV *env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * truncl
 #ifdef UMRW
 	ZERO_LSN(last_lsn);
 #endif
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	/*
 	 * Pass #0
 	 * Find the LSN from which we begin OPENFILES.
@@ -216,28 +210,21 @@ int __db_apprec(ENV *env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * truncl
 		if(ret == DB_NOTFOUND)
 			ret = 0;
 		else
-			__db_errx(env, DB_STR("1510",
-			    "First log record not found"));
+			__db_errx(env, DB_STR("1510", "First log record not found"));
 		goto err;
 	}
 	first_lsn = ckp_lsn;
-
 	if(!LF_ISSET(DB_RECOVER_FATAL)) {
-		if((ret = __txn_getckp(env, &ckp_lsn)) == 0 &&
-		    (ret = __logc_get(logc, &ckp_lsn, &data, DB_SET)) == 0) {
+		if((ret = __txn_getckp(env, &ckp_lsn)) == 0 && (ret = __logc_get(logc, &ckp_lsn, &data, DB_SET)) == 0) {
 			/* We have a recent checkpoint.  This is LSN (1). */
 			if((ret = __txn_ckp_read(env,
 			    data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("1511",
-				    "Invalid checkpoint record at [%ld][%ld]",
-				    "%ld %ld"), (u_long)ckp_lsn.file,
-				    (u_long)ckp_lsn.offset);
+				__db_errx(env, DB_STR_A("1511", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (u_long)ckp_lsn.file, (u_long)ckp_lsn.offset);
 				goto err;
 			}
 			first_lsn = ckp_args->ckp_lsn;
 			__os_free(env, ckp_args);
 		}
-
 		/*
 		 * If LSN (2) exists, use it if it's before LSN (1).
 		 * (If LSN (1) doesn't exist, first_lsn is the
@@ -256,21 +243,17 @@ int __db_apprec(ENV *env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * truncl
 		 * is that we pick *some* checkpoint after the beginning of
 		 * the logs and before the timestamp.
 		 */
-		if((dbenv->tx_timestamp != 0 || max_lsn != NULL) &&
-		    LOG_COMPARE(&lowlsn, &first_lsn) < 0) {
+		if((dbenv->tx_timestamp != 0 || max_lsn != NULL) && LOG_COMPARE(&lowlsn, &first_lsn) < 0) {
 			first_lsn = lowlsn;
 		}
 	}
-
 	if((ret = __logc_get(logc, &last_lsn, &data, DB_LAST)) != 0) {
 		if(ret == DB_NOTFOUND)
 			ret = 0;
 		else
-			__db_errx(env, DB_STR("1512",
-			    "Last log record not found"));
+			__db_errx(env, DB_STR("1512", "Last log record not found"));
 		goto err;
 	}
-
 	rectype = 0;
 	txnid = 0;
 	do {
@@ -550,23 +533,17 @@ done:
 		 */
 		if((ret = __log_cursor(env, &logc)) != 0)
 			goto err;
-		if((ret =
-		    __logc_get(logc, &first_lsn, &data, DB_FIRST)) != 0) {
+		if((ret = __logc_get(logc, &first_lsn, &data, DB_FIRST)) != 0) {
 			if(ret == DB_NOTFOUND)
 				ret = 0;
 			else
-				__db_errx(env, DB_STR("1516",
-				    "First log record not found"));
+				__db_errx(env, DB_STR("1516", "First log record not found"));
 			goto err;
 		}
-		if((ret = __txn_getckp(env, &first_lsn)) == 0 &&
-		    (ret = __logc_get(logc, &first_lsn, &data, DB_SET)) == 0) {
+		if((ret = __txn_getckp(env, &first_lsn)) == 0 && (ret = __logc_get(logc, &first_lsn, &data, DB_SET)) == 0) {
 			/* We have a recent checkpoint.  This is LSN (1). */
-			if((ret = __txn_ckp_read(env,
-			    data.data, &ckp_args)) != 0) {
-				__db_errx(env, DB_STR_A("1517",
-				    "Invalid checkpoint record at [%ld][%ld]",
-				    "%ld %ld"), (u_long)first_lsn.file,
+			if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0) {
+				__db_errx(env, DB_STR_A("1517", "Invalid checkpoint record at [%ld][%ld]", "%ld %ld"), (u_long)first_lsn.file,
 				    (u_long)first_lsn.offset);
 				goto err;
 			}
@@ -575,8 +552,7 @@ done:
 		}
 		if((ret = __logc_get(logc, &first_lsn, &data, DB_SET)) != 0)
 			goto err;
-		if((ret = __env_openfiles(env, logc,
-		    txninfo, &data, &first_lsn, max_lsn, nfiles, 1)) != 0)
+		if((ret = __env_openfiles(env, logc, txninfo, &data, &first_lsn, max_lsn, nfiles, 1)) != 0)
 			goto err;
 	}
 	else if(all_recovered) {
@@ -597,31 +573,21 @@ done:
 
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_RECOVERY)) {
 		(void)time(&now);
-		__db_msg(env, DB_STR_A("1518",
-		    "Recovery complete at %.24s", "%.24s"),
-		    __os_ctime(&now, time_buf));
-		__db_msg(env, DB_STR_A("1519",
-		    "Maximum transaction ID %lx recovery checkpoint [%lu][%lu]",
-		    "%lx %lu %lu"), (u_long)(txninfo == NULL ?
-		    TXN_MINIMUM : ((DB_TXNHEAD*)txninfo)->maxid),
-		    (u_long)region->last_ckp.file,
-		    (u_long)region->last_ckp.offset);
+		__db_msg(env, DB_STR_A("1518", "Recovery complete at %.24s", "%.24s"), __os_ctime(&now, time_buf));
+		__db_msg(env, DB_STR_A("1519", "Maximum transaction ID %lx recovery checkpoint [%lu][%lu]", "%lx %lu %lu"), 
+			(u_long)(txninfo == NULL ? TXN_MINIMUM : ((DB_TXNHEAD*)txninfo)->maxid), (u_long)region->last_ckp.file, (u_long)region->last_ckp.offset);
 	}
-
 	if(0) {
-msgerr:         __db_errx(env, DB_STR_A("1520",
-		    "Recovery function for LSN %lu %lu failed on %s pass",
+msgerr:         
+		__db_errx(env, DB_STR_A("1520", "Recovery function for LSN %lu %lu failed on %s pass",
 		    "%lu %lu %s"), (u_long)lsn.file, (u_long)lsn.offset, pass);
 	}
-
-err:    if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+err:    
+	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if(txninfo != NULL)
 		__db_txnlist_end(env, txninfo);
-
 	dbenv->tx_timestamp = 0;
-
 	/*
 	 * Failure means that the env has panicked. Disable locking so that the
 	 * env can close without its mutexes calls causing additional panics.
@@ -631,7 +597,7 @@ err:    if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 	F_CLR(env->lg_handle, DBLOG_RECOVER);
 	F_CLR(region, TXN_IN_RECOVERY);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -691,13 +657,13 @@ static int __log_backup(ENV *env, DB_LOGC * logc, DB_LSN * max_lsn, DB_LSN * sta
 	DB_LSN lsn;
 	__txn_ckp_args * ckp_args;
 	int ret;
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	ckp_args = NULL;
 	if((ret = __txn_getckp(env, &lsn)) != 0)
 		goto err;
 	while((ret = __logc_get(logc, &lsn, &data, DB_SET)) == 0) {
 		if((ret = __txn_ckp_read(env, data.data, &ckp_args)) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * Follow checkpoints through the log until
 		 * we find one less than or equal max_lsn.
@@ -730,7 +696,7 @@ static int __log_backup(ENV *env, DB_LOGC * logc, DB_LSN * max_lsn, DB_LSN * sta
 	 */
 err:    if(IS_ZERO_LSN(*start_lsn) && (ret == 0 || ret == DB_NOTFOUND))
 		ret = __logc_get(logc, start_lsn, &data, DB_FIRST);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -747,7 +713,7 @@ static int __log_earliest(ENV *env, DB_LOGC * logc, int32 * lowtime, DB_LSN * lo
 	DBT data;
 	uint32 rectype;
 	int cmp, ret;
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	/*
 	 * Read forward through the log looking for the first checkpoint
 	 * record whose ckp_lsn is greater than first_lsn.
@@ -765,7 +731,7 @@ static int __log_earliest(ENV *env, DB_LOGC * logc, int32 * lowtime, DB_LSN * lo
 				break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __env_openfiles --
@@ -808,15 +774,12 @@ int __env_openfiles(ENV *env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LSN
 			in_recovery ? DB_TXN_OPENFILES : DB_TXN_POPENFILES,
 			txninfo);
 		if(ret != 0 && ret != DB_TXN_CKP) {
-			__db_errx(env, DB_STR_A("1521",
-			    "Recovery function for LSN %lu %lu failed",
-			    "%lu %lu"), (u_long)lsn.file, (u_long)lsn.offset);
+			__db_errx(env, DB_STR_A("1521", "Recovery function for LSN %lu %lu failed", "%lu %lu"), (u_long)lsn.file, (u_long)lsn.offset);
 			break;
 		}
 		if((ret = __logc_get(logc, &lsn, data, DB_NEXT)) != 0) {
 			if(ret == DB_NOTFOUND) {
-				if(last_lsn != NULL &&
-				    LOG_COMPARE(&lsn, last_lsn) != 0)
+				if(last_lsn != NULL && LOG_COMPARE(&lsn, last_lsn) != 0)
 					ret = __db_log_corrupt(env, &lsn);
 				else
 					ret = 0;
@@ -825,13 +788,13 @@ int __env_openfiles(ENV *env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LSN
 		}
 	}
 
-	return (ret);
+	return ret;
 }
 
 static int __db_log_corrupt(ENV *env, DB_LSN * lsnp)
 {
 	__db_errx(env, DB_STR_A("1522", "Log file corrupt at LSN: [%lu][%lu]", "%lu %lu"), (u_long)lsnp->file, (u_long)lsnp->offset);
-	return (EINVAL);
+	return EINVAL;
 }
 /*
  * __env_init_rec --
@@ -940,13 +903,12 @@ int __env_init_rec(ENV *env, uint32 version)
 		goto done;
 	if(version != DB_LOGVERSION_42) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR_A("1523", "Unknown version %lu",
-		    "%lu"), (u_long)version);
+		__db_errx(env, DB_STR_A("1523", "Unknown version %lu", "%lu"), (u_long)version);
 		goto err;
 	}
 
 done:
-err:    return (ret);
+err:    return ret;
 }
 
 static int __env_init_rec_47(ENV *env)
@@ -965,7 +927,7 @@ static int __env_init_rec_47(ENV *env)
 	if((ret = __db_add_recovery_int(env, &env->recover_dtab, __fop_rename_noundo_46_recover, DB___fop_rename_noundo_46)) != 0)
 		goto err;
 err:
-	return (ret);
+	return ret;
 }
 
 static int __env_init_rec_48(ENV *env)
@@ -986,7 +948,7 @@ static int __env_init_rec_48(ENV *env)
 		goto err;
 #endif
 err:
-	return (ret);
+	return ret;
 }
 
 static int __env_init_rec_53(ENV *env)
@@ -1001,7 +963,7 @@ static int __env_init_rec_53(ENV *env)
 	goto err;
 #endif
 err:
-	return (ret);
+	return ret;
 }
 
 static int __env_init_rec_60(ENV *env)
@@ -1022,7 +984,7 @@ static int __env_init_rec_60(ENV *env)
 	if((ret = __db_add_recovery_int(env, &env->recover_dtab, __fop_write_file_60_recover, DB___fop_write_file_60)) != 0)
 		goto err;
 err:
-	return (ret);
+	return ret;
 }
 
 static int __env_init_rec_60p1(ENV *env)
@@ -1035,5 +997,5 @@ static int __env_init_rec_60p1(ENV *env)
 		goto err;
 #endif
 err:
-	return (ret);
+	return ret;
 }

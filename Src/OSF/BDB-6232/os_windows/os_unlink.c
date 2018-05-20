@@ -27,7 +27,7 @@ int __os_unlink(ENV *env, const char * path, int overwrite_test)
 		(void)__db_file_multi_write(env, path);
 	TO_TSTRING(env, path, tpath, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	orig_tpath = tpath;
 	LAST_PANIC_CHECK_BEFORE_IO(env);
 	/*
@@ -106,5 +106,5 @@ skipdel:
 			ret = ENOENT;
 	}
 
-	return (ret);
+	return ret;
 }

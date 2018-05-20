@@ -163,24 +163,28 @@ int xmlStrcmp(const xmlChar * str1, const xmlChar * str2)
  *
  * Returns 1 if they are equal, 0 if they are different
  */
-
-int xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str) 
+int FASTCALL xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str) 
 {
-	if(pref == NULL) return(sstreq(name, str));
-	if(!name) return 0;
-	if(!str) return 0;
-	do {
-		if(*pref++ != *str) 
+	if(!pref) 
+		return sstreq(name, str);
+	else if(!name || !str) 
+		return 0;
+	else {
+		do {
+			if(*pref++ != *str) 
+				return 0;
+		} while((*str++) && (*pref));
+		if(*str++ != ':') 
 			return 0;
-	} while((*str++) && (*pref));
-	if(*str++ != ':') return 0;
-	do {
-		if(*name++ != *str) 
-			return 0;
-	} while(*str++);
-	return 1;
+		else {
+			do {
+				if(*name++ != *str) 
+					return 0;
+			} while(*str++);
+			return 1;
+		}
+	}
 }
-
 /**
  * xmlStrncmp:
  * @str1:  the first xmlChar *
@@ -191,10 +195,9 @@ int xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str
  *
  * Returns the integer result of the comparison
  */
-
-int xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len) 
+int FASTCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len) 
 {
-	register int tmp;
+	int tmp;
 	if(len <= 0) return 0;
 	if(str1 == str2) return 0;
 	if(str1 == NULL) return -1;

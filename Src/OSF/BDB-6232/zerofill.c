@@ -35,18 +35,16 @@ int __db_zero_fill(ENV *env, DB_FH * fhp)
 	write_offset = (off_t)fhp->pgno * fhp->pgsize + fhp->offset;
 	/* Stat the file. */
 	if((ret = __os_ioinfo(env, NULL, fhp, &mbytes, &bytes, NULL)) != 0)
-		return (ret);
+		return ret;
 	stat_offset = (off_t)mbytes * MEGABYTE + bytes;
-
 	/* Check if the file is large enough. */
 	if(stat_offset >= write_offset)
-		return (0);
-
+		return 0;
 	/* Get a large buffer if we're writing lots of data. */
 #undef  ZF_LARGE_WRITE
 #define ZF_LARGE_WRITE  (64 * 1024)
 	if((ret = __os_calloc(env, 1, ZF_LARGE_WRITE, &bp)) != 0)
-		return (ret);
+		return ret;
 	blen = ZF_LARGE_WRITE;
 
 	/* Seek to the current end of the file. */
@@ -71,21 +69,19 @@ int __db_zero_fill(ENV *env, DB_FH * fhp)
 	}
 	if((ret = __os_fsync(env, fhp)) != 0)
 		goto err;
-
 	/* Seek back to where we started. */
 	mbytes = (uint32)(write_offset / MEGABYTE);
 	bytes = (uint32)(write_offset % MEGABYTE);
 	ret = __os_seek(env, fhp, mbytes, MEGABYTE, bytes);
-
-err:    __os_free(env, bp);
-	return (ret);
+err:    
+	__os_free(env, bp);
+	return ret;
 #else
 	COMPQUIET(env, NULL);
 	COMPQUIET(fhp, NULL);
-	return (0);
+	return 0;
 #endif /* HAVE_FILESYSTEM_NOTZERO */
 }
-
 /*
  * __db_zero --
  *	Zero to the end of the file.
@@ -99,8 +95,8 @@ int __db_zero_extend(ENV *env, DB_FH * fhp, db_pgno_t pgno, db_pgno_t last_pgno,
 	size_t nwrote;
 	uint8 * buf;
 	if((ret = __os_calloc(env, 1, pgsize, &buf)) != 0)
-		return (ret);
-	memset(buf, 0, pgsize);
+		return ret;
+	memzero(buf, pgsize);
 	for(; pgno <= last_pgno; pgno++)
 		if((ret = __os_io(env, DB_IO_WRITE,
 		    fhp, pgno, pgsize, 0, pgsize, buf, &nwrote)) != 0) {
@@ -110,7 +106,7 @@ int __db_zero_extend(ENV *env, DB_FH * fhp, db_pgno_t pgno, db_pgno_t last_pgno,
 			}
 			goto err;
 		}
-
-err:    __os_free(env, buf);
-	return (ret);
+err:    
+	__os_free(env, buf);
+	return ret;
 }

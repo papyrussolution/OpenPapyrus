@@ -11,14 +11,13 @@ compiling, linking, and/or using OpenSSL is allowed.
 #ifndef vetisamsStub_H
 #define vetisamsStub_H
 #define SOAP_NAMESPACE_OF_empty	""
-#define SOAP_NAMESPACE_OF_ws	"http://api.vetrf.ru/schema/cdm/application/ws-definitions"
-#define SOAP_NAMESPACE_OF_ns2	"http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+#define SOAP_NAMESPACE_OF_g2ba	"http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
 #define SOAP_NAMESPACE_OF_base	"http://api.vetrf.ru/schema/cdm/base"
 #define SOAP_NAMESPACE_OF_app	"http://api.vetrf.ru/schema/cdm/application"
-#define SOAP_NAMESPACE_OF_merc	"http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
-#define SOAP_NAMESPACE_OF_ent	"http://api.vetrf.ru/schema/cdm/dictionary/v2"
+#define SOAP_NAMESPACE_OF_dic	"http://api.vetrf.ru/schema/cdm/dictionary/v2"
 #define SOAP_NAMESPACE_OF_vd	"http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2"
-#define SOAP_NAMESPACE_OF_ns8	"http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+#define SOAP_NAMESPACE_OF_ws	"http://api.vetrf.ru/schema/cdm/application/ws-definitions"
+#define SOAP_NAMESPACE_OF_ns2	"http://api.vetrf.ru/schema/cdm/base/ws-definitions"
 #ifndef WITH_NONAMESPACES
 #define WITH_NONAMESPACES
 #endif
@@ -36,169 +35,169 @@ compiling, linking, and/or using OpenSSL is allowed.
 
 
 #ifndef SOAP_TYPE_base__RegisterModificationType
-#define SOAP_TYPE_base__RegisterModificationType (336)
+#define SOAP_TYPE_base__RegisterModificationType (216)
 /* base:RegisterModificationType */
 enum base__RegisterModificationType {base__RegisterModificationType__CREATE = 0, base__RegisterModificationType__FIND_USCOREOR_USCORECREATE = 1, base__RegisterModificationType__UPDATE = 2, base__RegisterModificationType__DELETE = 3, base__RegisterModificationType__MERGE = 4, base__RegisterModificationType__ATTACH = 5, base__RegisterModificationType__SPLIT = 6, base__RegisterModificationType__FORK = 7};
 #endif
 
 #ifndef SOAP_TYPE_app__ApplicationStatus
-#define SOAP_TYPE_app__ApplicationStatus (339)
+#define SOAP_TYPE_app__ApplicationStatus (223)
 /* app:ApplicationStatus */
 enum app__ApplicationStatus {app__ApplicationStatus__ACCEPTED = 0, app__ApplicationStatus__IN_USCOREPROCESS = 1, app__ApplicationStatus__COMPLETED = 2, app__ApplicationStatus__REJECTED = 3};
 #endif
 
 #ifndef SOAP_TYPE_app__ContentEncoding
-#define SOAP_TYPE_app__ContentEncoding (341)
+#define SOAP_TYPE_app__ContentEncoding (225)
 /* app:ContentEncoding */
 enum app__ContentEncoding {app__ContentEncoding__plain = 0, app__ContentEncoding__gzip = 1};
 #endif
 
-#ifndef SOAP_TYPE_ent__PackageLevelType
-#define SOAP_TYPE_ent__PackageLevelType (343)
-/* ent:PackageLevelType */
-enum ent__PackageLevelType {ent__PackageLevelType__1 = 1, ent__PackageLevelType__2 = 2, ent__PackageLevelType__3 = 3, ent__PackageLevelType__4 = 4, ent__PackageLevelType__5 = 5, ent__PackageLevelType__6 = 6};
+#ifndef SOAP_TYPE_dic__PackageLevelType
+#define SOAP_TYPE_dic__PackageLevelType (227)
+/* dic:PackageLevelType */
+enum dic__PackageLevelType {dic__PackageLevelType__1 = 1, dic__PackageLevelType__2 = 2, dic__PackageLevelType__3 = 3, dic__PackageLevelType__4 = 4, dic__PackageLevelType__5 = 5, dic__PackageLevelType__6 = 6};
 #endif
 
-#ifndef SOAP_TYPE_ent__PackingCodeType
-#define SOAP_TYPE_ent__PackingCodeType (344)
-/* ent:PackingCodeType */
-enum ent__PackingCodeType {ent__PackingCodeType__1A = 0, ent__PackingCodeType__1B = 1, ent__PackingCodeType__1D = 2, ent__PackingCodeType__1F = 3, ent__PackingCodeType__1G = 4, ent__PackingCodeType__1W = 5, ent__PackingCodeType__2C = 6, ent__PackingCodeType__3A = 7, ent__PackingCodeType__3H = 8, ent__PackingCodeType__43 = 9, ent__PackingCodeType__44 = 10, ent__PackingCodeType__4A = 11, ent__PackingCodeType__4B = 12, ent__PackingCodeType__4C = 13, ent__PackingCodeType__4D = 14, ent__PackingCodeType__4F = 15, ent__PackingCodeType__4G = 16, ent__PackingCodeType__4H = 17, ent__PackingCodeType__5H = 18, ent__PackingCodeType__5L = 19, ent__PackingCodeType__5M = 20, ent__PackingCodeType__6H = 21, ent__PackingCodeType__6P = 22, ent__PackingCodeType__7A = 23, ent__PackingCodeType__7B = 24, ent__PackingCodeType__8A = 25, ent__PackingCodeType__8B = 26, ent__PackingCodeType__8C = 27, ent__PackingCodeType__AA = 28, ent__PackingCodeType__AB = 29, ent__PackingCodeType__AC = 30, ent__PackingCodeType__AD = 31, ent__PackingCodeType__AE = 32, ent__PackingCodeType__AF = 33, ent__PackingCodeType__AG = 34, ent__PackingCodeType__AH = 35, ent__PackingCodeType__AI = 36, ent__PackingCodeType__AJ = 37, ent__PackingCodeType__AL = 38, ent__PackingCodeType__AM = 39, ent__PackingCodeType__AP = 40, ent__PackingCodeType__AT = 41, ent__PackingCodeType__AV = 42, ent__PackingCodeType__B4 = 43, ent__PackingCodeType__BA = 44, ent__PackingCodeType__BB = 45, ent__PackingCodeType__BC = 46, ent__PackingCodeType__BD = 47, ent__PackingCodeType__BE = 48, ent__PackingCodeType__BF = 49, ent__PackingCodeType__BG = 50, ent__PackingCodeType__BH = 51, ent__PackingCodeType__BI = 52, ent__PackingCodeType__BJ = 53, ent__PackingCodeType__BK = 54, ent__PackingCodeType__BL = 55, ent__PackingCodeType__BM = 56, ent__PackingCodeType__BN = 57, ent__PackingCodeType__BO = 58, ent__PackingCodeType__BP = 59, ent__PackingCodeType__BQ = 60, ent__PackingCodeType__BR = 61, ent__PackingCodeType__BS = 62, ent__PackingCodeType__BT = 63, ent__PackingCodeType__BU = 64, ent__PackingCodeType__BV = 65, ent__PackingCodeType__BW = 66, ent__PackingCodeType__BX = 67, ent__PackingCodeType__BY = 68, ent__PackingCodeType__BZ = 69, ent__PackingCodeType__CA = 70, ent__PackingCodeType__CB = 71, ent__PackingCodeType__CC = 72, ent__PackingCodeType__CD = 73, ent__PackingCodeType__CE = 74, ent__PackingCodeType__CF = 75, ent__PackingCodeType__CG = 76, ent__PackingCodeType__CH = 77, ent__PackingCodeType__CI = 78, ent__PackingCodeType__CJ = 79, ent__PackingCodeType__CK = 80, ent__PackingCodeType__CL = 81, ent__PackingCodeType__CM = 82, ent__PackingCodeType__CN = 83, ent__PackingCodeType__CO = 84, ent__PackingCodeType__CP = 85, ent__PackingCodeType__CQ = 86, ent__PackingCodeType__CR = 87, ent__PackingCodeType__CS = 88, ent__PackingCodeType__CT = 89, ent__PackingCodeType__CU = 90, ent__PackingCodeType__CV = 91, ent__PackingCodeType__CW = 92, ent__PackingCodeType__CX = 93, ent__PackingCodeType__CY = 94, ent__PackingCodeType__CZ = 95, ent__PackingCodeType__DA = 96, ent__PackingCodeType__DB = 97, ent__PackingCodeType__DC = 98, ent__PackingCodeType__DG = 99, ent__PackingCodeType__DH = 100, ent__PackingCodeType__DI = 101, ent__PackingCodeType__DJ = 102, ent__PackingCodeType__DK = 103, ent__PackingCodeType__DL = 104, ent__PackingCodeType__DM = 105, ent__PackingCodeType__DN = 106, ent__PackingCodeType__DP = 107, ent__PackingCodeType__DR = 108, ent__PackingCodeType__DS = 109, ent__PackingCodeType__DT = 110, ent__PackingCodeType__DU = 111, ent__PackingCodeType__DV = 112, ent__PackingCodeType__DW = 113, ent__PackingCodeType__DX = 114, ent__PackingCodeType__DY = 115, ent__PackingCodeType__EC = 116, ent__PackingCodeType__ED = 117, ent__PackingCodeType__EE = 118, ent__PackingCodeType__EF = 119, ent__PackingCodeType__EG = 120, ent__PackingCodeType__EH = 121, ent__PackingCodeType__EI = 122, ent__PackingCodeType__EN = 123, ent__PackingCodeType__FC = 124, ent__PackingCodeType__FD = 125, ent__PackingCodeType__FE = 126, ent__PackingCodeType__FI = 127, ent__PackingCodeType__FL = 128, ent__PackingCodeType__FO = 129, ent__PackingCodeType__FP = 130, ent__PackingCodeType__FR = 131, ent__PackingCodeType__FT = 132, ent__PackingCodeType__FX = 133, ent__PackingCodeType__GB = 134, ent__PackingCodeType__GI = 135, ent__PackingCodeType__GL = 136, ent__PackingCodeType__GR = 137, ent__PackingCodeType__GY = 138, ent__PackingCodeType__GZ = 139, ent__PackingCodeType__HA = 140, ent__PackingCodeType__HB = 141, ent__PackingCodeType__HC = 142, ent__PackingCodeType__HG = 143, ent__PackingCodeType__HN = 144, ent__PackingCodeType__HR = 145, ent__PackingCodeType__IA = 146, ent__PackingCodeType__IB = 147, ent__PackingCodeType__IC = 148, ent__PackingCodeType__ID = 149, ent__PackingCodeType__IE = 150, ent__PackingCodeType__IF = 151, ent__PackingCodeType__IG = 152, ent__PackingCodeType__IH = 153, ent__PackingCodeType__IK = 154, ent__PackingCodeType__IN = 155, ent__PackingCodeType__IZ = 156, ent__PackingCodeType__JB = 157, ent__PackingCodeType__JC = 158, ent__PackingCodeType__JG = 159, ent__PackingCodeType__JR = 160, ent__PackingCodeType__JT = 161, ent__PackingCodeType__JY = 162, ent__PackingCodeType__KG = 163, ent__PackingCodeType__KI = 164, ent__PackingCodeType__LE = 165, ent__PackingCodeType__LG = 166, ent__PackingCodeType__LT = 167, ent__PackingCodeType__LU = 168, ent__PackingCodeType__LV = 169, ent__PackingCodeType__LZ = 170, ent__PackingCodeType__MA = 171, ent__PackingCodeType__MB = 172, ent__PackingCodeType__MC = 173, ent__PackingCodeType__ME = 174, ent__PackingCodeType__MR = 175, ent__PackingCodeType__MS = 176, ent__PackingCodeType__MT = 177, ent__PackingCodeType__MW = 178, ent__PackingCodeType__MX = 179, ent__PackingCodeType__NA = 180, ent__PackingCodeType__NE = 181, ent__PackingCodeType__NF = 182, ent__PackingCodeType__NG = 183, ent__PackingCodeType__NS = 184, ent__PackingCodeType__NT = 185, ent__PackingCodeType__NU = 186, ent__PackingCodeType__NV = 187, ent__PackingCodeType__OT = 188, ent__PackingCodeType__OU = 189, ent__PackingCodeType__P2 = 190, ent__PackingCodeType__PA = 191, ent__PackingCodeType__PB = 192, ent__PackingCodeType__PC = 193, ent__PackingCodeType__PD = 194, ent__PackingCodeType__PE = 195, ent__PackingCodeType__PF = 196, ent__PackingCodeType__PG = 197, ent__PackingCodeType__PH = 198, ent__PackingCodeType__PI = 199, ent__PackingCodeType__PJ = 200, ent__PackingCodeType__PK = 201, ent__PackingCodeType__PL = 202, ent__PackingCodeType__PN = 203, ent__PackingCodeType__PO = 204, ent__PackingCodeType__PP = 205, ent__PackingCodeType__PR = 206, ent__PackingCodeType__PT = 207, ent__PackingCodeType__PU = 208, ent__PackingCodeType__PV = 209, ent__PackingCodeType__PX = 210, ent__PackingCodeType__PY = 211, ent__PackingCodeType__PZ = 212, ent__PackingCodeType__QA = 213, ent__PackingCodeType__QB = 214, ent__PackingCodeType__QC = 215, ent__PackingCodeType__QD = 216, ent__PackingCodeType__QF = 217, ent__PackingCodeType__QG = 218, ent__PackingCodeType__QH = 219, ent__PackingCodeType__QJ = 220, ent__PackingCodeType__QK = 221, ent__PackingCodeType__QL = 222, ent__PackingCodeType__QM = 223, ent__PackingCodeType__QN = 224, ent__PackingCodeType__QP = 225, ent__PackingCodeType__QQ = 226, ent__PackingCodeType__QR = 227, ent__PackingCodeType__QS = 228, ent__PackingCodeType__RD = 229, ent__PackingCodeType__RG = 230, ent__PackingCodeType__RJ = 231, ent__PackingCodeType__RK = 232, ent__PackingCodeType__RL = 233, ent__PackingCodeType__RO = 234, ent__PackingCodeType__RT = 235, ent__PackingCodeType__RZ = 236, ent__PackingCodeType__SA = 237, ent__PackingCodeType__SB = 238, ent__PackingCodeType__SC = 239, ent__PackingCodeType__SD = 240, ent__PackingCodeType__SE = 241, ent__PackingCodeType__SH = 242, ent__PackingCodeType__SI = 243, ent__PackingCodeType__SK = 244, ent__PackingCodeType__SL = 245, ent__PackingCodeType__SM = 246, ent__PackingCodeType__SO = 247, ent__PackingCodeType__SP = 248, ent__PackingCodeType__SS = 249, ent__PackingCodeType__ST = 250, ent__PackingCodeType__SU = 251, ent__PackingCodeType__SV = 252, ent__PackingCodeType__SW = 253, ent__PackingCodeType__SX = 254, ent__PackingCodeType__SY = 255, ent__PackingCodeType__SZ = 256, ent__PackingCodeType__T1 = 257, ent__PackingCodeType__TB = 258, ent__PackingCodeType__TC = 259, ent__PackingCodeType__TD = 260, ent__PackingCodeType__TE = 261, ent__PackingCodeType__TG = 262, ent__PackingCodeType__TI = 263, ent__PackingCodeType__TK = 264, ent__PackingCodeType__TL = 265, ent__PackingCodeType__TN = 266, ent__PackingCodeType__TO = 267, ent__PackingCodeType__TR = 268, ent__PackingCodeType__TS = 269, ent__PackingCodeType__TT = 270, ent__PackingCodeType__TU = 271, ent__PackingCodeType__TV = 272, ent__PackingCodeType__TW = 273, ent__PackingCodeType__TY = 274, ent__PackingCodeType__TZ = 275, ent__PackingCodeType__UC = 276, ent__PackingCodeType__UN = 277, ent__PackingCodeType__VA = 278, ent__PackingCodeType__VG = 279, ent__PackingCodeType__VI = 280, ent__PackingCodeType__VK = 281, ent__PackingCodeType__VL = 282, ent__PackingCodeType__VO = 283, ent__PackingCodeType__VP = 284, ent__PackingCodeType__VQ = 285, ent__PackingCodeType__VR = 286, ent__PackingCodeType__VS = 287, ent__PackingCodeType__VY = 288, ent__PackingCodeType__WA = 289, ent__PackingCodeType__WB = 290, ent__PackingCodeType__WC = 291, ent__PackingCodeType__WD = 292, ent__PackingCodeType__WF = 293, ent__PackingCodeType__WG = 294, ent__PackingCodeType__WH = 295, ent__PackingCodeType__WJ = 296, ent__PackingCodeType__WK = 297, ent__PackingCodeType__WL = 298, ent__PackingCodeType__WM = 299, ent__PackingCodeType__WN = 300, ent__PackingCodeType__WP = 301, ent__PackingCodeType__WQ = 302, ent__PackingCodeType__WR = 303, ent__PackingCodeType__WS = 304, ent__PackingCodeType__WT = 305, ent__PackingCodeType__WU = 306, ent__PackingCodeType__WV = 307, ent__PackingCodeType__WW = 308, ent__PackingCodeType__WX = 309, ent__PackingCodeType__WY = 310, ent__PackingCodeType__WZ = 311, ent__PackingCodeType__XA = 312, ent__PackingCodeType__XB = 313, ent__PackingCodeType__XC = 314, ent__PackingCodeType__XD = 315, ent__PackingCodeType__XF = 316, ent__PackingCodeType__XG = 317, ent__PackingCodeType__XH = 318, ent__PackingCodeType__XJ = 319, ent__PackingCodeType__XK = 320, ent__PackingCodeType__YA = 321, ent__PackingCodeType__YB = 322, ent__PackingCodeType__YC = 323, ent__PackingCodeType__YD = 324, ent__PackingCodeType__YF = 325, ent__PackingCodeType__YH = 326, ent__PackingCodeType__YJ = 327, ent__PackingCodeType__YK = 328, ent__PackingCodeType__YL = 329, ent__PackingCodeType__YM = 330, ent__PackingCodeType__YN = 331, ent__PackingCodeType__YP = 332, ent__PackingCodeType__YQ = 333, ent__PackingCodeType__YR = 334, ent__PackingCodeType__YS = 335, ent__PackingCodeType__YT = 336, ent__PackingCodeType__YV = 337, ent__PackingCodeType__YW = 338, ent__PackingCodeType__YX = 339, ent__PackingCodeType__YY = 340, ent__PackingCodeType__YZ = 341, ent__PackingCodeType__ZA = 342, ent__PackingCodeType__ZB = 343, ent__PackingCodeType__ZC = 344, ent__PackingCodeType__ZD = 345, ent__PackingCodeType__ZF = 346, ent__PackingCodeType__ZG = 347, ent__PackingCodeType__ZH = 348, ent__PackingCodeType__ZJ = 349, ent__PackingCodeType__ZK = 350, ent__PackingCodeType__ZL = 351, ent__PackingCodeType__ZM = 352, ent__PackingCodeType__ZN = 353, ent__PackingCodeType__ZP = 354, ent__PackingCodeType__ZQ = 355, ent__PackingCodeType__ZR = 356, ent__PackingCodeType__ZS = 357, ent__PackingCodeType__ZT = 358, ent__PackingCodeType__ZU = 359, ent__PackingCodeType__ZV = 360, ent__PackingCodeType__ZW = 361, ent__PackingCodeType__ZX = 362, ent__PackingCodeType__ZY = 363, ent__PackingCodeType__ZZ = 364};
+#ifndef SOAP_TYPE_dic__PackingCodeType
+#define SOAP_TYPE_dic__PackingCodeType (228)
+/* dic:PackingCodeType */
+enum dic__PackingCodeType {dic__PackingCodeType__1A = 0, dic__PackingCodeType__1B = 1, dic__PackingCodeType__1D = 2, dic__PackingCodeType__1F = 3, dic__PackingCodeType__1G = 4, dic__PackingCodeType__1W = 5, dic__PackingCodeType__2C = 6, dic__PackingCodeType__3A = 7, dic__PackingCodeType__3H = 8, dic__PackingCodeType__43 = 9, dic__PackingCodeType__44 = 10, dic__PackingCodeType__4A = 11, dic__PackingCodeType__4B = 12, dic__PackingCodeType__4C = 13, dic__PackingCodeType__4D = 14, dic__PackingCodeType__4F = 15, dic__PackingCodeType__4G = 16, dic__PackingCodeType__4H = 17, dic__PackingCodeType__5H = 18, dic__PackingCodeType__5L = 19, dic__PackingCodeType__5M = 20, dic__PackingCodeType__6H = 21, dic__PackingCodeType__6P = 22, dic__PackingCodeType__7A = 23, dic__PackingCodeType__7B = 24, dic__PackingCodeType__8A = 25, dic__PackingCodeType__8B = 26, dic__PackingCodeType__8C = 27, dic__PackingCodeType__AA = 28, dic__PackingCodeType__AB = 29, dic__PackingCodeType__AC = 30, dic__PackingCodeType__AD = 31, dic__PackingCodeType__AE = 32, dic__PackingCodeType__AF = 33, dic__PackingCodeType__AG = 34, dic__PackingCodeType__AH = 35, dic__PackingCodeType__AI = 36, dic__PackingCodeType__AJ = 37, dic__PackingCodeType__AL = 38, dic__PackingCodeType__AM = 39, dic__PackingCodeType__AP = 40, dic__PackingCodeType__AT = 41, dic__PackingCodeType__AV = 42, dic__PackingCodeType__B4 = 43, dic__PackingCodeType__BA = 44, dic__PackingCodeType__BB = 45, dic__PackingCodeType__BC = 46, dic__PackingCodeType__BD = 47, dic__PackingCodeType__BE = 48, dic__PackingCodeType__BF = 49, dic__PackingCodeType__BG = 50, dic__PackingCodeType__BH = 51, dic__PackingCodeType__BI = 52, dic__PackingCodeType__BJ = 53, dic__PackingCodeType__BK = 54, dic__PackingCodeType__BL = 55, dic__PackingCodeType__BM = 56, dic__PackingCodeType__BN = 57, dic__PackingCodeType__BO = 58, dic__PackingCodeType__BP = 59, dic__PackingCodeType__BQ = 60, dic__PackingCodeType__BR = 61, dic__PackingCodeType__BS = 62, dic__PackingCodeType__BT = 63, dic__PackingCodeType__BU = 64, dic__PackingCodeType__BV = 65, dic__PackingCodeType__BW = 66, dic__PackingCodeType__BX = 67, dic__PackingCodeType__BY = 68, dic__PackingCodeType__BZ = 69, dic__PackingCodeType__CA = 70, dic__PackingCodeType__CB = 71, dic__PackingCodeType__CC = 72, dic__PackingCodeType__CD = 73, dic__PackingCodeType__CE = 74, dic__PackingCodeType__CF = 75, dic__PackingCodeType__CG = 76, dic__PackingCodeType__CH = 77, dic__PackingCodeType__CI = 78, dic__PackingCodeType__CJ = 79, dic__PackingCodeType__CK = 80, dic__PackingCodeType__CL = 81, dic__PackingCodeType__CM = 82, dic__PackingCodeType__CN = 83, dic__PackingCodeType__CO = 84, dic__PackingCodeType__CP = 85, dic__PackingCodeType__CQ = 86, dic__PackingCodeType__CR = 87, dic__PackingCodeType__CS = 88, dic__PackingCodeType__CT = 89, dic__PackingCodeType__CU = 90, dic__PackingCodeType__CV = 91, dic__PackingCodeType__CW = 92, dic__PackingCodeType__CX = 93, dic__PackingCodeType__CY = 94, dic__PackingCodeType__CZ = 95, dic__PackingCodeType__DA = 96, dic__PackingCodeType__DB = 97, dic__PackingCodeType__DC = 98, dic__PackingCodeType__DG = 99, dic__PackingCodeType__DH = 100, dic__PackingCodeType__DI = 101, dic__PackingCodeType__DJ = 102, dic__PackingCodeType__DK = 103, dic__PackingCodeType__DL = 104, dic__PackingCodeType__DM = 105, dic__PackingCodeType__DN = 106, dic__PackingCodeType__DP = 107, dic__PackingCodeType__DR = 108, dic__PackingCodeType__DS = 109, dic__PackingCodeType__DT = 110, dic__PackingCodeType__DU = 111, dic__PackingCodeType__DV = 112, dic__PackingCodeType__DW = 113, dic__PackingCodeType__DX = 114, dic__PackingCodeType__DY = 115, dic__PackingCodeType__EC = 116, dic__PackingCodeType__ED = 117, dic__PackingCodeType__EE = 118, dic__PackingCodeType__EF = 119, dic__PackingCodeType__EG = 120, dic__PackingCodeType__EH = 121, dic__PackingCodeType__EI = 122, dic__PackingCodeType__EN = 123, dic__PackingCodeType__FC = 124, dic__PackingCodeType__FD = 125, dic__PackingCodeType__FE = 126, dic__PackingCodeType__FI = 127, dic__PackingCodeType__FL = 128, dic__PackingCodeType__FO = 129, dic__PackingCodeType__FP = 130, dic__PackingCodeType__FR = 131, dic__PackingCodeType__FT = 132, dic__PackingCodeType__FX = 133, dic__PackingCodeType__GB = 134, dic__PackingCodeType__GI = 135, dic__PackingCodeType__GL = 136, dic__PackingCodeType__GR = 137, dic__PackingCodeType__GY = 138, dic__PackingCodeType__GZ = 139, dic__PackingCodeType__HA = 140, dic__PackingCodeType__HB = 141, dic__PackingCodeType__HC = 142, dic__PackingCodeType__HG = 143, dic__PackingCodeType__HN = 144, dic__PackingCodeType__HR = 145, dic__PackingCodeType__IA = 146, dic__PackingCodeType__IB = 147, dic__PackingCodeType__IC = 148, dic__PackingCodeType__ID = 149, dic__PackingCodeType__IE = 150, dic__PackingCodeType__IF = 151, dic__PackingCodeType__IG = 152, dic__PackingCodeType__IH = 153, dic__PackingCodeType__IK = 154, dic__PackingCodeType__IN = 155, dic__PackingCodeType__IZ = 156, dic__PackingCodeType__JB = 157, dic__PackingCodeType__JC = 158, dic__PackingCodeType__JG = 159, dic__PackingCodeType__JR = 160, dic__PackingCodeType__JT = 161, dic__PackingCodeType__JY = 162, dic__PackingCodeType__KG = 163, dic__PackingCodeType__KI = 164, dic__PackingCodeType__LE = 165, dic__PackingCodeType__LG = 166, dic__PackingCodeType__LT = 167, dic__PackingCodeType__LU = 168, dic__PackingCodeType__LV = 169, dic__PackingCodeType__LZ = 170, dic__PackingCodeType__MA = 171, dic__PackingCodeType__MB = 172, dic__PackingCodeType__MC = 173, dic__PackingCodeType__ME = 174, dic__PackingCodeType__MR = 175, dic__PackingCodeType__MS = 176, dic__PackingCodeType__MT = 177, dic__PackingCodeType__MW = 178, dic__PackingCodeType__MX = 179, dic__PackingCodeType__NA = 180, dic__PackingCodeType__NE = 181, dic__PackingCodeType__NF = 182, dic__PackingCodeType__NG = 183, dic__PackingCodeType__NS = 184, dic__PackingCodeType__NT = 185, dic__PackingCodeType__NU = 186, dic__PackingCodeType__NV = 187, dic__PackingCodeType__OT = 188, dic__PackingCodeType__OU = 189, dic__PackingCodeType__P2 = 190, dic__PackingCodeType__PA = 191, dic__PackingCodeType__PB = 192, dic__PackingCodeType__PC = 193, dic__PackingCodeType__PD = 194, dic__PackingCodeType__PE = 195, dic__PackingCodeType__PF = 196, dic__PackingCodeType__PG = 197, dic__PackingCodeType__PH = 198, dic__PackingCodeType__PI = 199, dic__PackingCodeType__PJ = 200, dic__PackingCodeType__PK = 201, dic__PackingCodeType__PL = 202, dic__PackingCodeType__PN = 203, dic__PackingCodeType__PO = 204, dic__PackingCodeType__PP = 205, dic__PackingCodeType__PR = 206, dic__PackingCodeType__PT = 207, dic__PackingCodeType__PU = 208, dic__PackingCodeType__PV = 209, dic__PackingCodeType__PX = 210, dic__PackingCodeType__PY = 211, dic__PackingCodeType__PZ = 212, dic__PackingCodeType__QA = 213, dic__PackingCodeType__QB = 214, dic__PackingCodeType__QC = 215, dic__PackingCodeType__QD = 216, dic__PackingCodeType__QF = 217, dic__PackingCodeType__QG = 218, dic__PackingCodeType__QH = 219, dic__PackingCodeType__QJ = 220, dic__PackingCodeType__QK = 221, dic__PackingCodeType__QL = 222, dic__PackingCodeType__QM = 223, dic__PackingCodeType__QN = 224, dic__PackingCodeType__QP = 225, dic__PackingCodeType__QQ = 226, dic__PackingCodeType__QR = 227, dic__PackingCodeType__QS = 228, dic__PackingCodeType__RD = 229, dic__PackingCodeType__RG = 230, dic__PackingCodeType__RJ = 231, dic__PackingCodeType__RK = 232, dic__PackingCodeType__RL = 233, dic__PackingCodeType__RO = 234, dic__PackingCodeType__RT = 235, dic__PackingCodeType__RZ = 236, dic__PackingCodeType__SA = 237, dic__PackingCodeType__SB = 238, dic__PackingCodeType__SC = 239, dic__PackingCodeType__SD = 240, dic__PackingCodeType__SE = 241, dic__PackingCodeType__SH = 242, dic__PackingCodeType__SI = 243, dic__PackingCodeType__SK = 244, dic__PackingCodeType__SL = 245, dic__PackingCodeType__SM = 246, dic__PackingCodeType__SO = 247, dic__PackingCodeType__SP = 248, dic__PackingCodeType__SS = 249, dic__PackingCodeType__ST = 250, dic__PackingCodeType__SU = 251, dic__PackingCodeType__SV = 252, dic__PackingCodeType__SW = 253, dic__PackingCodeType__SX = 254, dic__PackingCodeType__SY = 255, dic__PackingCodeType__SZ = 256, dic__PackingCodeType__T1 = 257, dic__PackingCodeType__TB = 258, dic__PackingCodeType__TC = 259, dic__PackingCodeType__TD = 260, dic__PackingCodeType__TE = 261, dic__PackingCodeType__TG = 262, dic__PackingCodeType__TI = 263, dic__PackingCodeType__TK = 264, dic__PackingCodeType__TL = 265, dic__PackingCodeType__TN = 266, dic__PackingCodeType__TO = 267, dic__PackingCodeType__TR = 268, dic__PackingCodeType__TS = 269, dic__PackingCodeType__TT = 270, dic__PackingCodeType__TU = 271, dic__PackingCodeType__TV = 272, dic__PackingCodeType__TW = 273, dic__PackingCodeType__TY = 274, dic__PackingCodeType__TZ = 275, dic__PackingCodeType__UC = 276, dic__PackingCodeType__UN = 277, dic__PackingCodeType__VA = 278, dic__PackingCodeType__VG = 279, dic__PackingCodeType__VI = 280, dic__PackingCodeType__VK = 281, dic__PackingCodeType__VL = 282, dic__PackingCodeType__VO = 283, dic__PackingCodeType__VP = 284, dic__PackingCodeType__VQ = 285, dic__PackingCodeType__VR = 286, dic__PackingCodeType__VS = 287, dic__PackingCodeType__VY = 288, dic__PackingCodeType__WA = 289, dic__PackingCodeType__WB = 290, dic__PackingCodeType__WC = 291, dic__PackingCodeType__WD = 292, dic__PackingCodeType__WF = 293, dic__PackingCodeType__WG = 294, dic__PackingCodeType__WH = 295, dic__PackingCodeType__WJ = 296, dic__PackingCodeType__WK = 297, dic__PackingCodeType__WL = 298, dic__PackingCodeType__WM = 299, dic__PackingCodeType__WN = 300, dic__PackingCodeType__WP = 301, dic__PackingCodeType__WQ = 302, dic__PackingCodeType__WR = 303, dic__PackingCodeType__WS = 304, dic__PackingCodeType__WT = 305, dic__PackingCodeType__WU = 306, dic__PackingCodeType__WV = 307, dic__PackingCodeType__WW = 308, dic__PackingCodeType__WX = 309, dic__PackingCodeType__WY = 310, dic__PackingCodeType__WZ = 311, dic__PackingCodeType__XA = 312, dic__PackingCodeType__XB = 313, dic__PackingCodeType__XC = 314, dic__PackingCodeType__XD = 315, dic__PackingCodeType__XF = 316, dic__PackingCodeType__XG = 317, dic__PackingCodeType__XH = 318, dic__PackingCodeType__XJ = 319, dic__PackingCodeType__XK = 320, dic__PackingCodeType__YA = 321, dic__PackingCodeType__YB = 322, dic__PackingCodeType__YC = 323, dic__PackingCodeType__YD = 324, dic__PackingCodeType__YF = 325, dic__PackingCodeType__YH = 326, dic__PackingCodeType__YJ = 327, dic__PackingCodeType__YK = 328, dic__PackingCodeType__YL = 329, dic__PackingCodeType__YM = 330, dic__PackingCodeType__YN = 331, dic__PackingCodeType__YP = 332, dic__PackingCodeType__YQ = 333, dic__PackingCodeType__YR = 334, dic__PackingCodeType__YS = 335, dic__PackingCodeType__YT = 336, dic__PackingCodeType__YV = 337, dic__PackingCodeType__YW = 338, dic__PackingCodeType__YX = 339, dic__PackingCodeType__YY = 340, dic__PackingCodeType__YZ = 341, dic__PackingCodeType__ZA = 342, dic__PackingCodeType__ZB = 343, dic__PackingCodeType__ZC = 344, dic__PackingCodeType__ZD = 345, dic__PackingCodeType__ZF = 346, dic__PackingCodeType__ZG = 347, dic__PackingCodeType__ZH = 348, dic__PackingCodeType__ZJ = 349, dic__PackingCodeType__ZK = 350, dic__PackingCodeType__ZL = 351, dic__PackingCodeType__ZM = 352, dic__PackingCodeType__ZN = 353, dic__PackingCodeType__ZP = 354, dic__PackingCodeType__ZQ = 355, dic__PackingCodeType__ZR = 356, dic__PackingCodeType__ZS = 357, dic__PackingCodeType__ZT = 358, dic__PackingCodeType__ZU = 359, dic__PackingCodeType__ZV = 360, dic__PackingCodeType__ZW = 361, dic__PackingCodeType__ZX = 362, dic__PackingCodeType__ZY = 363, dic__PackingCodeType__ZZ = 364};
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseGroup
-#define SOAP_TYPE_ent__EnterpriseGroup (347)
-/* ent:EnterpriseGroup */
-enum ent__EnterpriseGroup {ent__EnterpriseGroup__0 = 0, ent__EnterpriseGroup__1 = 1, ent__EnterpriseGroup__2 = 2};
+#ifndef SOAP_TYPE_dic__EnterpriseGroup
+#define SOAP_TYPE_dic__EnterpriseGroup (231)
+/* dic:EnterpriseGroup */
+enum dic__EnterpriseGroup {dic__EnterpriseGroup__0 = 0, dic__EnterpriseGroup__1 = 1, dic__EnterpriseGroup__2 = 2};
 #endif
 
-#ifndef SOAP_TYPE_ent__BusinessEntityType
-#define SOAP_TYPE_ent__BusinessEntityType (349)
-/* ent:BusinessEntityType */
-enum ent__BusinessEntityType {ent__BusinessEntityType__1 = 1, ent__BusinessEntityType__2 = 2, ent__BusinessEntityType__3 = 3};
+#ifndef SOAP_TYPE_dic__BusinessEntityType
+#define SOAP_TYPE_dic__BusinessEntityType (233)
+/* dic:BusinessEntityType */
+enum dic__BusinessEntityType {dic__BusinessEntityType__1 = 1, dic__BusinessEntityType__2 = 2, dic__BusinessEntityType__3 = 3};
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductType
-#define SOAP_TYPE_ent__ProductType (353)
-/* ent:ProductType */
-enum ent__ProductType {ent__ProductType__1 = 1, ent__ProductType__2 = 2, ent__ProductType__3 = 3, ent__ProductType__4 = 4, ent__ProductType__5 = 5, ent__ProductType__6 = 6, ent__ProductType__7 = 7, ent__ProductType__8 = 8};
+#ifndef SOAP_TYPE_dic__ProductType
+#define SOAP_TYPE_dic__ProductType (237)
+/* dic:ProductType */
+enum dic__ProductType {dic__ProductType__1 = 1, dic__ProductType__2 = 2, dic__ProductType__3 = 3, dic__ProductType__4 = 4, dic__ProductType__5 = 5, dic__ProductType__6 = 6, dic__ProductType__7 = 7, dic__ProductType__8 = 8};
 #endif
 
-#ifndef SOAP_TYPE_ent__DocumentType
-#define SOAP_TYPE_ent__DocumentType (355)
-/* ent:DocumentType */
-enum ent__DocumentType {ent__DocumentType__1 = 1, ent__DocumentType__2 = 2, ent__DocumentType__3 = 3, ent__DocumentType__4 = 4, ent__DocumentType__5 = 5, ent__DocumentType__6 = 6, ent__DocumentType__7 = 7, ent__DocumentType__8 = 8, ent__DocumentType__9 = 9, ent__DocumentType__10 = 10, ent__DocumentType__11 = 11, ent__DocumentType__12 = 12, ent__DocumentType__13 = 13, ent__DocumentType__14 = 14, ent__DocumentType__15 = 15, ent__DocumentType__16 = 16};
+#ifndef SOAP_TYPE_dic__DocumentType
+#define SOAP_TYPE_dic__DocumentType (239)
+/* dic:DocumentType */
+enum dic__DocumentType {dic__DocumentType__1 = 1, dic__DocumentType__2 = 2, dic__DocumentType__3 = 3, dic__DocumentType__4 = 4, dic__DocumentType__5 = 5, dic__DocumentType__6 = 6, dic__DocumentType__7 = 7, dic__DocumentType__8 = 8, dic__DocumentType__9 = 9, dic__DocumentType__10 = 10, dic__DocumentType__11 = 11, dic__DocumentType__12 = 12, dic__DocumentType__13 = 13, dic__DocumentType__14 = 14, dic__DocumentType__15 = 15, dic__DocumentType__16 = 16, dic__DocumentType__17 = 17, dic__DocumentType__18 = 18, dic__DocumentType__19 = 19, dic__DocumentType__20 = 20, dic__DocumentType__21 = 21, dic__DocumentType__22 = 22};
 #endif
 
-#ifndef SOAP_TYPE_ent__ReferenceType
-#define SOAP_TYPE_ent__ReferenceType (356)
-/* ent:ReferenceType */
-enum ent__ReferenceType {ent__ReferenceType__1 = 1, ent__ReferenceType__2 = 2, ent__ReferenceType__3 = 3, ent__ReferenceType__4 = 4, ent__ReferenceType__5 = 5, ent__ReferenceType__6 = 6};
+#ifndef SOAP_TYPE_dic__ReferenceType
+#define SOAP_TYPE_dic__ReferenceType (240)
+/* dic:ReferenceType */
+enum dic__ReferenceType {dic__ReferenceType__1 = 1, dic__ReferenceType__2 = 2, dic__ReferenceType__3 = 3, dic__ReferenceType__4 = 4, dic__ReferenceType__5 = 5, dic__ReferenceType__6 = 6};
 #endif
 
-#ifndef SOAP_TYPE_ent__TransportType
-#define SOAP_TYPE_ent__TransportType (357)
-/* ent:TransportType */
-enum ent__TransportType {ent__TransportType__1 = 1, ent__TransportType__2 = 2, ent__TransportType__3 = 3, ent__TransportType__4 = 4, ent__TransportType__5 = 5};
+#ifndef SOAP_TYPE_dic__TransportType
+#define SOAP_TYPE_dic__TransportType (241)
+/* dic:TransportType */
+enum dic__TransportType {dic__TransportType__1 = 1, dic__TransportType__2 = 2, dic__TransportType__3 = 3, dic__TransportType__4 = 4, dic__TransportType__5 = 5};
 #endif
 
-#ifndef SOAP_TYPE_ent__ResearchResult
-#define SOAP_TYPE_ent__ResearchResult (363)
-/* ent:ResearchResult */
-enum ent__ResearchResult {ent__ResearchResult__UNKNOWN = 0, ent__ResearchResult__UNDEFINED = 1, ent__ResearchResult__POSITIVE = 2, ent__ResearchResult__NEGATIVE = 3, ent__ResearchResult__UNFULFILLED = 4, ent__ResearchResult__VSERAW = 5, ent__ResearchResult__VSEFULL = 6};
+#ifndef SOAP_TYPE_dic__ResearchResult
+#define SOAP_TYPE_dic__ResearchResult (247)
+/* dic:ResearchResult */
+enum dic__ResearchResult {dic__ResearchResult__UNKNOWN = 0, dic__ResearchResult__UNDEFINED = 1, dic__ResearchResult__POSITIVE = 2, dic__ResearchResult__NEGATIVE = 3, dic__ResearchResult__UNFULFILLED = 4, dic__ResearchResult__VSERAW = 5, dic__ResearchResult__VSEFULL = 6};
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationDecision
-#define SOAP_TYPE_ent__RegionalizationDecision (365)
-/* ent:RegionalizationDecision */
-enum ent__RegionalizationDecision {ent__RegionalizationDecision__1 = 1, ent__RegionalizationDecision__2 = 2, ent__RegionalizationDecision__3 = 3};
+#ifndef SOAP_TYPE_dic__RegionalizationDecision
+#define SOAP_TYPE_dic__RegionalizationDecision (249)
+/* dic:RegionalizationDecision */
+enum dic__RegionalizationDecision {dic__RegionalizationDecision__1 = 1, dic__RegionalizationDecision__2 = 2, dic__RegionalizationDecision__3 = 3};
 #endif
 
-#ifndef SOAP_TYPE_ent__ProsperityType
-#define SOAP_TYPE_ent__ProsperityType (366)
-/* ent:ProsperityType */
-enum ent__ProsperityType {ent__ProsperityType__UNDEFINED = 0, ent__ProsperityType__UNKNOWN = 1, ent__ProsperityType__SAFE = 2, ent__ProsperityType__UNSAFE = 3};
+#ifndef SOAP_TYPE_dic__ProsperityType
+#define SOAP_TYPE_dic__ProsperityType (250)
+/* dic:ProsperityType */
+enum dic__ProsperityType {dic__ProsperityType__UNDEFINED = 0, dic__ProsperityType__UNKNOWN = 1, dic__ProsperityType__SAFE = 2, dic__ProsperityType__UNSAFE = 3};
 #endif
 
-#ifndef SOAP_TYPE_ent__VaccinationType
-#define SOAP_TYPE_ent__VaccinationType (367)
-/* ent:VaccinationType */
-enum ent__VaccinationType {ent__VaccinationType__UNDEFINED = 0, ent__VaccinationType__APPLIED = 1, ent__VaccinationType__UNVACCINATED = 2};
+#ifndef SOAP_TYPE_dic__VaccinationType
+#define SOAP_TYPE_dic__VaccinationType (251)
+/* dic:VaccinationType */
+enum dic__VaccinationType {dic__VaccinationType__UNDEFINED = 0, dic__VaccinationType__APPLIED = 1, dic__VaccinationType__UNVACCINATED = 2};
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntryBlankFilter
-#define SOAP_TYPE_vd__StockEntryBlankFilter (369)
+#define SOAP_TYPE_vd__StockEntryBlankFilter (253)
 /* vd:StockEntryBlankFilter */
 enum vd__StockEntryBlankFilter {vd__StockEntryBlankFilter__ALL = 0, vd__StockEntryBlankFilter__BLANK = 1, vd__StockEntryBlankFilter__NOT_USCOREBLANK = 2};
 #endif
 
 #ifndef SOAP_TYPE_vd__VeterinaryEventType
-#define SOAP_TYPE_vd__VeterinaryEventType (370)
+#define SOAP_TYPE_vd__VeterinaryEventType (254)
 /* vd:VeterinaryEventType */
 enum vd__VeterinaryEventType {vd__VeterinaryEventType__UND = 0, vd__VeterinaryEventType__LBR = 1, vd__VeterinaryEventType__VSE = 2, vd__VeterinaryEventType__IMM = 3, vd__VeterinaryEventType__MED = 4, vd__VeterinaryEventType__QRT = 5};
 #endif
 
 #ifndef SOAP_TYPE_vd__ProcessingProcedureType
-#define SOAP_TYPE_vd__ProcessingProcedureType (371)
+#define SOAP_TYPE_vd__ProcessingProcedureType (255)
 /* vd:ProcessingProcedureType */
 enum vd__ProcessingProcedureType {vd__ProcessingProcedureType__7 = 7, vd__ProcessingProcedureType__12 = 12, vd__ProcessingProcedureType__13 = 13, vd__ProcessingProcedureType__34 = 34, vd__ProcessingProcedureType__35 = 35, vd__ProcessingProcedureType__37 = 37, vd__ProcessingProcedureType__39 = 39, vd__ProcessingProcedureType__40 = 40, vd__ProcessingProcedureType__43 = 43, vd__ProcessingProcedureType__51 = 51, vd__ProcessingProcedureType__73 = 73, vd__ProcessingProcedureType__95 = 95, vd__ProcessingProcedureType__101 = 101, vd__ProcessingProcedureType__102 = 102};
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseRole
-#define SOAP_TYPE_ent__EnterpriseRole (373)
-/* ent:EnterpriseRole */
-enum ent__EnterpriseRole {ent__EnterpriseRole__UNKNOWN = 0, ent__EnterpriseRole__PRODUCER = 1, ent__EnterpriseRole__SLAUGHTER_USCOREHOUSE = 2, ent__EnterpriseRole__CUTTING_USCOREPLANT = 3, ent__EnterpriseRole__COLD_USCORESTORE = 4, ent__EnterpriseRole__PACKAGING_USCOREPLANT = 5};
+#ifndef SOAP_TYPE_dic__EnterpriseRole
+#define SOAP_TYPE_dic__EnterpriseRole (257)
+/* dic:EnterpriseRole */
+enum dic__EnterpriseRole {dic__EnterpriseRole__UNKNOWN = 0, dic__EnterpriseRole__PRODUCER = 1, dic__EnterpriseRole__SLAUGHTER_USCOREHOUSE = 2, dic__EnterpriseRole__CUTTING_USCOREPLANT = 3, dic__EnterpriseRole__COLD_USCORESTORE = 4, dic__EnterpriseRole__PACKAGING_USCOREPLANT = 5};
 #endif
 
-#ifndef SOAP_TYPE_ent__DocumentNature
-#define SOAP_TYPE_ent__DocumentNature (374)
-/* ent:DocumentNature */
-enum ent__DocumentNature {ent__DocumentNature__ELECTRONIC = 0, ent__DocumentNature__PAPER = 1};
+#ifndef SOAP_TYPE_dic__DocumentNature
+#define SOAP_TYPE_dic__DocumentNature (258)
+/* dic:DocumentNature */
+enum dic__DocumentNature {dic__DocumentNature__ELECTRONIC = 0, dic__DocumentNature__PAPER = 1};
 #endif
 
-#ifndef SOAP_TYPE_ent__TransportationStorageType
-#define SOAP_TYPE_ent__TransportationStorageType (375)
-/* ent:TransportationStorageType */
-enum ent__TransportationStorageType {ent__TransportationStorageType__FROZEN = 0, ent__TransportationStorageType__CHILLED = 1, ent__TransportationStorageType__COOLED = 2, ent__TransportationStorageType__VENTILATED = 3};
+#ifndef SOAP_TYPE_dic__TransportationStorageType
+#define SOAP_TYPE_dic__TransportationStorageType (259)
+/* dic:TransportationStorageType */
+enum dic__TransportationStorageType {dic__TransportationStorageType__FROZEN = 0, dic__TransportationStorageType__CHILLED = 1, dic__TransportationStorageType__COOLED = 2, dic__TransportationStorageType__VENTILATED = 3};
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductMarkingClass
-#define SOAP_TYPE_ent__ProductMarkingClass (376)
-/* ent:ProductMarkingClass */
-enum ent__ProductMarkingClass {ent__ProductMarkingClass__UNDEFINED = 0, ent__ProductMarkingClass__BN = 1, ent__ProductMarkingClass__SSCC = 2, ent__ProductMarkingClass__EAN8 = 3, ent__ProductMarkingClass__EAN13 = 4, ent__ProductMarkingClass__EAN128 = 5, ent__ProductMarkingClass__BUNDLE = 6};
+#ifndef SOAP_TYPE_dic__ProductMarkingClass
+#define SOAP_TYPE_dic__ProductMarkingClass (260)
+/* dic:ProductMarkingClass */
+enum dic__ProductMarkingClass {dic__ProductMarkingClass__UNDEFINED = 0, dic__ProductMarkingClass__BN = 1, dic__ProductMarkingClass__SSCC = 2, dic__ProductMarkingClass__EAN8 = 3, dic__ProductMarkingClass__EAN13 = 4, dic__ProductMarkingClass__EAN128 = 5, dic__ProductMarkingClass__BUNDLE = 6};
 #endif
 
 #ifndef SOAP_TYPE_vd__DeliveryDecision
-#define SOAP_TYPE_vd__DeliveryDecision (378)
+#define SOAP_TYPE_vd__DeliveryDecision (262)
 /* vd:DeliveryDecision */
 enum vd__DeliveryDecision {vd__DeliveryDecision__ACCEPT_USCOREALL = 0, vd__DeliveryDecision__PARTIALLY = 1, vd__DeliveryDecision__RETURN_USCOREALL = 2};
 #endif
 
 #ifndef SOAP_TYPE_vd__DeliveryInspectionResult
-#define SOAP_TYPE_vd__DeliveryInspectionResult (379)
+#define SOAP_TYPE_vd__DeliveryInspectionResult (263)
 /* vd:DeliveryInspectionResult */
 enum vd__DeliveryInspectionResult {vd__DeliveryInspectionResult__CORRESPONDS = 0, vd__DeliveryInspectionResult__MISMATCH = 1, vd__DeliveryInspectionResult__UNSUPERVISED = 2};
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentForm
-#define SOAP_TYPE_vd__VetDocumentForm (380)
+#define SOAP_TYPE_vd__VetDocumentForm (264)
 /* vd:VetDocumentForm */
 enum vd__VetDocumentForm {vd__VetDocumentForm__CERTCU1 = 0, vd__VetDocumentForm__LIC1 = 1, vd__VetDocumentForm__CERTCU2 = 2, vd__VetDocumentForm__LIC2 = 3, vd__VetDocumentForm__CERTCU3 = 4, vd__VetDocumentForm__LIC3 = 5, vd__VetDocumentForm__NOTE4 = 6, vd__VetDocumentForm__CERT5I = 7, vd__VetDocumentForm__CERT61 = 8, vd__VetDocumentForm__CERT62 = 9, vd__VetDocumentForm__CERT63 = 10, vd__VetDocumentForm__PRODUCTIVE = 11};
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentType
-#define SOAP_TYPE_vd__VetDocumentType (381)
+#define SOAP_TYPE_vd__VetDocumentType (265)
 /* vd:VetDocumentType */
 enum vd__VetDocumentType {vd__VetDocumentType__TRANSPORT = 0, vd__VetDocumentType__PRODUCTIVE = 1, vd__VetDocumentType__RETURNABLE = 2, vd__VetDocumentType__INCOMING = 3, vd__VetDocumentType__OUTGOING = 4};
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentStatus
-#define SOAP_TYPE_vd__VetDocumentStatus (382)
+#define SOAP_TYPE_vd__VetDocumentStatus (266)
 /* vd:VetDocumentStatus */
 enum vd__VetDocumentStatus {vd__VetDocumentStatus__CREATED = 0, vd__VetDocumentStatus__CONFIRMED = 1, vd__VetDocumentStatus__WITHDRAWN = 2, vd__VetDocumentStatus__UTILIZED = 3, vd__VetDocumentStatus__FINALIZED = 4};
 #endif
 
 #ifndef SOAP_TYPE_vd__AnimalSpentPeriod
-#define SOAP_TYPE_vd__AnimalSpentPeriod (383)
+#define SOAP_TYPE_vd__AnimalSpentPeriod (267)
 /* vd:AnimalSpentPeriod */
 enum vd__AnimalSpentPeriod {vd__AnimalSpentPeriod__FROM_USCOREBIRTH = 0, vd__AnimalSpentPeriod__NOT_USCORELESS_USCORESIX_USCOREMONTHS = 1, vd__AnimalSpentPeriod__IN_USCOREMONTHS = 2, vd__AnimalSpentPeriod__ZERO = 3};
 #endif
@@ -245,98 +244,15 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE__ws__submitApplicationRequest
-#define SOAP_TYPE__ws__submitApplicationRequest (22)
-/* ws:submitApplicationRequest */
-class SOAP_CMAC _ws__submitApplicationRequest {
-public:
-	char *apiKey;	/* required element of type app:APIKey */
-	class app__Application *app__application;	/* required element of type app:Application */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 22; } /* = unique id SOAP_TYPE__ws__submitApplicationRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ws__submitApplicationRequest() { _ws__submitApplicationRequest::soap_default(NULL); }
-	virtual ~_ws__submitApplicationRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ws__submitApplicationResponse
-#define SOAP_TYPE__ws__submitApplicationResponse (23)
-/* ws:submitApplicationResponse */
-class SOAP_CMAC _ws__submitApplicationResponse {
-public:
-	app__Application *app__application;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type app:Application */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 23; } /* = unique id SOAP_TYPE__ws__submitApplicationResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ws__submitApplicationResponse() { _ws__submitApplicationResponse::soap_default(NULL); }
-	virtual ~_ws__submitApplicationResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ws__receiveApplicationResultRequest
-#define SOAP_TYPE__ws__receiveApplicationResultRequest (24)
-/* ws:receiveApplicationResultRequest */
-class SOAP_CMAC _ws__receiveApplicationResultRequest {
-public:
-	char *apiKey;	/* required element of type app:APIKey */
-	char *issuerId;	/* required element of type base:UUID */
-	char *applicationId;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 24; } /* = unique id SOAP_TYPE__ws__receiveApplicationResultRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ws__receiveApplicationResultRequest() { _ws__receiveApplicationResultRequest::soap_default(NULL); }
-	virtual ~_ws__receiveApplicationResultRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ws__receiveApplicationResultResponse
-#define SOAP_TYPE__ws__receiveApplicationResultResponse (25)
-/* ws:receiveApplicationResultResponse */
-class SOAP_CMAC _ws__receiveApplicationResultResponse {
-public:
-	app__Application *app__application;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type app:Application */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 25; } /* = unique id SOAP_TYPE__ws__receiveApplicationResultResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ws__receiveApplicationResultResponse() { _ws__receiveApplicationResultResponse::soap_default(NULL); }
-	virtual ~_ws__receiveApplicationResultResponse() { }
-};
-#endif
-
 #ifndef SOAP_TYPE_base__GenericEntity
-#define SOAP_TYPE_base__GenericEntity (26)
+#define SOAP_TYPE_base__GenericEntity (79)
 /* base:GenericEntity */
 class SOAP_CMAC base__GenericEntity {
 public:
 	char *uuid;	/* optional element of type base:UUID */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 26; } /* = unique id SOAP_TYPE_base__GenericEntity */
+	virtual int soap_type() const { return 79; } /* = unique id SOAP_TYPE_base__GenericEntity */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -349,7 +265,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_base__ListOptions
-#define SOAP_TYPE_base__ListOptions (28)
+#define SOAP_TYPE_base__ListOptions (81)
 /* base:ListOptions */
 class SOAP_CMAC base__ListOptions {
 public:
@@ -357,7 +273,7 @@ public:
 	char *offset;	/* optional element of type xsd:nonNegativeInteger */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 28; } /* = unique id SOAP_TYPE_base__ListOptions */
+	virtual int soap_type() const { return 81; } /* = unique id SOAP_TYPE_base__ListOptions */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -370,7 +286,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_base__DateInterval
-#define SOAP_TYPE_base__DateInterval (29)
+#define SOAP_TYPE_base__DateInterval (82)
 /* base:DateInterval */
 class SOAP_CMAC base__DateInterval {
 public:
@@ -378,7 +294,7 @@ public:
 	time_t *endDate;	/* optional element of type xsd:dateTime */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 29; } /* = unique id SOAP_TYPE_base__DateInterval */
+	virtual int soap_type() const { return 82; } /* = unique id SOAP_TYPE_base__DateInterval */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -391,7 +307,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_base__EntityList
-#define SOAP_TYPE_base__EntityList (30)
+#define SOAP_TYPE_base__EntityList (83)
 /* base:EntityList */
 class SOAP_CMAC base__EntityList {
 public:
@@ -401,7 +317,7 @@ public:
 	bool *hasMore;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 30; } /* = unique id SOAP_TYPE_base__EntityList */
+	virtual int soap_type() const { return 83; } /* = unique id SOAP_TYPE_base__EntityList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -414,7 +330,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_base__FaultInfo
-#define SOAP_TYPE_base__FaultInfo (31)
+#define SOAP_TYPE_base__FaultInfo (84)
 /* base:FaultInfo */
 class SOAP_CMAC base__FaultInfo {
 public:
@@ -423,7 +339,7 @@ public:
 	class base__Error **error;	/* optional element of type base:Error */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 31; } /* = unique id SOAP_TYPE_base__FaultInfo */
+	virtual int soap_type() const { return 84; } /* = unique id SOAP_TYPE_base__FaultInfo */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -435,8 +351,31 @@ public:
 };
 #endif
 
+#ifndef SOAP_TYPE_base__ComplexDate
+#define SOAP_TYPE_base__ComplexDate (86)
+/* base:ComplexDate */
+class SOAP_CMAC base__ComplexDate {
+public:
+	int *year;	/* optional element of type base:Year */
+	int *month;	/* optional element of type base:Month */
+	int *day;	/* optional element of type base:Day */
+	int *hour;	/* optional element of type base:Hour */
+	struct soap *soap;	/* transient */
+public:
+	virtual int soap_type() const { return 86; } /* = unique id SOAP_TYPE_base__ComplexDate */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         base__ComplexDate() { base__ComplexDate::soap_default(NULL); }
+	virtual ~base__ComplexDate() { }
+};
+#endif
+
 #ifndef SOAP_TYPE_app__Application
-#define SOAP_TYPE_app__Application (33)
+#define SOAP_TYPE_app__Application (87)
 /* app:Application */
 class SOAP_CMAC app__Application {
 public:
@@ -452,7 +391,7 @@ public:
 	class app__BusinessErrorList *errors;	/* optional element of type app:BusinessErrorList */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 33; } /* = unique id SOAP_TYPE_app__Application */
+	virtual int soap_type() const { return 87; } /* = unique id SOAP_TYPE_app__Application */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -465,7 +404,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_app__ApplicationDataWrapper
-#define SOAP_TYPE_app__ApplicationDataWrapper (34)
+#define SOAP_TYPE_app__ApplicationDataWrapper (88)
 /* app:ApplicationDataWrapper */
 class SOAP_CMAC app__ApplicationDataWrapper {
 public:
@@ -473,7 +412,7 @@ public:
 	enum app__ContentEncoding *encoding;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 34; } /* = unique id SOAP_TYPE_app__ApplicationDataWrapper */
+	virtual int soap_type() const { return 88; } /* = unique id SOAP_TYPE_app__ApplicationDataWrapper */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -486,7 +425,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_app__ApplicationResultWrapper
-#define SOAP_TYPE_app__ApplicationResultWrapper (35)
+#define SOAP_TYPE_app__ApplicationResultWrapper (89)
 /* app:ApplicationResultWrapper */
 class SOAP_CMAC app__ApplicationResultWrapper {
 public:
@@ -494,7 +433,7 @@ public:
 	enum app__ContentEncoding *encoding;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 35; } /* = unique id SOAP_TYPE_app__ApplicationResultWrapper */
+	virtual int soap_type() const { return 89; } /* = unique id SOAP_TYPE_app__ApplicationResultWrapper */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -507,13 +446,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_app__ApplicationData
-#define SOAP_TYPE_app__ApplicationData (36)
+#define SOAP_TYPE_app__ApplicationData (90)
 /* app:ApplicationData */
 class SOAP_CMAC app__ApplicationData {
 public:
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 36; } /* = unique id SOAP_TYPE_app__ApplicationData */
+	virtual int soap_type() const { return 90; } /* = unique id SOAP_TYPE_app__ApplicationData */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -526,13 +465,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_app__ApplicationResultData
-#define SOAP_TYPE_app__ApplicationResultData (37)
+#define SOAP_TYPE_app__ApplicationResultData (91)
 /* app:ApplicationResultData */
 class SOAP_CMAC app__ApplicationResultData {
 public:
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 37; } /* = unique id SOAP_TYPE_app__ApplicationResultData */
+	virtual int soap_type() const { return 91; } /* = unique id SOAP_TYPE_app__ApplicationResultData */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -545,7 +484,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_app__BusinessErrorList
-#define SOAP_TYPE_app__BusinessErrorList (38)
+#define SOAP_TYPE_app__BusinessErrorList (92)
 /* app:BusinessErrorList */
 class SOAP_CMAC app__BusinessErrorList {
 public:
@@ -553,7 +492,7 @@ public:
 	class app__BusinessError **error;	/* optional element of type app:BusinessError */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 38; } /* = unique id SOAP_TYPE_app__BusinessErrorList */
+	virtual int soap_type() const { return 92; } /* = unique id SOAP_TYPE_app__BusinessErrorList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -565,18 +504,18 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Address
-#define SOAP_TYPE_ent__Address (109)
-/* ent:Address */
-class SOAP_CMAC ent__Address {
+#ifndef SOAP_TYPE_dic__Address
+#define SOAP_TYPE_dic__Address (106)
+/* dic:Address */
+class SOAP_CMAC dic__Address {
 public:
-	class ent__Country *country;	/* optional element of type ent:Country */
-	class ent__FederalDistrict *federalDistrict;	/* optional element of type ent:FederalDistrict */
-	class ent__Region *region;	/* optional element of type ent:Region */
-	class ent__District *district;	/* optional element of type ent:District */
-	class ent__Locality *locality;	/* optional element of type ent:Locality */
-	ent__Locality *subLocality;	/* optional element of type ent:Locality */
-	class ent__Street *street;	/* optional element of type ent:Street */
+	class dic__Country *country;	/* optional element of type dic:Country */
+	class dic__FederalDistrict *federalDistrict;	/* optional element of type dic:FederalDistrict */
+	class dic__Region *region;	/* optional element of type dic:Region */
+	class dic__District *district;	/* optional element of type dic:District */
+	class dic__Locality *locality;	/* optional element of type dic:Locality */
+	dic__Locality *subLocality;	/* optional element of type dic:Locality */
+	class dic__Street *street;	/* optional element of type dic:Street */
 	char *house;	/* optional element of type base:String255 */
 	char *building;	/* optional element of type base:String255 */
 	char *room;	/* optional element of type base:String255 */
@@ -587,380 +526,381 @@ public:
 	char **enAddressView;	/* optional element of type base:NText */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 109; } /* = unique id SOAP_TYPE_ent__Address */
+	virtual int soap_type() const { return 106; } /* = unique id SOAP_TYPE_dic__Address */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Address() { ent__Address::soap_default(NULL); }
-	virtual ~ent__Address() { }
+	         dic__Address() { dic__Address::soap_default(NULL); }
+	virtual ~dic__Address() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Producer
-#define SOAP_TYPE_ent__Producer (118)
-/* ent:Producer */
-class SOAP_CMAC ent__Producer {
+#ifndef SOAP_TYPE_dic__Producer
+#define SOAP_TYPE_dic__Producer (115)
+/* dic:Producer */
+class SOAP_CMAC dic__Producer {
 public:
-	class ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
-	enum ent__EnterpriseRole *role;	/* optional element of type ent:EnterpriseRole */
+	class dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
+	enum dic__EnterpriseRole *role;	/* optional element of type dic:EnterpriseRole */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 118; } /* = unique id SOAP_TYPE_ent__Producer */
+	virtual int soap_type() const { return 115; } /* = unique id SOAP_TYPE_dic__Producer */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Producer() { ent__Producer::soap_default(NULL); }
-	virtual ~ent__Producer() { }
+	         dic__Producer() { dic__Producer::soap_default(NULL); }
+	virtual ~dic__Producer() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProducerList
-#define SOAP_TYPE_ent__ProducerList (119)
-/* ent:ProducerList */
-class SOAP_CMAC ent__ProducerList {
+#ifndef SOAP_TYPE_dic__ProducerList
+#define SOAP_TYPE_dic__ProducerList (116)
+/* dic:ProducerList */
+class SOAP_CMAC dic__ProducerList {
 public:
 	int __sizeproducer;	/* sequence of elements <producer> */
-	ent__Producer **producer;	/* optional element of type ent:Producer */
+	dic__Producer **producer;	/* optional element of type dic:Producer */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 119; } /* = unique id SOAP_TYPE_ent__ProducerList */
+	virtual int soap_type() const { return 116; } /* = unique id SOAP_TYPE_dic__ProducerList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProducerList() { ent__ProducerList::soap_default(NULL); }
-	virtual ~ent__ProducerList() { }
+	         dic__ProducerList() { dic__ProducerList::soap_default(NULL); }
+	virtual ~dic__ProducerList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseNumberList
-#define SOAP_TYPE_ent__EnterpriseNumberList (120)
-/* ent:EnterpriseNumberList */
-class SOAP_CMAC ent__EnterpriseNumberList {
+#ifndef SOAP_TYPE_dic__EnterpriseNumberList
+#define SOAP_TYPE_dic__EnterpriseNumberList (117)
+/* dic:EnterpriseNumberList */
+class SOAP_CMAC dic__EnterpriseNumberList {
 public:
 	int __sizeenterpriseNumber;	/* sequence of elements <enterpriseNumber> */
 	char **enterpriseNumber;	/* optional element of type base:String255 */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 120; } /* = unique id SOAP_TYPE_ent__EnterpriseNumberList */
+	virtual int soap_type() const { return 117; } /* = unique id SOAP_TYPE_dic__EnterpriseNumberList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__EnterpriseNumberList() { ent__EnterpriseNumberList::soap_default(NULL); }
-	virtual ~ent__EnterpriseNumberList() { }
+	         dic__EnterpriseNumberList() { dic__EnterpriseNumberList::soap_default(NULL); }
+	virtual ~dic__EnterpriseNumberList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__BusinessMember
-#define SOAP_TYPE_ent__BusinessMember (122)
-/* ent:BusinessMember */
-class SOAP_CMAC ent__BusinessMember {
+#ifndef SOAP_TYPE_dic__BusinessMember
+#define SOAP_TYPE_dic__BusinessMember (119)
+/* dic:BusinessMember */
+class SOAP_CMAC dic__BusinessMember {
 public:
-	class ent__BusinessEntity *businessEntity;	/* optional element of type ent:BusinessEntity */
-	ent__Enterprise *enterprise;	/* optional element of type ent:Enterprise */
-	char *globalID;	/* optional element of type ent:GLNType */
+	class dic__BusinessEntity *businessEntity;	/* optional element of type dic:BusinessEntity */
+	dic__Enterprise *enterprise;	/* optional element of type dic:Enterprise */
+	int __sizeglobalID;	/* sequence of elements <globalID> */
+	char **globalID;	/* optional element of type dic:GLNType */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 122; } /* = unique id SOAP_TYPE_ent__BusinessMember */
+	virtual int soap_type() const { return 119; } /* = unique id SOAP_TYPE_dic__BusinessMember */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__BusinessMember() { ent__BusinessMember::soap_default(NULL); }
-	virtual ~ent__BusinessMember() { }
+	         dic__BusinessMember() { dic__BusinessMember::soap_default(NULL); }
+	virtual ~dic__BusinessMember() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Package
-#define SOAP_TYPE_ent__Package (133)
-/* ent:Package */
-class SOAP_CMAC ent__Package {
+#ifndef SOAP_TYPE_dic__Package
+#define SOAP_TYPE_dic__Package (130)
+/* dic:Package */
+class SOAP_CMAC dic__Package {
 public:
-	enum ent__PackageLevelType level;	/* required element of type ent:PackageLevelType */
-	class ent__PackingType *packingType;	/* required element of type ent:PackingType */
+	enum dic__PackageLevelType level;	/* required element of type dic:PackageLevelType */
+	class dic__PackingType *packingType;	/* required element of type dic:PackingType */
 	char *quantity;	/* optional element of type xsd:integer */
 	int __sizeproductMarks;	/* sequence of elements <productMarks> */
-	class ent__ProductMarks **productMarks;	/* optional element of type ent:ProductMarks */
+	class dic__ProductMarks **productMarks;	/* optional element of type dic:ProductMarks */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 133; } /* = unique id SOAP_TYPE_ent__Package */
+	virtual int soap_type() const { return 130; } /* = unique id SOAP_TYPE_dic__Package */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Package() { ent__Package::soap_default(NULL); }
-	virtual ~ent__Package() { }
+	         dic__Package() { dic__Package::soap_default(NULL); }
+	virtual ~dic__Package() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__PackageList
-#define SOAP_TYPE_ent__PackageList (134)
-/* ent:PackageList */
-class SOAP_CMAC ent__PackageList {
+#ifndef SOAP_TYPE_dic__PackageList
+#define SOAP_TYPE_dic__PackageList (131)
+/* dic:PackageList */
+class SOAP_CMAC dic__PackageList {
 public:
 	int __sizepackage;	/* sequence of elements <package> */
-	ent__Package **package;	/* optional element of type ent:Package */
+	dic__Package **package;	/* optional element of type dic:Package */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 134; } /* = unique id SOAP_TYPE_ent__PackageList */
+	virtual int soap_type() const { return 131; } /* = unique id SOAP_TYPE_dic__PackageList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__PackageList() { ent__PackageList::soap_default(NULL); }
-	virtual ~ent__PackageList() { }
+	         dic__PackageList() { dic__PackageList::soap_default(NULL); }
+	virtual ~dic__PackageList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ComplexDate
-#define SOAP_TYPE_ent__ComplexDate (135)
-/* ent:ComplexDate */
-class SOAP_CMAC ent__ComplexDate {
+#ifndef SOAP_TYPE_dic__ComplexDate
+#define SOAP_TYPE_dic__ComplexDate (132)
+/* dic:ComplexDate */
+class SOAP_CMAC dic__ComplexDate {
 public:
-	int *year;	/* optional element of type ent:Year */
-	int *month;	/* optional element of type ent:Month */
-	int *day;	/* optional element of type ent:Day */
-	int *hour;	/* optional element of type ent:Hour */
-	int *minute;	/* optional element of type ent:Minute */
+	int *year;	/* optional element of type dic:Year */
+	int *month;	/* optional element of type dic:Month */
+	int *day;	/* optional element of type dic:Day */
+	int *hour;	/* optional element of type dic:Hour */
+	int *minute;	/* optional element of type dic:Minute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 135; } /* = unique id SOAP_TYPE_ent__ComplexDate */
+	virtual int soap_type() const { return 132; } /* = unique id SOAP_TYPE_dic__ComplexDate */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ComplexDate() { ent__ComplexDate::soap_default(NULL); }
-	virtual ~ent__ComplexDate() { }
+	         dic__ComplexDate() { dic__ComplexDate::soap_default(NULL); }
+	virtual ~dic__ComplexDate() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductItemProducing
-#define SOAP_TYPE_ent__ProductItemProducing (136)
-/* ent:ProductItemProducing */
-class SOAP_CMAC ent__ProductItemProducing {
+#ifndef SOAP_TYPE_dic__ProductItemProducing
+#define SOAP_TYPE_dic__ProductItemProducing (133)
+/* dic:ProductItemProducing */
+class SOAP_CMAC dic__ProductItemProducing {
 public:
-	ent__Enterprise *location;	/* required element of type ent:Enterprise */
+	dic__Enterprise *location;	/* required element of type dic:Enterprise */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 136; } /* = unique id SOAP_TYPE_ent__ProductItemProducing */
+	virtual int soap_type() const { return 133; } /* = unique id SOAP_TYPE_dic__ProductItemProducing */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProductItemProducing() { ent__ProductItemProducing::soap_default(NULL); }
-	virtual ~ent__ProductItemProducing() { }
+	         dic__ProductItemProducing() { dic__ProductItemProducing::soap_default(NULL); }
+	virtual ~dic__ProductItemProducing() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Packaging
-#define SOAP_TYPE_ent__Packaging (137)
-/* ent:Packaging */
-class SOAP_CMAC ent__Packaging {
+#ifndef SOAP_TYPE_dic__Packaging
+#define SOAP_TYPE_dic__Packaging (134)
+/* dic:Packaging */
+class SOAP_CMAC dic__Packaging {
 public:
-	ent__PackingType *packagingType;	/* required element of type ent:PackingType */
+	dic__PackingType *packagingType;	/* required element of type dic:PackingType */
 	char *quantity;	/* optional element of type xsd:integer */
 	char **volume;	/* optional element of type base:Decimal */
-	class ent__Unit *unit;	/* optional element of type ent:Unit */
+	class dic__Unit *unit;	/* optional element of type dic:Unit */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 137; } /* = unique id SOAP_TYPE_ent__Packaging */
+	virtual int soap_type() const { return 134; } /* = unique id SOAP_TYPE_dic__Packaging */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Packaging() { ent__Packaging::soap_default(NULL); }
-	virtual ~ent__Packaging() { }
+	         dic__Packaging() { dic__Packaging::soap_default(NULL); }
+	virtual ~dic__Packaging() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Location
-#define SOAP_TYPE_ent__Location (138)
-/* ent:Location */
-class SOAP_CMAC ent__Location {
+#ifndef SOAP_TYPE_dic__Location
+#define SOAP_TYPE_dic__Location (135)
+/* dic:Location */
+class SOAP_CMAC dic__Location {
 public:
 	char *name;	/* optional element of type base:String255 */
-	ent__Address *address;	/* optional element of type ent:Address */
+	dic__Address *address;	/* optional element of type dic:Address */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 138; } /* = unique id SOAP_TYPE_ent__Location */
+	virtual int soap_type() const { return 135; } /* = unique id SOAP_TYPE_dic__Location */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Location() { ent__Location::soap_default(NULL); }
-	virtual ~ent__Location() { }
+	         dic__Location() { dic__Location::soap_default(NULL); }
+	virtual ~dic__Location() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseOfficialRegistration
-#define SOAP_TYPE_ent__EnterpriseOfficialRegistration (139)
-/* ent:EnterpriseOfficialRegistration */
-class SOAP_CMAC ent__EnterpriseOfficialRegistration {
+#ifndef SOAP_TYPE_dic__EnterpriseOfficialRegistration
+#define SOAP_TYPE_dic__EnterpriseOfficialRegistration (136)
+/* dic:EnterpriseOfficialRegistration */
+class SOAP_CMAC dic__EnterpriseOfficialRegistration {
 public:
-	char *ID;	/* optional element of type ent:GRNType */
-	ent__BusinessEntity *businessEntity;	/* required element of type ent:BusinessEntity */
+	char *ID;	/* optional element of type dic:GRNType */
+	dic__BusinessEntity *businessEntity;	/* required element of type dic:BusinessEntity */
 	char *kpp;	/* required element of type base:String255 */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 139; } /* = unique id SOAP_TYPE_ent__EnterpriseOfficialRegistration */
+	virtual int soap_type() const { return 136; } /* = unique id SOAP_TYPE_dic__EnterpriseOfficialRegistration */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__EnterpriseOfficialRegistration() { ent__EnterpriseOfficialRegistration::soap_default(NULL); }
-	virtual ~ent__EnterpriseOfficialRegistration() { }
+	         dic__EnterpriseOfficialRegistration() { dic__EnterpriseOfficialRegistration::soap_default(NULL); }
+	virtual ~dic__EnterpriseOfficialRegistration() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Organization
-#define SOAP_TYPE_ent__Organization (140)
-/* ent:Organization */
-class SOAP_CMAC ent__Organization {
+#ifndef SOAP_TYPE_dic__Organization
+#define SOAP_TYPE_dic__Organization (137)
+/* dic:Organization */
+class SOAP_CMAC dic__Organization {
 public:
 	char **ID;	/* optional element of type base:Identifier */
 	char *name;	/* optional element of type base:String255 */
-	ent__Address *address;	/* optional element of type ent:Address */
+	dic__Address *address;	/* optional element of type dic:Address */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 140; } /* = unique id SOAP_TYPE_ent__Organization */
+	virtual int soap_type() const { return 137; } /* = unique id SOAP_TYPE_dic__Organization */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Organization() { ent__Organization::soap_default(NULL); }
-	virtual ~ent__Organization() { }
+	         dic__Organization() { dic__Organization::soap_default(NULL); }
+	virtual ~dic__Organization() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__MedicinalDrug
-#define SOAP_TYPE_ent__MedicinalDrug (144)
-/* ent:MedicinalDrug */
-class SOAP_CMAC ent__MedicinalDrug {
+#ifndef SOAP_TYPE_dic__MedicinalDrug
+#define SOAP_TYPE_dic__MedicinalDrug (141)
+/* dic:MedicinalDrug */
+class SOAP_CMAC dic__MedicinalDrug {
 public:
 	char **ID;	/* optional element of type base:Identifier */
 	char *name;	/* optional element of type base:String255 */
 	char *series;	/* optional element of type base:String255 */
-	ent__BusinessMember *producer;	/* optional element of type ent:BusinessMember */
+	dic__BusinessMember *producer;	/* optional element of type dic:BusinessMember */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 144; } /* = unique id SOAP_TYPE_ent__MedicinalDrug */
+	virtual int soap_type() const { return 141; } /* = unique id SOAP_TYPE_dic__MedicinalDrug */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__MedicinalDrug() { ent__MedicinalDrug::soap_default(NULL); }
-	virtual ~ent__MedicinalDrug() { }
+	         dic__MedicinalDrug() { dic__MedicinalDrug::soap_default(NULL); }
+	virtual ~dic__MedicinalDrug() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationConditionGroup
-#define SOAP_TYPE_ent__RegionalizationConditionGroup (146)
-/* ent:RegionalizationConditionGroup */
-class SOAP_CMAC ent__RegionalizationConditionGroup {
+#ifndef SOAP_TYPE_dic__RegionalizationConditionGroup
+#define SOAP_TYPE_dic__RegionalizationConditionGroup (143)
+/* dic:RegionalizationConditionGroup */
+class SOAP_CMAC dic__RegionalizationConditionGroup {
 public:
 	int __sizecondition;	/* sequence of elements <condition> */
-	class ent__RegionalizationCondition **condition;	/* optional element of type ent:RegionalizationCondition */
+	class dic__RegionalizationCondition **condition;	/* optional element of type dic:RegionalizationCondition */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 146; } /* = unique id SOAP_TYPE_ent__RegionalizationConditionGroup */
+	virtual int soap_type() const { return 143; } /* = unique id SOAP_TYPE_dic__RegionalizationConditionGroup */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationConditionGroup() { ent__RegionalizationConditionGroup::soap_default(NULL); }
-	virtual ~ent__RegionalizationConditionGroup() { }
+	         dic__RegionalizationConditionGroup() { dic__RegionalizationConditionGroup::soap_default(NULL); }
+	virtual ~dic__RegionalizationConditionGroup() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationRequirement
-#define SOAP_TYPE_ent__RegionalizationRequirement (147)
-/* ent:RegionalizationRequirement */
-class SOAP_CMAC ent__RegionalizationRequirement {
+#ifndef SOAP_TYPE_dic__RegionalizationRequirement
+#define SOAP_TYPE_dic__RegionalizationRequirement (144)
+/* dic:RegionalizationRequirement */
+class SOAP_CMAC dic__RegionalizationRequirement {
 public:
-	class ent__AnimalDisease *relatedDisease;	/* optional element of type ent:AnimalDisease */
-	enum ent__RegionalizationDecision type;	/* required element of type ent:RegionalizationDecision */
+	class dic__AnimalDisease *relatedDisease;	/* optional element of type dic:AnimalDisease */
+	enum dic__RegionalizationDecision type;	/* required element of type dic:RegionalizationDecision */
 	int __sizeconditionGroup;	/* sequence of elements <conditionGroup> */
-	ent__RegionalizationConditionGroup **conditionGroup;	/* optional element of type ent:RegionalizationConditionGroup */
+	dic__RegionalizationConditionGroup **conditionGroup;	/* optional element of type dic:RegionalizationConditionGroup */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 147; } /* = unique id SOAP_TYPE_ent__RegionalizationRequirement */
+	virtual int soap_type() const { return 144; } /* = unique id SOAP_TYPE_dic__RegionalizationRequirement */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationRequirement() { ent__RegionalizationRequirement::soap_default(NULL); }
-	virtual ~ent__RegionalizationRequirement() { }
+	         dic__RegionalizationRequirement() { dic__RegionalizationRequirement::soap_default(NULL); }
+	virtual ~dic__RegionalizationRequirement() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationStatus
-#define SOAP_TYPE_ent__RegionalizationStatus (149)
-/* ent:RegionalizationStatus */
-class SOAP_CMAC ent__RegionalizationStatus {
+#ifndef SOAP_TYPE_dic__RegionalizationStatus
+#define SOAP_TYPE_dic__RegionalizationStatus (146)
+/* dic:RegionalizationStatus */
+class SOAP_CMAC dic__RegionalizationStatus {
 public:
-	ent__AnimalDisease *relatedDisease;	/* required element of type ent:AnimalDisease */
-	enum ent__ProsperityType prosperity;	/* required element of type ent:ProsperityType */
-	enum ent__VaccinationType vaccination;	/* required element of type ent:VaccinationType */
+	dic__AnimalDisease *relatedDisease;	/* required element of type dic:AnimalDisease */
+	enum dic__ProsperityType prosperity;	/* required element of type dic:ProsperityType */
+	enum dic__VaccinationType vaccination;	/* required element of type dic:VaccinationType */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 149; } /* = unique id SOAP_TYPE_ent__RegionalizationStatus */
+	virtual int soap_type() const { return 146; } /* = unique id SOAP_TYPE_dic__RegionalizationStatus */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationStatus() { ent__RegionalizationStatus::soap_default(NULL); }
-	virtual ~ent__RegionalizationStatus() { }
+	         dic__RegionalizationStatus() { dic__RegionalizationStatus::soap_default(NULL); }
+	virtual ~dic__RegionalizationStatus() { }
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__Batch
-#define SOAP_TYPE_vd__Batch (159)
+#define SOAP_TYPE_vd__Batch (156)
 /* vd:Batch */
 class SOAP_CMAC vd__Batch {
 public:
-	enum ent__ProductType *productType;	/* optional element of type ent:ProductType */
-	class ent__Product *product;	/* optional element of type ent:Product */
-	class ent__SubProduct *subProduct;	/* optional element of type ent:SubProduct */
-	class ent__ProductItem *productItem;	/* optional element of type ent:ProductItem */
+	enum dic__ProductType *productType;	/* optional element of type dic:ProductType */
+	class dic__Product *product;	/* optional element of type dic:Product */
+	class dic__SubProduct *subProduct;	/* optional element of type dic:SubProduct */
+	class dic__ProductItem *productItem;	/* optional element of type dic:ProductItem */
 	char **volume;	/* optional element of type base:Decimal */
-	ent__Unit *unit;	/* optional element of type ent:Unit */
+	dic__Unit *unit;	/* optional element of type dic:Unit */
 	class vd__GoodsDate *dateOfProduction;	/* optional element of type vd:GoodsDate */
 	vd__GoodsDate *expiryDate;	/* optional element of type vd:GoodsDate */
 	int __sizebatchID;	/* sequence of elements <batchID> */
@@ -968,11 +908,11 @@ public:
 	bool *perishable;	/* optional element of type xsd:boolean */
 	class vd__BatchOrigin *origin;	/* optional element of type vd:BatchOrigin */
 	bool *lowGradeCargo;	/* optional element of type xsd:boolean */
-	ent__PackageList *packageList;	/* optional element of type ent:PackageList */
-	ent__BusinessEntity *owner;	/* optional element of type ent:BusinessEntity */
+	dic__PackageList *packageList;	/* optional element of type dic:PackageList */
+	dic__BusinessEntity *owner;	/* optional element of type dic:BusinessEntity */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 159; } /* = unique id SOAP_TYPE_vd__Batch */
+	virtual int soap_type() const { return 156; } /* = unique id SOAP_TYPE_vd__Batch */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -985,17 +925,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__RawBatch
-#define SOAP_TYPE_vd__RawBatch (161)
+#define SOAP_TYPE_vd__RawBatch (158)
 /* vd:RawBatch */
 class SOAP_CMAC vd__RawBatch {
 public:
 	class vd__StockEntry *sourceStockEntry;	/* optional element of type vd:StockEntry */
 	char **volume;	/* optional element of type base:Decimal */
-	ent__Unit *unit;	/* optional element of type ent:Unit */
-	ent__PackageList *packageList;	/* optional element of type ent:PackageList */
+	dic__Unit *unit;	/* optional element of type dic:Unit */
+	dic__PackageList *packageList;	/* optional element of type dic:PackageList */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 161; } /* = unique id SOAP_TYPE_vd__RawBatch */
+	virtual int soap_type() const { return 158; } /* = unique id SOAP_TYPE_vd__RawBatch */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1008,17 +948,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__DeliveryFactList
-#define SOAP_TYPE_vd__DeliveryFactList (164)
+#define SOAP_TYPE_vd__DeliveryFactList (161)
 /* vd:DeliveryFactList */
 class SOAP_CMAC vd__DeliveryFactList {
 public:
-	enum ent__DocumentNature vetCertificatePresence;	/* required element of type ent:DocumentNature */
+	enum dic__DocumentNature vetCertificatePresence;	/* required element of type dic:DocumentNature */
 	class vd__DeliveryInspection *docInspection;	/* required element of type vd:DeliveryInspection */
 	vd__DeliveryInspection *vetInspection;	/* required element of type vd:DeliveryInspection */
 	enum vd__DeliveryDecision decision;	/* required element of type vd:DeliveryDecision */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 164; } /* = unique id SOAP_TYPE_vd__DeliveryFactList */
+	virtual int soap_type() const { return 161; } /* = unique id SOAP_TYPE_vd__DeliveryFactList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1031,7 +971,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__DeliveryInspection
-#define SOAP_TYPE_vd__DeliveryInspection (165)
+#define SOAP_TYPE_vd__DeliveryInspection (162)
 /* vd:DeliveryInspection */
 class SOAP_CMAC vd__DeliveryInspection {
 public:
@@ -1040,7 +980,7 @@ public:
 	char *info;	/* optional element of type base:Text */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 165; } /* = unique id SOAP_TYPE_vd__DeliveryInspection */
+	virtual int soap_type() const { return 162; } /* = unique id SOAP_TYPE_vd__DeliveryInspection */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1053,7 +993,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ConsignmentDocumentList
-#define SOAP_TYPE_vd__ConsignmentDocumentList (166)
+#define SOAP_TYPE_vd__ConsignmentDocumentList (163)
 /* vd:ConsignmentDocumentList */
 class SOAP_CMAC vd__ConsignmentDocumentList {
 public:
@@ -1064,7 +1004,7 @@ public:
 	class vd__ReferencedDocument **relatedDocument;	/* optional element of type vd:ReferencedDocument */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 166; } /* = unique id SOAP_TYPE_vd__ConsignmentDocumentList */
+	virtual int soap_type() const { return 163; } /* = unique id SOAP_TYPE_vd__ConsignmentDocumentList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1077,16 +1017,16 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__GoodsDate
-#define SOAP_TYPE_vd__GoodsDate (167)
+#define SOAP_TYPE_vd__GoodsDate (164)
 /* vd:GoodsDate */
 class SOAP_CMAC vd__GoodsDate {
 public:
-	ent__ComplexDate *firstDate;	/* optional element of type ent:ComplexDate */
-	ent__ComplexDate *secondDate;	/* optional element of type ent:ComplexDate */
+	dic__ComplexDate *firstDate;	/* optional element of type dic:ComplexDate */
+	dic__ComplexDate *secondDate;	/* optional element of type dic:ComplexDate */
 	char *informalDate;	/* optional element of type base:String255 */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 167; } /* = unique id SOAP_TYPE_vd__GoodsDate */
+	virtual int soap_type() const { return 164; } /* = unique id SOAP_TYPE_vd__GoodsDate */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1099,7 +1039,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__StockDiscrepancy
-#define SOAP_TYPE_vd__StockDiscrepancy (173)
+#define SOAP_TYPE_vd__StockDiscrepancy (170)
 /* vd:StockDiscrepancy */
 class SOAP_CMAC vd__StockDiscrepancy {
 public:
@@ -1109,7 +1049,7 @@ public:
 	char *id;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 173; } /* = unique id SOAP_TYPE_vd__StockDiscrepancy */
+	virtual int soap_type() const { return 170; } /* = unique id SOAP_TYPE_vd__StockDiscrepancy */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1122,15 +1062,15 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__TransportInfo
-#define SOAP_TYPE_vd__TransportInfo (177)
+#define SOAP_TYPE_vd__TransportInfo (174)
 /* vd:TransportInfo */
 class SOAP_CMAC vd__TransportInfo {
 public:
-	enum ent__TransportType *transportType;	/* optional element of type ent:TransportType */
+	enum dic__TransportType *transportType;	/* optional element of type dic:TransportType */
 	class vd__TransportNumber *transportNumber;	/* optional element of type vd:TransportNumber */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 177; } /* = unique id SOAP_TYPE_vd__TransportInfo */
+	virtual int soap_type() const { return 174; } /* = unique id SOAP_TYPE_vd__TransportInfo */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1143,7 +1083,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__TransportNumber
-#define SOAP_TYPE_vd__TransportNumber (178)
+#define SOAP_TYPE_vd__TransportNumber (175)
 /* vd:TransportNumber */
 class SOAP_CMAC vd__TransportNumber {
 public:
@@ -1155,7 +1095,7 @@ public:
 	char *flightNumber;	/* optional element of type base:String255 */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 178; } /* = unique id SOAP_TYPE_vd__TransportNumber */
+	virtual int soap_type() const { return 175; } /* = unique id SOAP_TYPE_vd__TransportNumber */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1168,7 +1108,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ShipmentRoute
-#define SOAP_TYPE_vd__ShipmentRoute (180)
+#define SOAP_TYPE_vd__ShipmentRoute (177)
 /* vd:ShipmentRoute */
 class SOAP_CMAC vd__ShipmentRoute {
 public:
@@ -1176,7 +1116,7 @@ public:
 	class vd__ShipmentRoutePoint **routePoint;	/* optional element of type vd:ShipmentRoutePoint */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 180; } /* = unique id SOAP_TYPE_vd__ShipmentRoute */
+	virtual int soap_type() const { return 177; } /* = unique id SOAP_TYPE_vd__ShipmentRoute */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1189,7 +1129,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ProductionOperation
-#define SOAP_TYPE_vd__ProductionOperation (181)
+#define SOAP_TYPE_vd__ProductionOperation (178)
 /* vd:ProductionOperation */
 class SOAP_CMAC vd__ProductionOperation {
 public:
@@ -1203,7 +1143,7 @@ public:
 	class vd__ProcessingProcedure **appliedProcess;	/* optional element of type vd:ProcessingProcedure */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 181; } /* = unique id SOAP_TYPE_vd__ProductionOperation */
+	virtual int soap_type() const { return 178; } /* = unique id SOAP_TYPE_vd__ProductionOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1216,7 +1156,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__MergeStockEntriesOperation
-#define SOAP_TYPE_vd__MergeStockEntriesOperation (182)
+#define SOAP_TYPE_vd__MergeStockEntriesOperation (179)
 /* vd:MergeStockEntriesOperation */
 class SOAP_CMAC vd__MergeStockEntriesOperation {
 public:
@@ -1227,7 +1167,7 @@ public:
 	vd__StockEntry **resultStockEntry;	/* optional element of type vd:StockEntry */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 182; } /* = unique id SOAP_TYPE_vd__MergeStockEntriesOperation */
+	virtual int soap_type() const { return 179; } /* = unique id SOAP_TYPE_vd__MergeStockEntriesOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1240,16 +1180,16 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__PSLModificationOperation
-#define SOAP_TYPE_vd__PSLModificationOperation (183)
+#define SOAP_TYPE_vd__PSLModificationOperation (180)
 /* vd:PSLModificationOperation */
 class SOAP_CMAC vd__PSLModificationOperation {
 public:
 	enum base__RegisterModificationType type;	/* required element of type base:RegisterModificationType */
-	class ent__ProductItemList *affectedList;	/* optional element of type ent:ProductItemList */
-	ent__ProductItemList *resultingList;	/* optional element of type ent:ProductItemList */
+	class dic__ProductItemList *affectedList;	/* optional element of type dic:ProductItemList */
+	dic__ProductItemList *resultingList;	/* optional element of type dic:ProductItemList */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 183; } /* = unique id SOAP_TYPE_vd__PSLModificationOperation */
+	virtual int soap_type() const { return 180; } /* = unique id SOAP_TYPE_vd__PSLModificationOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1262,17 +1202,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__BEModificationOperation
-#define SOAP_TYPE_vd__BEModificationOperation (184)
+#define SOAP_TYPE_vd__BEModificationOperation (181)
 /* vd:BEModificationOperation */
 class SOAP_CMAC vd__BEModificationOperation {
 public:
 	enum base__RegisterModificationType type;	/* required element of type base:RegisterModificationType */
-	class ent__BusinessEntityList *affectedList;	/* optional element of type ent:BusinessEntityList */
-	ent__BusinessEntityList *resultingList;	/* optional element of type ent:BusinessEntityList */
-	char *reason;	/* optional element of type ent:BEModificationReason */
+	class dic__BusinessEntityList *affectedList;	/* optional element of type dic:BusinessEntityList */
+	dic__BusinessEntityList *resultingList;	/* optional element of type dic:BusinessEntityList */
+	char *reason;	/* optional element of type dic:BEModificationReason */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 184; } /* = unique id SOAP_TYPE_vd__BEModificationOperation */
+	virtual int soap_type() const { return 181; } /* = unique id SOAP_TYPE_vd__BEModificationOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1285,15 +1225,15 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__BEActivityLocationsModificationOperation_activityLocation
-#define SOAP_TYPE__vd__BEActivityLocationsModificationOperation_activityLocation (466)
+#define SOAP_TYPE__vd__BEActivityLocationsModificationOperation_activityLocation (354)
 /* vd:BEActivityLocationsModificationOperation-activityLocation */
 class SOAP_CMAC _vd__BEActivityLocationsModificationOperation_activityLocation {
 public:
 	int __sizeglobalID;	/* sequence of elements <globalID> */
-	char **globalID;	/* optional element of type ent:GLNType */
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
+	char **globalID;	/* optional element of type dic:GLNType */
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
 public:
-	virtual int soap_type() const { return 466; } /* = unique id SOAP_TYPE__vd__BEActivityLocationsModificationOperation_activityLocation */
+	virtual int soap_type() const { return 354; } /* = unique id SOAP_TYPE__vd__BEActivityLocationsModificationOperation_activityLocation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1306,17 +1246,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__BEActivityLocationsModificationOperation
-#define SOAP_TYPE_vd__BEActivityLocationsModificationOperation (185)
+#define SOAP_TYPE_vd__BEActivityLocationsModificationOperation (182)
 /* vd:BEActivityLocationsModificationOperation */
 class SOAP_CMAC vd__BEActivityLocationsModificationOperation {
 public:
 	enum base__RegisterModificationType type;	/* required element of type base:RegisterModificationType */
-	ent__BusinessEntity *businessEntity;	/* required element of type ent:BusinessEntity */
+	dic__BusinessEntity *businessEntity;	/* required element of type dic:BusinessEntity */
 	int __sizeactivityLocation;	/* sequence of elements <activityLocation> */
 	_vd__BEActivityLocationsModificationOperation_activityLocation *activityLocation;	/* required element of type vd:BEActivityLocationsModificationOperation-activityLocation */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 185; } /* = unique id SOAP_TYPE_vd__BEActivityLocationsModificationOperation */
+	virtual int soap_type() const { return 182; } /* = unique id SOAP_TYPE_vd__BEActivityLocationsModificationOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1329,17 +1269,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ENTModificationOperation
-#define SOAP_TYPE_vd__ENTModificationOperation (186)
+#define SOAP_TYPE_vd__ENTModificationOperation (183)
 /* vd:ENTModificationOperation */
 class SOAP_CMAC vd__ENTModificationOperation {
 public:
 	enum base__RegisterModificationType type;	/* required element of type base:RegisterModificationType */
-	class ent__EnterpriseList *affectedList;	/* optional element of type ent:EnterpriseList */
-	ent__EnterpriseList *resultingList;	/* optional element of type ent:EnterpriseList */
-	char *reason;	/* optional element of type ent:ENTModificationReason */
+	class dic__EnterpriseList *affectedList;	/* optional element of type dic:EnterpriseList */
+	dic__EnterpriseList *resultingList;	/* optional element of type dic:EnterpriseList */
+	char *reason;	/* optional element of type dic:ENTModificationReason */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 186; } /* = unique id SOAP_TYPE_vd__ENTModificationOperation */
+	virtual int soap_type() const { return 183; } /* = unique id SOAP_TYPE_vd__ENTModificationOperation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1352,15 +1292,15 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__CertifiedBatch
-#define SOAP_TYPE_vd__CertifiedBatch (187)
+#define SOAP_TYPE_vd__CertifiedBatch (184)
 /* vd:CertifiedBatch */
 class SOAP_CMAC vd__CertifiedBatch {
 public:
-	ent__BusinessMember *producer;	/* optional element of type ent:BusinessMember */
+	dic__BusinessMember *producer;	/* optional element of type dic:BusinessMember */
 	vd__Batch *batch;	/* optional element of type vd:Batch */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 187; } /* = unique id SOAP_TYPE_vd__CertifiedBatch */
+	virtual int soap_type() const { return 184; } /* = unique id SOAP_TYPE_vd__CertifiedBatch */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1373,20 +1313,20 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__CertifiedConsignment
-#define SOAP_TYPE_vd__CertifiedConsignment (188)
+#define SOAP_TYPE_vd__CertifiedConsignment (185)
 /* vd:CertifiedConsignment */
 class SOAP_CMAC vd__CertifiedConsignment {
 public:
-	ent__BusinessMember *consignor;	/* optional element of type ent:BusinessMember */
-	ent__BusinessMember *consignee;	/* optional element of type ent:BusinessMember */
-	ent__BusinessEntity *broker;	/* optional element of type ent:BusinessEntity */
+	dic__BusinessMember *consignor;	/* optional element of type dic:BusinessMember */
+	dic__BusinessMember *consignee;	/* optional element of type dic:BusinessMember */
+	dic__BusinessEntity *broker;	/* optional element of type dic:BusinessEntity */
 	vd__TransportInfo *transportInfo;	/* optional element of type vd:TransportInfo */
-	enum ent__TransportationStorageType *transportStorageType;	/* optional element of type ent:TransportationStorageType */
+	enum dic__TransportationStorageType *transportStorageType;	/* optional element of type dic:TransportationStorageType */
 	vd__ShipmentRoute *shipmentRoute;	/* optional element of type vd:ShipmentRoute */
 	vd__Batch *batch;	/* optional element of type vd:Batch */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 188; } /* = unique id SOAP_TYPE_vd__CertifiedConsignment */
+	virtual int soap_type() const { return 185; } /* = unique id SOAP_TYPE_vd__CertifiedConsignment */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1399,19 +1339,19 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__union_VeterinaryEvent
-#define SOAP_TYPE__vd__union_VeterinaryEvent (476)
+#define SOAP_TYPE__vd__union_VeterinaryEvent (363)
 /* xsd:choice */
 union _vd__union_VeterinaryEvent
 {
 #define SOAP_UNION__vd__union_VeterinaryEvent_location	(1)
-	ent__Location *location;
+	dic__Location *location;
 #define SOAP_UNION__vd__union_VeterinaryEvent_enterprise	(2)
-	ent__Enterprise *enterprise;
+	dic__Enterprise *enterprise;
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__VeterinaryEvent
-#define SOAP_TYPE_vd__VeterinaryEvent (190)
+#define SOAP_TYPE_vd__VeterinaryEvent (187)
 /* vd:VeterinaryEvent */
 class SOAP_CMAC vd__VeterinaryEvent {
 public:
@@ -1421,13 +1361,13 @@ public:
 	time_t *actualDateTime;	/* optional element of type xsd:dateTime */
 	int __union_VeterinaryEvent;	/* union discriminant (of union defined below) */
 	union _vd__union_VeterinaryEvent union_VeterinaryEvent;	/* required element of type xsd:choice */
-	ent__Organization *operator_;	/* optional element of type ent:Organization */
+	dic__Organization *operator_;	/* optional element of type dic:Organization */
 	int __sizereferencedDocument;	/* sequence of elements <referencedDocument> */
 	class vd__Document **referencedDocument;	/* optional element of type vd:Document */
 	char *notes;	/* optional element of type base:Text */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 190; } /* = unique id SOAP_TYPE_vd__VeterinaryEvent */
+	virtual int soap_type() const { return 187; } /* = unique id SOAP_TYPE_vd__VeterinaryEvent */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1440,13 +1380,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__VeterinaryAuthentication
-#define SOAP_TYPE_vd__VeterinaryAuthentication (194)
+#define SOAP_TYPE_vd__VeterinaryAuthentication (191)
 /* vd:VeterinaryAuthentication */
 class SOAP_CMAC vd__VeterinaryAuthentication {
 public:
-	class ent__Purpose *purpose;	/* optional element of type ent:Purpose */
+	class dic__Purpose *purpose;	/* optional element of type dic:Purpose */
 	bool *cargoInspected;	/* optional element of type xsd:boolean */
-	enum ent__ResearchResult *cargoExpertized;	/* optional element of type ent:ResearchResult */
+	enum dic__ResearchResult *cargoExpertized;	/* optional element of type dic:ResearchResult */
 	char *locationProsperity;	/* optional element of type base:String255 */
 	enum vd__AnimalSpentPeriod *animalSpentPeriod;	/* optional element of type vd:AnimalSpentPeriod */
 	char *monthsSpent;	/* optional element of type base:String255 */
@@ -1462,7 +1402,7 @@ public:
 	char *specialMarks;	/* optional element of type base:Text */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 194; } /* = unique id SOAP_TYPE_vd__VeterinaryAuthentication */
+	virtual int soap_type() const { return 191; } /* = unique id SOAP_TYPE_vd__VeterinaryAuthentication */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1475,17 +1415,17 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__BatchOrigin
-#define SOAP_TYPE_vd__BatchOrigin (195)
+#define SOAP_TYPE_vd__BatchOrigin (192)
 /* vd:BatchOrigin */
 class SOAP_CMAC vd__BatchOrigin {
 public:
-	ent__ProductItem *productItem;	/* optional element of type ent:ProductItem */
-	ent__Country *country;	/* optional element of type ent:Country */
+	dic__ProductItem *productItem;	/* optional element of type dic:ProductItem */
+	dic__Country *country;	/* optional element of type dic:Country */
 	int __sizeproducer;	/* sequence of elements <producer> */
-	ent__Producer **producer;	/* optional element of type ent:Producer */
+	dic__Producer **producer;	/* optional element of type dic:Producer */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 195; } /* = unique id SOAP_TYPE_vd__BatchOrigin */
+	virtual int soap_type() const { return 192; } /* = unique id SOAP_TYPE_vd__BatchOrigin */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1498,7 +1438,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntryEventList
-#define SOAP_TYPE_vd__StockEntryEventList (196)
+#define SOAP_TYPE_vd__StockEntryEventList (193)
 /* vd:StockEntryEventList */
 class SOAP_CMAC vd__StockEntryEventList {
 public:
@@ -1512,7 +1452,7 @@ public:
 	vd__VeterinaryEvent **veterinaryEvent;	/* optional element of type vd:VeterinaryEvent */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 196; } /* = unique id SOAP_TYPE_vd__StockEntryEventList */
+	virtual int soap_type() const { return 193; } /* = unique id SOAP_TYPE_vd__StockEntryEventList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1525,7 +1465,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentStatusChange
-#define SOAP_TYPE_vd__VetDocumentStatusChange (197)
+#define SOAP_TYPE_vd__VetDocumentStatusChange (194)
 /* vd:VetDocumentStatusChange */
 class SOAP_CMAC vd__VetDocumentStatusChange {
 public:
@@ -1535,7 +1475,7 @@ public:
 	char *reason;	/* optional element of type vd:VetDocumentStatusChangeReason */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 197; } /* = unique id SOAP_TYPE_vd__VetDocumentStatusChange */
+	virtual int soap_type() const { return 194; } /* = unique id SOAP_TYPE_vd__VetDocumentStatusChange */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1548,15 +1488,15 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__RegionalizationClause
-#define SOAP_TYPE_vd__RegionalizationClause (198)
+#define SOAP_TYPE_vd__RegionalizationClause (195)
 /* vd:RegionalizationClause */
 class SOAP_CMAC vd__RegionalizationClause {
 public:
-	ent__RegionalizationCondition *condition;	/* required element of type ent:RegionalizationCondition */
+	dic__RegionalizationCondition *condition;	/* required element of type dic:RegionalizationCondition */
 	char *text;	/* optional element of type base:Text */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 198; } /* = unique id SOAP_TYPE_vd__RegionalizationClause */
+	virtual int soap_type() const { return 195; } /* = unique id SOAP_TYPE_vd__RegionalizationClause */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1569,16 +1509,16 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__RouteSectionR13nRules
-#define SOAP_TYPE_vd__RouteSectionR13nRules (199)
+#define SOAP_TYPE_vd__RouteSectionR13nRules (196)
 /* vd:RouteSectionR13nRules */
 class SOAP_CMAC vd__RouteSectionR13nRules {
 public:
 	char **sqnId;	/* optional element of type base:SequenceNumber */
 	int __sizeappliedR13nRule;	/* sequence of elements <appliedR13nRule> */
-	class ent__RegionalizationShippingRule **appliedR13nRule;	/* optional element of type ent:RegionalizationShippingRule */
+	class dic__RegionalizationShippingRule **appliedR13nRule;	/* optional element of type dic:RegionalizationShippingRule */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 199; } /* = unique id SOAP_TYPE_vd__RouteSectionR13nRules */
+	virtual int soap_type() const { return 196; } /* = unique id SOAP_TYPE_vd__RouteSectionR13nRules */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1591,7 +1531,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ProcessingProcedure
-#define SOAP_TYPE_vd__ProcessingProcedure (200)
+#define SOAP_TYPE_vd__ProcessingProcedure (197)
 /* vd:ProcessingProcedure */
 class SOAP_CMAC vd__ProcessingProcedure {
 public:
@@ -1600,7 +1540,7 @@ public:
 	time_t *endDateTime;	/* optional element of type xsd:dateTime */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 200; } /* = unique id SOAP_TYPE_vd__ProcessingProcedure */
+	virtual int soap_type() const { return 197; } /* = unique id SOAP_TYPE_vd__ProcessingProcedure */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1613,7 +1553,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__AuthorityList
-#define SOAP_TYPE_vd__AuthorityList (203)
+#define SOAP_TYPE_vd__AuthorityList (200)
 /* vd:AuthorityList */
 class SOAP_CMAC vd__AuthorityList {
 public:
@@ -1621,7 +1561,7 @@ public:
 	class vd__UserAuthority **authority;	/* optional element of type vd:UserAuthority */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 203; } /* = unique id SOAP_TYPE_vd__AuthorityList */
+	virtual int soap_type() const { return 200; } /* = unique id SOAP_TYPE_vd__AuthorityList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1634,7 +1574,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__UserAuthority
-#define SOAP_TYPE_vd__UserAuthority (205)
+#define SOAP_TYPE_vd__UserAuthority (202)
 /* vd:UserAuthority */
 class SOAP_CMAC vd__UserAuthority {
 public:
@@ -1643,7 +1583,7 @@ public:
 	bool *granted;	/* optional element of type xsd:boolean */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 205; } /* = unique id SOAP_TYPE_vd__UserAuthority */
+	virtual int soap_type() const { return 202; } /* = unique id SOAP_TYPE_vd__UserAuthority */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1656,19 +1596,19 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__union_WorkingArea
-#define SOAP_TYPE__vd__union_WorkingArea (499)
+#define SOAP_TYPE__vd__union_WorkingArea (386)
 /* xsd:choice */
 union _vd__union_WorkingArea
 {
 #define SOAP_UNION__vd__union_WorkingArea_area	(1)
-	class ent__Area *area;
+	class dic__Area *area;
 #define SOAP_UNION__vd__union_WorkingArea_enterprise	(2)
-	ent__Enterprise *enterprise;
+	dic__Enterprise *enterprise;
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__WorkingArea
-#define SOAP_TYPE_vd__WorkingArea (206)
+#define SOAP_TYPE_vd__WorkingArea (203)
 /* Choice: */
 class SOAP_CMAC vd__WorkingArea {
 public:
@@ -1676,7 +1616,7 @@ public:
 	union _vd__union_WorkingArea union_WorkingArea;	/* required element of type xsd:choice */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 206; } /* = unique id SOAP_TYPE_vd__WorkingArea */
+	virtual int soap_type() const { return 203; } /* = unique id SOAP_TYPE_vd__WorkingArea */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -1688,2492 +1628,683 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getPurposeByGuidRequest
-#define SOAP_TYPE__ns8__getPurposeByGuidRequest (207)
-/* ns8:getPurposeByGuidRequest */
-class SOAP_CMAC _ns8__getPurposeByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_vd__Citizenship
+#define SOAP_TYPE_vd__Citizenship (204)
+/* vd:Citizenship */
+class SOAP_CMAC vd__Citizenship {
 public:
-	virtual int soap_type() const { return 207; } /* = unique id SOAP_TYPE__ns8__getPurposeByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeByGuidRequest() { _ns8__getPurposeByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getPurposeByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getPurposeByGuidResponse
-#define SOAP_TYPE__ns8__getPurposeByGuidResponse (208)
-/* ns8:getPurposeByGuidResponse */
-class SOAP_CMAC _ns8__getPurposeByGuidResponse {
-public:
-	ent__Purpose *ent__purpose;	/* required element of type ent:Purpose */
+	dic__Country *country;	/* optional element of type dic:Country */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 208; } /* = unique id SOAP_TYPE__ns8__getPurposeByGuidResponse */
+	virtual int soap_type() const { return 204; } /* = unique id SOAP_TYPE_vd__Citizenship */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeByGuidResponse() { _ns8__getPurposeByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getPurposeByGuidResponse() { }
+	         vd__Citizenship() { vd__Citizenship::soap_default(NULL); }
+	virtual ~vd__Citizenship() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getPurposeByUuidRequest
-#define SOAP_TYPE__ns8__getPurposeByUuidRequest (209)
-/* ns8:getPurposeByUuidRequest */
-class SOAP_CMAC _ns8__getPurposeByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE__ws__submitApplicationRequest
+#define SOAP_TYPE__ws__submitApplicationRequest (205)
+/* ws:submitApplicationRequest */
+class SOAP_CMAC _ws__submitApplicationRequest {
 public:
-	virtual int soap_type() const { return 209; } /* = unique id SOAP_TYPE__ns8__getPurposeByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeByUuidRequest() { _ns8__getPurposeByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getPurposeByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getPurposeByUuidResponse
-#define SOAP_TYPE__ns8__getPurposeByUuidResponse (210)
-/* ns8:getPurposeByUuidResponse */
-class SOAP_CMAC _ns8__getPurposeByUuidResponse {
-public:
-	ent__Purpose *ent__purpose;	/* required element of type ent:Purpose */
+	char *apiKey;	/* required element of type app:APIKey */
+	app__Application *app__application;	/* required element of type app:Application */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 210; } /* = unique id SOAP_TYPE__ns8__getPurposeByUuidResponse */
+	virtual int soap_type() const { return 205; } /* = unique id SOAP_TYPE__ws__submitApplicationRequest */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeByUuidResponse() { _ns8__getPurposeByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getPurposeByUuidResponse() { }
+	         _ws__submitApplicationRequest() { _ws__submitApplicationRequest::soap_default(NULL); }
+	virtual ~_ws__submitApplicationRequest() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getPurposeListRequest
-#define SOAP_TYPE__ns8__getPurposeListRequest (211)
-/* ns8:getPurposeListRequest */
-class SOAP_CMAC _ns8__getPurposeListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE__ws__submitApplicationResponse
+#define SOAP_TYPE__ws__submitApplicationResponse (206)
+/* ws:submitApplicationResponse */
+class SOAP_CMAC _ws__submitApplicationResponse {
 public:
-	virtual int soap_type() const { return 211; } /* = unique id SOAP_TYPE__ns8__getPurposeListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeListRequest() { _ns8__getPurposeListRequest::soap_default(NULL); }
-	virtual ~_ns8__getPurposeListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getPurposeListResponse
-#define SOAP_TYPE__ns8__getPurposeListResponse (212)
-/* ns8:getPurposeListResponse */
-class SOAP_CMAC _ns8__getPurposeListResponse {
-public:
-	class ent__PurposeList *ent__purposeList;	/* required element of type ent:PurposeList */
+	app__Application *app__application;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type app:Application */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 212; } /* = unique id SOAP_TYPE__ns8__getPurposeListResponse */
+	virtual int soap_type() const { return 206; } /* = unique id SOAP_TYPE__ws__submitApplicationResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeListResponse() { _ns8__getPurposeListResponse::soap_default(NULL); }
-	virtual ~_ns8__getPurposeListResponse() { }
+	         _ws__submitApplicationResponse() { _ws__submitApplicationResponse::soap_default(NULL); }
+	virtual ~_ws__submitApplicationResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getPurposeChangesListRequest
-#define SOAP_TYPE__ns8__getPurposeChangesListRequest (213)
-/* ns8:getPurposeChangesListRequest */
-class SOAP_CMAC _ns8__getPurposeChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE__ws__receiveApplicationResultRequest
+#define SOAP_TYPE__ws__receiveApplicationResultRequest (207)
+/* ws:receiveApplicationResultRequest */
+class SOAP_CMAC _ws__receiveApplicationResultRequest {
 public:
-	virtual int soap_type() const { return 213; } /* = unique id SOAP_TYPE__ns8__getPurposeChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeChangesListRequest() { _ns8__getPurposeChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getPurposeChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getPurposeChangesListResponse
-#define SOAP_TYPE__ns8__getPurposeChangesListResponse (214)
-/* ns8:getPurposeChangesListResponse */
-class SOAP_CMAC _ns8__getPurposeChangesListResponse {
-public:
-	ent__PurposeList *ent__purposeList;	/* required element of type ent:PurposeList */
+	char *apiKey;	/* required element of type app:APIKey */
+	char *issuerId;	/* required element of type base:UUID */
+	char *applicationId;	/* required element of type base:UUID */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 214; } /* = unique id SOAP_TYPE__ns8__getPurposeChangesListResponse */
+	virtual int soap_type() const { return 207; } /* = unique id SOAP_TYPE__ws__receiveApplicationResultRequest */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getPurposeChangesListResponse() { _ns8__getPurposeChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getPurposeChangesListResponse() { }
+	         _ws__receiveApplicationResultRequest() { _ws__receiveApplicationResultRequest::soap_default(NULL); }
+	virtual ~_ws__receiveApplicationResultRequest() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getUnitByGuidRequest
-#define SOAP_TYPE__ns8__getUnitByGuidRequest (215)
-/* ns8:getUnitByGuidRequest */
-class SOAP_CMAC _ns8__getUnitByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE__ws__receiveApplicationResultResponse
+#define SOAP_TYPE__ws__receiveApplicationResultResponse (208)
+/* ws:receiveApplicationResultResponse */
+class SOAP_CMAC _ws__receiveApplicationResultResponse {
 public:
-	virtual int soap_type() const { return 215; } /* = unique id SOAP_TYPE__ns8__getUnitByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitByGuidRequest() { _ns8__getUnitByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getUnitByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getUnitByGuidResponse
-#define SOAP_TYPE__ns8__getUnitByGuidResponse (216)
-/* ns8:getUnitByGuidResponse */
-class SOAP_CMAC _ns8__getUnitByGuidResponse {
-public:
-	ent__Unit *ent__unit;	/* required element of type ent:Unit */
+	app__Application *app__application;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type app:Application */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 216; } /* = unique id SOAP_TYPE__ns8__getUnitByGuidResponse */
+	virtual int soap_type() const { return 208; } /* = unique id SOAP_TYPE__ws__receiveApplicationResultResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitByGuidResponse() { _ns8__getUnitByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getUnitByGuidResponse() { }
+	         _ws__receiveApplicationResultResponse() { _ws__receiveApplicationResultResponse::soap_default(NULL); }
+	virtual ~_ws__receiveApplicationResultResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getUnitByUuidRequest
-#define SOAP_TYPE__ns8__getUnitByUuidRequest (217)
-/* ns8:getUnitByUuidRequest */
-class SOAP_CMAC _ns8__getUnitByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__MercuryApplicationRequest
+#define SOAP_TYPE_g2ba__MercuryApplicationRequest (22)
+/* g2ba:MercuryApplicationRequest */
+class SOAP_CMAC g2ba__MercuryApplicationRequest : public app__ApplicationData {
 public:
-	virtual int soap_type() const { return 217; } /* = unique id SOAP_TYPE__ns8__getUnitByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitByUuidRequest() { _ns8__getUnitByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getUnitByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getUnitByUuidResponse
-#define SOAP_TYPE__ns8__getUnitByUuidResponse (218)
-/* ns8:getUnitByUuidResponse */
-class SOAP_CMAC _ns8__getUnitByUuidResponse {
-public:
-	ent__Unit *ent__unit;	/* required element of type ent:Unit */
-	struct soap *soap;	/* transient */
+	char *localTransactionId;	/* required element of type base:Identifier */
+	vd__User *initiator;	/* required element of type vd:User */
+	char **sessionToken;	/* optional element of type dic:OTPToken */
 public:
-	virtual int soap_type() const { return 218; } /* = unique id SOAP_TYPE__ns8__getUnitByUuidResponse */
+	virtual int soap_type() const { return 22; } /* = unique id SOAP_TYPE_g2ba__MercuryApplicationRequest */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitByUuidResponse() { _ns8__getUnitByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getUnitByUuidResponse() { }
+	         g2ba__MercuryApplicationRequest() { g2ba__MercuryApplicationRequest::soap_default(NULL); }
+	virtual ~g2ba__MercuryApplicationRequest() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getUnitListRequest
-#define SOAP_TYPE__ns8__getUnitListRequest (219)
-/* ns8:getUnitListRequest */
-class SOAP_CMAC _ns8__getUnitListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ProcessIncomingConsignmentResponse
+#define SOAP_TYPE_g2ba__ProcessIncomingConsignmentResponse (24)
+/* g2ba:ProcessIncomingConsignmentResponse */
+class SOAP_CMAC g2ba__ProcessIncomingConsignmentResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 219; } /* = unique id SOAP_TYPE__ns8__getUnitListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitListRequest() { _ns8__getUnitListRequest::soap_default(NULL); }
-	virtual ~_ns8__getUnitListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getUnitListResponse
-#define SOAP_TYPE__ns8__getUnitListResponse (220)
-/* ns8:getUnitListResponse */
-class SOAP_CMAC _ns8__getUnitListResponse {
-public:
-	class ent__UnitList *ent__unitList;	/* required element of type ent:UnitList */
-	struct soap *soap;	/* transient */
+	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <stockEntry> */
+	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
+	int __sizevetDocument;	/* sequence of elements <vetDocument> */
+	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 220; } /* = unique id SOAP_TYPE__ns8__getUnitListResponse */
+	virtual int soap_type() const { return 24; } /* = unique id SOAP_TYPE_g2ba__ProcessIncomingConsignmentResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitListResponse() { _ns8__getUnitListResponse::soap_default(NULL); }
-	virtual ~_ns8__getUnitListResponse() { }
+	         g2ba__ProcessIncomingConsignmentResponse() { g2ba__ProcessIncomingConsignmentResponse::soap_default(NULL); }
+	virtual ~g2ba__ProcessIncomingConsignmentResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getUnitChangesListRequest
-#define SOAP_TYPE__ns8__getUnitChangesListRequest (221)
-/* ns8:getUnitChangesListRequest */
-class SOAP_CMAC _ns8__getUnitChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__PrepareOutgoingConsignmentResponse
+#define SOAP_TYPE_g2ba__PrepareOutgoingConsignmentResponse (26)
+/* g2ba:PrepareOutgoingConsignmentResponse */
+class SOAP_CMAC g2ba__PrepareOutgoingConsignmentResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 221; } /* = unique id SOAP_TYPE__ns8__getUnitChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitChangesListRequest() { _ns8__getUnitChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getUnitChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getUnitChangesListResponse
-#define SOAP_TYPE__ns8__getUnitChangesListResponse (222)
-/* ns8:getUnitChangesListResponse */
-class SOAP_CMAC _ns8__getUnitChangesListResponse {
-public:
-	ent__UnitList *ent__unitList;	/* required element of type ent:UnitList */
-	struct soap *soap;	/* transient */
+	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <stockEntry> */
+	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
+	int __sizevetDocument;	/* sequence of elements <vetDocument> */
+	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 222; } /* = unique id SOAP_TYPE__ns8__getUnitChangesListResponse */
+	virtual int soap_type() const { return 26; } /* = unique id SOAP_TYPE_g2ba__PrepareOutgoingConsignmentResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getUnitChangesListResponse() { _ns8__getUnitChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getUnitChangesListResponse() { }
+	         g2ba__PrepareOutgoingConsignmentResponse() { g2ba__PrepareOutgoingConsignmentResponse::soap_default(NULL); }
+	virtual ~g2ba__PrepareOutgoingConsignmentResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductByGuidRequest
-#define SOAP_TYPE__ns8__getProductByGuidRequest (223)
-/* ns8:getProductByGuidRequest */
-class SOAP_CMAC _ns8__getProductByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__RegisterProductionOperationResponse
+#define SOAP_TYPE_g2ba__RegisterProductionOperationResponse (28)
+/* g2ba:RegisterProductionOperationResponse */
+class SOAP_CMAC g2ba__RegisterProductionOperationResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 223; } /* = unique id SOAP_TYPE__ns8__getProductByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByGuidRequest() { _ns8__getProductByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductByGuidResponse
-#define SOAP_TYPE__ns8__getProductByGuidResponse (224)
-/* ns8:getProductByGuidResponse */
-class SOAP_CMAC _ns8__getProductByGuidResponse {
-public:
-	ent__Product *ent__product;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:Product */
-	struct soap *soap;	/* transient */
+	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:StockEntryList */
+	int __sizevetDocument;	/* sequence of elements <vetDocument> */
+	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 224; } /* = unique id SOAP_TYPE__ns8__getProductByGuidResponse */
+	virtual int soap_type() const { return 28; } /* = unique id SOAP_TYPE_g2ba__RegisterProductionOperationResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByGuidResponse() { _ns8__getProductByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductByGuidResponse() { }
+	         g2ba__RegisterProductionOperationResponse() { g2ba__RegisterProductionOperationResponse::soap_default(NULL); }
+	virtual ~g2ba__RegisterProductionOperationResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductByUuidRequest
-#define SOAP_TYPE__ns8__getProductByUuidRequest (225)
-/* ns8:getProductByUuidRequest */
-class SOAP_CMAC _ns8__getProductByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__MergeStockEntriesResponse
+#define SOAP_TYPE_g2ba__MergeStockEntriesResponse (30)
+/* g2ba:MergeStockEntriesResponse */
+class SOAP_CMAC g2ba__MergeStockEntriesResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 225; } /* = unique id SOAP_TYPE__ns8__getProductByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByUuidRequest() { _ns8__getProductByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductByUuidResponse
-#define SOAP_TYPE__ns8__getProductByUuidResponse (226)
-/* ns8:getProductByUuidResponse */
-class SOAP_CMAC _ns8__getProductByUuidResponse {
-public:
-	ent__Product *ent__product;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:Product */
-	struct soap *soap;	/* transient */
+	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
 public:
-	virtual int soap_type() const { return 226; } /* = unique id SOAP_TYPE__ns8__getProductByUuidResponse */
+	virtual int soap_type() const { return 30; } /* = unique id SOAP_TYPE_g2ba__MergeStockEntriesResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByUuidResponse() { _ns8__getProductByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductByUuidResponse() { }
+	         g2ba__MergeStockEntriesResponse() { g2ba__MergeStockEntriesResponse::soap_default(NULL); }
+	virtual ~g2ba__MergeStockEntriesResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductByTypeListRequest
-#define SOAP_TYPE__ns8__getProductByTypeListRequest (227)
-/* ns8:getProductByTypeListRequest */
-class SOAP_CMAC _ns8__getProductByTypeListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	enum ent__ProductType ent__productType;	/* required element of type ent:ProductType */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__WithdrawVetDocumentResponse
+#define SOAP_TYPE_g2ba__WithdrawVetDocumentResponse (32)
+/* g2ba:WithdrawVetDocumentResponse */
+class SOAP_CMAC g2ba__WithdrawVetDocumentResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 227; } /* = unique id SOAP_TYPE__ns8__getProductByTypeListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByTypeListRequest() { _ns8__getProductByTypeListRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductByTypeListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductByTypeListResponse
-#define SOAP_TYPE__ns8__getProductByTypeListResponse (228)
-/* ns8:getProductByTypeListResponse */
-class SOAP_CMAC _ns8__getProductByTypeListResponse {
-public:
-	class ent__ProductList *ent__productList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:ProductList */
-	struct soap *soap;	/* transient */
+	vd__VetDocument *vetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:VetDocument */
+	int __sizestockEntry;	/* sequence of elements <stockEntry> */
+	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
 public:
-	virtual int soap_type() const { return 228; } /* = unique id SOAP_TYPE__ns8__getProductByTypeListResponse */
+	virtual int soap_type() const { return 32; } /* = unique id SOAP_TYPE_g2ba__WithdrawVetDocumentResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductByTypeListResponse() { _ns8__getProductByTypeListResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductByTypeListResponse() { }
+	         g2ba__WithdrawVetDocumentResponse() { g2ba__WithdrawVetDocumentResponse::soap_default(NULL); }
+	virtual ~g2ba__WithdrawVetDocumentResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductChangesListRequest
-#define SOAP_TYPE__ns8__getProductChangesListRequest (229)
-/* ns8:getProductChangesListRequest */
-class SOAP_CMAC _ns8__getProductChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ModifyBusinessEntityResponse
+#define SOAP_TYPE_g2ba__ModifyBusinessEntityResponse (34)
+/* g2ba:ModifyBusinessEntityResponse */
+class SOAP_CMAC g2ba__ModifyBusinessEntityResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 229; } /* = unique id SOAP_TYPE__ns8__getProductChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductChangesListRequest() { _ns8__getProductChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductChangesListResponse
-#define SOAP_TYPE__ns8__getProductChangesListResponse (230)
-/* ns8:getProductChangesListResponse */
-class SOAP_CMAC _ns8__getProductChangesListResponse {
-public:
-	ent__ProductList *ent__productList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:ProductList */
-	struct soap *soap;	/* transient */
+	int __sizebusinessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <businessEntity> */
+	dic__BusinessEntity **businessEntity;	/* optional element of type dic:BusinessEntity */
 public:
-	virtual int soap_type() const { return 230; } /* = unique id SOAP_TYPE__ns8__getProductChangesListResponse */
+	virtual int soap_type() const { return 34; } /* = unique id SOAP_TYPE_g2ba__ModifyBusinessEntityResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductChangesListResponse() { _ns8__getProductChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductChangesListResponse() { }
+	         g2ba__ModifyBusinessEntityResponse() { g2ba__ModifyBusinessEntityResponse::soap_default(NULL); }
+	virtual ~g2ba__ModifyBusinessEntityResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getSubProductByGuidRequest
-#define SOAP_TYPE__ns8__getSubProductByGuidRequest (231)
-/* ns8:getSubProductByGuidRequest */
-class SOAP_CMAC _ns8__getSubProductByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ModifyEnterpriseResponse
+#define SOAP_TYPE_g2ba__ModifyEnterpriseResponse (36)
+/* g2ba:ModifyEnterpriseResponse */
+class SOAP_CMAC g2ba__ModifyEnterpriseResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 231; } /* = unique id SOAP_TYPE__ns8__getSubProductByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByGuidRequest() { _ns8__getSubProductByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getSubProductByGuidResponse
-#define SOAP_TYPE__ns8__getSubProductByGuidResponse (232)
-/* ns8:getSubProductByGuidResponse */
-class SOAP_CMAC _ns8__getSubProductByGuidResponse {
-public:
-	ent__SubProduct *ent__subProduct;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:SubProduct */
-	struct soap *soap;	/* transient */
+	int __sizeenterprise;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <enterprise> */
+	dic__Enterprise **enterprise;	/* optional element of type dic:Enterprise */
 public:
-	virtual int soap_type() const { return 232; } /* = unique id SOAP_TYPE__ns8__getSubProductByGuidResponse */
+	virtual int soap_type() const { return 36; } /* = unique id SOAP_TYPE_g2ba__ModifyEnterpriseResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByGuidResponse() { _ns8__getSubProductByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByGuidResponse() { }
+	         g2ba__ModifyEnterpriseResponse() { g2ba__ModifyEnterpriseResponse::soap_default(NULL); }
+	virtual ~g2ba__ModifyEnterpriseResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getSubProductByUuidRequest
-#define SOAP_TYPE__ns8__getSubProductByUuidRequest (233)
-/* ns8:getSubProductByUuidRequest */
-class SOAP_CMAC _ns8__getSubProductByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ModifyActivityLocationsResponse
+#define SOAP_TYPE_g2ba__ModifyActivityLocationsResponse (38)
+/* g2ba:ModifyActivityLocationsResponse */
+class SOAP_CMAC g2ba__ModifyActivityLocationsResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 233; } /* = unique id SOAP_TYPE__ns8__getSubProductByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByUuidRequest() { _ns8__getSubProductByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getSubProductByUuidResponse
-#define SOAP_TYPE__ns8__getSubProductByUuidResponse (234)
-/* ns8:getSubProductByUuidResponse */
-class SOAP_CMAC _ns8__getSubProductByUuidResponse {
-public:
-	ent__SubProduct *ent__subProduct;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:SubProduct */
-	struct soap *soap;	/* transient */
+	dic__BusinessEntity *businessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type dic:BusinessEntity */
 public:
-	virtual int soap_type() const { return 234; } /* = unique id SOAP_TYPE__ns8__getSubProductByUuidResponse */
+	virtual int soap_type() const { return 38; } /* = unique id SOAP_TYPE_g2ba__ModifyActivityLocationsResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByUuidResponse() { _ns8__getSubProductByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByUuidResponse() { }
+	         g2ba__ModifyActivityLocationsResponse() { g2ba__ModifyActivityLocationsResponse::soap_default(NULL); }
+	virtual ~g2ba__ModifyActivityLocationsResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getSubProductByProductListRequest
-#define SOAP_TYPE__ns8__getSubProductByProductListRequest (235)
-/* ns8:getSubProductByProductListRequest */
-class SOAP_CMAC _ns8__getSubProductByProductListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__productGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ResolveDiscrepancyResponse
+#define SOAP_TYPE_g2ba__ResolveDiscrepancyResponse (40)
+/* g2ba:ResolveDiscrepancyResponse */
+class SOAP_CMAC g2ba__ResolveDiscrepancyResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 235; } /* = unique id SOAP_TYPE__ns8__getSubProductByProductListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByProductListRequest() { _ns8__getSubProductByProductListRequest::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByProductListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getSubProductByProductListResponse
-#define SOAP_TYPE__ns8__getSubProductByProductListResponse (236)
-/* ns8:getSubProductByProductListResponse */
-class SOAP_CMAC _ns8__getSubProductByProductListResponse {
-public:
-	class ent__SubProductList *ent__subProductList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:SubProductList */
-	struct soap *soap;	/* transient */
+	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
 public:
-	virtual int soap_type() const { return 236; } /* = unique id SOAP_TYPE__ns8__getSubProductByProductListResponse */
+	virtual int soap_type() const { return 40; } /* = unique id SOAP_TYPE_g2ba__ResolveDiscrepancyResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductByProductListResponse() { _ns8__getSubProductByProductListResponse::soap_default(NULL); }
-	virtual ~_ns8__getSubProductByProductListResponse() { }
+	         g2ba__ResolveDiscrepancyResponse() { g2ba__ResolveDiscrepancyResponse::soap_default(NULL); }
+	virtual ~g2ba__ResolveDiscrepancyResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getSubProductChangesListRequest
-#define SOAP_TYPE__ns8__getSubProductChangesListRequest (237)
-/* ns8:getSubProductChangesListRequest */
-class SOAP_CMAC _ns8__getSubProductChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__ModifyProducerStockListResponse
+#define SOAP_TYPE_g2ba__ModifyProducerStockListResponse (42)
+/* g2ba:ModifyProducerStockListResponse */
+class SOAP_CMAC g2ba__ModifyProducerStockListResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 237; } /* = unique id SOAP_TYPE__ns8__getSubProductChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductChangesListRequest() { _ns8__getSubProductChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getSubProductChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getSubProductChangesListResponse
-#define SOAP_TYPE__ns8__getSubProductChangesListResponse (238)
-/* ns8:getSubProductChangesListResponse */
-class SOAP_CMAC _ns8__getSubProductChangesListResponse {
-public:
-	ent__SubProductList *ent__subProductList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:SubProductList */
-	struct soap *soap;	/* transient */
+	dic__ProductItemList *productItemList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type dic:ProductItemList */
 public:
-	virtual int soap_type() const { return 238; } /* = unique id SOAP_TYPE__ns8__getSubProductChangesListResponse */
+	virtual int soap_type() const { return 42; } /* = unique id SOAP_TYPE_g2ba__ModifyProducerStockListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getSubProductChangesListResponse() { _ns8__getSubProductChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getSubProductChangesListResponse() { }
+	         g2ba__ModifyProducerStockListResponse() { g2ba__ModifyProducerStockListResponse::soap_default(NULL); }
+	virtual ~g2ba__ModifyProducerStockListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductItemByGuidRequest
-#define SOAP_TYPE__ns8__getProductItemByGuidRequest (239)
-/* ns8:getProductItemByGuidRequest */
-class SOAP_CMAC _ns8__getProductItemByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentByUuidResponse
+#define SOAP_TYPE_g2ba__GetVetDocumentByUuidResponse (44)
+/* g2ba:GetVetDocumentByUuidResponse */
+class SOAP_CMAC g2ba__GetVetDocumentByUuidResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 239; } /* = unique id SOAP_TYPE__ns8__getProductItemByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemByGuidRequest() { _ns8__getProductItemByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductItemByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductItemByGuidResponse
-#define SOAP_TYPE__ns8__getProductItemByGuidResponse (240)
-/* ns8:getProductItemByGuidResponse */
-class SOAP_CMAC _ns8__getProductItemByGuidResponse {
-public:
-	ent__ProductItem *ent__productItem;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type ent:ProductItem */
-	struct soap *soap;	/* transient */
+	vd__VetDocument *vd__vetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 240; } /* = unique id SOAP_TYPE__ns8__getProductItemByGuidResponse */
+	virtual int soap_type() const { return 44; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentByUuidResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemByGuidResponse() { _ns8__getProductItemByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductItemByGuidResponse() { }
+	         g2ba__GetVetDocumentByUuidResponse() { g2ba__GetVetDocumentByUuidResponse::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentByUuidResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductItemByUuidRequest
-#define SOAP_TYPE__ns8__getProductItemByUuidRequest (241)
-/* ns8:getProductItemByUuidRequest */
-class SOAP_CMAC _ns8__getProductItemByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentListResponse
+#define SOAP_TYPE_g2ba__GetVetDocumentListResponse (46)
+/* g2ba:GetVetDocumentListResponse */
+class SOAP_CMAC g2ba__GetVetDocumentListResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 241; } /* = unique id SOAP_TYPE__ns8__getProductItemByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemByUuidRequest() { _ns8__getProductItemByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductItemByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductItemByUuidResponse
-#define SOAP_TYPE__ns8__getProductItemByUuidResponse (242)
-/* ns8:getProductItemByUuidResponse */
-class SOAP_CMAC _ns8__getProductItemByUuidResponse {
-public:
-	ent__ProductItem *ent__productItem;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type ent:ProductItem */
-	struct soap *soap;	/* transient */
+	class vd__VetDocumentList *vd__vetDocumentList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocumentList */
 public:
-	virtual int soap_type() const { return 242; } /* = unique id SOAP_TYPE__ns8__getProductItemByUuidResponse */
+	virtual int soap_type() const { return 46; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemByUuidResponse() { _ns8__getProductItemByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductItemByUuidResponse() { }
+	         g2ba__GetVetDocumentListResponse() { g2ba__GetVetDocumentListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductItemListRequest
-#define SOAP_TYPE__ns8__getProductItemListRequest (243)
-/* ns8:getProductItemListRequest */
-class SOAP_CMAC _ns8__getProductItemListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	enum ent__ProductType *ent__productType;	/* optional element of type ent:ProductType */
-	ent__Product *ent__product;	/* optional element of type ent:Product */
-	ent__SubProduct *ent__subProduct;	/* optional element of type ent:SubProduct */
-	ent__BusinessEntity *ent__businessEntity;	/* optional element of type ent:BusinessEntity */
-	ent__Enterprise *ent__enterprise;	/* optional element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentChangesListResponse
+#define SOAP_TYPE_g2ba__GetVetDocumentChangesListResponse (48)
+/* g2ba:GetVetDocumentChangesListResponse */
+class SOAP_CMAC g2ba__GetVetDocumentChangesListResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 243; } /* = unique id SOAP_TYPE__ns8__getProductItemListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemListRequest() { _ns8__getProductItemListRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductItemListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductItemListResponse
-#define SOAP_TYPE__ns8__getProductItemListResponse (244)
-/* ns8:getProductItemListResponse */
-class SOAP_CMAC _ns8__getProductItemListResponse {
-public:
-	ent__ProductItemList *ent__productItemList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type ent:ProductItemList */
-	struct soap *soap;	/* transient */
+	vd__VetDocumentList *vd__vetDocumentList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocumentList */
 public:
-	virtual int soap_type() const { return 244; } /* = unique id SOAP_TYPE__ns8__getProductItemListResponse */
+	virtual int soap_type() const { return 48; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentChangesListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemListResponse() { _ns8__getProductItemListResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductItemListResponse() { }
+	         g2ba__GetVetDocumentChangesListResponse() { g2ba__GetVetDocumentChangesListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentChangesListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getProductItemChangesListRequest
-#define SOAP_TYPE__ns8__getProductItemChangesListRequest (245)
-/* ns8:getProductItemChangesListRequest */
-class SOAP_CMAC _ns8__getProductItemChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	ent__BusinessEntity *ent__businessEntity;	/* optional element of type ent:BusinessEntity */
-	ent__Enterprise *ent__enterprise;	/* optional element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetStockEntryByGuidResponse
+#define SOAP_TYPE_g2ba__GetStockEntryByGuidResponse (50)
+/* g2ba:GetStockEntryByGuidResponse */
+class SOAP_CMAC g2ba__GetStockEntryByGuidResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 245; } /* = unique id SOAP_TYPE__ns8__getProductItemChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemChangesListRequest() { _ns8__getProductItemChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getProductItemChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getProductItemChangesListResponse
-#define SOAP_TYPE__ns8__getProductItemChangesListResponse (246)
-/* ns8:getProductItemChangesListResponse */
-class SOAP_CMAC _ns8__getProductItemChangesListResponse {
-public:
-	ent__ProductItemList *ent__productItemList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type ent:ProductItemList */
-	struct soap *soap;	/* transient */
+	vd__StockEntry *vd__stockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntry */
 public:
-	virtual int soap_type() const { return 246; } /* = unique id SOAP_TYPE__ns8__getProductItemChangesListResponse */
+	virtual int soap_type() const { return 50; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryByGuidResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getProductItemChangesListResponse() { _ns8__getProductItemChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getProductItemChangesListResponse() { }
+	         g2ba__GetStockEntryByGuidResponse() { g2ba__GetStockEntryByGuidResponse::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryByGuidResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getAllCountryListRequest
-#define SOAP_TYPE__ns8__getAllCountryListRequest (247)
-/* ns8:getAllCountryListRequest */
-class SOAP_CMAC _ns8__getAllCountryListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetStockEntryByUuidResponse
+#define SOAP_TYPE_g2ba__GetStockEntryByUuidResponse (52)
+/* g2ba:GetStockEntryByUuidResponse */
+class SOAP_CMAC g2ba__GetStockEntryByUuidResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 247; } /* = unique id SOAP_TYPE__ns8__getAllCountryListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getAllCountryListRequest() { _ns8__getAllCountryListRequest::soap_default(NULL); }
-	virtual ~_ns8__getAllCountryListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getAllCountryListResponse
-#define SOAP_TYPE__ns8__getAllCountryListResponse (248)
-/* ns8:getAllCountryListResponse */
-class SOAP_CMAC _ns8__getAllCountryListResponse {
-public:
-	class ent__CountryList *ent__countryList;	/* required element of type ent:CountryList */
-	struct soap *soap;	/* transient */
+	vd__StockEntry *vd__stockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntry */
 public:
-	virtual int soap_type() const { return 248; } /* = unique id SOAP_TYPE__ns8__getAllCountryListResponse */
+	virtual int soap_type() const { return 52; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryByUuidResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getAllCountryListResponse() { _ns8__getAllCountryListResponse::soap_default(NULL); }
-	virtual ~_ns8__getAllCountryListResponse() { }
+	         g2ba__GetStockEntryByUuidResponse() { g2ba__GetStockEntryByUuidResponse::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryByUuidResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryByGuidRequest
-#define SOAP_TYPE__ns8__getCountryByGuidRequest (249)
-/* ns8:getCountryByGuidRequest */
-class SOAP_CMAC _ns8__getCountryByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetStockEntryChangesListResponse
+#define SOAP_TYPE_g2ba__GetStockEntryChangesListResponse (54)
+/* g2ba:GetStockEntryChangesListResponse */
+class SOAP_CMAC g2ba__GetStockEntryChangesListResponse : public app__ApplicationResultData {
+public:
+	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
 public:
-	virtual int soap_type() const { return 249; } /* = unique id SOAP_TYPE__ns8__getCountryByGuidRequest */
+	virtual int soap_type() const { return 54; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryChangesListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryByGuidRequest() { _ns8__getCountryByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getCountryByGuidRequest() { }
+	         g2ba__GetStockEntryChangesListResponse() { g2ba__GetStockEntryChangesListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryChangesListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryByGuidResponse
-#define SOAP_TYPE__ns8__getCountryByGuidResponse (250)
-/* ns8:getCountryByGuidResponse */
-class SOAP_CMAC _ns8__getCountryByGuidResponse {
-public:
-	ent__Country *ent__country;	/* required element of type ent:Country */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetStockEntryListResponse
+#define SOAP_TYPE_g2ba__GetStockEntryListResponse (56)
+/* g2ba:GetStockEntryListResponse */
+class SOAP_CMAC g2ba__GetStockEntryListResponse : public app__ApplicationResultData {
+public:
+	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
 public:
-	virtual int soap_type() const { return 250; } /* = unique id SOAP_TYPE__ns8__getCountryByGuidResponse */
+	virtual int soap_type() const { return 56; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryByGuidResponse() { _ns8__getCountryByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getCountryByGuidResponse() { }
+	         g2ba__GetStockEntryListResponse() { g2ba__GetStockEntryListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryByUuidRequest
-#define SOAP_TYPE__ns8__getCountryByUuidRequest (251)
-/* ns8:getCountryByUuidRequest */
-class SOAP_CMAC _ns8__getCountryByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetStockEntryVersionListResponse
+#define SOAP_TYPE_g2ba__GetStockEntryVersionListResponse (58)
+/* g2ba:GetStockEntryVersionListResponse */
+class SOAP_CMAC g2ba__GetStockEntryVersionListResponse : public app__ApplicationResultData {
+public:
+	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
 public:
-	virtual int soap_type() const { return 251; } /* = unique id SOAP_TYPE__ns8__getCountryByUuidRequest */
+	virtual int soap_type() const { return 58; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryVersionListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryByUuidRequest() { _ns8__getCountryByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getCountryByUuidRequest() { }
+	         g2ba__GetStockEntryVersionListResponse() { g2ba__GetStockEntryVersionListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryVersionListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryByUuidResponse
-#define SOAP_TYPE__ns8__getCountryByUuidResponse (252)
-/* ns8:getCountryByUuidResponse */
-class SOAP_CMAC _ns8__getCountryByUuidResponse {
-public:
-	ent__Country *ent__country;	/* required element of type ent:Country */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__UpdateTransportMovementDetailsResponse
+#define SOAP_TYPE_g2ba__UpdateTransportMovementDetailsResponse (60)
+/* g2ba:UpdateTransportMovementDetailsResponse */
+class SOAP_CMAC g2ba__UpdateTransportMovementDetailsResponse : public app__ApplicationResultData {
+public:
+	int __sizevetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:vetDocument> */
+	vd__VetDocument **vd__vetDocument;	/* optional element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 252; } /* = unique id SOAP_TYPE__ns8__getCountryByUuidResponse */
+	virtual int soap_type() const { return 60; } /* = unique id SOAP_TYPE_g2ba__UpdateTransportMovementDetailsResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryByUuidResponse() { _ns8__getCountryByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getCountryByUuidResponse() { }
+	         g2ba__UpdateTransportMovementDetailsResponse() { g2ba__UpdateTransportMovementDetailsResponse::soap_default(NULL); }
+	virtual ~g2ba__UpdateTransportMovementDetailsResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryChangesListRequest
-#define SOAP_TYPE__ns8__getCountryChangesListRequest (253)
-/* ns8:getCountryChangesListRequest */
-class SOAP_CMAC _ns8__getCountryChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__UpdateVeterinaryEventsResponse
+#define SOAP_TYPE_g2ba__UpdateVeterinaryEventsResponse (62)
+/* g2ba:UpdateVeterinaryEventsResponse */
+class SOAP_CMAC g2ba__UpdateVeterinaryEventsResponse : public app__ApplicationResultData {
+public:
+	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:stockEntry> */
+	vd__StockEntry **vd__stockEntry;	/* optional element of type vd:StockEntry */
 public:
-	virtual int soap_type() const { return 253; } /* = unique id SOAP_TYPE__ns8__getCountryChangesListRequest */
+	virtual int soap_type() const { return 62; } /* = unique id SOAP_TYPE_g2ba__UpdateVeterinaryEventsResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryChangesListRequest() { _ns8__getCountryChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getCountryChangesListRequest() { }
+	         g2ba__UpdateVeterinaryEventsResponse() { g2ba__UpdateVeterinaryEventsResponse::soap_default(NULL); }
+	virtual ~g2ba__UpdateVeterinaryEventsResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getCountryChangesListResponse
-#define SOAP_TYPE__ns8__getCountryChangesListResponse (254)
-/* ns8:getCountryChangesListResponse */
-class SOAP_CMAC _ns8__getCountryChangesListResponse {
-public:
-	ent__CountryList *ent__countryList;	/* required element of type ent:CountryList */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__CheckShipmentRegionalizationResponse
+#define SOAP_TYPE_g2ba__CheckShipmentRegionalizationResponse (64)
+/* g2ba:CheckShipmentRegionalizationResponse */
+class SOAP_CMAC g2ba__CheckShipmentRegionalizationResponse : public app__ApplicationResultData {
+public:
+	int __sizer13nRouteSection;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:r13nRouteSection> */
+	vd__RouteSectionR13nRules **vd__r13nRouteSection;	/* optional element of type vd:RouteSectionR13nRules */
 public:
-	virtual int soap_type() const { return 254; } /* = unique id SOAP_TYPE__ns8__getCountryChangesListResponse */
+	virtual int soap_type() const { return 64; } /* = unique id SOAP_TYPE_g2ba__CheckShipmentRegionalizationResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getCountryChangesListResponse() { _ns8__getCountryChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getCountryChangesListResponse() { }
+	         g2ba__CheckShipmentRegionalizationResponse() { g2ba__CheckShipmentRegionalizationResponse::soap_default(NULL); }
+	virtual ~g2ba__CheckShipmentRegionalizationResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionListByCountryRequest
-#define SOAP_TYPE__ns8__getRegionListByCountryRequest (255)
-/* ns8:getRegionListByCountryRequest */
-class SOAP_CMAC _ns8__getRegionListByCountryRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__countryGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__AddBusinessEntityUserResponse
+#define SOAP_TYPE_g2ba__AddBusinessEntityUserResponse (66)
+/* g2ba:AddBusinessEntityUserResponse */
+class SOAP_CMAC g2ba__AddBusinessEntityUserResponse : public app__ApplicationResultData {
+public:
+	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 255; } /* = unique id SOAP_TYPE__ns8__getRegionListByCountryRequest */
+	virtual int soap_type() const { return 66; } /* = unique id SOAP_TYPE_g2ba__AddBusinessEntityUserResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionListByCountryRequest() { _ns8__getRegionListByCountryRequest::soap_default(NULL); }
-	virtual ~_ns8__getRegionListByCountryRequest() { }
+	         g2ba__AddBusinessEntityUserResponse() { g2ba__AddBusinessEntityUserResponse::soap_default(NULL); }
+	virtual ~g2ba__AddBusinessEntityUserResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionListByCountryResponse
-#define SOAP_TYPE__ns8__getRegionListByCountryResponse (256)
-/* ns8:getRegionListByCountryResponse */
-class SOAP_CMAC _ns8__getRegionListByCountryResponse {
-public:
-	class ent__RegionList *ent__regionList;	/* required element of type ent:RegionList */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetBusinessEntityUserListResponse
+#define SOAP_TYPE_g2ba__GetBusinessEntityUserListResponse (68)
+/* g2ba:GetBusinessEntityUserListResponse */
+class SOAP_CMAC g2ba__GetBusinessEntityUserListResponse : public app__ApplicationResultData {
+public:
+	class vd__UserList *vd__userList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:UserList */
 public:
-	virtual int soap_type() const { return 256; } /* = unique id SOAP_TYPE__ns8__getRegionListByCountryResponse */
+	virtual int soap_type() const { return 68; } /* = unique id SOAP_TYPE_g2ba__GetBusinessEntityUserListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionListByCountryResponse() { _ns8__getRegionListByCountryResponse::soap_default(NULL); }
-	virtual ~_ns8__getRegionListByCountryResponse() { }
+	         g2ba__GetBusinessEntityUserListResponse() { g2ba__GetBusinessEntityUserListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetBusinessEntityUserListResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionByGuidRequest
-#define SOAP_TYPE__ns8__getRegionByGuidRequest (257)
-/* ns8:getRegionByGuidRequest */
-class SOAP_CMAC _ns8__getRegionByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetBusinessEntityUserResponse
+#define SOAP_TYPE_g2ba__GetBusinessEntityUserResponse (70)
+/* g2ba:GetBusinessEntityUserResponse */
+class SOAP_CMAC g2ba__GetBusinessEntityUserResponse : public app__ApplicationResultData {
+public:
+	vd__User *vd__user;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 257; } /* = unique id SOAP_TYPE__ns8__getRegionByGuidRequest */
+	virtual int soap_type() const { return 70; } /* = unique id SOAP_TYPE_g2ba__GetBusinessEntityUserResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionByGuidRequest() { _ns8__getRegionByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getRegionByGuidRequest() { }
+	         g2ba__GetBusinessEntityUserResponse() { g2ba__GetBusinessEntityUserResponse::soap_default(NULL); }
+	virtual ~g2ba__GetBusinessEntityUserResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionByGuidResponse
-#define SOAP_TYPE__ns8__getRegionByGuidResponse (258)
-/* ns8:getRegionByGuidResponse */
-class SOAP_CMAC _ns8__getRegionByGuidResponse {
-public:
-	ent__Region *ent__region;	/* required element of type ent:Region */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__UpdateUserAuthoritiesResponse
+#define SOAP_TYPE_g2ba__UpdateUserAuthoritiesResponse (72)
+/* g2ba:UpdateUserAuthoritiesResponse */
+class SOAP_CMAC g2ba__UpdateUserAuthoritiesResponse : public app__ApplicationResultData {
+public:
+	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 258; } /* = unique id SOAP_TYPE__ns8__getRegionByGuidResponse */
+	virtual int soap_type() const { return 72; } /* = unique id SOAP_TYPE_g2ba__UpdateUserAuthoritiesResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionByGuidResponse() { _ns8__getRegionByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getRegionByGuidResponse() { }
+	         g2ba__UpdateUserAuthoritiesResponse() { g2ba__UpdateUserAuthoritiesResponse::soap_default(NULL); }
+	virtual ~g2ba__UpdateUserAuthoritiesResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionByUuidRequest
-#define SOAP_TYPE__ns8__getRegionByUuidRequest (259)
-/* ns8:getRegionByUuidRequest */
-class SOAP_CMAC _ns8__getRegionByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__UpdateUserWorkingAreasResponse
+#define SOAP_TYPE_g2ba__UpdateUserWorkingAreasResponse (74)
+/* g2ba:UpdateUserWorkingAreasResponse */
+class SOAP_CMAC g2ba__UpdateUserWorkingAreasResponse : public app__ApplicationResultData {
+public:
+	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 259; } /* = unique id SOAP_TYPE__ns8__getRegionByUuidRequest */
+	virtual int soap_type() const { return 74; } /* = unique id SOAP_TYPE_g2ba__UpdateUserWorkingAreasResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionByUuidRequest() { _ns8__getRegionByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getRegionByUuidRequest() { }
+	         g2ba__UpdateUserWorkingAreasResponse() { g2ba__UpdateUserWorkingAreasResponse::soap_default(NULL); }
+	virtual ~g2ba__UpdateUserWorkingAreasResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionByUuidResponse
-#define SOAP_TYPE__ns8__getRegionByUuidResponse (260)
-/* ns8:getRegionByUuidResponse */
-class SOAP_CMAC _ns8__getRegionByUuidResponse {
-public:
-	ent__Region *ent__region;	/* required element of type ent:Region */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__UnbindBusinessEntityUserResponse
+#define SOAP_TYPE_g2ba__UnbindBusinessEntityUserResponse (76)
+/* g2ba:UnbindBusinessEntityUserResponse */
+class SOAP_CMAC g2ba__UnbindBusinessEntityUserResponse : public app__ApplicationResultData {
+public:
+	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 260; } /* = unique id SOAP_TYPE__ns8__getRegionByUuidResponse */
+	virtual int soap_type() const { return 76; } /* = unique id SOAP_TYPE_g2ba__UnbindBusinessEntityUserResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionByUuidResponse() { _ns8__getRegionByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getRegionByUuidResponse() { }
+	         g2ba__UnbindBusinessEntityUserResponse() { g2ba__UnbindBusinessEntityUserResponse::soap_default(NULL); }
+	virtual ~g2ba__UnbindBusinessEntityUserResponse() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ns8__getRegionChangesListRequest
-#define SOAP_TYPE__ns8__getRegionChangesListRequest (261)
-/* ns8:getRegionChangesListRequest */
-class SOAP_CMAC _ns8__getRegionChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
+#ifndef SOAP_TYPE_g2ba__GetApplicableUserAuthorityListResponse
+#define SOAP_TYPE_g2ba__GetApplicableUserAuthorityListResponse (78)
+/* g2ba:GetApplicableUserAuthorityListResponse */
+class SOAP_CMAC g2ba__GetApplicableUserAuthorityListResponse : public app__ApplicationResultData {
 public:
-	virtual int soap_type() const { return 261; } /* = unique id SOAP_TYPE__ns8__getRegionChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionChangesListRequest() { _ns8__getRegionChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getRegionChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getRegionChangesListResponse
-#define SOAP_TYPE__ns8__getRegionChangesListResponse (262)
-/* ns8:getRegionChangesListResponse */
-class SOAP_CMAC _ns8__getRegionChangesListResponse {
-public:
-	ent__RegionList *ent__regionList;	/* required element of type ent:RegionList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 262; } /* = unique id SOAP_TYPE__ns8__getRegionChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRegionChangesListResponse() { _ns8__getRegionChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getRegionChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictListByRegionRequest
-#define SOAP_TYPE__ns8__getDistrictListByRegionRequest (263)
-/* ns8:getDistrictListByRegionRequest */
-class SOAP_CMAC _ns8__getDistrictListByRegionRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__regionGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 263; } /* = unique id SOAP_TYPE__ns8__getDistrictListByRegionRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictListByRegionRequest() { _ns8__getDistrictListByRegionRequest::soap_default(NULL); }
-	virtual ~_ns8__getDistrictListByRegionRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictListByRegionResponse
-#define SOAP_TYPE__ns8__getDistrictListByRegionResponse (264)
-/* ns8:getDistrictListByRegionResponse */
-class SOAP_CMAC _ns8__getDistrictListByRegionResponse {
-public:
-	class ent__DistrictList *ent__districtList;	/* required element of type ent:DistrictList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 264; } /* = unique id SOAP_TYPE__ns8__getDistrictListByRegionResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictListByRegionResponse() { _ns8__getDistrictListByRegionResponse::soap_default(NULL); }
-	virtual ~_ns8__getDistrictListByRegionResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictByGuidRequest
-#define SOAP_TYPE__ns8__getDistrictByGuidRequest (265)
-/* ns8:getDistrictByGuidRequest */
-class SOAP_CMAC _ns8__getDistrictByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 265; } /* = unique id SOAP_TYPE__ns8__getDistrictByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictByGuidRequest() { _ns8__getDistrictByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getDistrictByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictByGuidResponse
-#define SOAP_TYPE__ns8__getDistrictByGuidResponse (266)
-/* ns8:getDistrictByGuidResponse */
-class SOAP_CMAC _ns8__getDistrictByGuidResponse {
-public:
-	ent__District *ent__district;	/* required element of type ent:District */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 266; } /* = unique id SOAP_TYPE__ns8__getDistrictByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictByGuidResponse() { _ns8__getDistrictByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getDistrictByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictByUuidRequest
-#define SOAP_TYPE__ns8__getDistrictByUuidRequest (267)
-/* ns8:getDistrictByUuidRequest */
-class SOAP_CMAC _ns8__getDistrictByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 267; } /* = unique id SOAP_TYPE__ns8__getDistrictByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictByUuidRequest() { _ns8__getDistrictByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getDistrictByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictByUuidResponse
-#define SOAP_TYPE__ns8__getDistrictByUuidResponse (268)
-/* ns8:getDistrictByUuidResponse */
-class SOAP_CMAC _ns8__getDistrictByUuidResponse {
-public:
-	ent__District *ent__district;	/* required element of type ent:District */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 268; } /* = unique id SOAP_TYPE__ns8__getDistrictByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictByUuidResponse() { _ns8__getDistrictByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getDistrictByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictChangesListRequest
-#define SOAP_TYPE__ns8__getDistrictChangesListRequest (269)
-/* ns8:getDistrictChangesListRequest */
-class SOAP_CMAC _ns8__getDistrictChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 269; } /* = unique id SOAP_TYPE__ns8__getDistrictChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictChangesListRequest() { _ns8__getDistrictChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getDistrictChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDistrictChangesListResponse
-#define SOAP_TYPE__ns8__getDistrictChangesListResponse (270)
-/* ns8:getDistrictChangesListResponse */
-class SOAP_CMAC _ns8__getDistrictChangesListResponse {
-public:
-	ent__DistrictList *ent__districtList;	/* required element of type ent:DistrictList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 270; } /* = unique id SOAP_TYPE__ns8__getDistrictChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDistrictChangesListResponse() { _ns8__getDistrictChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getDistrictChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByRegionRequest
-#define SOAP_TYPE__ns8__getLocalityListByRegionRequest (271)
-/* ns8:getLocalityListByRegionRequest */
-class SOAP_CMAC _ns8__getLocalityListByRegionRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__regionGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 271; } /* = unique id SOAP_TYPE__ns8__getLocalityListByRegionRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByRegionRequest() { _ns8__getLocalityListByRegionRequest::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByRegionRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByRegionResponse
-#define SOAP_TYPE__ns8__getLocalityListByRegionResponse (272)
-/* ns8:getLocalityListByRegionResponse */
-class SOAP_CMAC _ns8__getLocalityListByRegionResponse {
-public:
-	class ent__LocalityList *ent__localityList;	/* required element of type ent:LocalityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 272; } /* = unique id SOAP_TYPE__ns8__getLocalityListByRegionResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByRegionResponse() { _ns8__getLocalityListByRegionResponse::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByRegionResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByDistrictRequest
-#define SOAP_TYPE__ns8__getLocalityListByDistrictRequest (273)
-/* ns8:getLocalityListByDistrictRequest */
-class SOAP_CMAC _ns8__getLocalityListByDistrictRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__districtGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 273; } /* = unique id SOAP_TYPE__ns8__getLocalityListByDistrictRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByDistrictRequest() { _ns8__getLocalityListByDistrictRequest::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByDistrictRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByDistrictResponse
-#define SOAP_TYPE__ns8__getLocalityListByDistrictResponse (274)
-/* ns8:getLocalityListByDistrictResponse */
-class SOAP_CMAC _ns8__getLocalityListByDistrictResponse {
-public:
-	ent__LocalityList *ent__localityList;	/* required element of type ent:LocalityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 274; } /* = unique id SOAP_TYPE__ns8__getLocalityListByDistrictResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByDistrictResponse() { _ns8__getLocalityListByDistrictResponse::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByDistrictResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByLocalityRequest
-#define SOAP_TYPE__ns8__getLocalityListByLocalityRequest (275)
-/* ns8:getLocalityListByLocalityRequest */
-class SOAP_CMAC _ns8__getLocalityListByLocalityRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__localityGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 275; } /* = unique id SOAP_TYPE__ns8__getLocalityListByLocalityRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByLocalityRequest() { _ns8__getLocalityListByLocalityRequest::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByLocalityRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getLocalityListByLocalityResponse
-#define SOAP_TYPE__ns8__getLocalityListByLocalityResponse (276)
-/* ns8:getLocalityListByLocalityResponse */
-class SOAP_CMAC _ns8__getLocalityListByLocalityResponse {
-public:
-	ent__LocalityList *ent__localityList;	/* required element of type ent:LocalityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 276; } /* = unique id SOAP_TYPE__ns8__getLocalityListByLocalityResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getLocalityListByLocalityResponse() { _ns8__getLocalityListByLocalityResponse::soap_default(NULL); }
-	virtual ~_ns8__getLocalityListByLocalityResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getStreetListByLocalityRequest
-#define SOAP_TYPE__ns8__getStreetListByLocalityRequest (277)
-/* ns8:getStreetListByLocalityRequest */
-class SOAP_CMAC _ns8__getStreetListByLocalityRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__localityGuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 277; } /* = unique id SOAP_TYPE__ns8__getStreetListByLocalityRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getStreetListByLocalityRequest() { _ns8__getStreetListByLocalityRequest::soap_default(NULL); }
-	virtual ~_ns8__getStreetListByLocalityRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getStreetListByLocalityResponse
-#define SOAP_TYPE__ns8__getStreetListByLocalityResponse (278)
-/* ns8:getStreetListByLocalityResponse */
-class SOAP_CMAC _ns8__getStreetListByLocalityResponse {
-public:
-	class ent__StreetList *ent__streetList;	/* required element of type ent:StreetList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 278; } /* = unique id SOAP_TYPE__ns8__getStreetListByLocalityResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getStreetListByLocalityResponse() { _ns8__getStreetListByLocalityResponse::soap_default(NULL); }
-	virtual ~_ns8__getStreetListByLocalityResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__findLocalityListByNameRequest
-#define SOAP_TYPE__ns8__findLocalityListByNameRequest (279)
-/* ns8:findLocalityListByNameRequest */
-class SOAP_CMAC _ns8__findLocalityListByNameRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__regionGuid;	/* required element of type base:UUID */
-	char *pattern;	/* required element of type xsd:string */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 279; } /* = unique id SOAP_TYPE__ns8__findLocalityListByNameRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__findLocalityListByNameRequest() { _ns8__findLocalityListByNameRequest::soap_default(NULL); }
-	virtual ~_ns8__findLocalityListByNameRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__findLocalityListByNameResponse
-#define SOAP_TYPE__ns8__findLocalityListByNameResponse (280)
-/* ns8:findLocalityListByNameResponse */
-class SOAP_CMAC _ns8__findLocalityListByNameResponse {
-public:
-	ent__LocalityList *ent__localityList;	/* required element of type ent:LocalityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 280; } /* = unique id SOAP_TYPE__ns8__findLocalityListByNameResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__findLocalityListByNameResponse() { _ns8__findLocalityListByNameResponse::soap_default(NULL); }
-	virtual ~_ns8__findLocalityListByNameResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__findStreetListByNameRequest
-#define SOAP_TYPE__ns8__findStreetListByNameRequest (281)
-/* ns8:findStreetListByNameRequest */
-class SOAP_CMAC _ns8__findStreetListByNameRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__localityGuid;	/* required element of type base:UUID */
-	char *pattern;	/* required element of type xsd:string */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 281; } /* = unique id SOAP_TYPE__ns8__findStreetListByNameRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__findStreetListByNameRequest() { _ns8__findStreetListByNameRequest::soap_default(NULL); }
-	virtual ~_ns8__findStreetListByNameRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__findStreetListByNameResponse
-#define SOAP_TYPE__ns8__findStreetListByNameResponse (282)
-/* ns8:findStreetListByNameResponse */
-class SOAP_CMAC _ns8__findStreetListByNameResponse {
-public:
-	ent__StreetList *ent__streetList;	/* required element of type ent:StreetList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 282; } /* = unique id SOAP_TYPE__ns8__findStreetListByNameResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__findStreetListByNameResponse() { _ns8__findStreetListByNameResponse::soap_default(NULL); }
-	virtual ~_ns8__findStreetListByNameResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getEnterpriseByGuidRequest
-#define SOAP_TYPE__ns8__getEnterpriseByGuidRequest (283)
-/* ns8:getEnterpriseByGuidRequest */
-class SOAP_CMAC _ns8__getEnterpriseByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 283; } /* = unique id SOAP_TYPE__ns8__getEnterpriseByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getEnterpriseByGuidRequest() { _ns8__getEnterpriseByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getEnterpriseByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getEnterpriseByGuidResponse
-#define SOAP_TYPE__ns8__getEnterpriseByGuidResponse (284)
-/* ns8:getEnterpriseByGuidResponse */
-class SOAP_CMAC _ns8__getEnterpriseByGuidResponse {
-public:
-	ent__Enterprise *ent__enterprise;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 284; } /* = unique id SOAP_TYPE__ns8__getEnterpriseByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getEnterpriseByGuidResponse() { _ns8__getEnterpriseByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getEnterpriseByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getEnterpriseByUuidRequest
-#define SOAP_TYPE__ns8__getEnterpriseByUuidRequest (285)
-/* ns8:getEnterpriseByUuidRequest */
-class SOAP_CMAC _ns8__getEnterpriseByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 285; } /* = unique id SOAP_TYPE__ns8__getEnterpriseByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getEnterpriseByUuidRequest() { _ns8__getEnterpriseByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getEnterpriseByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getEnterpriseByUuidResponse
-#define SOAP_TYPE__ns8__getEnterpriseByUuidResponse (286)
-/* ns8:getEnterpriseByUuidResponse */
-class SOAP_CMAC _ns8__getEnterpriseByUuidResponse {
-public:
-	ent__Enterprise *ent__enterprise;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 286; } /* = unique id SOAP_TYPE__ns8__getEnterpriseByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getEnterpriseByUuidResponse() { _ns8__getEnterpriseByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getEnterpriseByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getForeignEnterpriseListRequest
-#define SOAP_TYPE__ns8__getForeignEnterpriseListRequest (287)
-/* ns8:getForeignEnterpriseListRequest */
-class SOAP_CMAC _ns8__getForeignEnterpriseListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	enum ent__EnterpriseGroup *ent__enterpriseGroup;	/* optional element of type ent:EnterpriseGroup */
-	ent__Enterprise *ent__enterprise;	/* optional element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 287; } /* = unique id SOAP_TYPE__ns8__getForeignEnterpriseListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getForeignEnterpriseListRequest() { _ns8__getForeignEnterpriseListRequest::soap_default(NULL); }
-	virtual ~_ns8__getForeignEnterpriseListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getForeignEnterpriseListResponse
-#define SOAP_TYPE__ns8__getForeignEnterpriseListResponse (288)
-/* ns8:getForeignEnterpriseListResponse */
-class SOAP_CMAC _ns8__getForeignEnterpriseListResponse {
-public:
-	ent__EnterpriseList *ent__enterpriseList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:EnterpriseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 288; } /* = unique id SOAP_TYPE__ns8__getForeignEnterpriseListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getForeignEnterpriseListResponse() { _ns8__getForeignEnterpriseListResponse::soap_default(NULL); }
-	virtual ~_ns8__getForeignEnterpriseListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getRussianEnterpriseListRequest
-#define SOAP_TYPE__ns8__getRussianEnterpriseListRequest (289)
-/* ns8:getRussianEnterpriseListRequest */
-class SOAP_CMAC _ns8__getRussianEnterpriseListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__Enterprise *ent__enterprise;	/* optional element of type ent:Enterprise */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 289; } /* = unique id SOAP_TYPE__ns8__getRussianEnterpriseListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRussianEnterpriseListRequest() { _ns8__getRussianEnterpriseListRequest::soap_default(NULL); }
-	virtual ~_ns8__getRussianEnterpriseListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getRussianEnterpriseListResponse
-#define SOAP_TYPE__ns8__getRussianEnterpriseListResponse (290)
-/* ns8:getRussianEnterpriseListResponse */
-class SOAP_CMAC _ns8__getRussianEnterpriseListResponse {
-public:
-	ent__EnterpriseList *ent__enterpriseList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:EnterpriseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 290; } /* = unique id SOAP_TYPE__ns8__getRussianEnterpriseListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRussianEnterpriseListResponse() { _ns8__getRussianEnterpriseListResponse::soap_default(NULL); }
-	virtual ~_ns8__getRussianEnterpriseListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getForeignEnterpriseChangesListRequest
-#define SOAP_TYPE__ns8__getForeignEnterpriseChangesListRequest (291)
-/* ns8:getForeignEnterpriseChangesListRequest */
-class SOAP_CMAC _ns8__getForeignEnterpriseChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 291; } /* = unique id SOAP_TYPE__ns8__getForeignEnterpriseChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getForeignEnterpriseChangesListRequest() { _ns8__getForeignEnterpriseChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getForeignEnterpriseChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getForeignEnterpriseChangesListResponse
-#define SOAP_TYPE__ns8__getForeignEnterpriseChangesListResponse (292)
-/* ns8:getForeignEnterpriseChangesListResponse */
-class SOAP_CMAC _ns8__getForeignEnterpriseChangesListResponse {
-public:
-	ent__EnterpriseList *ent__enterpriseList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:EnterpriseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 292; } /* = unique id SOAP_TYPE__ns8__getForeignEnterpriseChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getForeignEnterpriseChangesListResponse() { _ns8__getForeignEnterpriseChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getForeignEnterpriseChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getRussianEnterpriseChangesListRequest
-#define SOAP_TYPE__ns8__getRussianEnterpriseChangesListRequest (293)
-/* ns8:getRussianEnterpriseChangesListRequest */
-class SOAP_CMAC _ns8__getRussianEnterpriseChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 293; } /* = unique id SOAP_TYPE__ns8__getRussianEnterpriseChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRussianEnterpriseChangesListRequest() { _ns8__getRussianEnterpriseChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getRussianEnterpriseChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getRussianEnterpriseChangesListResponse
-#define SOAP_TYPE__ns8__getRussianEnterpriseChangesListResponse (294)
-/* ns8:getRussianEnterpriseChangesListResponse */
-class SOAP_CMAC _ns8__getRussianEnterpriseChangesListResponse {
-public:
-	ent__EnterpriseList *ent__enterpriseList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:EnterpriseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 294; } /* = unique id SOAP_TYPE__ns8__getRussianEnterpriseChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getRussianEnterpriseChangesListResponse() { _ns8__getRussianEnterpriseChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getRussianEnterpriseChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityByGuidRequest
-#define SOAP_TYPE__ns8__getBusinessEntityByGuidRequest (295)
-/* ns8:getBusinessEntityByGuidRequest */
-class SOAP_CMAC _ns8__getBusinessEntityByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 295; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityByGuidRequest() { _ns8__getBusinessEntityByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityByGuidResponse
-#define SOAP_TYPE__ns8__getBusinessEntityByGuidResponse (296)
-/* ns8:getBusinessEntityByGuidResponse */
-class SOAP_CMAC _ns8__getBusinessEntityByGuidResponse {
-public:
-	ent__BusinessEntity *ent__businessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:BusinessEntity */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 296; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityByGuidResponse() { _ns8__getBusinessEntityByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityByUuidRequest
-#define SOAP_TYPE__ns8__getBusinessEntityByUuidRequest (297)
-/* ns8:getBusinessEntityByUuidRequest */
-class SOAP_CMAC _ns8__getBusinessEntityByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 297; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityByUuidRequest() { _ns8__getBusinessEntityByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityByUuidResponse
-#define SOAP_TYPE__ns8__getBusinessEntityByUuidResponse (298)
-/* ns8:getBusinessEntityByUuidResponse */
-class SOAP_CMAC _ns8__getBusinessEntityByUuidResponse {
-public:
-	ent__BusinessEntity *ent__businessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:BusinessEntity */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 298; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityByUuidResponse() { _ns8__getBusinessEntityByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityListRequest
-#define SOAP_TYPE__ns8__getBusinessEntityListRequest (299)
-/* ns8:getBusinessEntityListRequest */
-class SOAP_CMAC _ns8__getBusinessEntityListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__BusinessEntity *ent__businessEntity;	/* optional element of type ent:BusinessEntity */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 299; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityListRequest() { _ns8__getBusinessEntityListRequest::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityListResponse
-#define SOAP_TYPE__ns8__getBusinessEntityListResponse (300)
-/* ns8:getBusinessEntityListResponse */
-class SOAP_CMAC _ns8__getBusinessEntityListResponse {
-public:
-	ent__BusinessEntityList *ent__businessEntityList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:BusinessEntityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 300; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityListResponse() { _ns8__getBusinessEntityListResponse::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityChangesListRequest
-#define SOAP_TYPE__ns8__getBusinessEntityChangesListRequest (301)
-/* ns8:getBusinessEntityChangesListRequest */
-class SOAP_CMAC _ns8__getBusinessEntityChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 301; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityChangesListRequest() { _ns8__getBusinessEntityChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessEntityChangesListResponse
-#define SOAP_TYPE__ns8__getBusinessEntityChangesListResponse (302)
-/* ns8:getBusinessEntityChangesListResponse */
-class SOAP_CMAC _ns8__getBusinessEntityChangesListResponse {
-public:
-	ent__BusinessEntityList *ent__businessEntityList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:BusinessEntityList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 302; } /* = unique id SOAP_TYPE__ns8__getBusinessEntityChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessEntityChangesListResponse() { _ns8__getBusinessEntityChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getBusinessEntityChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessMemberByGLNRequest
-#define SOAP_TYPE__ns8__getBusinessMemberByGLNRequest (303)
-/* ns8:getBusinessMemberByGLNRequest */
-class SOAP_CMAC _ns8__getBusinessMemberByGLNRequest {
-public:
-	char *ent__globalID;	/* required element of type ent:GLNType */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 303; } /* = unique id SOAP_TYPE__ns8__getBusinessMemberByGLNRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessMemberByGLNRequest() { _ns8__getBusinessMemberByGLNRequest::soap_default(NULL); }
-	virtual ~_ns8__getBusinessMemberByGLNRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getBusinessMemberByGLNResponse
-#define SOAP_TYPE__ns8__getBusinessMemberByGLNResponse (304)
-/* ns8:getBusinessMemberByGLNResponse */
-class SOAP_CMAC _ns8__getBusinessMemberByGLNResponse {
-public:
-	ent__BusinessMember *ent__businessMember;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:BusinessMember */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 304; } /* = unique id SOAP_TYPE__ns8__getBusinessMemberByGLNResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getBusinessMemberByGLNResponse() { _ns8__getBusinessMemberByGLNResponse::soap_default(NULL); }
-	virtual ~_ns8__getBusinessMemberByGLNResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActivityLocationListRequest
-#define SOAP_TYPE__ns8__getActivityLocationListRequest (305)
-/* ns8:getActivityLocationListRequest */
-class SOAP_CMAC _ns8__getActivityLocationListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__BusinessEntity *ent__businessEntity;	/* required element of type ent:BusinessEntity */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 305; } /* = unique id SOAP_TYPE__ns8__getActivityLocationListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActivityLocationListRequest() { _ns8__getActivityLocationListRequest::soap_default(NULL); }
-	virtual ~_ns8__getActivityLocationListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActivityLocationListResponse
-#define SOAP_TYPE__ns8__getActivityLocationListResponse (306)
-/* ns8:getActivityLocationListResponse */
-class SOAP_CMAC _ns8__getActivityLocationListResponse {
-public:
-	class ent__ActivityLocationList *ent__activityLocationList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:ActivityLocationList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 306; } /* = unique id SOAP_TYPE__ns8__getActivityLocationListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActivityLocationListResponse() { _ns8__getActivityLocationListResponse::soap_default(NULL); }
-	virtual ~_ns8__getActivityLocationListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getR13nConditionListRequest
-#define SOAP_TYPE__ns8__getR13nConditionListRequest (307)
-/* ns8:getR13nConditionListRequest */
-class SOAP_CMAC _ns8__getR13nConditionListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__AnimalDisease *ent__disease;	/* optional element of type ent:AnimalDisease */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 307; } /* = unique id SOAP_TYPE__ns8__getR13nConditionListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getR13nConditionListRequest() { _ns8__getR13nConditionListRequest::soap_default(NULL); }
-	virtual ~_ns8__getR13nConditionListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getR13nConditionListResponse
-#define SOAP_TYPE__ns8__getR13nConditionListResponse (308)
-/* ns8:getR13nConditionListResponse */
-class SOAP_CMAC _ns8__getR13nConditionListResponse {
-public:
-	class ent__RegionalizationConditionList *ent__r13nConditionList;	/* required element of type ent:RegionalizationConditionList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 308; } /* = unique id SOAP_TYPE__ns8__getR13nConditionListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getR13nConditionListResponse() { _ns8__getR13nConditionListResponse::soap_default(NULL); }
-	virtual ~_ns8__getR13nConditionListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActualR13nRegionStatusListRequest
-#define SOAP_TYPE__ns8__getActualR13nRegionStatusListRequest (309)
-/* ns8:getActualR13nRegionStatusListRequest */
-class SOAP_CMAC _ns8__getActualR13nRegionStatusListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__AnimalDisease *ent__disease;	/* required element of type ent:AnimalDisease */
-	ent__Area *ent__r13nZone;	/* optional element of type ent:Area */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 309; } /* = unique id SOAP_TYPE__ns8__getActualR13nRegionStatusListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActualR13nRegionStatusListRequest() { _ns8__getActualR13nRegionStatusListRequest::soap_default(NULL); }
-	virtual ~_ns8__getActualR13nRegionStatusListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActualR13nRegionStatusListResponse
-#define SOAP_TYPE__ns8__getActualR13nRegionStatusListResponse (310)
-/* ns8:getActualR13nRegionStatusListResponse */
-class SOAP_CMAC _ns8__getActualR13nRegionStatusListResponse {
-public:
-	class ent__RegionalizationRegionStatusList *ent__r13nRegionStatusList;	/* required element of type ent:RegionalizationRegionStatusList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 310; } /* = unique id SOAP_TYPE__ns8__getActualR13nRegionStatusListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActualR13nRegionStatusListResponse() { _ns8__getActualR13nRegionStatusListResponse::soap_default(NULL); }
-	virtual ~_ns8__getActualR13nRegionStatusListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActualR13nShippingRuleListRequest
-#define SOAP_TYPE__ns8__getActualR13nShippingRuleListRequest (311)
-/* ns8:getActualR13nShippingRuleListRequest */
-class SOAP_CMAC _ns8__getActualR13nShippingRuleListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	ent__AnimalDisease *ent__disease;	/* required element of type ent:AnimalDisease */
-	enum ent__ProductType *ent__productType;	/* optional element of type ent:ProductType */
-	ent__Product *ent__product;	/* optional element of type ent:Product */
-	ent__SubProduct *ent__subProduct;	/* optional element of type ent:SubProduct */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 311; } /* = unique id SOAP_TYPE__ns8__getActualR13nShippingRuleListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActualR13nShippingRuleListRequest() { _ns8__getActualR13nShippingRuleListRequest::soap_default(NULL); }
-	virtual ~_ns8__getActualR13nShippingRuleListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getActualR13nShippingRuleListResponse
-#define SOAP_TYPE__ns8__getActualR13nShippingRuleListResponse (312)
-/* ns8:getActualR13nShippingRuleListResponse */
-class SOAP_CMAC _ns8__getActualR13nShippingRuleListResponse {
-public:
-	class ent__RegionalizationShippingRuleList *ent__r13nShippingRuleList;	/* required element of type ent:RegionalizationShippingRuleList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 312; } /* = unique id SOAP_TYPE__ns8__getActualR13nShippingRuleListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getActualR13nShippingRuleListResponse() { _ns8__getActualR13nShippingRuleListResponse::soap_default(NULL); }
-	virtual ~_ns8__getActualR13nShippingRuleListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseByGuidRequest
-#define SOAP_TYPE__ns8__getDiseaseByGuidRequest (313)
-/* ns8:getDiseaseByGuidRequest */
-class SOAP_CMAC _ns8__getDiseaseByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 313; } /* = unique id SOAP_TYPE__ns8__getDiseaseByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseByGuidRequest() { _ns8__getDiseaseByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseByGuidResponse
-#define SOAP_TYPE__ns8__getDiseaseByGuidResponse (314)
-/* ns8:getDiseaseByGuidResponse */
-class SOAP_CMAC _ns8__getDiseaseByGuidResponse {
-public:
-	ent__AnimalDisease *ent__disease;	/* required element of type ent:AnimalDisease */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 314; } /* = unique id SOAP_TYPE__ns8__getDiseaseByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseByGuidResponse() { _ns8__getDiseaseByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseByUuidRequest
-#define SOAP_TYPE__ns8__getDiseaseByUuidRequest (315)
-/* ns8:getDiseaseByUuidRequest */
-class SOAP_CMAC _ns8__getDiseaseByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 315; } /* = unique id SOAP_TYPE__ns8__getDiseaseByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseByUuidRequest() { _ns8__getDiseaseByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseByUuidResponse
-#define SOAP_TYPE__ns8__getDiseaseByUuidResponse (316)
-/* ns8:getDiseaseByUuidResponse */
-class SOAP_CMAC _ns8__getDiseaseByUuidResponse {
-public:
-	ent__AnimalDisease *ent__disease;	/* required element of type ent:AnimalDisease */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 316; } /* = unique id SOAP_TYPE__ns8__getDiseaseByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseByUuidResponse() { _ns8__getDiseaseByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseListRequest
-#define SOAP_TYPE__ns8__getDiseaseListRequest (317)
-/* ns8:getDiseaseListRequest */
-class SOAP_CMAC _ns8__getDiseaseListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 317; } /* = unique id SOAP_TYPE__ns8__getDiseaseListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseListRequest() { _ns8__getDiseaseListRequest::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseListResponse
-#define SOAP_TYPE__ns8__getDiseaseListResponse (318)
-/* ns8:getDiseaseListResponse */
-class SOAP_CMAC _ns8__getDiseaseListResponse {
-public:
-	class ent__AnimalDiseaseList *ent__diseaseList;	/* required element of type ent:AnimalDiseaseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 318; } /* = unique id SOAP_TYPE__ns8__getDiseaseListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseListResponse() { _ns8__getDiseaseListResponse::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseChangesListRequest
-#define SOAP_TYPE__ns8__getDiseaseChangesListRequest (319)
-/* ns8:getDiseaseChangesListRequest */
-class SOAP_CMAC _ns8__getDiseaseChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 319; } /* = unique id SOAP_TYPE__ns8__getDiseaseChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseChangesListRequest() { _ns8__getDiseaseChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getDiseaseChangesListResponse
-#define SOAP_TYPE__ns8__getDiseaseChangesListResponse (320)
-/* ns8:getDiseaseChangesListResponse */
-class SOAP_CMAC _ns8__getDiseaseChangesListResponse {
-public:
-	ent__AnimalDiseaseList *ent__diseaseList;	/* required element of type ent:AnimalDiseaseList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 320; } /* = unique id SOAP_TYPE__ns8__getDiseaseChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getDiseaseChangesListResponse() { _ns8__getDiseaseChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getDiseaseChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodByGuidRequest
-#define SOAP_TYPE__ns8__getResearchMethodByGuidRequest (321)
-/* ns8:getResearchMethodByGuidRequest */
-class SOAP_CMAC _ns8__getResearchMethodByGuidRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 321; } /* = unique id SOAP_TYPE__ns8__getResearchMethodByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodByGuidRequest() { _ns8__getResearchMethodByGuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodByGuidResponse
-#define SOAP_TYPE__ns8__getResearchMethodByGuidResponse (322)
-/* ns8:getResearchMethodByGuidResponse */
-class SOAP_CMAC _ns8__getResearchMethodByGuidResponse {
-public:
-	class ent__ResearchMethod *ent__researchMethod;	/* required element of type ent:ResearchMethod */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 322; } /* = unique id SOAP_TYPE__ns8__getResearchMethodByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodByGuidResponse() { _ns8__getResearchMethodByGuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodByUuidRequest
-#define SOAP_TYPE__ns8__getResearchMethodByUuidRequest (323)
-/* ns8:getResearchMethodByUuidRequest */
-class SOAP_CMAC _ns8__getResearchMethodByUuidRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 323; } /* = unique id SOAP_TYPE__ns8__getResearchMethodByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodByUuidRequest() { _ns8__getResearchMethodByUuidRequest::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodByUuidResponse
-#define SOAP_TYPE__ns8__getResearchMethodByUuidResponse (324)
-/* ns8:getResearchMethodByUuidResponse */
-class SOAP_CMAC _ns8__getResearchMethodByUuidResponse {
-public:
-	ent__ResearchMethod *ent__researchMethod;	/* required element of type ent:ResearchMethod */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 324; } /* = unique id SOAP_TYPE__ns8__getResearchMethodByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodByUuidResponse() { _ns8__getResearchMethodByUuidResponse::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodListRequest
-#define SOAP_TYPE__ns8__getResearchMethodListRequest (325)
-/* ns8:getResearchMethodListRequest */
-class SOAP_CMAC _ns8__getResearchMethodListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 325; } /* = unique id SOAP_TYPE__ns8__getResearchMethodListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodListRequest() { _ns8__getResearchMethodListRequest::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodListResponse
-#define SOAP_TYPE__ns8__getResearchMethodListResponse (326)
-/* ns8:getResearchMethodListResponse */
-class SOAP_CMAC _ns8__getResearchMethodListResponse {
-public:
-	class ent__ResearchMethodList *ent__researchMethodList;	/* required element of type ent:ResearchMethodList */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 326; } /* = unique id SOAP_TYPE__ns8__getResearchMethodListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodListResponse() { _ns8__getResearchMethodListResponse::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodChangesListRequest
-#define SOAP_TYPE__ns8__getResearchMethodChangesListRequest (327)
-/* ns8:getResearchMethodChangesListRequest */
-class SOAP_CMAC _ns8__getResearchMethodChangesListRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	struct soap *soap;	/* transient */
-public:
-	virtual int soap_type() const { return 327; } /* = unique id SOAP_TYPE__ns8__getResearchMethodChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodChangesListRequest() { _ns8__getResearchMethodChangesListRequest::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE__ns8__getResearchMethodChangesListResponse
-#define SOAP_TYPE__ns8__getResearchMethodChangesListResponse (328)
-/* ns8:getResearchMethodChangesListResponse */
-class SOAP_CMAC _ns8__getResearchMethodChangesListResponse {
-public:
-	ent__ResearchMethodList *ent__researchMethodList;	/* required element of type ent:ResearchMethodList */
-	struct soap *soap;	/* transient */
+	vd__AuthorityList *vd__authorityList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:AuthorityList */
 public:
-	virtual int soap_type() const { return 328; } /* = unique id SOAP_TYPE__ns8__getResearchMethodChangesListResponse */
+	virtual int soap_type() const { return 78; } /* = unique id SOAP_TYPE_g2ba__GetApplicableUserAuthorityListResponse */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ns8__getResearchMethodChangesListResponse() { _ns8__getResearchMethodChangesListResponse::soap_default(NULL); }
-	virtual ~_ns8__getResearchMethodChangesListResponse() { }
+	         g2ba__GetApplicableUserAuthorityListResponse() { g2ba__GetApplicableUserAuthorityListResponse::soap_default(NULL); }
+	virtual ~g2ba__GetApplicableUserAuthorityListResponse() { }
 };
 #endif
 
 #ifndef SOAP_TYPE_base__GenericVersioningEntity
-#define SOAP_TYPE_base__GenericVersioningEntity (27)
+#define SOAP_TYPE_base__GenericVersioningEntity (80)
 /* base:GenericVersioningEntity */
 class SOAP_CMAC base__GenericVersioningEntity : public base__GenericEntity {
 public:
@@ -4186,7 +2317,7 @@ public:
 	char *previous;	/* optional element of type base:UUID */
 	char *next;	/* optional element of type base:UUID */
 public:
-	virtual int soap_type() const { return 27; } /* = unique id SOAP_TYPE_base__GenericVersioningEntity */
+	virtual int soap_type() const { return 80; } /* = unique id SOAP_TYPE_base__GenericVersioningEntity */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -4199,7 +2330,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_base__Error
-#define SOAP_TYPE_base__Error (32)
+#define SOAP_TYPE_base__Error (85)
 /* Primitive base:Error schema type: */
 class SOAP_CMAC base__Error {
 public:
@@ -4208,7 +2339,7 @@ public:
 	char **qualifier;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 32; } /* = unique id SOAP_TYPE_base__Error */
+	virtual int soap_type() const { return 85; } /* = unique id SOAP_TYPE_base__Error */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -4220,1018 +2351,446 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE_merc__MercuryApplicationRequest
-#define SOAP_TYPE_merc__MercuryApplicationRequest (40)
-/* merc:MercuryApplicationRequest */
-class SOAP_CMAC merc__MercuryApplicationRequest : public app__ApplicationData {
-public:
-	char *localTransactionId;	/* required element of type base:Identifier */
-	vd__User *initiator;	/* required element of type vd:User */
-	char **sessionToken;	/* optional element of type ent:OTPToken */
-public:
-	virtual int soap_type() const { return 40; } /* = unique id SOAP_TYPE_merc__MercuryApplicationRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__MercuryApplicationRequest() { merc__MercuryApplicationRequest::soap_default(NULL); }
-	virtual ~merc__MercuryApplicationRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ProcessIncomingConsignmentResponse
-#define SOAP_TYPE_merc__ProcessIncomingConsignmentResponse (42)
-/* merc:ProcessIncomingConsignmentResponse */
-class SOAP_CMAC merc__ProcessIncomingConsignmentResponse : public app__ApplicationResultData {
-public:
-	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <stockEntry> */
-	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
-	int __sizevetDocument;	/* sequence of elements <vetDocument> */
-	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 42; } /* = unique id SOAP_TYPE_merc__ProcessIncomingConsignmentResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ProcessIncomingConsignmentResponse() { merc__ProcessIncomingConsignmentResponse::soap_default(NULL); }
-	virtual ~merc__ProcessIncomingConsignmentResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__PrepareOutgoingConsignmentResponse
-#define SOAP_TYPE_merc__PrepareOutgoingConsignmentResponse (44)
-/* merc:PrepareOutgoingConsignmentResponse */
-class SOAP_CMAC merc__PrepareOutgoingConsignmentResponse : public app__ApplicationResultData {
-public:
-	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <stockEntry> */
-	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
-	int __sizevetDocument;	/* sequence of elements <vetDocument> */
-	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 44; } /* = unique id SOAP_TYPE_merc__PrepareOutgoingConsignmentResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__PrepareOutgoingConsignmentResponse() { merc__PrepareOutgoingConsignmentResponse::soap_default(NULL); }
-	virtual ~merc__PrepareOutgoingConsignmentResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__RegisterProductionOperationResponse
-#define SOAP_TYPE_merc__RegisterProductionOperationResponse (46)
-/* merc:RegisterProductionOperationResponse */
-class SOAP_CMAC merc__RegisterProductionOperationResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:StockEntryList */
-	int __sizevetDocument;	/* sequence of elements <vetDocument> */
-	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 46; } /* = unique id SOAP_TYPE_merc__RegisterProductionOperationResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__RegisterProductionOperationResponse() { merc__RegisterProductionOperationResponse::soap_default(NULL); }
-	virtual ~merc__RegisterProductionOperationResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__MergeStockEntriesResponse
-#define SOAP_TYPE_merc__MergeStockEntriesResponse (48)
-/* merc:MergeStockEntriesResponse */
-class SOAP_CMAC merc__MergeStockEntriesResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
-public:
-	virtual int soap_type() const { return 48; } /* = unique id SOAP_TYPE_merc__MergeStockEntriesResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__MergeStockEntriesResponse() { merc__MergeStockEntriesResponse::soap_default(NULL); }
-	virtual ~merc__MergeStockEntriesResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__WithdrawVetDocumentResponse
-#define SOAP_TYPE_merc__WithdrawVetDocumentResponse (50)
-/* merc:WithdrawVetDocumentResponse */
-class SOAP_CMAC merc__WithdrawVetDocumentResponse : public app__ApplicationResultData {
-public:
-	vd__VetDocument *vetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:VetDocument */
-	int __sizestockEntry;	/* sequence of elements <stockEntry> */
-	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
-public:
-	virtual int soap_type() const { return 50; } /* = unique id SOAP_TYPE_merc__WithdrawVetDocumentResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__WithdrawVetDocumentResponse() { merc__WithdrawVetDocumentResponse::soap_default(NULL); }
-	virtual ~merc__WithdrawVetDocumentResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyBusinessEntityResponse
-#define SOAP_TYPE_merc__ModifyBusinessEntityResponse (52)
-/* merc:ModifyBusinessEntityResponse */
-class SOAP_CMAC merc__ModifyBusinessEntityResponse : public app__ApplicationResultData {
-public:
-	int __sizebusinessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <businessEntity> */
-	ent__BusinessEntity **businessEntity;	/* optional element of type ent:BusinessEntity */
-public:
-	virtual int soap_type() const { return 52; } /* = unique id SOAP_TYPE_merc__ModifyBusinessEntityResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyBusinessEntityResponse() { merc__ModifyBusinessEntityResponse::soap_default(NULL); }
-	virtual ~merc__ModifyBusinessEntityResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyEnterpriseResponse
-#define SOAP_TYPE_merc__ModifyEnterpriseResponse (54)
-/* merc:ModifyEnterpriseResponse */
-class SOAP_CMAC merc__ModifyEnterpriseResponse : public app__ApplicationResultData {
-public:
-	int __sizeenterprise;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <enterprise> */
-	ent__Enterprise **enterprise;	/* optional element of type ent:Enterprise */
-public:
-	virtual int soap_type() const { return 54; } /* = unique id SOAP_TYPE_merc__ModifyEnterpriseResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyEnterpriseResponse() { merc__ModifyEnterpriseResponse::soap_default(NULL); }
-	virtual ~merc__ModifyEnterpriseResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyActivityLocationsResponse
-#define SOAP_TYPE_merc__ModifyActivityLocationsResponse (56)
-/* merc:ModifyActivityLocationsResponse */
-class SOAP_CMAC merc__ModifyActivityLocationsResponse : public app__ApplicationResultData {
-public:
-	ent__BusinessEntity *businessEntity;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type ent:BusinessEntity */
-public:
-	virtual int soap_type() const { return 56; } /* = unique id SOAP_TYPE_merc__ModifyActivityLocationsResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyActivityLocationsResponse() { merc__ModifyActivityLocationsResponse::soap_default(NULL); }
-	virtual ~merc__ModifyActivityLocationsResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ResolveDiscrepancyResponse
-#define SOAP_TYPE_merc__ResolveDiscrepancyResponse (58)
-/* merc:ResolveDiscrepancyResponse */
-class SOAP_CMAC merc__ResolveDiscrepancyResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
-public:
-	virtual int soap_type() const { return 58; } /* = unique id SOAP_TYPE_merc__ResolveDiscrepancyResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ResolveDiscrepancyResponse() { merc__ResolveDiscrepancyResponse::soap_default(NULL); }
-	virtual ~merc__ResolveDiscrepancyResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyProducerStockListResponse
-#define SOAP_TYPE_merc__ModifyProducerStockListResponse (60)
-/* merc:ModifyProducerStockListResponse */
-class SOAP_CMAC merc__ModifyProducerStockListResponse : public app__ApplicationResultData {
-public:
-	ent__ProductItemList *productItemList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type ent:ProductItemList */
-public:
-	virtual int soap_type() const { return 60; } /* = unique id SOAP_TYPE_merc__ModifyProducerStockListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyProducerStockListResponse() { merc__ModifyProducerStockListResponse::soap_default(NULL); }
-	virtual ~merc__ModifyProducerStockListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentByUuidResponse
-#define SOAP_TYPE_merc__GetVetDocumentByUuidResponse (62)
-/* merc:GetVetDocumentByUuidResponse */
-class SOAP_CMAC merc__GetVetDocumentByUuidResponse : public app__ApplicationResultData {
-public:
-	vd__VetDocument *vd__vetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 62; } /* = unique id SOAP_TYPE_merc__GetVetDocumentByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentByUuidResponse() { merc__GetVetDocumentByUuidResponse::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentListResponse
-#define SOAP_TYPE_merc__GetVetDocumentListResponse (64)
-/* merc:GetVetDocumentListResponse */
-class SOAP_CMAC merc__GetVetDocumentListResponse : public app__ApplicationResultData {
-public:
-	class vd__VetDocumentList *vd__vetDocumentList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocumentList */
-public:
-	virtual int soap_type() const { return 64; } /* = unique id SOAP_TYPE_merc__GetVetDocumentListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentListResponse() { merc__GetVetDocumentListResponse::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentChangesListResponse
-#define SOAP_TYPE_merc__GetVetDocumentChangesListResponse (66)
-/* merc:GetVetDocumentChangesListResponse */
-class SOAP_CMAC merc__GetVetDocumentChangesListResponse : public app__ApplicationResultData {
-public:
-	vd__VetDocumentList *vd__vetDocumentList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:VetDocumentList */
-public:
-	virtual int soap_type() const { return 66; } /* = unique id SOAP_TYPE_merc__GetVetDocumentChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentChangesListResponse() { merc__GetVetDocumentChangesListResponse::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryByGuidResponse
-#define SOAP_TYPE_merc__GetStockEntryByGuidResponse (68)
-/* merc:GetStockEntryByGuidResponse */
-class SOAP_CMAC merc__GetStockEntryByGuidResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntry *vd__stockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntry */
-public:
-	virtual int soap_type() const { return 68; } /* = unique id SOAP_TYPE_merc__GetStockEntryByGuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryByGuidResponse() { merc__GetStockEntryByGuidResponse::soap_default(NULL); }
-	virtual ~merc__GetStockEntryByGuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryByUuidResponse
-#define SOAP_TYPE_merc__GetStockEntryByUuidResponse (70)
-/* merc:GetStockEntryByUuidResponse */
-class SOAP_CMAC merc__GetStockEntryByUuidResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntry *vd__stockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntry */
-public:
-	virtual int soap_type() const { return 70; } /* = unique id SOAP_TYPE_merc__GetStockEntryByUuidResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryByUuidResponse() { merc__GetStockEntryByUuidResponse::soap_default(NULL); }
-	virtual ~merc__GetStockEntryByUuidResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryChangesListResponse
-#define SOAP_TYPE_merc__GetStockEntryChangesListResponse (72)
-/* merc:GetStockEntryChangesListResponse */
-class SOAP_CMAC merc__GetStockEntryChangesListResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
-public:
-	virtual int soap_type() const { return 72; } /* = unique id SOAP_TYPE_merc__GetStockEntryChangesListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryChangesListResponse() { merc__GetStockEntryChangesListResponse::soap_default(NULL); }
-	virtual ~merc__GetStockEntryChangesListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryListResponse
-#define SOAP_TYPE_merc__GetStockEntryListResponse (74)
-/* merc:GetStockEntryListResponse */
-class SOAP_CMAC merc__GetStockEntryListResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
-public:
-	virtual int soap_type() const { return 74; } /* = unique id SOAP_TYPE_merc__GetStockEntryListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryListResponse() { merc__GetStockEntryListResponse::soap_default(NULL); }
-	virtual ~merc__GetStockEntryListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryVersionListResponse
-#define SOAP_TYPE_merc__GetStockEntryVersionListResponse (76)
-/* merc:GetStockEntryVersionListResponse */
-class SOAP_CMAC merc__GetStockEntryVersionListResponse : public app__ApplicationResultData {
-public:
-	vd__StockEntryList *vd__stockEntryList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* required element of type vd:StockEntryList */
-public:
-	virtual int soap_type() const { return 76; } /* = unique id SOAP_TYPE_merc__GetStockEntryVersionListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryVersionListResponse() { merc__GetStockEntryVersionListResponse::soap_default(NULL); }
-	virtual ~merc__GetStockEntryVersionListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateTransportMovementDetailsResponse
-#define SOAP_TYPE_merc__UpdateTransportMovementDetailsResponse (78)
-/* merc:UpdateTransportMovementDetailsResponse */
-class SOAP_CMAC merc__UpdateTransportMovementDetailsResponse : public app__ApplicationResultData {
-public:
-	int __sizevetDocument;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:vetDocument> */
-	vd__VetDocument **vd__vetDocument;	/* optional element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 78; } /* = unique id SOAP_TYPE_merc__UpdateTransportMovementDetailsResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateTransportMovementDetailsResponse() { merc__UpdateTransportMovementDetailsResponse::soap_default(NULL); }
-	virtual ~merc__UpdateTransportMovementDetailsResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateVeterinaryEventsResponse
-#define SOAP_TYPE_merc__UpdateVeterinaryEventsResponse (80)
-/* merc:UpdateVeterinaryEventsResponse */
-class SOAP_CMAC merc__UpdateVeterinaryEventsResponse : public app__ApplicationResultData {
-public:
-	int __sizestockEntry;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:stockEntry> */
-	vd__StockEntry **vd__stockEntry;	/* optional element of type vd:StockEntry */
-public:
-	virtual int soap_type() const { return 80; } /* = unique id SOAP_TYPE_merc__UpdateVeterinaryEventsResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateVeterinaryEventsResponse() { merc__UpdateVeterinaryEventsResponse::soap_default(NULL); }
-	virtual ~merc__UpdateVeterinaryEventsResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__CheckShipmentRegionalizationResponse
-#define SOAP_TYPE_merc__CheckShipmentRegionalizationResponse (82)
-/* merc:CheckShipmentRegionalizationResponse */
-class SOAP_CMAC merc__CheckShipmentRegionalizationResponse : public app__ApplicationResultData {
-public:
-	int __sizer13nRouteSection;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:r13nRouteSection> */
-	vd__RouteSectionR13nRules **vd__r13nRouteSection;	/* optional element of type vd:RouteSectionR13nRules */
-public:
-	virtual int soap_type() const { return 82; } /* = unique id SOAP_TYPE_merc__CheckShipmentRegionalizationResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__CheckShipmentRegionalizationResponse() { merc__CheckShipmentRegionalizationResponse::soap_default(NULL); }
-	virtual ~merc__CheckShipmentRegionalizationResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__AddBusinessEntityUserResponse
-#define SOAP_TYPE_merc__AddBusinessEntityUserResponse (84)
-/* merc:AddBusinessEntityUserResponse */
-class SOAP_CMAC merc__AddBusinessEntityUserResponse : public app__ApplicationResultData {
-public:
-	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 84; } /* = unique id SOAP_TYPE_merc__AddBusinessEntityUserResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__AddBusinessEntityUserResponse() { merc__AddBusinessEntityUserResponse::soap_default(NULL); }
-	virtual ~merc__AddBusinessEntityUserResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetBusinessEntityUserListResponse
-#define SOAP_TYPE_merc__GetBusinessEntityUserListResponse (86)
-/* merc:GetBusinessEntityUserListResponse */
-class SOAP_CMAC merc__GetBusinessEntityUserListResponse : public app__ApplicationResultData {
-public:
-	class vd__UserList *vd__userList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:UserList */
-public:
-	virtual int soap_type() const { return 86; } /* = unique id SOAP_TYPE_merc__GetBusinessEntityUserListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetBusinessEntityUserListResponse() { merc__GetBusinessEntityUserListResponse::soap_default(NULL); }
-	virtual ~merc__GetBusinessEntityUserListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetBusinessEntityUserResponse
-#define SOAP_TYPE_merc__GetBusinessEntityUserResponse (88)
-/* merc:GetBusinessEntityUserResponse */
-class SOAP_CMAC merc__GetBusinessEntityUserResponse : public app__ApplicationResultData {
-public:
-	vd__User *vd__user;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 88; } /* = unique id SOAP_TYPE_merc__GetBusinessEntityUserResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetBusinessEntityUserResponse() { merc__GetBusinessEntityUserResponse::soap_default(NULL); }
-	virtual ~merc__GetBusinessEntityUserResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateUserAuthoritiesResponse
-#define SOAP_TYPE_merc__UpdateUserAuthoritiesResponse (90)
-/* merc:UpdateUserAuthoritiesResponse */
-class SOAP_CMAC merc__UpdateUserAuthoritiesResponse : public app__ApplicationResultData {
-public:
-	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 90; } /* = unique id SOAP_TYPE_merc__UpdateUserAuthoritiesResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateUserAuthoritiesResponse() { merc__UpdateUserAuthoritiesResponse::soap_default(NULL); }
-	virtual ~merc__UpdateUserAuthoritiesResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateUserWorkingAreasResponse
-#define SOAP_TYPE_merc__UpdateUserWorkingAreasResponse (92)
-/* merc:UpdateUserWorkingAreasResponse */
-class SOAP_CMAC merc__UpdateUserWorkingAreasResponse : public app__ApplicationResultData {
-public:
-	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 92; } /* = unique id SOAP_TYPE_merc__UpdateUserWorkingAreasResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateUserWorkingAreasResponse() { merc__UpdateUserWorkingAreasResponse::soap_default(NULL); }
-	virtual ~merc__UpdateUserWorkingAreasResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UnbindBusinessEntityUserResponse
-#define SOAP_TYPE_merc__UnbindBusinessEntityUserResponse (94)
-/* merc:UnbindBusinessEntityUserResponse */
-class SOAP_CMAC merc__UnbindBusinessEntityUserResponse : public app__ApplicationResultData {
-public:
-	int __sizeuser;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 94; } /* = unique id SOAP_TYPE_merc__UnbindBusinessEntityUserResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UnbindBusinessEntityUserResponse() { merc__UnbindBusinessEntityUserResponse::soap_default(NULL); }
-	virtual ~merc__UnbindBusinessEntityUserResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetAppliedUserAuthorityListResponse
-#define SOAP_TYPE_merc__GetAppliedUserAuthorityListResponse (96)
-/* merc:GetAppliedUserAuthorityListResponse */
-class SOAP_CMAC merc__GetAppliedUserAuthorityListResponse : public app__ApplicationResultData {
-public:
-	vd__AuthorityList *vd__authorityList;	/* SOAP 1.2 RPC return element (when namespace qualified) */	/* optional element of type vd:AuthorityList */
-public:
-	virtual int soap_type() const { return 96; } /* = unique id SOAP_TYPE_merc__GetAppliedUserAuthorityListResponse */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetAppliedUserAuthorityListResponse() { merc__GetAppliedUserAuthorityListResponse::soap_default(NULL); }
-	virtual ~merc__GetAppliedUserAuthorityListResponse() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_ent__PurposeList
-#define SOAP_TYPE_ent__PurposeList (100)
-/* ent:PurposeList */
-class SOAP_CMAC ent__PurposeList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__PurposeList
+#define SOAP_TYPE_dic__PurposeList (97)
+/* dic:PurposeList */
+class SOAP_CMAC dic__PurposeList : public base__EntityList {
 public:
 	int __sizepurpose;	/* sequence of elements <purpose> */
-	ent__Purpose **purpose;	/* optional element of type ent:Purpose */
+	dic__Purpose **purpose;	/* optional element of type dic:Purpose */
 public:
-	virtual int soap_type() const { return 100; } /* = unique id SOAP_TYPE_ent__PurposeList */
+	virtual int soap_type() const { return 97; } /* = unique id SOAP_TYPE_dic__PurposeList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__PurposeList() { ent__PurposeList::soap_default(NULL); }
-	virtual ~ent__PurposeList() { }
+	         dic__PurposeList() { dic__PurposeList::soap_default(NULL); }
+	virtual ~dic__PurposeList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__UnitList
-#define SOAP_TYPE_ent__UnitList (101)
-/* ent:UnitList */
-class SOAP_CMAC ent__UnitList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__UnitList
+#define SOAP_TYPE_dic__UnitList (98)
+/* dic:UnitList */
+class SOAP_CMAC dic__UnitList : public base__EntityList {
 public:
 	int __sizeunit;	/* sequence of elements <unit> */
-	ent__Unit **unit;	/* optional element of type ent:Unit */
+	dic__Unit **unit;	/* optional element of type dic:Unit */
 public:
-	virtual int soap_type() const { return 101; } /* = unique id SOAP_TYPE_ent__UnitList */
+	virtual int soap_type() const { return 98; } /* = unique id SOAP_TYPE_dic__UnitList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__UnitList() { ent__UnitList::soap_default(NULL); }
-	virtual ~ent__UnitList() { }
+	         dic__UnitList() { dic__UnitList::soap_default(NULL); }
+	virtual ~dic__UnitList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__CountryList
-#define SOAP_TYPE_ent__CountryList (110)
-/* ent:CountryList */
-class SOAP_CMAC ent__CountryList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__CountryList
+#define SOAP_TYPE_dic__CountryList (107)
+/* dic:CountryList */
+class SOAP_CMAC dic__CountryList : public base__EntityList {
 public:
 	int __sizecountry;	/* sequence of elements <country> */
-	ent__Country **country;	/* optional element of type ent:Country */
+	dic__Country **country;	/* optional element of type dic:Country */
 public:
-	virtual int soap_type() const { return 110; } /* = unique id SOAP_TYPE_ent__CountryList */
+	virtual int soap_type() const { return 107; } /* = unique id SOAP_TYPE_dic__CountryList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__CountryList() { ent__CountryList::soap_default(NULL); }
-	virtual ~ent__CountryList() { }
+	         dic__CountryList() { dic__CountryList::soap_default(NULL); }
+	virtual ~dic__CountryList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionList
-#define SOAP_TYPE_ent__RegionList (111)
-/* ent:RegionList */
-class SOAP_CMAC ent__RegionList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__RegionList
+#define SOAP_TYPE_dic__RegionList (108)
+/* dic:RegionList */
+class SOAP_CMAC dic__RegionList : public base__EntityList {
 public:
 	int __sizeregion;	/* sequence of elements <region> */
-	ent__Region **region;	/* optional element of type ent:Region */
+	dic__Region **region;	/* optional element of type dic:Region */
 public:
-	virtual int soap_type() const { return 111; } /* = unique id SOAP_TYPE_ent__RegionList */
+	virtual int soap_type() const { return 108; } /* = unique id SOAP_TYPE_dic__RegionList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionList() { ent__RegionList::soap_default(NULL); }
-	virtual ~ent__RegionList() { }
+	         dic__RegionList() { dic__RegionList::soap_default(NULL); }
+	virtual ~dic__RegionList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__DistrictList
-#define SOAP_TYPE_ent__DistrictList (112)
-/* ent:DistrictList */
-class SOAP_CMAC ent__DistrictList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__DistrictList
+#define SOAP_TYPE_dic__DistrictList (109)
+/* dic:DistrictList */
+class SOAP_CMAC dic__DistrictList : public base__EntityList {
 public:
 	int __sizedistrict;	/* sequence of elements <district> */
-	ent__District **district;	/* optional element of type ent:District */
+	dic__District **district;	/* optional element of type dic:District */
 public:
-	virtual int soap_type() const { return 112; } /* = unique id SOAP_TYPE_ent__DistrictList */
+	virtual int soap_type() const { return 109; } /* = unique id SOAP_TYPE_dic__DistrictList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__DistrictList() { ent__DistrictList::soap_default(NULL); }
-	virtual ~ent__DistrictList() { }
+	         dic__DistrictList() { dic__DistrictList::soap_default(NULL); }
+	virtual ~dic__DistrictList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__LocalityList
-#define SOAP_TYPE_ent__LocalityList (113)
-/* ent:LocalityList */
-class SOAP_CMAC ent__LocalityList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__LocalityList
+#define SOAP_TYPE_dic__LocalityList (110)
+/* dic:LocalityList */
+class SOAP_CMAC dic__LocalityList : public base__EntityList {
 public:
 	int __sizelocality;	/* sequence of elements <locality> */
-	ent__Locality **locality;	/* optional element of type ent:Locality */
+	dic__Locality **locality;	/* optional element of type dic:Locality */
 public:
-	virtual int soap_type() const { return 113; } /* = unique id SOAP_TYPE_ent__LocalityList */
+	virtual int soap_type() const { return 110; } /* = unique id SOAP_TYPE_dic__LocalityList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__LocalityList() { ent__LocalityList::soap_default(NULL); }
-	virtual ~ent__LocalityList() { }
+	         dic__LocalityList() { dic__LocalityList::soap_default(NULL); }
+	virtual ~dic__LocalityList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__StreetList
-#define SOAP_TYPE_ent__StreetList (114)
-/* ent:StreetList */
-class SOAP_CMAC ent__StreetList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__StreetList
+#define SOAP_TYPE_dic__StreetList (111)
+/* dic:StreetList */
+class SOAP_CMAC dic__StreetList : public base__EntityList {
 public:
 	int __sizestreet;	/* sequence of elements <street> */
-	ent__Street **street;	/* optional element of type ent:Street */
+	dic__Street **street;	/* optional element of type dic:Street */
 public:
-	virtual int soap_type() const { return 114; } /* = unique id SOAP_TYPE_ent__StreetList */
+	virtual int soap_type() const { return 111; } /* = unique id SOAP_TYPE_dic__StreetList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__StreetList() { ent__StreetList::soap_default(NULL); }
-	virtual ~ent__StreetList() { }
+	         dic__StreetList() { dic__StreetList::soap_default(NULL); }
+	virtual ~dic__StreetList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseActivityList
-#define SOAP_TYPE_ent__EnterpriseActivityList (116)
-/* ent:EnterpriseActivityList */
-class SOAP_CMAC ent__EnterpriseActivityList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__EnterpriseActivityList
+#define SOAP_TYPE_dic__EnterpriseActivityList (113)
+/* dic:EnterpriseActivityList */
+class SOAP_CMAC dic__EnterpriseActivityList : public base__EntityList {
 public:
 	int __sizeactivity;	/* sequence of elements <activity> */
-	class ent__EnterpriseActivity **activity;	/* optional element of type ent:EnterpriseActivity */
+	class dic__EnterpriseActivity **activity;	/* optional element of type dic:EnterpriseActivity */
 public:
-	virtual int soap_type() const { return 116; } /* = unique id SOAP_TYPE_ent__EnterpriseActivityList */
+	virtual int soap_type() const { return 113; } /* = unique id SOAP_TYPE_dic__EnterpriseActivityList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__EnterpriseActivityList() { ent__EnterpriseActivityList::soap_default(NULL); }
-	virtual ~ent__EnterpriseActivityList() { }
+	         dic__EnterpriseActivityList() { dic__EnterpriseActivityList::soap_default(NULL); }
+	virtual ~dic__EnterpriseActivityList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseActivity
-#define SOAP_TYPE_ent__EnterpriseActivity (117)
-/* ent:EnterpriseActivity */
-class SOAP_CMAC ent__EnterpriseActivity : public base__GenericEntity {
+#ifndef SOAP_TYPE_dic__EnterpriseActivity
+#define SOAP_TYPE_dic__EnterpriseActivity (114)
+/* dic:EnterpriseActivity */
+class SOAP_CMAC dic__EnterpriseActivity : public base__GenericEntity {
 public:
 	char **name;	/* optional element of type base:NText */
 public:
-	virtual int soap_type() const { return 117; } /* = unique id SOAP_TYPE_ent__EnterpriseActivity */
+	virtual int soap_type() const { return 114; } /* = unique id SOAP_TYPE_dic__EnterpriseActivity */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__EnterpriseActivity() { ent__EnterpriseActivity::soap_default(NULL); }
-	virtual ~ent__EnterpriseActivity() { }
+	         dic__EnterpriseActivity() { dic__EnterpriseActivity::soap_default(NULL); }
+	virtual ~dic__EnterpriseActivity() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseList
-#define SOAP_TYPE_ent__EnterpriseList (121)
-/* ent:EnterpriseList */
-class SOAP_CMAC ent__EnterpriseList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__EnterpriseList
+#define SOAP_TYPE_dic__EnterpriseList (118)
+/* dic:EnterpriseList */
+class SOAP_CMAC dic__EnterpriseList : public base__EntityList {
 public:
 	int __sizeenterprise;	/* sequence of elements <enterprise> */
-	ent__Enterprise **enterprise;	/* optional element of type ent:Enterprise */
+	dic__Enterprise **enterprise;	/* optional element of type dic:Enterprise */
 public:
-	virtual int soap_type() const { return 121; } /* = unique id SOAP_TYPE_ent__EnterpriseList */
+	virtual int soap_type() const { return 118; } /* = unique id SOAP_TYPE_dic__EnterpriseList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__EnterpriseList() { ent__EnterpriseList::soap_default(NULL); }
-	virtual ~ent__EnterpriseList() { }
+	         dic__EnterpriseList() { dic__EnterpriseList::soap_default(NULL); }
+	virtual ~dic__EnterpriseList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__IncorporationForm
-#define SOAP_TYPE_ent__IncorporationForm (124)
-/* ent:IncorporationForm */
-class SOAP_CMAC ent__IncorporationForm : public base__GenericEntity {
+#ifndef SOAP_TYPE_dic__IncorporationForm
+#define SOAP_TYPE_dic__IncorporationForm (121)
+/* dic:IncorporationForm */
+class SOAP_CMAC dic__IncorporationForm : public base__GenericEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *code;	/* optional element of type base:String255 */
 	char *shortName;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 124; } /* = unique id SOAP_TYPE_ent__IncorporationForm */
+	virtual int soap_type() const { return 121; } /* = unique id SOAP_TYPE_dic__IncorporationForm */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__IncorporationForm() { ent__IncorporationForm::soap_default(NULL); }
-	virtual ~ent__IncorporationForm() { }
+	         dic__IncorporationForm() { dic__IncorporationForm::soap_default(NULL); }
+	virtual ~dic__IncorporationForm() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__BusinessEntityList
-#define SOAP_TYPE_ent__BusinessEntityList (125)
-/* ent:BusinessEntityList */
-class SOAP_CMAC ent__BusinessEntityList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__BusinessEntityList
+#define SOAP_TYPE_dic__BusinessEntityList (122)
+/* dic:BusinessEntityList */
+class SOAP_CMAC dic__BusinessEntityList : public base__EntityList {
 public:
 	int __sizebusinessEntity;	/* sequence of elements <businessEntity> */
-	ent__BusinessEntity **businessEntity;	/* optional element of type ent:BusinessEntity */
+	dic__BusinessEntity **businessEntity;	/* optional element of type dic:BusinessEntity */
 public:
-	virtual int soap_type() const { return 125; } /* = unique id SOAP_TYPE_ent__BusinessEntityList */
+	virtual int soap_type() const { return 122; } /* = unique id SOAP_TYPE_dic__BusinessEntityList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__BusinessEntityList() { ent__BusinessEntityList::soap_default(NULL); }
-	virtual ~ent__BusinessEntityList() { }
+	         dic__BusinessEntityList() { dic__BusinessEntityList::soap_default(NULL); }
+	virtual ~dic__BusinessEntityList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductList
-#define SOAP_TYPE_ent__ProductList (129)
-/* ent:ProductList */
-class SOAP_CMAC ent__ProductList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__ProductList
+#define SOAP_TYPE_dic__ProductList (126)
+/* dic:ProductList */
+class SOAP_CMAC dic__ProductList : public base__EntityList {
 public:
 	int __sizeproduct;	/* sequence of elements <product> */
-	ent__Product **product;	/* optional element of type ent:Product */
+	dic__Product **product;	/* optional element of type dic:Product */
 public:
-	virtual int soap_type() const { return 129; } /* = unique id SOAP_TYPE_ent__ProductList */
+	virtual int soap_type() const { return 126; } /* = unique id SOAP_TYPE_dic__ProductList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProductList() { ent__ProductList::soap_default(NULL); }
-	virtual ~ent__ProductList() { }
+	         dic__ProductList() { dic__ProductList::soap_default(NULL); }
+	virtual ~dic__ProductList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__SubProductList
-#define SOAP_TYPE_ent__SubProductList (130)
-/* ent:SubProductList */
-class SOAP_CMAC ent__SubProductList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__SubProductList
+#define SOAP_TYPE_dic__SubProductList (127)
+/* dic:SubProductList */
+class SOAP_CMAC dic__SubProductList : public base__EntityList {
 public:
 	int __sizesubProduct;	/* sequence of elements <subProduct> */
-	ent__SubProduct **subProduct;	/* optional element of type ent:SubProduct */
+	dic__SubProduct **subProduct;	/* optional element of type dic:SubProduct */
 public:
-	virtual int soap_type() const { return 130; } /* = unique id SOAP_TYPE_ent__SubProductList */
+	virtual int soap_type() const { return 127; } /* = unique id SOAP_TYPE_dic__SubProductList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__SubProductList() { ent__SubProductList::soap_default(NULL); }
-	virtual ~ent__SubProductList() { }
+	         dic__SubProductList() { dic__SubProductList::soap_default(NULL); }
+	virtual ~dic__SubProductList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductItemList
-#define SOAP_TYPE_ent__ProductItemList (131)
-/* ent:ProductItemList */
-class SOAP_CMAC ent__ProductItemList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__ProductItemList
+#define SOAP_TYPE_dic__ProductItemList (128)
+/* dic:ProductItemList */
+class SOAP_CMAC dic__ProductItemList : public base__EntityList {
 public:
 	int __sizeproductItem;	/* sequence of elements <productItem> */
-	ent__ProductItem **productItem;	/* optional element of type ent:ProductItem */
+	dic__ProductItem **productItem;	/* optional element of type dic:ProductItem */
 public:
-	virtual int soap_type() const { return 131; } /* = unique id SOAP_TYPE_ent__ProductItemList */
+	virtual int soap_type() const { return 128; } /* = unique id SOAP_TYPE_dic__ProductItemList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProductItemList() { ent__ProductItemList::soap_default(NULL); }
-	virtual ~ent__ProductItemList() { }
+	         dic__ProductItemList() { dic__ProductItemList::soap_default(NULL); }
+	virtual ~dic__ProductItemList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Area
-#define SOAP_TYPE_ent__Area (151)
-/* ent:Area */
-class SOAP_CMAC ent__Area : public ent__Address {
+#ifndef SOAP_TYPE_dic__Area
+#define SOAP_TYPE_dic__Area (148)
+/* dic:Area */
+class SOAP_CMAC dic__Area : public dic__Address {
 
 public:
-	virtual int soap_type() const { return 151; } /* = unique id SOAP_TYPE_ent__Area */
+	virtual int soap_type() const { return 148; } /* = unique id SOAP_TYPE_dic__Area */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Area() { ent__Area::soap_default(NULL); }
-	virtual ~ent__Area() { }
+	         dic__Area() { dic__Area::soap_default(NULL); }
+	virtual ~dic__Area() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationConditionList
-#define SOAP_TYPE_ent__RegionalizationConditionList (152)
-/* ent:RegionalizationConditionList */
-class SOAP_CMAC ent__RegionalizationConditionList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__RegionalizationConditionList
+#define SOAP_TYPE_dic__RegionalizationConditionList (149)
+/* dic:RegionalizationConditionList */
+class SOAP_CMAC dic__RegionalizationConditionList : public base__EntityList {
 public:
 	int __sizecondition;	/* sequence of elements <condition> */
-	ent__RegionalizationCondition **condition;	/* optional element of type ent:RegionalizationCondition */
+	dic__RegionalizationCondition **condition;	/* optional element of type dic:RegionalizationCondition */
 public:
-	virtual int soap_type() const { return 152; } /* = unique id SOAP_TYPE_ent__RegionalizationConditionList */
+	virtual int soap_type() const { return 149; } /* = unique id SOAP_TYPE_dic__RegionalizationConditionList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationConditionList() { ent__RegionalizationConditionList::soap_default(NULL); }
-	virtual ~ent__RegionalizationConditionList() { }
+	         dic__RegionalizationConditionList() { dic__RegionalizationConditionList::soap_default(NULL); }
+	virtual ~dic__RegionalizationConditionList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationRegionStatusList
-#define SOAP_TYPE_ent__RegionalizationRegionStatusList (153)
-/* ent:RegionalizationRegionStatusList */
-class SOAP_CMAC ent__RegionalizationRegionStatusList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__RegionalizationRegionStatusList
+#define SOAP_TYPE_dic__RegionalizationRegionStatusList (150)
+/* dic:RegionalizationRegionStatusList */
+class SOAP_CMAC dic__RegionalizationRegionStatusList : public base__EntityList {
 public:
 	int __sizestatus;	/* sequence of elements <status> */
-	class ent__RegionalizationRegionStatus **status;	/* optional element of type ent:RegionalizationRegionStatus */
+	class dic__RegionalizationRegionStatus **status;	/* optional element of type dic:RegionalizationRegionStatus */
 public:
-	virtual int soap_type() const { return 153; } /* = unique id SOAP_TYPE_ent__RegionalizationRegionStatusList */
+	virtual int soap_type() const { return 150; } /* = unique id SOAP_TYPE_dic__RegionalizationRegionStatusList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationRegionStatusList() { ent__RegionalizationRegionStatusList::soap_default(NULL); }
-	virtual ~ent__RegionalizationRegionStatusList() { }
+	         dic__RegionalizationRegionStatusList() { dic__RegionalizationRegionStatusList::soap_default(NULL); }
+	virtual ~dic__RegionalizationRegionStatusList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationShippingRuleList
-#define SOAP_TYPE_ent__RegionalizationShippingRuleList (154)
-/* ent:RegionalizationShippingRuleList */
-class SOAP_CMAC ent__RegionalizationShippingRuleList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__RegionalizationShippingRuleList
+#define SOAP_TYPE_dic__RegionalizationShippingRuleList (151)
+/* dic:RegionalizationShippingRuleList */
+class SOAP_CMAC dic__RegionalizationShippingRuleList : public base__EntityList {
 public:
 	int __sizerule;	/* sequence of elements <rule> */
-	ent__RegionalizationShippingRule **rule;	/* optional element of type ent:RegionalizationShippingRule */
+	dic__RegionalizationShippingRule **rule;	/* optional element of type dic:RegionalizationShippingRule */
 public:
-	virtual int soap_type() const { return 154; } /* = unique id SOAP_TYPE_ent__RegionalizationShippingRuleList */
+	virtual int soap_type() const { return 151; } /* = unique id SOAP_TYPE_dic__RegionalizationShippingRuleList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationShippingRuleList() { ent__RegionalizationShippingRuleList::soap_default(NULL); }
-	virtual ~ent__RegionalizationShippingRuleList() { }
+	         dic__RegionalizationShippingRuleList() { dic__RegionalizationShippingRuleList::soap_default(NULL); }
+	virtual ~dic__RegionalizationShippingRuleList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__AnimalDiseaseList
-#define SOAP_TYPE_ent__AnimalDiseaseList (155)
-/* ent:AnimalDiseaseList */
-class SOAP_CMAC ent__AnimalDiseaseList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__AnimalDiseaseList
+#define SOAP_TYPE_dic__AnimalDiseaseList (152)
+/* dic:AnimalDiseaseList */
+class SOAP_CMAC dic__AnimalDiseaseList : public base__EntityList {
 public:
 	int __sizedisease;	/* sequence of elements <disease> */
-	ent__AnimalDisease **disease;	/* optional element of type ent:AnimalDisease */
+	dic__AnimalDisease **disease;	/* optional element of type dic:AnimalDisease */
 public:
-	virtual int soap_type() const { return 155; } /* = unique id SOAP_TYPE_ent__AnimalDiseaseList */
+	virtual int soap_type() const { return 152; } /* = unique id SOAP_TYPE_dic__AnimalDiseaseList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__AnimalDiseaseList() { ent__AnimalDiseaseList::soap_default(NULL); }
-	virtual ~ent__AnimalDiseaseList() { }
+	         dic__AnimalDiseaseList() { dic__AnimalDiseaseList::soap_default(NULL); }
+	virtual ~dic__AnimalDiseaseList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ResearchMethodList
-#define SOAP_TYPE_ent__ResearchMethodList (156)
-/* ent:ResearchMethodList */
-class SOAP_CMAC ent__ResearchMethodList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__ResearchMethodList
+#define SOAP_TYPE_dic__ResearchMethodList (153)
+/* dic:ResearchMethodList */
+class SOAP_CMAC dic__ResearchMethodList : public base__EntityList {
 public:
 	int __sizemethod;	/* sequence of elements <method> */
-	ent__ResearchMethod **method;	/* optional element of type ent:ResearchMethod */
+	class dic__ResearchMethod **method;	/* optional element of type dic:ResearchMethod */
 public:
-	virtual int soap_type() const { return 156; } /* = unique id SOAP_TYPE_ent__ResearchMethodList */
+	virtual int soap_type() const { return 153; } /* = unique id SOAP_TYPE_dic__ResearchMethodList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ResearchMethodList() { ent__ResearchMethodList::soap_default(NULL); }
-	virtual ~ent__ResearchMethodList() { }
+	         dic__ResearchMethodList() { dic__ResearchMethodList::soap_default(NULL); }
+	virtual ~dic__ResearchMethodList() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ActivityLocationList
-#define SOAP_TYPE_ent__ActivityLocationList (157)
-/* ent:ActivityLocationList */
-class SOAP_CMAC ent__ActivityLocationList : public base__EntityList {
+#ifndef SOAP_TYPE_dic__ActivityLocationList
+#define SOAP_TYPE_dic__ActivityLocationList (154)
+/* dic:ActivityLocationList */
+class SOAP_CMAC dic__ActivityLocationList : public base__EntityList {
 public:
 	int __sizelocation;	/* sequence of elements <location> */
-	ent__BusinessMember **location;	/* optional element of type ent:BusinessMember */
+	dic__BusinessMember **location;	/* optional element of type dic:BusinessMember */
 public:
-	virtual int soap_type() const { return 157; } /* = unique id SOAP_TYPE_ent__ActivityLocationList */
+	virtual int soap_type() const { return 154; } /* = unique id SOAP_TYPE_dic__ActivityLocationList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ActivityLocationList() { ent__ActivityLocationList::soap_default(NULL); }
-	virtual ~ent__ActivityLocationList() { }
+	         dic__ActivityLocationList() { dic__ActivityLocationList::soap_default(NULL); }
+	virtual ~dic__ActivityLocationList() { }
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__Consignment
-#define SOAP_TYPE_vd__Consignment (160)
+#define SOAP_TYPE_vd__Consignment (157)
 /* vd:Consignment */
 class SOAP_CMAC vd__Consignment : public vd__Batch {
 public:
@@ -5239,7 +2798,7 @@ public:
 	char *id;	/* optional attribute */
 	char *partOf;	/* optional attribute */
 public:
-	virtual int soap_type() const { return 160; } /* = unique id SOAP_TYPE_vd__Consignment */
+	virtual int soap_type() const { return 157; } /* = unique id SOAP_TYPE_vd__Consignment */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5252,13 +2811,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ProductiveBatch
-#define SOAP_TYPE_vd__ProductiveBatch (162)
+#define SOAP_TYPE_vd__ProductiveBatch (159)
 /* vd:ProductiveBatch */
 class SOAP_CMAC vd__ProductiveBatch : public vd__Batch {
 public:
 	char *id;	/* optional attribute */
 public:
-	virtual int soap_type() const { return 162; } /* = unique id SOAP_TYPE_vd__ProductiveBatch */
+	virtual int soap_type() const { return 159; } /* = unique id SOAP_TYPE_vd__ProductiveBatch */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5271,22 +2830,22 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__Delivery
-#define SOAP_TYPE_vd__Delivery (163)
+#define SOAP_TYPE_vd__Delivery (160)
 /* vd:Delivery */
 class SOAP_CMAC vd__Delivery : public base__GenericEntity {
 public:
 	time_t *deliveryDate;	/* optional element of type xsd:dateTime */
-	ent__BusinessMember *consignor;	/* optional element of type ent:BusinessMember */
-	ent__BusinessMember *consignee;	/* optional element of type ent:BusinessMember */
+	dic__BusinessMember *consignor;	/* optional element of type dic:BusinessMember */
+	dic__BusinessMember *consignee;	/* optional element of type dic:BusinessMember */
 	int __sizeconsignment;	/* sequence of elements <consignment> */
 	vd__Consignment **consignment;	/* optional element of type vd:Consignment */
-	ent__BusinessEntity *broker;	/* optional element of type ent:BusinessEntity */
+	dic__BusinessEntity *broker;	/* optional element of type dic:BusinessEntity */
 	vd__TransportInfo *transportInfo;	/* optional element of type vd:TransportInfo */
-	enum ent__TransportationStorageType *transportStorageType;	/* optional element of type ent:TransportationStorageType */
+	enum dic__TransportationStorageType *transportStorageType;	/* optional element of type dic:TransportationStorageType */
 	vd__ShipmentRoute *shipmentRoute;	/* optional element of type vd:ShipmentRoute */
 	vd__ConsignmentDocumentList *accompanyingForms;	/* optional element of type vd:ConsignmentDocumentList */
 public:
-	virtual int soap_type() const { return 163; } /* = unique id SOAP_TYPE_vd__Delivery */
+	virtual int soap_type() const { return 160; } /* = unique id SOAP_TYPE_vd__Delivery */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5299,14 +2858,14 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentList
-#define SOAP_TYPE_vd__VetDocumentList (168)
+#define SOAP_TYPE_vd__VetDocumentList (165)
 /* vd:VetDocumentList */
 class SOAP_CMAC vd__VetDocumentList : public base__EntityList {
 public:
 	int __sizevetDocument;	/* sequence of elements <vetDocument> */
 	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
 public:
-	virtual int soap_type() const { return 168; } /* = unique id SOAP_TYPE_vd__VetDocumentList */
+	virtual int soap_type() const { return 165; } /* = unique id SOAP_TYPE_vd__VetDocumentList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5319,13 +2878,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__DiscrepancyReason
-#define SOAP_TYPE_vd__DiscrepancyReason (170)
+#define SOAP_TYPE_vd__DiscrepancyReason (167)
 /* vd:DiscrepancyReason */
 class SOAP_CMAC vd__DiscrepancyReason : public base__GenericEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 170; } /* = unique id SOAP_TYPE_vd__DiscrepancyReason */
+	virtual int soap_type() const { return 167; } /* = unique id SOAP_TYPE_vd__DiscrepancyReason */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5338,14 +2897,14 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntryList
-#define SOAP_TYPE_vd__StockEntryList (172)
+#define SOAP_TYPE_vd__StockEntryList (169)
 /* vd:StockEntryList */
 class SOAP_CMAC vd__StockEntryList : public base__EntityList {
 public:
 	int __sizestockEntry;	/* sequence of elements <stockEntry> */
 	vd__StockEntry **stockEntry;	/* optional element of type vd:StockEntry */
 public:
-	virtual int soap_type() const { return 172; } /* = unique id SOAP_TYPE_vd__StockEntryList */
+	virtual int soap_type() const { return 169; } /* = unique id SOAP_TYPE_vd__StockEntryList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5358,7 +2917,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__Document
-#define SOAP_TYPE_vd__Document (175)
+#define SOAP_TYPE_vd__Document (172)
 /* vd:Document */
 class SOAP_CMAC vd__Document : public base__GenericEntity {
 public:
@@ -5367,12 +2926,12 @@ public:
 	char *issueSeries;	/* optional element of type base:String255 */
 	char *issueNumber;	/* optional element of type base:String255 */
 	char *issueDate;	/* optional element of type xsd:date */
-	enum ent__DocumentType *type;	/* optional element of type ent:DocumentType */
-	ent__Organization *issuer;	/* optional element of type ent:Organization */
+	enum dic__DocumentType *type;	/* optional element of type dic:DocumentType */
+	dic__Organization *issuer;	/* optional element of type dic:Organization */
 	char *for_;	/* optional attribute */
 	char **qualifier;	/* optional attribute */
 public:
-	virtual int soap_type() const { return 175; } /* = unique id SOAP_TYPE_vd__Document */
+	virtual int soap_type() const { return 172; } /* = unique id SOAP_TYPE_vd__Document */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5385,19 +2944,19 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__union_ShipmentRoutePoint
-#define SOAP_TYPE__vd__union_ShipmentRoutePoint (550)
+#define SOAP_TYPE__vd__union_ShipmentRoutePoint (420)
 /* xsd:choice */
 union _vd__union_ShipmentRoutePoint
 {
 #define SOAP_UNION__vd__union_ShipmentRoutePoint_location	(1)
-	ent__Location *location;
+	dic__Location *location;
 #define SOAP_UNION__vd__union_ShipmentRoutePoint_enterprise	(2)
-	ent__Enterprise *enterprise;
+	dic__Enterprise *enterprise;
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__ShipmentRoutePoint
-#define SOAP_TYPE_vd__ShipmentRoutePoint (179)
+#define SOAP_TYPE_vd__ShipmentRoutePoint (176)
 /* vd:ShipmentRoutePoint */
 class SOAP_CMAC vd__ShipmentRoutePoint : public base__GenericEntity {
 public:
@@ -5407,7 +2966,7 @@ public:
 	bool *transshipment;	/* optional element of type xsd:boolean */
 	vd__TransportInfo *nextTransport;	/* optional element of type vd:TransportInfo */
 public:
-	virtual int soap_type() const { return 179; } /* = unique id SOAP_TYPE_vd__ShipmentRoutePoint */
+	virtual int soap_type() const { return 176; } /* = unique id SOAP_TYPE_vd__ShipmentRoutePoint */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5420,19 +2979,19 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__union_LaboratoryResearchEvent_
-#define SOAP_TYPE__vd__union_LaboratoryResearchEvent_ (552)
+#define SOAP_TYPE__vd__union_LaboratoryResearchEvent_ (422)
 /* xsd:choice */
 union _vd__union_LaboratoryResearchEvent_
 {
 #define SOAP_UNION__vd__union_LaboratoryResearchEvent__indicator	(1)
-	class ent__Indicator *indicator;
+	class dic__Indicator *indicator;
 #define SOAP_UNION__vd__union_LaboratoryResearchEvent__disease	(2)
-	ent__AnimalDisease *disease;
+	dic__AnimalDisease *disease;
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__LaboratoryResearchEvent
-#define SOAP_TYPE_vd__LaboratoryResearchEvent (191)
+#define SOAP_TYPE_vd__LaboratoryResearchEvent (188)
 /* vd:LaboratoryResearchEvent */
 class SOAP_CMAC vd__LaboratoryResearchEvent : public vd__VeterinaryEvent {
 public:
@@ -5441,11 +3000,11 @@ public:
 	char *expertiseID;	/* optional element of type base:String255 */
 	int __union_LaboratoryResearchEvent_;	/* union discriminant (of union defined below) */
 	union _vd__union_LaboratoryResearchEvent_ union_LaboratoryResearchEvent_;	/* required element of type xsd:choice */
-	ent__ResearchMethod *method;	/* optional element of type ent:ResearchMethod */
-	enum ent__ResearchResult *result;	/* optional element of type ent:ResearchResult */
+	dic__ResearchMethod *method;	/* optional element of type dic:ResearchMethod */
+	enum dic__ResearchResult *result;	/* optional element of type dic:ResearchResult */
 	char *conclusion;	/* optional element of type base:Text */
 public:
-	virtual int soap_type() const { return 191; } /* = unique id SOAP_TYPE_vd__LaboratoryResearchEvent */
+	virtual int soap_type() const { return 188; } /* = unique id SOAP_TYPE_vd__LaboratoryResearchEvent */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5458,15 +3017,15 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__AnimalMedicationEvent
-#define SOAP_TYPE_vd__AnimalMedicationEvent (192)
+#define SOAP_TYPE_vd__AnimalMedicationEvent (189)
 /* vd:AnimalMedicationEvent */
 class SOAP_CMAC vd__AnimalMedicationEvent : public vd__VeterinaryEvent {
 public:
-	ent__AnimalDisease *disease;	/* optional element of type ent:AnimalDisease */
-	ent__MedicinalDrug *medicinalDrug;	/* optional element of type ent:MedicinalDrug */
+	dic__AnimalDisease *disease;	/* optional element of type dic:AnimalDisease */
+	dic__MedicinalDrug *medicinalDrug;	/* optional element of type dic:MedicinalDrug */
 	time_t *effectiveBeforeDate;	/* optional element of type xsd:dateTime */
 public:
-	virtual int soap_type() const { return 192; } /* = unique id SOAP_TYPE_vd__AnimalMedicationEvent */
+	virtual int soap_type() const { return 189; } /* = unique id SOAP_TYPE_vd__AnimalMedicationEvent */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5479,13 +3038,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__QuarantineEvent
-#define SOAP_TYPE_vd__QuarantineEvent (193)
+#define SOAP_TYPE_vd__QuarantineEvent (190)
 /* vd:QuarantineEvent */
 class SOAP_CMAC vd__QuarantineEvent : public vd__VeterinaryEvent {
 public:
 	char *duration;	/* optional element of type xsd:positiveInteger */
 public:
-	virtual int soap_type() const { return 193; } /* = unique id SOAP_TYPE_vd__QuarantineEvent */
+	virtual int soap_type() const { return 190; } /* = unique id SOAP_TYPE_vd__QuarantineEvent */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5498,26 +3057,30 @@ public:
 #endif
 
 #ifndef SOAP_TYPE__vd__union_User
-#define SOAP_TYPE__vd__union_User (555)
+#define SOAP_TYPE__vd__union_User (426)
 /* xsd:choice */
 union _vd__union_User
 {
 #define SOAP_UNION__vd__union_User_organization	(1)
-	ent__Organization *organization;
+	dic__Organization *organization;
 #define SOAP_UNION__vd__union_User_businessEntity	(2)
-	ent__BusinessEntity *businessEntity;
+	dic__BusinessEntity *businessEntity;
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__User
-#define SOAP_TYPE_vd__User (201)
+#define SOAP_TYPE_vd__User (198)
 /* vd:User */
 class SOAP_CMAC vd__User : public base__GenericEntity {
 public:
 	char *login;	/* optional element of type xsd:NCName */
+	char *firstName;	/* optional element of type base:String255 */
+	char *middleName;	/* optional element of type base:String255 */
+	char *lastName;	/* optional element of type base:String255 */
 	char *fio;	/* optional element of type base:String255 */
 	char *birthDate;	/* optional element of type xsd:date */
 	vd__Document *identity;	/* optional element of type vd:Document */
+	vd__Citizenship *citizenship;	/* optional element of type vd:Citizenship */
 	char **snils;	/* optional element of type vd:SNILSType */
 	char *phone;	/* optional element of type base:String255 */
 	char *workPhone;	/* optional element of type base:String255 */
@@ -5532,7 +3095,7 @@ public:
 	vd__AuthorityList *authorityList;	/* optional element of type vd:AuthorityList */
 	class vd__WorkingAreaList *workingAreaList;	/* optional element of type vd:WorkingAreaList */
 public:
-	virtual int soap_type() const { return 201; } /* = unique id SOAP_TYPE_vd__User */
+	virtual int soap_type() const { return 198; } /* = unique id SOAP_TYPE_vd__User */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5545,14 +3108,14 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__UserList
-#define SOAP_TYPE_vd__UserList (202)
+#define SOAP_TYPE_vd__UserList (199)
 /* vd:UserList */
 class SOAP_CMAC vd__UserList : public base__EntityList {
 public:
 	int __sizeuser;	/* sequence of elements <user> */
 	vd__User **user;	/* optional element of type vd:User */
 public:
-	virtual int soap_type() const { return 202; } /* = unique id SOAP_TYPE_vd__UserList */
+	virtual int soap_type() const { return 199; } /* = unique id SOAP_TYPE_vd__UserList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5565,14 +3128,14 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__WorkingAreaList
-#define SOAP_TYPE_vd__WorkingAreaList (204)
+#define SOAP_TYPE_vd__WorkingAreaList (201)
 /* vd:WorkingAreaList */
 class SOAP_CMAC vd__WorkingAreaList : public base__EntityList {
 public:
 	int __sizeworkingArea;	/* sequence of elements <workingArea> */
 	vd__WorkingArea **workingArea;	/* optional element of type vd:WorkingArea */
 public:
-	virtual int soap_type() const { return 204; } /* = unique id SOAP_TYPE_vd__WorkingAreaList */
+	virtual int soap_type() const { return 201; } /* = unique id SOAP_TYPE_vd__WorkingAreaList */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5584,13 +3147,588 @@ public:
 };
 #endif
 
+#ifndef SOAP_TYPE_g2ba__ProcessIncomingConsignmentRequest
+#define SOAP_TYPE_g2ba__ProcessIncomingConsignmentRequest (23)
+/* g2ba:ProcessIncomingConsignmentRequest */
+class SOAP_CMAC g2ba__ProcessIncomingConsignmentRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__Delivery *delivery;	/* required element of type vd:Delivery */
+	vd__DeliveryFactList *deliveryFacts;	/* required element of type vd:DeliveryFactList */
+	int __sizediscrepancyReport;	/* sequence of elements <discrepancyReport> */
+	class vd__DiscrepancyReport **discrepancyReport;	/* optional element of type vd:DiscrepancyReport */
+	vd__Delivery *returnedDelivery;	/* optional element of type vd:Delivery */
+public:
+	virtual int soap_type() const { return 23; } /* = unique id SOAP_TYPE_g2ba__ProcessIncomingConsignmentRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ProcessIncomingConsignmentRequest() { g2ba__ProcessIncomingConsignmentRequest::soap_default(NULL); }
+	virtual ~g2ba__ProcessIncomingConsignmentRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__PrepareOutgoingConsignmentRequest
+#define SOAP_TYPE_g2ba__PrepareOutgoingConsignmentRequest (25)
+/* g2ba:PrepareOutgoingConsignmentRequest */
+class SOAP_CMAC g2ba__PrepareOutgoingConsignmentRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizedelivery;	/* sequence of elements <delivery> */
+	vd__Delivery **delivery;	/* required element of type vd:Delivery */
+public:
+	virtual int soap_type() const { return 25; } /* = unique id SOAP_TYPE_g2ba__PrepareOutgoingConsignmentRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__PrepareOutgoingConsignmentRequest() { g2ba__PrepareOutgoingConsignmentRequest::soap_default(NULL); }
+	virtual ~g2ba__PrepareOutgoingConsignmentRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__RegisterProductionOperationRequest
+#define SOAP_TYPE_g2ba__RegisterProductionOperationRequest (27)
+/* g2ba:RegisterProductionOperationRequest */
+class SOAP_CMAC g2ba__RegisterProductionOperationRequest : public g2ba__MercuryApplicationRequest {
+public:
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
+	vd__ProductionOperation *productionOperation;	/* required element of type vd:ProductionOperation */
+	int __sizevetDocument;	/* sequence of elements <vetDocument> */
+	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
+public:
+	virtual int soap_type() const { return 27; } /* = unique id SOAP_TYPE_g2ba__RegisterProductionOperationRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__RegisterProductionOperationRequest() { g2ba__RegisterProductionOperationRequest::soap_default(NULL); }
+	virtual ~g2ba__RegisterProductionOperationRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__MergeStockEntriesRequest
+#define SOAP_TYPE_g2ba__MergeStockEntriesRequest (29)
+/* g2ba:MergeStockEntriesRequest */
+class SOAP_CMAC g2ba__MergeStockEntriesRequest : public g2ba__MercuryApplicationRequest {
+public:
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
+	vd__MergeStockEntriesOperation *mergeOperation;	/* required element of type vd:MergeStockEntriesOperation */
+public:
+	virtual int soap_type() const { return 29; } /* = unique id SOAP_TYPE_g2ba__MergeStockEntriesRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__MergeStockEntriesRequest() { g2ba__MergeStockEntriesRequest::soap_default(NULL); }
+	virtual ~g2ba__MergeStockEntriesRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__WithdrawVetDocumentRequest
+#define SOAP_TYPE_g2ba__WithdrawVetDocumentRequest (31)
+/* g2ba:WithdrawVetDocumentRequest */
+class SOAP_CMAC g2ba__WithdrawVetDocumentRequest : public g2ba__MercuryApplicationRequest {
+public:
+	char *vetDocumentId;	/* required element of type base:UUID */
+	char *withdrawReason;	/* required element of type vd:VetDocumentStatusChangeReason */
+	time_t withdrawDate;	/* required element of type xsd:dateTime */
+	vd__User *specifiedPerson;	/* optional element of type vd:User */
+public:
+	virtual int soap_type() const { return 31; } /* = unique id SOAP_TYPE_g2ba__WithdrawVetDocumentRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__WithdrawVetDocumentRequest() { g2ba__WithdrawVetDocumentRequest::soap_default(NULL); }
+	virtual ~g2ba__WithdrawVetDocumentRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__ModifyBusinessEntityRequest
+#define SOAP_TYPE_g2ba__ModifyBusinessEntityRequest (33)
+/* g2ba:ModifyBusinessEntityRequest */
+class SOAP_CMAC g2ba__ModifyBusinessEntityRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__BEModificationOperation *modificationOperation;	/* required element of type vd:BEModificationOperation */
+public:
+	virtual int soap_type() const { return 33; } /* = unique id SOAP_TYPE_g2ba__ModifyBusinessEntityRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ModifyBusinessEntityRequest() { g2ba__ModifyBusinessEntityRequest::soap_default(NULL); }
+	virtual ~g2ba__ModifyBusinessEntityRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__ModifyEnterpriseRequest
+#define SOAP_TYPE_g2ba__ModifyEnterpriseRequest (35)
+/* g2ba:ModifyEnterpriseRequest */
+class SOAP_CMAC g2ba__ModifyEnterpriseRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__ENTModificationOperation *modificationOperation;	/* required element of type vd:ENTModificationOperation */
+public:
+	virtual int soap_type() const { return 35; } /* = unique id SOAP_TYPE_g2ba__ModifyEnterpriseRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ModifyEnterpriseRequest() { g2ba__ModifyEnterpriseRequest::soap_default(NULL); }
+	virtual ~g2ba__ModifyEnterpriseRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__ModifyActivityLocationsRequest
+#define SOAP_TYPE_g2ba__ModifyActivityLocationsRequest (37)
+/* g2ba:ModifyActivityLocationsRequest */
+class SOAP_CMAC g2ba__ModifyActivityLocationsRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__BEActivityLocationsModificationOperation *modificationOperation;	/* required element of type vd:BEActivityLocationsModificationOperation */
+public:
+	virtual int soap_type() const { return 37; } /* = unique id SOAP_TYPE_g2ba__ModifyActivityLocationsRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ModifyActivityLocationsRequest() { g2ba__ModifyActivityLocationsRequest::soap_default(NULL); }
+	virtual ~g2ba__ModifyActivityLocationsRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__ResolveDiscrepancyRequest
+#define SOAP_TYPE_g2ba__ResolveDiscrepancyRequest (39)
+/* g2ba:ResolveDiscrepancyRequest */
+class SOAP_CMAC g2ba__ResolveDiscrepancyRequest : public g2ba__MercuryApplicationRequest {
+public:
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
+	time_t inventoryDate;	/* required element of type xsd:dateTime */
+	vd__User *responsible;	/* required element of type vd:User */
+	int __sizestockDiscrepancy;	/* sequence of elements <stockDiscrepancy> */
+	vd__StockDiscrepancy **stockDiscrepancy;	/* required element of type vd:StockDiscrepancy */
+	int __sizediscrepancyReport;	/* sequence of elements <discrepancyReport> */
+	vd__DiscrepancyReport **discrepancyReport;	/* required element of type vd:DiscrepancyReport */
+public:
+	virtual int soap_type() const { return 39; } /* = unique id SOAP_TYPE_g2ba__ResolveDiscrepancyRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ResolveDiscrepancyRequest() { g2ba__ResolveDiscrepancyRequest::soap_default(NULL); }
+	virtual ~g2ba__ResolveDiscrepancyRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__ModifyProducerStockListRequest
+#define SOAP_TYPE_g2ba__ModifyProducerStockListRequest (41)
+/* g2ba:ModifyProducerStockListRequest */
+class SOAP_CMAC g2ba__ModifyProducerStockListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__PSLModificationOperation *modificationOperation;	/* required element of type vd:PSLModificationOperation */
+public:
+	virtual int soap_type() const { return 41; } /* = unique id SOAP_TYPE_g2ba__ModifyProducerStockListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__ModifyProducerStockListRequest() { g2ba__ModifyProducerStockListRequest::soap_default(NULL); }
+	virtual ~g2ba__ModifyProducerStockListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentByUuidRequest
+#define SOAP_TYPE_g2ba__GetVetDocumentByUuidRequest (43)
+/* g2ba:GetVetDocumentByUuidRequest */
+class SOAP_CMAC g2ba__GetVetDocumentByUuidRequest : public g2ba__MercuryApplicationRequest {
+public:
+	char *base__uuid;	/* required element of type base:UUID */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 43; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentByUuidRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetVetDocumentByUuidRequest() { g2ba__GetVetDocumentByUuidRequest::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentByUuidRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentListRequest
+#define SOAP_TYPE_g2ba__GetVetDocumentListRequest (45)
+/* g2ba:GetVetDocumentListRequest */
+class SOAP_CMAC g2ba__GetVetDocumentListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+	enum vd__VetDocumentType *vd__vetDocumentType;	/* optional element of type vd:VetDocumentType */
+	enum vd__VetDocumentStatus *vd__vetDocumentStatus;	/* optional element of type vd:VetDocumentStatus */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 45; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetVetDocumentListRequest() { g2ba__GetVetDocumentListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetVetDocumentChangesListRequest
+#define SOAP_TYPE_g2ba__GetVetDocumentChangesListRequest (47)
+/* g2ba:GetVetDocumentChangesListRequest */
+class SOAP_CMAC g2ba__GetVetDocumentChangesListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 47; } /* = unique id SOAP_TYPE_g2ba__GetVetDocumentChangesListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetVetDocumentChangesListRequest() { g2ba__GetVetDocumentChangesListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetVetDocumentChangesListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetStockEntryByGuidRequest
+#define SOAP_TYPE_g2ba__GetStockEntryByGuidRequest (49)
+/* g2ba:GetStockEntryByGuidRequest */
+class SOAP_CMAC g2ba__GetStockEntryByGuidRequest : public g2ba__MercuryApplicationRequest {
+public:
+	char *base__guid;	/* required element of type base:UUID */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 49; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryByGuidRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetStockEntryByGuidRequest() { g2ba__GetStockEntryByGuidRequest::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryByGuidRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetStockEntryByUuidRequest
+#define SOAP_TYPE_g2ba__GetStockEntryByUuidRequest (51)
+/* g2ba:GetStockEntryByUuidRequest */
+class SOAP_CMAC g2ba__GetStockEntryByUuidRequest : public g2ba__MercuryApplicationRequest {
+public:
+	char *base__uuid;	/* required element of type base:UUID */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 51; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryByUuidRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetStockEntryByUuidRequest() { g2ba__GetStockEntryByUuidRequest::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryByUuidRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetStockEntryChangesListRequest
+#define SOAP_TYPE_g2ba__GetStockEntryChangesListRequest (53)
+/* g2ba:GetStockEntryChangesListRequest */
+class SOAP_CMAC g2ba__GetStockEntryChangesListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 53; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryChangesListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetStockEntryChangesListRequest() { g2ba__GetStockEntryChangesListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryChangesListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetStockEntryListRequest
+#define SOAP_TYPE_g2ba__GetStockEntryListRequest (55)
+/* g2ba:GetStockEntryListRequest */
+class SOAP_CMAC g2ba__GetStockEntryListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+	class vd__StockEntrySearchPattern *searchPattern;	/* optional element of type vd:StockEntrySearchPattern */
+public:
+	virtual int soap_type() const { return 55; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetStockEntryListRequest() { g2ba__GetStockEntryListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetStockEntryVersionListRequest
+#define SOAP_TYPE_g2ba__GetStockEntryVersionListRequest (57)
+/* g2ba:GetStockEntryVersionListRequest */
+class SOAP_CMAC g2ba__GetStockEntryVersionListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+	char *base__guid;	/* required element of type base:UUID */
+	char *dic__enterpriseGuid;	/* required element of type base:UUID */
+public:
+	virtual int soap_type() const { return 57; } /* = unique id SOAP_TYPE_g2ba__GetStockEntryVersionListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetStockEntryVersionListRequest() { g2ba__GetStockEntryVersionListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetStockEntryVersionListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__UpdateTransportMovementDetailsRequest
+#define SOAP_TYPE_g2ba__UpdateTransportMovementDetailsRequest (59)
+/* g2ba:UpdateTransportMovementDetailsRequest */
+class SOAP_CMAC g2ba__UpdateTransportMovementDetailsRequest : public g2ba__MercuryApplicationRequest {
+public:
+	dic__BusinessMember *vd__deliveryParticipant;	/* required element of type dic:BusinessMember */
+	int __sizevetDocumentUuid;	/* sequence of elements <vd:vetDocumentUuid> */
+	char **vd__vetDocumentUuid;	/* required element of type base:UUID */
+	vd__ShipmentRoute *vd__shipmentRoute;	/* required element of type vd:ShipmentRoute */
+public:
+	virtual int soap_type() const { return 59; } /* = unique id SOAP_TYPE_g2ba__UpdateTransportMovementDetailsRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__UpdateTransportMovementDetailsRequest() { g2ba__UpdateTransportMovementDetailsRequest::soap_default(NULL); }
+	virtual ~g2ba__UpdateTransportMovementDetailsRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__UpdateVeterinaryEventsRequest
+#define SOAP_TYPE_g2ba__UpdateVeterinaryEventsRequest (61)
+/* g2ba:UpdateVeterinaryEventsRequest */
+class SOAP_CMAC g2ba__UpdateVeterinaryEventsRequest : public g2ba__MercuryApplicationRequest {
+public:
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
+	int __sizestockEntry;	/* sequence of elements <vd:stockEntry> */
+	vd__StockEntry **vd__stockEntry;	/* required element of type vd:StockEntry */
+public:
+	virtual int soap_type() const { return 61; } /* = unique id SOAP_TYPE_g2ba__UpdateVeterinaryEventsRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__UpdateVeterinaryEventsRequest() { g2ba__UpdateVeterinaryEventsRequest::soap_default(NULL); }
+	virtual ~g2ba__UpdateVeterinaryEventsRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__CheckShipmentRegionalizationRequest
+#define SOAP_TYPE_g2ba__CheckShipmentRegionalizationRequest (63)
+/* g2ba:CheckShipmentRegionalizationRequest */
+class SOAP_CMAC g2ba__CheckShipmentRegionalizationRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizecargoType;	/* sequence of elements <dic:cargoType> */
+	dic__SubProduct **dic__cargoType;	/* required element of type dic:SubProduct */
+	vd__ShipmentRoute *vd__shipmentRoute;	/* required element of type vd:ShipmentRoute */
+public:
+	virtual int soap_type() const { return 63; } /* = unique id SOAP_TYPE_g2ba__CheckShipmentRegionalizationRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__CheckShipmentRegionalizationRequest() { g2ba__CheckShipmentRegionalizationRequest::soap_default(NULL); }
+	virtual ~g2ba__CheckShipmentRegionalizationRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__AddBusinessEntityUserRequest
+#define SOAP_TYPE_g2ba__AddBusinessEntityUserRequest (65)
+/* g2ba:AddBusinessEntityUserRequest */
+class SOAP_CMAC g2ba__AddBusinessEntityUserRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizeuser;	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* required element of type vd:User */
+public:
+	virtual int soap_type() const { return 65; } /* = unique id SOAP_TYPE_g2ba__AddBusinessEntityUserRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__AddBusinessEntityUserRequest() { g2ba__AddBusinessEntityUserRequest::soap_default(NULL); }
+	virtual ~g2ba__AddBusinessEntityUserRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetBusinessEntityUserListRequest
+#define SOAP_TYPE_g2ba__GetBusinessEntityUserListRequest (67)
+/* g2ba:GetBusinessEntityUserListRequest */
+class SOAP_CMAC g2ba__GetBusinessEntityUserListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+public:
+	virtual int soap_type() const { return 67; } /* = unique id SOAP_TYPE_g2ba__GetBusinessEntityUserListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetBusinessEntityUserListRequest() { g2ba__GetBusinessEntityUserListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetBusinessEntityUserListRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetBusinessEntityUserRequest
+#define SOAP_TYPE_g2ba__GetBusinessEntityUserRequest (69)
+/* g2ba:GetBusinessEntityUserRequest */
+class SOAP_CMAC g2ba__GetBusinessEntityUserRequest : public g2ba__MercuryApplicationRequest {
+public:
+	vd__User *vd__user;	/* required element of type vd:User */
+public:
+	virtual int soap_type() const { return 69; } /* = unique id SOAP_TYPE_g2ba__GetBusinessEntityUserRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetBusinessEntityUserRequest() { g2ba__GetBusinessEntityUserRequest::soap_default(NULL); }
+	virtual ~g2ba__GetBusinessEntityUserRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__UpdateUserAuthoritiesRequest
+#define SOAP_TYPE_g2ba__UpdateUserAuthoritiesRequest (71)
+/* g2ba:UpdateUserAuthoritiesRequest */
+class SOAP_CMAC g2ba__UpdateUserAuthoritiesRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizeuser;	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* required element of type vd:User */
+public:
+	virtual int soap_type() const { return 71; } /* = unique id SOAP_TYPE_g2ba__UpdateUserAuthoritiesRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__UpdateUserAuthoritiesRequest() { g2ba__UpdateUserAuthoritiesRequest::soap_default(NULL); }
+	virtual ~g2ba__UpdateUserAuthoritiesRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__UpdateUserWorkingAreasRequest
+#define SOAP_TYPE_g2ba__UpdateUserWorkingAreasRequest (73)
+/* g2ba:UpdateUserWorkingAreasRequest */
+class SOAP_CMAC g2ba__UpdateUserWorkingAreasRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizeuser;	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* required element of type vd:User */
+public:
+	virtual int soap_type() const { return 73; } /* = unique id SOAP_TYPE_g2ba__UpdateUserWorkingAreasRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__UpdateUserWorkingAreasRequest() { g2ba__UpdateUserWorkingAreasRequest::soap_default(NULL); }
+	virtual ~g2ba__UpdateUserWorkingAreasRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__UnbindBusinessEntityUserRequest
+#define SOAP_TYPE_g2ba__UnbindBusinessEntityUserRequest (75)
+/* g2ba:UnbindBusinessEntityUserRequest */
+class SOAP_CMAC g2ba__UnbindBusinessEntityUserRequest : public g2ba__MercuryApplicationRequest {
+public:
+	int __sizeuser;	/* sequence of elements <vd:user> */
+	vd__User **vd__user;	/* required element of type vd:User */
+public:
+	virtual int soap_type() const { return 75; } /* = unique id SOAP_TYPE_g2ba__UnbindBusinessEntityUserRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__UnbindBusinessEntityUserRequest() { g2ba__UnbindBusinessEntityUserRequest::soap_default(NULL); }
+	virtual ~g2ba__UnbindBusinessEntityUserRequest() { }
+};
+#endif
+
+#ifndef SOAP_TYPE_g2ba__GetApplicableUserAuthorityListRequest
+#define SOAP_TYPE_g2ba__GetApplicableUserAuthorityListRequest (77)
+/* g2ba:GetApplicableUserAuthorityListRequest */
+class SOAP_CMAC g2ba__GetApplicableUserAuthorityListRequest : public g2ba__MercuryApplicationRequest {
+public:
+	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
+public:
+	virtual int soap_type() const { return 77; } /* = unique id SOAP_TYPE_g2ba__GetApplicableUserAuthorityListRequest */
+	virtual void soap_default(struct soap*);
+	virtual void soap_serialize(struct soap*) const;
+	virtual int soap_put(struct soap*, const char*, const char*) const;
+	virtual int soap_out(struct soap*, const char*, int, const char*) const;
+	virtual void *soap_get(struct soap*, const char*, const char*);
+	virtual void *soap_in(struct soap*, const char*, const char*);
+	         g2ba__GetApplicableUserAuthorityListRequest() { g2ba__GetApplicableUserAuthorityListRequest::soap_default(NULL); }
+	virtual ~g2ba__GetApplicableUserAuthorityListRequest() { }
+};
+#endif
+
 #ifndef SOAP_TYPE_app__BusinessError
-#define SOAP_TYPE_app__BusinessError (39)
+#define SOAP_TYPE_app__BusinessError (93)
 /* Primitive app:BusinessError schema type: */
 class SOAP_CMAC app__BusinessError : public base__Error {
 
 public:
-	virtual int soap_type() const { return 39; } /* = unique id SOAP_TYPE_app__BusinessError */
+	virtual int soap_type() const { return 93; } /* = unique id SOAP_TYPE_app__BusinessError */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -5602,691 +3740,116 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE_merc__ProcessIncomingConsignmentRequest
-#define SOAP_TYPE_merc__ProcessIncomingConsignmentRequest (41)
-/* merc:ProcessIncomingConsignmentRequest */
-class SOAP_CMAC merc__ProcessIncomingConsignmentRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__Delivery *delivery;	/* required element of type vd:Delivery */
-	vd__DeliveryFactList *deliveryFacts;	/* required element of type vd:DeliveryFactList */
-	int __sizediscrepancyReport;	/* sequence of elements <discrepancyReport> */
-	class vd__DiscrepancyReport **discrepancyReport;	/* optional element of type vd:DiscrepancyReport */
-	vd__Delivery *returnedDelivery;	/* optional element of type vd:Delivery */
-public:
-	virtual int soap_type() const { return 41; } /* = unique id SOAP_TYPE_merc__ProcessIncomingConsignmentRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ProcessIncomingConsignmentRequest() { merc__ProcessIncomingConsignmentRequest::soap_default(NULL); }
-	virtual ~merc__ProcessIncomingConsignmentRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__PrepareOutgoingConsignmentRequest
-#define SOAP_TYPE_merc__PrepareOutgoingConsignmentRequest (43)
-/* merc:PrepareOutgoingConsignmentRequest */
-class SOAP_CMAC merc__PrepareOutgoingConsignmentRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizedelivery;	/* sequence of elements <delivery> */
-	vd__Delivery **delivery;	/* required element of type vd:Delivery */
-public:
-	virtual int soap_type() const { return 43; } /* = unique id SOAP_TYPE_merc__PrepareOutgoingConsignmentRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__PrepareOutgoingConsignmentRequest() { merc__PrepareOutgoingConsignmentRequest::soap_default(NULL); }
-	virtual ~merc__PrepareOutgoingConsignmentRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__RegisterProductionOperationRequest
-#define SOAP_TYPE_merc__RegisterProductionOperationRequest (45)
-/* merc:RegisterProductionOperationRequest */
-class SOAP_CMAC merc__RegisterProductionOperationRequest : public merc__MercuryApplicationRequest {
-public:
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
-	vd__ProductionOperation *productionOperation;	/* required element of type vd:ProductionOperation */
-	int __sizevetDocument;	/* sequence of elements <vetDocument> */
-	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
-public:
-	virtual int soap_type() const { return 45; } /* = unique id SOAP_TYPE_merc__RegisterProductionOperationRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__RegisterProductionOperationRequest() { merc__RegisterProductionOperationRequest::soap_default(NULL); }
-	virtual ~merc__RegisterProductionOperationRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__MergeStockEntriesRequest
-#define SOAP_TYPE_merc__MergeStockEntriesRequest (47)
-/* merc:MergeStockEntriesRequest */
-class SOAP_CMAC merc__MergeStockEntriesRequest : public merc__MercuryApplicationRequest {
-public:
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
-	vd__MergeStockEntriesOperation *mergeOperation;	/* required element of type vd:MergeStockEntriesOperation */
-public:
-	virtual int soap_type() const { return 47; } /* = unique id SOAP_TYPE_merc__MergeStockEntriesRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__MergeStockEntriesRequest() { merc__MergeStockEntriesRequest::soap_default(NULL); }
-	virtual ~merc__MergeStockEntriesRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__WithdrawVetDocumentRequest
-#define SOAP_TYPE_merc__WithdrawVetDocumentRequest (49)
-/* merc:WithdrawVetDocumentRequest */
-class SOAP_CMAC merc__WithdrawVetDocumentRequest : public merc__MercuryApplicationRequest {
-public:
-	char *vetDocumentId;	/* required element of type base:UUID */
-	char *withdrawReason;	/* required element of type vd:VetDocumentStatusChangeReason */
-	time_t withdrawDate;	/* required element of type xsd:dateTime */
-	vd__User *specifiedPerson;	/* optional element of type vd:User */
-public:
-	virtual int soap_type() const { return 49; } /* = unique id SOAP_TYPE_merc__WithdrawVetDocumentRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__WithdrawVetDocumentRequest() { merc__WithdrawVetDocumentRequest::soap_default(NULL); }
-	virtual ~merc__WithdrawVetDocumentRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyBusinessEntityRequest
-#define SOAP_TYPE_merc__ModifyBusinessEntityRequest (51)
-/* merc:ModifyBusinessEntityRequest */
-class SOAP_CMAC merc__ModifyBusinessEntityRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__BEModificationOperation *modificationOperation;	/* required element of type vd:BEModificationOperation */
-public:
-	virtual int soap_type() const { return 51; } /* = unique id SOAP_TYPE_merc__ModifyBusinessEntityRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyBusinessEntityRequest() { merc__ModifyBusinessEntityRequest::soap_default(NULL); }
-	virtual ~merc__ModifyBusinessEntityRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyEnterpriseRequest
-#define SOAP_TYPE_merc__ModifyEnterpriseRequest (53)
-/* merc:ModifyEnterpriseRequest */
-class SOAP_CMAC merc__ModifyEnterpriseRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__ENTModificationOperation *modificationOperation;	/* required element of type vd:ENTModificationOperation */
-public:
-	virtual int soap_type() const { return 53; } /* = unique id SOAP_TYPE_merc__ModifyEnterpriseRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyEnterpriseRequest() { merc__ModifyEnterpriseRequest::soap_default(NULL); }
-	virtual ~merc__ModifyEnterpriseRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyActivityLocationsRequest
-#define SOAP_TYPE_merc__ModifyActivityLocationsRequest (55)
-/* merc:ModifyActivityLocationsRequest */
-class SOAP_CMAC merc__ModifyActivityLocationsRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__BEActivityLocationsModificationOperation *modificationOperation;	/* required element of type vd:BEActivityLocationsModificationOperation */
-public:
-	virtual int soap_type() const { return 55; } /* = unique id SOAP_TYPE_merc__ModifyActivityLocationsRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyActivityLocationsRequest() { merc__ModifyActivityLocationsRequest::soap_default(NULL); }
-	virtual ~merc__ModifyActivityLocationsRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ResolveDiscrepancyRequest
-#define SOAP_TYPE_merc__ResolveDiscrepancyRequest (57)
-/* merc:ResolveDiscrepancyRequest */
-class SOAP_CMAC merc__ResolveDiscrepancyRequest : public merc__MercuryApplicationRequest {
-public:
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
-	time_t inventoryDate;	/* required element of type xsd:dateTime */
-	vd__User *responsible;	/* required element of type vd:User */
-	int __sizestockDiscrepancy;	/* sequence of elements <stockDiscrepancy> */
-	vd__StockDiscrepancy **stockDiscrepancy;	/* required element of type vd:StockDiscrepancy */
-	int __sizediscrepancyReport;	/* sequence of elements <discrepancyReport> */
-	vd__DiscrepancyReport **discrepancyReport;	/* required element of type vd:DiscrepancyReport */
-public:
-	virtual int soap_type() const { return 57; } /* = unique id SOAP_TYPE_merc__ResolveDiscrepancyRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ResolveDiscrepancyRequest() { merc__ResolveDiscrepancyRequest::soap_default(NULL); }
-	virtual ~merc__ResolveDiscrepancyRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__ModifyProducerStockListRequest
-#define SOAP_TYPE_merc__ModifyProducerStockListRequest (59)
-/* merc:ModifyProducerStockListRequest */
-class SOAP_CMAC merc__ModifyProducerStockListRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__PSLModificationOperation *modificationOperation;	/* required element of type vd:PSLModificationOperation */
-public:
-	virtual int soap_type() const { return 59; } /* = unique id SOAP_TYPE_merc__ModifyProducerStockListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__ModifyProducerStockListRequest() { merc__ModifyProducerStockListRequest::soap_default(NULL); }
-	virtual ~merc__ModifyProducerStockListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentByUuidRequest
-#define SOAP_TYPE_merc__GetVetDocumentByUuidRequest (61)
-/* merc:GetVetDocumentByUuidRequest */
-class SOAP_CMAC merc__GetVetDocumentByUuidRequest : public merc__MercuryApplicationRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 61; } /* = unique id SOAP_TYPE_merc__GetVetDocumentByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentByUuidRequest() { merc__GetVetDocumentByUuidRequest::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentListRequest
-#define SOAP_TYPE_merc__GetVetDocumentListRequest (63)
-/* merc:GetVetDocumentListRequest */
-class SOAP_CMAC merc__GetVetDocumentListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	enum vd__VetDocumentType *vd__vetDocumentType;	/* optional element of type vd:VetDocumentType */
-	enum vd__VetDocumentStatus *vd__vetDocumentStatus;	/* optional element of type vd:VetDocumentStatus */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 63; } /* = unique id SOAP_TYPE_merc__GetVetDocumentListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentListRequest() { merc__GetVetDocumentListRequest::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetVetDocumentChangesListRequest
-#define SOAP_TYPE_merc__GetVetDocumentChangesListRequest (65)
-/* merc:GetVetDocumentChangesListRequest */
-class SOAP_CMAC merc__GetVetDocumentChangesListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 65; } /* = unique id SOAP_TYPE_merc__GetVetDocumentChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetVetDocumentChangesListRequest() { merc__GetVetDocumentChangesListRequest::soap_default(NULL); }
-	virtual ~merc__GetVetDocumentChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryByGuidRequest
-#define SOAP_TYPE_merc__GetStockEntryByGuidRequest (67)
-/* merc:GetStockEntryByGuidRequest */
-class SOAP_CMAC merc__GetStockEntryByGuidRequest : public merc__MercuryApplicationRequest {
-public:
-	char *base__guid;	/* required element of type base:UUID */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 67; } /* = unique id SOAP_TYPE_merc__GetStockEntryByGuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryByGuidRequest() { merc__GetStockEntryByGuidRequest::soap_default(NULL); }
-	virtual ~merc__GetStockEntryByGuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryByUuidRequest
-#define SOAP_TYPE_merc__GetStockEntryByUuidRequest (69)
-/* merc:GetStockEntryByUuidRequest */
-class SOAP_CMAC merc__GetStockEntryByUuidRequest : public merc__MercuryApplicationRequest {
-public:
-	char *base__uuid;	/* required element of type base:UUID */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 69; } /* = unique id SOAP_TYPE_merc__GetStockEntryByUuidRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryByUuidRequest() { merc__GetStockEntryByUuidRequest::soap_default(NULL); }
-	virtual ~merc__GetStockEntryByUuidRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryChangesListRequest
-#define SOAP_TYPE_merc__GetStockEntryChangesListRequest (71)
-/* merc:GetStockEntryChangesListRequest */
-class SOAP_CMAC merc__GetStockEntryChangesListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	base__DateInterval *base__updateDateInterval;	/* required element of type base:DateInterval */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 71; } /* = unique id SOAP_TYPE_merc__GetStockEntryChangesListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryChangesListRequest() { merc__GetStockEntryChangesListRequest::soap_default(NULL); }
-	virtual ~merc__GetStockEntryChangesListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryListRequest
-#define SOAP_TYPE_merc__GetStockEntryListRequest (73)
-/* merc:GetStockEntryListRequest */
-class SOAP_CMAC merc__GetStockEntryListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-	class vd__StockEntrySearchPattern *searchPattern;	/* optional element of type vd:StockEntrySearchPattern */
-public:
-	virtual int soap_type() const { return 73; } /* = unique id SOAP_TYPE_merc__GetStockEntryListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryListRequest() { merc__GetStockEntryListRequest::soap_default(NULL); }
-	virtual ~merc__GetStockEntryListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetStockEntryVersionListRequest
-#define SOAP_TYPE_merc__GetStockEntryVersionListRequest (75)
-/* merc:GetStockEntryVersionListRequest */
-class SOAP_CMAC merc__GetStockEntryVersionListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-	char *base__guid;	/* required element of type base:UUID */
-	char *ent__enterpriseGuid;	/* required element of type base:UUID */
-public:
-	virtual int soap_type() const { return 75; } /* = unique id SOAP_TYPE_merc__GetStockEntryVersionListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetStockEntryVersionListRequest() { merc__GetStockEntryVersionListRequest::soap_default(NULL); }
-	virtual ~merc__GetStockEntryVersionListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateTransportMovementDetailsRequest
-#define SOAP_TYPE_merc__UpdateTransportMovementDetailsRequest (77)
-/* merc:UpdateTransportMovementDetailsRequest */
-class SOAP_CMAC merc__UpdateTransportMovementDetailsRequest : public merc__MercuryApplicationRequest {
-public:
-	ent__BusinessMember *vd__deliveryParticipant;	/* required element of type ent:BusinessMember */
-	int __sizevetDocumentUuid;	/* sequence of elements <vd:vetDocumentUuid> */
-	char **vd__vetDocumentUuid;	/* required element of type base:UUID */
-	vd__ShipmentRoute *vd__shipmentRoute;	/* required element of type vd:ShipmentRoute */
-public:
-	virtual int soap_type() const { return 77; } /* = unique id SOAP_TYPE_merc__UpdateTransportMovementDetailsRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateTransportMovementDetailsRequest() { merc__UpdateTransportMovementDetailsRequest::soap_default(NULL); }
-	virtual ~merc__UpdateTransportMovementDetailsRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateVeterinaryEventsRequest
-#define SOAP_TYPE_merc__UpdateVeterinaryEventsRequest (79)
-/* merc:UpdateVeterinaryEventsRequest */
-class SOAP_CMAC merc__UpdateVeterinaryEventsRequest : public merc__MercuryApplicationRequest {
-public:
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
-	int __sizestockEntry;	/* sequence of elements <vd:stockEntry> */
-	vd__StockEntry **vd__stockEntry;	/* required element of type vd:StockEntry */
-public:
-	virtual int soap_type() const { return 79; } /* = unique id SOAP_TYPE_merc__UpdateVeterinaryEventsRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateVeterinaryEventsRequest() { merc__UpdateVeterinaryEventsRequest::soap_default(NULL); }
-	virtual ~merc__UpdateVeterinaryEventsRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__CheckShipmentRegionalizationRequest
-#define SOAP_TYPE_merc__CheckShipmentRegionalizationRequest (81)
-/* merc:CheckShipmentRegionalizationRequest */
-class SOAP_CMAC merc__CheckShipmentRegionalizationRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizecargoType;	/* sequence of elements <ent:cargoType> */
-	ent__SubProduct **ent__cargoType;	/* required element of type ent:SubProduct */
-	vd__ShipmentRoute *vd__shipmentRoute;	/* required element of type vd:ShipmentRoute */
-public:
-	virtual int soap_type() const { return 81; } /* = unique id SOAP_TYPE_merc__CheckShipmentRegionalizationRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__CheckShipmentRegionalizationRequest() { merc__CheckShipmentRegionalizationRequest::soap_default(NULL); }
-	virtual ~merc__CheckShipmentRegionalizationRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__AddBusinessEntityUserRequest
-#define SOAP_TYPE_merc__AddBusinessEntityUserRequest (83)
-/* merc:AddBusinessEntityUserRequest */
-class SOAP_CMAC merc__AddBusinessEntityUserRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizeuser;	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* required element of type vd:User */
-public:
-	virtual int soap_type() const { return 83; } /* = unique id SOAP_TYPE_merc__AddBusinessEntityUserRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__AddBusinessEntityUserRequest() { merc__AddBusinessEntityUserRequest::soap_default(NULL); }
-	virtual ~merc__AddBusinessEntityUserRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetBusinessEntityUserListRequest
-#define SOAP_TYPE_merc__GetBusinessEntityUserListRequest (85)
-/* merc:GetBusinessEntityUserListRequest */
-class SOAP_CMAC merc__GetBusinessEntityUserListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-public:
-	virtual int soap_type() const { return 85; } /* = unique id SOAP_TYPE_merc__GetBusinessEntityUserListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetBusinessEntityUserListRequest() { merc__GetBusinessEntityUserListRequest::soap_default(NULL); }
-	virtual ~merc__GetBusinessEntityUserListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetBusinessEntityUserRequest
-#define SOAP_TYPE_merc__GetBusinessEntityUserRequest (87)
-/* merc:GetBusinessEntityUserRequest */
-class SOAP_CMAC merc__GetBusinessEntityUserRequest : public merc__MercuryApplicationRequest {
-public:
-	vd__User *vd__user;	/* required element of type vd:User */
-public:
-	virtual int soap_type() const { return 87; } /* = unique id SOAP_TYPE_merc__GetBusinessEntityUserRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetBusinessEntityUserRequest() { merc__GetBusinessEntityUserRequest::soap_default(NULL); }
-	virtual ~merc__GetBusinessEntityUserRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateUserAuthoritiesRequest
-#define SOAP_TYPE_merc__UpdateUserAuthoritiesRequest (89)
-/* merc:UpdateUserAuthoritiesRequest */
-class SOAP_CMAC merc__UpdateUserAuthoritiesRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizeuser;	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* required element of type vd:User */
-public:
-	virtual int soap_type() const { return 89; } /* = unique id SOAP_TYPE_merc__UpdateUserAuthoritiesRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateUserAuthoritiesRequest() { merc__UpdateUserAuthoritiesRequest::soap_default(NULL); }
-	virtual ~merc__UpdateUserAuthoritiesRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UpdateUserWorkingAreasRequest
-#define SOAP_TYPE_merc__UpdateUserWorkingAreasRequest (91)
-/* merc:UpdateUserWorkingAreasRequest */
-class SOAP_CMAC merc__UpdateUserWorkingAreasRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizeuser;	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* required element of type vd:User */
-public:
-	virtual int soap_type() const { return 91; } /* = unique id SOAP_TYPE_merc__UpdateUserWorkingAreasRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UpdateUserWorkingAreasRequest() { merc__UpdateUserWorkingAreasRequest::soap_default(NULL); }
-	virtual ~merc__UpdateUserWorkingAreasRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__UnbindBusinessEntityUserRequest
-#define SOAP_TYPE_merc__UnbindBusinessEntityUserRequest (93)
-/* merc:UnbindBusinessEntityUserRequest */
-class SOAP_CMAC merc__UnbindBusinessEntityUserRequest : public merc__MercuryApplicationRequest {
-public:
-	int __sizeuser;	/* sequence of elements <vd:user> */
-	vd__User **vd__user;	/* required element of type vd:User */
-public:
-	virtual int soap_type() const { return 93; } /* = unique id SOAP_TYPE_merc__UnbindBusinessEntityUserRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__UnbindBusinessEntityUserRequest() { merc__UnbindBusinessEntityUserRequest::soap_default(NULL); }
-	virtual ~merc__UnbindBusinessEntityUserRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_merc__GetAppliedUserAuthorityListRequest
-#define SOAP_TYPE_merc__GetAppliedUserAuthorityListRequest (95)
-/* merc:GetAppliedUserAuthorityListRequest */
-class SOAP_CMAC merc__GetAppliedUserAuthorityListRequest : public merc__MercuryApplicationRequest {
-public:
-	base__ListOptions *base__listOptions;	/* optional element of type base:ListOptions */
-public:
-	virtual int soap_type() const { return 95; } /* = unique id SOAP_TYPE_merc__GetAppliedUserAuthorityListRequest */
-	virtual void soap_default(struct soap*);
-	virtual void soap_serialize(struct soap*) const;
-	virtual int soap_put(struct soap*, const char*, const char*) const;
-	virtual int soap_out(struct soap*, const char*, int, const char*) const;
-	virtual void *soap_get(struct soap*, const char*, const char*);
-	virtual void *soap_in(struct soap*, const char*, const char*);
-	         merc__GetAppliedUserAuthorityListRequest() { merc__GetAppliedUserAuthorityListRequest::soap_default(NULL); }
-	virtual ~merc__GetAppliedUserAuthorityListRequest() { }
-};
-#endif
-
-#ifndef SOAP_TYPE_ent__Purpose
-#define SOAP_TYPE_ent__Purpose (97)
-/* ent:Purpose */
-class SOAP_CMAC ent__Purpose : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Purpose
+#define SOAP_TYPE_dic__Purpose (94)
+/* dic:Purpose */
+class SOAP_CMAC dic__Purpose : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	bool *forSubstandard;	/* optional element of type xsd:boolean */
 public:
-	virtual int soap_type() const { return 97; } /* = unique id SOAP_TYPE_ent__Purpose */
+	virtual int soap_type() const { return 94; } /* = unique id SOAP_TYPE_dic__Purpose */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Purpose() { ent__Purpose::soap_default(NULL); }
-	virtual ~ent__Purpose() { }
+	         dic__Purpose() { dic__Purpose::soap_default(NULL); }
+	virtual ~dic__Purpose() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Unit
-#define SOAP_TYPE_ent__Unit (98)
-/* ent:Unit */
-class SOAP_CMAC ent__Unit : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Unit
+#define SOAP_TYPE_dic__Unit (95)
+/* dic:Unit */
+class SOAP_CMAC dic__Unit : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *fullName;	/* optional element of type base:String255 */
 	char *commonUnitGuid;	/* optional element of type base:UUID */
 	char *factor;	/* optional element of type xsd:integer */
 public:
-	virtual int soap_type() const { return 98; } /* = unique id SOAP_TYPE_ent__Unit */
+	virtual int soap_type() const { return 95; } /* = unique id SOAP_TYPE_dic__Unit */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Unit() { ent__Unit::soap_default(NULL); }
-	virtual ~ent__Unit() { }
+	         dic__Unit() { dic__Unit::soap_default(NULL); }
+	virtual ~dic__Unit() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__PackingType
-#define SOAP_TYPE_ent__PackingType (99)
-/* ent:PackingType */
-class SOAP_CMAC ent__PackingType : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__PackingType
+#define SOAP_TYPE_dic__PackingType (96)
+/* dic:PackingType */
+class SOAP_CMAC dic__PackingType : public base__GenericVersioningEntity {
 public:
-	enum ent__PackingCodeType *globalID;	/* optional element of type ent:PackingCodeType */
+	enum dic__PackingCodeType *globalID;	/* optional element of type dic:PackingCodeType */
 	char *name;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 99; } /* = unique id SOAP_TYPE_ent__PackingType */
+	virtual int soap_type() const { return 96; } /* = unique id SOAP_TYPE_dic__PackingType */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__PackingType() { ent__PackingType::soap_default(NULL); }
-	virtual ~ent__PackingType() { }
+	         dic__PackingType() { dic__PackingType::soap_default(NULL); }
+	virtual ~dic__PackingType() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Country
-#define SOAP_TYPE_ent__Country (102)
-/* ent:Country */
-class SOAP_CMAC ent__Country : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Country
+#define SOAP_TYPE_dic__Country (99)
+/* dic:Country */
+class SOAP_CMAC dic__Country : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *fullName;	/* optional element of type base:String255 */
 	char *englishName;	/* optional element of type base:String255 */
-	char *code;	/* optional element of type ent:Code */
-	char *code3;	/* optional element of type ent:Code3 */
+	char *code;	/* optional element of type dic:Code */
+	char *code3;	/* optional element of type dic:Code3 */
 public:
-	virtual int soap_type() const { return 102; } /* = unique id SOAP_TYPE_ent__Country */
+	virtual int soap_type() const { return 99; } /* = unique id SOAP_TYPE_dic__Country */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Country() { ent__Country::soap_default(NULL); }
-	virtual ~ent__Country() { }
+	         dic__Country() { dic__Country::soap_default(NULL); }
+	virtual ~dic__Country() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__FederalDistrict
-#define SOAP_TYPE_ent__FederalDistrict (103)
-/* ent:FederalDistrict */
-class SOAP_CMAC ent__FederalDistrict : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__FederalDistrict
+#define SOAP_TYPE_dic__FederalDistrict (100)
+/* dic:FederalDistrict */
+class SOAP_CMAC dic__FederalDistrict : public base__GenericVersioningEntity {
 public:
 	char *fullName;	/* optional element of type base:String255 */
 	char *shortName;	/* optional element of type base:String255 */
 	char *abbreviation;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 103; } /* = unique id SOAP_TYPE_ent__FederalDistrict */
+	virtual int soap_type() const { return 100; } /* = unique id SOAP_TYPE_dic__FederalDistrict */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__FederalDistrict() { ent__FederalDistrict::soap_default(NULL); }
-	virtual ~ent__FederalDistrict() { }
+	         dic__FederalDistrict() { dic__FederalDistrict::soap_default(NULL); }
+	virtual ~dic__FederalDistrict() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__AddressObjectView
-#define SOAP_TYPE_ent__AddressObjectView (104)
-/* ent:AddressObjectView */
-class SOAP_CMAC ent__AddressObjectView : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__AddressObjectView
+#define SOAP_TYPE_dic__AddressObjectView (101)
+/* dic:AddressObjectView */
+class SOAP_CMAC dic__AddressObjectView : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *englishName;	/* optional element of type base:String255 */
@@ -6296,325 +3859,325 @@ public:
 	char *countryGuid;	/* optional element of type base:UUID */
 	bool *hasStreets;	/* optional element of type xsd:boolean */
 public:
-	virtual int soap_type() const { return 104; } /* = unique id SOAP_TYPE_ent__AddressObjectView */
+	virtual int soap_type() const { return 101; } /* = unique id SOAP_TYPE_dic__AddressObjectView */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__AddressObjectView() { ent__AddressObjectView::soap_default(NULL); }
-	virtual ~ent__AddressObjectView() { }
+	         dic__AddressObjectView() { dic__AddressObjectView::soap_default(NULL); }
+	virtual ~dic__AddressObjectView() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Enterprise
-#define SOAP_TYPE_ent__Enterprise (115)
-/* ent:Enterprise */
-class SOAP_CMAC ent__Enterprise : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Enterprise
+#define SOAP_TYPE_dic__Enterprise (112)
+/* dic:Enterprise */
+class SOAP_CMAC dic__Enterprise : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *englishName;	/* optional element of type base:String255 */
-	char **type;	/* optional element of type ent:EnterpriseType */
-	ent__EnterpriseNumberList *numberList;	/* optional element of type ent:EnterpriseNumberList */
-	ent__Address *address;	/* optional element of type ent:Address */
-	ent__EnterpriseActivityList *activityList;	/* optional element of type ent:EnterpriseActivityList */
-	ent__BusinessEntity *owner;	/* optional element of type ent:BusinessEntity */
+	char **type;	/* optional element of type dic:EnterpriseType */
+	dic__EnterpriseNumberList *numberList;	/* optional element of type dic:EnterpriseNumberList */
+	dic__Address *address;	/* optional element of type dic:Address */
+	dic__EnterpriseActivityList *activityList;	/* optional element of type dic:EnterpriseActivityList */
+	dic__BusinessEntity *owner;	/* optional element of type dic:BusinessEntity */
 	int __sizeofficialRegistration;	/* sequence of elements <officialRegistration> */
-	ent__EnterpriseOfficialRegistration **officialRegistration;	/* optional element of type ent:EnterpriseOfficialRegistration */
+	dic__EnterpriseOfficialRegistration **officialRegistration;	/* optional element of type dic:EnterpriseOfficialRegistration */
 public:
-	virtual int soap_type() const { return 115; } /* = unique id SOAP_TYPE_ent__Enterprise */
+	virtual int soap_type() const { return 112; } /* = unique id SOAP_TYPE_dic__Enterprise */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Enterprise() { ent__Enterprise::soap_default(NULL); }
-	virtual ~ent__Enterprise() { }
+	         dic__Enterprise() { dic__Enterprise::soap_default(NULL); }
+	virtual ~dic__Enterprise() { }
 };
 #endif
 
-#ifndef SOAP_TYPE__ent__BusinessEntity_activityLocation
-#define SOAP_TYPE__ent__BusinessEntity_activityLocation (584)
-/* ent:BusinessEntity-activityLocation */
-class SOAP_CMAC _ent__BusinessEntity_activityLocation {
+#ifndef SOAP_TYPE__dic__BusinessEntity_activityLocation
+#define SOAP_TYPE__dic__BusinessEntity_activityLocation (457)
+/* dic:BusinessEntity-activityLocation */
+class SOAP_CMAC _dic__BusinessEntity_activityLocation {
 public:
 	int __sizeglobalID;	/* sequence of elements <globalID> */
-	char **globalID;	/* optional element of type ent:GLNType */
-	ent__Enterprise *enterprise;	/* required element of type ent:Enterprise */
+	char **globalID;	/* optional element of type dic:GLNType */
+	dic__Enterprise *enterprise;	/* required element of type dic:Enterprise */
 public:
-	virtual int soap_type() const { return 584; } /* = unique id SOAP_TYPE__ent__BusinessEntity_activityLocation */
+	virtual int soap_type() const { return 457; } /* = unique id SOAP_TYPE__dic__BusinessEntity_activityLocation */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         _ent__BusinessEntity_activityLocation() { _ent__BusinessEntity_activityLocation::soap_default(NULL); }
-	virtual ~_ent__BusinessEntity_activityLocation() { }
+	         _dic__BusinessEntity_activityLocation() { _dic__BusinessEntity_activityLocation::soap_default(NULL); }
+	virtual ~_dic__BusinessEntity_activityLocation() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__BusinessEntity
-#define SOAP_TYPE_ent__BusinessEntity (123)
-/* ent:BusinessEntity */
-class SOAP_CMAC ent__BusinessEntity : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__BusinessEntity
+#define SOAP_TYPE_dic__BusinessEntity (120)
+/* dic:BusinessEntity */
+class SOAP_CMAC dic__BusinessEntity : public base__GenericVersioningEntity {
 public:
-	enum ent__BusinessEntityType *type;	/* optional element of type ent:BusinessEntityType */
+	enum dic__BusinessEntityType *type;	/* optional element of type dic:BusinessEntityType */
 	char *name;	/* optional element of type base:String255 */
-	ent__IncorporationForm *incorporationForm;	/* optional element of type ent:IncorporationForm */
+	dic__IncorporationForm *incorporationForm;	/* optional element of type dic:IncorporationForm */
 	char *fullName;	/* optional element of type base:String255 */
 	char *fio;	/* optional element of type base:String255 */
 	char *passport;	/* optional element of type base:String255 */
 	char *inn;	/* optional element of type base:String255 */
 	char *kpp;	/* optional element of type base:String255 */
 	char *ogrn;	/* optional element of type base:String255 */
-	ent__Address *juridicalAddress;	/* optional element of type ent:Address */
+	dic__Address *juridicalAddress;	/* optional element of type dic:Address */
 	int __sizeactivityLocation;	/* sequence of elements <activityLocation> */
-	_ent__BusinessEntity_activityLocation *activityLocation;	/* optional element of type ent:BusinessEntity-activityLocation */
+	_dic__BusinessEntity_activityLocation *activityLocation;	/* optional element of type dic:BusinessEntity-activityLocation */
 public:
-	virtual int soap_type() const { return 123; } /* = unique id SOAP_TYPE_ent__BusinessEntity */
+	virtual int soap_type() const { return 120; } /* = unique id SOAP_TYPE_dic__BusinessEntity */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__BusinessEntity() { ent__BusinessEntity::soap_default(NULL); }
-	virtual ~ent__BusinessEntity() { }
+	         dic__BusinessEntity() { dic__BusinessEntity::soap_default(NULL); }
+	virtual ~dic__BusinessEntity() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductItem
-#define SOAP_TYPE_ent__ProductItem (126)
-/* ent:ProductItem */
-class SOAP_CMAC ent__ProductItem : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__ProductItem
+#define SOAP_TYPE_dic__ProductItem (123)
+/* dic:ProductItem */
+class SOAP_CMAC dic__ProductItem : public base__GenericVersioningEntity {
 public:
-	char *globalID;	/* optional element of type ent:GTINType */
+	char *globalID;	/* optional element of type dic:GTINType */
 	char *name;	/* optional element of type base:String255 */
 	char *code;	/* optional element of type base:String255 */
-	enum ent__ProductType *productType;	/* optional element of type ent:ProductType */
-	ent__Product *product;	/* optional element of type ent:Product */
-	ent__SubProduct *subProduct;	/* optional element of type ent:SubProduct */
+	enum dic__ProductType *productType;	/* optional element of type dic:ProductType */
+	dic__Product *product;	/* optional element of type dic:Product */
+	dic__SubProduct *subProduct;	/* optional element of type dic:SubProduct */
 	bool *correspondsToGost;	/* optional element of type xsd:boolean */
 	char *gost;	/* optional element of type base:String255 */
-	ent__BusinessEntity *producer;	/* optional element of type ent:BusinessEntity */
-	ent__BusinessEntity *tmOwner;	/* optional element of type ent:BusinessEntity */
+	dic__BusinessEntity *producer;	/* optional element of type dic:BusinessEntity */
+	dic__BusinessEntity *tmOwner;	/* optional element of type dic:BusinessEntity */
 	int __sizeproducing;	/* sequence of elements <producing> */
-	ent__ProductItemProducing **producing;	/* optional element of type ent:ProductItemProducing */
-	ent__Packaging *packaging;	/* optional element of type ent:Packaging */
+	dic__ProductItemProducing **producing;	/* optional element of type dic:ProductItemProducing */
+	dic__Packaging *packaging;	/* optional element of type dic:Packaging */
 	bool *isPublic;	/* optional element of type xsd:boolean */
 public:
-	virtual int soap_type() const { return 126; } /* = unique id SOAP_TYPE_ent__ProductItem */
+	virtual int soap_type() const { return 123; } /* = unique id SOAP_TYPE_dic__ProductItem */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProductItem() { ent__ProductItem::soap_default(NULL); }
-	virtual ~ent__ProductItem() { }
+	         dic__ProductItem() { dic__ProductItem::soap_default(NULL); }
+	virtual ~dic__ProductItem() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Product
-#define SOAP_TYPE_ent__Product (127)
-/* ent:Product */
-class SOAP_CMAC ent__Product : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Product
+#define SOAP_TYPE_dic__Product (124)
+/* dic:Product */
+class SOAP_CMAC dic__Product : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *code;	/* optional element of type base:String255 */
 	char *englishName;	/* optional element of type base:String255 */
-	enum ent__ProductType *productType;	/* optional element of type ent:ProductType */
+	enum dic__ProductType *productType;	/* optional element of type dic:ProductType */
 public:
-	virtual int soap_type() const { return 127; } /* = unique id SOAP_TYPE_ent__Product */
+	virtual int soap_type() const { return 124; } /* = unique id SOAP_TYPE_dic__Product */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Product() { ent__Product::soap_default(NULL); }
-	virtual ~ent__Product() { }
+	         dic__Product() { dic__Product::soap_default(NULL); }
+	virtual ~dic__Product() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__SubProduct
-#define SOAP_TYPE_ent__SubProduct (128)
-/* ent:SubProduct */
-class SOAP_CMAC ent__SubProduct : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__SubProduct
+#define SOAP_TYPE_dic__SubProduct (125)
+/* dic:SubProduct */
+class SOAP_CMAC dic__SubProduct : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 	char *code;	/* optional element of type base:String255 */
 	char *englishName;	/* optional element of type base:String255 */
 	char *productGuid;	/* optional element of type base:UUID */
 public:
-	virtual int soap_type() const { return 128; } /* = unique id SOAP_TYPE_ent__SubProduct */
+	virtual int soap_type() const { return 125; } /* = unique id SOAP_TYPE_dic__SubProduct */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__SubProduct() { ent__SubProduct::soap_default(NULL); }
-	virtual ~ent__SubProduct() { }
+	         dic__SubProduct() { dic__SubProduct::soap_default(NULL); }
+	virtual ~dic__SubProduct() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ProductMarks
-#define SOAP_TYPE_ent__ProductMarks (132)
-/* Primitive ent:ProductMarks schema type: */
-class SOAP_CMAC ent__ProductMarks {
+#ifndef SOAP_TYPE_dic__ProductMarks
+#define SOAP_TYPE_dic__ProductMarks (129)
+/* Primitive dic:ProductMarks schema type: */
+class SOAP_CMAC dic__ProductMarks {
 public:
 	char *__item;
-	enum ent__ProductMarkingClass class_;	/* optional attribute */
+	enum dic__ProductMarkingClass class_;	/* optional attribute */
 	struct soap *soap;	/* transient */
 public:
-	virtual int soap_type() const { return 132; } /* = unique id SOAP_TYPE_ent__ProductMarks */
+	virtual int soap_type() const { return 129; } /* = unique id SOAP_TYPE_dic__ProductMarks */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ProductMarks() { ent__ProductMarks::soap_default(NULL); }
-	virtual ~ent__ProductMarks() { }
+	         dic__ProductMarks() { dic__ProductMarks::soap_default(NULL); }
+	virtual ~dic__ProductMarks() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Indicator
-#define SOAP_TYPE_ent__Indicator (141)
-/* ent:Indicator */
-class SOAP_CMAC ent__Indicator : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__Indicator
+#define SOAP_TYPE_dic__Indicator (138)
+/* dic:Indicator */
+class SOAP_CMAC dic__Indicator : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 141; } /* = unique id SOAP_TYPE_ent__Indicator */
+	virtual int soap_type() const { return 138; } /* = unique id SOAP_TYPE_dic__Indicator */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Indicator() { ent__Indicator::soap_default(NULL); }
-	virtual ~ent__Indicator() { }
+	         dic__Indicator() { dic__Indicator::soap_default(NULL); }
+	virtual ~dic__Indicator() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__AnimalDisease
-#define SOAP_TYPE_ent__AnimalDisease (142)
-/* ent:AnimalDisease */
-class SOAP_CMAC ent__AnimalDisease : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__AnimalDisease
+#define SOAP_TYPE_dic__AnimalDisease (139)
+/* dic:AnimalDisease */
+class SOAP_CMAC dic__AnimalDisease : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 142; } /* = unique id SOAP_TYPE_ent__AnimalDisease */
+	virtual int soap_type() const { return 139; } /* = unique id SOAP_TYPE_dic__AnimalDisease */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__AnimalDisease() { ent__AnimalDisease::soap_default(NULL); }
-	virtual ~ent__AnimalDisease() { }
+	         dic__AnimalDisease() { dic__AnimalDisease::soap_default(NULL); }
+	virtual ~dic__AnimalDisease() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__ResearchMethod
-#define SOAP_TYPE_ent__ResearchMethod (143)
-/* ent:ResearchMethod */
-class SOAP_CMAC ent__ResearchMethod : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__ResearchMethod
+#define SOAP_TYPE_dic__ResearchMethod (140)
+/* dic:ResearchMethod */
+class SOAP_CMAC dic__ResearchMethod : public base__GenericVersioningEntity {
 public:
 	char *name;	/* optional element of type base:String255 */
 public:
-	virtual int soap_type() const { return 143; } /* = unique id SOAP_TYPE_ent__ResearchMethod */
+	virtual int soap_type() const { return 140; } /* = unique id SOAP_TYPE_dic__ResearchMethod */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__ResearchMethod() { ent__ResearchMethod::soap_default(NULL); }
-	virtual ~ent__ResearchMethod() { }
+	         dic__ResearchMethod() { dic__ResearchMethod::soap_default(NULL); }
+	virtual ~dic__ResearchMethod() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationCondition
-#define SOAP_TYPE_ent__RegionalizationCondition (145)
-/* ent:RegionalizationCondition */
-class SOAP_CMAC ent__RegionalizationCondition : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__RegionalizationCondition
+#define SOAP_TYPE_dic__RegionalizationCondition (142)
+/* dic:RegionalizationCondition */
+class SOAP_CMAC dic__RegionalizationCondition : public base__GenericVersioningEntity {
 public:
 	char **referenceNumber;	/* optional element of type base:Identifier */
 	char *text;	/* optional element of type base:Text */
 	bool *strict;	/* optional element of type xsd:boolean */
 	int __sizerelatedDisease;	/* sequence of elements <relatedDisease> */
-	ent__AnimalDisease **relatedDisease;	/* optional element of type ent:AnimalDisease */
+	dic__AnimalDisease **relatedDisease;	/* optional element of type dic:AnimalDisease */
 public:
-	virtual int soap_type() const { return 145; } /* = unique id SOAP_TYPE_ent__RegionalizationCondition */
+	virtual int soap_type() const { return 142; } /* = unique id SOAP_TYPE_dic__RegionalizationCondition */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationCondition() { ent__RegionalizationCondition::soap_default(NULL); }
-	virtual ~ent__RegionalizationCondition() { }
+	         dic__RegionalizationCondition() { dic__RegionalizationCondition::soap_default(NULL); }
+	virtual ~dic__RegionalizationCondition() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationShippingRule
-#define SOAP_TYPE_ent__RegionalizationShippingRule (148)
-/* ent:RegionalizationShippingRule */
-class SOAP_CMAC ent__RegionalizationShippingRule : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__RegionalizationShippingRule
+#define SOAP_TYPE_dic__RegionalizationShippingRule (145)
+/* dic:RegionalizationShippingRule */
+class SOAP_CMAC dic__RegionalizationShippingRule : public base__GenericVersioningEntity {
 public:
 	char **referenceNumber;	/* optional element of type base:Identifier */
-	ent__RegionalizationStatus *fromR13nStatus;	/* optional element of type ent:RegionalizationStatus */
-	ent__RegionalizationStatus *toR13nStatus;	/* optional element of type ent:RegionalizationStatus */
+	dic__RegionalizationStatus *fromR13nStatus;	/* optional element of type dic:RegionalizationStatus */
+	dic__RegionalizationStatus *toR13nStatus;	/* optional element of type dic:RegionalizationStatus */
 	int __sizecargoType;	/* sequence of elements <cargoType> */
-	ent__SubProduct **cargoType;	/* optional element of type ent:SubProduct */
-	enum ent__RegionalizationDecision *decision;	/* optional element of type ent:RegionalizationDecision */
+	dic__SubProduct **cargoType;	/* optional element of type dic:SubProduct */
+	enum dic__RegionalizationDecision *decision;	/* optional element of type dic:RegionalizationDecision */
 	int __sizerequirement;	/* sequence of elements <requirement> */
-	ent__RegionalizationRequirement **requirement;	/* optional element of type ent:RegionalizationRequirement */
+	dic__RegionalizationRequirement **requirement;	/* optional element of type dic:RegionalizationRequirement */
 public:
-	virtual int soap_type() const { return 148; } /* = unique id SOAP_TYPE_ent__RegionalizationShippingRule */
+	virtual int soap_type() const { return 145; } /* = unique id SOAP_TYPE_dic__RegionalizationShippingRule */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationShippingRule() { ent__RegionalizationShippingRule::soap_default(NULL); }
-	virtual ~ent__RegionalizationShippingRule() { }
+	         dic__RegionalizationShippingRule() { dic__RegionalizationShippingRule::soap_default(NULL); }
+	virtual ~dic__RegionalizationShippingRule() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__RegionalizationRegionStatus
-#define SOAP_TYPE_ent__RegionalizationRegionStatus (150)
-/* ent:RegionalizationRegionStatus */
-class SOAP_CMAC ent__RegionalizationRegionStatus : public base__GenericVersioningEntity {
+#ifndef SOAP_TYPE_dic__RegionalizationRegionStatus
+#define SOAP_TYPE_dic__RegionalizationRegionStatus (147)
+/* dic:RegionalizationRegionStatus */
+class SOAP_CMAC dic__RegionalizationRegionStatus : public base__GenericVersioningEntity {
 public:
 	char **referenceNumber;	/* optional element of type base:Identifier */
-	ent__Area *r13nZone;	/* optional element of type ent:Area */
+	dic__Area *r13nZone;	/* optional element of type dic:Area */
 	int __sizeexcludedR13nZone;	/* sequence of elements <excludedR13nZone> */
-	ent__Area **excludedR13nZone;	/* optional element of type ent:Area */
+	dic__Area **excludedR13nZone;	/* optional element of type dic:Area */
 	int __sizer13nStatus;	/* sequence of elements <r13nStatus> */
-	ent__RegionalizationStatus **r13nStatus;	/* optional element of type ent:RegionalizationStatus */
+	dic__RegionalizationStatus **r13nStatus;	/* optional element of type dic:RegionalizationStatus */
 public:
-	virtual int soap_type() const { return 150; } /* = unique id SOAP_TYPE_ent__RegionalizationRegionStatus */
+	virtual int soap_type() const { return 147; } /* = unique id SOAP_TYPE_dic__RegionalizationRegionStatus */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__RegionalizationRegionStatus() { ent__RegionalizationRegionStatus::soap_default(NULL); }
-	virtual ~ent__RegionalizationRegionStatus() { }
+	         dic__RegionalizationRegionStatus() { dic__RegionalizationRegionStatus::soap_default(NULL); }
+	virtual ~dic__RegionalizationRegionStatus() { }
 };
 #endif
 
 #ifndef SOAP_TYPE__vd__union_VetDocument
-#define SOAP_TYPE__vd__union_VetDocument (598)
+#define SOAP_TYPE__vd__union_VetDocument (471)
 /* xsd:choice */
 union _vd__union_VetDocument
 {
@@ -6626,7 +4189,7 @@ union _vd__union_VetDocument
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocument
-#define SOAP_TYPE_vd__VetDocument (158)
+#define SOAP_TYPE_vd__VetDocument (155)
 /* vd:VetDocument */
 class SOAP_CMAC vd__VetDocument : public vd__Document {
 public:
@@ -6644,7 +4207,7 @@ public:
 	int __sizestatusChange;	/* sequence of elements <statusChange> */
 	vd__VetDocumentStatusChange **statusChange;	/* optional element of type vd:VetDocumentStatusChange */
 public:
-	virtual int soap_type() const { return 158; } /* = unique id SOAP_TYPE_vd__VetDocument */
+	virtual int soap_type() const { return 155; } /* = unique id SOAP_TYPE_vd__VetDocument */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6657,14 +4220,14 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__DiscrepancyReport
-#define SOAP_TYPE_vd__DiscrepancyReport (169)
+#define SOAP_TYPE_vd__DiscrepancyReport (166)
 /* vd:DiscrepancyReport */
 class SOAP_CMAC vd__DiscrepancyReport : public vd__Document {
 public:
 	vd__DiscrepancyReason *reason;	/* optional element of type vd:DiscrepancyReason */
 	char *description;	/* optional element of type xsd:string */
 public:
-	virtual int soap_type() const { return 169; } /* = unique id SOAP_TYPE_vd__DiscrepancyReport */
+	virtual int soap_type() const { return 166; } /* = unique id SOAP_TYPE_vd__DiscrepancyReport */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6677,7 +4240,7 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntry
-#define SOAP_TYPE_vd__StockEntry (171)
+#define SOAP_TYPE_vd__StockEntry (168)
 /* vd:StockEntry */
 class SOAP_CMAC vd__StockEntry : public base__GenericVersioningEntity {
 public:
@@ -6687,7 +4250,7 @@ public:
 	vd__VetDocument **vetDocument;	/* optional element of type vd:VetDocument */
 	vd__StockEntryEventList *vetEventList;	/* optional element of type vd:StockEntryEventList */
 public:
-	virtual int soap_type() const { return 171; } /* = unique id SOAP_TYPE_vd__StockEntry */
+	virtual int soap_type() const { return 168; } /* = unique id SOAP_TYPE_vd__StockEntry */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6700,18 +4263,18 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__Waybill
-#define SOAP_TYPE_vd__Waybill (176)
+#define SOAP_TYPE_vd__Waybill (173)
 /* vd:Waybill */
 class SOAP_CMAC vd__Waybill : public vd__Document {
 public:
-	ent__BusinessMember *consignor;	/* optional element of type ent:BusinessMember */
-	ent__BusinessMember *consignee;	/* optional element of type ent:BusinessMember */
-	ent__BusinessEntity *broker;	/* optional element of type ent:BusinessEntity */
+	dic__BusinessMember *consignor;	/* optional element of type dic:BusinessMember */
+	dic__BusinessMember *consignee;	/* optional element of type dic:BusinessMember */
+	dic__BusinessEntity *broker;	/* optional element of type dic:BusinessEntity */
 	vd__TransportInfo *transportInfo;	/* optional element of type vd:TransportInfo */
-	enum ent__TransportationStorageType *transportStorageType;	/* optional element of type ent:TransportationStorageType */
+	enum dic__TransportationStorageType *transportStorageType;	/* optional element of type dic:TransportationStorageType */
 	vd__ShipmentRoute *shipmentRoute;	/* optional element of type vd:ShipmentRoute */
 public:
-	virtual int soap_type() const { return 176; } /* = unique id SOAP_TYPE_vd__Waybill */
+	virtual int soap_type() const { return 173; } /* = unique id SOAP_TYPE_vd__Waybill */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6724,13 +4287,13 @@ public:
 #endif
 
 #ifndef SOAP_TYPE_vd__ReferencedDocument
-#define SOAP_TYPE_vd__ReferencedDocument (189)
+#define SOAP_TYPE_vd__ReferencedDocument (186)
 /* vd:ReferencedDocument */
 class SOAP_CMAC vd__ReferencedDocument : public vd__Document {
 public:
-	enum ent__ReferenceType relationshipType;	/* required element of type ent:ReferenceType */
+	enum dic__ReferenceType relationshipType;	/* required element of type dic:ReferenceType */
 public:
-	virtual int soap_type() const { return 189; } /* = unique id SOAP_TYPE_vd__ReferencedDocument */
+	virtual int soap_type() const { return 186; } /* = unique id SOAP_TYPE_vd__ReferencedDocument */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6742,91 +4305,91 @@ public:
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Region
-#define SOAP_TYPE_ent__Region (105)
-/* ent:Region */
-class SOAP_CMAC ent__Region : public ent__AddressObjectView {
+#ifndef SOAP_TYPE_dic__Region
+#define SOAP_TYPE_dic__Region (102)
+/* dic:Region */
+class SOAP_CMAC dic__Region : public dic__AddressObjectView {
 
 public:
-	virtual int soap_type() const { return 105; } /* = unique id SOAP_TYPE_ent__Region */
+	virtual int soap_type() const { return 102; } /* = unique id SOAP_TYPE_dic__Region */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Region() { ent__Region::soap_default(NULL); }
-	virtual ~ent__Region() { }
+	         dic__Region() { dic__Region::soap_default(NULL); }
+	virtual ~dic__Region() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__District
-#define SOAP_TYPE_ent__District (106)
-/* ent:District */
-class SOAP_CMAC ent__District : public ent__AddressObjectView {
+#ifndef SOAP_TYPE_dic__District
+#define SOAP_TYPE_dic__District (103)
+/* dic:District */
+class SOAP_CMAC dic__District : public dic__AddressObjectView {
 public:
 	char *regionGuid;	/* optional element of type base:UUID */
 public:
-	virtual int soap_type() const { return 106; } /* = unique id SOAP_TYPE_ent__District */
+	virtual int soap_type() const { return 103; } /* = unique id SOAP_TYPE_dic__District */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__District() { ent__District::soap_default(NULL); }
-	virtual ~ent__District() { }
+	         dic__District() { dic__District::soap_default(NULL); }
+	virtual ~dic__District() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Locality
-#define SOAP_TYPE_ent__Locality (107)
-/* ent:Locality */
-class SOAP_CMAC ent__Locality : public ent__AddressObjectView {
+#ifndef SOAP_TYPE_dic__Locality
+#define SOAP_TYPE_dic__Locality (104)
+/* dic:Locality */
+class SOAP_CMAC dic__Locality : public dic__AddressObjectView {
 public:
 	char *regionGuid;	/* optional element of type base:UUID */
 	char *districtGuid;	/* optional element of type base:UUID */
 	char *cityGuid;	/* optional element of type base:UUID */
 public:
-	virtual int soap_type() const { return 107; } /* = unique id SOAP_TYPE_ent__Locality */
+	virtual int soap_type() const { return 104; } /* = unique id SOAP_TYPE_dic__Locality */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Locality() { ent__Locality::soap_default(NULL); }
-	virtual ~ent__Locality() { }
+	         dic__Locality() { dic__Locality::soap_default(NULL); }
+	virtual ~dic__Locality() { }
 };
 #endif
 
-#ifndef SOAP_TYPE_ent__Street
-#define SOAP_TYPE_ent__Street (108)
-/* ent:Street */
-class SOAP_CMAC ent__Street : public ent__AddressObjectView {
+#ifndef SOAP_TYPE_dic__Street
+#define SOAP_TYPE_dic__Street (105)
+/* dic:Street */
+class SOAP_CMAC dic__Street : public dic__AddressObjectView {
 public:
 	char *localityGuid;	/* optional element of type base:UUID */
 public:
-	virtual int soap_type() const { return 108; } /* = unique id SOAP_TYPE_ent__Street */
+	virtual int soap_type() const { return 105; } /* = unique id SOAP_TYPE_dic__Street */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
 	virtual int soap_out(struct soap*, const char*, int, const char*) const;
 	virtual void *soap_get(struct soap*, const char*, const char*);
 	virtual void *soap_in(struct soap*, const char*, const char*);
-	         ent__Street() { ent__Street::soap_default(NULL); }
-	virtual ~ent__Street() { }
+	         dic__Street() { dic__Street::soap_default(NULL); }
+	virtual ~dic__Street() { }
 };
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntrySearchPattern
-#define SOAP_TYPE_vd__StockEntrySearchPattern (174)
+#define SOAP_TYPE_vd__StockEntrySearchPattern (171)
 /* vd:StockEntrySearchPattern */
 class SOAP_CMAC vd__StockEntrySearchPattern : public vd__StockEntry {
 public:
 	enum vd__StockEntryBlankFilter *blankFilter;	/* optional element of type vd:StockEntryBlankFilter */
 public:
-	virtual int soap_type() const { return 174; } /* = unique id SOAP_TYPE_vd__StockEntrySearchPattern */
+	virtual int soap_type() const { return 171; } /* = unique id SOAP_TYPE_vd__StockEntrySearchPattern */
 	virtual void soap_default(struct soap*);
 	virtual void soap_serialize(struct soap*) const;
 	virtual int soap_put(struct soap*, const char*, const char*) const;
@@ -6841,16 +4404,15 @@ public:
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Detail
-#define SOAP_TYPE_SOAP_ENV__Detail (605)
+#define SOAP_TYPE_SOAP_ENV__Detail (478)
 /* SOAP-ENV:Detail */
 struct SOAP_ENV__Detail {
 public:
 	char *__any;
+	base__FaultInfo *ns2__accessDeniedFault;	/* optional element of type base:FaultInfo */
 	base__FaultInfo *ns2__entityNotFoundFault;	/* optional element of type base:FaultInfo */
 	base__FaultInfo *ns2__incorrectRequestFault;	/* optional element of type base:FaultInfo */
 	base__FaultInfo *ns2__internalServiceFault;	/* optional element of type base:FaultInfo */
-	base__FaultInfo *ns2__offsetOutOfRangeFault;	/* optional element of type base:FaultInfo */
-	base__FaultInfo *ns2__accessDeniedFault;	/* optional element of type base:FaultInfo */
 	base__FaultInfo *ws__unknownServiceIdFault;	/* optional element of type base:FaultInfo */
 	base__FaultInfo *ws__unsupportedApplicationDataTypeFault;	/* optional element of type base:FaultInfo */
 	int __type;	/* any type of element <fault> (defined below) */
@@ -6860,496 +4422,280 @@ public:
 
 #endif
 
-#ifndef SOAP_TYPE___ns1__GetBusinessEntityByGuid
-#define SOAP_TYPE___ns1__GetBusinessEntityByGuid (612)
+#ifndef SOAP_TYPE___apps__submitApplicationRequest
+#define SOAP_TYPE___apps__submitApplicationRequest (485)
 /* Operation wrapper: */
-struct __ns1__GetBusinessEntityByGuid {
-public:
-	_ns8__getBusinessEntityByGuidRequest *ns8__getBusinessEntityByGuidRequest;	/* optional element of type ns8:getBusinessEntityByGuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetBusinessEntityByUuid
-#define SOAP_TYPE___ns1__GetBusinessEntityByUuid (616)
-/* Operation wrapper: */
-struct __ns1__GetBusinessEntityByUuid {
-public:
-	_ns8__getBusinessEntityByUuidRequest *ns8__getBusinessEntityByUuidRequest;	/* optional element of type ns8:getBusinessEntityByUuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetBusinessEntityList
-#define SOAP_TYPE___ns1__GetBusinessEntityList (620)
-/* Operation wrapper: */
-struct __ns1__GetBusinessEntityList {
-public:
-	_ns8__getBusinessEntityListRequest *ns8__getBusinessEntityListRequest;	/* optional element of type ns8:getBusinessEntityListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetBusinessEntityChangesList
-#define SOAP_TYPE___ns1__GetBusinessEntityChangesList (624)
-/* Operation wrapper: */
-struct __ns1__GetBusinessEntityChangesList {
-public:
-	_ns8__getBusinessEntityChangesListRequest *ns8__getBusinessEntityChangesListRequest;	/* optional element of type ns8:getBusinessEntityChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetEnterpriseByGuid
-#define SOAP_TYPE___ns1__GetEnterpriseByGuid (628)
-/* Operation wrapper: */
-struct __ns1__GetEnterpriseByGuid {
-public:
-	_ns8__getEnterpriseByGuidRequest *ns8__getEnterpriseByGuidRequest;	/* optional element of type ns8:getEnterpriseByGuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetEnterpriseByUuid
-#define SOAP_TYPE___ns1__GetEnterpriseByUuid (632)
-/* Operation wrapper: */
-struct __ns1__GetEnterpriseByUuid {
-public:
-	_ns8__getEnterpriseByUuidRequest *ns8__getEnterpriseByUuidRequest;	/* optional element of type ns8:getEnterpriseByUuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetForeignEnterpriseList
-#define SOAP_TYPE___ns1__GetForeignEnterpriseList (636)
-/* Operation wrapper: */
-struct __ns1__GetForeignEnterpriseList {
-public:
-	_ns8__getForeignEnterpriseListRequest *ns8__getForeignEnterpriseListRequest;	/* optional element of type ns8:getForeignEnterpriseListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetRussianEnterpriseList
-#define SOAP_TYPE___ns1__GetRussianEnterpriseList (640)
-/* Operation wrapper: */
-struct __ns1__GetRussianEnterpriseList {
-public:
-	_ns8__getRussianEnterpriseListRequest *ns8__getRussianEnterpriseListRequest;	/* optional element of type ns8:getRussianEnterpriseListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetForeignEnterpriseChangesList
-#define SOAP_TYPE___ns1__GetForeignEnterpriseChangesList (644)
-/* Operation wrapper: */
-struct __ns1__GetForeignEnterpriseChangesList {
-public:
-	_ns8__getForeignEnterpriseChangesListRequest *ns8__getForeignEnterpriseChangesListRequest;	/* optional element of type ns8:getForeignEnterpriseChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetRussianEnterpriseChangesList
-#define SOAP_TYPE___ns1__GetRussianEnterpriseChangesList (648)
-/* Operation wrapper: */
-struct __ns1__GetRussianEnterpriseChangesList {
-public:
-	_ns8__getRussianEnterpriseChangesListRequest *ns8__getRussianEnterpriseChangesListRequest;	/* optional element of type ns8:getRussianEnterpriseChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetBusinessMemberByGLN
-#define SOAP_TYPE___ns1__GetBusinessMemberByGLN (652)
-/* Operation wrapper: */
-struct __ns1__GetBusinessMemberByGLN {
-public:
-	_ns8__getBusinessMemberByGLNRequest *ns8__getBusinessMemberByGLNRequest;	/* optional element of type ns8:getBusinessMemberByGLNRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns1__GetActivityLocationList
-#define SOAP_TYPE___ns1__GetActivityLocationList (656)
-/* Operation wrapper: */
-struct __ns1__GetActivityLocationList {
-public:
-	_ns8__getActivityLocationListRequest *ns8__getActivityLocationListRequest;	/* optional element of type ns8:getActivityLocationListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductByGuid
-#define SOAP_TYPE___ns2__GetProductByGuid (660)
-/* Operation wrapper: */
-struct __ns2__GetProductByGuid {
-public:
-	_ns8__getProductByGuidRequest *ns8__getProductByGuidRequest;	/* optional element of type ns8:getProductByGuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductByUuid
-#define SOAP_TYPE___ns2__GetProductByUuid (664)
-/* Operation wrapper: */
-struct __ns2__GetProductByUuid {
-public:
-	_ns8__getProductByUuidRequest *ns8__getProductByUuidRequest;	/* optional element of type ns8:getProductByUuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductByTypeList
-#define SOAP_TYPE___ns2__GetProductByTypeList (668)
-/* Operation wrapper: */
-struct __ns2__GetProductByTypeList {
-public:
-	_ns8__getProductByTypeListRequest *ns8__getProductByTypeListRequest;	/* optional element of type ns8:getProductByTypeListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductChangesList
-#define SOAP_TYPE___ns2__GetProductChangesList (672)
-/* Operation wrapper: */
-struct __ns2__GetProductChangesList {
-public:
-	_ns8__getProductChangesListRequest *ns8__getProductChangesListRequest;	/* optional element of type ns8:getProductChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetSubProductByGuid
-#define SOAP_TYPE___ns2__GetSubProductByGuid (676)
-/* Operation wrapper: */
-struct __ns2__GetSubProductByGuid {
-public:
-	_ns8__getSubProductByGuidRequest *ns8__getSubProductByGuidRequest;	/* optional element of type ns8:getSubProductByGuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetSubProductByUuid
-#define SOAP_TYPE___ns2__GetSubProductByUuid (680)
-/* Operation wrapper: */
-struct __ns2__GetSubProductByUuid {
-public:
-	_ns8__getSubProductByUuidRequest *ns8__getSubProductByUuidRequest;	/* optional element of type ns8:getSubProductByUuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetSubProductByProductList
-#define SOAP_TYPE___ns2__GetSubProductByProductList (684)
-/* Operation wrapper: */
-struct __ns2__GetSubProductByProductList {
-public:
-	_ns8__getSubProductByProductListRequest *ns8__getSubProductByProductListRequest;	/* optional element of type ns8:getSubProductByProductListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetSubProductChangesList
-#define SOAP_TYPE___ns2__GetSubProductChangesList (688)
-/* Operation wrapper: */
-struct __ns2__GetSubProductChangesList {
-public:
-	_ns8__getSubProductChangesListRequest *ns8__getSubProductChangesListRequest;	/* optional element of type ns8:getSubProductChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductItemByGuid
-#define SOAP_TYPE___ns2__GetProductItemByGuid (692)
-/* Operation wrapper: */
-struct __ns2__GetProductItemByGuid {
-public:
-	_ns8__getProductItemByGuidRequest *ns8__getProductItemByGuidRequest;	/* optional element of type ns8:getProductItemByGuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductItemByUuid
-#define SOAP_TYPE___ns2__GetProductItemByUuid (696)
-/* Operation wrapper: */
-struct __ns2__GetProductItemByUuid {
-public:
-	_ns8__getProductItemByUuidRequest *ns8__getProductItemByUuidRequest;	/* optional element of type ns8:getProductItemByUuidRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductItemList
-#define SOAP_TYPE___ns2__GetProductItemList (700)
-/* Operation wrapper: */
-struct __ns2__GetProductItemList {
-public:
-	_ns8__getProductItemListRequest *ns8__getProductItemListRequest;	/* optional element of type ns8:getProductItemListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns2__GetProductItemChangesList
-#define SOAP_TYPE___ns2__GetProductItemChangesList (704)
-/* Operation wrapper: */
-struct __ns2__GetProductItemChangesList {
-public:
-	_ns8__getProductItemChangesListRequest *ns8__getProductItemChangesListRequest;	/* optional element of type ns8:getProductItemChangesListRequest */
-};
-#endif
-
-#ifndef SOAP_TYPE___ns3__submitApplicationRequest
-#define SOAP_TYPE___ns3__submitApplicationRequest (708)
-/* Operation wrapper: */
-struct __ns3__submitApplicationRequest {
+struct __apps__submitApplicationRequest {
 public:
 	_ws__submitApplicationRequest *ws__submitApplicationRequest;	/* optional element of type ws:submitApplicationRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns3__receiveApplicationResult
-#define SOAP_TYPE___ns3__receiveApplicationResult (712)
+#ifndef SOAP_TYPE___apps__receiveApplicationResult
+#define SOAP_TYPE___apps__receiveApplicationResult (489)
 /* Operation wrapper: */
-struct __ns3__receiveApplicationResult {
+struct __apps__receiveApplicationResult {
 public:
 	_ws__receiveApplicationResultRequest *ws__receiveApplicationResultRequest;	/* optional element of type ws:receiveApplicationResultRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__processIncomingConsignmentRequest
-#define SOAP_TYPE___ns4__processIncomingConsignmentRequest (716)
+#ifndef SOAP_TYPE___g2b__processIncomingConsignmentRequest
+#define SOAP_TYPE___g2b__processIncomingConsignmentRequest (493)
 /* Operation wrapper: */
-struct __ns4__processIncomingConsignmentRequest {
+struct __g2b__processIncomingConsignmentRequest {
 public:
-	merc__ProcessIncomingConsignmentRequest *merc__processIncomingConsignmentRequest;	/* optional element of type merc:ProcessIncomingConsignmentRequest */
+	g2ba__ProcessIncomingConsignmentRequest *g2ba__processIncomingConsignmentRequest;	/* optional element of type g2ba:ProcessIncomingConsignmentRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__prepareOutgoingConsignmentRequest
-#define SOAP_TYPE___ns4__prepareOutgoingConsignmentRequest (720)
+#ifndef SOAP_TYPE___g2b__prepareOutgoingConsignmentRequest
+#define SOAP_TYPE___g2b__prepareOutgoingConsignmentRequest (497)
 /* Operation wrapper: */
-struct __ns4__prepareOutgoingConsignmentRequest {
+struct __g2b__prepareOutgoingConsignmentRequest {
 public:
-	merc__PrepareOutgoingConsignmentRequest *merc__prepareOutgoingConsignmentRequest;	/* optional element of type merc:PrepareOutgoingConsignmentRequest */
+	g2ba__PrepareOutgoingConsignmentRequest *g2ba__prepareOutgoingConsignmentRequest;	/* optional element of type g2ba:PrepareOutgoingConsignmentRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__registerProductionOperationRequest
-#define SOAP_TYPE___ns4__registerProductionOperationRequest (724)
+#ifndef SOAP_TYPE___g2b__registerProductionOperationRequest
+#define SOAP_TYPE___g2b__registerProductionOperationRequest (501)
 /* Operation wrapper: */
-struct __ns4__registerProductionOperationRequest {
+struct __g2b__registerProductionOperationRequest {
 public:
-	merc__RegisterProductionOperationRequest *merc__registerProductionOperationRequest;	/* optional element of type merc:RegisterProductionOperationRequest */
+	g2ba__RegisterProductionOperationRequest *g2ba__registerProductionOperationRequest;	/* optional element of type g2ba:RegisterProductionOperationRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__mergeStockEntriesRequest
-#define SOAP_TYPE___ns4__mergeStockEntriesRequest (728)
+#ifndef SOAP_TYPE___g2b__mergeStockEntriesRequest
+#define SOAP_TYPE___g2b__mergeStockEntriesRequest (505)
 /* Operation wrapper: */
-struct __ns4__mergeStockEntriesRequest {
+struct __g2b__mergeStockEntriesRequest {
 public:
-	merc__MergeStockEntriesRequest *merc__mergeStockEntriesRequest;	/* optional element of type merc:MergeStockEntriesRequest */
+	g2ba__MergeStockEntriesRequest *g2ba__mergeStockEntriesRequest;	/* optional element of type g2ba:MergeStockEntriesRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__withdrawVetDocumentRequest
-#define SOAP_TYPE___ns4__withdrawVetDocumentRequest (732)
+#ifndef SOAP_TYPE___g2b__withdrawVetDocumentRequest
+#define SOAP_TYPE___g2b__withdrawVetDocumentRequest (509)
 /* Operation wrapper: */
-struct __ns4__withdrawVetDocumentRequest {
+struct __g2b__withdrawVetDocumentRequest {
 public:
-	merc__WithdrawVetDocumentRequest *merc__withdrawVetDocumentRequest;	/* optional element of type merc:WithdrawVetDocumentRequest */
+	g2ba__WithdrawVetDocumentRequest *g2ba__withdrawVetDocumentRequest;	/* optional element of type g2ba:WithdrawVetDocumentRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__modifyBusinessEntityRequest
-#define SOAP_TYPE___ns4__modifyBusinessEntityRequest (736)
+#ifndef SOAP_TYPE___g2b__modifyBusinessEntityRequest
+#define SOAP_TYPE___g2b__modifyBusinessEntityRequest (513)
 /* Operation wrapper: */
-struct __ns4__modifyBusinessEntityRequest {
+struct __g2b__modifyBusinessEntityRequest {
 public:
-	merc__ModifyBusinessEntityRequest *merc__modifyBusinessEntityRequest;	/* optional element of type merc:ModifyBusinessEntityRequest */
+	g2ba__ModifyBusinessEntityRequest *g2ba__modifyBusinessEntityRequest;	/* optional element of type g2ba:ModifyBusinessEntityRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__modifyEnterpriseRequest
-#define SOAP_TYPE___ns4__modifyEnterpriseRequest (740)
+#ifndef SOAP_TYPE___g2b__modifyEnterpriseRequest
+#define SOAP_TYPE___g2b__modifyEnterpriseRequest (517)
 /* Operation wrapper: */
-struct __ns4__modifyEnterpriseRequest {
+struct __g2b__modifyEnterpriseRequest {
 public:
-	merc__ModifyEnterpriseRequest *merc__modifyEnterpriseRequest;	/* optional element of type merc:ModifyEnterpriseRequest */
+	g2ba__ModifyEnterpriseRequest *g2ba__modifyEnterpriseRequest;	/* optional element of type g2ba:ModifyEnterpriseRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__modifyActivityLocationsRequest
-#define SOAP_TYPE___ns4__modifyActivityLocationsRequest (744)
+#ifndef SOAP_TYPE___g2b__modifyActivityLocationsRequest
+#define SOAP_TYPE___g2b__modifyActivityLocationsRequest (521)
 /* Operation wrapper: */
-struct __ns4__modifyActivityLocationsRequest {
+struct __g2b__modifyActivityLocationsRequest {
 public:
-	merc__ModifyActivityLocationsRequest *merc__modifyActivityLocationsRequest;	/* optional element of type merc:ModifyActivityLocationsRequest */
+	g2ba__ModifyActivityLocationsRequest *g2ba__modifyActivityLocationsRequest;	/* optional element of type g2ba:ModifyActivityLocationsRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__resolveDiscrepancyRequest
-#define SOAP_TYPE___ns4__resolveDiscrepancyRequest (748)
+#ifndef SOAP_TYPE___g2b__resolveDiscrepancyRequest
+#define SOAP_TYPE___g2b__resolveDiscrepancyRequest (525)
 /* Operation wrapper: */
-struct __ns4__resolveDiscrepancyRequest {
+struct __g2b__resolveDiscrepancyRequest {
 public:
-	merc__ResolveDiscrepancyRequest *merc__resolveDiscrepancyRequest;	/* optional element of type merc:ResolveDiscrepancyRequest */
+	g2ba__ResolveDiscrepancyRequest *g2ba__resolveDiscrepancyRequest;	/* optional element of type g2ba:ResolveDiscrepancyRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__modifyProducerStockListRequest
-#define SOAP_TYPE___ns4__modifyProducerStockListRequest (752)
+#ifndef SOAP_TYPE___g2b__modifyProducerStockListRequest
+#define SOAP_TYPE___g2b__modifyProducerStockListRequest (529)
 /* Operation wrapper: */
-struct __ns4__modifyProducerStockListRequest {
+struct __g2b__modifyProducerStockListRequest {
 public:
-	merc__ModifyProducerStockListRequest *merc__modifyProducerStockListRequest;	/* optional element of type merc:ModifyProducerStockListRequest */
+	g2ba__ModifyProducerStockListRequest *g2ba__modifyProducerStockListRequest;	/* optional element of type g2ba:ModifyProducerStockListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getVetDocumentByUuidRequest
-#define SOAP_TYPE___ns4__getVetDocumentByUuidRequest (756)
+#ifndef SOAP_TYPE___g2b__getVetDocumentByUuidRequest
+#define SOAP_TYPE___g2b__getVetDocumentByUuidRequest (533)
 /* Operation wrapper: */
-struct __ns4__getVetDocumentByUuidRequest {
+struct __g2b__getVetDocumentByUuidRequest {
 public:
-	merc__GetVetDocumentByUuidRequest *merc__getVetDocumentByUuidRequest;	/* optional element of type merc:GetVetDocumentByUuidRequest */
+	g2ba__GetVetDocumentByUuidRequest *g2ba__getVetDocumentByUuidRequest;	/* optional element of type g2ba:GetVetDocumentByUuidRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getVetDocumentListRequest
-#define SOAP_TYPE___ns4__getVetDocumentListRequest (760)
+#ifndef SOAP_TYPE___g2b__getVetDocumentListRequest
+#define SOAP_TYPE___g2b__getVetDocumentListRequest (537)
 /* Operation wrapper: */
-struct __ns4__getVetDocumentListRequest {
+struct __g2b__getVetDocumentListRequest {
 public:
-	merc__GetVetDocumentListRequest *merc__getVetDocumentListRequest;	/* optional element of type merc:GetVetDocumentListRequest */
+	g2ba__GetVetDocumentListRequest *g2ba__getVetDocumentListRequest;	/* optional element of type g2ba:GetVetDocumentListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getVetDocumentChangesListRequest
-#define SOAP_TYPE___ns4__getVetDocumentChangesListRequest (764)
+#ifndef SOAP_TYPE___g2b__getVetDocumentChangesListRequest
+#define SOAP_TYPE___g2b__getVetDocumentChangesListRequest (541)
 /* Operation wrapper: */
-struct __ns4__getVetDocumentChangesListRequest {
+struct __g2b__getVetDocumentChangesListRequest {
 public:
-	merc__GetVetDocumentChangesListRequest *merc__getVetDocumentChangesListRequest;	/* optional element of type merc:GetVetDocumentChangesListRequest */
+	g2ba__GetVetDocumentChangesListRequest *g2ba__getVetDocumentChangesListRequest;	/* optional element of type g2ba:GetVetDocumentChangesListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getStockEntryByGuidRequest
-#define SOAP_TYPE___ns4__getStockEntryByGuidRequest (768)
+#ifndef SOAP_TYPE___g2b__getStockEntryByGuidRequest
+#define SOAP_TYPE___g2b__getStockEntryByGuidRequest (545)
 /* Operation wrapper: */
-struct __ns4__getStockEntryByGuidRequest {
+struct __g2b__getStockEntryByGuidRequest {
 public:
-	merc__GetStockEntryByGuidRequest *merc__getStockEntryByGuidRequest;	/* optional element of type merc:GetStockEntryByGuidRequest */
+	g2ba__GetStockEntryByGuidRequest *g2ba__getStockEntryByGuidRequest;	/* optional element of type g2ba:GetStockEntryByGuidRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getStockEntryByUuidRequest
-#define SOAP_TYPE___ns4__getStockEntryByUuidRequest (772)
+#ifndef SOAP_TYPE___g2b__getStockEntryByUuidRequest
+#define SOAP_TYPE___g2b__getStockEntryByUuidRequest (549)
 /* Operation wrapper: */
-struct __ns4__getStockEntryByUuidRequest {
+struct __g2b__getStockEntryByUuidRequest {
 public:
-	merc__GetStockEntryByUuidRequest *merc__getStockEntryByUuidRequest;	/* optional element of type merc:GetStockEntryByUuidRequest */
+	g2ba__GetStockEntryByUuidRequest *g2ba__getStockEntryByUuidRequest;	/* optional element of type g2ba:GetStockEntryByUuidRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getStockEntryListRequest
-#define SOAP_TYPE___ns4__getStockEntryListRequest (776)
+#ifndef SOAP_TYPE___g2b__getStockEntryListRequest
+#define SOAP_TYPE___g2b__getStockEntryListRequest (553)
 /* Operation wrapper: */
-struct __ns4__getStockEntryListRequest {
+struct __g2b__getStockEntryListRequest {
 public:
-	merc__GetStockEntryListRequest *merc__getStockEntryListRequest;	/* optional element of type merc:GetStockEntryListRequest */
+	g2ba__GetStockEntryListRequest *g2ba__getStockEntryListRequest;	/* optional element of type g2ba:GetStockEntryListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getStockEntryChangesListRequest
-#define SOAP_TYPE___ns4__getStockEntryChangesListRequest (780)
+#ifndef SOAP_TYPE___g2b__getStockEntryChangesListRequest
+#define SOAP_TYPE___g2b__getStockEntryChangesListRequest (557)
 /* Operation wrapper: */
-struct __ns4__getStockEntryChangesListRequest {
+struct __g2b__getStockEntryChangesListRequest {
 public:
-	merc__GetStockEntryChangesListRequest *merc__getStockEntryChangesListRequest;	/* optional element of type merc:GetStockEntryChangesListRequest */
+	g2ba__GetStockEntryChangesListRequest *g2ba__getStockEntryChangesListRequest;	/* optional element of type g2ba:GetStockEntryChangesListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getStockEntryVersionListRequest
-#define SOAP_TYPE___ns4__getStockEntryVersionListRequest (784)
+#ifndef SOAP_TYPE___g2b__getStockEntryVersionListRequest
+#define SOAP_TYPE___g2b__getStockEntryVersionListRequest (561)
 /* Operation wrapper: */
-struct __ns4__getStockEntryVersionListRequest {
+struct __g2b__getStockEntryVersionListRequest {
 public:
-	merc__GetStockEntryVersionListRequest *merc__getStockEntryVersionListRequest;	/* optional element of type merc:GetStockEntryVersionListRequest */
+	g2ba__GetStockEntryVersionListRequest *g2ba__getStockEntryVersionListRequest;	/* optional element of type g2ba:GetStockEntryVersionListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__updateTransportMovementDetailsRequest
-#define SOAP_TYPE___ns4__updateTransportMovementDetailsRequest (788)
+#ifndef SOAP_TYPE___g2b__updateTransportMovementDetailsRequest
+#define SOAP_TYPE___g2b__updateTransportMovementDetailsRequest (565)
 /* Operation wrapper: */
-struct __ns4__updateTransportMovementDetailsRequest {
+struct __g2b__updateTransportMovementDetailsRequest {
 public:
-	merc__UpdateTransportMovementDetailsRequest *merc__updateTransportMovementDetailsRequest;	/* optional element of type merc:UpdateTransportMovementDetailsRequest */
+	g2ba__UpdateTransportMovementDetailsRequest *g2ba__updateTransportMovementDetailsRequest;	/* optional element of type g2ba:UpdateTransportMovementDetailsRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__updateVeterinaryEventsRequest
-#define SOAP_TYPE___ns4__updateVeterinaryEventsRequest (792)
+#ifndef SOAP_TYPE___g2b__updateVeterinaryEventsRequest
+#define SOAP_TYPE___g2b__updateVeterinaryEventsRequest (569)
 /* Operation wrapper: */
-struct __ns4__updateVeterinaryEventsRequest {
+struct __g2b__updateVeterinaryEventsRequest {
 public:
-	merc__UpdateVeterinaryEventsRequest *merc__updateVeterinaryEventsRequest;	/* optional element of type merc:UpdateVeterinaryEventsRequest */
+	g2ba__UpdateVeterinaryEventsRequest *g2ba__updateVeterinaryEventsRequest;	/* optional element of type g2ba:UpdateVeterinaryEventsRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__checkShipmentRegionalizationRequest
-#define SOAP_TYPE___ns4__checkShipmentRegionalizationRequest (796)
+#ifndef SOAP_TYPE___g2b__checkShipmentRegionalizationRequest
+#define SOAP_TYPE___g2b__checkShipmentRegionalizationRequest (573)
 /* Operation wrapper: */
-struct __ns4__checkShipmentRegionalizationRequest {
+struct __g2b__checkShipmentRegionalizationRequest {
 public:
-	merc__CheckShipmentRegionalizationRequest *merc__checkShipmentRegionalizationRequest;	/* optional element of type merc:CheckShipmentRegionalizationRequest */
+	g2ba__CheckShipmentRegionalizationRequest *g2ba__checkShipmentRegionalizationRequest;	/* optional element of type g2ba:CheckShipmentRegionalizationRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__addBusinessEntityUserRequest
-#define SOAP_TYPE___ns4__addBusinessEntityUserRequest (800)
+#ifndef SOAP_TYPE___g2b__addBusinessEntityUserRequest
+#define SOAP_TYPE___g2b__addBusinessEntityUserRequest (577)
 /* Operation wrapper: */
-struct __ns4__addBusinessEntityUserRequest {
+struct __g2b__addBusinessEntityUserRequest {
 public:
-	merc__AddBusinessEntityUserRequest *merc__addBusinessEntityUserRequest;	/* optional element of type merc:AddBusinessEntityUserRequest */
+	g2ba__AddBusinessEntityUserRequest *g2ba__addBusinessEntityUserRequest;	/* optional element of type g2ba:AddBusinessEntityUserRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getBusinessEntityUserListRequest
-#define SOAP_TYPE___ns4__getBusinessEntityUserListRequest (804)
+#ifndef SOAP_TYPE___g2b__getBusinessEntityUserListRequest
+#define SOAP_TYPE___g2b__getBusinessEntityUserListRequest (581)
 /* Operation wrapper: */
-struct __ns4__getBusinessEntityUserListRequest {
+struct __g2b__getBusinessEntityUserListRequest {
 public:
-	merc__GetBusinessEntityUserListRequest *merc__getBusinessEntityUserListRequest;	/* optional element of type merc:GetBusinessEntityUserListRequest */
+	g2ba__GetBusinessEntityUserListRequest *g2ba__getBusinessEntityUserListRequest;	/* optional element of type g2ba:GetBusinessEntityUserListRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getBusinessEntityUserRequest
-#define SOAP_TYPE___ns4__getBusinessEntityUserRequest (808)
+#ifndef SOAP_TYPE___g2b__getBusinessEntityUserRequest
+#define SOAP_TYPE___g2b__getBusinessEntityUserRequest (585)
 /* Operation wrapper: */
-struct __ns4__getBusinessEntityUserRequest {
+struct __g2b__getBusinessEntityUserRequest {
 public:
-	merc__GetBusinessEntityUserRequest *merc__getBusinessEntityUserRequest;	/* optional element of type merc:GetBusinessEntityUserRequest */
+	g2ba__GetBusinessEntityUserRequest *g2ba__getBusinessEntityUserRequest;	/* optional element of type g2ba:GetBusinessEntityUserRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__updateUserAuthoritiesRequest
-#define SOAP_TYPE___ns4__updateUserAuthoritiesRequest (812)
+#ifndef SOAP_TYPE___g2b__updateUserAuthoritiesRequest
+#define SOAP_TYPE___g2b__updateUserAuthoritiesRequest (589)
 /* Operation wrapper: */
-struct __ns4__updateUserAuthoritiesRequest {
+struct __g2b__updateUserAuthoritiesRequest {
 public:
-	merc__UpdateUserAuthoritiesRequest *merc__updateUserAuthoritiesRequest;	/* optional element of type merc:UpdateUserAuthoritiesRequest */
+	g2ba__UpdateUserAuthoritiesRequest *g2ba__updateUserAuthoritiesRequest;	/* optional element of type g2ba:UpdateUserAuthoritiesRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__updateUserWorkingAreasRequest
-#define SOAP_TYPE___ns4__updateUserWorkingAreasRequest (816)
+#ifndef SOAP_TYPE___g2b__updateUserWorkingAreasRequest
+#define SOAP_TYPE___g2b__updateUserWorkingAreasRequest (593)
 /* Operation wrapper: */
-struct __ns4__updateUserWorkingAreasRequest {
+struct __g2b__updateUserWorkingAreasRequest {
 public:
-	merc__UpdateUserWorkingAreasRequest *merc__updateUserWorkingAreasRequest;	/* optional element of type merc:UpdateUserWorkingAreasRequest */
+	g2ba__UpdateUserWorkingAreasRequest *g2ba__updateUserWorkingAreasRequest;	/* optional element of type g2ba:UpdateUserWorkingAreasRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__unbindBusinessEntityUserRequest
-#define SOAP_TYPE___ns4__unbindBusinessEntityUserRequest (820)
+#ifndef SOAP_TYPE___g2b__unbindBusinessEntityUserRequest
+#define SOAP_TYPE___g2b__unbindBusinessEntityUserRequest (597)
 /* Operation wrapper: */
-struct __ns4__unbindBusinessEntityUserRequest {
+struct __g2b__unbindBusinessEntityUserRequest {
 public:
-	merc__UnbindBusinessEntityUserRequest *merc__unbindBusinessEntityUserRequest;	/* optional element of type merc:UnbindBusinessEntityUserRequest */
+	g2ba__UnbindBusinessEntityUserRequest *g2ba__unbindBusinessEntityUserRequest;	/* optional element of type g2ba:UnbindBusinessEntityUserRequest */
 };
 #endif
 
-#ifndef SOAP_TYPE___ns4__getAppliedUserAuthorityListRequest
-#define SOAP_TYPE___ns4__getAppliedUserAuthorityListRequest (824)
+#ifndef SOAP_TYPE___g2b__getApplicableUserAuthorityListRequest
+#define SOAP_TYPE___g2b__getApplicableUserAuthorityListRequest (601)
 /* Operation wrapper: */
-struct __ns4__getAppliedUserAuthorityListRequest {
+struct __g2b__getApplicableUserAuthorityListRequest {
 public:
-	merc__GetAppliedUserAuthorityListRequest *merc__getAppliedUserAuthorityListRequest;	/* optional element of type merc:GetAppliedUserAuthorityListRequest */
+	g2ba__GetApplicableUserAuthorityListRequest *g2ba__getApplicableUserAuthorityListRequest;	/* optional element of type g2ba:GetApplicableUserAuthorityListRequest */
 };
 #endif
 
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Header
-#define SOAP_TYPE_SOAP_ENV__Header (825)
+#define SOAP_TYPE_SOAP_ENV__Header (602)
 /* SOAP Header: */
 struct SOAP_ENV__Header {
 
@@ -7365,7 +4711,7 @@ private:
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Code
-#define SOAP_TYPE_SOAP_ENV__Code (826)
+#define SOAP_TYPE_SOAP_ENV__Code (603)
 /* SOAP Fault Code: */
 struct SOAP_ENV__Code {
 public:
@@ -7379,7 +4725,7 @@ public:
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Reason
-#define SOAP_TYPE_SOAP_ENV__Reason (828)
+#define SOAP_TYPE_SOAP_ENV__Reason (605)
 /* SOAP-ENV:Reason */
 struct SOAP_ENV__Reason {
 public:
@@ -7392,7 +4738,7 @@ public:
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Fault
-#define SOAP_TYPE_SOAP_ENV__Fault (829)
+#define SOAP_TYPE_SOAP_ENV__Fault (606)
 /* SOAP Fault: */
 struct SOAP_ENV__Fault {
 public:
@@ -7477,142 +4823,162 @@ typedef char *xsd__token;
 #endif
 
 #ifndef SOAP_TYPE_base__UUID
-#define SOAP_TYPE_base__UUID (329)
+#define SOAP_TYPE_base__UUID (209)
 typedef char *base__UUID;
 #endif
 
 #ifndef SOAP_TYPE_base__Text
-#define SOAP_TYPE_base__Text (330)
+#define SOAP_TYPE_base__Text (210)
 typedef char *base__Text;
 #endif
 
 #ifndef SOAP_TYPE_base__NText
-#define SOAP_TYPE_base__NText (331)
+#define SOAP_TYPE_base__NText (211)
 typedef char *base__NText;
 #endif
 
 #ifndef SOAP_TYPE_base__String255
-#define SOAP_TYPE_base__String255 (332)
+#define SOAP_TYPE_base__String255 (212)
 typedef char *base__String255;
 #endif
 
 #ifndef SOAP_TYPE_base__String32
-#define SOAP_TYPE_base__String32 (333)
+#define SOAP_TYPE_base__String32 (213)
 typedef char *base__String32;
 #endif
 
 #ifndef SOAP_TYPE_base__Decimal
-#define SOAP_TYPE_base__Decimal (334)
+#define SOAP_TYPE_base__Decimal (214)
 typedef char *base__Decimal;
 #endif
 
 #ifndef SOAP_TYPE_base__VersionStatus
-#define SOAP_TYPE_base__VersionStatus (335)
+#define SOAP_TYPE_base__VersionStatus (215)
 typedef char *base__VersionStatus;
 #endif
 
 #ifndef SOAP_TYPE_base__Identifier
-#define SOAP_TYPE_base__Identifier (337)
+#define SOAP_TYPE_base__Identifier (217)
 typedef char *base__Identifier;
 #endif
 
 #ifndef SOAP_TYPE_base__SequenceNumber
-#define SOAP_TYPE_base__SequenceNumber (338)
+#define SOAP_TYPE_base__SequenceNumber (218)
 typedef char *base__SequenceNumber;
 #endif
 
+#ifndef SOAP_TYPE_base__Year
+#define SOAP_TYPE_base__Year (219)
+typedef int base__Year;
+#endif
+
+#ifndef SOAP_TYPE_base__Month
+#define SOAP_TYPE_base__Month (220)
+typedef int base__Month;
+#endif
+
+#ifndef SOAP_TYPE_base__Day
+#define SOAP_TYPE_base__Day (221)
+typedef int base__Day;
+#endif
+
+#ifndef SOAP_TYPE_base__Hour
+#define SOAP_TYPE_base__Hour (222)
+typedef int base__Hour;
+#endif
+
 #ifndef SOAP_TYPE_app__APIKey
-#define SOAP_TYPE_app__APIKey (340)
+#define SOAP_TYPE_app__APIKey (224)
 typedef char *app__APIKey;
 #endif
 
 #ifndef SOAP_TYPE_app__BinaryContent
-#define SOAP_TYPE_app__BinaryContent (342)
+#define SOAP_TYPE_app__BinaryContent (226)
 typedef xsd__base64Binary app__BinaryContent;
 #endif
 
-#ifndef SOAP_TYPE_ent__Code
-#define SOAP_TYPE_ent__Code (345)
-typedef char *ent__Code;
+#ifndef SOAP_TYPE_dic__Code
+#define SOAP_TYPE_dic__Code (229)
+typedef char *dic__Code;
 #endif
 
-#ifndef SOAP_TYPE_ent__Code3
-#define SOAP_TYPE_ent__Code3 (346)
-typedef char *ent__Code3;
+#ifndef SOAP_TYPE_dic__Code3
+#define SOAP_TYPE_dic__Code3 (230)
+typedef char *dic__Code3;
 #endif
 
-#ifndef SOAP_TYPE_ent__EnterpriseType
-#define SOAP_TYPE_ent__EnterpriseType (348)
-typedef char *ent__EnterpriseType;
+#ifndef SOAP_TYPE_dic__EnterpriseType
+#define SOAP_TYPE_dic__EnterpriseType (232)
+typedef char *dic__EnterpriseType;
 #endif
 
-#ifndef SOAP_TYPE_ent__BEModificationReason
-#define SOAP_TYPE_ent__BEModificationReason (350)
-typedef char *ent__BEModificationReason;
+#ifndef SOAP_TYPE_dic__BEModificationReason
+#define SOAP_TYPE_dic__BEModificationReason (234)
+typedef char *dic__BEModificationReason;
 #endif
 
-#ifndef SOAP_TYPE_ent__ENTModificationReason
-#define SOAP_TYPE_ent__ENTModificationReason (351)
-typedef char *ent__ENTModificationReason;
+#ifndef SOAP_TYPE_dic__ENTModificationReason
+#define SOAP_TYPE_dic__ENTModificationReason (235)
+typedef char *dic__ENTModificationReason;
 #endif
 
-#ifndef SOAP_TYPE_ent__GLNType
-#define SOAP_TYPE_ent__GLNType (352)
-typedef char *ent__GLNType;
+#ifndef SOAP_TYPE_dic__GLNType
+#define SOAP_TYPE_dic__GLNType (236)
+typedef char *dic__GLNType;
 #endif
 
-#ifndef SOAP_TYPE_ent__GTINType
-#define SOAP_TYPE_ent__GTINType (354)
-typedef char *ent__GTINType;
+#ifndef SOAP_TYPE_dic__GTINType
+#define SOAP_TYPE_dic__GTINType (238)
+typedef char *dic__GTINType;
 #endif
 
-#ifndef SOAP_TYPE_ent__Year
-#define SOAP_TYPE_ent__Year (358)
-typedef int ent__Year;
+#ifndef SOAP_TYPE_dic__Year
+#define SOAP_TYPE_dic__Year (242)
+typedef int dic__Year;
 #endif
 
-#ifndef SOAP_TYPE_ent__Month
-#define SOAP_TYPE_ent__Month (359)
-typedef int ent__Month;
+#ifndef SOAP_TYPE_dic__Month
+#define SOAP_TYPE_dic__Month (243)
+typedef int dic__Month;
 #endif
 
-#ifndef SOAP_TYPE_ent__Day
-#define SOAP_TYPE_ent__Day (360)
-typedef int ent__Day;
+#ifndef SOAP_TYPE_dic__Day
+#define SOAP_TYPE_dic__Day (244)
+typedef int dic__Day;
 #endif
 
-#ifndef SOAP_TYPE_ent__Hour
-#define SOAP_TYPE_ent__Hour (361)
-typedef int ent__Hour;
+#ifndef SOAP_TYPE_dic__Hour
+#define SOAP_TYPE_dic__Hour (245)
+typedef int dic__Hour;
 #endif
 
-#ifndef SOAP_TYPE_ent__Minute
-#define SOAP_TYPE_ent__Minute (362)
-typedef int ent__Minute;
+#ifndef SOAP_TYPE_dic__Minute
+#define SOAP_TYPE_dic__Minute (246)
+typedef int dic__Minute;
 #endif
 
-#ifndef SOAP_TYPE_ent__OTPToken
-#define SOAP_TYPE_ent__OTPToken (364)
-typedef char *ent__OTPToken;
+#ifndef SOAP_TYPE_dic__OTPToken
+#define SOAP_TYPE_dic__OTPToken (248)
+typedef char *dic__OTPToken;
 #endif
 
 #ifndef SOAP_TYPE_vd__StockEntryNumber
-#define SOAP_TYPE_vd__StockEntryNumber (368)
+#define SOAP_TYPE_vd__StockEntryNumber (252)
 typedef char *vd__StockEntryNumber;
 #endif
 
 #ifndef SOAP_TYPE_vd__SNILSType
-#define SOAP_TYPE_vd__SNILSType (372)
+#define SOAP_TYPE_vd__SNILSType (256)
 typedef char *vd__SNILSType;
 #endif
 
-#ifndef SOAP_TYPE_ent__GRNType
-#define SOAP_TYPE_ent__GRNType (377)
-typedef char *ent__GRNType;
+#ifndef SOAP_TYPE_dic__GRNType
+#define SOAP_TYPE_dic__GRNType (261)
+typedef char *dic__GRNType;
 #endif
 
 #ifndef SOAP_TYPE_vd__VetDocumentStatusChangeReason
-#define SOAP_TYPE_vd__VetDocumentStatusChangeReason (384)
+#define SOAP_TYPE_vd__VetDocumentStatusChangeReason (268)
 typedef char *vd__VetDocumentStatusChangeReason;
 #endif
 

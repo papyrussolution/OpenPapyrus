@@ -20,11 +20,11 @@ int __mutex_alloc_pp(DB_ENV *dbenv, uint32 flags, db_mutex_t * indxp)
 	int ret;
 	ENV * env = dbenv->env;
 	if((ret = __db_fchk(env, "DB_ENV->mutex_alloc", flags, DB_MUTEX_PROCESS_ONLY | DB_MUTEX_SELF_BLOCK)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	ret = __mutex_alloc(env, MTX_APPLICATION, flags, indxp);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __mutex_free_pp --
@@ -38,7 +38,7 @@ int __mutex_free_pp(DB_ENV *dbenv, db_mutex_t indx)
 	int ret;
 	ENV * env = dbenv->env;
 	if(indx == MUTEX_INVALID)
-		return (EINVAL);
+		return EINVAL;
 	/*
 	 * Internally Berkeley DB passes around the db_mutex_t address on
 	 * free, because we want to make absolutely sure the slot gets
@@ -48,7 +48,7 @@ int __mutex_free_pp(DB_ENV *dbenv, db_mutex_t indx)
 	ENV_ENTER(env, ip);
 	ret = __mutex_free(env, &indx);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -63,11 +63,11 @@ int __mutex_lock_pp(DB_ENV *dbenv, db_mutex_t indx)
 	int ret;
 	ENV * env = dbenv->env;
 	if(indx == MUTEX_INVALID)
-		return (EINVAL);
+		return EINVAL;
 	ENV_ENTER(env, ip);
 	ret = MUTEX_LOCK_RET(env, indx);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -82,11 +82,11 @@ int __mutex_unlock_pp(DB_ENV *dbenv, db_mutex_t indx)
 	int ret;
 	ENV * env = dbenv->env;
 	if(indx == MUTEX_INVALID)
-		return (EINVAL);
+		return EINVAL;
 	ENV_ENTER(env, ip);
 	ret = MUTEX_UNLOCK_RET(env, indx);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -105,7 +105,7 @@ int __mutex_get_align(DB_ENV *dbenv, uint32 * alignp)
 	}
 	else
 		*alignp = dbenv->mutex_align;
-	return (0);
+	return 0;
 }
 
 /*
@@ -120,10 +120,10 @@ int __mutex_set_align(DB_ENV *dbenv, uint32 align)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mutex_align");
 	if(align == 0 || !POWER_OF_TWO(align)) {
 		__db_errx(env, DB_STR("2018", "DB_ENV->mutex_set_align: alignment value must be a non-zero power-of-two"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	dbenv->mutex_align = align;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_get_increment --
@@ -139,7 +139,7 @@ int __mutex_get_increment(DB_ENV *dbenv, uint32 * incrementp)
 	 * nobody is ever going to notice.
 	 */
 	*incrementp = dbenv->mutex_inc;
-	return (0);
+	return 0;
 }
 
 /*
@@ -154,7 +154,7 @@ int __mutex_set_increment(DB_ENV *dbenv, uint32 increment)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mutex_increment");
 	dbenv->mutex_cnt = 0;
 	dbenv->mutex_inc = increment;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_get_init --
@@ -171,7 +171,7 @@ int __mutex_get_init(DB_ENV *dbenv, uint32 * initp)
 	}
 	else
 		*initp = dbenv->mutex_cnt;
-	return (0);
+	return 0;
 }
 
 /*
@@ -186,7 +186,7 @@ int __mutex_set_init(DB_ENV *dbenv, uint32 init)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mutex_init");
 	dbenv->mutex_cnt = init;
 	dbenv->mutex_inc = 0;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_get_max --
@@ -203,7 +203,7 @@ int __mutex_get_max(DB_ENV *dbenv, uint32 * maxp)
 	}
 	else
 		*maxp = dbenv->mutex_max;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_set_max --
@@ -217,7 +217,7 @@ int __mutex_set_max(DB_ENV *dbenv, uint32 max)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mutex_max");
 	dbenv->mutex_max = max;
 	dbenv->mutex_inc = 0;
-	return (0);
+	return 0;
 }
 
 /*
@@ -235,7 +235,7 @@ int __mutex_get_tas_spins(DB_ENV *dbenv, uint32 * tas_spinsp)
 	}
 	else
 		*tas_spinsp = dbenv->mutex_tas_spins;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_set_tas_spins --
@@ -265,7 +265,7 @@ int __mutex_set_tas_spins(DB_ENV *dbenv, uint32 tas_spins)
 		((DB_MUTEXREGION*)env->mutex_handle->reginfo.primary)->stat.st_mutex_tas_spins = tas_spins;
 	else
 		dbenv->mutex_tas_spins = tas_spins;
-	return (0);
+	return 0;
 }
 
 #ifdef HAVE_ERROR_HISTORY
@@ -329,7 +329,7 @@ atomic_value_t __atomic_add_int(ENV *env, db_atomic_t * v, int delta)
 	v->value += delta;
 	ret = v->value;
 	MUTEX_UNLOCK(env, mtx);
-	return (ret);
+	return ret;
 }
 /*
  * __atomic_compare_exchange_int
@@ -349,13 +349,13 @@ int __atomic_compare_exchange_int(ENV *env, db_atomic_t * v, atomic_value_t oldv
 	db_mutex_t mtx;
 	int ret;
 	if(atomic_read(v) != oldval)
-		return (0);
+		return 0;
 	mtx = atomic_get_mutex(env, v);
 	MUTEX_LOCK(env, mtx);
 	ret = atomic_read(v) == oldval;
 	if(ret)
 		atomic_init(v, newval);
 	MUTEX_UNLOCK(env, mtx);
-	return (ret);
+	return ret;
 }
 #endif

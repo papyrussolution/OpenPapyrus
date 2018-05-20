@@ -33,7 +33,7 @@ int __db_getlong(DB_ENV *dbenv, const char * progname, char * p, long min, long 
 			fprintf(stderr, DB_STR_A("0042", "%s: %s: Invalid numeric argument\n", "%s %s\n"), progname, p);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0043", "%s: Invalid numeric argument", "%s"), p);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(val < min) {
 		if(dbenv == NULL)
@@ -50,7 +50,7 @@ int __db_getlong(DB_ENV *dbenv, const char * progname, char * p, long min, long 
 		return (ERANGE);
 	}
 	*storep = val;
-	return (0);
+	return 0;
 }
 
 /*
@@ -82,7 +82,7 @@ int __db_getulong(DB_ENV *dbenv, const char * progname, char * p, u_long min, u_
 			dbenv->errx(dbenv, DB_STR_A("0049",
 			    "%s: Invalid numeric argument",
 			    "%s"), p);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(val < min) {
 		if(dbenv == NULL)
@@ -114,5 +114,5 @@ int __db_getulong(DB_ENV *dbenv, const char * progname, char * p, u_long min, u_
 		return (ERANGE);
 	}
 	*storep = val;
-	return (0);
+	return 0;
 }

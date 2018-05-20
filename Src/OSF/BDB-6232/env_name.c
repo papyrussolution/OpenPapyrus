@@ -48,7 +48,7 @@ static int __db_fullpath(ENV *env, const char * dir, const char * file, int chec
 	home = (env == NULL) ? NULL : env->db_home;
 	len = (home == NULL ? 0 : strlen(home) + 1) + (dir == NULL ? 0 : strlen(dir) + 1) + (file == NULL ? 0 : strlen(file) + 1);
 	if((ret = __os_malloc(env, len, &str)) != 0)
-		return (ret);
+		return ret;
 	slash = 0;
 	p = str;
 	DB_ADDSTR(home);
@@ -74,7 +74,7 @@ static int __db_fullpath(ENV *env, const char * dir, const char * file, int chec
 		__os_free(env, str);
 	else
 		*namep = str;
-	return (0);
+	return 0;
 }
 
 #define DB_CHECKFILE(file, dir, check_file, check_dir, namep, ret_dir) do { \
@@ -83,7 +83,7 @@ static int __db_fullpath(ENV *env, const char * dir, const char * file, int chec
 		if(ret == 0 && (ret_dir) != NULL)                              \
 			*(ret_dir) = (dir);                                     \
 		if(ret != ENOENT)                                              \
-			return (ret);                                           \
+			return ret;                                           \
 } while(0)
 
 /*
@@ -192,7 +192,7 @@ int __db_appname(ENV *env, APPNAME appname, const char * file, const char ** dir
 	 */
 	DB_CHECKFILE(file, dir, 0, appname == DB_APP_TMP, namep, dirp);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -268,5 +268,5 @@ int __db_tmp_open(ENV *env, uint32 oflags, DB_FH ** fhpp)
 	}
 done:
 	__os_free(env, path);
-	return (ret);
+	return ret;
 }

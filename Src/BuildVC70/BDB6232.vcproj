@@ -1243,7 +1243,7 @@
 				RelativePath="..\Osf\Bdb-6232\dbinc\atomic.h">
 			</File>
 			<File
-				RelativePath="..\Include\berkeleydb.h">
+				RelativePath="..\Include\berkeleydb-6232.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Bdb-6232\dbinc\btree.h">

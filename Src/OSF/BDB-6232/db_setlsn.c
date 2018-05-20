@@ -41,7 +41,7 @@ int __env_lsn_reset_pp(DB_ENV *dbenv, const char * name, uint32 flags)
 	    (__env_lsn_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)),
 	    1, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -54,7 +54,7 @@ static int __env_lsn_reset(ENV *env, DB_THREAD_INFO * ip, const char * name, int
 	int t_ret, ret;
 	/* Create the DB object. */
 	if((ret = __db_create_internal(&dbp, env, 0)) != 0)
-		return (ret);
+		return ret;
 	/* If configured with a password, the databases are encrypted. */
 	if(encrypted && (ret = __db_set_flags(dbp, DB_ENCRYPT)) != 0)
 		goto err;
@@ -86,7 +86,7 @@ static int __env_lsn_reset(ENV *env, DB_THREAD_INFO * ip, const char * name, int
 
 err:    if((t_ret = __db_close(dbp, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -107,5 +107,5 @@ int __db_lsn_reset(DB_MPOOLFILE *mpf, DB_THREAD_INFO * ip)
 	if(ret == DB_PAGE_NOTFOUND)
 		ret = 0;
 
-	return (ret);
+	return ret;
 }

@@ -64,7 +64,7 @@ int __repmgr_queue_destroy(ENV *env)
 		__os_free(env, m);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -158,7 +158,7 @@ int __repmgr_queue_get(ENV *env, REPMGR_MESSAGE ** msgp, REPMGR_RUNNABLE * th)
 		*msgp = m;
 	}
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -231,7 +231,7 @@ int __repmgr_queue_put(ENV *env, REPMGR_MESSAGE * msg)
 		}
 		MUTEX_UNLOCK(env, rep->mtx_repmgr);
 		__os_free(env, msg);
-		return (0);
+		return 0;
 	}
 	MUTEX_UNLOCK(env, rep->mtx_repmgr);
 

@@ -725,9 +725,11 @@ private:
 
 class DateIter {
 public:
-	SLAPI  DateIter(long start = 0, long finish = 0);
-	SLAPI  DateIter(const DateRange *);
-	void   SLAPI Init(long start = 0, long finish = 0);
+	SLAPI  DateIter();
+	SLAPI  DateIter(long start, long finish);
+	explicit SLAPI DateIter(const DateRange *);
+	void   SLAPI Init();
+	void   SLAPI Init(long start, long finish);
 	void   SLAPI Init(const DateRange *);
 	int    FASTCALL Advance(LDATE d, long o);
 	int    SLAPI IsEnd() const;
@@ -20618,7 +20620,7 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	// @construction PPID   PrefInnerGsID;  // @v8.6.5 Предпочтительная структура комплектации/декомплектации для внутреннего элемента
 		// @dbd_exchange Требуется синхронизация //
 	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
-	char   Formula[64];    // @transient
+	char   Formula__[64];    // @transient
 };
 
 class PPGoodsStruc {
@@ -20685,7 +20687,7 @@ public:
 	//
 	int    SLAPI RecalcQttyByMainItemPh(double * pQtty) const;
 	int    SLAPI GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pLotRec) const;
-	int    SLAPI CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const;
+	void   SLAPI CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const;
 	int    FASTCALL HasGoods(PPID goodsID) const;
 	int    SLAPI SearchSymb(const char * pSymb, uint * pPos) const;
 	int    SLAPI CopyItemsFrom(const PPGoodsStruc * pS);
@@ -20701,6 +20703,7 @@ public:
 	//   <0 - По индексу *pPos элемента нет
 	//
 	int    SLAPI EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const;
+	int    SLAPI GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const;
 	//
 	// Descr: Преобразует структуру в родительскую, перенося при этом содержимое структуры
 	//   в первую дочернюю. Функция применима, если !(Rec.Flags & (GSF_FOLDER | GSF_CHILD)).
@@ -33087,7 +33090,7 @@ public:
 	// @nointeract
 	//
 	int    SLAPI CompleteSession(PPID sessID, int use_ta);
-	int    SLAPI RecalcSessionPacket(TSessionPacket & rPack);
+	int    SLAPI RecalcSessionPacket(TSessionPacket & rPack, LongArray * pUpdRowIdxList);
 	//
 	// Descr: Заменяет товар replacedGoodsID в приходных строках сессии sessID на товар substGoodsID.
 	//   Замещаются только строки, имеющие знак +1 (Sign == 1)
@@ -33383,8 +33386,13 @@ private:
 	int    SLAPI PutTimingLine(const TSessionTbl::Rec * pPack); // @<<PPObjTSession::PutPacket
 	int    SLAPI CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID,
 		double tecQtty, const PPIDArray * pGoodsIdList, int tooling); // @<<PPObjTSession::Complete
-	void   SLAPI Helper_SetupDiscount(SArray & rList, int pct, double discount);
+	void   SLAPI Helper_SetupDiscount(SVector & rList, int pct, double discount); // @v10.0.07 SArray-->SVector
 		// @<<PPObjTSession::SetupDiscount
+	enum {
+		hploInner = 0x0001
+	};
+	int    SLAPI Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, long options, int use_ta);
+
 	SString NameBuf;
 	PPTSessConfig Cfg;
 	//
@@ -43431,7 +43439,7 @@ public:
 		SLAPI ~ProcessInputBlock();
 		void   FASTCALL SetOuterProcessedFileList(SymbHashTable * pT);
 		int    FASTCALL CheckFileForProcessedFileList(const SDirEntry & rDe);
-		int    FASTCALL RegisterProcessedFile(const SDirEntry & rDe);
+		int    FASTCALL RegisterProcessedFile(const SFileEntryPool::Entry & rFe);
 		const  void * SLAPI GetStoredReadBlocks() const;
 		long   Flags;            // IN
 		PPID   PosNodeID;        // IN Кассовый узел, запрашивающий вызов обработки входных данных.

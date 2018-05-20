@@ -32,7 +32,7 @@ int __mutex_alloc(ENV *env, int alloc_id, uint32 flags, db_mutex_t * indxp)
 	    (F_ISSET(env->dbenv, DB_ENV_NOLOCKING) ||
 	    (!F_ISSET(env, ENV_THREAD) &&
 	    (LF_ISSET(DB_MUTEX_PROCESS_ONLY) || F_ISSET(env, ENV_PRIVATE)))))
-		return (0);
+		return 0;
 
 	/* Private environments never share mutexes. */
 	if(F_ISSET(env, ENV_PRIVATE))
@@ -43,8 +43,7 @@ int __mutex_alloc(ENV *env, int alloc_id, uint32 flags, db_mutex_t * indxp)
 	 * do the allocation.
 	 */
 	if(!MUTEX_ON(env)) {
-		__db_errx(env, DB_STR("2033",
-		    "Mutex allocated before mutex region."));
+		__db_errx(env, DB_STR("2033", "Mutex allocated before mutex region."));
 		return (__env_panic(env, EINVAL));
 	}
 	return (__mutex_alloc_int(env, 1, alloc_id, flags, indxp));
@@ -96,22 +95,17 @@ nomem:
 		/* Set i to the first newly created db_mutex_t. */
 		if(F_ISSET(env, ENV_PRIVATE)) {
 			F_SET(&mtxmgr->reginfo, REGION_TRACKED);
-			while(__env_alloc(&mtxmgr->reginfo,
-			    (cnt * mtxregion->mutex_size) +
-			    mtxregion->stat.st_mutex_align, &i) != 0) {
+			while(__env_alloc(&mtxmgr->reginfo, (cnt * mtxregion->mutex_size) + mtxregion->stat.st_mutex_align, &i) != 0) {
 				cnt >>= 1;
 				if(cnt == 0)
 					break;
 			}
 			F_CLR(&mtxmgr->reginfo, REGION_TRACKED);
-			i = (db_mutex_t)ALIGNP_INC(i,
-				mtxregion->stat.st_mutex_align);
+			i = (db_mutex_t)ALIGNP_INC(i, mtxregion->stat.st_mutex_align);
 		}
 		else {
 			len = cnt * mtxregion->mutex_size;
-			if((ret = __env_alloc_extend(&mtxmgr->reginfo,
-			    R_ADDR(&mtxmgr->reginfo,
-			    mtxregion->mutex_off_alloc), &len)) != 0)
+			if((ret = __env_alloc_extend(&mtxmgr->reginfo, R_ADDR(&mtxmgr->reginfo, mtxregion->mutex_off_alloc), &len)) != 0)
 				goto nomem;
 			cnt = (uint32)(len / mtxregion->mutex_size);
 			i = mtxregion->stat.st_mutex_cnt + 1;
@@ -129,21 +123,17 @@ nomem:
 		 */
 		MUTEX_BULK_INIT(env, mtxregion, i, cnt);
 	}
-
 	*indxp = mtxregion->mutex_next;
 	mutexp = MUTEXP_SET(env, *indxp);
-	DB_ASSERT(env,
-	    ((uintptr_t)mutexp & (dbenv->mutex_align - 1)) == 0);
+	DB_ASSERT(env, ((uintptr_t)mutexp & (dbenv->mutex_align - 1)) == 0);
 	mtxregion->mutex_next = mutexp->mutex_next_link;
-
 	--mtxregion->stat.st_mutex_free;
 	++mtxregion->stat.st_mutex_inuse;
 	if(mtxregion->stat.st_mutex_inuse > mtxregion->stat.st_mutex_inuse_max)
-		mtxregion->stat.st_mutex_inuse_max =
-		    mtxregion->stat.st_mutex_inuse;
+		mtxregion->stat.st_mutex_inuse_max = mtxregion->stat.st_mutex_inuse;
 
 	/* Initialize the mutex. */
-	memset(mutexp, 0, sizeof(*mutexp));
+	memzero(mutexp, sizeof(*mutexp));
 	F_SET(mutexp, DB_MUTEX_ALLOCATED |
 	    LF_ISSET(DB_MUTEX_LOGICAL_LOCK | DB_MUTEX_PROCESS_ONLY |
 	    DB_MUTEX_SELF_BLOCK | DB_MUTEX_SHARED));
@@ -167,7 +157,7 @@ nomem:
 	if(locksys)
 		MUTEX_SYSTEM_UNLOCK(env);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -192,7 +182,7 @@ int __mutex_free(ENV *env, db_mutex_t * indxp)
 	 * If the mutex has never been configured, we're done.
 	 */
 	if(!MUTEX_ON(env) || *indxp == MUTEX_INVALID)
-		return (0);
+		return 0;
 
 	return (__mutex_free_int(env, 1, indxp));
 }
@@ -235,7 +225,7 @@ int __mutex_free_int(ENV *env, int locksys, db_mutex_t * indxp)
 	if(locksys)
 		MUTEX_SYSTEM_UNLOCK(env);
 
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_FAILCHK_BROADCAST
@@ -289,14 +279,13 @@ int __mutex_refresh(ENV *env, db_mutex_t mutex)
 	mutexp = MUTEXP_SET(env, mutex);
 	flags = mutexp->flags;
 	if((ret = __mutex_destroy(env, mutex)) == 0) {
-		memset(mutexp, 0, sizeof(*mutexp));
+		memzero(mutexp, sizeof(*mutexp));
 		F_SET(mutexp, DB_MUTEX_ALLOCATED | LF_ISSET(DB_MUTEX_LOGICAL_LOCK | DB_MUTEX_PROCESS_ONLY | DB_MUTEX_SHARED));
 		LF_CLR(DB_MUTEX_LOCKED);
 		ret = __mutex_init(env, mutex, flags);
 	}
-	return (ret);
+	return ret;
 }
-
 /*
  * __mutex_record_lock --
  *	Record that this thread is about to lock a latch.
@@ -318,7 +307,7 @@ int __mutex_record_lock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip, MUTEX_A
 	*retp = NULL;
 	mutexp = MUTEXP_SET(env, mutex);
 	if(!F_ISSET(mutexp, DB_MUTEX_SHARED))
-		return (0);
+		return 0;
 	for(i = 0; i != MUTEX_STATE_MAX; i++) {
 		if(ip->dbth_latches[i].action == MUTEX_ACTION_UNLOCKED) {
 			ip->dbth_latches[i].mutex = mutex;
@@ -327,7 +316,7 @@ int __mutex_record_lock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip, MUTEX_A
 			__os_gettime(env, &ip->dbth_latches[i].when, 0);
 #endif
 			*retp = &ip->dbth_latches[i];
-			return (0);
+			return 0;
 		}
 	}
 	__db_errx(env, DB_STR_A("2074", "No space available in latch table for %lu", "%lu"), (u_long)mutex);
@@ -348,7 +337,7 @@ int __mutex_record_unlock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip)
 	for(i = 0; i != MUTEX_STATE_MAX; i++) {
 		if(ip->dbth_latches[i].mutex == mutex && ip->dbth_latches[i].action != MUTEX_ACTION_UNLOCKED) {
 			ip->dbth_latches[i].action = MUTEX_ACTION_UNLOCKED;
-			return (0);
+			return 0;
 		}
 	}
 	/*
@@ -359,7 +348,7 @@ int __mutex_record_unlock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip)
 	    ip->dbth_state == THREAD_FAILCHK) {
 		DB_DEBUG_MSG(env, "mutex_record_unlock %lu by failchk thread",
 		    (u_long)mutex);
-		return (0);
+		return 0;
 	}
 	else {
 		ret = USR_ERR(env, DB_RUNRECOVERY);
@@ -422,5 +411,5 @@ int __mutex_record_print(ENV *env, DB_THREAD_INFO * ip)
 #endif
 		DB_MSGBUF_FLUSH(env, mbp);
 	}
-	return (0);
+	return 0;
 }

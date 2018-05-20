@@ -59,7 +59,7 @@ int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** info
 			if(c_mp != NULL && regids[region] == infop->id)
 				break;
 			if((ret = __memp_map_regions(dbmp)) != 0)
-				return (ret);
+				return ret;
 		}
 
 		/* If our caller wants the hash bucket, lock it here. */
@@ -100,7 +100,7 @@ int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** info
 
 	if(bucketp != NULL)
 		*bucketp = bucket - region * mp->htab_buckets;
-	return (ret);
+	return ret;
 }
 
 static int __memp_merge_buckets(DB_MPOOL *dbmp, uint32 new_nbuckets, uint32 old_bucket, uint32 new_bucket)
@@ -151,7 +151,7 @@ free_old:
 				mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
 				if((ret = __memp_bhfree(dbmp, new_infop, mfp, new_hp, bhp, BH_FREE_FREEMEM)) != 0) {
 					MUTEX_UNLOCK(env, new_hp->mtx_hash);
-					return (ret);
+					return ret;
 				}
 				/*
 				 * The free has modified the list of buffers and
@@ -214,7 +214,7 @@ err:
 			F_CLR(bhp, BH_EXCLUSIVE);
 			MUTEX_UNLOCK(env, bhp->mtx_buf);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			goto retry;
 		}
 	}
@@ -282,7 +282,7 @@ err:
 	if(ret == 0)
 		mp->nbuckets = new_nbuckets;
 	MUTEX_UNLOCK(env, old_hp->mtx_hash);
-	return (ret);
+	return ret;
 }
 
 static int __memp_add_bucket(DB_MPOOL *dbmp)
@@ -328,10 +328,10 @@ static int __memp_add_region(DB_MPOOL *dbmp)
 	infop->id = INVALID_REGION_ID;
 	infop->flags = REGION_CREATE_OK;
 	if((ret = __env_region_attach(env, infop, reg_size, reg_size)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __memp_init(env,
 	    dbmp, mp->nreg, mp->htab_buckets, mp->max_nreg)) != 0)
-		return (ret);
+		return ret;
 	regids = (uint32 *)R_ADDR(dbmp->reginfo, mp->regids);
 	regids[mp->nreg++] = infop->id;
 
@@ -339,7 +339,7 @@ static int __memp_add_region(DB_MPOOL *dbmp)
 		if((ret = __memp_add_bucket(dbmp)) != 0)
 			break;
 
-	return (ret);
+	return ret;
 }
 
 static int __memp_remove_bucket(DB_MPOOL *dbmp)
@@ -365,11 +365,11 @@ static int __memp_remove_region(DB_MPOOL *dbmp)
 	int ret = 0;
 	if(mp->nreg == 1) {
 		__db_errx(env, DB_STR("3019", "cannot remove the last cache"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	for(i = 0; i < mp->htab_buckets; i++)
 		if((ret = __memp_remove_bucket(dbmp)) != 0)
-			return (ret);
+			return ret;
 	/* Detach from the region then destroy it. */
 	infop = &dbmp->reginfo[mp->nreg - 1];
 	c_mp = (MPOOL *)infop->primary;
@@ -381,12 +381,12 @@ static int __memp_remove_region(DB_MPOOL *dbmp)
 	 */
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		if((ret = __memp_region_bhfree(infop)) != 0)
-			return (ret);
+			return ret;
 		if(MUTEX_ON(env)) {
 			DB_ASSERT(env, env->dbenv->mp_mtxcount == mp->htab_mutexes);
 			for(i = 0; i < mp->htab_mutexes; i++)
 				if((ret = __mutex_free(env, &hp[i].mtx_hash)) != 0)
-					return (ret);
+					return ret;
 		}
 		__env_alloc_free(infop, hp);
 	}
@@ -394,12 +394,12 @@ static int __memp_remove_region(DB_MPOOL *dbmp)
 		DB_ASSERT(env, env->dbenv->mp_mtxcount == mp->htab_mutexes);
 		for(i = 0; i < mp->htab_mutexes; i++)
 			if((ret = __mutex_refresh(env, hp[i].mtx_hash)) != 0)
-				return (ret);
+				return ret;
 	}
 	ret = __env_region_detach(env, infop, 1);
 	if(ret == 0)
 		mp->nreg--;
-	return (ret);
+	return ret;
 }
 
 static int __memp_map_regions(DB_MPOOL *dbmp)
@@ -423,13 +423,13 @@ static int __memp_map_regions(DB_MPOOL *dbmp)
 		dbmp->reginfo[i].id = regids[i];
 		dbmp->reginfo[i].flags = REGION_JOIN_OK;
 		if((ret = __env_region_attach(env, &dbmp->reginfo[i], 0, 0)) != 0)
-			return (ret);
+			return ret;
 		dbmp->reginfo[i].primary = R_ADDR(&dbmp->reginfo[i], dbmp->reginfo[i].rp->primary);
 	}
 	for(; i < mp->max_nreg; i++)
 		if(dbmp->reginfo[i].primary != NULL && (ret = __env_region_detach(env, &dbmp->reginfo[i], 0)) != 0)
 			break;
-	return (ret);
+	return ret;
 }
 /*
  * __memp_resize --
@@ -450,7 +450,7 @@ int __memp_resize(DB_MPOOL *dbmp, uint32 gbytes, uint32 bytes)
 	else if(ncache > mp->max_nreg) {
 		__db_errx(env, DB_STR_A("3020", "cannot resize to %lu cache regions: maximum is %lu",
 		    "%lu %lu"), (u_long)ncache, (u_long)mp->max_nreg);
-		return (EINVAL);
+		return EINVAL;
 	}
 	ret = 0;
 	MUTEX_LOCK(env, mp->mtx_resize);
@@ -461,7 +461,7 @@ int __memp_resize(DB_MPOOL *dbmp, uint32 gbytes, uint32 bytes)
 	mp->gbytes = (uint32)(total_size / GIGABYTE);
 	mp->bytes = (uint32)(total_size % GIGABYTE);
 	MUTEX_UNLOCK(env, mp->mtx_resize);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __memp_get_cache_max __P((DB_ENV *, uint32 *, uint32 *));
@@ -486,7 +486,7 @@ int __memp_get_cache_max(DB_ENV *dbenv, uint32 * max_gbytesp, uint32 * max_bytes
 		*max_gbytesp = dbenv->mp_max_gbytes;
 		*max_bytesp = dbenv->mp_max_bytes;
 	}
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __memp_set_cache_max __P((DB_ENV *, uint32, uint32));
@@ -497,5 +497,5 @@ int __memp_set_cache_max(DB_ENV *dbenv, uint32 max_gbytes, uint32 max_bytes)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_cache_max");
 	dbenv->mp_max_gbytes = max_gbytes;
 	dbenv->mp_max_bytes = max_bytes;
-	return (0);
+	return 0;
 }

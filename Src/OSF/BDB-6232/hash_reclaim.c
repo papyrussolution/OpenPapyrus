@@ -30,7 +30,7 @@ int __ham_reclaim(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 	int ret;
 	/* Open up a cursor that we'll use for traversing. */
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	hcp = (HASH_CURSOR*)dbc->internal;
 	if((ret = __ham_get_meta(dbc)) != 0)
 		goto err;
@@ -45,12 +45,12 @@ int __ham_reclaim(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 		goto err;
 	if((ret = __ham_release_meta(dbc)) != 0)
 		goto err;
-	return (0);
+	return 0;
 err:    
 	if(hcp->hdr != NULL)
 		(void)__ham_release_meta(dbc);
 	(void)__dbc_close(dbc);
-	return (ret);
+	return ret;
 }
 /*
  * __ham_truncate --
@@ -64,12 +64,12 @@ int __ham_truncate(DBC *dbc, uint32 * countp)
 	uint32 count;
 	int ret, t_ret;
 	if((ret = __ham_get_meta(dbc)) != 0)
-		return (ret);
+		return ret;
 	count = 0;
 	ret = __ham_traverse(dbc, DB_LOCK_WRITE, __db_truncate_callback, &count, 1);
 	if((t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	if(countp != NULL)
 		*countp = count;
-	return (ret);
+	return ret;
 }

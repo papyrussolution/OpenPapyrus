@@ -35,37 +35,28 @@ int __qam_stat(DBC *dbc, void * spp, uint32 flags)
 	db_pgno_t first, last, pgno, pg_ext, stop;
 	uint32 re_len;
 	int ret, t_ret;
-
 	dbp = dbc->dbp;
-
 	LOCK_INIT(lock);
 	mpf = dbp->mpf;
 	sp = NULL;
 	t = (QUEUE *)dbp->q_internal;
-
 	if(spp == NULL)
-		return (0);
-
+		return 0;
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(dbp->env, sizeof(*sp), &sp)) != 0)
 		goto err;
-	memset(sp, 0, sizeof(*sp));
-
+	memzero(sp, sizeof(*sp));
 	re_len = ((QUEUE*)dbp->q_internal)->re_len;
-
 	/* Determine the last page of the database. */
 	if((ret = __db_lget(dbc, 0, t->q_meta, DB_LOCK_READ, 0, &lock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &t->q_meta,
-	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
-
 	if(flags == DB_FAST_STAT) {
 		sp->qs_nkeys = meta->dbmeta.key_count;
 		sp->qs_ndata = meta->dbmeta.record_count;
 		goto meta_only;
 	}
-
 	first = QAM_RECNO_PAGE(dbp, meta->first_recno);
 	last = QAM_RECNO_PAGE(dbp, meta->cur_recno);
 
@@ -178,7 +169,7 @@ err:            if(sp != NULL)
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -196,7 +187,7 @@ int __qam_stat_print(DBC *dbc, uint32 flags)
 	dbp = dbc->dbp;
 	env = dbp->env;
 	if((ret = __qam_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		__db_msg(env, "Default Queue database information:");
@@ -225,7 +216,7 @@ int __qam_stat_print(DBC *dbc, uint32 flags)
 
 	__os_ufree(env, sp);
 
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */

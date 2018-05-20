@@ -54,7 +54,7 @@ static int __bam_csearch(DBC *dbc, DBT * start, uint32 sflag, int level)
 			if(start == NULL || start->size == 0)
 				cp->recno = 1;
 			else if((ret = __ram_getno(dbc, start, &cp->recno, 0)) != 0)
-				return (ret);
+				return ret;
 			FLD_CLR(sflag, CS_GETRECNO);
 		}
 		switch(sflag) {
@@ -82,7 +82,7 @@ static int __bam_csearch(DBC *dbc, DBT * start, uint32 sflag, int level)
 		}
 		if((ret = __bam_rsearch(dbc,
 				    &cp->recno, sflag, level, &not_used)) != 0)
-			return (ret);
+			return ret;
 		/* Reset the cursor's recno to the beginning of the page. */
 		cp->recno -= cp->csp->indx;
 	}
@@ -116,9 +116,9 @@ static int __bam_csearch(DBC *dbc, DBT * start, uint32 sflag, int level)
 		if(start == NULL || start->size == 0)
 			FLD_SET(sflag, SR_MIN);
 		if((ret = __bam_search(dbc, PGNO_INVALID, start, sflag, level, NULL, &not_used)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __bam_compact_int -- internal compaction routine.
@@ -975,7 +975,7 @@ out:
 	/* For OPD trees return if we did anything in the span variable. */
 	if(F_ISSET(dbc, DBC_OPD))
 		*spanp = pgs_done;
-	return (ret);
+	return ret;
 }
 /*
  * __bam_merge -- do actual merging of leaf pages.
@@ -1001,9 +1001,9 @@ static int __bam_merge(DBC *dbc, DBC *ndbc, uint32 factor, DBT * stop, DB_COMPAC
 	/* Find if the stopping point is on this page. */
 	if(stop != NULL && stop->size != 0) {
 		if((ret = __bam_compact_isdone(dbc, stop, npg, isdonep)) != 0)
-			return (ret);
+			return ret;
 		if(*isdonep)
-			return (0);
+			return 0;
 	}
 	/*
 	 * If there is too much data then just move records one at a time.
@@ -1024,7 +1024,7 @@ free_page:      ret = __bam_merge_pages(dbc, ndbc, c_data);
 		(*pgs_donep)++;
 	}
 
-	return (ret);
+	return ret;
 }
 
 static int __bam_merge_records(DBC *dbc, DBC *ndbc, uint32 factor, DB_COMPACT * c_data, int * pgs_donep)
@@ -1332,7 +1332,7 @@ done:
 	}
 	ret = __bam_stkrel(ndbc, STK_CLRDBC);
 err:    
-	return (ret);
+	return ret;
 }
 
 static int __bam_merge_pages(DBC *dbc, DBC *ndbc, DB_COMPACT * c_data)
@@ -1470,7 +1470,7 @@ free_page:
 		}
 	}
 err:    
-	return (ret);
+	return ret;
 }
 /*
  * __bam_merge_internal --
@@ -1656,7 +1656,7 @@ fits:
 				if(hdr.data != NULL)
 					__os_free(dbp->env, hdr.data);
 				if(ret != 0)
-					return (ret);
+					return ret;
 				data.size = sizeof(bo);
 				data.data = &bo;
 			}
@@ -1833,13 +1833,13 @@ fits:
 	}
 	cp->csp = save_csp;
 
-	return (ret);
+	return ret;
 
 done:
 err:    cp->csp = save_csp;
 	ncp->csp = nsave_csp;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1912,7 +1912,7 @@ static int __bam_compact_dups(DBC *dbc, PAGE ** ppg, uint32 factor, int have_loc
 	}
 
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1984,7 +1984,7 @@ err:
 		ret = t_ret;
 done:
 	LOCK_CHECK_ON(dbc->thread_info);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2054,7 +2054,7 @@ static int __bam_truncate_internal_overflow(DBC *dbc, PAGE * page, DB_COMPACT * 
 				    bo->pgno, NULL, c_data, pgs_donep)) != 0)
 			break;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2074,18 +2074,18 @@ static int __bam_compact_isdone(DBC *dbc, DBT * stop, PAGE * pg, int * isdone)
 	t = (BTREE *)dbc->dbp->bt_internal;
 	if(dbc->dbtype == DB_RECNO) {
 		if((ret = __ram_getno(dbc, stop, &recno, 0)) != 0)
-			return (ret);
+			return ret;
 		*isdone = cp->recno > recno;
 	}
 	else {
 		DB_ASSERT(dbc->dbp->env, TYPE(pg) == P_LBTREE);
 		if((ret = __bam_cmp(dbc, stop, pg, 0,
 				    t->bt_compare, &cmp, NULL)) != 0)
-			return (ret);
+			return ret;
 
 		*isdone = cmp <= 0;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -2110,7 +2110,7 @@ static int __bam_lock_tree(DBC *dbc, EPG * sp, EPG * csp, uint32 start, uint32 s
 	 */
 	if(start == 0 && sp + 1 != csp && pgno == PGNO(cpage) &&
 	    (ret = __bam_lock_tree(dbc, sp + 1, csp, 0, NUM_ENT(cpage))) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Then recurse on the other records on the page if needed.
@@ -2121,7 +2121,7 @@ static int __bam_lock_tree(DBC *dbc, EPG * sp, EPG * csp, uint32 start, uint32 s
 		start = 1;
 
 	if(start == stop)
-		return (0);
+		return 0;
 	return (__bam_lock_subtree(dbc, sp->page, start, stop));
 }
 
@@ -2145,22 +2145,22 @@ static int __bam_lock_subtree(DBC *dbc, PAGE * page, uint32 indx, uint32 stop)
 					    DB_LOCK_WRITE, DB_LOCK_NOWAIT, &lock)) != 0) {
 				if(ret == DB_LOCK_DEADLOCK)
 					return (DB_LOCK_NOTGRANTED);
-				return (ret);
+				return ret;
 			}
 		}
 		else {
 			if((ret = __memp_fget(dbp->mpf, &pgno,
 					    dbc->thread_info, dbc->txn, 0, &cpage)) != 0)
-				return (ret);
+				return ret;
 			ret = __bam_lock_subtree(dbc, cpage, 0, NUM_ENT(cpage));
 			if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info,
 					    cpage, dbc->priority)) != 0 && ret == 0)
 				ret = t_ret;
 			if(ret != 0)
-				return (ret);
+				return ret;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -2272,7 +2272,7 @@ err:    if(pg != NULL && pg != cp->csp->page &&
 	    (t_ret = __memp_fput(dbp->mpf, dbc->thread_info,
 			    pg, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 
 retry:  return (DB_LOCK_NOTGRANTED);
 }
@@ -2537,7 +2537,7 @@ err:    if(txn != NULL && ret != 0)
 		ret = t_ret;
 	if(start.data != NULL)
 		__os_free(dbp->env, start.data);
-	return (ret);
+	return ret;
 }
 
 #endif

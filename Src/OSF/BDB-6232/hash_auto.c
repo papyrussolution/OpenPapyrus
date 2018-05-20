@@ -170,26 +170,26 @@ int __ham_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_insdel_recover, DB___ham_insdel)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_newpage_recover, DB___ham_newpage)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_splitdata_recover, DB___ham_splitdata)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_replace_recover, DB___ham_replace)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_copypage_recover, DB___ham_copypage)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_metagroup_recover, DB___ham_metagroup)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_groupalloc_recover, DB___ham_groupalloc)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_changeslot_recover, DB___ham_changeslot)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_contract_recover, DB___ham_contract)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_curadj_recover, DB___ham_curadj)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __ham_chgpg_recover, DB___ham_chgpg)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

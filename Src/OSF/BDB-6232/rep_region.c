@@ -44,17 +44,15 @@ int __rep_open(ENV *env)
 		 * cleared by a recovery.
 		 */
 		if((ret = __env_alloc(infop, sizeof(REP), &rep)) != 0)
-			return (ret);
-		memset(rep, 0, sizeof(*rep));
-
+			return ret;
+		memzero(rep, sizeof(*rep));
 		/*
 		 * We have the region; fill in the values.  Some values may
 		 * have been configured before we open the region, and those
 		 * are taken from the DB_REP structure.
 		 */
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_REGION, 0, &rep->mtx_region)) != 0)
-			return (ret);
+		if((ret = __mutex_alloc(env, MTX_REP_REGION, 0, &rep->mtx_region)) != 0)
+			return ret;
 		/*
 		 * Because we have no way to prevent deadlocks and cannot log
 		 * changes made to it, we single-thread access to the client
@@ -64,27 +62,27 @@ int __rep_open(ENV *env)
 		 */
 		if((ret = __mutex_alloc(
 			    env, MTX_REP_DATABASE, 0, &rep->mtx_clientdb)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __mutex_alloc(
 			    env, MTX_REP_CHKPT, 0, &rep->mtx_ckp)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __mutex_alloc(
 			    env, MTX_REP_DIAG, 0, &rep->mtx_diag)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __mutex_alloc(
 			    env, MTX_REP_EVENT, 0, &rep->mtx_event)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __mutex_alloc(
 			    env, MTX_REP_START, 0, &rep->mtx_repstart)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __mutex_alloc(
 			    env, MTX_LSN_HISTORY, 0, &db_rep->mtx_lsnhist)) != 0)
-			return (ret);
+			return ret;
 
 		rep->diag_off = 0;
 		rep->diag_index = 0;
@@ -111,9 +109,9 @@ int __rep_open(ENV *env)
 			FLD_CLR(env->dbenv->verbose, DB_VERB_REP_SYSTEM);
 
 		if((ret = __rep_gen_init(env, rep)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __rep_egen_init(env, rep)) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * Determine if this is a view site or not.  It is a view
 		 * if the callback is set.  If the site was a view in the
@@ -123,11 +121,11 @@ int __rep_open(ENV *env)
 		if(db_rep->partial != NULL) {
 			rep->stat.st_view = 1;
 			if((ret = __rep_view_init(env, rep)) != 0)
-				return (ret);
+				return ret;
 		}
 		else {
 			if((ret = __rep_viewfile_exists(env, &view)) != 0)
-				return (ret);
+				return ret;
 			if(view)
 				rep->stat.st_view = 1;
 		}
@@ -148,7 +146,7 @@ int __rep_open(ENV *env)
 		rep->priority = db_rep->my_priority;
 
 		if((ret = __rep_lockout_archive(env, rep)) != 0)
-			return (ret);
+			return ret;
 
 		/* Copy application type flags if set before env open. */
 		if(F_ISSET(db_rep, DBREP_APP_REPMGR))
@@ -164,7 +162,7 @@ int __rep_open(ENV *env)
 
 #ifdef HAVE_REPLICATION_THREADS
 		if((ret = __repmgr_open(env, rep)) != 0)
-			return (ret);
+			return ret;
 #endif
 	}
 	else {
@@ -173,14 +171,9 @@ int __rep_open(ENV *env)
 		 * Prevent an application type mismatch between a process
 		 * and the environment it is trying to join.
 		 */
-		if((F_ISSET(db_rep, DBREP_APP_REPMGR) &&
-		    F_ISSET(rep, REP_F_APP_BASEAPI)) ||
-		    (F_ISSET(db_rep, DBREP_APP_BASEAPI) &&
-		    F_ISSET(rep, REP_F_APP_REPMGR))) {
-			__db_errx(env, DB_STR("3535",
-			    "Application type mismatch for a replication "
-			    "process joining the environment"));
-			return (EINVAL);
+		if((F_ISSET(db_rep, DBREP_APP_REPMGR) && F_ISSET(rep, REP_F_APP_BASEAPI)) || (F_ISSET(db_rep, DBREP_APP_BASEAPI) && F_ISSET(rep, REP_F_APP_REPMGR))) {
+			__db_errx(env, DB_STR("3535", "Application type mismatch for a replication process joining the environment"));
+			return EINVAL;
 		}
 		/*
 		 * If we are joining an existing environment and we
@@ -196,21 +189,19 @@ int __rep_open(ENV *env)
 		 */
 		if(db_rep->partial != NULL) {
 			if((ret = __rep_viewfile_exists(env, &view)) != 0)
-				return (ret);
+				return ret;
 			/*
 			 * If there is a callback, and we are not in-memory,
 			 * there better be a view system file too.
 			 */
 			if(view == 0 && !FLD_ISSET(rep->config, REP_C_INMEM)) {
-				__db_errx(env, DB_STR("3688",
-				    "Application environment and view mismatch "
-				    "joining the environment"));
-				return (EINVAL);
+				__db_errx(env, DB_STR("3688", "Application environment and view mismatch joining the environment"));
+				return EINVAL;
 			}
 		}
 #ifdef HAVE_REPLICATION_THREADS
 		if((ret = __repmgr_join(env, rep)) != 0)
-			return (ret);
+			return ret;
 #endif
 	}
 
@@ -235,11 +226,11 @@ int __rep_open(ENV *env)
 	}
 
 out:
-	return (0);
+	return 0;
 
 err:
 	(void)__rep_close_diagfiles(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -258,7 +249,7 @@ int __rep_close_diagfiles(ENV *env)
 			ret = t_ret;
 		db_rep->diagfile[i] = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __rep_env_refresh --
@@ -338,7 +329,7 @@ int __rep_env_refresh(ENV *env)
 	if((t_ret = __rep_close_diagfiles(env)) != 0 && ret == 0)
 		ret = t_ret;
 	env->rep_handle->region = NULL;
-	return (ret);
+	return ret;
 }
 /*
  * __rep_close --
@@ -352,7 +343,7 @@ int __rep_env_close(ENV *env)
 	int ret = __rep_preclose(env);
 	if((t_ret = __rep_closefiles(env)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -379,7 +370,7 @@ int __rep_preclose(ENV *env)
 	 * a region, even though we have a handle.
 	 */
 	if(db_rep == NULL || db_rep->region == NULL)
-		return (ret);
+		return ret;
 
 	MUTEX_LOCK(env, db_rep->mtx_lsnhist);
 	if((dbp = db_rep->lsn_db) != NULL) {
@@ -407,7 +398,7 @@ int __rep_preclose(ENV *env)
 	 * if we are able to.
 	 */
 	if(lp->bulk_off != 0 && db_rep->send != NULL) {
-		memset(&bulk, 0, sizeof(bulk));
+		memzero(&bulk, sizeof(bulk));
 		bulk.addr = (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf);
 		bulk.offp = &lp->bulk_off;
 		bulk.len = lp->bulk_len;
@@ -421,7 +412,7 @@ int __rep_preclose(ENV *env)
 		(void)__rep_send_bulk(env, &bulk, 0);
 	}
 out:    MUTEX_UNLOCK(env, db_rep->region->mtx_clientdb);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -441,12 +432,12 @@ int __rep_closefiles(ENV *env)
 	db_rep = env->rep_handle;
 	dblp = env->lg_handle;
 	if(db_rep == NULL || db_rep->region == NULL)
-		return (ret);
+		return ret;
 	if(dblp == NULL)
-		return (ret);
+		return ret;
 	if((ret = __dbreg_close_files(env, 0)) == 0)
 		F_CLR(db_rep, DBREP_OPENFILES);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_egen_init --
@@ -462,7 +453,7 @@ static int __rep_egen_init(ENV *env, REP * rep)
 	size_t cnt;
 	char * p;
 	if((ret = __db_appname(env, DB_APP_META, REP_EGENNAME, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * If the file doesn't exist, create it now and initialize with 1.
 	 */
@@ -486,7 +477,7 @@ static int __rep_egen_init(ENV *env, REP * rep)
 err1:           (void)__os_closehandle(env, fhp);
 	}
 err:    __os_free(env, p);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -508,16 +499,16 @@ int __rep_write_egen(ENV *env, REP * rep, uint32 egen)
 	 * operations.
 	 */
 	if(FLD_ISSET(rep->config, REP_C_INMEM))
-		return (0);
+		return 0;
 	if((ret = __db_appname(env, DB_APP_META, REP_EGENNAME, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_open(env, p, 0, DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &fhp)) == 0) {
 		if((ret = __os_write(env, fhp, &egen, sizeof(uint32), &cnt)) != 0 || ((ret = __os_fsync(env, fhp)) != 0))
 			__db_err(env, ret, "%s", p);
 		(void)__os_closehandle(env, fhp);
 	}
 	__os_free(env, p);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_gen_init --
@@ -533,7 +524,7 @@ static int __rep_gen_init(ENV *env, REP * rep)
 	size_t cnt;
 	char * p;
 	if((ret = __db_appname(env, DB_APP_META, REP_GENNAME, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 	if(__os_exists(env, p, NULL) != 0) {
 		/*
 		 * File doesn't exist, create it now and initialize with 0.
@@ -557,7 +548,7 @@ static int __rep_gen_init(ENV *env, REP * rep)
 err1:           (void)__os_closehandle(env, fhp);
 	}
 err:    __os_free(env, p);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -577,16 +568,16 @@ int __rep_write_gen(ENV *env, REP * rep, uint32 gen)
 	 * operations.
 	 */
 	if(FLD_ISSET(rep->config, REP_C_INMEM))
-		return (0);
+		return 0;
 	if((ret = __db_appname(env, DB_APP_META, REP_GENNAME, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_open(env, p, 0, DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &fhp)) == 0) {
 		if((ret = __os_write(env, fhp, &gen, sizeof(uint32), &cnt)) != 0 || ((ret = __os_fsync(env, fhp)) != 0))
 			__db_err(env, ret, "%s", p);
 		(void)__os_closehandle(env, fhp);
 	}
 	__os_free(env, p);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -604,11 +595,11 @@ static int __rep_view_init(ENV *env, REP * rep)
 	 * operations.
 	 */
 	if(FLD_ISSET(rep->config, REP_C_INMEM))
-		return (0);
+		return 0;
 
 	if((ret = __db_appname(env,
 	    DB_APP_META, REPVIEW, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * If the file doesn't exist, create it.  We just want to open
@@ -623,7 +614,7 @@ static int __rep_view_init(ENV *env, REP * rep)
 		(void)__os_closehandle(env, fhp);
 	}
 out:    __os_free(env, p);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -646,7 +637,7 @@ int __rep_check_view(ENV *env)
 	if(FLD_ISSET(rep->config, REP_C_INMEM))
 		exist = (int)rep->stat.st_view;
 	else if((ret = __rep_viewfile_exists(env, &exist)) != 0)
-		return (ret);
+		return ret;
 	RPRINT(env, (env, DB_VERB_REP_MISC, "Check view.  Exist %d, cb %d", exist, (db_rep->partial != NULL)));
 	/*
 	 * If view file exists, a partial function must be set.
@@ -654,7 +645,7 @@ int __rep_check_view(ENV *env)
 	 */
 	if((exist == 0 && db_rep->partial != NULL) || (exist == 1 && db_rep->partial == NULL))
 		ret = EINVAL;
-	return (ret);
+	return ret;
 }
 
 static int __rep_viewfile_exists(ENV *env, int * existp)
@@ -664,11 +655,11 @@ static int __rep_viewfile_exists(ENV *env, int * existp)
 	*existp = 0;
 	if((ret = __db_appname(env,
 	    DB_APP_META, REPVIEW, NULL, &p)) != 0)
-		return (ret);
+		return ret;
 
 	if(__os_exists(env, p, NULL) == 0)
 		*existp = 1;
 
 	__os_free(env, p);
-	return (ret);
+	return ret;
 }

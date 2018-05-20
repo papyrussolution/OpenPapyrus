@@ -49,7 +49,7 @@ int __dbreg_add_dbentry(ENV *env, DB_LOG * dblp, DB * dbp, int32 ndx)
 	dblp->dbentry[ndx].dbp = dbp;
 
 err:    MUTEX_UNLOCK(env, dblp->mtx_dbreg);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -66,7 +66,7 @@ int __dbreg_rem_dbentry(DB_LOG *dblp, int32 ndx)
 		dblp->dbentry[ndx].deleted = 0;
 	}
 	MUTEX_UNLOCK(dblp->env, dblp->mtx_dbreg);
-	return (0);
+	return 0;
 }
 /*
  * __dbreg_log_files --
@@ -82,16 +82,11 @@ int __dbreg_log_files(ENV *env, uint32 opcode)
 	FNAME * fnp;
 	LOG * lp;
 	uint32 lopcode;
-	int ret;
+	int ret = 0;
 	uint32 blob_file_hi, blob_file_lo;
-
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
-
-	ret = 0;
-
 	MUTEX_LOCK(env, lp->mtx_filelist);
-
 	SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname) {
 		/* This id was revoked by a switch in replication master. */
 		if(fnp->id == DB_LOGFILEID_INVALID)
@@ -99,12 +94,12 @@ int __dbreg_log_files(ENV *env, uint32 opcode)
 		if(fnp->fname_off == INVALID_ROFF)
 			dbtp = NULL;
 		else {
-			memset(&t, 0, sizeof(t));
+			memzero(&t, sizeof(t));
 			t.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
 			t.size = (uint32)strlen((const char *)t.data) + 1;
 			dbtp = &t;
 		}
-		memset(&fid_dbt, 0, sizeof(fid_dbt));
+		memzero(&fid_dbt, sizeof(fid_dbt));
 		fid_dbt.data = fnp->ufid;
 		fid_dbt.size = DB_FILE_ID_LEN;
 		/*
@@ -129,7 +124,7 @@ int __dbreg_log_files(ENV *env, uint32 opcode)
 
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -161,7 +156,7 @@ int __dbreg_close_files(ENV *env, int do_restored)
 	int32 i;
 	/* If we haven't initialized logging, we have nothing to do. */
 	if(!LOGGING_ON(env))
-		return (0);
+		return 0;
 	dblp = env->lg_handle;
 	ret = 0;
 	MUTEX_LOCK(env, dblp->mtx_dbreg);
@@ -209,7 +204,7 @@ int __dbreg_close_files(ENV *env, int do_restored)
 		dblp->dbentry[i].dbp = NULL;
 	}
 	MUTEX_UNLOCK(env, dblp->mtx_dbreg);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -222,7 +217,7 @@ int __dbreg_close_file(ENV *env, FNAME * fnp)
 	DB_LOG * dblp = env->lg_handle;
 	DB * dbp = dblp->dbentry[fnp->id].dbp;
 	if(dbp == NULL)
-		return (0);
+		return 0;
 	DB_ASSERT(env, dbp->log_filename == fnp);
 	DB_ASSERT(env, F_ISSET(dbp, DB_AM_RECOVER));
 	return (__db_close(dbp, NULL, DB_NOSYNC));
@@ -243,7 +238,7 @@ int __dbreg_mark_restored(ENV *env)
 	LOG * lp;
 	/* If we haven't initialized logging, we have nothing to do. */
 	if(!LOGGING_ON(env))
-		return (0);
+		return 0;
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	MUTEX_LOCK(env, lp->mtx_filelist);
@@ -252,7 +247,7 @@ int __dbreg_mark_restored(ENV *env)
 		F_SET(fnp, DB_FNAME_RESTORED);
 
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (0);
+	return 0;
 }
 
 /*
@@ -271,7 +266,7 @@ int __dbreg_invalidate_files(ENV *env, int do_restored)
 	int ret;
 	/* If we haven't initialized logging, we have nothing to do. */
 	if(!LOGGING_ON(env))
-		return (0);
+		return 0;
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
 	ret = 0;
@@ -295,7 +290,7 @@ int __dbreg_invalidate_files(ENV *env, int do_restored)
 		}
 	}
 err:    MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -369,7 +364,7 @@ int __dbreg_id_to_db(ENV *env, DB_TXN * txn, DB ** dbpp, int32 ndx, int tryopen)
 		    fname->ufid, name, fname->s_type, ndx, fname->meta_pgno,
 		    NULL, TXN_INVALID, F_ISSET(fname, DB_FNAME_INMEM) ?
 		    DBREG_REOPEN : DBREG_OPEN, fname->blob_file_id)) != 0)
-			return (ret);
+			return ret;
 
 		*dbpp = dblp->dbentry[ndx].dbp;
 		return (*dbpp == NULL ? DB_DELETED : 0);
@@ -400,7 +395,7 @@ int __dbreg_id_to_db(ENV *env, DB_TXN * txn, DB ** dbpp, int32 ndx, int tryopen)
 		(*dbpp)->mpf->mfp->file_written = 1;
 
 err:    MUTEX_UNLOCK(env, dblp->mtx_dbreg);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -427,7 +422,7 @@ int __dbreg_id_to_fname(DB_LOG *dblp, int32 id, int have_lock, FNAME ** fnamep)
 	if(!have_lock)
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
 
-	return (ret);
+	return ret;
 }
 /*
  * __dbreg_fid_to_fname --
@@ -456,7 +451,7 @@ int __dbreg_fid_to_fname(DB_LOG *dblp, uint8 * fid, int have_lock, FNAME ** fnam
 	if(!have_lock)
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -479,7 +474,7 @@ int __dbreg_blob_file_to_fname(DB_LOG *dblp, db_seq_t blob_file_id, int have_loc
 	 * unique.
 	 */
 	if(blob_file_id == 0)
-		return (ret);
+		return ret;
 
 	if(!have_lock)
 		MUTEX_LOCK(env, lp->mtx_filelist);
@@ -492,7 +487,7 @@ int __dbreg_blob_file_to_fname(DB_LOG *dblp, db_seq_t blob_file_id, int have_loc
 	if(!have_lock)
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -511,7 +506,7 @@ int __dbreg_get_name(ENV *env, uint8 * fid, char ** fnamep, char ** dnamep)
 	if(dblp != NULL && __dbreg_fid_to_fname(dblp, fid, 0, &fnp) == 0) {
 		*fnamep = fnp->fname_off == INVALID_ROFF ? NULL : (char *)R_ADDR(&dblp->reginfo, fnp->fname_off);
 		*dnamep = fnp->dname_off == INVALID_ROFF ? NULL : (char *)R_ADDR(&dblp->reginfo, fnp->dname_off);
-		return (0);
+		return 0;
 	}
 	*fnamep = *dnamep = NULL;
 	return (-1);
@@ -537,7 +532,7 @@ int __dbreg_do_open(ENV *env, DB_TXN * txn, DB_LOG * dblp, uint8 * uid, char * n
 	try_inmem = 0;
 retry_inmem:
 	if((ret = __db_create_internal(&dbp, dblp->env, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * We can open files under a number of different scenarios.
@@ -617,7 +612,7 @@ skip_open:
 err:            
 		if(cstat == TXN_UNEXPECTED)
 			goto not_right;
-		return (ret);
+		return ret;
 	}
 	else if(ret == ENOENT) {
 		/*
@@ -634,7 +629,7 @@ err:
 		    opcode != DBREG_PREOPEN && opcode != DBREG_REOPEN &&
 		    opcode != DBREG_XREOPEN) {
 			if((ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0)
-				return (ret);
+				return ret;
 			try_inmem = 1;
 			goto retry_inmem;
 		}
@@ -656,9 +651,9 @@ err:
 		 */
 		dbp->blob_file_id = blob_file_id;
 		if(dbp->log_filename == NULL && (ret = __dbreg_setup(dbp, name, NULL, id)) != 0)
-			return (ret);
+			return ret;
 		ret = __dbreg_assign_id(dbp, ndx, 1);
-		return (ret);
+		return ret;
 	}
 not_right:
 	if((t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0)
@@ -666,7 +661,7 @@ not_right:
 	/* Add this file as deleted. */
 	if((t_ret = __dbreg_add_dbentry(env, dblp, NULL, ndx)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static int __dbreg_check_master(ENV *env, uint8 * uid, char * name)
@@ -674,7 +669,7 @@ static int __dbreg_check_master(ENV *env, uint8 * uid, char * name)
 	DB * dbp;
 	int ret;
 	if((ret = __db_create_internal(&dbp, env, 0)) != 0)
-		return (ret);
+		return ret;
 	F_SET(dbp, DB_AM_RECOVER);
 	ret = __db_open(dbp, NULL, NULL,
 		name, NULL, DB_BTREE, 0, DB_MODE_600, PGNO_BASE_MD);
@@ -683,7 +678,7 @@ static int __dbreg_check_master(ENV *env, uint8 * uid, char * name)
 		ret = USR_ERR(env, EINVAL);
 
 	(void)__db_close(dbp, NULL, 0);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -724,7 +719,7 @@ int __dbreg_lazy_id(DB *dbp)
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	if(fnp->id != DB_LOGFILEID_INVALID) {
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
-		return (0);
+		return 0;
 	}
 	id = DB_LOGFILEID_INVALID;
 	/*
@@ -761,5 +756,5 @@ err:
 	if(ret != 0 && id != DB_LOGFILEID_INVALID)
 		(void)__dbreg_revoke_id(dbp, 1, id);
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (ret);
+	return ret;
 }

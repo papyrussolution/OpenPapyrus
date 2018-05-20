@@ -43,7 +43,7 @@ int __heap_truncate(DBC *dbc, uint32 * countp)
 	pgno = PGNO_BASE_MD;
 	if((ret = __db_lget(dbc,
 	    LCK_ALWAYS, pgno, DB_LOCK_WRITE, 0, &meta_lock)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __memp_fget(mpf, &pgno,
 	    dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0) {
 		(void)__TLPUT(dbc, lock);
@@ -62,17 +62,14 @@ int __heap_truncate(DBC *dbc, uint32 * countp)
 			break;
 		}
 		if(DBC_LOGGING(dbc)) {
-			memset(&log_dbt, 0, sizeof(DBT));
+			memzero(&log_dbt, sizeof(DBT));
 			log_dbt.data = pg;
 			log_dbt.size = dbp->pgsize;
-			if((ret = __heap_trunc_page_log(dbp, dbc->txn,
-			    &LSN(pg), 0, pgno,
-			    &log_dbt, (pgno == next_region), &LSN(pg))) != 0)
+			if((ret = __heap_trunc_page_log(dbp, dbc->txn, &LSN(pg), 0, pgno, &log_dbt, (pgno == next_region), &LSN(pg))) != 0)
 				goto err;
 		}
 		else
 			LSN_NOT_LOGGED(LSN(pg));
-
 		if(pgno == next_region) {
 			DB_ASSERT(dbp->env, TYPE(pg) == P_IHEAP);
 			next_region += region_size + 1;
@@ -128,7 +125,7 @@ int __heap_truncate(DBC *dbc, uint32 * countp)
 	pgno = PGNO_BASE_MD + 1;
 	if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &pg)) != 0)
 		goto err;
-	memset(pg, 0, dbp->pgsize);
+	memzero(pg, dbp->pgsize);
 	P_INIT(pg, dbp->pgsize, 1, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
 	ret = __db_log_page(dbp, dbc->txn, &pg->lsn, pgno, (PAGE*)pg);
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, pg, dbp->priority)) != 0 && ret == 0)
@@ -138,5 +135,5 @@ err:
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, meta_lock)) && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

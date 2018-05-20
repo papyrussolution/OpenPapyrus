@@ -21,16 +21,16 @@ int __os_rename(ENV *env, const char * oldname, const char * newname, uint32 sil
 		__db_msg(env, DB_STR_A("0036", "fileops: rename %s to %s", "%s %s"), oldname, newname);
 	TO_TSTRING(env, oldname, toldname, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	TO_TSTRING(env, newname, tnewname, ret);
 	if(ret != 0) {
 		FREE_STRING(env, toldname);
-		return (ret);
+		return ret;
 	}
 	if(lstrcmp(toldname, tnewname) == 0) {
 		FREE_STRING(env, tnewname);
 		FREE_STRING(env, toldname);
-		return (0);
+		return 0;
 	}
 	LAST_PANIC_CHECK_BEFORE_IO(env);
 	retryCount = 0;
@@ -74,5 +74,5 @@ int __os_rename(ENV *env, const char * oldname, const char * newname, uint32 sil
 		if(silent == 0)
 			__db_syserr(env, __os_get_syserr(), DB_STR_A("0037", "MoveFileEx %s %s", "%s %s"), oldname, newname);
 	}
-	return (ret);
+	return ret;
 }

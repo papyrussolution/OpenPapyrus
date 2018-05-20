@@ -18,7 +18,6 @@
 #include "dbinc/log.h"
 
 static void __db_hmac __P((uint8 *, uint8 *, size_t, uint8 *));
-
 /*
  * !!!
  * All of these functions use a ctx structure on the stack.  The __db_SHA1Init
@@ -86,7 +85,7 @@ void __db_chksum(void * hdr, uint8 * data, size_t data_len, uint8 * mac_key, uin
 	else
 		sumlen = DB_MAC_KEY;
 	if(hdr == NULL)
-		memset(store, 0, sumlen);
+		memzero(store, sumlen);
 	else
 		store = ((HDR*)hdr)->chksum;
 	if(mac_key == NULL) {
@@ -145,7 +144,7 @@ int __db_check_chksum(ENV *env, void * hdr, DB_CIPHER * db_cipher, uint8 * chksu
 	if(is_hmac == 0) {
 		if(db_cipher != NULL) {
 			__db_errx(env, DB_STR("0195", "Unencrypted checksum with a supplied encryption key"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		sum_len = sizeof(uint32);
 		mac_key = NULL;
@@ -153,7 +152,7 @@ int __db_check_chksum(ENV *env, void * hdr, DB_CIPHER * db_cipher, uint8 * chksu
 	else {
 		if(db_cipher == NULL) {
 			__db_errx(env, DB_STR("0196", "Encrypted checksum: no encryption key specified"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		sum_len = DB_MAC_KEY;
 		mac_key = db_cipher->mac_key;
@@ -167,7 +166,7 @@ int __db_check_chksum(ENV *env, void * hdr, DB_CIPHER * db_cipher, uint8 * chksu
 	 */
 	if(hdr == NULL) {
 		memcpy(old, chksum, sum_len);
-		memset(chksum, 0, sum_len);
+		memzero(chksum, sum_len);
 		chksum = old;
 	}
 	if(mac_key == NULL) {
@@ -183,5 +182,5 @@ int __db_check_chksum(ENV *env, void * hdr, DB_CIPHER * db_cipher, uint8 * chksu
 			LOG_HDR_SUM(1, hdr, new_mac);
 		ret = memcmp(chksum, new_mac, sum_len) ? -1 : 0;
 	}
-	return (ret);
+	return ret;
 }

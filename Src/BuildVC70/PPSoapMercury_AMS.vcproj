@@ -344,105 +344,6 @@
 				RelativePath="..\PPLib\ppsoapclient.cpp">
 			</File>
 			<File
-				RelativePath="..\Soap\Client\Vetis\stub-wsdl">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
-						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
-rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
-rem mercury-g2b.service_v2.0.wsdl
-$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
-cd $(SolutionDir)
-"
-						Outputs="$(InputDir)vetisamsC.cpp;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.cpp;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.cpp;$(InputDir)vetisamsEnterpriseServiceBindingProxy.cpp;$(InputDir)vetisams.h;$(InputDir)vetisamsH.h;$(InputDir)vetisamsStub.h;$(InputDir)vetisamsAMSMercuryG2BBindingProxy.h;$(InputDir)vetisamsEnterpriseServiceBindingProxy.h;$(InputDir)vetisamsApplicationManagementServiceBindingProxy.h"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsAMSMercuryG2BBindingProxy.cpp">
 			</File>
 			<File
@@ -451,20 +352,11 @@ cd $(SolutionDir)
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsC.cpp">
 			</File>
-			<File
-				RelativePath="..\Soap\Client\Vetis\vetisamsEnterpriseServiceBindingProxy.cpp">
-			</File>
-			<File
-				RelativePath="..\Soap\Client\Vetis\vetisamsProductServiceBindingProxy.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
-			<File
-				RelativePath="..\Soap\Client\Vetis\vetisams.h">
-			</File>
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsAMSMercuryG2BBindingProxy.h">
 			</File>
@@ -472,13 +364,7 @@ cd $(SolutionDir)
 				RelativePath="..\Soap\Client\Vetis\vetisamsApplicationManagementServiceBindingProxy.h">
 			</File>
 			<File
-				RelativePath="..\Soap\Client\Vetis\vetisamsEnterpriseServiceBindingProxy.h">
-			</File>
-			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsH.h">
-			</File>
-			<File
-				RelativePath="..\Soap\Client\Vetis\vetisamsProductServiceBindingProxy.h">
 			</File>
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsStub.h">

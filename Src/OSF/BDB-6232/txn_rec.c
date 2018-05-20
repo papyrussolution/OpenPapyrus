@@ -58,7 +58,7 @@ int __txn_regop_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	(void)__txn_regop_print(env, dbtp, lsnp, op, info);
 #endif
 	if((ret = __txn_regop_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	headp = (DB_TXNHEAD *)info;
 	/*
 	 * We are only ever called during FORWARD_ROLL or BACKWARD_ROLL.
@@ -103,7 +103,7 @@ err:
 		    "%lx"), (u_long)argp->txnp->txnid);
 	}
 	__os_free(env, argp);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __txn_prepare_recover
@@ -123,7 +123,7 @@ int __txn_prepare_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	(void)__txn_prepare_print(env, dbtp, lsnp, op, info);
 #endif
 	if((ret = __txn_prepare_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	if(argp->opcode != TXN_PREPARE && argp->opcode != TXN_ABORT) {
 		ret = USR_ERR(env, EINVAL);
 		goto err;
@@ -196,7 +196,7 @@ txn_err:
 		*lsnp = argp->prev_lsn;
 err:    
 	__os_free(env, argp);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __txn_ckp_recover
@@ -210,7 +210,7 @@ int __txn_ckp_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 	__txn_ckp_print(env, dbtp, lsnp, op, info);
 #endif
 	if((ret = __txn_ckp_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	if(op == DB_TXN_BACKWARD_ROLL)
 		__db_txnlist_ckp(env, (DB_TXNHEAD *)info, lsnp);
 	*lsnp = argp->last_ckp;
@@ -233,7 +233,7 @@ int __txn_child_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	(void)__txn_child_print(env, dbtp, lsnp, op, info);
 #endif
 	if((ret = __txn_child_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * This is a record in a PARENT's log trail indicating that a
 	 * child committed.  If we are aborting, return the childs last
@@ -314,7 +314,7 @@ int __txn_child_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 		*lsnp = argp->prev_lsn;
 out:    
 	__os_free(env, argp);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_restore_txn --
@@ -335,14 +335,14 @@ int __txn_restore_txn(ENV *env, DB_LSN * lsnp, __txn_prepare_args * argp)
 	TXN_DETAIL * td;
 	int ret;
 	if(argp->gid.size == 0)
-		return (0);
+		return 0;
 	mgr = env->tx_handle;
 	region = (DB_TXNREGION *)mgr->reginfo.primary;
 	TXN_SYSTEM_LOCK(env);
 	/* Allocate a new transaction detail structure. */
 	if((ret = __env_alloc(&mgr->reginfo, sizeof(TXN_DETAIL), &td)) != 0) {
 		TXN_SYSTEM_UNLOCK(env);
-		return (ret);
+		return ret;
 	}
 	/* Place transaction on active transaction list. */
 	SH_TAILQ_INSERT_HEAD(&region->active_txn, td, links, __txn_detail);
@@ -373,7 +373,7 @@ int __txn_restore_txn(ENV *env, DB_LSN * lsnp, __txn_prepare_args * argp)
 	td->slice_details = INVALID_ROFF;
 #endif
 	TXN_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * __txn_recycle_recover --
@@ -390,10 +390,10 @@ int __txn_recycle_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	(void)__txn_child_print(env, dbtp, lsnp, op, info);
 #endif
 	if((ret = __txn_recycle_read(env, dbtp->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	COMPQUIET(lsnp, NULL);
 	if((ret = __db_txnlist_gen(env, (DB_TXNHEAD *)info, DB_UNDO(op) ? -1 : 1, argp->min, argp->max)) != 0)
-		return (ret);
+		return ret;
 	__os_free(env, argp);
-	return (0);
+	return 0;
 }

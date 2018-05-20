@@ -15,7 +15,7 @@ static int __env_backup_alloc(DB_ENV *dbenv)
 {
 	ENV * env = dbenv->env;
 	if(env->backup_handle != NULL)
-		return (0);
+		return 0;
 	return (__os_calloc(env, 1, sizeof(*env->backup_handle), &env->backup_handle));
 }
 /*
@@ -30,12 +30,12 @@ int __env_backup_copy(DB_ENV *slice, const DB_ENV * container)
 	/* Allocate the slice's backup handle only if the container has one. */
 	if(container->env->backup_handle != NULL) {
 		if((ret = __env_backup_alloc(slice)) != 0)
-			return (ret);
+			return ret;
 		memmove(slice->env->backup_handle,
 		    container->env->backup_handle,
 		    sizeof(DB_BACKUP));
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -66,7 +66,7 @@ int __env_get_backup_config(DB_ENV *dbenv, DB_BACKUP_CONFIG config, uint32 * val
 		    *valuep = backup->size;
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -81,7 +81,7 @@ int __env_set_backup_config(DB_ENV *dbenv, DB_BACKUP_CONFIG config, uint32 value
 	DB_ENV * slice;
 	int i, ret;
 	if((ret = __env_backup_alloc(dbenv)) != 0)
-		return (ret);
+		return ret;
 	backup = dbenv->env->backup_handle;
 	switch(config) {
 		case DB_BACKUP_WRITE_DIRECT:
@@ -106,7 +106,7 @@ int __env_set_backup_config(DB_ENV *dbenv, DB_BACKUP_CONFIG config, uint32 value
 	SLICE_FOREACH(dbenv, slice, i)
 	if((ret = __env_set_backup_config(slice, config, value)) != 0)
 		break;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -126,7 +126,7 @@ int __env_get_backup_callbacks(DB_ENV *dbenv, int(**openp)(DB_ENV *, const char 
 	*openp = backup->open;
 	*writep = backup->write;
 	*closep = backup->close;
-	return (0);
+	return 0;
 }
 
 /*
@@ -144,7 +144,7 @@ int __env_set_backup_callbacks(DB_ENV *dbenv, int (* open_func)(DB_ENV *, const 
 	DB_ENV * slice;
 	int i, ret;
 	if((ret = __env_backup_alloc(dbenv)) != 0)
-		return (ret);
+		return ret;
 	backup = dbenv->env->backup_handle;
 	backup->open = open_func;
 	backup->write = write_func;
@@ -153,5 +153,5 @@ int __env_set_backup_callbacks(DB_ENV *dbenv, int (* open_func)(DB_ENV *, const 
 	if((ret = __env_set_backup_callbacks(slice,
 	    open_func, write_func, close_func)) != 0)
 		break;
-	return (ret);
+	return ret;
 }

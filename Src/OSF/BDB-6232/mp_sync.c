@@ -54,7 +54,7 @@ int __memp_walk_files(ENV *env, MPOOL * mp, int (*func)(ENV *, MPOOLFILE *, void
 		if(ret != 0 && (!LF_ISSET(DB_STAT_MEMP_NOERROR) || ret == DB_BUFFER_SMALL))
 			break;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -90,7 +90,7 @@ int __memp_discard_all_mpfs(ENV *env, MPOOL * mp)
 		}
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -116,7 +116,7 @@ int __memp_sync_pp(DB_ENV *dbenv, DB_LSN * lsnp)
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_sync(env, DB_SYNC_CACHE, lsnp)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -138,12 +138,12 @@ int __memp_sync(ENV *env, uint32 flags, DB_LSN * lsnp)
 		if(LOG_COMPARE(lsnp, &mp->lsn) <= 0) {
 			*lsnp = mp->lsn;
 			MPOOL_SYSTEM_UNLOCK(env);
-			return (0);
+			return 0;
 		}
 		MPOOL_SYSTEM_UNLOCK(env);
 	}
 	if((ret = __memp_sync_int(env, NULL, 0, flags, NULL, &interrupted)) != 0)
-		return (ret);
+		return ret;
 
 	if(!interrupted && lsnp != NULL) {
 		MPOOL_SYSTEM_LOCK(env);
@@ -152,7 +152,7 @@ int __memp_sync(ENV *env, uint32 flags, DB_LSN * lsnp)
 		MPOOL_SYSTEM_UNLOCK(env);
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -170,7 +170,7 @@ int __memp_fsync_pp(DB_MPOOLFILE *dbmfp)
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_fsync(dbmfp)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_fsync --
@@ -188,11 +188,11 @@ int __memp_fsync(DB_MPOOLFILE *dbmfp)
 	 * further.
 	 */
 	if(F_ISSET(dbmfp, MP_READONLY))
-		return (0);
+		return 0;
 	if(F_ISSET(dbmfp->mfp, MP_TEMP) || dbmfp->mfp->no_backing_file)
-		return (0);
+		return 0;
 	if(mfp->file_written == 0)
-		return (0);
+		return 0;
 	return (__memp_sync_int(dbmfp->env, dbmfp, 0, DB_SYNC_FILE, NULL, NULL));
 }
 /*
@@ -219,12 +219,12 @@ int __mp_xxx_fh(DB_MPOOLFILE *dbmfp, DB_FH ** fhp)
 	 * we get a file descriptor to return.
 	 */
 	if((*fhp = dbmfp->fhp) != NULL)
-		return (0);
+		return 0;
 
 	if((ret = __memp_sync_int(
 		    dbmfp->env, dbmfp, 0, DB_SYNC_FILE, NULL, NULL)) == 0)
 		*fhp = dbmfp->fhp;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -276,7 +276,7 @@ int __memp_sync_int(ENV *env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 f
 	ar_max = mp->nreg * mp->htab_buckets;
 	if((ret =
 	    __os_malloc(env, ar_max * sizeof(BH_TRACK), &bharray)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Walk each cache's list of buffers and mark all dirty buffers to be
@@ -579,7 +579,7 @@ err:    __os_free(env, bharray);
 	if(wrote_totalp != NULL)
 		*wrote_totalp = wrote_total;
 
-	return (ret);
+	return ret;
 }
 
 static int __memp_sync_file(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * countp, uint32 flags)
@@ -590,7 +590,7 @@ static int __memp_sync_file(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * cou
 	COMPQUIET(countp, NULL);
 	COMPQUIET(flags, 0);
 	if(!mfp->file_written || mfp->no_backing_file || mfp->deadfile || F_ISSET(mfp, MP_TEMP))
-		return (0);
+		return 0;
 	/*
 	 * Pin the MPOOLFILE structure into memory, and release the
 	 * region mutex allowing us to walk the linked list.  We'll
@@ -614,7 +614,7 @@ static int __memp_sync_file(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * cou
 	MUTEX_LOCK(env, mfp->mutex);
 	if(!mfp->file_written || mfp->deadfile) {
 		MUTEX_UNLOCK(env, mfp->mutex);
-		return (0);
+		return 0;
 	}
 	++mfp->mpf_cnt;
 	++mfp->neutral_cnt;
@@ -703,7 +703,7 @@ static int __memp_sync_file(ENV *env, MPOOLFILE * mfp, void * argp, uint32 * cou
 
 	/* Unlock the MPOOLFILE. */
 	MUTEX_UNLOCK(env, mfp->mutex);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -730,7 +730,7 @@ static int __memp_sync_files(ENV *env)
 	 * were the last reference to an MPOOLFILE, we need to clean it out.
 	 */
 	if(!need_discard_pass)
-		return (ret);
+		return ret;
 
 	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
 	for(i = 0; i < MPOOL_FILE_BUCKETS; i++, hp++) {
@@ -759,7 +759,7 @@ retry:          MUTEX_LOCK(env, hp->mtx_hash);
 		}
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -814,7 +814,7 @@ mpsync:
 	if(!locked)
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -862,15 +862,15 @@ retry:
 				MUTEX_UNLOCK(env, mfp->mutex);
 			}
 			if((ret = __os_fsync(env, dbmfp->fhp)) != 0)
-				return (ret);
+				return ret;
 		}
 		if((ret = __memp_fclose(dbmfp, DB_FLUSH)) != 0)
-			return (ret);
+			return ret;
 		goto retry;
 	}
 	MUTEX_UNLOCK(env, dbmp->mutex);
 
-	return (0);
+	return 0;
 }
 
 static int __bhcmp(const void * p1, const void *p2)
@@ -891,7 +891,7 @@ static int __bhcmp(const void * p1, const void *p2)
 		return (-1);
 	if(bhp1->track_pgno > bhp2->track_pgno)
 		return (1);
-	return (0);
+	return 0;
 }
 
 /*
@@ -913,7 +913,7 @@ int __memp_purge_dead_files(ENV *env)
 	uint32 i_cache;
 	int ret, t_ret, h_lock;
 	if(!MPOOL_ON(env))
-		return (0);
+		return 0;
 	dbmp = env->mp_handle;
 	mp = (MPOOL *)dbmp->reginfo[0].primary;
 	ret = t_ret = h_lock = 0;
@@ -985,7 +985,7 @@ int __memp_purge_dead_files(ENV *env)
 			}
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static inline void __update_err_ret(int t_ret, int * retp)

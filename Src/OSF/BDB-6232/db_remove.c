@@ -45,7 +45,7 @@ int __env_dbremove_pp(DB_ENV *dbenv, DB_TXN * txn, const char * name, const char
 	 * the replication block.
 	 */
 	if((ret = __db_fchk(env, "DB->remove", flags, DB_AUTO_COMMIT|DB_LOG_NO_DATA|DB_NOSYNC|DB_TXN_NOT_DURABLE)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	XA_NO_TXN(ip, ret);
 	if(ret != 0)
@@ -130,7 +130,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -161,11 +161,11 @@ int __db_remove_pp(DB *dbp, const char * name, const char * subdb, uint32 flags)
 
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB->remove", flags, DB_NOSYNC)) != 0)
-		return (ret);
+		return ret;
 
 	/* Check for consistent transaction usage. */
 	if((ret = __db_check_txn(dbp, NULL, DB_LOCK_INVALIDID, 0)) != 0)
-		return (ret);
+		return ret;
 
 	ENV_ENTER(env, ip);
 
@@ -174,13 +174,10 @@ int __db_remove_pp(DB *dbp, const char * name, const char * subdb, uint32 flags)
 		handle_check = 0;
 		goto err;
 	}
-
 	if(handle_check && IS_REP_CLIENT(env)) {
-		__db_errx(env, DB_STR("2588",
-		    "dbremove disallowed on replication client"));
+		__db_errx(env, DB_STR("2588", "dbremove disallowed on replication client"));
 		goto err;
 	}
-
 	/* Remove the file. */
 	ret = __db_remove(dbp, ip, NULL, name, subdb, flags);
 
@@ -188,7 +185,7 @@ int __db_remove_pp(DB *dbp, const char * name, const char * subdb, uint32 flags)
 		ret = t_ret;
 
 err:    ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -204,7 +201,7 @@ int __db_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, c
 	int ret = __db_remove_int(dbp, ip, txn, name, subdb, flags);
 	if((t_ret = __db_close(dbp, txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __db_remove_int
@@ -280,7 +277,7 @@ err:    if(!F_ISSET(dbp, DB_AM_INMEM) && real_name != NULL)
 	if(tmpname != NULL)
 		__os_free(env, tmpname);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -302,20 +299,20 @@ int __db_inmem_remove(DB *dbp, DB_TXN * txn, const char * name)
 	/* This had better exist if we are trying to do a remove. */
 	(void)__memp_set_flags(dbp->mpf, DB_MPOOL_NOFILE, 1);
 	if((ret = __memp_fopen(dbp->mpf, NULL, name, &dbp->dirname, 0, 0, 0)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __memp_get_fileid(dbp->mpf, dbp->fileid)) != 0)
-		return (ret);
+		return ret;
 	dbp->preserve_fid = 1;
 
 	if(LOCKING_ON(env)) {
 		if(dbp->locker == NULL &&
 		    (ret = __lock_id(env, NULL, &dbp->locker)) != 0)
-			return (ret);
+			return ret;
 		if(!CDB_LOCKING(env) &&
 		    txn != NULL && F_ISSET(txn, TXN_INFAMILY)) {
 			if((ret = __lock_addfamilylocker(env,
 			    txn->txnid, dbp->locker->id, 1)) != 0)
-				return (ret);
+				return ret;
 			txn = NULL;
 		}
 		locker = txn == NULL ? dbp->locker : txn->locker;
@@ -330,14 +327,14 @@ int __db_inmem_remove(DB *dbp, DB_TXN * txn, const char * name)
 	 */
 	if((ret =
 	    __fop_lock_handle(env, dbp, locker, DB_LOCK_WRITE, NULL, 0)) != 0)
-		return (ret);
+		return ret;
 
 	if(!IS_REAL_TXN(txn))
 		ret = __memp_nameop(env, dbp->fileid, NULL, name, NULL, 1);
 	else if(LOGGING_ON(env)) {
 		if(txn != NULL && (ret =
 		    __txn_remevent(env, txn, name, dbp->fileid, 1)) != 0)
-			return (ret);
+			return ret;
 
 		DB_INIT_DBT(name_dbt, name, strlen(name) + 1);
 		DB_INIT_DBT(fid_dbt, dbp->fileid, DB_FILE_ID_LEN);
@@ -345,7 +342,7 @@ int __db_inmem_remove(DB *dbp, DB_TXN * txn, const char * name)
 			env, txn, &lsn, 0, &name_dbt, &fid_dbt);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -417,7 +414,7 @@ err:
 		ret = t_ret;
 
 	LOCK_CHECK_ON(ip);
-	return (ret);
+	return ret;
 }
 
 static int __db_dbtxn_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, APPNAME appname)
@@ -439,7 +436,7 @@ static int __db_dbtxn_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const c
 	 */
 	if((ret = __db_backup_name(env,
 	    F_ISSET(dbp, DB_AM_INMEM) ? subdb : name, txn, &tmpname)) != 0)
-		return (ret);
+		return ret;
 
 	DB_TEST_RECOVERY(dbp, DB_TEST_PREDESTROY, ret, name);
 
@@ -472,5 +469,5 @@ err:
 	if(tmpname != NULL)
 		__os_free(env, tmpname);
 
-	return (ret);
+	return ret;
 }

@@ -180,11 +180,10 @@ typedef enum {
 	DB_LSN __lsn;							\
 	DBT __op;							\
 	if ((C)->dbp->log_filename != NULL && DBC_LOGGING((C))) {	\
-		memset(&__op, 0, sizeof(__op));				\
+		memzero(&__op, sizeof(__op));				\
 		__op.data = O;						\
 		__op.size = (uint32)strlen(O) + 1;			\
-		(void)__db_debug_log((C)->env, T, &__lsn, 0,		\
-		    &__op, (C)->dbp->log_filename->id, K, A, F);	\
+		(void)__db_debug_log((C)->env, T, &__lsn, 0, &__op, (C)->dbp->log_filename->id, K, A, F); \
 	}								\
 }
 #ifdef	DEBUG_ROP

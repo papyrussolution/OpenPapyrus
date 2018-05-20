@@ -97,26 +97,21 @@ int __dbreg_setup(DB *dbp, const char * fname, const char * dname, uint32 create
 	int ret;
 	size_t len;
 	void * p;
-
 	env = dbp->env;
 	dblp = env->lg_handle;
 	infop = &dblp->reginfo;
-
 	fnp = NULL;
 	p = NULL;
-
 	/* Allocate an FNAME and, if necessary, a buffer for the name itself. */
 	LOG_SYSTEM_LOCK(env);
 	if((ret = __env_alloc(infop, sizeof(FNAME), &fnp)) != 0)
 		goto err;
-
 #ifdef HAVE_STATISTICS
 	lp = (LOG *)dblp->reginfo.primary;
 	if(++lp->stat.st_nfileid > lp->stat.st_maxnfileid)
 		lp->stat.st_maxnfileid = lp->stat.st_nfileid;
 #endif
-
-	memset(fnp, 0, sizeof(FNAME));
+	memzero(fnp, sizeof(FNAME));
 	if(fname == NULL)
 		fnp->fname_off = INVALID_ROFF;
 	else {
@@ -156,8 +151,7 @@ int __dbreg_setup(DB *dbp, const char * fname, const char * dname, uint32 create
 	 * The DB is BIGENDed if its bytes are swapped XOR
 	 *	the machine is bigended
 	 */
-	if((F_ISSET(dbp, DB_AM_SWAP) != 0) ^
-	    (F_ISSET(env, ENV_LITTLEENDIAN) == 0))
+	if((F_ISSET(dbp, DB_AM_SWAP) != 0) ^ (F_ISSET(env, ENV_LITTLEENDIAN) == 0))
 		F_SET(fnp, DBREG_BIGEND);
 	if(F_ISSET(dbp, DB_AM_CHKSUM))
 		F_SET(fnp, DBREG_CHKSUM);
@@ -168,17 +162,13 @@ int __dbreg_setup(DB *dbp, const char * fname, const char * dname, uint32 create
 	fnp->txn_ref = 1;
 	fnp->mutex = dbp->mutex;
 	fnp->blob_file_id = dbp->blob_file_id;
-
 	dbp->log_filename = fnp;
-
-	return (0);
-
-err:    LOG_SYSTEM_UNLOCK(env);
+	return 0;
+err:    
+	LOG_SYSTEM_UNLOCK(env);
 	if(ret == ENOMEM)
-		__db_errx(env, DB_STR("1501",
-		    "Logging region out of memory; you may need to increase its size"));
-
-	return (ret);
+		__db_errx(env, DB_STR("1501", "Logging region out of memory; you may need to increase its size"));
+	return ret;
 }
 
 /*
@@ -196,13 +186,13 @@ int __dbreg_teardown(DB *dbp)
 	 * error.
 	 */
 	if(dbp->log_filename == NULL)
-		return (0);
+		return 0;
 	ret = __dbreg_teardown_int(dbp->env, dbp->log_filename);
 	/* We freed the copy of the mutex from the FNAME. */
 	dbp->log_filename = NULL;
 	dbp->mutex = MUTEX_INVALID;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -221,7 +211,7 @@ int __dbreg_teardown_int(ENV *env, FNAME * fnp)
 	int ret;
 
 	if(F_ISSET(fnp, DB_FNAME_NOTLOGGED))
-		return (0);
+		return 0;
 	dblp = env->lg_handle;
 	infop = &dblp->reginfo;
 #ifdef HAVE_STATISTICS
@@ -240,7 +230,7 @@ int __dbreg_teardown_int(ENV *env, FNAME * fnp)
 	STAT(lp->stat.st_nfileid--);
 	LOG_SYSTEM_UNLOCK(env);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -268,12 +258,12 @@ int __dbreg_new_id(DB *dbp, DB_TXN * txn)
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	if(fnp->id != DB_LOGFILEID_INVALID) {
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
-		return (0);
+		return 0;
 	}
 	if((ret = __dbreg_get_id(dbp, txn, &id)) == 0)
 		fnp->id = id;
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -349,7 +339,7 @@ err:
 		id = DB_LOGFILEID_INVALID;
 	}
 	*idp = id;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -442,7 +432,7 @@ err:    MUTEX_UNLOCK(env, lp->mtx_filelist);
 	if(close_dbp != NULL)
 		(void)__db_close(close_dbp, NULL, DB_NOSYNC);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -489,7 +479,7 @@ int __dbreg_revoke_id_int(ENV *env, FNAME * fnp, int have_lock, int push, int32 
 	ret = 0;
 	/* If we lack an ID, this is a null-op. */
 	if(fnp == NULL)
-		return (0);
+		return 0;
 
 	/*
 	 * If we have a force_id, we had an error after allocating
@@ -500,7 +490,7 @@ int __dbreg_revoke_id_int(ENV *env, FNAME * fnp, int have_lock, int push, int32 
 		id = force_id;
 	else if(fnp->id == DB_LOGFILEID_INVALID) {
 		if(fnp->old_id == DB_LOGFILEID_INVALID)
-			return (0);
+			return 0;
 		id = fnp->old_id;
 	}
 	else
@@ -525,7 +515,7 @@ int __dbreg_revoke_id_int(ENV *env, FNAME * fnp, int have_lock, int push, int32 
 
 	if(!have_lock)
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -549,7 +539,7 @@ int __dbreg_close_id(DB *dbp, DB_TXN * txn, uint32 op)
 
 	/* If we lack an ID, this is a null-op. */
 	if(fnp == NULL)
-		return (0);
+		return 0;
 
 	if(fnp->id == DB_LOGFILEID_INVALID) {
 		ret = __dbreg_revoke_id(dbp, 0, DB_LOGFILEID_INVALID);
@@ -597,7 +587,7 @@ err:    MUTEX_UNLOCK(env, lp->mtx_filelist);
 done:   if((t_ret = __dbreg_teardown(dbp)) != 0 && ret == 0)
 		ret = t_ret;
 no_log:
-	return (ret);
+	return ret;
 }
 /*
  * __dbreg_close_id_int --
@@ -634,7 +624,7 @@ err:    if(!locked)
 
 	if((t_ret = __dbreg_teardown_int(env, fnp)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -656,24 +646,19 @@ int __dbreg_failchk(ENV *env)
 	char buf[DB_THREADID_STRLEN];
 	db_threadid_t unused;
 	if((dblp = env->lg_handle) == NULL)
-		return (0);
+		return 0;
 	DB_THREADID_INIT(unused);
 	lp = (LOG *)dblp->reginfo.primary;
 	dbenv = env->dbenv;
 	ret = 0;
-
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	for(fnp = SH_TAILQ_FIRST(&lp->fq, __fname); fnp != NULL; fnp = nnp) {
 		nnp = SH_TAILQ_NEXT(fnp, q, __fname);
-		if(dbenv->is_alive(dbenv,
-		    fnp->pid, unused, DB_MUTEX_PROCESS_ONLY))
+		if(dbenv->is_alive(dbenv, fnp->pid, unused, DB_MUTEX_PROCESS_ONLY))
 			continue;
 		MUTEX_LOCK(env, fnp->mutex);
-		__db_msg(env, DB_STR_A("1502",
-		    "Freeing log information for process: %s, (ref %lu)",
-		    "%s %lu"),
-		    dbenv->thread_id_string(dbenv, fnp->pid, unused, buf),
-		    (u_long)fnp->txn_ref);
+		__db_msg(env, DB_STR_A("1502", "Freeing log information for process: %s, (ref %lu)", "%s %lu"),
+		    dbenv->thread_id_string(dbenv, fnp->pid, unused, buf), (u_long)fnp->txn_ref);
 		if(fnp->txn_ref > 1 || F_ISSET(fnp, DB_FNAME_CLOSED)) {
 			if(!F_ISSET(fnp, DB_FNAME_CLOSED)) {
 				fnp->txn_ref--;
@@ -691,7 +676,7 @@ int __dbreg_failchk(ENV *env)
 		}
 	}
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	return (ret);
+	return ret;
 }
 /*
  * __dbreg_log_close --
@@ -717,12 +702,12 @@ int __dbreg_log_close(ENV *env, FNAME * fnp, DB_TXN * txn, uint32 op)
 	if(fnp->fname_off == INVALID_ROFF)
 		dbtp = NULL;
 	else {
-		memset(&r_name, 0, sizeof(r_name));
+		memzero(&r_name, sizeof(r_name));
 		r_name.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
 		r_name.size = (uint32)strlen((char*)r_name.data) + 1;
 		dbtp = &r_name;
 	}
-	memset(&fid_dbt, 0, sizeof(fid_dbt));
+	memzero(&fid_dbt, sizeof(fid_dbt));
 	fid_dbt.data = fnp->ufid;
 	fid_dbt.size = DB_FILE_ID_LEN;
 	SET_LO_HI_VAR(fnp->blob_file_id, blob_file_lo, blob_file_hi);
@@ -744,7 +729,7 @@ int __dbreg_log_close(ENV *env, FNAME * fnp, DB_TXN * txn, uint32 op)
 		F_SET(fnp, DB_FNAME_NOTLOGGED);
 		(void)__dbreg_rem_dbentry(dblp, fnp->id);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -770,7 +755,7 @@ static int __dbreg_push_id(ENV *env, int32 id)
 
 	if(id == lp->fid_max - 1) {
 		lp->fid_max--;
-		return (0);
+		return 0;
 	}
 
 	/* Check if we have room on the stack. */
@@ -781,7 +766,7 @@ static int __dbreg_push_id(ENV *env, int32 id)
 		    (lp->free_fids_alloced + 20) * sizeof(uint32),
 		    &newstack)) != 0) {
 			LOG_SYSTEM_UNLOCK(env);
-			return (ret);
+			return ret;
 		}
 
 		if(lp->free_fid_stack != INVALID_ROFF) {
@@ -797,7 +782,7 @@ static int __dbreg_push_id(ENV *env, int32 id)
 
 	stack = (int32 *)R_ADDR(infop, lp->free_fid_stack);
 	stack[lp->free_fids++] = id;
-	return (0);
+	return 0;
 }
 
 static int __dbreg_pop_id(ENV *env, int32 * id)
@@ -813,7 +798,7 @@ static int __dbreg_pop_id(ENV *env, int32 * id)
 	else
 		*id = DB_LOGFILEID_INVALID;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -832,7 +817,7 @@ static int __dbreg_pluck_id(ENV *env, int32 id)
 	DB_LOG * dblp = env->lg_handle;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
 	if(id >= lp->fid_max)
-		return (0);
+		return 0;
 	/* Do we have anything to look at? */
 	if(lp->free_fid_stack != INVALID_ROFF) {
 		stack = (int32 *)R_ADDR(&dblp->reginfo, lp->free_fid_stack);
@@ -845,11 +830,11 @@ static int __dbreg_pluck_id(ENV *env, int32 id)
 				 */
 				stack[i] = stack[lp->free_fids - 1];
 				lp->free_fids--;
-				return (0);
+				return 0;
 			}
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -897,34 +882,22 @@ int __dbreg_log_id(DB *dbp, DB_TXN * txn, int32 id, int needlock)
 	 * Log the registry.  We should only request a new ID in situations
 	 * where logging is reasonable.
 	 */
-	memset(&fid_dbt, 0, sizeof(fid_dbt));
-	memset(&r_name, 0, sizeof(r_name));
-
+	memzero(&fid_dbt, sizeof(fid_dbt));
+	memzero(&r_name, sizeof(r_name));
 	if(needlock)
 		MUTEX_LOCK(env, lp->mtx_filelist);
-
 	if(fnp->fname_off != INVALID_ROFF) {
 		r_name.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
 		r_name.size = (uint32)strlen((char*)r_name.data) + 1;
 	}
-
 	fid_dbt.data = dbp->fileid;
 	fid_dbt.size = DB_FILE_ID_LEN;
-
-	op = !F2_ISSET(dbp, DB2_AM_MPOOL_OPENED) ? DBREG_PREOPEN :
-	    (F_ISSET(dbp, DB_AM_INMEM) ?
-	    (F2_ISSET(dbp, DB2_AM_EXCL) ? DBREG_XREOPEN : DBREG_REOPEN) :
-	    (F2_ISSET(dbp, DB2_AM_EXCL) ? DBREG_XOPEN : DBREG_OPEN));
+	op = !F2_ISSET(dbp, DB2_AM_MPOOL_OPENED) ? DBREG_PREOPEN : (F_ISSET(dbp, DB_AM_INMEM) ?
+	    (F2_ISSET(dbp, DB2_AM_EXCL) ? DBREG_XREOPEN : DBREG_REOPEN) : (F2_ISSET(dbp, DB2_AM_EXCL) ? DBREG_XOPEN : DBREG_OPEN));
 	SET_LO_HI_VAR(fnp->blob_file_id, blob_file_lo, blob_file_hi);
-	ret = __dbreg_register_log(env, txn, &unused,
-		F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0,
-		op | F_ISSET(fnp, DB_FNAME_DBREG_MASK),
-		r_name.size == 0 ? NULL : &r_name, &fid_dbt, id,
-		fnp->s_type, fnp->meta_pgno, fnp->create_txnid,
-		blob_file_lo, blob_file_hi);
-
+	ret = __dbreg_register_log(env, txn, &unused, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0, op | F_ISSET(fnp, DB_FNAME_DBREG_MASK),
+		r_name.size == 0 ? NULL : &r_name, &fid_dbt, id, fnp->s_type, fnp->meta_pgno, fnp->create_txnid, blob_file_lo, blob_file_hi);
 	if(needlock)
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
-
-	return (ret);
+	return ret;
 }

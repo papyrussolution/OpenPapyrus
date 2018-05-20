@@ -27,7 +27,7 @@ int __log_printf_capi(DB_ENV * dbenv, DB_TXN * txnid, const char * fmt, ...)
 	va_start(ap, fmt);
 	ret = __log_printf_pp(dbenv, txnid, fmt, ap);
 	va_end(ap);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -51,7 +51,7 @@ int __log_printf_pp(DB_ENV *dbenv, DB_TXN * txnid, const char * fmt, va_list ap)
 	REPLICATION_WRAP(env, (__log_printf_int(env, txnid, fmt, ap)), 0, ret);
 	va_end(ap);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __log_printf --
@@ -69,7 +69,7 @@ int __log_printf(ENV * env, DB_TXN * txnid, const char * fmt, ...)
 	ret = __log_printf_int(env, txnid, fmt, ap);
 	va_end(ap);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -85,10 +85,10 @@ static int __log_printf_int(ENV *env, DB_TXN * txnid, const char * fmt, va_list 
 		__db_errx(env, DB_STR("2510", "Logging not currently permitted"));
 		return (EAGAIN);
 	}
-	memset(&opdbt, 0, sizeof(opdbt));
+	memzero(&opdbt, sizeof(opdbt));
 	opdbt.data = "DIAGNOSTIC";
 	opdbt.size = sizeof("DIAGNOSTIC") - 1;
-	memset(&msgdbt, 0, sizeof(msgdbt));
+	memzero(&msgdbt, sizeof(msgdbt));
 	msgdbt.data = __logbuf;
 	msgdbt.size = (uint32)vsnprintf(__logbuf, sizeof(__logbuf), fmt, ap);
 	return (__db_debug_log(env, txnid, &lsn, 0, &opdbt, -1, &msgdbt, NULL, 0));

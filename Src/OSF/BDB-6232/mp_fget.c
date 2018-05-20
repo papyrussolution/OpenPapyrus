@@ -52,7 +52,7 @@ int __memp_fget_pp(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, uin
 #define OKFLAGS (OKMODE | DB_MPOOL_DIRTY | DB_MPOOL_EDIT)
 	if(flags != 0) {
 		if((ret = __db_fchk(env, "memp_fget", flags, OKFLAGS)) != 0)
-			return (ret);
+			return ret;
 
 		switch(FLD_ISSET(flags, OKMODE)) {
 			case DB_MPOOL_CREATE:
@@ -85,7 +85,7 @@ int __memp_fget_pp(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, uin
 err:    
 	if(ret != 0)
 		ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -138,16 +138,12 @@ int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, 
 
 	if(LF_ISSET(DB_MPOOL_DIRTY)) {
 		if(F_ISSET(dbmfp, MP_READONLY)) {
-			__db_errx(env, DB_STR_A("3021",
-			    "%s: dirty flag set for readonly file page",
-			    "%s"), __memp_fn(dbmfp));
-			return (EINVAL);
+			__db_errx(env, DB_STR_A("3021", "%s: dirty flag set for readonly file page", "%s"), __memp_fn(dbmfp));
+			return EINVAL;
 		}
-		if((ret = __db_fcchk(env, "DB_MPOOLFILE->get",
-		    flags, DB_MPOOL_DIRTY, DB_MPOOL_EDIT)) != 0)
-			return (ret);
+		if((ret = __db_fcchk(env, "DB_MPOOLFILE->get", flags, DB_MPOOL_DIRTY, DB_MPOOL_EDIT)) != 0)
+			return ret;
 	}
-
 	dirty = LF_ISSET(DB_MPOOL_DIRTY | DB_MPOOL_EDIT | DB_MPOOL_FREE);
 	LF_CLR(DB_MPOOL_DIRTY | DB_MPOOL_EDIT);
 
@@ -167,12 +163,12 @@ int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, 
 			if(IS_MAX_LSN(*read_lsnp) &&
 			    (ret = __log_current_lsn_int(env, read_lsnp,
 			    NULL, NULL)) != 0)
-				return (ret);
+				return ret;
 		}
 		if((dirty || LF_ISSET(DB_MPOOL_CREATE | DB_MPOOL_NEW)) &&
 		    td->mvcc_mtx == MUTEX_INVALID && (ret =
 		    __mutex_alloc(env, MTX_TXN_MVCC, 0, &td->mvcc_mtx)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	switch(flags) {
@@ -221,7 +217,7 @@ int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, 
 		    (*pgnoaddr * mfp->pagesize);
 		STAT_INC_VERB(env,
 		    mpool, map, mfp->stat.st_map, __memp_fn(dbmfp), *pgnoaddr);
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -231,7 +227,7 @@ int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, 
 	 */
 	MP_GET_BUCKET(env, mfp, *pgnoaddr, &infop, hp, bucket, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	c_mp = (MPOOL *)infop->primary;
 	if(0) {
 		/* if we search again, get an exclusive lock. */
@@ -814,49 +810,32 @@ alloc:              /* Allocate a new buffer header and data space. */
 		     * if DB_MPOOL_CREATE is set.
 		     */
 		    if(extending) {
-			    MVCC_MPROTECT(bhp->buf, mfp->pagesize,
-				PROT_READ | PROT_WRITE);
-			    memset(bhp->buf, 0,
-				(mfp->clear_len == DB_CLEARLEN_NOTSET) ?
-				mfp->pagesize : mfp->clear_len);
+			    MVCC_MPROTECT(bhp->buf, mfp->pagesize, PROT_READ | PROT_WRITE);
+			    memzero(bhp->buf, (mfp->clear_len == DB_CLEARLEN_NOTSET) ? mfp->pagesize : mfp->clear_len);
 #if defined(DIAGNOSTIC) || defined(UMRW)
 			    if(mfp->clear_len != DB_CLEARLEN_NOTSET)
-				    memset(bhp->buf + mfp->clear_len, CLEAR_BYTE,
-					mfp->pagesize - mfp->clear_len);
+				    memset(bhp->buf + mfp->clear_len, CLEAR_BYTE, mfp->pagesize - mfp->clear_len);
 #endif
-
-			    if(flags == DB_MPOOL_CREATE && mfp->ftype != 0 &&
-				(ret = __memp_pg(dbmfp,
-				bhp->pgno, bhp->buf, 1)) != 0)
+			    if(flags == DB_MPOOL_CREATE && mfp->ftype != 0 && (ret = __memp_pg(dbmfp, bhp->pgno, bhp->buf, 1)) != 0)
 				    goto err;
-
-			    STAT_INC_VERB(env, mpool, page_create,
-				mfp->stat.st_page_create,
-				__memp_fn(dbmfp), *pgnoaddr);
+			    STAT_INC_VERB(env, mpool, page_create, mfp->stat.st_page_create, __memp_fn(dbmfp), *pgnoaddr);
 		    }
 		    else {
 			    F_SET(bhp, BH_TRASH);
-			    STAT_INC_VERB(env, mpool, miss, mfp->stat.st_cache_miss,
-				__memp_fn(dbmfp), *pgnoaddr);
+			    STAT_INC_VERB(env, mpool, miss, mfp->stat.st_cache_miss, __memp_fn(dbmfp), *pgnoaddr);
 		    }
-
 		    makecopy = mvcc && dirty && !extending;
-
 		    /* Increment buffer count referenced by MPOOLFILE. */
 		    MUTEX_LOCK(env, mfp->mutex);
 		    ++mfp->block_cnt;
 		    MUTEX_UNLOCK(env, mfp->mutex);
 	}
-
 	DB_ASSERT(env, bhp != NULL && BH_REFCOUNT(bhp) != 0 && b_lock);
-	DB_ASSERT(env, !F_ISSET(bhp, BH_FROZEN) || !F_ISSET(bhp, BH_FREED) ||
-	    makecopy);
-
+	DB_ASSERT(env, !F_ISSET(bhp, BH_FROZEN) || !F_ISSET(bhp, BH_FREED) || makecopy);
 	/* We've got a buffer header we're re-instantiating. */
 	if(F_ISSET(bhp, BH_FROZEN) && !F_ISSET(bhp, BH_FREED)) {
 		if(alloc_bhp == NULL)
 			goto reuse;
-
 		/*
 		 * To thaw the buffer, we must hold the hash bucket mutex,
 		 * and the call to __memp_bh_thaw will release it.
@@ -950,31 +929,20 @@ alloc:              /* Allocate a new buffer header and data space. */
 		alloc_bhp->mf_offset = bhp->mf_offset;
 		alloc_bhp->td_off = INVALID_ROFF;
 		if(txn == NULL) {
-			DB_ASSERT(env,
-			    F_ISSET(bhp, BH_FROZEN) && F_ISSET(bhp, BH_FREED));
-			if(bhp->td_off != INVALID_ROFF && (ret =
-			    __memp_bh_settxn(dbmp, mfp, alloc_bhp,
-			    BH_OWNER(env, bhp))) != 0)
+			DB_ASSERT(env, F_ISSET(bhp, BH_FROZEN) && F_ISSET(bhp, BH_FREED));
+			if(bhp->td_off != INVALID_ROFF && (ret = __memp_bh_settxn(dbmp, mfp, alloc_bhp, BH_OWNER(env, bhp))) != 0)
 				goto err;
 		}
-		else if((ret =
-		    __memp_bh_settxn(dbmp, mfp, alloc_bhp, td)) != 0)
+		else if((ret = __memp_bh_settxn(dbmp, mfp, alloc_bhp, td)) != 0)
 			goto err;
-		MVCC_MPROTECT(alloc_bhp->buf, mfp->pagesize,
-		    PROT_READ | PROT_WRITE);
-		if(extending ||
-		    F_ISSET(bhp, BH_FREED) || flags == DB_MPOOL_FREE) {
-			memset(alloc_bhp->buf, 0,
-			    (mfp->clear_len == DB_CLEARLEN_NOTSET) ?
-			    mfp->pagesize : mfp->clear_len);
+		MVCC_MPROTECT(alloc_bhp->buf, mfp->pagesize, PROT_READ | PROT_WRITE);
+		if(extending || F_ISSET(bhp, BH_FREED) || flags == DB_MPOOL_FREE) {
+			memzero(alloc_bhp->buf, (mfp->clear_len == DB_CLEARLEN_NOTSET) ? mfp->pagesize : mfp->clear_len);
 #if defined(DIAGNOSTIC) || defined(UMRW)
 			if(mfp->clear_len != DB_CLEARLEN_NOTSET)
-				memset(alloc_bhp->buf + mfp->clear_len,
-				    CLEAR_BYTE,
-				    mfp->pagesize - mfp->clear_len);
+				memset(alloc_bhp->buf + mfp->clear_len, CLEAR_BYTE, mfp->pagesize - mfp->clear_len);
 #endif
-			if(mfp->ftype != 0 && (ret = __memp_pg(dbmfp,
-			    alloc_bhp->pgno, alloc_bhp->buf, 1)) != 0)
+			if(mfp->ftype != 0 && (ret = __memp_pg(dbmfp, alloc_bhp->pgno, alloc_bhp->buf, 1)) != 0)
 				goto err;
 		}
 		else
@@ -1046,24 +1014,18 @@ alloc:              /* Allocate a new buffer header and data space. */
 	 * Free the allocated memory, we no longer need it.
 	 */
 	if(alloc_bhp != NULL) {
-		if((ret = __memp_bhfree(dbmp, infop, NULL,
-		    NULL, alloc_bhp, BH_FREE_FREEMEM | BH_FREE_UNLOCKED)) != 0)
+		if((ret = __memp_bhfree(dbmp, infop, NULL, NULL, alloc_bhp, BH_FREE_FREEMEM | BH_FREE_UNLOCKED)) != 0)
 			goto err;
 		alloc_bhp = NULL;
 	}
 
-	if(dirty || extending ||
-	    (F_ISSET(bhp, BH_FREED) &&
-	    (flags == DB_MPOOL_CREATE || flags == DB_MPOOL_NEW))) {
+	if(dirty || extending || (F_ISSET(bhp, BH_FREED) && (flags == DB_MPOOL_CREATE || flags == DB_MPOOL_NEW))) {
 		MUTEX_REQUIRED(env, bhp->mtx_buf);
 		if(F_ISSET(bhp, BH_FREED)) {
 			DB_ASSERT(env, bhp->pgno <= mfp->last_pgno);
-			memset(bhp->buf, 0,
-			    (mfp->clear_len == DB_CLEARLEN_NOTSET) ?
-			    mfp->pagesize : mfp->clear_len);
+			memzero(bhp->buf, (mfp->clear_len == DB_CLEARLEN_NOTSET) ? mfp->pagesize : mfp->clear_len);
 			F_CLR(bhp, BH_FREED);
-			if(mfp->ftype != 0 && (ret =
-			    __memp_pg(dbmfp, bhp->pgno, bhp->buf, 1)) != 0)
+			if(mfp->ftype != 0 && (ret = __memp_pg(dbmfp, bhp->pgno, bhp->buf, 1)) != 0)
 				goto err;
 		}
 		if(!F_ISSET(bhp, BH_DIRTY)) {
@@ -1132,15 +1094,12 @@ alloc:              /* Allocate a new buffer header and data space. */
 			pinmax = ip->dbth_pinmax;
 			renv = (REGENV *)reginfo->primary;
 			MUTEX_LOCK(env, renv->mtx_regenv);
-			if((ret = __env_alloc(reginfo,
-			    2 * pinmax * sizeof(PIN_LIST), &list)) != 0) {
+			if((ret = __env_alloc(reginfo, 2 * pinmax * sizeof(PIN_LIST), &list)) != 0) {
 				MUTEX_UNLOCK(env, renv->mtx_regenv);
 				goto err;
 			}
-
-			memcpy(list, R_ADDR(reginfo, ip->dbth_pinlist),
-			    pinmax * sizeof(PIN_LIST));
-			memset(&list[pinmax], 0, pinmax * sizeof(PIN_LIST));
+			memcpy(list, R_ADDR(reginfo, ip->dbth_pinlist), pinmax * sizeof(PIN_LIST));
+			memzero(&list[pinmax], pinmax * sizeof(PIN_LIST));
 			list_off = R_OFFSET(reginfo, list);
 			list = (PIN_LIST *)R_ADDR(reginfo, ip->dbth_pinlist);
 			ip->dbth_pinmax = (uint16)(2 * pinmax);
@@ -1199,7 +1158,7 @@ alloc:              /* Allocate a new buffer header and data space. */
 	    !F_ISSET(bhp, BH_FREED | BH_FROZEN | BH_TRASH));
 
 	*(void**)addrp = bhp->buf;
-	return (0);
+	return 0;
 
 done:
 err:    /*
@@ -1226,7 +1185,7 @@ err:    /*
 		(void)__memp_bhfree(dbmp, infop, NULL,
 		    NULL, alloc_bhp, BH_FREE_FREEMEM | BH_FREE_UNLOCKED);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1300,5 +1259,5 @@ cleanup:
 out:
 	if(FLD_ISSET(env->dbenv->verbose, DB_VERB_MVCC) && *foundp != NULL)
 		__db_msg(env, "fget reusing %p pgno %d @%lu/%lu", bhp, bhp->pgno, (u_long)VISIBLE_LSN(env, bhp)->file, (u_long)VISIBLE_LSN(env, bhp)->offset);
-	return (ret);
+	return ret;
 }

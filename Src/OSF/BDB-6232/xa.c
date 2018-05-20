@@ -111,15 +111,12 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 		 * enabled for MVCC.  This allows MVCC to be used
 		 * with XA transactions.
 		 */
-		else if((ret = __txn_begin(env,
-		    ip, NULL, txnp, DB_TXN_NOWAIT|DB_TXN_SNAPSHOT)) != 0) {
-			dbenv->err(dbenv, ret, DB_STR("4540",
-			    "xa_get_txn: transaction begin failed"));
+		else if((ret = __txn_begin(env, ip, NULL, txnp, DB_TXN_NOWAIT|DB_TXN_SNAPSHOT)) != 0) {
+			dbenv->err(dbenv, ret, DB_STR("4540", "xa_get_txn: transaction begin failed"));
 			ret = XAER_RMERR;
 		}
 		else {
-			SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn,
-			    *txnp, xa_links, __db_txn);
+			SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn, *txnp, xa_links, __db_txn);
 			(*txnp)->xa_thr_status = TXN_XA_THREAD_ASSOCIATED;
 			ip->dbth_xa_status = TXN_XA_THREAD_ASSOCIATED;
 
@@ -146,8 +143,7 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 
 		/* Check that we are not a child transaction. */
 		if(td->parent != INVALID_ROFF) {
-			dbenv->err(dbenv, EINVAL, DB_STR("4541",
-			    "xa_get_txn: XA transaction with parent"));
+			dbenv->err(dbenv, EINVAL, DB_STR("4541", "xa_get_txn: XA transaction with parent"));
 			ret = XAER_RMERR;
 			goto out;
 		}
@@ -182,8 +178,7 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 		}
 		else {
 			if(LF_ISSET(TMRESUME)) {
-				dbenv->err(dbenv, EINVAL, DB_STR("4542",
-				    "xa_get_txn: transaction does not exist"));
+				dbenv->err(dbenv, EINVAL, DB_STR("4542", "xa_get_txn: transaction does not exist"));
 				ret = XAER_PROTO;
 			}
 			else if((ret =
@@ -191,8 +186,7 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 				/* We are joining this branch. */
 				ret = __txn_continue(env, *txnp, td, ip, 1);
 				if(ret != 0) {
-					dbenv->err(dbenv, ret, DB_STR("4543",
-					    "xa_get_txn: txn_continue fails"));
+					dbenv->err(dbenv, ret, DB_STR("4543", "xa_get_txn: txn_continue fails"));
 					ret = XAER_RMFAIL;
 				}
 				ip->dbth_xa_status = TXN_XA_THREAD_ASSOCIATED;
@@ -204,14 +198,13 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 					td->xa_br_status = TXN_XA_ACTIVE;
 			}
 			else {
-				dbenv->err(dbenv, ret, DB_STR("4544",
-				    "xa_get_txn: os_malloc failed"));
+				dbenv->err(dbenv, ret, DB_STR("4544", "xa_get_txn: os_malloc failed"));
 				ret = XAER_RMERR;
 			}
 		}
 	}
 out:    ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * Release use of this transaction.
@@ -240,7 +233,7 @@ static int __xa_thread_enter(ENV *env, DB_THREAD_INFO ** ipp)
 	if(ret == 0)
 		ip->dbth_xa_status = TXN_XA_THREAD_UNASSOCIATED;
 	*ipp = ip;
-	return (ret);
+	return ret;
 }
 /*
  * __xa_txn_get_prepared --
@@ -260,7 +253,7 @@ static int __xa_txn_get_prepared(ENV *env, XID * xids, DB_PREPLIST * txns, long 
 	REPLICATION_WRAP(env,
 	    (__txn_get_prepared(env, xids, txns, count, retp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 #define XA_FLAGS (DB_CREATE | DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_THREAD | DB_REGISTER | DB_RECOVER)
@@ -305,19 +298,16 @@ static int __db_xa_open(char * xa_info, int rmid, long arg_flags)
 
 	/* Open a new environment. */
 	if((ret = db_env_create(&dbenv, 0)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4545",
-		    "xa_open: Failure creating env handle"));
+		dbenv->err(dbenv, ret, DB_STR("4545", "xa_open: Failure creating env handle"));
 		return (XAER_RMERR);
 	}
 	if((ret = dbenv->set_thread_count(dbenv, 25)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4546",
-		    "xa_open: Failure setting thread count"));
+		dbenv->err(dbenv, ret, DB_STR("4546", "xa_open: Failure setting thread count"));
 		goto err;
 	}
 	env = dbenv->env;
 	if((ret = dbenv->open(dbenv, xa_info, XA_FLAGS, 0)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4547",
-		    "xa_open: Failure opening environment"));
+		dbenv->err(dbenv, ret, DB_STR("4547", "xa_open: Failure opening environment"));
 		goto err;
 	}
 
@@ -327,13 +317,11 @@ static int __db_xa_open(char * xa_info, int rmid, long arg_flags)
 	 */
 	if((ret = dbenv->log_get_config(dbenv,
 	    DB_LOG_IN_MEMORY, &inmem)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4548",
-		    "xa_open: Failure getting log configuration"));
+		dbenv->err(dbenv, ret, DB_STR("4548", "xa_open: Failure getting log configuration"));
 		goto err;
 	}
 	if(inmem != 0) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4549",
-		    "xa_open: In-memory logging not allowed in XA environment"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4549", "xa_open: In-memory logging not allowed in XA environment"));
 		goto err;
 	}
 
@@ -482,8 +470,7 @@ static int __db_xa_start(XID *xid, int rmid, long arg_flags)
 	 * transaction yet.
 	 */
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4550",
-		    "xa_start: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4550", "xa_start: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 
@@ -499,7 +486,7 @@ static int __db_xa_start(XID *xid, int rmid, long arg_flags)
 			return (XA_RBOTHER);
 	}
 	if((ret = __xa_get_txn(env, xid, td, &txnp, flags, 0)) != 0)
-		return (ret);
+		return ret;
 
 	return (XA_OK);
 }
@@ -520,32 +507,26 @@ static int __db_xa_end(XID *xid, int rmid, long arg_flags)
 	flags = (u_long)arg_flags;      /* Convert for bit manipulation. */
 	if(flags != TMNOFLAGS && !LF_ISSET(TMSUSPEND | TMSUCCESS | TMFAIL))
 		return (XAER_INVAL);
-
 	if(__db_rmid_to_env(rmid, &env) != 0)
 		return (XAER_PROTO);
 	dbenv = env->dbenv;
-
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4551",
-		    "xa_end: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4551", "xa_end: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 	if(td == NULL)
 		return (XAER_NOTA);
 
 	if((ret = __xa_get_txn(env, xid, td, &txn, flags, 1)) != 0)
-		return (ret);
+		return ret;
 
 	/* We are ending; make sure there are no open cursors. */
 	if(txn->cursors != 0) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4552",
-		    "xa_end: cannot end with open cursors"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4552", "xa_end: cannot end with open cursors"));
 		return (XAER_RMERR);
 	}
-
 	if(td != txn->td) {
-		dbenv->err(dbenv, ret, DB_STR("4553",
-		    "xa_end: txn_detail mismatch"));
+		dbenv->err(dbenv, ret, DB_STR("4553", "xa_end: txn_detail mismatch"));
 		return (XAER_RMERR);
 	}
 
@@ -566,8 +547,7 @@ static int __db_xa_end(XID *xid, int rmid, long arg_flags)
 	}
 
 	if(td->xa_br_status == TXN_XA_IDLE) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4554",
-		    "xa_end: ending transaction that is idle"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4554", "xa_end: ending transaction that is idle"));
 		return (XAER_PROTO);
 	}
 
@@ -684,13 +664,11 @@ static int __db_xa_prepare(XID *xid, int rmid, long arg_flags)
 	}
 
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4555",
-		    "xa_prepare: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4555", "xa_prepare: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 	if(td == NULL) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4556",
-		    "xa_prepare: xid not found"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4556", "xa_prepare: xid not found"));
 		return (XAER_NOTA);
 	}
 
@@ -698,21 +676,16 @@ static int __db_xa_prepare(XID *xid, int rmid, long arg_flags)
 		return (XA_RBDEADLOCK);
 	if(td->xa_br_status == TXN_XA_ROLLEDBACK)
 		return (XA_RBOTHER);
-
-	if(td->xa_br_status != TXN_XA_ACTIVE &&
-	    td->xa_br_status != TXN_XA_IDLE) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4557",
-		    "xa_prepare: transaction neither active nor idle"));
+	if(td->xa_br_status != TXN_XA_ACTIVE && td->xa_br_status != TXN_XA_IDLE) {
+		dbenv->err(dbenv, EINVAL, DB_STR("4557", "xa_prepare: transaction neither active nor idle"));
 		return (XAER_PROTO);
 	}
-
 	/* Now, fill in the global transaction structure. */
 	if((ret = __xa_get_txn(env, xid, td, &txnp, TMJOIN, 0)) != 0)
-		return (ret);
+		return ret;
 
 	if((ret = txnp->prepare(txnp, (uint8*)xid->data)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4558",
-		    "xa_prepare: txnp->prepare failed"));
+		dbenv->err(dbenv, ret, DB_STR("4558", "xa_prepare: txnp->prepare failed"));
 		td->xa_br_status = TXN_XA_IDLE;
 		return (XAER_RMERR);
 	}
@@ -766,13 +739,11 @@ static int __db_xa_commit(XID *xid, int rmid, long arg_flags)
 	}
 
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4559",
-		    "xa_commit: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4559", "xa_commit: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 	if(td == NULL) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4560",
-		    "xa_commit: xid not found"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4560", "xa_commit: xid not found"));
 		return (XAER_NOTA);
 	}
 
@@ -783,20 +754,18 @@ static int __db_xa_commit(XID *xid, int rmid, long arg_flags)
 		return (XA_RBOTHER);
 
 	if(LF_ISSET(TMONEPHASE) && td->xa_br_status != TXN_XA_IDLE) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4561",
-		    "xa_commit: commiting transaction active in branch"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4561", "xa_commit: commiting transaction active in branch"));
 		return (XAER_PROTO);
 	}
 
 	if(!LF_ISSET(TMONEPHASE) && td->xa_br_status != TXN_XA_PREPARED) {
-		dbenv->err(dbenv, EINVAL, DB_STR("4562",
-		    "xa_commit: attempting to commit unprepared transaction"));
+		dbenv->err(dbenv, EINVAL, DB_STR("4562", "xa_commit: attempting to commit unprepared transaction"));
 		return (XAER_PROTO);
 	}
 
 	/* Now, fill in the global transaction structure. */
 	if((ret = __xa_get_txn(env, xid, td, &txnp, TMJOIN, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Because this transaction is currently associated, commit will
@@ -804,11 +773,9 @@ static int __db_xa_commit(XID *xid, int rmid, long arg_flags)
 	 * need to do that in xa_put_txn below.
 	 */
 	if((ret = txnp->commit(txnp, 0)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4563",
-		    "xa_commit: txnp->commit failed"));
+		dbenv->err(dbenv, ret, DB_STR("4563", "xa_commit: txnp->commit failed"));
 		return (XAER_RMERR);
 	}
-
 	__xa_put_txn(env, txnp);
 	return (XA_OK);
 }
@@ -838,15 +805,12 @@ static int __db_xa_recover(XID *xids, long count, int rmid, long flags)
 		newflags = DB_LAST;
 	else
 		newflags = DB_NEXT;
-
 	rval = 0;
 	if((ret = __xa_txn_get_prepared(env,
 	    xids, NULL, count, &rval, newflags)) != 0) {
-		env->dbenv->err(env->dbenv, ret, DB_STR("4564",
-		    "xa_recover: txn_get_prepared failed"));
+		env->dbenv->err(env->dbenv, ret, DB_STR("4564", "xa_recover: txn_get_prepared failed"));
 		return (XAER_RMERR);
 	}
-
 	return (rval);
 }
 /*
@@ -884,49 +848,36 @@ static int __db_xa_rollback(XID *xid, int rmid, long arg_flags)
 	}
 
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4565",
-		    "xa_rollback: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4565", "xa_rollback: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 	if(td == NULL) {
-		dbenv->err(dbenv, ret, DB_STR("4566",
-		    "xa_rollback: xid not found"));
+		dbenv->err(dbenv, ret, DB_STR("4566", "xa_rollback: xid not found"));
 		return (XAER_NOTA);
 	}
-
 	if(td->xa_br_status == TXN_XA_DEADLOCKED)
 		return (XA_RBDEADLOCK);
-
 	if(td->xa_br_status == TXN_XA_ROLLEDBACK)
 		return (XA_RBOTHER);
-
-	if(td->xa_br_status != TXN_XA_ACTIVE &&
-	    td->xa_br_status != TXN_XA_IDLE &&
-	    td->xa_br_status != TXN_XA_PREPARED) {
-		dbenv->err(dbenv, EINVAL, DB_STR_A("4567",
-		    "xa_rollback: transaction in invalid state %d",
-		    "%d"), (int)td->xa_br_status);
+	if(td->xa_br_status != TXN_XA_ACTIVE && td->xa_br_status != TXN_XA_IDLE && td->xa_br_status != TXN_XA_PREPARED) {
+		dbenv->err(dbenv, EINVAL, DB_STR_A("4567", "xa_rollback: transaction in invalid state %d", "%d"), (int)td->xa_br_status);
 		return (XAER_PROTO);
 	}
 
 	/* Now, fill in the global transaction structure. */
 	if((ret = __xa_get_txn(env, xid, td, &txnp, TMJOIN, 0)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Normally abort frees the txnp, but if this is an associated XA
 	 * transaction, then abort will not free it; we do that below.
 	 */
 	if((ret = txnp->abort(txnp)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4568",
-		    "xa_rollback: failure aborting transaction"));
+		dbenv->err(dbenv, ret, DB_STR("4568", "xa_rollback: failure aborting transaction"));
 		return (XAER_RMERR);
 	}
-
 	__xa_put_txn(env, txnp);
-
 	return (XA_OK);
 }
-
 /*
  * __db_xa_forget --
  *	Forget about an XID for a transaction that was heuristically
@@ -937,41 +888,31 @@ static int __db_xa_rollback(XID *xid, int rmid, long arg_flags)
 static int __db_xa_forget(XID *xid, int rmid, long arg_flags)
 {
 	DB_ENV * dbenv;
-	DB_TXN * txnp;
+	DB_TXN * txnp = 0;
 	ENV * env;
 	TXN_DETAIL * td;
 	int ret;
-	u_long flags;
-
-	flags = (u_long)arg_flags;      /* Conversion for bit operations. */
-	txnp = NULL;
-
+	u_long flags = (u_long)arg_flags;      /* Conversion for bit operations. */
 	if(LF_ISSET(TMASYNC))
 		return (XAER_ASYNC);
 	if(flags != TMNOFLAGS)
 		return (XAER_INVAL);
-
 	if(__db_rmid_to_env(rmid, &env) != 0)
 		return (XAER_PROTO);
 	dbenv = env->dbenv;
-
 	/*
 	 * If mapping is gone, then we're done.
 	 */
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
-		dbenv->err(dbenv, ret, DB_STR("4569",
-		    "xa_forget: failure mapping xid"));
+		dbenv->err(dbenv, ret, DB_STR("4569", "xa_forget: failure mapping xid"));
 		return (XAER_RMFAIL);
 	}
 	if(td == NULL) {
-		dbenv->err(dbenv, ret, DB_STR("4570",
-		    "xa_forget: xid not found"));
+		dbenv->err(dbenv, ret, DB_STR("4570", "xa_forget: xid not found"));
 		return (XA_OK);
 	}
-
 	if((ret = __xa_get_txn(env, xid, td, &txnp, TMJOIN, 0)) != 0)
-		return (ret);
-
+		return ret;
 	if((ret = txnp->discard(txnp, 0)) != 0) {
 		dbenv->err(dbenv, ret, DB_STR("4571", "xa_forget: txnp->discard failed"));
 		return (XAER_RMFAIL);

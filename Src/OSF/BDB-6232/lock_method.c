@@ -37,7 +37,7 @@ int __lock_env_create(DB_ENV *dbenv)
 	cpu = __os_cpu_count();
 	dbenv->lk_partitions = cpu > 1 ? 10 * cpu : 1;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -80,7 +80,7 @@ int __lock_get_lk_conflicts(DB_ENV *dbenv, const uint8 ** lk_conflictsp, int * l
 		if(lk_modesp != NULL)
 			*lk_modesp = dbenv->lk_modes;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -97,17 +97,17 @@ int __lock_set_lk_conflicts(DB_ENV *dbenv, uint8 * lk_conflicts, int lk_modes)
 	if(lk_modes == 0) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("2076", "DB_ENV->set_lk_conflicts: nmodes cannot be 0."));
-		return (ret);
+		return ret;
 	}
 	if(dbenv->lk_conflicts != NULL) {
 		__os_free(env, dbenv->lk_conflicts);
 		dbenv->lk_conflicts = NULL;
 	}
 	if((ret = __os_malloc(env, (size_t)(lk_modes * lk_modes), &dbenv->lk_conflicts)) != 0)
-		return (ret);
+		return ret;
 	memcpy(dbenv->lk_conflicts, lk_conflicts, (size_t)(lk_modes * lk_modes));
 	dbenv->lk_modes = lk_modes;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __lock_get_lk_detect __P((DB_ENV *, uint32 *));
@@ -128,7 +128,7 @@ int __lock_get_lk_detect(DB_ENV *dbenv, uint32 * lk_detectp)
 	}
 	else
 		*lk_detectp = dbenv->lk_detect;
-	return (0);
+	return 0;
 }
 /*
  * __lock_set_lk_detect --
@@ -162,15 +162,12 @@ int __lock_set_lk_detect(DB_ENV *dbenv, uint32 lk_detect)
 		case DB_LOCK_YOUNGEST:
 		    break;
 		default:
-		    __db_errx(env, DB_STR("2043",
-			"DB_ENV->set_lk_detect: unknown deadlock detection mode specified"));
-		    return (EINVAL);
+		    __db_errx(env, DB_STR("2043", "DB_ENV->set_lk_detect: unknown deadlock detection mode specified"));
+		    return EINVAL;
 	}
-
 	ret = 0;
 	if(LOCKING_ON(env)) {
 		ENV_ENTER(env, ip);
-
 		lt = env->lk_handle;
 		region = (DB_LOCKREGION *)lt->reginfo.primary;
 		LOCK_REGION_LOCK(env);
@@ -183,12 +180,9 @@ int __lock_set_lk_detect(DB_ENV *dbenv, uint32 lk_detect)
 		 * We allow applications to turn on the lock detector, and we
 		 * ignore attempts to set it to the default or current value.
 		 */
-		if(region->detect != DB_LOCK_NORUN &&
-		    lk_detect != DB_LOCK_DEFAULT &&
-		    region->detect != lk_detect) {
+		if(region->detect != DB_LOCK_NORUN && lk_detect != DB_LOCK_DEFAULT && region->detect != lk_detect) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("2044",
-			    "DB_ENV->set_lk_detect: incompatible deadlock detector mode"));
+			__db_errx(env, DB_STR("2044", "DB_ENV->set_lk_detect: incompatible deadlock detector mode"));
 		}
 		else if(region->detect == DB_LOCK_NORUN)
 			region->detect = lk_detect;
@@ -202,7 +196,7 @@ int __lock_set_lk_detect(DB_ENV *dbenv, uint32 lk_detect)
 		if((ret = __lock_set_lk_detect(slice, lk_detect)) != 0)
 			break;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -219,7 +213,7 @@ int __lock_get_lk_max_locks(DB_ENV *dbenv, uint32 * lk_maxp)
 	}
 	else
 		*lk_maxp = dbenv->lk_max;
-	return (0);
+	return 0;
 }
 /*
  * __lock_set_lk_max_locks
@@ -232,7 +226,7 @@ int __lock_set_lk_max_locks(DB_ENV *dbenv, uint32 lk_max)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lk_max_locks");
 	dbenv->lk_max = lk_max;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __lock_get_lk_max_lockers __P((DB_ENV *, uint32 *));
@@ -247,7 +241,7 @@ int __lock_get_lk_max_lockers(DB_ENV *dbenv, uint32 * lk_maxp)
 	}
 	else
 		*lk_maxp = dbenv->lk_max_lockers;
-	return (0);
+	return 0;
 }
 /*
  * __lock_set_lk_max_lockers
@@ -260,7 +254,7 @@ int __lock_set_lk_max_lockers(DB_ENV *dbenv, uint32 lk_max)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lk_max_lockers");
 	dbenv->lk_max_lockers = lk_max;
-	return (0);
+	return 0;
 }
 
 /*
@@ -276,7 +270,7 @@ int __lock_get_lk_max_objects(DB_ENV *dbenv, uint32 * lk_maxp)
 	}
 	else
 		*lk_maxp = dbenv->lk_max_objects;
-	return (0);
+	return 0;
 }
 /*
  * __lock_set_lk_max_objects
@@ -289,7 +283,7 @@ int __lock_set_lk_max_objects(DB_ENV *dbenv, uint32 lk_max)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lk_max_objects");
 	dbenv->lk_max_objects = lk_max;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __lock_get_lk_partitions __P((DB_ENV *, uint32 *));
@@ -304,7 +298,7 @@ int __lock_get_lk_partitions(DB_ENV *dbenv, uint32 * lk_partitionp)
 	}
 	else
 		*lk_partitionp = dbenv->lk_partitions;
-	return (0);
+	return 0;
 }
 
 /*
@@ -319,10 +313,10 @@ int __lock_set_lk_partitions(DB_ENV *dbenv, uint32 lk_partitions)
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lk_partitions");
 	if(lk_partitions == 0) {
 		__db_errx(env, DB_STR("2077", "DB_ENV->set_lk_partitions: partitions cannot be 0."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	dbenv->lk_partitions = lk_partitions;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __lock_get_lk_tablesize __P((DB_ENV *, uint32 *));
@@ -337,7 +331,7 @@ int __lock_get_lk_tablesize(DB_ENV *dbenv, uint32 * lk_tablesizep)
 	}
 	else
 		*lk_tablesizep = dbenv->object_t_size;
-	return (0);
+	return 0;
 }
 
 /*
@@ -351,7 +345,7 @@ int __lock_set_lk_tablesize(DB_ENV *dbenv, uint32 lk_tablesize)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lk_tablesize");
 	dbenv->object_t_size = lk_tablesize;
-	return (0);
+	return 0;
 }
 
 /*
@@ -366,10 +360,10 @@ int __lock_set_lk_priority(DB_ENV *dbenv, uint32 lockid, uint32 priority)
 	int ret;
 	ENV * env = dbenv->env;
 	if(!LOCKING_ON(env))
-		return (EINVAL);
+		return EINVAL;
 	if((ret = __lock_getlocker(env->lk_handle, lockid, 0, &locker)) == 0)
 		locker->priority = priority;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -384,7 +378,7 @@ int __lock_get_lk_priority(DB_ENV *dbenv, uint32 lockid, uint32 * priorityp)
 	int ret;
 	ENV * env = dbenv->env;
 	if(!LOCKING_ON(env))
-		return (EINVAL);
+		return EINVAL;
 	if((ret = __lock_getlocker(env->lk_handle, lockid, 0, &locker)) == 0)
 		*priorityp = locker->priority;
 	return ret;
@@ -437,7 +431,7 @@ int __lock_get_env_timeout(DB_ENV *dbenv, db_timeout_t * timeoutp, uint32 flag)
 	if(ret)
 		ret = __db_ferr(env, "DB_ENV->get_timeout", 0);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -488,5 +482,5 @@ int __lock_set_env_timeout(DB_ENV *dbenv, db_timeout_t timeout, uint32 flags)
 		}
 	if(badflag)
 		return (__db_ferr(env, "DB_ENV->set_timeout", 0));
-	return (0);
+	return 0;
 }

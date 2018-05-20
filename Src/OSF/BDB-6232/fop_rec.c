@@ -144,7 +144,7 @@ do_unlink:              (void)__os_unlink(env, real_name, 0);
 		else
 			goto out;
 	}
-out:    return (ret);
+out:    return ret;
 }
 
 /*
@@ -488,7 +488,7 @@ end:    if(path != NULL)
 		__os_free(env, path);
 	if(fhp != NULL)
 		(void)__os_closehandle(env, fhp);
-	return (ret);
+	return ret;
 }
 
 /*

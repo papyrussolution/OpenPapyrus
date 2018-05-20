@@ -65,7 +65,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	if(IS_REAL_TXN(txn) && !LF_ISSET(DBC_OPD | DBC_DUPLICATE) && !F_ISSET(dbp, DB_AM_RECOVER) &&
 	    dbp->log_filename != NULL && !IS_REP_CLIENT(env) && (ret = __txn_record_fname(env, txn, dbp->log_filename)) != 0) {
 		MUTEX_UNLOCK(env, dbp->mutex);
-		return (ret);
+		return ret;
 	}
 
 #endif
@@ -80,7 +80,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 
 	if(dbc == NULL) {
 		if((ret = __os_calloc(env, 1, sizeof(DBC), &dbc)) != 0)
-			return (ret);
+			return ret;
 		allocated = 1;
 		dbc->flags = 0;
 
@@ -405,11 +405,11 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	MUTEX_UNLOCK(env, dbp->mutex);
 
 	*dbcp = dbc;
-	return (0);
+	return 0;
 err:    
 	if(allocated)
 		__os_free(env, dbc);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -448,7 +448,7 @@ int __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, 
 	else
 		cursor_flags |= DB_CURSOR_TRANSIENT;
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, cursor_flags)) != 0)
-		return (ret);
+		return ret;
 	DEBUG_LWRITE(dbc, txn, "DB->put", key, data, flags);
 	PERFMON6(env, db, put, dbp->fname, dbp->dname, txn == NULL ? 0 : txn->txnid, key, data, flags);
 
@@ -563,7 +563,7 @@ err:    /* Close the cursor. */
 		F_SET(dbc, DBC_ERROR);
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -588,7 +588,7 @@ int __db_del(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, uint32 flags
 	if(LF_ISSET(DB_MULTIPLE | DB_MULTIPLE_KEY))
 		cursor_flags |= DB_CURSOR_BULK;
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, cursor_flags)) != 0)
-		return (ret);
+		return ret;
 
 	DEBUG_LWRITE(dbc, txn, "DB->del", key, NULL, flags);
 	PERFMON5(env, db, del, dbp->fname, dbp->dname, txn == NULL ? 0 : txn->txnid, key, flags);
@@ -746,7 +746,7 @@ err:    /* Discard the cursor. */
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -761,13 +761,13 @@ int __db_sync(DB *dbp)
 	int ret = 0;
 	/* If the database was read-only, we're done. */
 	if(F_ISSET(dbp, DB_AM_RDONLY))
-		return (0);
+		return 0;
 	/* If it's a Recno tree, write the backing source text file. */
 	if(dbp->type == DB_RECNO)
 		ret = __ram_writeback(dbp);
 	/* If the database was never backed by a database file, we're done. */
 	if(F_ISSET(dbp, DB_AM_INMEM))
-		return (ret);
+		return ret;
 #ifdef HAVE_PARTITION
 	if(DB_IS_PARTITIONED(dbp))
 		ret = __partition_sync(dbp);
@@ -791,7 +791,7 @@ int __db_sync(DB *dbp)
 	if((t_ret = __memp_fsync(dbp->mpf)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -943,7 +943,7 @@ err:    if(sdbc != NULL && (t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 		FREE_IF_NEEDED(env, tskeyp);
 	FREE_IF_NEEDED(env, &skey);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1026,7 +1026,7 @@ int __db_associate_foreign(DB *fdbp, DB *pdbp, int (* callback)(DB *, const DBT 
 	ENV * env = fdbp->env;
 	int ret = 0;
 	if((ret = __os_malloc(env, sizeof(DB_FOREIGN_INFO), &f_info)) != 0) {
-		return (ret);
+		return ret;
 	}
 	memzero(f_info, sizeof(DB_FOREIGN_INFO));
 	f_info->dbp = pdbp;
@@ -1053,15 +1053,15 @@ int __db_associate_foreign(DB *fdbp, DB *pdbp, int (* callback)(DB *, const DBT 
 	 * of primaries.
 	 */
 	if(pdbp->s_foreign != NULL)
-		return (EINVAL);
+		return EINVAL;
 	pdbp->s_foreign = fdbp;
-	return (ret);
+	return ret;
 }
 
 static int __dbc_set_priority(DBC *dbc, DB_CACHE_PRIORITY priority)
 {
 	dbc->priority = priority;
-	return (0);
+	return 0;
 }
 
 static int __dbc_get_priority(DBC *dbc, DB_CACHE_PRIORITY * priority)
@@ -1070,5 +1070,5 @@ static int __dbc_get_priority(DBC *dbc, DB_CACHE_PRIORITY * priority)
 		return (__memp_get_priority(dbc->dbp->mpf, priority));
 	else
 		*priority = dbc->priority;
-	return (0);
+	return 0;
 }

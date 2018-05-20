@@ -68,7 +68,7 @@ int __repmgr_thread_start(ENV *env, REPMGR_RUNNABLE * runnable)
 	}
 	runnable->thread_id = thread_id;
 	runnable->quit_event = event;
-	return (0);
+	return 0;
 }
 
 int __repmgr_thread_join(REPMGR_RUNNABLE *thread)
@@ -80,7 +80,7 @@ int __repmgr_thread_join(REPMGR_RUNNABLE *thread)
 		ret = GetLastError();
 	if(!CloseHandle(thread->quit_event) && ret == 0)
 		ret = GetLastError();
-	return (ret);
+	return ret;
 }
 
 int __repmgr_set_nonblocking(SOCKET s)
@@ -89,19 +89,19 @@ int __repmgr_set_nonblocking(SOCKET s)
 	u_long onoff = 1;              /* any non-zero value */
 	if((ret = ioctlsocket(s, FIONBIO, &onoff)) == SOCKET_ERROR)
 		return (WSAGetLastError());
-	return (0);
+	return 0;
 }
 
 int __repmgr_set_nonblock_conn(REPMGR_CONNECTION *conn)
 {
 	int ret;
 	if((ret = __repmgr_set_nonblocking(conn->fd)) != 0)
-		return (ret);
+		return ret;
 	if((conn->event_object = WSACreateEvent()) == WSA_INVALID_EVENT) {
 		ret = net_errno;
-		return (ret);
+		return ret;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -123,7 +123,7 @@ int __repmgr_wake_waiters(ENV *env, waiter_t * w)
 			if(!SetEvent(slot->event) && ret == 0)
 				ret = GetLastError();
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -160,7 +160,7 @@ int __repmgr_await_cond(ENV *env, PREDICATE pred, void * ctx, db_timeout_t timeo
 	if(db_rep->repmgr_status == repmsgstStopped)
 		ret = (DWORD)DB_REP_UNAVAIL;
 err:
-	return (ret);
+	return ret;
 }
 /*
  * !!!
@@ -179,7 +179,7 @@ static int allocate_wait_slot(ENV *env, int * resultp, COND_WAITERS_TABLE * tabl
 			table->size *= 2;
 			w = table->array;
 			if((ret = __os_realloc(env, table->size * sizeof(*w), &w)) != 0)
-				return (ret);
+				return ret;
 			table->array = w;
 		}
 		if((event = CreateEvent(NULL, FALSE, FALSE, NULL)) == NULL) {
@@ -208,7 +208,7 @@ static int allocate_wait_slot(ENV *env, int * resultp, COND_WAITERS_TABLE * tabl
 	 */
 	(void)WaitForSingleObject(w->event, 0);
 	*resultp = i;
-	return (0);
+	return 0;
 }
 
 static void free_wait_slot(ENV * env, int slot_index, COND_WAITERS_TABLE * table)
@@ -233,7 +233,7 @@ int __repmgr_await_gmdbop(ENV *env)
 			return (GetLastError());
 		DB_ASSERT(env, ret == WAIT_OBJECT_0);
 	}
-	return (0);
+	return 0;
 }
 
 /* (See requirements described in repmgr_posix.c.) */
@@ -253,7 +253,7 @@ int __repmgr_await_drain(ENV *env, REPMGR_CONNECTION * conn, db_timeout_t timeou
 		__os_gettime(env, &now, 1);
 		if(timespeccmp(&now, &deadline, >=)) {
 			conn->state = CONN_CONGESTED;
-			return (0);
+			return 0;
 		}
 		delta = deadline;
 		timespecsub(&delta, &now);
@@ -266,16 +266,16 @@ int __repmgr_await_drain(ENV *env, REPMGR_CONNECTION * conn, db_timeout_t timeou
 			return (GetLastError());
 		else if(ret == WAIT_TIMEOUT) {
 			conn->state = CONN_CONGESTED;
-			return (0);
+			return 0;
 		}
 		else
 			DB_ASSERT(env, ret == WAIT_OBJECT_0);
 		if(db_rep->repmgr_status == repmsgstStopped)
-			return (0);
+			return 0;
 		if(conn->state == CONN_DEFUNCT)
 			return (DB_REP_UNAVAIL);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -288,13 +288,13 @@ int __repmgr_alloc_cond(cond_var_t *c)
 	if((event = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL)
 		return (GetLastError());
 	*c = event;
-	return (0);
+	return 0;
 }
 
 int __repmgr_free_cond(cond_var_t *c)
 {
 	if(CloseHandle(*c))
-		return (0);
+		return 0;
 	return (GetLastError());
 }
 
@@ -306,7 +306,7 @@ int __repmgr_create_mutex_pf(mgr_mutex_t *mutex)
 {
 	if((*mutex = CreateMutex(NULL, FALSE, NULL)) == NULL)
 		return (GetLastError());
-	return (0);
+	return 0;
 }
 
 int __repmgr_destroy_mutex_pf(mgr_mutex_t  *mutex)
@@ -321,7 +321,7 @@ int __repmgr_init(ENV *env)
 	DB_REP * db_rep = env->rep_handle;
 	if((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
 		__db_err(env, ret, DB_STR("3589", "unable to initialize Windows networking"));
-		return (ret);
+		return ret;
 	}
 	if((db_rep->signaler = CreateEvent(NULL,  /* security attr */
 	    FALSE,      /* (not) of the manual reset variety  */
@@ -336,7 +336,7 @@ int __repmgr_init(ENV *env)
 		goto geterr;
 	if((ret = __repmgr_init_waiters(env, &db_rep->ack_waiters)) != 0)
 		goto err;
-	return (0);
+	return 0;
 geterr:
 	ret = GetLastError();
 err:
@@ -350,7 +350,7 @@ err:
 		CloseHandle(db_rep->signaler);
 	db_rep->msg_avail = db_rep->check_election = db_rep->gmdb_idle = db_rep->signaler = NULL;
 	(void)WSACleanup();
-	return (ret);
+	return ret;
 }
 
 int __repmgr_deinit(ENV *env)
@@ -358,7 +358,7 @@ int __repmgr_deinit(ENV *env)
 	int ret, t_ret;
 	DB_REP * db_rep = env->rep_handle;
 	if(!(REPMGR_INITED(db_rep)))
-		return (0);
+		return 0;
 	ret = 0;
 	if(WSACleanup() == SOCKET_ERROR)
 		ret = WSAGetLastError();
@@ -373,7 +373,7 @@ int __repmgr_deinit(ENV *env)
 	if(!CloseHandle(db_rep->signaler) && ret == 0)
 		ret = GetLastError();
 	db_rep->msg_avail = db_rep->check_election = db_rep->gmdb_idle = db_rep->signaler = NULL;
-	return (ret);
+	return ret;
 }
 
 int __repmgr_init_waiters(ENV *env, waiter_t * waiters)
@@ -382,17 +382,17 @@ int __repmgr_init_waiters(ENV *env, waiter_t * waiters)
 	int ret;
 	COND_WAITERS_TABLE * table = NULL;
 	if((ret = __os_calloc(env, 1, sizeof(COND_WAITERS_TABLE), &table)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_calloc(env, INITIAL_ALLOCATION, sizeof(COND_WAITER), &table->array)) != 0) {
 		__os_free(env, table);
-		return (ret);
+		return ret;
 	}
 	table->size = INITIAL_ALLOCATION;
 	table->first_free = -1;
 	table->next_avail = 0;
 	/* There's a restaurant joke in there somewhere. */
 	*waiters = table;
-	return (0);
+	return 0;
 }
 
 int __repmgr_destroy_waiters(ENV *env, waiter_t * waitersp)
@@ -406,20 +406,20 @@ int __repmgr_destroy_waiters(ENV *env, waiter_t * waitersp)
 	}
 	__os_free(env, waiters->array);
 	__os_free(env, waiters);
-	return (ret);
+	return ret;
 }
 
 int __repmgr_lock_mutex(mgr_mutex_t  *mutex)
 {
 	if(WaitForSingleObject(*mutex, INFINITE) == WAIT_OBJECT_0)
-		return (0);
+		return 0;
 	return (GetLastError());
 }
 
 int __repmgr_unlock_mutex(mgr_mutex_t  *mutex)
 {
 	if(ReleaseMutex(*mutex))
-		return (0);
+		return 0;
 	return (GetLastError());
 }
 
@@ -436,14 +436,14 @@ int __repmgr_wake_msngers(ENV *env, u_int n)
 	for(i = n; i< db_rep->nthreads; i++)
 		if(!SetEvent(db_rep->messengers[i]->quit_event))
 			return (GetLastError());
-	return (0);
+	return 0;
 }
 
 int __repmgr_wake_main_thread(ENV *env)
 {
 	if(!SetEvent(env->rep_handle->signaler))
 		return (GetLastError());
-	return (0);
+	return 0;
 }
 
 int __repmgr_writev(socket_t fd, db_iovec_t * iovec, int buf_count, size_t * byte_count_p)
@@ -452,7 +452,7 @@ int __repmgr_writev(socket_t fd, db_iovec_t * iovec, int buf_count, size_t * byt
 	if(WSASend(fd, iovec, (DWORD)buf_count, &bytes, 0, NULL, NULL) == SOCKET_ERROR)
 		return (net_errno);
 	*byte_count_p = (size_t)bytes;
-	return (0);
+	return 0;
 }
 
 int __repmgr_readv(socket_t fd, db_iovec_t * iovec, int buf_count, size_t * xfr_count_p)
@@ -462,7 +462,7 @@ int __repmgr_readv(socket_t fd, db_iovec_t * iovec, int buf_count, size_t * xfr_
 	if(WSARecv(fd, iovec, (DWORD)buf_count, &bytes, &flags, NULL, NULL) == SOCKET_ERROR)
 		return (net_errno);
 	*xfr_count_p = (size_t)bytes;
-	return (0);
+	return 0;
 }
 
 int __repmgr_select_loop(ENV *env)
@@ -575,7 +575,7 @@ out:
 	LOCK_MUTEX(db_rep->mutex);
 	(void)__repmgr_net_close(env);
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 
 static int prepare_io(ENV *env, REPMGR_CONNECTION * conn, void * info_)
@@ -614,7 +614,7 @@ static int prepare_io(ENV *env, REPMGR_CONNECTION * conn, void * info_)
 	}
 	else
 		ret = 0;
-	return (ret);
+	return ret;
 }
 
 static int handle_completion(ENV *env, REPMGR_CONNECTION * conn)
@@ -663,5 +663,5 @@ report:
 err:
 	if(ret == DB_REP_UNAVAIL)
 		ret = __repmgr_bust_connection(env, conn);
-	return (ret);
+	return ret;
 }

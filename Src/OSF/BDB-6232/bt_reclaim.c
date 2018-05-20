@@ -25,7 +25,7 @@ int __bam_reclaim(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 
 	/* Acquire a cursor. */
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/* Write lock the metapage for deallocations. */
 	if((ret = __db_lget(dbc,
@@ -46,7 +46,7 @@ int __bam_reclaim(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 err:    if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -64,7 +64,7 @@ int __bam_truncate(DBC *dbc, uint32 * countp)
 	uint32 comp_count;
 	comp_count = 0;
 	if(DB_IS_COMPRESSED(dbc->dbp) && (ret = __bam_compress_count(dbc, NULL, &comp_count)) != 0)
-		return (ret);
+		return ret;
 #endif
 	count = 0;
 	/* Walk the tree, freeing pages. */
@@ -79,5 +79,5 @@ int __bam_truncate(DBC *dbc, uint32 * countp)
 	if(countp != NULL)
 		*countp = count;
 
-	return (ret);
+	return ret;
 }

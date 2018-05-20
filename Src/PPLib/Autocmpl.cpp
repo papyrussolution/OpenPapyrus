@@ -597,12 +597,12 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 		double qtty = 0.0;
 		s.SrcGsPos = i;
 		s.GsiFlags = gsi.Flags; // @v9.0.4
-		// @v8.8.3 {
+		// 
 		// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
 		// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
 		// от ввода этого участка кода для существующих клиентов все-таки ограничение важно.
 		//
-		if(sqtty == 0.0 && gsi.Formula[0]) {
+		if(sqtty == 0.0 && gsi.Formula__[0]) {
 			s.GsiFlags |= GSIF_FORMULA;
 			is_there_formula = 1;
 			qtty = sqtty;
@@ -611,7 +611,6 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 			s.GsiFlags &= ~GSIF_FORMULA;
 			qtty = sqtty;
 		}
-		// } @v8.8.3
 		s.GoodsID = gsi.GoodsID;
 		s.GoodsFlags = (goods_obj.Fetch(s.GoodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
 		s.NeedQty = qtty;
@@ -629,7 +628,7 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 				double v = 0.0;
 				const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
 				GdsClsCalcExprContext ctx(this, pBillPack);
-				THROW(PPCalcExpression(r_gsi.Formula, &v, &ctx));
+				THROW(PPCalcExpression(r_gsi.Formula__, &v, &ctx));
 				r_item.NeedQty = v;
 				r_item.PartQty = fdivnz(v, rData.Head.NeedQty);
 			}
@@ -975,12 +974,12 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 								THROW_SL(sum_array.Add(gsi.GoodsID, price, 1));
 						}
 						else {
-							if(gsi.Formula[0]) {
+							if(gsi.Formula__[0]) {
 								double v = 0.0;
 								qtty = 0.0;
 								for(uint k = 0; k < local_pos_list.getCount(); k++) {
 									GdsClsCalcExprContext ctx(&TI(local_pos_list.get(k)-1), this);
-									THROW(PPCalcExpression(gsi.Formula, &v, &ctx));
+									THROW(PPCalcExpression(gsi.Formula__, &v, &ctx));
 									qtty += v;
 								}
 							}

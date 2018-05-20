@@ -112,7 +112,7 @@ int __repmgr_connect(ENV *env, repmgr_netaddr_t * netaddr, REPMGR_CONNECTION ** 
 	port = netaddr->port;
 #endif
 	if((ret = __repmgr_getaddr(env, netaddr->host, port, 0, &ai0)) != 0)
-		return (ret);
+		return ret;
 	__repmgr_print_addrlist(env, "repmgr_connect", ai0);
 
 	/*
@@ -160,7 +160,7 @@ out:
 		__repmgr_print_conn_err(env, netaddr, err);
 		*errp = err;
 	}
-	return (ret);
+	return ret;
 }
 
 static int __repmgr_start_connect(ENV *env, socket_t * socket_result, ADDRINFO * ai, int * err)
@@ -172,7 +172,7 @@ static int __repmgr_start_connect(ENV *env, socket_t * socket_result, ADDRINFO *
 	if((s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == SOCKET_ERROR) {
 		ret = net_errno;
 		__db_err(env, ret, "create socket");
-		return (ret);
+		return ret;
 	}
 	/*
 	 * Invoke any application-supplied socket approval function just
@@ -184,7 +184,7 @@ static int __repmgr_start_connect(ENV *env, socket_t * socket_result, ADDRINFO *
 	if(db_rep->approval != NULL && (ret = db_rep->approval(env->dbenv, s, &sock_approved, 0)) != 0) {
 		VPRINT(env, (env, DB_VERB_REP_SYNC, "repmgr_start_connect: approval callback error %d for:", ret));
 		__repmgr_print_addr(env, ai->ai_addr, "", 1, 0);
-		return (ret);
+		return ret;
 	}
 	if(!sock_approved)
 		return (DB_REP_UNAVAIL);
@@ -195,7 +195,7 @@ static int __repmgr_start_connect(ENV *env, socket_t * socket_result, ADDRINFO *
 	}
 	__repmgr_print_addr(env, ai->ai_addr, "connection established", 1, 0);
 	*socket_result = s;
-	return (0);
+	return 0;
 }
 
 static int __repmgr_finish_connect(ENV *env, socket_t s, REPMGR_CONNECTION ** connp)
@@ -203,12 +203,12 @@ static int __repmgr_finish_connect(ENV *env, socket_t s, REPMGR_CONNECTION ** co
 	REPMGR_CONNECTION * conn;
 	int ret;
 	if((ret = __repmgr_new_connection(env, &conn, s, CONN_CONNECTED)) != 0 || (ret = __repmgr_set_keepalive(env, conn)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __repmgr_propose_version(env, conn)) == 0)
 		*connp = conn;
 	else
 		(void)__repmgr_destroy_conn(env, conn);
-	return (ret);
+	return ret;
 }
 
 static int __repmgr_propose_version(ENV *env, REPMGR_CONNECTION * conn)
@@ -258,7 +258,7 @@ static int __repmgr_propose_version(ENV *env, REPMGR_CONNECTION * conn)
 	ret = __repmgr_send_v1_handshake(env, conn, buf, rec_length);
 	__os_free(env, buf);
 out:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -633,7 +633,7 @@ out:    UNLOCK_MUTEX(db_rep->mutex);
 			UNLOCK_MUTEX(db_rep->mutex);
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static REPMGR_SITE * connected_site(ENV *env, int eid)
@@ -667,7 +667,7 @@ int __repmgr_sync_siteaddr(ENV *env)
 	if((ret = __repmgr_copy_in_added_sites(env)) == 0)
 		ret = __repmgr_init_new_sites(env, (int)added, (int)db_rep->site_cnt);
 	MUTEX_UNLOCK(env, rep->mtx_repmgr);
-	return (ret);
+	return ret;
 }
 /*
  * Sends message to all sites with which we currently have an active
@@ -733,10 +733,10 @@ int __repmgr_send_broadcast(ENV *env, u_int type, const DBT * control, const DBT
 		 */
 		if((ret = send_connection(env, type,
 		    site->ref.conn.in, &msg, &sent1)) != 0)
-			return (ret);
+			return ret;
 		if((ret = send_connection(env, type,
 		    site->ref.conn.out, &msg, &sent2)) != 0)
-			return (ret);
+			return ret;
 next:
 		/*
 		 * Count how many full-fledged member sites we sent to, and how
@@ -768,7 +768,7 @@ next:
 	*nsitesp = nsites;
 	*npeersp = npeers;
 	*missingp = has_missing_peer;
-	return (0);
+	return 0;
 }
 
 static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struct sending_msg * msg, int * sent)
@@ -780,7 +780,7 @@ static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struc
 	db_rep = env->rep_handle;
 	*sent = FALSE;
 	if(conn == NULL || !IS_READY_STATE(conn->state))
-		return (0);
+		return 0;
 	DB_ASSERT(env, IS_KNOWN_REMOTE_SITE(conn->eid) && conn->version > 0 && conn->version <= DB_REPMGR_VERSION);
 	/*
 	 * Skip if the type of message we're sending is beyond the range
@@ -796,7 +796,7 @@ static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struc
 	 * fields, etc.).
 	 */
 	if(type > version_max_msg_type[conn->version])
-		return (0);
+		return 0;
 
 	/*
 	 * Broadcast messages are either application threads committing
@@ -818,7 +818,7 @@ static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struc
 	}
 	else if(ret == DB_REP_UNAVAIL)
 		ret = __repmgr_bust_connection(env, conn);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -845,7 +845,7 @@ int __repmgr_send_one(ENV *env, REPMGR_CONNECTION * conn, u_int msg_type, const 
 	setup_sending_msg(env, &msg, hdr_buf, msg_type, control, rec);
 	if((ret = __repmgr_send_internal(env, conn, &msg, maxblock)) == DB_TIMEOUT && maxblock == 0)
 		ret = 0;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_send_many __P((ENV *,
@@ -863,7 +863,7 @@ int __repmgr_send_many(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * iovec
 		ret = 0;
 	if(ret != 0 && ret != DB_TIMEOUT)
 		(void)__repmgr_disable_connection(env, conn);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -877,7 +877,7 @@ int __repmgr_send_own_msg(ENV *env, REPMGR_CONNECTION * conn, uint32 type, uint8
 	__repmgr_msg_hdr_args msg_hdr;
 	uint8 hdr_buf[__REPMGR_MSG_HDR_SIZE];
 	if(conn->version < OWN_MIN_VERSION)
-		return (0);
+		return 0;
 	msg_hdr.type = REPMGR_OWN_MSG;
 	REPMGR_OWN_BUF_SIZE(msg_hdr) = len;
 	REPMGR_OWN_MSG_TYPE(msg_hdr) = type;
@@ -925,7 +925,7 @@ static int __repmgr_send_internal(ENV *env, REPMGR_CONNECTION * conn, struct sen
 			if(db_rep->repmgr_status == repmsgstStopped)
 				return (DB_TIMEOUT);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			if(STAILQ_EMPTY(&conn->outbound_queue))
 				goto empty;
 		}
@@ -939,7 +939,7 @@ static int __repmgr_send_internal(ENV *env, REPMGR_CONNECTION * conn, struct sen
 	}
 empty:
 	if((ret = __repmgr_write_iovecs(env, conn, msg->iovecs, &total_written)) == 0)
-		return (0);
+		return 0;
 	switch(ret) {
 		case WOULDBLOCK:
 #if defined(DB_REPMGR_EAGAIN) && DB_REPMGR_EAGAIN != WOULDBLOCK
@@ -963,7 +963,7 @@ empty:
 	 * finish sending it later.
 	 */
 	if((ret = enqueue_msg(env, conn, msg, total_written)) != 0)
-		return (ret);
+		return ret;
 	STAT(env->rep_handle->region->mstat.st_msgs_queued++);
 	/*
 	 * Wake the main select thread so that it can discover that it has
@@ -1001,7 +1001,7 @@ int __repmgr_write_iovecs(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * io
 	else {
 		sz = (size_t)REPMGR_IOVECS_ALLOC_SZ((u_int)iovecs->count);
 		if((ret = __os_malloc(env, sz, &v)) != 0)
-			return (ret);
+			return ret;
 	}
 	memcpy(v, iovecs, sz);
 	total_written = 0;
@@ -1013,7 +1013,7 @@ int __repmgr_write_iovecs(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * io
 	*writtenp = total_written;
 	if(v != &iovec_buf)
 		__os_free(env, v);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1125,10 +1125,10 @@ int __repmgr_bust_connection(ENV *env, REPMGR_CONNECTION * conn)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	if(conn->state == CONN_DEFUNCT)
-		return (0);
+		return 0;
 	eid = conn->eid;
 	if((ret = __repmgr_disable_connection(env, conn)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * When we have lost the connection to another site, take any/all
@@ -1209,7 +1209,7 @@ int __repmgr_bust_connection(ENV *env, REPMGR_CONNECTION * conn)
 						db_rep->m_listener_chk = now;
 					}
 					RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Master failure, but delay elections for takeover on master"));
-					return (0);
+					return 0;
 				}
 			}
 		}
@@ -1261,7 +1261,7 @@ int __repmgr_bust_connection(ENV *env, REPMGR_CONNECTION * conn)
 		MASTER_UPDATE(env, (REGENV*)env->reginfo->primary);
 	}
 out:
-	return (ret);
+	return ret;
 }
 /*
  * Remove a connection from the possibility of any further activity, making sure
@@ -1356,7 +1356,7 @@ int __repmgr_disable_connection(ENV *env, REPMGR_CONNECTION * conn)
 	if((t_ret = __repmgr_wake_main_thread(env)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1373,7 +1373,7 @@ int __repmgr_cleanup_defunct(ENV *env, REPMGR_CONNECTION * conn)
 	TAILQ_REMOVE(&db_rep->connections, conn, entries);
 	if((t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_close_connection __P((ENV *, REPMGR_CONNECTION *));
@@ -1393,14 +1393,13 @@ int __repmgr_close_connection(ENV *env, REPMGR_CONNECTION * conn)
 #ifdef DB_WIN32
 	if(conn->event_object != WSA_INVALID_EVENT && !WSACloseEvent(conn->event_object)) {
 		t_ret = net_errno;
-		__db_err(env, t_ret, DB_STR("3583",
-		    "releasing WSA event object"));
+		__db_err(env, t_ret, DB_STR("3583", "releasing WSA event object"));
 		if(ret == 0)
 			ret = t_ret;
 	}
 	conn->event_object = WSA_INVALID_EVENT;
 #endif
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1503,7 +1502,7 @@ int __repmgr_destroy_conn(ENV *env, REPMGR_CONNECTION * conn)
 	if((t_ret = __repmgr_free_cond(&conn->drained)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, conn);
-	return (ret);
+	return ret;
 }
 
 static int enqueue_msg(ENV *env, REPMGR_CONNECTION * conn, struct sending_msg * msg, size_t offset)
@@ -1511,16 +1510,16 @@ static int enqueue_msg(ENV *env, REPMGR_CONNECTION * conn, struct sending_msg * 
 	QUEUED_OUTPUT * q_element;
 	int ret;
 	if(msg->fmsg == NULL && ((ret = flatten(env, msg)) != 0))
-		return (ret);
+		return ret;
 	if((ret = __os_malloc(env, sizeof(QUEUED_OUTPUT), &q_element)) != 0)
-		return (ret);
+		return ret;
 	q_element->msg = msg->fmsg;
 	msg->fmsg->ref_count++; /* encapsulation would be sweeter */
 	q_element->offset = offset;
 	/* Put it on the connection's outbound queue. */
 	STAILQ_INSERT_TAIL(&conn->outbound_queue, q_element, entries);
 	conn->out_queue_length++;
-	return (0);
+	return 0;
 }
 
 /*
@@ -1558,7 +1557,7 @@ static int flatten(ENV *env, struct sending_msg * msg)
 	DB_ASSERT(env, msg->fmsg == NULL);
 	msg_size = msg->iovecs->total_bytes;
 	if((ret = __os_malloc(env, sizeof(*msg->fmsg) + msg_size, &msg->fmsg)) != 0)
-		return (ret);
+		return ret;
 	msg->fmsg->length = msg_size;
 	msg->fmsg->ref_count = 0;
 	p = &msg->fmsg->data[0];
@@ -1568,7 +1567,7 @@ static int flatten(ENV *env, struct sending_msg * msg)
 	}
 	__repmgr_iovec_init(msg->iovecs);
 	__repmgr_add_buffer(msg->iovecs, &msg->fmsg->data[0], msg_size);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1610,9 +1609,9 @@ int __repmgr_pack_netaddr(ENV *env, const char * host, u_int port, repmgr_netadd
 	int ret;
 	DB_ASSERT(env, host != NULL);
 	if((ret = __os_strdup(env, host, &addr->host)) != 0)
-		return (ret);
+		return ret;
 	addr->port = (uint16)port;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __repmgr_getaddr __P((ENV *,
@@ -1626,12 +1625,11 @@ int __repmgr_getaddr(ENV *env, const char * host, u_int port, int flags/* Matche
 	 * Ports are really 16-bit unsigned values, but it's too painful to
 	 * push that type through the API.
 	 */
-	memset(&hints, 0, sizeof(hints));
+	memzero(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = flags;
 	(void)snprintf(buffer, sizeof(buffer), "%u", port);
-
 	/*
 	 * Although it's generally bad to discard error information, the return
 	 * code from __os_getaddrinfo is undependable.  Our callers at least
@@ -1643,7 +1641,7 @@ int __repmgr_getaddr(ENV *env, const char * host, u_int port, int flags/* Matche
 		return (DB_REP_UNAVAIL);
 	*result = answer;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1665,7 +1663,7 @@ int __repmgr_listen(ENV *env)
 	s = INVALID_SOCKET;
 	addrp = &SITE_FROM_EID(db_rep->self_eid)->net_addr;
 	if((ret = __repmgr_getaddr(env, addrp->host, addrp->port, AI_PASSIVE, &ai0)) != 0)
-		return (ret);
+		return ret;
 	__repmgr_print_addrlist(env, "repmgr_listen", ai0);
 
 	/*
@@ -1741,7 +1739,7 @@ clean:  if(s != INVALID_SOCKET)
 		(void)closesocket(s);
 out:
 	__os_freeaddrinfo(env, ai0);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_net_close __P((ENV *));
@@ -1770,7 +1768,7 @@ int __repmgr_net_close(ENV *env)
 		db_rep->listen_fd = INVALID_SOCKET;
 		rep->listener = 0;
 	}
-	return (ret);
+	return ret;
 }
 
 /* Called only from env->close(), so we know we're single threaded. */
@@ -1808,7 +1806,7 @@ static int final_cleanup(ENV *env, REPMGR_CONNECTION * conn, void * unused)
 	}
 	if(t_ret != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: void __repmgr_net_destroy __P((ENV *, DB_REP *));

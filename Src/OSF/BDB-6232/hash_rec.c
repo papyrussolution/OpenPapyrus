@@ -421,7 +421,7 @@ int __ham_replace_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
 
-	memset(&dbt, 0, sizeof(dbt));
+	memzero(&dbt, sizeof(dbt));
 	modified = 0;
 
 	/*
@@ -529,7 +529,7 @@ int __ham_replace_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
-	memset(&dbt, 0, sizeof(dbt));
+	memzero(&dbt, sizeof(dbt));
 	modified = 0;
 
 	/*
@@ -1432,11 +1432,11 @@ static int __ham_chgpg_recover_func(DBC *cp, DBC *my_dbc, uint32 * countp, db_pg
 		    ret = __dbc_close(lcp->opd);
 		    MUTEX_LOCK(cp->dbp->env, cp->dbp->mutex);
 		    if(ret != 0)
-			    return (ret);
+			    return ret;
 		    lcp->opd = NULL;
 		    break;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __ham_chgpg_recover --
@@ -1701,8 +1701,7 @@ int __ham_groupalloc_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops o
 		/*
 		 * We cannot roll back 4.2 style allocations.
 		 */
-		__db_errx(env, DB_STR("1123",
-		    "Cannot replicate prepared transactions from master running release 4.2."));
+		__db_errx(env, DB_STR("1123", "Cannot replicate prepared transactions from master running release 4.2."));
 		ret = __env_panic(env, EINVAL);
 		goto out;
 	}
@@ -1758,8 +1757,8 @@ static int __ham_alloc_pages_42(DBC *dbc, __ham_groupalloc_42_args * argp, DB_LS
 			goto reinit_page;
 		if((ret = __memp_fput(mpf,
 		    ip, pagep, dbc->priority)) != 0)
-			return (ret);
-		return (0);
+			return ret;
+		return 0;
 	}
 
 	/* Had to create the page. */
@@ -1774,7 +1773,7 @@ reinit_page:
 	pagep->lsn = *lsnp;
 
 	if((ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0)
-		return (ret);
+		return ret;
 
-	return (0);
+	return 0;
 }

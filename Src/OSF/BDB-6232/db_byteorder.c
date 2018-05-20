@@ -51,9 +51,9 @@ int __db_byteorder(ENV *env, int lorder)
 		    break;
 		default:
 		    __db_errx(env, DB_STR("0041", "unsupported byte order, only big and little-endian supported"));
-		    return (EINVAL);
+		    return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -72,11 +72,11 @@ swap_retry:
 		case DB_HEAPMAGIC:
 		case DB_QAMMAGIC:
 		case DB_RENAMEMAGIC:
-		    return (ret);
+		    return ret;
 		default:
 		    if(ret == DB_SWAPBYTES)
 			    /* It's already been swapped, so it's invalid. */
-			    return (EINVAL);
+			    return EINVAL;
 		    M_32_SWAP(magic);
 		    ret = DB_SWAPBYTES;
 		    goto swap_retry;

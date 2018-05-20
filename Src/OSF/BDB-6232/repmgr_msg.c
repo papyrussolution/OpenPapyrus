@@ -172,8 +172,7 @@ static int message_loop(ENV *env, REPMGR_RUNNABLE * th)
 		if(ret != 0)
 			goto out;
 		if(db_rep->view_mismatch) {
-			__db_errx(env, DB_STR("3699",
-			    "Site is not recorded as a view in the group membership database"));
+			__db_errx(env, DB_STR("3699", "Site is not recorded as a view in the group membership database"));
 			ret = EINVAL;
 			goto out;
 		}
@@ -187,7 +186,7 @@ static int message_loop(ENV *env, REPMGR_RUNNABLE * th)
 out:
 	UNLOCK_MUTEX(db_rep->mutex);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 static int dispatch_app_message(ENV *env, REPMGR_MESSAGE * msg)
@@ -258,14 +257,14 @@ static int dispatch_app_message(ENV *env, REPMGR_MESSAGE * msg)
 		if(F_ISSET(channel.meta, REPMGR_REQUEST_MSG_TYPE))
 			return (__repmgr_send_err_resp(env, &channel, DB_NOSERVER));
 		else
-			return (0);
+			return 0;
 	}
 	(*db_rep->msg_dispatch)(env->dbenv, &db_channel, &msg->v.appmsg.segments[0], APP_MSG_SEGMENT_COUNT(msg->msg_hdr), flags);
 	if(F_ISSET(channel.meta, REPMGR_REQUEST_MSG_TYPE) && !channel.responded) {
 		__db_errx(env, DB_STR("3671", "Application failed to provide a response"));
 		return (__repmgr_send_err_resp(env, &channel, DB_KEYEMPTY));
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -298,7 +297,7 @@ int __repmgr_send_err_resp(ENV *env, CHANNEL * channel, int err)
 	ret = __repmgr_send_many(env, conn, &iovecs, 0);
 	UNLOCK_MUTEX(db_rep->mutex);
 
-	return (ret);
+	return ret;
 }
 
 static int process_message(ENV *env, DBT * control, DBT * rec, int eid)
@@ -418,7 +417,7 @@ static int process_message(ENV *env, DBT * control, DBT * rec, int eid)
 			    ckp_lsn.offset = 0;
 			    if((ret = send_permlsn(env, generation,
 				&ckp_lsn)) != 0)
-				    return (ret);
+				    return ret;
 		    }
 		    DB_TEST_RECOVERY_LABEL
 		    break;
@@ -473,7 +472,7 @@ static int process_message(ENV *env, DBT * control, DBT * rec, int eid)
 			ret = t_ret;
 	}
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -661,7 +660,7 @@ static int send_permlsn(ENV *env, uint32 generation, DB_LSN * lsn)
 
 unlock:
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * Sends a perm LSN message on one connection, if it needs it.
@@ -697,7 +696,7 @@ static int send_permlsn_conn(ENV *env, REPMGR_CONNECTION * conn, uint32 generati
 		    &control2, &rec2, 0)) == DB_REP_UNAVAIL)
 			ret = __repmgr_bust_connection(env, conn);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -729,7 +728,7 @@ static int preferred_master_takeover(ENV *env)
 	ret = 0;
 
 	if(!IS_PREFMAS_MODE(env))
-		return (ret);
+		return ret;
 
 	/*
 	 * Start by making the temporary master a readonly master so that we
@@ -738,7 +737,7 @@ static int preferred_master_takeover(ENV *env)
 	 */
 	if((ret = __repmgr_make_site_readonly_master(env,
 	    1, &gen, &sync_lsn)) != 0)
-		return (ret);
+		return ret;
 	DB_ASSERT(env, gen >= rep->gen);
 
 	/*
@@ -754,7 +753,7 @@ static int preferred_master_takeover(ENV *env)
 	 * we exceed max_tries without progress.
 	 */
 	if((ret = __repmgr_prefmas_get_wait(env, &max_tries, &usec)) != 0)
-		return (ret);
+		return ret;
 	tries = 0;
 	synced = 0;
 	ZERO_LSN(ready_lsn);
@@ -782,7 +781,7 @@ static int preferred_master_takeover(ENV *env)
 
 	/* Restart the remote readonly temporary master as a client. */
 	if((ret = __repmgr_restart_site_as_client(env, 1)) != 0)
-		return (ret);
+		return ret;
 
 	/* Restart this site as the preferred master, waiting for
 	 * REP_LOCKOUT_MSG.  The NEWCLIENT message sent back from
@@ -792,7 +791,7 @@ static int preferred_master_takeover(ENV *env)
 	 * as master to return 0 without doing anything.
 	 */
 	ret = __repmgr_become_master(env, REP_START_WAIT_LOCKMSG);
-	return (ret);
+	return ret;
 }
 
 static int serve_repmgr_request(ENV *env, REPMGR_MESSAGE * msg)
@@ -866,7 +865,7 @@ static int serve_repmgr_request(ENV *env, REPMGR_MESSAGE * msg)
 		if((t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -918,9 +917,9 @@ static int serve_join_request(ENV *env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * ms
 		membership = site->membership;
 	if((ret =
 	    __repmgr_hold_master_role(env, conn, membership)) == DB_REP_UNAVAIL)
-		return (0);
+		return 0;
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	LOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_find_site(env, host, site_info.port, &eid)) == 0) {
@@ -981,7 +980,7 @@ err:
 		ret = t_ret;
 	if(ret == DB_REP_UNAVAIL)
 		ret = __repmgr_send_sync_msg(env, conn, REPMGR_GM_FAILURE, NULL, 0);
-	return (ret);
+	return ret;
 }
 
 static int serve_remove_request(ENV *env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg)
@@ -1014,9 +1013,9 @@ static int serve_remove_request(ENV *env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * 
 	host[site_info.host.size - 1] = '\0';
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request to remove %s:%u from group", host, (u_int)site_info.port));
 	if((ret = __repmgr_hold_master_role(env, conn, 0)) == DB_REP_UNAVAIL)
-		return (0);
+		return 0;
 	if(ret != 0)
-		return (ret);
+		return ret;
 	LOCK_MUTEX(db_rep->mutex);
 	if((site = __repmgr_lookup_site(env, host, site_info.port)) == NULL)
 		eid = DB_EID_INVALID;
@@ -1064,7 +1063,7 @@ err:
 		    type = REPMGR_GM_FAILURE;
 		    break;
 		default:
-		    return (ret);
+		    return ret;
 	}
 	/*
 	 * It is possible when a site removes itself that by now it has
@@ -1075,7 +1074,7 @@ err:
 	if((ret = __repmgr_send_sync_msg(env, conn, type, NULL, 0)) != 0)
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC,
 		    "Problem sending remove site status message %d", ret));
-	return (0);
+	return 0;
 }
 
 /*
@@ -1104,7 +1103,7 @@ static int serve_restart_client_request(ENV *env, REPMGR_MESSAGE * msg)
 	if(ret == 0 && t_ret != 0)
 		ret = t_ret;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request for restart_client returning %d", ret));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1133,7 +1132,7 @@ static int serve_readonly_master_request(ENV *env, REPMGR_MESSAGE * msg)
 	if(ret == 0 && t_ret != 0)
 		ret = t_ret;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request for readonly_master returning %d", ret));
-	return (ret);
+	return ret;
 }
 /*
  * Serve the REPMGR_LSNHIST_REQUEST message by retrieving information from
@@ -1161,10 +1160,10 @@ static int serve_lsnhist_request(ENV *env, DB_THREAD_INFO * ip, REPMGR_MESSAGE *
 	/* Read lsn_hist_key incoming payload to get gen being requested. */
 	dbt = &msg->v.gmdb_msg.request;
 	if((ret = __rep_lsn_hist_key_unmarshal(env, &key, (uint8 *)dbt->data, dbt->size, NULL)) != 0)
-		return (ret);
+		return ret;
 	if(key.version != REP_LSN_HISTORY_FMT_VERSION) {
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "serve_lsnhist_request version mismatch"));
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -1204,7 +1203,7 @@ static int serve_lsnhist_request(ENV *env, DB_THREAD_INFO * ip, REPMGR_MESSAGE *
 	if(ret == 0 && t_ret != 0)
 		ret = t_ret;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request for lsnhist returning %d", ret));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1216,9 +1215,9 @@ static int resolve_limbo_wrapper(ENV *env, DB_THREAD_INFO * ip)
 {
 	int do_close, ret, t_ret;
 	if((ret = __repmgr_hold_master_role(env, NULL, 0)) == DB_REP_UNAVAIL)
-		return (0);
+		return 0;
 	if(ret != 0)
-		return (ret);
+		return ret;
 retry:
 	if((ret = __repmgr_setup_gmdb_op(env, ip, NULL, 0)) != 0)
 		goto rlse;
@@ -1243,7 +1242,7 @@ retry:
 rlse:
 	if((t_ret = __repmgr_rlse_master_role(env)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * Checks for the need to resolve limbo (failure of a previous GMDB update to
@@ -1371,7 +1370,7 @@ static int resolve_limbo_int(ENV *env, DB_THREAD_INFO * ip)
 out:
 	if(locked)
 		UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1409,7 +1408,7 @@ retry:
 	locked = FALSE;
 	DB_ASSERT(env, db_rep->gmdb_busy);
 	if((ret = __repmgr_setup_gmdb_op(env, ip, NULL, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Usually we'll keep the GMDB closed, to conserve resources, since
@@ -1551,7 +1550,7 @@ err:
 		ret = t_ret;
 	if(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED)
 		goto retry;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1570,7 +1569,7 @@ static int rescind_pending(ENV *env, DB_THREAD_INFO * ip, int eid, uint32 cur_st
 	db_rep = env->rep_handle;
 retry:
 	if((ret = __repmgr_setup_gmdb_op(env, ip, NULL, 0)) != 0)
-		return (ret);
+		return ret;
 	LOCK_MUTEX(db_rep->mutex);
 	DB_ASSERT(env, IS_KNOWN_REMOTE_SITE(eid));
 	site = SITE_FROM_EID(eid);
@@ -1595,7 +1594,7 @@ err:
 		ret = t_ret;
 	if(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED)
 		goto retry;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1609,7 +1608,7 @@ static int incr_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn)
 	uint32 version = db_rep->membership_version + 1;
 	if((ret = __repmgr_set_gm_version(env, ip, txn, version)) == 0)
 		db_rep->membership_version = version;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_set_gm_version __P((ENV *,
@@ -1642,8 +1641,8 @@ int __repmgr_set_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 
 
 	if((ret = __db_put(db_rep->gmdb,
 	    ip, txn, &key_dbt, &data_dbt, 0)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 /*
@@ -1662,7 +1661,7 @@ static int finish_gmdb_update(ENV *env, DB_THREAD_INFO * ip, DBT * key_dbt, uint
 	db_rep = env->rep_handle;
 	db_rep->active_gmdb_update = gmdb_secondary;
 	if((ret = __txn_begin(env, ip, NULL, &txn, DB_IGNORE_LEASE)) != 0)
-		return (ret);
+		return ret;
 	if(status == 0)
 		ret = __db_del(db_rep->gmdb, ip, txn, key_dbt, 0);
 	else {
@@ -1684,7 +1683,7 @@ static int finish_gmdb_update(ENV *env, DB_THREAD_INFO * ip, DBT * key_dbt, uint
 err:
 	if((t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1760,7 +1759,7 @@ int __repmgr_setup_gmdb_op(ENV *env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32
 	 * In the successful case, a later call to cleanup_gmdb_op will
 	 * ENV_LEAVE.
 	 */
-	return (0);
+	return 0;
 
 err:
 	DB_ASSERT(env, ret != 0);
@@ -1768,7 +1767,7 @@ err:
 		(void)__db_close(dbp, txn, DB_NOSYNC);
 	if(txn != NULL)
 		(void)__txn_abort(txn);
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __repmgr_cleanup_gmdb_op __P((ENV *, int));
@@ -1784,7 +1783,7 @@ int __repmgr_cleanup_gmdb_op(ENV *env, int do_close)
 			ret = t_ret;
 		db_rep->gmdb = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * Check whether we're currently master, and if so hold that role so that we can
@@ -1848,7 +1847,7 @@ int __repmgr_hold_master_role(ENV *env, REPMGR_CONNECTION * conn, uint32 members
 
 	if(conn != NULL && ret == DB_REP_UNAVAIL && (t_ret = reject_fwd(env, conn)) != 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1865,7 +1864,7 @@ int __repmgr_rlse_master_role(ENV *env)
 	db_rep->gmdb_busy = FALSE;
 	ret = __repmgr_signal(&db_rep->gmdb_idle);
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * Responds to a membership change request in the case we're not currently
@@ -1996,7 +1995,7 @@ static int rejoin_deferred_election(ENV *env)
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Deferred rejoin election, but no elections"));
 	ret = __repmgr_init_election(env, flags);
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }
 /*
  * If a site is rejoining a preferred master replication group and has a
@@ -2020,5 +2019,5 @@ static int rejoin_connections(ENV *env)
 			break;
 	}
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }

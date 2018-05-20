@@ -322,7 +322,7 @@ int locker_start(u_long id)
 			    progname, db_strerror(err));
 			return (1);
 		}
-	return (0);
+	return 0;
 }
 
 int locker_wait()
@@ -338,7 +338,7 @@ int locker_wait()
 		}
 	}
 	free(kidsp);
-	return (0);
+	return 0;
 }
 
 void * run_lthread(void * arg)
@@ -468,7 +468,7 @@ int wakeup_start(u_long id)
 		fprintf(stderr, "%s: failed spawning wakeup thread: %s\n", progname, db_strerror(err));
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 int wakeup_wait()
@@ -483,7 +483,7 @@ int wakeup_wait()
 		fprintf(stderr, "%s: wakeup thread exited with error\n", progname);
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 /*
  * run_wthread --
@@ -602,7 +602,7 @@ int tm_env_init()
 		return (1);
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -851,7 +851,7 @@ int os_wait(os_pid_t *procs, u_int n)
 			return (__os_posix_err(__os_get_syserr()));
 
 		if((GetExitCodeProcess(procs[i], &ret) == 0) || (ret != 0))
-			return (ret);
+			return ret;
 
 		/* remove the process handle from the list */
 		while(++i < n)
@@ -870,7 +870,7 @@ int os_wait(os_pid_t *procs, u_int n)
 	} while(--n);
 #endif
 
-	return (0);
+	return 0;
 }
 
 os_pid_t spawn_proc(u_long id, char * tmpath, char * typearg)

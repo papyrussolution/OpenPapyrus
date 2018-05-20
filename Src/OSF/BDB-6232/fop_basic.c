@@ -61,7 +61,7 @@ int __fop_create(ENV *env, DB_TXN * txn, DB_FH ** fhpp, const char * name, const
 	char * real_name = NULL;
 	DB_FH * fhp = NULL;
 	if((ret = __db_appname(env, appname, name, dirp, &real_name)) != 0)
-		return (ret);
+		return ret;
 	if(mode == 0)
 		mode = DB_MODE_600;
 	if(DBENV_LOGGING(env)
@@ -73,7 +73,7 @@ int __fop_create(ENV *env, DB_TXN * txn, DB_FH ** fhpp, const char * name, const
 		if(dirp != NULL && *dirp != NULL)
 			DB_INIT_DBT(dirdata, *dirp, strlen(*dirp) + 1);
 		else
-			memset(&dirdata, 0, sizeof(dirdata));
+			memzero(&dirdata, sizeof(dirdata));
 		if((ret = __fop_create_log(env, txn, &lsn, flags | DB_FLUSH, &data, &dirdata, (uint32)appname, (uint32)mode)) != 0)
 			goto err;
 	}
@@ -87,7 +87,7 @@ err:
 		(void)__os_closehandle(env, fhp);
 	if(real_name != NULL)
 		__os_free(env, real_name);
-	return (ret);
+	return ret;
 }
 /*
  * __fop_remove --
@@ -115,7 +115,7 @@ int __fop_remove(ENV *env, DB_TXN * txn, uint8 * fileid, const char * name, cons
 		    && txn != NULL
 #endif
 		    ) {
-			memset(&fdbt, 0, sizeof(ndbt));
+			memzero(&fdbt, sizeof(ndbt));
 			fdbt.data = fileid;
 			fdbt.size = fileid == NULL ? 0 : DB_FILE_ID_LEN;
 			DB_INIT_DBT(ndbt, name, strlen(name) + 1);
@@ -127,7 +127,7 @@ int __fop_remove(ENV *env, DB_TXN * txn, uint8 * fileid, const char * name, cons
 err:    
 	if(real_name != NULL)
 		__os_free(env, real_name);
-	return (ret);
+	return ret;
 }
 /*
  * __fop_write
@@ -164,14 +164,14 @@ int __fop_write(ENV *env, DB_TXN * txn, const char * name, const char * dirname,
 	    && txn != NULL
 #endif
 	    ) {
-		memset(&data, 0, sizeof(data));
+		memzero(&data, sizeof(data));
 		data.data = buf;
 		data.size = size;
 		DB_INIT_DBT(namedbt, name, strlen(name) + 1);
 		if(dirname != NULL)
 			DB_INIT_DBT(dirdbt, dirname, strlen(dirname) + 1);
 		else
-			memset(&dirdbt, 0, sizeof(dirdbt));
+			memzero(&dirdbt, sizeof(dirdbt));
 		if((ret = __fop_write_log(env, txn,
 		    &lsn, flags, &namedbt, &dirdbt, (uint32)appname,
 		    pgsize, pageno, off, &data, istmp)) != 0)
@@ -182,7 +182,7 @@ int __fop_write(ENV *env, DB_TXN * txn, const char * name, const char * dirname,
 		/* File isn't open; we need to reopen it. */
 		if((ret = __db_appname(env,
 		    appname, name, &dirname, &real_name)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0)
 			goto err;
@@ -203,7 +203,7 @@ err:    if(local_open &&
 
 	if(real_name != NULL)
 		__os_free(env, real_name);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -240,20 +240,16 @@ int __fop_write_file(ENV *env, DB_TXN * txn, const char * name, const char * dir
 	uint32 lflags, lgbuf_size, lgsize, lgfile_size;
 	char * real_name;
 	void * cur_ptr;
-
 	ret = local_open = 0;
 	real_name = NULL;
 	lflags = 0;
-	memset(&new_data, 0, sizeof(new_data));
-	memset(&old_data, 0, sizeof(old_data));
+	memzero(&new_data, sizeof(new_data));
+	memzero(&old_data, sizeof(old_data));
 	ZERO_LSN(lsn);
-
 	if(fhp == NULL) {
 		/* File isn't open; we need to reopen it. */
-		if((ret = __db_appname(env,
-		    appname, name, &dirname, &real_name)) != 0)
-			return (ret);
-
+		if((ret = __db_appname(env, appname, name, &dirname, &real_name)) != 0)
+			return ret;
 		if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0)
 			goto err;
 		local_open = 1;
@@ -268,7 +264,7 @@ int __fop_write_file(ENV *env, DB_TXN * txn, const char * name, const char * dir
 		if(dirname != NULL)
 			DB_INIT_DBT(dirdbt, dirname, strlen(dirname) + 1);
 		else
-			memset(&dirdbt, 0, sizeof(dirdbt));
+			memzero(&dirdbt, sizeof(dirdbt));
 		/*
 		 * If the write is larger than the log buffer or file size,
 		 * then log it as a set of smaller writes.
@@ -345,20 +341,15 @@ int __fop_write_file(ENV *env, DB_TXN * txn, const char * name, const char * dir
 			 * in so it can be written back in on abort.
 			 */
 			if(!(lflags & (DB_FOP_CREATE | DB_FOP_APPEND))) {
-				DB_ASSERT(env, old_data.data == NULL ||
-				    new_data.size <= old_data.size);
+				DB_ASSERT(env, old_data.data == NULL || new_data.size <= old_data.size);
 				old_data.size = new_data.size;
 				if(old_data.data == NULL) {
-					if((ret = __os_malloc(env,
-					    old_data.size,
-					    &old_data.data)) != 0)
+					if((ret = __os_malloc(env, old_data.size, &old_data.data)) != 0)
 						goto err;
 				}
-				if((ret = __os_seek(
-					    env, fhp, 0, 0, cur_off)) != 0)
+				if((ret = __os_seek(env, fhp, 0, 0, cur_off)) != 0)
 					goto err;
-				if((ret = __os_read(env, fhp, old_data.data,
-				    old_data.size, &nbytes)) != 0)
+				if((ret = __os_read(env, fhp, old_data.data, old_data.size, &nbytes)) != 0)
 					goto err;
 			}
 log:                    tmp_size = new_data.size;
@@ -367,11 +358,8 @@ log:                    tmp_size = new_data.size;
 			 * cannot be redone from logs.
 			 */
 			if(!(lflags & DB_FOP_REDO))
-				memset(&new_data, 0, sizeof(new_data));
-			if((ret = __fop_write_file_log(
-				    env, txn, &lsn, flags, &namedbt, &dirdbt,
-				    (uint32)appname, (uint64)cur_off,
-				    &old_data, &new_data, lflags)) != 0)
+				memzero(&new_data, sizeof(new_data));
+			if((ret = __fop_write_file_log(env, txn, &lsn, flags, &namedbt, &dirdbt, (uint32)appname, (uint64)cur_off, &old_data, &new_data, lflags)) != 0)
 				goto err;
 			cur_off += tmp_size;
 		}
@@ -405,7 +393,7 @@ err:
 		__os_free(env, real_name);
 	if(old_data.data != NULL)
 		__os_free(env, old_data.data);
-	return (ret);
+	return ret;
 }
 /*
  * __fop_rename --
@@ -436,8 +424,8 @@ int __fop_rename(ENV *env, DB_TXN * txn, const char * oldname, const char * newn
 		if(dirp != NULL && *dirp != NULL)
 			DB_INIT_DBT(dir, *dirp, strlen(*dirp) + 1);
 		else
-			memset(&dir, 0, sizeof(dir));
-		memset(&fiddbt, 0, sizeof(fiddbt));
+			memzero(&dir, sizeof(dir));
+		memzero(&fiddbt, sizeof(fiddbt));
 		fiddbt.data = fid;
 		fiddbt.size = DB_FILE_ID_LEN;
 		if(with_undo)
@@ -453,5 +441,5 @@ err:
 		__os_free(env, o);
 	if(n != NULL)
 		__os_free(env, n);
-	return (ret);
+	return ret;
 }

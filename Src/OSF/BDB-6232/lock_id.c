@@ -29,7 +29,7 @@ int __lock_id_pp(DB_ENV *dbenv, uint32 * idp)
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__lock_id(env, idp, NULL)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __lock_id --
@@ -82,7 +82,7 @@ err:
 		*idp = id;
 	if(lkp != NULL)
 		*lkp = lk;
-	return (ret);
+	return ret;
 }
 /*
  * __lock_set_thread_id --
@@ -139,7 +139,7 @@ int __lock_id_free_pp(DB_ENV *dbenv, uint32 id)
 		ret = t_ret;
 
 err:    ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -174,7 +174,7 @@ int __lock_id_free(ENV *env, DB_LOCKER * sh_locker)
 	ret = __lock_freelocker_int(lt, region, sh_locker, 1);
 	UNLOCK_LOCKERS(env, region);
 
-err:    return (ret);
+err:    return ret;
 }
 
 /*
@@ -193,7 +193,7 @@ int __lock_id_set(ENV *env, uint32 cur_id, uint32 max_id)
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	region->lock_id = cur_id;
 	region->cur_maxid = max_id;
-	return (0);
+	return 0;
 }
 /*
  * __lock_getlocker,__lock_getlocker_int --
@@ -228,13 +228,13 @@ int __lock_getlocker(DB_LOCKTAB *lt, uint32 locker, int create, DB_LOCKER ** ret
 #ifdef HAVE_STATISTICS
 			region->stat.st_nlockers_hit++;
 #endif
-			return (0);
+			return 0;
 		}
 	}
 	LOCK_LOCKERS(env, region);
 	ret = __lock_getlocker_int(lt, locker, create, ip, retp);
 	UNLOCK_LOCKERS(env, region);
-	return (ret);
+	return ret;
 }
 
 int __lock_getlocker_int(DB_LOCKTAB *lt, uint32 locker, int create, DB_THREAD_INFO * ip, DB_LOCKER ** retp)
@@ -338,7 +338,7 @@ int __lock_getlocker_int(DB_LOCKTAB *lt, uint32 locker, int create, DB_THREAD_IN
 			    &sh_locker->mtx_locker)) != 0) {
 				SH_TAILQ_INSERT_HEAD(&region->free_lockers,
 				    sh_locker, links, __db_locker);
-				return (ret);
+				return ret;
 			}
 			MUTEX_LOCK_NO_CTR(env, sh_locker->mtx_locker);
 		}
@@ -390,7 +390,7 @@ int __lock_getlocker_int(DB_LOCKTAB *lt, uint32 locker, int create, DB_THREAD_IN
 	}
 
 	*retp = sh_locker;
-	return (0);
+	return 0;
 }
 
 /*
@@ -453,7 +453,7 @@ int __lock_addfamilylocker(ENV *env, uint32 pid, uint32 id, uint32 is_family)
 
 err:    UNLOCK_LOCKERS(env, region);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -477,7 +477,7 @@ static int __lock_freelocker_int(DB_LOCKTAB *lt, DB_LOCKREGION * region, DB_LOCK
 		DB_MSGBUF_INIT(&mb);
 		(void)__lock_dump_locker(env, &mb, lt, sh_locker);
 		DB_MSGBUF_FLUSH(env, &mb);
-		return (ret);
+		return ret;
 	}
 
 	/* If this is part of a family, we must fix up its links. */
@@ -510,14 +510,14 @@ static int __lock_freelocker_int(DB_LOCKTAB *lt, DB_LOCKREGION * region, DB_LOCK
 		else {
 			if(sh_locker->mtx_locker != MUTEX_INVALID && (ret =
 			    __mutex_free(env, &sh_locker->mtx_locker)) != 0)
-				return (ret);
+				return ret;
 			F_SET(sh_locker, DB_LOCKER_FREE);
 			SH_TAILQ_INSERT_HEAD(&region->free_lockers, sh_locker,
 			    links, __db_locker);
 		}
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -534,11 +534,11 @@ int __lock_freelocker(DB_LOCKTAB *lt, DB_LOCKER * sh_locker)
 	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
 	ENV * env = lt->env;
 	if(sh_locker == NULL)
-		return (0);
+		return 0;
 	LOCK_LOCKERS(env, region);
 	ret = __lock_freelocker_int(lt, region, sh_locker, 1);
 	UNLOCK_LOCKERS(env, region);
-	return (ret);
+	return ret;
 }
 /*
  * __lock_familyremove
@@ -558,7 +558,7 @@ int __lock_familyremove(DB_LOCKTAB *lt, DB_LOCKER * sh_locker)
 	LOCK_LOCKERS(env, region);
 	ret = __lock_freelocker_int(lt, region, sh_locker, 0);
 	UNLOCK_LOCKERS(env, region);
-	return (ret);
+	return ret;
 }
 /*
  * __lock_local_locker_invalidate --
@@ -589,9 +589,9 @@ int __lock_local_locker_invalidate(ENV *env, db_mutex_t mutex)
 				    env->dbenv->thread_id_string(env->dbenv,
 				    locker->pid, locker->tid, buf));
 				locker->mtx_locker = MUTEX_INVALID;
-				return (0);
+				return 0;
 			}
 		}
 	}
-	return (0);
+	return 0;
 }

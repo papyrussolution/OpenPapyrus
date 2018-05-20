@@ -26,7 +26,7 @@ int __txn_open(ENV *env)
 	int ret;
 	/* Create/initialize the transaction manager structure. */
 	if((ret = __os_calloc(env, 1, sizeof(DB_TXNMGR), &mgr)) != 0)
-		return (ret);
+		return ret;
 	TAILQ_INIT(&mgr->txn_chain);
 	mgr->env = env;
 	/* Join/create the txn region. */
@@ -43,11 +43,11 @@ int __txn_open(ENV *env)
 		goto err;
 	mgr->reginfo.mtx_alloc = region->mtx_region;
 	env->tx_handle = mgr;
-	return (0);
+	return 0;
 err:    
 	(void)__mutex_free(env, &mgr->mutex);
 	(void)__txn_region_detach(env, mgr);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -63,7 +63,7 @@ int __txn_region_detach(ENV *env, DB_TXNMGR * mgr)
 		__os_free(env, mgr);
 		env->tx_handle = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __txn_init --
@@ -85,21 +85,21 @@ static int __txn_init(ENV *env, DB_TXNMGR * mgr)
 		 * file.  Get the LSN of a checkpoint it may have found.
 		 */
 		if((ret = __log_get_cached_ckp_lsn(env, &last_ckp)) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * If that didn't work, look backwards from the beginning of
 		 * the last log file until we find the last checkpoint.
 		 */
 		if(IS_ZERO_LSN(last_ckp) && (ret = __txn_findlastckp(env, &last_ckp, NULL)) != 0)
-			return (ret);
+			return ret;
 	}
 	if((ret = __env_alloc(&mgr->reginfo, sizeof(DB_TXNREGION), &mgr->reginfo.primary)) != 0) {
 		__db_errx(env, DB_STR("4508", "Unable to allocate memory for the transaction region"));
-		return (ret);
+		return ret;
 	}
 	((REGENV*)env->reginfo->primary)->tx_primary = R_OFFSET(&mgr->reginfo, mgr->reginfo.primary);
 	region = (DB_TXNREGION *)mgr->reginfo.primary;
-	memset(region, 0, sizeof(*region));
+	memzero(region, sizeof(*region));
 	/* We share the region so we need the same mutex. */
 	region->mtx_region = ((REGENV*)env->reginfo->primary)->mtx_regenv;
 	mgr->reginfo.mtx_alloc = region->mtx_region;
@@ -108,17 +108,17 @@ static int __txn_init(ENV *env, DB_TXNMGR * mgr)
 	region->last_txnid = TXN_MINIMUM;
 	region->cur_maxid = TXN_MAXIMUM;
 	if((ret = __mutex_alloc(env, MTX_TXN_CHKPT, 0, &region->mtx_ckp)) != 0)
-		return (ret);
+		return ret;
 	region->last_ckp = last_ckp;
 	region->time_ckp = time(NULL);
-	memset(&region->stat, 0, sizeof(region->stat));
+	memzero(&region->stat, sizeof(region->stat));
 #ifdef HAVE_STATISTICS
 	region->stat.st_maxtxns = region->maxtxns;
 	region->stat.st_inittxns = region->inittxns;
 #endif
 	SH_TAILQ_INIT(&region->active_txn);
 	SH_TAILQ_INIT(&region->mvcc_txn);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_findlastckp --
@@ -137,10 +137,10 @@ int __txn_findlastckp(ENV *env, DB_LSN * lsnp, DB_LSN * max_lsn)
 	uint32 rectype;
 	ZERO_LSN(*lsnp);
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 
 	/* Get the last LSN. */
-	memset(&dbt, 0, sizeof(dbt));
+	memzero(&dbt, sizeof(dbt));
 	if(max_lsn != NULL) {
 		lsn = *max_lsn;
 		if((ret = __logc_get(logc, &lsn, &dbt, DB_SET)) != 0)
@@ -239,7 +239,7 @@ int __txn_env_refresh(ENV *env)
 		ret = t_ret;
 	__os_free(env, mgr);
 	env->tx_handle = NULL;
-	return (ret);
+	return ret;
 }
 /*
  * __txn_region_mutex_count --
@@ -307,7 +307,7 @@ size_t __txn_region_max(ENV *env)
 	if((count = dbenv->tx_max) == 0)
 		count = DEF_MAX_TXNS;
 	if(count <= dbenv->tx_init)
-		return (0);
+		return 0;
 	s = (count - dbenv->tx_init) * (sizeof(TXN_DETAIL) + __env_alloc_overhead() + 20);
 	return (s);
 }
@@ -337,7 +337,7 @@ int __txn_id_set(ENV *env, uint32 cur_txnid, uint32 max_txnid)
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR_A("4513", "Maximum ID value %lu below minimum", "%lu"), (u_long)max_txnid);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * lsn_hi_to_low --
@@ -377,14 +377,14 @@ int __txn_get_readers(ENV *env, DB_LSN ** readers, int * ntxnsp)
 	*ntxnsp = 0;
 	*readers = NULL;
 	if((mgr = env->tx_handle) == NULL)
-		return (0);
+		return 0;
 	region = (DB_TXNREGION *)mgr->reginfo.primary;
 	lsns = NULL;
 	if((ret = __log_current_lsn_int(env, &current, NULL, NULL)) != 0)
-		return (ret);
+		return ret;
 	txnmax = TXN_READERS_SIZE;
 	if((ret = __os_malloc(env, txnmax * sizeof(lsns[0]), &lsns)) != 0)
-		return (ret);
+		return ret;
 
 	TXN_SYSTEM_LOCK(env);
 	/* The array always has at least the current lsn. */
@@ -422,7 +422,7 @@ err:
 		*ntxnsp = (int)count;
 		*readers = lsns;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -439,7 +439,7 @@ int __txn_add_buffer(ENV *env, TXN_DETAIL * td)
 	++td->mvcc_ref;
 	MUTEX_UNLOCK(env, td->mvcc_mtx);
 	COMPQUIET(env, NULL);
-	return (0);
+	return 0;
 }
 /*
  * __txn_remove_buffer --
@@ -476,5 +476,5 @@ int __txn_remove_buffer(ENV *env, TXN_DETAIL * td, db_mutex_t hash_mtx)
 		TXN_SYSTEM_UNLOCK(env);
 		MUTEX_READLOCK(env, hash_mtx);
 	}
-	return (ret);
+	return ret;
 }

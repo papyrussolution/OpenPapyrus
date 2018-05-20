@@ -31,7 +31,7 @@ int __repmgr_init_election(ENV *env, uint32 flags)
 	db_rep = env->rep_handle;
 	if(db_rep->repmgr_status == repmsgstStopped) {
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "ignoring elect thread request %#lx; repmgr is stopped", (u_long)flags));
-		return (0);
+		return 0;
 	}
 	/* Find an available slot, indexed by 'i'; allocate more if needed. */
 	for(i = 0; i < db_rep->aelect_threads; i++) {
@@ -40,7 +40,7 @@ int __repmgr_init_election(ENV *env, uint32 flags)
 			break;
 		if(th->finished) {
 			if((ret = __repmgr_thread_join(th)) != 0)
-				return (ret);
+				return ret;
 			/* Reuse the space in a moment. */
 			break;
 		}
@@ -50,7 +50,7 @@ int __repmgr_init_election(ENV *env, uint32 flags)
 		if((ret = __os_realloc(env,
 		    sizeof(REPMGR_RUNNABLE*) * new_size,
 		    &db_rep->elect_threads)) != 0)
-			return (ret);
+			return ret;
 		db_rep->aelect_threads = new_size;
 		STAT(db_rep->region->mstat.st_max_elect_threads = new_size);
 		th = db_rep->elect_threads[i] = NULL;
@@ -58,7 +58,7 @@ int __repmgr_init_election(ENV *env, uint32 flags)
 
 	if(th == NULL &&
 	    (ret = __os_malloc(env, sizeof(REPMGR_RUNNABLE), &th)) != 0)
-		return (ret);
+		return ret;
 	th->run = __repmgr_elect_thread;
 	th->args.flags = flags;
 
@@ -70,7 +70,7 @@ int __repmgr_init_election(ENV *env, uint32 flags)
 	}
 	db_rep->elect_threads[i] = th;
 
-	return (ret);
+	return ret;
 }
 
 static void * __repmgr_elect_thread(void * argsp)
@@ -481,7 +481,7 @@ unlock:
 	UNLOCK_MUTEX(db_rep->mutex);
 out:
 #endif
-	return (ret);
+	return ret;
 }
 
 static db_timeout_t __repmgr_compute_response_time(ENV *env)
@@ -583,22 +583,18 @@ static int __repmgr_elect(ENV *env, uint32 flags, db_timespec * failtimep)
 		    if((t_ret = __repmgr_bcast_member_list(env)) != 0)
 			    ret = t_ret;
 		    break;
-
 		case 0:
 		    if(db_rep->takeover_pending)
 			    ret = __repmgr_claim_victory(env);
 		    break;
-
 		case DB_REP_IGNORE:
 		    ret = 0;
 		    break;
-
 		default:
-		    __db_err(env, ret, DB_STR("3629",
-			"unexpected election failure"));
+		    __db_err(env, ret, DB_STR("3629", "unexpected election failure"));
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -614,7 +610,7 @@ int __repmgr_claim_victory(ENV *env)
 		ret = 0;
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Won election but lost race with DUPMASTER client intent"));
 	}
-	return (ret);
+	return ret;
 }
 /*
  * When turning on elections in an already-running system, check to see if we're
@@ -635,5 +631,5 @@ int __repmgr_turn_on_elections(ENV *env)
 	ret = __repmgr_init_election(env, ELECT_F_IMMED);
 out:
 	UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }

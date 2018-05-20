@@ -37,27 +37,19 @@ static __inline int get_handle(ENV *env, DB_MUTEX * mutexp, HANDLE * eventp)
 		*--p = hex_digits[id & 0xf];
 #ifndef DB_WINCE
 	if(DB_GLOBAL(win_sec_attr) == NULL) {
-		InitializeSecurityDescriptor(&DB_GLOBAL(win_default_sec_desc),
-		    SECURITY_DESCRIPTOR_REVISION);
-		SetSecurityDescriptorDacl(&DB_GLOBAL(win_default_sec_desc),
-		    TRUE, 0, FALSE);
-		DB_GLOBAL(win_default_sec_attr).nLength =
-		    sizeof(SECURITY_ATTRIBUTES);
+		InitializeSecurityDescriptor(&DB_GLOBAL(win_default_sec_desc), SECURITY_DESCRIPTOR_REVISION);
+		SetSecurityDescriptorDacl(&DB_GLOBAL(win_default_sec_desc), TRUE, 0, FALSE);
+		DB_GLOBAL(win_default_sec_attr).nLength = sizeof(SECURITY_ATTRIBUTES);
 		DB_GLOBAL(win_default_sec_attr).bInheritHandle = FALSE;
-		DB_GLOBAL(win_default_sec_attr).lpSecurityDescriptor =
-		    &DB_GLOBAL(win_default_sec_desc);
+		DB_GLOBAL(win_default_sec_attr).lpSecurityDescriptor = &DB_GLOBAL(win_default_sec_desc);
 		DB_GLOBAL(win_sec_attr) = &DB_GLOBAL(win_default_sec_attr);
 	}
 #endif
-
-	if((*eventp = CreateEvent(DB_GLOBAL(win_sec_attr),
-	    FALSE, FALSE, idbuf)) == NULL) {
+	if((*eventp = CreateEvent(DB_GLOBAL(win_sec_attr), FALSE, FALSE, idbuf)) == NULL) {
 		ret = __os_get_syserr();
-		__db_syserr(env, ret, DB_STR("2002",
-		    "Win32 create event failed"));
+		__db_syserr(env, ret, DB_STR("2002", "Win32 create event failed"));
 	}
-
-	return (ret);
+	return ret;
 }
 
 /*
@@ -90,7 +82,7 @@ int __db_win32_mutex_lock(ENV *env, db_mutex_t mutex, db_timeout_t timeout, int 
 	dbenv = env->dbenv;
 
 	if(!MUTEX_ON(env) || F_ISSET(dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
@@ -140,16 +132,10 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		 * the mutex is already busy.
 		 */
 		if(MUTEXP_IS_BUSY(mutexp) || !MUTEXP_ACQUIRE(mutexp)) {
-			if(F_ISSET(dbenv, DB_ENV_FAILCHK) && ip != NULL &&
-			    dbenv->is_alive(dbenv,
-			    mutexp->pid, mutexp->tid, 0) == 0) {
+			if(F_ISSET(dbenv, DB_ENV_FAILCHK) && ip != NULL && dbenv->is_alive(dbenv, mutexp->pid, mutexp->tid, 0) == 0) {
 				if(ip->dbth_state == THREAD_FAILCHK) {
 					ret = USR_ERR(env, DB_RUNRECOVERY);
-					__db_err(env, ret,
-					    "Failchk blocked by dead process %s on mutex %ld",
-					    dbenv->thread_id_string(dbenv,
-					    mutexp->pid, mutexp->tid, buf),
-					    (u_long)mutex);
+					__db_err(env, ret, "Failchk blocked by dead process %s on mutex %ld", dbenv->thread_id_string(dbenv, mutexp->pid, mutexp->tid, buf), (u_long)mutex);
 					goto failed;
 				}
 			}
@@ -172,17 +158,13 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 #endif
 #ifdef DIAGNOSTIC
 		if(F_ISSET(mutexp, DB_MUTEX_LOCKED)) {
-			__db_errx(env, DB_STR_A("2003",
-			    "Win32 lock failed: mutex already locked by %s",
-			    "%s"), dbenv->thread_id_string(dbenv,
-			    mutexp->pid, mutexp->tid, buf));
+			__db_errx(env, DB_STR_A("2003", "Win32 lock failed: mutex already locked by %s", "%s"), dbenv->thread_id_string(dbenv, mutexp->pid, mutexp->tid, buf));
 			ret = __env_panic(env, EACCES);
 			goto failed;
 		}
 #endif
 		F_SET(mutexp, DB_MUTEX_LOCKED);
 		dbenv->thread_id(dbenv, &mutexp->pid, &mutexp->tid);
-
 #ifdef HAVE_STATISTICS
 		if(event == NULL)
 			++mutexp->mutex_set_nowait;
@@ -196,10 +178,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 			/* "ret" was set by WaitForSingleObject(). */
 			if(ret != WAIT_OBJECT_0) {
 				QueryPerformanceCounter(&diag_now);
-				printf(DB_STR_A("2004",
-				    "[%lld]: Lost signal on mutex %p, "
-				    "id %d, ms %d\n", "%lld %p %d %d"),
-				    diag_now.QuadPart, mutexp, mutexp->id, ms);
+				printf(DB_STR_A("2004", "[%lld]: Lost signal on mutex %p, id %d, ms %d\n", "%lld %p %d %d"), diag_now.QuadPart, mutexp, mutexp->id, ms);
 			}
 #endif
 		}
@@ -217,7 +196,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		 * incremented it stays that way.
 		 */
 
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -243,9 +222,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 	if(event == NULL) {
 #ifdef MUTEX_DIAG
 		QueryPerformanceCounter(&diag_now);
-		printf(DB_STR_A("2005",
-		    "[%lld]: Waiting on mutex %p, id %d\n",
-		    "%lld %p %d"), diag_now.QuadPart, mutexp, mutexp->id);
+		printf(DB_STR_A("2005", "[%lld]: Waiting on mutex %p, id %d\n", "%lld %p %d"), diag_now.QuadPart, mutexp, mutexp->id);
 #endif
 		InterlockedIncrement(&mutexp->nwaiters);
 		if((ret = get_handle(env, mutexp, &event)) != 0) {
@@ -259,10 +236,8 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 	}
 	if((ms <<= 1) > MS_PER_SEC)
 		ms = MS_PER_SEC;
-
 #ifdef HAVE_FAILCHK_BROADCAST
-	if(F_ISSET(mutexp, DB_MUTEX_OWNER_DEAD) &&
-	    !F_ISSET(dbenv, DB_ENV_FAILCHK)) {
+	if(F_ISSET(mutexp, DB_MUTEX_OWNER_DEAD) && !F_ISSET(dbenv, DB_ENV_FAILCHK)) {
 died:
 		ret = __mutex_died(env, mutex);
 		goto failed;
@@ -270,7 +245,6 @@ died:
 #endif
 	PANIC_CHECK(env);
 	goto loop;
-
 failed:
 	/* If this call incremented the counter, decrement it on error. */
 	if(ip != NULL) {
@@ -281,8 +255,7 @@ failed:
 		CloseHandle(event);
 		InterlockedDecrement(&mutexp->nwaiters);
 	}
-	return (ret);
-
+	return ret;
 syserr: __db_syserr(env, ret, DB_STR("2006", "Win32 lock failed"));
 	return (__env_panic(env, __os_posix_err(ret)));
 }
@@ -304,7 +277,7 @@ int __db_win32_mutex_init(ENV *env, db_mutex_t mutex, uint32 flags)
 	 * memory mapped onto the same page as those being Interlocked*.
 	 */
 	WINCE_ATOMIC_MAGIC(&mutexp->sharecount);
-	return (0);
+	return 0;
 }
 
 #if defined(HAVE_SHARED_LATCHES)
@@ -331,7 +304,7 @@ int __db_win32_mutex_readlock(ENV *env, db_mutex_t mutex, uint32 flags)
 #endif
 	dbenv = env->dbenv;
 	if(!MUTEX_ON(env) || F_ISSET(dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
 	mutexp = MUTEXP_SET(env, mutex);
@@ -351,7 +324,7 @@ int __db_win32_mutex_readlock(ENV *env, db_mutex_t mutex, uint32 flags)
 		if((ret = __env_set_state(env, &ip, THREAD_CTR_VERIFY)) != 0)
 			return (__env_panic(env, ret));
 		if(env->thr_hashtab != NULL && (ret = __mutex_record_lock(env, mutex, ip, MUTEX_ACTION_INTEND_SHARE, &state)) != 0)
-			return (ret);
+			return ret;
 	}
 	/* All non-successful returns after this point should go to failed. */
 
@@ -367,15 +340,14 @@ int __db_win32_mutex_readlock(ENV *env, db_mutex_t mutex, uint32 flags)
 	else
 #endif
 	max_ms = MS_PER_SEC;
-
 loop:   /* Attempt to acquire the resource for N spins. */
-	for(nspins =
-	    mtxregion->stat.st_mutex_tas_spins; nspins > 0; --nspins) {
+	for(nspins = mtxregion->stat.st_mutex_tas_spins; nspins > 0; --nspins) {
 		/*
 		 * We can avoid the (expensive) interlocked instructions if
 		 * the mutex is already "set".
 		 */
-retry:          mtx_val = atomic_read(&mutexp->sharecount);
+retry:          
+		mtx_val = atomic_read(&mutexp->sharecount);
 		if(mtx_val == MUTEX_SHARE_ISEXCLUSIVE) {
 			if(!LF_ISSET(MUTEX_WAIT)) {
 				ret = USR_ERR(env, DB_LOCK_NOTGRANTED);
@@ -383,8 +355,7 @@ retry:          mtx_val = atomic_read(&mutexp->sharecount);
 			}
 			continue;
 		}
-		else if(!atomic_compare_exchange(env, &mutexp->sharecount,
-		    mtx_val, mtx_val + 1)) {
+		else if(!atomic_compare_exchange(env, &mutexp->sharecount, mtx_val, mtx_val + 1)) {
 			/*
 			 * Some systems (notably those with newer Intel CPUs)
 			 * need a small pause here. [#6975]
@@ -414,10 +385,7 @@ retry:          mtx_val = atomic_read(&mutexp->sharecount);
 #ifdef MUTEX_DIAG
 			if(ret != WAIT_OBJECT_0) {
 				QueryPerformanceCounter(&diag_now);
-				printf(DB_STR_A("2007",
-				    "[%lld]: Lost signal on mutex %p, "
-				    "id %d, ms %d\n", "%lld %p %d %d"),
-				    diag_now.QuadPart, mutexp, mutexp->id, ms);
+				printf(DB_STR_A("2007", "[%lld]: Lost signal on mutex %p, id %d, ms %d\n", "%lld %p %d %d"), diag_now.QuadPart, mutexp, mutexp->id, ms);
 			}
 #endif
 		}
@@ -433,7 +401,7 @@ retry:          mtx_val = atomic_read(&mutexp->sharecount);
 			__os_yield(env, 0, 0);
 #endif
 
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -445,9 +413,7 @@ retry:          mtx_val = atomic_read(&mutexp->sharecount);
 	if(event == NULL) {
 #ifdef MUTEX_DIAG
 		QueryPerformanceCounter(&diag_now);
-		printf(DB_STR_A("2008",
-		    "[%lld]: Waiting on mutex %p, id %d\n",
-		    "%lld %p %d"), diag_now.QuadPart, mutexp, mutexp->id);
+		printf(DB_STR_A("2008", "[%lld]: Waiting on mutex %p, id %d\n", "%lld %p %d"), diag_now.QuadPart, mutexp, mutexp->id);
 #endif
 		InterlockedIncrement(&mutexp->nwaiters);
 		if((ret = get_handle(env, mutexp, &event)) != 0)
@@ -478,7 +444,7 @@ failed:
 	}
 	if(state != NULL)
 		state->action = MUTEX_ACTION_UNLOCKED;
-	return (ret);
+	return ret;
 err:    
 	__db_syserr(env, ret, DB_STR("2009", "Win32 read lock failed"));
 	return (__env_panic(env, __os_posix_err(ret)));
@@ -505,7 +471,7 @@ int __db_win32_mutex_unlock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip, uin
 #endif
 	dbenv = env->dbenv;
 	if(!MUTEX_ON(env) || F_ISSET(dbenv, DB_ENV_NOLOCKING))
-		return (0);
+		return 0;
 	mutexp = MUTEXP_SET(env, mutex);
 	was_exclusive = F_ISSET(mutexp, DB_MUTEX_LOCKED);
 #ifdef DIAGNOSTIC
@@ -516,15 +482,12 @@ int __db_win32_mutex_unlock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip, uin
 		return (__env_panic(env, EACCES));
 	}
 #endif
-
 	/*
 	 * If the caller hasn't already specified the thread from which to unlock
 	 * this mutex, use the current thread.  Failchk can indicate a dead thread.
 	 */
-	if(env->thr_hashtab != NULL && ip == NULL &&
-	    (ret = __env_set_state(env, &ip, THREAD_CTR_VERIFY)) != 0)
+	if(env->thr_hashtab != NULL && ip == NULL && (ret = __env_set_state(env, &ip, THREAD_CTR_VERIFY)) != 0)
 		return (__env_panic(env, ret));
-
 	/*
 	 * If we have a shared latch, and a read lock (DB_MUTEX_LOCKED is only
 	 * set for write locks), then decrement the latch. If the readlock is
@@ -589,14 +552,13 @@ int __db_win32_mutex_unlock(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * ip, uin
 	else {
 finish_shared:
 		if(ip != NULL && (ret = __mutex_record_unlock(env, mutex, ip)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 err:    
 	__db_syserr(env, ret, DB_STR("2012", "Win32 unlock failed"));
 	return (__env_panic(env, __os_posix_err(ret)));
 }
-
 /*
  * __db_win32_mutex_destroy --
  *	Destroy a mutex.
@@ -605,9 +567,8 @@ err:
  */
 int __db_win32_mutex_destroy(ENV * env, db_mutex_t mutex)
 {
-	return (0);
+	return 0;
 }
-
 #ifndef DB_WINCE
 /*
  * db_env_set_win_security --
@@ -622,6 +583,6 @@ int __db_win32_mutex_destroy(ENV * env, db_mutex_t mutex)
 int db_env_set_win_security(SECURITY_ATTRIBUTES *sa)
 {
 	DB_GLOBAL(win_sec_attr) = sa;
-	return (0);
+	return 0;
 }
 #endif

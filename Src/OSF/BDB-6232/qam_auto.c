@@ -62,14 +62,14 @@ int __qam_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __qam_incfirst_recover, DB___qam_incfirst)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __qam_mvptr_recover, DB___qam_mvptr)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __qam_del_recover, DB___qam_del)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __qam_add_recover, DB___qam_add)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __qam_delext_recover, DB___qam_delext)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

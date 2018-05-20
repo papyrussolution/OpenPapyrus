@@ -5,36 +5,29 @@
  *
  * $Id$
  */
-
 #ifndef _DB_VERIFY_H_
 #define	_DB_VERIFY_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * Structures and macros for the storage and retrieval of all information
  * needed for inter-page verification of a database.
  */
-
 /*
  * EPRINT is the macro for error printing.  Takes as an arg the arg set
  * for DB->err.
  */
 #define	EPRINT(x) do {							\
-	if (!LF_ISSET(DB_SALVAGE))					\
+	if(!LF_ISSET(DB_SALVAGE))					\
 		__db_errx x;						\
 } while (0)
 
 /* Complain about a totally zeroed page where we don't expect one. */
 #define	ZEROPG_ERR_PRINT(dbenv, pgno, str) do {				\
-	EPRINT(((dbenv), DB_STR_A("0501",				\
-	    "Page %lu: %s is of inappropriate type %lu", "%lu %s %lu"),	\
-	    (u_long)(pgno), str, (u_long)P_INVALID));			\
-	EPRINT(((dbenv), DB_STR_A("0502",				\
-	    "Page %lu: totally zeroed page",				\
-	    "%lu"), (u_long)(pgno)));					\
+	EPRINT(((dbenv), DB_STR_A("0501", "Page %lu: %s is of inappropriate type %lu", "%lu %s %lu"), (u_long)(pgno), str, (u_long)P_INVALID)); \
+	EPRINT(((dbenv), DB_STR_A("0502", "Page %lu: totally zeroed page", "%lu"), (u_long)(pgno)));					\
 } while (0)
 
 /*
@@ -49,30 +42,17 @@ extern "C" {
  */
 struct __vrfy_dbinfo {
 	DB_THREAD_INFO *thread_info;
-	/* Info about this database in particular. */
-	DBTYPE		type;
-
-	/* List of subdatabase meta pages, if any. */
-	LIST_HEAD(__subdbs, __vrfy_childinfo) subdbs;
-
-	/* Transaction handle for CDS group. */
-	DB_TXN *txn;
-
-	/* File-global info--stores VRFY_PAGEINFOs for each page. */
-	DB *pgdbp;
-
-	/* Child database--stores VRFY_CHILDINFOs of each page. */
-	DB *cdbp;
-
-	/* Page info structures currently in use. */
-	LIST_HEAD(__activepips, __vrfy_pageinfo) activepips;
-
+	DBTYPE		type; /* Info about this database in particular. */
+	LIST_HEAD(__subdbs, __vrfy_childinfo) subdbs; /* List of subdatabase meta pages, if any. */
+	DB_TXN *txn; /* Transaction handle for CDS group. */
+	DB *pgdbp; /* File-global info--stores VRFY_PAGEINFOs for each page. */
+	DB *cdbp; /* Child database--stores VRFY_CHILDINFOs of each page. */
+	LIST_HEAD(__activepips, __vrfy_pageinfo) activepips; /* Page info structures currently in use. */
 	/*
 	 * DB we use to keep track of which pages are linked somehow
 	 * during verification.  0 is the default, "unseen";  1 is seen.
 	 */
 	DB *pgset;
-
 	/*
 	 * This is a database we use during salvaging to keep track of which
 	 * overflow and dup pages we need to come back to at the end and print
@@ -92,11 +72,9 @@ struct __vrfy_dbinfo {
 #define	SALVAGE_LRECNO		7
 #define	SALVAGE_LRECNODUP	8
 	DB *salvage_pages;
-
 	db_pgno_t	last_pgno;
 	db_pgno_t	meta_last_pgno;
 	db_pgno_t	pgs_remaining;	/* For dbp->db_feedback(). */
-
 	/*
 	 * These are used during __bam_vrfy_subtree to keep track, while
 	 * walking up and down the Btree structure, of the prev- and next-page
@@ -106,7 +84,6 @@ struct __vrfy_dbinfo {
 	db_pgno_t	prev_pgno;
 	db_pgno_t	next_pgno;
 	uint8	leaf_type;
-
 	/* Queue needs these to verify data pages in the first pass. */
 	uint32	re_pad;		/* Record pad character. */
 	uint32	re_len;		/* Record length. */
@@ -200,10 +177,8 @@ struct __vrfy_childinfo {
 	uint32	type;
 	db_recno_t	nrecs;		/* record count on a btree subtree */
 	uint32	tlen;		/* ovfl. item total size */
-
 	/* The following field is maintained by __db_vrfy_childput. */
 	uint32	refcnt;		/* # of times parent points to child. */
-
 	LIST_ENTRY(__vrfy_childinfo) links;
 }; /* VRFY_CHILDINFO */
 

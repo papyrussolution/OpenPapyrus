@@ -77,12 +77,12 @@ int __heap_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __heap_addrem_recover, DB___heap_addrem)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __heap_pg_alloc_recover, DB___heap_pg_alloc)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __heap_trunc_meta_recover, DB___heap_trunc_meta)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __heap_trunc_page_recover, DB___heap_trunc_page)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

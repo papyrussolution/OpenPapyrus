@@ -32,7 +32,7 @@ int __blob_bulk(DBC *dbc, uint32 len, db_seq_t blob_id, uint8 * dp)
 	int ret, t_ret;
 	ENV * env = dbc->dbp->env;
 	DB_FH * fhp = NULL;
-	memset(&dbt, 0, sizeof(dbt));
+	memzero(&dbt, sizeof(dbt));
 	F_SET(&dbt, DB_DBT_USERMEM);
 	dbt.ulen = len;
 	dbt.data = (void*)dp;
@@ -47,7 +47,7 @@ err:
 		if(ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __blob_get --
@@ -100,7 +100,7 @@ err:    if(fhp != NULL) {
 			ret = t_ret;
 	}
 	/* Does the dbt need to be cleaned on error? */
-	return (ret);
+	return ret;
 }
 /*
  * __blob_put --
@@ -133,10 +133,10 @@ int __blob_put(DBC *dbc, DBT * dbt, db_seq_t * blob_id, off_t * size, DB_LSN * p
 	 */
 	DB_ASSERT(env, *size == 0);
 	if(F_ISSET(dbt, DB_DBT_PARTIAL) && dbt->doff > 0) {
-		memset(&partial, 0, sizeof(partial));
+		memzero(&partial, sizeof(partial));
 		if((ret = __os_malloc(env, dbt->doff, &partial.data)) != 0)
 			goto err;
-		memset(partial.data, 0, dbt->doff);
+		memzero(partial.data, dbt->doff);
 		partial.size = dbt->doff;
 		ret = __blob_file_write(
 			dbc, fhp, &partial, 0, *blob_id, size, DB_FOP_CREATE);
@@ -156,7 +156,7 @@ err:    if(fhp != NULL) {
 		if(ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -176,13 +176,11 @@ int __blob_repl(DBC *dbc, DBT * nval, db_seq_t blob_id, db_seq_t * new_blob_id, 
 	ENV * env;
 	int ret, t_ret;
 	off_t current, old_size;
-
 	fhp = new_fhp = NULL;
 	*new_blob_id = 0;
 	old_size = *size;
 	env = dbc->env;
-	memset(&partial, 0, sizeof(partial));
-
+	memzero(&partial, sizeof(partial));
 	/*
 	 * Handling partial replace.
 	 * 1. doff > blob file size : Pad the end of the blob file with NULLs
@@ -198,28 +196,21 @@ int __blob_repl(DBC *dbc, DBT * nval, db_seq_t blob_id, db_seq_t * new_blob_id, 
 		if((nval->doff > *size) ||
 		    ((nval->doff == *size) || (nval->dlen == nval->size))) {
 			/* Open the file for appending. */
-			if((ret = __blob_file_open(
-				    dbc->dbp, &fhp, blob_id, 0, 1)) != 0)
+			if((ret = __blob_file_open(dbc->dbp, &fhp, blob_id, 0, 1)) != 0)
 				goto err;
 			*new_blob_id = blob_id;
-
 			/* Pad the end of the blob with NULLs. */
 			if(nval->doff > *size) {
 				partial.size = nval->doff - (uint32)*size;
-				if((ret = __os_malloc(
-					    env, partial.size, &partial.data)) != 0)
+				if((ret = __os_malloc(env, partial.size, &partial.data)) != 0)
 					goto err;
-				memset(partial.data, 0, partial.size);
-				if((ret = __blob_file_write(dbc, fhp,
-				    &partial, *size, blob_id, size, 0)) != 0)
+				memzero(partial.data, partial.size);
+				if((ret = __blob_file_write(dbc, fhp, &partial, *size, blob_id, size, 0)) != 0)
 					goto err;
 			}
-
 			/* Write in the data. */
-			if((ret = __blob_file_write(dbc, fhp,
-			    nval, nval->doff, blob_id, size, 0)) != 0)
+			if((ret = __blob_file_write(dbc, fhp, nval, nval->doff, blob_id, size, 0)) != 0)
 				goto err;
-
 			/* Close the file */
 			ret = __blob_file_close(dbc, fhp, DB_FOP_WRITE);
 			fhp = NULL;
@@ -228,14 +219,11 @@ int __blob_repl(DBC *dbc, DBT * nval, db_seq_t blob_id, db_seq_t * new_blob_id, 
 		}
 		else {
 			/* Open the old blob file. */
-			if((ret = __blob_file_open(
-				    dbc->dbp, &fhp, blob_id, DB_FOP_READONLY, 1)) != 0)
+			if((ret = __blob_file_open(dbc->dbp, &fhp, blob_id, DB_FOP_READONLY, 1)) != 0)
 				goto err;
 			/* Create the new blob file. */
-			if((ret = __blob_file_create(
-				    dbc, &new_fhp, new_blob_id)) != 0)
+			if((ret = __blob_file_create(dbc, &new_fhp, new_blob_id)) != 0)
 				goto err;
-
 			*size = 0;
 			/* Copy data to the new file up to doff. */
 			if(nval->doff != 0) {
@@ -316,7 +304,7 @@ err:    if(fhp != NULL) {
 	}
 	if(partial.data != NULL)
 		__os_free(env, partial.data);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_del --
@@ -327,5 +315,5 @@ err:    if(fhp != NULL) {
 int __blob_del(DBC *dbc, db_seq_t blob_id)
 {
 	int ret = __blob_file_delete(dbc, blob_id);
-	return (ret);
+	return ret;
 }

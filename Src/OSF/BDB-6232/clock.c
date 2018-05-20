@@ -36,7 +36,7 @@ void __clock_set_expires(ENV *env, db_timespec * timespecp, db_timeout_t timeout
 int __clock_expired(ENV *env, db_timespec * now, db_timespec * timespecp)
 {
 	if(!timespecisset(timespecp))
-		return (0);
+		return 0;
 	if(!timespecisset(now))
 		__os_gettime(env, now, 1);
 	return (timespeccmp(now, timespecp, >=));

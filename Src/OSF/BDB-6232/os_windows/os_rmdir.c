@@ -21,10 +21,10 @@ int __os_rmdir(ENV *env, const char * name)
 		__db_msg(env, DB_STR_A("0240", "fileops: rmdir %s", "%s"), name);
 	TO_TSTRING(env, name, tname, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	RETRY_CHK(!RemoveDirectory(tname), ret);
 	FREE_STRING(env, tname);
 	if(ret != 0)
 		return (__os_posix_err(ret));
-	return (ret);
+	return ret;
 }

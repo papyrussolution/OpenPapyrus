@@ -84,11 +84,11 @@ int db_sequence_create(DB_SEQUENCE **seqp, DB * dbp, uint32 flags)
 	}
 	if(dbp->type == DB_HEAP) {
 		__db_errx(env, DB_STR("4016", "Heap databases may not be used with sequences."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* Allocate the sequence. */
 	if((ret = __os_calloc(env, 1, sizeof(*seq), &seq)) != 0)
-		return (ret);
+		return ret;
 	seq->seq_dbp = dbp;
 	seq->close = __seq_close_pp;
 	seq->get = __seq_get_pp;
@@ -107,7 +107,7 @@ int db_sequence_create(DB_SEQUENCE **seqp, DB * dbp, uint32 flags)
 	seq->stat_print = __seq_stat_print;
 	seq->seq_rp = &seq->seq_record;
 	*seqp = seq;
-	return (0);
+	return 0;
 }
 /*
  * __seq_open_pp --
@@ -140,7 +140,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __seq_open --
@@ -180,32 +180,25 @@ int __seq_open(DB_SEQUENCE *seq, DB_TXN * txn, DBT * keyp, uint32 flags)
 		__db_errx(env, DB_STR("4002", "Sequences not supported in databases configured for duplicate data"));
 		goto err;
 	}
-
 	if(LF_ISSET(DB_THREAD)) {
-		if((ret = __mutex_alloc(env,
-		    MTX_SEQUENCE, DB_MUTEX_PROCESS_ONLY, &seq->mtx_seq)) != 0)
+		if((ret = __mutex_alloc(env, MTX_SEQUENCE, DB_MUTEX_PROCESS_ONLY, &seq->mtx_seq)) != 0)
 			goto err;
 	}
-
-	memset(&seq->seq_data, 0, sizeof(DBT));
+	memzero(&seq->seq_data, sizeof(DBT));
 	if(F_ISSET(env, ENV_LITTLEENDIAN)) {
 		seq->seq_data.data = &seq->seq_record;
 		seq->seq_data.flags = DB_DBT_USERMEM;
 	}
 	else {
-		if((ret = __os_umalloc(env,
-		    sizeof(seq->seq_record), &seq->seq_data.data)) != 0)
+		if((ret = __os_umalloc(env, sizeof(seq->seq_record), &seq->seq_data.data)) != 0)
 			goto err;
 		seq->seq_data.flags = DB_DBT_REALLOC;
 	}
-
 	seq->seq_data.ulen = seq->seq_data.size = sizeof(seq->seq_record);
 	seq->seq_rp = &seq->seq_record;
-
 	if((ret = __dbt_usercopy(env, keyp)) != 0)
 		goto err;
-
-	memset(&seq->seq_key, 0, sizeof(DBT));
+	memzero(&seq->seq_key, sizeof(DBT));
 	if((ret = __os_malloc(env, keyp->size, &seq->seq_key.data)) != 0)
 		goto err;
 	memcpy(seq->seq_key.data, keyp->data, keyp->size);
@@ -337,7 +330,7 @@ err:
 		seq->seq_key.data = NULL;
 	}
 	__dbt_userfree(env, keyp, NULL, NULL);
-	return (ret);
+	return ret;
 }
 /*
  * __seq_get_cachesize --
@@ -347,7 +340,7 @@ err:
 static int __seq_get_cachesize(DB_SEQUENCE *seq, uint32 * cachesize)
 {
 	*cachesize = seq->seq_cache_size;
-	return (0);
+	return 0;
 }
 /*
  * __seq_set_cachesize --
@@ -358,7 +351,7 @@ static int __seq_set_cachesize(DB_SEQUENCE *seq, uint32 cachesize)
 {
 	SEQ_ILLEGAL_AFTER_OPEN(seq, "DB_SEQUENCE->set_cachesize");
 	seq->seq_cache_size = cachesize;
-	return (0);
+	return 0;
 }
 
 #define SEQ_SET_FLAGS   (DB_SEQ_WRAP | DB_SEQ_INC | DB_SEQ_DEC)
@@ -370,7 +363,7 @@ static int __seq_set_cachesize(DB_SEQUENCE *seq, uint32 cachesize)
 static int __seq_get_flags(DB_SEQUENCE *seq, uint32 * flagsp)
 {
 	*flagsp = F_ISSET(seq->seq_rp, SEQ_SET_FLAGS);
-	return (0);
+	return 0;
 }
 /*
  * __seq_set_flags --
@@ -386,13 +379,13 @@ static int __seq_set_flags(DB_SEQUENCE *seq, uint32 flags)
 	rp = seq->seq_rp;
 	SEQ_ILLEGAL_AFTER_OPEN(seq, "DB_SEQUENCE->set_flags");
 	if((ret = __db_fchk(env, "DB_SEQUENCE->set_flags", flags, SEQ_SET_FLAGS)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_fcchk(env, "DB_SEQUENCE->set_flags", flags, DB_SEQ_DEC, DB_SEQ_INC)) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_SEQ_DEC | DB_SEQ_INC))
 		F_CLR(rp, DB_SEQ_DEC | DB_SEQ_INC);
 	F_SET(rp, flags);
-	return (0);
+	return 0;
 }
 /*
  * __seq_initial_value --
@@ -409,10 +402,10 @@ int __seq_initial_value(DB_SEQUENCE *seq, db_seq_t value)
 	rp = seq->seq_rp;
 	if(F_ISSET(rp, DB_SEQ_RANGE_SET) && (value > rp->seq_max || value < rp->seq_min)) {
 		__db_errx(env, DB_STR("4008", "Sequence value out of range"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	rp->seq_value = value;
-	return (0);
+	return 0;
 }
 /*
  * __seq_get_range --
@@ -423,7 +416,7 @@ static int __seq_get_range(DB_SEQUENCE *seq, db_seq_t * minp, db_seq_t * maxp)
 {
 	*minp = seq->seq_rp->seq_min;
 	*maxp = seq->seq_rp->seq_max;
-	return (0);
+	return 0;
 }
 /*
  * __seq_set_range --
@@ -438,12 +431,12 @@ static int __seq_set_range(DB_SEQUENCE *seq, db_seq_t min, db_seq_t max)
 	rp = seq->seq_rp;
 	if(min >= max) {
 		__db_errx(env, DB_STR("4009", "Minimum sequence value must be less than maximum sequence value"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	rp->seq_min = min;
 	rp->seq_max = max;
 	F_SET(rp, DB_SEQ_RANGE_SET);
-	return (0);
+	return 0;
 }
 
 static int __seq_update(DB_SEQUENCE *seq, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 delta, uint32 flags)
@@ -465,7 +458,7 @@ static int __seq_update(DB_SEQUENCE *seq, DB_THREAD_INFO * ip, DB_TXN * txn, uin
 	 */
 	if(IS_DB_AUTO_COMMIT(dbp, txn)) {
 		if((ret = __txn_begin(env, ip, NULL, &txn, flags)) != 0)
-			return (ret);
+			return ret;
 		txn_local = 1;
 	}
 	else
@@ -612,50 +605,38 @@ int __seq_get(DB_SEQUENCE *seq, DB_TXN * txn, uint32 delta, db_seq_t * retp, uin
 	DB_THREAD_INFO * ip;
 	ENV * env;
 	int handle_check, ret;
-
 	dbp = seq->seq_dbp;
 	env = dbp->env;
 	rp = seq->seq_rp;
 	ret = 0;
 	ENV_GET_THREAD_INFO(env, ip);
-
 	STRIP_AUTO_COMMIT(flags);
 	SEQ_ILLEGAL_BEFORE_OPEN(seq, "DB_SEQUENCE->get");
-
 	if(delta == 0 && !LF_ISSET(DB_CURRENT)) {
 		__db_errx(env, "Sequence delta must be greater than 0");
-		return (EINVAL);
+		return EINVAL;
 	}
-
 	if(seq->seq_cache_size != 0 && txn != NULL) {
-		__db_errx(env,
-		    "Sequence with non-zero cache may not specify transaction handle");
-		return (EINVAL);
+		__db_errx(env, "Sequence with non-zero cache may not specify transaction handle");
+		return EINVAL;
 	}
-
 	MUTEX_LOCK(env, seq->mtx_seq);
-
 	handle_check = IS_ENV_REPLICATED(env);
-	if(handle_check && IS_REP_CLIENT(env) &&
-	    !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
+	if(handle_check && IS_REP_CLIENT(env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
 		ret = __db_rdonly(env, "DB_SEQUENCE->get");
 		goto err;
 	}
-
 	if(rp->seq_min + delta > rp->seq_max) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("4013", "Sequence overflow"));
 		goto err;
 	}
-
 	if(LF_ISSET(DB_CURRENT)) {
 		*retp = seq->seq_prev_value;
 	}
 	else if(F_ISSET(rp, DB_SEQ_INC)) {
-		if(seq->seq_last_value + 1 - rp->seq_value < delta &&
-		    (ret = __seq_update(seq, ip, txn, delta, flags)) != 0)
+		if(seq->seq_last_value + 1 - rp->seq_value < delta && (ret = __seq_update(seq, ip, txn, delta, flags)) != 0)
 			goto err;
-
 		rp = seq->seq_rp;
 		*retp = rp->seq_value;
 		seq->seq_prev_value = rp->seq_value;
@@ -673,7 +654,7 @@ int __seq_get(DB_SEQUENCE *seq, DB_TXN * txn, uint32 delta, db_seq_t * retp, uin
 	}
 
 err:    MUTEX_UNLOCK(env, seq->mtx_seq);
-	return (ret);
+	return ret;
 }
 
 static int __seq_get_pp(DB_SEQUENCE *seq, DB_TXN * txn, uint32 delta, db_seq_t * retp, uint32 flags)
@@ -685,13 +666,13 @@ static int __seq_get_pp(DB_SEQUENCE *seq, DB_TXN * txn, uint32 delta, db_seq_t *
 	/* Check for replication block. */
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (ret = __db_rep_enter(seq->seq_dbp, 1, 0, IS_REAL_TXN(txn))) != 0)
-		return (ret);
+		return ret;
 	ret = __seq_get(seq, txn, delta, retp, flags);
 	/* Release replication block. */
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __seq_get_db --
@@ -701,7 +682,7 @@ static int __seq_get_pp(DB_SEQUENCE *seq, DB_TXN * txn, uint32 delta, db_seq_t *
 static int __seq_get_db(DB_SEQUENCE *seq, DB ** dbpp)
 {
 	*dbpp = seq->seq_dbp;
-	return (0);
+	return 0;
 }
 /*
  * __seq_get_key --
@@ -716,7 +697,7 @@ static int __seq_get_key(DB_SEQUENCE *seq, DBT * key)
 	key->data = seq->seq_key.data;
 	key->size = key->ulen = seq->seq_key.size;
 	key->flags = seq->seq_key.flags;
-	return (0);
+	return 0;
 }
 
 /*
@@ -731,7 +712,7 @@ static int __seq_close_pp(DB_SEQUENCE *seq, uint32 flags)
 	ENV_ENTER(seq->seq_dbp->env, ip);
 	ret = __seq_close(seq, flags);
 	ENV_LEAVE(seq->seq_dbp->env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -756,7 +737,7 @@ int __seq_close(DB_SEQUENCE *seq, uint32 flags)
 	seq->seq_key.data = NULL;
 	memset(seq, CLEAR_BYTE, sizeof(*seq));
 	__os_free(env, seq);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -815,7 +796,7 @@ err:
 	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __seq_chk_cachesize --
@@ -832,9 +813,9 @@ static int __seq_chk_cachesize(ENV *env, uint32 cachesize, db_seq_t max, db_seq_
 	 */
 	if((uint32)cachesize > (uint64)max - (uint64)min) {
 		__db_errx(env, DB_STR("4014", "Number of items to be cached is larger than the sequence range"));
-		return (EINVAL);
+		return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_64BIT_TYPES */

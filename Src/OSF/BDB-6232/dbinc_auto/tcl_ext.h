@@ -8,10 +8,10 @@ extern "C" {
 
 int bdb_HCommand __P((Tcl_Interp *, int, Tcl_Obj * CONST*));
 #if DB_DBM_HSEARCH != 0
-int bdb_NdbmOpen __P((Tcl_Interp *, int, Tcl_Obj * CONST*, DBM **));
+	int bdb_NdbmOpen __P((Tcl_Interp *, int, Tcl_Obj * CONST*, DBM **));
 #endif
 #if DB_DBM_HSEARCH != 0
-int bdb_DbmCommand __P((Tcl_Interp *, int, Tcl_Obj * CONST*, int, DBM *));
+	int bdb_DbmCommand __P((Tcl_Interp *, int, Tcl_Obj * CONST*, int, DBM *));
 #endif
 int ndbm_Cmd __P((ClientData, Tcl_Interp *, int, Tcl_Obj * CONST*));
 void _DbInfoDelete __P((Tcl_Interp *, DBTCL_INFO *));
@@ -56,7 +56,7 @@ int _ReturnSetup __P((Tcl_Interp *, int, int, char *));
 int _ErrorSetup __P((Tcl_Interp *, int, char *));
 void _ErrorFunc __P((const DB_ENV *, CONST char *, const char *));
 #ifdef CONFIG_TEST 
-void _EventFunc __P((DB_ENV *, uint32, void *));
+	void _EventFunc __P((DB_ENV *, uint32, void *));
 #endif
 int _GetLsn __P((Tcl_Interp *, Tcl_Obj *, DB_LSN *));
 int _GetRid __P((Tcl_Interp *, Tcl_Obj *, DB_HEAP_RID *));

@@ -42,13 +42,13 @@ int __heap_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 		h->maxpgno = npgs - 1;
 		if(h->maxpgno < FIRST_HEAP_DPAGE) {
 			__db_errx(dbp->env, "requested database size is too small");
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	else
 		/* If not fixed size heap, set maxregion to maximum value */
 		h->maxpgno = UINT32_MAX;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -81,19 +81,19 @@ int __heap_metachk(DB *dbp, const char * name, HEAPMETA * hm)
 		default:
 		    __db_errx(env,
 			"%s: unsupported heap version: %lu", name, (u_long)vers);
-		    return (EINVAL);
+		    return EINVAL;
 	}
 
 	/* Swap the page if needed. */
 	if(F_ISSET(dbp, DB_AM_SWAP) &&
 	    (ret = __heap_mswap(env, (PAGE*)hm)) != 0)
-		return (ret);
+		return ret;
 
 	/* Check application info against metadata info. */
 	if(h->gbytes != 0 || h->bytes != 0)
 		if(h->gbytes != hm->gbytes || h->bytes != hm->bytes) {
 			__db_errx(env, DB_STR_A("1155", "%s: specified heap size does not match size set in database", "%s"), name);
-			return (EINVAL);
+			return EINVAL;
 		}
 
 	/* Set the page size. */
@@ -102,23 +102,23 @@ int __heap_metachk(DB *dbp, const char * name, HEAPMETA * hm)
 	dbp->blob_threshold = hm->blob_threshold;
 	GET_BLOB_FILE_ID(env, hm, dbp->blob_file_id, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	/* Blob databases must be upgraded. */
 	if(vers == 1 && dbp->blob_file_id != 0) {
 		__db_errx(env, DB_STR_A("1209", "%s: databases that support external files must be upgraded.", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 #ifndef HAVE_64BIT_TYPES
 	if(dbp->blob_file_id != 0) {
 		__db_errx(env, DB_STR_A("1205", "%s: external files require 64 integer compiler support.", "%s"), name);
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 
 	/* Copy the file's ID. */
 	memcpy(dbp->fileid, hm->dbmeta.uid, DB_FILE_ID_LEN);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -145,7 +145,7 @@ int __heap_read_meta(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t meta_
 
 	/* Get a cursor.  */
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/* Get the metadata page. */
 	if((ret =
@@ -187,7 +187,7 @@ err:    /* Put the metadata page back. */
 
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -221,13 +221,13 @@ int __heap_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 		h->region_size = HEAP_DEFAULT_REGION_MAX(dbp) > max_size ? max_size : HEAP_DEFAULT_REGION_MAX(dbp);
 	else if(h->region_size > max_size) {
 		__db_errx(dbp->env, DB_STR_A("1169", "region size may not be larger than %lu", "%lu"), (u_long)max_size);
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
 		/* Build the meta-data page. */
 		pgno = PGNO_BASE_MD;
 		if((ret = __memp_fget(mpf, &pgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
-			return (ret);
+			return ret;
 		LSN_NOT_LOGGED(lsn);
 		__heap_init_meta(dbp, meta, PGNO_BASE_MD, &lsn);
 		ret = __db_log_page(dbp, txn, &lsn, pgno, (PAGE*)meta);
@@ -239,55 +239,44 @@ int __heap_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 
 		/* Build the first region page. */
 		pgno = 1;
-		if((ret = __memp_fget(mpf, &pgno,
-		    ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &region)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &region)) != 0)
 			goto err;
-		memset(region, 0, dbp->pgsize);
-
-		P_INIT(region,
-		    dbp->pgsize, 1, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
+		memzero(region, dbp->pgsize);
+		P_INIT(region, dbp->pgsize, 1, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
 		LSN_NOT_LOGGED(region->lsn);
-		ret = __db_log_page(
-			dbp, txn, &region->lsn, pgno, (PAGE*)region);
-		if((t_ret = __memp_fput(
-			    mpf, ip, region, dbp->priority)) != 0 && ret == 0)
+		ret = __db_log_page(dbp, txn, &region->lsn, pgno, (PAGE*)region);
+		if((t_ret = __memp_fput(mpf, ip, region, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		region = NULL;
 		if(ret != 0)
 			goto err;
 	}
 	else {
-		memset(&pdbt, 0, sizeof(pdbt));
-
+		memzero(&pdbt, sizeof(pdbt));
 		/* Build the meta-data page. */
 		pginfo.db_pagesize = dbp->pgsize;
-		pginfo.flags =
-		    F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
+		pginfo.flags = F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
 		pginfo.type = dbp->type;
 		pdbt.data = &pginfo;
 		pdbt.size = sizeof(pginfo);
 		if(dbp->blob_threshold) {
 			if((ret = __blob_generate_dir_ids(
 				    dbp, txn, &dbp->blob_file_id)) != 0)
-				return (ret);
+				return ret;
 		}
 		if((ret = __os_calloc(env, 1, dbp->pgsize, &buf)) != 0)
-			return (ret);
+			return ret;
 		meta = (HEAPMETA*)buf;
 		LSN_NOT_LOGGED(lsn);
 		__heap_init_meta(dbp, meta, PGNO_BASE_MD, &lsn);
-		if((ret =
-		    __db_pgout(dbp->dbenv, PGNO_BASE_MD, meta, &pdbt)) != 0)
+		if((ret = __db_pgout(dbp->dbenv, PGNO_BASE_MD, meta, &pdbt)) != 0)
 			goto err;
 		if((ret = __fop_write(env, txn, name, dbp->dirname,
-		    DB_APP_DATA, fhp,
-		    dbp->pgsize, 0, 0, buf, dbp->pgsize, 1, F_ISSET(
-			    dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
+		    DB_APP_DATA, fhp, dbp->pgsize, 0, 0, buf, dbp->pgsize, 1, F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0)) != 0)
 			goto err;
 		meta = NULL;
-
 		/* Build the first region page */
-		memset(buf, 0, dbp->pgsize);
+		memzero(buf, dbp->pgsize);
 		region = (HEAPPG*)buf;
 		P_INIT(region,
 		    dbp->pgsize, 1, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
@@ -305,7 +294,7 @@ int __heap_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 
 err:    if(buf != NULL)
 		__os_free(env, buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -333,11 +322,11 @@ int __heap_create_region(DBC *dbc, db_pgno_t pgno)
 	meta_pgno = PGNO_BASE_MD;
 	if((ret = __db_lget(dbc,
 	    LCK_ALWAYS, meta_pgno, DB_LOCK_WRITE, 0, &meta_lock)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __memp_fget(mpf, &meta_pgno,
 	    dbc->thread_info, NULL, DB_MPOOL_DIRTY, &meta)) != 0) {
 		(void)__LPUT(dbc, meta_lock);
-		return (ret);
+		return ret;
 	}
 
 	ret = __memp_fget(mpf, &pgno, dbc->thread_info,
@@ -352,15 +341,12 @@ int __heap_create_region(DBC *dbc, db_pgno_t pgno)
 
 	/* Log the page creation. */
 	if(DBC_LOGGING(dbc)) {
-		if((ret = __heap_pg_alloc_log(dbp,
-		    dbc->txn, &LSN(meta), 0, &LSN(meta), meta_pgno,
-		    pgno, (uint32)P_IHEAP, meta->dbmeta.last_pgno)) != 0)
+		if((ret = __heap_pg_alloc_log(dbp, dbc->txn, &LSN(meta), 0, &LSN(meta), meta_pgno, pgno, (uint32)P_IHEAP, meta->dbmeta.last_pgno)) != 0)
 			goto done;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(&meta->dbmeta));
-
-	memset((void*)region, 0, dbp->pgsize);
+	memzero((void*)region, dbp->pgsize);
 	P_INIT(region,
 	    dbp->pgsize, pgno, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
 	LSN(region) = LSN(&meta->dbmeta);
@@ -377,21 +363,18 @@ int __heap_create_region(DBC *dbc, db_pgno_t pgno)
 done:   if(region != NULL && (t_ret = __memp_fput(mpf,
 	    dbc->thread_info, region, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-
-	if((t_ret = __memp_fput(mpf,
-	    dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, meta_lock)) != 0 && ret == 0)
 		ret = t_ret;
-
-	return (ret);
+	return ret;
 }
 
 static void __heap_init_meta(DB *dbp, HEAPMETA * meta, db_pgno_t pgno, DB_LSN * lsnp)
 {
 	ENV * env = dbp->env;
 	HEAP * h = (HEAP *)dbp->heap_internal;
-	memset(meta, 0, sizeof(HEAPMETA));
+	memzero(meta, sizeof(HEAPMETA));
 	meta->dbmeta.lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;
 	meta->dbmeta.magic = DB_HEAPMAGIC;

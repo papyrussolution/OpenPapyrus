@@ -61,7 +61,7 @@ int __dbreg_register_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 out:    
 	if(argp != NULL)
 		__os_free(env, argp);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -91,7 +91,7 @@ int __dbreg_register_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops o
 err:    
 	if(argp != NULL)
 		__os_free(env, argp);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -115,11 +115,9 @@ static int __dbreg_register_recover_int(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_
 
 	dbl = NULL;
 #endif
-
 	dblp = env->lg_handle;
 	dbp = NULL;
 	ret = 0;
-
 #ifdef DEBUG_RECOVER
 	/*
 	 * Since dbregister records tries to print info about the very files
@@ -129,8 +127,7 @@ static int __dbreg_register_recover_int(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_
 	 * table. So, as with db_printlog.c, use a dummy DB_LOG. Use the same
 	 * sort of cleanup code at the end, although there can be just 1 entry.
 	 */
-	memset(&dblog, 0, sizeof(dblog));
-
+	memzero(&dblog, sizeof(dblog));
 	REC_PRINT_DBREG(__dbreg_register_print, &dblog);
 #else
 	/* These are only used by the above REC_PRINT. */
@@ -388,7 +385,7 @@ out:
 		(void)__db_close(dbp, NULL, DB_NOSYNC);
 	}
 #endif
-	return (ret);
+	return ret;
 }
 
 /*
@@ -464,8 +461,8 @@ static int __dbreg_open_file(ENV *env, DB_TXN * txn, __dbreg_register_args * arg
 			 * subtransaction that created the file system object.
 			 */
 			if(argp != NULL && argp->id != TXN_INVALID && (ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->id, TXN_EXPECTED, NULL, &status, 1)) != 0)
-				return (ret);
-			return (0);
+				return ret;
+			return 0;
 		}
 	}
 
@@ -489,13 +486,13 @@ reopen:
 	 */
 	if(txn != NULL) {
 		id = txn->txnid;
-		memset(txn, 0, sizeof(DB_TXN));
+		memzero(txn, sizeof(DB_TXN));
 		txn->txnid = id;
 		txn->mgrp = env->tx_handle;
 	}
 	GET_LO_HI(env, argp->blob_fid_lo, argp->blob_fid_hi, blob_file_id, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	return (__dbreg_do_open(env, txn, dblp, (uint8 *)argp->uid.data, (char *)argp->name.data, argp->ftype, argp->fileid,
 	       argp->meta_pgno, info, argp->id, opcode, blob_file_id));
 }

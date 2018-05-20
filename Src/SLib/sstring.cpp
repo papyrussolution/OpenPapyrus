@@ -3163,6 +3163,60 @@ int SLAPI SString::Decode_QuotedPrintable(SString & rBuf) const
 	return ok;
 }
 
+// @construction {
+int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
+{
+	rBuf.Z();
+	const uint len = Len();
+	uint  cp = 0;
+	size_t amp_pos = 0;
+	const char * p_buf = P_Buf;
+	while(cp < len) {
+		char * p = (char *)memchr(p_buf+cp, '&', len-cp);
+		if(p) {
+			rBuf.CatN(p_buf+cp, (p-p_buf-cp));
+			uint ofs = (p-p_buf);
+			assert(p_buf[ofs] == '&');
+			ofs++;
+			if(p_buf[ofs] == '#') {
+				uint nd = 0;
+				uint code = 0;
+				ofs++;
+				if(oneof2(p_buf[ofs], 'x', 'X')) {
+					ofs++;
+					while(ishex(p_buf[ofs+nd]))
+						nd++;
+					code = _texttohex32(p_buf+ofs, nd);
+				}
+				else {
+					while(ishex(p_buf[ofs+nd]))
+						nd++;
+					code = _texttodec32(p_buf+ofs, nd);
+				}
+				if(p_buf[ofs+nd] == ';') {
+					ofs++;
+					// concat code to rBuf
+					cp = ofs;
+				}
+				else {
+					rBuf.CatChar('&');
+					cp++;
+				}
+			}
+			else {
+				rBuf.CatChar('&');
+				cp++;
+			}
+		}
+		else {
+			rBuf.CatN(p_buf+cp, (len-cp));
+			cp = len;
+		}
+	}
+	return 1;
+}
+// } @construction 
+
 int SLAPI SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
 	size_t out_len = bufLen;

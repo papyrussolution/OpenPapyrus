@@ -27,7 +27,7 @@ int __db_util_logset(const char * progname, char * fname)
 	fprintf(fp, "%s: %lu %s", progname, (u_long)pid, __os_ctime(&now, time_buf));
 	if(fclose(fp) == EOF)
 		goto err;
-	return (0);
+	return 0;
 err:    
 	fprintf(stderr, "%s: %s: %s\n", progname, fname, strerror(errno));
 	return (1);

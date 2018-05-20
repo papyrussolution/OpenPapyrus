@@ -38,7 +38,7 @@ int __env_fileid_reset_pp(DB_ENV *dbenv, const char * name, uint32 flags)
 	    (__env_fileid_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)),
 	    1, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -71,7 +71,7 @@ int __env_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * name, int enc
 	/* Get the real backing file name. */
 	if((ret = __db_appname(env,
 	    DB_APP_DATA, name, NULL, &real_name)) != 0)
-		return (ret);
+		return ret;
 
 	/* Get a new file ID. */
 	if((ret = __os_fileid(env, real_name, 1, fileid)) != 0)
@@ -89,15 +89,11 @@ int __env_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * name, int enc
 	}
 	if((ret = __os_read(env, fhp, mbuf, sizeof(mbuf), &n)) != 0)
 		goto err;
-
 	if(n != sizeof(mbuf)) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR_A("0675",
-		    "__env_fileid_reset: %s: unexpected file type or format",
-		    "%s"), real_name);
+		__db_errx(env, DB_STR_A("0675", "__env_fileid_reset: %s: unexpected file type or format", "%s"), real_name);
 		goto err;
 	}
-
 	/*
 	 * Create the DB object.
 	 */
@@ -162,8 +158,8 @@ int __env_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * name, int enc
 		goto err;
 
 	mpf = dbp->mpf;
-	memset(&key, 0, sizeof(key));
-	memset(&data, 0, sizeof(data));
+	memzero(&key, sizeof(key));
+	memzero(&data, sizeof(data));
 	if((ret = __db_cursor(dbp, ip, NULL, &dbcp, 0)) != 0)
 		goto err;
 	while((ret = __dbc_get(dbcp, &key, &data, DB_NEXT)) == 0) {
@@ -194,5 +190,5 @@ err:    if(dbcp != NULL && (t_ret = __dbc_close(dbcp)) != 0 && ret == 0)
 	if(real_name != NULL)
 		__os_free(env, real_name);
 
-	return (ret);
+	return ret;
 }

@@ -601,8 +601,41 @@ ws         = "http://api.vetrf.ru/schema/cdm/application/ws-definitions"
 ns2        = "http://api.vetrf.ru/schema/cdm/base/ws-definitions"
 base       = "http://api.vetrf.ru/schema/cdm/base"
 app        = "http://api.vetrf.ru/schema/cdm/application"
-merc       = "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
-ent        = "http://api.vetrf.ru/schema/cdm/dictionary/v2"
+apps       = "http://api.vetrf.ru/schema/cdm/application/service"
+#merc       = "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
+merc       = "http://api.vetrf.ru/schema/cdm/mercury/applications"   
+dic        = "http://api.vetrf.ru/schema/cdm/dictionary/v2"
+g2b        = "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2"
+g2ba       = "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
+ent        = "http://api.vetrf.ru/schema/cdm/cerberus/enterprise"   
+be         = "http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions"
+entd       = "http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions"
+argc       = "http://api.vetrf.ru/schema/cdm/argus/common"
+argcd      = "http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions"
+prod       = "http://api.vetrf.ru/schema/cdm/argus/production"
+prodd      = "http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions"
+shp        = "http://api.vetrf.ru/schema/cdm/argus/shipment"
 vd         = "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2"
+vet        = "http://api.vetrf.ru/schema/cdm/mercury/vet-document"
+ikrd       = "http://api.vetrf.ru/schema/cdm/ikar/ws-definitions"
+ikar       = "http://api.vetrf.ru/schema/cdm/ikar"
 # not processed
 ns8        = "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+regs       = "http://api.vetrf.ru/schema/cdm/registry/service"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

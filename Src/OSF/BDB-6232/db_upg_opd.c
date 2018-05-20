@@ -11,24 +11,20 @@
 #include "dbinc/db_page.h"
 #include "dbinc/btree.h"
 
-static int __db_build_bi __P((DB *, DB_FH *, PAGE *, PAGE *, uint32, int *));
-static int __db_build_ri __P((DB *, DB_FH *, PAGE *, PAGE *, uint32, int *));
-static int __db_up_ovref __P((DB *, DB_FH *, db_pgno_t));
+static int __db_build_bi(DB *, DB_FH *, PAGE *, PAGE *, uint32, int *);
+static int __db_build_ri(DB *, DB_FH *, PAGE *, PAGE *, uint32, int *);
+static int __db_up_ovref(DB *, DB_FH *, db_pgno_t);
 
 #define GET_PAGE(dbp, fhp, pgno, page) {                                \
-		if((ret = __os_seek(                                           \
-			    dbp->env, fhp, pgno, (dbp)->pgsize, 0)) != 0)               \
+		if((ret = __os_seek(dbp->env, fhp, pgno, (dbp)->pgsize, 0)) != 0) \
 			goto err;                                               \
-		if((ret = __os_read(dbp->env,                          \
-		    fhp, page, (dbp)->pgsize, &n)) != 0)                        \
+		if((ret = __os_read(dbp->env, fhp, page, (dbp)->pgsize, &n)) != 0) \
 			goto err;                                               \
 }
 #define PUT_PAGE(dbp, fhp, pgno, page) {                                \
-		if((ret = __os_seek(                                           \
-			    dbp->env, fhp, pgno, (dbp)->pgsize, 0)) != 0)               \
+		if((ret = __os_seek(dbp->env, fhp, pgno, (dbp)->pgsize, 0)) != 0) \
 			goto err;                                               \
-		if((ret = __os_write(dbp->env,                         \
-		    fhp, page, (dbp)->pgsize, &n)) != 0)                        \
+		if((ret = __os_write(dbp->env, fhp, page, (dbp)->pgsize, &n)) != 0) \
 			goto err;                                               \
 }
 
@@ -175,7 +171,7 @@ err:    if(pgno_cur != NULL)
 	if(page != NULL)
 		__os_free(dbp->env, page);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -194,7 +190,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 		    child_bi = GET_BINTERNAL(dbp, page, 0);
 		    if(P_FREESPACE(dbp, ipage) < BINTERNAL_PSIZE(child_bi->len)) {
 			    *nomemp = 1;
-			    return (0);
+			    return 0;
 		    }
 		    inp[indx] =
 			HOFFSET(ipage) -= BINTERNAL_SIZE(child_bi->len);
@@ -212,7 +208,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 		    if(B_TYPE(child_bi->type) == B_OVERFLOW)
 			    if((ret = __db_up_ovref(dbp, fhp,
 				((BOVERFLOW*)(child_bi->data))->pgno)) != 0)
-				    return (ret);
+				    return ret;
 		    break;
 		case P_LDUP:
 		    child_bk = GET_BKEYDATA(dbp, page, 0);
@@ -221,7 +217,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 				if(P_FREESPACE(dbp, ipage) <
 				    BINTERNAL_PSIZE(child_bk->len)) {
 					*nomemp = 1;
-					return (0);
+					return 0;
 				}
 				inp[indx] =
 				    HOFFSET(ipage) -= BINTERNAL_SIZE(child_bk->len);
@@ -239,7 +235,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 				if(P_FREESPACE(dbp, ipage) <
 				    BINTERNAL_PSIZE(BOVERFLOW_SIZE)) {
 					*nomemp = 1;
-					return (0);
+					return 0;
 				}
 				inp[indx] =
 				    HOFFSET(ipage) -= BINTERNAL_SIZE(BOVERFLOW_SIZE);
@@ -256,7 +252,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 				/* Increment the overflow ref count. */
 				if((ret = __db_up_ovref(dbp, fhp,
 				    ((BOVERFLOW*)child_bk)->pgno)) != 0)
-					return (ret);
+					return ret;
 				break;
 			    default:
 				return (__db_pgfmt(dbp->env, PGNO(page)));
@@ -266,7 +262,7 @@ static int __db_build_bi(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 		    return (__db_pgfmt(dbp->env, PGNO(page)));
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -281,7 +277,7 @@ static int __db_build_ri(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 	inp = P_INP(dbp, ipage);
 	if(P_FREESPACE(dbp, ipage) < RINTERNAL_PSIZE) {
 		*nomemp = 1;
-		return (0);
+		return 0;
 	}
 
 	ri.pgno = PGNO(page);
@@ -289,7 +285,7 @@ static int __db_build_ri(DB *dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint32
 	inp[indx] = HOFFSET(ipage) -= RINTERNAL_SIZE;
 	memcpy(P_ENTRY(dbp, ipage, indx), &ri, RINTERNAL_SIZE);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -303,11 +299,11 @@ static int __db_up_ovref(DB *dbp, DB_FH * fhp, db_pgno_t pgno)
 	int ret;
 	/* Allocate room to hold a page. */
 	if((ret = __os_malloc(dbp->env, dbp->pgsize, &page)) != 0)
-		return (ret);
+		return ret;
 	GET_PAGE(dbp, fhp, pgno, page);
 	++OV_REF(page);
 	PUT_PAGE(dbp, fhp, pgno, page);
 err:    
 	__os_free(dbp->env, page);
-	return (ret);
+	return ret;
 }

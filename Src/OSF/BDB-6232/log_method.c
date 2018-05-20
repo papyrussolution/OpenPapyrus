@@ -25,7 +25,7 @@ int __log_env_create(DB_ENV *dbenv)
 	 */
 	dbenv->lg_bsize = 0;
 	dbenv->lg_regionmax = 0;
-	return (0);
+	return 0;
 }
 /*
  * __log_env_destroy --
@@ -50,7 +50,7 @@ int __log_get_lg_bsize(DB_ENV *dbenv, uint32 * lg_bsizep)
 	}
 	else
 		*lg_bsizep = dbenv->lg_bsize;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_lg_bsize --
@@ -63,7 +63,7 @@ int __log_set_lg_bsize(DB_ENV *dbenv, uint32 lg_bsize)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_lg_bsize");
 	dbenv->lg_bsize = lg_bsize;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __log_get_lg_filemode __P((DB_ENV *, int *));
@@ -84,7 +84,7 @@ int __log_get_lg_filemode(DB_ENV *dbenv, int * lg_modep)
 	}
 	else
 		*lg_modep = dbenv->lg_filemode;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_lg_filemode --
@@ -117,7 +117,7 @@ int __log_set_lg_filemode(DB_ENV *dbenv, int lg_mode)
 	SLICE_FOREACH(dbenv, slice, i)
 	if((ret = __log_set_lg_filemode(slice, lg_mode)) != 0)
 		break;
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __log_get_lg_max __P((DB_ENV *, uint32 *));
@@ -138,7 +138,7 @@ int __log_get_lg_max(DB_ENV *dbenv, uint32 * lg_maxp)
 	}
 	else
 		*lg_maxp = dbenv->lg_size;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_lg_max --
@@ -175,7 +175,7 @@ int __log_set_lg_max(DB_ENV *dbenv, uint32 lg_max)
 		if((ret = __log_set_lg_max(slice, lg_max)) != 0)
 			break;
 
-	return (ret);
+	return ret;
 }
 /*
  * PUBLIC: int __log_get_lg_regionmax __P((DB_ENV *, uint32 *));
@@ -190,7 +190,7 @@ int __log_get_lg_regionmax(DB_ENV *dbenv, uint32 * lg_regionmaxp)
 	}
 	else
 		*lg_regionmaxp = dbenv->lg_regionmax;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_lg_regionmax --
@@ -205,10 +205,10 @@ int __log_set_lg_regionmax(DB_ENV *dbenv, uint32 lg_regionmax)
 	/* Let's not be silly. */
 	if(lg_regionmax != 0 && lg_regionmax < LG_BASE_REGION_SIZE) {
 		__db_errx(env, DB_STR_A("2569", "log region size must be >= %d", "%d"), LG_BASE_REGION_SIZE);
-		return (EINVAL);
+		return EINVAL;
 	}
 	dbenv->lg_regionmax = lg_regionmax;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __log_get_lg_dir __P((DB_ENV *, const char **));
@@ -216,7 +216,7 @@ int __log_set_lg_regionmax(DB_ENV *dbenv, uint32 lg_regionmax)
 int __log_get_lg_dir(DB_ENV *dbenv, const char ** dirp)
 {
 	*dirp = dbenv->db_log_dir;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_lg_dir --
@@ -326,7 +326,7 @@ int __log_get_config(DB_ENV *dbenv, uint32 which, int * onp)
 		*onp = 1;
 	else
 		*onp = 0;
-	return (0);
+	return 0;
 }
 /*
  * __log_set_config --
@@ -342,7 +342,7 @@ int __log_set_config(DB_ENV *dbenv, uint32 flags, int on)
 		SLICE_FOREACH(dbenv, slice, i)
 		if((ret = __log_set_config_int(slice, flags, on, 0)) != 0)
 			break;
-	return (ret);
+	return ret;
 }
 /*
  * __log_set_config_int --
@@ -363,25 +363,20 @@ int __log_set_config_int(DB_ENV *dbenv, uint32 flags, int on, int in_open)
 	if(LF_ISSET(DB_LOG_DIRECT) && __os_support_direct_io() == 0) {
 		__db_errx(env,
 		    "DB_ENV->log_set_config: direct I/O either not configured or not supported");
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(REP_ON(env) && LF_ISSET(DB_LOG_EXT_FILE) && !on) {
-		__db_errx(env,
-		    "DB_ENV->log_set_config: DB_LOG_EXT_FILE must be enabled with replication.");
-		return (EINVAL);
+		__db_errx(env, "DB_ENV->log_set_config: DB_LOG_EXT_FILE must be enabled with replication.");
+		return EINVAL;
 	}
-	if(FLD_ISSET(flags, DB_LOG_IN_MEMORY) && on > 0 &&
-	    PREFMAS_IS_SET(env)) {
-		__db_errx(env, DB_STR("2587", "DB_LOG_IN_MEMORY is not "
-		    "supported in Replication Manager preferred master mode"));
-		return (EINVAL);
+	if(FLD_ISSET(flags, DB_LOG_IN_MEMORY) && on > 0 && PREFMAS_IS_SET(env)) {
+		__db_errx(env, DB_STR("2587", "DB_LOG_IN_MEMORY is not supported in Replication Manager preferred master mode"));
+		return EINVAL;
 	}
 
 	if(LOGGING_ON(env)) {
-		if(!in_open && LF_ISSET(DB_LOG_IN_MEMORY) &&
-		    ((LOG*)dblp->reginfo.primary)->db_log_inmemory == 0)
-			ENV_ILLEGAL_AFTER_OPEN(env,
-			    "DB_ENV->log_set_config: DB_LOG_IN_MEMORY");
+		if(!in_open && LF_ISSET(DB_LOG_IN_MEMORY) && ((LOG*)dblp->reginfo.primary)->db_log_inmemory == 0)
+			ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->log_set_config: DB_LOG_IN_MEMORY");
 		__log_set_flags(env, flags, on);
 		mapped_flags = 0;
 		__env_map_flags(LogMap, sizeof(LogMap), flags, &mapped_flags);
@@ -406,7 +401,7 @@ int __log_set_config_int(DB_ENV *dbenv, uint32 flags, int on, int in_open)
 			FLD_CLR(dbenv->lg_flags, flags);
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -435,8 +430,8 @@ int __log_check_sizes(ENV *env, uint32 lg_max, uint32 lg_bsize)
 			lg_max = LG_MAX_INMEM;
 		if(lg_bsize <= lg_max) {
 			__db_errx(env, "in-memory log buffer must be larger than the log file size");
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
-	return (0);
+	return 0;
 }

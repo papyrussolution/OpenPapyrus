@@ -37,13 +37,12 @@ int __memp_open(ENV *env, int create_ok)
 	__memp_region_size(env, &max_size, &htab_buckets);
 	/* Create and initialize the DB_MPOOL structure. */
 	if((ret = __os_calloc(env, 1, sizeof(*dbmp), &dbmp)) != 0)
-		return (ret);
+		return ret;
 	LIST_INIT(&dbmp->dbregq);
 	TAILQ_INIT(&dbmp->dbmfq);
 	dbmp->env = env;
-
 	/* Join/create the first mpool region. */
-	memset(&reginfo, 0, sizeof(REGINFO));
+	memzero(&reginfo, sizeof(REGINFO));
 	reginfo.env = env;
 	reginfo.type = REGION_TYPE_MPOOL;
 	reginfo.id = INVALID_REGION_ID;
@@ -162,13 +161,13 @@ int __memp_open(ENV *env, int create_ok)
 
 	/* A process joining the region may reset the mpool configuration. */
 	if((ret = __memp_init_config(env, mp, create)) != 0)
-		return (ret);
+		return ret;
 
-	return (0);
+	return 0;
 
 err:    (void)__mutex_free(env, &dbmp->mutex);
 	(void)__memp_region_detach(env, dbmp);
-	return (ret);
+	return ret;
 }
 
 /* __memp_region_detach
@@ -186,7 +185,7 @@ int __memp_region_detach(ENV *env, DB_MPOOL * dbmp)
 		__os_free(env, dbmp->reginfo);
 	}
 	env->mp_handle = NULL;
-	return (0);
+	return 0;
 }
 
 /*
@@ -208,19 +207,15 @@ int __memp_init(ENV *env, DB_MPOOL * dbmp, u_int reginfo_off, uint32 htab_bucket
 	uint32 i, mp_mtxcount;
 	int ret;
 	void * p;
-
 	dbenv = env->dbenv;
-
 	infop = &dbmp->reginfo[reginfo_off];
 	if((ret = __env_alloc(infop, sizeof(MPOOL), &infop->primary)) != 0)
 		goto mem_err;
 	infop->rp->primary = R_OFFSET(infop, infop->primary);
 	mp = (MPOOL *)infop->primary;
-	memset(mp, 0, sizeof(*mp));
-
-	if((ret =
-	    __mutex_alloc(env, MTX_MPOOL_REGION, 0, &mp->mtx_region)) != 0)
-		return (ret);
+	memzero(mp, sizeof(*mp));
+	if((ret = __mutex_alloc(env, MTX_MPOOL_REGION, 0, &mp->mtx_region)) != 0)
+		return ret;
 
 	/*
 	 * Intializing the first mpool region allocates the mpool region id
@@ -258,7 +253,7 @@ int __memp_init(ENV *env, DB_MPOOL * dbmp, u_int reginfo_off, uint32 htab_bucket
 		for(i = 0; i < MPOOL_FILE_BUCKETS; i++) {
 			if((ret = __mutex_alloc(env,
 			    MTX_MPOOL_FILE_BUCKET, 0, &htab[i].mtx_hash)) != 0)
-				return (ret);
+				return ret;
 			SH_TAILQ_INIT(&htab[i].hash_bucket);
 			atomic_init(&htab[i].hash_page_dirty, 0);
 		}
@@ -269,7 +264,7 @@ int __memp_init(ENV *env, DB_MPOOL * dbmp, u_int reginfo_off, uint32 htab_bucket
 		for(i = 0; i < mp->max_nreg * mp_mtxcount; i++) {
 			if((ret = __mutex_alloc(env, MTX_MPOOL_HASH_BUCKET,
 			    DB_MUTEX_SHARED, &mtx_discard)) != 0)
-				return (ret);
+				return ret;
 			if(i == 0)
 				mtx_base = mtx_discard;
 			else
@@ -313,7 +308,7 @@ no_prealloc:
 			hp->mtx_hash = mtx_base + i;
 		else if((ret = __mutex_alloc(env, MTX_MPOOL_HASH_BUCKET,
 		    DB_MUTEX_SHARED, &hp->mtx_hash)) != 0)
-			return (ret);
+			return ret;
 		SH_TAILQ_INIT(&hp->hash_bucket);
 		atomic_init(&hp->hash_page_dirty, 0);
 #ifdef HAVE_STATISTICS
@@ -351,10 +346,10 @@ no_prealloc:
 	mp->gbytes = dbenv->mp_gbytes;
 	mp->bytes = dbenv->mp_bytes;
 	infop->mtx_alloc = mp->mtx_region;
-	return (0);
+	return 0;
 mem_err: 
 	__db_errx(env, DB_STR("3026", "Unable to allocate memory for mpool region"));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -483,7 +478,7 @@ static int __memp_init_config(ENV *env, MPOOL * mp, int create)
 			__db_msg(env, DB_STR("3046", "Warning: Ignoring maximum sequential writes value when joining environment"));
 	}
 	MPOOL_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 /*
  * __memp_env_refresh --
@@ -572,7 +567,7 @@ not_priv:
 	__os_free(env, dbmp);
 
 	env->mp_handle = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -615,5 +610,5 @@ int __memp_region_bhfree(REGINFO *infop)
 		__env_alloc_free(infop, frozen_alloc);
 	}
 	MPOOL_REGION_UNLOCK(env, infop);
-	return (ret);
+	return ret;
 }

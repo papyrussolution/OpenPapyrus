@@ -42,7 +42,7 @@ int __rep_update_grant(ENV *env, db_timespec * ts)
 	 * If we are a view, we never grant a lease.
 	 */
 	if(IS_VIEW_SITE(env))
-		return (0);
+		return 0;
 	/*
 	 * Get current time, and add in the (skewed) lease duration
 	 * time to send the grant to the master.  We need to use '0'
@@ -60,7 +60,7 @@ int __rep_update_grant(ENV *env, db_timespec * ts)
 	 */
 	if(IN_ELECTION(rep)) {
 		REP_SYSTEM_UNLOCK(env);
-		return (0);
+		return 0;
 	}
 	if(timespeccmp(&mytime, &rep->grant_expire, >))
 		rep->grant_expire = mytime;
@@ -73,7 +73,7 @@ int __rep_update_grant(ENV *env, db_timespec * ts)
 	gi.msg_sec = (uint32)ts->tv_sec;
 	gi.msg_nsec = (uint32)ts->tv_nsec;
 	if((ret = __rep_grant_info_marshal(env, &gi, buf, __REP_GRANT_INFO_SIZE, &len)) != 0)
-		return (ret);
+		return ret;
 	DB_INIT_DBT(lease_dbt, buf, len);
 	/*
 	 * Don't send to the master if this site has zero priority because
@@ -81,7 +81,7 @@ int __rep_update_grant(ENV *env, db_timespec * ts)
 	 */
 	if((master = rep->master_id) != DB_EID_INVALID && rep->priority > 0)
 		(void)__rep_send_message(env, master, REP_LEASE_GRANT, &lp->max_perm_lsn, &lease_dbt, 0, 0);
-	return (0);
+	return 0;
 }
 /*
  * __rep_islease_granted -
@@ -136,7 +136,7 @@ int __rep_lease_table_alloc(ENV *env, uint32 nsites)
 	ret = __env_alloc(infop, (size_t)nsites * sizeof(REP_LEASE_ENTRY), &lease);
 	MUTEX_UNLOCK(env, renv->mtx_regenv);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	else
 		rep->lease_off = R_OFFSET(infop, lease);
 	table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
@@ -147,7 +147,7 @@ int __rep_lease_table_alloc(ENV *env, uint32 nsites)
 		timespecclear(&le->end_time);
 		ZERO_LSN(le->lease_lsn);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -167,7 +167,7 @@ int __rep_lease_grant(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	if((ret = __rep_grant_info_unmarshal(env, &gi, (uint8 *)rec->data, rec->size, NULL)) != 0)
-		return (ret);
+		return ret;
 	timespecset(&msg_time, gi.msg_sec, gi.msg_nsec);
 	le = NULL;
 	/*
@@ -209,7 +209,7 @@ int __rep_lease_grant(ENV *env, __rep_control_args * rp, DBT * rec, int eid)
 		    le->eid, (u_long)le->lease_lsn.file, (u_long)le->lease_lsn.offset));
 	}
 	REP_SYSTEM_UNLOCK(env);
-	return (0);
+	return 0;
 }
 
 /*
@@ -365,7 +365,7 @@ retry:
 		RPRINT(env, (env, DB_VERB_REP_LEASE,
 		    "lease_check: Expired.  Only %lu valid",
 		    (u_long)valid_leases));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -386,9 +386,9 @@ int __rep_lease_refresh(ENV *env)
 	DB_LSN lsn;
 	int ret, t_ret;
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
-	memset(&rec, 0, sizeof(rec));
-	memset(&lsn, 0, sizeof(lsn));
+		return ret;
+	memzero(&rec, sizeof(rec));
+	memzero(&lsn, sizeof(lsn));
 	/*
 	 * Use __rep_log_backup to find the last PERM record.
 	 */
@@ -409,7 +409,7 @@ int __rep_lease_refresh(ENV *env)
 
 err:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -443,7 +443,7 @@ int __rep_lease_expire(ENV *env)
 			le->end_time = le->start_time;
 		}
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __rep_lease_waittime -

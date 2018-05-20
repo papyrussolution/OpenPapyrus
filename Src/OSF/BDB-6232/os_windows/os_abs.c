@@ -21,7 +21,7 @@ int __os_abspath(const char * path)
 	 * / and \ since these are user-input paths.
 	 */
 	if(strlen(path) == 0)
-		return (0);
+		return 0;
 	if(strlen(path) >= 3 && isalpha(path[0]) && path[1] == ':')
 		path += 2;
 	return (path[0] == '/' || path[0] == '\\');

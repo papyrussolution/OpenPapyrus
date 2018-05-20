@@ -26,27 +26,21 @@ int __ham_30_hashmeta(DB *dbp, char * real_name, uint8 * obuf)
 	uint32 * o_spares, * n_spares;
 	uint32 fillf, i, maxb, max_entry, nelem;
 	int ret;
-
 	env = dbp->env;
-	memset(&newmeta, 0, sizeof(newmeta));
-
+	memzero(&newmeta, sizeof(newmeta));
 	oldmeta = (HASHHDR*)obuf;
-
 	/*
 	 * The first 32 bytes are similar.  The only change is the version
 	 * and that we removed the ovfl_point and have the page type now.
 	 */
-
 	newmeta.dbmeta.lsn = oldmeta->lsn;
 	newmeta.dbmeta.pgno = oldmeta->pgno;
 	newmeta.dbmeta.magic = oldmeta->magic;
 	newmeta.dbmeta.version = 6;
 	newmeta.dbmeta.pagesize = oldmeta->pagesize;
 	newmeta.dbmeta.type = P_HASHMETA;
-
 	/* Move flags */
 	newmeta.dbmeta.flags = oldmeta->flags;
-
 	/* Copy the free list, which has changed its name but works the same. */
 	newmeta.dbmeta.free = oldmeta->last_freed;
 
@@ -88,12 +82,12 @@ int __ham_30_hashmeta(DB *dbp, char * real_name, uint8 * obuf)
 
 	/* Replace the unique ID. */
 	if((ret = __os_fileid(env, real_name, 1, newmeta.dbmeta.uid)) != 0)
-		return (ret);
+		return ret;
 
 	/* Overwrite the original. */
 	memcpy(oldmeta, &newmeta, sizeof(newmeta));
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -112,21 +106,17 @@ int __ham_30_sizefix(DB *dbp, DB_FH * fhp, char * realname, uint8 * metabuf)
 	int ret;
 	size_t nw;
 	uint32 pagesize;
-
 	env = dbp->env;
-	memset(buf, 0, DB_MAX_PGSIZE);
-
+	memzero(buf, DB_MAX_PGSIZE);
 	meta = (HMETA30*)metabuf;
 	pagesize = meta->dbmeta.pagesize;
-
 	/*
 	 * Get the last page number.  To do this, we'll need dbp->pgsize
 	 * to be set right, so slam it into place.
 	 */
 	dbp->pgsize = pagesize;
 	if((ret = __db_lastpgno(dbp, realname, fhp, &last_actual)) != 0)
-		return (ret);
-
+		return ret;
 	/*
 	 * The last bucket in the doubling is equal to high_mask;  calculate
 	 * the page number that implies.
@@ -140,12 +130,12 @@ int __ham_30_sizefix(DB *dbp, DB_FH * fhp, char * realname, uint8 * metabuf)
 	if(last_desired > last_actual) {
 		if((ret = __os_seek(
 			    env, fhp, last_desired, pagesize, 0)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __os_write(env, fhp, buf, pagesize, &nw)) != 0)
-			return (ret);
+			return ret;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -190,7 +180,7 @@ int __ham_31_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
 		F_SET(&newmeta->dbmeta, HASHM_DUPSORT);
 
 	*dirtyp = 1;
-	return (0);
+	return 0;
 }
 
 /*
@@ -224,7 +214,7 @@ int __ham_31_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
 		}
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -245,7 +235,7 @@ int __ham_46_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
 	/* Update the version. */
 	newmeta->dbmeta.version = 9;
 	*dirtyp = 1;
-	return (0);
+	return 0;
 }
 /*
  * __ham_46_hash --
@@ -264,12 +254,12 @@ int __ham_46_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
 	COMPQUIET(flags, 0);
 	COMPQUIET(fhp, NULL);
 	if((ret = __db_cursor(dbp, NULL, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	*dirtyp = 1;
 	ret = __ham_sort_page(dbc, NULL, h);
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -289,7 +279,7 @@ int __ham_60_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
 	hmeta = (HMETA33*)h;
 	hmeta->dbmeta.version = 10;
 	*dirtyp = 1;
-	return (0);
+	return 0;
 }
 /*
  * __ham_60_hash --
@@ -315,21 +305,21 @@ int __ham_60_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
 		hk = (HKEYDATA*)H_PAIRDATA(dbp, h, indx);
 		if(HPAGE_PTYPE(hk) == H_BLOB) {
 			memcpy(&hb60, hk, HBLOB60_SIZE);
-			memset(&hb60p1, 0, HBLOB_SIZE);
+			memzero(&hb60p1, HBLOB_SIZE);
 			hb60p1.type = hb60.type;
 			hb60p1.encoding = hb60.encoding;
 			GET_BLOB60_ID(dbp->env, hb60, blob_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_SIZE(dbp->env, hb60, blob_size, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_FILE_ID(dbp->env, &hb60, file_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_SDB_ID(dbp->env, &hb60, sdb_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			SET_BLOB_ID(&hb60p1, blob_id, HBLOB60P1);
 			SET_BLOB_SIZE(&hb60p1, blob_size, HBLOB60P1);
 			SET_BLOB_FILE_ID(&hb60p1, file_id, HBLOB60P1);
@@ -339,5 +329,5 @@ int __ham_60_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
 		}
 	}
 
-	return (ret);
+	return ret;
 }

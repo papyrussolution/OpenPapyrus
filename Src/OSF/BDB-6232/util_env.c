@@ -22,7 +22,7 @@ int __db_util_env_create(DB_ENV **dbenvp, const char * progname, const char * pa
 	int ret;
 	if((ret = db_env_create(dbenvp, 0)) != 0) {
 		fprintf(stderr, "%s: db_env_create: %s\n", progname, db_strerror(ret));
-		return (ret);
+		return ret;
 	}
 	dbenv = *dbenvp;
 	dbenv->set_errfile(dbenv, stderr);
@@ -32,9 +32,9 @@ int __db_util_env_create(DB_ENV **dbenvp, const char * progname, const char * pa
 	if(password != NULL && (ret = dbenv->set_encrypt(dbenv,
 	    password, DB_ENCRYPT_AES)) != 0) {
 		dbenv->err(dbenv, ret, "DB_ENV->set_encrypt");
-		return (ret);
+		return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_util_env_open --
@@ -61,12 +61,12 @@ int __db_util_env_open(DB_ENV *dbenv, const char * home, int attach_flags, int a
 		/* Set the cache size for the private environment. */
 		if(private_cachesize != 0 && (ret = dbenv->set_cachesize(dbenv, 0, private_cachesize, 1)) != 0) {
 			dbenv->err(dbenv, ret, "DB_ENV->set_cachesize");
-			return (ret);
+			return ret;
 		}
 		/* Create the private environment now. */
 		ret = dbenv->open(dbenv, home, pflags, 0);
 	}
 	if(ret != 0)
 		dbenv->err(dbenv, ret, "DB_ENV->open: %s", home);
-	return (ret);
+	return ret;
 }

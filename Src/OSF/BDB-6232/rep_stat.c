@@ -92,11 +92,11 @@ int __rep_stat_pp(DB_ENV *dbenv, DB_REP_STAT ** statp, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_stat", DB_INIT_REP);
 	if((ret = __db_fchk(env, "DB_ENV->rep_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	ret = __rep_stat(env, statp, flags);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __rep_stat --
@@ -119,7 +119,7 @@ static int __rep_stat(ENV *env, DB_REP_STAT ** statp, uint32 flags)
 	*statp = NULL;
 	/* Allocate a stat struct to return to the user. */
 	if((ret = __os_umalloc(env, sizeof(DB_REP_STAT), &stats)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Read without holding the lock.  If we are in client recovery, we
@@ -152,25 +152,21 @@ static int __rep_stat(ENV *env, DB_REP_STAT ** statp, uint32 flags)
 	stats->st_master = rep->master_id;
 	stats->st_gen = rep->gen;
 	stats->st_egen = rep->egen;
-
 	if(F_ISSET(rep, REP_F_MASTER))
 		stats->st_status = DB_REP_MASTER;
 	else if(F_ISSET(rep, REP_F_CLIENT))
 		stats->st_status = DB_REP_CLIENT;
 	else
 		stats->st_status = 0;
-
 	if(LF_ISSET(DB_STAT_CLEAR)) {
 		queued = rep->stat.st_log_queued;
 		startupdone = rep->stat.st_startup_complete;
 		view = rep->stat.st_view;
-		memset(&rep->stat, 0, sizeof(rep->stat));
-		rep->stat.st_log_queued = rep->stat.st_log_queued_total =
-			rep->stat.st_log_queued_max = queued;
+		memzero(&rep->stat, sizeof(rep->stat));
+		rep->stat.st_log_queued = rep->stat.st_log_queued_total = rep->stat.st_log_queued_max = queued;
 		rep->stat.st_startup_complete = startupdone;
 		rep->stat.st_view = view;
 	}
-
 	/*
 	 * Log-related replication info is stored in the log system and
 	 * protected by the log region lock.
@@ -203,7 +199,7 @@ static int __rep_stat(ENV *env, DB_REP_STAT ** statp, uint32 flags)
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 
 	*statp = stats;
-	return (0);
+	return 0;
 }
 
 /*
@@ -219,11 +215,11 @@ int __rep_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_stat_print", DB_INIT_REP);
 	if((ret = __db_fchk(env, "DB_ENV->rep_stat_print", flags, DB_STAT_ALL | DB_STAT_CLEAR | DB_STAT_SUMMARY)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	ret = __rep_stat_print(env, flags);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -242,11 +238,11 @@ int __rep_stat_print(ENV *env, uint32 flags)
 	if(flags == 0 || LF_ISSET(DB_STAT_ALL)) {
 		ret = __rep_print_stats(env, orig_flags);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __rep_print_all(env, orig_flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __rep_print_stats --
@@ -258,7 +254,7 @@ static int __rep_print_stats(ENV *env, uint32 flags)
 	int is_client, ret;
 	char * p;
 	if((ret = __rep_stat(env, &sp, flags)) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default replication region information:");
 	PRINT_STATUS(sp, is_client);
@@ -345,7 +341,7 @@ static int __rep_print_stats(ENV *env, uint32 flags)
 		__db_msg(env, "%lu.%.6lu\tDuration of maximum lease (seconds)",
 		    (u_long)sp->st_max_lease_sec, (u_long)sp->st_max_lease_usec);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 /*
  * __rep_print_all --
@@ -498,7 +494,7 @@ static int __rep_print_all(ENV *env, uint32 flags)
 	STAT_LONG("Maximum lease timestamp seconds", lp->max_lease_ts.tv_sec);
 	STAT_LONG("Maximum lease timestamp microseconds", lp->max_lease_ts.tv_nsec / NS_PER_US);
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
-	return (0);
+	return 0;
 }
 
 static const char * __rep_syncstate_to_string(repsync_t state)
@@ -543,7 +539,7 @@ static int __rep_stat_summary_print(ENV *env)
 		PRINT_LOGQUEUED(sp);
 		__os_ufree(env, sp);
 	}
-	return (ret);
+	return ret;
 }
 
 #else /* !HAVE_STATISTICS */

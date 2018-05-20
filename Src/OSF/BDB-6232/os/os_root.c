@@ -19,6 +19,6 @@ int __os_isroot()
 #ifdef HAVE_GETUID
 	return (getuid() == 0);
 #else
-	return (0);
+	return 0;
 #endif
 }

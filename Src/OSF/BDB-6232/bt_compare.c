@@ -95,10 +95,10 @@ int __bam_cmp(DBC *dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB *
 			     * only happen when using DB_GET_BOTH or DB_SET.
 			     */
 			    memcpy(&bl, bk, BBLOB_SIZE);
-			    memset(&pg_dbt, 0, sizeof(DBT));
+			    memzero(&pg_dbt, sizeof(DBT));
 			    GET_BLOB_SIZE(dbc->env, bl, blob_size, ret);
 			    if(ret != 0)
-				    return (ret);
+				    return ret;
 			    if(blob_size > UINT32_MAX)
 				    pg_dbt.size = UINT32_MAX;
 			    else
@@ -107,12 +107,12 @@ int __bam_cmp(DBC *dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB *
 			    pg_dbt.flags = DB_DBT_USERMEM;
 			    if((ret = __os_malloc(
 					dbc->env, pg_dbt.size, &pg_dbt.data)) != 0)
-				    return (ret);
+				    return ret;
 			    pg_dbt.ulen = pg_dbt.size;
 			    if((ret = __blob_get(dbc,
 				&pg_dbt, blob_id, blob_size, NULL, NULL)) != 0) {
 				    __os_free(dbc->env, pg_dbt.data);
-				    return (ret);
+				    return ret;
 			    }
 			    *cmpp = func(dbp, dbt, &pg_dbt, locp);
 			    /*
@@ -125,14 +125,14 @@ int __bam_cmp(DBC *dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB *
 			    if(*cmpp == 0 && (blob_size > UINT32_MAX))
 				    *cmpp = -1;
 			    __os_free(dbc->env, pg_dbt.data);
-			    return (0);
+			    return 0;
 		    }
 		    else {
 			    pg_dbt.app_data = NULL;
 			    pg_dbt.data = bk->data;
 			    pg_dbt.size = bk->len;
 			    *cmpp = func(dbp, dbt, &pg_dbt, locp);
-			    return (0);
+			    return 0;
 		    }
 		    break;
 		case P_IBTREE:
@@ -155,7 +155,7 @@ int __bam_cmp(DBC *dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB *
 		     */
 		    if(indx == 0) {
 			    *cmpp = 1;
-			    return (0);
+			    return 0;
 		    }
 
 		    bi = GET_BINTERNAL(dbp, h, indx);
@@ -168,7 +168,7 @@ int __bam_cmp(DBC *dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB *
 			    pg_dbt.data = bi->data;
 			    pg_dbt.size = bi->len;
 			    *cmpp = func(dbp, dbt, &pg_dbt, locp);
-			    return (0);
+			    return 0;
 		    }
 		    break;
 		default:

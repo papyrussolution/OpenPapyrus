@@ -101,7 +101,7 @@ int __memp_bh_unreachable(ENV *env, BH * bhp, DB_LSN * snapshots, int n_snapshot
 		DB_MSGBUF_FLUSH(env, &mb);
 	}
 #endif
-	return (ret);
+	return ret;
 }
 
 /*
@@ -218,9 +218,7 @@ found:          if(offsetp != NULL)
 	}
 	else if(giveup || c_mp->pages == 0) {
 		MPOOL_REGION_UNLOCK(env, infop);
-
-		__db_errx(env, DB_STR("3017",
-		    "unable to allocate space from the buffer cache"));
+		__db_errx(env, DB_STR("3017", "unable to allocate space from the buffer cache"));
 		if(ret == ENOMEM && write_error != 0)
 			ret = EIO;
 		goto done;
@@ -632,17 +630,12 @@ this_buffer:    /*
 			if(ret != 0) {
 				if(ret != EPERM && ret != EAGAIN) {
 					write_error++;
-					__db_errx(env, DB_STR_A("3018",
-					    "%s: unwritable page %d remaining in the cache after error %d",
-					    "%s %d %d"),
-					    __memp_fns(dbmp, bh_mfp),
-					    bhp->pgno, ret);
+					__db_errx(env, DB_STR_A("3018", "%s: unwritable page %d remaining in the cache after error %d",
+					    "%s %d %d"), __memp_fns(dbmp, bh_mfp), bhp->pgno, ret);
 				}
 				bhp->priority = MPOOL_LRU_REDZONE;
-
 				goto next_hb;
 			}
-
 			dirty_eviction = 1;
 		}
 
@@ -848,7 +841,7 @@ err:
 done:
 	if(snapshots != NULL)
 		__os_free(env, snapshots);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_free --

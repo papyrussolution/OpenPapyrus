@@ -28,7 +28,7 @@ int __db_upgrade_pp(DB *dbp, const char * fname, uint32 flags)
 	int ret;
 	ENV * env = dbp->env;
 	if((ret = __db_fchk(env, "DB->upgrade", flags, DB_DUPSORT)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	ret = __db_upgrade(dbp, fname, flags);
 #ifdef HAVE_SLICES
@@ -36,13 +36,13 @@ int __db_upgrade_pp(DB *dbp, const char * fname, uint32 flags)
 		ret = __db_slice_process(dbp, fname, flags, __db_upgrade_pp, "db_upgrade");
 #endif
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 #else
 	COMPQUIET(dbp, NULL);
 	COMPQUIET(fname, NULL);
 	COMPQUIET(flags, 0);
 	__db_errx(dbp->env, DB_STR("0665", "upgrade not supported"));
-	return (EINVAL);
+	return EINVAL;
 #endif
 }
 
@@ -129,12 +129,12 @@ int __db_upgrade(DB *dbp, const char * fname, uint32 flags)
 	fhp = NULL;
 	/* Get the real backing file name. */
 	if((ret = __db_appname(env, DB_APP_DATA, fname, NULL, &real_name)) != 0)
-		return (ret);
+		return ret;
 
 	/* Open the file. */
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
 		__db_err(env, ret, "%s", real_name);
-		return (ret);
+		return ret;
 	}
 
 	/* Initialize the feedback. */
@@ -319,11 +319,11 @@ int __db_upgrade(DB *dbp, const char * fname, uint32 flags)
 				 */
 				use_mp_open = 1;
 				if((ret = __os_closehandle(env, fhp)) != 0)
-					return (ret);
+					return ret;
 				dbp->type = DB_HASH;
 				if((ret = __env_mpool(dbp, fname,
 				    DB_AM_NOT_DURABLE | DB_AM_VERIFYING)) != 0)
-					return (ret);
+					return ret;
 				fhp = dbp->mpf->fhp;
 
 				/* Do the actual conversion pass. */
@@ -413,11 +413,11 @@ int __db_upgrade(DB *dbp, const char * fname, uint32 flags)
 				 * bother with a full pass.
 				 */
 				if((ret = __qam_31_qammeta(dbp, real_name, mbuf)) != 0)
-					return (ret);
+					return ret;
 			    /* FALLTHROUGH */
 			    case 2:
 				if((ret = __qam_32_qammeta(dbp, real_name, mbuf)) != 0)
-					return (ret);
+					return ret;
 				if((ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
 					goto err;
 				if((ret = __os_write(env, fhp, mbuf, 256, &n)) != 0)
@@ -464,7 +464,7 @@ err:    if(use_mp_open == 0 && fhp != NULL &&
 	if(dbp->db_feedback != NULL)
 		dbp->db_feedback(dbp, DB_UPGRADE, 100);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -480,18 +480,18 @@ static int __db_set_lastpgno(DB *dbp, char * real_name, DB_FH * fhp)
 	size_t n;
 	ENV * env = dbp->env;
 	if((ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_read(env, fhp, &meta, sizeof(meta), &n)) != 0)
-		return (ret);
+		return ret;
 	dbp->pgsize = meta.pagesize;
 	if((ret = __db_lastpgno(dbp, real_name, fhp, &meta.last_pgno)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __os_write(env, fhp, &meta, sizeof(meta), &n)) != 0)
-		return (ret);
+		return ret;
 
-	return (0);
+	return 0;
 }
 #endif /* HAVE_UPGRADE_SUPPORT */
 
@@ -512,10 +512,10 @@ int __db_page_pass(DB *dbp, char * real_name, uint32 flags, int (*const fl[P_PAG
 	ENV * env = dbp->env;
 	/* Determine the last page of the file. */
 	if((ret = __db_lastpgno(dbp, real_name, fhp, &pgno_last)) != 0)
-		return (ret);
+		return ret;
 	/* Allocate memory for a single page. */
 	if((ret = __os_malloc(env, dbp->pgsize, &page)) != 0)
-		return (ret);
+		return ret;
 
 	/* Walk the file, calling the underlying conversion functions. */
 	for(i = 0; i < pgno_last; ++i) {
@@ -547,7 +547,7 @@ int __db_page_pass(DB *dbp, char * real_name, uint32 flags, int (*const fl[P_PAG
 	}
 
 	__os_free(dbp->env, page);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -564,16 +564,16 @@ int __db_lastpgno(DB *dbp, char * real_name, DB_FH * fhp, db_pgno_t * pgno_lastp
 	ENV * env = dbp->env;
 	if((ret = __os_ioinfo(env, real_name, fhp, &mbytes, &bytes, NULL)) != 0) {
 		__db_err(env, ret, "%s", real_name);
-		return (ret);
+		return ret;
 	}
 	/* Page sizes have to be a power-of-two. */
 	if(bytes % dbp->pgsize != 0) {
 		__db_errx(env, DB_STR_A("0672", "%s: file size not a multiple of the pagesize", "%s"), real_name);
-		return (EINVAL);
+		return EINVAL;
 	}
 	pgno_last = mbytes * (MEGABYTE / dbp->pgsize);
 	pgno_last += bytes / dbp->pgsize;
 
 	*pgno_lastp = pgno_last;
-	return (0);
+	return 0;
 }

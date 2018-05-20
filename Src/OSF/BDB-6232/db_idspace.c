@@ -21,7 +21,7 @@ static int __db_idcmp(const void * a, const void * b)
 	else if(i > j)
 		return (1);
 	else
-		return (0);
+		return 0;
 }
 /*
  * __db_idspace --

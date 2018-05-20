@@ -29,10 +29,10 @@ int __ham_pgin(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	 */
 	if(h->type != P_HASHMETA && h->pgno == PGNO_INVALID) {
 		P_INIT(pp, (db_indx_t)pginfo->db_pagesize, pg, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
-		return (0);
+		return 0;
 	}
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	return (h->type == P_HASHMETA ? __ham_mswap(dbp->env, pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 1));
 }
 /*
@@ -47,7 +47,7 @@ int __ham_pgout(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (PAGE *)pp;
 	return (h->type == P_HASHMETA ?  __ham_mswap(dbp->env, pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0));
 }
@@ -80,5 +80,5 @@ int __ham_mswap(ENV *env, void * pg)
 	SWAP32(p);              /* sdb id hi */
 	p += 54 * sizeof(uint32); /* unused */
 	SWAP32(p);              /* crypto_magic */
-	return (0);
+	return 0;
 }

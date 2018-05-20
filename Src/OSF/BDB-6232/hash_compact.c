@@ -35,7 +35,7 @@ int __ham_compact_int(DBC *dbc, DBT * start, DBT * stop, uint32 factor, DB_COMPA
 	empty_buckets = 0;
 	check_trunc = c_data->compact_truncate != PGNO_INVALID;
 	if((ret = __ham_get_meta(dbc)) != 0)
-		return (ret);
+		return ret;
 	if(stop != NULL && stop->size != 0)
 		stop_bucket = *(uint32*)stop->data;
 	else
@@ -192,7 +192,7 @@ err:            if(hcp->page != NULL &&
 	c_data->compact_empty_buckets += empty_buckets;
 	if(hcp->bucket > stop_bucket)
 		*donep = 1;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -246,7 +246,7 @@ int __ham_compact_bucket(DBC *dbc, DB_COMPACT * c_data, int * pgs_donep)
 	} while(pgno != PGNO_INVALID);
 	if(pg != NULL && pg != hcp->page && (t_ret = __memp_fput(mpf, dbc->thread_info, pg, dbc->priority)) && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __ham_copy_data -- copy as many records as possible from next page
@@ -269,7 +269,7 @@ static int __ham_copy_data(DBC *dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_d
 	records = 0;
 
 	if((ret = __dbc_dup(dbc, &newdbc, 0)) != 0)
-		return (ret);
+		return ret;
 	ncp = (HASH_CURSOR*)newdbc->internal;
 	ncp->hdr = hcp->hdr;
 
@@ -290,8 +290,8 @@ static int __ham_copy_data(DBC *dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_d
 		ncp->page = nextpage;
 		ncp->pgno = PGNO(nextpage);
 		ncp->indx = 0;
-		memset(&key, 0, sizeof(key));
-		memset(&data, 0, sizeof(data));
+		memzero(&key, sizeof(key));
+		memzero(&data, sizeof(data));
 		nument = NUM_ENT(nextpage);
 		DB_ASSERT(dbp->env, nument != 0);
 		for(i = 0; i < nument; i += 2) {
@@ -311,7 +311,7 @@ static int __ham_copy_data(DBC *dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_d
 				break;
 			if(!STD_LOCKING(dbc)) {
 				if((ret = __ham_dirty_meta(dbc, 0)) != 0)
-					return (ret);
+					return ret;
 				++hcp->hdr->nelem;
 			}
 		}
@@ -344,7 +344,7 @@ static int __ham_copy_data(DBC *dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_d
 		ret = t_ret;
 	if(records != 0)
 		(*pgs_donep)++;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -361,9 +361,9 @@ static int __ham_truncate_overflow(DBC *dbc, uint32 indx, DB_COMPACT * c_data, i
 		c_data->compact_pages_examine++;
 		origpgno = pgno;
 		if((ret = __memp_dirty(dbp->mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __db_truncate_root(dbc, (PAGE *)hcp->page, indx, &pgno, 0, pgs_done)) != 0)
-			return (ret);
+			return ret;
 		if(pgno != origpgno) {
 			memcpy(HOFFPAGE_PGNO(P_ENTRY(dbp, hcp->page, indx)), &pgno, sizeof(db_pgno_t));
 			(*pgs_done)++;
@@ -371,8 +371,8 @@ static int __ham_truncate_overflow(DBC *dbc, uint32 indx, DB_COMPACT * c_data, i
 		}
 	}
 	if((ret = __db_truncate_overflow(dbc, pgno, NULL, c_data, pgs_done)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -397,7 +397,7 @@ int __ham_compact_hash(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT * 
 	dbc = NULL;
 	LOCK_INIT(lock);
 	if(local_txn && (ret = __txn_begin(dbp->env, ip, txn, &txn, 0)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
 		goto err1;
 	hcp = (HASH_CURSOR*)dbc->internal;
@@ -484,6 +484,6 @@ err1:   if(dbc != NULL) {
 	    __txn_commit(txn, 0) : __txn_abort(txn))) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 #endif

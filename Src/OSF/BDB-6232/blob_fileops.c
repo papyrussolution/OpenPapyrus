@@ -49,7 +49,7 @@ err:
 		__os_free(env, ppath);
 	if(ret == 0)
 		*fhpp = fhp;
-	return (ret);
+	return ret;
 }
 /*
  * __blob_file_close --
@@ -70,7 +70,7 @@ int __blob_file_close(DBC *dbc, DB_FH * fhp, uint32 flags)
 		if(t_ret != 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -107,7 +107,7 @@ err:
 		__os_free(env, blob_name);
 	if(full_path != NULL)
 		__os_free(env, full_path);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_file_open --
@@ -148,7 +148,7 @@ err:
 		__os_free(env, path);
 	if(ppath != NULL)
 		__os_free(env, ppath);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_file_read --
@@ -189,7 +189,7 @@ int __blob_file_read(ENV *env, DB_FH * fhp, DBT * dbt, off_t offset, uint32 size
 err:    
 	if(buf != NULL && buf != dbt->data)
 		__os_free(env, buf);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_file_write --
@@ -265,5 +265,5 @@ int __blob_file_write(DBC *dbc, DB_FH * fhp, DBT * buf, off_t offset, db_seq_t b
 err:    
 	if(name != NULL)
 		__os_free(env, name);
-	return (ret);
+	return ret;
 }

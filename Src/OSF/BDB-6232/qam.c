@@ -48,7 +48,7 @@ int __qam_position(DBC *dbc/* open cursor */, db_recno_t * recnop/* pointer to r
 	if((ret = __qam_fget(dbc, &pg, get_mode, &cp->page)) != 0) {
 		if(!FLD_ISSET(get_mode, DB_MPOOL_CREATE) && (ret == DB_PAGE_NOTFOUND || ret == ENOENT))
 			ret = 0;
-		return (ret);
+		return ret;
 	}
 	cp->indx = (db_indx_t)QAM_RECNO_INDEX(dbp, pg, *recnop);
 	if(PGNO(cp->page) == 0) {
@@ -59,7 +59,7 @@ int __qam_position(DBC *dbc/* open cursor */, db_recno_t * recnop/* pointer to r
 		 */
 		if(!FLD_ISSET(get_mode, DB_MPOOL_CREATE)) {
 			*exactp = 0;
-			return (0);
+			return 0;
 		}
 		DB_ASSERT(dbp->env, FLD_ISSET(get_mode, DB_MPOOL_CREATE));
 		PGNO(cp->page) = pg;
@@ -67,7 +67,7 @@ int __qam_position(DBC *dbc/* open cursor */, db_recno_t * recnop/* pointer to r
 	}
 	qp = QAM_GET_RECORD(dbp, cp->page, cp->indx);
 	*exactp = F_ISSET(qp, QAM_VALID) ? 1 : 0;
-	return (ret);
+	return ret;
 }
 /*
  * __qam_pitem --
@@ -106,7 +106,7 @@ int __qam_pitem(DBC *dbc, QPAGE * pagep, uint32 indx, db_recno_t recno, DBT * da
 			__db_errx(env, DB_STR_A("1142",
 			    "Record length error: data offset plus length larger than record size of %lu",
 			    "%lu"), (u_long)t->re_len);
-			return (EINVAL);
+			return EINVAL;
 		}
 
 		if(data->size != data->dlen)
@@ -129,14 +129,11 @@ int __qam_pitem(DBC *dbc, QPAGE * pagep, uint32 indx, db_recno_t recno, DBT * da
 
 		if(DBC_LOGGING(dbc) || !F_ISSET(qp, QAM_VALID)) {
 			datap = &pdata;
-			memset(datap, 0, sizeof(*datap));
-
-			if((ret = __os_malloc(env,
-			    t->re_len, &datap->data)) != 0)
-				return (ret);
+			memzero(datap, sizeof(*datap));
+			if((ret = __os_malloc(env, t->re_len, &datap->data)) != 0)
+				return ret;
 			allocated = 1;
 			datap->size = t->re_len;
-
 			/*
 			 * Construct the record if it's valid, otherwise set it
 			 * all to the pad character.
@@ -146,7 +143,6 @@ int __qam_pitem(DBC *dbc, QPAGE * pagep, uint32 indx, db_recno_t recno, DBT * da
 				memcpy(dest, p, t->re_len);
 			else
 				memset(dest, (int)t->re_pad, t->re_len);
-
 			dest += data->doff;
 			memcpy(dest, data->data, data->size);
 		}
@@ -178,7 +174,7 @@ no_partial:
 err:    
 	if(allocated)
 		__os_free(env, datap->data);
-	return (ret);
+	return ret;
 }
 /*
  * __qamc_put
@@ -211,7 +207,7 @@ static int __qamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 		case DB_NOOVERWRITE:
 		case DB_OVERWRITE_DUP:
 		    if((ret = __qam_getno(dbp, key, &cp->recno)) != 0)
-			    return (ret);
+			    return ret;
 		/* FALLTHROUGH */
 		case DB_CURRENT:
 		    break;
@@ -223,13 +219,13 @@ static int __qamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 	/* Write lock the record. */
 	if((ret = __db_lget(dbc, LCK_COUPLE,
 	    cp->recno, DB_LOCK_WRITE, DB_LOCK_RECORD, &cp->lock)) != 0)
-		return (ret);
+		return ret;
 
 	if((ret = __qam_position(dbc, &cp->recno,
 	    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &exact)) != 0) {
 		/* We could not get the page, we can release the record lock. */
 		(void)__LPUT(dbc, cp->lock);
-		return (ret);
+		return ret;
 	}
 
 	if(exact != 0 && flags == DB_NOOVERWRITE)
@@ -245,11 +241,11 @@ static int __qamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 	cp->page = NULL;
 	cp->lock_mode = DB_LOCK_WRITE;
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	/* Unlock the record if not in a transaction. */
 	if((ret = __TLPUT(dbc, cp->lock)) != 0)
-		return (ret);
+		return ret;
 
 	/* We may need to reset the head or tail of the queue. */
 	metapg = ((QUEUE*)dbp->q_internal)->q_meta;
@@ -257,7 +253,7 @@ static int __qamc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 	writelock = 0;
 	if((ret = __memp_fget(mpf, &metapg,
 	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
-		return (ret);
+		return ret;
 
 	opcode = 0;
 	new_cur = new_first = 0;
@@ -318,7 +314,7 @@ done:   if(meta != NULL && (t_ret = __memp_fput(mpf,
 	    dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -349,7 +345,7 @@ int __qam_append(DBC *dbc, DBT * key, DBT * data)
 	metapg = ((QUEUE*)dbp->q_internal)->q_meta;
 again:  if((ret = __memp_fget(mpf, &metapg,
 	    dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0)
-		return (ret);
+		return ret;
 
 	/* Get the next record number. */
 	recno = meta->cur_recno;
@@ -463,7 +459,7 @@ err:    /* Release the meta page. */
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -492,7 +488,7 @@ static int __qamc_del(DBC *dbc, uint32 flags)
 	/* Read latch the meta page. */
 	if((ret = __memp_fget(mpf, &metapg,
 	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
-		return (ret);
+		return ret;
 
 	if(QAM_NOT_VALID(meta, cp->recno)) {
 		ret = DBC_ERR(dbc, DB_NOTFOUND);
@@ -576,7 +572,7 @@ err:    if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info,
 		ret = t_ret;
 	cp->page = NULL;
 
-	return (ret);
+	return ret;
 }
 #ifdef  DEBUG_WOP
 	#define QDEBUG
@@ -653,7 +649,7 @@ retry:
 	 */
 	if(meta == NULL && (ret = __memp_fget(mpf, &metapno,
 	    dbc->thread_info, dbc->txn, meta_mode, &meta)) != 0)
-		return (ret);   /* Update the record number. */
+		return ret;   /* Update the record number. */
 
 	switch(flags) {
 		case DB_CURRENT:
@@ -1368,7 +1364,7 @@ done:
 	}
 
 err:
-	return (ret);
+	return ret;
 }
 
 static int __qam_bulk(DBC *dbc, DBT * data, uint32 flags)
@@ -1420,7 +1416,7 @@ static int __qam_bulk(DBC *dbc, DBT * data, uint32 flags)
 
 	if((ret = __memp_fget(mpf, &metapno,
 	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
-		return (ret);
+		return ret;
 
 next_pg:
 	/* Wrap around, skipping zero. */
@@ -1544,7 +1540,7 @@ done:   /* Release the meta page. */
 
 	cp->lock = rlock;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1567,7 +1563,7 @@ static int __qamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 	cp->lock_mode = DB_LOCK_NG;
 	cp->recno = RECNO_OOB;
 	cp->flags = 0;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1582,7 +1578,7 @@ int __qamc_dup(DBC *orig_dbc, DBC *new_dbc)
 	QUEUE_CURSOR * orig = (QUEUE_CURSOR*)orig_dbc->internal;
 	QUEUE_CURSOR * p_new = (QUEUE_CURSOR*)new_dbc->internal;
 	p_new->recno = orig->recno;
-	return (0);
+	return 0;
 }
 /*
  * __qamc_init
@@ -1599,7 +1595,7 @@ int __qamc_init(DBC *dbc)
 	cp = (QUEUE_CURSOR*)dbc->internal;
 	if(cp == NULL) {
 		if((ret = __os_calloc(dbp->env, 1, sizeof(QUEUE_CURSOR), &cp)) != 0)
-			return (ret);
+			return ret;
 		dbc->internal = (DBC_INTERNAL*)cp;
 	}
 
@@ -1620,7 +1616,7 @@ int __qamc_init(DBC *dbc)
 	dbc->am_put = __qamc_put;
 	dbc->am_writelock = NULL;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1631,7 +1627,7 @@ static int __qamc_destroy(DBC *dbc)
 {
 	/* Discard the structures. */
 	__os_free(dbc->env, dbc->internal);
-	return (0);
+	return 0;
 }
 /*
  * __qam_getno --
@@ -1642,13 +1638,13 @@ static int __qam_getno(DB *dbp, const DBT * key, db_recno_t * rep)
 	/* If passed an empty DBT from Java, key->data may be NULL */
 	if(key->size != sizeof(db_recno_t)) {
 		__db_errx(dbp->env, DB_STR("1143", "illegal record number size"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if((*rep = *(db_recno_t*)key->data) == 0) {
 		__db_errx(dbp->env, DB_STR("1144", "illegal record number of 0"));
-		return (EINVAL);
+		return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1673,14 +1669,14 @@ int __qam_truncate(DBC *dbc, uint32 * countp)
 	    (ret = __qamc_get(dbc, NULL, NULL, DB_CONSUME, &metapno)) == 0;)
 		count++;
 	if(ret != DB_NOTFOUND)
-		return (ret);
+		return ret;
 
 	mpf = dbp->mpf;
 	/* Update the meta page. */
 	metapno = ((QUEUE*)dbp->q_internal)->q_meta;
 	if((ret = __memp_fget(mpf, &metapno, dbc->thread_info, dbc->txn,
 	    DB_MPOOL_DIRTY, &meta)) != 0)
-		return (ret);
+		return ret;
 
 	/* Remove the last extent file. */
 	if(meta->cur_recno > 1 && ((QUEUE*)dbp->q_internal)->page_ext != 0) {
@@ -1706,7 +1702,7 @@ err:    if((t_ret = __memp_fput(mpf,
 	if(countp != NULL)
 		*countp = count;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1723,5 +1719,5 @@ int __qam_delete(DBC *dbc, DBT * key, uint32 flags)
 		goto err;
 	ret = __qamc_del(dbc, flags);
 err:    
-	return (ret);
+	return ret;
 }

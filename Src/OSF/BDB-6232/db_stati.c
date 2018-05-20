@@ -38,7 +38,7 @@ int __db_stat_pp(DB *dbp, DB_TXN * txn, void * spp, uint32 flags)
 	ENV * env = dbp->env;
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->stat");
 	if((ret = __db_stat_arg(dbp, flags)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	/* Check for replication block. */
 	handle_check = IS_ENV_REPLICATED(env);
@@ -52,7 +52,7 @@ int __db_stat_pp(DB *dbp, DB_TXN * txn, void * spp, uint32 flags)
 		ret = t_ret;
 err:    
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_stat --
@@ -70,7 +70,7 @@ static int __db_stat(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, void * spp, uin
 	/* Acquire a cursor. */
 	if((ret = __db_cursor(dbp, ip, txn,
 	    &dbc, LF_ISSET(DB_READ_COMMITTED | DB_READ_UNCOMMITTED))) != 0)
-		return (ret);
+		return ret;
 
 	DEBUG_LWRITE(dbc, NULL, "DB->stat", NULL, NULL, flags);
 	LF_CLR(DB_READ_COMMITTED | DB_READ_UNCOMMITTED);
@@ -102,7 +102,7 @@ static int __db_stat(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, void * spp, uin
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -121,7 +121,7 @@ static int __db_stat_arg(DB *dbp, uint32 flags)
 		default:
 		    return (__db_ferr(env, "DB->stat", 0));
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -141,7 +141,7 @@ int __db_stat_print_pp(DB *dbp, uint32 flags)
 	 * The actual argument checking is simple, do it inline.
 	 */
 	if((ret = __db_fchk(env, "DB->stat_print", flags, DB_FAST_STAT | DB_STAT_ALL)) != 0)
-		return (ret);
+		return ret;
 
 	ENV_ENTER(env, ip);
 
@@ -159,7 +159,7 @@ int __db_stat_print_pp(DB *dbp, uint32 flags)
 		ret = t_ret;
 
 err:    ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -176,10 +176,10 @@ int __db_stat_print(DB *dbp, DB_THREAD_INFO * ip, uint32 flags)
 	(void)time(&now);
 	__db_msg(dbp->env, "%.24s\tLocal time", __os_ctime(&now, time_buf));
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __db_print_all(dbp, flags)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_print_stats(dbp, ip, flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 /*
@@ -193,7 +193,7 @@ static int __db_print_stats(DB *dbp, DB_THREAD_INFO * ip, uint32 flags)
 	ENV * env = dbp->env;
 	/* Acquire a cursor. */
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	DEBUG_LWRITE(dbc, NULL, "DB->stat_print", NULL, NULL, 0);
 	switch(dbp->type) {
 		case DB_BTREE:
@@ -218,7 +218,7 @@ static int __db_print_stats(DB *dbp, DB_THREAD_INFO * ip, uint32 flags)
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -312,7 +312,7 @@ static int __db_print_all(DB *dbp, uint32 flags)
 
 	(void)__db_print_cursor(dbp);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -342,7 +342,7 @@ static int __db_print_cursor(DB *dbp)
 		ret = t_ret;
 	MUTEX_UNLOCK(dbp->env, dbp->mutex);
 
-	return (ret);
+	return ret;
 }
 
 static int __db_print_citem(DBC *dbc)
@@ -406,7 +406,7 @@ static int __db_print_citem(DBC *dbc)
 		default:
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */

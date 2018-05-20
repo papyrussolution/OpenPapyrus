@@ -42,7 +42,7 @@ int __qam_31_qammeta(DB *dbp, char * real_name, uint8 * buf)
 	ZERO_LSN(newmeta->dbmeta.unused3);
 	/* Update the version. */
 	newmeta->dbmeta.version = 2;
-	return (0);
+	return 0;
 }
 /*
  * __qam_32_qammeta --
@@ -75,5 +75,5 @@ int __qam_32_qammeta(DB *dbp, char * real_name, uint8 * buf)
 		newmeta->first_recno = 1;
 	/* Update the version. */
 	newmeta->dbmeta.version = 3;
-	return (0);
+	return 0;
 }

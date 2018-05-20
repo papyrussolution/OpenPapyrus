@@ -2772,7 +2772,7 @@ int SLAPI PPObjBill::GetCorrectionBackChain(const BillTbl::Rec & rBillRec, PPIDA
 		const PPID  tbop_id = rBillRec.OpID;
 		const long  tbbillno = NZOR(rBillRec.BillNo, MAXLONG);
 		rChainList.add(correction_org_bill_rec.ID);
-		for(DateIter di(correction_org_bill_rec.Dt); P_Tbl->EnumLinks(correction_org_bill_rec.ID, &di, BLNK_CORRECTION, &temp_bill_rec) > 0;) {
+		for(DateIter di(correction_org_bill_rec.Dt, ZERODATE); P_Tbl->EnumLinks(correction_org_bill_rec.ID, &di, BLNK_CORRECTION, &temp_bill_rec) > 0;) {
 			if(temp_bill_rec.OpID == tbop_id && temp_bill_rec.ID != rBillRec.ID &&
 				(temp_bill_rec.Dt < tbdt || (temp_bill_rec.Dt == tbdt && temp_bill_rec.BillNo < tbbillno))) {
 				rChainList.add(temp_bill_rec.ID);

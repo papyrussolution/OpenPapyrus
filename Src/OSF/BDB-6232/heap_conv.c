@@ -21,7 +21,7 @@ int __heap_pgin(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_HEAPMETA ? __heap_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 1));
 }
@@ -38,7 +38,7 @@ int __heap_pgout(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_HEAPMETA ?  __heap_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0));
 }
@@ -64,5 +64,5 @@ int __heap_mswap(ENV *env, PAGE * pg)
 	SWAP32(p);              /* file id hi */
 	p += 89 * sizeof(uint32); /* unused */
 	SWAP32(p);              /* crypto_magic */
-	return (0);
+	return 0;
 }

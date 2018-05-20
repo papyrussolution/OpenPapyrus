@@ -6468,7 +6468,7 @@ int SLAPI PPEgaisProcessor::SearchActChargeByActInform(const PPEgaisProcessor::A
 		SString temp_buf;
 		BillTbl::Rec bill_rec;
 		THROW(GetActChargeOnOp(&op_id, PPEDIOP_EGAIS_ACTCHARGEON, 1));
-		for(DateIter di(encodedate(1, 12, 2015)); ok < 0 && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
+		for(DateIter di(encodedate(1, 12, 2015), ZERODATE); ok < 0 && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 			BillCore::GetCode(temp_buf = bill_rec.Code);
 			if(temp_buf.CmpNC(rInf.ActNumber) == 0) {
 				bill_id = bill_rec.ID;
@@ -7004,7 +7004,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 	}
 	{
 		BillTbl::Rec bill_rec;
-		for(DateIter di(ZERODATE); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
+		for(DateIter di; P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 			PPTransferItem ti;
 			if(ediOp == PPEDIOP_EGAIS_ACTCHARGEON) {
 				for(int rbb = 0; P_BObj->trfr->EnumItems(bill_rec.ID, &rbb, &ti) > 0;) {

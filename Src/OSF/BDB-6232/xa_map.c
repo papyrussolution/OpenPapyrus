@@ -39,7 +39,7 @@ int __db_rmid_to_env(int rmid, ENV ** envp)
 				TAILQ_REMOVE(&DB_GLOBAL(envq), env, links);
 				TAILQ_INSERT_HEAD(&DB_GLOBAL(envq), env, links);
 			}
-			return (0);
+			return 0;
 		}
 	}
 	return (1);
@@ -73,7 +73,7 @@ int __db_xid_to_txn(ENV *env, XID * xid, TXN_DETAIL ** tdp)
 	 * This returns an error, because TXN_SYSTEM_{UN}LOCK may return
 	 * an error.
 	 */
-	return (0);
+	return 0;
 }
 
 /*
@@ -99,9 +99,9 @@ int __db_unmap_rmid(int rmid)
 	for(e = TAILQ_FIRST(&DB_GLOBAL(envq)); e->xa_rmid != rmid; e = TAILQ_NEXT(e, links))
 		;
 	if(e == NULL)
-		return (EINVAL);
+		return EINVAL;
 	TAILQ_REMOVE(&DB_GLOBAL(envq), e, links);
-	return (0);
+	return 0;
 }
 /*
  * __db_unmap_xid
@@ -114,5 +114,5 @@ void __db_unmap_xid(ENV *env, XID * xid, size_t off)
 	TXN_DETAIL * td;
 	COMPQUIET(xid, NULL);
 	td = (TXN_DETAIL *)R_ADDR(&env->tx_handle->reginfo, off);
-	memset(td->gid, 0, sizeof(td->gid));
+	memzero(td->gid, sizeof(td->gid));
 }

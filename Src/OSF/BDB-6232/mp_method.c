@@ -32,7 +32,7 @@ int __memp_env_create(DB_ENV *dbenv)
 	 */
 	dbenv->mp_bytes = 32 * ((8 * 1024) + sizeof(BH)) + 37 * sizeof(DB_MPOOL_HASH);
 	dbenv->mp_ncache = 1;
-	return (0);
+	return 0;
 }
 
 /*
@@ -80,7 +80,7 @@ int __memp_get_cachesize(DB_ENV *dbenv, uint32 * gbytesp, uint32 * bytesp, int *
 		if(ncachep != NULL)
 			*ncachep = (int)dbenv->mp_ncache;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_cachesize --
@@ -121,11 +121,11 @@ int __memp_set_cachesize(DB_ENV *dbenv, uint32 gbytes, uint32 bytes, int arg_nca
 	if(!F_ISSET(env, ENV_OPEN_CALLED)) {
 		if(sizeof(roff_t) <= 4 && gbytes / ncache >= 4) {
 			__db_errx(env, DB_STR("3003", "individual cache size too large: maximum is 4GB"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(gbytes / ncache > 10000) {
 			__db_errx(env, DB_STR("3004", "individual cache size too large: maximum is 10TB"));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	/*
@@ -149,14 +149,14 @@ int __memp_set_cachesize(DB_ENV *dbenv, uint32 gbytes, uint32 bytes, int arg_nca
 		ENV_ENTER(env, ip);
 		ret = __memp_resize(env->mp_handle, gbytes, bytes);
 		ENV_LEAVE(env, ip);
-		return (ret);
+		return ret;
 	}
 
 	dbenv->mp_gbytes = gbytes;
 	dbenv->mp_bytes = bytes;
 	dbenv->mp_ncache = ncache;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -184,9 +184,9 @@ int __memp_set_config(DB_ENV *dbenv, uint32 which, int on)
 		    }
 		    break;
 		default:
-		    return (EINVAL);
+		    return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -213,9 +213,9 @@ int __memp_get_config(DB_ENV *dbenv, uint32 which, int * onp)
 			    *onp = 0;
 		    break;
 		default:
-		    return (EINVAL);
+		    return EINVAL;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -239,7 +239,7 @@ int __memp_get_mp_max_openfd(DB_ENV *dbenv, int * maxopenfdp)
 	}
 	else
 		*maxopenfdp = dbenv->mp_maxopenfd;
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_mp_max_openfd --
@@ -270,7 +270,7 @@ int __memp_set_mp_max_openfd(DB_ENV *dbenv, int maxopenfd)
 	SLICE_FOREACH(dbenv, slice, i)
 	if((ret = __memp_set_mp_max_openfd(slice, maxopenfd)) != 0)
 		break;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -297,7 +297,7 @@ int __memp_get_mp_max_write(DB_ENV *dbenv, int * maxwritep, db_timeout_t * maxwr
 		*maxwritep = dbenv->mp_maxwrite;
 		*maxwrite_sleepp = dbenv->mp_maxwrite_sleep;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -335,7 +335,7 @@ int __memp_set_mp_max_write(DB_ENV *dbenv, int maxwrite, db_timeout_t maxwrite_s
 	if((ret = __memp_set_mp_max_write(slice,
 	    maxwrite, maxwrite_sleep)) != 0)
 		break;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -359,7 +359,7 @@ int __memp_get_mp_mmapsize(DB_ENV *dbenv, size_t * mp_mmapsizep)
 	}
 	else
 		*mp_mmapsizep = dbenv->mp_mmapsize;
-	return (0);
+	return 0;
 }
 
 /*
@@ -392,7 +392,7 @@ int __memp_set_mp_mmapsize(DB_ENV *dbenv, size_t mp_mmapsize)
 	}
 	else
 		dbenv->mp_mmapsize = (db_size_t)mp_mmapsize;
-	return (0);
+	return 0;
 }
 
 /*
@@ -412,7 +412,7 @@ int __memp_get_mp_pagesize(DB_ENV *dbenv, uint32 * mp_pagesizep)
 	else {
 		*mp_pagesizep = dbenv->mp_pagesize;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -427,7 +427,7 @@ int __memp_set_mp_pagesize(DB_ENV *dbenv, uint32 mp_pagesize)
 	ENV_NOT_CONFIGURED(env, env->mp_handle, "DB_ENV->set_mp_pagesize", DB_INIT_MPOOL);
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mp_pagesize");
 	dbenv->mp_pagesize = mp_pagesize;
-	return (0);
+	return 0;
 }
 /*
  * __memp_get_reg_dir
@@ -437,7 +437,7 @@ int __memp_set_mp_pagesize(DB_ENV *dbenv, uint32 mp_pagesize)
 int __memp_get_reg_dir(DB_ENV *dbenv, const char ** dirp)
 {
 	*dirp = dbenv->db_reg_dir;
-	return (0);
+	return 0;
 }
 /*
  * __memp_set_reg_dir
@@ -468,7 +468,7 @@ int __memp_get_mp_tablesize(DB_ENV *dbenv, uint32 * mp_tablesizep)
 	}
 	else
 		*mp_tablesizep = dbenv->mp_tablesize;
-	return (0);
+	return 0;
 }
 
 /*
@@ -483,7 +483,7 @@ int __memp_set_mp_tablesize(DB_ENV *dbenv, uint32 mp_tablesize)
 	ENV_NOT_CONFIGURED(env, env->mp_handle, "DB_ENV->set_mp_tablesize", DB_INIT_MPOOL);
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mp_tablesize");
 	dbenv->mp_tablesize = mp_tablesize;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __memp_get_mp_mtxcount __P((DB_ENV *, uint32 *));
@@ -501,7 +501,7 @@ int __memp_get_mp_mtxcount(DB_ENV *dbenv, uint32 * mp_mtxcountp)
 	}
 	else
 		*mp_mtxcountp = dbenv->mp_mtxcount;
-	return (0);
+	return 0;
 }
 
 /*
@@ -516,7 +516,7 @@ int __memp_set_mp_mtxcount(DB_ENV *dbenv, uint32 mp_mtxcount)
 	ENV_NOT_CONFIGURED(env, env->mp_handle, "DB_ENV->set_mp_mtxcount", DB_INIT_MPOOL);
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mp_mtxcount");
 	dbenv->mp_mtxcount = mp_mtxcount;
-	return (0);
+	return 0;
 }
 /*
  * __memp_nameop
@@ -565,7 +565,7 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 		nlen = strlen(newname);
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo,
 		    NULL,  nlen + 1, &newname_off, &p)) != 0)
-			return (ret);
+			return ret;
 		memcpy(p, newname, nlen + 1);
 	}
 
@@ -710,7 +710,7 @@ err:    if(p != NULL) {
 	 */
 	if(purge_dead)
 		(void)__memp_purge_dead_files(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -735,9 +735,9 @@ int __memp_ftruncate(DB_MPOOLFILE *dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db_
 	MUTEX_UNLOCK(env, mfp->mutex);
 	if(pgno > last_pgno) {
 		if(LF_ISSET(MP_TRUNC_RECOVER))
-			return (0);
+			return 0;
 		__db_errx(env, DB_STR("3005", "Truncate beyond the end of file"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	pg = pgno;
 	if(!LF_ISSET(MP_TRUNC_NOCACHE))
@@ -745,7 +745,7 @@ int __memp_ftruncate(DB_MPOOLFILE *dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db_
 			if(mfp->block_cnt == 0)
 				break;
 			if((ret = __memp_fget(dbmfp, &pg, ip, txn, DB_MPOOL_FREE, &pagep)) != 0)
-				return (ret);
+				return ret;
 		} while(pg++ < last_pgno);
 
 	/*
@@ -773,7 +773,7 @@ int __memp_ftruncate(DB_MPOOLFILE *dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db_
 			mfp->last_flushed_pgno = mfp->last_pgno;
 	}
 	MUTEX_UNLOCK(env, mfp->mutex);
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -809,10 +809,10 @@ int __memp_alloc_freelist(DB_MPOOLFILE *dbmfp, uint32 nelems, db_pgno_t ** listp
 	if(nelems == 0)
 		nelems = 50;
 	if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, nelems * sizeof(db_pgno_t), &mfp->free_list, &retp)) != 0)
-		return (ret);
+		return ret;
 	mfp->free_size = nelems * sizeof(db_pgno_t);
 	*listp = (db_pgno_t *)retp;
-	return (0);
+	return 0;
 }
 /*
  * __memp_free_freelist --
@@ -827,7 +827,7 @@ int __memp_free_freelist(DB_MPOOLFILE *dbmfp)
 	MPOOLFILE * mfp = dbmfp->mfp;
 	DB_ASSERT(env, mfp->free_ref > 0);
 	if(--mfp->free_ref > 0)
-		return (0);
+		return 0;
 	DB_ASSERT(env, mfp->free_size != 0);
 
 	MPOOL_SYSTEM_LOCK(env);
@@ -837,7 +837,7 @@ int __memp_free_freelist(DB_MPOOLFILE *dbmfp)
 	mfp->free_cnt = 0;
 	mfp->free_list = 0;
 	mfp->free_size = 0;
-	return (0);
+	return 0;
 }
 
 /*
@@ -860,7 +860,7 @@ int __memp_get_freelist(DB_MPOOLFILE *dbmfp, uint32 * nelemp, db_pgno_t ** listp
 		*nelemp = mfp->free_cnt;
 		*listp = (db_pgno_t *)R_ADDR(dbmp->reginfo, mfp->free_list);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __memp_extend_freelist --
@@ -881,7 +881,7 @@ int __memp_extend_freelist(DB_MPOOLFILE *dbmfp, uint32 count, db_pgno_t ** listp
 	dbmp = env->mp_handle;
 	mfp = dbmfp->mfp;
 	if(mfp->free_size == 0)
-		return (EINVAL);
+		return EINVAL;
 	if(count * sizeof(db_pgno_t) > mfp->free_size) {
 		size = (size_t)DB_ALIGN(count * sizeof(db_pgno_t), 512);
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
@@ -892,7 +892,7 @@ int __memp_extend_freelist(DB_MPOOLFILE *dbmfp, uint32 count, db_pgno_t ** listp
 #endif
 		*listp = (db_pgno_t *)R_ADDR(dbmp->reginfo, mfp->free_list);
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, size, &mfp->free_list, &retp)) != 0)
-			return (ret);
+			return ret;
 		mfp->free_size = (db_size_t)size;
 		memcpy(retp, *listp, mfp->free_cnt * sizeof(db_pgno_t));
 		MPOOL_SYSTEM_LOCK(env);
@@ -901,7 +901,7 @@ int __memp_extend_freelist(DB_MPOOLFILE *dbmfp, uint32 count, db_pgno_t ** listp
 	}
 	mfp->free_cnt = count;
 	*listp = (db_pgno_t *)R_ADDR(dbmp->reginfo, mfp->free_list);
-	return (0);
+	return 0;
 }
 #endif
 
@@ -919,5 +919,5 @@ int __memp_set_last_pgno(DB_MPOOLFILE *dbmfp, db_pgno_t pgno)
 			dbmfp->mfp->last_pgno = pgno;
 		MUTEX_UNLOCK(dbmfp->env, mfp->mutex);
 	}
-	return (0);
+	return 0;
 }

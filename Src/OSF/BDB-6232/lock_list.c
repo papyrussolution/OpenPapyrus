@@ -97,7 +97,7 @@ int __lock_fix_list(ENV *env, DBT * list_dbt, uint32 nlocks)
 	uint8 * data, * dp;
 	int ret;
 	if((size = list_dbt->size) == 0)
-		return (0);
+		return 0;
 	obj = (DBT*)list_dbt->data;
 	/*
 	 * If necessary sort the list of locks so that locks on the same fileid
@@ -111,7 +111,7 @@ int __lock_fix_list(ENV *env, DBT * list_dbt, uint32 nlocks)
 		case 1:
 		    size = RET_SIZE(obj->size, 1);
 		    if((ret = __os_malloc(env, size, &data)) != 0)
-			    return (ret);
+			    return ret;
 
 		    dp = data;
 		    PUT_COUNT(dp, 1);
@@ -162,7 +162,7 @@ not_ilock:          size = nfid * sizeof(DB_LOCK_ILOCK);
 
 		    size = RET_SIZE(size, nfid);
 		    if((ret = __os_malloc(env, size, &data)) != 0)
-			    return (ret);
+			    return ret;
 
 		    dp = data;
 		    PUT_COUNT(dp, nfid);
@@ -181,7 +181,7 @@ not_ilock:          size = nfid * sizeof(DB_LOCK_ILOCK);
 	__os_free(env, list_dbt->data);
 	list_dbt->data = data;
 	list_dbt->size = size;
-	return (0);
+	return 0;
 }
 /*
  * PUBLIC: int __lock_get_list __P((ENV *, DB_LOCKER *, uint32,
@@ -201,7 +201,7 @@ int __lock_get_list(ENV *env, DB_LOCKER * locker, uint32 flags, db_lockmode_t lo
 	void * data, * dp;
 
 	if(list->size == 0)
-		return (0);
+		return 0;
 	ret = 0;
 	data = NULL;
 
@@ -215,7 +215,7 @@ int __lock_get_list(ENV *env, DB_LOCKER * locker, uint32 flags, db_lockmode_t lo
 	 */
 	if((uintptr_t)dp != DB_ALIGN((uintptr_t)dp, sizeof(uint32))) {
 		if((ret = __os_malloc(env, list->size, &data)) != 0)
-			return (ret);
+			return ret;
 		memcpy(data, list->data, list->size);
 		dp = data;
 	}
@@ -247,7 +247,7 @@ int __lock_get_list(ENV *env, DB_LOCKER * locker, uint32 flags, db_lockmode_t lo
 err:    LOCK_SYSTEM_UNLOCK(lt, region);
 	if(data != NULL)
 		__os_free(env, data);
-	return (ret);
+	return ret;
 }
 
 #define UINT32_CMP(A, B)        ((A) == (B) ? 0 : ((A) > (B) ? 1 : -1))

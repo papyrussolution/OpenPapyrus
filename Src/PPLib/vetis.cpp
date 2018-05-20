@@ -450,7 +450,7 @@ int SLAPI TestVetis()
 		{
 			ifc.GetAppliedUserAuthorityList();
 		}
-		{
+		/*{
 			PPGetFilePath(PPPATH_LOG, "vetis_ent_list.log", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			uint req_count = 50;
@@ -467,8 +467,8 @@ int SLAPI TestVetis()
 				else
 					req_offs += ent_list.getCount();
 			}
-		}
-		{
+		}*/
+		/*{
 			PPGetFilePath(PPPATH_LOG, "vetis_product_list.log", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			uint req_count = 50;
@@ -485,7 +485,7 @@ int SLAPI TestVetis()
 				else
 					req_offs += productitem_list.getCount();
 			}
-		}
+		}*/
 	}
 	CATCHZOK
 	return ok;

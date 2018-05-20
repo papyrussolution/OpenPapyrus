@@ -22,10 +22,10 @@ int __os_mkdir(ENV *env, const char * name, int mode)
 	/* Make the directory, with paranoid permissions. */
 	TO_TSTRING(env, name, tname, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	RETRY_CHK(!CreateDirectory(tname, NULL), ret);
 	FREE_STRING(env, tname);
 	if(ret != 0)
 		return (__os_posix_err(ret));
-	return (ret);
+	return ret;
 }

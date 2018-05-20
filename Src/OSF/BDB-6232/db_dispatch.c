@@ -114,7 +114,7 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 			sizeof(rectype) + sizeof(txnid));
 		    if(txnid != 0 && prev_lsn.file == 0 && (ret =
 			__db_txnlist_add(env, info, txnid, TXN_OK, NULL)) != 0)
-			    return (ret);
+			    return ret;
 
 		/* FALLTHROUGH */
 		case DB_TXN_POPENFILES:
@@ -180,7 +180,7 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 					return (__db_txnlist_add(env,
 					       info, txnid, TXN_IGNORE, lsnp));
 				if(ret != 0)
-					return (ret);
+					return ret;
 
 				/*
 				 * If we ignore the transaction, ignore the operation
@@ -201,7 +201,7 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 				    (ret = __db_txnlist_update(env,
 				    info, txnid, rectype == DB___txn_prepare ?
 				    TXN_PREPARE : TXN_ABORT, NULL, &status, 0)) != 0)
-					return (ret);
+					return ret;
 		    }
 		    break;
 		case DB_TXN_FORWARD_ROLL:
@@ -231,7 +231,7 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 						/* Break out out of if clause. */
 						;
 					else if(ret != 0)
-						return (ret);
+						return ret;
 					else if(status == TXN_COMMIT) {
 						make_call = 1;
 						break;
@@ -261,7 +261,7 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 				    (uint8*)db->data +
 				    sizeof(rectype) +
 				    sizeof(txnid));
-				return (0);
+				return 0;
 			}
 		}
 		if(rectype >= DB_user_BEGIN) {
@@ -272,40 +272,26 @@ int __db_dispatch(ENV *env/* The environment. */, DB_DISTAB * dtab, DBT * db/* T
 			if(redo == DB_TXN_LOG_VERIFY)
 				lvh->external_logrec_cnt++;
 			if(dbenv->app_dispatch != NULL)
-				return (dbenv->app_dispatch(dbenv,
-				       db, lsnp, redo));
-
+				return (dbenv->app_dispatch(dbenv, db, lsnp, redo));
 			/* No application-specific dispatch */
 			urectype = rectype - DB_user_BEGIN;
-			if(urectype > dtab->ext_size ||
-			    dtab->ext_dispatch[urectype] == NULL) {
-				__db_errx(env, DB_STR_A("0512",
-				    "Illegal application-specific record type %lu in log",
-				    "%lu"), (u_long)rectype);
-				return (EINVAL);
+			if(urectype > dtab->ext_size || dtab->ext_dispatch[urectype] == NULL) {
+				__db_errx(env, DB_STR_A("0512", "Illegal application-specific record type %lu in log", "%lu"), (u_long)rectype);
+				return EINVAL;
 			}
-
-			return ((dtab->ext_dispatch[urectype])(dbenv,
-			       db, lsnp, redo));
+			return ((dtab->ext_dispatch[urectype])(dbenv, db, lsnp, redo));
 		}
 		else {
-			if(rectype > dtab->int_size ||
-			    dtab->int_dispatch[rectype] == NULL) {
-				__db_errx(env, DB_STR_A("0513",
-				    "Illegal record type %lu in log", "%lu"),
-				    (u_long)rectype);
+			if(rectype > dtab->int_size || dtab->int_dispatch[rectype] == NULL) {
+				__db_errx(env, DB_STR_A("0513", "Illegal record type %lu in log", "%lu"), (u_long)rectype);
 				if(redo == DB_TXN_LOG_VERIFY)
 					lvh->unknown_logrec_cnt++;
-
-				return (EINVAL);
+				return EINVAL;
 			}
-
-			return ((dtab->int_dispatch[rectype])(env,
-			       db, lsnp, redo, params));
+			return ((dtab->int_dispatch[rectype])(env, db, lsnp, redo, params));
 		}
 	}
-
-	return (0);
+	return 0;
 }
 
 /*
@@ -327,7 +313,7 @@ int __db_add_recovery(DB_ENV *dbenv, DB_DISTAB * dtab, int (*func)(DB_ENV *, DBT
 	/* Make sure this is an application-specific record. */
 	if(ndx < DB_user_BEGIN) {
 		__db_errx(dbenv->env, DB_STR_A("0514", "Attempting to add application-specific record with invalid type %lu", "%lu"), (u_long)ndx);
-		return (EINVAL);
+		return EINVAL;
 	}
 	ndx -= DB_user_BEGIN;
 
@@ -335,14 +321,14 @@ int __db_add_recovery(DB_ENV *dbenv, DB_DISTAB * dtab, int (*func)(DB_ENV *, DBT
 	if(ndx >= dtab->ext_size) {
 		nsize = ndx + 40;
 		if((ret = __os_realloc(dbenv->env, nsize * sizeof((dtab->ext_dispatch)[0]), &dtab->ext_dispatch)) != 0)
-			return (ret);
+			return ret;
 		for(i = dtab->ext_size; i < nsize; ++i)
 			(dtab->ext_dispatch)[i] = NULL;
 		dtab->ext_size = nsize;
 	}
 
 	(dtab->ext_dispatch)[ndx] = func;
-	return (0);
+	return 0;
 }
 
 /*
@@ -360,20 +346,20 @@ int __db_add_recovery_int(ENV *env, DB_DISTAB * dtab, int (*func)(ENV *, DBT *, 
 	int ret;
 	if(ndx >= DB_user_BEGIN) {
 		__db_errx(env, DB_STR_A("0515", "Attempting to add internal record with invalid type %lu", "%lu"), (u_long)ndx);
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* Check if we have to grow the table. */
 	if(ndx >= dtab->int_size) {
 		nsize = ndx + 40;
 		if((ret = __os_realloc(env, nsize * sizeof((dtab->int_dispatch)[0]), &dtab->int_dispatch)) != 0)
-			return (ret);
+			return ret;
 		for(i = dtab->int_size; i < nsize; ++i)
 			(dtab->int_dispatch)[i] = NULL;
 		dtab->int_size = nsize;
 	}
 
 	(dtab->int_dispatch)[ndx] = func;
-	return (0);
+	return 0;
 }
 
 /*
@@ -412,20 +398,17 @@ int __db_txnlist_init(ENV *env, DB_THREAD_INFO * ip, uint32 low_txn, uint32 hi_t
 		if(size < 100)
 			size = 100;
 	}
-	if((ret = __os_malloc(env,
-	    sizeof(DB_TXNHEAD) + size * sizeof(headp->head), &headp)) != 0)
-		return (ret);
-
-	memset(headp, 0, sizeof(DB_TXNHEAD) + size * sizeof(headp->head));
+	if((ret = __os_malloc(env, sizeof(DB_TXNHEAD) + size * sizeof(headp->head), &headp)) != 0)
+		return ret;
+	memzero(headp, sizeof(DB_TXNHEAD) + size * sizeof(headp->head));
 	headp->maxid = hi_txn;
 	headp->generation = 0;
 	headp->nslots = size;
 	headp->gen_alloc = 8;
 	headp->thread_info = ip;
-	if((ret = __os_malloc(env, headp->gen_alloc *
-	    sizeof(headp->gen_array[0]), &headp->gen_array)) != 0) {
+	if((ret = __os_malloc(env, headp->gen_alloc * sizeof(headp->gen_array[0]), &headp->gen_array)) != 0) {
 		__os_free(env, headp);
-		return (ret);
+		return ret;
 	}
 	headp->gen_array[0].generation = 0;
 	headp->gen_array[0].txn_min = TXN_MINIMUM;
@@ -441,7 +424,7 @@ int __db_txnlist_init(ENV *env, DB_THREAD_INFO * ip, uint32 low_txn, uint32 hi_t
 	ZERO_LSN(headp->ckplsn);
 
 	*retp = headp;
-	return (0);
+	return 0;
 }
 
 #define FIND_GENERATION(hp, txnid, gen) do {                            \
@@ -471,7 +454,7 @@ int __db_txnlist_add(ENV *env, DB_TXNHEAD * hp, uint32 txnid, uint32 status, DB_
 	DB_TXNLIST * elp;
 	int ret;
 	if((ret = __os_malloc(env, sizeof(DB_TXNLIST), &elp)) != 0)
-		return (ret);
+		return ret;
 	LIST_INSERT_HEAD(&hp->head[DB_TXNLIST_MASK(hp, txnid)], elp, links);
 	/* Find the most recent generation containing this ID */
 	FIND_GENERATION(hp, txnid, elp->u.t.generation);
@@ -483,7 +466,7 @@ int __db_txnlist_add(ENV *env, DB_TXNHEAD * hp, uint32 txnid, uint32 status, DB_
 	if(lsn != NULL && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
 		hp->maxlsn = *lsn;
 	DB_ASSERT(env, lsn == NULL || status != TXN_COMMIT || LOG_COMPARE(&hp->maxlsn, lsn) >= 0);
-	return (0);
+	return 0;
 }
 
 /*
@@ -589,17 +572,17 @@ int __db_txnlist_update(ENV *env, DB_TXNHEAD * hp, uint32 txnid, uint32 status, 
 		return (__db_txnlist_add(env, hp, txnid, status, lsn));
 	}
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	if(*ret_status == TXN_IGNORE)
-		return (0);
+		return 0;
 
 	elp->u.t.status = status;
 
 	if(lsn != NULL && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
 		hp->maxlsn = *lsn;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -655,7 +638,7 @@ static int __db_txnlist_find_internal(ENV *env, DB_TXNHEAD * hp, db_txnlist_type
 		}
 		else
 			*txnlistp = p;
-		return (ret);
+		return ret;
 	}
 
 	return (USR_ERR(env, DB_NOTFOUND));
@@ -694,7 +677,7 @@ int __db_txnlist_gen(ENV *env, DB_TXNHEAD * hp, int incr, uint32 min, uint32 max
 			hp->gen_alloc *= 2;
 			if((ret = __os_realloc(env, hp->gen_alloc *
 			    sizeof(hp->gen_array[0]), &hp->gen_array)) != 0)
-				return (ret);
+				return ret;
 		}
 		memmove(&hp->gen_array[1], &hp->gen_array[0],
 		    hp->generation * sizeof(hp->gen_array[0]));
@@ -702,7 +685,7 @@ int __db_txnlist_gen(ENV *env, DB_TXNHEAD * hp, int incr, uint32 min, uint32 max
 		hp->gen_array[0].txn_min = min;
 		hp->gen_array[0].txn_max = max;
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -716,13 +699,13 @@ int __db_txnlist_lsnadd(ENV *env, DB_TXNHEAD * hp, DB_LSN * lsnp)
 	DB_TXNLIST * elp;
 	int ret;
 	if(IS_ZERO_LSN(*lsnp))
-		return (0);
+		return 0;
 	LIST_FOREACH(elp, &hp->head[0], links)
 	if(elp->type == TXNLIST_LSN)
 		break;
 	if(elp == NULL) {
 		if((ret = __db_txnlist_lsninit(env, hp, lsnp)) != 0)
-			return (ret);
+			return ret;
 		return (DB_SURPRISE_KID);
 	}
 
@@ -731,12 +714,12 @@ int __db_txnlist_lsnadd(ENV *env, DB_TXNHEAD * hp, DB_LSN * lsnp)
 		if((ret = __os_realloc(env, sizeof(DB_LSN) *
 		    elp->u.l.stack_size, &elp->u.l.lsn_stack)) != 0) {
 			__db_txnlist_end(env, hp);
-			return (ret);
+			return ret;
 		}
 	}
 	elp->u.l.lsn_stack[elp->u.l.stack_indx++] = *lsnp;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -757,12 +740,12 @@ int __db_txnlist_lsnget(ENV *env, DB_TXNHEAD * hp, DB_LSN * lsnp, uint32 flags)
 
 	if(elp == NULL || elp->u.l.stack_indx == 0) {
 		ZERO_LSN(*lsnp);
-		return (0);
+		return 0;
 	}
 
 	*lsnp = elp->u.l.lsn_stack[--elp->u.l.stack_indx];
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -785,10 +768,10 @@ int __db_txnlist_lsninit(ENV *env, DB_TXNHEAD * hp, DB_LSN * lsnp)
 	elp->u.l.stack_size = DB_LSN_STACK_SIZE;
 	elp->u.l.lsn_stack[0] = *lsnp;
 
-	return (0);
+	return 0;
 
 err:    __db_txnlist_end(env, hp);
-	return (ret);
+	return ret;
 }
 
 #ifdef DEBUG

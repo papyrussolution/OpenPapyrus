@@ -61,7 +61,7 @@ int __db_vrfy_overflow(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, uin
 	int isbad, ret, t_ret;
 	isbad = 0;
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_vrfy_datapage(dbp, vdp, h, pgno, flags)) != 0) {
 		if(ret == DB_VERIFY_BAD)
 			isbad = 1;
@@ -112,7 +112,7 @@ int __db_vrfy_ovfl_structure(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 
 	 * since there's no prev page.
 	 */
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
-		return (ret);
+		return ret;
 
 	/* The refcount is stored on the first overflow page. */
 	refcount = pip->refcount;
@@ -236,7 +236,7 @@ int __db_vrfy_ovfl_structure(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 
 
 		if((ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 ||
 		    (ret = __db_vrfy_getpageinfo(vdp, next, &pip)) != 0)
-			return (ret);
+			return ret;
 		if(pip->prev_pgno != pgno) {
 			EPRINT((env, DB_STR_A("0682",
 			    "Page %lu: bad prev_pgno %lu on overflow page (should be %lu)",
@@ -300,31 +300,21 @@ int __db_safe_goff(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void *
 	for(;;) {
 		if((ret = __memp_fget(
 			    mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
-			return (ret);
-
-		if(PREV_PGNO(h) == PGNO_INVALID ||
-		    !IS_VALID_PGNO(PREV_PGNO(h)))
+			return ret;
+		if(PREV_PGNO(h) == PGNO_INVALID || !IS_VALID_PGNO(PREV_PGNO(h)))
 			break;
 		if(++pagecount >= mpf->mfp->last_pgno) {
 			(void)USR_ERR(dbp->env, DB_VERIFY_BAD);
-			__db_errx(dbp->env,
-			    "Loop detected in overflow item starting at %lu",
-			    (u_long)origpgno);
+			__db_errx(dbp->env, "Loop detected in overflow item starting at %lu", (u_long)origpgno);
 			break;
 		}
-
 		pgno = PREV_PGNO(h);
-
-		if((ret = __memp_fput(mpf,
-		    vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
-			return (ret);
+		if((ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
+			return ret;
 	}
-	if((ret = __memp_fput(
-		    mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
-		return (ret);
-
+	if((ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
+		return ret;
 	h = NULL;
-
 	while((pgno != PGNO_INVALID) && (IS_VALID_PGNO(pgno))) {
 		/*
 		 * Mark that we're looking at this page;  if we've seen it
@@ -332,11 +322,8 @@ int __db_safe_goff(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void *
 		 */
 		if((ret = __db_salvage_markdone(vdp, pgno)) != 0)
 			break;
-
-		if((ret = __memp_fget(mpf, &pgno,
-		    vdp->thread_info, NULL, 0, &h)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 			break;
-
 		/*
 		 * Make sure it's really an overflow page, unless we're
 		 * being aggressive, in which case we pretend it is.
@@ -345,36 +332,26 @@ int __db_safe_goff(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void *
 			ret = DB_VERIFY_BAD;
 			break;
 		}
-
 		src = (uint8*)h + P_OVERHEAD(dbp);
 		bytes = OV_LEN(h);
-
 		if(bytes + P_OVERHEAD(dbp) > dbp->pgsize)
 			bytes = dbp->pgsize - P_OVERHEAD(dbp);
-
 		/*
 		 * Realloc if buf is too small
 		 */
 		if(bytesgot + bytes > *bufsz) {
-			if((ret =
-			    __os_realloc(dbp->env, bytesgot + bytes, buf)) != 0)
+			if((ret = __os_realloc(dbp->env, bytesgot + bytes, buf)) != 0)
 				break;
 			*bufsz = bytesgot + bytes;
 		}
-
 		dest = *(uint8**)buf + bytesgot;
 		bytesgot += bytes;
-
 		memcpy(dest, src, bytes);
-
 		pgno = NEXT_PGNO(h);
-
-		if((ret = __memp_fput(mpf,
-		    vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
+		if((ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
 			break;
 		h = NULL;
 	}
-
 	/*
 	 * If we're being aggressive, salvage a partial datum if there
 	 * was an error somewhere along the way.
@@ -383,11 +360,8 @@ int __db_safe_goff(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void *
 		dbt->size = bytesgot;
 		dbt->data = *(void**)buf;
 	}
-
 	/* If we broke out on error, don't leave pages pinned. */
-	if(h != NULL && (t_ret = __memp_fput(mpf,
-	    vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
+	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
 		ret = t_ret;
-
-	return (ret);
+	return ret;
 }

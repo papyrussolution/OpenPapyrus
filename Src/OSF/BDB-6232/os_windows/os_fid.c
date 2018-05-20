@@ -29,18 +29,15 @@ int __os_fileid(ENV *env, const char * fname, int unique_okay, uint8 * fidp)
 	DB_FH * fhp;
 	BY_HANDLE_FILE_INFORMATION fi;
 	BOOL retval = FALSE;
-
 	DB_ASSERT(env, fname != NULL);
-
 	/* Clear the buffer. */
-	memset(fidp, 0, DB_FILE_ID_LEN);
-
+	memzero(fidp, DB_FILE_ID_LEN);
 	/*
 	 * First we open the file, because we're not given a handle to it.
 	 * If we can't open it, we're in trouble.
 	 */
 	if((ret = __os_open(env, fname, 0, DB_OSO_RDONLY, DB_MODE_400, &fhp)) != 0)
-		return (ret);
+		return ret;
 	/* File open, get its info */
 	if((retval = GetFileInformationByHandle(fhp->handle, &fi)) == FALSE)
 		ret = __os_get_syserr();
@@ -115,5 +112,5 @@ int __os_fileid(ENV *env, const char * fname, int unique_okay, uint8 * fidp)
 	for(p = (uint8*)&tmp, i = sizeof(uint32); i > 0; --i)
 		*fidp++ = *p++;
 
-	return (0);
+	return 0;
 }

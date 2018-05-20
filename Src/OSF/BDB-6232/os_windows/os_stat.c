@@ -27,7 +27,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	 * the APIs required to retrieve the cluster size.
 	 */
 	*psize = DB_DEF_IOSIZE;
-	return (0);
+	return 0;
 #else
 	BYTE clustershift, sectorshift, * pcluster;
 	char buffer[MAX_SECTOR_SIZE];
@@ -40,7 +40,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	WORD * psector;
 
 	if(path == NULL || psize == NULL) {
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	name_size = MAX_PATH + 1;
@@ -48,7 +48,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 
 	TO_TSTRING(NULL, path, env_path, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	/* Retrieve the volume root path where the input path resides. */
 	if(!GetVolumePathName(env_path, root_path, name_size)) {
 		FREE_STRING(NULL, env_path);
@@ -80,7 +80,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	    &flags, name_buffer, name_size)) {
 		ret = __os_posix_err(__os_get_syserr());
 		CloseHandle(vhandle);
-		return (ret);
+		return ret;
 	}
 
 	ret = 0;
@@ -136,7 +136,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	}
 
 	CloseHandle(vhandle);
-	return (ret);
+	return ret;
 #endif
 }
 /*
@@ -154,7 +154,7 @@ int __os_exists(ENV *env, const char * path, int * isdirp)
 
 	TO_TSTRING(env, path, tpath, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	if(dbenv != NULL &&
 	    FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS | DB_VERB_FILEOPS_ALL))
@@ -171,7 +171,7 @@ int __os_exists(ENV *env, const char * path, int * isdirp)
 		ret = __os_posix_err(ret);
 
 	FREE_STRING(env, tpath);
-	return (ret);
+	return ret;
 }
 /*
  * __os_ioinfo --
@@ -210,5 +210,5 @@ int __os_ioinfo(ENV *env, const char * path, DB_FH * fhp, uint32 * mbytesp, uint
 		else
 			*iosizep = io_sz;
 	}
-	return (0);
+	return 0;
 }

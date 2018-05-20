@@ -29,7 +29,7 @@ int __ham_db_create(DB *dbp)
 	HASH * hashp;
 	int ret;
 	if((ret = __os_malloc(dbp->env, sizeof(HASH), &dbp->h_internal)) != 0)
-		return (ret);
+		return ret;
 	hashp = (HASH *)dbp->h_internal;
 	hashp->h_nelem = 0;                     /* Defaults. */
 	hashp->h_ffactor = 0;
@@ -45,7 +45,7 @@ int __ham_db_create(DB *dbp)
 	dbp->get_h_nelem = __ham_get_h_nelem;
 	dbp->set_h_nelem = __ham_set_h_nelem;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -54,10 +54,10 @@ int __ham_db_create(DB *dbp)
 int __ham_db_close(DB *dbp)
 {
 	if(dbp->h_internal == NULL)
-		return (0);
+		return 0;
 	__os_free(dbp->env, dbp->h_internal);
 	dbp->h_internal = NULL;
-	return (0);
+	return 0;
 }
 /*
  * __ham_get_h_ffactor --
@@ -68,7 +68,7 @@ int __ham_get_h_ffactor(DB *dbp, uint32 * h_ffactorp)
 {
 	HASH * hashp = (HASH *)dbp->h_internal;
 	*h_ffactorp = hashp->h_ffactor;
-	return (0);
+	return 0;
 }
 /*
  * __ham_set_h_ffactor --
@@ -81,7 +81,7 @@ static int __ham_set_h_ffactor(DB *dbp, uint32 h_ffactor)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	hashp = (HASH *)dbp->h_internal;
 	hashp->h_ffactor = h_ffactor;
-	return (0);
+	return 0;
 }
 
 /*
@@ -95,7 +95,7 @@ static int __ham_get_h_hash(DB *dbp, uint32(**funcp)(DB *, const void *, uint32)
 	hashp = (HASH *)dbp->h_internal;
 	if(funcp != NULL)
 		*funcp = hashp->h_hash;
-	return (0);
+	return 0;
 }
 /*
  * __ham_set_h_hash --
@@ -108,7 +108,7 @@ static int __ham_set_h_hash(DB *dbp, uint32(*func)(DB *, const void *, uint32))
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	hashp = (HASH *)dbp->h_internal;
 	hashp->h_hash = func;
-	return (0);
+	return 0;
 }
 
 /*
@@ -122,7 +122,7 @@ static int __ham_get_h_compare(DB *dbp, int (**funcp)(DB *, const DBT *, const D
 	t = (HASH *)dbp->h_internal;
 	if(funcp != NULL)
 		*funcp = t->h_compare;
-	return (0);
+	return 0;
 }
 /*
  * __ham_set_h_compare --
@@ -138,7 +138,7 @@ int __ham_set_h_compare(DB *dbp, int (*func)(DB *, const DBT *, const DBT *, siz
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	t = (HASH *)dbp->h_internal;
 	t->h_compare = func;
-	return (0);
+	return 0;
 }
 /*
  * __db_get_h_nelem --
@@ -151,7 +151,7 @@ int __ham_get_h_nelem(DB *dbp, uint32 * h_nelemp)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	hashp = (HASH *)dbp->h_internal;
 	*h_nelemp = hashp->h_nelem;
-	return (0);
+	return 0;
 }
 /*
  * __ham_set_h_nelem --
@@ -164,7 +164,7 @@ static int __ham_set_h_nelem(DB *dbp, uint32 h_nelem)
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
 	hashp = (HASH *)dbp->h_internal;
 	hashp->h_nelem = h_nelem;
-	return (0);
+	return 0;
 }
 
 /*

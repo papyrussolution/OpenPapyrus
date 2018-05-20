@@ -23,6 +23,6 @@ int __repmgr_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __repmgr_member_recover, DB___repmgr_member)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

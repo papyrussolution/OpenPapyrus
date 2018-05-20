@@ -102,11 +102,11 @@ int __partition_init(DB *dbp, uint32 flags)
 	if((part = (DB_PARTITION *)dbp->p_internal) != NULL) {
 		if((LF_ISSET(DBMETA_PART_RANGE) && F_ISSET(part, PART_CALLBACK)) || (LF_ISSET(DBMETA_PART_CALLBACK) && F_ISSET(part, PART_RANGE))) {
 			__db_errx(dbp->env, DB_STR("0645", "Cannot specify callback and range keys."));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	else if((ret = __os_calloc(dbp->env, 1, sizeof(*part), &part)) != 0)
-		return (ret);
+		return ret;
 
 	if(LF_ISSET(DBMETA_PART_RANGE))
 		F_SET(part, PART_RANGE);
@@ -116,7 +116,7 @@ int __partition_init(DB *dbp, uint32 flags)
 	/* Set up AM-specific methods that do not require an open. */
 	dbp->db_am_rename = __part_rename;
 	dbp->db_am_remove = __part_remove;
-	return (0);
+	return 0;
 }
 /*
  * __partition_set --
@@ -136,28 +136,24 @@ int __partition_set(DB *dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *,
 	env = dbp->dbenv->env;
 	if(parts < 2) {
 		__db_errx(env, DB_STR("0646", "Must specify at least 2 partitions."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	else if(parts > PART_MAXIMUM) {
 		__db_errx(env, DB_STR_A("0772", "Must not specify more than %u partitions.", "%u"), (unsigned int)PART_MAXIMUM);
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	if(keys == NULL && callback == NULL) {
-		__db_errx(env, DB_STR("0647",
-		    "Must specify either keys or a callback."));
-		return (EINVAL);
+		__db_errx(env, DB_STR("0647", "Must specify either keys or a callback."));
+		return EINVAL;
 	}
 	if(keys != NULL && callback != NULL) {
-bad:            __db_errx(env, DB_STR("0648",
-		    "May not specify both keys and a callback."));
-		return (EINVAL);
+bad:            
+		__db_errx(env, DB_STR("0648", "May not specify both keys and a callback."));
+		return EINVAL;
 	}
-
-	if((ret = __partition_init(dbp,
-	    keys != NULL ?
-	    DBMETA_PART_RANGE : DBMETA_PART_CALLBACK)) != 0)
-		return (ret);
+	if((ret = __partition_init(dbp, keys != NULL ? DBMETA_PART_RANGE : DBMETA_PART_CALLBACK)) != 0)
+		return ret;
 	part = (DB_PARTITION *)dbp->p_internal;
 
 	if((part->keys != NULL && callback != NULL) ||
@@ -182,7 +178,7 @@ bad:            __db_errx(env, DB_STR("0648",
 	}
 
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	part->nparts = parts;
 	part->callback = callback;
@@ -216,7 +212,7 @@ err:    if(ret != 0 && part->keys != NULL) {
 		__os_free(dbp->env, part->keys);
 		part->keys = NULL;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -238,7 +234,6 @@ int __partition_set_dirs(DB *dbp, const char ** dirp)
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_partition_dirs");
 	dbenv = dbp->dbenv;
 	env = dbp->env;
-
 	ndirs = 1;
 	slen = 0;
 	for(dir = dirp; *dir != NULL; dir++) {
@@ -246,12 +241,10 @@ int __partition_set_dirs(DB *dbp, const char ** dirp)
 			slen += (uint32)strlen(*dir) + 1;
 		ndirs++;
 	}
-
 	slen += sizeof(char *) * ndirs;
 	if((ret = __os_malloc(env, slen,  &part_dirs)) != 0)
-		return (EINVAL);
-	memset(part_dirs, 0, slen);
-
+		return EINVAL;
+	memzero(part_dirs, slen);
 	cp = (char*)part_dirs + (sizeof(char *) * ndirs);
 	pd = part_dirs;
 	for(dir = dirp; *dir != NULL; dir++, pd++) {
@@ -265,22 +258,20 @@ int __partition_set_dirs(DB *dbp, const char ** dirp)
 			if(strcmp(*dir, dbenv->db_data_dir[i]) == 0)
 				break;
 		if(i == dbenv->data_next) {
-			__db_errx(dbp->env, DB_STR_A("0649",
-			    "Directory not in environment list %s",
-			    "%s"), *dir);
+			__db_errx(dbp->env, DB_STR_A("0649", "Directory not in environment list %s", "%s"), *dir);
 			__os_free(env, part_dirs);
-			return (EINVAL);
+			return EINVAL;
 		}
 		*pd = dbenv->db_data_dir[i];
 	}
 
 	if((part = (DB_PARTITION *)dbp->p_internal) == NULL) {
 		if((ret = __partition_init(dbp, 0)) != 0)
-			return (ret);
+			return ret;
 		part = (DB_PARTITION *)dbp->p_internal;
 	}
 	part->dirs = (const char**)part_dirs;
-	return (0);
+	return 0;
 }
 /*
  * __partition_extent_names --
@@ -330,7 +321,7 @@ int __partition_extent_names(DB *dbp, const char * fname, char *** namelistp)
 err:    
 	if(name != NULL)
 		__os_free(env, name);
-	return (ret);
+	return ret;
 }
 /*
  * __partition_open --
@@ -432,7 +423,7 @@ err:            (void)__partition_close(dbp, txn, 0);
 	}
 	if(name != NULL)
 		__os_free(env, name);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -480,52 +471,39 @@ static int __partition_chk_meta(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint
 	if((ret = __memp_fget(mpf, &base_pgno, ip, dbc->txn, 0, &meta)) != 0)
 		goto err;
 
-	if(meta->magic != DB_HASHMAGIC &&
-	    (meta->magic != DB_BTREEMAGIC || F_ISSET(meta, BTM_RECNO))) {
+	if(meta->magic != DB_HASHMAGIC && (meta->magic != DB_BTREEMAGIC || F_ISSET(meta, BTM_RECNO))) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0650",
-		    "Partitioning may only specified on BTREE and HASH databases."));
+		__db_errx(env, DB_STR("0650", "Partitioning may only specified on BTREE and HASH databases."));
 		goto err;
 	}
-	if(!FLD_ISSET(meta->metaflags,
-	    DBMETA_PART_RANGE | DBMETA_PART_CALLBACK)) {
+	if(!FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE | DBMETA_PART_CALLBACK)) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0651",
-		    "Partitioning specified on a non-partitioned database."));
+		__db_errx(env, DB_STR("0651", "Partitioning specified on a non-partitioned database."));
 		goto err;
 	}
-
-	if((F_ISSET(part, PART_RANGE) &&
-	    FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK)) ||
-	    (F_ISSET(part, PART_CALLBACK) &&
+	if((F_ISSET(part, PART_RANGE) && FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK)) || (F_ISSET(part, PART_CALLBACK) &&
 	    FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE))) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0652",
-		    "Incompatible partitioning specified."));
+		__db_errx(env, DB_STR("0652", "Incompatible partitioning specified."));
 		goto err;
 	}
-
-	if(FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK) &&
-	    part->callback == NULL && !IS_RECOVERING(env) &&
+	if(FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK) && part->callback == NULL && !IS_RECOVERING(env) &&
 	    !F_ISSET(dbp, DB_AM_RECOVER) && !LF_ISSET(DB_RDWRMASTER)) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0653",
-		    "Partition callback not specified."));
+		__db_errx(env, DB_STR("0653", "Partition callback not specified."));
 		goto err;
 	}
 
 	if(F_ISSET(dbp, DB_AM_RECNUM)) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0654",
-		    "Record numbers are not supported in partitioned databases."));
+		__db_errx(env, DB_STR("0654", "Record numbers are not supported in partitioned databases."));
 		goto err;
 	}
 
 	if(part->nparts == 0) {
 		if(meta->nparts == 0) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0655",
-			    "Zero paritions specified."));
+			__db_errx(env, DB_STR("0655", "Zero paritions specified."));
 			goto err;
 		}
 		else
@@ -533,22 +511,19 @@ static int __partition_chk_meta(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint
 	}
 	else if(meta->nparts != 0 && part->nparts != meta->nparts) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0656",
-		    "Number of partitions does not match."));
+		__db_errx(env, DB_STR("0656", "Number of partitions does not match."));
 		goto err;
 	}
 
 	if(meta->magic == DB_HASHMAGIC) {
 		if(!F_ISSET(part, PART_CALLBACK)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0657",
-			    "Hash database must specify a partition callback."));
+			__db_errx(env, DB_STR("0657", "Hash database must specify a partition callback."));
 		}
 	}
 	else if(meta->magic != DB_BTREEMAGIC) {
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0658",
-		    "Partitioning only supported on BTREE and HASH."));
+		__db_errx(env, DB_STR("0658", "Partitioning only supported on BTREE and HASH."));
 	}
 	else {
 		set_keys = 1;
@@ -575,7 +550,7 @@ err:    /* Put the metadata page back. */
 		ret = t_ret;
 
 	dbp->p_internal = part;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -613,8 +588,8 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 	int have_keys, ret, t_ret;
 	int (*compare)__P((DB *, const DBT *, const DBT *, size_t *));
 
-	memset(&data, 0, sizeof(data));
-	memset(&key, 0, sizeof(key));
+	memzero(&data, sizeof(data));
+	memzero(&key, sizeof(key));
 	ks = NULL;
 
 	dbp = dbc->dbp;
@@ -635,8 +610,7 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 			ret = 0;
 			goto done;
 		}
-		if(!LF_ISSET(DB_CREATE) && !F_ISSET(dbp, DB_AM_RECOVER) &&
-		    !LF_ISSET(DB_RDWRMASTER)) {
+		if(!LF_ISSET(DB_CREATE) && !F_ISSET(dbp, DB_AM_RECOVER) && !LF_ISSET(DB_RDWRMASTER)) {
 			ret = USR_ERR(env, EINVAL);
 			__db_errx(env, DB_STR("0659", "No range keys found."));
 			goto err;
@@ -645,14 +619,12 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 	else {
 		if(F_ISSET(part, PART_CALLBACK)) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0660",
-			    "Keys found and callback set."));
+			__db_errx(env, DB_STR("0660", "Keys found and callback set."));
 			goto err;
 		}
 		if(key.size != 0) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0661",
-			    "Partition key 0 is not empty."));
+			__db_errx(env, DB_STR("0661", "Partition key 0 is not empty."));
 			goto err;
 		}
 		have_keys = 1;
@@ -678,7 +650,7 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 		t = (BTREE *)dbc->dbp->bt_internal;
 		compare = t->bt_compare;
 		t->bt_compare = __dbt_defcmp;
-		memset(&key, 0, sizeof(key));
+		memzero(&key, sizeof(key));
 		ret = __db_put(dbp, dbc->thread_info, dbc->txn, &key, &data, 0);
 		t->bt_compare = compare;
 		if(ret != 0)
@@ -702,20 +674,14 @@ done:   if(F_ISSET(part, PART_RANGE)) {
 			dsize = last_pgno * pgsize;
 		}
 		dsize = DB_ALIGN(dsize, 1024);
-
-		if((ret = __os_malloc(env,
-		    dsize + (sizeof(DBT) * part->nparts),
-		    &part->data)) != 0) {
+		if((ret = __os_malloc(env, dsize + (sizeof(DBT) * part->nparts), &part->data)) != 0) {
 			__db_errx(env, ALLOC_ERR, (int)dsize);
 			goto err;
 		}
-		memset(part->data, 0,
-		    dsize + (sizeof(DBT) * part->nparts));
-
-		kp = okp = (DBT*)
-			((uint8*)part->data + dsize);
-		memset(&key, 0, sizeof(key));
-		memset(&data, 0, sizeof(data));
+		memzero(part->data, dsize + (sizeof(DBT) * part->nparts));
+		kp = okp = (DBT*)((uint8*)part->data + dsize);
+		memzero(&key, sizeof(key));
+		memzero(&data, sizeof(data));
 		data.flags = DB_DBT_USERMEM;
 		j = 0;
 		cgetflags = DB_FIRST;
@@ -765,22 +731,15 @@ done:   if(F_ISSET(part, PART_RANGE)) {
 				qsort(ks, (size_t)part->nparts - 1,
 				    sizeof(struct key_sort), __part_key_cmp);
 			}
-			part->keys = (DBT*)
-			    ((uint8*)part->data + dsize);
+			part->keys = (DBT*)((uint8*)part->data + dsize);
 			F_SET(part, PART_KEYS_SETUP);
 			j = 0;
-			for(kp = part->keys;
-			    kp < &part->keys[part->nparts]; kp++, j++) {
-				if(have_keys == 1 && keys != NULL && j != 0 &&
-				    compare(dbc->dbp, ks[j - 1].key,
-				    kp, NULL) != 0) {
-					if(kp->data == NULL &&
-					    F_ISSET(dbp, DB_AM_RECOVER))
+			for(kp = part->keys; kp < &part->keys[part->nparts]; kp++, j++) {
+				if(have_keys == 1 && keys != NULL && j != 0 && compare(dbc->dbp, ks[j - 1].key, kp, NULL) != 0) {
+					if(kp->data == NULL && F_ISSET(dbp, DB_AM_RECOVER))
 						goto err;
 					ret = USR_ERR(env, EINVAL);
-					__db_errx(env, DB_STR_A("0662",
-					    "Partition key %d does not match",
-					    "%d"), j);
+					__db_errx(env, DB_STR_A("0662", "Partition key %d does not match", "%d"), j);
 					goto err;
 				}
 			}
@@ -810,7 +769,7 @@ err:    dbp->p_internal = part;
 		__os_free(env, keys);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -829,7 +788,7 @@ int __partition_get_callback(DB *dbp, uint32 * parts, uint32(**callback)(DB *, D
 		*parts = (part != NULL ? part->nparts : 0);
 	if(callback != NULL)
 		*callback = (part != NULL ? part->callback : NULL);
-	return (0);
+	return 0;
 }
 
 /*
@@ -847,7 +806,7 @@ int __partition_get_keys(DB *dbp, uint32 * parts, DBT ** keys)
 		*parts = (part != NULL ? part->nparts : 0);
 	if(keys != NULL)
 		*keys = (part != NULL ? &part->keys[1] : NULL);
-	return (0);
+	return 0;
 }
 /*
  * __partition_get_dirs --
@@ -863,11 +822,11 @@ int __partition_get_dirs(DB *dbp, const char *** dirpp)
 	env = dbp->env;
 	if((part = (DB_PARTITION *)dbp->p_internal) == NULL) {
 		*dirpp = NULL;
-		return (0);
+		return 0;
 	}
 	if(!F_ISSET(dbp, DB_AM_OPEN_CALLED)) {
 		*dirpp = part->dirs;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -875,17 +834,17 @@ int __partition_get_dirs(DB *dbp, const char *** dirpp)
 	 * if any, was discarded at open time.
 	 */
 	if((*dirpp = part->dirs) != NULL)
-		return (0);
+		return 0;
 
 	if((ret = __os_calloc(env,
 	    sizeof(char *), part->nparts + 1, (void*)&part->dirs)) != 0)
-		return (ret);
+		return ret;
 
 	for(i = 0; i < part->nparts; i++)
 		part->dirs[i] = part->handles[i]->dirname;
 
 	*dirpp = part->dirs;
-	return (0);
+	return 0;
 }
 
 /*
@@ -900,7 +859,7 @@ int __partc_init(DBC *dbc)
 	ENV * env = dbc->env;
 	/* Allocate/initialize the internal structure. */
 	if(dbc->internal == NULL && (ret = __os_calloc(env, 1, sizeof(PART_CURSOR), &dbc->internal)) != 0)
-		return (ret);
+		return ret;
 	/* Initialize methods. */
 	dbc->close = dbc->c_close = __dbc_close_pp;
 	dbc->cmp = __dbc_cmp_pp;
@@ -921,7 +880,7 @@ int __partc_init(DBC *dbc)
 	/* We avoid swapping partition cursors since we swap the sub cursors */
 	F_SET(dbc, DBC_PARTITIONED);
 
-	return (0);
+	return 0;
 }
 /*
  * __partc_get_pp --
@@ -938,7 +897,7 @@ static int __partc_get_pp(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	ignore_lease = LF_ISSET(DB_IGNORE_LEASE) ? 1 : 0;
 	LF_CLR(DB_IGNORE_LEASE);
 	if((ret = __dbc_get_arg(dbc, key, data, flags)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	DEBUG_LREAD(dbc, dbc->txn, "DBcursor->get", flags == DB_SET || flags == DB_SET_RANGE ? key : NULL, NULL, flags);
 	ret = __partc_get(dbc, key, data, flags);
@@ -951,7 +910,7 @@ static int __partc_get_pp(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 
 	ENV_LEAVE(env, ip);
 	__dbt_userfree(env, key, NULL, data);
-	return (ret);
+	return ret;
 }
 /*
  * __partition_get --
@@ -1084,11 +1043,11 @@ int __partc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		cp->part_id = part_id;
 	}
 
-	return (0);
+	return 0;
 
 err:    if(new_dbc != NULL && new_dbc != orig_dbc)
 		(void)__dbc_close(new_dbc);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1147,11 +1106,11 @@ static int __partc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 		cp->part_id = part_id;
 	}
 
-	return (0);
+	return 0;
 
 err:    if(new_dbc != NULL && cp->sub_cursor != new_dbc)
 		(void)__dbc_close(new_dbc);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1190,10 +1149,10 @@ static int __partc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 	COMPQUIET(rmroot, NULL);
 	cp = (PART_CURSOR*)dbc->internal;
 	if(cp->sub_cursor == NULL)
-		return (0);
+		return 0;
 	ret = __dbc_close(cp->sub_cursor);
 	cp->sub_cursor = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1208,7 +1167,7 @@ static int __partc_destroy(DBC *dbc)
 	env = dbc->env;
 	/* Discard the structure. Don't recurse. */
 	__os_free(env, cp);
-	return (0);
+	return 0;
 }
 /*
  * __partition_close
@@ -1224,7 +1183,7 @@ int __partition_close(DB *dbp, DB_TXN * txn, uint32 flags)
 	uint32 i;
 	int ret, t_ret;
 	if((part = (DB_PARTITION *)dbp->p_internal) == NULL)
-		return (0);
+		return 0;
 	env = dbp->env;
 	ret = 0;
 	if((pdbp = part->handles) != NULL) {
@@ -1250,7 +1209,7 @@ int __partition_close(DB *dbp, DB_TXN * txn, uint32 flags)
 	__os_free(env, part);
 	dbp->p_internal = NULL;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1275,7 +1234,7 @@ int __partition_sync(DB *dbp)
 	if((t_ret = __memp_fsync(dbp->mpf)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 /*
  * __partition_stat
@@ -1368,13 +1327,13 @@ int __partition_stat(DBC *dbc, void * spp, uint32 flags)
 		if((ret = __dbc_close(new_dbc)) != 0)
 			goto err;
 	}
-	return (0);
+	return 0;
 
 err:
 	if(fsp != NULL)
 		__os_ufree(env, fsp);
 	*(DB_BTREE_STAT**)spp = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1427,7 +1386,7 @@ int __part_truncate(DBC *dbc, uint32 * countp)
 			*countp += count;
 	}
 
-	return (ret);
+	return ret;
 }
 /*
  * __part_compact -- compact a partitioned database.
@@ -1457,7 +1416,7 @@ int __part_compact(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, DBT 
 			    break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1477,7 +1436,7 @@ int __part_lsn_reset(DB *dbp, DB_THREAD_INFO * ip)
 	ret = 0;
 	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++)
 		ret = __db_lsn_reset((*pdbp)->mpf, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __part_fileid_reset --
@@ -1494,7 +1453,7 @@ int __part_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * fname, uint3
 	const char * np;
 	if((ret = __os_malloc(env, strlen(fname) + PART_LEN + 1, &name)) != 0) {
 		__db_errx(env, ALLOC_ERR, (int)(strlen(fname) + PART_LEN + 1));
-		return (ret);
+		return ret;
 	}
 
 	sp = name;
@@ -1513,7 +1472,7 @@ int __part_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * fname, uint3
 	}
 
 	__os_free(env, name);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1679,7 +1638,7 @@ int __part_key_range(DBC *dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 c_err:          (void)__dbc_close(new_dbc);
 	}
 
-err:    return (ret);
+err:    return ret;
 }
 
 /*
@@ -1720,7 +1679,7 @@ static int __part_rr(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 	ret = 0;
 	if(subdb != NULL && name != NULL) {
 		__db_errx(env, DB_STR("0663", "A partitioned database can not be in a multiple databases file"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	ENV_GET_THREAD_INFO(env, ip);
 
@@ -1729,7 +1688,7 @@ static int __part_rr(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 	 * to do it here.
 	 */
 	if((ret = __db_create_internal(&tmpdbp, env, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * We need to make sure we don't self-deadlock, so give
@@ -1787,7 +1746,7 @@ err:
 		    txn, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1891,7 +1850,7 @@ err:    if(lp != NULL)
 		__os_free(env, lp);
 	if(rp != NULL)
 		__os_free(env, rp);
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -1908,13 +1867,13 @@ int __part_testdocopy(DB *dbp, const char * name)
 	uint32 i;
 	int ret;
 	if((ret = __db_testdocopy(dbp->env, name)) != 0)
-		return (ret);
+		return ret;
 	part = (DB_PARTITION *)dbp->p_internal;
 	pdbp = part->handles;
 	for(i = 0; i < part->nparts; i++, pdbp++)
 		if((ret = __db_testdocopy(dbp->env, (*pdbp)->fname)) != 0)
-			return (ret);
-	return (0);
+			return ret;
+	return 0;
 }
 #endif
 #else

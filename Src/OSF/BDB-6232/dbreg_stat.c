@@ -25,8 +25,8 @@ int __dbreg_stat_print(ENV *env, uint32 flags)
 {
 	int ret;
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __dbreg_print_all(env, flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __dbreg_print_fname --
@@ -117,6 +117,6 @@ static int __dbreg_print_all(ENV *env, uint32 flags)
 			STAT_LONG("fid", stack[i]);
 	}
 
-	return (0);
+	return 0;
 }
 #endif

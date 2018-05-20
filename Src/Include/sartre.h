@@ -459,7 +459,8 @@ private:
 #define SRPROPT_INT       1
 #define SRPROPT_STRING    2
 #define SRPROPT_REAL      3
-#define SRPROPT_HDATE     4
+//#define SRPROPT_HDATE     4
+#define SRPROPT_UNITIME   4
 #define SRPROPT_HPERIOD   5
 //
 // Descr: Декларация свойства концепции
@@ -575,8 +576,10 @@ public:
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);
 	SrCProp & FASTCALL operator = (double);
+	SrCProp & FASTCALL operator = (const SUniTime & rUtVal);
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
+	int    FASTCALL Get(SUniTime & rUtVal) const;
 
 	CONCEPTID CID;     // Ид концепции
 	CONCEPTID PropID;  // Ид свойства (тоже концепция)

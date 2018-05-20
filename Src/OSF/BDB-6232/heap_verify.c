@@ -39,7 +39,7 @@ int __heap_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, HEAPMETA * meta, db_pgno_t pgno
 	}
 
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
-		return (ret);
+		return ret;
 	isbad = 0;
 	/*
 	 * Heap can't be used in subdatabases, so if this isn't set
@@ -144,10 +144,10 @@ int __heap_vrfy(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, uint32 fla
 		return DB_VERIFY_BAD;
 	}
 	if((ret = __db_vrfy_datapage(dbp, vdp, h, pgno, flags)) != 0)
-		return (ret);
+		return ret;
 	if(TYPE(h) == P_IHEAP)
 		/* Nothing to verify on a region page. */
-		return (0);
+		return 0;
 	offtbl = HEAP_OFFSETTBL(dbp, h);
 	if((ret = __os_malloc(dbp->env, NUM_ENT(h) * sizeof(db_indx_t), &offsets)) != 0)
 		goto err;
@@ -267,7 +267,7 @@ int __heap_vrfy(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, uint32 fla
 	}
 err:    
 	__os_free(dbp->env, offsets);
-	return (ret);
+	return ret;
 }
 
 static int __heap_verify_offset_cmp(const void * off1, const void * off2)
@@ -288,7 +288,7 @@ int __heap_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 	int ret, isbad;
 	isbad = 0;
 	if((ret = __db_vrfy_getpageinfo(vdp, PGNO_BASE_MD, &pip)) != 0)
-		return (ret);
+		return ret;
 
 	if(pip->type != P_HEAPMETA) {
 		EPRINT((dbp->env, DB_STR_A("1162",
@@ -316,7 +316,7 @@ int __heap_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 
 		if((ret = __db_vrfy_putpageinfo(dbp->env, vdp, pip)) != 0 ||
 		    (ret = __db_vrfy_getpageinfo(vdp, i, &pip)) != 0)
-			return (ret);
+			return ret;
 		if(i != next_region &&
 		    pip->type != P_HEAP && pip->type != P_INVALID) {
 			EPRINT((dbp->env, DB_STR_A("1163",
@@ -351,7 +351,7 @@ int __heap_vrfy_structure(DB *dbp, VRFY_DBINFO * vdp, uint32 flags)
 	}
 err:    
 	if((ret = __db_vrfy_putpageinfo(dbp->env, vdp, pip)) != 0)
-		return (ret);
+		return ret;
 	return (isbad == 1 ? DB_VERIFY_BAD : 0);
 }
 
@@ -378,7 +378,7 @@ int __heap_salvage(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * 
 	db_seq_t blob_id, file_id;
 
 	COMPQUIET(flags, 0);
-	memset(&dbt, 0, sizeof(DBT));
+	memzero(&dbt, sizeof(DBT));
 	blob_buf = NULL;
 	blob_buf_size = 0;
 	env = dbp->env;
@@ -531,7 +531,7 @@ static int __heap_safe_gsplit(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, unsigned i, 
 		if(F_ISSET(&hdr->std_hdr, HEAP_RECLAST))
 			break;
 		if(gotpg && (ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0)
-			return (ret);
+			return ret;
 		gotpg = 0;
 		if((ret = __memp_fget(mpf, &hdr->nextpg, vdp->thread_info, NULL, 0, &h)) != 0)
 			goto err;
@@ -541,7 +541,7 @@ static int __heap_safe_gsplit(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, unsigned i, 
 err:    
 	if(gotpg && (t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -562,5 +562,5 @@ int __heap_meta2pgset(DB *dbp, VRFY_DBINFO * vdp, HEAPMETA * heapmeta, DB * pgse
 	for(pgno = 1; pgno <= last; pgno++)
 		if((ret = __db_vrfy_pgset_inc(pgset, vdp->thread_info, vdp->txn, pgno)) != 0)
 			break;
-	return (ret);
+	return ret;
 }

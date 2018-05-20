@@ -61,36 +61,31 @@ int __db_compact_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, DB
 	ENV * env;
 	uint32 empty_buckets, factor, retry;
 	int deadlock, have_freelist, isdone, ret, span, t_ret, txn_local;
-
 #ifdef HAVE_FTRUNCATE
 	db_pglist_t * list;
 	db_pgno_t last_pgno;
 	uint32 nelems, truncated;
 #endif
-
 	env = dbp->env;
-
-	memset(&current, 0, sizeof(current));
-	memset(&save_start, 0, sizeof(save_start));
+	memzero(&current, sizeof(current));
+	memzero(&save_start, sizeof(save_start));
 	dbc = NULL;
 	factor = 0;
 	have_freelist = deadlock = isdone = span = 0;
 	ret = retry = 0;
 	txn_orig = txn;
-
 #ifdef HAVE_FTRUNCATE
 	list = NULL;
 	last_pgno = 0;
 	nelems = truncated = 0;
 #endif
-
 	/*
 	 * We pass "current" to the internal routine, indicating where that
 	 * routine should begin its work and expecting that it will return to
 	 * us the last key that it processed.
 	 */
 	if(start != NULL && (ret = __db_retcopy(env, &current, start->data, start->size, &current.data, &current.ulen)) != 0)
-		return (ret);
+		return ret;
 	empty_buckets = c_data->compact_empty_buckets;
 
 	if(IS_DB_AUTO_COMMIT(dbp, txn)) {
@@ -298,7 +293,7 @@ done:   if(LF_ISSET(DB_FREE_SPACE)) {
 	}
 #endif
 
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -309,10 +304,10 @@ static int __db_setup_freelist(DB *dbp, db_pglist_t * list, uint32 nelems)
 	int ret;
 	mpf = dbp->mpf;
 	if((ret = __memp_alloc_freelist(mpf, nelems, &plist)) != 0)
-		return (ret);
+		return ret;
 	while(nelems-- != 0)
 		*plist++ = list++->pgno;
-	return (0);
+	return 0;
 }
 
 static int __db_free_freelist(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
@@ -345,7 +340,7 @@ static int __db_free_freelist(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 		}
 		/* Get a cursor so we can call __db_lget. */
 		if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
-			return (ret);
+			return ret;
 
 		if((ret = __db_lget(dbc,
 		    0, PGNO_BASE_MD, DB_LOCK_WRITE, 0, &lock)) != 0)
@@ -363,7 +358,7 @@ err:    if(dbc != NULL && (t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 	if(auto_commit && (t_ret = __txn_abort(txn)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -410,12 +405,12 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 	if(newpgno != PGNO_INVALID) {
 		if((ret = __memp_fget(dbp->mpf, &newpgno,
 		    dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &newpage)) != 0)
-			return (ret);
+			return ret;
 	}
 	else if((ret = __db_new(dbc, P_DONTEXTEND | TYPE(*pgp),
 	    STD_LOCKING(dbc) && TYPE(*pgp) != P_OVERFLOW ? &lock : NULL,
 	    &newpage)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * If newpage is null then __db_new would have had to allocate
@@ -423,7 +418,7 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 	 * to continue this action.
 	 */
 	if(newpage == NULL)
-		return (0);
+		return 0;
 
 	/*
 	 * It is possible that a higher page is allocated if other threads
@@ -436,16 +431,15 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 		if(TYPE(newpage) == P_OVERFLOW)
 			OV_LEN(newpage) = 0;
 		if((ret = __LPUT(dbc, lock)) != 0)
-			return (ret);
+			return ret;
 		return (__db_free(dbc, newpage, 0));
 	}
-
 	/* Log if necessary. */
 	if(DBC_LOGGING(dbc)) {
-		memset(&hdr, 0, sizeof(hdr));
+		memzero(&hdr, sizeof(hdr));
 		hdr.data = *pgp;
 		hdr.size = P_OVERHEAD(dbp);
-		memset(&data, 0, sizeof(data));
+		memzero(&data, sizeof(data));
 		dp = &data;
 		switch(TYPE(*pgp)) {
 			case P_OVERFLOW:
@@ -523,7 +517,7 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 	*pgp = newpage;
 
 	if(ret != 0)
-		return (ret);
+		return ret;
 
 	if(!LF_ISSET(DB_EXCH_PARENT))
 		goto done;
@@ -552,7 +546,7 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 		if((ret = __db_pgno_log(dbp, dbc->txn, &LSN(epg->page),
 		    0, PGNO(epg->page), &LSN(epg->page), (uint32)epg->indx,
 		    *pgnop, PGNO(newpage))) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 		LSN_NOT_LOGGED(LSN(epg->page));
@@ -560,15 +554,15 @@ int __db_exchange_page(DBC *dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, int
 	*pgnop = PGNO(newpage);
 	cp->csp->page = newpage;
 	if((ret = __TLPUT(dbc, lock)) != 0)
-		return (ret);
+		return ret;
 
 done:
 	(*pgs_donep)++;
-	return (0);
+	return 0;
 
 err:    (void)__memp_fput(dbp->mpf, dbc->thread_info, newpage, dbc->priority);
 	(void)__TLPUT(dbc, lock);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -593,15 +587,15 @@ int __db_truncate_overflow(DBC *dbc, db_pgno_t pgno, PAGE ** ppg, DB_COMPACT * c
 
 	if((ret = __memp_fget(dbp->mpf, &pgno,
 	    dbc->thread_info, dbc->txn, 0, &page)) != 0)
-		return (ret);
+		return ret;
 
 	while((pgno = NEXT_PGNO(page)) != PGNO_INVALID) {
 		if((ret = __memp_fput(dbp->mpf,
 		    dbc->thread_info, page, dbc->priority)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __memp_fget(dbp->mpf, &pgno,
 		    dbc->thread_info, dbc->txn, 0, &page)) != 0)
-			return (ret);
+			return ret;
 		if(pgno <= c_data->compact_truncate)
 			continue;
 		if(!have_lock) {
@@ -624,7 +618,7 @@ err:
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -643,8 +637,7 @@ int __db_truncate_root(DBC *dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, uin
 	dbp = dbc->dbp;
 
 	DB_ASSERT(dbc->dbp->env, IS_DIRTY(ppg));
-	if((ret = __memp_fget(dbp->mpf, pgnop,
-	    dbc->thread_info, dbc->txn, 0, &page)) != 0)
+	if((ret = __memp_fget(dbp->mpf, pgnop, dbc->thread_info, dbc->txn, 0, &page)) != 0)
 		goto err;
 
 	/*
@@ -656,9 +649,8 @@ int __db_truncate_root(DBC *dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, uin
 		COMPQUIET(newpgno, 0);
 		if((ret = __db_ovref(dbc, *pgnop)) != 0)
 			goto err;
-		memset(&orig, 0, sizeof(orig));
-		if((ret = __db_goff(dbc, &orig, tlen, *pgnop,
-		    &orig.data, &orig.size)) == 0)
+		memzero(&orig, sizeof(orig));
+		if((ret = __db_goff(dbc, &orig, tlen, *pgnop, &orig.data, &orig.size)) == 0)
 			ret = __db_poff(dbc, &orig, &newpgno);
 		if(orig.data != NULL)
 			__os_free(dbp->env, orig.data);
@@ -688,7 +680,7 @@ int __db_truncate_root(DBC *dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, uin
 err:    
 	if(page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_FTRUNCATE
@@ -723,7 +715,7 @@ int __db_find_free(DBC *dbc, uint32 type, uint32 size, db_pgno_t bstart, db_pgno
 #ifdef HAVE_HASH
 	if(dbp->type == DB_HASH) {
 		if((ret = __ham_return_meta(dbc, DB_MPOOL_DIRTY, &meta)) != 0)
-			return (ret);
+			return ret;
 		if(meta != NULL)
 			hash = 1;
 	}
@@ -783,7 +775,7 @@ found:  /* We have size range of pages.  Remove them. */
 		page = (PAGE*)meta;
 	}
 	else if((ret = __memp_fget(mpf, &list[start - 1], dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &page)) != 0)
-		return (ret);
+		return ret;
 	if(DBC_LOGGING(dbc)) {
 		if((ret = __os_malloc(dbp->env, size * sizeof(db_pglist_t), &pglist)) != 0)
 			goto err;
@@ -838,7 +830,7 @@ err:
 	if(meta != NULL && hash == 0)
 		(void)__memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	(void)__TLPUT(dbc, metalock);
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -925,13 +917,13 @@ int __db_relink(DBC *dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 		if(ret != 0)
 			goto err;
 	}
-	return (0);
+	return 0;
 err:    
 	if(np != NULL && np != otherp)
 		(void)__memp_fput(mpf, dbc->thread_info, np, dbc->priority);
 	if(pp != NULL && pp != otherp)
 		(void)__memp_fput(mpf, dbc->thread_info, pp, dbc->priority);
-	return (ret);
+	return ret;
 }
 /*
  * __db_move_metadata -- move a meta data page to a lower page number.
@@ -950,11 +942,11 @@ int __db_move_metadata(DBC *dbc, DBMETA ** metap, DB_COMPACT * c_data, int * pgs
 	DB * dbp = dbc->dbp;
 	c_data->compact_pages_examine++;
 	if((ret = __db_exchange_page(dbc, (PAGE**)metap, NULL, PGNO_INVALID, DB_EXCH_FREE, pgs_donep)) != 0)
-		return (ret);
+		return ret;
 	if(PGNO(*metap) == dbp->meta_pgno)
-		return (0);
+		return 0;
 	if((ret = __db_master_open(dbp, dbc->thread_info, dbc->txn, dbp->fname, 0, 0, &mdbp)) != 0)
-		return (ret);
+		return ret;
 	dbp->meta_pgno = PGNO(*metap);
 	if((ret = __db_master_update(mdbp, dbp, dbc->thread_info, dbc->txn, dbp->dname, dbp->type, MU_MOVE, NULL, 0)) != 0)
 		goto err;
@@ -998,5 +990,5 @@ int __db_move_metadata(DBC *dbc, DBMETA ** metap, DB_COMPACT * c_data, int * pgs
 err:    
 	if((t_ret = __db_close(mdbp, dbc->txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

@@ -371,7 +371,7 @@ err:    if(h != NULL && (t_ret = __memp_fput(mpf,
 done:
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
-	return (ret);
+	return ret;
 }
 /*
  * __bam_adjust --
@@ -402,14 +402,14 @@ int __bam_adjust(DBC *dbc, int32 adjust)
 				dbc->thread_info, dbc->txn, dbc->priority, 0);
 			epg->page = h;
 			if(ret != 0)
-				return (ret);
+				return ret;
 			if(DBC_LOGGING(dbc)) {
 				if((ret = __bam_cadjust_log(dbp, dbc->txn,
 				    &LSN(h), 0, PGNO(h), &LSN(h),
 				    (uint32)epg->indx, adjust,
 				    PGNO(h) == root_pgno ?
 				    CAD_UPDATEROOT : 0)) != 0)
-					return (ret);
+					return ret;
 			}
 			else
 				LSN_NOT_LOGGED(LSN(h));
@@ -425,7 +425,7 @@ int __bam_adjust(DBC *dbc, int32 adjust)
 				RE_NREC_ADJ(h, adjust);
 		}
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -458,7 +458,7 @@ int __bam_nrecs(DBC *dbc, db_recno_t * rep)
 err:    
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __bam_total --

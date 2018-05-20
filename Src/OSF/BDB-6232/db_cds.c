@@ -55,7 +55,7 @@ static int __cdsgroup_commit(DB_TXN *txn, uint32 flags)
 	/* Check for live cursors. */
 	if(txn->cursors != 0) {
 		__db_errx(env, DB_STR("0688", "CDS group has active cursors"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/* We may be holding handle locks; release them. */
@@ -69,7 +69,7 @@ static int __cdsgroup_commit(DB_TXN *txn, uint32 flags)
 	__os_free(env, txn);
 	if((t_ret = __lock_id_free(env, locker)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static int __cdsgroup_discard(DB_TXN *txn, uint32 flags)
@@ -152,7 +152,7 @@ err:
 			__os_free(env, txn);
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -172,5 +172,5 @@ int __cdsgroup_begin_pp(DB_ENV *dbenv, DB_TXN ** txnpp)
 	ENV_ENTER(env, ip);
 	ret = __cdsgroup_begin(env, txnpp);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }

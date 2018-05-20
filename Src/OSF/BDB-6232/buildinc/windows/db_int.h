@@ -308,10 +308,8 @@ typedef struct __fn {
 		STAT_PERFMON3((env), cat, subcat, (val), (id1), (id2)); \
 	} while(0)
 
-#define STAT_INC(env, cat, subcat, val, id)                             \
-	STAT_ADJUST(env, cat, subcat, (val), 1, (id))
-#define STAT_INC_VERB(env, cat, subcat, val, id1, id2)                  \
-	STAT_ADJUST_VERB((env), cat, subcat, (val), 1, (id1), (id2))
+#define STAT_INC(env, cat, subcat, val, id) STAT_ADJUST(env, cat, subcat, (val), 1, (id))
+#define STAT_INC_VERB(env, cat, subcat, val, id1, id2) STAT_ADJUST_VERB((env), cat, subcat, (val), 1, (id1), (id2))
 /*
  * STAT_DEC() subtracts one rather than adding (-1) with STAT_ADJUST(); the
  * latter can generate a compilation warning for an unsigned value.
@@ -334,22 +332,20 @@ typedef struct __fn {
 		STAT_PERFMON3((env), cat, subcat, (val), (id1), (id2)); \
 	} while(0)
 #else
-#define STAT(x)                                                 NOP_STATEMENT
-#define STAT_ADJUST(env, cat, subcat, val, amt, id)             NOP_STATEMENT
-#define STAT_ADJUST_VERB(env, cat, subcat, val, amt, id1, id2)  NOP_STATEMENT
-#define STAT_INC(env, cat, subcat, val, id)                     NOP_STATEMENT
-#define STAT_INC_VERB(env, cat, subcat, val, id1, id2)          NOP_STATEMENT
-#define STAT_DEC(env, cat, subcat, val, id)                     NOP_STATEMENT
-#define STAT_SET(env, cat, subcat, val, newval, id)             NOP_STATEMENT
-#define STAT_SET_VERB(env, cat, subcat, val, newval, id1, id2)  NOP_STATEMENT
+	#define STAT(x)                                                 NOP_STATEMENT
+	#define STAT_ADJUST(env, cat, subcat, val, amt, id)             NOP_STATEMENT
+	#define STAT_ADJUST_VERB(env, cat, subcat, val, amt, id1, id2)  NOP_STATEMENT
+	#define STAT_INC(env, cat, subcat, val, id)                     NOP_STATEMENT
+	#define STAT_INC_VERB(env, cat, subcat, val, id1, id2)          NOP_STATEMENT
+	#define STAT_DEC(env, cat, subcat, val, id)                     NOP_STATEMENT
+	#define STAT_SET(env, cat, subcat, val, newval, id)             NOP_STATEMENT
+	#define STAT_SET_VERB(env, cat, subcat, val, newval, id1, id2)  NOP_STATEMENT
 #endif
-
 #if defined HAVE_SIMPLE_THREAD_TYPE
-#define DB_THREADID_INIT(t)     COMPQUIET((t), 0)
+	#define DB_THREADID_INIT(t)     COMPQUIET((t), 0)
 #else
-#define DB_THREADID_INIT(t)     memset(&(t), 0, sizeof(t))
+	#define DB_THREADID_INIT(t)     memzero(&(t), sizeof(t))
 #endif
-
 /*
  * These macros are used when an error condition is first noticed.  They allow
  * one to be notified (via e.g. DTrace, SystemTap, ...) when an error occurs
@@ -360,15 +356,9 @@ typedef struct __fn {
  * EINVAL or DB_LOCK_DEALOCK, not a variable.  Noticing system call failures
  * would be handled by tracing on syscall exit; when e.g., it returns < 0.
  */
-#define ERR_ORIGIN(env, errcode)                                        \
-	(PERFMON0(env, error, errcode), errcode)
-
-#define ERR_ORIGIN_MSG(env, errcode, msg)                               \
-	(PERFMON1(env, error, errcode, msg), errcode)
-
-#define WARNING_ORIGIN(env, errcode)                                    \
-	(PERFMON0(env, warning, errcode), errcode)
-
+#define ERR_ORIGIN(env, errcode) (PERFMON0(env, error, errcode), errcode)
+#define ERR_ORIGIN_MSG(env, errcode, msg) (PERFMON1(env, error, errcode, msg), errcode)
+#define WARNING_ORIGIN(env, errcode) (PERFMON0(env, warning, errcode), errcode)
 /*
  * Structure used for callback message aggregation.
  *
@@ -416,25 +406,17 @@ typedef struct __db_msgbuf {
 			}                                                       \
 		}                                                               \
 } while(0)
-#define STAT_FMT(msg, fmt, type, v)                                     \
-	__db_msg(env, fmt "\t%s", (type)(v), msg);
-#define STAT_HEX(msg, v)                                                \
-	__db_msg(env, "%#lx\t%s", (u_long)(v), msg)
-#define STAT_ISSET(msg, p)                                              \
-	__db_msg(env, "%sSet\t%s", (p) == NULL ? "!" : " ", msg)
-#define STAT_LONG(msg, v)                                               \
-	__db_msg(env, "%ld\t%s", (long)(v), msg)
-#define STAT_LSN(msg, lsnp)                                             \
-	__db_msg(env, "%lu/%lu\t%s",                                    \
-	    (u_long)(lsnp)->file, (u_long)(lsnp)->offset, msg)
-#define STAT_POINTER(msg, v)                                            \
-	__db_msg(env, "%#lx\t%s", P_TO_ULONG(v), msg)
+#define STAT_FMT(msg, fmt, type, v) __db_msg(env, fmt "\t%s", (type)(v), msg);
+#define STAT_HEX(msg, v)    __db_msg(env, "%#lx\t%s", (u_long)(v), msg)
+#define STAT_ISSET(msg, p)  __db_msg(env, "%sSet\t%s", (p) == NULL ? "!" : " ", msg)
+#define STAT_LONG(msg, v)   __db_msg(env, "%ld\t%s", (long)(v), msg)
+#define STAT_LSN(msg, lsnp) __db_msg(env, "%lu/%lu\t%s", (u_long)(lsnp)->file, (u_long)(lsnp)->offset, msg)
+#define STAT_POINTER(msg, v) __db_msg(env, "%#lx\t%s", P_TO_ULONG(v), msg)
 #define STAT_STRING(msg, p) do {                                        \
 		const char * __p = p; /* p may be a function call. */         \
 		__db_msg(env, "%s\t%s", __p == NULL ? "!Set" : __p, msg);       \
 } while(0)
-#define STAT_ULONG(msg, v)                                              \
-	__db_msg(env, "%lu\t%s", (u_long)(v), msg)
+#define STAT_ULONG(msg, v) __db_msg(env, "%lu\t%s", (u_long)(v), msg)
 
 /*
  * The following macros are used to control how error and message strings are
@@ -456,20 +438,18 @@ typedef struct __db_msgbuf {
  * Error message IDs are automatically assigned by dist/s_message_id script.
  */
 #ifdef HAVE_STRIPPED_MESSAGES
-#define DB_STR_C(msg, fmt)      fmt
+	#define DB_STR_C(msg, fmt)      fmt
 #else
-#define DB_STR_C(msg, fmt)      msg
+	#define DB_STR_C(msg, fmt)      msg
 #endif
-
 #ifdef HAVE_LOCALIZATION
-#define _(msg)  (msg)   /* Replace with localization function. */
+	#define _(msg)  (msg)   /* Replace with localization function. */
 #else
-#define _(msg)  msg
+	#define _(msg)  msg
 #endif
-
-#define DB_STR(id, msg)                 _("BDB" id " " DB_STR_C(msg, ""))
-#define DB_STR_A(id, msg, fmt)  _("BDB" id " " DB_STR_C(msg, fmt))
-#define DB_STR_P(msg)                   _(msg)
+#define DB_STR(id, msg)        _("BDB" id " " DB_STR_C(msg, ""))
+#define DB_STR_A(id, msg, fmt) _("BDB" id " " DB_STR_C(msg, fmt))
+#define DB_STR_P(msg)          _(msg)
 
 /*
  * There are quite a few places in Berkeley DB where we want to initialize
@@ -482,12 +462,12 @@ typedef struct __db_msgbuf {
 		(dbt).size = (uint32)(s);                                    \
 } while(0)
 #define DB_INIT_DBT(dbt, d, s)  do {                                    \
-		memset(&(dbt), 0, sizeof(dbt));                                 \
+		memzero(&(dbt), sizeof(dbt));                                 \
 		DB_SET_DBT(dbt, d, s);                                          \
 } while(0)
 
 #define DB_INIT_DBT_USERMEM(dbt, d, s)  do {                            \
-		memset(&(dbt), 0, sizeof(dbt));                                 \
+		memzero(&(dbt), sizeof(dbt));                                 \
 		(dbt).data = (void*)(d);                                       \
 		(dbt).ulen = (uint32)(s);                                    \
 		(dbt).flags = DB_DBT_USERMEM;                                   \
@@ -693,8 +673,7 @@ typedef enum {
 
 #define ENV_LEAVE(env, ip) do {                                         \
 		if((ip) != NULL) {     \
-			DB_ASSERT((env), (ip)->dbth_state == THREAD_ACTIVE  ||  \
-			    (ip)->dbth_state == THREAD_FAILCHK);                \
+			DB_ASSERT((env), (ip)->dbth_state == THREAD_ACTIVE | (ip)->dbth_state == THREAD_FAILCHK); \
 			(ip)->dbth_state = THREAD_OUT;                          \
 		}                                                               \
 } while(0)

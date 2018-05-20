@@ -1243,7 +1243,11 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 //
 // DateIter
 //
-SLAPI DateIter::DateIter(long start /* = 0 */, long finish /* = 0 */)
+SLAPI DateIter::DateIter() : dt(ZERODATE), end(ZERODATE), oprno(0)
+{
+}
+
+SLAPI DateIter::DateIter(long start, long finish)
 {
 	Init(start, finish);
 }
@@ -1253,7 +1257,14 @@ SLAPI DateIter::DateIter(const DateRange * pPeriod)
 	Init(pPeriod);
 }
 
-void SLAPI DateIter::Init(long start /* = 0 */, long finish /* = 0 */)
+void SLAPI DateIter::Init()
+{
+	dt = ZERODATE;
+	end = ZERODATE;
+	oprno = 0;
+}
+
+void SLAPI DateIter::Init(long start, long finish)
 {
 	dt.v  = start;
 	end.v = finish;
@@ -1265,7 +1276,7 @@ void SLAPI DateIter::Init(const DateRange * pPeriod)
 	if(pPeriod)
 		Init(pPeriod->low, pPeriod->upp);
 	else
-		Init(0L, 0L);
+		Init();
 }
 
 int FASTCALL DateIter::Advance(LDATE d, long o)

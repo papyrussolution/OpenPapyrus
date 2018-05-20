@@ -43,5 +43,5 @@ int __os_seek(ENV *env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t relati
 		    (u_long)offset, (u_long)pgno, (u_long)pgsize, (u_long)relative);
 		ret = __os_posix_err(ret);
 	}
-	return (ret);
+	return ret;
 }

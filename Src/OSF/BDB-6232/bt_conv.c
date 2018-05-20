@@ -23,7 +23,7 @@ int __bam_pgin(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_BTREEMETA ?  __bam_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 1));
 }
@@ -39,7 +39,7 @@ int __bam_pgout(DB *dbp, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (PAGE *)pp;
 	return (TYPE(h) == P_BTREEMETA ?  __bam_mswap(dbp->env, (PAGE *)pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0));
 }
@@ -67,5 +67,5 @@ int __bam_mswap(ENV *env, PAGE * pg)
 	SWAP32(p);              /* sdb id hi */
 	p += 87 * sizeof(uint32); /* unused */
 	SWAP32(p);              /* crypto_magic */
-	return (0);
+	return 0;
 }

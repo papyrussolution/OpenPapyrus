@@ -7183,7 +7183,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @amounttype_ecalg_cost                    "@{primecost}"
 @amounttype_ecalg_price                   "Учетная цена реализации"
 @amounttype_ecalg_qtty                    "@{qtty}"
-@amounttype_ecalg_phqtty                  "Физическое количество"
+@amounttype_ecalg_phqtty                  "@{phqtty}"
 @amounttype_ecalg_brutto                  "Масса брутто"
 @amounttype_ecalg_volume                  "Габаритный объем"
 

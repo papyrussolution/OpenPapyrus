@@ -15,10 +15,17 @@ class BillItemBrowser : public BrowserWindow {
 public:
 	friend int SLAPI ViewBillDetails(PPBillPacket *, long, PPObjBill *);
 	struct TotalData {
-		void   Init();
+		void   Init()
+		{
+			memzero(PTR8(this)+sizeof(Text), sizeof(*this)-sizeof(Text));
+		}
+		enum {
+			fHasIndepPhQtty = 0x0001 // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY
+		};
 
 		SString Text;
 		long   Count;
+		long   Flags;
 		double Qtty;
 		double PhQtty;
 		double LinkQtty;
@@ -39,14 +46,8 @@ public:
 	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack = 0,
 		int pckgPos = -1, int asSelector = 0, int editMode = 0);
 	~BillItemBrowser();
-	const  PPBillPacket * GetPacket() const
-	{
-		return P_Pack;
-	}
-	void   GetTotal(TotalData * pTotal) const
-	{
-		ASSIGN_PTR(pTotal, Total);
-	}
+	const  PPBillPacket * GetPacket() const { return P_Pack; }
+	void   GetTotal(TotalData * pTotal) const { ASSIGN_PTR(pTotal, Total); }
 	const  LongArray & SLAPI GetPriceDevList() const;
 	const  StrAssocArray & SLAPI GetProblemsList() const;
 
@@ -64,10 +65,7 @@ public:
 		long   OrdQttyPos;
 	};
 	int    GetColPos(ColumnPosBlock & rBlk);
-	int    HasLinkPack() const
-	{
-		return BIN(P_LinkPack);
-	}
+	int    HasLinkPack() const { return BIN(P_LinkPack); }
 	//
 	// Descr: Возвращает количество из связанного документа, соответствующее строке rTi документа P_Pack
 	//
@@ -163,11 +161,6 @@ enum { // Параметр функции BillItemBrowser::update
 	pos_bottom = -3
 };
 
-void BillItemBrowser::TotalData::Init()
-{
-	memzero(PTR8(this)+sizeof(Text), sizeof(*this)-sizeof(Text));
-}
-
 struct BillGoodsBrwItem {
 	enum {
 		fHasCode       = 0x0001,
@@ -175,8 +168,8 @@ struct BillGoodsBrwItem {
 		fOrdRestInited = 0x0004,
 		fSerialBad     = 0x0008,
 		fSerialOk      = 0x0010,
-		fQuotProblem   = 0x0020, // @v8.2.0 Строки имеет проблемную котировку, выявленную при расценке или назначении цен по котировкам
-		fCodeWarn      = 0x0040  // @v8.8.10 Строка имеет товар с проблемой в штрихкоде
+		fQuotProblem   = 0x0020, // Строки имеет проблемную котировку, выявленную при расценке или назначении цен по котировкам
+		fCodeWarn      = 0x0040  // Строка имеет товар с проблемой в штрихкоде
 	};
 	long   Pos;
 	uint   CodePos;
@@ -277,7 +270,6 @@ private:
 		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? (BillGoodsBrwItem *)at(pos) : 0;
 		return BIN(P_Item);
 	}
-	//StringSet CodeList;
 	BillGoodsBrwItem * P_Item; // Временный указатель
 	LAssocArray CodeStatusList;
 };
@@ -720,9 +712,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	SETFLAG(State, stAltView, rezID == BROWSER_ID(GOODSITEM_ALTVIEW));
 	{
 		PrcssrAlcReport::Config parc;
-		AlcoGoodsClsID = 0;
-		if(PrcssrAlcReport::ReadConfig(&parc) > 0)
-			AlcoGoodsClsID = parc.E.AlcGoodsClsID;
+		AlcoGoodsClsID = (PrcssrAlcReport::ReadConfig(&parc) > 0) ? parc.E.AlcGoodsClsID : 0;
 	}
 	SString temp_buf;
 	uint   show_barcode_or_serial = 0;
@@ -731,17 +721,14 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
 			if((State & stAltView) && (CConfig.Flags & CCFLG_USEARGOODSCODE))
 				PPGetWord(PPWORD_ARGOODSCODE, 0, temp_buf);
-			else {
-				// @v9.0.2 PPGetWord(PPWORD_BARCODE, 0, temp_buf);
-				PPLoadString("barcode", temp_buf); // @v9.0.2
-			}
-			insertColumn(_brw_pos++, temp_buf, /*16*/27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+			else
+				PPLoadString("barcode", temp_buf);
+			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 			show_barcode_or_serial |= 0x01;
 		}
 		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
-			// @v9.7.11 PPGetWord(PPWORD_SERIAL, 0, temp_buf);
-			PPLoadString("serial", temp_buf); // @v9.7.11
-			insertColumn(_brw_pos++, temp_buf, /*16*/28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+			PPLoadString("serial", temp_buf);
+			insertColumn(_brw_pos++, temp_buf, 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 			show_barcode_or_serial |= 0x02;
 		}
 	}
@@ -853,8 +840,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 						if(show_barcode_or_serial & 0x02)
 							at_pos++;
 						PPGetWord(PPWORD_LINKQTTY, 0, temp_buf);
-						insertColumn(at_pos+1, temp_buf, 23,
-							MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_NOZERO), BCO_USERPROC);
+						insertColumn(at_pos+1, temp_buf, 23, MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_NOZERO), BCO_USERPROC);
 					}
 				}
 			}
@@ -933,8 +919,10 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		const double sqtty = p_ti->SQtty(p_pack->Rec.OpID);
 		const double qtty  = p_ti->Qtty();
 		const double __q = (p_pack->OpTypeID == PPOPT_GOODSMODIF) ? sqtty : qtty;
-		if(p_ti->Flags & PPTFR_INDEPPHQTTY)
+		if(p_ti->Flags & PPTFR_INDEPPHQTTY) {
 			Total.PhQtty += p_ti->WtQtty;
+			Total.Flags |= Total.fHasIndepPhQtty; // @v10.0.07
+		}
 		else {
 			double phuperu;
 			if(GObj.GetPhUPerU(p_ti->GoodsID, 0, &phuperu) > 0)
@@ -1160,10 +1148,8 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 0: // Номер строки
 					if(is_total)
 						ok = 0;
-					// @v8.0.3 {
 					else if(/*PPMaster*/ 1 /* @v8.9.8 && (CConfig.Flags & CCFLG_DEBUG)*/) // @v9.0.0 PPMaster-->1
 						pBlk->Set((int32)p_item->RByBill);
-					// } @v8.0.3
 					else
 						pBlk->Set((int32)(p_item->Pos+1));
 					break;
@@ -1478,6 +1464,7 @@ void BillItemBrowser::update(int pos)
 				int    ext_cost_col = -1;
 				int    cost_col = -1;
 				int    qtty_col = -1;
+				int    phqtty_col = -1;
 				int    upp_col = -1;
 				int    ordqtty_col = -1;
 				for(uint i = 0; i < p_def->getCount(); i++) {
@@ -1486,6 +1473,7 @@ void BillItemBrowser::update(int pos)
 						case 25: ext_cost_col = (int)i; break;
 						case  3: cost_col = (int)i; break;
 						case  2: qtty_col = (int)i; break;
+						case  7: phqtty_col = (int)i; break;
 						case 29: upp_col = (int)i; break;
 						case 30: setup_quot_info_col = (int)i; break;
 						case 31: ordqtty_col = (int)i; break;
@@ -1503,8 +1491,11 @@ void BillItemBrowser::update(int pos)
 					}
 					*/
 				}
-				if(a->HasUpp && qtty_col >= 0 && upp_col < 0) {
-					view->insertColumn(qtty_col+1, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
+				if(qtty_col >= 0) {
+					if(a->HasUpp && upp_col < 0)
+						view->insertColumn(++qtty_col, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
+					if(phqtty_col < 0 && Total.Flags & Total.fHasIndepPhQtty)
+						view->insertColumn(++qtty_col, "@phqtty", 7, T_DOUBLE, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
 				}
 				// @v9.1.1 {
 				if(Total.OrderQtty != 0.0) {
@@ -1518,11 +1509,9 @@ void BillItemBrowser::update(int pos)
 					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
 					if(ordqtty_col >= 0) {
 						view->removeColumn(ordqtty_col);
-					}
-					*/
+					}*/
 				}
 				// } @v9.1.1
-				// @v8.2.0 {
 				if(P_Pack->P_QuotSetupInfoList) {
 					if(setup_quot_info_col < 0) {
 						view->insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
@@ -1532,10 +1521,8 @@ void BillItemBrowser::update(int pos)
 					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
 					if(setup_quot_info_col >= 0) {
 						view->removeColumn(setup_quot_info_col);
-					}
-					*/
+					}*/
 				}
-				// } @v8.2.0
 			}
 			if(pos == pos_cur && c >= 0)
 				view->go(c);
@@ -1698,13 +1685,11 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
 		dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, BIN(P_Pack->Rec.Flags & BILLF_RECOMPLETE));
 		if(ExecView(dlg) == cmOK) {
-			ushort v = dlg->getCtrlUInt16(CTL_SELMODIF_WHAT);
-			if(v == 0)
-				sign = TISIGN_MINUS;
-			else if(v == 1)
-				sign = TISIGN_PLUS;
-			else if(v == 2)
-				sign = TISIGN_RECOMPLETE;
+			switch(dlg->getCtrlUInt16(CTL_SELMODIF_WHAT)) {
+				case 0: sign = TISIGN_MINUS; break;
+				case 1: sign = TISIGN_PLUS; break;
+				case 2: sign = TISIGN_RECOMPLETE; break;
+			}
 		}
 	}
 	if(oneof3(sign, TISIGN_MINUS, TISIGN_PLUS, TISIGN_RECOMPLETE))
@@ -1847,12 +1832,10 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 			if(P_Pack->OpTypeID == PPOPT_GOODSMODIF) {
 				if(!p_ti->IsRecomplete()) {
 					PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, -1L, GSF_PARTITIAL, P_Pack->Rec.Dt);
-					if(sign > 0) {
+					if(sign > 0)
 						gs_ident.AndFlags = (GSF_COMPL);
-					}
-					else if(sign < 0) {
+					else if(sign < 0)
 						gs_ident.AndFlags = (GSF_DECOMPL);
-					}
 					TSCollection <PPGoodsStruc> gs_list;
 					if(GObj.LoadGoodsStruc(&gs_ident, gs_list) > 0) {
 						if(gs_list.getCount() == 1) {
@@ -1998,9 +1981,8 @@ void BillItemBrowser::GetMinMaxQtty(uint itemPos, RealRange & rBounds) const
 	const PPTransferItem & r_ti = P_Pack->ConstTI(itemPos);
 	if(P_Pack->OpTypeID == PPOPT_GOODSEXPEND) {
 		if(P_Pack->Rec.ID) {
-			DateIter di;
 			BillTbl::Rec bill_rec;
-			while(P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &di, BLNK_RETURN, &bill_rec) > 0)
+			for(DateIter di; P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &di, BLNK_RETURN, &bill_rec) > 0;)
 				P_T->SubtractBillQtty(bill_rec.ID, r_ti.LotID, &rBounds.low);
 		}
 	}

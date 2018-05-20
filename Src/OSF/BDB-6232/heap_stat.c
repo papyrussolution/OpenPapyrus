@@ -30,30 +30,23 @@ int __heap_stat(DBC *dbc, void * spp, uint32 flags)
 	HEAPMETA * meta;
 	db_pgno_t metapgno;
 	int ret, t_ret, write_meta;
-
 	dbp = dbc->dbp;
 	env = dbp->env;
-
 	meta = NULL;
 	LOCK_INIT(metalock);
 	mpf = dbp->mpf;
 	sp = NULL;
 	ret = t_ret = write_meta = 0;
-
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(env, sizeof(*sp), &sp)) != 0)
 		goto err;
-	memset(sp, 0, sizeof(*sp));
-
+	memzero(sp, sizeof(*sp));
 	/* Get the metadata page for the entire database. */
 	metapgno = PGNO_BASE_MD;
-	if((ret = __db_lget(dbc,
-	    0, metapgno, DB_LOCK_READ, 0, &metalock)) != 0)
+	if((ret = __db_lget(dbc, 0, metapgno, DB_LOCK_READ, 0, &metalock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &metapgno,
-	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &metapgno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
-
 	sp->heap_metaflags = meta->dbmeta.flags;
 	sp->heap_pagecnt = meta->dbmeta.last_pgno + 1;
 	sp->heap_pagesize = meta->dbmeta.pagesize;
@@ -61,7 +54,6 @@ int __heap_stat(DBC *dbc, void * spp, uint32 flags)
 	sp->heap_version = meta->dbmeta.version;
 	sp->heap_nregions = meta->nregions;
 	sp->heap_regionsize = meta->region_size;
-
 	if(LF_ISSET(DB_FAST_STAT)) {
 		sp->heap_nrecs = meta->dbmeta.record_count;
 	}
@@ -107,7 +99,7 @@ err:    /* Discard metadata page. */
 		*(DB_BTREE_STAT**)spp = NULL;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -125,7 +117,7 @@ int __heap_stat_print(DBC *dbc, uint32 flags)
 	dbp = dbc->dbp;
 	env = dbp->env;
 	if((ret = __heap_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		__db_msg(env, "Default Heap database information:");
@@ -139,7 +131,7 @@ int __heap_stat_print(DBC *dbc, uint32 flags)
 	__db_dl(env, "Number of database regions", (u_long)sp->heap_nregions);
 	__db_dl(env, "Number of pages in a region", (u_long)sp->heap_regionsize);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 /*
  * __heap_print_cursor --
@@ -186,7 +178,7 @@ int __heap_stat_callback(DBC *dbc, PAGE * h, void * cookie, int * putp)
 		default:
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */
@@ -241,5 +233,5 @@ int __heap_traverse(DBC *dbc, int (*callback)(DBC *, PAGE *, void *, int *), voi
 			break;
 		pgno++;
 	}
-	return (ret);
+	return ret;
 }

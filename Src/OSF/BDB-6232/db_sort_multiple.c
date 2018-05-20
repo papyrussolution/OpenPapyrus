@@ -26,7 +26,7 @@ int __db_compare_both(DB *db, const DBT * akey, const DBT * adata, const DBT * b
 	int cmp = t->bt_compare(db, akey, bkey, NULL);
 	if(cmp != 0) return cmp;
 	if(!F_ISSET(db, DB_AM_DUPSORT))
-		return (0);
+		return 0;
 	if(adata == 0) return bdata == 0 ? 0 : -1;
 	if(bdata == 0) return 1;
 #ifdef HAVE_COMPRESSION
@@ -56,12 +56,8 @@ int __db_compare_both(DB *db, const DBT * akey, const DBT * adata, const DBT * b
 		}                                                               \
 	} while(0)
 
-#define DB_SORT_COMPARE(a, ad, b, bd) (data != NULL ?                   \
-	__db_compare_both(db, &(a), &(ad), &(b), &(bd)) :               \
-	__db_compare_both(db, &(a), 0, &(b), 0))
-
+#define DB_SORT_COMPARE(a, ad, b, bd) (data != NULL ? __db_compare_both(db, &(a), &(ad), &(b), &(bd)) : __db_compare_both(db, &(a), 0, &(b), 0))
 #define DB_SORT_STACKSIZE 32
-
 /*
  * __db_quicksort --
  *	The quicksort implementation for __db_sort_multiple() and
@@ -80,25 +76,19 @@ static int __db_quicksort(DB *db, DBT * key, DBT * data, uint32 * kstart, uint32
 		uint32 * dstart;
 		uint32 * dend;
 	} stackbuf[DB_SORT_STACKSIZE], * stack;
-
 	uint32 soff, slen;
-
 	ret = 0;
 	env = db->env;
-
-	memset(&a, 0, sizeof(DBT));
-	memset(&ad, 0, sizeof(DBT));
-	memset(&b, 0, sizeof(DBT));
-	memset(&bd, 0, sizeof(DBT));
-	memset(&m, 0, sizeof(DBT));
-	memset(&md, 0, sizeof(DBT));
-
+	memzero(&a, sizeof(DBT));
+	memzero(&ad, sizeof(DBT));
+	memzero(&b, sizeof(DBT));
+	memzero(&bd, sizeof(DBT));
+	memzero(&m, sizeof(DBT));
+	memzero(&md, sizeof(DBT));
 	/* NB end is smaller than start */
-
 	stack = stackbuf;
 	soff = 0;
 	slen = DB_SORT_STACKSIZE;
-
 start:
 	if(kend >= kstart) goto pop;
 
@@ -253,7 +243,7 @@ error:
 	if(stack != stackbuf)
 		__os_free(env, stack);
 
-	return (ret);
+	return ret;
 }
 
 #undef DB_SORT_SWAP

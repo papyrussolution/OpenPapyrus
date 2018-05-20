@@ -94,7 +94,7 @@ int __db_dumptree(DB *dbp, DB_TXN * txn, char * op, char * name, db_pgno_t first
 		env->dbenv->db_msgfile = orig_fp;
 	}
 
-	return (ret);
+	return ret;
 }
 
 static const FN __db_flags_fn[] = {
@@ -235,15 +235,15 @@ static int __db_prtree(DB *dbp, DB_TXN * txn, uint32 flags, db_pgno_t first, db_
 	 * dump each page.
 	 */
 	if(last == PGNO_INVALID && (ret = __memp_get_last_pgno(mpf, &last)) != 0)
-		return (ret);
+		return ret;
 	for(i = first; i <= last; ++i) {
 		if((ret = __memp_fget(mpf, &i, NULL, txn, 0, &h)) != 0)
-			return (ret);
+			return ret;
 		(void)__db_prpage(dbp, h, flags);
 		if((ret = __memp_fput(mpf, NULL, h, dbp->priority)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_prnpage
@@ -257,11 +257,11 @@ int __db_prnpage(DB *dbp, DB_TXN * txn, db_pgno_t pgno)
 	int ret, t_ret;
 	DB_MPOOLFILE * mpf = dbp->mpf;
 	if((ret = __memp_fget(mpf, &pgno, NULL, txn, 0, &h)) != 0)
-		return (ret);
+		return ret;
 	ret = __db_prpage(dbp, h, DB_PR_PAGE);
 	if((t_ret = __memp_fput(mpf, NULL, h, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __db_prpage
@@ -489,7 +489,7 @@ static int __db_bmeta(ENV *env, DB * dbp, BTMETA * h, uint32 flags)
 	__db_msg(env, "\tblob_sdb_lo: %lu", (u_long)h->blob_sdb_lo);
 	__db_msg(env, "\tblob_sdb_hi: %lu", (u_long)h->blob_sdb_hi);
 
-	return (0);
+	return 0;
 }
 /*
  * __db_hmeta --
@@ -521,7 +521,7 @@ static int __db_hmeta(ENV *env, DB * dbp, HMETA * h, uint32 flags)
 			__db_msgadd(env, &mb, "\n\t");
 	}
 	DB_MSGBUF_FLUSH(env, &mb);
-	return (0);
+	return 0;
 }
 /*
  * __db_qmeta --
@@ -535,7 +535,7 @@ static int __db_qmeta(ENV *env, DB * dbp, QMETA * h, uint32 flags)
 	__db_msg(env, "\tre_len: %#lx re_pad: %lu", (u_long)h->re_len, (u_long)h->re_pad);
 	__db_msg(env, "\trec_page: %lu", (u_long)h->rec_page);
 	__db_msg(env, "\tpage_ext: %lu", (u_long)h->page_ext);
-	return (0);
+	return 0;
 }
 /*
  * __db_heapmeta --
@@ -552,7 +552,7 @@ static int __db_heapmeta(ENV *env, DB * dbp, HEAPMETA * h, uint32 flags)
 	__db_msg(env, "\tblob_threshold: %lu", (u_long)h->blob_threshold);
 	__db_msg(env, "\tblob_file_lo: %lu", (u_long)h->blob_file_lo);
 	__db_msg(env, "\tblob_file_hi: %lu", (u_long)h->blob_file_hi);
-	return (0);
+	return 0;
 }
 /*
  * __db_heapint --
@@ -593,7 +593,7 @@ static int __db_heapint(DB *dbp, HEAPPG * h, uint32 flags)
 		    "All pages in this region less than 33 percent full");
 
 	DB_MSGBUF_FLUSH(env, &mb);
-	return (0);
+	return 0;
 }
 
 /*
@@ -638,12 +638,12 @@ int __db_prpage_int(ENV *env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h, 
 	 * assume it's a page that's on the free list, and don't display it.
 	 */
 	if(LF_ISSET(DB_PR_RECOVERYTEST) && TYPE(h) == P_INVALID)
-		return (0);
+		return 0;
 
 	if((s = __db_pagetype_to_string(TYPE(h))) == NULL) {
 		__db_msg(env, "%sILLEGAL PAGE TYPE: page: %lu type: %lu",
 		    lead, (u_long)h->pgno, (u_long)TYPE(h));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/* Page number, page type. */
@@ -683,7 +683,7 @@ int __db_prpage_int(ENV *env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h, 
 		    return (__db_qmeta(env, dbp, (QMETA*)h, flags));
 		case P_QAMDATA:                 /* Should be meta->start. */
 		    if(!LF_ISSET(DB_PR_PAGE) || dbp == NULL)
-			    return (0);
+			    return 0;
 
 		    qlen = ((QUEUE*)dbp->q_internal)->re_len;
 		    recno = (h->pgno - 1) * QAM_RECNO_PER_PAGE(dbp) + 1;
@@ -701,12 +701,12 @@ int __db_prpage_int(ENV *env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h, 
 			    __db_prbytes(env, mbp, qp->data, qlen);
 			    DB_MSGBUF_FLUSH(env, mbp);
 		    }
-		    return (0);
+		    return 0;
 		case P_HEAPMETA:
 		    return (__db_heapmeta(env, dbp, (HEAPMETA*)h, flags));
 		case P_IHEAP:
 		    if(!LF_ISSET(DB_PR_PAGE) || dbp == NULL)
-			    return (0);
+			    return 0;
 		    return (__db_heapint(dbp, (HEAPPG*)h, flags));
 		default:
 		    break;
@@ -735,19 +735,19 @@ int __db_prpage_int(ENV *env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h, 
 			__db_prbytes(env,
 			    mbp, (uint8*)h + P_OVERHEAD(dbp), OV_LEN(h));
 		DB_MSGBUF_FLUSH(env, mbp);
-		return (0);
+		return 0;
 	}
 	__db_msgadd(env, mbp, "%sentries: %4lu", s, (u_long)NUM_ENT(h));
 	__db_msgadd(env, mbp, " offset: %4lu", (u_long)HOFFSET(h));
 	DB_MSGBUF_FLUSH(env, mbp);
 
 	if(dbp == NULL || TYPE(h) == P_INVALID || !LF_ISSET(DB_PR_PAGE))
-		return (0);
+		return 0;
 
 	if(data != NULL)
 		pagesize += HOFFSET(h);
 	else if(pagesize < HOFFSET(h))
-		return (0);
+		return 0;
 
 	ret = 0;
 	inp = P_INP(dbp, h);
@@ -937,7 +937,7 @@ type_err:
 		}
 		DB_MSGBUF_FLUSH(env, mbp);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __db_prbytes --
@@ -1167,7 +1167,7 @@ int __db_dump_pp(DB *dbp, const char * subname, int (*callback)(void *, const vo
 		ret = t_ret;
 err:    
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __db_dump --
@@ -1190,22 +1190,20 @@ int __db_dump(DB *dbp, const char * subname, int (*callback)(void *, const void 
 	void * pointer;
 	env = dbp->env;
 	is_heap = 0;
-	memset(&dataret, 0, sizeof(DBT));
-	memset(&keyret, 0, sizeof(DBT));
+	memzero(&dataret, sizeof(DBT));
+	memzero(&keyret, sizeof(DBT));
 	if((ret = __db_get_blob_threshold(dbp, &blob_threshold)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_prheader(dbp, subname, pflag, keyflag, handle, callback, NULL, 0)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Get a cursor and step through the database, printing out each
 	 * key/data pair. Give the cursor the same sliced-ness as the db.
 	 */
-	if((ret = __db_cursor(dbp,
-	    NULL, NULL, &dbc, FLD_ISSET(dbp->open_flags, DB_SLICED))) != 0)
-		return (ret);
-
-	memset(&key, 0, sizeof(key));
-	memset(&data, 0, sizeof(data));
+	if((ret = __db_cursor(dbp, NULL, NULL, &dbc, FLD_ISSET(dbp->open_flags, DB_SLICED))) != 0)
+		return ret;
+	memzero(&key, sizeof(key));
+	memzero(&data, sizeof(data));
 	data.ulen = 1024 * 1024;
 	data.flags = DB_DBT_USERMEM;
 	if((ret = __os_malloc(env, data.ulen, &data.data)) != 0)
@@ -1216,7 +1214,6 @@ int __db_dump(DB *dbp, const char * subname, int (*callback)(void *, const void 
 		keyret.data = &recno;
 		keyret.size = sizeof(recno);
 	}
-
 	if(dbp->type == DB_HEAP) {
 		is_heap = 1;
 		key.data = &rid;
@@ -1288,7 +1285,7 @@ err:
 	if(data.data != NULL)
 		__os_free(env, data.data);
 
-	return (ret);
+	return ret;
 }
 /*
  * __db_prblob
@@ -1296,23 +1293,18 @@ err:
  */
 static int __db_prblob(DBC *dbc, DBT * key, DBT * data, int checkprint, const char * prefix, void * handle, int (*callback)(void *, const void *), int is_heap, int keyflag)
 {
-	DBC * local;
+	DBC * local = 0;
 	DBT partial;
 	int ret, t_ret;
 	off_t blob_size;
 	db_seq_t blob_id;
-
-	local = NULL;
-	memset(&partial, 0, sizeof(DBT));
+	memzero(&partial, sizeof(DBT));
 	partial.flags = DB_DBT_PARTIAL;
-
 	if((ret = __dbc_idup(dbc, &local, DB_POSITION)) != 0)
 		goto err;
-
 	/* Move the cursor to the blob. */
 	if((ret = __dbc_get(local, key, &partial, DB_NEXT)) != 0)
-		return (ret);
-
+		return ret;
 	if((ret = __dbc_get_blob_id(local, &blob_id)) != 0) {
 		/*
 		 * It is possible this is not a blob.  Non-blob items that are
@@ -1357,7 +1349,7 @@ err:
 		if((t_ret = __dbc_close(local)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __db_prblob_id --
@@ -1401,7 +1393,7 @@ err:
 		if((t_ret = __os_closehandle(dbp->env, fhp)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __db_prdbt --
@@ -1428,7 +1420,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 	 * cannot change.
 	 */
 	if(prefix != NULL && (ret = callback(handle, prefix)) != 0)
-		return (ret);
+		return ret;
 	if(is_recno) {
 		/*
 		 * We're printing a record number, and this has to be done
@@ -1447,7 +1439,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 			ret = callback(handle, buf);
 
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 	else if(is_heap) {
 		/*
@@ -1468,7 +1460,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 			ret = callback(handle, buf);
 
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 	else if(checkprint) {
 		/*
@@ -1481,15 +1473,15 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 			if(isprint((int)*p)) {
 				if(*p == '\\' &&
 				    (ret = callback(handle, "\\")) != 0)
-					return (ret);
+					return ret;
 				buf[0] = (char)*p;
 				if((ret = callback(handle, buf)) != 0)
-					return (ret);
+					return ret;
 			}
 			else {
 				(void)__db_tohex(p, 1, hexbuf + 1);
 				if((ret = callback(handle, hexbuf)) != 0)
-					return (ret);
+					return ret;
 			}
 	}
 	else
@@ -1499,12 +1491,12 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 				count = len;
 			(void)__db_tohex(p, count, hexbuf);
 			if((ret = callback(handle, hexbuf)) != 0)
-				return (ret);
+				return ret;
 		}
 	if(no_newline == 0)
 		return (callback(handle, "\n"));
 	else
-		return (ret);
+		return ret;
 }
 /*
  * __db_prheader --
@@ -1554,7 +1546,7 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 	 */
 	if(vdp != NULL) {
 		if((ret = __db_vrfy_getpageinfo(vdp, meta_pgno, &pip)) != 0)
-			return (ret);
+			return ret;
 
 		if(F_ISSET(vdp, SALVAGE_PRINTABLE))
 			pflag = 1;
@@ -1905,7 +1897,7 @@ err:    if(using_vdp &&
 	if(buf != NULL)
 		__os_free(env, buf);
 
-	return (ret);
+	return ret;
 }
 /*
  * __db_prfooter --
@@ -1931,7 +1923,7 @@ int __db_pr_callback(void * handle, const void * str_arg)
 	FILE * f = (FILE*)handle;
 	if(fprintf(f, "%s", str) != (int)strlen(str))
 		return (EIO);
-	return (0);
+	return 0;
 }
 /*
  * __db_dbtype_to_string --
@@ -2006,7 +1998,7 @@ char * __db_dbt_print(ENV *env, DB_MSGBUF * mbp, const DBT * dbt)
 	else
 		__db_prbytes(env, mbp, (uint8 *)dbt->data, dbt->size);
 	__db_msgadd(env, mbp, "]");
-	return (0);
+	return 0;
 }
 /*
  * __db_dbt_printpair
@@ -2029,5 +2021,5 @@ int __db_dbt_printpair(ENV * env, const DBT * key, const DBT * data, const char 
 	__db_msgadd(env, &mb, " data ");
 	(void)__db_dbt_print(env, &mb, data);
 	DB_MSGBUF_FLUSH(env, &mb);
-	return (0);
+	return 0;
 }

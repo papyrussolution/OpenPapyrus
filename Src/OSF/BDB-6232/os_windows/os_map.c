@@ -30,7 +30,7 @@ int __os_attach(ENV *env, REGINFO * infop, REGION * rp)
 	 */
 	if(!F_ISSET(env, ENV_PRIVATE) && __os_is_winnt() == 0) {
 		__db_err(env, EINVAL, DB_STR("0006", "Windows 9X systems must specify DB_PRIVATE"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	/*
 	 * Try to open/create the file.  We DO NOT need to ensure that multiple
@@ -40,7 +40,7 @@ int __os_attach(ENV *env, REGINFO * infop, REGION * rp)
 	if((ret = __os_open(env, infop->name, 0, DB_OSO_REGION|(F_ISSET(infop, REGION_CREATE_OK) ? DB_OSO_CREATE : 0),
 	    env->db_mode, &infop->fhp)) != 0) {
 		__db_err(env, ret, "%s", infop->name);
-		return (ret);
+		return ret;
 	}
 	is_sparse = 0;
 #ifndef DB_WINCE
@@ -63,7 +63,7 @@ int __os_attach(ENV *env, REGINFO * infop, REGION * rp)
 	if(ret != 0) {
 		(void)__os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
-		return (ret);
+		return ret;
 	}
 	/*
 	 * If we are using sparse file, we don't need to keep the file handle
@@ -73,7 +73,7 @@ int __os_attach(ENV *env, REGINFO * infop, REGION * rp)
 		ret = __os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __os_detach --
@@ -95,7 +95,7 @@ int __os_detach(ENV *env, REGINFO * infop, int destroy)
 		ret = __os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(F_ISSET(env, ENV_FORCESYNCENV))
 		if(!FlushViewOfFile(infop->addr, rp->max)) {
@@ -111,7 +111,7 @@ int __os_detach(ENV *env, REGINFO * infop, int destroy)
 	}
 	if(!F_ISSET(env, ENV_SYSTEM_MEM) && destroy && (t_ret = __os_unlink(env, infop->name, 1)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -210,7 +210,7 @@ static int __os_unique_name(_TCHAR *orig_path, HANDLE hfile, _TCHAR *result_path
 	    fileinfo.ftCreationTime.dwHighDateTime,
 	    basename);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -246,11 +246,11 @@ static int __os_map(ENV *env, char * path, REGINFO * infop, DB_FH * fhp, size_t 
 #endif
 		TO_TSTRING(env, path, tpath, ret);
 		if(ret != 0)
-			return (ret);
+			return ret;
 		ret = __os_unique_name(tpath, fhp->handle, shmem_name, sizeof(shmem_name));
 		FREE_STRING(env, tpath);
 		if(ret != 0)
-			return (ret);
+			return ret;
 	}
 	/*
 	 * !!!
@@ -324,5 +324,5 @@ static int __os_map(ENV *env, char * path, REGINFO * infop, DB_FH * fhp, size_t 
 	else
 		CloseHandle(hMemory);
 	*addr = pMemory;
-	return (ret);
+	return ret;
 }

@@ -56,11 +56,11 @@ int __env_slice_db_home(DB_ENV *dbenv, const char * db_home)
 		    strlen(PATH_SEPARATOR) + strlen(home) + 1;
 		if((ret =
 		    __os_malloc(slice->env, len, &slice->env->db_home)) != 0)
-			return (ret);
+			return ret;
 		snprintf(slice->env->db_home, len,
 		    "%s%c%s", db_home, PATH_SEPARATOR[0], home);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -123,7 +123,7 @@ int __env_slice_open(DB_ENV *dbenv, const char * db_home, uint32 flags, int mode
 	dbenv->fileid_reset = __env_slice_fileid_reset_pp;
 	F_SET(dbenv, DB_ENV_AUTO_COMMIT);
 
-	return (0);
+	return 0;
 
 err:
 	if(SLICES_ON(env)) {
@@ -138,7 +138,7 @@ err:
 	 * and DB_CONFIG, not this parameter.
 	 */
 	COMPQUIET(db_home, NULL);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -158,7 +158,7 @@ int __env_slice_close_pp(DB_ENV *dbenv, uint32 flags)
 		ret = t_ret;
 	if((t_ret = __env_close_pp(dbenv, flags)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -183,7 +183,7 @@ int __env_slice_txn_checkpoint_pp(DB_ENV *dbenv, uint32 kbyte, uint32 min, uint3
 	if((t_ret = __txn_checkpoint_pp(dbenv, kbyte, min, flags)) != 0 &&
 	    ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -208,7 +208,7 @@ int __env_slice_lsn_reset_pp(DB_ENV *dbenv, const char * name, uint32 flags)
 		if((ret = __env_lsn_reset_pp(slice, name, flags)) != 0)
 			break;
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -305,7 +305,7 @@ err:
 	}
 	if(real_name != NULL)
 		__os_free(env, real_name);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -357,7 +357,7 @@ err:
 		(void)__os_closehandle(slice->env, fhp);
 	if(real_name != NULL)
 		__os_free(slice->env, real_name);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -371,7 +371,7 @@ int __env_get_slice_count(DB_ENV *dbenv, uint32 * countp)
 {
 	ENV_ILLEGAL_BEFORE_OPEN(dbenv->env, "DB_ENV->get_slice_count");
 	*countp = dbenv->slice_cnt;
-	return (0);
+	return 0;
 }
 /*
  * __env_get_slices --
@@ -386,7 +386,7 @@ int __env_get_slices(DB_ENV *dbenv, DB_ENV *** retp)
 		ret = __env_not_sliced(dbenv->env);
 	else
 		*retp = dbenv->env->slice_envs;
-	return (ret);
+	return ret;
 }
 /*
  * __env_slice_configure --
@@ -408,7 +408,7 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
 	slice->db_free = container->db_free;
 	slice->app_dispatch = container->app_dispatch;
 	if((ret = __env_backup_copy(slice, container)) != 0)
-		return (ret);
+		return ret;
 	slice->blob_threshold = container->blob_threshold;
 	slice->mp_gbytes = container->mp_gbytes;
 	slice->mp_bytes = container->mp_bytes;
@@ -425,14 +425,14 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
 #ifdef HAVE_CRYPTO
 	if(container->passwd != NULL && (ret =
 	    __env_set_encrypt(slice, container->passwd, DB_ENCRYPT_AES)) != 0)
-		return (ret);
+		return ret;
 #endif
 	if(container->intermediate_dir_mode == NULL)
 		slice->intermediate_dir_mode = NULL;
 	else if((ret = __os_strdup(slice->env,
 	    container->intermediate_dir_mode,
 	    &slice->intermediate_dir_mode)) != 0)
-		return (ret);
+		return ret;
 	slice->is_alive = container->is_alive;
 	slice->lg_bsize = container->lg_bsize;
 	slice->lg_filemode = container->lg_filemode;
@@ -441,7 +441,7 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
 	slice->lg_flags = container->lg_flags;
 	if(container->lk_modes != 0 && (ret = __lock_set_lk_conflicts(slice,
 	    container->lk_conflicts, container->lk_modes)) != 0)
-		return (ret);
+		return ret;
 	slice->lk_detect = container->lk_detect;
 	slice->lk_max_lockers = container->lk_max_lockers;
 	slice->lk_max = container->lk_max;
@@ -473,10 +473,10 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
 	slice->mutex_failchk_timeout = container->mutex_failchk_timeout;
 	if((ret = __env_set_timeout(slice,
 	    container->lk_timeout, DB_SET_LOCK_TIMEOUT)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __env_set_timeout(slice,
 	    container->tx_timeout, DB_SET_TXN_TIMEOUT)) != 0)
-		return (ret);
+		return ret;
 	slice->verbose = container->verbose;
 	slice->tx_init = container->tx_init;
 	slice->tx_max = container->tx_max;
@@ -485,7 +485,7 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
 
 	/* Directories are inherited only when they are relative paths. */
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -505,15 +505,15 @@ int __env_set_slice_count(DB_ENV *dbenv, uint32 count)
 	ENV_ILLEGAL_AFTER_OPEN(env, "set_slice_count")
 	if(dbenv->slice_cnt != 0) {
 		if(dbenv->slice_cnt == count)
-			return (0);
+			return 0;
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("1598", "set_slice_count has already been specified for this environment"));
-		return (ret);
+		return ret;
 	}
 	if(count > DB_MAX_SLICES) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR_A("1599", "An environment may have at most %d slices", "%d"), DB_MAX_SLICES);
-		return (ret);
+		return ret;
 	}
 	dbenv->slice_cnt = count;
 
@@ -538,7 +538,7 @@ int __env_set_slice_count(DB_ENV *dbenv, uint32 count)
 	}
 
 err:
-	return (ret);
+	return ret;
 }
 
 /*
@@ -590,16 +590,16 @@ int __env_slice_dbremove(ENV *env, const char * name, const char * subdb, uint32
 		/* If it has been removed already, silently skip it. */
 		if(ret == ENOENT)
 			ret = 0;
-		return (ret);
+		return ret;
 	}
 	if(!FLD_ISSET(metaflags, DBMETA_SLICED))
-		return (0);
+		return 0;
 	for(i = -1; (slice = __slice_iterate(env->dbenv, &i)) != NULL;) {
 		if((t_ret = __env_dbremove_pp(slice, NULL, name,
 		    subdb, flags)) != 0 && t_ret != ENOENT && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 #else
 

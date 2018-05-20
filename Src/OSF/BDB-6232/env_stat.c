@@ -36,11 +36,11 @@ int __env_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_BEFORE_OPEN(env, "DB_ENV->stat_print");
 	if((ret = __db_fchk(env, "DB_ENV->stat_print", flags, DB_STAT_ALL | DB_STAT_ALLOC | DB_STAT_CLEAR | DB_STAT_SUBSYSTEM)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__env_stat_print(env, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __env_stat_print --
@@ -54,46 +54,46 @@ static int __env_stat_print(ENV *env, uint32 flags)
 	(void)time(&now);
 	__db_msg(env, "%.24s\tLocal time", __os_ctime(&now, time_buf));
 	if((ret = __env_print_stats(env, flags)) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __env_print_all(env, flags)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __env_print_thread(env)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __env_print_fh(env)) != 0)
-		return (ret);
+		return ret;
 	if(!LF_ISSET(DB_STAT_SUBSYSTEM))
-		return (0);
+		return 0;
 	if(LOGGING_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __log_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __dbreg_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	if(LOCKING_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __lock_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	if(MPOOL_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __memp_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	if(REP_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __rep_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 #ifdef HAVE_REPLICATION_THREADS
 		if((ret = __repmgr_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 #endif
 	}
 	if(TXN_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __txn_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 #ifdef HAVE_MUTEX_SUPPORT
 	/*
@@ -104,10 +104,10 @@ static int __env_stat_print(ENV *env, uint32 flags)
 	if(MUTEX_ON(env)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		if((ret = __mutex_stat_print(env, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 #endif
-	return (0);
+	return 0;
 }
 /*
  * __env_print_stats --
@@ -141,7 +141,7 @@ static int __env_print_stats(ENV *env, uint32 flags)
 	STAT_LONG("Process failure detected", renv->failure_panic);
 	if(renv->failure_symptom[0] != '\0')
 		__db_msg(env, "%s:\tFirst failure symptom", renv->failure_symptom);
-	return (0);
+	return 0;
 }
 /*
  * __env_print_all --
@@ -156,7 +156,7 @@ static int __env_print_all(ENV *env, uint32 flags)
 	int ret = __env_print_dbenv_all(env, flags);
 	if((t_ret = __env_print_env_all(env, flags)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 /*
  * __env_print_dbenv_all --
@@ -293,7 +293,7 @@ static int __env_print_dbenv_all(ENV *env, uint32 flags)
 	__db_prflags(env,
 	    NULL, dbenv->flags, db_env_fn, NULL, "\tPublic environment flags");
 	COMPQUIET(flags, 0);
-	return (0);
+	return 0;
 }
 /*
  * __env_print_env_all --
@@ -394,7 +394,7 @@ static int __env_print_env_all(ENV *env, uint32 flags)
 	__db_prflags(env, NULL, renv->flags, regenvfn, NULL, "\tReplication flags");
 	__db_msg(env, "%.24s\tOperation timestamp", renv->op_timestamp == 0 ? "!Set" : __os_ctime(&renv->op_timestamp, time_buf));
 	__db_msg(env, "%.24s\tReplication timestamp", renv->rep_timestamp == 0 ? "!Set" : __os_ctime(&renv->rep_timestamp, time_buf));
-	return (0);
+	return 0;
 }
 
 static char * __env_thread_state_print(DB_THREAD_STATE state)
@@ -438,7 +438,7 @@ int __env_print_thread(ENV *env)
 
 	/* The thread table may not be configured. */
 	if((htab = env->thr_hashtab) == NULL)
-		return (0);
+		return 0;
 
 	dbmp = env->mp_handle;
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
@@ -477,7 +477,7 @@ int __env_print_thread(ENV *env)
 			(void)__mutex_record_print(env, ip);
 #endif
 		}
-		return (0);
+		return 0;
 }
 
 /*
@@ -488,14 +488,14 @@ static int __env_print_fh(ENV *env)
 {
 	DB_FH * fhp;
 	if(TAILQ_FIRST(&env->fdlist) == NULL)
-		return (0);
+		return 0;
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	__db_msg(env, "Environment file handle information");
 	MUTEX_LOCK(env, env->mtx_env);
 	TAILQ_FOREACH(fhp, &env->fdlist, q)
 	__db_print_fh(env, NULL, fhp, 0);
 	MUTEX_UNLOCK(env, env->mtx_env);
-	return (0);
+	return 0;
 }
 /*
  * __db_print_fh --

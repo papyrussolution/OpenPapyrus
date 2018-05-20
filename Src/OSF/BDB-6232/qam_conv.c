@@ -34,7 +34,7 @@ int __qam_mswap(ENV *env, PAGE * pg)
 	p += 91 * sizeof(uint32); /* unused */
 	SWAP32(p);              /* crypto_magic */
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -52,12 +52,12 @@ int __qam_pgin_out(ENV *env, db_pgno_t pg, void * pp, DBT * cookie)
 	COMPQUIET(pg, 0);
 	pginfo = (DB_PGINFO*)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
-		return (0);
+		return 0;
 	h = (QPAGE *)pp;
 	if(h->type == P_QAMMETA)
 		return (__qam_mswap(env, (PAGE *)pp));
 	M_32_SWAP(h->lsn.file);
 	M_32_SWAP(h->lsn.offset);
 	M_32_SWAP(h->pgno);
-	return (0);
+	return 0;
 }

@@ -33,7 +33,7 @@ int __memp_fput_pp(DB_MPOOLFILE *dbmfp, void * pgaddr, DB_CACHE_PRIORITY priorit
 	if(IS_ENV_REPLICATED(env) && (t_ret = __op_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -79,7 +79,7 @@ int __memp_fput(DB_MPOOLFILE *dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACH
 	 * region.
 	 */
 	if(dbmfp->addr != NULL && pgaddr >= dbmfp->addr && (uint8*)pgaddr <= (uint8*)dbmfp->addr + dbmfp->len)
-		return (0);
+		return 0;
 	DB_ASSERT(env, IS_RECOVERING(env) || bhp->pgno <= mfp->last_pgno || F_ISSET(bhp, BH_FREED) || !SH_CHAIN_SINGLETON(bhp, vc));
 #ifdef DIAGNOSTIC
 	/*
@@ -166,7 +166,7 @@ unpin:
 		if(F_ISSET(bhp, BH_EXCLUSIVE))
 			F_CLR(bhp, BH_EXCLUSIVE);
 		MUTEX_UNLOCK_IP(env, bhp->mtx_buf, ip);
-		return (0);
+		return 0;
 	}
 
 	/* The buffer should not be accessed again. */
@@ -244,7 +244,7 @@ unpin:
 	 */
 	if(++c_mp->lru_priority >= MPOOL_LRU_REDZONE && (t_ret = __memp_reset_lru(env, infop)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -273,7 +273,7 @@ static int __memp_reset_lru(ENV *env, REGINFO * infop)
 	MPOOL_REGION_UNLOCK(env, infop);
 
 	if(!reset)
-		return (0);
+		return 0;
 
 	/* Reduce the priority of every buffer in this cache region. */
 	for(hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab), bucket = 0; bucket < c_mp->htab_buckets; ++hp, ++bucket) {
@@ -300,7 +300,7 @@ static int __memp_reset_lru(ENV *env, REGINFO * infop)
 	}
 
 	COMPQUIET(env, NULL);
-	return (0);
+	return 0;
 }
 
 /*
@@ -320,7 +320,7 @@ int __memp_unpin_buffers(ENV *env, DB_THREAD_INFO * ip)
 	REGINFO * rinfop, * reginfo;
 	int ret;
 	char * fname;
-	memset(&dbmf, 0, sizeof(dbmf));
+	memzero(&dbmf, sizeof(dbmf));
 	dbmf.env = env;
 	dbmf.flags = MP_DUMMY;
 	dbmp = env->mp_handle;
@@ -338,7 +338,7 @@ int __memp_unpin_buffers(ENV *env, DB_THREAD_INFO * ip)
 		    fname, (u_long)bhp->pgno, (u_long)bhp->mtx_buf);
 		if((ret = __memp_fput(&dbmf,
 		    ip, bhp->buf, DB_PRIORITY_UNCHANGED)) != 0)
-			return (ret);
+			return ret;
 	}
-	return (0);
+	return 0;
 }

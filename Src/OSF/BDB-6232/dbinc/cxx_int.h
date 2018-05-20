@@ -30,13 +30,13 @@
 									   \
 	inline _WRAPPED_TYPE *unwrap(_WRAPPER_CLASS *val)                  \
 	{                                                                  \
-		if (!val) return (0);                                      \
+		if (!val) return 0;                                      \
 		return (val->get_##_WRAPPED_TYPE());                       \
 	}                                                                  \
 									   \
 	inline const _WRAPPED_TYPE *unwrapConst(const _WRAPPER_CLASS *val) \
 	{                                                                  \
-		if (!val) return (0);                                      \
+		if (!val) return 0;                                      \
 		return (val->get_const_##_WRAPPED_TYPE());                 \
 	}
 

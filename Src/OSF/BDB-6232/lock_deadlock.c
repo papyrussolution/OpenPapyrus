@@ -74,7 +74,7 @@ int __lock_detect_pp(DB_ENV *dbenv, uint32 flags, uint32 atype, int * rejectp)
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_detect", DB_INIT_LOCK);
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB_ENV->lock_detect", flags, 0)) != 0)
-		return (ret);
+		return ret;
 	switch(atype) {
 		case DB_LOCK_DEFAULT:
 		case DB_LOCK_EXPIRE:
@@ -88,7 +88,7 @@ int __lock_detect_pp(DB_ENV *dbenv, uint32 flags, uint32 atype, int * rejectp)
 		    break;
 		default:
 		    __db_errx(env, DB_STR("2048", "DB_ENV->lock_detect: unknown deadlock detection mode specified"));
-		    return (EINVAL);
+		    return EINVAL;
 	}
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__lock_detect(env, atype, rejectp)), 0, ret);
@@ -102,7 +102,7 @@ int __lock_detect_pp(DB_ENV *dbenv, uint32 flags, uint32 atype, int * rejectp)
 		if(rejectp != NULL)
 			*rejectp += temp;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __lock_detect --
@@ -145,7 +145,7 @@ int __lock_detect(ENV *env, uint32 atype, int * rejectp)
 
 	timespecclear(&now);
 	if(region->need_dd == 0 && (!timespecisset(&region->next_timeout) || !__clock_expired(env, &now, &region->next_timeout))) {
-		return (0);
+		return 0;
 	}
 	if(region->need_dd == 0)
 		atype = DB_LOCK_EXPIRE;
@@ -156,10 +156,10 @@ int __lock_detect(ENV *env, uint32 atype, int * rejectp)
 	ret = __dd_build(env, atype, &bitmap, &nlockers, &nalloc, &idmap, rejectp, &pri_set);
 	lock_max = region->stat.st_cur_maxid;
 	if(ret != 0 || atype == DB_LOCK_EXPIRE)
-		return (ret);
+		return ret;
 	/* If there are no lockers, there are no deadlocks. */
 	if(nlockers == 0)
-		return (0);
+		return 0;
 
 #ifdef DIAGNOSTIC
 	if(FLD_ISSET(env->dbenv->verbose, DB_VERB_WAITSFOR))
@@ -178,7 +178,7 @@ int __lock_detect(ENV *env, uint32 atype, int * rejectp)
 	/* Find a deadlock. */
 	if((ret =
 	    __dd_find(env, bitmap, idmap, nlockers, nalloc, &deadlist)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * We need the cur_maxid from the txn region as well.  In order
@@ -354,7 +354,7 @@ err:    if(copymap != NULL)
 	__os_free(env, bitmap);
 	__os_free(env, idmap);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -457,7 +457,7 @@ skip:           LOCK_DD(env, region);
 		UNLOCK_LOCKERS(env, region);
 		LOCK_SYSTEM_UNLOCK(lt, region);
 		*nlockers = 0;
-		return (0);
+		return 0;
 	}
 
 	if(FLD_ISSET(env->dbenv->verbose, DB_VERB_DEADLOCK))
@@ -471,7 +471,7 @@ skip:           LOCK_DD(env, region);
 	    sizeof(uint32) * nentries, &bitmap)) != 0) {
 		UNLOCK_LOCKERS(env, region);
 		LOCK_SYSTEM_UNLOCK(lt, region);
-		return (ret);
+		return ret;
 	}
 
 	if((ret = __os_calloc(env,
@@ -479,7 +479,7 @@ skip:           LOCK_DD(env, region);
 		UNLOCK_LOCKERS(env, region);
 		LOCK_SYSTEM_UNLOCK(lt, region);
 		__os_free(env, bitmap);
-		return (ret);
+		return ret;
 	}
 
 	if((ret = __os_calloc(env,
@@ -488,7 +488,7 @@ skip:           LOCK_DD(env, region);
 		LOCK_SYSTEM_UNLOCK(lt, region);
 		__os_free(env, bitmap);
 		__os_free(env, tmpmap);
-		return (ret);
+		return ret;
 	}
 
 	/*
@@ -535,7 +535,8 @@ skip:           LOCK_DD(env, region);
 	 */
 	if(0) {
 		/* If an object has changed state, start over. */
-again:          memset(bitmap, 0, count * sizeof(uint32) * nentries);
+again:          
+		memzero(bitmap, count * sizeof(uint32) * nentries);
 	}
 	LOCK_DD(env, region);
 	op = SH_TAILQ_FIRST(&region->dd_objs, __db_lockobj);
@@ -771,7 +772,7 @@ get_lock:               id_array[id].last_lock = R_OFFSET(&lt->reginfo, lp);
 	__os_free(env, tmpmap);
 done:   if(timespecisset(&region->next_timeout))
 		region->next_timeout = min_timeout;
-	return (0);
+	return 0;
 }
 
 static int __dd_find(ENV *env, uint32 * bmp, locker_info * idmap, uint32 nlockers, uint32 nalloc, uint32 *** deadp)
@@ -787,7 +788,7 @@ static int __dd_find(ENV *env, uint32 * bmp, locker_info * idmap, uint32 nlocker
 	ndead = 0;
 	if((ret = __os_malloc(env,
 	    ndeadalloc * sizeof(uint32 *), &retp)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * For each locker, OR in the bits from the lockers on which that
@@ -818,7 +819,7 @@ static int __dd_find(ENV *env, uint32 * bmp, locker_info * idmap, uint32 nlocker
 				    &retp) != 0) {
 					retp[ndead] = NULL;
 					*deadp = retp;
-					return (0);
+					return 0;
 				}
 			}
 			retp[ndead++] = mymap;
@@ -832,7 +833,7 @@ static int __dd_find(ENV *env, uint32 * bmp, locker_info * idmap, uint32 nlocker
 	}
 	retp[ndead] = NULL;
 	*deadp = retp;
-	return (0);
+	return 0;
 }
 
 static int __dd_abort(ENV *env, locker_info * info, int * statusp)
@@ -907,7 +908,7 @@ static int __dd_abort(ENV *env, locker_info * info, int * statusp)
 done:   OBJECT_UNLOCK(lt, region, info->last_ndx);
 err:    UNLOCK_LOCKERS(env, region);
 	LOCK_SYSTEM_UNLOCK(lt, region);
-	return (ret);
+	return ret;
 }
 
 #ifdef DIAGNOSTIC
@@ -947,7 +948,7 @@ static int __dd_verify(locker_info *idmap, uint32 * deadmap, uint32 * tmpmap, ui
 	uint32 * tmap;
 	uint32 j;
 	int count;
-	memset(tmpmap, 0, sizeof(uint32) * nalloc);
+	memzero(tmpmap, sizeof(uint32) * nalloc);
 	/*
 	 * In order for "which" to be actively involved in
 	 * the deadlock, removing him from the evaluation
@@ -990,7 +991,7 @@ static int __dd_verify(locker_info *idmap, uint32 * deadmap, uint32 * tmpmap, ui
 		if(!ISSET_MAP(tmpmap, j))
 			return (1);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1007,7 +1008,7 @@ static int __dd_isolder(uint32 a, uint32 b, uint32 lock_max, uint32 txn_max)
 	if(a <= DB_LOCK_MAXID && b > DB_LOCK_MAXID)
 		return (1);
 	if(b <= DB_LOCK_MAXID && a > DB_LOCK_MAXID)
-		return (0);
+		return 0;
 
 	/* In the same space; figure out which one. */
 	max = txn_max;
@@ -1026,7 +1027,7 @@ static int __dd_isolder(uint32 a, uint32 b, uint32 lock_max, uint32 txn_max)
 	if(a > max && b < max)
 		return (1);
 	if(b > max && a < max)
-		return (0);
+		return 0;
 
 	return (a < b);
 }

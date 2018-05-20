@@ -97,18 +97,18 @@ int __txn_begin_pp(DB_ENV *dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags
 	    DB_IGNORE_LEASE |DB_READ_COMMITTED | DB_READ_UNCOMMITTED |
 	    DB_TXN_FAMILY | DB_TXN_NOSYNC | DB_TXN_SNAPSHOT | DB_TXN_SYNC |
 	    DB_TXN_WAIT | DB_TXN_WRITE_NOSYNC | DB_TXN_NOWAIT | DB_TXN_BULK)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_fcchk(env, "txn_begin", flags, DB_TXN_WRITE_NOSYNC | DB_TXN_NOSYNC, DB_TXN_SYNC)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_fcchk(env, "txn_begin", flags, DB_TXN_WRITE_NOSYNC, DB_TXN_NOSYNC)) != 0)
-		return (ret);
+		return ret;
 	if(parent != NULL && LF_ISSET(DB_TXN_FAMILY)) {
 		__db_errx(env, DB_STR("4521", "Family transactions cannot have parents"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	else if(IS_REAL_TXN(parent) && !F_ISSET(parent, TXN_SNAPSHOT) && LF_ISSET(DB_TXN_SNAPSHOT)) {
 		__db_errx(env, DB_STR("4522", "Child transaction snapshot setting must match parent"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	ENV_ENTER(env, ip);
 	/* Replication accounts for top-level transactions. */
@@ -125,7 +125,7 @@ int __txn_begin_pp(DB_ENV *dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags
 		(void)__op_rep_exit(env);
 
 err:    ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -141,7 +141,7 @@ int __txn_allocate(ENV *env, DB_TXN ** txnpp)
 	int ret;
 	if((ret = __os_calloc(env, 1, sizeof(DB_TXN), &txn)) != 0) {
 		__db_errx(env, TxnAlloc);
-		return (ret);
+		return ret;
 	}
 	txn->mgrp = env->tx_handle;
 	TAILQ_INIT(&txn->kids);
@@ -152,7 +152,7 @@ int __txn_allocate(ENV *env, DB_TXN ** txnpp)
 	txn->flags = TXN_MALLOC;
 
 	*txnpp = txn;
-	return (0);
+	return 0;
 }
 
 /*
@@ -180,7 +180,7 @@ int __txn_begin(ENV *env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp,
 	if(F_ISSET(env, ENV_FORCE_TXN_BULK))
 		flags |= DB_TXN_BULK;
 	if((ret = __txn_allocate(env, &txn)) != 0)
-		return (ret);
+		return ret;
 	txn->parent = parent;
 	txn->begin_flags = flags;
 	if(parent != NULL && F_ISSET(parent, TXN_FAMILY))
@@ -250,12 +250,12 @@ int __txn_begin(ENV *env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp,
 
 	*txnpp = txn;
 	PERFMON2(env, txn, begin, txn->txnid, flags);
-	return (0);
+	return 0;
 
 err:
 	/* XXX This seems to leak the memory for 'txn->td'. XXX */
 	__os_free(env, txn);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -277,7 +277,7 @@ int __txn_recycle_id(ENV *env, int locked)
 	if((ret = __os_malloc(env,
 	    sizeof(uint32) * region->curtxns, &ids)) != 0) {
 		__db_errx(env, DB_STR("4523", "Unable to allocate transaction recycle buffer"));
-		return (ret);
+		return ret;
 	}
 	nids = 0;
 	SH_TAILQ_FOREACH(td, &region->active_txn, links, __txn_detail)
@@ -302,7 +302,7 @@ int __txn_recycle_id(ENV *env, int locked)
 		if(locked && ret != 0)
 			TXN_SYSTEM_LOCK(env);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __txn_begin_int --
@@ -454,7 +454,7 @@ static int __txn_begin_int(DB_TXN *txn)
 		MUTEX_UNLOCK(env, mgr->mutex);
 	}
 
-	return (0);
+	return 0;
 
 err:    if(inserted) {
 		TXN_SYSTEM_LOCK(env);
@@ -467,7 +467,7 @@ err:    if(inserted) {
 	if(td != NULL)
 		__env_alloc_free(&mgr->reginfo, td);
 	TXN_SYSTEM_UNLOCK(env);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -553,11 +553,11 @@ int __txn_continue(ENV *env, DB_TXN * txn, TXN_DETAIL * td, DB_THREAD_INFO * ip,
 		if(region->tx_timeout != 0 &&
 		    (ret = __lock_set_timeout(env, txn->locker,
 		    region->tx_timeout, DB_SET_TXN_TIMEOUT)) != 0)
-			return (ret);
+			return ret;
 		txn->lock_timeout = region->tx_timeout;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -578,7 +578,7 @@ static int __txn_commit_pp(DB_TXN *txn, uint32 flags)
 	if(rep_check && (t_ret = __op_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -650,7 +650,7 @@ int __txn_commit(DB_TXN *txn, uint32 flags)
 		goto err;
 
 	if((ret = __txn_isvalid(txn, TXN_OP_COMMIT)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Check for master leases at the beginning.  If we are a master and
@@ -736,33 +736,23 @@ int __txn_commit(DB_TXN *txn, uint32 flags)
 			 * the events and preprocess any trades now so we don't
 			 * release the locks below.
 			 */
-			if((ret =
-			    __txn_doevents(env, txn, TXN_COMMIT, 1)) != 0)
+			if((ret = __txn_doevents(env, txn, TXN_COMMIT, 1)) != 0)
 				goto err;
-
-			memset(&request, 0, sizeof(request));
+			memzero(&request, sizeof(request));
 			if(LOCKING_ON(env)) {
 				request.op = DB_LOCK_PUT_READ;
-				if(IS_REP_MASTER(env) &&
-				    !IS_ZERO_LSN(td->last_lsn)) {
-					memset(&list_dbt, 0, sizeof(list_dbt));
+				if(IS_REP_MASTER(env) && !IS_ZERO_LSN(td->last_lsn)) {
+					memzero(&list_dbt, sizeof(list_dbt));
 					request.obj = &list_dbt;
 				}
-				ret = __lock_vec(env,
-					txn->locker, 0, &request, 1, NULL);
+				ret = __lock_vec(env, txn->locker, 0, &request, 1, NULL);
 			}
-
 			if(ret == 0 && !IS_ZERO_LSN(td->last_lsn)) {
 				ret = __txn_flush_fe_files(txn);
 				if(ret == 0)
-					ret = __txn_regop_log(env, txn,
-						&td->visible_lsn, LOG_FLAGS(txn),
-						TXN_COMMIT,
-						(int32)time(NULL), id,
-						request.obj);
+					ret = __txn_regop_log(env, txn, &td->visible_lsn, LOG_FLAGS(txn), TXN_COMMIT, (int32)time(NULL), id, request.obj);
 				if(ret == 0)
-					token_lsn = td->last_lsn =
-						td->visible_lsn;
+					token_lsn = td->last_lsn = td->visible_lsn;
 #ifdef DIAGNOSTIC
 				if(ret == 0) {
 					DB_LSN s_lsn;
@@ -852,7 +842,7 @@ err:    /*
 
 	if((t_ret = __txn_abort(txn)) != 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -867,7 +857,7 @@ static int __txn_close_cursors(DB_TXN *txn)
 	ret = t_ret = 0;
 	dbc = NULL;
 	if(txn == NULL)
-		return (0);
+		return 0;
 	while((dbc = TAILQ_FIRST(&txn->my_cursors)) != NULL) {
 		DB_ASSERT(dbc->env, txn == dbc->txn);
 
@@ -904,7 +894,7 @@ static int __txn_close_cursors(DB_TXN *txn)
 	txn->my_cursors.tqh_first = NULL;
 	txn->my_cursors.tqh_last = NULL;
 
-	return (ret);   /* Return the first error, if any. */
+	return ret;   /* Return the first error, if any. */
 }
 
 /*
@@ -917,11 +907,11 @@ static int __txn_set_commit_token(DB_TXN *txn, DB_TXN_TOKEN * tokenp)
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_TXN->set_commit_token", DB_INIT_LOG);
 	if(txn->parent != NULL) {
 		__db_errx(env, DB_STR("4526", "commit token unavailable for nested txn"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(IS_REP_CLIENT(env)) {
 		__db_errx(env, DB_STR("4527", "may not be called on a replication client"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	txn->token_buffer = tokenp;
 #ifdef DIAGNOSTIC
@@ -931,10 +921,9 @@ static int __txn_set_commit_token(DB_TXN *txn, DB_TXN_TOKEN * tokenp)
 	 * necessary to initialize the buffer here.  But in case they get
 	 * confused we initialize it here to a recognizably invalid value.
 	 */
-	memset(tokenp, 0, DB_TXN_TOKEN_SIZE);
+	memzero(tokenp, DB_TXN_TOKEN_SIZE);
 #endif
-
-	return (0);
+	return 0;
 }
 
 /*
@@ -980,7 +969,7 @@ static int __txn_abort_pp(DB_TXN *txn)
 	if(rep_check && (t_ret = __op_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_abort --
@@ -1008,7 +997,7 @@ int __txn_abort(DB_TXN *txn)
 	 */
 	if(txn->xa_thr_status != TXN_XA_THREAD_NOTA && td->xa_ref > 1) {
 		td->status = TXN_NEED_ABORT;
-		return (0);
+		return 0;
 	}
 
 	PERFMON1(env, txn, abort, txn->txnid);
@@ -1068,7 +1057,7 @@ int __txn_abort(DB_TXN *txn)
 			if(ret == DB_LOCK_DEADLOCK)
 				deadlocked = ret;
 			else
-				return (ret);
+				return ret;
 		}
 
 	infop = env->reginfo;
@@ -1137,7 +1126,7 @@ done:   if(DBENV_LOGGING(env) && td->status == TXN_PREPARED &&
 		return (__env_panic(env, ret));
 
 	if((ret = __txn_end(txn, 0)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Everything has succeeded, except possibly that a deadlock was
 	 * remembered and deferred until now. Return success, or that error.
@@ -1160,7 +1149,7 @@ static int __txn_discard(DB_TXN *txn, uint32 flags)
 	if(rep_check && (t_ret = __op_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_discard --
@@ -1178,10 +1167,10 @@ int __txn_discard_int(DB_TXN *txn, uint32 flags)
 	env = mgr->env;
 	/* Close registered cursors. */
 	if((ret = __txn_close_cursors(txn)) != 0)
-		return (ret);
+		return ret;
 
 	if((ret = __txn_isvalid(txn, TXN_OP_DISCARD)) != 0)
-		return (ret);
+		return ret;
 
 	/* Should be no children. */
 	DB_ASSERT(env, TAILQ_FIRST(&txn->kids) == NULL);
@@ -1197,7 +1186,7 @@ int __txn_discard_int(DB_TXN *txn, uint32 flags)
 	    txn->xa_thr_status != TXN_XA_THREAD_ASSOCIATED)
 		__os_free(env, txn);
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1219,7 +1208,7 @@ int __txn_prepare(DB_TXN *txn, uint8 * gid)
 	if(SLICES_ON(env)) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("4577", "Sliced environments do not support distributed transactions"));
-		return (ret);
+		return ret;
 	}
 	td = (TXN_DETAIL *)txn->td;
 	PERFMON2(env, txn, prepare, txn->txnid, gid);
@@ -1234,49 +1223,42 @@ int __txn_prepare(DB_TXN *txn, uint8 * gid)
 		ret = __db_txn_deadlock_err(env, txn);
 		goto err;
 	}
-
 	/* Commit any unresolved children. */
 	while((kid = TAILQ_FIRST(&txn->kids)) != NULL)
 		if((ret = __txn_commit(kid, DB_TXN_NOSYNC)) != 0)
 			goto err;
-
 	/* We must set the global transaction ID here.  */
 	memcpy(td->gid, gid, DB_GID_SIZE);
 	if((ret = __txn_doevents(env, txn, TXN_PREPARE, 1)) != 0)
 		goto err;
-	memset(&request, 0, sizeof(request));
+	memzero(&request, sizeof(request));
 	if(LOCKING_ON(env)) {
 		request.op = DB_LOCK_PUT_READ;
 		if(!IS_ZERO_LSN(td->last_lsn)) {
-			memset(&list_dbt, 0, sizeof(list_dbt));
+			memzero(&list_dbt, sizeof(list_dbt));
 			request.obj = &list_dbt;
 		}
-		if((ret = __lock_vec(env,
-		    txn->locker, 0, &request, 1, NULL)) != 0)
+		if((ret = __lock_vec(env, txn->locker, 0, &request, 1, NULL)) != 0)
 			goto err;
 	}
 	if(DBENV_LOGGING(env)) {
-		memset(&gid_dbt, 0, sizeof(gid));
+		memzero(&gid_dbt, sizeof(gid));
 		gid_dbt.data = gid;
 		gid_dbt.size = DB_GID_SIZE;
 		lflags = DB_LOG_COMMIT | DB_FLUSH;
-		if((ret = __txn_prepare_log(env,
-		    txn, &td->last_lsn, lflags, TXN_PREPARE,
-		    &gid_dbt, &td->begin_lsn, request.obj)) != 0)
-			__db_err(env, ret, DB_STR("4528",
-			    "DB_TXN->prepare: log_write failed"));
-
+		if((ret = __txn_prepare_log(env, txn, &td->last_lsn, lflags, TXN_PREPARE, &gid_dbt, &td->begin_lsn, request.obj)) != 0)
+			__db_err(env, ret, DB_STR("4528", "DB_TXN->prepare: log_write failed"));
 		if(request.obj != NULL && request.obj->data != NULL)
 			__os_free(env, request.obj->data);
 		if(ret != 0)
 			goto err;
 	}
-
 	MUTEX_LOCK(env, txn->mgrp->mutex);
 	td->status = TXN_PREPARED;
 	MUTEX_UNLOCK(env, txn->mgrp->mutex);
-err:    ENV_LEAVE(env, ip);
-	return (ret);
+err:    
+	ENV_LEAVE(env, ip);
+	return ret;
 }
 
 /*
@@ -1298,7 +1280,7 @@ uint32 __txn_id(DB_TXN *txn)
 int __txn_get_name(DB_TXN *txn, const char ** namep)
 {
 	*namep = txn->name;
-	return (0);
+	return 0;
 }
 /*
  * __txn_set_name --
@@ -1317,12 +1299,12 @@ int __txn_set_name(DB_TXN *txn, const char * name)
 	ENV * env = mgr->env;
 	if(name == NULL || strlen(name) == 0) {
 		__db_errx(env, DB_STR("4574", "DB_TXN->set_name: name cannot be empty."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	td = (TXN_DETAIL *)txn->td;
 	len = strlen(name) + 1;
 	if((ret = __os_realloc(env, len, &txn->name)) != 0)
-		return (ret);
+		return ret;
 	memcpy(txn->name, name, len);
 	ENV_ENTER(env, ip);
 	TXN_SYSTEM_LOCK(env);
@@ -1336,7 +1318,7 @@ int __txn_set_name(DB_TXN *txn, const char * name)
 		__os_free(env, txn->name);
 		txn->name = NULL;
 		ENV_LEAVE(env, ip);
-		return (ret);
+		return ret;
 	}
 	TXN_SYSTEM_UNLOCK(env);
 	td->name = R_OFFSET(&mgr->reginfo, p);
@@ -1352,7 +1334,7 @@ int __txn_set_name(DB_TXN *txn, const char * name)
 #endif
 
 	ENV_LEAVE(env, ip);
-	return (0);
+	return 0;
 }
 
 /*
@@ -1365,7 +1347,7 @@ int __txn_get_priority(DB_TXN *txn, uint32 * priorityp)
 	if(txn->locker == NULL)
 		return EINVAL;
 	*priorityp = txn->locker->priority;
-	return (0);
+	return 0;
 }
 /*
  * __txn_set_priority --
@@ -1378,7 +1360,7 @@ int __txn_set_priority(DB_TXN *txn, uint32 priority)
 		return EINVAL;
 	txn->locker->priority = priority;
 	((TXN_DETAIL*)txn->td)->priority = priority;
-	return (0);
+	return 0;
 }
 /*
  * __txn_set_timeout --
@@ -1397,7 +1379,7 @@ int __txn_set_timeout(DB_TXN *txn, db_timeout_t timeout, uint32 op)
 	ENV_ENTER(env, ip);
 	ret = __lock_set_timeout(env, txn->locker, timeout, op);
 	ENV_LEAVE(txn->mgrp->env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1434,7 +1416,7 @@ static int __txn_isvalid(const DB_TXN *txn, txnop_t op)
 		     */
 		    /* Transaction is already been reused. */
 		    if(txn->txnid != td->txnid)
-			    return (0);
+			    return 0;
 		    /*
 		     * What we've got had better be either a prepared or
 		     * restored transaction.
@@ -1443,7 +1425,7 @@ static int __txn_isvalid(const DB_TXN *txn, txnop_t op)
 			    __db_errx(env, DB_STR("4532", "not a restored transaction"));
 			    return (__env_panic(env, EINVAL));
 		    }
-		    return (0);
+		    return 0;
 		case TXN_OP_PREPARE:
 		    if(txn->parent != NULL) {
 			    /*
@@ -1454,7 +1436,7 @@ static int __txn_isvalid(const DB_TXN *txn, txnop_t op)
 			     * someone doing it.
 			     */
 			    __db_errx(env, DB_STR("4533", "Prepare disallowed on child transactions"));
-			    return (EINVAL);
+			    return EINVAL;
 		    }
 		    break;
 		case TXN_OP_ABORT:
@@ -1472,7 +1454,7 @@ static int __txn_isvalid(const DB_TXN *txn, txnop_t op)
 			     * in this case, give the user the opportunity to
 			     * abort or commit.
 			     */
-			    return (EINVAL);
+			    return EINVAL;
 		    }
 		    break;
 		case TXN_RUNNING:
@@ -1484,7 +1466,7 @@ static int __txn_isvalid(const DB_TXN *txn, txnop_t op)
 		    __db_errx(env, DB_STR_A("4535", "transaction already %s", "%s"), td->status == TXN_COMMITTED ? DB_STR_P("committed") : DB_STR_P("aborted"));
 		    goto err;
 	}
-	return (0);
+	return 0;
 err:    
 	/*
 	 * If there's a serious problem with the transaction, panic.  TXN
@@ -1701,7 +1683,7 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 		    DB_CKP_INTERNAL | DB_FORCE);
 	}
 
-	return (0);
+	return 0;
 }
 
 static int __txn_dispatch_undo(ENV *env, DB_TXN * txn, DBT * rdbt, DB_LSN * key_lsn, DB_TXNHEAD * txnlist)
@@ -1715,7 +1697,7 @@ static int __txn_dispatch_undo(ENV *env, DB_TXN * txn, DBT * rdbt, DB_LSN * key_
 	}
 	if(ret == 0 && F_ISSET(txn, TXN_CHILDCOMMIT) && IS_ZERO_LSN(*key_lsn))
 		ret = __db_txnlist_lsnget(env, txnlist, key_lsn, 0);
-	return (ret);
+	return ret;
 }
 /*
  * __txn_undo --
@@ -1738,17 +1720,14 @@ static int __txn_undo(DB_TXN *txn)
 	logc = NULL;
 	txnlist = NULL;
 	ret = 0;
-
 	if(!LOGGING_ON(env))
-		return (0);
-
+		return 0;
 	/*
 	 * This is the simplest way to code this, but if the mallocs during
 	 * recovery turn out to be a performance issue, we can do the
 	 * allocation here and use DB_DBT_USERMEM.
 	 */
-	memset(&rdbt, 0, sizeof(rdbt));
-
+	memzero(&rdbt, sizeof(rdbt));
 	/*
 	 * Allocate a txnlist for children and aborted page allocs.
 	 * We need to associate the list with the maximal parent
@@ -1757,14 +1736,12 @@ static int __txn_undo(DB_TXN *txn)
 	 */
 	for(ptxn = txn->parent; ptxn != NULL && ptxn->parent != NULL;)
 		ptxn = ptxn->parent;
-
 	if(ptxn != NULL && ptxn->txn_list != NULL)
 		txnlist = (DB_TXNHEAD *)ptxn->txn_list;
 	else if(txn->txn_list != NULL)
 		txnlist = (DB_TXNHEAD *)txn->txn_list;
-	else if((ret = __db_txnlist_init(env,
-	    txn->thread_info, 0, 0, NULL, &txnlist)) != 0)
-		return (ret);
+	else if((ret = __db_txnlist_init(env, txn->thread_info, 0, 0, NULL, &txnlist)) != 0)
+		return ret;
 	else if(ptxn != NULL)
 		ptxn->txn_list = txnlist;
 
@@ -1776,46 +1753,34 @@ static int __txn_undo(DB_TXN *txn)
 		rdbt.data = lr->data;
 		rdbt.size = 0;
 		LSN_NOT_LOGGED(key_lsn);
-		ret =
-		    __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
+		ret = __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
 		if(ret != 0) {
-			__db_err(env, ret, DB_STR("4536",
-			    "DB_TXN->abort: in-memory log undo failed"));
+			__db_err(env, ret, DB_STR("4536", "DB_TXN->abort: in-memory log undo failed"));
 			goto err;
 		}
 	}
-
 	key_lsn = ((TXN_DETAIL*)txn->td)->last_lsn;
-
-	if(!IS_ZERO_LSN(key_lsn) &&
-	    (ret = __log_cursor(env, &logc)) != 0)
+	if(!IS_ZERO_LSN(key_lsn) && (ret = __log_cursor(env, &logc)) != 0)
 		goto err;
-
 	while(!IS_ZERO_LSN(key_lsn)) {
 		/*
 		 * The dispatch routine returns the lsn of the record
 		 * before the current one in the key_lsn argument.
 		 */
 		if((ret = __logc_get(logc, &key_lsn, &rdbt, DB_SET)) == 0) {
-			ret = __txn_dispatch_undo(env,
-				txn, &rdbt, &key_lsn, txnlist);
+			ret = __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
 		}
-
 		if(ret != 0) {
-			__db_err(env, ret, DB_STR_A("4537",
-			    "DB_TXN->abort: log undo failed for LSN: %lu %lu",
-			    "%lu %lu"), (u_long)key_lsn.file,
-			    (u_long)key_lsn.offset);
+			__db_err(env, ret, DB_STR_A("4537", "DB_TXN->abort: log undo failed for LSN: %lu %lu", "%lu %lu"), (u_long)key_lsn.file, (u_long)key_lsn.offset);
 			goto err;
 		}
 	}
-
-err:    if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+err:    
+	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if(ptxn == NULL && txnlist != NULL)
 		__db_txnlist_end(env, txnlist);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1831,12 +1796,12 @@ int __txn_activekids(ENV *env, uint32 rectype, DB_TXN * txn)
 	 * committing child at the least.  In that case, skip this check.
 	 */
 	if(F_ISSET(txn, TXN_COMPENSATE) || rectype == DB___txn_child)
-		return (0);
+		return 0;
 	if(TAILQ_FIRST(&txn->kids) != NULL) {
 		__db_errx(env, DB_STR("4538", "Child transaction is active"));
 		return (USR_ERR(env, EPERM));
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -1898,7 +1863,7 @@ int __txn_force_abort(ENV *env, uint8 * buffer)
 	memcpy(buffer + SSZA(HDR, chksum), hdr.chksum, sum_len);
 #endif
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1935,7 +1900,7 @@ int __txn_preclose(ENV *env)
 	else
 		ret = 0;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2005,7 +1970,7 @@ int __txn_applied_pp(DB_ENV *dbenv, DB_TXN_TOKEN * token, db_timeout_t timeout, 
 	ENV_ENTER(env, ip);
 	ret = __txn_applied(env, ip, &commit_info, timeout);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 static int __txn_applied(ENV *env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_info, db_timeout_t timeout)
@@ -2023,7 +1988,7 @@ static int __txn_applied(ENV *env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_
 		return (__rep_txn_applied(env, ip, commit_info, timeout));
 	if(commit_info->gen != 0) {
 		__db_errx(env, DB_STR("4539", "replication commit token in non-replication env"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	lp = (LOG *)env->lg_handle->reginfo.primary;
@@ -2035,7 +2000,7 @@ static int __txn_applied(ENV *env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_
 
 	if(renv->envid == commit_info->envid &&
 	    LOG_COMPARE(&commit_info->lsn, &lsn) <= 0)
-		return (0);
+		return 0;
 	return (USR_ERR(env, DB_NOTFOUND));
 }
 
@@ -2062,14 +2027,14 @@ int __txn_init_timeout(DB_TXN *txn, DB_TXN *parent)
 		 * through to check whether the lock region has a timeout.
 		 */
 		if(ret == 0 || ret != EINVAL)
-			return (ret);
+			return ret;
 	}
 
 	if(lock_region->tx_timeout != 0)
 		ret = __lock_set_timeout(env,
 			txn->locker, lock_region->tx_timeout, DB_SET_TXN_TIMEOUT);
 
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_SLICES
@@ -2107,21 +2072,17 @@ int __txn_slice_begin(DB_TXN *txn, DB_TXN ** sl_txnpp, db_slice_t slice_index)
 
 	CHECK_THREAD(env);
 	if(txn->txn_slices == NULL) {
-		if((ret = __os_calloc(env, env->dbenv->slice_cnt,
-		    sizeof(DB_TXN *), &txn->txn_slices)) != 0)
-			return (ret);
-
+		if((ret = __os_calloc(env, env->dbenv->slice_cnt, sizeof(DB_TXN *), &txn->txn_slices)) != 0)
+			return ret;
 #ifdef HAVE_STATISTICS
-		len = (size_t)
-		    env->dbenv->slice_cnt * sizeof(DB_TXN_ACTIVE_SLICE);
+		len = (size_t)env->dbenv->slice_cnt * sizeof(DB_TXN_ACTIVE_SLICE);
 		TXN_SYSTEM_LOCK(env);
 		if((ret = __env_alloc(&mgr->reginfo,
 		    len, &slice_details)) != 0) {
-			return (ret);
+			return ret;
 		}
-		memset(slice_details, 0, len);
+		memzero(slice_details, len);
 		td->slice_details = R_OFFSET(&mgr->reginfo, slice_details);
-
 		TXN_SYSTEM_UNLOCK(env);
 #endif
 	}
@@ -2133,7 +2094,7 @@ int __txn_slice_begin(DB_TXN *txn, DB_TXN ** sl_txnpp, db_slice_t slice_index)
 	if((*sl_txnpp = txn->txn_slices[slice_index]) == NULL) {
 		if((ret = __txn_begin_pp(env->slice_envs[slice_index],
 		    NULL, sl_txnpp, txn->begin_flags)) != 0)
-			return (ret);
+			return ret;
 		(*sl_txnpp)->txn_container = txn;
 		txn->txn_slices[slice_index] = *sl_txnpp;
 #ifdef HAVE_STATISTICS
@@ -2141,7 +2102,7 @@ int __txn_slice_begin(DB_TXN *txn, DB_TXN ** sl_txnpp, db_slice_t slice_index)
 #endif
 	}
 
-	return (0);
+	return 0;
 }
 /*
  * __txn_multislice --
@@ -2156,7 +2117,7 @@ int __txn_multislice(DB_TXN *txn)
 	env = txn->mgrp->env;
 	ret = USR_ERR(env, EINVAL);
 	__db_errx(env, DB_STR("4576", "A transaction tried to access a second slice"));
-	return (ret);
+	return ret;
 }
 
 #endif

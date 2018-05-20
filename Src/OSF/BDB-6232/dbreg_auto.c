@@ -38,6 +38,6 @@ int __dbreg_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __dbreg_register_recover, DB___dbreg_register)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

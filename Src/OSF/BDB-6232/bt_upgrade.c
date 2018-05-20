@@ -43,11 +43,11 @@ int __bam_30_btreemeta(DB *dbp, char * real_name, uint8 * buf)
 	newmeta->dbmeta.version = 7;
 	/* Replace the unique ID. */
 	if((ret = __os_fileid(env, real_name, 1, buf + 36)) != 0)
-		return (ret);
+		return ret;
 
 	newmeta->root = 1;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -91,7 +91,7 @@ int __bam_31_btreemeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAG
 		F_SET(&newmeta->dbmeta, BTM_DUPSORT);
 
 	*dirtyp = 1;
-	return (0);
+	return 0;
 }
 
 /*
@@ -119,7 +119,7 @@ int __bam_31_lbtree(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE *
 			}
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -141,7 +141,7 @@ int __bam_60_btreemeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAG
 	bmeta->dbmeta.version = 10;
 	*dirtyp = 1;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -168,22 +168,22 @@ int __bam_60_lbtree(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE *
 		bk = GET_BKEYDATA(dbp, h, indx);
 		if(B_TYPE(bk->type) == B_BLOB) {
 			memcpy(&bl60, bk, BBLOB60_SIZE);
-			memset(&bl60p1, 0, BBLOB_SIZE);
+			memzero(&bl60p1, BBLOB_SIZE);
 			bl60p1.type = bl60.type;
 			bl60p1.len = BBLOB_DSIZE;
 			bl60p1.encoding = bl60.encoding;
 			GET_BLOB60_ID(dbp->env, bl60, blob_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_SIZE(dbp->env, bl60, blob_size, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_FILE_ID(dbp->env, &bl60, file_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			GET_BLOB60_SDB_ID(dbp->env, &bl60, sdb_id, ret);
 			if(ret != 0)
-				return (ret);
+				return ret;
 			SET_BLOB_ID(&bl60p1, blob_id, BBLOB60P1);
 			SET_BLOB_SIZE(&bl60p1, blob_size, BBLOB60P1);
 			SET_BLOB_FILE_ID(&bl60p1, file_id, BBLOB60P1);
@@ -193,5 +193,5 @@ int __bam_60_lbtree(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE *
 		}
 	}
 
-	return (ret);
+	return ret;
 }

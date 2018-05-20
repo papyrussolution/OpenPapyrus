@@ -951,7 +951,7 @@ int SLAPI PPObjTSession::IsProcessorInProcess(PPID prcID, int kind, TSessionTbl:
 //
 //
 //
-struct DscntEntry {
+struct DscntEntry { // @flat
 	long   OprNo;
 	PPID   GoodsID;
 	double Qtty;
@@ -960,7 +960,7 @@ struct DscntEntry {
 	double Dscnt;
 };
 
-void SLAPI PPObjTSession::Helper_SetupDiscount(SArray & rList, int pct, double discount)
+void SLAPI PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discount) // @v10.0.07 SArray-->SVector
 {
 	uint   i;
 	uint   last_index = 0;
@@ -1007,7 +1007,7 @@ int SLAPI PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, in
 		TSessionTbl::Rec sess_rec;
 		TSessLineTbl::Rec line_rec;
 		double amount = 0.0;
-		SArray ln_list(sizeof(DscntEntry));
+		SVector ln_list(sizeof(DscntEntry)); // @v10.0.07 SArray-->SVector
 		DscntEntry * p_entry;
 		{
 			PPTransaction tra(use_ta);
@@ -1049,13 +1049,19 @@ int SLAPI PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, in
 
 int SLAPI PPObjTSession::PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, int use_ta)
 {
+	return Helper_PutLine(sessID, pOprNo, pRec, 0, use_ta);
+}
+
+int SLAPI PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, long options, int use_ta)
+{
 	int    ok = 1;
-	const  int use_price = (GetConfig().Flags & PPTSessConfig::fUsePricing) ? 1 : 0;
+	const  int use_price = BIN(GetConfig().Flags & PPTSessConfig::fUsePricing);
 	PPID   main_goods_id = 0;
 	double qtty = 0.0;
 	double amount = 0.0;
 	TSessionTbl::Rec sess_rec;
 	TechTbl::Rec tec_rec;
+	SCardTbl::Rec sc_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1141,10 +1147,25 @@ int SLAPI PPObjTSession::PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec *
 			}
 			THROW_DB(P_Tbl->updateRecBuf(&sess_rec));
 		}
-		if(use_price && sess_rec.SCardID) {
-			SCardTbl::Rec sc_rec;
-			if(ScObj.Search(sess_rec.SCardID, &sc_rec) > 0)
+		if(!(options & hploInner)) {
+			// @v10.0.07 {
+			if(tec_rec.Flags & TECF_RVRSCMAINGOODS && !(options & hploInner)) {
+				TSessionPacket ts_pack;
+				if(GetPacket(sessID, &ts_pack, gpoLoadLines) > 0) {
+					LongArray upd_row_idx_list;
+					if(RecalcSessionPacket(ts_pack, &upd_row_idx_list) > 0) {
+						PPID   temp_id = sessID;
+						for(uint i = 0; i < upd_row_idx_list.getCount(); i++) {
+							TSessLineTbl::Rec inner_line = ts_pack.Lines.at(upd_row_idx_list.get(i)-1);
+							THROW(Helper_PutLine(sessID, &inner_line.OprNo, &inner_line, hploInner, 0));
+						}
+					}
+				}
+			}
+			// } @v10.0.07 
+			if(use_price && sess_rec.SCardID && ScObj.Search(sess_rec.SCardID, &sc_rec) > 0) {
 				THROW(SetupDiscount(sessID, 1, fdiv100i(sc_rec.PDis), 0));
+			}
 		}
 		THROW(tra.Commit());
 	}
@@ -1270,10 +1291,10 @@ int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStr
 				if(!pGoodsIdList || !pGoodsIdList->lsearch(gs_item.GoodsID)) {
 					long   oprno = 0;
 					TSessLineTbl::Rec line_rec;
-					if(gs_item.Formula[0]) {
+					if(gs_item.Formula__[0]) {
 						double v = 0.0;
 						GdsClsCalcExprContext ctx(&gs, sessID);
-						THROW(PPCalcExpression(gs_item.Formula, &v, &ctx));
+						THROW(PPCalcExpression(gs_item.Formula__, &v, &ctx));
 						qtty = v;
 					}
 					qtty = -qtty;
@@ -1293,16 +1314,19 @@ int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStr
 	return ok;
 }
 
-int SLAPI PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack)
+int SLAPI PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack, LongArray * pUpdRowIdxList)
 {
 	int    ok = -1;
 	TechTbl::Rec tec_rec;
+	CALLPTRMEMB(pUpdRowIdxList, clear());
 	if(rPack.Rec.TechID && TecObj.Fetch(rPack.Rec.TechID, &tec_rec) > 0) {
 		PPGoodsStruc gs;
+		Goods2Tbl::Rec goods_rec;
 		if(TecObj.GetGoodsStruc(rPack.Rec.TechID, &gs) > 0) {
-			if(tec_rec.Flags & TECF_RVRSCMAINGOODS) {
+			if(tec_rec.Flags & TECF_RVRSCMAINGOODS && GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
 				uint   single_main_line_pos = 0;
-				for(uint i = 0; i < rPack.Lines.getCount(); i++) {
+				uint   i;
+				for(i = 0; i < rPack.Lines.getCount(); i++) {
 					const TSessLineTbl::Rec & r_item = rPack.Lines.at(i);
 					if(r_item.GoodsID == tec_rec.GoodsID) {
 						if(!single_main_line_pos)
@@ -1317,7 +1341,46 @@ int SLAPI PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack)
 					TSessLineTbl::Rec & r_main_item = rPack.Lines.at(single_main_line_pos-1);
 					assert(r_main_item.GoodsID == tec_rec.GoodsID);
 					for(uint giidx = 0; giidx < gs.Items.getCount(); giidx++) {
-
+						const PPGoodsStrucItem & r_gsi = gs.Items.at(giidx);
+						if(r_gsi.Flags & GSIF_MAINITEM) {
+							double gsi_qtty = 0.0;
+							for(i = 0; i < rPack.Lines.getCount(); i++) {
+								const TSessLineTbl::Rec & r_item = rPack.Lines.at(i);
+								if(r_item.GoodsID == r_gsi.GoodsID) {
+									if(r_item.Sign > 0)
+										gsi_qtty -= fabs(r_item.Qtty);
+									else if(r_item.Sign < 0)
+										gsi_qtty += fabs(r_item.Qtty);
+								}
+							}
+							if(gsi_qtty != 0.0) {
+								double cq = 0.0;
+								if(r_gsi.Formula__[0]) {
+									double v = 0.0;
+									GdsClsCalcExprContext ctx(&gs, rPack.Rec.ID);
+									if(PPCalcExpression(r_gsi.Formula__, &v, &ctx))
+										cq = v;
+								}
+								else if(gs.GetItemExt(giidx, 0, tec_rec.GoodsID, 1.0, &cq) > 0) {
+								}
+								if(cq > 0.0) {
+									double result_qtty = gsi_qtty / cq;
+									if(tec_rec.Flags & TECF_RECOMPLMAINGOODS) {
+										if(goods_rec.Flags & GF_USEINDEPWT && !feqeps(r_main_item.WtQtty, result_qtty, 1E-8)) {
+											r_main_item.WtQtty = result_qtty;
+											CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
+											ok = 1;
+										}
+									}
+									else if(!feqeps(r_main_item.Qtty, result_qtty, 1E-8)) {
+										r_main_item.Qtty = result_qtty;
+										CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
+										ok = 1;
+									}
+								}
+							}
+							break;
+						}
 					}
 				}
 			}

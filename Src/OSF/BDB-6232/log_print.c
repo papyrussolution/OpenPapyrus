@@ -104,7 +104,7 @@ int __log_print_record(ENV *env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_LO
 			    /* Special op for dbreg_register records. */
 			    if(info != NULL && (ret =
 				__log_print_dbreg_setup(env, recbuf, (DB_LOG *)info)) != 0)
-				    return (ret);
+				    return ret;
 			    LOGCOPY_32(env, &uinttmp, bp);
 			    switch(FLD_ISSET(uinttmp, DBREG_OP_MASK)) {
 				    case DBREG_CHKPNT: s = "CHKPNT"; break;
@@ -218,7 +218,7 @@ pr_data:
 						if((ret = __db_pageswap(env, dbp,
 						    hdrstart, hdrsize, has_data == 0 ?
 						    NULL : &dbt, 1)) != 0)
-							return (ret);
+							return ret;
 					}
 					if(downrev)
 						goto pr_data;
@@ -226,7 +226,7 @@ pr_data:
 					    sizeof(uint32)) != hdrstart) {
 						if((ret = __os_malloc(env,
 						    hdrsize, &hdrtmp)) != 0)
-							return (ret);
+							return ret;
 						memcpy(hdrtmp, hdrstart, hdrsize);
 					}
 					else
@@ -235,7 +235,7 @@ pr_data:
 					    sizeof(uint32)) != bp) {
 						if((ret = __os_malloc(env,
 						    uinttmp, &datatmp)) != 0)
-							return (ret);
+							return ret;
 						memcpy(datatmp, bp, uinttmp);
 					}
 					else if(has_data == 1)
@@ -245,7 +245,7 @@ pr_data:
 					if((ret = __db_prpage_int(env, &msgbuf,
 					    dbp, "\t", hdrtmp,
 					    uinttmp, datatmp, DB_PR_PAGE)) != 0)
-						return (ret);
+						return ret;
 					has_data = 0;
 					if(hdrtmp != hdrstart)
 						__os_free(env, hdrtmp);
@@ -281,7 +281,7 @@ pr_data:
 		DB_MSGBUF_FLUSH(env, &msgbuf);
 	else
 		__db_msg(env, "%s", "");
-	return (0);
+	return 0;
 }
 
 /*
@@ -305,7 +305,7 @@ static int __log_print_dbreg_setup(ENV *env, DBT * recbuf, DB_LOG * dblp)
 	int ret;
 	DB_ASSERT(env, dblp->env == NULL);
 	if((ret = __dbreg_register_read(env, recbuf->data, &argp)) != 0)
-		return (ret);
+		return ret;
 	if(dblp->dbentry_cnt <= argp->fileid && (ret = __dbreg_add_dbentry(env, dblp, NULL, argp->fileid)) != 0)
 		goto err;
 	dbe = &dblp->dbentry[argp->fileid];
@@ -359,5 +359,5 @@ static int __log_print_dbreg_setup(ENV *env, DBT * recbuf, DB_LOG * dblp)
 done:
 err:
 	__os_free(env, argp);
-	return (ret);
+	return ret;
 }

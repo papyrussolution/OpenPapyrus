@@ -80,7 +80,7 @@ int __os_stack_save(const ENV *env, unsigned nframes, void ** frames)
 #else
 	COMPQUIET(nframes, 0);
 	COMPQUIET(frames, NULL);
-	return (0);
+	return 0;
 #endif
 }
 

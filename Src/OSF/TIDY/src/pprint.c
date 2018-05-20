@@ -749,8 +749,7 @@ static void PPrintChar(TidyDocImpl* doc, uint c, uint mode)
 
 	/* #431953 - start RJ */
 	/* Handle encoding-specific issues */
-	switch(outenc)
-	{
+	switch(outenc) {
 		case UTF8:
 #if SUPPORT_UTF16_ENCODINGS
 		case UTF16:

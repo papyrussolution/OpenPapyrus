@@ -35,10 +35,10 @@ int __blob_make_sub_dir(ENV *env, char ** blob_sub_dir, db_seq_t file_id, db_seq
 	int ret;
 	size_t len;
 	*blob_sub_dir = NULL;
-	memset(fname, 0, MAX_BLOB_PATH_SZ);
-	memset(dname, 0, MAX_BLOB_PATH_SZ);
+	memzero(fname,  MAX_BLOB_PATH_SZ);
+	memzero(dname, MAX_BLOB_PATH_SZ);
 	if(db_id == 0 && file_id == 0)
-		return (0);
+		return 0;
 	if(db_id < 0 || file_id < 0)
 		return (USR_ERR(env, EINVAL));
 
@@ -58,12 +58,12 @@ int __blob_make_sub_dir(ENV *env, char ** blob_sub_dir, db_seq_t file_id, db_seq
 	else
 		(void)sprintf(*blob_sub_dir, "%s%c", fname, PATH_SEPARATOR[0]);
 
-	return (0);
+	return 0;
 
 err:    if(*blob_sub_dir != NULL)
 		__os_free(env, *blob_sub_dir);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -98,11 +98,11 @@ int __blob_make_meta_fname(ENV *env, DB * dbp, char ** meta_fname)
 
 	snprintf(fname, len, "%s%s", sub_dir, BLOB_META_FILE_NAME);
 	*meta_fname = fname;
-	return (0);
+	return 0;
 err:
 	if(fname != NULL)
 		__os_free(env, fname);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -117,7 +117,7 @@ int __blob_get_dir(DB *dbp, char ** dirp)
 	int ret;
 	*dirp = NULL;
 	if(dbp->blob_sub_dir == NULL)
-		return (0);
+		return 0;
 
 	/* Get the path of the blob directory for this database. */
 	if((ret = __db_appname(dbp->env,
@@ -125,12 +125,12 @@ int __blob_get_dir(DB *dbp, char ** dirp)
 		goto err;
 
 	*dirp = blob_dir;
-	return (0);
+	return 0;
 
 err:    if(blob_dir != NULL)
 		__os_free(dbp->env, blob_dir);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -142,31 +142,25 @@ err:    if(blob_dir != NULL)
 static int __blob_open_meta_db(DB *dbp, DB_TXN * txn, DB ** meta_db, DB_SEQUENCE ** seq, int file, int create, int force_txn)
 {
 #ifdef HAVE_64BIT_TYPES
-	ENV * env;
-	DB * blob_meta_db;
+	int ret;
+	DB * blob_meta_db = 0;
 	DBT key;
-	DB_SEQUENCE * blob_seq;
+	DB_SEQUENCE * blob_seq = 0;
 	DB_THREAD_INFO * ip;
-	DB_TXN * local_txn;
-	char * fullname, * fname, * dname, * path;
-	int free_paths, ret, use_txn;
-	uint32 flags;
-
-	flags = 0;
-	fullname = fname = NULL;
-	blob_meta_db = NULL;
-	blob_seq = NULL;
-	local_txn = NULL;
-	env = dbp->env;
-	free_paths = use_txn = 0;
-	memset(&key, 0, sizeof(DBT));
-
-	/*
-	 * Get the directory of the database, the meta db file name,
-	 * and the sub-db name.
-	 * file: blob directory/meta-file-name
-	 * else: blob directory/per-db-blobdir/meta-file-name
-	 */
+	DB_TXN * local_txn = 0;
+	char * fullname = 0;
+	char * fname = 0;
+	char * dname, * path;
+	int free_paths = 0;
+	int use_txn = 0;
+	uint32 flags = 0;
+	ENV * env = dbp->env;
+	memzero(&key, sizeof(DBT));
+	// 
+	// Get the directory of the database, the meta db file name, and the sub-db name.
+	// file: blob directory/meta-file-name
+	// else: blob directory/per-db-blobdir/meta-file-name
+	// 
 	if(file) {
 		key.data = BLOB_DIR_ID_KEY;
 		key.size = (uint32)strlen(BLOB_DIR_ID_KEY);
@@ -263,7 +257,7 @@ static int __blob_open_meta_db(DB *dbp, DB_TXN * txn, DB ** meta_db, DB_SEQUENCE
 		__os_free(env, fname);
 	*meta_db = blob_meta_db;
 	*seq = blob_seq;
-	return (0);
+	return 0;
 err:
 	if(fullname)
 		__os_free(env, fullname);
@@ -275,7 +269,7 @@ err:
 		(void)__seq_close(blob_seq, 0);
 	if(blob_meta_db != NULL)
 		(void)__db_close(blob_meta_db, NULL, 0);
-	return (ret);
+	return ret;
 #else /*HAVE_64BIT_TYPES*/
 	__db_errx(dbp->env, DB_STR("0217", "library build did not include support for external files"));
 	return (DB_OPNOTSUP);
@@ -320,7 +314,7 @@ err:
 		(void)__seq_close(blob_seq, 0);
 	if(blob_meta_db != NULL)
 		(void)__db_close(blob_meta_db, NULL, 0);
-	return (ret);
+	return ret;
 #else /*HAVE_64BIT_TYPES*/
 	COMPQUIET(dbp, NULL);
 	COMPQUIET(txn, NULL);
@@ -362,7 +356,7 @@ int __blob_generate_id(DB *dbp, DB_TXN * txn, db_seq_t * blob_id)
 	if((ret = __seq_get(dbp->blob_seq, ltxn, 1, blob_id, flags)) != 0)
 		goto err;
 err:    
-	return (ret);
+	return ret;
 #else /*HAVE_64BIT_TYPES*/
 	COMPQUIET(blob_id, NULL);
 	__db_errx(dbp->env, DB_STR("0219", "library build did not include support for external files"));
@@ -402,7 +396,7 @@ int __blob_highest_id(DB *dbp, DB_TXN * txn, db_seq_t * id)
 
 	ret = __seq_get(dbp->blob_seq, txn, 0, id, DB_CURRENT);
 err:
-	return (ret);
+	return ret;
 #else /*HAVE_64BIT_TYPES*/
 	COMPQUIET(id, NULL);
 	__db_errx(dbp->env, DB_STR("0245", "library build did not include support for external files"));
@@ -433,23 +427,22 @@ void __blob_calculate_dirs(db_seq_t blob_id, char * path, int * len, int * depth
 		(*len) += sprintf(path + (*len), "%03llu%c", (unsigned long long)tmp, PATH_SEPARATOR[0]);
 	}
 }
-
 /*
  * __blob_id_to_path --
  * Generate the file name and blob specific part of the path for a particular
  * blob_id. The __db_appname API is used to generate a fully qualified path.
  * The caller must deallocate the path.
  *
- * PUBLIC: int __blob_id_to_path __P((ENV *,
- * PUBLIC:	 const char *, db_seq_t, char **, int));
+ * PUBLIC: int __blob_id_to_path __P((ENV *, const char *, db_seq_t, char **, int));
  */
 int __blob_id_to_path(ENV *env, const char * blob_sub_dir, db_seq_t blob_id, char ** ppath, int create)
 {
-	char * path, * tmp_path;
-	int depth, name_len, ret;
+	char * path = 0;
+	char * tmp_path = 0;
+	int depth, ret;
 	size_t len;
-	name_len = 0;
-	path = tmp_path = *ppath = NULL;
+	int name_len = 0;
+	*ppath = NULL;
 	if(blob_id < 1) {
 		ret = USR_ERR(env, EINVAL);
 		goto err;
@@ -457,12 +450,9 @@ int __blob_id_to_path(ENV *env, const char * blob_sub_dir, db_seq_t blob_id, cha
 	len = MAX_BLOB_PATH_SZ + strlen(blob_sub_dir) + 1;
 	if((ret = __os_malloc(env, len, &path)) != 0)
 		goto err;
-
-	memset(path, 0, len);
+	memzero(path, len);
 	name_len += sprintf(path, "%s", blob_sub_dir);
-
 	__blob_calculate_dirs(blob_id, path, &name_len, &depth);
-
 	/*
 	 * Populate the file name. Ensure there are 3 digits for each directory
 	 * level (even if they are 0).
@@ -480,13 +470,13 @@ int __blob_id_to_path(ENV *env, const char * blob_sub_dir, db_seq_t blob_id, cha
 		__os_free(env, tmp_path);
 	}
 	*ppath = path;
-	return (0);
+	return 0;
 err:
 	if(tmp_path != NULL)
 		__os_free(env, tmp_path);
 	if(path != NULL)
 		__os_free(env, path);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -515,7 +505,7 @@ int __blob_str_to_id(ENV *env, const char ** path, db_seq_t * id)
 		p++;
 	}
 	*path = p;
-	return (0);
+	return 0;
 }
 
 /*
@@ -545,22 +535,22 @@ int __blob_path_to_dir_ids(ENV *env, const char * path, db_seq_t * file_id, db_s
 	do {
 		p = strstr(p, BLOB_DIR_PREFIX);
 		if(p == NULL || p > (path + len + 4))
-			return (ret);
+			return ret;
 		p += 4;
 	} while(p[0] < '0' || p[0] > '9');
 	/* The file id should be next in the path. */
 	if((ret = __blob_str_to_id(env, &p, file_id)) != 0)
-		return (ret);
+		return ret;
 	/* Quit now if a subdatabase argument was not passed. */
 	if(sdb_id == NULL)
-		return (ret);
+		return ret;
 	p = strstr(p, BLOB_DIR_PREFIX);
 	/* It is okay for the path not to include a sdb_id. */
 	if(p == NULL || p > (path + 4 + len))
-		return (ret);
+		return ret;
 	p += 4;
 	ret = __blob_str_to_id(env, &p, sdb_id);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_salvage --
@@ -621,7 +611,7 @@ err:    if(fhp != NULL)
 		__os_free(env, path);
 	if(blob_sub_dir != NULL)
 		__os_free(env, blob_sub_dir);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -653,43 +643,31 @@ int __blob_vrfy(ENV *env, db_seq_t blob_id, off_t blob_size, db_seq_t file_id, d
 		goto err;
 	}
 	if(__db_appname(env, DB_APP_BLOB, dir, NULL, &path) != 0) {
-		EPRINT((env, DB_STR_A("0223",
-		    "Page %lu: Error getting path to external file for %llu",
-		    "%lu %llu"), (u_long)pgno, (unsigned long long)blob_id));
+		EPRINT((env, DB_STR_A("0223", "Page %lu: Error getting path to external file for %llu", "%lu %llu"), (u_long)pgno, (unsigned long long)blob_id));
 		goto err;
 	}
 	if((__os_exists(env, path, &isdir)) != 0 || isdir != 0) {
-		EPRINT((env, DB_STR_A("0224",
-		    "Page %lu: external file does not exist at %s",
-		    "%lu %s"), (u_long)pgno, path));
+		EPRINT((env, DB_STR_A("0224", "Page %lu: external file does not exist at %s", "%lu %s"), (u_long)pgno, path));
 		goto err;
 	}
 	if(__os_open(env, path, 0, DB_OSO_RDONLY, 0, &fhp) != 0) {
-		EPRINT((env, DB_STR_A("0225",
-		    "Page %lu: Error opening external file at %s",
-		    "%lu %s"), (u_long)pgno, path));
+		EPRINT((env, DB_STR_A("0225", "Page %lu: Error opening external file at %s", "%lu %s"), (u_long)pgno, path));
 		goto err;
 	}
 	if(__os_ioinfo(env, path, fhp, &mbytes, &bytes, NULL) != 0) {
-		EPRINT((env, DB_STR_A("0226",
-		    "Page %lu: Error getting external file size at %s",
-		    "%lu %s"), (u_long)pgno, path));
+		EPRINT((env, DB_STR_A("0226", "Page %lu: Error getting external file size at %s", "%lu %s"), (u_long)pgno, path));
 		goto err;
 	}
 
 	actual_size = ((off_t)mbytes * (off_t)MEGABYTE) + bytes;
 	if(blob_size != actual_size) {
-		EPRINT((env, DB_STR_A("0227",
-		    "Page %lu: external file size does not match size in database record: %llu %llu",
-		    "%lu %llu %llu"), (u_long)pgno,
-		    (unsigned long long)actual_size,
-		    (unsigned long long)blob_size));
+		EPRINT((env, DB_STR_A("0227", "Page %lu: external file size does not match size in database record: %llu %llu",
+		    "%lu %llu %llu"), (u_long)pgno, (unsigned long long)actual_size, (unsigned long long)blob_size));
 		goto err;
 	}
-
 	ret = 0;
-
-err:    if(fhp != NULL)
+err:    
+	if(fhp != NULL)
 		(void)__os_closehandle(env, fhp);
 	if(dir != NULL)
 		__os_free(env, dir);
@@ -697,7 +675,7 @@ err:    if(fhp != NULL)
 		__os_free(env, path);
 	if(blob_sub_dir != NULL)
 		__os_free(env, blob_sub_dir);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -719,7 +697,7 @@ int __blob_del_hierarchy(ENV *env)
 err:    
 	if(blob_dir != NULL)
 		__os_free(env, blob_dir);
-	return (ret);
+	return ret;
 }
 /*
  * __blob_del_all --
@@ -785,7 +763,7 @@ int __blob_del_all(DB *dbp, DB_TXN * txn, int istruncate)
 
 err:    if(path != NULL)
 		__os_free(env, path);
-	return (ret);
+	return ret;
 
 #else /*HAVE_64BIT_TYPES*/
 	__db_errx(dbp->env, DB_STR("0220", "library build did not include support for external files"));
@@ -887,7 +865,7 @@ err:    if(meta != NULL) {
 	if(dirs != NULL)
 		__os_dirfree(env, dirs, count);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -910,7 +888,7 @@ int __blob_copy_all(DB *dbp, const char * target, uint32 flags)
 	ret = 0;
 	/* Do nothing if blobs are not enabled. */
 	if(dbp->blob_sub_dir == NULL || dbp->blob_threshold == 0)
-		return (0);
+		return 0;
 
 	/* Create the directory structure in the target directory. */
 	if(env->dbenv->db_blob_dir != NULL)
@@ -968,7 +946,7 @@ err:
 		__os_free(env, metafname);
 	if(fullname != NULL)
 		__os_free(env, fullname);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1035,5 +1013,5 @@ static int __blob_copy_dir(DB *dbp, const char * dir, const char * target)
 err:
 	if(dirs != NULL)
 		__os_dirfree(env, dirs, count);
-	return (ret);
+	return ret;
 }

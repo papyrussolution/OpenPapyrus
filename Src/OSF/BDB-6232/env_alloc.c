@@ -125,7 +125,7 @@ void __env_alloc_init(REGINFO *infop, size_t size)
 	 * The first chunk of memory is the ALLOC_LAYOUT structure.
 	 */
 	head = (ALLOC_LAYOUT *)infop->head;
-	memset(head, 0, sizeof(*head));
+	memzero(head, sizeof(*head));
 	SH_TAILQ_INIT(&head->addrq);
 	for(i = 0; i < DB_SIZE_Q_COUNT; ++i)
 		SH_TAILQ_INIT(&head->sizeq[i]);
@@ -208,7 +208,7 @@ int __env_alloc(REGINFO *infop, size_t len, void * retp)
 		__db_errx(env, DB_STR("1600", "allocation of 0-length block"));
 		__os_stack(env);
 #endif
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	PERFMON3(env, mpool, env_alloc, len, infop->id, infop->type);
@@ -248,7 +248,7 @@ int __env_alloc(REGINFO *infop, size_t len, void * retp)
 
 		/* Allocate the space. */
 		if((ret = __os_malloc(env, len, &p)) != 0)
-			return (ret);
+			return ret;
 		infop->allocated += len;
 		if(infop != envinfop)
 			envinfop->allocated += len;
@@ -264,7 +264,7 @@ int __env_alloc(REGINFO *infop, size_t len, void * retp)
 			p += sizeof(mem);
 		}
 		*(void**)retp = p + sizeof(uintmax_t);
-		return (0);
+		return 0;
 	}
 
 	head = (ALLOC_LAYOUT *)infop->head;
@@ -338,7 +338,7 @@ retry:
 			goto retry;
 #endif
 		STAT_INC_VERB(env, mpool, fail, head->failure, len, infop->id);
-		return (ret);
+		return ret;
 	}
 	STAT_INC_VERB(env, mpool, alloc, head->success, len, infop->id);
 
@@ -367,7 +367,7 @@ retry:
 #endif
 	*(void**)retp = p;
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -390,52 +390,39 @@ void __env_alloc_free(REGINFO *infop, void * ptr)
 		/* Find the start of the memory chunk and its length. */
 		p = (uint8*)((uintmax_t*)ptr - 1);
 		len = (size_t)*(uintmax_t*)p;
-
 		infop->allocated -= len;
 		if(F_ISSET(infop, REGION_SHARED))
 			env->reginfo->allocated -= len;
-
 #ifdef DIAGNOSTIC
 		/* Check the guard byte. */
 		DB_ASSERT(env, p[len - 1] == GUARD_BYTE);
-
 		/* Trash the memory chunk. */
 		memset(p, CLEAR_BYTE, len);
 #endif
 		__os_free(env, p);
 		return;
 	}
-
 #ifdef HAVE_MUTEX_SUPPORT
 	MUTEX_REQUIRED(env, infop->mtx_alloc);
 #endif
-
 	head = (ALLOC_LAYOUT *)infop->head;
-
 	p = (uint8 *)ptr;
 	elp = (ALLOC_ELEMENT*)(p - sizeof(ALLOC_ELEMENT));
-
 	STAT_INC_VERB(env, mpool, free, head->freed, elp->ulen, infop->id);
-
 #ifdef DIAGNOSTIC
 	/* Check the guard byte. */
 	DB_ASSERT(env, p[elp->ulen] == GUARD_BYTE);
-
 	/* Trash the memory chunk. */
 	memset(p, CLEAR_BYTE, (size_t)elp->len - sizeof(ALLOC_ELEMENT));
 #endif
-
 	/* Mark the memory as no longer in use. */
 	elp->ulen = 0;
-
 	/*
 	 * Try and merge this chunk with chunks on either side of it.  Two
 	 * chunks can be merged if they're contiguous and not in use.
 	 */
-	if((elp_tmp =
-	    SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL &&
-	    elp_tmp->ulen == 0 &&
-	    (uint8*)elp_tmp + elp_tmp->len == (uint8*)elp) {
+	if((elp_tmp = SH_TAILQ_PREV(&head->addrq, elp, addrq, __alloc_element)) != NULL &&
+	    elp_tmp->ulen == 0 && (uint8*)elp_tmp + elp_tmp->len == (uint8*)elp) {
 		/*
 		 * If we're merging the entry into a previous entry, remove the
 		 * current entry from the addr queue and the previous entry from
@@ -541,7 +528,7 @@ again:  if((elp_tmp = SH_TAILQ_NEXT(elp, addrq, __alloc_element)) != NULL &&
 
 	if((ret = __env_region_extend(env, infop)) != 0) {
 		if(ret != ENOMEM)
-			return (ret);
+			return ret;
 		goto done;
 	}
 	goto again;
@@ -556,7 +543,7 @@ done:   elp->ulen = elp->len - sizeof(ALLOC_ELEMENT);
 	infop->allocated += *lenp;
 	if(F_ISSET(infop, REGION_SHARED))
 		env->reginfo->allocated += *lenp;
-	return (0);
+	return 0;
 }
 
 /*
@@ -605,7 +592,7 @@ int __env_region_extend(ENV *env, REGINFO * infop)
 		rp->size = rp->max;
 	if(infop->fhp &&
 	    (ret = __db_file_extend(env, infop->fhp, rp->size)) != 0)
-		return (ret);
+		return ret;
 	elp->len = rp->alloc;
 	elp->ulen = 0;
 #ifdef DIAGNOSTIC
@@ -618,7 +605,7 @@ int __env_region_extend(ENV *env, REGINFO * infop)
 		rp->alloc += rp->size;
 	if(rp->alloc > MEGABYTE)
 		rp->alloc = MEGABYTE;
-	return (ret);
+	return ret;
 }
 
 /*

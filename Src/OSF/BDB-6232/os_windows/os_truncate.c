@@ -48,11 +48,11 @@ int __os_truncate(ENV *env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t re
 		/* Stat the file. */
 		if((ret =
 		    __os_ioinfo(env, NULL, fhp, &mbytes, &bytes, NULL)) != 0)
-			return (ret);
+			return ret;
 		stat_offset = (off_t)mbytes * MEGABYTE + bytes;
 
 		if(offset > stat_offset)
-			return (0);
+			return 0;
 	}
 #endif
 
@@ -89,5 +89,5 @@ int __os_truncate(ENV *env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t re
 		ret = __os_posix_err(ret);
 	}
 
-	return (ret);
+	return ret;
 }

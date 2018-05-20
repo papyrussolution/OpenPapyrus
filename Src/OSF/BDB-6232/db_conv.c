@@ -73,7 +73,7 @@ int __db_pgin(DB_ENV *dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 	PAGE * pagep = (PAGE*)pp;
 	ret = is_hmac = 0;
 	chksum = NULL;
-	memset(&dummydb, 0, sizeof(DB));
+	memzero(&dummydb, sizeof(DB));
 	dbp = &dummydb;
 	dbp->dbenv = dbenv;
 	dbp->env = env;
@@ -145,11 +145,11 @@ int __db_pgin(DB_ENV *dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 			    __db_errx(env, DB_STR_A("0684", "checksum error: page %lu: catastrophic recovery required", "%lu"), (u_long)pg);
 			    return (__env_panic(env, DB_RUNRECOVERY));
 			default:
-			    return (ret);
+			    return ret;
 		}
 	}
 	if((ret = __db_decrypt_pg(env, dbp, pagep)) != 0)
-		return (ret);
+		return ret;
 	switch(pagep->type) {
 		case P_INVALID:
 		    if(pginfo->type == DB_QUEUE)
@@ -213,7 +213,7 @@ int __db_pgout(DB_ENV *dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 	pginfo = (DB_PGINFO*)cookie->data;
 	env = dbenv->env;
 	pagep = (PAGE*)pp;
-	memset(&dummydb, 0, sizeof(DB));
+	memzero(&dummydb, sizeof(DB));
 	dbp = &dummydb;
 	dbp->dbenv = dbenv;
 	dbp->env = env;
@@ -278,7 +278,7 @@ int __db_pgout(DB_ENV *dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 		    return (__db_pgfmt(env, pg));
 	}
 	if(ret)
-		return (ret);
+		return ret;
 
 	return (__db_encrypt_and_checksum_pg(env, dbp, pagep));
 }
@@ -329,7 +329,7 @@ int __db_decrypt_pg(ENV *env, DB * dbp, PAGE * pagep)
 		if(pg_len != 0)
 			ret = db_cipher->decrypt(env, db_cipher->data, iv, ((uint8*)pagep) + pg_off, pg_len - pg_off);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -377,7 +377,7 @@ int __db_encrypt_and_checksum_pg(ENV *env, DB * dbp, PAGE * pagep)
 		}
 		if((ret = db_cipher->encrypt(env, db_cipher->data,
 		    iv, ((uint8*)pagep) + pg_off, pg_len - pg_off)) != 0)
-			return (ret);
+			return ret;
 	}
 	if(F_ISSET(dbp, DB_AM_CHKSUM)) {
 		switch(pagep->type) {
@@ -403,7 +403,7 @@ int __db_encrypt_and_checksum_pg(ENV *env, DB * dbp, PAGE * pagep)
 		if(F_ISSET(dbp, DB_AM_SWAP) && !F_ISSET(dbp, DB_AM_ENCRYPT))
 			P_32_SWAP(chksum);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -453,7 +453,7 @@ int __db_byteswap(DB *dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 	uint8 * end, * p, * pgend;
 
 	if(pagesize == 0)
-		return (0);
+		return 0;
 
 	if(pgin) {
 		M_32_SWAP(h->lsn.file);
@@ -473,7 +473,7 @@ int __db_byteswap(DB *dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 	}
 
 	if(dbp == NULL)
-		return (0);
+		return 0;
 	env = dbp->env;
 
 	pgend = (uint8*)h + pagesize;
@@ -700,7 +700,7 @@ out:    if(!pgin) {
 		M_16_SWAP(h->entries);
 		M_16_SWAP(h->hf_offset);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -758,8 +758,8 @@ int __db_pageswap(ENV *env, DB * dbp, void * pp, size_t len, DBT * pdata, int pg
 	else {
 		pgsize = hoffset + pdata->size;
 		if((ret = __os_malloc(env, pgsize, &pgcopy)) != 0)
-			return (ret);
-		memset(pgcopy, 0, pgsize);
+			return ret;
+		memzero(pgcopy, pgsize);
 		memcpy(pgcopy, pp, len);
 		memcpy((uint8*)pgcopy + hoffset, pdata->data, pdata->size);
 		ret = __db_byteswap(dbp, pg, (PAGE*)pgcopy, pgsize, pgin);
@@ -773,7 +773,7 @@ int __db_pageswap(ENV *env, DB * dbp, void * pp, size_t len, DBT * pdata, int pg
 		if(!pgin) {
 			if((ret = __os_malloc(env, pdata->size, &pdata->data)) != 0) {
 				__os_free(env, pgcopy);
-				return (ret);
+				return ret;
 			}
 			F_SET(pdata, DB_DBT_APPMALLOC);
 		}
@@ -781,7 +781,7 @@ int __db_pageswap(ENV *env, DB * dbp, void * pp, size_t len, DBT * pdata, int pg
 		__os_free(env, pgcopy);
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1004,7 +1004,7 @@ int __db_convert_pp(DB *dbp, const char * fname, uint32 lorder)
 		ret = __db_slice_process(dbp, fname, lorder, __db_convert_pp, "db_convert");
 #endif
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1021,7 +1021,7 @@ static int __db_convert_extent(ENV *env, const char * fname, uint32 pagesize, ui
 	int t_ret = 0;
 	/* Get the real backing file name. */
 	if((ret = __db_appname(env, DB_APP_DATA, fname, NULL, &real_name)) != 0)
-		return (ret);
+		return ret;
 	/* Open the file. */
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
 		__db_err(env, ret, "%s", real_name);
@@ -1042,7 +1042,7 @@ err:
 	if(dbp != NULL && (t_ret = __db_close(dbp, NULL, 0) != 0) && ret == 0)
 		ret = t_ret;
 	__os_free(env, real_name);
-	return (ret);
+	return ret;
 }
 
 static int __db_convert_extent_names(DB *dbp, DBMETA * mbuf, char * fname, char *** namelistp)
@@ -1068,7 +1068,7 @@ static int __db_convert_extent_names(DB *dbp, DBMETA * mbuf, char * fname, char 
 		    break;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -1091,7 +1091,7 @@ int __db_convert(DB *dbp, const char * fname, uint32 lorder)
 	DB_FH * fhp = NULL;
 	/* Get the real backing file name. */
 	if((ret = __db_appname(env, DB_APP_DATA, fname, NULL, &real_name)) != 0)
-		return (ret);
+		return ret;
 	/* Open the file. */
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
 		__db_err(env, ret, "%s", real_name);
@@ -1146,5 +1146,5 @@ err:
 		__os_free(env, real_name);
 	if(extent_names != NULL)
 		__os_free(env, extent_names);
-	return (ret);
+	return ret;
 }

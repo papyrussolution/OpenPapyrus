@@ -45,7 +45,7 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 	/* If we have it exclusively then its already dirty. */
 	if(F_ISSET(bhp, BH_EXCLUSIVE)) {
 		DB_ASSERT(env, F_ISSET(bhp, BH_DIRTY));
-		return (0);
+		return 0;
 	}
 	if(flags == 0)
 		flags = DB_MPOOL_DIRTY;
@@ -62,14 +62,14 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 		if((ret = __memp_fput(dbmfp, ip, pgaddr, priority)) != 0) {
 			__db_errx(env, DB_STR_A("3009", "%s: error releasing a read-only page", "%s"), __memp_fn(dbmfp));
 			(void)atomic_dec(env, &bhp->ref);
-			return (ret);
+			return ret;
 		}
 		if((ret = __memp_fget(dbmfp,
 		    &pgno, ip, txn, flags, addrp)) != 0) {
 			if(ret != DB_LOCK_DEADLOCK)
 				__db_errx(env, DB_STR_A("3010", "%s: error getting a page for writing", "%s"), __memp_fn(dbmfp));
 			(void)atomic_dec(env, &bhp->ref);
-			return (ret);
+			return ret;
 		}
 		(void)atomic_dec(env, &bhp->ref);
 		/*
@@ -80,7 +80,7 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 		pgaddr = *(void**)addrp;
 		bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
 		DB_ASSERT(env, pgno == bhp->pgno);
-		return (0);
+		return 0;
 	}
 
 	infop = &dbmp->reginfo[bhp->region];
@@ -112,7 +112,7 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 	MVCC_MPROTECT(bhp->buf, mfp->pagesize, PROT_READ | PROT_WRITE);
 #endif
 	DB_ASSERT(env, !F_ISSET(bhp, BH_DIRTY) || atomic_read(&hp->hash_page_dirty) != 0);
-	return (0);
+	return 0;
 }
 /*
  * __memp_shared --
@@ -131,5 +131,5 @@ int __memp_shared(DB_MPOOLFILE *dbmfp, void * pgaddr)
 	F_CLR(bhp, BH_EXCLUSIVE);
 	MUTEX_UNLOCK(env, bhp->mtx_buf);
 	MUTEX_READLOCK(env, bhp->mtx_buf);
-	return (0);
+	return 0;
 }

@@ -54,13 +54,13 @@ int __seq_stat(DB_SEQUENCE *seq, DB_SEQUENCE_STAT ** spp, uint32 flags)
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(env, sizeof(*sp), &sp)) != 0)
 		goto err;
-	memset(sp, 0, sizeof(*sp));
+	memzero(sp, sizeof(*sp));
 	if(seq->mtx_seq != MUTEX_INVALID) {
 		__mutex_set_wait_info(env, seq->mtx_seq, &sp->st_wait, &sp->st_nowait);
 		if(LF_ISSET(DB_STAT_CLEAR))
 			__mutex_clear(env, seq->mtx_seq);
 	}
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	data.data = &record;
 	data.ulen = sizeof(record);
 	data.flags = DB_DBT_USERMEM;
@@ -93,7 +93,7 @@ retry:
 err:    if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -138,7 +138,7 @@ err:    if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 static const FN __db_seq_flags_fn[] = {
@@ -169,7 +169,7 @@ static int __seq_print_stats(DB_SEQUENCE *seq, uint32 flags)
 	int ret;
 	ENV * env = seq->seq_dbp->env;
 	if((ret = __seq_stat(seq, &sp, flags)) != 0)
-		return (ret);
+		return ret;
 	__db_dl_pct(env, "The number of sequence locks that required waiting", (u_long)sp->st_wait, DB_PCT(sp->st_wait, sp->st_wait + sp->st_nowait), NULL);
 	STAT_FMT("The current sequence value", INT64_FMT, db_seq_t, sp->st_current);
 	STAT_FMT("The cached sequence value", INT64_FMT, db_seq_t, sp->st_value);
@@ -179,7 +179,7 @@ static int __seq_print_stats(DB_SEQUENCE *seq, uint32 flags)
 	STAT_ULONG("The cache size", sp->st_cache_size);
 	__db_prflags(env, NULL, sp->st_flags, __db_seq_flags_fn, NULL, "\tSequence flags");
 	__os_ufree(seq->seq_dbp->env, sp);
-	return (0);
+	return 0;
 }
 /*
  * __seq_print_all --
@@ -190,7 +190,7 @@ static int __seq_print_all(DB_SEQUENCE *seq, uint32 flags)
 {
 	COMPQUIET(seq, NULL);
 	COMPQUIET(flags, 0);
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */

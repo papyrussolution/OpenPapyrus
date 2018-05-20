@@ -95,7 +95,7 @@ char * __os_strerror(int error, char * buf, size_t len)
 	_TCHAR tbuf[MAX_TMPBUF_LEN];
 	size_t maxlen;
 	DB_ASSERT(NULL, error != 0);
-	memset(tbuf, 0, sizeof(_TCHAR)*MAX_TMPBUF_LEN);
+	memzero(tbuf, sizeof(_TCHAR)*MAX_TMPBUF_LEN);
 	maxlen = (len > MAX_TMPBUF_LEN ? MAX_TMPBUF_LEN : len);
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, tbuf, maxlen-1, NULL);
 	if(WideCharToMultiByte(CP_UTF8, 0, tbuf, -1,
@@ -120,13 +120,13 @@ int __os_posix_err(int error)
 {
 	/* Handle calls on successful returns. */
 	if(error == 0)
-		return (0);
+		return 0;
 	/*
 	 * Translate the Windows error codes we care about.
 	 */
 	switch(error) {
 		case ERROR_INVALID_PARAMETER:
-		    return (EINVAL);
+		    return EINVAL;
 
 		case ERROR_FILE_NOT_FOUND:
 		case ERROR_INVALID_DRIVE:
@@ -258,7 +258,7 @@ int __os_posix_err(int error)
 		case WSAEINTR:
 		    return (EINTR);
 		case WSAEINVAL:
-		    return (EINVAL);
+		    return EINVAL;
 		case WSAEISCONN:
 #ifdef EISCONN
 		    return (EISCONN);

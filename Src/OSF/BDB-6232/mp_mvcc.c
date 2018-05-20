@@ -26,11 +26,11 @@ int __memp_bh_settxn(DB_MPOOL *dbmp, MPOOLFILE * mfp, BH * bhp, void * vtd)
 	TXN_DETAIL * td = (TXN_DETAIL*)vtd;
 	if(td == NULL) {
 		__db_errx(env, DB_STR_A("3002", "%s: non-transactional update to a multiversion file", "%s"), __memp_fns(dbmp, mfp));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(bhp->td_off != INVALID_ROFF) {
 		DB_ASSERT(env, BH_OWNER(env, bhp) == td);
-		return (0);
+		return 0;
 	}
 	bhp->td_off = R_OFFSET(&env->tx_handle->reginfo, td);
 	return (__txn_add_buffer(env, td));
@@ -72,7 +72,7 @@ int __memp_skip_curadj(DBC * dbc, db_pgno_t pgno)
 	if(ret != 0) {
 		/* Panic: there is no way to return the error. */
 		(void)__env_panic(env, ret);
-		return (0);
+		return 0;
 	}
 
 	SH_TAILQ_FOREACH(bhp, &hp->hash_bucket, hq, __bh) {
@@ -182,19 +182,14 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 		ret = EBUSY;
 		goto err;
 	}
-
-	if((ret = __os_open(env, real_name, pagesize,
-	    DB_OSO_CREATE | DB_OSO_EXCL, env->db_mode, &fhp)) == 0) {
+	if((ret = __os_open(env, real_name, pagesize, DB_OSO_CREATE | DB_OSO_EXCL, env->db_mode, &fhp)) == 0) {
 		/* We're creating the file -- initialize the metadata page. */
 		created = 1;
 		magic = DB_FREEZER_MAGIC;
 		maxpgno = newpgno = 0;
-		if((ret = __os_write(env, fhp,
-		    &magic, sizeof(uint32), &nio)) != 0 ||
-		    (ret = __os_write(env, fhp,
-		    &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
-		    (ret = __os_write(env, fhp,
-		    &maxpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+		if((ret = __os_write(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
+		    (ret = __os_write(env, fhp, &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+		    (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0 ||
 		    (ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
 			goto err;
 	}
@@ -203,12 +198,9 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 			real_name, pagesize, 0, env->db_mode, &fhp);
 	if(ret != 0)
 		goto err;
-	if((ret = __os_read(env, fhp,
-	    &magic, sizeof(uint32), &nio)) != 0 ||
-	    (ret = __os_read(env, fhp,
-	    &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
-	    (ret = __os_read(env, fhp,
-	    &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
+	if((ret = __os_read(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
+	    (ret = __os_read(env, fhp, &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
+	    (ret = __os_read(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 		goto err;
 	if(magic != DB_FREEZER_MAGIC) {
 		ret = USR_ERR(env, EINVAL);
@@ -216,34 +208,25 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	}
 	if(newpgno == 0) {
 		newpgno = ++maxpgno;
-		if((ret = __os_seek(env,
-		    fhp, 0, 0, sizeof(uint32) + sizeof(db_pgno_t))) != 0 ||
-		    (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t),
-		    &nio)) != 0)
+		if((ret = __os_seek(env, fhp, 0, 0, sizeof(uint32) + sizeof(db_pgno_t))) != 0 ||
+		    (ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
 	}
 	else {
 		if((ret = __os_seek(env, fhp, newpgno, pagesize, 0)) != 0 ||
-		    (ret = __os_read(env, fhp, &nextfree, sizeof(db_pgno_t),
-		    &nio)) != 0)
+		    (ret = __os_read(env, fhp, &nextfree, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
-		if((ret =
-		    __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
-		    (ret = __os_write(env, fhp, &nextfree, sizeof(db_pgno_t),
-		    &nio)) != 0)
+		if((ret = __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
+		    (ret = __os_write(env, fhp, &nextfree, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
 	}
-
 	/* Write the buffer to the allocated page. */
-	if((ret = __os_io(env, DB_IO_WRITE, fhp, newpgno, pagesize, 0,
-	    pagesize, bhp->buf, &nio)) != 0)
+	if((ret = __os_io(env, DB_IO_WRITE, fhp, newpgno, pagesize, 0, pagesize, bhp->buf, &nio)) != 0)
 		goto err;
-
 	ret = __os_closehandle(env, fhp);
 	fhp = NULL;
 	if(ret != 0)
 		goto err;
-
 	/*
 	 * Set up the frozen_bhp with the freezer page number.  The original
 	 * buffer header is about to be freed, so transfer resources to the
@@ -258,8 +241,7 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	atomic_init(&frozen_bhp->ref, 0);
 	if(mutex != MUTEX_INVALID)
 		frozen_bhp->mtx_buf = mutex;
-	else if((ret = __mutex_alloc(env, MTX_MPOOL_BH,
-	    DB_MUTEX_SHARED, &frozen_bhp->mtx_buf)) != 0)
+	else if((ret = __mutex_alloc(env, MTX_MPOOL_BH, DB_MUTEX_SHARED, &frozen_bhp->mtx_buf)) != 0)
 		goto err;
 	F_SET(frozen_bhp, BH_FROZEN);
 	F_CLR(frozen_bhp, BH_EXCLUSIVE);
@@ -327,7 +309,7 @@ err:            if(fhp != NULL &&
 	if(ret != 0 && ret != EBUSY && ret != ENOMEM)
 		__db_err(env, ret, "__memp_bh_freeze");
 
-	return (ret);
+	return ret;
 }
 
 static int __pgno_cmp(const void * a, const void *b)
@@ -581,5 +563,5 @@ err:
 		ret = t_ret;
 	if(ret != 0)
 		__db_err(env, ret, "__memp_bh_thaw");
-	return (ret);
+	return ret;
 }

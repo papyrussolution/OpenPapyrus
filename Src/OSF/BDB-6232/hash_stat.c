@@ -32,22 +32,17 @@ int __ham_stat(DBC *dbc, void * spp, uint32 flags)
 	PAGE * h;
 	db_pgno_t pgno;
 	int ret;
-
 	dbp = dbc->dbp;
 	env = dbp->env;
-
 	mpf = dbp->mpf;
 	sp = NULL;
-
 	hcp = (HASH_CURSOR*)dbc->internal;
-
 	if((ret = __ham_get_meta(dbc)) != 0)
 		goto err;
-
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(env, sizeof(*sp), &sp)) != 0)
 		goto err;
-	memset(sp, 0, sizeof(*sp));
+	memzero(sp, sizeof(*sp));
 	/* Copy the fields that we have. */
 	sp->hash_nkeys = hcp->hdr->dbmeta.key_count;
 	sp->hash_ndata = hcp->hdr->dbmeta.record_count;
@@ -106,7 +101,7 @@ done:   if((ret = __ham_release_meta(dbc)) != 0)
 		goto err;
 
 	*(DB_HASH_STAT**)spp = sp;
-	return (0);
+	return 0;
 
 err:    if(sp != NULL)
 		__os_ufree(env, sp);
@@ -114,7 +109,7 @@ err:    if(sp != NULL)
 	if(hcp->hdr != NULL)
 		(void)__ham_release_meta(dbc);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -131,7 +126,7 @@ int __ham_stat_print(DBC *dbc, uint32 flags)
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	if((ret = __ham_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
 		__db_msg(env, "Default Hash database information:");
@@ -163,7 +158,7 @@ int __ham_stat_print(DBC *dbc, uint32 flags)
 	__db_dl_pct(env, "Number of bytes free in duplicate pages", (u_long)sp->hash_dup_free, DB_PCT_PG(sp->hash_dup_free, sp->hash_dup, sp->hash_pagesize), "ff");
 	__db_dl(env, "Number of pages on the free list", (u_long)sp->hash_free);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 
 static int __ham_stat_callback(DBC *dbc, PAGE * pagep, void * cookie, int * putp)
@@ -239,9 +234,9 @@ static int __ham_stat_callback(DBC *dbc, PAGE * pagep, void * cookie, int * putp
 		     * cookie and call them.  Then add appropriate
 		     * fields into our stat structure.
 		     */
-		    memset(&bstat, 0, sizeof(bstat));
+		    memzero(&bstat, sizeof(bstat));
 		    if((ret = __bam_stat_callback(dbc, pagep, &bstat, putp)) != 0)
-			    return (ret);
+			    return ret;
 		    sp->hash_dup++;
 		    sp->hash_dup_free += bstat.bt_leaf_pgfree +
 			bstat.bt_dup_pgfree + bstat.bt_int_pgfree;
@@ -255,7 +250,7 @@ static int __ham_stat_callback(DBC *dbc, PAGE * pagep, void * cookie, int * putp
 		    return (__db_pgfmt(dbp->env, PGNO(pagep)));
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -396,14 +391,14 @@ int __ham_traverse(DBC *dbc, db_lockmode_t mode, int (*callback)(DBC *, PAGE *, 
 						sizeof(db_pgno_t));
 					    if((ret = __dbc_newopd(dbc,
 						opgno, NULL, &opd)) != 0)
-						    return (ret);
+						    return ret;
 					    if((ret = __bam_traverse(opd,
 						DB_LOCK_READ, opgno,
 						callback, cookie))
 						!= 0)
 						    goto err;
 					    if((ret = __dbc_close(opd)) != 0)
-						    return (ret);
+						    return ret;
 					    opd = NULL;
 					    break;
 					case H_OFFPAGE:
@@ -441,12 +436,12 @@ int __ham_traverse(DBC *dbc, db_lockmode_t mode, int (*callback)(DBC *, PAGE *, 
 			goto err;
 		if(hcp->page != NULL) {
 			if((ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0)
-				return (ret);
+				return ret;
 			hcp->page = NULL;
 		}
 	}
 err:    
 	if(opd != NULL && (t_ret = __dbc_close(opd)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }

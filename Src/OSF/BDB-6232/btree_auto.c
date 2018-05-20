@@ -171,24 +171,24 @@ int __bam_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_split_recover, DB___bam_split)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_rsplit_recover, DB___bam_rsplit)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_adj_recover, DB___bam_adj)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_cadjust_recover, DB___bam_cadjust)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_cdel_recover, DB___bam_cdel)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_repl_recover, DB___bam_repl)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_irep_recover, DB___bam_irep)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_root_recover, DB___bam_root)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_curadj_recover, DB___bam_curadj)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __bam_rcuradj_recover, DB___bam_rcuradj)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

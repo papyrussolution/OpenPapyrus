@@ -42,11 +42,11 @@ int __mutex_stat_pp(DB_ENV *dbenv, DB_MUTEX_STAT ** statp, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mutex_handle, "DB_ENV->mutex_stat", DB_INIT_MUTEX);
 	if((ret = __db_fchk(env, "DB_ENV->mutex_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__mutex_stat(env, statp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __mutex_stat --
@@ -62,7 +62,7 @@ static int __mutex_stat(ENV *env, DB_MUTEX_STAT ** statp, uint32 flags)
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
 	if((ret = __os_umalloc(env, sizeof(DB_MUTEX_STAT), &stats)) != 0)
-		return (ret);
+		return ret;
 	MUTEX_SYSTEM_LOCK(env);
 	/*
 	 * Most fields are maintained in the underlying region structure.
@@ -76,7 +76,7 @@ static int __mutex_stat(ENV *env, DB_MUTEX_STAT ** statp, uint32 flags)
 		__mutex_clear(env, mtxregion->mtx_region);
 	MUTEX_SYSTEM_UNLOCK(env);
 	*statp = stats;
-	return (0);
+	return 0;
 }
 /*
  * __mutex_stat_print_pp --
@@ -91,11 +91,11 @@ int __mutex_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mutex_handle, "DB_ENV->mutex_stat_print", DB_INIT_MUTEX);
 	if((ret = __db_fchk(env, "DB_ENV->mutex_stat_print", flags, DB_STAT_ALL | DB_STAT_ALLOC | DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__mutex_stat_print(env, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __mutex_stat_print
@@ -112,11 +112,11 @@ int __mutex_stat_print(ENV *env, uint32 flags)
 		ret = __mutex_print_stats(env, orig_flags);
 		__mutex_print_summary(env);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(LF_ISSET(DB_STAT_ALL))
 		ret = __mutex_print_all(env, orig_flags);
-	return (0);
+	return 0;
 }
 
 static void __mutex_print_summary(ENV *env)
@@ -131,7 +131,7 @@ static void __mutex_print_summary(ENV *env)
 	int alloc_id;
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
-	memset(counts, 0, sizeof(counts));
+	memzero(counts, sizeof(counts));
 	size = 0;
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		mutexp = (DB_MUTEX*)((uintptr_t)mtxmgr->mutex_array + mtxregion->mutex_size);
@@ -171,7 +171,7 @@ static int __mutex_print_stats(ENV *env, uint32 flags)
 	DB_MUTEX_STAT * sp;
 	int ret;
 	if((ret = __mutex_stat(env, &sp, LF_ISSET(DB_STAT_CLEAR))) != 0)
-		return (ret);
+		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default mutex region information:");
 	__db_dlbytes(env, "Mutex region size", (u_long)0, (u_long)0, (u_long)sp->st_regsize);
@@ -187,7 +187,7 @@ static int __mutex_print_stats(ENV *env, uint32 flags)
 	STAT_ULONG("Mutex in-use count", sp->st_mutex_inuse);
 	STAT_ULONG("Mutex maximum in-use count", sp->st_mutex_inuse_max);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 /*
  * __mutex_print_all --
@@ -242,7 +242,7 @@ static int __mutex_print_all(ENV *env, uint32 flags)
 			mutexp = (DB_MUTEX *)ALIGNP_INC(mutexp, mtxregion->stat.st_mutex_align);
 		}
 	}
-	return (0);
+	return 0;
 }
 /*
  * __mutex_print_debug_single --

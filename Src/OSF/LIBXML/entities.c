@@ -430,9 +430,9 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 		return 0;
 	if(doc)
 		html = (doc->type == XML_HTML_DOCUMENT_NODE);
-	/*
-	 * allocate an translation buffer.
-	 */
+	// 
+	// allocate an translation buffer.
+	// 
 	buffer_size = 1000;
 	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
 	if(!buffer) {
@@ -446,9 +446,9 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			growBufferReentrant();
 			out = &buffer[indx];
 		}
-		/*
-		 * By default one have to encode at least '<', '>', '"' and '&' !
-		 */
+		// 
+		// By default one have to encode at least '<', '>', '"' and '&' !
+		// 
 		if(*cur == '<') {
 			const xmlChar * end;
 			/*
@@ -480,10 +480,10 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			*out++ = ';';
 		}
 		else if(*cur == '&') {
-			/*
-			 * Special handling of &{...} construct from HTML 4, see
-			 * http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
-			 */
+			// 
+			// Special handling of &{...} construct from HTML 4, see
+			// http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
+			// 
 			if(html && attr && (cur[1] == '{') && (strchr((const char*)cur, '}'))) {
 				while(*cur != '}') {
 					*out++ = *cur++;
@@ -512,9 +512,8 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			if((doc && (doc->encoding != NULL)) || (html)) {
 				/*
 				 * Bjørn Reese <br@sseusa.com> provided the patch
-				   xmlChar xc;
-				   xc = (*cur & 0x3F) << 6;
-				   if (cur[1] != 0) {
+				   xmlChar xc = (*cur & 0x3F) << 6;
+				   if(cur[1] != 0) {
 				    xc += *(++cur) & 0x3F;
 				 **out++ = xc;
 				   } else
@@ -522,11 +521,11 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 				*out++ = *cur;
 			}
 			else {
-				/*
-				 * We assume we have UTF-8 input.
-				 */
-				char buf[11], * ptr;
-				int val = 0, l = 1;
+				// 
+				// We assume we have UTF-8 input.
+				// 
+				char   buf[11], * ptr;
+				int    val = 0, l = 1;
 				if(*cur < 0xC0) {
 					xmlEntitiesErr(XML_CHECK_NOT_UTF8, "xmlEncodeEntities: input not UTF-8");
 					if(doc)

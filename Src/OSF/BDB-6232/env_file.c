@@ -46,7 +46,7 @@ int __db_file_extend(ENV *env, DB_FH * fhp, size_t size)
 	if((ret = __os_seek(env, fhp, pages, MEGABYTE, relative)) == 0)
 		ret = __os_write(env, fhp, &buf, sizeof(buf), &nw);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -79,7 +79,7 @@ int __db_file_multi_write(ENV *env, const char * path)
 err:    
 	if(fhp != NULL)
 		(void)__os_closehandle(env, fhp);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -97,9 +97,8 @@ int __db_file_write(ENV *env, DB_FH * fhp, uint32 mbytes, uint32 bytes, int patt
 #undef  FILE_WRITE_IO_SIZE
 #define FILE_WRITE_IO_SIZE      (64 * 1024)
 	if((ret = __os_malloc(env, FILE_WRITE_IO_SIZE, &buf)) != 0)
-		return (ret);
+		return ret;
 	memset(buf, pattern, FILE_WRITE_IO_SIZE);
-
 	if((ret = __os_seek(env, fhp, 0, 0, 0)) != 0)
 		goto err;
 	for(; mbytes > 0; --mbytes)
@@ -116,5 +115,5 @@ int __db_file_write(ENV *env, DB_FH * fhp, uint32 mbytes, uint32 bytes, int patt
 	ret = __os_fsync(env, fhp);
 
 err:    __os_free(env, buf);
-	return (ret);
+	return ret;
 }

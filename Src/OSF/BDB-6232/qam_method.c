@@ -31,12 +31,12 @@ int __qam_db_create(DB *dbp)
 	int ret;
 	/* Allocate and initialize the private queue structure. */
 	if((ret = __os_calloc(dbp->env, 1, sizeof(QUEUE), &t)) != 0)
-		return (ret);
+		return ret;
 	dbp->q_internal = t;
 	dbp->get_q_extentsize = __qam_get_extentsize;
 	dbp->set_q_extentsize = __qam_set_extentsize;
 	t->re_pad = ' ';
-	return (0);
+	return 0;
 }
 /*
  * __qam_db_close --
@@ -54,7 +54,7 @@ int __qam_db_close(DB *dbp, uint32 flags)
 	int t_ret;
 	int ret = 0;
 	if((t = (QUEUE *)dbp->q_internal) == NULL)
-		return (0);
+		return 0;
 	array = &t->array1;
 again:
 	mpfp = (struct __qmpf *)array->mpfarray;
@@ -78,7 +78,7 @@ again:
 		__os_free(dbp->env, t->path);
 	__os_free(dbp->env, t);
 	dbp->q_internal = NULL;
-	return (ret);
+	return ret;
 }
 /*
  * __qam_get_extentsize --
@@ -89,7 +89,7 @@ again:
 int __qam_get_extentsize(DB *dbp, uint32 * q_extentsizep)
 {
 	*q_extentsizep = ((QUEUE*)dbp->q_internal)->page_ext;
-	return (0);
+	return 0;
 }
 
 static int __qam_set_extentsize(DB *dbp, uint32 extentsize)
@@ -97,10 +97,10 @@ static int __qam_set_extentsize(DB *dbp, uint32 extentsize)
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_extentsize");
 	if(extentsize < 1) {
 		__db_errx(dbp->env, DB_STR("1140", "Extent size must be at least 1"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	((QUEUE*)dbp->q_internal)->page_ext = extentsize;
-	return (0);
+	return 0;
 }
 /*
  * __queue_pageinfo -
@@ -121,7 +121,7 @@ int __queue_pageinfo(DB *dbp, db_pgno_t * firstp, db_pgno_t * lastp, int * empty
 	/* Find out the page number of the last page in the database. */
 	i = PGNO_BASE_MD;
 	if((ret = __memp_fget(mpf, &i, ip, NULL, 0, &meta)) != 0)
-		return (ret);
+		return ret;
 	first = QAM_RECNO_PAGE(dbp, meta->first_recno);
 	last = QAM_RECNO_PAGE(dbp, meta->cur_recno == 1 ? 1 : meta->cur_recno - 1);
 	empty = meta->cur_recno == meta->first_recno;
@@ -140,7 +140,7 @@ int __queue_pageinfo(DB *dbp, db_pgno_t * firstp, db_pgno_t * lastp, int * empty
 #endif
 	if((t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 #ifdef HAVE_STATISTICS
@@ -159,14 +159,14 @@ int __db_prqueue(DB *dbp, uint32 flags)
 	int empty, ret, t_ret;
 
 	if((ret = __queue_pageinfo(dbp, &first, &last, &empty, 1, flags)) != 0)
-		return (ret);
+		return ret;
 
 	if(empty || ret != 0)
-		return (ret);
+		return ret;
 
 	ENV_GET_THREAD_INFO(dbp->env, ip);
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
-		return (ret);
+		return ret;
 	i = first;
 	if(first > last)
 		stop = QAM_RECNO_PAGE(dbp, UINT32_MAX);
@@ -205,7 +205,7 @@ begin:
 err:
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 #endif
 
@@ -246,7 +246,7 @@ static int __qam_rr(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * nam
 	ret = 0;
 	if(subdb != NULL && name != NULL) {
 		__db_errx(env, DB_STR("1141", "Queue does not support multiple databases per file"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	/*
@@ -258,7 +258,7 @@ static int __qam_rr(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * nam
 		tmpdbp = dbp;
 	else {
 		if((ret = __db_create_internal(&tmpdbp, env, 0)) != 0)
-			return (ret);
+			return ret;
 
 		/*
 		 * We need to make sure we don't self-deadlock, so give
@@ -290,7 +290,7 @@ err:
 		    txn, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -316,5 +316,5 @@ void __qam_map_flags(DB *dbp, uint32 * inflagsp, uint32 * outflagsp)
 int __qam_set_flags(DB *dbp, uint32 * flagsp)
 {
 	__qam_map_flags(dbp, flagsp, &dbp->flags);
-	return (0);
+	return 0;
 }

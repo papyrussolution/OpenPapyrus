@@ -1558,7 +1558,7 @@ static int FASTCALL spacePush(xmlParserCtxt * ctxt, int val)
 	}
 	ctxt->spaceTab[ctxt->spaceNr] = val;
 	ctxt->space = &ctxt->spaceTab[ctxt->spaceNr];
-	return(ctxt->spaceNr++);
+	return ctxt->spaceNr++;
 }
 
 static int spacePop(xmlParserCtxt * ctxt)
@@ -1797,8 +1797,7 @@ int FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input)
  *
  * parse Reference declarations
  *
- * [66] CharRef ::= '&#' [0-9]+ ';' |
- *                  '&#x' [0-9a-fA-F]+ ';'
+ * [66] CharRef ::= '&#' [0-9]+ ';' | '&#x' [0-9a-fA-F]+ ';'
  *
  * [WFC: Legal Character]
  * Characters referred to using character references must match the
@@ -1905,8 +1904,7 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
  * parse Reference declarations, variant parsing from a string rather
  * than an an input flow.
  *
- * [66] CharRef ::= '&#' [0-9]+ ';' |
- *                  '&#x' [0-9a-fA-F]+ ';'
+ * [66] CharRef ::= '&#' [0-9]+ ';' | '&#x' [0-9a-fA-F]+ ';'
  *
  * [WFC: Legal Character]
  * Characters referred to using character references must match the
@@ -8649,55 +8647,37 @@ void xmlParseCDSect(xmlParserCtxt * ctxt)
  *
  * [43] content ::= (element | CharData | Reference | CDSect | PI | Comment)*
  */
-void xmlParseContent(xmlParserCtxt * ctxt)
+void FASTCALL xmlParseContent(xmlParserCtxt * ctxt)
 {
 	GROW;
 	while((RAW != 0) && ((RAW != '<') || (NXT(1) != '/')) && (ctxt->instate != XML_PARSER_EOF)) {
 		const xmlChar * test = CUR_PTR;
 		uint cons = ctxt->input->consumed;
 		const xmlChar * cur = ctxt->input->cur;
-		/*
-		 * First case : a Processing Instruction.
-		 */
-		if((*cur == '<') && (cur[1] == '?')) {
+		if((*cur == '<') && (cur[1] == '?')) { // First case : a Processing Instruction.
 			xmlParsePI(ctxt);
 		}
-		// 
-		// Second case : a CDSection
-		// 
 		// 2.6.0 test was *cur not RAW */
-		else if(CMP9(CUR_PTR, '<', '!', '[', 'C', 'D', 'A', 'T', 'A', '[')) {
+		else if(CMP9(CUR_PTR, '<', '!', '[', 'C', 'D', 'A', 'T', 'A', '[')) { // Second case : a CDSection
 			xmlParseCDSect(ctxt);
 		}
-		// 
-		// Third case :  a comment
-		// 
-		else if((*cur == '<') && (NXT(1) == '!') && (NXT(2) == '-') && (NXT(3) == '-')) {
+		else if((*cur == '<') && (NXT(1) == '!') && (NXT(2) == '-') && (NXT(3) == '-')) { // Third case :  a comment
 			xmlParseComment(ctxt);
 			ctxt->instate = XML_PARSER_CONTENT;
 		}
-		// 
-		// Fourth case :  a sub-element.
-		// 
-		else if(*cur == '<') {
+		else if(*cur == '<') { // Fourth case :  a sub-element.
 			xmlParseElement(ctxt);
 		}
-		// 
-		// Fifth case : a reference. If if has not been resolved, parsing returns it's Name, create the node
-		// 
-		else if(*cur == '&') {
+		else if(*cur == '&') { // Fifth case : a reference. If if has not been resolved, parsing returns it's Name, create the node
 			xmlParseReference(ctxt);
 		}
-		// 
-		// Last case, text. Note that References are handled directly.
-		// 
-		else {
+		else { // Last case, text. Note that References are handled directly.
 			xmlParseCharData(ctxt, 0);
 		}
 		GROW;
-		/*
-		 * Pop-up of finished entities.
-		 */
+		// 
+		// Pop-up of finished entities.
+		// 
 		while((RAW == 0) && (ctxt->inputNr > 1))
 			xmlPopInput(ctxt);
 		SHRINK;
@@ -8735,7 +8715,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		ctxt->instate = XML_PARSER_EOF;
 		return;
 	}
-	/* Capture start position */
+	// Capture start position 
 	if(ctxt->record_info) {
 		node_info.begin_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 		node_info.begin_line = ctxt->input->line;
@@ -8749,12 +8729,12 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 	line = ctxt->input->line;
 #ifdef LIBXML_SAX1_ENABLED
 	if(ctxt->sax2)
-#endif /* LIBXML_SAX1_ENABLED */
+#endif
 	name = xmlParseStartTag2(ctxt, &prefix, &URI, &tlen);
 #ifdef LIBXML_SAX1_ENABLED
 	else
 		name = xmlParseStartTag(ctxt);
-#endif /* LIBXML_SAX1_ENABLED */
+#endif
 	if(ctxt->instate == XML_PARSER_EOF)
 		return;
 	if(!name) {
@@ -8764,17 +8744,15 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 	namePush(ctxt, name);
 	ret = ctxt->P_Node;
 #ifdef LIBXML_VALID_ENABLED
-	/*
-	 * [VC: Root Element Type]
-	 * The Name in the document type declaration must match the element
-	 * type of the root element.
-	 */
+	// 
+	// [VC: Root Element Type] The Name in the document type declaration must match the element type of the root element.
+	// 
 	if(ctxt->validate && ctxt->wellFormed && ctxt->myDoc && ctxt->P_Node && (ctxt->P_Node == ctxt->myDoc->children))
 		ctxt->valid &= xmlValidateRoot(&ctxt->vctxt, ctxt->myDoc);
-#endif /* LIBXML_VALID_ENABLED */
-	/*
-	 * Check for an Empty Element.
-	 */
+#endif
+	// 
+	// Check for an Empty Element.
+	// 
 	if((RAW == '/') && (NXT(1) == '>')) {
 		SKIP(2);
 		if(ctxt->sax2) {
@@ -8785,7 +8763,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		else {
 			if(ctxt->sax && ctxt->sax->endElement && !ctxt->disableSAX)
 				ctxt->sax->endElement(ctxt->userData, name);
-#endif /* LIBXML_SAX1_ENABLED */
+#endif
 		}
 		namePop(ctxt);
 		spacePop(ctxt);
@@ -8812,9 +8790,9 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		spacePop(ctxt);
 		if(nsNr != ctxt->nsNr)
 			nsPop(ctxt, ctxt->nsNr - nsNr);
-		/*
-		 * Capture end position and add node
-		 */
+		// 
+		// Capture end position and add node
+		// 
 		if(ret && ctxt->record_info) {
 			node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 			node_info.end_line = ctxt->input->line;
@@ -8823,17 +8801,14 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		}
 		return;
 	}
-	/*
-	 * Parse the content of the element:
-	 */
-	xmlParseContent(ctxt);
+	xmlParseContent(ctxt); // Parse the content of the element:
 	if(ctxt->instate == XML_PARSER_EOF)
 		return;
 	if(!IS_BYTE_CHAR(RAW)) {
 		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NOT_FINISHED, "Premature end of data in tag %s line %d\n", name, line, 0);
-		/*
-		 * end of parsing of this node.
-		 */
+		// 
+		// end of parsing of this node.
+		// 
 		nodePop(ctxt);
 		namePop(ctxt);
 		spacePop(ctxt);
@@ -9338,23 +9313,18 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 	if(!ctxt || !ctxt->input)
 		return -1;
 	GROW;
-	/*
-	 * SAX: detecting the level.
-	 */
-	xmlDetectSAX2(ctxt);
-	/*
-	 * SAX: beginning of the document processing.
-	 */
+	xmlDetectSAX2(ctxt); // SAX: detecting the level.
+	//
+	// SAX: beginning of the document processing.
+	// 
 	if(ctxt->sax && ctxt->sax->setDocumentLocator)
 		ctxt->sax->setDocumentLocator(ctxt->userData, &xmlDefaultSAXLocator);
 	if(ctxt->instate == XML_PARSER_EOF)
 		return -1;
 	if(!ctxt->encoding && ((ctxt->input->end - ctxt->input->cur) >= 4)) {
-		/*
-		 * Get the 4 first bytes and decode the charset
-		 * if enc != XML_CHAR_ENCODING_NONE
-		 * plug some encoding conversion routines.
-		 */
+		// 
+		// Get the 4 first bytes and decode the charset if enc != XML_CHAR_ENCODING_NONE plug some encoding conversion routines.
+		// 
 		start[0] = RAW;
 		start[1] = NXT(1);
 		start[2] = NXT(2);

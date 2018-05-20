@@ -68,7 +68,7 @@ extern "C" {
 			tmp = (uint32)((v) >> 32);                           \
 			memcpy(((uint8*)p) + SSZ(type, field_hi), &tmp, sizeof(uint32)); \
 		} else {                                                        \
-			memset(((uint8*)p) + SSZ(type, field_hi), 0, sizeof(uint32)); \
+			memzero(((uint8*)p) + SSZ(type, field_hi), sizeof(uint32)); \
 		}                                                               \
 		tmp = (uint32)(v);                                           \
 		memcpy(((uint8*)p) + SSZ(type, field_lo), &tmp, sizeof(uint32)); \

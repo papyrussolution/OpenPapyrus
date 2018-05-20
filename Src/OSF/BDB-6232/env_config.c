@@ -297,7 +297,7 @@ int __env_read_db_config(ENV *env)
 	/* Parse the config file. */
 	char * p = NULL;
 	if((ret = __db_appname(env, DB_APP_NONE, "DB_CONFIG", NULL, &p)) != 0)
-		return (ret);
+		return ret;
 	if(p == NULL)
 		fp = NULL;
 	else {
@@ -306,7 +306,7 @@ int __env_read_db_config(ENV *env)
 	}
 
 	if(fp == NULL)
-		return (0);
+		return 0;
 
 	for(lc = 1; fgets(buf, sizeof(buf), fp) != NULL; ++lc) {
 		if((p = strchr(buf, '\n')) == NULL)
@@ -324,7 +324,7 @@ int __env_read_db_config(ENV *env)
 	}
 	(void)fclose(fp);
 
-	return (ret);
+	return ret;
 }
 
 #undef  CFG_GET_INT
@@ -351,7 +351,7 @@ int __env_read_db_config(ENV *env)
 #undef  CFG_GET_UINT32
 #define CFG_GET_UINT32(s, vp) do {                                      \
 		if(__db_getulong(env->dbenv, NULL, s, 0, UINT32_MAX, vp) != 0) \
-			return (EINVAL);                                        \
+			return EINVAL;                                        \
 } while(0)
 
 /* This is the maximum number of tokens in a DB_CONFIG line. */
@@ -361,7 +361,7 @@ int __env_read_db_config(ENV *env)
 static int __config_format_err(ENV *env, int lc, char * str)
 {
 	__db_errx(env, DB_STR_A("1601", "DB_CONFIG line %d: %s: incorrect name-value pair", "%d %s"), lc, str);
-	return (EINVAL);
+	return EINVAL;
 }
 /*
  * __config_parse --
@@ -383,7 +383,7 @@ static int __config_parse(ENV *env, char * s, int lc)
 
 	ret = __config_set_param(dbenv, desc, nf, argv, lc);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -453,7 +453,7 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 			    ret = ((CFG_FUNC_STRING)desc->func)(dbenv, argv[1]);
 			    break;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/*
@@ -532,7 +532,7 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 		port = (u_int)uv2;
 
 		if((ret = __repmgr_site(dbenv, argv[1], port, &site, 0)) != 0)
-			return (ret);
+			return ret;
 #ifdef HAVE_REPLICATION_THREADS
 		for(i = 3; i < nf; i += 2) {
 			if((lv1 = __db_name_to_val(
@@ -561,7 +561,7 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 		COMPQUIET(t_ret, 0);
 		DB_ASSERT(env, 0);
 #endif
-		return (ret);
+		return ret;
 	}
 
 	/* set_cachesize <unsigned gbytes> <unsigned bytes> <int ncaches> */
@@ -583,7 +583,7 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 		if(lv1 <= 0)
 			goto format;
 		env->dir_mode = (int)lv1;
-		return (0);
+		return 0;
 	}
 
 	/* set_flags <env or log flag name> [on | off] */
@@ -660,7 +660,7 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 			FLD_SET(env->open_flags, (uint32)lv1);
 		else
 			FLD_CLR(env->open_flags, (uint32)lv1);
-		return (0);
+		return 0;
 	}
 
 	/* set_region_init <0 or 1> */
@@ -736,43 +736,33 @@ static int __config_set_param(DB_ENV *dbenv, const CFG_DESC * desc, int nf, char
 			 * reason, "slice all home" is not permitted, even it is
 			 * is a relative path.
 			 */
-			if(desc != NULL && desc->type == CFG_DIR &&
-			    (desc->func == __env_set_home_dir ||
-			    __db_rpath(argv[3]) != NULL)) {
+			if(desc != NULL && desc->type == CFG_DIR && (desc->func == __env_set_home_dir || __db_rpath(argv[3]) != NULL)) {
 				ret = USR_ERR(env, EINVAL);
 				if(desc->func == __env_set_home_dir)
-					__db_errx(env, DB_STR("1602",
-					    "\"slice all home\" is not permitted"));
+					__db_errx(env, DB_STR("1602", "\"slice all home\" is not permitted"));
 				else
-					__db_errx(env, DB_STR("1603",
-					    "\"slice all\" configurations may not include absolute paths"));
+					__db_errx(env, DB_STR("1603", "\"slice all\" configurations may not include absolute paths"));
 				return (__config_format_err(env, lc, argv[2]));
 			}
 			i = -1;
 			while((slice = __slice_iterate(dbenv, &i)) != NULL) {
-				if((ret = __config_set_param(slice,
-				    desc, nf - 2, argv + 2, lc)) != 0)
-					return (ret);
+				if((ret = __config_set_param(slice, desc, nf - 2, argv + 2, lc)) != 0)
+					return ret;
 			}
-			return (0);
+			return 0;
 		}
 		CFG_GET_UINT(argv[1], &uv1);
 		if(uv1 >= dbenv->slice_cnt) {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, "Slice numbers may range from 0 to %d",
-			    dbenv->slice_cnt);
+			__db_errx(env, "Slice numbers may range from 0 to %d", dbenv->slice_cnt);
 			return (__config_format_err(env, lc, argv[0]));
 		}
 		slice = env->slice_envs[uv1];
 		return (__config_set_param(slice, desc, nf - 2, argv + 2, lc));
 	}
 #endif
-
-	__db_errx(env,
-	    DB_STR_A("1585",
-	    "unrecognized name-value pair: %s", "%s"), argv[0]);
-	return (EINVAL);
-
+	__db_errx(env, DB_STR_A("1585", "unrecognized name-value pair: %s", "%s"), argv[0]);
+	return EINVAL;
 format:
 	return (__config_format_err(env, lc, argv[0]));
 }

@@ -225,34 +225,34 @@ int __db_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_addrem_recover, DB___db_addrem)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_big_recover, DB___db_big)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_ovref_recover, DB___db_ovref)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_debug_recover, DB___db_debug)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_noop_recover, DB___db_noop)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pg_alloc_recover, DB___db_pg_alloc)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pg_free_recover, DB___db_pg_free)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_cksum_recover, DB___db_cksum)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pg_freedata_recover, DB___db_pg_freedata)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pg_init_recover, DB___db_pg_init)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pg_trunc_recover, DB___db_pg_trunc)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_realloc_recover, DB___db_realloc)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_relink_recover, DB___db_relink)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_merge_recover, DB___db_merge)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __db_pgno_recover, DB___db_pgno)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

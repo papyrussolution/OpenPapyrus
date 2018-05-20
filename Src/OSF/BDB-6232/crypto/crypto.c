@@ -38,16 +38,14 @@ int __crypto_region_init(ENV *env)
 
 	if(renv->cipher_off == INVALID_ROFF) {
 		if(!CRYPTO_ON(env))
-			return (0);
+			return 0;
 		if(!F_ISSET(infop, REGION_CREATE)) {
-			__db_errx(env, DB_STR("0172",
-			    "Joining non-encrypted environment with encryption key"));
-			return (EINVAL);
+			__db_errx(env, DB_STR("0172", "Joining non-encrypted environment with encryption key"));
+			return EINVAL;
 		}
 		if(F_ISSET(db_cipher, CIPHER_ANY)) {
-			__db_errx(env, DB_STR("0173",
-			    "Encryption algorithm not supplied"));
-			return (EINVAL);
+			__db_errx(env, DB_STR("0173", "Encryption algorithm not supplied"));
+			return EINVAL;
 		}
 		/*
 		 * Must create the shared information.  We need: Shared cipher
@@ -57,17 +55,16 @@ int __crypto_region_init(ENV *env)
 		MUTEX_LOCK(env, renv->mtx_regenv);
 		if((ret = __env_alloc(infop, sizeof(CIPHER), &cipher)) != 0) {
 			MUTEX_UNLOCK(env, renv->mtx_regenv);
-			return (ret);
+			return ret;
 		}
-		memset(cipher, 0, sizeof(*cipher));
-		if((ret =
-		    __env_alloc(infop, dbenv->passwd_len, &sh_passwd)) != 0) {
+		memzero(cipher, sizeof(*cipher));
+		if((ret = __env_alloc(infop, dbenv->passwd_len, &sh_passwd)) != 0) {
 			__env_alloc_free(infop, cipher);
 			MUTEX_UNLOCK(env, renv->mtx_regenv);
-			return (ret);
+			return ret;
 		}
 		MUTEX_UNLOCK(env, renv->mtx_regenv);
-		memset(sh_passwd, 0, dbenv->passwd_len);
+		memzero(sh_passwd, dbenv->passwd_len);
 		cipher->passwd = R_OFFSET(infop, sh_passwd);
 		cipher->passwd_len = dbenv->passwd_len;
 		cipher->flags = db_cipher->alg;
@@ -76,22 +73,18 @@ int __crypto_region_init(ENV *env)
 	}
 	else {
 		if(!CRYPTO_ON(env)) {
-			__db_errx(env, DB_STR("0174",
-			    "Encrypted environment: no encryption key supplied"));
-			return (EINVAL);
+			__db_errx(env, DB_STR("0174", "Encrypted environment: no encryption key supplied"));
+			return EINVAL;
 		}
 		cipher = (CIPHER *)R_ADDR(infop, renv->cipher_off);
 		sh_passwd = (char *)R_ADDR(infop, cipher->passwd);
-		if((cipher->passwd_len != dbenv->passwd_len) ||
-		    memcmp(dbenv->passwd, sh_passwd, cipher->passwd_len) != 0) {
+		if((cipher->passwd_len != dbenv->passwd_len) || memcmp(dbenv->passwd, sh_passwd, cipher->passwd_len) != 0) {
 			__db_errx(env, DB_STR("0175", "Invalid password"));
 			return (EPERM);
 		}
-		if(!F_ISSET(db_cipher, CIPHER_ANY) &&
-		    db_cipher->alg != cipher->flags) {
-			__db_errx(env, DB_STR("0176",
-			    "Environment encrypted using a different algorithm"));
-			return (EINVAL);
+		if(!F_ISSET(db_cipher, CIPHER_ANY) && db_cipher->alg != cipher->flags) {
+			__db_errx(env, DB_STR("0176", "Environment encrypted using a different algorithm"));
+			return EINVAL;
 		}
 		if(F_ISSET(db_cipher, CIPHER_ANY))
 			/*
@@ -101,7 +94,7 @@ int __crypto_region_init(ENV *env)
 			 */
 			if((ret = __crypto_algsetup(env, db_cipher,
 			    cipher->flags, 0)) != 0)
-				return (ret);
+				return ret;
 	}
 	ret = db_cipher->init(env, db_cipher);
 
@@ -111,7 +104,7 @@ int __crypto_region_init(ENV *env)
 	 */
 	__crypto_erase_passwd(env, &dbenv->passwd, &dbenv->passwd_len);
 
-	return (ret);
+	return ret;
 }
 /*
  * __crypto_env_close --
@@ -129,7 +122,7 @@ int __crypto_env_close(ENV *env)
 		__crypto_erase_passwd(env, &dbenv->passwd, &dbenv->passwd_len);
 	}
 	if(!CRYPTO_ON(env))
-		return (0);
+		return 0;
 	ret = 0;
 	db_cipher = env->crypto_handle;
 	if(!F_ISSET(db_cipher, CIPHER_ANY))
@@ -137,7 +130,7 @@ int __crypto_env_close(ENV *env)
 	__os_free(env, db_cipher);
 
 	env->crypto_handle = NULL;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -167,7 +160,7 @@ int __crypto_env_refresh(ENV *env)
 			MUTEX_UNLOCK(env, renv->mtx_regenv);
 		}
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -183,7 +176,7 @@ int __crypto_algsetup(ENV *env, DB_CIPHER * db_cipher, uint32 alg, int do_init)
 	ret = 0;
 	if(!CRYPTO_ON(env)) {
 		__db_errx(env, DB_STR("0177", "No cipher structure given"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	F_CLR(db_cipher, CIPHER_ANY);
 	switch(alg) {
@@ -197,7 +190,7 @@ int __crypto_algsetup(ENV *env, DB_CIPHER * db_cipher, uint32 alg, int do_init)
 	}
 	if(ret == 0 && do_init)
 		ret = db_cipher->init(env, db_cipher);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -223,13 +216,11 @@ int __crypto_decrypt_meta(ENV *env, DB * dbp, uint8 * mbuf, int do_metachk)
 	 * P_OVERHEAD below works.
 	 */
 	if(dbp == NULL) {
-		memset(&dummydb, 0, sizeof(DB));
+		memzero(&dummydb, sizeof(DB));
 		dbp = &dummydb;
 	}
-
 	ret = 0;
 	meta = (DBMETA*)mbuf;
-
 	/*
 	 * !!!
 	 * We used an "unused" field in the meta-data page to flag whether or
@@ -247,7 +238,7 @@ int __crypto_decrypt_meta(ENV *env, DB * dbp, uint8 * mbuf, int do_metachk)
 	 * This works because we do not encrypt the page header.
 	 */
 	if(meta->magic == DB_HASHMAGIC && meta->version <= 5)
-		return (0);
+		return 0;
 
 	/*
 	 * Meta-pages may be encrypted for DBMETASIZE bytes.  If we have a
@@ -269,9 +260,8 @@ int __crypto_decrypt_meta(ENV *env, DB * dbp, uint8 * mbuf, int do_metachk)
 		added_flags = 0;
 		if(!F_ISSET(dbp, DB_AM_ENCRYPT)) {
 			if(!CRYPTO_ON(env)) {
-				__db_errx(env, DB_STR("0178",
-				    "Encrypted database: no encryption flag specified"));
-				return (EINVAL);
+				__db_errx(env, DB_STR("0178", "Encrypted database: no encryption flag specified"));
+				return EINVAL;
 			}
 			/*
 			 * User has a correct, secure env and has encountered
@@ -288,12 +278,10 @@ int __crypto_decrypt_meta(ENV *env, DB * dbp, uint8 * mbuf, int do_metachk)
 		 * So it better still be true here.
 		 */
 		DB_ASSERT(env, CRYPTO_ON(env));
-		if(!F_ISSET(db_cipher, CIPHER_ANY) &&
-		    meta->encrypt_alg != db_cipher->alg) {
-			__db_errx(env, DB_STR("0179",
-			    "Database encrypted using a different algorithm"));
+		if(!F_ISSET(db_cipher, CIPHER_ANY) && meta->encrypt_alg != db_cipher->alg) {
+			__db_errx(env, DB_STR("0179", "Database encrypted using a different algorithm"));
 			F_CLR(dbp, added_flags);
-			return (EINVAL);
+			return EINVAL;
 		}
 		DB_ASSERT(env, F_ISSET(dbp, DB_AM_CHKSUM));
 		iv = ((BTMETA*)mbuf)->iv;
@@ -311,12 +299,12 @@ alg_retry:
 		if(!F_ISSET(db_cipher, CIPHER_ANY)) {
 			if(do_metachk && (ret = db_cipher->decrypt(env, db_cipher->data, iv, mbuf + pg_off, DBMETASIZE - pg_off))) {
 				F_CLR(dbp, added_flags);
-				return (ret);
+				return ret;
 			}
 			if(((BTMETA*)meta)->crypto_magic != meta->magic) {
 				__db_errx(env, DB_STR("0180", "Invalid password"));
 				F_CLR(dbp, added_flags);
-				return (EINVAL);
+				return EINVAL;
 			}
 			/*
 			 * Success here.  The algorithm asked for and the one
@@ -325,7 +313,7 @@ alg_retry:
 			 * indicating the password is right.  All is right
 			 * with the world.
 			 */
-			return (0);
+			return 0;
 		}
 		/*
 		 * If we get here, CIPHER_ANY must be set.
@@ -354,11 +342,10 @@ alg_retry:
 		 * Therefore, asking for encryption with a database that
 		 * was not encrypted is an error.
 		 */
-		__db_errx(env, DB_STR("0181",
-		    "Unencrypted database with a supplied encryption key"));
-		return (EINVAL);
+		__db_errx(env, DB_STR("0181", "Unencrypted database with a supplied encryption key"));
+		return EINVAL;
 	}
-	return (ret);
+	return ret;
 }
 
 /*

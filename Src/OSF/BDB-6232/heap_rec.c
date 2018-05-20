@@ -189,7 +189,7 @@ int __heap_pg_alloc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 			trunc = 1;
 		else if(!IS_ZERO_LSN(LSN(pagep))) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
-			memset(pagep, 0, file_dbp->pgsize);
+			memzero(pagep, file_dbp->pgsize);
 		}
 	}
 	/* If the page is newly allocated and aborted, give it back. */

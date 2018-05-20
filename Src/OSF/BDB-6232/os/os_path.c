@@ -17,6 +17,6 @@
 int __os_concat_path(char * dest, size_t destsize, const char * path, const char * file)
 {
 	if((size_t)snprintf(dest, destsize, "%s%c%s", path, PATH_SEPARATOR[0], file) >= destsize)
-		return (EINVAL);
-	return (0);
+		return EINVAL;
+	return 0;
 }

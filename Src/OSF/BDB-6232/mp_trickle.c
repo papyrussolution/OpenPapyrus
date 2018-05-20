@@ -28,7 +28,7 @@ int __memp_trickle_pp(DB_ENV *dbenv, int pct, int * nwrotep)
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__memp_trickle(env, pct, nwrotep)), 0, ret);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 /*
  * __memp_trickle --
@@ -45,11 +45,11 @@ static int __memp_trickle(ENV *env, int pct, int * nwrotep)
 		*nwrotep = 0;
 	if(pct < 1 || pct > 100) {
 		__db_errx(env, DB_STR_A("3007", "DB_ENV->memp_trickle: %d: percent must be between 1 and 100", "%d"), pct);
-		return (EINVAL);
+		return EINVAL;
 	}
 	/* First we purge all dead files and their buffers. */
 	if((ret = __memp_purge_dead_files(env)) != 0)
-		return (ret);
+		return ret;
 	/*
 	 * Loop through the caches counting total/dirty buffers.
 	 *
@@ -70,7 +70,7 @@ static int __memp_trickle(ENV *env, int pct, int * nwrotep)
 	 * buffers, we're done.
 	 */
 	if(total == 0 || dirty == 0)
-		return (0);
+		return 0;
 	/*
 	 * The total number of pages is an exact number, but the dirty page
 	 * count can change while we're walking the hash buckets, and it's
@@ -80,7 +80,7 @@ static int __memp_trickle(ENV *env, int pct, int * nwrotep)
 	clean = total > dirty ? total - dirty : 0;
 	need_clean = (total * (u_int)pct) / 100;
 	if(clean >= need_clean)
-		return (0);
+		return 0;
 
 	need_clean -= clean;
 	ret = __memp_sync_int(env, NULL,
@@ -88,5 +88,5 @@ static int __memp_trickle(ENV *env, int pct, int * nwrotep)
 	STAT((mp->stat.st_page_trickle += wrote));
 	if(nwrotep != NULL)
 		*nwrotep = (int)wrote;
-	return (ret);
+	return ret;
 }

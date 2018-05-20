@@ -96,10 +96,10 @@ int __db_alloc_dbt(ENV *env, DBT * dbt, uint32 tlen, uint32 * nd, uint32 * st, v
 	 */
 	if(needed == 0) {
 		dbt->size = 0;
-		return (0);
+		return 0;
 	}
 	if(F_ISSET(dbt, DB_DBT_USERCOPY))
-		return (0);
+		return 0;
 	/* Allocate any necessary memory. */
 	if(F_ISSET(dbt, DB_DBT_USERMEM)) {
 		if(needed > dbt->ulen) {
@@ -109,15 +109,15 @@ int __db_alloc_dbt(ENV *env, DBT * dbt, uint32 tlen, uint32 * nd, uint32 * st, v
 	}
 	else if(F_ISSET(dbt, DB_DBT_MALLOC)) {
 		if((ret = __os_umalloc(env, needed, &dbt->data)) != 0)
-			return (ret);
+			return ret;
 	}
 	else if(F_ISSET(dbt, DB_DBT_REALLOC)) {
 		if((ret = __os_urealloc(env, needed, &dbt->data)) != 0)
-			return (ret);
+			return ret;
 	}
 	else if(bpsz != NULL && (*bpsz == 0 || *bpsz < needed)) {
 		if((ret = __os_realloc(env, needed, bpp)) != 0)
-			return (ret);
+			return ret;
 		*bpsz = needed;
 		dbt->data = *bpp;
 	}
@@ -127,7 +127,7 @@ int __db_alloc_dbt(ENV *env, DBT * dbt, uint32 tlen, uint32 * nd, uint32 * st, v
 		DB_ASSERT(env, F_ISSET(dbt, DB_DBT_USERMEM | DB_DBT_MALLOC | DB_DBT_REALLOC) || bpsz != NULL);
 		return (DB_BUFFER_SMALL);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_goff --
@@ -159,7 +159,7 @@ int __db_goff(DBC *dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, uin
 
 	if(((ret = __db_alloc_dbt(
 		    env, dbt, tlen, &needed, &start, bpp, bpsz)) != 0) || needed == 0)
-		return (ret);
+		return ret;
 
 	/* Set up a start page in the overflow chain if streaming. */
 	if(cp->stream_start_pgno != PGNO_INVALID &&
@@ -181,7 +181,7 @@ int __db_goff(DBC *dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, uin
 	for(p = (uint8 *)dbt->data; pgno != PGNO_INVALID && needed > 0;) {
 		if((ret = __memp_fget(mpf,
 		    &pgno, ip, txn, 0, &h)) != 0)
-			return (ret);
+			return ret;
 		DB_ASSERT(env, TYPE(h) == P_OVERFLOW);
 
 		/* Check if we need any bytes from this page. */
@@ -206,7 +206,7 @@ int __db_goff(DBC *dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, uin
 					    src, bytes, DB_USERCOPY_SETDATA)) != 0) {
 					(void)__memp_fput(mpf,
 					    ip, h, dbp->priority);
-					return (ret);
+					return ret;
 				}
 			}
 			else
@@ -220,7 +220,7 @@ int __db_goff(DBC *dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, uin
 		pgno = h->next_pgno;
 		(void)__memp_fput(mpf, ip, h, dbp->priority);
 	}
-	return (0);
+	return 0;
 }
 /*
  * __db_poff --
@@ -262,7 +262,7 @@ int __db_poff(DBC *dbc, const DBT * dbt, db_pgno_t * pgnop)
 		pgno = dbc->internal->stream_curr_pgno;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info,
 		    dbc->txn, DB_MPOOL_DIRTY, &lastp)) != 0)
-			return (ret);
+			return ret;
 
 		/*
 		 * Calculate how much we can write on the last page of the
@@ -369,7 +369,7 @@ err:    if(lastp != NULL) {
 		    dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -387,11 +387,11 @@ int __db_ovref(DBC *dbc, db_pgno_t pgno)
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
 	if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &h)) != 0)
-		return (ret);
+		return ret;
 	if(DBC_LOGGING(dbc)) {
 		if((ret = __db_ovref_log(dbp, dbc->txn, &LSN(h), 0, h->pgno, -1, &LSN(h))) != 0) {
 			(void)__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
-			return (ret);
+			return ret;
 		}
 	}
 	else
@@ -430,7 +430,7 @@ int __db_doff(DBC *dbc, db_pgno_t pgno)
 	do {
 		if((ret = __memp_fget(mpf, &pgno,
 		    dbc->thread_info, dbc->txn, 0, &pagep)) != 0)
-			return (ret);
+			return ret;
 
 		DB_ASSERT(dbp->env, TYPE(pagep) == P_OVERFLOW);
 		/*
@@ -448,7 +448,7 @@ int __db_doff(DBC *dbc, db_pgno_t pgno)
 			if(pagep != NULL)
 				(void)__memp_fput(mpf,
 				    dbc->thread_info, pagep, dbc->priority);
-			return (ret);
+			return ret;
 		}
 
 		if(DBC_LOGGING(dbc)) {
@@ -461,7 +461,7 @@ int __db_doff(DBC *dbc, db_pgno_t pgno)
 			    &LSN(pagep), &null_lsn, &null_lsn)) != 0) {
 				(void)__memp_fput(mpf,
 				    dbc->thread_info, pagep, dbc->priority);
-				return (ret);
+				return ret;
 			}
 		}
 		else
@@ -469,10 +469,10 @@ int __db_doff(DBC *dbc, db_pgno_t pgno)
 		pgno = pagep->next_pgno;
 		OV_LEN(pagep) = 0;
 		if((ret = __db_free(dbc, pagep, 0)) != 0)
-			return (ret);
+			return ret;
 	} while(pgno != PGNO_INVALID);
 
-	return (0);
+	return 0;
 }
 /*
  * __db_moff --
@@ -517,19 +517,16 @@ int __db_moff(DBC *dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmpf
 	 * contiguous copy of the key, and call it.
 	 */
 	if(cmpfunc != NULL) {
-		memset(&local_dbt, 0, sizeof(local_dbt));
+		memzero(&local_dbt, sizeof(local_dbt));
 		buf = NULL;
 		bufsize = 0;
-
-		if((ret = __db_goff(dbc,
-		    &local_dbt, tlen, pgno, &buf, &bufsize)) != 0)
-			return (ret);
+		if((ret = __db_goff(dbc, &local_dbt, tlen, pgno, &buf, &bufsize)) != 0)
+			return ret;
 		/* Pass the key as the first argument */
 		*cmpp = cmpfunc(dbp, dbt, &local_dbt, NULL);
 		__os_free(dbp->env, buf);
-		return (0);
+		return 0;
 	}
-
 	/*
 	 * We start the comparison from the location of 'locp' and store the
 	 * last matching location into 'locp'.
@@ -547,7 +544,7 @@ int __db_moff(DBC *dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmpf
 	    tlen > 0 && pgno != PGNO_INVALID;) {
 		if((ret =
 		    __memp_fget(mpf, &pgno, ip, dbc->txn, 0, &pagep)) != 0)
-			return (ret);
+			return ret;
 
 		/*
 		 * Figure out where to start comparison, and how many
@@ -585,9 +582,9 @@ int __db_moff(DBC *dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmpf
 		}
 		pgno = NEXT_PGNO(pagep);
 		if((ret = __memp_fput(mpf, ip, pagep, dbp->priority)) != 0)
-			return (ret);
+			return ret;
 		if(*cmpp != 0)
-			return (0);
+			return 0;
 	}
 
 	if(*cmpp == 0) {
@@ -597,7 +594,7 @@ int __db_moff(DBC *dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmpf
 			*cmpp = -1;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -655,16 +652,13 @@ int __db_coff(DBC *dbc, const DBT * dbt, const DBT * match, int (*cmpfunc)(DB *,
 	 * Then call the users comparator.
 	 */
 	if(cmpfunc != NULL) {
-		memset(&local_key, 0, sizeof(local_key));
-		memset(&local_match, 0, sizeof(local_match));
+		memzero(&local_key, sizeof(local_key));
+		memzero(&local_match, sizeof(local_match));
 		dbt_buf = match_buf = NULL;
 		dbt_bufsz = match_bufsz = 0;
-
-		if((ret = __db_goff(dbc, &local_key, dbt_len,
-		    dbt_pgno, &dbt_buf, &dbt_bufsz)) != 0)
+		if((ret = __db_goff(dbc, &local_key, dbt_len, dbt_pgno, &dbt_buf, &dbt_bufsz)) != 0)
 			goto err1;
-		if((ret = __db_goff(dbc, &local_match, match_len,
-		    match_pgno, &match_buf, &match_bufsz)) != 0)
+		if((ret = __db_goff(dbc, &local_match, match_len, match_pgno, &match_buf, &match_bufsz)) != 0)
 			goto err1;
 		/* The key needs to be the first argument for sort order */
 		*cmpp = cmpfunc(dbp, &local_key, &local_match, NULL);
@@ -673,16 +667,16 @@ err1:
 			__os_free(dbp->env, dbt_buf);
 		if(match_buf != NULL)
 			__os_free(dbp->env, match_buf);
-		return (ret);
+		return ret;
 	}
 	/* Match the offpage DBTs a page at a time. */
 	while(dbt_pgno != PGNO_INVALID && match_pgno != PGNO_INVALID) {
 		if((ret = __memp_fget(mpf, &dbt_pgno, ip, txn, 0, &dbt_pagep)) != 0)
-			return (ret);
+			return ret;
 		DB_ASSERT(dbc->env, TYPE(dbt_pagep) == P_OVERFLOW);
 		if((ret = __memp_fget(mpf, &match_pgno, ip, txn, 0, &match_pagep)) != 0) {
 			(void)__memp_fput(mpf, ip, dbt_pagep, DB_PRIORITY_UNCHANGED);
-			return (ret);
+			return ret;
 		}
 		DB_ASSERT(dbc->env, TYPE(match_pagep) == P_OVERFLOW);
 		cmp_bytes = page_space < max_data ? page_space : max_data;
@@ -696,12 +690,12 @@ err1:
 		max_data -= page_space;
 		if((ret = __memp_fput(mpf, ip, dbt_pagep, DB_PRIORITY_UNCHANGED)) != 0) {
 			(void)__memp_fput(mpf, ip, match_pagep, DB_PRIORITY_UNCHANGED);
-			return (ret);
+			return ret;
 		}
 		if((ret = __memp_fput(mpf, ip, match_pagep, DB_PRIORITY_UNCHANGED)) != 0)
-			return (ret);
+			return ret;
 		if(*cmpp != 0)
-			return (0);
+			return 0;
 	}
 	/* If a lexicographic mismatch was found, then the result has already
 	 * been returned. If the DBTs matched, consider the lengths of the
@@ -713,5 +707,5 @@ err1:
 		*cmpp = -1;
 	else
 		*cmpp = 0;
-	return (0);
+	return 0;
 }

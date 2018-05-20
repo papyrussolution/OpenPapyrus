@@ -72,14 +72,14 @@ int __txn_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __txn_regop_recover, DB___txn_regop)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __txn_ckp_recover, DB___txn_ckp)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __txn_child_recover, DB___txn_child)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __txn_prepare_recover, DB___txn_prepare)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __txn_recycle_recover, DB___txn_recycle)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

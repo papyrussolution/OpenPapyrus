@@ -27,7 +27,7 @@ int __repmgr_stat_pp(DB_ENV *dbenv, DB_REPMGR_STAT ** statp, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->repmgr_stat", DB_INIT_REP);
 	if((ret = __db_fchk(env, "DB_ENV->repmgr_stat", flags, DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	return (__repmgr_stat(env, statp, flags));
 }
 /*
@@ -47,11 +47,11 @@ static int __repmgr_stat(ENV *env, DB_REPMGR_STAT ** statp, uint32 flags)
 	*statp = NULL;
 	/* Allocate a stat struct to return to the user. */
 	if((ret = __os_umalloc(env, sizeof(DB_REPMGR_STAT), &copy)) != 0)
-		return (ret);
+		return ret;
 	memcpy(copy, stats, sizeof(*stats));
 	if(LF_ISSET(DB_STAT_CLEAR)) {
 		tmp = stats->st_max_elect_threads;
-		memset(stats, 0, sizeof(DB_REPMGR_STAT));
+		memzero(stats, sizeof(DB_REPMGR_STAT));
 		stats->st_max_elect_threads = tmp;
 	}
 	stats->st_incoming_queue_gbytes = db_rep->input_queue.gbytes;
@@ -69,7 +69,7 @@ static int __repmgr_stat(ENV *env, DB_REPMGR_STAT ** statp, uint32 flags)
 	}
 	UNLOCK_MUTEX(db_rep->mutex);
 	*statp = copy;
-	return (0);
+	return 0;
 }
 /*
  * __repmgr_stat_print_pp --
@@ -83,7 +83,7 @@ int __repmgr_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->repmgr_stat_print", DB_INIT_REP);
 	if((ret = __db_fchk(env, "DB_ENV->repmgr_stat_print", flags, DB_STAT_ALL | DB_STAT_CLEAR)) != 0)
-		return (ret);
+		return ret;
 	return (__repmgr_stat_print(env, flags));
 }
 /*
@@ -98,11 +98,11 @@ int __repmgr_stat_print(ENV *env, uint32 flags)
 		if((ret = __repmgr_print_stats(env, orig_flags)) == 0)
 			ret = __repmgr_print_sites(env);
 		if(flags == 0 || ret != 0)
-			return (ret);
+			return ret;
 	}
 	if(LF_ISSET(DB_STAT_ALL) && (ret = __repmgr_print_all(env, orig_flags)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 
 static int __repmgr_print_stats(ENV *env, uint32 flags)
@@ -110,7 +110,7 @@ static int __repmgr_print_stats(ENV *env, uint32 flags)
 	DB_REPMGR_STAT * sp;
 	int ret;
 	if((ret = __repmgr_stat(env, &sp, flags)) != 0)
-		return (ret);
+		return ret;
 	__db_dl(env, "Number of PERM messages not acknowledged", (u_long)sp->st_perm_failed);
 	__db_dl(env, "Number of messages queued due to network delay", (u_long)sp->st_msgs_queued);
 	__db_dl(env, "Number of messages discarded due to queue length", (u_long)sp->st_msgs_dropped);
@@ -127,7 +127,7 @@ static int __repmgr_print_stats(ENV *env, uint32 flags)
 	__db_dl(env, "Number of write operations forwarded by this client", (u_long)sp->st_write_ops_forwarded);
 	__db_dl(env, "Number of write operations received by this master", (u_long)sp->st_write_ops_received);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 
 static int __repmgr_print_sites(ENV *env)
@@ -137,9 +137,9 @@ static int __repmgr_print_sites(ENV *env)
 	u_int count, i;
 	int ret;
 	if((ret = __repmgr_site_list_int(env, &count, &list)) != 0)
-		return (ret);
+		return ret;
 	if(count == 0)
-		return (0);
+		return 0;
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	__db_msg(env, "DB_REPMGR site information:");
 	DB_MSGBUF_INIT(&mb);
@@ -153,7 +153,7 @@ static int __repmgr_print_sites(ENV *env)
 		DB_MSGBUF_FLUSH(env, &mb);
 	}
 	__os_ufree(env, list);
-	return (0);
+	return 0;
 }
 /*
  * __repmgr_print_all --
@@ -163,7 +163,7 @@ static int __repmgr_print_all(ENV *env, uint32 flags)
 {
 	COMPQUIET(env, NULL);
 	COMPQUIET(flags, 0);
-	return (0);
+	return 0;
 }
 
 #else /* !HAVE_STATISTICS */
@@ -194,7 +194,7 @@ int __repmgr_site_list_pp(DB_ENV *dbenv, u_int * countp, DB_REPMGR_SITE ** listp
 	ENV_ENTER(env, ip);
 	ret = __repmgr_site_list_int(env, countp, listp);
 	ENV_LEAVE(env, ip);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -295,5 +295,5 @@ int __repmgr_site_list_int(ENV *env, u_int * countp, DB_REPMGR_SITE ** listp)
 err:    
 	if(locked)
 		UNLOCK_MUTEX(db_rep->mutex);
-	return (ret);
+	return ret;
 }

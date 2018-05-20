@@ -82,18 +82,18 @@ int __env_open_pp(DB_ENV *dbenv, const char * db_home, uint32 flags, int mode)
 	DB_PRIVATE | DB_SYSTEM_MEM | DB_THREAD |                        \
 	DB_USE_ENVIRON | DB_USE_ENVIRON_ROOT)
 	if((ret = __db_fchk(env, "DB_ENV->open", flags, OKFLAGS)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_fcchk(env, "DB_ENV->open", flags, DB_INIT_CDB, ~OKFLAGS_CDB)) != 0)
-		return (ret);
+		return ret;
 #if defined(HAVE_MIXED_SIZE_ADDRESSING) && (SIZEOF_CHAR_P == 8)
 	if(F_ISSET(env, DB_PRIVATE)) {
 		__db_errx(env, DB_STR("1589", "DB_PRIVATE is not supported by 64-bit applications in mixed-size-addressing mode"));
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 	if(LF_ISSET(DB_PRIVATE) && PREFMAS_IS_SET(env)) {
 		__db_errx(env, DB_STR("1594", "DB_PRIVATE is not supported in Replication Manager preferred master mode"));
-		return (EINVAL);
+		return EINVAL;
 	}
 	return (__env_open(dbenv, db_home, flags, mode));
 }
@@ -124,7 +124,7 @@ int __env_open(DB_ENV *dbenv, const char * db_home, uint32 flags, int mode)
 
 	/* Initial configuration. */
 	if((ret = __env_config(dbenv, db_home, &flags, mode)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Save the DB_ENV handle's configuration flags as set by user-called
@@ -145,15 +145,13 @@ int __env_open(DB_ENV *dbenv, const char * db_home, uint32 flags, int mode)
 
 	/* Check open flags. */
 	if((ret = __env_open_arg(dbenv, flags)) != 0)
-		return (ret);
+		return ret;
 
 #ifdef HAVE_SLICES
 	/* Open & recover the slices first, before recovering the container. */
-	if(dbenv->slice_cnt > 0 &&
-	    (ret = __env_slice_open(dbenv, db_home, flags, mode)) != 0)
-		return (ret);
+	if(dbenv->slice_cnt > 0 && (ret = __env_slice_open(dbenv, db_home, flags, mode)) != 0)
+		return ret;
 #endif
-
 	/*
 	 * If we're going to register with the environment, that's the first
 	 * thing we do.
@@ -171,20 +169,16 @@ int __env_open(DB_ENV *dbenv, const char * db_home, uint32 flags, int mode)
 			(void)__env_set_thread_count(dbenv, 50);
 			dbenv->is_alive = __envreg_isalive;
 		}
-
 		/*
 		 * Backup the current key, because it would be consumed by
 		 * __envreg_register below
 		 */
 		if(dbenv->passwd != NULL) {
-			if((ret =
-			    __os_strdup(env, dbenv->passwd, &old_passwd)) != 0)
+			if((ret = __os_strdup(env, dbenv->passwd, &old_passwd)) != 0)
 				goto err;
 			old_passwd_len = dbenv->passwd_len;
-			(void)__env_get_encrypt_flags(dbenv,
-			    &old_encrypt_flags);
+			(void)__env_get_encrypt_flags(dbenv, &old_encrypt_flags);
 		}
-
 		F_SET(dbenv, DB_ENV_NOPANIC);
 		ret = __envreg_register(env, &register_recovery, flags);
 		dbenv->flags = orig_flags;
@@ -283,17 +277,15 @@ err:
 	 * Only retry if DB_RECOVER was specified - the register_recovery flag
 	 * indicates that.
 	 */
-	if(ret == DB_RUNRECOVERY && !register_recovery &&
-	    !LF_ISSET(DB_RECOVER) && LF_ISSET(DB_REGISTER)) {
+	if(ret == DB_RUNRECOVERY && !register_recovery && !LF_ISSET(DB_RECOVER) && LF_ISSET(DB_REGISTER)) {
 		if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
-			__db_msg(env, DB_STR("1596",
-			    "env_open DB_REGISTER w/o RECOVER panic: trying w/recovery"));
+			__db_msg(env, DB_STR("1596", "env_open DB_REGISTER w/o RECOVER panic: trying w/recovery"));
 		LF_SET(DB_RECOVER);
 		retry_flags = DB_ENV_NOPANIC;
 		goto retry;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -307,13 +299,13 @@ static int __env_open_arg(DB_ENV *dbenv, uint32 flags)
 	if(LF_ISSET(DB_REGISTER)) {
 		if(!__os_support_db_register()) {
 			__db_errx(env, DB_STR("1568", "Berkeley DB library does not support DB_REGISTER on this system"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if((ret = __db_fcchk(env, "DB_ENV->open", flags, DB_PRIVATE, DB_REGISTER | DB_SYSTEM_MEM)) != 0)
-			return (ret);
+			return ret;
 		if(LF_ISSET(DB_CREATE) && !LF_ISSET(DB_INIT_TXN)) {
 			__db_errx(env, DB_STR("1569", "registration requires transaction support"));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	/*
@@ -323,54 +315,54 @@ static int __env_open_arg(DB_ENV *dbenv, uint32 flags)
 	if(LF_ISSET(DB_INIT_REP) && LF_ISSET(DB_CREATE)) {
 		if(!__os_support_replication()) {
 			__db_errx(env, DB_STR("1570", "Berkeley DB library does not support replication on this system"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(!LF_ISSET(DB_INIT_LOCK)) {
 			__db_errx(env, DB_STR("1571", "replication requires locking support"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(!LF_ISSET(DB_INIT_TXN)) {
 			__db_errx(env, DB_STR("1572", "replication requires transaction support"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if((ret = __log_set_config_int(dbenv, DB_LOG_EXT_FILE, 1, 1)) != 0)
-			return (ret);
+			return ret;
 		if(dbenv->slice_cnt != 0) {
 			__db_errx(env, DB_STR("1605", "replication is not compatible with slices"));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	if(LF_ISSET(DB_RECOVER | DB_RECOVER_FATAL)) {
 		if((ret = __db_fcchk(env, "DB_ENV->open", flags, DB_RECOVER, DB_RECOVER_FATAL)) != 0)
-			return (ret);
+			return ret;
 		if((ret = __db_fcchk(env, "DB_ENV->open", flags, DB_REGISTER, DB_RECOVER_FATAL)) != 0)
-			return (ret);
+			return ret;
 		if(!LF_ISSET(DB_CREATE)) {
 			__db_errx(env, DB_STR("1573", "recovery requires the create flag"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(!LF_ISSET(DB_INIT_TXN)) {
 			__db_errx(env, DB_STR("1574", "recovery requires transaction support"));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	if(LF_ISSET(DB_FAILCHK)) {
 		if(!ALIVE_ON(env)) {
 			__db_errx(env, DB_STR("1575", "DB_FAILCHK requires DB_ENV->is_alive be configured"));
-			return (EINVAL);
+			return EINVAL;
 		}
 		if(dbenv->thr_max == 0) {
 			__db_errx(env, DB_STR("1576", "DB_FAILCHK requires DB_ENV->set_thread_count be configured"));
-			return (EINVAL);
+			return EINVAL;
 		}
 	}
 	if(dbenv->db_reg_dir != NULL && LF_ISSET(DB_PRIVATE | DB_SYSTEM_MEM)) {
 		__db_errx(env, DB_STR("1604", "The region directory cannot be set with DB_PRIVATE or DB_SYSTEM_MEM."));
-		return (EINVAL);
+		return EINVAL;
 	}
 	if(LF_ISSET(DB_INIT_CDB) && dbenv->slice_cnt != 0) {
 		__db_errx(env, DB_STR("1606", "A sliced environment cannot use DB_INIT_CDB"));
-		return (EINVAL);
+		return EINVAL;
 	}
 
 #ifdef HAVE_MUTEX_THREAD_ONLY
@@ -381,11 +373,11 @@ static int __env_open_arg(DB_ENV *dbenv, uint32 flags)
 	 */
 	if(!LF_ISSET(DB_PRIVATE)) {
 		__db_errx(env, DB_STR("1577", "Berkeley DB library configured to support only private environments"));
-		return (EINVAL);
+		return EINVAL;
 	}
 #endif
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -405,12 +397,12 @@ int __env_remove(DB_ENV *dbenv, const char * db_home, uint32 flags)
 
 	/* Validate arguments. */
 	if((ret = __db_fchk(env, "DB_ENV->remove", flags, OKFLAGS)) != 0)
-		return (ret);
+		return ret;
 
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->remove");
 
 	if((ret = __env_config(dbenv, db_home, &flags, 0)) != 0)
-		return (ret);
+		return ret;
 
 	/*
 	 * Turn the environment off -- if the environment is corrupted, this
@@ -429,7 +421,7 @@ int __env_remove(DB_ENV *dbenv, const char * db_home, uint32 flags)
 	if((t_ret = __env_close(dbenv, 0)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -460,7 +452,7 @@ int __env_config(DB_ENV *dbenv, const char * db_home, uint32 * flagsp, int mode)
 		home = home_buf;
 		if((ret = __os_getenv(
 			    env, "DB_HOME", &home, sizeof(home_buf))) != 0)
-			return (ret);
+			return ret;
 		/*
 		 * home set to NULL if __os_getenv failed to find DB_HOME.
 		 */
@@ -473,7 +465,7 @@ int __env_config(DB_ENV *dbenv, const char * db_home, uint32 * flagsp, int mode)
 		if(env->db_home != NULL)
 			__os_free(env, env->db_home);
 		if((ret = __os_strdup(env, home, &env->db_home)) != 0)
-			return (ret);
+			return ret;
 	}
 
 	/* Save a copy of the DB_ENV->open method flags. */
@@ -484,7 +476,7 @@ int __env_config(DB_ENV *dbenv, const char * db_home, uint32 * flagsp, int mode)
 
 	/* Read the DB_CONFIG file. */
 	if((ret = __env_read_db_config(env)) != 0)
-		return (ret);
+		return ret;
 
 #ifdef HAVE_SLICES
 	if(SLICES_ON(env))
@@ -501,10 +493,10 @@ int __env_config(DB_ENV *dbenv, const char * db_home, uint32 * flagsp, int mode)
 	 * choose one.
 	 */
 	if(dbenv->db_tmp_dir == NULL && (ret = __os_tmpdir(env, flags)) != 0)
-		return (ret);
+		return ret;
 
 	*flagsp = flags;
-	return (0);
+	return 0;
 }
 
 /*
@@ -598,7 +590,7 @@ do_close:
 	if((t_ret = __env_close(dbenv, close_flags)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Don't ENV_LEAVE as we have already detached from the region. */
-	return (ret);
+	return ret;
 }
 /*
  * __env_close --
@@ -739,7 +731,7 @@ int __env_close(DB_ENV *dbenv, uint32 flags)
 	/* Discard the structure. */
 	__db_env_destroy(dbenv);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -951,7 +943,7 @@ int __env_refresh(DB_ENV *dbenv, uint32 orig_flags, int rep_check)
 
 	dbenv->flags = orig_flags;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -965,7 +957,7 @@ static int __file_handle_cleanup(ENV *env)
 	DB_MPOOL * dbmp;
 	u_int i;
 	if(TAILQ_EMPTY(&env->fdlist))
-		return (0);
+		return 0;
 	__db_errx(env, DB_STR("1581", "File handles still open at environment close"));
 	while((fhp = TAILQ_FIRST(&env->fdlist)) != NULL) {
 		__db_errx(env, DB_STR_A("1582", "Open file handle: %s", "%s"), fhp->name);
@@ -990,7 +982,7 @@ static int __file_handle_cleanup(ENV *env)
 	if((dbmp = env->mp_handle) != NULL && dbmp->reginfo != NULL)
 		for(i = 0; i < env->dbenv->mp_ncache; ++i)
 			dbmp->reginfo[i].fhp = NULL;
-	return (EINVAL);
+	return EINVAL;
 }
 
 /*
@@ -1004,7 +996,7 @@ int __env_get_open_flags(DB_ENV *dbenv, uint32 * flagsp)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_BEFORE_OPEN(env, "DB_ENV->get_open_flags");
 	*flagsp = env->open_flags;
-	return (0);
+	return 0;
 }
 /*
  * __env_attach_regions --
@@ -1295,5 +1287,5 @@ err:    if(ret == 0)
 		F_CLR(env, ENV_OPEN_CALLED);
 	}
 
-	return (ret);
+	return ret;
 }

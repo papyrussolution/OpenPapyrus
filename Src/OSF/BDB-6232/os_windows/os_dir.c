@@ -24,7 +24,7 @@ int __os_dirlist(ENV *env, const char * dir, int returndir, char *** namesp, int
 	*cntp = 0;
 	TO_TSTRING(env, dir, tdir, ret);
 	if(ret != 0)
-		return (ret);
+		return ret;
 	(void)_sntprintf(tfilespec, DB_MAXPATHLEN, _T("%s%hc*"), tdir, PATH_SEPARATOR[0]);
 	/*
 	 * On WinCE, FindFirstFile will return INVALID_HANDLE_VALUE when
@@ -33,7 +33,7 @@ int __os_dirlist(ENV *env, const char * dir, int returndir, char *** namesp, int
 	 */
 	if((dirhandle = FindFirstFile(tfilespec, &fdata)) == INVALID_HANDLE_VALUE) {
 		if(GetLastError() == ERROR_NO_MORE_FILES)
-			return (0);
+			return 0;
 		return (__os_posix_err(__os_get_syserr()));
 	}
 	names = NULL;
@@ -82,7 +82,7 @@ err:
 	else if(names != NULL)
 		__os_dirfree(env, names, cnt);
 	FREE_STRING(env, tdir);
-	return (ret);
+	return ret;
 }
 /*
  * __os_dirfree --

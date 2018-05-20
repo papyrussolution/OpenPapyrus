@@ -163,18 +163,18 @@ int __fop_init_recover(ENV *env, DB_DISTAB * dtabp)
 {
 	int ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_create_recover, DB___fop_create)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_remove_recover, DB___fop_remove)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_write_recover, DB___fop_write)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_write_file_recover, DB___fop_write_file)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_rename_recover, DB___fop_rename)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_rename_noundo_recover, DB___fop_rename_noundo)) != 0)
-		return (ret);
+		return ret;
 	if((ret = __db_add_recovery_int(env, dtabp, __fop_file_remove_recover, DB___fop_file_remove)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }

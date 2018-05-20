@@ -95,7 +95,7 @@ err:    if(path != NULL)
 		if(backup != NULL && backup->close != NULL)
 			(void)backup->close(env->dbenv, dbfile, *handlep);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __memp_backup_mpf --
@@ -130,7 +130,7 @@ int __memp_backup_mpf(ENV *env, DB_MPOOLFILE * mpf, DB_THREAD_INFO * ip, db_pgno
 	if(len < mfp->pagesize)
 		len = mfp->pagesize;
 	if((ret = __os_malloc(env, len, &buf)) != 0)
-		return (ret);
+		return ret;
 	write_size = (uint32)(len / mfp->pagesize);
 
 	if(first_pgno > 0) {
@@ -218,7 +218,7 @@ int __memp_backup_mpf(ENV *env, DB_MPOOLFILE * mpf, DB_THREAD_INFO * ip, db_pgno
 	COMPQUIET(ip, NULL);
 #endif
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -266,11 +266,11 @@ static int __memp_check_backup(ENV *env, MPOOLFILE * mfp, void * arg, uint32 * c
 	COMPQUIET(flags, 0);
 	dbenv = env->dbenv;
 	if(mfp->backup_in_progress == 0 || dbenv->is_alive(dbenv, mfp->pid, mfp->tid, 0))
-		return (0);
+		return 0;
 	__db_msg(env, DB_STR_A("3042", "Releasing backup of %s for %s.", "%s %s"), (char*)R_ADDR(env->mp_handle->reginfo, mfp->path_off),
 	    dbenv->thread_id_string(dbenv, mfp->pid, mfp->tid, buf));
 	mfp->backup_in_progress = 0;
-	return (0);
+	return 0;
 }
 #endif
 /*
@@ -282,10 +282,10 @@ int __memp_failchk(ENV *env)
 {
 #ifdef HAVE_ATOMICFILEREAD
 	COMPQUIET(env, NULL);
-	return (0);
+	return 0;
 #else
 	DB_MPOOL * dbmp = env->mp_handle;
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
-	return (__memp_walk_files(env, mp, __memp_check_backup, NULL, NULL, 0));
+	return __memp_walk_files(env, mp, __memp_check_backup, NULL, NULL, 0);
 #endif
 }

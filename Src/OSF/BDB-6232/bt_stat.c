@@ -36,7 +36,6 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 
 	dbp = dbc->dbp;
 	env = dbp->env;
-
 	meta = NULL;
 	t = (BTREE *)dbp->bt_internal;
 	sp = NULL;
@@ -45,20 +44,16 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 	mpf = dbp->mpf;
 	h = NULL;
 	ret = write_meta = 0;
-
 	/* Allocate and clear the structure. */
 	if((ret = __os_umalloc(env, sizeof(*sp), &sp)) != 0)
 		goto err;
-	memset(sp, 0, sizeof(*sp));
-
+	memzero(sp, sizeof(*sp));
 	/* Get the metadata page for the entire database. */
 	pgno = PGNO_BASE_MD;
 	if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_READ, 0, &metalock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &pgno,
-	    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
-
 	if(flags == DB_FAST_STAT)
 		goto meta_only;
 
@@ -199,7 +194,7 @@ err:    /* Discard the second page. */
 		__os_ufree(env, sp);
 		*(DB_BTREE_STAT**)spp = NULL;
 	}
-	return (ret);
+	return ret;
 }
 /*
  * __bam_stat_print --
@@ -219,12 +214,12 @@ int __bam_stat_print(DBC *dbc, uint32 flags)
 #ifdef HAVE_PARTITION
 	if(DB_IS_PARTITIONED(dbp)) {
 		if((ret = __partition_stat(dbc, &sp, flags)) != 0)
-			return (ret);
+			return ret;
 	}
 	else
 #endif
 	if((ret = __bam_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
-		return (ret);
+		return ret;
 
 	if(LF_ISSET(DB_STAT_ALL)) {
 		__db_msg(env, "%s", DB_GLOBAL(db_line));
@@ -292,7 +287,7 @@ int __bam_stat_print(DBC *dbc, uint32 flags)
 	__db_dl(env, "Number of empty pages", (u_long)sp->bt_empty_pg);
 	__db_dl(env, "Number of pages on the free list", (u_long)sp->bt_free);
 	__os_ufree(env, sp);
-	return (0);
+	return 0;
 }
 
 /*
@@ -401,7 +396,7 @@ int __bam_stat_callback(DBC *dbc, PAGE * h, void * cookie, int * putp)
 		default:
 		    return (__db_pgfmt(dbp->env, h->pgno));
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -469,7 +464,7 @@ int __bam_key_range(DBC *dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 	int exact, ret;
 	COMPQUIET(flags, 0);
 	if((ret = __bam_search(dbc, PGNO_INVALID, dbt, SR_STK_ONLY, 1, NULL, &exact)) != 0)
-		return (ret);
+		return ret;
 
 	cp = (BTREE_CURSOR*)dbc->internal;
 	kp->less = kp->greater = 0.0;
@@ -513,8 +508,8 @@ int __bam_key_range(DBC *dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 		kp->equal = 0;
 	}
 	if((ret = __bam_stkrel(dbc, 0)) != 0)
-		return (ret);
-	return (0);
+		return ret;
+	return 0;
 }
 /*
  * __bam_traverse --
@@ -615,5 +610,5 @@ err:    if(!already_put && (t_ret = __memp_fput(mpf,
 err1:   if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }

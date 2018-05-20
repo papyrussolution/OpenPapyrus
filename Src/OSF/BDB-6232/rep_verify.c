@@ -42,7 +42,7 @@ int __rep_verify(ENV *env, __rep_control_args * rp, DBT * rec, int eid, time_t s
 
 	/* Do nothing if VERIFY is not set. */
 	if(rep->sync_state != SYNC_VERIFY)
-		return (ret);
+		return ret;
 
 #ifdef DIAGNOSTIC
 	/*
@@ -56,8 +56,8 @@ int __rep_verify(ENV *env, __rep_control_args * rp, DBT * rec, int eid, time_t s
 #endif
 
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
-	memset(&mylog, 0, sizeof(mylog));
+		return ret;
+	memzero(&mylog, sizeof(mylog));
 	/* If verify_lsn of ZERO is passed in, get last log. */
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	logflag = IS_ZERO_LSN(lp->verify_lsn) ? DB_LAST : DB_SET;
@@ -205,7 +205,7 @@ int __rep_verify(ENV *env, __rep_control_args * rp, DBT * rec, int eid, time_t s
 
 out:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	return (ret);
+	return ret;
 }
 
 static int __rep_internal_init(ENV *env, uint32 abbrev)
@@ -257,7 +257,7 @@ static int __rep_internal_init(ENV *env, uint32 abbrev)
 	if(ret == 0 && master != DB_EID_INVALID)
 		(void)__rep_send_message(env,
 		    master, REP_UPDATE_REQ, NULL, NULL, ctlflags, 0);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -284,7 +284,7 @@ int __rep_verify_fail(ENV *env, __rep_control_args * rp)
 	 * then we ignore this message.
 	 */
 	if(rep->sync_state == SYNC_PAGE || rep->sync_state == SYNC_UPDATE)
-		return (0);
+		return 0;
 	REP_SYSTEM_LOCK(env);
 	/*
 	 * We should not ever be in internal init with a lease granted.
@@ -391,7 +391,7 @@ unlock:         REP_SYSTEM_UNLOCK(env);
 		if(clnt_lock_held)
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -413,9 +413,9 @@ int __rep_verify_req(ENV *env, __rep_control_args * rp, int eid)
 	rep = db_rep->region;
 	type = REP_VERIFY;
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
+		return ret;
 	d = &data_dbt;
-	memset(d, 0, sizeof(data_dbt));
+	memzero(d, sizeof(data_dbt));
 	F_SET(logc, DB_LOG_SILENT_ERR);
 	ret = __logc_get(logc, &rp->lsn, d, DB_SET);
 	/*
@@ -468,9 +468,8 @@ int __rep_dorecovery(ENV *env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 
 	/* Figure out if we are backing out any committed transactions. */
 	if((ret = __log_cursor(env, &logc)) != 0)
-		return (ret);
-
-	memset(&mylog, 0, sizeof(mylog));
+		return ret;
+	memzero(&mylog, sizeof(mylog));
 	if(rep->sync_state == SYNC_LOG) {
 		/*
 		 * Internal init can never skip recovery.
@@ -485,8 +484,7 @@ int __rep_dorecovery(ENV *env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 		update = 0;
 	}
 	rollback = 0;
-	while(update == 0 &&
-	    (ret = __logc_get(logc, &lsn, &mylog, DB_PREV)) == 0 &&
+	while(update == 0 && (ret = __logc_get(logc, &lsn, &mylog, DB_PREV)) == 0 &&
 	    LOG_COMPARE(&lsn, lsnp) > 0) {
 		LOGCOPY_32(env, &rectype, mylog.data);
 		/*
@@ -575,7 +573,7 @@ int __rep_dorecovery(ENV *env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 err:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -619,7 +617,7 @@ int __rep_verify_match(ENV *env, DB_LSN * reclsnp, time_t savetime)
 	done = savetime != renv->rep_timestamp;
 	if(done) {
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
-		return (0);
+		return 0;
 	}
 	ZERO_LSN(lp->verify_lsn);
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
@@ -741,14 +739,16 @@ int __rep_verify_match(ENV *env, DB_LSN * reclsnp, time_t savetime)
 		 */
 		lp->wait_ts = rep->max_gap;
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
-		(void)__rep_send_message(env,
-		    master, REP_ALL_REQ, reclsnp, NULL, 0, DB_REP_ANYWHERE);
+		(void)__rep_send_message(env, master, REP_ALL_REQ, reclsnp, NULL, 0, DB_REP_ANYWHERE);
 	}
 	if(event)
 		__rep_fire_event(env, DB_EVENT_REP_INIT_DONE, NULL);
 	if(0) {
-errunlock2:     MUTEX_UNLOCK(env, rep->mtx_clientdb);
-errunlock:      REP_SYSTEM_UNLOCK(env);
+errunlock2:     
+		MUTEX_UNLOCK(env, rep->mtx_clientdb);
+errunlock:      
+		REP_SYSTEM_UNLOCK(env);
 	}
-out:    return (ret);
+out:    
+	return ret;
 }

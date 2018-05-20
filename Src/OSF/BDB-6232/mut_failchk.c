@@ -30,7 +30,7 @@ int __mutex_failchk(ENV *env)
 	int count;
 
 	if(F_ISSET(env, ENV_PRIVATE) || (htab = env->thr_hashtab) == NULL)
-		return (0);
+		return 0;
 
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
@@ -114,13 +114,13 @@ static int __mutex_failchk_single(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * i
 	 * __rep_waiter->mtx_repwait; or they were allocated by the application.
 	 */
 	if(!LF_ISSET(DB_MUTEX_ALLOCATED))
-		return (0);
+		return 0;
 	if(!LF_ISSET(DB_MUTEX_SHARED | DB_MUTEX_LOCKED | DB_MUTEX_PROCESS_ONLY))
-		return (0);
+		return 0;
 	if(LF_ISSET(DB_MUTEX_LOGICAL_LOCK | DB_MUTEX_OWNER_DEAD))
-		return (0);
+		return 0;
 	if(LF_ISSET(DB_MUTEX_SELF_BLOCK) && !LF_ISSET(DB_MUTEX_SHARED))
-		return (0);
+		return 0;
 	already_dead = ip != NULL && timespecisset(&ip->dbth_failtime);
 	/*
 	 * The pid in the mutex is valid when for locked or per-process mutexes.
@@ -139,7 +139,7 @@ static int __mutex_failchk_single(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * i
 		 * which is neither locked nor shared, we're done with it.
 		 */
 		if(ip == NULL)
-			return (0);
+			return 0;
 
 		/*
 		 * Check if the thread is actually sharing the mutex, and
@@ -153,17 +153,17 @@ static int __mutex_failchk_single(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * i
 		threadid = ip->dbth_tid;
 	}
 	if(!already_dead && dbenv->is_alive(dbenv, pid, threadid, LF_ISSET(DB_MUTEX_PROCESS_ONLY)))
-		return (0);
+		return 0;
 	/* The thread is dead; the mutex type indicates the kind of cleanup. */
 	(void)dbenv->thread_id_string(dbenv, pid, threadid, id_str);
 	(void)__mutex_describe(env, mutex, mtx_desc);
 	if(LF_ISSET(DB_MUTEX_PROCESS_ONLY)) {
 		if(already_dead)
-			return (0);
+			return 0;
 		__db_msg(env, DB_STR_A("2065", "Freeing %s for process: %s", "%s %s"), mtx_desc, id_str);
 		/* Clear the mutex id if it is in a cached locker. */
 		if((ret = __lock_local_locker_invalidate(env, mutex)) != 0)
-			return (ret);
+			return ret;
 		/* Unlock and free the mutex. */
 		if(LF_ISSET(DB_MUTEX_LOCKED))
 			__mutex_unlock(env, mutex, ip, MUTEX_CTR);
@@ -177,7 +177,7 @@ static int __mutex_failchk_single(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * i
 	}
 	else if(LF_ISSET(DB_MUTEX_SHARED) && unlock_shared) {
 		if(already_dead)
-			return (0);
+			return 0;
 		__db_msg(env, DB_STR_A("2078", "Unlocking shared mutex %s of thread %s", "%lu %s"), mtx_desc, id_str);
 		/*
 		 * We already know the thread held the latch only in shared
@@ -185,7 +185,7 @@ static int __mutex_failchk_single(ENV *env, db_mutex_t mutex, DB_THREAD_INFO * i
 		 */
 		(void)__mutex_unlock(env, mutex, ip, 0);
 
-		return (0);
+		return 0;
 	}
 #ifdef HAVE_FAILCHK_BROADCAST
 	else if(LF_ISSET(DB_MUTEX_LOCKED)) {
