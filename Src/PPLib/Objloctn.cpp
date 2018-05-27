@@ -1444,8 +1444,8 @@ class LocationExtFieldsDialog : public PPListDialog {
 public:
 	LocationExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
-		if(P_Box && P_Box->def)
-			P_Box->def->SetOption(lbtFocNotify, 1);
+		if(P_Box)
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		PPPersonConfig psn_cfg;
 		PPObjPerson::ReadConfig(&psn_cfg);
 		FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
@@ -1583,7 +1583,7 @@ int LocationExtFieldsDialog::setupList()
 		ss.add(temp_buf, 0);
 		temp_buf = item.Txt;
 		if(temp_buf.Empty())
-			(temp_buf = "ID=").Cat(item.Id);
+			temp_buf.CatEq("ID", item.Id);
 		ss.add(temp_buf, 0);
 		Fields.GetText(item.Id, temp_buf);
 		ss.add(temp_buf, 0);
@@ -1782,10 +1782,9 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		PPID prev_par_id = Data.ParentID;
 		PPID par_id = getCtrlLong(CTLSEL_LOCATION_PARENT);
 		if(par_id) {
-			PPObjLocation loc_obj;
 			LocationTbl::Rec loc_rec;
 			for(PPID loc_id = par_id; loc_id;)
-				if(loc_obj.Fetch(loc_id, &loc_rec) > 0) {
+				if(LocObj.Fetch(loc_id, &loc_rec) > 0) {
 					if(loc_id == Data.ID) {
 						PPError(PPERR_LOCATIONRECUR, loc_rec.Name);
 						setCtrlLong(CTLSEL_LOCATION_PARENT, prev_par_id);
@@ -1926,17 +1925,15 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 		LocationCore::SetExField(&Data, LOCEXSTR_PHONE, temp_buf);
 		getCtrlString(CTL_LOCATION_CONTACT, temp_buf);
 		LocationCore::SetExField(&Data, LOCEXSTR_CONTACT, temp_buf);
-		// @v8.3.6 {
 		getCtrlString(CTL_LOCATION_EMAIL, temp_buf);
 		LocationCore::SetExField(&Data, LOCEXSTR_EMAIL, temp_buf);
-		// } @v8.3.6
 		THROW(GetGeoCoord());
 	}
 	else if(oneof4(LocTyp, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL, LOCTYP_WHCELLAUTOGEN)) {
 		getCtrlData(CTLSEL_LOCATION_PARENT, &Data.ParentID);
 		getCtrlData(CTL_LOCATION_NUMROWS,   &Data.NumRows);
 		getCtrlData(CTL_LOCATION_NUMLAYERS, &Data.NumLayers);
-		getCtrlData(CTL_LOCATION_DEPTH,     &Data.Depth);     // @v6.7.8
+		getCtrlData(CTL_LOCATION_DEPTH,     &Data.Depth);
 		Data.MassCapacity = (long)(getCtrlReal(CTL_LOCATION_CAPACITY) * 1000.0);
 		GetClusterData(CTL_LOCATION_VOLUMEVAL, &Data.Flags);
 		if(Data.Flags & LOCF_VOLUMEVAL) {

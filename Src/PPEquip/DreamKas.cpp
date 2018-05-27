@@ -20,12 +20,40 @@ public:
 protected:
 	PPID   StatID;
 private:
-	int    SLAPI ConvertWareList(const char * pImpPath);
+	struct CashierEntry {
+		CashierEntry()
+		{
+			THISZERO();
+		}
+		long   TabNumber;
+		char   Name[128];
+		char   INN[16];
+	};
+	struct SessEntry {
+		SessEntry()
+		{
+			THISZERO();
+		}
+		enum {
+			fClosed = 0x0001 // Призна закрытой сессии
+		};
+		char    Ident[64]; // ид сессии в дрим-кас (24 шестнадцатиричных символов)
+		long    N;  // номер сессии
+		long    DeviceN; // номер устройства
+		LDATETIME OpenedTime;
+		LDATETIME ClosedTime;
+		double CashOnOpen;
+		double CashOnClose;
+		long   Flags;
+		CashierEntry Cashier;
+	};
 	int    SLAPI ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName);
+	int    SLAPI ParseSess(const json_t * pJsonObj, SessEntry & rEntry);
+	int    SLAPI AcceptCheck(const json_t * pJsonObj);
 	int    SLAPI ImportGoodsList(UUIDAssocArray & rList);
 	int    SLAPI SendGoods(json_t ** ppJson, uint & rCount, int update, int force);
-	int    SLAPI ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID);
-	int    SLAPI MakeAuthField(SString & rBuf);
+	int    SLAPI ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID);
+	int    SLAPI PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -39,10 +67,24 @@ private:
 	int    SkipExportingDiscountSchemes;
 	int    ImpExpTimeout;
 	int    ImportDelay;
+	
+	PPObjGoods GObj;
+
 	StringSet ImpPaths;
 	StringSet ExpPaths;
 	PPAsyncCashNode Acn;
 	SString   ImportedFiles;
+	struct SessCloseBlock {;
+		void   Reset()
+		{
+			PeriodToCheckQuery.Z();
+			SessList.clear();
+		}
+		STimeChunk PeriodToCheckQuery;
+		TSArray <SessEntry> SessList;
+	};
+
+	SessCloseBlock Scb;
 };
 
 class CM_DREAMKAS : public PPCashMachine {
@@ -54,43 +96,6 @@ public:
 };
 
 REGISTER_CMT(DREAMKAS, 0, 1);
-
-int SLAPI ACS_DREAMKAS::MakeAuthField(SString & rBuf)
-{
-	int    ok = 0;
-	rBuf.Z();
-	for(uint tagidx = 0; tagidx < Acn.TagL.GetCount(); tagidx++) {
-		const ObjTagItem * p_tag_item = Acn.TagL.GetItemByPos(tagidx);
-		if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_GLOBALUSERACC) {
-			PPID gua_id = p_tag_item->Val.IntVal;
-			PPObjGlobalUserAcc gua_obj;
-
-			PPGlobalUserAcc gua_rec;
-			if(gua_obj.Search(gua_id, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
-				SString pwd;
-				SString login;
-				SString temp_buf;
-				Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
-				if(PPRef->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_LOGIN, login) > 0) {
-					;
-				}
-				else {
-					login = gua_rec.Name;
-				}
-				if(login.NotEmptyS()) {
-					login.CatChar(':').Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
-					temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
-					rBuf.Cat("Basic").Space().Cat(temp_buf);
-					pwd.Obfuscate();
-					login.Obfuscate();
-					ok = 1;
-				}
-			}
-			break;
-		}
-	}
-	return ok;
-}
 
 int SLAPI ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName)
 {
@@ -115,6 +120,76 @@ int SLAPI ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SStr
 	return ok;
 }
 
+int SLAPI ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
+{
+	int    ok = 1;
+	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->P_Child) {
+			if(p_cur->Text.IsEqiAscii("id"))
+				STRNSCPY(rEntry.Ident, p_cur->P_Child->Text);
+			else if(p_cur->Text.IsEqiAscii("shiftId"))
+				rEntry.N = p_cur->P_Child->Text.ToLong();
+			else if(p_cur->Text.IsEqiAscii("deviceId"))
+				rEntry.DeviceN = p_cur->P_Child->Text.ToLong();
+			else if(p_cur->Text.IsEqiAscii("openedAt")) // openedAtUTC
+				strtodatetime(p_cur->P_Child->Text, &rEntry.OpenedTime, DATF_ISO8601, TIMF_HMS);
+			else if(p_cur->Text.IsEqiAscii("closedAt")) // closedAtUTC
+				strtodatetime(p_cur->P_Child->Text, &rEntry.ClosedTime, DATF_ISO8601, TIMF_HMS);
+			else if(p_cur->Text.IsEqiAscii("cashOnOpen"))
+				rEntry.CashOnOpen = p_cur->P_Child->Text.ToReal();
+			else if(p_cur->Text.IsEqiAscii("cashOnClose"))
+				rEntry.CashOnClose = p_cur->P_Child->Text.ToReal();
+			else if(p_cur->Text.IsEqiAscii("isClosed"))
+				SETFLAG(rEntry.Flags, rEntry.fClosed, p_cur->P_Child->Text.IsEqiAscii("true"));
+		}
+	}
+	return ok;
+}
+
+static const char * P_DreamKasUrlBase = "https://kabinet.dreamkas.ru/api";
+
+int SLAPI ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+	SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrContentType, temp_buf);
+	{
+		int    auth_detected = 0;
+		for(uint tagidx = 0; tagidx < Acn.TagL.GetCount(); tagidx++) {
+			const ObjTagItem * p_tag_item = Acn.TagL.GetItemByPos(tagidx);
+			if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_GLOBALUSERACC) {
+				PPID gua_id = p_tag_item->Val.IntVal;
+				PPObjGlobalUserAcc gua_obj;
+
+				PPGlobalUserAcc gua_rec;
+				if(gua_obj.Search(gua_id, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
+					SString pwd;
+					SString login;
+					Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
+					if(PPRef->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_LOGIN, login) > 0) {
+						;
+					}
+					else
+						login = gua_rec.Name;
+					if(login.NotEmptyS()) {
+						login.CatChar(':').Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
+						temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
+						SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAuthorization, login.Z().Cat("Basic").Space().Cat(temp_buf));
+						pwd.Obfuscate();
+						login.Obfuscate();
+						auth_detected = 1;
+					}
+				}
+				break;
+			}
+		}
+		THROW_PP(auth_detected, PPERR_UNABLEGETAUTH);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 {
 	rList.clear();
@@ -124,17 +199,12 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 	SString goods_name;
 	SString wait_msg_buf;
 	ScURL c;
-	InetUrl url("https://kabinet.dreamkas.ru/api/v2/products");
+	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("v2").SetLastDSlash().Cat("products"));
 	StrStrAssocArray hdr_flds;
 	const  long max_chunk_count = 100;
 	long   query_offs = 0;
 	long   ret_count = 0;
-	{
-		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
-		hdr_flds.Add("Content-Type", temp_buf);
-		THROW(MakeAuthField(temp_buf));
-		hdr_flds.Add("Authorization", temp_buf);
-	}
+	THROW(PrepareHtmlFields(hdr_flds));
 	PPLoadText(PPTXT_IMPGOODS, wait_msg_buf);
 	do {
 		SBuffer ack_buf;
@@ -187,48 +257,45 @@ int SLAPI ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, i
 		SString temp_buf;
 		SString json_buf;
 		ScURL c;
-		SBuffer ack_buf;
 		StrStrAssocArray hdr_flds;
+		SBuffer ack_buf;
 		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW(PrepareHtmlFields(hdr_flds));
 		{
-			SFileFormat::GetMime(SFileFormat::Json, temp_buf);
-			hdr_flds.Add("Content-Type", temp_buf);
-			THROW(MakeAuthField(temp_buf));
-			hdr_flds.Add("Authorization", temp_buf);
-		}
-		InetUrl url("https://kabinet.dreamkas.ru/api/v2/products");
-		const char * p_debug_file_name = update ? "dreamkas-export-upd-debug.json" : "dreamkas-export-add-debug.json";
-		PPGetFilePath(PPPATH_OUT, p_debug_file_name, temp_buf);
-		SFile f_out_test(temp_buf, SFile::mAppend);
-		THROW_SL(json_tree_to_string(*ppJson, json_buf));
-		if(!update) {
-			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-		}
-		else {
-			THROW_SL(c.HttpPatch(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-		}
-		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
-			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				f_out_test.WriteLine(temp_buf.CR().CR());
+			InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("v2").SetLastDSlash().Cat("products"));
+			const char * p_debug_file_name = update ? "dreamkas-export-upd-debug.json" : "dreamkas-export-add-debug.json";
+			PPGetFilePath(PPPATH_OUT, p_debug_file_name, temp_buf);
+			SFile f_out_test(temp_buf, SFile::mAppend);
+			THROW_SL(json_tree_to_string(*ppJson, json_buf));
+			if(!update) {
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			}
+			else {
+				THROW_SL(c.HttpPatch(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+			}
+			{
+				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				if(p_ack_buf) {
+					const int avl_size = (int)p_ack_buf->GetAvailableSize();
+					temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+					f_out_test.WriteLine(temp_buf.CR().CR());
+				}
+			}
+			json_format_string(json_buf, temp_buf.Z());
+			f_out_test.WriteLine(temp_buf);
+			//
+			json_free_value(ppJson);
+			if(!force) {
+				THROW_MEM(*ppJson = new json_t(json_t::tARRAY));
+			}
+			rCount = 0;
 		}
-		json_format_string(json_buf, temp_buf.Z());
-		f_out_test.WriteLine(temp_buf);
-		//
-		json_free_value(ppJson);
-		if(!force) {
-			THROW_MEM(*ppJson = new json_t(json_t::tARRAY));
-		}
-		rCount = 0;
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyncCashNode & rCnData, PPID gcAlcID)
+int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -248,7 +315,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, const PPAsyn
 	THROW_SL(p_iter_ary_to_update);
 	THROW(ImportGoodsList(ex_goods_list));
 	while(rIter.Next(&gds_info) > 0) {
-		if(gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
+		if(gds_info.GoodsFlags & GF_PASSIV && Acn.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
 			rmv_goods_list.addUnique(gds_info.ID);
 		}
 		else {
@@ -336,7 +403,6 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 	int    ok = 1;
 	//
 	ScURL c;
-	const char * p_url_base = "https://kabinet.dreamkas.ru/api";
 	const char * p_user = "";
 	const char * p_password = "";
 
@@ -354,22 +420,18 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 	SString   gc_alc_code; // Код класса товаров, относящихся к алкоголю
 	PPIDArray alc_goods_list;
 	//
-	//PPUnit    unit_rec;
-	//PPObjUnit unit_obj;
 	PPObjQuotKind qk_obj;
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries ser_rec;
 	PPSCardSerPacket scs_pack;
 	PPObjGoods goods_obj;
 	PPObjGoodsClass gc_obj;
-	PPAsyncCashNode cn_data;
 	LAssocArray  scard_quot_list;
 	PPIDArray retail_quot_list;
 	PPIDArray scard_series_list;
 	BitArray used_retail_quot;
 	PPIniFile ini_file;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-	THROW(GetNodeData(&cn_data) > 0);
 	//
 	// Извлечем информацию о классе алкогольного товара
 	//
@@ -412,7 +474,7 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 			if(updOnly == 2)
 				acgif |= ACGIF_REDOSINCEDLS;
 		}
-		if(cn_data.ExtFlags & CASHFX_EXPLOCPRNASSOC)
+		if(Acn.ExtFlags & CASHFX_EXPLOCPRNASSOC)
 			acgif |= ACGIF_INITLOCPRN;
 		acgif |= (ACGIF_ALLCODESPERITER|ACGIF_ENSUREUUID);
 		AsyncCashGoodsIterator goods_iter(NodeID, acgif, SinceDlsID, P_Dls);
@@ -423,7 +485,7 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 			for(i = 0; i < retail_quot_list.getCount(); i++) {
 				gds_info.QuotList.Add(retail_quot_list.get(i), 0, 1);
 			}
-			THROW(ExportGoods(goods_iter, cn_data, gc_alc_id));
+			THROW(ExportGoods(goods_iter, gc_alc_id));
 			//
 			// Список товаров на удаление.
 			//
@@ -457,10 +519,366 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 
 //virtual 
 int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
-	{ return -1; }
+{ 
+	Scb.Reset();
+	int    ok = -1;
+	json_t * p_json_doc = 0;
+	SString temp_buf;
+	SString qbuf;
+	SString enc_buf;
+	SString wait_msg_buf;
+	ScURL c;
+	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("shifts"));
+	StrStrAssocArray hdr_flds;
+	const  long max_chunk_count = 100;
+	long   query_offs = 0;
+	long   ret_count = 0;
+
+	Acn.GetLogNumList(LogNumList);
+	THROW(PrepareHtmlFields(hdr_flds));
+	do {
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		ret_count = 0;
+		qbuf.Z();
+		{
+			LDATETIME dtm;
+			dtm.Set(((pPrd && pPrd->low) ? pPrd->low : encodedate(1, 4, 2018)), ZEROTIME);
+			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+		}
+		{
+			LDATETIME dtm;
+			dtm.Set(((pPrd && pPrd->upp) ? pPrd->upp : getcurdate_()), encodetime(23, 59, 59, 99));
+			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+		}
+		if(LogNumList.getCount()) {
+			temp_buf.Z();
+			for(uint i = 0; i < LogNumList.getCount(); i++) {
+				if(i)
+					temp_buf.CatChar(',');
+				temp_buf.Cat(LogNumList.get(i));
+			}
+			qbuf.CatChar('&').CatEq("devices", enc_buf.EncodeUrl(temp_buf, 1));
+		}
+		qbuf.CatChar('&').CatEq("is_closed", "true");
+		qbuf.CatChar('&').CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs);
+		url.SetComponent(InetUrl::cQuery, qbuf);
+		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		//
+		{
+			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			if(p_ack_buf) {
+				const int avl_size = (int)p_ack_buf->GetAvailableSize();
+				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
+					json_t * p_next = 0;
+					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+						p_next = p_cur->P_Next;
+						switch(p_cur->Type) {
+							case json_t::tARRAY:
+								p_next = p_cur->P_Child;
+								break;
+							case json_t::tOBJECT:
+								ret_count++;
+								{
+									SessEntry sess_entry;
+									if(ParseSess(p_cur->P_Child, sess_entry)) {
+										Scb.SessList.insert(&sess_entry);
+										if(!!sess_entry.OpenedTime) {
+											if(!Scb.PeriodToCheckQuery.Start || cmp(Scb.PeriodToCheckQuery.Start, sess_entry.OpenedTime) > 0)
+												Scb.PeriodToCheckQuery.Start = sess_entry.OpenedTime;
+										}
+										if(!!sess_entry.ClosedTime) {
+											if(!Scb.PeriodToCheckQuery.Finish || cmp(Scb.PeriodToCheckQuery.Finish, sess_entry.ClosedTime) < 0)
+												Scb.PeriodToCheckQuery.Finish = sess_entry.ClosedTime;
+										}
+										ok = 1;
+									}
+								}
+								break;
+						}
+					}
+				}
+				json_free_value(&p_json_doc);
+				p_json_doc = 0;
+			}
+		}
+		query_offs += ret_count;
+		PPWaitMsg((temp_buf = wait_msg_buf).Space().Cat(query_offs));
+	} while(ret_count > 0 && ret_count == max_chunk_count);
+	if(Scb.SessList.getCount())
+		ok = 1;
+	ASSIGN_PTR(pSessCount, (int)Scb.SessList.getCount());
+	ASSIGN_PTR(pIsForwardSess, 0);
+	CATCHZOK
+	json_free_value(&p_json_doc);
+	return ok;
+}
+
+int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPID   cc_id = 0;
+	long   cc_flags = 0;
+	long   foreign_cc_id = 0;
+	int    cc_type = 0; // 1 - sale, 2 - REFUND, 3 - OUTFLOW, 4 - OUTFLOW_REFUND
+	long   cc_number = 0;
+	LDATETIME cc_dtm = ZERODATETIME;
+	double cc_amount = 0.0;
+	double cc_discount = 0.0;
+	long   device_id = 0;
+	long   shop_id = 0;
+	long   sess_n = 0;
+	PPID   cashier_id = 0;
+	PPID   sc_id = 0;
+	SString operation_ident;
+	S_GUID goods_uuid;
+	SString goods_name;
+	SString barcode;
+	SString excise_barcode;
+	SString vendor_code;
+	PPIDArray goods_by_uuid_list;
+	const json_t * p_positions_ary = 0;
+	const json_t * p_payms_ary = 0;
+	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Type == json_t::tARRAY) {
+		}
+		else if(p_cur->Type == json_t::tOBJECT) {
+		}
+		else {
+			if(p_cur->P_Child) {
+				if(p_cur->Text.IsEqiAscii("id"))
+					foreign_cc_id = p_cur->P_Child->Text.ToLong();
+				else if(p_cur->Text.IsEqiAscii("type")) {
+					if(p_cur->P_Child->Text.IsEqiAscii("SALE"))
+						cc_type = 1;
+					else if(p_cur->P_Child->Text.IsEqiAscii("REFUND")) {
+						cc_type = 2;
+						cc_flags |= CCHKF_RETURN;
+					}
+					else if(p_cur->P_Child->Text.IsEqiAscii("OUTFLOW"))
+						cc_type = 3;
+					else if(p_cur->P_Child->Text.IsEqiAscii("OUTFLOW_REFUND"))
+						cc_type = 4;
+				}
+				else if(p_cur->Text.IsEqiAscii("amount"))
+					cc_amount = fdiv100i(p_cur->P_Child->Text.ToLong());
+				else if(p_cur->Text.IsEqiAscii("discount"))
+					cc_discount = fdiv100i(p_cur->P_Child->Text.ToLong());
+				else if(p_cur->Text.IsEqiAscii("deviceId"))
+					device_id = p_cur->P_Child->Text.ToLong();
+				else if(p_cur->Text.IsEqiAscii("shopId"))
+					shop_id = p_cur->P_Child->Text.ToLong();
+				else if(p_cur->Text.IsEqiAscii("operationId"))
+					operation_ident = p_cur->P_Child->Text;
+				else if(p_cur->Text.IsEqiAscii("shiftId"))
+					sess_n = p_cur->P_Child->Text.ToLong();
+				else if(p_cur->Text.IsEqiAscii("number"))
+					cc_number = p_cur->P_Child->Text.ToLong();
+				else if(p_cur->Text.IsEqiAscii("localDate"))
+					strtodatetime(p_cur->P_Child->Text, &cc_dtm, DATF_ISO8601, TIMF_HMS);
+				else if(p_cur->Text.IsEqiAscii("date"))
+					;
+				else if(p_cur->Text.IsEqiAscii("positions")) {
+					const json_t * p_ary = p_cur->P_Child;
+					if(p_ary && p_ary->Type == json_t::tARRAY)
+						p_positions_ary = p_ary;
+				}
+				else if(p_cur->Text.IsEqiAscii("payments")) {
+					const json_t * p_ary = p_cur->P_Child;
+					if(p_ary && p_ary->Type == json_t::tARRAY)
+						p_payms_ary = p_ary;
+				}
+			}
+		}
+	}
+	if(Scb.SessList.lsearch(&sess_n, 0, CMPF_LONG, offsetof(SessEntry, N))) {
+		int    ccr = 0;
+		THROW(ccr = AddTempCheck(&cc_id, sess_n, cc_flags, device_id, cc_number, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
+		if(ccr > 0) {
+			assert(cc_id);
+			if(p_positions_ary) {
+				for(const json_t * p_pos = p_positions_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
+					if(p_pos->Type == json_t::tOBJECT) {
+						goods_uuid.Z();
+						goods_name.Z();
+						barcode.Z();
+						excise_barcode.Z();
+						vendor_code.Z();
+						PPID   goods_id = 0;
+						long   depart_no = 0;
+						double qtty = 0.0;
+						double price = 0.0;
+						double dscnt = 0.0;
+						for(const json_t * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->P_Child) {
+								if(p_obj->Text.IsEqiAscii("id"))
+									goods_uuid.FromStr(p_obj->P_Child->Text);
+								else if(p_obj->Text.IsEqiAscii("name"))
+									(goods_name = p_obj->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+								else if(p_obj->Text.IsEqiAscii("type")) 
+									;
+								else if(p_obj->Text.IsEqiAscii("quantity"))
+									qtty = fdiv1000i(p_obj->P_Child->Text.ToLong());
+								else if(p_obj->Text.IsEqiAscii("price"))
+									price = fdiv100i(p_obj->P_Child->Text.ToLong());
+								else if(p_obj->Text.IsEqiAscii("discount"))
+									dscnt = fdiv100i(p_obj->P_Child->Text.ToLong());
+								else if(p_obj->Text.IsEqiAscii("barcode"))
+									(barcode = p_obj->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+								else if(p_obj->Text.IsEqiAscii("exciseBarcode"))
+									(excise_barcode = p_obj->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+								else if(p_obj->Text.IsEqiAscii("vendorCode"))
+									(vendor_code = p_obj->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+								else if(p_obj->Text.IsEqiAscii("tax")) {
+								}
+								else if(p_obj->Text.IsEqiAscii("departmentId"))
+									depart_no = p_obj->P_Child->Text.ToLong();
+							}
+						}
+						if(!goods_uuid.IsZero()) {
+							ObjTagItem tag;
+							PPIDArray id_list;
+							if(tag.SetGuid(PPTAG_BILL_UUID, &goods_uuid)) {
+								if(p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_GOODS, PPTAG_GOODS_UUID, tag.Val.PStr, &goods_by_uuid_list) > 0) {
+									if(goods_by_uuid_list.getCount()) {
+										if(goods_by_uuid_list.getCount() == 1) {
+											goods_id = goods_by_uuid_list.get(0);
+										}
+										else {
+											; // @todo message(ambiguity)
+											goods_id = goods_by_uuid_list.get(0);
+										}
+									}
+								}
+							}
+						}
+						else {
+							; // @todo message
+						}
+						//rCcPack.InsertItem(goods_id, qtty, price, discount, depart_no, 0);
+						SetupTempCcLineRec(0, cc_id, cc_number, cc_dtm.d, 0/*div_n*/, goods_id);
+						SetTempCcLineValues(0, qtty, price, dscnt, 0);
+						THROW_DB(P_TmpCclTbl->insertRec());
+					}
+				}
+			}
+			if(p_payms_ary) {
+				for(const json_t * p_pos = p_payms_ary->P_Child; p_pos; p_pos = p_pos->P_Next) {
+					if(p_pos->Type == json_t::tOBJECT) {
+						int    paym_type = 0;
+						double paym_amt = 0.0;
+						PPID   paym_sc_id = 0;
+						for(const json_t * p_obj = p_pos->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->P_Child) {
+								if(p_obj->Text.IsEqiAscii("type")) {
+									if(p_obj->P_Child->Text.IsEqiAscii("CASH"))
+										paym_type = CCAMTTYP_CASH;
+									else if(p_obj->P_Child->Text.IsEqiAscii("CASHLESS"))
+										paym_type = CCAMTTYP_BANK;
+									else
+										paym_type = CCAMTTYP_CASH; // @default=cash
+								}
+								else if(p_obj->Text.IsEqiAscii("amount")) {
+									paym_amt = fdiv100i(p_obj->P_Child->Text.ToLong());
+								}
+							}
+						}
+						THROW(AddTempCheckPaym(cc_id, paym_type, paym_amt, paym_sc_id));
+					}
+				}
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 //virtual 
-int SLAPI ACS_DREAMKAS::ImportSession(int)
-	{ return -1; }
+int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
+{ 
+	int    ok = -1;
+	json_t * p_json_doc = 0;
+	SString temp_buf;
+	SString qbuf;
+	SString enc_buf;
+	ScURL c;
+	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("receipts"));
+	StrStrAssocArray hdr_flds;
+	const  long max_chunk_count = 1000;
+	long   query_offs = 0;
+	long   ret_count = 0;
+	if(sessIdx < (int)Scb.SessList.getCount() && sessIdx == 0) {
+		THROW(CreateTables());
+		Acn.GetLogNumList(LogNumList);
+		THROW(PrepareHtmlFields(hdr_flds));
+		do {
+			SBuffer ack_buf;
+			SBuffer * p_ack_buf = 0;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			LDATETIME dtm;
+			ret_count = 0;
+			qbuf.Z();
+			if(!!Scb.PeriodToCheckQuery.Start)
+				dtm = Scb.PeriodToCheckQuery.Start;
+			else
+				dtm.Set(encodedate(1, 4, 2018), ZEROTIME);
+			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			if(!!Scb.PeriodToCheckQuery.Finish)
+				dtm = Scb.PeriodToCheckQuery.Finish;
+			else
+				dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));
+			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			if(LogNumList.getCount()) {
+				temp_buf.Z();
+				for(uint i = 0; i < LogNumList.getCount(); i++) {
+					if(i)
+						temp_buf.CatChar(',');
+					temp_buf.Cat(LogNumList.get(i));
+				}
+				qbuf.CatChar('&').CatEq("devices", enc_buf.EncodeUrl(temp_buf, 1));
+			}
+			qbuf.CatChar('&').CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs);
+			url.SetComponent(InetUrl::cQuery, qbuf);
+			THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+			//
+			p_ack_buf = (SBuffer *)wr_stream;
+			if(p_ack_buf) {
+				const int avl_size = (int)p_ack_buf->GetAvailableSize();
+				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+				{
+					json_t * p_next = 0;
+					PPTransaction tra(1);
+					THROW(tra);
+					for(json_t * p_cur = p_json_doc->P_Child; p_cur; p_cur = p_next) {
+						p_next = p_cur->P_Next;
+						if(p_cur->Type == json_t::tSTRING) {
+							if(p_cur->Text.IsEqiAscii("data"))
+								p_next = p_cur->P_Child;
+						}
+						else if(p_cur->Type == json_t::tARRAY)
+							p_next = p_cur->P_Child;
+						else if(p_cur->Type == json_t::tOBJECT) {
+							ret_count++;
+							AcceptCheck(p_cur->P_Child);
+						}
+					}
+					THROW(tra.Commit());
+					ok = 1;
+				}
+				json_free_value(&p_json_doc);
+				p_json_doc = 0;
+			}
+			query_offs += ret_count;
+		} while(ret_count > 0 && ret_count == max_chunk_count);
+	}
+	CATCHZOK
+	json_free_value(&p_json_doc);
+	return ok;
+}
 //virtual 
 int SLAPI ACS_DREAMKAS::FinishImportSession(PPIDArray *)
 	{ return -1; }

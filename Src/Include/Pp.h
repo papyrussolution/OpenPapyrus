@@ -3814,14 +3814,14 @@ public:
 		fUsePeriod  = 0x0001,
 		fUseQtty    = 0x0002
 	};
-	long   Flags;          // @v7.3.5
+	long   Flags;          // @flags
 	PPID   LocID;
 	PPID   QuotKindID;
 	PPID   CurID;
 	PPID   ArID;
-	LDATE  Dt;             // @v7.3.5 Дата, для которой проверяется период действия котировки.
+	LDATE  Dt;             // Дата, для которой проверяется период действия котировки.
 		// Если !Dt, то предполагается, что Dt == getcurdate_().
-	DateRange Period;      // @v7.3.5 Если (Flags & fUsePeriod), то функции извлечения котировки
+	DateRange Period;      // Если (Flags & fUsePeriod), то функции извлечения котировки
 		// ищут котировку, у которой период точно соответствует this->Period
 	double Qtty_;          // Используется для нахождения значения котировки, ограниченного количеством.
 		// Если Qtty == 0.0 то значения с ограничением по количеству не считаются.
@@ -13471,9 +13471,9 @@ public:
 		enum {
 			fGroup         = 0x01,
 			fModifier      = 0x02,
-			fPartOfComplex = 0x04, // @v7.4.5
-			fQuotedByGift  = 0x08, // @v7.4.10
-			fFixedPrice    = 0x10  // @v8.6.12
+			fPartOfComplex = 0x04,
+			fQuotedByGift  = 0x08,
+			fFixedPrice    = 0x10 
 		};
 		LineExt();
 		int    IsEmpty() const;
@@ -16110,8 +16110,8 @@ struct PPReckonOpEx {
 	int    SLAPI IsEmpty() const;
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
 	int    SLAPI GetReckonPeriod(LDATE debtDate, DateRange *) const;
-	int    SLAPI GetDebtPeriod(LDATE paymDate, DateRange *) const;
-	int    SLAPI PeriodToStr(SString & rBuf) const;
+	void   SLAPI GetDebtPeriod(LDATE paymDate, DateRange *) const;
+	void   SLAPI PeriodToStr(SString & rBuf) const;
 	int    SLAPI StrToPeriod(const char *);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
@@ -20888,6 +20888,8 @@ public:
 
 	int    SLAPI SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SLAPI SelectorDialog(PPID * pNamedGsID);
+
+	int    SLAPI CheckStructs();
 private:
 	static  int  SLAPI EditExtDialog(PPGoodsStruc *);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr /*goodsID*/);
@@ -20897,8 +20899,7 @@ private:
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SLAPI Helper_LoadItems(PPID id, PPGoodsStruc * pData);
-	int    SLAPI CheckStructs();
-	int    SLAPI CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, PPGoodsStruc * pStruct, PPLogger * pLog);
+	int    SLAPI CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct, PPLogger * pLog);
 	int    SLAPI SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 
@@ -27805,6 +27806,8 @@ private:
 	int    SLAPI FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	//int    SLAPI UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
 	int    SLAPI AddItem(PPID goodsID, PPID strucID, int checkExistance);
+	int    SLAPI Transmit(PPID /*id*/);
+	int    SLAPI Recover();
 
 	struct StrucEntry {
 		PPID   GStrucID;
@@ -43615,7 +43618,7 @@ private:
 		double Cost;
 		double Price;
 		double Rest;
-		uint   SerailP;
+		uint   SerialP;
 	};
 	struct PersonBlock : public ObjectBlock { // @flat
 		SLAPI  PersonBlock();
@@ -46202,6 +46205,7 @@ public:
         fTestConcepts      = 0x0010,
 		fTestSyntaxParser  = 0x0020,
 		fImportBioTaxonomy = 0x0040, // @v10.0.0
+		fImportTickers     = 0x0080  // @v10.0.08
 	};
 	uint8  ReserveStart[32]; // @ancor
 	long   Flags;

@@ -1,6 +1,6 @@
 // OBJOPRK.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -125,7 +125,7 @@ int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-int SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
+void SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 {
 	char   temp[64];
 	char * p = temp;
@@ -156,7 +156,6 @@ int SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 		}
 	}
 	rBuf = temp;
-	return 1;
 }
 
 int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
@@ -196,7 +195,7 @@ int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange * pPeriod) con
 	}
 }
 
-int SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange * pPeriod) const
+void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange * pPeriod) const
 {
 	pPeriod->low = Beg;
 	pPeriod->upp = End;
@@ -204,7 +203,6 @@ int SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange * pPeriod) const
 		pPeriod->low = paymDate;
 	if(pPeriod->upp == 0 && Flags & ROXF_ENDISBILLDT)
 		pPeriod->upp = paymDate;
-	return 1;
 }
 //
 // PPBillPoolOpEx
@@ -392,11 +390,8 @@ int SLAPI SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/,
 	int    ok = 0;
 	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
 	if(p_combo) {
-		// @v8.4.4 ListWindow * p_lw = CreateListWindow(PPObjOprKind::MakeOprKindList(0, pOpList, opklFlags), lbtDisposeData | lbtDblClkNotify);
-		// @v8.4.4 {
 		StrAssocArray * p_list = PPObjOprKind::MakeOprKindList(0, pOpList, opklFlags);
 		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_OPRKIND, p_list, lbtDisposeData|lbtDblClkNotify, 0);
-		// } @v8.4.4
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, id);
 			dlg->SetupWordSelector(ctl, 0, id, 2, 0);
@@ -934,15 +929,15 @@ int SLAPI PPObjOprKind::MakeReserved(long flags)
     int    ok = -1;
     if(flags & mrfInitializeDb) {
 		/*
-// PPTXT_OPK_COMM_GENERICACCTURN  "Общая бухгалтерская проводка"
-// PPTXT_OPK_COMM_RECEIPT         "Приход товара от поставщика"
-// PPTXT_OPK_COMM_SALE            "Продажа покупателю"
-// PPTXT_OPK_COMM_RETAIL          "Розничная продажа"
-// PPTXT_OPK_COMM_INTREXPEND      "Внутренняя передача"
-// PPTXT_OPK_COMM_INTRRECEIPT     "Межскладской приход"
-PPTXT_OPK_COMM_INVENTORY       "Инвентаризация"
-// PPTXT_OPK_COMM_ORDER           "Заказ от покупателя"
-// PPTXT_OPK_COMM_PURCHASE        "Закупка"
+// PPTXT_OPK_COMM_GENERICACCTURN  "РћР±С‰Р°СЏ Р±СѓС…РіР°Р»С‚РµСЂСЃРєР°СЏ РїСЂРѕРІРѕРґРєР°"
+// PPTXT_OPK_COMM_RECEIPT         "РџСЂРёС…РѕРґ С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°"
+// PPTXT_OPK_COMM_SALE            "РџСЂРѕРґР°Р¶Р° РїРѕРєСѓРїР°С‚РµР»СЋ"
+// PPTXT_OPK_COMM_RETAIL          "Р РѕР·РЅРёС‡РЅР°СЏ РїСЂРѕРґР°Р¶Р°"
+// PPTXT_OPK_COMM_INTREXPEND      "Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р°"
+// PPTXT_OPK_COMM_INTRRECEIPT     "РњРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ"
+// PPTXT_OPK_COMM_INVENTORY       "РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ"
+// PPTXT_OPK_COMM_ORDER           "Р—Р°РєР°Р· РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ"
+// PPTXT_OPK_COMM_PURCHASE        "Р—Р°РєСѓРїРєР°"
 		*/
 		long    _count = 0;
 		PPOprKind op_rec;
@@ -2243,12 +2238,11 @@ IMPL_HANDLE_EVENT(OprKindDialog)
 //
 class OpListDialog : public PPListDialog {
 public:
-	OpListDialog(uint dlgID, uint listCtlID, PPIDArray * pOpList, PPIDArray * pOpTypesList) :
-		PPListDialog(dlgID, listCtlID)
+	OpListDialog(uint dlgID, uint listCtlID, PPIDArray * pOpList, PPIDArray * pOpTypesList) : PPListDialog(dlgID, listCtlID)
 	{
 		RVALUEPTR(OpTypesList, pOpTypesList);
-		if(P_Box && P_Box->def)
-			P_Box->def->SetOption(lbtFocNotify, 1);
+		if(P_Box)
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		setOpList(pOpList);
 	}
 protected:
@@ -2408,8 +2402,7 @@ void OprKindDialog::editPaymList()
 		PPID   op_id = PPOPT_PAYMENT;
 		PPIDArray op_types_list;
 		op_types_list.add(op_id);
-		if(!P_Data->P_ReckonData)
-			P_Data->P_ReckonData = new PPReckonOpEx;
+		SETIFZ(P_Data->P_ReckonData, new PPReckonOpEx);
 		dlg = new OpkPaymListDialog(P_Data->P_ReckonData, &op_types_list);
 		if(CheckDialogPtrErr(&dlg)) {
 			if(ExecView(dlg) == cmOK)
@@ -2453,8 +2446,8 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 	else if(event.isClusterClk(CTL_DIFFCNTR_LOCLIST)) {
 		const PPID loc_id = getCurrID();
 		updateList(loc_id);
-		if(P_Box && P_Box->def)
-			P_Box->def->top();
+		if(P_Box)
+			CALLPTRMEMB(P_Box->def, top());
 	}
 	else
 		return;
@@ -2464,14 +2457,14 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 int DiffByLocCntrDlg::setupCounter(PPID locID)
 {
 	if(LocID != locID) {
-		// запоминаем значение счетчика предыдущего склада
+		// Р·Р°РїРѕРјРёРЅР°РµРј Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЃРєР»Р°РґР°
 		long   val = getCtrlLong(CTL_DIFFCNTR_VAL);
 		val = (val < 0) ? 0 : val;
 		if(!Data.Search(LocID, 0, 0))
 			Data.AddUnique(LocID, val, 0);
 		else
 			Data.Update(LocID, val);
-		// выставляем значение счетчика нового склада
+		// РІС‹СЃС‚Р°РІР»СЏРµРј Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РЅРѕРІРѕРіРѕ СЃРєР»Р°РґР°
 		if(locID) {
 			Data.Search(LocID = locID, &(val = 0), 0);
 			setCtrlData(CTL_DIFFCNTR_VAL, &val);
@@ -2589,10 +2582,9 @@ int OpCntrDialog::getDTS(PPOpCounterPacket * pData)
 	STRNSCPY(Data.Head.CodeTemplate, temp_buf);
 	getCtrlData(CTL_OPKCOUNTER_COUNTER, &Data.Head.Counter);
 	if(resourceID == DLG_OPCNTR) {
-		// @v8.8.11 getCtrlData(CTL_OPKCOUNTER_ID, &Data.Head.ID);
 		getCtrlData(sel = CTL_OPKCOUNTER_NAME, Data.Head.Name);
 		THROW_PP(*strip(Data.Head.Name), PPERR_NAMENEEDED);
-		getCtrlData(CTL_OPKCOUNTER_SYMB, Data.Head.Symb); // @v8.8.11
+		getCtrlData(CTL_OPKCOUNTER_SYMB, Data.Head.Symb);
 	}
 	GetClusterData(CTL_OPKCOUNTER_FLAGS, &Data.Head.Flags);
 	ASSIGN_PTR(pData, Data);
@@ -2769,7 +2761,7 @@ int SLAPI PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
 	THROW(GetPacket(sampleID, &pack) > 0);
 	pack.Rec.ID = 0;
 	//
-	// Подстановка уникального имени
+	// РџРѕРґСЃС‚Р°РЅРѕРІРєР° СѓРЅРёРєР°Р»СЊРЅРѕРіРѕ РёРјРµРЅРё
 	//
 	for(i = 1; i < 999; i++) {
 		(temp_buf = pack.Rec.Name).Space().CatChar('#').CatLongZ(i, 3);
@@ -2934,12 +2926,12 @@ int SLAPI PPObjOprKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 class InvOpExCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
-		PPID   WrDnOp;           // Операция списания недостач
-		PPID   WrDnObj;          // Контрагент списания недостач
-		PPID   WrUpOp;           // Операция списания излишков
-		PPID   WrUpObj;          // Контрагент списания излишков
-		int16  AmountCalcMethod; // Метод расчета цен
-		int16  AutoFillMethod;   // Метод автозаполнени
+		PPID   WrDnOp;           // РћРїРµСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёСЏ РЅРµРґРѕСЃС‚Р°С‡
+		PPID   WrDnObj;          // РљРѕРЅС‚СЂР°РіРµРЅС‚ СЃРїРёСЃР°РЅРёСЏ РЅРµРґРѕСЃС‚Р°С‡
+		PPID   WrUpOp;           // РћРїРµСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёСЏ РёР·Р»РёС€РєРѕРІ
+		PPID   WrUpObj;          // РљРѕРЅС‚СЂР°РіРµРЅС‚ СЃРїРёСЃР°РЅРёСЏ РёР·Р»РёС€РєРѕРІ
+		int16  AmountCalcMethod; // РњРµС‚РѕРґ СЂР°СЃС‡РµС‚Р° С†РµРЅ
+		int16  AutoFillMethod;   // РњРµС‚РѕРґ Р°РІС‚РѕР·Р°РїРѕР»РЅРµРЅРё
 		long   Flags;            // INVOPF_XXX
 	};
 	SLAPI InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))

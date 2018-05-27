@@ -1,7 +1,8 @@
 // GOODSDLG.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
-// Диалог редактирования товара
+// Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ С‚РѕРІР°СЂР°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -62,7 +63,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode,
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_UHTTSGOODS_SEL)) {
 				//
-				// Забрать предудущее значение строки
+				// Р—Р°Р±СЂР°С‚СЊ РїСЂРµРґСѓРґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ СЃС‚СЂРѕРєРё
 				//
 				if(Data.Criterion == UhttSearchGoodsParam::critName) {
 					getCtrlString(CTL_UHTTSGOODS_TEXT, Data.Name);
@@ -72,7 +73,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode,
 				}
 				Data.Criterion = GetClusterData(CTL_UHTTSGOODS_SEL);
 				//
-				// Установить текст в соответствии с критерием
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСЃС‚ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РєСЂРёС‚РµСЂРёРµРј
 				//
 				if(Data.Criterion == UhttSearchGoodsParam::critName) {
 					setCtrlString(CTL_UHTTSGOODS_TEXT, Data.Name);
@@ -185,10 +186,8 @@ static int MergeUhttRestList(TSCollection <UhttGoodsRestListItem> & rDest, const
 			for(uint j = 0; !found && j < rDest.getCount(); j++) {
                 UhttGoodsRestListItem * p_item = rDest.at(j);
 				if(p_item && p_item->LocID == p_src_item->LocID) {
-					// @v8.6.12 {
 					if(cmp(p_src_item->RestDtm, p_item->RestDtm) > 0)
 						p_item->RestDtm = p_src_item->RestDtm;
-					// } @v8.6.12
 					p_item->Rest += p_src_item->Rest;
 					const LDATETIME dest_price_dtm = p_item->PriceDtm;
 					int r = cmp(src_price_dtm, dest_price_dtm);
@@ -228,7 +227,7 @@ int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 			for(uint i = 0; i < R_List.getCount(); i++) {
 				const UhttGoodsRestListItem * p_item = R_List.at(i);
 				if(p_item) {
-					//@lbt_uhttgrlist        "20,L,Организация;20,L,Адрес;10,R,Остаток;8,L,Дата остатка;8,R,Цена;8,L,Дата цены"
+					//@lbt_uhttgrlist        "20,L,РћСЂРіР°РЅРёР·Р°С†РёСЏ;20,L,РђРґСЂРµСЃ;10,R,РћСЃС‚Р°С‚РѕРє;8,L,Р”Р°С‚Р° РѕСЃС‚Р°С‚РєР°;8,R,Р¦РµРЅР°;8,L,Р”Р°С‚Р° С†РµРЅС‹"
 					ss.clear();
 					ss.add(temp_buf = p_item->Name);
 					ss.add(temp_buf = p_item->LocAddr);
@@ -412,9 +411,9 @@ void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 	pDlg->disableCtrl(CtlselGoodsGrp, BIN(DisableGroupSelection || by_filt));
 	if(by_filt) {
 		//
-		// Группу нельзя блокировать вызовом pDlg->disableCtrl(CtlselGoodsGrp, by_filt)
-		// по-скольку выбор группы мог быть заблокирован выше на основании прав доступа,
-		// и в таком случае приведенный вариант разблокирует комбо-бокс.
+		// Р“СЂСѓРїРїСѓ РЅРµР»СЊР·СЏ Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ РІС‹Р·РѕРІРѕРј pDlg->disableCtrl(CtlselGoodsGrp, by_filt)
+		// РїРѕ-СЃРєРѕР»СЊРєСѓ РІС‹Р±РѕСЂ РіСЂСѓРїРїС‹ РјРѕРі Р±С‹С‚СЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РІС‹С€Рµ РЅР° РѕСЃРЅРѕРІР°РЅРёРё РїСЂР°РІ РґРѕСЃС‚СѓРїР°,
+		// Рё РІ С‚Р°РєРѕРј СЃР»СѓС‡Р°Рµ РїСЂРёРІРµРґРµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ СЂР°Р·Р±Р»РѕРєРёСЂСѓРµС‚ РєРѕРјР±Рѕ-Р±РѕРєСЃ.
 		//
 		// pDlg->disableCtrl(CtlselGoodsGrp, 1);
 		//
@@ -1014,7 +1013,7 @@ IMPL_HANDLE_EVENT(ClsdGoodsDialog)
 		else if(TVCMD == cmFullGoodsDialog) {
 			if(IsInState(sfModal)) {
 				endModal(TVCMD);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else
@@ -1281,8 +1280,8 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		SetupPPObjCombo(this, CTLSEL_GOODS_TYPE, PPOBJ_GOODSTYPE, Data.Rec.GoodsTypeID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_GOODS_TAX, PPOBJ_GOODSTAX, Data.Rec.TaxGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		//
-		// Флаги прав доступа GOODSRT_UPDTAXGRP и GOODSRT_UPDGTYPE определяются только для //
-		// объекта PPOBJ_GOODS, но распространяется так же и на объект PPOBJ_GOODSGROUP    //
+		// Р¤Р»Р°РіРё РїСЂР°РІ РґРѕСЃС‚СѓРїР° GOODSRT_UPDTAXGRP Рё GOODSRT_UPDGTYPE РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ //
+		// РѕР±СЉРµРєС‚Р° PPOBJ_GOODS, РЅРѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ С‚Р°Рє Р¶Рµ Рё РЅР° РѕР±СЉРµРєС‚ PPOBJ_GOODSGROUP    //
 		//
 		disableCtrl(CTLSEL_GOODS_TAX,  pPack->Rec.ID && !GObj.CheckRights(GOODSRT_UPDTAXGRP));
 		disableCtrl(CTLSEL_GOODS_TYPE, pPack->Rec.ID && !GObj.CheckRights(GOODSRT_UPDGTYPE));
@@ -1384,7 +1383,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 		Data.Rec.PhUPerU = 0.0;
 	{
 		const int gen = BIN(getCtrlUInt16(CTL_GOODS_GENERIC));
-		// Добавлена проверка на существование лотов
+		// Р”РѕР±Р°РІР»РµРЅР° РїСЂРѕРІРµСЂРєР° РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ Р»РѕС‚РѕРІ
 		if(!Data.Rec.ID || (gen != BIN(St & stPrevGenTag) && !gen && (BillObj->trfr->Rcpt.EnumByGoods(Data.Rec.ID, 0, 0) < 0)))
 			SETFLAG(Data.Rec.Flags, GF_GENERIC, gen);
 	}
@@ -1434,9 +1433,9 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	}
 	if(pPack) {
 		//
-		// GoodsDialog::getDTS может быть вызвана с нулевым значением pPack
-		// для заполнения внутренних полей Data при вызове вложенных диалогов.
-		// В этом случае не следует проверять корректность заполнения полей.
+		// GoodsDialog::getDTS РјРѕР¶РµС‚ Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° СЃ РЅСѓР»РµРІС‹Рј Р·РЅР°С‡РµРЅРёРµРј pPack
+		// РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… РїРѕР»РµР№ Data РїСЂРё РІС‹Р·РѕРІРµ РІР»РѕР¶РµРЅРЅС‹С… РґРёР°Р»РѕРіРѕРІ.
+		// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅРµ СЃР»РµРґСѓРµС‚ РїСЂРѕРІРµСЂСЏС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ Р·Р°РїРѕР»РЅРµРЅРёСЏ РїРѕР»РµР№.
 		//
 		THROW(GObj.ValidatePacket(&Data));
 	}
@@ -1889,8 +1888,8 @@ void GoodsVadDialog::setExtStrData(uint ctlID, /*uint titleCtlID, uint strID,*/ 
 			Data.GetExtStrData(p_entry->FldId, temp_buf);
 		}
 		//
-		// @v8.3.7 Нельзя устанавливать длину поля больше или равной 4096 из-за того,
-		// что максрос SFMTLEN предполагает, что значение длины имеет 24 бита.
+		// @v8.3.7 РќРµР»СЊР·СЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РґР»РёРЅСѓ РїРѕР»СЏ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕР№ 4096 РёР·-Р·Р° С‚РѕРіРѕ,
+		// С‡С‚Рѕ РјР°РєСЃСЂРѕСЃ SFMTLEN РїСЂРµРґРїРѕР»Р°РіР°РµС‚, С‡С‚Рѕ Р·РЅР°С‡РµРЅРёРµ РґР»РёРЅС‹ РёРјРµРµС‚ 24 Р±РёС‚Р°.
 		//
 		SetupInputLine(ctlID, MKSTYPE(S_ZSTRING, MaxExtTextLen), MKSFMT(MaxExtTextLen, 0));
 		setCtrlString(ctlID, temp_buf);
@@ -2129,8 +2128,8 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 	else if(event.isClusterClk(CTL_GOODS_DYNAMIC)) {
 		if(Data.Rec.ID) {
 			//
-			// Нельзя устанавливать признак "Динамическая альт группа" для групп,
-			// которые привязаны к электронным весам.
+			// РќРµР»СЊР·СЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїСЂРёР·РЅР°Рє "Р”РёРЅР°РјРёС‡РµСЃРєР°СЏ Р°Р»СЊС‚ РіСЂСѓРїРїР°" РґР»СЏ РіСЂСѓРїРї,
+			// РєРѕС‚РѕСЂС‹Рµ РїСЂРёРІСЏР·Р°РЅС‹ Рє СЌР»РµРєС‚СЂРѕРЅРЅС‹Рј РІРµСЃР°Рј.
 			//
 			long   flags = 0;
 			GetClusterData(CTL_GOODS_DYNAMIC, &flags);
@@ -2428,7 +2427,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	LocID = p_rec->LocID;
 	ArID  = p_rec->ArID;
 	if(LocID)
-		DS.SetLocation(LocID); // Текущий склад используется для определения списка товаров, которые есть на остатке //
+		DS.SetLocation(LocID); // РўРµРєСѓС‰РёР№ СЃРєР»Р°Рґ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃРїРёСЃРєР° С‚РѕРІР°СЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ РµСЃС‚СЊ РЅР° РѕСЃС‚Р°С‚РєРµ //
 	if(p_rec->GrpID)
 		grp_id = labs(p_rec->GrpID);
 	else if(p_rec->GoodsID) {
@@ -2585,7 +2584,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 	}
 }
 //
-// Объединение товаров
+// РћР±СЉРµРґРёРЅРµРЅРёРµ С‚РѕРІР°СЂРѕРІ
 //
 #define GRP_GOODS1   1
 #define GRP_GOODS2   2
@@ -2595,7 +2594,7 @@ public:
 	enum {
 		sfCommon = 0,
 		sfEgais,
-		//sfAllToOne // @v9.8.6 Объединение всех товаров из выборки в один
+		//sfAllToOne // @v9.8.6 РћР±СЉРµРґРёРЅРµРЅРёРµ РІСЃРµС… С‚РѕРІР°СЂРѕРІ РёР· РІС‹Р±РѕСЂРєРё РІ РѕРґРёРЅ
 	};
 	enum {
 		selfByClass   = 0x0001,
@@ -2636,7 +2635,7 @@ public:
 		else {
 			if(Data.DestList.getCount() > 1) {
 				showCtrl(CTL_REPLGOODS_ALLDEST, 1);
-				/* не следует по-умолчанию ставить эту галку - она опасная
+				/* РЅРµ СЃР»РµРґСѓРµС‚ РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ СЃС‚Р°РІРёС‚СЊ СЌС‚Сѓ РіР°Р»РєСѓ - РѕРЅР° РѕРїР°СЃРЅР°СЏ
 				setCtrlUInt16(CTL_REPLGOODS_ALLDEST, 1);
 				disableCtrl(CTLSEL_REPLGOODS_GRP2, 1);
 				disableCtrl(CTLSEL_REPLGOODS_GOODS2, 1);
@@ -2795,7 +2794,7 @@ int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEu
 {
 	int    ok = -1;
 	PPIDArray total_dest_list;
-	const  PPIDArray org_dest_list = rEub.DestList; // Диалог параметров объединения может затереть оригинальный список
+	const  PPIDArray org_dest_list = rEub.DestList; // Р”РёР°Р»РѕРі РїР°СЂР°РјРµС‚СЂРѕРІ РѕР±СЉРµРґРёРЅРµРЅРёСЏ РјРѕР¶РµС‚ Р·Р°С‚РµСЂРµС‚СЊ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє
 	PPObjGoods goods_obj;
 	ReplGoodsDialog * dlg = 0;
 	int    special_form = ReplGoodsDialog::sfCommon;
@@ -2849,7 +2848,7 @@ int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEu
 	return ok;
 }
 //
-// Ассоциации товаров
+// РђСЃСЃРѕС†РёР°С†РёРё С‚РѕРІР°СЂРѕРІ
 //
 class GoodsAsscDialog : public PPListDialog {
 public:
@@ -2920,8 +2919,8 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 					if(p_ref->Assc.Search(PPASS_ALTGOODSGRP, item.Val, GoodsID, &rec) > 0) {
 						int  old_inner_num = rec.InnerNum;
 						EditPLU(item.Val, &rec.InnerNum);
-						// @todo Операцию изменения номера принадлежности товара группе перенести
-						// в PPObjGoods и реализовать в одной транзакции с LogAction
+						// @todo РћРїРµСЂР°С†РёСЋ РёР·РјРµРЅРµРЅРёСЏ РЅРѕРјРµСЂР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё С‚РѕРІР°СЂР° РіСЂСѓРїРїРµ РїРµСЂРµРЅРµСЃС‚Рё
+						// РІ PPObjGoods Рё СЂРµР°Р»РёР·РѕРІР°С‚СЊ РІ РѕРґРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё СЃ LogAction
 						if(!p_ref->Assc.Update(rec.ID, &rec, 1))
 							PPError();
 						else {
@@ -3035,7 +3034,7 @@ int SLAPI PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 	return ok;
 }
 //
-// Диалог фильтра по товарам
+// Р”РёР°Р»РѕРі С„РёР»СЊС‚СЂР° РїРѕ С‚РѕРІР°СЂР°Рј
 //
 class GoodsFiltDialog : public TDialog {
 public:
@@ -3063,7 +3062,7 @@ private:
 	GoodsFilt Data;
 };
 //
-// диалог дополнительных опций фильтра по товарам
+// РґРёР°Р»РѕРі РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РѕРїС†РёР№ С„РёР»СЊС‚СЂР° РїРѕ С‚РѕРІР°СЂР°Рј
 //
 class GoodsFiltAdvDialog : public TDialog {
 public:
@@ -3218,8 +3217,8 @@ int GoodsFiltDialog::editSysjFilt()
 	}
 	if(Data.P_SjF) {
 		//
-		// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType
-		// не пустым. В данном случае это - не верно.
+		// Р¤СѓРЅРєС†РёСЏ SysJournalFilt::IsEmpty СЃС‡РёС‚Р°РµС‚ С„РёР»СЊС‚СЂ, РІ РєРѕС‚РѕСЂРѕРј СѓСЃС‚Р°РЅРѕРІР»РµРЅ ObjType
+		// РЅРµ РїСѓСЃС‚С‹Рј. Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ - РЅРµ РІРµСЂРЅРѕ.
 		//
 		Data.P_SjF->ObjType = 0;
 		if(Data.P_SjF->IsEmpty()) {
@@ -3556,9 +3555,9 @@ void GoodsFiltDialog::SetupCtrls()
 	else if(Data.Flags & GoodsFilt::fOutOfMatrix && !(prev_flags & GoodsFilt::fOutOfMatrix))
 		Data.Flags &= ~GoodsFilt::fRestrictByMatrix;
 	//
-	// Завершающая проверка, призванная исключить одновременную установку флагов
+	// Р—Р°РІРµСЂС€Р°СЋС‰Р°СЏ РїСЂРѕРІРµСЂРєР°, РїСЂРёР·РІР°РЅРЅР°СЏ РёСЃРєР»СЋС‡РёС‚СЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅСѓСЋ СѓСЃС‚Р°РЅРѕРІРєСѓ С„Р»Р°РіРѕРІ
 	// GoodsFilt::fRestrictByMatrix GoodsFilt::fOutOfMatrix
-	// (флаг GoodsFilt::fRestrictByMatrix имеет приоритет).
+	// (С„Р»Р°Рі GoodsFilt::fRestrictByMatrix РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚).
 	//
 	if(Data.Flags & GoodsFilt::fRestrictByMatrix)
 		Data.Flags &= ~GoodsFilt::fOutOfMatrix;

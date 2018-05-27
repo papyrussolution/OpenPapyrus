@@ -107,6 +107,14 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 //
 //
 //
+//static 
+const SString & FASTCALL SXml::nst(const char * pNs, const char * pT)
+{
+	assert(!isempty(pNs) && !isempty(pT));
+	SString & r_buf = SLS.AcquireRvlStr();
+	return r_buf.Cat(pNs).CatChar(':').Cat(pT);
+}
+
 SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
 {
 	if(Lx) {
@@ -118,6 +126,13 @@ SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
 		temp_cp.ToStr(SCodepageIdent::fmtXML, temp_buf.Z());
 		xmlTextWriterStartDocument(Lx, 0, temp_buf, 0);
 		State |= stStarted;
+	}
+}
+
+SXml::WDoc::WDoc(xmlTextWriter * pWriter) : State(0), Lx(pWriter)
+{
+	if(Lx) {
+		State |= (stStarted|stSkipHeader);
 	}
 }
 

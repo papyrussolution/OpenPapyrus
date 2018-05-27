@@ -891,6 +891,16 @@ public:
 	int    MakeConceptPropNg(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, const LongArray & rNg);
 	int    MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, double value);
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
+
+	enum {
+		tryconceptGeneric = 0,
+		tryconceptSubclass,
+		tryconceptInstance,
+	};
+
+	CONCEPTID TryNgForConcept(NGID ngID, CONCEPTID targetCID, long tryOption);
+	CONCEPTID SearchConceptInTokenizer(CONCEPTID cid, const STokenizer & rT, uint idxFirst, uint idxLast, long tryOption, STokenizer::ResultPosition & rR);
+
 	int    ImportFlexiaModel(const SrImportParam & rParam);
 	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat);

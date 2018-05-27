@@ -62,19 +62,16 @@ uint UTF8Length(const wchar_t * uptr, uint tlen)
 	uint len = 0;
 	for(uint i = 0; i < tlen && uptr[i]; ) {
 		uint uch = uptr[i];
-		if(uch < 0x80) {
+		if(uch < 0x80)
 			len++;
-		}
-		else if(uch < 0x800) {
+		else if(uch < 0x800)
 			len += 2;
-		}
 		else if((uch >= SURROGATE_LEAD_FIRST) && (uch <= SURROGATE_TRAIL_LAST)) {
 			len += 4;
 			i++;
 		}
-		else {
+		else
 			len += 3;
-		}
 		i++;
 	}
 	return len;
@@ -130,15 +127,12 @@ size_t UTF16Length(const char * s, size_t len)
 	size_t charLen;
 	for(size_t i = 0; i<len; ) {
 		uchar ch = static_cast<uchar>(s[i]);
-		if(ch < 0x80) {
+		if(ch < 0x80)
 			charLen = 1;
-		}
-		else if(ch < 0x80 + 0x40 + 0x20) {
+		else if(ch < (0x80 + 0x40 + 0x20))
 			charLen = 2;
-		}
-		else if(ch < 0x80 + 0x40 + 0x20 + 0x10) {
+		else if(ch < (0x80 + 0x40 + 0x20 + 0x10))
 			charLen = 3;
-		}
 		else {
 			charLen = 4;
 			ulen++;

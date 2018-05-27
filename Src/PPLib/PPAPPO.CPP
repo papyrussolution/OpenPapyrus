@@ -1612,24 +1612,6 @@ int SLAPI PreprocessCmdLine()
 
 #endif // } 0
 
-#ifndef NDEBUG // {
-// @test {
-static int TestHttp()
-{
-	int    ok = 1;
-	SHttpClient cli;
-	{
-		SHttpClient::Response rsp;
-		THROW(cli.TolkToServer(cli.reqGet, "http://rbc.ru"));
-		THROW(cli.ReadResponse(rsp));
-	}
-	CATCHZOK
-	return ok;
-}
-
-// } @test
-#endif // } NDEBUG
-
 int SLAPI ExecuteLuaScript(const char * pScriptText);
 int SLAPI ExecuteLuaScriptFile(const char * pFileName);
 
@@ -1640,7 +1622,6 @@ void PPApp::login(int processCmdLine)
 	SString msg_buf, temp_buf;
 	const  int no_login = GetStartUpOption(cmdlNoLogin, arg_buf);
 	const  int is_batch = GetStartUpOption(cmdlBatch, arg_buf);
-	//TestHttp();
 	//Test_KeywordListGenerator(); // @debug
 	{
 		// Test VERSEL.DLL

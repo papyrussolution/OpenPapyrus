@@ -36,28 +36,28 @@
 
 #include "dbinc/log_verify.h"
 
-static int __log_vrfy_proc __P((DB_LOG_VRFY_INFO *, DB_LSN, DB_LSN, uint32, DB_TXN *, int32, int *));
-static int __lv_ckp_vrfy_handler __P((DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *));
-static const char * __lv_dbreg_str __P((uint32));
-static int __lv_dbregid_to_dbtype __P((DB_LOG_VRFY_INFO *, int32, DBTYPE *));
-static int __lv_dbt_str __P((const DBT *, char **));
-static const char * __lv_dbtype_str __P((DBTYPE));
-static uint32 __lv_first_offset __P((ENV *));
-static int __lv_new_logfile_vrfy __P((DB_LOG_VRFY_INFO *, const DB_LSN *));
-static int __lv_log_fwdscr_oncmt __P((DB_LOG_VRFY_INFO *, DB_LSN, uint32, uint32, int32));
-static int __lv_log_fwdscr_onrec __P((DB_LOG_VRFY_INFO *, uint32, uint32, DB_LSN, DB_LSN));
-static int __lv_log_mismatch __P((DB_LOG_VRFY_INFO *, DB_LSN, DBTYPE, DBTYPE));
-static int __lv_on_bam_log __P((DB_LOG_VRFY_INFO *, DB_LSN, int32));
-static int __lv_on_ham_log __P((DB_LOG_VRFY_INFO *, DB_LSN, int32));
-static int __lv_on_heap_log __P((DB_LOG_VRFY_INFO *, DB_LSN, int32));
-static int __lv_on_new_txn __P((DB_LOG_VRFY_INFO *, const DB_LSN *, const DB_TXN *, uint32, int32, const DBT *));
-static int __lv_on_nontxn_update __P((DB_LOG_VRFY_INFO *, const DB_LSN *, uint32, uint32, int32));
-static int __lv_on_page_update __P((DB_LOG_VRFY_INFO *, DB_LSN, int32, db_pgno_t, DB_TXN *, int *));
-static int __lv_on_qam_log __P((DB_LOG_VRFY_INFO *, DB_LSN, int32));
-static int __lv_on_timestamp __P((DB_LOG_VRFY_INFO *, const DB_LSN *, int32, uint32));
-static int __lv_on_txn_aborted __P((DB_LOG_VRFY_INFO *));
-static int __lv_on_txn_logrec __P((DB_LOG_VRFY_INFO *, const DB_LSN *, const DB_LSN *, const DB_TXN *, uint32, int32));
-static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO *, int32, int *));
+static int __log_vrfy_proc(DB_LOG_VRFY_INFO *, DB_LSN, DB_LSN, uint32, DB_TXN *, int32, int *);
+static int __lv_ckp_vrfy_handler(DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *);
+static const char * __lv_dbreg_str(uint32);
+static int __lv_dbregid_to_dbtype(DB_LOG_VRFY_INFO *, int32, DBTYPE *);
+static int __lv_dbt_str(const DBT *, char **);
+static const char * __lv_dbtype_str(DBTYPE);
+static uint32 __lv_first_offset(ENV *);
+static int __lv_new_logfile_vrfy(DB_LOG_VRFY_INFO *, const DB_LSN *);
+static int __lv_log_fwdscr_oncmt(DB_LOG_VRFY_INFO *, DB_LSN, uint32, uint32, int32);
+static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO *, uint32, uint32, DB_LSN, DB_LSN);
+static int __lv_log_mismatch(DB_LOG_VRFY_INFO *, DB_LSN, DBTYPE, DBTYPE);
+static int __lv_on_bam_log(DB_LOG_VRFY_INFO *, DB_LSN, int32);
+static int __lv_on_ham_log(DB_LOG_VRFY_INFO *, DB_LSN, int32);
+static int __lv_on_heap_log(DB_LOG_VRFY_INFO *, DB_LSN, int32);
+static int __lv_on_new_txn(DB_LOG_VRFY_INFO *, const DB_LSN *, const DB_TXN *, uint32, int32, const DBT *);
+static int __lv_on_nontxn_update(DB_LOG_VRFY_INFO *, const DB_LSN *, uint32, uint32, int32);
+static int __lv_on_page_update(DB_LOG_VRFY_INFO *, DB_LSN, int32, db_pgno_t, DB_TXN *, int *);
+static int __lv_on_qam_log(DB_LOG_VRFY_INFO *, DB_LSN, int32);
+static int __lv_on_timestamp(DB_LOG_VRFY_INFO *, const DB_LSN *, int32, uint32);
+static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO *);
+static int __lv_on_txn_logrec(DB_LOG_VRFY_INFO *, const DB_LSN *, const DB_LSN *, const DB_TXN *, uint32, int32);
+static int __lv_vrfy_for_dbfile(DB_LOG_VRFY_INFO *, int32, int *);
 
 /* General error handlers, called when a check fails. */
 #define ON_ERROR(lvh, errv) do {                                        \
@@ -69,10 +69,8 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO *, int32, int *));
 
 /* Used by logs of unsupported types. */
 #define ON_NOT_SUPPORTED(env, lvh, lsn, ltype) do {                     \
-		__db_errx((env), DB_STR_A("2536",                               \
-		    "[%lu][%lu] Not supported type of log record %u.",          \
-		    "%lu %lu %u"), (u_long)((lsn).file), (u_long)((lsn).offset), \
-		    (ltype));                                                   \
+		__db_errx((env), DB_STR_A("2536", "[%lu][%lu] Not supported type of log record %u.", \
+		    "%lu %lu %u"), (u_long)((lsn).file), (u_long)((lsn).offset), (ltype)); \
 		(lvh)->unknown_logrec_cnt++;                                    \
 		goto err;                                                       \
 } while(0)
@@ -81,8 +79,7 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO *, int32, int *));
 	(type) != DB___txn_ckp && (type) != DB___fop_rename &&              \
 	(type) != DB___txn_child)
 
-#define NOTCOMMIT(type) ((type) != DB___txn_regop &&                    \
-	(type) != DB___txn_child)
+#define NOTCOMMIT(type) ((type) != DB___txn_regop && (type) != DB___txn_child)
 
 #define LOG_VRFY_PROC(lvh, lsn, argp, fileid) do {                      \
 		int __lv_log_vrfy_proc_step = 0;                                \
@@ -95,8 +92,7 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO *, int32, int *));
 		else if(__lv_log_vrfy_proc_step == -1)                         \
 			goto err;                                               \
 		else                                                            \
-			DB_ASSERT(lvh->dbenv->env,                              \
-			    __lv_log_vrfy_proc_step == 0);                      \
+			DB_ASSERT(lvh->dbenv->env, __lv_log_vrfy_proc_step == 0); \
 } while(0)
 
 /* Log record handlers used by log types involving page updates. */
@@ -115,10 +111,10 @@ static int __lv_vrfy_for_dbfile __P((DB_LOG_VRFY_INFO *, int32, int *));
 
 static int __lv_on_page_update(DB_LOG_VRFY_INFO *lvh, DB_LSN lsn, int32 fileid, db_pgno_t pgno, DB_TXN * txnp, int * step)
 {
-	uint32 otxn, txnid;
-	int res, ret;
-	txnid = txnp->txnid;
-	res = ret = 0;
+	uint32 otxn;
+	uint32 txnid = txnp->txnid;
+	int res = 0;
+	int ret = 0;
 	if((ret = __add_page_to_txn(lvh, fileid, pgno, txnid, &otxn, &res)) != 0)
 		ON_ERROR(lvh, DB_LOG_VERIFY_INTERR);
 	if(res != -1) { /* No access violation, we are done. */
@@ -140,12 +136,8 @@ static int __lv_on_page_update(DB_LOG_VRFY_INFO *lvh, DB_LSN lsn, int32 fileid, 
 	if((ret = __is_ancestor_txn(lvh, txnid, otxn, lsn, &res)) != 0)
 		ON_ERROR(lvh, DB_LOG_VERIFY_INTERR);
 	if(res) { /* The txnid is updating its active child otxn's pages. */
-		__db_errx(lvh->dbenv->env, DB_STR_A("2537",
-		    "[%lu][%lu] [WARNING] Parent txn %lx is updating its "
-		    "active child txn %lx's pages, or %lx aborted.",
-		    "%lu %lu %lx %lx %lx"), (u_long)lsn.file,
-		    (u_long)lsn.offset, (u_long)txnid,
-		    (u_long)otxn, (u_long)otxn);
+		__db_errx(lvh->dbenv->env, DB_STR_A("2537", "[%lu][%lu] [WARNING] Parent txn %lx is updating its active child txn %lx's pages, or %lx aborted.",
+		    "%lu %lu %lx %lx %lx"), (u_long)lsn.file, (u_long)lsn.offset, (u_long)txnid, (u_long)otxn, (u_long)otxn);
 		*step = 0;
 		goto out;
 	}
@@ -153,22 +145,18 @@ static int __lv_on_page_update(DB_LOG_VRFY_INFO *lvh, DB_LSN lsn, int32 fileid, 
 	 * It's likely that the two txns are parent-child and the child
 	 * aborted, but from the log we can't figure out this fact.
 	 */
-	__db_errx(lvh->dbenv->env, DB_STR_A("2538",
-	    "[%lu][%lu] [WARNING] Txn %lx is updating txn %lx's pages.",
-	    "%lu %lu %lx %lx"), (u_long)lsn.file, (u_long)lsn.offset,
-	    (u_long)txnid, (u_long)otxn);
+	__db_errx(lvh->dbenv->env, DB_STR_A("2538", "[%lu][%lu] [WARNING] Txn %lx is updating txn %lx's pages.",
+	    "%lu %lu %lx %lx"), (u_long)lsn.file, (u_long)lsn.offset, (u_long)txnid, (u_long)otxn);
 	*step = 0;
 out:
 err:
 	return ret;
 }
-
 /*
  * This macro is put in all types of verify functions where a db file is
  * updated, but no page number/lock involved.
  */
 #define ON_PAGE_UPDATE4
-
 /*
  * General log record handler used by all log verify functions.
  */
@@ -423,11 +411,8 @@ static int __lv_log_mismatch(DB_LOG_VRFY_INFO *lvh, DB_LSN lsn, DBTYPE dbtype, D
 {
 	int ret;
 	__db_errx(lvh->dbenv->env, DB_STR_A("2540",
-	    "[%lu][%lu] Log record type does not match related database type, "
-	    "current database type: %s, expected database type according to "
-	    "the log record type: %s.", "%lu %lu %s %s"),
-	    (u_long)lsn.file, (u_long)lsn.offset, __lv_dbtype_str(dbtype),
-	    __lv_dbtype_str(exp_dbtype));
+	    "[%lu][%lu] Log record type does not match related database type, current database type: %s, expected database type according to the log record type: %s.", 
+		"%lu %lu %s %s"), (u_long)lsn.file, (u_long)lsn.offset, __lv_dbtype_str(dbtype), __lv_dbtype_str(exp_dbtype));
 	ret = DB_LOG_VERIFY_BAD;
 	ON_ERROR(lvh, DB_LOG_VERIFY_ERR);
 err:
@@ -470,10 +455,8 @@ void __db_log_verify_global_report(const DB_LOG_VRFY_INFO *lvinfo)
 			__db_msg(lvinfo->dbenv->env, "\n\t%s : %u;", LOGTYPE_NAME(lvinfo, i), nltype);
 	}
 }
-
 /*
- * PUBLIC: int __crdel_metasub_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __crdel_metasub_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_metasub_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -492,8 +475,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __crdel_inmem_create_verify __P((ENV *, DBT *,
- * PUBLIC:     DB_LSN *, db_recops, void *));
+ * PUBLIC: int __crdel_inmem_create_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_create_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -510,10 +492,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __crdel_inmem_rename_verify __P((ENV *, DBT *,
- * PUBLIC:     DB_LSN *, db_recops, void *));
+ * PUBLIC: int __crdel_inmem_rename_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_rename_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -531,8 +511,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __crdel_inmem_remove_verify __P((ENV *, DBT *,
- * PUBLIC:     DB_LSN *, db_recops, void *));
+ * PUBLIC: int __crdel_inmem_remove_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_remove_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -550,8 +529,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_addrem_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_addrem_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_addrem_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -570,8 +548,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_big_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_big_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_big_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -589,10 +566,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __db_ovref_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_ovref_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_ovref_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -610,10 +585,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __db_relink_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_relink_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_relink_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -631,8 +604,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_debug_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_debug_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_debug_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -650,8 +622,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_noop_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_noop_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_noop_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -669,8 +640,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_alloc_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_alloc_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_alloc_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -688,8 +658,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_alloc_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_alloc_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_alloc_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -708,8 +677,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_free_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_free_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_free_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -727,8 +695,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_free_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_free_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_free_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -747,8 +714,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_cksum_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_cksum_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_cksum_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -766,8 +732,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_freedata_42_verify __P((ENV *, DBT *,
- * PUBLIC:     DB_LSN *, db_recops, void *));
+ * PUBLIC: int __db_pg_freedata_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_freedata_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -785,8 +750,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_freedata_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_freedata_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_freedata_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -805,8 +769,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_init_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_init_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_init_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -825,8 +788,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_sort_44_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_sort_44_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_sort_44_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -844,8 +806,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pg_trunc_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pg_trunc_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_trunc_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -864,8 +825,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_realloc_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_realloc_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_realloc_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -884,8 +844,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_relink_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_relink_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_relink_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -904,8 +863,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_merge_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_merge_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_merge_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -924,8 +882,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __db_pgno_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __db_pgno_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pgno_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1001,8 +958,7 @@ static const char * __lv_dbtype_str(DBTYPE dbtype)
 }
 
 /*
- * PUBLIC: int __dbreg_register_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __dbreg_register_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __dbreg_register_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1233,10 +1189,8 @@ err:
 
 	return ret;
 }
-
 /*
- * PUBLIC: int __dbreg_register_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __dbreg_register_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __dbreg_register_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1253,10 +1207,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_split_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_split_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_split_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1278,10 +1230,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_split_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_split_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_split_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1300,8 +1250,7 @@ err:
 }
 
 /*
- * PUBLIC: int __bam_rsplit_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_rsplit_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_rsplit_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1321,10 +1270,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_adj_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_adj_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_adj_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1344,10 +1291,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_irep_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_irep_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_irep_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1367,10 +1312,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_cadjust_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_cadjust_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_cadjust_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1390,10 +1333,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_cdel_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_cdel_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_cdel_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1413,10 +1354,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_repl_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_repl_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_repl_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1436,10 +1375,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_root_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_root_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_root_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1458,10 +1395,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_curadj_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_curadj_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_curadj_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1480,10 +1415,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __bam_rcuradj_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_rcuradj_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_rcuradj_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1503,8 +1436,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __bam_relink_43_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_relink_43_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_relink_43_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1522,8 +1454,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __bam_merge_44_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __bam_merge_44_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_merge_44_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1541,8 +1472,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_create_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_create_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1560,8 +1490,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_create_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_create_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1578,10 +1507,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_create_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_create_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1599,8 +1526,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_remove_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_remove_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_remove_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1618,8 +1544,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_remove_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_remove_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_remove_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1636,10 +1561,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_write_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_write_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1656,10 +1579,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_write_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_write_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1677,8 +1598,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_write_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_write_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1696,10 +1616,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_write_file_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_write_file_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_file_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1716,10 +1634,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_write_file_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_write_file_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_file_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1737,10 +1653,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_rename_42_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_rename_42_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_rename_42_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1757,10 +1671,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_rename_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_rename_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_rename_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1777,10 +1689,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_rename_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_rename_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_rename_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1830,8 +1740,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __fop_file_remove_60_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_file_remove_60_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_file_remove_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1848,10 +1757,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __fop_file_remove_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __fop_file_remove_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_file_remove_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1871,8 +1778,7 @@ err:
 
 #ifdef HAVE_HASH
 /*
- * PUBLIC: int __ham_insdel_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __ham_insdel_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_insdel_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1892,10 +1798,8 @@ err:
 	__os_free(env, argp);
 	return ret;
 }
-
 /*
- * PUBLIC: int __ham_newpage_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __ham_newpage_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_newpage_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1916,8 +1820,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __ham_splitdata_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __ham_splitdata_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_splitdata_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -1938,8 +1841,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __ham_replace_verify __P((ENV *, DBT *, DB_LSN *,
- * PUBLIC:     db_recops, void *));
+ * PUBLIC: int __ham_replace_verify(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_replace_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {

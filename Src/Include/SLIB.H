@@ -1460,6 +1460,12 @@ public:
 #define UNI_MAX_LEGAL_UTF32   (uint32)0x0010FFFF
 #define UNI_SUPPL_PLANE_START (uint32)0x10000    // SUPPLEMENTAL PLANE FIRST
 
+	//enum { SURROGATE_LEAD_FIRST = 0xD800 };
+	//enum { SURROGATE_LEAD_LAST = 0xDBFF };
+	//enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
+	//enum { SURROGATE_TRAIL_LAST = 0xDFFF };
+	//enum { SUPPLEMENTAL_PLANE_FIRST = 0x10000 };
+
 class SUnicode {
 public:
 	static int   FASTCALL IsLegalUtf8(const uint8 * pSource, size_t length);
@@ -1469,6 +1475,12 @@ public:
 	//   Количество широких символов, необходимое для того, чтобы вместить u32
 	//
 	static uint  FASTCALL Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf);
+	//
+	// Descr: Рассчитывает длину строки в кодировке utf8, которая получится после 
+	//   преобразования unicode-строки pUcBuf длиной tlen или пока pUcBuf[0] != 0
+	//
+	static uint  FASTCALL Utf8Length(const wchar_t * pUcBuf, uint tlen);
+	static uint  FASTCALL Utf32ToUtf8(uint32 u32, char * pUtf8Buf);
 };
 
 enum SEOLFormat {
@@ -1791,6 +1803,7 @@ extern const LDATETIME MAXDATETIME;
 struct STimeChunk {
 	SLAPI  STimeChunk();
 	SLAPI  STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish);
+	STimeChunk & SLAPI Z();
 	void   SLAPI Init(const LDATETIME & rStart, const LDATETIME & rFinish);
 	void   SLAPI Init(const LDATETIME &, long cont);
 	//
@@ -2033,10 +2046,33 @@ public:
 	};
 	SUniTime();
 	SUniTime & Z();
+	//
+	// Descr: Возвращает сигнатуру, идентифицирующую вариант представления времени.
+	//
+	uint   GetSignature() const;
+	//
+	// Descr: Устанавливает время с точность до даты (н.э.)
+	//
 	int    FASTCALL Set(LDATE d);
 	int    FASTCALL Set(const LDATETIME & rD);
+	//
+	// Descr: Устанавливает время согласно rD с точностью, заданной сигнатурой signature.
+	// ARG(rD        IN): Дата/время, которые следует установить
+	// ARG(signature IN): Требуемая точность установки. 
+	//   Допускаются только следующие значения параметра: 
+    //   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
+	//
+	int    FASTCALL Set(const LDATETIME & rD, uint signature);
 	int    FASTCALL Set(time_t t);
 	int    FASTCALL Set(const FILETIME & rD);
+	//
+	// Descr: Устанавливает время с точность до года year (н.э.)
+	//
+	int    FASTCALL SetYear(int year);
+	//
+	// Descr: Устанавливает время с точность до месяца month года year (н.э.)
+	//
+	int    FASTCALL SetMonth(int year, int month);
 	int    FASTCALL Get(LDATE & rD) const;
 	int    FASTCALL Get(LDATETIME & rD) const;
 	int    FASTCALL Get(time_t & rD) const;
@@ -3851,7 +3887,7 @@ public:
 	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
 private:
 	int    FASTCALL Alloc(size_t);
-	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
+	void   FASTCALL Cat_(const uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
 	//
 	// Descr: Преобразует символ c в Quoted-Printable-формат.

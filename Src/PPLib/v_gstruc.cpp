@@ -466,6 +466,56 @@ SArray * SLAPI PPViewGoodsStruc::CreateBrowserArray(uint * pBrwId, SString * pSu
 	return p_array;
 }
 
+int SLAPI PPViewGoodsStruc::Transmit(PPID /*id*/)
+{
+	int    ok = -1;
+	ObjTransmitParam param;
+	if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
+		GoodsStrucViewItem item;
+		const PPIDArray & rary = param.DestDBDivList.Get();
+		PPIDArray uniq_struc_list;
+		PPObjIDArray objid_ary;
+		PPWait(1);
+		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
+			uniq_struc_list.addnz(item.GStrucID);
+		}
+		if(uniq_struc_list.getCount()) {
+			uniq_struc_list.sortAndUndup();
+			objid_ary.Add(PPOBJ_GOODSSTRUC, uniq_struc_list);
+			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	PPWait(0);
+	return ok;
+}
+
+int SLAPI PPViewGoodsStruc::Recover()
+{
+	int    ok = 1;
+	long   p = 0, t = 0;
+	PPLogger logger;
+	GoodsStrucViewItem item;
+	PPIDArray uniq_struc_list;
+	PPObjIDArray objid_ary;
+	PPWait(1);
+	for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
+		uniq_struc_list.addnz(item.GStrucID);
+	}
+	if(uniq_struc_list.getCount()) {
+		uniq_struc_list.sortAndUndup();
+		for(uint i = 0; i < uniq_struc_list.getCount(); i++) {
+			PPID   id = uniq_struc_list.get(i);
+			THROW(GSObj.CheckStruc(id, &logger));
+			PPWaitPercent(p, t);
+		}
+	}
+	CATCHZOKPPERR
+	PPWait(0);
+	return ok;
+}
+
 int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -509,6 +559,20 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 						}
 					}
 				}
+				break;
+			case PPVCMD_SYSJ: // @v10.0.09
+				if(brw_hdr.GStrucID) {
+					ViewSysJournal(PPOBJ_GOODSSTRUC, brw_hdr.GStrucID, 0);
+					ok = -1;
+				}
+				break;
+			case PPVCMD_TRANSMIT: // @v10.0.09
+				ok = -1;
+				Transmit(0);
+				break;
+			case PPVCMD_DORECOVER: // @v10.0.09
+				ok = -1;
+				GSObj.CheckStructs();
 				break;
 			case PPVCMD_TOTAL:
 				ok = ViewTotal();

@@ -12,14 +12,12 @@
 #include "dbinc/db_am.h"
 #include "dbinc/txn.h"
 
-static int __rep_internal_init __P((ENV *, uint32));
-
+static int __rep_internal_init(ENV *, uint32);
 /*
  * __rep_verify --
  *	Handle a REP_VERIFY message.
  *
- * PUBLIC: int __rep_verify __P((ENV *, __rep_control_args *, DBT *,
- * PUBLIC:     int, time_t));
+ * PUBLIC: int __rep_verify(ENV *, __rep_control_args *, DBT *, int, time_t);
  */
 int __rep_verify(ENV *env, __rep_control_args * rp, DBT * rec, int eid, time_t savetime)
 {
@@ -32,14 +30,12 @@ int __rep_verify(ENV *env, __rep_control_args * rp, DBT * rec, int eid, time_t s
 	REP * rep;
 	__txn_ckp_args * ckp_args;
 	uint32 logflag, rectype;
-	int master, match, ret, t_ret;
-
-	ret = 0;
+	int master, match, t_ret;
+	int ret = 0;
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
 	lp = (LOG *)dblp->reginfo.primary;
-
 	/* Do nothing if VERIFY is not set. */
 	if(rep->sync_state != SYNC_VERIFY)
 		return ret;

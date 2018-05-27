@@ -173,15 +173,15 @@ public:
 																	int    g_type = 0;
 																	const PPPosProtocol::GoodsBlock * p_gb = (const PPPosProtocol::GoodsBlock *)p_ib->GetItem(p_clb->GoodsBlkP, &g_type);
 																	assert(g_type == PPPosProtocol::obGoods);
-																	if(p_gb->NativeID) {
+																	if(p_gb->NativeID)
 																		goods_id = p_gb->NativeID;
-																	}
 																	else {
 																		THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
 																	}
 																}
 																SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
-																SetTempCcLineValues(0, qtty, price, dscnt, 0 /*serial*/);
+																p_ib->GetS(p_clb->SerialP, temp_buf); // @v10.0.08
+																SetTempCcLineValues(0, qtty, price, dscnt, temp_buf/*serial*/); // @v10.0.08 0-->temp_buf
 																THROW_DB(P_TmpCclTbl->insertRec());
 															}
 														}
@@ -786,7 +786,7 @@ SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
 
 SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
 	{}
-SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerailP(0)
+SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerialP(0)
 	{}
 SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock(), CodeP(0)
 	{}
@@ -1308,16 +1308,18 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 								if(GObj.Search(r_item.GoodsID, &goods_rec) > 0) {
 									SXml::WNode w_w(rB.P_Xw, "ware");
 									GObj.P_Tbl->ReadArCodesByAr(goods_rec.ID, src_ar_id, &ar_code_list);
-									if(ar_code_list.getCount()) {
+									if(ar_code_list.getCount())
 										w_w.PutInner("id", EncText(temp_buf.Z().Cat(ar_code_list.at(0).Code)));
-									}
 									w_w.PutInner("innerid", temp_buf.Z().Cat(goods_rec.ID));
                                     GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-                                    if(temp_buf.NotEmptyS()) {
+                                    if(temp_buf.NotEmptyS())
 										w_w.PutInner("code", EncText(temp_buf));
-                                    }
 								}
                             }
+							// @v10.0.08 {
+							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextSerial, temp_buf) > 0 && temp_buf.NotEmpty())
+								w_ccl.PutInner("serial", EncText(temp_buf));
+							// } @v10.0.08 
                             w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
                             w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
                             if(item_discount != 0.0)
@@ -2651,7 +2653,9 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_SERIAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
-					Helper_AddStringToPool(&((LotBlock *)p_item)->SerailP);
+					Helper_AddStringToPool(&((LotBlock *)p_item)->SerialP);
+				else if(type == obCcLine) // @v10.0.08
+					Helper_AddStringToPool(&((CcLineBlock *)p_item)->SerialP);
 				break;
 			case PPHS_SYMB:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -3220,7 +3224,9 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		if(GObj.SearchByName(temp_buf, 0, &ex_goods_rec) > 0) {
 			if(use_ar_code && (/*goods_by_ar_id && */ex_goods_rec.ID != goods_by_ar_id)) {
 				THROW(GObj.ForceUndupName(goods_by_ar_id, temp_buf));
-				THROW(GObj.UpdateName(ex_goods_rec.ID, temp_buf, 1));
+				if(!GObj.UpdateName(ex_goods_rec.ID, temp_buf, 1)) { // @v10.0.09 THROW-->if(!)
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO); // @v10.0.09
+				}
 			}
 			else if(!use_ar_code) { // Для товара с внешним идентификатором аналог по наименованию не принимаем в расчет
 				pretend_obj_list.add(ex_goods_rec.ID);
@@ -3444,7 +3450,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 						lot_rec.Flags |= LOTF_SURROGATE;
 						lot_rec.LocID = rP.LocID;
 						THROW_SL(lot_list.insert(&lot_rec));
-                        if(RdB.GetS(r_blk.SerailP, temp_buf) && temp_buf.NotEmptyS()) {
+                        if(RdB.GetS(r_blk.SerialP, temp_buf) && temp_buf.NotEmptyS()) {
                             serial_list.Add((long)lot_list.getCount(), temp_buf);
                         }
 					}

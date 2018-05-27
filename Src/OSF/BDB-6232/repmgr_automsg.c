@@ -4,10 +4,8 @@
 #include "db_int.h"
 #pragma hdrstop
 #include "dbinc/db_swap.h"
-
 /*
- * PUBLIC: void __repmgr_handshake_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_handshake_args *, uint8 *));
+ * PUBLIC: void __repmgr_handshake_marshal(ENV *, __repmgr_handshake_args *, uint8 *);
  */
 void __repmgr_handshake_marshal(ENV *env, __repmgr_handshake_args * argp, uint8 * bp)
 {
@@ -16,10 +14,8 @@ void __repmgr_handshake_marshal(ENV *env, __repmgr_handshake_args * argp, uint8 
 	DB_HTONL_COPYOUT(env, bp, argp->ack_policy);
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
-
 /*
- * PUBLIC: int __repmgr_handshake_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_handshake_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_handshake_unmarshal(ENV *, __repmgr_handshake_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_handshake_unmarshal(ENV *env, __repmgr_handshake_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -36,10 +32,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_handshake message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __repmgr_v3handshake_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_v3handshake_args *, uint8 *));
+ * PUBLIC: void __repmgr_v3handshake_marshal(ENV *, __repmgr_v3handshake_args *, uint8 *);
  */
 void __repmgr_v3handshake_marshal(ENV *env, __repmgr_v3handshake_args * argp, uint8 * bp)
 {
@@ -47,10 +41,8 @@ void __repmgr_v3handshake_marshal(ENV *env, __repmgr_v3handshake_args * argp, ui
 	DB_HTONL_COPYOUT(env, bp, argp->priority);
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
-
 /*
- * PUBLIC: int __repmgr_v3handshake_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_v3handshake_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_v3handshake_unmarshal(ENV *, __repmgr_v3handshake_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_v3handshake_unmarshal(ENV *env, __repmgr_v3handshake_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -66,10 +58,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_v3handshake message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __repmgr_v2handshake_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_v2handshake_args *, uint8 *));
+ * PUBLIC: void __repmgr_v2handshake_marshal(ENV *, __repmgr_v2handshake_args *, uint8 *);
  */
 void __repmgr_v2handshake_marshal(ENV *env, __repmgr_v2handshake_args * argp, uint8 * bp)
 {
@@ -77,8 +67,7 @@ void __repmgr_v2handshake_marshal(ENV *env, __repmgr_v2handshake_args * argp, ui
 	DB_HTONL_COPYOUT(env, bp, argp->priority);
 }
 /*
- * PUBLIC: int __repmgr_v2handshake_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_v2handshake_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_v2handshake_unmarshal(ENV *, __repmgr_v2handshake_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_v2handshake_unmarshal(ENV *env, __repmgr_v2handshake_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -94,8 +83,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_parm_refresh_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_parm_refresh_args *, uint8 *));
+ * PUBLIC: void __repmgr_parm_refresh_marshal(ENV *, __repmgr_parm_refresh_args *, uint8 *);
  */
 void __repmgr_parm_refresh_marshal(ENV *env, __repmgr_parm_refresh_args * argp, uint8 * bp)
 {
@@ -104,8 +92,7 @@ void __repmgr_parm_refresh_marshal(ENV *env, __repmgr_parm_refresh_args * argp, 
 }
 
 /*
- * PUBLIC: int __repmgr_parm_refresh_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_parm_refresh_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_parm_refresh_unmarshal(ENV *, __repmgr_parm_refresh_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_parm_refresh_unmarshal(ENV *env, __repmgr_parm_refresh_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -113,7 +100,6 @@ int __repmgr_parm_refresh_unmarshal(ENV *env, __repmgr_parm_refresh_args * argp,
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->ack_policy, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -122,8 +108,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_permlsn_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_permlsn_args *, uint8 *));
+ * PUBLIC: void __repmgr_permlsn_marshal(ENV *, __repmgr_permlsn_args *, uint8 *);
  */
 void __repmgr_permlsn_marshal(ENV *env, __repmgr_permlsn_args * argp, uint8 * bp)
 {
@@ -131,10 +116,8 @@ void __repmgr_permlsn_marshal(ENV *env, __repmgr_permlsn_args * argp, uint8 * bp
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.file);
 	DB_HTONL_COPYOUT(env, bp, argp->lsn.offset);
 }
-
 /*
- * PUBLIC: int __repmgr_permlsn_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_permlsn_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_permlsn_unmarshal(ENV *, __repmgr_permlsn_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_permlsn_unmarshal(ENV *env, __repmgr_permlsn_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -143,7 +126,6 @@ int __repmgr_permlsn_unmarshal(ENV *env, __repmgr_permlsn_args * argp, uint8 * b
 	DB_NTOHL_COPYIN(env, argp->generation, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.file, bp);
 	DB_NTOHL_COPYIN(env, argp->lsn.offset, bp);
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -151,21 +133,16 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_permlsn message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __repmgr_version_proposal_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_version_proposal_args *, uint8 *));
+ * PUBLIC: void __repmgr_version_proposal_marshal(ENV *, __repmgr_version_proposal_args *, uint8 *));
  */
 void __repmgr_version_proposal_marshal(ENV *env, __repmgr_version_proposal_args * argp, uint8 * bp)
 {
 	DB_HTONL_COPYOUT(env, bp, argp->min);
 	DB_HTONL_COPYOUT(env, bp, argp->max);
 }
-
 /*
- * PUBLIC: int __repmgr_version_proposal_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_version_proposal_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_version_proposal_unmarshal(ENV *, __repmgr_version_proposal_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_version_proposal_unmarshal(ENV *env, __repmgr_version_proposal_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -182,17 +159,14 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_version_confirmation_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_version_confirmation_args *, uint8 *));
+ * PUBLIC: void __repmgr_version_confirmation_marshal(ENV *, __repmgr_version_confirmation_args *, uint8 *);
  */
 void __repmgr_version_confirmation_marshal(ENV *env, __repmgr_version_confirmation_args * argp, uint8 * bp)
 {
 	DB_HTONL_COPYOUT(env, bp, argp->version);
 }
 /*
- * PUBLIC: int __repmgr_version_confirmation_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_version_confirmation_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_version_confirmation_unmarshal(ENV *, __repmgr_version_confirmation_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_version_confirmation_unmarshal(ENV *env, __repmgr_version_confirmation_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -208,8 +182,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_msg_hdr_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_msg_hdr_args *, uint8 *));
+ * PUBLIC: void __repmgr_msg_hdr_marshal(ENV *, __repmgr_msg_hdr_args *, uint8 *);
  */
 void __repmgr_msg_hdr_marshal(ENV *env, __repmgr_msg_hdr_args * argp, uint8 * bp)
 {
@@ -217,10 +190,8 @@ void __repmgr_msg_hdr_marshal(ENV *env, __repmgr_msg_hdr_args * argp, uint8 * bp
 	DB_HTONL_COPYOUT(env, bp, argp->word1);
 	DB_HTONL_COPYOUT(env, bp, argp->word2);
 }
-
 /*
- * PUBLIC: int __repmgr_msg_hdr_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_msg_hdr_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_msg_hdr_unmarshal(ENV *, __repmgr_msg_hdr_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_msg_hdr_unmarshal(ENV *env, __repmgr_msg_hdr_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -238,8 +209,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_msg_metadata_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_msg_metadata_args *, uint8 *));
+ * PUBLIC: void __repmgr_msg_metadata_marshal(ENV *, __repmgr_msg_metadata_args *, uint8 *);
  */
 void __repmgr_msg_metadata_marshal(ENV *env, __repmgr_msg_metadata_args * argp, uint8 * bp)
 {
@@ -248,8 +218,7 @@ void __repmgr_msg_metadata_marshal(ENV *env, __repmgr_msg_metadata_args * argp, 
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
 /*
- * PUBLIC: int __repmgr_msg_metadata_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_msg_metadata_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_msg_metadata_unmarshal(ENV *, __repmgr_msg_metadata_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_msg_metadata_unmarshal(ENV *env, __repmgr_msg_metadata_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -267,8 +236,7 @@ too_few:
 }
 
 /*
- * PUBLIC: int __repmgr_membership_key_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_membership_key_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __repmgr_membership_key_marshal(ENV *, __repmgr_membership_key_args *, uint8 *, size_t, size_t *);
  */
 int __repmgr_membership_key_marshal(ENV *env, __repmgr_membership_key_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -286,10 +254,8 @@ int __repmgr_membership_key_marshal(ENV *env, __repmgr_membership_key_args * arg
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __repmgr_membership_key_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_membership_key_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_membership_key_unmarshal(ENV *, __repmgr_membership_key_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_membership_key_unmarshal(ENV *env, __repmgr_membership_key_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -314,10 +280,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_membership_key message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __repmgr_membership_data_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_membership_data_args *, uint8 *));
+ * PUBLIC: void __repmgr_membership_data_marshal(ENV *, __repmgr_membership_data_args *, uint8 *);
  */
 void __repmgr_membership_data_marshal(ENV *env, __repmgr_membership_data_args * argp, uint8 * bp)
 {
@@ -325,9 +289,7 @@ void __repmgr_membership_data_marshal(ENV *env, __repmgr_membership_data_args * 
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
 /*
- * PUBLIC: int __repmgr_membership_data_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_membership_data_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_membership_data_unmarshal(ENV *, __repmgr_membership_data_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_membership_data_unmarshal(ENV *env, __repmgr_membership_data_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -343,17 +305,14 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_v4membership_data_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4membership_data_args *, uint8 *));
+ * PUBLIC: void __repmgr_v4membership_data_marshal(ENV *, __repmgr_v4membership_data_args *, uint8 *);
  */
 void __repmgr_v4membership_data_marshal(ENV *env, __repmgr_v4membership_data_args * argp, uint8 * bp)
 {
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
 /*
- * PUBLIC: int __repmgr_v4membership_data_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4membership_data_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_v4membership_data_unmarshal(ENV *, __repmgr_v4membership_data_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_v4membership_data_unmarshal(ENV *env, __repmgr_v4membership_data_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -368,8 +327,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_member_metadata_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_member_metadata_args *, uint8 *));
+ * PUBLIC: void __repmgr_member_metadata_marshal(ENV *, __repmgr_member_metadata_args *, uint8 *);
  */
 void __repmgr_member_metadata_marshal(ENV *env, __repmgr_member_metadata_args * argp, uint8 * bp)
 {
@@ -377,9 +335,7 @@ void __repmgr_member_metadata_marshal(ENV *env, __repmgr_member_metadata_args * 
 	DB_HTONL_COPYOUT(env, bp, argp->version);
 }
 /*
- * PUBLIC: int __repmgr_member_metadata_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_member_metadata_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_member_metadata_unmarshal(ENV *, __repmgr_member_metadata_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_member_metadata_unmarshal(ENV *env, __repmgr_member_metadata_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -387,7 +343,6 @@ int __repmgr_member_metadata_unmarshal(ENV *env, __repmgr_member_metadata_args *
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->format, bp);
 	DB_NTOHL_COPYIN(env, argp->version, bp);
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -396,8 +351,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: int __repmgr_gm_fwd_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_gm_fwd_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __repmgr_gm_fwd_marshal(ENV *, __repmgr_gm_fwd_args *, uint8 *, size_t, size_t *);
  */
 int __repmgr_gm_fwd_marshal(ENV *env, __repmgr_gm_fwd_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -415,10 +369,8 @@ int __repmgr_gm_fwd_marshal(ENV *env, __repmgr_gm_fwd_args * argp, uint8 * bp, s
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __repmgr_gm_fwd_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_gm_fwd_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_gm_fwd_unmarshal(ENV *, __repmgr_gm_fwd_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_gm_fwd_unmarshal(ENV *env, __repmgr_gm_fwd_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -444,18 +396,15 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_membr_vers_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_membr_vers_args *, uint8 *));
+ * PUBLIC: void __repmgr_membr_vers_marshal(ENV *, __repmgr_membr_vers_args *, uint8 *);
  */
 void __repmgr_membr_vers_marshal(ENV *env, __repmgr_membr_vers_args * argp, uint8 * bp)
 {
 	DB_HTONL_COPYOUT(env, bp, argp->version);
 	DB_HTONL_COPYOUT(env, bp, argp->gen);
 }
-
 /*
- * PUBLIC: int __repmgr_membr_vers_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_membr_vers_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_membr_vers_unmarshal(ENV *, __repmgr_membr_vers_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_membr_vers_unmarshal(ENV *env, __repmgr_membr_vers_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -471,8 +420,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: int __repmgr_site_info_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_site_info_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __repmgr_site_info_marshal(ENV *, __repmgr_site_info_args *, uint8 *, size_t, size_t *);
  */
 int __repmgr_site_info_marshal(ENV *env, __repmgr_site_info_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -493,8 +441,7 @@ int __repmgr_site_info_marshal(ENV *env, __repmgr_site_info_args * argp, uint8 *
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_site_info_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_site_info_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_site_info_unmarshal(ENV *, __repmgr_site_info_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_site_info_unmarshal(ENV *env, __repmgr_site_info_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -521,8 +468,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: int __repmgr_v4site_info_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4site_info_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __repmgr_v4site_info_marshal(ENV *, __repmgr_v4site_info_args *, uint8 *, size_t, size_t *);
  */
 int __repmgr_v4site_info_marshal(ENV *env, __repmgr_v4site_info_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -541,8 +487,7 @@ int __repmgr_v4site_info_marshal(ENV *env, __repmgr_v4site_info_args * argp, uin
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_v4site_info_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4site_info_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_v4site_info_unmarshal(ENV *, __repmgr_v4site_info_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_v4site_info_unmarshal(ENV *env, __repmgr_v4site_info_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -569,8 +514,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_connect_reject_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_connect_reject_args *, uint8 *));
+ * PUBLIC: void __repmgr_connect_reject_marshal(ENV *, __repmgr_connect_reject_args *, uint8 *);
  */
 void __repmgr_connect_reject_marshal(ENV *env, __repmgr_connect_reject_args * argp, uint8 * bp)
 {
@@ -579,8 +523,7 @@ void __repmgr_connect_reject_marshal(ENV *env, __repmgr_connect_reject_args * ar
 	DB_HTONL_COPYOUT(env, bp, argp->status);
 }
 /*
- * PUBLIC: int __repmgr_connect_reject_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_connect_reject_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_connect_reject_unmarshal(ENV *, __repmgr_connect_reject_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_connect_reject_unmarshal(ENV *env, __repmgr_connect_reject_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -598,8 +541,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __repmgr_v4connect_reject_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4connect_reject_args *, uint8 *));
+ * PUBLIC: void __repmgr_v4connect_reject_marshal(ENV *, __repmgr_v4connect_reject_args *, uint8 *);
  */
 void __repmgr_v4connect_reject_marshal(ENV *env, __repmgr_v4connect_reject_args * argp, uint8 * bp)
 {
@@ -607,9 +549,7 @@ void __repmgr_v4connect_reject_marshal(ENV *env, __repmgr_v4connect_reject_args 
 	DB_HTONL_COPYOUT(env, bp, argp->gen);
 }
 /*
- * PUBLIC: int __repmgr_v4connect_reject_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_v4connect_reject_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __repmgr_v4connect_reject_unmarshal(ENV *, __repmgr_v4connect_reject_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_v4connect_reject_unmarshal(ENV *env, __repmgr_v4connect_reject_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -624,10 +564,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_v4connect_reject message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __repmgr_lsnhist_match_marshal __P((ENV *,
- * PUBLIC:	 __repmgr_lsnhist_match_args *, uint8 *));
+ * PUBLIC: void __repmgr_lsnhist_match_marshal(ENV *, __repmgr_lsnhist_match_args *, uint8 *);
  */
 void __repmgr_lsnhist_match_marshal(ENV *env, __repmgr_lsnhist_match_args * argp, uint8 * bp)
 {
@@ -639,8 +577,7 @@ void __repmgr_lsnhist_match_marshal(ENV *env, __repmgr_lsnhist_match_args * argp
 	DB_HTONL_COPYOUT(env, bp, argp->next_gen_lsn.offset);
 }
 /*
- * PUBLIC: int __repmgr_lsnhist_match_unmarshal __P((ENV *,
- * PUBLIC:	 __repmgr_lsnhist_match_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __repmgr_lsnhist_match_unmarshal(ENV *, __repmgr_lsnhist_match_args *, uint8 *, size_t, uint8 **);
  */
 int __repmgr_lsnhist_match_unmarshal(ENV *env, __repmgr_lsnhist_match_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -652,7 +589,6 @@ int __repmgr_lsnhist_match_unmarshal(ENV *env, __repmgr_lsnhist_match_args * arg
 	DB_NTOHL_COPYIN(env, argp->hist_nsec, bp);
 	DB_NTOHL_COPYIN(env, argp->next_gen_lsn.file, bp);
 	DB_NTOHL_COPYIN(env, argp->next_gen_lsn.offset, bp);
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;

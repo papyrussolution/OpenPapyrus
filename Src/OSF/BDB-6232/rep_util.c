@@ -223,15 +223,13 @@ int __rep_send_bulk(ENV *env, REP_BULK * bulkp, uint32 ctlflags)
 	FLD_CLR(*(bulkp->flagsp), BULK_XMIT);
 	return ret;
 }
-
 /*
  * __rep_bulk_alloc --
  *	This function allocates and initializes an internal bulk buffer.
  * This is used by the master when fulfilling a request for a chunk of
  * log records or a bunch of pages.
  *
- * PUBLIC: int __rep_bulk_alloc __P((ENV *, REP_BULK *, int, uintptr_t *,
- * PUBLIC:    uint32 *, uint32));
+ * PUBLIC: int __rep_bulk_alloc(ENV *, REP_BULK *, int, uintptr_t *, uint32 *, uint32);
  */
 int __rep_bulk_alloc(ENV *env, REP_BULK * bulkp, int eid, uintptr_t * offp, uint32 * flagsp, uint32 type)
 {
@@ -251,7 +249,6 @@ int __rep_bulk_alloc(ENV *env, REP_BULK * bulkp, int eid, uintptr_t * offp, uint
 	bulkp->flagsp = flagsp;
 	return ret;
 }
-
 /*
  * __rep_bulk_free --
  *	This function sends the remainder of the bulk buffer and frees it.
@@ -273,8 +270,7 @@ int __rep_bulk_free(ENV *env, REP_BULK * bulkp, uint32 flags)
  *	This is a wrapper for sending a message.  It takes care of constructing
  * the control structure and calling the user's specified send function.
  *
- * PUBLIC: int __rep_send_message __P((ENV *, int,
- * PUBLIC:     uint32, DB_LSN *, const DBT *, uint32, uint32));
+ * PUBLIC: int __rep_send_message(ENV *, int, uint32, DB_LSN *, const DBT *, uint32, uint32);
  */
 int __rep_send_message(ENV *env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT * dbt, uint32 ctlflags, uint32 repflags)
 {
@@ -2741,15 +2737,13 @@ errunlock:
 	REP_SYSTEM_UNLOCK(env);
 	return ret;
 }
-
 /*
  * __rep_get_lsnhist_data --
  *
  * A utility function to get the full LSN history database record for a
  * particular gen.
  *
- * PUBLIC: int __rep_get_lsnhist_data __P((ENV *, DB_THREAD_INFO *,
- * PUBLIC:     uint32, __rep_lsn_hist_data_args *));
+ * PUBLIC: int __rep_get_lsnhist_data(ENV *, DB_THREAD_INFO *, uint32, __rep_lsn_hist_data_args *);
  */
 int __rep_get_lsnhist_data(ENV *env, DB_THREAD_INFO * ip, uint32 gen, __rep_lsn_hist_data_args * lsnhist_data)
 {

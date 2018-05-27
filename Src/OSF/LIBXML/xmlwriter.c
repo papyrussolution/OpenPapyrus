@@ -3628,7 +3628,7 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
  */
 int xmlTextWriterSetIndent(xmlTextWriter * writer, int indent)
 {
-	if((writer == NULL) || (indent < 0))
+	if(!writer || indent < 0)
 		return -1;
 	else {
 		writer->indent = indent;

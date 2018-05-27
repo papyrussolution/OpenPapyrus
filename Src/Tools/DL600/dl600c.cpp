@@ -2836,8 +2836,9 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.Wr_CloseBrace(1);
 			gen.WriteLine(0);
 		}
-		else
+		else {
 			THROW(Write_C_DeclFile(gen, *p_ds)); // @recursion
+		}
 	}
 	CATCHZOK
 	return ok;

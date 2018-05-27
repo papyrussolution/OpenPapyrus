@@ -206,6 +206,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 					p_item->DistributorSalePointID = GetDynamicParamString(temp_buf.Z().Cat(p_src_item->InnerDlvrLocID), arg_str_pool); 
 					p_item->SalePointName = GetDynamicParamString(p_src_item->DlvrLocName, arg_str_pool); 
 					p_item->SalePointAddress = GetDynamicParamString(p_src_item->DlvrLocAddr, arg_str_pool); 
+					p_item->WarehouseID = GetDynamicParamString(temp_buf.Z().Cat(p_src_item->ForeignLocID), arg_str_pool); // @v10.0.08
 					THROW(p_item->DeliveryPositions = CreateDeliveryPositions(p_src_item->DeliveryList, arg_str_pool));
 				}
 			}

@@ -1472,6 +1472,35 @@ file:
 	access=1;
 }
 //
+//
+//
+table VetisProduct {
+	autolong ID;
+	raw    Guid[16]; // Уникальный код продукта
+	raw    Uuid[16]; // Уникальный код версии информации о продукте
+	long   ProductType;
+	raw    Reserve[128];
+index:
+	ID (unique);
+	Guid, Uuid (unique);
+file:
+	"vetisprod.btr";
+	access=1;
+}
+
+table VetisPerson {
+	autolong ID;
+	raw    Guid[16]; // Уникальный код предприятия
+	raw    Uuid[16]; // Уникальный код версии информации о предприятии
+	raw    Reserve[128];
+index:
+	ID (unique);
+	Guid, Uuid (unique);
+file:
+	"vetispsn.btr";
+	access=1;
+}
+//
 // Инвентаризация товаров
 //
 table Inventory {          // size=128

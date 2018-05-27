@@ -1011,25 +1011,21 @@ SLTEST_R(PPAbstractDevice)
 	PPAbstractDevice dvc("");
 
 	THROW(dvc.IdentifyDevice("ppw.exe"));
-	in.Clear();
+	in.Z();
 	THROW(dvc.RunCmd__(DVCCMD_INIT, in, out));
-	in.Clear();
-	in.Add(DVCPARAM_TEXT, "Driver, hello!!! Answer, answer!!", 1);
+	in.Z().Add(DVCPARAM_TEXT, "Driver, hello!!! Answer, answer!!", 1);
 	THROW(r = dvc.RunCmd__(DVCCMD_TEST, in, out) == 1); // Без ошибок
-	in.Clear();
-	in.Add(DVCPARAM_TEXT, "It`s me", 1);
+	in.Z().Add(DVCPARAM_TEXT, "It`s me", 1);
 	THROW(r = dvc.RunCmd__(DVCCMD_TEST, in, out) == 1); // Ошибка переполнения выходного буфера. Резрешается в SendCmd
-	in.Clear();
-	in.Add(DVCPARAM_TEXT, "Get error", 1);
+	in.Z().Add(DVCPARAM_TEXT, "Get error", 1);
 	THROW((r = dvc.RunCmd__(DVCCMD_TEST, in, out)) == -1); // Ошибка выполнения команды (код ошибки записывается в out). На этапе тестирования код равен 1
 	out.GetText(0, answer);
 	THROW(answer == "1");
 	THROW((r = dvc.RunCmd__(DVCCMD_SOMETHING, in, out)) == -1); // Неизвестная команда (код ошибки - 2)
 	out.GetText(0, answer);
 	THROW(answer == "2");
-	in.Clear();
+	in.Z();
 	THROW(dvc.RunCmd__(DVCCMD_RELEASE, in, out));
-
 	CATCH
 		ok = 0;
 		CurrentStatus = 0;

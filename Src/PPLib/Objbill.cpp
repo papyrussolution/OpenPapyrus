@@ -1431,8 +1431,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 			THROW(pack.CreateBlank(pParam->OpID, 0, loc_id, 1));
 		}
 		if(checkdate(pParam->Dt, 0)) {
-			LDATE   new_bill_dt = pParam->Dt;
-			new_bill_dt.getactual(sample_pack.Rec.Dt);
+			LDATE new_bill_dt = pParam->Dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
 		}
 		THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
@@ -1467,6 +1466,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 							new_ti.Price = price;
 						new_ti.Cost = lot_rec.Cost;
 					}
+					new_ti.SetupSign(pack.Rec.OpID); // @v10.0.08
 					THROW(pack.InsertRow(&new_ti, 0));
 				}
 			}
@@ -8823,7 +8823,7 @@ SLTEST_R(PPBillFormula)
 								temp_buf.CopyTo(bill_rec.Code, sizeof(bill_rec.Code));
 								bill_rec.OpID = op_id;
 								bill_rec.Dt   = bill_dt;
-								if(obj_bill.P_Tbl->SearchAnalog(&bill_rec, &id, 0) > 0)
+								if(obj_bill.P_Tbl->SearchAnalog(&bill_rec, BillCore::safDefault, &id, 0) > 0)
 									bill_list.add(id);
 								else {
 									out_msg.Printf("FAIL: Bill not found code=%s", temp_buf.cptr()).CR();

@@ -330,8 +330,9 @@ int SLAPI TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
 	int    ok = 1;
 	SmartListBox * p_list = (SmartListBox *)getCtrlView(ctlID);
-	if(p_list && p_list->IsSubSign(TV_SUBSIGN_LISTBOX) && p_list->def)
-		p_list->def->SetOption(option, 1);
+	if(p_list && p_list->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+		CALLPTRMEMB(p_list->def, SetOption(option, 1));
+	}
 	else
 		ok = 0;
 	return ok;

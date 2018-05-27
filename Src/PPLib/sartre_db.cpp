@@ -2381,6 +2381,120 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 	return 1;
 }
 
+CONCEPTID SLAPI SrDatabase::TryNgForConcept(NGID ngID, CONCEPTID targetCID, long tryOption)
+{
+	CONCEPTID result_id = 0;
+	Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
+	GetNgConceptList(ngID, 0, concept_list);
+	if(concept_list.getCount()) {
+		uint   cpos = 0;
+		if(tryOption == tryconceptGeneric && concept_list.lsearch(targetCID, &cpos))
+			result_id = concept_list.get(cpos);
+		else {
+			Int64Array concept_hier_list; // Иерархия отдельной концепции
+			for(uint cidx = 0; !result_id && cidx < concept_list.getCount(); cidx++) {
+				const CONCEPTID cid = concept_list.get(cidx);
+				CONCEPTID ancestor_id;
+				switch(tryOption) {
+					case tryconceptGeneric:
+						GetConceptHier(cid, concept_hier_list);
+						if(concept_hier_list.lsearch(targetCID))
+							result_id = cid;
+						break;
+					case tryconceptInstance:
+						if(GetFirstConceptAncestor(SrDatabase::rcInstance, cid, ancestor_id) > 0 && ancestor_id == targetCID)
+							result_id = cid;
+						break;
+					case tryconceptSubclass:
+						if(GetFirstConceptAncestor(SrDatabase::rcSubclass, cid, ancestor_id) > 0 && ancestor_id == targetCID)
+							result_id = cid;
+						break;
+				}
+			}
+		}
+	}
+	return result_id;
+}
+
+CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const STokenizer & rT, uint idxFirst, uint idxLast, long options, STokenizer::ResultPosition & rR)
+{
+	rR.Start = 0;
+	rR.Count = 0;
+	SString synth_word; // Синтетическое слово для специальных случаев (сокращения вида "д.т.н.")
+	CONCEPTID result_cid = 0;
+	TSVector <SrWordAssoc> wa_list;
+	TSVector <SrWordInfo> wi_list;
+	TSVector <NGID> abbr_ng_list; // Список N-грамм, соответствующих аббревиатуре word_id (если это-таки аббревиатура)
+	STokenizer::Item titem;
+	STokenizer::Item titem_prev;
+	STokenizer::Item titem_next;
+	for(uint tidx = idxFirst; tidx <= idxLast; tidx++) {
+		if(rT.Get(tidx, titem) && !(titem.Token == STokenizer::tokDelim && (titem.Text == " " || titem.Text == "\n"))) {
+			LEXID  word_id = 0;
+			if(titem.Token == STokenizer::tokWord && FetchWord(titem.Text, &word_id) > 0) {
+				wa_list.clear();
+				wi_list.clear();
+				{
+					titem_prev = titem;
+					synth_word = titem_prev.Text;
+					uint   tidx2 = tidx+1;
+					uint   synth_word_count = 1; // Количество атомических "слов" в синезированном слове
+					for(; tidx2 <= idxLast; tidx2++) {
+						if(rT.Get(tidx2, titem_next)) {
+							if(titem_prev.Token == STokenizer::tokWord && titem_next.Text == ".") {
+								synth_word.CatChar('.');
+								titem_prev = titem_next;
+								synth_word_count++;
+							}
+							else if(titem_next.Token == STokenizer::tokWord && titem_prev.Text == ".") {
+								synth_word.Cat(titem_next.Text);
+								titem_prev = titem_next;
+							}
+							else
+								break;
+						}
+						else
+							break;
+					}
+					if(synth_word_count > 1 && synth_word.NotEmpty() && synth_word != titem.Text) {
+						GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
+						for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
+							const SrWordInfo & r_wi = wi_list.at(wiidx);
+							if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
+								result_cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
+								rR.Start = tidx;
+								rR.Count = tidx2-tidx;
+							}
+						}
+					}
+				}
+				if(!result_cid) {
+					GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
+					for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
+						const SrWordInfo & r_wi = wi_list.at(wiidx);
+						if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
+							CONCEPTID cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
+							if(cid) {
+								result_cid = cid;
+								rR.Start = tidx;
+								rR.Count = 1;
+								// Мы нашли соответствие по аббревиатуре. Пропускаем последующую точку, если она есть.
+								// Здесь неточность: точку надо пропускать только если аббревиатура это предполагает, но пока так.
+								/*if(rB.R_T.Get(rB.TextIdx, rB.TItemBuf) && rB.TItemBuf.Text == ".") {
+									rB.TextIdx++;
+								}*/
+							}
+						}
+					}
+				}
+				if(!result_cid) {
+				}
+			}
+		}
+	}
+	return result_cid;
+}
+
 int SrDatabase::SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int64 propVal)
 {
 	int    ok = 1;

@@ -11444,8 +11444,11 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_dateTime2s(struct soap * soap, time_t n)
 	if(gmtime_r(&n, pT))
 		strftime(soap->tmpbuf, sizeof(soap->tmpbuf), "%Y-%m-%dT%H:%M:%SZ", pT);
  #elif defined(HAVE_GMTIME)
-	if((pT = gmtime(&n)))
+	pT = gmtime(&n);
+	if(pT) {
 		strftime(soap->tmpbuf, sizeof(soap->tmpbuf), "%Y-%m-%dT%H:%M:%SZ", pT);
+		// @debug strftime(soap->tmpbuf, sizeof(soap->tmpbuf), "%Y-%m-%dT%H:%M:%S+03:00", pT); // @v10.0.08 // @debug
+	}
  #elif defined(HAVE_GETTIMEOFDAY)
 	struct timezone tz;
 	memzero((void*)&tz, sizeof(tz));

@@ -20,7 +20,7 @@ IMPLEMENT_PPFILT_FACTORY(Bill); SLAPI BillFilt::BillFilt() : PPBaseFilt(PPFILT_B
 	SetBranchObjIdListFilt(offsetof(BillFilt, LocList));
 	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt, P_SjF));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt, P_TagF));
-	SetBranchDisplayExtList(offsetof(BillFilt, Dl)); // @v8.2.9
+	SetBranchDisplayExtList(offsetof(BillFilt, Dl));
 	Init(1, 0);
 }
 
@@ -290,7 +290,7 @@ public:
 		setSubTitle(pAddText);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
-		SetupCalPeriod(CTLCAL_BILLFLT_DUEPERIOD, CTL_BILLFLT_DUEPERIOD); // @v8.3.2
+		SetupCalPeriod(CTLCAL_BILLFLT_DUEPERIOD, CTL_BILLFLT_DUEPERIOD);
 	}
 	int    setDTS(const BillFilt *);
 	int    getDTS(BillFilt *);
@@ -462,17 +462,15 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 void BillFiltDialog::extraFilt()
 {
 	if(GetSellAccSheet() || GetAgentAccSheet()) {
-		// @v8.3.2 {
 		if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 			GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		}
-		// } @v8.3.2
 		const PPID cur_user_id = LConfig.User;
 		PPBillExt ext;
 		ext.PayerID = Data.PayerID;
 		ext.AgentID = Data.AgentID;
 		ext.Ft_STax = Data.Ft_STax;
-		ext.Ft_Declined = Data.Ft_Declined; // @v8.3.3
+		ext.Ft_Declined = Data.Ft_Declined;
 		ext.EdiRecadvStatus = Data.EdiRecadvStatus; // @v9.1.6
 		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus; // @v9.1.6
 		ext.DuePeriod = Data.DuePeriod;
@@ -495,16 +493,14 @@ void BillFiltDialog::extraFilt()
 			Data.PayerID = ext.PayerID;
 			Data.AgentID = ext.AgentID;
 			Data.Ft_STax = ext.Ft_STax;
-			Data.Ft_Declined = ext.Ft_Declined; // @v8.3.3
+			Data.Ft_Declined = ext.Ft_Declined;
 			Data.EdiRecadvStatus = ext.EdiRecadvStatus; // @v9.1.6
 			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus; // @v9.1.6
 			Data.CreatorID = ext.CreatorID;
 			Data.DuePeriod = ext.DuePeriod;
-			// @v8.3.2 {
 			if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 				SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 			}
-			// } @v8.3.2
 			int    disable_own_bill_only_tag = 0;
 			v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 			if(Data.CreatorID)
@@ -553,7 +549,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		Data = *pFilt;
 		SetupLocationCombo();
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
-		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod); // @v8.3.2
+		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		if(Data.Flags & BillFilt::fOrderOnly)
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GENERIC, 0L);
 		else if(Data.Flags & BillFilt::fAccturnOnly)
@@ -574,8 +570,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 			}
 			else
 				types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL,
-					PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_GENERIC,
-					PPOPT_CORRECTION, 0L); // @v8.1.2 PPOPT_CORRECTION
+					PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_GENERIC, PPOPT_CORRECTION, 0L);
 		}
 		SetupOprKindCombo(this, CTLSEL_BILLFLT_OPRKIND, Data.OpID, 0, &types, is_op_kind_list ? OPKLF_OPLIST : 0);
 		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
@@ -649,7 +644,7 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	getGroupData(GRP_LOC, &loc_rec);
 	Data.LocList = loc_rec.LocList;
 	THROW(GetPeriodInput(this, CTL_BILLFLT_PERIOD, &temp_period));
-	THROW(GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod)); // @v8.3.2
+	THROW(GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod));
 	getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
 	if(Data.OpID || Data.AccSheetID)
 		getCtrlData(CTLSEL_BILLFLT_OBJECT, &Data.ObjectID);
@@ -739,7 +734,6 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TempOrd);
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_BPOX);
-	// @v8.4.4 {
 	{
 		int    do_destroy_arp = 1;
 		if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0)) {
@@ -754,7 +748,6 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 		if(do_destroy_arp)
 			ZDELETE(P_Arp);
 	}
-	// } @v8.4.4
 	LastSelID = 0;
 	TempOrder = OrdByDefault;
 	Counter.Init();
@@ -952,7 +945,7 @@ int SLAPI PPViewBill::IsTempTblNeeded() const
 	if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
-		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID) { // @v8.6.11 Filt.StatusID
+		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID) {
 		return 1;
 	}
 	else {
@@ -1082,12 +1075,10 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 		{ THROW(f & BILLF_CLOSEDORDER); }
 	else if(Filt.Ft_ClosedOrder < 0)
 		{ THROW(!(f & BILLF_CLOSEDORDER)); }
-	// @v8.3.3. {
 	if(Filt.Ft_Declined > 0)
 		{ THROW(f2 & BILLF2_DECLINED); }
 	else if(Filt.Ft_Declined < 0)
 		{ THROW(!(f2 & BILLF2_DECLINED)); }
-	// } @v8.3.3
 	// @v9.1.6 {
     if(Filt.EdiRecadvStatus) {
 		const int recadv_status = pRec ? BillCore::GetRecadvStatus(*pRec) : 0;
@@ -1111,10 +1102,8 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 
 int SLAPI PPViewBill::CheckIDForFilt(PPID id, const BillTbl::Rec * pRec)
 {
-	// @v8.7.3 {
 	if(IdList.IsExists() && !IdList.CheckID(id))
 		return 0;
-	// } @v8.7.3
 	if(pRec == 0)
 		if(P_BObj->Search(id) > 0)
 			pRec = & P_BObj->P_Tbl->data;
@@ -1164,10 +1153,8 @@ int SLAPI PPViewBill::CheckIDForFilt(PPID id, const BillTbl::Rec * pRec)
 	}
 	if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, pRec->ID, Filt.P_TagF) <= 0)
 		return 0;
-	// @v8.7.5 {
 	else if(Filt.PoolBillID && !IsMemberOfPool(id))
 		return 0;
-	// } @v8.7.5
 	return 1;
 }
 
@@ -1430,7 +1417,7 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 			k.bk1.Dt = Filt.Period.low;
 			dbq = & daterange(t->Dt, &Filt.Period);
 		}
-		dbq = & (*dbq && daterange(t->DueDate, &Filt.DuePeriod)); // @v8.3.4
+		dbq = & (*dbq && daterange(t->DueDate, &Filt.DuePeriod));
 		if(SingleLocID && idx != 5)
 			dbq = & (*dbq && t->LocID == SingleLocID);
 		dbq = ppcheckfiltid(dbq, t->Object2,  Filt.Object2ID);
@@ -1442,7 +1429,7 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 		dbq = & (*dbq && realrange(t->Amount, Filt.AmtRange.low, Filt.AmtRange.upp));
 		THROW_MEM(q = new BExtQuery(t, idx));
 		q->select(t->ID, t->Code, t->Dt, t->DueDate, t->BillNo, t->Object, t->OpID, /*t->StatusID,*/
-			t->CurID, t->Flags, /*@v8.3.3{*/t->Flags2,/*}*/ t->Amount, t->LinkBillID, t->LocID, t->UserID, 0L).where(*dbq);
+			t->CurID, t->Flags, t->Flags2, t->Amount, t->LinkBillID, t->LocID, t->UserID, 0L).where(*dbq);
 		for(q->initIteration(0, &k, spGt); ok > 0 && q->nextIteration() > 0;) {
 			if(CheckFlagsForFilt(&t->data)) {
 				const BillTbl::Rec bill_rec = t->data;
@@ -1801,7 +1788,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 		}
 	}
 	if(ok < 0 && (!id || SelectorDialog(DLG_SELWROFF, CTL_SELWROFF_SEL, &(s = 0)) > 0)) {
-		PPObjMrpTab mrp_obj; // @v8.6.3
+		PPObjMrpTab mrp_obj;
 		int    is_deficit = 0;
 		PPID   single_op_id_on_deficit = 0;
 		PUGL   deficit_list;
@@ -1940,253 +1927,6 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 	CATCHZOKPPERR
 	return ok;
 }
-
-#if 0 // @v8.9.11 {
-//
-// @v5.2.0 VADIM Экспорт в ЕГАИС
-//
-//   Типы накладных в ЕГАИС
-#define EGAIS_RECEIPT       1   // Приходная накладна
-#define EGAIS_EXPEND        2   // Расходная накладна
-#define EGAIS_RET_RECEIPT   3   // Возвратная приходная накладна
-#define EGAIS_RET_EXPEND    4   // Возвратная расходная накладна
-
-int SLAPI PPViewBill::ExportToEGAIS()
-{
-	int    ok = -1, r;
-	long   hdr_vat_rate = 0;
-	SString buf, path_hdrs, path_rows;
-	Goods2Tbl::Rec goods_rec;
-	PPObjPerson  psn_obj;
-	PPIniFile    ini_file;
-	DbfTable * p_out_tbl_gb_hdrs = 0, * p_out_tbl_gb_rows = 0;
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_EGAIS_GB_HDRS_DBF, path_hdrs));
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_EGAIS_GB_ROWS_DBF, path_rows));
-	THROW(p_out_tbl_gb_hdrs = CreateDbfTable(DBFS_EGAIS_GDSBILL_HDRS, path_hdrs, 1));
-	THROW(p_out_tbl_gb_rows = CreateDbfTable(DBFS_EGAIS_GDSBILL_ROWS, path_rows, 1));
-	THROW(r = ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_EGAIS_EXPORT_OP_TYPES, buf));
-	if(GObj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, 0, &goods_rec) > 0) {
-		PPGoodsTaxEntry gtx;
-		if(GObj.FetchTax(goods_rec.ID, LConfig.OperDate, 0L, &gtx) > 0)
-			hdr_vat_rate = (long)gtx.GetVatRate();
-	}
-	PPWait(1);
-	if(r > 0) {
-		PPID  egb_types[] = {EGAIS_RECEIPT, EGAIS_EXPEND, EGAIS_RET_RECEIPT, EGAIS_RET_EXPEND};
-		int   i, c = sizeof(egb_types) / sizeof(PPID);
-		uint  pos = 0;
-		LAssocArray egbt_list;
-		StringSet  ss(';', buf);
-		for(i = 0; i < c && ss.get(&pos, buf); i++) {
-			PPID   ppy_op_id = buf.ToLong();
-			if(ppy_op_id)
-				THROW_SL(egbt_list.Add(ppy_op_id, egb_types[i], 0));
-		}
-		if(egbt_list.getCount() > 0) {
-			SString  org_name;
-			PPBillPacket  pack;
-			BillViewItem  bv_item;
-			GetMainOrgName(org_name).Transf(CTRANSF_INNER_TO_OUTER);
-			for(InitIteration(OrdByDefault); NextIteration(&bv_item) > 0;
-				PPWaitPercent(GetCounter())) {
-				pos = 0;
-				PPID   egb_type = 0;
-				if(egbt_list.Search(bv_item.OpID, &egb_type, &pos)) {
-					int   head_is_written = 0;
-					PPID  psn_id;
-					DbfRecord  dbfrh(p_out_tbl_gb_hdrs);
-					PPTransferItem * p_ti = 0;
-					THROW(P_BObj->ExtractPacket(bv_item.ID, &pack));
-					dbfrh.empty();
-					dbfrh.put(1, bv_item.ID);
-					dbfrh.put(2, (buf = bv_item.Code).Transf(CTRANSF_INNER_TO_OUTER));
-					dbfrh.put(3, bv_item.Dt);
-					dbfrh.put(4, bv_item.Dt);
-					if((psn_id = ObjectToPerson(bv_item.Object)) != 0 && psn_obj.Search(psn_id))
-						(buf = psn_obj.P_Tbl->data.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					else
-						buf = 0;
-					if(egb_type == EGAIS_RECEIPT || egb_type == EGAIS_RET_RECEIPT) {
-						dbfrh.put(5, buf);
-						dbfrh.put(6, org_name);
-						dbfrh.put(7, buf);
-						dbfrh.put(8, org_name);
-					}
-					else {
-						dbfrh.put(5, org_name);
-						dbfrh.put(6, buf);
-						dbfrh.put(7, org_name);
-						dbfrh.put(8, buf);
-					}
-					dbfrh.put(10, egb_type);
-					dbfrh.put(12, bv_item.Dt);
-					dbfrh.put(13, hdr_vat_rate);
-					dbfrh.put(14, 1L);
-					for(uint k = 0; pack.EnumTItems(&k, &p_ti) > 0;)
-						if(p_ti->GoodsID) {
-							PPGoodsTaxEntry  gtx;
-							GObj.FetchTax(labs(p_ti->GoodsID), p_ti->Date, bv_item.OpID, &gtx);
-							Goods2Tbl::Rec goods_rec;
-							DbfRecord  dbfrr(p_out_tbl_gb_rows);
-							dbfrr.empty();
-							dbfrr.put(1, p_ti->GoodsID);
-							dbfrr.put(2, bv_item.ID);
-							dbfrr.put(3, fabs(p_ti->Quantity_));
-							if(GObj.Search(p_ti->GoodsID, &goods_rec) > 0)
-								dbfrr.put(5, (buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
-							dbfrr.put(6, p_ti->NetPrice());
-							dbfrr.put(7, gtx.GetVatRate());
-							if(!head_is_written) {
-								THROW_PP(p_out_tbl_gb_hdrs->appendRec(&dbfrh), PPERR_DBFWRFAULT);
-								head_is_written = 1;
-							}
-							THROW_PP(p_out_tbl_gb_rows->appendRec(&dbfrr), PPERR_DBFWRFAULT);
-						}
-				}
-			}
-			ok = 1;
-		}
-	}
-	CATCHZOKPPERR
-	PPWait(0);
-	delete p_out_tbl_gb_hdrs;
-	delete p_out_tbl_gb_rows;
-	return ok;
-}
-
-#endif // } 0 @v8.9.11
-
-#if 0 // @v5.2.0 VADIM Obsolete
-//
-//   Экспорт в ПИК "Госмонополия РСМ" (НТЦ Атлас)
-//
-//   Типы накладных в "Атлас"
-#define AGBT_RECEIPT_M         1   // Приход маркированной продукции
-#define AGBT_RECEIPT_NM        4   // Приход немаркированноой продукции
-#define AGBT_EXPEND_M          9   // Расход маркированной продукции
-#define AGBT_EXPEND_NM        10   // Расход немаркированноой продукции
-#define AGBT_RET_CSGNEE_M     11   // Возврат маркированной продукции получателем
-#define AGBT_RET_CSGNEE_NM    12   // Возврат немаркированноой продукции получателем
-#define AGBT_RET_CSGNER_M     13   // Возврат маркированной продукции поставщику
-#define AGBT_RET_CSGNER_NM    14   // Возврат немаркированноой продукции поставщику
-
-int SLAPI PPViewBill::ExportToAtlas()
-{
-	int    ok = -1, r;
-	SString buf, path_hdrs, path_rows;
-	PPObjPerson  psn_obj;
-	PPObjGoodsClass gc_obj;
-	PPBillPacket pack;
-	PPIniFile    ini_file;
-	DbfTable * p_out_tbl_gb_hdrs = 0, * p_out_tbl_gb_rows = 0;
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATLAS_GB_HDRS_DBF, path_hdrs));
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATLAS_GB_ROWS_DBF, path_rows));
-	THROW(p_out_tbl_gb_hdrs = CreateDbfTable(DBFS_ATLAS_GDSBILL_HDRS, path_hdrs, 1));
-	THROW(p_out_tbl_gb_rows = CreateDbfTable(DBFS_ATLAS_GDSBILL_ROWS, path_rows, 1));
-	THROW(r = ini_file.GetParam(PPINISECT_CONFIG, PPINIPARAM_ATLAS_EXPORT_OP_TYPES, buf));
-	PPWait(1);
-	if(r > 0) {
-		PPID  agb_types[] = {AGBT_RECEIPT_M, AGBT_RECEIPT_NM, AGBT_EXPEND_M, AGBT_EXPEND_NM,
-			AGBT_RET_CSGNEE_M, AGBT_RET_CSGNEE_NM, AGBT_RET_CSGNER_M, AGBT_RET_CSGNER_NM};
-		int   i, c = sizeof(agb_types) / sizeof(PPID);
-		uint  pos = 0;
-		LAssocArray agbt_list;
-		StringSet  ss(';', buf);
-		for(i = 0; i < c && ss.get(&pos, buf); i++) {
-			PPID   ppy_op_id = buf.ToLong();
-			if(ppy_op_id)
-				THROW_SL(agbt_list.Add(ppy_op_id, agb_types[i], 0));
-		}
-		if(agbt_list.getCount() > 0) {
-			SString org_name;
-			BillViewItem  bv_item;
-			GetMainOrgName(org_name).Transf(CTRANSF_INNER_TO_OUTER);
-			for(InitIteration(OrdByDefault); NextIteration(&bv_item) > 0;
-				PPWaitPercent(GetIterCounter())) {
-				pos = 0;
-				PPID   agb_type = 0;
-				if(agbt_list.Search(bv_item.OpID, &agb_type, &pos)) {
-					int   head_is_written = 0;
-					uint  k;
-					PPID  psn_id;
-					DbfRecord  dbfrh(p_out_tbl_gb_hdrs);
-					PPTransferItem * p_ti = 0;
-					THROW(P_BObj->ExtractPacket(bv_item.ID, &pack));
-					dbfrh.empty();
-					dbfrh.put(1, bv_item.ID);
-					dbfrh.put(2, (buf = bv_item.Code).Transf(CTRANSF_INNER_TO_OUTER));
-					dbfrh.put(3, bv_item.Dt);
-					if(pack.Ext.InvoiceCode[0])
-						(buf = pack.Ext.InvoiceCode).Transf(CTRANSF_INNER_TO_OUTER);
-					dbfrh.put(5, buf);
-					dbfrh.put(6,  pack.Ext.InvoiceDate == ZERODATE ? bv_item.Dt : pack.Ext.InvoiceDate);
-					if((psn_id = ObjectToPerson(bv_item.Object)) != 0 && psn_obj.Search(psn_id))
-						(buf = psn_obj.P_Tbl->data.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					else
-						buf = 0;
-					if(oneof4(agb_type, AGBT_RECEIPT_M, AGBT_RECEIPT_NM, AGBT_RET_CSGNEE_M, AGBT_RET_CSGNEE_NM)) {
-						dbfrh.put(4, bv_item.Dt);
-						dbfrh.put(7, buf);
-						dbfrh.put(8, org_name);
-					}
-					else {
-						dbfrh.put(7, org_name);
-						dbfrh.put(8, buf);
-					}
-					dbfrh.put(10, agb_type);
-					dbfrh.put(13, 1L);
-					for(k = 0; pack.EnumTItems(&k, &p_ti) > 0;)
-						if(p_ti->GoodsID) {
-							PPGoodsTaxEntry  gtx;
-							GObj.FetchTax(labs(p_ti->GoodsID), p_ti->Date, bv_item.OpID, &gtx);
-							if(gtx.Excise) {
-								Goods2Tbl::Rec goods_rec;
-								DbfRecord  dbfrr(p_out_tbl_gb_rows);
-								dbfrr.empty();
-								dbfrr.put(1, p_ti->GoodsID);
-								dbfrr.put(2, bv_item.ID);
-								dbfrr.put(4, ZERODATE); // Дата прихода
-								if(oneof2(agb_type, AGBT_RET_CSGNEE_M, AGBT_RET_CSGNEE_NM))
-									dbfrr.put(5, bv_item.Dt);
-								if(GObj.Search(p_ti->GoodsID, &goods_rec) > 0) {
-									GoodsExtTbl::Rec  gx_rec;
-									dbfrr.put(3, (buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
-									if(GObj.P_Tbl->GetExt(p_ti->GoodsID, &gx_rec) > 0) {
-										PPGdsClsPacket gc_pack;
-										if(gc_obj.Fetch(gx_rec.GoodsClsID, &gc_pack) > 0) {
-											double d = 0.0;
-											gc_pack.GetExtDim(&gx_rec, PPGdsCls::eY, &d);
-											dbfrr.put(7, d);
-											gc_pack.GetExtDim(&gx_rec, PPGdsCls::eX, &d);
-											dbfrr.put(8, d);
-										}
-									}
-									if(goods_rec.ManufID && psn_obj.Search(goods_rec.ManufID))
-										dbfrr.put(9, (buf = psn_obj.P_Tbl->data.Name).Transf(CTRANSF_INNER_TO_OUTER));
-								}
-								dbfrr.put(10, fabs(p_ti->Quantity));
-								dbfrr.put(11, p_ti->NetPrice());
-								//dbfrr.put(12, 0); // Цена поступления //
-								dbfrr.put(13, gtx.GetVatRate());
-								if(!head_is_written) {
-									THROW_PP(p_out_tbl_gb_hdrs->appendRec(&dbfrh), PPERR_DBFWRFAULT);
-									head_is_written = 1;
-								}
-								THROW_PP(p_out_tbl_gb_rows->appendRec(&dbfrr), PPERR_DBFWRFAULT);
-							}
-						}
-				}
-			}
-			ok = 1;
-		}
-	}
-	CATCHZOKPPERR
-	PPWait(0);
-	delete p_out_tbl_gb_hdrs;
-	delete p_out_tbl_gb_rows;
-	return ok;
-}
-#endif
 //
 //
 //
@@ -2338,7 +2078,6 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 			BillTbl::Rec bill_rec;
 			PPViewBill::BrwHdr * p_hdr = (PPViewBill::BrwHdr *)pData;
 			if(p_hdr->ID) {
-				// @v8.4.10 {
 				if(r_col.OrgOffs == 0 && PPMaster) { // ID
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FULLSYNC) {
 						pStyle->Color = GetColorRef(SClrDodgerblue);
@@ -2346,7 +2085,6 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						ok = 1;
 					}
 				}
-				// } @v8.4.10
 				else if(r_col.OrgOffs == 2) { // BillNo
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const TagFilt & r_tag_filt = P_BObj->GetConfig().TagIndFilt;
@@ -2414,7 +2152,6 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 							}
 						}
 						// } @v10.0.01 
-						// @v8.9.5 {
 						{
 							const int edi_user_status = P_BObj->GetEdiUserStatus(bill_rec);
 							if(edi_user_status) {
@@ -2442,7 +2179,6 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = 1;
 							}
 						}
-						// } @v8.9.5
 					}
 				}
 			}
@@ -2517,20 +2253,15 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 				if(show_debt)
 					pBrw->InsColumn(debt_col, "@debt", 9, 0, MKSFMTD(10, 2, NMBF_NOZERO), 0);
 			}
-			// @v8.2.9 {
 			{
 				int  de_col = 1;
-				// @v8.4.10 {
 				if(PPMaster) {
 					pBrw->InsColumn(0, "@id", 0, 0, 0, 0);
 					de_col++;
 				}
-				// } @v8.4.10
-				// @v8.3.2 {
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliDueDate, 0)) { // #13
 					pBrw->InsColumn(de_col++, "@duedate", 13, 0, MKSFMT(0, DATF_DMY), 0);
 				}
-				// } @v8.3.2
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0)) { // #11
 					pBrw->InsColumn(de_col++, "@issuedate", 11, 0, MKSFMT(0, DATF_DMY), 0);
 				}
@@ -2538,8 +2269,6 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 					pBrw->InsColumn(de_col++, "@arrivaldate", 12, 0, MKSFMT(0, DATF_DMY), 0);
 				}
 			}
-			// } @v8.2.9
-			// @v8.3.6, @v8.4.4 {
 			if(p_def) {
 				int    next_pos = -1;
 				const int org_offs_ar = 6;
@@ -2568,7 +2297,6 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 					}
 				}
 			}
-			// } @v8.3.6, @v8.4.4
 		}
 		pBrw->Advise(PPAdviseBlock::evBillChanged, 0, PPOBJ_BILL, 0);
 	}
@@ -2616,7 +2344,7 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 
 DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT); // @v8.5.8
+	const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	PPID   single_loc_id = LocList_.getSingle();
 	BillTbl       * bll  = 0;
 	TempBillTbl   * bllt = 0;
@@ -2724,7 +2452,6 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				brw_id = BROWSER_GOODSBILL;
 			q->addField(dbe_debt);          // #9
 			q->addField(dbe_status);        // #10
-			// @v8.2.9 {
 			{
 				dbe_issuedate.init();
 				dbe_arrvldate.init();
@@ -2745,8 +2472,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				}
 				q->addField(dbe_arrvldate); // #12
 			}
-			// } @v8.2.9
-			q->addField(bll->DueDate);      // #13 @v8.3.2
+			q->addField(bll->DueDate);      // #13
 			{
 				dbe_agentname.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliAgentName, 0)) {
@@ -2755,7 +2481,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				}
 				else
 					dbe_agentname.push((DBFunc)PPDbqFuncPool::IdEmpty);
-				q->addField(dbe_agentname); // #14 @v8.3.6
+				q->addField(dbe_agentname); // #14
 			}
 			{
 				dbe_licreg.init();
@@ -2765,7 +2491,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				}
 				else
 					dbe_licreg.push((DBFunc)PPDbqFuncPool::IdEmpty);
-				q->addField(dbe_licreg); // #15 @v8.4.4
+				q->addField(dbe_licreg); // #15
 			}
 			{
 				dbe_dlvraddr.init();
@@ -2775,7 +2501,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				}
 				else
 					dbe_dlvraddr.push((DBFunc)PPDbqFuncPool::IdEmpty);
-				q->addField(dbe_dlvraddr); // #16 @v8.7.9
+				q->addField(dbe_dlvraddr); // #16
 			}
 			{
 				dbe_strgloc.init();
@@ -2785,7 +2511,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				}
 				else
 					dbe_strgloc.push((DBFunc)PPDbqFuncPool::IdEmpty);
-				q->addField(dbe_strgloc); // #17 @v8.8.6
+				q->addField(dbe_strgloc); // #17
 			}
 			tbl_l[tbl_count++] = t_amt;
 			q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], tbl_l[6], tbl_l[7], 0L);
@@ -2824,7 +2550,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_SHIPPED, (Filt.Flags & BillFilt::fUnshippedOnly) ? -1 : BIN(Filt.Flags & BillFilt::fShippedOnly));
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_RMVEXCISE, Filt.Ft_STax);
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CLOSEDORDER, Filt.Ft_ClosedOrder);
-			dbq = ppcheckflag(dbq, bll->Flags2, BILLF2_DECLINED, Filt.Ft_Declined); // @v8.3.3
+			dbq = ppcheckflag(dbq, bll->Flags2, BILLF2_DECLINED, Filt.Ft_Declined);
 			// @v9.1.6 {
 			{
 				DBE * p_dbe_1 = 0;
@@ -4720,7 +4446,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 		// Первый документ необходимо извлечь из БД для того, чтобы инициализировать возможные шаблоны переменных
 		// в наименовании файла экспорта.
 		//
-		THROW(P_BObj->ExtractPacketWithFlags(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0); // @v8.8.6 BPLD_FORCESERIALS
+		THROW(P_BObj->ExtractPacketWithFlags(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0);
 		if(!is_there_bnkpaym)
 			b_e.DisabledOptions |= PPBillImpExpBaseProcessBlock::fPaymOrdersExp;
 		THROW(r = b_e.Init(pBillParam, pBRowParam, &pack, &result_file_list));
@@ -5343,7 +5069,7 @@ int SLAPI PPViewBill::Browse(int modeless)
 	// @v9.8.11 const  long save_state = P_BObj->State;
 	const  PPID save_loc   = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
-	Filt.Period.Actualize(ZERODATE); // @v8.7.7
+	Filt.Period.Actualize(ZERODATE);
 	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, 0));
 	if(single_loc_id && single_loc_id != r_cfg.Location)
 		DS.SetLocation(single_loc_id);
@@ -5870,7 +5596,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				if(P_BObj->Search(hdr.ID, &bill_rec) > 0 && CheckOpFlags(bill_rec.OpID, OPKF_RECKON)) {
 					PPObjBill::ReckonParam rp(0, 0);
-					rp.Flags |= rp.fPopupInfo; // @v8.0.11
+					rp.Flags |= rp.fPopupInfo;
 					ok = P_BObj->ReckoningPaym(hdr.ID, rp, 1);
 				}
 				if(ok > 0)
@@ -5880,7 +5606,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				if(P_BObj->Search(hdr.ID, &bill_rec) > 0 && CheckOpFlags(bill_rec.OpID, OPKF_NEEDPAYMENT)) {
 					PPObjBill::ReckonParam rp(0, 0);
-					rp.Flags |= rp.fPopupInfo; // @v8.0.11
+					rp.Flags |= rp.fPopupInfo;
 					ok = P_BObj->ReckoningDebt(hdr.ID, rp, 1);
 				}
 				if(ok > 0)
@@ -5938,9 +5664,6 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					}
 				}
 				break;
-			/* @v8.9.11 case PPVCMD_EXPORTTOEGAIS:
-				ok = ExportToEGAIS();
-				break; */
 			/* @v9.2.10 case PPVCMD_EXPORTBNKORDER:
 				if(Filt.Flags & BillFilt::fAccturnOnly)
 					ok = ExportBnkOrder();
@@ -7377,7 +7100,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		I.Sign_NN++;
 		I.Iter_NN = n;
 		I.GoodsID = p_ti->GoodsID;
-		I.LotID   = p_ti->LotID; // @v8.9.11
+		I.LotID   = p_ti->LotID;
 		I.Cost    = p_ti->Cost;
 		I.Price   = p_ti->Price;
 		I.CurPrice = p_ti->CurPrice;
@@ -8272,7 +7995,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.TxmDocNumber, pack->P_PaymOrder->Txm.DocNumber);
 		H.TxmDocDate = pack->P_PaymOrder->Txm.DocDate;
 		STRNSCPY(H.TxmPaymType, pack->P_PaymOrder->Txm.PaymType);
-		STRNSCPY(H.UIN, pack->P_PaymOrder->Txm.UIN); // @v8.1.9
+		STRNSCPY(H.UIN, pack->P_PaymOrder->Txm.UIN);
 	}
 	else if(pack) {
 		H.BillID  = pack->Rec.ID;
@@ -8431,7 +8154,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 	Extra[0].Ptr = rFilt.Ptr;
 	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
 	MEMSZERO(H);
-	H.BillID = p_pack->Rec.ID; // @v8.7.2
+	H.BillID = p_pack->Rec.ID;
 	STRNSCPY(H.WarrantNo,  p_pack->Rec.Code);
 	H.WarrantDt = p_pack->Rec.Dt;
 	p_pack->GetLastPayDate(&dt);
@@ -8461,7 +8184,7 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId)
 		const  PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(I.LineNo);
 		STRNSCPY(I.GdsName, r_item.Memo);
 		GetObjectName(PPOBJ_UNIT, r_item.ArID, I.Unit, sizeof(I.Unit));
-		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf); // @v8.3.5 NTTF_DECCURR
+		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf);
 		STRNSCPY(I.Qtty, buf);
 		I.LineNo++;
 		return DlRtm::NextIteration(iterId);
@@ -8678,8 +8401,8 @@ int PPALDD_UhttBill::InitData(PPFilt & rFilt, long rsrv)
 		if(p_bobj->P_Tbl->GetExtraData(r_blk.Pack.Rec.ID, &ext) > 0)
             H.AgentID = ext.AgentID;
 		H.StatusID = r_blk.Pack.Rec.StatusID;
-		H.Amount = r_blk.Pack.Rec.Amount; // @v8.2.10
-		H.Discount = r_blk.Pack.Amounts.Get(PPAMT_DISCOUNT, 0); // @v8.2.10
+		H.Amount = r_blk.Pack.Rec.Amount;
+		H.Discount = r_blk.Pack.Amounts.Get(PPAMT_DISCOUNT, 0);
 		{
 			S_GUID   guid;
 			p_bobj->GetGuid(r_blk.Pack.Rec.ID, &guid);

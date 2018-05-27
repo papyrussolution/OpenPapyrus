@@ -1335,7 +1335,10 @@ browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 		separator
 		CHANGEFILT : kbCtrlV,   TBBM_FILTER, "@{filter}\tCtrl-V"
 		separator
-		TOTAL      : kbF9,      TBBM_SIGM,   "@{totals}\tF9"
+		SYSJ           : kbCtrlJ,   TBBM_SYSJ,    "@{view_sysjournal}\tCtrl-J" // @v10.0.09
+		TRANSMIT       : kbCtrlH,   TBBM_SENDOBJ, "@{dotransmit}\tCtrl-H"      // @v10.0.09
+		DORECOVER      : kbCtrlR,   TBBM_HAMMER,  "Проверка структур\tCtrl-R"  // @v10.0.09
+		TOTAL          : kbF9,      TBBM_SIGM,    "@{totals}\tF9"
 	}
 }
 

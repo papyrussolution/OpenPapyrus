@@ -64,20 +64,19 @@ typedef enum {
 	TXN_OP_PREPARE
 } txnop_t;
 
-static int __txn_abort_pp __P((DB_TXN *));
-static int __txn_applied __P((ENV *,
-    DB_THREAD_INFO *, DB_COMMIT_INFO *, db_timeout_t));
-static void __txn_build_token __P((DB_TXN *, DB_LSN *));
-static int __txn_begin_int __P((DB_TXN *));
-static int __txn_close_cursors __P((DB_TXN *));
-static int __txn_commit_pp __P((DB_TXN *, uint32));
-static int __txn_discard __P((DB_TXN *, uint32));
-static int __txn_dispatch_undo __P((ENV *, DB_TXN *, DBT *, DB_LSN *, DB_TXNHEAD *));
-static int __txn_end __P((DB_TXN *, int));
-static int __txn_isvalid __P((const DB_TXN *, txnop_t));
-static int __txn_undo __P((DB_TXN *));
-static int __txn_set_commit_token __P((DB_TXN * txn, DB_TXN_TOKEN *));
-static void __txn_set_txn_lsnp __P((DB_TXN *, DB_LSN **, DB_LSN **));
+static int __txn_abort_pp(DB_TXN *);
+static int __txn_applied(ENV *, DB_THREAD_INFO *, DB_COMMIT_INFO *, db_timeout_t);
+static void __txn_build_token(DB_TXN *, DB_LSN *);
+static int __txn_begin_int(DB_TXN *);
+static int __txn_close_cursors(DB_TXN *);
+static int __txn_commit_pp(DB_TXN *, uint32);
+static int __txn_discard(DB_TXN *, uint32);
+static int __txn_dispatch_undo(ENV *, DB_TXN *, DBT *, DB_LSN *, DB_TXNHEAD *);
+static int __txn_end(DB_TXN *, int);
+static int __txn_isvalid(const DB_TXN *, txnop_t);
+static int __txn_undo(DB_TXN *);
+static int __txn_set_commit_token(DB_TXN * txn, DB_TXN_TOKEN *);
+static void __txn_set_txn_lsnp(DB_TXN *, DB_LSN **, DB_LSN **);
 
 #define TxnAlloc "Unable to allocate a transaction handle"
 

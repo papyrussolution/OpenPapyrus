@@ -6,7 +6,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-static TRect _DefLwRect(0, 0, 80, 25); // @v8.8.2 60-->80
+static const TRect _DefLwRect(0, 0, 80, 25); // @v8.8.2 60-->80
 
 ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDialog(_DefLwRect, pTitle), PrepareSearchLetter(0), TbId(0)
 {
@@ -21,20 +21,14 @@ ListWindow::ListWindow() : TDialog(_DefLwRect, 0), P_Def(0), PrepareSearchLetter
 {
 }
 
-void ListWindow::setCompFunc(CompFunc f)
-{
-	CALLPTRMEMB(P_Lb, setCompFunc(f));
-}
-
-ListWindowSmartListBox * ListWindow::listBox() const
-{
-	return P_Lb;
-}
-
-void ListWindow::prepareForSearching(int firstLetter)
-{
-	PrepareSearchLetter = firstLetter;
-}
+void   ListWindow::setCompFunc(CompFunc f) { CALLPTRMEMB(P_Lb, setCompFunc(f)); }
+ListWindowSmartListBox * ListWindow::listBox() const { return P_Lb; }
+void   ListWindow::prepareForSearching(int firstLetter) { PrepareSearchLetter = firstLetter; }
+int    ListWindow::isTreeList() const { return BIN(P_Def && P_Def->_isTreeList()); }
+int    FASTCALL ListWindow::getResult(long * pVal) { return P_Def ? P_Def->getCurID(pVal) : 0; }
+int    ListWindow::getString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
+int    ListWindow::getListData(void * pData) { return P_Def ? P_Def->getCurData(pData) : 0; }
+void   ListWindow::SetToolbar(uint tbId) { TbId = tbId; }
 
 void ListWindow::executeNM(HWND parent)
 {
@@ -95,11 +89,6 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 			Insert_(P_Lb);
 	}
 	return 1;
-}
-
-int ListWindow::isTreeList() const
-{
-	return BIN(P_Def && P_Def->_isTreeList());
 }
 
 IMPL_HANDLE_EVENT(ListWindow)
@@ -212,10 +201,8 @@ IMPL_HANDLE_EVENT(ListWindow)
 					}
 				}
 				int    cmd = menu.Execute(H(), TMenuPopup::efRet);
-				if(cmd > 0) {
-					// @v8.1.3 event.message.command = cmd;
-					TView::messageCommand(this, cmd); // @v8.1.3
-				}
+				if(cmd > 0)
+					TView::messageCommand(this, cmd);
 				else
 					return;
 			}
@@ -243,21 +230,6 @@ IMPL_HANDLE_EVENT(ListWindow)
 		*/
 		TDialog::handleEvent(event);
 	}
-}
-
-int FASTCALL ListWindow::getResult(long * pVal)
-{
-	return P_Def ? P_Def->getCurID(pVal) : 0;
-}
-
-int ListWindow::getString(SString & rBuf)
-{
-	return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0);
-}
-
-int ListWindow::getListData(void * pData)
-{
-	return P_Def ? P_Def->getCurData(pData) : 0;
 }
 
 int ListWindow::getSingle(long * pVal)
@@ -312,7 +284,6 @@ int ListWindow::MoveWindow(RECT & rRect)
 	HWND   h_list = GetDlgItem(H(), list_ctl);
 	HWND   h_scroll = (!isTreeList()) ? GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1)) : 0;
 	RECT   list_rect;
-
 	::MoveWindow(H(), rRect.left, rRect.top, rRect.right, rRect.bottom, 1);
 	::GetClientRect(H(), &list_rect);
 	if(!isTreeList())
@@ -321,11 +292,6 @@ int ListWindow::MoveWindow(RECT & rRect)
 	if(P_Lb && !isTreeList())
 		P_Lb->MoveScrollBar(1);
 	return 1;
-}
-
-void ListWindow::SetToolbar(uint tbId)
-{
-	TbId = tbId;
 }
 //
 // WordSelector
@@ -352,24 +318,12 @@ void WordSel_ExtraBlock::Init(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, 
 	P_OutDlg     = pOutDlg;
 	OutCtlId     = outCtlId;
 	MinSymbCount = NZOR(minSymbCount, 2);
-	// @v8.3.11 CtrlTextMode = false;
 	SelId        = 0;
 }
 
-int WordSel_ExtraBlock::Search(long id, SString & rBuf)
-{
-	return -1;
-}
-
-int WordSel_ExtraBlock::SearchText(const char * pText, long * pID, SString & rBuf)
-{
-	return -1;
-}
-
-void WordSel_ExtraBlock::SetTextMode(bool v)
-{
-	CtrlTextMode = v;
-}
+int    WordSel_ExtraBlock::Search(long id, SString & rBuf) { return -1; }
+int    WordSel_ExtraBlock::SearchText(const char * pText, long * pID, SString & rBuf) { return -1; }
+void   WordSel_ExtraBlock::SetTextMode(bool v) { CtrlTextMode = v; }
 
 void WordSel_ExtraBlock::SetData(long id, const char * pText)
  {
@@ -433,6 +387,8 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 	return p_list;
 }
 
+int WordSelector::CheckActive() const { return IsActive; }
+int WordSelector::CheckVisible() const { return IsVisible; }
 
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0), P_Blk(pBlk)
 {
@@ -449,16 +405,6 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0
 	// @v9.7.12 Ptb.SetBrush(brSel,    SPaintObj::psSolid, Ptb.GetColor(clrFocus), 0);
 	// @v9.7.12 Ptb.SetBrush(brOdd,    SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
 	// @v9.7.12 Ptb.SetBrush(brBkgnd,  SPaintObj::psSolid, Ptb.GetColor(clrBkgnd), 0);
-}
-
-int WordSelector::CheckActive() const
-{
-	return IsActive;
-}
-
-int WordSelector::CheckVisible() const
-{
-	return IsVisible;
 }
 
 int WordSelector::Activate()
@@ -480,7 +426,7 @@ void WordSelector::ActivateInput()
 
 int WordSelector::Refresh(const char * pText)
 {
-	if(sstrlen(pText) >= P_Blk->MinSymbCount) { // @v8.3.11
+	if(sstrlen(pText) >= P_Blk->MinSymbCount) {
 		int    r = 0;
 		StrAssocArray * p_data = 0;
 		SString text;
@@ -507,7 +453,6 @@ int WordSelector::Refresh(const char * pText)
 					else {
 						getString(buf);
 					}
-					// @v8.3.11 buf.Transf(CTRANSF_INNER_TO_OUTER);
 					IsActive  = 0;
 					IsVisible = 0;
 					P_Blk->SetData(id, buf);

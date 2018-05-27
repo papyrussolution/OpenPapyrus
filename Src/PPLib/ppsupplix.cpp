@@ -5888,6 +5888,9 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			S_GUID  order_uuid;
 			SString inner_order_code;
 			SString bill_text;
+			SString bill_code;
+			BillCore::GetCode(bill_code = pack.Rec.Code);
+			bill_code.Transf(CTRANSF_INNER_TO_UTF8);
 			P_BObj->MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, bill_text);
 			pack.GetOrderList(order_id_list);
 			for(uint ordidx = 0; !is_own_order && ordidx < order_id_list.getCount(); ordidx++) {
@@ -5907,19 +5910,23 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				}
 			}
 			if(order_uuid.IsZero() && inner_order_code.Empty()) {
-				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTORDER, &msg_buf, bill_text.cptr()));
+				(inner_order_code = bill_code).CatChar('-').Cat("ORD"); // @v10.0.08
+				// @v10.0.08 R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTORDER, &msg_buf, bill_text.cptr()));
 			}
-			else if(!dlvr_addr_id) {
+			/* @v10.0.08 else */if(!dlvr_addr_id) {
 				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC, &msg_buf, bill_text.cptr()));
 			}
 			else {
+				PPID foreign_warehouse_id = 0;
 				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_addr_id, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
 					foreign_dlvr_addr_id = temp_buf.ToLong();
 				}
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, pack.Rec.LocID, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
+					foreign_warehouse_id = temp_buf.ToLong();
+				}
 				SfaHeinekenInvoice * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
-				BillCore::GetCode(p_new_entry->Code = pack.Rec.Code);
-				p_new_entry->Code.Transf(CTRANSF_INNER_TO_UTF8);
+				p_new_entry->Code = bill_code;
 				p_new_entry->Dt = pack.Rec.Dt;
 				if(is_own_order) {
 					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
@@ -5942,6 +5949,7 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					THROW_SL(p_o);
 					(p_o->InnerOrderCode = inner_order_code).Transf(CTRANSF_INNER_TO_UTF8);
 					p_o->InnerDlvrLocID = dlvr_addr_id;
+					p_o->ForeignLocID = foreign_warehouse_id; // @v10.0.08
 					{
 						PPLocationPacket loc_pack;
 						THROW(LocObj.GetPacket(dlvr_addr_id, &loc_pack) > 0);

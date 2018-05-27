@@ -298,9 +298,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
  */
 #define	FLAG_CHECK(flag) do {						\
 	if ((flag) != 0) {						\
-		Tcl_SetResult(interp,					\
-		    " Only 1 policy can be specified.\n",		\
-		    TCL_STATIC);					\
+		Tcl_SetResult(interp, " Only 1 policy can be specified.\n", TCL_STATIC); \
 		result = TCL_ERROR;					\
 		break;							\
 	}								\
@@ -313,9 +311,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
  */
 #define	FLAG_CHECK2(flag, val) do {					\
 	if (((flag) & ~(val)) != 0) {					\
-		Tcl_SetResult(interp,					\
-		    " Only 1 policy can be specified.\n",		\
-		    TCL_STATIC);					\
+		Tcl_SetResult(interp, " Only 1 policy can be specified.\n", TCL_STATIC);					\
 		result = TCL_ERROR;					\
 		break;							\
 	}								\

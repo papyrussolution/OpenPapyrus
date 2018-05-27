@@ -530,7 +530,7 @@ SLTEST_R(STab)
 	THROW(SLTEST_CHECK_NZ(tab_file.GetTabList(&tab_list)));
 	for(i = 0; tab_list.get(&i, tab_name);) {
 		uint   pos = 0;
-		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Clear())));
+		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
 		for(uint j = 0; j < SIZEOFARRAY(p_tab_list); j++) {
 			if(tab_name.CmpNC(p_tab_list[j]) == 0) {
 				exist_tab_flags |= (1 << j);
@@ -575,7 +575,7 @@ SLTEST_R(STab)
 	// Переписываем все таблицы в файл out_file
 	//
 	for(i = 0; tab_list.get(&i, tab_name);) {
-		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Clear())));
+		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
 		THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab)));
 	}
 	{
@@ -588,12 +588,12 @@ SLTEST_R(STab)
 		THROW(SLTEST_CHECK_NZ(out_file.GetTabList(&tab_list2)));
 		THROW(SLTEST_CHECK_EQ(tab_list.getCount(), tab_list2.getCount()));
 		for(i = 0; tab_list2.get(&i, tab_name);) {
-			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Clear())));
+			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
 			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, 0))); // удаляем таблицу
 			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab))); // вставляем таблицу
 		}
 		for(i = 0; tab_list2.get(&i, tab_name);) {
-			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Clear())));
+			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
 			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab))); // изменяем таблицу
 		}
 		{
@@ -607,7 +607,7 @@ SLTEST_R(STab)
 			tab_list2.clear();
 			THROW(SLTEST_CHECK_NZ(out_file.GetTabList(&tab_list2)));
 			for(i = 0; tab_list2.get(&i, tab_name);) {
-				THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Clear())));
+				THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
 				THROW(SLTEST_CHECK_NZ(out_file2.WriteTab(tab_name, &tab)));
 			}
 		}

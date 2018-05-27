@@ -347,7 +347,7 @@ SLTEST_R(TestMd5)
 			THROW(SLTEST_CHECK_Z(strcmpi((const char *)output, (const char *)md_buf)));
 		}
 	}
-	tab_obj.Clear();
+	tab_obj.Z();
 	CATCHZOK
 	return CurrentStatus;
 }

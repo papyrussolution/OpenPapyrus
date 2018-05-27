@@ -2619,8 +2619,9 @@ SString & FASTCALL SString::Cat(LTIME tm)
 SString & FASTCALL SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long timFmt /*=TIMF_HMS*/)
 {
 	Cat(rDtm.d, datFmt);
-	if((datFmt & 0x000f) == DATF_ISO8601 && timFmt == 0)
-		CatChar('T').Cat(rDtm.t, TIMF_HMS);
+	if((datFmt & 0x000f) == DATF_ISO8601 && oneof2(timFmt, 0, TIMF_TIMEZONE)) {
+		CatChar('T').Cat(rDtm.t, (timFmt == TIMF_TIMEZONE) ? (TIMF_HMS|TIMF_TIMEZONE) : TIMF_HMS);
+	}
 	else
 		Space().Cat(rDtm.t, timFmt);
 	return *this;
@@ -3172,7 +3173,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 	size_t amp_pos = 0;
 	const char * p_buf = P_Buf;
 	while(cp < len) {
-		char * p = (char *)memchr(p_buf+cp, '&', len-cp);
+		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : (const char *)memchr(p_buf+cp, '&', len-cp);
 		if(p) {
 			rBuf.CatN(p_buf+cp, (p-p_buf-cp));
 			uint ofs = (p-p_buf);
@@ -3196,16 +3197,19 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 				if(p_buf[ofs+nd] == ';') {
 					ofs++;
 					// concat code to rBuf
-					cp = ofs;
+					char  utf8_buf[16];
+					uint  utf8_len = SUnicode::Utf32ToUtf8(code, utf8_buf);
+					rBuf.Cat_((uint8 *)utf8_buf, utf8_len);
+					cp = ofs+nd;
 				}
 				else {
-					rBuf.CatChar('&');
-					cp++;
+					rBuf.CatN(p, (ofs-(p-p_buf)));
+					cp = ofs;
 				}
 			}
 			else {
-				rBuf.CatChar('&');
-				cp++;
+				rBuf.CatN(p, (ofs-(p-p_buf)));
+				cp = ofs;
 			}
 		}
 		else {
@@ -3812,6 +3816,59 @@ uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 	}
 }
 
+//static 
+uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
+{
+	uint    k = 0;
+	const uint16 u16l = (uint16)(u32 & 0x0000ffff);
+	if(u32 < 0x80) {
+		pUtf8Buf[k++] = static_cast<char>(u32);
+	}
+	else if(u32 < 0x800) {
+		pUtf8Buf[k++] = static_cast<char>(0xC0 | (u16l >> 6));
+		pUtf8Buf[k++] = static_cast<char>(0x80 | (u16l & 0x3f));
+	}
+	else {
+		if((u16l >= UNI_SUR_HIGH_START/*SURROGATE_LEAD_FIRST*/) && (u16l <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
+			// @todo Я не уверен в правильности этого куска кода - надо тестировать!
+			uint16 u16u = (uint16)(u32 >> 16);
+			// Half a surrogate pair
+			uint xch = 0x10000 + ((u16l & 0x3ff) << 10) + (u16u & 0x3ff);
+			pUtf8Buf[k++] = static_cast<char>(0xF0 | (xch >> 18));
+			pUtf8Buf[k++] = static_cast<char>(0x80 | ((xch >> 12) & 0x3f));
+			pUtf8Buf[k++] = static_cast<char>(0x80 | ((xch >> 6) & 0x3f));
+			pUtf8Buf[k++] = static_cast<char>(0x80 | (xch & 0x3f));
+		}
+		else {
+			pUtf8Buf[k++] = static_cast<char>(0xE0 | (u16l >> 12));
+			pUtf8Buf[k++] = static_cast<char>(0x80 | ((u16l >> 6) & 0x3f));
+			pUtf8Buf[k++] = static_cast<char>(0x80 | (u16l & 0x3f));
+		}
+	}
+	return k;
+}
+
+//static
+uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
+{
+	uint len = 0;
+	for(uint i = 0; i < tlen && pUcBuf[i]; ) {
+		uint uch = pUcBuf[i];
+		if(uch < 0x80)
+			len++;
+		else if(uch < 0x800)
+			len += 2;
+		else if((uch >= UNI_SUR_HIGH_START/*SURROGATE_LEAD_FIRST*/) && (uch <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
+			len += 4;
+			i++;
+		}
+		else
+			len += 3;
+		i++;
+	}
+	return len;
+}
+
 int SString::IsLegalUtf8() const
 {
 	int    ok = 1;
@@ -3846,7 +3903,7 @@ int SString::IsLegalUtf8() const
 //
 //
 //
-void FASTCALL SString::Cat_(uint8 * pChr, size_t numChr)
+void FASTCALL SString::Cat_(const uint8 * pChr, size_t numChr)
 {
 	if(numChr) {
 		const size_t new_len = (L ? L : 1) + numChr;
@@ -3927,17 +3984,12 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 			temp_mb[0] = (uint8)((ch >> 6) | SUtfConst::FirstByteMark[2]);
 			temp_mb[1] = (uint8)((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 2);
-			//CatChar(temp_mb[0]);
-			//CatChar(temp_mb[1]);
 		}
 		else if(ch < (uint32)0x10000) {
 			temp_mb[0] = (uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]);
 			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 3);
-			//CatChar(temp_mb[0]);
-			//CatChar(temp_mb[1]);
-			//CatChar(temp_mb[2]);
 		}
 		else if(ch < (uint32)0x110000) {
 			temp_mb[0] = (uint8)((ch >> 18) | SUtfConst::FirstByteMark[4]);
@@ -3945,10 +3997,6 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 			temp_mb[2] = (uint8)(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[3] = (uint8)((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 4);
-			//CatChar(temp_mb[0]);
-			//CatChar(temp_mb[1]);
-			//CatChar(temp_mb[2]);
-			//CatChar(temp_mb[3]);
 		}
 		else {
 			ch = UNI_REPLACEMENT_CHAR;
@@ -3956,9 +4004,6 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 3);
-			//CatChar(temp_mb[0]);
-			//CatChar(temp_mb[1]);
-			//CatChar(temp_mb[2]);
 		}
 	}
 	CATCHZOK
@@ -3967,68 +4012,7 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 
 int FASTCALL SStringU::CopyToUtf8(SString & rBuf, int strictConversion) const
 {
-	return rBuf.CopyUtf8FromUnicode(P_Buf, Len(), strictConversion); // @v9.1.5
-#if 0 // @v9.1.5 {
-	rBuf.Z();
-	int    ok = 1;
-	const  uint32 byteMask = 0xBF;
-	const  uint32 byteMark = 0x80;
-	const  size_t len = Len();
-	for(size_t i = 0; i < len; i++) {
-		uint32 ch = P_Buf[i];
-		/* If we have a surrogate pair, convert to uint32 first. */
-		if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_HIGH_END) {
-			/* If the 16 bits following the high surrogate are in the p_src buffer... */
-			if(i < len) {
-				uint32 ch2 = P_Buf[i+1];
-				/* If it's a low surrogate, convert to uint32. */
-				if(ch2 >= UNI_SUR_LOW_START && ch2 <= UNI_SUR_LOW_END) {
-					ch = ((ch - UNI_SUR_HIGH_START) << SUtfConst::HalfShift) + (ch2 - UNI_SUR_LOW_START) + SUtfConst::HalfBase;
-					i++;
-				}
-				else if(strictConversion) { /* it's an unpaired high surrogate */
-					CALLEXCEPT_S(SLERR_UTFCVT_ILLUTF16);
-				}
-			}
-			else { /* We don't have the 16 bits following the high surrogate. */
-				CALLEXCEPT_S(SLERR_UTFCVT_SRCEXHAUSTED);
-			}
-		}
-		else if(strictConversion) {
-			/* UTF-16 surrogate values are illegal in UTF-32 */
-			if(ch >= UNI_SUR_LOW_START && ch <= UNI_SUR_LOW_END) {
-				CALLEXCEPT_S(SLERR_UTFCVT_ILLUTF16);
-			}
-		}
-		/* Figure out how many bytes the result will require */
-		if(ch < (uint32)0x80) {
-			rBuf.CatChar((uint8)ch);
-		}
-		else if(ch < (uint32)0x800) {
-			rBuf.CatChar((uint8)((ch >> 6) | SUtfConst::FirstByteMark[2]));
-			rBuf.CatChar((uint8)((ch | byteMark) & byteMask));
-		}
-		else if(ch < (uint32)0x10000) {
-			rBuf.CatChar((uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]));
-			rBuf.CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			rBuf.CatChar((uint8)((ch | byteMark) & byteMask));
-		}
-		else if(ch < (uint32)0x110000) {
-			rBuf.CatChar((uint8)((ch >> 18) | SUtfConst::FirstByteMark[4]));
-			rBuf.CatChar((uint8)(((ch >> 12) | byteMark) & byteMask));
-			rBuf.CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			rBuf.CatChar((uint8)((ch | byteMark) & byteMask));
-		}
-		else {
-			ch = UNI_REPLACEMENT_CHAR;
-			rBuf.CatChar((uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]));
-			rBuf.CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			rBuf.CatChar((uint8)((ch | byteMark) & byteMask));
-		}
-	}
-	CATCHZOK
-	return ok;
-#endif // } 0
+	return rBuf.CopyUtf8FromUnicode(P_Buf, Len(), strictConversion);
 }
 
 int FASTCALL SStringU::CopyFromUtf8(const SString & rS) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, 0); }
@@ -6482,6 +6466,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		uint   i;
 		LAssocArray chr_list;
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
+		const char the_first_chr = pToken[0];
 		for(i = 0; i < stat.Len; i++) {
             const uchar c = pToken[i];
 			const size_t ul = IsUtf8(pToken+i, stat.Len-i);
@@ -6506,24 +6491,14 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH);
 		}
 		else {
+			if(the_first_chr == '#')
+				h |= SNTOKSEQ_LEADSHARP;
+			else if(the_first_chr == '-')
+				h |= SNTOKSEQ_LEADMINUS;
+			else if(the_first_chr == '$')
+				h |= SNTOKSEQ_LEADDOLLAR;
 			const uint clc = chr_list.getCount();
-			i = 0;
-			{
-				const uchar c = (uchar)chr_list.at(0).Key;
-				if(c == '#') {
-					h |= SNTOKSEQ_LEADSHARP;
-					i++;
-				}
-				else if(c == '-') {
-					h |= SNTOKSEQ_LEADMINUS;
-					i++;
-				}
-				else if(c == '$') {
-					h |= SNTOKSEQ_LEADDOLLAR;
-					i++;
-				}
-			}
-			for(; i < clc; i++) {
+			for(i = 0; i < clc; i++) {
 				const uchar c = (uchar)chr_list.at(i).Key;
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
@@ -7361,6 +7336,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 			SLTEST_CHECK_EQ(total_len1, total_len2);
+		}
+		{
+			//
+			// Кроме "законных" вариантов представления символов в строки добавлены ложные цели для проверки корректной работы
+			// &#, &, &#32 (без ';' в конце)
+			//
+			const char * p_src_xmlenc = "<ФИОИП &#Фамилия=\"&#x423;&#x421;&#x41A;&#x41E;&#x412;\" &Имя=\"&#x415;&#x412;&#x413;&#x415;&#x41D;&#x418;&#x419;\" &#32Отчество=\"&#x41D;&#x418;&#x41A;&#x41E;&#x41B;&#x410;&#x415;&#x412;&#x418;&#x427;\"/>";
+			const char * p_result_xmlenc = "<ФИОИП &#Фамилия=\"УСКОВ\" &Имя=\"ЕВГЕНИЙ\" &#32Отчество=\"НИКОЛАЕВИЧ\"/>";
+			(str = p_src_xmlenc).Decode_XMLENT(out_buf);
+			SLTEST_CHECK_EQ(out_buf, p_result_xmlenc);
 		}
 	}
 	else if(bm == 1) {

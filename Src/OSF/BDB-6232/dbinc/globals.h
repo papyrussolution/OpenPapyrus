@@ -67,30 +67,30 @@ typedef struct __db_globals {
 #endif
 
 	/* Underlying OS interface jump table.*/
-	void	(*j_assert) __P((const char *, const char *, int));
-	int	(*j_close) __P((int));
-	void	(*j_dirfree) __P((char **, int));
-	int	(*j_dirlist) __P((const char *, char ***, int *));
-	int	(*j_exists) __P((const char *, int *));
-	void	(*j_free) __P((void *));
-	int	(*j_fsync) __P((int));
-	int	(*j_ftruncate) __P((int, off_t));
-	int	(*j_ioinfo) __P((const char *, int, uint32 *, uint32 *, uint32 *));
-	void   *(*j_malloc) __P((size_t));
-	int	(*j_file_map) __P((DB_ENV *, char *, size_t, int, void **));
-	int	(*j_file_unmap) __P((DB_ENV *, void *));
-	int	(*j_open) __P((const char *, int, ...));
-	ssize_t	(*j_pread) __P((int, void *, size_t, off_t));
-	ssize_t	(*j_pwrite) __P((int, const void *, size_t, off_t));
-	ssize_t	(*j_read) __P((int, void *, size_t));
-	void   *(*j_realloc) __P((void *, size_t));
-	int	(*j_region_map) __P((DB_ENV *, char *, size_t, int *, void **));
-	int	(*j_region_unmap) __P((DB_ENV *, void *));
-	int	(*j_rename) __P((const char *, const char *));
-	int	(*j_seek) __P((int, off_t, int));
-	int	(*j_unlink) __P((const char *));
-	ssize_t	(*j_write) __P((int, const void *, size_t));
-	int	(*j_yield) __P((u_long, u_long));
+	void	(*j_assert)(const char *, const char *, int);
+	int	(*j_close)(int);
+	void	(*j_dirfree)(char **, int);
+	int	(*j_dirlist)(const char *, char ***, int *);
+	int	(*j_exists)(const char *, int *);
+	void	(*j_free)(void *);
+	int	(*j_fsync)(int);
+	int	(*j_ftruncate)(int, off_t);
+	int	(*j_ioinfo)(const char *, int, uint32 *, uint32 *, uint32 *);
+	void   *(*j_malloc)(size_t);
+	int	(*j_file_map)(DB_ENV *, char *, size_t, int, void **);
+	int	(*j_file_unmap)(DB_ENV *, void *);
+	int	(*j_open)(const char *, int, ...);
+	ssize_t	(*j_pread)(int, void *, size_t, off_t);
+	ssize_t	(*j_pwrite)(int, const void *, size_t, off_t);
+	ssize_t	(*j_read)(int, void *, size_t);
+	void   *(*j_realloc)(void *, size_t);
+	int	(*j_region_map)(DB_ENV *, char *, size_t, int *, void **);
+	int	(*j_region_unmap)(DB_ENV *, void *);
+	int	(*j_rename)(const char *, const char *);
+	int	(*j_seek)(int, off_t, int);
+	int	(*j_unlink)(const char *);
+	ssize_t	(*j_write)(int, const void *, size_t);
+	int	(*j_yield)(u_long, u_long);
 } DB_GLOBALS;
 
 extern	DB_GLOBALS	__db_global_values;

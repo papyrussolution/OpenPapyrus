@@ -3784,8 +3784,8 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	url.CatChar('&').CatEq("text", (temp_buf = rSrcText).ToUrl());
 	log_buf.Cat((temp_buf = rSrcText).Transf(CTRANSF_UTF8_TO_INNER)).Tab();
 	// $authHeader = "Authorization: Bearer ". $accessToken;
-	http_header.Add("Authorization", temp_buf.Z().Cat("Bearer").Space().Cat(Token));
-	http_header.Add("Content-Type", "text/xml");
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(Token));
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "text/xml");
 	{
 		const uint64 at_start = SLS.GetProfileTime();
 		ScURL  curl;

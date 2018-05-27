@@ -32,17 +32,27 @@ private:
 
 class SXml {
 public:
+	//
+	// Descr: Формирует строку вида "ns:tag" из компонентов pNs и pT соответственно.
+	// Note: Функция экспериментальная.
+	// Returns: 
+	//   Ссылка на результирующий буфер, полученный из локального к потоку револьверного хранилища.
+	//
+	static const SString & FASTCALL nst(const char * pNs, const char * pT);
+
 	class WDoc {
 	public:
 		WDoc(xmlTextWriter * pWriter, SCodepage cp);
+		//
+		// Descr: Создает документ без пролога 
+		//
+		WDoc(xmlTextWriter * pWriter);
 		~WDoc();
-		operator xmlTextWriter * ()
-		{
-			return Lx;
-		}
+		operator xmlTextWriter * () { return Lx; }
 	private:
 		enum {
-			stStarted = 0x0001
+			stStarted    = 0x0001,
+			stSkipHeader = 0x0002 // Документ не содержит пролога <?xml version="1.0" encoding="UTF-8"?>
 		};
 		long   State;
 		xmlTextWriter * Lx;

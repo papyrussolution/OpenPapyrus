@@ -2403,14 +2403,10 @@ static void ENHPS_WRITEC(int c)
 	static int in_utf8 = 0; /* nonzero means we are inside a multibyte sequence */
 	static char utf8[6]; /* holds the multibyte sequence being accumulated   */
 	static int nbytes = 0; /* number of bytes expected in the sequence */
-
 	/* UTF-8 Encoding */
 	if(encoding == S_ENC_UTF8 && (c & 0x80) != 0) {
 		if(in_utf8 == 0) {
-			nbytes = (c & 0xE0) == 0xC0 ? 2
-			    : (c & 0xF0) == 0xE0 ? 3
-			    : (c & 0xF8) == 0xF0 ? 4
-			    : 0;
+			nbytes = ((c & 0xE0) == 0xC0) ? 2 : (((c & 0xF0) == 0xE0) ? 3 : (((c & 0xF8) == 0xF0) ? 4 : 0));
 			if(!nbytes) /* Illegal UTF8 char; hope it's printable  */
 				fputc(c, gppsfile);
 			else

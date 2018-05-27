@@ -43,6 +43,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 #define STRICT
+#define max MAX // @v10.0.08
+#define min MIN // @v10.0.08
 #include <windows.h>
 #include <windowsx.h>
 #include <commdlg.h>

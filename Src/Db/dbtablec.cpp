@@ -101,10 +101,14 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 // extern const uint32 SLobSignature[4];
 static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v9.7.11 static
 
-int SLob::IsStructured() const
-{
-	return BIN(memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0);
-}
+int    SLob::IsStructured() const
+	{ return BIN(memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
+int    SLob::IsPtr() const 
+	{ return BIN(IsStructured() && Buf.H.Flags & hfPtr); }
+void * SLob::GetRawDataPtr()
+	{ return IsStructured() ? ((Buf.H.Flags & hfPtr) ? (void *)Buf.H.H : 0) : Buf.B; }
+size_t SLob::GetPtrSize() const
+	{ return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
 
 int SLob::SetStructured()
 {
@@ -164,11 +168,6 @@ int FASTCALL SLob::InitPtr(uint32 sz)
 	return ok;
 }
 
-int SLob::IsPtr() const
-{
-	return BIN(IsStructured() && Buf.H.Flags & hfPtr);
-}
-
 int SLob::DestroyPtr()
 {
 	int    ok = -1;
@@ -183,19 +182,6 @@ int SLob::DestroyPtr()
 		THISZERO();
 	}
 	return ok;
-}
-
-void * SLob::GetRawDataPtr()
-{
-	if(IsStructured())
-		return (Buf.H.Flags & hfPtr) ? (void *)Buf.H.H : 0;
-	else
-		return Buf.B;
-}
-
-size_t SLob::GetPtrSize() const
-{
-	return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0;
 }
 
 int SLob::Serialize(int dir, size_t flatSize, uint8 * pInd, SBuffer & rBuf)
@@ -334,11 +320,6 @@ int SLAPI DBTable::ToggleStmt(int release)
 		P_Stmt = p_temp;
 	}
 	return 1;
-}
-
-DBTable::SelectStmt * SLAPI DBTable::GetStmt()
-{
-	return P_Stmt;
 }
 
 int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @global
@@ -503,10 +484,16 @@ int SLAPI DBTable::close()
 	return 1;
 }
 
-int SLAPI DBTable::IsOpened() const
-{
-	return (handle != 0);
-}
+int    SLAPI DBTable::IsOpened() const { return (handle != 0); }
+void   SLAPI DBTable::clearDataBuf() { memzero(P_DBuf, bufLen); }
+RECORDSIZE SLAPI DBTable::getBufLen() const { return bufLen; }
+DBRowId * DBTable::getCurRowIdPtr() { return &CurRowId; }
+uint   SLAPI DBTable::GetLobCount() const { return LobB.getCount(); }
+DBLobBlock * DBTable::getLobBlock() { return &LobB; }
+int    DBTable::setLobSize(DBField fld, size_t sz) { return LobB.SetSize((uint)fld.fld, sz); }
+int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSize((uint)fld.fld, pSz); }
+RECORDSIZE FASTCALL DBTable::getRecSize() const { return FixRecSize; }
+DBTable::SelectStmt * SLAPI DBTable::GetStmt() { return P_Stmt; }
 
 int FASTCALL DBTable::getField(uint fldN, DBField * pFld) const
 {
@@ -610,11 +597,6 @@ const SBaseBuffer FASTCALL DBTable::getBuffer() const
 	return ret_buf;
 }
 
-void SLAPI DBTable::clearDataBuf()
-{
-	memzero(P_DBuf, bufLen);
-}
-
 void FASTCALL DBTable::copyBufFrom(const void * pBuf)
 {
 	if(pBuf && P_DBuf) {
@@ -655,9 +637,6 @@ int SLAPI DBTable::copyBufToKey(int idx, void * pKey) const
 		ok = 0; // @todo(errdef)
 	return ok;
 }
-
-RECORDSIZE SLAPI DBTable::getBufLen() const { return bufLen; }
-DBRowId * DBTable::getCurRowIdPtr() { return &CurRowId; }
 
 int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 {
@@ -751,11 +730,6 @@ int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 	}
 	return ok;
 }
-
-uint   SLAPI DBTable::GetLobCount() const { return LobB.getCount(); }
-DBLobBlock * DBTable::getLobBlock() { return &LobB; }
-int    DBTable::setLobSize(DBField fld, size_t sz) { return LobB.SetSize((uint)fld.fld, sz); }
-int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSize((uint)fld.fld, pSz); }
 
 int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 {
@@ -862,11 +836,6 @@ int SLAPI DBTable::RestoreLob()
 	return ok;
 }
 
-RECORDSIZE FASTCALL DBTable::getRecSize() const
-{
-	return FixRecSize;
-}
-
 int FASTCALL DBTable::insertRecBuf(const void * pData)
 {
 	OutOfTransactionLogging("insertRec");
@@ -937,17 +906,15 @@ int SLAPI DBTable::deleteByQuery(int useTa, DBQ & rQ)
 	else {
 		DBQuery * q = & selectAll().from(this, 0L).where(rQ);
 		q->setDestroyTablesMode(0);
-		// @v8.1.4 q->setSearchForUpdateMode(1);
 		if(!useTa || Btrieve::StartTransaction(1)) {
 			for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
-				// @v8.1.4 {
 				uint8  key_buf[512];
 				DBRowId _dbpos;
 				if(!getPosition(&_dbpos))
 					ok = 0;
 				else if(!getDirectForUpdate(getCurIndex(), key_buf, _dbpos))
 					ok = 0;
-				else { // } @v8.1.4
+				else {
 					if(deleteRec() == 0) // @sfu
 						ok = 0;
 				}
@@ -1020,34 +987,17 @@ int SLAPI DBTable::getDirectForUpdate(int idx, void * pKey, const DBRowId & rPos
 }
 
 int FASTCALL DBTable::searchForUpdate(void * pKey, int srchMode)
-{
-	return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(index, pKey, srchMode, sfForUpdate);
-}
-
+	{ return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(index, pKey, srchMode, sfForUpdate); }
 int FASTCALL DBTable::searchForUpdate(int idx, void * pKey, int srchMode)
-{
-	return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(idx, pKey, srchMode, sfForUpdate);
-}
-
+	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(idx, pKey, srchMode, sfForUpdate); }
 int FASTCALL DBTable::search(int idx, void * pKey, int srchMode)
-{
-	return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, 0) : Btr_Implement_Search(idx, pKey, srchMode, 0);
-}
-
+	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, 0) : Btr_Implement_Search(idx, pKey, srchMode, 0); }
 int FASTCALL DBTable::search(void * pKey, int srchMode)
-{
-	return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, 0) : Btr_Implement_Search(index, pKey, srchMode, 0);
-}
-
+	{ return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, 0) : Btr_Implement_Search(index, pKey, srchMode, 0); }
 int SLAPI DBTable::searchKey(int idx, void * pKey, int srchMode)
-{
-	return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfKeyOnly) : Btr_Implement_Search(idx, pKey, srchMode, sfKeyOnly);
-}
-
+	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfKeyOnly) : Btr_Implement_Search(idx, pKey, srchMode, sfKeyOnly); }
 int SLAPI DBTable::GetFileStat(long reqItems, DbTableStat * pStat)
-{
-	return P_Db ? P_Db->GetFileStat(this, reqItems, pStat) : Btr_GetStat(reqItems, pStat);
-}
+	{ return P_Db ? P_Db->GetFileStat(this, reqItems, pStat) : Btr_GetStat(reqItems, pStat); }
 
 int SLAPI DBTable::SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {

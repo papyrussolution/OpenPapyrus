@@ -257,7 +257,7 @@ int SLAPI SMailClient::Connect(InetUrl & rUrl, int timeout)
 	if(State & stConnected)
 		ok = -1;
 	else {
-		C.Reset();
+		C.Z();
 		const int protocol = rUrl.GetProtocol();
 		THROW_S_S(oneof4(protocol, InetUrl::protSMTP, InetUrl::protSMTPS, InetUrl::protPOP3, InetUrl::protPOP3S), SLERR_MAIL_INVPROTOCOL,
 			InetUrl::GetSchemeMnem(protocol));
@@ -360,7 +360,7 @@ int SLAPI SMailClient::Disconnect()
 			State &= ~stLoggedIn;
 		}
 		So.Disconnect();
-		C.Reset();
+		C.Z();
 		State &= ~stConnected;
 	}
 	else

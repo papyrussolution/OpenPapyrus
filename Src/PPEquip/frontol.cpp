@@ -1100,9 +1100,8 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 				int    div = 0; // Номер отдела
 				const  int is_free_price = oneof2(op_type, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE);
 				ss.get(&pos, buf);
-				if(is_free_price) {
+				if(is_free_price)
 					goods_id = def_goods_id;
-				}
 				else {
 					goods_id = buf.ToLong(); // #08 ID товара
 					if(UseAltImport) {

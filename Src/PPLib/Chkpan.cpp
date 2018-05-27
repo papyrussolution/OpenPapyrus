@@ -6878,8 +6878,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 					}
 				}
 				p_list->setDef(p_def);
-				if(p_list->def)
-					p_list->def->SetOption(lbtSelNotify, 1);
+				CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
 				ActiveListID = CTL_CHKPAN_GDSLIST;
 				p_list->Draw_();
 			}

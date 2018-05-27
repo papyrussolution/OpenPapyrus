@@ -1142,6 +1142,8 @@
 #define PPOBJ_EGAISREFA     1071L  // @v8.9.5 Специализированный объект, хранящий данные справок А системы ЕГАИС
 #define PPOBJ_EGAISPRODUCT  1072L  // @v8.9.5 Специализированный объект, хранящий данные о товарах системы ЕГАИС
 #define PPOBJ_EGAISPERSON   1073L  // @v8.9.7 Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
+#define PPOBJ_VETISPRODUCT  1074L  // @v10.0.09 Специализированный объект, хранящий данные о товарах системы VETIS
+#define PPOBJ_VETISPERSON   1075L  // @v10.0.09 Специализированный объект, хранящий данные о персоналиях системы VETIS
 #define PPOBJ_DBCONVERT     1100L  // @v6.4.6 Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -1245,6 +1247,8 @@
 #define PPTAG_BILL_EDIORDRSPSENT    71L // @v10.0.06 Информация об отправленном ORDRSP
 #define PPTAG_BILL_EDIALCDESADVSENT 72L // @v10.0.06 Информация об отправленном ALCODESADV
 #define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 Информация об отправленном INVOIC
+#define PPTAG_PERSON_VETISISSUUID   74L // @v10.0.08 Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
 // @construction(VETIS) {
 #define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 
@@ -1478,7 +1482,7 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
@@ -11825,19 +11829,19 @@
 // @v9.2.5 (автомат) #define PPTXT_GOODSGRPNGLIST              326 // Список группировок товара
 #define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
 #define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
-#define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
-#define PPTXT_JOBPOOLLOADFAULT            334 // Не удалось загрузить пул задач
-#define PPTXT_PPYSERVERSTOPPED            335 // TCP сервер остановлен
+// @v10.0.09 #define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
+// @v10.0.09 #define PPTXT_JOBPOOLLOADFAULT            334 // Не удалось загрузить пул задач
+// @v10.0.09 #define PPTXT_PPYSERVERSTOPPED            335 // TCP сервер остановлен
 #define PPTXT_TODOCTPARAMS                336 // Список показателей кросстаба для задач
 	#define PPTDCTPAR_UNCOMPLTASKS      1
 	#define PPTDCTPAR_COMPLTASKRATIO    2
 	#define PPTDCTPAR_WROFBILLPRCT      3
-#define PPTXT_RCVPACKETREJSRCVER          337 // Пакет приема данных отклонен, поскольку создан версией меньшей чем %s
+// @v10.0.09 #define PPTXT_RCVPACKETREJSRCVER          337 // Пакет приема данных отклонен, поскольку создан версией меньшей чем %s
 //                                        338 // @v4.9.15 Occupied
-#define PPTXT_SELECTOBJECT                339 // Выберите объект
-#define PPTXT_DBMAINTAIN                  340 // Обслуживание таблицы %s
-#define PPTXT_ERRACCEPTBILL_INCOMPATOP    341 // Несовместимый вид операции (ошибка синхронизации)
-#define PPTXT_PRCISFREE                   342 // Процессор свободен
+// @v10.0.09 #define PPTXT_SELECTOBJECT                339 // Выберите объект
+// @v10.0.09 #define PPTXT_DBMAINTAIN                  340 // Обслуживание таблицы %s
+// @v10.0.09 #define PPTXT_ERRACCEPTBILL_INCOMPATOP    341 // Несовместимый вид операции (ошибка синхронизации)
+// @v10.0.09 #define PPTXT_PRCISFREE                   342 // Процессор свободен
 #define PPTXT_TSESSLINESIGN               343 // Расход;Выход;Использование;Не определен
 //
 // Подсказки панели ввода по процессору

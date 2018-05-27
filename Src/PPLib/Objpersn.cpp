@@ -506,8 +506,7 @@ public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
 		if(P_Box) {
-			if(P_Box->def)
-				P_Box->def->SetOption(lbtFocNotify, 1);
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
@@ -647,8 +646,7 @@ public:
 		// @v9.2.5 list_title = "30,L,Тип транзакции;50,L,Вид транзакции";
 		if(P_Box) {
 			// @v9.2.5 P_Box->SetupColumns(list_title.ToOem());
-			if(P_Box->def)
-				P_Box->def->SetOption(lbtFocNotify, 1);
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
@@ -4500,6 +4498,149 @@ IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
 //
 //
 //
+enum AnalyzePersonNameResultFlags {
+	apnrfFirstName                = 0x0001,
+	apnrfPatronymic               = 0x0002,
+	apnrfLastName                 = 0x0004,
+	apnrfGenusRerum               = 0x0008, // Форма собственности "formeo"
+	apnrfNegotiumTaxonomyCategory = 0x0010, // Категория предприятия "entkind"
+};
+
+static long AnalyzePersonName(const SString & rName, long * pGenderMusComponents, long * pGenderFemComponents)
+{
+	long   nam_components = 0; // apnrfXXX
+	long   gender_mus_components = 0;
+	long   gender_fem_components = 0;
+	SString name(rName);
+	if(name.NotEmptyS()) {
+		const SrSyntaxRuleSet * p_rs = DS.GetSrSyntaxRuleSet();
+		if(p_rs) {
+			SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
+			if(p_srdb) {
+				TSCollection <SrSyntaxRuleSet::Result> result_list;
+				SrCPropList cpl;
+				//
+				CONCEPTID parent_fname_cid = 0;
+				CONCEPTID parent_sname_cid = 0;
+				CONCEPTID parent_pname_cid = 0;
+				CONCEPTID gender_cid = 0;
+				CONCEPTID gender_fem_cid = 0;
+				CONCEPTID gender_mas_cid = 0;
+				const CONCEPTID prop_subclass = p_srdb->GetReservedConcept(p_srdb->rcSubclass);
+				const CONCEPTID prop_instance = p_srdb->GetReservedConcept(p_srdb->rcInstance);
+				if(prop_subclass && prop_instance) {
+					p_srdb->SearchConcept("hum_fname", &parent_fname_cid);
+					p_srdb->SearchConcept("hum_sname", &parent_sname_cid);
+					p_srdb->SearchConcept("hum_pname", &parent_pname_cid);
+					p_srdb->SearchConcept("gender", &gender_cid);
+					p_srdb->SearchConcept("gender_mas", &gender_mas_cid);
+					p_srdb->SearchConcept("gender_fem", &gender_fem_cid);
+				}
+				const int test_gender_concept = BIN(gender_cid && gender_fem_cid && gender_mas_cid);
+				//
+				SrSyntaxRuleTokenizer t;
+				uint   idx_first = 0;
+				uint   idx_count = 0;
+				STokenizer::Item item_;
+				name.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+				t.ProcessString("", name, &idx_first, &idx_count);
+				if(p_rs->ProcessText(*p_srdb, t, idx_first, idx_count, result_list) > 0) {
+					SString rule_name;
+					SString temp_buf;
+					for(uint residx = 0; residx < result_list.getCount(); residx++) {
+						const SrSyntaxRuleSet::Result * p_result = result_list.at(residx);
+						if(p_result) {
+							const SrSyntaxRuleSet::Rule * p_rule = p_rs->GetRule(p_result->RuleIdx);
+							p_rs->GetRuleName(p_result->RuleIdx, rule_name);
+							if(rule_name == "formeo") {
+								nam_components |= apnrfGenusRerum;
+								break;
+							}
+							else if(rule_name == "entkind") {
+								nam_components |= apnrfNegotiumTaxonomyCategory;
+								break;
+							}
+							else if(rule_name == "humname") {
+								SrCProp cp, cp_gender;
+								for(uint j = 0; j < p_result->MatchList.getCount(); j++) {
+									const SrSyntaxRuleSet::MatchEntry & r_me = p_result->MatchList.at(j);
+									if(r_me.P_Rule && r_me.StackP < r_me.P_Rule->ES.getCount()) {
+										const SrSyntaxRuleSet::ExprItem * p_ei = (const SrSyntaxRuleSet::ExprItem *)r_me.P_Rule->ES.at(r_me.StackP);
+										switch(p_ei ? p_ei->K : 0) {
+											case SrSyntaxRuleSet::kLiteral:
+											case SrSyntaxRuleSet::kConcept:
+											case SrSyntaxRuleSet::kMorph:
+												break;
+											case SrSyntaxRuleSet::kRule:
+												p_rs->GetS(p_ei->SymbP, temp_buf);
+												temp_buf.Strip();
+												if(temp_buf == "humname_s") {
+													nam_components |= apnrfLastName;
+													if(r_me.ConceptId && test_gender_concept && parent_sname_cid) {
+														const CONCEPTID _c = r_me.ConceptId;
+														if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_instance, cp)) {
+															CONCEPTID _val = 0;
+															if(cp.Get(_val) && _val == parent_sname_cid) {
+																if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																	if(_val == gender_mas_cid)
+																		gender_mus_components |= apnrfLastName;
+																	else if(_val == gender_fem_cid)
+																		gender_fem_components |= apnrfLastName;
+																}
+															}
+														}
+													}
+												}
+												else if(temp_buf == "humname_f") {
+													nam_components |= apnrfFirstName;
+													if(r_me.ConceptId && test_gender_concept && parent_fname_cid) {
+														const CONCEPTID _c = r_me.ConceptId;
+														if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_instance, cp)) {
+															CONCEPTID _val = 0;
+															if(cp.Get(_val) && _val == parent_fname_cid) {
+																if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																	if(_val == gender_mas_cid)
+																		gender_mus_components |= apnrfFirstName;
+																	else if(_val == gender_fem_cid)
+																		gender_fem_components |= apnrfFirstName;
+																}
+															}
+														}
+													}
+												}
+												else if(temp_buf == "humname_p") {
+													nam_components |= apnrfPatronymic;
+													if(r_me.ConceptId && test_gender_concept && parent_pname_cid) {
+														const CONCEPTID _c = r_me.ConceptId;
+														if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_instance, cp)) {
+															CONCEPTID _val = 0;
+															if(cp.Get(_val) && _val == parent_pname_cid) {
+																if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																	if(_val == gender_mas_cid)
+																		gender_mus_components |= apnrfPatronymic;
+																	else if(_val == gender_fem_cid)
+																		gender_fem_components |= apnrfPatronymic;
+																}
+															}
+														}
+													}
+												}
+												break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pGenderMusComponents, gender_mus_components);
+	ASSIGN_PTR(pGenderFemComponents, gender_fem_components);
+	return nam_components;
+}
+
 IMPL_HANDLE_EVENT(PersonDialog)
 {
 	// @v10.0.01 {
@@ -4524,135 +4665,18 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					if(p_dc && getCtrlHandle(CTL_PERSON_NAME) == p_dc->H_Ctl) {
 						SString name;
 						getCtrlString(CTL_PERSON_NAME, name);
-						if(name.NotEmptyS()) {
-							const SrSyntaxRuleSet * p_rs = DS.GetSrSyntaxRuleSet();
-							if(p_rs) {
-								SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
-								if(p_srdb) {
-									TSCollection <SrSyntaxRuleSet::Result> result_list;
-									SrCPropList cpl;
-									//
-									CONCEPTID parent_fname_cid = 0;
-									CONCEPTID parent_sname_cid = 0;
-									CONCEPTID parent_pname_cid = 0;
-									CONCEPTID gender_cid = 0;
-									CONCEPTID gender_fem_cid = 0;
-									CONCEPTID gender_mas_cid = 0;
-									const CONCEPTID prop_subclass = p_srdb->GetReservedConcept(p_srdb->rcSubclass);
-									if(prop_subclass) {
-										p_srdb->SearchConcept("hum_fname", &parent_fname_cid);
-										p_srdb->SearchConcept("hum_sname", &parent_sname_cid);
-										p_srdb->SearchConcept("hum_pname", &parent_pname_cid);
-										p_srdb->SearchConcept("gender", &gender_cid);
-										p_srdb->SearchConcept("gender_mas", &gender_mas_cid);
-										p_srdb->SearchConcept("gender_fem", &gender_fem_cid);
-									}
-									const int test_gender_concept = BIN(gender_cid && gender_fem_cid && gender_mas_cid);
-									//
-									SrSyntaxRuleTokenizer t;
-									uint   idx_first = 0;
-									uint   idx_count = 0;
-									STokenizer::Item item_;
-									name.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-									t.ProcessString("", name, &idx_first, &idx_count);
-									if(p_rs->ProcessText(*p_srdb, t, idx_first, idx_count, result_list) > 0) {
-										SString rule_name;
-										SString temp_buf;
-										for(uint residx = 0; residx < result_list.getCount(); residx++) {
-											const SrSyntaxRuleSet::Result * p_result = result_list.at(residx);
-											if(p_result) {
-												const SrSyntaxRuleSet::Rule * p_rule = p_rs->GetRule(p_result->RuleIdx);
-												p_rs->GetRuleName(p_result->RuleIdx, rule_name);
-												if(rule_name == "formeo" || rule_name == "entkind") {
-													color_ident = 0;
-													break;
-												}
-												else if(rule_name == "humname") {
-													long nam_components = 0; // 0x01 - firstname, 0x02 - patronymic, 0x04 - lastname
-													long gender_fem_components = 0;
-													long gender_mus_components = 0;
-													SrCProp cp, cp_gender;
-													for(uint j = 0; j < p_result->MatchList.getCount(); j++) {
-														const SrSyntaxRuleSet::MatchEntry & r_me = p_result->MatchList.at(j);
-														if(r_me.P_Rule && r_me.StackP < r_me.P_Rule->ES.getCount()) {
-															const SrSyntaxRuleSet::ExprItem * p_ei = (const SrSyntaxRuleSet::ExprItem *)r_me.P_Rule->ES.at(r_me.StackP);
-															switch(p_ei ? p_ei->K : 0) {
-																case SrSyntaxRuleSet::kLiteral:
-																case SrSyntaxRuleSet::kConcept:
-																case SrSyntaxRuleSet::kMorph:
-																	break;
-																case SrSyntaxRuleSet::kRule:
-																	p_rs->GetS(p_ei->SymbP, temp_buf);
-																	temp_buf.Strip();
-																	if(temp_buf == "humname_s") {
-																		nam_components |= 0x04;
-																		if(r_me.ConceptId && test_gender_concept && parent_sname_cid) {
-																			const CONCEPTID _c = r_me.ConceptId;
-																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
-																				CONCEPTID _val = 0;
-																				if(cp.Get(_val) && _val == parent_sname_cid) {
-																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
-																						if(_val == gender_mas_cid)
-																							gender_mus_components |= 0x04;
-																						else if(_val == gender_fem_cid)
-																							gender_fem_components |= 0x04;
-																					}
-																				}
-																			}
-																		}
-																	}
-																	else if(temp_buf == "humname_f") {
-																		nam_components |= 0x01;
-																		if(r_me.ConceptId && test_gender_concept && parent_fname_cid) {
-																			const CONCEPTID _c = r_me.ConceptId;
-																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
-																				CONCEPTID _val = 0;
-																				if(cp.Get(_val) && _val == parent_fname_cid) {
-																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
-																						if(_val == gender_mas_cid)
-																							gender_mus_components |= 0x01;
-																						else if(_val == gender_fem_cid)
-																							gender_fem_components |= 0x01;
-																					}
-																				}
-																			}
-																		}
-																	}
-																	else if(temp_buf == "humname_p") {
-																		nam_components |= 0x02;
-																		if(r_me.ConceptId && test_gender_concept && parent_pname_cid) {
-																			const CONCEPTID _c = r_me.ConceptId;
-																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
-																				CONCEPTID _val = 0;
-																				if(cp.Get(_val) && _val == parent_pname_cid) {
-																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
-																						if(_val == gender_mas_cid)
-																							gender_mus_components |= 0x02;
-																						else if(_val == gender_fem_cid)
-																							gender_fem_components |= 0x02;
-																					}
-																				}
-																			}
-																		}
-																	}
-																	break;
-															}
-														}
-													}
-													if(nam_components & 0x04) {
-														color_ident = brushHumanName;
-														if(gender_fem_components && !gender_mus_components)
-															color_ident = brushHumanNameFem;
-														else if(gender_mus_components && !gender_fem_components)
-															color_ident = brushHumanNameMus;
-														else
-															color_ident = brushHumanName;
-													}
-												}
-											}
-										}
-									}
-								}
+						long gender_fem_components = 0;
+						long gender_mus_components = 0;
+						long nam_components = AnalyzePersonName(name, &gender_mus_components, &gender_fem_components);
+						if(nam_components) {
+							if((nam_components & apnrfLastName) || (nam_components & (apnrfFirstName|apnrfPatronymic))) {
+								color_ident = brushHumanName;
+								if(gender_fem_components && !gender_mus_components)
+									color_ident = brushHumanNameFem;
+								else if(gender_mus_components && !gender_fem_components)
+									color_ident = brushHumanNameMus;
+								else
+									color_ident = brushHumanName;
 							}
 						}
 					}

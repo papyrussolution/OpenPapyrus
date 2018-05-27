@@ -2785,278 +2785,72 @@ int SProxiAuthParam::GetEntry(int protocol, Entry & rEntry) const
 //
 //
 //
-SHttpClient::Response::Response() : HttpVerMj(0), HttpVerMn(0), ErrCode(0), TransferType(transftypUndef), ContentLength(0), State(0)
-{
-}
-
-SHttpClient::Response & SHttpClient::Response::Reset()
-{
-	HttpVerMj = 0;
-	HttpVerMn = 0;
-	ErrCode = 0;
-	TransferType = transftypUndef;
-	ContentLength = 0;
-	State = 0;
-	Descr.Z();
-	SBuffer::Clear();
-	Header.Z();
-	return *this;
-}
-//
-//
-//
-SHttpClient::SHttpClient() : HttpVerMj(1), HttpVerMn(1)
-{
-}
-
-SHttpClient::~SHttpClient()
-{
-}
-
-int SHttpClient::SetHeader(int hdrTag, const char * pValue)
-{
-	return Header.Add(hdrTag, NZOR(pValue, ""));
-}
-
-void SHttpClient::ClearHeader()
-{
-	Header.Z();
-}
-
-static const char * HttpHeader[] = {
-	"",
-	"Cache-Control",
-	"Connection",
-	"Date",
-	"Pragma",
-	"Trailer",
-	"Transfer-Encoding",
-	"Upgrade",
-	"Via",
-	"Warning",
-	"Allow",
-	"Content-Encoding",
-	"Content-Language",
-	"Content-Length",
-	"Content-Location",
-	"Content-MD5",
-	"Content-Range",
-	"Content-Type",
-	"Expires",
-	"Last-Modified",
-	"Accept-Ranges",
-	"Age",
-	"ETag",
-	"Location",
-	"Proxy-Authenticate",
-	"Retry-After",
-	"Server",
-	"Vary",
-	"WWW-Authenticate",
-	"Accept",
-	"Accept-Charset",
-	"Accept-Encoding",
-	"Accept-Language",
-	"Authorization",
-	"Expect",
-	"From",
-	"Host",
-	"If-Match",
-	"If-Modified-Since",
-	"If-None-Match",
-	"If-Range",
-	"If-Unmodified-Since",
-	"Max-Forwards",
-	"Proxy-Authorization",
-	"Range",
-	"Referer",
-	"TE",
-	"User-Agent",
-	"SoapAction"
+static const SIntToSymbTabEntry HttpHeaderTitles[] = {
+	{ SHttpProtocol::hdrNone, "" },
+	{ SHttpProtocol::hdrCacheControl, "Cache-Control" },
+	{ SHttpProtocol::hdrConnection, "Connection" },
+	{ SHttpProtocol::hdrDate, "Date" },
+	{ SHttpProtocol::hdrPragma, "Pragma" },
+	{ SHttpProtocol::hdrTrailer, "Trailer" },
+	{ SHttpProtocol::hdrTransferEnc, "Transfer-Encoding" },
+	{ SHttpProtocol::hdrUpgrade, "Upgrade" },
+	{ SHttpProtocol::hdrVia, "Via" },
+	{ SHttpProtocol::hdrWarning, "Warning" },
+	{ SHttpProtocol::hdrAllow, "Allow" },
+	{ SHttpProtocol::hdrContentEnc, "Content-Encoding" },
+	{ SHttpProtocol::hdrContentLang, "Content-Language" },
+	{ SHttpProtocol::hdrContentLen, "Content-Length" },
+	{ SHttpProtocol::hdrContentLoc, "Content-Location" },
+	{ SHttpProtocol::hdrContentMD5, "Content-MD5" },
+	{ SHttpProtocol::hdrContentRange, "Content-Range" },
+	{ SHttpProtocol::hdrContentType, "Content-Type" },
+	{ SHttpProtocol::hdrExpires, "Expires" },
+	{ SHttpProtocol::hdrLastModif, "Last-Modified" },
+	{ SHttpProtocol::hdrAcceptRanges, "Accept-Ranges" },
+	{ SHttpProtocol::hdrAge, "Age" },
+	{ SHttpProtocol::hdrExtTag, "ETag" },
+	{ SHttpProtocol::hdrLoc, "Location" },
+	{ SHttpProtocol::hdrAuthent, "Proxy-Authenticate" },
+	{ SHttpProtocol::hdrRetryAfter, "Retry-After" },
+	{ SHttpProtocol::hdrServer, "Server" },
+	{ SHttpProtocol::hdrVary, "Vary" },
+	{ SHttpProtocol::hdrWwwAuthent, "WWW-Authenticate" },
+	{ SHttpProtocol::hdrAccept, "Accept" },
+	{ SHttpProtocol::hdrAcceptCharset, "Accept-Charset" },
+	{ SHttpProtocol::hdrAcceptEnc, "Accept-Encoding" },
+	{ SHttpProtocol::hdrAcceptLang, "Accept-Language" },
+	{ SHttpProtocol::hdrAuthorization, "Authorization" },
+	{ SHttpProtocol::hdrExpect, "Expect" },
+	{ SHttpProtocol::hdrFrom, "From" },
+	{ SHttpProtocol::hdrHost, "Host" },
+	{ SHttpProtocol::hdrIfMatch, "If-Match" },
+	{ SHttpProtocol::hdrIfModifSince, "If-Modified-Since" },
+	{ SHttpProtocol::hdrIfNonMatch, "If-None-Match" },
+	{ SHttpProtocol::hdrIfRange, "If-Range" },
+	{ SHttpProtocol::hdrIfUnmodifSince, "If-Unmodified-Since" },
+	{ SHttpProtocol::hdrMaxForwards, "Max-Forwards" },
+	{ SHttpProtocol::hdrProxiAuth, "Proxy-Authorization" },
+	{ SHttpProtocol::hdrRange, "Range" },
+	{ SHttpProtocol::hdrReferer, "Referer" },
+	{ SHttpProtocol::hdrTransferExt, "TE" },
+	{ SHttpProtocol::hdrUserAgent, "User-Agent" },
+	{ SHttpProtocol::hdrSoapAction, "SoapAction" }
 };
 
 // static
-int SHttpClient::GetHeaderTitle(int hdr, SString & rTitle)
-{
-	int    ok = 1;
-	if(hdr > 0 && hdr < SIZEOFARRAY(HttpHeader)) {
-		rTitle = HttpHeader[hdr];
-		ok = 1;
-	}
-	else {
-		rTitle.Z();
-		ok = 0;
-	}
-	return ok;
-}
-
+int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)
+	{ return SIntToSymbTab_GetSymb(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), hdr, rTitle); }
 // static
-int SHttpClient::GetHeaderId(const char * pTitle)
+int FASTCALL SHttpProtocol::GetHeaderId(const char * pTitle)
+	{ return SIntToSymbTab_GetId(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), pTitle); }
+
+//static 
+int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue)
 {
-	int   id = 0;
-	if(!isempty(pTitle)) {
-		for(uint i = 1; !id && i < SIZEOFARRAY(HttpHeader); i++) {
-			if(sstreqi_ascii(HttpHeader[i], pTitle))
-				id = (int)i;
-		}
-	}
-	return id;
-}
-
-int SHttpClient::TolkToServer(int method, const char * pUrl)
-{
-	int    ok = 1;
-	SString temp_buf, line_buf, host_buf, context_buf;
-	InetUrl url(pUrl);
-	THROW(url.Valid());
-	url.GetComponent(InetUrl::cHost, 0, host_buf);
-	THROW(host_buf.NotEmpty()); // @error host not defined
-	{
-		url.GetComponent(InetUrl::cPort, 0, temp_buf);
-		int    port = temp_buf.ToLong();
-		if(!port) {
-			if(url.GetComponent(InetUrl::cScheme, 0, temp_buf))
-				port = InetUrl::GetDefProtocolPort(InetUrl::GetSchemeId(temp_buf));
-			else if(url.GetProtocol())
-				port = InetUrl::GetDefProtocolPort(url.GetProtocol());
-		}
-		url.Set(host_buf, port);
-	}
-	url.GetComponent(InetUrl::cQuery, 0, context_buf);
-	{
-		char   sd_buf[256];
-		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));
-		SetHeader(hdrDate, sd_buf);
-		SetHeader(hdrHost, host_buf);
-	}
-	//
-	THROW(S.Connect(url));
-	{
-		size_t sended_bytes = 0;
-		//
-		// Посылаем сам запрос
-		//
-		line_buf.Z();
-		if(method == reqGet) {
-			line_buf.Cat("GET").Space();
-		}
-		else if(method == reqPost) {
-			line_buf.Cat("POST").Space();
-		}
-		else {
-			CALLEXCEPT(); // Invalid request method
-		}
-		if(context_buf.NotEmpty())
-			line_buf.Cat(context_buf);
-		else
-			line_buf.CatChar('/');
-		line_buf.Space().Cat("HTTP").CatChar('/').Cat(HttpVerMj).Dot().Cat(HttpVerMn).CRB();
-		//
-		// Посылаем теги заголовка запроса
-		//
-		for(uint i = 0; i < Header.getCount(); i++) {
-			StrAssocArray::Item hitem = Header.Get(i);
-			if(!isempty(hitem.Txt) && GetHeaderTitle(hitem.Id, temp_buf)) {
-				line_buf.Cat(temp_buf).CatDiv(':', 2).Cat(hitem.Txt).CRB();
-			}
-		}
-		line_buf.CRB();
-		THROW(S.Send(line_buf, line_buf.Len(), &sended_bytes));
-	}
-	CATCHZOK
-	return ok;
-}
-
-int SHttpClient::ReadResponse(Response & rRsp)
-{
-	//TcpSocket SBuffer
-	int    ok = 1;
-	SString temp_buf, left_buf, right_buf, content_type;
-	size_t rcv_bytes = 0;
-	THROW(S.RecvBuf(rRsp, 0, &rcv_bytes));
-	{
-		//
-		// Разбираем заголовок ответа
-		//
-		SStrScan scan((const char *)(const void *)rRsp);
-		THROW(scan.SearchChar(' '));
-		scan.Get(temp_buf);
-		scan.IncrLen(1);
-		//
-		// Считываем номер версии HTTP
-		//
-		THROW(temp_buf.CmpPrefix("HTTP/", 0) == 0);
-		temp_buf.ShiftLeft(5).Divide('.', left_buf, right_buf);
-		rRsp.HttpVerMj = (uint16)left_buf.ToLong();
-		rRsp.HttpVerMn = (uint16)right_buf.ToLong();
-		//
-		// Считываем код ошибки
-		//
-		THROW(scan.SearchChar(' '));
-		scan.Get(temp_buf);
-		scan.IncrLen(1);
-		rRsp.ErrCode = temp_buf.ToLong();
-		//
-		// Считываем строку описания ответа
-		//
-		THROW(scan.Search("\r\n"));
-		scan.Get(rRsp.Descr);
-		scan.IncrLen(2);
-		//
-		// Считываем теги ответа в формате [key]: [value]
-		//
-		while(scan.SearchChar('\n')) {
-			scan.Get(temp_buf);
-			scan.IncrLen(1);
-			temp_buf.Divide(':', left_buf, right_buf);
-			long   tag_id = SHttpClient::GetHeaderId(left_buf.Strip());
-			if(tag_id)
-				rRsp.Header.Add(tag_id, right_buf.Strip());
-		}
-		//
-		// @todo Разобрать тип контента (hdrContentType)
-		//
-		// str = hpairnode_get(res->header, HEADER_CONTENT_TYPE);
-		// if(str != NULL)
-		//    res->content_type = content_type_new(str);
-		//
-
-		//
-		// Получаем собственно содержание ответа
-		//
-		if(rRsp.Header.GetText(hdrContentLen, temp_buf)) {
-			rRsp.ContentLength = (size_t)temp_buf.ToLong();
-			rRsp.TransferType = rRsp.transftypContentLength;
-		}
-		else if(rRsp.Header.GetText(hdrTransferEnc, temp_buf) && temp_buf == "chunked") {
-			rRsp.ContentLength = 0;
-			rRsp.TransferType = rRsp.transftypChunked;
-		}
-		else {
-			// Assume connection close
-			rRsp.TransferType = rRsp.transftypConnectionClose;
-		}
-		if(rRsp.Header.GetText(hdrContentType, temp_buf) && temp_buf.NotEmpty()) {
-			// example: "Content-Type: text/html; charset=ISO-8859-4"
-			StringSet ss(';', temp_buf);
-			for(uint ss_pos = 0, ss_idx = 0; ss.get(&ss_pos, temp_buf); ss_idx++) {
-				if(ss_idx == 0) {
-					content_type = temp_buf.Strip();
-				}
-				else {
-					temp_buf.Divide('=', left_buf, right_buf);
-					// @todo
-				}
-			}
-			if(content_type == "multipart/related") {
-
-			}
-		}
-	}
-	//
-	//
-	//
-	CATCHZOK
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	int    ok = GetHeaderTitle(titleId, r_temp_buf);
+	if(ok)
+		rFldList.Add(r_temp_buf, pValue);
 	return ok;
 }
 
@@ -3823,6 +3617,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rInfo)
 {
 	int    ok = 1;
+	int    prot = 0;
 	SString temp_buf;
 	rUrl.GetComponent(InetUrl::cUserName, 1, rInfo.User); // @v9.8.12 decode 0-->1
 	rUrl.GetComponent(InetUrl::cPassword, 1, rInfo.Password); // @v9.8.12 decode 0-->1
@@ -3830,7 +3625,6 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 		THROW(SetAuth(authServer, rInfo.User, rInfo.Password));
 	}
 	{
-		int prot = 0;
 		if(rUrl.GetComponent(InetUrl::cScheme, 0, temp_buf)) {
 			prot = rUrl.GetSchemeId(temp_buf);
 			rUrl.SetProtocol(prot);
@@ -3858,10 +3652,15 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 			THROW(oneof2(prot, InetUrl::protSMTP, InetUrl::protSMTPS));
 		}
 	}
-	rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
-	SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, rInfo.Path);
-	if(temp_buf != rInfo.Path)
-		rUrl.SetComponent(InetUrl::cPath, rInfo.Path);
+	{
+		long   npf = SPathStruc::npfSlash;
+		if(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps))
+			npf |= SPathStruc::npfKeepCase;
+		rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
+		SPathStruc::NormalizePath(temp_buf, npf, rInfo.Path);
+		if(temp_buf != rInfo.Path)
+			rUrl.SetComponent(InetUrl::cPath, rInfo.Path);
+	}
 	CATCHZOK
 	return ok;
 }

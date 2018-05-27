@@ -933,19 +933,28 @@ int SLAPI PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
 	SString new_name = rBuf;
 	SString suffix, temp_buf;
+	Goods2Tbl::Rec ex_goods_rec;
 	PPID   temp_nm_goods_id = 0;
 	long   uc = 1;
 	temp_buf = rBuf;
-	while(SearchByName(temp_buf, &temp_nm_goods_id, 0) > 0 && temp_nm_goods_id != id) {
-		if(uc == 1)
-			RemoveUndupNameSuffix(new_name);
-		suffix.Z().Space().CatChar('#').Cat(++uc);
-		temp_buf = new_name;
-		size_t sum_len = temp_buf.Len() + suffix.Len();
-		if(sum_len > max_nm_len)
-			temp_buf.Trim(max_nm_len-suffix.Len());
-		temp_buf.Cat(suffix);
-		ok = 1;
+	while(SearchByName(temp_buf, &temp_nm_goods_id, &ex_goods_rec) > 0 && temp_nm_goods_id != id) {
+		if(temp_buf.CmpNC(ex_goods_rec.Name) != 0) {
+			// PPERR_FALSEGOODSNAMDUPDET        "Сбойная ситуация: ложная идентификация дублирования наименования товара '%s'"
+			PPSetError(PPERR_FALSEGOODSNAMDUPDET, temp_buf);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			break;
+		}
+		else {
+			if(uc == 1)
+				RemoveUndupNameSuffix(new_name);
+			suffix.Z().Space().CatChar('#').Cat(++uc);
+			temp_buf = new_name;
+			size_t sum_len = temp_buf.Len() + suffix.Len();
+			if(sum_len > max_nm_len)
+				temp_buf.Trim(max_nm_len-suffix.Len());
+			temp_buf.Cat(suffix);
+			ok = 1;
+		}
 	}
 	if(ok > 0)
 		rBuf = temp_buf;

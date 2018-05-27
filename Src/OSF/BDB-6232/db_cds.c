@@ -1,8 +1,6 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2000, 2017 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
@@ -13,16 +11,15 @@
 #include "dbinc/lock.h"
 #include "dbinc/txn.h"
 
-static int __cdsgroup_abort __P((DB_TXN * txn));
-static int __cdsgroup_commit __P((DB_TXN * txn, uint32 flags));
-static int __cdsgroup_discard __P((DB_TXN * txn, uint32 flags));
-static uint32 __cdsgroup_id __P((DB_TXN * txn));
-static int __cdsgroup_notsup __P((ENV * env, const char * meth));
-static int __cdsgroup_prepare __P((DB_TXN * txn, uint8 * gid));
-static int __cdsgroup_get_name __P((DB_TXN * txn, const char ** namep));
-static int __cdsgroup_set_name __P((DB_TXN * txn, const char * name));
-static int __cdsgroup_set_timeout __P((DB_TXN * txn, db_timeout_t timeout, uint32 flags));
-
+static int __cdsgroup_abort(DB_TXN * txn);
+static int __cdsgroup_commit(DB_TXN * txn, uint32 flags);
+static int __cdsgroup_discard(DB_TXN * txn, uint32 flags);
+static uint32 __cdsgroup_id(DB_TXN * txn);
+static int __cdsgroup_notsup(ENV * env, const char * meth);
+static int __cdsgroup_prepare(DB_TXN * txn, uint8 * gid);
+static int __cdsgroup_get_name(DB_TXN * txn, const char ** namep);
+static int __cdsgroup_set_name(DB_TXN * txn, const char * name);
+static int __cdsgroup_set_timeout(DB_TXN * txn, db_timeout_t timeout, uint32 flags);
 /*
  * __cdsgroup_notsup --
  *	Error when CDS groups don't support a method.
@@ -154,7 +151,6 @@ err:
 	}
 	return ret;
 }
-
 /*
  * __cds_txn_begin_pp --
  *	DB_ENV->cdsgroup_begin

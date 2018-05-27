@@ -2915,60 +2915,78 @@ z39.50s:urischeme
 	товар=:negotium_rebus
 }
 
-[ru]акционерное общество::negotiumtaxonomy_genusrerum
-[ru]закрытое акционерное общество::negotiumtaxonomy_genusrerum
-[ru]открытое акционерное общество::negotiumtaxonomy_genusrerum
-[ru]публичное акционерное общество::negotiumtaxonomy_genusrerum
-[ru]общество с ограниченной ответственностью::negotiumtaxonomy_genusrerum
-[ru]индивидуальный предприниматель::negotiumtaxonomy_genusrerum
-[ru]некоммерческая организация::negotiumtaxonomy_genusrerum
+[ru]{
+	акционерное общество::negotiumtaxonomy_genusrerum
+	закрытое акционерное общество::negotiumtaxonomy_genusrerum
+	открытое акционерное общество::negotiumtaxonomy_genusrerum
+	публичное акционерное общество::negotiumtaxonomy_genusrerum
+	общество с ограниченной ответственностью::negotiumtaxonomy_genusrerum
+	индивидуальный предприниматель::negotiumtaxonomy_genusrerum
+	некоммерческая организация::negotiumtaxonomy_genusrerum
+	
+	ао=$акционерное общество
+	зао=$закрытое акционерное общество
+	оао=$открытое акционерное общество
+	пао=$публичное акционерное общество
+	ооо=$общество с ограниченной ответственностью
+	ип=$индивидуальный предприниматель
+	нко=$некоммерческая организация	
+}
 
-[en]public limited company::negotiumtaxonomy_genusrerum
-[en]limited::negotiumtaxonomy_genusrerum
-[en]incorporated::negotiumtaxonomy_genusrerum
-[en]corporation::negotiumtaxonomy_genusrerum
-[en]limited liability company::negotiumtaxonomy_genusrerum
-[en]limited duration company::negotiumtaxonomy_genusrerum
-[en]international business company::negotiumtaxonomy_genusrerum
-[en]international company::negotiumtaxonomy_genusrerum
-[en]limited partnership::negotiumtaxonomy_genusrerum
+[en]{
+	public limited company::negotiumtaxonomy_genusrerum
+	limited::negotiumtaxonomy_genusrerum
+	incorporated::negotiumtaxonomy_genusrerum
+	corporation::negotiumtaxonomy_genusrerum
+	limited liability company::negotiumtaxonomy_genusrerum
+	limited duration company::negotiumtaxonomy_genusrerum
+	international business company::negotiumtaxonomy_genusrerum
+	international company::negotiumtaxonomy_genusrerum
+	limited partnership::negotiumtaxonomy_genusrerum
+	
+	plc=$public limited company
+	"p.l.c."=$public limited company
+	ltd=$limited
+	corp=.corporation
+	inc=.incorporated
+	llc=$limited liability company
+	"l.l.c."=$limited liability company
+	ldc=$limited duration company
+	ibc=$international business company
+	ic=$international company
+	lp=$limited partnership
+	"l.p."=$limited partnership
+}
 
-[es]sociedad anónima::negotiumtaxonomy_genusrerum
+[de]{
+	gesellschaft mit beschränkter haftung::negotiumtaxonomy_genusrerum
+	aktiengesellschaft::negotiumtaxonomy_genusrerum
+	
+	gmbh=$gesellschaft mit beschränkter haftung
+	ag=$aktiengesellschaft
+	"a.g."=$aktiengesellschaft
+}
 
-[fr]société anonyme::negotiumtaxonomy_genusrerum
-[fr]société à responsabilité limitée::negotiumtaxonomy_genusrerum
+[it]{
+	società per azioni::negotiumtaxonomy_genusrerum
+	"s.p.a."=$società per azioni
+}
 
-[de]gesellschaft mit beschränkter haftung::negotiumtaxonomy_genusrerum
-[de]aktiengesellschaft::negotiumtaxonomy_genusrerum
+[es]{
+	sociedad anónima::negotiumtaxonomy_genusrerum
+	sa=$sociedad anónima
+	"s.a."=$sociedad anónima
+}
 
-[en]plc=$public limited company
-[en]ltd=$limited
-[en]corp=.corporation
-[en]inc=.incorporated
-[en]llc=$limited liability company
-[en]ldc=$limited duration company
-[en]ibc=$international business company
-[en]ic=$international company
-[en]lp=$limited partnership
-
-[es]sa=$sociedad anónima
-[es]"s.a."=$sociedad anónima
-
-[fr]sa=$société anonyme
-[fr]"s.a."=$société anonyme
-[fr]sàrl=$société à responsabilité limitée
-[fr]sarl=$société à responsabilité limitée
-[de]gmbh=$gesellschaft mit beschränkter haftung
-[de]ag=$aktiengesellschaft
-
-[ru]ао=$акционерное общество
-[ru]зао=$закрытое акционерное общество
-[ru]оао=$открытое акционерное общество
-[ru]пао=$публичное акционерное общество
-[ru]ооо=$общество с ограниченной ответственностью
-[ru]ип=$индивидуальный предприниматель
-[ru]нко=$некоммерческая организация
-
+[fr]{
+	société anonyme::negotiumtaxonomy_genusrerum
+	société à responsabilité limitée::negotiumtaxonomy_genusrerum
+	
+	sa=$société anonyme
+	"s.a."=$société anonyme
+	sàrl=$société à responsabilité limitée
+	sarl=$société à responsabilité limitée
+}
 //
 // Биржи
 //
@@ -3266,9 +3284,7 @@ z39.50s:urischeme
 //[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
 [ru]петрозаводск:urbs(:statu_ru)
 [ru]ростов-на-дону:urbs(:statu_ru)
-
 [ru]вологодская область:cregion(statu= :statu_ru)
-
 [ru] рубль{ =:curr_rub =:curr_rur =:curr_sur }
 
 [ru]{

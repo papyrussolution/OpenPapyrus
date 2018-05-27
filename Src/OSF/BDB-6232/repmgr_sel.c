@@ -9,31 +9,31 @@
 #include "db_int.h"
 #pragma hdrstop
 
-typedef int (*HEARTBEAT_ACTION) __P ((ENV *));
+typedef int (*HEARTBEAT_ACTION)(ENV *);
 
-static int accept_handshake __P((ENV *, REPMGR_CONNECTION *, char *, int *));
-static int accept_v1_handshake __P((ENV *, REPMGR_CONNECTION *, char *));
-static void check_min_log_file __P((ENV *, DB_LSN *, REPMGR_SITE *));
-static int dispatch_msgin __P((ENV *, REPMGR_CONNECTION *));
-static int prepare_input __P((ENV *, REPMGR_CONNECTION *));
-static int process_own_msg __P((ENV *, REPMGR_CONNECTION *));
-static int process_parameters __P((ENV *, REPMGR_CONNECTION *, char *, u_int, uint32, int, uint32));
-static int read_version_response __P((ENV *, REPMGR_CONNECTION *));
-static int record_permlsn __P((ENV *, REPMGR_CONNECTION *));
-static int __repmgr_call_election __P((ENV *));
-static int __repmgr_check_listener __P((ENV *));
-static int __repmgr_check_master_listener __P((ENV *));
-static int __repmgr_connector_main __P((ENV *, REPMGR_RUNNABLE *));
-static void * __repmgr_connector_thread __P((void *));
-static int __repmgr_next_timeout __P((ENV *, db_timespec *, HEARTBEAT_ACTION *));
-static int __repmgr_reset_last_rcvd __P((ENV *));
-static int __repmgr_retry_connections __P((ENV *));
-static int __repmgr_send_heartbeat __P((ENV *));
-static int __repmgr_start_takeover __P((ENV *));
-static void * __repmgr_takeover_thread __P((void *));
-static int __repmgr_try_one __P((ENV *, int, int));
-static int resolve_collision __P((ENV *, REPMGR_SITE *, REPMGR_CONNECTION *));
-static int send_version_response __P((ENV *, REPMGR_CONNECTION *));
+static int accept_handshake(ENV *, REPMGR_CONNECTION *, char *, int *);
+static int accept_v1_handshake(ENV *, REPMGR_CONNECTION *, char *);
+static void check_min_log_file(ENV *, DB_LSN *, REPMGR_SITE *);
+static int dispatch_msgin(ENV *, REPMGR_CONNECTION *);
+static int prepare_input(ENV *, REPMGR_CONNECTION *);
+static int process_own_msg(ENV *, REPMGR_CONNECTION *);
+static int process_parameters(ENV *, REPMGR_CONNECTION *, char *, u_int, uint32, int, uint32);
+static int read_version_response(ENV *, REPMGR_CONNECTION *);
+static int record_permlsn(ENV *, REPMGR_CONNECTION *);
+static int __repmgr_call_election(ENV *);
+static int __repmgr_check_listener(ENV *);
+static int __repmgr_check_master_listener(ENV *);
+static int __repmgr_connector_main(ENV *, REPMGR_RUNNABLE *);
+static void * __repmgr_connector_thread(void *);
+static int __repmgr_next_timeout(ENV *, db_timespec *, HEARTBEAT_ACTION *);
+static int __repmgr_reset_last_rcvd(ENV *);
+static int __repmgr_retry_connections(ENV *);
+static int __repmgr_send_heartbeat(ENV *);
+static int __repmgr_start_takeover(ENV *);
+static void * __repmgr_takeover_thread(void *);
+static int __repmgr_try_one(ENV *, int, int);
+static int resolve_collision(ENV *, REPMGR_SITE *, REPMGR_CONNECTION *);
+static int send_version_response(ENV *, REPMGR_CONNECTION *);
 
 #define ONLY_HANDSHAKE(env, conn) do {                               \
 		if(conn->msg_type != REPMGR_HANDSHAKE) {                    \
@@ -46,14 +46,10 @@ static int send_version_response __P((ENV *, REPMGR_CONNECTION *));
  */
 void * __repmgr_select_thread(void * argsp)
 {
-	ENV * env;
-	DB_THREAD_INFO * ip;
-	int ret;
-	REPMGR_RUNNABLE * args;
-	args = (REPMGR_RUNNABLE *)argsp;
-	env = args->env;
-	ip = NULL;
-	ret = 0;
+	DB_THREAD_INFO * ip = 0;
+	int ret = 0;
+	REPMGR_RUNNABLE * args = (REPMGR_RUNNABLE *)argsp;
+	ENV * env = args->env;
 	ENV_ENTER_RET(env, ip, ret);
 	if(ret != 0 || (ret = __repmgr_select_loop(env)) != 0) {
 		__db_err(env, ret, DB_STR("3614", "select loop failed"));
@@ -64,7 +60,6 @@ void * __repmgr_select_thread(void * argsp)
 		ENV_LEAVE(env, ip);
 	return (NULL);
 }
-
 /*
  * PUBLIC: int __repmgr_bow_out __P((ENV *));
  */
@@ -2454,7 +2449,6 @@ int __repmgr_write_some(ENV *env, REPMGR_CONNECTION * conn)
 				    return (DB_REP_UNAVAIL);
 			}
 		}
-
 		if((output->offset += (size_t)bytes) >= msg->length) {
 			STAILQ_REMOVE_HEAD(&conn->outbound_queue, entries);
 			__os_free(env, output);
@@ -2475,6 +2469,5 @@ int __repmgr_write_some(ENV *env, REPMGR_CONNECTION * conn)
 				return ret;
 		}
 	}
-
 	return 0;
 }

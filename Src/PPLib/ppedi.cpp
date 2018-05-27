@@ -138,6 +138,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 	rGtin.Z();
 	rArCode.Z();
 	int    ok = 1;
+	SString temp_buf;
 	uint   non_strict_bc_pos = 0;
 	Goods2Tbl::Rec goods_rec;
 	BarcodeArray bc_list;
@@ -147,16 +148,21 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 		int    d = 0;
 		int    std = 0;
 		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
-		if(GObj.DiagBarcode(r_bc_item.Code, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
-			rGtin = r_bc_item.Code;
+		(temp_buf = r_bc_item.Code).Strip();
+		temp_buf.TrimRightChr('*');
+		if(GObj.DiagBarcode(temp_buf, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
+			rGtin = temp_buf;
 		else if(!non_strict_bc_pos) {
-			if(sstrlen(r_bc_item.Code) <= 14)
+			if(temp_buf.Len() <= 14)
 				non_strict_bc_pos = bcidx+1;
 		}
 	}
 	if(rGtin.Empty()) {
-		if(!(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fStrictExpGtinCheck) && non_strict_bc_pos)
-			rGtin = bc_list.at(non_strict_bc_pos-1).Code;
+		if(!(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fStrictExpGtinCheck) && non_strict_bc_pos) {
+			(temp_buf = bc_list.at(non_strict_bc_pos-1).Code).Strip();
+			temp_buf.TrimRightChr('*');
+			rGtin = temp_buf;
+		}
 		THROW_PP_S(rGtin.NotEmpty(), PPERR_EDI_WAREHASNTVALIDCODE, goods_rec.Name);
 	}
 	if(arID) {
@@ -2392,6 +2398,7 @@ static const SIntToSymbTabEntry EdiMsgTypeSymbols_EanCom[] = {
 	{ PPEDIOP_RECADV,       "RECADV" },
 	{ PPEDIOP_ALCODESADV,   "ALCODESADV" },
 	{ PPEDIOP_PARTIN,       "PARTIN" },
+	{ PPEDIOP_INVOIC,       "INVOIC" },
 };
 
 //static 
@@ -3553,8 +3560,17 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 	}
 	{
 		SXml::WNode n_b(_doc, "invoice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
-		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
-		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+		if(rBp.Ext.InvoiceCode[0])
+			(temp_buf = rBp.Ext.InvoiceCode);
+		else
+			BillCore::GetCode(temp_buf = rBp.Rec.Code);
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		n_b.PutAttrib("number", temp_buf);
+		if(checkdate(rBp.Ext.InvoiceDate, 0))
+			temp_buf.Z().Cat(rBp.Ext.InvoiceDate, DATF_ISO8601|DATF_CENTURY);
+		else
+			temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+		n_b.PutAttrib("date", temp_buf);
 		n_b.PutAttrib("status", "Original");
 		{
 			BillTbl::Rec order_bill_rec;
@@ -3564,19 +3580,25 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 			Write_OwnFormat_OriginOrder_Tag(_doc, order_bill_rec);
 		}
 		{
-			//SXml::WNode n_i(_doc, "orderResponse"); // <orderResponse number="ORSP0012" date="2014-02-07"/>
+			//<despatchIdentificator number="DES003" date="2014-02-07"/>
+			SXml::WNode n_i(_doc, "despatchIdentificator");
+			n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_i.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
-		{
-			//SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
-		}
-		{
-			//SXml::WNode n_i(_doc, "egaisRegistrationIdentificator"); // <egaisRegistrationIdentificator number="123_TEST"/>
-		}
-		{
-			//SXml::WNode n_i(_doc, "egaisFixationIdentificator"); // <egaisFixationIdentificator number="12223" date="2016-05-04"/>
-		}
-		{
-			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
+		if(rBp.BTagL.GetItemStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0 && temp_buf.NotEmpty()) {
+			StringSet ss;
+			temp_buf.Tokenize(" ", ss);
+			if(ss.getCount() >= 3) {
+				uint ssp = 0;
+				if(ss.get(&ssp, temp_buf)) {
+					if(ss.get(&ssp, temp_buf)) {
+						SXml::WNode n_i(_doc, "receivingIdentificator");
+						n_i.PutAttrib("number", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+						if(ss.get(&ssp, temp_buf))
+							n_i.PutAttrib("date", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+					}
+				}
+			}
 		}
 		{
 			SXml::WNode n_i(_doc, "seller");
@@ -3607,6 +3629,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 			Goods2Tbl::Rec goods_rec;
 			double total_amount_with_vat = 0.0;
 			double total_amount_without_vat = 0.0;
+			double total_vat_amount = 0.0;
 			SXml::WNode n_dtl(_doc, "lineItems");
 			n_dtl.PutInner("currencyISOCode", "RUB");
 			for(uint i = 0; i < rBp.GetTCount(); i++) {
@@ -3619,35 +3642,21 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 					const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 					const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
 					const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+					const double vat_amount = vect.GetValue(GTAXVF_VAT);
 					const double price_with_vat = R5(amount_with_vat / qtty);
 					const double price_without_vat = R5(amount_without_vat / qtty);
 				//
 				THROW(GetGoodsInfo(r_ti.GoodsID, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 				n_item.PutInner("gtin", goods_code);
 				n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
+				n_item.PutInner("description", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
 				// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
 				{
-					double ord_qtty = 0.0;
-					if(r_ti.Flags & PPTFR_ONORDER) {
-						uint sh_lot_pos = 0;
-						if(rBp.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
-							ReceiptTbl::Rec ord_lot_rec;
-							if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &ord_lot_rec) > 0)
-								ord_qtty = fabs(ord_lot_rec.Quantity);
-						}
-					}
-					if(ord_qtty > 0.0) {
-						SXml::WNode n_q(_doc, "orderedQuantity");
-						n_q.PutAttrib("unitOfMeasure", "PCE");
-						n_q.SetValue(temp_buf.Z().Cat(ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-					}
-				}
-				{
-					SXml::WNode n_q(_doc, "despatchedQuantity");
+					SXml::WNode n_q(_doc, "quantity");
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
@@ -3656,19 +3665,22 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
-				if(checkdate(r_ti.Expiry, 0))
-					n_item.PutInner("expireDate", temp_buf.Z().Cat(r_ti.Expiry, DATF_ISO8601|DATF_CENTURY));
 				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции без НДС
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции с НДС
 				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции без НДС
 				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции с НДС
 				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // ставка НДС
+				n_item.PutInner("vATAmount", temp_buf.Z().Cat(vat_amount, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма НДС
 				total_amount_with_vat += amount_with_vat;
 				total_amount_without_vat += amount_without_vat;
+				total_vat_amount += vat_amount;
+				if(rBp.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0 && temp_buf.NotEmpty()) {
+					n_item.PutInner("customsDeclarationNumber", temp_buf); // ГТД
+				}
 			}
 			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма отгруженных товарных позиций без НДС
-			//n_dtl.PutInner("totalVATAmount", ""); //  Общая сумма НДС по всему документу
-			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
+			n_dtl.PutInner("totalVATAmount", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); //  Общая сумма НДС по всему документу
+			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_vat_amount, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
 		}
 	}
 	CATCHZOK
@@ -3959,6 +3971,7 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, con
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	BillTbl::Rec bill_rec;
+	SString temp_buf;
 	PPIDArray temp_bill_list;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
 	assert(oneof3(ediOp, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC));
@@ -3995,12 +4008,18 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, con
 			switch(ediOp) {
 				case PPEDIOP_DESADV: tag_id = PPTAG_BILL_EDIDESADVSENT; break;
 				case PPEDIOP_ALCODESADV: tag_id = PPTAG_BILL_EDIALCDESADVSENT; break;
-				case PPEDIOP_INVOIC: tag_id = PPTAG_BILL_EDIINVOICSENT; break;
+				case PPEDIOP_INVOIC: 
+					tag_id = PPTAG_BILL_EDIINVOICSENT; 
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0) {
+					}
+					else
+						do_skip = 1; // Если не получен RECADV, то INVOIC не отсылаем
+					break;
 			}
-			if(tag_id) {
+			if(!do_skip && tag_id) {
 				PPObjectTag tag_rec;
 				if(tag_obj.Fetch(tag_id, &tag_rec) > 0) {
-					if(PPRef->Ot.GetTagStr(PPOBJ_BILL, bill_id, tag_id, tag_sent_content) > 0)
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, tag_id, tag_sent_content) > 0)
 						do_skip = 1;
 				}
 				else
@@ -4786,11 +4805,11 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 	int    ok = -1;
 	xmlTextWriter * p_x = 0;
 	SString path;
-	if(oneof4(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV)) {
+	if(rPack.P_Data && oneof5(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
 		S_GUID msg_uuid;
 		msg_uuid.Generate();
 		//
-		
+		const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 		SString temp_buf;
 		SString edi_format_symb;
 		GetTempOutputPath(rPack.DocType, path);
@@ -4806,38 +4825,22 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
 		const int use_own_format = edi_format_symb.IsEqiAscii("eancom") ? 0 : 1;
 		if(use_own_format) {
-			if(rPack.DocType == PPEDIOP_ORDER) {
-				THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_ORDERRSP) {
-				THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data, (const PPBillPacket *)rPack.P_ExtData));
-			}
-			else if(rPack.DocType == PPEDIOP_DESADV) {
-				THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_ALCODESADV) {
-				THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_INVOIC) {
-				THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *(const PPBillPacket *)rPack.P_Data));
+			switch(rPack.DocType) {
+				case PPEDIOP_ORDER: THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); break;
+				case PPEDIOP_ORDERRSP: THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, (const PPBillPacket *)rPack.P_ExtData)); break;
+				case PPEDIOP_DESADV: THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *p_bp)); break;
+				case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
+				case PPEDIOP_INVOIC: THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); break;
 			}
 		}
 		else {
 			PPEanComDocument s_doc(this);
-			if(rPack.DocType == PPEDIOP_ORDER) {
-				THROW(s_doc.Write_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_ORDERRSP) {
-				THROW(s_doc.Write_ORDERRSP(p_x, *(const PPBillPacket *)rPack.P_Data, (const PPBillPacket *)rPack.P_ExtData));
-			}
-			else if(rPack.DocType == PPEDIOP_DESADV) {
-				THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_ALCODESADV) {
-				//THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
-			}
-			else if(rPack.DocType == PPEDIOP_INVOIC) {
-				//THROW(s_doc.Write_DESADV(p_x, *(const PPBillPacket *)rPack.P_Data));
+			switch(rPack.DocType) {
+				case PPEDIOP_ORDER: THROW(s_doc.Write_ORDERS(p_x, *p_bp)); break;
+				case PPEDIOP_ORDERRSP: THROW(s_doc.Write_ORDERRSP(p_x, *p_bp, (const PPBillPacket *)rPack.P_ExtData)); break;
+				case PPEDIOP_DESADV: THROW(s_doc.Write_DESADV(p_x, *p_bp)); break;
+				case PPEDIOP_ALCODESADV: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
+				case PPEDIOP_INVOIC: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
 			}
 		}
 		xmlFreeTextWriter(p_x);

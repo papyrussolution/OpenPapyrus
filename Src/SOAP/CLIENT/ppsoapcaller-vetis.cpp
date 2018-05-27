@@ -110,6 +110,7 @@ static int GetResult(const VETIS_STRUC_APPLICATION * pSrc, VetisApplicationBlock
 	return ok;
 }
 
+#if 0 // {
 static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <InParamString> & rPool)
 {
 	void * p_result = 0;
@@ -179,6 +180,53 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 				*/
 			}
 			break;
+		case VetisApplicationData::signGetVetDocumentListRequest:
+			if(rBlk.P_GvdlReq) {
+				/*
+					base__ListOptions *base__listOptions;
+					enum vd__VetDocumentType *vd__vetDocumentType;
+					enum vd__VetDocumentStatus *vd__vetDocumentStatus;
+					char *dic__enterpriseGuid;
+				*/
+				g2ba__GetVetDocumentListRequest * p = new g2ba__GetVetDocumentListRequest;
+				if(p) {
+					p->initiator = new vd__User;
+					p->initiator->login = GetDynamicParamString((temp_buf = rBlk.P_GvdlReq->Initiator.Login).Transf(CTRANSF_INNER_TO_UTF8), rPool);
+					p->localTransactionId = GetDynamicParamString(temp_buf.Z().Cat(rBlk.LocalTransactionId), rPool);
+					if(rBlk.P_GvdlReq->DocType >= 0)
+						p->vd__vetDocumentType = (vd__VetDocumentType *)&rBlk.P_GvdlReq->DocType;
+					else
+						p->vd__vetDocumentType = 0;
+					if(rBlk.P_GvdlReq->DocStatus >= 0)
+						p->vd__vetDocumentStatus = (vd__VetDocumentStatus *)&rBlk.P_GvdlReq->DocStatus;
+					else
+						p->vd__vetDocumentStatus = 0;
+					p->dic__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower), rPool);
+					p->base__listOptions = new base__ListOptions;
+					p->base__listOptions->count = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GvdlReq->ListOptions.Count), rPool);
+					p->base__listOptions->offset = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GvdlReq->ListOptions.Offset), rPool);
+					{
+						{
+							struct soap * p_app_soap = soap_new1(SOAP_XML_CANONICAL|SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+							std::stringstream ss;
+							p_app_soap->os = &ss;
+							int r = soap_begin_send(p_app_soap);
+							if(!r) {
+								p->soap_serialize(p_app_soap);
+								r = p->soap_put(p_app_soap, "g2ba:getVetDocumentListRequest", NULL);
+								SETIFZ(r, soap_end_send(p_app_soap));
+							}
+							p_app_soap->os = NULL; // no longer writing to the string
+							soap_end(p_app_soap); // warning: this deletes str with XML too!
+							soap_free(p_app_soap);
+							temp_buf = ss.str().c_str();
+						}
+						p_result = GetDynamicParamString(temp_buf, rPool);
+					}
+					delete p;
+				}
+			}
+			break;
 		case VetisApplicationData::signGetStockEntryListRequest:
 			if(rBlk.P_GselReq) {
 				g2ba__GetStockEntryListRequest * p = new g2ba__GetStockEntryListRequest;
@@ -186,7 +234,7 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 					p->initiator = new vd__User;
 					p->initiator->login = GetDynamicParamString((temp_buf = rBlk.P_GselReq->Initiator.Login).Transf(CTRANSF_INNER_TO_UTF8), rPool);
 					p->localTransactionId = GetDynamicParamString(temp_buf.Z().Cat(rBlk.LocalTransactionId), rPool);
-					p->dic__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL), rPool);
+					p->dic__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower), rPool);
 					p->base__listOptions = new base__ListOptions;
 					p->base__listOptions->count = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Count), rPool);
 					p->base__listOptions->offset = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Offset), rPool);
@@ -215,6 +263,7 @@ static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <In
 	}
 	return p_result;
 }
+#endif // } 0
 
 static void DestroyAppData(const VetisApplicationBlock & rBlk, void * pData)
 {
@@ -661,7 +710,8 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 		if(prdc_date > 0)
 			param.app__application->prdcRsltDate = &prdc_date;
 	}
-	THROW(p_app_req = CreateAppData(rBlk, arg_str_pool));
+	// THROW(p_app_req = CreateAppData(rBlk, arg_str_pool));
+	p_app_req = GetDynamicParamString(rBlk.AppData, arg_str_pool);
 	{
 		//
 		param.app__application->data = new app__ApplicationDataWrapper;
@@ -671,7 +721,7 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	}
 	THROW(PreprocessCall(proxi, rSess, proxi.submitApplicationRequest(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.app__application) {
-		THROW(p_result = new VetisApplicationBlock);
+		THROW(p_result = new VetisApplicationBlock(0));
 		PPSoapRegisterResultPtr(p_result);
 		GetResult(resp.app__application, p_result);
 	}
@@ -700,7 +750,7 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetsi_ReceiveApplicatio
 	param.applicationId = GetDynamicParamString(rApplicationId.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf), arg_str_pool);
 	THROW(PreprocessCall(proxi, rSess, proxi.receiveApplicationResult(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.app__application) {
-		THROW(p_result = new VetisApplicationBlock);
+		THROW(p_result = new VetisApplicationBlock(0));
 		PPSoapRegisterResultPtr(p_result);
 		GetResult(resp.app__application, p_result);
 	}
@@ -709,4 +759,3 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetsi_ReceiveApplicatio
 	ENDCATCH
 	return p_result;
 }
-

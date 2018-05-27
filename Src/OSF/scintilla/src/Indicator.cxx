@@ -20,12 +20,17 @@ static PRectangle FASTCALL PixelGridAlign(const PRectangle &rc)
 	return PRectangle::FromInts(int(rc.left + 0.5), int(rc.top), int(rc.right + 0.5), int(rc.bottom));
 }
 
-void Indicator::Draw(Surface * surface,
-    const PRectangle &rc,
-    const PRectangle &rcLine,
-    const PRectangle &rcCharacter,
-    DrawState drawState,
-    int value) const
+Indicator::Indicator() : under(false), fillAlpha(30), outlineAlpha(50), attributes(0) 
+{
+}
+
+Indicator::Indicator(int style_, ColourDesired fore_/*=ColourDesired(0,0,0)*/, bool under_/*=false*/, int fillAlpha_/*=30*/, int outlineAlpha_/*=50*/) :
+	sacNormal(style_, fore_), sacHover(style_, fore_), under(under_), fillAlpha(fillAlpha_), outlineAlpha(outlineAlpha_), attributes(0) 
+{
+}
+
+void Indicator::Draw(Surface * surface, const PRectangle &rc, const PRectangle &rcLine, 
+	const PRectangle &rcCharacter, DrawState drawState, int value) const
 {
 	StyleAndColour sacDraw = sacNormal;
 	if(Flags() & SC_INDICFLAG_VALUEFORE) {

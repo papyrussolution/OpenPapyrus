@@ -83,6 +83,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TurboPFor", "TurboPFor.vcpr
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gnuplot-523", "gnuplot-523.vcproj", "{8DA77E5B-7760-4A13-B149-D618F691E5FA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -491,6 +495,26 @@ Global
 		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerDebug.Build.0 = Debug|Win32
 		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerRelease.ActiveCfg = Release|Win32
 		{27817ECA-5D63-40DA-9FB3-6480B2CCDE0C}.ServerRelease.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.Debug.ActiveCfg = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.Debug.Build.0 = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.DebugU.ActiveCfg = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.DebugU.Build.0 = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MinSizeRel.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MinSizeRel.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MtDllDebug.ActiveCfg = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MtDllDebug.Build.0 = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MtDllRelease.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.MtDllRelease.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.Release.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.Release.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ReleaseU.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ReleaseU.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.RelWithDebInfo.Build.0 = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ServerDebug.ActiveCfg = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ServerDebug.Build.0 = Debug|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ServerRelease.ActiveCfg = Release|Win32
+		{8DA77E5B-7760-4A13-B149-D618F691E5FA}.ServerRelease.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

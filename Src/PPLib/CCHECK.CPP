@@ -943,10 +943,10 @@ int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, co
 {
 	rBuf.Z();
 	int    ok = 0;
-	SString common_buf;
-	rList.GetText(pos, common_buf);
-	if(common_buf.NotEmpty())
-		ok = PPGetExtStrData(lnextId, common_buf, rBuf);
+	SString & r_common_buf = SLS.AcquireRvlStr();
+	rList.GetText(pos, r_common_buf);
+	if(r_common_buf.NotEmpty())
+		ok = PPGetExtStrData(lnextId, r_common_buf, rBuf);
 	return ok;
 }
 

@@ -1696,6 +1696,7 @@ int SrConceptParser::Run(const char * pFileName)
 	TSVector <SrWordInfo> word_info; // @v9.8.4 TSArray-->TSVector
 	SString temp_buf, ident_buf;
 	SString msg_buf;
+	SrWordForm wf;
 	StrAssocArray temp_token_list;
 	Operator root(*this);
 	Operator * p_current = &root;
@@ -1731,7 +1732,7 @@ int SrConceptParser::Run(const char * pFileName)
 							assert(word_id);
 							const int lang_id = p_current->GetLangID();
 							if(lang_id) {
-								SrWordForm wf;
+								wf.Clear();
 								wf.SetTag(SRWG_LANGUAGE, lang_id);
 								THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf, &wa_id));
 							}
@@ -2122,9 +2123,10 @@ public:
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 1, Data.fImportConcepts);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 2, Data.fImportHumNames);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 3, Data.fImportBioTaxonomy); // @v10.0.0
-		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fTestFlexia);
-		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 5, Data.fTestConcepts);
-		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 6, Data.fTestSyntaxParser);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fImportTickers); // @v10.0.08
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 5, Data.fTestFlexia);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 6, Data.fTestConcepts);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 7, Data.fTestSyntaxParser);
 		SetClusterData(CTL_PRCRSARTR_FLAGS, Data.Flags);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCRSARTR_SRCPATH, CTL_PRCRSARTR_SRCPATH, 1, 0,
 			0, FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
@@ -2249,7 +2251,7 @@ private:
 int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
 {
 	int    ok = 1;
-	const  uint max_items_per_tx = 128;
+	const  uint max_items_per_tx = 512; // @v10.0.08 128-->512
 	BDbTransaction * p_ta = 0;
 	SString temp_buf;
 	SString msg_buf;
@@ -2265,10 +2267,20 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 	else if(properNameType == SRPROPN_PATRONYMIC)
 		p_parent_concept = "hum_pname";
 	if(p_parent_concept) {
+		SrCPropList cpl;
+		SrCProp cp;
+		SrCProp cp_gender;
+		Int64Array _clist;
+		SrCPropDeclList pdl;
+		SrWordForm wf;
 		CONCEPTID parent_cid = 0;
 		CONCEPTID gender_cid = 0;
 		CONCEPTID gender_fem_cid = 0;
 		CONCEPTID gender_mas_cid = 0;
+		const CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
+		const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
+		THROW(prop_subclass);
+		THROW(prop_instance);
 		THROW(rDb.ResolveConcept(p_parent_concept, &parent_cid));
 		THROW(rDb.ResolveConcept("gender", &gender_cid));
 		THROW(rDb.ResolveConcept("gender_mas", &gender_mas_cid));
@@ -2370,7 +2382,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 							}
 							if(lang_id) {
 								if(ngram.getCount() == 1) {
-									SrWordForm wf;
+									wf.Clear();
 									wf.SetTag(SRWG_LANGUAGE, lang_id);
 									wf.SetTag(SRWG_CLASS, SRWC_NOUN);
 									if(properNameType)
@@ -2381,7 +2393,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 								}
 								else if(ngram.getCount() > 1) {
 									for(uint j = 0; j < ngram.getCount(); j++) {
-										SrWordForm wf;
+										wf.Clear();
 										wf.SetTag(SRWG_LANGUAGE, lang_id);
 										THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(j), wf, 0));
 									}
@@ -2389,13 +2401,12 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 							}
 							THROW(rDb.ResolveNGram(ngram, &ngram_id));
 							if(ngram_id) {
-								CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
-								SrCPropDeclList pdl;
 								CONCEPTID cid = 0;
-								Int64Array _clist;
-								SrCPropList cpl;
-								SrCProp cp, cp_gender;
-								THROW(prop_subclass);
+								_clist.clear();
+								pdl.Z();
+								cpl.Z();
+								cp.Z();
+								cp_gender.Z();
 								if(rDb.GetNgConceptList(ngram_id, rDb.ngclAnonymOnly, _clist) > 0) {
 									assert(_clist.getCount());
 									for(uint cidx = 0; !cid && cidx < _clist.getCount(); cidx++) {
@@ -2429,7 +2440,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 								if(!cid) {
 									THROW(rDb.CreateAnonymConcept(&cid));
 									THROW(rDb.P_CNgT->Set(cid, ngram_id));
-									THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
+									THROW(rDb.SetConceptProp(cid, /*prop_subclass*/prop_instance, 0, parent_cid));
 									if(entry.Gender == SRGENDER_MASCULINE) {
 										THROW(rDb.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
 									}
@@ -2980,7 +2991,37 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 //
 int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, const char * pFileName)
 {
+	struct InnerMethods {
+		static int FASTCALL AddFactorToSymbHash(const SString & rSymb, SymbHashTable & rSht, LongArray & rIdList, uint & rLastSymbId)
+		{
+			int    ok = -1;
+			uint   sht_id = 0;
+			if(rSymb.NotEmpty() && !rSht.Search(rSymb, &sht_id, 0))
+				rSht.Add(rSymb, (sht_id = ++rLastSymbId));
+			if(sht_id) {
+				rIdList.add((long)sht_id);
+				ok = 1;
+			}
+			return ok;
+		}
+		static int FASTCALL WriteFactorList(SFile & rF, const char * pTitle, SymbHashTable & rSht, const LongArray & rIdList, SString & rLineBuf)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			rLineBuf.Z();
+			for(uint i = 0; i < rIdList.getCount(); i++) {
+				rLineBuf.Z();
+				rSht.GetByAssoc(rIdList.get(i), temp_buf.Z());
+				rF.WriteLine(rLineBuf.Cat(pTitle).Tab().Cat(temp_buf).CR());
+			}
+			return ok;
+		}
+	};
 	int    ok = 1;
+	uint   last_symb_id = 0;
+	SymbHashTable sht(SKILOBYTE(1024), 0);
+	LongArray sector_list;
+	LongArray industry_list;
 	struct Entry {
 		Entry & Z()
 		{
@@ -3004,17 +3045,21 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	// "Symbol","Name","LastSale","MarketCap","ADR TSO","IPOyear","Sector","Industry","Summary Quote",
 	SString temp_buf;
 	SString line_buf;
+	SString line_out_buf;
 	Entry entry;
-	SPathStruc ps(pFileName);
+	SString src_file_name;
+	(src_file_name = P.SrcPath).SetLastSlash().Cat(pFileName); // utf-8
+
+	SPathStruc ps(src_file_name);
 	ps.Nam.CatChar('-').Cat(pExchangeSymb);
 	ps.Ext = "txt";
 	ps.Merge(temp_buf);
 	SFile f_debug_out(temp_buf, SFile::mWrite);
-	SFile f_in(pFileName, SFile::mRead);
+	SFile f_in(src_file_name, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 	{
 		STokenizer::Item titem;
-		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
+		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim|STokenizer::fDivAlNum, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
 		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
 			if(line_no > 1) {
 				line_buf.Chomp().Strip();
@@ -3040,16 +3085,58 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 					if(!scan.IncrChr(','))
 						break;
 				}
+				InnerMethods::AddFactorToSymbHash(entry.Sector, sht, sector_list, last_symb_id);
+				InnerMethods::AddFactorToSymbHash(entry.Industry, sht, industry_list, last_symb_id);
 				{
+					line_out_buf.Z().Cat(entry.Ticker);
 					uint   idx_first = 0;
 					uint   idx_count = 0;
+					entry.Name.Decode_XMLENT(temp_buf);
+					if(temp_buf.CmpSuffix("(The)", 1) == 0) {
+						(entry.Name = "The").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
+					}
+					else if(temp_buf.CmpSuffix("(Th", 1) == 0) {
+						(entry.Name = "The").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
+					}
+					else
+						entry.Name = temp_buf;
 					tknz.RunSString(0, 0, entry.Name, &idx_first, &idx_count);
+					line_out_buf.Tab();
+					uint   out_tok_n = 0;
 					for(uint tidx = 0; tidx < idx_count; tidx++) {
 						if(tknz.Get(idx_first+tidx, titem)) {
-							//titem.Text
+							if(titem.Token == tknz.tokWord) {
+								if(out_tok_n)
+									line_out_buf.CatChar('|');
+								line_out_buf.Cat(titem.Text);
+								out_tok_n++;
+							}
+							else if(titem.Token == tknz.tokDelim) {
+								if(titem.Text != " " && titem.Text != "\t") {
+									if(out_tok_n)
+										line_out_buf.CatChar('|');
+									line_out_buf.Cat(titem.Text);
+									out_tok_n++;
+								}
+							}
 						}
 					}
+					f_debug_out.WriteLine(line_out_buf.CR());
 				}
+			}
+		}
+		{
+			sector_list.sortAndUndup();
+			industry_list.sortAndUndup();
+			{
+				sht.BuildAssoc();
+				SPathStruc ps(src_file_name);
+				ps.Nam.CatChar('-').Cat("stat");
+				ps.Merge(temp_buf);
+				SFile f_out(temp_buf, SFile::mWrite);
+				//
+				InnerMethods::WriteFactorList(f_out, "Sector", sht, sector_list, line_buf);
+				InnerMethods::WriteFactorList(f_out, "Industry", sht, industry_list, line_buf);
 			}
 		}
 	}
@@ -3311,18 +3398,14 @@ int SLAPI PrcssrSartre::Run()
 			//
 			SrDatabase db;
 			THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
-			if(!ImportHumanNames(db, "name-firstname-ru.csv", "ru", SRPROPN_PERSONNAME, 0)) {
+			if(!ImportHumanNames(db, "name-firstname-ru.csv", "ru", SRPROPN_PERSONNAME, 0))
 				logger.LogLastError();
-			}
-			if(!ImportHumanNames(db, "name-surname-ru.csv", "ru", SRPROPN_FAMILYNAME, 1)) {
+			if(!ImportHumanNames(db, "name-surname-ru.csv", "ru", SRPROPN_FAMILYNAME, 1))
 				logger.LogLastError();
-			}
-			if(!ImportHumanNames(db, "name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0)) {
+			if(!ImportHumanNames(db, "name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0))
 				logger.LogLastError();
-			}
-			if(!ImportHumanNames(db, "name-firstname-es.csv", "es", SRPROPN_PERSONNAME, 0)) { // @v10.0.06
+			if(!ImportHumanNames(db, "name-firstname-es.csv", "es", SRPROPN_PERSONNAME, 0)) // @v10.0.06
 				logger.LogLastError();
-			}
 		}
 		if(P.Flags & P.fImportBioTaxonomy) {
 			SrDatabase db;
@@ -3331,6 +3414,16 @@ int SLAPI PrcssrSartre::Run()
 			if(!PrcssrSartre::ImportBioTaxonomy(db, p_file_name)) {
 				logger.LogLastError();
 			}
+		}
+		if(P.Flags & P.fImportTickers) {
+			SrDatabase db;
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
+			if(!ImportTickers(db, "nyse", "companylist-nyse.csv"))
+				logger.LogLastError();
+			if(!ImportTickers(db, "nasdaq", "companylist-nasdaq.csv"))
+				logger.LogLastError();
+			if(!ImportTickers(db, "amex", "companylist-amex.csv"))
+				logger.LogLastError();
 		}
 		if(P.Flags & P.fTestFlexia) {
 			TestSearchWords();
@@ -4806,43 +4899,17 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 int SLAPI SrSyntaxRuleSet::TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const
 {
 	int    ok = -1;
-	Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
-	Int64Array concept_hier_list; // Иерархия отдельной концепции
-	rB.R_Db.GetNgConceptList(ngID, 0, concept_list);
-	uint   cpos = 0;
-	if(pSti->K == SrSyntaxRuleSet::kConcept && concept_list.lsearch(targetCID, &cpos)) {
-		rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, concept_list.get(cpos));
+	long   tryconcept_option = -1;
+	switch(pSti->K) {
+		case SrSyntaxRuleSet::kConcept: tryconcept_option = SrDatabase::tryconceptGeneric; break;
+		case SrSyntaxRuleSet::kConceptInstance: tryconcept_option = SrDatabase::tryconceptInstance; break;
+		case SrSyntaxRuleSet::kConceptSubclass: tryconcept_option = SrDatabase::tryconceptSubclass; break;
+	}
+	const CONCEPTID cid = rB.R_Db.TryNgForConcept(ngID, targetCID, tryconcept_option);
+	if(cid) {
+		rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
 		rB.TextIdx = tidx+1;
 		ok = 1;
-	}
-	else {
-		for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
-			const CONCEPTID cid = concept_list.get(cidx);
-			if(pSti->K == SrSyntaxRuleSet::kConcept) {
-				rB.R_Db.GetConceptHier(cid, concept_hier_list);
-				if(concept_hier_list.lsearch(targetCID)) {
-					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-					rB.TextIdx = tidx+1;
-					ok = 1;
-				}
-			}
-			else if(pSti->K == SrSyntaxRuleSet::kConceptInstance) {
-				CONCEPTID ancestor_id;
-				if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcInstance, cid, ancestor_id) > 0 && ancestor_id == targetCID) {
-					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-					rB.TextIdx = tidx+1;
-					ok = 1;
-				}
-			}
-			else if(pSti->K == SrSyntaxRuleSet::kConceptSubclass) {
-				CONCEPTID ancestor_id;
-				if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcSubclass, cid, ancestor_id) > 0 && ancestor_id == targetCID) {
-					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-					rB.TextIdx = tidx+1;
-					ok = 1;
-				}
-			}
-		}
 	}
 	return ok;
 }

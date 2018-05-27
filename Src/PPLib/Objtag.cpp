@@ -2451,8 +2451,8 @@ public:
 	};
 	TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
 	{
-		if(P_Box && P_Box->def)
-			P_Box->def->SetOption(lbtFocNotify, 1);
+		if(P_Box)
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 	}
 	int    setDTS(DataBlock * pData)
 	{

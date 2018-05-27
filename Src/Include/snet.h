@@ -419,14 +419,13 @@ public:
 		stLoggedIn  = 0x0002
 	};
 	struct Capability {
-		Capability()
+		Capability() : SmtpMaxSize(0)
 		{
-			SmtpMaxSize = 0;
 		}
-		Capability & Reset()
+		Capability & Z()
 		{
 			SmtpMaxSize = 0;
-			SmtpServerName = 0;
+			SmtpServerName.Z();
 			SmtpAuthTypeList.clear();
 			return *this;
 		}
@@ -441,10 +440,7 @@ public:
 	SLAPI ~SMailClient();
 	int    SLAPI Connect(InetUrl & rUrl, int timeout = -1);
 	int    SLAPI Disconnect();
-	const  Capability & SLAPI GetCapability() const
-	{
-		return C;
-	}
+	const  Capability & SLAPI GetCapability() const { return C; }
 	int    SLAPI Auth(int alg, const char * pName, const char * pPassword);
 	//
 	// Descr: Считывает из сокета одну или более строк.
@@ -511,13 +507,7 @@ private:
 //
 //
 //
-enum SHtmlTag {
-
-};
-//
-//
-//
-class SHttpClient {
+class SHttpProtocol {
 public:
 	enum  {
 		reqUnkn = 0,
@@ -549,13 +539,11 @@ public:
 		hdrVia,            // "Via"
 		hdrWarning,        // "Warning"
 		//
-		//
  		// Entity Header Fields
-		//
- 		// Entity-header fields define metainformation about the entity-body or, if no
- 		// body is present, about the resource identified by the request. Some of this
- 		// metainformation is OPTIONAL; some might be REQUIRED by portions of this
- 		// specification. (see RFC2616 7.1)
+ 		//   Entity-header fields define metainformation about the entity-body or, if no
+ 		//   body is present, about the resource identified by the request. Some of this
+ 		//   metainformation is OPTIONAL; some might be REQUIRED by portions of this
+ 		//   specification. (see RFC2616 7.1)
 		//
 		hdrAllow,          // "Allow"
 		hdrContentEnc,     // "Content-Encoding"
@@ -569,11 +557,10 @@ public:
 		hdrLastModif,      // "Last-Modified"
 		//
 		// Response Header Fields
-		//
-		// The response-header fields allow the server to pass additional information
-		// about the response which cannot be placed in the Status-Line. These header
-		// fields give information about the server and about further access to the
-		// resource identified by the Request-URI. (see RFC2616)
+		//   The response-header fields allow the server to pass additional information
+		//   about the response which cannot be placed in the Status-Line. These header
+		//   fields give information about the server and about further access to the
+		//   resource identified by the Request-URI. (see RFC2616)
 		//
 		hdrAcceptRanges,   // "Accept-Ranges"
 		hdrAge,            // "Age"
@@ -586,11 +573,10 @@ public:
 		hdrWwwAuthent,     // "WWW-Authenticate"
 		//
 		// Request Header Fields
-		//
-		// The request-header fields allow the client to pass additional information
-		// about the request, and about the client itself, to the server. These fields
-		// act as request modifiers, with semantics equivalent to the parameters on a
-		// programming language method invocation (see RFC2616).
+		//   The request-header fields allow the client to pass additional information
+		//   about the request, and about the client itself, to the server. These fields
+		//   act as request modifiers, with semantics equivalent to the parameters on a
+		//   programming language method invocation (see RFC2616).
 		//
 		hdrAccept,         // "Accept"
 		hdrAcceptCharset,  // "Accept-Charset"
@@ -612,50 +598,12 @@ public:
 		hdrTransferExt,    // "TE"
 		hdrUserAgent,      // "User-Agent"
 		//
-		//
-		//
 		hdrSoapAction      // "SoapAction"
 	};
 
-	static int GetHeaderTitle(int hdr, SString & rTitle);
-	static int GetHeaderId(const char * pTitle);
-
-	struct Attachment {
-	};
-	struct Response : public SBuffer {
-		Response();
-		Response & Reset();
-
-		enum {
-			transftypUndef = 0,         // Undefined
-			transftypContentLength = 1, // The stream cares about Content-length
-			transftypChunked,           // The stream sends/receives chunked data
-			transftypConnectionClose,   // The stream sends/receives data until connection is closed
-			transftypFile,              // This transfer style will be used by MIME support and for debug purposes
-		};
-		uint16 HttpVerMj;
-		uint16 HttpVerMn;
-		int    ErrCode;
-		int    TransferType;
-		size_t ContentLength;
-		long   State;
-		SString Descr;
-		StrAssocArray Header;
-		Attachment Attch;
-	};
-
-	SHttpClient();
-	~SHttpClient();
-	int    SetHeader(int hdrTag, const char * pValue);
-	void   ClearHeader();
-	int    TolkToServer(int method, const char * pUrl);
-	int    ReadResponse(Response & rRsp);
-private:
-	uint16 HttpVerMj;
-	uint16 HttpVerMn;
-	StrAssocArray Header;
-	TcpSocket S;
-	SBuffer Buffer;
+	static int FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
+	static int FASTCALL GetHeaderId(const char * pTitle);
+	static int FASTCALL SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
 };
 //
 //

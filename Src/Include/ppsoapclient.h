@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.H
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 
@@ -1106,6 +1106,7 @@ struct SfaHeinekenDistributorDelivery {
 struct SfaHeinekenSalePointDelivery {
 	SString InnerOrderCode;
 	int    InnerDlvrLocID;
+	int    ForeignLocID; // Склад @v10.0.08
 	SString DlvrLocName;
 	SString DlvrLocAddr;
 	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
@@ -1139,9 +1140,31 @@ typedef SString * (*SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)(PPSoapClientSession 
 struct VetisBusinessEntity;
 
 struct VetisErrorEntry {
+	VetisErrorEntry & Z()
+	{
+		Item.Z();
+		Code.Z();
+		Qualifier.Z();
+		return *this;
+	}
 	SString Item;
 	SString Code;
 	SString Qualifier;
+};
+
+struct VetisFault { 
+	enum {
+		tUndef = 0,
+		tAccessDenied = 1,
+		tEntityNotFound,
+		tIncorrectRequest,
+		tInternalService,
+		tUnknownServiceId,
+		tUnsupportedApplicationDataType
+	};
+	int    Type;
+	SString Message;
+	TSCollection <VetisErrorEntry> ErrList;
 };
 
 struct VetisEntityList {
@@ -1255,7 +1278,23 @@ struct VetisOrganization {
 	VetisAddress Address;
 };
 
-struct VetisDocument {
+enum VetisDocType {
+	vetisdoctypTRANSPORT = 0,
+	vetisdoctypPRODUCTIVE = 1, 
+	vetisdoctypRETURNABLE = 2, 
+	vetisdoctypINCOMING = 3,
+	vetisdoctypOUTGOING = 4
+};
+
+enum VetisDocStatus {
+	vetisdocstCREATED = 0, 
+	vetisdocstCONFIRMED = 1,
+	vetisdocstWITHDRAWN = 2, 
+	vetisdocstUTILIZED = 3, 
+	vetisdocstFINALIZED = 4
+};
+
+struct VetisDocument : public VetisGenericEntity {
 	VetisDocument();
 	SString Name;
 	SString Form;
@@ -1511,11 +1550,13 @@ struct VetisProductItem : public VetisNamedGenericVersioningEntity {
 };
 
 struct VetisGoodsDate {
-	VetisGoodsDate() : FirstDate(ZERODATETIME), SecondDate(ZERODATETIME)
+	VetisGoodsDate() /*: FirstDate(ZERODATETIME), SecondDate(ZERODATETIME)*/
 	{
 	}
-	LDATETIME FirstDate;
-	LDATETIME SecondDate;
+	//LDATETIME FirstDate;
+	//LDATETIME SecondDate;
+	SUniTime FirstDate;
+	SUniTime SecondDate;
 	SString InformalDate;
 };
 
@@ -1749,15 +1790,28 @@ struct VetisVetDocumentStatusChange {
 
 struct VetisVetDocument : public VetisDocument {
 	VetisVetDocument() : VetisDocument(), VetDForm(0), VetDType(0), VetDStatus(0), Flags(0), LastUpdateDate(ZERODATETIME),
-		UnionVetDocument(0), P_CertifiedBatch(0), P_CertifiedConsignment(0)
+		UnionVetDocument(0), P_CertifiedBatch(0)
 	{
 	}
 	~VetisVetDocument()
 	{
 		delete P_CertifiedBatch;
-		delete P_CertifiedConsignment;
 	}
-	int    VetDForm;   // VetDocumentForm
+	enum Form {
+		formCERTCU1 = 0, 
+		formLIC1 = 1,
+		formCERTCU2 = 2, 
+		formLIC2 = 3, 
+		formCERTCU3 = 4, 
+		formLIC3 = 5, 
+		formNOTE4 = 6, 
+		formCERT5I = 7, 
+		formCERT61 = 8, 
+		formCERT62 = 9, 
+		formCERT63 = 10, 
+		formPRODUCTIVE = 11
+	};
+	int    VetDForm;   // VetisVetDocument::formXXX
 	int    VetDType;   // VetDocumentType
 	int    VetDStatus; // VetDocumentStatus
 	enum {
@@ -1768,7 +1822,7 @@ struct VetisVetDocument : public VetisDocument {
 	//
 	int    UnionVetDocument;
 	VetisCertifiedBatch * P_CertifiedBatch;
-	VetisCertifiedConsignment * P_CertifiedConsignment;
+	VetisCertifiedConsignment CertifiedConsignment;
 	//
 	VetisVeterinaryAuthentication Authentication;
 	SString PrecedingVetDocuments;
@@ -1801,19 +1855,22 @@ class VetisApplicationData {
 public:
 	enum {
 		signNone = 0,
-		signGetStockEntryListRequest,
-		signGetBusinessEntityByGuidRequest,
-		signGetAppliedUserAuthorityListRequest,
-		signGetRussianEnterpriseListRequest,
-		signGetVetDocumentListRequest
+		signGetStockEntryList,
+		signGetBusinessEntity,
+		signGetBusinessEntityByGuid,
+		signGetAppliedUserAuthorityList,
+		signGetRussianEnterpriseList,
+		signGetVetDocumentList,
+		signGetProductItemList
 	};
-	VetisApplicationData()
+	VetisApplicationData(long sign) : Sign(sign)
 	{
 	}
 	virtual ~VetisApplicationData()
 	{
 	}
 	//
+	const long Sign;
 	SString LocalTransactionId;
 	VetisUser Initiator;
 	SString SessionToken;
@@ -1821,17 +1878,26 @@ public:
 
 class VetisGetStockEntryListRequest : public VetisApplicationData {
 public:
-	VetisGetStockEntryListRequest() : VetisApplicationData()
+	VetisGetStockEntryListRequest() : VetisApplicationData(signGetStockEntryList)
 	{
 	}
 	VetisListOptions ListOptions;
-	S_GUID EnterpriseGuid;
 	VetisStockEntrySearchPattern SearchPattern;
+};
+
+class VetisGetVetDocumentListRequest : public VetisApplicationData {
+public:
+	VetisGetVetDocumentListRequest() : VetisApplicationData(signGetVetDocumentList), DocType(-1), DocStatus(-1)
+	{
+	}
+	VetisListOptions ListOptions;
+	int    DocType;   // VetisDocType
+	int    DocStatus; // VetisDocStatus
 };
 
 class VetisListOptionsRequest : public VetisApplicationData {
 public:
-	VetisListOptionsRequest() : VetisApplicationData()
+	VetisListOptionsRequest(long sign) : VetisApplicationData(sign)
 	{
 	}
 	VetisListOptions ListOptions;
@@ -1839,13 +1905,13 @@ public:
 
 class VetisGetBusinessEntityRequest : public VetisApplicationData {
 public:
-	VetisGetBusinessEntityRequest() : VetisApplicationData()
+	VetisGetBusinessEntityRequest() : VetisApplicationData(signGetBusinessEntity)
 	{
 	}
 };
 
 struct VetisApplicationBlock {
-	VetisApplicationBlock();
+	explicit VetisApplicationBlock(const VetisApplicationData * pAppParam);
 	VetisApplicationBlock(const VetisApplicationBlock & rS);
 	~VetisApplicationBlock();
 	VetisApplicationBlock & FASTCALL operator = (const VetisApplicationBlock & rS);
@@ -1859,8 +1925,12 @@ struct VetisApplicationBlock {
 		appstCompleted = 2,
 		appstRejected  = 3
 	};
+	enum {
+		opUndef = 0,
+		opGetVetDocumentList
+	};
 	int    ApplicationStatus;
-	int    Func;
+	//int    Func;
 	int64  LocalTransactionId;
 	SString ServiceId;
 	SString User;
@@ -1870,12 +1940,11 @@ struct VetisApplicationBlock {
 	LDATETIME IssueDate;
 	LDATETIME RcvDate;
 	LDATETIME PrdcRsltDate;
+	SString AppData; // xml-block
 
 	TSCollection <VetisErrorEntry> ErrList;
-	//
-	VetisGetStockEntryListRequest * P_GselReq;
-	VetisListOptionsRequest * P_LoReq;
-	VetisEnterprise * P_Ent;
+	TSCollection <VetisFault> FaultList;
+	const VetisApplicationData * P_AppParam;
 };
 
 typedef VetisApplicationBlock * (* VETIS_SUBMITAPPLICATIONREQUEST_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const VetisApplicationBlock & rBlk);

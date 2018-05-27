@@ -505,6 +505,10 @@ SLAPI TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, 0, 0, coNothing); }
 SLAPI TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, 0, 0, co); }
+void TDialog::ToCascade()
+	{ DlgFlags |= fCascade; }
+int FASTCALL TDialog::CheckFlag(long f) const
+	{ return BIN(DlgFlags & f); }
 
 SLAPI TDialog::~TDialog()
 {
@@ -527,16 +531,6 @@ SLAPI TDialog::~TDialog()
 				delete PP_Groups[i];
 		SAlloc::F(PP_Groups);
 	}
-}
-
-void TDialog::ToCascade()
-{
-	DlgFlags |= fCascade;
-}
-
-int FASTCALL TDialog::CheckFlag(long f) const
-{
-	return BIN(DlgFlags & f);
 }
 
 int FASTCALL TDialog::addGroup(ushort grpID, CtrlGroup * pGroup)

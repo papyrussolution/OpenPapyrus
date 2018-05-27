@@ -1311,7 +1311,7 @@ int SLAPI GoodsCore::SearchByName(long kind, const char * pName, PPID * pID, Goo
 int SLAPI GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 {
 	int    ok = 1;
-	rCodeList.clear(); // @v8.2.10 freeAll()->clear()
+	rCodeList.clear();
 	if(id) {
 		id = labs(id);
 		SString barcode;

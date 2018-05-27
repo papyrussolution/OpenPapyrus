@@ -1005,8 +1005,8 @@ public:
 	{
 		MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
-		if(P_Box && P_Box->def)
-			P_Box->def->SetOption(lbtFocNotify, 1);
+		if(P_Box)
+			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		updateList(-1);
 	}
 	int    setDTS(const PPGoodsStruc *);
@@ -2453,54 +2453,64 @@ int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, PPGoodsStruc * pStruct, PPLogger * pLog)
+int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct, PPLogger * pLog)
 {
 	int    ok = 1;
 	int    recur = 0;
-	if(pStruct && pStruct->Rec.Flags & GSF_COMPL && pGoodsIDs && pStructIDs) {
-		PPObjGoods goods_obj;
-		SString msg, buf, g_name, struc_name, cg_name, cstruc_name;
-		PPGoodsStrucItem * p_item = 0;
-		THROW_SL(pStructIDs->add(pStruct->Rec.ID));
-		for(uint i = 0; pStruct->Items.enumItems(&i, (void**)&p_item) > 0;) {
-			int    s = 0, g = 0;
-			double price = 0.0, sum = 0.0;
-			StringSet ss(SLBColumnDelim);
-			PPGoodsStruc::Ident ident(p_item->GoodsID);
-			PPGoodsStruc gstruc;
-			THROW(goods_obj.LoadGoodsStruc(&ident, &gstruc));
-			if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
-				recur = 1;
-				PPID   goods_id;
-				PPLoadText(PPTXT_CYCLESSTRUCT, msg);
-				goods_id = (pGoodsIDs->getCount() > 0) ? pGoodsIDs->at(pGoodsIDs->getCount() - 1) : 0;
-				GetGoodsName(goods_id, g_name);
-				if(strip(pStruct->Rec.Name)[0] != '\0')
-					struc_name = pStruct->Rec.Name;
-				else
-					ideqvalstr(pStruct->Rec.ID, struc_name.Z());
-				GetGoodsName(p_item->GoodsID, cg_name);
-				if(strip(gstruc.Rec.Name)[0] != '\0')
-					cstruc_name = gstruc.Rec.Name;
-				else
-					ideqvalstr(gstruc.Rec.ID, cstruc_name.Z());
-				buf.Printf(msg.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
-				if(pLog)
-					pLog->Log(buf);
-			}
-			else {
-				int    r = 0;
-				THROW_SL(pGoodsIDs->add(p_item->GoodsID));
-				THROW(r = CheckStruct(pGoodsIDs, pStructIDs, &gstruc, pLog));
-				THROW_SL(pGoodsIDs->removeByID(p_item->GoodsID));
-				if(r == 2)
-					recur = 1;
-				if(ok < 0 && r > 0)
-					ok = r;
-				//ok = (ok <= 0) ? ok : r;
-			}
+	if(pStruct) {
+		const int gs_kind = PPGoodsStruc::GetStrucKind(pStruct->Rec.Flags);
+		SString fmt_buf;
+		SString buf;
+		SString g_name, cg_name, cstruc_name;
+		SString struc_name;
+		(struc_name = pStruct->Rec.Name).Strip();
+		if(struc_name.Empty())
+			ideqvalstr(pStruct->Rec.ID, struc_name);
+		/* @construction 
+		if(gs_kind == PPGoodsStruc::kUndef && pStruct->Rec.ID && (!pStructIDs || !pStructIDs->lsearch(pStruct->Rec.ID))) {
+			PPLoadText(PPTXT_GSTRUCTNDEFKIND, fmt_buf);
+			buf.Printf(fmt_buf.cptr(), struc_name.cptr());
+			CALLPTRMEMB(pLog, Log(buf));
 		}
-		THROW_SL(pStructIDs->removeByID(pStruct->Rec.ID));
+		*/
+		if(pStruct->Rec.Flags & GSF_COMPL && pGoodsIDs && pStructIDs) {
+			PPObjGoods goods_obj;
+			PPGoodsStrucItem * p_item = 0;
+			PPGoodsStruc gstruc;
+			THROW_SL(pStructIDs->add(pStruct->Rec.ID));
+			for(uint i = 0; pStruct->Items.enumItems(&i, (void**)&p_item) > 0;) {
+				int    s = 0;
+				int    g = 0;
+				double price = 0.0;
+				double sum = 0.0;
+				const  PPGoodsStruc::Ident ident(p_item->GoodsID);
+				gstruc.Init();
+				THROW(goods_obj.LoadGoodsStruc(&ident, &gstruc));
+				if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
+					recur = 1;
+					PPID   goods_id = (pGoodsIDs->getCount() > 0) ? pGoodsIDs->at(pGoodsIDs->getCount() - 1) : 0;
+					GetGoodsName(goods_id, g_name);
+					GetGoodsName(p_item->GoodsID, cg_name);
+					(cstruc_name = gstruc.Rec.Name).Strip();
+					if(cstruc_name.Empty())
+						ideqvalstr(gstruc.Rec.ID, cstruc_name);
+					PPLoadText(PPTXT_CYCLESSTRUCT, fmt_buf);
+					buf.Printf(fmt_buf.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
+					CALLPTRMEMB(pLog, Log(buf));
+				}
+				else {
+					int    r = 0;
+					THROW_SL(pGoodsIDs->add(p_item->GoodsID));
+					THROW(r = CheckStruct(pGoodsIDs, pStructIDs, &gstruc, pLog)); // @recursion
+					THROW_SL(pGoodsIDs->removeByID(p_item->GoodsID));
+					if(r == 2)
+						recur = 1;
+					if(ok < 0 && r > 0)
+						ok = r;
+				}
+			}
+			THROW_SL(pStructIDs->removeByID(pStruct->Rec.ID));
+		}
 	}
 	else
 		ok = -1;

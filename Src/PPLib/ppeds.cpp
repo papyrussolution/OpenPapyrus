@@ -343,8 +343,7 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 	file.Rename(decode_file_name, pFileName);
 
 	CATCHZOK;
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	ZDELETE(pb_indata);
 	if(prov) {
         CryptReleaseContext(prov, 0);
         prov = NULL;
@@ -452,10 +451,8 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	}
 
 	CATCHZOK;
-	if(pb_signed_message_blob)
-		ZDELETE(pb_signed_message_blob);
-	if(pb_indata)
-		ZDELETE(pb_indata);
+	ZDELETE(pb_signed_message_blob);
+	ZDELETE(pb_indata);
 	if(p_signer_cert) {
 		CashOff(p_signer_cert); // Выключаем кеширование
 		CertFreeCertificateContext(p_signer_cert);
@@ -464,14 +461,12 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	if(cert_sore)
 		CertCloseStore(cert_sore, 0);
 	for(size_t i = 0; i < (size_t)blob_count; i++) {
-		if(message_array)
-			if(message_array[i])
-				ZDELETE(message_array[i]);
+		if(message_array) {
+			ZDELETE(message_array[i]);
+		}
 	}
-	if(message_array)
-		ZDELETE(message_array);
-	if(message_size_array)
-		ZDELETE(message_size_array);
+	ZDELETE(message_array);
+	ZDELETE(message_size_array);
 	return ok;
 }
 
@@ -572,12 +567,9 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
         CryptReleaseContext(prov, 0);
         prov = NULL;
     }
-	if(pb_cosigned_data)
-		ZDELETE(pb_cosigned_data);
-	if(pb_indata)
-		ZDELETE(pb_indata);
-	if(pb_sign_data)
-		ZDELETE(pb_sign_data);
+	ZDELETE(pb_cosigned_data);
+	ZDELETE(pb_indata);
+	ZDELETE(pb_sign_data);
 	if(p_cosigner_cert) {
 		CertFreeCertificateContext(p_cosigner_cert);
 		p_cosigner_cert = 0;
@@ -1838,7 +1830,6 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	};
 
 	int    ok = 1;
-	SHttpClient http_cl;
 	SString str, request;
 	InetAddr inet_addr;
 	TcpSocket sock;
@@ -2080,25 +2071,19 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 
 	CATCHZOK;
 	WSACleanup();
-	if(p_indata)
-		ZDELETE(p_indata);
-	if(hash)
-		ZDELETE(hash);
+	ZDELETE(p_indata);
+	ZDELETE(hash);
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(stamp_msg)
 		CryptMsgClose(stamp_msg);
-	if(attr_data.pbData)
-		ZDELETE(attr_data.pbData);
+	ZDELETE(attr_data.pbData);
 	if(attr.rgValue) {
-		if(attr.rgValue->pbData)
-			ZDELETE(attr.rgValue->pbData);
+		ZDELETE(attr.rgValue->pbData);
 		ZDELETE(attr.rgValue);
 	}
-	if(pb_stamp_decoded)
-		ZDELETE(pb_stamp_decoded);
-	if(pb_stamp_data)
-		ZDELETE(pb_stamp_data);
+	ZDELETE(pb_stamp_decoded);
+	ZDELETE(pb_stamp_data);
 	return ok;
 }
 

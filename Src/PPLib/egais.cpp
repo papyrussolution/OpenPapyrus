@@ -9685,31 +9685,27 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetRefA(EgaisRefATbl::Rec & rItem)
 int SLAPI PrcssrAlcReport::RefCollection::Store(int use_ta)
 {
 	int    ok = 1;
+	long   conflict_flags = 0;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		{
 			for(uint i = 0; i < PersonList.getCount(); i++) {
 				EgaisPersonCore::Item * p_item = PersonList.at(i);
-				if(p_item) {
-					long conflict_flags = 0;
+				if(p_item)
 					THROW(PsC.Put(&p_item->ID, p_item, &conflict_flags, 0));
-				}
 			}
 		}
 		{
 			for(uint i = 0; i < ProductList.getCount(); i++) {
 				EgaisProductCore::Item * p_item = ProductList.at(i);
-				if(p_item) {
-					long conflict_flags = 0;
+				if(p_item)
 					THROW(PrC.Put(&p_item->ID, p_item, &conflict_flags, 0));
-				}
 			}
 		}
 		{
 			for(uint i = 0; i < RefAList.getCount(); i++) {
 				EgaisRefATbl::Rec & r_item = RefAList.at(i);
-				long   conflict_flags = 0;
 				THROW(RaC.Put(&r_item.ID, &r_item, &conflict_flags, 0));
 			}
 		}

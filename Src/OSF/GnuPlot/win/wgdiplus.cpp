@@ -31,6 +31,8 @@
 #pragma hdrstop
 //#include <windows.h>
 //#include <windowsx.h>
+#define max MAX // @v10.0.08
+#define min MIN // @v10.0.08
 #define GDIPVER 0x0110
 #include <gdiplus.h>
 

@@ -576,6 +576,11 @@ struct CclAssocItem { // @flat
 	long   Flags;
 };
 
+struct CclExtTextItem {
+	PPID   CheckID;
+	StrAssocArray LnTextList;
+};
+
 int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pHasExLineList)
 {
 	int    ok = 1;
@@ -591,6 +596,8 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 		BExtQuery q(t, 2, 64);
 		TempCCheckLineTbl::Key2 k2;
 		TSVector <CCheckLineExtTbl::Rec> ccext_items; // @v10.0.05 TSArray-->TSVector
+		//StrAssocArray ln_text_list;
+		TSCollection <CclExtTextItem> ccln_extt_list;
 
 		MEMSZERO(k2);
 		q.select(t->CheckID, t->DivID, t->GoodsID, t->Quantity, t->Price, t->Dscnt/*t->Discount*/, t->Serial, 0L);
@@ -621,6 +628,20 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			line_rec.Dscnt    = r_rec.Dscnt;
 			//line_rec.Discount = r_rec.Discount;
 			THROW_DB(bei.insert(&line_rec));
+			// @v10.0.08 {
+			if(sstrlen(r_rec.Serial)) {
+				uint   cclnextt_pos = 0;
+				CclExtTextItem * p_ccln_extt_item = 0;
+				if(ccln_extt_list.lsearch(&p_item->ChkID, &cclnextt_pos, CMPF_LONG))
+					p_ccln_extt_item = ccln_extt_list.at(cclnextt_pos);
+				else {
+					THROW_SL(p_ccln_extt_item = ccln_extt_list.CreateNewItem());
+					p_ccln_extt_item->CheckID = p_item->ChkID;
+				}
+				CCheckPacket::Helper_SetLineTextExt(line_rec.RByCheck, CCheckPacket::lnextSerial, p_ccln_extt_item->LnTextList, r_rec.Serial); 
+			}
+			// } @v10.0.08
+			/* @v10.0.08
 			if(use_ext && sstrlen(r_rec.Serial)) {
 				STRNSCPY(ext_rec.Serial, r_rec.Serial);
 				ext_rec.CheckID  = line_rec.CheckID;
@@ -628,9 +649,38 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 				THROW(ccext_items.insert(&ext_rec));
 				CALLPTRMEMB(pHasExLineList, AddUnique(ext_rec.CheckID, p_item->Flags|CCHKF_LINEEXT, 0));
 			}
+			*/
 			PPWaitPercent(cntr.Increment(), wait_msg);
 		}
 		THROW_DB(bei.flash());
+		// @v10.0.08 {
+		if(ccln_extt_list.getCount()) {
+			SString ln_exttext_buf;
+			SString line_buf;
+			SString temp_buf;
+			for(uint cclnextt_idx = 0; cclnextt_idx < ccln_extt_list.getCount(); cclnextt_idx++) {
+				const CclExtTextItem * p_ccln_extt_item = ccln_extt_list.at(cclnextt_idx);
+				if(p_ccln_extt_item && p_ccln_extt_item->CheckID) {
+					ln_exttext_buf.Z();
+					if(p_ccln_extt_item->LnTextList.getCount()) {
+						for(uint i = 0; i < p_ccln_extt_item->LnTextList.getCount(); i++) {
+							StrAssocArray::Item item = p_ccln_extt_item->LnTextList.Get(i);
+							PPExtStringStorage ess;
+							line_buf = item.Txt;
+							int    fld_id = 0;
+							for(uint p = 0; ess.Enum(line_buf, &p, &fld_id, temp_buf) > 0;) {
+								if(temp_buf.NotEmptyS() && fld_id > 0 && fld_id < 100)
+									PPPutExtStrData(item.Id * 100 + fld_id, ln_exttext_buf, temp_buf);
+							}
+						}
+						if(ln_exttext_buf.NotEmptyS()) {
+							THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, p_ccln_extt_item->CheckID, PPTRPROP_CC_LNEXT), ln_exttext_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+						}
+					}
+				}
+			}
+		}
+		// } @v10.0.08
 		if(ccext_items.getCount() > 0) {
 			uint ext_count = ccext_items.getCount();
 			BExtInsert bei_ext(CC.P_LnExt, 0);

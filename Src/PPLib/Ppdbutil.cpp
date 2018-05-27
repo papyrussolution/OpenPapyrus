@@ -3034,7 +3034,7 @@ int SLAPI PrcssrTestDb::Init(const Param * pParam)
 	int    ok = 1;
 	P = *pParam;
 	G.Set(getcurdate_().v ^ getcurtime_().v);
-	WordList.Clear();
+	WordList.Z();
 	if(P.WordsFileName) {
 		SFile wf(P.WordsFileName, SFile::mRead);
 		long   word_id = 0;

@@ -1182,7 +1182,7 @@ LDATETIME & SLAPI LDATETIME::SetFar()
 
 LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 {
-	const struct tm * p_temp_tm = gmtime(&_tm);
+	const struct tm * p_temp_tm = localtime(&_tm); // @v10.0.08 gmtime-->localtime
 	if(p_temp_tm) {
 		d.encode(p_temp_tm->tm_mday, p_temp_tm->tm_mon+1, p_temp_tm->tm_year + 1900);
 		t = encodetime(p_temp_tm->tm_hour, p_temp_tm->tm_min, p_temp_tm->tm_sec, 0);
@@ -1746,6 +1746,13 @@ SLAPI STimeChunk::STimeChunk() : Start(ZERODATETIME), Finish(ZERODATETIME)
 SLAPI STimeChunk::STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish)
 {
 	Init(rStart, rFinish);
+}
+
+STimeChunk & SLAPI STimeChunk::Z()
+{
+	Start = ZERODATETIME;
+	Finish = ZERODATETIME;
+	return *this; 
 }
 
 void SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
@@ -2561,7 +2568,7 @@ static uint32 FASTCALL __TimeToDaysAndFraction_ms(uint64 Time, uint32 * pMillise
 {
 	uint64 total_milliseconds = Convert100nsToMilliseconds(Time); // Convert the input time to total milliseconds
 	uint64 temp = ConvertMillisecondsToDays(total_milliseconds); // Convert milliseconds to total days
-	uint32 elapsed_days = temp & 0xffffffffLL; // Set the elapsed days from temp, we've divided it enough so that the high part must be zero.
+	uint32 elapsed_days = (uint32)(temp & 0xffffffffLL); // Set the elapsed days from temp, we've divided it enough so that the high part must be zero.
 	//
 	//  Calculate the exact number of milliseconds in the elapsed days
 	//  and subtract that from the total milliseconds to figure out
@@ -2569,7 +2576,7 @@ static uint32 FASTCALL __TimeToDaysAndFraction_ms(uint64 Time, uint32 * pMillise
 	//
 	temp = ConvertDaysToMilliseconds(elapsed_days);
 	temp = total_milliseconds - temp;
-	*pMilliseconds = temp & 0xffffffffLL; // Set the fraction part from temp, the total number of milliseconds in a day guarantees that the high part must be zero.
+	*pMilliseconds = (uint32)(temp & 0xffffffffLL); // Set the fraction part from temp, the total number of milliseconds in a day guarantees that the high part must be zero.
 	return elapsed_days;
 }
 //   
@@ -2848,7 +2855,10 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 6) * 6) + 1, 2);
 			break;
 		case indYr:
-			value = p_inner->Y;
+			if(p_inner->Y > 0 && p_inner->Y < 3000)
+				value = p_inner->Y;
+			else
+				ok = 0;
 			break;
 		case indDYr:
 			value = (((p_inner->Y-1) / 10) * 10) + 1;
@@ -2972,13 +2982,35 @@ SUniTime & SUniTime::Z()
 	return *this;
 }
 
+uint SUniTime::GetSignature() const
+{
+	uint64 value;
+	return SUniTime_Decode(D, &value);
+}
+
+
+int FASTCALL SUniTime::SetYear(int year)
+{
+	SUniTime_Inner inner;
+	inner.Y = year;
+	return Implement_Set(indYr, &inner);
+}
+
+int FASTCALL SUniTime::SetMonth(int year, int month)
+{
+	SUniTime_Inner inner;
+	inner.Y = year;
+	inner.M = month;
+	return Implement_Set(indMon, &inner);
+}
+
 int FASTCALL SUniTime::Set(LDATE d)
 {
 	SUniTime_Inner inner;
 	inner.D = d.day();
 	inner.M = d.month();
 	inner.Y = d.year();
-	return Implement_Set(indfScale|indDay, &inner);
+	return Implement_Set(indDay, &inner);
 }
 
 int FASTCALL SUniTime::Set(const LDATETIME & rD)
@@ -2991,14 +3023,32 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD)
 	inner.Mn = rD.t.minut();
 	inner.Sc = rD.t.sec();
 	inner.MSc = rD.t.hs() * 10;
-	return Implement_Set(indfScale|indMSec, &inner);
+	return Implement_Set(indMSec, &inner);
+}
+
+int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature)
+{
+	assert(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent));
+	if(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent)) {
+		SUniTime_Inner inner;
+		inner.D = rD.d.day();
+		inner.M = rD.d.month();
+		inner.Y = rD.d.year();
+		inner.Hr = rD.t.hour();
+		inner.Mn = rD.t.minut();
+		inner.Sc = rD.t.sec();
+		inner.MSc = rD.t.hs() * 10;
+		return Implement_Set(signature, &inner);
+	}
+	else
+		return 0;
 }
 
 int FASTCALL SUniTime::Set(time_t t)
 {
 	int    ok = 1;
 	if(t >= 0) {
-		SUniTime_Encode(D, indfScale|indSec, t * TICKSPERSEC + EPOCH_BIAS);
+		SUniTime_Encode(D, indSec, t * TICKSPERSEC + EPOCH_BIAS);
 	}
 	else {
 		Z();

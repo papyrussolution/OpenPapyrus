@@ -959,7 +959,7 @@ VetisStreet::VetisStreet() : VetisAddressObjectView()
 {
 }
 
-VetisDocument::VetisDocument() : IssueDate(ZERODATE), DocumentType(0)
+VetisDocument::VetisDocument() : VetisGenericEntity(), IssueDate(ZERODATE), DocumentType(0)
 {
 }
 
@@ -1004,20 +1004,19 @@ VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
 	return *this;
 }
 
-VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(VetisApplicationData::signNone), 
-	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0), P_Ent(0)
+VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationData * pAppParam) : ApplicationStatus(appstUndef), 
+	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), P_AppParam(pAppParam),
+	LocalTransactionId(0)//, P_GselReq(0), P_LoReq(0), P_Ent(0), P_GvdlReq(0)
 {
 }
 
-VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) : P_GselReq(0)
+VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) //: P_GselReq(0)
 {
 	Copy(rS);
 }
 
 VetisApplicationBlock::~VetisApplicationBlock()
 {
-	delete P_GselReq;
-	delete P_LoReq;
 }
 
 VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisApplicationBlock & rS)
@@ -1029,7 +1028,6 @@ VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisA
 void VetisApplicationBlock::Clear()
 {
 	ApplicationStatus = appstUndef;
-	Func = 0;
 	LocalTransactionId = 0;
 	ServiceId.Z();
 	User.Z();
@@ -1040,16 +1038,14 @@ void VetisApplicationBlock::Clear()
 	RcvDate.Z();
 	PrdcRsltDate.Z();
 	ErrList.freeAll();
-	ZDELETE(P_GselReq);
-	ZDELETE(P_LoReq);
-	ZDELETE(P_Ent);
+	FaultList.freeAll();
+	AppData.Z();
 }
 
 int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 {
 	int    ok = 1;
 	ApplicationStatus = rS.ApplicationStatus;
-	Func = rS.Func;
 	LocalTransactionId = rS.LocalTransactionId;
 	ServiceId = rS.ServiceId;
 	User = rS.User;
@@ -1060,17 +1056,8 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	RcvDate = rS.RcvDate;
 	PrdcRsltDate = rS.PrdcRsltDate;
 	TSCollection_Copy(ErrList, rS.ErrList);
-	ZDELETE(P_GselReq);
-	ZDELETE(P_LoReq);
-	if(rS.P_GselReq) {
-		THROW(P_GselReq = new VetisGetStockEntryListRequest(*rS.P_GselReq));
-	}
-	if(rS.P_LoReq) {
-		THROW(P_LoReq = new VetisListOptionsRequest(*rS.P_LoReq));
-	}
-	if(rS.P_Ent) {
-		P_Ent = new VetisEnterprise(*rS.P_Ent);
-	}
-	CATCHZOK
+	TSCollection_Copy(FaultList, rS.FaultList);
+	AppData = rS.AppData;
+	P_AppParam = rS.P_AppParam;
 	return ok;
 }

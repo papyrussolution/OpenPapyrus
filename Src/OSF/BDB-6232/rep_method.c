@@ -1189,8 +1189,7 @@ err:
  * the database in the place where we knew it should be.  The code here tries to
  * be more flexible/resilient to mis-matching INMEM settings, even though we
  * recommend against that.
- * PUBLIC: int __rep_open_sysdb __P((ENV *,
- * PUBLIC:    DB_THREAD_INFO *, DB_TXN *, const char *, uint32, DB **));
+ * PUBLIC: int __rep_open_sysdb __P((ENV *, DB_THREAD_INFO *, DB_TXN *, const char *, uint32, DB **));
  */
 int __rep_open_sysdb(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn, const char * dbname, uint32 flags, DB ** dbpp)
 {
@@ -2226,16 +2225,13 @@ int __rep_set_request(DB_ENV *dbenv, db_timeout_t min, db_timeout_t max)
 		DB_TIMEOUT_TO_TIMESPEC(min, &db_rep->request_gap);
 		DB_TIMEOUT_TO_TIMESPEC(max, &db_rep->max_gap);
 	}
-
 	return 0;
 }
-
 /*
  * __rep_set_view --
  *	Set the view/partial replication function.
  *
- * PUBLIC: int __rep_set_view __P((DB_ENV *,
- * PUBLIC:     int (*)(DB_ENV *, const char *, int *, uint32)));
+ * PUBLIC: int __rep_set_view __P((DB_ENV *, int (*)(DB_ENV *, const char *, int *, uint32)));
  */
 int __rep_set_view(DB_ENV *dbenv, int (*f_partial)(DB_ENV *, const char *, int *, uint32))
 {
@@ -2268,8 +2264,7 @@ static int __rep_defview(DB_ENV *dbenv, const char * name, int * result, uint32 
  *	Calls the partial function, after doing some checks required for
  *	handling blobs.
  *
- * PUBLIC: int __rep_call_partial
- * PUBLIC:  __P((ENV *, const char *, int *, uint32, DELAYED_BLOB_LIST **));
+ * PUBLIC: int __rep_call_partial __P((ENV *, const char *, int *, uint32, DELAYED_BLOB_LIST **));
  */
 int __rep_call_partial(ENV *env, const char * name, int * result, uint32 flags, DELAYED_BLOB_LIST ** lsp)
 {
@@ -2341,14 +2336,11 @@ int __rep_call_partial(ENV *env, const char * name, int * result, uint32 flags, 
 	}
 	return ret;
 }
-
 /*
  * __rep_set_transport_pp --
  *	Set the transport function for replication.
  *
- * PUBLIC: int __rep_set_transport_pp __P((DB_ENV *, int,
- * PUBLIC:     int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *,
- * PUBLIC:     int, uint32)));
+ * PUBLIC: int __rep_set_transport_pp(DB_ENV *, int, int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32));
  */
 int __rep_set_transport_pp(DB_ENV *dbenv, int eid, int (*f_send)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32))
 {
@@ -2384,9 +2376,7 @@ int __rep_set_transport_pp(DB_ENV *dbenv, int eid, int (*f_send)(DB_ENV *, const
  * __rep_set_transport_int --
  *	Set the internal values for the transport function for replication.
  *
- * PUBLIC: int __rep_set_transport_int __P((ENV *, int,
- * PUBLIC:     int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *,
- * PUBLIC:     int, uint32)));
+ * PUBLIC: int __rep_set_transport_int(ENV *, int, int (*)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32));
  */
 int __rep_set_transport_int(ENV *env, int eid, int (*f_send)(DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32))
 {
@@ -2637,14 +2627,12 @@ int __rep_sync(DB_ENV *dbenv, uint32 flags)
 		repflags = DB_REP_ANYWHERE;
 	}
 	(void)__rep_send_message(env, master, type, &lsn, NULL, 0, repflags);
-
-out:    ENV_LEAVE(env, ip);
+out:    
+	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
- * PUBLIC: int __rep_txn_applied __P((ENV *,
- * PUBLIC:     DB_THREAD_INFO *, DB_COMMIT_INFO *, db_timeout_t));
+ * PUBLIC: int __rep_txn_applied(ENV *, DB_THREAD_INFO *, DB_COMMIT_INFO *, db_timeout_t);
  */
 int __rep_txn_applied(ENV *env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit_info, db_timeout_t timeout)
 {
@@ -3016,17 +3004,14 @@ static int __rep_check_applied(ENV *env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * c
 		}
 		return (USR_ERR(env, DB_NOTFOUND));
 	}
-
 out:
-	if(dbc != NULL &&
-	    (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	if(txn != NULL &&
 	    (t_ret = __db_txn_auto_resolve(env, txn, 1, ret)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * The txn and dbc handles are owned by caller, though we create them if
  * necessary.  Caller is responsible for closing them.
@@ -3036,9 +3021,7 @@ out:
  * is in use.  Callers that require information that is not cached (e.g.
  * timestamp) should not set use_cache.
  *
- * PUBLIC: int __rep_read_lsn_history __P((ENV *, DB_THREAD_INFO *, DB_TXN **,
- * PUBLIC:    DBC **, uint32, __rep_lsn_hist_data_args *,
- * PUBLIC:    struct rep_waitgoal *, uint32, int));
+ * PUBLIC: int __rep_read_lsn_history(ENV *, DB_THREAD_INFO *, DB_TXN **, DBC **, uint32, __rep_lsn_hist_data_args *, struct rep_waitgoal *, uint32, int);
  */
 int __rep_read_lsn_history(ENV *env, DB_THREAD_INFO * ip, DB_TXN ** txn, DBC ** dbc, uint32 gen, 
 	__rep_lsn_hist_data_args * gen_infop, struct rep_waitgoal * reasonp, uint32 flags, int use_cache)
@@ -3052,13 +3035,10 @@ int __rep_read_lsn_history(ENV *env, DB_THREAD_INFO * ip, DB_TXN ** txn, DBC ** 
 	DBT key_dbt, data_dbt;
 	uint32 desired_gen;
 	int ret, tries;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	ret = 0;
-
 	DB_ASSERT(env, flags == DB_SET || flags == DB_NEXT);
-
 	/* Simply return cached info, if we already have it. */
 	desired_gen = flags == DB_SET ? gen : gen + 1;
 	REP_SYSTEM_LOCK(env);
