@@ -1193,7 +1193,7 @@ int    FASTCALL GetLinguaCode(int ident, SString & rCode);
 // Descr: Возвращает Windows код языка по идентификатору ident.
 //
 uint32 FASTCALL GetLinguaWinIdent(int ident);
-int    FASTCALL GetLinguaList(LongArray & rList);
+void   FASTCALL GetLinguaList(LongArray & rList);
 //
 // Descr: Возвращает идентификатор натурального скрипта по английскому наименованию pSymb.
 //   Внутренняя таблица символов скриптов "заточена" на соответствие со стандартной таблицей unicode-символов.
@@ -1476,7 +1476,7 @@ public:
 	//
 	static uint  FASTCALL Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf);
 	//
-	// Descr: Рассчитывает длину строки в кодировке utf8, которая получится после 
+	// Descr: Рассчитывает длину строки в кодировке utf8, которая получится после
 	//   преобразования unicode-строки pUcBuf длиной tlen или пока pUcBuf[0] != 0
 	//
 	static uint  FASTCALL Utf8Length(const wchar_t * pUcBuf, uint tlen);
@@ -2058,8 +2058,8 @@ public:
 	//
 	// Descr: Устанавливает время согласно rD с точностью, заданной сигнатурой signature.
 	// ARG(rD        IN): Дата/время, которые следует установить
-	// ARG(signature IN): Требуемая точность установки. 
-	//   Допускаются только следующие значения параметра: 
+	// ARG(signature IN): Требуемая точность установки.
+	//   Допускаются только следующие значения параметра:
     //   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
 	//
 	int    FASTCALL Set(const LDATETIME & rD, uint signature);
@@ -2892,14 +2892,8 @@ struct IntRange { // @persistent @size=8
 	//   0  - значение test не принадлежит диапазону
 	//
 	int    FASTCALL CheckVal(int test) const;
-	int    FASTCALL operator == (const IntRange & rS) const
-	{
-		return (low == rS.low && upp == rS.upp);
-	}
-	int    FASTCALL operator != (const IntRange & rS) const
-	{
-		return (low != rS.low || upp != rS.upp);
-	}
+	int    FASTCALL operator == (const IntRange & rS) const { return (low == rS.low && upp == rS.upp); }
+	int    FASTCALL operator != (const IntRange & rS) const { return (low != rS.low || upp != rS.upp); }
 	//
 	// Descr: Присваивает экземпляру this значение объекта rS.
 	// Returns:
@@ -3097,6 +3091,10 @@ int    FASTCALL checkirange(long nmb, long low, long upp);
 int    FASTCALL checkupper(uint nmb, uint upper);
 int    FASTCALL checkfrange(double nmb, double low, double upp);
 int    FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp);
+
+// @construction int    FASTCALL BND(int v, int low, int upp);
+// @construction int    FASTCALL BND(uint v, uint low, uint upp);
+// @construction int    FASTCALL BND(double v, double low, double upp);
 //
 // Descr: Величина, ассоциированная с единицей измерения.
 //

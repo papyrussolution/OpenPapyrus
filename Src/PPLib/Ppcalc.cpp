@@ -1,6 +1,6 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -299,12 +299,12 @@ int SLAPI CalcPriceParam::Restore()
 	return -1;
 }
 //
-// Descr: Возвращает минимальный множитель, цены кратные которому
-//   дают расчет суммы НДС без остатка.
-//   Множитель возвращается долях денежной единицы, определяемых параметром prec
-// ARG(rate IN): ставка НДС (в долях от единицы, например - 0.20 (20%))
-// ARG(prec IN): @{0..6} точность представления результата. 0 - до целых значений,
-//   3 - с точностью 0.001 и т.д.
+// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РјРЅРѕР¶РёС‚РµР»СЊ, С†РµРЅС‹ РєСЂР°С‚РЅС‹Рµ РєРѕС‚РѕСЂРѕРјСѓ
+//   РґР°СЋС‚ СЂР°СЃС‡РµС‚ СЃСѓРјРјС‹ РќР”РЎ Р±РµР· РѕСЃС‚Р°С‚РєР°.
+//   РњРЅРѕР¶РёС‚РµР»СЊ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РґРѕР»СЏС… РґРµРЅРµР¶РЅРѕР№ РµРґРёРЅРёС†С‹, РѕРїСЂРµРґРµР»СЏРµРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРј prec
+// ARG(rate IN): СЃС‚Р°РІРєР° РќР”РЎ (РІ РґРѕР»СЏС… РѕС‚ РµРґРёРЅРёС†С‹, РЅР°РїСЂРёРјРµСЂ - 0.20 (20%))
+// ARG(prec IN): @{0..6} С‚РѕС‡РЅРѕСЃС‚СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚Р°. 0 - РґРѕ С†РµР»С‹С… Р·РЅР°С‡РµРЅРёР№,
+//   3 - СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ 0.001 Рё С‚.Рґ.
 //
 ulong SLAPI GetMinVatDivisor(double rate, uint prec)
 {
@@ -355,9 +355,9 @@ double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pV
 	if(calc_taxes && Flags & fVatAboveAddition) {
 		//
 		// @v4.8.7
-		// По видимому, следующая строка лишняя (она приводит к неверному значению tax_factor).
-		// Не понятно только каким образом те клиенты, которые в течении, как минимум 1.5 года
-		// использовали эту функцию не матюгались.
+		// РџРѕ РІРёРґРёРјРѕРјСѓ, СЃР»РµРґСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР° Р»РёС€РЅСЏСЏ (РѕРЅР° РїСЂРёРІРѕРґРёС‚ Рє РЅРµРІРµСЂРЅРѕРјСѓ Р·РЅР°С‡РµРЅРёСЋ tax_factor).
+		// РќРµ РїРѕРЅСЏС‚РЅРѕ С‚РѕР»СЊРєРѕ РєР°РєРёРј РѕР±СЂР°Р·РѕРј С‚Рµ РєР»РёРµРЅС‚С‹, РєРѕС‚РѕСЂС‹Рµ РІ С‚РµС‡РµРЅРёРё, РєР°Рє РјРёРЅРёРјСѓРј 1.5 РіРѕРґР°
+		// РёСЃРїРѕР»СЊР·РѕРІР°Р»Рё СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РЅРµ РјР°С‚СЋРіР°Р»РёСЃСЊ.
 		//
 		// goods_obj.MultTaxFactor(GoodsID, &tax_factor);
 		gtv.Calc_(&gte, price, tax_factor, GTAXVF_AFTERTAXES | GTAXVF_EXCISE, 0);
@@ -366,7 +366,7 @@ double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pV
 	//
 	if(Flags & fRoundVat) {
 		//
-		// Расчет цены кратной ставке НДС
+		// Р Р°СЃС‡РµС‚ С†РµРЅС‹ РєСЂР°С‚РЅРѕР№ СЃС‚Р°РІРєРµ РќР”РЎ
 		//
 		ulong  div = GetMinVatDivisor(fdiv100r(vat_rate), 2);
 		ulong  p   = (ulong)R0i(price * 100.0);
@@ -381,7 +381,7 @@ double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pV
 	else
 		price = Round(price, RoundPrec, RoundDir);
 	//
-	// После окончательного расчета цены необходимо заново рассчитать налоги
+	// РџРѕСЃР»Рµ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРіРѕ СЂР°СЃС‡РµС‚Р° С†РµРЅС‹ РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°РЅРѕРІРѕ СЂР°СЃСЃС‡РёС‚Р°С‚СЊ РЅР°Р»РѕРіРё
 	//
 	double excise = 0.0, vat_sum = 0.0;
 	if(calc_taxes) {
@@ -407,12 +407,12 @@ public:
 	int    setDTS(const CalcPriceParam *);
 	int    getDTS(CalcPriceParam *);
 	//
-	// Descr: Считывает параметры расчета из полей диалога и рассчитывает
-	//   цену исходя из этих параметров. Наконец, устанавливает расчитанную цену
-	//   в поле CTL_CALCPRICE_PRICE
+	// Descr: РЎС‡РёС‚С‹РІР°РµС‚ РїР°СЂР°РјРµС‚СЂС‹ СЂР°СЃС‡РµС‚Р° РёР· РїРѕР»РµР№ РґРёР°Р»РѕРіР° Рё СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚
+	//   С†РµРЅСѓ РёСЃС…РѕРґСЏ РёР· СЌС‚РёС… РїР°СЂР°РјРµС‚СЂРѕРІ. РќР°РєРѕРЅРµС†, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СЂР°СЃС‡РёС‚Р°РЅРЅСѓСЋ С†РµРЅСѓ
+	//   РІ РїРѕР»Рµ CTL_CALCPRICE_PRICE
 	// Returns:
-	//   !0 - если цена в поле изменилась (разница между старой и новой ценой более 0.005)
-	//   0 -  в противном случае.
+	//   !0 - РµСЃР»Рё С†РµРЅР° РІ РїРѕР»Рµ РёР·РјРµРЅРёР»Р°СЃСЊ (СЂР°Р·РЅРёС†Р° РјРµР¶РґСѓ СЃС‚Р°СЂРѕР№ Рё РЅРѕРІРѕР№ С†РµРЅРѕР№ Р±РѕР»РµРµ 0.005)
+	//   0 -  РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ.
 	//
 	int    setupPrice();
 private:
@@ -521,8 +521,8 @@ public:
 	{
 	}
 	//
-	// setupDiff возвращает !0 если цена в поле изменилась и 0
-	// в противном случае.
+	// setupDiff РІРѕР·РІСЂР°С‰Р°РµС‚ !0 РµСЃР»Рё С†РµРЅР° РІ РїРѕР»Рµ РёР·РјРµРЅРёР»Р°СЃСЊ Рё 0
+	// РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ.
 	//
 	int  setupDiff();
 private:
@@ -580,7 +580,7 @@ int SLAPI CalcDiff(double amount, double * pDiff)
 	return ok;
 }
 //
-// Калькулятор общего назначения //
+// РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
 //
 int SLAPI PPCalculator(uint32 parentWnd, const char * pInitData)
 {
@@ -930,11 +930,14 @@ int PosPaymentBlock::EditDialog2()
 			DisableClusterItem(CTL_CPPAYM_KIND, 0, BIN(Data.DisabledKinds & (1 << cpmCash)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 1, BIN(Data.DisabledKinds & (1 << cpmBank)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 2, BIN(Data.DisabledKinds & (1 << cpmIncorpCrd)));
+			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash))); // @v10.0.10
+			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank))); // @v10.0.10
+			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd))); // @v10.0.10
 			SetupKind();
 			setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
 			setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
 			setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
-			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1); // @v8.0.2
+			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
 			double bonus = Data.CcPl.GetBonusAmount(&ScObj);
 			if(R2(bonus) > 0.0099) {
 				SString text_buf;
@@ -1151,7 +1154,7 @@ int PosPaymentBlock::EditDialog2()
 							if(oneof2(scst, scstCredit, scstBonus)) {
 								if(!ScRestList.Has(r_entry.AddedID)) {
 									//
-									// Функция GetCrdCardRest занесет остаток по карте в кэш
+									// Р¤СѓРЅРєС†РёСЏ GetCrdCardRest Р·Р°РЅРµСЃРµС‚ РѕСЃС‚Р°С‚РѕРє РїРѕ РєР°СЂС‚Рµ РІ РєСЌС€
 									//
 									double sc_rest = GetCrdCardRest(r_entry.AddedID);
 								}

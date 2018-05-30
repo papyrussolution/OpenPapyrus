@@ -578,24 +578,13 @@ enum t_autoscale {
 };
 
 inline t_autoscale operator ~ (t_autoscale a1)
-{
-	return (t_autoscale)~((int)a1);
-}
-
+	{ return (t_autoscale)~((int)a1); }
 inline t_autoscale operator | (t_autoscale a1, t_autoscale a2)
-{
-	return (t_autoscale)((int)a1 | (int)a2);
-}
-
+	{ return (t_autoscale)((int)a1 | (int)a2); }
 inline t_autoscale operator &= (t_autoscale & rA1, t_autoscale a2)
-{
-	return (rA1 = (t_autoscale)((int)rA1 & (int)a2));
-}
-
+	{ return (rA1 = (t_autoscale)((int)rA1 & (int)a2)); }
 inline t_autoscale operator |= (t_autoscale & rA1, t_autoscale a2)
-{
-	return (rA1 = (t_autoscale)((int)rA1 | (int)a2));
-}
+	{ return (rA1 = (t_autoscale)((int)rA1 | (int)a2)); }
 
 enum t_constraint {
     CONSTRAINT_NONE  = 0,
@@ -605,19 +594,11 @@ enum t_constraint {
 };
 
 inline t_constraint operator ~ (t_constraint a1)
-{
-	return (t_constraint)~((int)a1);
-}
-
+	{ return (t_constraint)~((int)a1); }
 inline t_constraint operator &= (t_constraint & rA1, t_constraint a2)
-{
-	return (rA1 = (t_constraint)((int)rA1 & (int)a2));
-}
-
+	{ return (rA1 = (t_constraint)((int)rA1 & (int)a2)); }
 inline t_constraint operator |= (t_constraint & rA1, t_constraint a2)
-{
-	return (rA1 = (t_constraint)((int)rA1 | (int)a2));
-}
+	{ return (rA1 = (t_constraint)((int)rA1 | (int)a2)); }
 //
 // The unit the tics of a given time/date axis are to interpreted in
 // HBB 20040318: start at one, to avoid undershoot
@@ -3874,7 +3855,6 @@ struct t_object {
 		else if(def == defPolygon)
 			SetDefaultPolygonStyle();
 	}
-
 	void SetDefaultRectangleStyle()
 	{
 		/*

@@ -1886,6 +1886,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_PASTE:         dv_id = PPDV_CLIPBOARDPASTE01; break;
 					case IDB_BYCASH:        dv_id = PPDV_PAYMCASH01; break;
 					case IDB_BANKING:       dv_id = PPDV_PAYMBANK01; break;
+					case IDB_BANKINGDISABLED: dv_id = PPDV_PAYMBANKDISABLED01; break;
 					case IDB_SUSCHECK:      dv_id = PPDV_CHANGE01; break;
 					case IDB_ARROW_UP:      dv_id = PPDV_UP01; break;
 					case IDB_ARROW_DOWN:    dv_id = PPDV_DOWN01; break;

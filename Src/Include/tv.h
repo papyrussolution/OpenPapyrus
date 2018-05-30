@@ -4509,7 +4509,7 @@ public:
 	void   bottom();
 	void   setRange(ushort aRange);
 	void   search(char * pFirstLetter, int srchMode);
-	int    search2(void * pSrchData, CompFunc, int srchMode, size_t offs);
+	int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 	//
 	// Descr: Возвращает текущую колонку в таблице.
 	// Returns:

@@ -71,7 +71,7 @@ struct LinguaIdent {
 	const char * P_Code;
 };
 
-const LinguaIdent P_LinguaIdentList[] = {
+static const LinguaIdent P_LinguaIdentList[] = {
 	{ slangMeta,   0, "meta" }, // meta-language (not standard)
 	{ slangAA,     0, "aa"   }, // Afar
 	{ slangAB,     0, "ab"   }, // Abkhazian
@@ -696,13 +696,11 @@ uint32 FASTCALL GetLinguaWinIdent(int ident)
 	return result;
 }
 
-int FASTCALL GetLinguaList(LongArray & rList)
+void FASTCALL GetLinguaList(LongArray & rList)
 {
 	rList.clear();
-	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++)
 		rList.add(P_LinguaIdentList[i].Id);
-	}
-	return 1;
 }
 //
 //
@@ -712,7 +710,7 @@ struct SNScriptIdent {
 	const char * P_Code;
 };
 
-const SNScriptIdent P_SNScriptIdentList[] = {
+static const SNScriptIdent P_SNScriptIdentList[] = {
 	//{ snscriptUnkn,        "unkn" },
 	//{ snscriptMeta,        "meta" },
 	{ snscriptLatin,        "latin" },
@@ -838,7 +836,7 @@ struct SSisIdent {
 	const char * P_Code;
 };
 
-const SSisIdent P_SisIdentList[] = {
+static const SSisIdent P_SisIdentList[] = {
 	{ ssisWindows, "windows" },
 	{ ssisWindows, "win" },
 	{ ssisMAC, "mac" },

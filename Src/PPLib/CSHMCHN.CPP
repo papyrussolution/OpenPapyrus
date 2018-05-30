@@ -1604,7 +1604,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 									if(ok > 0)
 										ok = p_cm_ext->AsyncOpenSession(0, 0);
 								}
-								else if(ok >= 0) {
+								else if(ok>= 0) {
 									if(ok == 0)
 										PPError();
 									PPObjCashNode::Lock(ext_cash_node_id);
@@ -1619,8 +1619,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 								PPSyncCashNode  scn;
 								SString zcheck;
 								if(cn_obj.GetSync(cn_id, &scn) > 0) {
-									p_bnk_term = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
-									if(p_bnk_term) {
+									if(GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &p_bnk_term) > 0) {
 										if(p_bnk_term->GetSessReport(zcheck))
 											p_cm->SyncPrintBnkTermReport(scn.BnkTermFlags, zcheck);
 										else

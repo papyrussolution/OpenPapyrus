@@ -108,6 +108,8 @@ public:
 		AddClusterAssocDef(CTL_GSFILT_ORDER, 2, PPViewGoodsStruc::OrdByScndGoodsName);
 		AddClusterAssocDef(CTL_GSFILT_ORDER, 3, PPViewGoodsStruc::OrdByStrucTypePrmrGoodsName);
 		SetClusterData(CTL_GSFILT_ORDER, Data.InitOrder);
+		AddClusterAssoc(CTL_GSFILT_FLAGS, 0, GoodsStrucFilt::fShowUnrefs);
+		SetClusterData(CTL_GSFILT_FLAGS, Data.Flags);
 		return ok;
 	}
 	int    getDTS(GoodsStrucFilt * pData)
@@ -126,11 +128,10 @@ public:
 			Data.ScndGoodsID    = gf_rec.GoodsID;
 		}
 		GetClusterData(CTL_GSFILT_ORDER, &Data.InitOrder);
+		GetClusterData(CTL_GSFILT_FLAGS, &Data.Flags);
 		//
 		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 private:
@@ -177,6 +178,7 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = -1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	PPWait(1);
+	Problems.freeAll();
 	StrucList.clear();
 	ItemList.clear();
 	StrPool.ClearS();
@@ -195,6 +197,26 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 			for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
 				THROW(AddItem(grec.ID, grec.StrucID, 0));
 				PPWaitPercent(gi.GetIterCounter());
+			}
+			if(!Filt.PrmrGoodsGrpID && !Filt.PrmrGoodsID && Filt.Flags & Filt.fShowUnrefs) {
+				long   t = 0;
+				uint   p = 0;
+				PPIDArray owner_list;
+				PPGoodsStrucHeader gsh;
+				for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0;)
+					t++;
+				for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
+					const PPID gs_id = gsh.ID;
+					owner_list.clear();
+					GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+					if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
+						uint   ex_spos = 0;
+						if(!StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID))) {
+							THROW(AddItem(0, gs_id, 0));
+						}
+					}
+					PPWaitPercent(p, t);
+				}
 			}
 		}
 	}
@@ -431,14 +453,21 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
 			ItemEntry * p_item = (ItemEntry *)pData;
-			if(r_col.OrgOffs == 4) { // type of struc
+			if(r_col.OrgOffs == 0) { // id
+				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG)) {
+					pStyle->Color = GetColorRef(SClrRed);
+					pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+					ok = 1;
+				}
+			}
+			else if(r_col.OrgOffs == 4) { // type of struc
 				SColor clr;
 				switch(PPGoodsStruc::GetStrucKind(p_item->StrucFlags)) {
-					case PPGoodsStruc::kBOM: clr = SClrGreen; break;
-					case PPGoodsStruc::kPart: clr = SClrLightgreen; break;
-					case PPGoodsStruc::kSubst: clr = SClrOrange; break;
-					case PPGoodsStruc::kGift: clr = SClrPink; break;
-					case PPGoodsStruc::kComplex: clr = SClrLightblue; break;
+					case PPGoodsStruc::kBOM: clr = GetColorRef(SClrGreen); break;
+					case PPGoodsStruc::kPart: clr = GetColorRef(SClrLightgreen); break;
+					case PPGoodsStruc::kSubst: clr = GetColorRef(SClrOrange); break;
+					case PPGoodsStruc::kGift: clr = GetColorRef(SClrPink); break;
+					case PPGoodsStruc::kComplex: clr = GetColorRef(SClrLightblue); break;
 					default: clr = SClrGrey; break;
 				}
 				pStyle->RightFigColor = clr;
@@ -494,21 +523,110 @@ int SLAPI PPViewGoodsStruc::Transmit(PPID /*id*/)
 int SLAPI PPViewGoodsStruc::Recover()
 {
 	int    ok = 1;
-	long   p = 0, t = 0;
 	PPLogger logger;
+	SString log_fname;
+	long   flags = 0;
 	GoodsStrucViewItem item;
 	PPIDArray uniq_struc_list;
 	PPObjIDArray objid_ary;
-	PPWait(1);
-	for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-		uniq_struc_list.addnz(item.GStrucID);
+	int   do_cancel = 1;
+	{
+		TDialog * dlg = new TDialog(DLG_CORGSTRUC);
+		THROW(CheckDialogPtr(&dlg));
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORGSTRUC_LOG, CTL_CORGSTRUC_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
+		PPGetFileName(PPFILNAM_GSTRUCERR_LOG, log_fname);
+		dlg->setCtrlString(CTL_CORGSTRUC_LOG, log_fname);
+		dlg->AddClusterAssoc(CTL_CORGSTRUC_FLAGS, 0, 0x01);
+		dlg->SetClusterData(CTL_CORGSTRUC_FLAGS, flags);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_CORGSTRUC_LOG, log_fname);
+			dlg->GetClusterData(CTL_CORGSTRUC_FLAGS, &flags);
+			do_cancel = 0;
+		}
+		delete dlg;
 	}
-	if(uniq_struc_list.getCount()) {
-		uniq_struc_list.sortAndUndup();
-		for(uint i = 0; i < uniq_struc_list.getCount(); i++) {
-			PPID   id = uniq_struc_list.get(i);
-			THROW(GSObj.CheckStruc(id, &logger));
-			PPWaitPercent(p, t);
+	if(!do_cancel) {
+		Problems.freeAll();
+		PPWait(1);
+		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
+			uniq_struc_list.addnz(item.GStrucID);
+		}
+		if(uniq_struc_list.getCount()) {
+			uniq_struc_list.sortAndUndup();
+			for(uint i = 0; i < uniq_struc_list.getCount(); i++) {
+				PPID   id = uniq_struc_list.get(i);
+				{
+					PPGoodsStruc gs;
+					PPIDArray struct_ids;
+					PPIDArray goods_ids;
+					GObj.P_Tbl->SearchGListByStruc(id, &goods_ids);
+					THROW(GSObj.Get(id, &gs));
+					THROW(GSObj.CheckStruct(&goods_ids, &struct_ids, &gs, &Problems, &logger));
+				}
+				PPWaitPercent(i+1, uniq_struc_list.getCount());
+			}
+			if(Problems.getCount())
+				Problems.sort(CMPF_LONG); // Сортируем по идентификатору структуры для быстрого поиска
+			if(flags & 0x01 && Problems.getCount()) {
+				PPIDArray nna_gs_list;
+				for(uint j = 0; j < Problems.getCount(); j++) {
+					const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(j);
+					if(p_problem->Code == PPObjGoodsStruc::CheckGsProblem::errNoNameAmbig)
+						nna_gs_list.add(p_problem->GsID);
+				}
+				if(nna_gs_list.getCount()) {
+					nna_gs_list.sortAndUndup();
+					PPIDArray owner_list;
+					SString surrogate_name;
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint k = 0; k < nna_gs_list.getCount(); k++) {
+						const PPID gs_id = nna_gs_list.get(k);
+						{
+							owner_list.clear();
+							GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+							if(owner_list.getCount() > 1) {
+								PPGoodsStrucHeader gsh;
+								if(GSObj.Search(gs_id, &gsh) > 0) {
+									if(!(gsh.Flags & GSF_NAMED) && !(gsh.Flags & GSF_CHILD)) {
+										PPGoodsStruc gs;
+										THROW(GSObj.Get(gs_id, &gs) > 0);
+										{
+											long   nn = 0;
+											PPID   n_gs_id = 0;
+											surrogate_name = "$named-struct";
+											STRNSCPY(gs.Rec.Name, surrogate_name);
+											while(GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
+												(surrogate_name = "$named-struct").Space().Cat(++nn);
+												STRNSCPY(gs.Rec.Name, surrogate_name);
+											}
+										}
+										gs.Rec.Flags |= GSF_NAMED;
+										PPID   temp_id = gs_id;
+										THROW(GSObj.Put(&temp_id, &gs, 0));
+										assert(temp_id == gs_id);
+										//
+										// Снимаем ссылку на структуру со всех товаров кроме последнего (с наибольшим идентификатором)
+										//
+										for(uint oidx = 0; oidx < (owner_list.getCount()-1); oidx++) {
+											PPID goods_id = owner_list.get(oidx);
+											PPGoodsPacket goods_pack;
+											THROW(GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
+											if(goods_pack.Rec.StrucID == gs_id) {
+												goods_pack.Rec.StrucID = 0;
+												THROW(GObj.PutPacket(&goods_id, &goods_pack, 0));
+											}
+										}
+									}
+								}
+								
+							}
+						}
+					}
+					THROW(tra.Commit());
+				}
+			}
+			logger.Save(log_fname, 0);
 		}
 	}
 	CATCHZOKPPERR
@@ -572,10 +690,49 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				break;
 			case PPVCMD_DORECOVER: // @v10.0.09
 				ok = -1;
-				GSObj.CheckStructs();
+				//GSObj.CheckStructs();
+				Recover();
 				break;
 			case PPVCMD_TOTAL:
 				ok = ViewTotal();
+				break;
+			case PPVCMD_NEXTPROBLEM:
+				if(brw_hdr.GStrucID && Problems.getCount()) {
+					for(uint i = 0; i < Problems.getCount(); i++) {
+						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(i);
+						if(p_problem->GsID > brw_hdr.GStrucID) {
+							if(pBrw->search2(&p_problem->GsID, CMPF_LONG, srchFirst, 0)) {
+								ok = 1;
+								break;
+							}
+						}
+					}
+				}
+				break;
+			case PPVCMD_PREVPROBLEM:
+				if(brw_hdr.GStrucID && Problems.getCount()) {
+					uint i = Problems.getCount();
+					if(i) do {
+						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(--i);
+						if(p_problem->GsID < brw_hdr.GStrucID) {
+							if(pBrw->search2(&p_problem->GsID, CMPF_LONG, srchFirst, 0)) {
+								ok = 1;
+								break;
+							}
+						}
+					} while(i);
+				}
+				break;
+			case PPVCMD_MOUSEHOVER:
+				if(brw_hdr.GStrucID) {
+					uint    pp = 0;
+					if(Problems.getCount() && Problems.bsearch(&brw_hdr.GStrucID, &pp, CMPF_LONG)) {
+						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(pp);
+						SString buf = p_problem->Text;
+						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+							SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+					}
+				}
 				break;
 		}
 	}

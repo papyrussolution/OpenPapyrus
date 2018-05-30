@@ -4303,10 +4303,7 @@ private:
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	SLAPI  PPGoodsConfig();
 	PPGoodsConfig & Clear();
-	size_t GetSize_Pre770() const
-	{
-		return (size_t)(PTR8(&Ver__) - PTR8(this));
-	}
+	size_t GetSize_Pre770() const { return (size_t)(PTR8(&Ver__) - PTR8(this)); }
 	//
 	// Descr: Определяет, является ли заданный штрихкод весовым
 	// Returns:
@@ -4341,15 +4338,15 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPID   OwnArCodeCntrID;    // ->Ref(PPOBJ_OPCOUNTER) Счетчик собственных артикулов
 	PPID   TareGrpID;          // ->Ref(PPOBJ_GOODSGROUP) Группа тары (для учета остатков по контрагентам)
 	PPID   MtxRestrQkID;       // ->Ref(PPOBJ_QUOTKIND) Вид котировки ограничение товарной матрицы
-	char   WghtCntPrefix[12];  // @v7.0.7 Префикс счетного весового товара (возможен специальный вариант передачи на весы).
-	PPID   DefGroupID;         // @v7.2.7 Товарная группа по умолчанию
-	SVerT  Ver__;              // @anchor @v7.7.0 Версия, сформировавшая запись. Если размер считанной записи меньше или равен,
+	char   WghtCntPrefix[12];  // Префикс счетного весового товара (возможен специальный вариант передачи на весы).
+	PPID   DefGroupID;         // Товарная группа по умолчанию
+	SVerT  Ver__;              // @anchor Версия, сформировавшая запись. Если размер считанной записи меньше или равен,
 		// чем (&Ver-this), то версия предшествует 7.7.0
 	//
-	PPID   BcPrefixGuaTagID;   // @v7.7.2 Тег, содержащий допустимые префиксы штрихкодов для глобальной учетной записи
-	PPID   DefGoodsID;         // @v8.9.5 Товар по умолчанию для подстановки вместо неопределенных или не идентифицированных товаров
-	uint8  Reserve[8];         // @v7.7.2
-	TagFilt TagIndFilt;        // @anchor @v7.7.0 Фильтр тегов, определяющий окраску наименований товаров в отчетах
+	PPID   BcPrefixGuaTagID;   // Тег, содержащий допустимые префиксы штрихкодов для глобальной учетной записи
+	PPID   DefGoodsID;         // Товар по умолчанию для подстановки вместо неопределенных или не идентифицированных товаров
+	uint8  Reserve[8];         //
+	TagFilt TagIndFilt;        // @anchor Фильтр тегов, определяющий окраску наименований товаров в отчетах
 };
 //
 //
@@ -13473,7 +13470,7 @@ public:
 			fModifier      = 0x02,
 			fPartOfComplex = 0x04,
 			fQuotedByGift  = 0x08,
-			fFixedPrice    = 0x10 
+			fFixedPrice    = 0x10
 		};
 		LineExt();
 		int    IsEmpty() const;
@@ -17840,17 +17837,17 @@ class PPBnkTerminal { // BnkTerm
 public:
 	PPBnkTerminal(PPID bnkTermId, uint logNum, int port, const char * pPath);
 	~PPBnkTerminal();
-	int    Connect(int port);
-	int    Disconnect();
 	int    Pay(double amount, SString & rSlip);
 	int    Refund(double amount, SString & rSlip);
-	int    Cancel();
+	//int    Cancel();
 	int    GetSessReport(SString & rZCheck);
-	int    GetErrorMsg(SString & rStr);
+	//int    GetErrorMsg(SString & rStr);
 	int    IsInited() const;
 	int    IsConnected() const;
 private:
-	int    Init(const char * pPath);
+	//int    Init__(const char * pPath);
+	//int    Connect__(int port);
+	int    Disconnect();
 	int    SetConfig(uint logNum);
 	int    Release();
 	int    ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut);
@@ -17867,7 +17864,7 @@ private:
 	StrAssocArray Arr_Out;
 };
 
-PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath);
+int SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath, PPBnkTerminal ** ppResult);
 //
 // @ModuleDecl(PPObjLocPrinter)
 // Descr: Принтеры, привязанные к складам
@@ -20765,7 +20762,7 @@ public:
 	SLAPI  GStrucIterator();
 	const  PPGoodsStruc * SLAPI GetStruc() const;
 	void   SLAPI Init(PPGoodsStruc * pStruc, int loadRecurItems);
-	int    SLAPI InitIteration();
+	void   SLAPI InitIteration();
 	int    FASTCALL NextIteration(GStrucRecurItem * pItem);
 private:
 	int    SLAPI LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level);
@@ -20890,6 +20887,20 @@ public:
 	int    SLAPI SelectorDialog(PPID * pNamedGsID);
 
 	int    SLAPI CheckStructs();
+	struct CheckGsProblem {
+		enum {
+			errRecur = 1,      // Рекурсивная структура
+			errUnRef,          // Ни один товар не ссылается на структуру 
+			errNoNameAmbig,    // На неименованную структуру ссылается более одного товара
+			errNamedEmptyName  // Именованная структура содержит пустое наименование
+		};
+		PPID   GsID;
+		int    RowN;
+		int    Code;
+		SString Text;
+	};
+	int    SLAPI CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct,
+		TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger);
 private:
 	static  int  SLAPI EditExtDialog(PPGoodsStruc *);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr /*goodsID*/);
@@ -20899,7 +20910,6 @@ private:
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SLAPI Helper_LoadItems(PPID id, PPGoodsStruc * pData);
-	int    SLAPI CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct, PPLogger * pLog);
 	int    SLAPI SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 
@@ -27740,7 +27750,8 @@ public:
 		fShowPartitial    = 0x0002, // Показывать частичные структуры
 		fShowSubst        = 0x0004, // Показывать подстановочные структуры
 		fShowGift         = 0x0008, // Показывать подарочные структуры
-		fShowComplex      = 0x0010  // Показывать комплексные структуры
+		fShowComplex      = 0x0010, // Показывать комплексные структуры
+		fShowUnrefs       = 0x0020  // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар     
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   PrmrGoodsGrpID;
@@ -27755,8 +27766,6 @@ public:
 	long   InitOrder;        // Порядок сортировки PPViewGoodsStruc::OrdXXX
 	long   ReserveEnd;       // @anchor
 };
-
-//typedef TempGoodsStrucTbl::Rec GoodsStrucViewItem;
 
 struct GoodsStrucViewItem {
 	PPID   GStrucID;
@@ -27841,6 +27850,7 @@ private:
 	PPObjGoods GObj;
 	TSVector <StrucEntry> StrucList;
 	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'l be handed to AryBrowserDef
+	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
 	SStrGroup StrPool; // @v9.9.3 Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
 };
 //
@@ -32639,7 +32649,7 @@ private:
 #define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
 #define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора
 	// (не зависимо от количества обоабатываемой позиции).
-#define TECF_RVRSCMAINGOODS   0x0020 // @v10.0.06 Обратный расчет количества основого товара по заданным в строках сессии компонентам 
+#define TECF_RVRSCMAINGOODS   0x0020 // @v10.0.06 Обратный расчет количества основого товара по заданным в строках сессии компонентам
 //
 //
 //
@@ -32945,7 +32955,7 @@ public:
 	PPCheckInPersonArray CiList;
 	TSVector <TSessLineTbl::Rec> Lines; // @v9.8.6 TSArray-->TSVector
 	ObjTagList TagL;        // Список тегов
-	ObjLinkFiles LinkFiles; // 
+	ObjLinkFiles LinkFiles; //
 	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
 		// Кроме того, здесь же хранится подробное описание сессии.
 };
@@ -33913,19 +33923,16 @@ private:
 #define DBDXF_SENDTAGATTCHM        0x00400000L // @9.2.6 Передавать файлы, прикрепленные к тегам
 
 struct PPDBXchgConfig { // @transient (Для сохранения транслируется в __PPDBXchgConfig)
-	PPID   OneRcvLocID;      // Единственная локация, на которую должны приниматься все документы,
+	PPID   OneRcvLocID;        // Единственная локация, на которую должны приниматься все документы,
 		// независимо от того, какой локации они принадлежали в разделе-отправителе
-		//
-	long   PctAdd;           // Процент наценки при доприходовании дефицита
-		// В сотых долях процента (250 = 2.5%)
-		//
-	int16  RealizeOrder;     // RLZORD_XXX Порядок использования лотов при приеме документов
+	long   PctAdd;             // Процент наценки при доприходовании дефицита. В сотых долях процента (250 = 2.5%)
+	int16  RealizeOrder;       // RLZORD_XXX Порядок использования лотов при приеме документов
 		// (переопределяет PPConfig::RealizeOrder на приеме документов из другого раздела)
-		//
 	uint16 PadRo; // @alignment
-	long   CharryOutCounter; // Счетчик исходящих файлов Charry
+	long   CharryOutCounter;   // Счетчик исходящих файлов Charry
 	long   Flags;
-	PPID   DfctRcptOpID;     // @v7.7.0 Вид операции приходования дефицита.
+	PPID   DfctRcptOpID;       // Вид операции приходования дефицита.
+	PPID   SpcSubstGoodsGrpID; // @v10.0.10 Товарная группа для специальной подстановки при дефиците
 };
 //
 // --- Before v3.2.10 ---
@@ -34143,10 +34150,7 @@ struct ObjTransmContext {
 	int    SLAPI OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName);
 	int    SLAPI OutputAcceptMsg(PPID objType, PPID objID, int upd);
 	int    SLAPI OutputString(uint strId, const char * pAddedInfo);
-	operator SSerializeContext & ()
-	{
-		return SCtx;
-	}
+	operator SSerializeContext & () { return SCtx; }
 	int    SLAPI GetPrevRestoredObj(PPObjID * pOi) const;
 	int    SLAPI ForceRestore(PPObjID);
 	int    SLAPI IsForced(PPObjID) const;
@@ -48609,7 +48613,7 @@ public:
 protected:
 	//
 	// Descr: Узкоспециализированный блок для исполнения функции AcceptCheck().
-	//   Необходимость в 'том блоке обусловлена тем, что пришлось разделить функцию AcceptCheck
+	//   Необходимость в этом блоке обусловлена тем, что пришлось разделить функцию AcceptCheck
 	//   на, собственно, процесс проведения чека и внедренную внутрь операцию взаимодействия с
 	//   оборудованием, которая должна быть имплементирована порожденным классом.
 	//
@@ -48803,11 +48807,12 @@ protected:
 		fDisableBeep        = 0x00100000, // Запрет на звуковой сигнал при сообщении об ошибке
 		fNotUseScale        = 0x00200000, // Не использовать прием с весов
 		fForceDivision      = 0x00400000, // Не разрешать проводить строку без номера отдела
+		fLockBankPaym       = 0x00800000, // @v10.0.10 Блокировка безналичной оплаты (например, из-за неработающего банковского терминала)
 		fSCardCredit        = 0x01000000, // Чек оплачивается корпоративной кредитной картой
 		fUsedRighsByAgent   = 0x04000000, // Применены права доступа по агенту.
 		fPrinted            = 0x08000000, // По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
 		fSelModifier        = 0x20000000, // Режим выбора модификатора
-		fSCardBonusReal     = 0x40000000  // @v8.0.6 Карта, ассоциированная с чеком, является бонусной. Практически
+		fSCardBonusReal     = 0x40000000, // @v8.0.6 Карта, ассоциированная с чеком, является бонусной. Практически
 			// дублирует флаг fSCardBonus с небольшим нюансом. Если остаток на карте нулевой, то fSCardBonus не выставляется,
 			// а fSCardBonusReal - устанавливается. Такое раздвоение необходимо что бы разным образом обрабатывать начисление
 			// бонуса и использование бонуса для оплаты.

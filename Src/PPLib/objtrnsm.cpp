@@ -100,6 +100,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 				SetupOprKindCombo(this, CTLSEL_DBXCHGCFG_DROP, Data.DfctRcptOpID, OLW_CANINSERT, &op_type_list, 0);
 				// } @v9.9.6
 			}
+			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_SPCSGG, PPOBJ_GOODSGROUP, Data.SpcSubstGoodsGrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL); // @v10.0.10
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
 			SetupCtrls(Data.Flags);
 			return 1;
@@ -119,6 +120,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 				THROW(GetOpData(Data.DfctRcptOpID, &op_rec) > 0);
 				THROW_PP(op_rec.AccSheetID == GetSupplAccSheet(), PPERR_DFCTRCPTOPACSNEQSUPPLACS);
 			}
+			getCtrlData(CTLSEL_DBXCHGCFG_SPCSGG, &Data.SpcSubstGoodsGrpID); // @v10.0.10
 			Data.PctAdd = (long)(getCtrlReal(CTL_DBXCHGCFG_PCTADD) * 100.0);
 			ok = 1;
 			ASSIGN_PTR(pData, Data);
@@ -183,9 +185,10 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_DBXCHGCFG
-	char   Reserve1[44];   // @reserve
-	PPID   DfctRcptOpID;   // @v7.7.0 Вид операции приходования дефицита.
-	long   CharryOutCounter; // Счетчик исходящих файлов Charry
+	char   Reserve1[40];   // @reserve // @v10.0.10 [44]-->[40]
+	PPID   SpcSubstGoodsGrpID; // @v10.0.10 Товарная группа для специальной подстановки при дефиците
+	PPID   DfctRcptOpID;       // Вид операции приходования дефицита.
+	long   CharryOutCounter;   // Счетчик исходящих файлов Charry
 	int16  Reserve2;       //
 	int16  RealizeOrder;   //
 	long   PctAdd;         //
@@ -212,6 +215,7 @@ int FASTCALL PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
 		p.PctAdd = pCfg->PctAdd;
 		p.Flags  = pCfg->Flags;
 		p.CharryOutCounter = pCfg->CharryOutCounter;
+		p.SpcSubstGoodsGrpID = pCfg->SpcSubstGoodsGrpID; // @v10.0.10
 		p.DfctRcptOpID = pCfg->DfctRcptOpID;
 		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBXCHGCFG, &p, 0, 0));
 		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_DBXCHNG, 0, 0, 0);
@@ -233,6 +237,7 @@ int FASTCALL PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
 		pCfg->PctAdd      = p.PctAdd;
 		pCfg->Flags       = p.Flags;
 		pCfg->CharryOutCounter = p.CharryOutCounter;
+		pCfg->SpcSubstGoodsGrpID = p.SpcSubstGoodsGrpID; // @v10.0.10
 		pCfg->DfctRcptOpID = p.DfctRcptOpID;
 	}
 	return r;
@@ -540,19 +545,13 @@ void SLAPI PPObjectTransmit::SetupHeader(uint type, PPID destDBID, PPObjectTrans
 			pHdr->Flags |= PPOTF_IGNACK;
 		if(DestDbDivPack.Rec.Flags & DBDIVF_CONSOLID)
 			pHdr->Flags |= PPOTF_CONSOLID;
-		// @v8.2.3 {
 		if(RecoverTransmission)
 			pHdr->Flags |= PPOTF_RECOVER;
-		// } @v8.2.3
 	}
 	pHdr->SwVer      = DS.GetVersion();
 	pHdr->MinDestVer = DS.GetMinCompatVersion(); // @v9.8.11 __MinCompatVer-->DS.GetMinCompatVersion()
-	pHdr->SrcDivUuid  = ThisDbDivPack.Rec.Uuid; // @v8.0.12
-	pHdr->DestDivUuid = DestDbDivPack.Rec.Uuid; // @v8.0.12
-	/* @v8.0.12
-	if(CurDict)
-		CurDict->GetDbUUID(&pHdr->SrcDivUuid);
-	*/
+	pHdr->SrcDivUuid  = ThisDbDivPack.Rec.Uuid;
+	pHdr->DestDivUuid = DestDbDivPack.Rec.Uuid;
 }
 
 int SLAPI PPObjectTransmit::UpdateInHeader(FILE * stream, const PPObjectTransmit::Header * pHdr)

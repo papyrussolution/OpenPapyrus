@@ -2246,25 +2246,25 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			case PPVCMD_DEBTCARD:    ok = -1; Detail(&hdr, dmDebtCard); break;
 			case PPVCMD_RECKONBILLS: ok = -1; Detail(&hdr, dmReckon); break;
 			case PPVCMD_MOUSEHOVER:
-			{
-				long   h = 0;
-				pBrw->ItemByMousePos(&h, 0);
-				if(P_Ct == 0 && h == 0) {
-					int r = 0;
-					SString buf;
-					PPELinkArray phones_ary;
-					PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), &phones_ary);
-					for(uint i = 0; i < phones_ary.getCount(); i++) {
-						GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
-						buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr).CR();
-						r = 1;
+				{
+					long   h = 0;
+					pBrw->ItemByMousePos(&h, 0);
+					if(P_Ct == 0 && h == 0) {
+						int r = 0;
+						SString buf;
+						PPELinkArray phones_ary;
+						PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), &phones_ary);
+						for(uint i = 0; i < phones_ary.getCount(); i++) {
+							GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
+							buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr).CR();
+							r = 1;
+						}
+						if(r > 0)
+							PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 					}
-					if(r > 0)
-						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-							SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 				}
-			}
-			break;
+				break;
 		}
 	}
 	return ok;

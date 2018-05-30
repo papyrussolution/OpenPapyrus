@@ -1,12 +1,13 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018
+// @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
 #define __COMDISP_H
 
 #include <process.h>
 //
-//   Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer, LocalServer) (only WIN32)
+//   РРЅС‚РµСЂС„РµР№СЃ IDispatch РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ COM-РїСЂРёР»РѕР¶РµРЅРёСЏРјРё (СЂРµР¶РёРј InProcServer, LocalServer) (only WIN32)
 //
 #ifdef __WIN32__ // {
 
@@ -30,11 +31,11 @@ public:
 	int  SLAPI GetProperty(long propertyID, double * pBuf);
 	int  SLAPI GetProperty(long propertyID, bool   * pBuf);
 	//
-	// Память под класс pIDisp выделяется внутри функции
+	// РџР°РјСЏС‚СЊ РїРѕРґ РєР»Р°СЃСЃ pIDisp РІС‹РґРµР»СЏРµС‚СЃСЏ РІРЅСѓС‚СЂРё С„СѓРЅРєС†РёРё
 	//
 	int  SLAPI GetProperty(long propertyID, ComDispInterface * pDisp);
 	//
-	//   Возвращаемая строка - codepage windows-1251
+	//   Р’РѕР·РІСЂР°С‰Р°РµРјР°СЏ СЃС‚СЂРѕРєР° - codepage windows-1251
 	//
 	int  SLAPI GetProperty(long propertyID, char   * pBuf, size_t bufLen);
 	int  SLAPI SetProperty(long propertyID, int      iVal, int writeOnly = 0);
@@ -44,23 +45,20 @@ public:
 	int  SLAPI SetProperty(long propertyID, LDATE    dtVal, int writeOnly = 0); // @v7.4.1
 	int  SLAPI SetPropertyByParams(long propertyID);
 	//
-	// Передаваемая строка - codepage windows-1251
+	// РџРµСЂРµРґР°РІР°РµРјР°СЏ СЃС‚СЂРѕРєР° - codepage windows-1251
 	//
 	int  SLAPI SetProperty(long propertyID, const char * pStrVal, int writeOnly = 0);
 	int  SLAPI SetParam(int    iVal);
 	int  SLAPI SetParam(long   lVal);
 	int  SLAPI SetParam(double dVal);
 	//
-	// Передаваемая строка - codepage windows-1251 по умолчанию
+	// РџРµСЂРµРґР°РІР°РµРјР°СЏ СЃС‚СЂРѕРєР° - codepage windows-1251 РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 	//
 	int  SLAPI SetParam(const char * pStrVal, int codepage = 1251);
 	int  SLAPI SetParam(ComDispInterface * pParam);
 	int  SLAPI CallMethod(long methodID, VARIANTARG * pVarArg = NULL);
 	int  SLAPI CallMethod(long methodID, ComDispInterface * pDisp);
-	IDispatch * GetDisp()
-	{
-		return P_Disp;
-	}
+	IDispatch * GetDisp() { return P_Disp; }
 private:
 	const DispIDEntry * FASTCALL GetDispIDEntry(long entryId) const;
 	void SLAPI ClearParams();
@@ -69,7 +67,7 @@ private:
 	int  SLAPI _SetPropertyW(long propertyID, VARIANTARG * pVarArg);
 	int  SLAPI _GetProperty(long propertyID, VARIANTARG * pVarArg, int sendParams = 0);
 	void SLAPI SetErrCode();
-	SString ProgIdent; // Для сообщений об ошибках
+	SString ProgIdent; // Р”Р»СЏ СЃРѕРѕР±С‰РµРЅРёР№ РѕР± РѕС€РёР±РєР°С…
 	IDispatch   * P_Disp;
 	TSArray <DispIDEntry> DispIDAry;
 	SArray * P_ParamsAry;

@@ -3039,7 +3039,8 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				P_CDY = GetCustDisp(scn.CustDispType, scn.CustDispPort, scn.CustDispFlags);
 				ClearCDYTimeout = scn.ClearCDYTimeout * CLOCKS_PER_SEC;
 				CnSleepTimeout  = scn.SleepTimeout * CLOCKS_PER_SEC;
-				P_BNKTERM       = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
+				if(!GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &P_BNKTERM))
+					Flags |= fLockBankPaym; // @v10.0.10
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
 				AltRegisterID   = scn.AlternateRegID; // @v9.7.10
 				CnPhnSvcID      = scn.PhnSvcID; // @v9.9.10
@@ -3203,6 +3204,11 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		showButton(cmToLocPrinters, 0);
 	}
 	// } @v9.6.0
+	// @v10.0.10 {
+	if(Flags & fLockBankPaym || !(OperRightsFlags & orfBanking)) {
+		setButtonBitmap(cmBanking, IDB_BANKINGDISABLED);
+	}
+	// } @v10.0.10
 	LastCtrlID = 0;
 }
 
@@ -3498,16 +3504,21 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	uint   v = 0;
 	double diff = 0.0;
 	rBlk.Init(this);
+	// @v10.0.10 {
+	if(Flags & fLockBankPaym)
+		rBlk.DisabledKinds |= (1 << cpmBank);
+	// } @v10.0.10 
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
 		if(unified_paym_interface && credit_charge > 0.0)
 			rBlk.Kind = cpmUndef;
 		else
 			rBlk.Kind = cpmIncorpCrd;
 	}
-	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking) {
+	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking && !(Flags & fLockBankPaym)) { // @v10.0.10 !(Flags & fLockBankPaym)
 		rBlk.Kind = cpmBank;
 	}
-	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE)) {
+	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE) || 
+		(!(Flags & fLockBankPaym) && !unified_paym_interface)) { // @v10.0.10 (!(Flags & fLockBankPaym) && !unified_paym_interface)
 		rBlk.Kind = cpmCash;
 	}
 	else if(unified_paym_interface) {

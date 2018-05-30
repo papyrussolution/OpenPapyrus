@@ -1,5 +1,5 @@
 // BNKTERMINAL.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -17,15 +17,39 @@ int BnkTermArrAdd(StrAssocArray & rArr, int pos, const char * pValue)
 
 PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char * pPath) : State(0), P_AbstrDvc(new PPAbstractDevice(""))
 {
+	int    ok = 1;
 	P_AbstrDvc->PCpb.Cls = DVCCLS_BNKTERM;
 	P_AbstrDvc->GetDllName(DVCCLS_BNKTERM, bnkTermID, P_AbstrDvc->PCpb.DllName);
 	if(P_AbstrDvc->IdentifyDevice(P_AbstrDvc->PCpb.DllName)) {
-		Init(pPath);
-		if(State & stInited) {
-			Connect(port);
-			if(State & stConnected)
-				SetConfig(logNum);
+		SString msg;
+		//Init__(pPath);
+		//int PPBnkTerminal::Init__(const char * pPath)
+		//
+		Arr_In.Z();
+		if(!isempty(pPath))
+			BnkTermArrAdd(Arr_In, DVCPARAM_DLLPATH, pPath);
+		ok = ExecOper(DVCCMD_INIT, Arr_In, Arr_Out.Z());
+		if(ok) {
+			State |= stInited;
+			//
+			//if(State & stInited) {
+			{
+				//Connect__(port);
+				//int PPBnkTerminal::Connect__(int port)
+				BnkTermArrAdd(Arr_In.Z(), DVCPARAM_PORT, port);
+				Arr_Out.Z();
+				PPWait(1);
+				PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_TESTCONN, msg));
+				ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
+				PPWait(0);
+				if(ok) {
+					State |= stConnected;
+					SetConfig(logNum);
+				}
+			}
 		}
+		if(!ok)
+			PPError();
 	}
 }
 
@@ -46,41 +70,9 @@ int PPBnkTerminal::IsConnected() const
 	return BIN(State & stConnected);
 }
 
-int PPBnkTerminal::Init(const char * pPath)
-{
-	int    ok = 1;
-	Arr_In.Z();
-	if(!isempty(pPath))
-		BnkTermArrAdd(Arr_In, DVCPARAM_DLLPATH, pPath);
-	ok = ExecOper(DVCCMD_INIT, Arr_In, Arr_Out.Z());
-	if(ok)
-		State |= stInited;
-	else
-		PPError();
-	return ok;
-}
-
 int PPBnkTerminal::Release()
 {
 	return ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z());
-}
-
-int PPBnkTerminal::Connect(int port)
-{
-	int    ok = 1;
-	SString msg;
-	Arr_In.Z();
-	BnkTermArrAdd(Arr_In, DVCPARAM_PORT, port);
-	Arr_Out.Z();
-	PPWait(1);
-	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_TESTCONN, msg));
-	ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
-	PPWait(0);
-	if(ok)
-		State |= stConnected;
-	else
-		PPError();
-	return ok;
 }
 
 int PPBnkTerminal::Disconnect()
@@ -164,19 +156,24 @@ int PPBnkTerminal::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 	return ok;
 }
 
-PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath)
+//PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath)
+int SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath, PPBnkTerminal ** ppResult)
 {
+	int    ok = -1;
 	PPBnkTerminal * p_pos_term = 0;
 	if(bnkTermID) {
 		int    port = 0;
 		GetPort(pPort, &port);
 		THROW_MEM(p_pos_term = new PPBnkTerminal(bnkTermID, logNum, port, pPath));
-		if(!p_pos_term->IsInited() || !p_pos_term->IsConnected())
-			ZDELETE(p_pos_term);
+		THROW(p_pos_term->IsInited());
+		THROW(p_pos_term->IsConnected());
+		ok = 1;
 	}
 	CATCH
 		ZDELETE(p_pos_term);
-		PPError();
+		ok = PPErrorZ();
 	ENDCATCH
-	return p_pos_term;
+	assert(ok <= 0 || p_pos_term != 0);
+	ASSIGN_PTR(ppResult, p_pos_term);
+	return ok;
 }

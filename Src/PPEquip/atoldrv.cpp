@@ -1,24 +1,23 @@
 // ATOLDRV.CPP
 // Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018
-// @codepage windows-1251
-// Интерфейс эмулятора синхронного кассового аппарата
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ СЌРјСѓР»СЏС‚РѕСЂР° СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
 //
 #include <pp.h>
 #pragma hdrstop
 #include <comdisp.h>
-#include <process.h>
 //
 //
 //
-#define RESCODE_NO_ERROR             0L   // Нет ошибок
-#define RESCODE_DVCCMDUNSUPP       -12L   // Код возврата "Команда не поддерживается в данной конфигурации оборудования"
-#define RESCODE_MODE_OFF           -16L   // Не поддерживается в данном режиме устройства
-#define RESCODE_NOPAPER          -3807L   // Нет бумаги
-#define RESCODE_PAYM_LESS_SUM    -3835L   // Вносимая сумма меньше суммы чека
-#define RESCODE_OPEN_SESS_LONG   -3822L   // Cмена октрыта более 24 часов
-#define RESCODE_PRINTCONTROLTAPE -3827L   // Идет печать контрольной ленты
-#define RESCODE_PRINTREPORT      -3829L   // Идет печать отчета
-#define RESCODE_PAYM_LESS_SUM    -3835L   // Вносимая сумма меньше суммы чека
+#define RESCODE_NO_ERROR             0L   // РќРµС‚ РѕС€РёР±РѕРє
+#define RESCODE_DVCCMDUNSUPP       -12L   // РљРѕРґ РІРѕР·РІСЂР°С‚Р° "РљРѕРјР°РЅРґР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ РґР°РЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ"
+#define RESCODE_MODE_OFF           -16L   // РќРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ РґР°РЅРЅРѕРј СЂРµР¶РёРјРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define RESCODE_NOPAPER          -3807L   // РќРµС‚ Р±СѓРјР°РіРё
+#define RESCODE_PAYM_LESS_SUM    -3835L   // Р’РЅРѕСЃРёРјР°СЏ СЃСѓРјРјР° РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ С‡РµРєР°
+#define RESCODE_OPEN_SESS_LONG   -3822L   // CРјРµРЅР° РѕРєС‚СЂС‹С‚Р° Р±РѕР»РµРµ 24 С‡Р°СЃРѕРІ
+#define RESCODE_PRINTCONTROLTAPE -3827L   // РРґРµС‚ РїРµС‡Р°С‚СЊ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ Р»РµРЅС‚С‹
+#define RESCODE_PRINTREPORT      -3829L   // РРґРµС‚ РїРµС‡Р°С‚СЊ РѕС‚С‡РµС‚Р°
+#define RESCODE_PAYM_LESS_SUM    -3835L   // Р’РЅРѕСЃРёРјР°СЏ СЃСѓРјРјР° РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ С‡РµРєР°
 
 #define CHKST_CLOSE            0L
 
@@ -89,7 +88,7 @@ private:
 	int  SLAPI Exec(uint id);
 	int  SLAPI ExecOper(uint id);
 	enum {
-		ShowProperties, // Методы
+		ShowProperties, // РњРµС‚РѕРґС‹
 		OpenCheck,
 		CloseCheck,
 		CancelCheck,
@@ -116,7 +115,7 @@ private:
 		SlipDocTopMargin,
 		SlipDocLeftMargin,
 		SlipDocOrientation,
-		Mode,           // Параметры
+		Mode,           // РџР°СЂР°РјРµС‚СЂС‹
 		AdvancedMode,
 		CheckNumber,
 		Caption,
@@ -158,12 +157,12 @@ private:
 	};
 
 	enum AtolDrvFlags {
-		sfConnected     = 0x0001,     // установлена связь с устройством, COM-порт занят
-		sfOpenCheck     = 0x0002,     // чек открыт
-		sfCancelled     = 0x0004,     // операция печати чека прервана пользователем
-		sfPrintSlip     = 0x0008,     // печать подкладного документа
-		sfNotUseCutter  = 0x0010,     // не использовать отрезчик чеков
-		sfUseWghtSensor = 0x0020      // использовать весовой датчик
+		sfConnected     = 0x0001,     // СѓСЃС‚Р°РЅРѕРІР»РµРЅР° СЃРІСЏР·СЊ СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј, COM-РїРѕСЂС‚ Р·Р°РЅСЏС‚
+		sfOpenCheck     = 0x0002,     // С‡РµРє РѕС‚РєСЂС‹С‚
+		sfCancelled     = 0x0004,     // РѕРїРµСЂР°С†РёСЏ РїРµС‡Р°С‚Рё С‡РµРєР° РїСЂРµСЂРІР°РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
+		sfPrintSlip     = 0x0008,     // РїРµС‡Р°С‚СЊ РїРѕРґРєР»Р°РґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+		sfNotUseCutter  = 0x0010,     // РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚СЂРµР·С‡РёРє С‡РµРєРѕРІ
+		sfUseWghtSensor = 0x0020      // РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІРµСЃРѕРІРѕР№ РґР°С‚С‡РёРє
 	};
 
 	static ComDispInterface * P_Disp;
@@ -175,9 +174,6 @@ private:
 	long   Flags;
 	SString CashierPassword;
 	SString AdmPassword;
-	// @v7.4.1 PPObjCashNode ObjCashn;
-	// @v8.5.3 CCheckCore CCheckTbl;
-	// @v8.5.3 CSessionCore CSessTbl;
 };
 
 ComDispInterface * SCS_ATOLDRV::P_Disp = 0; // @global
@@ -249,7 +245,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocLeftMargin) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocOrientation) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcode) > 0); // @v9.1.4
-	// Параметры
+	// РџР°СЂР°РјРµС‚СЂС‹
 	THROW(ASSIGN_ID_BY_NAME(p_disp, Mode) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_disp, AdvancedMode) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckNumber) > 0);
@@ -367,22 +363,30 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		THROW(SetProp(Caption, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecOper(PrintString));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
-		prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
+		// @v10.0.10 prn_str = "РЎРЈРњРњРђ Р‘Р•Р— РЎРљРР”РљР"; // @cstr #0
+		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v10.0.10 
+		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetProp(Caption, prn_str));
 		THROW(ExecOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
-			THROW(SetProp(Caption, (prn_str = "КАРТА").Space().Cat(scc.data.Code))); // @cstr #1
+			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v10.0.10 
+			prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+			THROW(SetProp(Caption, (prn_str/*= "РљРђР РўРђ"*/).Space().Cat(scc.data.Code)));
 			THROW(ExecOper(PrintString));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
-				(prn_str = "ВЛАДЕЛЕЦ").Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #2
+				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v10.0.10 
+				prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+				(prn_str/*= "Р’Р›РђР”Р•Р›Р•Р¦"*/).Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
 				THROW(SetProp(Caption, prn_str));
 				THROW(ExecOper(PrintString));
 			}
 		}
 		temp_str.Z().Cat(dscnt, SFMT_MONEY);
-		(prn_str = "СКИДКА").Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
+		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v10.0.10 
+		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+		(prn_str/*= "РЎРљРР”РљРђ"*/).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetProp(Caption, prn_str));
 		THROW(ExecOper(PrintString));
@@ -393,9 +397,9 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 
 void SLAPI SCS_ATOLDRV::CutLongTail(char * pBuf)
 {
-	char * p = 0;
-	if(pBuf && sstrlen(pBuf) > (uint)CheckStrLen) {
-		pBuf[CheckStrLen + 1] = 0;
+	if(sstrlen(pBuf) > (uint)CheckStrLen) {
+		char * p = 0;
+		pBuf[CheckStrLen+1] = 0;
 		if((p = strrchr(pBuf, ' ')) != 0)
 			*p = 0;
 		else
@@ -432,9 +436,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 }
 
 static int IsModeOffPrint(int mode)
-{
-	return BIN(oneof4(mode, MODE_REGISTER, MODE_XREPORT, MODE_ZREPORT, MODE_EKLZ_REPORT));
-}
+	{ return BIN(oneof4(mode, MODE_REGISTER, MODE_XREPORT, MODE_ZREPORT, MODE_EKLZ_REPORT)); }
 
 int SLAPI SCS_ATOLDRV::CheckForSessionOver()
 {
@@ -454,17 +456,22 @@ int SLAPI SCS_ATOLDRV::CheckForSessionOver()
 int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 {
 	//
-	// Функция AllowPrintOper разбирается со всеми ситуациями,
-	//  которые могут возникнуть при печати чека.
-	// Код возврата: 1 - операция печати разрешена, 0 - запрещена.
+	// Р¤СѓРЅРєС†РёСЏ AllowPrintOper СЂР°Р·Р±РёСЂР°РµС‚СЃСЏ СЃРѕ РІСЃРµРјРё СЃРёС‚СѓР°С†РёСЏРјРё,
+	//  РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РІРѕР·РЅРёРєРЅСѓС‚СЊ РїСЂРё РїРµС‡Р°С‚Рё С‡РµРєР°.
+	// РљРѕРґ РІРѕР·РІСЂР°С‚Р°: 1 - РѕРїРµСЂР°С†РёСЏ РїРµС‡Р°С‚Рё СЂР°Р·СЂРµС€РµРЅР°, 0 - Р·Р°РїСЂРµС‰РµРЅР°.
 	//
 	int    ok = 1;
-	bool   is_chk_rbn = true, is_jrn_rbn = true, out_paper = false;
-	int    wait_prn_err = 0, continue_print = 0;
-	long   mode = 0L, adv_mode = 0L, chk_state = CHKST_CLOSE, last_res_code = ResCode;
-
+	bool   is_chk_rbn = true;
+	bool   is_jrn_rbn = true;
+	bool   out_paper = false;
+	int    wait_prn_err = 0;
+	int    continue_print = 0;
+	long   mode = 0L;
+	long   adv_mode = 0L;
+	long   chk_state = CHKST_CLOSE;
+	long   last_res_code = ResCode;
 	SetErrorMessage();
-	// Ожидание окончания операции печати
+	// РћР¶РёРґР°РЅРёРµ РѕРєРѕРЅС‡Р°РЅРёСЏ РѕРїРµСЂР°С†РёРё РїРµС‡Р°С‚Рё
 	do {
 		THROW(Exec(GetStatus));
 		THROW(GetProp(Mode, &mode));
@@ -473,12 +480,12 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 	} while(oneof2(last_res_code, RESCODE_PRINTCONTROLTAPE, RESCODE_PRINTREPORT));
 	{
 		continue_print = BIN(last_res_code == RESCODE_NOPAPER);
-		// На всякий случай помечаем, что чек открыт
-		// (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
+		// РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РїРѕРјРµС‡Р°РµРј, С‡С‚Рѕ С‡РµРє РѕС‚РєСЂС‹С‚
+		// (РёРЅР°С‡Рµ РїСЂРё СЃР±РѕРµ РѕРїРµСЂР°С†РёРё РѕС‚РєСЂС‹С‚РёСЏ С‡РµРєР° РЅРµРёР·РІРµСЃС‚РЅРѕ: С‡РµРє СѓР¶Рµ РѕС‚РєСЂС‹С‚ РёР»Рё РЅРµС‚)
 		THROW(GetProp(CheckState, &chk_state));
 		if(chk_state != CHKST_CLOSE)
 			Flags |= sfOpenCheck;
-		// Ожидание заправки чековой ленты или выхода из режима, когда нельзя печатать чек
+		// РћР¶РёРґР°РЅРёРµ Р·Р°РїСЂР°РІРєРё С‡РµРєРѕРІРѕР№ Р»РµРЅС‚С‹ РёР»Рё РІС‹С…РѕРґР° РёР· СЂРµР¶РёРјР°, РєРѕРіРґР° РЅРµР»СЊР·СЏ РїРµС‡Р°С‚Р°С‚СЊ С‡РµРє
 		while(ok && last_res_code == RESCODE_NOPAPER || (last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode))) {
 			int  send_msg = 0, r = 0;
 			THROW(Exec(GetStatus));
@@ -504,7 +511,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			THROW(Exec(GetStatus));
 			THROW(GetProp(ECRError, &last_res_code));
 		}
-		// Проверяем, надо ли завершить печать после заправки ленты
+		// РџСЂРѕРІРµСЂСЏРµРј, РЅР°РґРѕ Р»Рё Р·Р°РІРµСЂС€РёС‚СЊ РїРµС‡Р°С‚СЊ РїРѕСЃР»Рµ Р·Р°РїСЂР°РІРєРё Р»РµРЅС‚С‹
 		if(continue_print) {
 			WriteLogFile(id);
 			THROW(ExecOper(id));
@@ -514,8 +521,8 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			wait_prn_err = 1;
 		}
 		//
-		// Это, конечно, не отрывок из "Илиады", а очередная попытка
-		// справиться с идиотскими ошибками, возникающими из-за этой дерьмовой ЭКЛЗ.
+		// Р­С‚Рѕ, РєРѕРЅРµС‡РЅРѕ, РЅРµ РѕС‚СЂС‹РІРѕРє РёР· "РР»РёР°РґС‹", Р° РѕС‡РµСЂРµРґРЅР°СЏ РїРѕРїС‹С‚РєР°
+		// СЃРїСЂР°РІРёС‚СЊСЃСЏ СЃ РёРґРёРѕС‚СЃРєРёРјРё РѕС€РёР±РєР°РјРё, РІРѕР·РЅРёРєР°СЋС‰РёРјРё РёР·-Р·Р° СЌС‚РѕР№ РґРµСЂСЊРјРѕРІРѕР№ Р­РљР›Р—.
 		//
 		if(chk_state != CHKST_CLOSE && id == FullCut) {
 			WriteLogFile(id);
@@ -529,8 +536,8 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 		}
 	}
 	//
-	// Если ситуация не связана непосредственно с процессом печати, выдаем сообщение об ошибке
-	// При закрытии чека - сумма оплаты меньше суммы чека - не связано с процессом печати, но wait_prn_err == 1
+	// Р•СЃР»Рё СЃРёС‚СѓР°С†РёСЏ РЅРµ СЃРІСЏР·Р°РЅР° РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ СЃ РїСЂРѕС†РµСЃСЃРѕРј РїРµС‡Р°С‚Рё, РІС‹РґР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ
+	// РџСЂРё Р·Р°РєСЂС‹С‚РёРё С‡РµРєР° - СЃСѓРјРјР° РѕРїР»Р°С‚С‹ РјРµРЅСЊС€Рµ СЃСѓРјРјС‹ С‡РµРєР° - РЅРµ СЃРІСЏР·Р°РЅРѕ СЃ РїСЂРѕС†РµСЃСЃРѕРј РїРµС‡Р°С‚Рё, РЅРѕ wait_prn_err == 1
 	//
 	if(!wait_prn_err || last_res_code == RESCODE_PAYM_LESS_SUM) {
 		WriteLogFile(id);
@@ -630,8 +637,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
 		THROW(Connect());
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
-		fiscal = fabs(fiscal); // @v8.5.9
-		nonfiscal = fabs(nonfiscal); // @v8.5.9
+		fiscal = fabs(fiscal);
+		nonfiscal = fabs(nonfiscal);
 		if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(Annulate(MODE_REGISTER));
 		}
@@ -665,7 +672,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 						const double _q = sl_param.Qtty;
-						const double _p = fabs(sl_param.Price); // @v8.5.9 fabs
+						const double _p = fabs(sl_param.Price);
 						running_total += (_q * _p);
 						{
 							(temp_buf = sl_param.Text).Strip();
@@ -674,7 +681,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							else
 								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 							temp_buf.Trim(CheckStrLen);
-							THROW(SetProp(Name, temp_buf)); // Наименование товара
+							THROW(SetProp(Name, temp_buf)); // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
 						}
 						{
 							const double pq = R3(_q);
@@ -684,6 +691,31 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(SetProp(Price, pp));
 						}
 						// @v10.0.03 {
+						// @v10.0.10 {
+						int    tax_type_number = 1;
+						if((SCn.DrvVerMinor % 2) == 0) { 
+							//
+							// 1 - 18
+							// 2 - 10
+							// 3 - 0
+							// 4 - Р±РµР· РќР”РЎ
+							//
+							if(is_vat_free)
+								tax_type_number = 4;
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									tax_type_number = 1;
+								else if(vatrate == 10.0)
+									tax_type_number = 2;
+								else if(vatrate == 0.0)
+									tax_type_number = 3;
+								else
+									tax_type_number = 1; // @default
+							}
+						}
+						else 
+						// } @v10.0.10
 						{
 							//
 							// 1 - 18
@@ -691,9 +723,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							// 3 - 18/118
 							// 4 - 10/110
 							// 5 - 0
-							// 6 - без НДС
+							// 6 - Р±РµР· РќР”РЎ
 							//
-							int    tax_type_number = 1;
 							if(is_vat_free)
 								tax_type_number = 6;
 							else {
@@ -707,8 +738,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								else
 									tax_type_number = 1; // @default
 							}
-							THROW(SetProp(TaxTypeNumber, tax_type_number));
 						}
+						THROW(SetProp(TaxTypeNumber, tax_type_number));
 						// } @v10.0.03 
 						THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  (int32)sl_param.DivID));
 						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
@@ -773,7 +804,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					if(!pPack->GetCount()) {
 						{
 							const double pq = 1.0;
-							const double pp = fabs(amt); // @v8.5.9 fabs
+							const double pp = fabs(amt);
 							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
@@ -785,7 +816,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					else if(fiscal) {
 						{
 							const double pq = 1.0;
-							const double pp = fabs(fiscal); // @v8.5.9 fabs
+							const double pp = fabs(fiscal);
 							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
@@ -811,14 +842,14 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				GetGoodsName(ccl.GoodsID, buf);
 				buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-				THROW(SetProp(Name, buf));                                     // Наименование товара
-				THROW(SetProp(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt))); // Цена
-				THROW(SetProp(Quantity, R3(fabs(ccl.Quantity))));              // Количество
+				THROW(SetProp(Name, buf));                                     // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
+				THROW(SetProp(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt))); // Р¦РµРЅР°
+				THROW(SetProp(Quantity, R3(fabs(ccl.Quantity))));              // РљРѕР»РёС‡РµСЃС‚РІРѕ
 				THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
 				THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 				Flags |= sfOpenCheck;
 			}
-			// Информация о скидке
+			// РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРєРёРґРєРµ
 			THROW(PrintDiscountInfo(pPack, flags));
 			buf.Z().CatCharN('-', CheckStrLen);
 			THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
@@ -968,7 +999,7 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 	SString cshr_pssw;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(Connect());
-	// Закрыть сессию можно только под паролем администратора
+	// Р—Р°РєСЂС‹С‚СЊ СЃРµСЃСЃРёСЋ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РїРѕРґ РїР°СЂРѕР»РµРј Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
 	//
@@ -1027,7 +1058,7 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 				THROW(ExecOper(PrintString));
 			}
 			THROW(ExecOper(PrintHeader));
-			// THROW(Exec(EndDocument)); // Закончить и напечатать документ
+			// THROW(Exec(EndDocument)); // Р—Р°РєРѕРЅС‡РёС‚СЊ Рё РЅР°РїРµС‡Р°С‚Р°С‚СЊ РґРѕРєСѓРјРµРЅС‚
 			if(!(Flags & sfNotUseCutter))
 				THROW(ExecOper(FullCut));
 		}

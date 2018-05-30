@@ -84,8 +84,8 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 		QCert      = pTi->QCert;
 		Expiry     = pTi->Expiry;
 		InTaxGrpID = pTi->LotTaxGrpID;
-		RByBill    = pTi->RByBill; // @v8.0.3
-		memzero(Reserve, sizeof(Reserve)); // @v8.0.3
+		RByBill    = pTi->RByBill;
+		memzero(Reserve, sizeof(Reserve));
 	}
 }
 //
@@ -895,6 +895,11 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 		}
 		else if(qtty > 0.0) {
 			if(ilti->Flags & PPTFR_RECEIPT || oneof2(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+				uint   i;
+				const  LDATE sd = MAXDATE;
+				ReceiptTbl::Rec tmpl_lot_rec;
+				LongArray temp_rows;
+				ObjTagList tag_list;
 				MEMSZERO(ti);
 				if(ilti->Flags & PPTFR_FORCESUPPL) {
 					ti.Flags |= PPTFR_FORCESUPPL;
@@ -915,46 +920,39 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				ti.QCert       = ilti->QCert;
 				ti.Expiry      = ilti->Expiry;
 				ti.LotTaxGrpID = ilti->InTaxGrpID;
-				{
-					uint i;
-					LongArray temp_rows;
-					ObjTagList tag_list;
-					THROW(pPack->InsertRow(&ti, &temp_rows));
-					if(ti.Flags & PPTFR_RECEIPT && flags & CILTIF_INHLOTTAGS) {
-						const  LDATE sd = MAXDATE;
-						ReceiptTbl::Rec tmpl_lot_rec;
-						if(trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(ti.LocID), sd, &tmpl_lot_rec) > 0) {
- 							ObjTagList inh_tag_list;
-							GetTagListByLot(tmpl_lot_rec.ID, 1, &inh_tag_list);
-							const uint tc = inh_tag_list.GetCount();
-							if(tc) {
-								PPObjTag tag_obj;
-								PPObjectTag tag_rec;
-								for(i = 0; i < tc; i++) {
-									const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i);
-									if(p_tag && tag_obj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)
-										tag_list.PutItem(p_tag->TagID, p_tag);
-								}
-							}
+				//
+				THROW(pPack->InsertRow(&ti, &temp_rows));
+				if(ti.Flags & PPTFR_RECEIPT && flags & CILTIF_INHLOTTAGS && trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(ti.LocID), sd, &tmpl_lot_rec) > 0) {
+ 					ObjTagList inh_tag_list;
+					GetTagListByLot(tmpl_lot_rec.ID, 1, &inh_tag_list);
+					const uint tc = inh_tag_list.GetCount();
+					if(tc) {
+						PPObjTag tag_obj;
+						PPObjectTag tag_rec;
+						for(i = 0; i < tc; i++) {
+							const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i);
+							if(p_tag && tag_obj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)
+								tag_list.PutItem(p_tag->TagID, p_tag);
 						}
- 					}
-					// @v9.8.11 pPack->SnL.AddNumber(&temp_rows, serial);
-					pPack->LTagL.AddNumber(PPTAG_LOT_SN, &temp_rows, serial); // @v9.8.11
-					for(i = 0; i < temp_rows.getCount(); i++) {
-						const int row_idx = temp_rows.at(i);
-						if(tag_list.GetCount()) {
-							pPack->LTagL.Set(row_idx, &tag_list);
-						}
-						THROW_SL(rows.insert(&row_idx));
 					}
-					if(flags & CILTIF_SYNC) {
-						if(_RowNSyncDiag(ilti, rows, flags)) {
-							const uint ti_pos = (uint)rows.at(0);
-							pPack->TI(ti_pos).RByBill = ilti->RByBill;
-							full_sync = 1;
-						}
+ 				}
+				// @v9.8.11 pPack->SnL.AddNumber(&temp_rows, serial);
+				pPack->LTagL.AddNumber(PPTAG_LOT_SN, &temp_rows, serial); // @v9.8.11
+				for(i = 0; i < temp_rows.getCount(); i++) {
+					const int row_idx = temp_rows.at(i);
+					if(tag_list.GetCount()) {
+						pPack->LTagL.Set(row_idx, &tag_list);
+					}
+					THROW_SL(rows.insert(&row_idx));
+				}
+				if(flags & CILTIF_SYNC) {
+					if(_RowNSyncDiag(ilti, rows, flags)) {
+						const uint ti_pos = (uint)rows.at(0);
+						pPack->TI(ti_pos).RByBill = ilti->RByBill;
+						full_sync = 1;
 					}
 				}
+				//
 				qtty = 0.0;
 			}
 			else {
@@ -963,7 +961,6 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				// то перебираем все последние лоты и заносим в них столько товара, чтобы остаток не превысил первоначальное количество.
 				//
 				const long f1 = (ilti->Flags & PPTFR_PRICEWOTAXES);
-				// @v8.0.3 {
 				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lotr) > 0) {
 					//
 					// Синхронизированный лот пытаемся использовать в первую очередь
@@ -991,7 +988,6 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 						}
 					}
 				}
-				// } @v8.0.3
 				LDATE  dt    = pPack->Rec.Dt;
 				long   oprno = MAXLONG;
 				while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pPack->Rec.LocID, &dt, &oprno, &lotr) > 0) {
@@ -1181,7 +1177,6 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	const PPID op_type_id = GetOpType(Rec.OpID);
 	cvt_to_opid = (cvtToOpID && (cvt_op_typeid != PPOPT_GENERIC) && cvtToOpID != Rec.OpID && oneof2(cvt_op_typeid, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) ? cvtToOpID : 0;
 	if(cvt_to_opid) {
-		// @v8.9.6 {
 		PPID   dest_loc_id = Rec.LocID;
 		PPID   dest_ar_id = 0;
 		if(cvt_op_typeid == PPOPT_GOODSRECEIPT) {
@@ -1213,9 +1208,8 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			}
 			// } @v9.0.4
 		}
-		// } @v8.9.6
 		{
-			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0)); // @v8.9.6 Rec.LocID-->dest_loc_id
+			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0));
 			char   bill_code[64];
 			STRNSCPY(bill_code, Rec.Code);
 			STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
@@ -1230,10 +1224,8 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		bpack.Rec.CurID      = Rec.CurID;
 		bpack.Rec.CRate      = Rec.CRate;
 		bpack.Rec.SCardID    = Rec.SCardID;
-		// @v8.9.6 {
 		if(dest_ar_id)
 			bpack.Rec.Object = dest_ar_id;
-		// } @v8.9.6
 		SETFLAG(bpack.Rec.Flags, BILLF_FIXEDAMOUNTS, Rec.Flags & BILLF_FIXEDAMOUNTS);
 		STRNSCPY(bpack.Rec.Memo, Rec.Memo);
 		bpack.Amounts        = Amounts;
@@ -1429,14 +1421,12 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	ILTI * p_ilti;
 	PPAccTurn * p_at, at;
 	PPObjBill * p_bobj = BillObj;
-	//AccountCore & acc  = p_bobj->atobj->tbl->AccT;
 	PPObjAccount acc_obj;
 	if(!_update) {
 		THROW(rPack.CreateBlank(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta));
 	}
 	else if(pCtx->P_ThisDbDivPack && rPack.Rec.OpID) {
 		//
-		// @v8.5.11
 		// При изменении синхронизированного документа существует следующая проблема:
 		// если документ был ранее принят как межскладской приход, посредством конвертации внутренней передачи,
 		// то пришедшая настоящая внутренняя передача должна обратно отконвертировать документ.
@@ -1451,7 +1441,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			THROW_PP(IsIntrOp(rPack.Rec.OpID) != INTREXPND || Rec.OpID != pCtx->P_ThisDbDivPack->Rec.IntrRcptOpr, PPERR_CANTACCEPTBILLMOD_INTREXP);
 		}
 	}
-	const int is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID); // @v8.9.0
+	const int is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID);
 	rPack.Rec.Object  = Rec.Object;
 	rPack.Rec.Object2 = Rec.Object2;
 	rPack.Rec.LocID   = Rec.LocID;
@@ -1460,7 +1450,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	rPack.Rec.Amount  = BR2(Rec.Amount);
 	rPack.Rec.Flags  |= (Rec.Flags & fmask);
 	rPack.Rec.Flags2 |= (Rec.Flags2 & fmask2); // @v9.0.1
-	rPack.Rec.LastRByBill = Rec.LastRByBill; // @v8.0.3
+	rPack.Rec.LastRByBill = Rec.LastRByBill;
 	rPack.Rec.DueDate = Rec.DueDate; // @v9.7.12 @fix - тяжелая ошибка: не передавалась дата исполнения при синхронизации
 	rPack.Rec.EdiOp   = Rec.EdiOp; // @v9.0.1
 	rPack.SetFreight(P_Freight);
@@ -1475,7 +1465,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	rPack.Ext = Ext;
 	op_type_id = GetOpType(rPack.Rec.OpID);
 	rPack.Amounts.Put(&Amounts, 0, 1); // Теперь суммы (ручные) конвертируем для всех типов операций
-	PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_descr_buf); // @v8.4.10
+	PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_descr_buf);
 	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 		if(op_type_id == PPOPT_PAYMENT || CheckOpFlags(rPack.Rec.OpID, OPKF_EXTACCTURN)) {
 			rPack.Amounts.Put(PPAMT_MAIN, 0L, rPack.GetAmount(), 0, 1);
@@ -1501,7 +1491,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			rPack.AdvList.Add(&AdvList.Get(i));
 	}
 	else if(op_type_id == PPOPT_INVENTORY) {
-		THROW_PP(!_update, PPERR_CANTACCEPTBILLMOD_INV); // @v8.0.3
+		THROW_PP(!_update, PPERR_CANTACCEPTBILLMOD_INV);
 		{
 			InventoryCore & r_line_tbl = p_bobj->GetInvT();
 			PPID   id = rPack.Rec.ID;
@@ -1532,18 +1522,16 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		if(ccflg_synclot) {
-			THROW_PP(!_update || rPack.Rec.Flags2 & BILLF2_FULLSYNC, PPERR_CANTACCEPTBILLMOD_NFS); // @v8.0.3
+			THROW_PP(!_update || rPack.Rec.Flags2 & BILLF2_FULLSYNC, PPERR_CANTACCEPTBILLMOD_NFS);
 			rPack.Rec.Flags2 |= BILLF2_FULLSYNC;
-			// @v8.4.10 {
 			{
 				// @log PPTXT_SYNCLOT_TRYBILL        "Попытка приема документа [%s] с синхронизацией по лотам"
                 msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_TRYBILL, fmt_buf), bill_descr_buf.cptr());
                 PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 			}
-			// } @v8.4.10
 		}
 		else {
-			THROW_PP(!_update, PPERR_CANTACCEPTBILLMOD_LOTSYNC); // @v8.0.3
+			THROW_PP(!_update, PPERR_CANTACCEPTBILLMOD_LOTSYNC);
 		}
 		if(_update) {
 			//
@@ -1555,14 +1543,12 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				const PPTransferItem & r_ti = rPack.ConstTI(--i);
 				uint   ipos = 0;
 				if(!(r_ti.Flags & PPTFR_LOTSYNC)) {
-					// @v8.4.10 {
 					{
 						// @log PPTXT_SYNCLOT_UPDROWNSYNCRMV "Строка изменяемого документа [%s] не синхронизирована и должна быть заменена"
                         (temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ti.RByBill).CatDiv('-', 0).Cat(r_ti.LotID);
                         msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_UPDROWNSYNCRMV, fmt_buf), temp_buf.cptr());
                         PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
-					// } @v8.4.10
 					rPack.RemoveRow(i);
 				}
 				else if(!SearchRByBill(r_ti.RByBill, &ipos)) {
@@ -1594,7 +1580,6 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					p_ilti->LotSyncID = sync_primary_lot_id;
 					if(rl < 0 || !sync_primary_lot_id) {
 						if(!(p_ilti->Flags & PPTFR_RECEIPT)) {
-							// @v8.4.10 {
 							{
 								// @log PPTXT_SYNCLOT_NSYNCMAIN      "Не удалось разрешить синхронизацию лота [%s]"
 								GetGoodsName(p_ilti->GoodsID, goods_name);
@@ -1603,7 +1588,6 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 								msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMAIN, fmt_buf), temp_buf.cptr());
 								PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 							}
-							// } @v8.4.10
 							rPack.Rec.Flags2 &= ~BILLF2_FULLSYNC;
 						}
 					}
@@ -1611,20 +1595,16 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				if(p_ilti->LotMirrID) {
 					THROW(rl = pCtx->ResolveDependedNonObject(PPOBJ_LOT, p_ilti->LotMirrID, &sync_primary_lot_mirr_id));
 					if(rl < 0 || !sync_primary_lot_mirr_id) {
-						// @v8.4.10 {
-						{
-							// @log PPTXT_SYNCLOT_NSYNCMIRR      "Не удалось разрешить синхронизацию зеркального лота [%s]"
-							GetGoodsName(p_ilti->GoodsID, goods_name);
-							(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
-								CatDiv('-', 0).Cat(goods_name);
-							msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), temp_buf.cptr());
-							PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						// } @v8.4.10
+						// @log PPTXT_SYNCLOT_NSYNCMIRR      "Не удалось разрешить синхронизацию зеркального лота [%s]"
+						GetGoodsName(p_ilti->GoodsID, goods_name);
+						(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
+							CatDiv('-', 0).Cat(goods_name);
+						msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), temp_buf.cptr());
+						PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					p_ilti->LotMirrID = sync_primary_lot_mirr_id;
 				}
-				THROW_PP(!_update || rPack.Rec.Flags2 & BILLF2_FULLSYNC, PPERR_CANTACCEPTBILLMOD_NFSLOT); // @v8.0.3
+				THROW_PP(!_update || rPack.Rec.Flags2 & BILLF2_FULLSYNC, PPERR_CANTACCEPTBILLMOD_NFSLOT);
 			}
 			else {
 				p_ilti->LotSyncID = 0;
@@ -1636,7 +1616,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					uint   tipos = 0;
 					if(rPack.SearchTI(p_ilti->RByBill, &tipos)) {
 						PPTransferItem & r_ti = rPack.TI(tipos);
-						r_ti.SrcIltiPos = i; // @v8.5.7 Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
 						if(r_ti.Flags & PPTFR_LOTSYNC) {
 							//
 							long   slfl = 0;
@@ -1666,18 +1646,16 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 									THROW(rPack.LTagL.Set(tipos, p_org_lot_tag_list));
 									slfl |= (TISL_IGNCOST|TISL_IGNPRICE|TISL_IGNPACK|TISL_IGNQCERT|TISL_IGNEXPIRY);
 								}
-								else {
+								else
 									slfl |= TISL_ADJPRICE;
-								}
 								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
 								r_ti.Quantity_ = p_ilti->Quantity;
 								rPack.XcL.Set(tipos+1, &ss_lotxcode); // @v9.8.11
 							}
 							do_add = 0;
 						}
-						else {
+						else
 							rPack.RemoveRow(tipos);
-						}
 					}
 				}
 				if(do_add) {
@@ -1698,12 +1676,10 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						}
 						*/
 						const  PPID lot_id = r_ti.LotID;
-						// @v8.0.3 {
 						if(rconv == 100) {
 							r_ti.Flags |= PPTFR_LOTSYNC;
 						}
 						r_ti.TFlags |= PPTransferItem::tfForceNew;
-						// } @v8.0.3
 						if(p_bobj->GetTagListByLot(lot_id, 1, &lot_tag_list) > 0) {
 							THROW(rPack.LTagL.Set(rj, lot_tag_list.GetCount() ? &lot_tag_list : 0));
 						}
@@ -1723,12 +1699,10 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
                             rPack.XcL.Set(rj+1, &ss_lotxcode);
 						}
 						// } @v9.8.11
-						// @v8.9.0 {
 						if(is_intr_expnd && p_bobj->GetSerialNumberByLot(lot_id, local_serial, 0) > 0) {
 							// @v9.8.11 THROW(rPack.SnL.AddNumber(rj, local_serial));
 							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_SN, rj, local_serial)); // @v9.8.11
 						}
-						// } @v8.9.0
 					}
 				}
 			}
@@ -1749,17 +1723,15 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 		}
 		THROW(rPack.InitAmounts(0));
 		rPack.Pays.copy(Pays);
-		// @v8.0.3 {
 		if(_update) {
 			for(i = 0; i < rPack.Pays.getCount(); i++) {
 				PayPlanTbl::Rec & r_paym_rec = rPack.Pays.at(i);
 				r_paym_rec.BillID = rPack.Rec.ID;
 			}
 		}
-		// } @v8.0.3
 		if(!(pCtx->Cfg.Flags & DBDXF_DONTCVTTOTALDIS)) {
 			if(Rec.Flags & BILLF_TOTALDISCOUNT) {
-				AmtEntry mandis(PPAMT_MANDIS, 0, rPack.Amounts.Get(PPAMT_DISCOUNT, 0));
+				const AmtEntry mandis(PPAMT_MANDIS, 0, rPack.Amounts.Get(PPAMT_DISCOUNT, 0));
 				rPack.Amounts.Put(&mandis, 1, 1);
 			}
 		}
@@ -2609,7 +2581,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
 					THROW(p_pack->ConvertToBillPacket(bp, &warn, pCtx, 1));
-					bp.ProcessFlags |= PPBillPacket::pfForeignSync; // @v8.0.3
+					bp.ProcessFlags |= PPBillPacket::pfForeignSync;
 					//
 					// Функция ConvertToBillPacket могла инициализировать статус документа
 					// в значение для нового документа (из конфигурации). Это - не верно.
@@ -2626,7 +2598,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							bp.Rec.ID = 0;
 							for(i = 0; bp.EnumTItems(&i, &p_ti);) {
 								p_ti->BillID  = 0;
-								if(!(bp.Rec.Flags2 & BILLF2_FULLSYNC)) // @v8.0.3
+								if(!(bp.Rec.Flags2 & BILLF2_FULLSYNC))
 									p_ti->RByBill = 0;
 							}
 							if(p_pack->OrderBillList.getCount()) {
@@ -2722,7 +2694,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							double amt = bp.GetAmount();
 							P_Tbl->CalcPayment(*pID, 1, 0, bp.Rec.CurID, &paym);
 							bp.Amounts.Put(PPAMT_PAYMENT, bp.Rec.CurID, paym, 1, 1);
-							bp.Rec.PaymAmount = paym; // @v8.5.8
+							bp.Rec.PaymAmount = paym;
 							SETFLAG(bp.Rec.Flags, BILLF_PAYOUT, R2(paym - amt) >= 0);
 						}
 						err_code = PPTXT_ERRACCEPTBILL;
@@ -2749,7 +2721,6 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
 					THROW(ExtractPacket(*pID, &bp) > 0);
-					// @v8.0.3 {
 					// @v9.8.0 От избыточной осторожности пока для товарных заказов (PPOPT_GOODSORDER) синхронизацию по лотам не включаем
 					if(CConfig.Flags2 & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG && op_type_id != PPOPT_GOODSORDER) {
 						if(bp.Rec.Flags2 & BILLF2_FULLSYNC) {
@@ -2782,7 +2753,6 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							pCtx->OutReceivingMsg(msg_buf.Printf(PPLoadTextS(PPTXT_NACCEPTBILLMOD_NFS, fmt_buf), err_bill_code.cptr()));
 						}
 					}
-					// } @v8.0.3
 					if(do_update_withoutlots) {
 						if(!bp.Ext.IsEqual(p_pack->Ext)) {
 							bp.Ext = p_pack->Ext;

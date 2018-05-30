@@ -434,7 +434,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							tail.Cat(gds_info.Price, SFMT_MONEY); // #9 - Min цена товара
 						tail.Semicol();
 						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
-						if(gds_info.NoDis <= 0)                         // 
+						if(gds_info.NoDis <= 0)                         //
 							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
 						tail.Semicol();
 						tail.CatCharN(';', 2);                          // #14-#15 - Не используем
@@ -469,10 +469,12 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					if((bclen = sstrlen(gds_info.BarCode)) != 0) {
 						gds_info.AdjustBarcode(check_dig);
 						int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
-						if(wp == 1)
+						if(wp == 1) {
 							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtPrefix));
-						else if(wp == 2)
+						}
+						else if(wp == 2) {
 							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtCntPrefix));
+						}
 						else
 							AddCheckDigToBarcode(gds_info.BarCode);
 						if(next_barcode)
@@ -593,7 +595,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			}
 			// } @9.4.1
 #if 0 // @v9.4.1 {
-			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { 
+			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) {
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;
 				SString card_code_low, card_code_upp;

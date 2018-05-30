@@ -1,7 +1,7 @@
 // GDSUTIL.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
-// Утилиты для работы с товарами
+// @codepage UTF-8
+// РЈС‚РёР»РёС‚С‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РѕРІР°СЂР°РјРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -95,8 +95,8 @@ static char * FASTCALL EncodeUPCE(const char * pCode, char * pBuf)
 			}
 		}
 		pc[p++] = 'X'; // center-guard bar (01010)
-		// Здесь нужно вставить терминальный guard bar (1), но я не нашел
-		// в этих шрифтах такого знака.
+		// Р—РґРµСЃСЊ РЅСѓР¶РЅРѕ РІСЃС‚Р°РІРёС‚СЊ С‚РµСЂРјРёРЅР°Р»СЊРЅС‹Р№ guard bar (1), РЅРѕ СЏ РЅРµ РЅР°С€РµР»
+		// РІ СЌС‚РёС… С€СЂРёС„С‚Р°С… С‚Р°РєРѕРіРѕ Р·РЅР°РєР°.
 		pc[p++] = 'K' + chk_dig; // digit only
 		for(i = 0; i < p; i++)
 			pBuf[i] = pc[i];
@@ -186,7 +186,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 	if(codeType == 39) {
 		//
 		// Code39
-		// Проверить код: либо цифры, либо латинские буквы A..Z
+		// РџСЂРѕРІРµСЂРёС‚СЊ РєРѕРґ: Р»РёР±Рѕ С†РёС„СЂС‹, Р»РёР±Рѕ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹ A..Z
 		//
 		for(i = 0; i < len; i++) {
 			if(!isdec(code[i]))
@@ -204,7 +204,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 	}
 	else {
 		//
-		// Проверить код: длина 1..13, все цифры
+		// РџСЂРѕРІРµСЂРёС‚СЊ РєРѕРґ: РґР»РёРЅР° 1..13, РІСЃРµ С†РёС„СЂС‹
 		//
 		if(len > 13)
 			return 0;
@@ -279,7 +279,7 @@ int FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf)
 	int    ok = -1;
 	rBuf.Z();
 	if(goodsID) {
-		PPObjGoods goods_obj(SConstructorLite); // @v8.1.1 SConstructorLite
+		PPObjGoods goods_obj(SConstructorLite);
 		Goods2Tbl::Rec goods_rec;
 		if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
 			rBuf = goods_rec.Name;
@@ -407,7 +407,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 		if(wp) {
 			code[12] = 0;
 			if(wp == 2)
-				qtty = atol(code+7); // Для штучного товара (по префиксу кода) количество не дробное.
+				qtty = atol(code+7); // Р”Р»СЏ С€С‚СѓС‡РЅРѕРіРѕ С‚РѕРІР°СЂР° (РїРѕ РїСЂРµС„РёРєСЃСѓ РєРѕРґР°) РєРѕР»РёС‡РµСЃС‚РІРѕ РЅРµ РґСЂРѕР±РЅРѕРµ.
 			else
 				qtty = fdiv1000i(atol(code+7));
 			code[7] = 0;
@@ -448,7 +448,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 						code[12] = 0;
 						qtty = fdiv1000i(atol(code+7));
 						//
-						// Пытаемся найти PLU, разрядность которого равна 3 или 4 (возможно, с ведущими нулями)
+						// РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё PLU, СЂР°Р·СЂСЏРґРЅРѕСЃС‚СЊ РєРѕС‚РѕСЂРѕРіРѕ СЂР°РІРЅР° 3 РёР»Рё 4 (РІРѕР·РјРѕР¶РЅРѕ, СЃ РІРµРґСѓС‰РёРјРё РЅСѓР»СЏРјРё)
 						//
 						code[6] = 0;
 						plu = atol(code+max_len);
@@ -484,7 +484,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		Goods2Tbl::Rec goods_rec;
 		STRNSCPY(code, pBlk->Code);
 		SOemToChar(code);
-		if(oneof2(code[0], '#', '№') && code[1]) {
+		if(oneof2(code[0], '#', 'в„–') && code[1]) {
 			PPID   goods_id = atol(code+1);
 			if(Fetch(goods_id, &goods_rec) > 0) {
 				pBlk->GoodsID = goods_rec.ID;
@@ -546,7 +546,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				pBlk->Rec = goods_rec;
 				ok = 1;
 			}
-			else if(r == 1) { // Код весовой, но товар, ему соответствующий, не найден
+			else if(r == 1) { // РљРѕРґ РІРµСЃРѕРІРѕР№, РЅРѕ С‚РѕРІР°СЂ, РµРјСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№, РЅРµ РЅР°Р№РґРµРЅ
 				pBlk->GoodsID = goods_id;
 				pBlk->ScaleID = scale_id;
 				pBlk->Qtty    = qtty;
@@ -591,7 +591,7 @@ int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2
 	blk.ArID = arID;
 	blk.Flags |= GoodsCodeSrchBlock::fAdoptSearch;
 	//
-	// Сохранение последнего введенного штрихкода в глобальном буфере
+	// РЎРѕС…СЂР°РЅРµРЅРёРµ РїРѕСЃР»РµРґРЅРµРіРѕ РІРІРµРґРµРЅРЅРѕРіРѕ С€С‚СЂРёС…РєРѕРґР° РІ РіР»РѕР±Р°Р»СЊРЅРѕРј Р±СѓС„РµСЂРµ
 	//
 	STRNSCPY(DS.GetTLA().Lid.Barcode, blk.Code);
 	if((r = SearchByCodeExt(&blk)) > 0) {
@@ -731,10 +731,10 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 	int    r, is_new = 0;
 	PPGoodsConfig cfg = *pCfg;
 	PPGoodsConfig prev_cfg;
-	// @v9.7.2 assert(!cfg.Ver.IsLt(7, 7, 0)); // Жесткая проверка на предмет инициализации номера версии
+	// @v9.7.2 assert(!cfg.Ver.IsLt(7, 7, 0)); // Р–РµСЃС‚РєР°СЏ РїСЂРѕРІРµСЂРєР° РЅР° РїСЂРµРґРјРµС‚ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РЅРѕРјРµСЂР° РІРµСЂСЃРёРё
 	cfg.Ver__ = DS.GetVersion();
 	{
-		PPTransaction tra(use_ta); // @v8.7.0 @fix 1-->use_ta
+		PPTransaction tra(use_ta);
 		THROW(tra);
 		cfg.Flags &= ~GCF_VALID;
 		THROW(r = ReadConfig(&prev_cfg));
@@ -796,24 +796,24 @@ int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 		assert(pre770_size == (offsetof(PPGoodsConfig, Ver__)));
 		if(sz <= pre770_size) {
 			ok = p_ref->GetPropMainConfig(PPPRP_GOODSCFG, pCfg, sz);
-			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
+			assert(ok > 0); // Р Р°Р· РЅР°Рј СѓРґР°Р»РѕСЃСЊ СЃС‡РёС‚Р°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, С‚Рѕ РїРѕСЃР»РµРґСѓСЋС‰Р°СЏ РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ - РєСЂРёС‚РёС‡РЅР°
 			THROW(ok > 0);
 		}
 		else {
 			STempBuffer temp_buf(sz);
 			ok = p_ref->GetPropMainConfig(PPPRP_GOODSCFG, (char *)temp_buf, sz);
-			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
+			assert(ok > 0); // Р Р°Р· РЅР°Рј СѓРґР°Р»РѕСЃСЊ СЃС‡РёС‚Р°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, С‚Рѕ РїРѕСЃР»РµРґСѓСЋС‰Р°СЏ РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ - РєСЂРёС‚РёС‡РЅР°
 			THROW(ok > 0);
 			{
 				const size_t offs = offsetof(PPGoodsConfig, TagIndFilt);
 				const size_t after_ver_offs = offsetof(PPGoodsConfig, Ver__)+sizeof(pCfg->Ver__);
 				//
-				// Сначала считаем данные до номера версии включительно...
+				// РЎРЅР°С‡Р°Р»Р° СЃС‡РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РґРѕ РЅРѕРјРµСЂР° РІРµСЂСЃРёРё РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ...
 				//
 				memcpy(pCfg, (const char *)temp_buf, after_ver_offs);
 				if(!pCfg->Ver__.IsLt(7, 7, 2)) {
 					//
-					// ... и, если версия больше или равна 7.7.2, дочитаем оставшийся кусочек
+					// ... Рё, РµСЃР»Рё РІРµСЂСЃРёСЏ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅР° 7.7.2, РґРѕС‡РёС‚Р°РµРј РѕСЃС‚Р°РІС€РёР№СЃСЏ РєСѓСЃРѕС‡РµРє
 					//
 					memcpy(PTR8(pCfg)+after_ver_offs, ((const char *)temp_buf)+after_ver_offs, offs-after_ver_offs);
 				}
@@ -976,31 +976,31 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 11, GCF_USEBRANDINGSELEXTDLG);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 12, GCF_AUTOPREFBARCODE);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 13, GCF_DONTDELFROMMTXGOODSINOPENORD);
-	AddClusterAssoc(CTL_GDSCFG_FLAGS, 14, GCF_SHOWGSTRUCPRICE); // @v8.0.0
+	AddClusterAssoc(CTL_GDSCFG_FLAGS, 14, GCF_SHOWGSTRUCPRICE);
 
 	SetClusterData(CTL_GDSCFG_FLAGS, Data.Flags);
 
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 0, GCF_XCHG_DONTRCVTAXGRPUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 1, GCF_XCHG_RCVSTRUCUPD);
-	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 2, GCF_XCHG_SENDGENGOODSCONTENT); // @v7.7.12
-	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 3, GCF_XCHG_SENDALTGROUP); // @v8.1.12
-	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 4, GCF_XCHG_SENDATTACHMENT); // @v8.2.3
+	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 2, GCF_XCHG_SENDGENGOODSCONTENT);
+	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 3, GCF_XCHG_SENDALTGROUP);
+	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 4, GCF_XCHG_SENDATTACHMENT);
 	SetClusterData(CTL_GDSCFG_XCHG_FLAGS, Data.Flags);
 
 	setCtrlData(CTL_GDSCFG_CODLEN, Data.BarCodeLen);
 	setCtrlData(CTL_GDSCFG_MINUNIQBCLEN, &Data.MinUniqBcLen);
 	setCtrlData(CTL_GDSCFG_WPRFX,  Data.WghtPrefix);
-	setCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix); // @v7.0.7
+	setCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix);
 	setCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFUNIT, PPOBJ_UNIT, Data.DefUnitID, OLW_CANINSERT, (void *)PPUnit::Trade);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFPCKGTYP, PPOBJ_PCKGTYPE, Data.DefPckgTypeID, 0);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGRP,   PPOBJ_GOODSGROUP, Data.DefGroupID, OLW_CANSELUPLEVEL); // @v7.2.7
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGRP,   PPOBJ_GOODSGROUP, Data.DefGroupID, OLW_CANSELUPLEVEL);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_ASSETGRP, PPOBJ_GOODSGROUP, Data.AssetGrpID, OLW_CANSELUPLEVEL);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_TAREGRP,  PPOBJ_GOODSGROUP, Data.TareGrpID,  OLW_CANSELUPLEVEL);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGOODS, PPOBJ_GOODS,  Data.DefGoodsID, OLW_LOADDEFONOPEN, 0); // @v8.9.5
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGOODS, PPOBJ_GOODS,  Data.DefGoodsID, OLW_LOADDEFONOPEN, 0);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_GDSMATRIX, PPOBJ_QUOTKIND,  Data.MtxQkID, 0, (void *)1);
-	AddClusterAssoc(CTL_GDSCFG_IGNFLDMTX, 0, GCF_IGNOREFOLDERMATRIX); // @v8.3.4
-	SetClusterData(CTL_GDSCFG_IGNFLDMTX, Data.Flags);                 // @v8.3.4
+	AddClusterAssoc(CTL_GDSCFG_IGNFLDMTX, 0, GCF_IGNOREFOLDERMATRIX);
+	SetClusterData(CTL_GDSCFG_IGNFLDMTX, Data.Flags);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_GMTXRESTR, PPOBJ_QUOTKIND,  Data.MtxRestrQkID, 0, (void *)1);
 	{
 		ObjTagFilt ot_filt;
@@ -1028,10 +1028,10 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTLSEL_GDSCFG_DEFGRP,   &Data.DefGroupID);
 	getCtrlData(CTLSEL_GDSCFG_ASSETGRP, &Data.AssetGrpID);
 	getCtrlData(CTLSEL_GDSCFG_TAREGRP,  &Data.TareGrpID);
-	getCtrlData(CTLSEL_GDSCFG_DEFGOODS, &Data.DefGoodsID); // @v8.9.5
+	getCtrlData(CTLSEL_GDSCFG_DEFGOODS, &Data.DefGoodsID);
 	getCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
 	getCtrlData(CTLSEL_GDSCFG_GDSMATRIX, &Data.MtxQkID);
-	GetClusterData(CTL_GDSCFG_IGNFLDMTX, &Data.Flags);        // @v8.3.4
+	GetClusterData(CTL_GDSCFG_IGNFLDMTX, &Data.Flags);
 	getCtrlData(CTLSEL_GDSCFG_GMTXRESTR, &Data.MtxRestrQkID);
 	getCtrlData(CTLSEL_GDSCFG_BCPGUATAG, &Data.BcPrefixGuaTagID);
 	GetClusterData(CTL_GDSCFG_FLAGS, &Data.Flags);
@@ -1131,7 +1131,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 	SString temp_buf;
 	SString src_code = (flags & rgifUseInBarcode) ? pInfo->BarCode : 0;
 	const double code_qtty = pInfo->Qtty;
-	const double outer_price = pInfo->OuterPrice; // @v8.0.12
+	const double outer_price = pInfo->OuterPrice;
 	pInfo->Init();
 	pInfo->ID = goodsID;
 	pInfo->LocID = loc_id;
@@ -1154,14 +1154,12 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 				}
 			}
 			temp_buf.CopyTo(pInfo->BarCode, sizeof(pInfo->BarCode));
-			// @v8.0.0 {
 			if(goods_rec.ManufID) {
 				if(SETIFZ(P_PsnObj, new PPObjPerson)) {
 					GetPersonName(goods_rec.ManufID, temp_buf);
 					STRNSCPY(pInfo->Manuf, temp_buf);
 				}
 			}
-			// } @v8.0.0
 			GetManufCountry(goodsID, &goods_rec, 0, &country_blk);
 			country_blk.Name.CopyTo(pInfo->ManufCountry, sizeof(pInfo->ManufCountry));
 			if(FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
@@ -1170,28 +1168,26 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 		}
 		{
 			//
-			// @v7.8.1 Объединили расчет цены для нелимитированных и лимитированных товаров.
-			// RetailPriceExtractor самостоятельно идентифицирует категорияю товара
+			// @v7.8.1 РћР±СЉРµРґРёРЅРёР»Рё СЂР°СЃС‡РµС‚ С†РµРЅС‹ РґР»СЏ РЅРµР»РёРјРёС‚РёСЂРѕРІР°РЅРЅС‹С… Рё Р»РёРјРёС‚РёСЂРѕРІР°РЅРЅС‹С… С‚РѕРІР°СЂРѕРІ.
+			// RetailPriceExtractor СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµС‚ РєР°С‚РµРіРѕСЂРёСЏСЋ С‚РѕРІР°СЂР°
 			//
 			RetailExtrItem  rtl_ext_item;
 			long   rpe_flags = 0;
 			SETFLAG(rpe_flags, RTLPF_USEQUOTWTIME, flags & rgifUseQuotWTimePeriod);
 			SETFLAG(rpe_flags, RTLPF_PRICEBYQUOT,  flags & rgifUseBaseQuotAsPrice);
-			// @v8.0.12 {
 			if(flags & rgifUseOuterPrice && outer_price > 0.0) {
 				rpe_flags |= RTLPF_USEOUTERPRICE;
 				rtl_ext_item.OuterPrice = outer_price;
 			}
-			// } @v8.0.12
-			RetailPriceExtractor rpe(loc_id, pEqBlk, arID, actualDtm, rpe_flags); // @v7.8.1 0-->pEqBlk
+			RetailPriceExtractor rpe(loc_id, pEqBlk, arID, actualDtm, rpe_flags);
 			if(rpe.GetPrice(goodsID, 0, qtty, &rtl_ext_item)) {
 				pInfo->Cost     = rtl_ext_item.Cost;
 				pInfo->Price    = rtl_ext_item.Price;
-				pInfo->ExtPrice = rtl_ext_item.ExtPrice; // @v7.8.1
+				pInfo->ExtPrice = rtl_ext_item.ExtPrice;
 				pInfo->Expiry   = rtl_ext_item.Expiry;
-				pInfo->ManufDtm = rtl_ext_item.ManufDtm; // @v7.5.1
+				pInfo->ManufDtm = rtl_ext_item.ManufDtm;
 				pInfo->QuotKindUsedForPrice    = rtl_ext_item.QuotKindUsedForPrice;
-				pInfo->QuotKindUsedForExtPrice = rtl_ext_item.QuotKindUsedForExtPrice; // @v7.8.1
+				pInfo->QuotKindUsedForExtPrice = rtl_ext_item.QuotKindUsedForExtPrice;
 				SETFLAG(pInfo->Flags, pInfo->fDisabledQuot, rtl_ext_item.Flags & rtl_ext_item.fDisabledQuot);
 			}
 			else
@@ -1485,16 +1481,16 @@ int QuotListDialog::delItem(long pos, long id)
 //
 //
 struct RankNNameEntry {
-	int16 Rank;
-	char  Name[48];
-	PPID  ID;
+	int16  Rank;
+	char   Name[48];
+	PPID   ID;
 };
 
 IMPL_CMPFUNC(RankNName, i1, i2)
 {
 	int    cmp = 0;
-	RankNNameEntry * k1 = (RankNNameEntry*)i1;
-	RankNNameEntry * k2 = (RankNNameEntry*)i2;
+	const RankNNameEntry * k1 = (const RankNNameEntry*)i1;
+	const RankNNameEntry * k2 = (const RankNNameEntry*)i2;
 	if(k1->ID == PPQUOTK_BASE && k2->ID != PPQUOTK_BASE)
 		cmp = -1;
 	else if(k1->ID != PPQUOTK_BASE && k2->ID == PPQUOTK_BASE)
@@ -1516,16 +1512,13 @@ class QuotationDialog : public EmbedDialog {
 private:
 	static int GetQuotDialogID(int quotCls)
 	{
-		if(quotCls == PPQuot::clsSupplDeal)
-			return DLG_GQUOTSC;
-		else if(quotCls == PPQuot::clsMtx)
-			return DLG_GMQUOT;
-		else if(quotCls == PPQuot::clsMtxRestr)
-			return DLG_GMRQUOT;
-		else if(quotCls == PPQuot::clsPredictCoeff)
-			return DLG_GQUOTPC;
-		else
-			return DLG_GQUOT;
+		switch(quotCls) {
+			case PPQuot::clsSupplDeal: return DLG_GQUOTSC;
+			case PPQuot::clsMtx: return DLG_GMQUOT;
+			case PPQuot::clsMtxRestr: return DLG_GMRQUOT;
+			case PPQuot::clsPredictCoeff: return DLG_GQUOTPC;
+		}
+		return DLG_GQUOT;
 	}
 	void SetupKinds(int onInit)
 	{
@@ -1608,7 +1601,7 @@ private:
 	}
 public:
 	//
-	// ARG(category IN): 0 - обыкновенные котировки; 1 - контрактные цены; 2 - товарная матрица; 3 - ограничение по товарной матрице; 4 - поправочный коэффициент для прогноза продаж
+	// ARG(category IN): 0 - РѕР±С‹РєРЅРѕРІРµРЅРЅС‹Рµ РєРѕС‚РёСЂРѕРІРєРё; 1 - РєРѕРЅС‚СЂР°РєС‚РЅС‹Рµ С†РµРЅС‹; 2 - С‚РѕРІР°СЂРЅР°СЏ РјР°С‚СЂРёС†Р°; 3 - РѕРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†Рµ; 4 - РїРѕРїСЂР°РІРѕС‡РЅС‹Р№ РєРѕСЌС„С„РёС†РёРµРЅС‚ РґР»СЏ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶
 	//
 	QuotationDialog(PPID goodsID, PPID selLocID, PPID selCurID, PPID selArID, PPQuotArray * pAry, int quotCls, PPID accSheetID =0) :
 		EmbedDialog(GetQuotDialogID(quotCls))
@@ -1767,7 +1760,6 @@ int QuotationDialog::getQuotVal(uint ctlID, double * pV, long * pF)
 
 int QuotationDialog::SetupLocList()
 {
-	// @v8.1.9 {
 	PPIDArray ext_loc_list;
 	LocationTbl::Rec loc_rec;
 	for(uint i = 0; i < Data.getCount(); i++) {
@@ -1776,7 +1768,6 @@ int QuotationDialog::SetupLocList()
 			ext_loc_list.add(r_item.LocID);
 	}
 	ext_loc_list.sortAndUndup();
-	// } @v8.1.9
 	LocationFilt loc_filt(LOCTYP_WAREHOUSE);
 	if(ext_loc_list.getCount())
 		loc_filt.ExtLocList.Set(&ext_loc_list);
@@ -2098,13 +2089,11 @@ void QuotationDialog::getPage()
 		QuotIdent qi(SelLocID, PPQUOTK_BASE, SelCurID, SelArticleID);
 		int    r = getQuotVal(CTL_GQUOT_BASE, &quot, &flags);
 		if(r > 0) {
-			Data.SetQuot(qi, quot, flags, 0, 0 /* period */); // @v7.9.0 minQuot -1-->0
+			Data.SetQuot(qi, quot, flags, 0, 0 /* period */);
 		}
-		// @v7.5.0 {
 		else if(r < 0) {
-			Data.SetQuot(qi, 0.0, 0, 0, 0 /* period */); // @v7.9.0 minQuot -1-->0
+			Data.SetQuot(qi, 0.0, 0, 0, 0 /* period */);
 		}
-		// } @v7.5.0
 		for(int i = 0; i < NUM_QUOTS_IN_DLG; i++) {
 			quot = 0.0;
 			flags = 0;
@@ -2112,13 +2101,11 @@ void QuotationDialog::getPage()
 				r = getQuotVal(quotCtl(i), &quot, &flags);
 				qi.QuotKindID = Kinds[i];
 				if(r > 0) {
-					Data.SetQuot(qi, quot, flags, 0 /* minQtty */, 0 /* period */); // @v7.9.0 minQuot -1-->0
+					Data.SetQuot(qi, quot, flags, 0 /* minQtty */, 0 /* period */);
 				}
-				// @v7.5.0 {
 				else if(r < 0) {
-					Data.SetQuot(qi, 0.0, 0, 0 /* minQtty */, 0 /* period */); // @v7.9.0 minQuot -1-->0
+					Data.SetQuot(qi, 0.0, 0, 0 /* minQtty */, 0 /* period */);
 				}
-				// } @v7.5.0
 			}
 		}
 	}
@@ -2448,11 +2435,11 @@ int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PP
 	THROW(GetQuotList(goodsID, 0, qary));
 	qi = rQi;
 	qi.QuotKindID = deal_qk_id;
-	THROW(qary.SetQuot(qi, cost, flags, 0, 0 /* period */)); // @v7.9.0 minQuot -1-->0
+	THROW(qary.SetQuot(qi, cost, flags, 0, 0 /* period */));
 	qi.QuotKindID = dn_qk_id;
-	THROW(qary.SetQuot(qi, pDeal->DnDev, 0, 0, 0 /* period */)); // @v7.9.0 minQuot -1-->0
+	THROW(qary.SetQuot(qi, pDeal->DnDev, 0, 0, 0 /* period */));
 	qi.QuotKindID = up_qk_id;
-	THROW(qary.SetQuot(qi, pDeal->UpDev, 0, 0, 0 /* period */)); // @v7.9.0 minQuot -1-->0
+	THROW(qary.SetQuot(qi, pDeal->UpDev, 0, 0, 0 /* period */));
 	THROW(P_Tbl->SetQuotList(qary, useTa));
 	CATCHZOK
 	return ok;
@@ -2461,22 +2448,8 @@ int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PP
 int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
 {
 	int    ok = 0;
-	if(useCache == 1000 && pResult) {
+	if(useCache == 1000 && pResult)
 		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, 1);
-		/* @v8.3.3
-		if(ok > 0) {
-			double uncached_result = 0.0;
-			int    r = Helper_GetQuotExt(goodsID, rQi, cost, price, &uncached_result, 0);
-			if(!feqeps(uncached_result, *pResult, 1E-6)) { // @v8.2.11 @fix feqeps-->!feqeps
-				SString msg_buf;
-				PPFormatT(PPTXT_CACHEDQUOTCONFLICT, &msg_buf, rQi.QuotKindID, goodsID, *pResult, uncached_result);
-				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
-				*pResult = uncached_result;
-				ok = r;
-			}
-		}
-		*/
-	}
 	else
 		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, useCache);
 	return ok;
@@ -2495,11 +2468,11 @@ int SLAPI PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, dou
 		ok = r;
 	else if(Fetch(goodsID, &goods_rec) > 0 && goods_rec.ParentID) {
 		//
-		// Рекурсивный поиск котировки.
-		// Для случая определения значения котировки относительно базовой совершаем небольшой трюк:
-		// находим базовую котировку для изначально заданной позиции и вставляем ее в QuotIdent.
-		// Теперь, если относительная базовой котировка определена в вышестоящей группе, то
-		// при расчете эффективного значения она будет использовать оригинальное значение базы (если таковое определено).
+		// Р РµРєСѓСЂСЃРёРІРЅС‹Р№ РїРѕРёСЃРє РєРѕС‚РёСЂРѕРІРєРё.
+		// Р”Р»СЏ СЃР»СѓС‡Р°СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р±Р°Р·РѕРІРѕР№ СЃРѕРІРµСЂС€Р°РµРј РЅРµР±РѕР»СЊС€РѕР№ С‚СЂСЋРє:
+		// РЅР°С…РѕРґРёРј Р±Р°Р·РѕРІСѓСЋ РєРѕС‚РёСЂРѕРІРєСѓ РґР»СЏ РёР·РЅР°С‡Р°Р»СЊРЅРѕ Р·Р°РґР°РЅРЅРѕР№ РїРѕР·РёС†РёРё Рё РІСЃС‚Р°РІР»СЏРµРј РµРµ РІ QuotIdent.
+		// РўРµРїРµСЂСЊ, РµСЃР»Рё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ Р±Р°Р·РѕРІРѕР№ РєРѕС‚РёСЂРѕРІРєР° РѕРїСЂРµРґРµР»РµРЅР° РІ РІС‹С€РµСЃС‚РѕСЏС‰РµР№ РіСЂСѓРїРїРµ, С‚Рѕ
+		// РїСЂРё СЂР°СЃС‡РµС‚Рµ СЌС„С„РµРєС‚РёРІРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РѕРЅР° Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ Р±Р°Р·С‹ (РµСЃР»Рё С‚Р°РєРѕРІРѕРµ РѕРїСЂРµРґРµР»РµРЅРѕ).
 		//
 		if(rQi.QuotKindID == PPQUOTK_BASE || rQi.GetPrevBase() > 0.0) {
 			if((r = GetQuotExt(goods_rec.ParentID, rQi, cost, price, pResult, useCache)) > 0) // @recursion
@@ -2767,8 +2740,8 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	uint   i, gp_flags = GPRET_INDEF;
 	const  LDATE curdt = getcurdate_();
 	//
-	// Список видов котировок уже использованных для расчета цены.
-	// Этот список препятствует двойному применению одной и той же котировки к цене.
+	// РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… РґР»СЏ СЂР°СЃС‡РµС‚Р° С†РµРЅС‹.
+	// Р­С‚РѕС‚ СЃРїРёСЃРѕРє РїСЂРµРїСЏС‚СЃС‚РІСѓРµС‚ РґРІРѕР№РЅРѕРјСѓ РїСЂРёРјРµРЅРµРЅРёСЋ РѕРґРЅРѕР№ Рё С‚РѕР№ Р¶Рµ РєРѕС‚РёСЂРѕРІРєРё Рє С†РµРЅРµ.
 	//
 	PPIDArray used_quot_list;
 	double price = 0.0, ext_price = 0.0, quot = 0.0;
@@ -2801,11 +2774,9 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			gp_flags |= GPRET_FORCELOTID;
 		}
 		THROW(ok = ::GetCurGoodsPrice(goodsID, LocID, gp_flags, &price, &lot_rec));
-		// @v8.0.12 {
 		if(Flags & RTLPF_USEOUTERPRICE && pItem->OuterPrice > 0.0) {
 			price = pItem->OuterPrice;
 		}
-		// } @v8.0.12
 		base_price = price;
 		assert(!lot_rec.GoodsID || labs(lot_rec.GoodsID) == goodsID);
 		if(lot_rec.ID) {
@@ -2853,7 +2824,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			}
 			if(eq_pos) {
 				pItem->QuotKindUsedForExtPrice = EqBlk.QkList.get(eq_pos-1);
-				SETFLAG(pItem->Flags, pItem->fDisabledExtQuot, eq_disabled); // @v7.8.1
+				SETFLAG(pItem->Flags, pItem->fDisabledExtQuot, eq_disabled);
 			}
 		}
 	}
@@ -2874,11 +2845,11 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 				pItem->QuotKindUsedForPrice = qk_id;
 				price = quot;
 				//
-				// Здесь base_price не меняется. Таким образом, вызывающая функция сможет отличить фиксированную
-				// цену от той, которая может зависеть от всевозможных акций
+				// Р—РґРµСЃСЊ base_price РЅРµ РјРµРЅСЏРµС‚СЃСЏ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ СЃРјРѕР¶РµС‚ РѕС‚Р»РёС‡РёС‚СЊ С„РёРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ
+				// С†РµРЅСѓ РѕС‚ С‚РѕР№, РєРѕС‚РѕСЂР°СЏ РјРѕР¶РµС‚ Р·Р°РІРёСЃРµС‚СЊ РѕС‚ РІСЃРµРІРѕР·РјРѕР¶РЅС‹С… Р°РєС†РёР№
 				//
 				used_quot_list.addUnique(qk_id);
-				SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2); // @v7.0.11
+				SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2);
 			}
 		}
 	}
@@ -3023,10 +2994,10 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 					default:
 						{
 							//
-							// Возможно, что символ стандарта записан с разделением двух частей пробелом 
-							// или дефисом. Поэтому, найдя первый такой знак (но только один) попытаемся
-							// его убрать и повторить попытку поиска.
-							// Например: ucp-a == upca или pdf 417 == pdf417
+							// Р’РѕР·РјРѕР¶РЅРѕ, С‡С‚Рѕ СЃРёРјРІРѕР» СЃС‚Р°РЅРґР°СЂС‚Р° Р·Р°РїРёСЃР°РЅ СЃ СЂР°Р·РґРµР»РµРЅРёРµРј РґРІСѓС… С‡Р°СЃС‚РµР№ РїСЂРѕР±РµР»РѕРј 
+							// РёР»Рё РґРµС„РёСЃРѕРј. РџРѕСЌС‚РѕРјСѓ, РЅР°Р№РґСЏ РїРµСЂРІС‹Р№ С‚Р°РєРѕР№ Р·РЅР°Рє (РЅРѕ С‚РѕР»СЊРєРѕ РѕРґРёРЅ) РїРѕРїС‹С‚Р°РµРјСЃСЏ
+							// РµРіРѕ СѓР±СЂР°С‚СЊ Рё РїРѕРІС‚РѕСЂРёС‚СЊ РїРѕРїС‹С‚РєСѓ РїРѕРёСЃРєР°.
+							// РќР°РїСЂРёРјРµСЂ: ucp-a == upca РёР»Рё pdf 417 == pdf417
 							// 
 							uint cpos = 0;
 							if(text.StrChr('-', &cpos) || text.StrChr(' ', &cpos)) {
@@ -3228,7 +3199,7 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 		if(p_fig->GetKind() == SDrawFigure::kImage) {
 			p_ib = &((SDrawImage *)p_fig)->GetBuffer();
 		}
-		else if(p_fig->GetKind()) { // Вероятно, векторная фигура
+		else if(p_fig->GetKind()) { // Р’РµСЂРѕСЏС‚РЅРѕ, РІРµРєС‚РѕСЂРЅР°СЏ С„РёРіСѓСЂР°
 			FPoint sz = p_fig->GetSize();
 			if(sz.X <= 0.0f || sz.Y <= 0.0f) {
 				sz.Set(300.0f);

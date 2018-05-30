@@ -664,7 +664,7 @@ void BrowserWindow::bottom()
 	refresh();
 }
 
-int BrowserWindow::search2(void * pSrchData, CompFunc cmpFunc, int srchMode, size_t offs)
+int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMode, size_t offs)
 {
 	int    ok = 0;
 	long   hdr_width = CalcHdrWidth(1);

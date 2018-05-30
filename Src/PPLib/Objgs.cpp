@@ -57,7 +57,7 @@ double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Re
 int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
-int    SLAPI PPGoodsStruc::GetKind() const 
+int    SLAPI PPGoodsStruc::GetKind() const
 	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
@@ -153,7 +153,7 @@ int SLAPI PPGoodsStruc::SetKind(int kind)
 	return ok;
 }
 
-//static 
+//static
 int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
 {
 	if(flags & GSF_COMPLEX)
@@ -170,7 +170,7 @@ int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
 		return kUndef;
 }
 
-//static 
+//static
 SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
 {
 	rBuf.Z();
@@ -545,7 +545,7 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 		p++;
 		ASSIGN_PTR(pPos, p);
 	}
-	// } @v10.0.07 
+	// } @v10.0.07
 	/* @v10.0.07
 	int    ok = -1;
 	if(p < Items.getCount()) {
@@ -812,7 +812,7 @@ int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goods
 	return ok;
 }
 
-//static 
+//static
 SString & FASTCALL PPGoodsStrucItem::MakeEstimationString(double median, double denom, SString & rBuf, long format)
 {
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
@@ -1368,7 +1368,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 {
 	class GSItemDialog : public TDialog {
 	public:
-		GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc) : 
+		GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc) :
 			TDialog(DLG_GSITEM), P_Struc(pStruc), P_Data(pData), Price(0.0), NettBruttCoeff(0.0)
 		{
 			SString buf;
@@ -1468,7 +1468,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 					}
 				}
 			}
-			// } @v9.8.12 
+			// } @v9.8.12
 			else if(event.isKeyDown(kbF6)) {
 				if(P_Struc && P_Struc->GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 					SString temp_buf;
@@ -1599,9 +1599,7 @@ int GSDialog::editItemDialog(int pos, PPGoodsStrucItem * pData)
 }
 
 int GSDialog::addItem(long * pPos, long * pID)
-{
-	return addItemExt(pPos, pID);
-}
+	{ return addItemExt(pPos, pID); }
 
 int GSDialog::addItemExt(long * pPos, long * pID)
 {
@@ -1961,6 +1959,7 @@ StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsI
 				THROW_SL(p_list->Add(gs_rec.ID, gs_rec.Name));
 			}
 	}
+	p_list->SortByText();
 	CATCH
 		ZDELETE(p_list);
 	ENDCATCH
@@ -2211,7 +2210,7 @@ int SLAPI PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 		if(owner_list.getCount() == 1)
 			data.GoodsID = owner_list.get(0);
 	}
-	// } @v10.0.0 
+	// } @v10.0.0
 	if((ok = EditDialog(&data)) > 0) {
 		THROW(Put(pID, &data, 1));
 		ok = cmOK;
@@ -2351,7 +2350,7 @@ int SLAPI PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 		PPIDArray goods_ids, struct_ids;
 		PPLogger log;
 		goods_obj.P_Tbl->SearchGListByStruc(pGoodsStruc->Rec.ID, &goods_ids);
-		if(CheckStruct(&goods_ids, &struct_ids, pGoodsStruc, &log) > 0)
+		if(CheckStruct(&goods_ids, &struct_ids, pGoodsStruc, 0, &log) > 0)
 			is_hier = 1;
 	}
 	if(!is_hier || ::SelectorDialog(DLG_GSTRUCPRN, CTL_GSTRUCPRN_WHAT, &what) > 0) {
@@ -2375,10 +2374,7 @@ SLAPI GStrucIterator::GStrucIterator() : Idx(0), LoadRecurItems(0)
 {
 }
 
-const PPGoodsStruc * SLAPI GStrucIterator::GetStruc() const
-{
-	return &GStruc;
-}
+const PPGoodsStruc * SLAPI GStrucIterator::GetStruc() const { return &GStruc; }
 
 int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level)
 {
@@ -2436,10 +2432,9 @@ void SLAPI GStrucIterator::Init(PPGoodsStruc * pStruc, int loadRecurItems)
 	LoadItems(&GStruc, GStruc.GoodsID, 1, 0);
 }
 
-int SLAPI GStrucIterator::InitIteration()
+void SLAPI GStrucIterator::InitIteration()
 {
 	Idx = 0;
-	return 1;
 }
 
 int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
@@ -2453,32 +2448,78 @@ int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct, PPLogger * pLog)
+int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruc, TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger)
 {
 	int    ok = 1;
 	int    recur = 0;
-	if(pStruct) {
-		const int gs_kind = PPGoodsStruc::GetStrucKind(pStruct->Rec.Flags);
+	if(pStruc) {
+		const int gs_kind = PPGoodsStruc::GetStrucKind(pStruc->Rec.Flags);
 		SString fmt_buf;
 		SString buf;
 		SString g_name, cg_name, cstruc_name;
 		SString struc_name;
-		(struc_name = pStruct->Rec.Name).Strip();
-		if(struc_name.Empty())
-			ideqvalstr(pStruct->Rec.ID, struc_name);
-		/* @construction 
+		PPObjGoods goods_obj;
+		ideqvalstr(pStruc->Rec.ID, struc_name);
+		if(pStruc->Rec.Name[0])
+			struc_name.Space().CatParStr(pStruc->Rec.Name);
+		/* @construction
 		if(gs_kind == PPGoodsStruc::kUndef && pStruct->Rec.ID && (!pStructIDs || !pStructIDs->lsearch(pStruct->Rec.ID))) {
-			PPLoadText(PPTXT_GSTRUCTNDEFKIND, fmt_buf);
+			PPLoadText(PPTXT_GSTRUCNDEFKIND, fmt_buf);
 			buf.Printf(fmt_buf.cptr(), struc_name.cptr());
 			CALLPTRMEMB(pLog, Log(buf));
 		}
 		*/
-		if(pStruct->Rec.Flags & GSF_COMPL && pGoodsIDs && pStructIDs) {
-			PPObjGoods goods_obj;
+		if(pStruc->Rec.ID) {
+			PPIDArray owner_list;
+			goods_obj.P_Tbl->SearchGListByStruc(pStruc->Rec.ID, &owner_list);
+			if(!owner_list.getCount() && !(pStruc->Rec.Flags & GSF_CHILD)) {
+				// На товарную структуру %s не ссылается ни один товар
+				PPLoadText(PPTXT_GSTRUCUNREF, fmt_buf);
+				buf.Printf(fmt_buf.cptr(), struc_name.cptr());
+				if(pProblemList) {
+					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
+					THROW_SL(p_problem);
+					p_problem->Code = CheckGsProblem::errUnRef;
+					p_problem->Text = buf;
+					p_problem->GsID = pStruc->Rec.ID;
+					p_problem->RowN = -1;
+				}
+				CALLPTRMEMB(pLogger, Log(buf));
+			}
+			else if(owner_list.getCount() > 1 && !(pStruc->Rec.Flags & GSF_NAMED)) {
+				// Товарная структура %s не является именованной, но на нее ссылается более одного товара
+				PPLoadText(PPTXT_GSTRUCNONAMEAMBIGREF, fmt_buf);
+				buf.Printf(fmt_buf.cptr(), struc_name.cptr());
+				if(pProblemList) {
+					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
+					THROW_SL(p_problem);
+					p_problem->Code = CheckGsProblem::errNoNameAmbig;
+					p_problem->Text = buf;
+					p_problem->GsID = pStruc->Rec.ID;
+					p_problem->RowN = -1;
+				}
+				CALLPTRMEMB(pLogger, Log(buf));
+			}
+			if(pStruc->Rec.Flags & GSF_NAMED && pStruc->Rec.Name[0] == 0) {
+				// Именованная товарная стуктура имеет пустое наименование
+				PPLoadText(PPTXT_GSTRUCNAMEDWONAME, fmt_buf);
+				buf.Printf(fmt_buf.cptr(), struc_name.cptr());
+				if(pProblemList) {
+					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
+					THROW_SL(p_problem);
+					p_problem->Code = CheckGsProblem::errNamedEmptyName;
+					p_problem->Text = buf;
+					p_problem->GsID = pStruc->Rec.ID;
+					p_problem->RowN = -1;
+				}
+				CALLPTRMEMB(pLogger, Log(buf));
+			}
+		}
+		if(pStruc->Rec.Flags & GSF_COMPL && pGoodsIDs && pStructIDs) {
 			PPGoodsStrucItem * p_item = 0;
 			PPGoodsStruc gstruc;
-			THROW_SL(pStructIDs->add(pStruct->Rec.ID));
-			for(uint i = 0; pStruct->Items.enumItems(&i, (void**)&p_item) > 0;) {
+			THROW_SL(pStructIDs->add(pStruc->Rec.ID));
+			for(uint i = 0; pStruc->Items.enumItems(&i, (void**)&p_item) > 0;) {
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;
@@ -2496,12 +2537,20 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 						ideqvalstr(gstruc.Rec.ID, cstruc_name);
 					PPLoadText(PPTXT_CYCLESSTRUCT, fmt_buf);
 					buf.Printf(fmt_buf.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
-					CALLPTRMEMB(pLog, Log(buf));
+					if(pProblemList) {
+						CheckGsProblem * p_problem = pProblemList->CreateNewItem();
+						THROW_SL(p_problem);
+						p_problem->Code = CheckGsProblem::errRecur;
+						p_problem->Text = buf;
+						p_problem->GsID = pStruc->Rec.ID;
+						p_problem->RowN = i;
+					}
+					CALLPTRMEMB(pLogger, Log(buf));
 				}
 				else {
 					int    r = 0;
 					THROW_SL(pGoodsIDs->add(p_item->GoodsID));
-					THROW(r = CheckStruct(pGoodsIDs, pStructIDs, &gstruc, pLog)); // @recursion
+					THROW(r = CheckStruct(pGoodsIDs, pStructIDs, &gstruc, pProblemList, pLogger)); // @recursion
 					THROW_SL(pGoodsIDs->removeByID(p_item->GoodsID));
 					if(r == 2)
 						recur = 1;
@@ -2509,7 +2558,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 						ok = r;
 				}
 			}
-			THROW_SL(pStructIDs->removeByID(pStruct->Rec.ID));
+			THROW_SL(pStructIDs->removeByID(pStruc->Rec.ID));
 		}
 	}
 	else
@@ -2528,7 +2577,7 @@ int SLAPI PPObjGoodsStruc::CheckStruc(PPID strucID, PPLogger * pLogger)
 	PPIDArray struct_ids, goods_ids;
 	goods_obj.P_Tbl->SearchGListByStruc(strucID, &goods_ids);
 	THROW(Get(strucID, &gs));
-	THROW(ok = CheckStruct(&goods_ids, &struct_ids, &gs, pLogger));
+	THROW(ok = CheckStruct(&goods_ids, &struct_ids, &gs, 0, pLogger));
 	CATCHZOK
 	return ok;
 }

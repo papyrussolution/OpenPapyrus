@@ -1713,7 +1713,6 @@ int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTra
 		if(pItem->Flags & PPTFR_QUOT)
 			fl |= CILTIF_QUOT;
 		THROW(P_BObj->ConvertILTI(&ilti, this, &row_pos_list, fl, 0));
-		// @v8.0.9 {
 		if(IsIntrExpndOp(Rec.OpID)) {
 			// @v9.8.11 SString clb_number;
 			for(uint i = 0; i < row_pos_list.getCount(); i++) {
@@ -1727,7 +1726,6 @@ int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTra
 				}*/
 			}
 		}
-		// } @v8.0.9
 	}
 	CATCHZOK
 	return ok;

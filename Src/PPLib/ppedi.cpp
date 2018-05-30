@@ -3223,12 +3223,13 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 		//n_hdr.PutInner("isTest", "0");
 	}
 	{
+		BillTbl::Rec order_bill_rec;
+		MEMSZERO(order_bill_rec);
 		SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
 		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		n_b.PutAttrib("status", "Original");
 		{
-			BillTbl::Rec order_bill_rec;
 			const int goobr = GetOriginOrderBill(rBp, &order_bill_rec);
 			THROW(goobr);
 			THROW_PP_S(goobr > 0, PPERR_EDI_DESADV_NOORDER, bill_text);
@@ -3262,6 +3263,13 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 		}
 		{
 			SXml::WNode n_i(_doc, "deliveryInfo");
+			// @v10.0.10 {
+			if(checkdate(order_bill_rec.DueDate, 0)) {
+				LDATETIME temp_dtm;
+				temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
+				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+			}
+			// } @v10.0.10 
 			{
 				SXml::WNode n_i2(_doc, "shipFrom");
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
@@ -4025,7 +4033,7 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, con
 				else
 					tag_id = 0;
 			}
-			if(!do_skip && P_BObj->Search(bill_id, &bill_rec) > 0) {
+			if(!do_skip && P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 				PPEdiProcessor::Packet pack(ediOp);
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
 				if(P_BObj->ExtractPacket(bill_id, p_bp) > 0) {

@@ -266,6 +266,7 @@ bitmap "..\\rsrc\\bitmap" {
 	BM_USER
 	BM_USERGROUP
 	BM_PHONEFORWARDED
+	BM_BANKINGDISABLED
 }
 //
 // } @construction
@@ -1339,6 +1340,9 @@ browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 		TRANSMIT       : kbCtrlH,   TBBM_SENDOBJ, "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER      : kbCtrlR,   TBBM_HAMMER,  "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL          : kbF9,      TBBM_SIGM,    "@{totals}\tF9"
+
+		NEXTPROBLEM    : kbCtrlZ,   TBBM_NOICON,  "Следующая проблема\tCtrl-Z"
+		PREVPROBLEM    : kbCtrlA,   TBBM_NOICON,  "Предыдущая проблема\tCtrl-A"
 	}
 }
 
@@ -8464,6 +8468,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_CLIPBOARDPASTE01
 	PPDV_PAYMCASH01
 	PPDV_PAYMBANK01
+	PPDV_PAYMBANKDISABLED01
 	PPDV_PAYMCARD01
 	PPDV_BANK01
 	PPDV_KEY01

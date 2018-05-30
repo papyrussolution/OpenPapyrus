@@ -1573,6 +1573,7 @@
 #define IDB_BYPRICE               BM_BYPRICE
 #define IDB_BYCASH                BM_BYCASH
 #define IDB_BANKING               BM_BANKING
+#define IDB_BANKINGDISABLED       BM_BANKINGDISABLED
 #define IDB_GDSGRP                BM_GDSGRP
 #define IDB_DEFGRP                BM_DEFGRP
 #define IDB_ENTER                 BM_ENTER
@@ -4324,6 +4325,8 @@
 	#define CTL_DBXCHGCFG_CHARRYF        (7 + WINDOWS_ID_BIAS)
 	#define CTL_DBXCHGCFG_DROP           (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DBXCHGCFG_DROP        (9 + WINDOWS_ID_BIAS)
+	#define CTL_DBXCHGCFG_SPCSGG         (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_DBXCHGCFG_SPCSGG      (11 + WINDOWS_ID_BIAS)
 #define DLG_OBJTAG                340 // Тег объекта
 #define DLG_OBJTAGGRP             341 // Группа тегов
 #define DLG_OBJTAGTYP             342 // Тип тега
@@ -10404,6 +10407,10 @@
 	#define CTL_SELACNBYPHN_PERSON    (5 + WINDOWS_ID_BIAS)
 	#define CTL_SELACNBYPHN_SCARD     (6 + WINDOWS_ID_BIAS)
 	#define CTL_SELACNBYPHN_LOC       (7 + WINDOWS_ID_BIAS)
+#define DLG_CORGSTRUC             1339
+	#define CTL_CORGSTRUC_LOG         (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_CORGSTRUC_LOG      (2 + WINDOWS_ID_BIAS)
+	#define CTL_CORGSTRUC_FLAGS       (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

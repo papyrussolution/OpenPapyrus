@@ -139,6 +139,17 @@ public:
 	int    SLAPI GetRussianEnterpriseList(uint offs, uint count, TSCollection <VetisEnterprise> & rResult);
 	int    SLAPI GetProductItemList(uint offs, uint count, TSCollection <VetisProductItem> & rResult);
 
+	enum {
+		qtProductItemByGuid = 1,
+		qtProductItemByUuid,
+		qtProductByGuid,
+		qtProductByUuid,
+		qtSubProductByGuid,
+		qtSubProductByUuid
+	};
+
+	int    SLAPI GetProductQuery(int queryType, const char * pQueryParam, VetisProductItem & rResult);
+
 	static int SLAPI SetupParam(Param & rP);
 private:
 	class VetisSubmitRequestBlock : public SXmlWriter {
@@ -153,7 +164,7 @@ private:
 	//int    SLAPI PrepareAppReqData(VetisApplicationBlock & rBlk, const void * pAppData);
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
-	int    SLAPI SendSOAP(const char * pAction, const SString & rPack, SString & rReply);
+	int    SLAPI SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply);
 	int    SLAPI MakeAuthField(SString & rBuf);
 	int    SLAPI ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
 	int    SLAPI ParseError(xmlNode * pNode, VetisErrorEntry & rResult);
@@ -314,13 +325,13 @@ int SLAPI PPVetisInterface::MakeAuthField(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPVetisInterface::SendSOAP(const char * pAction, const SString & rPack, SString & rReply)
+int SLAPI PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply)
 {
 	rReply.Z();
 	int    ok = -1;
 	SString temp_buf;
 	ScURL  c;
-	InetUrl url(P_VetisSoapUrl);
+	InetUrl url(NZOR(pUrl, P_VetisSoapUrl));
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf, SFile::mWrite);
@@ -868,7 +879,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 		}
 		xmlTextWriterFlush(srb);
 		rAppBlk.AppData.CopyFromN((char *)((xmlBuffer *)srb)->content, ((xmlBuffer *)srb)->use);
-		THROW(SendSOAP("submitApplicationRequest", rAppBlk.AppData, temp_buf));
+		THROW(SendSOAP(0, "submitApplicationRequest", rAppBlk.AppData, temp_buf));
 		THROW(ParseReply(temp_buf, rResult));
 	}
     CATCHZOK
@@ -877,24 +888,9 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 
 int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
 {
-	/*
-		<soapenv:Envelope 
-			xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-			xmlns:ws="http://api.vetrf.ru/schema/cdm/application/ws-definitions">
-		   <soapenv:Header/>
-		   <soapenv:Body>
-			  <ws:receiveApplicationResultRequest>
-				 <ws:apiKey>YTNmZTUzZDktMzUxNS00NmZkLTk2NmItODBkOTk4ZmRkYTUzZDFlMWM2OTMtZmJkMi00OTEwLWI4YmEtYzQwOGFkYTJlZTZj</ws:apiKey>
-				 <ws:issuerId>d1e1c693-fbd2-4910-b8ba-c408ada2ee6c</ws:issuerId>
-				 <ws:applicationId>3299f1c5-88eb-401f-85f3-4c94d9e23c2b</ws:applicationId>
-			  </ws:receiveApplicationResultRequest>
-		   </soapenv:Body>
-		</soapenv:Envelope>
-	*/
 	int    ok = -1;
 	SString temp_buf;
 	SString reply_buf;
-	PPSoapClientSession sess;
 	THROW(State & stInited);
 	{
 		VetisSubmitRequestBlock srb;
@@ -918,38 +914,80 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 		}
 		xmlTextWriterFlush(srb);
 		reply_buf.CopyFromN((char *)((xmlBuffer *)srb)->content, ((xmlBuffer *)srb)->use);
-		THROW(SendSOAP("receiveApplicationResult", reply_buf, temp_buf));
+		THROW(SendSOAP(0, "receiveApplicationResult", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rResult));
 	}
-#if 0 // {
+    CATCHZOK
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetProductQuery(int queryType, const char * pQueryParam, VetisProductItem & rResult)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString reply_buf;
+	THROW(State & stInited);
+	THROW(!isempty(pQueryParam));
+	THROW(oneof6(queryType, qtProductItemByGuid, qtProductItemByUuid, qtProductByGuid, qtProductByUuid, qtSubProductByGuid, qtSubProductByUuid));
 	{
-		VetisApplicationBlock * p_result = 0; 
-		VETIS_RECEIVEAPPLICATIONRESULT_PROC func = 0;
-		THROW(P_Lib);
-		THROW_SL(func = (VETIS_RECEIVEAPPLICATIONRESULT_PROC)P_Lib->GetProcAddr("Vetsi_ReceiveApplicationResult"));
-		P.GetExtStrData(extssUser, user);
-		P.GetExtStrData(extssPassword, password);
-		P.GetExtStrData(extssApiKey, api_key);
-		sess.Setup(P_VetisSoapUrl, user, password);
+		const char * p_soap_req = 0;
+		const char * p_soap_action = 0;
+		SString param_tag;
+		VetisSubmitRequestBlock srb;
+		switch(queryType) {
+			case qtProductItemByGuid: 
+				p_soap_req = "getProductItemByGuidRequest";
+				p_soap_action = "GetProductItemByGuid";
+				param_tag = SXml::nst("base", "guid");
+				break;
+			case qtProductItemByUuid:
+				p_soap_req = "getProductItemByUuidRequest";
+				p_soap_action = "GetProductItemByUuid";
+				param_tag = SXml::nst("base", "uuid");
+				break;
+			case qtProductByGuid:
+				p_soap_req = "getProductByGuidRequest";
+				p_soap_action = "GetProductByGuid";
+				param_tag = SXml::nst("base", "guid");
+				break;
+			case qtProductByUuid:
+				p_soap_req = "getProductByUuidRequest";
+				p_soap_action = "GetProductByUuid";
+				param_tag = SXml::nst("base", "uuid");
+				break;
+			case qtSubProductByGuid:
+				p_soap_req = "getSubProductByGuidRequest";
+				p_soap_action = "GetSubProductByGuid";
+				param_tag = SXml::nst("base", "guid");
+				break;
+			case qtSubProductByUuid:
+				p_soap_req = "getSubProductByUuidRequest";
+				p_soap_action = "GetSubProductByUuid";
+				param_tag = SXml::nst("base", "uuid");
+				break;
+		}
 		{
-			//VetisApplicationBlock * Vetsi_ReceiveApplicationResult(PPSoapClientSession & rSess, const char * pApiKey, const S_GUID & rIssuerId, const S_GUID & rApplicationId)
-			p_result = func(sess, api_key, P.IssuerUUID, rAppId);
-			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-			rResult = *p_result;
-			//LogResultMsgList(p_result);
-			for(uint erridx = 0; erridx < rResult.ErrList.getCount(); erridx++) {
-				const VetisErrorEntry * p_err_entry = rResult.ErrList.at(erridx);
-				if(p_err_entry) {
-					temp_buf.Z().Cat("vetis error").CatDiv(':', 2).Cat(p_err_entry->Item).CatDiv(';', 2).Cat(p_err_entry->Code).CatDiv(';', 2).Cat(p_err_entry->Qualifier);
-					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					PPLogMessage(PPFILNAM_ERR_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
+			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), "http://schemas.xmlsoap.org/soap/envelope/");
+			n_env.PutAttrib(SXml::nst("xmlns", "v2"), "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2");
+			n_env.PutAttrib(SXml::nst("xmlns", "base"), "http://api.vetrf.ru/schema/cdm/base");
+			n_env.PutAttrib(SXml::nst("xmlns", "v21"), "http://api.vetrf.ru/schema/cdm/dictionary/v2");
+			{
+				SXml::WNode n_hdr(srb, SXml::nst("soapenv", "Header"));
+			}
+			{
+				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
+				{
+					SXml::WNode n_f(srb, SXml::nst("v2", p_soap_req));
+					n_f.PutInner(param_tag, pQueryParam);
 				}
 			}
-			DestroyResult((void **)&p_result);
-			ok = 1;
 		}
+		xmlTextWriterFlush(srb);
+		reply_buf.CopyFromN((char *)((xmlBuffer *)srb)->content, ((xmlBuffer *)srb)->use);
+		THROW(SendSOAP("https://api.vetrf.ru/platform/services/2.0/ProductService", p_soap_action, reply_buf, temp_buf));
+		//THROW(ParseReply(temp_buf, rResult));
 	}
-#endif // } 0
     CATCHZOK
 	return ok;
 }
@@ -957,25 +995,36 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 int SLAPI PPVetisInterface::GetProductItemList(uint offs, uint count, TSCollection <VetisProductItem> & rResult)
 {
 	int    ok = -1;
-	SString user, password, api_key;
-	TSCollection <VetisProductItem> * p_result = 0; 
-	PPSoapClientSession sess;
-	VETIS_GETPRODUCTITEMLIST_PROC func = 0;
+	SString temp_buf;
+	SString reply_buf;
 	THROW(State & stInited);
-	THROW(P_Lib);
-	THROW_SL(func = (VETIS_GETPRODUCTITEMLIST_PROC)P_Lib->GetProcAddr("Vetis_GetProductItemList"));
-	P.GetExtStrData(extssUser, user);
-	P.GetExtStrData(extssPassword, password);
-	sess.Setup(/*P_VetisSoapUrl*/0, user, password);
 	{
-		VetisListOptionsRequest lstopt(VetisApplicationData::signGetProductItemList);
-		lstopt.ListOptions.Count = count;
-		lstopt.ListOptions.Offset = offs;
-		p_result = func(sess, &lstopt, 0);
-		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		TSCollection_Copy(rResult, *p_result);
-		DestroyResult((void **)&p_result);
-		ok = 1;
+		VetisSubmitRequestBlock srb;
+		{
+			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
+			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), "http://schemas.xmlsoap.org/soap/envelope/");
+			n_env.PutAttrib(SXml::nst("xmlns", "v2"), "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2");
+			n_env.PutAttrib(SXml::nst("xmlns", "base"), "http://api.vetrf.ru/schema/cdm/base");
+			n_env.PutAttrib(SXml::nst("xmlns", "v21"), "http://api.vetrf.ru/schema/cdm/dictionary/v2");
+			{
+				SXml::WNode n_hdr(srb, SXml::nst("soapenv", "Header"));
+			}
+			{
+				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
+				{
+					SXml::WNode n_f(srb, SXml::nst("v2", "getProductItemListRequest"));
+					{
+						SXml::WNode n_lo(srb, SXml::nst("base", "listOptions"));
+						n_lo.PutInner(SXml::nst("base", "count"), temp_buf.Z().Cat(count));
+						n_lo.PutInner(SXml::nst("base", "offset"), temp_buf.Z().Cat(offs));
+					}
+				}
+			}
+		}
+		xmlTextWriterFlush(srb);
+		reply_buf.CopyFromN((char *)((xmlBuffer *)srb)->content, ((xmlBuffer *)srb)->use);
+		THROW(SendSOAP("https://api.vetrf.ru/platform/services/2.0/ProductService", "GetProductItemList", reply_buf, temp_buf));
+		//THROW(ParseReply(temp_buf, rResult));
 	}
     CATCHZOK
 	return ok;
@@ -1146,7 +1195,7 @@ int SLAPI TestVetis()
 					req_offs += ent_list.getCount();
 			}
 		}*/
-		/*{
+		{
 			PPGetFilePath(PPPATH_LOG, "vetis_product_list.log", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			uint req_count = 50;
@@ -1163,7 +1212,7 @@ int SLAPI TestVetis()
 				else
 					req_offs += productitem_list.getCount();
 			}
-		}*/
+		}
 	}
 	CATCHZOK
 	return ok;
