@@ -337,7 +337,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSes
 		THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCOREGetOrdersDemo(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 		p_result = PreprocessAnyResult(resp.DRP_USCOREGetOrdersDemoResult->__any);
 	}
-	else if(checkdate(dt, 0)) {
+	else if(checkdate(dt)) {
 		_ns1__DRP_USCOREGetOrdersByDate param;
 		_ns1__DRP_USCOREGetOrdersByDateResponse resp;
 		param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);

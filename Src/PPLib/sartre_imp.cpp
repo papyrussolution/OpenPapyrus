@@ -3050,6 +3050,8 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	SString src_file_name;
 	(src_file_name = P.SrcPath).SetLastSlash().Cat(pFileName); // utf-8
 
+	// 
+
 	SPathStruc ps(src_file_name);
 	ps.Nam.CatChar('-').Cat(pExchangeSymb);
 	ps.Ext = "txt";
@@ -3058,8 +3060,10 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	SFile f_in(src_file_name, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 	{
+		CONCEPTID cid_genusrerum = 0;
 		STokenizer::Item titem;
 		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim|STokenizer::fDivAlNum, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
+		THROW(rDb.SearchConcept("negotiumtaxonomy_genusrerum", &cid_genusrerum));
 		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
 			if(line_no > 1) {
 				line_buf.Chomp().Strip();
@@ -3091,15 +3095,17 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 					line_out_buf.Z().Cat(entry.Ticker);
 					uint   idx_first = 0;
 					uint   idx_count = 0;
+					entry.Name.Utf8ToLower();
 					entry.Name.Decode_XMLENT(temp_buf);
-					if(temp_buf.CmpSuffix("(The)", 1) == 0) {
-						(entry.Name = "The").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
+					if(temp_buf.CmpSuffix("(the)", 1) == 0) {
+						(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
 					}
-					else if(temp_buf.CmpSuffix("(Th", 1) == 0) {
-						(entry.Name = "The").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
+					else if(temp_buf.CmpSuffix("(th", 1) == 0) { // иногда встречается такая ошибка в исходном тексте
+						(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
 					}
 					else
 						entry.Name = temp_buf;
+					tknz.Reset(0);
 					tknz.RunSString(0, 0, entry.Name, &idx_first, &idx_count);
 					line_out_buf.Tab();
 					uint   out_tok_n = 0;
@@ -3119,6 +3125,57 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 									out_tok_n++;
 								}
 							}
+						}
+					}
+					//
+					{
+						STokenizer::ResultPosition rp;
+						STokenizer::ResultPosition last_rp;
+						CONCEPTID last_fc = 0;
+						CONCEPTID fc = 0;
+						uint   srch_idx_first = idx_first;
+						uint   srch_idx_count = idx_count;
+						do {
+							fc = rDb.SearchConceptInTokenizer(cid_genusrerum, tknz, srch_idx_first, srch_idx_count, SrDatabase::tryconceptGeneric, rp);
+							if(fc) {
+								line_out_buf.Cat(" --- ");
+								for(uint tj = rp.Start; tj < rp.Start+rp.Count; tj++) {
+									if(tknz.Get(tj, titem)) {
+										line_out_buf.Cat(titem.Text);
+									}
+								}
+								line_out_buf.CatChar('(').Cat(fc).CatChar(')');
+								last_fc = fc;
+								last_rp = rp;
+								if((rp.Start+rp.Count) == (idx_first+idx_count)) // искомая форма собственности - в конце строки: можно заканчивать.
+									fc = 0;
+								else {
+									srch_idx_count = idx_count - (srch_idx_first-idx_first+1);
+									srch_idx_first = rp.Start+1;
+								}
+							}
+						} while(fc);
+						{
+							uint final_idx_first = idx_first;
+							uint final_idx_count = idx_count;
+							if(last_fc) {
+								final_idx_count = (last_rp.Start - idx_first);
+								while(final_idx_count && tknz.Get(idx_first+final_idx_count-1, titem)) {
+									if(titem.Text == "," || titem.Text == " " || titem.Text == "\t")
+										final_idx_count--;
+									else
+										break;
+								}
+							}
+							line_out_buf.Cat(" !final[");
+							if(final_idx_count) {
+								for(uint tj = final_idx_first; tj < final_idx_first+final_idx_count; tj++) {
+									if(tknz.Get(tj, titem)) {
+										line_out_buf.Cat(titem.Text);
+									}
+								}
+							}
+							line_out_buf.Cat("]");
 						}
 					}
 					f_debug_out.WriteLine(line_out_buf.CR());

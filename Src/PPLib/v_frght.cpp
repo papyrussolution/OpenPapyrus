@@ -374,18 +374,14 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 	int    ok = 1, idx = 0;
 	char   k[MAXKEYLEN];
 	PPInitIterCounter(Counter, P_TmpTbl);
-	if(order == OrdByDefault)
-		idx = 0;
-	else if(order == OrdByBillID)
-		idx = 0;
-	else if(order == OrdByBillDate)
-		idx = 1;
-	else if(order == OrdByArrivalDate)
-		idx = 2;
-	else if(order == OrdByPortName)
-		idx = 3;
-	else if(order == OrdByDlvrAddr)
-		idx = 4;
+	switch(order) {
+		case OrdByDefault: idx = 0; break;
+		case OrdByBillID: idx = 0; break;
+		case OrdByBillDate: idx = 1; break;
+		case OrdByArrivalDate: idx = 2; break;
+		case OrdByPortName: idx = 3; break;
+		case OrdByDlvrAddr: idx = 4; break;
+	}
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TmpTbl, idx));
 	P_IterQuery->selectAll();
@@ -647,12 +643,14 @@ int SLAPI PPViewFreight::UpdateFeatures()
     int    ok = -1;
     PPID   tr_type = PPTRTYP_CAR;
     PPID   ship_id = 0;
+	PPID   captain_id = 0; // @v10.0.11
     long   shipm_flag_mode = -1;
     LDATE  issue_date = ZERODATE;
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
     THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, (void *)tr_type);
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, (void *)PPPRK_CAPTAIN); // @v10.0.11
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
@@ -663,10 +661,11 @@ int SLAPI PPViewFreight::UpdateFeatures()
 	dlg->SetClusterData(CTL_UPDFREIGHT_SHPF, shipm_flag_mode);
 	if(ExecView(dlg) == cmOK) {
 		ship_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_TR);
+		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT); // @v10.0.11
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
-        if(ship_id || checkdate(issue_date, 0) || checkdate(arrival_date, 0) || oneof2(shipm_flag_mode, 0, 1)) {
+        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1)) {
 			PPIDArray bill_list;
 			PPWait(1);
 			{
@@ -686,11 +685,17 @@ int SLAPI PPViewFreight::UpdateFeatures()
 							freight.ShipID = ship_id;
 							do_update |= 1;
                         }
-                        if(checkdate(issue_date, 0) && freight.IssueDate != issue_date) {
+						// @v10.0.11 {
+						if(captain_id && freight.CaptainID != captain_id) {
+							freight.CaptainID = captain_id;
+							do_update |= 1;
+						}
+						// } @v10.0.11 
+                        if(checkdate(issue_date) && freight.IssueDate != issue_date) {
 							freight.IssueDate = issue_date;
 							do_update |= 1;
                         }
-                        if(checkdate(arrival_date, 0) && freight.ArrivalDate != arrival_date) {
+                        if(checkdate(arrival_date) && freight.ArrivalDate != arrival_date) {
 							freight.ArrivalDate = arrival_date;
 							do_update |= 1;
                         }

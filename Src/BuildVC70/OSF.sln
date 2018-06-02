@@ -85,6 +85,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TurboPFor", "TurboPFor.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gnuplot-523", "gnuplot-523.vcproj", "{8DA77E5B-7760-4A13-B149-D618F691E5FA}"
 	ProjectSection(ProjectDependencies) = postProject
+		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 	EndProjectSection
 EndProject
 Global

@@ -51,7 +51,7 @@ int SLAPI CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSe
 		k1.Tm = MAXTIME;
 		if(search(1, &k1, spLt) && data.CashNodeID == cashNodeID) {
 			do {
-				if(data.Incomplete <= incompl && checkdate(data.Dt, 0) && checktime(data.Tm)) {
+				if(data.Incomplete <= incompl && checkdate(data.Dt) && checktime(data.Tm)) {
 					if(!do_skip_current || !(cn_rec.Flags & CASHF_SYNC) || data.ID != cn_rec.CurSessID) {
 						ASSIGN_PTR(pID, data.ID);
 						ASSIGN_PTR(pRec, data);

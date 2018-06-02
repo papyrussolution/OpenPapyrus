@@ -1711,7 +1711,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								tses_ext.destroy();
 								P_TSesObj->GetExtention(tsess_id, &tses_ext);
 								prc_obj.GetExtention(tses_rec.PrcID, &prc_ext);
-								if(prc_ext.GetCipLockTimeout() > 0 && checkdate(tses_rec.StDt, 0)) {
+								if(prc_ext.GetCipLockTimeout() > 0 && checkdate(tses_rec.StDt)) {
 									LDATETIME stdtm;
 									stdtm.Set(tses_rec.StDt, tses_rec.StTm);
 									const long _d = diffdatetimesec(stdtm, _cdtm);
@@ -4423,12 +4423,10 @@ int Backend_SelectObjectBlock::ResolveCrit_Since(const SString & rArg, LDATETIME
 {
 	int    ok = 1;
 	LDATETIME dtm;
-	if(strtodatetime(rArg, &dtm, DATF_DMY, TIMF_HMS) && checkdate(dtm.d, 0)) {
+	if(strtodatetime(rArg, &dtm, DATF_DMY, TIMF_HMS) && checkdate(dtm.d))
 		ok = 1;
-	}
-	else if(strtodatetime(rArg, &dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d, 0)) {
+	else if(strtodatetime(rArg, &dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
 		ok = 1;
-	}
 	else {
 		PPSetError(PPERR_CMDSEL_INVSINCECRIT, rArg);
 		ok = 0;
@@ -4717,7 +4715,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						case cDate:
 							{
 								LDATE dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
-								THROW_SL(checkdate(dt, 0));
+								THROW_SL(checkdate(dt));
 								P_BillF->Period.SetDate(dt);
 							}
 							break;
@@ -4789,7 +4787,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						case cDate:
 							{
 								P_DtGrF->Dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
-								THROW_SL(checkdate(P_DtGrF->Dt, 0));
+								THROW_SL(checkdate(P_DtGrF->Dt));
 							}
 							break;
 						case cLocation:
@@ -4822,7 +4820,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					switch(criterion) {
 						case cDate:
 							P_SetBlk->U.B.Dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
-							THROW_SL(checkdate(P_SetBlk->U.B.Dt, 0));
+							THROW_SL(checkdate(P_SetBlk->U.B.Dt));
 							break;
 						case cOp:
 							THROW(ResolveCrit_OprKind(subcriterion, rArg, &P_SetBlk->U.B.OpID));

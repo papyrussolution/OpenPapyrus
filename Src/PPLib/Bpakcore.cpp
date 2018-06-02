@@ -478,7 +478,7 @@ int FASTCALL PPBill::GetLastPayDate(LDATE * pDt) const
 int SLAPI PPBill::AddPayDate(LDATE dt, double amount)
 {
 	int    ok = 1;
-	if(checkdate(dt, 0)) {
+	if(checkdate(dt)) {
 		PayPlanTbl::Rec rec;
 		MEMSZERO(rec);
 		rec.BillID  = Rec.ID;
@@ -1305,7 +1305,7 @@ int SLAPI PPBillPacket::GenerateGuid(S_GUID * pGuid)
 {
 	int    ok = 1;
 	S_GUID guid;
-	THROW(guid.Generate());
+	THROW_SL(guid.Generate());
 	THROW(SetGuid(guid));
 	CATCHZOK
 	ASSIGN_PTR(pGuid, guid);
@@ -1425,10 +1425,9 @@ LDATE SLAPI PPBillPacket::CalcDefaultPayDate(int paymTerm, long paymDateBase) co
 				}
 				break;
 		}
-		if(!checkdate(base_date, 0)) {
+		if(!checkdate(base_date))
 			base_date = Rec.Dt;
-		}
-		if(checkdate(base_date, 0))
+		if(checkdate(base_date))
 			paym_date = plusdate(base_date, paymTerm);
 	}
 	return paym_date;

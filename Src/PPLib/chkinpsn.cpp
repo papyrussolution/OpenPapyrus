@@ -993,7 +993,7 @@ private:
 				getCtrlData(CTL_CHKINP_CIDT,  &Data.CiDtm.d);
 				getCtrlData(CTL_CHKINP_CITM,  &Data.CiDtm.t);
 				if(status == PPCheckInPersonItem::statusCheckedIn) {
-					if(!checkdate(Data.CiDtm.d, 0)) {
+					if(!checkdate(Data.CiDtm.d)) {
 						Data.CiDtm = getcurdatetime_();
 						setCtrlData(CTL_CHKINP_CIDT,  &Data.CiDtm.d);
 						setCtrlData(CTL_CHKINP_CITM,  &Data.CiDtm.t);

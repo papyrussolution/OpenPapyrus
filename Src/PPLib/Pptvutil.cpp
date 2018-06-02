@@ -631,7 +631,7 @@ SLAPI DateAddDialogParam::DateAddDialogParam() : BaseDate(ZERODATE), Period(PRD_
 
 int SLAPI DateAddDialogParam::Recalc()
 {
-	if(!checkdate(BaseDate, 0))
+	if(!checkdate(BaseDate))
 		BaseDate = getcurdate_();
 	LDATE   td = BaseDate;
 	plusperiod(&td, Period, PeriodCount, 0);

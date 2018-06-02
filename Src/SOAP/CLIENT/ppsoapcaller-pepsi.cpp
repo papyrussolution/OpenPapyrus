@@ -98,7 +98,7 @@ static char * FASTCALL GetDynamicParamString(double rval, long fmt, TSCollection
 static char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InParamString> & rPool)
 {
 	SString temp_buf;
-	if(checkdate(dval, 0))
+	if(checkdate(dval))
 		temp_buf.Cat(dval, fmt);
 	else
 		temp_buf.Z();
@@ -108,7 +108,7 @@ static char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection 
 static char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSCollection <InParamString> & rPool)
 {
 	SString temp_buf;
-	if(checkdate(dtval.d, 0))
+	if(checkdate(dtval.d))
 		temp_buf.Cat(dtval, dfmt, tfmt);
 	else
 		temp_buf.Z();

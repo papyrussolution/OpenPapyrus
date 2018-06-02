@@ -2428,10 +2428,12 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 	STokenizer::Item titem;
 	STokenizer::Item titem_prev;
 	STokenizer::Item titem_next;
-	for(uint tidx = idxFirst; tidx <= idxLast; tidx++) {
+	SrNGram sng;
+	TSVector <NGID> ng_list;
+	for(uint tidx = idxFirst; !result_cid && tidx <= idxLast; tidx++) {
 		if(rT.Get(tidx, titem) && !(titem.Token == STokenizer::tokDelim && (titem.Text == " " || titem.Text == "\n"))) {
 			LEXID  word_id = 0;
-			if(titem.Token == STokenizer::tokWord && FetchWord(titem.Text, &word_id) > 0) {
+			if(titem.Token == STokenizer::tokWord) {
 				wa_list.clear();
 				wi_list.clear();
 				{
@@ -2457,18 +2459,21 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 							break;
 					}
 					if(synth_word_count > 1 && synth_word.NotEmpty() && synth_word != titem.Text) {
-						GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
-						for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
-							const SrWordInfo & r_wi = wi_list.at(wiidx);
-							if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
-								result_cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
-								rR.Start = tidx;
-								rR.Count = tidx2-tidx;
+						LEXID synth_word_id = 0;
+						if(FetchWord(synth_word, &synth_word_id) > 0) {
+							GetBaseWordInfo(synth_word_id, 0, 0, wa_list, wi_list);
+							for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
+								const SrWordInfo & r_wi = wi_list.at(wiidx);
+								if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
+									result_cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
+									rR.Start = tidx;
+									rR.Count = tidx2-tidx;
+								}
 							}
 						}
 					}
 				}
-				if(!result_cid) {
+				if(!result_cid && FetchWord(titem.Text, &word_id) > 0) {
 					GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
 					for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
 						const SrWordInfo & r_wi = wi_list.at(wiidx);
@@ -2486,12 +2491,63 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 							}
 						}
 					}
-				}
-				if(!result_cid) {
+					if(!result_cid) {
+						ng_list.clear();
+						sng.WordIdList.Z().add(word_id);
+						if(P_NgT->SearchByPrefix(sng, ng_list) > 0) {
+							SrNGramCollection sng_list;
+							for(uint i = 0; i < ng_list.getCount(); i++) {
+								SrNGram * p_ng = sng_list.CreateNewItem();
+								THROW_SL(p_ng);
+								THROW(P_NgT->Search(ng_list.at(i), p_ng) > 0); // Не может такого быть, что этой n-граммы не было (мы только что ее нашли)
+							}
+							sng_list.SortByLength();
+							const  uint local_preserve_tidx = tidx;
+							uint   _c = sng_list.getCount();
+							if(_c) do {
+								SrNGram * p_ng = sng_list.at(--_c);
+								THROW(p_ng->WordIdList.get(0) == word_id);
+								int    is_match = 1;
+								tidx = local_preserve_tidx;
+								for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
+									const LEXID ng_word_id = p_ng->WordIdList.get(j);
+									if(rT.Get(++tidx, titem)) {
+										if(titem.Token == STokenizer::tokWord) {
+											LEXID next_word_id = 0;
+											if(FetchWord(titem.Text, &next_word_id) > 0 && next_word_id == ng_word_id) {
+												; // ok
+											}
+											else
+												is_match = 0; // break loop
+										}
+										else if(titem.Token == STokenizer::tokDelim) {
+											if(titem.Text == " " || titem.Text == "\t" || titem.Text == "\n")
+												continue;
+											else
+												is_match = 0; // break loop
+										}
+									}
+								}
+								if(is_match) {
+									CONCEPTID cid = TryNgForConcept(p_ng->ID, targetCID, tryconceptGeneric);
+									if(cid) {
+										assert(tidx >= local_preserve_tidx);
+										result_cid = cid;
+										rR.Start = local_preserve_tidx;
+										rR.Count = (tidx - local_preserve_tidx + 1);
+									}
+								}
+							} while(!result_cid && _c);
+							tidx = local_preserve_tidx;
+						}
+					}
 				}
 			}
 		}
 	}
+	CATCH
+		result_cid = 0;
+	ENDCATCH
 	return result_cid;
 }
 

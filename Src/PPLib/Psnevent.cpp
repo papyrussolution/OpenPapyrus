@@ -63,9 +63,9 @@ int SLAPI PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod
 	BExtQuery * q = new BExtQuery(this, 3);
 	DBQ * dbq = &(this->PersonID == prmrPersonID);
 	if(pPeriod) {
-		if(checkdate(pPeriod->low, 0))
+		if(checkdate(pPeriod->low))
             dbq = &(*dbq && this->Dt >= pPeriod->low);
-		if(checkdate(pPeriod->upp, 0))
+		if(checkdate(pPeriod->upp))
 			dbq = &(*dbq && this->Dt <= pPeriod->upp);
 	}
 	q->selectAll().where(*dbq);
@@ -1731,7 +1731,7 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 	}
 	getCtrlData(CTL_PSNEVNT_DATE,    &Pack.Rec.Dt);
 	getCtrlData(CTL_PSNEVNT_TIME,    &Pack.Rec.Tm);
-	THROW_SL(checkdate(Pack.Rec.Dt, 0));
+	THROW_SL(checkdate(Pack.Rec.Dt));
 	getCtrlData(CTL_PSNEVNT_MEMO,    Pack.Rec.Memo);
 	if(P.ExValGrp == POKEVG_POST)
 		getCtrlData(CTLSEL_PSNEVNT_POST, &Pack.Rec.Extra);

@@ -364,7 +364,7 @@ DateRange & FASTCALL DateRange::Set(const DateRange * pSrc)
 int DateRange::SetPeriod(LDATE dt, int prd)
 {
 	int    ok = 1;
-	if(checkdate(dt, 0)) {
+	if(checkdate(dt)) {
 		if(prd == PRD_DAY) {
 			Set(dt, dt);
 		}

@@ -1231,9 +1231,8 @@ void GoodsDialog::SetupAddedInfo()
 				} while(!last_sell_date && r_t.search(3, &k3, spLt) && r_t.data.GoodsID == goods_id);
 				PPLoadString("lastselldate", title_buf);
                 title_buf.CatDiv(':', 2);
-                if(checkdate(last_sell_date, 0)) {
+                if(checkdate(last_sell_date))
 					title_buf.Cat(last_sell_date, DATF_DMY|DATF_CENTURY);
-                }
                 else {
 					PPLoadString("no", temp_buf);
 					title_buf.Cat(temp_buf);

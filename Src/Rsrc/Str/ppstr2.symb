@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147490853
+LastSignatureCode=2147490864
 LastAutoCodeList=1,11197;102,10164;103,10071;110,10000;111,11686;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10087;120,10005;1001,10000;121,10000;122,10000;123,10320;1002,10000;1003,10000;1004,10000;1005,10000;124,10081
 
 [SignatureList]
@@ -1863,7 +1863,7 @@ bill_billf2_recadv_accp=2147486827
 bill_billno=2147484622
 bill_bnkpaymmethod=2147486914
 bill_bnkqueueing=2147486915
-bill_captainid=2147486403
+bill_captain=2147490859
 bill_code=2147484623
 bill_freightcost=2147487670
 bill_crate=2147484624
@@ -5821,6 +5821,7 @@ uicfg_wndvkdefault=2147489430
 uicfg_wndvkflat=2147489431
 uicfg_wndvkvector=2147489432
 uicfg_wndvkfancy=2147489433
+bill_captainid=2147486403
 cfgvatbookbuy_acctgbasis=2147485286
 cfgvatbookbuy_acctgbasisatperiod=2147485287
 cfgvatbookbuy_hfd_invcdate=2147485289

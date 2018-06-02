@@ -158,7 +158,7 @@ SLAPI SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEv
 #endif
 	// @v9.8.1 LastThread.Assign(0);
 	ExtraProcBlk.Reset();
-	SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
+	SessUuid.Generate(); // Генерируем абсолютно уникальный id сессии.
 	TlsIdx = TlsAlloc();
 	InitThread();
 }

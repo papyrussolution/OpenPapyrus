@@ -152,7 +152,7 @@ int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTLSEL_CSESS_CASHNODE, &rec.CashNodeID);
 		dlg->GetClusterData(CTL_CSESS_INCOMPL, &rec.Incomplete);
 		rec.Temporary = BIN(dlg->getCtrlUInt16(CTL_CSESS_TEMP));
-		if(!checkdate(rec.Dt, 0))
+		if(!checkdate(rec.Dt))
 			PPErrorByDialog(dlg, CTL_CSESS_DATE, PPERR_SLIB);
 		else if(!checktime(rec.Tm))
 			PPErrorByDialog(dlg, CTL_CSESS_TIME, PPERR_SLIB);
@@ -1134,7 +1134,7 @@ void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDurat
 	Status = 0;
 	PrepayAmount = 0.0;
 	Memo.Z();
-	if(checkdate(initDtm.d, 0))
+	if(checkdate(initDtm.d))
 		Chunk.Init(initDtm, initDuration);
 	else {
 		LDATETIME dtm = getcurdatetime_();
@@ -1311,7 +1311,7 @@ private:
 				}
 				else if(event.isCtlEvent(CTL_CTBLORD_STDT)) {
 					const LDATE dt = getCtrlDate(CTL_CTBLORD_STDT);
-					if(checkdate(dt, 0)) {
+					if(checkdate(dt)) {
 						Data.Chunk.Start.d = dt;
 						if(!Data.Chunk.Finish.d || diffdate(Data.Chunk.Finish.d, dt) != 1) {
 							Data.Chunk.Finish.d = dt;
@@ -1321,7 +1321,7 @@ private:
 				}
 				else if(event.isCtlEvent(CTL_CTBLORD_FNDT)) {
 					const LDATE dt = getCtrlDate(CTL_CTBLORD_FNDT);
-					if(checkdate(dt, 0)) {
+					if(checkdate(dt)) {
 						Data.Chunk.Finish.d = dt;
 						if(!Data.Chunk.Start.d || diffdate(dt, Data.Chunk.Start.d) != 1) {
 							Data.Chunk.Start.d = dt;
@@ -1335,7 +1335,7 @@ private:
 					if(checktime(dtm.t)) {
 						Data.Chunk.Start.t = dtm.t;
 						dtm.d = getCtrlDate(CTL_CTBLORD_STDT);
-						if(checkdate(dtm.d, 0)) {
+						if(checkdate(dtm.d)) {
 							long cont = getCtrlLong(CTL_CTBLORD_CONT);
 							if(cont > 0) {
 								Data.Chunk.Init(dtm, cont * 60);
@@ -1350,7 +1350,7 @@ private:
 					if(checktime(dtm.t)) {
 						Data.Chunk.Finish.t = dtm.t;
 						dtm.d = getCtrlDate(CTL_CTBLORD_FNDT);
-						if(checkdate(dtm.d, 0)) {
+						if(checkdate(dtm.d)) {
 							//STimeChunk checkdatetime
 							Data.Chunk.Finish = dtm;
 							getCtrlDatetime(CTL_CTBLORD_STDT, CTL_CTBLORD_STTM, Data.Chunk.Start);
@@ -1363,7 +1363,7 @@ private:
 					LDATETIME dtm;
 					getCtrlDatetime(CTL_CTBLORD_STDT, CTL_CTBLORD_STTM, dtm);
 					long cont = getCtrlLong(CTL_CTBLORD_CONT);
-					if(checkdate(dtm.d, 0) && checktime(dtm.t)) {
+					if(checkdate(dtm.d) && checktime(dtm.t)) {
 						Data.Chunk.Init(dtm, cont * 60);
 						setCtrlDatetime(CTL_CTBLORD_FNDT, CTL_CTBLORD_FNTM, Data.Chunk.Finish);
 					}

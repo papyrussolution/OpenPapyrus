@@ -1369,7 +1369,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
                     if(ord_num.NotEmptyS()) {
 						log_msg.Strip();
 						LDATE   temp_dt = ZERODATE;
-						if(strtodate(log_msg, DATF_DMY, &temp_dt) && checkdate(temp_dt, 0))
+						if(strtodate(log_msg, DATF_DMY, &temp_dt) && checkdate(temp_dt))
                             ord_dt = temp_dt;
 						else
 							ord_num = 0;
@@ -1878,7 +1878,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 												LDATE  last_pay_date = ZERODATE;
 												P_BObj->P_Tbl->GetLastPayDate(bill_id, &last_pay_date);
 												sdr_saldo_doc.PaymentDate = last_pay_date;
-												sdr_saldo_doc.OverduePeriod = checkdate(last_pay_date, 0) ? diffdate(_curdt, last_pay_date) : 0;
+												sdr_saldo_doc.OverduePeriod = checkdate(last_pay_date) ? diffdate(_curdt, last_pay_date) : 0;
 											}
 											{
 												double payment = 0.0;
@@ -2893,9 +2893,9 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
 	ISALESGETORDERLIST_PROC func = 0;
 	DateRange period = P.ExpPeriod;
-	if(!checkdate(period.low, 0))
+	if(!checkdate(period.low))
 		period.low = encodedate(1, 1, 2016);
-	if(!checkdate(period.upp, 0))
+	if(!checkdate(period.upp))
 		period.upp = encodedate(31, 12, 2030);
 	SString tech_buf;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
@@ -2949,7 +2949,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.EdiDesadvOpID, 0, loc_id, 1));
 					pack.SetupObject(ar_id, sob);
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
-					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d, 0) ? p_src_pack->Dtm.d : getcurdate_();
+					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
 					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 						;
@@ -3092,8 +3092,8 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 						loc_id = loc_rec.ID;
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, loc_id, 1));
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
-					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d, 0) ? p_src_pack->Dtm.d : getcurdate_();
-					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d, 0) ? p_src_pack->IncDtm.d : ZERODATE; // @v9.2.6
+					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
+					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE; // @v9.2.6
 					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					if(_src_psn_id && ArObj.P_Tbl->PersonToArticle(_src_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
 						if(!pack.SetupObject(ar_id, sob)) {
@@ -3684,7 +3684,7 @@ void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString
 	if(*p == ' ') {
 		SString temp_buf;
 		dt = strtodate_(p, DATF_GERMAN);
-		if(!checkdate(dt, 0))
+		if(!checkdate(dt))
 			dt = ZERODATE;
 	}
 	ASSIGN_PTR(pDate, dt);
@@ -3802,7 +3802,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					// @v9.3.10 {
 					LDATE   prev_date;
 					Helper_Parse_iSalesIdent(cancel_code, temp_buf, &prev_date);
-					if(temp_buf.NotEmptyS() && checkdate(prev_date, 0)) {
+					if(temp_buf.NotEmptyS() && checkdate(prev_date)) {
 						p_new_pack->Code = temp_buf;
 						p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 						// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
@@ -4518,9 +4518,9 @@ int SLAPI SapEfes::ReceiveOrders()
 
 	DateRange period;
 	period = P.ExpPeriod;
-	if(!checkdate(period.low, 0))
+	if(!checkdate(period.low))
 		period.low = encodedate(1, 12, 2016);
-	if(!checkdate(period.upp, 0))
+	if(!checkdate(period.upp))
 		period.upp = encodedate(31, 12, 2017);
 	SString tech_buf;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
@@ -4558,7 +4558,7 @@ int SLAPI SapEfes::ReceiveOrders()
 			PPIDArray person_list;
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const SapEfesOrder * p_src_pack = p_result->at(i);
-				if(!p_src_pack || !checkdate(p_src_pack->Date.d, 0)) {
+				if(!p_src_pack || !checkdate(p_src_pack->Date.d)) {
 					if(p_src_pack)
 						THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // Ошибка
 				}
@@ -4576,7 +4576,7 @@ int SLAPI SapEfes::ReceiveOrders()
 					PPBillPacket::SetupObjectBlock sob;
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, loc_id, 1));
 					pack.Rec.Dt = p_src_pack->Date.d;
-					if(checkdate(p_src_pack->DueDate, 0)) {
+					if(checkdate(p_src_pack->DueDate)) {
 						pack.Rec.Dt = p_src_pack->DueDate;
 						pack.Rec.DueDate = p_src_pack->DueDate;
 					}
@@ -5617,7 +5617,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
 	sess.Setup(SvcUrl, UserName, Password);
 	// @v10.0.1 {
-	if(checkdate(P.ExpPeriod.low, 0) && P.ExpPeriod.upp == P.ExpPeriod.low) {
+	if(checkdate(P.ExpPeriod.low) && P.ExpPeriod.upp == P.ExpPeriod.low) {
 		query_date = P.ExpPeriod.low;
 	}
 	// } @v10.0.1
@@ -5682,8 +5682,8 @@ int SLAPI SfaHeineken::ReceiveOrders()
 					PPID   ex_bill_id = 0;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;
-					THROW(pack.CreateBlank2(acfg.Hdr.OpID, checkdate(p_src_pack->Dtm.d, 0) ? p_src_pack->Dtm.d : getcurdate_(), wh_id, 1));
-					pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d, 0) ? p_src_pack->DlvrDtm.d : ZERODATE;
+					THROW(pack.CreateBlank2(acfg.Hdr.OpID, checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_(), wh_id, 1));
+					pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d) ? p_src_pack->DlvrDtm.d : ZERODATE;
 					//
 					sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 					if(!pack.SetupObject(ar_id, sob)) {

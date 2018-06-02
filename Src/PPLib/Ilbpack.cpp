@@ -2172,7 +2172,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			if(pos >= 0 && pos < (long)LocPeriodList.getCount()) {
 				BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(pos);
 				LDATE dt = getCtrlDate(CTL_TDEFICIT_DATE);
-				if(!checkdate(dt, 0)) {
+				if(!checkdate(dt)) {
 					PPError(PPERR_SLIB);
 				}
 				else {

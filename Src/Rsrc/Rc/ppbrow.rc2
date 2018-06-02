@@ -4675,8 +4675,9 @@ browser FREIGHT north(100), 2, 1, "Фрахт", OWNER|GRID, 0
 	"@memo",            15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  TBBM_BILLS,          "@{document}\tEnter"
-		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
 		EDITBILLFREIGHT   : kbCtrlF4, TBBM_TRANSPORT,      "@{freight}\tCtrl-F4"
+		separator
+		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
 		separator
 		EXPORT            : kbCtrlR,   TBBM_EXPORT,   "@{exportbills}\tCtrl-R"
 		TOTAL             : kbF9,      TBBM_SIGM,     "@{totals}\tF9"
@@ -4715,8 +4716,9 @@ browser FREIGHT_LAGG north(100), 2, 1, "Фрахт", OWNER|GRID, 0
 	"@memo",           15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  TBBM_BILLS,    "@{document}\tEnter"
-		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
 		EDITBILLFREIGHT   : kbCtrlF4, TBBM_TRANSPORT,      "@{freight}\tCtrl-F4"
+		separator
+		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
 		separator
 		EXPORT            : kbCtrlR,   TBBM_EXPORT,   "@{exportbills}\tCtrl-R"
 		TOTAL             : kbF9,      TBBM_SIGM,     "@{totals}\tF9"

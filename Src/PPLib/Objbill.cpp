@@ -416,7 +416,7 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 	if(pPack) {
 		// CheckOpFlags PPOPKF_NEEDPAYM
 		if(!(flags & vpfFreightOnly)) {
-			THROW_SL(checkdate(pPack->Rec.Dt, 0));
+			THROW_SL(checkdate(pPack->Rec.Dt));
 			THROW_SL(checkdate(pPack->Rec.DueDate, 1));
 		}
 		if(pPack->Rec.OpID) // Для теневого документа не проверяем период доступа
@@ -441,7 +441,7 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CODE) || temp_buf.NotEmpty(), PPERR_BILLSTCHECKFLD_CODE);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_AGENT) || pPack->Ext.AgentID, PPERR_BILLSTCHECKFLD_AGENT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
-					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DUEDATE) || checkdate(pPack->Rec.DueDate, 0), PPERR_BILLSTCHECKFLD_DUEDATE);
+					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DUEDATE) || checkdate(pPack->Rec.DueDate), PPERR_BILLSTCHECKFLD_DUEDATE);
 				}
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 					const PPFreight * p_fr = pPack->P_Freight;
@@ -892,7 +892,7 @@ static int SLAPI _EditCcByBillParam(_CcByBillParam & rParam)
 			f.SyncGroup = 1; // only sync nodes
 			SetupPPObjCombo(dlg, CTLSEL_CCBYBILL_POSNODE, PPOBJ_CASHNODE, rParam.PosNodeID, 0, &f);
 		}
-		// } @v10.0.0 
+		// } @v10.0.0
         dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE,  0, cpmCash);
         dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE,  1, cpmBank);
         dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
@@ -1060,9 +1060,15 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 						}
 					}
 					else if(pack.OpTypeID == PPOPT_ACCTURN) {
+						double bill_amount = pack.GetAmount();
+						int    is_ret = 0;
+						if(bill_amount < 0.0) {
+							is_ret = 1;
+							bill_amount = -bill_amount;
+						}
 						if(prepay_goods_id) {
 							double qtty = 1.0;
-							double n_pr = pack.GetAmount();
+							double n_pr = bill_amount;
 							THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
 							cc_amount += R2(n_pr * qtty);
 						}
@@ -1072,6 +1078,8 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 							cp._Cash = cc_amount;
 							if(param.PaymType == cpmBank)
 								cp.Rec.Flags |= CCHKF_BANKING;
+							if(is_ret)
+								cp.Rec.Flags |= CCHKF_RETURN;
 							ok = p_cm->SyncPrintCheck(&cp, 1);
 						}
 					}
@@ -1165,11 +1173,11 @@ int SLAPI PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec,
 		LDATETIME since;
 		since.Set(ev_cr.Dt, ev_cr.Tm);
 		if(p_sj->GetNextObjEvent(Obj, billID, &acn_list, since, &ev_mod) > 0) {
-			ObjVersioningCore * p_ovc = PPRef->P_OvT; 
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				long   vv = 0;
-				SBuffer ov_buf; 
+				SBuffer ov_buf;
 				PPObjID oid;
 				oid.Set(0, 0);
 				ov_buf.Clear();
@@ -1344,7 +1352,7 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 		else {
 			THROW(pack.CreateBlank(pParam->OpID, 0, loc_id, 1));
 		}
-		if(checkdate(pParam->Dt, 0)) {
+		if(checkdate(pParam->Dt)) {
 			LDATE   new_bill_dt = pParam->Dt;
 			new_bill_dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
@@ -1430,7 +1438,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 		else {
 			THROW(pack.CreateBlank(pParam->OpID, 0, loc_id, 1));
 		}
-		if(checkdate(pParam->Dt, 0)) {
+		if(checkdate(pParam->Dt)) {
 			LDATE new_bill_dt = pParam->Dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
 		}
@@ -1454,7 +1462,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 				PPTransferItem new_ti(&pack.Rec, TISIGN_UNDEF);
 				THROW(new_ti.SetupGoods(labs(p_ti->GoodsID)));
 				// @v9.9.6 (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)
-				if(p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder))) 
+				if(p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)))
 					trfr->GetRest(p_ti->LotID, pack.Rec.Dt, &qtty);
 				else
 					qtty = p_ti->Quantity_;
@@ -2842,10 +2850,10 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
 	//
 	SVerT Ver;                // @anchor
-	PPID   ContractRegTypeID;  // 
-	PPID   MnfCountryLotTagID; // 
-	LDATE  LowDebtCalcDate;    // 
-	uint8  Reserve2[20];       // @reserve 
+	PPID   ContractRegTypeID;  //
+	PPID   MnfCountryLotTagID; //
+	LDATE  LowDebtCalcDate;    //
+	uint8  Reserve2[20];       // @reserve
 };
 
 const char * BillAddFilesFolder = "BillAddFilesFolder";
@@ -5789,7 +5797,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 		if(force == 2)
 			pPack->LTagL.Release();
 		// } @v10.0.0
-		if(pPack->LTagL.GetCount() == 0) { 
+		if(pPack->LTagL.GetCount() == 0) {
 			SBuffer sbuf;
 			if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, sbuf) > 0) {
 				SSerializeContext sctx;
@@ -5822,7 +5830,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 		}
 	}
 	// } @v8.5.5
-	else if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) { 
+	else if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
 		// @v9.1.5 PPOPT_GOODSORDER // @v10.0.0 else
 		PPTransferItem * p_ti;
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
@@ -7261,7 +7269,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				pPack->ErrLine = i-1;
 				const long preserve_tflags = p_ti->TFlags;
 				THROW(p_ti->Init(&pPack->Rec, /*full_update*/0));
-				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfForceNew, preserve_tflags); 
+				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfForceNew, preserve_tflags);
 				if(full_update)
 					p_ti->TFlags |= (PPTransferItem::tfForceReplace|PPTransferItem::tfForceNew);
 			}
@@ -7767,7 +7775,7 @@ int SLAPI PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 			if(IsMemberOfPool(pPack->Rec.ID, PPASS_TSESSBILLPOOL, &pool_id) > 0) {
 				PPObjTSession tses_obj;
 				TSessionTbl::Rec tses_rec;
-				if(tses_obj.Search(pool_id, &tses_rec) > 0 && pPack->Rec.Flags & BILLF_TSESSWROFF) { 
+				if(tses_obj.Search(pool_id, &tses_rec) > 0 && pPack->Rec.Flags & BILLF_TSESSWROFF) {
 					pPack->Amounts.Put(PPAMT_POOLAMOUNT, 0, tses_rec.Amount, 1, 1);
 					ok = 1;
 				}
@@ -7994,7 +8002,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 		if(pPack->OpTypeID == PPOPT_INVENTORY && fl & BPLD_LOADINVLINES) {
 			THROW(LoadInventoryArray(id, pPack->InvList));
 		}
-		// } @v9.9.12 
+		// } @v9.9.12
 	}
 	{
 		PPBillPacket::SetupObjectBlock sob;
@@ -8545,7 +8553,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							}
 							break;
 						case PPSYM_INVOICEDATE:
-							if(checkdate(pk->Ext.InvoiceDate, 0))
+							if(checkdate(pk->Ext.InvoiceDate))
 								subst_buf.Cat(pk->Ext.InvoiceDate, DATF_DMY);
 							else
 								subst_buf.Cat(pk->Rec.Dt, DATF_DMY);

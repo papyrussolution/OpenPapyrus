@@ -1498,7 +1498,7 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 						else if(base_typ == BTS_DATE) {
 							LDATE dval = ZERODATE;
 							sttobase(typ, rDynRec.GetDataC(dynFldN), &dval);
-							if(checkdate(dval, 0)) {
+							if(checkdate(dval)) {
 								tag_item.SetDate(tag_id, dval);
 								r = 1;
 							}
@@ -2569,11 +2569,8 @@ int SLAPI PPBillImporter::Import(int useTa)
 							int    upp_inited = 0;
 							PPTransferItem ti(&pack.Rec, TISIGN_UNDEF);
 							ti.GoodsID  = r_row.GoodsID;
-							// @v8.4.6 { перенесено из @01
 							ti.Cost     = r_row.Cost;
 							ti.Price    = r_row.Price;
-							// } @v8.4.6
-							// @v8.4.6 {
 							if(r_row.LotID > 0) {
 								ReceiptTbl::Rec temp_lot_rec;
 								const int lot_id_exists = BIN(P_BObj->trfr->Rcpt.Search(r_row.LotID, &temp_lot_rec) > 0);
@@ -2589,8 +2586,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 									}
 								}
 							}
-							// } @v8.4.6
-							if(checkdate(r_row.Expiry, 0))
+							if(checkdate(r_row.Expiry))
 								ti.Expiry = r_row.Expiry;
 							if(is_draft_rcpt || (ti.Flags & PPTFR_RECEIPT)) {
 								if(r_row.UnitPerPack > 0.0)
@@ -2615,8 +2611,6 @@ int SLAPI PPBillImporter::Import(int useTa)
 								if(upp > 0.0)
 									ti.Quantity_ = fabs(r_row.PckgQtty * upp);
 							}
-							// @v8.4.6 (@01 перенесено выше) ti.Cost     = r_row.Cost;
-							// @v8.4.6 (@01 перенесено выше) ti.Price    = r_row.Price;
 							THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0));
 							//
 							// Обработка сертификата качества.
@@ -3109,12 +3103,12 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			if(pBill->InvoiceCode[0]) {
 				STRNSCPY(pPack->Ext.InvoiceCode, pBill->InvoiceCode);
 			}
-			if(checkdate(pBill->InvoiceDate, 0))
+			if(checkdate(pBill->InvoiceDate))
 				pPack->Ext.InvoiceDate = pBill->InvoiceDate;
 			pPack->Rec.Amount  = pBill->Amount;
 			pPack->Rec.CurID   = pBill->CurID;
 			pPack->Rec.CRate   = pBill->CRate;
-			if(checkdate(pBill->PaymDate, 0) && pBill->Amount)
+			if(checkdate(pBill->PaymDate) && pBill->Amount)
 				pPack->SetPayDate(pBill->PaymDate, pBill->Amount);
 			STRNSCPY(pPack->Rec.Memo, (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER));
 			(temp_buf = pPack->Rec.Code).Transf(CTRANSF_OUTER_TO_INNER);
@@ -3306,7 +3300,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 							}
 							else if(p_pack->DocType == PPEDIOP_RECADV) {
 								PPEdiProcessor::RecadvPacket * p_recadv_pack = (PPEdiProcessor::RecadvPacket *)p_pack->P_Data;
-								if(p_recadv_pack && p_recadv_pack->DesadvBillCode.NotEmpty() && checkdate(p_recadv_pack->DesadvBillDate, 0)) {
+								if(p_recadv_pack && p_recadv_pack->DesadvBillCode.NotEmpty() && checkdate(p_recadv_pack->DesadvBillDate)) {
 									PPID   desadv_bill_id = 0;
 									BillTbl::Rec desadv_bill_rec;
 									BillTbl::Rec desadv_bill_rec_pattern;
@@ -5017,7 +5011,7 @@ int SLAPI Generator_DocNalogRu::GetAgreementParams(PPID arID, SString & rAgtCode
 			if(ArObj.GetClientAgreement(arID, &cli_agt, 0) > 0) {
 				if(!isempty(cli_agt.Code)) {
 					rAgtCode = cli_agt.Code;
-					if(checkdate(cli_agt.BegDt, 0))
+					if(checkdate(cli_agt.BegDt))
 						rAgtDate = cli_agt.BegDt;
 					rAgtExpiry = cli_agt.Expiry;
 					ok = 1;
@@ -5182,13 +5176,13 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 										n_481.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 										n_481.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 									}
-									if(checkdate(agt_date, 0)) {
+									if(checkdate(agt_date)) {
 										SXml::WNode n_482(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 										temp_buf = g.GetToken(PPHSC_RU_CONTRACTDATE);
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 									}
-									if(checkdate(agt_expiry, 0)) {
+									if(checkdate(agt_expiry)) {
 										SXml::WNode n_483(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 										temp_buf = g.GetToken(PPHSC_RU_PERIOD);
 										n_483.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
@@ -5449,13 +5443,13 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 							n_1.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 							n_1.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 						}
-						if(checkdate(agt_date, 0)) {
+						if(checkdate(agt_date)) {
 							SXml::WNode n_2(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 							temp_buf = g.GetToken(PPHSC_RU_CONTRACTDATE);
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 						}
-						if(checkdate(agt_expiry, 0)) {
+						if(checkdate(agt_expiry)) {
 							SXml::WNode n_3(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 							temp_buf = g.GetToken(PPHSC_RU_PERIOD);
 							n_3.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
@@ -5482,7 +5476,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 							temp_buf = g.GetToken(PPHSC_RU_CONTRACT);
 							n_11.PutAttrib("НаимОсн", temp_buf);
 							n_11.PutAttrib("НомОсн", g.EncText(agt_code));
-							temp_buf.Z().Cat(checkdate(agt_date, 0) ? agt_date : encodedate(1, 1, 2017), DATF_GERMAN|DATF_CENTURY);
+							temp_buf.Z().Cat(checkdate(agt_date) ? agt_date : encodedate(1, 1, 2017), DATF_GERMAN|DATF_CENTURY);
 							n_11.PutAttrib("ДатаОсн", g.EncText(temp_buf));
 						}
 						else {

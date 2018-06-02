@@ -3151,7 +3151,7 @@ int SLAPI Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 	THROW_PP(rRec.RelID != 0, PPERR_QII_ZEROREL);
 	THROW_PP(SearchByID(&RelT, 0, rRec.RelID, &rel_rec) > 0, PPERR_QII_NEXISTREL);
 	THROW_PP(rRec.GoodsID != 0, PPERR_QII_ZEROGOODS);
-	THROW_SL(checkdate(rRec.Dt, 0));
+	THROW_SL(checkdate(rRec.Dt));
 	THROW_SL(checktime(rRec.Tm));
 	THROW_PP(oneof2(rRec.Actual, 0, 1), PPERR_QII_INVACTUAL);
 	THROW_PP((rRec.Flags & ~PPQuot::fDbMask) == 0, PPERR_QII_INVFLAGS);

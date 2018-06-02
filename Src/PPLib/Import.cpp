@@ -3490,10 +3490,10 @@ int SLAPI PrcssrPersonImport::Run()
 					}
 				}
 				// @v9.8.0 {
-				if(checkdate(rec.DOB, 0)) {
+				if(checkdate(rec.DOB)) {
 					const ObjTagItem * p_tag_item = pack.TagL.GetItem(PPTAG_PERSON_DOB);
 					LDATE   ex_dob = ZERODATE;
-					if(!p_tag_item || !p_tag_item->GetDate(&ex_dob) || !checkdate(ex_dob, 0)) {
+					if(!p_tag_item || !p_tag_item->GetDate(&ex_dob) || !checkdate(ex_dob)) {
 						ObjTagItem new_dob_tag_item;
 						if(new_dob_tag_item.SetDate(PPTAG_PERSON_DOB, rec.DOB) && pack.TagL.PutItem(PPTAG_PERSON_DOB, &new_dob_tag_item)) {
 							do_turn = 1;
@@ -4898,7 +4898,7 @@ int FiasImporter::Import(int inpObject)
 				}
 			}
 		}
-		if(file_name.NotEmpty() && checkdate(max_date, 0)) {
+		if(file_name.NotEmpty() && checkdate(max_date)) {
 			xmlSAXHandler saxh_addr_obj;
 			MEMSZERO(saxh_addr_obj);
 			saxh_addr_obj.startDocument = Scb_StartDocument;

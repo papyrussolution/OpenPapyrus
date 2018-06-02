@@ -2692,21 +2692,19 @@ enum set_encoding_id {
  *	OS2_IPC  ... the OS/2 shared memory + event semaphores approach
  *	PIPE_IPC ... communication by using bidirectional pipe
  */
-
-
 /*
  * OS2_IPC: gnuplot's terminals communicate with it by shared memory + event
  * semaphores => the code in gpexecute.c is used, and nothing more from here.
  */
-
 /* options handling */
 enum {
 	UNSET = -1,
 	no = 0,
 	yes = 1
 };
-
-/* Variables of term.c needed by other modules: */
+//
+// Variables of term.c needed by other modules: 
+//
 extern GpTermEntry * term; /* the terminal info structure, being the heart of the whole module */
 extern char term_options[]; /* Options string of the currently used terminal driver */
 extern int curr_arrow_headlength; /* access head length + angle without changing API */
@@ -2736,10 +2734,10 @@ extern const GenTable set_encoding_tbl[]; /* parsing table for encodings */
 // extern bool term_initialised; /* mouse module needs this */
 // The qt and wxt terminals cannot be used in the same session.
 // Whichever one is used first to plot, this locks out the other.
-extern void *term_interlock;
+extern void * term_interlock;
 // Support for enhanced text mode.
 extern char  enhanced_text[];
-extern char *enhanced_cur_text;
+extern char * enhanced_cur_text;
 extern double enhanced_fontscale;
 //
 // give array size to allow the use of sizeof

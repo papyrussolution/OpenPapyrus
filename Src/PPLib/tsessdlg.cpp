@@ -1744,7 +1744,7 @@ int TSessLineDialog::getDTS(TSessLineTbl::Rec * pData)
 	Data.Price    = getCtrlReal(CTL_TSESSLN_PRICE);
 	Data.Discount = getCtrlReal(CTL_TSESSLN_DSCNT);
 	getCtrlData(sel = CTL_TSESSLN_DT, &Data.Dt);
-	THROW_SL(checkdate(Data.Dt, 0));
+	THROW_SL(checkdate(Data.Dt));
 	getCtrlData(CTL_TSESSLN_TM, &Data.Tm);
 	getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
 	ASSIGN_PTR(pData, Data);

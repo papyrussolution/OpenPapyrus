@@ -262,7 +262,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 								}
 							}
 						}
-						if(result_list.getCount() && checkdate(last_rep_date, 0)) {
+						if(result_list.getCount() && checkdate(last_rep_date)) {
 							uint   i;
 							PPIDArray suppl_list;
 							result_list.sort(PTR_CMPFUNC(_2long));

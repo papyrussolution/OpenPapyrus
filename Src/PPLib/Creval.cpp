@@ -64,7 +64,7 @@ int CRevalDialog::getDTS(CurRevalParam * pData)
 	uint   i, sel = 0;
 	PPID * p_acc_id = 0;
 	getCtrlData(CTL_CREVAL_DT, &Data.Dt);
-	THROW_SL(checkdate(Data.Dt, 0));
+	THROW_SL(checkdate(Data.Dt));
 	getCtrlData(sel = CTLSEL_CREVAL_LOC, &Data.LocID);
 	THROW_PP(Data.LocID, PPERR_LOCNEEDED);
 	THROW(r = getAcc(sel = CTL_CREVAL_CORRACC, &Data.CorrAcc));
@@ -124,7 +124,7 @@ IMPL_HANDLE_EVENT(CRevalDialog)
 		else if(TVCMD == cmReleasedFocus || TVCMD == cmCommitInput)
 			if(TVINFOVIEW->TestId(CTL_CREVAL_DT)) {
 				const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
-				if(checkdate(dt, 0)) {
+				if(checkdate(dt)) {
 					Data.Dt = dt;
 					setupCRateList(0, 0);
 				}

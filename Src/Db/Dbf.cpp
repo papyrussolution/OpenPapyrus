@@ -609,7 +609,7 @@ int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepa
 	int    d = 0, m = 0, y = 0;
 	LDATE  cur_dt = getcurdate_();
 	// @v9.3.5 {
-	if(!checkdate(cur_dt, 0))
+	if(!checkdate(cur_dt))
 		cur_dt = encodedate(1, 1, 2016);
 	// } @v9.3.5
 	close();

@@ -211,7 +211,7 @@ int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 int SXml::WNode::PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt)
 {
 	int    ok = -1;
-	if(checkdate(dt, 0)) {
+	if(checkdate(dt)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		ok = PutInner(pInnerName, r_temp_buf.Cat(dt, fmt));
 	}

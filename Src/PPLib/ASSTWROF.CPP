@@ -206,7 +206,7 @@ int SLAPI PrcssrAssetDeprec::EditParam(Param * pData)
 		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_GGRP,    PPOBJ_GOODSGROUP, pData->GoodsGrpID,  OLW_CANSELUPLEVEL);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			dlg->getCtrlData(CTL_ASSTREVAL_DT, &pData->Dt);
-			if(!checkdate(pData->Dt, 0))
+			if(!checkdate(pData->Dt))
 				PPErrorByDialog(dlg, CTL_ASSTREVAL_DT, PPERR_SLIB);
 			else {
 				dlg->getCtrlData(CTL_ASSTREVAL_OPRKIND, &pData->RevalOpID);

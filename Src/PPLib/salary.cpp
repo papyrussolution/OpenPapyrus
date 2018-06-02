@@ -15,8 +15,8 @@ int SLAPI SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 	int    ok = 1;
 	if(pRec) {
 		THROW(pRec->ID >= 0);
-		THROW_SL(checkdate(pRec->Beg, 0));
-		THROW_SL(checkdate(pRec->End, 0));
+		THROW_SL(checkdate(pRec->Beg));
+		THROW_SL(checkdate(pRec->End));
 		THROW(pRec->Beg <= pRec->End); // @todo @errorcode
 		THROW(pRec->PostID > 0 && pRec->PostID < 0x00ffffffL);
 		THROW(pRec->SalChargeID > 0 && pRec->SalChargeID < 0x00ffffffL);
@@ -1813,7 +1813,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 		else
 			dt = P.NominalPeriod.low;
 		period.SetDate(dt);
-		if(checkdate(dt, 0)) {
+		if(checkdate(dt)) {
 			double _v = 0.0;
 			switch(descr.FuncId) {
 				case funcLastMonth: _v = -30.; break;
@@ -1943,7 +1943,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 			}
 			else
 				upp = P.NominalPeriod.low;
-			if(!checkdate(low, 0) || !checkdate(upp, 0)) {
+			if(!checkdate(low) || !checkdate(upp)) {
 				PPLoadText(PPTXT_LOG_PRCSALINVDATE, fmt_buf);
 				Logger.Log(msg_buf.Printf(fmt_buf, "diffx(date[, date])"));
 			}

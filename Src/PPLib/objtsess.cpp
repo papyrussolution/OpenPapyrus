@@ -1552,7 +1552,7 @@ int SLAPI PPObjTSession::AdjustTiming(const TSessionTbl::Rec & rSessRec, const S
 	rResult = rChunk;
 	int    ok = -1;
 	long   timing = 0;
-	if(checkdate(rChunk.Start.d, 0) && checkdate(rChunk.Finish.d, 0)) {
+	if(checkdate(rChunk.Start.d) && checkdate(rChunk.Finish.d)) {
 		int    plus_one_day = 0;
 		TechTbl::Rec tec_rec;
 		if(GetTech(rSessRec.TechID, &tec_rec, 1) > 0 && tec_rec.GoodsID) {
@@ -3580,7 +3580,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 							else if(line_rec.Sign < 0 && op_type_id != PPOPT_GOODSEXPEND)
 								continue;
 						ilti.Setup(line_rec.GoodsID, line_rec.Sign, line_rec.Qtty, 0, 0);
-						if(checkdate(line_rec.Expiry, 0))
+						if(checkdate(line_rec.Expiry))
 							ilti.Expiry = line_rec.Expiry;
 						if(line_rec.Sign > 0)
 							ilti.Flags |= PPTFR_RECEIPT;

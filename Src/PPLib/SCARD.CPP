@@ -205,7 +205,7 @@ int SLAPI SCardCore::UpdateExpiryDelta(PPID id, long delta, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(SearchByID(this, PPOBJ_SCARD, id, &rec) > 0) {
-			if(checkdate(rec.Expiry, 0)) {
+			if(checkdate(rec.Expiry)) {
                 rec.Expiry = plusdate(rec.Expiry, delta);
                 THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(updateRecBuf(&rec)); // @sfu

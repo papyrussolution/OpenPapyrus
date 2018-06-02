@@ -2211,7 +2211,7 @@ int SLAPI TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 	}
 	else if(typ == OTTYP_DATE) {
 		dlg->getCtrlData(ValDateCtl, &val.dtm.d);
-		THROW_SL(checkdate(val.dtm.d, 0));
+		THROW_SL(checkdate(val.dtm.d));
 		pItem->Val.DtVal = val.dtm.d;
 	}
 	else if(typ == OTTYP_TIMESTAMP) {
@@ -2495,15 +2495,12 @@ public:
 					THROW_PP(P_AllowedTags->lsearch(p_item->TagID) <= 0, PPERR_INVTAGID);
 			}
 			if(getCtrlView(CTL_TAGVALVIEW_UPD)) {
-				long   _mode = GetClusterData(CTL_TAGVALVIEW_UPD);
-				if(_mode == 1)
-					UpdateMode = ObjTagList::mumAdd;
-				else if(_mode == 2)
-					UpdateMode = (ObjTagList::mumAdd|ObjTagList::mumUpdate);
-				else if(_mode == 3)
-					UpdateMode = ObjTagList::mumRemove;
-				else
-					UpdateMode = ObjTagList::mumAdd;
+				switch(GetClusterData(CTL_TAGVALVIEW_UPD)) {
+					case 1: UpdateMode = ObjTagList::mumAdd; break;
+					case 2: UpdateMode = (ObjTagList::mumAdd|ObjTagList::mumUpdate); break;
+					case 3: UpdateMode = ObjTagList::mumRemove; break;
+					default: UpdateMode = ObjTagList::mumAdd; break;
+				}
 			}
 			pData->List = Data;
 			pData->UpdateMode = UpdateMode;
@@ -3251,11 +3248,8 @@ int PPObjTag::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 
 int PPObjTag::DirtyTag(PPID objType, PPID objID, PPID tagID)
 {
-	int    ok = 1;
 	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (PPOBJ_TAG);
-	if(p_cache)
-		ok = p_cache->DirtyTag(objType, objID, tagID);
-	return ok;
+	return p_cache ? p_cache->DirtyTag(objType, objID, tagID) : 1;
 }
 //
 // Implementation of PPALDD_TagType

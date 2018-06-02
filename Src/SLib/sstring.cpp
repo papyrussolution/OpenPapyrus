@@ -556,7 +556,7 @@ int SLAPI SStrScan::GetDate(long datefmt, LDATE & rDate)
 		SString temp_buf;
 		Get(temp_buf);
 		strtodate(temp_buf, datefmt, &temp_date);
-		if(checkdate(temp_date, 0)) {
+		if(checkdate(temp_date)) {
 			rDate = temp_date;
 			IncrLen();
 			ok = 1;
@@ -6315,14 +6315,13 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 }
 
 int SLAPI STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
-{
-	return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount));
-}
-
+	{ return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount)); }
 uint SLAPI STokenizer::GetCommCount() const
-{
-	return CL.getCount();
-}
+	{ return CL.getCount(); }
+uint SLAPI STokenizer::GetCount() const
+	{ return L.getCount(); }
+int SLAPI STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
+	{ return T.CalcStat(rStat); }
 
 int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
 {
@@ -6339,20 +6338,10 @@ int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
 		return 0;
 }
 
-uint SLAPI STokenizer::GetCount() const
-{
-	return L.getCount();
-}
-
 int SLAPI STokenizer::GetTextById(uint txtId, SString & rBuf) const
 {
 	rBuf.Z();
 	return T.Get(txtId, rBuf);
-}
-
-int SLAPI STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
-{
-	return T.CalcStat(rStat);
 }
 
 int SLAPI STokenizer::Get(uint idx, STokenizer::Item & rItem) const
@@ -6436,15 +6425,15 @@ static int FASTCALL _ProbeDate(const SString & rText)
 {
 	int    ok = 0;
 	LDATE  probe_dt = strtodate_(rText, DATF_DMY);
-	if(checkdate(probe_dt, 0))
+	if(checkdate(probe_dt))
 		ok = 1;
 	else {
 		probe_dt = strtodate_(rText, DATF_MDY);
-		if(checkdate(probe_dt, 0))
+		if(checkdate(probe_dt))
 			ok = 1;
 		else {
 			probe_dt = strtodate_(rText, DATF_YMD);
-			if(checkdate(probe_dt, 0))
+			if(checkdate(probe_dt))
 				ok = 1;
 		}
 	}

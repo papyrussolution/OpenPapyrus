@@ -3970,7 +3970,7 @@ int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 		}
 		{
 			long   shelf_life = 0;
-			if(checkdate(pScalePLU->Expiry, 0)) {
+			if(checkdate(pScalePLU->Expiry)) {
 				shelf_life = diffdate(pScalePLU->Expiry, getcurdate_());
 				if(shelf_life < 0)
 					shelf_life = 0;

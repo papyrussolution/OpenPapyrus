@@ -1384,7 +1384,7 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			THROW_PP(Data.LocID, PPERR_LOCNEEDED);
 			getCtrlData(sel = CTL_IEINV_DATE, &Data.Dt);
 			SETIFZ(Data.Dt, getcurdate_());
-			THROW_SL(checkdate(Data.Dt, 0));
+			THROW_SL(checkdate(Data.Dt));
 			ASSIGN_PTR(pData, Data);
 			CATCH
 				ok = PPErrorByDialog(this, sel);

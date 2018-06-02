@@ -146,7 +146,7 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 	Data.CRate    = ca_rec.CRate;
 	selectCtrl(CTL_ATURN_AMOUNT);
 	getCtrlData(sel = CTL_ATURN_DATE, &Data.Date);
-	THROW_SL(checkdate(Data.Date, 0));
+	THROW_SL(checkdate(Data.Date));
 	sel = 0;
 	getCtrlData(CTL_ATURN_DOC,  Data.BillCode);
 	THROW(AccObj.SearchCur(Data.DbtID.ac, Data.CurID, &dbt_acc_id, 0) > 0);
@@ -1690,7 +1690,7 @@ int BillDialog::calcDate(uint ctlID)
 {
 	int    ok = -1;
 	LDATE  dt = getCtrlDate(CTL_BILL_DATE);
-	if(checkdate(dt, 0)) {
+	if(checkdate(dt)) {
 		SString input_buf;
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTNUMDAYS, isd_param.InputTitle);
@@ -2818,7 +2818,7 @@ int BillDialog::getDTS(int onCancel)
 	if(P_Pack->Pays.getCount() <= 1) {
 		P_Pack->Pays.freeAll();
 		if(getCtrlData(CTL_BILL_PAYDATE, &(dt = ZERODATE)) && dt) {
-			THROW_SL(checkdate(dt, 0));
+			THROW_SL(checkdate(dt));
 			P_Pack->AddPayDate(dt, amt);
 		}
 	}

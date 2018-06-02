@@ -1341,7 +1341,7 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 						if(ExecView(dlg) == cmOK) {
 							ushort v = dlg->getCtrlUInt16(CTL_PLISTUPD_SEL);
 							plist_date = dlg->getCtrlDate(CTL_PLISTUPD_DT);
-							if(!checkdate(plist_date, 0))
+							if(!checkdate(plist_date))
 								plist_date = getcurdate_();
 							PPWait(1);
 							if(!UpdatePriceList(plist_date, (v == 1), 1))

@@ -2534,7 +2534,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 					(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
 					STRNSCPY(item.Code, temp_buf); // @v9.4.11
 					sdr_bill.ID      = item.ID;
-					sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate, 0)) ? item.DueDate : item.Dt;
+					sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate)) ? item.DueDate : item.Dt;
 					sdr_bill.Article = item.Object;
 					sdr_bill.OpID    = item.OpID;
 					STRNSCPY(sdr_bill.Code, item.Code);
@@ -4640,7 +4640,7 @@ int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, 
 			br_bill.GetStr(0, beid, sizeof(beid));
 			br_bill.GetStr(1, bdate, sizeof(bdate));
 			strtodate(bdate, DATF_DMY, &be_dt);
-			if(!checkdate(be_dt, 0))
+			if(!checkdate(be_dt))
 				be_dt = getcurdate_();
 			THROW(b_pack.CreateBlank(pBhtRec->ExpendOpID, 0, 0, 0))
 			b_pack.Rec.Dt = be_dt;

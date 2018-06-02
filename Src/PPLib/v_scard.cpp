@@ -1349,7 +1349,7 @@ static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * p
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			pData->Action = dlg->GetClusterData(CTL_SCCHRGCRD_WHAT);
 			dlg->getCtrlData(CTL_SCCHRGCRD_DATE, &pData->Dt);
-			if(!checkdate(pData->Dt, 0))
+			if(!checkdate(pData->Dt))
 				PPErrorByDialog(dlg, CTL_SCCHRGCRD_DATE, PPERR_SLIB);
 			else {
 				dlg->getCtrlData(CTL_SCCHRGCRD_AMOUNT, &pData->Amount);
@@ -2173,7 +2173,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 								new_expiry_date = param.DtEnd.getactual(rec.Expiry);
 							}
 						}
-						if(checkdate(new_expiry_date, 0) && new_expiry_date != rec.Expiry) {
+						if(checkdate(new_expiry_date) && new_expiry_date != rec.Expiry) {
 							rec.Expiry = new_expiry_date;
 							rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 							upd = 1;
@@ -2692,7 +2692,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 					setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_FRZPERIOD)) {
-					if(checkdate(OrgExpiry, 0)) {
+					if(checkdate(OrgExpiry)) {
 						long org_delta = 0;
 						if(D.Flags & D.fEdit && SCardCore::OpBlock::CheckFreezingPeriod(OrgFreezingPeriod, ZERODATE)) {
 							org_delta = OrgFreezingPeriod.GetLength() + 1;
@@ -2743,7 +2743,7 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 		SCardTbl::Rec sc_rec;
 		THROW(SCObj.CheckRights(SCRDRT_ADDOPS));
 		THROW(SCObj.Search(Filt.SCardID, &sc_rec) > 0);
-		THROW_PP(!freezing || checkdate(sc_rec.Expiry, 0), PPERR_SCOPFRZONZEXPIRY);
+		THROW_PP(!freezing || checkdate(sc_rec.Expiry), PPERR_SCOPFRZONZEXPIRY);
 		{
 			SCardCore::OpBlock blk;
 			blk.Dtm = getcurdatetime_();

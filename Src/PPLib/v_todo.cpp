@@ -126,7 +126,7 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 			case prpDueDtm:
 				{
 					LDATETIME dtm = *(LDATETIME*)pVal;
-					if(checkdate(dtm.d, 0)) {
+					if(checkdate(dtm.d)) {
 						if(dtm.t == ZEROTIME)
 							dtm.t = encodetime(23, 59, 59, 0);
 						temp_buf.Cat(dtm.d, DATF_ISO8601|DATF_NODIV|DATF_CENTURY);

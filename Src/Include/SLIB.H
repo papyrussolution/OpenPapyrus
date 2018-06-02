@@ -4467,7 +4467,15 @@ void   FASTCALL decodedate(int *, int *, int *, const void *);
 void   SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
 void   SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, LDATETIME *);
 int    FASTCALL checkdate(const void * pBinDate);
+//
+// Descr: Проверяет корректность даты dt. Если dt == ZERODATE и параметр zeroIsOk != 0,
+//   то возвращает !0 (считает, что дата валидна).
+//
 int    FASTCALL checkdate(LDATE dt, int zeroIsOk);
+//
+// Descr: Проверяет корректность даты dt. Если dt == ZERODATE то возвращает 0 (считает, что дата не валидна).
+//
+int    FASTCALL checkdate(LDATE dt);
 int    FASTCALL checktime(LTIME tm);
 //
 //

@@ -263,7 +263,7 @@ int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 		dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
 		while(ok != cmOK && ExecView(dlg) == cmOK) {
 			LDATE   dt = dlg->getCtrlDate(CTL_NEWDAY_DATE);
-			if(checkdate(dt, 0)) {
+			if(checkdate(dt)) {
 				if(dt == getcurdate_() || CONFIRM(PPCFG_POSDATNEQCURRENT)) {
 					ok = cmOK;
 					*pDt = dt;

@@ -764,6 +764,17 @@ int FASTCALL checkdate(LDATE dt, int zeroIsOk)
 		return zeroIsOk ? 1 : 0;
 	//return ((!dt && zeroIsOk) || _checkdate(dt.day(), dt.month(), dt.year()));
 }
+
+int FASTCALL checkdate(LDATE dt)
+{
+	if(dt) {
+		int    d, m, y;
+		_decodedate(&d, &m, &y, &dt, DF_BTRIEVE);
+		return _checkdate(d, m, y);
+	}
+	else
+		return 0;
+}
 //
 //
 //
@@ -1363,7 +1374,7 @@ LDATE LDATE::operator = (double od)
 
 time_t SLAPI LDATE::GetTimeT() const
 {
-	if(!checkdate(*this, 0))
+	if(!checkdate(*this))
 		return 0;
 	else {
 		struct tm _t;
@@ -1434,7 +1445,7 @@ int LDATE::getclass() const
 		return cZero;
 	else if(year() & 0x8000 || year() & 0x4000 || year() & 0x2000 || month() & 0x80 || day() & 0x80)
 		return cSpecial;
-	else if(checkdate(*this, 0))
+	else if(checkdate(*this))
 		return cNormal;
 	else
 		return cInvalid;
@@ -1734,7 +1745,7 @@ int CALDATE::SetDayOfWeek(int dayOfWeek) { return (dayOfWeek >= 1 && dayOfWeek <
 int CALDATE::SetCalDate(int day, int mon)
 {
 	const LDATE temp_date = encodedate(day, mon, 2000);
-	return checkdate(temp_date, 0) ? ((*this = encodedate(day, mon, 0).v), 1) : 0;
+	return checkdate(temp_date) ? ((*this = encodedate(day, mon, 0).v), 1) : 0;
 }
 //
 //
@@ -2382,7 +2393,7 @@ LDATE DateRepIterator::Next()
 				break;
 		}
 		Count++;
-		Cur = (!checkdate(result, 0) || (MaxCount && Count > MaxCount) || (End && result > End)) ? ZERODATE : result;
+		Cur = (!checkdate(result) || (MaxCount && Count > MaxCount) || (End && result > End)) ? ZERODATE : result;
 	}
 	return Cur;
 }

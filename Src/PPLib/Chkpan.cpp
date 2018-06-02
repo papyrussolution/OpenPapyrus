@@ -908,7 +908,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 		CCheckViewItem item;
 		for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
 			if(!(item.Flags & (CCHKF_SKIP|CCHKF_CLOSEDORDER))) {
-				if(!checkdate(lastDate, 0) || item.OrderTime.Start.d == lastDate || item.OrderTime.Finish.d == lastDate)
+				if(!checkdate(lastDate) || item.OrderTime.Start.d == lastDate || item.OrderTime.Finish.d == lastDate)
 					rList.insert(&item);
 			}
 		}
@@ -3517,13 +3517,18 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking && !(Flags & fLockBankPaym)) { // @v10.0.10 !(Flags & fLockBankPaym)
 		rBlk.Kind = cpmBank;
 	}
+	/* @v10.0.11
 	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE) || 
 		(!(Flags & fLockBankPaym) && !unified_paym_interface)) { // @v10.0.10 (!(Flags & fLockBankPaym) && !unified_paym_interface)
 		rBlk.Kind = cpmCash;
 	}
-	else if(unified_paym_interface) {
+	*/
+	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE))
+		rBlk.Kind = cpmCash;
+	else if(unified_paym_interface)
 		rBlk.Kind = cpmUndef;
-	}
+	else if(Flags & fLockBankPaym) // @v10.0.11
+		rBlk.Kind = cpmCash;
 	else if(interactive) {
 		if(SelectorDialog(DLG_CHKPAYM, CTL_CHKPAYM_METHOD, &v) > 0) {
 			if(v == 0)
@@ -5175,7 +5180,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 		long   fmt_id = getCtrlLong(CTL_SELCHECK_FORMAT);
 		getCtrlData(sel = CTL_SELCHECK_DATE, &dt);
 		THROW_PP(dt || (State & stSelectFormat), PPERR_CHKDATENEEDED);
-		THROW_SL(checkdate(dt, 0));
+		THROW_SL(checkdate(dt));
 		if(fmt_id) {
 			StrAssocArray::Item fmt_item = FmtList.Get((uint)(fmt_id - 1));
 			if(fmt_item.Txt[0])
@@ -8990,7 +8995,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					if(p_dob_tag) {
 						LDATE  dob = ZERODATE;
 						p_dob_tag->GetDate(&dob);
-						if(checkdate(dob, 0)) {
+						if(checkdate(dob)) {
 							LDATE curdt = getcurdate_();
 							int years = curdt.year() - dob.year();
 							curdt.setyear(dob.year());
@@ -9109,7 +9114,7 @@ int SCardInfoDialog::setupList()
 			ss.add(card_code);
 			ss.add(ser_name);
 			temp_buf.Z();
-			if(checkdate(expiry, 0))
+			if(checkdate(expiry))
 				temp_buf.Cat(expiry);
 			ss.add(temp_buf);
 			THROW(addStringToList(card_id, ss.getBuf()));

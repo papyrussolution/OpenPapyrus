@@ -194,7 +194,7 @@ int SLAPI GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LD
 {
 	int    ok = -1;
 	if(State & stAccumulation) {
-		if(checkdate(dt, 0)) {
+		if(checkdate(dt)) {
 			GoodsRestEntry new_entry;
 			new_entry.GoodsID = goodsID;
 			new_entry.LocID = locID;

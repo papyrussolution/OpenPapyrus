@@ -1190,7 +1190,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 										ObjTagItem tag_item;
 										if(PPRef->Ot.GetTag(PPOBJ_PERSON, info.Rec.PersonID, PPTAG_PERSON_DOB, &tag_item) > 0) {
 											LDATE   dob = ZERODATE;
-											if(tag_item.GetDate(&dob) && checkdate(dob, 0))
+											if(tag_item.GetDate(&dob) && checkdate(dob))
 												p_writer->AddAttrib("birth-date", info.PsnName);
 										}
 									}

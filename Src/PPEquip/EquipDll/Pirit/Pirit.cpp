@@ -802,7 +802,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				else if(s_param == "VATFREEAMOUNT")
 					blk.VatFreeAmt = R2(param_val.ToReal());
 			}
-			if(!checkdate(blk.Dt, 0))
+			if(!checkdate(blk.Dt))
 				blk.Dt = getcurdate_();
 			{
 				int    correction_type = 0;

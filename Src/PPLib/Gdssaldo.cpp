@@ -316,9 +316,8 @@ IMPL_CMPFUNC(GArSEntry, i1, i2) { RET_CMPCASCADE4((const GArSEntry *)i1, (const 
 int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
 {
 	int    ok = 1;
-	if(checkdate(dt, 0)) {
+	if(checkdate(dt)) {
 		uint pos = 0;
-
 		GArSEntry key_entry;
 		double prev_total_qtty = 0.0;
 		double prev_total_amt = 0.0;
@@ -379,9 +378,9 @@ int SLAPI PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const 
     if(goodsID && arID) {
 		SString msg_buf, fmt_buf;
 		if(pPeriod) {
-			if(!checkdate(pPeriod->upp, 0))
+			if(!checkdate(pPeriod->upp))
 				period.upp = getcurdate_();
-			if(!checkdate(pPeriod->low, 0))
+			if(!checkdate(pPeriod->low))
 				period.low = plusdate(period.upp, -180);
 		}
 		else {
@@ -482,7 +481,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 		// Это необходимо для того, чтобы при вычислении сальдо по клиенту, для которого было
 		// мало операций не перечислять все с начала времен, а считать от этой самой даты.
 		//
-		if(!checkdate(last_date, 0))
+		if(!checkdate(last_date))
 			last_date = end_date;
 		THROW(SetupItem(goods_id, 0, 0, last_date, 0.0, 0.0, list));
 		//

@@ -6103,7 +6103,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	//
 	int   merge_line_tax_alg = 1;
 	const PPCommConfig & r_ccfg = CConfig;
-	if(checkdate(r_ccfg._InvcMergeTaxCalcAlg2Since, 0) && p_pack->Rec.Dt >= r_ccfg._InvcMergeTaxCalcAlg2Since) {
+	if(checkdate(r_ccfg._InvcMergeTaxCalcAlg2Since) && p_pack->Rec.Dt >= r_ccfg._InvcMergeTaxCalcAlg2Since) {
 		merge_line_tax_alg = 2;
 	}
 	//

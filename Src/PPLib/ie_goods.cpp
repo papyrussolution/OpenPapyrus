@@ -1233,11 +1233,8 @@ private:
 	PPObjWorld WObj;
 };
 
-SLAPI PPGoodsImporter::PPGoodsImporter()
+SLAPI PPGoodsImporter::PPGoodsImporter() : P_IE(0), IsHier(0), UseTaxes(1)
 {
-	P_IE     = 0;
-	IsHier   = 0;
-	UseTaxes = 1;
 }
 
 SLAPI PPGoodsImporter::~PPGoodsImporter()
@@ -1323,10 +1320,8 @@ private:
 	SString TempBuf; // @allocreuse
 };
 
-SLAPI TextFieldAnalyzer::TextFieldAnalyzer() : Words(100000, 1)
+SLAPI TextFieldAnalyzer::TextFieldAnalyzer() : Words(100000, 1), ReInit(0), LastWordId(0)
 {
-	ReInit = 0;
-	LastWordId = 0;
 	PPLoadCommonUnits(&Units);
 	PPLoadText(PPTXT_GOODSPREFIXES_RUS, Prefixes);
 }
@@ -1881,23 +1876,21 @@ int SLAPI PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char
 		pPack->Stock.Package = rRec.PckgQtty;
 	else if(rRec.UnitsPerPack > 0.0)
 		pPack->Stock.Package = rRec.UnitsPerPack;
-	// @v8.6.4 {
 	if(rRec.MinShippmQtty > 0.0) {
 		pPack->Stock.MinShippmQtty = rRec.MinShippmQtty;
 		if(rRec.MultMinShippm)
 			pPack->Stock.GseFlags |= GoodsStockExt::fMultMinShipm;
 	}
-	// } @v8.6.4
 	THROW(AssignClassif(rRec, pPack));
-	AssignEgaisCode(rRec, pPack, rLogger); // @v8.8.3
+	AssignEgaisCode(rRec, pPack, rLogger);
 	CATCHZOK
 	return ok;
 }
 
 static int _IsTrueString(const char * pStr)
 {
-	if(!isempty(pStr) && (sstreqi_ascii(pStr, "Yes") || sstreqi_ascii(pStr, "Y") ||
-		sstreqi_ascii(pStr, "True") || sstreqi_ascii(pStr, "T") || sstreqi_ascii(pStr, ".T.")))
+	if(!isempty(pStr) && (sstreqi_ascii(pStr, "yes") || sstreqi_ascii(pStr, "Y") ||
+		sstreqi_ascii(pStr, "true") || sstreqi_ascii(pStr, "T") || sstreqi_ascii(pStr, ".T.")))
 		return 1;
 	else
 		return 0;
@@ -2187,6 +2180,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					{
 						set_path.SetLastSlash().Cat("imagelist.txt");
 						SFile listf(set_path, SFile::mWrite);
+						Goods2Tbl::Rec goods_rec;
 						blk.List.sort(CMPF_LONG);
 						{
 							PPTransaction tra(1);
@@ -2197,17 +2191,14 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								blk.GetS(r_entry.FnP, temp_buf2);
 								line_buf.Cat(temp_buf2).CR();
 								listf.WriteLine(line_buf);
-								{
-									Goods2Tbl::Rec goods_rec;
-									if(GObj.Search(r_entry.GoodsID, &goods_rec) > 0) {
-										ObjLinkFiles _lf(PPOBJ_GOODS);
-										THROW(_lf.Load(r_entry.GoodsID, 0L));
-										if(!_lf.At(0, temp_buf2) || !fileExists(temp_buf2)) {
-											blk.GetS(r_entry.FnP, temp_buf2);
-											THROW(_lf.Replace(0, temp_buf2));
-											THROW(_lf.Save(r_entry.GoodsID, 0L));
-											THROW(GObj.UpdateFlags(r_entry.GoodsID, GF_HASIMAGES, 0, 0));
-										}
+								if(GObj.Search(r_entry.GoodsID, &goods_rec) > 0) {
+									ObjLinkFiles _lf(PPOBJ_GOODS);
+									THROW(_lf.Load(r_entry.GoodsID, 0L));
+									if(!_lf.At(0, temp_buf2) || !fileExists(temp_buf2)) {
+										blk.GetS(r_entry.FnP, temp_buf2);
+										THROW(_lf.Replace(0, temp_buf2));
+										THROW(_lf.Save(r_entry.GoodsID, 0L));
+										THROW(GObj.UpdateFlags(r_entry.GoodsID, GF_HASIMAGES, 0, 0));
 									}
 								}
 							}
@@ -2390,7 +2381,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 													else if(base_typ == BTS_DATE) {
 														LDATE dval = ZERODATE;
 														sttobase(typ, dyn_rec.GetDataC(j), &dval);
-														if(checkdate(dval, 0)) {
+														if(checkdate(dval)) {
 															tag_item.SetDate(tag_id, dval);
 															r = 1;
 														}
@@ -2593,7 +2584,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(uhtt_update) {
 										goods_name.CopyTo(sdr_rec.Name, sizeof(sdr_rec.Name));
 										THROW(CreateGoodsPacket(sdr_rec, barcode, &pack2, logger));
-										SetupNameExt(pack2, goods_name_ext, sdr_rec.ExtLongNameTo); // @v8.0.12
+										SetupNameExt(pack2, goods_name_ext, sdr_rec.ExtLongNameTo);
 										if(pack.Codes.getCount() > 1 && pack.Codes.Replace(barcode, 0) > 0) {
 											if(nm_goods_id) {
 												PPID   temp_nm_goods_id = 0;
@@ -2645,25 +2636,20 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										}
 									}
 								}
-								// @v8.6.4 {
 								if(sdr_rec.MinShippmQtty != pack.Stock.MinShippmQtty || (sdr_rec.MultMinShippm && !(pack.Stock.GseFlags & GoodsStockExt::fMultMinShipm))) {
 									pack.Stock.MinShippmQtty = sdr_rec.MinShippmQtty;
 									if(sdr_rec.MultMinShippm)
 										pack.Stock.GseFlags |= GoodsStockExt::fMultMinShipm;
 									do_update = 1;
 								}
-								// } @v8.6.4
 								// @v9.2.1 {
 								if(tag_list.GetCount()) {
 									pack.TagL.Merge(tag_list, ObjTagList::mumUpdate|ObjTagList::mumAdd);
 									do_update = 1;
 								}
 								// } @v9.2.1
-								// @v8.8.3 {
 								if(AssignEgaisCode(sdr_rec, &pack, logger) > 0)
 									do_update = 1;
-								// } @v8.8.3
-								// @v8.8.12 {
 								{
 									const PPID org_manuf_id = pack.Rec.ManufID;
 									if(!pack.Rec.ManufID || Param.Flags & PPGoodsImpExpParam::fForceUpdateManuf) {
@@ -2672,7 +2658,6 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 											do_update = 1;
 									}
 								}
-								// } @v8.8.12
 								// @v9.5.10 {
 								if(sdr_rec.MinStock > 0.0) {
 									pack.Stock.SetMinStock(Param.LocID, sdr_rec.MinStock);

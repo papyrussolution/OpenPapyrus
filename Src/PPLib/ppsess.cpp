@@ -2911,24 +2911,24 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_cc._390_DisCalcMethodLockDate = ZERODATE;
 				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_390_DISCALCMETHODLOCKDATE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
-					if(checkdate(dt, 0))
+					if(checkdate(dt))
 						r_cc._390_DisCalcMethodLockDate = dt;
 				}
 				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_3918_TDISCALCMETHODLOCKDATE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
-					if(checkdate(dt, 0))
+					if(checkdate(dt))
 						r_cc._3918_TDisCalcMethodLockDate = dt;
 				}
 				r_cc._405_TDisCalcMethodLockDate = ZERODATE;
 				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_405_TDISCALCMETHODLOCKDATE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
-					if(checkdate(dt, 0))
+					if(checkdate(dt))
 						r_cc._405_TDisCalcMethodLockDate = dt;
 				}
 				r_cc._418_TDisCalcMethodLockDate = ZERODATE;
 				if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_418_TDISCALCMETHODLOCKDATE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
-					if(checkdate(dt, 0))
+					if(checkdate(dt))
 						r_cc._418_TDisCalcMethodLockDate = dt;
 				}
 				{
@@ -2960,7 +2960,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
-					if(checkdate(dt, 0))
+					if(checkdate(dt))
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
 				r_tla.Bac.Load();

@@ -186,7 +186,7 @@ int SLAPI PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 		dlg->selectCtrl(sel);
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_CURRATE_DATE, &pRec->Dt);
-			if(!checkdate(pRec->Dt, 0))
+			if(!checkdate(pRec->Dt))
 				PPErrorByDialog(dlg, CTL_CURRATE_DATE, PPERR_SLIB);
 			else {
 				dlg->getCtrlData(CTLSEL_CURRATE_CUR,      &pRec->CurID);

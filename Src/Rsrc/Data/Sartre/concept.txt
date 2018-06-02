@@ -518,14 +518,17 @@
 :hum_ethnicity_negroid::hum_ethnicity // негроид
 :hum_ethnicity_mongoloid::hum_ethnicity // монголоид
 
-:hum_ethnicgroup_russians::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_slavs::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_russians:::hum_ethnicgroup_slavs
+:hum_ethnicgroup_ukrainians:::hum_ethnicgroup_slavs
+:hum_ethnicgroup_polish:::hum_ethnicgroup_slavs
 :hum_ethnicgroup_germans::hum_ethnicgroup(:hum_ethnicity_europoid)
 :hum_ethnicgroup_french::hum_ethnicgroup(:hum_ethnicity_europoid)
-:hum_ethnicgroup_british::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_british::hum_ethnicgroup(:hum_ethnicity_europoid) 
 :hum_ethnicgroup_italians::hum_ethnicgroup(:hum_ethnicity_europoid)
-:hum_ethnicgroup_ukrainians::hum_ethnicgroup(:hum_ethnicity_europoid)
 :hum_ethnicgroup_spanish::hum_ethnicgroup(:hum_ethnicity_europoid)
-:hum_ethnicgroup_polish::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_semitic::hum_ethnicgroup(:hum_ethnicity_europoid)
+:hum_ethnicgroup_jews:::hum_ethnicgroup_semitic
 
 :hum_ethnicgroup_han::hum_ethnicgroup(:hum_ethnicity_mongoloid) // китайцы
 :hum_ethnicgroup_joseon::hum_ethnicgroup(:hum_ethnicity_mongoloid) // корейцы
@@ -2888,7 +2891,7 @@ z39.50s:urischeme
 //
 // Рыночные понятия
 //
-:negotiumtaxonomy_category  // базовое обобщенное понятие таксономии бизнес-юнитов
+:negotiumtaxonomy_category  // базовое обобщенное понятие таксономии бизнес-юнитов (в отличии от биотаксономии эта не имеет четкой стандартизации, потому многие категории пересекаются)
 :negotiumtaxonomy_genusrerum::negotiumtaxonomy_category // форма собственности предприятия
 :negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
 :negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии
@@ -2976,6 +2979,12 @@ z39.50s:urischeme
 	sociedad anónima::negotiumtaxonomy_genusrerum
 	sa=$sociedad anónima
 	"s.a."=$sociedad anónima
+}
+
+[nl]{
+	naamloze vennootschap::negotiumtaxonomy_genusrerum
+	nv=$naamloze vennootschap
+	"n.v."=$naamloze vennootschap
 }
 
 [fr]{
@@ -3183,6 +3192,72 @@ z39.50s:urischeme
 :ingrata_mentis::ingrata // ментальность (дурак, сторонник иного восприятия действительности и т.д.)
 :ingrata_interiectio::ingrata // грубость, применяемая в виде междометия (блядь, fuck). Сильно пересекается с оскорблениями, однако не имеет объекта изречения (ср. "она - блядь" vs "блядь, я опять проиграл")
 
+[ru]{
+	дурак=:ingrata_mentis
+	дебил=:ingrata_mentis
+	кретин=:ingrata_mentis
+	слабоумный=:ingrata_mentis
+	недоумок=:ingrata_mentis
+	болван=:ingrata_mentis
+	мудак=:ingrata_mentis
+	уебок=:ingrata_mentis
+	
+	сука=:ingrata_mulier
+	шлюха=:ingrata_mulier
+	блядь=:ingrata_mulier
+	потаскуха=:ingrata_mulier
+	
+	собака=:ingrata_animalis
+	шакал=:ingrata_animalis
+	скунс=:ingrata_animalis
+	скотина=:ingrata_animalis
+	корова=:ingrata_animalis
+	свинья=:ingrata_animalis
+	овца=:ingrata_animalis
+	коза=:ingrata_animalis
+	козел=:ingrata_animalis
+	курица=:ingrata_animalis
+	петух=:ingrata_animalis
+	
+	педик=:ingrata_propensionissexualis
+	гомик=:ingrata_propensionissexualis
+
+	говно=:ingrata_physiologica_substantia
+	моча=:ingrata_physiologica_substantia
+	блевотина=:ingrata_physiologica_substantia
+	
+	хуй=:ingrata_parte_corporis
+	елда=:ingrata_parte_corporis
+	хрен=:ingrata_parte_corporis
+	пизда=:ingrata_parte_corporis
+	манда=:ingrata_parte_corporis
+	жопа=:ingrata_parte_corporis
+	срака=:ingrata_parte_corporis
+	
+	ебать=:ingrata_actio
+	трахать=:ingrata_actio
+	дрочить=:ingrata_actio
+	сосать=:ingrata_actio
+	отсасывать=:ingrata_actio
+	срать=:ingrata_actio
+	ссать=:ingrata_actio
+	блевать=:ingrata_actio
+	плевать=:ingrata_actio
+	
+	жид=:ingrata_genus
+	ниггер=:ingrata_genus
+	черномазый=:ingrata_genus
+	черножопый=:ingrata_genus
+	узкоглазый=:ingrata_genus
+	чухонец=:ingrata_genus
+	чурка=:ingrata_genus
+	итальяшка=:ingrata_genus
+	пшек=:ingrata_genus
+	пендос=:ingrata_genus
+	япошка=:ingrata_genus
+	китаез=:ingrata_genus
+}
+
 //a fat person
 //angry
 //bad
@@ -3275,44 +3350,4 @@ z39.50s:urischeme
 //vaginas
 //woman
 //worst
-//
-// Примеры синтаксиса определения понятия на натуральном языке //
-//
-[ru]широта=:geolat
-[ru]долгота=:geolon
 
-//[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
-[ru]петрозаводск:urbs(:statu_ru)
-[ru]ростов-на-дону:urbs(:statu_ru)
-[ru]вологодская область:cregion(statu= :statu_ru)
-[ru] рубль{ =:curr_rub =:curr_rur =:curr_sur }
-
-[ru]{
-	россия=:statu_ru
-	украина=:statu_ua
-	бразилия=:statu_br
-	соединенные штаты америки=:statu_us
-	сша=:statu_us	
-}
-
-[ru]{
-	республика карелия:cregion(:statu_ru)
-	москва:cregion(:statu_ru)
-	московскя область:cregion(:statu_ru)
-}
-
-[ru]{
-	техас:cregion(:statu_us)
-	аляска:cregion(:statu_us)
-	мичиган:cregion(:statu_us)
-	аризона:cregion(:statu_us)
-}
-
-[ru]{
-	иосиф:hum_fname(:gender_mas)
-	анна:hum_fname(:gender_fem)
-	максим:hum_fname(:gender_mas)
-	антон:hum_fname(:gender_mas)
-	дарья:hum_fname(:gender_fem)
-	дмитрий:hum_fname(:gender_mas)
-}

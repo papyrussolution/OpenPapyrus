@@ -2560,7 +2560,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				if(Filt.CtKind == TrfrAnlzFilt::ctDate) {
 					LDATE dt;
 					dt.v = (ulong)tab_id;
-					if(!checkdate(dt, 0) || ExpandSubstDate(Filt.Sgd, dt, &ct_period) <= 0)
+					if(!checkdate(dt) || ExpandSubstDate(Filt.Sgd, dt, &ct_period) <= 0)
 						ct_period = Filt.Period;
 				}
 				else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent)

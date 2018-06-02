@@ -1476,26 +1476,35 @@ file:
 //
 table VetisProduct {
 	autolong ID;
-	raw    Guid[16]; // Уникальный код продукта
-	raw    Uuid[16]; // Уникальный код версии информации о продукте
+	long   GuidRef;  // ->UuidRef.ID Ссылка на GUID
+	long   UuidRef;  // ->UuidRef.ID Ссылка на UUID
+	long   Kind;     // Вид записи (1 - product item, 2 - product, 3 - subproduct)
 	long   ProductType;
+	long   Status;
+	long   ProductID;    // для ProductItem
+	long   SubProductID; // для ProductItem
+    long   ProducerLocID;
+    long   Flags;
 	raw    Reserve[128];
 index:
 	ID (unique);
-	Guid, Uuid (unique);
+	GuidRef, UuidRef (unique);
+	UuidRef, GuidRef (unique);
+	ProductID (dup mod anysegnull);
+	SubProductID (dup mod anysegnull);
 file:
-	"vetisprod.btr";
+	"vetisprd.btr";
 	access=1;
 }
 
 table VetisPerson {
 	autolong ID;
-	raw    Guid[16]; // Уникальный код предприятия
-	raw    Uuid[16]; // Уникальный код версии информации о предприятии
+	long   GuidRef;  // ->UuidRef.ID Ссылка на GUID Уникальный код предприятия
+	long   UuidRef;  // ->UuidRef.ID Ссылка на UUID	Уникальный код версии информации о предприятии
 	raw    Reserve[128];
 index:
 	ID (unique);
-	Guid, Uuid (unique);
+	GuidRef, UuidRef (unique);
 file:
 	"vetispsn.btr";
 	access=1;

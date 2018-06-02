@@ -126,13 +126,13 @@ int HldDialog::getDTS(LDATE * pDt)
 	int    kind = (v + 1);
 	if(kind == 1) {
 		getCtrlData(sel = CTL_HOLIDAY_DATE, &Dt);
-		if(!checkdate(Dt, 0))
+		if(!checkdate(Dt))
 			ok = PPSetErrorSLib();
 	}
 	else if(kind == 2) {
 		int    d, m, y;
 		getCtrlData(sel = CTL_HOLIDAY_DATE, &Dt);
-		if(!checkdate(Dt, 0))
+		if(!checkdate(Dt))
 			ok = PPSetErrorSLib();
 		else {
 			decodedate(&d, &m, &y, &Dt);

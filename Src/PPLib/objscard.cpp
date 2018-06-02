@@ -4975,7 +4975,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 								sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
 							if(sdr_rec.MaxCredit > 0.0)
 								sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
-							if(checkdate(sdr_rec.Expiry, 0))
+							if(checkdate(sdr_rec.Expiry))
 								sc_pack.Rec.Expiry = sdr_rec.Expiry;
 							{
 								PPLoadString("yes", tok_buf);
@@ -5004,7 +5004,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									scs_pack.Rec.SetType(scstBonus);
 								else
 									scs_pack.Rec.SetType(scstDiscount);
-								if(checkdate(sdr_rec.IssueDate, 0))
+								if(checkdate(sdr_rec.IssueDate))
 									scs_pack.Rec.Issue = sdr_rec.IssueDate;
 								THROW(ScsObj.PutPacket(&scs_id, &scs_pack, 0)); // @v9.8.9
 								// @v9.8.9 THROW(ScsObj.ref->AddItem(PPOBJ_SCARDSERIES, &scs_id, &scs_rec, 0));
@@ -5019,7 +5019,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
 								if(sdr_rec.MaxCredit > 0.0)
 									sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
-								if(checkdate(sdr_rec.Expiry, 0))
+								if(checkdate(sdr_rec.Expiry))
 									sc_pack.Rec.Expiry = sdr_rec.Expiry;
 								{
 									PPLoadString("yes", tok_buf);

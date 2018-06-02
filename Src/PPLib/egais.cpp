@@ -574,7 +574,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			n_doc.PutAttrib("number", temp_buf.Z().Cat(rPack.Rec.Code));
 			{
 				LDATETIME _dtm;
-				if(checkdate(rPack.Rec.Dt, 0))
+				if(checkdate(rPack.Rec.Dt))
 					_dtm.Set(rPack.Rec.Dt, rPack.Rec.Tm);
 				else
 					_dtm = getcurdatetime_();
@@ -2185,7 +2185,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								n_h.PutInner("wb:NUMBER", EncText(temp_buf));
 								n_h.PutInner("wb:Date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 								n_h.PutInner("wb:ShippingDate", temp_buf.Z().
-									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate, 0)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 								{
 									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
 									if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
@@ -4157,7 +4157,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 								else if(!do_skip) {
 									THROW(link_pack.CreateBlank_WithoutCode(op_id, ex_bill_id, bp.Rec.LocID, 1));
 									STRNSCPY(link_pack.Rec.Code, act_code);
-									link_pack.Rec.Dt = checkdate(act_date, 0) ? act_date : getcurdate_();
+									link_pack.Rec.Dt = checkdate(act_date) ? act_date : getcurdate_();
 									link_pack.Rec.EdiOp = PPEDIOP_RECADV;
 									for(uint k = 0; k < bp.GetTCount(); k++) {
 										const PPTransferItem & r_ti = bp.ConstTI(k);
@@ -4288,7 +4288,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
                 else if(SXml::GetContentByName(p_h, "ShippingDate", temp_buf)) {
 					LDATE shp_dt;
 					strtodate(temp_buf, DATF_ISO8601, &shp_dt);
-					if(checkdate(shp_dt, 0))
+					if(checkdate(shp_dt))
 						freight.IssueDate = shp_dt;
                 }
                 else if(SXml::GetContentByName(p_h, "Type", temp_buf)) {
@@ -5648,7 +5648,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 			}
 		}
     }
-    if(p_bp && (items.getCount() || pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) && checkdate(rest_dtm.d, 0)) {
+    if(p_bp && (items.getCount() || pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) && checkdate(rest_dtm.d)) {
 		SString bill_text;
 		int    do_skip = 0;
 		PPID   op_id = 0;
@@ -8409,11 +8409,11 @@ int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
 			PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
 		else {
 			rData.ManufDate = dlg->getCtrlDate(sel = CTL_EGAISREGA_MANUFDATE);
-			if(!checkdate(rData.ManufDate, 0))
+			if(!checkdate(rData.ManufDate))
 				PPErrorByDialog(dlg, sel, PPERR_SLIB);
 			else {
 				rData.TTNDate = dlg->getCtrlDate(sel = CTL_EGAISREGA_TTNDATE);
-				if(!checkdate(rData.TTNDate, 0))
+				if(!checkdate(rData.TTNDate))
 					PPErrorByDialog(dlg, sel, PPERR_SLIB);
 				else {
 					dlg->getCtrlString(sel = CTL_EGAISREGA_TTNCODE, rData.TTNCode);
@@ -9491,8 +9491,8 @@ int SLAPI EgaisRefACore::Put(PPID * pID, EgaisRefATbl::Rec * pRec, long * pConfl
 					conflict_flags |= 0x0008;
 				}
 			}
-			if(checkdate(pRec->BottlingDate, 0)) {
-				if(!checkdate(rec.BottlingDate, 0)) {
+			if(checkdate(pRec->BottlingDate)) {
+				if(!checkdate(rec.BottlingDate)) {
 					rec.BottlingDate = pRec->BottlingDate;
 					do_update = 1;
 				}

@@ -3922,7 +3922,7 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 			return;
 	}
 	else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_PERSON_SCEXPIRY)) {
-		if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate, 0)) {
+		if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate)) {
 			setCtrlDate(CTL_PERSON_SCEXPIRY, ScExpiryPeriodParam.ResultDate);
 		}
 	}
@@ -4136,7 +4136,7 @@ void ShortPersonDialog::GetDOB()
 	LDATE  dob = ZERODATE;
 	TView * p_ctrl = getCtrlView(CTL_PERSON_DOB);
 	if(p_ctrl && p_ctrl->IsInState(sfVisible) && getCtrlData(CTL_PERSON_DOB, &dob)) {
-		if(checkdate(dob, 0)) {
+		if(checkdate(dob)) {
 			ObjTagItem dob_item;
 			dob_item.Init(PPTAG_PERSON_DOB);
 			dob_item.SetDate(PPTAG_PERSON_DOB, dob);
@@ -6416,7 +6416,7 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 					SCardOpTbl::Rec sco_rec;
 					for(LDATETIME dtm = ZERODATETIME; P_ScObj->P_Tbl->EnumOpByCard(sc_id, &dtm, &sco_rec) > 0;) {
 						const LDATE _dt = sco_rec.Dt;
-						if(checkdate(_dt, 0)) {
+						if(checkdate(_dt)) {
 							if(_dt < _period.low) {
 								yes = 0;
 							}
@@ -6434,7 +6434,7 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 					k4.SCardID = sc_id;
 					if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
 						const LDATE _dt = p_cc->data.Dt;
-						if(checkdate(_dt, 0)) {
+						if(checkdate(_dt)) {
 							if(_dt < _period.low) {
 								yes = 0;
 							}

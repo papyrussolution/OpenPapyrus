@@ -137,7 +137,7 @@ char * FASTCALL GetDynamicParamString_(double rval, long fmt, TSCollection <InPa
 char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InParamString> & rPool)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
-	if(checkdate(dval, 0))
+	if(checkdate(dval))
 		r_temp_buf.Cat(dval, fmt);
 	return GetDynamicParamString(r_temp_buf, rPool);
 }
@@ -145,7 +145,7 @@ char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InPara
 char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSCollection <InParamString> & rPool)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
-	if(checkdate(dtval.d, 0))
+	if(checkdate(dtval.d))
 		r_temp_buf.Cat(dtval, dfmt, tfmt);
 	return GetDynamicParamString(r_temp_buf, rPool);
 }
@@ -880,184 +880,4 @@ SapEfesDebtReportEntry::SapEfesDebtReportEntry() : NativeArID(0), Debt(0.0), Cre
 
 SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry() : NativeArID(0), BillDate(ZERODATE), PaymDate(ZERODATE), Amount(0.0), Debt(0.0)
 {
-}
-//
-//
-//
-VetisEntityList::VetisEntityList() : Count(0), Total(0), Offset(0), Flags(0)
-{
-}
-
-VetisGenericEntity::VetisGenericEntity()
-{
-}
-
-VetisGenericVersioningEntity::VetisGenericVersioningEntity() : VetisGenericEntity(), Flags(0), Status(0), CreateDate(ZERODATETIME), UpdateDate(ZERODATETIME)
-{
-}
-
-VetisAddressObjectView::VetisAddressObjectView() : Flags(0)
-{
-}
-
-VetisDistrict::VetisDistrict() : VetisAddressObjectView()
-{
-}
-
-VetisLocality::VetisLocality() : VetisAddressObjectView()
-{
-}
-
-VetisEnterpriseOfficialRegistration::VetisEnterpriseOfficialRegistration() : P_BusinessEntity(0)
-{
-}
-
-VetisEnterpriseOfficialRegistration::~VetisEnterpriseOfficialRegistration()
-{
-	delete P_BusinessEntity;
-}
-
-VetisEnterpriseOfficialRegistration & FASTCALL VetisEnterpriseOfficialRegistration::operator = (const VetisEnterpriseOfficialRegistration & rS)
-{
-	ID = rS.ID;
-	Kpp = rS.Kpp;
-	ZDELETE(P_BusinessEntity);
-	if(rS.P_BusinessEntity) {
-		P_BusinessEntity = new VetisBusinessEntity;
-		ASSIGN_PTR(P_BusinessEntity, *rS.P_BusinessEntity);
-	}
-	return *this;
-}
-
-VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0)
-{
-}
-
-VetisEnterprise::~VetisEnterprise()
-{
-	delete P_Owner;
-}
-
-VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & rS)
-{
-	VetisNamedGenericVersioningEntity::operator = (rS);
-	EnglishName = rS.EnglishName;
-	Type = rS.Type;
-	NumberList = rS.NumberList;
-	Address = rS.Address;
-	ActivityList = rS.ActivityList;
-	ZDELETE(P_Owner);
-	if(rS.P_Owner) {
-		P_Owner = new VetisBusinessEntity;
-		ASSIGN_PTR(P_Owner, *rS.P_Owner);
-	}
-	TSCollection_Copy(OfficialRegistration, rS.OfficialRegistration);
-	return *this;
-}
-
-VetisStreet::VetisStreet() : VetisAddressObjectView()
-{
-}
-
-VetisDocument::VetisDocument() : VetisGenericEntity(), IssueDate(ZERODATE), DocumentType(0)
-{
-}
-
-VetisUserAuthority::VetisUserAuthority() : Granted(0)
-{
-}
-
-VetisUser::VetisUser() : BirthDate(ZERODATE), Flags(0), UnionUser(0), P_Organization(0), P_BusinessEntity(0)
-{
-}
-
-VetisUser::~VetisUser()
-{
-	delete P_Organization;
-	delete P_BusinessEntity;
-}
-
-VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
-{
-	Login = rS.Login;
-	Fio = rS.Fio;
-	BirthDate = rS.BirthDate;
-	Identity = rS.Identity; // !
-	Snils = rS.Snils;
-	Phone = rS.Phone;
-	Email = rS.Email;
-	WorkEmail = rS.WorkEmail;
-	UnionUser = rS.UnionUser;
-	Post = rS.Post;
-	Flags = rS.Flags;
-	TSCollection_Copy(AuthorityList, rS.AuthorityList);
-	ZDELETE(P_Organization);
-	ZDELETE(P_BusinessEntity);
-	if(rS.P_Organization) {
-		P_Organization = new VetisOrganization;
-		ASSIGN_PTR(P_Organization, *rS.P_Organization);
-	}
-	if(rS.P_BusinessEntity) {
-		P_BusinessEntity = new VetisBusinessEntity;
-		ASSIGN_PTR(P_BusinessEntity, *rS.P_BusinessEntity);
-	}
-	return *this;
-}
-
-VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationData * pAppParam) : ApplicationStatus(appstUndef), 
-	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), P_AppParam(pAppParam),
-	LocalTransactionId(0)//, P_GselReq(0), P_LoReq(0), P_Ent(0), P_GvdlReq(0)
-{
-}
-
-VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) //: P_GselReq(0)
-{
-	Copy(rS);
-}
-
-VetisApplicationBlock::~VetisApplicationBlock()
-{
-}
-
-VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisApplicationBlock & rS)
-{
-	Copy(rS);
-	return *this;
-}
-
-void VetisApplicationBlock::Clear()
-{
-	ApplicationStatus = appstUndef;
-	LocalTransactionId = 0;
-	ServiceId.Z();
-	User.Z();
-	ApplicationId.Z();
-	IssuerId.Z();
-	EnterpriseId.Z();
-	IssueDate.Z();
-	RcvDate.Z();
-	PrdcRsltDate.Z();
-	ErrList.freeAll();
-	FaultList.freeAll();
-	AppData.Z();
-}
-
-int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
-{
-	int    ok = 1;
-	ApplicationStatus = rS.ApplicationStatus;
-	LocalTransactionId = rS.LocalTransactionId;
-	ServiceId = rS.ServiceId;
-	User = rS.User;
-	ApplicationId = rS.ApplicationId;
-	IssuerId = rS.IssuerId;
-	EnterpriseId = rS.EnterpriseId;
-	IssueDate = rS.IssueDate;
-	RcvDate = rS.RcvDate;
-	PrdcRsltDate = rS.PrdcRsltDate;
-	TSCollection_Copy(ErrList, rS.ErrList);
-	TSCollection_Copy(FaultList, rS.FaultList);
-	AppData = rS.AppData;
-	P_AppParam = rS.P_AppParam;
-	return ok;
 }

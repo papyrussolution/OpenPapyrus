@@ -2356,22 +2356,44 @@ public:
 
 	struct Rec {
 		int32  ID;
-		uint8  Guid[16];   // raw
-		uint8  Uuid[16];   // raw
+		int32  GuidRef;
+		int32  UuidRef;
+		int32  Kind;
 		int32  ProductType;
+		int32  Status;
+		int32  ProductID;
+		int32  SubProductID;
+		int32  ProducerLocID;
+		int32  Flags;
 		uint8  Reserve[128]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
 	};
 	struct Key1 {
-		uint8  Guid[16];
-		uint8  Uuid[16];
+		int32  GuidRef;
+		int32  UuidRef;
+	};
+	struct Key2 {
+		int32  UuidRef;
+		int32  GuidRef;
+	};
+	struct Key3 {
+		int32  ProductID;
+	};
+	struct Key4 {
+		int32  SubProductID;
 	};
 	DBField ID;
-	DBField Guid;
-	DBField Uuid;
+	DBField GuidRef;
+	DBField UuidRef;
+	DBField Kind;
 	DBField ProductType;
+	DBField Status;
+	DBField ProductID;
+	DBField SubProductID;
+	DBField ProducerLocID;
+	DBField Flags;
 	DBField Reserve;
 };
 
@@ -2381,20 +2403,20 @@ public:
 
 	struct Rec {
 		int32  ID;
-		uint8  Guid[16];   // raw
-		uint8  Uuid[16];   // raw
+		int32  GuidRef;
+		int32  UuidRef;
 		uint8  Reserve[128]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
 	};
 	struct Key1 {
-		uint8  Guid[16];
-		uint8  Uuid[16];
+		int32  GuidRef;
+		int32  UuidRef;
 	};
 	DBField ID;
-	DBField Guid;
-	DBField Uuid;
+	DBField GuidRef;
+	DBField UuidRef;
 	DBField Reserve;
 };
 

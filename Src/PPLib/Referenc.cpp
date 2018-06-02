@@ -2078,14 +2078,9 @@ int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, in
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			{
-				//SString temp_buf;
 				UuidRefTbl::Rec rec;
 				MEMSZERO(rec);
-
-				//UuidToText(rUuid, temp_buf);
-                //STRNSCPY(rec.UUID, temp_buf);
                 memcpy(rec.UUID, &rUuid, sizeof(S_GUID));
-
                 r = insertRecBuf(&rec, 0, pID);
 				if(!r) {
 					THROW_DB((options & sgoOptimistic) && BtrError == BE_DUP);
