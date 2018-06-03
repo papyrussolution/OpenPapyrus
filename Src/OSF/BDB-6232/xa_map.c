@@ -91,7 +91,7 @@ void __db_map_rmid(int rmid, ENV * env)
  * __db_unmap_rmid
  *	Destroy the mapping for the given rmid.
  *
- * PUBLIC: int __db_unmap_rmid __P((int));
+ * PUBLIC: int __db_unmap_rmid(int);
  */
 int __db_unmap_rmid(int rmid)
 {

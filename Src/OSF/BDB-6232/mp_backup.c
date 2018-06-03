@@ -14,10 +14,8 @@
 #endif
 
 #ifndef HAVE_ATOMICFILEREAD
-static int __memp_check_backup __P((ENV *,
-    MPOOLFILE *, void *, uint32 *, uint32));
+	static int __memp_check_backup __P((ENV *, MPOOLFILE *, void *, uint32 *, uint32));
 #endif
-
 /*
  * __memp_backup_open --
  *	Setup to backup a database file.
@@ -276,7 +274,7 @@ static int __memp_check_backup(ENV *env, MPOOLFILE * mfp, void * arg, uint32 * c
 /*
  * __memp_failchk --
  *	Remove in process database backups.
- * PUBLIC: int __memp_failchk __P((ENV *));
+ * PUBLIC: int __memp_failchk(ENV *);
  */
 int __memp_failchk(ENV *env)
 {

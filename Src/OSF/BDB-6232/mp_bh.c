@@ -14,13 +14,11 @@
 #include "dbinc/txn.h"
 
 static int __memp_pgwrite __P((ENV *, DB_MPOOLFILE *, DB_MPOOL_HASH *, BH *));
-
 /*
  * __memp_bhwrite --
  *	Write the page associated with a given buffer header.
  *
- * PUBLIC: int __memp_bhwrite __P((DB_MPOOL *,
- * PUBLIC:      DB_MPOOL_HASH *, MPOOLFILE *, BH *, int));
+ * PUBLIC: int __memp_bhwrite __P((DB_MPOOL *, DB_MPOOL_HASH *, MPOOLFILE *, BH *, int));
  */
 int __memp_bhwrite(DB_MPOOL *dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bhp, int open_extents)
 {
@@ -485,7 +483,6 @@ err:
 	__db_errx(env, DB_STR_A("3016", "%s: %s failed for page %lu", "%s %s %lu"), __memp_fn(dbmfp), is_pgin ? DB_STR_P("pgin") : DB_STR_P("pgout"), (u_long)pgno);
 	return ret;
 }
-
 /*
  * __memp_bhfree --
  *	Free a bucket header and its referenced data.
@@ -493,8 +490,7 @@ err:
  *	The hash bucket is unlocked before returning except when flags includes
  *	BH_FREE_UNLOCKED -- or there was no hp passed in to begin with.
  *
- * PUBLIC: int __memp_bhfree __P((DB_MPOOL *,
- * PUBLIC:	REGINFO *, MPOOLFILE *, DB_MPOOL_HASH *, BH *, uint32));
+ * PUBLIC: int __memp_bhfree __P((DB_MPOOL *, REGINFO *, MPOOLFILE *, DB_MPOOL_HASH *, BH *, uint32));
  */
 int __memp_bhfree(DB_MPOOL *dbmp, REGINFO * infop, MPOOLFILE * mfp, DB_MPOOL_HASH * hp, BH * bhp, uint32 flags)
 {

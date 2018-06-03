@@ -12,14 +12,10 @@
 #include "dbinc_auto/xa_ext.h"
 
 static void corrupted_env __P((ENV *, int));
-
-static int __xa_get_txn __P((ENV *,
-    XID *, TXN_DETAIL *, DB_TXN **, u_long, int));
+static int __xa_get_txn __P((ENV *, XID *, TXN_DETAIL *, DB_TXN **, u_long, int));
 static void __xa_put_txn __P((ENV *, DB_TXN *));
-
 static int __xa_txn_get_prepared __P((ENV *, XID *, DB_PREPLIST *, long, long *, uint32));
 static int __xa_thread_enter __P((ENV *, DB_THREAD_INFO **));
-
 static int __db_xa_close __P((char *, int, long));
 static int __db_xa_commit __P((XID *, int, long));
 static int __db_xa_complete __P((int *, int *, int, long));
@@ -30,7 +26,6 @@ static int __db_xa_prepare __P((XID *, int, long));
 static int __db_xa_recover __P((XID *, long, int, long));
 static int __db_xa_rollback __P((XID *, int, long));
 static int __db_xa_start __P((XID *, int, long));
-
 /*
  * Possible flag values:
  *	Dynamic registration	0 => no dynamic registration

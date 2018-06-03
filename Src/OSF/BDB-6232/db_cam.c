@@ -19,11 +19,11 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __db_s_count __P((DB *));
-static int __db_wrlock_err __P((ENV *));
-static int __dbc_del_foreign __P((DBC *));
+static int __db_s_count(DB *);
+static int __db_wrlock_err(ENV *);
+static int __dbc_del_foreign(DBC *);
 static int __dbc_del_oldskey __P((DB *, DBC *, DBT *, DBT *, DBT *));
-static int __dbc_del_secondary __P((DBC *));
+static int __dbc_del_secondary(DBC *);
 static int __dbc_pget_recno __P((DBC *, DBT *, DBT *, uint32));
 static inline int __dbc_put_append __P((DBC *,
     DBT *, DBT *, uint32 *, uint32));
@@ -74,7 +74,7 @@ static inline int __dbc_put_secondaries __P((DBC *,
  * __dbc_close --
  *	DBC->close.
  *
- * PUBLIC: int __dbc_close __P((DBC *));
+ * PUBLIC: int __dbc_close(DBC *);
  */
 int __dbc_close(DBC *dbc)
 {
@@ -181,9 +181,9 @@ int __dbc_close(DBC *dbc)
  * __dbc_destroy --
  *	Destroy the cursor, called after DBC->close.
  *
- * PUBLIC: int __dbc_destroy __P((DBC *));
+ * PUBLIC: int __dbc_destroy(DBC *);
  */
-int __dbc_destroy(DBC *dbc)
+int __dbc_destroy(DBC * dbc)
 {
 	int ret, t_ret;
 	DB * dbp = dbc->dbp;
@@ -192,31 +192,20 @@ int __dbc_destroy(DBC *dbc)
 	MUTEX_LOCK(env, dbp->mutex);
 	TAILQ_REMOVE(&dbp->free_queue, dbc, links);
 	MUTEX_UNLOCK(env, dbp->mutex);
-
 	/* Free up allocated memory. */
-	if(dbc->my_rskey.data != NULL)
-		__os_free(env, dbc->my_rskey.data);
-	if(dbc->my_rkey.data != NULL)
-		__os_free(env, dbc->my_rkey.data);
-	if(dbc->my_rdata.data != NULL)
-		__os_free(env, dbc->my_rdata.data);
-
+	__os_free(env, dbc->my_rskey.data);
+	__os_free(env, dbc->my_rkey.data);
+	__os_free(env, dbc->my_rdata.data);
 	/* Call the access specific cursor destroy routine. */
 	ret = dbc->am_destroy == NULL ? 0 : dbc->am_destroy(dbc);
-
 	/*
 	 * Release the lock id for this cursor.
 	 */
-	if(LOCKING_ON(env) &&
-	    F_ISSET(dbc, DBC_OWN_LID) &&
-	    (t_ret = __lock_id_free(env, dbc->lref)) != 0 && ret == 0)
+	if(LOCKING_ON(env) && F_ISSET(dbc, DBC_OWN_LID) && (t_ret = __lock_id_free(env, dbc->lref)) != 0 && ret == 0)
 		ret = t_ret;
-
 	__os_free(env, dbc);
-
 	return ret;
 }
-
 /*
  * __dbc_cmp --
  *	Compare the position of two cursors. Return whether two cursors are
@@ -2418,7 +2407,7 @@ err:    for(; noldskey > 0; noldskey--, toldskeyp++)
 /*
  * __db_duperr()
  *	Error message: we don't currently support sorted duplicate duplicates.
- * PUBLIC: int __db_duperr __P((DB *, uint32));
+ * PUBLIC: int __db_duperr(DB *, uint32);
  */
 int __db_duperr(DB *dbp, uint32 flags)
 {
@@ -3027,7 +3016,7 @@ static int __dbc_del_secondary(DBC *dbc)
  *	database, and delete any secondary keys that point at the current
  *	record.
  *
- * PUBLIC: int __dbc_del_primary __P((DBC *));
+ * PUBLIC: int __dbc_del_primary(DBC *);
  */
 int __dbc_del_primary(DBC *dbc)
 {

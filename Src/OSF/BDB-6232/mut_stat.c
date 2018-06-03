@@ -12,10 +12,10 @@
 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
-static int __mutex_print_all __P((ENV *, uint32));
-static const char * __mutex_print_id __P((int));
-static int __mutex_print_stats __P((ENV *, uint32));
-static void __mutex_print_summary __P((ENV *));
+static int __mutex_print_all(ENV *, uint32);
+static const char * __mutex_print_id(int);
+static int __mutex_print_stats(ENV *, uint32);
+static void __mutex_print_summary(ENV *);
 static int __mutex_stat __P((ENV *, DB_MUTEX_STAT **, uint32));
 
 static const FN MutexFlagNames[] = {
@@ -82,7 +82,7 @@ static int __mutex_stat(ENV *env, DB_MUTEX_STAT ** statp, uint32 flags)
  * __mutex_stat_print_pp --
  *	ENV->mutex_stat_print pre/post processing.
  *
- * PUBLIC: int __mutex_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_stat_print_pp(DB_ENV *, uint32);
  */
 int __mutex_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -101,7 +101,7 @@ int __mutex_stat_print_pp(DB_ENV *dbenv, uint32 flags)
  * __mutex_stat_print
  *	ENV->mutex_stat_print method.
  *
- * PUBLIC: int __mutex_stat_print __P((ENV *, uint32));
+ * PUBLIC: int __mutex_stat_print(ENV *, uint32);
  */
 int __mutex_stat_print(ENV *env, uint32 flags)
 {

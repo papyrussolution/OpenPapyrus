@@ -93,7 +93,7 @@ int __mutex_unlock_pp(DB_ENV *dbenv, db_mutex_t indx)
  * __mutex_get_align --
  *	DB_ENV->mutex_get_align.
  *
- * PUBLIC: int __mutex_get_align __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __mutex_get_align(DB_ENV *, uint32 *);
  */
 int __mutex_get_align(DB_ENV *dbenv, uint32 * alignp)
 {
@@ -112,7 +112,7 @@ int __mutex_get_align(DB_ENV *dbenv, uint32 * alignp)
  * __mutex_set_align --
  *	DB_ENV->mutex_set_align.
  *
- * PUBLIC: int __mutex_set_align __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_set_align(DB_ENV *, uint32);
  */
 int __mutex_set_align(DB_ENV *dbenv, uint32 align)
 {
@@ -129,7 +129,7 @@ int __mutex_set_align(DB_ENV *dbenv, uint32 align)
  * __mutex_get_increment --
  *	DB_ENV->mutex_get_increment.
  *
- * PUBLIC: int __mutex_get_increment __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __mutex_get_increment(DB_ENV *, uint32 *);
  */
 int __mutex_get_increment(DB_ENV *dbenv, uint32 * incrementp)
 {
@@ -146,7 +146,7 @@ int __mutex_get_increment(DB_ENV *dbenv, uint32 * incrementp)
  * __mutex_set_increment --
  *	DB_ENV->mutex_set_increment.
  *
- * PUBLIC: int __mutex_set_increment __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_set_increment(DB_ENV *, uint32);
  */
 int __mutex_set_increment(DB_ENV *dbenv, uint32 increment)
 {
@@ -160,7 +160,7 @@ int __mutex_set_increment(DB_ENV *dbenv, uint32 increment)
  * __mutex_get_init --
  *	DB_ENV->mutex_get_init.
  *
- * PUBLIC: int __mutex_get_init __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __mutex_get_init(DB_ENV *, uint32 *);
  */
 int __mutex_get_init(DB_ENV *dbenv, uint32 * initp)
 {
@@ -178,7 +178,7 @@ int __mutex_get_init(DB_ENV *dbenv, uint32 * initp)
  * __mutex_set_init --
  *	DB_ENV->mutex_set_init.
  *
- * PUBLIC: int __mutex_set_init __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_set_init(DB_ENV *, uint32);
  */
 int __mutex_set_init(DB_ENV *dbenv, uint32 init)
 {
@@ -192,7 +192,7 @@ int __mutex_set_init(DB_ENV *dbenv, uint32 init)
  * __mutex_get_max --
  *	DB_ENV->mutex_get_max.
  *
- * PUBLIC: int __mutex_get_max __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __mutex_get_max(DB_ENV *, uint32 *);
  */
 int __mutex_get_max(DB_ENV *dbenv, uint32 * maxp)
 {
@@ -209,7 +209,7 @@ int __mutex_get_max(DB_ENV *dbenv, uint32 * maxp)
  * __mutex_set_max --
  *	DB_ENV->mutex_set_max.
  *
- * PUBLIC: int __mutex_set_max __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_set_max(DB_ENV *, uint32);
  */
 int __mutex_set_max(DB_ENV *dbenv, uint32 max)
 {
@@ -224,7 +224,7 @@ int __mutex_set_max(DB_ENV *dbenv, uint32 max)
  * __mutex_get_tas_spins --
  *	DB_ENV->mutex_get_tas_spins.
  *
- * PUBLIC: int __mutex_get_tas_spins __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __mutex_get_tas_spins(DB_ENV *, uint32 *);
  */
 int __mutex_get_tas_spins(DB_ENV *dbenv, uint32 * tas_spinsp)
 {
@@ -241,7 +241,7 @@ int __mutex_get_tas_spins(DB_ENV *dbenv, uint32 * tas_spinsp)
  * __mutex_set_tas_spins --
  *	DB_ENV->mutex_set_tas_spins.
  *
- * PUBLIC: int __mutex_set_tas_spins __P((DB_ENV *, uint32));
+ * PUBLIC: int __mutex_set_tas_spins(DB_ENV *, uint32);
  */
 int __mutex_set_tas_spins(DB_ENV *dbenv, uint32 tas_spins)
 {

@@ -43,15 +43,13 @@
  * standards document, but we have never seen a filesystem where
  * it does not apply.
  */
-
 /*
  * __fop_create --
  * Create a (transactionally protected) file system object.  This is used
  * to create DB files now, potentially blobs, queue extents and anything
  * else you wish to store in a file system object.
  *
- * PUBLIC: int __fop_create __P((ENV *, DB_TXN *,
- * PUBLIC:     DB_FH **, const char *, const char **, APPNAME, int, uint32));
+ * PUBLIC: int __fop_create __P((ENV *, DB_TXN *, DB_FH **, const char *, const char **, APPNAME, int, uint32));
  */
 int __fop_create(ENV *env, DB_TXN * txn, DB_FH ** fhpp, const char * name, const char ** dirp, APPNAME appname, int mode, uint32 flags)
 {
@@ -93,8 +91,7 @@ err:
  * __fop_remove --
  *	Remove a file system object.
  *
- * PUBLIC: int __fop_remove __P((ENV *, DB_TXN *,
- * PUBLIC:     uint8 *, const char *, const char **, APPNAME, uint32));
+ * PUBLIC: int __fop_remove __P((ENV *, DB_TXN *, uint8 *, const char *, const char **, APPNAME, uint32));
  */
 int __fop_remove(ENV *env, DB_TXN * txn, uint8 * fileid, const char * name, const char ** dirp, APPNAME appname, uint32 flags)
 {
@@ -142,9 +139,7 @@ err:
  * handling, then we'll have to zero out regions on abort (and possibly
  * log the before image of the data in the log record).
  *
- * PUBLIC: int __fop_write __P((ENV *, DB_TXN *,
- * PUBLIC:     const char *, const char *, APPNAME, DB_FH *, uint32,
- * PUBLIC:     db_pgno_t, uint32, void *, uint32, uint32, uint32));
+ * PUBLIC: int __fop_write __P((ENV *, DB_TXN *, const char *, const char *, APPNAME, DB_FH *, uint32, db_pgno_t, uint32, void *, uint32, uint32, uint32));
  */
 int __fop_write(ENV *env, DB_TXN * txn, const char * name, const char * dirname, APPNAME appname, DB_FH * fhp, uint32 pgsize, db_pgno_t pageno, uint32 off, void * buf, uint32 size, uint32 istmp, uint32 flags)
 {
@@ -153,12 +148,9 @@ int __fop_write(ENV *env, DB_TXN * txn, const char * name, const char * dirname,
 	size_t nbytes;
 	int local_open, ret, t_ret;
 	char * real_name;
-
 	DB_ASSERT(env, istmp != 0);
-
 	ret = local_open = 0;
 	real_name = NULL;
-
 	if(DBENV_LOGGING(env)
 #if !defined(DEBUG_WOP)
 	    && txn != NULL
@@ -225,9 +217,7 @@ err:    if(local_open &&
  * The other __fop_write is designed for writing pages to databases, this
  * function writes generic data to files, usually blob files.
  *
- * PUBLIC: int __fop_write_file __P((ENV *, DB_TXN *,
- * PUBLIC:     const char *, const char *, APPNAME, DB_FH *,
- * PUBLIC:     off_t, void *, size_t, uint32));
+ * PUBLIC: int __fop_write_file __P((ENV *, DB_TXN *, const char *, const char *, APPNAME, DB_FH *, off_t, void *, size_t, uint32));
  */
 int __fop_write_file(ENV *env, DB_TXN * txn, const char * name, const char * dirname, APPNAME appname, DB_FH * fhp, off_t off, void * buf, size_t size, uint32 flags)
 {
@@ -389,18 +379,15 @@ log:                    tmp_size = new_data.size;
 err:    
 	if(local_open && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(real_name != NULL)
-		__os_free(env, real_name);
-	if(old_data.data != NULL)
-		__os_free(env, old_data.data);
+	__os_free(env, real_name);
+	__os_free(env, old_data.data);
 	return ret;
 }
 /*
  * __fop_rename --
  *	Change a file's name.
  *
- * PUBLIC: int __fop_rename __P((ENV *, DB_TXN *, const char *, const char *,
- * PUBLIC:      const char **, uint8 *, APPNAME, int, uint32));
+ * PUBLIC: int __fop_rename __P((ENV *, DB_TXN *, const char *, const char *, const char **, uint8 *, APPNAME, int, uint32));
  */
 int __fop_rename(ENV *env, DB_TXN * txn, const char * oldname, const char * newname, const char ** dirp, uint8 * fid, APPNAME appname, int with_undo, uint32 flags)
 {

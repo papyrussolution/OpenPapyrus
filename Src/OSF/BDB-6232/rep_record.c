@@ -2299,7 +2299,7 @@ int __rep_resend_req(ENV *env, int rereq)
 
 /*
  * __rep_check_doreq --
- * PUBLIC: int __rep_check_doreq __P((ENV *, REP *));
+ * PUBLIC: int __rep_check_doreq(ENV *, REP *);
  *
  * Check if we need to send another request.  If so, compare with
  * the request limits the user might have set.  This assumes the

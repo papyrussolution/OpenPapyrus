@@ -52,7 +52,7 @@ static void __db_sgenrand __P((unsigned long, unsigned long *, int *));
 #ifdef  NOT_USED
 static void __db_lsgenrand __P((unsigned long *, unsigned long *, int *));
 #endif
-static unsigned long __db_genrand __P((ENV *));
+static unsigned long __db_genrand(ENV *);
 
 /*
  * __db_generate_iv --

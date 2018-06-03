@@ -61,7 +61,7 @@ void * __repmgr_select_thread(void * argsp)
 	return (NULL);
 }
 /*
- * PUBLIC: int __repmgr_bow_out __P((ENV *));
+ * PUBLIC: int __repmgr_bow_out(ENV *);
  */
 int __repmgr_bow_out(ENV *env)
 {
@@ -82,7 +82,7 @@ int __repmgr_bow_out(ENV *env)
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_accept __P((ENV *));
+ * PUBLIC: int __repmgr_accept(ENV *);
  */
 int __repmgr_accept(ENV *env)
 {
@@ -347,7 +347,7 @@ static int __repmgr_send_heartbeat(ENV *env)
 }
 
 /*
- * PUBLIC: REPMGR_SITE *__repmgr_connected_master __P((ENV *));
+ * PUBLIC: REPMGR_SITE *__repmgr_connected_master(ENV *);
  */
 REPMGR_SITE * __repmgr_connected_master(ENV *env)
 {
@@ -386,7 +386,7 @@ static int __repmgr_call_election(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_check_timeouts __P((ENV *));
+ * PUBLIC: int __repmgr_check_timeouts(ENV *);
  *
  * !!!
  * Assumes caller holds the mutex.
@@ -667,7 +667,7 @@ static int __repmgr_check_master_listener(ENV *env)
  * Wake up I/O waiting in selector thread, refresh connections to all connected
  * and present sites.
  *
- * PUBLIC: int __repmgr_refresh_selector __P((ENV *));
+ * PUBLIC: int __repmgr_refresh_selector(ENV *);
  */
 int __repmgr_refresh_selector(ENV *env)
 {
@@ -755,7 +755,7 @@ static int __repmgr_retry_connections(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_first_try_connections __P((ENV *));
+ * PUBLIC: int __repmgr_first_try_connections(ENV *);
  *
  * !!!
  * Assumes caller holds the mutex.
@@ -1340,28 +1340,22 @@ static int prepare_input(ENV *env, REPMGR_CONNECTION * conn)
 	}
 	else
 		conn->reading_phase = DATA_PHASE;
-
 	return 0;
 }
-
 /*
- * PUBLIC: int __repmgr_prepare_simple_input __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, __repmgr_msg_hdr_args *));
+ * PUBLIC: int __repmgr_prepare_simple_input __P((ENV *, REPMGR_CONNECTION *, __repmgr_msg_hdr_args *));
  */
 int __repmgr_prepare_simple_input(ENV *env, REPMGR_CONNECTION * conn, __repmgr_msg_hdr_args * msg_hdr)
 {
-	DBT * dbt;
-	uint32 control_size, rec_size;
 	int ret;
-	control_size = REP_MSG_CONTROL_SIZE(*msg_hdr);
-	rec_size = REP_MSG_REC_SIZE(*msg_hdr);
-	dbt = &conn->input.repmgr_msg.cntrl;
+	uint32 control_size = REP_MSG_CONTROL_SIZE(*msg_hdr);
+	uint32 rec_size = REP_MSG_REC_SIZE(*msg_hdr);
+	DBT * dbt = &conn->input.repmgr_msg.cntrl;
 	if((dbt->size = control_size) > 0) {
 		if((ret = __os_malloc(env, dbt->size, &dbt->data)) != 0)
 			return ret;
 		__repmgr_add_dbt(&conn->iovecs, dbt);
 	}
-
 	dbt = &conn->input.repmgr_msg.rec;
 	if((dbt->size = rec_size) > 0) {
 		if((ret = __os_malloc(env,
@@ -1784,14 +1778,12 @@ static int send_version_response(ENV *env, REPMGR_CONNECTION * conn)
 	}
 	return ret;
 }
-
 /*
  * Sends a version-aware handshake to the remote site, only after we've verified
  * that it is indeed version-aware.  We can send either v2 or v3 handshake,
  * depending on the connection's version.
  *
- * PUBLIC: int __repmgr_send_handshake __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, void *, size_t, uint32));
+ * PUBLIC: int __repmgr_send_handshake __P((ENV *, REPMGR_CONNECTION *, void *, size_t, uint32));
  */
 int __repmgr_send_handshake(ENV *env, REPMGR_CONNECTION * conn, void * opt, size_t optlen, uint32 flags)
 {

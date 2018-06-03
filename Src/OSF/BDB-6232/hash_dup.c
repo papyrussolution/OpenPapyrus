@@ -225,7 +225,7 @@ int __ham_add_dup(DBC *dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 /*
  * Convert an on-page set of duplicates to an offpage set of duplicates.
  *
- * PUBLIC: int __ham_dup_convert __P((DBC *));
+ * PUBLIC: int __ham_dup_convert(DBC *);
  */
 int __ham_dup_convert(DBC *dbc)
 {

@@ -338,7 +338,7 @@ err:
  * __log_autoremove --
  *	Delete any non-essential log files.
  *
- * PUBLIC: void __log_autoremove __P((ENV *));
+ * PUBLIC: void __log_autoremove(ENV *);
  */
 void __log_autoremove(ENV *env)
 {

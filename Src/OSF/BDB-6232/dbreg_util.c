@@ -72,7 +72,7 @@ int __dbreg_rem_dbentry(DB_LOG *dblp, int32 ndx)
  * __dbreg_log_files --
  *	Put a DBREG_CHKPNT/CLOSE log record for each open database.
  *
- * PUBLIC: int __dbreg_log_files __P((ENV *, uint32));
+ * PUBLIC: int __dbreg_log_files(ENV *, uint32);
  */
 int __dbreg_log_files(ENV *env, uint32 opcode)
 {
@@ -130,7 +130,7 @@ int __dbreg_log_files(ENV *env, uint32 opcode)
 /*
  * __dbreg_log_nofiles --
  *
- * PUBLIC: int __dbreg_log_nofiles __P((ENV *));
+ * PUBLIC: int __dbreg_log_nofiles(ENV *);
  */
 int __dbreg_log_nofiles(ENV *env)
 {
@@ -229,7 +229,7 @@ int __dbreg_close_file(ENV *env, FNAME * fnp)
  * prepared txns that may use these files.  These will be invalidated later
  * when all outstanding prepared txns are resolved.
  *
- * PUBLIC: int __dbreg_mark_restored __P((ENV *));
+ * PUBLIC: int __dbreg_mark_restored(ENV *);
  */
 int __dbreg_mark_restored(ENV *env)
 {
@@ -697,7 +697,7 @@ static int __dbreg_check_master(ENV *env, uint8 * uid, char * name)
  * if a master becomes a client and then becomes a master again and
  * there are other processes with valid open handles to this env.
  *
- * PUBLIC: int __dbreg_lazy_id __P((DB *));
+ * PUBLIC: int __dbreg_lazy_id(DB *);
  */
 int __dbreg_lazy_id(DB *dbp)
 {

@@ -13,7 +13,7 @@
 #include "dbinc/qam.h"
 #include "dbinc/fop.h"
 /*
- * PUBLIC: int __crdel_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __crdel_init_verify(ENV *, DB_DISTAB *);
  */
 int __crdel_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -29,7 +29,7 @@ int __crdel_init_verify(ENV *env, DB_DISTAB * dtabp)
 	return 0;
 }
 /*
- * PUBLIC: int __db_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __db_init_verify(ENV *, DB_DISTAB *);
  */
 int __db_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -68,7 +68,7 @@ int __db_init_verify(ENV *env, DB_DISTAB * dtabp)
 }
 
 /*
- * PUBLIC: int __dbreg_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __dbreg_init_verify(ENV *, DB_DISTAB *);
  */
 int __dbreg_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -78,7 +78,7 @@ int __dbreg_init_verify(ENV *env, DB_DISTAB * dtabp)
 	return 0;
 }
 /*
- * PUBLIC: int __bam_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __bam_init_verify(ENV *, DB_DISTAB *);
  */
 int __bam_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -107,7 +107,7 @@ int __bam_init_verify(ENV *env, DB_DISTAB * dtabp)
 }
 
 /*
- * PUBLIC: int __fop_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __fop_init_verify(ENV *, DB_DISTAB *);
  */
 int __fop_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -139,7 +139,7 @@ int __fop_init_verify(ENV *env, DB_DISTAB * dtabp)
 
 #ifdef HAVE_HASH
 /*
- * PUBLIC: int __ham_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __ham_init_verify(ENV *, DB_DISTAB *);
  */
 int __ham_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -176,7 +176,7 @@ int __ham_init_verify(ENV *env, DB_DISTAB * dtabp)
 #endif /* HAVE_HASH */
 #ifdef HAVE_HEAP
 /*
- * PUBLIC: int __heap_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __heap_init_verify(ENV *, DB_DISTAB *);
  */
 int __heap_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -194,7 +194,7 @@ int __heap_init_verify(ENV *env, DB_DISTAB * dtabp)
 #endif /* HAVE_HEAP */
 #ifdef HAVE_QUEUE
 /*
- * PUBLIC: int __qam_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __qam_init_verify(ENV *, DB_DISTAB *);
  */
 int __qam_init_verify(ENV *env, DB_DISTAB * dtabp)
 {
@@ -214,7 +214,7 @@ int __qam_init_verify(ENV *env, DB_DISTAB * dtabp)
 
 #endif /* HAVE_QUEUE */
 /*
- * PUBLIC: int __txn_init_verify __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __txn_init_verify(ENV *, DB_DISTAB *);
  */
 int __txn_init_verify(ENV *env, DB_DISTAB * dtabp)
 {

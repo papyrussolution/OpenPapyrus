@@ -16,7 +16,7 @@
  *	configuration time so cross-compilation and general embedded
  *	system support is simpler.
  *
- * PUBLIC: int __db_isbigendian __P((void));
+ * PUBLIC: int __db_isbigendian(void);
  */
 int __db_isbigendian()
 {

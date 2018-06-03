@@ -872,7 +872,7 @@ static int __rep_newmaster_empty(ENV *env, int eid)
  *	Clear all election information for this site.  Assumes the
  *	caller hold the region mutex.
  *
- * PUBLIC: void __rep_elect_done __P((ENV *, REP *));
+ * PUBLIC: void __rep_elect_done(ENV *, REP *);
  */
 void __rep_elect_done(ENV *env, REP * rep)
 {
@@ -1015,7 +1015,7 @@ static int __rep_show_progress(ENV *env, const char * which, int mins)
  *
  *	Decrement handle count upon routine exit.
  *
- * PUBLIC: int __env_db_rep_exit __P((ENV *));
+ * PUBLIC: int __env_db_rep_exit(ENV *);
  */
 int __env_db_rep_exit(ENV *env)
 {
@@ -1121,7 +1121,7 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
  * cases where we want to count an operation in the context of a transaction,
  * but the operation does not involve a DB handle.
  *
- * PUBLIC: int __op_handle_enter __P((ENV *));
+ * PUBLIC: int __op_handle_enter(ENV *);
  */
 int __op_handle_enter(ENV *env)
 {
@@ -1193,7 +1193,7 @@ int __op_rep_enter(ENV *env, int local_nowait, int obey_user)
  *	Decrement op count upon transaction commit/abort/discard or
  *	memp_fput.
  *
- * PUBLIC: int __op_rep_exit __P((ENV *));
+ * PUBLIC: int __op_rep_exit(ENV *);
  */
 int __op_rep_exit(ENV *env)
 {
@@ -1216,7 +1216,7 @@ int __op_rep_exit(ENV *env)
  *	Used by log_archive to determine if it is okay to remove
  * log files.
  *
- * PUBLIC: int __archive_rep_enter __P((ENV *));
+ * PUBLIC: int __archive_rep_enter(ENV *);
  */
 int __archive_rep_enter(ENV *env)
 {
@@ -1243,10 +1243,8 @@ int __archive_rep_enter(ENV *env)
 		if(F_ISSET(renv, DB_REGENV_REPLOCKED))
 			return (DB_REP_LOCKOUT);
 	}
-
 	if(!REP_ON(env))
 		return 0;
-
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
@@ -1257,12 +1255,11 @@ int __archive_rep_enter(ENV *env)
 	REP_SYSTEM_UNLOCK(env);
 	return ret;
 }
-
 /*
  * __archive_rep_exit
  *	Clean up accounting for log archive threads.
  *
- * PUBLIC: int __archive_rep_exit __P((ENV *));
+ * PUBLIC: int __archive_rep_exit(ENV *);
  */
 int __archive_rep_exit(ENV *env)
 {
@@ -1277,7 +1274,6 @@ int __archive_rep_exit(ENV *env)
 	REP_SYSTEM_UNLOCK(env);
 	return 0;
 }
-
 /*
  * __rep_lockout_archive --
  *	Coordinate with other threads archiving log files so that
@@ -1285,7 +1281,7 @@ int __archive_rep_exit(ENV *env)
  *	from underneath us.
  *	Assumes the caller holds the region mutex.
  *
- * PUBLIC: int __rep_lockout_archive __P((ENV *, REP *));
+ * PUBLIC: int __rep_lockout_archive(ENV *, REP *);
  */
 int __rep_lockout_archive(ENV *env, REP * rep)
 {
@@ -1297,7 +1293,7 @@ int __rep_lockout_archive(ENV *env, REP * rep)
  *	that we can run single-threaded, for recovery or internal backup.
  *	Assumes the caller holds the region mutex.
  *
- * PUBLIC: int __rep_lockout_api __P((ENV *, REP *));
+ * PUBLIC: int __rep_lockout_api(ENV *, REP *);
  */
 int __rep_lockout_api(ENV *env, REP * rep)
 {
@@ -1316,7 +1312,7 @@ int __rep_lockout_api(ENV *env, REP * rep)
 }
 
 /*
- * PUBLIC: int __rep_take_apilockout __P((ENV *));
+ * PUBLIC: int __rep_take_apilockout(ENV *);
  *
  * For use by repmgr (keep the module boundaries reasonably clean).
  */
@@ -1330,7 +1326,7 @@ int __rep_take_apilockout(ENV *env)
 	return ret;
 }
 /*
- * PUBLIC: int __rep_clear_apilockout __P((ENV *));
+ * PUBLIC: int __rep_clear_apilockout(ENV *);
  */
 int __rep_clear_apilockout(ENV *env)
 {

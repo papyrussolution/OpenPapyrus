@@ -18,7 +18,7 @@ static int __env_faultmem __P((ENV *, void *, size_t, int));
 static int __env_sys_attach __P((ENV *, REGINFO *, REGION *));
 static int __env_sys_detach __P((ENV *, REGINFO *, int));
 static void __env_des_destroy __P((ENV *, REGION *));
-static void __env_remove_file __P((ENV *));
+static void __env_remove_file(ENV *);
 
 /*
  * __env_attach
@@ -577,7 +577,7 @@ retry:  /* Close any open file handle. */
  * __env_turn_on --
  *	Turn on the created environment.
  *
- * PUBLIC: int __env_turn_on __P((ENV *));
+ * PUBLIC: int __env_turn_on(ENV *);
  */
 int __env_turn_on(ENV *env)
 {
@@ -597,7 +597,7 @@ int __env_turn_on(ENV *env)
  * __env_turn_off --
  *	Turn off the environment.
  *
- * PUBLIC: int __env_turn_off __P((ENV *, uint32));
+ * PUBLIC: int __env_turn_off(ENV *, uint32);
  */
 int __env_turn_off(ENV *env, uint32 flags)
 {
@@ -675,7 +675,7 @@ void __env_panic_set(ENV *env, int on)
  * __env_ref_increment --
  *	Increment the environment's reference count.
  *
- * PUBLIC: int __env_ref_increment __P((ENV *));
+ * PUBLIC: int __env_ref_increment(ENV *);
  */
 int __env_ref_increment(ENV *env)
 {
@@ -703,7 +703,7 @@ int __env_ref_increment(ENV *env)
  * __env_ref_decrement --
  *	Decrement the environment's reference count.
  *
- * PUBLIC: int __env_ref_decrement __P((ENV *));
+ * PUBLIC: int __env_ref_decrement(ENV *);
  */
 int __env_ref_decrement(ENV *env)
 {
@@ -734,7 +734,7 @@ int __env_ref_decrement(ENV *env)
  *	read of refcnt to simply provide a spot check of the value.  It
  *	is only intended for use as an internal utility routine.
  *
- * PUBLIC: int __env_ref_get __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __env_ref_get(DB_ENV *, uint32 *);
  */
 int __env_ref_get(DB_ENV *dbenv, uint32 * countp)
 {
@@ -748,7 +748,7 @@ int __env_ref_get(DB_ENV *dbenv, uint32 * countp)
  * __env_region_cleanup --
  *	Detach from any regions, e.g., when closing after a panic.
  *
- * PUBLIC: int __env_region_cleanup __P((ENV *));
+ * PUBLIC: int __env_region_cleanup(ENV *);
  */
 int __env_region_cleanup(ENV *env)
 {
@@ -833,7 +833,7 @@ int __env_detach(ENV *env, int destroy)
  * __env_remove_env --
  *	Remove an environment.
  *
- * PUBLIC: int __env_remove_env __P((ENV *));
+ * PUBLIC: int __env_remove_env(ENV *);
  */
 int __env_remove_env(ENV *env)
 {

@@ -20,8 +20,7 @@
  *
  * Calculate which extent the page is in, open and create if necessary.
  *
- * PUBLIC: int __qam_fprobe __P((DBC *, db_pgno_t,
- * PUBLIC:     void *, qam_probe_mode, DB_CACHE_PRIORITY, uint32));
+ * PUBLIC: int __qam_fprobe __P((DBC *, db_pgno_t, void *, qam_probe_mode, DB_CACHE_PRIORITY, uint32));
  */
 int __qam_fprobe(DBC *dbc, db_pgno_t pgno, void * addrp, qam_probe_mode mode, DB_CACHE_PRIORITY priority, uint32 flags)
 {
@@ -456,7 +455,7 @@ err:    MUTEX_UNLOCK(env, dbp->mutex);
  * __qam_sync --
  *	Flush the database cache.
  *
- * PUBLIC: int __qam_sync __P((DB *));
+ * PUBLIC: int __qam_sync(DB *);
  */
 int __qam_sync(DB *dbp)
 {
@@ -476,8 +475,7 @@ int __qam_sync(DB *dbp)
  *	Another thread may close the handle so this should only
  *	be used single threaded or with care.
  *
- * PUBLIC: int __qam_gen_filelist __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, QUEUE_FILELIST **));
+ * PUBLIC: int __qam_gen_filelist __P((DB *, DB_THREAD_INFO *, QUEUE_FILELIST **));
  */
 int __qam_gen_filelist(DB *dbp, DB_THREAD_INFO * ip, QUEUE_FILELIST ** filelistp)
 {
@@ -832,12 +830,10 @@ int __qam_lsn_reset(DB *dbp, DB_THREAD_INFO * ip)
 	__os_free(dbp->env, filelist);
 	return ret;
 }
-
 /*
  * __qam_backup_extents--
  *	Routine to safely copy the active queue extents of a database.
- * PUBLIC: int __qam_backup_extents __P((DB *,
- * PUBLIC:       DB_THREAD_INFO *, const char *, uint32));
+ * PUBLIC: int __qam_backup_extents __P((DB *, DB_THREAD_INFO *, const char *, uint32));
  */
 int __qam_backup_extents(DB *dbp, DB_THREAD_INFO * ip, const char * target, uint32 flags)
 {

@@ -17,7 +17,7 @@
 static int __qam_bulk __P((DBC *, DBT *, uint32));
 static int __qamc_close __P((DBC *, db_pgno_t, int *));
 static int __qamc_del __P((DBC *, uint32));
-static int __qamc_destroy __P((DBC *));
+static int __qamc_destroy(DBC *);
 static int __qamc_get __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
 static int __qamc_put __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
 static int __qam_consume __P((DBC *, QMETA *, db_recno_t));
@@ -1583,7 +1583,7 @@ int __qamc_dup(DBC *orig_dbc, DBC *new_dbc)
 /*
  * __qamc_init
  *
- * PUBLIC: int __qamc_init __P((DBC *));
+ * PUBLIC: int __qamc_init(DBC *);
  */
 int __qamc_init(DBC *dbc)
 {

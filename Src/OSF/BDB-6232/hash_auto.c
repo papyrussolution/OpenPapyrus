@@ -164,7 +164,7 @@ DB_LOG_RECSPEC __ham_chgpg_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __ham_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __ham_init_recover(ENV *, DB_DISTAB *);
  */
 int __ham_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

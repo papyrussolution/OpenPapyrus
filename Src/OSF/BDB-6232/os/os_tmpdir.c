@@ -20,7 +20,7 @@
  * The order of items in the list structure and the order of checks in
  * the environment are documented.
  *
- * PUBLIC: int __os_tmpdir __P((ENV *, uint32));
+ * PUBLIC: int __os_tmpdir(ENV *, uint32);
  */
 int __os_tmpdir(ENV *env, uint32 flags)
 {

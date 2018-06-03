@@ -12,7 +12,7 @@
  * __db_openflags --
  *	Convert open(2) flags to DB flags.
  *
- * PUBLIC: uint32 __db_openflags __P((int));
+ * PUBLIC: uint32 __db_openflags(int);
  */
 uint32 __db_openflags(int oflags)
 {

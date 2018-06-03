@@ -11,16 +11,15 @@
 #include "dbinc/db_page.h"
 #include "dbinc/db_am.h"
 
-static int __rep_egen_init  __P((ENV *, REP *));
-static int __rep_gen_init  __P((ENV *, REP *));
-static int __rep_view_init  __P((ENV *, REP *));
-static int __rep_viewfile_exists  __P((ENV *, int *));
-
+static int __rep_egen_init(ENV *, REP *);
+static int __rep_gen_init(ENV *, REP *);
+static int __rep_view_init(ENV *, REP *);
+static int __rep_viewfile_exists(ENV *, int *);
 /*
  * __rep_open --
  *	Initialize the shared memory state for the replication system.
  *
- * PUBLIC: int __rep_open __P((ENV *));
+ * PUBLIC: int __rep_open(ENV *);
  */
 int __rep_open(ENV *env)
 {
@@ -60,30 +59,18 @@ int __rep_open(ENV *env)
 		 * accessed when messages arrive out-of-order, so it should
 		 * stay small and not be used in a high-performance app.
 		 */
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_DATABASE, 0, &rep->mtx_clientdb)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_DATABASE, 0, &rep->mtx_clientdb)) != 0)
 			return ret;
-
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_CHKPT, 0, &rep->mtx_ckp)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_CHKPT, 0, &rep->mtx_ckp)) != 0)
 			return ret;
-
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_DIAG, 0, &rep->mtx_diag)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_DIAG, 0, &rep->mtx_diag)) != 0)
 			return ret;
-
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_EVENT, 0, &rep->mtx_event)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_EVENT, 0, &rep->mtx_event)) != 0)
 			return ret;
-
-		if((ret = __mutex_alloc(
-			    env, MTX_REP_START, 0, &rep->mtx_repstart)) != 0)
+		if((ret = __mutex_alloc(env, MTX_REP_START, 0, &rep->mtx_repstart)) != 0)
 			return ret;
-
-		if((ret = __mutex_alloc(
-			    env, MTX_LSN_HISTORY, 0, &db_rep->mtx_lsnhist)) != 0)
+		if((ret = __mutex_alloc(env, MTX_LSN_HISTORY, 0, &db_rep->mtx_lsnhist)) != 0)
 			return ret;
-
 		rep->diag_off = 0;
 		rep->diag_index = 0;
 		rep->newmaster_event_gen = 0;
@@ -107,7 +94,6 @@ int __rep_open(ENV *env)
 		 */
 		if(FLD_ISSET(rep->config, REP_C_INMEM))
 			FLD_CLR(env->dbenv->verbose, DB_VERB_REP_SYSTEM);
-
 		if((ret = __rep_gen_init(env, rep)) != 0)
 			return ret;
 		if((ret = __rep_egen_init(env, rep)) != 0)
@@ -129,7 +115,6 @@ int __rep_open(ENV *env)
 			if(view)
 				rep->stat.st_view = 1;
 		}
-
 		rep->gbytes = db_rep->gbytes;
 		rep->bytes = db_rep->bytes;
 		rep->request_gap = db_rep->request_gap;
@@ -204,7 +189,6 @@ int __rep_open(ENV *env)
 			return ret;
 #endif
 	}
-
 	db_rep->region = rep;
 	/*
 	 * Open the diagnostic message files for this env handle.  We do
@@ -215,29 +199,24 @@ int __rep_open(ENV *env)
 	for(i = 0; i < DBREP_DIAG_FILES; i++) {
 		db_rep->diagfile[i] = NULL;
 		(void)snprintf(fname, sizeof(fname), REP_DIAGNAME, i);
-		if((ret = __db_appname(env, DB_APP_NONE, fname,
-		    NULL, &p)) != 0)
+		if((ret = __db_appname(env, DB_APP_NONE, fname, NULL, &p)) != 0)
 			goto err;
-		ret = __os_open(env, p, 0, DB_OSO_CREATE, DB_MODE_600,
-			&db_rep->diagfile[i]);
+		ret = __os_open(env, p, 0, DB_OSO_CREATE, DB_MODE_600, &db_rep->diagfile[i]);
 		__os_free(env, p);
 		if(ret != 0)
 			goto err;
 	}
-
 out:
 	return 0;
-
 err:
 	(void)__rep_close_diagfiles(env);
 	return ret;
 }
-
 /*
  * __rep_close_diagfiles --
  *	Close any diag message files that are open.
  *
- * PUBLIC: int __rep_close_diagfiles __P((ENV *));
+ * PUBLIC: int __rep_close_diagfiles(ENV *);
  */
 int __rep_close_diagfiles(ENV *env)
 {
@@ -255,21 +234,17 @@ int __rep_close_diagfiles(ENV *env)
  * __rep_env_refresh --
  *	Replication-specific refresh of the ENV structure.
  *
- * PUBLIC: int __rep_env_refresh __P((ENV *));
+ * PUBLIC: int __rep_env_refresh(ENV *);
  */
 int __rep_env_refresh(ENV *env)
 {
-	DB_REP * db_rep;
-	REGENV * renv;
-	REGINFO * infop;
-	REP * rep;
 	struct __rep_waiter * waiter;
 	int t_ret;
 	int ret = 0;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
 	/*
 	 * If we are the last reference closing the env, clear our knowledge of
 	 * belonging to a group and that there is a valid handle where
@@ -335,7 +310,7 @@ int __rep_env_refresh(ENV *env)
  * __rep_close --
  *      Shut down all of replication.
  *
- * PUBLIC: int __rep_env_close __P((ENV *));
+ * PUBLIC: int __rep_env_close(ENV *);
  */
 int __rep_env_close(ENV *env)
 {
@@ -345,25 +320,22 @@ int __rep_env_close(ENV *env)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __rep_preclose --
  *	If we are a client, shut down our client database and send
  * any outstanding bulk buffers.
  *
- * PUBLIC: int __rep_preclose __P((ENV *));
+ * PUBLIC: int __rep_preclose(ENV *);
  */
 int __rep_preclose(ENV *env)
 {
-	DB_LOG * dblp;
-	DB_REP * db_rep;
 	LOG * lp;
 	DB * dbp;
 	REP_BULK bulk;
 	int t_ret;
 	int ret = 0;
-	db_rep = env->rep_handle;
-	dblp = env->lg_handle;
+	DB_REP * db_rep = env->rep_handle;
+	DB_LOG * dblp = env->lg_handle;
 	/*
 	 * If we have a rep region, we can preclose.  Otherwise, return.
 	 * If we're on an error path from env open, we may not have
@@ -371,18 +343,15 @@ int __rep_preclose(ENV *env)
 	 */
 	if(db_rep == NULL || db_rep->region == NULL)
 		return ret;
-
 	MUTEX_LOCK(env, db_rep->mtx_lsnhist);
 	if((dbp = db_rep->lsn_db) != NULL) {
 		ret = __db_close(dbp, NULL, DB_NOSYNC);
 		db_rep->lsn_db = NULL;
 	}
 	MUTEX_UNLOCK(env, db_rep->mtx_lsnhist);
-
 	MUTEX_LOCK(env, db_rep->region->mtx_clientdb);
 	if(db_rep->rep_db != NULL) {
-		if((t_ret = __db_close(db_rep->rep_db,
-		    NULL, DB_NOSYNC)) != 0 && ret == 0)
+		if((t_ret = __db_close(db_rep->rep_db, NULL, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
 		db_rep->rep_db = NULL;
 	}
@@ -422,15 +391,13 @@ out:    MUTEX_UNLOCK(env, db_rep->region->mtx_clientdb);
  *	be called from __env_close and we need to check if the env,
  *	handles and regions are set up, or not.
  *
- * PUBLIC: int __rep_closefiles __P((ENV *));
+ * PUBLIC: int __rep_closefiles(ENV *);
  */
 int __rep_closefiles(ENV *env)
 {
-	DB_LOG * dblp;
-	DB_REP * db_rep;
 	int ret = 0;
-	db_rep = env->rep_handle;
-	dblp = env->lg_handle;
+	DB_REP * db_rep = env->rep_handle;
+	DB_LOG * dblp = env->lg_handle;
 	if(db_rep == NULL || db_rep->region == NULL)
 		return ret;
 	if(dblp == NULL)
@@ -466,20 +433,18 @@ static int __rep_egen_init(ENV *env, REP * rep)
 		/*
 		 * File exists, open it and read in our egen.
 		 */
-		if((ret = __os_open(env, p, 0,
-		    DB_OSO_RDONLY, DB_MODE_600, &fhp)) != 0)
+		if((ret = __os_open(env, p, 0, DB_OSO_RDONLY, DB_MODE_600, &fhp)) != 0)
 			goto err;
-		if((ret = __os_read(env, fhp, &rep->egen, sizeof(uint32),
-		    &cnt)) != 0 || cnt != sizeof(uint32))
+		if((ret = __os_read(env, fhp, &rep->egen, sizeof(uint32), &cnt)) != 0 || cnt != sizeof(uint32))
 			goto err1;
-		RPRINT(env, (env, DB_VERB_REP_MISC, "Read in egen %lu",
-		    (u_long)rep->egen));
-err1:           (void)__os_closehandle(env, fhp);
+		RPRINT(env, (env, DB_VERB_REP_MISC, "Read in egen %lu", (u_long)rep->egen));
+err1:           
+		(void)__os_closehandle(env, fhp);
 	}
-err:    __os_free(env, p);
+err:    
+	__os_free(env, p);
 	return ret;
 }
-
 /*
  * __rep_write_egen --
  *	Write out the egen into the env file.
@@ -537,20 +502,18 @@ static int __rep_gen_init(ENV *env, REP * rep)
 		/*
 		 * File exists, open it and read in our gen.
 		 */
-		if((ret = __os_open(env, p, 0,
-		    DB_OSO_RDONLY, DB_MODE_600, &fhp)) != 0)
+		if((ret = __os_open(env, p, 0, DB_OSO_RDONLY, DB_MODE_600, &fhp)) != 0)
 			goto err;
-		if((ret = __os_read(env, fhp, &rep->gen, sizeof(uint32),
-		    &cnt)) < 0 || cnt == 0)
+		if((ret = __os_read(env, fhp, &rep->gen, sizeof(uint32), &cnt)) < 0 || cnt == 0)
 			goto err1;
-		RPRINT(env, (env, DB_VERB_REP_MISC, "Read in gen %lu",
-		    (u_long)rep->gen));
-err1:           (void)__os_closehandle(env, fhp);
+		RPRINT(env, (env, DB_VERB_REP_MISC, "Read in gen %lu", (u_long)rep->gen));
+err1:           
+		(void)__os_closehandle(env, fhp);
 	}
-err:    __os_free(env, p);
+err:    
+	__os_free(env, p);
 	return ret;
 }
-
 /*
  * __rep_write_gen --
  *	Write out the gen into the env file.
@@ -579,7 +542,6 @@ int __rep_write_gen(ENV *env, REP * rep, uint32 gen)
 	__os_free(env, p);
 	return ret;
 }
-
 /*
  * __rep_view_init --
  *	Initialize the permanent view file to know this site is a view
@@ -596,11 +558,8 @@ static int __rep_view_init(ENV *env, REP * rep)
 	 */
 	if(FLD_ISSET(rep->config, REP_C_INMEM))
 		return 0;
-
-	if((ret = __db_appname(env,
-	    DB_APP_META, REPVIEW, NULL, &p)) != 0)
+	if((ret = __db_appname(env, DB_APP_META, REPVIEW, NULL, &p)) != 0)
 		return ret;
-
 	/*
 	 * If the file doesn't exist, create it.  We just want to open
 	 * and close the file.  It doesn't have any content.
@@ -608,20 +567,19 @@ static int __rep_view_init(ENV *env, REP * rep)
 	 */
 	if(__os_exists(env, p, NULL) != 0) {
 		RPRINT(env, (env, DB_VERB_REP_MISC, "View init: Create %s", p));
-		if((ret = __os_open(env, p, 0,
-		    DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &fhp)) != 0)
+		if((ret = __os_open(env, p, 0, DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &fhp)) != 0)
 			goto out;
 		(void)__os_closehandle(env, fhp);
 	}
-out:    __os_free(env, p);
+out:    
+	__os_free(env, p);
 	return ret;
 }
-
 /*
  * __rep_check_view --
  *	Check consistency between the view file and the db_rep handle.
  *
- * PUBLIC: int __rep_check_view __P((ENV *));
+ * PUBLIC: int __rep_check_view(ENV *);
  */
 int __rep_check_view(ENV *env)
 {
@@ -653,13 +611,10 @@ static int __rep_viewfile_exists(ENV *env, int * existp)
 	char * p;
 	int ret;
 	*existp = 0;
-	if((ret = __db_appname(env,
-	    DB_APP_META, REPVIEW, NULL, &p)) != 0)
+	if((ret = __db_appname(env, DB_APP_META, REPVIEW, NULL, &p)) != 0)
 		return ret;
-
 	if(__os_exists(env, p, NULL) == 0)
 		*existp = 1;
-
 	__os_free(env, p);
 	return ret;
 }

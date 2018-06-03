@@ -496,7 +496,7 @@ int __db_vrfy_ccnext(DBC *dbc, VRFY_CHILDINFO ** cipp)
  *	and keep the interfaces the same, and a function call here or there
  *	seldom hurts anyone.
  *
- * PUBLIC: int __db_vrfy_ccclose __P((DBC *));
+ * PUBLIC: int __db_vrfy_ccclose(DBC *);
  */
 int __db_vrfy_ccclose(DBC *dbc)
 {

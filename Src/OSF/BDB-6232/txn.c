@@ -153,7 +153,6 @@ int __txn_allocate(ENV *env, DB_TXN ** txnpp)
 	*txnpp = txn;
 	return 0;
 }
-
 /*
  * __txn_begin --
  *	ENV->txn_begin.
@@ -165,8 +164,7 @@ int __txn_allocate(ENV *env, DB_TXN ** txnpp)
  * provides access to the transaction ID and the offset in the transaction
  * region of the TXN_DETAIL structure.
  *
- * PUBLIC: int __txn_begin __P((ENV *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DB_TXN **, uint32));
+ * PUBLIC: int __txn_begin __P((ENV *, DB_THREAD_INFO *, DB_TXN *, DB_TXN **, uint32));
  */
 int __txn_begin(ENV *env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags)
 {
@@ -468,15 +466,13 @@ err:    if(inserted) {
 	TXN_SYSTEM_UNLOCK(env);
 	return ret;
 }
-
 /*
  * __txn_continue
  *	Fill in the fields of the local transaction structure given
  *	the detail transaction structure.  Optionally link transactions
  *	to transaction manager list.
  *
- * PUBLIC: int __txn_continue __P((ENV *,
- * PUBLIC:     DB_TXN *, TXN_DETAIL *, DB_THREAD_INFO *, int));
+ * PUBLIC: int __txn_continue __P((ENV *, DB_TXN *, TXN_DETAIL *, DB_THREAD_INFO *, int));
  */
 int __txn_continue(ENV *env, DB_TXN * txn, TXN_DETAIL * td, DB_THREAD_INFO * ip, int add_to_list)
 {
@@ -1871,7 +1867,7 @@ int __txn_force_abort(ENV *env, uint8 * buffer)
  *	middle of taking care of restored transactions.  If so, close the files
  *	we opened.
  *
- * PUBLIC: int __txn_preclose __P((ENV *));
+ * PUBLIC: int __txn_preclose(ENV *);
  */
 int __txn_preclose(ENV *env)
 {
@@ -1906,7 +1902,7 @@ int __txn_preclose(ENV *env)
  * __txn_reset --
  *	Reset the last txnid to its minimum value, and log the reset.
  *
- * PUBLIC: int __txn_reset __P((ENV *));
+ * PUBLIC: int __txn_reset(ENV *);
  */
 int __txn_reset(ENV *env)
 {
@@ -1932,19 +1928,16 @@ static void __txn_set_txn_lsnp(DB_TXN *txn, DB_LSN ** blsnp, DB_LSN ** llsnp)
 	if(IS_ZERO_LSN(td->begin_lsn))
 		*blsnp = &td->begin_lsn;
 }
-
 /*
- * PUBLIC: int __txn_applied_pp __P((DB_ENV *,
- * PUBLIC:     DB_TXN_TOKEN *, db_timeout_t, uint32));
+ * PUBLIC: int __txn_applied_pp __P((DB_ENV *, DB_TXN_TOKEN *, db_timeout_t, uint32));
  */
 int __txn_applied_pp(DB_ENV *dbenv, DB_TXN_TOKEN * token, db_timeout_t timeout, uint32 flags)
 {
-	ENV * env;
 	DB_THREAD_INFO * ip;
 	DB_COMMIT_INFO commit_info;
 	uint8 * bp;
 	int ret;
-	env = dbenv->env;
+	ENV * env = dbenv->env;
 	if(flags != 0)
 		return (__db_ferr(env, "DB_ENV->txn_applied", 0));
 	/* Unmarshal the token from its stored form. */

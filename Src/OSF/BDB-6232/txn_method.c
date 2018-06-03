@@ -13,7 +13,7 @@
  * __txn_env_create --
  *	Transaction specific initialization of the DB_ENV structure.
  *
- * PUBLIC: int __txn_env_create __P((DB_ENV *));
+ * PUBLIC: int __txn_env_create(DB_ENV *);
  */
 int __txn_env_create(DB_ENV *dbenv)
 {
@@ -30,14 +30,14 @@ int __txn_env_create(DB_ENV *dbenv)
  * __txn_env_destroy --
  *	Transaction specific destruction of the DB_ENV structure.
  *
- * PUBLIC: void __txn_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __txn_env_destroy(DB_ENV *);
  */
 void __txn_env_destroy(DB_ENV *dbenv)
 {
 	COMPQUIET(dbenv, NULL);
 }
 /*
- * PUBLIC: int __txn_get_tx_max __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __txn_get_tx_max(DB_ENV *, uint32 *);
  */
 int __txn_get_tx_max(DB_ENV *dbenv, uint32 * tx_maxp)
 {
@@ -55,7 +55,7 @@ int __txn_get_tx_max(DB_ENV *dbenv, uint32 * tx_maxp)
  * __txn_set_tx_max --
  *	DB_ENV->set_tx_max.
  *
- * PUBLIC: int __txn_set_tx_max __P((DB_ENV *, uint32));
+ * PUBLIC: int __txn_set_tx_max(DB_ENV *, uint32);
  */
 int __txn_set_tx_max(DB_ENV *dbenv, uint32 tx_max)
 {

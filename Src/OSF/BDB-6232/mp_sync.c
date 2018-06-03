@@ -15,18 +15,15 @@
 
 typedef struct {
 	DB_MPOOL_HASH * track_hp;        /* Hash bucket. */
-
 	roff_t track_off;               /* Page file offset. */
 	db_pgno_t track_pgno;           /* Page number. */
 } BH_TRACK;
 
 static int __bhcmp __P((const void *, const void *));
 static int __memp_close_flush_files __P((ENV *, int));
-static int __memp_sync_files __P((ENV *));
-static int __memp_sync_file __P((ENV *,
-    MPOOLFILE *, void *, uint32 *, uint32));
+static int __memp_sync_files(ENV *);
+static int __memp_sync_file __P((ENV *, MPOOLFILE *, void *, uint32 *, uint32));
 static inline void __update_err_ret(int, int*);
-
 /*
  * __memp_walk_files --
  * PUBLIC: int __memp_walk_files __P((ENV *, MPOOL *,
@@ -56,7 +53,6 @@ int __memp_walk_files(ENV *env, MPOOL * mp, int (*func)(ENV *, MPOOLFILE *, void
 	}
 	return ret;
 }
-
 /*
  * __memp_discard_all_mpfs --
  *	Force discard all mpoolfiles. When closing a private environment, we
@@ -66,21 +62,15 @@ int __memp_walk_files(ENV *env, MPOOL * mp, int (*func)(ENV *, MPOOLFILE *, void
  */
 int __memp_discard_all_mpfs(ENV *env, MPOOL * mp)
 {
-	DB_MPOOL * dbmp;
-	DB_MPOOL_HASH * hp;
-	MPOOLFILE * mfp;
-	int i, ret, t_ret;
-
-	ret = t_ret = 0;
-	mfp = NULL;
-	hp = NULL;
-	dbmp = env->mp_handle;
-
-	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
+	MPOOLFILE * mfp = 0;
+	int i;
+	int ret = 0;
+	int t_ret = 0;
+	DB_MPOOL * dbmp = env->mp_handle;
+	DB_MPOOL_HASH * hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
 	for(i = 0; i < MPOOL_FILE_BUCKETS; i++, hp++) {
 		MUTEX_LOCK(env, hp->mtx_hash);
-		while((mfp = SH_TAILQ_FIRST(
-			    &hp->hash_bucket, __mpoolfile)) != NULL) {
+		while((mfp = SH_TAILQ_FIRST(&hp->hash_bucket, __mpoolfile)) != NULL) {
 			MUTEX_LOCK(env, mfp->mutex);
 			if((t_ret = __memp_mf_discard(dbmp, mfp, 1)) != 0) {
 				if(ret == 0)
@@ -92,7 +82,6 @@ int __memp_discard_all_mpfs(ENV *env, MPOOL * mp)
 	}
 	return ret;
 }
-
 /*
  * __memp_sync_pp --
  *	ENV->memp_sync pre/post processing.
@@ -220,19 +209,15 @@ int __mp_xxx_fh(DB_MPOOLFILE *dbmfp, DB_FH ** fhp)
 	 */
 	if((*fhp = dbmfp->fhp) != NULL)
 		return 0;
-
-	if((ret = __memp_sync_int(
-		    dbmfp->env, dbmfp, 0, DB_SYNC_FILE, NULL, NULL)) == 0)
+	if((ret = __memp_sync_int(dbmfp->env, dbmfp, 0, DB_SYNC_FILE, NULL, NULL)) == 0)
 		*fhp = dbmfp->fhp;
 	return ret;
 }
-
 /*
  * __memp_sync_int --
  *	Mpool sync internal function.
  *
- * PUBLIC: int __memp_sync_int __P((ENV *,
- * PUBLIC:     DB_MPOOLFILE *, uint32, uint32, uint32 *, int *));
+ * PUBLIC: int __memp_sync_int __P((ENV *, DB_MPOOLFILE *, uint32, uint32, uint32 *, int *));
  */
 int __memp_sync_int(ENV *env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 flags, uint32 * wrote_totalp, int * interruptedp)
 {
@@ -247,37 +232,29 @@ int __memp_sync_int(ENV *env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 f
 	uint32 ar_cnt, ar_max, i, n_cache, remaining, wrote_total;
 	int32 wrote_cnt;
 	int dirty, filecnt, maxopenfd, required_write, ret, t_ret;
-
 	dbmp = env->mp_handle;
 	mp = (MPOOL *)dbmp->reginfo[0].primary;
 	last_mf_offset = INVALID_ROFF;
 	filecnt = wrote_total = 0;
-
 	if(wrote_totalp != NULL)
 		*wrote_totalp = 0;
 	if(interruptedp != NULL)
 		*interruptedp = 0;
-
 	/*
 	 * If we're flushing the cache, it's a checkpoint or we're flushing a
 	 * specific file, we really have to write the blocks and we have to
 	 * confirm they made it to disk.  Otherwise, we can skip a block if
 	 * it's hard to get.
 	 */
-	required_write = LF_ISSET(DB_SYNC_CACHE |
-		DB_SYNC_CHECKPOINT | DB_SYNC_FILE | DB_SYNC_QUEUE_EXTENT);
-
+	required_write = LF_ISSET(DB_SYNC_CACHE | DB_SYNC_CHECKPOINT | DB_SYNC_FILE | DB_SYNC_QUEUE_EXTENT);
 	/* Get shared configuration information. */
 	MPOOL_SYSTEM_LOCK(env);
 	maxopenfd = mp->mp_maxopenfd;
 	MPOOL_SYSTEM_UNLOCK(env);
-
 	/* Assume one dirty page per bucket. */
 	ar_max = mp->nreg * mp->htab_buckets;
-	if((ret =
-	    __os_malloc(env, ar_max * sizeof(BH_TRACK), &bharray)) != 0)
+	if((ret = __os_malloc(env, ar_max * sizeof(BH_TRACK), &bharray)) != 0)
 		return ret;
-
 	/*
 	 * Walk each cache's list of buffers and mark all dirty buffers to be
 	 * written and all dirty buffers to be potentially written, depending
@@ -285,7 +262,6 @@ int __memp_sync_int(ENV *env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 f
 	 */
 	for(ar_cnt = 0, n_cache = 0; n_cache < mp->nreg; ++n_cache) {
 		c_mp = (MPOOL *)dbmp->reginfo[n_cache].primary;
-
 		hp = (DB_MPOOL_HASH *)R_ADDR(&dbmp->reginfo[n_cache], c_mp->htab);
 		for(i = 0; i < c_mp->htab_buckets; i++, hp++) {
 			/*
@@ -308,10 +284,8 @@ int __memp_sync_int(ENV *env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 f
 				/* Always ignore clean pages. */
 				if(!F_ISSET(bhp, BH_DIRTY))
 					continue;
-
 				dirty++;
 				mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
-
 				/*
 				 * Ignore in-memory files, unless the file is
 				 * specifically being flushed.
@@ -761,7 +735,6 @@ retry:          MUTEX_LOCK(env, hp->mtx_hash);
 	}
 	return ret;
 }
-
 /*
  * __memp_mf_sync --
  *	Flush an MPOOLFILE, when no currently open handle is available.
@@ -900,7 +873,7 @@ static int __bhcmp(const void * p1, const void *p2)
  *	cannot hold any lock on the dead MPOOLFILE handles, their buffers
  *	or their hash buckets.
  *
- * PUBLIC: int __memp_purge_dead_files __P((ENV *));
+ * PUBLIC: int __memp_purge_dead_files(ENV *);
  */
 int __memp_purge_dead_files(ENV *env)
 {

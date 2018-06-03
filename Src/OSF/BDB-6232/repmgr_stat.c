@@ -10,11 +10,10 @@
 #pragma hdrstop
 
 #ifdef HAVE_STATISTICS
-static int __repmgr_print_all __P((ENV *, uint32));
-static int __repmgr_print_sites __P((ENV *));
-static int __repmgr_print_stats __P((ENV *, uint32));
+static int __repmgr_print_all(ENV *, uint32);
+static int __repmgr_print_sites(ENV *);
+static int __repmgr_print_stats(ENV *, uint32);
 static int __repmgr_stat __P((ENV *, DB_REPMGR_STAT **, uint32));
-
 /*
  * __repmgr_stat_pp --
  *	DB_ENV->repmgr_stat pre/post processing.
@@ -75,7 +74,7 @@ static int __repmgr_stat(ENV *env, DB_REPMGR_STAT ** statp, uint32 flags)
  * __repmgr_stat_print_pp --
  *	DB_ENV->repmgr_stat_print pre/post processing.
  *
- * PUBLIC: int __repmgr_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __repmgr_stat_print_pp(DB_ENV *, uint32);
  */
 int __repmgr_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -87,7 +86,7 @@ int __repmgr_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 	return (__repmgr_stat_print(env, flags));
 }
 /*
- * PUBLIC: int __repmgr_stat_print __P((ENV *, uint32));
+ * PUBLIC: int __repmgr_stat_print(ENV *, uint32);
  */
 int __repmgr_stat_print(ENV *env, uint32 flags)
 {

@@ -1223,10 +1223,9 @@ int __log_file_pp(DB_ENV *dbenv, const DB_LSN * lsn, char * namep, size_t len)
  */
 static int __log_file(ENV *env, const DB_LSN * lsn, char * namep, size_t len)
 {
-	DB_LOG * dblp;
 	int ret;
 	char * name;
-	dblp = env->lg_handle;
+	DB_LOG * dblp = env->lg_handle;
 	LOG_SYSTEM_LOCK(env);
 	ret = __log_name(dblp, lsn->file, &name, NULL, 0);
 	LOG_SYSTEM_UNLOCK(env);
@@ -1240,10 +1239,8 @@ static int __log_file(ENV *env, const DB_LSN * lsn, char * namep, size_t len)
 	}
 	(void)strcpy(namep, name);
 	__os_free(env, name);
-
 	return 0;
 }
-
 /*
  * __log_newfh --
  *	Acquire a file handle for the current log file.
@@ -1262,31 +1259,20 @@ static int __log_newfh(DB_LOG *dblp, int create)
 		(void)__os_closehandle(env, dblp->lfhp);
 		dblp->lfhp = NULL;
 	}
-
-	flags = DB_OSO_SEQ |
-	    (create ? DB_OSO_CREATE : 0) |
-	    (F_ISSET(dblp, DBLOG_DIRECT) ? DB_OSO_DIRECT : 0) |
-	    (F_ISSET(dblp, DBLOG_DSYNC) ? DB_OSO_DSYNC : 0);
-
+	flags = DB_OSO_SEQ | (create ? DB_OSO_CREATE : 0) | (F_ISSET(dblp, DBLOG_DIRECT) ? DB_OSO_DIRECT : 0) | (F_ISSET(dblp, DBLOG_DSYNC) ? DB_OSO_DSYNC : 0);
 	/* Get the path of the new file and open it. */
 	dblp->lfname = lp->lsn.file;
-	if((ret = __log_valid(dblp, dblp->lfname, 0, &dblp->lfhp,
-	    flags, &status, NULL)) != 0)
-		__db_err(env, ret,
-		    "DB_ENV->log_newfh: %lu", (u_long)lp->lsn.file);
-	else if(status != DB_LV_NORMAL && status != DB_LV_INCOMPLETE &&
-	    status != DB_LV_OLD_READABLE)
+	if((ret = __log_valid(dblp, dblp->lfname, 0, &dblp->lfhp, flags, &status, NULL)) != 0)
+		__db_err(env, ret, "DB_ENV->log_newfh: %lu", (u_long)lp->lsn.file);
+	else if(status != DB_LV_NORMAL && status != DB_LV_INCOMPLETE && status != DB_LV_OLD_READABLE)
 		ret = USR_ERR(env, DB_NOTFOUND);
-
 	return ret;
 }
-
 /*
  * __log_name --
  *	Return the log name for a particular file, and optionally open it.
  *
- * PUBLIC: int __log_name __P((DB_LOG *,
- * PUBLIC:     uint32, char **, DB_FH **, uint32));
+ * PUBLIC: int __log_name __P((DB_LOG *, uint32, char **, DB_FH **, uint32));
  */
 int __log_name(DB_LOG *dblp, uint32 filenumber, char ** namep, DB_FH ** fhpp, uint32 flags)
 {
@@ -1439,7 +1425,7 @@ err:
  * Note that the REP->mtx_clientdb should be held when this is called.
  * Note that we acquire the log region mutex while holding mtx_clientdb.
  *
- * PUBLIC: int __log_rep_write __P((ENV *));
+ * PUBLIC: int __log_rep_write(ENV *);
  */
 int __log_rep_write(ENV *env)
 {

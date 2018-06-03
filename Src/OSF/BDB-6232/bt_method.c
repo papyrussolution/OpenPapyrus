@@ -12,24 +12,24 @@
 #include "dbinc/btree.h"
 #include "dbinc/qam.h"
 
-static int __bam_set_bt_minkey __P((DB *, uint32));
+static int __bam_set_bt_minkey(DB *, uint32);
 static int __bam_get_bt_compare __P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
 static int __bam_get_bt_prefix __P((DB *, size_t(**)(DB *, const DBT *, const DBT *)));
 static int __bam_set_bt_prefix __P((DB *, size_t (*)(DB *, const DBT *, const DBT *)));
 static int __bam_get_bt_compress __P((DB *, int (**)(DB *, const DBT *, const DBT *, const DBT *, const DBT *, DBT *),
     int (**)(DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *)));
-static int __ram_get_re_delim __P((DB *, int *));
-static int __ram_set_re_delim __P((DB *, int));
-static int __ram_set_re_len __P((DB *, uint32));
-static int __ram_set_re_pad __P((DB *, int));
-static int __ram_get_re_source __P((DB *, const char **));
+static int __ram_get_re_delim(DB *, int *);
+static int __ram_set_re_delim(DB *, int);
+static int __ram_set_re_len(DB *, uint32);
+static int __ram_set_re_pad(DB *, int);
+static int __ram_get_re_source (DB *, const char **);
 static int __ram_set_re_source __P((DB *, const char *));
 
 /*
  * __bam_db_create --
  *	Btree specific initialization of the DB structure.
  *
- * PUBLIC: int __bam_db_create __P((DB *));
+ * PUBLIC: int __bam_db_create(DB *);
  */
 int __bam_db_create(DB *dbp)
 {
@@ -86,7 +86,7 @@ int __bam_db_create(DB *dbp)
  * __bam_db_close --
  *	Btree specific discard of the DB structure.
  *
- * PUBLIC: int __bam_db_close __P((DB *));
+ * PUBLIC: int __bam_db_close(DB *);
  */
 int __bam_db_close(DB *dbp)
 {
@@ -98,8 +98,7 @@ int __bam_db_close(DB *dbp)
 	if(t->re_fp != NULL)
 		(void)fclose(t->re_fp);
 	/* Free any backing source file name. */
-	if(t->re_source != NULL)
-		__os_free(dbp->env, t->re_source);
+	__os_free(dbp->env, t->re_source);
 	__os_free(dbp->env, t);
 	dbp->bt_internal = NULL;
 	return 0;
@@ -325,7 +324,7 @@ int __bam_set_bt_compress(DB *dbp,
  * __db_get_bt_minkey --
  *	Get the minimum keys per page.
  *
- * PUBLIC: int __bam_get_bt_minkey __P((DB *, uint32 *));
+ * PUBLIC: int __bam_get_bt_minkey(DB *, uint32 *);
  */
 int __bam_get_bt_minkey(DB *dbp, uint32 * bt_minkeyp)
 {
@@ -469,7 +468,7 @@ static int __ram_set_re_delim(DB *dbp, int re_delim)
  * __db_get_re_len --
  *	Get the variable-length input record length.
  *
- * PUBLIC: int __ram_get_re_len __P((DB *, uint32 *));
+ * PUBLIC: int __ram_get_re_len(DB *, uint32 *);
  */
 int __ram_get_re_len(DB *dbp, uint32 * re_lenp)
 {
@@ -519,7 +518,7 @@ static int __ram_set_re_len(DB *dbp, uint32 re_len)
  * __db_get_re_pad --
  *	Get the fixed-length record pad character.
  *
- * PUBLIC: int __ram_get_re_pad __P((DB *, int *));
+ * PUBLIC: int __ram_get_re_pad(DB *, int *);
  */
 int __ram_get_re_pad(DB *dbp, int * re_padp)
 {

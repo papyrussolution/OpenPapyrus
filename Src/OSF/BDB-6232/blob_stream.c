@@ -60,18 +60,15 @@ int __db_stream_init(DBC *dbc, DB_STREAM ** dbsp, uint32 flags)
 	dbs->read = __db_stream_read;
 	dbs->size = __db_stream_size;
 	dbs->write = __db_stream_write;
-
 	*dbsp = dbs;
 	return 0;
-
-err:    if(dbs != NULL && dbs->dbc != NULL)
+err:    
+	if(dbs != NULL && dbs->dbc != NULL)
 		(void)__dbc_close(dbs->dbc);
 	ENV_LEAVE(env, ip);
-	if(dbs != NULL)
-		__os_free(env, dbs);
+	__os_free(env, dbs);
 	return ret;
 }
-
 /*
  * __db_stream_close --
  *
@@ -80,9 +77,8 @@ err:    if(dbs != NULL && dbs->dbc != NULL)
 static int __db_stream_close(DB_STREAM *dbs, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret;
-	env = dbs->dbc->env;
+	ENV * env = dbs->dbc->env;
 	if((ret = __db_fchk(env, "DB_STREAM->close", flags, 0)) != 0)
 		return ret;
 	ENV_ENTER(env, ip);
@@ -98,12 +94,10 @@ static int __db_stream_close(DB_STREAM *dbs, uint32 flags)
  */
 int __db_stream_close_int(DB_STREAM *dbs)
 {
-	DBC * dbc;
-	ENV * env;
-	int ret, t_ret;
-	dbc = dbs->dbc;
-	env = dbc->env;
-	ret = __blob_file_close(dbc, dbs->fhp, dbs->flags);
+	int t_ret;
+	DBC * dbc = dbs->dbc;
+	ENV * env = dbc->env;
+	int ret = __blob_file_close(dbc, dbs->fhp, dbs->flags);
 	if((t_ret = __dbc_close(dbs->dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, dbs);

@@ -87,13 +87,11 @@ err:
 		ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __memp_fget --
  *	Get a page from the file.
  *
- * PUBLIC: int __memp_fget __P((DB_MPOOLFILE *,
- * PUBLIC:     db_pgno_t *, DB_THREAD_INFO *, DB_TXN *, uint32, void *));
+ * PUBLIC: int __memp_fget __P((DB_MPOOLFILE *, db_pgno_t *, DB_THREAD_INFO *, DB_TXN *, uint32, void *));
  */
 int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags, void * addrp)
 {
@@ -319,7 +317,6 @@ xlatch:
 		F_SET(bhp, BH_EXCLUSIVE);
 #endif
 		b_lock = 1;
-
 		/*
 		 * If the buffer was frozen before we waited for any I/O to
 		 * complete and is still frozen, we will need to thaw it.
@@ -327,20 +324,19 @@ xlatch:
 		 * search again.
 		 */
 		if(F_ISSET(bhp, BH_THAWED)) {
-thawed:                 need_free = (atomic_dec(env, &bhp->ref) == 0);
+thawed:                 
+			need_free = (atomic_dec(env, &bhp->ref) == 0);
 			b_incr = 0;
 			MUTEX_UNLOCK(env, bhp->mtx_buf);
 			b_lock = 0;
 			if(need_free) {
 				MPOOL_REGION_LOCK(env, infop);
-				SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen,
-				    bhp, hq);
+				SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, bhp, hq);
 				MPOOL_REGION_UNLOCK(env, infop);
 			}
 			bhp = NULL;
 			goto retry;
 		}
-
 		/*
 		 * If the buffer we wanted was frozen or thawed while we
 		 * waited, we need to start again.  That is indicated by
@@ -351,9 +347,7 @@ thawed:                 need_free = (atomic_dec(env, &bhp->ref) == 0);
 		 * file, another thread may have dirtied this buffer while we
 		 * swapped from the hash bucket lock to the buffer lock.
 		 */
-		if(SH_CHAIN_HASNEXT(bhp, vc) &&
-		    (SH_CHAIN_NEXTP(bhp, vc, __bh)->td_off == bhp->td_off ||
-		    (!dirty && read_lsnp == NULL))) {
+		if(SH_CHAIN_HASNEXT(bhp, vc) && (SH_CHAIN_NEXTP(bhp, vc, __bh)->td_off == bhp->td_off || (!dirty && read_lsnp == NULL))) {
 			DB_ASSERT(env, b_incr && BH_REFCOUNT(bhp) != 0);
 			(void)atomic_dec(env, &bhp->ref);
 			b_incr = 0;
@@ -366,33 +360,24 @@ thawed:                 need_free = (atomic_dec(env, &bhp->ref) == 0);
 			ret = USR_ERR(env, DB_LOCK_DEADLOCK);
 			goto err;
 		}
-		else if(F_ISSET(bhp, BH_FREED) && flags != DB_MPOOL_CREATE &&
-		    flags != DB_MPOOL_NEW && flags != DB_MPOOL_FREE) {
+		else if(F_ISSET(bhp, BH_FREED) && flags != DB_MPOOL_CREATE && flags != DB_MPOOL_NEW && flags != DB_MPOOL_FREE) {
 			ret = USR_ERR(env, DB_PAGE_NOTFOUND);
 			goto err;
 		}
-
 		/* Is it worthwhile to publish oh-so-frequent cache hits? */
-		STAT_INC_VERB(env, mpool, hit,
-		    mfp->stat.st_cache_hit, __memp_fn(dbmfp), *pgnoaddr);
+		STAT_INC_VERB(env, mpool, hit, mfp->stat.st_cache_hit, __memp_fn(dbmfp), *pgnoaddr);
 		break;
 	}
-
 #ifdef HAVE_STATISTICS
 	/*
 	 * Update the hash bucket search statistics -- do now because our next
 	 * search may be for a different bucket. Are these too frequent also?
 	 */
-	STAT_INC_VERB(env, mpool, hash_search,
-	    c_mp->stat.st_hash_searches, __memp_fn(dbmfp), *pgnoaddr);
+	STAT_INC_VERB(env, mpool, hash_search, c_mp->stat.st_hash_searches, __memp_fn(dbmfp), *pgnoaddr);
 	if(st_hsearch > c_mp->stat.st_hash_longest)
-		STAT_SET_VERB(env, mpool, hash_longest,
-		    c_mp->stat.st_hash_longest,
-		    st_hsearch, __memp_fn(dbmfp), *pgnoaddr);
-	STAT_ADJUST_VERB(env, mpool, hash_examined, c_mp->stat.st_hash_searches,
-	    st_hsearch, __memp_fn(dbmfp), *pgnoaddr);
+		STAT_SET_VERB(env, mpool, hash_longest, c_mp->stat.st_hash_longest, st_hsearch, __memp_fn(dbmfp), *pgnoaddr);
+	STAT_ADJUST_VERB(env, mpool, hash_examined, c_mp->stat.st_hash_searches, st_hsearch, __memp_fn(dbmfp), *pgnoaddr);
 #endif
-
 	/*
 	 * There are 4 possible paths to this location:
 	 *

@@ -12,7 +12,7 @@
  * __os_isroot --
  *	Return if user has special permissions.
  *
- * PUBLIC: int __os_isroot __P((void));
+ * PUBLIC: int __os_isroot(void);
  */
 int __os_isroot()
 {

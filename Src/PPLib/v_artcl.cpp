@@ -258,13 +258,13 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							k0.ArID = ar_rec.ID;
 							if(SearchByKey_ForUpdate(P_TempTbl, 0, &k0, &rec) > 0) {
 								msg.CopyTo(rec.Msg, sizeof(rec.Msg));
-								THROW_DB(P_TempTbl->updateRecBuf(&rec)); // @sfu @v6.2.1
+								THROW_DB(P_TempTbl->updateRecBuf(&rec));
 							}
 							else {
 								MEMSZERO(rec);
 								rec.ArID = ar_rec.ID;
 								msg.CopyTo(rec.Msg, sizeof(rec.Msg));
-								THROW_DB(P_TempTbl->insertRecBuf(&rec)); // @v6.2.1
+								THROW_DB(P_TempTbl->insertRecBuf(&rec));
 							}
 						}
 					}

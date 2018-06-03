@@ -480,18 +480,15 @@ static int __ram_vrfy_inp(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, 
 			EPRINT((env, DB_STR_A("1049", "Page %lu: gap between items at offset %lu", "%lu %lu"), (u_long)pgno, (u_long)(p - pagelayout)));
 			isbad = 1;
 		}
-
 	if((db_indx_t)himark != HOFFSET(h)) {
 		EPRINT((env, DB_STR_A("1050", "Page %lu: bad HOFFSET %lu, appears to be %lu", "%lu %lu %lu"), (u_long)pgno, (u_long)(HOFFSET(h)), (u_long)himark));
 		isbad = 1;
 	}
-
 	*nentriesp = (db_indx_t)nentries;
-
-err:    if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
+err:    
+	if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pagelayout != NULL)
-		__os_free(env, pagelayout);
+	__os_free(env, pagelayout);
 	return ((ret == 0 && isbad == 1) ? DB_VERIFY_BAD : ret);
 }
 
@@ -839,20 +836,17 @@ static int __bam_vrfy_inp(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, 
 			}
 
 	__os_free(env, pagelayout);
-
 	/* Verify HOFFSET. */
 	if((db_indx_t)himark != HOFFSET(h)) {
 		EPRINT((env, DB_STR_A("1063", "Page %lu: bad HOFFSET %lu, appears to be %lu", "%lu %lu %lu"), (u_long)pgno, (u_long)HOFFSET(h),
 		    (u_long)himark));
 		isbad = 1;
 	}
-
-err:    if(nentriesp != NULL)
+err:    
+	if(nentriesp != NULL)
 		*nentriesp = (db_indx_t)nentries;
-
 	if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ((isbad == 1 && ret == 0) ? DB_VERIFY_BAD : ret);
 }
 
@@ -2536,27 +2530,19 @@ int __bam_salvage(DB *dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PAG
 			pgmap[end] = VRFY_ITEM_END;
 		}
 	}
-
-err:    if(pgmap != NULL)
-		__os_free(env, pgmap);
-	if(ovflbuf != NULL)
-		__os_free(env, ovflbuf);
-	if(repldbt.data != NULL)
-		__os_free(env, repldbt.data);
-	if(blob_buf != NULL)
-		__os_free(env, blob_buf);
+err:    
+	__os_free(env, pgmap);
+	__os_free(env, ovflbuf);
+	__os_free(env, repldbt.data);
+	__os_free(env, blob_buf);
 #ifdef HAVE_COMPRESSION
-	if(kcpy.data != NULL)
-		__os_free(env, kcpy.data);
+	__os_free(env, kcpy.data);
 #endif
-
 	/* Mark this page as done. */
 	if((t_ret = __db_salvage_markdone(vdp, pgno)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * __bam_salvage_walkdupint --
  *	Walk a known-good btree or recno internal page which is part of

@@ -129,7 +129,7 @@ recheck:
 	return 0;
 }
 /*
- * PUBLIC: int __ham_item_reset __P((DBC *));
+ * PUBLIC: int __ham_item_reset(DBC *);
  */
 int __ham_item_reset(DBC *dbc)
 {
@@ -151,7 +151,7 @@ int __ham_item_reset(DBC *dbc)
 	return ret;
 }
 /*
- * PUBLIC: int __ham_item_init __P((DBC *));
+ * PUBLIC: int __ham_item_init(DBC *);
  */
 int __ham_item_init(DBC *dbc)
 {

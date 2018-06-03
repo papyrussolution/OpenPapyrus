@@ -56,7 +56,7 @@ static int __ham_chgpg_recover_func __P((DBC *, DBC *, uint32 *, db_pgno_t, uint
  * __ham_insdel_recover --
  *
  * PUBLIC: int __ham_insdel_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_insdel_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -150,7 +150,7 @@ out:
  * __ham_insdel_42_recover --
  *
  * PUBLIC: int __ham_insdel_42_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_insdel_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -257,7 +257,7 @@ out:    if(pagep != NULL)
  *	message takes care of the pointer chains, not the data on the pages.
  *
  * PUBLIC: int __ham_newpage_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_newpage_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -394,7 +394,7 @@ out:    if(pagep != NULL)
  *	insdel log message.
  *
  * PUBLIC: int __ham_replace_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_replace_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -508,7 +508,7 @@ out:
  *	insdel log message.
  *
  * PUBLIC: int __ham_replace_42_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_replace_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -599,7 +599,7 @@ out:    if(pagep != NULL)
  * __ham_splitdata_recover --
  *
  * PUBLIC: int __ham_splitdata_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_splitdata_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -701,7 +701,7 @@ out:    if(pagep != NULL)
  *	Recovery function for copypage.
  *
  * PUBLIC: int __ham_copypage_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_copypage_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -805,7 +805,7 @@ out:    if(pagep != NULL)
  *	Recovery function for metagroup.
  *
  * PUBLIC: int __ham_metagroup_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_metagroup_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1020,7 +1020,7 @@ out:    if(mmeta != NULL)
  *	Recovery function for contracting a hash table
  *
  * PUBLIC: int __ham_contract_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_contract_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1080,7 +1080,7 @@ done:   REC_CLOSE;
  *	Recover the batch creation of a set of pages for a new database.
  *
  * PUBLIC: int __ham_groupalloc_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_groupalloc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1251,7 +1251,7 @@ out:    return (__memp_fput(mpf, ip, pagep, dbc->priority));
  * to point at a new block of pages.
  *
  * PUBLIC: int __ham_changeslot_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_changeslot_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1299,7 +1299,7 @@ out:    REC_CLOSE;
  *	Undo cursor adjustments if a subtransaction fails.
  *
  * PUBLIC: int __ham_curadj_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_curadj_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1443,7 +1443,7 @@ static int __ham_chgpg_recover_func(DBC *cp, DBC *my_dbc, uint32 * countp, db_pg
  *	Undo cursor adjustments if a subtransaction fails.
  *
  * PUBLIC: int __ham_chgpg_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_chgpg_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1469,7 +1469,7 @@ out:    REC_CLOSE;
  *	Recovery function for metagroup.
  *
  * PUBLIC: int __ham_metagroup_42_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_metagroup_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1650,7 +1650,7 @@ out:    if(mmeta != NULL)
  *	Recover the batch creation of a set of pages for a new database.
  *
  * PUBLIC: int __ham_groupalloc_42_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __ham_groupalloc_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

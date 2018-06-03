@@ -353,7 +353,7 @@ mem_err:
 }
 
 /*
- * PUBLIC: uint32 __memp_max_regions __P((ENV *));
+ * PUBLIC: uint32 __memp_max_regions(ENV *);
  */
 uint32 __memp_max_regions(ENV *env)
 {
@@ -419,7 +419,7 @@ static void __memp_region_size(ENV *env, roff_t * reg_sizep, uint32 * htab_bucke
  * __memp_region_mutex_count --
  *	Return the number of mutexes the mpool region will need.
  *
- * PUBLIC: uint32 __memp_region_mutex_count __P((ENV *));
+ * PUBLIC: uint32 __memp_region_mutex_count(ENV *);
  */
 uint32 __memp_region_mutex_count(ENV *env)
 {
@@ -484,7 +484,7 @@ static int __memp_init_config(ENV *env, MPOOL * mp, int create)
  * __memp_env_refresh --
  *	Clean up after the mpool system on a close or failed open.
  *
- * PUBLIC: int __memp_env_refresh __P((ENV *));
+ * PUBLIC: int __memp_env_refresh(ENV *);
  */
 int __memp_env_refresh(ENV *env)
 {

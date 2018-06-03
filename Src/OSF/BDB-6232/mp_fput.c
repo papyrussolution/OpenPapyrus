@@ -35,14 +35,12 @@ int __memp_fput_pp(DB_MPOOLFILE *dbmfp, void * pgaddr, DB_CACHE_PRIORITY priorit
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __memp_fput --
  *	DB_MPOOLFILE->put. Release this reference to the page. If the reference
  *  count drop to zero adjust the buffer's cache priority.
  *
- * PUBLIC: int __memp_fput __P((DB_MPOOLFILE *,
- * PUBLIC:      DB_THREAD_INFO *, void *, DB_CACHE_PRIORITY));
+ * PUBLIC: int __memp_fput __P((DB_MPOOLFILE *, DB_THREAD_INFO *, void *, DB_CACHE_PRIORITY));
  */
 int __memp_fput(DB_MPOOLFILE *dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACHE_PRIORITY priority)
 {

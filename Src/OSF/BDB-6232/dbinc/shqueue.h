@@ -340,13 +340,10 @@ struct {								\
 
 #define	SH_TAILQ_INSERT_HEAD(head, elm, field, type) do {		\
 	if ((head)->stqh_first != -1) {					\
-		(elm)->field.stqe_next =				\
-		    (head)->stqh_first - SH_PTR_TO_OFF(head, elm);	\
-		SH_TAILQ_FIRSTP(head, type)->field.stqe_prev =		\
-			SH_TAILQ_NEXT_TO_PREV(elm, field);		\
+		(elm)->field.stqe_next = (head)->stqh_first - SH_PTR_TO_OFF(head, elm);	\
+		SH_TAILQ_FIRSTP(head, type)->field.stqe_prev = SH_TAILQ_NEXT_TO_PREV(elm, field); \
 	} else {							\
-		(head)->stqh_last =					\
-		    SH_PTR_TO_OFF(head, &(elm)->field.stqe_next);	\
+		(head)->stqh_last = SH_PTR_TO_OFF(head, &(elm)->field.stqe_next);	\
 		(elm)->field.stqe_next = -1;				\
 	}								\
 	(head)->stqh_first = SH_PTR_TO_OFF(head, elm);			\
@@ -356,17 +353,12 @@ struct {								\
 
 #define	SH_TAILQ_INSERT_TAIL(head, elm, field) do {			\
 	(elm)->field.stqe_next = -1;					\
-	(elm)->field.stqe_prev =					\
-	    -SH_PTR_TO_OFF(head, elm) + (head)->stqh_last;		\
-	if ((head)->stqh_last ==					\
-	    SH_PTR_TO_OFF((head), &(head)->stqh_first))			\
+	(elm)->field.stqe_prev = -SH_PTR_TO_OFF(head, elm) + (head)->stqh_last;		\
+	if ((head)->stqh_last == SH_PTR_TO_OFF((head), &(head)->stqh_first))			\
 		(head)->stqh_first = SH_PTR_TO_OFF(head, elm);		\
 	else								\
-		*__SH_TAILQ_LAST_OFF(head) = -(head)->stqh_last +	\
-		    SH_PTR_TO_OFF((elm), &(elm)->field.stqe_next) +	\
-		    SH_PTR_TO_OFF(head, elm);				\
-	(head)->stqh_last =						\
-	    SH_PTR_TO_OFF(head, &((elm)->field.stqe_next));		\
+		*__SH_TAILQ_LAST_OFF(head) = -(head)->stqh_last + SH_PTR_TO_OFF((elm), &(elm)->field.stqe_next) + SH_PTR_TO_OFF(head, elm); \
+	(head)->stqh_last = SH_PTR_TO_OFF(head, &((elm)->field.stqe_next));		\
 } while (0)
 
 #define	SH_TAILQ_INSERT_BEFORE(head, listelm, elm, field, type) do {	\

@@ -8,8 +8,8 @@ extern "C" {
 
 int __seq_stat __P((DB_SEQUENCE *, DB_SEQUENCE_STAT **, uint32));
 int __seq_stat_print __P((DB_SEQUENCE *, uint32));
-const FN * __db_get_seq_flags_fn __P((void));
-const FN * __db_get_seq_flags_fn __P((void));
+const FN * __db_get_seq_flags_fn(void);
+const FN * __db_get_seq_flags_fn(void);
 int __seq_open __P((DB_SEQUENCE *, DB_TXN *, DBT *, uint32));
 int __seq_initial_value  __P((DB_SEQUENCE *, db_seq_t));
 int __seq_get __P((DB_SEQUENCE *, DB_TXN *, uint32,  db_seq_t *, uint32));

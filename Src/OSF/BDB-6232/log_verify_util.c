@@ -56,27 +56,24 @@
 typedef int (* btcmp_funct)(DB *, const DBT *, const DBT *, size_t *);
 typedef int (* dupcmp_funct)(DB *, const DBT *, const DBT *, size_t *);
 
-static int __lv_add_recycle_handler __P((
-	    DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *));
-static int __lv_add_recycle_lsn __P((VRFY_TXN_INFO *, const DB_LSN *));
-static size_t __lv_dbt_arrsz __P((const DBT *, uint32));
-static int __lv_fidpgno_cmp __P((DB *, const DBT *, const DBT *, size_t *));
-static int __lv_i32_cmp __P((DB *, const DBT *, const DBT *, size_t *));
-static int __lv_lsn_cmp __P((DB *, const DBT *, const DBT *, size_t *));
-static void __lv_on_bdbop_err __P((int));
-static int __lv_open_db __P((DB_ENV *, DB **, DB_THREAD_INFO *,
-    const char *, int, btcmp_funct, uint32, dupcmp_funct));
-static int __lv_pack_filereg __P((const VRFY_FILEREG_INFO *, DBT *));
-static int __lv_pack_txn_vrfy_info __P((
-	    const VRFY_TXN_INFO *, DBT *, DBT * data));
-static int __lv_seccbk_fname __P((DB *, const DBT *, const DBT *, DBT *));
-static int __lv_seccbk_lsn __P((DB *, const DBT *, const DBT *, DBT *));
-static int __lv_seccbk_txnpg __P((DB *, const DBT *, const DBT *, DBT *));
-static void __lv_setup_logtype_names __P((DB_LOG_VRFY_INFO * lvinfo));
-static int __lv_txnrgns_lsn_cmp __P((DB *, const DBT *, const DBT *, size_t *));
-static int __lv_ui32_cmp __P((DB *, const DBT *, const DBT *, size_t *));
-static int __lv_unpack_txn_vrfy_info __P((VRFY_TXN_INFO **, const DBT *));
-static int __lv_unpack_filereg __P((const DBT *, VRFY_FILEREG_INFO **));
+static int __lv_add_recycle_handler(DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *);
+static int __lv_add_recycle_lsn(VRFY_TXN_INFO *, const DB_LSN *);
+static size_t __lv_dbt_arrsz(const DBT *, uint32);
+static int __lv_fidpgno_cmp(DB *, const DBT *, const DBT *, size_t *);
+static int __lv_i32_cmp(DB *, const DBT *, const DBT *, size_t *);
+static int __lv_lsn_cmp(DB *, const DBT *, const DBT *, size_t *);
+static void __lv_on_bdbop_err(int);
+static int __lv_open_db(DB_ENV *, DB **, DB_THREAD_INFO *, const char *, int, btcmp_funct, uint32, dupcmp_funct);
+static int __lv_pack_filereg(const VRFY_FILEREG_INFO *, DBT *);
+static int __lv_pack_txn_vrfy_info(const VRFY_TXN_INFO *, DBT *, DBT * data);
+static int __lv_seccbk_fname(DB *, const DBT *, const DBT *, DBT *);
+static int __lv_seccbk_lsn(DB *, const DBT *, const DBT *, DBT *);
+static int __lv_seccbk_txnpg(DB *, const DBT *, const DBT *, DBT *);
+static void __lv_setup_logtype_names(DB_LOG_VRFY_INFO * lvinfo);
+static int __lv_txnrgns_lsn_cmp(DB *, const DBT *, const DBT *, size_t *);
+static int __lv_ui32_cmp(DB *, const DBT *, const DBT *, size_t *);
+static int __lv_unpack_txn_vrfy_info(VRFY_TXN_INFO **, const DBT *);
+static int __lv_unpack_filereg(const DBT *, VRFY_FILEREG_INFO **);
 
 static void __lv_on_bdbop_err(int ret)
 {
@@ -88,8 +85,7 @@ static void __lv_on_bdbop_err(int ret)
  *	Initialize and return a log verification handle to be used throughout
  *	a verification process.
  *
- * PUBLIC: int __create_log_vrfy_info __P((const DB_LOG_VERIFY_CONFIG *,
- * PUBLIC:     DB_LOG_VRFY_INFO **, DB_THREAD_INFO *));
+ * PUBLIC: int __create_log_vrfy_info __P((const DB_LOG_VERIFY_CONFIG *, DB_LOG_VRFY_INFO **, DB_THREAD_INFO *));
  */
 int __create_log_vrfy_info(const DB_LOG_VERIFY_CONFIG *cfg, DB_LOG_VRFY_INFO ** lvinfopp, DB_THREAD_INFO * ip)
 {
@@ -348,10 +344,8 @@ static int __lv_lsn_cmp(DB *db, const DBT * dbt1, const DBT * dbt2, size_t * loc
  * should free the memory after use. The update functions for VRFY_TXN_INFO
  * and VRFY_FILEREG_INFO may realloc the structure.
  */
-
 /*
- * PUBLIC: int __put_txn_vrfy_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     const VRFY_TXN_INFO *));
+ * PUBLIC: int __put_txn_vrfy_info __P((const DB_LOG_VRFY_INFO *, const VRFY_TXN_INFO *));
  */
 int __put_txn_vrfy_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_TXN_INFO * txninfop)
 {
@@ -413,8 +407,7 @@ static size_t __lv_dbt_arrsz(const DBT *arr, uint32 arrlen)
  *	Get a VRFY_TXN_INFO object from db by txnid. Callers should free the
  *	object by calling __free_txninfo.
  *
- * PUBLIC: int __get_txn_vrfy_info __P((const DB_LOG_VRFY_INFO *, uint32,
- * PUBLIC:     VRFY_TXN_INFO **));
+ * PUBLIC: int __get_txn_vrfy_info __P((const DB_LOG_VRFY_INFO *, uint32, VRFY_TXN_INFO **));
  */
 int __get_txn_vrfy_info(const DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, VRFY_TXN_INFO ** txninfopp)
 {
@@ -492,8 +485,7 @@ err:
  * __add_recycle_lsn_range --
  *	Add recycle info for each txn within the recycled txnid range.
  *
- * PUBLIC: int __add_recycle_lsn_range __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     const DB_LSN *, uint32, uint32));
+ * PUBLIC: int __add_recycle_lsn_range __P((DB_LOG_VRFY_INFO *, const DB_LSN *, uint32, uint32));
  */
 int __add_recycle_lsn_range(DB_LOG_VRFY_INFO *lvinfo, const DB_LSN * lsn, uint32 min, uint32 max)
 {
@@ -547,8 +539,7 @@ err:
  *	and process each key/data pair using a callback handler. Break the
  *	iteration if the handler returns non-zero values.
  *
- * PUBLIC: int __iterate_txninfo __P((DB_LOG_VRFY_INFO *, uint32,
- * PUBLIC:     uint32, TXNINFO_HANDLER, void *));
+ * PUBLIC: int __iterate_txninfo __P((DB_LOG_VRFY_INFO *, uint32, uint32, TXNINFO_HANDLER, void *));
  */
 int __iterate_txninfo(DB_LOG_VRFY_INFO *lvinfo, uint32 min, uint32 max, TXNINFO_HANDLER handler, void * param)
 {
@@ -798,7 +789,6 @@ int __del_file_updated(VRFY_TXN_INFO *txninfop, const DBT * fileid)
 err:
 	return ret;
 }
-
 /*
  * PUBLIC: int __clear_fileups __P((VRFY_TXN_INFO *));
  */
@@ -814,7 +804,6 @@ int __clear_fileups(VRFY_TXN_INFO *txninfop)
 	txninfop->filenum = 0;
 	return 0;
 }
-
 /*
  *  __free_txninfo_stack  --
  *	The object is on stack, only free its internal memory, not itself.
@@ -870,10 +859,8 @@ static int __lv_pack_filereg(const VRFY_FILEREG_INFO *freginfo, DBT * data)
 err:
 	return ret;
 }
-
 /*
- * PUBLIC: int __put_filereg_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:    const VRFY_FILEREG_INFO *));
+ * PUBLIC: int __put_filereg_info __P((const DB_LOG_VRFY_INFO *, const VRFY_FILEREG_INFO *));
  */
 int __put_filereg_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_FILEREG_INFO * freginfo)
 {
@@ -893,17 +880,11 @@ int __put_filereg_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_FILEREG_INFO *
 	 * can delete dbregid when the db handle is closed, and we can
 	 * use the dbregid to get the currently open db file's uid.
 	 */
-
-	BDBOP2(lvinfo->dbenv, __db_put(lvinfo->fileregs, lvinfo->ip, NULL,
-	    (DBT*)&(freginfo->fileid), &data, 0), "__put_filereg_info");
-
+	BDBOP2(lvinfo->dbenv, __db_put(lvinfo->fileregs, lvinfo->ip, NULL, (DBT*)&(freginfo->fileid), &data, 0), "__put_filereg_info");
 err:
-	if(data.data != NULL)
-		__os_free(lvinfo->dbenv->env, data.data);
-
+	__os_free(lvinfo->dbenv->env, data.data);
 	return ret;
 }
-
 /*
  * PUBLIC: int __del_filelife __P((const DB_LOG_VRFY_INFO *, int32));
  */
@@ -919,7 +900,6 @@ int __del_filelife(const DB_LOG_VRFY_INFO *lvinfo, int32 dbregid)
 err:
 	return ret;
 }
-
 /*
  * PUBLIC: int __put_filelife __P((const DB_LOG_VRFY_INFO *, VRFY_FILELIFE *));
  */
@@ -938,10 +918,8 @@ int __put_filelife(const DB_LOG_VRFY_INFO *lvinfo, VRFY_FILELIFE * pflife)
 err:
 	return ret;
 }
-
 /*
- * PUBLIC: int __get_filelife __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     int32, VRFY_FILELIFE **));
+ * PUBLIC: int __get_filelife __P((const DB_LOG_VRFY_INFO *, int32, VRFY_FILELIFE **));
  */
 int __get_filelife(const DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, VRFY_FILELIFE ** flifepp)
 {
@@ -962,10 +940,8 @@ int __get_filelife(const DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, VRFY_FILELIFE 
 err:
 	return ret;
 }
-
 /*
- * PUBLIC: int __get_filereg_by_dbregid __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     int32, VRFY_FILEREG_INFO **));
+ * PUBLIC: int __get_filereg_by_dbregid __P((const DB_LOG_VRFY_INFO *, int32, VRFY_FILEREG_INFO **));
  */
 int __get_filereg_by_dbregid(const DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, VRFY_FILEREG_INFO ** freginfopp)
 {
@@ -993,10 +969,8 @@ int __get_filereg_by_dbregid(const DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, VRFY
 err:
 	return ret;
 }
-
 /*
- * PUBLIC: int __add_dbregid __P((DB_LOG_VRFY_INFO *, VRFY_FILEREG_INFO *,
- * PUBLIC:     int32, uint32, DB_LSN, DBTYPE, db_pgno_t, int *));
+ * PUBLIC: int __add_dbregid __P((DB_LOG_VRFY_INFO *, VRFY_FILEREG_INFO *, int32, uint32, DB_LSN, DBTYPE, db_pgno_t, int *));
  */
 int __add_dbregid(DB_LOG_VRFY_INFO *lvh, VRFY_FILEREG_INFO * freg, int32 dbregid, uint32 opcode, DB_LSN lsn, DBTYPE dbtype, db_pgno_t meta_pgno, int * addp)
 {
@@ -1056,10 +1030,8 @@ err:
 	*addp = tret;
 	return ret;
 }
-
 /*
- * PUBLIC: int __get_filereg_info __P((const DB_LOG_VRFY_INFO *, const DBT *,
- * PUBLIC:     VRFY_FILEREG_INFO **));
+ * PUBLIC: int __get_filereg_info __P((const DB_LOG_VRFY_INFO *, const DBT *, VRFY_FILEREG_INFO **));
  */
 int __get_filereg_info(const DB_LOG_VRFY_INFO *lvinfo, const DBT * fuid, VRFY_FILEREG_INFO ** freginfopp)
 {
@@ -1109,7 +1081,6 @@ static int __lv_unpack_filereg(const DBT *data, VRFY_FILEREG_INFO ** freginfopp)
 err:
 	return ret;
 }
-
 /*
  * PUBLIC: int __free_filereg_info __P((VRFY_FILEREG_INFO *));
  */
@@ -1127,8 +1098,7 @@ int __free_filereg_info(VRFY_FILEREG_INFO *p)
 	return 0;
 }
 /*
- * PUBLIC: int __get_ckp_info __P((const DB_LOG_VRFY_INFO *, DB_LSN,
- * PUBLIC:     VRFY_CKP_INFO **));
+ * PUBLIC: int __get_ckp_info __P((const DB_LOG_VRFY_INFO *, DB_LSN, VRFY_CKP_INFO **));
  */
 int __get_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY_CKP_INFO ** ckpinfopp)
 {
@@ -1149,10 +1119,8 @@ int __get_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY_CKP_INFO ** 
 err:
 	return ret;
 }
-
 /*
- * PUBLIC: int __get_last_ckp_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     VRFY_CKP_INFO **));
+ * PUBLIC: int __get_last_ckp_info __P((const DB_LOG_VRFY_INFO *, VRFY_CKP_INFO **));
  */
 int __get_last_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, VRFY_CKP_INFO ** ckpinfopp)
 {
@@ -1177,10 +1145,8 @@ err:
 		__db_err(lvinfo->dbenv->env, ret, "__get_last_ckp_info");
 	return ret;
 }
-
 /*
- * PUBLIC: int __put_ckp_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     const VRFY_CKP_INFO *));
+ * PUBLIC: int __put_ckp_info __P((const DB_LOG_VRFY_INFO *, const VRFY_CKP_INFO *));
  */
 int __put_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_CKP_INFO * ckpinfo)
 {
@@ -1195,10 +1161,8 @@ int __put_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_CKP_INFO * ckpinfo
 	BDBOP2(lvinfo->dbenv, __db_put(lvinfo->ckps, lvinfo->ip, NULL, &key, &data, 0), "__put_ckp_info");
 	return 0;
 }
-
 /*
- * PUBLIC: int __get_timestamp_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     DB_LSN, VRFY_TIMESTAMP_INFO **));
+ * PUBLIC: int __get_timestamp_info __P((const DB_LOG_VRFY_INFO *, DB_LSN, VRFY_TIMESTAMP_INFO **));
  */
 int __get_timestamp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY_TIMESTAMP_INFO ** tsinfopp)
 {
@@ -1219,12 +1183,10 @@ int __get_timestamp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY_TIMEST
 err:
 	return ret;
 }
-
 /*
  * __get_latest_timestamp_info --
  *	Get latest timestamp info before lsn.
- * PUBLIC: int __get_latest_timestamp_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     DB_LSN, VRFY_TIMESTAMP_INFO **));
+ * PUBLIC: int __get_latest_timestamp_info __P((const DB_LOG_VRFY_INFO *, DB_LSN, VRFY_TIMESTAMP_INFO **));
  */
 int __get_latest_timestamp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY_TIMESTAMP_INFO ** tsinfopp)
 {
@@ -1251,10 +1213,8 @@ err:
 		ret = tret;
 	return ret;
 }
-
 /*
- * PUBLIC: int __put_timestamp_info __P((const DB_LOG_VRFY_INFO *,
- * PUBLIC:     const VRFY_TIMESTAMP_INFO *));
+ * PUBLIC: int __put_timestamp_info __P((const DB_LOG_VRFY_INFO *, const VRFY_TIMESTAMP_INFO *));
  */
 int __put_timestamp_info(const DB_LOG_VRFY_INFO *lvinfo, const VRFY_TIMESTAMP_INFO * tsinfo)
 {
@@ -1285,8 +1245,7 @@ static int __lv_txnrgns_lsn_cmp(DB *db, const DBT * d1, const DBT * d2, size_t *
  * __find_lsnrg_by_timerg --
  *	Find the lsn closed interval [beginlsn, endlsn] so that the
  *	corresponding timestamp interval fully contains interval [begin, end].
- * PUBLIC: int __find_lsnrg_by_timerg __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     time_t, time_t, DB_LSN *, DB_LSN *));
+ * PUBLIC: int __find_lsnrg_by_timerg __P((DB_LOG_VRFY_INFO *, time_t, time_t, DB_LSN *, DB_LSN *));
  */
 int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO *lvinfo, time_t begin, time_t end, DB_LSN * startlsn, DB_LSN * endlsn)
 {
@@ -1352,10 +1311,8 @@ err:
 		ret = tret;
 	return ret;
 }
-
 /*
- * PUBLIC: int __add_txnrange __P((DB_LOG_VRFY_INFO *, uint32,
- * PUBLIC:     DB_LSN, int32, int));
+ * PUBLIC: int __add_txnrange __P((DB_LOG_VRFY_INFO *, uint32, DB_LSN, int32, int));
  */
 int __add_txnrange(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, DB_LSN lsn, int32 when, int ishead/* Whether it's the 1st log of the txn. */)
 {
@@ -1400,7 +1357,6 @@ err:
 		ret = tret;
 	return ret;
 }
-
 /*
  * __get_aborttxn --
  *	If lsn is the last log of an aborted txn T, T's txnid is
@@ -1437,13 +1393,11 @@ err:
 		ret = tret;
 	return ret;
 }
-
 /*
  * __txn_started --
  *	Whether txnid is started before lsn and ended after lsn.
  *
- * PUBLIC: int __txn_started __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     DB_LSN, uint32, int *));
+ * PUBLIC: int __txn_started __P((DB_LOG_VRFY_INFO *, DB_LSN, uint32, int *));
  */
 int __txn_started(DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, uint32 txnid, int * res)
 {
@@ -1475,7 +1429,6 @@ err:
 		ret = tret;
 	return ret;
 }
-
 /*
  * PUBLIC: int __set_logvrfy_dbfuid __P((DB_LOG_VRFY_INFO *));
  */
@@ -1496,13 +1449,11 @@ int __set_logvrfy_dbfuid(DB_LOG_VRFY_INFO *lvinfo)
 	memcpy(lvinfo->target_dbid, data.data, DB_FILE_ID_LEN);
 	return ret;
 }
-
 /*
  * __add_page_to_txn --
  *	Try adding a page to a txn, result brings back if really added(0/1)
  *	or if there is an access violation(-1).
- * PUBLIC: int __add_page_to_txn __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     int32, db_pgno_t, uint32, uint32 *, int *));
+ * PUBLIC: int __add_page_to_txn __P((DB_LOG_VRFY_INFO *, int32, db_pgno_t, uint32, uint32 *, int *));
  */
 int __add_page_to_txn(DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, db_pgno_t pgno, uint32 txnid, uint32 * otxn, int * result)
 {
@@ -1573,11 +1524,9 @@ int __add_page_to_txn(DB_LOG_VRFY_INFO *lvinfo, int32 dbregid, db_pgno_t pgno, u
 out:
 	/* result is set to -1 on violation, 0 if already has it, 1 if added. */
 err:
-	if(buf != NULL)
-		__os_free(lvinfo->dbenv->env, buf);
+	__os_free(lvinfo->dbenv->env, buf);
 	return ret;
 }
-
 /*
  * PUBLIC: int __del_txn_pages __P((DB_LOG_VRFY_INFO *, uint32));
  */
@@ -1596,8 +1545,7 @@ err:
  * __is_ancestor_txn --
  *	Tells via res if ptxnid is txnid's parent txn at the moment of lsn.
  *
- * PUBLIC: int __is_ancestor_txn __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     uint32, uint32, DB_LSN, int *));
+ * PUBLIC: int __is_ancestor_txn __P((DB_LOG_VRFY_INFO *, uint32, uint32, DB_LSN, int *));
  */
 int __is_ancestor_txn(DB_LOG_VRFY_INFO *lvinfo, uint32 ptxnid, uint32 txnid, DB_LSN lsn, int * res)
 {
@@ -1643,8 +1591,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __return_txn_pages __P((DB_LOG_VRFY_INFO *,
- * PUBLIC:     uint32, uint32));
+ * PUBLIC: int __return_txn_pages __P((DB_LOG_VRFY_INFO *, uint32, uint32));
  */
 int __return_txn_pages(DB_LOG_VRFY_INFO *lvh, uint32 ctxn, uint32 ptxn)
 {

@@ -15,8 +15,8 @@
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
 
-static int __env_open_arg __P((DB_ENV *, uint32));
-static int __file_handle_cleanup __P((ENV *));
+static int __env_open_arg(DB_ENV *, uint32);
+static int __file_handle_cleanup(ENV *);
 
 /*
  * db_version --
@@ -503,7 +503,7 @@ int __env_config(DB_ENV *dbenv, const char * db_home, uint32 * flagsp, int mode)
  * __env_close_pp --
  *	DB_ENV->close pre/post processor.
  *
- * PUBLIC: int __env_close_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __env_close_pp(DB_ENV *, uint32);
  */
 int __env_close_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -596,7 +596,7 @@ do_close:
  * __env_close --
  *	Do the real work of DB_ENV->close.
  *
- * PUBLIC: int __env_close __P((DB_ENV *, uint32));
+ * PUBLIC: int __env_close(DB_ENV *, uint32);
  */
 int __env_close(DB_ENV *dbenv, uint32 flags)
 {
@@ -989,7 +989,7 @@ static int __file_handle_cleanup(ENV *env)
  * __env_get_open_flags
  *	DbEnv.get_open_flags method.
  *
- * PUBLIC: int __env_get_open_flags __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __env_get_open_flags(DB_ENV *, uint32 *);
  */
 int __env_get_open_flags(DB_ENV *dbenv, uint32 * flagsp)
 {

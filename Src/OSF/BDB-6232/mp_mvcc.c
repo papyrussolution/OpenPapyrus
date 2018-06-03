@@ -102,33 +102,26 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 {
 	BH * frozen_bhp;
 	BH_FROZEN_ALLOC * frozen_alloc;
-	DB_FH * fhp;
-	ENV * env;
-	MPOOL * c_mp;
-	MPOOLFILE * mfp;
+	DB_FH * fhp = 0;
 	db_mutex_t mutex;
 	db_pgno_t maxpgno, newpgno, nextfree;
 	size_t nio;
-	int created, h_locked, ret, t_ret;
-	uint32 magic, nbucket, ncache, pagesize;
-	char filename[100], * real_name;
-
-	env = dbmp->env;
-	c_mp = (MPOOL *)infop->primary;
-	created = h_locked = ret = 0;
-	/* Find the associated MPOOLFILE. */
-	mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
-	pagesize = mfp->pagesize;
-	real_name = NULL;
-	fhp = NULL;
-
+	int created = 0;
+	int h_locked = 0;
+	int ret = 0;
+	int t_ret;
+	uint32 magic, nbucket, ncache;
+	char filename[100];
+	char * real_name = 0;
+	ENV * env = dbmp->env;
+	MPOOL * c_mp = (MPOOL *)infop->primary;
+	// Find the associated MPOOLFILE. 
+	MPOOLFILE * mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
+	uint32 pagesize = mfp->pagesize;
 	if(FLD_ISSET(env->dbenv->verbose, DB_VERB_MVCC))
 		__db_msg(env, "freeze %s %d @%lu/%lu", __memp_fns(dbmp, mfp),
-		    bhp->pgno, (u_long)VISIBLE_LSN(env, bhp)->file,
-		    (u_long)VISIBLE_LSN(env, bhp)->offset);
-
+		    bhp->pgno, (u_long)VISIBLE_LSN(env, bhp)->file, (u_long)VISIBLE_LSN(env, bhp)->offset);
 	MVCC_MPROTECT(bhp->buf, pagesize, PROT_READ | PROT_WRITE);
-
 	MPOOL_REGION_LOCK(env, infop);
 	frozen_bhp = SH_TAILQ_FIRST(&c_mp->free_frozen, __bh);
 	if(frozen_bhp != NULL) {
@@ -137,19 +130,14 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	}
 	else {
 		*need_frozenp = 1;
-
 		/* There might be enough space for a single-item block. */
-		if(__env_alloc(infop,
-		    sizeof(BH_FROZEN_ALLOC) + sizeof(BH_FROZEN_PAGE),
-		    &frozen_alloc) == 0) {
+		if(__env_alloc(infop, sizeof(BH_FROZEN_ALLOC) + sizeof(BH_FROZEN_PAGE), &frozen_alloc) == 0) {
 			frozen_bhp = (BH*)(frozen_alloc + 1);
 			frozen_bhp->mtx_buf = MUTEX_INVALID;
-			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen,
-			    frozen_alloc, links);
+			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen, frozen_alloc, links);
 		}
 	}
 	MPOOL_REGION_UNLOCK(env, infop);
-
 	/*
 	 * If we can't get a frozen buffer header, return ENOMEM immediately:
 	 * we don't want to call __memp_alloc recursively.  __memp_alloc will
@@ -159,7 +147,6 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 		ret = ENOMEM;
 		goto err;
 	}
-
 	/*
 	 * For now, keep things simple and have one file per page size per
 	 * hash bucket.  This improves concurrency but can mean lots of files
@@ -167,17 +154,12 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	 */
 	ncache = (uint32)(infop - dbmp->reginfo);
 	nbucket = (uint32)(hp - (DB_MPOOL_HASH*)R_ADDR(infop, c_mp->htab));
-	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK",
-	    (u_long)ncache, (u_long)nbucket, (u_long)pagesize / 1024);
-
-	if((ret = __db_appname(env,
-	    DB_APP_REGION, filename, NULL, &real_name)) != 0)
+	snprintf(filename, sizeof(filename), "__db.freezer.%lu.%lu.%luK", (u_long)ncache, (u_long)nbucket, (u_long)pagesize / 1024);
+	if((ret = __db_appname(env, DB_APP_REGION, filename, NULL, &real_name)) != 0)
 		goto err;
-
 	MUTEX_LOCK(env, hp->mtx_hash);
 	h_locked = 1;
 	DB_ASSERT(env, F_ISSET(bhp, BH_EXCLUSIVE) && !F_ISSET(bhp, BH_FROZEN));
-
 	if(BH_REFCOUNT(bhp) > 1 || F_ISSET(bhp, BH_DIRTY)) {
 		ret = EBUSY;
 		goto err;
@@ -257,9 +239,7 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 		(void)__env_panic(env, ret);
 		goto err;
 	}
-
 	STAT_INC(env, mpool, freeze, hp->hash_frozen, bhp->pgno);
-
 	/*
 	 * Add the frozen buffer to the version chain and update the hash
 	 * bucket if this is the head revision.  The original buffer will be
@@ -274,7 +254,6 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	}
 	MUTEX_UNLOCK(env, hp->mtx_hash);
 	h_locked = 0;
-
 	/*
 	 * Increment the file's block count -- freeing the original buffer will
 	 * decrement it.
@@ -282,10 +261,9 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	MUTEX_LOCK(env, mfp->mutex);
 	++mfp->block_cnt;
 	MUTEX_UNLOCK(env, mfp->mutex);
-
 	if(0) {
-err:            if(fhp != NULL &&
-		    (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
+err:            
+		if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 			ret = t_ret;
 		if(created) {
 			DB_ASSERT(env, h_locked);
@@ -299,8 +277,7 @@ err:            if(fhp != NULL &&
 			ret = EIO;
 		if(frozen_bhp != NULL) {
 			MPOOL_REGION_LOCK(env, infop);
-			SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen,
-			    frozen_bhp, hq);
+			SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, frozen_bhp, hq);
 			MPOOL_REGION_UNLOCK(env, infop);
 		}
 	}
@@ -308,7 +285,6 @@ err:            if(fhp != NULL &&
 		__os_free(env, real_name);
 	if(ret != 0 && ret != EBUSY && ret != ENOMEM)
 		__db_err(env, ret, "__memp_bh_freeze");
-
 	return ret;
 }
 
@@ -329,31 +305,35 @@ static int __pgno_cmp(const void * a, const void *b)
  */
 int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * frozen_bhp, BH * alloc_bhp)
 {
-	DB_FH * fhp;
-	ENV * env;
+	DB_FH * fhp = 0;
 #ifdef DIAGNOSTIC
 	DB_LSN vlsn;
 #endif
-	MPOOL * c_mp;
-	MPOOLFILE * mfp;
 	db_mutex_t mutex;
-	db_pgno_t * freelist, * ppgno, freepgno, maxpgno, spgno;
+	db_pgno_t * freelist = 0;
+	db_pgno_t * ppgno;
+	db_pgno_t freepgno;
+	db_pgno_t maxpgno;
+	db_pgno_t spgno;
 	size_t nio;
-	uint32 listsize, magic, nbucket, ncache, ntrunc, nfree, pagesize;
+	uint32 listsize;
+	uint32 magic;
+	uint32 nbucket;
+	uint32 ncache;
+	uint32 ntrunc;
+	uint32 nfree;
 #ifdef HAVE_FTRUNCATE
 	int i;
 #endif
-	int h_locked, needfree, ret, t_ret;
-	char filename[100], * real_name;
-
-	env = dbmp->env;
-	fhp = NULL;
-	c_mp = (MPOOL *)infop->primary;
-	mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, frozen_bhp->mf_offset);
-	freelist = NULL;
-	pagesize = mfp->pagesize;
-	ret = 0;
-	real_name = NULL;
+	int h_locked, needfree;
+	int ret = 0;
+	int t_ret;
+	char filename[100];
+	char * real_name = 0;
+	ENV * env = dbmp->env;
+	MPOOL * c_mp = (MPOOL *)infop->primary;
+	MPOOLFILE * mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, frozen_bhp->mf_offset);
+	uint32 pagesize = mfp->pagesize;
 	if(FLD_ISSET(env->dbenv->verbose, DB_VERB_MVCC))
 		__db_msg(env, "thaw %s %d @%lu/%lu", __memp_fns(dbmp, mfp),
 		    frozen_bhp->pgno, (u_long)VISIBLE_LSN(env, frozen_bhp)->file, (u_long)VISIBLE_LSN(env, frozen_bhp)->offset);
@@ -378,7 +358,6 @@ int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fro
 		atomic_init(&alloc_bhp->ref, 1);
 		F_CLR(alloc_bhp, BH_FROZEN);
 	}
-
 	/*
 	 * For now, keep things simple and have one file per page size per
 	 * hash bucket.  This improves concurrency but can mean lots of files
@@ -399,12 +378,10 @@ int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fro
 	    (ret = __os_read(env, fhp, &freepgno, sizeof(db_pgno_t), &nio)) != 0 ||
 	    (ret = __os_read(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 		goto err;
-
 	if(magic != DB_FREEZER_MAGIC) {
 		ret = USR_ERR(env, EINVAL);
 		goto err;
 	}
-
 	/* Read the buffer from the frozen page. */
 	if(alloc_bhp != NULL) {
 		DB_ASSERT(env, !F_ISSET(frozen_bhp, BH_FREED));
@@ -418,23 +395,17 @@ int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fro
 	needfree = 1;
 	if(spgno == maxpgno) {
 		listsize = 100;
-		if((ret = __os_malloc(env,
-		    listsize * sizeof(db_pgno_t), &freelist)) != 0)
+		if((ret = __os_malloc(env, listsize * sizeof(db_pgno_t), &freelist)) != 0)
 			goto err;
 		nfree = 0;
 		while(freepgno != 0) {
 			if(nfree == listsize - 1) {
 				listsize *= 2;
-				if((ret = __os_realloc(env,
-				    listsize * sizeof(db_pgno_t),
-				    &freelist)) != 0)
+				if((ret = __os_realloc(env, listsize * sizeof(db_pgno_t), &freelist)) != 0)
 					goto err;
 			}
 			freelist[nfree++] = freepgno;
-			if((ret = __os_seek(env, fhp,
-			    freepgno, pagesize, 0)) != 0 ||
-			    (ret = __os_read(env, fhp, &freepgno,
-			    sizeof(db_pgno_t), &nio)) != 0)
+			if((ret = __os_seek(env, fhp, freepgno, pagesize, 0)) != 0 || (ret = __os_read(env, fhp, &freepgno, sizeof(db_pgno_t), &nio)) != 0)
 				goto err;
 		}
 		freelist[nfree++] = spgno;
@@ -447,33 +418,25 @@ int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fro
 			needfree = 0;
 			ret = __os_closehandle(env, fhp);
 			fhp = NULL;
-			if(ret != 0 ||
-			    (ret = __os_unlink(env, real_name, 0)) != 0)
+			if(ret != 0 || (ret = __os_unlink(env, real_name, 0)) != 0)
 				goto err;
 		}
 #ifdef HAVE_FTRUNCATE
 		else {
 			maxpgno -= (db_pgno_t)ntrunc;
-			if((ret = __os_truncate(env, fhp,
-			    maxpgno + 1, pagesize, 0)) != 0)
+			if((ret = __os_truncate(env, fhp, maxpgno + 1, pagesize, 0)) != 0)
 				goto err;
 
 			/* Fix up the linked list */
 			freelist[nfree - ntrunc] = 0;
-			if((ret = __os_seek(env, fhp,
-			    0, 0, sizeof(uint32))) != 0 ||
-			    (ret = __os_write(env, fhp, &freelist[0],
-			    sizeof(db_pgno_t), &nio)) != 0 ||
-			    (ret = __os_write(env, fhp, &maxpgno,
-			    sizeof(db_pgno_t), &nio)) != 0)
+			if((ret = __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
+			    (ret = __os_write(env, fhp, &freelist[0], sizeof(db_pgno_t), &nio)) != 0 || 
+				(ret = __os_write(env, fhp, &maxpgno, sizeof(db_pgno_t), &nio)) != 0)
 				goto err;
 
 			for(i = 0; i < (int)(nfree - ntrunc); i++)
-				if((ret = __os_seek(env,
-				    fhp, freelist[i], pagesize, 0)) != 0 ||
-				    (ret = __os_write(env, fhp,
-				    &freelist[i + 1], sizeof(db_pgno_t),
-				    &nio)) != 0)
+				if((ret = __os_seek(env, fhp, freelist[i], pagesize, 0)) != 0 ||
+				    (ret = __os_write(env, fhp, &freelist[i + 1], sizeof(db_pgno_t), &nio)) != 0)
 					goto err;
 			needfree = 0;
 		}
@@ -481,11 +444,9 @@ int __memp_bh_thaw(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fro
 	}
 	if(needfree) {
 		if((ret = __os_seek(env, fhp, spgno, pagesize, 0)) != 0 ||
-		    (ret = __os_write(env, fhp,
-		    &freepgno, sizeof(db_pgno_t), &nio)) != 0 ||
+		    (ret = __os_write(env, fhp, &freepgno, sizeof(db_pgno_t), &nio)) != 0 ||
 		    (ret = __os_seek(env, fhp, 0, 0, sizeof(uint32))) != 0 ||
-		    (ret = __os_write(env, fhp,
-		    &spgno, sizeof(db_pgno_t), &nio)) != 0)
+		    (ret = __os_write(env, fhp, &spgno, sizeof(db_pgno_t), &nio)) != 0)
 			goto err;
 
 		ret = __os_closehandle(env, fhp);

@@ -21,7 +21,7 @@ static int __db_pg_free_recover_int __P((ENV *, DB_THREAD_INFO *,
 
 /*
  * PUBLIC: int __db_addrem_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * This log message is generated whenever we add or remove a duplicate
  * to/from a duplicate page.  On recover, we just do the opposite.
@@ -91,7 +91,7 @@ out:    if(pagep != NULL)
 
 /*
  * PUBLIC: int __db_addrem_42_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * This log message is generated whenever we add or remove a duplicate
  * to/from a duplicate page.  On recover, we just do the opposite.
@@ -158,7 +158,7 @@ out:    if(pagep != NULL)
 
 /*
  * PUBLIC: int __db_big_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_big_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -306,7 +306,7 @@ out:    if(pagep != NULL)
 
 /*
  * PUBLIC: int __db_big_42_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_big_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -457,7 +457,7 @@ out:    if(pagep != NULL)
  *	Recovery function for __db_ovref().
  *
  * PUBLIC: int __db_ovref_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_ovref_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -575,7 +575,7 @@ out:    if(pagep != NULL)
  *	Recovery function for pg_alloc.
  *
  * PUBLIC: int __db_pg_alloc_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_alloc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -999,7 +999,7 @@ out:    if(pagep != NULL)
  *	Recovery function for pg_free.
  *
  * PUBLIC: int __db_pg_free_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_free_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1028,7 +1028,7 @@ out:
  *	Recovery function for pg_freedata.
  *
  * PUBLIC: int __db_pg_freedata_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_freedata_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1082,7 +1082,7 @@ int __db_cksum_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
  *	Recovery function to reinit pages after truncation.
  *
  * PUBLIC: int __db_pg_init_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_init_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1160,7 +1160,7 @@ out:
  *	Recovery function for pg_trunc.
  *
  * PUBLIC: int __db_pg_trunc_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_trunc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1355,7 +1355,7 @@ out:    REC_CLOSE;
  *	Recovery function for realloc.
  *
  * PUBLIC: int __db_realloc_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_realloc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1469,7 +1469,7 @@ out:    REC_CLOSE;
  * This is deprecated and kept for replication upgrades.
  *
  * PUBLIC: int __db_pg_sort_44_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pg_sort_44_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1620,7 +1620,7 @@ out:    REC_CLOSE;
  *	Recovery function for relink.
  *
  * PUBLIC: int __db_relink_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_relink_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1732,7 +1732,7 @@ out:    if(pagep != NULL)
  *	Recovery function for merge.
  *
  * PUBLIC: int __db_merge_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_merge_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -2016,7 +2016,7 @@ out:
  *	Recovery function for page number replacment.
  *
  * PUBLIC: int __db_pgno_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __db_pgno_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

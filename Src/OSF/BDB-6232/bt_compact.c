@@ -1653,8 +1653,7 @@ fits:
 				memzero(&hdr, sizeof(hdr));
 				if((ret = __db_goff(dbc, &hdr, bo.tlen, bo.pgno, &hdr.data, &hdr.size)) == 0)
 					ret = __db_poff(dbc, &hdr, &bo.pgno);
-				if(hdr.data != NULL)
-					__os_free(dbp->env, hdr.data);
+				__os_free(dbp->env, hdr.data);
 				if(ret != 0)
 					return ret;
 				data.size = sizeof(bo);
@@ -1977,8 +1976,7 @@ int __bam_compact_opd(DBC *dbc, db_pgno_t root_pgno, PAGE ** ppg, uint32 factor,
 		/* For OPD the number of pages dirtied is returned in span. */
 		*pgs_donep += span;
 	} while(!isdone);
-	if(start.data != NULL)
-		__os_free(env, start.data);
+	__os_free(env, start.data);
 err:    
 	if(opd != NULL && (t_ret = __dbc_close(opd)) != 0 && ret == 0)
 		ret = t_ret;
@@ -2341,8 +2339,7 @@ new_txn:
 			/* No more at this level, go up one. */
 			if(ret == DB_NOTFOUND) {
 				level++;
-				if(start.data != NULL)
-					__os_free(dbp->env, start.data);
+				__os_free(dbp->env, start.data);
 				memzero(&start, sizeof(start));
 				sflag = CS_READ | CS_GETRECNO;
 				continue;
@@ -2410,7 +2407,6 @@ new_txn:
 	}
 	if(pgno != bt->bt_root)
 		goto new_txn;
-
 	/*
 	 * Attempt to move the subdatabase metadata and/or root pages.
 	 * Grab the metadata page and verify the revision, if its out
@@ -2449,19 +2445,15 @@ again:
 		}
 		if(PGNO(meta) > c_data->compact_truncate) {
 			dbmeta = (DBMETA*)meta;
-			ret = __db_move_metadata(dbc,
-			    &dbmeta, c_data, pgs_donep);
+			ret = __db_move_metadata(dbc, &dbmeta, c_data, pgs_donep);
 			meta = (BTMETA*)dbmeta;
 			if(ret != 0)
 				goto err;
 		}
 		if(bt->bt_root > c_data->compact_truncate) {
-			if((ret = __db_lget(dbc, 0,
-					    bt->bt_root, DB_LOCK_WRITE, 0, &root_lock)) != 0)
+			if((ret = __db_lget(dbc, 0, bt->bt_root, DB_LOCK_WRITE, 0, &root_lock)) != 0)
 				goto err;
-			if((ret = __memp_fget(dbp->mpf,
-					    &bt->bt_root, dbc->thread_info,
-					    dbc->txn, DB_MPOOL_DIRTY, &root)) != 0)
+			if((ret = __memp_fget(dbp->mpf, &bt->bt_root, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &root)) != 0)
 				goto err;
 			c_data->compact_pages_examine++;
 			/*
@@ -2472,23 +2464,19 @@ again:
 			 * page latch is released.
 			 */
 			++dbp->mpf->mfp->revision;
-			if((ret = __db_exchange_page(dbc, &root, NULL,
-					    PGNO_INVALID, DB_EXCH_FREE, pgs_donep)) != 0)
+			if((ret = __db_exchange_page(dbc, &root, NULL, PGNO_INVALID, DB_EXCH_FREE, pgs_donep)) != 0)
 				goto err;
 			if(PGNO(root) == bt->bt_root)
 				goto err;
 			if(DBC_LOGGING(dbc)) {
-				if((ret =
-						    __bam_root_log(dbp, txn, &LSN(meta), 0,
-						    PGNO(meta), PGNO(root), &LSN(meta))) != 0)
+				if((ret = __bam_root_log(dbp, txn, &LSN(meta), 0, PGNO(meta), PGNO(root), &LSN(meta))) != 0)
 					goto err;
 			}
 			else
 				LSN_NOT_LOGGED(LSN(meta));
 			bt->bt_root = meta->root = PGNO(root);
 			bt->revision = dbp->mpf->mfp->revision;
-			if((ret = __memp_fput(dbp->mpf,
-					    ip, root, dbp->priority)) != 0)
+			if((ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0)
 				goto err;
 			root = NULL;
 			if(txn == NULL && (ret = __LPUT(dbc, root_lock)) != 0)
@@ -2509,34 +2497,28 @@ again:
 			LOCK_INIT(root_lock);
 		}
 	}
-
-err:    if(txn != NULL && ret != 0)
+err:    
+	if(txn != NULL && ret != 0)
 		sflag = STK_PGONLY;
 	else
 		sflag = 0;
 	if(txn == NULL) {
-		if(dbc != NULL &&
-		    (t_ret = __LPUT(dbc, meta_lock)) != 0 && ret == 0)
+		if(dbc != NULL && (t_ret = __LPUT(dbc, meta_lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(dbc != NULL &&
-		    (t_ret = __LPUT(dbc, root_lock)) != 0 && ret == 0)
+		if(dbc != NULL && (t_ret = __LPUT(dbc, root_lock)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	if(meta != NULL && (t_ret = __memp_fput(dbp->mpf,
-			    ip, meta, dbp->priority)) != 0 && ret == 0)
+	if(meta != NULL && (t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(root != NULL && (t_ret = __memp_fput(dbp->mpf,
-			    ip, root, dbp->priority)) != 0 && ret == 0)
+	if(root != NULL && (t_ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(dbc != NULL && (t_ret = __bam_stkrel(dbc, sflag)) != 0 && ret == 0)
 		ret = t_ret;
 	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(local_txn &&
-	    txn != NULL && (t_ret = __txn_abort(txn)) != 0 && ret == 0)
+	if(local_txn && txn != NULL && (t_ret = __txn_abort(txn)) != 0 && ret == 0)
 		ret = t_ret;
-	if(start.data != NULL)
-		__os_free(dbp->env, start.data);
+	__os_free(dbp->env, start.data);
 	return ret;
 }
 

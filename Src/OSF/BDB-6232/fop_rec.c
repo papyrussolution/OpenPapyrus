@@ -152,7 +152,7 @@ out:    return ret;
  *	Recovery function for create.
  *
  * PUBLIC: int __fop_create_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -182,7 +182,7 @@ out:
  *	Recovery function for create.
  *
  * PUBLIC: int __fop_create_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -217,7 +217,7 @@ out:
  *	Recovery function for create.
  *
  * PUBLIC: int __fop_create_42_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_create_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -281,7 +281,7 @@ out:    if(real_name != NULL)
  *	Recovery function for remove.
  *
  * PUBLIC: int __fop_remove_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_remove_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -308,7 +308,7 @@ out:
  *	Recovery function for remove.
  *
  * PUBLIC: int __fop_remove_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_remove_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -337,7 +337,7 @@ out:
  *	Recovery function for writechunk.
  *
  * PUBLIC: int __fop_write_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -371,7 +371,7 @@ int __fop_write_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
  *	Recovery function for writechunk.
  *
  * PUBLIC: int __fop_write_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -398,7 +398,7 @@ int __fop_write_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
  *	Recovery function for writechunk.
  *
  * PUBLIC: int __fop_write_42_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -503,7 +503,7 @@ end:    if(path != NULL)
  *	already short.
  *
  * PUBLIC: int __fop_write_file_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_file_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -531,7 +531,7 @@ int __fop_write_file_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
  * __fop_write_file_60_recover --
  *
  * PUBLIC: int __fop_write_file_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_write_file_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -560,10 +560,10 @@ end:
  * wrapping the two seems like the right solution.
  *
  * PUBLIC: int __fop_rename_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * PUBLIC: int __fop_rename_noundo_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_rename_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -680,10 +680,10 @@ out:    if(real_new != NULL)
  * __fop_rename_60_recover --
  *
  * PUBLIC: int __fop_rename_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * PUBLIC: int __fop_rename_noundo_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 
 int __fop_rename_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
@@ -804,10 +804,10 @@ out:    if(real_new != NULL)
  * wrapping the two seems like the right solution.
  *
  * PUBLIC: int __fop_rename_42_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * PUBLIC: int __fop_rename_noundo_46_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_rename_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -918,7 +918,7 @@ out:    if(real_new != NULL)
  * what we find out.
  *
  * PUBLIC: int __fop_file_remove_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_file_remove_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1010,7 +1010,7 @@ out:
  * __fop_file_remove_60_recover --
  *
  * PUBLIC: int __fop_file_remove_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __fop_file_remove_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

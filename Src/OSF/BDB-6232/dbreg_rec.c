@@ -47,7 +47,7 @@ static int __dbreg_register_recover_int __P((ENV *, DBT *, DB_LSN *, db_recops, 
 
 /*
  * PUBLIC: int __dbreg_register_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __dbreg_register_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -66,7 +66,7 @@ out:
 
 /*
  * PUBLIC: int __dbreg_register_42_recover
- * PUBLIC:     __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:    (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __dbreg_register_42_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

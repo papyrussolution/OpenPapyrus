@@ -16,7 +16,7 @@
  *	Recovery function for member.
  *
  * PUBLIC: int __repmgr_member_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __repmgr_member_recover(ENV * env, DBT *dbtp, DB_LSN *lsnp, db_recops op, void *info)
 {

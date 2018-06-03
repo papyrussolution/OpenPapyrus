@@ -16,7 +16,7 @@
 /*
  * Acquire the meta-data page.
  *
- * PUBLIC: int __ham_get_meta __P((DBC *));
+ * PUBLIC: int __ham_get_meta(DBC *);
  */
 int __ham_get_meta(DBC *dbc)
 {
@@ -56,7 +56,7 @@ again:
 /*
  * Release the meta-data page.
  *
- * PUBLIC: int __ham_release_meta __P((DBC *));
+ * PUBLIC: int __ham_release_meta(DBC *);
  */
 int __ham_release_meta(DBC *dbc)
 {

@@ -19,9 +19,7 @@ static int get_eid __P((ENV *, const char *, u_int, int *));
 static int read_gmdb __P((ENV *, DB_THREAD_INFO *, uint8 **, size_t *));
 static int __repmgr_addrcmp __P((repmgr_netaddr_t *, repmgr_netaddr_t *));
 static int __repmgr_find_commit __P((ENV *, DB_LSN *, DB_LSN *, int *));
-static int __repmgr_remote_lsnhist(ENV *, int, uint32,
-    __repmgr_lsnhist_match_args *);
-
+static int __repmgr_remote_lsnhist(ENV *, int, uint32, __repmgr_lsnhist_match_args *);
 /*
  * Schedules a future attempt to re-establish a connection with the given site.
  * Usually, we wait the configured retry_wait period.  But if the "immediate"
@@ -144,8 +142,7 @@ void __repmgr_reset_for_reading(REPMGR_CONNECTION *con)
 /*
  * Constructs a DB_REPMGR_CONNECTION structure.
  *
- * PUBLIC: int __repmgr_new_connection __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION **, socket_t, int));
+ * PUBLIC: int __repmgr_new_connection __P((ENV *, REPMGR_CONNECTION **, socket_t, int));
  */
 int __repmgr_new_connection(ENV *env, REPMGR_CONNECTION ** connp, socket_t s, int state)
 {
@@ -172,10 +169,8 @@ int __repmgr_new_connection(ENV *env, REPMGR_CONNECTION ** connp, socket_t s, in
 	c->out_queue_length = 0;
 	__repmgr_reset_for_reading(c);
 	*connp = c;
-
 	return 0;
 }
-
 /*
  * PUBLIC: int __repmgr_set_keepalive __P((ENV *, REPMGR_CONNECTION *));
  */
@@ -194,8 +189,7 @@ int __repmgr_set_keepalive(ENV *env, REPMGR_CONNECTION * conn)
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_new_site __P((ENV *, REPMGR_SITE**,
- * PUBLIC:     const char *, u_int));
+ * PUBLIC: int __repmgr_new_site __P((ENV *, REPMGR_SITE**, const char *, u_int));
  *
  * Manipulates the process-local copy of the sites list.  So, callers should
  * hold the db_rep->mutex (except for single-threaded, pre-open configuration).
@@ -470,8 +464,7 @@ int __repmgr_thread_failure(ENV *env, int why)
  * in an error message.  The buffer must be at least as big as
  * MAX_SITE_LOC_STRING.
  *
- * PUBLIC: char *__repmgr_format_eid_loc __P((DB_REP *,
- * PUBLIC:    REPMGR_CONNECTION *, char *));
+ * PUBLIC: char *__repmgr_format_eid_loc __P((DB_REP *, REPMGR_CONNECTION *, char *));
  *
  * Caller must hold mutex.
  */
@@ -522,7 +515,7 @@ int __repmgr_repstart(ENV *env, uint32 flags, uint32 startopts)
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_become_master __P((ENV *, uint32));
+ * PUBLIC: int __repmgr_become_master(ENV *, uint32);
  */
 int __repmgr_become_master(ENV *env, uint32 startopts)
 {
@@ -638,14 +631,12 @@ err:
 leave:
 	return ret;
 }
-
 /*
  * Visits all the connections we know about, performing the desired action.
  * "err_quit" determines whether we give up, or soldier on, in case of an
  * error.
  *
- * PUBLIC: int __repmgr_each_connection __P((ENV *,
- * PUBLIC:     CONNECTION_ACTION, void *, int));
+ * PUBLIC: int __repmgr_each_connection __P((ENV *, CONNECTION_ACTION, void *, int));
  *
  * !!!
  * Caller must hold mutex.
@@ -830,27 +821,22 @@ int __repmgr_join(ENV *env, void * rep_)
 		ret = EINVAL;
 		goto unlock;
 	}
-
 	db_rep->siteinfo_seq = rep->siteinfo_seq;
 	/*
 	 * Update the incoming queue limit settings if necessary.
 	 */
-	if((db_rep->inqueue_max_gbytes != 0 ||
-	    db_rep->inqueue_max_bytes != 0) &&
-	    (db_rep->inqueue_max_gbytes != rep->inqueue_max_gbytes ||
-	    db_rep->inqueue_max_bytes != rep->inqueue_max_gbytes)) {
+	if((db_rep->inqueue_max_gbytes != 0 || db_rep->inqueue_max_bytes != 0) &&
+	    (db_rep->inqueue_max_gbytes != rep->inqueue_max_gbytes || db_rep->inqueue_max_bytes != rep->inqueue_max_gbytes)) {
 		rep->inqueue_max_gbytes = db_rep->inqueue_max_gbytes;
 		rep->inqueue_max_bytes = db_rep->inqueue_max_bytes;
-		__repmgr_set_incoming_queue_redzone(rep,
-		    rep->inqueue_max_gbytes, rep->inqueue_max_bytes);
+		__repmgr_set_incoming_queue_redzone(rep, rep->inqueue_max_gbytes, rep->inqueue_max_bytes);
 	}
 unlock:
 	MUTEX_UNLOCK(env, rep->mtx_repmgr);
 	return ret;
 }
-
 /*
- * PUBLIC: int __repmgr_env_refresh __P((ENV *env));
+ * PUBLIC: int __repmgr_env_refresh(ENV * env);
  */
 int __repmgr_env_refresh(ENV *env)
 {
@@ -958,7 +944,7 @@ out:
  *
  * !!! Caller must hold db_rep->mutex and mtx_repmgr locks.
  *
- * PUBLIC: int __repmgr_copy_in_added_sites __P((ENV *));
+ * PUBLIC: int __repmgr_copy_in_added_sites(ENV *);
  */
 int __repmgr_copy_in_added_sites(ENV *env)
 {
@@ -1028,7 +1014,7 @@ int __repmgr_init_new_sites(ENV *env, int from, int limit)
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_failchk __P((ENV *));
+ * PUBLIC: int __repmgr_failchk(ENV *);
  */
 int __repmgr_failchk(ENV *env)
 {
@@ -1056,7 +1042,7 @@ int __repmgr_failchk(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_master_is_known __P((ENV *));
+ * PUBLIC: int __repmgr_master_is_known(ENV *);
  */
 int __repmgr_master_is_known(ENV *env)
 {
@@ -1108,10 +1094,8 @@ int __repmgr_stable_lsn(ENV *env, DB_LSN * stable_lsn)
 	UNLOCK_MUTEX(db_rep->mutex);
 	return 0;
 }
-
 /*
- * PUBLIC: int __repmgr_make_request_conn __P((ENV *,
- * PUBLIC:     repmgr_netaddr_t *, REPMGR_CONNECTION **));
+ * PUBLIC: int __repmgr_make_request_conn __P((ENV *, repmgr_netaddr_t *, REPMGR_CONNECTION **));
  */
 int __repmgr_make_request_conn(ENV *env, repmgr_netaddr_t * addr, REPMGR_CONNECTION ** connp)
 {
@@ -1241,7 +1225,7 @@ err:
  * Returns TRUE if we are connected to the other site in a preferred
  * master replication group, FALSE otherwise.
  *
- * PUBLIC: int __repmgr_prefmas_connected __P((ENV *));
+ * PUBLIC: int __repmgr_prefmas_connected(ENV *);
  */
 int __repmgr_prefmas_connected(ENV *env)
 {
@@ -1316,23 +1300,19 @@ int __repmgr_restart_site_as_client(ENV *env, int eid)
 	}
 err:
 	if(conn != NULL) {
-		if((t_ret = __repmgr_close_connection(env,
-		    conn)) != 0 && ret != 0)
+		if((t_ret = __repmgr_close_connection(env, conn)) != 0 && ret != 0)
 			ret = t_ret;
-		if((t_ret = __repmgr_destroy_conn(env,
-		    conn)) != 0 && ret != 0)
+		if((t_ret = __repmgr_destroy_conn(env, conn)) != 0 && ret != 0)
 			ret = t_ret;
 	}
 	return ret;
 }
-
 /*
  * Used by a preferred master site to make the remote temporary master
  * site a readonly master.  This is used to help preserve all temporary
  * master transactions.
  *
- * PUBLIC: int __repmgr_make_site_readonly_master __P((ENV *, int,
- * PUBLIC:     uint32 *, DB_LSN *));
+ * PUBLIC: int __repmgr_make_site_readonly_master __P((ENV *, int, uint32 *, DB_LSN *));
  */
 int __repmgr_make_site_readonly_master(ENV *env, int eid, uint32 * gen, DB_LSN * sync_lsnp)
 {
@@ -1381,33 +1361,25 @@ int __repmgr_make_site_readonly_master(ENV *env, int eid, uint32 * gen, DB_LSN *
 		*sync_lsnp = permlsn.lsn;
 	}
 	else {
-		RPRINT(env, (env, DB_VERB_REPMGR_MISC,
-		    "make_site_readonly_master got unexpected message type %d",
-		    type));
+		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "make_site_readonly_master got unexpected message type %d", type));
 		ret = DB_REP_UNAVAIL; /* Invalid response: protocol violation */
 	}
-
 err:
 	if(conn != NULL) {
-		if((t_ret = __repmgr_close_connection(env,
-		    conn)) != 0 && ret != 0)
+		if((t_ret = __repmgr_close_connection(env, conn)) != 0 && ret != 0)
 			ret = t_ret;
-		if((t_ret = __repmgr_destroy_conn(env,
-		    conn)) != 0 && ret != 0)
+		if((t_ret = __repmgr_destroy_conn(env, conn)) != 0 && ret != 0)
 			ret = t_ret;
 	}
-	if(response_buf != NULL)
-		__os_free(env, response_buf);
+	__os_free(env, response_buf);
 	return ret;
 }
-
 /*
  * Used by a preferred master site to perform the LSN history comparisons to
  * determine whether there is are continuous or conflicting sets of
  * transactions between this site and the remote temporary master.
  *
- * PUBLIC: int __repmgr_lsnhist_match __P((ENV *,
- * PUBLIC:     DB_THREAD_INFO *, int, int *));
+ * PUBLIC: int __repmgr_lsnhist_match __P((ENV *, DB_THREAD_INFO *, int, int *));
  */
 int __repmgr_lsnhist_match(ENV *env, DB_THREAD_INFO * ip, int eid, int * match)
 {
@@ -1882,8 +1854,7 @@ err:
 /*
  * Refresh our sites array from the given membership list.
  *
- * PUBLIC: int __repmgr_refresh_membership __P((ENV *,
- * PUBLIC:     uint8 *, size_t, uint32));
+ * PUBLIC: int __repmgr_refresh_membership __P((ENV *, uint8 *, size_t, uint32));
  */
 int __repmgr_refresh_membership(ENV *env, uint8 * buf, size_t len, uint32 version)
 {
@@ -1965,7 +1936,7 @@ err:
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_reload_gmdb __P((ENV *));
+ * PUBLIC: int __repmgr_reload_gmdb(ENV *);
  */
 int __repmgr_reload_gmdb(ENV *env)
 {
@@ -2034,7 +2005,7 @@ int __repmgr_init_restore(ENV *env, DBT * dbt)
  * Generates an internal request for a deferred operation, to be performed on a
  * separate thread (conveniently, a message-processing thread).
  *
- * PUBLIC: int __repmgr_defer_op __P((ENV *, uint32));
+ * PUBLIC: int __repmgr_defer_op(ENV *, uint32);
  *
  * Caller should hold mutex.
  */
@@ -2057,10 +2028,8 @@ int __repmgr_defer_op(ENV *env, uint32 op)
 	ret = __repmgr_queue_put(env, msg);
 	return ret;
 }
-
 /*
- * PUBLIC: void __repmgr_fire_conn_err_event __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, int));
+ * PUBLIC: void __repmgr_fire_conn_err_event __P((ENV *, REPMGR_CONNECTION *, int));
  */
 void __repmgr_fire_conn_err_event(ENV *env, REPMGR_CONNECTION * conn, int err)
 {
@@ -2091,7 +2060,7 @@ void __repmgr_print_conn_err(ENV *env, repmgr_netaddr_t * netaddr, int err)
  * Change role from master to client, but if a GMDB operation is in progress,
  * wait for it to finish first.
  *
- * PUBLIC: int __repmgr_become_client __P((ENV *));
+ * PUBLIC: int __repmgr_become_client(ENV *);
  */
 int __repmgr_become_client(ENV *env)
 {
@@ -2194,14 +2163,12 @@ static int get_eid(ENV *env, const char * host, u_int port, int * eidp)
 		*eidp = eid;
 	return ret;
 }
-
 /*
  * Sets the named remote site's group membership status to the given value,
  * creating it first if it doesn't already exist.  Adjusts connections
  * accordingly.
  *
- * PUBLIC: int __repmgr_set_membership __P((ENV *,
- * PUBLIC:     const char *, u_int, uint32, uint32));
+ * PUBLIC: int __repmgr_set_membership __P((ENV *, const char *, u_int, uint32, uint32));
  *
  * Caller must host db_rep mutex, and be in ENV_ENTER context.
  */
@@ -2294,7 +2261,7 @@ int __repmgr_set_membership(ENV *env, const char * host, u_int port, uint32 stat
 }
 
 /*
- * PUBLIC: int __repmgr_bcast_parm_refresh __P((ENV *));
+ * PUBLIC: int __repmgr_bcast_parm_refresh(ENV *);
  */
 int __repmgr_bcast_parm_refresh(ENV *env)
 {
@@ -2317,7 +2284,6 @@ int __repmgr_bcast_parm_refresh(ENV *env)
 	UNLOCK_MUTEX(db_rep->mutex);
 	return ret;
 }
-
 /*
  * PUBLIC: int __repmgr_chg_prio __P((ENV *, uint32, uint32));
  */
@@ -2328,8 +2294,7 @@ int __repmgr_chg_prio(ENV *env, uint32 prev, uint32 cur)
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_bcast_own_msg __P((ENV *,
- * PUBLIC:     uint32, uint8 *, size_t));
+ * PUBLIC: int __repmgr_bcast_own_msg __P((ENV *, uint32, uint8 *, size_t));
  *
  * Caller must hold mutex.
  */
@@ -2358,7 +2323,7 @@ int __repmgr_bcast_own_msg(ENV *env, uint32 type, uint8 * buf, size_t len)
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_bcast_member_list __P((ENV *));
+ * PUBLIC: int __repmgr_bcast_member_list(ENV *);
  *
  * Broadcast membership list to all other sites in the replication group.
  *
@@ -2403,16 +2368,12 @@ int __repmgr_bcast_member_list(ENV *env)
 			goto out;
 	}
 out:
-	if(buf != NULL)
-		__os_free(env, buf);
-	if(v4buf != NULL)
-		__os_free(env, v4buf);
+	__os_free(env, buf);
+	__os_free(env, v4buf);
 	return ret;
 }
-
 /*
- * PUBLIC: int __repmgr_forward_single_write __P((uint32,
- * PUBLIC:     DB *, DBT *, DBT *, uint32));
+ * PUBLIC: int __repmgr_forward_single_write __P((uint32, DB *, DBT *, DBT *, uint32));
  *
  * Forwards a replication manager client write operation to the master
  * for processing.  It uses repmgr channels to implement the internal
@@ -2578,14 +2539,11 @@ close_channel:
 		if(ret == 0)
 			ret = ret2;
 	}
-	VPRINT(env, (env, DB_VERB_REPMGR_MISC,
-	    "repmgr_forward_single_write: returning %d", ret));
+	VPRINT(env, (env, DB_VERB_REPMGR_MISC, "repmgr_forward_single_write: returning %d", ret));
 	return ret;
 }
-
 /*
- * PUBLIC: void __repmgr_msgdispatch __P((DB_ENV *, DB_CHANNEL *, DBT *,
- * PUBLIC:     uint32, uint32));
+ * PUBLIC: void __repmgr_msgdispatch __P((DB_ENV *, DB_CHANNEL *, DBT *, uint32, uint32));
  *
  * This is the repmgr channels message dispatch callback for repmgr write
  * forwarding.  This is the master-side processing that gets invoked when

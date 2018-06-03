@@ -257,7 +257,7 @@ public:
 	//
 	// Descr: Сопоставляет словоформу this со словоформой rS.
 	//   Возвращает значение эквивалентности как Real-число. Чем больше число, тем
-	//   больше сохожесть сопоставляемых словоформ.
+	//   больше схожесть сопоставляемых словоформ.
 	// Note: Перечисление ведется по элементам this, каждый из которых сопоставляется с
 	//   аналогичным тэгом в rS. Таким образом, если необходимо сопоставить определитель словоформы A,
 	//   содержащий неполное описание, с полным описанием B, то следует вызывать функцию в виде A.MatchScore(B).
@@ -278,8 +278,20 @@ public:
 	//   0 - ошибка
 	//
 	int    SetTag(int tag, int val, int mode = 0);
-	int    FASTCALL RemoveTag(int tag);
+	//
+	// Descr: Возвращает количество тегов в коллекции
+	//
+	uint   GetTagCount() const;
+	//
+	// Descr: Возвращает ид и значение тега по индексу idx.
+	//   Индексы нумеруются от 0 до GetTagCount()-1.
+	// Returns:
+	//   >0 - тег и его значение по индексу idx успешно получены
+	//   0  - ошибка (скорее всего аргумент idx нарушил границы)
+	//
+	int    FASTCALL GetTagByIdx(uint idx, int * pTag, int * pVal) const;
 	int    FASTCALL GetTag(int tag) const;
+	int    FASTCALL RemoveTag(int tag);
 	size_t CalcLength() const;
 	int    FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
@@ -510,9 +522,10 @@ private:
 class SrConcept {
 public:
 	enum {
-		surrsymbsrcUndef = 0, // Не определен
-		surrsymbsrcFIAS  = 1, // База данных ФИАС (российский классификатор адресов) 
-		surrsymbsrcGBIF  = 2  // База данных GBIF (биологическая таксономия) 
+		surrsymbsrcUndef  = 0, // Не определен
+		surrsymbsrcFIAS   = 1, // База данных ФИАС (российский классификатор адресов) 
+		surrsymbsrcGBIF   = 2, // База данных GBIF (биологическая таксономия) 
+		surrsymbsrcTICKER = 3  // Биржевой тикер
 	};
 	//
 	// Descr: Создает суррогатный символ концепции, на опираясь на "естественный" уникальный идентификатор,
@@ -899,7 +912,27 @@ public:
 	};
 
 	CONCEPTID TryNgForConcept(NGID ngID, CONCEPTID targetCID, long tryOption);
+	CONCEPTID TryOneWordForConcept(const char * pWord, CONCEPTID targetCID, long tryOption);
 	CONCEPTID SearchConceptInTokenizer(CONCEPTID cid, const STokenizer & rT, uint idxFirst, uint idxLast, long tryOption, STokenizer::ResultPosition & rR);
+	//
+	// Descr: Опции функции ResolveNgFromTokenizer
+	//
+	enum {
+		rngftoSkipDotAfterWord = 0x0001 // Если после слова встретилась точка, то пропускать ее
+	};
+	//
+	// Descr: Идентифицирует n-грамму из токенайзера rTknz по смещению idxFirst и в количестве idxCount токенов.
+	//   Если n-грамма не пустая, то либо находит соответствие в базе данных, либо создает новый экземпляр.
+	//   Если аргумент pWfToSet != 0 и pWfToSet->GetTagCount() != 0, то для каждого нового созданного слова
+	//   устанавливает этот набор признаков словоформы (например, язык).
+	// Note: Все действия с базо данных осуществляются в предположении, что запущена внешняя транзакция.
+	// Returns:
+	//   1 - n-грамма не пустая и была найдена уже существующая.
+	//   2 - n-грамма не пустая и была создана новая.
+	//  -1 - n-грамма пустая 
+	//   0 - ошибка
+	//
+	int    ResolveNgFromTokenizer(const STokenizer & rTknz, uint idxFirst, uint idxCount, const SrWordForm * pWfToSet, long options, SrNGram & rNg);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
 	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);

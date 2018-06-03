@@ -12,7 +12,7 @@
  * __db_rpath --
  *	Return the last path separator in the path or NULL if none found.
  *
- * PUBLIC: char *__db_rpath __P((const char *));
+ * PUBLIC: char *__db_rpath(const char *);
  */
 char * __db_rpath(const char * path)
 {

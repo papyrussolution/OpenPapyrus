@@ -74,7 +74,7 @@ out:    return ret;
  *	Recovery function for incfirst.
  *
  * PUBLIC: int __qam_incfirst_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __qam_incfirst_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -167,7 +167,7 @@ out:    REC_CLOSE;
  *	Recovery function for mvptr.
  *
  * PUBLIC: int __qam_mvptr_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __qam_mvptr_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -296,7 +296,7 @@ out:    REC_CLOSE;
  *		Non-extent version or if there is no data (zero len).
  *
  * PUBLIC: int __qam_del_recover
- * PUBLIC:      __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:     (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __qam_del_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -411,7 +411,7 @@ out:    REC_CLOSE;
  *	Recovery function for del in an extent based queue.
  *
  * PUBLIC: int __qam_delext_recover
- * PUBLIC:      __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:     (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __qam_delext_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -532,7 +532,7 @@ out:    REC_CLOSE;
  *	Recovery function for add.
  *
  * PUBLIC: int __qam_add_recover
- * PUBLIC:      __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:     (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __qam_add_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

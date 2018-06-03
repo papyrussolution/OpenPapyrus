@@ -16,7 +16,7 @@
  * __memp_env_create --
  *	Mpool specific creation of the DB_ENV structure.
  *
- * PUBLIC: int __memp_env_create __P((DB_ENV *));
+ * PUBLIC: int __memp_env_create(DB_ENV *);
  */
 int __memp_env_create(DB_ENV *dbenv)
 {
@@ -39,7 +39,7 @@ int __memp_env_create(DB_ENV *dbenv)
  * __memp_env_destroy --
  *	Mpool specific destruction of the DB_ENV structure.
  *
- * PUBLIC: void __memp_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __memp_env_destroy(DB_ENV *);
  */
 void __memp_env_destroy(DB_ENV *dbenv)
 {
@@ -396,7 +396,7 @@ int __memp_set_mp_mmapsize(DB_ENV *dbenv, size_t mp_mmapsize)
 }
 
 /*
- * PUBLIC: int __memp_get_mp_pagesize __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __memp_get_mp_pagesize(DB_ENV *, uint32 *);
  */
 int __memp_get_mp_pagesize(DB_ENV *dbenv, uint32 * mp_pagesizep)
 {
@@ -419,7 +419,7 @@ int __memp_get_mp_pagesize(DB_ENV *dbenv, uint32 * mp_pagesizep)
  * __memp_set_mp_pagesize --
  *	DB_ENV->set_mp_pagesize.
  *
- * PUBLIC: int __memp_set_mp_pagesize __P((DB_ENV *, uint32));
+ * PUBLIC: int __memp_set_mp_pagesize(DB_ENV *, uint32);
  */
 int __memp_set_mp_pagesize(DB_ENV *dbenv, uint32 mp_pagesize)
 {
@@ -453,7 +453,7 @@ int __memp_set_reg_dir(DB_ENV *dbenv, const char * dir)
 	return (__os_strdup(env, dir, &dbenv->db_reg_dir));
 }
 /*
- * PUBLIC: int __memp_get_mp_tablesize __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __memp_get_mp_tablesize(DB_ENV *, uint32 *);
  */
 int __memp_get_mp_tablesize(DB_ENV *dbenv, uint32 * mp_tablesizep)
 {
@@ -475,7 +475,7 @@ int __memp_get_mp_tablesize(DB_ENV *dbenv, uint32 * mp_tablesizep)
  * __memp_set_mp_tablesize --
  *	DB_ENV->set_mp_tablesize.
  *
- * PUBLIC: int __memp_set_mp_tablesize __P((DB_ENV *, uint32));
+ * PUBLIC: int __memp_set_mp_tablesize(DB_ENV *, uint32);
  */
 int __memp_set_mp_tablesize(DB_ENV *dbenv, uint32 mp_tablesize)
 {
@@ -486,7 +486,7 @@ int __memp_set_mp_tablesize(DB_ENV *dbenv, uint32 mp_tablesize)
 	return 0;
 }
 /*
- * PUBLIC: int __memp_get_mp_mtxcount __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __memp_get_mp_mtxcount(DB_ENV *, uint32 *);
  */
 int __memp_get_mp_mtxcount(DB_ENV *dbenv, uint32 * mp_mtxcountp)
 {
@@ -508,7 +508,7 @@ int __memp_get_mp_mtxcount(DB_ENV *dbenv, uint32 * mp_mtxcountp)
  * __memp_set_mp_mtxcount --
  *	DB_ENV->set_mp_mtxcount.
  *
- * PUBLIC: int __memp_set_mp_mtxcount __P((DB_ENV *, uint32));
+ * PUBLIC: int __memp_set_mp_mtxcount(DB_ENV *, uint32);
  */
 int __memp_set_mp_mtxcount(DB_ENV *dbenv, uint32 mp_mtxcount)
 {
@@ -522,8 +522,7 @@ int __memp_set_mp_mtxcount(DB_ENV *dbenv, uint32 mp_mtxcount)
  * __memp_nameop
  *	Remove or rename a file in the pool.
  *
- * PUBLIC: int __memp_nameop __P((ENV *,
- * PUBLIC:     uint8 *, const char *, const char *, const char *, int));
+ * PUBLIC: int __memp_nameop __P((ENV *, uint8 *, const char *, const char *, const char *, int));
  *
  * Undocumented interface: DB private.
  */
@@ -839,13 +838,11 @@ int __memp_free_freelist(DB_MPOOLFILE *dbmfp)
 	mfp->free_size = 0;
 	return 0;
 }
-
 /*
  * __memp_get_freelst --
  *	Return current list.
  *
- * PUBLIC: int __memp_get_freelist __P((
- * PUBLIC:	DB_MPOOLFILE *, uint32 *, db_pgno_t **));
+ * PUBLIC: int __memp_get_freelist __P((DB_MPOOLFILE *, uint32 *, db_pgno_t **));
  */
 int __memp_get_freelist(DB_MPOOLFILE *dbmfp, uint32 * nelemp, db_pgno_t ** listp)
 {
@@ -866,8 +863,7 @@ int __memp_get_freelist(DB_MPOOLFILE *dbmfp, uint32 * nelemp, db_pgno_t ** listp
  * __memp_extend_freelist --
  *	Extend the list.
  *
- * PUBLIC: int __memp_extend_freelist __P((
- * PUBLIC:	DB_MPOOLFILE *, uint32 , db_pgno_t **));
+ * PUBLIC: int __memp_extend_freelist __P((DB_MPOOLFILE *, uint32 , db_pgno_t **));
  */
 int __memp_extend_freelist(DB_MPOOLFILE *dbmfp, uint32 count, db_pgno_t ** listp)
 {
@@ -904,7 +900,6 @@ int __memp_extend_freelist(DB_MPOOLFILE *dbmfp, uint32 count, db_pgno_t ** listp
 	return 0;
 }
 #endif
-
 /*
  * __memp_set_last_pgno -- set the last page of the file
  *

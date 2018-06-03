@@ -176,7 +176,7 @@ err:
  *	Destroy a DB handle's FNAME struct.  This is only called when closing
  * the DB.
  *
- * PUBLIC: int __dbreg_teardown __P((DB *));
+ * PUBLIC: int __dbreg_teardown(DB *);
  */
 int __dbreg_teardown(DB *dbp)
 {
@@ -634,7 +634,7 @@ err:    if(!locked)
  * out or, if there are pending transactions, just remove the mutex which
  * will get discarded later.
  *
- * PUBLIC: int __dbreg_failchk __P((ENV *));
+ * PUBLIC: int __dbreg_failchk(ENV *);
  */
 int __dbreg_failchk(ENV *env)
 {

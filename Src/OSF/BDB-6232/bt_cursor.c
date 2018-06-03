@@ -13,24 +13,24 @@
 #include "dbinc/lock.h"
 #include "dbinc/mp.h"
 
-static int __bam_bulk __P((DBC *, DBT *, uint32));
-static int __bamc_close __P((DBC *, db_pgno_t, int *));
-static int __bamc_del __P((DBC *, uint32));
-static int __bamc_destroy __P((DBC *));
-static int __bamc_get __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
-static int __bamc_getstack __P((DBC *));
-static int __bamc_next __P((DBC *, int, int));
-static int __bamc_physdel __P((DBC *));
-static int __bamc_prev __P((DBC *));
-static int __bamc_put __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
-static int __bamc_search __P((DBC *, db_pgno_t, const DBT *, uint32, int *));
-static int __bamc_writelock __P((DBC *));
-static int __bam_getboth_finddatum __P((DBC *, DBT *, uint32));
-static int __bam_getbothc __P((DBC *, DBT *));
-static int __bam_get_prev __P((DBC *));
-static int __bam_isopd __P((DBC *, db_pgno_t *));
+static int __bam_bulk (DBC *, DBT *, uint32);
+static int __bamc_close (DBC *, db_pgno_t, int *);
+static int __bamc_del (DBC *, uint32);
+static int __bamc_destroy(DBC *);
+static int __bamc_get (DBC *, DBT *, DBT *, uint32, db_pgno_t *);
+static int __bamc_getstack(DBC *);
+static int __bamc_next (DBC *, int, int);
+static int __bamc_physdel(DBC *);
+static int __bamc_prev(DBC *);
+static int __bamc_put (DBC *, DBT *, DBT *, uint32, db_pgno_t *);
+static int __bamc_search (DBC *, db_pgno_t, const DBT *, uint32, int *);
+static int __bamc_writelock(DBC *);
+static int __bam_getboth_finddatum (DBC *, DBT *, uint32);
+static int __bam_getbothc (DBC *, DBT *);
+static int __bam_get_prev(DBC *);
+static int __bam_isopd (DBC *, db_pgno_t *);
 #ifdef HAVE_COMPRESSION
-static int __bam_getlte __P((DBC *, DBT *, DBT *));
+static int __bam_getlte (DBC *, DBT *, DBT *);
 #endif
 
 /*
@@ -49,17 +49,14 @@ static int __bam_getlte __P((DBC *, DBT *, DBT *));
 #define ACQUIRE(dbc, mode, lpgno, lock, fpgno, pagep, flags, ret) do {  \
 		DB_MPOOLFILE * __mpf = (dbc)->dbp->mpf;                          \
 		if((pagep) != NULL) {                                          \
-			ret = __memp_fput(__mpf,                                \
-				(dbc)->thread_info, pagep, dbc->priority);         \
+			ret = __memp_fput(__mpf, (dbc)->thread_info, pagep, dbc->priority); \
 			pagep = NULL;                                           \
 		} else                                                          \
 			ret = 0;                                                \
 		if((ret) == 0 && STD_LOCKING(dbc))                             \
-			ret = __db_lget(                                        \
-				dbc, LCK_COUPLE, lpgno, mode, flags, &(lock));      \
+			ret = __db_lget(dbc, LCK_COUPLE, lpgno, mode, flags, &(lock)); \
 		if((ret) == 0)                                                 \
-			ret = __memp_fget(__mpf, &(fpgno),                      \
-				(dbc)->thread_info, (dbc)->txn, 0, &(pagep));       \
+			ret = __memp_fget(__mpf, &(fpgno), (dbc)->thread_info, (dbc)->txn, 0, &(pagep)); \
 } while(0)
 
 /* Acquire a new page/lock for a cursor. */
@@ -89,23 +86,18 @@ static int __bam_getlte __P((DBC *, DBT *, DBT *));
 		ret = 0;                                                        \
 		if(STD_LOCKING(dbc) && __cp->lock_mode != DB_LOCK_WRITE) {     \
 			if(__cp->page != NULL) {                               \
-				(ret) = __memp_fput(__mpf, (dbc)->thread_info,  \
-					__cp->page, (dbc)->priority);               \
+				(ret) = __memp_fput(__mpf, (dbc)->thread_info, __cp->page, (dbc)->priority); \
 				__cp->page = NULL;                              \
 				__get_page = 1;                                 \
 				if((ret) !=0)                                  \
 					break;                                  \
 			}                                                       \
-			if(((ret) = __db_lget((dbc),                           \
-			    LOCK_ISSET(__cp->lock) ? LCK_COUPLE : 0,            \
-			    __cp->pgno, DB_LOCK_WRITE, 0, &__cp->lock)) != 0)   \
+			if(((ret) = __db_lget((dbc), LOCK_ISSET(__cp->lock) ? LCK_COUPLE : 0, __cp->pgno, DB_LOCK_WRITE, 0, &__cp->lock)) != 0) \
 				break;                                          \
 			__cp->lock_mode = DB_LOCK_WRITE;                        \
 			if(__get_page == 0)                                    \
 				break;                                          \
-			(ret) = __memp_fget(__mpf, &__cp->pgno,         \
-				(dbc)->thread_info,                                 \
-				(dbc)->txn, DB_MPOOL_DIRTY, &__cp->page);           \
+			(ret) = __memp_fget(__mpf, &__cp->pgno, (dbc)->thread_info, (dbc)->txn, DB_MPOOL_DIRTY, &__cp->page); \
 		}                                                               \
 } while(0)
 
@@ -116,8 +108,7 @@ static int __bam_getlte __P((DBC *, DBT *, DBT *));
 		DB_MPOOLFILE * __mpf = (dbc)->dbp->mpf;                          \
 		int __t_ret;                                                    \
 		if((__cp->page) != NULL) {                                     \
-			__t_ret = __memp_fput(__mpf,                            \
-				(dbc)->thread_info, __cp->page, dbc->priority); \
+			__t_ret = __memp_fput(__mpf, (dbc)->thread_info, __cp->page, dbc->priority); \
 			__cp->page = NULL;                                      \
 		} else                                                          \
 			__t_ret = 0;                                            \
@@ -133,13 +124,9 @@ static int __bam_getlte __P((DBC *, DBT *, DBT *));
 
 /* If on-page item is a deleted record. */
 #undef  IS_DELETED
-#define IS_DELETED(dbp, page, indx)                                     \
-	B_DISSET(GET_BKEYDATA(dbp, page,                                \
-	    (indx) + (TYPE(page) == P_LBTREE ? O_INDX : 0))->type)
+#define IS_DELETED(dbp, page, indx) B_DISSET(GET_BKEYDATA(dbp, page, (indx) + (TYPE(page) == P_LBTREE ? O_INDX : 0))->type)
 #undef  IS_CUR_DELETED
-#define IS_CUR_DELETED(dbc)                                             \
-	IS_DELETED((dbc)->dbp, (dbc)->internal->page, (dbc)->internal->indx)
-
+#define IS_CUR_DELETED(dbc)         IS_DELETED((dbc)->dbp, (dbc)->internal->page, (dbc)->internal->indx)
 /*
  * Test to see if two cursors could point to duplicates of the same key.
  * In the case of off-page duplicates they are they same, as the cursors
@@ -149,14 +136,10 @@ static int __bam_getlte __P((DBC *, DBT *, DBT *));
  * current cursor's.
  */
 #undef  IS_DUPLICATE
-#define IS_DUPLICATE(dbc, i1, i2)                                       \
-	(P_INP((dbc)->dbp, ((PAGE*)(dbc)->internal->page))[i1] ==   \
-	P_INP((dbc)->dbp, ((PAGE*)(dbc)->internal->page))[i2])
+#define IS_DUPLICATE(dbc, i1, i2) (P_INP((dbc)->dbp, ((PAGE*)(dbc)->internal->page))[i1] == P_INP((dbc)->dbp, ((PAGE*)(dbc)->internal->page))[i2])
 #undef  IS_CUR_DUPLICATE
 #define IS_CUR_DUPLICATE(dbc, orig_pgno, orig_indx)                     \
-	(F_ISSET(dbc, DBC_OPD) ||                                       \
-	(orig_pgno == (dbc)->internal->pgno &&                      \
-	IS_DUPLICATE(dbc, (dbc)->internal->indx, orig_indx)))
+	(F_ISSET(dbc, DBC_OPD) || (orig_pgno == (dbc)->internal->pgno && IS_DUPLICATE(dbc, (dbc)->internal->indx, orig_indx)))
 
 /*
  * __bamc_init --
@@ -220,7 +203,7 @@ int __bamc_init(DBC *dbc, DBTYPE dbtype)
  * __bamc_refresh
  *	Set things up properly for cursor re-use.
  *
- * PUBLIC: int __bamc_refresh __P((DBC *));
+ * PUBLIC: int __bamc_refresh(DBC *);
  */
 int __bamc_refresh(DBC *dbc)
 {
@@ -626,15 +609,11 @@ int __bamc_cmp(DBC *dbc, DBC * other_dbc, int * result)
  */
 static int __bamc_destroy(DBC *dbc)
 {
-	BTREE_CURSOR * cp;
-	ENV * env;
-	cp = (BTREE_CURSOR*)dbc->internal;
-	env = dbc->env;
-
+	BTREE_CURSOR * cp = (BTREE_CURSOR*)dbc->internal;
+	ENV * env = dbc->env;
 	/* Discard the structures. */
 	if(cp->sp != cp->stack)
 		__os_free(env, cp->sp);
-
 #ifdef HAVE_COMPRESSION
 	/* Free the memory used for compression */
 	__os_free(env, cp->compressed.data);

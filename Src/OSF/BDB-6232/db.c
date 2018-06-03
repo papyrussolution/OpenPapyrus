@@ -53,8 +53,8 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __db_disassociate __P((DB *));
-static int __db_disassociate_foreign __P((DB *));
+static int __db_disassociate(DB *);
+static int __db_disassociate_foreign(DB *);
 
 #ifdef CONFIG_TEST
 static int __db_makecopy __P((ENV *, const char *, const char *));
@@ -827,9 +827,7 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 		__os_free(env, f_info);
 		f_info = tmp;
 	}
-
-	if(dbp->s_foreign != NULL &&
-	    (t_ret = __db_disassociate_foreign(dbp)) != 0 && ret == 0)
+	if(dbp->s_foreign != NULL && (t_ret = __db_disassociate_foreign(dbp)) != 0 && ret == 0)
 		ret = t_ret;
 
 	/*
@@ -841,11 +839,8 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 	 * entire buffer cache is searched.  If we're in recovery, don't flush
 	 * the file, it's not necessary.
 	 */
-	if(!LF_ISSET(DB_NOSYNC) &&
-	    !F_ISSET(dbp, DB_AM_DISCARD | DB_AM_RECOVER) &&
-	    (t_ret = __db_sync(dbp)) != 0 && ret == 0)
+	if(!LF_ISSET(DB_NOSYNC) && !F_ISSET(dbp, DB_AM_DISCARD | DB_AM_RECOVER) && (t_ret = __db_sync(dbp)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * Go through the active cursors, unregister each cursor from its
 	 * transaction if any, and call the cursor recycle routine,
@@ -858,21 +853,18 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 	while((dbc = TAILQ_FIRST(&dbp->active_queue)) != NULL) {
 		if(dbc->txn != NULL)
 			TAILQ_REMOVE(&(dbc->txn->my_cursors), dbc, txn_cursors);
-
 		if((t_ret = __dbc_close(dbc)) != 0) {
 			if(ret == 0)
 				ret = t_ret;
 			break;
 		}
 	}
-
 	while((dbc = TAILQ_FIRST(&dbp->free_queue)) != NULL)
 		if((t_ret = __dbc_destroy(dbc)) != 0) {
 			if(ret == 0)
 				ret = t_ret;
 			break;
 		}
-
 	/*
 	 * Close any outstanding join cursors.  Join cursors destroy themselves
 	 * on close and have no separate destroy routine.  We don't have to set
@@ -884,7 +876,6 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 				ret = t_ret;
 			break;
 		}
-
 	/*
 	 * Sync the memory pool, even though we've already called DB->sync,
 	 * because closing cursors can dirty pages by deleting items they
@@ -894,17 +885,14 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 	 * entire buffer cache is searched.  If we're in recovery, don't flush
 	 * the file, it's not necessary.
 	 */
-	if(resync && !LF_ISSET(DB_NOSYNC) &&
-	    !F_ISSET(dbp, DB_AM_DISCARD | DB_AM_RECOVER) &&
+	if(resync && !LF_ISSET(DB_NOSYNC) && !F_ISSET(dbp, DB_AM_DISCARD | DB_AM_RECOVER) &&
 	    (t_ret = __memp_fsync(dbp->mpf)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * If there is a file extension watermark associated with this
 	 * database, we don't need it any more.
 	 */
 	__txn_remove_fe_watermark(txn, dbp);
-
 never_opened:
 	MUTEX_LOCK(env, env->mtx_dblist);
 	/*
@@ -925,17 +913,14 @@ never_opened:
 		 * or a dead dbp handle.
 		 */
 		DB_ASSERT(env, renv != NULL);
-		if(F_ISSET(dbp, DB_AM_RECOVER) || IS_REP_CLIENT(env) ||
-		    dbp->timestamp != renv->rep_timestamp) {
-			if((t_ret = __dbreg_revoke_id(dbp,
-			    0, DB_LOGFILEID_INVALID)) == 0 && ret == 0)
+		if(F_ISSET(dbp, DB_AM_RECOVER) || IS_REP_CLIENT(env) || dbp->timestamp != renv->rep_timestamp) {
+			if((t_ret = __dbreg_revoke_id(dbp, 0, DB_LOGFILEID_INVALID)) == 0 && ret == 0)
 				ret = t_ret;
 			if((t_ret = __dbreg_teardown(dbp)) != 0 && ret == 0)
 				ret = t_ret;
 		}
 		else {
-			if((t_ret = __dbreg_close_id(dbp,
-			    txn, DBREG_CLOSE)) != 0 && txn != NULL) {
+			if((t_ret = __dbreg_close_id(dbp, txn, DBREG_CLOSE)) != 0 && txn != NULL) {
 				MUTEX_UNLOCK(env, env->mtx_dblist);
 				/*
 				 * We're in a txn and the attempt to log the
@@ -949,8 +934,7 @@ never_opened:
 				 * we're out of heap memory--we're really
 				 * screwed.  Panic.
 				 */
-				if((ret =
-				    __txn_closeevent(env, txn, dbp)) != 0)
+				if((ret = __txn_closeevent(env, txn, dbp)) != 0)
 					return (__env_panic(env, ret));
 				if(deferred_closep != NULL)
 					*deferred_closep = 1;
@@ -969,13 +953,9 @@ never_opened:
 			 */
 		}
 	}
-
 	/* Close any handle we've been holding since the open.  */
-	if(dbp->saved_open_fhp != NULL &&
-	    (t_ret = __os_closehandle(env, dbp->saved_open_fhp)) != 0 &&
-	    ret == 0)
+	if(dbp->saved_open_fhp != NULL && (t_ret = __os_closehandle(env, dbp->saved_open_fhp)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * Remove this DB handle from the ENV's dblist, if it's been added.
 	 *
@@ -987,30 +967,21 @@ never_opened:
 	 * blindly call the underlying TAILQ_REMOVE macro.  Explicitly reset
 	 * the field values to NULL so that we can't call TAILQ_REMOVE twice.
 	 */
-	if(!reuse &&
-	    (dbp->dblistlinks.tqe_next != NULL ||
-	    dbp->dblistlinks.tqe_prev != NULL)) {
+	if(!reuse && (dbp->dblistlinks.tqe_next != NULL || dbp->dblistlinks.tqe_prev != NULL)) {
 		TAILQ_REMOVE(&env->dblist, dbp, dblistlinks);
 		dbp->dblistlinks.tqe_next = NULL;
 		dbp->dblistlinks.tqe_prev = NULL;
 	}
-
 	/* Close the memory pool file handle. */
 	if(dbp->mpf != NULL) {
-		if((t_ret = __memp_fclose(dbp->mpf,
-		    F_ISSET(dbp, DB_AM_DISCARD) ? DB_MPOOL_DISCARD : 0)) != 0 &&
-		    ret == 0)
+		if((t_ret = __memp_fclose(dbp->mpf, F_ISSET(dbp, DB_AM_DISCARD) ? DB_MPOOL_DISCARD : 0)) != 0 && ret == 0)
 			ret = t_ret;
 		dbp->mpf = NULL;
 		F2_CLR(dbp, DB2_AM_MPOOL_OPENED);
-		if(reuse &&
-		    (t_ret = __memp_fcreate(env, &dbp->mpf)) != 0 &&
-		    ret == 0)
+		if(reuse && (t_ret = __memp_fcreate(env, &dbp->mpf)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-
 	MUTEX_UNLOCK(env, env->mtx_dblist);
-
 	/*
 	 * Call the access specific close function.
 	 *
@@ -1032,8 +1003,7 @@ never_opened:
 	 * abort and recover any of the information they control.
 	 */
 #ifdef HAVE_PARTITION
-	if(dbp->p_internal != NULL &&
-	    (t_ret = __partition_close(dbp, txn, flags)) != 0 && ret == 0)
+	if(dbp->p_internal != NULL && (t_ret = __partition_close(dbp, txn, flags)) != 0 && ret == 0)
 		ret = t_ret;
 #endif
 	if((t_ret = __bam_db_close(dbp)) != 0 && ret == 0)
@@ -1044,49 +1014,38 @@ never_opened:
 		ret = t_ret;
 	if((t_ret = __qam_db_close(dbp, dbp->flags)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * !!!
 	 * At this point, the access-method specific information has been
 	 * freed.  From now on, we can use the dbp, but not touch any
 	 * access-method specific data.
 	 */
-
 	if(!reuse && dbp->locker != NULL) {
 		/* We may have pending trade operations on this dbp. */
 		if(txn == NULL)
 			txn = dbp->cur_txn;
 		if(IS_REAL_TXN(txn))
 			__txn_remlock(env, txn, NULL, dbp->locker);
-
 		/* We may be holding the handle lock; release it. */
 		lreq.op = DB_LOCK_PUT_ALL;
 		lreq.obj = NULL;
-		if((t_ret = __lock_vec(env,
-		    dbp->locker, 0, &lreq, 1, NULL)) != 0 && ret == 0)
+		if((t_ret = __lock_vec(env, dbp->locker, 0, &lreq, 1, NULL)) != 0 && ret == 0)
 			ret = t_ret;
-
-		if((t_ret =
-		    __lock_id_free(env, dbp->locker)) != 0 && ret == 0)
+		if((t_ret = __lock_id_free(env, dbp->locker)) != 0 && ret == 0)
 			ret = t_ret;
 		dbp->locker = NULL;
 		LOCK_INIT(dbp->handle_lock);
 	}
-
 	/*
 	 * If this is a temporary file (un-named in-memory file), then
 	 * discard the locker ID allocated as the fileid.
 	 */
-	if(LOCKING_ON(env) &&
-	    F_ISSET(dbp, DB_AM_INMEM) && !dbp->preserve_fid &&
-	    *(uint32*)dbp->fileid != DB_LOCK_INVALIDID) {
-		if((t_ret = __lock_getlocker(env->lk_handle,
-		    *(uint32*)dbp->fileid, 0, &locker)) == 0)
+	if(LOCKING_ON(env) && F_ISSET(dbp, DB_AM_INMEM) && !dbp->preserve_fid && *(uint32*)dbp->fileid != DB_LOCK_INVALIDID) {
+		if((t_ret = __lock_getlocker(env->lk_handle, *(uint32*)dbp->fileid, 0, &locker)) == 0)
 			t_ret = __lock_id_free(env, locker);
 		if(ret == 0)
 			ret = t_ret;
 	}
-
 	if(reuse) {
 		/*
 		 * If we are reusing this dbp, then we're done now. Re-init
@@ -1094,9 +1053,7 @@ never_opened:
 		 * This code is borrowed from __db_init, which does more
 		 * than we can do here.
 		 */
-		save_flags = F_ISSET(dbp, DB_AM_INMEM |
-			DB_AM_RDONLY | DB_AM_TXN);
-
+		save_flags = F_ISSET(dbp, DB_AM_INMEM | DB_AM_RDONLY | DB_AM_TXN);
 		if((ret = __bam_db_create(dbp)) != 0)
 			return ret;
 		if((ret = __ham_db_create(dbp)) != 0)
@@ -1119,14 +1076,12 @@ never_opened:
 		return ret;
 	}
 	dbp->type = DB_UNKNOWN;
-
 	/*
 	 * The thread mutex may have been invalidated in __dbreg_close_id if the
 	 * fname refcount did not go to 0. If not, discard the thread mutex.
 	 */
 	if((t_ret = __mutex_free(env, &dbp->mutex)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/* Discard any memory allocated for the file and database names. */
 	if(dbp->fname != NULL) {
 		__os_free(dbp->env, dbp->fname);
@@ -1141,12 +1096,9 @@ never_opened:
 		dbp->blob_sub_dir = NULL;
 	}
 	/* Discard any memory used to store returned data. */
-	if(dbp->my_rskey.data != NULL)
-		__os_free(dbp->env, dbp->my_rskey.data);
-	if(dbp->my_rkey.data != NULL)
-		__os_free(dbp->env, dbp->my_rkey.data);
-	if(dbp->my_rdata.data != NULL)
-		__os_free(dbp->env, dbp->my_rdata.data);
+	__os_free(dbp->env, dbp->my_rskey.data);
+	__os_free(dbp->env, dbp->my_rkey.data);
+	__os_free(dbp->env, dbp->my_rdata.data);
 	/* For safety's sake;  we may refresh twice. */
 	memzero(&dbp->my_rskey, sizeof(DBT));
 	memzero(&dbp->my_rkey, sizeof(DBT));
@@ -1222,7 +1174,6 @@ static int __db_disassociate_foreign(DB *sdbp)
 		return 0;
 	if((ret = __os_malloc(sdbp->env, sizeof(DB_FOREIGN_INFO), &tmp)) != 0)
 		return ret;
-
 	fdbp = sdbp->s_foreign;
 	ret = 0;
 	f_info = LIST_FIRST(&fdbp->f_primaries);
@@ -1234,10 +1185,8 @@ static int __db_disassociate_foreign(DB *sdbp)
 		}
 		f_info = tmp;
 	}
-
 	return ret;
 }
-
 /*
  * __db_log_page
  *	Log a meta-data or root page during a subdatabase create operation.
@@ -1425,24 +1374,20 @@ static int __qam_testdocopy(DB *dbp, const char * name)
 
 	/* Call ENV_GET_THREAD_INFO to get a valid DB_THREAD_INFO */
 	ENV_GET_THREAD_INFO(dbp->env, ip);
-	if(dbp->mpf != NULL &&
-	    (ret = __qam_gen_filelist(dbp, ip, &filelist)) != 0)
+	if(dbp->mpf != NULL && (ret = __qam_gen_filelist(dbp, ip, &filelist)) != 0)
 		goto done;
-
 	if(filelist == NULL)
 		return 0;
 	dir = ((QUEUE*)dbp->q_internal)->dir;
 	for(fp = filelist; fp->mpf != NULL; fp++) {
-		snprintf(buf, sizeof(buf),
-		    QUEUE_EXTENT, dir, PATH_SEPARATOR[0], name, fp->id);
+		snprintf(buf, sizeof(buf), QUEUE_EXTENT, dir, PATH_SEPARATOR[0], name, fp->id);
 		if((ret = __db_testdocopy(dbp->env, buf)) != 0)
 			return ret;
 	}
-
-done:   __os_free(dbp->env, filelist);
+done:   
+	__os_free(dbp->env, filelist);
 	return 0;
 }
-
 /*
  * __db_testdocopy
  *	Create a copy of all backup files and our "main" DB.
@@ -1469,7 +1414,6 @@ int __db_testdocopy(ENV *env, const char * name)
 		__os_free(env, real_name);
 		return 0;
 	}
-
 	/*
 	 * Copy the file itself.
 	 *
@@ -1538,10 +1482,8 @@ int __db_testdocopy(ENV *env, const char * name)
 err:    
 	if(namesp != NULL)
 		__os_dirfree(env, namesp, dircnt);
-	if(copy != NULL)
-		__os_free(env, copy);
-	if(real_name != NULL)
-		__os_free(env, real_name);
+	__os_free(env, copy);
+	__os_free(env, real_name);
 	return ret;
 }
 
@@ -1551,36 +1493,26 @@ static int __db_makecopy(ENV *env, const char * src, const char * dest)
 	size_t rcnt, wcnt;
 	int ret;
 	char * buf;
-
 	rfhp = wfhp = NULL;
-
 	if((ret = __os_malloc(env, 64 * 1024, &buf)) != 0)
 		goto err;
-
-	if((ret = __os_open(env, src, 0,
-	    DB_OSO_RDONLY, DB_MODE_600, &rfhp)) != 0)
+	if((ret = __os_open(env, src, 0, DB_OSO_RDONLY, DB_MODE_600, &rfhp)) != 0)
 		goto err;
-	if((ret = __os_open(env, dest, 0,
-	    DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &wfhp)) != 0)
+	if((ret = __os_open(env, dest, 0, DB_OSO_CREATE | DB_OSO_TRUNC, DB_MODE_600, &wfhp)) != 0)
 		goto err;
-
 	for(;;) {
-		if((ret =
-		    __os_read(env, rfhp, buf, sizeof(buf), &rcnt)) != 0)
+		if((ret = __os_read(env, rfhp, buf, sizeof(buf), &rcnt)) != 0)
 			goto err;
 		if(rcnt == 0)
 			break;
-		if((ret =
-		    __os_write(env, wfhp, buf, sizeof(buf), &wcnt)) != 0)
+		if((ret = __os_write(env, wfhp, buf, sizeof(buf), &wcnt)) != 0)
 			goto err;
 	}
-
 	if(0) {
-err:            __db_err(env, ret, "__db_makecopy: %s -> %s", src, dest);
+err:            
+		__db_err(env, ret, "__db_makecopy: %s -> %s", src, dest);
 	}
-
-	if(buf != NULL)
-		__os_free(env, buf);
+	__os_free(env, buf);
 	if(rfhp != NULL)
 		(void)__os_closehandle(env, rfhp);
 	if(wfhp != NULL)

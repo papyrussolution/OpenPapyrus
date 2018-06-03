@@ -15,15 +15,14 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __qam_rr __P((DB *, DB_THREAD_INFO *, DB_TXN *,
-    const char *, const char *, const char *, qam_name_op));
-static int __qam_set_extentsize __P((DB *, uint32));
+static int __qam_rr __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *, qam_name_op));
+static int __qam_set_extentsize(DB *, uint32);
 
 /*
  * __qam_db_create --
  *	Queue specific initialization of the DB structure.
  *
- * PUBLIC: int __qam_db_create __P((DB *));
+ * PUBLIC: int __qam_db_create(DB *);
  */
 int __qam_db_create(DB *dbp)
 {
@@ -42,7 +41,7 @@ int __qam_db_create(DB *dbp)
  * __qam_db_close --
  *	Queue specific discard of the DB structure.
  *
- * PUBLIC: int __qam_db_close __P((DB *, uint32));
+ * PUBLIC: int __qam_db_close(DB *, uint32);
  */
 int __qam_db_close(DB *dbp, uint32 flags)
 {
@@ -84,7 +83,7 @@ again:
  * __qam_get_extentsize --
  *	The DB->q_get_extentsize method.
  *
- * PUBLIC: int __qam_get_extentsize __P((DB *, uint32 *));
+ * PUBLIC: int __qam_get_extentsize(DB *, uint32 *);
  */
 int __qam_get_extentsize(DB *dbp, uint32 * q_extentsizep)
 {
@@ -148,7 +147,7 @@ int __queue_pageinfo(DB *dbp, db_pgno_t * firstp, db_pgno_t * lastp, int * empty
  * __db_prqueue --
  *	Print out a queue
  *
- * PUBLIC: int __db_prqueue __P((DB *, uint32));
+ * PUBLIC: int __db_prqueue(DB *, uint32);
  */
 int __db_prqueue(DB *dbp, uint32 flags)
 {

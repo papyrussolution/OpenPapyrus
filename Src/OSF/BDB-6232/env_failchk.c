@@ -18,10 +18,10 @@
 #include "dbinc/txn.h"
 
 static int __env_acquiring_mutex __P((ENV *, DB_THREAD_INFO *));
-static int __env_holds_mutex __P((ENV *));
+static int __env_holds_mutex(ENV *);
 static int __env_in_failchk __P((ENV *, int *));
-static int __env_clear_latches __P((ENV *));
-static void __env_clear_state __P((ENV *));
+static int __env_clear_latches(ENV *);
+static void __env_clear_state(ENV *);
 
 /*
  * When failchk broadcast is enabled continue after the first error, to try to
@@ -50,7 +50,7 @@ static void __env_clear_state __P((ENV *));
  *	DB_RUNRECOVERY failures are detected, to maximize the possibility to
  *	wake up processes blocked on dead resources, e.g. mutexes.
  *
- * PUBLIC: int __env_failchk_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __env_failchk_pp(DB_ENV *, uint32);
  */
 int __env_failchk_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -97,7 +97,7 @@ int __env_failchk_pp(DB_ENV *dbenv, uint32 flags)
  *	The FAILCHK_PROCESS_ERROR macro (defined at the top of this file)
  *	differs between the broadcast and single process versions of failchk.
  *
- * PUBLIC: int __env_failchk_int __P((DB_ENV *));
+ * PUBLIC: int __env_failchk_int(DB_ENV *);
  */
 int __env_failchk_int(DB_ENV *dbenv)
 {
@@ -198,7 +198,7 @@ size_t __env_thread_size(ENV *env, size_t other_alloc)
  * __env_thread_max --
  *	Return how much additional memory to reserve for threads.
  *
- * PUBLIC: size_t __env_thread_max __P((ENV *));
+ * PUBLIC: size_t __env_thread_max(ENV *);
  */
 size_t __env_thread_max(ENV *env)
 {
@@ -274,7 +274,7 @@ int __env_thread_init(ENV *env, int during_creation)
  * __env_thread_destroy --
  *	Destroy the thread control block table.
  *
- * PUBLIC: void __env_thread_destroy __P((ENV *));
+ * PUBLIC: void __env_thread_destroy(ENV *);
  */
 void __env_thread_destroy(ENV *env)
 {

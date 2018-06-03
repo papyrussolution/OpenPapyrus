@@ -17,17 +17,15 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __db_log_corrupt __P((ENV *, DB_LSN *));
-static int __env_init_rec_47 __P((ENV *));
-static int __env_init_rec_48 __P((ENV *));
-static int __env_init_rec_53 __P((ENV *));
-static int __env_init_rec_60 __P((ENV *));
-static int __env_init_rec_60p1 __P((ENV *));
-static int __log_earliest __P((ENV *, DB_LOGC *, int32 *, DB_LSN *));
-
-static double __lsn_diff __P((DB_LSN *, DB_LSN *, DB_LSN *, uint32, int));
-static int __log_backup __P((ENV *, DB_LOGC *, DB_LSN *, DB_LSN*));
-
+static int __db_log_corrupt(ENV *, DB_LSN *);
+static int __env_init_rec_47(ENV *);
+static int __env_init_rec_48(ENV *);
+static int __env_init_rec_53(ENV *);
+static int __env_init_rec_60(ENV *);
+static int __env_init_rec_60p1(ENV *);
+static int __log_earliest(ENV *, DB_LOGC *, int32 *, DB_LSN *);
+static double __lsn_diff(DB_LSN *, DB_LSN *, DB_LSN *, uint32, int);
+static int __log_backup(ENV *, DB_LOGC *, DB_LSN *, DB_LSN*);
 /*
  * __db_apprec --
  *	Perform recovery.  If max_lsn is non-NULL, then we are trying
@@ -802,7 +800,7 @@ static int __db_log_corrupt(ENV *env, DB_LSN * lsnp)
  *	Install recover functions in the environment. Whenever this is updated,
  *	corresponding changes are needed by db_printlog's env_init_print().
  *
- * PUBLIC: int __env_init_rec __P((ENV *, uint32));
+ * PUBLIC: int __env_init_rec(ENV *, uint32);
  */
 int __env_init_rec(ENV *env, uint32 version)
 {

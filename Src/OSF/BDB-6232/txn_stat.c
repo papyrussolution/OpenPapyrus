@@ -14,8 +14,8 @@
 
 #ifdef HAVE_STATISTICS
 static int __txn_compare __P((const void *, const void *));
-static int __txn_print_all __P((ENV *, uint32));
-static int __txn_print_stats __P((ENV *, uint32));
+static int __txn_print_all(ENV *, uint32);
+static int __txn_print_stats(ENV *, uint32);
 static int __txn_stat __P((ENV *, DB_TXN_STAT **, uint32));
 static char * __txn_status __P((DB_TXN_ACTIVE *));
 static char * __txn_xa_status __P((DB_TXN_ACTIVE *));
@@ -137,7 +137,7 @@ static int __txn_stat(ENV *env, DB_TXN_STAT ** statp, uint32 flags)
  * __txn_stat_print_pp --
  *	DB_ENV->txn_stat_print pre/post processing.
  *
- * PUBLIC: int __txn_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __txn_stat_print_pp(DB_ENV *, uint32);
  */
 int __txn_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -157,7 +157,7 @@ int __txn_stat_print_pp(DB_ENV *dbenv, uint32 flags)
  * __txn_stat_print
  *	ENV->txn_stat_print method.
  *
- * PUBLIC: int  __txn_stat_print __P((ENV *, uint32));
+ * PUBLIC: int  __txn_stat_print(ENV *, uint32);
  */
 int __txn_stat_print(ENV *env, uint32 flags)
 {

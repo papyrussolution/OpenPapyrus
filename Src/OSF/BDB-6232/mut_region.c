@@ -13,10 +13,10 @@
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
 
-static db_size_t __mutex_align_size __P((ENV *));
+static db_size_t __mutex_align_size(ENV *);
 static int __mutex_region_init __P((ENV *, DB_MUTEXMGR *));
-static size_t __mutex_region_size __P((ENV *));
-static size_t __mutex_region_max __P((ENV *, uint32));
+static size_t __mutex_region_size(ENV *);
+static size_t __mutex_region_max(ENV *, uint32);
 
 /*
  * __mutex_open --
@@ -231,7 +231,7 @@ static int __mutex_region_init(ENV *env, DB_MUTEXMGR * mtxmgr)
  * __mutex_env_refresh --
  *	Clean up after the mutex region on a close or failed open.
  *
- * PUBLIC: int __mutex_env_refresh __P((ENV *));
+ * PUBLIC: int __mutex_env_refresh(ENV *);
  */
 int __mutex_env_refresh(ENV *env)
 {

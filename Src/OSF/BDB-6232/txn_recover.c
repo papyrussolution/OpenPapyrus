@@ -14,13 +14,11 @@
 #include "dbinc_auto/db_auto.h"
 #include "dbinc_auto/crdel_auto.h"
 #include "dbinc_auto/db_ext.h"
-
 /*
  * __txn_recover_pp --
  *	ENV->txn_recover pre/post processing.
  *
- * PUBLIC: int __txn_recover_pp __P((DB_ENV *,
- * PUBLIC:     DB_PREPLIST *, long, long *, uint32));
+ * PUBLIC: int __txn_recover_pp __P((DB_ENV *, DB_PREPLIST *, long, long *, uint32));
  */
 int __txn_recover_pp(DB_ENV *dbenv, DB_PREPLIST * preplist, long count, long * retp, uint32 flags)
 {
@@ -41,13 +39,11 @@ int __txn_recover_pp(DB_ENV *dbenv, DB_PREPLIST * preplist, long count, long * r
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __txn_recover --
  *	ENV->txn_recover.
  *
- * PUBLIC: int __txn_recover __P((ENV *,
- * PUBLIC:         DB_PREPLIST *, long, long *, uint32));
+ * PUBLIC: int __txn_recover __P((ENV *, DB_PREPLIST *, long, long *, uint32));
  */
 int __txn_recover(ENV *env, DB_PREPLIST * txns, long count, long * retp, uint32 flags)
 {
@@ -68,8 +64,7 @@ int __txn_recover(ENV *env, DB_PREPLIST * txns, long count, long * retp, uint32 
  *      entries returned in the xids/txns array.  Flags indicates the operation,
  *      one of DB_FIRST or DB_NEXT.
  *
- * PUBLIC: int __txn_get_prepared __P((ENV *,
- * PUBLIC:     XID *, DB_PREPLIST *, long, long *, uint32));
+ * PUBLIC: int __txn_get_prepared __P((ENV *, XID *, DB_PREPLIST *, long, long *, uint32));
  */
 int __txn_get_prepared(ENV *env, XID * xids, DB_PREPLIST * txns, long count/* This is long for XA compatibility. */, long * retp, uint32 flags)
 {

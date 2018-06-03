@@ -13,7 +13,7 @@
  * __txn_failchk --
  *	Check for transactions started by dead threads of control.
  *
- * PUBLIC: int __txn_failchk __P((ENV *));
+ * PUBLIC: int __txn_failchk(ENV *);
  */
 int __txn_failchk(ENV *env)
 {

@@ -11,12 +11,12 @@
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
 
-static int __memp_add_bucket __P((DB_MPOOL *));
-static int __memp_add_region __P((DB_MPOOL *));
-static int __memp_map_regions __P((DB_MPOOL *));
-static int __memp_merge_buckets __P((DB_MPOOL *, uint32, uint32, uint32));
-static int __memp_remove_bucket __P((DB_MPOOL *));
-static int __memp_remove_region __P((DB_MPOOL *));
+static int __memp_add_bucket(DB_MPOOL *);
+static int __memp_add_region(DB_MPOOL *);
+static int __memp_map_regions(DB_MPOOL *);
+static int __memp_merge_buckets(DB_MPOOL *, uint32, uint32, uint32);
+static int __memp_remove_bucket(DB_MPOOL *);
+static int __memp_remove_region(DB_MPOOL *);
 /*
  * PUBLIC: int __memp_get_bucket __P((ENV *, MPOOLFILE *,
  * PUBLIC:     db_pgno_t, REGINFO **, DB_MPOOL_HASH **, uint32 *));

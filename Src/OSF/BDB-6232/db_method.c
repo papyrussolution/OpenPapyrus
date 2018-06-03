@@ -19,35 +19,35 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __db_get_byteswapped __P((DB *, int *));
+static int __db_get_byteswapped(DB *, int *);
 static int __db_get_dbname __P((DB *, const char **, const char **));
-static DB_ENV * __db_get_env __P((DB *));
+static DB_ENV * __db_get_env(DB *);
 static void __db_get_msgcall __P((DB *, void (**)(const DB_ENV *, const char *, const char *)));
-static DB_MPOOLFILE * __db_get_mpf __P((DB *));
-static int __db_get_multiple __P((DB *));
-static int __db_get_transactional __P((DB *));
+static DB_MPOOLFILE * __db_get_mpf(DB *);
+static int __db_get_multiple(DB *);
+static int __db_get_transactional(DB *);
 static int __db_get_type __P((DB *, DBTYPE * dbtype));
-static int __db_init __P((DB *, uint32));
+static int __db_init(DB *, uint32);
 static int __db_get_alloc __P((DB *, void *(**)(size_t), void *(**)(void *, size_t), void (**)(void *)));
 static int __db_set_alloc __P((DB *, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *)));
 static int __db_get_append_recno __P((DB *, int (**)(DB *, DBT *, db_recno_t)));
 static int __db_set_append_recno __P((DB *, int (*)(DB *, DBT *, db_recno_t)));
-static int __db_get_blob_dir __P((DB *, const char **));
+static int __db_get_blob_dir (DB *, const char **);
 static int __db_set_blob_dir __P((DB *, const char *));
-static int __db_get_blob_sub_dir __P((DB *, const char **));
+static int __db_get_blob_sub_dir (DB *, const char **);
 static int __db_get_cachesize __P((DB *, uint32 *, uint32 *, int *));
 static int __db_set_cachesize __P((DB *, uint32, uint32, int));
-static int __db_get_create_dir __P((DB *, const char **));
+static int __db_get_create_dir (DB *, const char **);
 static int __db_set_create_dir __P((DB *, const char *));
 static int __db_get_dup_compare __P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
-static int __db_get_encrypt_flags __P((DB *, uint32 *));
+static int __db_get_encrypt_flags(DB *, uint32 *);
 static int __db_set_encrypt __P((DB *, const char *, uint32));
 static int __db_get_feedback __P((DB *, void (**)(DB *, int, int)));
 static int __db_set_feedback __P((DB *, void (*)(DB *, int, int)));
 static int __db_get_lk_exclusive __P((DB *, int *, int *));
-static int __db_set_lk_exclusive __P((DB *, int));
+static int __db_set_lk_exclusive(DB *, int);
 static void __db_map_flags __P((DB *, uint32 *, uint32 *));
-static int __db_get_pagesize __P((DB *, uint32 *));
+static int __db_get_pagesize(DB *, uint32 *);
 static int __db_set_paniccall __P((DB *, void (*)(DB_ENV *, int)));
 static int __db_set_priority __P((DB *, DB_CACHE_PRIORITY));
 static int __db_get_priority __P((DB *, DB_CACHE_PRIORITY *));
@@ -55,14 +55,14 @@ static void __db_get_errcall __P((DB *, void (**)(const DB_ENV *, const char *, 
 static void __db_set_errcall __P((DB *, void (*)(const DB_ENV *, const char *, const char *)));
 static void __db_get_errfile __P((DB *, FILE **));
 static void __db_set_errfile __P((DB *, FILE *));
-static void __db_get_errpfx __P((DB *, const char **));
+static void __db_get_errpfx (DB *, const char **);
 static void __db_set_errpfx __P((DB *, const char *));
 static void __db_set_msgcall __P((DB *, void (*)(const DB_ENV *, const char *, const char *)));
 static void __db_get_msgfile __P((DB *, FILE **));
 static void __db_set_msgfile __P((DB *, FILE *));
-static void __db_get_msgpfx __P((DB *, const char **));
+static void __db_get_msgpfx (DB *, const char **);
 static void __db_set_msgpfx __P((DB *, const char *));
-static int __db_get_assoc_flags __P((DB *, uint32 *));
+static int __db_get_assoc_flags(DB *, uint32 *);
 static void __dbh_err __P((DB *, int, const char *, ...));
 static void __dbh_errx __P((DB *, const char *, ...));
 static void __dbh_msg __P((DB *, const char *, ...));
@@ -319,7 +319,7 @@ static int __db_init(DB *dbp, uint32 flags)
  * __dbh_am_chk --
  *	Error if an unreasonable method is called.
  *
- * PUBLIC: int __dbh_am_chk __P((DB *, uint32));
+ * PUBLIC: int __dbh_am_chk(DB *, uint32);
  */
 int __dbh_am_chk(DB *dbp, uint32 flags)
 {
@@ -470,7 +470,7 @@ static int __db_set_append_recno(DB *dbp, int (*func)(DB *, DBT *, db_recno_t))
  *	Get the current threshold size at which records are stored as external
  *	files.
  *
- *  PUBLIC: int __db_get_blob_threshold __P((DB *, uint32 *));
+ *  PUBLIC: int __db_get_blob_threshold(DB *, uint32 *);
  */
 int __db_get_blob_threshold(DB *dbp, uint32 * bytes)
 {
@@ -513,7 +513,7 @@ int __db_set_blob_threshold(DB *dbp, uint32 bytes, uint32 flags)
  * __db_blobs_enabled --
  *
  * Used to tell if the database is configured to support blobs.
- * PUBLIC: int __db_blobs_enabled __P((DB *));
+ * PUBLIC: int __db_blobs_enabled(DB *);
  */
 int __db_blobs_enabled(DB *dbp)
 {
@@ -800,7 +800,7 @@ static int __db_get_assoc_flags(DB *dbp, uint32 * flagsp)
  * __db_get_flags --
  *	The DB->get_flags method.
  *
- * PUBLIC: int __db_get_flags __P((DB *, uint32 *));
+ * PUBLIC: int __db_get_flags(DB *, uint32 *);
  */
 int __db_get_flags(DB *dbp, uint32 * flagsp)
 {
@@ -841,7 +841,7 @@ int __db_get_flags(DB *dbp, uint32 * flagsp)
  * __db_set_flags --
  *	DB->set_flags.
  *
- * PUBLIC: int  __db_set_flags __P((DB *, uint32));
+ * PUBLIC: int  __db_set_flags(DB *, uint32);
  */
 int __db_set_flags(DB *dbp, uint32 flags)
 {
@@ -874,7 +874,7 @@ int __db_set_flags(DB *dbp, uint32 flags)
  * __db_get_lorder --
  *	Get whether lorder is swapped or not.
  *
- * PUBLIC: int  __db_get_lorder __P((DB *, int *));
+ * PUBLIC: int  __db_get_lorder(DB *, int *);
  */
 int __db_get_lorder(DB *dbp, int * db_lorderp)
 {
@@ -897,7 +897,7 @@ int __db_get_lorder(DB *dbp, int * db_lorderp)
  * __db_set_lorder --
  *	Set whether lorder is swapped or not.
  *
- * PUBLIC: int  __db_set_lorder __P((DB *, int));
+ * PUBLIC: int  __db_set_lorder(DB *, int);
  */
 int __db_set_lorder(DB *dbp, int db_lorder)
 {
@@ -970,7 +970,7 @@ static int __db_get_pagesize(DB *dbp, uint32 * db_pagesizep)
  * __db_set_pagesize --
  *	DB->set_pagesize
  *
- * PUBLIC: int  __db_set_pagesize __P((DB *, uint32));
+ * PUBLIC: int  __db_set_pagesize(DB *, uint32);
  */
 int __db_set_pagesize(DB *dbp, uint32 db_pagesize)
 {
@@ -1020,7 +1020,7 @@ static int __db_get_priority(DB *dbp, DB_CACHE_PRIORITY * priority)
  *	Generate an error when a 'normal' DML call is attempted on
  *	a sliced database handle.
  *
- * PUBLIC: int  __db_slice_notsup __P((DB *));
+ * PUBLIC: int  __db_slice_notsup(DB *);
  */
 int __db_slice_notsup(DB *dbp)
 {
@@ -1034,7 +1034,7 @@ int __db_slice_notsup(DB *dbp)
  *	Generate an error when a 'normal' DML call is attempted on
  *	a sliced cursor.
  *
- * PUBLIC: int  __dbc_slice_notsup __P((DBC *));
+ * PUBLIC: int  __dbc_slice_notsup(DBC *);
  */
 int __dbc_slice_notsup(DBC *dbc)
 {
@@ -1076,7 +1076,7 @@ int __db_set_slice_callback(DB *dbp, int (*func)__P((const DB *, const DBT *, DB
  *	Raise the error that this database was opened without DB_SLICED,
  *	or DB_OPNOTSUP if slices where not even configured.
  *
- * PUBLIC: int  __db_not_sliced __P((DB *));
+ * PUBLIC: int  __db_not_sliced(DB *);
  */
 int __db_not_sliced(DB *dbp)
 {

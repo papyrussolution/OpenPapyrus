@@ -145,7 +145,7 @@ err:
  * __env_slice_close_pp --
  *	DB_ENV->close pre/post processor for sliced environments.
  *
- * PUBLIC: int __env_slice_close_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __env_slice_close_pp(DB_ENV *, uint32);
  */
 int __env_slice_close_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -365,7 +365,7 @@ err:
  *	DB_ENV->get_slice_count. This is okay to call on non-sliced
  *	environments: it returns zero for them, rather than raising an error.
  *
- * PUBLIC: int  __env_get_slice_count __P((DB_ENV *, uint32 *));
+ * PUBLIC: int  __env_get_slice_count(DB_ENV *, uint32 *);
  */
 int __env_get_slice_count(DB_ENV *dbenv, uint32 * countp)
 {
@@ -492,7 +492,7 @@ int __env_slice_configure(const DB_ENV *container, DB_ENV * slice)
  * __env_set_slice_count --
  *	DB_ENV->set_slice_count.
  *
- * PUBLIC: int  __env_set_slice_count __P((DB_ENV *, uint32));
+ * PUBLIC: int  __env_set_slice_count(DB_ENV *, uint32);
  */
 int __env_set_slice_count(DB_ENV *dbenv, uint32 count)
 {
@@ -614,7 +614,7 @@ int __env_slice_dbremove(ENV *env, const char * name, const char * subdb, uint32
  *
  *
  * PUBLIC: #ifndef HAVE_SLICES
- * PUBLIC: int  __env_no_slices __P((ENV *));
+ * PUBLIC: int  __env_no_slices(ENV *);
  * PUBLIC: #endif
  */
 int __env_no_slices(ENV *env)
@@ -650,7 +650,7 @@ int __env_set_slice_count(DB_ENV *dbenv, uint32 count)
  *	that is it did not include a set_slice_count parameter, or that slice
  *	support was not enabled in this build.
  *
- * PUBLIC: int  __env_not_sliced __P((ENV *));
+ * PUBLIC: int  __env_not_sliced(ENV *);
  */
 int __env_not_sliced(ENV *env)
 {

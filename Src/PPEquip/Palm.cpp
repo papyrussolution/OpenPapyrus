@@ -2480,8 +2480,8 @@ public:
 		LDATETIME CreateDtm;
 		int32 MaxNotSentOrd;
 		int32 TransfDaysAgo;   // @v9.2.2
-		PPGeoTrackingMode Gtm; // @v8.6.8
-		int32 StyloFlags;      // @v8.6.10
+		PPGeoTrackingMode Gtm;
+		int32 StyloFlags;
 	};
 	SLAPI  AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot = 0);
 	SLAPI ~AndroidXmlWriter();

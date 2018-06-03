@@ -138,27 +138,23 @@ int __blob_put(DBC *dbc, DBT * dbt, db_seq_t * blob_id, off_t * size, DB_LSN * p
 			goto err;
 		memzero(partial.data, dbt->doff);
 		partial.size = dbt->doff;
-		ret = __blob_file_write(
-			dbc, fhp, &partial, 0, *blob_id, size, DB_FOP_CREATE);
+		ret = __blob_file_write(dbc, fhp, &partial, 0, *blob_id, size, DB_FOP_CREATE);
 		offset = dbt->doff;
 		__os_free(env, partial.data);
 		if(ret != 0)
 			goto err;
 	}
-
-	if((ret = __blob_file_write(
-		    dbc, fhp, dbt, offset, *blob_id, size, DB_FOP_CREATE)) != 0)
+	if((ret = __blob_file_write(dbc, fhp, dbt, offset, *blob_id, size, DB_FOP_CREATE)) != 0)
 		goto err;
-
 	/* Close any open file descriptors. */
-err:    if(fhp != NULL) {
+err:    
+	if(fhp != NULL) {
 		t_ret = __blob_file_close(dbc, fhp, DB_FOP_WRITE);
 		if(ret == 0)
 			ret = t_ret;
 	}
 	return ret;
 }
-
 /*
  * __blob_repl --
  *	Replace a blob file contents.  It would be nice if this could be done
@@ -193,8 +189,7 @@ int __blob_repl(DBC *dbc, DBT * nval, db_seq_t blob_id, db_seq_t * new_blob_id, 
 	 *	old file to the new file.  Delete the old file.
 	 */
 	if(F_ISSET(nval, DB_DBT_PARTIAL)) {
-		if((nval->doff > *size) ||
-		    ((nval->doff == *size) || (nval->dlen == nval->size))) {
+		if((nval->doff > *size) || ((nval->doff == *size) || (nval->dlen == nval->size))) {
 			/* Open the file for appending. */
 			if((ret = __blob_file_open(dbc->dbp, &fhp, blob_id, 0, 1)) != 0)
 				goto err;
@@ -228,71 +223,54 @@ int __blob_repl(DBC *dbc, DBT * nval, db_seq_t blob_id, db_seq_t * new_blob_id, 
 			/* Copy data to the new file up to doff. */
 			if(nval->doff != 0) {
 				partial.ulen = partial.size = nval->doff;
-				if((ret = __os_malloc(
-					    env, partial.ulen, &partial.data)) != 0)
+				if((ret = __os_malloc(env, partial.ulen, &partial.data)) != 0)
 					goto err;
-				if((ret = __blob_file_read(
-					    env, fhp, &partial, 0, partial.size)) != 0)
+				if((ret = __blob_file_read(env, fhp, &partial, 0, partial.size)) != 0)
 					goto err;
-				if((ret = __blob_file_write(
-					    dbc, new_fhp, &partial, 0,
-					    *new_blob_id, size, DB_FOP_CREATE)) != 0)
+				if((ret = __blob_file_write(dbc, new_fhp, &partial, 0, *new_blob_id, size, DB_FOP_CREATE)) != 0)
 					goto err;
 			}
-
 			/* Write the partial data into the new file. */
-			if((ret = __blob_file_write(
-				    dbc, new_fhp, nval, nval->doff,
-				    *new_blob_id, size, DB_FOP_CREATE)) != 0)
+			if((ret = __blob_file_write(dbc, new_fhp, nval, nval->doff, *new_blob_id, size, DB_FOP_CREATE)) != 0)
 				goto err;
 
 			/* Copy remaining blob data into the new file. */
 			current = nval->doff + nval->dlen;
 			while(current < old_size) {
 				if(partial.ulen < MEGABYTE) {
-					if((ret = __os_realloc(env,
-					    MEGABYTE, &partial.data)) != 0)
+					if((ret = __os_realloc(env, MEGABYTE, &partial.data)) != 0)
 						goto err;
 					partial.size = partial.ulen = MEGABYTE;
 				}
 				if((old_size - current) < partial.ulen) {
-					partial.size =
-					    (uint32)(old_size - current);
+					partial.size = (uint32)(old_size - current);
 				}
 				else
 					partial.size = MEGABYTE;
-
-				if((ret = __blob_file_read(env, fhp,
-				    &partial, current, partial.size)) != 0)
+				if((ret = __blob_file_read(env, fhp, &partial, current, partial.size)) != 0)
 					goto err;
-				if((ret = __blob_file_write(
-					    dbc, new_fhp, &partial, *size,
-					    *new_blob_id, size, DB_FOP_CREATE)) != 0)
+				if((ret = __blob_file_write(dbc, new_fhp, &partial, *size, *new_blob_id, size, DB_FOP_CREATE)) != 0)
 					goto err;
 				current += partial.size;
 			}
-
 			/* Close the old file. */
 			ret = __blob_file_close(dbc, fhp, 0);
 			fhp = NULL;
 			if(ret != 0)
 				goto err;
-
 			/* Delete the old blob file. */
 			if((ret = __blob_del(dbc, blob_id)) != 0)
 				goto err;
 		}
 		goto err;
 	}
-
 	if((ret = __blob_del(dbc, blob_id)) != 0)
 		goto err;
-
 	*size = 0;
 	if((ret = __blob_put(dbc, nval, new_blob_id, size, &lsn)) != 0)
 		goto err;
-
-err:    if(fhp != NULL) {
+err:    
+	if(fhp != NULL) {
 		t_ret = __blob_file_close(dbc, fhp, DB_FOP_WRITE);
 		if(ret == 0)
 			ret = t_ret;
@@ -302,8 +280,7 @@ err:    if(fhp != NULL) {
 		if(ret == 0)
 			ret = t_ret;
 	}
-	if(partial.data != NULL)
-		__os_free(env, partial.data);
+	__os_free(env, partial.data);
 	return ret;
 }
 /*

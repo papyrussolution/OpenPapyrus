@@ -1484,6 +1484,7 @@ table VetisProduct {
 	long   ProductID;    // для ProductItem
 	long   SubProductID; // для ProductItem
     long   ProducerLocID;
+    long   GostTRef;     // @selfreftext
     long   Flags;
 	raw    Reserve[128];
 index:

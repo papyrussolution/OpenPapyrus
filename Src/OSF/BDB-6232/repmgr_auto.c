@@ -17,7 +17,7 @@ DB_LOG_RECSPEC __repmgr_member_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __repmgr_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __repmgr_init_recover(ENV *, DB_DISTAB *);
  */
 int __repmgr_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

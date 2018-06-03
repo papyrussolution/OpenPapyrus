@@ -2381,7 +2381,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 	return 1;
 }
 
-CONCEPTID SLAPI SrDatabase::TryNgForConcept(NGID ngID, CONCEPTID targetCID, long tryOption)
+CONCEPTID SrDatabase::TryNgForConcept(NGID ngID, CONCEPTID targetCID, long tryOption)
 {
 	CONCEPTID result_id = 0;
 	Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
@@ -2416,7 +2416,40 @@ CONCEPTID SLAPI SrDatabase::TryNgForConcept(NGID ngID, CONCEPTID targetCID, long
 	return result_id;
 }
 
-CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const STokenizer & rT, uint idxFirst, uint idxLast, long options, STokenizer::ResultPosition & rR)
+CONCEPTID SrDatabase::TryOneWordForConcept(const char * pWord, CONCEPTID targetCID, long tryOption)
+{
+	CONCEPTID result_cid = 0;
+	LEXID  word_id = 0;
+	if(FetchWord(pWord, &word_id) > 0) {
+		TSVector <SrWordAssoc> wa_list;
+		TSVector <SrWordInfo> wi_list;
+		GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
+		for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
+			const SrWordInfo & r_wi = wi_list.at(wiidx);
+			if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
+				CONCEPTID cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryOption);
+				if(cid)
+					result_cid = cid;
+			}
+		}
+		if(!result_cid) {
+			NGID   ng_id = 0;
+			SrNGram sng;
+			sng.WordIdList.add(word_id);
+			if(P_NgT->Search(sng, &ng_id) > 0) {
+				CONCEPTID cid = TryNgForConcept(ng_id, targetCID, tryOption);
+				if(cid)
+					result_cid = cid;
+			}
+		}
+	}
+	CATCH
+		result_cid = 0;
+	ENDCATCH
+	return result_cid;
+}
+
+CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const STokenizer & rT, uint idxFirst, uint idxLast, long tryOption, STokenizer::ResultPosition & rR)
 {
 	rR.Start = 0;
 	rR.Count = 0;
@@ -2465,7 +2498,7 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 							for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
 								const SrWordInfo & r_wi = wi_list.at(wiidx);
 								if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
-									result_cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
+									result_cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryOption);
 									rR.Start = tidx;
 									rR.Count = tidx2-tidx;
 								}
@@ -2478,7 +2511,7 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 					for(uint wiidx = 0; !result_cid && wiidx < wi_list.getCount(); wiidx++) {
 						const SrWordInfo & r_wi = wi_list.at(wiidx);
 						if(r_wi.AbbrExpID && P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
-							CONCEPTID cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryconceptGeneric);
+							CONCEPTID cid = TryNgForConcept(r_wi.AbbrExpID, targetCID, tryOption);
 							if(cid) {
 								result_cid = cid;
 								rR.Start = tidx;
@@ -2529,7 +2562,7 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 									}
 								}
 								if(is_match) {
-									CONCEPTID cid = TryNgForConcept(p_ng->ID, targetCID, tryconceptGeneric);
+									CONCEPTID cid = TryNgForConcept(p_ng->ID, targetCID, tryOption);
 									if(cid) {
 										assert(tidx >= local_preserve_tidx);
 										result_cid = cid;
@@ -2983,6 +3016,58 @@ static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
 	return s;
 }
 
+int SrDatabase::ResolveNgFromTokenizer(const STokenizer & rTknz, uint idxFirst, uint idxCount, const SrWordForm * pWfToSet, long options, SrNGram & rNg)
+{
+	int    ok = -1;
+	//uint   idx_first = 0;
+	//uint   idx_count = 0;
+	const  uint wftoset_count = pWfToSet ? pWfToSet->GetTagCount() : 0;
+	STokenizer::Item titem, titem_next;
+	rNg.Z();
+	for(uint tidx = idxFirst; tidx < idxCount; tidx++) {
+		LEXID word_id = 0;
+		if(rTknz.Get(idxFirst+tidx, titem)) {
+			if(titem.Token == STokenizer::tokWord) {
+				if(options & rngftoSkipDotAfterWord) {
+					if(tidx < (idxCount-1) && rTknz.Get(idxFirst+tidx+1, titem_next)) {
+						if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.')
+							tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
+					}
+				}
+				if(FetchWord(titem.Text, &word_id) < 0) {
+					THROW(P_WdT->Add(titem.Text, &word_id));
+					if(wftoset_count) {
+						// Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
+						THROW(SetSimpleWordFlexiaModel(word_id, *pWfToSet, 0));
+					}
+				}
+				assert(word_id);
+			}
+			else if(titem.Token == STokenizer::tokDelim) {
+				const char dc = titem.Text.Single();
+				if(oneof4(dc, ' ', '\t', '\n', '\r'))
+					; // просто пропускаем
+				else if(titem.Text.Len()) {
+					if(FetchWord(titem.Text, &word_id) < 0) {
+						THROW(P_WdT->Add(titem.Text, &word_id));
+					}
+					assert(word_id);
+				}
+			}
+		}
+		rNg.WordIdList.addnz(word_id);
+	}
+	if(rNg.WordIdList.getCount()) {
+		NGID   ngram_id = 0;
+		ok = ResolveNGram(rNg.WordIdList, &ngram_id);
+		THROW(ok);
+		rNg.ID = ngram_id;
+		assert(ngram_id);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj * pEntry)
 {
 	const  uint max_entries_per_tx = 256;
@@ -3200,17 +3285,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 							}
 						}
 					}
-					/*
-					{
-						ss.clear();
-						text.Tokenize(" ", ss);
-						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-							if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
-
-							}
-						}
-					}
-					*/
 					candidate_concept_list.clear();
 					concept_list.sortAndUndup();
 					for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
@@ -3286,24 +3360,39 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					}
 				}
 				if(sr_type_cid) {
+					wordform.Clear();
+					wordform.SetTag(SRWG_LANGUAGE, slangRU);
 					THROW(ResolveConcept(main_concept_symb, &main_cid));
 					for(uint namessp = 0; ss_name.get(&namessp, text);) {
 						uint   idx_first = 0;
 						uint   idx_count = 0;
-						ng.Z();
 						tknz.RunSString(0, 0, text, &idx_first, &idx_count);
+						// @v10.0.11 {
+						const int gngftr = ResolveNgFromTokenizer(tknz, idx_first, idx_count, &wordform, rngftoSkipDotAfterWord, ng);
+						THROW(gngftr);
+						if(gngftr > 0) {
+							assert(ng.ID != 0);
+							THROW(P_CNgT->Set(main_cid, ng.ID));
+							{
+								assert(PropInstance);
+								assert(sr_type_cid);
+								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
+							}
+						}
+						// } @v10.0.11 
+						/* @v10.0.11 
+						ng.Z();
 						for(uint tidx = 0; tidx < idx_count; tidx++) {
 							LEXID word_id = 0;
 							if(tknz.Get(idx_first+tidx, titem)) {
 								if(titem.Token == STokenizer::tokWord) {
 									if(tidx < (idx_count-1) && tknz.Get(idx_first+tidx+1, titem_next)) {
-										if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
+										if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.')
 											tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
-										}
 									}
 									if(FetchWord(titem.Text, &word_id) < 0) {
 										THROW(P_WdT->Add(titem.Text, &word_id));
-										// Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+										// Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 										wordform.Clear();
 										wordform.SetTag(SRWG_LANGUAGE, slangRU);
 										THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
@@ -3335,6 +3424,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
 							}
 						}
+						*/
 					}
 				}
 				else {

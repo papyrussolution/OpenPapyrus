@@ -13,7 +13,7 @@
  * __lock_env_create --
  *	Lock specific creation of the DB_ENV structure.
  *
- * PUBLIC: int __lock_env_create __P((DB_ENV *));
+ * PUBLIC: int __lock_env_create(DB_ENV *);
  */
 int __lock_env_create(DB_ENV *dbenv)
 {
@@ -44,7 +44,7 @@ int __lock_env_create(DB_ENV *dbenv)
  * __lock_env_destroy --
  *	Lock specific destruction of the DB_ENV structure.
  *
- * PUBLIC: void __lock_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __lock_env_destroy(DB_ENV *);
  */
 void __lock_env_destroy(DB_ENV *dbenv)
 {
@@ -110,7 +110,7 @@ int __lock_set_lk_conflicts(DB_ENV *dbenv, uint8 * lk_conflicts, int lk_modes)
 	return 0;
 }
 /*
- * PUBLIC: int __lock_get_lk_detect __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_detect(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_detect(DB_ENV *dbenv, uint32 * lk_detectp)
 {
@@ -134,7 +134,7 @@ int __lock_get_lk_detect(DB_ENV *dbenv, uint32 * lk_detectp)
  * __lock_set_lk_detect --
  *	DB_ENV->set_lk_detect.
  *
- * PUBLIC: int __lock_set_lk_detect __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_detect(DB_ENV *, uint32);
  */
 int __lock_set_lk_detect(DB_ENV *dbenv, uint32 lk_detect)
 {
@@ -200,7 +200,7 @@ int __lock_set_lk_detect(DB_ENV *dbenv, uint32 lk_detect)
 }
 
 /*
- * PUBLIC: int __lock_get_lk_max_locks __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_max_locks(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_max_locks(DB_ENV *dbenv, uint32 * lk_maxp)
 {
@@ -219,7 +219,7 @@ int __lock_get_lk_max_locks(DB_ENV *dbenv, uint32 * lk_maxp)
  * __lock_set_lk_max_locks
  *	DB_ENV->set_lk_max_locks.
  *
- * PUBLIC: int __lock_set_lk_max_locks __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_max_locks(DB_ENV *, uint32);
  */
 int __lock_set_lk_max_locks(DB_ENV *dbenv, uint32 lk_max)
 {
@@ -229,7 +229,7 @@ int __lock_set_lk_max_locks(DB_ENV *dbenv, uint32 lk_max)
 	return 0;
 }
 /*
- * PUBLIC: int __lock_get_lk_max_lockers __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_max_lockers(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_max_lockers(DB_ENV *dbenv, uint32 * lk_maxp)
 {
@@ -247,7 +247,7 @@ int __lock_get_lk_max_lockers(DB_ENV *dbenv, uint32 * lk_maxp)
  * __lock_set_lk_max_lockers
  *	DB_ENV->set_lk_max_lockers.
  *
- * PUBLIC: int __lock_set_lk_max_lockers __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_max_lockers(DB_ENV *, uint32);
  */
 int __lock_set_lk_max_lockers(DB_ENV *dbenv, uint32 lk_max)
 {
@@ -258,7 +258,7 @@ int __lock_set_lk_max_lockers(DB_ENV *dbenv, uint32 lk_max)
 }
 
 /*
- * PUBLIC: int __lock_get_lk_max_objects __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_max_objects(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_max_objects(DB_ENV *dbenv, uint32 * lk_maxp)
 {
@@ -276,7 +276,7 @@ int __lock_get_lk_max_objects(DB_ENV *dbenv, uint32 * lk_maxp)
  * __lock_set_lk_max_objects
  *	DB_ENV->set_lk_max_objects.
  *
- * PUBLIC: int __lock_set_lk_max_objects __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_max_objects(DB_ENV *, uint32);
  */
 int __lock_set_lk_max_objects(DB_ENV *dbenv, uint32 lk_max)
 {
@@ -286,7 +286,7 @@ int __lock_set_lk_max_objects(DB_ENV *dbenv, uint32 lk_max)
 	return 0;
 }
 /*
- * PUBLIC: int __lock_get_lk_partitions __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_partitions(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_partitions(DB_ENV *dbenv, uint32 * lk_partitionp)
 {
@@ -305,7 +305,7 @@ int __lock_get_lk_partitions(DB_ENV *dbenv, uint32 * lk_partitionp)
  * __lock_set_lk_partitions
  *	DB_ENV->set_lk_partitions.
  *
- * PUBLIC: int __lock_set_lk_partitions __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_partitions(DB_ENV *, uint32);
  */
 int __lock_set_lk_partitions(DB_ENV *dbenv, uint32 lk_partitions)
 {
@@ -319,7 +319,7 @@ int __lock_set_lk_partitions(DB_ENV *dbenv, uint32 lk_partitions)
 	return 0;
 }
 /*
- * PUBLIC: int __lock_get_lk_tablesize __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_get_lk_tablesize(DB_ENV *, uint32 *);
  */
 int __lock_get_lk_tablesize(DB_ENV *dbenv, uint32 * lk_tablesizep)
 {
@@ -338,7 +338,7 @@ int __lock_get_lk_tablesize(DB_ENV *dbenv, uint32 * lk_tablesizep)
  * __lock_set_lk_tablesize
  *	DB_ENV->set_lk_tablesize.
  *
- * PUBLIC: int __lock_set_lk_tablesize __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_set_lk_tablesize(DB_ENV *, uint32);
  */
 int __lock_set_lk_tablesize(DB_ENV *dbenv, uint32 lk_tablesize)
 {

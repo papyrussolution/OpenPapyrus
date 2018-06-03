@@ -219,7 +219,7 @@ DB_LOG_RECSPEC __db_pgno_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __db_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __db_init_recover(ENV *, DB_DISTAB *);
  */
 int __db_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

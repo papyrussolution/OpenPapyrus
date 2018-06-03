@@ -114,19 +114,15 @@ int __heap_metachk(DB *dbp, const char * name, HEAPMETA * hm)
 		return EINVAL;
 	}
 #endif
-
 	/* Copy the file's ID. */
 	memcpy(dbp->fileid, hm->dbmeta.uid, DB_FILE_ID_LEN);
-
 	return 0;
 }
-
 /*
  * __heap_read_meta --
  *	Read the meta page and set up the internal structure.
  *
- * PUBLIC: int __heap_read_meta __P((DB *,
- * PUBLIC:	DB_THREAD_INFO *, DB_TXN *, db_pgno_t, uint32));
+ * PUBLIC: int __heap_read_meta __P((DB *, DB_THREAD_INFO *, DB_TXN *, db_pgno_t, uint32));
  */
 int __heap_read_meta(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t meta_pgno, uint32 flags)
 {
@@ -184,18 +180,15 @@ err:    /* Put the metadata page back. */
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __heap_new_file --
  * Create the necessary pages to begin a new database file.
  *
- * PUBLIC: int __heap_new_file __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DB_FH *, const char *));
+ * PUBLIC: int __heap_new_file __P((DB *, DB_THREAD_INFO *, DB_TXN *, DB_FH *, const char *));
  */
 int __heap_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, const char * name)
 {

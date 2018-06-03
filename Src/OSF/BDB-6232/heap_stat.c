@@ -137,7 +137,7 @@ int __heap_stat_print(DBC *dbc, uint32 flags)
  * __heap_print_cursor --
  *	Display the current cursor.
  *
- * PUBLIC: void __heap_print_cursor __P((DBC *));
+ * PUBLIC: void __heap_print_cursor(DBC *);
  */
 void __heap_print_cursor(DBC *dbc)
 {
@@ -190,13 +190,11 @@ int __heap_stat(DBC *dbc, void * spp, uint32 flags)
 	return (__db_stat_not_built(dbc->env));
 }
 #endif
-
 /*
  * __heap_traverse --
  *	Walk a Heap database.
  *
- * PUBLIC: int __heap_traverse __P((DBC *,
- * PUBLIC:     int (*)(DBC *, PAGE *, void *, int *), void *));
+ * PUBLIC: int __heap_traverse __P((DBC *, int (*)(DBC *, PAGE *, void *, int *), void *));
  */
 int __heap_traverse(DBC *dbc, int (*callback)(DBC *, PAGE *, void *, int *), void * cookie)
 {

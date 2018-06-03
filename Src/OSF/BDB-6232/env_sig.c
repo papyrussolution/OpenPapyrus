@@ -35,7 +35,7 @@
  * __env_struct_sig --
  *	Compute signature of structures.
  *
- * PUBLIC: uint32 __env_struct_sig __P((void));
+ * PUBLIC: uint32 __env_struct_sig(void);
  */
 uint32 __env_struct_sig()
 {

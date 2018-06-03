@@ -21,7 +21,7 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __db_handle_lock __P((DB *));
+static int __db_handle_lock(DB *);
 
 /*
  * __db_open --
@@ -284,7 +284,7 @@ err:
  * __db_get_open_flags --
  *	Accessor for flags passed into DB->open call
  *
- * PUBLIC: int __db_get_open_flags __P((DB *, uint32 *));
+ * PUBLIC: int __db_get_open_flags(DB *, uint32 *);
  */
 int __db_get_open_flags(DB *dbp, uint32 * flagsp)
 {
@@ -645,7 +645,7 @@ int __db_get_metaflags(ENV *env, const char * name, uint32 * metaflagsp)
 /*
  * __db_reopen --
  *	Reopen a subdatabase if its meta/root pages move.
- * PUBLIC: int __db_reopen __P((DBC *));
+ * PUBLIC: int __db_reopen(DBC *);
  */
 int __db_reopen(DBC *arg_dbc)
 {

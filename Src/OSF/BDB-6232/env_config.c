@@ -287,7 +287,7 @@ static int cmp_cfg_name __P((const void *, const void * element));
  * __env_read_db_config --
  *	Read the DB_CONFIG file.
  *
- * PUBLIC: int __env_read_db_config __P((ENV *));
+ * PUBLIC: int __env_read_db_config(ENV *);
  */
 int __env_read_db_config(ENV *env)
 {

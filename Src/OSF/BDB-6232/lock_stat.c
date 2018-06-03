@@ -152,7 +152,7 @@ static int __lock_stat(ENV *env, DB_LOCK_STAT ** statp, uint32 flags)
  * __lock_stat_print_pp --
  *	ENV->lock_stat_print pre/post processing.
  *
- * PUBLIC: int __lock_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_stat_print_pp(DB_ENV *, uint32);
  */
 int __lock_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -175,7 +175,7 @@ int __lock_stat_print_pp(DB_ENV *dbenv, uint32 flags)
  * __lock_stat_print --
  *	ENV->lock_stat_print method.
  *
- * PUBLIC: int  __lock_stat_print __P((ENV *, uint32));
+ * PUBLIC: int  __lock_stat_print(ENV *, uint32);
  */
 int __lock_stat_print(ENV *env, uint32 flags)
 {

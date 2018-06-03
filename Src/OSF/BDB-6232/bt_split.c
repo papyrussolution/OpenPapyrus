@@ -254,7 +254,6 @@ static int __bam_root(DBC *dbc, EPG * cp)
 			__os_free(dbp->env, log_dbt.data);
 		goto err;
 	}
-
 	/* Log the change. */
 	if(DBC_LOGGING(dbc)) {
 		memzero(rootent, sizeof(rootent));
@@ -280,7 +279,6 @@ static int __bam_root(DBC *dbc, EPG * cp)
 		if(ret != 0)
 			memcpy(cp->page, log_dbt.data, dbp->pgsize);
 		__os_free(dbp->env, log_dbt.data);
-
 		if(ret != 0)
 			goto err;
 	}
@@ -288,16 +286,13 @@ static int __bam_root(DBC *dbc, EPG * cp)
 		LSN_NOT_LOGGED(LSN(cp->page));
 	LSN(lp) = LSN(cp->page);
 	LSN(rp) = LSN(cp->page);
-
 	/* Adjust any cursors. */
 	ret = __bam_ca_split(dbc, cp->page->pgno, lp->pgno, rp->pgno, split, 1);
-
 	/* Success or error: release pages and locks. */
-err:    if(cp->page != NULL && (t_ret = __memp_fput(mpf,
-	    dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
+err:    
+	if(cp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	cp->page = NULL;
-
 	/*
 	 * We are done.  Put or downgrade all our locks and release
 	 * the pages.
@@ -491,75 +486,56 @@ static int __bam_page(DBC *dbc, EPG * pp, EPG * cp)
 	 */
 	save_lsn = alloc_rp->lsn;
 	memcpy(alloc_rp, rp, LOFFSET(dbp, rp));
-	memcpy((uint8*)alloc_rp + HOFFSET(rp),
-	    (uint8*)rp + HOFFSET(rp), dbp->pgsize - HOFFSET(rp));
+	memcpy((uint8*)alloc_rp + HOFFSET(rp), (uint8*)rp + HOFFSET(rp), dbp->pgsize - HOFFSET(rp));
 	alloc_rp->lsn = save_lsn;
-
 	save_lsn = cp->page->lsn;
 	memcpy(cp->page, lp, LOFFSET(dbp, lp));
-	memcpy((uint8*)cp->page + HOFFSET(lp),
-	    (uint8*)lp + HOFFSET(lp), dbp->pgsize - HOFFSET(lp));
+	memcpy((uint8*)cp->page + HOFFSET(lp), (uint8*)lp + HOFFSET(lp), dbp->pgsize - HOFFSET(lp));
 	cp->page->lsn = save_lsn;
-
 	/* Adjust any cursors. */
-	if((ret = __bam_ca_split(dbc,
-	    PGNO(cp->page), PGNO(cp->page), PGNO(rp), split, 0)) != 0)
+	if((ret = __bam_ca_split(dbc, PGNO(cp->page), PGNO(cp->page), PGNO(rp), split, 0)) != 0)
 		goto err;
-
 	__os_free(dbp->env, lp);
-
 	/*
 	 * Success -- write the real pages back to the store.
 	 */
-	if((t_ret = __memp_fput(mpf,
-	    dbc->thread_info, alloc_rp, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, alloc_rp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, rplock)) != 0 && ret == 0)
 		ret = t_ret;
 	if(tp != NULL) {
-		if((t_ret = __memp_fput(mpf,
-		    dbc->thread_info, tp, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, tp, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	if((t_ret = __bam_stkrel(dbc, STK_CLRDBC)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
-
-err:    if(lp != NULL)
-		__os_free(dbp->env, lp);
+err:    
+	__os_free(dbp->env, lp);
 	if(alloc_rp != NULL)
-		(void)__memp_fput(mpf,
-		    dbc->thread_info, alloc_rp, dbc->priority);
+		(void)__memp_fput(mpf, dbc->thread_info, alloc_rp, dbc->priority);
 	if(tp != NULL)
 		(void)__memp_fput(mpf, dbc->thread_info, tp, dbc->priority);
 
 	if(pp->page != NULL)
-		(void)__memp_fput(mpf,
-		    dbc->thread_info, pp->page, dbc->priority);
-
+		(void)__memp_fput(mpf, dbc->thread_info, pp->page, dbc->priority);
 	if(ret == DB_NEEDSPLIT && atomic_read(&mpf->mfp->multiversion) == 0)
 		(void)__LPUT(dbc, pp->lock);
 	else
 		(void)__TLPUT(dbc, pp->lock);
-
 	(void)__memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority);
-
 	/*
 	 * We don't drop the left and right page locks.  If we doing dirty
 	 * reads then we need to hold the locks until we abort the transaction.
 	 * If we are not transactional, we are hosed anyway as the tree
 	 * is trashed.  It may be better not to leak the locks.
 	 */
-
 	if(dbc->txn == NULL)
 		(void)__LPUT(dbc, rplock);
-
 	if(dbc->txn == NULL || ret == DB_NEEDSPLIT)
 		(void)__LPUT(dbc, cp->lock);
-
 	return ret;
 }
-
 /*
  * __bam_broot --
  *	Fix up the btree root page after it has been split.
@@ -639,8 +615,7 @@ int __bam_broot(DBC *dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 				memzero(&hdr, sizeof(hdr));
 				if((ret = __db_goff(dbc, &hdr, child_bo->tlen, child_bo->pgno, &hdr.data, &hdr.size)) == 0)
 					ret = __db_poff(dbc, &hdr, &bo.pgno);
-				if(hdr.data != NULL)
-					__os_free(dbp->env, hdr.data);
+				__os_free(dbp->env, hdr.data);
 				if(ret != 0)
 					return ret;
 				bi.len = BOVERFLOW_SIZE;
@@ -695,27 +670,19 @@ err:
  */
 int __ram_root(DBC *dbc, PAGE * rootp, PAGE * lp, PAGE * rp)
 {
-	DB * dbp;
 	DBT hdr;
 	RINTERNAL ri;
-	db_pgno_t root_pgno;
 	int ret;
-
-	dbp = dbc->dbp;
-	root_pgno = BAM_ROOT_PGNO(dbc);
-
+	DB * dbp = dbc->dbp;
+	db_pgno_t root_pgno = BAM_ROOT_PGNO(dbc);
 	/* Initialize the page. */
-	P_INIT(rootp, dbp->pgsize,
-	    root_pgno, PGNO_INVALID, PGNO_INVALID, lp->level + 1, P_IRECNO);
-
+	P_INIT(rootp, dbp->pgsize, root_pgno, PGNO_INVALID, PGNO_INVALID, lp->level + 1, P_IRECNO);
 	/* Initialize the header. */
 	DB_SET_DBT(hdr, &ri, RINTERNAL_SIZE);
-
 	/* Insert the left and right keys, set the header information. */
 	ri.pgno = lp->pgno;
 	ri.nrecs = __bam_total(dbp, lp);
-	if((ret = __db_pitem_nolog(dbc,
-	    rootp, 0, RINTERNAL_SIZE, &hdr, NULL)) != 0)
+	if((ret = __db_pitem_nolog(dbc, rootp, 0, RINTERNAL_SIZE, &hdr, NULL)) != 0)
 		return ret;
 	RE_NREC_SET(rootp, ri.nrecs);
 	ri.pgno = rp->pgno;
@@ -726,7 +693,6 @@ int __ram_root(DBC *dbc, PAGE * rootp, PAGE * lp, PAGE * rp)
 	RE_NREC_ADJ(rootp, ri.nrecs);
 	return 0;
 }
-
 /*
  * __bam_pinsert --
  *
@@ -854,8 +820,7 @@ int __bam_pinsert(DBC *dbc, EPG * parent, uint32 split, PAGE * lchild, PAGE * rc
 					memzero(&hdr, sizeof(hdr));
 					if((ret = __db_goff(dbc, &hdr, child_bo->tlen, child_bo->pgno, &hdr.data, &hdr.size)) == 0)
 						ret = __db_poff(dbc, &hdr, &bo.pgno);
-					if(hdr.data != NULL)
-						__os_free(dbp->env, hdr.data);
+					__os_free(dbp->env, hdr.data);
 					if(ret != 0)
 						return ret;
 				}
@@ -941,12 +906,10 @@ noprefix:
 				break;
 			    case B_OVERFLOW:
 				nbytes = BINTERNAL_PSIZE(BOVERFLOW_SIZE);
-
 				if(P_FREESPACE(dbp, ppage) + oldsize < nbytes)
 					return (DB_NEEDSPLIT);
 				if(LF_ISSET(BPI_SPACEONLY))
 					return 0;
-
 				/* Copy the overflow key. */
 				child_bo = (BOVERFLOW*)child_bk;
 				memzero(&bo, sizeof(bo));
@@ -955,11 +918,9 @@ noprefix:
 				memzero(&hdr, sizeof(hdr));
 				if((ret = __db_goff(dbc, &hdr, child_bo->tlen, child_bo->pgno, &hdr.data, &hdr.size)) == 0)
 					ret = __db_poff(dbc, &hdr, &bo.pgno);
-				if(hdr.data != NULL)
-					__os_free(dbp->env, hdr.data);
+				__os_free(dbp->env, hdr.data);
 				if(ret != 0)
 					return ret;
-
 				memzero(&bi, sizeof(bi));
 				bi.len = BOVERFLOW_SIZE;
 				B_TSET(bi.type, B_OVERFLOW);

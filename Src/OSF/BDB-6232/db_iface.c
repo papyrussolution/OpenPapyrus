@@ -24,7 +24,7 @@ static int __dbc_del_arg __P((DBC *, uint32));
 static int __dbc_pget_arg __P((DBC *, DBT *, uint32));
 static int __dbc_put_arg __P((DBC *, DBT *, DBT *, uint32));
 static int __db_curinval __P((const ENV *));
-static int __db_cursor_arg __P((DB *, uint32));
+static int __db_cursor_arg(DB *, uint32);
 static int __db_del_arg __P((DB *, DBT *, uint32, int));
 static int __db_get_arg __P((const DB *, DBT *, DBT *, uint32));
 static int __db_join_arg __P((DB *, DBC **, uint32));
@@ -188,7 +188,7 @@ static int __db_associate_arg(DB *dbp, DB * sdbp, int (*callback)(DB *, const DB
  * __db_close_pp --
  *	DB->close pre/post processing.
  *
- * PUBLIC: int __db_close_pp __P((DB *, uint32));
+ * PUBLIC: int __db_close_pp(DB *, uint32);
  */
 int __db_close_pp(DB *dbp, uint32 flags)
 {
@@ -533,7 +533,7 @@ int __db_exists(DB *dbp, DB_TXN * txn, DBT * key, uint32 flags)
  * db_fd_pp --
  *	DB->fd pre/post processing.
  *
- * PUBLIC: int __db_fd_pp __P((DB *, int *));
+ * PUBLIC: int __db_fd_pp(DB *, int *);
  */
 int __db_fd_pp(DB *dbp, int * fdp)
 {
@@ -1709,7 +1709,7 @@ static int __db_associate_foreign_arg(DB *fdbp, DB *dbp, int (*callback)(DB *, c
  * __db_sync_pp --
  *	DB->sync pre/post processing.
  *
- * PUBLIC: int __db_sync_pp __P((DB *, uint32));
+ * PUBLIC: int __db_sync_pp(DB *, uint32);
  */
 int __db_sync_pp(DB *dbp, uint32 flags)
 {
@@ -1746,7 +1746,7 @@ err:    ENV_LEAVE(env, ip);
  * __dbc_close_pp --
  *	DBC->close pre/post processing.
  *
- * PUBLIC: int __dbc_close_pp __P((DBC *));
+ * PUBLIC: int __dbc_close_pp(DBC *);
  */
 int __dbc_close_pp(DBC *dbc)
 {
@@ -2124,7 +2124,7 @@ err:
  * __db_secondary_close_pp --
  *	DB->close for secondaries
  *
- * PUBLIC: int __db_secondary_close_pp __P((DB *, uint32));
+ * PUBLIC: int __db_secondary_close_pp(DB *, uint32);
  */
 int __db_secondary_close_pp(DB *dbp, uint32 flags)
 {

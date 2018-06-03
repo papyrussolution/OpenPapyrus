@@ -12,10 +12,10 @@
 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
-static int __rep_print_all __P((ENV *, uint32));
-static int __rep_print_stats __P((ENV *, uint32));
+static int __rep_print_all(ENV *, uint32);
+static int __rep_print_stats(ENV *, uint32);
 static int __rep_stat __P((ENV *, DB_REP_STAT **, uint32));
-static int __rep_stat_summary_print __P((ENV *));
+static int __rep_stat_summary_print(ENV *);
 static const char * __rep_syncstate_to_string __P((repsync_t));
 
 /*
@@ -206,7 +206,7 @@ static int __rep_stat(ENV *env, DB_REP_STAT ** statp, uint32 flags)
  * __rep_stat_print_pp --
  *	ENV->rep_stat_print pre/post processing.
  *
- * PUBLIC: int __rep_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __rep_stat_print_pp(DB_ENV *, uint32);
  */
 int __rep_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -226,7 +226,7 @@ int __rep_stat_print_pp(DB_ENV *dbenv, uint32 flags)
  * __rep_stat_print --
  *	ENV->rep_stat_print method.
  *
- * PUBLIC: int __rep_stat_print __P((ENV *, uint32));
+ * PUBLIC: int __rep_stat_print(ENV *, uint32);
  */
 int __rep_stat_print(ENV *env, uint32 flags)
 {

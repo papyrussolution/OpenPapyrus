@@ -11,7 +11,7 @@
 
 static int interrupt;
 static void set_signal __P((int, int));
-static void signal_handler __P((int));
+static void signal_handler(int);
 
 /*
  * signal_handler --
@@ -49,7 +49,7 @@ static void set_signal(int s, int is_dflt)
 /*
  * __db_util_siginit --
  *
- * PUBLIC: void __db_util_siginit __P((void));
+ * PUBLIC: void __db_util_siginit(void);
  */
 void __db_util_siginit()
 {
@@ -76,7 +76,7 @@ void __db_util_siginit()
  * __db_util_interrupted --
  *	Return if interrupted.
  *
- * PUBLIC: int __db_util_interrupted __P((void));
+ * PUBLIC: int __db_util_interrupted(void);
  */
 int __db_util_interrupted()
 {
@@ -86,7 +86,7 @@ int __db_util_interrupted()
 /*
  * __db_util_sigresend --
  *
- * PUBLIC: void __db_util_sigresend __P((void));
+ * PUBLIC: void __db_util_sigresend(void);
  */
 void __db_util_sigresend()
 {

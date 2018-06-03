@@ -1042,7 +1042,7 @@ err:    if(plist != NULL)
  * __db_lprint --
  *	Print out the list of locks currently held by a cursor.
  *
- * PUBLIC: int __db_lprint __P((DBC *));
+ * PUBLIC: int __db_lprint(DBC *);
  */
 int __db_lprint(DBC *dbc)
 {

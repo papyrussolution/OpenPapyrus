@@ -12,7 +12,7 @@
  * __os_is_winnt --
  *	Return 1 if Windows/NT, otherwise 0.
  *
- * PUBLIC: int __os_is_winnt __P((void));
+ * PUBLIC: int __os_is_winnt(void);
  */
 int __os_is_winnt()
 {

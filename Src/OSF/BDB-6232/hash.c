@@ -53,12 +53,12 @@
 static int __ham_bulk __P((DBC *, DBT *, uint32));
 static int __hamc_close __P((DBC *, db_pgno_t, int *));
 static int __hamc_del __P((DBC *, uint32));
-static int __hamc_destroy __P((DBC *));
+static int __hamc_destroy(DBC *);
 static int __hamc_get __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
 static int __hamc_put __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
-static int __hamc_writelock __P((DBC *));
+static int __hamc_writelock(DBC *);
 static int __ham_dup_return __P((DBC *, DBT *, uint32));
-static int __ham_expand_table __P((DBC *));
+static int __ham_expand_table(DBC *);
 static int __hamc_update_getorder __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *));
 static int __hamc_update_setorder __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *));
 static int __ham_get_clist_func __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *));
@@ -68,7 +68,7 @@ static int __ham_get_clist_func __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, 
  *	This function is called by __db_del when the appropriate conditions
  *	are met, and it performs the delete in the optimized way.
  *
- * PUBLIC: int __ham_quick_delete __P((DBC *));
+ * PUBLIC: int __ham_quick_delete(DBC *);
  */
 int __ham_quick_delete(DBC *dbc)
 {
@@ -128,7 +128,7 @@ int __ham_quick_delete(DBC *dbc)
  * __hamc_init --
  *	Initialize the hash-specific portion of a cursor.
  *
- * PUBLIC: int __hamc_init __P((DBC *));
+ * PUBLIC: int __hamc_init(DBC *);
  */
 int __hamc_init(DBC *dbc)
 {

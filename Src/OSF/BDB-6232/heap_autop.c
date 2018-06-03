@@ -70,7 +70,7 @@ int __heap_trunc_page_print(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 }
 
 /*
- * PUBLIC: int __heap_init_print __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __heap_init_print(ENV *, DB_DISTAB *);
  */
 int __heap_init_print(ENV *env, DB_DISTAB * dtabp)
 {

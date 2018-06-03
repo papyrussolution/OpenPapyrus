@@ -66,7 +66,7 @@ DB_LOG_RECSPEC __txn_recycle_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __txn_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __txn_init_recover(ENV *, DB_DISTAB *);
  */
 int __txn_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

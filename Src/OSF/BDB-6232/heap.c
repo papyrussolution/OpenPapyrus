@@ -18,7 +18,7 @@ static int __heap_bulk __P((DBC *, DBT *, uint32));
 static int __heap_getpage __P((DBC *, uint32, uint8 *));
 static int __heapc_close __P((DBC *, db_pgno_t, int *));
 static int __heapc_del __P((DBC *, uint32));
-static int __heapc_destroy __P((DBC *));
+static int __heapc_destroy(DBC *);
 static int __heapc_get __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
 static int __heapc_put __P((DBC *, DBT *, DBT *, uint32, db_pgno_t *));
 static int __heapc_reloc __P((DBC *, DBT *, DBT *));
@@ -85,7 +85,7 @@ static int __heapc_split __P((DBC *, DBT *, DBT *, int));
  * __heapc_init --
  *	Initialize the access private portion of a cursor
  *
- * PUBLIC: int __heapc_init __P((DBC *));
+ * PUBLIC: int __heapc_init(DBC *);
  */
 int __heapc_init(DBC *dbc)
 {
@@ -2768,7 +2768,7 @@ err:
  * __heapc_refresh --
  *      do the proper set up for cursor reuse.
  *
- * PUBLIC: int __heapc_refresh __P((DBC *));
+ * PUBLIC: int __heapc_refresh(DBC *);
  */
 int __heapc_refresh(DBC *dbc)
 {

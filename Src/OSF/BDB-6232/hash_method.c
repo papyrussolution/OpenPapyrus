@@ -11,10 +11,10 @@
 #include "dbinc/db_page.h"
 #include "dbinc/hash.h"
 
-static int __ham_set_h_ffactor __P((DB *, uint32));
+static int __ham_set_h_ffactor(DB *, uint32);
 static int __ham_get_h_hash __P((DB *, uint32(**)(DB *, const void *, uint32)));
 static int __ham_set_h_hash __P((DB *, uint32 (*)(DB *, const void *, uint32)));
-static int __ham_set_h_nelem __P((DB *, uint32));
+static int __ham_set_h_nelem(DB *, uint32);
 
 static int __ham_get_h_compare __P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
 
@@ -22,7 +22,7 @@ static int __ham_get_h_compare __P((DB *, int (**)(DB *, const DBT *, const DBT 
  * __ham_db_create --
  *	Hash specific initialization of the DB structure.
  *
- * PUBLIC: int __ham_db_create __P((DB *));
+ * PUBLIC: int __ham_db_create(DB *);
  */
 int __ham_db_create(DB *dbp)
 {
@@ -49,7 +49,7 @@ int __ham_db_create(DB *dbp)
 }
 
 /*
- * PUBLIC: int __ham_db_close __P((DB *));
+ * PUBLIC: int __ham_db_close(DB *);
  */
 int __ham_db_close(DB *dbp)
 {
@@ -62,7 +62,7 @@ int __ham_db_close(DB *dbp)
 /*
  * __ham_get_h_ffactor --
  *
- * PUBLIC: int __ham_get_h_ffactor __P((DB *, uint32 *));
+ * PUBLIC: int __ham_get_h_ffactor(DB *, uint32 *);
  */
 int __ham_get_h_ffactor(DB *dbp, uint32 * h_ffactorp)
 {
@@ -143,7 +143,7 @@ int __ham_set_h_compare(DB *dbp, int (*func)(DB *, const DBT *, const DBT *, siz
 /*
  * __db_get_h_nelem --
  *
- * PUBLIC: int __ham_get_h_nelem __P((DB *, uint32 *));
+ * PUBLIC: int __ham_get_h_nelem(DB *, uint32 *);
  */
 int __ham_get_h_nelem(DB *dbp, uint32 * h_nelemp)
 {

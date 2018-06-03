@@ -15,19 +15,19 @@
 #include "dbinc/txn.h"
 
 #ifdef HAVE_STATISTICS
-static int __env_print_all __P((ENV *, uint32));
-static int __env_print_dbenv_all __P((ENV *, uint32));
-static int __env_print_env_all __P((ENV *, uint32));
-static int __env_print_fh __P((ENV *));
-static int __env_print_stats __P((ENV *, uint32));
-static int __env_stat_print __P((ENV *, uint32));
+static int __env_print_all(ENV *, uint32);
+static int __env_print_dbenv_all(ENV *, uint32);
+static int __env_print_env_all(ENV *, uint32);
+static int __env_print_fh(ENV *);
+static int __env_print_stats(ENV *, uint32);
+static int __env_stat_print(ENV *, uint32);
 static char * __env_thread_state_print __P((DB_THREAD_STATE));
 static const char * __reg_type __P((reg_type_t));
 /*
  * __env_stat_print_pp --
  *	ENV->stat_print pre/post processor.
  *
- * PUBLIC: int __env_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __env_stat_print_pp(DB_ENV *, uint32);
  */
 int __env_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -416,7 +416,7 @@ static char * __env_thread_state_print(DB_THREAD_STATE state)
  * __env_print_thread --
  *	Display the thread block state.
  *
- * PUBLIC: int __env_print_thread __P((ENV *));
+ * PUBLIC: int __env_print_thread(ENV *);
  */
 int __env_print_thread(ENV *env)
 {
@@ -696,7 +696,7 @@ static const char * __reg_type(reg_type_t t)
  * __db_stat_not_built --
  *	Common error routine when library not built with statistics.
  *
- * PUBLIC: int __db_stat_not_built __P((ENV *));
+ * PUBLIC: int __db_stat_not_built(ENV *);
  */
 int __db_stat_not_built(ENV *env)
 {

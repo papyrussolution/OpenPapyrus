@@ -518,7 +518,7 @@ err:
  * __envreg_xunlock --
  *	Discard the exclusive lock held by the ENV handle.
  *
- * PUBLIC: int __envreg_xunlock __P((ENV *));
+ * PUBLIC: int __envreg_xunlock(ENV *);
  */
 int __envreg_xunlock(ENV *env)
 {

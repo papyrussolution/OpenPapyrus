@@ -18,7 +18,7 @@
  *	read locks for lockers owned by dead threads.  Write locks for
  *	dead transactional lockers will be freed when we abort the transaction.
  *
- * PUBLIC: int __lock_failchk __P((ENV *));
+ * PUBLIC: int __lock_failchk(ENV *);
  */
 int __lock_failchk(ENV *env)
 {

@@ -73,8 +73,7 @@ int __txn_closeevent(ENV *env, DB_TXN * txn, DB * dbp)
  *
  * Creates a remove event that can be added to the commit list.
  *
- * PUBLIC: int __txn_remevent __P((ENV *,
- * PUBLIC:       DB_TXN *, const char *, uint8 *, int));
+ * PUBLIC: int __txn_remevent __P((ENV *, DB_TXN *, const char *, uint8 *, int));
  */
 int __txn_remevent(ENV *env, DB_TXN * txn, const char * name, uint8 * fileid, int inmem)
 {
@@ -124,11 +123,9 @@ void __txn_remrem(ENV *env, DB_TXN * txn, const char * name)
 /*
  * __txn_lockevent --
  *
- * Add a lockevent to the commit-queue.  The lock event indicates a locker
- * trade.
+ * Add a lockevent to the commit-queue.  The lock event indicates a locker trade.
  *
- * PUBLIC: int __txn_lockevent __P((ENV *,
- * PUBLIC:     DB_TXN *, DB *, DB_LOCK *, DB_LOCKER *));
+ * PUBLIC: int __txn_lockevent __P((ENV *, DB_TXN *, DB *, DB_LOCK *, DB_LOCKER *));
  */
 int __txn_lockevent(ENV *env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER * locker)
 {

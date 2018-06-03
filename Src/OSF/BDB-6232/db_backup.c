@@ -22,7 +22,7 @@ static void save_error __P((const DB_ENV *, const char *, const char *));
 static int backup_read_log_dir __P((DB_ENV *, const char *, int *, uint32));
 static int backup_read_data_dir __P((DB_ENV *, DB_THREAD_INFO *, const char *, const char *, uint32));
 static int backup_dir_clean __P((DB_ENV *, const char *, const char *, int *, uint32));
-static int backup_lgconf_chk __P((DB_ENV *));
+static int backup_lgconf_chk(DB_ENV *);
 static int __db_backup __P((DB_ENV *, const char *, DB_THREAD_INFO *, int, uint32));
 
 /*
@@ -289,13 +289,10 @@ int backup_data_copy(DB_ENV *dbenv, const char * file, const char * from_dir, co
 	}
 	if(ret != 0)
 		__db_err(env, ret, DB_STR("0748", "Write failed."));
-
 err:
-done:   if(buf != NULL)
-		__os_free(env, buf);
-
-	if(backup != NULL && backup->close != NULL &&
-	    (t_ret = backup->close(env->dbenv, file, handle)) != 0 && ret != 0)
+done:   
+	__os_free(env, buf);
+	if(backup != NULL && backup->close != NULL && (t_ret = backup->close(env->dbenv, file, handle)) != 0 && ret != 0)
 		ret = t_ret;
 	if(rfhp != NULL &&
 	    (t_ret = __os_closehandle(env, rfhp)) != 0 && ret == 0)
@@ -603,10 +600,10 @@ again:  aflag = DB_ARCH_LOG;
 			}
 		}
 	}
-
 	__os_ufree(env, begin);
 	begin = NULL;
-done:   if(update) {
+done:   
+	if(update) {
 		update = 0;
 		goto again;
 	}
@@ -615,16 +612,15 @@ done:   if(update) {
 		__db_msg(env, DB_STR_A("0742",
 		    "lowest numbered log file copied: %d", "%d"),
 		    *copy_minp);
-err:    if(logd != dbenv->db_log_dir && logd != env->db_home)
+err:    
+	if(logd != dbenv->db_log_dir && logd != env->db_home)
 		__os_free(env, logd);
 	if(backupd != NULL && backupd != backup_dir)
 		__os_free(env, (void*)backupd);
 	if(begin != NULL)
 		__os_ufree(env, begin);
-
 	return ret;
 }
-
 /*
  * __db_backup --
  *	Backup databases in the enviornment.

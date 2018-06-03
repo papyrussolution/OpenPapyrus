@@ -17,7 +17,7 @@ static int lsn_hi_to_low __P((const void *, const void *));
  * __txn_open --
  *	Open a transaction region.
  *
- * PUBLIC: int __txn_open __P((ENV *));
+ * PUBLIC: int __txn_open(ENV *);
  */
 int __txn_open(ENV *env)
 {
@@ -182,7 +182,7 @@ err:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
  * __txn_env_refresh --
  *	Clean up after the transaction system on a close or failed open.
  *
- * PUBLIC: int __txn_env_refresh __P((ENV *));
+ * PUBLIC: int __txn_env_refresh(ENV *);
  */
 int __txn_env_refresh(ENV *env)
 {
@@ -245,7 +245,7 @@ int __txn_env_refresh(ENV *env)
  * __txn_region_mutex_count --
  *	Return the number of mutexes the txn region will need.
  *
- * PUBLIC: uint32 __txn_region_mutex_count __P((ENV *));
+ * PUBLIC: uint32 __txn_region_mutex_count(ENV *);
  */
 uint32 __txn_region_mutex_count(ENV *env)
 {
@@ -260,7 +260,7 @@ uint32 __txn_region_mutex_count(ENV *env)
  * __txn_region_mutex_max --
  *	Return the number of additional mutexes the txn region will need.
  *
- * PUBLIC: uint32 __txn_region_mutex_max __P((ENV *));
+ * PUBLIC: uint32 __txn_region_mutex_max(ENV *);
  */
 uint32 __txn_region_mutex_max(ENV *env)
 {
@@ -275,7 +275,7 @@ uint32 __txn_region_mutex_max(ENV *env)
 /*
  * __txn_region_size --
  *	 Return the initial amount of space needed for the txn region.
- * PUBLIC:  size_t __txn_region_size __P((ENV *));
+ * PUBLIC:  size_t __txn_region_size(ENV *);
  */
 size_t __txn_region_size(ENV *env)
 {
@@ -297,7 +297,7 @@ size_t __txn_region_size(ENV *env)
  *	Return how much additional memory to reserve, so that all the configured
  *	transaction-specific data structures can be allocated.
  *
- * PUBLIC:  size_t __txn_region_max __P((ENV *));
+ * PUBLIC:  size_t __txn_region_max(ENV *);
  */
 size_t __txn_region_max(ENV *env)
 {

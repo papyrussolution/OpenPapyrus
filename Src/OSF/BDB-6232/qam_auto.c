@@ -56,7 +56,7 @@ DB_LOG_RECSPEC __qam_delext_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __qam_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __qam_init_recover(ENV *, DB_DISTAB *);
  */
 int __qam_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

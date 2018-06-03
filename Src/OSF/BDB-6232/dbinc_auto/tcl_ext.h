@@ -62,7 +62,7 @@ int _GetLsn __P((Tcl_Interp *, Tcl_Obj *, DB_LSN *));
 int _GetRid __P((Tcl_Interp *, Tcl_Obj *, DB_HEAP_RID *));
 int _GetUInt32 __P((Tcl_Interp *, Tcl_Obj *, uint32 *));
 Tcl_Obj *_GetFlagsList __P((Tcl_Interp *, uint32, const FN *));
-void _debug_check  __P((void));
+void _debug_check (void);
 int _CopyObjBytes  __P((Tcl_Interp *, Tcl_Obj *obj, void *, uint32 *, int *));
 int tcl_LockDetect __P((Tcl_Interp *, int, Tcl_Obj * CONST*, DB_ENV *));
 int tcl_LockGet __P((Tcl_Interp *, int, Tcl_Obj * CONST*, DB_ENV *));

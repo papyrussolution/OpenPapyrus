@@ -13,7 +13,7 @@
  * __log_env_create --
  *	Log specific initialization of the DB_ENV structure.
  *
- * PUBLIC: int __log_env_create __P((DB_ENV *));
+ * PUBLIC: int __log_env_create(DB_ENV *);
  */
 int __log_env_create(DB_ENV *dbenv)
 {
@@ -31,14 +31,14 @@ int __log_env_create(DB_ENV *dbenv)
  * __log_env_destroy --
  *	Log specific destruction of the DB_ENV structure.
  *
- * PUBLIC: void __log_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __log_env_destroy(DB_ENV *);
  */
 void __log_env_destroy(DB_ENV *dbenv)
 {
 	COMPQUIET(dbenv, NULL);
 }
 /*
- * PUBLIC: int __log_get_lg_bsize __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __log_get_lg_bsize(DB_ENV *, uint32 *);
  */
 int __log_get_lg_bsize(DB_ENV *dbenv, uint32 * lg_bsizep)
 {
@@ -56,7 +56,7 @@ int __log_get_lg_bsize(DB_ENV *dbenv, uint32 * lg_bsizep)
  * __log_set_lg_bsize --
  *	DB_ENV->set_lg_bsize.
  *
- * PUBLIC: int __log_set_lg_bsize __P((DB_ENV *, uint32));
+ * PUBLIC: int __log_set_lg_bsize(DB_ENV *, uint32);
  */
 int __log_set_lg_bsize(DB_ENV *dbenv, uint32 lg_bsize)
 {
@@ -120,7 +120,7 @@ int __log_set_lg_filemode(DB_ENV *dbenv, int lg_mode)
 	return ret;
 }
 /*
- * PUBLIC: int __log_get_lg_max __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __log_get_lg_max(DB_ENV *, uint32 *);
  */
 int __log_get_lg_max(DB_ENV *dbenv, uint32 * lg_maxp)
 {
@@ -144,7 +144,7 @@ int __log_get_lg_max(DB_ENV *dbenv, uint32 * lg_maxp)
  * __log_set_lg_max --
  *	DB_ENV->set_lg_max.
  *
- * PUBLIC: int __log_set_lg_max __P((DB_ENV *, uint32));
+ * PUBLIC: int __log_set_lg_max(DB_ENV *, uint32);
  */
 int __log_set_lg_max(DB_ENV *dbenv, uint32 lg_max)
 {
@@ -178,7 +178,7 @@ int __log_set_lg_max(DB_ENV *dbenv, uint32 lg_max)
 	return ret;
 }
 /*
- * PUBLIC: int __log_get_lg_regionmax __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __log_get_lg_regionmax(DB_ENV *, uint32 *);
  */
 int __log_get_lg_regionmax(DB_ENV *dbenv, uint32 * lg_regionmaxp)
 {
@@ -196,7 +196,7 @@ int __log_get_lg_regionmax(DB_ENV *dbenv, uint32 * lg_regionmaxp)
  * __log_set_lg_regionmax --
  *	DB_ENV->set_lg_regionmax.
  *
- * PUBLIC: int __log_set_lg_regionmax __P((DB_ENV *, uint32));
+ * PUBLIC: int __log_set_lg_regionmax(DB_ENV *, uint32);
  */
 int __log_set_lg_regionmax(DB_ENV *dbenv, uint32 lg_regionmax)
 {
@@ -235,7 +235,7 @@ int __log_set_lg_dir(DB_ENV *dbenv, const char * dir)
  * __log_get_flags --
  *	DB_ENV->get_flags.
  *
- * PUBLIC: void __log_get_flags __P((DB_ENV *, uint32 *));
+ * PUBLIC: void __log_get_flags(DB_ENV *, uint32 *);
  */
 void __log_get_flags(DB_ENV *dbenv, uint32 * flagsp)
 {

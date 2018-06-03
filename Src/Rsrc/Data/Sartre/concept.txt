@@ -2903,7 +2903,7 @@ z39.50s:urischeme
 :negotium_coeptis_commutationem::negotiumtaxonomy_coeptis // биржа
 :negotium_coeptis_ripae::negotiumtaxonomy_coeptis // банк
 
-:tradeticker           // торговый тикер 
+:tradeticker+(:negotium_coeptis_commutationem e) // торговый тикер 
 :stockticker+(:negotiumtaxonomy_coeptis c)::tradeticker // фондовый тикер 
 :forexticker+(:currency c1, :currency c2)::tradeticker // валютный тикер 
 

@@ -6,10 +6,8 @@
 #include "dbinc/db_am.h"
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
-
 /*
- * PUBLIC: int __rep_bulk_marshal __P((ENV *, __rep_bulk_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_bulk_marshal __P((ENV *, __rep_bulk_args *, uint8 *, size_t, size_t *));
  */
 int __rep_bulk_marshal(ENV *env, __rep_bulk_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -25,14 +23,11 @@ int __rep_bulk_marshal(ENV *env, __rep_bulk_args * argp, uint8 * bp, size_t max,
 		memcpy(bp, argp->bulkdata.data, argp->bulkdata.size);
 		bp += argp->bulkdata.size;
 	}
-
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_bulk_unmarshal __P((ENV *, __rep_bulk_args *,
- * PUBLIC:	 uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_bulk_unmarshal __P((ENV *, __rep_bulk_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_bulk_unmarshal(ENV *env, __rep_bulk_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -51,7 +46,6 @@ int __rep_bulk_unmarshal(ENV *env, __rep_bulk_args * argp, uint8 * bp, size_t ma
 	if(max < needed)
 		goto too_few;
 	bp += argp->bulkdata.size;
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -59,10 +53,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_bulk message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_control_marshal __P((ENV *, __rep_control_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_control_marshal __P((ENV *, __rep_control_args *, uint8 *, size_t, size_t *));
  */
 int __rep_control_marshal(ENV *env, __rep_control_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -79,14 +71,11 @@ int __rep_control_marshal(ENV *env, __rep_control_args * argp, uint8 * bp, size_
 	DB_HTONL_COPYOUT(env, bp, argp->msg_sec);
 	DB_HTONL_COPYOUT(env, bp, argp->msg_nsec);
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
-
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_control_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_control_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_control_unmarshal __P((ENV *, __rep_control_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_control_unmarshal(ENV *env, __rep_control_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -109,8 +98,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: int __rep_egen_marshal __P((ENV *, __rep_egen_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_egen_marshal __P((ENV *, __rep_egen_args *, uint8 *, size_t, size_t *));
  */
 int __rep_egen_marshal(ENV *env, __rep_egen_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -122,10 +110,8 @@ int __rep_egen_marshal(ENV *env, __rep_egen_args * argp, uint8 * bp, size_t max,
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_egen_unmarshal __P((ENV *, __rep_egen_args *,
- * PUBLIC:	 uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_egen_unmarshal __P((ENV *, __rep_egen_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_egen_unmarshal(ENV *env, __rep_egen_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -139,10 +125,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_egen message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_marshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_fileinfo_marshal __P((ENV *, __rep_fileinfo_args *, uint8 *, size_t, size_t *));
  */
 int __rep_fileinfo_marshal(ENV *env, __rep_fileinfo_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -174,14 +158,11 @@ int __rep_fileinfo_marshal(ENV *env, __rep_fileinfo_args * argp, uint8 * bp, siz
 	}
 	DB_HTONL_COPYOUT(env, bp, argp->blob_fid_lo);
 	DB_HTONL_COPYOUT(env, bp, argp->blob_fid_hi);
-
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_args **, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_fileinfo_unmarshal __P((ENV *, __rep_fileinfo_args **, uint8 *, size_t, uint8 **));
  */
 int __rep_fileinfo_unmarshal(ENV *env, __rep_fileinfo_args ** argpp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -238,10 +219,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_fileinfo message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_v7_marshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_v7_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_fileinfo_v7_marshal __P((ENV *, __rep_fileinfo_v7_args *, uint8 *, size_t, size_t *));
  */
 int __rep_fileinfo_v7_marshal(ENV *env, __rep_fileinfo_v7_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -272,14 +251,11 @@ int __rep_fileinfo_v7_marshal(ENV *env, __rep_fileinfo_v7_args * argp, uint8 * b
 		memcpy(bp, argp->dir.data, argp->dir.size);
 		bp += argp->dir.size;
 	}
-
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_v7_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_v7_args **, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_fileinfo_v7_unmarshal __P((ENV *, __rep_fileinfo_v7_args **, uint8 *, size_t, uint8 **));
  */
 int __rep_fileinfo_v7_unmarshal(ENV *env, __rep_fileinfo_v7_args ** argpp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -332,10 +308,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_fileinfo_v7 message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_v6_marshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_v6_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_fileinfo_v6_marshal __P((ENV *, __rep_fileinfo_v6_args *, uint8 *, size_t, size_t *));
  */
 int __rep_fileinfo_v6_marshal(ENV *env, __rep_fileinfo_v6_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -360,14 +334,11 @@ int __rep_fileinfo_v6_marshal(ENV *env, __rep_fileinfo_v6_args * argp, uint8 * b
 		memcpy(bp, argp->info.data, argp->info.size);
 		bp += argp->info.size;
 	}
-
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_fileinfo_v6_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_fileinfo_v6_args **, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_fileinfo_v6_unmarshal __P((ENV *, __rep_fileinfo_v6_args **, uint8 *, size_t, uint8 **));
  */
 int __rep_fileinfo_v6_unmarshal(ENV *env, __rep_fileinfo_v6_args ** argpp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -411,10 +382,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_fileinfo_v6 message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_grant_info_marshal __P((ENV *,
- * PUBLIC:	 __rep_grant_info_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_grant_info_marshal __P((ENV *, __rep_grant_info_args *, uint8 *, size_t, size_t *));
  */
 int __rep_grant_info_marshal(ENV *env, __rep_grant_info_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -427,10 +396,8 @@ int __rep_grant_info_marshal(ENV *env, __rep_grant_info_args * argp, uint8 * bp,
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_grant_info_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_grant_info_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_grant_info_unmarshal __P((ENV *, __rep_grant_info_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_grant_info_unmarshal(ENV *env, __rep_grant_info_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -446,8 +413,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: int __rep_logreq_marshal __P((ENV *, __rep_logreq_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_logreq_marshal __P((ENV *, __rep_logreq_args *, uint8 *, size_t, size_t *));
  */
 int __rep_logreq_marshal(ENV *env, __rep_logreq_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -461,8 +427,7 @@ int __rep_logreq_marshal(ENV *env, __rep_logreq_args * argp, uint8 * bp, size_t 
 	return 0;
 }
 /*
- * PUBLIC: int __rep_logreq_unmarshal __P((ENV *, __rep_logreq_args *,
- * PUBLIC:	 uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_logreq_unmarshal __P((ENV *, __rep_logreq_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_logreq_unmarshal(ENV *env, __rep_logreq_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -470,7 +435,6 @@ int __rep_logreq_unmarshal(ENV *env, __rep_logreq_args * argp, uint8 * bp, size_
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->endlsn.file, bp);
 	DB_NTOHL_COPYIN(env, argp->endlsn.offset, bp);
-
 	if(nextp != NULL)
 		*nextp = bp;
 	return 0;
@@ -478,10 +442,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_logreq message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_newfile_marshal __P((ENV *, __rep_newfile_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_newfile_marshal __P((ENV *, __rep_newfile_args *, uint8 *, size_t, size_t *));
  */
 int __rep_newfile_marshal(ENV *env, __rep_newfile_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -494,8 +456,7 @@ int __rep_newfile_marshal(ENV *env, __rep_newfile_args * argp, uint8 * bp, size_
 	return 0;
 }
 /*
- * PUBLIC: int __rep_newfile_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_newfile_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_newfile_unmarshal __P((ENV *, __rep_newfile_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_newfile_unmarshal(ENV *env, __rep_newfile_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -509,10 +470,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_newfile message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_update_marshal __P((ENV *, __rep_update_args *,
- * PUBLIC:	 uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_update_marshal __P((ENV *, __rep_update_args *, uint8 *, size_t, size_t *));
  */
 int __rep_update_marshal(ENV *env, __rep_update_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -527,10 +486,8 @@ int __rep_update_marshal(ENV *env, __rep_update_args * argp, uint8 * bp, size_t 
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_update_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_update_args **, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_update_unmarshal __P((ENV *, __rep_update_args **, uint8 *, size_t, uint8 **));
  */
 int __rep_update_unmarshal(ENV *env, __rep_update_args ** argpp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -552,10 +509,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_update message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_vote_info_marshal __P((ENV *,
- * PUBLIC:	 __rep_vote_info_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_vote_info_marshal __P((ENV *, __rep_vote_info_args *, uint8 *, size_t, size_t *));
  */
 int __rep_vote_info_marshal(ENV *env, __rep_vote_info_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -573,10 +528,8 @@ int __rep_vote_info_marshal(ENV *env, __rep_vote_info_args * argp, uint8 * bp, s
 	*lenp = (size_t)(bp - start);
 	return 0;
 }
-
 /*
- * PUBLIC: int __rep_vote_info_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_vote_info_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_vote_info_unmarshal __P((ENV *, __rep_vote_info_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_vote_info_unmarshal(ENV *env, __rep_vote_info_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -596,10 +549,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_vote_info message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: int __rep_vote_info_v5_marshal __P((ENV *,
- * PUBLIC:	 __rep_vote_info_v5_args *, uint8 *, size_t, size_t *));
+ * PUBLIC: int __rep_vote_info_v5_marshal __P((ENV *, __rep_vote_info_v5_args *, uint8 *, size_t, size_t *));
  */
 int __rep_vote_info_v5_marshal(ENV *env, __rep_vote_info_v5_args * argp, uint8 * bp, size_t max, size_t * lenp)
 {
@@ -616,8 +567,7 @@ int __rep_vote_info_v5_marshal(ENV *env, __rep_vote_info_v5_args * argp, uint8 *
 	return 0;
 }
 /*
- * PUBLIC: int __rep_vote_info_v5_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_vote_info_v5_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_vote_info_v5_unmarshal __P((ENV *, __rep_vote_info_v5_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_vote_info_v5_unmarshal(ENV *env, __rep_vote_info_v5_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -635,10 +585,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_vote_info_v5 message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_lsn_hist_key_marshal __P((ENV *,
- * PUBLIC:	 __rep_lsn_hist_key_args *, uint8 *));
+ * PUBLIC: void __rep_lsn_hist_key_marshal __P((ENV *, __rep_lsn_hist_key_args *, uint8 *));
  */
 void __rep_lsn_hist_key_marshal(ENV *env, __rep_lsn_hist_key_args * argp, uint8 * bp)
 {
@@ -646,8 +594,7 @@ void __rep_lsn_hist_key_marshal(ENV *env, __rep_lsn_hist_key_args * argp, uint8 
 	DB_HTONL_COPYOUT(env, bp, argp->gen);
 }
 /*
- * PUBLIC: int __rep_lsn_hist_key_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_lsn_hist_key_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_lsn_hist_key_unmarshal __P((ENV *, __rep_lsn_hist_key_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_lsn_hist_key_unmarshal(ENV *env, __rep_lsn_hist_key_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -662,10 +609,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_lsn_hist_key message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_lsn_hist_data_marshal __P((ENV *,
- * PUBLIC:	 __rep_lsn_hist_data_args *, uint8 *));
+ * PUBLIC: void __rep_lsn_hist_data_marshal __P((ENV *, __rep_lsn_hist_data_args *, uint8 *));
  */
 void __rep_lsn_hist_data_marshal(ENV *env, __rep_lsn_hist_data_args * argp, uint8 * bp)
 {
@@ -676,8 +621,7 @@ void __rep_lsn_hist_data_marshal(ENV *env, __rep_lsn_hist_data_args * argp, uint
 	DB_HTONL_COPYOUT(env, bp, argp->hist_nsec);
 }
 /*
- * PUBLIC: int __rep_lsn_hist_data_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_lsn_hist_data_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_lsn_hist_data_unmarshal __P((ENV *, __rep_lsn_hist_data_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_lsn_hist_data_unmarshal(ENV *env, __rep_lsn_hist_data_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -696,8 +640,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __rep_blob_update_req_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_req_args *, uint8 *));
+ * PUBLIC: void __rep_blob_update_req_marshal __P((ENV *, __rep_blob_update_req_args *, uint8 *));
  */
 void __rep_blob_update_req_marshal(ENV *env, __rep_blob_update_req_args * argp, uint8 * bp)
 {
@@ -707,10 +650,8 @@ void __rep_blob_update_req_marshal(ENV *env, __rep_blob_update_req_args * argp, 
 	DB_HTONLL_COPYOUT(env, bp, argp->highest_id);
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 }
-
 /*
- * PUBLIC: int __rep_blob_update_req_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_req_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_blob_update_req_unmarshal __P((ENV *, __rep_blob_update_req_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_update_req_unmarshal(ENV *env, __rep_blob_update_req_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -728,10 +669,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_blob_update_req message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_blob_update_req_v8_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_req_v8_args *, uint8 *));
+ * PUBLIC: void __rep_blob_update_req_v8_marshal __P((ENV *, __rep_blob_update_req_v8_args *, uint8 *));
  */
 void __rep_blob_update_req_v8_marshal(ENV *env, __rep_blob_update_req_v8_args * argp, uint8 * bp)
 {
@@ -740,11 +679,8 @@ void __rep_blob_update_req_v8_marshal(ENV *env, __rep_blob_update_req_v8_args * 
 	DB_HTONLL_COPYOUT(env, bp, argp->blob_id);
 	DB_HTONLL_COPYOUT(env, bp, argp->highest_id);
 }
-
 /*
- * PUBLIC: int __rep_blob_update_req_v8_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_req_v8_args *, uint8 *, size_t,
- * PUBLIC:	 uint8 **));
+ * PUBLIC: int __rep_blob_update_req_v8_unmarshal __P((ENV *, __rep_blob_update_req_v8_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_update_req_v8_unmarshal(ENV *env, __rep_blob_update_req_v8_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -762,8 +698,7 @@ too_few:
 	return EINVAL;
 }
 /*
- * PUBLIC: void __rep_blob_update_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_args *, uint8 *));
+ * PUBLIC: void __rep_blob_update_marshal __P((ENV *, __rep_blob_update_args *, uint8 *));
  */
 void __rep_blob_update_marshal(ENV *env, __rep_blob_update_args * argp, uint8 * bp)
 {
@@ -772,10 +707,8 @@ void __rep_blob_update_marshal(ENV *env, __rep_blob_update_args * argp, uint8 * 
 	DB_HTONL_COPYOUT(env, bp, argp->flags);
 	DB_HTONL_COPYOUT(env, bp, argp->num_blobs);
 }
-
 /*
- * PUBLIC: int __rep_blob_update_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_update_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_blob_update_unmarshal __P((ENV *, __rep_blob_update_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_update_unmarshal(ENV *env, __rep_blob_update_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -792,10 +725,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_blob_update message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_blob_file_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_file_args *, uint8 *));
+ * PUBLIC: void __rep_blob_file_marshal __P((ENV *, __rep_blob_file_args *, uint8 *));
  */
 void __rep_blob_file_marshal(ENV *env, __rep_blob_file_args * argp, uint8 * bp)
 {
@@ -804,8 +735,7 @@ void __rep_blob_file_marshal(ENV *env, __rep_blob_file_args * argp, uint8 * bp)
 	DB_HTONLL_COPYOUT(env, bp, argp->blob_size);
 }
 /*
- * PUBLIC: int __rep_blob_file_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_file_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_blob_file_unmarshal __P((ENV *, __rep_blob_file_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_file_unmarshal(ENV *env, __rep_blob_file_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -821,10 +751,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_blob_file message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_blob_chunk_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_chunk_args *, uint8 *));
+ * PUBLIC: void __rep_blob_chunk_marshal __P((ENV *, __rep_blob_chunk_args *, uint8 *));
  */
 void __rep_blob_chunk_marshal(ENV *env, __rep_blob_chunk_args * argp, uint8 * bp)
 {
@@ -840,8 +768,7 @@ void __rep_blob_chunk_marshal(ENV *env, __rep_blob_chunk_args * argp, uint8 * bp
 	}
 }
 /*
- * PUBLIC: int __rep_blob_chunk_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_chunk_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_blob_chunk_unmarshal __P((ENV *, __rep_blob_chunk_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_chunk_unmarshal(ENV *env, __rep_blob_chunk_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {
@@ -869,10 +796,8 @@ too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_blob_chunk message"));
 	return EINVAL;
 }
-
 /*
- * PUBLIC: void __rep_blob_chunk_req_marshal __P((ENV *,
- * PUBLIC:	 __rep_blob_chunk_req_args *, uint8 *));
+ * PUBLIC: void __rep_blob_chunk_req_marshal __P((ENV *, __rep_blob_chunk_req_args *, uint8 *));
  */
 void __rep_blob_chunk_req_marshal(ENV *env, __rep_blob_chunk_req_args * argp, uint8 * bp)
 {
@@ -881,10 +806,8 @@ void __rep_blob_chunk_req_marshal(ENV *env, __rep_blob_chunk_req_args * argp, ui
 	DB_HTONLL_COPYOUT(env, bp, argp->blob_id);
 	DB_HTONLL_COPYOUT(env, bp, argp->offset);
 }
-
 /*
- * PUBLIC: int __rep_blob_chunk_req_unmarshal __P((ENV *,
- * PUBLIC:	 __rep_blob_chunk_req_args *, uint8 *, size_t, uint8 **));
+ * PUBLIC: int __rep_blob_chunk_req_unmarshal __P((ENV *, __rep_blob_chunk_req_args *, uint8 *, size_t, uint8 **));
  */
 int __rep_blob_chunk_req_unmarshal(ENV *env, __rep_blob_chunk_req_args * argp, uint8 * bp, size_t max, uint8 ** nextp)
 {

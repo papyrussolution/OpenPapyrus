@@ -15,7 +15,7 @@
  *	Recovery function for addrem.
  *
  * PUBLIC: int __heap_addrem_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_addrem_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -94,7 +94,7 @@ out:    if(pagep != NULL)
  *	Recovery function for pg_alloc.
  *
  * PUBLIC: int __heap_pg_alloc_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_pg_alloc_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -245,7 +245,7 @@ out:
  *	Recovery function for trunc_meta.
  *
  * PUBLIC: int __heap_trunc_meta_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_trunc_meta_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -304,7 +304,7 @@ out:    if(pagep != NULL)
  *	Recovery function for trunc_page.
  *
  * PUBLIC: int __heap_trunc_page_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_trunc_page_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -359,7 +359,7 @@ out:    if(pagep != NULL)
  *	Recovery function for addrem.
  *
  * PUBLIC: int __heap_addrem_60_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_addrem_60_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -462,7 +462,7 @@ out:    if(pagep != NULL)
  *	Recovery function for addrem.
  *
  * PUBLIC: int __heap_addrem_50_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_addrem_50_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

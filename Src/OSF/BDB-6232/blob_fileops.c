@@ -23,30 +23,24 @@
  */
 int __blob_file_create(DBC *dbc, DB_FH ** fhpp, db_seq_t * blob_id)
 {
-	DB  * dbp;
-	DB_FH * fhp;
-	ENV * env;
+	DB_FH * fhp = 0;
 	int ret;
-	char * ppath;
-	const char * dir;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	fhp = *fhpp = NULL;
-	ppath = NULL;
-	dir = NULL;
+	char * ppath = 0;
+	const char * dir = 0;
+	DB  * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	*fhpp = NULL;
 	DB_ASSERT(env, !DB_IS_READONLY(dbc->dbp));
 	if((ret = __blob_generate_id(dbp, dbc->txn, blob_id)) != 0)
 		goto err;
 	if((ret = __blob_id_to_path(env, dbp->blob_sub_dir, *blob_id, &ppath, 1)) != 0)
 		goto err;
-
 	if((ret = __fop_create(env, dbc->txn, &fhp, ppath, &dir, DB_APP_BLOB, env->db_mode, (F_ISSET(dbc->dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0))) != 0) {
 		__db_errx(env, DB_STR_A("0228", "Error creating external file: %llu.", "%llu"), (unsigned long long)*blob_id);
 		goto err;
 	}
 err:    
-	if(ppath != NULL)
-		__os_free(env, ppath);
+	__os_free(env, ppath);
 	if(ret == 0)
 		*fhpp = fhp;
 	return ret;
@@ -103,10 +97,8 @@ int __blob_file_delete(DBC *dbc, db_seq_t blob_id)
 		goto err;
 	}
 err:    
-	if(blob_name != NULL)
-		__os_free(env, blob_name);
-	if(full_path != NULL)
-		__os_free(env, full_path);
+	__os_free(env, blob_name);
+	__os_free(env, full_path);
 	return ret;
 }
 /*
@@ -144,10 +136,8 @@ int __blob_file_open(DB *dbp, DB_FH ** fhpp, db_seq_t blob_id, uint32 flags, int
 		goto err;
 	}
 err:    
-	if(path != NULL)
-		__os_free(env, path);
-	if(ppath != NULL)
-		__os_free(env, ppath);
+	__os_free(env, path);
+	__os_free(env, ppath);
 	return ret;
 }
 /*
@@ -263,7 +253,6 @@ int __blob_file_write(DBC *dbc, DB_FH * fhp, DBT * buf, off_t offset, db_seq_t b
 	if((offset + (off_t)buf->size) > size)
 		*file_size = offset + (off_t)buf->size;
 err:    
-	if(name != NULL)
-		__os_free(env, name);
+	__os_free(env, name);
 	return ret;
 }

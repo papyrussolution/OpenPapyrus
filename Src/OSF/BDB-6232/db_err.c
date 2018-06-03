@@ -14,7 +14,7 @@
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
 #if defined(HAVE_ERROR_HISTORY)
-	static void __db_thread_once_func __P((void));
+	static void __db_thread_once_func(void);
 	static void __db_deferred_free __P((void *));
 #endif
 /*
@@ -167,7 +167,7 @@ void __env_panic_event(ENV *env, int errval)
  * __env_panic_msg --
  *	Report that we noticed a panic which had been set somewhere else.
  *
- * PUBLIC: int __env_panic_msg __P((ENV *));
+ * PUBLIC: int __env_panic_msg(ENV *);
  */
 int __env_panic_msg(ENV *env)
 {
@@ -217,7 +217,7 @@ int __env_panic(ENV *env, int errval)
  * db_strerror --
  *	ANSI C strerror(3) for DB.
  *
- * EXTERN: char *db_strerror __P((int));
+ * EXTERN: char *db_strerror(int);
  */
 char * db_strerror(int error)
 {
@@ -278,7 +278,7 @@ char * db_strerror(int error)
  * __db_unknown_error --
  *	Format an unknown error value into a static buffer.
  *
- * PUBLIC: char *__db_unknown_error __P((int));
+ * PUBLIC: char *__db_unknown_error(int);
  */
 char * __db_unknown_error(int error)
 {
@@ -816,7 +816,7 @@ int __db_txn_deadlock_err(ENV *env, DB_TXN * txn)
  * __db_not_txn_env --
  *	DB handle must be in an environment that supports transactions.
  *
- * PUBLIC: int __db_not_txn_env __P((ENV *));
+ * PUBLIC: int __db_not_txn_env(ENV *);
  */
 int __db_not_txn_env(ENV *env)
 {
@@ -854,7 +854,7 @@ int __db_rec_repl(ENV *env, uint32 data_size, uint32 data_dlen)
  * __dbc_logging --
  *	In DIAGNOSTIC mode, check for bad replication combinations.
  *
- * PUBLIC: int __dbc_logging __P((DBC *));
+ * PUBLIC: int __dbc_logging(DBC *);
  */
 int __dbc_logging(DBC *dbc)
 {
@@ -1023,7 +1023,7 @@ static void __db_thread_once_func()
  *	deferring any messages.
  *
  * PUBLIC: #ifdef HAVE_ERROR_HISTORY
- * PUBLIC: void __db_thread_init __P((void));
+ * PUBLIC: void __db_thread_init(void);
  * PUBLIC: #endif
  */
 void __db_thread_init()
@@ -1061,7 +1061,7 @@ int err;
  *	Get this thread's deferred DB_MSGBUF, possibly allocating it.
  *
  * PUBLIC: #ifdef HAVE_ERROR_HISTORY
- * PUBLIC: DB_MSGBUF *__db_deferred_get __P((void));
+ * PUBLIC: DB_MSGBUF *__db_deferred_get(void);
  * PUBLIC: #endif
  */
 DB_MSGBUF * __db_deferred_get()
@@ -1084,7 +1084,7 @@ DB_MSGBUF * __db_deferred_get()
  *	Discard any saved-up deferred messages, at e.g. the end of the command.
  *
  * PUBLIC: #ifdef HAVE_ERROR_HISTORY
- * PUBLIC: void __db_deferred_discard __P((void));
+ * PUBLIC: void __db_deferred_discard(void);
  * PUBLIC: #endif
  */
 void __db_deferred_discard()

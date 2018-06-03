@@ -17,7 +17,7 @@ static int __mutex_failchk_single __P((ENV *, db_mutex_t, DB_THREAD_INFO *));
  *	Clean up after dead processes which left behind allocated per-process or
  *	locked mutexes.
  *
- * PUBLIC: int __mutex_failchk __P((ENV *));
+ * PUBLIC: int __mutex_failchk(ENV *);
  */
 int __mutex_failchk(ENV *env)
 {

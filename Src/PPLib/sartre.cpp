@@ -229,6 +229,35 @@ int SrWordForm::SetTag(int tag, int val, int mode)
 	return ok;
 }
 
+uint SrWordForm::GetTagCount() const
+{
+	uint   c = 0;
+	if(P_Buf)
+		for(size_t p = 0; P_Buf[p]; p = Step(p))
+			c++;
+	return c;
+}
+
+int FASTCALL SrWordForm::GetTagByIdx(uint idx, int * pTag, int * pVal) const
+{
+	int    ok = 0;
+	int    tag = 0;
+	int    val = 0;
+	if(P_Buf) {
+		uint   c = 0;
+		for(size_t p = 0; !ok && P_Buf[p]; p = Step(p)) {
+			if(c++ == idx) {
+				tag = Tag(p);
+				val = Get(p);
+				ok = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pTag, tag);
+	ASSIGN_PTR(pVal, val);
+	return ok;
+}
+
 int FASTCALL SrWordForm::GetTag(int tag) const
 {
 	int    ret = 0;
@@ -910,7 +939,8 @@ struct SrConcept_SurrogatePrefix {
 
 static const SrConcept_SurrogatePrefix SrConcept_SurrogatePrefix_List[] = {
 	{ SrConcept::surrsymbsrcFIAS, "fias" },
-	{ SrConcept::surrsymbsrcGBIF, "gbif" }
+	{ SrConcept::surrsymbsrcGBIF, "gbif" },
+	{ SrConcept::surrsymbsrcTICKER, "tckr" }
 };
 
 static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
@@ -941,6 +971,12 @@ int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint
 	else if(surrsymbpfx == surrsymbsrcGBIF) {
 		if(pData && dataSize == sizeof(uint32)) {
 			rSymb.Cat(p_prefix).Cat(*(uint32 *)pData);
+		}
+	}
+	else if(surrsymbpfx == surrsymbsrcTICKER) {
+		if(pData && dataSize >= 2 && dataSize <= 64) {
+			rSymb.Cat(p_prefix).CatN((const char *)pData, dataSize);
+			assert(rSymb.Len() == (sstrlen(p_prefix) + dataSize));
 		}
 	}
 	return ok;

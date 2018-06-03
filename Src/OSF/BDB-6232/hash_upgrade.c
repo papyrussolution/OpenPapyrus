@@ -83,13 +83,10 @@ int __ham_30_hashmeta(DB *dbp, char * real_name, uint8 * obuf)
 	/* Replace the unique ID. */
 	if((ret = __os_fileid(env, real_name, 1, newmeta.dbmeta.uid)) != 0)
 		return ret;
-
 	/* Overwrite the original. */
 	memcpy(oldmeta, &newmeta, sizeof(newmeta));
-
 	return 0;
 }
-
 /*
  * __ham_30_sizefix --
  *	Make sure that all hash pages belonging to the current
@@ -128,22 +125,18 @@ int __ham_30_sizefix(DB *dbp, DB_FH * fhp, char * realname, uint8 * metabuf)
 	 * a zeroed page where last_desired would go.
 	 */
 	if(last_desired > last_actual) {
-		if((ret = __os_seek(
-			    env, fhp, last_desired, pagesize, 0)) != 0)
+		if((ret = __os_seek(env, fhp, last_desired, pagesize, 0)) != 0)
 			return ret;
 		if((ret = __os_write(env, fhp, buf, pagesize, &nw)) != 0)
 			return ret;
 	}
-
 	return 0;
 }
-
 /*
  * __ham_31_hashmeta --
  *	Upgrade the database from version 6 to version 7.
  *
- * PUBLIC: int __ham_31_hashmeta
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_31_hashmeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_31_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
@@ -171,24 +164,19 @@ int __ham_31_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
 	newmeta->dbmeta.record_count = 0;
 	newmeta->dbmeta.key_count = 0;
 	ZERO_LSN(newmeta->dbmeta.unused3);
-
 	/* Update the version. */
 	newmeta->dbmeta.version = 7;
-
 	/* Upgrade the flags. */
 	if(LF_ISSET(DB_DUPSORT))
 		F_SET(&newmeta->dbmeta, HASHM_DUPSORT);
-
 	*dirtyp = 1;
 	return 0;
 }
-
 /*
  * __ham_31_hash --
  *	Upgrade the database hash leaf pages.
  *
- * PUBLIC: int __ham_31_hash
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_31_hash __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_31_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
@@ -203,26 +191,21 @@ int __ham_31_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
 		if(HPAGE_PTYPE(hk) == H_OFFDUP) {
 			memcpy(&pgno, HOFFDUP_PGNO(hk), sizeof(db_pgno_t));
 			tpgno = pgno;
-			if((ret = __db_31_offdup(dbp, real_name, fhp,
-			    LF_ISSET(DB_DUPSORT) ? 1 : 0, &tpgno)) != 0)
+			if((ret = __db_31_offdup(dbp, real_name, fhp, LF_ISSET(DB_DUPSORT) ? 1 : 0, &tpgno)) != 0)
 				break;
 			if(pgno != tpgno) {
 				*dirtyp = 1;
-				memcpy(HOFFDUP_PGNO(hk),
-				    &tpgno, sizeof(db_pgno_t));
+				memcpy(HOFFDUP_PGNO(hk), &tpgno, sizeof(db_pgno_t));
 			}
 		}
 	}
-
 	return ret;
 }
-
 /*
  * __ham_46_hashmeta --
  *	Upgrade the database from version 8 to version 9.
  *
- * PUBLIC: int __ham_46_hashmeta
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_46_hashmeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_46_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
@@ -243,8 +226,7 @@ int __ham_46_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
  *	From version 8 databases to version 9.
  *	Involves sorting leaf pages, no format change.
  *
- * PUBLIC: int __ham_46_hash
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_46_hash __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_46_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
@@ -266,8 +248,7 @@ int __ham_46_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h
  * __ham_60_hashmeta--
  *	Upgrade the version number.
  *
- * PUBLIC: int __ham_60_hashmeta
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_60_hashmeta __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_60_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
@@ -285,8 +266,7 @@ int __ham_60_hashmeta(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE
  * __ham_60_hash --
  *	Upgrade the blob records on the database hash leaf pages.
  *
- * PUBLIC: int __ham_60_hash
- * PUBLIC:      __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
+ * PUBLIC: int __ham_60_hash __P((DB *, char *, uint32, DB_FH *, PAGE *, int *));
  */
 int __ham_60_hash(DB *dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {

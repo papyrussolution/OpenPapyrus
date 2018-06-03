@@ -27,8 +27,8 @@
 static void __rep_cmp_vote __P((ENV *, REP *, int, DB_LSN *, uint32, uint32, uint32, uint32, uint32));
 static int __rep_elect_init __P((ENV *, uint32, uint32, int *, uint32 *));
 static int __rep_fire_elected __P((ENV *, REP *, uint32));
-static void __rep_elect_master __P((ENV *, REP *));
-static int __rep_grow_sites __P((ENV *, uint32));
+static void __rep_elect_master(ENV *, REP *);
+static int __rep_grow_sites(ENV *, uint32);
 static void __rep_send_vote __P((ENV *, DB_LSN *, uint32,
     uint32, uint32, uint32, uint32, uint32, int,
     uint32, uint32));

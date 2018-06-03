@@ -2683,7 +2683,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						case 28: entry.TaxonConceptID = temp_buf; break;
 						case 29: entry.ScientificNameID = temp_buf; break;
 						case 30: entry.References = temp_buf; break;
-						case 31: entry.IsExtinct = temp_buf.IsEqiAscii("true") ? 1 : 0; break;
+						case 31: entry.IsExtinct = BIN(temp_buf.IsEqiAscii("true")); break;
 					}
 				}
 				CONCEPTID cid_instance_of = 0;
@@ -2730,9 +2730,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					cid_instance_of = cid_biotaxonomy_kingdom;
 					name_buf = entry.ScientificName;
 				}
-				else {
+				else
 					temp_buf = "undefinstance";
-				}
 				if(_phase == phasePreprocess) {
 					total_line_count++;
 					if(entry.TaxonID) {
@@ -3049,9 +3048,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	Entry entry;
 	SString src_file_name;
 	(src_file_name = P.SrcPath).SetLastSlash().Cat(pFileName); // utf-8
-
 	// 
-
 	SPathStruc ps(src_file_name);
 	ps.Nam.CatChar('-').Cat(pExchangeSymb);
 	ps.Ext = "txt";
@@ -3060,140 +3057,284 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	SFile f_in(src_file_name, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 	{
-		CONCEPTID cid_genusrerum = 0;
+		SString exchange_symb;
+		uint   line_count = 0;
+		CONCEPTID cid_genusrerum = 0; // форма собственности предприятия
+		CONCEPTID cid_sector = 0;     //:negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
+		CONCEPTID cid_indust = 0;    //:negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии 
+		CONCEPTID cid_ripae = 0; // класс "банк" (::negotiumtaxonomy_coeptis)
+		CONCEPTID cid_commutationem = 0; // класс "биржа" (::negotium_coeptis_commutationem)
+		CONCEPTID cid_coeptis = 0; // класс "предприятие"
+		CONCEPTID cid_ticker = 0;
+		CONCEPTID cid_exchange = 0;
+		const CONCEPTID prop_instance = rDb.GetReservedConcept(rDb.rcInstance);
+		const CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
+		SrNGram ng;
+		SrWordForm wf_pattern_en;
+		SrCPropList prop_list;
+		Int64Array _clist;
 		STokenizer::Item titem;
+		STokenizer::ResultPosition rp;
+		STokenizer::ResultPosition last_rp;
 		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim|STokenizer::fDivAlNum, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" здесь не является разделителем
 		THROW(rDb.SearchConcept("negotiumtaxonomy_genusrerum", &cid_genusrerum));
-		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
-			if(line_no > 1) {
-				line_buf.Chomp().Strip();
-				SStrScan scan(line_buf);
-				uint   fld_no = 0;
-				entry.Z();
-				while(scan.GetQuotedString(temp_buf)) {
-					fld_no++;
-					temp_buf.Strip();
-					if(temp_buf.IsEqiAscii("n/a"))
-						temp_buf.Z();
-					switch(fld_no) {
-						case 1: entry.Ticker = temp_buf; break;
-						case 2: entry.Name = temp_buf; break;
-						case 3: entry.LastSaleQuote = temp_buf.ToReal(); break;
-						case 4: entry.MarketCap = temp_buf.ToReal(); break;
-						case 5: break; // adr tso
-						case 6: entry.IPOYear = temp_buf.ToLong(); break;
-						case 7: entry.Sector = temp_buf; break;
-						case 8: entry.Industry = temp_buf; break;
-						case 9: break; // summary quote
+		THROW(rDb.SearchConcept("negotiumtaxonomy_sector", &cid_sector));
+		THROW(rDb.SearchConcept("negotiumtaxonomy_industria", &cid_indust));
+		THROW(rDb.SearchConcept("negotiumtaxonomy_coeptis", &cid_coeptis));
+		THROW(rDb.SearchConcept("negotium_coeptis_ripae", &cid_ripae));
+		THROW(rDb.SearchConcept("negotium_coeptis_commutationem", &cid_commutationem));
+		THROW(rDb.SearchConcept("stockticker", &cid_ticker));
+		cid_exchange = rDb.TryOneWordForConcept((exchange_symb = pExchangeSymb).Utf8ToLower(), cid_commutationem, rDb.tryconceptGeneric);
+		THROW(cid_exchange);
+		wf_pattern_en.SetTag(SRWG_LANGUAGE, slangEN);
+		{
+			for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
+				line_count++;
+			}
+			f_in.Seek(0);
+		}
+		{
+			BDbTransaction tra(rDb.P_Db, 1);
+			THROW(tra);
+			for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
+				if(line_no > 1) {
+					line_buf.Chomp().Strip();
+					SStrScan scan(line_buf);
+					uint   fld_no = 0;
+					CONCEPTID inst_sector_cid = 0;
+					CONCEPTID inst_indust_cid = 0;
+					entry.Z();
+					while(scan.GetQuotedString(temp_buf)) {
+						fld_no++;
+						temp_buf.Strip();
+						if(temp_buf.IsEqiAscii("n/a"))
+							temp_buf.Z();
+						switch(fld_no) {
+							case 1: entry.Ticker = temp_buf; break;
+							case 2: entry.Name = temp_buf; break;
+							case 3: entry.LastSaleQuote = temp_buf.ToReal(); break;
+							case 4: entry.MarketCap = temp_buf.ToReal(); break;
+							case 5: break; // adr tso
+							case 6: entry.IPOYear = temp_buf.ToLong(); break;
+							case 7: entry.Sector = temp_buf; break;
+							case 8: entry.Industry = temp_buf; break;
+							case 9: break; // summary quote
+						}
+						if(!scan.IncrChr(','))
+							break;
 					}
-					if(!scan.IncrChr(','))
-						break;
-				}
-				InnerMethods::AddFactorToSymbHash(entry.Sector, sht, sector_list, last_symb_id);
-				InnerMethods::AddFactorToSymbHash(entry.Industry, sht, industry_list, last_symb_id);
-				{
-					line_out_buf.Z().Cat(entry.Ticker);
+					entry.Ticker.Utf8ToLower();
+					entry.Sector.Utf8ToLower();
+					entry.Industry.Utf8ToLower();
+					InnerMethods::AddFactorToSymbHash(entry.Sector, sht, sector_list, last_symb_id);
+					InnerMethods::AddFactorToSymbHash(entry.Industry, sht, industry_list, last_symb_id);
 					uint   idx_first = 0;
 					uint   idx_count = 0;
-					entry.Name.Utf8ToLower();
-					entry.Name.Decode_XMLENT(temp_buf);
-					if(temp_buf.CmpSuffix("(the)", 1) == 0) {
-						(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
-					}
-					else if(temp_buf.CmpSuffix("(th", 1) == 0) { // иногда встречается такая ошибка в исходном тексте
-						(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
-					}
-					else
-						entry.Name = temp_buf;
-					tknz.Reset(0);
-					tknz.RunSString(0, 0, entry.Name, &idx_first, &idx_count);
-					line_out_buf.Tab();
-					uint   out_tok_n = 0;
-					for(uint tidx = 0; tidx < idx_count; tidx++) {
-						if(tknz.Get(idx_first+tidx, titem)) {
-							if(titem.Token == tknz.tokWord) {
-								if(out_tok_n)
-									line_out_buf.CatChar('|');
-								line_out_buf.Cat(titem.Text);
-								out_tok_n++;
+					if(entry.Sector.NotEmpty()) {
+						idx_first = 0;
+						idx_count = 0;
+						tknz.Reset(0).RunSString(0, 0, entry.Sector, &idx_first, &idx_count);
+						const int gngftr = rDb.ResolveNgFromTokenizer(tknz, idx_first, idx_count, &wf_pattern_en, 0, ng);
+						THROW(gngftr);
+						if(gngftr > 0) {
+							assert(ng.ID != 0);
+							inst_sector_cid = rDb.TryNgForConcept(ng.ID, cid_sector, rDb.tryconceptInstance);
+							if(!inst_sector_cid) {
+								THROW(rDb.CreateAnonymConcept(&inst_sector_cid));
+								THROW(rDb.P_CNgT->Set(inst_sector_cid, ng.ID));
+								THROW(rDb.SetConceptProp(inst_sector_cid, prop_instance, 0, cid_sector));
 							}
-							else if(titem.Token == tknz.tokDelim) {
-								if(titem.Text != " " && titem.Text != "\t") {
+						}
+					}
+					if(entry.Industry.NotEmpty()) {
+						idx_first = 0;
+						idx_count = 0;
+						tknz.Reset(0).RunSString(0, 0, entry.Industry, &idx_first, &idx_count);
+						const int gngftr = rDb.ResolveNgFromTokenizer(tknz, idx_first, idx_count, &wf_pattern_en, 0, ng);
+						THROW(gngftr);
+						if(gngftr > 0) {
+							assert(ng.ID != 0);
+							inst_indust_cid = rDb.TryNgForConcept(ng.ID, cid_indust, rDb.tryconceptInstance);
+							if(!inst_indust_cid) {
+								CONCEPTID indust_to_sect_cid = 0;
+								THROW(rDb.CreateAnonymConcept(&inst_indust_cid));
+								THROW(rDb.P_CNgT->Set(inst_indust_cid, ng.ID));
+								THROW(rDb.SetConceptProp(inst_indust_cid, prop_instance, 0, cid_indust));
+								if(inst_sector_cid) {
+									if(rDb.GetConceptPropList(inst_indust_cid, prop_list) > 0) {
+										SrCProp cp;
+										if(prop_list.Get(inst_indust_cid, prop_subclass, cp)) {
+											if(cp.Get(indust_to_sect_cid)) {
+												if(indust_to_sect_cid == inst_sector_cid) {
+													; // ok
+												}
+												else {
+													; // ambiguity
+												}
+											}
+										}
+									}
+									if(!indust_to_sect_cid) {
+										THROW(rDb.SetConceptProp(inst_indust_cid, prop_subclass, 0, inst_sector_cid));
+									}
+								}
+							}
+						}
+					}
+					{
+						line_out_buf.Z().Cat(entry.Ticker);
+						entry.Name.Utf8ToLower();
+						entry.Name.Decode_XMLENT(temp_buf);
+						if(temp_buf.CmpSuffix("(the)", 1) == 0) {
+							(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-5).Strip());
+						}
+						else if(temp_buf.CmpSuffix("(th", 1) == 0) { // иногда встречается такая ошибка в исходном тексте
+							(entry.Name = "the").Space().Cat(temp_buf.Trim(temp_buf.Len()-3).Strip());
+						}
+						else
+							entry.Name = temp_buf;
+						idx_first = 0;
+						idx_count = 0;
+						tknz.Reset(0).RunSString(0, 0, entry.Name, &idx_first, &idx_count);
+						line_out_buf.Tab();
+						uint   out_tok_n = 0;
+						for(uint tidx = 0; tidx < idx_count; tidx++) {
+							if(tknz.Get(idx_first+tidx, titem)) {
+								if(titem.Token == tknz.tokWord) {
 									if(out_tok_n)
 										line_out_buf.CatChar('|');
 									line_out_buf.Cat(titem.Text);
 									out_tok_n++;
 								}
-							}
-						}
-					}
-					//
-					{
-						STokenizer::ResultPosition rp;
-						STokenizer::ResultPosition last_rp;
-						CONCEPTID last_fc = 0;
-						CONCEPTID fc = 0;
-						uint   srch_idx_first = idx_first;
-						uint   srch_idx_count = idx_count;
-						do {
-							fc = rDb.SearchConceptInTokenizer(cid_genusrerum, tknz, srch_idx_first, srch_idx_count, SrDatabase::tryconceptGeneric, rp);
-							if(fc) {
-								line_out_buf.Cat(" --- ");
-								for(uint tj = rp.Start; tj < rp.Start+rp.Count; tj++) {
-									if(tknz.Get(tj, titem)) {
+								else if(titem.Token == tknz.tokDelim) {
+									if(titem.Text != " " && titem.Text != "\t") {
+										if(out_tok_n)
+											line_out_buf.CatChar('|');
 										line_out_buf.Cat(titem.Text);
+										out_tok_n++;
 									}
 								}
-								line_out_buf.CatChar('(').Cat(fc).CatChar(')');
-								last_fc = fc;
-								last_rp = rp;
-								if((rp.Start+rp.Count) == (idx_first+idx_count)) // искомая форма собственности - в конце строки: можно заканчивать.
-									fc = 0;
-								else {
-									srch_idx_count = idx_count - (srch_idx_first-idx_first+1);
-									srch_idx_first = rp.Start+1;
-								}
 							}
-						} while(fc);
+						}
+						//
 						{
-							uint final_idx_first = idx_first;
-							uint final_idx_count = idx_count;
-							if(last_fc) {
-								final_idx_count = (last_rp.Start - idx_first);
-								while(final_idx_count && tknz.Get(idx_first+final_idx_count-1, titem)) {
-									if(titem.Text == "," || titem.Text == " " || titem.Text == "\t")
-										final_idx_count--;
-									else
-										break;
-								}
-							}
-							line_out_buf.Cat(" !final[");
-							if(final_idx_count) {
-								for(uint tj = final_idx_first; tj < final_idx_first+final_idx_count; tj++) {
-									if(tknz.Get(tj, titem)) {
-										line_out_buf.Cat(titem.Text);
+							CONCEPTID ent_cid = 0; // ид концепции, соответствующей предприятию
+							CONCEPTID instance_of_cid = 0;
+							CONCEPTID last_fc = 0;
+							CONCEPTID fc = 0;
+							uint   srch_idx_first = idx_first;
+							uint   srch_idx_count = idx_count;
+							do {
+								fc = rDb.SearchConceptInTokenizer(cid_genusrerum, tknz, srch_idx_first, srch_idx_count, SrDatabase::tryconceptGeneric, rp);
+								if(fc) {
+									line_out_buf.Cat(" --- ");
+									for(uint tj = rp.Start; tj < rp.Start+rp.Count; tj++) {
+										if(tknz.Get(tj, titem)) {
+											line_out_buf.Cat(titem.Text);
+										}
+									}
+									line_out_buf.CatChar('(').Cat(fc).CatChar(')');
+									last_fc = fc;
+									last_rp = rp;
+									if((rp.Start+rp.Count) == (idx_first+idx_count)) // искомая форма собственности - в конце строки: можно заканчивать.
+										fc = 0;
+									else {
+										srch_idx_count = idx_count - (srch_idx_first-idx_first+1);
+										srch_idx_first = rp.Start+1;
 									}
 								}
+							} while(fc);
+							{
+								uint final_idx_first = idx_first;
+								uint final_idx_count = idx_count;
+								if(last_fc) {
+									final_idx_count = (last_rp.Start - idx_first);
+									while(final_idx_count && tknz.Get(idx_first+final_idx_count-1, titem)) {
+										if(titem.Text == "," || titem.Text == " " || titem.Text == "\t")
+											final_idx_count--;
+										else
+											break;
+									}
+								}
+								line_out_buf.Cat(" !final[");
+								if(final_idx_count) {
+									for(uint tj = final_idx_first; tj < final_idx_first+final_idx_count; tj++) {
+										if(tknz.Get(tj, titem)) {
+											line_out_buf.Cat(titem.Text);
+										}
+									}
+									if(entry.Industry.IsEqiAscii("banks") || entry.Industry.IsEqiAscii("commercial banks") || entry.Industry.IsEqiAscii("major banks"))
+										instance_of_cid = cid_ripae;
+									else
+										instance_of_cid = cid_coeptis;
+									if(instance_of_cid) {
+										const int gngftr = rDb.ResolveNgFromTokenizer(tknz, final_idx_first, final_idx_count, 0, rDb.rngftoSkipDotAfterWord, ng);
+										THROW(gngftr);
+										if(gngftr > 0) {
+											assert(ng.ID != 0);
+											ent_cid = rDb.TryNgForConcept(ng.ID, instance_of_cid, rDb.tryconceptGeneric);
+											if(!ent_cid) {
+												THROW(rDb.CreateAnonymConcept(&ent_cid));
+												THROW(rDb.P_CNgT->Set(ent_cid, ng.ID));
+												THROW(rDb.SetConceptProp(ent_cid, prop_instance, 0, instance_of_cid));
+												if(last_fc) {
+													THROW(rDb.SetConceptProp(ent_cid, cid_genusrerum, 0, last_fc));
+												}
+												if(inst_indust_cid)
+													THROW(rDb.SetConceptProp(ent_cid, cid_indust, 0, inst_indust_cid));
+											}
+										}
+									}
+								}
+								line_out_buf.Cat("]");
 							}
-							line_out_buf.Cat("]");
+							if(ent_cid) {
+								SString concept_symb_buf;
+								temp_buf.Z().Cat(exchange_symb).CatChar('_').Cat(entry.Ticker);
+								SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcTICKER, temp_buf.cptr(), temp_buf.Len(), concept_symb_buf);
+								CONCEPTID tk_cid_ = rDb.TryOneWordForConcept(entry.Ticker, cid_ticker, rDb.tryconceptInstance);
+								CONCEPTID tk_cid_by_symb = 0;
+								const int rcr = rDb.ResolveConcept(concept_symb_buf, &tk_cid_by_symb);
+								THROW(rcr);
+								assert(tk_cid_by_symb);
+								if(tk_cid_ && tk_cid_ != tk_cid_by_symb) {
+									; // something went wrong!
+								}
+								if(rcr > 1) {
+									NGID   ng_id = 0;
+									LEXID  tk_word_id = 0;
+									THROW(rDb.ResolveWord(entry.Ticker, &tk_word_id));
+									assert(tk_word_id);
+									ng.Z().WordIdList.add(tk_word_id);
+									THROW(rDb.ResolveNGram(ng.WordIdList, &ng_id));
+									assert(ng_id);
+									THROW(rDb.P_CNgT->Set(tk_cid_by_symb, ng_id));
+									//
+									THROW(rDb.SetConceptProp(tk_cid_by_symb, prop_instance, 0, cid_ticker));
+									THROW(rDb.SetConceptProp(tk_cid_by_symb, cid_commutationem, 0, cid_exchange));
+									THROW(rDb.SetConceptProp(tk_cid_by_symb, cid_coeptis, 0, ent_cid));
+								}
+							}
 						}
+						f_debug_out.WriteLine(line_out_buf.CR());
 					}
-					f_debug_out.WriteLine(line_out_buf.CR());
 				}
+				PPWaitPercent(line_no+1, line_count, (temp_buf = "Tickers").CatParStr(exchange_symb));
 			}
-		}
-		{
-			sector_list.sortAndUndup();
-			industry_list.sortAndUndup();
+			THROW(tra.Commit(1));
 			{
-				sht.BuildAssoc();
-				SPathStruc ps(src_file_name);
-				ps.Nam.CatChar('-').Cat("stat");
-				ps.Merge(temp_buf);
-				SFile f_out(temp_buf, SFile::mWrite);
-				//
-				InnerMethods::WriteFactorList(f_out, "Sector", sht, sector_list, line_buf);
-				InnerMethods::WriteFactorList(f_out, "Industry", sht, industry_list, line_buf);
+				sector_list.sortAndUndup();
+				industry_list.sortAndUndup();
+				{
+					sht.BuildAssoc();
+					SPathStruc ps(src_file_name);
+					ps.Nam.CatChar('-').Cat("stat");
+					ps.Merge(temp_buf);
+					SFile f_out(temp_buf, SFile::mWrite);
+					//
+					InnerMethods::WriteFactorList(f_out, "Sector", sht, sector_list, line_buf);
+					InnerMethods::WriteFactorList(f_out, "Industry", sht, industry_list, line_buf);
+				}
 			}
 		}
 	}

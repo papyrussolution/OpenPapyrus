@@ -18,12 +18,12 @@
 #include "dbinc/partition.h"
 
 #ifdef HAVE_STATISTICS
-static int __db_print_all __P((DB *, uint32));
-static int __db_print_citem __P((DBC *));
-static int __db_print_cursor __P((DB *));
+static int __db_print_all(DB *, uint32);
+static int __db_print_citem(DBC *);
+static int __db_print_cursor(DB *);
 static int __db_print_stats __P((DB *, DB_THREAD_INFO *, uint32));
 static int __db_stat __P((DB *, DB_THREAD_INFO *, DB_TXN *, void *, uint32));
-static int __db_stat_arg __P((DB *, uint32));
+static int __db_stat_arg(DB *, uint32);
 
 /*
  * __db_stat_pp --
@@ -128,7 +128,7 @@ static int __db_stat_arg(DB *dbp, uint32 flags)
  * __db_stat_print_pp --
  *	DB->stat_print pre/post processing.
  *
- * PUBLIC: int __db_stat_print_pp __P((DB *, uint32));
+ * PUBLIC: int __db_stat_print_pp(DB *, uint32);
  */
 int __db_stat_print_pp(DB *dbp, uint32 flags)
 {

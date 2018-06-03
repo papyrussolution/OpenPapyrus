@@ -9,12 +9,11 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static REPMGR_MESSAGE *available_work __P((ENV *));
-
+static REPMGR_MESSAGE * available_work(ENV *);
 /*
  * Deallocates memory used by all messages on the queue.
  *
- * PUBLIC: int __repmgr_queue_destroy __P((ENV *));
+ * PUBLIC: int __repmgr_queue_destroy(ENV *);
  */
 int __repmgr_queue_destroy(ENV *env)
 {
@@ -35,14 +34,11 @@ int __repmgr_queue_destroy(ENV *env)
 	 */
 	if(!STAILQ_EMPTY(&db_rep->input_queue.header) && !IS_SUBORDINATE(db_rep))
 		rep->inqueue_full_event_on = 1;
-
 	while(!STAILQ_EMPTY(&db_rep->input_queue.header)) {
 		m = STAILQ_FIRST(&db_rep->input_queue.header);
 		STAILQ_REMOVE_HEAD(&db_rep->input_queue.header, entries);
 		if(m->msg_hdr.type == REPMGR_APP_MESSAGE) {
-			if((conn = m->v.appmsg.conn) != NULL &&
-			    (t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 &&
-			    ret == 0)
+			if((conn = m->v.appmsg.conn) != NULL && (t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 && ret == 0)
 				ret = t_ret;
 		}
 		if(m->msg_hdr.type == REPMGR_OWN_MSG) {
@@ -52,24 +48,18 @@ int __repmgr_queue_destroy(ENV *env)
 				 * A site that removed itself may have already
 				 * closed its connections.
 				 */
-				if((t_ret = __repmgr_close_connection(env,
-				    conn)) != 0 && ret == 0 &&
-				    mtype != REPMGR_REMOVE_REQUEST)
+				if((t_ret = __repmgr_close_connection(env, conn)) != 0 && ret == 0 && mtype != REPMGR_REMOVE_REQUEST)
 					ret = t_ret;
-				if((t_ret = __repmgr_decr_conn_ref(env,
-				    conn)) != 0 && ret == 0)
+				if((t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 && ret == 0)
 					ret = t_ret;
 			}
 		}
 		__os_free(env, m);
 	}
-
 	return ret;
 }
-
 /*
- * PUBLIC: int __repmgr_queue_get __P((ENV *,
- * PUBLIC:     REPMGR_MESSAGE **, REPMGR_RUNNABLE *));
+ * PUBLIC: int __repmgr_queue_get __P((ENV *, REPMGR_MESSAGE **, REPMGR_RUNNABLE *));
  *
  * Get the first input message from the queue and return it to the caller.  The
  * caller hereby takes responsibility for the entire message buffer, and should
@@ -189,7 +179,6 @@ static REPMGR_MESSAGE * available_work(ENV *env)
 	}
 	return (NULL);
 }
-
 /*
  * PUBLIC: int __repmgr_queue_put __P((ENV *, REPMGR_MESSAGE *));
  *

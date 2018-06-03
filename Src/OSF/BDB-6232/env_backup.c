@@ -9,7 +9,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __env_backup_alloc __P((DB_ENV *));
+static int __env_backup_alloc(DB_ENV *);
 
 static int __env_backup_alloc(DB_ENV *dbenv)
 {

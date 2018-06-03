@@ -28,7 +28,7 @@ static int __db_qmeta __P((ENV *, DB *, QMETA *, uint32));
 static int __db_prblob __P((DBC *, DBT *, DBT *, int, const char *, void *, int (*callback)__P((void *, const void *)), int, int));
 static int __db_prblob_id __P((DB *, db_seq_t, off_t, DBT *, int, const char *, void *, int (*callback)__P((void *, const void *))));
 #ifdef HAVE_STATISTICS
-static void __db_prdb __P((DB *, uint32));
+static void __db_prdb(DB *, uint32);
 static int __db_prtree __P((DB *, DB_TXN *, uint32, db_pgno_t, db_pgno_t));
 #endif
 
@@ -134,7 +134,7 @@ static const FN __db_flags_fn[] = {
  * __db_get_flags_fn --
  *	Return the __db_flags_fn array.
  *
- * PUBLIC: const FN * __db_get_flags_fn __P((void));
+ * PUBLIC: const FN * __db_get_flags_fn(void);
  */
 const FN * __db_get_flags_fn()
 {
@@ -341,7 +341,7 @@ db_pgno_t first, last;
  * __db_get_flags_fn --
  *	Return the __db_flags_fn array.
  *
- * PUBLIC: const FN * __db_get_flags_fn __P((void));
+ * PUBLIC: const FN * __db_get_flags_fn(void);
  */
 const FN * __db_get_flags_fn()
 {
@@ -433,7 +433,7 @@ static void __db_meta(ENV * env, DB *dbp, DBMETA * dbmeta, FN const * fn, uint32
  *
  * Making this is a function reduces the number of global data symbols.
  *
- * PUBLIC: const FN *__db_get_bmeta_fn __P((void));
+ * PUBLIC: const FN *__db_get_bmeta_fn(void);
  */
 const FN * __db_get_bmeta_fn()
 {
@@ -457,7 +457,7 @@ const FN * __db_get_bmeta_fn()
  * __db_get_hmeta_fn --
  *	Return the address of the flag names array for hash metadata flags.
  *
- * PUBLIC: const FN *__db_get_hmeta_fn __P((void));
+ * PUBLIC: const FN *__db_get_hmeta_fn(void);
  */
 const FN * __db_get_hmeta_fn()
 {

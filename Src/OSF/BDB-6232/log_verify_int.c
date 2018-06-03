@@ -2076,7 +2076,7 @@ err:
 #ifdef HAVE_HEAP
 /*
  * PUBLIC: int __heap_addrem_verify
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_addrem_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -2098,7 +2098,7 @@ err:
 }
 /*
  * PUBLIC: int __heap_addrem_60_verify
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_addrem_60_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -2121,7 +2121,7 @@ err:
 
 /*
  * PUBLIC: int __heap_pg_alloc_verify
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_pg_alloc_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -2144,7 +2144,7 @@ err:
 
 /*
  * PUBLIC: int __heap_trunc_meta_verify
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_trunc_meta_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {
@@ -2167,7 +2167,7 @@ err:
 
 /*
  * PUBLIC: int __heap_trunc_page_verify
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __heap_trunc_page_verify(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, void * lvhp)
 {

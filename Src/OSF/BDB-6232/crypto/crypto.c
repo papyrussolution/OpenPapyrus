@@ -110,14 +110,13 @@ int __crypto_region_init(ENV *env)
  * __crypto_env_close --
  *	Crypto-specific destruction of ENV structure.
  *
- * PUBLIC: int __crypto_env_close __P((ENV *));
+ * PUBLIC: int __crypto_env_close(ENV *);
  */
 int __crypto_env_close(ENV *env)
 {
 	DB_CIPHER * db_cipher;
-	DB_ENV * dbenv;
 	int ret;
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	if(dbenv->passwd != NULL) {
 		__crypto_erase_passwd(env, &dbenv->passwd, &dbenv->passwd_len);
 	}
@@ -128,16 +127,14 @@ int __crypto_env_close(ENV *env)
 	if(!F_ISSET(db_cipher, CIPHER_ANY))
 		ret = db_cipher->close(env, db_cipher->data);
 	__os_free(env, db_cipher);
-
 	env->crypto_handle = NULL;
 	return ret;
 }
-
 /*
  * __crypto_env_refresh --
  *	Clean up after the crpto system on a close or failed open.
  *
- * PUBLIC: int __crypto_env_refresh __P((ENV *));
+ * PUBLIC: int __crypto_env_refresh(ENV *);
  */
 int __crypto_env_refresh(ENV *env)
 {

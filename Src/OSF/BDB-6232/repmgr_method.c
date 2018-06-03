@@ -30,7 +30,7 @@ static int join_group_at_site __P((ENV *, repmgr_netaddr_t *));
 static int kick_blockers __P((ENV *, REPMGR_CONNECTION *, void *));
 static int set_local_site __P((DB_SITE *, uint32));
 static int refresh_site __P((DB_SITE *));
-static int __repmgr_await_threads __P((ENV *));
+static int __repmgr_await_threads(ENV *);
 static int __repmgr_build_data_out __P((ENV *,
     DBT *, uint32, __repmgr_msg_metadata_args *, REPMGR_IOVECS **iovecsp));
 static int __repmgr_build_msg_out __P((ENV *,
@@ -507,7 +507,7 @@ err:
 }
 
 /*
- * PUBLIC: int __repmgr_valid_config __P((ENV *, uint32));
+ * PUBLIC: int __repmgr_valid_config(ENV *, uint32);
  */
 int __repmgr_valid_config(ENV *env, uint32 flags)
 {
@@ -529,7 +529,7 @@ int __repmgr_valid_config(ENV *env, uint32 flags)
  * mode.  Turn on 2SITE_STRICT and ELECTIONS.  Can be called whether or not
  * REP_ON() is true
  *
- * PUBLIC: int __repmgr_prefmas_auto_config __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __repmgr_prefmas_auto_config(DB_ENV *, uint32 *);
  */
 int __repmgr_prefmas_auto_config(DB_ENV *dbenv, uint32 * config_flags)
 {
@@ -720,7 +720,7 @@ out:    if(locked)
 }
 
 /*
- * PUBLIC: int __repmgr_autostart __P((ENV *));
+ * PUBLIC: int __repmgr_autostart(ENV *);
  *
  * Preconditions: rep_start() has been called; we're within an ENV_ENTER.
  */
@@ -766,7 +766,7 @@ out:
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_start_selector __P((ENV *));
+ * PUBLIC: int __repmgr_start_selector(ENV *);
  */
 int __repmgr_start_selector(ENV *env)
 {
@@ -794,7 +794,7 @@ int __repmgr_start_selector(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_close __P((ENV *));
+ * PUBLIC: int __repmgr_close(ENV *);
  *
  * Close repmgr during env close.  It stops repmgr, frees sites array and
  * its addresses.  Note that it is possible for the sites array to exist
@@ -830,7 +830,7 @@ int __repmgr_close(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_stop __P((ENV *));
+ * PUBLIC: int __repmgr_stop(ENV *);
  *
  * Stop repmgr either when closing the env or removing the current repmgr from
  * replication group.  It stops threads if necessary, frees resources allocated
@@ -1143,7 +1143,7 @@ void __repmgr_env_destroy(ENV *env, DB_REP * db_rep)
 	}
 }
 /*
- * PUBLIC: int __repmgr_stop_threads __P((ENV *));
+ * PUBLIC: int __repmgr_stop_threads(ENV *);
  *
  * Caller must hold mutex;
  */
@@ -2370,7 +2370,7 @@ static int repmgr_only(ENV *env, const char * method)
  * Attempts to join the replication group, by finding a remote "helper" site and
  * sending a request message to it.
  *
- * PUBLIC: int __repmgr_join_group __P((ENV *));
+ * PUBLIC: int __repmgr_join_group(ENV *);
  */
 int __repmgr_join_group(ENV *env)
 {

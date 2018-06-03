@@ -753,7 +753,7 @@ err:    /* Discard the cursor. */
  * __db_sync --
  *	Flush the database cache.
  *
- * PUBLIC: int __db_sync __P((DB *));
+ * PUBLIC: int __db_sync(DB *);
  */
 int __db_sync(DB *dbp)
 {
@@ -965,7 +965,7 @@ int __db_secondary_get(DB *sdbp, DB_TXN * txn, DBT * skey, DBT * data, uint32 fl
  *	manage refcounting and make sure we don't close them underneath
  *	a primary that is updating.
  *
- * PUBLIC: int __db_secondary_close __P((DB *, uint32));
+ * PUBLIC: int __db_secondary_close(DB *, uint32);
  */
 int __db_secondary_close(DB *sdbp, uint32 flags)
 {

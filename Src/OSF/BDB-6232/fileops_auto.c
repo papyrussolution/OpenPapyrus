@@ -157,7 +157,7 @@ DB_LOG_RECSPEC __fop_file_remove_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __fop_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __fop_init_recover(ENV *, DB_DISTAB *);
  */
 int __fop_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

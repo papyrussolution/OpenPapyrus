@@ -28,10 +28,10 @@
 	int isdigit(int);
 #endif
 #ifndef HAVE_ISPRINT
-int isprint __P((int));
+int isprint(int);
 #endif
 #ifndef HAVE_ISSPACE
-int isspace __P((int));
+int isspace(int);
 #endif
 #ifndef HAVE_MEMCMP
 int memcmp __P((const void *, const void *, size_t));
@@ -55,10 +55,10 @@ int vfprintf __P((FILE *, const char *, va_list));
 void qsort __P((void *, size_t, size_t, int(*)(const void *, const void *)));
 #endif
 #ifndef HAVE_RAISE
-int raise __P((int));
+int raise(int);
 #endif
 #ifndef HAVE_RAND
-int rand __P((void));
+int rand(void);
 void srand __P((unsigned int));
 #endif
 #ifndef HAVE_SNPRINTF
@@ -80,10 +80,10 @@ char *strcat __P((char *, const char *));
 char *strchr __P((const char *,  int));
 #endif
 #ifndef HAVE_STRDUP
-char *strdup __P((const char *));
+char *strdup(const char *);
 #endif
 #ifndef HAVE_STRERROR
-char *strerror __P((int));
+char *strerror(int);
 #endif
 #ifndef HAVE_STRNCAT
 char *strncat __P((char *, const char *, size_t));

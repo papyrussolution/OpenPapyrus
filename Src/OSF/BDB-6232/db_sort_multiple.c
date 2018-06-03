@@ -9,16 +9,13 @@
 #include "dbinc/db_page.h"
 #include "dbinc/btree.h"
 
-static int __db_quicksort __P((DB *, DBT *, DBT *, uint32 *, uint32 *,
-    uint32 *, uint32 *, uint32));
-
+static int __db_quicksort(DB *, DBT *, DBT *, uint32 *, uint32 *, uint32 *, uint32 *, uint32);
 /*
  * __db_compare_both --
  *	Use the comparison functions from db to compare akey and bkey, and if
  *	DB_DUPSORT adata and bdata.
  *
- * PUBLIC: int __db_compare_both __P((DB *, const DBT *, const DBT *,
- * PUBLIC:   const DBT *, const DBT *));
+ * PUBLIC: int __db_compare_both __P((DB *, const DBT *, const DBT *, const DBT *, const DBT *));
  */
 int __db_compare_both(DB *db, const DBT * akey, const DBT * adata, const DBT * bkey, const DBT * bdata)
 {

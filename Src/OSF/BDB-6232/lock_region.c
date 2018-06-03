@@ -48,7 +48,7 @@ static const uint8 db_cdb_conflicts[] = {
  * __lock_open --
  *	Internal version of lock_open: only called from ENV->open.
  *
- * PUBLIC: int __lock_open __P((ENV *));
+ * PUBLIC: int __lock_open(ENV *);
  */
 int __lock_open(ENV *env)
 {
@@ -301,7 +301,7 @@ mem_err:
  * __lock_env_refresh --
  *	Clean up after the lock system on a close or failed open.
  *
- * PUBLIC: int __lock_env_refresh __P((ENV *));
+ * PUBLIC: int __lock_env_refresh(ENV *);
  */
 int __lock_env_refresh(ENV *env)
 {
@@ -373,7 +373,7 @@ int __lock_region_detach(ENV *env, DB_LOCKTAB * lt)
  * __lock_region_mutex_count --
  *	Return the number of mutexes the lock region will need.
  *
- * PUBLIC: uint32 __lock_region_mutex_count __P((ENV *));
+ * PUBLIC: uint32 __lock_region_mutex_count(ENV *);
  */
 uint32 __lock_region_mutex_count(ENV *env)
 {
@@ -387,7 +387,7 @@ uint32 __lock_region_mutex_count(ENV *env)
  * __lock_region_mutex_max --
  *	Return the number of additional mutexes the lock region will need.
  *
- * PUBLIC: uint32 __lock_region_mutex_max __P((ENV *));
+ * PUBLIC: uint32 __lock_region_mutex_max(ENV *);
  */
 uint32 __lock_region_mutex_max(ENV *env)
 {
@@ -407,7 +407,7 @@ uint32 __lock_region_mutex_max(ENV *env)
 /*
  * __lock_region_max --
  *	Return the amount of extra memory to allocate for locking information.
- * PUBLIC: size_t __lock_region_max __P((ENV *));
+ * PUBLIC: size_t __lock_region_max(ENV *);
  */
 size_t __lock_region_max(ENV *env)
 {

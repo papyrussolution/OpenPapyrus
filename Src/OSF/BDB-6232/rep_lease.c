@@ -90,7 +90,7 @@ int __rep_update_grant(ENV *env, db_timespec * ts)
  *	Caller must hold the REP_SYSTEM (region) mutex, and (rep_elect) relies
  *      on us not dropping it.
  *
- * PUBLIC: int __rep_islease_granted __P((ENV *));
+ * PUBLIC: int __rep_islease_granted(ENV *);
  */
 int __rep_islease_granted(ENV *env)
 {
@@ -110,7 +110,7 @@ int __rep_islease_granted(ENV *env)
  * held.  We need to acquire the env region mutex, so we need to
  * make sure we never acquire those mutexes in the opposite order.
  *
- * PUBLIC: int __rep_lease_table_alloc __P((ENV *, uint32));
+ * PUBLIC: int __rep_lease_table_alloc(ENV *, uint32);
  */
 int __rep_lease_table_alloc(ENV *env, uint32 nsites)
 {
@@ -377,7 +377,7 @@ retry:
  *	leases.  That should not happen because the master should write
  *	a checkpoint when it starts, if there is no other perm record.
  *
- * PUBLIC: int __rep_lease_refresh __P((ENV *));
+ * PUBLIC: int __rep_lease_refresh(ENV *);
  */
 int __rep_lease_refresh(ENV *env)
 {
@@ -417,7 +417,7 @@ err:    if((t_ret = __logc_close(logc)) != 0 && ret == 0)
  *	Proactively expire all leases granted to us.
  * Assume the caller holds the REP_SYSTEM (region) mutex.
  *
- * PUBLIC: int __rep_lease_expire __P((ENV *));
+ * PUBLIC: int __rep_lease_expire(ENV *);
  */
 int __rep_lease_expire(ENV *env)
 {
@@ -450,7 +450,7 @@ int __rep_lease_expire(ENV *env)
  *	Return the amount of time remaining on a granted lease.
  * Assume the caller holds the REP_SYSTEM (region) mutex.
  *
- * PUBLIC: db_timeout_t __rep_lease_waittime __P((ENV *));
+ * PUBLIC: db_timeout_t __rep_lease_waittime(ENV *);
  */
 db_timeout_t __rep_lease_waittime(ENV *env)
 {

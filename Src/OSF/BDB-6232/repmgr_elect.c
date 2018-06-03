@@ -9,14 +9,14 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static db_timeout_t __repmgr_compute_response_time __P((ENV *));
+static db_timeout_t __repmgr_compute_response_time(ENV *);
 static int __repmgr_elect __P((ENV *, uint32, db_timespec *));
 static int __repmgr_elect_main __P((ENV *, DB_THREAD_INFO *, REPMGR_RUNNABLE *));
 static void * __repmgr_elect_thread __P((void *));
 /*
  * Starts an election thread.
  *
- * PUBLIC: int __repmgr_init_election __P((ENV *, uint32));
+ * PUBLIC: int __repmgr_init_election(ENV *, uint32);
  *
  * !!!
  * Caller must hold mutex.
@@ -600,7 +600,7 @@ static int __repmgr_elect(ENV *env, uint32 flags, db_timespec * failtimep)
 /*
  * Becomes master after we've won an election, if we can.
  *
- * PUBLIC: int __repmgr_claim_victory __P((ENV *));
+ * PUBLIC: int __repmgr_claim_victory(ENV *);
  */
 int __repmgr_claim_victory(ENV *env)
 {
@@ -617,7 +617,7 @@ int __repmgr_claim_victory(ENV *env)
  * in a state where we need an election (i.e., we would have started one
  * previously if elections hadn't been turned off), and if so start one.
  *
- * PUBLIC: int __repmgr_turn_on_elections __P((ENV *));
+ * PUBLIC: int __repmgr_turn_on_elections(ENV *);
  */
 int __repmgr_turn_on_elections(ENV *env)
 {

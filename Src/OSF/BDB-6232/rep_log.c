@@ -10,8 +10,8 @@
 #pragma hdrstop
 #include "dbinc/log.h"
 
-static int __rep_chk_newfile __P((ENV *, DB_LOGC *, REP *, __rep_control_args *, int));
-static int __rep_log_split __P((ENV *, DB_THREAD_INFO *, __rep_control_args *, DBT *, DB_LSN *, DB_LSN *, DB_LSN *));
+static int __rep_chk_newfile(ENV *, DB_LOGC *, REP *, __rep_control_args *, int);
+static int __rep_log_split(ENV *, DB_THREAD_INFO *, __rep_control_args *, DBT *, DB_LSN *, DB_LSN *, DB_LSN *);
 /*
  * __rep_allreq --
  *      Handle a REP_ALL_REQ message.
@@ -197,13 +197,11 @@ err:
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __rep_log --
  *      Handle a REP_LOG/REP_LOG_MORE message.
  *
- * PUBLIC: int __rep_log __P((ENV *, DB_THREAD_INFO *,
- * PUBLIC:     __rep_control_args *, DBT *, int, time_t, DB_LSN *, DB_LSN *));
+ * PUBLIC: int __rep_log __P((ENV *, DB_THREAD_INFO *, __rep_control_args *, DBT *, int, time_t, DB_LSN *, DB_LSN *));
  */
 int __rep_log(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec, int eid, time_t savetime, DB_LSN * ret_lsnp, DB_LSN * ckp_lsnp)
 {
@@ -308,13 +306,11 @@ int __rep_log(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec,
 out:
 	return ret;
 }
-
 /*
  * __rep_bulk_log --
  *      Handle a REP_BULK_LOG message.
  *
- * PUBLIC: int __rep_bulk_log __P((ENV *, DB_THREAD_INFO *,
- * PUBLIC:     __rep_control_args *, DBT *, time_t, DB_LSN *, DB_LSN *));
+ * PUBLIC: int __rep_bulk_log __P((ENV *, DB_THREAD_INFO *, __rep_control_args *, DBT *, time_t, DB_LSN *, DB_LSN *));
  */
 int __rep_bulk_log(ENV *env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec, time_t savetime, DB_LSN * ret_lsnp, DB_LSN * ckp_lsnp)
 {
@@ -471,7 +467,6 @@ out:
 	}
 	return ret;
 }
-
 /*
  * __rep_log_req --
  *      Handle a REP_LOG_REQ message.
@@ -695,7 +690,6 @@ err:
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __rep_loggap_req -
  *	Request a log gap.  Assumes the caller holds the REP->mtx_clientdb.
@@ -804,20 +798,16 @@ int __rep_loggap_req(ENV *env, REP * rep, DB_LSN * lsnp, uint32 gapflags)
 		flags = DB_REP_REREQUEST;
 	}
 	if((master = rep->master_id) != DB_EID_INVALID) {
-		STAT_INC(env,
-		    rep, log_request, rep->stat.st_log_requested, master);
+		STAT_INC(env, rep, log_request, rep->stat.st_log_requested, master);
 		if(rep->sync_state == SYNC_LOG)
 			ctlflags = REPCTL_INIT;
-		(void)__rep_send_message(env, master,
-		    type, &next_lsn, max_lsn_dbtp, ctlflags, flags);
+		(void)__rep_send_message(env, master, type, &next_lsn, max_lsn_dbtp, ctlflags, flags);
 	}
 	else
-		(void)__rep_send_message(env, DB_EID_BROADCAST,
-		    REP_MASTER_REQ, NULL, NULL, 0, 0);
+		(void)__rep_send_message(env, DB_EID_BROADCAST, REP_MASTER_REQ, NULL, NULL, 0, 0);
 err:
 	return ret;
 }
-
 /*
  * __rep_logready -
  *	Handle getting back REP_LOGREADY.  Any call to __rep_apply

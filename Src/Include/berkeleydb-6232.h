@@ -408,9 +408,7 @@ typedef enum  {
 	DB_LSTAT_EXPIRED = 2,             /* Lock has expired. */
 	DB_LSTAT_FREE = 3,                /* Lock is unallocated. */
 	DB_LSTAT_HELD = 4,                /* Lock is currently held. */
-	DB_LSTAT_PENDING = 5,             /* Lock was waiting and has been
-	                                   * promoted; waiting for the owner
-	                                   * to run and upgrade it to held. */
+	DB_LSTAT_PENDING = 5,             /* Lock was waiting and has been promoted; waiting for the owner to run and upgrade it to held. */
 	DB_LSTAT_WAITING = 6              /* Lock is on the wait queue. */
 }db_status_t;
 
@@ -517,8 +515,7 @@ struct __db_ilock { /* SHARED */
  */
 struct __db_lock_u { /* SHARED */
 	roff_t off;                     /* Offset of the lock in the region */
-	uint32 ndx;                  /* Index of the object referenced by
-	                                 * this lock; used for locking. */
+	uint32 ndx;                  /* Index of the object referenced by  this lock; used for locking. */
 	uint32 gen;                  /* Generation number of this lock. */
 	db_lockmode_t mode;             /* mode of this lock. */
 };
@@ -1218,9 +1215,7 @@ struct __db_rep_stat { /* SHARED */
 	DB_LSN st_max_perm_lsn;         /* Maximum permanent LSN. */
 	db_pgno_t st_next_pg;           /* Next pg we expect. */
 	db_pgno_t st_waiting_pg;        /* pg we're awaiting, if any. */
-
-	uint32 st_dupmasters;        /* # of times a duplicate master
-	                                   condition was detected.+ */
+	uint32 st_dupmasters;        /* # of times a duplicate master condition was detected.+ */
 	db_ssize_t st_env_id;           /* Current environment ID. */
 	uint32 st_env_priority;      /* Current environment priority. */
 	uintmax_t st_ext_duplicated;    /* Dup ext file data messages.+ */
@@ -1232,17 +1227,14 @@ struct __db_rep_stat { /* SHARED */
 	uintmax_t st_bulk_records;      /* Bulk records stored. */
 	uintmax_t st_bulk_transfers;    /* Transfers of bulk buffers. */
 	uintmax_t st_client_rerequests;/* Number of forced rerequests. */
-	uintmax_t st_client_svc_req;    /* Number of client service requests
-	                                   received by this client. */
-	uintmax_t st_client_svc_miss;   /* Number of client service requests
-	                                   missing on this client. */
+	uintmax_t st_client_svc_req;    /* Number of client service requests received by this client. */
+	uintmax_t st_client_svc_miss;   /* Number of client service requests missing on this client. */
 	uint32 st_gen;               /* Current generation number. */
 	uint32 st_egen;              /* Current election gen number. */
 	uintmax_t st_lease_chk;         /* Lease validity checks. */
 	uintmax_t st_lease_chk_misses;  /* Lease checks invalid. */
 	uintmax_t st_lease_chk_refresh; /* Lease refresh attempts. */
 	uintmax_t st_lease_sends;       /* Lease messages sent live. */
-
 	uintmax_t st_log_duplicated;    /* Log records received multiply.+ */
 	uintmax_t st_log_queued_max;    /* Max. log records queued at once.+ */
 	uintmax_t st_log_queued_total;  /* Total # of log recs. ever queued.+ */
@@ -1252,16 +1244,13 @@ struct __db_rep_stat { /* SHARED */
 	uintmax_t st_master_changes;    /* # of times we've switched masters. */
 	uintmax_t st_msgs_badgen;       /* Messages with a bad generation #.+ */
 	uintmax_t st_msgs_processed;    /* Messages received and processed.+ */
-	uintmax_t st_msgs_recover;      /* Messages ignored because this site
-	                                   was a client in recovery.+ */
+	uintmax_t st_msgs_recover;      /* Messages ignored because this site was a client in recovery.+ */
 	uintmax_t st_msgs_send_failures;/* # of failed message sends.+ */
 	uintmax_t st_msgs_sent; /* # of successful message sends.+ */
 	uintmax_t st_newsites;          /* # of NEWSITE msgs. received.+ */
-	uint32 st_nsites;            /* Current number of sites we will
-	                                   assume during elections. */
+	uint32 st_nsites;            /* Current number of sites we will assume during elections. */
 	uintmax_t st_nthrottles;        /* # of times we were throttled. */
-	uintmax_t st_outdated;          /* # of times we detected and returned
-	                                   an OUTDATED condition.+ */
+	uintmax_t st_outdated;          /* # of times we detected and returned an OUTDATED condition.+ */
 	uintmax_t st_pg_duplicated;     /* Pages received multiply.+ */
 	uintmax_t st_pg_records;        /* Pages received and stored.+ */
 	uintmax_t st_pg_requested;      /* Pages missed and requested.+ */
@@ -1302,12 +1291,10 @@ struct __db_rep_stat { /* SHARED */
 struct __db_repmgr_stat { /* SHARED */
 	uintmax_t st_perm_failed;       /* # of insufficiently ack'ed msgs. */
 	uintmax_t st_msgs_queued;       /* # msgs queued for network delay. */
-	uintmax_t st_msgs_dropped;      /* # msgs discarded due to excessive
-	                                   queue length. */
+	uintmax_t st_msgs_dropped;      /* # msgs discarded due to excessive queue length. */
 	uint32 st_incoming_queue_gbytes;     /* Incoming queue size: GB. */
 	uint32 st_incoming_queue_bytes;      /* Incoming queue size: B. */
-	uintmax_t st_incoming_msgs_dropped;     /* # of msgs discarded due to
-	                                           incoming queue full. */
+	uintmax_t st_incoming_msgs_dropped;     /* # of msgs discarded due to incoming queue full. */
 	uintmax_t st_connection_drop;   /* Existing connections dropped. */
 	uintmax_t st_connect_fail;      /* Failed new connection attempts. */
 	uint32 st_elect_threads;     /* # of active election threads. */
@@ -1316,10 +1303,8 @@ struct __db_repmgr_stat { /* SHARED */
 	uint32 st_site_total;        /* # of repgroup total sites. */
 	uint32 st_site_views;        /* # of repgroup view sites. */
 	uintmax_t st_takeovers;         /* # of automatic listener takeovers. */
-	uintmax_t st_write_ops_forwarded;       /* # of writes forwarded by
-	                                           this client. */
-	uintmax_t st_write_ops_received;        /* # of forwarded writes
-	                                           received by this master. */
+	uintmax_t st_write_ops_forwarded;       /* # of writes forwarded by this client. */
+	uintmax_t st_write_ops_received;        /* # of forwarded writes received by this master. */
 };
 
 /* Replication Manager connection error. */
@@ -1364,21 +1349,21 @@ struct __db_sequence {
 	void            * api_internal;
 
 	/* DB_SEQUENCE PUBLIC HANDLE LIST BEGIN */
-	int             (*close)__P((DB_SEQUENCE *, uint32));
-	int             (*get)__P((DB_SEQUENCE *, DB_TXN *, uint32, db_seq_t *, uint32));
-	int             (*get_cachesize)__P((DB_SEQUENCE *, uint32 *));
-	int             (*get_db)__P((DB_SEQUENCE *, DB **));
-	int             (*get_flags)__P((DB_SEQUENCE *, uint32 *));
-	int             (*get_key)__P((DB_SEQUENCE *, DBT *));
-	int             (*get_range)__P((DB_SEQUENCE *, db_seq_t *, db_seq_t *));
-	int             (*initial_value)__P((DB_SEQUENCE *, db_seq_t));
-	int             (*open)__P((DB_SEQUENCE *, DB_TXN *, DBT *, uint32));
-	int             (*remove)__P((DB_SEQUENCE *, DB_TXN *, uint32));
-	int             (*set_cachesize)__P((DB_SEQUENCE *, uint32));
-	int             (*set_flags)__P((DB_SEQUENCE *, uint32));
-	int             (*set_range)__P((DB_SEQUENCE *, db_seq_t, db_seq_t));
-	int             (*stat)__P((DB_SEQUENCE *, DB_SEQUENCE_STAT **, uint32));
-	int             (*stat_print)__P((DB_SEQUENCE *, uint32));
+	int (*close)(DB_SEQUENCE *, uint32);
+	int (*get)(DB_SEQUENCE *, DB_TXN *, uint32, db_seq_t *, uint32);
+	int (*get_cachesize)(DB_SEQUENCE *, uint32 *);
+	int (*get_db)(DB_SEQUENCE *, DB **);
+	int (*get_flags)(DB_SEQUENCE *, uint32 *);
+	int (*get_key)(DB_SEQUENCE *, DBT *);
+	int (*get_range)(DB_SEQUENCE *, db_seq_t *, db_seq_t *);
+	int (*initial_value)(DB_SEQUENCE *, db_seq_t);
+	int (*open)(DB_SEQUENCE *, DB_TXN *, DBT *, uint32);
+	int (*remove)(DB_SEQUENCE *, DB_TXN *, uint32);
+	int (*set_cachesize)(DB_SEQUENCE *, uint32);
+	int (*set_flags)(DB_SEQUENCE *, uint32);
+	int (*set_range)(DB_SEQUENCE *, db_seq_t, db_seq_t);
+	int (*stat)(DB_SEQUENCE *, DB_SEQUENCE_STAT **, uint32);
+	int (*stat_print)(DB_SEQUENCE *, uint32);
 	/* DB_SEQUENCE PUBLIC HANDLE LIST END */
 };
 
@@ -1519,14 +1504,12 @@ typedef enum {
 #define DB_DELETED              (-30897)/* Recovery file marked deleted. */
 #define DB_EVENT_NOT_HANDLED    (-30896)/* Forward event to application. */
 #define DB_NEEDSPLIT            (-30895)/* Page needs to be split. */
-#define DB_NOINTMP              (-30886)/* Sequences not supported in temporary
-	                                   or in-memory databases. */
+#define DB_NOINTMP              (-30886)/* Sequences not supported in temporary or in-memory databases. */
 #define DB_REP_BULKOVF          (-30894)/* Rep bulk buffer overflow. */
 #define DB_REP_LOGREADY         (-30893)/* Rep log ready for recovery. */
 #define DB_REP_NEWMASTER        (-30892)/* We have learned of a new master. */
 #define DB_REP_PAGEDONE         (-30891)/* This page was already done. */
-#define DB_SURPRISE_KID         (-30890)/* Child commit where parent
-	                                   didn't know it was a parent. */
+#define DB_SURPRISE_KID         (-30890)/* Child commit where parent didn't know it was a parent. */
 #define DB_SWAPBYTES            (-30889)/* Database needs byte swapping. */
 #define DB_TXN_CKP              (-30888)/* Encountered ckp record in log. */
 #define DB_VERIFY_FATAL         (-30887)/* DB->verify cannot proceed. */
@@ -1718,144 +1701,143 @@ struct __db {
 	// 
 	// DB PUBLIC HANDLE LIST BEGIN 
 	// 
-	int  (*associate)__P((DB *, DB_TXN *, DB *, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32));
-	int  (*associate_foreign)__P((DB *, DB *, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32));
-	int  (*close)__P((DB *, uint32));
-	int  (*compact)__P((DB *, DB_TXN *, DBT *, DBT *, DB_COMPACT *, uint32, DBT *));
-	int  (*convert)__P((DB *, const char *, uint32));
-	int  (*cursor)__P((DB *, DB_TXN *, DBC **, uint32));
-	int  (*del)__P((DB *, DB_TXN *, DBT *, uint32));
-	void (*err)__P((DB *, int, const char *, ...));
-	void (*errx)__P((DB *, const char *, ...));
-	int  (*exists)__P((DB *, DB_TXN *, DBT *, uint32));
-	int  (*fd)__P((DB *, int *));
-	int  (*get)__P((DB *, DB_TXN *, DBT *, DBT *, uint32));
-	int  (*get_alloc)__P((DB *, void *(**)(size_t), void *(**)(void *, size_t), void (**)(void *)));
-	int  (*get_append_recno)__P((DB *, int (**)(DB *, DBT *, db_recno_t)));
-	int  (*get_assoc_flags)__P((DB *, uint32 *));
-	int  (*get_blob_dir)__P((DB *, const char **));
-	int  (*get_blob_sub_dir)__P((DB *, const char **));
-	int  (*get_blob_threshold)__P((DB *, uint32 *));
-	int  (*get_bt_compare)__P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
+	int  (*associate)(DB *, DB_TXN *, DB *, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
+	int  (*associate_foreign)(DB *, DB *, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32);
+	int  (*close)(DB *, uint32);
+	int  (*compact)(DB *, DB_TXN *, DBT *, DBT *, DB_COMPACT *, uint32, DBT *);
+	int  (*convert)(DB *, const char *, uint32);
+	int  (*cursor)(DB *, DB_TXN *, DBC **, uint32);
+	int  (*del)(DB *, DB_TXN *, DBT *, uint32);
+	void (*err)(DB *, int, const char *, ...);
+	void (*errx)(DB *, const char *, ...);
+	int  (*exists)(DB *, DB_TXN *, DBT *, uint32);
+	int  (*fd)(DB *, int *);
+	int  (*get)(DB *, DB_TXN *, DBT *, DBT *, uint32);
+	int  (*get_alloc)(DB *, void *(**)(size_t), void *(**)(void *, size_t), void (**)(void *));
+	int  (*get_append_recno)(DB *, int (**)(DB *, DBT *, db_recno_t));
+	int  (*get_assoc_flags)(DB *, uint32 *);
+	int  (*get_blob_dir)(DB *, const char **);
+	int  (*get_blob_sub_dir)(DB *, const char **);
+	int  (*get_blob_threshold)(DB *, uint32 *);
+	int  (*get_bt_compare)(DB *, int (**)(DB *, const DBT *, const DBT *, size_t *));
 	int  (*get_bt_compress)(DB *, int (**)(DB *, const DBT *, const DBT *, const DBT *, const DBT *, DBT *), int (**)(DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *));
-	int  (*get_bt_minkey)__P((DB *, uint32 *));
-	int  (*get_bt_prefix)__P((DB *, size_t(**)(DB *, const DBT *, const DBT *)));
-	int  (*get_byteswapped)__P((DB *, int *));
-	int  (*get_cachesize)__P((DB *, uint32 *, uint32 *, int *));
-	int  (*get_create_dir)__P((DB *, const char **));
-	int  (*get_dbname)__P((DB *, const char **, const char **));
-	int  (*get_dup_compare)__P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
-	int  (*get_encrypt_flags)__P((DB *, uint32 *));
-	DB_ENV *(*get_env)__P((DB *));
-	void (*get_errcall)__P((DB *, void (**)(const DB_ENV *, const char *, const char *)));
-	void (*get_errfile)__P((DB *, FILE **));
-	void (*get_errpfx)__P((DB *, const char **));
-	int  (*get_ext_file_dir)__P((DB *, const char **));
-	int  (*get_ext_file_threshold)__P((DB *, uint32 *));
-	int  (*get_feedback)__P((DB *, void (**)(DB *, int, int)));
-	int  (*get_flags)__P((DB *, uint32 *));
-	int  (*get_h_compare)__P((DB *, int (**)(DB *, const DBT *, const DBT *, size_t *)));
-	int  (*get_h_ffactor)__P((DB *, uint32 *));
-	int  (*get_h_hash)__P((DB *, uint32(**)(DB *, const void *, uint32)));
-	int  (*get_h_nelem)__P((DB *, uint32 *));
-	int  (*get_heapsize)__P((DB *, uint32 *, uint32 *));
-	int  (*get_heap_regionsize)__P((DB *, uint32 *));
-	int  (*get_lk_exclusive)__P((DB *, int *, int *));
-	int  (*get_lorder)__P((DB *, int *));
-	DB_MPOOLFILE *(*get_mpf)__P((DB *));
-	void (*get_msgcall)__P((DB *, void (**)(const DB_ENV *, const char *, const char *)));
-	void (*get_msgfile)__P((DB *, FILE **));
-	void (*get_msgpfx)__P((DB *, const char **));
-	int  (*get_multiple)__P((DB *));
-	int  (*get_open_flags)__P((DB *, uint32 *));
-	int  (*get_pagesize)__P((DB *, uint32 *));
-	int  (*get_partition_callback)__P((DB *, uint32 *, uint32(**)(DB *, DBT *key)));
-	int  (*get_partition_dirs)__P((DB *, const char ***));
-	int  (*get_partition_keys)__P((DB *, uint32 *, DBT **));
-	int  (*get_priority)__P((DB *, DB_CACHE_PRIORITY *));
-	int  (*get_q_extentsize)__P((DB *, uint32 *));
-	int  (*get_re_delim)__P((DB *, int *));
-	int  (*get_re_len)__P((DB *, uint32 *));
-	int  (*get_re_pad)__P((DB *, int *));
-	int  (*get_re_source)__P((DB *, const char **));
-	int  (*get_slices)__P((DB *, DB ***));
-	int  (*get_transactional)__P((DB *));
-	int  (*get_type)__P((DB *, DBTYPE *));
-	int  (*join)__P((DB *, DBC **, DBC **, uint32));
-	int  (*key_range)__P((DB *, DB_TXN *, DBT *, DB_KEY_RANGE *, uint32));
-	void (*msg)__P((DB *, const char *, ...));
-	int  (*open)__P((DB *, DB_TXN *, const char *, const char *, DBTYPE, uint32, int));
-	int  (*pget)__P((DB *, DB_TXN *, DBT *, DBT *, DBT *, uint32));
-	int  (*put)__P((DB *, DB_TXN *, DBT *, DBT *, uint32));
-	int  (*remove)__P((DB *, const char *, const char *, uint32));
-	int  (*rename)__P((DB *, const char *, const char *, const char *, uint32));
-	int  (*set_alloc)__P((DB *, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *)));
-	int  (*set_append_recno)__P((DB *, int (*)(DB *, DBT *, db_recno_t)));
-	int  (*set_blob_dir)__P((DB *, const char *));
-	int  (*set_blob_threshold)__P((DB *, uint32, uint32));
-	int  (*set_bt_compare)__P((DB *, int (*)(DB *, const DBT *, const DBT *, size_t *)));
+	int  (*get_bt_minkey)(DB *, uint32 *);
+	int  (*get_bt_prefix)(DB *, size_t(**)(DB *, const DBT *, const DBT *));
+	int  (*get_byteswapped)(DB *, int *);
+	int  (*get_cachesize)(DB *, uint32 *, uint32 *, int *);
+	int  (*get_create_dir)(DB *, const char **);
+	int  (*get_dbname)(DB *, const char **, const char **);
+	int  (*get_dup_compare)(DB *, int (**)(DB *, const DBT *, const DBT *, size_t *));
+	int  (*get_encrypt_flags)(DB *, uint32 *);
+	DB_ENV *(*get_env)(DB *);
+	void (*get_errcall)(DB *, void (**)(const DB_ENV *, const char *, const char *));
+	void (*get_errfile)(DB *, FILE **);
+	void (*get_errpfx)(DB *, const char **);
+	int  (*get_ext_file_dir)(DB *, const char **);
+	int  (*get_ext_file_threshold)(DB *, uint32 *);
+	int  (*get_feedback)(DB *, void (**)(DB *, int, int));
+	int  (*get_flags)(DB *, uint32 *);
+	int  (*get_h_compare)(DB *, int (**)(DB *, const DBT *, const DBT *, size_t *));
+	int  (*get_h_ffactor)(DB *, uint32 *);
+	int  (*get_h_hash)(DB *, uint32(**)(DB *, const void *, uint32));
+	int  (*get_h_nelem)(DB *, uint32 *);
+	int  (*get_heapsize)(DB *, uint32 *, uint32 *);
+	int  (*get_heap_regionsize)(DB *, uint32 *);
+	int  (*get_lk_exclusive)(DB *, int *, int *);
+	int  (*get_lorder)(DB *, int *);
+	DB_MPOOLFILE *(*get_mpf)(DB *);
+	void (*get_msgcall)(DB *, void (**)(const DB_ENV *, const char *, const char *));
+	void (*get_msgfile)(DB *, FILE **);
+	void (*get_msgpfx)(DB *, const char **);
+	int  (*get_multiple)(DB *);
+	int  (*get_open_flags)(DB *, uint32 *);
+	int  (*get_pagesize)(DB *, uint32 *);
+	int  (*get_partition_callback)(DB *, uint32 *, uint32(**)(DB *, DBT *key));
+	int  (*get_partition_dirs)(DB *, const char ***);
+	int  (*get_partition_keys)(DB *, uint32 *, DBT **);
+	int  (*get_priority)(DB *, DB_CACHE_PRIORITY *);
+	int  (*get_q_extentsize)(DB *, uint32 *);
+	int  (*get_re_delim)(DB *, int *);
+	int  (*get_re_len)(DB *, uint32 *);
+	int  (*get_re_pad)(DB *, int *);
+	int  (*get_re_source)(DB *, const char **);
+	int  (*get_slices)(DB *, DB ***);
+	int  (*get_transactional)(DB *);
+	int  (*get_type)(DB *, DBTYPE *);
+	int  (*join)(DB *, DBC **, DBC **, uint32);
+	int  (*key_range)(DB *, DB_TXN *, DBT *, DB_KEY_RANGE *, uint32);
+	void (*msg)(DB *, const char *, ...);
+	int  (*open)(DB *, DB_TXN *, const char *, const char *, DBTYPE, uint32, int);
+	int  (*pget)(DB *, DB_TXN *, DBT *, DBT *, DBT *, uint32);
+	int  (*put)(DB *, DB_TXN *, DBT *, DBT *, uint32);
+	int  (*remove)(DB *, const char *, const char *, uint32);
+	int  (*rename)(DB *, const char *, const char *, const char *, uint32);
+	int  (*set_alloc)(DB *, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *));
+	int  (*set_append_recno)(DB *, int (*)(DB *, DBT *, db_recno_t));
+	int  (*set_blob_dir)(DB *, const char *);
+	int  (*set_blob_threshold)(DB *, uint32, uint32);
+	int  (*set_bt_compare)(DB *, int (*)(DB *, const DBT *, const DBT *, size_t *));
 	int  (*set_bt_compress)(DB *, int (*)(DB *, const DBT *, const DBT *, const DBT *, const DBT *, DBT *), int (*)(DB *, const DBT *, const DBT *, DBT *, DBT *, DBT *));
-	int  (*set_bt_minkey)__P((DB *, uint32));
-	int  (*set_bt_prefix)__P((DB *, size_t (*)(DB *, const DBT *, const DBT *)));
-	int  (*set_cachesize)__P((DB *, uint32, uint32, int));
-	int  (*set_create_dir)__P((DB *, const char *));
-	int  (*set_dup_compare)__P((DB *, int (*)(DB *, const DBT *, const DBT *, size_t *)));
-	int  (*set_encrypt)__P((DB *, const char *, uint32));
-	void (*set_errcall)__P((DB *, void (*)(const DB_ENV *, const char *, const char *)));
-	void (*set_errfile)__P((DB *, FILE *));
-	void (*set_errpfx)__P((DB *, const char *));
-	int  (*set_ext_file_dir)__P((DB *, const char *));
-	int  (*set_ext_file_threshold)__P((DB *, uint32, uint32));
-	int  (*set_feedback)__P((DB *, void (*)(DB *, int, int)));
-	int  (*set_flags)__P((DB *, uint32));
-	int  (*set_h_compare)__P((DB *, int (*)(DB *, const DBT *, const DBT *, size_t *)));
-	int  (*set_h_ffactor)__P((DB *, uint32));
-	int  (*set_h_hash)__P((DB *, uint32 (*)(DB *, const void *, uint32)));
-	int  (*set_h_nelem)__P((DB *, uint32));
-	int  (*set_heapsize)__P((DB *, uint32, uint32, uint32));
-	int  (*set_heap_regionsize)__P((DB *, uint32));
-	int  (*set_lk_exclusive)__P((DB *, int));
-	int  (*set_lorder)__P((DB *, int));
-	int  (*set_slice_callback)__P((DB *, int (*)(const DB *, const DBT *, DBT *)));
-	void (*set_msgcall)__P((DB *, void (*)(const DB_ENV *, const char *, const char *)));
-	void (*set_msgfile)__P((DB *, FILE *));
-	void (*set_msgpfx)__P((DB *, const char *));
-	int  (*set_pagesize)__P((DB *, uint32));
-	int  (*set_paniccall)__P((DB *, void (*)(DB_ENV *, int)));
-	int  (*set_partition)__P((DB *, uint32, DBT *, uint32 (*)(DB *, DBT * key)));
-	int  (*set_partition_dirs)__P((DB *, const char **));
-	int  (*set_priority)__P((DB *, DB_CACHE_PRIORITY));
-	int  (*set_q_extentsize)__P((DB *, uint32));
-	int  (*set_re_delim)__P((DB *, int));
-	int  (*set_re_len)__P((DB *, uint32));
-	int  (*set_re_pad)__P((DB *, int));
-	int  (*set_re_source)__P((DB *, const char *));
-	int  (*slice_lookup)__P((DB *, const DBT *, DB **, uint32));
-	int  (*sort_multiple)__P((DB *, DBT *, DBT *, uint32));
-	int  (*stat)__P((DB *, DB_TXN *, void *, uint32));
-	int  (*stat_print)__P((DB *, uint32));
-	int  (*sync)__P((DB *, uint32));
-	int  (*truncate)__P((DB *, DB_TXN *, uint32 *, uint32));
-	int  (*upgrade)__P((DB *, const char *, uint32));
-	int  (*verify)__P((DB *, const char *, const char *, FILE *, uint32));
+	int  (*set_bt_minkey)(DB *, uint32);
+	int  (*set_bt_prefix)(DB *, size_t (*)(DB *, const DBT *, const DBT *));
+	int  (*set_cachesize)(DB *, uint32, uint32, int);
+	int  (*set_create_dir)(DB *, const char *);
+	int  (*set_dup_compare)(DB *, int (*)(DB *, const DBT *, const DBT *, size_t *));
+	int  (*set_encrypt)(DB *, const char *, uint32);
+	void (*set_errcall)(DB *, void (*)(const DB_ENV *, const char *, const char *));
+	void (*set_errfile)(DB *, FILE *);
+	void (*set_errpfx)(DB *, const char *);
+	int  (*set_ext_file_dir)(DB *, const char *);
+	int  (*set_ext_file_threshold)(DB *, uint32, uint32);
+	int  (*set_feedback)(DB *, void (*)(DB *, int, int));
+	int  (*set_flags)(DB *, uint32);
+	int  (*set_h_compare)(DB *, int (*)(DB *, const DBT *, const DBT *, size_t *));
+	int  (*set_h_ffactor)(DB *, uint32);
+	int  (*set_h_hash)(DB *, uint32 (*)(DB *, const void *, uint32));
+	int  (*set_h_nelem)(DB *, uint32);
+	int  (*set_heapsize)(DB *, uint32, uint32, uint32);
+	int  (*set_heap_regionsize)(DB *, uint32);
+	int  (*set_lk_exclusive)(DB *, int);
+	int  (*set_lorder)(DB *, int);
+	int  (*set_slice_callback)(DB *, int (*)(const DB *, const DBT *, DBT *));
+	void (*set_msgcall)(DB *, void (*)(const DB_ENV *, const char *, const char *));
+	void (*set_msgfile)(DB *, FILE *);
+	void (*set_msgpfx)(DB *, const char *);
+	int  (*set_pagesize)(DB *, uint32);
+	int  (*set_paniccall)(DB *, void (*)(DB_ENV *, int));
+	int  (*set_partition)(DB *, uint32, DBT *, uint32 (*)(DB *, DBT * key));
+	int  (*set_partition_dirs)(DB *, const char **);
+	int  (*set_priority)(DB *, DB_CACHE_PRIORITY);
+	int  (*set_q_extentsize)(DB *, uint32);
+	int  (*set_re_delim)(DB *, int);
+	int  (*set_re_len)(DB *, uint32);
+	int  (*set_re_pad)(DB *, int);
+	int  (*set_re_source)(DB *, const char *);
+	int  (*slice_lookup)(DB *, const DBT *, DB **, uint32);
+	int  (*sort_multiple)(DB *, DBT *, DBT *, uint32);
+	int  (*stat)(DB *, DB_TXN *, void *, uint32);
+	int  (*stat_print)(DB *, uint32);
+	int  (*sync)(DB *, uint32);
+	int  (*truncate)(DB *, DB_TXN *, uint32 *, uint32);
+	int  (*upgrade)(DB *, const char *, uint32);
+	int  (*verify)(DB *, const char *, const char *, FILE *, uint32);
 	/* DB PUBLIC HANDLE LIST END */
 
 	/* DB PRIVATE HANDLE LIST BEGIN */
 	int (* slice_callback)(const DB * db, const DBT * key, DBT * slice);
-	int  (*dump)__P((DB *, const char *, int (*)(void *, const void *), void *, int, int));
-	int  (*db_am_remove)__P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, uint32));
-	int  (*db_am_rename)__P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *));
+	int  (*dump)(DB *, const char *, int (*)(void *, const void *), void *, int, int);
+	int  (*db_am_remove)(DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, uint32);
+	int  (*db_am_rename)(DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *);
 	/* DB PRIVATE HANDLE LIST END */
-
 	/*
 	 * Never called; these are a place to save function pointers
 	 * so that we can undo an associate.
 	 */
-	int  (*stored_get)__P((DB *, DB_TXN *, DBT *, DBT *, uint32));
-	int  (*stored_close)__P((DB *, uint32));
+	int  (*stored_get)(DB *, DB_TXN *, DBT *, DBT *, uint32);
+	int  (*stored_close)(DB *, uint32);
 
 	/* Alternative handle close function, used by C++ API. */
-	int  (*alt_close)__P((DB *, uint32));
+	int  (*alt_close)(DB *, uint32);
 
 #define DB_OK_BTREE     0x01
 #define DB_OK_HASH      0x02

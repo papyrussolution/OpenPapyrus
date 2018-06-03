@@ -19,7 +19,7 @@
  *	Recovery function for metasub.
  *
  * PUBLIC: int __crdel_metasub_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_metasub_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -116,7 +116,7 @@ out:    if(pagep != NULL && (t_ret = __memp_fput(mpf,
  *	Recovery function for inmem_create.
  *
  * PUBLIC: int __crdel_inmem_create_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_create_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -201,7 +201,7 @@ out:    if(dbp != NULL) {
  *	Recovery function for inmem_rename.
  *
  * PUBLIC: int __crdel_inmem_rename_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_rename_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -227,7 +227,7 @@ int __crdel_inmem_rename_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops 
  *	Recovery function for inmem_remove.
  *
  * PUBLIC: int __crdel_inmem_remove_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __crdel_inmem_remove_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

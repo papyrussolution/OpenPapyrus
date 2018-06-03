@@ -13,37 +13,28 @@
 #include "dbinc/txn.h"
 #include "dbinc_auto/repmgr_auto.h"
 
-static int dispatch_app_message __P((ENV *, REPMGR_MESSAGE *));
-static int finish_gmdb_update __P((ENV *, DB_THREAD_INFO *,
-    DBT *, uint32, uint32, uint32, __repmgr_member_args *));
-static int incr_gm_version __P((ENV *, DB_THREAD_INFO *, DB_TXN *));
-static void marshal_site_data __P((ENV *,
-    uint32, uint32, uint8 *, DBT *));
-static void marshal_site_key __P((ENV *,
-    repmgr_netaddr_t *, uint8 *, DBT *, __repmgr_member_args *));
-static int message_loop __P((ENV *, REPMGR_RUNNABLE *));
-static int preferred_master_takeover __P((ENV*));
-static int process_message __P((ENV*, DBT*, DBT*, int));
-static int reject_fwd __P((ENV *, REPMGR_CONNECTION *));
+static int dispatch_app_message(ENV *, REPMGR_MESSAGE *);
+static int finish_gmdb_update(ENV *, DB_THREAD_INFO *, DBT *, uint32, uint32, uint32, __repmgr_member_args *);
+static int incr_gm_version(ENV *, DB_THREAD_INFO *, DB_TXN *);
+static void marshal_site_data(ENV *, uint32, uint32, uint8 *, DBT *);
+static void marshal_site_key(ENV *, repmgr_netaddr_t *, uint8 *, DBT *, __repmgr_member_args *);
+static int message_loop(ENV *, REPMGR_RUNNABLE *);
+static int preferred_master_takeover(ENV *);
+static int process_message(ENV*, DBT*, DBT*, int);
+static int reject_fwd(ENV *, REPMGR_CONNECTION *);
 static int rejoin_connections(ENV *);
 static int rejoin_deferred_election(ENV *);
-static int rescind_pending __P((ENV *,
-    DB_THREAD_INFO *, int, uint32, uint32));
-static int resolve_limbo_int __P((ENV *, DB_THREAD_INFO *));
-static int resolve_limbo_wrapper __P((ENV *, DB_THREAD_INFO *));
-static int send_permlsn __P((ENV *, uint32, DB_LSN *));
-static int send_permlsn_conn __P((ENV *,
-    REPMGR_CONNECTION *, uint32, DB_LSN *));
-static int serve_join_request __P((ENV *,
-    DB_THREAD_INFO *, REPMGR_MESSAGE *));
-static int serve_lsnhist_request __P((ENV *, DB_THREAD_INFO *,
-    REPMGR_MESSAGE *));
-static int serve_readonly_master_request __P((ENV *, REPMGR_MESSAGE *));
-static int serve_remove_request __P((ENV *,
-    DB_THREAD_INFO *, REPMGR_MESSAGE *));
-static int serve_repmgr_request __P((ENV *, REPMGR_MESSAGE *));
-static int serve_restart_client_request __P((ENV *, REPMGR_MESSAGE *));
-
+static int rescind_pending(ENV *, DB_THREAD_INFO *, int, uint32, uint32);
+static int resolve_limbo_int(ENV *, DB_THREAD_INFO *);
+static int resolve_limbo_wrapper(ENV *, DB_THREAD_INFO *);
+static int send_permlsn(ENV *, uint32, DB_LSN *);
+static int send_permlsn_conn(ENV *, REPMGR_CONNECTION *, uint32, DB_LSN *);
+static int serve_join_request(ENV *, DB_THREAD_INFO *, REPMGR_MESSAGE *);
+static int serve_lsnhist_request(ENV *, DB_THREAD_INFO *, REPMGR_MESSAGE *);
+static int serve_readonly_master_request(ENV *, REPMGR_MESSAGE *);
+static int serve_remove_request(ENV *, DB_THREAD_INFO *, REPMGR_MESSAGE *);
+static int serve_repmgr_request(ENV *, REPMGR_MESSAGE *);
+static int serve_restart_client_request(ENV *, REPMGR_MESSAGE *);
 /*
  * Map one of the phase-1/provisional membership status values to its
  * corresponding ultimate goal status: if "adding", the goal is to be fully
@@ -96,8 +87,7 @@ static int message_loop(ENV *env, REPMGR_RUNNABLE * th)
 			incremented = TRUE;
 		}
 		if(msg->msg_hdr.type == REPMGR_REP_MESSAGE) {
-			DB_ASSERT(env,
-			    IS_VALID_EID(msg->v.repmsg.originating_eid));
+			DB_ASSERT(env, IS_VALID_EID(msg->v.repmsg.originating_eid));
 			site = SITE_FROM_EID(msg->v.repmsg.originating_eid);
 			membership = site->membership;
 		}
@@ -1372,15 +1362,13 @@ out:
 		UNLOCK_MUTEX(db_rep->mutex);
 	return ret;
 }
-
 /*
  * Update a specific record in the Group Membership database.  The record to be
  * updated is implied by "eid"; "pstatus" is the provisional status (ADDING or
  * DELETING) to be used in the first phase of the update.  The ultimate goal
  * status is inferred (ADDING -> PRESENT, or DELETING -> 0).
  *
- * PUBLIC: int __repmgr_update_membership __P((ENV *,
- * PUBLIC:     DB_THREAD_INFO *, int, uint32, uint32));
+ * PUBLIC: int __repmgr_update_membership __P((ENV *, DB_THREAD_INFO *, int, uint32, uint32));
  */
 int __repmgr_update_membership(ENV *env, DB_THREAD_INFO * ip, int eid, uint32 pstatus/* Provisional status. */, uint32 site_flags)
 {
@@ -1611,8 +1599,7 @@ static int incr_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn)
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_set_gm_version __P((ENV *,
- * PUBLIC:     DB_THREAD_INFO *, DB_TXN *, uint32));
+ * PUBLIC: int __repmgr_set_gm_version __P((ENV *, DB_THREAD_INFO *, DB_TXN *, uint32));
  */
 int __repmgr_set_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 version)
 {
@@ -1685,15 +1672,13 @@ err:
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * Set up everything we need to update the Group Membership database.  This may
  * or may not include providing a transaction in which to do the updates
  * (depending on whether the caller wants the creation of the database to be in
  * the same transaction as the updates).
  *
- * PUBLIC: int __repmgr_setup_gmdb_op __P((ENV *,
- * PUBLIC:     DB_THREAD_INFO *, DB_TXN **, uint32));
+ * PUBLIC: int __repmgr_setup_gmdb_op __P((ENV *, DB_THREAD_INFO *, DB_TXN **, uint32));
  */
 int __repmgr_setup_gmdb_op(ENV *env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 flags)
 {
@@ -1805,8 +1790,7 @@ int __repmgr_cleanup_gmdb_op(ENV *env, int do_close)
  * the mutex needs to be available in order to send out the log
  * records.
  *
- * PUBLIC: int __repmgr_hold_master_role __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, uint32));
+ * PUBLIC: int __repmgr_hold_master_role __P((ENV *, REPMGR_CONNECTION *, uint32));
  */
 int __repmgr_hold_master_role(ENV *env, REPMGR_CONNECTION * conn, uint32 membership)
 {
@@ -1854,7 +1838,7 @@ int __repmgr_hold_master_role(ENV *env, REPMGR_CONNECTION * conn, uint32 members
  * Releases the "master role" lock once we're finished performing a membership
  * DB operation.
  *
- * PUBLIC: int __repmgr_rlse_master_role __P((ENV *));
+ * PUBLIC: int __repmgr_rlse_master_role(ENV *);
  */
 int __repmgr_rlse_master_role(ENV *env)
 {
@@ -1932,7 +1916,7 @@ static void marshal_site_data(ENV *env, uint32 status, uint32 flags, uint8 * buf
 	DB_INIT_DBT(*dbt, buf, __REPMGR_MEMBERSHIP_DATA_SIZE);
 }
 /*
- * PUBLIC: void __repmgr_set_sites __P((ENV *));
+ * PUBLIC: void __repmgr_set_sites(ENV *);
  *
  * Caller must hold mutex.
  */

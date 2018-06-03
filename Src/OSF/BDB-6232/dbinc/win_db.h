@@ -144,20 +144,16 @@ extern int getopt(int, char * const *, const char *);
 #define	TO_TSTRING(dbenv, s, ts, ret) do {				\
 		int __len = (int)strlen(s) + 1;				\
 		ts = NULL;						\
-		if ((ret = __os_malloc((dbenv),				\
-		    __len * sizeof(_TCHAR), &(ts))) == 0 &&		\
-		    MultiByteToWideChar(CP_UTF8, 0,			\
-		    (s), -1, (ts), __len) == 0)				\
+		if ((ret = __os_malloc((dbenv), __len * sizeof(_TCHAR), &(ts))) == 0 && \
+		    MultiByteToWideChar(CP_UTF8, 0, (s), -1, (ts), __len) == 0) \
 			ret = __os_posix_err(__os_get_syserr());	\
 	} while (0)
 
 #define	FROM_TSTRING(dbenv, ts, s, ret) {				\
-		int __len = WideCharToMultiByte(CP_UTF8, 0, ts, -1,	\
-		    NULL, 0, NULL, NULL);				\
+		int __len = WideCharToMultiByte(CP_UTF8, 0, ts, -1,	NULL, 0, NULL, NULL); \
 		s = NULL;						\
 		if ((ret = __os_malloc((dbenv), __len, &(s))) == 0 &&	\
-		    WideCharToMultiByte(CP_UTF8, 0,			\
-		    (ts), -1, (s), __len, NULL, NULL) == 0)		\
+		    WideCharToMultiByte(CP_UTF8, 0, (ts), -1, (s), __len, NULL, NULL) == 0) \
 			ret = __os_posix_err(__os_get_syserr());	\
 	} while (0)
 

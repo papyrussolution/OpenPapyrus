@@ -49,7 +49,7 @@ int __db_util_arg(char * arg0, char *str, int * argcp, char ***argvp)
  * __db_util_arg_progname --
  *	Return the program name.
  *
- * PUBLIC: const char *__db_util_arg_progname __P((const char *));
+ * PUBLIC: const char *__db_util_arg_progname(const char *);
  */
 const char * __db_util_arg_progname(const char * arg0)
 {

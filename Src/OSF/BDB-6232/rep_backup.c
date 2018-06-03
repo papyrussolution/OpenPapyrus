@@ -57,12 +57,12 @@ typedef int (FILE_WALK_FN) __P ((ENV *, __rep_fileinfo_args *, void *));
 
 static int __rep_add_files_to_list __P((ENV *, const char *, const char *, FILE_LIST_CTX *, const char **, int));
 static int __rep_blob_chunk_gap __P((ENV *, int, DB_THREAD_INFO *, REP *, int *, db_seq_t, int, uint32));
-static int __rep_blob_cleanup __P((ENV *, REP *));
+static int __rep_blob_cleanup(ENV *, REP *);
 static int __rep_blobdone __P((ENV *, int, DB_THREAD_INFO *, REP *, db_seq_t, int, uint32));
 static int __rep_blob_find_files __P((ENV *, DB_THREAD_INFO *, const char *, db_seq_t *, db_seq_t, db_seq_t, db_seq_t *, DBT *, size_t *, uint32 *));
 static int __rep_blob_sort_dirs __P((ENV *, int (*)(const char *), char **, int, char ***, int *));
 static FILE_WALK_FN __rep_check_uid;
-static int __rep_clean_interrupted __P((ENV *));
+static int __rep_clean_interrupted(ENV *);
 static FILE_WALK_FN __rep_cleanup_nimdbs;
 static int __rep_filedone __P((ENV *, DB_THREAD_INFO * ip, int, REP *, __rep_fileinfo_args *, uint32));
 static int __rep_find_dbs __P((ENV *, FILE_LIST_CTX *));
@@ -81,11 +81,11 @@ static int __rep_remove_all __P((ENV *, uint32, DBT *));
 static FILE_WALK_FN __rep_remove_by_list;
 static int __rep_remove_by_prefix __P((ENV *, const char *, const char *, size_t, APPNAME));
 static FILE_WALK_FN __rep_remove_file;
-static int __rep_remove_logs __P((ENV *));
-static int __rep_remove_nimdbs __P((ENV *));
+static int __rep_remove_logs(ENV *);
+static int __rep_remove_nimdbs(ENV *);
 static int __rep_rollback __P((ENV *, DB_LSN *));
-static int __rep_select_blob_file __P((const char *));
-static int __rep_select_blob_sdb __P((const char *));
+static int __rep_select_blob_file(const char *);
+static int __rep_select_blob_sdb(const char *);
 static int __rep_unlink_by_list __P((ENV *, uint32, uint8 *, uint32, uint32));
 static FILE_WALK_FN __rep_unlink_file;
 static int __rep_walk_blob_dir __P((ENV *, FILE_LIST_CTX*));
@@ -4650,7 +4650,7 @@ out:
 }
 
 /*
- * PUBLIC: int __rep_remove_init_file __P((ENV *));
+ * PUBLIC: int __rep_remove_init_file(ENV *);
  */
 int __rep_remove_init_file(ENV *env)
 {
@@ -4692,7 +4692,7 @@ int __rep_remove_init_file(ENV *env)
  * subsystems' code having been initialized, and it summarily deletes files "out
  * from under" them, which might disturb the subsystems if they were up.
  *
- * PUBLIC: int __rep_reset_init __P((ENV *));
+ * PUBLIC: int __rep_reset_init(ENV *);
  */
 int __rep_reset_init(ENV *env)
 {

@@ -13,13 +13,13 @@
 #include "dbinc/txn.h"
 
 #ifdef HAVE_STATISTICS
-static int __dbreg_print_all __P((ENV *, uint32));
+static int __dbreg_print_all(ENV *, uint32);
 
 /*
  * __dbreg_stat_print --
  *	Print the dbreg statistics.
  *
- * PUBLIC: int __dbreg_stat_print __P((ENV *, uint32));
+ * PUBLIC: int __dbreg_stat_print(ENV *, uint32);
  */
 int __dbreg_stat_print(ENV *env, uint32 flags)
 {

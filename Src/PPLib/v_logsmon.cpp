@@ -374,7 +374,7 @@ int PPViewLogsMonitor::UpdateTempTable(LogsArray *pExpiredLogs)
 							// #4 обязательно сообщение до конца
 							if(log_line.NotEmpty()) {
 								log_line.ToOem().CopyTo(log_record.Text, sizeof(log_record.Text));
-								THROW_DB(P_TmpTbl->insertRecBuf(&log_record)); // @v6.2.1
+								THROW_DB(P_TmpTbl->insertRecBuf(&log_record));
 							}
 						}
 					}

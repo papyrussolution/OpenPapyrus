@@ -14,7 +14,7 @@
 #include "dbinc/mp.h"
 
 static int __ram_add __P((DBC *, db_recno_t *, DBT *, uint32, uint32));
-static int __ram_source __P((DB *));
+static int __ram_source(DB *);
 static int __ram_sread __P((DBC *, db_recno_t));
 static int __ram_update __P((DBC *, db_recno_t, int));
 static int __ram_ca_getorder __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *));
@@ -952,21 +952,15 @@ static int __ram_update(DBC *dbc, db_recno_t recno, int can_create)
  */
 static int __ram_source(DB *dbp)
 {
-	BTREE * t;
-	ENV * env;
 	char * source;
 	int ret;
-
-	env = dbp->env;
-	t = (BTREE *)dbp->bt_internal;
-
+	ENV * env = dbp->env;
+	BTREE * t = (BTREE *)dbp->bt_internal;
 	/* Find the real name, and swap out the one we had before. */
-	if((ret = __db_appname(env,
-	    DB_APP_DATA, t->re_source, NULL, &source)) != 0)
+	if((ret = __db_appname(env, DB_APP_DATA, t->re_source, NULL, &source)) != 0)
 		return ret;
 	__os_free(env, t->re_source);
 	t->re_source = source;
-
 	/*
 	 * !!!
 	 * It's possible that the backing source file is read-only.  We don't
@@ -985,7 +979,7 @@ static int __ram_source(DB *dbp)
  * __ram_writeback --
  *	Rewrite the backing file.
  *
- * PUBLIC: int __ram_writeback __P((DB *));
+ * PUBLIC: int __ram_writeback(DB *);
  */
 int __ram_writeback(DB *dbp)
 {
@@ -1123,8 +1117,7 @@ done:   /* Close the file descriptor. */
 	/* Discard memory allocated to hold the data items. */
 	if(data.data != NULL)
 		__os_ufree(env, data.data);
-	if(pad != NULL)
-		__os_free(env, pad);
+	__os_free(env, pad);
 	if(ret == 0)
 		t->re_modified = 0;
 	return ret;

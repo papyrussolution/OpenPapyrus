@@ -165,7 +165,7 @@ DB_LOG_RECSPEC __bam_merge_44_desc[] = {
 	{LOGREC_Done, 0, "", ""}
 };
 /*
- * PUBLIC: int __bam_init_recover __P((ENV *, DB_DISTAB *));
+ * PUBLIC: int __bam_init_recover(ENV *, DB_DISTAB *);
  */
 int __bam_init_recover(ENV *env, DB_DISTAB * dtabp)
 {

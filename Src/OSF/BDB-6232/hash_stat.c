@@ -257,7 +257,7 @@ static int __ham_stat_callback(DBC *dbc, PAGE * pagep, void * cookie, int * putp
  * __ham_print_cursor --
  *	Display the current cursor.
  *
- * PUBLIC: void __ham_print_cursor __P((DBC *));
+ * PUBLIC: void __ham_print_cursor(DBC *);
  */
 void __ham_print_cursor(DBC *dbc)
 {

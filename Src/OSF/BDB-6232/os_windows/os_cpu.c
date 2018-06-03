@@ -12,7 +12,7 @@
  * __os_cpu_count --
  *	Return the number of CPUs.
  *
- * PUBLIC: uint32 __os_cpu_count __P((void));
+ * PUBLIC: uint32 __os_cpu_count(void);
  */
 uint32 __os_cpu_count()
 {

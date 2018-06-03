@@ -17,7 +17,7 @@ static int __lock_freelocker_int __P((DB_LOCKTAB *, DB_LOCKREGION *, DB_LOCKER *
  * __lock_id_pp --
  *	DB_ENV->lock_id pre/post processing.
  *
- * PUBLIC: int __lock_id_pp __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __lock_id_pp(DB_ENV *, uint32 *);
  */
 int __lock_id_pp(DB_ENV *dbenv, uint32 * idp)
 {
@@ -99,7 +99,7 @@ void __lock_set_thread_id(void * lref_arg, pid_t pid, db_threadid_t tid)
  * __lock_id_free_pp --
  *	ENV->lock_id_free pre/post processing.
  *
- * PUBLIC: int __lock_id_free_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __lock_id_free_pp(DB_ENV *, uint32);
  */
 int __lock_id_free_pp(DB_ENV *dbenv, uint32 id)
 {

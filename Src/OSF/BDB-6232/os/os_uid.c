@@ -58,7 +58,7 @@ void __os_srandom(u_int seed)
  * __os_random --
  *	Return the next the random number generator for BDB.
  *
- * PUBLIC: u_int __os_random __P((void));
+ * PUBLIC: u_int __os_random(void);
  */
 u_int __os_random()
 {

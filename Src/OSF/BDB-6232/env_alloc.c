@@ -159,7 +159,7 @@ void __env_alloc_init(REGINFO *infop, size_t size)
  * __env_alloc_overhead --
  *	Return the overhead needed for an allocation.
  *
- * PUBLIC: size_t __env_alloc_overhead __P((void));
+ * PUBLIC: size_t __env_alloc_overhead(void);
  */
 size_t __env_alloc_overhead()
 {

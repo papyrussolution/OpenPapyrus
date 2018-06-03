@@ -12,8 +12,8 @@
 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
-static int __log_print_all __P((ENV *, uint32));
-static int __log_print_stats __P((ENV *, uint32));
+static int __log_print_all(ENV *, uint32);
+static int __log_print_stats(ENV *, uint32);
 static int __log_stat __P((ENV *, DB_LOG_STAT **, uint32));
 
 /*
@@ -76,7 +76,7 @@ static int __log_stat(ENV *env, DB_LOG_STAT ** statp, uint32 flags)
  * __log_stat_print_pp --
  *	DB_ENV->log_stat_print pre/post processing.
  *
- * PUBLIC: int __log_stat_print_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __log_stat_print_pp(DB_ENV *, uint32);
  */
 int __log_stat_print_pp(DB_ENV *dbenv, uint32 flags)
 {
@@ -96,7 +96,7 @@ int __log_stat_print_pp(DB_ENV *dbenv, uint32 flags)
  * __log_stat_print --
  *	DB_ENV->log_stat_print method.
  *
- * PUBLIC: int __log_stat_print __P((ENV *, uint32));
+ * PUBLIC: int __log_stat_print(ENV *, uint32);
  */
 int __log_stat_print(ENV *env, uint32 flags)
 {

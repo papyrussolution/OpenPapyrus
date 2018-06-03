@@ -14,21 +14,21 @@
 #include "dbinc/mp.h"
 #include "dbinc/txn.h"
 
-static int __rep_abort_prepared __P((ENV *));
+static int __rep_abort_prepared(ENV *);
 static int __rep_await_condition __P((ENV *, struct rep_waitgoal *, db_timeout_t));
 static int __rep_bt_cmp __P((DB *, const DBT *, const DBT *, size_t *));
 static int __rep_check_applied __P((ENV *, DB_THREAD_INFO *, DB_COMMIT_INFO *, struct rep_waitgoal *));
 static void __rep_config_map __P((ENV *, uint32 *, uint32 *));
-static uint32 __rep_conv_vers __P((ENV *, uint32));
+static uint32 __rep_conv_vers(ENV *, uint32);
 static int __rep_defview __P((DB_ENV *, const char *, int *, uint32));
 static void __rep_openfiles __P((ENV*, DB_THREAD_INFO *));
-static int __rep_restore_prepared __P((ENV *));
+static int __rep_restore_prepared(ENV *);
 static int __rep_save_lsn_hist __P((ENV *, DB_THREAD_INFO *, DB_LSN *));
 /*
  * __rep_env_create --
  *	Replication-specific initialization of the ENV structure.
  *
- * PUBLIC: int __rep_env_create __P((DB_ENV *));
+ * PUBLIC: int __rep_env_create(DB_ENV *);
  */
 int __rep_env_create(DB_ENV *dbenv)
 {
@@ -73,7 +73,7 @@ int __rep_env_create(DB_ENV *dbenv)
  * __rep_env_destroy --
  *	Replication-specific destruction of the ENV structure.
  *
- * PUBLIC: void __rep_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __rep_env_destroy(DB_ENV *);
  */
 void __rep_env_destroy(DB_ENV *dbenv)
 {
@@ -1828,7 +1828,7 @@ int __rep_set_limit(DB_ENV *dbenv, uint32 gbytes, uint32 bytes)
 }
 
 /*
- * PUBLIC: int __rep_set_nsites_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __rep_set_nsites_pp(DB_ENV *, uint32);
  */
 int __rep_set_nsites_pp(DB_ENV *dbenv, uint32 n)
 {
@@ -1856,7 +1856,7 @@ int __rep_set_nsites_pp(DB_ENV *dbenv, uint32 n)
 }
 
 /*
- * PUBLIC: int __rep_set_nsites_int __P((ENV *, uint32));
+ * PUBLIC: int __rep_set_nsites_int(ENV *, uint32);
  */
 int __rep_set_nsites_int(ENV *env, uint32 n)
 {
@@ -1880,7 +1880,7 @@ int __rep_set_nsites_int(ENV *env, uint32 n)
 }
 
 /*
- * PUBLIC: int __rep_get_nsites __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __rep_get_nsites(DB_ENV *, uint32 *);
  */
 int __rep_get_nsites(DB_ENV *dbenv, uint32 * n)
 {
@@ -1903,7 +1903,7 @@ int __rep_get_nsites(DB_ENV *dbenv, uint32 * n)
 }
 
 /*
- * PUBLIC: int __rep_set_priority_pp __P((DB_ENV *, uint32));
+ * PUBLIC: int __rep_set_priority_pp(DB_ENV *, uint32);
  */
 int __rep_set_priority_pp(DB_ENV *dbenv, uint32 priority)
 {
@@ -1917,7 +1917,7 @@ int __rep_set_priority_pp(DB_ENV *dbenv, uint32 priority)
 	return (__rep_set_priority_int(env, priority));
 }
 /*
- * PUBLIC: int __rep_set_priority_int __P((ENV *, uint32));
+ * PUBLIC: int __rep_set_priority_int(ENV *, uint32);
  */
 int __rep_set_priority_int(ENV *env, uint32 priority)
 {
@@ -1939,7 +1939,7 @@ int __rep_set_priority_int(ENV *env, uint32 priority)
 }
 
 /*
- * PUBLIC: int __rep_get_priority __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __rep_get_priority(DB_ENV *, uint32 *);
  */
 int __rep_get_priority(DB_ENV *dbenv, uint32 * priority)
 {
@@ -2486,7 +2486,7 @@ int __rep_set_clockskew(DB_ENV *dbenv, uint32 fast_clock, uint32 slow_clock)
  *	Re-push the last log record to all clients, in case they've lost
  *	messages and don't know it.
  *
- * PUBLIC: int __rep_flush_pp __P((DB_ENV *));
+ * PUBLIC: int __rep_flush_pp(DB_ENV *);
  */
 int __rep_flush_pp(DB_ENV *dbenv)
 {
@@ -2503,7 +2503,7 @@ int __rep_flush_pp(DB_ENV *dbenv)
  *	Re-push the last log record to all clients, in case they've lost
  *	messages and don't know it.
  *
- * PUBLIC: int __rep_flush_int __P((ENV *));
+ * PUBLIC: int __rep_flush_int(ENV *);
  */
 int __rep_flush_int(ENV *env)
 {
@@ -2538,7 +2538,7 @@ err:
  *	Force a synchronization to occur between this client and the master.
  *	This is the other half of configuring DELAYCLIENT.
  *
- * PUBLIC: int __rep_sync __P((DB_ENV *, uint32));
+ * PUBLIC: int __rep_sync(DB_ENV *, uint32);
  */
 int __rep_sync(DB_ENV *dbenv, uint32 flags)
 {

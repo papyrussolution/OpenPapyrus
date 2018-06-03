@@ -153,7 +153,7 @@ static const FN __db_seq_flags_fn[] = {
  * __db_get_seq_flags_fn --
  *	Return the __db_seq_flags_fn array.
  *
- * PUBLIC: const FN * __db_get_seq_flags_fn __P((void));
+ * PUBLIC: const FN * __db_get_seq_flags_fn(void);
  */
 const FN * __db_get_seq_flags_fn()
 {
@@ -211,7 +211,7 @@ int __seq_stat_print(DB_SEQUENCE *seq, uint32 flags)
  * __db_get_seq_flags_fn --
  *	Return the __db_seq_flags_fn array.
  *
- * PUBLIC: const FN * __db_get_seq_flags_fn __P((void));
+ * PUBLIC: const FN * __db_get_seq_flags_fn(void);
  */
 const FN * __db_get_seq_flags_fn()
 {

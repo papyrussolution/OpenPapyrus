@@ -95,8 +95,7 @@ static int send_connection(ENV *, u_int, REPMGR_CONNECTION *, struct sending_msg
  * Connects to the given network address, using blocking operations.  Any thread
  * synchronization is the responsibility of the caller.
  *
- * PUBLIC: int __repmgr_connect __P((ENV *,
- * PUBLIC:     repmgr_netaddr_t *, REPMGR_CONNECTION **, int *));
+ * PUBLIC: int __repmgr_connect __P((ENV *, repmgr_netaddr_t *, REPMGR_CONNECTION **, int *));
  */
 int __repmgr_connect(ENV *env, repmgr_netaddr_t * netaddr, REPMGR_CONNECTION ** connp, int * errp)
 {
@@ -260,13 +259,11 @@ static int __repmgr_propose_version(ENV *env, REPMGR_CONNECTION * conn)
 out:
 	return ret;
 }
-
 /*
  * __repmgr_send --
  *	The send function for DB_ENV->rep_set_transport.
  *
- * PUBLIC: int __repmgr_send __P((DB_ENV *, const DBT *, const DBT *,
- * PUBLIC:     const DB_LSN *, int, uint32));
+ * PUBLIC: int __repmgr_send __P((DB_ENV *, const DBT *, const DBT *, const DB_LSN *, int, uint32));
  */
 int __repmgr_send(DB_ENV *dbenv, const DBT * control, const DBT * rec, const DB_LSN * lsnp, int eid, uint32 flags)
 {
@@ -650,7 +647,7 @@ static REPMGR_SITE * connected_site(ENV *env, int eid)
  * Synchronize our list of sites with new information that has been added to the
  * list in the shared region.
  *
- * PUBLIC: int __repmgr_sync_siteaddr __P((ENV *));
+ * PUBLIC: int __repmgr_sync_siteaddr(ENV *);
  */
 int __repmgr_sync_siteaddr(ENV *env)
 {
@@ -820,7 +817,6 @@ static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struc
 		ret = __repmgr_bust_connection(env, conn);
 	return ret;
 }
-
 /*
  * __repmgr_send_one --
  *	Send a message to a site, or if you can't just yet, make a copy of it
@@ -832,8 +828,7 @@ static int send_connection(ENV *env, u_int type, REPMGR_CONNECTION * conn, struc
  * It doubles as a synchronizer to make sure that two threads don't
  * intersperse writes that are part of two single messages.
  *
- * PUBLIC: int __repmgr_send_one __P((ENV *, REPMGR_CONNECTION *,
- * PUBLIC:    u_int, const DBT *, const DBT *, db_timeout_t));
+ * PUBLIC: int __repmgr_send_one __P((ENV *, REPMGR_CONNECTION *, u_int, const DBT *, const DBT *, db_timeout_t));
  */
 int __repmgr_send_one(ENV *env, REPMGR_CONNECTION * conn, u_int msg_type, const DBT * control, const DBT * rec, db_timeout_t maxblock)
 {
@@ -848,8 +843,7 @@ int __repmgr_send_one(ENV *env, REPMGR_CONNECTION * conn, u_int msg_type, const 
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_send_many __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, REPMGR_IOVECS *, db_timeout_t));
+ * PUBLIC: int __repmgr_send_many __P((ENV *, REPMGR_CONNECTION *, REPMGR_IOVECS *, db_timeout_t));
  */
 int __repmgr_send_many(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * iovecs, db_timeout_t maxblock)
 {
@@ -865,10 +859,8 @@ int __repmgr_send_many(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * iovec
 		(void)__repmgr_disable_connection(env, conn);
 	return ret;
 }
-
 /*
- * PUBLIC: int __repmgr_send_own_msg __P((ENV *,
- * PUBLIC:     REPMGR_CONNECTION *, uint32, uint8 *, uint32));
+ * PUBLIC: int __repmgr_send_own_msg __P((ENV *, REPMGR_CONNECTION *, uint32, uint8 *, uint32));
  */
 int __repmgr_send_own_msg(ENV *env, REPMGR_CONNECTION * conn, uint32 type, uint8 * buf, uint32 len)
 {
@@ -974,10 +966,8 @@ empty:
 	 */
 	return (__repmgr_wake_main_thread(env));
 }
-
 /*
- * PUBLIC: int __repmgr_write_iovecs __P((ENV *, REPMGR_CONNECTION *,
- * PUBLIC:     REPMGR_IOVECS *, size_t *));
+ * PUBLIC: int __repmgr_write_iovecs __P((ENV *, REPMGR_CONNECTION *, REPMGR_IOVECS *, size_t *));
  */
 int __repmgr_write_iovecs(ENV *env, REPMGR_CONNECTION * conn, REPMGR_IOVECS * iovecs, size_t * writtenp)
 {
@@ -1100,7 +1090,6 @@ static int got_acks(ENV *env, void * context)
 		done = is_perm;
 	return (done);
 }
-
 /*
  * Abandons a connection, to recover from an error.  Takes necessary recovery
  * action.  Note that we don't actually close and clean up the connection here;
@@ -1355,10 +1344,8 @@ int __repmgr_disable_connection(ENV *env, REPMGR_CONNECTION * conn)
 		ret = t_ret;
 	if((t_ret = __repmgr_wake_main_thread(env)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * PUBLIC: int __repmgr_cleanup_defunct __P((ENV *, REPMGR_CONNECTION *));
  *
@@ -1366,10 +1353,9 @@ int __repmgr_disable_connection(ENV *env, REPMGR_CONNECTION * conn)
  */
 int __repmgr_cleanup_defunct(ENV *env, REPMGR_CONNECTION * conn)
 {
-	DB_REP * db_rep;
-	int ret, t_ret;
-	db_rep = env->rep_handle;
-	ret = __repmgr_close_connection(env, conn);
+	int t_ret;
+	DB_REP * db_rep = env->rep_handle;
+	int ret = __repmgr_close_connection(env, conn);
 	TAILQ_REMOVE(&db_rep->connections, conn, entries);
 	if((t_ret = __repmgr_decr_conn_ref(env, conn)) != 0 && ret == 0)
 		ret = t_ret;
@@ -1401,7 +1387,6 @@ int __repmgr_close_connection(ENV *env, REPMGR_CONNECTION * conn)
 #endif
 	return ret;
 }
-
 /*
  * Decrements a connection's ref count; destroys the connection when the ref
  * count reaches zero.
@@ -1601,8 +1586,7 @@ static REPMGR_SITE * __repmgr_find_available_peer(ENV *env)
  * Copy host/port values into the given netaddr struct.  Allocates memory for
  * the copy of the host name, which becomes the responsibility of the caller.
  *
- * PUBLIC: int __repmgr_pack_netaddr __P((ENV *, const char *,
- * PUBLIC:     u_int, repmgr_netaddr_t *));
+ * PUBLIC: int __repmgr_pack_netaddr __P((ENV *, const char *, u_int, repmgr_netaddr_t *));
  */
 int __repmgr_pack_netaddr(ENV *env, const char * host, u_int port, repmgr_netaddr_t * addr)
 {
@@ -1614,8 +1598,7 @@ int __repmgr_pack_netaddr(ENV *env, const char * host, u_int port, repmgr_netadd
 	return 0;
 }
 /*
- * PUBLIC: int __repmgr_getaddr __P((ENV *,
- * PUBLIC:     const char *, u_int, int, ADDRINFO **));
+ * PUBLIC: int __repmgr_getaddr __P((ENV *, const char *, u_int, int, ADDRINFO **));
  */
 int __repmgr_getaddr(ENV *env, const char * host, u_int port, int flags/* Matches struct addrinfo declaration. */, ADDRINFO ** result)
 {
@@ -1648,7 +1631,7 @@ int __repmgr_getaddr(ENV *env, const char * host, u_int port, int flags/* Matche
  * Initialize a socket for listening.  Sets a file descriptor for the socket,
  * ready for an accept() call in a thread that we're happy to let block.
  *
- * PUBLIC:  int __repmgr_listen __P((ENV *));
+ * PUBLIC:  int __repmgr_listen(ENV *);
  */
 int __repmgr_listen(ENV *env)
 {
@@ -1742,7 +1725,7 @@ out:
 	return ret;
 }
 /*
- * PUBLIC: int __repmgr_net_close __P((ENV *));
+ * PUBLIC: int __repmgr_net_close(ENV *);
  */
 int __repmgr_net_close(ENV *env)
 {
@@ -1944,8 +1927,7 @@ err:
  * to supply an index value if printing out a list of IP addresses
  * (in this case single should be 0).
  *
- * PUBLIC: void __repmgr_print_addr __P((ENV *,
- * PUBLIC:    struct sockaddr *, const char *, int, int));
+ * PUBLIC: void __repmgr_print_addr __P((ENV *, struct sockaddr *, const char *, int, int));
  */
 void __repmgr_print_addr(ENV *env, struct sockaddr * addr, const char * idstring, int single, int idx)
 {

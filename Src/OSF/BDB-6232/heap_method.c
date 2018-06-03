@@ -15,7 +15,7 @@
  * __heap_db_create --
  *	Heap specific initialization of the DB structure.
  *
- * PUBLIC: int __heap_db_create __P((DB *));
+ * PUBLIC: int __heap_db_create(DB *);
  */
 int __heap_db_create(DB *dbp)
 {
@@ -38,7 +38,7 @@ int __heap_db_create(DB *dbp)
  * __heap_db_close --
  *      Heap specific discard of the DB structure.
  *
- * PUBLIC: int __heap_db_close __P((DB *));
+ * PUBLIC: int __heap_db_close(DB *);
  */
 int __heap_db_close(DB *dbp)
 {
@@ -70,7 +70,7 @@ int __heap_get_heapsize(DB *dbp, uint32 * gbytes, uint32 * bytes)
  * __heap_get_heap_regionsize --
  *	Get the region size of the heap.
  *
- * PUBLIC: int __heap_get_heap_regionsize __P((DB *, uint32 *));
+ * PUBLIC: int __heap_get_heap_regionsize(DB *, uint32 *);
  */
 int __heap_get_heap_regionsize(DB *dbp, uint32 * npages)
 {
@@ -103,7 +103,7 @@ int __heap_set_heapsize(DB *dbp, uint32 gbytes, uint32 bytes, uint32 flags)
  * __heap_set_heap_regionsize --
  *	Set the region size of the heap.
  *
- * PUBLIC: int __heap_set_heap_regionsize __P((DB *, uint32));
+ * PUBLIC: int __heap_set_heap_regionsize(DB *, uint32);
  */
 int __heap_set_heap_regionsize(DB *dbp, uint32 npages)
 {
@@ -123,7 +123,7 @@ int __heap_set_heap_regionsize(DB *dbp, uint32 npages)
  * __heap_exist --
  *	Test to see if heap exists or not, used in Perl interface
  *
- * PUBLIC: int __heap_exist __P((void));
+ * PUBLIC: int __heap_exist(void);
  */
 int __heap_exist()
 {

@@ -403,7 +403,7 @@ int __bam_stat_callback(DBC *dbc, PAGE * h, void * cookie, int * putp)
  * __bam_print_cursor --
  *	Display the current internal cursor.
  *
- * PUBLIC: void __bam_print_cursor __P((DBC *));
+ * PUBLIC: void __bam_print_cursor(DBC *);
  */
 void __bam_print_cursor(DBC *dbc)
 {

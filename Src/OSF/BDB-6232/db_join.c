@@ -13,7 +13,7 @@
 #include "dbinc/btree.h"
 #include "dbinc/lock.h"
 
-static int __db_join_close_pp __P((DBC *));
+static int __db_join_close_pp(DBC *);
 static int __db_join_cmp __P((const void *, const void *));
 static int __db_join_del __P((DBC *, uint32));
 static int __db_join_get __P((DBC *, DBT *, DBT *, uint32));
@@ -636,7 +636,7 @@ samekey:        /*
  * __db_join_close --
  *	DBC->close for join cursors.
  *
- * PUBLIC: int __db_join_close __P((DBC *));
+ * PUBLIC: int __db_join_close(DBC *);
  */
 int __db_join_close(DBC *dbc)
 {
@@ -819,7 +819,7 @@ static int __db_join_primget(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_LOCK
  * __db_secondary_corrupt --
  *	Report primary/secondary inconsistencies.
  *
- * PUBLIC: int __db_secondary_corrupt __P((DB *));
+ * PUBLIC: int __db_secondary_corrupt(DB *);
  */
 int __db_secondary_corrupt(DB *dbp)
 {

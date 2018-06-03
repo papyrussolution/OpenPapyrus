@@ -103,14 +103,12 @@ int __memp_bh_unreachable(ENV *env, BH * bhp, DB_LSN * snapshots, int n_snapshot
 #endif
 	return ret;
 }
-
 /*
  * __memp_alloc --
  *	Allocate some space from a cache region. If the region is full then
  *	reuse one or more cache buffers.
  *
- * PUBLIC: int __memp_alloc __P((DB_MPOOL *,
- * PUBLIC:     REGINFO *, MPOOLFILE *, size_t, roff_t *, void *));
+ * PUBLIC: int __memp_alloc __P((DB_MPOOL *, REGINFO *, MPOOLFILE *, size_t, roff_t *, void *));
  */
 int __memp_alloc(DB_MPOOL *dbmp, REGINFO * infop, MPOOLFILE * mfp, size_t len, roff_t * offsetp, void * retp)
 {
@@ -706,8 +704,7 @@ this_buffer:    /*
 				 * We're going to retry the search, so we need
 				 * to re-lock it.
 				 */
-				if((ret = __memp_bh_thaw(dbmp,
-				    infop, hp, bhp, NULL)) != 0)
+				if((ret = __memp_bh_thaw(dbmp, infop, hp, bhp, NULL)) != 0)
 					goto done;
 				MUTEX_READLOCK(env, hp->mtx_hash);
 			}
@@ -717,8 +714,7 @@ this_buffer:    /*
 				MUTEX_UNLOCK(env, bhp->mtx_buf);
 				if(need_free) {
 					MPOOL_REGION_LOCK(env, infop);
-					SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen,
-					    bhp, hq);
+					SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, bhp, hq);
 					MPOOL_REGION_UNLOCK(env, infop);
 				}
 			}
@@ -726,14 +722,11 @@ this_buffer:    /*
 			b_lock = alloc_freeze = 0;
 			goto retry_search;
 		}
-
 		/* We are certainly freeing this buf; now update statistic. */
 		if(dirty_eviction)
-			STAT_INC(env, mpool,
-			    dirty_eviction, c_mp->stat.st_rw_evict, infop->id);
+			STAT_INC(env, mpool, dirty_eviction, c_mp->stat.st_rw_evict, infop->id);
 		else
-			STAT_INC(env, mpool,
-			    clean_eviction, c_mp->stat.st_ro_evict, infop->id);
+			STAT_INC(env, mpool, clean_eviction, c_mp->stat.st_ro_evict, infop->id);
 		/*
 		 * If we need some empty buffer headers for freezing, turn the
 		 * buffer we've found into frozen headers and put them on the
@@ -744,36 +737,28 @@ this_buffer:    /*
 			/* __memp_ bhfree(..., 0) unlocks both hp & bhp. */
 			h_locked = 0;
 			b_lock = 0;
-			if((ret = __memp_bhfree(dbmp,
-			    infop, bh_mfp, hp, bhp, 0)) != 0)
+			if((ret = __memp_bhfree(dbmp, infop, bh_mfp, hp, bhp, 0)) != 0)
 				goto err;
 			DB_ASSERT(env, bhp->mtx_buf != MUTEX_INVALID);
 			if((ret = __mutex_free(env, &bhp->mtx_buf)) != 0)
 				goto err;
-
-			MVCC_MPROTECT(bhp->buf, bh_mfp->pagesize,
-			    PROT_READ | PROT_WRITE | PROT_EXEC);
-
+			MVCC_MPROTECT(bhp->buf, bh_mfp->pagesize, PROT_READ | PROT_WRITE | PROT_EXEC);
 			MPOOL_REGION_LOCK(env, infop);
-			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen,
-			    (BH_FROZEN_ALLOC*)bhp, links);
+			SH_TAILQ_INSERT_TAIL(&c_mp->alloc_frozen, (BH_FROZEN_ALLOC*)bhp, links);
 			frozen_bhp = (BH_FROZEN_PAGE*)
 			    ((BH_FROZEN_ALLOC*)bhp + 1);
 			endp = (uint8*)bhp->buf + bh_mfp->pagesize;
 			while((uint8*)(frozen_bhp + 1) < endp) {
 				frozen_bhp->header.mtx_buf = MUTEX_INVALID;
-				SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen,
-				    (BH*)frozen_bhp, hq);
+				SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, (BH*)frozen_bhp, hq);
 				frozen_bhp++;
 			}
 			MPOOL_REGION_UNLOCK(env, infop);
-
 			alloc_freeze = 0;
 			MUTEX_READLOCK(env, hp->mtx_hash);
 			h_locked = 1;
 			goto retry_search;
 		}
-
 		/*
 		 * If the buffer is the size we're looking for, we can simply
 		 * reuse it. Otherwise, free it and keep looking.
@@ -823,7 +808,6 @@ next_hb:                if(bhp != NULL) {
 		}
 		obsolete = 0;
 		MPOOL_REGION_LOCK(env, infop);
-
 		/*
 		 * Retry the allocation as soon as we've freed up sufficient
 		 * space.  We're likely to have to coalesce of memory to

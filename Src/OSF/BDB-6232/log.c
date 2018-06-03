@@ -22,7 +22,7 @@ static int __log_recover __P((DB_LOG *));
  * __log_open --
  *	Internal version of log_open: only called from ENV->open.
  *
- * PUBLIC: int __log_open __P((ENV *));
+ * PUBLIC: int __log_open(ENV *);
  */
 int __log_open(ENV *env)
 {
@@ -810,7 +810,7 @@ err:    if(fname != NULL)
  * __log_env_refresh --
  *	Clean up after the log system on a close or failed open.
  *
- * PUBLIC: int __log_env_refresh __P((ENV *));
+ * PUBLIC: int __log_env_refresh(ENV *);
  */
 int __log_env_refresh(ENV *env)
 {
@@ -948,7 +948,7 @@ int __log_get_cached_ckp_lsn(ENV *env, DB_LSN * ckp_lsnp)
  * __log_region_mutex_count --
  *	Return the number of mutexes the log region will need.
  *
- * PUBLIC: uint32 __log_region_mutex_count __P((ENV *));
+ * PUBLIC: uint32 __log_region_mutex_count(ENV *);
  */
 uint32 __log_region_mutex_count(ENV *env)
 {
@@ -963,7 +963,7 @@ uint32 __log_region_mutex_count(ENV *env)
  * __log_region_mutex_max --
  *	Return the number of additional mutexes the log region will need.
  *
- * PUBLIC: uint32 __log_region_mutex_max __P((ENV *));
+ * PUBLIC: uint32 __log_region_mutex_max(ENV *);
  */
 uint32 __log_region_mutex_max(ENV *env)
 {
@@ -984,7 +984,7 @@ uint32 __log_region_mutex_max(ENV *env)
  *	    the log buffer
  *	    DB_ENV->set_memory_init(DB_MEM_LOGID) log fileid structs
  *
- * PUBLIC: size_t	__log_region_size __P((ENV *));
+ * PUBLIC: size_t	__log_region_size(ENV *);
  */
 size_t __log_region_size(ENV *env)
 {
@@ -1009,7 +1009,7 @@ size_t __log_region_size(ENV *env)
  *	- the log region size set by DB_ENV->set_lg_regionmax(), or,
  *	  if that is zero, LG_BASE_REGION_SIZE (about 128K)
  *
- * PUBLIC: size_t	__log_region_max __P((ENV *));
+ * PUBLIC: size_t	__log_region_max(ENV *);
  */
 size_t __log_region_max(ENV *env)
 {
@@ -1460,7 +1460,7 @@ void __log_inmem_copyin(DB_LOG *dblp, size_t offset, void * buf, size_t size)
  *	shared memory region.  Called when region is initially created
  *	and when replication is starting up or finds a new master.
  *
- * PUBLIC: void __log_set_version __P((ENV *, uint32));
+ * PUBLIC: void __log_set_version(ENV *, uint32);
  */
 void __log_set_version(ENV *env, uint32 newver)
 {

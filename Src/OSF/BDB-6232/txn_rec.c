@@ -42,7 +42,7 @@
 #include "dbinc/db_am.h"
 /*
  * PUBLIC: int __txn_regop_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * These records are only ever written for commits.  Normally, we redo any
  * committed transaction, however if we are doing recovery to a timestamp, then
@@ -107,7 +107,7 @@ err:
 }
 /*
  * PUBLIC: int __txn_prepare_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  *
  * These records are only ever written for prepares.
  */
@@ -200,7 +200,7 @@ err:
 }
 /*
  * PUBLIC: int __txn_ckp_recover
- * PUBLIC: __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __txn_ckp_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -222,7 +222,7 @@ int __txn_ckp_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
  *	Recover a commit record for a child transaction.
  *
  * PUBLIC: int __txn_child_recover
- * PUBLIC:    __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:   (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __txn_child_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -380,7 +380,7 @@ int __txn_restore_txn(ENV *env, DB_LSN * lsnp, __txn_prepare_args * argp)
  *	Recovery function for recycle.
  *
  * PUBLIC: int __txn_recycle_recover
- * PUBLIC:   __P((ENV *, DBT *, DB_LSN *, db_recops, void *));
+ * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __txn_recycle_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {

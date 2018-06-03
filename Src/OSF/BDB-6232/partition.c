@@ -20,17 +20,17 @@
 #include "dbinc/txn.h"
 #ifdef HAVE_PARTITION
 
-static int __part_rr __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *, uint32));
-static int __partc_close __P((DBC *, db_pgno_t, int *));
-static int __partc_del __P((DBC*, uint32));
-static int __partc_destroy __P((DBC*));
-static int __partc_get_pp __P((DBC*, DBT *, DBT *, uint32));
-static int __partc_put __P((DBC*, DBT *, DBT *, uint32, db_pgno_t *));
-static int __partc_writelock __P((DBC*));
-static int __partition_chk_meta __P((DB *, DB_THREAD_INFO *, DB_TXN *, uint32));
-static int __partition_setup_keys __P((DBC *, DB_PARTITION *, uint32, uint32));
-static int __part_key_cmp __P((const void *, const void *));
-static inline void __part_search __P((DB *, DB_PARTITION *, DBT *, uint32 *));
+static int __part_rr(DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *, uint32);
+static int __partc_close(DBC *, db_pgno_t, int *);
+static int __partc_del(DBC*, uint32);
+static int __partc_destroy(DBC *);
+static int __partc_get_pp(DBC*, DBT *, DBT *, uint32);
+static int __partc_put(DBC*, DBT *, DBT *, uint32, db_pgno_t *);
+static int __partc_writelock(DBC *);
+static int __partition_chk_meta(DB *, DB_THREAD_INFO *, DB_TXN *, uint32);
+static int __partition_setup_keys(DBC *, DB_PARTITION *, uint32, uint32);
+static int __part_key_cmp(const void *, const void *);
+static inline void __part_search(DB *, DB_PARTITION *, DBT *, uint32 *);
 
 #define ALLOC_ERR DB_STR_A("0764", "Partition failed to allocate %d bytes", "%d")
 
@@ -43,14 +43,10 @@ static inline void __part_search __P((DB *, DB_PARTITION *, DBT *, uint32 *));
  *				the whole DB, not the partition.
  */
 #define GET_PART_CURSOR(dbc, new_dbc, part_id) do {                          \
-		DB * __part_dbp;                                                      \
-		__part_dbp = part->handles[part_id];                                 \
-		if((ret = __db_cursor_int(__part_dbp,                               \
-		    (dbc)->thread_info, (dbc)->txn, __part_dbp->type,               \
-		    PGNO_INVALID, 0, (dbc)->locker, &new_dbc)) != 0)                \
+		DB * __part_dbp = part->handles[part_id];                                 \
+		if((ret = __db_cursor_int(__part_dbp, (dbc)->thread_info, (dbc)->txn, __part_dbp->type, PGNO_INVALID, 0, (dbc)->locker, &new_dbc)) != 0) \
 			goto err;                                                    \
-		(new_dbc)->flags = (dbc)->flags &                                    \
-		    ~(DBC_PARTITIONED|DBC_OWN_LID|DBC_WRITECURSOR|DBC_WRITER);       \
+		(new_dbc)->flags = (dbc)->flags & ~(DBC_PARTITIONED|DBC_OWN_LID|DBC_WRITECURSOR|DBC_WRITER);       \
 } while(0)
 
 /*
@@ -86,14 +82,13 @@ static inline void __part_search(DB *dbp, DB_PARTITION * part, DBT * key, uint32
 	else if((*part_idp = base) != 0)
 		(*part_idp)--;
 }
-
 /*
  * __partition_init --
  *	Initialize the partition structure.
  * Called when the meta data page is read in during database open or
  * when partition keys or a callback are set.
  *
- * PUBLIC: int __partition_init __P((DB *, uint32));
+ * PUBLIC: int __partition_init(DB *, uint32);
  */
 int __partition_init(DB *dbp, uint32 flags)
 {
@@ -122,10 +117,8 @@ int __partition_init(DB *dbp, uint32 flags)
  * __partition_set --
  *	Set the partitioning keys or callback function.
  * This routine must be called prior to creating the database.
- * PUBLIC: int __partition_set __P((DB *, uint32, DBT *,
- * PUBLIC:	uint32 (*callback)(DB *, DBT *key)));
+ * PUBLIC: int __partition_set __P((DB *, uint32, DBT *, uint32 (*callback)(DB *, DBT *key)));
  */
-
 int __partition_set(DB *dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *, DBT * key))
 {
 	DB_PARTITION * part;
@@ -219,7 +212,7 @@ err:    if(ret != 0 && part->keys != NULL) {
  * __partition_set_dirs --
  *	Set the directories for creating the partition databases.
  * They must be in the environment.
- * PUBLIC: int __partition_set_dirs __P((DB *, const char **));
+ * PUBLIC: int __partition_set_dirs (DB *, const char **);
  */
 int __partition_set_dirs(DB *dbp, const char ** dirp)
 {
@@ -710,7 +703,6 @@ done:   if(F_ISSET(part, PART_RANGE)) {
 		 */
 		if(ret == DB_NOTFOUND && (uint32)(kp - okp) == part->nparts)
 			ret = 0;
-
 		if(ret == 0) {
 			/*
 			 * They passed in keys, they must match.
@@ -719,17 +711,14 @@ done:   if(F_ISSET(part, PART_RANGE)) {
 			if(have_keys == 1 && keys != NULL) {
 				t = (BTREE *)dbc->dbp->bt_internal;
 				compare = t->bt_compare;
-				if((ret = __os_malloc(env, (part->nparts - 1)
-				    * sizeof(struct key_sort), &ks)) != 0)
+				if((ret = __os_malloc(env, (part->nparts - 1) * sizeof(struct key_sort), &ks)) != 0)
 					goto err;
 				for(j = 0; j < part->nparts - 1; j++) {
 					ks[j].dbp = dbc->dbp;
 					ks[j].compare = compare;
 					ks[j].key = &keys[j];
 				}
-
-				qsort(ks, (size_t)part->nparts - 1,
-				    sizeof(struct key_sort), __part_key_cmp);
+				qsort(ks, (size_t)part->nparts - 1, sizeof(struct key_sort), __part_key_cmp);
 			}
 			part->keys = (DBT*)((uint8*)part->data + dsize);
 			F_SET(part, PART_KEYS_SETUP);
@@ -747,11 +736,9 @@ done:   if(F_ISSET(part, PART_RANGE)) {
 	}
 	if(ret == DB_NOTFOUND && F_ISSET(dbp, DB_AM_RECOVER))
 		ret = 0;
-
-err:    dbp->p_internal = part;
-	if(ks != NULL)
-		__os_free(env, ks);
-
+err:    
+	dbp->p_internal = part;
+	__os_free(env, ks);
 	/*
 	 * We only free the original copy of the key array when
 	 * the keys have been setup properly, otherwise we let
@@ -760,23 +747,18 @@ err:    dbp->p_internal = part;
 	if(keys != NULL && F_ISSET(part, PART_KEYS_SETUP)) {
 		for(i = 0; i < part->nparts - 1; i++)
 			/*
-			 * Always free all entries in the key array and return
-			 * the first error code.
+			 * Always free all entries in the key array and return the first error code.
 			 */
-			if((t_ret = __db_dbt_clone_free(env,
-			    &keys[i])) != 0 && ret == 0)
+			if((t_ret = __db_dbt_clone_free(env, &keys[i])) != 0 && ret == 0)
 				ret = t_ret;
 		__os_free(env, keys);
 	}
-
 	return ret;
 }
-
 /*
  * __partition_get_callback --
  *	Get the partition callback function.
- * PUBLIC: int __partition_get_callback __P((DB *,
- * PUBLIC:	 uint32 *, uint32 (**callback)(DB *, DBT *key)));
+ * PUBLIC: int __partition_get_callback __P((DB *, uint32 *, uint32 (**callback)(DB *, DBT *key)));
  */
 int __partition_get_callback(DB *dbp, uint32 * parts, uint32(**callback)(DB *, DBT *key))
 {
@@ -851,7 +833,7 @@ int __partition_get_dirs(DB *dbp, const char *** dirpp)
  * __partc_init --
  *	Initialize the access private portion of a cursor
  *
- * PUBLIC: int __partc_init __P((DBC *));
+ * PUBLIC: int __partc_init(DBC *);
  */
 int __partc_init(DBC *dbc)
 {
@@ -1216,7 +1198,7 @@ int __partition_close(DB *dbp, DB_TXN * txn, uint32 flags)
  * __partition_sync
  *	Sync a partitioned database.
  *
- * PUBLIC: int __partition_sync __P((DB *));
+ * PUBLIC: int __partition_sync(DB *);
  */
 int __partition_sync(DB *dbp)
 {
@@ -1633,20 +1615,18 @@ int __part_key_range(DBC *dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 			kp->greater += greater_elems / total_elems;
 		}
 	}
-
 	if(0) {
-c_err:          (void)__dbc_close(new_dbc);
+c_err:          
+		(void)__dbc_close(new_dbc);
 	}
-
-err:    return ret;
+err:    
+	return ret;
 }
-
 /*
  * __part_remove --
  *	Remove method for a partitioned database.
  *
- * PUBLIC: int __part_remove __P((DB *, DB_THREAD_INFO *,
- * PUBLIC:      DB_TXN *, const char *, const char *, uint32));
+ * PUBLIC: int __part_remove __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, uint32));
  */
 int __part_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, uint32 flags)
 {
@@ -1656,8 +1636,7 @@ int __part_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name,
  * __part_rename --
  *	Rename method for a partitioned database.
  *
- * PUBLIC: int __part_rename __P((DB *, DB_THREAD_INFO *,
- * PUBLIC:         DB_TXN *, const char *, const char *, const char *));
+ * PUBLIC: int __part_rename __P((DB *, DB_THREAD_INFO *, DB_TXN *, const char *, const char *, const char *));
  */
 int __part_rename(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, const char * newname)
 {
@@ -1881,7 +1860,7 @@ int __part_testdocopy(DB *dbp, const char * name)
  * __db_nopartition --
  *	Error when a Berkeley DB build doesn't include partitioning.
  *
- * PUBLIC: int __db_no_partition __P((ENV *));
+ * PUBLIC: int __db_no_partition(ENV *);
  */
 int __db_no_partition(ENV *env)
 {
@@ -1892,10 +1871,8 @@ int __db_no_partition(ENV *env)
  * __partition_set --
  *	Set the partitioning keys or callback function.
  * This routine must be called prior to creating the database.
- * PUBLIC: int __partition_set __P((DB *, uint32, DBT *,
- * PUBLIC:	uint32 (*callback)(DB *, DBT *key)));
+ * PUBLIC: int __partition_set __P((DB *, uint32, DBT *, uint32 (*callback)(DB *, DBT *key)));
  */
-
 int __partition_set(DB *dbp, uint32 parts, DBT * keys, uint32 (*callback)(DB *, DBT * key))
 {
 	COMPQUIET(parts, 0);
@@ -1907,8 +1884,7 @@ int __partition_set(DB *dbp, uint32 parts, DBT * keys, uint32 (*callback)(DB *, 
  * __partition_get_callback --
  *	Set the partition callback function.  This routine must be called
  * prior to opening a partition database that requires a function.
- * PUBLIC: int __partition_get_callback __P((DB *,
- * PUBLIC:	 uint32 *, uint32 (**callback)(DB *, DBT *key)));
+ * PUBLIC: int __partition_get_callback __P((DB *, uint32 *, uint32 (**callback)(DB *, DBT *key)));
  */
 int __partition_get_callback(DB *dbp, uint32 * parts, uint32(**callback)(DB *, DBT *key))
 {
@@ -1943,7 +1919,7 @@ int __partition_get_keys(DB *dbp, uint32 * parts, DBT ** keys)
  * Called when the meta data page is read in during database open or
  * when partition keys or a callback are set.
  *
- * PUBLIC: int __partition_init __P((DB *, uint32));
+ * PUBLIC: int __partition_init(DB *, uint32);
  */
 int __partition_init(DB *dbp, uint32 flags)
 {
@@ -1969,7 +1945,7 @@ int __part_fileid_reset(ENV *env, DB_THREAD_INFO * ip, const char * fname, uint3
  * __partition_set_dirs --
  *	Set the directories for creating the partition databases.
  * They must be in the environment.
- * PUBLIC: int __partition_set_dirs __P((DB *, const char **));
+ * PUBLIC: int __partition_set_dirs (DB *, const char **);
  */
 int __partition_set_dirs(DB *dbp, const char ** dirp)
 {

@@ -96,7 +96,7 @@ err:
  * __db_env_destroy --
  *	DB_ENV destructor.
  *
- * PUBLIC: void __db_env_destroy __P((DB_ENV *));
+ * PUBLIC: void __db_env_destroy(DB_ENV *);
  */
 void __db_env_destroy(DB_ENV *dbenv)
 {
@@ -514,7 +514,7 @@ int __env_get_memory_init(DB_ENV *dbenv, DB_MEM_CONFIG type, uint32 * countp)
  * Get the blob threshold for the environment.  Any data item larger
  * than the blob threshold is automatically saved as a blob file.
  *
- * PUBLIC: int  __env_get_blob_threshold_pp __P((DB_ENV *, uint32 *));
+ * PUBLIC: int  __env_get_blob_threshold_pp(DB_ENV *, uint32 *);
  */
 int __env_get_blob_threshold_pp(DB_ENV *dbenv, uint32 * bytes)
 {
@@ -714,7 +714,7 @@ static int __env_get_blob_dir(DB_ENV *dbenv, const char ** dirp)
  * __env_get_encrypt_flags --
  *	{DB_ENV,DB}->get_encrypt_flags.
  *
- * PUBLIC: int __env_get_encrypt_flags __P((DB_ENV *, uint32 *));
+ * PUBLIC: int __env_get_encrypt_flags(DB_ENV *, uint32 *);
  */
 int __env_get_encrypt_flags(DB_ENV *dbenv, uint32 * flagsp)
 {
@@ -1162,7 +1162,7 @@ static int __env_get_metadata_dir(DB_ENV *dbenv, const char ** dirp)
  * __env_set_data_len --
  *	DB_ENV->set_data_len.
  *
- * PUBLIC: int  __env_set_data_len __P((DB_ENV *, uint32));
+ * PUBLIC: int  __env_set_data_len(DB_ENV *, uint32);
  */
 int __env_set_data_len(DB_ENV *dbenv, uint32 data_len)
 {
@@ -1415,7 +1415,7 @@ static int __env_get_thread_count(DB_ENV *dbenv, uint32 * countp)
  * __env_set_thread_count --
  *	DB_ENV->set_thread_count
  *
- * PUBLIC: int  __env_set_thread_count __P((DB_ENV *, uint32));
+ * PUBLIC: int  __env_set_thread_count(DB_ENV *, uint32);
  */
 int __env_set_thread_count(DB_ENV *dbenv, uint32 count)
 {

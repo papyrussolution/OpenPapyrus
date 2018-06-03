@@ -42,7 +42,7 @@ int __os_get_errno()
  *	Return the last networking error or EAGAIN if the last error is zero.
  *
  * PUBLIC: #ifdef HAVE_REPLICATION_THREADS
- * PUBLIC: int __os_get_neterr __P((void));
+ * PUBLIC: int __os_get_neterr(void);
  * PUBLIC: #endif
  */
 int __os_get_neterr()

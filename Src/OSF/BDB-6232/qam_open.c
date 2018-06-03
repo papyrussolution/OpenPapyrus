@@ -223,24 +223,18 @@ static int __qam_init_meta(DB *dbp, QMETA * meta)
 	meta->page_ext = t->page_ext;
 	t->rec_page = meta->rec_page;
 	memcpy(meta->dbmeta.uid, dbp->fileid, DB_FILE_ID_LEN);
-
 	/* Verify that we can fit at least one record per page. */
 	if(QAM_RECNO_PER_PAGE(dbp) < 1) {
-		__db_errx(env, DB_STR_A("1139",
-		    "Record size of %lu too large for page size of %lu",
-		    "%lu %lu"), (u_long)t->re_len, (u_long)dbp->pgsize);
+		__db_errx(env, DB_STR_A("1139", "Record size of %lu too large for page size of %lu", "%lu %lu"), (u_long)t->re_len, (u_long)dbp->pgsize);
 		return EINVAL;
 	}
-
 	return 0;
 }
-
 /*
  * __qam_new_file --
  * Create the necessary pages to begin a new queue database file.
  *
- * PUBLIC: int __qam_new_file __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DB_FH *, const char *));
+ * PUBLIC: int __qam_new_file __P((DB *, DB_THREAD_INFO *, DB_TXN *, DB_FH *, const char *));
  */
 int __qam_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, const char * name)
 {
