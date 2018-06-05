@@ -16,10 +16,9 @@ int __os_fsync(ENV *env, DB_FH * fhp)
 {
 	int ret;
 	DB_ENV * dbenv = env == NULL ? NULL : env->dbenv;
-	/*
-	 * Do nothing if the file descriptor has been marked as not requiring
-	 * any sync to disk.
-	 */
+	// 
+	// Do nothing if the file descriptor has been marked as not requiring any sync to disk.
+	// 
 	if(F_ISSET(fhp, DB_FH_NOSYNC))
 		return 0;
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))

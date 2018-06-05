@@ -1142,8 +1142,7 @@
 #define PPOBJ_EGAISREFA     1071L  // @v8.9.5 Специализированный объект, хранящий данные справок А системы ЕГАИС
 #define PPOBJ_EGAISPRODUCT  1072L  // @v8.9.5 Специализированный объект, хранящий данные о товарах системы ЕГАИС
 #define PPOBJ_EGAISPERSON   1073L  // @v8.9.7 Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
-#define PPOBJ_VETISPRODUCT  1074L  // @v10.0.09 Специализированный объект, хранящий данные о товарах системы VETIS
-#define PPOBJ_VETISPERSON   1075L  // @v10.0.09 Специализированный объект, хранящий данные о персоналиях системы VETIS
+#define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
 #define PPOBJ_DBCONVERT     1100L  // @v6.4.6 Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -10413,6 +10412,7 @@
 	#define CTL_CORGSTRUC_LOG         (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORGSTRUC_LOG      (2 + WINDOWS_ID_BIAS)
 	#define CTL_CORGSTRUC_FLAGS       (3 + WINDOWS_ID_BIAS)
+#define DLG_NGSVIEW               1340
 //
 // Win32 Dialog Identifiers
 //

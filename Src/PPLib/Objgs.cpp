@@ -944,6 +944,45 @@ private:
 	PPObjGoodsStruc & R_GsObj;
 };
 
+int SLAPI PPObjGoodsStruc::Browse(void * extraPtr)
+{
+	class NamedGoodsStrucView : public ObjViewDialog {
+	public:
+		NamedGoodsStrucView(PPObjGoodsStruc * pObj) : ObjViewDialog(DLG_NGSVIEW, pObj, 0)
+		{
+		}
+	private:
+		virtual void extraProc(long id)
+		{
+			if(id) {
+				PPObjGoodsStruc * p_gsobj = (PPObjGoodsStruc *)P_Obj;
+				PPGoodsStrucHeader gsh;
+				if(p_gsobj->Search(id, &gsh) > 0) {
+					PPObjGoods goods_obj;
+					PPIDArray goods_list;
+					goods_obj.P_Tbl->SearchGListByStruc(id, &goods_list);
+					if(goods_list.getCount()) {
+						GoodsFilt flt;
+						flt.GoodsStrucID = id;
+						PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
+					}
+				}
+			}
+		}
+	};
+	int    ok = 1;
+	if(CheckRights(PPR_READ)) {
+		NamedGoodsStrucView * dlg = new NamedGoodsStrucView(this);
+		if(CheckDialogPtrErr(&dlg))
+			ExecViewAndDestroy(dlg);
+		else
+			ok = 0;
+	}
+	else
+		ok = PPErrorZ();
+	return ok;
+}
+
 int SLAPI PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos)
 {
 	int    ok = -1;

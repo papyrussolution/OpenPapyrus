@@ -522,6 +522,10 @@ int SLAPI PPViewGoodsStruc::Transmit(PPID /*id*/)
 
 int SLAPI PPViewGoodsStruc::Recover()
 {
+	enum {
+		cfCorrection   = 0x0001,
+		cfSpcDetaching = 0x0002
+	};
 	int    ok = 1;
 	PPLogger logger;
 	SString log_fname;
@@ -536,7 +540,8 @@ int SLAPI PPViewGoodsStruc::Recover()
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORGSTRUC_LOG, CTL_CORGSTRUC_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		PPGetFileName(PPFILNAM_GSTRUCERR_LOG, log_fname);
 		dlg->setCtrlString(CTL_CORGSTRUC_LOG, log_fname);
-		dlg->AddClusterAssoc(CTL_CORGSTRUC_FLAGS, 0, 0x01);
+		dlg->AddClusterAssoc(CTL_CORGSTRUC_FLAGS, 0, cfCorrection);
+		dlg->AddClusterAssoc(CTL_CORGSTRUC_FLAGS, 1, cfSpcDetaching);
 		dlg->SetClusterData(CTL_CORGSTRUC_FLAGS, flags);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_CORGSTRUC_LOG, log_fname);
@@ -567,16 +572,52 @@ int SLAPI PPViewGoodsStruc::Recover()
 			}
 			if(Problems.getCount())
 				Problems.sort(CMPF_LONG); // Сортируем по идентификатору структуры для быстрого поиска
-			if(flags & 0x01 && Problems.getCount()) {
+			if(flags & cfCorrection && (Problems.getCount() || flags & cfSpcDetaching)) {
+				const char * p_surrogate_prefix = "$named-struct";
+				PPIDArray owner_list;
 				PPIDArray nna_gs_list;
 				for(uint j = 0; j < Problems.getCount(); j++) {
 					const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(j);
 					if(p_problem->Code == PPObjGoodsStruc::CheckGsProblem::errNoNameAmbig)
 						nna_gs_list.add(p_problem->GsID);
 				}
+				// @v10.0.12 {
+				if(flags & cfSpcDetaching) {
+					PPGoodsStrucHeader gs_rec;
+					PPIDArray gs_id_list;
+					const size_t spl = sstrlen(p_surrogate_prefix);
+					for(SEnum en = GSObj.Enum(0); en.Next(&gs_rec) > 0;) {
+						if(gs_rec.Flags & GSF_NAMED && strncmp(gs_rec.Name, p_surrogate_prefix, spl) == 0) {
+							gs_id_list.add(gs_rec.ID);
+						}
+					}
+					if(gs_id_list.getCount()) {
+						PPTransaction tra(1);
+						THROW(tra);
+						gs_id_list.sortAndUndup();
+						for(uint i = 0; i < gs_id_list.getCount(); i++) {
+							const PPID gs_id = gs_id_list.get(i);
+							owner_list.clear();
+							GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+							if(owner_list.getCount()) {
+								for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
+									PPID goods_id = owner_list.get(oidx);
+									PPGoodsPacket goods_pack;
+									THROW(GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
+									if(goods_pack.Rec.StrucID == gs_id) {
+										goods_pack.Rec.StrucID = 0;
+										goods_pack.GS.Rec.ID = 0;
+										THROW(GObj.PutPacket(&goods_id, &goods_pack, 0));
+									}
+								}
+							}
+						}
+						THROW(tra.Commit());
+					}
+				}
+				// } @v10.0.12 
 				if(nna_gs_list.getCount()) {
 					nna_gs_list.sortAndUndup();
-					PPIDArray owner_list;
 					SString surrogate_name;
 					PPTransaction tra(1);
 					THROW(tra);
@@ -594,10 +635,10 @@ int SLAPI PPViewGoodsStruc::Recover()
 										{
 											long   nn = 0;
 											PPID   n_gs_id = 0;
-											surrogate_name = "$named-struct";
+											surrogate_name = p_surrogate_prefix;
 											STRNSCPY(gs.Rec.Name, surrogate_name);
 											while(GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
-												(surrogate_name = "$named-struct").Space().Cat(++nn);
+												(surrogate_name = p_surrogate_prefix).Space().Cat(++nn);
 												STRNSCPY(gs.Rec.Name, surrogate_name);
 											}
 										}
@@ -606,14 +647,15 @@ int SLAPI PPViewGoodsStruc::Recover()
 										THROW(GSObj.Put(&temp_id, &gs, 0));
 										assert(temp_id == gs_id);
 										//
-										// Снимаем ссылку на структуру со всех товаров кроме последнего (с наибольшим идентификатором)
+										// Снимаем ссылку на структуру со всех товаров // (@v10.0.12 отменено) кроме последнего (с наибольшим идентификатором)
 										//
-										for(uint oidx = 0; oidx < (owner_list.getCount()-1); oidx++) {
+										for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
 											PPID goods_id = owner_list.get(oidx);
 											PPGoodsPacket goods_pack;
 											THROW(GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
 											if(goods_pack.Rec.StrucID == gs_id) {
 												goods_pack.Rec.StrucID = 0;
+												goods_pack.GS.Rec.ID = 0;
 												THROW(GObj.PutPacket(&goods_id, &goods_pack, 0));
 											}
 										}

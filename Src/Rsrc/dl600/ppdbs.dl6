@@ -1474,23 +1474,34 @@ file:
 //
 //
 //
-table VetisProduct {
+table VetisEntity {
 	autolong ID;
 	long   GuidRef;  // ->UuidRef.ID Ссылка на GUID
 	long   UuidRef;  // ->UuidRef.ID Ссылка на UUID
-	long   Kind;     // Вид записи (1 - product item, 2 - product, 3 - subproduct)
-	long   ProductType;
+	long   Kind;     // Вид записи PPVetisInterface::entXXX
+	long   Flags;
 	long   Status;
-	long   ProductID;    // для ProductItem
-	long   SubProductID; // для ProductItem
-    long   ProducerLocID;
-    long   GostTRef;     // @selfreftext
-    long   Flags;
 	raw    Reserve[128];
 index:
 	ID (unique);
 	GuidRef, UuidRef (unique);
 	UuidRef, GuidRef (unique);
+    Kind (dup);
+file:
+	"vetisent.btr";
+	access=1;
+}
+
+table VetisProduct {
+	long   EntityID;
+	long   ProductType;
+	long   ProductID;    // для ProductItem
+	long   SubProductID; // для ProductItem
+    long   ProducerLocID;
+    long   GostTRef;     // @selfreftext
+	raw    Reserve[128];
+index:
+	EntityID (unique);
 	ProductID (dup mod anysegnull);
 	SubProductID (dup mod anysegnull);
 file:
@@ -1499,15 +1510,50 @@ file:
 }
 
 table VetisPerson {
-	autolong ID;
-	long   GuidRef;  // ->UuidRef.ID Ссылка на GUID Уникальный код предприятия
-	long   UuidRef;  // ->UuidRef.ID Ссылка на UUID	Уникальный код версии информации о предприятии
+	long   EntityID;
+	long   EnterpriseType;
+	long   CountryID; // -->VetisEntity.ID
+	long   RegionID;  // -->VetisEntity.ID
+	char   INN[16];
+	char   KPP[16];
 	raw    Reserve[128];
 index:
-	ID (unique);
-	GuidRef, UuidRef (unique);
+	EntityID (unique);
+	INN (dup mod);
 file:
 	"vetispsn.btr";
+	access=1;
+}
+
+table VetisDocument {
+	long   EntityID;
+    date   IssueDate;
+    long   VetisDocForm;
+    long   VetisDocType;
+    long   VetisDocStatus;
+    long   FromEntityID;     // -->VetisEntity.ID
+    long   FromEnterpriseID; // -->VetisEntity.ID
+    long   ToEntityID;       // -->VetisEntity.ID
+    long   ToEnterpriseID;   // -->VetisEntity.ID
+    long   ProductID;        // -->VetisEntity.ID
+    long   SubProductID;     // -->VetisEntity.ID
+    long   OrgCountryID;     // -->VetisEntity.ID Страна происхождения продукта
+    long   UOMID;            // -->VetisEntity.ID
+    long   Flags;
+    double Volume;
+    int64  ExpiryFrom;
+    int64  ExpiryTo;
+    long   ConfirmNameTRef;
+    long   ConfirmPostTRef;
+	raw    Reserve[128];
+index:
+	EntityID (unique);
+	FromEntityID (dup mod anysegnull);
+	FromEnterpriseID (dup mod anysegnull);
+    ToEntityID (dup mod anysegnull);
+    ToEnterpriseID (dup mod anysegnull);
+file:
+	"vetisdoc.btr";
 	access=1;
 }
 //

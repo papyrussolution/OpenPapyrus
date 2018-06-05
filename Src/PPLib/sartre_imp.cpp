@@ -2498,7 +2498,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		}
 	};
 	int    ok = 1;
-	const  uint max_items_per_tx = SKILOBYTE(12);
+	const  uint max_items_per_tx = 256;
 	uint   items_per_tx = 0;
 	uint   items_per_tx_total = 0;
 	BDbTransaction * p_ta = 0;
@@ -2766,6 +2766,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				}
 				else if(_phase == phase1) {
 					if(cid_instance_of) {
+						LEXID  clex_id = 0;
 						name_ss.clear();
 						name_buf.Tokenize(" ", name_ss);
 						for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
@@ -2780,13 +2781,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 								}
 							}
 						}
-						{
-							LEXID  clex_id = 0;
-							if(rDb.SearchSpecialWord(SrWordTbl::spcConcept, concept_symb_buf, &clex_id) > 0) {
-							}
-							else {
-								taxon_symb_to_append.add(entry.TaxonID);
-							}
+						if(rDb.SearchSpecialWord(SrWordTbl::spcConcept, concept_symb_buf, &clex_id) > 0) {
+						}
+						else {
+							taxon_symb_to_append.add(entry.TaxonID);
 						}
 					}
 				}
@@ -2826,7 +2824,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							const int rngr = rDb.ResolveNGram(ngram, &ngram_id);
 							THROW(rngr);
 							if(rngr == 2) {
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							}
 						}
 						{
@@ -2863,11 +2861,11 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							}
 							if(!skip_instance) {
 								THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							}
 							if(parent_cid && !skip_subclass) {
 								THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							}
 						}
 					}
@@ -2900,7 +2898,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-							THROW(RechargeTransaction(p_ta, ++items_per_tx, 1024));
+							THROW(RechargeTransaction(p_ta, ++items_per_tx, 2048));
 						}
 						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");
 					}
@@ -2921,7 +2919,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						LEXID lex_id = 0;
 						THROW(rDb.P_WdT->AddSpecial(SrWordTbl::spcConcept, concept_symb_buf, &lex_id));
 						symb_list.add(lex_id);
-						THROW(RechargeTransaction(p_ta, ++items_per_tx, 512));
+						THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts symb)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -2938,7 +2936,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						c.ID = 0;
 						c.SymbID  = lex_id;
 						THROW(rDb.P_CT->Add(c));
-						THROW(RechargeTransaction(p_ta, ++items_per_tx, 512));
+						THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts)");
 					}
 					THROW_DB(p_ta->Commit(1));

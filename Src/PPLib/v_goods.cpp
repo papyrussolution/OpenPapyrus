@@ -29,12 +29,13 @@ int SLAPI GoodsFilt::InitInstance()
 	return Init(1, 0);
 }
 
-#define GOODSFILT_VERSION -24
+#define GOODSFILT_VERSION -25
 	// @v6.0.2 -14-->-19
 	// @v6.4.2 -19-->-21
 	// @v7.2.0 -21-->-22
 	// @v7.7.9 -22-->-23
 	// @v8.6.4 -23-->-24
+	// @v10.0.12 -24-->-25
 
 IMPLEMENT_PPFILT_FACTORY(Goods); SLAPI GoodsFilt::GoodsFilt(PPID goodsGroupID) : PPBaseFilt(PPFILT_GOODS, 0, GOODSFILT_VERSION)
 {
@@ -72,6 +73,94 @@ struct ExtParams_Before24 {
 int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
+	if(ver == -24) {
+		class GoodsFilt_v24 : public PPBaseFilt {
+		public:
+			GoodsFilt_v24() : PPBaseFilt(PPFILT_GOODS, 0, -24), P_SjF(0), P_TagF(0)
+			{
+				SetFlatChunk(offsetof(GoodsFilt_v24, ReserveStart), offsetof(GoodsFilt_v24, Ep) + offsetof(ClsdGoodsFilt, KindList) - offsetof(GoodsFilt_v24, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, Ep) + offsetof(ClsdGoodsFilt, KindList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, Ep) + offsetof(ClsdGoodsFilt, GradeList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, Ep) + offsetof(ClsdGoodsFilt, AddObjList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, Ep) + offsetof(ClsdGoodsFilt, AddObj2List));
+				SetBranchSString(offsetof(GoodsFilt_v24, SrchStr_));
+				SetBranchSString(offsetof(GoodsFilt_v24, BarcodeLen));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, GrpIDList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, ManufList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, LocList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, BrandList));
+				SetBranchObjIdListFilt(offsetof(GoodsFilt_v24, BrandOwnerList));
+				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(GoodsFilt_v24, P_SjF));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GoodsFilt_v24, P_TagF));
+				Init(1, 0);
+			}
+			char   ReserveStart[4];    // @anchor Проецируется на __GoodsFilt::Reserve
+			PPID   UhttStoreID;
+			PPID   RestrictQuotKindID;
+			int32  InitOrder;
+			PPID   MtxLocID;
+			PPID   BrandOwnerID;
+			PPID   CodeArID;
+			PPID   GrpID;
+			PPID   ManufID;
+			PPID   ManufCountryID;
+			PPID   UnitID;
+			PPID   PhUnitID;
+			PPID   SupplID;
+			PPID   GoodsTypeID;
+			PPID   TaxGrpID;
+			PPID   LocID_;
+			DateRange LotPeriod;
+			long   Flags;
+			long   VatRate;
+			LDATE  VatDate;
+			PPID   BrandID_;
+			ClsdGoodsFilt Ep;          // @anchor
+			SString SrchStr_;
+			SString BarcodeLen;
+			ObjIdListFilt GrpIDList;
+			ObjIdListFilt ManufList;
+			ObjIdListFilt LocList;
+			ObjIdListFilt BrandList;
+			ObjIdListFilt BrandOwnerList;
+			SysJournalFilt * P_SjF;
+			TagFilt * P_TagF;
+		};
+		GoodsFilt_v24 fv24;
+		THROW(fv24.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+#define CPYFLD(f) f = fv24.f
+		CPYFLD(InitOrder);
+		CPYFLD(MtxLocID);
+		CPYFLD(BrandOwnerID);
+		CPYFLD(CodeArID);
+		CPYFLD(GrpID);
+		CPYFLD(ManufID);
+		CPYFLD(ManufCountryID);
+		CPYFLD(UnitID);
+		CPYFLD(PhUnitID);
+		CPYFLD(SupplID);
+		CPYFLD(GoodsTypeID);
+		CPYFLD(TaxGrpID);
+		CPYFLD(LocID_);
+		CPYFLD(LotPeriod);
+		CPYFLD(Flags);
+		CPYFLD(VatRate);
+		CPYFLD(VatDate);
+		CPYFLD(BrandID_);
+		CPYFLD(Ep);
+		CPYFLD(SrchStr_);
+		CPYFLD(BarcodeLen);
+		CPYFLD(GrpIDList);
+		CPYFLD(ManufList);
+		CPYFLD(LocList);
+		CPYFLD(BrandList);
+#undef CPYFLD
+		THROW_SL(TSDupPtr <SysJournalFilt> (&P_SjF, fv24.P_SjF));
+		THROW_SL(TSDupPtr <TagFilt> (&P_TagF, fv24.P_TagF));
+		GoodsStrucID = 0;
+		ok = 1;
+	}
 	if(ver == -23) {
 		class GoodsFilt_v23 : public PPBaseFilt {
 		public:
@@ -374,6 +463,8 @@ int SLAPI GoodsFilt::IsEmpty() const
 	else if(GoodsTypeID)
 		return 0;
 	else if(BrandID_)
+		return 0;
+	else if(GoodsStrucID) // @v10.0.12
 		return 0;
 	else if(BrandOwnerID)
 		return 0;
@@ -1445,7 +1536,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 					dbq = & (*dbq && (p_ac_t->GoodsID == g->ID));
 			}
 		}
-		if(!dyn && alt && !(Filt.Flags & GoodsFilt::fNegation)) { // @v8.3.12 && !(Filt.Flags & GoodsFilt::fNegation)
+		if(!dyn && alt && !(Filt.Flags & GoodsFilt::fNegation)) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
 			if(alt)
 				q->addField(oa->InnerNum);             // #17
@@ -1494,7 +1585,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		dbq = ppcheckflag(dbq, g->Flags, GF_PRICEWOTAXES, BIN(Filt.Flags & GoodsFilt::fWOTaxGdsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_NODISCOUNT,   BIN(Filt.Flags & GoodsFilt::fNoDisOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_HASIMAGES,    BIN(Filt.Flags & GoodsFilt::fHasImages));
-		dbq = ppcheckflag(dbq, g->Flags, GF_USEINDEPWT,   BIN(Filt.Flags & GoodsFilt::fUseIndepWtOnly)); // @v8.3.9
+		dbq = ppcheckflag(dbq, g->Flags, GF_USEINDEPWT,   BIN(Filt.Flags & GoodsFilt::fUseIndepWtOnly));
 		if(Filt.ManufID && grp_id >= 0)
 			dbq = & (*dbq && g->ManufID == Filt.ManufID);
 		if(p_bc_t)
@@ -1513,10 +1604,15 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 					dbq = & (*dbq && (p_ac_t->GoodsID == g->ID));
 			}
 		}
-		if(Filt.Flags & GoodsFilt::fShowStrucType && !(Filt.Flags & GoodsFilt::fShowGoodsWOStruc))
+		if(Filt.GoodsStrucID) {
+			dbq = &(*dbq && g->StrucID == Filt.GoodsStrucID);
+		}
+		else if(Filt.Flags & GoodsFilt::fShowStrucType && !(Filt.Flags & GoodsFilt::fShowGoodsWOStruc))
 			dbq = &(*dbq && g->StrucID > 0L);
 		q->where(*dbq);
-		if(Filt.GrpID)
+		if(Filt.GoodsStrucID)
+			q->orderBy(g->StrucID, 0L);
+		else if(Filt.GrpID)
 			q->orderBy(g->Kind, g->ParentID, g->Name, 0L);
 		else
 			q->orderBy(g->Kind, g->Name, 0L);

@@ -2909,6 +2909,7 @@ private:
 #define PPTRPROP_LONGNAME  3
 #define PPTRPROP_MEMO      4
 #define PPTRPROP_COMBINE   5 // Комбинированная строка, содержащая набор текстовых свойств
+#define PPTRPROP_RAWADDR   6 // @v10.0.12 Простое текстовое представление адреса
 
 #define PPTRPROP_USER    100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
 
@@ -20874,6 +20875,7 @@ public:
 	//
 	SLAPI  PPObjGoodsStruc(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr /*goodsID*/);
+	virtual int  SLAPI Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPGoodsStrucHeader * pRec);
 	int    SLAPI GetChildIDList(PPID id, PPIDArray * pList);
 	int    SLAPI Get(PPID id, PPGoodsStruc * pGs);
@@ -20882,15 +20884,13 @@ public:
 	int    SLAPI CheckStruc(PPID strucID, PPLogger *);
 	int    SLAPI LoadGiftList(SaGiftArray * pList);
 	int    SLAPI FetchGiftList(SaGiftArray * pList);
-
 	int    SLAPI SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SLAPI SelectorDialog(PPID * pNamedGsID);
-
 	int    SLAPI CheckStructs();
 	struct CheckGsProblem {
 		enum {
 			errRecur = 1,      // Рекурсивная структура
-			errUnRef,          // Ни один товар не ссылается на структуру 
+			errUnRef,          // Ни один товар не ссылается на структуру
 			errNoNameAmbig,    // На неименованную структуру ссылается более одного товара
 			errNamedEmptyName  // Именованная структура содержит пустое наименование
 		};
@@ -25367,14 +25367,14 @@ public:
 	long   VatRate;            // Ставка НДС, которой облагается товар. Ненулевое значение этого поля исключает фильтрацию по полю TaxGrpID.
 	LDATE  VatDate;            // Дата, на которую следует брать ставку НДС. Используется только если VatRate != 0
 	PPID   BrandID_;           // Товарный брэнд
-	//ExtParams  Ep;           //
+	PPID   GoodsStrucID;       // @v10.0.12 Товарная структура, на которую ссылаются товары
 	ClsdGoodsFilt Ep;          // @anchor
 	//
 	// @v8.2.12
 	//  Начиная с версии 8.2.12 внутри SrchStr_ могут содержаться одновременно строка для поиска по наименованию и
 	//  строка для поиска по штрихкоду. Соответственно, прямо это поле использовать не следует - необходимо применять функции
 	//  GetExtssData и PutExtssData с указанием типов полей, определенных через enum GoodsFilt::extssXXX
-	//  Для обратной совместимости, если внутри строки нет спец т'гов <>, то вся строка трактуется как критерий поиска по наименованию.
+	//  Для обратной совместимости, если внутри строки нет спец тегов <>, то вся строка трактуется как критерий поиска по наименованию.
 	//
 	SString SrchStr_;          // @anchor Строка, содержащаяся в имени.
 	//
@@ -27751,7 +27751,7 @@ public:
 		fShowSubst        = 0x0004, // Показывать подстановочные структуры
 		fShowGift         = 0x0008, // Показывать подарочные структуры
 		fShowComplex      = 0x0010, // Показывать комплексные структуры
-		fShowUnrefs       = 0x0020  // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар     
+		fShowUnrefs       = 0x0020  // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   PrmrGoodsGrpID;

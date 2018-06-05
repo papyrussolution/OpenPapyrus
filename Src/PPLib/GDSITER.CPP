@@ -425,15 +425,12 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				else
 					ZDELETE(P_UhttsPack);
 			}
-
 			const PPID rest_op_id  = (do_calc_uhtt_rest && GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
 			const PPID order_op_id = (do_calc_uhtt_rest && GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
-
 			if(!qfilt.LocID)
 				qfilt.LocList = Filt.LocList;
 			qfilt.Flags |= QuotFilt::fActualOnly;
 			qfilt.Flags |= QuotFilt::fListOnly;
-
 			THROW(qview.Init_(&qfilt));
 			const PPQuotItemArray * p_qlist = qview.GetQList();
 			if(p_qlist) {
@@ -482,13 +479,19 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			THROW(GObj.P_Tbl->GetListByAr(Filt.CodeArID, &temp_list));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
-		if(Filt.Flags & Filt.fWithStrucOnly) {
+		if(Filt.Flags & Filt.fWithStrucOnly || Filt.GoodsStrucID) {
 			temp_list.clear();
 			Goods2Tbl::Key5 k5;
 			Goods2Tbl * t = GObj.P_Tbl;
 			MEMSZERO(k5);
 			BExtQuery q(t, 5);
-			q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->StrucID > 0L);
+			if(Filt.GoodsStrucID) {
+				k5.StrucID = Filt.GoodsStrucID;
+				q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->StrucID == Filt.GoodsStrucID);
+			}
+			else {
+				q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->StrucID > 0L);
+			}
 			for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;)
 				THROW_SL(temp_list.add(t->data.ID));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
@@ -547,7 +550,6 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				do_intersect = 1;
 			}
 		}
-		// @v8.2.12 {
 		{
 			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf.Z());
 			if(temp_buf.NotEmptyS()) {
@@ -566,7 +568,6 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 			}
 		}
-		// } @v8.2.12
 		THROW(r = Helper_MakeListByGroup(&Filt.GrpIDList.Get(), Filt.GrpID, P_List, do_intersect));
 		if(r > 0) {
 			if(p_excl_list) {
@@ -625,10 +626,8 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		}
 	}
 	if(P_List) {
-		if(oneof2(Order, ordByName, ordByAbbr)) {
-			//P_List->SArray::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
+		if(oneof2(Order, ordByName, ordByAbbr))
 			P_List->SVector::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
-		}
 		else
 			P_List->sort();
 		if(P_UhttsPack && P_UhttsPack->Sd.GetCount()) {
