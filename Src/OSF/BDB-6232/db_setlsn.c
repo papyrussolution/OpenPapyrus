@@ -35,15 +35,11 @@ int __env_lsn_reset_pp(DB_ENV *dbenv, const char * name, uint32 flags)
 	 */
 	if(flags != 0 && flags != DB_ENCRYPT)
 		return (__db_ferr(env, "DB_ENV->lsn_reset", 0));
-
 	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env,
-	    (__env_lsn_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)),
-	    1, ret);
+	REPLICATION_WRAP(env, (__env_lsn_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)), 1, ret);
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __env_lsn_reset --
  *	Reset the LSNs for every page in the file.

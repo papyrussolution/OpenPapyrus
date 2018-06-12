@@ -56,28 +56,28 @@ static void LUA_text();
 /* scale */
 static void LUA_graphics();
 static void LUA_move(uint x, uint y);
-static void LUA_vector __PROTO((uint ux, uint uy));
+static void LUA_vector(uint ux, uint uy);
 static void LUA_linetype(int linetype);
 static void LUA_dashtype __PROTO((int type, t_dashtype *custom_dash_type));
-static void LUA_put_text __PROTO((uint x, uint y, const char str[]));
+static void LUA_put_text(uint x, uint y, const char str[]);
 static int  LUA_text_angle(int ang);
-static int LUA_justify_text __PROTO((enum JUSTIFY mode));
-static void LUA_point __PROTO((uint x, uint y, int number));
-static void LUA_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
-static int LUA_set_font __PROTO((const char* font));
-static void LUA_pointsize __PROTO((double ptsize));
+static int LUA_justify_text(enum JUSTIFY mode);
+static void LUA_point(uint x, uint y, int number);
+static void LUA_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+static int LUA_set_font(const char * font);
+static void LUA_pointsize(double ptsize);
 static void LUA_boxfill __PROTO((int style, uint x1,
 	    uint y1, uint width,
 	    uint height));
-static void LUA_linewidth __PROTO((double width));
+static void LUA_linewidth(double width);
 static int LUA_make_palette __PROTO((t_sm_palette*));
 static void LUA_previous_palette();
 static void LUA_set_color __PROTO((t_colorspec*));
-static void LUA_filled_polygon __PROTO((int, gpiPoint *));
-static void LUA_image __PROTO((unsigned, unsigned, double *, gpiPoint *, t_imagecolor));
-static void LUA_path __PROTO((int p));
+static void LUA_filled_polygon(int, gpiPoint *);
+static void LUA_image(unsigned, unsigned, double *, gpiPoint *, t_imagecolor);
+static void LUA_path(int p);
 #ifdef EAM_BOXED_TEXT
-static void LUA_boxed_text __PROTO((uint, uint, int));
+static void LUA_boxed_text(uint, uint, int);
 #endif
 
 /* defaults */
@@ -214,7 +214,7 @@ static void LUA_close(void)
 		L = NULL;
 	}
 	if(LUA_script) {
-		free(LUA_script);
+		SAlloc::F(LUA_script);
 		LUA_script = NULL;
 	}
 }
@@ -666,10 +666,10 @@ static int LUA_init_lua(void)
 	if(lua_term_status) {
 		fprintf(stderr, "error: %s. Lua context closed.\n", lua_tostring(L, -1));
 		LUA_close();
-		free(script_fqn);
+		SAlloc::F(script_fqn);
 		return(0);
 	}
-	free(script_fqn);
+	SAlloc::F(script_fqn);
 
 	/* remember script "function" */
 	sf = lua_gettop(L);
@@ -812,12 +812,12 @@ static void LUA_options(GpCommand & rC)
 			}
 			if(LUA_script) {
 				if(strcmp(LUA_script, s)) {
-					free(LUA_script);
+					SAlloc::F(LUA_script);
 					LUA_script = s;
 					need_init = 1;
 				}
 				else {
-					free(s);
+					SAlloc::F(s);
 					need_init = 0;
 				}
 			}
@@ -851,7 +851,7 @@ static void LUA_options(GpCommand & rC)
 		LUA_call_report(lua_pcall(L, 3, 1, tb));
 		lua_term_result = (int)lua_tointeger(L, -1);
 		lua_pop(L, 1);
-		free(opt_str);
+		SAlloc::F(opt_str);
 	}
 
 	LUA_get_term_vars();
@@ -867,11 +867,9 @@ static void LUA_init()
 {
 	fseek(gpoutfile, 0, SEEK_SET);
 	/* ignore compiler warnings here, because `gpoutfile' is already open */
-	(void)ftruncate(fileno(gpoutfile), 0);
-
+	ftruncate(fileno(gpoutfile), 0);
 	/* reset image counter */
 	image_cnt = 0;
-
 	LUA_linetype(-1);
 	if(LUA_init_luaterm_function("init")) {
 		LUA_call_report(lua_pcall(L, 0, 1, tb));
@@ -1314,7 +1312,7 @@ static void LUA_image(unsigned m, unsigned n, double * image, gpiPoint * corner,
 		}
 		if(image_file) {
 			lua_pushstring(L, image_file);
-			free(image_file);
+			SAlloc::F(image_file);
 		}
 		else {
 			lua_pushnil(L);

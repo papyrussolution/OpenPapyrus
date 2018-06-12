@@ -60,25 +60,10 @@ PPBnkTerminal::~PPBnkTerminal()
 	ZDELETE(P_AbstrDvc);
 }
 
-int PPBnkTerminal::IsInited() const
-{
-	return BIN(State & stInited);
-}
-
-int PPBnkTerminal::IsConnected() const
-{
-	return BIN(State & stConnected);
-}
-
-int PPBnkTerminal::Release()
-{
-	return ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z());
-}
-
-int PPBnkTerminal::Disconnect()
-{
-	return 1;
-}
+int PPBnkTerminal::IsInited() const { return BIN(State & stInited); }
+int PPBnkTerminal::IsConnected() const { return BIN(State & stConnected); }
+int PPBnkTerminal::Release() { return ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z()); }
+int PPBnkTerminal::Disconnect() { return 1; }
 
 int PPBnkTerminal::SetConfig(uint logNum)
 {

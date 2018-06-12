@@ -1066,7 +1066,7 @@ int __repmgr_master_is_known(ENV *env)
 }
 
 /*
- * PUBLIC: int __repmgr_stable_lsn __P((ENV *, DB_LSN *));
+ * PUBLIC: int __repmgr_stable_lsn(ENV *, DB_LSN *);
  *
  * This function may be called before any of repmgr's threads have
  * been started.  This code must not be called before env open.

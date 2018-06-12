@@ -47,7 +47,6 @@ int __memp_fopen_pp(DB_MPOOLFILE *dbmfp, const char * path, uint32 flags, int mo
 		__db_errx(env, DB_STR("3034", "DB_MPOOLFILE->open: clear length larger than page size"));
 		return EINVAL;
 	}
-
 	/* Read-only checks, and local flag. */
 	if(LF_ISSET(DB_RDONLY) && path == NULL) {
 		__db_errx(env, DB_STR("3035", "DB_MPOOLFILE->open: temporary files can't be readonly"));
@@ -57,28 +56,22 @@ int __memp_fopen_pp(DB_MPOOLFILE *dbmfp, const char * path, uint32 flags, int mo
 		__db_errx(env, DB_STR("3036", "DB_MPOOLFILE->open: DB_MULTIVERSION requires transactions"));
 		return EINVAL;
 	}
-
 	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env,
-	    (__memp_fopen(dbmfp, NULL,
-	    path, NULL, flags, mode, pagesize)), 0, ret);
+	REPLICATION_WRAP(env, (__memp_fopen(dbmfp, NULL, path, NULL, flags, mode, pagesize)), 0, ret);
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * Generate the number of user opens.  If there is no backing file
  * there is an extra open count to keep the in memory db around.
  */
-#define MFP_OPEN_CNT(mfp)       ((mfp)->mpf_cnt - ((mfp)->neutral_cnt + \
-	(uint32)(mfp)->no_backing_file))
+#define MFP_OPEN_CNT(mfp)       ((mfp)->mpf_cnt - ((mfp)->neutral_cnt + (uint32)(mfp)->no_backing_file))
 #define MP_IOINFO_RETRIES       5
 /*
  * __memp_fopen --
  *	DB_MPOOLFILE->open.
  *
- * PUBLIC: int __memp_fopen __P((DB_MPOOLFILE *, MPOOLFILE *,
- * PUBLIC:     const char *, const char **, uint32, int, size_t));
+ * PUBLIC: int __memp_fopen(DB_MPOOLFILE *, MPOOLFILE *, const char *, const char **, uint32, int, size_t);
  */
 int __memp_fopen(DB_MPOOLFILE *dbmfp, MPOOLFILE * mfp, const char * path, const char ** dirp, uint32 flags, int mode, size_t pgsize)
 {
@@ -812,33 +805,27 @@ static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * p
 		mfp->pgcookie_off = 0;
 	}
 	else {
-		if((ret = __memp_alloc(dbmp, dbmp->reginfo,
-		    NULL, dbmfp->pgcookie->size,
-		    &mfp->pgcookie_off, &p)) != 0)
+		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, dbmfp->pgcookie->size, &mfp->pgcookie_off, &p)) != 0)
 			goto err;
-		memcpy(p,
-		    dbmfp->pgcookie->data, dbmfp->pgcookie->size);
+		memcpy(p, dbmfp->pgcookie->data, dbmfp->pgcookie->size);
 		mfp->pgcookie_len = dbmfp->pgcookie->size;
 	}
 
-	if((ret = __mutex_alloc(env,
-	    MTX_MPOOLFILE_HANDLE, 0, &mfp->mutex)) != 0)
+	if((ret = __mutex_alloc(env, MTX_MPOOLFILE_HANDLE, 0, &mfp->mutex)) != 0)
 		goto err;
 #ifndef HAVE_ATOMICFILEREAD
-	if((ret = __mutex_alloc(env,
-	    MTX_MPOOLFILE_HANDLE, DB_MUTEX_SHARED, &mfp->mtx_write)) != 0)
+	if((ret = __mutex_alloc(env, MTX_MPOOLFILE_HANDLE, DB_MUTEX_SHARED, &mfp->mtx_write)) != 0)
 		goto err;
 #endif
 	*retmfp = mfp;
 err:    
 	return ret;
 }
-
 /*
  * memp_fclose_pp --
  *	DB_MPOOLFILE->close pre/post processing.
  *
- * PUBLIC: int __memp_fclose_pp __P((DB_MPOOLFILE *, uint32));
+ * PUBLIC: int __memp_fclose_pp(DB_MPOOLFILE *, uint32);
  */
 int __memp_fclose_pp(DB_MPOOLFILE *dbmfp, uint32 flags)
 {
@@ -855,12 +842,11 @@ int __memp_fclose_pp(DB_MPOOLFILE *dbmfp, uint32 flags)
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __memp_fclose --
  *	DB_MPOOLFILE->close.
  *
- * PUBLIC: int __memp_fclose __P((DB_MPOOLFILE *, uint32));
+ * PUBLIC: int __memp_fclose(DB_MPOOLFILE *, uint32);
  */
 int __memp_fclose(DB_MPOOLFILE *dbmfp, uint32 flags)
 {
@@ -885,13 +871,10 @@ int __memp_fclose(DB_MPOOLFILE *dbmfp, uint32 flags)
 	 */
 	if(dbmp == NULL)
 		goto done;
-
 	MUTEX_LOCK(env, dbmp->mutex);
-
 	DB_ASSERT(env, dbmfp->ref >= 1);
 	if((ref = --dbmfp->ref) == 0 && F_ISSET(dbmfp, MP_OPEN_CALLED))
 		TAILQ_REMOVE(&dbmp->dbmfq, dbmfp, q);
-
 	/*
 	 * Decrement the file descriptor's ref count -- if we're the last ref,
 	 * we'll discard the file descriptor.
@@ -932,12 +915,9 @@ int __memp_fclose(DB_MPOOLFILE *dbmfp, uint32 flags)
 	 * be NULL and MP_OPEN_CALLED will not be set.
 	 */
 	mfp = dbmfp->mfp;
-	DB_ASSERT(env,
-	    (F_ISSET(dbmfp, MP_OPEN_CALLED) && mfp != NULL) ||
-	    (!F_ISSET(dbmfp, MP_OPEN_CALLED) && mfp == NULL));
+	DB_ASSERT(env, (F_ISSET(dbmfp, MP_OPEN_CALLED) && mfp != NULL) || (!F_ISSET(dbmfp, MP_OPEN_CALLED) && mfp == NULL));
 	if(!F_ISSET(dbmfp, MP_OPEN_CALLED))
 		goto done;
-
 	/*
 	 * If it's a temp file, all outstanding references belong to unflushed
 	 * buffers.  (A temp file can only be referenced by one DB_MPOOLFILE).

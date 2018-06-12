@@ -84,12 +84,9 @@ int __memp_open(ENV *env, int create_ok)
 		dbmp->reginfo[0] = reginfo;
 		for(i = 1; i < max_nreg; ++i)
 			dbmp->reginfo[i].id = INVALID_REGION_ID;
-
 		/* Initialize the first region. */
-		if((ret = __memp_init(env, dbmp,
-		    0, htab_buckets, max_nreg)) != 0)
+		if((ret = __memp_init(env, dbmp, 0, htab_buckets, max_nreg)) != 0)
 			goto err;
-
 		/*
 		 * Create/initialize remaining regions and copy their IDs into
 		 * the first region.
@@ -102,14 +99,12 @@ int __memp_open(ENV *env, int create_ok)
 			dbmp->reginfo[i].type = REGION_TYPE_MPOOL;
 			dbmp->reginfo[i].id = INVALID_REGION_ID;
 			dbmp->reginfo[i].flags = REGION_CREATE_OK;
-			if((ret = __env_region_attach(
-				    env, &dbmp->reginfo[i], reg_size, max_size)) != 0)
+			if((ret = __env_region_attach(env, &dbmp->reginfo[i], reg_size, max_size)) != 0)
 				goto err;
 			if(F_ISSET(env, ENV_PRIVATE))
 				dbmp->reginfo[i].max_alloc = max_size;
 			cache_size += dbmp->reginfo[i].rp->max;
-			if((ret = __memp_init(env, dbmp,
-			    i, htab_buckets, max_nreg)) != 0)
+			if((ret = __memp_init(env, dbmp, i, htab_buckets, max_nreg)) != 0)
 				goto err;
 
 			regids[i] = dbmp->reginfo[i].id;
@@ -140,32 +135,25 @@ int __memp_open(ENV *env, int create_ok)
 			dbmp->reginfo[i].type = REGION_TYPE_MPOOL;
 			dbmp->reginfo[i].id = regids[i];
 			dbmp->reginfo[i].flags = REGION_JOIN_OK;
-			if((ret = __env_region_attach(
-				    env, &dbmp->reginfo[i], 0, 0)) != 0)
+			if((ret = __env_region_attach(env, &dbmp->reginfo[i], 0, 0)) != 0)
 				goto err;
 		}
 	}
-
 	/* Set the local addresses for the regions. */
 	for(i = 0; i < dbenv->mp_ncache; ++i) {
 		mp_i = (MPOOL *)(dbmp->reginfo[i].primary = R_ADDR(&dbmp->reginfo[i], dbmp->reginfo[i].rp->primary));
 		dbmp->reginfo[i].mtx_alloc = mp_i->mtx_region;
 	}
-
 	/* If the region is threaded, allocate a mutex to lock the handles. */
-	if((ret = __mutex_alloc(env,
-	    MTX_MPOOL_HANDLE, DB_MUTEX_PROCESS_ONLY, &dbmp->mutex)) != 0)
+	if((ret = __mutex_alloc(env, MTX_MPOOL_HANDLE, DB_MUTEX_PROCESS_ONLY, &dbmp->mutex)) != 0)
 		goto err;
-
 	env->mp_handle = dbmp;
-
 	/* A process joining the region may reset the mpool configuration. */
 	if((ret = __memp_init_config(env, mp, create)) != 0)
 		return ret;
-
 	return 0;
-
-err:    (void)__mutex_free(env, &dbmp->mutex);
+err:    
+	(void)__mutex_free(env, &dbmp->mutex);
 	(void)__memp_region_detach(env, dbmp);
 	return ret;
 }
@@ -187,13 +175,11 @@ int __memp_region_detach(ENV *env, DB_MPOOL * dbmp)
 	env->mp_handle = NULL;
 	return 0;
 }
-
 /*
  * __memp_init --
  *	Initialize a MPOOL structure in shared memory.
  *
- * PUBLIC: int	__memp_init
- * PUBLIC:     __P((ENV *, DB_MPOOL *, u_int, uint32, u_int));
+ * PUBLIC: int	__memp_init(ENV *, DB_MPOOL *, u_int, uint32, u_int);
  */
 int __memp_init(ENV *env, DB_MPOOL * dbmp, u_int reginfo_off, uint32 htab_buckets, u_int max_nreg)
 {

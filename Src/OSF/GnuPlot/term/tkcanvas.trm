@@ -114,14 +114,14 @@ static void TK_move(uint x, uint y);
 static void TK_vector(uint x, uint y);
 static int  TK_text_angle(int ang);
 static void TK_put_text(uint x, uint y, const char * str);
-static void TK_reset(void);
+static void TK_reset();
 static int  TK_justify_text(enum JUSTIFY);
 static void TK_point(uint, uint, int);
 static void TK_arrow(uint, uint, uint, uint, int);
 static int  TK_set_font(const char * font);
 static void TK_enhanced_open(char * fontname, double fontsize,
     double base, bool widthflag, bool showflag, int overprint);
-static void TK_enhanced_flush(void);
+static void TK_enhanced_flush();
 static void TK_linewidth(double linewidth);
 static int  TK_make_palette(t_sm_palette * palette);
 static void TK_color(t_colorspec * colorspec);
@@ -297,7 +297,7 @@ static void TK_options(GpCommand & rC)
 
 			    rC.CToken++;
 			    rgb = parse_color_name();
-			    free(tk_background_opt);
+			    SAlloc::F(tk_background_opt);
 			    tk_background_opt = NULL;
 			    rC.MCapture(&tk_background_opt, rC.CToken-1, rC.CToken);
 
@@ -309,7 +309,7 @@ static void TK_options(GpCommand & rC)
 		    }
 			case TK_NOBACKGROUND:
 			    tk_background[0] = NUL;
-			    free(tk_background_opt);
+			    SAlloc::F(tk_background_opt);
 			    tk_background_opt = NULL;
 			    rC.CToken++;
 			    break;
@@ -567,8 +567,8 @@ static void TK_graphics()
 
 static void TK_reset()
 {
-	free(tk_path_x);
-	free(tk_path_y);
+	SAlloc::F(tk_path_x);
+	SAlloc::F(tk_path_y);
 	tk_path_x = tk_path_y = NULL;
 	tk_polygon_points = tk_maxpath = 0;
 }
@@ -1129,7 +1129,7 @@ static void TK_put_noenhanced_text(uint x, uint y, const char * str)
 	fputs(tk_create_text_end[tk_script_language], gpoutfile);
 
 	if(quoted_str != str)
-		free(quoted_str);
+		SAlloc::F(quoted_str);
 }
 
 static char * tk_undef_font[TK_LANG_MAX] = {
@@ -1261,7 +1261,7 @@ static int TK_set_font(const char * font)
 		fputs(tk_font_end[tk_script_language], gpoutfile);
 		tk_next_text_use_font = true;
 
-		free(name);
+		SAlloc::F(name);
 	}
 	return true;
 }
@@ -1309,7 +1309,7 @@ static void TK_enhanced_open(char * fontname, double fontsize, double base,
 			fputs(tk_set_fitalic[tk_script_language], gpoutfile);
 		fputs(tk_font_end[tk_script_language], gpoutfile);
 		tk_next_text_use_font = true;
-		free(family);
+		SAlloc::F(family);
 	}
 }
 

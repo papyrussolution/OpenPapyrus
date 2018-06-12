@@ -56,8 +56,8 @@ static void PRE_text();
 static void PRE_linetype(int linetype);
 static void PRE_move(uint x, uint y);
 static void PRE_vector(uint x, uint y);
-static void PRE_put_text __PROTO((uint x, uint y, const char *str));
-static int PRE_justify_text __PROTO((enum JUSTIFY mode));
+static void PRE_put_text(uint x, uint y, const char * str);
+static int PRE_justify_text(enum JUSTIFY mode);
 static void PRE_reset();
 
 #define PRE_XMAX 2567

@@ -498,7 +498,7 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 {
 	int    ok = -1;
 	int    do_close_file = 0;
-	rVal = 0;
+	rVal.Z();
 	if(Flags & fIniBufInited)
 		ok = (P_IniBuf->GetParam(pSect, pParam, rVal) > 0) ? 1 : -1;
 	else {

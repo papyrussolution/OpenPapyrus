@@ -16,12 +16,10 @@ SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const
 {
 	Name[0] = 0;
 	Port[0] = 0;
-	if(CnObj.GetSync(NodeID, &SCn) > 0) {
+	if(CnObj.GetSync(NodeID, &SCn) > 0) 
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
-	}
 	else
 		State |= stError;
-	//Init(name, port);
 }
 
 SLAPI PPSyncCashSession::~PPSyncCashSession()
@@ -31,10 +29,7 @@ SLAPI PPSyncCashSession::~PPSyncCashSession()
 		close(Handle);
 }
 
-int SLAPI PPSyncCashSession::IsError() const
-{
-	return BIN(State & stError);
-}
+int SLAPI PPSyncCashSession::IsError() const { return BIN(State & stError); }
 
 int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)
 {
@@ -696,9 +691,8 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 }
 
 struct TotalLogCSessEntry { // @flat
-	TotalLogCSessEntry()
+	TotalLogCSessEntry() : SessID(0), CcCount(0), CcAmount(0.0)
 	{
-		THISZERO();
 	}
 	PPID   SessID;
 	uint   CcCount;

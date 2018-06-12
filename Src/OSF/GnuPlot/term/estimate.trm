@@ -22,7 +22,7 @@
 //#include "driver.h"
 
 #ifdef TERM_PROTO
-static void ENHest_put_text __PROTO((uint x, uint y, const char str[]));
+static void ENHest_put_text(uint x, uint y, const char str[]);
 static void ENHest_OPEN __PROTO((char * fontname, double fontsize,
 	                            double base, bool widthflag, bool showflag,
 				    int overprint));

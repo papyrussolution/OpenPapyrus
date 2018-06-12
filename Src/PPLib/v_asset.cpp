@@ -153,14 +153,16 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 				//break;
 			}
 			else if(op_code == ASSTOPC_DEPREC) {
-				if(iter.dt < Filt.OperPeriod.low || Filt.OperPeriod.CheckDate(iter.dt)) {
-					lot_rec = org_lot_rec;
-					P_BObj->trfr->GetLotPrices(&lot_rec, iter.dt, trfr_rec.OprNo);
-					double d = trfr_rec.Price - R5(lot_rec.Price);
-					if(iter.dt < Filt.OperPeriod.low)
-						deprec_beg += d;
-					else if(Filt.OperPeriod.CheckDate(iter.dt))
-						deprec_cont += d;
+				if(in_expl) { // @v10.0.12
+					if(iter.dt < Filt.OperPeriod.low || Filt.OperPeriod.CheckDate(iter.dt)) {
+						lot_rec = org_lot_rec;
+						P_BObj->trfr->GetLotPrices(&lot_rec, iter.dt, trfr_rec.OprNo);
+						double d = trfr_rec.Price - R5(lot_rec.Price);
+						if(iter.dt < Filt.OperPeriod.low)
+							deprec_beg += d;
+						else if(Filt.OperPeriod.CheckDate(iter.dt))
+							deprec_cont += d;
+					}
 				}
 			}
 		}

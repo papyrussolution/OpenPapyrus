@@ -78,7 +78,7 @@ static void HPLJII_init();
 static void HPLJII_graphics();
 static void HPLJII_text();
 static void HPLJII_linetype(int linetype);
-static void HPLJII_put_text __PROTO((uint x, uint y, const char * str));
+static void HPLJII_put_text(uint x, uint y, const char * str);
 static void HPLJII_reset();
 
 static void HPDJ_graphics();
@@ -143,16 +143,16 @@ static void HPLJII_options(GpCommand & rC)
 		else {
 			/* almost_equals() won't accept numbers - use strcmp() instead */
 			rC.Capture(opt, rC.CToken, rC.CToken, 4);
-			if(!strcmp(opt, "75")) {
+			if(sstreq(opt, "75")) {
 				hplj_dpp = 4;
 			}
-			else if(!strcmp(opt, "100")) {
+			else if(sstreq(opt, "100")) {
 				hplj_dpp = 3;
 			}
-			else if(!strcmp(opt, "150")) {
+			else if(sstreq(opt, "150")) {
 				hplj_dpp = 2;
 			}
-			else if(!strcmp(opt, "300")) {
+			else if(sstreq(opt, "300")) {
 				hplj_dpp = 1;
 			}
 			else {
@@ -210,7 +210,7 @@ static void HPLJII_graphics()
 /* HPLJIItext by rjl - no compression */
 static void HPLJII_text()
 {
-	register int x, j, row;
+	int x, j, row;
 	fprintf(gpoutfile, "\033*t%dR", HPLJII_PPI);
 	HPLJII_POP_CURSOR;
 	fputs("\033*r1A", gpoutfile);
@@ -270,10 +270,8 @@ static void HPLJII_putc(uint x, uint y, int c, int ang)
 {
 	HPLJII_POP_CURSOR;
 	HPLJII_PUSH_CURSOR;
-	(void)ang;              /* avoid -Wunused warnings */
 	/* (0,0) is the upper left point of the paper */
-	fprintf(gpoutfile, "\033*p%+dx%+dY",
-	    x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
+	fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
 	fputc(c, gpoutfile);
 }
 
@@ -318,7 +316,7 @@ static void HPDJ_graphics()
    hopefully compatible with other HP Deskjet printers */
 static void HPDJ_text()
 {
-	register int x, j, row;
+	int x, j, row;
 	fprintf(gpoutfile, "\033*b0M\033*t%dR\033*r1A", HPLJII_PPI);
 	// dump bitmap in raster mode 
 	for(x = GpBmB.b_xsize - 1; x >= 0; x--) {

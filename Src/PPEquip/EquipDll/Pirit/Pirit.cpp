@@ -98,8 +98,7 @@ struct ErrMessage {
 	const char * P_Msg;
 };
 
-struct Config
-{
+struct Config {
 	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), ConnPass("PIRI")
 	{
 		ReadCycleCount = 10; // @v9.6.9 0-->10
@@ -166,6 +165,14 @@ class PiritEquip {
 public:
 	SLAPI  PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
 	{
+		// @v10.0.12 {
+		{
+			CommPortTimeouts cpt;
+			CommPort.GetTimeouts(&cpt);
+			cpt.Get_Delay = 20;
+			CommPort.SetTimeouts(&cpt);
+		}
+		// } @v10.0.12 
 		Check.Clear();
 		{
 			SString exe_file_name = SLS.GetExePath();
@@ -225,7 +232,7 @@ private:
 		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg)
 		{
 			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
-			//LogFileName = pLogFileName;
+			LogFileName = pLogFileName;
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;
 				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");

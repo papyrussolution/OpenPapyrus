@@ -148,11 +148,11 @@ static void TEK40graphics();
 static void TEK40text();
 static void TEK40move(uint x, uint y);
 static void TEK40vector(uint x, uint y);
-static void TEK40put_text __PROTO((uint x, uint y, const char str[]));
+static void TEK40put_text(uint x, uint y, const char str[]);
 static void TEK40reset();
 #ifdef BITGRAPH
 static void BG_text();
-static void BG_put_text __PROTO((uint x, uint y, const char str[]));
+static void BG_put_text(uint x, uint y, const char str[]);
 #endif
 #if defined(SELANAR) || defined(BITGRAPH)
 static void TEK40linetype(int linetype);
@@ -181,18 +181,18 @@ static void SIXEL_move(uint x, uint y);
 static void SIXEL_vector(uint x, uint y);
 static void SIXEL_linetype(int linetype);
 static void SIXEL_dashtype __PROTO((int type, t_dashtype *custom_dash_type));
-static void SIXEL_put_text __PROTO((uint x, uint y, const char str[]));
+static void SIXEL_put_text(uint x, uint y, const char str[]);
 static int SIXEL_text_angle(int);
-static void SIXEL_fillbox __PROTO((int style, uint x1, uint y1, uint width, uint height));
-static void SIXEL_linewidth __PROTO((double linewidth));
+static void SIXEL_fillbox(int style, uint x1, uint y1, uint width, uint height);
+static void SIXEL_linewidth(double linewidth);
 static int SIXEL_make_palette(t_sm_palette *);
-static void SIXEL_set_color __PROTO((t_colorspec *colorspec));
-static void SIXEL_filled_polygon __PROTO((int points, gpiPoint *corners));
+static void SIXEL_set_color(t_colorspec * colorspec);
+static void SIXEL_filled_polygon(int points, gpiPoint * corners);
 #endif
 static void VTTEK40init();
 static void VTTEK40reset();
 static void VTTEK40linetype(int linetype);
-static void VTTEK40put_text __PROTO((uint x, uint y, const char str[]));
+static void VTTEK40put_text(uint x, uint y, const char str[]);
 static void XTERM_graphics();
 static void XTERM_resume();
 static void XTERM_text();
@@ -262,11 +262,7 @@ static void TEK40text()
 }
 
 #if defined(SELANAR) || defined(BITGRAPH)
-static void TEK40linetype(int linetype)
-{
-	(void)linetype;
-}
-
+	static void TEK40linetype(int linetype) {}
 #endif
 
 static void TEK40move(uint x, uint y)
@@ -1067,7 +1063,7 @@ static void SIXEL_filled_polygon(int points, gpiPoint * corners)
 		}
 	}
 
-	free(nodex);
+	SAlloc::F(nodex);
 }
 
 #endif /* SIXEL */
@@ -1190,8 +1186,8 @@ static void CT_draw_vpoint __PROTO((int x, int y, int last));
 static void CT_pattern_vector __PROTO((int x1, int y1));
 
 /* CT_lines are line types defined as bit pattern */
-static unsigned long CT_lines[] =
-{~(unsigned long)0,                     /* solid line */
+static ulong CT_lines[] =
+{~(ulong)0,                     /* solid line */
  0x000fffff,                    /* long dash */
  0x00ff00ff,                    /* short dash */
  0x00f00fff,                    /* dash-dot */
@@ -1201,7 +1197,7 @@ static unsigned long CT_lines[] =
  0x070707ff};
 
 /* current line pattern */
-static unsigned long * CT_pattern = &CT_lines[0];
+static ulong * CT_pattern = &CT_lines[0];
 
 /* we need to keep track of tek cursor location */
 static int CT_last_linetype = 0, CT_last_x, CT_last_y;
@@ -1210,7 +1206,7 @@ static void CTEK_linetype(int linetype)
 {
 	if(linetype < 0)
 		linetype = 0;
-	linetype %= (sizeof(CT_lines) / sizeof(unsigned long));
+	linetype %= (sizeof(CT_lines) / sizeof(ulong));
 	CT_pattern = &CT_lines[linetype];
 	CT_last_linetype = linetype;
 }
@@ -1250,7 +1246,7 @@ static void CT_draw_vpoint(int x, int y, int last)
 			yy0 = yy1 = y;
 			CT_penon = 1;
 		}
-		*CT_pattern = ((*CT_pattern) >> 1) | ((unsigned long)1 << 31); /* rotate the pattern */
+		*CT_pattern = ((*CT_pattern) >> 1) | ((ulong)1 << 31); /* rotate the pattern */
 		if(last) {      /* draw the line anyway if this is the last point */
 			TEK40move(xx0, yy0);
 			TEK40vector(xx1, yy1);

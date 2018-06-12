@@ -667,8 +667,7 @@ again:  if(obj == NULL) {
 		case GRANT:
 		    part_id = LOCK_PART(region, ndx);
 		    /* Allocate a new lock. */
-		    if((newl = SH_TAILQ_FIRST(
-				&FREE_LOCKS(lt, part_id), __db_lock)) == NULL) {
+		    if((newl = SH_TAILQ_FIRST(&FREE_LOCKS(lt, part_id), __db_lock)) == NULL) {
 			    if((ret = __lock_alloclock(lt, part_id)) != 0)
 				    goto err;
 			    /* Allocation dropped the mutex, start over. */
@@ -676,8 +675,7 @@ again:  if(obj == NULL) {
 			    sh_obj = NULL;
 			    goto again;
 		    }
-		    SH_TAILQ_REMOVE(
-			    &FREE_LOCKS(lt, part_id), newl, links, __db_lock);
+		    SH_TAILQ_REMOVE(&FREE_LOCKS(lt, part_id), newl, links, __db_lock);
 
 #ifdef HAVE_STATISTICS
 		    /*
@@ -732,8 +730,7 @@ upgrade:            lp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 			    if(lp->status == DB_LSTAT_EXPIRED)
 				    goto expired;
 			    DB_ASSERT(env, lp->status == DB_LSTAT_PENDING);
-			    SH_TAILQ_REMOVE(
-				    &sh_obj->holders, newl, links, __db_lock);
+			    SH_TAILQ_REMOVE(&sh_obj->holders, newl, links, __db_lock);
 			    newl->links.stqe_prev = -1;
 			    goto done;
 		    }
@@ -754,18 +751,15 @@ upgrade:            lp = (struct __db_lock *)R_ADDR(&lt->reginfo, lock->off);
 		    if((lp =
 			SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock)) == NULL) {
 			    LOCK_DD(env, region);
-			    SH_TAILQ_INSERT_HEAD(&region->dd_objs,
-				sh_obj, dd_links, __db_lockobj);
+			    SH_TAILQ_INSERT_HEAD(&region->dd_objs, sh_obj, dd_links, __db_lockobj);
 			    UNLOCK_DD(env, region);
 		    }
 		    switch(action) {
 			    case HEAD:
-				SH_TAILQ_INSERT_HEAD(
-					&sh_obj->waiters, newl, links, __db_lock);
+				SH_TAILQ_INSERT_HEAD(&sh_obj->waiters, newl, links, __db_lock);
 				break;
 			    case SECOND:
-				SH_TAILQ_INSERT_AFTER(
-					&sh_obj->waiters, lp, newl, links, __db_lock);
+				SH_TAILQ_INSERT_AFTER(&sh_obj->waiters, lp, newl, links, __db_lock);
 				break;
 			    case TAIL:
 				SH_TAILQ_INSERT_TAIL(&sh_obj->waiters, newl, links);
@@ -932,8 +926,7 @@ expired:                        ret = __lock_put_internal(lt, newl,
 					 * list.  Since we're upgrading some other lock,
 					 * we've got to remove it here.
 					 */
-					SH_TAILQ_REMOVE(
-						&sh_obj->holders, newl, links, __db_lock);
+					SH_TAILQ_REMOVE(&sh_obj->holders, newl, links, __db_lock);
 					/*
 					 * Ensure the object is not believed to be on
 					 * the object's lists, if we're traversing by
@@ -988,7 +981,7 @@ done:   if(newl != NULL &&
  * __lock_put_pp --
  *	ENV->lock_put pre/post processing.
  *
- * PUBLIC: int  __lock_put_pp __P((DB_ENV *, DB_LOCK *));
+ * PUBLIC: int  __lock_put_pp(DB_ENV *, DB_LOCK *);
  */
 int __lock_put_pp(DB_ENV *dbenv, DB_LOCK * lock)
 {
@@ -1187,18 +1180,15 @@ static int __lock_put_internal(DB_LOCKTAB *lt, struct __db_lock * lockp, uint32 
 	if(SH_TAILQ_FIRST(&sh_obj->holders, __db_lock) == NULL &&
 	    SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock) == NULL) {
 		part_id = LOCK_PART(region, obj_ndx);
-		SH_TAILQ_REMOVE(
-			&lt->obj_tab[obj_ndx], sh_obj, links, __db_lockobj);
+		SH_TAILQ_REMOVE(&lt->obj_tab[obj_ndx], sh_obj, links, __db_lockobj);
 		if(sh_obj->lockobj.size > sizeof(sh_obj->objdata)) {
 			if(region->part_t_size != 1)
 				LOCK_REGION_LOCK(env);
-			__env_alloc_free(&lt->reginfo,
-			    SH_DBT_PTR(&sh_obj->lockobj));
+			__env_alloc_free(&lt->reginfo, SH_DBT_PTR(&sh_obj->lockobj));
 			if(region->part_t_size != 1)
 				LOCK_REGION_UNLOCK(env);
 		}
-		SH_TAILQ_INSERT_HEAD(
-			&FREE_OBJS(lt, part_id), sh_obj, links, __db_lockobj);
+		SH_TAILQ_INSERT_HEAD(&FREE_OBJS(lt, part_id), sh_obj, links, __db_lockobj);
 		sh_obj->generation++;
 		STAT(lt->part_array[part_id].part_stat.st_nobjects--);
 		STAT(lt->obj_stat[obj_ndx].st_nobjects--);
@@ -1285,26 +1275,22 @@ static int __lock_allocobj(DB_LOCKTAB *lt, uint32 part_id)
 #endif
 #include "lock_alloc.incl"
 }
-
 /*
  * __lock_getobj --
  *	Get an object in the object hash table.  The create parameter
- * indicates if the object should be created if it doesn't exist in
- * the table.
+ * indicates if the object should be created if it doesn't exist in the table.
  *
  * This must be called with the object bucket locked.
  */
 static int __lock_getobj(DB_LOCKTAB *lt, const DBT * obj, uint32 ndx, int create, DB_LOCKOBJ ** retp)
 {
 	DB_LOCKOBJ * sh_obj;
-	DB_LOCKREGION * region;
-	ENV * env;
 	int ret;
 	void * p;
-	uint32 len, part_id;
-	env = lt->env;
-	region = (DB_LOCKREGION *)lt->reginfo.primary;
-	len = 0;
+	uint32 part_id;
+	ENV * env = lt->env;
+	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
+	uint32 len = 0;
 	/* Look up the object in the hash table. */
 retry:  
 	SH_TAILQ_FOREACH(sh_obj, &lt->obj_tab[ndx], links, __db_lockobj) {
@@ -1312,7 +1298,6 @@ retry:
 		if(obj->size == sh_obj->lockobj.size && memcmp(obj->data, SH_DBT_PTR(&sh_obj->lockobj), obj->size) == 0)
 			break;
 	}
-
 	/*
 	 * If we found the object, then we can just return it.  If
 	 * we didn't find the object, then we need to create it.
@@ -1320,8 +1305,7 @@ retry:
 	if(sh_obj == NULL && create) {
 		/* Create new object and then insert it into hash table. */
 		part_id = LOCK_PART(region, ndx);
-		if((sh_obj = SH_TAILQ_FIRST(&FREE_OBJS(
-			    lt, part_id), __db_lockobj)) == NULL) {
+		if((sh_obj = SH_TAILQ_FIRST(&FREE_OBJS(lt, part_id), __db_lockobj)) == NULL) {
 			if((ret = __lock_allocobj(lt, part_id)) == 0)
 				goto retry;
 			goto err;
@@ -1343,16 +1327,12 @@ retry:
 			if(region->part_t_size != 1)
 				LOCK_REGION_UNLOCK(env);
 			if(ret != 0) {
-				__db_errx(env,
-				    "No space for lock object storage");
+				__db_errx(env, "No space for lock object storage");
 				goto err;
 			}
 		}
-
 		memcpy(p, obj->data, obj->size);
-
-		SH_TAILQ_REMOVE(&FREE_OBJS(
-			    lt, part_id), sh_obj, links, __db_lockobj);
+		SH_TAILQ_REMOVE(&FREE_OBJS(lt, part_id), sh_obj, links, __db_lockobj);
 #ifdef HAVE_STATISTICS
 		/*
 		 * Keep track of both the max number of objects allocated
@@ -1360,35 +1340,26 @@ retry:
 		 * this bucket.
 		 */
 		len++;
-		if(++lt->obj_stat[ndx].st_nobjects >
-		    lt->obj_stat[ndx].st_maxnobjects)
-			lt->obj_stat[ndx].st_maxnobjects =
-			    lt->obj_stat[ndx].st_nobjects;
-		if(++lt->part_array[part_id].part_stat.st_nobjects >
-		    lt->part_array[part_id].part_stat.st_maxnobjects)
-			lt->part_array[part_id].part_stat.st_maxnobjects =
-			    lt->part_array[part_id].part_stat.st_nobjects;
+		if(++lt->obj_stat[ndx].st_nobjects > lt->obj_stat[ndx].st_maxnobjects) 
+			lt->obj_stat[ndx].st_maxnobjects = lt->obj_stat[ndx].st_nobjects;
+		if(++lt->part_array[part_id].part_stat.st_nobjects > lt->part_array[part_id].part_stat.st_maxnobjects)
+			lt->part_array[part_id].part_stat.st_maxnobjects = lt->part_array[part_id].part_stat.st_nobjects;
 #endif
-
 		sh_obj->indx = ndx;
 		SH_TAILQ_INIT(&sh_obj->waiters);
 		SH_TAILQ_INIT(&sh_obj->holders);
 		sh_obj->lockobj.size = obj->size;
-		sh_obj->lockobj.off =
-		    (roff_t)SH_PTR_TO_OFF(&sh_obj->lockobj, p);
-		SH_TAILQ_INSERT_HEAD(
-			&lt->obj_tab[ndx], sh_obj, links, __db_lockobj);
+		sh_obj->lockobj.off = (roff_t)SH_PTR_TO_OFF(&sh_obj->lockobj, p);
+		SH_TAILQ_INSERT_HEAD(&lt->obj_tab[ndx], sh_obj, links, __db_lockobj);
 	}
-
 #ifdef HAVE_STATISTICS
 	if(len > lt->obj_stat[ndx].st_hash_len)
 		lt->obj_stat[ndx].st_hash_len = len;
 #endif
-
 	*retp = sh_obj;
 	return 0;
-
-err:    return ret;
+err:    
+	return ret;
 }
 
 /*

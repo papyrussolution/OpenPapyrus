@@ -44,12 +44,12 @@ register_term(caca)
 #define CACA_YMAX (25-1)
 
 static void CACA_options(GpCommand & rC);
-static void CACA_init(void);
-static void CACA_graphics(void);
-static void CACA_text(void);
-static void CACA_reset(void);
-static void CACA_suspend(void);
-static void CACA_resume(void);
+static void CACA_init();
+static void CACA_graphics();
+static void CACA_text();
+static void CACA_reset();
+static void CACA_suspend();
+static void CACA_resume();
 static void CACA_linetype(int linetype);
 static int  CACA_make_palette(t_sm_palette * palette);
 static void CACA_color(t_colorspec * colorspec);
@@ -76,7 +76,7 @@ static void CACA_image(uint M, uint N, double * image,
 static void CACA_enhanced_put_text(uint x, uint y, const char str[]);
 static void CACA_enhanced_open(char * fontname, double fontsize,
     double base, bool widthflag, bool showflag, int overprint);
-static void CACA_enhanced_flush(void);
+static void CACA_enhanced_flush();
 static void CACA_hypertext(int type, const char * text);
 #ifdef EAM_BOXED_TEXT
 static void CACA_boxed_text(uint x, uint y, int option);
@@ -90,8 +90,8 @@ static void CACA_modify_plots(uint operations, int plotno);
 
 typedef enum CACA_result { CACA_quit, CACA_loop, CACA_endpause } CACA_result;
 
-extern CACA_result CACA_process_events(void);
-extern bool CACA_window_opened(void);
+extern CACA_result CACA_process_events();
+extern bool CACA_window_opened();
 
 #endif /* TERM_PUBLIC_PROTO */
 
@@ -113,17 +113,17 @@ extern bool CACA_window_opened(void);
 /* Internal Functions */
 
 static void CACA_update_options(); /* update the term_options string */
-static void CACA_refresh(void); /* redraw the screen */
-static void CACA_check_resize(void); /* test if the screen size changed */
-static void CACA_init_angles(void); /* init the array used for rotated text */
-static void CACA_close_display(void);
+static void CACA_refresh(); /* redraw the screen */
+static void CACA_check_resize(); /* test if the screen size changed */
+static void CACA_init_angles(); /* init the array used for rotated text */
+static void CACA_close_display();
 static void CACA_add_path_point(int x, int y); /* add a new point to current path */
-static void CACA_init_display(void);
+static void CACA_init_display();
 #ifdef USE_MOUSE
-static void CACA_print_status(void); /* draw the status line */
+static void CACA_print_status(); /* draw the status line */
 static int CACA_translate_key(int key); /* map libcaca key codes to gnuplot's */
-static unsigned long CACA_event_time(void); /* get the event time */
-static void CACA_discard_events(void); /* discard pending caca events */
+static ulong CACA_event_time(); /* get the event time */
+static void CACA_discard_events(); /* discard pending caca events */
 #endif
 static void CACA_update_keybox(unsigned plotno, unsigned x, unsigned y);
 
@@ -148,7 +148,7 @@ static char * CACA_encode_text(const char * str); /* map strings according to cu
 #ifdef USE_MOUSE
 static bool process_event(char type, int mx, int my, int par1, int par2, int winid); /* wrapper for do_event() */
 #endif
-static int gp_kbhit(void); /* kbhit() implementation */
+static int gp_kbhit(); /* kbhit() implementation */
 
 /* Types, Enums */
 
@@ -319,9 +319,9 @@ static void CACA_options(GpCommand & rC)
 			    term->flags |= TERM_ENHANCED_TEXT;
 			    term->flags |= TERM_NO_OUTPUTFILE;
 			    term->flags &= ~TERM_MONOCHROME;
-			    free(CACA_driver);
+			    SAlloc::F(CACA_driver);
 			    CACA_driver = NULL;
-			    free(CACA_title);
+			    SAlloc::F(CACA_title);
 			    CACA_title = NULL;
 			    CACA_background = CACA_WHITE;
 			    CACA_charset = CACA_BLOCKS;
@@ -375,7 +375,7 @@ static void CACA_options(GpCommand & rC)
 			    if(rC.Eq("default")) {
 				    rC.CToken++;
 				    CACA_close_display();
-				    free(CACA_driver);
+				    SAlloc::F(CACA_driver);
 				    CACA_driver = NULL;
 			    }
 			    else if(rC.Eq("list")) {
@@ -399,7 +399,7 @@ static void CACA_options(GpCommand & rC)
 					    /* Has driver changed? */
 					    if((CACA_driver != NULL) && (strcmp(CACA_driver, driver) != 0))
 						    CACA_close_display();
-					    free(CACA_driver);
+					    SAlloc::F(CACA_driver);
 					    CACA_driver = driver;
 				    }
 				    else {
@@ -432,7 +432,7 @@ static void CACA_options(GpCommand & rC)
 					    }
 				    }
 				    if(!found) {
-					    free(CACA_driver);
+					    SAlloc::F(CACA_driver);
 					    CACA_driver = NULL;
 					    GpGg.IntErrorCurToken("Unknown driver or export format.");
 				    }
@@ -484,8 +484,8 @@ static void CACA_options(GpCommand & rC)
 			case CACA_TITLE:
 			    rC.CToken++;
 			    if(!rC.EndOfCommand()) {
-				    free(CACA_title);
-				    CACA_title = strdup(rC.TryToGetString());
+				    SAlloc::F(CACA_title);
+				    CACA_title = sstrdup(rC.TryToGetString());
 			    }
 			    else {
 				    GpGg.IntErrorCurToken("Option `title` requires an argument, see `help caca`.");
@@ -716,7 +716,7 @@ static void CACA_init_display(void)
 
 	if(CACA_dp != NULL) {
 		if(CACA_driver == NULL)
-			CACA_driver = strdup(caca_get_display_driver(CACA_dp));
+			CACA_driver = sstrdup(caca_get_display_driver(CACA_dp));
 		CACA_windowed = (strcmp(CACA_driver, "x11") == 0);
 		CACA_windowed |= (strcmp(CACA_driver, "gl") == 0);
 #if defined(WIN32) && !defined(WGP_CONSOLE)
@@ -757,9 +757,7 @@ static void CACA_init_display(void)
 		if(strcmp(CACA_driver, "win32") == 0) {
 			/* On CJK Windows we change the codepage. Not sure why this
 			   solves the display problems, but apparently it works. See bug #1361. */
-			if((TMP_codepage = GetConsoleOutputCP()) == 932
-			    || TMP_codepage == 936
-			    || TMP_codepage == 950) {
+			if((TMP_codepage = GetConsoleOutputCP()) == 932 || TMP_codepage == 936 || TMP_codepage == 950) {
 				CACA_codepage = TMP_codepage;
 				SetConsoleOutputCP(437);
 			}
@@ -771,8 +769,7 @@ static void CACA_init_display(void)
 		   is thus hard-coded here. The checks below have to be adopted
 		   whenever libcaca evolves. */
 		CACA_truecolor = true; /* caca, html, html3, (bbfr,) ps, svg */
-		if((strcmp(CACA_driver, "troff") == 0) ||
-		    (strcmp(CACA_driver, "tga") == 0))
+		if((strcmp(CACA_driver, "troff") == 0) || (strcmp(CACA_driver, "tga") == 0))
 			CACA_truecolor = false;
 		CACA_truecolor |= CACA_force_truecolor;
 		CACA_windowed = false;
@@ -844,8 +841,8 @@ static void CACA_graphics()
 	hypertext = CACA_hypertext_list;
 	while(hypertext != NULL) {
 		CACA_HYPERTEXT * next = hypertext->next;
-		free(hypertext->text);
-		free(hypertext);
+		SAlloc::F(hypertext->text);
+		SAlloc::F(hypertext);
 		hypertext = next;
 	}
 	;
@@ -901,7 +898,7 @@ static void CACA_text()
 		void * data = caca_export_memory(CACA_cv, CACA_driver, &bytes);
 #endif
 		fwrite(data, 1, bytes, gpoutfile);
-		free(data);
+		SAlloc::F(data);
 	}
 #if defined(WIN32) && !defined(WGP_CONSOLE)
 	/* Raise the console (graph!) window. Beware: */
@@ -989,14 +986,14 @@ static void CACA_resume(void)
 static void CACA_reset()
 {
 #ifdef USE_MOUSE
-	free(CACA_status_text);
+	SAlloc::F(CACA_status_text);
 	CACA_status_text = NULL;
-	free(CACA_zoom_from_text);
-	free(CACA_zoom_to_text);
+	SAlloc::F(CACA_zoom_from_text);
+	SAlloc::F(CACA_zoom_to_text);
 	CACA_zoom_from_text = CACA_zoom_to_text = NULL;
 #endif
-	free(CACA_path_x);
-	free(CACA_path_y);
+	SAlloc::F(CACA_path_x);
+	SAlloc::F(CACA_path_y);
 	CACA_path_x = CACA_path_y = NULL;
 	CACA_polygon_points = CACA_maxpath = 0;
 }
@@ -1586,7 +1583,7 @@ static void CACA_put_text(uint x, uint y, const char * str)
 	}
 
 	if(text != str)
-		free(text);
+		SAlloc::F(text);
 }
 
 static void CACA_arrow(uint sx, uint sy, uint ex, uint ey, int head)
@@ -1789,7 +1786,7 @@ static int CACA_translate_key(int key)
 	return key;
 }
 
-static unsigned long CACA_event_time(void)
+static ulong CACA_event_time(void)
 {
 #ifdef HAVE_SYS_TIME_H
 	struct timeval tv;
@@ -1814,7 +1811,7 @@ CACA_result CACA_process_events(void)
 	    CACA_EVENT_KEY_PRESS | CACA_EVENT_RESIZE |  CACA_EVENT_QUIT |
 	    CACA_EVENT_MOUSE_MOTION | CACA_EVENT_MOUSE_PRESS | CACA_EVENT_MOUSE_RELEASE;
 	static int mx = 0, my = 0; /* current mouse position */
-	static unsigned long last_event_time = 0;
+	static ulong last_event_time = 0;
 
 	if(CACA_dp != NULL) {
 		if(caca_get_event(CACA_dp, event_mask, &ev, 100)) {
@@ -1862,9 +1859,9 @@ CACA_result CACA_process_events(void)
 				    break;
 			    }
 				case CACA_EVENT_MOUSE_RELEASE: {
-				    unsigned long timestamp;
+				    ulong timestamp;
 				    int button = caca_get_event_mouse_button(&ev);
-				    unsigned long event_time = CACA_event_time();
+				    ulong event_time = CACA_event_time();
 				    timestamp = event_time - last_event_time;
 				    last_event_time = event_time;
 				    if(process_event(GE_buttonrelease, mx, my, button, timestamp, 0))
@@ -2052,19 +2049,19 @@ static void CACA_put_tmptext(int i, const char str[])
 	if(CACA_dp && !CACA_exportonly) {
 		switch(i) {
 			case 0: /* status text */
-				free(CACA_status_text);
+				SAlloc::F(CACA_status_text);
 				CACA_status_text = isempty(str) ? 0 : _strdup(str);
 				CACA_print_status();
 				if(CACA_dp != NULL)
 					caca_refresh_display(CACA_dp);
 				break;
 			case 1: /* zooming from text */
-				free(CACA_zoom_from_text);
+				SAlloc::F(CACA_zoom_from_text);
 				CACA_zoom_from_text = isempty(str) ? 0 : _strdup(str);
 				CACA_refresh();
 				break;
 			case 2: /* zooming to text */
-				free(CACA_zoom_to_text);
+				SAlloc::F(CACA_zoom_to_text);
 				CACA_zoom_to_text = isempty(str) ? 0 : _strdup(str);
 				CACA_refresh();
 				break;
@@ -2232,7 +2229,7 @@ static void CACA_filled_polygon(int points, gpiPoint * corners)
 		}
 
 		/* cleanup */
-		free(nodeX);
+		SAlloc::F(nodeX);
 		/* ---------------------------------------------------------------- */
 	}
 
@@ -2328,7 +2325,7 @@ static void CACA_image(uint M, uint N, double * image,
 	    corner[0].x, CACA_ymax - corner[0].y,
 	    corner[1].x - corner[0].x, abs(corner[0].y - corner[1].y),
 	    dither, data);
-	free(data);
+	SAlloc::F(data);
 	caca_free_dither(dither);
 }
 

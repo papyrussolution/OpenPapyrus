@@ -106,15 +106,15 @@ static void HPPJ_options(GpCommand & rC)
 			GpGg.IntErrorCurToken(HPPJERROR);
 		}
 		rC.Capture(opt, rC.CToken, rC.CToken, /*4 */ 9); /* HBB 980226 */
-		if(!strcmp(opt, "FNT5X9")) {
+		if(sstreq(opt, "FNT5X9")) {
 			hppj_font = FNT5X9;
 			strcpy(term_options, "FNT5X9");
 		}
-		else if(!strcmp(opt, "FNT9X17")) {
+		else if(sstreq(opt, "FNT9X17")) {
 			hppj_font = FNT9X17;
 			strcpy(term_options, "FNT9X17");
 		}
-		else if(!strcmp(opt, "FNT13X25")) {
+		else if(sstreq(opt, "FNT13X25")) {
 			hppj_font = FNT13X25;
 			strcpy(term_options, "FNT13X25");
 		}

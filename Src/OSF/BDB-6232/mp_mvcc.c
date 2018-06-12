@@ -87,7 +87,6 @@ int __memp_skip_curadj(DBC * dbc, db_pgno_t pgno)
 }
 
 #define DB_FREEZER_MAGIC 0x06102002
-
 /*
  * __memp_bh_freeze --
  *	Save a buffer to temporary storage in case it is needed later by
@@ -95,8 +94,7 @@ int __memp_skip_curadj(DBC * dbc, db_pgno_t pgno)
  *	locked and will exit with it locked.  A BH_FROZEN buffer header is
  *	allocated to represent the frozen data in mpool.
  *
- * PUBLIC: int __memp_bh_freeze __P((DB_MPOOL *, REGINFO *, DB_MPOOL_HASH *,
- * PUBLIC:     BH *, int *));
+ * PUBLIC: int __memp_bh_freeze __P((DB_MPOOL *, REGINFO *, DB_MPOOL_HASH *, BH *, int *));
  */
 int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * bhp, int * need_frozenp)
 {
@@ -228,14 +226,12 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	F_SET(frozen_bhp, BH_FROZEN);
 	F_CLR(frozen_bhp, BH_EXCLUSIVE);
 	((BH_FROZEN_PAGE*)frozen_bhp)->spgno = newpgno;
-
 	/*
 	 * We're about to add the frozen buffer header to the version chain, so
 	 * we have temporarily created another buffer for the owning
 	 * transaction.
 	 */
-	if(frozen_bhp->td_off != INVALID_ROFF &&
-	    (ret = __txn_add_buffer(env, BH_OWNER(env, frozen_bhp))) != 0) {
+	if(frozen_bhp->td_off != INVALID_ROFF && (ret = __txn_add_buffer(env, BH_OWNER(env, frozen_bhp))) != 0) {
 		(void)__env_panic(env, ret);
 		goto err;
 	}
@@ -248,8 +244,7 @@ int __memp_bh_freeze(DB_MPOOL *dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * b
 	 */
 	SH_CHAIN_INSERT_AFTER(bhp, frozen_bhp, vc, __bh);
 	if(!SH_CHAIN_HASNEXT(frozen_bhp, vc)) {
-		SH_TAILQ_INSERT_BEFORE(&hp->hash_bucket,
-		    bhp, frozen_bhp, hq, __bh);
+		SH_TAILQ_INSERT_BEFORE(&hp->hash_bucket, bhp, frozen_bhp, hq, __bh);
 		SH_TAILQ_REMOVE(&hp->hash_bucket, bhp, hq, __bh);
 	}
 	MUTEX_UNLOCK(env, hp->mtx_hash);
@@ -267,8 +262,7 @@ err:
 			ret = t_ret;
 		if(created) {
 			DB_ASSERT(env, h_locked);
-			if((t_ret = __os_unlink(env, real_name, 0)) != 0 &&
-			    ret == 0)
+			if((t_ret = __os_unlink(env, real_name, 0)) != 0 && ret == 0)
 				ret = t_ret;
 		}
 		if(h_locked)

@@ -125,7 +125,7 @@ static void CGM_set_pointsize(double size);
 #ifdef TERM_BODY
 
 static int CGM_find_font __PROTO((const char * name, int len, double * relwidth));
-static int CGM_find_nearest_color __PROTO((t_colorspec *colorspec));
+static int CGM_find_nearest_color(t_colorspec * colorspec);
 
 #include <ctype.h>              /* for isspace() */
 
@@ -466,7 +466,7 @@ static void CGM_options(GpCommand & rC)
 						    font_index = 1;
 					    }
 					    else
-						    free(s);
+						    SAlloc::F(s);
 					    strncpy(cgm_font, cgm_font_data[font_index-1].name, sizeof(cgm_font));
 				    }
 				    else {
@@ -702,7 +702,7 @@ Gnuplot version %s patchlevel %s,\
 			s += lgh;
 		}
 		CGM_write_byte_record(1, 13, lgh, buf);
-		free(buf);
+		SAlloc::F(buf);
 	}
 
 	/* picture description (classes 2 and 3) */
@@ -1449,7 +1449,7 @@ static int CGM_justify_text(enum JUSTIFY mode)
 static void CGM_reset()
 {
 	cgm_posx = cgm_posy = 0;
-	free(cgm_polyline);
+	SAlloc::F(cgm_polyline);
 }
 
 static void CGM_point(uint x, uint y, int number)

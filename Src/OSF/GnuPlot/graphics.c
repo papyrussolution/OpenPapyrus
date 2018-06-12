@@ -4111,7 +4111,7 @@ void GpGadgets::ProcessImage(GpTermEntry * pT, void * pPlot, t_procimg_action ac
 
 						if(N_corners > 0) {
 							if(pixel_planes == IC_PALETTE) {
-								if((p_pts[i_image].type == UNDEFINED) ||  (fisnan(p_pts[i_image].CRD_COLOR))) {
+								if((p_pts[i_image].type == UNDEFINED) || (fisnan(p_pts[i_image].CRD_COLOR))) {
 									/* EAM April 2012 Distinguish +/-Inf from NaN */
 									FPRINTF((stderr, "undefined pixel value %g\n", p_pts[i_image].CRD_COLOR));
 									if(fisnan(p_pts[i_image].CRD_COLOR))

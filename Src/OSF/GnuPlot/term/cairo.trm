@@ -297,7 +297,7 @@ static void cairotrm_options(GpCommand & rC)
 			}
 			font_setting = (char*) malloc(strlen(s) + 1,"cairo terminal font");
 			strcpy(font_setting,s);
-			free(s);
+			SAlloc::F(s);
 			if(set_font) duplication=true;
 			set_font = true;
 			break;
@@ -317,7 +317,7 @@ static void cairotrm_options(GpCommand & rC)
 			break;
 		case CAIROTRM_SIZE:
 			rC.CToken++;
-			if(!strcmp(term->name,"pngcairo"))
+			if(sstreq(term->name,"pngcairo"))
 			    cairo_params->explicit_units = rC.ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 			else
 			    cairo_params->explicit_units = rC.ParseTermSize(&cairo_params->width, &cairo_params->height, INCHES);
@@ -430,7 +430,7 @@ static void cairotrm_options(GpCommand & rC)
 			if(!ISCAIROLATEX)
 				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			++rC.CToken;
-			free(epslatex_header);
+			SAlloc::F(epslatex_header);
 			/* Protect against int_error() bail from rC.TryToGetString() */
 			epslatex_header = NULL;
 			epslatex_header = rC.TryToGetString();
@@ -442,7 +442,7 @@ static void cairotrm_options(GpCommand & rC)
 		case CAIROLATEX_NOHEADER:
 			if(!ISCAIROLATEX)
 				GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
-			free(epslatex_header);
+			SAlloc::F(epslatex_header);
 			epslatex_header = NULL;
 			if(set_header) duplication = true;
 			set_header = true;
@@ -536,7 +536,7 @@ static void cairotrm_options(GpCommand & rC)
 
 	if(set_font) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " font \"%s\"", font_setting);
-		free(font_setting);
+		SAlloc::F(font_setting);
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 	}
 
@@ -627,16 +627,14 @@ void cairotrm_init()
 	/* is supposed to be done in cairotrm_reset */
 	if( plot.cr )
 		cairo_destroy(plot.cr);
-	if(!strcmp(term->name,"pdfcairo")) {
+	if(sstreq(term->name,"pdfcairo")) {
 		/* Output can either be a file or stdout */
 		if(!outstr) {
-		    surface = cairo_pdf_surface_create_for_stream(
-			(cairo_write_func_t)cairostream_write, cairostream_error,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
-		} else {
-		    surface = cairo_pdf_surface_create(outstr,
-				plot.device_xmax /*double width_in_points*/,
+		    surface = cairo_pdf_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+				plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
+		} 
+		else {
+		    surface = cairo_pdf_surface_create(outstr, plot.device_xmax /*double width_in_points*/,
 				plot.device_ymax /*double height_in_points*/);
 		}
 		/* it is up to the pdf viewer to do the hinting */
@@ -647,10 +645,8 @@ void cairotrm_init()
 		plot.polygons_saturate = false;
 		/* Empirical correction to make pdf output look more like wxt and png */
 		plot.dashlength /= 2;
-	} else if(!strcmp(term->name,"pngcairo")) {
-		surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
+	} else if(sstreq(term->name,"pngcairo")) {
+		surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		/* png is bitmapped, let's do the full hinting */
 		plot.hinting = 100;
 		/* png is produced by cairo "image" backend, which has full support
@@ -658,17 +654,13 @@ void cairotrm_init()
 		plot.polygons_saturate = true;
 	}
 #ifdef HAVE_CAIROEPS
-	else if(!strcmp(term->name,"epscairo")) {
+	else if(sstreq(term->name,"epscairo")) {
 		/* Output can either be a file or stdout */
 		if(!outstr) {
-		    surface = cairo_ps_surface_create_for_stream(
-			(cairo_write_func_t)cairostream_write, cairostream_error,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
+		    surface = cairo_ps_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+				plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		} else {
-		    surface = cairo_ps_surface_create(outstr,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
+		    surface = cairo_ps_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		}
 		cairo_ps_surface_set_eps(surface, true);
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1,11,1)
@@ -908,13 +900,13 @@ void cairotrm_text()
 	/* finish the page - cairo_destroy still has to be called for the whole documentation
 	 * to be written */
 	cairo_show_page(plot.cr);
-	if(!strcmp(term->name,"pngcairo")) {
+	if(sstreq(term->name,"pngcairo")) {
 	    cairo_surface_t *surface = cairo_get_target(plot.cr);
 	    if(cairo_params->crop) {
-		cairopng_write_cropped_image(surface);
-	    } else {
-		cairo_surface_write_to_png_stream(surface,
-			(cairo_write_func_t)cairostream_write, cairostream_error);
+			cairopng_write_cropped_image(surface);
+	    } 
+		else {
+			cairo_surface_write_to_png_stream(surface, (cairo_write_func_t)cairostream_write, cairostream_error);
 	    }
 	}
 	FPRINTF((stderr,"status = %s\n",cairo_status_to_string(cairo_status(plot.cr))));
@@ -1054,7 +1046,7 @@ int cairotrm_set_font (const char *font)
 	}
 
 	if(!fontname || !(*fontname)) {
-		free(fontname);
+		SAlloc::F(fontname);
 		if( strlen(cairo_params->fontname) == 0 )
 			fontname = gp_strdup(CAIROTRM_DEFAULT_FONTNAME);
 		else
@@ -1073,7 +1065,7 @@ int cairotrm_set_font (const char *font)
 	gp_cairo_set_font(&plot, fontname, fontsize * cairo_params->fontscale);
 	gp_cairo_set_termvar(&plot, &(term->VChr), &(term->HChr));
 
-	free(fontname);
+	SAlloc::F(fontname);
 
 	/* the returned int is not used anywhere */
 	return 1;
@@ -1160,7 +1152,7 @@ void cairotrm_filled_polygon(int n, gpiPoint *corners)
 		++corners_copy;
 	}
 	gp_cairo_draw_polygon(&plot, n, mirrored_corners);
-	free(mirrored_corners);
+	SAlloc::F(mirrored_corners);
 }
 
 void cairotrm_image(uint M, uint N, double * image, gpiPoint * corner, t_imagecolor color_mode)
@@ -1203,7 +1195,7 @@ void cairotrm_image(uint M, uint N, double * image, gpiPoint * corner, t_imageco
 			corner[2].x, term->ymax - corner[2].y,
 			corner[3].x, term->ymax - corner[3].y,
 			M, N);
-	free(image255);
+	SAlloc::F(image255);
 }
 
 #ifdef EAM_BOXED_TEXT

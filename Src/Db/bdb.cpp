@@ -230,6 +230,8 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 		if(options & oWriteStatOnClose)
 			State |= stWriteStatOnClose;
 		// } @v9.7.11
+		if(options & oExclusive)
+			State |= stExclusive;
 		r = E->open(E, pHomeDir, opf, /* Open flags */0);
 	}
 	{
@@ -483,7 +485,12 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	}
 	{
 		int    opf = DB_AUTO_COMMIT | DB_MULTIVERSION | DB_READ_UNCOMMITTED;
-		opf |= DB_THREAD;
+		if(flags & BDbTable::ofExclusive) {
+			r = p_db->set_lk_exclusive(p_db, 1);  
+			THROW(ProcessError(r, p_db, pFileName));
+		}
+		else
+			opf |= DB_THREAD;
 		// @v9.7.11 {
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
@@ -493,6 +500,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	THROW(ProcessError(r, p_db, pFileName));
 	// @v9.7.11 {
 	if(pTbl) {
+		SETFLAG(pTbl->State, BDbTable::stExclusive, (flags & BDbTable::ofExclusive));
 		SETFLAG(pTbl->State, BDbTable::stReadOnly, (flags & BDbTable::ofReadOnly));
 	}
 	// } @v9.7.11
@@ -572,7 +580,12 @@ int BDbDatabase::CreateDataFile(const char * pFileName, int createMode, BDbTable
 int BDbDatabase::Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
 	int    ok = 1;
-	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, (State & stReadOnly || openMode == omReadOnly) ? BDbTable::ofReadOnly : 0);
+	int    open_flags = 0;
+	if(State & stReadOnly || openMode == omReadOnly) 
+		open_flags |= BDbTable::ofReadOnly;
+	if(State & stExclusive)
+		open_flags |= BDbTable::ofExclusive;
+	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, open_flags);
 	if(pTbl->H) {
 		CheckInTxnTable(pTbl);
 		pTbl->State |= BDbTable::stOpened;

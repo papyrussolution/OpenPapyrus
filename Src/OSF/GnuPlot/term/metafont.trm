@@ -94,15 +94,13 @@ register_term(mf)
 static void MF_init();
 static void MF_graphics();
 static void MF_text();
-static int MF_justify_text __PROTO((enum JUSTIFY mode));
+static int MF_justify_text(enum JUSTIFY mode);
 static int MF_text_angle(int ang);
 static void MF_linetype(int linetype);
 static void MF_move(uint x, uint y);
 static void MF_vector(uint x, uint y);
-static void MF_arrow __PROTO((uint sx, uint sy,
-				   uint ex, uint ey,
-				   int head));
-static void MF_put_text __PROTO((uint x, uint y, const char *str));
+static void MF_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
+static void MF_put_text(uint x, uint y, const char * str);
 static void MF_reset();
 
 #define GOT_MF_PROTO
@@ -507,7 +505,7 @@ MF_put_text(uint x, uint y, const char *str)
     }
     fprintf(gpoutfile, "put_text(\"%s\",%da,%db,%d,%d);\n",
 	    text, x, y, MF_ang, j);
-    free(text);
+    SAlloc::F(text);
 }
 
 

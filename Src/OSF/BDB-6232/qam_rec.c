@@ -314,45 +314,32 @@ int __qam_del_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 	COMPQUIET(pagep, NULL);
 	meta = NULL;
 	pagep = NULL;
-
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__qam_del_print);
 	REC_INTRO(__qam_del_read, ip, 0);
-
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-	    DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
-
 	/* Get the meta page before latching the page. */
 	metapg = ((QUEUE*)file_dbp->q_internal)->q_meta;
-	if((ret = __memp_fget(mpf, &metapg,
-	    ip, NULL, DB_MPOOL_EDIT, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &metapg, ip, NULL, DB_MPOOL_EDIT, &meta)) != 0)
 		goto err;
-
 	if((ret = __qam_fget(dbc, &argp->pgno, DB_MPOOL_CREATE, &pagep)) != 0)
 		goto err;
-
 	if(pagep->pgno == PGNO_INVALID) {
 		QAM_DIRTY(dbc, argp->pgno, &pagep);
 		pagep->pgno = argp->pgno;
 		pagep->type = P_QAMDATA;
 	}
-
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
-
 	if(DB_UNDO(op)) {
 		/* make sure first is behind us */
-		if(meta->first_recno == RECNO_OOB ||
-		    (QAM_BEFORE_FIRST(meta, argp->recno) &&
-		    (meta->first_recno <= meta->cur_recno ||
-		    meta->first_recno -
-		    argp->recno < argp->recno - meta->cur_recno))) {
+		if(meta->first_recno == RECNO_OOB || (QAM_BEFORE_FIRST(meta, argp->recno) &&
+		    (meta->first_recno <= meta->cur_recno || meta->first_recno - argp->recno < argp->recno - meta->cur_recno))) {
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
 			meta->first_recno = argp->recno;
 		}
-
 		/* Need to undo delete - mark the record as present */
 		QAM_DIRTY(dbc, pagep->pgno, &pagep);
 		qp = QAM_GET_RECORD(file_dbp, pagep, argp->indx);

@@ -580,6 +580,8 @@
 	#define HELP_BROWSER_JOB                          268
 #define BROWSER_PHNSVCMONITOR                269 // @{view_phnsvcmonitor}
 	#define HELP_BROWSER_PHNSVCMONITOR                269
+#define BROWSER_VETISDOCUMENT                270 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                270
 
 //
 // PPVIEW COMMAND definitions
@@ -1432,6 +1434,7 @@
 #define PPCMD_TESTTDDO2                   1330
 #define PPCMD_TESTVETIS                   1331
 #define PPCMD_PHNSVCMONITOR               1332
+#define PPCMD_VETISDOCUMENT               1333
 //
 // PPJOB definitions
 //
@@ -1788,6 +1791,9 @@
 #define PPVIEW_PHNSVCMONITOR               1140
 	#define PPFILT_PHNSVCMONITOR               1141
 	#define PPVIEWITEM_PHNSVCMONITOR               1142
+#define PPVIEW_VETISDOCUMENT               1150
+	#define PPFILT_VETISDOCUMENT               1151
+	#define PPVIEWITEM_VETISDOCUMENT               1152
 //
 // RECORD definitions
 //

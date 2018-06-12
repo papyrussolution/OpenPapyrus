@@ -543,6 +543,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGoodsRest:            PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, 0); break;
 		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, (void *)1); break;
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break; // @v9.9.10
+		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
 		case cmCTblOrdTimeGraph:
 			{
 				CTableOrder::Param param;
@@ -880,7 +881,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
-		case cmConvertVersionToHtml:    PPVer2Html(); break; 
+		case cmConvertVersionToHtml:    PPVer2Html(); break;
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v3.7.2 case cmConvert229:           Convert229();         break;
 		// @v3.7.2 case cmConvert253:           Convert253();         break;

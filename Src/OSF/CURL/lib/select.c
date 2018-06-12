@@ -164,9 +164,7 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		pending_ms = (int)timeout_ms;
 		initial_tv = curlx_tvnow();
 	}
-
 #ifdef HAVE_POLL_FINE
-
 	num = 0;
 	if(readfd0 != CURL_SOCKET_BAD) {
 		pfd[num].fd = readfd0;
@@ -186,7 +184,6 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		pfd[num].revents = 0;
 		num++;
 	}
-
 	do {
 		if(timeout_ms < 0)
 			pending_ms = -1;
@@ -206,12 +203,10 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 			}
 		}
 	} while(r == -1);
-
 	if(r < 0)
 		return -1;
 	if(r == 0)
 		return 0;
-
 	ret = 0;
 	num = 0;
 	if(readfd0 != CURL_SOCKET_BAD) {
@@ -234,14 +229,10 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		if(pfd[num].revents & (POLLERR|POLLHUP|POLLNVAL))
 			ret |= CURL_CSELECT_ERR;
 	}
-
 	return ret;
-
 #else  /* HAVE_POLL_FINE */
-
 	FD_ZERO(&fds_err);
 	maxfd = (curl_socket_t)-1;
-
 	FD_ZERO(&fds_read);
 	if(readfd0 != CURL_SOCKET_BAD) {
 		VERIFY_SOCK(readfd0);
@@ -256,7 +247,6 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		if(readfd1 > maxfd)
 			maxfd = readfd1;
 	}
-
 	FD_ZERO(&fds_write);
 	if(writefd != CURL_SOCKET_BAD) {
 		VERIFY_SOCK(writefd);
@@ -265,9 +255,7 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		if(writefd > maxfd)
 			maxfd = writefd;
 	}
-
 	ptimeout = (timeout_ms < 0) ? NULL : &pending_tv;
-
 	do {
 		if(timeout_ms > 0) {
 			pending_tv.tv_sec = pending_ms / 1000;
@@ -277,7 +265,6 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 			pending_tv.tv_sec = 0;
 			pending_tv.tv_usec = 0;
 		}
-
 		/* WinSock select() must not be called with an fd_set that contains zero
 		   fd flags, or it will return WSAEINVAL.  But, it also can't be called
 		   with no fd_sets at all!  From the documentation:
@@ -300,14 +287,10 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		   value).
 		 */
 #ifdef USE_WINSOCK
-		r = select((int)maxfd + 1,
-		    fds_read.fd_count ? &fds_read : NULL,
-		    fds_write.fd_count ? &fds_write : NULL,
-		    &fds_err, ptimeout);
+		r = select((int)maxfd + 1, fds_read.fd_count ? &fds_read : NULL, fds_write.fd_count ? &fds_write : NULL, &fds_err, ptimeout);
 #else
 		r = select((int)maxfd + 1, &fds_read, &fds_write, &fds_err, ptimeout);
 #endif
-
 		if(r != -1)
 			break;
 		error = SOCKERRNO;

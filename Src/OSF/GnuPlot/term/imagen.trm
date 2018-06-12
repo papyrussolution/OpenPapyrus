@@ -71,12 +71,12 @@ static void IMAGEN_init();
 static void IMAGEN_graphics();
 static void IMAGEN_options(GpCommand & rC);
 static void IMAGEN_text();
-static void IMAGEN_linetype __PROTO((int lt));
+static void IMAGEN_linetype(int lt);
 static void IMAGEN_move(uint x, uint y);
-static void IMAGEN_vector __PROTO((uint ux, uint uy));
+static void IMAGEN_vector(uint ux, uint uy);
 static int IMAGEN_text_angle(int ang);
-static int IMAGEN_justify_text __PROTO((enum JUSTIFY mode));
-static void IMAGEN_put_text __PROTO((uint x, uint y, const char str[]));
+static int IMAGEN_justify_text(enum JUSTIFY mode);
+static void IMAGEN_put_text(uint x, uint y, const char str[]);
 static void IMAGEN_reset();
 #define IMAGEN_PTS_PER_INCH (300)
 #define IMAGEN_XMAX (IMAGEN_PTS_PER_INCH * 11)  /* 10.0 inches */
@@ -395,7 +395,7 @@ static void IMAGEN_vector(uint ux, uint uy)
 static void IMAGEN_draw_path()
 {
 /*    uint pos; */
-	register int i;
+	int i;
 
 	putc(imP_CREATE_PATH, gpoutfile);
 	IMAGEN_putwd(IM_vecpos);
@@ -471,7 +471,7 @@ static unsigned char * IMAGEN_cvts(unsigned char * str, int * width, int * heigh
 	/* the same size as the input string.                               */
 
 	if(buf != NULL)
-		(void)free(buf);
+		SAlloc::F(buf);
 	buf = (unsigned char*)malloc(strlen((char*)str)+2, "converted label string");
 
 	/* Do the transformations. */
@@ -660,7 +660,7 @@ static void IMP_set_draw_pattern(int pattern, int sz)
 
 static void IMAGEN_mapsinit()
 {
-	register int i /*, j */;
+	int i /*, j */;
 
 	for(i = 32; i < 127; i++) {
 		IMP_gmap[i] = i;
@@ -810,7 +810,7 @@ static void IMAGEN_mapsinit()
 
 static void IMAGEN_createmap(int name, unsigned short * map)
 {
-	register int i, j;
+	int i, j;
 	unsigned char s[4], * p;
 
 	p = s;

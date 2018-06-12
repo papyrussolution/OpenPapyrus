@@ -2498,7 +2498,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		}
 	};
 	int    ok = 1;
-	const  uint max_items_per_tx = 256;
+	const  uint max_items_per_tx = 128;
 	uint   items_per_tx = 0;
 	uint   items_per_tx_total = 0;
 	BDbTransaction * p_ta = 0;
@@ -2898,7 +2898,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-							THROW(RechargeTransaction(p_ta, ++items_per_tx, 2048));
+							THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 						}
 						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");
 					}
@@ -3606,7 +3606,7 @@ int SLAPI PrcssrSartre::Run()
 		if(P.Flags & P.fImportBioTaxonomy) {
 			SrDatabase db;
 			const char * p_file_name = "D:/DEV/Resource/Data/Bio/Taxonomy/GBIF_registration-archive-complete/taxa.txt";
-			THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose|SrDatabase::oExclusive)); // @v10.0.12 SrDatabase::oExclusive
 			if(!PrcssrSartre::ImportBioTaxonomy(db, p_file_name)) {
 				logger.LogLastError();
 			}

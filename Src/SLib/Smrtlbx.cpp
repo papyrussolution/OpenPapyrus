@@ -818,8 +818,23 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				else
 					return 0;
 			}
+			// @v10.0.12 {
+			else {
+				char b[2];
+				b[0] = (char)wParam;
+				b[1] = 0;
+				SCharToOem(b);
+				uchar ub = b[0];
+				if(isalnum(ub) || IsLetter866(ub))
+					return 0;
+				else
+					return 1;
+			}
+			// } @v10.0.12 
+			/* @v10.0.12 
 			else
 				return 1; // @v9.8.12 0-->1
+			*/
 			break;
 		case WM_MOUSEWHEEL:
 			{

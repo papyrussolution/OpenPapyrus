@@ -10709,10 +10709,7 @@ struct SColorBase { // @persistent
 
 	operator COLORREF() const;
 	operator RGBQUAD() const;
-	int    IsEmpty() const
-	{
-		return (!B && !G && !R && !Alpha);
-	}
+	int    IsEmpty() const { return (!B && !G && !R && !Alpha); }
 	SColorBase SetEmpty();
 	SColorBase Set(uint r, uint g, uint b);
 	SColorBase FASTCALL Set(uint v);

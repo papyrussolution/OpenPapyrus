@@ -974,16 +974,13 @@ int __partc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		part_id = part->callback(dbp, key) % part->nparts;
 	else if(search == 1)
 		__part_search(dbp, part, key, &part_id);
-
 	/* Get a new cursor if necessary */
 	if(orig_dbc == NULL || cp->part_id != part_id) {
 		GET_PART_CURSOR(dbc, new_dbc, part_id);
 	}
 	else
 		new_dbc = orig_dbc;
-
-	while((ret = __dbc_get(new_dbc,
-	    key, data, flags)) == DB_NOTFOUND && retry == 1) {
+	while((ret = __dbc_get(new_dbc, key, data, flags)) == DB_NOTFOUND && retry == 1) {
 		switch(flags & DB_OPFLAGS_MASK) {
 			case DB_FIRST:
 			case DB_NEXT:

@@ -1365,14 +1365,14 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512);
 	cfg.CacheCount  = 1; // @v9.6.4 20-->
 	cfg.MaxLockers  = (flags & oReadOnly) ? SKILOBYTE(64) : SKILOBYTE(512); // @v9.6.2 20000-->256*1024 // @v10.0.01 256-->512
-	cfg.MaxLocks    = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(256); // @v9.6.4 // @v10.0.01 128-->256
-	cfg.MaxLockObjs = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(256); // @v9.6.4 // @v10.0.01 128-->256
+	cfg.MaxLocks    = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(512); // @v9.6.4 // @v10.0.01 128-->256 // @v10.0.12 256-->512
+	cfg.MaxLockObjs = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(512); // @v9.6.4 // @v10.0.01 128-->256 // @v10.0.12 256-->512
 	cfg.LogBufSize  = SMEGABYTE(8);
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
 	//
-	Flags |= (flags & (oReadOnly|oWriteStatOnClose)); // @v9.7.11
+	Flags |= (flags & (oReadOnly|oWriteStatOnClose|oExclusive)); // @v9.7.11
 	//
 	Close();
 	{
@@ -1387,6 +1387,8 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 				db_options |= BDbDatabase::oReadOnly;
 			if(Flags & oWriteStatOnClose)
 				db_options |= BDbDatabase::oWriteStatOnClose;
+			if(Flags & oExclusive)
+				db_options |= BDbDatabase::oExclusive;
 			THROW_S(P_Db = new BDbDatabase(db_path, &cfg, db_options), SLERR_NOMEM);
 			THROW(!!*P_Db);
 		}

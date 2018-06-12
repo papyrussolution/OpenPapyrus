@@ -66,9 +66,9 @@ static void HP26_graphics();
 static void HP26_text();
 static void HP26_reset();
 static int HP26_text_angle(int ang);
-static void HP26_put_text __PROTO((uint x, uint y, const char *str));
+static void HP26_put_text(uint x, uint y, const char * str);
 static void HP26_linetype(int linetype);
-static void HP26_line_and_point __PROTO((uint x, uint y, int number));
+static void HP26_line_and_point(uint x, uint y, int number);
 
 #define HP26_XMAX 512
 #define HP26_YMAX 390
@@ -86,7 +86,7 @@ static void HP26_line_and_point __PROTO((uint x, uint y, int number));
 #define HP26_XLAST (HP26_XMAX - 1)
 #define HP26_YLAST (HP26_XMAX - 1)
 
-static void HP26_do_point __PROTO((uint x, uint y, int number));
+static void HP26_do_point(uint x, uint y, int number);
 static struct _HP26_Buffer_Node *BN_create __PROTO((int index, int size, int linetype));
 static void BN_delete __PROTO((struct _HP26_Buffer_Node * the_node));
 static int HP26_flush __PROTO((struct _HP26_Buffer_Node * the_buff));
@@ -127,10 +127,10 @@ BN_create(int index, int size, int linetype)
 static void
 BN_delete(HP26_Buffer_Node *the_node)
 {
-    free(the_node->x);
-    free(the_node->y);
-    free(the_node->isa_move);
-    free(the_node);
+    SAlloc::F(the_node->x);
+    SAlloc::F(the_node->y);
+    SAlloc::F(the_node->isa_move);
+    SAlloc::F(the_node);
 }
 
 /* 2 for border and axes + 9 for plots + 1 for dots */

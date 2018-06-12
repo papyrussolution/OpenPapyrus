@@ -69,21 +69,15 @@ static void DUMB_text();
 static void DUMB_reset();
 static void DUMB_linetype(int linetype);
 static void DUMB_move(uint x, uint y);
-static void DUMB_point __PROTO((uint x, uint y,
-	    int point));
+static void DUMB_point __PROTO((uint x, uint y, int point));
 static void DUMB_vector(uint x, uint y);
-static void DUMB_put_text __PROTO((uint x, uint y,
-	    const char * str));
-static void DUMB_arrow __PROTO((uint sx, uint sy,
-	    uint ex, uint ey,
-	    int head));
+static void DUMB_put_text(uint x, uint y, const char * str);
+static void DUMB_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 /* To support "set term dumb enhanced" (don't ask why!) */
-static void ENHdumb_put_text __PROTO((uint x, uint y, const char str[]));
-static void ENHdumb_OPEN __PROTO((char * fontname, double fontsize,
-	    double base, bool widthflag, bool showflag,
-	    int overprint));
+static void ENHdumb_put_text(uint x, uint y, const char str[]);
+static void ENHdumb_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 static void ENHdumb_FLUSH();
 #else
 #define ENHdumb_put_text NULL
@@ -262,8 +256,8 @@ static void DUMB_text()
 
 static void DUMB_reset()
 {
-	free(dumb_matrix);
-	free(dumb_priority);
+	SAlloc::F(dumb_matrix);
+	SAlloc::F(dumb_priority);
 	dumb_matrix = NULL;
 	dumb_priority = NULL;
 }
@@ -420,7 +414,6 @@ static void DUMB_arrow(uint sx, uint sy, uint ex, uint ey, int head /* ignored *
 	char saved_pen;
 	char saved_x;
 	char saved_y;
-	(void)head;             /* dummy usage avoid compiler warnings */
 	saved_pen = dumb_pen;
 	saved_x = dumb_x;
 	saved_y = dumb_y;

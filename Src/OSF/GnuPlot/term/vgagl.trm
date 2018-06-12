@@ -390,7 +390,7 @@ void VGAGL_options(GpCommand & rC)
 #ifdef VGAGL_DEBUGGING
 #if 0
 	if(VGAGL_dump_file)
-		free(VGAGL_dump_file);
+		SAlloc::F(VGAGL_dump_file);
 	VGAGL_dump_file = (char*)0;
 #endif
 #endif
@@ -1286,11 +1286,7 @@ static void VGAGL_set_cursor(int c, int x, int y)
 	return;
 }
 
-static void VGAGL_set_clipboard(const char s[])
-{
-	(void)s;                /* avoid -Wunused */
-	return;                 /* does nothing. */
-}
+static void VGAGL_set_clipboard(const char s[]) {}
 
 static int VGAGL_make_palette(t_sm_palette * palette)
 {
@@ -1444,7 +1440,7 @@ void VGAGL_write_dump_file()
 	sprintf(thisfile, "%s%05d.ppm", VGAGL_dump_file, thisfileno++);
 	fp = fopen(thisfile, "w");
 	if(!fp) {
-		free(VGAGL_dump_file);
+		SAlloc::F(VGAGL_dump_file);
 		VGAGL_dump_file = 0;
 	}
 	fprintf(fp, "P6\n");

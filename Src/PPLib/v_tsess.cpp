@@ -21,7 +21,7 @@ TSessionFilt & FASTCALL TSessionFilt::operator = (const TSessionFilt & s)
 	return *this;
 }
 
-int SLAPI TSessionFilt::CheckIdle(long flags) const
+int FASTCALL TSessionFilt::CheckIdle(long flags) const
 {
 	if(Ft_Idle == 0)
 		return 1;
@@ -31,17 +31,17 @@ int SLAPI TSessionFilt::CheckIdle(long flags) const
 		return (flags & TSESF_IDLE) ? 1 : 0;
 }
 
-int SLAPI TSessionFilt::CheckStatus(int status) const
+int FASTCALL TSessionFilt::CheckStatus(int status) const
 {
 	return BIN(!StatusFlags || (StatusFlags & (1 << status)));
 }
 
-int SLAPI TSessionFilt::GetStatusList(PPIDArray * pList) const
+int FASTCALL TSessionFilt::GetStatusList(PPIDArray & rList) const
 {
 	if(StatusFlags) {
 		for(int i = 1; i <= 5; i++)
 			if(StatusFlags & (1 << i))
-				pList->addUnique(i);
+				rList.addUnique(i);
 		return 1;
 	}
 	else
@@ -702,10 +702,9 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			dbq = ppcheckfiltid(dbq, p_tsst->ArID, Filt.ArID);
 			dbq = ppcheckfiltid(dbq, p_tsst->Ar2ID, Filt.Ar2ID);
 			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_IDLE, Filt.Ft_Idle);
-			if(Filt.GetStatusList(&status_list) > 0)
+			if(Filt.GetStatusList(status_list) > 0)
 				dbq = & (*dbq && ppidlist(p_tsst->Status, &status_list));
-			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_SUPERSESS,
-				(Filt.Flags & TSessionFilt::fSuperSessOnly) ? 1 : 0);
+			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_SUPERSESS, (Filt.Flags & TSessionFilt::fSuperSessOnly) ? 1 : 0);
 		}
 		dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_PLAN, (Filt.Flags & TSessionFilt::fManufPlan) ? +1 : -1);
 	}

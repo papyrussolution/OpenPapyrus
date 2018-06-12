@@ -849,9 +849,7 @@ int __log_env_refresh(ENV *env)
 	 */
 	if((ret = MUTEX_LOCK_RET(env, lp->mtx_filelist)) == 0) {
 		SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname)
-		if(F_ISSET(fnp, DB_FNAME_NOTLOGGED) &&
-		    (t_ret = __dbreg_close_id_int(
-			    env, fnp, DBREG_CLOSE, 1)) != 0)
+		if(F_ISSET(fnp, DB_FNAME_NOTLOGGED) && (t_ret = __dbreg_close_id_int(env, fnp, DBREG_CLOSE, 1)) != 0)
 			ret = t_ret;
 		MUTEX_UNLOCK(env, lp->mtx_filelist);
 	}
@@ -865,38 +863,28 @@ int __log_env_refresh(ENV *env)
 		/* Discard the flush mutex. */
 		if((t_ret = __mutex_free(env, &lp->mtx_flush)) != 0 && ret == 0)
 			ret = t_ret;
-
 		/* Discard the log buffer. */
 		__env_alloc_free(reginfo, R_ADDR(reginfo, lp->buffer_off));
-
 		/* Discard stack of free file IDs. */
 		if(lp->free_fid_stack != INVALID_ROFF)
-			__env_alloc_free(reginfo,
-			    R_ADDR(reginfo, lp->free_fid_stack));
-
+			__env_alloc_free(reginfo, R_ADDR(reginfo, lp->free_fid_stack));
 		/* Discard the list of in-memory log file markers. */
 		while((filestart = SH_TAILQ_FIRST(&lp->logfiles,
 		    __db_filestart)) != NULL) {
-			SH_TAILQ_REMOVE(&lp->logfiles, filestart, links,
-			    __db_filestart);
+			SH_TAILQ_REMOVE(&lp->logfiles, filestart, links, __db_filestart);
 			__env_alloc_free(reginfo, filestart);
 		}
-
 		while((filestart = SH_TAILQ_FIRST(&lp->free_logfiles,
 		    __db_filestart)) != NULL) {
-			SH_TAILQ_REMOVE(&lp->free_logfiles, filestart, links,
-			    __db_filestart);
+			SH_TAILQ_REMOVE(&lp->free_logfiles, filestart, links, __db_filestart);
 			__env_alloc_free(reginfo, filestart);
 		}
-
 		/* Discard commit queue elements. */
 		while((commit = SH_TAILQ_FIRST(&lp->free_commits,
 		    __db_commit)) != NULL) {
-			SH_TAILQ_REMOVE(&lp->free_commits, commit, links,
-			    __db_commit);
+			SH_TAILQ_REMOVE(&lp->free_commits, commit, links, __db_commit);
 			__env_alloc_free(reginfo, commit);
 		}
-
 		/* Discard replication bulk buffer. */
 		if(lp->bulk_buf != INVALID_ROFF) {
 			__env_alloc_free(reginfo,
@@ -933,7 +921,7 @@ int __log_env_refresh(ENV *env)
  * __log_get_cached_ckp_lsn --
  *	Retrieve any last checkpoint LSN that we may have found on startup.
  *
- * PUBLIC: int __log_get_cached_ckp_lsn __P((ENV *, DB_LSN *));
+ * PUBLIC: int __log_get_cached_ckp_lsn(ENV *, DB_LSN *);
  */
 int __log_get_cached_ckp_lsn(ENV *env, DB_LSN * ckp_lsnp)
 {
@@ -1184,7 +1172,7 @@ out:    __os_free(env, name);
  * __log_zero --
  *	Zero out the tail of a log after a truncate.
  *
- * PUBLIC: int __log_zero __P((ENV *, DB_LSN *));
+ * PUBLIC: int __log_zero(ENV *, DB_LSN *);
  */
 int __log_zero(ENV *env, DB_LSN * from_lsn)
 {
@@ -1409,24 +1397,19 @@ int __log_inmem_chkspace(DB_LOG *dblp, size_t len)
 	 * check the first file.
 	 */
 	filestart = SH_TAILQ_FIRST(&lp->logfiles, __db_filestart);
-	if(filestart != NULL &&
-	    RINGBUF_LEN(lp, lp->b_off, filestart->b_off) <= len) {
-		SH_TAILQ_REMOVE(&lp->logfiles, filestart,
-		    links, __db_filestart);
-		SH_TAILQ_INSERT_HEAD(&lp->free_logfiles, filestart,
-		    links, __db_filestart);
+	if(filestart != NULL && RINGBUF_LEN(lp, lp->b_off, filestart->b_off) <= len) {
+		SH_TAILQ_REMOVE(&lp->logfiles, filestart, links, __db_filestart);
+		SH_TAILQ_INSERT_HEAD(&lp->free_logfiles, filestart, links, __db_filestart);
 		lp->f_lsn.file = filestart->file + 1;
 	}
-
 	return 0;
 }
-
 /*
  * __log_inmem_copyout --
  *	Copies the given number of bytes from the buffer -- no checking.
  *      Note: assumes that the region lock is held on entry.
  *
- * PUBLIC: void __log_inmem_copyout __P((DB_LOG *, size_t, void *, size_t));
+ * PUBLIC: void __log_inmem_copyout(DB_LOG *, size_t, void *, size_t);
  */
 void __log_inmem_copyout(DB_LOG *dblp, size_t offset, void * buf, size_t size)
 {

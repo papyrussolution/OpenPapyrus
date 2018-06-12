@@ -123,14 +123,10 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 			 * close, all cursors in the secondary when we
 			 * associate.
 			 */
-			if(CDB_LOCKING(env) &&
-			    F_ISSET(dbp, DB_AM_SECONDARY))
-				memcpy(dbc->lock.fileid,
-				    dbp->s_primary->fileid, DB_FILE_ID_LEN);
+			if(CDB_LOCKING(env) && F_ISSET(dbp, DB_AM_SECONDARY))
+				memcpy(dbc->lock.fileid, dbp->s_primary->fileid, DB_FILE_ID_LEN);
 			else
-				memcpy(dbc->lock.fileid,
-				    dbp->fileid, DB_FILE_ID_LEN);
-
+				memcpy(dbc->lock.fileid, dbp->fileid, DB_FILE_ID_LEN);
 			if(CDB_LOCKING(env)) {
 				if(F_ISSET(env->dbenv, DB_ENV_CDB_ALLDB)) {
 					/*
@@ -139,8 +135,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 					 * lock object just like we do to
 					 * single thread creates.
 					 */
-					DB_ASSERT(env, sizeof(db_pgno_t) ==
-					    sizeof(uint32));
+					DB_ASSERT(env, sizeof(db_pgno_t) == sizeof(uint32));
 					dbc->lock_dbt.size = sizeof(uint32);
 					dbc->lock_dbt.data = &dbc->lock.pgno;
 					dbc->lock.pgno = 0;
@@ -200,7 +195,6 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	dbc->priority = dbp->priority;
 	dbc->txn_cursors.tqe_next = NULL;
 	dbc->txn_cursors.tqe_prev = NULL;
-
 	/*
 	 * If the DB handle is not threaded, there is one locker ID for the
 	 * whole environment.  There should only one family transaction active

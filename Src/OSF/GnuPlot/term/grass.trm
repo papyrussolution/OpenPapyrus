@@ -68,14 +68,14 @@ static void GRASS_reset();
 static void GRASS_graphics();
 static void GRASS_text();
 static void GRASS_vector(uint x, uint y);
-static void GRASS_linetype __PROTO((int lt));
-static void GRASS_put_text __PROTO((uint x, uint y, const char *str));
+static void GRASS_linetype(int lt);
+static void GRASS_put_text(uint x, uint y, const char * str);
 static int GRASS_text_angle(int ang);
-static int GRASS_justify_text __PROTO((enum JUSTIFY mode));
+static int GRASS_justify_text(enum JUSTIFY mode);
 static void GRASS_point __PROTO((uint x, uint y, int point));
-static int GRASS_set_font __PROTO((const char *font));
+static int GRASS_set_font(const char * font);
 /* static void GRASS_set_pointsize(double size); */
-static void GRASS_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
+static void GRASS_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 #endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY

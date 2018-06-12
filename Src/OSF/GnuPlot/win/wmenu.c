@@ -480,14 +480,11 @@ void LoadMacros(LPTW lptw)
 	int nLine = 1;
 	int nInc;
 	HGLOBAL hmacro, hmacrobuf;
-
 	int i;
 	RECT rect;
 	char * ButtonText[BUTTONMAX];
 	int ButtonIcon[BUTTONMAX];
-
 	lpmw = lptw->lpmw;
-
 	/* mark all buffers and menu file as unused */
 	buf = (char*)NULL;
 	hmacro = 0;

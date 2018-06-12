@@ -1424,8 +1424,7 @@ static IMPL_DBE_PROC(dbqf_goodsstructype_i)
 	}
 }
 
-// static
-int PPViewGoods::DynFuncStrucType = 0;
+int PPViewGoods::DynFuncStrucType = 0; // static
 
 DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -2605,32 +2604,63 @@ int SLAPI PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw
 					ASSIGN_PTR(ppDlgPtr, dlg);
 					if(IsAltFltGroup()) {
 						SString grp_name;
-						int    s = GObj.AssignGoodsToAltGrp(id, Filt.GrpID, 0, 1);
-						while(s < 0 && PPErrCode == PPERR_DUPEXCLALTGRPMEMBER) {
-							PPID   miss_grp_id = DS.GetConstTLA().LastErrObj.Id;
-							if(PPMessage(mfConf|mfYesNo, PPCFM_DUPEXCLALTGRPMEMBER, GetGoodsName(miss_grp_id, grp_name)) == cmYes) {
-								THROW(PPStartTransaction(&ta, 1));
-								THROW(PPRef->Assc.Remove(PPASS_ALTGOODSGRP, miss_grp_id, id, 0));
-								if((s = GObj.AssignGoodsToAltGrp(id, Filt.GrpID, 0, 0)) > 0) {
-									THROW(PPCommitWork(&ta));
-									ok = 1;
+						int    reply = 1; // 1 - standard, 2 - generic members to group, other - cancel
+						if(GObj.IsGeneric(id)) {
+							int   cf = PPMessage(mfConf|mfYes|mfNo|mfCancel, PPCFM_GENRCGOODSTOALTGRP);
+							if(cf == cmYes)
+								reply = 2;
+							else if(cf == cmNo)
+								reply = 1;
+							else
+								reply = -1;
+						}
+						if(reply == 1) {
+							int    s = GObj.AssignGoodsToAltGrp(id, Filt.GrpID, 0, 1);
+							while(s < 0 && PPErrCode == PPERR_DUPEXCLALTGRPMEMBER) {
+								PPID   miss_grp_id = DS.GetConstTLA().LastErrObj.Id;
+								if(PPMessage(mfConf|mfYesNo, PPCFM_DUPEXCLALTGRPMEMBER, GetGoodsName(miss_grp_id, grp_name)) == cmYes) {
+									THROW(PPStartTransaction(&ta, 1));
+									THROW(PPRef->Assc.Remove(PPASS_ALTGOODSGRP, miss_grp_id, id, 0));
+									if((s = GObj.AssignGoodsToAltGrp(id, Filt.GrpID, 0, 0)) > 0) {
+										THROW(PPCommitWork(&ta));
+										ok = 1;
+									}
+									else {
+										const int err_code = PPErrCode;
+										THROW(PPRollbackWork(&ta));
+										ok = PPSetError(err_code);
+									}
 								}
-								else {
-									const int err_code = PPErrCode;
-									THROW(PPRollbackWork(&ta));
-									ok = PPSetError(err_code);
-								}
+								else
+									break;
+							}
+							if(s > 0) {
+								THROW(UpdateTempTable(id, pBrw));
+								ASSIGN_PTR(pID, id);
+								ok = 1;
 							}
 							else
-								break;
+								THROW(PPErrCode == PPERR_DUPEXCLALTGRPMEMBER);
 						}
-						if(s > 0) {
-							THROW(UpdateTempTable(id, pBrw));
-							ASSIGN_PTR(pID, id);
-							ok = 1;
+						else if(reply == 2) {
+							PPIDArray gen_member_list;
+							PPIDArray to_update_list;
+							GObj.GetGenericList(id, &gen_member_list);
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < gen_member_list.getCount(); i++) {
+								const PPID member_goods_id = gen_member_list.get(i);
+								if(GObj.AssignGoodsToAltGrp(member_goods_id, Filt.GrpID, 0, 0) > 0)
+									to_update_list.add(member_goods_id);
+							}
+							THROW(tra.Commit());
+							if(to_update_list.getCount()) {
+								to_update_list.sortAndUndup();
+								for(uint j = 0; j < to_update_list.getCount(); j++)
+									UpdateTempTable(to_update_list.get(j), pBrw);
+								ok = 1;
+							}
 						}
-						else
-							THROW(PPErrCode == PPERR_DUPEXCLALTGRPMEMBER);
 					}
 					else if(IsGenGoodsFlt()) {
 						THROW(GObj.AssignGoodsToGen(id, Filt.GrpID, 0, 1));

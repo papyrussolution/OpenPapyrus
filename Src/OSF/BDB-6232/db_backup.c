@@ -659,25 +659,17 @@ int __db_backup_pp(DB_ENV *dbenv, const char * target, uint32 flags)
 	 */
 	if(LF_ISSET(DB_CREATE))
 		(void)__os_mkdir(NULL, target, DB_MODE_700);
-
 	if(LF_ISSET(DB_BACKUP_CLEAN)) {
-		if(!LF_ISSET(DB_BACKUP_SINGLE_DIR) &&
-		    dbenv->db_log_dir != NULL &&
-		    (ret = backup_dir_clean(dbenv, target,
-		    dbenv->db_log_dir, &remove_max, flags)) != 0)
+		if(!LF_ISSET(DB_BACKUP_SINGLE_DIR) && dbenv->db_log_dir != NULL && (ret = backup_dir_clean(dbenv, target, dbenv->db_log_dir, &remove_max, flags)) != 0)
 			return ret;
-		if((ret = backup_dir_clean(dbenv,
-		    target, NULL, &remove_max, flags)) != 0)
+		if((ret = backup_dir_clean(dbenv, target, NULL, &remove_max, flags)) != 0)
 			return ret;
 	}
-
 	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env,
-	    (__db_backup(dbenv, target, ip, remove_max, flags)), 0, ret);
+	REPLICATION_WRAP(env, (__db_backup(dbenv, target, ip, remove_max, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __db_backup --
  *	Backup databases in the enviornment.

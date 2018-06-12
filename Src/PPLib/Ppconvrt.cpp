@@ -6943,6 +6943,7 @@ CONVERT_PROC(Convert9400, PPCvtSCard9400);
 //
 //
 //
+#if 0 // @v10.0.12 {
 class PPCvtLotExtCode9811 : public PPTableConversion {
 public:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
@@ -6970,6 +6971,7 @@ public:
 		return 1;
 	}
 };
+#endif // } @v10.0.12
 
 int SLAPI Convert9811()
 {
@@ -6977,9 +6979,9 @@ int SLAPI Convert9811()
 	SysJournal * p_sj = 0;
 	PPWait(1);
 	{
-		PPCvtLotExtCode9811 cvt;
-		int r = cvt.Convert();
-		THROW(r);
+		// @v10.0.12 PPCvtLotExtCode9811 cvt;
+		// @v10.0.12 int r = cvt.Convert();
+		// @v10.0.12 THROW(r);
 		{
 			//
 			// Необходимо зафиксировать в системном журнале событие,
@@ -7003,3 +7005,61 @@ int SLAPI Convert9811()
 	ZDELETE(p_sj);
 	return ok;
 }
+//
+//
+//
+class PPCvtLotExtCode10012 : public PPTableConversion {
+private:
+	int   Before9811;
+	struct LotExtCodeRec_Before9811 {
+		long   LotID;
+		char   Code[96];
+	};
+	struct LotExtCodeRec_Before10012 {
+		long   LotID;
+		long   BillID;
+		int16  RByBill;
+		int16  Sign;
+		char   Code[80];
+	};
+public:
+	PPCvtLotExtCode10012() : PPTableConversion(), Before9811(0)
+	{
+	}
+	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new LotExtCodeTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			if(recsz == sizeof(LotExtCodeRec_Before9811)) 
+				Before9811 = 1;
+			*pNeedConversion = BIN(recsz < sizeof(LotExtCodeTbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+		if(Before9811) {
+			LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+			LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
+			memzero(p_data, sizeof(*p_data));
+			p_data->LotID = p_old_rec->LotID;
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+		}
+		else {
+			LotExtCodeRec_Before10012 * p_old_rec = (LotExtCodeRec_Before10012 *)pOldRec;
+			memzero(p_data, sizeof(*p_data));
+			p_data->LotID = p_old_rec->LotID;
+			p_data->BillID = p_old_rec->BillID;
+			p_data->RByBill = p_old_rec->RByBill;
+			p_data->Sign = p_old_rec->Sign;
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+		}
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert10012, PPCvtLotExtCode10012);

@@ -2423,19 +2423,15 @@ int __rep_notify_threads(ENV *env, rep_waitreason_t wake_reason)
 			else
 				goto out;
 		}
-
 		if(wake) {
 			MUTEX_UNLOCK_NO_CTR(env, waiter->mtx_repwait);
-			SH_TAILQ_REMOVE(&rep->waiters,
-			    waiter, links, __rep_waiter);
+			SH_TAILQ_REMOVE(&rep->waiters, waiter, links, __rep_waiter);
 			F_SET(waiter, REP_F_WOKEN);
 		}
 	}
-
 out:
 	return ret;
 }
-
 /*
  * A "wait goal" describes a condition that a thread may be waiting for.
  * Evaluate the condition, returning 0 if the condition has been satisfied, and
@@ -2443,7 +2439,7 @@ out:
  *
  * Caller must hold REP_SYSTEM lock and/or mtx_clientdb as appropriate.
  *
- * PUBLIC: int __rep_check_goal __P((ENV *, struct rep_waitgoal *));
+ * PUBLIC: int __rep_check_goal(ENV *, struct rep_waitgoal *);
  */
 int __rep_check_goal(ENV *env, struct rep_waitgoal * goal)
 {
@@ -2538,7 +2534,7 @@ int __rep_log_backup(ENV *env, DB_LOGC * logc, DB_LSN * lsn, uint32 match)
  *
  * Safely retrieve the current max_perm_lsn value.
  *
- * PUBLIC: int __rep_get_maxpermlsn __P((ENV *, DB_LSN *));
+ * PUBLIC: int __rep_get_maxpermlsn(ENV *, DB_LSN *);
  */
 int __rep_get_maxpermlsn(ENV *env, DB_LSN * max_perm_lsnp)
 {

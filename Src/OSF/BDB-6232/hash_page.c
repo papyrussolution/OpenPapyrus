@@ -666,7 +666,7 @@ static int __ham_getindex_sorted(DBC *dbc, PAGE * p, const DBT * key, uint32 key
 		entry = P_ENTRY(dbp, p, indx);
 		if(*entry == H_OFFPAGE) {
 			offp = (HOFFPAGE*)P_ENTRY(dbp, p, indx);
-			(void)__ua_memcpy(&itemlen, HOFFPAGE_TLEN(offp),
+			__ua_memcpy(&itemlen, HOFFPAGE_TLEN(offp),
 			    sizeof(uint32));
 			if(key_type == H_OFFPAGE) {
 				/*
@@ -678,8 +678,8 @@ static int __ham_getindex_sorted(DBC *dbc, PAGE * p, const DBT * key, uint32 key
 				 * able to maintain a valid lexicographic sort
 				 * order.
 				 */
-				(void)__ua_memcpy(&koff_pgno, HOFFPAGE_PGNO(key->data), sizeof(db_pgno_t));
-				(void)__ua_memcpy(&off_pgno, HOFFPAGE_PGNO(offp), sizeof(db_pgno_t));
+				__ua_memcpy(&koff_pgno, HOFFPAGE_PGNO(key->data), sizeof(db_pgno_t));
+				__ua_memcpy(&off_pgno, HOFFPAGE_PGNO(offp), sizeof(db_pgno_t));
 				if(koff_pgno == off_pgno)
 					res = 0;
 				else {
@@ -692,7 +692,7 @@ static int __ham_getindex_sorted(DBC *dbc, PAGE * p, const DBT * key, uint32 key
 			}
 			else {
 				/* Case 2 */
-				(void)__ua_memcpy(&off_pgno, HOFFPAGE_PGNO(offp), sizeof(db_pgno_t));
+				__ua_memcpy(&off_pgno, HOFFPAGE_PGNO(offp), sizeof(db_pgno_t));
 				if((ret = __db_moff(dbc, key, off_pgno, itemlen, t->h_compare, &res, NULL)) != 0)
 					return ret;
 			}
@@ -704,9 +704,9 @@ static int __ham_getindex_sorted(DBC *dbc, PAGE * p, const DBT * key, uint32 key
 				tmp_dbt.data = data;
 				tmp_dbt.size = itemlen;
 				offp = (HOFFPAGE*)key->data;
-				(void)__ua_memcpy(&off_pgno,
+				__ua_memcpy(&off_pgno,
 				    HOFFPAGE_PGNO(offp), sizeof(db_pgno_t));
-				(void)__ua_memcpy(&off_len, HOFFPAGE_TLEN(offp),
+				__ua_memcpy(&off_len, HOFFPAGE_TLEN(offp),
 				    sizeof(uint32));
 				if((ret = __db_moff(dbc, &tmp_dbt, off_pgno,
 				    off_len, t->h_compare, &res, NULL)) != 0)

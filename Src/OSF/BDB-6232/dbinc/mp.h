@@ -648,14 +648,10 @@ struct __bh_frozen_a {
 		if((uint8*)p < (uint8*)__orig + sizeof(BH))            \
 			p = (uint8*)p + VM_PAGESIZE;                        \
 		__bhp = (BH*)((uint8*)p - SSZA(BH, buf));                  \
-		DB_ASSERT(env,                                                  \
-		    ((uintptr_t)__bhp->buf & (VM_PAGESIZE - 1)) == 0);          \
-		DB_ASSERT(env,                                                  \
-		    (uint8*)__bhp >= (uint8*)__orig);                   \
-		DB_ASSERT(env, (uint8*)p + mfp->pagesize <                  \
-		    (uint8*)__orig + len);                                  \
-		__bhp->align_off =                                              \
-		    (uint16)((uint8*)__bhp - (uint8*)__orig);        \
+		DB_ASSERT(env, ((uintptr_t)__bhp->buf & (VM_PAGESIZE - 1)) == 0);          \
+		DB_ASSERT(env, (uint8*)__bhp >= (uint8*)__orig);                   \
+		DB_ASSERT(env, (uint8*)p + mfp->pagesize < (uint8*)__orig + len); \
+		__bhp->align_off = (uint16)((uint8*)__bhp - (uint8*)__orig); \
 		p = __bhp;                                                      \
 } while(0)
 

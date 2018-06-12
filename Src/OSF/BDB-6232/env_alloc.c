@@ -104,20 +104,18 @@ typedef struct __alloc_element {
 } while(0)
 
 static void __env_size_insert __P((ALLOC_LAYOUT *, ALLOC_ELEMENT *));
-
 /*
  * __env_alloc_init --
  *	Initialize the area as one large chunk.
  *
- * PUBLIC: void __env_alloc_init __P((REGINFO *, size_t));
+ * PUBLIC: void __env_alloc_init(REGINFO *, size_t);
  */
 void __env_alloc_init(REGINFO *infop, size_t size)
 {
 	ALLOC_ELEMENT * elp;
 	ALLOC_LAYOUT * head;
-	ENV * env;
 	u_int i;
-	env = infop->env;
+	ENV * env = infop->env;
 	/* No initialization needed for heap memory regions. */
 	if(F_ISSET(env, ENV_PRIVATE))
 		return;
@@ -130,17 +128,14 @@ void __env_alloc_init(REGINFO *infop, size_t size)
 	for(i = 0; i < DB_SIZE_Q_COUNT; ++i)
 		SH_TAILQ_INIT(&head->sizeq[i]);
 	COMPQUIET(head->unused, 0);
-
 	/*
 	 * The rest of the memory is the first available chunk.
 	 */
 	elp = (ALLOC_ELEMENT*)((uint8*)head + sizeof(ALLOC_LAYOUT));
 	elp->len = size - sizeof(ALLOC_LAYOUT);
 	elp->ulen = 0;
-
 	SH_TAILQ_INSERT_HEAD(&head->addrq, elp, addrq, __alloc_element);
-	SH_TAILQ_INSERT_HEAD(
-		&head->sizeq[DB_SIZE_Q_COUNT - 1], elp, sizeq, __alloc_element);
+	SH_TAILQ_INSERT_HEAD(&head->sizeq[DB_SIZE_Q_COUNT - 1], elp, sizeq, __alloc_element);
 }
 
 /*

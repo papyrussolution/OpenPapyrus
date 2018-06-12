@@ -337,7 +337,7 @@ static void WIN_options(GpCommand & rC)
 				    if(*s) {
 					    set_font = true;
 					    strnzcpy(fontname, s, MAXFONTNAME);
-					    free(s);
+					    SAlloc::F(s);
 				    }
 			    }
 			    else {
@@ -412,7 +412,7 @@ static void WIN_options(GpCommand & rC)
 		graphwin->Origin.y = win_y;
 	}
 	if(set_title) {
-		free(graphwin->Title);
+		SAlloc::F(graphwin->Title);
 		graphwin->Title = (title) ?  title : _strdup(WINGRAPHTITLE);
 		GraphChangeTitle(graphwin);
 	}
@@ -457,7 +457,7 @@ void WIN_update_options()
 		else
 			sprintf(fontstring, " font \"%s, %d\"", set_font ? graphwin->deffontname : "", graphwin->deffontsize);
 		strcat(term_options, fontstring);
-		free(fontstring);
+		SAlloc::F(fontstring);
 	}
 	if(graphwin->background != RGB(255, 255, 255))
 		sprintf(&(term_options[strlen(term_options)]), " background \"#%0x%0x%0x\"", GetRValue(graphwin->background), GetGValue(graphwin->background), GetBValue(graphwin->background));
@@ -716,7 +716,7 @@ static void WIN_image(uint M, uint N, double * image, gpiPoint * corner, t_image
 		GraphOpSize(graphwin, W_image, M, N, (LPCSTR)rgb_image, image_size);
 	}
 
-	free(rgb_image);
+	SAlloc::F(rgb_image);
 }
 
 static int WIN_make_palette(t_sm_palette * palette)

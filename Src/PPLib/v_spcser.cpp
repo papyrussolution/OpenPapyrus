@@ -163,12 +163,12 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 {
 	DbqFuncTab::RegisterDyn(&DynFuncSpcSnTextFld, BTS_STRING, dbqf_spcsn_textfld_iisi, 4, BTS_INT, BTS_INT, BTS_STRING, BTS_INT);
 
-	uint brw_id = BROWSER_SPECSERIES;
+	uint   brw_id = BROWSER_SPECSERIES;
 	DBQ     * dbq = 0;
 	DBQuery * q = 0;
 	SpecSeries2Tbl * t = 0;
-	DBE   dbe_goods_name;
-	DBE   dbe_manuf_name;
+	DBE    dbe_goods_name;
+	DBE    dbe_manuf_name;
 	THROW(CheckTblPtr(t = new SpecSeries2Tbl(Tbl.GetName())));
 	{
 		dbe_goods_name.init();

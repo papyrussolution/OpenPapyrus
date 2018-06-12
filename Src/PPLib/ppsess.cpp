@@ -2678,6 +2678,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						THROW(Convert9400()); // @v9.4.0
 						THROW(ConvertSCardSeries9809()); // @v9.8.9
 						THROW(Convert9811()); // @v9.8.11
+						THROW(Convert10012()); // @v10.0.12
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -3312,11 +3313,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							ReadEquipConfig(&eq_cfg);
 							if(eq_cfg.PhnSvcID) {
 								PPObjPhoneService ps_obj(0);
-								if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0) 
-									r_tla.DefPhnSvcID = eq_cfg.PhnSvcID; 
+								if(ps_obj.GetPacket(eq_cfg.PhnSvcID, &ps_pack) > 0)
+									r_tla.DefPhnSvcID = eq_cfg.PhnSvcID;
 							}
 						}
-						// } @v10.0.04 
+						// } @v10.0.04
 						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADVISEEVENTCOLLECTORPERIOD, &cycle_ms);
 						if(cycle_ms <= 0 || cycle_ms > 600000)
 							cycle_ms = 5113;
@@ -3680,7 +3681,7 @@ int SLAPI PPSession::Logout()
 		if(!CheckExtFlag(ECF_SYSSERVICE) && active_user.NotEmpty())
 			CreateBackupCopy(active_user, 0);
 		GetSync().Release(); // @todo ReleaseSync()
-		GPrf.Output(0, 0); 
+		GPrf.Output(0, 0);
 		// @v8.6.7 {
 		// @todo Аккуратно остановить поток PPAdviseEventCollectorSjSession
 		// } @v8.6.7
@@ -3689,7 +3690,7 @@ int SLAPI PPSession::Logout()
 			r_tla.P_AeqThrd->Stop(30);
 			r_tla.P_AeqThrd = 0;
 		}
-		// } @v10.0.06 
+		// } @v10.0.06
 	}
 	return 1;
 }

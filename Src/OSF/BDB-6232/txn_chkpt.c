@@ -46,8 +46,7 @@
  * __txn_checkpoint_pp --
  *	ENV->txn_checkpoint pre/post processing.
  *
- * PUBLIC: int __txn_checkpoint_pp
- * PUBLIC:     __P((DB_ENV *, uint32, uint32, uint32));
+ * PUBLIC: int __txn_checkpoint_pp(DB_ENV *, uint32, uint32, uint32);
  */
 int __txn_checkpoint_pp(DB_ENV *dbenv, uint32 kbytes, uint32 minutes, uint32 flags)
 {
@@ -81,8 +80,7 @@ int __txn_checkpoint_pp(DB_ENV *dbenv, uint32 kbytes, uint32 minutes, uint32 fla
  * __txn_checkpoint --
  *	ENV->txn_checkpoint.
  *
- * PUBLIC: int __txn_checkpoint
- * PUBLIC:	__P((ENV *, uint32, uint32, uint32));
+ * PUBLIC: int __txn_checkpoint(ENV *, uint32, uint32, uint32);
  */
 int __txn_checkpoint(ENV *env, uint32 kbytes, uint32 minutes, uint32 flags)
 {
@@ -95,10 +93,7 @@ int __txn_checkpoint(ENV *env, uint32 kbytes, uint32 minutes, uint32 flags)
 	REGINFO * infop;
 	time_t last_ckp_time, now;
 	uint32 bytes, id, logflags, mbytes, op;
-	int ret;
-
-	ret = 0;
-
+	int ret = 0;
 	/*
 	 * A client will only call through here during recovery,
 	 * so just sync the Mpool and go home.  We want to be sure
@@ -141,28 +136,22 @@ int __txn_checkpoint(ENV *env, uint32 kbytes, uint32 minutes, uint32 flags)
 		/* Don't checkpoint a quiescent database. */
 		if(bytes == 0 && mbytes == 0)
 			goto err;
-
 		/*
 		 * If either kbytes or minutes is non-zero, then only take the
 		 * checkpoint if more than "minutes" minutes have passed or if
 		 * more than "kbytes" of log data have been written since the
 		 * last checkpoint.
 		 */
-		if(kbytes != 0 &&
-		    mbytes * 1024 + bytes / 1024 >= (uint32)kbytes)
+		if(kbytes != 0 && mbytes * 1024 + bytes / 1024 >= (uint32)kbytes)
 			goto do_ckp;
-
 		if(minutes != 0) {
 			(void)time(&now);
-
 			TXN_SYSTEM_LOCK(env);
 			last_ckp_time = region->time_ckp;
 			TXN_SYSTEM_UNLOCK(env);
-
 			if(now - last_ckp_time >= (time_t)(minutes * 60))
 				goto do_ckp;
 		}
-
 		/*
 		 * If we checked time and data and didn't go to checkpoint,
 		 * we're done.
@@ -182,7 +171,6 @@ int __txn_checkpoint(ENV *env, uint32 kbytes, uint32 minutes, uint32 flags)
 do_ckp:
 	if((ret = __txn_getactive(env, &ckp_lsn)) != 0)
 		goto err;
-
 	/*
 	 * Checkpoints in replication groups can cause performance problems.
 	 *
@@ -210,9 +198,7 @@ do_ckp:
 		 * participate in replication (i.e., sending replication
 		 * messages to clients).
 		 */
-		if(env->rep_handle->send == NULL &&
-		    F_ISSET(env, ENV_THREAD) && APP_IS_REPMGR(env) &&
-		    (ret = __repmgr_autostart(env)) != 0)
+		if(env->rep_handle->send == NULL && F_ISSET(env, ENV_THREAD) && APP_IS_REPMGR(env) && (ret = __repmgr_autostart(env)) != 0)
 			goto err;
 #endif
 		/*
@@ -282,17 +268,15 @@ do_ckp:
 			__db_err(env, ret, DB_STR_A("4520", "txn_checkpoint: log failed at LSN [%ld %ld]", "%ld %ld"), (long)ckp_lsn.file, (long)ckp_lsn.offset);
 			goto err;
 		}
-
 		if((ret = __txn_updateckp(env, &ckp_lsn)) != 0)
 			goto err;
 	}
-
-err:    MUTEX_UNLOCK(env, region->mtx_ckp);
+err:    
+	MUTEX_UNLOCK(env, region->mtx_ckp);
 	if(ret == 0 && lp->db_log_autoremove)
 		__log_autoremove(env);
 	return ret;
 }
-
 /*
  * __txn_getactive --
  *	 Find the oldest active transaction and figure out its "begin" LSN.
@@ -305,7 +289,7 @@ err:    MUTEX_UNLOCK(env, region->mtx_ckp);
  *	 must be starting after we set the initial value of lsnp in the caller.
  *	 All txns must initialize their begin_lsn before writing to the log.
  *
- * PUBLIC: int __txn_getactive __P((ENV *, DB_LSN *));
+ * PUBLIC: int __txn_getactive(ENV *, DB_LSN *);
  */
 int __txn_getactive(ENV *env, DB_LSN * lsnp)
 {
@@ -323,7 +307,7 @@ int __txn_getactive(ENV *env, DB_LSN * lsnp)
  * __txn_getckp --
  *	Get the LSN of the last transaction checkpoint.
  *
- * PUBLIC: int __txn_getckp __P((ENV *, DB_LSN *));
+ * PUBLIC: int __txn_getckp(ENV *, DB_LSN *);
  */
 int __txn_getckp(ENV *env, DB_LSN * lsnp)
 {
@@ -344,7 +328,7 @@ int __txn_getckp(ENV *env, DB_LSN * lsnp)
  * at the end of a normal checkpoint and also when a replication client
  * receives a checkpoint record.
  *
- * PUBLIC: int __txn_updateckp __P((ENV *, DB_LSN *));
+ * PUBLIC: int __txn_updateckp(ENV *, DB_LSN *);
  */
 int __txn_updateckp(ENV *env, DB_LSN * lsnp)
 {

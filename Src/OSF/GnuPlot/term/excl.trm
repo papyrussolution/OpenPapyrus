@@ -79,7 +79,7 @@ static void EXCL_text();
 static void EXCL_linetype(int linetype);
 static void EXCL_move(uint x, uint y);
 static void EXCL_vector __PROTO((uint x2, uint y2));
-static void EXCL_put_text __PROTO((uint x, uint y, const char str[]));
+static void EXCL_put_text(uint x, uint y, const char str[]);
 static void EXCL_reset();
 
 #define EXCL_XMAX 9000

@@ -2798,17 +2798,18 @@ int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  7, PPEquipConfig::fWriteToChkOpJrnl);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  8, PPEquipConfig::fRecognizeCode);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fUnifiedPayment);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank); // @v8.6.6
+	AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fIgnoreNoDisGoodsTag);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
-	AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount); // @v8.6.6
+	AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount);
 	SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
 
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
-	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks); // @v8.7.7
+	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs); // @v9.8.12
+	AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
 	SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
 	/*
 	{

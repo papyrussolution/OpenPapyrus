@@ -40,7 +40,7 @@ int __ham_vrfy_meta(DB *dbp, VRFY_DBINFO * vdp, HMETA * m, db_pgno_t pgno, uint3
 	VRFY_PAGEINFO * pip;
 	int i, ret, t_ret, isbad;
 	uint32 pwr, mbucket;
-	uint32(*hfunc) __P((DB *, const void *, uint32));
+	uint32(*hfunc)(DB *, const void *, uint32);
 	db_seq_t blob_id;
 
 	env = dbp->env;
@@ -631,7 +631,7 @@ static int __ham_vrfy_bucket(DB *dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 bucke
 	int ret, t_ret, isbad, p;
 	db_pgno_t pgno, next_pgno;
 	DBC * cc;
-	uint32(*hfunc) __P((DB *, const void *, uint32));
+	uint32(*hfunc)(DB *, const void *, uint32);
 
 	env = dbp->env;
 	isbad = 0;

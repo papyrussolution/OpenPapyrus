@@ -220,7 +220,7 @@ static void EPSON_text()
 /* output file must be binary mode for epson_dump */
 static void epson_dump()
 {
-	register uint x;
+	uint x;
 	int j;
 	for(j = (GpBmB.b_ysize / 8) - 1; j >= 0; j--) {
 		/* select plotter graphics mode (square pixels) */
@@ -348,7 +348,7 @@ static void nec_dump()
 	uint plane, offset;
 	int j;
 	uint column8;
-	unsigned long column24;
+	ulong column24;
 	char column3, column2, column1;
 	fputs("\033P\033l\005", gpoutfile); /* 10cpi, left margin 5 char */
 	for(j = (GpBmB.b_ysize / 8) - 1; j >= 0; j--) {
@@ -547,7 +547,7 @@ static void EPS180_text()
 /* output file must be binary mode for eps180_dump */
 static void eps180_dump()
 {
-	register uint x;
+	uint x;
 	int j;
 
 	/* reset, set line spacing to 24/180", and move left margin */
@@ -594,7 +594,7 @@ static void EPS60_text()
 /* output file must be binary mode for eps60_dump */
 static void eps60_dump()
 {
-	register uint x;
+	uint x;
 	int j;
 	fprintf(gpoutfile, "\033%c\030", '3');  /* set line spacing 24/216" = 8 dots */
 	for(j = (GpBmB.b_ysize / 8) - 1; j >= 0; j--) {
@@ -687,7 +687,7 @@ static int OKIDATAbitrev_tbl[] =
 /* output file must be binary mode for okidata_dump */
 static void okidata_dump()
 {
-	register uint x;
+	uint x;
 	int j;
 	char cur_char;
 
@@ -856,7 +856,7 @@ static void DPU414_text()
 
 static void DPU414_dump()
 {
-	register uint x;
+	uint x;
 	int j;
 
 	fputs("\r", gpoutfile); /* carriage return */

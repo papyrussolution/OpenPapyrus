@@ -2217,9 +2217,10 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					LotExtCodeTbl::Rec rec;
 					if(EditItemDialog(rec, c) > 0) {
 						uint   idx = 0;
-						if(Data.Add(RowIdx, rec.Code, &idx)) {
+						if(Data.Add(RowIdx, rec.Code, &idx))
 							updateList(-1);
-						}
+						else
+							PPError();
 					}
 					clearEvent(event);
 				}
@@ -2246,7 +2247,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					SString name_buf;
 					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
 					GetGoodsName(r_ti.GoodsID, name_buf);
-					temp_buf.CatDiv('-', 1).Cat(name_buf);
+					temp_buf.CatDiv('-', 1).Cat(name_buf).Space().CatChar('[').Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar(']');
 				}
 				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
 			}
@@ -2266,6 +2267,8 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					ASSIGN_PTR(pID, idx);
 					ok = 1;
 				}
+				else
+					PPError();
 			}
 			return ok;
 		}

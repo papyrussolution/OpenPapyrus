@@ -1389,8 +1389,8 @@ static int __rep_bt_cmp(DB *dbp, const DBT * dbt1, const DBT * dbt2, size_t * lo
 	COMPQUIET(locp, NULL);
 	rp1 = (__rep_control_args *)dbt1->data;
 	rp2 = (__rep_control_args *)dbt2->data;
-	(void)__ua_memcpy(&lsn1, &rp1->lsn, sizeof(DB_LSN));
-	(void)__ua_memcpy(&lsn2, &rp2->lsn, sizeof(DB_LSN));
+	__ua_memcpy(&lsn1, &rp1->lsn, sizeof(DB_LSN));
+	__ua_memcpy(&lsn2, &rp2->lsn, sizeof(DB_LSN));
 	if(lsn1.file > lsn2.file)
 		return (1);
 	if(lsn1.file < lsn2.file)

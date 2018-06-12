@@ -131,39 +131,28 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 			ret = XAER_DUPID;
 			goto out;
 		}
-
 		SH_TAILQ_FOREACH(*txnp, &ip->dbth_xatxn, xa_links, __db_txn)
 		if((*txnp)->td == td)
 			break;
-
 		/* Check that we are not a child transaction. */
 		if(td->parent != INVALID_ROFF) {
 			dbenv->err(dbenv, EINVAL, DB_STR("4541", "xa_get_txn: XA transaction with parent"));
 			ret = XAER_RMERR;
 			goto out;
 		}
-
 		if(*txnp != NULL) {
 			if(ending) {
-				DB_ASSERT(env, (*txnp)->xa_thr_status ==
-				    TXN_XA_THREAD_ASSOCIATED);
-				DB_ASSERT(env, (*txnp) ==
-				    SH_TAILQ_FIRST(&ip->dbth_xatxn, __db_txn));
+				DB_ASSERT(env, (*txnp)->xa_thr_status == TXN_XA_THREAD_ASSOCIATED);
+				DB_ASSERT(env, (*txnp) == SH_TAILQ_FIRST(&ip->dbth_xatxn, __db_txn));
 			}
 			else if(LF_ISSET(TMRESUME)) {
-				DB_ASSERT(env, (*txnp)->xa_thr_status ==
-				    TXN_XA_THREAD_SUSPENDED);
-				DB_ASSERT(env, ip->dbth_xa_status ==
-				    TXN_XA_THREAD_SUSPENDED);
-				(*txnp)->xa_thr_status =
-				    TXN_XA_THREAD_ASSOCIATED;
+				DB_ASSERT(env, (*txnp)->xa_thr_status == TXN_XA_THREAD_SUSPENDED);
+				DB_ASSERT(env, ip->dbth_xa_status == TXN_XA_THREAD_SUSPENDED);
+				(*txnp)->xa_thr_status = TXN_XA_THREAD_ASSOCIATED;
 				ip->dbth_xa_status = TXN_XA_THREAD_ASSOCIATED;
-				if((*txnp) !=
-				    SH_TAILQ_FIRST(&ip->dbth_xatxn, __db_txn)) {
-					SH_TAILQ_REMOVE(&ip->dbth_xatxn,
-					    (*txnp), xa_links, __db_txn);
-					SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn,
-					    (*txnp), xa_links, __db_txn);
+				if((*txnp) != SH_TAILQ_FIRST(&ip->dbth_xatxn, __db_txn)) {
+					SH_TAILQ_REMOVE(&ip->dbth_xatxn, (*txnp), xa_links, __db_txn);
+					SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn, (*txnp), xa_links, __db_txn);
 				}
 				if(td->xa_br_status == TXN_XA_IDLE)
 					td->xa_br_status = TXN_XA_ACTIVE;
@@ -176,8 +165,7 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 				dbenv->err(dbenv, EINVAL, DB_STR("4542", "xa_get_txn: transaction does not exist"));
 				ret = XAER_PROTO;
 			}
-			else if((ret =
-			    __os_calloc(env, 1, sizeof(DB_TXN), txnp)) == 0) {
+			else if((ret = __os_calloc(env, 1, sizeof(DB_TXN), txnp)) == 0) {
 				/* We are joining this branch. */
 				ret = __txn_continue(env, *txnp, td, ip, 1);
 				if(ret != 0) {
@@ -185,10 +173,8 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 					ret = XAER_RMFAIL;
 				}
 				ip->dbth_xa_status = TXN_XA_THREAD_ASSOCIATED;
-				(*txnp)->xa_thr_status =
-				    TXN_XA_THREAD_ASSOCIATED;
-				SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn,
-				    (*txnp), xa_links, __db_txn);
+				(*txnp)->xa_thr_status = TXN_XA_THREAD_ASSOCIATED;
+				SH_TAILQ_INSERT_HEAD(&ip->dbth_xatxn, (*txnp), xa_links, __db_txn);
 				if(td->xa_br_status == TXN_XA_IDLE)
 					td->xa_br_status = TXN_XA_ACTIVE;
 			}
@@ -198,7 +184,8 @@ static int __xa_get_txn(ENV *env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u_
 			}
 		}
 	}
-out:    ENV_LEAVE(env, ip);
+out:    
+	ENV_LEAVE(env, ip);
 	return ret;
 }
 /*
@@ -206,9 +193,8 @@ out:    ENV_LEAVE(env, ip);
  */
 static void __xa_put_txn(ENV *env, DB_TXN * txnp)
 {
-	DB_THREAD_INFO * ip;
 	TXN_DETAIL * td;
-	ip = txnp->thread_info;
+	DB_THREAD_INFO * ip = txnp->thread_info;
 	DB_ASSERT(env, ip != NULL);
 	SH_TAILQ_REMOVE(&ip->dbth_xatxn, txnp, xa_links, __db_txn);
 	TAILQ_REMOVE(&txnp->mgrp->txn_chain, txnp, links);
@@ -245,8 +231,7 @@ static int __xa_txn_get_prepared(ENV *env, XID * xids, DB_PREPLIST * txns, long 
 	int ret;
 	ip = NULL;
 	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env,
-	    (__txn_get_prepared(env, xids, txns, count, retp, flags)), 0, ret);
+	REPLICATION_WRAP(env, (__txn_get_prepared(env, xids, txns, count, retp, flags)), 0, ret);
 	ENV_LEAVE(env, ip);
 	return ret;
 }

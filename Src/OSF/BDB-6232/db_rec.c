@@ -870,7 +870,7 @@ check_meta:
 	    ip, NULL, DB_MPOOL_CREATE, &pagep)) != 0)
 		goto out;
 
-	(void)__ua_memcpy(&copy_lsn, &LSN(argp->header.data), sizeof(DB_LSN));
+	__ua_memcpy(&copy_lsn, &LSN(argp->header.data), sizeof(DB_LSN));
 	cmp_n = IS_ZERO_LSN(LSN(pagep)) ? 0 : LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &copy_lsn);
 
@@ -1124,7 +1124,7 @@ int __db_pg_init_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 		}
 	}
 
-	(void)__ua_memcpy(&copy_lsn, &LSN(argp->header.data), sizeof(DB_LSN));
+	__ua_memcpy(&copy_lsn, &LSN(argp->header.data), sizeof(DB_LSN));
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &copy_lsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &copy_lsn);

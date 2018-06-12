@@ -166,18 +166,47 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 {
 	int    ok = 1, r;
 	uint   i;
+	const  PPID dest_goods_id = labs(ilti->GoodsID);
 	PPID   goods_id = 0;
 	double qtty = *pQtty;
 	PPIDArray lots;
-	GRI    local_gri(ilti->GoodsID);
-	const  GRI * p_gri = pGra ? pGra->Search(ilti->GoodsID) : 0;
+	GRI    local_gri(dest_goods_id);
+	const  GRI * p_gri = pGra ? pGra->Search(dest_goods_id) : 0;
 	const  int   by_serial = isempty(strip(pSerial)) ? 0 : 1;
 	const  LDATE dt = pPack->Rec.Dt;
 	const  PPID  loc_id = pPack->Rec.LocID;
+	LotArray lot_list;
+	SVector cgla(sizeof(CmpGenLots)); // @v9.8.11 SArray-->SVector
 	int    do_optimize_lots = /*BIN(flags & CILTIF_OPTMZLOTS)*/0; // @v9.7.11 Заблокирована оптимизация лотов - из-за нее нарушается балансировка использования подстановок
-	{
-		LotArray lot_list;
-		SVector cgla(sizeof(CmpGenLots)); // @v9.8.11 SArray-->SVector
+	const PPIDArray * p_spc_list = pGra ? pGra->GetSpecialSubstGoodsList() : 0;
+	if(p_spc_list) {
+		PPGoodsTaxEntry dest_gte;
+		const double dest_price = ilti->Price;
+		const double dest_cost = ilti->Cost;
+		const double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
+		if(GObj.FetchTax(dest_goods_id, dt, pPack->Rec.OpID, &dest_gte) > 0) {
+			PPGoodsTaxEntry src_gte;
+			for(i = 0; i < p_spc_list->getCount(); i++) {
+				const PPID src_goods_id = p_spc_list->get(i);
+				if(GObj.FetchTax(src_goods_id, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
+					r = 0;
+					lot_list.clear();
+					trfr->Rcpt.GetListOfOpenedLots(-1, src_goods_id, loc_id, dt, &lot_list);
+					for(uint j = 0; j < lot_list.getCount(); j++) {
+						const ReceiptTbl::Rec & r_lot_rec = lot_list.at(j);
+						if(r_lot_rec.Cost < dest_cost_mark) {
+							CmpGenLots cgls(r_lot_rec.ID, r_lot_rec.Dt, r_lot_rec.OprNo);
+							cgla.ordInsert(&cgls, 0, PTR_CMPFUNC(CmpGenLots));
+							r = 1;
+						}
+					}
+					if(r)
+						local_gri.Add(src_goods_id, SMathConst::Max, 1.0/*ratio*/);
+				}
+			}
+		}
+	}
+	else {
 		if(p_gri) {
 			for(i = 0; i < p_gri->getCount(); i++) {
 				goods_id = p_gri->GetSrcID(i);
@@ -196,7 +225,7 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 		}
 		else {
 			RAssocArray goods_list;
-			GObj.GetSubstList(ilti->GoodsID, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
+			GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
 			for(i = 0; i < goods_list.getCount(); i++) {
 				goods_id = goods_list.at(i).Key;
 				r = 0;
@@ -212,11 +241,11 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 					local_gri.Add(goods_id, SMathConst::Max, goods_list.at(i).Val);
 			}
 		}
-		for(i = 0; i < cgla.getCount(); i++)
-			lots.addUnique(((CmpGenLots*)cgla.at(i))->lotID);
 	}
+	for(i = 0; i < cgla.getCount(); i++)
+		lots.addUnique(((CmpGenLots*)cgla.at(i))->lotID);
 	if(do_optimize_lots)
-		THROW(OrderLots(pPack, &lots, ilti->GoodsID, ilti->Cost, ilti->Price, qtty));
+		THROW(OrderLots(pPack, &lots, dest_goods_id, ilti->Cost, ilti->Price, qtty));
 	for(i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
 		PPID   lot_id = lots.at(i);
 		ReceiptTbl::Rec lot_rec;
@@ -588,8 +617,7 @@ private:
 	double RunningPriceVat;
 };
 
-int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags,
-	const char * pSerial, const GoodsReplacementArray * pGra)
+int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
 	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
@@ -1074,8 +1102,13 @@ int SLAPI GRI::Add(PPID srcID, double qtty, double ratio)
 	return ok;
 }
 
-SLAPI GoodsReplacementArray::GoodsReplacementArray() : TSCollection <GRI> ()
+SLAPI GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : TSCollection <GRI> (), SpecialSubstGroupID(specialSubstGroupID)
 {
+	// @v10.0.12 {
+	if(SpecialSubstGroupID) {
+		GoodsIterator::GetListByGroup(SpecialSubstGroupID, &SpecialSubstGoodsList);
+	}
+	// } @v10.0.12 
 }
 
 const GRI * SLAPI GoodsReplacementArray::Search(PPID destID) const
@@ -1516,7 +1549,11 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 		StringSet ss_lotxcode;
 		LongArray rows;
 		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
-		const long ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
+		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
+		// @v10.0.12 {
+		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList()) 
+			__ciltif |= CILTIF_USESUBST;
+		// } @v10.0.12 
 		if(trace_sync_lot) {
 			__Debug_TraceLotSync(*this, &rPack, msg_buf);
 			PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1659,7 +1696,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					}
 				}
 				if(do_add) {
-					const int rconv = p_bobj->ConvertILTI(p_ilti, &rPack, &rows, ciltif, org_serial);
+					const int rconv = p_bobj->ConvertILTI(p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra); // @v10.0.12 pCtx->P_Gra
 					p_ilti->LotSyncID = preserve_frgn_lot_id;
 					p_ilti->LotMirrID = preserve_frgn_lot_mirr_id;
 					THROW(rconv);

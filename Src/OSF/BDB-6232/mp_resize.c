@@ -18,8 +18,7 @@ static int __memp_merge_buckets(DB_MPOOL *, uint32, uint32, uint32);
 static int __memp_remove_bucket(DB_MPOOL *);
 static int __memp_remove_region(DB_MPOOL *);
 /*
- * PUBLIC: int __memp_get_bucket __P((ENV *, MPOOLFILE *,
- * PUBLIC:     db_pgno_t, REGINFO **, DB_MPOOL_HASH **, uint32 *));
+ * PUBLIC: int __memp_get_bucket(ENV *, MPOOLFILE *, db_pgno_t, REGINFO **, DB_MPOOL_HASH **, uint32 *);
  */
 int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** infopp, DB_MPOOL_HASH ** hpp, uint32 * bucketp)
 {
@@ -36,11 +35,9 @@ int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** info
 	mf_offset = R_OFFSET(dbmp->reginfo, mfp);
 	mp = (MPOOL *)dbmp->reginfo[0].primary;
 	ret = 0;
-
 	for(;;) {
 		nbuckets = mp->nbuckets;
 		MP_BUCKET(mf_offset, pgno, nbuckets, bucket);
-
 		/*
 		 * Once we work out which region we are looking in, we have to
 		 * check that we have that region mapped, and that the version
@@ -50,25 +47,20 @@ int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** info
 		 */
 		region = NREGION(mp, bucket);
 		regids = (uint32 *)R_ADDR(dbmp->reginfo, mp->regids);
-
 		for(;;) {
 			infop = *infopp = &dbmp->reginfo[region];
 			c_mp = (MPOOL *)infop->primary;
-
 			/* If we have the correct region mapped, we're done. */
 			if(c_mp != NULL && regids[region] == infop->id)
 				break;
 			if((ret = __memp_map_regions(dbmp)) != 0)
 				return ret;
 		}
-
 		/* If our caller wants the hash bucket, lock it here. */
 		if(hpp != NULL) {
 			hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab);
 			hp = &hp[bucket - region * mp->htab_buckets];
-
 			MUTEX_READLOCK(env, hp->mtx_hash);
-
 			/*
 			 * Check that we still have the correct region mapped.
 			 */
@@ -76,28 +68,22 @@ int __memp_get_bucket(ENV *env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** info
 				MUTEX_UNLOCK(env, hp->mtx_hash);
 				continue;
 			}
-
 			/*
 			 * Now that the bucket is locked, we need to check that
 			 * the cache has not been resized while we waited.
 			 */
 			new_nbuckets = mp->nbuckets;
 			if(nbuckets != new_nbuckets) {
-				MP_BUCKET(mf_offset, pgno, new_nbuckets,
-				    new_bucket);
-
+				MP_BUCKET(mf_offset, pgno, new_nbuckets, new_bucket);
 				if(new_bucket != bucket) {
 					MUTEX_UNLOCK(env, hp->mtx_hash);
 					continue;
 				}
 			}
-
 			*hpp = hp;
 		}
-
 		break;
 	}
-
 	if(bucketp != NULL)
 		*bucketp = bucket - region * mp->htab_buckets;
 	return ret;
@@ -307,38 +293,27 @@ static int __memp_add_bucket(DB_MPOOL *dbmp)
 
 static int __memp_add_region(DB_MPOOL *dbmp)
 {
-	ENV * env;
-	MPOOL * mp;
-	REGINFO * infop;
-	int ret;
-	roff_t reg_size;
 	u_int i;
 	uint32 * regids;
-
-	env = dbmp->env;
-	mp = (MPOOL *)dbmp->reginfo[0].primary;
-
+	ENV * env = dbmp->env;
+	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
 	/* All cache regions are the same size. */
-	reg_size = dbmp->reginfo[0].rp->max;
-	ret = 0;
-
-	infop = &dbmp->reginfo[mp->nreg];
+	roff_t reg_size = dbmp->reginfo[0].rp->max;
+	int ret = 0;
+	REGINFO * infop = &dbmp->reginfo[mp->nreg];
 	infop->env = env;
 	infop->type = REGION_TYPE_MPOOL;
 	infop->id = INVALID_REGION_ID;
 	infop->flags = REGION_CREATE_OK;
 	if((ret = __env_region_attach(env, infop, reg_size, reg_size)) != 0)
 		return ret;
-	if((ret = __memp_init(env,
-	    dbmp, mp->nreg, mp->htab_buckets, mp->max_nreg)) != 0)
+	if((ret = __memp_init(env, dbmp, mp->nreg, mp->htab_buckets, mp->max_nreg)) != 0)
 		return ret;
 	regids = (uint32 *)R_ADDR(dbmp->reginfo, mp->regids);
 	regids[mp->nreg++] = infop->id;
-
 	for(i = 0; i < mp->htab_buckets; i++)
 		if((ret = __memp_add_bucket(dbmp)) != 0)
 			break;
-
 	return ret;
 }
 

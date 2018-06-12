@@ -656,10 +656,8 @@ int __bamc_count(DBC *dbc, db_recno_t * recnop)
 		 * On-page duplicates, get the page and count.
 		 */
 		DB_ASSERT(dbp->env, cp->page == NULL);
-		if((ret = __memp_fget(mpf, &cp->pgno,
-		    dbc->thread_info, dbc->txn, 0, &cp->page)) != 0)
+		if((ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, 0, &cp->page)) != 0)
 			return ret;
-
 		/*
 		 * Move back to the beginning of the set of duplicates and
 		 * then count forward.

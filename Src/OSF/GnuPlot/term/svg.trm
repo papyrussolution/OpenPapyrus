@@ -350,7 +350,7 @@ static void SVG_AddSpaceOrNewline()
 static void SVG_SetFont(const char * name, double size)
 {
 	if(name != SVG_fontNameCur) {
-		free(SVG_fontNameCur);
+		SAlloc::F(SVG_fontNameCur);
 		SVG_fontNameCur = gp_strdup(name);
 	}
 	SVG_fontSizeCur = size;
@@ -413,51 +413,31 @@ static void SVG_DefineFillPattern(int fillpat)
 		SVG_fillPattern = fillpat;
 		SVG_PathClose();
 		SVG_fillPatternIndex++;
-
-		fprintf(gpoutfile,
-		    "\t<defs>\n"
-		    "\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n",
-		    SVG_fillPatternIndex);
+		fprintf(gpoutfile, "\t<defs>\n\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n", SVG_fillPatternIndex);
 		switch(fillpat) {
 			default:
-			case 0:
-			    path = "";
-			    break;
-			case 1:
-			    path = "M0,0 L8,8 M0,8 L8,0";
-			    break;
-			case 2:
-			    path = "M0,0 L8,8 M0,8 L8,0 M0,4 L4,8 L8,4 L4,0 L0,4";
-			    break;
+			case 0: path = ""; break;
+			case 1: path = "M0,0 L8,8 M0,8 L8,0"; break;
+			case 2: path = "M0,0 L8,8 M0,8 L8,0 M0,4 L4,8 L8,4 L4,0 L0,4"; break;
 			case 3:
 			    path = "M0,0 L0,8 L8,8 L8,0 L0,0";
 			    style = "fill";
 			    break;
-			case 4:
-			    path = "M-4,0 L8,12 M0,-4 L12,8";
-			    break;
-			case 5:
-			    path = "M-4,8 L8,-4 M0,12 L12,0";
-			    break;
-			case 6:
-			    path = "M-2,8 L4,-4 M0,12 L8,-4 M4,12 L10,0";
-			    break;
-			case 7:
-			    path = "M-2,0 L4,12 M0,-4 L8,12 M4,-4 L10,8";
-			    break;
+			case 4: path = "M-4,0 L8,12 M0,-4 L12,8"; break;
+			case 5: path = "M-4,8 L8,-4 M0,12 L12,0"; break;
+			case 6: path = "M-2,8 L4,-4 M0,12 L8,-4 M4,12 L10,0"; break;
+			case 7: path = "M-2,0 L4,12 M0,-4 L8,12 M4,-4 L10,8"; break;
 		}
 		if(*path) {
 			char * figure = "fill:none;";
-			if(!strcmp(style, "fill")) figure = "stroke:none;";
+			if(sstreq(style, "fill")) 
+				figure = "stroke:none;";
 			if(SVG_color_mode == TC_RGB)
-				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n",
-				    figure, style, SVG_red, SVG_green, SVG_blue, path);
+				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n", figure, style, SVG_red, SVG_green, SVG_blue, path);
 			else if(SVG_color_mode == TC_LT)
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n",
-				    figure, style, SVG_linecolor, path);
+				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n", figure, style, SVG_linecolor, path);
 			else
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n",
-				    figure, style, path);
+				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n", figure, style, path);
 		}
 		fputs("\t\t</pattern>\n" "\t</defs>\n", gpoutfile);
 	}
@@ -577,7 +557,7 @@ static void SVG_options(GpCommand & rC)
 				if(!((italic = strstr(s, " italic"))))
 					italic = strstr(s, " Italic");
 
-				free(SVG_fontNameDef);
+				SAlloc::F(SVG_fontNameDef);
 				SVG_fontNameDef = s;
 				if(italic) {
 					SVG_fontStyleDef = "italic";
@@ -595,7 +575,7 @@ static void SVG_options(GpCommand & rC)
 				}
 			}
 			else
-				free(s);
+				SAlloc::F(s);
 			continue;
 		}
 
@@ -697,7 +677,7 @@ static void SVG_local_reset()
 	SVG_xSize      = (uint)SVG_XMAX;
 	SVG_ySize      = (uint)SVG_YMAX;
 	SVG_fixed_size = true;
-	free(SVG_fontNameDef);
+	SAlloc::F(SVG_fontNameDef);
 	SVG_fontNameDef = gp_strdup("Arial");
 	SVG_fontSizeDef  = 12;
 	ZFREE(SVG_embedded_font);
@@ -902,7 +882,7 @@ static void SVG_init()
 				fprintf(gpoutfile, "]]>\n</script>\n");
 				fclose(svg_js_fd);
 			}
-			free(fullname);
+			SAlloc::F(fullname);
 		}
 	}
 
@@ -1363,7 +1343,7 @@ onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n"                  
 
 	if(SVG_hypertext_text) {
 		fprintf(gpoutfile, "</g>\n");
-		free(SVG_hypertext_text);
+		SAlloc::F(SVG_hypertext_text);
 		SVG_hypertext_text = NULL;
 	}
 	else {
@@ -1489,7 +1469,7 @@ static void SVG_put_text(uint x, uint y, const char * str)
 static int SVG_set_font(const char * font)
 {
 	if(!font || !(*font)) {
-		free(SVG_fontNameCur);
+		SAlloc::F(SVG_fontNameCur);
 		SVG_fontNameCur = gp_strdup(SVG_fontNameDef);
 		SVG_fontSizeCur = SVG_fontSizeDef;
 		SVG_fontStyleCur = SVG_fontStyleDef;
@@ -1506,7 +1486,7 @@ static int SVG_set_font(const char * font)
 
 		sep = strcspn(font, ",");
 		if(sep > 0) {
-			free(SVG_fontNameCur);
+			SAlloc::F(SVG_fontNameCur);
 			SVG_fontNameCur = gp_strdup(font);
 			if(italic) {
 				SVG_fontStyleCur = "italic";
@@ -1677,7 +1657,7 @@ static void SVG_layer(t_termlayer syncpoint)
 		    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s\" ", name, SVG_plotno, panel);
 		    if(SVG_hypertext_text && *SVG_hypertext_text) {
 			    fprintf(gpoutfile, "><title>%s</title>\n", SVG_hypertext_text);
-			    free(SVG_hypertext_text);
+			    SAlloc::F(SVG_hypertext_text);
 			    SVG_hypertext_text = NULL;
 		    }
 		    else {
@@ -1818,11 +1798,11 @@ static void ENHsvg_OPEN(char * fontname,
 			if(sep)
 				*sep = '\0';
 			if(strcmp(SVG_fontNameCur, family)) {
-				free(SVG_fontNameCur);
+				SAlloc::F(SVG_fontNameCur);
 				SVG_fontNameCur = family;
 			}
 			else {
-				free(family);
+				SAlloc::F(family);
 			}
 			fprintf(gpoutfile, " font-family=\"%s\" ", SVG_fontNameCur);
 			if(strstr(fontname, ":Bold"))
@@ -1867,7 +1847,7 @@ static void ENHsvg_put_text(uint x, uint y, const char * str)
 	double fontsize = SVG_fontSizeCur;
 	static char * fontname = NULL;
 
-	free(fontname);
+	SAlloc::F(fontname);
 	fontname = gp_strdup(SVG_fontNameCur);
 
 	/* We need the full set of tags for text, just as normal. But in */
@@ -1905,7 +1885,7 @@ static void ENHsvg_put_text(uint x, uint y, const char * str)
 	}
 
 	/* Make sure we leave with the same font properties as on entry */
-	free(SVG_fontNameCur);
+	SAlloc::F(SVG_fontNameCur);
 	SVG_fontNameCur = fontname;
 	fontname = NULL;
 	if(SVG_fontSizeCur != fontsize || ENHsvg_base != 0) {
@@ -2036,7 +2016,7 @@ static void SVG_hypertext(int type, const char * text)
 	if(type != TERM_HYPERTEXT_TOOLTIP && type != TERM_HYPERTEXT_TITLE)
 		return;
 
-	free(SVG_hypertext_text);
+	SAlloc::F(SVG_hypertext_text);
 	if(text) {
 		char * buffer = (char*)malloc(5*strlen(text));
 		enhanced_cur_text = buffer;
@@ -2044,7 +2024,7 @@ static void SVG_hypertext(int type, const char * text)
 		while(*text++);
 		SVG_hypertext_text = gp_strdup(buffer);
 		enhanced_cur_text = NULL;
-		free(buffer);
+		SAlloc::F(buffer);
 	}
 	else {
 		SVG_hypertext_text = NULL;

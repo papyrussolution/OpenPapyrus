@@ -80,21 +80,21 @@ static void FIG_graphics();
 static void FIG_text();
 static void FIG_linetype(int linetype);
 static void FIG_move(uint x, uint y);
-static void FIG_vector __PROTO((uint ux, uint uy));
-static void FIG_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
-static void FIG_put_text __PROTO((uint x, uint y, const char * str));
-static int FIG_justify_text __PROTO((enum JUSTIFY mode));
+static void FIG_vector(uint ux, uint uy);
+static void FIG_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+static void FIG_put_text(uint x, uint y, const char * str);
+static int FIG_justify_text(enum JUSTIFY mode);
 static int FIG_text_angle(int ang);
 static void FIG_pointsize __PROTO((double arg_pointsize));
-static void FIG_linewidth __PROTO((double linewidth));
+static void FIG_linewidth(double linewidth);
 static void FIG_reset();
-static void FIG_lpoint __PROTO((uint x, uint y, int number));
+static void FIG_lpoint(uint x, uint y, int number);
 static void FIG_boxfill __PROTO((int style, uint x, uint y, uint w, uint h));
 static int FIG_make_palette(t_sm_palette *);
-/* static void FIG_previous_palette (void); */
+/* static void FIG_previous_palette (); */
 static void FIG_set_color(t_colorspec *);
 static void FIG_filled_polygon(int, gpiPoint *);
-static void FIG_layer __PROTO((t_termlayer syncpoint));
+static void FIG_layer(t_termlayer syncpoint);
 
 #define GOT_FIG_PROTO
 #endif /* TERM_PROTO */
@@ -326,7 +326,7 @@ static void FIG_options(GpCommand & rC)
 	FIG_font_id = FIG_ROMAN_FONT;
 	FIG_font_s = 0;
 	FIG_default_thickness = 1;
-	xsize_t = ysize_t = 0.;
+	xsize_t = ysize_t = 0.0;
 	FIG_inches = INCH;
 	FIG_text_flags = FIG_TEXT_NORMAL;
 	FIG_solid = false;
@@ -404,7 +404,7 @@ static void FIG_options(GpCommand & rC)
 					    rC.CToken++;
 				    if(rC.EndOfCommand()) {
 					    GpGg.IntErrorCurToken("size: 2 numbers expected");
-					    xsize_t = 0.;
+					    xsize_t = 0.0;
 				    }
 				    else {
 					    ysize_t = rC.RealExpression();
@@ -412,7 +412,7 @@ static void FIG_options(GpCommand & rC)
 				    if(xsize_t < 2. || ysize_t < 2. || xsize_t > 99. || ysize_t > 99.) {
 					    if(xsize_t != 0. || ysize_t != 0.)
 						    GpGg.IntErrorCurToken("size: out of range");
-					    xsize_t = ysize_t = 0.;
+					    xsize_t = ysize_t = 0.0;
 				    }
 			    }
 			    break;
@@ -429,7 +429,7 @@ static void FIG_options(GpCommand & rC)
 			    FIG_font_id = lookup_table_entry(FIG_fonts, fontname);
 			    if(FIG_font_id < 0)
 				    FIG_font_id = FIG_ROMAN_FONT;
-			    free(fontname);
+			    SAlloc::F(fontname);
 			    break;
 		    }
 			case FIG_FONTSIZE:
@@ -603,7 +603,7 @@ static void FIG_poly_clean(enum FIG_poly_stat fig_stat)
 		/* Give the memory back to the system because we are done with this
 		 * polyline. Make sure FIG_points contains NULL afterwards!
 		 */
-		free(FIG_points);
+		SAlloc::F(FIG_points);
 		FIG_points = NULL;
 	}
 	FIG_polyvec_stat = FIG_poly_new;
@@ -961,7 +961,7 @@ static void FIG_put_text(uint x, uint y, const char * str)
 	    (float)term->HChr * strlen(str),
 	    FIG_xoff + x, term->ymax + FIG_yoff - y, output_string);
 
-	free(output_string);
+	SAlloc::F(output_string);
 }
 
 static int FIG_justify_text(enum JUSTIFY mode)

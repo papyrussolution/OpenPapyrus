@@ -1273,35 +1273,29 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO *lvinfo, time_t begin, time_t end, D
 		t1 = (struct __lv_timestamp_info *)data.data;
 		*startlsn = t1->lsn;
 	}
-
 	/*
 	 * Move to the last key/data pair of the duplicate set to get the
 	 * biggest lsn having end as timestamp.
 	 */
 	key.data = &end;
 	key.size = sizeof(end);
-	if((ret = __dbc_get(csr, &key, &data, DB_SET_RANGE)) != 0 &&
-	    ret != DB_NOTFOUND)
+	if((ret = __dbc_get(csr, &key, &data, DB_SET_RANGE)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	if(ret == DB_NOTFOUND) {
 		endlsn->file = endlsn->offset = (uint32)-1;/* Biggest lsn. */
 		ret = 0;
 		goto err; /* We are done. */
 	}
-
 	/*
 	 * Go to the biggest lsn of the dup set, if the key is the last one,
 	 * go to the last one.
 	 */
-	if((ret = __dbc_get(csr, &key, &data, DB_NEXT_NODUP)) != 0 &&
-	    ret != DB_NOTFOUND)
+	if((ret = __dbc_get(csr, &key, &data, DB_NEXT_NODUP)) != 0 && ret != DB_NOTFOUND)
 		goto err;
-
 	if(ret == DB_NOTFOUND)
 		BDBOP(__dbc_get(csr, &key, &data, DB_LAST));
 	else
 		BDBOP(__dbc_get(csr, &key, &data, DB_PREV));
-
 	t2 = (struct __lv_timestamp_info *)data.data;
 	*endlsn = t2->lsn;
 err:

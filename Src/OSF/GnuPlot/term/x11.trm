@@ -317,20 +317,15 @@ int X11_args(int argc, char * argv[])
 {
 	int nx11 = 0, i, n;
 	char ** xargv, ** xargv_orig;
-
 	xargv = xargv_orig = (char**)malloc(argc * sizeof(char *), "<xargv>");
-
-	/* We make a copy of the argument vector because
-	 * argv is modified later. */
+	// We make a copy of the argument vector because argv is modified later. 
 	memcpy(xargv, argv, argc * sizeof(char *));
 	i = parse_driver(X11_command);
-
 	if(persist_cl) {
 		optvec[i++] = "-persist";
 	}
-
 	while(++argv, ++xargv, --argc > 0) {
-		if(!strcmp(*argv, "--persist") || !strncmp(*argv, "-p", 2)) {
+		if(sstreq(*argv, "--persist") || !strncmp(*argv, "-p", 2)) {
 			nx11++;
 			continue;
 		}
@@ -345,7 +340,7 @@ int X11_args(int argc, char * argv[])
 					X11_Display++;
 				if(X11_cmdopts[n].arg == hasArg) {
 					if(--argc <= 0) {
-						free(xargv_orig);
+						SAlloc::F(xargv_orig);
 						return nx11;
 					}
 					optvec[i++] = *++xargv, ++argv;
@@ -353,7 +348,7 @@ int X11_args(int argc, char * argv[])
 				}
 				if(i >= (sizeof(optvec) / sizeof(char))) {
 					fprintf(stderr, "warning: X11 options will be truncated\n");
-					free(xargv_orig);
+					SAlloc::F(xargv_orig);
 					return nx11; /* optvec is full */
 				}
 				nx11++;
@@ -363,7 +358,7 @@ int X11_args(int argc, char * argv[])
 		if(n == X11_nopts)
 			break;
 	}
-	free(xargv_orig);
+	SAlloc::F(xargv_orig);
 	return (nx11);
 }
 
@@ -436,7 +431,7 @@ static void X11_options(GpCommand & rC)
 	bool set_ctrlq = false;
 	bool set_title = false, set_number = false, set_close = false;
 #ifdef EXTERNAL_X11_WINDOW
-	unsigned long existing_X11_window_id = 0;
+	ulong existing_X11_window_id = 0;
 	bool set_window = false;
 #endif
 	char * s;
@@ -525,7 +520,7 @@ static void X11_options(GpCommand & rC)
 				    GpGg.IntErrorCurToken("expecting font name");
 			    if(rC.IsStringValue(rC.CToken) && (s = rC.TryToGetString())) {
 				    strncpy(X11_default_font, s, sizeof(X11_default_font));
-				    free(s);
+				    SAlloc::F(s);
 			    }
 			    else {
 				    rC.CopyStr(X11_default_font, rC.CToken, sizeof(X11_default_font));
@@ -606,7 +601,7 @@ static void X11_options(GpCommand & rC)
 			    if(!(windowid = rC.TryToGetString()))
 				    GpGg.IntErrorCurToken("expecting X window ID as string in hex");
 			    sscanf(windowid, "%lx", &existing_X11_window_id);
-			    free(windowid);
+			    SAlloc::F(windowid);
 			    if(!existing_X11_window_id)
 				    GpGg.IntErrorCurToken("expecting X window ID as string in hex");
 			    if(set_window) duplication = true;
@@ -619,7 +614,7 @@ static void X11_options(GpCommand & rC)
 			    /* Silently ignore these, as they are not yet implemented */
 			    if(rC.Eq("dl") || rC.AlmostEq("dashl$ength")) {
 				    rC.CToken++;
-				    (void)rC.RealExpression();
+				    rC.RealExpression();
 				    break;
 			    }
 			    if(set_number) duplication = true;
@@ -710,7 +705,7 @@ static void X11_options(GpCommand & rC)
 		title = term_options + strlen(term_options);
 		if(rC.IsStringValue(c_title_token) && (s = rC.TryToGetString())) {
 			strncat(term_options, s, sizeof(term_options)-strlen(term_options)-1);
-			free(s);
+			SAlloc::F(s);
 		}
 		else
 			rC.CopyStr(term_options+strlen(term_options), c_title_token, MAX_LINE_LEN-strlen(term_options));
@@ -745,7 +740,7 @@ void x11_raise_terminal_window(int number)
 	}
 }
 
-void x11_raise_terminal_group(void)
+void x11_raise_terminal_group()
 {
 	/* Send just the raise character. */
 	if(X11_ipc) {
@@ -763,7 +758,7 @@ void x11_lower_terminal_window(int number)
 	}
 }
 
-void x11_lower_terminal_group(void)
+void x11_lower_terminal_group()
 {
 	/* Send just the raise character. */
 	if(X11_ipc) {
@@ -776,17 +771,12 @@ static void X11_update_opts()
 {
 	if(!X11_ipc)
 		return;
-
-	if(!strcmp("xlib", term->name))
+	if(sstreq("xlib", term->name))
 		return;
-
-	if(UNSET != do_raise || UNSET != x11_persist ||
-	    UNSET != ctrlq || UNSET != replot_on_resize) {
-		fprintf(X11_ipc, "X %d %d %d %d %d\n",
-		    do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
+	if(UNSET != do_raise || UNSET != x11_persist || UNSET != ctrlq || UNSET != replot_on_resize) {
+		fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
 		fflush(X11_ipc);
 	}
-
 	/* pass size as a valid X11 geometry string WIDTHxHEIGHT[+XPOS+YPOS] */
 	if(set_size != UNSET || set_position != UNSET) {
 		if(set_size != UNSET && set_position == UNSET)
@@ -794,8 +784,7 @@ static void X11_update_opts()
 		else if(set_size == UNSET && set_position != UNSET)
 			fprintf(X11_ipc, "s %+d%+d\n", X11_POSITION_X, X11_POSITION_Y);
 		else if(set_size != UNSET && set_position != UNSET)
-			fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y,
-			    X11_POSITION_X, X11_POSITION_Y);
+			fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y, X11_POSITION_X, X11_POSITION_Y);
 		fflush(X11_ipc);
 	}
 }
@@ -1193,7 +1182,7 @@ static short X11_channel;
 struct iosb {
 	unsigned short stat;
 	unsigned short count;
-	unsigned long info;
+	ulong info;
 };
 
 static void X11_init()
@@ -1338,7 +1327,7 @@ double X11_ymax_saved = -1.0;
 static void X11_graphics()
 {
 #ifdef USE_MOUSE
-	static unsigned long windowid = 0;
+	static ulong windowid = 0;
 #endif
 	static enum set_encoding_id last_encoding = S_ENC_DEFAULT;
 
@@ -1675,7 +1664,7 @@ static int X11_make_palette(t_sm_palette * palette)
 		    gradient_struct * gradient;
 		    gradient = approximate_palette(palette, -1, -1, &cnt);
 		    transmit_gradient(gradient, cnt);
-		    free(gradient);
+		    SAlloc::F(gradient);
 		    break;
 	    }
 		default:
@@ -1694,11 +1683,10 @@ static int X11_make_palette(t_sm_palette * palette)
 
 int char_count[256];
 
-void histogram(unsigned char c) {
-	char_count[c] += 1;
-}
+void histogram(unsigned char c) { char_count[c] += 1; }
 
-void dump_histogram(void) {
+void dump_histogram() 
+{
 	int i, sum;
 	fprintf(stderr, "\n\n");
 	for(i = 0, sum = 0; i<256; i++) {
@@ -1994,7 +1982,7 @@ PASS2:
 	ENHx11_font = "";
 	if(*X11_next_font_used) {
 		int sep = strcspn(X11_next_font_used, ",");
-		free(initial_font);
+		SAlloc::F(initial_font);
 		initial_font = gp_strdup(X11_next_font_used);
 		initial_font[sep] = '\0';
 		sscanf(&(X11_next_font_used[sep+1]), "%lf", &firstpass_fontsize);
@@ -2068,7 +2056,7 @@ static void X11_layer(t_termlayer syncpoint)
 	}
 }
 
-static void X11_send_endianess(void)
+static void X11_send_endianess()
 {
 	/* Place an integer 1 in the pipe and see if the byte order agrees
 	 * with program on the other side.  Information used for routines

@@ -153,7 +153,8 @@ private:
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
-		sfUseWghtSensor = 0x0040  // использовать весовой датчик
+		sfUseWghtSensor = 0x0040, // использовать весовой датчик
+		sfKeepAlive     = 0x0080  // @v10.0.12 Держать установленное соединение с аппаратом 
 	};
 	static int RefToIntrf;
 	int	   Port;            // Номер порта
@@ -216,23 +217,13 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 	return ok;
 }
 
-SLAPI SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port)
+SLAPI SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Port(0), CashierPassword(0),
+	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(sfKeepAlive), 
+	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0)
 {
-	Port			= 0;
-	CashierPassword = 0;
-	AdmPassword     = 0;
-	ResCode         = RESCODE_NO_ERROR;
-	ErrCode         = SYNCPRN_NO_ERROR;
-	CheckStrLen     = DEF_STRLEN;
-	Flags           = 0;
-	RibbonParam     = 0;
-	Inited			= 0;
-	IsSetLogo		= 0;
-	PrintLogo		= 0;
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
 	RefToIntrf++;
-
 	P_AbstrDvc = new PPAbstractDevice(0);
 	P_AbstrDvc->PCpb.Cls = DVCCLS_SYNCPOS;
 	P_AbstrDvc->GetDllName(DVCCLS_SYNCPOS, SCn.CashType, P_AbstrDvc->PCpb.DllName);
@@ -272,80 +263,77 @@ static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const char * str)
 
 int SLAPI SCS_SYNCCASH::Connect()
 {
-//#define DEF_BAUD_RATE		   10	// Скорость обмена по умолчанию 128000 бод
-//#define MAX_BAUD_RATE		   10	// Max скорость обмена 128000 бод
-
 	int    ok = 1;
-	int    model_type = 0;
-	int    major_prot_ver = 0;
-	int    minor_prot_ver = 0;
-	int    not_use_wght_sensor = 0;
-	SString buf, buf1;
-	PPIniFile ini_file;
-	if(Flags & sfConnected) {
-		THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
-		Flags &= ~sfConnected;
+	if(Flags & sfKeepAlive && Flags & sfConnected) {
+		;
 	}
-	ok = 0;
-	if(!Inited) {
-		THROW(ExecOper(DVCCMD_INIT, Arr_In.Z(), Arr_Out));
-	}
-	THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
-	buf.Divide(',', buf1, AdmName);
-	CashierPassword = AdmPassword = buf1.ToLong();
-	AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-	{
-		const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
-		const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
-		static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
-		/*
-			0: cbr2400  1: cbr4800   2: cbr9600    3: cbr14400    4: cbr19200  5: cbr38400  
-			6: cbr56000 7: cbr57600  8: cbr115200  9: cbr128000  10: cbr256000
-		*/
-		//int    def_baud_rate = __def_baud_rate;
-		int    settled_baud_rate = __def_baud_rate;
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
-			SString  buf2;
-			if(buf.Divide(',', buf1, buf2) > 0)
-				settled_baud_rate = buf1.ToLong();
-			if(settled_baud_rate < 0 || settled_baud_rate > __max_baud_rate)
-				settled_baud_rate = __def_baud_rate;
+	else {
+		int    model_type = 0;
+		int    major_prot_ver = 0;
+		int    minor_prot_ver = 0;
+		int    not_use_wght_sensor = 0;
+		SString buf, buf1;
+		PPIniFile ini_file;
+		// @v10.0.12 {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, buf.Z()) > 0 && (buf == "0" || buf.IsEqiAscii("false") || buf.IsEqiAscii("no")))
+			Flags &= ~sfKeepAlive;
+		else
+			Flags |= sfKeepAlive;
+		// } @v10.0.12 
+		if(Flags & sfConnected) {
+			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
+			Flags &= ~sfConnected;
 		}
-		for(uint baud_rate_idx = 0; baud_rate_idx < SIZEOFARRAY(__baud_rate_list); baud_rate_idx++) {
-			int try_baud_rate = __baud_rate_list[baud_rate_idx];
-			if(try_baud_rate != settled_baud_rate) {
-				if(try_baud_rate == -1)
-					try_baud_rate = settled_baud_rate;
-				Arr_In.Z();
-				THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
-				THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, try_baud_rate));
-				ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
-				if(ok == 1) {
-					settled_baud_rate = try_baud_rate;
-					break;
-				}
-				else {
-					THROW(ResCode == RESCODE_NO_CONNECTION);
+		ok = 0;
+		if(!Inited) {
+			THROW(ExecOper(DVCCMD_INIT, Arr_In.Z(), Arr_Out));
+		}
+		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
+		buf.Divide(',', buf1, AdmName);
+		CashierPassword = AdmPassword = buf1.ToLong();
+		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
+		{
+			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
+			const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
+			static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
+			/*
+				0: cbr2400  1: cbr4800   2: cbr9600    3: cbr14400    4: cbr19200  5: cbr38400
+				6: cbr56000 7: cbr57600  8: cbr115200  9: cbr128000  10: cbr256000
+			*/
+			//int    def_baud_rate = __def_baud_rate;
+			int    settled_baud_rate = __def_baud_rate;
+			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
+				SString  buf2;
+				if(buf.Divide(',', buf1, buf2) > 0)
+					settled_baud_rate = buf1.ToLong();
+				if(settled_baud_rate < 0 || settled_baud_rate > __max_baud_rate)
+					settled_baud_rate = __def_baud_rate;
+			}
+			for(uint baud_rate_idx = 0; baud_rate_idx < SIZEOFARRAY(__baud_rate_list); baud_rate_idx++) {
+				int try_baud_rate = __baud_rate_list[baud_rate_idx];
+				if(try_baud_rate != settled_baud_rate) {
+					if(try_baud_rate == -1)
+						try_baud_rate = settled_baud_rate;
+					Arr_In.Z();
+					THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
+					THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, try_baud_rate));
+					ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
+					if(ok == 1) {
+						settled_baud_rate = try_baud_rate;
+						break;
+					}
+					else {
+						THROW(ResCode == RESCODE_NO_CONNECTION);
+					}
 				}
 			}
+			THROW(ok);
+			Flags |= sfConnected;
 		}
-		/*
-		do {
-			Arr_In.Clear();
-			THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
-			THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, def_baud_rate));
-			ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
-			def_baud_rate--;
-			if((ok != 1) && (ResCode != RESCODE_NO_CONNECTION))
-				THROW(ok);
-		} while((ok != 1) && (def_baud_rate >= 0));
-		*/
-		THROW(ok);
-		Flags |= sfConnected;
+		THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
+		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
+		THROW(ExchangeParams());
 	}
-	THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
-	SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
-	THROW(ExchangeParams());
 	CATCH
 		if(Flags & sfConnected) {
 			SetErrorMessage();
@@ -505,8 +493,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		THROW(Connect());
-		if(flags & PRNCHK_LASTCHKANNUL)
+		if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
+		}
 		if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));

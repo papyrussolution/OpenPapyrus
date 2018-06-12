@@ -6197,6 +6197,25 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 	"Data",                 16,  zstring(64), 0,  20, BCO_USERPROC
 	"BridgeId",             17,  zstring(64), 0,  12, BCO_USERPROC // @v10.0.02
 }
+
+browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
+{
+	"IssueDate",             1,  notype, 0, 10
+	"VetForm",               2,  notype, 0, 10
+	"VetType",               3,  notype, 0, 10
+	"VetStatus",             4,  notype, 0, 10
+	"WayBillDate",           5,  notype, 0, 10
+	"WayBillNumber",         6,  notype, 0, 15
+	"From",                  9,  notype, 0, 30
+	"To",                   10,  notype, 0, 30
+	"ProductItem",           7,  notype, 0, 30
+	"Quantity",              8,  notype, 0, 10
+	toolbar TB_FIRST_TOOLBAR {
+		UPDATEITEMS      : kbF5,       TBBM_NOICON,    "@{refresh}\tkbF5"
+		separator
+		CHANGEFILT       : kbCtrlV,    TBBM_FILTER,    "@{filter}\tCtrl-V"
+	}
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -6535,6 +6554,7 @@ cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none 
 cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_TEST              none cmTestTddo2 } // @v9.8.3
 cmd TestVetis             { "@{cmd_testvetis}"                             ICON_TEST              none cmTestVetis } // @v9.8.9
 cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
+cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument } // @v10.0.12
 //
 // -------------- Описания серверных задач
 //
@@ -6703,6 +6723,7 @@ filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
 filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
 filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
 view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
+view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
 //
 // lastviewfilter ATTENTION: New view && filt befor this line!
 //

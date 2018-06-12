@@ -907,7 +907,8 @@ void SLAPI PPLotExtCodeContainer::Release()
 int SLAPI PPLotExtCodeContainer::Add(int rowIdx, const char * pCode, uint * pIdx)
 {
 	int    ok = 1;
-    THROW(rowIdx >= 0 && !isempty(pCode) && !Search(pCode, 0));
+    THROW(rowIdx >= 0 && !isempty(pCode));
+	THROW_PP_S(!Search(pCode, 0), PPERR_DUPLOTEXTCODE, pCode);
 	{
         Item new_item;
         MEMSZERO(new_item);

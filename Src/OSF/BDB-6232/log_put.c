@@ -917,8 +917,7 @@ int __log_flush_int(DB_LOG *dblp, const DB_LSN * lsnp, int release)
 		if(LOG_COMPARE(&lp->t_lsn, &flush_lsn) < 0)
 			lp->t_lsn = flush_lsn;
 		commit->lsn = flush_lsn;
-		SH_TAILQ_INSERT_HEAD(
-			&lp->commits, commit, links, __db_commit);
+		SH_TAILQ_INSERT_HEAD(&lp->commits, commit, links, __db_commit);
 		LOG_SYSTEM_UNLOCK(env);
 		/* Wait here for the in-progress flush to finish. */
 		MUTEX_LOCK_NO_CTR(env, commit->mtx_txnwait);
@@ -932,8 +931,7 @@ int __log_flush_int(DB_LOG *dblp, const DB_LSN * lsnp, int release)
 		 */
 		do_flush = F_ISSET(commit, DB_COMMIT_FLUSH);
 		F_CLR(commit, DB_COMMIT_FLUSH);
-		SH_TAILQ_INSERT_HEAD(
-			&lp->free_commits, commit, links, __db_commit);
+		SH_TAILQ_INSERT_HEAD(&lp->free_commits, commit, links, __db_commit);
 		if(do_flush) {
 			lp->in_flush--;
 			flush_lsn = lp->t_lsn;
@@ -941,7 +939,6 @@ int __log_flush_int(DB_LOG *dblp, const DB_LSN * lsnp, int release)
 		else
 			return 0;
 	}
-
 	/*
 	 * Protect flushing with its own mutex so we can release
 	 * the region lock except during file switches.
@@ -1038,15 +1035,13 @@ done:
 		SH_TAILQ_FOREACH(commit, &lp->commits, links, __db_commit)
 		if(LOG_COMPARE(&lp->s_lsn, &commit->lsn) > 0) {
 			MUTEX_UNLOCK_NO_CTR(env, commit->mtx_txnwait);
-			SH_TAILQ_REMOVE(
-				&lp->commits, commit, links, __db_commit);
+			SH_TAILQ_REMOVE(&lp->commits, commit, links, __db_commit);
 			ncommit++;
 		}
 		else if(first == 1) {
 			F_SET(commit, DB_COMMIT_FLUSH);
 			MUTEX_UNLOCK_NO_CTR(env, commit->mtx_txnwait);
-			SH_TAILQ_REMOVE(
-				&lp->commits, commit, links, __db_commit);
+			SH_TAILQ_REMOVE(&lp->commits, commit, links, __db_commit);
 			/*
 			 * This thread will wake and flush.
 			 * If another thread commits and flushes

@@ -1570,12 +1570,10 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 	}
 #ifdef HAVE_STATISTICS
 	if(td->slice_details != INVALID_ROFF) {
-		__env_alloc_free(&mgr->reginfo,
-		    R_ADDR(&mgr->reginfo, td->slice_details));
+		__env_alloc_free(&mgr->reginfo, R_ADDR(&mgr->reginfo, td->slice_details));
 		td->slice_details = INVALID_ROFF;
 	}
 #endif
-
 	if(txn->parent != NULL) {
 		ptd = (TXN_DETAIL *)txn->parent->td;
 		SH_TAILQ_REMOVE(&ptd->kids, td, klinks, __txn_detail);
@@ -1583,9 +1581,7 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 	else if((mvcc_mtx = td->mvcc_mtx) != MUTEX_INVALID) {
 		MUTEX_LOCK(env, mvcc_mtx);
 		if(td->mvcc_ref != 0) {
-			SH_TAILQ_INSERT_HEAD(&region->mvcc_txn,
-			    td, links, __txn_detail);
-
+			SH_TAILQ_INSERT_HEAD(&region->mvcc_txn, td, links, __txn_detail);
 			/*
 			 * The transaction has been added to the list of
 			 * committed snapshot transactions with active pages.
@@ -1593,13 +1589,10 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 			 */
 			F_SET(td, TXN_DTL_SNAPSHOT);
 #ifdef HAVE_STATISTICS
-			STAT_INC(env, txn,
-			    nsnapshot, region->stat.st_nsnapshot, txn->txnid);
+			STAT_INC(env, txn, nsnapshot, region->stat.st_nsnapshot, txn->txnid);
 			if(region->stat.st_nsnapshot >
 			    region->stat.st_maxnsnapshot)
-				STAT_SET(env, txn, maxnsnapshot,
-				    region->stat.st_maxnsnapshot,
-				    region->stat.st_nsnapshot, txn->txnid);
+				STAT_SET(env, txn, maxnsnapshot, region->stat.st_maxnsnapshot, region->stat.st_nsnapshot, txn->txnid);
 #endif
 			td = NULL;
 		}
@@ -1608,36 +1601,27 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 			if((ret = __mutex_free(env, &td->mvcc_mtx)) != 0)
 				return (__env_panic(env, ret));
 	}
-
 	if(td != NULL)
 		__env_alloc_free(&mgr->reginfo, td);
-
 #ifdef HAVE_STATISTICS
 	if(is_commit)
-		STAT_INC(env,
-		    txn, ncommits, region->stat.st_ncommits, txn->txnid);
+		STAT_INC(env, txn, ncommits, region->stat.st_ncommits, txn->txnid);
 	else
-		STAT_INC(env,
-		    txn, naborts, region->stat.st_naborts, txn->txnid);
+		STAT_INC(env, txn, naborts, region->stat.st_naborts, txn->txnid);
 	STAT_DEC(env, txn, nactive, region->stat.st_nactive, txn->txnid);
 #endif
-
 	/* Increment bulk transaction counter while holding transaction lock. */
 	if(F_ISSET(txn, TXN_BULK))
 		((DB_TXNREGION*)env->tx_handle->reginfo.primary)->n_bulk_txn--;
-
 	TXN_SYSTEM_UNLOCK(env);
-
 	/*
 	 * The transaction cannot get more locks, remove its locker info,
 	 * if any.
 	 */
-	if(LOCKING_ON(env) && (ret =
-	    __lock_freelocker(env->lk_handle, txn->locker)) != 0)
+	if(LOCKING_ON(env) && (ret = __lock_freelocker(env->lk_handle, txn->locker)) != 0)
 		return (__env_panic(env, ret));
 	if(txn->parent != NULL)
 		TAILQ_REMOVE(&txn->parent->kids, txn, klinks);
-
 	/* Free the space. */
 	while((lr = STAILQ_FIRST(&txn->logs)) != NULL) {
 		STAILQ_REMOVE(&txn->logs, lr, __txn_logrec, links);
@@ -1647,21 +1631,17 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 		__os_free(env, txn->name);
 		txn->name = NULL;
 	}
-
 	/*
 	 * Free the transaction structure if we allocated it and if we are
 	 * not in an XA transaction that will be freed when we exit the XA
 	 * wrapper routines.
 	 */
-	if(F_ISSET(txn, TXN_MALLOC) &&
-	    txn->xa_thr_status != TXN_XA_THREAD_ASSOCIATED) {
+	if(F_ISSET(txn, TXN_MALLOC) && txn->xa_thr_status != TXN_XA_THREAD_ASSOCIATED) {
 		MUTEX_LOCK(env, mgr->mutex);
 		TAILQ_REMOVE(&mgr->txn_chain, txn, links);
 		MUTEX_UNLOCK(env, mgr->mutex);
-
 		__os_free(env, txn);
 	}
-
 	if(do_closefiles) {
 		/*
 		 * Otherwise, we have resolved the last outstanding prepared
@@ -1674,10 +1654,8 @@ static int __txn_end(DB_TXN *txn, int is_commit)
 			F_CLR(env->rep_handle, DBREP_OPENFILES);
 		F_CLR(env->lg_handle, DBLOG_OPENFILES);
 		mgr->n_discards = 0;
-		(void)__txn_checkpoint(env, 0, 0,
-		    DB_CKP_INTERNAL | DB_FORCE);
+		(void)__txn_checkpoint(env, 0, 0, DB_CKP_INTERNAL | DB_FORCE);
 	}
-
 	return 0;
 }
 
@@ -1701,20 +1679,15 @@ static int __txn_dispatch_undo(ENV *env, DB_TXN * txn, DBT * rdbt, DB_LSN * key_
 static int __txn_undo(DB_TXN *txn)
 {
 	DBT rdbt;
-	DB_LOGC * logc;
+	DB_LOGC * logc = 0;
 	DB_LSN key_lsn;
 	DB_TXN * ptxn;
-	DB_TXNHEAD * txnlist;
+	DB_TXNHEAD * txnlist = 0;
 	DB_TXNLOGREC * lr;
-	DB_TXNMGR * mgr;
-	ENV * env;
-	int ret, t_ret;
-
-	mgr = txn->mgrp;
-	env = mgr->env;
-	logc = NULL;
-	txnlist = NULL;
-	ret = 0;
+	int t_ret;
+	DB_TXNMGR * mgr = txn->mgrp;
+	ENV * env = mgr->env;
+	int ret = 0;
 	if(!LOGGING_ON(env))
 		return 0;
 	/*

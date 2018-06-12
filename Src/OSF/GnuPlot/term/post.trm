@@ -100,39 +100,39 @@ static void PS_linetype(int linetype);
 static void PS_dashtype __PROTO((int type, t_dashtype *custom_dash_type));
 static void PS_move(uint x, uint y);
 static void PS_vector(uint x, uint y);
-static void PS_put_text __PROTO((uint x, uint y, const char * str));
+static void PS_put_text(uint x, uint y, const char * str);
 static int PS_text_angle(int ang);
-static int PS_justify_text __PROTO((enum JUSTIFY mode));
-static void PS_point __PROTO((uint x, uint y, int number));
+static int PS_justify_text(enum JUSTIFY mode);
+static void PS_point(uint x, uint y, int number);
 static void PS_arrow __PROTO(( uint sx, uint sy, uint ex, uint ey, int head));
-static int PS_set_font __PROTO((const char* font));
-static void PS_fillbox __PROTO((int style, uint x1, uint y1, uint width, uint height));
-static void PS_linewidth __PROTO((double linewidth)); /* JFi [linewidth] */
-static void PS_pointsize __PROTO((double ptsize)); /* JFi [pointsize] */
+static int PS_set_font(const char * font);
+static void PS_fillbox(int style, uint x1, uint y1, uint width, uint height);
+static void PS_linewidth(double linewidth); /* JFi [linewidth] */
+static void PS_pointsize(double ptsize); /* JFi [pointsize] */
 static int PS_make_palette(t_sm_palette *);
-static void PS_previous_palette(void);
+static void PS_previous_palette();
 static void PS_set_color(t_colorspec *);
 static void PS_filled_polygon(int, gpiPoint *);
 static void PS_image __PROTO((uint, uint, double *, gpiPoint *, t_imagecolor));
 
 /* To support "set term post enhanced" */
-static void ENHPS_put_text __PROTO((uint x, uint y, const char * str));
-static int ENHPS_set_font __PROTO((const char* font));
-static void ENHPS_OPEN __PROTO((char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint));
+static void ENHPS_put_text(uint x, uint y, const char * str);
+static int ENHPS_set_font(const char * font);
+static void ENHPS_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 static void ENHPS_FLUSH();
-static void ENHPS_WRITEC __PROTO((int c));
+static void ENHPS_WRITEC(int c);
 static void PS_RememberFont __PROTO((char* fname));
 
 static char * PS_escape_string __PROTO((char * origstr, char * escapelist));
 
-static void PS_path __PROTO((int p));
+static void PS_path(int p);
 static bool PS_newpath = false;
 static bool ENHps_opened_string = false;  /* try to cut out empty ()'s */
 
-static void PS_layer __PROTO((t_termlayer syncpoint));
+static void PS_layer(t_termlayer syncpoint);
 
 #ifdef EAM_BOXED_TEXT
-static void ENHPS_boxed_text __PROTO((uint, uint, int));
+static void ENHPS_boxed_text(uint, uint, int);
 #endif
 
 #endif /* TERM_PROTO */
@@ -262,9 +262,9 @@ static void make_color_model_code();
 static char * save_space __PROTO((double gray));
 static void write_component_array __PROTO((const char * text, gradient_struct *grad, int cnt, int offset));
 static void write_gradient_definition __PROTO((gradient_struct *gradient, int cnt));
-static void write_color_space __PROTO((t_sm_palette *palette));
+static void write_color_space(t_sm_palette * palette);
 static void make_palette_formulae();
-static void PS_make_header __PROTO((t_sm_palette *palette));
+static void PS_make_header(t_sm_palette * palette);
 static void PS_skip_image __PROTO((int bytes, int x0, int y0, int dx, int dy));
 #ifndef GNUPLOT_PS_DIR
 static void PS_dump_header_to_file __PROTO((char* name));
@@ -752,7 +752,7 @@ static void PS_options(GpCommand & rC)
 				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_epslheader = true;
 			    ++rC.CToken;
-			    free(epslatex_header);
+			    SAlloc::F(epslatex_header);
 			    /* Protect against int_error() bail from rC.TryToGetString() */
 			    epslatex_header = NULL;
 			    epslatex_header = rC.TryToGetString();
@@ -764,7 +764,7 @@ static void PS_options(GpCommand & rC)
 			    if(set_epslheader || ps_params->terminal != PSTERM_EPSLATEX)
 				    GpGg.IntErrorCurToken("extraneous argument in set terminal %s", term->name);
 			    set_epslheader = true;
-			    free(epslatex_header);
+			    SAlloc::F(epslatex_header);
 			    epslatex_header = NULL;
 			    ++rC.CToken;
 			    break;
@@ -1098,7 +1098,7 @@ static void PS_options(GpCommand & rC)
 						    ps_params->font[sizeof(ps_params->font)-1] = '\0';
 						    strncpy(ps_params->font, s, sizeof(ps_params->font)-1);
 					    }
-					    free(s);
+					    SAlloc::F(s);
 				    }
 				    else
 					    GpGg.IntError(rC.CToken-1, "terminal %s does not allow specification %s", term->name, "of font name");
@@ -1234,7 +1234,7 @@ static void PS_options(GpCommand & rC)
 		sprintf(tmp_term_options, "%g ", ps_params->fontsize);
 	else
 		tmp_term_options[0] = '\0';
-	free(ps_fontfile_char);
+	SAlloc::F(ps_fontfile_char);
 	strcat(term_options, tmp_term_options);
 	sprintf(tmp_term_options, " fontscale %3.1f ", ps_params->fontscale);
 	strcat(term_options, tmp_term_options);
@@ -1316,7 +1316,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 				GpGg.IntErrorNoCaret("Could not execute pipe '%s'", current_ps_fontfile->fontfile_name + 1);
 #endif
 		}
-		else if(!strcmp(ext, "ttf") || !strcmp(ext, "otf")) {
+		else if(sstreq(ext, "ttf") || sstreq(ext, "otf")) {
 			/* TrueType */
 #if defined(PIPES)
 			restrict_popen();
@@ -1449,7 +1449,7 @@ static void PS_load_fontfile(struct ps_fontfile_def * current_ps_fontfile, bool 
 		}
 
 		if(fontname) {
-			free(fontname);
+			SAlloc::F(fontname);
 			fontname = NULL;
 		}
 	}
@@ -1679,9 +1679,9 @@ end\n\
 		char * outstr2 = PS_escape_string(outstr, "()\\");
 		fprintf(gppsfile, psi3, outstr2 ? outstr2 : "",
 		    gnuplot_version, gnuplot_patchlevel, username2 ? username2 : "", timedate);
-		free(username);
-		free(username2);
-		free(outstr2);
+		SAlloc::F(username);
+		SAlloc::F(username2);
+		SAlloc::F(outstr2);
 	}
 #ifdef EAM_BOXED_TEXT
 	/* Define macros supporting boxed text */
@@ -1849,8 +1849,8 @@ static void PS_reset()
 
 			fnp = PS_DocFonts->next;
 			fprintf(gppsfile, "%s%s", PS_DocFonts->name, fnp ? " " : "\n");
-			free(PS_DocFonts->name);
-			free(PS_DocFonts);
+			SAlloc::F(PS_DocFonts->name);
+			SAlloc::F(PS_DocFonts);
 			PS_DocFonts = fnp;
 		}
 	}
@@ -2196,7 +2196,7 @@ static int PS_set_font(const char * font)
 			fprintf(gppsfile, "/vshift %d def\n", -(int)((size*PS_SCF)/3.));
 		ps_fontsize_previous = size;
 	}
-	free(name);
+	SAlloc::F(name);
 
 	term->VChr = (uint)(size*PS_SCF);
 	term->HChr = (uint)(size*PS_SCF*6/10);
@@ -2370,7 +2370,7 @@ static void ENHPS_OPEN(char * fontname,
 
 	if(!ENHps_opened_string) {
 		int safelen = strlen(fontname) + 40;
-		free(ENHps_opensequence);
+		SAlloc::F(ENHps_opensequence);
 		ENHps_opensequence = (char*)malloc(safelen);
 		if(!fontname || !*fontname)
 			fontname = ps_enh_font;
@@ -2840,7 +2840,7 @@ static void PS_make_header(t_sm_palette * palette)
 		    gradient = approximate_palette(palette, ps_params->palfunc_samples,
 			    ps_params->palfunc_deviation, &cnt);
 		    write_gradient_definition(gradient, cnt);
-		    free(gradient);
+		    SAlloc::F(gradient);
 		    break;
 	    }
 		case SMPAL_COLOR_MODE_GRADIENT:
@@ -3072,10 +3072,10 @@ static void delete_ps_fontfile(struct ps_fontfile_def * prev, struct ps_fontfile
 		else            /* pThis = ps_params->first_fontfile */
 			        /* so change ps_params->first_fontfile */
 			ps_params->first_fontfile = pThis->next;
-		free(pThis->fontfile_name);
-		free(pThis->fontfile_fullname);
-		free(pThis->fontname);
-		free(pThis);
+		SAlloc::F(pThis->fontfile_name);
+		SAlloc::F(pThis->fontfile_fullname);
+		SAlloc::F(pThis->fontname);
+		SAlloc::F(pThis);
 		pThis = NULL;
 	}
 }
@@ -3331,7 +3331,7 @@ static void write_png_image_to_buffer(unsigned M, unsigned N, double * image, t_
 	    (cairo_write_func_t)write_png_data_to_buffer,
 	    png_buffer);
 	cairo_surface_destroy(image_surface);
-	free(image255);
+	SAlloc::F(image255);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
 		GpGg.IntErrorNoCaret("GNUPLOT(post.trm): could not write cairo png image to buffer: %s.",
 		    cairo_status_to_string(cairo_stat));
@@ -3368,7 +3368,7 @@ static uchar * PS_encode_png_image(uint M, uint N, double * image,
 	encoded_image_tmp = png_buffer.buffer;
 	*return_num_bytes = png_extract_idat_chunks(encoded_image_tmp, png_buffer.size);
 	if(*return_num_bytes == 0) {
-		free(encoded_image_tmp);
+		SAlloc::F(encoded_image_tmp);
 		encoded_image_tmp = NULL;
 		return encoded_image_tmp;
 	}
@@ -3419,7 +3419,7 @@ static uchar * PS_encode_png_image(uint M, uint N, double * image,
 			}
 		}
 	}
-	free(encoded_image_tmp);
+	SAlloc::F(encoded_image_tmp);
 	sprintf((char*)(encoded_image_ptr), "~>");
 	encoded_image_ptr += 2;
 	*return_num_bytes = encoded_image_ptr - encoded_image;
@@ -3851,7 +3851,7 @@ static void PS_image(uint M, uint N, double * image, gpiPoint * corner, t_imagec
 	}
 	fputs("grestore\n", gppsfile);
 	fputs("%%%%EndImage\n", gppsfile);
-	free(encoded_image);
+	SAlloc::F(encoded_image);
 
 	return;
 }
@@ -3918,7 +3918,7 @@ static FILE * PS_open_prologue_file(char * name)
 		strcpy(fullname, PS_psdir);
 		PATH_CONCAT(fullname, name);
 		prologue_fd = fopen(fullname, "r");
-		free(fullname);
+		SAlloc::F(fullname);
 	}
 
 	/* Second try environmental variable GNUPLOT_PS_DIR */
@@ -3927,7 +3927,7 @@ static FILE * PS_open_prologue_file(char * name)
 		strcpy(fullname, ps_prologue_env);
 		PATH_CONCAT(fullname, name);
 		prologue_fd = fopen(fullname, "r");
-		free(fullname);
+		SAlloc::F(fullname);
 	}
 #ifndef GNUPLOT_PS_DIR
 	/* We should have a built-in copy of the headers */
@@ -3942,10 +3942,10 @@ static FILE * PS_open_prologue_file(char * name)
 		strcpy(fullname, ps_prologue_dir);
 		PATH_CONCAT(fullname, name);
 		prologue_fd = fopen(fullname, "r");
-		free(fullname);
+		SAlloc::F(fullname);
 	}
 
-	free(ps_prologue_dir);
+	SAlloc::F(ps_prologue_dir);
 
 	/* Last-gasp effort: look in loadpath directories */
 	if(!prologue_fd)
@@ -3968,33 +3968,32 @@ static void PS_dump_header_to_file(char * name)
 {
 	const char ** dump = NULL;
 	int i;
-
 	/* load from included header */
-	if(!strcmp(name, "8859-15.ps"))
+	if(sstreq(name, "8859-15.ps"))
 		dump = prologue_8859_15_ps;
-	else if(!strcmp(name, "8859-1.ps"))
+	else if(sstreq(name, "8859-1.ps"))
 		dump = prologue_8859_1_ps;
-	else if(!strcmp(name, "8859-2.ps"))
+	else if(sstreq(name, "8859-2.ps"))
 		dump = prologue_8859_2_ps;
-	else if(!strcmp(name, "8859-9.ps"))
+	else if(sstreq(name, "8859-9.ps"))
 		dump = prologue_8859_9_ps;
-	else if(!strcmp(name, "cp1250.ps"))
+	else if(sstreq(name, "cp1250.ps"))
 		dump = prologue_cp1250_ps;
-	else if(!strcmp(name, "cp1251.ps"))
+	else if(sstreq(name, "cp1251.ps"))
 		dump = prologue_cp1251_ps;
-	else if(!strcmp(name, "cp437.ps"))
+	else if(sstreq(name, "cp437.ps"))
 		dump = prologue_cp437_ps;
-	else if(!strcmp(name, "cp850.ps"))
+	else if(sstreq(name, "cp850.ps"))
 		dump = prologue_cp850_ps;
-	else if(!strcmp(name, "cp852.ps"))
+	else if(sstreq(name, "cp852.ps"))
 		dump = prologue_cp852_ps;
-	else if(!strcmp(name, "koi8r.ps"))
+	else if(sstreq(name, "koi8r.ps"))
 		dump = prologue_koi8r_ps;
-	else if(!strcmp(name, "koi8u.ps"))
+	else if(sstreq(name, "koi8u.ps"))
 		dump = prologue_koi8u_ps;
-	else if(!strcmp(name, "utf-8.ps"))
+	else if(sstreq(name, "utf-8.ps"))
 		dump = prologue_utf_8_ps;
-	else if(!strcmp(name, "prologue.ps"))
+	else if(sstreq(name, "prologue.ps"))
 		dump = prologue_prologue_ps;
 	else
 		IntWarn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);

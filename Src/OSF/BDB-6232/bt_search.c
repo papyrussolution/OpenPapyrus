@@ -118,17 +118,13 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 		(void)__LPUT(dbc, lock);
 		return ret;
 	}
-	DB_ASSERT(dbp->env, TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO ||
-	    TYPE(h) == P_LBTREE || TYPE(h) == P_LRECNO || TYPE(h) == P_LDUP);
-
+	DB_ASSERT(dbp->env, TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || TYPE(h) == P_LBTREE || TYPE(h) == P_LRECNO || TYPE(h) == P_LDUP);
 	/*
 	 * Decide if we need to dirty and/or lock this page.
 	 * We must not hold the latch while we get the lock.
 	 */
-	if(!*stack &&
-	    ((LF_ISSET(SR_PARENT) && (uint8)(slevel + 1) >= LEVEL(h)) ||
-	    LEVEL(h) == LEAFLEVEL ||
-	    (LF_ISSET(SR_START) && slevel == LEVEL(h)))) {
+	if(!*stack && ((LF_ISSET(SR_PARENT) && (uint8)(slevel + 1) >= LEVEL(h)) ||
+	    LEVEL(h) == LEAFLEVEL || (LF_ISSET(SR_START) && slevel == LEVEL(h)))) {
 		*stack = 1;
 		/* If we already have the write lock, we are done. */
 		if(dbc->dbtype == DB_RECNO || F_ISSET(cp, C_RECNUM)) {

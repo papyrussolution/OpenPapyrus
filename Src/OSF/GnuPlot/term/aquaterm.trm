@@ -182,7 +182,7 @@ static void AQUA_options(GpCommand & rC)
 			if(!(s = rC.TryToGetString()))
 				GpGg.IntErrorCurToken("fname: expecting plot title");
 			strncpy(AQUA_title, s, sizeof(AQUA_title));
-			free(s);
+			SAlloc::F(s);
 			continue;
 		}
 
@@ -220,7 +220,7 @@ static void AQUA_options(GpCommand & rC)
 				*comma = '\0';
 			if(*s)
 				strncpy(AQUA_fontNameCur, s, sizeof(AQUA_fontNameCur));
-			free(s);
+			SAlloc::F(s);
 			continue;
 		}
 
@@ -804,7 +804,7 @@ static void AQUA_image(uint M, uint N, double * image, gpiPoint * corner, t_imag
 		[adapter addImageWithBitmap : bitmap
 		    size : NSMakeSize(M, N)
 		    bounds : NSMakeRect(xPos, yPos, width, height)];
-		free(bitmap);
+		SAlloc::F(bitmap);
 	}
 	return;
 }

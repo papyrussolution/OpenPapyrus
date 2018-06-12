@@ -53,8 +53,7 @@ static int __bam_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 		 * None of them are known to be a problem, but this
 		 * assert should be re-activated when the Btree stack
 		 * code is re-written.
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) ||cp->lock_mode != DB_LOCK_NG);
 		 */
 		if(del) {
 			F_SET(cp, C_DELETED);
@@ -66,7 +65,6 @@ static int __bam_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 		}
 		else
 			F_CLR(cp, C_DELETED);
-
 #ifdef HAVE_COMPRESSION
 		/*
 		 * We also set the C_COMPRESS_MODIFIED flag, which
@@ -84,19 +82,16 @@ static int __bam_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 		 */
 		F_SET(cp, C_COMPRESS_MODIFIED);
 #endif
-
 		++(*countp);
 	}
 	return 0;
 }
-
 /*
  * __bam_ca_delete --
  *	Update the cursors when items are deleted and when already deleted
  *	items are overwritten.  Return the number of relevant cursors found.
  *
- * PUBLIC: int __bam_ca_delete __P((DB *,
- * PUBLIC:     db_pgno_t, uint32, int, uint32 *));
+ * PUBLIC: int __bam_ca_delete(DB *, db_pgno_t, uint32, int, uint32 *);
  */
 int __bam_ca_delete(DB *dbp, db_pgno_t pgno, uint32 indx, int del, uint32 * countp)
 {
@@ -131,12 +126,11 @@ static int __ram_ca_delete_func(DBC *dbc, DBC *my_dbc, uint32 * countp, db_pgno_
 	}
 	return 0;
 }
-
 /*
  * __ram_ca_delete --
  *	Return if any relevant cursors found.
  *
- * PUBLIC: int __ram_ca_delete __P((DB *, db_pgno_t, uint32 *));
+ * PUBLIC: int __ram_ca_delete(DB *, db_pgno_t, uint32 *);
  */
 int __ram_ca_delete(DB *dbp, db_pgno_t root_pgno, uint32 * foundp)
 {
@@ -163,8 +157,7 @@ static int __bam_ca_di_func(DBC *dbc, DBC *my_dbc, uint32 * foundp, db_pgno_t pg
 		/* Cursor indices should never be negative. */
 		DB_ASSERT(dbc->dbp->env, cp->indx != 0 || args->adjust > 0);
 		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
+		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 		 */
 		cp->indx += args->adjust;
 		if(args->my_txn != NULL && args->my_txn != dbc->txn)
@@ -375,10 +368,7 @@ static int __bam_ca_rsplit_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno
 	tpgno = *(db_pgno_t*)args;
 	if(dbc->internal->pgno == fpgno && !MVCC_SKIP_CURADJ(dbc, fpgno)) {
 		dbc->internal->pgno = tpgno;
-		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    dbc->internal->lock_mode != DB_LOCK_NG);
-		 */
+		/* [#8032] DB_ASSERT(env, !STD_LOCKING(dbc) || dbc->internal->lock_mode != DB_LOCK_NG); */
 		if(IS_SUBTRANSACTION(my_dbc->txn) && dbc->txn != my_dbc->txn)
 			*foundp = 1;
 	}
@@ -421,10 +411,7 @@ static int __bam_ca_split_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_
 	cp = dbc->internal;
 	args = (struct __bam_ca_split_args *)vargs;
 	if(cp->pgno == ppgno && !MVCC_SKIP_CURADJ(dbc, ppgno)) {
-		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) ||
-		    cp->lock_mode != DB_LOCK_NG);
-		 */
+		/* [#8032] DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG); */
 		if(args->my_txn != NULL && args->my_txn != dbc->txn)
 			*foundp = 1;
 		if(cp->indx < split_indx) {
@@ -438,13 +425,11 @@ static int __bam_ca_split_func(DBC *dbc, DBC * my_dbc, uint32 * foundp, db_pgno_
 	}
 	return 0;
 }
-
 /*
  * __bam_ca_split --
  *	Adjust the cursors when splitting a page.
  *
- * PUBLIC: int __bam_ca_split __P((DBC *,
- * PUBLIC:    db_pgno_t, db_pgno_t, db_pgno_t, uint32, int));
+ * PUBLIC: int __bam_ca_split(DBC *, db_pgno_t, db_pgno_t, db_pgno_t, uint32, int);
  */
 int __bam_ca_split(DBC *my_dbc, db_pgno_t ppgno, db_pgno_t lpgno, db_pgno_t rpgno, uint32 split_indx, int cleft)
 {

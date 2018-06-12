@@ -85,21 +85,20 @@ static void TGIF_init();
 static void TGIF_reset();
 static void TGIF_text();
 static void TGIF_graphics();
-static void TGIF_move __PROTO((uint ux, uint uy));
-static void TGIF_vector __PROTO((uint ux, uint uy));
+static void TGIF_move(uint ux, uint uy);
+static void TGIF_vector(uint ux, uint uy);
 static void TGIF_linetype(int linetype);
-static void TGIF_put_text __PROTO((uint ux, uint uy, const char * str)); /* ref point and text */
+static void TGIF_put_text(uint ux, uint uy, const char * str); /* ref point and text */
 static int TGIF_text_angle(int ang);
-static int TGIF_justify_text __PROTO((enum JUSTIFY mode));
-static void TGIF_point __PROTO((uint ux, uint uy, int number));
-static int TGIF_set_font __PROTO((const char* font));
+static int TGIF_justify_text(enum JUSTIFY mode);
+static void TGIF_point(uint ux, uint uy, int number);
+static int TGIF_set_font(const char * font);
 static void TGIF_set_pointsize(double size);
 static void TGIF_set_linewidth(double size);
 static int TGIF_make_palette(t_sm_palette *);
-static void TGIF_previous_palette(void);
+static void TGIF_previous_palette();
 static void TGIF_set_color(t_colorspec *);
-static void TGIF_fillbox(int style, uint x1, uint y1,
-    uint width, uint height);
+static void TGIF_fillbox(int style, uint x1, uint y1, uint width, uint height);
 static void TGIF_FillSolid(char * curcolor, int fillpar);
 static void TGIF_filled_polygon(int, gpiPoint *);
 /*}}}  */
@@ -371,7 +370,7 @@ static void TGIF_options(GpCommand & rC)
 					    sActFont[sep] = NUL;
 				    }
 				    strcpy(sDefaultFont, sActFont);
-				    free(s);
+				    SAlloc::F(s);
 			    }
 			    else if(option == TGIF_FONT) {
 				    GpGg.IntErrorCurToken("Expecting font name ");
@@ -1780,10 +1779,7 @@ static int TGIF_make_palette(t_sm_palette * palette)
 	/* can do continuous colors */
 }
 
-static void TGIF_previous_palette(void)
-{
-	/* do nothing */
-}
+static void TGIF_previous_palette() {}
 
 static void TGIF_set_color(t_colorspec * colorspec)
 {

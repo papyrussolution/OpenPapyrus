@@ -92,16 +92,16 @@ static void PSTRICKS_graphics();
 static void PSTRICKS_text();
 static void PSTRICKS_linetype(int linetype);
 static void PSTRICKS_move(uint x, uint y);
-static void PSTRICKS_point __PROTO((uint x, uint y, int number));
-static void PSTRICKS_vector __PROTO((uint ux, uint uy));
-static void PSTRICKS_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
-static void PSTRICKS_put_text __PROTO((uint x, uint y, const char str[]));
-static int PSTRICKS_justify_text __PROTO((enum JUSTIFY mode));
+static void PSTRICKS_point(uint x, uint y, int number);
+static void PSTRICKS_vector(uint ux, uint uy);
+static void PSTRICKS_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+static void PSTRICKS_put_text(uint x, uint y, const char str[]);
+static int PSTRICKS_justify_text(enum JUSTIFY mode);
 static int PSTRICKS_text_angle(int ang);
 static void PSTRICKS_reset();
 static int PSTRICKS_make_palette __PROTO((t_sm_palette*));
 static void PSTRICKS_set_color __PROTO((t_colorspec*));
-static void PSTRICKS_filled_polygon __PROTO((int, gpiPoint *));
+static void PSTRICKS_filled_polygon(int, gpiPoint *);
 
 #define PSTRICKS_XMAX 10000.0
 #define PSTRICKS_YMAX 10000.0
@@ -404,32 +404,24 @@ static void PSTRICKS_arrow(uint sx, uint sy,
 
 static char * PSTRICKS_hack_text(const char * s)
 {
-	double value;
 	char * ends;
 	static char hack[BUFSIZ];
-
 	/*
 	 * Does the string start with a number?
 	 */
-
-	value = strtod(s, &ends);
-	(void)value;
-
+	double value = strtod(s, &ends);
 	if(s == ends) {
 		/*
 		 * This doesn't start a number, so just copy the string over
 		 */
-
 		strcpy(hack, s);
 	}
 	else {
 		char * ptr;
-
 		/*
 		 * We have a number!  Check to see if the number
 		 * is in scientific notation
 		 */
-
 		strnzcpy(hack, s, ends - s + 1);
 		/* hack[ends - s] = '\0'; */
 

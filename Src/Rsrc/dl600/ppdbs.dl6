@@ -1393,10 +1393,10 @@ file:
 //
 table LotExtCode {
 	long   LotID;
-	long   BillID;   // @v9.8.11
-	int16  RByBill;  // @v9.8.11
-	int16  Sign;     // @v9.8.11 +1 - приход, -1 - расход, 0 - не определено (или по контексту)
-	string Code[80]; // @v9.8.11 [96]-->[90]
+	long   BillID;    // @v9.8.11
+	int16  RByBill;   // @v9.8.11
+	int16  Sign;      // @v9.8.11 +1 - приход, -1 - расход, 0 - не определено (или по контексту)
+	string Code[156]; // @v9.8.11 [96]-->[80] // @v10.0.12 [80]-->[156]
 index:
 	LotID, BillID, RByBill, Code (unique mod);
 	Code, BillID, RByBill (unique mod);
@@ -1494,16 +1494,21 @@ file:
 
 table VetisProduct {
 	long   EntityID;
+	long   LinkGoodsID;  // ->Goods.ID
 	long   ProductType;
 	long   ProductID;    // для ProductItem
 	long   SubProductID; // для ProductItem
     long   ProducerLocID;
     long   GostTRef;     // @selfreftext
-	raw    Reserve[128];
+    string GTIN[16];
+    string ArCode[24];   // Артикул
+	raw    Reserve[88];
 index:
 	EntityID (unique);
+	LinkGoodsID (dup mod);
 	ProductID (dup mod anysegnull);
 	SubProductID (dup mod anysegnull);
+	GTIN (dup mod anysegnull);
 file:
 	"vetisprd.btr";
 	access=1;
@@ -1511,14 +1516,16 @@ file:
 
 table VetisPerson {
 	long   EntityID;
+	long   LinkPersonID;   // ->Person.ID
 	long   EnterpriseType;
-	long   CountryID; // -->VetisEntity.ID
-	long   RegionID;  // -->VetisEntity.ID
-	char   INN[16];
-	char   KPP[16];
+	long   CountryID;      // ->VetisEntity.ID
+	long   RegionID;       // ->VetisEntity.ID
+	string INN[16];
+	string KPP[16];
 	raw    Reserve[128];
 index:
 	EntityID (unique);
+	LinkPersonID (dup mod);
 	INN (dup mod);
 file:
 	"vetispsn.btr";
@@ -1527,18 +1534,25 @@ file:
 
 table VetisDocument {
 	long   EntityID;
-    date   IssueDate;
-    long   VetisDocForm;
-    long   VetisDocType;
-    long   VetisDocStatus;
-    long   FromEntityID;     // -->VetisEntity.ID
-    long   FromEnterpriseID; // -->VetisEntity.ID
-    long   ToEntityID;       // -->VetisEntity.ID
-    long   ToEnterpriseID;   // -->VetisEntity.ID
-    long   ProductID;        // -->VetisEntity.ID
-    long   SubProductID;     // -->VetisEntity.ID
-    long   OrgCountryID;     // -->VetisEntity.ID Страна происхождения продукта
-    long   UOMID;            // -->VetisEntity.ID
+	long   LinkBillID;
+	int16  LinkBillRow;
+    int16  VetisDocForm;
+    int16  VetisDocType;
+    int16  VetisDocStatus;
+    date   IssueDate;         // Дата документа
+    string IssueNumber[28];   // Номер документа
+    date   WayBillDate;       // Дата транспортного документа
+    string WayBillNumber[28]; // Номер транспортного документа
+    long   FromEntityID;      // -->VetisEntity.ID
+    long   FromEnterpriseID;  // -->VetisEntity.ID
+    long   ToEntityID;        // -->VetisEntity.ID
+    long   ToEnterpriseID;    // -->VetisEntity.ID
+    long   ProductID;         // -->VetisEntity.ID Группа продукции
+    long   SubProductID;      // -->VetisEntity.ID Подгруппа продукции
+    long   ProductItemID;     // -->VetisEntity.ID Собственно, продукт. Может быть не идентифицирован, но содержать только имя, тогда это имя
+		// сохраняется в UnxTextRef с кодом (PPOBJ_VETISENTITY, EntityID, txtprpProductItemName).
+    long   OrgCountryID;      // -->VetisEntity.ID Страна происхождения продукта
+    long   UOMID;             // -->VetisEntity.ID
     long   Flags;
     double Volume;
     int64  ExpiryFrom;
@@ -1548,10 +1562,14 @@ table VetisDocument {
 	raw    Reserve[128];
 index:
 	EntityID (unique);
+	LinkBillID, LinkBillRow (unique mod allsegnull);
+	IssueDate, IssueNumber (dup mod allsegnull);
+	WayBillDate, WayBillNumber (dup mod allsegnull);
 	FromEntityID (dup mod anysegnull);
 	FromEnterpriseID (dup mod anysegnull);
     ToEntityID (dup mod anysegnull);
     ToEnterpriseID (dup mod anysegnull);
+    ProductItemID (dup mod anysegnull);
 file:
 	"vetisdoc.btr";
 	access=1;

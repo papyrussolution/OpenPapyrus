@@ -316,21 +316,16 @@ int __bam_read_root(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t base_p
 		t->bt_minkey = meta->minkey;
 		t->re_pad = (int)meta->re_pad;
 		t->re_len = meta->re_len;
-
 		t->bt_meta = base_pgno;
 		t->bt_root = meta->root;
 		t->revision = dbp->mpf->mfp->revision;
-		if(PGNO(meta) == PGNO_BASE_MD &&
-		    !F_ISSET(dbp, DB_AM_RECOVER) &&
-		    (txn == NULL || !F_ISSET(txn, TXN_SNAPSHOT)) && (ret =
-		    __memp_set_last_pgno(mpf, meta->dbmeta.last_pgno)) != 0)
+		if(PGNO(meta) == PGNO_BASE_MD && !F_ISSET(dbp, DB_AM_RECOVER) &&
+		    (txn == NULL || !F_ISSET(txn, TXN_SNAPSHOT)) && (ret = __memp_set_last_pgno(mpf, meta->dbmeta.last_pgno)) != 0)
 			goto err;
 	}
 	else {
-		DB_ASSERT(dbp->env,
-		    IS_RECOVERING(dbp->env) || F_ISSET(dbp, DB_AM_RECOVER));
+		DB_ASSERT(dbp->env, IS_RECOVERING(dbp->env) || F_ISSET(dbp, DB_AM_RECOVER));
 	}
-
 	/*
 	 * !!!
 	 * If creating a subdatabase, we've already done an insert when
@@ -341,19 +336,16 @@ int __bam_read_root(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t base_p
 	 * intuitively obvious that it belongs here.
 	 */
 	t->bt_lpgno = PGNO_INVALID;
-
-err:    /* Put the metadata page back. */
-	if(meta != NULL && (t_ret = __memp_fput(mpf,
-	    ip, meta, dbc->priority)) != 0 && ret == 0)
+err:    
+	/* Put the metadata page back. */
+	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __bam_init_meta --
  *
@@ -455,25 +447,21 @@ int __bam_new_file(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 	root = NULL;
 	meta = NULL;
 	buf = NULL;
-
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
 		/* Build the meta-data page. */
 		pgno = PGNO_BASE_MD;
-		if((ret = __memp_fget(mpf, &pgno,
-		    ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
 			return ret;
 		LSN_NOT_LOGGED(lsn);
 		__bam_init_meta(dbp, meta, PGNO_BASE_MD, &lsn);
 		meta->root = 1;
 		meta->dbmeta.last_pgno = 1;
-		if((ret =
-		    __db_log_page(dbp, txn, &lsn, pgno, (PAGE*)meta)) != 0)
+		if((ret = __db_log_page(dbp, txn, &lsn, pgno, (PAGE*)meta)) != 0)
 			goto err;
 		ret = __memp_fput(mpf, ip, meta, dbp->priority);
 		meta = NULL;
 		if(ret != 0)
 			goto err;
-
 		/* Build the root page. */
 		pgno = 1;
 		if((ret = __memp_fget(mpf, &pgno, ip, txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &root)) != 0)

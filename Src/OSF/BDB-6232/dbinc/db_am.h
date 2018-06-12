@@ -133,8 +133,7 @@ struct __db_foreign_info {
  * want to avoid an error if the page is not found during rollback.
  */
 #define REC_FGET(mpf, ip, pgno, pagep, cont)                            \
-	if((ret = __memp_fget(mpf,                                     \
-	    &(pgno), ip, NULL, 0, pagep)) != 0) {                      \
+	if((ret = __memp_fget(mpf, &(pgno), ip, NULL, 0, pagep)) != 0) { \
 		if(ret != DB_PAGE_NOTFOUND) {                          \
 			ret = __db_pgerr(file_dbp, pgno, ret);          \
 			goto out;                                       \
@@ -142,8 +141,7 @@ struct __db_foreign_info {
 			goto cont;                                      \
 	}
 #define REC_DIRTY(mpf, ip, priority, pagep)                             \
-	if((ret = __memp_dirty(mpf,                                    \
-	    pagep, ip, NULL, priority, DB_MPOOL_EDIT)) != 0) {          \
+	if((ret = __memp_dirty(mpf, pagep, ip, NULL, priority, DB_MPOOL_EDIT)) != 0) { \
 		ret = __db_pgerr(file_dbp, PGNO(*(pagep)), ret);        \
 		goto out;                                               \
 	}
@@ -159,8 +157,7 @@ struct __db_foreign_info {
 #ifdef DEBUG_RECOVER
 #define REC_PRINT_INTERNAL(func, info)   {              \
 		if(op != DB_TXN_PRINT && op != DB_TXN_LOG_VERIFY)              \
-			__db_msg(env, "%s:", DB_UNDO(op) ? "undo" :             \
-			    (DB_REDO(op) ? "redo" : "open/popen"));             \
+			__db_msg(env, "%s:", DB_UNDO(op) ? "undo" : (DB_REDO(op) ? "redo" : "open/popen")); \
 		(void)func(env, dbtp, lsnp, op, info);                          \
 }
 #else

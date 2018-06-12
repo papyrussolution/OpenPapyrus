@@ -31,7 +31,7 @@ int __blob_str_to_id __P((ENV *, const char **, db_seq_t *));
 int __blob_path_to_dir_ids __P((ENV *, const char *, db_seq_t *, db_seq_t *));
 int __blob_salvage __P((ENV *, db_seq_t, off_t, size_t, db_seq_t, db_seq_t, DBT *));
 int __blob_vrfy __P((ENV *, db_seq_t, off_t, db_seq_t, db_seq_t, db_pgno_t, uint32));
-int __blob_del_hierarchy __P((ENV *));
+int __blob_del_hierarchy(ENV *);
 int __blob_del_all __P((DB *, DB_TXN *, int));
 int __blob_copy_all __P((DB*, const char *, uint32));
 

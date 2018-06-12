@@ -68,8 +68,6 @@ struct PPSlipFormatEntry {
 	int    BarcodeId;
 	SString Text;
 	PPSlipFormatZone * P_ConditionZone;
-	//PPSlipFormatZone * P_TrueZone;
-	//PPSlipFormatZone * P_FalseZone;
 };
 
 class PPSlipFormatZone : public TSCollection <PPSlipFormatEntry> {
@@ -104,7 +102,7 @@ public:
 		{
 			memzero(this, offsetof(Iter, Stack));
 		}
-		Iter & Reset()
+		Iter & Z()
 		{
 			memzero(this, offsetof(Iter, Stack));
 			Stack.freeAll();
@@ -156,14 +154,11 @@ public:
 	~PPSlipFormat();
 	int    Parse(const char * pFileName, const char * pFormatName);
 	int    GetFormList(const char * pFileName, StrAssocArray * pList, int getSlipDocForms);
-
 	void   SetSource(const CCheckPacket *);
 	void   SetSource(const PPBillPacket *);
 	void   SetSource(const CSessInfo * pInfo);
-
 	int    InitIteration(int zoneKind, Iter *);
 	int    NextIteration(Iter *, SString & rBuf);
-
 	int    Init(const char * pFileName, const char * pFormatName, SlipDocCommonParam * pParam);
 	void   InitIteration(const CCheckPacket *);
 	void   InitIteration(const PPBillPacket *);
@@ -233,32 +228,18 @@ private:
 		tokBarcode,         // barcode width height [textabove|textbelow|textnone]
 		tokSignBarcode,     // signbarcode std width height [textabove|textbelow|textnone]
 		tokFakeCcQrCode,    // fakeccqrcode // @v9.6.11
-		tokElseIf,          // @v9.9.4 elseif 
+		tokElseIf,          // @v9.9.4 elseif
 		_tokLastWordToken   // @anchor
 	};
 
-	uint     LineNo;
-	SString  LineBuf;
-	SStrScan Scan;
-	SString  Name;
-	SString  Title;
-	SString  DocNumber;
-	uint     PageWidth;
-	uint     PageLength;
-	uint     HeadLines;
-	uint     RegTo; // SlipLineParam::regtoXXX
-	uint	 TextOutput; // @vmiller
-	int      IsWrap;
-	long     LastPictId;
-	TSCollection <PPSlipFormatZone> ZoneList;
-	SString  VarString;
-	SString  MetavarList;
 	enum {
 		srcCCheck = 1,   // CCheckPacket
 		srcGoodsBill,    // PPBillPacket
 		srcCSession      // CSessionTbl::Rec
 	};
-	int    Src; // Источник данных
+	enum {
+		fSkipPrintingZeroPrice = 0x0001 // @v10.0.12 Проекция флага PPEquipConfig::fSkipPrintingZeroPrice
+	};
 	union {
 		const CCheckPacket * P_CcPack;
 		const PPBillPacket * P_BillPack;
@@ -293,31 +274,46 @@ private:
         int    Height;
         char   Code[256];
 	};
+	uint   LineNo;
+	uint   PageWidth;
+	uint   PageLength;
+	uint   HeadLines;
+	uint   RegTo;        // SlipLineParam::regtoXXX
+	uint   TextOutput;   // @vmiller
+	uint   CurZone;
+	int    IsWrap;
+	long   LastPictId;
+	int    Src;          // Источник данных
+	long   Flags;        // @v10.0.12
+	double RunningTotal; // Специальная накопительная сумма, используемая для правильного округления строк чека
+	OnLoginData * P_Od;
+	Iter   CurIter;
+	SString VarString;
+	SString MetavarList;
+	SString LineBuf;
+	SString Name;
+	SString Title;
+	SString DocNumber;
+	SString LastFileName;
+	SString LastFormatName;
+	SStrScan Scan;
+	TSCollection <PPSlipFormatZone> ZoneList;
 	TSVector <FontBlock> FontList; // @v9.8.5 TSArray-->TSVector
 	TSVector <PictBlock> PictList; // @v9.8.5 TSArray-->TSVector
 	TSVector <BarcodeBlock> BcList; // @v9.8.5 TSArray-->TSVector
-	OnLoginData * P_Od;
-	uint    CurZone;
-	Iter    CurIter;
-	double  RunningTotal; // Специальная накопительная сумма, используемая для правильного округления строк чека
-	SString LastFileName;
-	SString LastFormatName;
 };
 
 PPSlipFormatEntry::PPSlipFormatEntry() : Flags(0), FontId(0), PictId(0), BarcodeId(0), P_ConditionZone(0), WrapLen(0)
-	//Condition(0), P_TrueZone(0), P_FalseZone(0)
 {
 }
 
 PPSlipFormatEntry::~PPSlipFormatEntry()
 {
-	//delete P_TrueZone;
-	//delete P_FalseZone;
 	delete P_ConditionZone;
 }
 
-PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0), 
-	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0)
+PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0),
+	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0), Flags(0)
 {
 	PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
 	PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
@@ -350,6 +346,7 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 {
 	uint   i;
 	SETIFZ(P_Od, new OnLoginData);
+	SETFLAG(Flags, fSkipPrintingZeroPrice, P_Od->CsObj.GetEqCfg().Flags & PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
 	pIter->SrcItemNo = 0;
 	pIter->EntryNo = 0;
 	pIter->SrcItemsCount = -1;
@@ -378,13 +375,14 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 			}
 		}
 	}
-	if(P_CcPack)
+	if(P_CcPack) {
 		if(Src == srcCCheck)
 			pIter->Amount = MONEYTOLDBL(P_CcPack->Rec.Amount);
 		else if(Src == srcGoodsBill)
 			pIter->Amount = P_BillPack->Rec.Amount;
 		else if(Src == srcCSession)
 			pIter->Amount = P_SessInfo->Rec.Amount;
+	}
 	return BIN(pIter->P_Zone);
 }
 
@@ -1445,12 +1443,24 @@ int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHea
 int PPSlipFormat::NextOuterIter(Iter * pIter)
 {
 	++pIter->SrcItemNo;
+	int    ok = -1;
 	if(pIter->SrcItemNo < pIter->SrcItemsCount) {
-		pIter->EntryNo = 0;
-		return 1;
+		if(Src == srcCCheck && (Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormatZone::kDetail) {
+			CCheckLineTbl::Rec cc_item;
+			while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0) {
+				pIter->SrcItemNo++;
+			}
+			if(pIter->SrcItemNo < pIter->SrcItemsCount) {
+				pIter->EntryNo = 0;
+				ok = 1;
+			}
+		}
+		else {
+			pIter->EntryNo = 0;
+			ok = 1;
+		}
 	}
-	else
-		return -1;
+	return ok;
 }
 
 int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
@@ -2360,7 +2370,7 @@ void PPSlipFormat::Helper_InitIteration()
 {
 	CurZone = 0;
 	RunningTotal = 0.0;
-	CurIter.Reset();
+	CurIter.Z();
 }
 
 void PPSlipFormat::InitIteration(const CCheckPacket * pPack)
@@ -2505,7 +2515,7 @@ SLTEST_R(PPSlipFormatLexer)
 			if(p_entry->P_ConditionZone) {
 
 			}
-			// } @v9.9.4 @todo 
+			// } @v9.9.4 @todo
 			/* @v9.9.4 result._CATFLD((long)p_entry->Condition);
 			if(p_entry->P_TrueZone) {
 				result.Cat("TrueZone").CR();

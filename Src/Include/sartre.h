@@ -774,7 +774,8 @@ public:
 
 	enum {
 		oReadOnly         = 0x0001, // База данных открывается в режиме READ-ONLY
-		oWriteStatOnClose = 0x0002  // При закрытии базы данных сохранять статистику
+		oWriteStatOnClose = 0x0002, // При закрытии базы данных сохранять статистику
+		oExclusive        = 0x0004  // @v10.0.12 Таблицы в базе данных будут открываться в эксклюзивном режиме 
 	};
 
 	int    Open(const char * pDbPath, long flags);

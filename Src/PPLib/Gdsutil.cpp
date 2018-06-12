@@ -1106,21 +1106,11 @@ void RetailGoodsInfo::Init()
 }
 
 int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, RetailGoodsInfo * pInfo)
-{
-	return Helper_GetRetailGoodsInfo(goodsID, locID, 0, 0, ZERODATETIME, 0.0, pInfo, 0);
-}
-
-int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
-	PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
-{
-	return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, actualDtm, qtty, pInfo, flags);
-}
-
-int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
-	PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags)
-{
-	return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, ZERODATETIME, qtty, pInfo, flags);
-}
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, 0, 0, ZERODATETIME, 0.0, pInfo, 0); }
+int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, actualDtm, qtty, pInfo, flags); }
+int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags)
+	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, ZERODATETIME, qtty, pInfo, flags); }
 
 int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
 	PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
@@ -1169,7 +1159,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 		{
 			//
 			// @v7.8.1 Объединили расчет цены для нелимитированных и лимитированных товаров.
-			// RetailPriceExtractor самостоятельно идентифицирует категорияю товара
+			// RetailPriceExtractor самостоятельно идентифицирует категорию товара
 			//
 			RetailExtrItem  rtl_ext_item;
 			long   rpe_flags = 0;
@@ -2666,7 +2656,7 @@ int SLAPI PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGood
 //
 //
 //
-SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0), 
+SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0),
 	Flags(0), QuotKindUsedForPrice(0), QuotKindUsedForExtPrice(0), CurLotDate(ZERODATE), Expiry(ZERODATE)
 {
 }
@@ -2686,7 +2676,7 @@ SLAPI RetailPriceExtractor::RetailPriceExtractor() : EqBlk(0), LocID(0), ArID(0)
 {
 }
 
-SLAPI RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) : 
+SLAPI RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) :
 	EqBlk(0), P_GObj(new PPObjGoods)
 {
 	Init(locID, pEqBlk, arID, actualDtm, flags);
@@ -2994,11 +2984,11 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 					default:
 						{
 							//
-							// Возможно, что символ стандарта записан с разделением двух частей пробелом 
+							// Возможно, что символ стандарта записан с разделением двух частей пробелом
 							// или дефисом. Поэтому, найдя первый такой знак (но только один) попытаемся
 							// его убрать и повторить попытку поиска.
 							// Например: ucp-a == upca или pdf 417 == pdf417
-							// 
+							//
 							uint cpos = 0;
 							if(text.StrChr('-', &cpos) || text.StrChr(' ', &cpos)) {
 								text.Excise(cpos, 1);
@@ -3009,7 +2999,7 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 				}
 			}
 		}
-		// } @v9.8.11 
+		// } @v9.8.11
 #if 0 // @v9.8.11 {
 		text.ToLower();
 		if(oneof3(text, "code11", "code-11", "code 11"))
@@ -3076,11 +3066,11 @@ int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
 		case BARCSTD_EAN13:
 			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_EANX_CHK : BARCODE_EANX;
 			break;
-		case BARCSTD_UPCA: 
-			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCA_CHK : BARCODE_UPCA; 
+		case BARCSTD_UPCA:
+			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCA_CHK : BARCODE_UPCA;
 			break;
-		case BARCSTD_UPCE: 
-			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCE_CHK : BARCODE_UPCE; 
+		case BARCSTD_UPCE:
+			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCE_CHK : BARCODE_UPCE;
 			break;
 		case BARCSTD_CODE128: zint_barc_std = BARCODE_CODE128; break;
 		case BARCSTD_CODE39: zint_barc_std = BARCODE_CODE39; break;

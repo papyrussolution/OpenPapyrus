@@ -118,23 +118,22 @@ static void CONTEXT_text();
 static void CONTEXT_graphics();
 static void CONTEXT_move(uint x, uint y);
 static void CONTEXT_vector(uint x, uint y);
-static void CONTEXT_linetype __PROTO((int lt));
-static void CONTEXT_put_text __PROTO((uint x, uint y, const char * str));
-
+static void CONTEXT_linetype(int lt);
+static void CONTEXT_put_text(uint x, uint y, const char * str);
 static int CONTEXT_text_angle(int ang);
-static int CONTEXT_justify_text __PROTO((enum JUSTIFY mode));
-static void CONTEXT_point __PROTO((uint x, uint y, int number));
-static void CONTEXT_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
-static int CONTEXT_set_font __PROTO((const char* font));  /* "font,size" */
-static void CONTEXT_pointsize __PROTO((double pointsize));
-static void CONTEXT_fillbox __PROTO((int style, uint x1, uint y1, uint width, uint height)); /* clear part of multiplot */
-static void CONTEXT_fill __PROTO((int style));
-static void CONTEXT_linewidth __PROTO((double linewidth));
-static int CONTEXT_make_palette __PROTO((t_sm_palette *palette));
+static int CONTEXT_justify_text(enum JUSTIFY mode);
+static void CONTEXT_point(uint x, uint y, int number);
+static void CONTEXT_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+static int CONTEXT_set_font(const char * font);  /* "font,size" */
+static void CONTEXT_pointsize(double pointsize);
+static void CONTEXT_fillbox(int style, uint x1, uint y1, uint width, uint height); /* clear part of multiplot */
+static void CONTEXT_fill(int style);
+static void CONTEXT_linewidth(double linewidth);
+static int CONTEXT_make_palette(t_sm_palette * palette);
 /* static void CONTEXT_previous_palette(); do we need it? */
-static void CONTEXT_set_color __PROTO((t_colorspec *colorspec));
-static void CONTEXT_filled_polygon __PROTO((int points, gpiPoint *corners));
-static void CONTEXT_image __PROTO((unsigned, unsigned, double *, gpiPoint *, t_imagecolor));
+static void CONTEXT_set_color(t_colorspec * colorspec);
+static void CONTEXT_filled_polygon(int points, gpiPoint * corners);
+static void CONTEXT_image(unsigned, unsigned, double *, gpiPoint *, t_imagecolor);
 
 /* Metapost < 1.750 can only deal with numbers between 2^{-16} and 2^12=4069 */
 /* scale is 1cm = 1000 units */
@@ -147,10 +146,8 @@ static void CONTEXT_image __PROTO((unsigned, unsigned, double *, gpiPoint *, t_i
 #define CONTEXT_SIZE_UNIT INCHES
 #define CONTEXT_XMAX (CONTEXT_XSIZE_VALUE * CONTEXT_DPI)
 #define CONTEXT_YMAX (CONTEXT_YSIZE_VALUE * CONTEXT_DPI)
-/* default fontsize: 12pt */
-#define CONTEXT_FONTSIZE 12.0
-/* default height of char: 12pt by default */
-#define CONTEXT_VCHAR (CONTEXT_DPI * CONTEXT_FONTSIZE / 72.27)
+#define CONTEXT_FONTSIZE 12.0 /* default fontsize: 12pt */
+#define CONTEXT_VCHAR (CONTEXT_DPI * CONTEXT_FONTSIZE / 72.27) /* default height of char: 12pt by default */
 /* in ConTeXt 12pt LM font is the default;
  * at that size digits are 5.8749847pt wide
  * in LaTeX, which assumes 11pt, the ratio is 5.3/11, which is similar */
@@ -189,7 +186,7 @@ static void CONTEXT_fontstring_parse __PROTO((char * from_string, char * to_stri
 static void CONTEXT_startpath();
 static void CONTEXT_endpath();
 
-static void CONTEXT_write_palette __PROTO((t_sm_palette *palette));
+static void CONTEXT_write_palette(t_sm_palette * palette);
 static void CONTEXT_write_palette_gradient __PROTO((gradient_struct *gradient, int cnt));
 
 /* Each number is divided by 100 (1/100th of a point is drawn) */
@@ -385,7 +382,7 @@ static void CONTEXT_params_reset()
 
 	/* free the memory with header first */
 	if(CONTEXT_params.header) {
-		free(CONTEXT_params.header);
+		SAlloc::F(CONTEXT_params.header);
 		CONTEXT_params.header = NULL;
 	}
 
@@ -460,7 +457,7 @@ static void CONTEXT_options(GpCommand & rC)
 			    else {
 				    /* remove the old header if any */
 				    if(CONTEXT_params.header) {
-					    free(CONTEXT_params.header);
+					    SAlloc::F(CONTEXT_params.header);
 					    CONTEXT_params.header = NULL;
 				    }
 				    /* and set the new one if nonempty;
@@ -469,7 +466,7 @@ static void CONTEXT_options(GpCommand & rC)
 					    CONTEXT_params.header = tmp_string;
 				    }
 				    else {
-					    free(tmp_string);
+					    SAlloc::F(tmp_string);
 				    }
 			    }
 			    break;
@@ -477,7 +474,7 @@ static void CONTEXT_options(GpCommand & rC)
 			    rC.CToken++;
 			    /* delete the header if it exists */
 			    if(CONTEXT_params.header) {
-				    free(CONTEXT_params.header);
+				    SAlloc::F(CONTEXT_params.header);
 				    CONTEXT_params.header = NULL;
 			    }
 			    break;
@@ -592,7 +589,7 @@ static void CONTEXT_options(GpCommand & rC)
 				    /* copies font name to parameters */
 				    strncpy(CONTEXT_params.font, tmp_font, sizeof(CONTEXT_params.font));
 				    tmp_font[MAX_ID_LEN] = NUL;
-				    free(tmp_string);
+				    SAlloc::F(tmp_string);
 				    /* save font size:
 				     *
 				     * - if size > 0, copy
@@ -740,7 +737,7 @@ static void CONTEXT_init()
 	/* only if external images are both requested and supported, we switch to them (double paranoia) */
 	/* delete the stored filename first */
 	if(CONTEXT_image_filename) {
-		free(CONTEXT_image_filename);
+		SAlloc::F(CONTEXT_image_filename);
 		CONTEXT_image_filename = NULL;
 		CONTEXT_image_filename_length = 0;
 		CONTEXT_image_filename_start  = 0;
@@ -917,7 +914,7 @@ static void CONTEXT_reset()
 	}
 	/* deallocate image name if present */
 	if(CONTEXT_image_filename) {
-		free(CONTEXT_image_filename);
+		SAlloc::F(CONTEXT_image_filename);
 		CONTEXT_image_filename = NULL;
 		CONTEXT_image_filename_length = 0;
 		CONTEXT_image_filename_start  = 0;
@@ -1297,7 +1294,7 @@ static void CONTEXT_arrow(uint sx, uint sy, uint ex, uint ey, int head)
  */
 static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int to_size, double * fontsize)
 {
-	double tmp_fontsize = 0.;
+	double tmp_fontsize = 0.0;
 	size_t n;
 	char * comma = strrchr(from_string, ',');
 	if(comma) {

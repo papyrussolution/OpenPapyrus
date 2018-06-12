@@ -215,7 +215,7 @@ static void ENHemf_FLUSH();
    } EMF_PenStyle;
  */
 
-#define EMF_STOCK_OBJECT_FLAG   ((unsigned long)0x1 << 31)
+#define EMF_STOCK_OBJECT_FLAG   ((ulong)0x1 << 31)
 #define EMF_STOCK_OBJECT_WHITE_BRUSH    (EMF_STOCK_OBJECT_FLAG + 0x00)
 #define EMF_STOCK_OBJECT_BLACK_PEN      (EMF_STOCK_OBJECT_FLAG + 0x07)
 #define EMF_STOCK_OBJECT_DEFAULT_FONT   (EMF_STOCK_OBJECT_FLAG + 0x0A)
@@ -371,7 +371,7 @@ static int emf_linetype = 1;
 static int emf_dashtype = 0;
 static long emf_color = 0L;
 static long emf_textcolor = LT_UNDEFINED;
-static unsigned long emf_pentype = 0x2200;              /* cap=flat join=miter */
+static ulong emf_pentype = 0x2200;              /* cap=flat join=miter */
 static uint emf_polyline[EMF_MAX_SEGMENTS];     /* stored polyline coordinates */
 static uint emf_graphics = false;
 static uint emf_dashed = true;
@@ -428,8 +428,8 @@ static void EMF_flush_polyline();
 static void EMF_flush_polygon();
 static void EMF_write_byte(int);
 static void EMF_write_short(int);
-static void EMF_write_long __PROTO((unsigned long));
-static void EMF_write_float __PROTO((double));
+static void EMF_write_long __PROTO((ulong));
+static void EMF_write_float(double);
 static void EMF_setfont();
 
 #define ANSI_CHARSET          0
@@ -618,7 +618,7 @@ static void EMF_write_short(int value)
 	fwrite(c, 1, 2, gpoutfile);
 }
 
-static void EMF_write_long(unsigned long value)
+static void EMF_write_long(ulong value)
 {
 	char c[4];
 	c[3] = (char)((value >> 24) & 0xFFL); /* convert to x86 order */
@@ -777,7 +777,7 @@ static void EMF_options(GpCommand & rC)
 			}
 			if(*s)
 				strncpy(emf_defaultfontname, s, sizeof(emf_defaultfontname));
-			free(s);
+			SAlloc::F(s);
 			if(rC.IsANumber(rC.CToken)) {
 				emf_defaultfontsize = (float)rC.IntExpression();
 			}
@@ -874,7 +874,7 @@ static void EMF_graphics()
 	EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0);     /* transparent brush for polygons */
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
 
-	free(emf_last_fontname); /* invalidate any previous font */
+	SAlloc::F(emf_last_fontname); /* invalidate any previous font */
 	emf_last_fontname = NULL;
 	EMF_set_font(NULL);     /* init default font */
 
@@ -899,18 +899,15 @@ static int EMF_set_font(const char * font)
 		strcpy(emf_fontname, emf_defaultfontname);
 		emf_fontsize = emf_defaultfontsize;
 	}
-
 	/* Skip redundant requests for the same font */
-	if(emf_last_fontname && !strcmp(emf_last_fontname, emf_fontname)
-	    &&  emf_last_fontsize == emf_fontsize) {
+	if(emf_last_fontname && sstreq(emf_last_fontname, emf_fontname) &&  emf_last_fontsize == emf_fontsize) {
 		return true;
 	}
 	else {
-		free(emf_last_fontname);
+		SAlloc::F(emf_last_fontname);
 		emf_last_fontname = gp_strdup(emf_fontname);
 		emf_last_fontsize = emf_fontsize;
 	}
-
 	term->HChr = (uint)(0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
 	term->VChr = (uint)(1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
 	EMF_setfont();
@@ -1059,7 +1056,7 @@ static void EMF_set_color(t_colorspec * colorspec)
 static void EMF_filled_polygon(int points, gpiPoint * corners)
 {
 	int i;
-	unsigned long color = emf_color;
+	ulong color = emf_color;
 	int fillpar = corners->style >> 4;
 	int style = corners->style & 0xf;
 
@@ -1374,7 +1371,7 @@ static void EMF_put_text(uint x, uint y, const char str[])
 	if(encoding == S_ENC_UTF8 || encoding == S_ENC_SJIS) {
 		for(i = 0; i < alen; i++)
 			EMF_write_byte(i < slen ? wstr[i] : 0);  /* writing text */
-		free(wstr);
+		SAlloc::F(wstr);
 	}
 	else
 #endif
@@ -1678,7 +1675,7 @@ static void ENHemf_OPEN(char * fontname,
 		int i;
 		ENHemf_opened_string = true;
 		enhanced_cur_text = &enhanced_text[0];
-		free(ENHemf_font);
+		SAlloc::F(ENHemf_font);
 		ENHemf_font = gp_strdup(fontname);
 		for(i = 0; ENHemf_font[i]; i++)
 			if(ENHemf_font[i] == ':') ENHemf_font[i] = ' ';
@@ -1861,7 +1858,7 @@ static void ENHemf_put_text(uint x, uint y, const char * str)
 
 	/* Restore everything we messed with */
 	EMF_setfont();
-	free(emf_last_fontname); /* invalidate any previous font */
+	SAlloc::F(emf_last_fontname); /* invalidate any previous font */
 	emf_last_fontname = NULL;
 	ENHemf_base = 0;
 }

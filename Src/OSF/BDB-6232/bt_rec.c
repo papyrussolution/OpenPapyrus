@@ -301,22 +301,15 @@ int __bam_split_48_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	db_pgno_t pgno, parent_pgno;
 	uint32 ptype, size;
 	int cmp, l_update, p_update, r_update, ret, rootsplit, t_ret;
-
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__bam_split_print);
-
 	_lp = lp = np = pp = _rp = rp = NULL;
 	sp = NULL;
-
 	REC_INTRO(__bam_split_48_read, ip, 0);
-
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-	    (argp->opflags & SPL_RECNO) ?  DB_RECNO : DB_BTREE,
-	    PGNO_INVALID, DB_RECOVER, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, (argp->opflags & SPL_RECNO) ?  DB_RECNO : DB_BTREE, PGNO_INVALID, DB_RECOVER, NULL, &dbc)) != 0)
 		goto out;
 	if(argp->opflags & SPL_NRECS)
 		F_SET((BTREE_CURSOR*)dbc->internal, C_RECNUM);
-
 	/*
 	 * There are two kinds of splits that we have to recover from.  The
 	 * first is a root-page split, where the root page is split from a
@@ -945,7 +938,7 @@ do_page:
 		else
 			goto done;
 	}
-	(void)__ua_memcpy(&copy_lsn, &LSN(argp->pgdbt.data), sizeof(DB_LSN));
+	__ua_memcpy(&copy_lsn, &LSN(argp->pgdbt.data), sizeof(DB_LSN));
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &copy_lsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &copy_lsn);
@@ -1366,20 +1359,15 @@ out:
 int __bam_root_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__bam_root_args * argp;
-	DB_THREAD_INFO * ip;
-	BTMETA * meta;
+	BTMETA * meta = 0;
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, ret;
-
-	ip = ((DB_TXNHEAD*)info)->thread_info;
-	meta = NULL;
+	DB_THREAD_INFO * ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__bam_root_print);
 	REC_INTRO(__bam_root_read, ip, 0);
-
-	if((ret = __memp_fget(mpf, &argp->meta_pgno, ip, NULL,
-	    0, &meta)) != 0) {
+	if((ret = __memp_fget(mpf, &argp->meta_pgno, ip, NULL, 0, &meta)) != 0) {
 		if(ret != DB_PAGE_NOTFOUND) {
 			ret = __db_pgerr(file_dbp, argp->meta_pgno, ret);
 			goto out;
@@ -1387,7 +1375,6 @@ int __bam_root_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		else
 			goto done;
 	}
-
 	cmp_n = LOG_COMPARE(lsnp, &LSN(meta));
 	cmp_p = LOG_COMPARE(&LSN(meta), &argp->meta_lsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(meta), &argp->meta_lsn);
@@ -1420,8 +1407,7 @@ out:
  *	Transaction abort function to undo cursor adjustments.
  *	This should only be triggered by subtransaction aborts.
  *
- * PUBLIC: int __bam_curadj_recover
- * PUBLIC:  (ENV *, DBT *, DB_LSN *, db_recops, void *);
+ * PUBLIC: int __bam_curadj_recover(ENV *, DBT *, DB_LSN *, db_recops, void *);
  */
 int __bam_curadj_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
@@ -1442,31 +1428,27 @@ int __bam_curadj_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 
 	switch(argp->mode) {
 		case DB_CA_DI:
-		    if((ret = __bam_ca_di(dbc, argp->from_pgno,
-			argp->from_indx, -(int)argp->first_indx)) != 0)
+		    if((ret = __bam_ca_di(dbc, argp->from_pgno, argp->from_indx, -(int)argp->first_indx)) != 0)
 			    goto out;
 		    break;
 		case DB_CA_DUP:
-		    if((ret = __bam_ca_undodup(file_dbp, argp->first_indx,
-			argp->from_pgno, argp->from_indx, argp->to_indx)) != 0)
+		    if((ret = __bam_ca_undodup(file_dbp, argp->first_indx, argp->from_pgno, argp->from_indx, argp->to_indx)) != 0)
 			    goto out;
 		    break;
 
 		case DB_CA_RSPLIT:
-		    if((ret =
-			__bam_ca_rsplit(dbc, argp->to_pgno, argp->from_pgno)) != 0)
+		    if((ret = __bam_ca_rsplit(dbc, argp->to_pgno, argp->from_pgno)) != 0)
 			    goto out;
 		    break;
-
 		case DB_CA_SPLIT:
-		    if((ret = __bam_ca_undosplit(file_dbp, argp->from_pgno,
-			argp->to_pgno, argp->left_pgno, argp->from_indx)) != 0)
+		    if((ret = __bam_ca_undosplit(file_dbp, argp->from_pgno, argp->to_pgno, argp->left_pgno, argp->from_indx)) != 0)
 			    goto out;
 		    break;
 	}
-
-done:   *lsnp = argp->prev_lsn;
-out:    REC_CLOSE;
+done:   
+	*lsnp = argp->prev_lsn;
+out:    
+	REC_CLOSE;
 }
 /*
  * __bam_rcuradj_recover --
@@ -1490,12 +1472,9 @@ int __bam_rcuradj_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	rdbc = NULL;
 	REC_PRINT(__bam_rcuradj_print);
 	REC_INTRO(__bam_rcuradj_read, ip, 1);
-
 	ret = t_ret = 0;
-
 	if(op != DB_TXN_ABORT)
 		goto done;
-
 	/*
 	 * We don't know whether we're in an offpage dup set, and
 	 * thus don't know whether the dbc REC_INTRO has handed us is
@@ -1506,14 +1485,11 @@ int __bam_rcuradj_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	 * state into __ram_ca, and this way we don't need to make
 	 * this function know anything about how offpage dups work.
 	 */
-	if((ret = __db_cursor_int(file_dbp, NULL,
-	    NULL, DB_RECNO, argp->root, DB_RECOVER, NULL, &rdbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, NULL, NULL, DB_RECNO, argp->root, DB_RECOVER, NULL, &rdbc)) != 0)
 		goto out;
-
 	cp = (BTREE_CURSOR*)rdbc->internal;
 	F_SET(cp, C_RENUMBER);
 	cp->recno = argp->recno;
-
 	switch(argp->mode) {
 		case CA_DELETE:
 		    /*

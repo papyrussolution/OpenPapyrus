@@ -77,9 +77,9 @@ static void T410X_graphics();
 static void T410X_text();
 static void T410X_move(uint x, uint y);
 static void T410X_vector(uint x, uint y);
-static void T410X_point __PROTO((uint x, uint y, int number));
+static void T410X_point(uint x, uint y, int number);
 static void T410X_linetype(int linetype);
-static void T410X_put_text __PROTO((uint x, uint y, const char str[]));
+static void T410X_put_text(uint x, uint y, const char str[]);
 static int T410X_text_angle(int ang);
 #define T410XXMAX 4095
 #define T410XYMAX 3131
@@ -152,23 +152,23 @@ static void T410X_move(uint x, uint y)
 {
 	fputs("\033LF", gpoutfile);
 
-	(void)T410X_encode_x_y(x, y);
+	T410X_encode_x_y(x, y);
 	fflush(gpoutfile);
 }
 
 static void T410X_vector(uint x, uint y)
 {
 	fputs("\033LG", gpoutfile);
-	(void)T410X_encode_x_y(x, y);
+	T410X_encode_x_y(x, y);
 	fflush(gpoutfile);
 }
 
 static void T410X_point(uint x, uint y, int number)
 {
 	fputs("\033MM", gpoutfile);
-	(void)T410X_encode_int(MAX(number, 0) % 11);
+	T410X_encode_int(MAX(number, 0) % 11);
 	fputs("\033LH", gpoutfile);
-	(void)T410X_encode_x_y(x, y);
+	T410X_encode_x_y(x, y);
 	fflush(gpoutfile);
 }
 
@@ -186,26 +186,26 @@ static void T410X_linetype(int linetype)
 		    break;
 		default:
 		    fputs("\033ML", gpoutfile);
-		    (void)T410X_encode_int(linetype % 14 + 2);
+		    T410X_encode_int(linetype % 14 + 2);
 		    break;
 	}
 	fputs("\033MV", gpoutfile);
-	(void)T410X_encode_int(MAX(linetype, 0) % 8);
+	T410X_encode_int(MAX(linetype, 0) % 8);
 	fflush(gpoutfile);
 }
 
 static void T410X_put_text(uint x, uint y, const char str[])
 {
 	if(T410X_angle == 0) {
-		(void)T410X_move(x, y - T410XVCHAR / 2 + 6);
+		T410X_move(x, y - T410XVCHAR / 2 + 6);
 		fputs("\033MR00", gpoutfile);
 	}
 	else {
-		(void)T410X_move(x + T410XHCHAR / 2 - 6, y);
+		T410X_move(x + T410XHCHAR / 2 - 6, y);
 		fputs("\033MRE:0", gpoutfile);
 	}
 	fputs("\033LT", gpoutfile);
-	(void)T410X_encode_int(strlen(str));
+	T410X_encode_int(strlen(str));
 	fputs(str, gpoutfile);
 	fflush(gpoutfile);
 }
@@ -224,7 +224,7 @@ static void T410X_encode_x_y(uint x, uint y)
 {
 	static char chix = 0, chiy = 0, cloy = 0, ceb = 0;
 
-	register uint hix, lox, hiy, loy, eb, lx, ly;
+	uint hix, lox, hiy, loy, eb, lx, ly;
 
 	lx = (x <= T410XXMAX) ? x : T410XXMAX;
 	ly = (y <= T410XYMAX) ? y : T410XYMAX;
@@ -253,7 +253,7 @@ static void T410X_encode_x_y(uint x, uint y)
 
 static void T410X_encode_int(int number)
 {
-	register uint mag, hi1, hi2, lo;
+	uint mag, hi1, hi2, lo;
 
 	mag = ABS(number);
 

@@ -1907,14 +1907,8 @@ char * FASTCALL stpcpy(char *to, const char *from)
 int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-size_t FASTCALL sstrlen(const char * pStr)
-{
-	return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0;
-}
-size_t FASTCALL sstrlen(const uchar * pStr)
-{
-	return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0;
-}
+size_t FASTCALL sstrlen(const char * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; }
+size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0; }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
 char * FASTCALL sstrdup(const char * pStr)

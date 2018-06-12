@@ -66,7 +66,7 @@ static void DXY_text();
 static void DXY_linetype(int linetype);
 static void DXY_move(uint x, uint y);
 static void DXY_vector(uint x, uint y);
-static void DXY_put_text __PROTO((uint x, uint y, const char *str));
+static void DXY_put_text(uint x, uint y, const char * str);
 static int DXY_text_angle(int ang);
 static void DXY_reset();
 

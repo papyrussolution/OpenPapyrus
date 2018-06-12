@@ -306,12 +306,11 @@ int __dbc_cmp(DBC *dbc, DBC *other_dbc, int * result)
 	/* NOTREACHED. */
 	return ret;
 }
-
 /*
  * __dbc_count --
  *	Return a count of duplicate data items.
  *
- * PUBLIC: int __dbc_count __P((DBC *, db_recno_t *));
+ * PUBLIC: int __dbc_count(DBC *, db_recno_t *);
  */
 int __dbc_count(DBC *dbc, db_recno_t * recnop)
 {
@@ -355,12 +354,11 @@ int __dbc_count(DBC *dbc, db_recno_t * recnop)
 	}
 	return 0;
 }
-
 /*
  * __dbc_del --
  *	DBC->del.
  *
- * PUBLIC: int __dbc_del __P((DBC *, uint32));
+ * PUBLIC: int __dbc_del(DBC *, uint32);
  */
 int __dbc_del(DBC *dbc, uint32 flags)
 {
@@ -387,37 +385,31 @@ int __dbc_del(DBC *dbc, uint32 flags)
 	 * constraints first, which will make rolling back changes on an abort
 	 * simpler.
 	 */
-	if(LIST_FIRST(&dbp->f_primaries) != NULL &&
-	    (ret = __dbc_del_foreign(dbc)) != 0)
+	if(LIST_FIRST(&dbp->f_primaries) != NULL && (ret = __dbc_del_foreign(dbc)) != 0)
 		goto done;
-
 	/*
 	 * If we are a primary and have secondary indices, go through
 	 * and delete any secondary keys that point at the current record.
 	 */
-	if(DB_IS_PRIMARY(dbp) &&
-	    (ret = __dbc_del_primary(dbc)) != 0)
+	if(DB_IS_PRIMARY(dbp) && (ret = __dbc_del_primary(dbc)) != 0)
 		goto done;
-
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp))
 		ret = __bamc_compress_del(dbc, flags);
 	else
 #endif
 	ret = __dbc_idel(dbc, flags);
-
-done:   CDB_LOCKING_DONE(env, dbc);
-
+done:   
+	CDB_LOCKING_DONE(env, dbc);
 	if(!DB_RETOK_DBCDEL(ret))
 		F_SET(dbc, DBC_ERROR);
 	return ret;
 }
-
 /*
  * __dbc_del --
  *	Implemenation of DBC->del.
  *
- * PUBLIC: int __dbc_idel __P((DBC *, uint32));
+ * PUBLIC: int __dbc_idel(DBC *, uint32);
  */
 int __dbc_idel(DBC *dbc, uint32 flags)
 {
@@ -453,32 +445,27 @@ int __dbc_idel(DBC *dbc, uint32 flags)
 	 * to explicitly downgrade this lock.  The closed cursor
 	 * may only have had a read lock.
 	 */
-	if(ret == 0 && F_ISSET(dbp, DB_AM_READ_UNCOMMITTED) &&
-	    dbc->internal->lock_mode == DB_LOCK_WRITE) {
+	if(ret == 0 && F_ISSET(dbp, DB_AM_READ_UNCOMMITTED) && dbc->internal->lock_mode == DB_LOCK_WRITE) {
 		if((ret = __TLPUT(dbc, dbc->internal->lock)) == 0)
 			dbc->internal->lock_mode = DB_LOCK_WWRITE;
-		if(dbc->internal->page != NULL && (t_ret =
-		    __memp_shared(dbp->mpf, dbc->internal->page)) != 0 &&
+		if(dbc->internal->page != NULL && (t_ret = __memp_shared(dbp->mpf, dbc->internal->page)) != 0 &&
 		    ret == 0)
 			ret = t_ret;
 	}
-
 	return ret;
 }
-
 /*
  * __dbc_db_stream --
  *
  * DBC->db_stream
  *
- * PUBLIC: int __dbc_db_stream __P((DBC *, DB_STREAM **, uint32));
+ * PUBLIC: int __dbc_db_stream(DBC *, DB_STREAM **, uint32);
  */
 int __dbc_db_stream(DBC *dbc, DB_STREAM ** dbsp, uint32 flags)
 {
 	int ret;
-	uint32 oflags;
 	ENV * env = dbc->env;
-	oflags = 0;
+	uint32 oflags = 0;
 	if((ret = __db_fchk(env, "DBC->db_stream", flags, DB_STREAM_READ | DB_STREAM_WRITE | DB_STREAM_SYNC_WRITE)) != 0)
 		return ret;
 	if(DB_IS_READONLY(dbc->dbp)) {
@@ -497,19 +484,17 @@ int __dbc_db_stream(DBC *dbc, DB_STREAM ** dbsp, uint32 flags)
 		oflags |= DB_FOP_WRITE;
 	if(flags & DB_STREAM_SYNC_WRITE)
 		oflags |= DB_FOP_SYNC_WRITE;
-
 	ret = __db_stream_init(dbc, dbsp, oflags);
-
-err:    return ret;
+err:    
+	return ret;
 }
-
 /*
  * __dbc_get_blob_id --
  *
  * Returns the blob id stored in the data record to which the cursor currently
  * points.  Returns EINVAL if the cursor does not point to a blob record.
  *
- * PUBLIC: int __dbc_get_blob_id __P((DBC *, db_seq_t *));
+ * PUBLIC: int __dbc_get_blob_id(DBC *, db_seq_t *);
  */
 int __dbc_get_blob_id(DBC *dbc, db_seq_t * blob_id)
 {
@@ -575,10 +560,9 @@ int __dbc_get_blob_id(DBC *dbc, db_seq_t * blob_id)
 		    ret = USR_ERR(dbc->env, EINVAL);
 		    goto err;
 	}
-
-err:    return ret;
+err:    
+	return ret;
 }
-
 /*
  * __dbc_get_blob_size --
  *
@@ -586,7 +570,7 @@ err:    return ret;
  * currently points.  Returns EINVAL if the cursor does not point to a blob
  * record.
  *
- * PUBLIC: int __dbc_get_blob_size __P((DBC *, off_t *));
+ * PUBLIC: int __dbc_get_blob_size(DBC *, off_t *);
  */
 int __dbc_get_blob_size(DBC *dbc, off_t * size)
 {
@@ -936,34 +920,30 @@ int __dbc_newopd(DBC *dbc_parent, db_pgno_t root, DBC * oldopd, DBC ** dbcp)
 
 	return 0;
 }
-
 /*
  * __dbc_get --
  *	Get using a cursor.
  *
- * PUBLIC: int __dbc_get __P((DBC *, DBT *, DBT *, uint32));
+ * PUBLIC: int __dbc_get(DBC *, DBT *, DBT *, uint32);
  */
-int __dbc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags)
+int __dbc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
 	F_CLR(dbc, DBC_ERROR);
 #ifdef HAVE_PARTITION
 	if(F_ISSET(dbc, DBC_PARTITIONED))
 		return (__partc_get(dbc, key, data, flags));
 #endif
-
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbc->dbp))
 		return (__bamc_compress_get(dbc, key, data, flags));
 #endif
-
-	return (__dbc_iget(dbc, key, data, flags));
+	return __dbc_iget(dbc, key, data, flags);
 }
-
 /*
  * __dbc_iget --
  *	Implementation of get using a cursor.
  *
- * PUBLIC: int __dbc_iget __P((DBC *, DBT *, DBT *, uint32));
+ * PUBLIC: int __dbc_iget(DBC *, DBT *, DBT *, uint32);
  */
 int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 {
@@ -977,12 +957,9 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	uint32 multi, orig_ulen, tmp_flags, tmp_read_locking, tmp_rmw;
 	uint8 type;
 	int key_small, ret, t_ret;
-
 	COMPQUIET(orig_ulen, 0);
-
 	dbc->cur_key = key;
 	key_small = 0;
-
 	/*
 	 * Cursor Cleanup Note:
 	 * All of the cursors passed to the underlying access methods by this
@@ -997,19 +974,13 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	mpf = dbp->mpf;
 	dbc_n = NULL;
 	opd = NULL;
-
-	PERFMON6(env, db, get, dbp->fname, dbp->dname,
-	    dbc->txn == NULL ? 0 : dbc->txn->txnid, key, data, flags);
-
+	PERFMON6(env, db, get, dbp->fname, dbp->dname, dbc->txn == NULL ? 0 : dbc->txn->txnid, key, data, flags);
 	/* Clear OR'd in additional bits so we can check for flag equality. */
 	tmp_rmw = LF_ISSET(DB_RMW);
 	LF_CLR(DB_RMW);
-
 	SET_READ_LOCKING_FLAGS(dbc, tmp_read_locking);
-
 	multi = LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY);
 	LF_CLR(DB_MULTIPLE|DB_MULTIPLE_KEY);
-
 	/*
 	 * Return a cursor's record number.  It has nothing to do with the
 	 * cursor get code except that it was put into the interface.
@@ -1025,17 +996,13 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		F_CLR(dbc, tmp_read_locking & ~DBC_WAS_READ_COMMITTED);
 		return ret;
 	}
-
 	if(flags == DB_CONSUME || flags == DB_CONSUME_WAIT)
 		CDB_LOCKING_INIT(env, dbc);
-
 	/* Don't return the key or data if it was passed to us. */
 	if(!DB_RETURNS_A_KEY(dbp, flags))
 		F_SET(key, DB_DBT_ISSET);
-	if(flags == DB_GET_BOTH &&
-	    (dbp->dup_compare == NULL || dbp->dup_compare == __dbt_defcmp))
+	if(flags == DB_GET_BOTH && (dbp->dup_compare == NULL || dbp->dup_compare == __dbt_defcmp))
 		F_SET(data, DB_DBT_ISSET);
-
 	/*
 	 * If we have an off-page duplicates cursor, and the operation applies
 	 * to it, perform the operation.  Duplicate the cursor and call the
@@ -1052,21 +1019,16 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	 * while an OPD page is latched. [#22532]
 	 */
 	cp = dbc->internal;
-	if(cp->opd != NULL &&
-	    (flags == DB_CURRENT || flags == DB_GET_BOTHC ||
-	    flags == DB_NEXT || flags == DB_NEXT_DUP ||
-	    flags == DB_PREV || flags == DB_PREV_DUP)) {
+	if(cp->opd != NULL && (flags == DB_CURRENT || flags == DB_GET_BOTHC ||
+	    flags == DB_NEXT || flags == DB_NEXT_DUP || flags == DB_PREV || flags == DB_PREV_DUP)) {
 		if(tmp_rmw && (ret = dbc->am_writelock(dbc)) != 0)
 			goto err;
-		if(cp->page == NULL && (ret = __memp_fget(mpf, &cp->pgno,
-		    dbc->thread_info, dbc->txn, 0, &cp->page)) != 0)
+		if(cp->page == NULL && (ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, 0, &cp->page)) != 0)
 			goto err;
-
 		if(F_ISSET(dbc, DBC_TRANSIENT))
 			opd = cp->opd;
 		else if((ret = __dbc_idup(cp->opd, &opd, DB_POSITION)) != 0)
 			goto err;
-
 		if((ret = opd->am_get(opd, key, data, flags, NULL)) == 0)
 			goto done;
 		/*
@@ -1074,8 +1036,7 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		 * duplicates, so for operations that are moving a cursor, we
 		 * need to skip the empty tree and retry on the parent cursor.
 		 */
-		if(ret == DB_NOTFOUND &&
-		    (flags == DB_PREV || flags == DB_NEXT)) {
+		if(ret == DB_NOTFOUND && (flags == DB_PREV || flags == DB_NEXT)) {
 			ret = __dbc_close(opd);
 			opd = NULL;
 			if(F_ISSET(dbc, DBC_TRANSIENT))
@@ -1089,7 +1050,6 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 			goto err;
 		cp->opd = NULL;
 	}
-
 	/*
 	 * Perform an operation on the main cursor.  Duplicate the cursor,
 	 * upgrade the lock as required, and call the underlying function.
@@ -1109,7 +1069,6 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		    tmp_flags = 0;
 		    break;
 	}
-
 	/*
 	 * If this cursor is going to be closed immediately, we don't
 	 * need to take precautions to clean it up on error.
@@ -1118,32 +1077,22 @@ int __dbc_iget(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		dbc_n = dbc;
 	else {
 		ret = __dbc_idup(dbc, &dbc_n, tmp_flags);
-
 		if(ret != 0)
 			goto err;
 		COPY_RET_MEM(dbc, dbc_n);
 	}
-
 	if(tmp_rmw)
 		F_SET(dbc_n, DBC_RMW);
 	F_SET(dbc_n, tmp_read_locking);
-
 	switch(multi) {
-		case DB_MULTIPLE:
-		    F_SET(dbc_n, DBC_MULTIPLE);
-		    break;
-		case DB_MULTIPLE_KEY:
-		    F_SET(dbc_n, DBC_MULTIPLE_KEY);
-		    break;
-		case DB_MULTIPLE | DB_MULTIPLE_KEY:
-		    F_SET(dbc_n, DBC_MULTIPLE|DBC_MULTIPLE_KEY);
-		    break;
+		case DB_MULTIPLE: F_SET(dbc_n, DBC_MULTIPLE); break;
+		case DB_MULTIPLE_KEY: F_SET(dbc_n, DBC_MULTIPLE_KEY); break;
+		case DB_MULTIPLE | DB_MULTIPLE_KEY: F_SET(dbc_n, DBC_MULTIPLE|DBC_MULTIPLE_KEY); break;
 		case 0:
-		default:
-		    break;
+		default: break;
 	}
-
-retry:  pgno = PGNO_INVALID;
+retry:  
+	pgno = PGNO_INVALID;
 	ret = dbc_n->am_get(dbc_n, key, data, flags, &pgno);
 	if(tmp_rmw)
 		F_CLR(dbc_n, DBC_RMW);
@@ -1165,10 +1114,8 @@ retry:  pgno = PGNO_INVALID;
 	 * a new cursor and call the underlying function.
 	 */
 	if(pgno != PGNO_INVALID) {
-		if((ret = __dbc_newopd(dbc,
-		    pgno, cp_n->opd, &cp_n->opd)) != 0)
+		if((ret = __dbc_newopd(dbc, pgno, cp_n->opd, &cp_n->opd)) != 0)
 			goto err;
-
 		switch(flags) {
 			case DB_FIRST:
 			case DB_NEXT:
@@ -1199,9 +1146,7 @@ retry:  pgno = PGNO_INVALID;
 		 * need to skip the empty tree and retry on the parent cursor.
 		 */
 		if(ret == DB_NOTFOUND) {
-			PERFMON5(env, race, dbc_get,
-			    dbp->fname, dbp->dname, ret, tmp_flags, key);
-
+			PERFMON5(env, race, dbc_get, dbp->fname, dbp->dname, ret, tmp_flags, key);
 			switch(flags) {
 				case DB_FIRST:
 				case DB_NEXT:
@@ -1216,7 +1161,6 @@ retry:  pgno = PGNO_INVALID;
 				default:
 				    goto err;
 			}
-
 			ret = __dbc_close(cp_n->opd);
 			cp_n->opd = NULL;
 			if(ret == 0)
@@ -1225,7 +1169,6 @@ retry:  pgno = PGNO_INVALID;
 		if(ret != 0)
 			goto err;
 	}
-
 done:   /*
 	 * Return a key/data item.  The only exception is that we don't return
 	 * a key if the user already gave us one, that is, if the DB_SET flag
@@ -1242,8 +1185,7 @@ done:   /*
 	 */
 	cp_n = dbc_n == NULL ? dbc->internal : dbc_n->internal;
 	if(!F_ISSET(key, DB_DBT_ISSET)) {
-		if(cp_n->page == NULL && (ret = __memp_fget(mpf, &cp_n->pgno,
-		    dbc->thread_info, dbc->txn, 0, &cp_n->page)) != 0)
+		if(cp_n->page == NULL && (ret = __memp_fget(mpf, &cp_n->pgno, dbc->thread_info, dbc->txn, 0, &cp_n->page)) != 0)
 			goto err;
 
 		if((ret = __db_ret(dbc, (PAGE *)cp_n->page, cp_n->indx, key,
@@ -1462,19 +1404,15 @@ static inline int __dbc_put_append(DBC *dbc, DBT * key, DBT * data, uint32 * put
 		    break;
 		default:
 		    /* The interface should prevent this. */
-		    DB_ASSERT(env,
-			dbp->type == DB_QUEUE || dbp->type == DB_RECNO);
-
+		    DB_ASSERT(env, dbp->type == DB_QUEUE || dbp->type == DB_RECNO);
 		    ret = __db_ferr(env, "DBC->put", 0);
 		    goto err;
 	}
-
 	/*
 	 * The append callback, if one exists, may have allocated a new
 	 * tdata.data buffer.  If so, free it.
 	 */
 	FREE_IF_NEEDED(env, &tdata);
-
 	/*
 	 * The key value may have been generated by the above operation, but
 	 * not set in the data buffer. Make sure it is there so that secondary
@@ -1483,16 +1421,13 @@ static inline int __dbc_put_append(DBC *dbc, DBT * key, DBT * data, uint32 * put
 	__dbt_userfree(env, key, NULL, NULL);
 	if((ret = __dbt_usercopy(env, key)) != 0)
 		goto err;
-
 	/* An append cannot be replacing an existing item. */
 	FLD_SET(*put_statep, DBC_PUT_NODEL);
-
-err:    if(dbc_n != NULL &&
-	    (t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && ret == 0)
+err:    
+	if(dbc_n != NULL && (t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __dbc_put_partial --
  *	Ensure that the data item we are using is complete and correct.
@@ -1809,8 +1744,7 @@ static inline int __dbc_put_secondaries(DBC *dbc, DBT * pkey, DBT * data, DBT * 
 				/* Case 3. */
 				memzero(&oldpkey, sizeof(DBT));
 				F_SET(&oldpkey, DB_DBT_MALLOC);
-				ret = __dbc_get(sdbc,
-					tskeyp, &oldpkey, rmw | DB_SET);
+				ret = __dbc_get(sdbc, tskeyp, &oldpkey, rmw | DB_SET);
 				if(ret == 0) {
 					cmp = __dbt_defcmp(sdbp, &oldpkey, pkey, NULL);
 					__os_ufree(env, oldpkey.data);
@@ -1821,7 +1755,6 @@ static inline int __dbc_put_secondaries(DBC *dbc, DBT * pkey, DBT * data, DBT * 
 					 */
 					if(cmp == 0)
 						continue;
-
 					ret = USR_ERR(env, EINVAL);
 					__db_errx(env, DB_STR("0695", "Put results in a non-unique secondary key in an index not configured to support duplicates"));
 				}
@@ -1836,9 +1769,7 @@ static inline int __dbc_put_secondaries(DBC *dbc, DBT * pkey, DBT * data, DBT * 
 				if(ret != DB_NOTFOUND && ret != DB_KEYEMPTY)
 					break;
 			}
-			ret = __dbc_put(sdbc, tskeyp, pkey,
-				DB_UPDATE_SECONDARY);
-
+			ret = __dbc_put(sdbc, tskeyp, pkey, DB_UPDATE_SECONDARY);
 			/*
 			 * We don't know yet whether this was a put-overwrite
 			 * that in fact changed nothing.  If it was, we may get
@@ -1847,16 +1778,12 @@ static inline int __dbc_put_secondaries(DBC *dbc, DBT * pkey, DBT * data, DBT * 
 			if(ret == DB_KEYEXIST)
 				ret = 0;
 		}
-
 		/* Make sure the primary key is back in native byte-order. */
 		SWAP_IF_NEEDED(sdbp, pkey);
-
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
-
 		if(ret != 0)
 			goto err;
-
 		/*
 		 * Mark that we have a key for this secondary so we can check
 		 * it later before deleting the old one.  We can't set it
@@ -1873,18 +1800,16 @@ err:
 
 static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 {
-	DB * dbp, * sdbp;
 	DBC * dbc_n, * pdbc;
 	DBT oldkey, olddata, newdata;
 	DBT * all_skeys, * skeyp, * tskeyp;
-	ENV * env;
-	int ret, t_ret, s_count;
-	uint32 nskey, put_state, rmw;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	t_ret = 0;
-	put_state = 0;
-	sdbp = NULL;
+	int ret, s_count;
+	uint32 nskey, rmw;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	int t_ret = 0;
+	uint32 put_state = 0;
+	DB * sdbp = NULL;
 	pdbc = dbc_n = NULL;
 	all_skeys = NULL;
 	memzero(&newdata, sizeof(DBT));
@@ -1957,20 +1882,15 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	 *    the old secondary in each.
 	 */
 	s_count = __db_s_count(dbp);
-	if((ret = __os_calloc(env,
-	    (u_int)s_count, sizeof(DBT), &all_skeys)) != 0)
+	if((ret = __os_calloc(env, (u_int)s_count, sizeof(DBT), &all_skeys)) != 0)
 		goto err;
-
 	/*
 	 * Primary indices can't have duplicates, so only DB_APPEND,
 	 * DB_CURRENT, DB_KEYFIRST, and DB_KEYLAST make any sense.  Other flags
 	 * should have been caught by the checking routine, but
 	 * add a sprinkling of paranoia.
 	 */
-	DB_ASSERT(env, flags == DB_APPEND || flags == DB_CURRENT ||
-	    flags == DB_KEYFIRST || flags == DB_KEYLAST ||
-	    flags == DB_NOOVERWRITE || flags == DB_OVERWRITE_DUP);
-
+	DB_ASSERT(env, flags == DB_APPEND || flags == DB_CURRENT || flags == DB_KEYFIRST || flags == DB_KEYLAST || flags == DB_NOOVERWRITE || flags == DB_OVERWRITE_DUP);
 	/*
 	 * We'll want to use DB_RMW in a few places, but it's only legal
 	 * when locking is on.
@@ -1978,20 +1898,16 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	rmw = STD_LOCKING(dbc) ? DB_RMW : 0;
 	if(rmw)
 		FLD_SET(put_state, DBC_PUT_RMW);
-
 	/* Resolve the primary key if required (Step 1). */
 	if(flags == DB_CURRENT) {
-		if((ret = __dbc_put_resolve_key(dbc,
-		    &oldkey, &olddata, &put_state, flags)) != 0)
+		if((ret = __dbc_put_resolve_key(dbc, &oldkey, &olddata, &put_state, flags)) != 0)
 			goto err;
 		key = &oldkey;
 	}
 	else if(flags == DB_APPEND) {
-		if((ret = __dbc_put_append(dbc,
-		    key, data, &put_state, flags)) != 0)
+		if((ret = __dbc_put_append(dbc, key, data, &put_state, flags)) != 0)
 			goto err;
 	}
-
 	/*
 	 * PUT_NOOVERWRITE with secondaries is a troublesome case. We need
 	 * to check that the insert will work prior to making any changes
@@ -2015,32 +1931,25 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		else if(ret != DB_NOTFOUND && ret != DB_KEYEMPTY)
 			goto err;
 	}
-
 	/*
 	 * Check for partial puts using DB_DBT_PARTIAL (Step 2).
 	 */
 	if(F_ISSET(data, DB_DBT_PARTIAL)) {
-		if((ret = __dbc_put_partial(dbc,
-		    key, data, &olddata, &newdata, &put_state, flags)) != 0)
+		if((ret = __dbc_put_partial(dbc, key, data, &olddata, &newdata, &put_state, flags)) != 0)
 			goto err;
 	}
 	else {
 		newdata = *data;
 	}
-
 	/*
 	 * Check for partial puts, with fixed length record databases (Step 2).
 	 */
-	if((dbp->type == DB_RECNO && F_ISSET(dbp, DB_AM_FIXEDLEN)) ||
-	    (dbp->type == DB_QUEUE)) {
+	if((dbp->type == DB_RECNO && F_ISSET(dbp, DB_AM_FIXEDLEN)) || (dbp->type == DB_QUEUE)) {
 		if((ret = __dbc_put_fixed_len(dbc, data, &newdata)) != 0)
 			goto err;
 	}
-
 	/* Validate any foreign databases, and update secondaries. (Step 3). */
-	if((ret = __dbc_put_secondaries(dbc, key, &newdata,
-	    &olddata, s_count, all_skeys, &put_state))
-	    != 0)
+	if((ret = __dbc_put_secondaries(dbc, key, &newdata, &olddata, s_count, all_skeys, &put_state)) != 0)
 		goto err;
 	/*
 	 * If we've already got the old primary key/data pair, the secondary
@@ -2048,7 +1957,6 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	 */
 	if(FLD_ISSET(put_state, DBC_PUT_HAVEREC))
 		goto done;
-
 	/*
 	 * If still necessary, go get the old primary key/data.  (Step 4.)
 	 *
@@ -2067,17 +1975,13 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-
 	/*
 	 * Check whether we do in fact have an old record we may need to
 	 * delete.  (Step 5).
 	 */
 	if(FLD_ISSET(put_state, DBC_PUT_NODEL))
 		goto done;
-
-	for(ret = __db_s_first(dbp, &sdbp), skeyp = all_skeys;
-	    sdbp != NULL && ret == 0;
-	    ret = __db_s_next(&sdbp, dbc->txn), skeyp++) {
+	for(ret = __db_s_first(dbp, &sdbp), skeyp = all_skeys; sdbp != NULL && ret == 0; ret = __db_s_next(&sdbp, dbc->txn), skeyp++) {
 		DB_ASSERT(env, skeyp - all_skeys < s_count);
 		/*
 		 * Don't process this secondary if the key is immutable.  We
@@ -2086,36 +1990,26 @@ static int __dbc_put_primary(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 		 */
 		if(FLD_ISSET(sdbp->s_assoc_flags, DB_ASSOC_IMMUTABLE_KEY))
 			continue;
-
-		if((ret = __dbc_del_oldskey(sdbp, dbc,
-		    skeyp, key, &olddata)) != 0 && ret != DB_KEYEXIST)
+		if((ret = __dbc_del_oldskey(sdbp, dbc, skeyp, key, &olddata)) != 0 && ret != DB_KEYEXIST)
 			goto err;
 	}
 	if(ret != 0)
 		goto err;
-
 done:
 err:
 	if((t_ret = __dbc_cleanup(dbc, dbc_n, ret)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/* If newdata or olddata were used, free their buffers. */
 	if(newdata.data != NULL && newdata.data != data->data)
 		__os_free(env, newdata.data);
 	if(olddata.data != NULL)
 		__os_ufree(env, olddata.data);
-
-	if(sdbp != NULL &&
-	    (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && ret == 0)
+	if(sdbp != NULL && (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if(all_skeys != NULL) {
 		for(skeyp = all_skeys; skeyp - all_skeys < s_count; skeyp++) {
 			if(F_ISSET(skeyp, DB_DBT_MULTIPLE)) {
-				for(nskey = skeyp->size,
-				    tskeyp = (DBT*)skeyp->data;
-				    nskey > 0;
-				    nskey--, tskeyp++)
+				for(nskey = skeyp->size, tskeyp = (DBT*)skeyp->data; nskey > 0; nskey--, tskeyp++)
 					FREE_IF_NEEDED(env, tskeyp);
 			}
 			FREE_IF_NEEDED(env, skeyp);
@@ -2124,12 +2018,11 @@ err:
 	}
 	return ret;
 }
-
 /*
  * __dbc_put --
  *	Put using a cursor.
  *
- * PUBLIC: int __dbc_put __P((DBC *, DBT *, DBT *, uint32));
+ * PUBLIC: int __dbc_put(DBC *, DBT *, DBT *, uint32);
  */
 int __dbc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 {
@@ -2150,23 +2043,17 @@ int __dbc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags)
 	 * there are sorted duplicates.  Limit the number of places that need
 	 * to test for it explicitly.
 	 */
-	if(flags == DB_UPDATE_SECONDARY || flags == 0 ||
-	    (flags == DB_OVERWRITE_DUP && !F_ISSET(dbp, DB_AM_DUPSORT)))
+	if(flags == DB_UPDATE_SECONDARY || flags == 0 || (flags == DB_OVERWRITE_DUP && !F_ISSET(dbp, DB_AM_DUPSORT)))
 		flags = DB_KEYLAST;
-
 	CDB_LOCKING_INIT(dbc->env, dbc);
-
-	PERFMON6(env, db, put, dbp->fname, dbp->dname,
-	    dbc->txn == NULL ? 0 : dbc->txn->txnid, key, data, flags);
+	PERFMON6(env, db, put, dbp->fname, dbp->dname, dbc->txn == NULL ? 0 : dbc->txn->txnid, key, data, flags);
 	/*
 	 * Check to see if we are a primary and have secondary indices.
 	 * If we are not, we save ourselves a good bit of trouble and
 	 * just skip to the "normal" put.
 	 */
-	if(DB_IS_PRIMARY(dbp) &&
-	    ((ret = __dbc_put_primary(dbc, key, data, flags)) != 0))
+	if(DB_IS_PRIMARY(dbp) && ((ret = __dbc_put_primary(dbc, key, data, flags)) != 0))
 		goto done;
-
 	/*
 	 * If this is an append operation, the insert was done prior to the
 	 * secondary updates, so we are finished.
@@ -2894,23 +2781,18 @@ static int __dbc_pget_recno(DBC *sdbc, DBT * pkey, DBT * data, uint32 flags)
 		    pdbp->type, PGNO_INVALID, 0, sdbc->locker, &pdbc)) != 0)
 			goto perr;
 		SET_RET_MEM(pdbc, sdbc);
-		if((ret = __dbc_get(pdbc,
-		    &primary_key, &discardme, rmw | DB_SET)) != 0)
+		if((ret = __dbc_get(pdbc, &primary_key, &discardme, rmw | DB_SET)) != 0)
 			goto perr;
-
 		ret = __dbc_get(pdbc, &discardme, data, rmw | DB_GET_RECNO);
-
-perr:           __os_ufree(env, primary_key.data);
-		if(pdbc != NULL &&
-		    (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
+	perr:           
+		__os_ufree(env, primary_key.data);
+		if(pdbc != NULL && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		if(ret != 0)
 			return ret;
 	}
-	else if((ret = __db_retcopy(env, data, &oob,
-	    sizeof(oob), &sdbc->rkey->data, &sdbc->rkey->ulen)) != 0)
+	else if((ret = __db_retcopy(env, data, &oob, sizeof(oob), &sdbc->rkey->data, &sdbc->rkey->ulen)) != 0)
 		return ret;
-
 	/*
 	 * If the secondary is an rbtree, we want its record number, whether
 	 * or not the primary is one too.  Fetch the recno into "pkey".
@@ -3408,7 +3290,6 @@ int __db_s_done(DB *sdbp, DB_TXN * txn)
 	pdbp = sdbp->s_primary;
 	env = pdbp->env;
 	doclose = 0;
-
 	MUTEX_LOCK(env, pdbp->mutex);
 	DB_ASSERT(env, sdbp->s_refcnt != 0);
 	if(--sdbp->s_refcnt == 0) {
@@ -3416,14 +3297,9 @@ int __db_s_done(DB *sdbp, DB_TXN * txn)
 		doclose = 1;
 	}
 	MUTEX_UNLOCK(env, pdbp->mutex);
-
-	if(doclose == 0)
-		ret = 0;
-	else
-		ret = __db_close(sdbp, txn, 0);
+	ret = doclose ? __db_close(sdbp, txn, 0) : 0;
 	return ret;
 }
-
 /*
  * __db_s_count --
  *	Count the number of secondaries associated with a given primary.
@@ -3441,7 +3317,6 @@ static int __db_s_count(DB *pdbp)
 	MUTEX_UNLOCK(env, pdbp->mutex);
 	return (count);
 }
-
 /*
  * __db_buildpartial --
  *	Build the record that will result after a partial put is applied to
@@ -3549,11 +3424,9 @@ int __dbc_diags(DBC *dbc, int err)
 		(void)__db_remember_context(dbc->env, mb, err);
 #ifdef HAVE_SLICES
 		if(dbc->env->slice_container != NULL)
-			__db_msgadd(dbc->env, mb, "slice %d: ",
-			    dbc->env->slice_index);
+			__db_msgadd(dbc->env, mb, "slice %d: ", dbc->env->slice_index);
 #endif
-		__db_msgadd(dbc->env, mb, "DB: %s:%s\n",
-		    dbc->dbp->fname == NULL ? "in-mem" : dbc->dbp->fname,
+		__db_msgadd(dbc->env, mb, "DB: %s:%s\n", dbc->dbp->fname == NULL ? "in-mem" : dbc->dbp->fname,
 		    dbc->dbp->dname == NULL ? "" : dbc->dbp->fname);
 	}
 	return (err);

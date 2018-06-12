@@ -1677,23 +1677,23 @@
 #define STDCTL_LOCMENUBUTTON_FIRST 121
 #define STDCTL_LOCMENUBUTTON_LAST  140
 
-#define STDCTL_UHTT               141 // @v7.2.6
-#define STDCTL_IMGADDBUTTON       142 // @v7.7.0
-#define STDCTL_IMGDELBUTTON       143 // @v7.7.0
-#define STDCTL_IMGPSTBUTTON       144 // @v7.7.0
+#define STDCTL_UHTT               141 //
+#define STDCTL_IMGADDBUTTON       142 //
+#define STDCTL_IMGDELBUTTON       143 //
+#define STDCTL_IMGPSTBUTTON       144 //
 #define STDCTL_SELECTOR_WHAT      145
 #define STDCTL_ACTIVATEBUTTON     146
-#define STDCTL_BILLSBUTTON        147 // @v8.0.4
-#define STDCTL_REGISTERSBUTTON    148 // @v8.3.6 Кнопка "Регистры" (@but_registers)
-#define STDCTL_SCSERLISTBUTTON    149 // @v7.9.11 Кнопка выбора списка серий персональных карт
-#define STDCTL_ARLISTBUTTON       150 // @v7.9.11 Кнопка выбора списка статей
-#define STDCTL_AGENTLISTBUTTON    151 // @v7.9.11 Кнопка выбора списка агентов
-#define STDCTL_AGREEMENTBUTTON    152 // @v8.2.4  Кнопка соглашения с покупателем/поставщиком
-#define STDCTL_SYSINFOBUTTON      153 // @v8.2.8  Кнопка системной информации по объекту
-#define STDCTL_VIEWOPTBUTTON      154 // @v8.3.6  Кнопка "Опции просмотра"
-#define STDCTL_SJBUTTON           155 // @v8.4.2  Кнопка "Системные события" (для внутреннего фильтра по сис журналу и для просмотра событий)
-#define STDCTL_PERSONBUTTON       156 // @v8.5.6  Кнопка "Персоналия"
-#define STDCTL_LINKOBJBUTTON      157 // @v8.9.12 Кнопка "Связанный объект"
+#define STDCTL_BILLSBUTTON        147 //
+#define STDCTL_REGISTERSBUTTON    148 // Кнопка "Регистры" (@but_registers)
+#define STDCTL_SCSERLISTBUTTON    149 // Кнопка выбора списка серий персональных карт
+#define STDCTL_ARLISTBUTTON       150 // Кнопка выбора списка статей
+#define STDCTL_AGENTLISTBUTTON    151 // Кнопка выбора списка агентов
+#define STDCTL_AGREEMENTBUTTON    152 // Кнопка соглашения с покупателем/поставщиком
+#define STDCTL_SYSINFOBUTTON      153 // Кнопка системной информации по объекту
+#define STDCTL_VIEWOPTBUTTON      154 // Кнопка "Опции просмотра"
+#define STDCTL_SJBUTTON           155 // Кнопка "Системные события" (для внутреннего фильтра по сис журналу и для просмотра событий)
+#define STDCTL_PERSONBUTTON       156 // Кнопка "Персоналия"
+#define STDCTL_LINKOBJBUTTON      157 // Кнопка "Связанный объект"
 #define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
 #define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
 
@@ -10413,6 +10413,37 @@
 	#define CTLBRW_CORGSTRUC_LOG      (2 + WINDOWS_ID_BIAS)
 	#define CTL_CORGSTRUC_FLAGS       (3 + WINDOWS_ID_BIAS)
 #define DLG_NGSVIEW               1340
+#define DLG_VETDOCFLT             1341
+	#define CTL_VETDOCFLT_PRD         (1 + WINDOWS_ID_BIAS)
+	#define CTLCAL_VETDOCFLT_PRD      (2 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_WBPRD       (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_VETDOCFLT_WBPRD    (4 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_STATUS      (5 + WINDOWS_ID_BIAS)
+#define DLG_VETVDOC               1342
+	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_DT            (3 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_NUM           (4 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_WBDT          (5 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_WBNUM         (6 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_FROMSI        (7 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_FROMNAM       (8 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_FROMLNK       (9 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_TOSI          (10 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_TONAM         (11 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_TOLNK         (12 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_PRODSI        (13 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_PRODNAM       (14 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_SPRODSI       (15 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_SPRODNAM      (16 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_ITEMSI        (17 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_ITEMNAM       (18 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_ITEMLNK       (19 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_VDFORM        (20 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_VDSTATUS      (21 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_VDTYPE        (22 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_QTTY          (23 + WINDOWS_ID_BIAS)
+#define DLG_SELVDOCUPD            1343
 //
 // Win32 Dialog Identifiers
 //

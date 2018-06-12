@@ -43,27 +43,27 @@ static void PDF_options(GpCommand & rC);
 static void PDF_init();
 static void PDF_graphics();
 static void PDF_text();
-static void PDF_linetype __PROTO((int linetype));
-static void PDF_move __PROTO((uint x, uint y));
-static void PDF_vector __PROTO((uint x, uint y));
-static void PDF_put_text __PROTO((uint x, uint y, const char * str));
+static void PDF_linetype(int linetype);
+static void PDF_move(uint x, uint y);
+static void PDF_vector(uint x, uint y);
+static void PDF_put_text(uint x, uint y, const char * str);
 static void PDF_reset();
-static int PDF_justify_text __PROTO((enum JUSTIFY mode));
-static int PDF_text_angle __PROTO((int ang));
-static void PDF_point __PROTO((uint x, uint y, int pointstyle));
-static int PDF_set_font __PROTO((const char* font));
-static void PDF_boxfill __PROTO((int style, uint x1, uint y1, uint width, uint height));
-static void PDF_linewidth __PROTO((double linewidth));
+static int PDF_justify_text(enum JUSTIFY mode);
+static int PDF_text_angle(int ang);
+static void PDF_point(uint x, uint y, int pointstyle);
+static int PDF_set_font(const char * font);
+static void PDF_boxfill(int style, uint x1, uint y1, uint width, uint height);
+static void PDF_linewidth(double linewidth);
 static int PDF_make_palette __PROTO((t_sm_palette*));
 static void PDF_previous_palette();
 static void PDF_set_color __PROTO((t_colorspec*));
 static void PDF_image __PROTO((uint, uint, double *, gpiPoint *, t_imagecolor));
 
-static void PDF_filled_polygon __PROTO((int, gpiPoint *));
+static void PDF_filled_polygon(int, gpiPoint *);
 
 /* To support "set term png enhanced" */
-static void ENHPDF_put_text __PROTO((uint x, uint y, const char * str));
-static void ENHPDF_OPEN __PROTO((char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint));
+static void ENHPDF_put_text(uint x, uint y, const char * str);
+static void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 static void ENHPDF_FLUSH();
 
 #define PDF_NUM_POINTTYPES 75   /* number of point symbol types not counting the dot */
@@ -366,7 +366,7 @@ static void PDF_options(GpCommand & rC)
 				*comma = '\0';
 			if(*s)
 				strncpy(PDF_fontNameDef, s, sizeof(PDF_fontNameDef));
-			free(s);
+			SAlloc::F(s);
 			continue;
 		}
 
@@ -518,7 +518,7 @@ static void PDF_init()
 	username = getusername();
 	if(username) {
 		PDF_set_info(myPDF, "Author", username);
-		free(username);
+		SAlloc::F(username);
 	}
 
 	if(outstr)
@@ -526,7 +526,7 @@ static void PDF_init()
 	PDF_set_info(myPDF, "Subject", "gnuplot plot");
 
 	if(gpversionstring)
-		free(gpversionstring);
+		SAlloc::F(gpversionstring);
 
 	PDF_LineType = LT_UNDEFINED;
 
@@ -1447,7 +1447,7 @@ static void PDF_image(uint M, uint N, double * image, gpiPoint * corner, t_image
 
 	/* Clean up */
 	PDF_close_image(myPDF, im);
-	free(rawrgb);
+	SAlloc::F(rawrgb);
 }
 
 /*

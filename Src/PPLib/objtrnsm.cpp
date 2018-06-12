@@ -320,14 +320,9 @@ void SLAPI ObjReceiveParam::Init()
 }
 
 int SLAPI ObjReceiveParam::CheckDbDivID(PPID id) const
-{
-	return BIN(!SenderDbDivList.getCount() || SenderDbDivList.lsearch(id));
-}
-
+	{ return BIN(!SenderDbDivList.getCount() || SenderDbDivList.lsearch(id)); }
 int SLAPI ObjReceiveParam::Write(SBuffer & rBuf, long) const
-{
-	return (rBuf.Write(Flags) && rBuf.Write(&SenderDbDivList, 0)) ? 1 : PPSetErrorSLib();
-}
+	{ return (rBuf.Write(Flags) && rBuf.Write(&SenderDbDivList, 0)) ? 1 : PPSetErrorSLib(); }
 
 int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 {
@@ -343,7 +338,7 @@ int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 //
 //
 SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger) : State(0), P_Ot(0), P_Btd(0), P_ThisDbDivPack(0), P_SrcDbDivPack(0), P_DestDbDivPack(0),
-	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1), TransmitSince(ZERODATETIME)
+	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1), TransmitSince(ZERODATETIME), P_Gra(0)
 {
 	MEMSZERO(Cfg);
 	if(pLogger) {
@@ -358,6 +353,7 @@ SLAPI ObjTransmContext::~ObjTransmContext()
 {
 	//delete P_Btd;
 	delete P_ForceRestoreObj;
+	delete P_Gra; // @v10.0.12
 	P_Ot = 0;
 	if(!(State & stOuterLogger)) {
 		ZDELETE(P_Logger);
@@ -485,6 +481,11 @@ SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int rec
 	Ctx.Flags = 0;
 	Ctx.P_Ot = this;
 	PPObjectTransmit::ReadConfig(&Ctx.Cfg);
+	// @v10.0.12 {
+	if(Ctx.Cfg.SpcSubstGoodsGrpID) {
+		Ctx.P_Gra = new GoodsReplacementArray(Ctx.Cfg.SpcSubstGoodsGrpID);
+	}
+	// } @v10.0.12 
 	if(Mode == PPObjectTransmit::tmReading) {
 		SetDestDbDivID(r_cfg.DBDiv);
 		Ctx.P_DestDbDivPack = 0;

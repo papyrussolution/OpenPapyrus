@@ -103,12 +103,12 @@ static void MIF_text();
 static void MIF_linetype(int linetype);
 static void MIF_move(uint x, uint y);
 static void MIF_vector(uint x, uint y);
-static void MIF_put_text __PROTO((uint x, uint y, const char * str));
+static void MIF_put_text(uint x, uint y, const char * str);
 static int MIF_text_angle(int ang);
 static void MIF_reset();
 static void MIF_options(GpCommand & rC);
-static int MIF_justify_text __PROTO((enum JUSTIFY mode));
-static void MIF_point __PROTO((uint x, uint y, int number));
+static int MIF_justify_text(enum JUSTIFY mode);
+static void MIF_point(uint x, uint y, int number);
 static void MIF_boxfill __PROTO((int style, uint x1, uint y1,
 	    uint width, uint height));
 static void MIF_filled_polygon __PROTO((int points, gpiPoint* corners));
@@ -318,7 +318,7 @@ static void free_mif_line()
 		mif_line.prev->next = &mif_line;
 
 		/* Deallocate */
-		free(tline);
+		SAlloc::F(tline);
 	}
 
 	/* Make sure that the list will be empty */

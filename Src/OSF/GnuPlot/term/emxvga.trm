@@ -71,7 +71,7 @@ static void EMXVGA_linetype(int);
 static void EMXVGA_move(uint, uint);
 static void EMXVGA_vector(uint, uint);
 static int EMXVGA_text_angle(int);
-static void EMXVGA_put_text __PROTO((uint, uint, const char *));
+static void EMXVGA_put_text(uint, uint, const char *);
 #define EMXVGA_VCHAR 8
 #define EMXVGA_HCHAR 8
 #define EMXVGA_VTIC 4
@@ -370,7 +370,7 @@ static void
 EMXVGA_suspend()
 {
     if(EMXVGA_buf)
-	free(EMXVGA_buf);	/* do this just for safety */
+	SAlloc::F(EMXVGA_buf);	/* do this just for safety */
     EMXVGA_buf = (char *) malloc(g_memsize);
     g_save(EMXVGA_buf);
     emx_getch();
@@ -382,7 +382,7 @@ EMXVGA_resume()
 {
     g_mode(EMXVGA_vmode);
     g_restore(EMXVGA_buf);
-    free(EMXVGA_buf);
+    SAlloc::F(EMXVGA_buf);
 }
 
 #ifdef EMXVESA

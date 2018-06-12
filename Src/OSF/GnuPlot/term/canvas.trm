@@ -215,11 +215,11 @@ static void CANVAS_options(GpCommand & rC)
 		canvas_fontscale = 1.0;
 		CANVAS_standalone = true;
 		CANVAS_mouseable = false;
-		free(CANVAS_name);
+		SAlloc::F(CANVAS_name);
 		CANVAS_name = NULL;
-		free(CANVAS_title);
+		SAlloc::F(CANVAS_title);
 		CANVAS_title = NULL;
-		free(CANVAS_scriptdir);
+		SAlloc::F(CANVAS_scriptdir);
 		CANVAS_scriptdir = NULL;
 		canvas_linewidth = 1.0;
 		canvas_dashed = true;
@@ -269,7 +269,7 @@ static void CANVAS_options(GpCommand & rC)
 			    break;
 			case CANVAS_FONT:
 			    /* FIXME: See note at CANVAS_set_font() */
-			    free(canvas_font_name);
+			    SAlloc::F(canvas_font_name);
 			    if(!(canvas_font_name = rC.TryToGetString()))
 				    GpGg.IntErrorCurToken("font: expecting string");
 			    CANVAS_set_font(canvas_font_name);
@@ -688,8 +688,8 @@ static void CANVAS_text()
 			fprintf(gpoutfile, "  %s_image_%02d.src = \"%s\";\n",
 			    base_name, thisimage->imageno, thisimage->filename);
 			imagelist = thisimage->next;
-			free(thisimage->filename);
-			free(thisimage);
+			SAlloc::F(thisimage->filename);
+			SAlloc::F(thisimage);
 			thisimage = imagelist;
 		}
 	}
@@ -995,7 +995,7 @@ static void CANVAS_point(uint x, uint y, int number)
 			*strchr(CANVAS_hypertext_text, '\n') = '\v';
 		fprintf(gpoutfile, "Hypertext(%d,%d,%.1f,\"%s\");\n",
 		    x, (canvas_ymax-y), width, CANVAS_hypertext_text);
-		free(CANVAS_hypertext_text);
+		SAlloc::F(CANVAS_hypertext_text);
 		CANVAS_hypertext_text = NULL;
 	}
 }
@@ -1300,7 +1300,7 @@ static void CANVAS_hypertext(int type, const char * hypertext)
 	if(type != TERM_HYPERTEXT_TOOLTIP)
 		return;
 
-	free(CANVAS_hypertext_text);
+	SAlloc::F(CANVAS_hypertext_text);
 	if(hypertext)
 		CANVAS_hypertext_text = gp_strdup(hypertext);
 	else
@@ -1474,11 +1474,9 @@ static void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	strncpy(enhanced_escape_format, "%c", sizeof(enhanced_escape_format));
 	ENHCANVAS_opened_string = false;
 	ENHCANVAS_fontsize = canvas_font_size;
-	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
+	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = true;
-
-	while(*(str = enhanced_recursion((char*)str, true,
-			    fontname, fontsize, 0.0, true, true, 0))) {
+	while(*(str = enhanced_recursion((char*)str, true, fontname, fontsize, 0.0, true, true, 0))) {
 		(term->enhanced_flush)();
 		enh_err_check(str);
 		if(!*++str)
@@ -1489,18 +1487,16 @@ static void ENHCANVAS_put_text(uint x, uint y, const char * str)
 	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
 	/* After seeing where the final position is, we then offset the start  */
 	/* point accordingly and run it again without the flag set.            */
-	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center")) {
+	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center")) {
 		char * justification = canvas_justify;
 		int x_offset = canvas_x - x;
 		int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
-
 		canvas_justify = "";
 		ENHCANVAS_sizeonly = false;
-
-		if(!strcmp(justification, "Right")) {
+		if(sstreq(justification, "Right")) {
 			ENHCANVAS_put_text(x - x_offset, y - y_offset, original_string);
 		}
-		else if(!strcmp(justification, "Center")) {
+		else if(sstreq(justification, "Center")) {
 			ENHCANVAS_put_text(x - x_offset/2, y - y_offset/2, original_string);
 		}
 		canvas_justify = justification;

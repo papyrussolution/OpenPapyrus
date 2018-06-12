@@ -91,18 +91,18 @@ static void PSLATEX_reset();
 /* All these routines begin with PSTEX_ */
 static void PSTEX_reopen_output();
 static void PSTEX_common_init();
-static void PSTEX_put_text __PROTO((uint x, uint y, const char * str));
+static void PSTEX_put_text(uint x, uint y, const char * str);
 static void PSTEX_text();
 
 /* Functions for epslatex */
 /* All these routines begin with EPSLATEX_ */
 static void EPSLATEX_reopen_output(char *);
 static void EPSLATEX_common_init();
-static void EPSLATEX_put_text __PROTO((uint x, uint y, const char * str));
+static void EPSLATEX_put_text(uint x, uint y, const char * str);
 static void EPSLATEX_linetype(int linetype);
-static void EPSLATEX_layer __PROTO((t_termlayer syncpoint));
+static void EPSLATEX_layer(t_termlayer syncpoint);
 #ifdef EAM_BOXED_TEXT
-static void EPSLATEX_boxed_text __PROTO((uint, uint, int));
+static void EPSLATEX_boxed_text(uint, uint, int);
 #endif
 
 /* additional LaTeX header information for epslatex terminal */
@@ -133,7 +133,7 @@ static bool tex_color_synced = false;
 /* support for cairolatex */
 #ifdef HAVE_CAIROPDF
 #define ISCAIROTERMINAL ((strcmp(term->name, "cairolatex") == 0))
-static void cairotrm_set_color __PROTO((t_colorspec *colorspec));
+static void cairotrm_set_color(t_colorspec * colorspec);
 #else
 #define ISCAIROTERMINAL (false)
 #endif
@@ -208,7 +208,7 @@ static void PSTEX_reopen_output()
 				if(gppsfile  == (FILE*)NULL) {
 					fprintf(stderr, "Cannot open aux file %s for output. Switching off auxfile option.\n",
 					    pslatex_auxname);
-					free(pslatex_auxname);
+					SAlloc::F(pslatex_auxname);
 					pslatex_auxname = NULL;
 					ps_params->useauxfile = false;
 					gppsfile = gpoutfile;
@@ -388,8 +388,8 @@ static void PSTEX_text()
 	}
 	while(pstex_labels) {
 		tc = pstex_labels->next;
-		free(pstex_labels->label);
-		free(pstex_labels);
+		SAlloc::F(pstex_labels->label);
+		SAlloc::F(pstex_labels);
 		pstex_labels = tc;
 	}
 }
@@ -408,7 +408,7 @@ static void EPSLATEX_common_init()
 			strcpy(temp, outstr);
 			GpGg.TermSetOutput(term, temp); /* will free outstr */
 			if(temp != outstr) {
-				free(temp);
+				SAlloc::F(temp);
 				temp = outstr;
 			}
 		}
@@ -729,11 +729,11 @@ static void EPSLATEX_common_init()
 	}
 
 	if(fontfamily)
-		free(fontfamily);
+		SAlloc::F(fontfamily);
 	if(fontseries)
-		free(fontseries);
+		SAlloc::F(fontseries);
 	if(fontshape)
-		free(fontshape);
+		SAlloc::F(fontshape);
 }
 
 static void EPSLATEX_put_text(uint x, uint y, const char * str)
@@ -823,7 +823,7 @@ void EPSLATEX_reopen_output(char * ext)
 		strncpy(pslatex_auxname, psoutstr, strlen(psoutstr)-4);
 		pslatex_auxname[strlen(psoutstr)-4] = '\0';
 
-		free(psoutstr);
+		SAlloc::F(psoutstr);
 	}
 }
 

@@ -70,7 +70,7 @@ int __os_get_syserr()
  * __os_set_errno --
  *	Set the value of errno.
  */
-void __os_set_errno(int evalue)
+void FASTCALL __os_set_errno(int evalue)
 {
 	/*
 	 * This routine is called by the compatibility interfaces (DB 1.85,
@@ -80,10 +80,8 @@ void __os_set_errno(int evalue)
 	 * As the compatibility APIs aren't included on Windows, the Windows
 	 * version of this routine doesn't need this behavior.
 	 */
-	errno =
-	    evalue >= 0 ? evalue : (evalue == DB_RUNRECOVERY ? EFAULT : EINVAL);
+	errno = evalue >= 0 ? evalue : (evalue == DB_RUNRECOVERY ? EFAULT : EINVAL);
 }
-
 /*
  * __os_strerror --
  *	Return a string associated with the system error.
@@ -125,30 +123,16 @@ int __os_posix_err(int error)
 	 * Translate the Windows error codes we care about.
 	 */
 	switch(error) {
-		case ERROR_INVALID_PARAMETER:
-		    return EINVAL;
-
+		case ERROR_INVALID_PARAMETER: return EINVAL;
 		case ERROR_FILE_NOT_FOUND:
 		case ERROR_INVALID_DRIVE:
-		case ERROR_PATH_NOT_FOUND:
-		    return (USR_ERR(env, ENOENT));
-
+		case ERROR_PATH_NOT_FOUND: return (USR_ERR(env, ENOENT));
 		case ERROR_NO_MORE_FILES:
-		case ERROR_TOO_MANY_OPEN_FILES:
-		    return (EMFILE);
-
-		case ERROR_ACCESS_DENIED:
-		    return (EPERM);
-
-		case ERROR_INVALID_HANDLE:
-		    return (EBADF);
-
-		case ERROR_NOT_ENOUGH_MEMORY:
-		    return (ENOMEM);
-
-		case ERROR_DISK_FULL:
-		    return (ENOSPC);
-
+		case ERROR_TOO_MANY_OPEN_FILES: return (EMFILE);
+		case ERROR_ACCESS_DENIED: return (EPERM);
+		case ERROR_INVALID_HANDLE: return (EBADF);
+		case ERROR_NOT_ENOUGH_MEMORY: return (ENOMEM);
+		case ERROR_DISK_FULL: return (ENOSPC);
 		case ERROR_ARENA_TRASHED:
 		case ERROR_BAD_COMMAND:
 		case ERROR_BAD_ENVIRONMENT:
@@ -158,29 +142,17 @@ int __os_posix_err(int error)
 		case ERROR_INVALID_BLOCK:
 		case ERROR_INVALID_DATA:
 		case ERROR_READ_FAULT:
-		case ERROR_WRITE_FAULT:
-		    return (EFAULT);
-
+		case ERROR_WRITE_FAULT: return (EFAULT);
 		case ERROR_ALREADY_EXISTS:
-		case ERROR_FILE_EXISTS:
-		    return (EEXIST);
-
-		case ERROR_NOT_SAME_DEVICE:
-		    return (EXDEV);
-
-		case ERROR_WRITE_PROTECT:
-		    return (EACCES);
-
+		case ERROR_FILE_EXISTS: return (EEXIST);
+		case ERROR_NOT_SAME_DEVICE: return (EXDEV);
+		case ERROR_WRITE_PROTECT: return (EACCES);
 		case ERROR_LOCK_FAILED:
 		case ERROR_LOCK_VIOLATION:
 		case ERROR_NOT_READY:
-		case ERROR_SHARING_VIOLATION:
-		    return (EBUSY);
-
-		case ERROR_RETRY:
-		    return (EINTR);
+		case ERROR_SHARING_VIOLATION: return (EBUSY);
+		case ERROR_RETRY: return (EINTR);
 	}
-
 	/*
 	 * Translate the Windows socket error codes.
 	 */
@@ -381,14 +353,10 @@ int __os_posix_err(int error)
 #else
 		    break;
 #endif
-		case WSASYSNOTREADY:
-		    return (EAGAIN);
-		case WSATRY_AGAIN:
-		    return (EAGAIN);
-		case WSAVERNOTSUPPORTED:
-		    return (DB_OPNOTSUP);
-		case WSAEACCES:
-		    return (EACCES);
+		case WSASYSNOTREADY: return (EAGAIN);
+		case WSATRY_AGAIN: return (EAGAIN);
+		case WSAVERNOTSUPPORTED: return (DB_OPNOTSUP);
+		case WSAEACCES: return (EACCES);
 	}
 	/*
 	 * EFAULT is the default if we don't have a translation.

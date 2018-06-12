@@ -32,11 +32,8 @@ int __env_fileid_reset_pp(DB_ENV *dbenv, const char * name, uint32 flags)
 	 */
 	if(flags != 0 && flags != DB_ENCRYPT)
 		return (__db_ferr(env, "DB_ENV->fileid_reset", 0));
-
 	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env,
-	    (__env_fileid_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)),
-	    1, ret);
+	REPLICATION_WRAP(env, (__env_fileid_reset(env, ip, name, LF_ISSET(DB_ENCRYPT) ? 1 : 0)), 1, ret);
 	ENV_LEAVE(env, ip);
 	return ret;
 }

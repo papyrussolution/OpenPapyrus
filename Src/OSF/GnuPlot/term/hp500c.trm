@@ -117,7 +117,7 @@ static void HP500C_text();
 
 static int HP_compress __PROTO((unsigned char * op, unsigned char * oe,
 	    unsigned char * cp));
-static unsigned char HP_complement __PROTO((int c));
+static unsigned char HP_complement(int c);
 static int HP_compress_to_TIFF __PROTO((unsigned char * op, unsigned char * oe,
 	    unsigned char * cp));
 static int HP_nocompress __PROTO((unsigned char * op, unsigned char * oe,
@@ -145,31 +145,30 @@ static void HP500C_options(GpCommand & rC)
 			GpGg.IntErrorCurToken(HPDJCERROR);
 		/* almost_equals() won't accept numbers - use strcmp() instead */
 		rC.Capture(opt, rC.CToken, rC.CToken, 6);
-		if(!strcmp(opt, "75")) {
+		if(sstreq(opt, "75")) {
 			hpdj_dpp = 4;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "100")) {
+		else if(sstreq(opt, "100")) {
 			hpdj_dpp = 3;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "150")) {
+		else if(sstreq(opt, "150")) {
 			hpdj_dpp = 2;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "300")) {
+		else if(sstreq(opt, "300")) {
 			hpdj_dpp = 1;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "rle")) {
+		else if(sstreq(opt, "rle")) {
 			HP_COMP_MODE = 1;
 		}
-		else if(!strcmp(opt, "tiff")) {
+		else if(sstreq(opt, "tiff")) {
 			HP_COMP_MODE = 2;
 		}
 		rC.CToken++;
 	}
-
 	term->xmax = HP500C_XMAX;
 	term->ymax = HP500C_YMAX;
 	switch(hpdj_dpp) {
@@ -385,7 +384,7 @@ static int HP_nocompress(unsigned char * op, unsigned char * oe, unsigned char *
 
 static void HP500C_text()
 {
-	register int x, j, row, count = 0;
+	int x, j, row, count = 0;
 	unsigned char * obuf, * oe, * cbuf, * ce;
 
 	if((obuf = (unsigned char*)malloc(100 * GpBmB.b_psize)) == 0)
@@ -467,8 +466,8 @@ static void HP500C_text()
 		oe = obuf;
 	}
 	fputs("\033*rbC", gpoutfile);
-	free(cbuf);
-	free(obuf);
+	SAlloc::F(cbuf);
+	SAlloc::F(obuf);
 	GpBmB.Destroy();
 
 #ifndef VMS

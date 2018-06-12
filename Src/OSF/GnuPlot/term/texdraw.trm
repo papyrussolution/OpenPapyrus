@@ -67,11 +67,11 @@ static void TEXDRAW_graphics();
 static void TEXDRAW_text();
 static void TEXDRAW_linetype(int linetype);
 static void TEXDRAW_move(uint x, uint y);
-static void TEXDRAW_point __PROTO((uint x, uint y, int number));
-static void TEXDRAW_vector __PROTO((uint ux, uint uy));
-static void TEXDRAW_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
-static void TEXDRAW_put_text __PROTO((uint x, uint y, const char str[]));
-static int TEXDRAW_justify_text __PROTO((enum JUSTIFY mode));
+static void TEXDRAW_point(uint x, uint y, int number);
+static void TEXDRAW_vector(uint ux, uint uy);
+static void TEXDRAW_arrow(uint sx, uint sy, uint ex, uint ey, int head);
+static void TEXDRAW_put_text(uint x, uint y, const char str[]);
+static int TEXDRAW_justify_text(enum JUSTIFY mode);
 static int TEXDRAW_text_angle(int ang);
 static void TEXDRAW_reset();
 

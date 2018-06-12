@@ -91,13 +91,13 @@ static void TPIC_reset();
 static void TPIC_text();
 static void TPIC_graphics();
 static void TPIC_move(uint x, uint y);
-static void TPIC_vector __PROTO((uint ux, uint uy));
+static void TPIC_vector(uint ux, uint uy);
 static void TPIC_linetype(int linetype);
-static void TPIC_put_text __PROTO((uint x, uint y, const char * str));   /* ref point and text */
+static void TPIC_put_text(uint x, uint y, const char * str);   /* ref point and text */
 static int TPIC_text_angle(int ang);
-static int TPIC_justify_text __PROTO((enum JUSTIFY mode));
-static void TPIC_point __PROTO((uint x, uint y, int number));
-static void TPIC_arrow __PROTO((uint sx, uint sy, uint ex, uint ey, int head));
+static int TPIC_justify_text(enum JUSTIFY mode);
+static void TPIC_point(uint x, uint y, int number);
+static void TPIC_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 
 /* tpic \specials unit in inches (1 milli-inch) */
 #define TPIC_UNIT 0.001

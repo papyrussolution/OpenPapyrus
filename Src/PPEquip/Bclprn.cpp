@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -876,7 +876,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						GetLocationName(RGI.LocID, temp_str);
 					d = stpcpy(d, temp_str);
 					break;
-				// } @v9.8.11 
+				// } @v9.8.11
 			}
 			s += var_len;
 			break;
@@ -1427,10 +1427,6 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prn
 	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
 		bclpp.NumCopies = pRgi->LabelCount;
 	if(silent || EditBarcodeLabelPrintParam(&bclpp, 0) > 0) {
-		//uint   i;
-		//SString file_name, file_path;
-		//PPIniFile ini_file;
-		//BarcodeLabel label;
 		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
 		if(pRgi->LocID != bclpp.LocID) {
 			RetailGoodsInfo temp_rgi;
@@ -1452,25 +1448,6 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prn
 				THROW(p_prn->Helper_PrintRgiCollection(bclpp, rgi_list));
 			}
 		}
-		//ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_LABELFILE, file_name);
-		//if(file_name.Empty())
-		//	PPGetFileName(PPFILNAM_BARLABEL_LBL, file_name);
-		//PPGetFilePath(PPPATH_BIN, file_name, file_path);
-		//THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
-		//THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
-		//THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
-		//label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
-		//THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
-		//for(i = 0; i < label.GetEntryCount(); i++)
-		//	THROW(p_prn->PutDataEntry(label.GetEntry(i)));
-		//THROW(p_prn->EndLabel());
-		// @vmiller {
-		//SString str = bclpp.Port;
-		//if(!str.CmpPrefix("usb", 1))
-		//	THROW(p_prn->PrintLabelUsb(rec.PrinterType))
-		//else
-		// } @vmiller
-		//	THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
 	}
 	else
 		ok = -1;
@@ -1607,13 +1584,17 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 				r = 1;
 			}
 			else {
-				r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, p_rgi);
+				// @v10.0.12 r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, p_rgi);
+				// @v10.0.12 {
+				p_rgi->Qtty = 1.0;
+			    r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, 0, 0, 1.0, p_rgi, PPObjGoods::rgifConcatQttyToCode);
+				// @v10.0.12 {
 				SETIFZ(p_rgi->Cost, p_ti->Cost);
 				SETIFZ(p_rgi->Price, p_ti->Price);
 				p_rgi->RevalPrice = p_rgi->Price;
 				if(p_rgi->Serial[0] == 0) {
 					// @v9.8.11 pPack->SnL.GetNumber(cur_pos, &serial);
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11 
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11
 					STRNSCPY(p_rgi->Serial, serial);
 				}
 			}
@@ -1721,7 +1702,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(PPBillPacket * pPack, uint pos
 				rgi.RevalPrice = rgi.Price;
 				if(rgi.Serial[0] == 0) {
 					// @v9.8.11 pPack->SnL.GetNumber(cur_pos, &serial); // @v8.7.12 @fix pos-->cur_pos
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11 
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11
 					STRNSCPY(rgi.Serial, serial);
 				}
 			}

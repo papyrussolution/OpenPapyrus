@@ -1229,8 +1229,8 @@ int __db_dump(DB *dbp, const char * subname, int (*callback)(void *, const void 
 	/*lint -e{539} Did not expect positive indentation. */
 	get_func = __dbc_get;
 	flags = is_heap ? DB_NEXT : DB_NEXT | DB_MULTIPLE_KEY;
-
-retry:  while((ret = (*get_func)(dbc, &key, &data, flags)) == 0) {
+retry:  
+	while((ret = (*get_func)(dbc, &key, &data, flags)) == 0) {
 		if(is_heap) {
 			/* Never dump keys for HEAP */
 			if((ret = __db_prdbt(&data,
@@ -1427,7 +1427,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 		 * in a platform-independent way.  So we use the numeral in
 		 * straight ASCII.
 		 */
-		(void)__ua_memcpy(&recno, dbtp->data, sizeof(recno));
+		__ua_memcpy(&recno, dbtp->data, sizeof(recno));
 		snprintf(buf, DBTBUFLEN, "%lu", (u_long)recno);
 
 		/* If we're printing data as hex, print keys as hex too. */
@@ -1437,7 +1437,6 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 		}
 		else
 			ret = callback(handle, buf);
-
 		if(ret != 0)
 			return ret;
 	}
@@ -1447,10 +1446,8 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 		 * done in a platform-independent way.  So we use the numeral
 		 * in straight ASCII.
 		 */
-		(void)__ua_memcpy(&rid, dbtp->data, sizeof(rid));
-		snprintf(buf, DBTBUFLEN, "%lu %hu",
-		    (u_long)rid.pgno, (u_short)rid.indx);
-
+		__ua_memcpy(&rid, dbtp->data, sizeof(rid));
+		snprintf(buf, DBTBUFLEN, "%lu %hu", (u_long)rid.pgno, (u_short)rid.indx);
 		/* If we're printing data as hex, print keys as hex too. */
 		if(!checkprint) {
 			(void)__db_tohex(buf, strlen(buf), hexbuf);
@@ -1458,7 +1455,6 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 		}
 		else
 			ret = callback(handle, buf);
-
 		if(ret != 0)
 			return ret;
 	}
@@ -1471,8 +1467,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
 		hexbuf[0] = '\\';
 		for(len = dbtp->size, p = (uint8 *)dbtp->data; len--; ++p)
 			if(isprint((int)*p)) {
-				if(*p == '\\' &&
-				    (ret = callback(handle, "\\")) != 0)
+				if(*p == '\\' && (ret = callback(handle, "\\")) != 0)
 					return ret;
 				buf[0] = (char)*p;
 				if((ret = callback(handle, buf)) != 0)
@@ -1502,8 +1497,7 @@ int __db_prdbt(DBT *dbtp, int checkprint, const char * prefix, void * handle, in
  * __db_prheader --
  *	Write out header information in the format expected by db_load.
  *
- * PUBLIC: int	__db_prheader __P((DB *, const char *, int, int, void *,
- * PUBLIC:     int (*)(void *, const void *), VRFY_DBINFO *, db_pgno_t));
+ * PUBLIC: int	__db_prheader(DB *, const char *, int, int, void *, int (*)(void *, const void *), VRFY_DBINFO *, db_pgno_t);
  */
 int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * handle, int (*callback)(void *, const void *), VRFY_DBINFO * vdp, db_pgno_t meta_pgno)
 {
@@ -1513,16 +1507,13 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 	VRFY_PAGEINFO * pip;
 	uint32 flags, tmp_u_int32;
 	size_t buflen;
-	char * buf;
-	int using_vdp, ret, t_ret, tmp_int;
+	char * buf = 0;
+	int using_vdp, t_ret, tmp_int;
+	int ret = 0;
 #ifdef HAVE_HEAP
 	uint32 tmp2_u_int32;
 #endif
-
-	ret = 0;
-	buf = NULL;
 	COMPQUIET(buflen, 0);
-
 	/*
 	 * If dbp is NULL, then pip is guaranteed to be non-NULL; we only ever
 	 * call __db_prheader with a NULL dbp from one case inside __db_prdbt,
@@ -1531,12 +1522,8 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 	 * will have a non-NULL dbp (and vdp may or may not be NULL depending
 	 * on whether we're salvaging).
 	 */
-	if(dbp == NULL)
-		env = NULL;
-	else
-		env = dbp->env;
+	env = (dbp == NULL) ? NULL : dbp->env;
 	DB_ASSERT(env, dbp != NULL || vdp != NULL);
-
 	/*
 	 * If we've been passed a verifier statistics object, use that;  we're
 	 * being called in a context where dbp->stat is unsafe.
@@ -1547,7 +1534,6 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 	if(vdp != NULL) {
 		if((ret = __db_vrfy_getpageinfo(vdp, meta_pgno, &pip)) != 0)
 			return ret;
-
 		if(F_ISSET(vdp, SALVAGE_PRINTABLE))
 			pflag = 1;
 		using_vdp = 1;
@@ -1556,7 +1542,6 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 		pip = NULL;
 		using_vdp = 0;
 	}
-
 	/*
 	 * If dbp is NULL, make it a btree.  Otherwise, set dbtype to whatever
 	 * appropriate type for the specified meta page, or the type of the dbp.
@@ -1593,7 +1578,6 @@ int __db_prheader(DB *dbp, const char * subname, int pflag, int keyflag, void * 
 		}
 	else
 		dbtype = dbp->type;
-
 	if((ret = callback(handle, "VERSION=3\n")) != 0)
 		goto err;
 	if(pflag) {

@@ -55,17 +55,14 @@
 
 static int __db_disassociate(DB *);
 static int __db_disassociate_foreign(DB *);
-
 #ifdef CONFIG_TEST
-static int __db_makecopy __P((ENV *, const char *, const char *));
-static int __qam_testdocopy __P((DB *, const char *));
+	static int __db_makecopy(ENV *, const char *, const char *);
+	static int __qam_testdocopy(DB *, const char *);
 #endif
-
 /*
  * DB.C --
  *	This file contains the utility functions for the DBP layer.
  */
-
 /*
  * __db_master_open --
  *	Open up a handle on a master database.
@@ -81,10 +78,8 @@ int __db_master_open(DB *subdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char *
 	/* Open up a handle on the main database. */
 	if((ret = __db_create_internal(&dbp, subdbp->env, 0)) != 0)
 		return ret;
-
 	/* Set the creation directory. */
 	dbp->dirname = subdbp->dirname;
-
 	/*
 	 * It's always a btree.
 	 * Run in the transaction we've created.
@@ -93,10 +88,7 @@ int __db_master_open(DB *subdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char *
 	 */
 	dbp->pgsize = subdbp->pgsize;
 	F_SET(dbp, DB_AM_SUBDB);
-	F_SET(dbp, F_ISSET(subdbp,
-	    DB_AM_RECOVER | DB_AM_SWAP |
-	    DB_AM_ENCRYPT | DB_AM_CHKSUM | DB_AM_NOT_DURABLE));
-
+	F_SET(dbp, F_ISSET(subdbp, DB_AM_RECOVER|DB_AM_SWAP|DB_AM_ENCRYPT|DB_AM_CHKSUM|DB_AM_NOT_DURABLE));
 	/*
 	 * If creating the master database, disable blobs, but assign it a
 	 * blob file id if blobs are enabled in the subdatabase.  This means
@@ -106,11 +98,9 @@ int __db_master_open(DB *subdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char *
 	 */
 	dbp->blob_threshold = 0;
 	if(LF_ISSET(DB_CREATE) && subdbp->blob_threshold != 0) {
-		if((ret = __blob_generate_dir_ids(
-			    dbp, txn, &dbp->blob_file_id)) != 0)
+		if((ret = __blob_generate_dir_ids(dbp, txn, &dbp->blob_file_id)) != 0)
 			return ret;
 	}
-
 	/*
 	 * If there was a subdb specified, then we only want to apply
 	 * DB_EXCL to the subdb, not the actual file.  We only got here
@@ -118,10 +108,8 @@ int __db_master_open(DB *subdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char *
 	 */
 	LF_CLR(DB_EXCL);
 	LF_SET(DB_RDWRMASTER);
-	if((ret = __db_open(dbp, ip, txn,
-	    name, NULL, DB_BTREE, flags, mode, PGNO_BASE_MD)) != 0)
+	if((ret = __db_open(dbp, ip, txn, name, NULL, DB_BTREE, flags, mode, PGNO_BASE_MD)) != 0)
 		goto err;
-
 	/*
 	 * The items in dbp are initialized from the master file's meta page.
 	 * Other items such as checksum and encryption are checked when we
@@ -131,14 +119,12 @@ int __db_master_open(DB *subdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char *
 	 */
 	if(F_ISSET(dbp, DB_AM_CHKSUM))
 		F_SET(subdbp, DB_AM_CHKSUM);
-
 	/*
 	 * The user may have specified a page size for an existing file,
 	 * which we want to ignore.
 	 */
 	subdbp->pgsize = dbp->pgsize;
 	*dbpp = dbp;
-
 	if(0) {
 err:            
 		if(!F_ISSET(dbp, DB_AM_DISCARD))
@@ -150,35 +136,27 @@ err:
  * __db_master_update --
  *	Add/Open/Remove a subdatabase from a master database.
  *
- * PUBLIC: int __db_master_update __P((DB *, DB *, DB_THREAD_INFO *, DB_TXN *,
- * PUBLIC:      const char *, DBTYPE, mu_action, const char *, uint32));
+ * PUBLIC: int __db_master_update __P((DB *, DB *, DB_THREAD_INFO *, DB_TXN *, const char *, DBTYPE, mu_action, const char *, uint32));
  */
 int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * subdb, DBTYPE type, mu_action action, const char * newname, uint32 flags)
 {
-	DBC * dbc, * ndbc;
+	DBC * dbc = 0;
+	DBC * ndbc = 0;
 	DBT key, data, ndata;
-	ENV * env;
-	PAGE * p, * r;
+	PAGE * p = 0;
+	PAGE * r;
 	db_pgno_t t_pgno;
 	int modify, ret, t_ret;
-
-	env = mdbp->env;
-	dbc = ndbc = NULL;
-	p = NULL;
-
+	ENV * env = mdbp->env;
 	/*
 	 * Open up a cursor.  If this is CDB and we're creating the database,
 	 * make it an update cursor.
 	 *
 	 * Might we modify the master database?  If so, we'll need to lock.
 	 */
-	modify = (!F_ISSET(mdbp, DB_AM_RDONLY) &&
-	    (action != MU_OPEN || LF_ISSET(DB_CREATE))) ? 1 : 0;
-
-	if((ret = __db_cursor(mdbp, ip, txn, &dbc,
-	    (CDB_LOCKING(env) && modify) ? DB_WRITECURSOR : 0)) != 0)
+	modify = (!F_ISSET(mdbp, DB_AM_RDONLY) && (action != MU_OPEN || LF_ISSET(DB_CREATE))) ? 1 : 0;
+	if((ret = __db_cursor(mdbp, ip, txn, &dbc, (CDB_LOCKING(env) && modify) ? DB_WRITECURSOR : 0)) != 0)
 		return ret;
-
 	/*
 	 * Point the cursor at the record.
 	 *
@@ -211,14 +189,12 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 		     */
 		    if(ret != 0)
 			    goto err;
-
 		    /*
 		     * Delete the subdatabase entry first;  if this fails,
 		     * we don't want to touch the actual subdb pages.
 		     */
 		    if((ret = __dbc_del(dbc, 0)) != 0)
 			    goto err;
-
 		    /*
 		     * We're handling actual data, not on-page meta-data,
 		     * so it hasn't been converted to/from opposite
@@ -226,18 +202,12 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 		     */
 		    memcpy(&sdbp->meta_pgno, data.data, sizeof(db_pgno_t));
 		    DB_NTOHL_SWAP(env, &sdbp->meta_pgno);
-		    if((ret = __memp_fget(mdbp->mpf, &sdbp->meta_pgno,
-			ip, dbc->txn, DB_MPOOL_DIRTY, &p)) != 0)
+		    if((ret = __memp_fget(mdbp->mpf, &sdbp->meta_pgno, ip, dbc->txn, DB_MPOOL_DIRTY, &p)) != 0)
 			    goto err;
-
 		    /* Free the root on the master db if it was created. */
-		    if(TYPE(p) == P_BTREEMETA &&
-			((BTMETA*)p)->root != PGNO_INVALID) {
-			    if((ret = __memp_fget(mdbp->mpf,
-				&((BTMETA*)p)->root, ip, dbc->txn,
-				DB_MPOOL_DIRTY, &r)) != 0)
+		    if(TYPE(p) == P_BTREEMETA && ((BTMETA*)p)->root != PGNO_INVALID) {
+			    if((ret = __memp_fget(mdbp->mpf, &((BTMETA*)p)->root, ip, dbc->txn, DB_MPOOL_DIRTY, &r)) != 0)
 				    goto err;
-
 			    /* Free and put the page. */
 			    if((ret = __db_free(dbc, r, 0)) != 0) {
 				    r = NULL;
@@ -263,11 +233,9 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 		     * for the existence of newname;  it shouldn't appear under
 		     * us since we hold the metadata lock.
 		     */
-		    if((ret = __db_cursor(mdbp, ip, txn, &ndbc,
-			CDB_LOCKING(env) ? DB_WRITECURSOR : 0)) != 0)
+		    if((ret = __db_cursor(mdbp, ip, txn, &ndbc, CDB_LOCKING(env) ? DB_WRITECURSOR : 0)) != 0)
 			    goto err;
 		    DB_SET_DBT(key, newname, strlen(newname));
-
 		    /*
 		     * We don't actually care what the meta page of the potentially-
 		     * overwritten DB is; we just care about existence.
@@ -298,7 +266,6 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 			    (void)__dbc_del(ndbc, 0);
 			    goto err;
 		    }
-
 		    break;
 		case MU_OPEN:
 		    /*
@@ -326,17 +293,14 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 			    default:
 				goto err;
 		    }
-
 		    /* Create a subdatabase. */
 		    if(F_ISSET(mdbp, DB_AM_RDONLY)) {
 			    ret = EBADF;
 			    goto err;
 		    }
-		    if((ret = __db_new(dbc,
-			type == DB_HASH ? P_HASHMETA : P_BTREEMETA, NULL, &p)) != 0)
+		    if((ret = __db_new(dbc, type == DB_HASH ? P_HASHMETA : P_BTREEMETA, NULL, &p)) != 0)
 			    goto err;
 		    sdbp->meta_pgno = PGNO(p);
-
 		    /*
 		     * !!!
 		     * We're handling actual data, not on-page meta-data, so it
@@ -366,16 +330,13 @@ int __db_master_update(DB *mdbp, DB *sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, co
 			    goto err;
 		    mdbp->mpf->mfp->revision++;
 	}
-
 err:
 done:   /*
 	 * If we allocated a page: if we're successful, mark the page dirty
 	 * and return it to the cache, otherwise, discard/free it.
 	 */
-	if(p != NULL && (t_ret = __memp_fput(mdbp->mpf,
-	    dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
+	if(p != NULL && (t_ret = __memp_fput(mdbp->mpf, dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/* Discard the cursor(s) and data. */
 	if(data.data != NULL)
 		__os_ufree(env, data.data);
@@ -383,21 +344,17 @@ done:   /*
 		ret = t_ret;
 	if(ndbc != NULL && (t_ret = __dbc_close(ndbc)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * __env_dbreg_setup --
  *
- * PUBLIC: int __env_dbreg_setup __P((DB *,
- * PUBLIC:      DB_TXN *, const char *, const char *, uint32));
+ * PUBLIC: int __env_dbreg_setup(DB *, DB_TXN *, const char *, const char *, uint32);
  */
 int __env_dbreg_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dname, uint32 id)
 {
-	ENV * env;
 	int ret;
-	env = dbp->env;
+	ENV * env = dbp->env;
 	if(dbp->log_filename == NULL
 #if !defined(DEBUG_ROP) && !defined(DEBUG_WOP) && !defined(DIAGNOSTIC)
 	    && (txn != NULL || F_ISSET(dbp, DB_AM_RECOVER))
@@ -410,25 +367,21 @@ int __env_dbreg_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dn
 		    F_ISSET(dbp, DB_AM_INMEM) ? dname : fname,
 		    F_ISSET(dbp, DB_AM_INMEM) ? NULL : dname, id)) != 0)
 			return ret;
-
 		/*
 		 * If we're actively logging and our caller isn't a
 		 * recovery function that already did so, then assign
 		 * this dbp a log fileid.
 		 */
-		if(DBENV_LOGGING(env) && !F_ISSET(dbp, DB_AM_RECOVER) &&
-		    (ret = __dbreg_new_id(dbp, txn)) != 0)
+		if(DBENV_LOGGING(env) && !F_ISSET(dbp, DB_AM_RECOVER) && (ret = __dbreg_new_id(dbp, txn)) != 0)
 			return ret;
 	}
 	return 0;
 }
-
 /*
  * __env_setup --
  *	Set up the underlying environment during a db_open.
  *
- * PUBLIC: int __env_setup __P((DB *,
- * PUBLIC:     DB_TXN *, const char *, const char *, uint32, uint32));
+ * PUBLIC: int __env_setup(DB *, DB_TXN *, const char *, const char *, uint32, uint32);
  */
 int __env_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dname, uint32 id, uint32 flags)
 {
@@ -445,7 +398,6 @@ int __env_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dname, u
 	 */
 	if(F_ISSET(dbp, DB_AM_INMEM) && F_ISSET(dbp, DB_AM_VERIFYING))
 		fname = dname;
-
 	/* If we don't yet have an environment, it's time to create it. */
 	if(!F_ISSET(env, ENV_OPEN_CALLED)) {
 #if defined(HAVE_MIXED_SIZE_ADDRESSING) && (SIZEOF_CHAR_P == 8)
@@ -454,38 +406,25 @@ int __env_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dname, u
 		return EINVAL;
 #endif
 		/* Make sure we have at least DB_MINCACHE pages in our cache. */
-		if(dbenv->mp_gbytes == 0 &&
-		    dbenv->mp_bytes < dbp->pgsize * DB_MINPAGECACHE &&
-		    (ret = __memp_set_cachesize(
-			    dbenv, 0, dbp->pgsize * DB_MINPAGECACHE, 0)) != 0)
+		if(dbenv->mp_gbytes == 0 && dbenv->mp_bytes < dbp->pgsize * DB_MINPAGECACHE && (ret = __memp_set_cachesize(dbenv, 0, dbp->pgsize * DB_MINPAGECACHE, 0)) != 0)
 			return ret;
-
-		if((ret = __env_open(dbenv, NULL, DB_CREATE |
-		    DB_INIT_MPOOL | DB_PRIVATE | LF_ISSET(DB_THREAD), 0)) != 0)
+		if((ret = __env_open(dbenv, NULL, DB_CREATE|DB_INIT_MPOOL | DB_PRIVATE | LF_ISSET(DB_THREAD), 0)) != 0)
 			return ret;
 	}
-
 	/* Join the underlying cache. */
-	if((!F_ISSET(dbp, DB_AM_INMEM) || F_ISSET(dbp, DB_AM_VERIFYING) ||
-	    dname == NULL) && (ret = __env_mpool(dbp, fname, flags)) != 0)
+	if((!F_ISSET(dbp, DB_AM_INMEM) || F_ISSET(dbp, DB_AM_VERIFYING) || dname == NULL) && (ret = __env_mpool(dbp, fname, flags)) != 0)
 		return ret;
-
 	/* We may need a per-thread mutex. */
-	if(LF_ISSET(DB_THREAD) && (ret = __mutex_alloc(
-		    env, MTX_DB_HANDLE, DB_MUTEX_PROCESS_ONLY, &dbp->mutex)) != 0)
+	if(LF_ISSET(DB_THREAD) && (ret = __mutex_alloc(env, MTX_DB_HANDLE, DB_MUTEX_PROCESS_ONLY, &dbp->mutex)) != 0)
 		return ret;
-
 	/*
 	 * Set up a bookkeeping entry for this database in the log region,
 	 * if such a region exists.  Note that even if we're in recovery
 	 * or a replication client, where we won't log registries, we'll
 	 * still need an FNAME struct, so LOGGING_ON is the correct macro.
 	 */
-	if(LOGGING_ON(env) &&
-	    (!F_ISSET(dbp, DB_AM_INMEM) || dname == NULL) &&
-	    (ret = __env_dbreg_setup(dbp, txn, fname, dname, id)) != 0)
+	if(LOGGING_ON(env) && (!F_ISSET(dbp, DB_AM_INMEM) || dname == NULL) && (ret = __env_dbreg_setup(dbp, txn, fname, dname, id)) != 0)
 		return ret;
-
 	/*
 	 * Insert ourselves into the ENV's dblist.  We allocate a
 	 * unique ID to each {fileid, meta page number} pair, and to
@@ -504,20 +443,16 @@ int __env_setup(DB *dbp, DB_TXN * txn, const char * fname, const char * dname, u
 		 * (never matches; no clause).
 		 */
 		if(!F_ISSET(dbp, DB_AM_INMEM)) {
-			if(memcmp(ldbp->fileid, dbp->fileid, DB_FILE_ID_LEN)
-			    == 0 && ldbp->meta_pgno == dbp->meta_pgno)
+			if(memcmp(ldbp->fileid, dbp->fileid, DB_FILE_ID_LEN) == 0 && ldbp->meta_pgno == dbp->meta_pgno)
 				break;
 		}
 		else if(dname != NULL) {
-			if(F_ISSET(ldbp, DB_AM_INMEM) &&
-			    ldbp->dname != NULL &&
-			    strcmp(ldbp->dname, dname) == 0)
+			if(F_ISSET(ldbp, DB_AM_INMEM) && ldbp->dname != NULL && strcmp(ldbp->dname, dname) == 0)
 				break;
 		}
 		if(ldbp->adj_fileid > maxid)
 			maxid = ldbp->adj_fileid;
 	}
-
 	/*
 	 * If ldbp is NULL, we didn't find a match. Assign the dbp an
 	 * adj_fileid one higher than the largest we found, and
@@ -549,21 +484,16 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 	DBT pgcookie;
 	DB_MPOOLFILE * mpf;
 	DB_PGINFO pginfo;
-	ENV * env;
 	int fidset, ftype, ret;
 	int32 lsn_off;
 	uint8 nullfid[DB_FILE_ID_LEN];
 	uint32 clear_len;
-
-	env = dbp->env;
-
+	ENV * env = dbp->env;
 	/* The LSN is the first entry on a DB page, byte offset 0. */
 	lsn_off = F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LSN_OFF_NOTSET : 0;
-
 	/* It's possible that this database's memory pool is already open. */
 	if(F2_ISSET(dbp, DB2_AM_MPOOL_OPENED))
 		return 0;
-
 	/*
 	 * If we need to pre- or post-process a file's pages on I/O, set the
 	 * file type.  If it's a hash file, always call the pgin and pgout
@@ -576,23 +506,15 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 		case DB_BTREE:
 		case DB_HEAP:
 		case DB_RECNO:
-		    ftype = F_ISSET(dbp, DB_AM_SWAP | DB_AM_ENCRYPT | DB_AM_CHKSUM)
-			? DB_FTYPE_SET : DB_FTYPE_NOTSET;
-		    clear_len = CRYPTO_ON(env) ?
-			(dbp->pgsize != 0 ? dbp->pgsize : DB_CLEARLEN_NOTSET) :
-			DB_PAGE_DB_LEN;
+		    ftype = F_ISSET(dbp, DB_AM_SWAP | DB_AM_ENCRYPT | DB_AM_CHKSUM) ? DB_FTYPE_SET : DB_FTYPE_NOTSET;
+		    clear_len = CRYPTO_ON(env) ? (dbp->pgsize != 0 ? dbp->pgsize : DB_CLEARLEN_NOTSET) : DB_PAGE_DB_LEN;
 		    break;
 		case DB_HASH:
 		    ftype = DB_FTYPE_SET;
-		    clear_len = CRYPTO_ON(env) ?
-			(dbp->pgsize != 0 ? dbp->pgsize : DB_CLEARLEN_NOTSET) :
-			DB_PAGE_DB_LEN;
+		    clear_len = CRYPTO_ON(env) ? (dbp->pgsize != 0 ? dbp->pgsize : DB_CLEARLEN_NOTSET) : DB_PAGE_DB_LEN;
 		    break;
 		case DB_QUEUE:
-		    ftype = F_ISSET(dbp,
-			    DB_AM_SWAP | DB_AM_ENCRYPT | DB_AM_CHKSUM) ?
-			DB_FTYPE_SET : DB_FTYPE_NOTSET;
-
+		    ftype = F_ISSET(dbp, DB_AM_SWAP | DB_AM_ENCRYPT | DB_AM_CHKSUM) ? DB_FTYPE_SET : DB_FTYPE_NOTSET;
 		    /*
 		     * If we came in here without a pagesize set, then we need
 		     * to mark the in-memory handle as having clear_len not
@@ -619,7 +541,6 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 			    clear_len = DB_PAGE_DB_LEN;
 			    break;
 		    }
-
 		    /*
 		     * This might be an in-memory file and we won't know its
 		     * file type until after we open it and read the meta-data
@@ -643,28 +564,22 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 	(void)__memp_set_clear_len(mpf, clear_len);
 	(void)__memp_set_ftype(mpf, ftype);
 	(void)__memp_set_lsn_offset(mpf, lsn_off);
-
 	pginfo.db_pagesize = dbp->pgsize;
-	pginfo.flags =
-	    F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
+	pginfo.flags = F_ISSET(dbp, (DB_AM_CHKSUM | DB_AM_ENCRYPT | DB_AM_SWAP));
 	pginfo.type = dbp->type;
 	pgcookie.data = &pginfo;
 	pgcookie.size = sizeof(DB_PGINFO);
 	(void)__memp_set_pgcookie(mpf, &pgcookie);
-
 #ifndef DIAG_MVCC
 	if(F_ISSET(env->dbenv, DB_ENV_MULTIVERSION))
 #endif
-	if(F_ISSET(dbp, DB_AM_TXN) &&
-	    dbp->type != DB_QUEUE && dbp->type != DB_UNKNOWN)
+	if(F_ISSET(dbp, DB_AM_TXN) && dbp->type != DB_QUEUE && dbp->type != DB_UNKNOWN)
 		LF_SET(DB_MULTIVERSION);
-
 	if((ret = __memp_fopen(mpf, NULL, fname, &dbp->dirname,
 	    LF_ISSET(DB_CREATE | DB_DURABLE_UNKNOWN | DB_MULTIVERSION |
 	    DB_NOMMAP | DB_ODDFILESIZE | DB_RDONLY | DB_TRUNCATE) |
 	    (F_ISSET(env->dbenv, DB_ENV_DIRECT_DB) ? DB_DIRECT : 0) |
-	    (F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_TXN_NOT_DURABLE : 0),
-	    0, dbp->pgsize)) != 0) {
+	    (F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_TXN_NOT_DURABLE : 0), 0, dbp->pgsize)) != 0) {
 		/*
 		 * The open didn't work; we need to reset the mpf,
 		 * retaining the in-memory semantics (if any).
@@ -675,7 +590,6 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 			MAKE_INMEM(dbp);
 		return ret;
 	}
-
 	/*
 	 * Set the open flag.  We use it to mean that the dbp has gone
 	 * through mpf setup, including dbreg_register.
@@ -685,41 +599,35 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 		(void)__memp_get_fileid(dbp->mpf, dbp->fileid);
 		dbp->preserve_fid = 1;
 	}
-
 	return 0;
 }
-
 /*
  * __db_close --
  *	DB->close method.
  *
- * PUBLIC: int __db_close __P((DB *, DB_TXN *, uint32));
+ * PUBLIC: int __db_close(DB *, DB_TXN *, uint32);
  */
 int __db_close(DB *dbp, DB_TXN * txn, uint32 flags)
 {
-	ENV * env;
-	int db_ref, deferred_close, ret, t_ret;
-	env = dbp->env;
-	deferred_close = 0;
+	int db_ref, ret, t_ret;
+	ENV * env = dbp->env;
+	int deferred_close = 0;
 	PERFMON4(env, db, close, dbp->fname, dbp->dname, flags, &dbp->fileid[0]);
 	/* Refresh the structure and close any underlying resources. */
 	ret = __db_refresh(dbp, txn, flags, &deferred_close, 0);
 #ifdef HAVE_SLICES
 	/* If sliced, remove this db from the containing db's slice array. */
 	if(dbp->db_container != NULL && dbp->db_container->db_slices != NULL) {
-		DB_ASSERT(env,
-		    dbp->db_container->db_slices[env->slice_index] == dbp);
+		DB_ASSERT(env, dbp->db_container->db_slices[env->slice_index] == dbp);
 		dbp->db_container->db_slices[env->slice_index] = NULL;
 	}
 #endif
-
 	/*
 	 * If we've deferred the close because the logging of the close failed,
 	 * return our failure right away without destroying the handle.
 	 */
 	if(deferred_close)
 		return ret;
-
 	/* !!!
 	 * This code has an apparent race between the moment we read and
 	 * decrement env->db_ref and the moment we check whether it's 0.
@@ -741,7 +649,6 @@ int __db_close(DB *dbp, DB_TXN * txn, uint32 flags)
 	__os_free(env, dbp);
 	return ret;
 }
-
 /*
  * __db_refresh --
  *	Refresh the DB structure, releasing any allocated resources.
@@ -750,7 +657,7 @@ int __db_close(DB *dbp, DB_TXN * txn, uint32 flags)
  * the actual handle) and during abort processing, we may have a
  * fully opened handle.
  *
- * PUBLIC: int __db_refresh __P((DB *, DB_TXN *, uint32, int *, int));
+ * PUBLIC: int __db_refresh(DB *, DB_TXN *, uint32, int *, int);
  */
 int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int reuse)
 {
@@ -771,7 +678,6 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 		renv = (REGENV *)infop->primary;
 	else
 		renv = NULL;
-
 	/*
 	 * If this dbp is not completely open, avoid trapping by trying to
 	 * sync without an mpool file.
@@ -787,17 +693,14 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 		dbp->blob_seq = NULL;
 	}
 	if(dbp->blob_meta_db != NULL) {
-		if((t_ret = __db_close(
-			    dbp->blob_meta_db, NULL, 0)) != 0 && ret == 0)
+		if((t_ret = __db_close(dbp->blob_meta_db, NULL, 0)) != 0 && ret == 0)
 			ret = t_ret;
 		dbp->blob_meta_db = NULL;
 	}
 #endif
-
 	/* If never opened, or not currently open, it's easy. */
 	if(!F_ISSET(dbp, DB_AM_OPEN_CALLED))
 		goto never_opened;
-
 	/*
 	 * If we have any secondary indices, disassociate them from us.
 	 * We don't bother with the mutex here;  it only protects some
@@ -814,7 +717,6 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 	}
 	if(F_ISSET(dbp, DB_AM_SECONDARY))
 		LIST_REMOVE(dbp, s_links);
-
 	/*
 	 * Disassociate ourself from any databases using us as a foreign key
 	 * database by clearing the referring db's pointer.  Reclaim memory.
@@ -829,7 +731,6 @@ int __db_refresh(DB *dbp, DB_TXN * txn, uint32 flags, int * deferred_closep, int
 	}
 	if(dbp->s_foreign != NULL && (t_ret = __db_disassociate_foreign(dbp)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * Sync the underlying access method.  Do before closing the cursors
 	 * because DB->sync allocates cursors in order to write Recno backing

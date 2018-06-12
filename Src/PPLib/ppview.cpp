@@ -182,6 +182,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_GEOTRACKING:    p_v = new PPViewGeoTracking();  break;
 			case PPVIEW_OPRKIND:        p_v = new PPViewOprKind();      break; // @v9.3.6
 			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
+			case PPVIEW_VETISDOCUMENT:  p_v = new PPViewVetisDocument(); break; // @v10.0.12
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {

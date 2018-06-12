@@ -1321,14 +1321,12 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 		}
 		if(ret != 0)
 			break;
-
 		if((ret = __qam_position(dbc, &first, 0, &exact)) != 0) {
 			(void)__LPUT(dbc, lock);
 			break;
 		}
 		if((ret = __LPUT(dbc, lock)) != 0 || exact) {
-			if((t_ret = __qam_fput(dbc, cp->pgno,
-			    cp->page, dbc->priority)) != 0 && ret == 0)
+			if((t_ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0 && ret == 0)
 				ret = t_ret;
 			cp->page = NULL;
 			break;
@@ -1439,24 +1437,18 @@ next_pg:
 		valid = 0;
 
 		if(pg != NULL) {
-			if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, lkmode,
-			    DB_LOCK_NOWAIT | DB_LOCK_RECORD, &rlock)) != 0) {
-				if(ret != DB_LOCK_NOTGRANTED &&
-				    ret != DB_LOCK_DEADLOCK)
+			if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, lkmode, DB_LOCK_NOWAIT | DB_LOCK_RECORD, &rlock)) != 0) {
+				if(ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK)
 					goto done;
 				/* If we put anything in the buffer return. */
 				if(offp != endp)
 					break;
-				if((ret = __memp_fput(mpf, dbc->thread_info,
-				    meta, dbc->priority)) != 0)
+				if((ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0)
 					goto done;
 				meta = NULL;
-				if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno,
-				    lkmode, DB_LOCK_RECORD, &rlock)) != 0)
+				if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, lkmode, DB_LOCK_RECORD, &rlock)) != 0)
 					goto done;
-				if((ret = __memp_fget(mpf,
-				    &metapno, dbc->thread_info,
-				    dbc->txn, 0, &meta)) != 0)
+				if((ret = __memp_fget(mpf, &metapno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 					goto done;
 			}
 			qp = QAM_GET_RECORD(dbp, pg, indx);

@@ -547,12 +547,10 @@ samekey:        /*
 		 * Get the key we tried and failed to return last time;
 		 * it should be the current datum of all the secondary cursors.
 		 */
-		if((ret = __dbc_get(jc->j_workcurs[0],
-		    &jc->j_key, key_n, DB_CURRENT | opmods)) != 0)
+		if((ret = __dbc_get(jc->j_workcurs[0], &jc->j_key, key_n, DB_CURRENT | opmods)) != 0)
 			return ret;
 		F_CLR(jc, JOIN_RETRY);
 	}
-
 	/*
 	 * ret == 0;  we have a key to return.
 	 *
@@ -560,13 +558,9 @@ samekey:        /*
 	 * back into the dbt we were given for the key; call __db_retcopy.
 	 * Otherwise, assert that we do not need to copy anything and proceed.
 	 */
-	DB_ASSERT(env, F_ISSET(key_arg, DB_DBT_USERMEM | DB_DBT_MALLOC |
-	    DB_DBT_USERCOPY) || key_n == key_arg);
-
-	if((F_ISSET(key_arg, DB_DBT_USERMEM | DB_DBT_MALLOC |
-	    DB_DBT_USERCOPY)) &&
-	    (ret = __db_retcopy(env,
-	    key_arg, key_n->data, key_n->size, NULL, NULL)) != 0) {
+	DB_ASSERT(env, F_ISSET(key_arg, DB_DBT_USERMEM|DB_DBT_MALLOC|DB_DBT_USERCOPY) || key_n == key_arg);
+	if((F_ISSET(key_arg, DB_DBT_USERMEM | DB_DBT_MALLOC|DB_DBT_USERCOPY)) && 
+		(ret = __db_retcopy(env, key_arg, key_n->data, key_n->size, NULL, NULL)) != 0) {
 		/*
 		 * The retcopy failed, most commonly because we have a user
 		 * buffer for the key which is too small. Set things up to
@@ -575,14 +569,12 @@ samekey:        /*
 		F_SET(jc, JOIN_RETRY);
 		return ret;
 	}
-
 	/*
 	 * If DB_JOIN_ITEM is set, we return it; otherwise we do the lookup
 	 * in the primary and then return.
 	 */
 	if(operation == DB_JOIN_ITEM)
 		return 0;
-
 	/*
 	 * If data_arg->flags == 0--that is, if DB is managing the
 	 * data DBT's memory--it's not safe to just pass the DBT
@@ -593,18 +585,14 @@ samekey:        /*
 	 * Instead, use memory that is managed by the join cursor, in
 	 * jc->j_rdata.
 	 */
-	if(!F_ISSET(data_arg, DB_DBT_MALLOC | DB_DBT_REALLOC |
-	    DB_DBT_USERMEM | DB_DBT_USERCOPY))
+	if(!F_ISSET(data_arg, DB_DBT_MALLOC|DB_DBT_REALLOC|DB_DBT_USERMEM | DB_DBT_USERCOPY))
 		db_manage_data = 1;
 	else
 		db_manage_data = 0;
-	if((ret = __db_join_primget(jc->j_primary, dbc->thread_info,
-	    jc->j_curslist[0]->txn, jc->j_curslist[0]->locker, key_n,
+	if((ret = __db_join_primget(jc->j_primary, dbc->thread_info, jc->j_curslist[0]->txn, jc->j_curslist[0]->locker, key_n,
 	    db_manage_data ? &jc->j_rdata : data_arg, opmods)) != 0) {
 		if(ret == DB_NOTFOUND) {
-			if(LF_ISSET(DB_READ_UNCOMMITTED) ||
-			    (jc->j_curslist[0]->txn != NULL && F_ISSET(
-				    jc->j_curslist[0]->txn, TXN_READ_UNCOMMITTED)))
+			if(LF_ISSET(DB_READ_UNCOMMITTED) || (jc->j_curslist[0]->txn != NULL && F_ISSET(jc->j_curslist[0]->txn, TXN_READ_UNCOMMITTED)))
 				goto retry;
 			/*
 			 * If ret == DB_NOTFOUND, the primary and secondary
@@ -628,7 +616,6 @@ samekey:        /*
 		data_arg->data = jc->j_rdata.data;
 		data_arg->size = jc->j_rdata.size;
 	}
-
 	return ret;
 }
 
@@ -709,15 +696,13 @@ int __db_join_close(DBC *dbc)
 static int __db_join_getnext(DBC *dbc, DBT * key, DBT * data, uint32 exhausted, uint32 opmods)
 {
 	int ret, cmp;
-	DB * dbp;
 	DBT ldata;
 	int (*func)(DB *, const DBT *, const DBT *, size_t *);
-	dbp = dbc->dbp;
+	DB * dbp = dbc->dbp;
 	if(dbp->dup_compare == NULL)
 		func = __dbt_defcmp;
 	else
 		(void)dbp->get_dup_compare(dbp, &func);
-
 	switch(exhausted) {
 		case 0:
 		    /*
@@ -726,8 +711,7 @@ static int __db_join_getnext(DBC *dbc, DBT * key, DBT * data, uint32 exhausted, 
 		     */
 		    memzero(&ldata, sizeof(DBT));
 		    F_SET(&ldata, DB_DBT_MALLOC);
-		    if((ret = __dbc_get(dbc,
-			key, &ldata, opmods | DB_CURRENT)) != 0)
+		    if((ret = __dbc_get(dbc, key, &ldata, opmods | DB_CURRENT)) != 0)
 			    break;
 		    cmp = func(dbp, data, &ldata, NULL);
 		    if(cmp == 0) {
@@ -736,8 +720,7 @@ static int __db_join_getnext(DBC *dbc, DBT * key, DBT * data, uint32 exhausted, 
 			     * it into data, then free the buffer we malloc'ed
 			     * above.
 			     */
-			    if((ret = __db_retcopy(dbp->env, data, ldata.data,
-				ldata.size, &data->data, &data->size)) != 0)
+			    if((ret = __db_retcopy(dbp->env, data, ldata.data, ldata.size, &data->data, &data->size)) != 0)
 				    return ret;
 			    __os_ufree(dbp->env, ldata.data);
 			    return 0;

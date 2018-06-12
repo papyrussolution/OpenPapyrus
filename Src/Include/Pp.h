@@ -378,6 +378,13 @@ class  PhoneServiceEventResponder;
 struct StTspResponse; // Описание в ppeds.cpp
 struct LotViewItem;
 class  AsteriskAmiClient;
+struct VetisNamedGenericVersioningEntity;
+struct VetisVetDocument;
+struct VetisEnterprise;
+struct VetisBusinessEntity;
+struct VetisProductItem;
+struct VetisProduct;
+struct VetisSubProduct;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1167,9 +1174,9 @@ public:
 	static int IdSCardOwnerName;    // (fldSCardID)
 	static int IdUsrPersonName;     // (fldUsrID)
 	static int IdLocOwnerName;      // @v9.1.5  (fldLocID) Формирует строку с именем персоналии-владельца локации
-	static int IdUfpFuncName;       // @v8.1.1  (fldFuncId)
-	static int IdVersionText;       // @v8.1.1  (fldLong)
-	static int IdUfpFuncId;         // @v8.1.1  (fldLong)
+	static int IdUfpFuncName;       // (fldFuncId)
+	static int IdVersionText;       // (fldLong)
+	static int IdUfpFuncId;         // (fldLong)
 
 	static int IdDateTime;          // (fldDate, fldTime)
 	static int IdDurationToTime;    // (fldLong)
@@ -1213,18 +1220,18 @@ public:
 	static int IdCheckCsPosNode;    // (csessID, posNodeID)
 	static int IdCheckCsPosNodeList; // (csessID, (const LongArray *))
 	static int IdStrExistSubStr;	// @vmiller (fldName, const char *) Определяет, содержит ли строковое поле заданную подстроку
-	static int IdAddedCreditLimit;  // @v8.2.4 (limit, limit_term, added_limit_term)
-	static int IdBillFrghtIssueDt;  // @v8.2.9 (billID)
-	static int IdBillFrghtArrvlDt;  // @v8.2.9 (billID)
-	static int IdBillFrghtDlvrAddr; // @v8.7.9 (billID)
+	static int IdAddedCreditLimit;  // (limit, limit_term, added_limit_term)
+	static int IdBillFrghtIssueDt;  // (billID)
+	static int IdBillFrghtArrvlDt;  // (billID)
+	static int IdBillFrghtDlvrAddr; // (billID)
 	static int IdGetAgrmntSymbol;   // @vmiller
-	static int IdBillAgentName;     // @v8.3.6 (billID) Наименование агента по документу (извлекается из записи расширения документа)
-	static int IdRegisterText;      // @v8.4.4 (registerID) Текст описания регистрационного документа
-	static int IdObjTagText;        // @v8.4.11 (tagid, objid) Текстовое представление тега объекта
-	static int IdDateRange;         // @v8.6.4  (low, upp) Текстовое представление периода
-	static int IdOidText;           // @v8.6.11 (objType, objID) Текстовое представление полного OID
-	static int IdDateBase;          // @v8.6.11 (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
-	static int IdBillFrghtStrgLoc;  // @v8.8.6 (billID)
+	static int IdBillAgentName;     // (billID) Наименование агента по документу (извлекается из записи расширения документа)
+	static int IdRegisterText;      // (registerID) Текст описания регистрационного документа
+	static int IdObjTagText;        // (tagid, objid) Текстовое представление тега объекта
+	static int IdDateRange;         // (low, upp) Текстовое представление периода
+	static int IdOidText;           // (objType, objID) Текстовое представление полного OID
+	static int IdDateBase;          // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
+	static int IdBillFrghtStrgLoc;  // (billID)
 	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
 	static int IdStrByStrGroupPos;  // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
@@ -13082,7 +13089,8 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fDisableAdjWrOffAmount     = 0x00008000, // @v8.6.6  Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
 		fUnifiedPaymentCfmBank     = 0x00010000, // @v8.6.6  Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
 		fAutosaveSyncChecks        = 0x00020000, // @v8.7.7  Автоматически сохранять синхронные чеки при каждом изменении
-		fWrOffPartStrucs           = 0x00040000  // @v9.8.12 При списании кассовых сессий досписывать частичные структуры
+		fWrOffPartStrucs           = 0x00040000, // @v9.8.12 При списании кассовых сессий досписывать частичные структуры
+		fSkipPrintingZeroPrice     = 0x00080000  // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой 
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -18417,7 +18425,7 @@ struct SlipDocCommonParam {
 
 class PPSlipFormatter {
 public:
-	PPSlipFormatter(const char * pFmtFileName);
+	explicit PPSlipFormatter(const char * pFmtFileName);
 	 ~PPSlipFormatter();
 	int    Init(const char * pFormatName, SlipDocCommonParam * pParam);
 	int    InitIteration(const CCheckPacket *);
@@ -18504,8 +18512,8 @@ protected:
 		stError = 0x0001
 	};
 	PPID   NodeID;
-	char   Port[128]; // @v7.4.1 [16]-->[128]
-	char   Name[48];  // @v7.4.1 [16]-->[48]
+	char   Port[128]; // 
+	char   Name[48];  // 
 	int    PortType;  // 0 - file, 1 - lpt, 2 - com
 	int    Handle;    //
 	long   State;
@@ -29378,11 +29386,17 @@ public:
 //
 class GoodsReplacementArray : public TSCollection <GRI> {
 public:
-	SLAPI  GoodsReplacementArray();
+	explicit SLAPI  GoodsReplacementArray(PPID specialSubstGroupID = 0);
 	int    SLAPI Add(PPID destID, PPID srcID, double qtty, double ratio);
 	const  GRI *  SLAPI Search(PPID destID) const;
+	const  PPIDArray * SLAPI GetSpecialSubstGoodsList() const
+	{
+		return SpecialSubstGroupID ? &SpecialSubstGoodsList : 0;
+	}
 private:
 	GRI *  SLAPI SearchNC(PPID destID);
+	PPID   SpecialSubstGroupID;
+	PPIDArray SpecialSubstGoodsList;
 };
 //
 // Объект PPObjBill служит оболочкой для выполнения //
@@ -33481,9 +33495,9 @@ struct TSessionFilt : public PPBaseFilt {
 
 	SLAPI  TSessionFilt();
 	TSessionFilt & FASTCALL operator = (const TSessionFilt & s);
-	int    SLAPI CheckIdle(long flags) const;
-	int    SLAPI CheckStatus(int status) const;
-	int    SLAPI GetStatusList(PPIDArray *) const;
+	int    FASTCALL CheckIdle(long flags) const;
+	int    FASTCALL CheckStatus(int status) const;
+	int    FASTCALL GetStatusList(PPIDArray &) const;
 
 	enum {
 		fSuperSessOnly = 0x0001,
@@ -33912,10 +33926,8 @@ private:
 	// в БД такой объект не найден (в некоторых случаях такая проверка приводит к неверному разрешению
 	// синхронизации объектов).
 #define DBDXF_UNITEINVDUPREC       0x00008000L // Объединять дублирующиеся строки инвентаризации
-#define DBDXF_NOCOMMITBYDEF        0x00010000L // По умолчанию, при приеме данных не устанавливается //
-	// признак "Непосредственная фиксация транзакции"
-#define DBDXF_DESTROYQUEUEBYDEF    0x00020000L // По умолчанию, при приеме данных устанавливать
-	// признак "Разрушать очередь после акцепта"
+#define DBDXF_NOCOMMITBYDEF        0x00010000L // По умолчанию, при приеме данных не устанавливается признак "Непосредственная фиксация транзакции"
+#define DBDXF_DESTROYQUEUEBYDEF    0x00020000L // По умолчанию, при приеме данных устанавливать признак "Разрушать очередь после акцепта"
 #define DBDXF_DONTLOGOBJUPD        0x00040000L // Не показывать в журнале информацию об изменении объектов
 #define DBDXF_SUBSTDEFICITGOODS    0x00100000L // подставлять дефицитные товары
 #define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара
@@ -34130,7 +34142,6 @@ private:
 //   PPObject::Write, PPObject::Read.
 //
 struct ObjTransmContext {
-
 	friend class PPObjectTransmit;
 	//
 	// Descr: Конструктор.
@@ -34162,10 +34173,11 @@ struct ObjTransmContext {
 	LDATETIME TransmitSince;            // Момент, начиная с которого должны передаваться изменения //
 	PPDBXchgConfig Cfg;                 // Конфигурация обмена
 	BillTransmDeficit * P_Btd;          //
+	GoodsReplacementArray * P_Gra;      // @v10.0.12
 	enum {
 		fNotTrnsmLots = 0x0001,         // Не передавать товарные строки
 		fConsolid     = 0x0002,         // Принимающий раздел является консолидирующим
-		fRecover      = 0x0004          // @v8.2.3 Восстанавливающая передача
+		fRecover      = 0x0004          // Восстанавливающая передача
 	};
 	long   Flags;                       // ObjTransmContext::fXXX
 	const  DBDivPack * P_ThisDbDivPack; // Пакет текущего раздела БД
@@ -41173,8 +41185,7 @@ public:
 	int    SLAPI GetDependencyList(PPID tabID, PPID destGoodsID, PUGL * pList);
 	int    SLAPI Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta);
 	int    SLAPI Update(PPID id, const MrpTabTbl::Rec * pRec, int use_ta);
-	int    SLAPI AddLine(PPID id, PPID destID, PPID srcID,
-		double destReqQtty, double srcReqQtty, double price, long flags, int use_ta);
+	int    SLAPI AddLine(PPID id, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price, long flags, int use_ta);
 	int    SLAPI AddCTab(const CMrpTab *, int use_ta);
 	//
 	// Descr: Устанавливает значения остатка и дефицита для товара destID
@@ -44321,6 +44332,114 @@ private:
 	LotExtCodeTbl * P_LecT;
 	PPTextAnalyzerWrapper * P_Taw;
 	PPLogger * P_Logger;
+};
+//
+//
+//
+class VetisEntityCore {
+public:
+	enum { // @persistent
+		kUndef          = -1,
+		kUnkn           = 0,
+		kProductItem    = 1,
+		kProduct        = 2,
+		kSubProduct     = 3,
+		kEnterprise     = 4,
+		kBusinessEntity = 5,
+		kEOM            = 6,
+		kCountry        = 7,
+		kRegion         = 8,
+		kVetDocument    = 9
+	};
+	struct Entity {
+		SLAPI  Entity();
+		SLAPI  Entity(int kind, const VetisProductItem & rS);
+		SLAPI  Entity(int kind, const VetisNamedGenericVersioningEntity & rS);
+		SLAPI  Entity(const VetisVetDocument & rS);
+
+		PPID   ID;
+		int    Kind;
+		S_GUID Guid;
+		S_GUID Uuid;
+		long   Flags;
+		long   Status;
+		long   GuidRef;
+		long   UuidRef;
+		SString Name;
+	};
+	//
+	// Descr: Специализированная структура для сбора данных о неразрешенных сущностях 
+	// (как минимум, без имени). Используется для сбора коллекции таких элементов с
+	// целью последующего разрешения запросами к серверу Vetis.
+	//
+	struct UnresolvedEntity {
+		PPID   ID;
+		int    Kind;
+		long   GuidRef;
+		long   UuidRef;
+	};
+	enum {
+		txtprpProductItemName = (PPTRPROP_USER+1)
+	};
+	SLAPI  VetisEntityCore();
+	static int FASTCALL ValidateEntityKind(int kind);
+	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+    int    SLAPI Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem);
+	int    SLAPI CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList);
+
+	int    SLAPI Get(PPID id, VetisVetDocument & rItem);
+	int    SLAPI Get(PPID id, VetisEnterprise & rItem);
+	int    SLAPI Get(PPID id, VetisBusinessEntity & rItem);
+	int    SLAPI Get(PPID id, VetisProductItem & rItem);
+	int    SLAPI Get(PPID id, VetisProduct & rItem);
+	int    SLAPI Get(PPID id, VetisSubProduct & rItem);
+
+	VetisEntityTbl ET;
+	VetisProductTbl PiT;
+	VetisPersonTbl  BT;
+	VetisDocumentTbl DT;
+	UuidRefCore UrT;
+};
+//
+//
+//
+class VetisDocumentFilt : public PPBaseFilt {
+public:
+	SLAPI  VetisDocumentFilt();
+	int    FASTCALL GetStatusList(PPIDArray & rList) const;
+
+	uint8  ReserveStart[256]; // @anchor
+	DateRange Period;
+	DateRange WayBillPeriod;
+	long    VDStatusFlags;
+	uint8   ReserveEnd[32];   // @anchor
+};
+
+class PPViewVetisDocument : public PPView {
+public:
+	SLAPI  PPViewVetisDocument();
+	SLAPI ~PPViewVetisDocument();
+	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
+	virtual int SLAPI Init_(const PPBaseFilt *);
+private:
+	static int DynFuncEntityTextFld;
+	static int DynFuncBMembTextFld;
+	static int DynFuncProductItemTextFld;
+	static int DynFuncVetDStatus;
+	static int DynFuncVetDForm;
+	static int DynFuncVetDType;
+
+	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI LoadDocuments();
+
+	VetisDocumentFilt Filt;
+	VetisEntityCore EC;
 };
 //
 // @ModuleDecl(DL200)
@@ -50778,6 +50897,7 @@ int SLAPI Convert9214(); // @v9.2.14
 int SLAPI Convert9400(); // @v9.4.0
 int SLAPI Convert9811(); // @v9.8.11
 int SLAPI ConvertSCardSeries9809(); // @v9.8.9 (objscard.cpp)
+int SLAPI Convert10012(); // @v10.0.12
 int SLAPI DoChargeSalary();
 int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);

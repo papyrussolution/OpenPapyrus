@@ -58,22 +58,22 @@ static void PM_options(GpCommand & rC);
 static void PM_reset();
 static void PM_text();
 static void PM_graphics();
-static void PM_linetype __PROTO((int lt));
+static void PM_linetype(int lt);
 static void PM_move(uint x, uint y);
 static void PM_vector(uint x, uint y);
 static int PM_text_angle(int ang);
-static void PM_put_text __PROTO((uint x, uint y, const char * str));
-static int PM_justify_text __PROTO((enum JUSTIFY mode));
-static void PM_point __PROTO((uint x, uint y, int number));
+static void PM_put_text(uint x, uint y, const char * str);
+static int PM_justify_text(enum JUSTIFY mode);
+static void PM_point(uint x, uint y, int number);
 static void PM_suspend();
 static void PM_resume();
 static void PM_fillbox __PROTO((int style, uint x, uint y, uint w, uint h));
-static void PM_linewidth __PROTO((double linewidth));
+static void PM_linewidth(double linewidth);
 #ifdef USE_MOUSE
 static void PM_set_ruler(int, int);
-static void PM_set_cursor __PROTO((int, int, int));
-static void PM_put_tmptext __PROTO((int, const char str[]));
-static void PM_set_clipboard __PROTO((const char[]));
+static void PM_set_cursor(int, int, int);
+static void PM_put_tmptext(int, const char str[]);
+static void PM_set_clipboard(const char[]);
 #endif
 static int PM_make_palette(t_sm_palette *);
 static void PM_set_color(t_colorspec *);
@@ -82,7 +82,7 @@ static void PM_image __PROTO((uint, uint, double *, gpiPoint *, t_imagecolor));
 
 #ifndef PM_OLD_ENHANCED_TEXT
 /* To support "set term pm enhanced" */
-static void PM_enhanced_put_text __PROTO((uint x, uint y, const char * str));
+static void PM_enhanced_put_text(uint x, uint y, const char * str);
 static void PM_enhanced_open __PROTO((char * fontname, double fontsize,
 	    double base, bool widthflag, bool showflag,
 	    int overprint));
@@ -144,7 +144,7 @@ static double PM_fontsize = 12.0;
 static uint PM_x = 0;
 static uint PM_y = 0;
 static enum JUSTIFY PM_justification = LEFT;
-static double PM_angle = 0.;  /* unit is radian */
+static double PM_angle = 0.0;  /* unit is radian */
 
 /* state variables for enhanced text processing */
 static bool ENHpm_opened_string;
@@ -156,11 +156,11 @@ static double ENHpm_base;
 
 #endif
 
-static void PM_reset_opts(void);
-static void PM_query(void);
+static void PM_reset_opts();
+static void PM_query();
 static void PM_make_servername(char *);
 static void PM_abortplot();
-static void PM_query_font(void);
+static void PM_query_font();
 
 static void PM_init()
 {
@@ -615,7 +615,7 @@ static void PM_query_font(void)
 	putc(GR_QUERY_FONT, PM_pipe);
 	fflush(PM_pipe);
 
-	free(PM_font);
+	SAlloc::F(PM_font);
 	rc = DosRead(fileno(PM_pipe), &len, sizeof(int), &cbR);
 	newfont = (char*)malloc(len + 1);
 	rc = DosRead(fileno(PM_pipe), newfont, len*sizeof(char), &cbR);
@@ -624,7 +624,7 @@ static void PM_query_font(void)
 	PM_font = (char*)malloc(len + 1);
 	sscanf(newfont, "%i.%s", &fontsize, PM_font);
 	PM_fontsize = (double)fontsize;
-	free(newfont);
+	SAlloc::F(newfont);
 }
 
 #endif
@@ -740,7 +740,7 @@ static int PM_make_palette(t_sm_palette * palette)
 		}
 		fwrite(&sm_palette.colors, sizeof(int), 1, PM_pipe);
 		fwrite(rgbTable, sizeof(ULONG) * sm_palette.colors, 1, PM_pipe);
-		free(rgbTable);
+		SAlloc::F(rgbTable);
 	}
 	return 0;
 }
@@ -905,7 +905,7 @@ static void PM_image(uint M, uint N, double * image, gpiPoint * corner, t_imagec
 		fflush(PM_pipe);
 	}
 
-	free(rgb_image);
+	SAlloc::F(rgb_image);
 }
 
 #ifndef PM_OLD_ENHANCED_TEXT
@@ -962,7 +962,7 @@ static void PM_enhanced_open(char * fontname,
 			sprintf(fontstring, "%s,%i", PM_font, (int)fontsize);
 		}
 		PM_set_font(fontstring);
-		free(fontstring);
+		SAlloc::F(fontstring);
 		PM_query_font();
 
 		/* Scale fractional font height to vertical units of display */

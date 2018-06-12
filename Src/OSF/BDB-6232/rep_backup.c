@@ -83,7 +83,7 @@ static int __rep_remove_by_prefix __P((ENV *, const char *, const char *, size_t
 static FILE_WALK_FN __rep_remove_file;
 static int __rep_remove_logs(ENV *);
 static int __rep_remove_nimdbs(ENV *);
-static int __rep_rollback __P((ENV *, DB_LSN *));
+static int __rep_rollback(ENV *, DB_LSN *);
 static int __rep_select_blob_file(const char *);
 static int __rep_select_blob_sdb(const char *);
 static int __rep_unlink_by_list __P((ENV *, uint32, uint8 *, uint32, uint32));

@@ -1326,11 +1326,7 @@ static void GGI_set_cursor(int c, int x, int y)
 	GGI_needs_update++;
 }
 
-static void GGI_set_clipboard(const char s[])
-{
-	/* XXX: not implemented */
-	(void)s;                /* avoid -Wunused */
-}
+static void GGI_set_clipboard(const char s[]) { /* XXX: not implemented */ }
 
 #endif
 

@@ -4297,7 +4297,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 	int    yes = 0;
 	const  size_t len = sstrlen(pMark);
 	ASSIGN_PTR(pProcessedMark, 0);
-	if(len == 68) {
+	if(len == 68 || len == 150) { // @v10.0.12 (|| len == 150)
 		yes = 1;
 		SString temp_buf;
 		for(size_t i = 0; yes && i < len; i++) {

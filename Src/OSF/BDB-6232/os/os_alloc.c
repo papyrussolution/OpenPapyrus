@@ -180,9 +180,9 @@ int __os_calloc(const ENV *env, size_t num, size_t size, void * storep)
  * __os_malloc --
  *	The malloc(3) function for DB.
  *
- * PUBLIC: int __os_malloc __P((const ENV *, size_t, void *));
+ * PUBLIC: int __os_malloc(const ENV *, size_t, void *);
  */
-int __os_malloc(const ENV *env, size_t size, void * storep)
+int FASTCALL __os_malloc(const ENV *env, size_t size, void * storep)
 {
 	int ret;
 	void * p;
@@ -211,13 +211,11 @@ int __os_malloc(const ENV *env, size_t size, void * storep)
 		}
 		else
 			(void)USR_ERR(env, ret);
-		__db_err(env, ret, DB_STR_A("0147", "malloc: %lu", "%lu"),
-		    (u_long)size);
+		__db_err(env, ret, DB_STR_A("0147", "malloc: %lu", "%lu"), (u_long)size);
 		return ret;
 	}
-
 #ifdef DIAGNOSTIC
-	/* Overwrite memory. */
+	// Overwrite memory. 
 	memset(p, CLEAR_BYTE, size);
 	/*
 	 * Guard bytes: if #DIAGNOSTIC is defined, we allocate an additional
@@ -225,26 +223,23 @@ int __os_malloc(const ENV *env, size_t size, void * storep)
 	 * for when the memory is free'd.
 	 */
 	((uint8*)p)[size - 1] = CLEAR_BYTE;
-
 	((db_allocinfo_t*)p)->size = size;
 	p = &((db_allocinfo_t*)p)[1];
 #endif
 	*(void**)storep = p;
-
 	return 0;
 }
-
 /*
  * __os_realloc --
  *	The realloc(3) function for DB.
  *
- * PUBLIC: int __os_realloc __P((const ENV *, size_t, void *));
+ * PUBLIC: int __os_realloc(const ENV *, size_t, void *);
  */
-int __os_realloc(const ENV *env, size_t size, void * storep)
+int FASTCALL __os_realloc(const ENV * env, size_t size, void * storep)
 {
 	int ret;
-	void * p, * ptr;
-	ptr = *(void**)storep;
+	void * p;
+	void * ptr = *(void**)storep;
 	/* Never allocate 0 bytes -- some C libraries don't like it. */
 	if(size == 0)
 		++size;
@@ -281,8 +276,7 @@ int __os_realloc(const ENV *env, size_t size, void * storep)
 			ret = USR_ERR(env, ENOMEM);
 			__os_set_errno(ENOMEM);
 		}
-		__db_err(env, ret, DB_STR_A("0148", "realloc: %lu", "%lu"),
-		    (u_long)size);
+		__db_err(env, ret, DB_STR_A("0148", "realloc: %lu", "%lu"), (u_long)size);
 		return ret;
 	}
 #ifdef DIAGNOSTIC
@@ -298,9 +292,9 @@ int __os_realloc(const ENV *env, size_t size, void * storep)
  * __os_free --
  *	The free(3) function for DB.
  *
- * PUBLIC: void __os_free __P((const ENV *, void *));
+ * PUBLIC: void __os_free(const ENV *, void *);
  */
-void __os_free(const ENV *env, void * ptr)
+void FASTCALL __os_free(const ENV *env, void * ptr)
 {
 #ifdef DIAGNOSTIC
 	size_t size;
@@ -319,14 +313,12 @@ void __os_free(const ENV *env, void * ptr)
 	size = ((db_allocinfo_t*)ptr)->size;
 	if(((uint8*)ptr)[size - 1] != CLEAR_BYTE)
 		__os_guard(env);
-
 	/* Overwrite memory. */
 	if(size != 0)
 		memset(ptr, CLEAR_BYTE, size);
 #else
 	COMPQUIET(env, NULL);
 #endif
-
 	if(DB_GLOBAL(j_free) != NULL)
 		DB_GLOBAL(j_free)(ptr);
 	else
@@ -373,9 +365,9 @@ static void __os_guard(const ENV *env)
  *	of the time, but we've seen examples where it wasn't sufficient
  *	and there's nothing in ANSI C that requires that work.
  *
- * PUBLIC: void *__ua_memcpy __P((void *, const void *, size_t));
+ * PUBLIC: void *__ua_memcpy(void *, const void *, size_t);
  */
-void * __ua_memcpy(void * dst, const void * src, size_t len)
+void * FASTCALL __ua_memcpy(void * dst, const void * src, size_t len)
 {
 	return ((void*)memcpy(dst, src, len));
 }

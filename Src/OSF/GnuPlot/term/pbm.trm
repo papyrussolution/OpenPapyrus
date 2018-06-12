@@ -291,7 +291,7 @@ static void PBM_graphics()
 
 static void PBM_monotext()
 {
-	register int x, j, row;
+	int x, j, row;
 	fputs("P4\n", gpoutfile);
 	fprintf(gpoutfile, "%u %u\n", GpBmB.b_ysize, GpBmB.b_xsize);
 	/* dump bitmap in raster mode */
@@ -306,8 +306,8 @@ static void PBM_monotext()
 
 static void PBM_graytext()
 {
-	register int x, j, row;
-	register int i, value;
+	int x, j, row;
+	int i, value;
 	int mask, plane1, plane2, plane3;
 	fprintf(gpoutfile, "P5\n%u %u\n%u\n", GpBmB.b_ysize, GpBmB.b_xsize, 255);
 	/* dump bitmap in raster mode */
@@ -338,8 +338,8 @@ static void PBM_graytext()
 
 static void PBM_colortext()
 {
-	register int x, j, row;
-	register int i;
+	int x, j, row;
+	int i;
 	int mask, plane1, plane2, plane3, plane4;
 	int red, green, blue;
 	fprintf(gpoutfile, "P6\n%u %u\n%u\n", GpBmB.b_ysize, GpBmB.b_xsize, 255);

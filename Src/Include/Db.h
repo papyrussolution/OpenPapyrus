@@ -4024,7 +4024,8 @@ public:
 		stOpened    = 0x0002,
 		stIndex     = 0x0004, // Таблица является индексной. Поле P_MainT ссылается на основную таблицу.
 		stOwnSCtx   = 0x0008, // Has own instance of SSerializeContext (P_SCtx)
-		stReadOnly  = 0x0010  // Таблица была открыта в режиме ofReadOnly
+		stReadOnly  = 0x0010, // Таблица была открыта в режиме ofReadOnly
+		stExclusive = 0x0020  // Таблица была открыта в режиме ofExclusive
 	};
 	enum {
 		cfEncrypt  = 0x0001,
@@ -4037,7 +4038,8 @@ public:
 	// Descr: Флаги открытия таблицы базы данных
 	//
 	enum {
-		ofReadOnly = 0x0001 // Только для чтения //
+		ofReadOnly  = 0x0001, // Только для чтения //
+		ofExclusive = 0x0002  // Эксклюзивный режим работы
 	};
 	class Config {
 	public:
@@ -4332,13 +4334,15 @@ public:
 		stError            = 0x0001,
 		stLoggedIn         = 0x0002,
 		stReadOnly         = 0x0004, // @v9.7.11 Экземпляр базы данных создан в режиме READ-ONLY
-		stWriteStatOnClose = 0x0008  // @v9.7.11 При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
+		stWriteStatOnClose = 0x0008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
+		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме  
 	};
 	enum {
 		oRecover          = 0x00000001,
 		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x00000008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам
+		oExclusive        = 0x00000010  // @v10.0.12 База данных открывается в эксклюзивном режиме  
 	};
 	struct Config {
 		Config();

@@ -74,14 +74,14 @@ static void AI_text();
 static void AI_linetype(int linetype);
 static void AI_move(uint x, uint y);
 static void AI_vector(uint x, uint y);
-static void AI_put_text __PROTO((uint x, uint y, const char * str));
+static void AI_put_text(uint x, uint y, const char * str);
 static int AI_text_angle(int ang);
 static void AI_reset();
 static void AI_options(GpCommand & rC);
-static int AI_justify_text __PROTO((enum JUSTIFY mode));
+static int AI_justify_text(enum JUSTIFY mode);
 static void AI_suspend();
 static void AI_resume();
-static int AI_set_font __PROTO((const char* font));
+static int AI_set_font(const char * font);
 
 #define AI_XOFF 50              /* page offset in pts */
 #define AI_YOFF 50
@@ -166,7 +166,7 @@ static void AI_options(GpCommand & rC)
 				    char * font = rC.TryToGetString();
 				    strcpy(ai_font, font);
 				    strcpy(ai_oldfont, font);
-				    free(font);
+				    SAlloc::F(font);
 			    }
 			    else { /* is a number */
 				    /* We have font size specified */

@@ -49,7 +49,7 @@
  * __ham_func2 --
  *	Phong Vo's linear congruential hash.
  *
- * PUBLIC: uint32 __ham_func2 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func2(DB *, const void *, uint32);
  */
 #define DCHARHASH(h, c) ((h) = 0x63c63cd9*(h) + 0x9c39c33d + (c))
 
@@ -78,7 +78,7 @@ uint32 __ham_func2(DB *dbp, const void * key, uint32 len)
  * iteration, perform 8 HASHC's so we handle all 8 bytes.  Essentially, this
  * saves us 7 cmp & branch instructions.
  *
- * PUBLIC: uint32 __ham_func3 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func3(DB *, const void *, uint32);
  */
 uint32 __ham_func3(DB *dbp, const void * key, uint32 len)
 {
@@ -119,7 +119,7 @@ uint32 __ham_func3(DB *dbp, const void * key, uint32 len)
  *	slightly worse than __ham_func5 on strings, it performs horribly on
  *	numbers.
  *
- * PUBLIC: uint32 __ham_func4 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func4(DB *, const void *, uint32);
  */
 uint32 __ham_func4(DB *dbp, const void * key, uint32 len)
 {
@@ -171,7 +171,7 @@ uint32 __ham_func4(DB *dbp, const void * key, uint32 len)
  * This hash produces the fewest collisions of any function that we've seen so
  * far, and works well on both numbers and strings.
  *
- * PUBLIC: uint32 __ham_func5 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func5(DB *, const void *, uint32);
  */
 uint32 __ham_func5(DB *dbp, const void * key, uint32 len)
 {
@@ -193,7 +193,7 @@ uint32 __ham_func5(DB *dbp, const void * key, uint32 len)
  *	hash is initialized to 2166136261 rather than 0, so that all-zero
  *	inputs don't always hash to 0.
  *
- * PUBLIC: uint32 __ham_func6 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func6(DB *, const void *, uint32);
  */
 uint32 __ham_func6(DB *dbp, const void * key, uint32 len)
 {
@@ -211,7 +211,7 @@ uint32 __ham_func6(DB *dbp, const void * key, uint32 len)
 /*
  * __ham_test --
  *
- * PUBLIC: uint32 __ham_test __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_test(DB *, const void *, uint32);
  */
 uint32 __ham_test(DB *dbp, const void * key, uint32 len)
 {

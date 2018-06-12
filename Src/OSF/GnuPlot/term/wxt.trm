@@ -179,10 +179,10 @@ static void wxt_options(GpCommand & rC)
 					sscanf(sep+1, "%d", &wxt_set_fontsize);
 					*sep = '\0';
 				}
-				free(wxt_set_fontname);
+				SAlloc::F(wxt_set_fontname);
 				wxt_set_fontname = gp_strdup(s);
 			}
-			free(s);
+			SAlloc::F(s);
 			if(set_font) duplication=true;
 			set_font = true;
 			break;
@@ -268,7 +268,7 @@ static void wxt_options(GpCommand & rC)
 				GpGg.IntErrorCurToken("title: expecting string");
 			if(*s)
 				strncpy(wxt_title, s, sizeof(wxt_title));
-			free(s);
+			SAlloc::F(s);
 			if(set_title) duplication=true;
 			set_title = true;
 			break;
@@ -383,7 +383,7 @@ static void wxt_options(GpCommand & rC)
 		strncat(term_options, " font \"", sizeof(term_options)-strlen(term_options)-1);
 		strncat(term_options, font_setting, sizeof(term_options)-strlen(term_options)-1);
 		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
-		free(font_setting);
+		SAlloc::F(font_setting);
 	}
 	SETIFZ(wxt_set_fontname, gp_strdup(""));
 	if(wxt_set_fontscale != 1.0) {
