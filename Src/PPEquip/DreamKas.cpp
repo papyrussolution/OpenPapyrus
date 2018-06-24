@@ -737,7 +737,7 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 									depart_no = p_obj->P_Child->Text.ToLong();
 							}
 						}
-						if(!goods_uuid.IsZero()) {
+						if(!!goods_uuid) {
 							ObjTagItem tag;
 							PPIDArray id_list;
 							if(tag.SetGuid(PPTAG_BILL_UUID, &goods_uuid)) {

@@ -6384,6 +6384,12 @@ SLAPI SNaturalTokenStat::SNaturalTokenStat() : Len(0), Seq(0)
 {
 }
 
+SNaturalTokenArray & SLAPI SNaturalTokenArray::Z()
+{
+	clear();
+	return *this;
+}
+
 float FASTCALL SNaturalTokenArray::Has(uint32 tok) const
 {
     uint   pos = 0;

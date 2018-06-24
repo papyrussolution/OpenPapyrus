@@ -20,6 +20,10 @@
 	<egaisRegistrationIdentificator number="egaisRegistrationIdentificator" />   <!--идентификатор ТТН в ЕГАИС-->
     <egaisFixationIdentificator number="EgaisFixationNumber" date="EgaisFixationDate" />    <!--номер и дата фиксации ТТН в ЕГАИС-->
 	<deliveryNoteIdentificator number="DeliveryNoteNumber" date="DeliveryNoteDate" />   <!--номер и дата ТОРГ-12-->
+	<invoiceDeliveryMoment>InvoiceDeliveryMoment</invoiceDeliveryMoment>    <!--Момент выставления документов. BeforeDelivery - при отгрузке, AfterDelivery - после приемки-->
+	<invoiceDeliveryType>InvoiceDeliveryType</invoiceDeliveryType>    <!--Вид документов. Paper - бумажные, Electronic - электронные-->
+    <orderReason>OrderReason</orderReason>  <!--Канал сбыта-->
+    <paymentTerms>PaymentTerms</paymentTerms>   <!--Условия оплаты-->
 
     <!-- начало блока данных о поставщике -->
     <seller>
@@ -71,7 +75,7 @@
         <flat>Flat</flat>
         <postalCode>>PostalCode</postalCode>
       </russianAddress>
-      <contactlInfo>
+      <contactInfo>
         <CEO>
           <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
           <fax>FaxNumber</fax> <!--факс контактного лица-->
@@ -92,7 +96,7 @@
           <fax>FaxNumber</fax> <!--факс контактного лица-->
           <email>Email</email> <!--email контактного лица-->
         </orderContact>
-      </contactlInfo>
+      </contactInfo>
     </buyer>
     <!-- конец блока данных о покупателе -->
     <!-- начало блока данных о получателе счета-->
@@ -131,6 +135,7 @@
     <deliveryInfo>
       <estimatedDeliveryDateTime>deliveryDateT00:00:00.000Z</estimatedDeliveryDateTime>    <!--дата доставки-->
       <shippingDateTime>ShippingDateT00:00:00.000Z</shippingDateTime>          <!--дата отгрузки-->
+	  <waybill number="WaybillNumber" date = "WaybillDate0000"/>    <!--дата и номер товарно-транспортной накладной-->
       <shipFrom>
         <gln>shipFromGln</gln>       <!--gln грузоотправителя-->
         <organization>
@@ -217,6 +222,8 @@ airTransport (40) - авиатранспорт-->
         <vehicleNumber>VehicleNumber</vehicleNumber>  <!--номер тарнспортного средства-->
         <vehicleBrand>VehicleBrand</vehicleBrand>  <!--марка транспортного средства-->
         <nameOfCarrier>NameOfCarrier</nameOfCarrier>  <!--имя водителя-->
+		<phoneOfCarrier>PhoneOfCarrier</phoneOfCarrier>  <!--Телефон водителя-->
+		<vehicleBrand>SideDespatch</vehicleBrand>  <!--Возможность боковой отгрузки, принимает значение Yes или No-->
       </transportation>
     </deliveryInfo>
     <!-- конец блока данных о грузоотправителе и грузополучателе -->
@@ -226,7 +233,14 @@ airTransport (40) - авиатранспорт-->
         <packageLevel>LevelNumber</packageLevel> <!-- Уровень иерархии упаковки-->
         <parentLevel>ParentNumber</parentLevel> <!--Ссылка на родительский уровень иерархии-->
         <SSCC>SerialShippingContainerCode</SSCC> <!--SSCC код упаковки-->
-        <packageQuantity typeOfPackage="201">PackageQuantity.Value</packageQuantity> <!--Количество упаковок на данном уровне иерархии и тип упаковок. "201" - Pallet ISO 1 - 1/1 EURO Pallet  -->
+        <packageQuantity typeOfPackage="201" packageDescription="PackageDescription">PackageQuantity.Value</packageQuantity> <!--Количество упаковок на данном уровне иерархии и тип упаковок. "201" - Pallet ISO 1 - 1/1 EURO Pallet. PackageDescription - описание упаковки  -->
+		<packageMeasurementInfo>
+		   <totalNetWeight unitOfMeasure="MeasurementUnitCode">PackageMeasurementInfo.TotalNetWeight</totalNetWeight> <!--Вес нетто упаковки -->
+		   <totalGrossWeight unitOfMeasure="MeasurementUnitCode">PackageMeasurementInfo.TotalGrossWeight</totalGrossWeight> <!--Вес брутто упаковки -->
+		   <totalLength unitOfMeasure="MeasurementUnitCode">PackageMeasurementInfo.TotalLength</totalLength> <!--Длина упаковки-->
+		   <totalWidth unitOfMeasure="MeasurementUnitCode">PackageMeasurementInfo.TotalWidth</totalWidth> <!--Ширина упаковки-->
+		   <storageTemperature unitOfMeasure="MeasurementUnitCode">PackageMeasurementInfo.StorageTemperature</storageTemperature> <!--Температурный режим хранения упаковки-->
+		</packageMeasurementInfo>
       </package>
       <!-- каждая последующая упаковка должна идти в отдельном теге <package> -->
     </packages>
@@ -240,18 +254,21 @@ airTransport (40) - авиатранспорт-->
         <internalBuyerCode>BuyerProductId</internalBuyerCode>        <!--внутренний код присвоенный покупателем-->
         <internalSupplierCode>SupplierProductId</internalSupplierCode>        <!--артикул товара (код товара присвоенный продавцом)-->
      	<codeOfEgais>codeOfEgais</codeOfEgais>       <!--код товара в ЕГАИС-->
-		<lotNumberEgais>lotNumberEgais</lotNumberEgais>   <!--идентификатор позиции в ТТН ЕГАИС-->
+		<lotNumberEgais>lotNumberEgais</lotNumberEgais>   <!--идентификатор позиции в ТТН ЕГАИС-->		
+		<veterinaryCertificateMercuryId>veterinaryCertificateMercuryId</veterinaryCertificateMercuryId>   <!--идентификатор ВСД в системе Меркурий-->	
 		<serialNumber>SerialNumber</serialNumber>  <!--серийный номер товара-->
         <orderLineNumber>orderLineNumber</orderLineNumber>  <!--порядковый номер товара (номер строки в заказе)-->
         <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->
+        <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->
         <description>Name</description>       <!--название товара-->
-        <comment>LineItemComment</comment>          <!--комментарий к товарной позиции-->
+		<comment>LineItemComment</comment>          <!--комментарий к товарной позиции-->
         <orderedQuantity unitOfMeasure="MeasurementUnitCode">OrdersQuantity</orderedQuantity>        <!--заказанное количество-->
         <despatchedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</despatchedQuantity>        <!--отгруженное количество-->
         <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>        <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
         <expireDate>expireDate</expireDate>  <!--срок годности-->
         <freshnessDate>freshnessDate</freshnessDate>  <!--срок хранения-->
 		<manufactoringDate>manufactoringDate</manufactoringDate>  <!--дата производства-->
+		<bottlingDate>bottlingDate</bottlingDate>  <!--дата розлива-->
 		<ultimateCustomer>
         <gln>UltimateCustomerGln</gln>  <!--gln конечной точки доставки-->
         </ultimateCustomer>
@@ -262,9 +279,48 @@ airTransport (40) - авиатранспорт-->
         <vATRate>VATRate</vATRate>  <!--ставка НДС (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
         <vATAmount>VATSummary</vATAmount>     <!--сумма НДС по позиции-->
         <amount>PriceSummaryWithVAT</amount>     <!--сумма по позиции с НДС-->
+        <storageConditions>StorageConditions</storageConditions> <!--Условия хранения-->
+        <remainingShelfLife>RemainingShelfLife</remainingShelfLife>  <!--Остаточный срок годности-->
+        <registeredPrice>RegisteredPrice</registeredPrice>  <!--Предельная отпускная цена-->
+        <landedPrice>LandedPrice</landedPrice>  <!--Фактическая отпускная цена производителя-->
+        <priceProtocol>PriceProtocol</priceProtocol>  <!--Фактическая отпускная цена организации-->
+        <markupInPercent>MarkupInPercent</markupInPercent>   <!--Надбавка в %-->
+        <markupInValue>MarkupInValue</markupInValue>  <!--Надбавка в рублях-->
+        <classificationOfOKP>ClassificationOfOKP</classificationOfOKP>  <!--Код ОКП-->
+        <MNN>MNN</MNN>  <!--МНН лекарства-->
+        <declaration>   <!--Декларация или сертификат-->
+          <number>Number</number>   <!--Серия, номер-->
+          <startDate>StartDate</startDate>  <!--Действует с-->
+          <endDate>EndDate</endDate>    <!--Дата окончания действия декларации или сертификата-->
+          <holder>Holder</holder>   <!--Держатель-->
+          <issuerOf>IssuerOf</issuerOf> <!--Орган выдачи-->
+        </declaration>
+		<packages>
+          <packageForItem>
+            <packageTypeCode>PackageTypeCode</packageTypeCode> <!--Тип упаковки-->
+			<packageQuantity>Quantity</packageQuantity> <!--Количество упаковок-->
+            <onePackageQuantity unitOfMeasure="MeasurementUnitCode">Value</onePackageQuantity> <!--Кол-во в упаковке-->
+          </packageForItem>
+		</packages>
         <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>      <!--код страны производства-->
         <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>
         <!--номер таможенной декларации-->
+        <manufacturer>
+          <gln>Gln</gln> <!--gln производителя-->
+          <selfEmployed>
+            <fullName>
+              <lastName>LastName</lastName>   <!--фамилия производителя-->
+              <firstName>FirstName</firstName>   <!--имя производителя-->
+              <middleName>MiddleName</middleName> <!--отчество производителя-->
+            </fullName>            
+          </selfEmployed>
+        </manufacturer>
+        <manufacturingSite>
+          <gln>GLN</gln>    <!--gln производственной площадки-->
+          <organization>
+            <name>Name</name>   <!--наименование производственной площадки-->
+          </organization>
+        </manufacturingSite>
       </lineItem>
       <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
 
@@ -272,6 +328,14 @@ airTransport (40) - авиатранспорт-->
       <totalVATAmount>DesadvTotalVAT</totalVATAmount>      <!--сумма НДС, значение берем из orders/ordrsp-->
       <totalAmount>DesadvTotalWithVAT</totalAmount>
       <!--общая сумма по товарам, на которую начисляется НДС (125/86), значение берем из orders/ordrsp-->
+      <cargoSpaceInfo>
+        <totalEuroPallet unitOfMeasure="PCE">TotalEuroPallet</totalEuroPallet>  <!--Количество евро-паллет по всему документу-->
+        <totalAmericanPallet unitOfMeasure="PCE">TotalAmericanPallet</totalAmericanPallet>  <!--Количество американских паллет по всему документу-->
+        <totalCartonsQuantity unitOfMeasure="PCE">TotalCartonsQuantity</totalCartonsQuantity>   <!--Количество коробок по всему документу-->
+      </cargoSpaceInfo>
+      <measurmentInfo>
+        <totalNetWeight unitOfMeasure="KGM">TotalNetWeight</totalNetWeight> <!--Общий вес нетто-->
+      </measurmentInfo>      
     </lineItems>
   </despatchAdvice>
 </eDIMessage>

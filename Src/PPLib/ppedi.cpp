@@ -4,14 +4,14 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) : 
+SLAPI PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	Epp(rEpp), MainOrgID(mainOrgID), Flags(flags), P_BObj(BillObj)
 {
 	PPAlbatrosCfgMngr::Get(&ACfg);
 	Arp.SetConfig(0);
 	Arp.Init();
 }
-		
+
 SLAPI PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 {
 }
@@ -20,9 +20,9 @@ int SLAPI PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rG
 {
 	int    ok = 0;
 	if(rGLN.NotEmpty()) {
-		SNaturalTokenArray ntl;
+		SNaturalTokenArray nta;
 		SNaturalTokenStat nts;
-		TR.Run(rGLN.ucptr(), rGLN.Len(), ntl, &nts);
+		TR.Run(rGLN.ucptr(), rGLN.Len(), nta, &nts);
 		if(nts.Seq & SNTOKSEQ_DEC)
 			ok = 1;
 	}
@@ -149,7 +149,8 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 		int    std = 0;
 		const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
 		(temp_buf = r_bc_item.Code).Strip();
-		temp_buf.TrimRightChr('*');
+		while(temp_buf.Last() == '*' || temp_buf.Last() == ' ')
+			temp_buf.TrimRight();
 		if(GObj.DiagBarcode(temp_buf, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
 			rGtin = temp_buf;
 		else if(!non_strict_bc_pos) {
@@ -160,7 +161,8 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 	if(rGtin.Empty()) {
 		if(!(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fStrictExpGtinCheck) && non_strict_bc_pos) {
 			(temp_buf = bc_list.at(non_strict_bc_pos-1).Code).Strip();
-			temp_buf.TrimRightChr('*');
+			while(temp_buf.Last() == '*' || temp_buf.Last() == ' ')
+				temp_buf.TrimRight();
 			rGtin = temp_buf;
 		}
 		THROW_PP_S(rGtin.NotEmpty(), PPERR_EDI_WAREHASNTVALIDCODE, goods_rec.Name);
@@ -540,32 +542,32 @@ public:
 	// +65 Unsettled dispute. To report an unsettled dispute.
 	//
 	enum {
-		fmsgcodeReplace      =  5, // Replace 
-		fmsgcodeConfirmation =  6, // Confirmation 
-		fmsgcodeDuplicate    =  7, // Duplicate 
-		fmsgcodeOriginal     =  9, // Original 
-		fmsgcodeProposal     = 16, // Proposal 
-		fmsgcodeAcceptedWOA  = 29, // Accepted without amendment 
-		fmsgcodeCopy         = 31, // Copy 
-		fmsgcodeConfirmationVieSpcMeans = 42, // Confirmation via specific means 
+		fmsgcodeReplace      =  5, // Replace
+		fmsgcodeConfirmation =  6, // Confirmation
+		fmsgcodeDuplicate    =  7, // Duplicate
+		fmsgcodeOriginal     =  9, // Original
+		fmsgcodeProposal     = 16, // Proposal
+		fmsgcodeAcceptedWOA  = 29, // Accepted without amendment
+		fmsgcodeCopy         = 31, // Copy
+		fmsgcodeConfirmationVieSpcMeans = 42, // Confirmation via specific means
 		fmsgcodeProvisional  = 46  // Provisional
 	};
 	//
 	// Коды документов в BeginningOfMessage
-	// 220 = Order 
-	// 221 = Blanket order 
-	// 224 = Rush order 
-	// 225 = Repair order 
-	// 226 = Call off order 
-	// 227 = Consignment order 
-	// 22E = Manufacturer raised order (GS1 Temporary Code) 
-	// 23E = Manufacturer raised consignment order (GS1 Temporary Code) 
-	// 258 = Standing order 
-	// 237 = Cross docking services order 
-	// 400 = Exceptional order 
-	// 401 = Transshipment order 
+	// 220 = Order
+	// 221 = Blanket order
+	// 224 = Rush order
+	// 225 = Repair order
+	// 226 = Call off order
+	// 227 = Consignment order
+	// 22E = Manufacturer raised order (GS1 Temporary Code)
+	// 23E = Manufacturer raised consignment order (GS1 Temporary Code)
+	// 258 = Standing order
+	// 237 = Cross docking services order
+	// 400 = Exceptional order
+	// 401 = Transshipment order
 	// 402 = Cross docking order
-	// 
+	//
 	int    SLAPI Write_BeginningOfMessage(SXml::WDoc & rDoc, const char * pDocCode, const char * pDocIdent, int funcMsgCode);
 	int    SLAPI Read_BeginningOfMessage(xmlNode * pFirstNode, SString & rDocCode, SString & rDocIdent, int * pFuncMsgCode);
 	int    SLAPI Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, uint segCount);
@@ -574,77 +576,77 @@ public:
 	//
 	//
 	enum {
-		dtmqDlvry                    =   2, // Delivery date/time, requested 
-		dtmqShipment                 =  10, // Shipment date/time, requested 
-		dtmqDespatch                 =  11, // Despatch date and/or time 
-		dtmqPromotionStart           =  15, // Promotion start date/time 
+		dtmqDlvry                    =   2, // Delivery date/time, requested
+		dtmqShipment                 =  10, // Shipment date/time, requested
+		dtmqDespatch                 =  11, // Despatch date and/or time
+		dtmqPromotionStart           =  15, // Promotion start date/time
 		dtmqDlvryEstimated           =  17, // Delivery date/time, estimated
-		dtmqShipNotBefore            =  37, // Ship not before date/time 
-		dtmqShipNotLater             =  38, // Ship not later than date/time 
+		dtmqShipNotBefore            =  37, // Ship not before date/time
+		dtmqShipNotLater             =  38, // Ship not later than date/time
 		dtmqInbondMovementAuth       =  59, // Inbond movement authorization date
-		dtmqCancelIfNotDlvrd         =  61, // Cancel if not delivered by this date 
-		dtmqDeliveryLatest           =  63, // Delivery date/time, latest 
-		dtmqDeliveryEarliest         =  64, // Delivery date/time, earliest 
-		dtmqDeliveryPromisedFor      =  69, // Delivery date/time, promised for 
-		dtmqDeliveryScheduledFor     =  76, // Delivery date/time, scheduled for 
-		//X14 = Requested for delivery week commencing (GS1 Temporary Code) 
-		dtmqDocument                 = 137, // Document/message date/time 
+		dtmqCancelIfNotDlvrd         =  61, // Cancel if not delivered by this date
+		dtmqDeliveryLatest           =  63, // Delivery date/time, latest
+		dtmqDeliveryEarliest         =  64, // Delivery date/time, earliest
+		dtmqDeliveryPromisedFor      =  69, // Delivery date/time, promised for
+		dtmqDeliveryScheduledFor     =  76, // Delivery date/time, scheduled for
+		//X14 = Requested for delivery week commencing (GS1 Temporary Code)
+		dtmqDocument                 = 137, // Document/message date/time
 		dtmqReleaseDateOfSupplier    = 162, // Release date of supplier
-		dtmqReference                = 171, // Reference date/time 
+		dtmqReference                = 171, // Reference date/time
 		dtmqDlvryExpected            = 191, // Delivery date/time, expected
-		dtmqStart                    = 194, // Start date/time 
-		dtmqCollectionOfCargo        = 200, // Pick-up/collection date/time of cargo 
-		dtmqEnd                      = 206, // End date/time 
+		dtmqStart                    = 194, // Start date/time
+		dtmqCollectionOfCargo        = 200, // Pick-up/collection date/time of cargo
+		dtmqEnd                      = 206, // End date/time
 		dtmqCollectionEarliest       = 234, // Collection date/time, earliest
-		dtmqCollectionLatest         = 235, // Collection date/time, latest 
-		dtmqInvoicingPeriod          = 263, // Invoicing period 
-		dtmqValidityPeriod           = 273, // Validity period 
-		dtmqConfirmation             = 282, // Confirmation date lead time 
+		dtmqCollectionLatest         = 235, // Collection date/time, latest
+		dtmqInvoicingPeriod          = 263, // Invoicing period
+		dtmqValidityPeriod           = 273, // Validity period
+		dtmqConfirmation             = 282, // Confirmation date lead time
 		dtmqScheduledDlvryOnOrAfter  = 358, // Scheduled for delivery on or after
 		dtmqScheduledDlvryOnOrBefore = 359, // Scheduled for delivery on or before
 		dtmqCancelIfNotShipped       = 383, // Cancel if not shipped by this date
 		//54E = Stuffing date/time (GS1 Temporary Code)
 	};
 	/*
-		2           DDMMYY Calendar date: D = Day; M = Month; Y = Year. 	
-		101         YYMMDD Calendar date: Y = Year; M = Month; D = Day. 	
-		102 !       CCYYMMDD Calendar date: C = Century ; Y = Year ; M = Month ; D = Day. 	
-		104         MMWW-MMWW A period of time specified by giving the start week of a month followed by the end week of a month. Data is to be transmitted as consecutive characters without hyphen. 	
-		107         DDD Day's number within a specific year: D = Day. 	
-		108         WW Week's number within a specific year: W = Week. 	
-		109         MM Month's number within a specific year: M = Month. 	
-		110         DD Day's number within is a specific month. 	
-		201         YYMMDDHHMM 	Calendar date including time without seconds: Y = Year; M = Month; D = Day; H = Hour; M = Minute. 	
-		203  !      CCYYMMDDHHMM 	Calendar date including time with minutes: C=Century; Y=Year; M=Month; D=Day; H=Hour; M=Minutes. 	
-		204         CCYYMMDDHHMMSS 	Calendar date including time with seconds: C=Century;Y=Year; M=Month;D=Day;H=Hour;M=Minute;S=Second. 	
-		401         HHMM 	Time without seconds: H = Hour; m = Minute. 	
-		501         HHMMHHMM 	Time span without seconds: H = Hour; m = Minute;. 	
-		502         HHMMSS-HHMMSS 	Format of period to be given without hyphen. 	
-		602         CCYY 	Calendar year including century: C = Century; Y = Year. 	
-		609         YYMM 	Month within a calendar year: Y = Year; M = Month. 	
-		610         CCYYMM 	Month within a calendar year: CC = Century; Y = Year; M = Month. 	
-		615         YYWW 	Week within a calendar year: Y = Year; W = Week 1st week of January = week 01. 	
-		616  !      CCYYWW 	Week within a calendar year: CC = Century; Y = Year; W = Week (1st week of January = week 01). 	
-		713         YYMMDDHHMM-YYMMDDHHMM 	Format of period to be given in actual message without hyphen. 	
-		715         YYWW-YYWW 	A period of time specified by giving the start week of a year followed by the end week of year (both not including century). Data is to be transmitted as consecutive characters without hyphen. 	
-		717         YYMMDD-YYMMDD 	Format of period to be given in actual message without hyphen. 	
-		718  !      CCYYMMDD-CCYYMMDD 	Format of period to be given without hyphen. 	
-		719         CCYYMMDDHHMM-CCYYMMDDHHMM 	A period of time which includes the century, year, month, day, hour and minute. Format of period to be given in actual message without hyphen. 	
-		720         DHHMM-DHHMM 	Format of period to be given without hyphen (D=day of the week, 1=Monday; 2=Tuesday; ... 7=Sunday). 	
-		801         Year 	To indicate a quantity of years. 	
-		802         Month 	To indicate a quantity of months. 	
-		803         Week 	To indicate a quantity of weeks. 	
-		804         Day 	To indicate a quantity of days. 	
-		805         Hour 	To indicate a quantity of hours. 	
-		806         Minute 	To indicate a quantity of minutes. 	
-		810         Trimester 	To indicate a quantity of trimesters (three months). 	
-		811         Half month 	To indicate a quantity of half months. 	
+		2           DDMMYY Calendar date: D = Day; M = Month; Y = Year.
+		101         YYMMDD Calendar date: Y = Year; M = Month; D = Day.
+		102 !       CCYYMMDD Calendar date: C = Century ; Y = Year ; M = Month ; D = Day.
+		104         MMWW-MMWW A period of time specified by giving the start week of a month followed by the end week of a month. Data is to be transmitted as consecutive characters without hyphen.
+		107         DDD Day's number within a specific year: D = Day.
+		108         WW Week's number within a specific year: W = Week.
+		109         MM Month's number within a specific year: M = Month.
+		110         DD Day's number within is a specific month.
+		201         YYMMDDHHMM 	Calendar date including time without seconds: Y = Year; M = Month; D = Day; H = Hour; M = Minute.
+		203  !      CCYYMMDDHHMM 	Calendar date including time with minutes: C=Century; Y=Year; M=Month; D=Day; H=Hour; M=Minutes.
+		204         CCYYMMDDHHMMSS 	Calendar date including time with seconds: C=Century;Y=Year; M=Month;D=Day;H=Hour;M=Minute;S=Second.
+		401         HHMM 	Time without seconds: H = Hour; m = Minute.
+		501         HHMMHHMM 	Time span without seconds: H = Hour; m = Minute;.
+		502         HHMMSS-HHMMSS 	Format of period to be given without hyphen.
+		602         CCYY 	Calendar year including century: C = Century; Y = Year.
+		609         YYMM 	Month within a calendar year: Y = Year; M = Month.
+		610         CCYYMM 	Month within a calendar year: CC = Century; Y = Year; M = Month.
+		615         YYWW 	Week within a calendar year: Y = Year; W = Week 1st week of January = week 01.
+		616  !      CCYYWW 	Week within a calendar year: CC = Century; Y = Year; W = Week (1st week of January = week 01).
+		713         YYMMDDHHMM-YYMMDDHHMM 	Format of period to be given in actual message without hyphen.
+		715         YYWW-YYWW 	A period of time specified by giving the start week of a year followed by the end week of year (both not including century). Data is to be transmitted as consecutive characters without hyphen.
+		717         YYMMDD-YYMMDD 	Format of period to be given in actual message without hyphen.
+		718  !      CCYYMMDD-CCYYMMDD 	Format of period to be given without hyphen.
+		719         CCYYMMDDHHMM-CCYYMMDDHHMM 	A period of time which includes the century, year, month, day, hour and minute. Format of period to be given in actual message without hyphen.
+		720         DHHMM-DHHMM 	Format of period to be given without hyphen (D=day of the week, 1=Monday; 2=Tuesday; ... 7=Sunday).
+		801         Year 	To indicate a quantity of years.
+		802         Month 	To indicate a quantity of months.
+		803         Week 	To indicate a quantity of weeks.
+		804         Day 	To indicate a quantity of days.
+		805         Hour 	To indicate a quantity of hours.
+		806         Minute 	To indicate a quantity of minutes.
+		810         Trimester 	To indicate a quantity of trimesters (three months).
+		811         Half month 	To indicate a quantity of half months.
 		21E         DDHHMM-DDHHMM (GS1 Temporary Code) 	Format of period to be given in actual message without hyphen.
 	*/
 	enum {
-		dtmfmtCCYYMMDD          = 102, // CCYYMMDD 
-		dtmfmtCCYYMMDDHHMM      = 203, // CCYYMMDDHHMM 
-		dtmfmtCCYYWW            = 616, // CCYYWW 
+		dtmfmtCCYYMMDD          = 102, // CCYYMMDD
+		dtmfmtCCYYMMDDHHMM      = 203, // CCYYMMDDHHMM
+		dtmfmtCCYYWW            = 616, // CCYYWW
 		dtmfmtCCYYMMDD_CCYYMMDD = 718, // CCYYMMDD-CCYYMMDD
 	};
 	//
@@ -653,12 +655,12 @@ public:
 	enum {
 		refqUndef = 0,
 		refqAAB = 1, // Proforma invoice number
-		refqAAJ, // Delivery order number 
+		refqAAJ, // Delivery order number
 		refqAAK, // Despatch advice number
 		refqAAM, // Waybill number. Reference number assigned to a waybill, see: 1001 = 700.
-		refqAAN, // Delivery schedule number 
+		refqAAN, // Delivery schedule number
 		refqAAS, // Transport document number
-		refqAAU, // Despatch note number 
+		refqAAU, // Despatch note number
 		refqABT, // Customs declaration number [1426] Number, assigned or accepted by Customs, to identify a Goods declaration.
 		refqAFO, // Beneficiary's reference
 		refqAIZ, // Consolidated invoice number
@@ -666,21 +668,21 @@ public:
 		refqAMT, // Goods and Services Tax identification number
 		refqAPQ, // Commercial account summary reference number
 		refqASI, // Proof of delivery reference number. A reference number identifying a proof of delivery which is generated by the goods recipient.
-		refqAWT, // Administrative Reference Code 
+		refqAWT, // Administrative Reference Code
 		refqCD, // Credit note number
-		refqCR, // Customer reference number 
-		refqCT, // Contract number 
+		refqCR, // Customer reference number
+		refqCT, // Contract number
 		refqDL, // Debit note number
 		refqDQ, // Delivery note number
-		refqFC, // Fiscal number Tax payer's number. Number assigned to individual persons as well as to corporates by a public institution; 
+		refqFC, // Fiscal number Tax payer's number. Number assigned to individual persons as well as to corporates by a public institution;
 			// this number is different from the VAT registration number.
-		refqIP, // Import licence number 
+		refqIP, // Import licence number
 		refqIV, // Invoice number
-		refqON, // Order number (buyer) 
-		refqPK, // Packing list number 
+		refqON, // Order number (buyer)
+		refqPK, // Packing list number
 		refqPL, // Price list number
-		refqPOR, // Purchase order response number 
-		refqPP, // Purchase order change number 
+		refqPOR, // Purchase order response number
+		refqPP, // Purchase order change number
 		refqRF, // Export reference number
 		refqVN, // Order number (supplier)
 		refqXA, // Company/place registration number. Company registration and place as legally required.
@@ -694,33 +696,33 @@ public:
 	int    SLAPI Write_CPS(SXml::WDoc & rDoc);
 	int    SLAPI Read_CPS(xmlNode * pFirstNode);
 	enum { // values significat!
-		amtqAmtDue                =   9, // Amount due/amount payable 
-		amtqCashDiscount          =  21, // Cash discount 
-		amtqCashOnDeliveryAmt     =  22, // Cash on delivery amount 
-		amtqChargeAmt             =  23, // Charge amount 
-		amtqInvoiceItemAmt        =  38, // Invoice item amount 
-		amtqInvoiceTotalAmt       =  39, // Invoice total amount 
-		amtqCustomsValue          =  40, // Customs value 
-		amtqFreightCharge         =  64, // Freight charge 
-		amtqTotalLnItemsAmt       =  79, // Total line items amount 
-		amtqLoadAndHandlCost      =  81, // Loading and handling cost 
-		amtqMsgTotalMonetaryAmt   =  86, // Message total monetary amount 
-		amtqOriginalAmt           =  98, // Original amount 
-		amtqTaxAmt                = 124, // Tax amount 
+		amtqAmtDue                =   9, // Amount due/amount payable
+		amtqCashDiscount          =  21, // Cash discount
+		amtqCashOnDeliveryAmt     =  22, // Cash on delivery amount
+		amtqChargeAmt             =  23, // Charge amount
+		amtqInvoiceItemAmt        =  38, // Invoice item amount
+		amtqInvoiceTotalAmt       =  39, // Invoice total amount
+		amtqCustomsValue          =  40, // Customs value
+		amtqFreightCharge         =  64, // Freight charge
+		amtqTotalLnItemsAmt       =  79, // Total line items amount
+		amtqLoadAndHandlCost      =  81, // Loading and handling cost
+		amtqMsgTotalMonetaryAmt   =  86, // Message total monetary amount
+		amtqOriginalAmt           =  98, // Original amount
+		amtqTaxAmt                = 124, // Tax amount
 		amtqTaxableAmt            = 125, // Taxable amount
 		amtqTotalAmt              = 128, // Total amount (The amount specified is the total amount)
-		amtqTotalServiceCharge    = 140, // Total service charge 
+		amtqTotalServiceCharge    = 140, // Total service charge
 		amtqUnitPrice             = 146, // Unit price (5110) Reporting monetary amount is a "per unit" amount. (цена без НДС)
-		amtqMsgTotalDutyTaxFeeAmt = 176, // Message total duty/tax/fee amount 
-		amtqExactAmt              = 178, // Exact amount 
-		amtqLnItemAmt             = 203, // Line item amount 
+		amtqMsgTotalDutyTaxFeeAmt = 176, // Message total duty/tax/fee amount
+		amtqExactAmt              = 178, // Exact amount
+		amtqLnItemAmt             = 203, // Line item amount
 		amtqAllowanceAmt          = 204, // Allowance amount
-		amtqTotalCharges          = 259, // Total charges 
+		amtqTotalCharges          = 259, // Total charges
 		amtqTotalAllowances       = 260, // Total allowances
 		amtqInstalmentAmt         = 262, // Instalment amount
-		amtqGoodsAndServicesTax   = 369, // Goods and services tax 
+		amtqGoodsAndServicesTax   = 369, // Goods and services tax
 		amtqTotalAmtInclVAT       = 388, // Total amount including Value Added Tax (VAT)
-		amtqCalcBasisExclAllTaxes = 528, // Calculation basis excluding all taxes 
+		amtqCalcBasisExclAllTaxes = 528, // Calculation basis excluding all taxes
 		amtqUnloadAndHandlCost    = 542, // Unloading and handling cost
 
 		amtqExtBias               = 10000, // Типы сумм, начинающиеся с этого номера представлены алфавитными кодами
@@ -733,17 +735,17 @@ public:
 	//
 	int    SLAPI Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList);
 	enum {
-		qtyqDiscrete      =  1, // Discrete quantity 
+		qtyqDiscrete      =  1, // Discrete quantity
 		qtyqSplit         = 11, // Split quantity
-		qtyqDespatch      = 12, // Despatch quantity 
-		qtyqOrdered       = 21, // Ordered quantity 
-		qtyqPerPack       = 52, // Quantity per pack 
-		qtyqNumOfConsumerUInTradedU = 59, // Number of consumer units in the traded unit 
-		qtyqReturn        = 61, // Return quantity 
-		qtyqOverShipped   = 121, // Over shipped 
-		qtyqDeliveryBatch = 164, // Delivery batch 
-		qtyqFreeGoods     = 192, // Free goods quantity 
-		qtyqFreeIncluded  = 193, // Free quantity included 
+		qtyqDespatch      = 12, // Despatch quantity
+		qtyqOrdered       = 21, // Ordered quantity
+		qtyqPerPack       = 52, // Quantity per pack
+		qtyqNumOfConsumerUInTradedU = 59, // Number of consumer units in the traded unit
+		qtyqReturn        = 61, // Return quantity
+		qtyqOverShipped   = 121, // Over shipped
+		qtyqDeliveryBatch = 164, // Delivery batch
+		qtyqFreeGoods     = 192, // Free goods quantity
+		qtyqFreeIncluded  = 193, // Free quantity included
 	};
 	int    SLAPI Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, double qtty);
 	int    SLAPI Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & rList);
@@ -757,14 +759,14 @@ public:
 	int    SLAPI Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue);
 	enum {
 		// Use the codes AAH, AAQ, ABL, ABM when dealing with CSA (customer specific articles).
-		priceqAAA = 1, // Calculation net. The price stated is the net price including all allowances and charges and excluding taxes. 
-			// Allowances and charges may be stated for information purposes only. 
-		priceqAAE,     // Information price, excluding allowances or charges, including taxes 
-		priceqAAF,     // Information price, excluding allowances or charges and taxes 
-		priceqAAH,     // Subject to escalation and price adjustment 
-		priceqAAQ,     // Firm price  
-		priceqABL,     // Base price  
-		priceqABM      // Base price difference 
+		priceqAAA = 1, // Calculation net. The price stated is the net price including all allowances and charges and excluding taxes.
+			// Allowances and charges may be stated for information purposes only.
+		priceqAAE,     // Information price, excluding allowances or charges, including taxes
+		priceqAAF,     // Information price, excluding allowances or charges and taxes
+		priceqAAH,     // Subject to escalation and price adjustment
+		priceqAAQ,     // Firm price
+		priceqABL,     // Base price
+		priceqABM      // Base price difference
 	};
 	int    SLAPI Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount);
 	int    SLAPI Read_PRI(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
@@ -774,7 +776,7 @@ public:
 	};
 	enum {
 		taxtGST = 1, // GST = Goods and services tax
-		taxtIMP,     // IMP = Import tax 
+		taxtIMP,     // IMP = Import tax
 		taxtVAT      // VAT = Value added tax
 	};
 	//
@@ -791,11 +793,11 @@ public:
 	// Descr: IMD Description format code
 	//
 	enum {
-		imdqFreeFormLongDescr = 1, // A = Free-form long description 
-		imdqCode,                  // C = Code (from industry code list) 
-		imdqFreeFormShortDescr,    // E = Free-form short description 
-		imdqFreeForm,              // F = Free-form 
-		imdqStructured,            // S = Structured (from industry code list) 
+		imdqFreeFormLongDescr = 1, // A = Free-form long description
+		imdqCode,                  // C = Code (from industry code list)
+		imdqFreeFormShortDescr,    // E = Free-form short description
+		imdqFreeForm,              // F = Free-form
+		imdqStructured,            // S = Structured (from industry code list)
 		imdqCodeAndText            // B = Code and text
 	};
 	int    SLAPI Write_IMD(SXml::WDoc & rDoc, int imdq, const char * pDescription);
@@ -908,7 +910,7 @@ int SLAPI PPEanComDocument::Write_BeginningOfMessage(SXml::WDoc & rDoc, const ch
 		{
 			SXml::WNode n_i(rDoc, "C002"); // Имя документа/сообщения
 			(temp_buf = pDocCode).Transf(CTRANSF_INNER_TO_UTF8);
-			n_i.PutInner("E1001", temp_buf); // Код документа 
+			n_i.PutInner("E1001", temp_buf); // Код документа
 		}
 		{
 			SXml::WNode n_i(rDoc, "C106"); // Идентификация документа/сообщения
@@ -1009,39 +1011,39 @@ int SLAPI PPEanComDocument::Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt
 }
 
 	/*
-		2           DDMMYY Calendar date: D = Day; M = Month; Y = Year. 	
-		101         YYMMDD Calendar date: Y = Year; M = Month; D = Day. 	
-		102 !       CCYYMMDD Calendar date: C = Century ; Y = Year ; M = Month ; D = Day. 	
-		104         MMWW-MMWW A period of time specified by giving the start week of a month followed by the end week of a month. Data is to be transmitted as consecutive characters without hyphen. 	
-		107         DDD Day's number within a specific year: D = Day. 	
-		108         WW Week's number within a specific year: W = Week. 	
-		109         MM Month's number within a specific year: M = Month. 	
-		110         DD Day's number within is a specific month. 	
-		201         YYMMDDHHMM 	Calendar date including time without seconds: Y = Year; M = Month; D = Day; H = Hour; M = Minute. 	
-		203  !      CCYYMMDDHHMM 	Calendar date including time with minutes: C=Century; Y=Year; M=Month; D=Day; H=Hour; M=Minutes. 	
-		204         CCYYMMDDHHMMSS 	Calendar date including time with seconds: C=Century;Y=Year; M=Month;D=Day;H=Hour;M=Minute;S=Second. 	
-		401         HHMM 	Time without seconds: H = Hour; m = Minute. 	
-		501         HHMMHHMM 	Time span without seconds: H = Hour; m = Minute;. 	
-		502         HHMMSS-HHMMSS 	Format of period to be given without hyphen. 	
-		602         CCYY 	Calendar year including century: C = Century; Y = Year. 	
-		609         YYMM 	Month within a calendar year: Y = Year; M = Month. 	
-		610         CCYYMM 	Month within a calendar year: CC = Century; Y = Year; M = Month. 	
-		615         YYWW 	Week within a calendar year: Y = Year; W = Week 1st week of January = week 01. 	
-		616  !      CCYYWW 	Week within a calendar year: CC = Century; Y = Year; W = Week (1st week of January = week 01). 	
-		713         YYMMDDHHMM-YYMMDDHHMM 	Format of period to be given in actual message without hyphen. 	
-		715         YYWW-YYWW 	A period of time specified by giving the start week of a year followed by the end week of year (both not including century). Data is to be transmitted as consecutive characters without hyphen. 	
-		717         YYMMDD-YYMMDD 	Format of period to be given in actual message without hyphen. 	
-		718  !      CCYYMMDD-CCYYMMDD 	Format of period to be given without hyphen. 	
-		719         CCYYMMDDHHMM-CCYYMMDDHHMM 	A period of time which includes the century, year, month, day, hour and minute. Format of period to be given in actual message without hyphen. 	
-		720         DHHMM-DHHMM 	Format of period to be given without hyphen (D=day of the week, 1=Monday; 2=Tuesday; ... 7=Sunday). 	
-		801         Year 	To indicate a quantity of years. 	
-		802         Month 	To indicate a quantity of months. 	
-		803         Week 	To indicate a quantity of weeks. 	
-		804         Day 	To indicate a quantity of days. 	
-		805         Hour 	To indicate a quantity of hours. 	
-		806         Minute 	To indicate a quantity of minutes. 	
-		810         Trimester 	To indicate a quantity of trimesters (three months). 	
-		811         Half month 	To indicate a quantity of half months. 	
+		2           DDMMYY Calendar date: D = Day; M = Month; Y = Year.
+		101         YYMMDD Calendar date: Y = Year; M = Month; D = Day.
+		102 !       CCYYMMDD Calendar date: C = Century ; Y = Year ; M = Month ; D = Day.
+		104         MMWW-MMWW A period of time specified by giving the start week of a month followed by the end week of a month. Data is to be transmitted as consecutive characters without hyphen.
+		107         DDD Day's number within a specific year: D = Day.
+		108         WW Week's number within a specific year: W = Week.
+		109         MM Month's number within a specific year: M = Month.
+		110         DD Day's number within is a specific month.
+		201         YYMMDDHHMM 	Calendar date including time without seconds: Y = Year; M = Month; D = Day; H = Hour; M = Minute.
+		203  !      CCYYMMDDHHMM 	Calendar date including time with minutes: C=Century; Y=Year; M=Month; D=Day; H=Hour; M=Minutes.
+		204         CCYYMMDDHHMMSS 	Calendar date including time with seconds: C=Century;Y=Year; M=Month;D=Day;H=Hour;M=Minute;S=Second.
+		401         HHMM 	Time without seconds: H = Hour; m = Minute.
+		501         HHMMHHMM 	Time span without seconds: H = Hour; m = Minute;.
+		502         HHMMSS-HHMMSS 	Format of period to be given without hyphen.
+		602         CCYY 	Calendar year including century: C = Century; Y = Year.
+		609         YYMM 	Month within a calendar year: Y = Year; M = Month.
+		610         CCYYMM 	Month within a calendar year: CC = Century; Y = Year; M = Month.
+		615         YYWW 	Week within a calendar year: Y = Year; W = Week 1st week of January = week 01.
+		616  !      CCYYWW 	Week within a calendar year: CC = Century; Y = Year; W = Week (1st week of January = week 01).
+		713         YYMMDDHHMM-YYMMDDHHMM 	Format of period to be given in actual message without hyphen.
+		715         YYWW-YYWW 	A period of time specified by giving the start week of a year followed by the end week of year (both not including century). Data is to be transmitted as consecutive characters without hyphen.
+		717         YYMMDD-YYMMDD 	Format of period to be given in actual message without hyphen.
+		718  !      CCYYMMDD-CCYYMMDD 	Format of period to be given without hyphen.
+		719         CCYYMMDDHHMM-CCYYMMDDHHMM 	A period of time which includes the century, year, month, day, hour and minute. Format of period to be given in actual message without hyphen.
+		720         DHHMM-DHHMM 	Format of period to be given without hyphen (D=day of the week, 1=Monday; 2=Tuesday; ... 7=Sunday).
+		801         Year 	To indicate a quantity of years.
+		802         Month 	To indicate a quantity of months.
+		803         Week 	To indicate a quantity of weeks.
+		804         Day 	To indicate a quantity of days.
+		805         Hour 	To indicate a quantity of hours.
+		806         Minute 	To indicate a quantity of minutes.
+		810         Trimester 	To indicate a quantity of trimesters (three months).
+		811         Half month 	To indicate a quantity of half months.
 		21E         DDHHMM-DDHHMM (GS1 Temporary Code) 	Format of period to be given in actual message without hyphen.
 	*/
 
@@ -1202,7 +1204,7 @@ int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 		}
 		else if(SXml::IsName(p_n, "C080")) { // PARTY NAME
 			for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-				if(SXml::GetContentByName(p_n2, "E3036", temp_buf)) { 
+				if(SXml::GetContentByName(p_n2, "E3036", temp_buf)) {
 					rV.Name.Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 				}
 			}
@@ -1212,7 +1214,7 @@ int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 		else if(SXml::IsName(p_n, "C059")) { // STREET
 			for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 				// Текст адреса может быть разбит на несколько порций
-				if(SXml::GetContentByName(p_n2, "E3042", temp_buf)) { 
+				if(SXml::GetContentByName(p_n2, "E3042", temp_buf)) {
 					rV.Addr.Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 				}
 			}
@@ -1238,7 +1240,7 @@ int SLAPI PPEanComDocument::Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyC
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_cux(rDoc, "CUX"); 
+	SXml::WNode n_cux(rDoc, "CUX");
 	THROW_PP(!isempty(pCurrencyCode3), PPERR_EDI_CURRCODEISEMPTY);
 	{
 		SXml::WNode n_i(rDoc, "C504");
@@ -1260,7 +1262,7 @@ int SLAPI PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_moa(rDoc, "MOA"); 
+	SXml::WNode n_moa(rDoc, "MOA");
 	{
 		SXml::WNode n_i(rDoc, "C516");
 		n_i.PutInner("E5025", temp_buf.Z().Cat(amtQ)); // Квалификатор суммы товарной позиции
@@ -1268,7 +1270,7 @@ int SLAPI PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount
 	}
 	return ok;
 }
-	
+
 int SLAPI PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList)
 {
 	int    ok = 1;
@@ -1306,7 +1308,7 @@ int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ,
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_qty(rDoc, "QTY"); 
+	SXml::WNode n_qty(rDoc, "QTY");
 	{
 		SXml::WNode n_i(rDoc, "C186");
 		n_i.PutInner("E6063", temp_buf.Z().Cat(qtyQ)); // Квалификатор количества
@@ -1324,8 +1326,8 @@ int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ,
 				}
 			}
 		}
-		n_i.PutInner("E6060", temp_buf.Z().Cat(qtty * unit_scale, MKSFMTD(0, 6, NMBF_NOTRAILZ))); 
-		n_i.PutInner("E6411", unit_buf); 
+		n_i.PutInner("E6060", temp_buf.Z().Cat(qtty * unit_scale, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+		n_i.PutInner("E6411", unit_buf);
 	}
 	return ok;
 }
@@ -1371,7 +1373,7 @@ int SLAPI PPEanComDocument::Write_CNT(SXml::WDoc & rDoc, int countQ, double valu
 	}
 	return ok;
 }
-	
+
 int SLAPI PPEanComDocument::Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue)
 {
 	int    ok = 1;
@@ -1399,7 +1401,7 @@ int SLAPI PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amou
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_pri(rDoc, "PRI"); 
+	SXml::WNode n_pri(rDoc, "PRI");
 	{
 		SXml::WNode n_i(rDoc, "C509");
 		switch(priceQ) {
@@ -1414,7 +1416,7 @@ int SLAPI PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amou
 				CALLEXCEPT_PP_S(PPERR_EDI_INVPRICEQ, (long)priceQ);
 		}
 		n_i.PutInner("E5125", temp_buf); // Квалификатор цены
-		n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0))); 
+		n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0)));
 	}
 	CATCHZOK
 	return ok;
@@ -1430,7 +1432,7 @@ int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, dou
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_tax(rDoc, "TAX"); 
+	SXml::WNode n_tax(rDoc, "TAX");
 	THROW_PP_S(oneof2(taxQ, taxqCustomDuty, taxqTax), PPERR_EDI_INVTAXQ, (long)taxQ);
 	n_tax.PutInner("E5283", temp_buf.Z().Cat(taxQ)); // Квалификатор налога
 	{
@@ -1443,11 +1445,11 @@ int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, dou
 				CALLEXCEPT_PP_S(PPERR_EDI_INVTAXTYPE, (long)taxT);
 		}
 		SXml::WNode n_c241(rDoc, "C241");
-		n_c241.PutInner("E5153", temp_buf); 
+		n_c241.PutInner("E5153", temp_buf);
 	}
 	{
 		SXml::WNode n_c243(rDoc, "C243");
-		n_c243.PutInner("E5278", temp_buf.Z().Cat(value)); // Ставка 
+		n_c243.PutInner("E5278", temp_buf.Z().Cat(value)); // Ставка
 	}
 	CATCHZOK
 	return ok;
@@ -1751,7 +1753,7 @@ int SLAPI PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack,
 		goods_id = goods_rec.ID;
 	}
 	else {
-		if(pItem->GoodsCode.NotEmpty()) 
+		if(pItem->GoodsCode.NotEmpty())
 			addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(pItem->GoodsCode);
 		for(uint j = 0; j < pItem->PiaL.getCount(); j++) {
 			const PiaValue & r_pia = pItem->PiaL.at(j);
@@ -2079,7 +2081,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 				PPBillPacket::SetupObjectBlock sob;
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
 				THROW(PreprocessPartiesOnReading(p_pack->DocType, &document, &parties_blk));
-				p_bpack = (PPBillPacket *)p_pack->P_Data;			
+				p_bpack = (PPBillPacket *)p_pack->P_Data;
 				THROW(p_bpack->CreateBlank_WithoutCode(bill_op_id, 0, parties_blk.BillLocID, 1));
 				p_bpack->Rec.EdiOp = p_pack->DocType;
 				STRNSCPY(p_bpack->Rec.Code, document.GetFinalBillCode());
@@ -2099,7 +2101,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 							ti.SetupGoods(goods_id, 0);
 							double line_amount_total = 0.0; // with VAT
 							double line_amount = 0.0; // without VAT
-							double line_tax_amount = 0.0; 
+							double line_tax_amount = 0.0;
 							double line_price = 0.0; // without VAT
 							double line_qtty = 0.0;
 							double ordered_qtty = 0.0;
@@ -2262,20 +2264,20 @@ int SLAPI PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket 
 				THROW(Write_NAD(_doc, EDIPARTYQ_DELIVERY, temp_buf));
 			}
 			{
-				SXml::WNode n_sg2(_doc, "SG2"); 
+				SXml::WNode n_sg2(_doc, "SG2");
 				THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
 				THROW(Write_NAD(_doc, EDIPARTYQ_INVOICEE, temp_buf));
 			}
 			{
-				SXml::WNode n_sg10(_doc, "SG10"); 
+				SXml::WNode n_sg10(_doc, "SG10");
 				{
 					SXml::WNode n_cps(_doc, "CPS");
 					n_cps.PutInner("E7164", "1"); // Номер иерархии по умолчанию - 1
 				}
-				{	
+				{
 					for(uint i = 0; i < rPack.GetTCount(); i++) {
 						const PPTransferItem & r_ti = rPack.ConstTI(i);
-						SXml::WNode n_sg17(_doc, "SG17"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49 
+						SXml::WNode n_sg17(_doc, "SG17"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49
 						// A group of segments providing details of the individual ordered items. This Segment group may be repeated to give sub-line details.
 						THROW(Write_DesadvGoodsItem(_doc, edi_op, r_ti, TIAMT_PRICE, items_total));
 					}
@@ -2362,10 +2364,10 @@ int SLAPI PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket 
 				THROW(Write_CUX(_doc, "RUB"));
 				seg_count++;
 			}
-			{	
+			{
 				for(uint i = 0; i < rPack.GetTCount(); i++) {
 					const PPTransferItem & r_ti = rPack.ConstTI(i);
-					SXml::WNode n_sg28(_doc, "SG28"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49 
+					SXml::WNode n_sg28(_doc, "SG28"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49
 					// A group of segments providing details of the individual ordered items. This Segment group may be repeated to give sub-line details.
 					THROW(Write_OrderGoodsItem(_doc, edi_op, r_ti, TIAMT_COST, items_total));
 				}
@@ -2401,10 +2403,10 @@ static const SIntToSymbTabEntry EdiMsgTypeSymbols_EanCom[] = {
 	{ PPEDIOP_INVOIC,       "INVOIC" },
 };
 
-//static 
+//static
 int FASTCALL PPEanComDocument::GetMsgSymbByType(int msgType, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EdiMsgTypeSymbols_EanCom, SIZEOFARRAY(EdiMsgTypeSymbols_EanCom), msgType, rSymb); }
-//static 
+//static
 int FASTCALL PPEanComDocument::GetMsgTypeBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EdiMsgTypeSymbols_EanCom, SIZEOFARRAY(EdiMsgTypeSymbols_EanCom), pSymb); }
 
@@ -2442,10 +2444,10 @@ static const SIntToSymbTabEntry EanComRefQSymbList[] = {
 	{ PPEanComDocument::refqXA,  "XA"  },
 };
 
-//static 
+//static
 int FASTCALL PPEanComDocument::GetRefqSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComRefQSymbList, SIZEOFARRAY(EanComRefQSymbList), refq, rSymb); }
-//static 
+//static
 int FASTCALL PPEanComDocument::GetRefqBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComRefQSymbList, SIZEOFARRAY(EanComRefQSymbList), pSymb); }
 
@@ -2472,10 +2474,10 @@ static const SIntToSymbTabEntry EanComPartyQSymbList[] = {
 	//LC 		= 	Party declaring the Value Added Tax (VAT)
 };
 
-//static 
+//static
 int FASTCALL PPEanComDocument::GetPartyqSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComPartyQSymbList, SIZEOFARRAY(EanComPartyQSymbList), refq, rSymb); }
-//static 
+//static
 int FASTCALL PPEanComDocument::GetPartyqBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComPartyQSymbList, SIZEOFARRAY(EanComPartyQSymbList), pSymb); }
 
@@ -2590,10 +2592,10 @@ static const SIntToSymbTabEntry EanComIticSymbList[] = {
 	{ PPEanComDocument::iticZZZ, "ZZZ" }, // Mutually defined. A code assigned within a code list to be used on an interim basis and as defined among trading partners until a precise code can be assigned to the code list.
 };
 
-//static 
+//static
 int FASTCALL PPEanComDocument::GetIticSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComIticSymbList, SIZEOFARRAY(EanComIticSymbList), refq, rSymb); }
-//static 
+//static
 int FASTCALL PPEanComDocument::GetIticBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComIticSymbList, SIZEOFARRAY(EanComIticSymbList), pSymb); }
 
@@ -2624,7 +2626,7 @@ private:
 		SString AddressText; // foreign address
 		SString RegionIsoCode;
 		SString District;
-		SString City;       // Город 
+		SString City;       // Город
 		SString Settlement; // Населенный пункт
 		SString Street;
 		SString House;
@@ -2652,7 +2654,7 @@ private:
 	//
 	// Returns:
 	//   1 - accepted
-	//   2 - rejected 
+	//   2 - rejected
 	//   3 - changed
 	//
 	int    SLAPI IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp);
@@ -2775,7 +2777,7 @@ int SLAPI EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const Own
 			if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
 				THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
-				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf); 
+				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				{
 					PPBillPacket::SetupObjectBlock sob;
 					THROW(pPack->SetupObject(ar_list.get(0), sob));
@@ -2804,7 +2806,7 @@ int SLAPI EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const Own
 			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
 				THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
-				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf); 
+				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				{
 					PPBillPacket::SetupObjectBlock sob;
 					THROW(pPack->SetupObject(ar_list.get(0), sob));
@@ -3031,7 +3033,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter
 
 int SLAPI EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
-	int    status = 1; 
+	int    status = 1;
 	if(pExtBp != 0 && pExtBp != &rBp) {
 		int    all_rejected = 1;
 		const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
@@ -3047,7 +3049,7 @@ int SLAPI EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillP
 			double confirm_price = p_current_ti ? (p_current_ti->Price - p_current_ti->Discount) : price;
 			if(confirm_qtty != 0.0) {
 				all_rejected = 0;
-				if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id) 
+				if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id)
 					status = 3;
 			}
 		}
@@ -3159,7 +3161,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWrit
 				const char * p_line_status = "Accepted";
 				if(confirm_qtty == 0.0)
 					p_line_status = "Rejected";
-				else if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id) 
+				else if(confirm_qtty != qtty || confirm_price != price || confirm_goods_id != goods_id)
 					p_line_status = "Changed";
 				n_item.PutAttrib("status", p_line_status);
 				THROW(GetGoodsInfo(confirm_goods_id, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
@@ -3269,7 +3271,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
 				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 			}
-			// } @v10.0.10 
+			// } @v10.0.10
 			{
 				SXml::WNode n_i2(_doc, "shipFrom");
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
@@ -3793,7 +3795,7 @@ PPEdiProcessor::Packet::~Packet()
 	P_ExtData = 0;
 }
 
-//static 
+//static
 PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
 {
 	ProviderImplementation * p_imp = 0;
@@ -4016,8 +4018,8 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, con
 			switch(ediOp) {
 				case PPEDIOP_DESADV: tag_id = PPTAG_BILL_EDIDESADVSENT; break;
 				case PPEDIOP_ALCODESADV: tag_id = PPTAG_BILL_EDIALCDESADVSENT; break;
-				case PPEDIOP_INVOIC: 
-					tag_id = PPTAG_BILL_EDIINVOICSENT; 
+				case PPEDIOP_INVOIC:
+					tag_id = PPTAG_BILL_EDIINVOICSENT;
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0) {
 					}
 					else
@@ -4067,7 +4069,7 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, con
 //
 //
 //
-SLAPI EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) : 
+SLAPI EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
 {
 }
@@ -4579,7 +4581,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 			}
 			else if(SXml::IsName(p_n, "receivingAdvice")) {
 				PPID   desadv_bill_id = 0;
-				int    diff_status = 0; // 
+				int    diff_status = 0; //
 				PPObjOprKind op_obj;
 				PPEdiProcessor::RecadvPacket * p_recadv_pack = 0;
 				OwnFormatCommonAttr desadv_bill_attr;
@@ -4636,7 +4638,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 								double price_wo_taxes = 0.0;
 								double full_price = 0.0;
 								double desadv_qtty = 0.0; // Отправленное количество
-								double recadv_qtty = 0.0; // Принятое количество 
+								double recadv_qtty = 0.0; // Принятое количество
  								goods_id_by_gtin = 0;
 								goods_id_by_arcode = 0;
 								serial.Z();

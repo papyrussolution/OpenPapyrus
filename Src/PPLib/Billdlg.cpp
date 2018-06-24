@@ -3934,7 +3934,7 @@ int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
 	{
 		double ph_rest = Data.WtRest;
 		if(getCtrlData(CTL_LOTINFO_REST,  &ph_rest))
-			Data.WtRest = ph_rest;
+			Data.WtRest = (float)ph_rest;
 	}
 	getCtrlData(CTL_LOTINFO_UPP,   &Data.UnitPerPack);
 	if(P_BObj->CheckRights(BILLRT_ACCSCOST))

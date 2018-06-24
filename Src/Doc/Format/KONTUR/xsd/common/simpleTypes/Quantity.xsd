@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:include schemaLocation="UoMList.xsd" />
+  <xsd:complexType name ="QuantityType">
+    <xsd:annotation>
+      <xsd:documentation>Количество, с указанием единицы измерения</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="QuantityValueType">
+        <xsd:attribute name="unitOfMeasure" type="UoMListType" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="QuantityValueType" >
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="12"/>
+      <xsd:fractionDigits value="3"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

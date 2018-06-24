@@ -2979,8 +2979,8 @@ static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag
 	return ok;
 }
 
-#define PAY_CASH       "CashPaymentEntity"
-#define PAY_CASH01     "ODCashPaymentEntity"
+//#define PAY_CASH       "CashPaymentEntity"
+//#define PAY_CASH01     "ODCashPaymentEntity"
 
 class XmlReader {
 public:
@@ -3329,6 +3329,13 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		// Извлекаем тип оплаты
 		//
 		{
+			/*
+				<payments>
+					<payment typeClass="CashPaymentEntity" amountPurchase="48613.85"/>
+					<payment typeClass="com_mobimoney_plugin" amountPurchase="12.00" amountReturn="6.00"/>
+					<payment typeClass="BankCardPaymentEntity" amountPurchase="110704.18"/>
+				</payments>
+			*/
 			SString gift_card_code;
 			for(xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char*)p_fld->name, "payments")) {
@@ -3347,59 +3354,36 @@ int SLAPI XmlReader::Next(Packet * pPack)
 								if(p_props->children && p_props->children->content) {
 									attr_name.Set(p_props->name).ToLower();
 									val.Set(p_props->children->content).ToLower();
-									if(attr_name == "amount") {
+									if(attr_name == "amount")
 										amount = val.ToReal();
-									}
 									else if(attr_name == "typeclass") {
-										if(val.IsEqiAscii("BankCardPaymentEntity") || val.IsEqiAscii("ExternalBankTerminalPaymentEntity") || val.IsEqiAscii("ODBankCardPaymentEntity")) {
+										if(val.IsEqiAscii("BankCardPaymentEntity") || val.IsEqiAscii("ExternalBankTerminalPaymentEntity") || val.IsEqiAscii("ODBankCardPaymentEntity"))
 											amount_type = CCAMTTYP_BANK;
-											//banking = 1;
-										}
-										else if(val.IsEqiAscii("GiftCardPaymentEntity")) {
+										else if(val.IsEqiAscii("GiftCardPaymentEntity"))
 											amount_type = CCAMTTYP_CRDCARD;
-											//banking = 2;
-										}
-										else if(val.IsEqiAscii("CashChangePaymentEntity")) { // сдача
+										else if(val.IsEqiAscii("CashChangePaymentEntity")) // сдача
 											amount_type = CCAMTTYP_DELIVERY;
-											//banking = 0;
-										}
-										else if(val.IsEqiAscii("CashPaymentEntity")) { // Сумма, полученная наличными (без учета сдачи)
+										else if(val.IsEqiAscii("CashPaymentEntity")) // Сумма, полученная наличными (без учета сдачи)
 											amount_type = CCAMTTYP_NOTE;
-										}
+										else if(val.IsEqiAscii("com_mobimoney_plugin")) // @v10.1.0 Специальная сумма - заносится как банковская оплата
+											amount_type = CCAMTTYP_BANK;
 									}
-									//if(banking == 2)
-									if(amount_type == CCAMTTYP_CRDCARD) {
+									if(amount_type == CCAMTTYP_CRDCARD)
 										GetGiftCard(&p_paym_fld->children, gift_card_code, 1);
-									}
 								}
 							}
-							if(amount != 0) {
+							if(amount != 0.0) {
 								if(amount_type == CCAMTTYP_CRDCARD) {
 									if(gift_card_code.NotEmptyS())
 										gift_card_code.CopyTo(head.GiftCardNum, sizeof(head.GiftCardNum));
 								}
 								ccpl.Add(amount_type, amount, 0);
-								/*
-								if(banking == 1)
-									head.BankingAmount += amount;
-								else if(banking == 2) {
-									head.GiftCardAmount += amount;
-									if(gift_card_code.Len())
-										gift_card_code.CopyTo(head.GiftCardNum, sizeof(head.GiftCardNum));
-								}
-								// head.CheckAmount += amount;
-								if(banking == 0 && SubVer == 0) // сдача
-									head.CheckAmount -= amount;
-								else
-									head.CheckAmount += amount;
-								*/
 							}
 						}
 					}
                     head.BankingAmount = ccpl.Get(CCAMTTYP_BANK);
                     head.GiftCardAmount = ccpl.Get(CCAMTTYP_CRDCARD);
-                    head.CheckAmount = ccpl.Get(CCAMTTYP_CASH) + ccpl.Get(CCAMTTYP_NOTE) - ccpl.Get(CCAMTTYP_DELIVERY) +
-						head.BankingAmount + head.GiftCardAmount;
+                    head.CheckAmount = ccpl.Get(CCAMTTYP_CASH) + ccpl.Get(CCAMTTYP_NOTE) - ccpl.Get(CCAMTTYP_DELIVERY) + head.BankingAmount + head.GiftCardAmount;
 					pack.PutHead(&head);
 					break;
 				}

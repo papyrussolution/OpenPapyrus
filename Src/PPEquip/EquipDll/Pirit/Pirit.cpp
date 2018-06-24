@@ -931,7 +931,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, 0);
 			//LastParams = pInputData;
 			//LastCmd = 0;
-			THROW(StartWork());
+			// @v10.1.0 THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.CmpNC("FONTSIZE") == 0)
@@ -1174,8 +1174,9 @@ int PiritEquip::SetConnection()
 		}
 	}
 	// @v9.5.7 delay(200);
+	SDelay(100); // @v10.0.14
 	{
-		const uint max_tries = 3;
+		const uint max_tries = 2; // @v10.0.14 10-->2
 		int sh_ok = 1; 
 		for(uint try_no = 0; !sh_ok && try_no < max_tries; try_no++) {
 			CommPort.PutChr(ENQ); // Проверка связи с ККМ
@@ -1187,7 +1188,7 @@ int PiritEquip::SetConnection()
 					SLS.LogMessage(LogFileName, msg_buf, 8192);
 				}
 				//CALLEXCEPT();
-				SDelay(200);
+				SDelay(100); // @v10.0.14 200-->100
 				sh_ok = 0;
 			}
 			else
@@ -1389,7 +1390,7 @@ int PiritEquip::StartWork()
 
 int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
-	const  uint max_tries = 10;
+	const  uint max_tries = 3; // @v10.1.00 10-->3
 	int    ok = 1;
 	SString out_data, r_error;
 	uint count = 0;
@@ -1527,7 +1528,7 @@ int PiritEquip::RunCheck(int opertype)
 				THROW(gcf_result = GetCurFlags(3, flag));
 				const uint8 hb1 = (flag & 0x0F);
 				if(hb1 == 1) { // Текстовая строка для сервисного документа
-					if((Check.FontSize == 1) || (Check.FontSize == 2))
+					if(oneof2(Check.FontSize, 1, 2))
 						text_attr = 0x01;
 					else if(Check.FontSize == 3)
 						text_attr = 0;

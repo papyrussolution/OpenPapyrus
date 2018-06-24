@@ -11,8 +11,9 @@
       <isTest>1</isTest>   <!--тестовый флаг-->
     </interchangeHeader>
     <!-- конец заголовка сообщения -->
-    <invoice number="InvoicNumber" date="InvoicDate" type="InvoicType" revisionNumber="RevisionNumber" revisionDate="RevisionDate">  
-      <!--номер и дата INVOIC (совпадает с датой и номером СФ); тип счетра: Original ("Оригинал") - значение по умолчанию, Replace ("Замена") - используется для исправленных счетов; номер исправления; дата исправления-->
+    <invoice number="InvoicNumber" date="InvoicDate" type="InvoicType" revisionNumber="RevisionNumber" revisionDate="RevisionDate" utdFunction="utdFunction">  
+      <!--номер и дата INVOIC (совпадает с датой и номером СФ); тип счетра: Original ("Оригинал") - значение по умолчанию, Replace ("Замена") - используется для исправленных счетов; номер исправления; дата исправления,
+	  функция УПД: INVDOP - СЧФДОП, INV - СЧФ, DOP - ДОП -->
 	  <originInvoic ediInvoicId="ediInvoicId" diadocInvoicId="diadocMessadgeId:diadocInvoicId"/>
 	  <!--данные оригинального счета, на который высылается исправление: messageId оригинального счета; diadocMessadgeId пакета документов в Диадоке, diadocInvoicId - идентификатор счет-фактуры в Диадоке-->
       <originOrder number="ordersNumber" date="ordersDate" />    <!--номер заказа, дата заказа-->
@@ -25,7 +26,9 @@
       <egaisFixationIdentificator number="EgaisFixationNumber" date="EgaisFixationDate" />    <!--номер и дата фиксации ТТН в ЕГАИС-->	  
       <blanketOrderIdentificator number="BlanketOrdersNumber" />    <!--номер серии заказов-->
 	  <factoringEncription>FactoringEncription</factoringEncription>    <!--уступочная запись-->  
-      <!-- начало блока данных о поставщике -->
+      <governmentContractdentificator number="GovernmentContractNumber" date="GovernmentContractDate"/> <!--номер и дата гос. контракта-->
+      <specificationIdentificator number="SpecificationNumber" date="SpecificationDate" />  <!--номер спецификации, дата спецификации-->
+	  <!-- начало блока данных о поставщике -->
       <seller>
         <gln>SupplierGln</gln>      <!--gln поставщика-->
         <organization>
@@ -75,7 +78,7 @@
           <flat>Flat</flat>
           <postalCode>>PostalCode</postalCode>
         </russianAddress>
-        <contactlInfo>
+        <contactInfo>
           <CEO>
             <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
             <fax>FaxNumber</fax> <!--факс контактного лица-->
@@ -96,7 +99,7 @@
             <fax>FaxNumber</fax> <!--факс контактного лица-->
             <email>Email</email> <!--email контактного лица-->
           </orderContact>
-        </contactlInfo>
+        </contactInfo>
       </buyer>
       <!-- конец блока данных о покупателе -->
       <!-- начало блока с данными о получателе счёта -->
@@ -246,24 +249,32 @@
       <!-- начало блока с данными о товаре -->
       <lineItems>
         <currencyISOCode>CurrencyCode</currencyISOCode>    <!--код валюты (по умолчанию рубли)-->
+		<contractualCurrencyISOCode>ContractualCurrencyCode</contractualCurrencyISOCode>    <!--код валюты контракта-->
+		<currencyExchangeRate>CurrencyExchangeRate</currencyExchangeRate>    <!--курс валюты-->
         <lineItem>
           <gtin>GTIN</gtin>     <!--GTIN товара-->
           <internalBuyerCode>BuyerProductId</internalBuyerCode>      <!--внутренний код присвоенный покупателем-->
           <internalSupplierCode>SupplierProductId</internalSupplierCode>        <!--артикул товара (код товара присвоенный продавцом)-->
+		  <originOrderLineNumber>OrderLineNumber</originOrderLineNumber>     <!--номер товара в заказе-->
 		  <codeOfEgais>codeOfEgais</codeOfEgais>       <!--код товара в ЕГАИС-->
 		  <lotNumberEgais>lotNumberEgais</lotNumberEgais>   <!--идентификатор позиции в ТТН ЕГАИС--> 
 		  <typeOfUnit>RС</typeOfUnit> <!--признак возвратной тары, если это не тара, то строки нет -->
+          <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->
           <description>Name</description>    <!--название товара-->
           <comment>LineItemComment</comment>          <!--комментарий к товарной позиции-->
           <quantity unitOfMeasure="MeasurementUnitCode">Quantity</quantity>    <!--поставленное количество-->
           <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>          <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
           <netPrice>Price</netPrice>     <!--цена единицы товара без НДС-->
+		  <netPriceInContractualCurrency>PriceInContractualCurrency</netPriceInContractualCurrency>     <!--цена единицы товара без НДС в валюте контракта-->
           <netPriceWithVAT>PriceWithVAT</netPriceWithVAT>     <!--цена единицы товара с НДС-->
           <netAmount>PriceSummary</netAmount>     <!--сумма по позиции без НДС-->
           <exciseDuty>exciseSum</exciseDuty>    <!--акциз товара-->
           <vATRate>VATRate</vATRate>     <!--ставка НДС (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
           <vATAmount>vatSum</vATAmount>      <!--сумма НДС-->
           <amount>PriceSummaryWithVAT</amount>      <!--сумма по позиции с НДС-->
+		  <netAmountInContractualCurrency>PriceSummaryInContractualCurrency</netAmountInContractualCurrency>      <!--сумма по позиции без НДС в валюте контракта-->
+		  <vATAmountInContractualCurrency>VATSummaryInContractualCurrency</vATAmountInContractualCurrency>      <!--сумма по позиции НДС в валюте контракта-->
+		  <amountInContractualCurrency>PriceSummaryWithVATInContractualCurrency</amountInContractualCurrency>      <!--сумма по позиции с НДС в валюте контракта-->
           <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>    <!--код страны производства-->
           <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>
           <!--номер таможенной декларации-->
@@ -272,7 +283,10 @@
 
         <totalSumExcludingTaxes>InvoicTotal</totalSumExcludingTaxes>   <!--сумма без НДС-->
         <totalAmount>InvoicTotalWithVAT</totalAmount>    <!--общая сумма с НДС  по товарам-->
-        <totalVATAmount>InvoicTotalVAT</totalVATAmount>    <!--сумма НДС, значение берем из orders/ordrsp-->
+        <totalVATAmount>InvoicTotalVAT</totalVATAmount>    <!--общая сумма НДС-->
+		<totalSumExcludingTaxesInContractualCurrency>InvoicTotalInContractualCurrency</totalSumExcludingTaxesInContractualCurrency>    <!--общая сумма без НДС в валюте контракта-->
+		<totalVATAmountInContractualCurrency>InvoicTotalVATInContractualCurrency</totalVATAmountInContractualCurrency>    <!--общая сумма НДС в валюте контакт-->
+		<totalAmountInContractualCurrency>InvoicTotalWithVATInContractualCurrency</totalAmountInContractualCurrency>    <!--общая сумма c НДС в валюте контакт-->
         <totalSumExcludingTaxesForDQ documentNumber="DespatchAdviceNumber">InvoicTotalForDQ</totalSumExcludingTaxesForDQ>
         <!--сумма для торг-12 без НДС-->
         <totalVATAmountForDQ documentNumber="DespatchAdviceNumber">InvoicTotalVATForDQ</totalVATAmountForDQ>

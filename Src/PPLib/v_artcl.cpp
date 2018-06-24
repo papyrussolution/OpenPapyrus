@@ -932,7 +932,6 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				p_q->addField(tt->Msg);     // #18
 			else
 				p_q->addField(tt->Code);    // #18 @stub @v8.2.4
-			// @v8.2.4 {
 			if(LimitTerm && AddedLimitTerm) {
 				alim.init();
 				alim.push(tt->MaxCredit);
@@ -948,14 +947,12 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				p_q->addField(tt->MaxCredit); // #19 @stub
 			}
 			p_q->addField(dbe_supple);        // #20 // @vmiller // @v8.3.6 @fix #19-->#20
-			// } @v8.2.4
 			for(uint i = 0; i < DEBTDIM_BRW_SHOWCOUNT; i++) {
 				DBConst dbc_long;
 				DBField field;
 				(fld_name = "MaxCredit").Cat((long)i+1);
 				tt->getFieldByName(fld_name, &field);
 				p_q->addField(field);
-				// @v8.2.4 {
 				if(LimitTerm && AddedLimitTerm) {
 					alim_dim[i].init();
 					alim_dim[i].push(field);
@@ -970,7 +967,6 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				else {
 					p_q->addField(field); // @stub
 				}
-				// } @v8.2.4
 				{
 					cq_stop[i].init();
 					cq_stop[i].push(tt->StopFlags);

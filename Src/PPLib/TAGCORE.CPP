@@ -498,15 +498,8 @@ ObjTagItem & FASTCALL ObjTagItem::operator = (const ObjTagItem & src)
 	return *this;
 }
 
-int FASTCALL ObjTagItem::operator == (const ObjTagItem & a) const
-{
-	return (Cmp(a) == 0);
-}
-
-int FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const
-{
-	return (Cmp(a) != 0);
-}
+int FASTCALL ObjTagItem::operator == (const ObjTagItem & a) const { return (Cmp(a) == 0); }
+int FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const { return (Cmp(a) != 0); }
 
 int SLAPI ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec * pRec) const
 {
@@ -638,13 +631,13 @@ int SLAPI ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSC
 #endif // } 0 @construction
 	}
 	else if(oneof2(TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-		SString temp_buf = Val.PStr;
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.1.0
 		if(dir > 0)
-			temp_buf = Val.PStr;
-		THROW_SL(pSCtx->Serialize(dir, temp_buf, rBuf));
+			r_temp_buf = Val.PStr;
+		THROW_SL(pSCtx->Serialize(dir, r_temp_buf, rBuf));
 		if(dir < 0) {
-			if(temp_buf.NotEmpty())
-				Val.PStr = newStr(temp_buf);
+			if(r_temp_buf.NotEmpty())
+				Val.PStr = newStr(r_temp_buf);
 		}
 	}
 	else if(TagDataType == OTTYP_TIMESTAMP) {
@@ -789,13 +782,13 @@ int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
 	return eq;
 }
 
-uint SLAPI ObjTagList::GetCount() const
-{
-	return count;
-}
-
+uint SLAPI ObjTagList::GetCount() const { return count; }
 //virtual
 void FASTCALL ObjTagList::freeItem(void * pItem) { ((ObjTagItem*)pItem)->Destroy(); }
+const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
+	{ return (pos < count) ? (const ObjTagItem *)at(pos) : 0; }
+const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const
+	{ return (*pos < count) ? (const ObjTagItem *)at((*pos)++) : 0; }
 
 const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 {
@@ -821,16 +814,6 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem_ForceEmpty(PPID id)
 			pos = getCount() - 1;
 	}
 	return (const ObjTagItem *)at(pos);
-}
-
-const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
-{
-	return (pos < count) ? (const ObjTagItem *)at(pos) : 0;
-}
-
-const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const
-{
-	return (*pos < count) ? (const ObjTagItem *)at((*pos)++) : 0;
 }
 
 int SLAPI ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
@@ -1380,6 +1363,12 @@ int SLAPI ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const 
 	list.sortAndUndup();
 	ASSIGN_PTR(pList, list);
 	return list.getCount() ? 1 : -1;
+}
+
+int SLAPI ObjTagCore::SearchObjectsByGuid(PPID objType, PPID tagID, const S_GUID & rGuid, PPIDArray * pList)
+{
+	ObjTagItem tag;
+	return tag.SetGuid(tagID, &rGuid) ? SearchObjectsByStrExactly(objType, tagID, tag.Val.PStr, pList) : 0;
 }
 
 int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)

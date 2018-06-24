@@ -189,13 +189,10 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 			THROW_PP(Data.MailAccID, PPERR_MAILACCNEEDED);
 			getCtrlData(sel = CTL_MAILCHRY_DESTADDR, Data.DestAddr);
 			{
-				// @v8.8.11 THROW_PP_S(strchr(Data.DestAddr, '@'), PPERR_INVEMAILADDR, Data.DestAddr);
-				// @v8.8.11 {
 				STokenRecognizer tr;
 				SNaturalTokenArray nta;
 				tr.Run((const uchar *)Data.DestAddr, -1, nta, 0);
 				THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
-				// } @v8.8.11
 			}
 			getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));
 			SETFLAG(Data.Flags, PrcssrMailCharry::Param::fRemoveSrcFiles, v & 0x01);

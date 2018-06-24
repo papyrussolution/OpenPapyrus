@@ -3326,7 +3326,6 @@ namespace NWindows {
 				throw kMemException;
 			return *this;
 		}
-
 		CPropVariant& CPropVariant::operator=(const UString2 &s)
 		{
 			/*

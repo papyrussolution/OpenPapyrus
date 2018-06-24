@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:complexType name ="ShelfLifeType">
+    <xsd:annotation>
+      <xsd:documentation>Срок годности</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="unit" type="UnitType" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="UnitType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="DateRange">
+        <xsd:annotation>
+          <xsd:documentation>Значие срока годности должно быть в формате "Date-Date"</xsd:documentation>
+        </xsd:annotation>  
+      </xsd:enumeration>
+      <xsd:enumeration value="Date">
+        <xsd:annotation>
+          <xsd:documentation>Значие срока годности должно быть в формате "Date"</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="DateWithTime">
+        <xsd:annotation>
+          <xsd:documentation>Значие срока годности должно быть в формате "DateTime"</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Month">
+        <xsd:annotation>
+          <xsd:documentation>Указывается, сколько месяцев можно хранить товар</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Week">
+        <xsd:annotation>
+          <xsd:documentation>Указывается, сколько недель можно хранить товар </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Day">
+      <xsd:annotation>
+        <xsd:documentation>Указывается, сколько дней можно хранить товар </xsd:documentation>
+      </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Hour">
+        <xsd:annotation>
+          <xsd:documentation>Указывается, сколько часов можно хранить товар </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

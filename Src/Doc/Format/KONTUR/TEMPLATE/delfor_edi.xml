@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="messageId">    <!--идентификатор сообщения, время сообщения-->
+  <!-- начало заголовка сообщения -->
+  <interchangeHeader>
+    <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+    <recipient>RecipientGLN</recipient>      <!--GLN получателя сообщения-->
+    <documentType>DELFOR</documentType>  <!--тип документа-->
+    <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>creationDateTimeBySenderT00:00:00.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    <isTest>1</isTest>      <!--тестовый флаг-->
+  </interchangeHeader> 
+  <!-- конец заголовка сообщения -->
+  <deliverySchedule number="DelforNumber" date="delforDate" type = "DelforType" status = "DelforFunctionCode">  
+    <!--deliveryScheduleType =   Inquiry (запрос графиков)/ Schedule (предоставление графиков)/ Response (ответ на график)/ Forecast (для ежедневных DELFOR от Х5);
+   DelforFunctionCode =  Original (оригинал)/ Accepted (для ответа Response)/ NotAccepted (для ответа Response)/ AcceptedWithAmendment (для ответа Response c разными статусами по графикам)--> 
+	
+	<duration>deliveryForecastDuration</duration>  		<!--Вид графика (Период действия графика) -  временный или постоянный, т.е. Regular/Temporary -->     
+	<startDate>startDate</startDate>   <!--Дата начала действия всех графиков. Указывается или в шапке или для каждого графика-->
+	<endDate>endDate</endDate>     <!--Дата окончания действия всех графиков. Указывается или в шапке или для каждого графика-->
+		
+	<contractIdentificator number="contractNumber" date="contractDate" />     <!--номер и дата договора/ контракта-->	
+	<segmentOfBuyerAssortment>SegmentOfBuyerAssortment</segmentOfBuyerAssortment> <!--категория (группа) товара-->
+	<salesRegion>SalesRegion</salesRegion>  <!--регион продаж (проект филиала в терминах Верного)--> 
+    <comment>FreeText</comment>  <!--текстовый комментарий к DELFOR--> 
+    <seller>
+      <gln>SupplierGln</gln>  <!--gln поставщика-->
+      <organization>
+        <name>SupplierName</name>  <!--наименование поставщика для ЮЛ-->
+        <inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+        <kpp>SupplierKpp</kpp>       <!--КПП поставщика только для ЮЛ-->
+      </organization>
+      <russianAddress>      <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>District</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+      <additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>  <!--код поставщика-->
+	  <taxSystem>Simplified</taxSystem> <!--признак УСН, если поставщик использует УСН, передаем поле с фиксированным значением "Simplified"-->
+      <additionalInfo>
+        <bankAccountNumber>BankAccountNumber</bankAccountNumber>     <!--номер счёта в банке-->
+		<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->
+        <bankName>BankName</bankName>     <!--наименование банка-->
+        <BIK>BankId</BIK>      <!--БИК-->
+      </additionalInfo>
+    </seller>
+    <!-- конец блока данных о поставщике -->
+    <!-- начало блока с данными о покупателе -->
+    <buyer>
+      <gln>BuyerGln</gln> <!--gln покупателя-->
+      <organization>
+        <name>Buyer</name>  <!--наименование покупателя-->
+        <inn>BuyerInn(10)</inn>  <!--ИНН покупателя для ЮЛ-->
+        <kpp>BuyerKpp</kpp>  <!--КПП покупателя только для ЮЛ-->
+      </organization>
+      <russianAddress>  <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+      <contactInfo>
+        <CEO>
+          <orderContact>TelephoneNumber</orderContact>
+          <fax>FaxNumber</fax> 
+          <email>Email</email> 
+        </CEO>
+        <accountant>
+          <orderContact>TelephoneNumber</orderContact> 
+          <fax>FaxNumber</fax> 
+          <email>Email</email> 
+        </accountant>
+        <salesManager>
+          <orderContact>TelephoneNumber</orderContact> 
+          <fax>FaxNumber</fax> 
+          <email>Email</email> 
+        </salesManager>
+        <orderContact>
+          <orderContact>TelephoneNumber</orderContact> 
+          <fax>FaxNumber</fax> 
+          <email>Email</email> 
+        </orderContact>
+      </contactInfo>
+    </buyer>
+    <!-- конец блока данных о покупателе -->
+
+	<!-- Начало блока данных о графиках поставки -->	
+	<scheduleItems>
+   	<scheduleItem> <!--в одном scheduleItem м.б. одна точка доставки shipTo и несколько deliveryForecast с графиками поставки-->
+     <shipTo/> <!--данные по магазину (точке доставки)-->
+	 <!--Блок с графиком поставки для магазина (на определенную дату или с определенной периодичностью),
+	 если надо указать несколько определенных дат для одной точки доставки, то каждую дату необходимо приводить в отдельном deliveryForecastItem-->	 
+     
+	 <deliveryForecast number = "deliveryForecastNumber" name = "deliveryForecastName" status = "deliveryForecastStatus">   <!--Запрашиваемое действие с графиком: 
+	 для предоставления и запроса графиков timeScheduleStatus = Changed/ Added/ Deleted; 
+	 для ответа delfor  timeScheduleStatus = Accepted/ NotAccepted;
+	 number - Квалификтаор графика поставок
+	 name - наименование графика поставок--> 
+	 
+	    <orderForecastIdentificator number="ordersForecastNumber" name = "ordersForecastName"/><!--Квалификатор графика заказов; наименование графика заказов только для Х5-->	  
+		<duration>deliveryForecastDuration</duration>  		<!--Период действия графика - постоянный или временный  Regular/Temporary-->    
+		<startDate>StartDate</startDate>   <!--Дата начала действия всех графиков. Указывается или в шапке или для кадого графика-->
+		<endDate>EndDate</endDate>     <!--Дата окончания действия всех графиков. Указывается или в шапке или для кадого графика-->
+	    <deletionDate>DeletionDate</deletionDate> <!--дата удаления графика--> 	
+		<comment>Comment</comment> <!--комментарий по графику-->	
+		<daysForDelivery>DaysForDelivery</daysForDelivery>  <!--Кол-во дней от заказа до поставки (за сколько дней перед поставкой принимается заказ). В рамках одного графика - const-->		
+		<sendOrderToTime>SendOrderToTime</sendOrderToTime> <!--время, к которому нужно отправить заказ поставщику-->  
+    	<plannedDeliveryDate>PlannedDeliveryDate</plannedDeliveryDate> <!--планируемая дата доставки товара-->
+		<plannedOrderDate>PlannedOrdersDate</plannedOrderDate> <!--планируемая дата заказа товара-->   		       		
+		<minimumNetAmount>MinimumNetAmount</minimumNetAmount> <!--минимальная сумма поставки-->  
+		<minimumNetWeight  unitOfMeasure="MeasurementUnitCode">MinimumNetWeight</minimumNetWeight> <!--минимальный вес нетто заказа -->  		
+		<minimumNumberOfPalletPlaces unitOfMeasure="MeasurementUnitCode">MinimumNumberOfPalletPlaces</minimumNumberOfPalletPlaces> <!--минимальное кол-во паллетомест --> 		
+		<transportation> <!--Информация о временных окнах для приемки машины покупателем (может быть несколько transportation)-->
+          <vehicleArrivalFromTime>vehicleArrivalFromTime</vehicleArrivalFromTime> <!--время, с которого машину могут принять в магазине-->  
+		  <vehicleArrivalToTime>vehicleArrivalToTime</vehicleArrivalToTime> <!--время, по которое машину могут принять в магазине-->  
+        </transportation>
+		<frequencyOfDelivery> <!--регулярность поставок, может быть несколько (напр. для четных и нечетных недель)-->
+		  <weeks>frequencyOfDelivery.Weeks</weeks> <!--неделя поставки товара, значения = EvenWeeks/ OddWeeks/ EveryWeek-->
+		  <days>frequencyOfDelivery.Days</days>  <!--дни поставок, если нужно указать несколько дней - указывать через "," без пробелов; значения = Mon/ Tue/ Wed/ Thu/ Fri/ Sat/ Sun--->
+		</frequencyOfDelivery>				
+       </deliveryForecast> 	   
+	  </scheduleItem>
+	  <scheduleItem/>
+	  ...
+	 </scheduleItems>	   
+  </deliverySchedule>
+</eDIMessage>

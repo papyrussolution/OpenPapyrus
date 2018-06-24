@@ -1483,10 +1483,10 @@ table VetisEntity {
 	long   Status;
 	raw    Reserve[128];
 index:
-	ID (unique);
-	GuidRef, UuidRef (unique);
-	UuidRef, GuidRef (unique);
-    Kind (dup);
+	ID (unique);               // #0
+	GuidRef, UuidRef (unique); // #1
+	UuidRef, GuidRef (unique); // #2
+    Kind (dup);                // #3
 file:
 	"vetisent.btr";
 	access=1;
@@ -1522,7 +1522,8 @@ table VetisPerson {
 	long   RegionID;       // ->VetisEntity.ID
 	string INN[16];
 	string KPP[16];
-	raw    Reserve[128];
+	long   LinkDlvrLocID;  // ->Location.ID
+	raw    Reserve[124];
 index:
 	EntityID (unique);
 	LinkPersonID (dup mod);
@@ -1540,9 +1541,9 @@ table VetisDocument {
     int16  VetisDocType;
     int16  VetisDocStatus;
     date   IssueDate;         // Дата документа
-    string IssueNumber[28];   // Номер документа
+    string IssueNumber[64];   // Номер документа
     date   WayBillDate;       // Дата транспортного документа
-    string WayBillNumber[28]; // Номер транспортного документа
+    string WayBillNumber[64]; // Номер транспортного документа
     long   FromEntityID;      // -->VetisEntity.ID
     long   FromEnterpriseID;  // -->VetisEntity.ID
     long   ToEntityID;        // -->VetisEntity.ID
@@ -1553,16 +1554,28 @@ table VetisDocument {
 		// сохраняется в UnxTextRef с кодом (PPOBJ_VETISENTITY, EntityID, txtprpProductItemName).
     long   OrgCountryID;      // -->VetisEntity.ID Страна происхождения продукта
     long   UOMID;             // -->VetisEntity.ID
+    int16  ProductType;       //
+    int16  TranspStrgType;    // Тип траснпортного хранения
+    int16  TranspType;        // Тип транспорта
+    int16  Reserve;           // @alignment
     long   Flags;
     double Volume;
-    int64  ExpiryFrom;
-    int64  ExpiryTo;
+    int64  ManufDateFrom;     // SUniTime
+    int64  ManufDateTo;       // SUniTime
+    int64  ExpiryFrom;        // SUniTime
+    int64  ExpiryTo;          // SUniTime
     long   ConfirmNameTRef;
     long   ConfirmPostTRef;
-	raw    Reserve[128];
+    long   PackingAmount;     //
+    long   LinkGoodsID;       // Ид сопоставленного строке товара
+    long   LinkFromPsnID;     // Ид персоналии-отправителя, сопоставленной строке
+    long   LinkFromDlvrLocID; // Ид адреса доставки отправителя
+    long   LinkToPsnID;       // Ид персоналии-получателя, сопоставленной строке
+    long   LinkToDlvrLocID;   // Ид адреса доставки получателя
+	raw    Reserve2[40];
 index:
 	EntityID (unique);
-	LinkBillID, LinkBillRow (unique mod allsegnull);
+	LinkBillID, LinkBillRow (dup mod allsegnull);
 	IssueDate, IssueNumber (dup mod allsegnull);
 	WayBillDate, WayBillNumber (dup mod allsegnull);
 	FromEntityID (dup mod anysegnull);

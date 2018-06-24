@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="simpleTypes/GlobalLocationNumber.xsd"/>
+  <xsd:complexType name="SimpleContractorType">
+    <xsd:annotation>
+      <xsd:documentation>Контрагенты с указанием только gln </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="gln" type="GlobalLocationNumberType">
+        <xsd:annotation>
+          <xsd:documentation>GLN</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

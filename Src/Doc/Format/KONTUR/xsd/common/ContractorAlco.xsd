@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:include schemaLocation="CountryAddress.xsd"/>
+	<xsd:include schemaLocation="simpleTypes/GlobalLocationNumber.xsd"/>
+	<xsd:include schemaLocation="simpleTypes/FullName.xsd"/>
+	<xsd:include schemaLocation="simpleTypes/Description35.xsd"/>
+	<xsd:complexType name="ContractorAlcoType">
+		<xsd:annotation>
+			<xsd:documentation>Контрагент</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="gln" type="GlobalLocationNumberType" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>GLN</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:choice>
+				<xsd:element name ="organization" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="inn">
+								<xsd:annotation>
+									<xsd:documentation>ИНН 10 цифр</xsd:documentation>
+								</xsd:annotation>
+								<xsd:simpleType >
+									<xsd:restriction base="xsd:string">
+										<xsd:pattern value="\d{10}"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="kpp">
+								<xsd:annotation>
+									<xsd:documentation>КПП 9 цифр</xsd:documentation>
+								</xsd:annotation>
+								<xsd:simpleType >
+									<xsd:restriction base="xsd:string">
+										<xsd:pattern value="\d{9}"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+              <xsd:element name="name">
+                <xsd:annotation>
+                  <xsd:documentation>Наименование организации</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="1"/>
+                    <xsd:maxLength value="80"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name ="selfEmployed" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Индивидуальный предприниматель</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="inn">
+								<xsd:annotation>
+									<xsd:documentation>ИНН 12 цифр</xsd:documentation>
+								</xsd:annotation>
+								<xsd:simpleType >
+									<xsd:restriction base="xsd:string">
+										<xsd:pattern value="\d{12}"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+              <xsd:element name ="fullName" type ="FullNameType">
+                <xsd:annotation>
+                  <xsd:documentation>ФИО</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+        <xsd:element name="foreignOrganization" minOccurs="0" >
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="tin"  type="xsd:string"/>
+              <xsd:element name="name" type="xsd:string"/>
+            </xsd:sequence>
+            <xsd:attribute name="countryCode" type="CountryISOCodeType" />
+          </xsd:complexType>
+        </xsd:element>
+			</xsd:choice>
+			<xsd:choice>
+				<xsd:element name="russianAddress" type="RussianAddressAlcoType" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Российский адрес</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+        <xsd:element name="foreignAddress" type="ForeignAddressType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>Иностранный адрес</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+			</xsd:choice>
+			<xsd:element name="additionalIdentificator" type="Description35Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Дополнительный идентификатор</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  <xsd:complexType name ="RussianAddressAlcoType">
+    <xsd:annotation>
+      <xsd:documentation>Российский адрес</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="regionCode" type="RegionCodeType">
+          <xsd:annotation>
+            <xsd:documentation>Номер субъекта РФ согласно конституции</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="regionISOCode" type="RegionCodeType">
+          <xsd:annotation>
+            <xsd:documentation>Номер субъекта РФ согласно конституции</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>       
+      </xsd:choice>      
+      <xsd:element name="district" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Район</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="city" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Город</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="0"/>
+            <xsd:maxLength value="35"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="settlement" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Населенный пункт</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="street" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Улица</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="house" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Дом</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="flat" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Квартира или офис</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="0"/>
+            <xsd:maxLength value="8"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="postalCode" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Почтовый индекс</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType >
+          <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\d{6}"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="RegionCodeType">
+    <xsd:annotation>
+       <xsd:documentation>Код региона согласно справочнику регионов России</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:decimal">
+      <xsd:enumeration value="1"/>
+      <xsd:enumeration value="2"/>
+      <xsd:enumeration value="3"/>
+      <xsd:enumeration value="4"/>
+      <xsd:enumeration value="5"/>
+      <xsd:enumeration value="6"/>
+      <xsd:enumeration value="7"/>
+      <xsd:enumeration value="8"/>
+      <xsd:enumeration value="9"/>
+      <xsd:enumeration value="01"/>
+      <xsd:enumeration value="02"/>
+      <xsd:enumeration value="03"/>
+      <xsd:enumeration value="04"/>
+      <xsd:enumeration value="05"/>
+      <xsd:enumeration value="06"/>
+      <xsd:enumeration value="07"/>
+      <xsd:enumeration value="08"/>
+      <xsd:enumeration value="09"/>
+      <xsd:enumeration value="10"/>
+      <xsd:enumeration value="11"/>
+      <xsd:enumeration value="12"/>
+      <xsd:enumeration value="13"/>
+      <xsd:enumeration value="14"/>
+      <xsd:enumeration value="15"/>
+      <xsd:enumeration value="16"/>
+      <xsd:enumeration value="17"/>
+      <xsd:enumeration value="18"/>
+      <xsd:enumeration value="19"/>
+      <xsd:enumeration value="20"/>
+      <xsd:enumeration value="21"/>
+      <xsd:enumeration value="22"/>
+      <xsd:enumeration value="23"/>
+      <xsd:enumeration value="24"/>
+      <xsd:enumeration value="25"/>
+      <xsd:enumeration value="26"/>
+      <xsd:enumeration value="27"/>
+      <xsd:enumeration value="28"/>
+      <xsd:enumeration value="29"/>
+      <xsd:enumeration value="30"/>
+      <xsd:enumeration value="31"/>
+      <xsd:enumeration value="32"/>
+      <xsd:enumeration value="33"/>
+      <xsd:enumeration value="34"/>
+      <xsd:enumeration value="35"/>
+      <xsd:enumeration value="36"/>
+      <xsd:enumeration value="37"/>
+      <xsd:enumeration value="38"/>
+      <xsd:enumeration value="39"/>
+      <xsd:enumeration value="40"/>
+      <xsd:enumeration value="41"/>
+      <xsd:enumeration value="42"/>
+      <xsd:enumeration value="43"/>
+      <xsd:enumeration value="44"/>
+      <xsd:enumeration value="45"/>
+      <xsd:enumeration value="46"/>
+      <xsd:enumeration value="47"/>
+      <xsd:enumeration value="48"/>
+      <xsd:enumeration value="49"/>
+      <xsd:enumeration value="50"/>
+      <xsd:enumeration value="51"/>
+      <xsd:enumeration value="52"/>
+      <xsd:enumeration value="53"/>
+      <xsd:enumeration value="54"/>
+      <xsd:enumeration value="55"/>
+      <xsd:enumeration value="56"/>
+      <xsd:enumeration value="57"/>
+      <xsd:enumeration value="58"/>
+      <xsd:enumeration value="59"/>
+      <xsd:enumeration value="60"/>
+      <xsd:enumeration value="61"/>
+      <xsd:enumeration value="62"/>
+      <xsd:enumeration value="63"/>
+      <xsd:enumeration value="64"/>
+      <xsd:enumeration value="65"/>
+      <xsd:enumeration value="66"/>
+      <xsd:enumeration value="67"/>
+      <xsd:enumeration value="68"/>
+      <xsd:enumeration value="69"/>
+      <xsd:enumeration value="70"/>
+      <xsd:enumeration value="71"/>
+      <xsd:enumeration value="72"/>
+      <xsd:enumeration value="73"/>
+      <xsd:enumeration value="74"/>
+      <xsd:enumeration value="75"/>
+      <xsd:enumeration value="76"/>
+      <xsd:enumeration value="77"/>
+      <xsd:enumeration value="78"/>
+      <xsd:enumeration value="79"/>
+      <xsd:enumeration value="83"/>
+      <xsd:enumeration value="86"/>
+      <xsd:enumeration value="87"/>
+      <xsd:enumeration value="89"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

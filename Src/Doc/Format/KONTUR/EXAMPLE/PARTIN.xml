@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<eDIMessage id="000001510" creationDateTime="2013-09-27T00:00:00"><!--идентификатор сообщения, время сообщения-->
+  <interchangeHeader>
+    <sender>4607816199995</sender>    <!--GLN отправителя сообщения-->
+    <recipient>4607195499990</recipient>    <!--GLN получателя сообщения-->
+    <documentType>PARTIN</documentType>    <!--идентификатор типа документа-->
+    <isTest>1</isTest>    <!--тестовый флаг-->
+  </interchangeHeader>
+  <partyInformation number="006" date="2013-09-27">  <!--номер и дата PARTIN-->
+    <headGLN>
+      <gln>4607816199995</gln>    <!--gln покупателя-->
+    </headGLN>
+    <parties>
+      <invoicee>
+        <gln>4607816190053</gln>        <!--gln контрагента-->
+        <organization>
+          <name>Элемент-трейд-Челябинск</name>         <!--наименовнаие контрагента-->
+          <inn>7451214632</inn>
+          <kpp>745101001</kpp>
+        </organization>
+        <russianAddress>          <!--российский адрес-->
+          <regionISOCode>RU-CHE</regionISOCode>
+          <district>Челябинская область</district>
+          <city>Челябинск</city>
+          <street>ул Блюхера</street>
+          <house>д. 85</house>
+          <postalCode>454087</postalCode>
+        </russianAddress>
+        <taxSystem>Simplified</taxSystem>
+        <!--признак УСН. Если поставщик не работает по УСН, передавать не надо-->
+        <additionalInfo>
+          <bankAccountNumber>1236548954565444785</bankAccountNumber> <!--номер счёта в банке-->
+          <bankName>Северная казна</bankName> <!--наименование банка-->
+          <BIK>132456789</BIK> <!--БИК-->
+        </additionalInfo>
+        <contactInfo>
+          <CEO>
+            <name>Колбасов Василий Васильевич</name> <!--ФИО генерального директора-->
+            <phone>(343)654-78-12</phone> <!--телефон генерального директора-->
+            <fax>(343)654-78-12</fax> <!--факс генерального директора-->
+            <email>CEOEmail@mail.ru</email> <!--email генерального директора-->
+          </CEO>
+          <accountant>
+            <name>Горова Ирина Олеговна</name> <!--ФИО главного бухгалтера-->
+            <phone>(343)567-78-98</phone> <!--телефон главного бухгалтера-->
+            <fax>(343)567-78-98</fax> <!--факс главного бухгалтера-->
+            <email>accountantEmail@mail.ru</email> <!--email главного бухгалтера-->
+          </accountant>
+          <salesManager>
+            <name>Шагров Леонид Леонтьевич</name> <!--ФИО руководителя по продажам-->
+            <phone>(343)132-45-78</phone> <!--телефон руководителя по продажам-->
+            <fax>(343)132-45-78</fax> <!--факс руководителя по продажамца-->
+            <email>salesManagerEmail@mail.ru</email> <!--email руководителя по продажам-->
+          </salesManager>
+          <orderContact>
+            <name>Иванов Иван Иванович</name> <!--ФИО контактного лица-->
+            <phone>(343)555-55-55</phone> <!--телефон контактного лица-->
+            <fax>(343)555-55-55</fax> <!--факс контактного лица-->
+            <email>orderContactEmail@mail.ru</email> <!--email контактного лица-->
+          </orderContact>
+        </contactInfo>
+      </invoicee>
+      <invoicee>
+        <gln>4607816199995</gln>        <!--gln контрагента-->
+        <organization>
+          <name>Звёздный путь</name>    <!--наименование покупателя-->
+          <inn>3333333330</inn>    <!--ИНН покупателя для ЮЛ-->
+          <kpp>444444444</kpp>     <!--КПП покупателя только для ЮЛ-->
+        </organization>
+        <russianAddress>       <!--российский адрес-->
+          <regionISOCode>RU-CHE</regionISOCode>
+          <district>Челябинская область</district>
+          <city>Челябинск</city>
+          <street>ул Блюхера</street>
+          <house>д. 67</house>
+          <postalCode>454087</postalCode>
+        </russianAddress>
+        <taxSystem>Simplified</taxSystem>  <!--признак УСН. Если поставщик не работает по УСН, передавать не надо-->
+        <additionalInfo>
+          <bankAccountNumber>1236548954565444785</bankAccountNumber> <!--номер счёта в банке-->
+          <bankName>Северная казна</bankName> <!--наименование банка-->
+          <BIK>132456789</BIK> <!--БИК-->
+        </additionalInfo>
+        <contactInfo>
+          <CEO>
+            <name>Колбасов Василий Васильевич</name> <!--ФИО генерального директора-->
+            <phone>(343)654-78-12</phone> <!--телефон генерального директора-->
+            <fax>(343)654-78-12</fax> <!--факс генерального директора-->
+            <email>CEOEmail@mail.ru</email> <!--email генерального директора-->
+          </CEO>
+          <accountant>
+            <name>Горова Ирина Олеговна</name> <!--ФИО главного бухгалтера-->
+            <phone>(343)567-78-98</phone> <!--телефон главного бухгалтера-->
+            <fax>(343)567-78-98</fax> <!--факс главного бухгалтера-->
+            <email>accountantEmail@mail.ru</email> <!--email главного бухгалтера-->
+          </accountant>
+          <salesManager>
+            <name>Шагров Леонид Леонтьевич</name> <!--ФИО руководителя по продажам-->
+            <phone>(343)132-45-78</phone> <!--телефон руководителя по продажам-->
+            <fax>(343)132-45-78</fax> <!--факс руководителя по продажамца-->
+            <email>salesManager@mail.ru</email>  <!--email руководителя по продажам-->
+          </salesManager>
+          <orderContact>
+            <name>Иванов Иван Иванович</name> <!--ФИО контактного лица-->
+            <phone>(343)555-55-55</phone>  <!--телефон контактного лица-->
+            <fax>(343)555-55-55</fax>  <!--факс контактного лица-->
+            <email>orderContact@mail.ru</email>  <!--email контактного лица-->
+          </orderContact>
+        </contactInfo>
+      </invoicee>
+	  <invoicee>
+				<gln>4680014029615</gln> <!--gln контрагента-->
+				<selfEmployed>
+				  <fullName>
+					<lastName>Соколов</lastName> <!--Фамилия ИП-->
+					<firstName>Константин</firstName> <!--Имя ИП-->
+					<middleName>Викторович</middleName> <!--Отчество ИП-->
+				  </fullName>
+				  <inn>450130154251</inn> <!--ИНН покупателя для ИП-->
+				  <soleProprietorRegistrationCertificate>№223355123</soleProprietorRegistrationCertificate> <!--Свидетельство о гос. регистрации ИП-->
+				</selfEmployed>  
+				<russianAddress>
+					<regionISOCode>RU-KGN</regionISOCode>
+					<city>г Курган</city>
+					<street>Тимофея Невежина</street>
+					<house>3/10</house>
+					<postalCode>640003</postalCode>
+				</russianAddress>
+	  </invoicee>
+      <deliveryParty>
+        <gln>4607816196376</gln>     <!--gln контрагента-->
+        <organization>
+          <name>Лужайка</name>       <!--наименовнаие контрагента-->
+          <inn>5555555552</inn>
+          <kpp>666666666</kpp>
+        </organization>
+        <russianAddress>      <!--российский адрес-->
+          <regionISOCode>RU-TYU</regionISOCode>
+          <district>Тюменская область</district>
+          <city>Тюмень</city>
+          <street>ул. Широтная</street>
+          <house>108г</house>
+          <postalCode>720000</postalCode>
+        </russianAddress>
+        <contactInfo>
+          <orderContact>
+            <name>Иванов Петр Феодосович</name> <!--ФИО контактного лица-->
+            <phone>(343)444-55-55</phone> <!--телефон контактного лица-->
+            <fax>(343)444-55-55</fax> <!--факс контактного лица-->
+            <email>order@mail.ru</email> <!--email контактного лица-->
+          </orderContact>
+        </contactInfo>
+      </deliveryParty>
+    </parties>
+  </partyInformation>
+</eDIMessage>

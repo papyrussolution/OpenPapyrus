@@ -2441,7 +2441,8 @@ public:
 		int32  RegionID;
 		char   INN[16];
 		char   KPP[16];
-		uint8  Reserve[128]; // raw
+		int32  LinkDlvrLocID;
+		uint8  Reserve[124]; // raw
 	} data;
 	struct Key0 {
 		int32  EntityID;
@@ -2459,6 +2460,7 @@ public:
 	DBField RegionID;
 	DBField INN;
 	DBField KPP;
+	DBField LinkDlvrLocID;
 	DBField Reserve;
 };
 
@@ -2474,9 +2476,9 @@ public:
 		int16  VetisDocType;
 		int16  VetisDocStatus;
 		LDATE  IssueDate;
-		char   IssueNumber[28];
+		char   IssueNumber[64];
 		LDATE  WayBillDate;
-		char   WayBillNumber[28];
+		char   WayBillNumber[64];
 		int32  FromEntityID;
 		int32  FromEnterpriseID;
 		int32  ToEntityID;
@@ -2486,13 +2488,25 @@ public:
 		int32  ProductItemID;
 		int32  OrgCountryID;
 		int32  UOMID;
+		int16  ProductType;
+		int16  TranspStrgType;
+		int16  TranspType;
+		int16  Reserve;
 		int32  Flags;
 		double Volume;
+		int64  ManufDateFrom;
+		int64  ManufDateTo;
 		int64  ExpiryFrom;
 		int64  ExpiryTo;
 		int32  ConfirmNameTRef;
 		int32  ConfirmPostTRef;
-		uint8  Reserve[128]; // raw
+		int32  PackingAmount;
+		int32  LinkGoodsID;
+		int32  LinkFromPsnID;
+		int32  LinkFromDlvrLocID;
+		int32  LinkToPsnID;
+		int32  LinkToDlvrLocID;
+		uint8  Reserve2[40]; // raw
 	} data;
 	struct Key0 {
 		int32  EntityID;
@@ -2503,11 +2517,11 @@ public:
 	};
 	struct Key2 {
 		LDATE  IssueDate;
-		char   IssueNumber[28];
+		char   IssueNumber[64];
 	};
 	struct Key3 {
 		LDATE  WayBillDate;
-		char   WayBillNumber[28];
+		char   WayBillNumber[64];
 	};
 	struct Key4 {
 		int32  FromEntityID;
@@ -2543,13 +2557,25 @@ public:
 	DBField ProductItemID;
 	DBField OrgCountryID;
 	DBField UOMID;
+	DBField ProductType;
+	DBField TranspStrgType;
+	DBField TranspType;
+	DBField Reserve;
 	DBField Flags;
 	DBField Volume;
+	DBField ManufDateFrom;
+	DBField ManufDateTo;
 	DBField ExpiryFrom;
 	DBField ExpiryTo;
 	DBField ConfirmNameTRef;
 	DBField ConfirmPostTRef;
-	DBField Reserve;
+	DBField PackingAmount;
+	DBField LinkGoodsID;
+	DBField LinkFromPsnID;
+	DBField LinkFromDlvrLocID;
+	DBField LinkToPsnID;
+	DBField LinkToDlvrLocID;
+	DBField Reserve2;
 };
 
 class InventoryTbl : public DBTable {

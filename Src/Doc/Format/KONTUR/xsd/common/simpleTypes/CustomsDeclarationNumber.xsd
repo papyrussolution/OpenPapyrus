@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:annotation>
+    <xsd:documentation>Номер таможенной декларации</xsd:documentation>
+  </xsd:annotation>
+  <xsd:simpleType name="CustomsDeclarationNumberType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="\d{8}/\w{6,8}/\w{7}/\d{0,5}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

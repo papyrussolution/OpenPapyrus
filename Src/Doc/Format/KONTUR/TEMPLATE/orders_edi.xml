@@ -65,7 +65,7 @@
         <flat>Flat</flat>
         <postalCode>PostalCode</postalCode>
       </russianAddress>
-      <contactlInfo>
+      <contactInfo>
         <CEO>
           <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
           <fax>FaxNumber</fax> <!--факс контактного лица-->
@@ -86,7 +86,7 @@
           <fax>FaxNumber</fax> <!--факс контактного лица-->
           <email>Email</email> <!--email контактного лица-->
         </orderContact>
-      </contactlInfo>
+      </contactInfo>
     </buyer>
     <!-- конец блока данных о покупателе -->
     <!-- начало блока с данными о получателе счёта -->
@@ -203,8 +203,43 @@
           <nameOfCEO>ChiefName</nameOfCEO>   <!--ФИО руководителя-->
         </additionalInfo>
       </ultimateCustomer>
+	  <despatchParty>   <!--может быть несколько-->
+        <gln>despatchPartyGln</gln>  <!--gln предлагаемой точки самовывоза-->
+        <organization>
+          <name>despatchPartyName</name>  <!--наименование предлагаемой точки самовывоза-->
+          <inn>despatchPartyInn(10)</inn>  <!--ИНН предлагаемой точки самовывоза-->
+          <kpp>despatchPartyKpp</kpp>  <!--КПП предлагаемой точки самовывоза-->
+        </organization>
+        <russianAddress>  <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>   <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfCEO>ChiefName</nameOfCEO>   <!--ФИО руководителя-->
+        </additionalInfo>		
+		<additionalIdentificator>AF2C70DE16E04C7CB58EBF36CA920B82</additionalIdentificator> <!--код склада поставщика в системе покупателя-->
+      </despatchParty>
       <transportation>
+        <typeOfTransportCode>TypeOfTransportCode</typeOfTransportCode>   <!--тип транспортного средства-->
+		<!-- Изотермический - isothermic
+		Рефрижератор - refrigerator
+		Контейнеровоз  - container
+		Тентованный - withTilt -->
+        <typeOfTransport>TypeOfTransport</typeOfTransport>   <!--описание транспортного средства-->
         <vehicleArrivalDateTime>deliveryDateForVehicleT00:00:00.000Z</vehicleArrivalDateTime> <!--информация о временных окнах для приемки машины покупателем. Каждое новое временное окно - в отлельном сегменте "transportation"-->
+        <startOfLoadingOnVehicleFromSupplier>StartOfLoadingOnVehicleFromSupplier</startOfLoadingOnVehicleFromSupplier> <!--Время начала погрузки на машину-->
+        <endOfLoadingOnVehicleFromSupplier>EndOfLoadingOnVehicleFromSupplier</endOfLoadingOnVehicleFromSupplier> <!--Время окончания погрузки на машину-->
       </transportation>
       <transportBy>TransportBy</transportBy>  <!--кто доставляет и перевозит товары-->
     </deliveryInfo>
@@ -219,6 +254,7 @@
         <internalSupplierCode>SupplierProductId</internalSupplierCode>   <!--артикул товара (код товара присвоенный продавцом)-->
         <lineNumber>lineNumber</lineNumber>  <!--порядковый номер товара-->
         <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->
+        <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->
         <description>Name</description>  <!--название товара-->
         <comment>LineItemComment</comment> <!--комментарий к товарной позиции-->
         <requestedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</requestedQuantity>   <!--заказанное количество-->
@@ -231,15 +267,25 @@
         <vATRate>VATRate</vATRate>      <!--ставка НДС (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
         <vATAmount>VATSummary</vATAmount>      <!--сумма НДС по позиции-->
         <amount>PriceSummaryWithVAT</amount>      <!--сумма по позиции с НДС-->
+		<packages>
+          <packageForItem>
+            <packageTypeCode>PackageTypeCode</packageTypeCode> <!--Тип упаковки-->
+			<packageQuantity>Quantity</packageQuantity> <!--Количество упаковок-->
+            <onePackageQuantity unitOfMeasure="MeasurementUnitCode">Value</onePackageQuantity> <!--Кол-во в упаковке-->
+          </packageForItem>
+		</packages>
 		<ultimateCustomer>
           <gln>UltimateCustomerGln</gln>  <!--gln конечной точки доставки-->
         </ultimateCustomer>
+		<descriptionColor>Green</descriptionColor>
+		<descriptionSize>M</descriptionSize>
       </lineItem>
       <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
       
       <totalSumExcludingTaxes>OrdersTotal</totalSumExcludingTaxes>  <!--сумма заявки без НДС-->
       <totalVATAmount>OrdersTotalVAT</totalVATAmount>   <!--сумма НДС по заказу-->
       <totalAmount>OrdersTotalWithoutVAT</totalAmount>  <!--общая сумма заказа всего с НДС-->
+	  <totalPackageQuantity>OrdersTotalPackageQuantity</totalPackageQuantity> <!-- общее количество коробок -->
     </lineItems>  
   </order>  
 </eDIMessage> 

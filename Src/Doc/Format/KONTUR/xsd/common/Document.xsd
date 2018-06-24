@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="simpleTypes/Description35.xsd"/>
+  <xsd:element name ="document" type="DocumentType" abstract="true"/>
+  <xsd:complexType name="DocumentType" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>Абстрактный тип документа, идентифицируемого номером и датой</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="number" type="Description35Type" use="required" />
+    <xsd:attribute name ="date" use="required" type="xsd:date" />       
+  </xsd:complexType>
+  <xsd:complexType name="OrderIdentificatorType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификация документа по номеру и дате</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="number" type="Description35Type" use="required" />
+    <xsd:attribute name ="date" use="required" type="xsd:date" />
+  </xsd:complexType>
+  <xsd:complexType name="DocumentIdentificatorType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификация документа только по номеру</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="number" type="Description35Type" use="required" />
+    <xsd:attribute name ="date" type="xsd:date" />
+  </xsd:complexType>
+  <xsd:complexType name="MessageIdentificatorType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификация документа по уникальному идентификатору</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="id" type="xsd:string" use="required" />
+  </xsd:complexType>
+  <xsd:complexType name="InvoicIdentificatorType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификация счета по номеру и дате. Атрибуты "revisionNumber" и "revisionDate" обязательны для заполнения в исправленном счете</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="number" type="Description35Type" use="required" />
+    <xsd:attribute name ="date" use="required" type="xsd:date" />
+    <xsd:attribute name ="revisionNumber" type="xsd:string" />
+    <xsd:attribute name ="revisionDate" type="xsd:date" />
+  </xsd:complexType>
+  <xsd:complexType name="OriginInvoicIdenfiticator">
+    <xsd:annotation>
+      <xsd:documentation>Идентификация оригинального счета, на который делается исправление или корректировка. Атрибуты "revisionNumber" и "revisionDate" обязательны для заполнения в корректировке на исправленный счет</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name ="number" type="Description35Type">
+      <xsd:annotation>
+        <xsd:documentation>Номер оригинального счета</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name ="date" use="required" type="xsd:date">
+      <xsd:annotation>
+        <xsd:documentation>Дата оригинального счета</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name ="revisionNumber" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>Номер исправления оригинального счета</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name ="revisionDate" type="xsd:date">
+      <xsd:annotation>
+        <xsd:documentation>Дата исправления оригинального счета</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name ="ediInvoicId" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>Идентификатор edi-сообщения с оригинальным счетом</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name ="diadocInvoicId" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          Идентификатор оригинального счета-фактуры в Диадоке. Указывается в формате "diadocMessadgeId:diadocInvoicId", где
+          diadocMessadgeId - идентификатор пакета документов MessageId в Диадоке;
+          diadocInvoicId - идентификатор счет-фактуры EntityId в ДД
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+</xsd:schema>

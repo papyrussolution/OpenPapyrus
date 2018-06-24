@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:include schemaLocation="simpleTypes/GlobalLocationNumber.xsd"/>
+	<xsd:include schemaLocation="Document.xsd"/>
+	<xsd:element name="eDIMessage" type="EDIMessageType">
+	</xsd:element>
+	<xsd:complexType name="EDIMessageType">
+		<xsd:sequence>
+			<xsd:element name="interchangeHeader" type="InterchangeHeaderType"/>
+			<xsd:element ref="document" maxOccurs="100"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Уникальный номер сообщения</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="36"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="creationDateTime" type="xsd:dateTime">
+			<xsd:annotation>
+				<xsd:documentation>Дата и время создания сообщения</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="InterchangeHeaderType">
+		<xsd:annotation>
+			<xsd:documentation>Заголовок EDI-сообщения</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="sender" type="GlobalLocationNumberType"  minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>GLN отправителя EDI-сообщения</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="recipient" type="GlobalLocationNumberType"  minOccurs="0" >
+				<xsd:annotation>
+					<xsd:documentation>GLN конечного получателя EDI-сообщения</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="documentType" type="DocumentTypeListType" >
+				<xsd:annotation>
+					<xsd:documentation>Тип EDI-сообщения</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:simpleType name="DocumentTypeListType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="COACSU"/>
+			<xsd:enumeration value="COMDIS"/>
+			<xsd:enumeration value="DESADV"/>
+			<xsd:enumeration value="INVOIC"/>
+			<xsd:enumeration value="INVRPT"/>
+			<xsd:enumeration value="ORDERS"/>
+			<xsd:enumeration value="ORDRSP"/>
+			<xsd:enumeration value="PARTIN"/>
+			<xsd:enumeration value="PRICAT"/>
+			<xsd:enumeration value="RECADV"/>
+			<xsd:enumeration value="RETANN"/>
+			<xsd:enumeration value="SLSRPT"/>
+			<xsd:enumeration value="ALCRPT"/>
+    </xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

@@ -3653,7 +3653,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	int    ok = 1;
 	SString temp_buf;
 	// @v9.6.9 SString url = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
-	SString url = "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"; // @v9.6.9
+	SString url = InetUrl::MkHttps("api.cognitive.microsoft.com", "sts/v1.0/issueToken"); // @v9.6.9
 	StrStrAssocArray post_fields;
 	ScURL  curl;
 	json_t * p_json_doc = 0;

@@ -110,9 +110,9 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 //static 
 const SString & FASTCALL SXml::nst(const char * pNs, const char * pT)
 {
-	assert(!isempty(pNs) && !isempty(pT));
+	assert(/*!isempty(pNs) &&*/ !isempty(pT));
 	SString & r_buf = SLS.AcquireRvlStr();
-	return r_buf.Cat(pNs).CatChar(':').Cat(pT);
+	return isempty(pNs) ? r_buf.Cat(pT) : r_buf.Cat(pNs).CatChar(':').Cat(pT);
 }
 
 SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
@@ -270,15 +270,10 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 
 //static
 int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
-{
-	return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName));
-}
-
+	{ return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName)); }
 //static
 int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
-{
-	return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText));
-}
+	{ return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText)); }
 
 //static
 int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
@@ -290,9 +285,10 @@ int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
 			rResult.Set(pNode->content);
 			ok = 1;
 		}
-		else if(pNode->type == XML_ELEMENT_NODE && pNode->children && pNode->children->type == XML_TEXT_NODE) {
-			if(pNode->children->content) {
-				rResult.Set(pNode->children->content);
+		else if(pNode->type == XML_ELEMENT_NODE) {
+			const xmlNode * p_children = pNode->children;
+			if(p_children && p_children->type == XML_TEXT_NODE && p_children->content) {
+				rResult.Set(p_children->content);
 				ok = 1;
 			}
 		}
@@ -319,8 +315,9 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
 			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {
-				if(p_attr->children && p_attr->children->type == XML_TEXT_NODE)
-					rResult.Set(p_attr->children->content);
+				const xmlNode * p_children = p_attr->children;
+				if(p_children && p_children->type == XML_TEXT_NODE)
+					rResult.Set(p_children->content);
 				ok = 1;
 			}
 		}

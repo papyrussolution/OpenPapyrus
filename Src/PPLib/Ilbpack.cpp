@@ -181,14 +181,22 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 	const PPIDArray * p_spc_list = pGra ? pGra->GetSpecialSubstGoodsList() : 0;
 	if(p_spc_list) {
 		PPGoodsTaxEntry dest_gte;
-		const double dest_price = ilti->Price;
-		const double dest_cost = ilti->Cost;
-		const double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
-		if(GObj.FetchTax(dest_goods_id, dt, pPack->Rec.OpID, &dest_gte) > 0) {
+		const  double dest_price = ilti->Price;
+		const  double dest_cost = ilti->Cost;
+		const  double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
+		PPID   dest_unit_id = 0;
+		Goods2Tbl::Rec dest_goods_rec;
+		Goods2Tbl::Rec src_goods_rec;
+		if(GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0)
+			dest_unit_id = dest_goods_rec.UnitID;
+		if(dest_unit_id && GObj.FetchTax(dest_goods_id, dt, pPack->Rec.OpID, &dest_gte) > 0) {
 			PPGoodsTaxEntry src_gte;
 			for(i = 0; i < p_spc_list->getCount(); i++) {
 				const PPID src_goods_id = p_spc_list->get(i);
-				if(GObj.FetchTax(src_goods_id, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
+				PPID   src_unit_id = 0;
+				if(GObj.Fetch(src_goods_id, &src_goods_rec) > 0)
+					src_unit_id = src_goods_rec.UnitID;
+				if(src_unit_id == dest_unit_id && GObj.FetchTax(src_goods_id, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
 					r = 0;
 					lot_list.clear();
 					trfr->Rcpt.GetListOfOpenedLots(-1, src_goods_id, loc_id, dt, &lot_list);

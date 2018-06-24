@@ -11,9 +11,11 @@
       <isTest>1</isTest>   <!--тестовый флаг-->
     </interchangeHeader>
     <!-- конец заголовка сообщения -->
-    <correctiveInvoice number="CoinvoicNumber" date="CoinvoicDate" type="CoinvoicType" revisionNumber="CoinvoicRevisionNumber" revisionDate="CoinvoicRevisionDate">  
-      <!--номер и дата COINVOIC; тип корректировочного счета: Original ("Оригинал") - значение по умолчанию, Replace ("Замена") - используется для исправленных счетов; номер исправления; дата исправления-->
-      <factoringEncription>FactoringEncription</factoringEncription>    <!--уступочная запись-->  
+    <correctiveInvoice number="CoinvoicNumber" date="CoinvoicDate" type="CoinvoicType" revisionNumber="CoinvoicRevisionNumber" revisionDate="CoinvoicRevisionDate" utdFunction="INVDOP">  
+      <!--номер и дата COINVOIC; тип корректировочного счета: Original ("Оригинал") - значение по умолчанию, Replace ("Замена") - используется для исправленных счетов; номер исправления; дата исправления, 
+	  функция УПД: INVDOP - СЧФДОП, INV - СЧФ, DOP - ДОП -->
+      <contractIdentificator number="contractNumber" date="contractDate" />   <!--номер договора/ контракта, дата договора/ контракта-->
+	  <factoringEncription>FactoringEncription</factoringEncription>    <!--уступочная запись-->  
       <originInvoic number="InvoicNumber" date="InvoicDate" revisionNumber="InvoicRevisionNumber" revisionDate="InvoicRevisionDate" diadocInvoicId="DiadocMessadgeId:DiadocInvoicId" ediInvoicId="EdiInvoicId" />
       <!--данные оригинального счета, на который высылается корректировка: 
 	  номер и дата; EdiInvoicId оригинального счета; DiadocMessadgeId пакета документов в Диадоке, DiadocInvoicId - идентификатор исправляемого счет-фактуры в Диадоке-->
@@ -71,7 +73,7 @@
           <flat>Flat</flat>
           <postalCode>PostalCode</postalCode>
         </russianAddress>
-        <contactlInfo>
+        <contactInfo>
           <CEO>
             <name>Name</name> <!--ФИО генерального директора-->
             <phone>TelephoneNumber</phone> <!--телефон генерального директора-->
@@ -96,7 +98,7 @@
             <fax>FaxNumber</fax> <!--факс контактного лица-->
             <email>Email</email> <!--email контактного лица-->
           </orderContact>
-        </contactlInfo>
+        </contactInfo>
       </buyer>
       <!-- конец блока данных о покупателе -->
       <!-- начало блока с данными о получателе счёта -->
@@ -245,55 +247,56 @@
     <lineItems>
       <currencyISOCode>CurrencyCode</currencyISOCode>
       <lineItem>
-        <gtin>GTIN</gtin>
-        <internalBuyerCode>BuyerProductId</internalBuyerCode>
-        <internalSupplierCode>SupplierProductId</internalSupplierCode>
+        <gtin>GTIN</gtin>	<!--GTIN товара-->
+        <internalBuyerCode>BuyerProductId</internalBuyerCode>	<!--внутренний код присвоенный покупателем-->
+        <internalSupplierCode>SupplierProductId</internalSupplierCode>	<!--артикул товара (код товара присвоенный продавцом)-->
         <typeOfUnit>IsReturnableContainer</typeOfUnit>
-        <description>Name</description>
-        <comment>Comment</comment>
+        <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->
+        <description>Name</description> <!--название товара-->
+        <comment>Comment</comment> <!--комментарий к товарной позиции-->
         <quantityBefore unitOfMeasure="MeasurementUnitCode">InvoicedQuantity.Before.Value</quantityBefore>
         <quantityAfter unitOfMeasure="MeasurementUnitCode">InvoicedQuantity.After.Value</quantityAfter>
         <quantityIncrease unitOfMeasure="MeasurementUnitCode">InvoicedQuantity.Increase</quantityIncrease>
         <quantityDecrease unitOfMeasure="MeasurementUnitCode">InvoicedQuantity.Decrease</quantityDecrease>
-        <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>
-        <netPriceWithVAT>PriceWithVAT</netPriceWithVAT>
-        <netPriceBefore>Price.Before</netPriceBefore>
-        <netPriceAfter>Price.After</netPriceAfter>
-        <netPriceIncrease>Price.Increase</netPriceIncrease>
-        <netPriceDecrease>Price.Decrease</netPriceDecrease>
-        <netAmountBefore>PriceSummary.Before</netAmountBefore>
-        <netAmountAfter>PriceSummary.After</netAmountAfter>
-        <netAmountIncrease>PriceSummary.Increase</netAmountIncrease>
-        <netAmountDecrease>PriceSummary.Decrease</netAmountDecrease>
-        <exciseDutyBefore>ExciseTax.Before</exciseDutyBefore>
-        <exciseDutyAfter>ExciseTax.After</exciseDutyAfter>
-        <exciseDutyIncrease>ExciseTax.Increase</exciseDutyIncrease>
-        <exciseDutyDecrease>ExciseTax.Decrease</exciseDutyDecrease>
-        <vatAmountBefore>VATSummary.Before</vatAmountBefore>
-        <vatAmountAfter>VATSummary.After</vatAmountAfter>
-        <vatAmountIncrease>VATSummary.Increase</vatAmountIncrease>
-        <vatAmountDecrease>VATSummary.Decrease</vatAmountDecrease>
-        <amountBefore>PriceSummaryWithVAT.Before</amountBefore>
-        <amountAfter>PriceSummaryWithVAT.After</amountAfter>
-        <amountIncrease>PriceSummaryWithVAT.Increase</amountIncrease>
-        <amountDecrease>PriceSummaryWithVAT.Decrease</amountDecrease>
-        <vatRateBefore>VATRate.Before</vatRateBefore>
-        <vatRateAfter>VATRate.After</vatRateAfter>
-        <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>
-        <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>
+        <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity> <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPriceWithVAT>PriceWithVAT</netPriceWithVAT> <!--цена единицы товара с НДС-->
+        <netPriceBefore>Price.Before</netPriceBefore> <!--цена единицы товара без НДС до изменения-->
+        <netPriceAfter>Price.After</netPriceAfter> <!--цена единицы товара без НДС после изменения-->
+        <netPriceIncrease>Price.Increase</netPriceIncrease> <!--цена единицы товара без НДС, увеличение--> 
+        <netPriceDecrease>Price.Decrease</netPriceDecrease>	<!--цена единицы товара без НДС, уменьшение-->
+        <netAmountBefore>PriceSummary.Before</netAmountBefore>	<!--сумма по позиции без НДС до изменения-->
+        <netAmountAfter>PriceSummary.After</netAmountAfter>	<!--сумма по позиции без НДС после изменения-->
+        <netAmountIncrease>PriceSummary.Increase</netAmountIncrease>	<!--сумма по позиции без НДС, увеличение-->
+        <netAmountDecrease>PriceSummary.Decrease</netAmountDecrease>	<!--сумма по позиции без НДС, уменьшение-->
+        <exciseDutyBefore>ExciseTax.Before</exciseDutyBefore>	<!--акциз товара до изменения-->
+        <exciseDutyAfter>ExciseTax.After</exciseDutyAfter>	<!--акциз товара после изменения-->
+        <exciseDutyIncrease>ExciseTax.Increase</exciseDutyIncrease>	<!--акциз товара, увеличение-->
+        <exciseDutyDecrease>ExciseTax.Decrease</exciseDutyDecrease>	<!--акциз товара, уменьшение-->
+        <vatAmountBefore>VATSummary.Before</vatAmountBefore>	<!--сумма НДС до изменения-->
+        <vatAmountAfter>VATSummary.After</vatAmountAfter>	<!--сумма НДС после изменения-->
+        <vatAmountIncrease>VATSummary.Increase</vatAmountIncrease>	<!--сумма НДС, увеличение-->
+        <vatAmountDecrease>VATSummary.Decrease</vatAmountDecrease>	<!--сумма НДС, уменьшение-->
+        <amountBefore>PriceSummaryWithVAT.Before</amountBefore>	<!--сумма по позиции с НДС до изменения-->
+        <amountAfter>PriceSummaryWithVAT.After</amountAfter>	<!--сумма по позиции с НДС после изменения-->
+        <amountIncrease>PriceSummaryWithVAT.Increase</amountIncrease>	<!--сумма по позиции с НДС, увеличение-->
+        <amountDecrease>PriceSummaryWithVAT.Decrease</amountDecrease>	<!--сумма по позиции с НДС, уменьшение-->
+        <vatRateBefore>VATRate.Before</vatRateBefore>	<!--ставка НДС до изменения (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
+        <vatRateAfter>VATRate.After</vatRateAfter>	<!--ставка НДС после изменения (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
+        <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber> <!--номер таможенной декларации-->
+        <countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode> <!--код страны производства-->
       </lineItem>         <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
-      <totalSumExcludingTaxesDecrease>InvoicTaxableTotal.Decrease</totalSumExcludingTaxesDecrease>
-      <totalSumExcludingTaxesIncrease>InvoicTaxableTotal.Increase</totalSumExcludingTaxesIncrease>
-      <totalVATAmountDecrease>InvoicTotalVAT.Decrease</totalVATAmountDecrease>
-      <totalVATAmountIncrease>InvoicTotalVAT.Increase</totalVATAmountIncrease>
-      <totalAmountDecrease>InvoicTotalWithVAT.Decrease</totalAmountDecrease>
-      <totalAmountIncrease>InvoicTotalWithVAT.Increase</totalAmountIncrease>
-      <totalSumExcludingTaxesForIVDecrease documentNumber="CoinvoicNumber">InvoicTaxableTotalForIV.Decrease</totalSumExcludingTaxesForIVDecrease>
-      <totalSumExcludingTaxesForIVIncrease documentNumber="CoinvoicNumber">InvoicTaxableTotalForIV.Increase</totalSumExcludingTaxesForIVIncrease>
-      <totalVATAmountForIVDecrease documentNumber="CoinvoicNumber">InvoicTotalVATForIV.Decrease</totalVATAmountForIVDecrease>
-      <totalVATAmountForIVIncrease documentNumber="CoinvoicNumber">InvoicTotalVATForIV.Increase</totalVATAmountForIVIncrease>
-      <totalAmountForIVDecrease documentNumber="CoinvoicNumber">InvoicTotalWithVATForIV.Decrease</totalAmountForIVDecrease>
-      <totalAmountForIVIncrease documentNumber="CoinvoicNumber">InvoicTotalWithVATForIV.Increase</totalAmountForIVIncrease>
+      <totalSumExcludingTaxesDecrease>InvoicTaxableTotal.Decrease</totalSumExcludingTaxesDecrease> <!-- Всего уменьшение, сумма без НДС-->
+      <totalSumExcludingTaxesIncrease>InvoicTaxableTotal.Increase</totalSumExcludingTaxesIncrease> <!--Всего увеличение, сумма  без НДС-->
+      <totalVATAmountDecrease>InvoicTotalVAT.Decrease</totalVATAmountDecrease>	<!--Всего уменьшение, сумма НДС для счета-фактуры-->
+      <totalVATAmountIncrease>InvoicTotalVAT.Increase</totalVATAmountIncrease>	<!--Всего увеличение, сумма НДС для счета-фактуры-->
+      <totalAmountDecrease>InvoicTotalWithVAT.Decrease</totalAmountDecrease>	<!--Всего уменьшение, общая сумма для счета-фактуры  с НДС по товарам-->
+      <totalAmountIncrease>InvoicTotalWithVAT.Increase</totalAmountIncrease>	<!--Всего увеличение, общая сумма для счета-фактуры  с НДС по товарам-->
+      <totalSumExcludingTaxesForIVDecrease documentNumber="CoinvoicNumber">InvoicTaxableTotalForIV.Decrease</totalSumExcludingTaxesForIVDecrease>	<!--Всего уменьшение, сумма для счета-фактуры без НДС-->
+      <totalSumExcludingTaxesForIVIncrease documentNumber="CoinvoicNumber">InvoicTaxableTotalForIV.Increase</totalSumExcludingTaxesForIVIncrease>	<!--Всего увеличение, сумма для счета-фактуры без НДС-->
+      <totalVATAmountForIVDecrease documentNumber="CoinvoicNumber">InvoicTotalVATForIV.Decrease</totalVATAmountForIVDecrease>	<!--Всего уменьшение, сумма НДС для счета-фактуры , значение берем из orders/ordrsp-->
+      <totalVATAmountForIVIncrease documentNumber="CoinvoicNumber">InvoicTotalVATForIV.Increase</totalVATAmountForIVIncrease>	<!--Всего увеличение, сумма НДС для счета-фактуры-->
+      <totalAmountForIVDecrease documentNumber="CoinvoicNumber">InvoicTotalWithVATForIV.Decrease</totalAmountForIVDecrease>	<!--Всего уменьшение, общая сумма для счета-фактуры  с НДС по товарам-->
+      <totalAmountForIVIncrease documentNumber="CoinvoicNumber">InvoicTotalWithVATForIV.Increase</totalAmountForIVIncrease>	<!--Всего увеличение, общая сумма для счета-фактуры  с НДС по товарам-->
     </lineItems>
   </correctiveInvoice>
 </eDIMessage>

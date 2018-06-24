@@ -817,13 +817,12 @@ int SLAPI PPCashMachine::SyncAddSummator(double add)
 
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {
-	int    ok = retCode, err_code = SYNCPRN_NO_ERROR;
 	SyncPrintErrCode = 0;
-	if(ok == 0)
-		err_code = P_SyncIntrf->GetPrintErrCode();
+	int    ok = retCode;
+	int    err_code = (ok == 0) ? P_SyncIntrf->GetPrintErrCode() : SYNCPRN_NO_ERROR;
 	if(updateNode && !oneof2(err_code, SYNCPRN_ERROR_WHILE_PRINT, SYNCPRN_CANCEL_WHILE_PRINT)) {
 		NodeRec.Flags &= ~CASHF_LASTCHKCANCELLED;
-		if(UpdateNode(1) == 0) {
+		if(!UpdateNode(1)) {
 			if(err_code == SYNCPRN_NO_ERROR)
 				err_code = SYNCPRN_ERROR_AFTER_PRINT;
 			else if(err_code == SYNCPRN_CANCEL)
@@ -831,13 +830,14 @@ int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 			ok = 0;
 		}
 	}
-	if(ok == 0)
+	if(!ok) {
 		if(err_code == SYNCPRN_ERROR_AFTER_PRINT)
 			SyncPrintErrCode = 1;
 		else if(oneof2(err_code, SYNCPRN_ERROR, SYNCPRN_ERROR_WHILE_PRINT))
 			SyncPrintErrCode = 2;
 		else if(oneof2(err_code, SYNCPRN_CANCEL, SYNCPRN_CANCEL_WHILE_PRINT))
 			SyncPrintErrCode = 3;
+	}
 	return ok;
 }
 //

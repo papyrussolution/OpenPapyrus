@@ -1245,7 +1245,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr; // @v9.5.5
 	if(p_brw) {
-		// @v9.5.5 PPViewGoods * p_view = (PPViewGoods *)extraPtr;
 		PPViewGoods * p_view = (PPViewGoods *)p_brw->P_View; // @v9.5.5
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
@@ -2986,11 +2985,9 @@ int SLAPI PPViewGoods::ReplaceNames()
 			setCtrlData(CTL_SR_WHAT, &v);
 			SetupPPObjCombo(this, CTLSEL_SRGOODS_BRAND, PPOBJ_BRAND, Data.BrandID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_SRGOODS_GRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANINSERT, (void *)GGRTYP_SEL_NORMAL);
-			SetupPersonCombo(this, CTLSEL_SRGOODS_MANUF, Data.ManufID, OLW_CANINSERT, PPPRK_MANUF, 1); // @v8.8.12
-			// @v8.1.11 {
+			SetupPersonCombo(this, CTLSEL_SRGOODS_MANUF, Data.ManufID, OLW_CANINSERT, PPPRK_MANUF, 1);
 			AddClusterAssoc(CTL_SRGOODS_SPCFLAGS, 0, PPGoodsReplaceNameParam::fRestoreLastHistoryName);
 			SetClusterData(CTL_SRGOODS_SPCFLAGS, Data.Flags);
-			// } @v8.1.11
 			return ok;
 		}
 		int getDTS(PPGoodsReplaceNameParam * pData)
@@ -3003,8 +3000,8 @@ int SLAPI PPViewGoods::ReplaceNames()
 			SETFLAG(Data.Flags, PPGoodsReplaceNameParam::fNameAndAbbr, v == 2);
 			getCtrlData(CTLSEL_SRGOODS_BRAND, &Data.BrandID);
 			getCtrlData(CTLSEL_SRGOODS_GRP,   &Data.GoodsGrpID);
-			getCtrlData(CTLSEL_SRGOODS_MANUF, &Data.ManufID); // @v8.8.12
-			GetClusterData(CTL_SRGOODS_SPCFLAGS, &Data.Flags); // @v8.1.11
+			getCtrlData(CTLSEL_SRGOODS_MANUF, &Data.ManufID);
+			GetClusterData(CTL_SRGOODS_SPCFLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}

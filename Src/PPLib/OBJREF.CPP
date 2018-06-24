@@ -218,13 +218,11 @@ int SLAPI SimpleObjView(PPObject * pObj, void * extraPtr)
 SLAPI PPObjReference::PPObjReference(PPID aObj, /*long extraData*/void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), ref(PPRef)
 {
 	ImplementFlags |= implStrAssocMakeList;
-	// @v8.2.3 {
 	if(IS_DYN_OBJTYPE(aObj)) {
 		ReferenceTbl::Rec rec;
 		if(ref->GetItem(PPOBJ_DYNAMICOBJS, aObj, &rec) > 0 && rec.Val1 & PPCommObjEntry::fHierarchical)
 			ImplementFlags |= implTreeSelector;
 	}
-	// } @v8.2.3
 }
 
 int    SLAPI PPObjReference::Search(PPID id, void * b) { return ref->GetItem(Obj, id, b); }
@@ -241,8 +239,7 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 	}
 	else {
 		if(Obj == PPOBJ_ACCSHEET) {
-			// @v8.9.0 {
-			SString r_temp_buf = SLS.AcquireRvlStr();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			(r_temp_buf = pSymb).Strip();
 			if(r_temp_buf.IsEqiAscii("$buyer") || r_temp_buf.IsEqiAscii("$client"))
 				id = GetSellAccSheet();
@@ -254,11 +251,9 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 				r = 1;
 			else {
 				id = 0;
-				// } @v8.9.0
 				PPSetError(PPERR_ACCSHEETSYMBNFOUND, pSymb);
 			}
 		}
-		// @v8.9.0 {
 		else if(Obj == PPOBJ_PRSNKIND) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			(r_temp_buf = pSymb).Strip();
@@ -275,7 +270,6 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 				PPSetError(PPERR_PERSONKINDSYMBNFOUND, pSymb);
 			}
 		}
-		// } @v8.9.0
 		else if(Obj == PPOBJ_BIZSCORE)
 			PPSetError(PPERR_BIZSCORESYMBNFOUND, pSymb);
 		else if(Obj == PPOBJ_STAFFCAL)
@@ -359,7 +353,7 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 	STRNSCPY(Name, pName);
 	STRNSCPY(Symb, pSymb);
 	Flags = flags;
-	ParentID = 0; // @v8.2.3
+	ParentID = 0;
 }
 
 // static
@@ -393,11 +387,9 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 			p_dlg->AddClusterAssoc(CTL_COMMOBJ_FLAGS, 1, PPCommObjEntry::fHierarchical);
 		}
 		p_dlg->SetClusterData(CTL_COMMOBJ_FLAGS, pEntry->Flags);
-		// @v8.2.3 {
 		if(p_dlg->getCtrlView(CTLSEL_COMMOBJ_PARENT)) {
 			SetupPPObjCombo(p_dlg, CTLSEL_COMMOBJ_PARENT, pEntry->ObjType, pEntry->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0);
 		}
-		// } @v8.2.3
 		p_dlg->disableCtrl(CTL_COMMOBJ_ID, (!PPMaster || _id));
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			long flags = 0L;
@@ -415,11 +407,9 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB);
 			}
 			else {
-				// @v8.2.3 {
 				if(p_dlg->getCtrlView(CTLSEL_COMMOBJ_PARENT)) {
 					p_dlg->getCtrlData(CTLSEL_COMMOBJ_PARENT, &pEntry->ParentID);
 				}
-				// } @v8.2.3
 				pEntry->ID = _id;
 				name.CopyTo(pEntry->Name, sizeof(pEntry->Name));
 				symb.CopyTo(pEntry->Symb, sizeof(pEntry->Symb));
@@ -462,23 +452,19 @@ int SLAPI PPObjReference::Edit(PPID * pID, void * extraPtr)
 	}
 	{
 		PPCommObjEntry param(Obj, rec.ObjID, rec.ObjName, rec.Symb);
-		// @v8.2.3 {
 		if(IS_DYN_OBJTYPE(Obj)) {
 			param.Flags = rec.Val1;
 			param.ParentID = rec.Val2;
 		}
-		// } @v8.2.3
 		THROW(ok = PPObjReference::EditCommObjItem(&param));
 		if(ok > 0) {
 			rec.ObjID = param.ID;
 			STRNSCPY(rec.Symb, param.Symb);
 			STRNSCPY(rec.ObjName, param.Name);
-			// @v8.2.3 {
 			if(IS_DYN_OBJTYPE(Obj)) {
 				rec.Val1 = param.Flags;
 				rec.Val2 = param.ParentID;
 			}
-			// } @v8.2.3
 			THROW(is_new || CheckRights(PPR_MOD));
 			if(*pID)
 				*pID = rec.ObjID;
@@ -652,7 +638,7 @@ int SLAPI PPObjReference::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 			// Очень необычный случай: при разрешении ссылки может измениться тип объекта
 			//
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &Obj, ary, replace));
-			THROW(ProcessObjRefInArray(Obj, &p_rec->ParentID, ary, replace)); // @v8.2.3
+			THROW(ProcessObjRefInArray(Obj, &p_rec->ParentID, ary, replace));
 		}
 		else
 			ok = -1;
@@ -1482,48 +1468,6 @@ IMPL_OBJ_FETCH(PPObjELinkKind, PPELinkKind, ELinkKindCache);
 SLAPI PPObjOprType::PPObjOprType(void * extraPtr) : PPObjReference(PPOBJ_OPRTYPE, extraPtr)
 {
 }
-
-#if 0 // @v7.8.10 {
-
-int SLAPI PPObjOprType::Edit(PPID * pID, void * extraPtr)
-{
-	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
-	PPOprType rec;
-	TDialog * dlg = 0;
-	THROW(CheckRightsModByID(pID));
-	dlg = new TDialog(DLG_OPRTYPE);
-	THROW(CheckDialogPtr(&dlg));
-	if(*pID) {
-		THROW(Search(*pID, &rec) > 0);
-	}
-	else
-		MEMSZERO(rec);
-	dlg->setCtrlData(CTL_OPRTYPE_NAME, rec.Name);
-	dlg->setCtrlData(CTL_OPRTYPE_PICT, rec.Pict);
-	dlg->setCtrlData(CTL_OPRTYPE_ID,   &rec.ID);
-	dlg->disableCtrl(CTL_OPRTYPE_ID, (!PPMaster || rec.ID));
-	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
-		dlg->getCtrlData(CTL_OPRTYPE_NAME, rec.Name);
-		if(*strip(rec.Name) == 0) {
-			PPError(PPERR_NAMENEEDED, 0);
-			dlg->selectCtrl(CTL_OPRTYPE_NAME);
-		}
-		else {
-			valid_data = 1;
-			dlg->getCtrlData(CTL_OPRTYPE_PICT, rec.Pict);
-			dlg->getCtrlData(CTL_OPRTYPE_ID, &rec.ID);
-			if(*pID)
-			   	*pID = rec.ID;
-			THROW(EditItem(PPOBJ_OPRTYPE, *pID, &rec, 1));
-		}
-	}
-	CATCHZOKPPERR
-	delete dlg;
-	return ok ? r : 0;
-}
-
-#endif // } 0 @v7.8.10
 //
 // @ModuleDef(PPObjFormula)
 //
@@ -2712,7 +2656,7 @@ int FASTCALL PPUhttStorePacket::IsEqual(const PPUhttStorePacket & rS) const
 	NRECFLD(LocID);
 	NRECFLD(Flags);
 	NRECFLD(PersonID);
-	NRECFLD(UpRestShowThreshold); // @v7.9.1
+	NRECFLD(UpRestShowThreshold);
 	if(strcmp(Rec.Name, rS.Rec.Name) != 0)
 		return 0;
 	if(strcmp(Rec.Symb, rS.Rec.Symb) != 0)
@@ -2796,10 +2740,10 @@ public:
 		SetClusterData(CTL_UHTTSTORE_KIND, Data.Rec.Kind);
 		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 0, PPUhttStore::fUseGoodsPkg);
 		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 1, PPUhttStore::fShowRest);
-		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 2, PPUhttStore::fDontShowZeroRestItems); // @v7.9.1
-		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 3, PPUhttStore::fCreateBuyerPerson); // @v8.8.1
+		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 2, PPUhttStore::fDontShowZeroRestItems);
+		AddClusterAssoc(CTL_UHTTSTORE_FLAGS, 3, PPUhttStore::fCreateBuyerPerson);
 		SetClusterData(CTL_UHTTSTORE_FLAGS, Data.Rec.Flags);
-		setCtrlReal(CTL_UHTTSTORE_URST, Data.Rec.UpRestShowThreshold); // @v7.9.1
+		setCtrlReal(CTL_UHTTSTORE_URST, Data.Rec.UpRestShowThreshold);
 		updateList(-1);
 		return 1;
 	}

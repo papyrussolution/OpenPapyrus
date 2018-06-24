@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="simpleTypes/GlobalLocationNumber.xsd" />
+  <xsd:complexType name="LineItemUltimateCustomer">
+    <xsd:annotation>
+      <xsd:documentation>Конечная точка доставки</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="gln" type="GlobalLocationNumberType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

@@ -310,38 +310,6 @@ void * SLAPI PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
 	return /*0; */ new PPObjAccSheetListWindow(this, flags, extraPtr);
 }
 
-#if 0 // @v8.5.4 {
-int SLAPI PPObjAccSheet::Browse(void * extraPtr)
-{
-	class AccSheetView : public ObjViewDialog {
-	public:
-		AccSheetView(PPObjAccSheet * _ppobj) : ObjViewDialog(DLG_ACCSHEETVIEW, _ppobj, 0)
-		{
-		}
-	private:
-		virtual void extraProc(long id)
-		{
-			if(id) {
-				ArticleFilt filt;
-				filt.AccSheetID = id;
-				ViewArticle(&filt);
-			}
-		}
-	};
-	int    ok = 1;
-	if(CheckRights(PPR_READ)) {
-		TDialog * dlg = new AccSheetView(this);
-		if(CheckDialogPtrErr(&dlg))
-			ExecViewAndDestroy(dlg);
-		else
-			ok = 0;
-	}
-	else
-		ok = PPErrorZ();
-	return ok;
-}
-#endif // } 0 @v8.5.4
-
 int SLAPI PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;

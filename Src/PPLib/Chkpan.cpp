@@ -8247,19 +8247,19 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 								int    dup_mark = 0;
 								for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 									const CCheckItem & r_item = P.at(i);
-									if(r_item.EgaisMark == egais_mark)
+									if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
 										dup_mark = 1;
 								}
 								if(!dup_mark) {
 									const CCheckItem & r_item = P.GetCur();
-									if(r_item.EgaisMark == egais_mark)
+									if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
 										dup_mark = 1;
 								}
 								if(!dup_mark)
 									rBlk.EgaisMark = egais_mark;
 								else {
-									PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
-									ok = -1;
+									// @v10.1.0 PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
+									ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0 
 								}
 							}
 							else
@@ -8287,7 +8287,8 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 			PPID   goods_id = 0;
 			p_list->def->getCurID(&goods_id);
 			PgsBlock pgsb(1.0);
-			if(PreprocessGoodsSelection(goods_id, 0, pgsb) > 0)
+			r = PreprocessGoodsSelection(goods_id, 0, pgsb);
+			if(r > 0)
 				r = SetupNewRow(goods_id, pgsb);
 			ClearInput(0);
 		}

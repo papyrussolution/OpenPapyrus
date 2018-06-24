@@ -1,0 +1,545 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="common/EDIMessage.xsd" />
+  <xsd:include schemaLocation="common/Contractor.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CurrencyISOCode.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description3.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description178.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description35.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description17.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/GlobalTradeItemIdentification.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Money.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/PriceQuantity.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Quantity.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Percentage.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/ShelfLifeForPricat.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/VatRate.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CustomsDeclarationNumber.xsd" />
+  <xsd:element name="priceCatalogue" type="PriceCatalogue" substitutionGroup="document" />
+  <xsd:complexType name="PriceCatalogue">
+    <xsd:complexContent>
+      <xsd:extension base="DocumentType">
+        <xsd:sequence>
+          <xsd:element name="identifierInPriceChain" type="IdentifierInPriceChainType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Продавец (поставщик)</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="startDate" type="xsd:date" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Дата начала действия закупочных цен</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="endDate" type="xsd:date" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Дата окончания действия акции в магазинах покупателя</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="promotionStartDate" type="xsd:date" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Дата начала действия акции в магазинах покупателя</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="promotionEndDate" type="xsd:date" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Дата окончания действия</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="adviseBeforeDate" type="xsd:date" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Дата, до которой должен быть подписан ЦЛ поставщиком</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="contractIdentificator" type="DocumentIdentificatorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Идентификатор контракта</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="seller" type="ContractorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Продавец (поставщик)</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="buyer" type="ContractorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Покупатель</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="invoicee" type="ContractorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Получатель счета</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="deliveryInfo" type="DeliveryInfoType" minOccurs="0" />
+          <xsd:element name="salesRegion" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation>идентификатор региона продаж</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="storeFormat" type="xsd:string" minOccurs="0" maxOccurs="3">
+            <xsd:annotation>
+              <xsd:documentation>Название торговой сети, в которой будет проходить акция</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="comment" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Комментарий</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="lineItems">
+            <xsd:annotation>
+              <xsd:documentation>Табличная часть, содержащая информацию о товарах</xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="currencyISOCode" type="CurrencyISOCodeType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Код (3-alpha) валюты, согласно ISO-4217</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="segmentOfBuyerAssortment" type="xsd:string" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Сегмент ассортимента покупателя</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="financialCode" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+                  <xsd:annotation>
+                    <xsd:documentation>Финансовый код</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="lineItem" type="LineItemType" maxOccurs="unbounded" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="type" type="PricatType" use="required" />
+        <xsd:attribute name="status" type="PricatStatus" use="required" />
+        <xsd:attribute name="name" type="xsd:string" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="DeliveryInfoType">
+    <xsd:annotation>
+      <xsd:documentation>Информация о поставке</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="shipTo" type="ContractorType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>Место доставки (грузополучатель). Только в Price.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="IdentifierInPriceChainType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификатор и дата генерации данного ценового листа</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="number" type="xsd:string" />
+    <xsd:attribute name="date" type="xsd:date" />
+  </xsd:complexType>
+  <xsd:complexType name="SalesRegionType">
+    <xsd:annotation>
+      <xsd:documentation>Идентификатор региона продаж</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="number" type="xsd:string" />
+  </xsd:complexType>
+  <xsd:complexType name ="PackageType">
+    <xsd:sequence>
+      <xsd:element name="packageTypeCode" type="PackageType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Тип упаковки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Количество </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="packageMarking" type="PackageMarkingType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Описание  упаковки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="packageLevel" type="xsd:int">
+        <xsd:annotation>
+          <xsd:documentation> Уровень иерархии упаковки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="parentLevel" type="xsd:int">
+        <xsd:annotation>
+          <xsd:documentation>Ссылка на родительский уровень иерархии</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="physicalDimensions" type="PhysicalDimensionsType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Физические размеры: можно указать только высоту и/ или вес брутто</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PhysicalDimensionsType">
+    <xsd:annotation>
+      <xsd:documentation>Физические размеры</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="height" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Высота</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="width" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Ширина</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="depth" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Глубина</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netContent" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Вес нетто</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="grossWeight" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Вес брутто</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="PackageMarkingType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="1" />
+      <xsd:enumeration value="2" />
+      <xsd:enumeration value="3" />
+      <xsd:enumeration value="4" />
+      <xsd:enumeration value="5" />
+      <xsd:enumeration value="7" />
+      <xsd:enumeration value="8" />
+      <xsd:enumeration value="9" />
+      <xsd:enumeration value="10" />
+      <xsd:enumeration value="31" />
+      <xsd:enumeration value="32" />
+      <xsd:enumeration value="33" />
+      <xsd:enumeration value="50" />
+      <xsd:enumeration value="51" />
+      <xsd:enumeration value="52" />
+      <xsd:enumeration value="53" />
+      <xsd:enumeration value="54" />
+      <xsd:enumeration value="78" />
+      <xsd:enumeration value="79" />
+      <xsd:enumeration value="80" />
+      <xsd:enumeration value="LAB" />
+      <xsd:enumeration value="NAB" />
+      <xsd:enumeration value="NBR" />
+      <xsd:enumeration value="X14" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="PackageType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="201" />
+      <xsd:enumeration value="AE" />
+      <xsd:enumeration value="BME" />
+      <xsd:enumeration value="BS" />
+      <xsd:enumeration value="CBL" />
+      <xsd:enumeration value="CMS" />
+      <xsd:enumeration value="CN" />
+      <xsd:enumeration value="CR" />
+      <xsd:enumeration value="CD" />
+      <xsd:enumeration value="CX" />
+      <xsd:enumeration value="CS" />
+      <xsd:enumeration value="CT" />
+      <xsd:enumeration value="CY" />
+      <xsd:enumeration value="FOB" />
+      <xsd:enumeration value="LAB" />
+      <xsd:enumeration value="PL" />
+      <xsd:enumeration value="PLP" />
+      <xsd:enumeration value="PO" />
+      <xsd:enumeration value="POP" />
+      <xsd:enumeration value="PUN" />
+      <xsd:enumeration value="STL" />
+      <xsd:enumeration value="SO" />
+      <xsd:enumeration value="TEV" />
+      <xsd:enumeration value="VI" />
+      <xsd:enumeration value="WRP" />
+      <xsd:enumeration value="X9" />
+      <xsd:enumeration value="X10" />
+      <xsd:enumeration value="X12" />
+      <xsd:enumeration value="MPE" />
+      <xsd:enumeration value="PA" />
+      <xsd:enumeration value="SW" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="PricatStatus">
+    <xsd:annotation>
+      <xsd:documentation>Статус ценового листа</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Change" />
+      <xsd:enumeration value="Original" />
+      <xsd:enumeration value="NotAccepted" />
+      <xsd:enumeration value="Provisional" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="PricatType">
+    <xsd:annotation>
+      <xsd:documentation>Тип ценового листа</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Catalogue" />
+      <xsd:enumeration value="MarketingPrice" />
+      <xsd:enumeration value="Response" />
+      <xsd:enumeration value="Inquiry" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LineItemStatusType">
+    <xsd:annotation>
+      <xsd:documentation>Статус товарной позиции</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Added" />
+      <xsd:enumeration value="Deleted" />
+      <xsd:enumeration value="Changed" />
+      <xsd:enumeration value="No Action" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="LineItemType">
+    <xsd:sequence>
+      <xsd:element name="gtin" type="GlobalTradeItemIdentificationType" minOccurs="0" />
+      <xsd:element name="internalBuyerCode" type="Description17Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Внутренний код, присвоенный покупателем</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="internalSupplierCode" type="Description17Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Внутренний код, присвоенный продавцом</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="codeOfEgais" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Код товара в ЕГАИС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="typeOfAlco" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Код вида алкогольной продукции (из справочника ФСРАР http://www.fsrar.ru/Declaring/klassifikator-vidov-produkcii )</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="alcoholicPercentage" type="PercentageType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Процент алкоголя</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="typeOfUnit" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Признак весового товара. Если признак есть, значит данный товар - весовой.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="VQ"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="description" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Наименование (описание) товара</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="descriptionVariant" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Наименование (описание) товара в сети</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="descriptionColor" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цвет</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="descriptionSize" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Размер.Используется для товаров с указанием размеров, например, одежда</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="brandName" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Брэнд</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="productCategory" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Название категории товара</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="markDown" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Признак уцененного товара</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Junk"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="itemsAvailability" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Признак товара «Ожидается поступление»</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="ExpectReceipt"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="typeOfArticle" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Признак ЖВЛС</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="VitalMedicines"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="salesRegion" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>Идентификаторы региона продаж</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="salesRange" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Проект филиала</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="physicalDimensions" type="PhysicalDimensionsType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Физические размеры</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="priceQuantity" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Максимальное количество товара, которое может быть в одной поставке по указанной цене</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="onePlaceQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Количество в упаковке (в одном месте)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="incrementalOrderQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Квант поставки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quantityPerPack" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Количество в упаковке (в одном месте) для РЦ</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="promotionQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Количество по акции</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="countryOfOriginISOCode" type="CountryISOCodeType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation> Буквенный код (2-alpha) страны происхождения, согласно ISO-3166 </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="customsDeclarationNumber" type="CustomsDeclarationNumberType" minOccurs="0"
+                   maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            Номер таможенной декларации, должен соответствовать одной из масок: N(=8)/DDMMYY/T(=7)/N(0.5)
+            или N(=8)/DDMMYYYY/T(=7)/N(0.5)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="shelfLife" type="ShelfLifeType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Срок годности</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="promotionPeriod" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Период действия промо-цен, указывается в формате "Date-Date"</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="exciseDuty" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>В том числе акциз</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="vATRate" type="VATRateType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Ставка НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPrice" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена за единицу без НДС. Только в Price.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPriceWithVAT" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена (тариф) за единицу c НДС. Только в Price.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="costOfInstallation" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Стоимость монтажа</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="landedPrice" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена изготовителя</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="registeredPrice" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Максимально допустимая цена</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPriceWithDeliveryToDC" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена без НДС за доставку до РЦ</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPriceWithPickup" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена без НДС за самовывоз</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="minimumOrderNetAmount" type="PriceQuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Минимальная сумма заказа по товару</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationGroup" type="Description3Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Группа расчета</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="manufacturer" type="ContractorType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Производитель</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="locatinOfGoods" type="ContractorType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>gln местоположения товара (gln поставщика), другие реквизиты не указываются</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="comment" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Комментарий</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="package" type="PackageType" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="status" type="LineItemStatusType" use="required" />
+  </xsd:complexType>
+</xsd:schema>

@@ -599,7 +599,7 @@ library PapyrusInterfaceLib version(1.1) {
 		string ClientCode;     // Код данного клиента на сервере поставщика
 		string EDIPrvdrSymb;   // Символ провайдера EDI
 		string RemoveAddr;     // Адрес для обмена данными (это может быть e-mail, url иди каталог)
-		string AccsName;       // Имя аккаунат для доступа к обмену данными
+		string AccsName;       // Имя аккаунта для доступа к обмену данными
 		string AccsPassw;      // Пароль для доступа к обмену данными
 		string TechSymbol;     // Символ технологии обмена
 		long   SequenceID;     // @v9.5.0 Внутренний счетчик для автоматической нумерации запросов

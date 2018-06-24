@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="Description17Type">
+    <xsd:annotation>
+      <xsd:documentation>Текстовое описание длиной 17 символов</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="17"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

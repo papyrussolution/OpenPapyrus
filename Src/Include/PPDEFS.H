@@ -1237,7 +1237,7 @@
 	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
 	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
 	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
-#define PPTAG_PERSON_VETISUUID      66L // @v9.8.9  UUID предприятия в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_PERSON_VETISUUID      66L // @v9.8.9  UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - GUID (не UUID)
 #define PPTAG_GUA_LOGIN             67L // @v9.9.12 Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
 #define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
@@ -1248,8 +1248,8 @@
 #define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 Информация об отправленном INVOIC
 #define PPTAG_PERSON_VETISISSUUID   74L // @v10.0.08 Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
 #define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
-// @construction(VETIS) {
-#define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
+#define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
+#define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - GUID (не UUID)
 
 // } @construction(VETIS)
 
@@ -10419,6 +10419,8 @@
 	#define CTL_VETDOCFLT_WBPRD       (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_VETDOCFLT_WBPRD    (4 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_STATUS      (5 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_WH          (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_WH       (7 + WINDOWS_ID_BIAS)
 #define DLG_VETVDOC               1342
 	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)
@@ -10444,6 +10446,12 @@
 	#define CTL_VETVDOC_VDTYPE        (22 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_QTTY          (23 + WINDOWS_ID_BIAS)
 #define DLG_SELVDOCUPD            1343
+#define DLG_MTCHPSN               1344
+	#define CTL_MTCHPSN_SRCINFO       (1 + WINDOWS_ID_BIAS)
+	#define CTL_MTCHPSN_PSN           (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MTCHPSN_PSN        (3 + WINDOWS_ID_BIAS)
+	#define CTL_MTCHPSN_LOC           (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MTCHPSN_LOC        (5 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

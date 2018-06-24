@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2012 rel. 2 (x64) (http://www.altova.com) by Elena Philippova (Kontur) -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:include schemaLocation="common/EDIMessage.xsd"/>
+  <xsd:include schemaLocation="common/Contractor.xsd"/>
+	<xsd:element name="partyInformation" type="PartinType" substitutionGroup="document"/>
+	<xsd:complexType name="PartinType">
+		<xsd:complexContent>
+			<xsd:extension base="DocumentType">
+				<xsd:sequence>
+					<xsd:element name="headGLN" type="ContractorType">
+						<xsd:annotation>
+							<xsd:documentation>Головной GLN</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="parties">
+						<xsd:annotation>
+							<xsd:documentation>Табличная часть, содержащая информацию о юр.лицах и местах доставки</xsd:documentation>
+						</xsd:annotation>
+						<xsd:complexType>
+							<xsd:sequence>
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                  <xsd:element name="deliveryParty" type="ContractorType">
+                    <xsd:annotation>
+                      <xsd:documentation>Место доставки или точка отгрузки</xsd:documentation>
+                    </xsd:annotation>
+                  </xsd:element>
+                  <xsd:element name="invoicee" type="ContractorType">
+                    <xsd:annotation>
+                      <xsd:documentation>Юридическое лицо</xsd:documentation>
+                    </xsd:annotation>
+                  </xsd:element>
+                </xsd:choice>
+							</xsd:sequence>
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+</xsd:schema>

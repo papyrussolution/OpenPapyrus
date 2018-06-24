@@ -19,6 +19,7 @@
     <egaisFixationIdentificator number="EgaisFixationNumber" date="EgaisFixationDate" />    <!--номер и дата фиксации ТТН в ЕГАИС-->
     <blanketOrderIdentificator number="BlanketOrdersNumber" />     <!--номер серии заказов-->
 	<receivingAdviceIdentificatorInBuyerSystem number="ReceivingAdviceNumberInBuyerSystem"/> <!--номер приемки в системе покупателя-->
+	<invoiceDeliveryType>InvoiceDeliveryType</invoiceDeliveryType>    <!--Вид документов. Paper - бумажные, Electronic - электронные-->
     <!-- начало блока данных о поставщике -->
     <seller>
       <gln>SupplierGln</gln>    <!--gln поставщика-->
@@ -68,7 +69,7 @@
         <flat>Flat</flat>
         <postalCode>>PostalCode</postalCode>
       </russianAddress>
-      <contactlInfo>
+      <contactInfo>
         <CEO>
           <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
           <fax>FaxNumber</fax> <!--факс контактного лица-->
@@ -89,7 +90,7 @@
           <fax>FaxNumber</fax> <!--факс контактного лица-->
           <email>Email</email> <!--email контактного лица-->
         </orderContact>
-      </contactlInfo>
+      </contactInfo>
     </buyer>
     <!-- конец блока данных о покупателе -->
     <!-- начало блока данных о получателе счета-->
@@ -126,6 +127,7 @@
     <!-- начало блока данных о грузоотправителе и грузополучателе -->
     <deliveryInfo>
       <receptionDateTime>receivingDateT00:00:00.000Z</receptionDateTime>    <!--дата приёмки-->
+	  <waybill number="WaybillNumber" date="WaybillDate" />    <!--номер транспортной накладной, дата транспортной накладной-->
       <shipFrom>
         <gln>shipFromGln</gln>       <!--gln грузоотправителя-->
         <organization>
@@ -215,6 +217,7 @@
      	<codeOfEgais>codeOfEgais</codeOfEgais>       <!--код товара в ЕГАИС-->
 		<lotNumberEgais>lotNumberEgais</lotNumberEgais>   <!--идентификатор позиции в ТТН ЕГАИС-->
         <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->
+        <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->
         <description>Name</description>         <!--наименование товара-->
         <comment>LineItemComment</comment>          <!--комментарий к товарной позиции-->
         <orderedQuantity unitOfMeasure="MeasurementUnitCode">OrderedQuantity</orderedQuantity>   <!--заказанное количество-->
@@ -223,6 +226,8 @@
         <acceptedQuantity unitOfMeasure="MeasurementUnitCode">RecadvQuantity</acceptedQuantity>   <!--принятое количество-->
         <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>        <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
         <toBeReturnedQuantity reasonOfReturn="QuantityVariance.Reason">QuantityVariance.QuantityValue</toBeReturnedQuantity>   <!--возвращаемое количество и причина возврата товара-->
+        <overshippedQuantity unitOfMeasure="MeasurementUnitCode">OvershippedQuantity</overshippedQuantity>   <!--сверхпоставка-->
+        <notDeliveredQuantity unitOfMeasure="MeasurementUnitCode">NotDeliveredQuantity</notDeliveredQuantity>   <!--недопоставка-->
         <netPrice>Price</netPrice>     <!--цена единицы товара без НДС-->
         <netPriceWithVAT>PriceWithVAT</netPriceWithVAT>     <!--цена единицы товара с НДС-->
         <netAmount>PriceSummary</netAmount>      <!--сумма по позиции без НДС-->

@@ -822,28 +822,20 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 					else
 						return E_FAIL;
 				}
-
 				RINOK(GetTime(index, kpidCTime, _fi.CTime, _fi.CTimeDefined));
 				RINOK(GetTime(index, kpidATime, _fi.ATime, _fi.ATimeDefined));
 				RINOK(GetTime(index, kpidMTime, _fi.MTime, _fi.MTimeDefined));
-
 				bool isAnti = false;
 				RINOK(_arc->IsItemAnti(index, isAnti));
-
     #ifdef SUPPORT_ALT_STREAMS
-				if(!_item.IsAltStream
-				    || !pathParts.IsEmpty()
-				    || !(_removePartsForAltStreams || _pathMode == NExtract::NPathMode::kNoPathsAlt))
+				if(!_item.IsAltStream || !pathParts.IsEmpty() || !(_removePartsForAltStreams || _pathMode == NExtract::NPathMode::kNoPathsAlt))
     #endif
 				Correct_FsPath(_pathMode == NExtract::NPathMode::kAbsPaths, pathParts, _item.MainIsDir);
-
     #ifdef SUPPORT_ALT_STREAMS
-
 				if(_item.IsAltStream) {
 					UString s(_item.AltStreamName);
 					Correct_AltStream_Name(s);
 					bool needColon = true;
-
 					if(pathParts.IsEmpty()) {
 						pathParts.AddNew();
 						if(_removePartsForAltStreams || _pathMode == NExtract::NPathMode::kNoPathsAlt)
@@ -852,8 +844,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 					else if(_pathMode == NExtract::NPathMode::kAbsPaths &&
 					    NWildcard::GetNumPrefixParts_if_DrivePath(pathParts) == pathParts.Size())
 						pathParts.AddNew();
-
-					UString &name = pathParts.Back();
+					UString & name = pathParts.Back();
 					if(needColon)
 						name += (char)(_ntOptions.ReplaceColonForAltStream ? '_' : ':');
 					name += s;

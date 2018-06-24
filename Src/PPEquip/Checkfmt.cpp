@@ -174,7 +174,7 @@ private:
 	void   AddZone(PPSlipFormatZone * pZone);
 	int    ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr);
 	int    CheckCondition(const Iter * pIter, const SString & rText, int condition);
-	int    GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtRec = 0);
+	int    GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtRec = 0) const;
 	int    GetCurBillItem(const Iter * pIter, PPTransferItem * pRec);
 	int    GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymEntry) const;
 	PPID   GetSCardID(const Iter * pIter, double * pAdjSum = 0) const;
@@ -386,7 +386,7 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 	return BIN(pIter->P_Zone);
 }
 
-int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtItem)
+int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtItem) const
 {
 	int    ok = 0;
 	if(pIter && pIter->P_Zone) {
@@ -1482,6 +1482,12 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
 					if(Src == srcCCheck) {
+						// @v10.1.0 {
+						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormatZone::kDetail) {
+							while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0)
+								pIter->SrcItemNo++;
+						}
+						// } @v10.1.0 
 						if(GetCurCheckItem(pIter, &cc_item)) {
 							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
 							const double ds = cc_item.Dscnt * cc_item.Quantity;
@@ -1530,14 +1536,12 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					if(p_czone) {
 						do {
 							int    c = CheckCondition(pIter, p_czone->ConditionText, p_czone->Condition);
-							if(c) {
+							if(c)
 								p_branch_zone = p_czone;
-							}
 							else {
 								p_czone = p_czone->P_Next;
-								if(p_czone && p_czone->Condition == PPSlipFormatEntry::cElse) {
+								if(p_czone && p_czone->Condition == PPSlipFormatEntry::cElse)
 									p_branch_zone = p_czone;
-								}
 							}
 						} while(p_czone && !p_branch_zone);
 					}
@@ -1567,9 +1571,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 				else if(p_entry->Flags & PPSlipFormatEntry::fSignBarcode) {
 					if(P_CcPack && P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, result) && result.NotEmptyS()) { // @v9.1.8 extssSign-->extssEgaisUrl
 					}
-					else {
-						result = 0;
-					}
+					else
+						result.Z();
 					rBuf = result;
 					pIter->EntryNo++;
 					ok = 1;

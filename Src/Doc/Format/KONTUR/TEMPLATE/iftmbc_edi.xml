@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="messageId" creationDateTime="creationDateTime">    <!--идентификатор сообщения, время сообщения-->
+    <!-- начало заголовка сообщения -->
+	<interchangeHeader>
+      <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+      <recipient>RecipientGLN</recipient>    <!--GLN получателя сообщения-->
+    <documentType>IFTMBC</documentType>    <!--тип документа-->
+    <isTest>1</isTest>   <!--тестовый флаг-->
+    <creationDateTime>2017-10-23T08:39:33.745Z</creationDateTime> <!--дата и время создания сообщения-->
+  </interchangeHeader>
+  <bookingConfirmation number="IftmbcNumber" date="IftmbcDate" status="BookingConfirmationFunctionCode"> 	<!--номер документа, дата документа, статус документа - оригинальный/отменённый/-->
+    <firmBooking number="FirmBookingNumber" date="FirmBookingDate" />	<!--Cвязанный транспортный заказ, дата транспортного заказ-->
+    <estimatedExportDateTime>estimatedExportDateTime</estimatedExportDateTime>	<!--Подтвержденная дата и время подачи ТС к РЦ сети (для ДМ, когда товар доставляется ТК)-->
+    <totalPackagesQuantity>TotalPackagesQuantity</totalPackagesQuantity>	<!--Кол-во фактически загруженных паллет-->
+    <!-- начало блока данных о поставщике -->
+	<seller>
+		<gln>SupplierGln</gln>
+		<organization>
+			<name>SupplierName</name>       <!--наименование поставщика для ЮЛ-->
+			<inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+			<kpp>SupplierKpp</kpp>      <!--КПП поставщика только для ЮЛ-->
+			<OKPOCode>OKPOCode</OKPOCode> <!--Код ОКПО-->
+		</organization>
+		<russianAddress>
+			<regionISOCode>RegionCode</regionISOCode>
+			<district>District</district>
+			<city>City</city>
+			<settlement>Village</settlement>
+			<street>Street</street>
+			<house>House</house>
+			<flat>Flat</flat>
+			<postalCode>PostalCode</postalCode>
+		</russianAddress>
+		<additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>	<!--код поставщика в системе покупателя-->
+		<additionalInfo>
+			<phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+			<fax>FaxNumber</fax>     <!--факс контактного лица-->
+			<bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+			<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+			<bankName>BankName</bankName>       <!--наименование банка-->
+			<BIK>BankId</BIK>       <!--БИК-->
+			<nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+		</additionalInfo>
+		<contactInfo>
+			<CEO>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</CEO>
+			<accountant>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</accountant>
+			<salesManager>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</salesManager>
+		</contactInfo>
+	</seller>
+	<!-- конец блока данных о поставщике -->
+	<!-- начало блока с данными о покупателе -->
+	<buyer>
+		<gln>BuyerGln</gln>     <!--gln покупателя-->
+		<organization>
+			<name>SupplierName</name>       <!--наименование покупателя для ЮЛ-->
+			<inn>SupplierInn(10)</inn>       <!--ИНН покупателя для ЮЛ-->
+			<kpp>SupplierKpp</kpp>      <!--КПП покупателя только для ЮЛ-->
+			<OKPOCode>OKPOCode</OKPOCode> <!--Код ОКПО-->
+		</organization>
+		<russianAddress>	<!--российский адрес-->
+			<regionISOCode>RegionCode</regionISOCode>
+			<district>District</district>
+			<city>City</city>
+			<settlement>Village</settlement>
+			<street>Street</street>
+			<house>House</house>
+			<flat>Flat</flat>
+			<postalCode>PostalCode</postalCode>
+		</russianAddress>
+		<additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>	<!--дополнительный идентификатор-->
+		<additionalInfo>
+			<phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+			<fax>FaxNumber</fax>     <!--факс контактного лица-->
+			<bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+			<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+			<bankName>BankName</bankName>       <!--наименование банка-->
+			<BIK>BankId</BIK>       <!--БИК-->
+			<nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+		</additionalInfo>
+		<contactInfo>
+			<CEO>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</CEO>
+			<accountant>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</accountant>
+			<salesManager>
+				<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+				<fax>FaxNumber</fax> <!--факс контактного лица-->
+				<email>Email</email> <!--email контактного лица-->
+			</salesManager>
+		</contactInfo>
+	</buyer>
+	<!-- конец блока данных о покупателе -->
+	<!-- начало блока данных о перевозчике -->
+    <carrier>
+		<gln>CurrierGln</gln>     <!--gln перевозчика-->
+		<organization>
+			<name>CurrierName</name>       <!--наименование перевозчика для ЮЛ-->
+			<inn>CurrierInn(10)</inn>       <!--ИНН перевозчика для ЮЛ-->
+			<kpp>CurrierKpp</kpp>      <!--КПП перевозчика только для ЮЛ-->
+			<OKPOCode>OKPOCode</OKPOCode> <!--Код ОКПО-->
+		</organization>
+		<russianAddress>	<!--российский адрес-->
+			<regionISOCode>RegionCode</regionISOCode>
+			<district>District</district>
+			<city>City</city>
+			<settlement>Village</settlement>
+			<street>Street</street>
+			<house>House</house>
+			<flat>Flat</flat>
+			<postalCode>PostalCode</postalCode>
+		</russianAddress>
+    </carrier>
+	<!-- конец блока данных о перевозчике -->
+    <deliveryInfo>
+      <despatchParty>
+        <gln>Gln</gln>
+      </despatchParty>
+      <transportation>
+		<tailLift>TailLift</tailLift>	<!--Наличие гидроборота  (характеристика машины)-->
+        <truckCapacity>TruckCapacity</truckCapacity>	<!--Грузоподъемность (характеристика машины)-->
+        <numberOfPalletPlaces>NumberOfPalletPlaces</numberOfPalletPlaces>	<!--Количество паллетомест в ТС (характеристика машины)-->
+        <typeOfTransportCode>TypeOfTransportCode</typeOfTransportCode>	<!--Тип ТС:isothermic - Изотермический, refrigerator - Рефрижератор, container - Контейнеровоз, withTilt - Тентованный-->
+        <voyageNumber>VoyageNumber</voyageNumber>	<!--Номер рейса-->
+        <vehicleNumber>ddd</vehicleNumber>	<!--Номер транспортного средства -->
+        <vehicleBrand>VehicleBrand</vehicleBrand>	<!--Марка ТС -->
+        <nameOfCarrier>NameOfCarrier</nameOfCarrier>	<!--имя водителя-->
+        <phoneOfCarrier>PhoneOfCarrier</phoneOfCarrier>	<!--телефон водителя-->
+        <driverLicenseNumber>DriverLicenseNumber</driverLicenseNumber>	<!--Номер лицензии водителя-->
+        <carriersPassportSeries>PassportSeriesOfCarrier</carriersPassportSeries>	<!--Cерия паспорта водителя-->
+        <carriersPassportNumber>CarriersPassportNumber</carriersPassportNumber>	<!--Номер паспорта водителя-->
+        <commentForTransport>commentForTransport</commentForTransport>	<!--Комментарий к транспорту-->>
+      </transportation>
+    </deliveryInfo>
+  </bookingConfirmation>
+</eDIMessage>

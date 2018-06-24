@@ -1525,6 +1525,7 @@ public:
 		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
+	int    operator !() const { return IsZero(); }
 	int    FASTCALL operator == (const S_GUID_Base &) const;
 	int    FASTCALL operator != (const S_GUID_Base &) const;
 	int    IsZero() const;
@@ -2050,6 +2051,8 @@ public:
 	// Descr: Возвращает сигнатуру, идентифицирующую вариант представления времени.
 	//
 	uint   GetSignature() const;
+    int64  ToInt64() const;
+    int    FromInt64(int64 v);
 	//
 	// Descr: Устанавливает время с точность до даты (н.э.)
 	//
@@ -9469,6 +9472,7 @@ struct SNaturalToken { // @flat
 
 class SNaturalTokenArray : public TSVector <SNaturalToken> {
 public:
+	SNaturalTokenArray & SLAPI Z();
 	float  FASTCALL Has(uint32 tok) const;
 	int    SLAPI Add(uint32 tok, float prob);
 };

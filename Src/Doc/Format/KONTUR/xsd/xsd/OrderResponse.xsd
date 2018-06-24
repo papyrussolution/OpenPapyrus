@@ -1,0 +1,267 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="common/EDIMessage.xsd" />
+  <xsd:include schemaLocation="common/Contractor.xsd" />
+  <xsd:include schemaLocation="common/Transportation.xsd" />
+  <xsd:include schemaLocation="common/LineItemUltimateCustomer.xsd"/>
+  <xsd:include schemaLocation="common/simpleTypes/GlobalTradeItemIdentification.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CurrencyISOCode.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description178.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description2560.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Money.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Quantity.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/VatRate.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/TransportBy.xsd" />
+  <xsd:element name="orderResponse" type="OrderResponseType" substitutionGroup="document" />
+  <xsd:complexType name="OrderResponseType">
+    <xsd:complexContent>
+      <xsd:extension base="DocumentType">
+        <xsd:sequence>
+          <xsd:element name="originOrder" type="OrderIdentificatorType">
+            <xsd:annotation>
+              <xsd:documentation>Идентификатор оригинального заказа</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="contractIdentificator" type="DocumentIdentificatorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Идентификатор контракта</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="blanketOrderIdentificator" type="DocumentIdentificatorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Идентификатор серии заказов</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="seller" type="ContractorType">
+            <xsd:annotation>
+              <xsd:documentation>Продавец (поставщик)</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="buyer" type="ContractorType">
+            <xsd:annotation>
+              <xsd:documentation>Покупатель</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="invoicee" type="ContractorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Получатель счета</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="deliveryInfo" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Информация о поставке</xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="estimatedDeliveryDateTime" type="xsd:dateTime" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Предполагаемая дата поставки</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="exportDateTimeFromSupplier" type="xsd:dateTime" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Дата вывоза товара от поставщика</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="shipFrom" type="ContractorType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Грузоотправитель</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="shipTo" type="ContractorType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Грузополучатель</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="ultimateCustomer" type="ContractorType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Конечная точка доставки</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="warehouseKeeper" type="ContractorType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Промежуточная точка доставки</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="transportation" type="TransportationType" minOccurs="0" maxOccurs="10">
+                  <xsd:annotation>
+                    <xsd:documentation>Информация о машине</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="transportBy" type="TransportByType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Кто отгружает и перевозит товары</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="lineItems" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Табличная часть, содержащая информацию о товарах</xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="currencyISOCode" type="CurrencyISOCodeType" minOccurs="0" />
+                <xsd:element name="lineItem" type="LineItemType" maxOccurs="unbounded" />
+                <xsd:element name="totalSumExcludingTaxes" type="MoneyType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Общая сумма подтвержденных товарных позиций без НДС</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="totalVATAmount" type="MoneyType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Сумма НДС</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="totalAmount" type="MoneyType" minOccurs="0">
+                  <xsd:annotation>
+                    <xsd:documentation>Сумма к оплате всего с НДС</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:element>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="status" type="StatusType" use="required" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="LineItemType">
+    <xsd:sequence>
+      <xsd:element name="gtin" type="GlobalTradeItemIdentificationType" minOccurs="0" />
+      <xsd:element name="internalBuyerCode" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Внутренний код, присвоенный покупателем</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="internalSupplierCode" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Внутренний код, присвоенный продавцом</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="serialNumber" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Серийный номер</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="orderLineNumber" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Номер позиции заказа</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="typeOfUnit" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Признак возвратной тары, если это не тара, то строки нет</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="RC"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="description" type="Description178Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Наименование (описание) товара</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="comment" type="Description2560Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Комментарий к товарной позиции</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="orderedQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Заказанное количество</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="confirmedQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Подтвержденное количество</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="onePlaceQuantity" type="QuantityType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Количество в одном месте (чему д.б.кратно общее кол-во)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="expireDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Срок годности</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="manufactoringDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Дата производства</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="estimatedDeliveryDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Ожидаемая дата поставки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPrice" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена за единицу без НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netPriceWithVAT" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Цена (тариф) за единицу c НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="netAmount" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Сумма по всей позиции без НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="exciseDuty" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>В том числе акциз</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="vATRate" type="VATRateType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Ставка НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="vATAmount" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Сумма НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="amount" type="MoneyType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Стоимость всего, с учетом НДС</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ultimateCustomer" type="LineItemUltimateCustomer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Конечная точка доставки</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="status" type="StatusItemType" use="required" />
+  </xsd:complexType>
+  <xsd:simpleType name="StatusType">
+    <xsd:annotation>
+      <xsd:documentation>Статус подтверждения заказа</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Changed" />
+      <xsd:enumeration value="Rejected" />
+      <xsd:enumeration value="Accepted" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="StatusItemType">
+    <xsd:annotation>
+      <xsd:documentation>Статус подтверждения строки заказа</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Changed" />
+      <xsd:enumeration value="Rejected" />
+      <xsd:enumeration value="Accepted" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

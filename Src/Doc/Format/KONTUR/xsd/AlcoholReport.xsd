@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="common/EDIMessage.xsd" />
+  <xsd:include schemaLocation="common/ContractorAlco.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/GlobalTradeItemIdentification.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CountryISOCode.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CurrencyISOCode.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/CustomsDeclarationNumber.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description178.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description35.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Description17.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Money.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/Quantity.xsd" />
+  <xsd:include schemaLocation="common/simpleTypes/VATRate.xsd" />
+  <xsd:element name="alcoholReport" type="alcoholReportType" substitutionGroup="document" />
+  <xsd:complexType name="alcoholReportType">
+    <xsd:complexContent>
+      <xsd:extension base="DocumentType">
+        <xsd:sequence>
+          <xsd:element name="originOrder" type="OrderIdentificatorType" minOccurs="0"/>
+          <xsd:element name="despatchIdentificator" type="DocumentIdentificatorType" minOccurs="0"/>
+          <xsd:element name="receivingIdentificator" type="DocumentIdentificatorType" minOccurs="0"/>
+          <xsd:element name="invoiceIdentificator" type="DocumentIdentificatorType" minOccurs="0"/>
+          <xsd:element name="egaisRegistrationIdentificator" type="DocumentIdentificatorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Идентификатор фиксации ТТН в ЕГАИС</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="egaisFixationIdentificator" type="DocumentIdentificatorType" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>Номер фиксации ТТН в ЕГАИС</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="seller" type="ContractorAlcoType">
+          </xsd:element>
+          <xsd:element name="buyer" type="ContractorAlcoType">
+          </xsd:element>
+          <xsd:element name="transportation" minOccurs="0">
+            <xsd:complexType>
+              <xsd:attribute name="transportMode" type="TransportModeType"/>
+              <xsd:attribute name="typeOfTransport" type="xsd:string"/>
+              <xsd:attribute name="transportIdentificator" type="xsd:string" />
+              <xsd:attribute name="vehicleCapacity" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="deliveryInfo">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:choice>
+                  <xsd:element name="waybill" type="DocumentIdentificatorType">
+                  </xsd:element>
+                  <xsd:element name="customsDeclaration" type="DocumentIdentificatorType">
+                  </xsd:element>
+                </xsd:choice>
+                <xsd:element name="carrier" type="ContractorAlcoType">
+                </xsd:element>
+                <xsd:element name="shipFrom" type="ContractorAlcoType">
+                </xsd:element>
+                <xsd:element name="shipTo" type="ContractorAlcoType">
+                </xsd:element>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="lineItems">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="lineItem" maxOccurs="unbounded">
+                  <xsd:complexType>
+                    <xsd:sequence>
+                      <xsd:element name="gtin" type="GlobalTradeItemIdentificationType" minOccurs="0" />
+                      <xsd:element name="internalBuyerCode" type="Description17Type" minOccurs="0">
+                        <xsd:annotation>
+                          <xsd:documentation>Код, присвоенный покупателем</xsd:documentation>
+                        </xsd:annotation>
+                      </xsd:element>
+                      <xsd:element name="internalSupplierCode" type="Description17Type" minOccurs="0">
+                        <xsd:annotation>
+                          <xsd:documentation>Внутренний код поставщика</xsd:documentation>
+                        </xsd:annotation>
+                      </xsd:element>
+                      <xsd:element name="orderLineNumber" type="Description17Type" minOccurs="0">
+                        <xsd:annotation>
+                          <xsd:documentation>Номер товара в заказе</xsd:documentation>
+                        </xsd:annotation>
+                      </xsd:element>
+                      <xsd:element name="lot" maxOccurs="unbounded">
+                        <xsd:complexType>
+                          <xsd:sequence>
+                            <xsd:element name="description" type="Description178Type">
+                              <xsd:annotation>
+                                <xsd:documentation>Наименование (описание) товара</xsd:documentation>
+                              </xsd:annotation>
+                            </xsd:element>
+                            <xsd:element name="codeOfEgais" type="Description35Type" minOccurs="0">
+                              <xsd:annotation>
+                                <xsd:documentation>Код товара в ЕГАИС</xsd:documentation>
+                              </xsd:annotation>
+                            </xsd:element>
+                            <xsd:element name="lotNumberEgais" type="xsd:string" minOccurs="0">
+                              <xsd:annotation>
+                                <xsd:documentation>Идентификатор позиции в ТТН ЕГАИС</xsd:documentation>
+                              </xsd:annotation>
+                            </xsd:element>
+                            <xsd:element name="volume">
+                              <xsd:complexType>
+                                <xsd:simpleContent>
+                                  <xsd:extension base="xsd:decimal">
+                                    <xsd:attribute name="volumeTypeQualifier" type="volumeTypeQualifierType" />
+                                    <xsd:attribute name="unitOfMeasure" type="unitOfMeasureType" />
+                                  </xsd:extension>
+                                </xsd:simpleContent>
+                              </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="volumeOfUnitInLiter" type="xsd:decimal" minOccurs="0" />
+                            <xsd:element name="manufacturer" type="ContractorAlcoType" minOccurs="0"/>
+                            <xsd:element name="foreignManufacturer" minOccurs="0">
+                              <xsd:complexType>
+                                <xsd:sequence>
+                                  <xsd:element name="gln" type="GlobalLocationNumberType" minOccurs="0" />
+                                  <xsd:element name="foreignOrganization" minOccurs="0">
+                                    <xsd:complexType>
+                                      <xsd:sequence>
+                                        <xsd:element name="name" type="xsd:string" />
+                                      </xsd:sequence>
+                                      <xsd:attribute name="countryCode" type="CountryISOCodeType" />
+                                    </xsd:complexType>
+                                  </xsd:element>
+                                </xsd:sequence>
+                              </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="licenseSeller" minOccurs="0" maxOccurs="unbounded">
+                              <xsd:complexType>
+                                <xsd:attribute name="seriesNumber" type="xsd:string" />
+                                <xsd:attribute name="startdate" type="xsd:string" />
+                                <xsd:attribute name="enddate" type="xsd:string" />
+                                <xsd:attribute name="issuerOf" type="xsd:string" />
+                              </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="certificate" minOccurs="0">
+                              <xsd:complexType>
+                                <xsd:attribute name="number" type="xsd:string" />
+                                <xsd:attribute name="startdate" type="xsd:string" />
+                                <xsd:attribute name="enddate" type="xsd:string" />
+                                <xsd:attribute name="issuerOf" type="xsd:string" />
+                              </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="typeOfAlco" type="TypeOfAlcoType" />
+                            <xsd:element name="bottlingDate" type="xsd:string" minOccurs="0" />
+                            <xsd:element name="countryOfOriginISOCode" type="CountryISOCodeType" minOccurs="0"
+                                         maxOccurs="unbounded">
+                              <xsd:annotation>
+                                <xsd:documentation>Буквенный код страны, согласно ISO alpha-2</xsd:documentation>
+                              </xsd:annotation>
+                            </xsd:element>
+                            <xsd:element name="customsDeclarationNumber" type="CustomsDeclarationNumberType"
+                                         minOccurs="0" maxOccurs="unbounded">
+                              <xsd:annotation>
+                                <xsd:documentation>Номер таможенной декларации, формат хххххххх/хххххх/ххххххх/xxx</xsd:documentation>
+                              </xsd:annotation>
+                            </xsd:element>
+                          </xsd:sequence>
+                        </xsd:complexType>
+                      </xsd:element>
+                    </xsd:sequence>
+                  </xsd:complexType>
+                </xsd:element>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="status" type="StatusType"/>
+
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportModeType">
+    <xsd:annotation>
+      <xsd:documentation>Вид перевозки</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="railTransport" />
+      <xsd:enumeration value="roadTransport" />
+      <xsd:enumeration value="airTransport" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="volumeTypeQualifierType">
+    <xsd:annotation>
+      <xsd:documentation>Тип отобранного количества</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="orderedVolume" />
+      <xsd:enumeration value="despatchVolume" />
+      <xsd:enumeration value="acceptedVolume" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="unitOfMeasureType">
+    <xsd:annotation>
+      <xsd:documentation>Единицы измерения</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="DKL" />
+      <xsd:enumeration value="LTR" />
+      <xsd:enumeration value="PCE" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="StatusType">
+    <xsd:annotation>
+      <xsd:documentation>Статус AlcoholReport</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Replace" />
+      <xsd:enumeration value="Original" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="TypeOfAlcoType">
+    <xsd:annotation>
+      <xsd:documentation>Вид алкогольной продукции</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="140" />
+      <xsd:enumeration value="200" />
+      <xsd:enumeration value="211" />
+      <xsd:enumeration value="212" />
+      <xsd:enumeration value="229" />
+      <xsd:enumeration value="230" />
+      <xsd:enumeration value="231" />
+      <xsd:enumeration value="232" />
+      <xsd:enumeration value="233" />
+      <xsd:enumeration value="234" />
+      <xsd:enumeration value="235" />
+      <xsd:enumeration value="236" />
+      <xsd:enumeration value="237" />
+      <xsd:enumeration value="238" />
+      <xsd:enumeration value="239" />
+      <xsd:enumeration value="241" />
+      <xsd:enumeration value="242" />
+      <xsd:enumeration value="250" />
+      <xsd:enumeration value="251" />
+      <xsd:enumeration value="252" />
+      <xsd:enumeration value="260" />
+      <xsd:enumeration value="270" />
+      <xsd:enumeration value="280" />
+      <xsd:enumeration value="300" />
+      <xsd:enumeration value="310" />
+      <xsd:enumeration value="320" />
+      <xsd:enumeration value="321" />
+      <xsd:enumeration value="322" />
+      <xsd:enumeration value="323" />
+      <xsd:enumeration value="324" />
+      <xsd:enumeration value="330" />
+      <xsd:enumeration value="331" />
+      <xsd:enumeration value="340" />
+      <xsd:enumeration value="341" />
+      <xsd:enumeration value="342" />
+      <xsd:enumeration value="343" />
+      <xsd:enumeration value="344" />
+      <xsd:enumeration value="345" />
+      <xsd:enumeration value="346" />
+      <xsd:enumeration value="350" />
+      <xsd:enumeration value="351" />
+      <xsd:enumeration value="400" />
+      <xsd:enumeration value="401" />
+      <xsd:enumeration value="402" />
+      <xsd:enumeration value="403" />
+      <xsd:enumeration value="404" />
+      <xsd:enumeration value="405" />
+      <xsd:enumeration value="406" />
+      <xsd:enumeration value="410" />
+      <xsd:enumeration value="411" />
+      <xsd:enumeration value="412" />
+      <xsd:enumeration value="413" />
+      <xsd:enumeration value="414" />
+      <xsd:enumeration value="415" />
+      <xsd:enumeration value="416" />
+      <xsd:enumeration value="420" />
+      <xsd:enumeration value="421" />
+      <xsd:enumeration value="422" />
+      <xsd:enumeration value="430" />
+      <xsd:enumeration value="431" />
+      <xsd:enumeration value="432" />
+      <xsd:enumeration value="440" />
+      <xsd:enumeration value="441" />
+      <xsd:enumeration value="442" />
+      <xsd:enumeration value="443" />
+      <xsd:enumeration value="450" />
+      <xsd:enumeration value="451" />
+      <xsd:enumeration value="452" />
+      <xsd:enumeration value="453" />
+      <xsd:enumeration value="460" />
+      <xsd:enumeration value="461" />
+      <xsd:enumeration value="462" />
+      <xsd:enumeration value="481" />
+      <xsd:enumeration value="482" />
+      <xsd:enumeration value="483" />
+      <xsd:enumeration value="484" />
+      <xsd:enumeration value="485" />
+      <xsd:enumeration value="500" />
+      <xsd:enumeration value="510" />
+      <xsd:enumeration value="520" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="VATRateType">
+    <xsd:annotation>
+      <xsd:documentation>Ставка НДС</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="NOT_APPLICABLE"/>
+      <xsd:enumeration value="0"/>
+      <xsd:enumeration value="10"/>
+      <xsd:enumeration value="18"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

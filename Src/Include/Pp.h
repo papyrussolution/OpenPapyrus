@@ -1875,9 +1875,7 @@ public:
 	void   SLAPI Empty();
 	int    SLAPI IsEmpty() const;
 	int    SLAPI IsInherited() const;
-
 	int    SLAPI Merge(const PPRights & rS, long flags);
-
 	int    SLAPI Put(PPID securType, PPID securID);
 	int    SLAPI Get(PPID securType, PPID securID, int ignoreCheckSum = 0);
 	int    SLAPI Remove(PPID securType, PPID securID);
@@ -1927,8 +1925,8 @@ public:
 	ObjRestrictArray * P_LocList;  // Доступные склады
 	ObjRestrictArray * P_CfgList;  // Список доступных конфигураций
 	ObjRestrictArray * P_AccList;  // Список доступный счетов. Элемент с ид = 0 - для счетов отсутствующих в списке
-	ObjRestrictArray * P_PosList;  // @v8.9.1 Список доступных кассовых узлов
-	ObjRestrictArray * P_QkList;   // @v8.9.1 Список доступных видов котировок
+	ObjRestrictArray * P_PosList;  // Список доступных кассовых узлов
+	ObjRestrictArray * P_QkList;   // Список доступных видов котировок
 private:
 	ulong  SLAPI CheckSum();
 	int    SLAPI Resize(uint);
@@ -3511,6 +3509,7 @@ public:
 	//   0  - Ошибка
 	//
 	int    SLAPI SearchObjectsByStrExactly(PPID objType, PPID tagID, const char * pStr, PPIDArray *);
+	int    SLAPI SearchObjectsByGuid(PPID objType, PPID tagID, const S_GUID & rGuid, PPIDArray * pList);
 	int    SLAPI GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList);
 	//
 	// Descr: Формирует список идентификаторов объектов, для которых существуют теги типа tagID.
@@ -10870,7 +10869,6 @@ public:
 		safCheckEdiOp = 0x0002
 	};
 	int    SLAPI SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec);
-
 	int    SLAPI GetRentCondition(PPID, PPRentCondition *);
 	int    SLAPI SetFreight(PPID id, PPFreight * pFreight, int use_ta);
 	int    SLAPI GetFreight(PPID, PPFreight * pFreight);
@@ -13090,7 +13088,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fUnifiedPaymentCfmBank     = 0x00010000, // @v8.6.6  Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
 		fAutosaveSyncChecks        = 0x00020000, // @v8.7.7  Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs           = 0x00040000, // @v9.8.12 При списании кассовых сессий досписывать частичные структуры
-		fSkipPrintingZeroPrice     = 0x00080000  // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой 
+		fSkipPrintingZeroPrice     = 0x00080000  // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -16974,9 +16972,8 @@ struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
 
 class PPObjAccSheet : public PPObjReference {
 public:
-	SLAPI  PPObjAccSheet(void * extraPtr = 0);
+	explicit SLAPI  PPObjAccSheet(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
-	// @v8.5.4 virtual int  SLAPI Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPAccSheet * pRec);
 	int    SLAPI IsAssoc(PPID acsID, PPID objType, PPAccSheet *);
 	int    SLAPI IsLinkedToMainOrg(PPID acsID);
@@ -18512,8 +18509,8 @@ protected:
 		stError = 0x0001
 	};
 	PPID   NodeID;
-	char   Port[128]; // 
-	char   Name[48];  // 
+	char   Port[128]; //
+	char   Name[48];  //
 	int    PortType;  // 0 - file, 1 - lpt, 2 - com
 	int    Handle;    //
 	long   State;
@@ -29840,7 +29837,7 @@ public:
 
 	const  StrAssocArray * SLAPI GetFullSerialList();
 	void   SLAPI ReleaseFullSerialList(const StrAssocArray * pList);
-	int    SLAPI ResetFullSerialList();
+	void   SLAPI ResetFullSerialList();
 	//
 	// Поиск документа по GUID. GUID хранится в PropertyTbl::Text
 	//
@@ -44340,22 +44337,25 @@ class VetisEntityCore {
 public:
 	enum { // @persistent
 		kUndef          = -1,
-		kUnkn           = 0,
-		kProductItem    = 1,
-		kProduct        = 2,
-		kSubProduct     = 3,
-		kEnterprise     = 4,
-		kBusinessEntity = 5,
-		kEOM            = 6,
-		kCountry        = 7,
-		kRegion         = 8,
-		kVetDocument    = 9
+		kUnkn           =  0,
+		kProductItem    =  1,
+		kProduct        =  2,
+		kSubProduct     =  3,
+		kEnterprise     =  4,
+		kBusinessEntity =  5,
+		kUOM            =  6,
+		kCountry        =  7,
+		kRegion         =  8,
+		kVetDocument    =  9,
+		kPackingForm    = 10
 	};
 	struct Entity {
 		SLAPI  Entity();
 		SLAPI  Entity(int kind, const VetisProductItem & rS);
 		SLAPI  Entity(int kind, const VetisNamedGenericVersioningEntity & rS);
 		SLAPI  Entity(const VetisVetDocument & rS);
+		Entity & SLAPI Z();
+		void   FASTCALL Get(VetisNamedGenericVersioningEntity & rD) const;
 
 		PPID   ID;
 		int    Kind;
@@ -44368,7 +44368,7 @@ public:
 		SString Name;
 	};
 	//
-	// Descr: Специализированная структура для сбора данных о неразрешенных сущностях 
+	// Descr: Специализированная структура для сбора данных о неразрешенных сущностях
 	// (как минимум, без имени). Используется для сбора коллекции таких элементов с
 	// целью последующего разрешения запросами к серверу Vetis.
 	//
@@ -44379,11 +44379,21 @@ public:
 		long   UuidRef;
 	};
 	enum {
-		txtprpProductItemName = (PPTRPROP_USER+1)
+		txtprpProductItemName = (PPTRPROP_USER+1),
+		txtprpTranspVNum      = (PPTRPROP_USER+2), // Номер автомобиля
+		txtprpTranspTNum      = (PPTRPROP_USER+3), // Номер прицепа
+		txtprpTranspCNum      = (PPTRPROP_USER+4), // Номер контейнера
+		txtprpTranspWNum      = (PPTRPROP_USER+5), // Номер вагона
+		txtprpTranspSNam      = (PPTRPROP_USER+6), // Наименование коробля
+		txtprpTranspFNum      = (PPTRPROP_USER+7), // Номер самолета
+		txtprpGoodsCodeList   = (PPTRPROP_USER+8), // Список кодов (в идеале upc/ean) продукции, связанной с документом
 	};
 	SLAPI  VetisEntityCore();
 	static int FASTCALL ValidateEntityKind(int kind);
 	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI GetEntity(PPID id, Entity & rE);
+	int    SLAPI GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
+	int    SLAPI GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
 	int    SLAPI Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
@@ -44398,11 +44408,20 @@ public:
 	int    SLAPI Get(PPID id, VetisProduct & rItem);
 	int    SLAPI Get(PPID id, VetisSubProduct & rItem);
 
+	int    SLAPI SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
+	int    SLAPI SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
+	int    SLAPI MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);
+	int    SLAPI MatchDocument(PPID docEntityID, PPID billID, int rowN, int use_ta);
+
 	VetisEntityTbl ET;
 	VetisProductTbl PiT;
 	VetisPersonTbl  BT;
 	VetisDocumentTbl DT;
 	UuidRefCore UrT;
+private:
+	int    SLAPI EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE);
+
+	PPObjPerson PsnObj;
 };
 //
 //
@@ -44413,6 +44432,7 @@ public:
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
 	uint8  ReserveStart[256]; // @anchor
+	PPID   LocID;
 	DateRange Period;
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
@@ -44421,10 +44441,23 @@ public:
 
 class PPViewVetisDocument : public PPView {
 public:
+	struct BrwHdr {
+		PPID   EntityID;
+		long   Flags;
+		PPID   LinkBillID;
+		int16  LinkBillRow;
+		PPID   LinkGoodsID;
+		PPID   LinkFromPsnID;
+		PPID   LinkFromDlvrLocID;
+		PPID   LinkToPsnID;
+		PPID   LinkToDlvrLocID;
+		LDATE  IssueDate;
+	};
 	SLAPI  PPViewVetisDocument();
 	SLAPI ~PPViewVetisDocument();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int SLAPI Init_(const PPBaseFilt *);
+	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	static int DynFuncEntityTextFld;
 	static int DynFuncBMembTextFld;
@@ -44437,6 +44470,14 @@ private:
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI LoadDocuments();
+	int    SLAPI ProcessIncoming(PPID entityID);
+	enum {
+		otmFrom = 1,
+		otmTo,
+		otmGoods,
+		otmBill
+	};
+	int    SLAPI MatchObject(VetisDocumentTbl::Rec & rRec, int objToMatch);
 
 	VetisDocumentFilt Filt;
 	VetisEntityCore EC;
@@ -47116,10 +47157,10 @@ public:
 	int    getData(TDialog *, void *);
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
-	uint   CtlselOrg;
-	uint   CtlselDiv;
-	uint   CtlselStaff;
-	uint   CtlselPost;
+	const uint CtlselOrg;
+	const uint CtlselDiv;
+	const uint CtlselStaff;
+	const uint CtlselPost;
 	uint   flags;
 	Rec    Data;
 	LocationFilt DivF;
@@ -49736,10 +49777,6 @@ int    PPSetErrorSLib();
 int    PPSetErrorDB();
 int    SLAPI PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
 int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
-//
-// Descr: Выдает сообщение "Функция в DOS-версии не поддерживается" и возвращает -1.
-//
-int    SLAPI DosStubMsg();
 //
 // Database chain functions
 //

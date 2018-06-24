@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="MoneyType">
+    <xsd:annotation>
+      <xsd:documentation>Денежные суммы с точностью 4 знака после запятой</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="15"/>
+      <xsd:fractionDigits value="4"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name ="PriceType">
+    <xsd:annotation>
+      <xsd:documentation>Денежные суммы за единицу измерения с точностью 4 знака после запятой</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="PriceValueType">
+        <xsd:attribute name="unitOfMeasure" type="UoMListType1" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PriceValueType" >
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="15"/>
+      <xsd:fractionDigits value="4"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="UoMListType1">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="PCE"/>
+      <xsd:enumeration value="KGM"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

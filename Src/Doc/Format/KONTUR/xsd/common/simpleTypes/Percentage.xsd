@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:include schemaLocation="UoMList.xsd" />
+  <xsd:complexType name ="PercentageType">
+    <xsd:annotation>
+      <xsd:documentation>Проценты</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="PercentageValueType">
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PercentageValueType" >
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="12"/>
+      <xsd:fractionDigits value="1"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

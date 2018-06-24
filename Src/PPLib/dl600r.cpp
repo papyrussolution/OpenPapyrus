@@ -707,7 +707,7 @@ int DlRtm::InitFixData(int reservedScopeCode, void * pData, size_t dataSize)
 // @Muxa {
 class SetScopeBlk {
 public:
-	SetScopeBlk(DlRtm * pRtm) : P_Rtm(pRtm)
+	SetScopeBlk(DlRtm * pRtm) : P_Rtm(pRtm), P_Root(0), P_Curr(0), ID(0), ParentID(0)
 	{
 	}
 	~SetScopeBlk()

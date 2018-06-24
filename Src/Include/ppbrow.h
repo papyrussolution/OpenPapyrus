@@ -1099,6 +1099,8 @@
 #define PPVCMD_IMPORTUHTT                   268
 #define PPVCMD_TRANSACTJ                    269
 #define PPVCMD_UPDATEITEMS                  270
+#define PPVCMD_MATCHPERSON                  271
+#define PPVCMD_UTILIZEDVDOC                 272
 //
 // PPCMD definitions
 //

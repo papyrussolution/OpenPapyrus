@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <xsd:simpleType name="GlobalLocationNumberType">
+     <xsd:annotation>
+       <xsd:documentation>Формат GLN элементов</xsd:documentation>
+     </xsd:annotation>
+     <xsd:restriction base="xsd:string">
+      <xsd:pattern value="\d{13}"/>
+     </xsd:restriction>
+  </xsd:simpleType>  
+</xsd:schema>

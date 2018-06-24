@@ -6200,17 +6200,20 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 
 browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
-	"IssueDate",             1,  notype, 0, 10
-	"VetForm",               2,  notype, 0, 10
-	"VetType",               3,  notype, 0, 10
-	"VetStatus",             4,  notype, 0, 10
-	"WayBillDate",           5,  notype, 0, 10
-	"WayBillNumber",         6,  notype, 0, 15
-	"From",                  9,  notype, 0, 30
-	"To",                   10,  notype, 0, 30
-	"ProductItem",           7,  notype, 0, 30
-	"Quantity",              8,  notype, 0, 10
+	"IssueDate",             9,  notype, 0, 10
+	"VetForm",              10,  notype, 0, 10
+	"VetType",              11,  notype, 0, 10
+	"VetStatus",            12,  notype, 0, 10
+	"WayBillDate",          13,  notype, 0, 10
+	"WayBillNumber",        14,  notype, 0, 15
+	"From",                 17,  notype, 0, 30
+	"To",                   18,  notype, 0, 30
+	"ProductItem",          15,  notype, 0, 30
+	"Quantity",             16,  notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
+		MATCHPERSON      : kbCtrlM,    TBBM_NOICON,    "Сопоставить контрагента\tkbCtrlM"
+		UTILIZEDVDOC     : kbCtrlF6,   TBBM_NOICON,    "Погасить ветеринарный документ\tkbCtrlF6"
 		UPDATEITEMS      : kbF5,       TBBM_NOICON,    "@{refresh}\tkbF5"
 		separator
 		CHANGEFILT       : kbCtrlV,    TBBM_FILTER,    "@{filter}\tCtrl-V"

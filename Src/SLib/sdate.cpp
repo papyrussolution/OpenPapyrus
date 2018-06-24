@@ -139,11 +139,11 @@ int FASTCALL DateToDaysSinceChristmas(int y, int m, int d)
 	// Add days for months in given date
 	//
 	switch(m) {
-		case  1: 
+		case  1:
 			if((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0))
 				n--;
 			break;
-		case  2: 
+		case  2:
 			if((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0))
 				n += 30;
 			else
@@ -165,7 +165,7 @@ int FASTCALL DateToDaysSinceChristmas(int y, int m, int d)
 	return d + n + ((y-1) * 365) + ((y / 4) - (y / 100) + (y / 400));
 }
 //
-// convert day number to y,m,d format 
+// convert day number to y,m,d format
 //
 static int FASTCALL getMon(int * pD, int leap)
 {
@@ -184,7 +184,7 @@ static int FASTCALL getMon(int * pD, int leap)
 	return i;
 }
 
-int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay) 
+int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay)
 {
 	int    ok = 1;
 	int    day = 0;
@@ -237,7 +237,7 @@ int FASTCALL dayspermonth(int month, int year)
 }
 
 const char * monthNames[NUM_MONTHES] = {
-	"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]", 
+	"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]",
 	"Июл[ь|я]", "Август[|а]", "Сентябр[ь|я]", "Октябр[ь|я]", "Ноябр[ь|я]", "Декабр[ь|я]"
 };
 static const char * P_WeekDays = {
@@ -1763,7 +1763,7 @@ STimeChunk & SLAPI STimeChunk::Z()
 {
 	Start = ZERODATETIME;
 	Finish = ZERODATETIME;
-	return *this; 
+	return *this;
 }
 
 void SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
@@ -2475,7 +2475,7 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 }
 //
 //
-// 
+//
 struct SUniTime_Inner {
 	SUniTime_Inner()
 	{
@@ -2497,7 +2497,7 @@ struct SUniTime_Inner {
 #define TICKSPERSEC        10000000
 #define TICKSPERMSEC       10000
 #define SECSPERDAY         86400
-#define _YEAR_SEC          (365 * SECSPERDAY) // secs in a year 
+#define _YEAR_SEC          (365 * SECSPERDAY) // secs in a year
 #define SECSPERHOUR        3600
 #define SECSPERMIN         60
 #define MINSPERHOUR        60
@@ -2521,12 +2521,12 @@ struct SUniTime_Inner {
 #endif
 
 #define _IS_LEAP_EPOCH_YEAR(y) (((y % 4 == 0) && (y % 100 != 0)) || ((y + 1900) % 400 == 0))
-#define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970 
-#define _MAX__TIME64_T     0x100000000000i64 // number of seconds from 00:00:00, 01/01/1970 UTC to 23:59:59. 12/31/2999 UTC 
-// 
+#define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970
+#define _MAX__TIME64_T     0x100000000000i64 // number of seconds from 00:00:00, 01/01/1970 UTC to 23:59:59. 12/31/2999 UTC
+//
 // Number of leap years from 1970 up to, but not including, the specified year
 // (expressed as the number of years since 1900).
-// 
+//
 #define _ELAPSED_LEAP_YEARS(y) (((y - 1)/4) - ((y - 1)/100) + ((y + 299)/400) - _LEAP_YEAR_ADJUST)
 //
 //  ULONG
@@ -2549,7 +2549,7 @@ struct SUniTime_Inner {
 
 static int FASTCALL DaysSinceEpoch(int year)
 {
-    year--; // Don't include a leap day from the current year 
+    year--; // Don't include a leap day from the current year
     int days = year * DAYSPERNORMALYEAR + year / 4 - year / 100 + year / 400;
     days -= (EPOCHYEAR-1) * DAYSPERNORMALYEAR + (EPOCHYEAR-1) / 4 - (EPOCHYEAR-1) / 100 + (EPOCHYEAR-1) / 400;
     return days;
@@ -2567,7 +2567,7 @@ static int FASTCALL DaysSinceEpoch(int year)
 #define Convert100nsToMilliseconds(v) ((v) / 10000LL)
 #define ConvertMillisecondsToDays(v)  ((v) / (SECSPERDAY * 1000))
 #define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SECSPERDAY * 1000))
-// 
+//
 // Descr: This routine converts an input 64-bit time value to the number
 //   of total elapsed days and the number of milliseconds in the partial day.
 // ARG(Time IN): Supplies the input time to convert from
@@ -2590,7 +2590,7 @@ static uint32 FASTCALL __TimeToDaysAndFraction_ms(uint64 Time, uint32 * pMillise
 	*pMilliseconds = (uint32)(temp & 0xffffffffLL); // Set the fraction part from temp, the total number of milliseconds in a day guarantees that the high part must be zero.
 	return elapsed_days;
 }
-//   
+//
 // Descr: This routine computes the number of total years contained in the indicated
 //   number of elapsed days.  The computation is to first compute the number of
 //   400 years and subtract that it, then do the 100 years and subtract that out,
@@ -2600,12 +2600,12 @@ static uint32 FASTCALL __TimeToDaysAndFraction_ms(uint64 Time, uint32 * pMillise
 // ARG(ElapsedDays IN): Supplies the number of days to use
 // Returns:
 //   ULONG - Returns the number of whole years contained within the input number of days.
-//   
+//
 static uint32 FASTCALL ElapsedDaysToYears(uint32 elapsedDays)
 {
 	//
-	// A 400 year time block is 365*400 + 400/4 - 400/100 + 400/400 = 146097 days long.  
-	// So we simply compute the number of whole 400 year block and the the number days 
+	// A 400 year time block is 365*400 + 400/4 - 400/100 + 400/400 = 146097 days long.
+	// So we simply compute the number of whole 400 year block and the the number days
 	// contained in those whole blocks, and subtract if from the elapsed day total
 	//
 	uint32 number_of_400s = elapsedDays / 146097;
@@ -2629,7 +2629,7 @@ static uint32 FASTCALL ElapsedDaysToYears(uint32 elapsedDays)
 	//
 	return (number_of_400s * 400) + (number_of_100s * 100) + (number_of_4s * 4) + (elapsedDays * 100 + 75) / 36525;
 }
-// 
+//
 // Routine Description:
 //   This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
 //   time field record.  It will tell the caller the year, month, day, hour,
@@ -2731,7 +2731,7 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * TimeFields
 // ARG(pTimeFields IN): Supplies the time field record to use
 // ARG(pTime      OUT): Receives the NT Time corresponding to TimeFields
 // Returns:
-//   !0 - if the Time Fields is well formed and within the range of time expressible by LARGE_INTEGER 
+//   !0 - if the Time Fields is well formed and within the range of time expressible by LARGE_INTEGER
 //   0 - error
 //
 static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint64 * pTime)
@@ -2829,37 +2829,37 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 	const SUniTime_Inner * p_inner = (const SUniTime_Inner *)pData;
 	uint64 value = 0;
 	switch(signature) {
-		case indMSec: 
+		case indMSec:
 			if(__TimeFieldsToTime(p_inner, &value))
 				value /= 10000LL;
 			else
 				ok = 0;
 			break;
-		case indSec: 
+		case indSec:
 			if(__TimeFieldsToTime(p_inner, &value))
 				value /= 10000000LL;
 			else
 				ok = 0;
 			break;
-		case indMin: 
+		case indMin:
 			if(__TimeFieldsToTime(p_inner, &value))
 				value /= (60*10000000LL);
 			else
 				ok = 0;
 			break;
-		case indHr: 
+		case indHr:
 			if(__TimeFieldsToTime(p_inner, &value))
 				value /= (60*60*10000000LL);
 			else
 				ok = 0;
 			break;
-		case indDay: 
+		case indDay:
 			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, p_inner->D);
 			break;
-		case indMon: 
+		case indMon:
 			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, 2);
 			break;
-		case indQuart: 
+		case indQuart:
 			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 3) * 3) + 1, 2);
 			break;
 		case indSmYr:
@@ -2883,22 +2883,22 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 		case indMillennium:
 			value = (((p_inner->Y-1) / 1000) * 1000) + 1;
 			break;
-		case indDayBC: 
+		case indDayBC:
 			ok = 0; // @construction
 			break;
-		case indMonBC: 
+		case indMonBC:
 			ok = 0; // @construction
 			break;
-		case indYrBC: 
+		case indYrBC:
 			ok = 0; // @construction
 			break;
-		case indDYrBC: 
+		case indDYrBC:
 			ok = 0; // @construction
 			break;
-		case indCentBC: 
+		case indCentBC:
 			ok = 0; // @construction
 			break;
-		case indMillenniumBC: 
+		case indMillenniumBC:
 			ok = 0; // @construction
 			break;
 	}
@@ -2960,22 +2960,22 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 			p_inner->M = 1;
 			p_inner->D = 2;
 			break;
-		case indDayBC: 
+		case indDayBC:
 			signature = indInvalid; // @construction
 			break;
-		case indMonBC: 
+		case indMonBC:
 			signature = indInvalid; // @construction
 			break;
-		case indYrBC: 
+		case indYrBC:
 			signature = indInvalid; // @construction
 			break;
-		case indDYrBC: 
+		case indDYrBC:
 			signature = indInvalid; // @construction
 			break;
-		case indCentBC: 
+		case indCentBC:
 			signature = indInvalid; // @construction
 			break;
-		case indMillenniumBC: 
+		case indMillenniumBC:
 			signature = indInvalid; // @construction
 			break;
 	}
@@ -2999,6 +2999,18 @@ uint SUniTime::GetSignature() const
 	return SUniTime_Decode(D, &value);
 }
 
+int64  SUniTime::ToInt64() const { return *(int64 *)D; }
+
+int    SUniTime::FromInt64(int64 v)
+{
+	int    ok = 1;
+	// @todo Необходимо проверить валидность устанавливаемого значение v.
+	// Если оно не валидно, то вернуть 0.
+	//uint64 value;
+	//uint signature = SUniTime_Decode((const uint8 *)&v, &value);
+	memcpy(D, &v, sizeof(D));
+	return ok;
+}
 
 int FASTCALL SUniTime::SetYear(int year)
 {

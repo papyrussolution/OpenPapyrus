@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="simpleTypes/CountryISOCode.xsd"/>
+  <xsd:complexType name="ForeignAddressType">
+    <xsd:annotation>
+      <xsd:documentation>Иностранный адресс</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+        <xsd:element name="address">
+        <xsd:annotation>
+          <xsd:documentation>Полный адрес</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="140"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element> 
+    </xsd:sequence>
+    <xsd:attribute name="countryISOCode" type="CountryISOCodeType" use="required">
+        <xsd:annotation>
+          <xsd:documentation>Буквенный код страны, согласно ISO alpha-2</xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name ="RussianAddressType">
+    <xsd:annotation>
+      <xsd:documentation>Российский адрес</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="regionISOCode" >
+        <xsd:annotation>
+          <xsd:documentation>Буквенный код региона, согласно ISO 3166-2</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="7"/>
+            <xsd:minLength value="1"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="district" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Район</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="city" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Город</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="35"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="settlement" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Населенный пункт</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="street" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Улица</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="house" type="Description50Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Дом</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="flat" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Квартира или офис</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="8"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="postalCode" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Почтовый индекс</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType >
+          <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\d{6}"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="Description50Type">
+    <xsd:annotation>
+      <xsd:documentation>Текстовое описание длиной 50 символов</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="50"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

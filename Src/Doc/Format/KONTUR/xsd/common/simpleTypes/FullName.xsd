@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:complexType name ="FullNameType">
+    <xsd:annotation>
+      <xsd:documentation>Фамилия, имя и отчество</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name ="lastName" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Фамилия</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name ="firstName" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Имя</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name ="middleName" type="Description35Type" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Отчество</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

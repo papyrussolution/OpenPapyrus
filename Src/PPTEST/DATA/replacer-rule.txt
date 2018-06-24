@@ -248,6 +248,7 @@ enalapril%<enalapr
 sertraline%<sertralin
 thioridazine%<thiorid
 theophylline%<theophyll%|theophy
+oatmeal%<oatml
 polysporin%<polysporn%|plysprin
 silver sulfadiazine%<silver sulfadiaz%|silver sulfad%|silver sulfa
 simvastatin%<simvastat

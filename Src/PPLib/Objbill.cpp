@@ -4550,19 +4550,16 @@ public:
 	{
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
-	int    SLAPI FetchExtMemo(PPID id, SString & rBuf) // @sync_w
-		{ return EmBlk.Fetch(id, rBuf, 0); }
-	int    SLAPI FetchExt(PPID id, PPBillExt * pExt) // @sync_w
-		{ return ExtCache.Get(id, pExt); }
-	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight) // @sync_w
-		{ return FreightCache.Get(id, pFreight); }
+	int    SLAPI FetchExtMemo(PPID id, SString & rBuf) { return EmBlk.Fetch(id, rBuf, 0); } // @sync_w
+	int    SLAPI FetchExt(PPID id, PPBillExt * pExt)   { return ExtCache.Get(id, pExt); } // @sync_w
+	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight) { return FreightCache.Get(id, pFreight); } // @sync_w
 	int    SLAPI GetCrBillEntry(long & rTempID, PPBillPacket * pPack); // @sync_w
 	int    SLAPI SetCrBillEntry(long tempID, PPBillPacket * pPack);    // @sync_w
 	int    SLAPI GetPrjConfig(PPProjectConfig * pCfg, int enforce);    // @sync_w
 
 	const  StrAssocArray * SLAPI GetFullSerialList(); // @sync_w
-	int    ReleaseFullSerialList(const StrAssocArray * pList);
-	int    ResetFullSerialList(); // @sync_w
+	void   ReleaseFullSerialList(const StrAssocArray * pList);
+	void   ResetFullSerialList(); // @sync_w
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
@@ -4744,7 +4741,7 @@ int FASTCALL BillCache::Dirty(PPID id)
 	{
 		EmBlk.Dirty(id);
 		ExtCache.Dirty(id);
-		FreightCache.Dirty(id); // @v8.2.9
+		FreightCache.Dirty(id);
 	}
 	return ok;
 }
@@ -4844,12 +4841,10 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 		for(uint i = 0; !ok && i < CrBillList.getCount(); i++) {
 			CrBillEntry * p_entry = CrBillList.at(i);
 			if(p_entry && p_entry->TempID == tempID) {
-				if(pPack) {
+				if(pPack)
 					*(PPBillPacket *)p_entry = *pPack;
-				}
-				else {
+				else
 					CrBillList.atFree(i);
-				}
 				ok = 1;
 			}
 		}
@@ -4857,7 +4852,6 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 	return ok;
 }
 //
-// @v8.0.2 {
 // Три метода управляения кэшированием конфигурации проектов. В сязи с тем, что PPObjProject не
 // имеет собственного класса кэша, (надеюсь) временно хранением конфигурации проектов будет заниматься класс BillCache.
 //
@@ -4897,7 +4891,7 @@ int SLAPI PPObjProject::DirtyConfig()
 	return p_cache ? p_cache->GetPrjConfig(0, 1) : 0;
 }
 //
-// } @v8.0.2
+//
 //
 int SLAPI PPObjBill::Fetch(PPID id, BillTbl::Rec * pRec)
 {
@@ -4952,22 +4946,17 @@ void SLAPI PPObjBill::ReleaseFullSerialList(const StrAssocArray * pList)
 	CALLPTRMEMB(p_cache, ReleaseFullSerialList(pList));
 }
 
-int SLAPI PPObjBill::ResetFullSerialList()
+void SLAPI PPObjBill::ResetFullSerialList()
 {
 	BillCache * p_cache = GetDbLocalCachePtr <BillCache> (PPOBJ_BILL);
-	return p_cache ? p_cache->ResetFullSerialList() : 0;
+	CALLPTRMEMB(p_cache, ResetFullSerialList());
 }
 
-int BillCache::ResetFullSerialList()
+void BillCache::ResetFullSerialList()
 {
-	{
-		//FslLock.WriteLock();
-		SRWLOCKER(FslLock, SReadWriteLocker::Write);
-		FullSerialList.Inited = 0;
-		FullSerialList.DirtyTable.Clear();
-		//FslLock.Unlock();
-	}
-	return 1;
+	SRWLOCKER(FslLock, SReadWriteLocker::Write);
+	FullSerialList.Inited = 0;
+	FullSerialList.DirtyTable.Clear();
 }
 
 const StrAssocArray * SLAPI BillCache::GetFullSerialList()
@@ -4990,12 +4979,10 @@ const StrAssocArray * SLAPI BillCache::GetFullSerialList()
 					SString serial;
 					for(ulong id = 0; FullSerialList.DirtyTable.Enum(&id);) {
 						ObjTagItem tag_item;
-						if(p_ref->Ot.GetTag(PPOBJ_LOT, id, PPTAG_LOT_SN, &tag_item) > 0) {
+						if(p_ref->Ot.GetTag(PPOBJ_LOT, id, PPTAG_LOT_SN, &tag_item) > 0)
 							tag_item.GetStr(serial);
-						}
-						else {
-							serial = 0;
-						}
+						else
+							serial.Z();
 						FullSerialList.Remove(id);
 						if(serial.NotEmptyS())
 							FullSerialList.AddFast(id, serial);
@@ -5020,7 +5007,7 @@ const StrAssocArray * SLAPI BillCache::GetFullSerialList()
 	return p_result;
 }
 
-int BillCache::ReleaseFullSerialList(const StrAssocArray * pList)
+void BillCache::ReleaseFullSerialList(const StrAssocArray * pList)
 {
 	if(pList && pList == &FullSerialList) {
 		FslLock.Unlock_();
@@ -5028,7 +5015,6 @@ int BillCache::ReleaseFullSerialList(const StrAssocArray * pList)
 		SLS.LockPop();
 		#endif
 	}
-	return 1;
 }
 //
 //
@@ -5881,16 +5867,6 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 	return ok;
 }
 
-int SLAPI PPObjBill::GetTagList(PPID billID, ObjTagList * pTagList)
-{
-	return PPRef->Ot.GetList(Obj, billID, pTagList);
-}
-
-int SLAPI PPObjBill::SetTagList(PPID billID, const ObjTagList * pTagList, int use_ta)
-{
-	return PPRef->Ot.PutList(Obj, billID, pTagList, use_ta);
-}
-
 int SLAPI PPObjBill::SetTagNumberByLot(PPID lotID, PPID tagID, const char * pNumber, int use_ta)
 {
 	int    ok = 1;
@@ -5903,25 +5879,19 @@ int SLAPI PPObjBill::SetTagNumberByLot(PPID lotID, PPID tagID, const char * pNum
 	return ok;
 }
 
+int SLAPI PPObjBill::GetTagList(PPID billID, ObjTagList * pTagList)
+	{ return PPRef->Ot.GetList(Obj, billID, pTagList); }
+int SLAPI PPObjBill::SetTagList(PPID billID, const ObjTagList * pTagList, int use_ta)
+	{ return PPRef->Ot.PutList(Obj, billID, pTagList, use_ta); }
 int SLAPI PPObjBill::SearchLotsBySerial(const char * pSerial, PPIDArray * pList)
-{
-	return PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_SN, pSerial, pList);
-}
-
+	{ return PPRef->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_SN, pSerial, pList); }
 int SLAPI PPObjBill::SearchLotsBySerialExactly(const char * pSerial, PPIDArray * pList)
-{
-	return PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_SN, pSerial, pList);
-}
-
+	{ return PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_SN, pSerial, pList); }
 int SLAPI PPObjBill::SetClbNumberByLot(PPID lotID, const char * pNumber, int use_ta)
-{
-	return SetTagNumberByLot(lotID, PPTAG_LOT_CLB, pNumber, use_ta);
-}
-
+	{ return SetTagNumberByLot(lotID, PPTAG_LOT_CLB, pNumber, use_ta); }
 int SLAPI PPObjBill::SetSerialNumberByLot(PPID lotID, const char * pNumber, int use_ta)
-{
-	return SetTagNumberByLot(lotID, PPTAG_LOT_SN, pNumber, use_ta);
-}
+	{ return SetTagNumberByLot(lotID, PPTAG_LOT_SN, pNumber, use_ta); }
+
 // static
 int SLAPI PPObjBill::VerifyUniqSerialSfx(const char * pSfx)
 {

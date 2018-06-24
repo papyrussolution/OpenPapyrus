@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="GlobalTradeItemIdentificationType">
+    <xsd:annotation>
+      <xsd:documentation>Формат GTIN элементов</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:nonNegativeInteger">
+      <xsd:totalDigits value="14"/>
+    </xsd:restriction>
+  </xsd:simpleType> 
+</xsd:schema>

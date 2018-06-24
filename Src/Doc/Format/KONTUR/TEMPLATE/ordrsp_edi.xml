@@ -14,6 +14,12 @@
     <originOrder number="ordersNumber" date="ordersDate"/>  <!--номер заказа, дата заказа-->
     <contractIdentificator number="contractNumber" date="contractDate"/>  <!--номер договора/ контракта, дата договора/ контракта-->
     <blanketOrderIdentificator number="BlanketOrdersNumber"/>  <!--номер серии заказов-->
+    <orderReason>OrderReason</orderReason>  <!--Канал сбыта-->
+	<quantityChangeReason>QuantityChangeReason </quantityChangeReason>    <!--Причина недопоставки-->
+    <paymentTerms>PaymentTerms</paymentTerms>   <!--Условия оплаты-->
+    <multipleMessage>
+      <lastMessage>No</lastMessage> <!--Признак нескольких сообщений на один заказ-->
+    </multipleMessage>
     <!-- начало блока данных о поставщике -->
     <seller>
       <gln>SupplierGln</gln>    <!--gln поставщика-->
@@ -62,7 +68,7 @@
         <flat>Flat</flat>
         <postalCode>>PostalCode</postalCode>
       </russianAddress>
-      <contactlInfo>
+      <contactInfo>
         <CEO>
           <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
           <fax>FaxNumber</fax> <!--факс контактного лица-->
@@ -83,7 +89,7 @@
           <fax>FaxNumber</fax> <!--факс контактного лица-->
           <email>Email</email> <!--email контактного лица-->
         </orderContact>
-      </contactlInfo>
+      </contactInfo>
     </buyer>
     <!-- конец блока данных о покупателе -->
     <!-- начало блока данных о получателе счета-->
@@ -199,17 +205,65 @@
           <nameOfCEO>ChiefName</nameOfCEO>   <!--ФИО руководителя-->
         </additionalInfo>
       </ultimateCustomer>
+	  <despatchParty>
+        <gln>despatchPartyGln</gln>  <!--gln точки самовывоза-->
+        <organization>
+          <name>despatchPartyName</name>  <!--наименование точки самовывоза-->
+          <inn>despatchPartyInn(10)</inn>  <!--ИНН точки самовывоза-->
+          <kpp>despatchPartyKpp</kpp>  <!--КПП точки самовывоза-->
+        </organization>
+        <russianAddress>  <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>   <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfCEO>ChiefName</nameOfCEO>   <!--ФИО руководителя-->
+        </additionalInfo>
+		<additionalIdentificator>AF2C70DE16E04C7CB58EBF36CA920B82</additionalIdentificator> <!--код склада поставщика в системе покупателя-->
+      </despatchParty>
       <transportation>  <!--информация о машине-->
         <transportMode>TransportMode</transportMode>   <!--режим перевозки: railTransport (20) - железнодорожный транспорт
 roadTransport (30) - автодорожный транспорт
 airTransport (40) - авиатранспорт-->
+        <typeOfTransportCode>TypeOfTransportCode</typeOfTransportCode>   <!--тип транспортного средства-->
+		<!-- Изотермический - isothermic
+		Рефрижератор - refrigerator
+		Контейнеровоз  - container
+		Тентованный - withTilt -->
+        <typeOfTransport>TypeOfTransport</typeOfTransport>   <!--описание транспортного средства-->
         <vehicleNumber>VehicleNumber</vehicleNumber>    <!--номер тарнспортного средства-->
         <vehicleBrand>VehicleBrand</vehicleBrand>   <!--марка транспортного средства-->
         <nameOfCarrier>NameOfCarrier</nameOfCarrier>   <!--имя водителя-->
         <vehicleArrivalDateTime>estimatedDeliveryDateForVehicleT00:00:00.000Z</vehicleArrivalDateTime>   <!--информация о временных окнах для приемки машины покупателем. Каждое новое временное окно - в отлельном сегменте "transportation"-->
+        <startOfLoadingOnVehicleFromSupplier>StartOfLoadingOnVehicleFromSupplier</startOfLoadingOnVehicleFromSupplier> <!--Время начала погрузки на машину-->
+        <endOfLoadingOnVehicleFromSupplier>EndOfLoadingOnVehicleFromSupplier</endOfLoadingOnVehicleFromSupplier> <!--Время окончания погрузки на машину-->
       </transportation>
     </deliveryInfo>
     <!-- конец блока данных о грузоотправителе и грузополучателе -->
+	<!-- начало блока с данными об упаковках -->
+	<packages>
+      <package>
+        <packageQuantity typeOfPackage="PackageQuantity.MeasurementUnitCode">PackageQuantity.Value</packageQuantity> <!--Количество упаковок -->
+		<packageMeasurementInfo>
+		   <totalNetWeight>PackageMeasurementInfo.TotalNetWeight</totalNetWeight> <!--Вес нетто упаковки -->
+		   <totalGrossWeight>PackageMeasurementInfo.TotalGrossWeight</totalGrossWeight> <!--Вес брут упаковки -->
+		   <numberOfPalletPlaces>PackageMeasurementInfo.NumberOfPalletPlaces</numberOfPalletPlaces> <!--Кол-во паллето-мест -->
+		</packageMeasurementInfo>
+      </package>
+      <!-- каждая последующая упаковка должна идти в отдельном теге <package> -->
+    </packages>
+	<!-- конец блока с данными об упаковках -->
     <!-- начало блока с данными о товаре -->
     <lineItems>
       <currencyISOCode>CurrencyCode</currencyISOCode>    <!--код валюты (по умолчанию рубли)-->
@@ -218,8 +272,10 @@ airTransport (40) - авиатранспорт-->
         <internalBuyerCode>BuyerProductId</internalBuyerCode>   <!--внутренний код присвоенный покупателем-->
         <internalSupplierCode>SupplierProductId</internalSupplierCode>  <!--артикул товара (код товара присвоенный продавцом)-->
 		<serialNumber>SerialNumber</serialNumber>  <!--серийный номер товара-->
+		<quantityChangeReason>QuantityChangeReason </quantityChangeReason>    <!--Причина недопоставки-->
         <orderLineNumber>orderLineNumber</orderLineNumber>  <!--номер позиции в заказе-->
-        <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->        
+        <typeOfUnit>RС</typeOfUnit>   <!--признак возвратной тары, если это не тара, то строки нет-->    
+        <typeOfUnit>TypeOfUnit</typeOfUnit>   <!--тип товара-->        
         <description>Name</description>   <!--название товара-->
         <comment>LineItemComment</comment> <!--комментарий к товарной позиции-->
         <orderedQuantity unitOfMeasure="MeasurementUnitCode">OrdersQuantity</orderedQuantity>    <!--заказанное количество-->
@@ -228,6 +284,13 @@ airTransport (40) - авиатранспорт-->
         <expireDate>expireDate</expireDate>  <!--срок годности-->		
 		<manufactoringDate>manufactoringDate</manufactoringDate>  <!--дата производства-->
 		<estimatedDeliveryDate>estimatedDeliveryDate</estimatedDeliveryDate>  <!--ожидаемая дата поставки-->
+        <storageConditions>StorageConditions</storageConditions> <!--Условия хранения-->
+        <remainingShelfLife>RemainingShelfLife</remainingShelfLife>  <!--Остаточный срок годности-->
+        <registeredPrice>RegisteredPrice</registeredPrice>  <!--Предельная отпускная цена-->
+        <landedPrice>LandedPrice</landedPrice>  <!--Фактическая отпускная цена производителя-->
+        <priceProtocol>PriceProtocol</priceProtocol>  <!--Фактическая отпускная цена организации-->
+        <markupInPercent>MarkupInPercent</markupInPercent>   <!--Надбавка в %-->
+        <markupInValue>MarkupInValue</markupInValue>  <!--Надбавка в рублях-->
         <netPrice>Price</netPrice>    <!--цена товара без НДС-->
         <netPriceWithVAT>Price</netPriceWithVAT>     <!--цена товара с НДС-->
         <netAmount>PriceSummary</netAmount>     <!--сумма по позиции без НДС-->
@@ -235,15 +298,51 @@ airTransport (40) - авиатранспорт-->
         <vATRate>VATRate</vATRate>     <!--ставка НДС (NOT_APPLICABLE - без НДС, 0 - 0%, 10 - 10%, 18 - 18%)-->
         <vATAmount>VATSummary</vATAmount>    <!--сумма НДС по позиции-->
         <amount>PriceSummaryWithVAT</amount>   <!--сумма по позиции с НДС-->
+		<countryOfOriginISOCode>CountriesOfOriginCode</countryOfOriginISOCode>      <!--код страны производства-->
+        <customsDeclarationNumber>CustomDeclarationNumbers</customsDeclarationNumber>        <!--номер таможенной декларации-->
+		<discountsAndCharges>	<!--скидки и штрафы-->
+		  <discount>	<!--скидка или штраф-->
+			<calculationSequence>CalculationSequence</calculationSequence>	<!--порядок применения-->
+			<percentage>Percentage</percentage>	<!--процент скидки-->
+			<amountPerUnit>AmountPerUnit</amountPerUnit>	<!--сумма скидки за единицу товара-->
+			<totalAmount>TotalAmount</totalAmount>	<!--сумма скидки по позиции-->
+			<quantityForDiscount measurementUnitCode="QuantityForDiscount.MeasurementUnitCode">QuantityForDiscount.Value</quantityForDiscount>	<!--количество товара, на которое распространяется скидка-->
+		  </discount>
+		</discountsAndCharges>
+		<packages>
+          <packageForItem>
+            <packageTypeCode>PackageTypeCode</packageTypeCode> <!--Тип упаковки-->
+			<packageQuantity>Quantity</packageQuantity> <!--Количество упаковок-->
+            <onePackageQuantity unitOfMeasure="MeasurementUnitCode">Value</onePackageQuantity> <!--Кол-во в упаковке-->
+          </packageForItem>
+		</packages>
 		<ultimateCustomer>
           <gln>UltimateCustomerGln</gln>  <!--gln конечной точки доставки-->
         </ultimateCustomer>
+        <manufacturer>
+          <gln>Gln</gln> <!--gln производителя-->
+          <selfEmployed>
+            <fullName>
+              <lastName>LastName</lastName>   <!--фамилия производителя-->
+              <firstName>FirstName</firstName>   <!--имя производителя-->
+              <middleName>MiddleName</middleName> <!--отчество производителя-->
+            </fullName>            
+          </selfEmployed>
+        </manufacturer>
       </lineItem>
       <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
       
       <totalSumExcludingTaxes>OrdersTotal</totalSumExcludingTaxes>   <!--сумма респонса без НДС-->
       <totalVATAmount>OrdersTotalWithVAT</totalVATAmount>    <!--сумма НДС-->
       <totalAmount>OrdersTotalToChargeVAT</totalAmount>    <!--общая сумма респонса, на которую начисляется НДС (125/86)-->
+      <cargoSpaceInfo>
+        <totalEuroPallet unitOfMeasure="PCE">TotalEuroPallet</totalEuroPallet>  <!--Количество евро-паллет по всему документу-->
+        <totalAmericanPallet unitOfMeasure="PCE">TotalAmericanPallet</totalAmericanPallet>  <!--Количество американских паллет по всему документу-->
+        <totalCartonsQuantity unitOfMeasure="PCE">TotalCartonsQuantity</totalCartonsQuantity>   <!--Количество коробок по всему документу-->
+      </cargoSpaceInfo>
+      <measurmentInfo>
+        <totalNetWeight unitOfMeasure="KGM">TotalNetWeight</totalNetWeight> <!--Общий вес нетто-->
+      </measurmentInfo>
     </lineItems>
   </orderResponse>
 </eDIMessage>  

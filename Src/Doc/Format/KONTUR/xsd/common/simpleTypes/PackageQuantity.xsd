@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:complexType name ="PackageQuantityType">
+    <xsd:annotation>
+      <xsd:documentation>Количество упаковок с указанием типа упаковки</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="PackageQuantity">
+        <xsd:attribute name="typeOfPackage" type="TypeOfPackageList" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PackageQuantity" >
+    <xsd:restriction base="xsd:decimal">
+      <xsd:totalDigits value="12"/>
+      <xsd:fractionDigits value="3"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="TypeOfPackageList">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="201"/>    
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -3303,9 +3303,8 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 						}
 					}
 				}
-				if(by_lot_serial) {
+				if(by_lot_serial)
 					p_bobj->ReleaseFullSerialList(p_full_list);
-				}
 			}
 		}
 	}

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="simpleTypes/Money.xsd"/>
+  <xsd:include schemaLocation="simpleTypes/VATRate.xsd"/>
+    <xsd:complexType name="TransportationCostsType">
+      <xsd:annotation>
+        <xsd:documentation>Информация о транспортных расходах</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+        <xsd:element name="vATRate" type="VATRateType">
+          <xsd:annotation>
+            <xsd:documentation>НДС на транспортные расходы</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="totalSumExcludingTaxes" type="MoneyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>сумма без налога по транспортным расходам</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="totalVATAmount" type="MoneyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation> сумма налога по транспортным расходам</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="totalAmount" type="MoneyType">
+          <xsd:annotation>
+            <xsd:documentation> сумма с налогом по транспортным расходам</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

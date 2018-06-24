@@ -19,7 +19,6 @@
 #define JOURNALRIBBON			1	// Печать на носитель - контрольная лента
 #define FISCALMEM				2	// Печать на носитель - фискальная память
 #define SLIPDOCUMENT			3	// Печать на носитель - подкладной документ
-
 //
 //   Режимы печати чеков и состояние чеков
 //
@@ -75,14 +74,9 @@ int SLAPI Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 }
 
 int SLAPI Sync_BillTaxArray::Insert(Sync_BillTaxEntry * e, uint * p)
-{
-	return ordInsert(e, p, PTR_CMPFUNC(Sync_BillTaxEnKey)) ? 1 : PPSetErrorSLib();
-}
-
+	{ return ordInsert(e, p, PTR_CMPFUNC(Sync_BillTaxEnKey)) ? 1 : PPSetErrorSLib(); }
 Sync_BillTaxEntry & SLAPI Sync_BillTaxArray::at(uint p)
-{
-	return *(Sync_BillTaxEntry*)SVector::at(p); // @v9.8.4 SArray-->SVector
-}
+	{ return *(Sync_BillTaxEntry*)SVector::at(p); } // @v9.8.4 SArray-->SVector
 
 int SLAPI Sync_BillTaxArray::Add(Sync_BillTaxEntry * e)
 {
@@ -125,9 +119,7 @@ public:
 	StrAssocArray Arr_Out;
 private:
 	virtual int SLAPI InitChannel() { return 1; }
-	int    SLAPI Connect();
-	int    SLAPI ExchangeParams();
-	int	   SLAPI GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray & rOut);
+	int    SLAPI Connect(int forceKeepAlive = 0);
 	int    SLAPI AnnulateCheck();
 	int    SLAPI CheckForCash(double sum);
 	//int  SLAPI CheckForEKLZOrFMOverflow() { return 1; }
@@ -154,7 +146,7 @@ private:
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
-		sfKeepAlive     = 0x0080  // @v10.0.12 Держать установленное соединение с аппаратом 
+		sfKeepAlive     = 0x0080  // @v10.0.12 Держать установленное соединение с аппаратом
 	};
 	static int RefToIntrf;
 	int	   Port;            // Номер порта
@@ -218,7 +210,7 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 }
 
 SLAPI SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Port(0), CashierPassword(0),
-	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(sfKeepAlive), 
+	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(/*sfKeepAlive*/0),
 	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
@@ -257,29 +249,38 @@ static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, double val)
 }
 
 static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const char * str)
+	{ return rArr.Add(pos, str, 1) ? 1 : PPSetErrorSLib(); }
+
+static void FASTCALL DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
 {
-	return rArr.Add(pos, str, 1) ? 1 : PPSetErrorSLib();
+	if(rStr.NotEmpty())
+		rStr.Divide('=', rParamName, rParamVal);
+	else {
+		rParamName.Z();
+		rParamVal.Z();
+	}
 }
 
-int SLAPI SCS_SYNCCASH::Connect()
+int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 {
 	int    ok = 1;
-	if(Flags & sfKeepAlive && Flags & sfConnected) {
+	if((forceKeepAlive || Flags & sfKeepAlive) && Flags & sfConnected) {
 		;
 	}
 	else {
-		int    model_type = 0;
-		int    major_prot_ver = 0;
-		int    minor_prot_ver = 0;
 		int    not_use_wght_sensor = 0;
-		SString buf, buf1;
+		SString temp_buf;
+		SString left;
+		SString right;
 		PPIniFile ini_file;
 		// @v10.0.12 {
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, buf.Z()) > 0 && (buf == "0" || buf.IsEqiAscii("false") || buf.IsEqiAscii("no")))
-			Flags &= ~sfKeepAlive;
-		else
-			Flags |= sfKeepAlive;
-		// } @v10.0.12 
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, temp_buf.Z()) > 0) {
+			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+				Flags &= ~sfKeepAlive;
+			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+				Flags |= sfKeepAlive;
+		}
+		// } @v10.0.12
 		if(Flags & sfConnected) {
 			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
 			Flags &= ~sfConnected;
@@ -288,9 +289,9 @@ int SLAPI SCS_SYNCCASH::Connect()
 		if(!Inited) {
 			THROW(ExecOper(DVCCMD_INIT, Arr_In.Z(), Arr_Out));
 		}
-		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
-		buf.Divide(',', buf1, AdmName);
-		CashierPassword = AdmPassword = buf1.ToLong();
+		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, temp_buf) > 0, PPERR_SHTRIHFRADMPASSW);
+		temp_buf.Divide(',', left, AdmName);
+		CashierPassword = AdmPassword = left.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 		{
 			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
@@ -302,10 +303,9 @@ int SLAPI SCS_SYNCCASH::Connect()
 			*/
 			//int    def_baud_rate = __def_baud_rate;
 			int    settled_baud_rate = __def_baud_rate;
-			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
-				SString  buf2;
-				if(buf.Divide(',', buf1, buf2) > 0)
-					settled_baud_rate = buf1.ToLong();
+			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, temp_buf) > 0) {
+				if(temp_buf.Divide(',', left, right) > 0)
+					settled_baud_rate = left.ToLong();
 				if(settled_baud_rate < 0 || settled_baud_rate > __max_baud_rate)
 					settled_baud_rate = __def_baud_rate;
 			}
@@ -330,15 +330,72 @@ int SLAPI SCS_SYNCCASH::Connect()
 			THROW(ok);
 			Flags |= sfConnected;
 		}
-		THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
+		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor);
 		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
-		THROW(ExchangeParams());
+		{
+			long    cshr_pssw = 0L;
+			int     logical_number = 1; // Логический номер кассы
+			SString param_name;
+			SString param_val;
+			//
+			// Получаем пароль кассира
+			//
+			Arr_In.Z();
+			THROW(ExecPrintOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
+			if(Arr_Out.getCount()) {
+				for(uint i = 0; Arr_Out.GetText(i, temp_buf) > 0; i++) {
+					DestrStr(temp_buf, param_name, param_val);
+					if(sstreqi_ascii(param_name, "CASHPASS"))
+						CashierPassword = param_val.ToLong();
+					else if(sstreqi_ascii(param_name, "CHECKSTRLEN"))
+						CheckStrLen = param_val.ToLong();
+					else if(sstreqi_ascii(param_name, "LOGNUM"))
+						logical_number = param_val.ToLong();
+				}
+			}
+			// Проверяем на наличие незакрытого чека
+			// @v10.1.0 (будет сделана гарантированная проверка при вызове PrintCheck()) THROW(AnnulateCheck());
+			// Получаем остальные параметры
+			Arr_In.Z();
+			{
+				int    val = 0;
+				THROW(ArrAdd(Arr_In, DVCPARAM_AUTOCASHNULL, 1)); // Установить автоматическое обнуление наличности
+				THROW(ArrAdd(Arr_In, DVCPARAM_ID, /*pIn->*/SCn.ID)); // Опредеяем ID ККМ
+				GetPort(/*pIn->*/SCn.Port, &val); // Определяем имя порта и переводим его в число
+				THROW(ArrAdd(Arr_In, DVCPARAM_PORT, val));
+				THROW(ArrAdd(Arr_In, DVCPARAM_LOGNUM, logical_number)); // Логический номер ККМ
+				THROW(ArrAdd(Arr_In, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags)); // Флаги
+				THROW(ArrAdd(Arr_In, DVCPARAM_PRINTLOGO, PrintLogo)) // Логотип (пока что путь жестко определен здесь)
+				{
+					// Пароль сисадмина для Штрих-ФР-Ф
+					//PPIniFile ini_file;
+					ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, temp_buf);
+					temp_buf.Divide(',', left, right);
+					THROW(ArrAdd(Arr_In, DVCPARAM_ADMINPASSWORD, left));
+				}
+				// Определяем имя кассира
+				if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
+					PPObjSecur sec_obj(PPOBJ_USR, 0);
+					PPSecur sec_rec;
+					if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+						temp_buf = sec_rec.Name;
+				}
+				THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, temp_buf));
+				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : temp_buf)); // Имя администратора
+				THROW(ArrAdd(Arr_In, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
+			}
+			THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
+			// Загружаем логотип
+			Arr_In.Z();
+			if(!IsSetLogo)
+				THROW(SetLogotype());
+			CashierPassword = cshr_pssw;
+		}
 	}
 	CATCH
 		if(Flags & sfConnected) {
 			SetErrorMessage();
-			Arr_In.Z();
-			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In, Arr_Out));
+			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
 		}
 		else {
 			Flags |= sfConnected;
@@ -352,39 +409,29 @@ int SLAPI SCS_SYNCCASH::Connect()
 
 int  SLAPI SCS_SYNCCASH::AnnulateCheck()
 {
-	int    ok = -1, mode = 0, adv_mode = 0, cut = 0, status = 0;
-	SString buf, param_name, param_val;
+	int    ok = -1;
+	int    status = 0;
 	GetStatus(status);
 	// Проверка на незавершенную печать
 	if(status & PRNMODE_AFTER_NO_PAPER) {
 		Flags |= sfOpenCheck;
-		Arr_In.Z();
-		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, Arr_In, Arr_Out));
+		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, Arr_In.Z(), Arr_Out));
 		do {
 			GetStatus(status);
 		} while(status & PRNMODE_PRINT);
 		Flags &= ~sfOpenCheck;
 	}
 	// Проверка на наличие открытого чека, который надо аннулировать
-	GetStatus(status);
+	// @v10.1.0 GetStatus(status);
 	if(status & FRMODE_OPEN_CHECK) {
-		Flags |= sfOpenCheck | sfCancelled;
+		Flags |= (sfOpenCheck | sfCancelled);
 		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL, 0);
-		Arr_In.Z();
-		THROW(ExecPrintOper(DVCCMD_ANNULATE, Arr_In, Arr_Out));
+		THROW(ExecPrintOper(DVCCMD_ANNULATE, Arr_In.Z(), Arr_Out));
 		Flags &= ~(sfOpenCheck | sfCancelled);
 		ok = 1;
 	}
 	CATCHZOK
 	return ok;
-}
-
-static void FASTCALL DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
-{
-	rParamName.Z();
-	rParamVal.Z();
-	if(rStr.NotEmpty())
-		rStr.Divide('=', rParamName, rParamVal);
 }
 
 int SLAPI SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
@@ -493,9 +540,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		THROW(Connect());
-		if(flags & PRNCHK_LASTCHKANNUL) {
+		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
-		}
+		// @v10.1.0 }
 		if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));
@@ -666,48 +713,12 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			const int is_al = BIN(r_al.getCount());
 			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? fiscal : 0.0);
 			const double amt_cash = (fiscal - amt_bnk);
-			// @v9.7.2 {
 			if(amt_bnk > 0.0) {
 				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk))
 			}
 			if(amt_cash > 0.0) {
 				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash));
 			}
-			// } @v9.7.2
-			/* @v9.7.2
-			if(nonfiscal > 0.0) {
-				if(fiscal > 0.0) {
-					if(flags & PRNCHK_BANKING) {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fiscal))
-					}
-					else {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fiscal));
-					}
-				}
-			}
-			else {
-				if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
-					sum = running_total;
-				if(flags & PRNCHK_BANKING) {
-					double  add_paym = 0.0; // @v9.0.4 intmnytodbl(pPack->Ext.AddPaym)-->0.0
-					const double add_paym_epsilon = 0.01;
-					const double add_paym_delta = (add_paym - sum);
-					if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon) {
-						add_paym = 0.0;
-					}
-					if(add_paym) {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum - amt + add_paym));
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt - add_paym));
-					}
-					else {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, sum));
-					}
-				}
-				else {
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum));
-				}
-			}
-			*/
 		}
 		// Всегда закрываем чек
 		//if(fiscal != 0.0) {
@@ -760,7 +771,7 @@ int SLAPI SCS_SYNCCASH::GetSummator(double * val)
 	double cash_amt = 0.0;
 	ResCode = RESCODE_NO_ERROR;
 	SString input, buf, param_name, param_val;
-	THROW(Connect());
+	THROW(Connect(1)); // @v10.1.0 ()-->(1)
 	Arr_In.Z();
 	THROW(ArrAdd(Arr_In, DVCPARAM_CASHAMOUNT, 0));
 	THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
@@ -907,127 +918,28 @@ int  SLAPI SCS_SYNCCASH::CheckForRibbonUsing(uint ribbonParam, StrAssocArray & r
 	return ok;
 }
 
-int SLAPI SCS_SYNCCASH::ExchangeParams()
-{
-	int     ok = 1;
-	long    cshr_pssw = 0L;
-	int     logical_number = 1; // Логический номер кассы
-	SString temp_buf;
-	SString param_name;
-	SString param_val;
-	//
-	// Получаем пароль кассира
-	//
-	Arr_In.Z();
-	THROW(ExecPrintOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
-	if(Arr_Out.getCount()) {
-		for(uint i = 0; Arr_Out.GetText(i, temp_buf) > 0; i++) {
-			DestrStr(temp_buf, param_name, param_val);
-			if(sstreqi_ascii(param_name, "CASHPASS"))
-				CashierPassword = param_val.ToLong();
-			else if(sstreqi_ascii(param_name, "CHECKSTRLEN"))
-				CheckStrLen = param_val.ToLong();
-			else if(sstreqi_ascii(param_name, "LOGNUM"))
-				logical_number = param_val.ToLong();
-		}
-	}
-	// Проверяем на наличие незакрытого чека
-	THROW(AnnulateCheck());
-	// Получаем остальные параметры
-	Arr_In.Z();
-	//GetDevParam(/*&NodeRec,*/ Arr_In);
-	//int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray & rOut)
-	{
-		int    val = 0;
-		THROW(ArrAdd(Arr_In, DVCPARAM_AUTOCASHNULL, 1)); // Установить автоматическое обнуление наличности
-		THROW(ArrAdd(Arr_In, DVCPARAM_ID, /*pIn->*/SCn.ID)); // Опредеяем ID ККМ
-		GetPort(/*pIn->*/SCn.Port, &val); // Определяем имя порта и переводим его в число
-		THROW(ArrAdd(Arr_In, DVCPARAM_PORT, val));
-		THROW(ArrAdd(Arr_In, DVCPARAM_LOGNUM, logical_number)); // Логический номер ККМ
-		THROW(ArrAdd(Arr_In, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags)); // Флаги
-		THROW(ArrAdd(Arr_In, DVCPARAM_PRINTLOGO, PrintLogo)) // Логотип (пока что путь жестко определен здесь)
-		{
-			// Пароль сисадмина для Штрих-ФР-Ф
-			PPIniFile ini_file;
-			SString left, right;
-			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, temp_buf);
-			temp_buf.Divide(',', left, right);
-			THROW(ArrAdd(Arr_In, DVCPARAM_ADMINPASSWORD, left));
-		}
-		// Определяем имя кассира
-		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
-			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-				temp_buf = sec_rec.Name;
-		}
-		THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, temp_buf));
-		THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : temp_buf)); // Имя администратора
-		THROW(ArrAdd(Arr_In, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
-	}
-	THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
-	// Загружаем логотип
-	Arr_In.Z();
-	if(!IsSetLogo)
-		THROW(SetLogotype());
-	CATCHZOK
-	CashierPassword = cshr_pssw;
-	return ok;
-}
-
-int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray & rOut)
-{
-	int    ok = 1;
-	int    val = 0;
-	PPIniFile ini_file;
-	SString str, str1, str2;
-	PPIDArray list;
-	PPSecur sec_rec;
-	THROW(ArrAdd(rOut, DVCPARAM_AUTOCASHNULL, 1)); // Установить автоматическое обнуление наличности
-	THROW(ArrAdd(rOut, DVCPARAM_ID, /*pIn->*/SCn.ID)); // Опредеяем ID ККМ
-	GetPort(/*pIn->*/SCn.Port, &val); // Определяем имя порта и переводим его в число
-	THROW(ArrAdd(rOut, DVCPARAM_PORT, val));
-	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1)); // Логический номер ККМ
-	THROW(ArrAdd(rOut, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags)); // Флаги
-	THROW(ArrAdd(rOut, DVCPARAM_PRINTLOGO, PrintLogo)) // Логотип (пока что путь жестко определен здесь)
-	// Пароль сисадмина для Штрих-ФР-Ф
-	ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, str);
-	str.Divide(',', str1, str2);
-	THROW(ArrAdd(rOut, DVCPARAM_ADMINPASSWORD, str1));
-	// Определяем имя кассира
-	if(PPObjPerson::GetCurUserPerson(0, &str) == -1) {
-		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-			str = sec_rec.Name;
-	}
-	THROW(ArrAdd(rOut, DVCPARAM_CSHRNAME, str));
-	THROW(ArrAdd(rOut, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : str)); // Имя администратора
-	THROW(ArrAdd(rOut, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
-	CATCHZOK;
-	return ok;
-}
-
 int SLAPI SCS_SYNCCASH::CheckForSessionOver()
 {
 	int    ok = -1;
-	SString buf;
 	THROW(Connect());
 	THROW(ExecPrintOper(DVCCMD_CHECKSESSOVER, Arr_In.Z(), Arr_Out));
-	if(Arr_Out.getCount())
+	if(Arr_Out.getCount()) {
+		SString buf;
 		Arr_Out.GetText(0, buf);
-	if(buf == "1") // Сессия больше 24 часов
-		ok = 1;
+		if(buf == "1") // Сессия больше 24 часов
+			ok = 1;
+	}
 	CATCHZOK;
 	return ok;
 }
 
 int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
-	int     ok = 1, is_format = 0;
-	SString  input;
-	SlipDocCommonParam  sdc_param;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+	int    ok = 1;
+	int    is_format = 0;
+	SlipDocCommonParam  sdc_param;
 	THROW_INVARG(pPack);
 	THROW(Connect());
 	Arr_In.Z();
@@ -1036,13 +948,14 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 	THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
+		SString line_buf;
+		const char * p_format_name = isempty(pFormatName) ? ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy") : pFormatName;
 		SlipLineParam  sl_param;
-		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
+		THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
 		if(r > 0) {
 			is_format = 1;
 			if(sdc_param.PageWidth > (uint)CheckStrLen)
-				WriteLogFile_PageWidthOver(format_name);
+				WriteLogFile_PageWidthOver(p_format_name);
 			RibbonParam = 0;
 			Arr_In.Z();
 			CheckForRibbonUsing(sdc_param.RegTo, Arr_In);
@@ -1086,7 +999,6 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
-
 		THROW(PrintDiscountInfo(pPack, flags));
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('=', CheckStrLen)));
@@ -1116,14 +1028,18 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 
 int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon)
 {
-	int    ok = 1, cur_receipt, cur_journal;
-	SString input, buf, param_name, param_val;
+	int    ok = 1;
+	int    cur_receipt;
+	int    cur_journal;
+	SString temp_buf;
 	Arr_In.Z();
 	THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 0));
 	THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
 	if(Arr_Out.getCount()) {
-		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
-			DestrStr(buf, param_name, param_val);
+		SString param_name;
+		SString param_val;
+		for(uint i = 0; Arr_Out.GetText(i, temp_buf) > 0; i++) {
+			DestrStr(temp_buf, param_name, param_val);
 			if(param_name.IsEqiAscii("RIBBONPARAM") && param_val.ToLong() == 0)
 				cur_receipt = 1;
 			else if(param_name.IsEqiAscii("RIBBONPARAM") && param_val.ToLong() == 1)
@@ -1136,7 +1052,7 @@ int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJou
 			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 0));
 		if(cur_journal != useJournalRibbon)
 			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 1));
-		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf.Z().CatCharN(' ', CheckStrLen)));
+		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, temp_buf.Z().CatCharN(' ', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 	}
 	CATCHZOK
@@ -1206,106 +1122,21 @@ int SLAPI SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArr
 	return ok;
 }
 
-#if 0 // @v10.0.0 {
-int SLAPI SCS_SYNCCASH::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
-{
-	int     ok = 1;
-	int     print_tax = 0;
-	uint    pos;
-	long    flags = 0;
-	double  price = 0.0;
-	double  sum = 0.0;
-	SString prn_str, name, input;
-	Sync_BillTaxArray  bt_ary;
-	PPIDArray     vat_ary;
-	ResCode = RESCODE_NO_ERROR;
-	ErrCode = SYNCPRN_ERROR;
-	THROW_INVARG(pPack);
-	THROW(GetCheckInfo(pPack, &bt_ary, &flags, name));
-	if(bt_ary.getCount()) {
-		THROW(Connect());
-		THROW(AnnulateCheck());
-		if(multiplier < 0)
-			flags |= PRNCHK_RETURN;
-		if(flags & PRNCHK_RETURN) {
-			int    is_cash;
-			THROW(is_cash = CheckForCash(fabs(BR2(pPack->Rec.Amount) * multiplier)));
-			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
-		}
-		Arr_In.Clear();
-		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
-		THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-		for(pos = 0; pos < bt_ary.getCount(); pos++) {
-			Sync_BillTaxEntry & bte = bt_ary.at(pos);
-			// Цена
-			price = R2(fabs(bte.Amount * multiplier));
-			sum += price;
-			Arr_In.Clear();
-			THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, price));
-			// Количество
-			THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
-			// @v9.5.7 {
-			if(departN > 0 && departN <= 1000)
-				THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, departN));
-			// } @v9.5.7
-			THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-			(prn_str = "СУММА ПО СТАВКЕ НДС").Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #6
-			if(bte.SalesTax)
-				prn_str.Space().Cat("НСП").Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #7
-			Arr_In.Clear();
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
-			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-			Flags |= sfOpenCheck;
-		}
-		if(name.NotEmptyS()) {
-			(prn_str = "ПОЛУЧАТЕЛЬ").Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #8
-			CutLongTail(prn_str);
-			Arr_In.Clear();
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
-			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		}
-		Arr_In.Clear();
-		THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum));
-		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out));
-		Flags &= ~sfOpenCheck;
-		ErrCode = SYNCPRN_NO_ERROR;
-	}
-	else
-		ok = -1;
-	CATCH
-		if(Flags & sfCancelled) {
-			Flags &= ~sfCancelled;
-			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				ok = 0;
-			}
-		}
-		else {
-			SetErrorMessage();
-			if(Flags & sfOpenCheck)
-				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			ok = 0;
-		}
-	ENDCATCH
-	return ok;
-}
-#endif // } @v10.0.0
-
 int SLAPI SCS_SYNCCASH::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
-	int    ok = -1;
-	SString input;
-	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+	int    ok = -1;
+	SString temp_buf;
 	THROW_INVARG(pPack);
 	THROW(Connect());
 	if(P_SlipFmt) {
 		int   r = 1;
-		SString   line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : "SlipDocument";
+		SString line_buf;
+		const char * p_format_name = isempty(pFormatName) ? "SlipDocument" : pFormatName;
 		StringSet head_lines((const char *)&r);
 		SlipDocCommonParam  sdc_param;
-		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
+		THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
 		if(r > 0) {
 			int   str_num, print_head_lines = 0, fill_head_lines = 1;
 			SlipLineParam  sl_param;
@@ -1367,7 +1198,6 @@ int SLAPI SCS_SYNCCASH::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatN
 int SLAPI SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 {
 	int  ok = -1;
-	SString input;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pInfo);
@@ -1417,11 +1247,8 @@ int SLAPI SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 
 int SLAPI SCS_SYNCCASH::PrintIncasso(double sum, int isIncome)
 {
-	int    ok = 1;
-	SString input;
-	StrAssocArray in;
-
 	ResCode = RESCODE_NO_ERROR;
+	int    ok = 1;
 	THROW(Connect());
 	Flags |= sfOpenCheck;
 	if(isIncome) {
@@ -1460,13 +1287,11 @@ int SLAPI SCS_SYNCCASH::PrintIncasso(double sum, int isIncome)
 
 int SLAPI SCS_SYNCCASH::OpenBox()
 {
-	int     ok = -1, is_drawer_open = 0;
-	SString input;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
+	int    ok = -1;
 	THROW(Connect());
-	Arr_In.Z();
-	THROW(ArrAdd(Arr_In, DVCPARAM_DRAWERNUM, DEF_DRAWER_NUMBER));
+	THROW(ArrAdd(Arr_In.Z(), DVCPARAM_DRAWERNUM, DEF_DRAWER_NUMBER));
 	THROW(ExecPrintOper(DVCCMD_OPENBOX, Arr_In, Arr_Out));
 	ok = 1;
 	CATCH
@@ -1494,13 +1319,13 @@ int SLAPI SCS_SYNCCASH::GetPrintErrCode()
 
 int SCS_SYNCCASH::GetStatus(int & rStatus)
 {
+	rStatus = 0;
 	int    ok = 1;
-	SString param_name, param_val, buf;
 	StrAssocArray arr_in, arr_out;
-	// @v9.9.4 arr_in.Clear();
 	THROW(ExecOper(DVCCMD_GETECRSTATUS, arr_in, arr_out));
 	//THROW(ResCode == RESCODE_NO_ERROR);
 	if(arr_out.getCount()) {
+		SString param_name, param_val, buf;
 		for(uint i = 0; arr_out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(param_name.IsEqiAscii("STATUS"))
@@ -1520,15 +1345,13 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 	// SetErrorMessage();
 	// Ожидание окончания операции печати
 	do {
-		status = 0; // @v9.6.9
 		GetStatus(status);
 		wait_prn_err = 1;
 	} while(status & PRNMODE_PRINT);
 	//
 	// Если нет чековой ленты
 	//
-	status = 0; // @v9.6.9
-	GetStatus(status);
+	// @v10.1.0 (избыточная команда - выше была уже вызвана) GetStatus(status);
 	if(status & NO_PAPER) {
 		if(status & FRMODE_OPEN_CHECK)
 			Flags |= sfOpenCheck;
@@ -1541,7 +1364,6 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 				Flags |= sfCancelled;
 				ok = 0;
 			}
-			status = 0; // @v9.6.9
 			GetStatus(status);
 		}
 		wait_prn_err = 1;
@@ -1552,15 +1374,13 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 	//
 	if(status & PRNMODE_AFTER_NO_PAPER) {
 		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, arr_in.Z(), arr_out));
-		status = 0; // @v9.6.9
-		GetStatus(status);
+		// @v10.1.0 (избыточная команда - ниже будет вызвана с гарантией) GetStatus(status);
 		wait_prn_err = 1;
 	}
 	//
 	// Дополнительный запрос, так как не всем ККМ требуется команда на продолжение печати, а ждать завершения печати надо
 	//
 	do {
-		status = 0; // @v9.6.9
 		GetStatus(status);
 	} while(status & PRNMODE_PRINT);
 	//
@@ -1629,9 +1449,9 @@ int SLAPI SCS_SYNCCASH::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & r
 	int    ok = 1;
 	THROW(ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut));
 	if(ok == -1) {
-		SString buf;
-		THROW(rOut.GetText(0, buf));
-		ResCode = buf.ToLong();
+		SString & r_buf = SLS.AcquireRvlStr();
+		THROW(rOut.GetText(0, r_buf));
+		ResCode = r_buf.ToLong();
 		ok = 0;
 	}
 	else if((ok == 1) && (ResCode == RESCODE_NO_CONNECTION)) { // При подборе скорости обмена порта в прошлый раз мог вернуться этот код ошибки и
@@ -1683,25 +1503,27 @@ int SCS_SYNCCASH::SetLogotype()
 int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 {
 	int    ok = 1;
-	SlipDocCommonParam sdc_param;
-	SString text, str;
+	SString str;
 	StringSet str_set('\n', pZCheck);
 	Arr_In.Z();
 	Arr_Out.Z();
 	THROW(Connect());
-	THROW(P_SlipFmt->Init("CCheck", &sdc_param));
-	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
-	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
-	THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-	for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+	{
+		//SlipDocCommonParam sdc_param;
+		//THROW(P_SlipFmt->Init("CCheck", &sdc_param));
+		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
+		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
+		THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
+		for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+			Arr_In.Z();
+			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+			THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+		}
 		Arr_In.Z();
-		THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-		THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));
 	}
-	Arr_In.Z();
-	THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));
 	CATCHZOK;
 	return ok;
 }

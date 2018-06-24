@@ -70,9 +70,9 @@ PPEgaisProcessor::Reply::Reply() : Status(0)
 {
 }
 
-PPEgaisProcessor::Ticket::Result::Result()
-{
-	Clear();
+PPEgaisProcessor::Ticket::Result::Result() 
+{ 
+	Clear(); 
 }
 
 void PPEgaisProcessor::Ticket::Result::Clear()
@@ -757,7 +757,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			PPLoadText(PPTXT_EGAIS_ERRONQUERY, temp_buf);
 			Log(temp_buf.CatDiv(':', 2).Cat(rAck.Message));
 		}
-		else if(!rAck.Id.IsZero()) {
+		else if(!!rAck.Id) {
 			BillTbl::Rec bill_rec;
 			ObjTagItem tag_item;
 			PPIDArray edi_op_list;
@@ -1256,19 +1256,19 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			kpp = epr_item.KPP;
 			if(epr_item.CountryCode == 643 && inn.Len() == 10) {
 				j_status = 1;
-				p_j_scope = "oref:UL";
+				p_j_scope = "UL";
 			}
 			else if(epr_item.CountryCode == 643 && inn.Len() == 12) {
 				j_status = 2;
-				p_j_scope = "oref:FL";
+				p_j_scope = "FL";
 			}
 			else if(epr_item.RNN[0] || epr_item.UNP[0]) {
 				j_status = 4;
-				p_j_scope = "oref:TS";
+				p_j_scope = "TS";
 			}
 			else {
 				j_status = 3;
-				p_j_scope = "oref:FO";
+				p_j_scope = "FO";
 			}
 		}
 		else {
@@ -1279,11 +1279,11 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				kpp = reg_rec.Num;
 			if(inn.Len() == 12) {
 				j_status = 2;
-				p_j_scope = "oref:FL";
+				p_j_scope = "FL";
 			}
 			else {
 				j_status = 1;
-				p_j_scope = "oref:UL";
+				p_j_scope = "UL";
 			}
 		}
 		if(flags & woifStrict && oneof2(j_status, 1, 2)) {
@@ -1309,64 +1309,64 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 		//
 		SXml::WNode w_s(rXmlDoc, pScopeXmlTag);
 		if(flags & woifVersion2) {
-			SXml::WNode w_j(rXmlDoc, p_j_scope);
-			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
+			SXml::WNode w_j(rXmlDoc, SXml::nst("oref", p_j_scope));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "ClientRegId"), EncText(rar_id));
 			if(epr_item.ID) {
-				w_s.PutInner("oref:FullName", EncText(epr_item.FullName));
-				w_s.PutInner("oref:ShortName", EncText((temp_buf = epr_item.Name).Trim(64)));
+				w_s.PutInner(SXml::nst("oref", "FullName"), EncText(epr_item.FullName));
+				w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = epr_item.Name).Trim(64)));
 				if(j_status == 1) {
-					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
-					w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
 				}
 				else if(j_status == 2) {
-					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 				}
 				else if(j_status == 3) {
 					if(epr_item.RNN[0])
-						w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(epr_item.RNN));
+						w_s.PutInnerSkipEmpty(SXml::nst("oref", "TSNUM"), EncText(epr_item.RNN));
 					else if(epr_item.UNP[0])
-						w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(epr_item.UNP));
+						w_s.PutInnerSkipEmpty(SXml::nst("oref", "TSNUM"), EncText(epr_item.UNP));
 				}
 				{
-					SXml::WNode w_a(rXmlDoc, "oref:address");
-					w_a.PutInner("oref:Country", EncText(temp_buf.Z().CatLongZ(epr_item.CountryCode, 3)));
+					SXml::WNode w_a(rXmlDoc, SXml::nst("oref", "address"));
+					w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf.Z().CatLongZ(epr_item.CountryCode, 3)));
 					if(epr_item.RegionCode)
-						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf.Z().CatLongZ(epr_item.RegionCode, 2)));
+						w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf.Z().CatLongZ(epr_item.RegionCode, 2)));
 					// @v9.8.6 {
 					else if(inn.Len() > 2) {
 						inn.Sub(0, 2, temp_buf);
-						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
+						w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf));
 					}
 					// } @v9.8.6
 					else if(oneof2(j_status, 1, 2)) {
 						LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTREGCODE, temp_buf = epr_item.Name);
 					}
-					w_a.PutInnerSkipEmpty("oref:area", "");
-					w_a.PutInner("oref:description", EncText(temp_buf = epr_item.AddressDescr));
+					w_a.PutInnerSkipEmpty(SXml::nst("oref", "area"), "");
+					w_a.PutInner(SXml::nst("oref", "description"), EncText(temp_buf = epr_item.AddressDescr));
 				}
 			}
 			else {
 				if(psn_pack.GetExtName(temp_buf.Z()) <= 0)
 					temp_buf = psn_pack.Rec.Name;
-				w_s.PutInner("oref:FullName", EncText(temp_buf));
-				w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
+				w_s.PutInner(SXml::nst("oref", "FullName"), EncText(temp_buf));
+				w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
 				//
 				if(j_status == 1) {
-					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
-					w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
 				}
 				else if(j_status == 2) {
-					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 				}
 				{
-					SXml::WNode w_a(rXmlDoc, "oref:address");
+					SXml::WNode w_a(rXmlDoc, SXml::nst("oref", "address"));
 					{
 						PPCountryBlock cntryb;
 						PsnObj.LocObj.GetCountry(&__loc_rec, 0, &cntryb);
 						{
 							const long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
 							temp_buf.Z().CatLongZ(country_code, 3);
-							w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
+							w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf)); // По умолчанию 643 (Россия)
 						}
 					}
 					{
@@ -1381,38 +1381,38 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 							inn.Sub(0, 2, temp_buf);
 						else
 							temp_buf.Z();
-						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
+						w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf));
 					}
-					w_a.PutInnerSkipEmpty("oref:area", "");
-					w_a.PutInner("oref:description", EncText(__full_addr_buf));
+					w_a.PutInnerSkipEmpty(SXml::nst("oref", "area"), "");
+					w_a.PutInner(SXml::nst("oref", "description"), EncText(__full_addr_buf));
 				}
 			}
 		}
 		else {
 			// oref:
-			w_s.PutInner("oref:Identity", temp_buf.Z().Cat(personID));
-			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
+			w_s.PutInner(SXml::nst("oref", "Identity"), temp_buf.Z().Cat(personID));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "ClientRegId"), EncText(rar_id));
 			if(psn_pack.GetExtName(temp_buf.Z()) <= 0)
 				temp_buf = psn_pack.Rec.Name;
-			w_s.PutInner("oref:FullName", EncText(temp_buf));
-			w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
-			w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
-			w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
-			w_s.PutInnerSkipEmpty("oref:UNP", ""); // Для Белоруси
-			w_s.PutInnerSkipEmpty("oref:RNN", ""); // Для Казахстана
+			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(temp_buf));
+			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "UNP"), ""); // Для Белоруси
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "RNN"), ""); // Для Казахстана
 			{
-				SXml::WNode w_a(rXmlDoc, "oref:address");
+				SXml::WNode w_a(rXmlDoc, SXml::nst("oref", "address"));
 				PPCountryBlock cntryb;
 				PsnObj.LocObj.GetCountry(&__loc_rec, 0, &cntryb);
 				{
 					long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
 					temp_buf.Z().CatLongZ(country_code, 3);
-					w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
+					w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf)); // По умолчанию 643 (Россия)
 				}
 				LocationCore::GetExField(&__loc_rec, LOCEXSTR_ZIP, temp_buf);
 				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
 					temp_buf.Z();
-				w_a.PutInnerSkipEmpty("oref:Index", EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "Index"), EncText(temp_buf));
 				//
 				// ИНН и КПП для России всегда содержать в виде префикса код региона.
 				// Поэтому не будем пытаться получить этот год из адреса, а используем КПП (с приоритетом) или,
@@ -1424,34 +1424,34 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 					inn.Sub(0, 2, temp_buf);
 				else
 					temp_buf.Z();
-				w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
-				w_a.PutInnerSkipEmpty("oref:area", "");
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "area"), "");
 				PsnObj.LocObj.GetCity(__loc_id, 0, &temp_buf, 1);
-				w_a.PutInnerSkipEmpty("oref:city", EncText(temp_buf));
-				w_a.PutInnerSkipEmpty("oref:place", "");
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "city"), EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "place"), "");
 				if(P_Las) {
 					P_Las->GetText(P_Las->tStreet, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
 					temp_buf.Z();
-				w_a.PutInnerSkipEmpty("oref:street", EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "street"), EncText(temp_buf));
 				if(P_Las) {
 					P_Las->GetText(P_Las->tHouse, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
 					temp_buf.Z();
-				w_a.PutInnerSkipEmpty("oref:house", EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "house"), EncText(temp_buf));
 				if(P_Las) {
 					P_Las->GetText(P_Las->tHouseAddendum, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
 					temp_buf.Z();
-				w_a.PutInnerSkipEmpty("oref:building", EncText(temp_buf));
-				w_a.PutInnerSkipEmpty("oref:liter", "");
-				w_a.PutInner("oref:description", EncText(__full_addr_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "building"), EncText(temp_buf));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "liter"), "");
+				w_a.PutInner(SXml::nst("oref", "description"), EncText(__full_addr_buf));
 			}
 		}
 	}
@@ -1483,52 +1483,52 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	if(ok > 0) {
 		if(rRefcItem.CountryCode == 643 && inn.Len() == 10) {
 			j_status = 1;
-			p_j_scope = "oref:UL";
+			p_j_scope = "UL";
 		}
 		else if(rRefcItem.CountryCode == 643 && inn.Len() == 12) {
 			j_status = 2;
-			p_j_scope = "oref:FL";
+			p_j_scope = "FL";
 		}
 		else if(rRefcItem.RNN[0] || rRefcItem.UNP[0]) {
 			j_status = 4;
-			p_j_scope = "oref:TS";
+			p_j_scope = "TS";
 		}
 		else {
 			j_status = 3;
-			p_j_scope = "oref:FO";
+			p_j_scope = "FO";
 		}
 		SXml::WNode w_s(rXmlDoc, pScopeXmlTag);
 		if(flags & woifVersion2) {
-			SXml::WNode w_j(rXmlDoc, p_j_scope);
-			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
-			w_s.PutInner("oref:FullName", EncText(rRefcItem.FullName));
-			w_s.PutInner("oref:ShortName", EncText((temp_buf = rRefcItem.Name).Trim(64)));
+			SXml::WNode w_j(rXmlDoc, SXml::nst("oref", p_j_scope));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "ClientRegId"), EncText(rar_id));
+			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(rRefcItem.FullName));
+			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			if(j_status == 1) {
 				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
-				w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+				w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
 			}
 			else if(j_status == 2) {
 				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 			}
 			else if(j_status == 3) {
 				if(rRefcItem.RNN[0])
-					w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(rRefcItem.RNN));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "TSNUM"), EncText(rRefcItem.RNN));
 				else if(rRefcItem.UNP[0])
-					w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(rRefcItem.UNP));
+					w_s.PutInnerSkipEmpty(SXml::nst("oref", "TSNUM"), EncText(rRefcItem.UNP));
 			}
 			{
-				SXml::WNode w_a(rXmlDoc, "oref:address");
-				w_a.PutInner("oref:Country", EncText(temp_buf.Z().CatLongZ(rRefcItem.CountryCode, 3)));
+				SXml::WNode w_a(rXmlDoc, SXml::nst("oref", "address"));
+				w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf.Z().CatLongZ(rRefcItem.CountryCode, 3)));
 				if(rRefcItem.RegionCode)
-					w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf.Z().CatLongZ(rRefcItem.RegionCode, 2)));
+					w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf.Z().CatLongZ(rRefcItem.RegionCode, 2)));
 				else if(oneof2(j_status, 1, 2)) {
 					LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTREGCODE, temp_buf = rRefcItem.Name);
 				}
-				w_a.PutInnerSkipEmpty("oref:area", "");
-				w_a.PutInner("oref:description", EncText(temp_buf = rRefcItem.AddressDescr)); // @v9.4.6 PutInnerSkipEmpty-->PutInner
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "area"), "");
+				w_a.PutInner(SXml::nst("oref", "description"), EncText(temp_buf = rRefcItem.AddressDescr)); // @v9.4.6 PutInnerSkipEmpty-->PutInner
 				/*if(temp_buf.IsEmpty()) {
 					LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTREGCODE, temp_buf = rRefcItem.Name);
 				}*/
@@ -1536,27 +1536,27 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 		}
 		else {
 			// oref:
-			w_s.PutInner("oref:Identity", temp_buf.Z().Cat(rRefcItem.ID));
-			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
-			w_s.PutInner("oref:FullName", EncText(rRefcItem.FullName));
-			w_s.PutInner("oref:ShortName", EncText((temp_buf = rRefcItem.Name).Trim(64)));
+			w_s.PutInner(SXml::nst("oref", "Identity"), temp_buf.Z().Cat(rRefcItem.ID));
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "ClientRegId"), EncText(rar_id));
+			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(rRefcItem.FullName));
+			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			{
 				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+				w_s.PutInnerSkipEmpty(SXml::nst("oref", "INN"), EncText(inn));
 			}
 			{
 				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
-				w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+				w_s.PutInnerSkipEmpty(SXml::nst("oref", "KPP"), EncText(kpp));
 			}
-			w_s.PutInnerSkipEmpty("oref:UNP", EncText(rRefcItem.UNP)); // Для Белоруси
-			w_s.PutInnerSkipEmpty("oref:RNN", EncText(rRefcItem.RNN)); // Для Казахстана
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "UNP"), EncText(rRefcItem.UNP)); // Для Белоруси
+			w_s.PutInnerSkipEmpty(SXml::nst("oref", "RNN"), EncText(rRefcItem.RNN)); // Для Казахстана
 			{
-				SXml::WNode w_a(rXmlDoc, "oref:address");
-				w_a.PutInner("oref:Country", EncText(temp_buf.Z().CatLongZ(rRefcItem.CountryCode, 3)));
+				SXml::WNode w_a(rXmlDoc, SXml::nst("oref", "address"));
+				w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf.Z().CatLongZ(rRefcItem.CountryCode, 3)));
 				if(rRefcItem.RegionCode)
-					w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf.Z().CatLongZ(rRefcItem.RegionCode, 2)));
-				w_a.PutInnerSkipEmpty("oref:area", "");
-				w_a.PutInnerSkipEmpty("oref:description", EncText(temp_buf = rRefcItem.AddressDescr));
+					w_a.PutInnerSkipEmpty(SXml::nst("oref", "RegionCode"), EncText(temp_buf.Z().CatLongZ(rRefcItem.RegionCode, 2)));
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "area"), "");
+				w_a.PutInnerSkipEmpty(SXml::nst("oref", "description"), EncText(temp_buf = rRefcItem.AddressDescr));
 			}
 		}
 	}
@@ -1593,49 +1593,49 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		int    manuf_done = 0;
 		SXml::WNode w_s(rXmlDoc, pScopeXmlTag /*"wb:Product"*/);
 		if(!(flags & wpifVersion2))
-			w_s.PutInner("pref:Identity", temp_buf.Z().Cat(goodsID));
+			w_s.PutInner(SXml::nst("pref", "Identity"), temp_buf.Z().Cat(goodsID));
 		if(flags & wpifVersion2)
-			w_s.PutInner("pref:UnitType", EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
+			w_s.PutInner(SXml::nst("pref", "UnitType"), EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
 		{
 			PPLoadText(PPTXT_EGAIS_AP, temp_buf); // @v9.7.5
-			w_s.PutInner("pref:Type", EncText(temp_buf)); // АП или что-то еще
+			w_s.PutInner(SXml::nst("pref", "Type"), EncText(temp_buf)); // АП или что-то еще
 		}
 		{
 			int    names_done = 0;
 			if(use_refc_data && agi.RefcProductID) {
 				EgaisProductCore::Item item;
                 if(P_RefC->PrC.Search(agi.RefcProductID, item) > 0 && item.FullName.NotEmpty()) {
-					w_s.PutInner("pref:FullName", EncText(item.FullName));
+					w_s.PutInner(SXml::nst("pref", "FullName"), EncText(item.FullName));
 					temp_buf = item.Name;
 					if(!temp_buf.NotEmptyS())
 						temp_buf = item.FullName;
-					w_s.PutInner("pref:ShortName", EncText(temp_buf.Trim(64)));
+					w_s.PutInner(SXml::nst("pref", "ShortName"), EncText(temp_buf.Trim(64)));
 					names_done = 1;
                 }
 			}
 			if(!names_done) {
-				w_s.PutInner("pref:FullName", EncText(goods_rec.Name));
-				w_s.PutInner("pref:ShortName", EncText((temp_buf = goods_rec.Name).Trim(64)));
+				w_s.PutInner(SXml::nst("pref", "FullName"), EncText(goods_rec.Name));
+				w_s.PutInner(SXml::nst("pref", "ShortName"), EncText((temp_buf = goods_rec.Name).Trim(64)));
 			}
 		}
 		if(agi.EgaisCode.Empty()) {
 			added_msg_buf.Z().CatEq("Goods", goods_rec.Name).CatDiv(';', 2).CatEq("LotID", lotID);
 			LogTextWithAddendum(PPTXT_EGAIS_NOEGAISCODE, added_msg_buf);
 		}
-		w_s.PutInner("pref:AlcCode", EncText(agi.EgaisCode)); // Код продукта по версии ЕГАИС
+		w_s.PutInner(SXml::nst("pref", "AlcCode"), EncText(agi.EgaisCode)); // Код продукта по версии ЕГАИС
 		if(agi.UnpackedVolume > 0.0) {
 		}
 		else {
 			const double volume = (use_refc_data && agi.RefcVolume) ? agi.RefcVolume : agi.Volume;
-			w_s.PutInner("pref:Capacity", temp_buf.Z().Cat(volume, MKSFMTD(0, 4, 0)));
+			w_s.PutInner(SXml::nst("pref", "Capacity"), temp_buf.Z().Cat(volume, MKSFMTD(0, 4, 0)));
 		}
 		{
 			const double proof = (use_refc_data && agi.RefcProof) ? agi.RefcProof : agi.Proof;
-			w_s.PutInner("pref:AlcVolume", temp_buf.Z().Cat(proof, MKSFMTD(0, 3, 0)));
+			w_s.PutInner(SXml::nst("pref", "AlcVolume"), temp_buf.Z().Cat(proof, MKSFMTD(0, 3, 0)));
 		}
 		{
 			temp_buf = (use_refc_data && agi.RefcCategoryCode.NotEmpty()) ? agi.RefcCategoryCode : agi.CategoryCode;
-			w_s.PutInner("pref:ProductVCode", temp_buf);
+			w_s.PutInner(SXml::nst("pref", "ProductVCode"), temp_buf);
 		}
 		if(flags & wpifPutManufInfo) {
 			const  long woif = (flags & wpifVersion2) ? (woifDontSendWithoutFSRARID|woifVersion2) : woifDontSendWithoutFSRARID;
@@ -1666,11 +1666,11 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 				// @v10.0.06 {
 				EgaisPersonCore::Item epr_item;
 				if(GetEgaisPersonByCode(agi.RefcManufCode, epr_item) > 0) {
-					WriteOrgInfo(rXmlDoc, "pref:Producer", epr_item, woif);
+					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Producer"), epr_item, woif);
 					manuf_done = 1;
 				}
 				if(!(flags & wpifVersion2) && GetEgaisPersonByCode(agi.RefcImporterCode, epr_item) > 0) {
-					WriteOrgInfo(rXmlDoc, "pref:Importer", epr_item, woif);
+					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Importer"), epr_item, woif);
 					manuf_done = 1;
 				}
 				// } @v10.0.06 
@@ -1696,11 +1696,11 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 					}
 				}
 				if(manuf_id) {
-					WriteOrgInfo(rXmlDoc, "pref:Producer", manuf_id, 0, getcurdate_(), woif);
+					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Producer"), manuf_id, 0, getcurdate_(), woif);
 					manuf_done = 1;
 				}
 				if(importer_id && !(flags & wpifVersion2))
-					WriteOrgInfo(rXmlDoc, "pref:Importer", importer_id, 0, getcurdate_(), woif);
+					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Importer"), importer_id, 0, getcurdate_(), woif);
 			}
 		}
 		if((flags & wpifVersion2) && !manuf_done) {
@@ -1978,7 +1978,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 		PPEDIOP_EGAIS_NOTIFY_WBVER2, PPEDIOP_EGAIS_NOTIFY_WBVER3)) {
 		SXml::WDoc _doc(pX, cpUTF8);
 		{
-			SXml::WNode n_docs(_doc, "ns:Documents");
+			SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
 			n_docs.PutAttrib("Version", "1.0");
 			{
 				static const struct EgaisNsEntry {
@@ -2019,8 +2019,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{ 31, "wb",   "TTNSingle_v3"         }, // ambiguity // @v9.9.5
 					{ 32, "awr",  "ActWriteOff_v3"       }, // ambiguity // @v9.9.9
 				};
-				const SString fsrar_url_prefix = "http://fsrar.ru/WEGAIS/";
-				n_docs.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+				const SString fsrar_url_prefix = InetUrl::MkHttp("fsrar.ru", "WEGAIS/"); // "http://fsrar.ru/WEGAIS/"
+				n_docs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance")/*"http://www.w3.org/2001/XMLSchema-instance"*/);
 				for(uint eidx = 0; eidx < SIZEOFARRAY(ns_entries); eidx++) {
 					const EgaisNsEntry & r_entry = ns_entries[eidx];
 					int    skip = 0;
@@ -2067,11 +2067,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 				}
 			}
 			{
-				SXml::WNode n_owner(_doc, "ns:Owner");
-				n_owner.PutInner("ns:FSRAR_ID", EncText(fsrar_ident)); // РАР идент отправителя
+				SXml::WNode n_owner(_doc, SXml::nst("ns", "Owner"));
+				n_owner.PutInner(SXml::nst("ns", "FSRAR_ID"), EncText(fsrar_ident)); // РАР идент отправителя
 			}
 			{
-				SXml::WNode n_d(_doc, "ns:Document");
+				SXml::WNode n_d(_doc, SXml::nst("ns", "Document"));
 				{
 					(temp_buf = "ns").CatChar(':').Cat(doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
@@ -2085,9 +2085,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						if(op_rec.LinkOpID) {
 							THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 						}
-						n_dt.PutInner("wb:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("wb", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
                         {
-                        	SXml::WNode n_h(_doc, "wb:Header");
+                        	SXml::WNode n_h(_doc, SXml::nst("wb", "Header"));
                         	temp_buf.Z();
                         	PPID   consignee_psn_id = 0;
                         	PPID   consignee_loc_id = 0;
@@ -2180,11 +2180,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
 								GetWayBillTypeText(wb_type, temp_buf);
 								THROW(temp_buf.NotEmpty());
-								n_h.PutInner("wb:Type", temp_buf);
+								n_h.PutInner(SXml::nst("wb", "Type"), temp_buf);
 								BillCore::GetCode(temp_buf = p_bp->Rec.Code);
-								n_h.PutInner("wb:NUMBER", EncText(temp_buf));
-								n_h.PutInner("wb:Date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
-								n_h.PutInner("wb:ShippingDate", temp_buf.Z().
+								n_h.PutInner(SXml::nst("wb", "NUMBER"), EncText(temp_buf));
+								n_h.PutInner(SXml::nst("wb", "Date"), temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+								n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().
 									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 								{
 									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
@@ -2192,43 +2192,43 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										woi_flags |= woifVersion2;
 									}
 									else {
-										n_h.PutInner("wb:UnitType", (gppf & gppfUnpacked) ? "Unpacked" : "Packed");
+										n_h.PutInner(SXml::nst("wb", "UnitType"), (gppf & gppfUnpacked) ? "Unpacked" : "Packed");
 									}
-									THROW(WriteOrgInfo(_doc, "wb:Shipper", shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
-									THROW(WriteOrgInfo(_doc, "wb:Consignee", consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woi_flags));
+									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Shipper"), shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
+									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Consignee"), consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woi_flags));
 									if(suppl_psn_id) {
-										THROW(WriteOrgInfo(_doc, "wb:Supplier", suppl_psn_id, suppl_loc_id, p_bp->Rec.Dt, woi_flags));
+										THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Supplier"), suppl_psn_id, suppl_loc_id, p_bp->Rec.Dt, woi_flags));
 									}
 								}
 								{
-									SXml::WNode n_tr(_doc, "wb:Transport");
-									n_tr.PutInner("wb:TRAN_TYPE", "413"); // Пока не понятно. Во всех примерах только это значение.
+									SXml::WNode n_tr(_doc, SXml::nst("wb", "Transport"));
+									n_tr.PutInner(SXml::nst("wb", "TRAN_TYPE"), "413"); // Пока не понятно. Во всех примерах только это значение.
 									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->AgentID, temp_buf);
-									n_tr.PutInnerSkipEmpty("wb:TRAN_COMPANY", EncText(temp_buf));
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_COMPANY"), EncText(temp_buf));
 									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetObjectName(PPOBJ_TRANSPORT, p_bp->P_Freight->ShipID, temp_buf);
-									n_tr.PutInnerSkipEmpty("wb:TRAN_CAR", EncText(temp_buf));
-									n_tr.PutInnerSkipEmpty("wb:TRAN_TRAILER", "");
-									n_tr.PutInnerSkipEmpty("wb:TRAN_CUSTOMER", "");
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_CAR"), EncText(temp_buf));
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_TRAILER"), "");
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_CUSTOMER"), "");
 									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->CaptainID, temp_buf);
-									n_tr.PutInnerSkipEmpty("wb:TRAN_DRIVER", EncText(temp_buf));
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_DRIVER"), EncText(temp_buf));
 									temp_buf.Z();
 									if(p_bp->P_Freight)
                                         GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfLoading, temp_buf);
-									n_tr.PutInnerSkipEmpty("wb:TRAN_LOADPOINT", EncText(temp_buf));
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_LOADPOINT"), EncText(temp_buf));
 									temp_buf.Z();
 									if(p_bp->P_Freight)
                                         GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfDischarge, temp_buf);
-									n_tr.PutInnerSkipEmpty("wb:TRAN_UNLOADPOINT", EncText(temp_buf));
-									n_tr.PutInnerSkipEmpty("wb:TRAN_REDIRECT", "");
-									n_tr.PutInnerSkipEmpty("wb:TRAN_FORWARDER", "");
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_UNLOADPOINT"), EncText(temp_buf));
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_REDIRECT"), "");
+									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_FORWARDER"), "");
 								}
-								n_h.PutInnerSkipEmpty("wb:Base", ""); // Основание
+								n_h.PutInnerSkipEmpty(SXml::nst("wb", "Base"), ""); // Основание
 								{
 									temp_buf.Z();
 									if(is_intrexpend) {
@@ -2238,12 +2238,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									if(p_bp->Rec.Memo[0])
 										temp_buf.CatDiv('-', 1, 1).Cat(p_bp->Rec.Memo);
 									*/
-									n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf)); // Примечание
+									n_h.PutInnerSkipEmpty(SXml::nst("wb", "Note"), EncText(temp_buf)); // Примечание
 								}
                         	}
                         }
                         {
-                        	SXml::WNode w_c(_doc, "wb:Content");
+                        	SXml::WNode w_c(_doc, SXml::nst("wb", "Content"));
                         	LongArray seen_pos_list;
                         	SString ref_a;
                         	SString ref_b;
@@ -2306,37 +2306,37 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									}
 									seen_pos_list.add(tidx);
 									//
-									SXml::WNode w_p(_doc, "wb:Position");
-									w_p.PutInner("wb:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+									SXml::WNode w_p(_doc, SXml::nst("wb", "Position"));
+									w_p.PutInner(SXml::nst("wb", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									{
 										long wpi_flags = wpifPutManufInfo;
 										if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3))
 											wpi_flags |= wpifVersion2;
-										THROW(WriteProductInfo(_doc, "wb:Product", r_ti.GoodsID, r_ti.LotID, wpi_flags, 0))
+										THROW(WriteProductInfo(_doc, SXml::nst("wb", "Product"), r_ti.GoodsID, r_ti.LotID, wpi_flags, 0))
 									}
-									w_p.PutInnerSkipEmpty("wb:Pack_ID", "");
+									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Pack_ID"), "");
 									{
-										w_p.PutInner("wb:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
-										w_p.PutInner("wb:Price", EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
+										w_p.PutInner(SXml::nst("wb", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
+										w_p.PutInner(SXml::nst("wb", "Price"), EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
 									}
 									// @v9.8.11 p_bp->SnL.GetNumber(tidx, &temp_buf);
 									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11
-									w_p.PutInnerSkipEmpty("wb:Party", EncText(temp_buf));
+									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Party"), EncText(temp_buf));
 									{
 										WriteInformCode(_doc, "wb", 'A', ref_a, doc_type);
 										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V3) {
-											SXml::WNode w_s(_doc, "wb:InformF2");
-											w_s.PutInner("ce:F2RegId", EncText(ref_b));
+											SXml::WNode w_s(_doc, SXml::nst("wb", "InformF2"));
+											w_s.PutInner(SXml::nst("ce", "F2RegId"), EncText(ref_b));
 											if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0 && ss_ext_codes.getCount()) {
-												SXml::WNode w_m(_doc, "ce:MarkInfo");
+												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
 												{
-													SXml::WNode w_box(_doc, "ce:boxpos");
+													SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
 													(temp_buf = "box").CatChar('-').Cat((long)(tidx+1));
-													w_box.PutInner("ce:boxnumber", EncText(temp_buf));
+													w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(temp_buf));
 													{
-														SXml::WNode w_amclist(_doc, "ce:amclist");
+														SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
 														for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-															w_amclist.PutInner("ce:amc", EncText(temp_buf));
+															w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
 													}
 												}
 											}
@@ -2353,29 +2353,29 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						PPEDIOP_EGAIS_QUERYRESTS_V2, PPEDIOP_EGAIS_QUERYSP, PPEDIOP_EGAIS_QUERYSSP, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
 						const StrStrAssocArray * p_param_list = (const StrStrAssocArray *)rPack.P_Data;
 						if(p_param_list && p_param_list->getCount()) {
-							SXml::WNode n_arglist(_doc, "qp:Parameters");
+							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
 							for(uint i = 0; i < p_param_list->getCount(); i++) {
 								StrStrAssocArray::Item par = p_param_list->at(i);
-								SXml::WNode n_p(_doc, "qp:Parameter");
-								n_p.PutInner("qp:Name", EncText(temp_buf = par.Key));
-								n_p.PutInner("qp:Value", EncText(temp_buf = par.Val));
+								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
+								n_p.PutInner(SXml::nst("qp", "Name"), EncText(temp_buf = par.Key));
+								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = par.Val));
 							}
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
 						//SXml::WNode n_iv(_doc, "ns:InfoVersionTTN");
-						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
-						n_dt.PutInner("qp:WBTypeUsed", EncText(temp_buf = "WayBill_v2"));
+						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
+						n_dt.PutInner(SXml::nst("qp", "WBTypeUsed"), EncText(temp_buf = "WayBill_v2"));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER3) {
 						//SXml::WNode n_iv(_doc, "ns:InfoVersionTTN");
-						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
-						n_dt.PutInner("qp:WBTypeUsed", EncText(temp_buf = "WayBill_v3"));
+						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
+						n_dt.PutInner(SXml::nst("qp", "WBTypeUsed"), EncText(temp_buf = "WayBill_v3"));
 					}
 					else if(oneof2(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB)) {
 						const SString * p_formab_regid = (const SString *)rPack.P_Data;
                         if(p_formab_regid->NotEmpty()) {
-							n_dt.PutInner("qf:FormRegId", EncText(temp_buf = *p_formab_regid));
+							n_dt.PutInner(SXml::nst("qf", "FormRegId"), EncText(temp_buf = *p_formab_regid));
                         }
                         else {
 							PPSetError(PPERR_EGAIS_QUERYFORMREGIDEMPTY);
@@ -2386,16 +2386,16 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         const TSCollection <QueryBarcode> * p_qbl = (const TSCollection <QueryBarcode> *)rPack.P_Data;
                         if(p_qbl->getCount()) {
 							const LDATETIME cdtm = getcurdatetime_();
-							n_dt.PutInner("bk:QueryNumber", temp_buf.Z().Cat((cdtm.d.v % 1000) * 1000 + (cdtm.t.v % 1000)));
-							n_dt.PutInner("bk:Date", temp_buf.Z().Cat(cdtm, DATF_ISO8601|DATF_CENTURY, 0));
+							n_dt.PutInner(SXml::nst("bk", "QueryNumber"), temp_buf.Z().Cat((cdtm.d.v % 1000) * 1000 + (cdtm.t.v % 1000)));
+							n_dt.PutInner(SXml::nst("bk", "Date"), temp_buf.Z().Cat(cdtm, DATF_ISO8601|DATF_CENTURY, 0));
 							{
 								long   global_row_id = 0;
 								LongArray row_id_list;
-								SXml::WNode n_items(_doc, "bk:Marks");
+								SXml::WNode n_items(_doc, SXml::nst("bk", "Marks"));
 								for(uint qbidx = 0; qbidx < p_qbl->getCount(); qbidx++) {
 									const QueryBarcode * p_qb = p_qbl->at(qbidx);
 									if(p_qb && p_qb->CodeType && p_qb->Rank.NotEmpty() && p_qb->Number.NotEmpty()) {
-										SXml::WNode n_mark(_doc, "bk:Mark");
+										SXml::WNode n_mark(_doc, SXml::nst("bk", "Mark"));
 										{
 											long  row_id = p_qb->RowId;
 											if(!row_id)
@@ -2405,10 +2405,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											while(row_id_list.lsearch(row_id)) {
 												row_id = ++global_row_id;
 											}
-											n_mark.PutInner("bk:Identity", temp_buf.Z().Cat(row_id));
-											n_mark.PutInner("bk:Type",   temp_buf.Z().CatLongZ(p_qb->CodeType, 3));
-											n_mark.PutInner("bk:Rank",   temp_buf.Z().Cat(p_qb->Rank));
-											n_mark.PutInner("bk:Number", temp_buf.Z().Cat(p_qb->Number));
+											n_mark.PutInner(SXml::nst("bk", "Identity"), temp_buf.Z().Cat(row_id));
+											n_mark.PutInner(SXml::nst("bk", "Type"),   temp_buf.Z().CatLongZ(p_qb->CodeType, 3));
+											n_mark.PutInner(SXml::nst("bk", "Rank"),   temp_buf.Z().Cat(p_qb->Rank));
+											n_mark.PutInner(SXml::nst("bk", "Number"), temp_buf.Z().Cat(p_qb->Number));
 											row_id_list.add(row_id);
 										}
 									}
@@ -2418,12 +2418,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMTICKET) {
                         ConfirmTicket * p_ticket = (ConfirmTicket *)rPack.P_Data;
-						SXml::WNode n_h(_doc, "wt:Header");
-						n_h.PutInner("wt:IsConfirm", p_ticket->Conclusion ? "Accepted" : "Rejected");
-						n_h.PutInner("wt:TicketNumber", EncText(temp_buf = p_ticket->Code));
-						n_h.PutInner("wt:TicketDate", temp_buf.Z().Cat(p_ticket->Date, DATF_ISO8601|DATF_CENTURY));
-						n_h.PutInner("wt:WBRegId", EncText(temp_buf = p_ticket->RegIdent));
-						n_h.PutInnerSkipEmpty("wt:Note", EncText(temp_buf = p_ticket->Comment));
+						SXml::WNode n_h(_doc, SXml::nst("wt", "Header"));
+						n_h.PutInner(SXml::nst("wt", "IsConfirm"), p_ticket->Conclusion ? "Accepted" : "Rejected");
+						n_h.PutInner(SXml::nst("wt", "TicketNumber"), EncText(temp_buf = p_ticket->Code));
+						n_h.PutInner(SXml::nst("wt", "TicketDate"), temp_buf.Z().Cat(p_ticket->Date, DATF_ISO8601|DATF_CENTURY));
+						n_h.PutInner(SXml::nst("wt", "WBRegId"), EncText(temp_buf = p_ticket->RegIdent));
+						n_h.PutInnerSkipEmpty(SXml::nst("wt", "Note"), EncText(temp_buf = p_ticket->Comment));
 					}
 					else if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 						PPBillPacket * p_bp = (PPBillPacket *)rPack.P_Data;
@@ -2535,7 +2535,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
 									}
 									{
-										SXml::WNode n_h(_doc, "wa:Header");
+										SXml::WNode n_h(_doc, SXml::nst("wa", "Header"));
 										if(oneof2(cmp_result, -1, 0)) {
 											// @v9.5.8 temp_buf = (cmp_result == -1) ? "Rejected" : "Accepted";
 											// @v9.5.8 {
@@ -2552,33 +2552,33 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 													temp_buf = "Accepted";
 											}
 											// } @v9.5.8
-											n_h.PutInner("wa:IsAccept", EncText(temp_buf));
+											n_h.PutInner(SXml::nst("wa", "IsAccept"), EncText(temp_buf));
 										}
 										// @v9.5.10 {
 										else if(cmp_result & 0x01) {
 											if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 												temp_buf = "Differences";
-												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
+												n_h.PutInner(SXml::nst("wa", "IsAccept"), EncText(temp_buf));
 											}
 										}
 										// @v9.7.9 {
 										else {
 											if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 												temp_buf = "Accepted";
-												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
+												n_h.PutInner(SXml::nst("wa", "IsAccept"), EncText(temp_buf));
 											}
 										}
 										// } @v9.7.9
 										// } @v9.5.10
 										(temp_buf = bill_code).CatChar('-').Cat("ACT");
-										n_h.PutInner("wa:ACTNUMBER", EncText(temp_buf));
-										n_h.PutInner("wa:ActDate", temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+										n_h.PutInner(SXml::nst("wa", "ACTNUMBER"), EncText(temp_buf));
+										n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
 										BillCore::GetCode(temp_buf = p_bp->Rec.Code);
-										n_h.PutInner("wa:WBRegId", EncText(temp_buf = edi_ident));
-										n_h.PutInner("wa:Note", EncText(/*p_bp->Rec.Memo*/"")); // @v8.9.10 Не хотят передавать свои примечания в ЕГАИС
+										n_h.PutInner(SXml::nst("wa", "WBRegId"), EncText(temp_buf = edi_ident));
+										n_h.PutInner(SXml::nst("wa", "Note"), EncText(/*p_bp->Rec.Memo*/"")); // @v8.9.10 Не хотят передавать свои примечания в ЕГАИС
 									}
 									{
-										SXml::WNode n_c(_doc, "wa:Content");
+										SXml::WNode n_c(_doc, SXml::nst("wa", "Content"));
 										if(cmp_result == -1) {
 										}
 										else {
@@ -2623,17 +2623,17 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 													}
 													// } @v8.9.10
 													{
-														SXml::WNode n_pos(_doc, "wa:Position");
+														SXml::WNode n_pos(_doc, SXml::nst("wa", "Position"));
 														temp_buf.Z().Cat(r_ti.RByBill);
-														n_pos.PutInner("wa:Identity", EncText(temp_buf));
+														n_pos.PutInner(SXml::nst("wa", "Identity"), EncText(temp_buf));
 														//
 														p_bp->LTagL.GetTagStr(bi, PPTAG_LOT_FSRARINFB, temp_buf);
 														if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) // @v9.9.12 @fix +_V3
-															n_pos.PutInner("wa:InformF2RegId", EncText(temp_buf));
+															n_pos.PutInner(SXml::nst("wa", "InformF2RegId"), EncText(temp_buf));
 														else
-															n_pos.PutInner("wa:InformBRegId", EncText(temp_buf));
+															n_pos.PutInner(SXml::nst("wa", "InformBRegId"), EncText(temp_buf));
 														//
-														n_pos.PutInner("wa:RealQuantity", temp_buf.Z().Cat(real_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+														n_pos.PutInner(SXml::nst("wa", "RealQuantity"), temp_buf.Z().Cat(real_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 													}
 												}
 											}
@@ -2649,36 +2649,36 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 						else if(p_bp->Rec.Flags2 & BILLF2_DECLINED && is_status_suited) { // нет признака EdiOp - документ отправлялся нами и мы хотим отправить отмену проводки
 							{
-								SXml::WNode n_h(_doc, "wa:Header");
-								n_h.PutInner("wa:IsAccept", EncText(temp_buf = "Rejected"));
+								SXml::WNode n_h(_doc, SXml::nst("wa", "Header"));
+								n_h.PutInner(SXml::nst("wa", "IsAccept"), EncText(temp_buf = "Rejected"));
 								(temp_buf = bill_code).CatChar('-').Cat("REJECT");
-								n_h.PutInner("wa:ACTNUMBER", EncText(temp_buf));
-								n_h.PutInner("wa:ActDate", temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
-								n_h.PutInner("wa:WBRegId", EncText(temp_buf = edi_ident));
+								n_h.PutInner(SXml::nst("wa", "ACTNUMBER"), EncText(temp_buf));
+								n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+								n_h.PutInner(SXml::nst("wa", "WBRegId"), EncText(temp_buf = edi_ident));
 								// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wa:Note", EncText(p_bp->Rec.Memo));
 							}
 							{
-								SXml::WNode n_c(_doc, "wa:Content");
+								SXml::WNode n_c(_doc, SXml::nst("wa", "Content"));
 							}
 							LogTextWithAddendum(PPTXT_EGAIS_BILLSELFREJECTED, bill_text);
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
-						n_dt.PutInner("ainp:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("ainp", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
-							SXml::WNode n_h(_doc, "ainp:Header");
-							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("ainp:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
+							n_h.PutInner(SXml::nst("ainp", "Number"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							temp_buf.Z(); // @v9.7.5
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_PRODRCVDBEFORE2016, temp_buf); // @v9.6.7
 							}
-							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
+							n_h.PutInner(SXml::nst("ainp", "TypeChargeOn"), EncText(temp_buf));
 						}
 						{
-							SXml::WNode n_c(_doc, "ainp:Content");
+							SXml::WNode n_c(_doc, SXml::nst("ainp", "Content"));
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) { // @v9.4.7 && PreprocessGoodsItem>0
@@ -2692,30 +2692,30 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									else {
 										_qtty = R0(_qtty);
 									}
-									SXml::WNode w_p(_doc, "ainp:Position");
-									w_p.PutInner("ainp:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+									SXml::WNode w_p(_doc, SXml::nst("ainp", "Position"));
+									w_p.PutInner(SXml::nst("ainp", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
-									THROW(WriteProductInfo(_doc, "ainp:Product", r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
-									w_p.PutInner("ainp:Quantity", EncText(temp_buf.Z().Cat(_qtty, _fmt)));
+									THROW(WriteProductInfo(_doc, SXml::nst("ainp", "Product"), r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
+									w_p.PutInner(SXml::nst("ainp", "Quantity"), EncText(temp_buf.Z().Cat(_qtty, _fmt)));
 								}
 							}
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFFSHOP) { // @v9.4.0
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
-						n_dt.PutInner("awr:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
-							SXml::WNode n_h(_doc, "awr:Header");
-							n_h.PutInner("awr:ActNumber", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("awr:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
+							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.7.6 (temp_buf = "Недостача").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_LACK, temp_buf); // @v9.7.6
 							}
-							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
+							n_h.PutInner(SXml::nst("awr", "TypeWriteOff"), EncText(temp_buf));
 						}
 						{
-							SXml::WNode n_c(_doc, "awr:Content");
+							SXml::WNode n_c(_doc, SXml::nst("awr", "Content"));
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) { // @v9.4.7 && PreprocessGoodsItem>0
@@ -2726,14 +2726,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 										qtty_fmt = MKSFMTD(0, 3, 0);
 									}
-									SXml::WNode w_p(_doc, "awr:Position");
-									w_p.PutInner("awr:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+									SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));
+									w_p.PutInner(SXml::nst("awr", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
-									THROW(WriteProductInfo(_doc, "awr:Product", r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
-									w_p.PutInner("awr:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+									THROW(WriteProductInfo(_doc, SXml::nst("awr", "Product"), r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
+									w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 									// @v9.9.1 {
 									if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
-										SXml::WNode w_mc(_doc, "awr:MarkCodeInfo");
+										SXml::WNode w_mc(_doc, SXml::nst("awr", "MarkCodeInfo"));
 										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
 											w_mc.PutInner("MarkCode", temp_buf); // @v9.9.2 "awr:MarkCode"-->"MarkCode"
 										}
@@ -2746,25 +2746,25 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2) { // @v9.3.12
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 						{
-							SXml::WNode n_h(_doc, "ainp:Header");
-							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("ainp:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
+							n_h.PutInner(SXml::nst("ainp", "Number"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							temp_buf.Z();
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.7.5 (temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf); // @v9.7.5
 							}
 							// regrading
-							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
+							n_h.PutInner(SXml::nst("ainp", "TypeChargeOn"), EncText(temp_buf));
 							// @v9.8.0 {
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_COMPLEMENTARY, temp_buf) > 0) {
-								n_h.PutInner("ainp:ActWriteOff", EncText(temp_buf));
+								n_h.PutInner(SXml::nst("ainp", "ActWriteOff"), EncText(temp_buf));
 							}
 							// } @v9.8.0
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
 						{
-							SXml::WNode n_c(_doc, "ainp:Content");
+							SXml::WNode n_c(_doc, SXml::nst("ainp", "Content"));
 							SString infa_ident;
 							SString infb_ident;
 							StringSet ss_ext_codes;
@@ -2781,9 +2781,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
-										SXml::WNode w_p(_doc, "ainp:Position");
-										w_p.PutInner("ainp:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
-										THROW(WriteProductInfo(_doc, "ainp:Product", r_ti.GoodsID, lot_id, wpifPutManufInfo|wpifVersion2, 0));
+										SXml::WNode w_p(_doc, SXml::nst("ainp", "Position"));
+										w_p.PutInner(SXml::nst("ainp", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+										THROW(WriteProductInfo(_doc, SXml::nst("ainp", "Product"), r_ti.GoodsID, lot_id, wpifPutManufInfo|wpifVersion2, 0));
 										{
 											//
 											// Передаем количество, устанавливаемое на баланс.
@@ -2792,7 +2792,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											//
 											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
-											w_p.PutInner("ainp:Quantity", EncText(temp_buf.Z().Cat(sqtty)));
+											w_p.PutInner(SXml::nst("ainp", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {
 												temp_buf.Z().CatEq("LotID", lot_id).Space().CatEq("Qtty", org_qtty).Space().CatEq("Sended Qtty", sqtty);
 												LogTextWithAddendum(PPTXT_EGAIS_MARKQTYNEQLOTQTY, temp_buf);
@@ -2801,19 +2801,19 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										{
 											const ObjTagItem * p_infaid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFA);
 											const ObjTagItem * p_infbid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFB);
-											SXml::WNode n_infab(_doc, "ainp:InformF1F2");
+											SXml::WNode n_infab(_doc, SXml::nst("ainp", "InformF1F2"));
 											if(tag_list.GetItemStr(PPTAG_LOT_EGIASINFAREG, temp_buf) > 0) {
 												InformAReg iar;
 												if(iar.FromStr(temp_buf)) {
-													SXml::WNode n_infabreg(_doc, "ainp:InformF1F2Reg");
+													SXml::WNode n_infabreg(_doc, SXml::nst("ainp", "InformF1F2Reg"));
 													{
-														SXml::WNode n_infa(_doc, "ainp:InformF1");
-														n_infa.PutInner("iab:Quantity", EncText(temp_buf.Z().Cat(iar.Qtty)));
-														n_infa.PutInnerValidDate("iab:BottlingDate", iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
-														n_infa.PutInnerSkipEmpty("iab:TTNNumber", EncText(temp_buf = iar.TTNCode));
-														n_infa.PutInnerValidDate("iab:TTNDate", iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
-														n_infa.PutInnerSkipEmpty("iab:EGAISFixNumber", EncText(temp_buf = iar.EGAISCode));
-														n_infa.PutInnerValidDate("iab:EGAISFixDate", iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
+														SXml::WNode n_infa(_doc, SXml::nst("ainp", "InformF1"));
+														n_infa.PutInner(SXml::nst("iab", "Quantity"), EncText(temp_buf.Z().Cat(iar.Qtty)));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "TTNNumber"), EncText(temp_buf = iar.TTNCode));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "EGAISFixNumber"), EncText(temp_buf = iar.EGAISCode));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
 													}
 												}
 												else
@@ -2821,7 +2821,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											}
 										}
 										if(ext_code_count) {
-											SXml::WNode n_makr(_doc, "ainp:MarkCodeInfo");
+											SXml::WNode n_makr(_doc, SXml::nst("ainp", "MarkCodeInfo"));
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
 												n_makr.PutInner(/*"ainp:MarkCode"*/"MarkCode", EncText(temp_buf));
 										}
@@ -2833,14 +2833,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON) {
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 						{
-							SXml::WNode n_h(_doc, "ain:Header");
-							n_h.PutInner("ain:Number", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("ain:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("ain", "Header"));
+							n_h.PutInner(SXml::nst("ain", "Number"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("ain", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
 						{
-							SXml::WNode n_c(_doc, "ain:Content");
+							SXml::WNode n_c(_doc, SXml::nst("ain", "Content"));
 							SString infa_ident;
 							SString infb_ident;
 							StringSet ss_ext_codes;
@@ -2857,9 +2857,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
-										SXml::WNode w_p(_doc, "ain:Position");
-										w_p.PutInner("ain:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
-										THROW(WriteProductInfo(_doc, "ain:Product", r_ti.GoodsID, lot_id, 0, 0));
+										SXml::WNode w_p(_doc, SXml::nst("ain", "Position"));
+										w_p.PutInner(SXml::nst("ain", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+										THROW(WriteProductInfo(_doc, SXml::nst("ain", "Product"), r_ti.GoodsID, lot_id, 0, 0));
 										{
 											//
 											// Передаем количество, устанавливаемое на баланс.
@@ -2868,7 +2868,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											//
 											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
-											w_p.PutInner("ain:Quantity", EncText(temp_buf.Z().Cat(sqtty)));
+											w_p.PutInner(SXml::nst("ain", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {
 												temp_buf.Z().CatEq("LotID", lot_id).Space().CatEq("Qtty", org_qtty).Space().CatEq("Sended Qtty", sqtty);
 												LogTextWithAddendum(PPTXT_EGAIS_MARKQTYNEQLOTQTY, temp_buf);
@@ -2877,25 +2877,25 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										{
 											const ObjTagItem * p_infaid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFA);
 											const ObjTagItem * p_infbid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFB);
-											SXml::WNode n_infab(_doc, "ain:InformAB");
+											SXml::WNode n_infab(_doc, SXml::nst("ain", "InformAB"));
 											if(p_infaid_tag && p_infbid_tag && p_infaid_tag->GetStr(infa_ident) && infa_ident.NotEmptyS() &&
 												p_infbid_tag->GetStr(infb_ident) && infb_ident.NotEmptyS()) {
-												SXml::WNode n_infabkey(_doc, "ain:InformABKey");
-												n_infabkey.PutInner("ain:FormA", EncText(infa_ident));
-												n_infabkey.PutInner("ain:LastFormB", EncText(infb_ident));
+												SXml::WNode n_infabkey(_doc, SXml::nst("ain", "InformABKey"));
+												n_infabkey.PutInner(SXml::nst("ain", "FormA"), EncText(infa_ident));
+												n_infabkey.PutInner(SXml::nst("ain", "LastFormB"), EncText(infb_ident));
 											}
 											else if(tag_list.GetItemStr(PPTAG_LOT_EGIASINFAREG, temp_buf) > 0) {
 												InformAReg iar;
 												if(iar.FromStr(temp_buf)) {
-													SXml::WNode n_infabreg(_doc, "ain:InformABReg");
+													SXml::WNode n_infabreg(_doc, SXml::nst("ain", "InformABReg"));
 													{
-														SXml::WNode n_infa(_doc, "ain:InformA");
-														n_infa.PutInner("iab:Quantity", EncText(temp_buf.Z().Cat(iar.Qtty)));
-														n_infa.PutInnerValidDate("iab:BottlingDate", iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
-														n_infa.PutInnerSkipEmpty("iab:TTNNumber", EncText(temp_buf = iar.TTNCode));
-														n_infa.PutInnerValidDate("iab:TTNDate", iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
-														n_infa.PutInnerSkipEmpty("iab:EGAISFixNumber", EncText(temp_buf = iar.EGAISCode));
-														n_infa.PutInnerValidDate("iab:EGAISFixDate", iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
+														SXml::WNode n_infa(_doc, SXml::nst("ain", "InformA"));
+														n_infa.PutInner(SXml::nst("iab", "Quantity"), EncText(temp_buf.Z().Cat(iar.Qtty)));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "TTNNumber"), EncText(temp_buf = iar.TTNCode));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "EGAISFixNumber"), EncText(temp_buf = iar.EGAISCode));
+														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
 													}
 												}
 												else
@@ -2903,9 +2903,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											}
 										}
 										if(ext_code_count) {
-											SXml::WNode n_makr(_doc, "ain:MarkCodeInfo");
+											SXml::WNode n_makr(_doc, SXml::nst("ain", "MarkCodeInfo"));
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-												n_makr.PutInner("ain:MarkCode", EncText(temp_buf));
+												n_makr.PutInner(SXml::nst("ain", "MarkCode"), EncText(temp_buf));
 										}
 									}
 								}
@@ -2914,26 +2914,26 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					}
 					else if(oneof3(doc_type, PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3)) {
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
-						n_dt.PutInner("awr:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
-							SXml::WNode n_h(_doc, "awr:Header");
-							n_h.PutInner("awr:ActNumber", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("awr:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
+							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
 								PPLoadString("losses", temp_buf); // Потери
-							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
+							n_h.PutInner(SXml::nst("awr", "TypeWriteOff"), EncText(temp_buf));
 							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("awr:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
 						}
 						{
-							SXml::WNode n_c(_doc, "awr:Content");
+							SXml::WNode n_c(_doc, SXml::nst("awr", "Content"));
 							SString infa_ident;
 							SString infb_ident;
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
-									SXml::WNode w_p(_doc, "awr:Position");
-									w_p.PutInner("awr:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+									SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));
+									w_p.PutInner(SXml::nst("awr", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									{
 										double qtty = fabs(r_ti.Quantity_);
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
@@ -2942,7 +2942,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
-										w_p.PutInner("awr:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+										w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										// @v9.8.11 {
 										/* @v9.9.1 Не туда воткнул блок!
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V2 && p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
@@ -2960,14 +2960,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										//
 										THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, temp_buf) > 0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF) {
-											SXml::WNode w_refb(_doc, "awr:InformB");
-											w_refb.PutInner("pref:BRegId", temp_buf);
+											SXml::WNode w_refb(_doc, SXml::nst("awr", "InformB"));
+											w_refb.PutInner(SXml::nst("pref", "BRegId"), temp_buf);
 										}
 										else {
-											SXml::WNode n_infab(_doc, "awr:InformF1F2");
+											SXml::WNode n_infab(_doc, SXml::nst("awr", "InformF1F2"));
 											{
-												SXml::WNode w_refb(_doc, "awr:InformF2");
-												w_refb.PutInner("pref:F2RegId", EncText(temp_buf));
+												SXml::WNode w_refb(_doc, SXml::nst("awr", "InformF2"));
+												w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
 											}
 										}
 									}
@@ -2977,14 +2977,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					}
 					else if(doc_type == PPEDIOP_EGAIS_TRANSFERTOSHOP) {
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
-						n_dt.PutInner("tts:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("tts", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
-							SXml::WNode n_h(_doc, "tts:Header");
-							n_h.PutInner("tts:TransferNumber", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("tts:TransferDate",   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("tts", "Header"));
+							n_h.PutInner(SXml::nst("tts", "TransferNumber"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("tts", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 						}
 						{
-							SXml::WNode n_c(_doc, "tts:Content");
+							SXml::WNode n_c(_doc, SXml::nst("tts", "Content"));
 							SString infb_ident;
 							SString rar_product_ident;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
@@ -3004,13 +3004,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 											qtty_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ);
 										}
-										SXml::WNode w_p(_doc, "tts:Position");
-										w_p.PutInner("tts:Identity",    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
-										w_p.PutInner("tts:ProductCode", EncText(temp_buf = rar_product_ident));
-										w_p.PutInner("tts:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+										SXml::WNode w_p(_doc, SXml::nst("tts", "Position"));
+										w_p.PutInner(SXml::nst("tts", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+										w_p.PutInner(SXml::nst("tts", "ProductCode"), EncText(temp_buf = rar_product_ident));
+										w_p.PutInner(SXml::nst("tts", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										{
-											SXml::WNode w_refb(_doc, "tts:InformF2");
-											w_refb.PutInner("pref:F2RegId", EncText(temp_buf = infb_ident));
+											SXml::WNode w_refb(_doc, SXml::nst("tts", "InformF2"));
+											w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf = infb_ident));
 										}
 									}
 								}
@@ -3019,14 +3019,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					}
 					else if(doc_type == PPEDIOP_EGAIS_TRANSFERFROMSHOP) {
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
-						n_dt.PutInner("tfs:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
+						n_dt.PutInner(SXml::nst("tfs", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
-							SXml::WNode n_h(_doc, "tfs:Header");
-							n_h.PutInner("tfs:TransferNumber", EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner("tfs:TransferDate",   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							SXml::WNode n_h(_doc, SXml::nst("tfs", "Header"));
+							n_h.PutInner(SXml::nst("tfs", "TransferNumber"), EncText(temp_buf = p_bp->Rec.Code));
+							n_h.PutInner(SXml::nst("tfs", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 						}
 						{
-							SXml::WNode n_c(_doc, "tfs:Content");
+							SXml::WNode n_c(_doc, SXml::nst("tfs", "Content"));
 							SString infb_ident;
 							SString rar_product_ident;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
@@ -3046,13 +3046,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
-										SXml::WNode w_p(_doc, "tfs:Position");
-										w_p.PutInner("tfs:Identity",    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
-										w_p.PutInner("tfs:ProductCode", EncText(temp_buf = rar_product_ident));
-										w_p.PutInner("tfs:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+										SXml::WNode w_p(_doc, SXml::nst("tfs", "Position"));
+										w_p.PutInner(SXml::nst("tfs", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+										w_p.PutInner(SXml::nst("tfs", "ProductCode"), EncText(temp_buf = rar_product_ident));
+										w_p.PutInner(SXml::nst("tfs", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										{
-											SXml::WNode w_refb(_doc, "tfs:InformF2");
-											w_refb.PutInner("pref:F2RegId", EncText(temp_buf = infb_ident));
+											SXml::WNode w_refb(_doc, SXml::nst("tfs", "InformF2"));
+											w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf = infb_ident));
 										}
 									}
 								}
@@ -3067,10 +3067,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						<qp:RequestDate>2016-05-06T13:00:00</qp:RequestDate>
 						<qp:WBRegId>TTN-0021795603</qp:WBRegId>
 						*/
-						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
-						n_dt.PutInner("qp:RequestNumber", EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner("qp:RequestDate", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
-						n_dt.PutInner("qp:WBRegId", EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
+						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
+						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07 
 						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
@@ -3080,10 +3080,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						<qp:RequestDate>2016-05-06T13:00:00</qp:RequestDate>
 						<qp:AWORegId>TTN-0021795603</qp:WBRegId>
 						*/
-						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
-						n_dt.PutInner("qp:RequestNumber", EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner("qp:RequestDate", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
-						n_dt.PutInner("qp:AWORegId", EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
+						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
+						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "AWORegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
 						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
@@ -3096,12 +3096,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							<wt:Note>Подтверждаем отмену проведения ТТН</wt:Note>
 							</wt:Header>
 						*/
-						SXml::WNode n_c(_doc, "wt:Header");
-						n_c.PutInner("wt:IsConfirm", p_rwb->Confirm ? "Accepted" : "Rejected");
-						n_c.PutInner("wt:ConfirmNumber", EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_c.PutInner("wt:ConfirmDate", temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
-						n_c.PutInner("wt:WBRegId", EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
-						n_c.PutInnerSkipEmpty("wt:Note", EncText(p_rwb->Memo));
+						SXml::WNode n_c(_doc, SXml::nst("wt", "Header"));
+						n_c.PutInner(SXml::nst("wt", "IsConfirm"), p_rwb->Confirm ? "Accepted" : "Rejected");
+						n_c.PutInner(SXml::nst("wt", "ConfirmNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
+						n_c.PutInner(SXml::nst("wt", "ConfirmDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+						n_c.PutInner(SXml::nst("wt", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
+						n_c.PutInnerSkipEmpty(SXml::nst("wt", "Note"), EncText(p_rwb->Memo));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTUSING) {
 					}
@@ -6222,7 +6222,7 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			{
 				THROW(P_BObj->P_Tbl->SetRecFlag2(bill_id, BILLF2_ACKPENDING, 0, 0));
 				if(!(State & stDontRemoveTags)) {
-					if(!pT->TranspUUID.IsZero()) {
+					if(!!pT->TranspUUID) {
 						const PPID uuid_tag_id = selfreject_ticket ? PPTAG_BILL_EDIREJECTACK : PPTAG_BILL_EDIACK;
 						ObjTagItem uuid_tag;
 						if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, uuid_tag_id, &uuid_tag) > 0) {
@@ -6233,7 +6233,6 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 							}
 						}
 					}
-					// @v8.9.5 {
 					if((!oneof3(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && !selfreject_ticket) &&
 						(rRec.EdiOp || oneof3(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3))) {
 						if(pT->RegIdent.NotEmpty()) {
@@ -6244,7 +6243,6 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 							}
 						}
 					}
-					// } @v8.9.5
 				}
 			}
 			LogTextWithAddendum(msg_id, rBillText);
@@ -7493,7 +7491,7 @@ int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillExportFilt &
 							suited = 0;
 						else if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIRECADVCONFIRM, &tag_item) > 0) {
 							S_GUID uuid;
-							if(tag_item.GetGuid(&uuid) && !uuid.IsZero())
+							if(tag_item.GetGuid(&uuid) && !!uuid)
 								suited = 0;
 						}
 						if(suited) {
@@ -7522,7 +7520,7 @@ int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillExportFilt &
 						suited = 0;
 					else if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIRECADVCONFIRM, &tag_item) > 0) {
 						S_GUID uuid;
-						if(tag_item.GetGuid(&uuid) && !uuid.IsZero())
+						if(tag_item.GetGuid(&uuid) && !!uuid)
 							suited = 0;
 					}
 					if(suited) {

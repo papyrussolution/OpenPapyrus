@@ -96,20 +96,20 @@ static struct Zoombox {
 HCURSOR hptrDefault, hptrCrossHair, hptrScaling, hptrRotating, hptrZooming, hptrCurrent;
 
 /* Mouse support routines */
-static void     Wnd_exec_event(LPGW lpgw, LPARAM lparam, char type, int par1);
-static void     Wnd_refresh_zoombox(LPGW lpgw, LPARAM lParam);
-static void     Wnd_refresh_ruler_lineto(LPGW lpgw, LPARAM lParam);
-static void     GetMousePosViewport(LPGW lpgw, int * mx, int * my);
-static void     Draw_XOR_Text(LPGW lpgw, const char * text, size_t length, int x, int y);
+static void     Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1);
+static void     Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam);
+static void     Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam);
+static void     GetMousePosViewport(GW * lpgw, int * mx, int * my);
+static void     Draw_XOR_Text(GW * lpgw, const char * text, size_t length, int x, int y);
 #endif
-static void     UpdateStatusLine(LPGW lpgw, const char text[]);
-static void     UpdateToolbar(LPGW lpgw);
+static void     UpdateStatusLine(GW * lpgw, const char text[]);
+static void     UpdateToolbar(GW * lpgw);
 #ifdef USE_MOUSE
-static void     DrawRuler(LPGW lpgw);
-static void     DrawRulerLineTo(LPGW lpgw);
-static void     DrawZoomBox(LPGW lpgw);
-static void     LoadCursors(LPGW lpgw);
-static void     DestroyCursors(LPGW lpgw);
+static void     DrawRuler(GW * lpgw);
+static void     DrawRulerLineTo(GW * lpgw);
+static void     DrawZoomBox(GW * lpgw);
+static void     LoadCursors(GW * lpgw);
+static void     DestroyCursors(GW * lpgw);
 #endif /* USE_MOUSE */
 
 /* ================================== */
@@ -181,7 +181,7 @@ static bool brushes_initialized = false;
    GraphEnhancedFlush.
  */
 static struct {
-	LPGW lpgw;           /* graph window */
+	GW * lpgw;           /* graph window */
 	HDC hdc;             /* device context */
 	LPRECT rect;         /* rect to update */
 	BOOL opened_string;  /* started processing of substring? */
@@ -208,31 +208,31 @@ static struct {
 LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam);
 
-static void     DestroyBlocks(LPGW lpgw);
-static BOOL     AddBlock(LPGW lpgw);
-static void     StorePen(LPGW lpgw, int i, COLORREF ref, int colorstyle, int monostyle);
-static void     MakePens(LPGW lpgw, HDC hdc);
-static void     DestroyPens(LPGW lpgw);
+static void     DestroyBlocks(GW * lpgw);
+static BOOL     AddBlock(GW * lpgw);
+static void     StorePen(GW * lpgw, int i, COLORREF ref, int colorstyle, int monostyle);
+static void     MakePens(GW * lpgw, HDC hdc);
+static void     DestroyPens(GW * lpgw);
 static void     Wnd_GetTextSize(HDC hdc, LPCSTR str, size_t len, int * cx, int * cy);
-static void     GetPlotRect(LPGW lpgw, LPRECT rect);
-static void     MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc);
-static void     DestroyFonts(LPGW lpgw);
-static void     SelFont(LPGW lpgw);
+static void     GetPlotRect(GW * lpgw, LPRECT rect);
+static void     MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc);
+static void     DestroyFonts(GW * lpgw);
+static void     SelFont(GW * lpgw);
 static void     dot(HDC hdc, int xdash, int ydash);
-static uint WDPROC GraphGetTextLength(LPGW lpgw, HDC hdc, LPCSTR text);
+static uint WDPROC GraphGetTextLength(GW * lpgw, HDC hdc, LPCSTR text);
 static void     draw_text_justify(HDC hdc, int justify);
-static void     draw_put_text(LPGW lpgw, HDC hdc, int x, int y, char * str);
-static void     drawgraph(LPGW lpgw, HDC hdc, LPRECT rect);
-static void     CopyClip(LPGW lpgw);
-static void     SaveAsEMF(LPGW lpgw);
-static void     CopyPrint(LPGW lpgw);
-static void     WriteGraphIni(LPGW lpgw);
-static void     ReadGraphIni(LPGW lpgw);
-static void     track_tooltip(LPGW lpgw, int x, int y);
+static void     draw_put_text(GW * lpgw, HDC hdc, int x, int y, char * str);
+static void     drawgraph(GW * lpgw, HDC hdc, LPRECT rect);
+static void     CopyClip(GW * lpgw);
+static void     SaveAsEMF(GW * lpgw);
+static void     CopyPrint(GW * lpgw);
+static void     WriteGraphIni(GW * lpgw);
+static void     ReadGraphIni(GW * lpgw);
+static void     track_tooltip(GW * lpgw, int x, int y);
 static COLORREF GetColor(HWND hwnd, COLORREF ref);
 #ifdef WIN_CUSTOM_PENS
 static void     UpdateColorSample(HWND hdlg);
-static BOOL     LineStyle(LPGW lpgw);
+static BOOL     LineStyle(GW * lpgw);
 #endif
 
 /* ================================== */
@@ -240,7 +240,7 @@ static BOOL     LineStyle(LPGW lpgw);
 /* Helper functions for GraphOp(): */
 
 /* destroy memory blocks holding graph operations */
-static void DestroyBlocks(LPGW lpgw)
+static void DestroyBlocks(GW * lpgw)
 {
 	struct GWOPBLK * next;
 	struct GWOP * gwop;
@@ -272,7 +272,7 @@ static void DestroyBlocks(LPGW lpgw)
 
 /* add a new memory block for graph operations */
 /* returns true if block allocated */
-static BOOL AddBlock(LPGW lpgw)
+static BOOL AddBlock(GW * lpgw)
 {
 	HGLOBAL hblk;
 	struct GWOPBLK * next, * p_this;
@@ -306,7 +306,7 @@ static BOOL AddBlock(LPGW lpgw)
 	return true;
 }
 
-void WDPROC GraphOp(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str)
+void WDPROC GraphOp(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str)
 {
 	if(str)
 		GraphOpSize(lpgw, op, x, y, str, _fstrlen(str)+1);
@@ -314,7 +314,7 @@ void WDPROC GraphOp(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str)
 		GraphOpSize(lpgw, op, x, y, NULL, 0);
 }
 
-void WDPROC GraphOpSize(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
+void WDPROC GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
 {
 	struct GWOP * gwop;
 	char * npstr;
@@ -344,19 +344,17 @@ void WDPROC GraphOpSize(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD si
 
 /* ================================== */
 
-/* Initialize the LPGW struct:
+/* Initialize the (GW *) struct:
  * set default values and read options from ini file */
-void WDPROC GraphInitStruct(LPGW lpgw)
+void WDPROC GraphInitStruct(GW * lpgw)
 {
 	if(!lpgw->initialized) {
 		int i;
-
 		lpgw->initialized = true;
 		if(lpgw != listgraphs) {
 			char titlestr[100];
-
 			/* copy important fields from window #0 */
-			LPGW graph0 = listgraphs;
+			GW * graph0 = listgraphs;
 			lpgw->IniFile = graph0->IniFile;
 			lpgw->hInstance = graph0->hInstance;
 			lpgw->hPrevInstance = graph0->hPrevInstance;
@@ -398,12 +396,11 @@ void WDPROC GraphInitStruct(LPGW lpgw)
 
 /* Prepare Graph window for being displayed by windows, update
  * the window's menus and show it */
-void WDPROC GraphInit(LPGW lpgw)
+void WDPROC GraphInit(GW * lpgw)
 {
 	HMENU sysmenu;
 	WNDCLASS wndclass;
 	char buf[MAX_PATH];
-
 	if(!lpgw->hPrevInstance) {
 		wndclass.style = CS_HREDRAW | CS_VREDRAW;
 		wndclass.lpfnWndProc = WndGraphProc;
@@ -608,7 +605,7 @@ void WDPROC GraphInit(LPGW lpgw)
 	ShowWindow(lpgw->hWndGraph, SW_SHOWNORMAL);
 }
 
-void WDPROC GraphUpdateWindowPosSize(LPGW lpgw)
+void WDPROC GraphUpdateWindowPosSize(GW * lpgw)
 {
 	/* resize to match requested GpGg.Canvas size */
 	if(lpgw->Canvas.x != 0) {
@@ -625,7 +622,7 @@ void WDPROC GraphUpdateWindowPosSize(LPGW lpgw)
 }
 
 /* close a graph window */
-void WDPROC GraphClose(LPGW lpgw)
+void WDPROC GraphClose(GW * lpgw)
 {
 #ifdef USE_MOUSE
 	/* Pass it through mouse handling to check for "bind Close" */
@@ -642,7 +639,7 @@ void WDPROC GraphClose(LPGW lpgw)
 	lpgw->locked = false;
 }
 
-void WDPROC GraphStart(LPGW lpgw, double pointsize)
+void WDPROC GraphStart(GW * lpgw, double pointsize)
 {
 	lpgw->locked = true;
 	lpgw->buffervalid = false;
@@ -665,10 +662,9 @@ void WDPROC GraphStart(LPGW lpgw, double pointsize)
 	}
 }
 
-void WDPROC GraphEnd(LPGW lpgw)
+void WDPROC GraphEnd(GW * lpgw)
 {
 	RECT rect;
-
 	GetClientRect(lpgw->hWndGraph, &rect);
 	InvalidateRect(lpgw->hWndGraph, (LPRECT)&rect, 1);
 	lpgw->buffervalid = false;
@@ -680,31 +676,31 @@ void WDPROC GraphEnd(LPGW lpgw)
 }
 
 /* shige */
-void WDPROC GraphChangeTitle(LPGW lpgw)
+void WDPROC GraphChangeTitle(GW * lpgw)
 {
 	if(GraphHasWindow(lpgw))
 		SetWindowText(lpgw->hWndGraph, lpgw->Title);
 }
 
-void WDPROC GraphResume(LPGW lpgw)
+void WDPROC GraphResume(GW * lpgw)
 {
 	lpgw->locked = true;
 }
 
-void WDPROC GraphPrint(LPGW lpgw)
+void WDPROC GraphPrint(GW * lpgw)
 {
 	if(GraphHasWindow(lpgw))
 		SendMessage(lpgw->hWndGraph, WM_COMMAND, M_PRINT, 0L);
 }
 
-void WDPROC GraphRedraw(LPGW lpgw)
+void WDPROC GraphRedraw(GW * lpgw)
 {
 	lpgw->buffervalid = false;
 	if(GraphHasWindow(lpgw))
 		SendMessage(lpgw->hWndGraph, WM_COMMAND, M_REBUILDTOOLS, 0L);
 }
 
-bool GraphHasWindow(LPGW lpgw)
+bool GraphHasWindow(GW * lpgw)
 {
 	return (lpgw != NULL) && (lpgw->hWndGraph != NULL) && IsWindow(lpgw->hWndGraph);
 }
@@ -715,10 +711,9 @@ bool GraphHasWindow(LPGW lpgw)
 
 /* Set up LOGPEN structures based on information coming from wgnuplot.ini, via
  * ReadGraphIni() */
-static void StorePen(LPGW lpgw, int i, COLORREF ref, int colorstyle, int monostyle)
+static void StorePen(GW * lpgw, int i, COLORREF ref, int colorstyle, int monostyle)
 {
 	LOGPEN * plp;
-
 	plp = &lpgw->colorpen[i];
 	plp->lopnColor = ref;
 	if(colorstyle < 0) {
@@ -747,7 +742,7 @@ static void StorePen(LPGW lpgw, int i, COLORREF ref, int colorstyle, int monosty
 /* Prepare pens and brushes (--> colors) for use by the driver. Pens are (now) created
  * on-the-fly (--> DeleteObject(SelectObject(...)) idiom), but the brushes are still
  * all created statically, and kept until the window is closed */
-static void MakePens(LPGW lpgw, HDC hdc)
+static void MakePens(GW * lpgw, HDC hdc)
 {
 	LOGPEN pen;
 	if((GetDeviceCaps(hdc, NUMCOLORS) == 2) || !lpgw->color) {
@@ -785,10 +780,9 @@ static void MakePens(LPGW lpgw, HDC hdc)
 }
 
 /* Undo effect of MakePens(). To be called just before the window is closed. */
-static void DestroyPens(LPGW lpgw)
+static void DestroyPens(GW * lpgw)
 {
 	int i;
-
 	DeleteObject(lpgw->hbrush);
 	DeleteObject(lpgw->hapen);
 	DeleteObject(lpgw->hsolid);
@@ -815,13 +809,12 @@ static void DestroyPens(LPGW lpgw)
 static void Wnd_GetTextSize(HDC hdc, LPCSTR str, size_t len, int * cx, int * cy)
 {
 	SIZE size;
-
 	GetTextExtentPoint32(hdc, str, len, &size);
 	*cx = size.cx;
 	*cy = size.cy;
 }
 
-static void GetPlotRect(LPGW lpgw, LPRECT rect)
+static void GetPlotRect(GW * lpgw, LPRECT rect)
 {
 	GetClientRect(lpgw->hWndGraph, rect);
 	rect->bottom -= lpgw->StatusHeight; /* leave some room for the status line */
@@ -829,12 +822,10 @@ static void GetPlotRect(LPGW lpgw, LPRECT rect)
 	if(rect->bottom < rect->top) rect->bottom = rect->top;
 }
 
-static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
+static void GetPlotRectInMM(GW * lpgw, LPRECT rect, HDC hdc)
 {
 	int iWidthMM, iHeightMM, iWidthPels, iHeightPels;
-
 	GetPlotRect(lpgw, rect);
-
 	/* Taken from
 	   http://msdn.microsoft.com/en-us/library/dd183519(VS.85).aspx
 	 */
@@ -859,13 +850,11 @@ static void GetPlotRectInMM(LPGW lpgw, LPRECT rect, HDC hdc)
 	rect->bottom = (rect->bottom * iHeightMM * 100) / iHeightPels;
 }
 
-static bool TryCreateFont(LPGW lpgw, char * fontface, HDC hdc)
+static bool TryCreateFont(GW * lpgw, char * fontface, HDC hdc)
 {
 	if(fontface != NULL)
 		strncpy(lpgw->lf.lfFaceName, fontface, LF_FACESIZE);
-
 	lpgw->hfonth = CreateFontIndirect((LOGFONT*)&(lpgw->lf));
-
 	if(lpgw->hfonth != 0) {
 		/* Test if we actually got the requested font. Note that this also seems to work
 		        with GDI's magic font substitutions (e.g. Helvetica->Arial, Times->Times New Roman) */
@@ -892,7 +881,7 @@ static bool TryCreateFont(LPGW lpgw, char * fontface, HDC hdc)
 	return false;
 }
 
-static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
+static void MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc)
 {
 	HFONT hfontold;
 	TEXTMETRIC tm;
@@ -992,7 +981,7 @@ static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
 	return;
 }
 
-static void DestroyFonts(LPGW lpgw)
+static void DestroyFonts(GW * lpgw)
 {
 	if(lpgw->hfonth) {
 		DeleteObject(lpgw->hfonth);
@@ -1005,7 +994,7 @@ static void DestroyFonts(LPGW lpgw)
 	return;
 }
 
-void SetFont(LPGW lpgw, HDC hdc)
+void SetFont(GW * lpgw, HDC hdc)
 {
 	SelectObject(hdc, lpgw->hfonth);
 	if(lpgw->rotate && lpgw->angle) {
@@ -1019,7 +1008,7 @@ void SetFont(LPGW lpgw, HDC hdc)
 	return;
 }
 
-static void SelFont(LPGW lpgw)
+static void SelFont(GW * lpgw)
 {
 	LOGFONT lf;
 	CHOOSEFONT cf;
@@ -1108,7 +1097,7 @@ LPWSTR UnicodeText(const char * str, enum set_encoding_id encoding)
 #ifdef USE_MOUSE
 /* ================================== */
 
-static void LoadCursors(LPGW lpgw)
+static void LoadCursors(GW * lpgw)
 {
 	/* 3 of them are standard cursor shapes: */
 	hptrDefault = LoadCursor(NULL, IDC_ARROW);
@@ -1121,7 +1110,7 @@ static void LoadCursors(LPGW lpgw)
 	hptrCurrent = hptrCrossHair;
 }
 
-static void DestroyCursors(LPGW lpgw)
+static void DestroyCursors(GW * lpgw)
 {
 	/* No-op. Cursors from LoadCursor() don't need destroying */
 	return;
@@ -1143,7 +1132,7 @@ unsigned luma_from_color(unsigned red, unsigned green, unsigned blue)
 	return (unsigned)(red * 0.30 + green * 0.59 + blue * 0.11);
 }
 
-static uint WDPROC GraphGetTextLength(LPGW lpgw, HDC hdc, LPCSTR text)
+static uint WDPROC GraphGetTextLength(GW * lpgw, HDC hdc, LPCSTR text)
 {
 	SIZE size;
 	LPWSTR textw;
@@ -1263,7 +1252,7 @@ void WDPROC GraphEnhancedFlush(void)
 	}
 }
 
-int draw_enhanced_text(LPGW lpgw, HDC hdc, LPRECT rect, int x, int y, const char * str)
+int draw_enhanced_text(GW * lpgw, HDC hdc, LPRECT rect, int x, int y, const char * str)
 {
 	const char * original_string = str;
 	uint pass, num_passes;
@@ -1378,19 +1367,13 @@ void draw_get_enhanced_text_extend(PRECT extend)
 static void draw_text_justify(HDC hdc, int justify)
 {
 	switch(justify) {
-		case LEFT:
-		    SetTextAlign(hdc, TA_LEFT|TA_BOTTOM);
-		    break;
-		case RIGHT:
-		    SetTextAlign(hdc, TA_RIGHT|TA_BOTTOM);
-		    break;
-		case CENTRE:
-		    SetTextAlign(hdc, TA_CENTER|TA_BOTTOM);
-		    break;
+		case LEFT: SetTextAlign(hdc, TA_LEFT|TA_BOTTOM); break;
+		case RIGHT: SetTextAlign(hdc, TA_RIGHT|TA_BOTTOM); break;
+		case CENTRE: SetTextAlign(hdc, TA_CENTER|TA_BOTTOM); break;
 	}
 }
 
-static void draw_put_text(LPGW lpgw, HDC hdc, int x, int y, char * str)
+static void draw_put_text(GW * lpgw, HDC hdc, int x, int y, char * str)
 {
 	SetBkMode(hdc, TRANSPARENT);
 	/* support text encoding */
@@ -1416,7 +1399,7 @@ static void draw_put_text(LPGW lpgw, HDC hdc, int x, int y, char * str)
 	SetBkMode(hdc, OPAQUE);
 }
 
-static void draw_new_pens(LPGW lpgw, HDC hdc, LOGPEN cur_penstruct)
+static void draw_new_pens(GW * lpgw, HDC hdc, LOGPEN cur_penstruct)
 {
 	HPEN old_hapen = lpgw->hapen;
 	HPEN old_hsolid = lpgw->hsolid;
@@ -1441,7 +1424,7 @@ static void draw_new_pens(LPGW lpgw, HDC hdc, LOGPEN cur_penstruct)
 	DeleteObject(old_hsolid);
 }
 
-static void draw_new_brush(LPGW lpgw, HDC hdc, COLORREF color)
+static void draw_new_brush(GW * lpgw, HDC hdc, COLORREF color)
 {
 	HBRUSH new_brush = CreateSolidBrush(color);
 	SelectObject(hdc, new_brush);
@@ -1450,7 +1433,7 @@ static void draw_new_brush(LPGW lpgw, HDC hdc, COLORREF color)
 	lpgw->hcolorbrush = new_brush;
 }
 
-void draw_update_keybox(LPGW lpgw, unsigned plotno, unsigned x, unsigned y)
+void draw_update_keybox(GW * lpgw, unsigned plotno, unsigned x, unsigned y)
 {
 	LPRECT bb;
 	if(plotno) {
@@ -1472,7 +1455,7 @@ void draw_update_keybox(LPGW lpgw, unsigned plotno, unsigned x, unsigned y)
 	}
 }
 
-static void draw_grey_out_key_box(LPGW lpgw, HDC hdc, int plotno)
+static void draw_grey_out_key_box(GW * lpgw, HDC hdc, int plotno)
 {
 	HDC memdc;
 	HBITMAP membmp, oldbmp;
@@ -1501,32 +1484,26 @@ static void draw_grey_out_key_box(LPGW lpgw, HDC hdc, int plotno)
 	DeleteDC(memdc);
 }
 
-void draw_image(LPGW lpgw, HDC hdc, char * image, POINT corners[4], uint width, uint height, int color_mode)
+void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint width, uint height, int color_mode)
 {
 	BITMAPINFO bmi;
 	HRGN hrgn;
 	int rc;
-
 	if(image == NULL)
 		return;
-
 	ZeroMemory(&bmi, sizeof(BITMAPINFO));
 	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmi.bmiHeader.biWidth = width;
 	bmi.bmiHeader.biHeight = height;
 	bmi.bmiHeader.biPlanes = 1;
 	bmi.bmiHeader.biCompression = BI_RGB;
-
 	/* create clip region */
-	hrgn = CreateRectRgn(
-	    MIN(corners[2].x, corners[3].x), MIN(corners[2].y, corners[3].y),
+	hrgn = CreateRectRgn(MIN(corners[2].x, corners[3].x), MIN(corners[2].y, corners[3].y),
 	    MAX(corners[2].x, corners[3].x) + 1, MAX(corners[2].y, corners[3].y) + 1);
 	SelectClipRgn(hdc, hrgn);
-
 	if(color_mode != IC_RGBA) {
 		char * dibimage;
 		bmi.bmiHeader.biBitCount = 24;
-
 		if(!lpgw->color) {
 			/* create a copy of the color image */
 			int pad_bytes = (4 - (3 * width) % 4) % 4; /* scan lines start on ULONG boundaries */
@@ -1598,7 +1575,7 @@ void draw_image(LPGW lpgw, HDC hdc, char * image, POINT corners[4], uint width, 
 
 /* This one is really the heart of this module: it executes the stored set of
  * commands, whenever it changed or a redraw is necessary */
-static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
+static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 {
 	/* draw ops */
 	uint ngwop = 0;
@@ -2958,7 +2935,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 /* save graph windows as enhanced metafile
  * The code in here is very similar to what CopyClip does...
  */
-static void SaveAsEMF(LPGW lpgw)
+static void SaveAsEMF(GW * lpgw)
 {
 	char * cwd;
 	static OPENFILENAME Ofn;
@@ -3026,7 +3003,7 @@ static void SaveAsEMF(LPGW lpgw)
 /* copy graph window to clipboard --- note that the Metafile is drawn at the full
  * virtual resolution of the Windows terminal driver (24000 x 18000 pixels), to
  * preserve as much accuracy as remotely possible */
-static void CopyClip(LPGW lpgw)
+static void CopyClip(GW * lpgw)
 {
 	RECT rect, mfrect;
 	HDC mem, hmf;
@@ -3103,10 +3080,9 @@ static void CopyClip(LPGW lpgw)
 }
 
 /* copy graph window to printer */
-static void CopyPrint(LPGW lpgw)
+static void CopyPrint(GW * lpgw)
 {
 	DOCINFO docInfo;
-
 	HDC printer;
 	PRINTDLG pd;
 	static DEVNAMES * pDevNames = NULL;
@@ -3193,7 +3169,7 @@ static void CopyPrint(LPGW lpgw)
 
 /* ================================== */
 /*  INI file stuff */
-static void WriteGraphIni(LPGW lpgw)
+static void WriteGraphIni(GW * lpgw)
 {
 	RECT rect;
 	LPSTR file = lpgw->IniFile;
@@ -3277,7 +3253,7 @@ char * GraphDefaultFont(void)
 		return WINFONT;
 }
 
-static void ReadGraphIni(LPGW lpgw)
+static void ReadGraphIni(GW * lpgw)
 {
 	LPSTR file = lpgw->IniFile;
 	LPSTR section = lpgw->IniSection;
@@ -3429,11 +3405,9 @@ static void ReadGraphIni(LPGW lpgw)
 /* ================================== */
 
 /* Hypertext support functions */
-
-void add_tooltip(LPGW lpgw, PRECT rect, LPWSTR text)
+void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 {
 	int idx = lpgw->numtooltips;
-
 	/* Extend buffer, if necessary */
 	if(lpgw->numtooltips >= lpgw->maxtooltips) {
 		lpgw->maxtooltips += 10;
@@ -3471,7 +3445,7 @@ void add_tooltip(LPGW lpgw, PRECT rect, LPWSTR text)
 	}
 }
 
-void clear_tooltips(LPGW lpgw)
+void clear_tooltips(GW * lpgw)
 {
 	for(uint i = 0; i < lpgw->numtooltips; i++)
 		free(lpgw->tooltips[i].text);
@@ -3481,7 +3455,7 @@ void clear_tooltips(LPGW lpgw)
 	lpgw->tooltips = NULL;
 }
 
-static void track_tooltip(LPGW lpgw, int x, int y)
+static void track_tooltip(GW * lpgw, int x, int y)
 {
 	static POINT p = {0, 0};
 	// only update if mouse position changed 
@@ -3743,17 +3717,14 @@ INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 }
 
 /* GetWindowLong(hwnd, 4) must be available for use */
-static BOOL LineStyle(LPGW lpgw)
+static BOOL LineStyle(GW * lpgw)
 {
 	BOOL status = false;
 	LS ls;
-
 	SetWindowLongPtr(lpgw->hWndGraph, 4, (LONG_PTR)((LPLS)&ls));
 	_fmemcpy(&ls.colorpen, &lpgw->colorpen, (WGNUMPENS + 2) * sizeof(LOGPEN));
 	_fmemcpy(&ls.monopen, &lpgw->monopen, (WGNUMPENS + 2) * sizeof(LOGPEN));
-
-	if(DialogBox(hdllInstance, "LineStyleDlgBox", lpgw->hWndGraph, LineStyleDlgProc)
-	    == IDOK) {
+	if(DialogBox(hdllInstance, "LineStyleDlgBox", lpgw->hWndGraph, LineStyleDlgProc) == IDOK) {
 		_fmemcpy(&lpgw->colorpen, &ls.colorpen, (WGNUMPENS + 2) * sizeof(LOGPEN));
 		_fmemcpy(&lpgw->monopen, &ls.monopen, (WGNUMPENS + 2) * sizeof(LOGPEN));
 		status = true;
@@ -3768,7 +3739,7 @@ static BOOL LineStyle(LPGW lpgw)
 /* ================================== */
 /* helper functions: wrapper around gp_exec_event and DrawZoomBox. */
 
-static void Wnd_exec_event(LPGW lpgw, LPARAM lparam, char type, int par1)
+static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 {
 	static ulong lastTimestamp = 0;
 	ulong thisTimestamp = GetMessageTime();
@@ -3817,7 +3788,7 @@ static void Wnd_exec_event(LPGW lpgw, LPARAM lparam, char type, int par1)
 	}
 }
 
-static void Wnd_refresh_zoombox(LPGW lpgw, LPARAM lParam)
+static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
 {
 	if(lpgw == graphwin) {
 		int mx, my;
@@ -3829,7 +3800,7 @@ static void Wnd_refresh_zoombox(LPGW lpgw, LPARAM lParam)
 	}
 }
 
-static void Wnd_refresh_ruler_lineto(LPGW lpgw, LPARAM lParam)
+static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
 {
 	if(lpgw == graphwin) {
 		int mx, my;
@@ -3851,15 +3822,13 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	HDC hdc;
 	PAINTSTRUCT ps;
 	RECT rect;
-	LPGW lpgw;
+	GW * lpgw;
 	HMENU sysmenu;
 	int i;
 #ifdef USE_MOUSE
 	static uint last_modifier_mask = -99;
 #endif
-
-	lpgw = (LPGW)GetWindowLongPtr(hwnd, 0);
-
+	lpgw = (GW *)GetWindowLongPtr(hwnd, 0);
 #ifdef USE_MOUSE
 	/*  mouse events first */
 	if((lpgw == graphwin) && GpGg.Mse.Cfg.on) {
@@ -4182,8 +4151,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 #endif
 #endif /* USE_MOUSE */
 		case WM_COMMAND:
-		    switch(LOWORD(wParam))
-		    {
+		    switch(LOWORD(wParam)) {
 			    case M_GRAPH_TO_TOP:
 				lpgw->graphtotop = !lpgw->graphtotop;
 				SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
@@ -4402,7 +4370,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return false;
 		case WM_CREATE:
-		    lpgw = (LPGW)((CREATESTRUCT*)lParam)->lpCreateParams;
+		    lpgw = (GW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 		    SetWindowLongPtr(hwnd, 0, (LONG_PTR)lpgw);
 		    lpgw->hWndGraph = hwnd;
 		    hdc = GetDC(hwnd);
@@ -4614,7 +4582,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-void GraphChangeFont(LPGW lpgw, LPCSTR font, int fontsize, HDC hdc, RECT rect)
+void GraphChangeFont(GW * lpgw, LPCSTR font, int fontsize, HDC hdc, RECT rect)
 {
 	int newfontsize;
 	bool remakefonts = false;
@@ -4638,7 +4606,7 @@ void GraphChangeFont(LPGW lpgw, LPCSTR font, int fontsize, HDC hdc, RECT rect)
 }
 
 /* close the terminal window */
-void WDPROC win_close_terminal_window(LPGW lpgw)
+void WDPROC win_close_terminal_window(GW * lpgw)
 {
 	if(GraphHasWindow(lpgw))
 		SendMessage(lpgw->hWndGraph, WM_CLOSE, 0L, 0L);
@@ -4657,7 +4625,7 @@ void WDPROC win_close_terminal_window(LPGW lpgw)
  * 'this' pointer, sort of: it stores all the status information of the graph
  * window that we need, in a single large structure. */
 
-void WDPROC Graph_set_cursor(LPGW lpgw, int c, int x, int y)
+void WDPROC Graph_set_cursor(GW * lpgw, int c, int x, int y)
 {
 	switch(c) {
 		case -4: /* switch off line between ruler and mouse cursor */
@@ -4720,7 +4688,7 @@ void WDPROC Graph_set_cursor(LPGW lpgw, int c, int x, int y)
 }
 
 /* set_ruler(int x, int y) term API: x<0 switches ruler off. */
-void WDPROC Graph_set_ruler(LPGW lpgw, int x, int y)
+void WDPROC Graph_set_ruler(GW * lpgw, int x, int y)
 {
 	DrawRuler(lpgw); /* remove previous drawing, if any */
 	DrawRulerLineTo(lpgw);
@@ -4738,7 +4706,7 @@ void WDPROC Graph_set_ruler(LPGW lpgw, int x, int y)
  *      i: 0..at statusline
  *	1, 2: at corners of zoom box with \r separating text
  */
-void WDPROC Graph_put_tmptext(LPGW lpgw, int where, LPCSTR text)
+void WDPROC Graph_put_tmptext(GW * lpgw, int where, LPCSTR text)
 {
 	/* Position of the annotation string (mouse movement) or zoom box
 	 * text or whatever temporary text added...
@@ -4764,16 +4732,14 @@ void WDPROC Graph_put_tmptext(LPGW lpgw, int where, LPCSTR text)
 	}
 }
 
-void WDPROC Graph_set_clipboard(LPGW lpgw, LPCSTR s)
+void WDPROC Graph_set_clipboard(GW * lpgw, LPCSTR s)
 {
 	size_t length;
 	HGLOBAL memHandle;
 	LPSTR clipText;
-
 	/* check: no string --> nothing to do */
 	if(!s || !s[0])
 		return;
-
 	/* Transport the string into a system-global storage area. In case
 	 * of (unlikely) allocation failures, fail silently */
 	length = strlen(s);
@@ -4799,13 +4765,11 @@ void WDPROC Graph_set_clipboard(LPGW lpgw, LPCSTR s)
 
 /* This routine gets the mouse/pointer position in the current window and
  * recalculates it to the viewport coordinates. */
-static void GetMousePosViewport(LPGW lpgw, int * mx, int * my)
+static void GetMousePosViewport(GW * lpgw, int * mx, int * my)
 {
 	POINT pt;
 	RECT rc;
-
 	GetPlotRect(lpgw, &rc);
-
 	/* HBB: has to be done this way. The simpler method by taking apart LPARM
 	 * only works for mouse, but not for keypress events. */
 	GetCursorPos(&pt);
@@ -4827,17 +4791,14 @@ static void GetMousePosViewport(LPGW lpgw, int * mx, int * my)
  *
  * x and y give the bottom-left corner of the bounding box into which the
  * text will be drawn */
-static void Draw_XOR_Text(LPGW lpgw, const char * text, size_t length, int x, int y)
+static void Draw_XOR_Text(GW * lpgw, const char * text, size_t length, int x, int y)
 {
 	HDC hdc, tempDC;
 	HBITMAP bitmap;
 	int cx, cy;
-
 	if(!text || !text[0])
 		return;  /* no text to be displayed */
-
 	hdc = GetDC(lpgw->hWndGraph);
-
 	/* Prepare background image buffer of the necessary size */
 	Wnd_GetTextSize(hdc, text, length, &cx, &cy);
 	bitmap = CreateCompatibleBitmap(hdc, cx, cy);
@@ -4866,7 +4827,7 @@ static void Draw_XOR_Text(LPGW lpgw, const char * text, size_t length, int x, in
 /*
  * Update the status line by the text; erase the previous text
  */
-static void UpdateStatusLine(LPGW lpgw, const char text[])
+static void UpdateStatusLine(GW * lpgw, const char text[])
 {
 	SendMessage(lpgw->hStatusbar, WM_SETTEXT, (WPARAM)0, (LPARAM)text);
 }
@@ -4874,10 +4835,9 @@ static void UpdateStatusLine(LPGW lpgw, const char text[])
 /*
  * Update the toolbar to reflect the current the number of active plots
  */
-static void UpdateToolbar(LPGW lpgw)
+static void UpdateToolbar(GW * lpgw)
 {
 	unsigned i;
-
 	SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEGRID, (LPARAM) !lpgw->hasgrid);
 	if(!lpgw->hasgrid) {
 		lpgw->hidegrid = false;
@@ -4898,11 +4858,10 @@ static void UpdateToolbar(LPGW lpgw)
 		}
 	}
 }
-
 /*
  * Toggle active plots
  */
-void WDPROC GraphModifyPlots(LPGW lpgw, uint ops, int plotno)
+void WDPROC GraphModifyPlots(GW * lpgw, uint ops, int plotno)
 {
 	bool changed = false;
 	for(uint i = 0; i < MIN(lpgw->numplots, lpgw->maxhideplots); i++) {
@@ -4944,22 +4903,18 @@ void WDPROC GraphModifyPlots(LPGW lpgw, uint ops, int plotno)
 
 /* Draw the ruler.
  */
-static void DrawRuler(LPGW lpgw)
+static void DrawRuler(GW * lpgw)
 {
 	HDC hdc;
 	int iOldRop;
 	RECT rc;
 	long rx, ry;
-
 	if(!ruler.on || ruler.x < 0)
 		return;
-
 	hdc = GetDC(lpgw->hWndGraph);
 	GetPlotRect(lpgw, &rc);
-
 	rx = MulDiv(ruler.x, rc.right - rc.left, lpgw->xmax);
 	ry = rc.bottom - MulDiv(ruler.y, rc.bottom - rc.top, lpgw->ymax);
-
 	iOldRop = SetROP2(hdc, R2_NOT);
 	MoveTo(hdc, rc.left, ry);
 	LineTo(hdc, rc.right, ry);
@@ -4971,16 +4926,14 @@ static void DrawRuler(LPGW lpgw)
 
 /* Draw the ruler line to cursor position.
  */
-static void DrawRulerLineTo(LPGW lpgw)
+static void DrawRulerLineTo(GW * lpgw)
 {
 	HDC hdc;
 	int iOldRop;
 	RECT rc;
 	long rx, ry, rlx, rly;
-
 	if(!ruler.on || !ruler_lineto.on || ruler.x < 0 || ruler_lineto.x < 0)
 		return;
-
 	hdc = GetDC(lpgw->hWndGraph);
 	GetPlotRect(lpgw, &rc);
 
@@ -4998,20 +4951,17 @@ static void DrawRulerLineTo(LPGW lpgw)
 
 /* Draw the zoom box.
  */
-static void DrawZoomBox(LPGW lpgw)
+static void DrawZoomBox(GW * lpgw)
 {
 	HDC hdc;
 	long fx, fy, tx, ty, text_y;
 	int OldROP2;
 	RECT rc;
 	HPEN OldPen;
-
 	if(!zoombox.on)
 		return;
-
 	hdc = GetDC(lpgw->hWndGraph);
 	GetPlotRect(lpgw, &rc);
-
 	fx = MulDiv(zoombox.from.x, rc.right - rc.left, lpgw->xmax);
 	fy = rc.bottom - MulDiv(zoombox.from.y, rc.bottom - rc.top, lpgw->ymax);
 	tx = MulDiv(zoombox.to.x, rc.right - rc.left, lpgw->xmax);

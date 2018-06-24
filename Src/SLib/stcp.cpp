@@ -854,6 +854,23 @@ int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 }
 
 //static 
+SString & FASTCALL InetUrl::Mk(int protocol, const char * pHost, const char * pPath)
+{
+	assert(!isempty(pHost));
+	const char * p_scheme = protocol ? GetSchemeMnem(protocol) : "";
+	SString & r_buf = SLS.AcquireRvlStr();
+	if(p_scheme)
+		r_buf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
+	r_buf.Cat(pHost);
+	if(!isempty(pPath)) {
+		if(pPath[0] != '/')
+			r_buf.SetLastDSlash();
+		r_buf.Cat(pPath);
+	}
+	return r_buf;
+}
+
+//static 
 int FASTCALL InetUrl::ValidateComponent(int c)
 {
 	return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);

@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -284,26 +284,24 @@ SLAPI SIniFile::~SIniFile()
 	Close();
 }
 
-int SLAPI SIniFile::IsValid() const
-{
-	return (File.IsValid() || (Flags & fIniBufInited)) ? 1 : SLS.SetError(SLERR_INIOPENFAULT, FileName);
-}
-
-long SLAPI SIniFile::GetFlags() const
-{
-	return Flags;
-}
+int  SLAPI SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInited)) ? 1 : SLS.SetError(SLERR_INIOPENFAULT, FileName); }
+long SLAPI SIniFile::GetFlags() const { return Flags; }
+const SString & SLAPI SIniFile::GetFileName() const { return FileName; }
+int  SLAPI SIniFile::Close() { return File.Close(); }
+int  SLAPI SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
+	{ return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf); }
+int  SLAPI SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
+	{ return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), overwrite ? 1 : 0); }
+int  SLAPI SIniFile::RemoveSection(const char * pSect)
+	{ return SetParam(pSect, 0, 0, 0); }
+int  SLAPI SIniFile::ClearSection(const char * pSect)
+	{ return (Flags & fIniBufInited) ? P_IniBuf->ClearSect(pSect) : RemoveSection(pSect); }
 
 long SLAPI SIniFile::SetFlag(long f, int set)
 {
 	const long prev = Flags;
 	SETFLAG(Flags, f, set);
 	return prev;
-}
-
-const SString & SLAPI SIniFile::GetFileName() const
-{
-	return FileName;
 }
 
 int SLAPI SIniFile::FlashIniBuf()
@@ -365,11 +363,6 @@ int SLAPI SIniFile::Open(const char * pFileName)
 	int    ok = File.IsValid() ? 1 : File.Open(pFileName, SFile::mRead);
 	LoadingTime = getcurdatetime_();
 	return ok;
-}
-
-int SLAPI SIniFile::Close()
-{
-	return File.Close();
 }
 
 int SLAPI SIniFile::Create(const char * pFileName)
@@ -537,22 +530,12 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 
 #pragma warn .aus
 
-int SLAPI SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
-{
-	return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf);
-}
-
 int SLAPI SIniFile::GetIntParam(const char * pSect, const char * pParam, int * pVal)
 {
 	int    r = SearchParam(pSect, pParam, TempBuf);
 	if(pVal)
 		*pVal = r ? TempBuf.ToLong() : 0;
 	return r;
-}
-
-int SLAPI SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
-{
-	return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), overwrite ? 1 : 0);
 }
 
 int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
@@ -659,12 +642,3 @@ int SLAPI SIniFile::RemoveParam(const char * pSect, const char * pParam)
 	return SetParam(pSect, pParam, 0, 1);
 }
 
-int SLAPI SIniFile::RemoveSection(const char * pSect)
-{
-	return SetParam(pSect, 0, 0, 0);
-}
-
-int SLAPI SIniFile::ClearSection(const char * pSect)
-{
-	return (Flags & fIniBufInited) ? P_IniBuf->ClearSect(pSect) : RemoveSection(pSect);
-}

@@ -2591,130 +2591,133 @@ int SLAPI Quotation2Core::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
 int SLAPI Quotation2Core::Set(PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQList.GoodsID);
-	int    ok = 1, ta = 0, r = 0;
-	int    is_updated = 0, is_mtx_updated = 0, is_mtx_restr_updated = 0, is_suppl_deal_upd = 0;
-	PPIDArray mtx_loc_list, mtx_restr_loc_list, suppl_deal_ar_list;
+	int    ok = 1;
+	int    r = 0;
+	int    is_updated = 0; // 0 - no changes, 1 - updated, 2 - removed
+	int    is_mtx_updated = 0;
+	int    is_mtx_restr_updated = 0;
+	int    is_suppl_deal_upd = 0;
+	PPIDArray mtx_loc_list;
+	PPIDArray mtx_restr_loc_list;
+	PPIDArray suppl_deal_ar_list;
 	uint   i, pos;
 	int    unupd = 0; // @debug
 	PPQuotArray templ(rQList.GoodsID);
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(pTemplate) {
-		templ = *pTemplate;
-	}
-	else {
-		GetCurrList(rQList.GoodsID, 0, 0, templ);
-	}
-	for(i = 0; i < rQList.getCount(); i++) {
-		PPQuot & r_quot = rQList.at(i);
-		r_quot.Flags &= ~PPQuot::fDbUpd;
-		if((r_quot.Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(r_quot.Quot) != 0.0) {
-			if(r_quot.Kind == 0) {
-				; // Инвалидное значение с нулевым видом котировки - должно быть удалено
-			}
-			else if(rQList.CanUpdateQuot(r_quot) > 0) {
-				r_quot.GoodsID = rQList.GoodsID;
-				const PPID loc_id = r_quot.LocID;
-				const PPID ar_id = r_quot.ArID;
-				{
-					QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
-					qi.SetIdentPeriod(&r_quot.Period);
-					qi.SetIdentQtty(&r_quot.MinQtty);
-					if(templ.SearchQi(qi, &(pos = 0)) > 0)
-						templ.atFree(pos);
-				}
-				THROW(r = Set(r_quot, qtaID, 0, 0));
-				if(r > 0) {
-					r_quot.Flags |= PPQuot::fDbUpd;
-					is_updated = 1;
-					if(r == 1000) {
-						mtx_loc_list.addUnique(loc_id);
-						is_mtx_updated = 1;
-					}
-					else if(r == 2000) {
-						mtx_restr_loc_list.addUnique(loc_id);
-						is_mtx_restr_updated = 1;
-					}
-					else if(r == 3000) {
-						suppl_deal_ar_list.addUnique(ar_id);
-						is_suppl_deal_upd = 1;
-					}
-				}
-			}
+	{
+		PPTransaction tra(use_ta);
+		if(!RVALUEPTR(templ, pTemplate)) {
+			GetCurrList(rQList.GoodsID, 0, 0, templ);
 		}
-	}
-	if(!noRmv) {
-		for(i = 0; i < templ.getCount(); i++) {
-			PPQuot & r_quot = templ.at(i);
-			if(r_quot.Kind == 0) {
-				; // @todo Инвалидное значение с нулевым видом котировки - должно быть удалено
-			}
-			else if(rQList.CanUpdateQuot(r_quot) > 0) {
-				PPQuot zero_quot;
-				zero_quot = r_quot;
-				zero_quot.Quot = 0.0;
-				zero_quot.Flags = 0;
-				THROW(r = Set(zero_quot, qtaID, 0, 0));
-				if(r > 0) {
-					is_updated = 1;
-					if(r == 1000) { // @v8.2.5 @fix (r = 1000)-->(r == 1000)
-						mtx_loc_list.addUnique(r_quot.LocID);
-						is_mtx_updated = 1;
+		for(i = 0; i < rQList.getCount(); i++) {
+			PPQuot & r_quot = rQList.at(i);
+			r_quot.Flags &= ~PPQuot::fDbUpd;
+			if((r_quot.Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(r_quot.Quot) != 0.0) {
+				if(r_quot.Kind == 0) {
+					; // Инвалидное значение с нулевым видом котировки - должно быть удалено
+				}
+				else if(rQList.CanUpdateQuot(r_quot) > 0) {
+					r_quot.GoodsID = rQList.GoodsID;
+					const PPID loc_id = r_quot.LocID;
+					const PPID ar_id = r_quot.ArID;
+					{
+						QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
+						qi.SetIdentPeriod(&r_quot.Period);
+						qi.SetIdentQtty(&r_quot.MinQtty);
+						if(templ.SearchQi(qi, &(pos = 0)) > 0)
+							templ.atFree(pos);
 					}
-					else if(r == 2000) {
-						mtx_restr_loc_list.addUnique(r_quot.LocID);
-						is_mtx_restr_updated = 1;
-					}
-					else if(r == 3000) {
-						suppl_deal_ar_list.addUnique(r_quot.ArID);
-						is_suppl_deal_upd = 1;
+					THROW(r = Set(r_quot, qtaID, 0, 0));
+					if(r > 0) {
+						r_quot.Flags |= PPQuot::fDbUpd;
+						is_updated = 1;
+						if(r == 1000) {
+							mtx_loc_list.addUnique(loc_id);
+							is_mtx_updated = 1;
+						}
+						else if(r == 2000) {
+							mtx_restr_loc_list.addUnique(loc_id);
+							is_mtx_restr_updated = 1;
+						}
+						else if(r == 3000) {
+							suppl_deal_ar_list.addUnique(ar_id);
+							is_suppl_deal_upd = 1;
+						}
 					}
 				}
 			}
 		}
+		if(!noRmv) {
+			for(i = 0; i < templ.getCount(); i++) {
+				PPQuot & r_quot = templ.at(i);
+				if(r_quot.Kind == 0) {
+					; // @todo Инвалидное значение с нулевым видом котировки - должно быть удалено
+				}
+				else if(rQList.CanUpdateQuot(r_quot) > 0) {
+					PPQuot zero_quot;
+					zero_quot = r_quot;
+					zero_quot.Quot = 0.0;
+					zero_quot.Flags = 0;
+					THROW(r = Set(zero_quot, qtaID, 0, 0));
+					if(r > 0) {
+						if(!is_updated)
+							is_updated = 2;
+						if(r == 1000) {
+							mtx_loc_list.addUnique(r_quot.LocID);
+							is_mtx_updated = 2;
+						}
+						else if(r == 2000) {
+							mtx_restr_loc_list.addUnique(r_quot.LocID);
+							is_mtx_restr_updated = 2;
+						}
+						else if(r == 3000) {
+							suppl_deal_ar_list.addUnique(r_quot.ArID);
+							is_suppl_deal_upd = 2;
+						}
+					}
+				}
+			}
+		}
+		if(is_updated) {
+			DS.LogAction(PPACN_QUOTUPD2, PPOBJ_GOODS, rQList.GoodsID, qtaID, 0);
+			if(is_mtx_updated) {
+				uint c = mtx_loc_list.getCount();
+				if(c) {
+					do {
+						DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQList.GoodsID, mtx_loc_list.at(--c), 0);
+					} while(c);
+				}
+				else
+					DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
+			}
+			if(is_mtx_restr_updated) {
+				uint c = mtx_restr_loc_list.getCount();
+				if(c) {
+					do {
+						DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQList.GoodsID, mtx_restr_loc_list.at(--c), 0);
+					} while(c);
+				}
+				else
+					DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
+			}
+			if(is_suppl_deal_upd) {
+				uint c = suppl_deal_ar_list.getCount();
+				if(c) {
+					do {
+						DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQList.GoodsID, suppl_deal_ar_list.at(--c), 0);
+					} while(c);
+				}
+				else
+					DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
+			}
+		}
+		THROW(tra.Commit());
 	}
-	if(is_updated) {
-		DS.LogAction(PPACN_QUOTUPD2, PPOBJ_GOODS, rQList.GoodsID, qtaID, 0);
-		if(is_mtx_updated) {
-			uint c = mtx_loc_list.getCount();
-			if(c) {
-				do {
-					DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQList.GoodsID, mtx_loc_list.at(--c), 0);
-				} while(c);
-			}
-			else
-				DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
-		}
-		if(is_mtx_restr_updated) {
-			uint c = mtx_restr_loc_list.getCount();
-			if(c) {
-				do {
-					DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQList.GoodsID, mtx_restr_loc_list.at(--c), 0);
-				} while(c);
-			}
-			else
-				DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
-		}
-		if(is_suppl_deal_upd) {
-			uint c = suppl_deal_ar_list.getCount();
-			if(c) {
-				do {
-					DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQList.GoodsID, suppl_deal_ar_list.at(--c), 0);
-				} while(c);
-			}
-			else
-				DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQList.GoodsID, -1, 0);
-		}
-	}
-	THROW(PPCommitWork(&ta));
 	if(is_updated)
 		ok = 2;
 	//
 	// Note: Актуализацию кэша сделает функция Set(const PPQuot &, long, int)
 	//
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -2751,12 +2754,14 @@ int SLAPI Quotation2Core::AdjustTime(Quotation2Tbl::Rec & rRec)
 
 int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PROFILE_START
 	PPID   rel_id = 0;
 	int    do_add_rec = 0;
 	int    act_clr = 0; // Признак того, что с текущего актуального значения был снят признак актуальности
-	int    is_mtx_upd = 0, is_mtx_restr_upd = 0, is_suppl_deal_upd = 0;
+	int    is_mtx_upd = 0;
+	int    is_mtx_restr_upd = 0;
+	int    is_suppl_deal_upd = 0;
 	double prev_qv = 0.0;
 	long   prev_qf = 0;
 	Quotation2Tbl::Key2 k2; // {Actual, RelID, GoodsID} (anysegnull dup mod);
@@ -2768,116 +2773,119 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 	PPObjQuotKind::Special spc;
 	PROFILE(PPObjQuotKind::GetSpecialKinds(&spc, 1));
 	THROW(qk_obj.Fetch(rQ.Kind, &qk_rec) > 0);
-	THROW(PPStartTransaction(&ta, use_ta));
-	PROFILE(THROW(GetRel(&rQ, &rel_id, 1, 0) > 0));
-	MEMSZERO(rec);
-	rec.RelID = rel_id;
-	rec.GoodsID = rQ.GoodsID;
-	rec.Actual = 1;
-	rec.Flags = (int16)(rQ.Flags & PPQuot::fDbMask);
-	rec.Quot = rQ.Quot;
-	rec.TaID = qtaID;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		PROFILE(THROW(GetRel(&rQ, &rel_id, 1, 0) > 0));
+		MEMSZERO(rec);
+		rec.RelID = rel_id;
+		rec.GoodsID = rQ.GoodsID;
+		rec.Actual = 1;
+		rec.Flags = (int16)(rQ.Flags & PPQuot::fDbMask);
+		rec.Quot = rQ.Quot;
+		rec.TaID = qtaID;
 
-	PROFILE_START
-	MEMSZERO(k2);
-	k2.Actual = 1;
-	k2.RelID = rel_id;
-	k2.GoodsID = rQ.GoodsID;
-	if(search(2, &k2, spEq)) { // @v8.2.6 searchForUpdate-->search
-		do {
-			DBRowId ri;
-			THROW_DB(getPosition(&ri));
-			THROW_SL(ri_list.insert(&ri));
-			last_actual_rec = data;
-		} while(search(2, &k2, spNext) && data.Actual && data.RelID == rel_id && data.GoodsID == rQ.GoodsID); // @v8.2.6 searchForUpdate-->search
-	}
-	PROFILE_END
-	if(ri_list.getCount()) {
-		//
-		// Если так получилось (хотя это - сбойная ситуация), что у нас более одной актуальной записи,
-		// то для всех кроме последней устанавливаем значение Actual = 0.
-		//
-		const uint c = ri_list.getCount();
-		for(uint i = 0; i < c; i++) {
-			if(i == (c-1)) {
-				if(last_actual_rec.Quot != rQ.Quot || (last_actual_rec.Flags & PPQuot::fDbMask) != (rQ.Flags & PPQuot::fDbMask)) {
-					do_add_rec = 1;
-					prev_qv = last_actual_rec.Quot;
-					prev_qf = last_actual_rec.Flags;
-				}
-				else {
-					ok = -1;
-					break;
-				}
-			}
-			PROFILE_START
-			THROW_DB(getDirectForUpdate(0, 0, ri_list.at(i)));
-			data.Actual = 0;
-			THROW_DB(updateRec()); // @sfu
-			PROFILE_END
-			act_clr = 1;
-		}
-	}
-	else
-		do_add_rec = 1;
-	if(do_add_rec) {
 		PROFILE_START
-		if(rQ.Kind == 0)
-			ok = 1;
-		else if(rQ.Kind == spc.MtxID) {
-			ok = qk_obj.CheckRights(QUOTRT_UPDMTX) ? (is_mtx_upd = 1) : LogDeclineMsg(&rQ, PPQC_MATRIX);
-			//
-			// Если в матрицу вводится новый элемент и существуют ограничения на матрицу,
-			// то проверяем эти ограничения //
-			// При выводе элементов из матрицы ограничения не проверяем.
-			//
-			if(spc.MtxRestrID && rQ.Quot > 0.0 && prev_qv <= 0.0) {
-				PPObjGoods goods_obj;
-				THROW(goods_obj.CheckMatrixRestrict(rQ.GoodsID, rQ.LocID, (long)rQ.Quot));
-			}
-		}
-		else if(rQ.Kind == spc.MtxRestrID)
-			ok = qk_obj.CheckRights(QUOTRT_UPDMTXRESTR) ? (is_mtx_restr_upd = 1) : LogDeclineMsg(&rQ, PPQC_MATRIXRESTR);
-		else if(spc.IsSupplDealKind(rQ.Kind)) {
-			ok = qk_obj.CheckRights(QUOTRT_UPDSUPPLCOST) ? 1 : LogDeclineMsg(&rQ, PPQC_SUPPLDEAL);
-			if(rQ.Kind == spc.SupplDealID)
-				is_suppl_deal_upd = 1;
-		}
-		else
-			ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(&rQ, PPQC_PRICE);
-		if(ok > 0) {
-			// @v9.9.1 @fix const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
-			const long mask = PPQuot::fDbMask; // @v9.9.1 @fix
-			if((rec.Flags & mask) || rec.Quot != 0.0) {
-				THROW(AdjustTime(rec));
-				THROW_DB(insertRecBuf(&rec));
-				if(logSj)
-					DS.LogAction(PPACN_QUOTUPD2, PPOBJ_GOODS, rQ.GoodsID, qtaID, 0);
-			}
-			else if(act_clr) {
-				if(logSj)
-					DS.LogAction(PPACN_QUOTRMV2, PPOBJ_GOODS, rQ.GoodsID, qtaID, 0);
-			}
-			if(logSj) {
-				if(is_mtx_upd)
-					DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.LocID, 0);
-				else if(is_mtx_restr_upd)
-					DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.LocID, 0);
-				else if(is_suppl_deal_upd)
-					DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.ArID, 0);
-			}
-			if(is_mtx_upd)
-				ok = 1000;
-			else if(is_mtx_restr_upd)
-				ok = 2000;
-			else if(is_suppl_deal_upd)
-				ok = 3000;
-			else
-				ok = 1;
+		MEMSZERO(k2);
+		k2.Actual = 1;
+		k2.RelID = rel_id;
+		k2.GoodsID = rQ.GoodsID;
+		if(search(2, &k2, spEq)) {
+			do {
+				DBRowId ri;
+				THROW_DB(getPosition(&ri));
+				THROW_SL(ri_list.insert(&ri));
+				last_actual_rec = data;
+			} while(search(2, &k2, spNext) && data.Actual && data.RelID == rel_id && data.GoodsID == rQ.GoodsID); // @v8.2.6 searchForUpdate-->search
 		}
 		PROFILE_END
+		if(ri_list.getCount()) {
+			//
+			// Если так получилось (хотя это - сбойная ситуация), что у нас более одной актуальной записи,
+			// то для всех кроме последней устанавливаем значение Actual = 0.
+			//
+			const uint c = ri_list.getCount();
+			for(uint i = 0; i < c; i++) {
+				if(i == (c-1)) {
+					if(last_actual_rec.Quot != rQ.Quot || (last_actual_rec.Flags & PPQuot::fDbMask) != (rQ.Flags & PPQuot::fDbMask)) {
+						do_add_rec = 1;
+						prev_qv = last_actual_rec.Quot;
+						prev_qf = last_actual_rec.Flags;
+					}
+					else {
+						ok = -1;
+						break;
+					}
+				}
+				PROFILE_START
+				THROW_DB(getDirectForUpdate(0, 0, ri_list.at(i)));
+				data.Actual = 0;
+				THROW_DB(updateRec()); // @sfu
+				PROFILE_END
+				act_clr = 1;
+			}
+		}
+		else
+			do_add_rec = 1;
+		if(do_add_rec) {
+			PROFILE_START
+			if(rQ.Kind == 0)
+				ok = 1;
+			else if(rQ.Kind == spc.MtxID) {
+				ok = qk_obj.CheckRights(QUOTRT_UPDMTX) ? (is_mtx_upd = 1) : LogDeclineMsg(&rQ, PPQC_MATRIX);
+				//
+				// Если в матрицу вводится новый элемент и существуют ограничения на матрицу,
+				// то проверяем эти ограничения //
+				// При выводе элементов из матрицы ограничения не проверяем.
+				//
+				if(spc.MtxRestrID && rQ.Quot > 0.0 && prev_qv <= 0.0) {
+					PPObjGoods goods_obj;
+					THROW(goods_obj.CheckMatrixRestrict(rQ.GoodsID, rQ.LocID, (long)rQ.Quot));
+				}
+			}
+			else if(rQ.Kind == spc.MtxRestrID)
+				ok = qk_obj.CheckRights(QUOTRT_UPDMTXRESTR) ? (is_mtx_restr_upd = 1) : LogDeclineMsg(&rQ, PPQC_MATRIXRESTR);
+			else if(spc.IsSupplDealKind(rQ.Kind)) {
+				ok = qk_obj.CheckRights(QUOTRT_UPDSUPPLCOST) ? 1 : LogDeclineMsg(&rQ, PPQC_SUPPLDEAL);
+				if(rQ.Kind == spc.SupplDealID)
+					is_suppl_deal_upd = 1;
+			}
+			else
+				ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(&rQ, PPQC_PRICE);
+			if(ok > 0) {
+				// @v9.9.1 @fix const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
+				const long mask = PPQuot::fDbMask; // @v9.9.1 @fix
+				if((rec.Flags & mask) || rec.Quot != 0.0) {
+					THROW(AdjustTime(rec));
+					THROW_DB(insertRecBuf(&rec));
+					if(logSj)
+						DS.LogAction(PPACN_QUOTUPD2, PPOBJ_GOODS, rQ.GoodsID, qtaID, 0);
+				}
+				else if(act_clr) {
+					if(logSj)
+						DS.LogAction(PPACN_QUOTRMV2, PPOBJ_GOODS, rQ.GoodsID, qtaID, 0);
+				}
+				if(logSj) {
+					if(is_mtx_upd)
+						DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.LocID, 0);
+					else if(is_mtx_restr_upd)
+						DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.LocID, 0);
+					else if(is_suppl_deal_upd)
+						DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, rQ.GoodsID, rQ.ArID, 0);
+				}
+				if(is_mtx_upd)
+					ok = 1000;
+				else if(is_mtx_restr_upd)
+					ok = 2000;
+				else if(is_suppl_deal_upd)
+					ok = 3000;
+				else
+					ok = 1;
+			}
+			PROFILE_END
+		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
 	if(ok > 0) {
 		DirtyGoodsID(rQ.GoodsID);
 		if(is_mtx_upd) {
@@ -2888,10 +2896,7 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 			DirtyMatrix(&goods_list, &loc_list, deferred);
 		}
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	PROFILE_END
 	return ok;
 }

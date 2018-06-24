@@ -1522,7 +1522,6 @@ int SLAPI PPViewQuot::CheckDelFromMtx(PPID goodsID)
 		BillTbl::Key2 k2;
 		DBQ  * dbq = 0;
 		BExtQuery q_b(tbl, 2);
-
 		dbq = ppcheckfiltid(dbq, tbl->OpID, draft_op_id);
 		q_b.select(tbl->ID, tbl->Dt, tbl->Code, tbl->Flags, 0).where(*dbq);
 		MEMSZERO(k2);
@@ -1561,7 +1560,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	BrwHdr hdr;
 	MEMSZERO(hdr);
 	if(ok == -2) {
-		GetEditIds(pHdr, &hdr, (pBrw) ? pBrw->GetCurColumn() : 0);
+		GetEditIds(pHdr, &hdr, (pBrw ? pBrw->GetCurColumn() : 0));
 		PPID   id = hdr.GoodsID;
 		int    is_suppl_deal = BIN(Filt.QkCls == PPQuot::clsSupplDeal);
 		switch(ppvCmd) {

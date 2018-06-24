@@ -1811,18 +1811,14 @@ void /* PRIVATE */ png_handle_oFFs(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
 	}
-
 	if(length != 9) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "invalid");
 		return;
 	}
-
 	png_crc_read(png_ptr, buf, 9);
-
 	if(png_crc_finish(png_ptr, 0) != 0)
 		return;
-
 	offset_x = png_get_int_32(buf);
 	offset_y = png_get_int_32(buf + 4);
 	unit_type = buf[8];
@@ -1904,33 +1900,23 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "invalid parameter count");
 		return;
 	}
-
 	else if(type >= PNG_EQUATION_LAST) {
 		png_chunk_benign_error(png_ptr, "unrecognized equation type");
 	}
-
 	for(buf = units; *buf; buf++)
 		/* Empty loop to move past the units string. */;
-
 	png_debug(3, "Allocating pCAL parameters array");
-
-	params = png_voidcast(png_charpp, png_malloc_warn(png_ptr,
-		    nparams * (sizeof(char *))));
-
+	params = png_voidcast(png_charpp, png_malloc_warn(png_ptr, nparams * (sizeof(char *))));
 	if(params == NULL) {
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
 	}
-
 	/* Get pointers to the start of each parameter string. */
 	for(i = 0; i < nparams; i++) {
 		buf++; /* Skip the null string terminator from previous parameter. */
-
 		png_debug1(3, "Reading pCAL parameter %d", i);
-
 		for(params[i] = (char *)buf; buf <= endptr && *buf != 0; buf++)
 			/* Empty loop to move past each parameter string */;
-
 		/* Make sure we haven't run out of data yet */
 		if(buf > endptr) {
 			png_free(png_ptr, params);
@@ -1938,10 +1924,7 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 			return;
 		}
 	}
-
-	png_set_pCAL(png_ptr, info_ptr, (char *)buffer, X0, X1, type, nparams,
-	    (char *)units, params);
-
+	png_set_pCAL(png_ptr, info_ptr, (char *)buffer, X0, X1, type, nparams, (char *)units, params);
 	png_free(png_ptr, params);
 }
 
@@ -2085,7 +2068,6 @@ void /* PRIVATE */ png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, ui
 			png_crc_finish(png_ptr, length);
 			return;
 		}
-
 		if(--png_ptr->user_chunk_cache_max == 1) {
 			png_crc_finish(png_ptr, length);
 			png_chunk_benign_error(png_ptr, "no space in chunk cache");
@@ -2093,13 +2075,10 @@ void /* PRIVATE */ png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		}
 	}
 #endif
-
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
 		png_chunk_error(png_ptr, "missing IHDR");
-
 	if((png_ptr->mode & PNG_HAVE_IDAT) != 0)
 		png_ptr->mode |= PNG_AFTER_IDAT;
-
 #ifdef PNG_MAX_MALLOC_64K
 	if(length > 65535U) {
 		png_crc_finish(png_ptr, length);

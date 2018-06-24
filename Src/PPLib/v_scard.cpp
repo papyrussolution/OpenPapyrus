@@ -943,9 +943,8 @@ int FASTCALL PPViewSCard::NextIteration(SCardViewItem * pItem)
 
 class SCardFiltDialog : public TDialog {
 public:
-	SCardFiltDialog() : TDialog(DLG_SCARDFLT)
+	SCardFiltDialog() : TDialog(DLG_SCARDFLT), LastFlagsState(0)
 	{
-		LastFlagsState = 0;
 		SetupCalPeriod(CTLCAL_SCARDFLT_TRNOVRPRD, CTL_SCARDFLT_TRNOVRPRD);
 		SetupCalPeriod(CTLCAL_SCARDFLT_ISSUE, CTL_SCARDFLT_ISSUE);
 		SetupCalPeriod(CTLCAL_SCARDFLT_EXPIRY, CTL_SCARDFLT_EXPIRY);

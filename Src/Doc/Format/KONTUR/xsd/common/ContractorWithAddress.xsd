@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="CountryAddress.xsd"/>
+  <xsd:include schemaLocation="simpleTypes/GlobalLocationNumber.xsd"/>
+  <xsd:include schemaLocation="simpleTypes/FullName.xsd"/>
+  <xsd:complexType name="ContractorWithAddressType">
+    <xsd:annotation>
+      <xsd:documentation>Контрагент для счета-фактуры</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="gln" type="GlobalLocationNumberType">
+        <xsd:annotation>
+          <xsd:documentation>GLN</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice>
+        <xsd:element name ="organization">
+          <xsd:complexType>
+            <xsd:annotation>
+              <xsd:documentation>Организация</xsd:documentation>
+            </xsd:annotation>
+            <xsd:sequence>
+              <xsd:element name="name">
+                <xsd:annotation>
+                  <xsd:documentation>Наименование организации</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:minLength value="1"/>
+                    <xsd:maxLength value="80"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+              <xsd:element name="inn" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>ИНН 10 цифр</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType >
+                  <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="\d{10}"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+              <xsd:element name="kpp" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>КПП 9 цифр</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType >
+                  <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="\d{9}"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name ="selfEmployed">
+          <xsd:annotation>
+            <xsd:documentation>Индивидуальный предприниматель</xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name ="fullName" type ="FullNameType">
+                <xsd:annotation>
+                  <xsd:documentation>ФИО</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="inn" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>ИНН 12 цифр</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType >
+                  <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="\d{12}"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:choice>
+        <xsd:element name="russianAddress" type="RussianAddressType">
+          <xsd:annotation>
+            <xsd:documentation>Российский адрес</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="foreignAddress" type="ForeignAddressType">
+          <xsd:annotation>
+            <xsd:documentation>Иностранный адрес</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="additionalInfo" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Дополнительная информация о контрагенте</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="phone" type="xsd:string" minOccurs="0"></xsd:element>
+            <xsd:element name="fax" type="xsd:string" minOccurs="0"></xsd:element>
+            <xsd:element name="bankAccountNumber" type="xsd:string" minOccurs="0"></xsd:element>
+            <xsd:element name="bankName" type="xsd:string"></xsd:element>
+            <xsd:element name="BIK" type="xsd:string" minOccurs="0"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+</xsd:schema>

@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+  <eDIMessage id="messageId" creationDateTime="creationDateTime">    <!--идентификатор сообщения, время сообщения-->
+    <!-- начало заголовка сообщения -->
+	<interchangeHeader>
+      <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+      <recipient>RecipientGLN</recipient>    <!--GLN получателя сообщения-->
+      <documentType>INVRPT</documentType>   <!--тип документа-->
+      <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+	  <isTest>1</isTest>   <!--тестовый флаг-->
+	</interchangeHeader>
+	<!-- конец заголовка сообщения -->
+	<inventoryReport number="invrptNumber" date="invrptDate">	<!--Номер и дата INVRPT--> 
+		<inventoryDate>InventoryDate</inventoryDate>	<!--Дата, на которую составлен отчет-->
+		<inventoryPeriod startDate="Date" endDate="Date"/>	<!--Период отчета-->
+		<!-- начало блока данных о поставщике -->
+		<seller>
+			<gln>SupplierGln</gln>
+			<organization>
+				<name>SupplierName</name>       <!--наименование поставщика для ЮЛ-->
+				<inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+				<kpp>SupplierKpp</kpp>      <!--КПП поставщика только для ЮЛ-->
+				<OKPOCode>OKPOCode</OKPOCode> <!--Код ОКПО-->
+			</organization>
+			<russianAddress>
+				<regionISOCode>RegionCode</regionISOCode>
+				<district>District</district>
+				<city>City</city>
+				<settlement>Village</settlement>
+				<street>Street</street>
+				<house>House</house>
+				<flat>Flat</flat>
+				<postalCode>PostalCode</postalCode>
+			</russianAddress>
+			<additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>	<!--код поставщика в системе покупателя-->
+			<additionalInfo>
+				<phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+				<fax>FaxNumber</fax>     <!--факс контактного лица-->
+				<bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+				<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+				<bankName>BankName</bankName>       <!--наименование банка-->
+				<BIK>BankId</BIK>       <!--БИК-->
+				<nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+			</additionalInfo>
+			<contactInfo>
+				<CEO>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</CEO>
+				<accountant>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</accountant>
+				<salesManager>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</salesManager>
+			</contactInfo>
+		</seller>
+		<!-- конец блока данных о поставщике -->
+		<!-- начало блока с данными о покупателе -->
+		<buyer>
+			<gln>BuyerGln</gln>     <!--gln покупателя-->
+			<organization>
+				<name>SupplierName</name>       <!--наименование покупателя для ЮЛ-->
+				<inn>SupplierInn(10)</inn>       <!--ИНН покупателя для ЮЛ-->
+				<kpp>SupplierKpp</kpp>      <!--КПП покупателя только для ЮЛ-->
+				<OKPOCode>OKPOCode</OKPOCode> <!--Код ОКПО-->
+			</organization>
+			<russianAddress>	<!--российский адрес-->
+				<regionISOCode>RegionCode</regionISOCode>
+				<district>District</district>
+				<city>City</city>
+				<settlement>Village</settlement>
+				<street>Street</street>
+				<house>House</house>
+				<flat>Flat</flat>
+				<postalCode>PostalCode</postalCode>
+			</russianAddress>
+			<additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>	<!--дополнительный идентификатор-->
+			<additionalInfo>
+				<phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+				<fax>FaxNumber</fax>     <!--факс контактного лица-->
+				<bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+				<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+				<bankName>BankName</bankName>       <!--наименование банка-->
+				<BIK>BankId</BIK>       <!--БИК-->
+				<nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+			</additionalInfo>
+			<contactInfo>
+				<CEO>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</CEO>
+				<accountant>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</accountant>
+				<salesManager>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</salesManager>
+			</contactInfo>
+		</buyer>
+		<!-- конец блока данных о покупателе -->
+		<!-- начало блока с данными об отчитывающейся стороне-->
+		<inventoryReporter>
+			<gln>InventoryReporterGln</gln>
+			<additionalInfo>
+				<phone>TelephoneNumber</phone>    <!--телефон контактного лица-->
+				<fax>FaxNumber</fax>     <!--факс контактного лица-->
+				<bankAccountNumber>BankAccountNumber</bankAccountNumber>
+				<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+				<bankName>BankName</bankName>
+				<BIK>BankId</BIK>
+				<nameOfAccountant>BookkeeperName</nameOfAccountant>       <!--ФИО бухгалтера-->
+			</additionalInfo>
+		  	<contactInfo>
+				<CEO>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</CEO>
+				<accountant>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</accountant>
+				<salesManager>
+					<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+					<fax>FaxNumber</fax> <!--факс контактного лица-->
+					<email>Email</email> <!--email контактного лица-->
+				</salesManager>
+			</contactInfo>
+		  </contactInfo>
+		</inventoryReporter>
+		<!-- конец блока с данными об отчитывающейся стороне-->
+    <lineItems>
+      <currencyISOCode>CurrencyCode</currencyISOCode>
+		<lineItem>
+			<gtin>GTIN</gtin>     <!--GTIN товара-->
+			<internalBuyerCode>BuyerProductId</internalBuyerCode>      <!--внутренний код присвоенный покупателем-->
+			<internalSupplierCode>SupplierProductId</internalSupplierCode>        <!--артикул товара (код товара присвоенный продавцом)-->
+			<description>Name</description>    <!--название товара-->
+			<inventoryDetails>
+				<locationOfGoods>
+					<gln>Gln</gln>	<!--Gln места (магазин, склад), где находится товар-->
+					<organization>
+					  <name>Name</name> <!--Название места (магазин, склад), где находится товар-->
+					  <inn>Inn(10)</inn>	<!--ИНН места (магазин, склад), где находится товар-->
+					  <kpp>Kpp</kpp>	<!--КПП места (магазин, склад), где находится товар-->
+					  <OKPOCode>OKPOCode</OKPOCode>	<!--Код ОКПО-->
+					</organization>
+					<russianAddress>	<!--российский адрес-->
+						<regionISOCode>RegionCode</regionISOCode>
+						<district>District</district>
+						<city>City</city>
+						<settlement>Village</settlement>
+						<street>Street</street>
+						<house>House</house>
+						<flat>Flat</flat>
+						<postalCode>PostalCode</postalCode>
+					</russianAddress>
+					<additionalIdentificator>additionalIdentificator</additionalIdentificator>	<!--дополнительный идентификатор-->
+					<additionalInfo>
+						<phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+						<fax>FaxNumber</fax>     <!--факс контактного лица-->
+						<bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+						<correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		  
+						<bankName>BankName</bankName>       <!--наименование банка-->
+						<BIK>BankId</BIK>       <!--БИК-->
+						<nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+					</additionalInfo>
+					<contactInfo>
+						<CEO>
+							<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+							<fax>FaxNumber</fax> <!--факс контактного лица-->
+							<email>Email</email> <!--email контактного лица-->
+						</CEO>
+						<accountant>
+							<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+							<fax>FaxNumber</fax> <!--факс контактного лица-->
+							<email>Email</email> <!--email контактного лица-->
+						</accountant>
+						<salesManager>
+							<orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+							<fax>FaxNumber</fax> <!--факс контактного лица-->
+							<email>Email</email> <!--email контактного лица-->
+						</salesManager>
+					</contactInfo>
+				</locationOfGoods>
+				<actualStock unitOfMeasure="MeasurementUnitCode">Quantity</actualStock>	<!--текущий остаток-->
+				<orderedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</orderedQuantity>	<!--заказанное количество, например, за период, указанный в шапке-->
+				<deliveredQuantity unitOfMeasure="MeasurementUnitCode">Quantity</deliveredQuantity>	<!--количенство, доставленное в указанный период-->
+				<receivedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</receivedQuantity>	<!--количество товара, принятое в указанный период-->
+				<netPrice>Price</netPrice>	<!--цена единицы товара без НДС-->
+				<netPriceWithVAT>PriceWithVAT</netPriceWithVAT>	<!--цена единицы товара с НДС-->
+			</inventoryDetails>
+		</lineItem>
+		<lineItem>
+			<gtin>GTIN</gtin>     <!--GTIN товара-->
+			<internalBuyerCode>BuyerProductId</internalBuyerCode>      <!--внутренний код присвоенный покупателем-->
+			<internalSupplierCode>SupplierProductId</internalSupplierCode>        <!--артикул товара (код товара присвоенный продавцом)-->
+			<description>Name</description>    <!--название товара-->
+			<inventoryDetails> <!--Информация об инветаризации-->
+				<locationOfGoods>GlnOfLocation</locationOfGoods>	<!--Gln места (магазин, склад), где находится товар-->
+				<actualStock unitOfMeasure="MeasurementUnitCode">Quantity</actualStock>	<!--текущий остаток-->
+				<openingStock unitOfMeasure="unitOfMeasure">quantity</openingStock>	<!--остаток на начало периода-->
+				<closingStock unitOfMeasure="unitOfMeasure">quantity</closingStock>	<!--остаток на конец периода-->
+				<salesQuantity unitOfMeasure="unitOfMeasure">quantity</salesQuantity>	<!--продажи за период-->
+				<orderedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</orderedQuantity>	<!--заказанное количество, например, за период, указанный в шапке-->
+				<deliveredQuantity unitOfMeasure="MeasurementUnitCode">Quantity</deliveredQuantity>	<!--количенство, доставленное в указанный период-->
+				<receivedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</receivedQuantity>	<!--количество товара, принятое в указанный период-->
+				<netPrice>Price</netPrice>	<!--цена единицы товара без НДС-->
+				<netPriceWithVAT>PriceWithVAT</netPriceWithVAT>	<!--цена единицы товара с НДС-->
+			</inventoryDetails>
+			<inventoryDetails> <!--Информация об инветаризации-->
+				<locationOfGoods>GlnOfLocation</locationOfGoods>	<!--Gln места (магазин, склад), где находится товар-->
+				<actualStock unitOfMeasure="MeasurementUnitCode">Quantity</actualStock>	<!--текущий остаток-->
+				<orderedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</orderedQuantity>	<!--заказанное количество, например, за период, указанный в шапке-->
+				<deliveredQuantity unitOfMeasure="MeasurementUnitCode">Quantity</deliveredQuantity>	<!--количенство, доставленное в указанный период-->
+				<receivedQuantity unitOfMeasure="MeasurementUnitCode">Quantity</receivedQuantity>	<!--количество товара, принятое в указанный период-->
+				<netPrice>Price</netPrice>	<!--цена единицы товара без НДС-->
+				<netPriceWithVAT>PriceWithVAT</netPriceWithVAT>	<!--цена единицы товара с НДС-->
+			</inventoryDetails>
+		</lineItem>
+    </lineItems>
+  </inventoryReport>
+</eDIMessage>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eDIMessage id="ede8ef8b-3b49-4ba9-b853-ea978a6f12ac">
+    <!--идентификатор сообщения, время сообщения-->
+    <!-- начало заголовка сообщения -->
+  <interchangeHeader>
+    <sender>SenderGLN</sender>      <!--GLN отправителя сообщения-->
+    <recipient>RecipientGLN</recipient>    <!--GLN получателя сообщения-->
+    <documentType>RETINS</documentType>   <!--тип документа, RETINS - подтверждение возврата-->
+    <isTest>1</isTest>   <!--тестовый флаг-->
+    <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>creationDateTimeBySenderT00:00:00.000Z</creationDateTimeBySender>   <!--дата и время создания сообщения, указанное отправителем-->
+  </interchangeHeader>
+	<!-- конец заголовка сообщения -->
+  <instructionsForReturns number="retinsNumber" date="retinsNumber" status="retinsType">   <!--Номер, дата и статус RETINS, возможные значения статуса: Original - оригинальный, Replace - замена --> 
+    <contractIdentificator number="contractNumber" date="contractDate"/>  <!--номер и дата договора-->
+    <originOrder number="ordersNumber" date="ordersDate"/> 	  <!--номер и дата заказа, по которому были куплены возвращаемые товары (ORDERS)-->
+    <despatchIdentificator number="DespatchNumber" date="DespatchDate" />   <!--номер и дата уведомления об отгрузке при закупке (DESADV)-->
+	<deliveryNoteIdentificator number="deliveryNoteNumber" date="deliveryNoteDate" />   <!--номер и дата закупочной накладной-->
+    <returnDeliveryNoteIdentificator number="ReturnDeliveryNoteNumber" date="ReturnDeliveryNoteDate" />   <!--номер и дата обратной накладной-->
+    <returnInvoiceIdentificator number="ReturnInvoicNumber" date="ReturnInvoicDate" />   <!--номер и дата обратного счета-фактуры (INVOIC)-->
+    <announcementForReturns number="RetannNumber" date="RetannDate" />   <!--номер и дата уведомления о возврате (RETANN)-->
+    <!-- начало блока данных о поставщике -->
+    <seller>
+      <gln>SupplierGln</gln>      <!--gln поставщика, кому возвращаются товары-->
+      <organization>
+        <name>SupplierName</name>       <!--наименование поставщика для ЮЛ-->
+        <inn>SupplierInn(10)</inn>       <!--ИНН поставщика для ЮЛ-->
+        <kpp>SupplierKpp</kpp>      <!--КПП поставщика только для ЮЛ-->
+      </organization>
+      <russianAddress>       <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>District</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>PostalCode</postalCode>
+      </russianAddress>
+	  <additionalInfo>
+          <phone>TelephoneNumber</phone>     <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>     <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>       <!--номер счёта в банке-->
+          <bankName>BankName</bankName>       <!--наименование банка-->
+          <BIK>BankId</BIK>       <!--БИК-->
+          <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя организации-->
+        </additionalInfo>
+    </seller>
+      <!-- конец блока данных о поставщике -->
+      <!-- начало блока с данными о покупателе -->
+    <buyer>
+      <gln>BuyerGln</gln>     <!--gln покупателя, кто возвращает товары-->
+      <organization>
+        <name>BuyerName</name>     <!--наименование покупателя-->
+        <inn>BuyerInn(10)</inn>     <!--ИНН покупателя для ЮЛ-->
+        <kpp>BuyerKpp</kpp>      <!--КПП покупателя только для ЮЛ-->
+      </organization>
+      <russianAddress>       <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+      </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>  <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>     <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>      <!--номер счёта в банке-->
+          <bankName>BankName</bankName>      <!--наименование банка-->
+          <BIK>BankId</BIK>       <!--БИК-->
+          <nameOfSales>SalesAdministrationName</nameOfSales>     <!--ФИО руководителя по продажам-->
+        </additionalInfo>
+    </buyer>
+      <!-- конец блока данных о покупателе -->
+      <!-- начало блока с данными о получателе счёта -->
+      <invoicee>
+        <gln>InvoiceeGln</gln>     <!--gln получателя счёта при покупке возвращаемого товара-->
+        <selfEmployed>
+          <fullName>      <!--ФИО получателя счёта для ИП-->
+            <lastName>Фамилия</lastName>
+            <firstName>Имя</firstName>
+            <middleName>Отчество</middleName>
+          </fullName>
+          <inn>InvoiceeInn(12)</inn>     <!--ИНН получателя счёта для ИП-->
+        </selfEmployed>
+        <russianAddress>      <!--российский адрес-->
+          <regionISOCode>RegionCode</regionISOCode>
+          <district>district</district>
+          <city>City</city>
+          <settlement>Village</settlement>
+          <street>Street</street>
+          <house>House</house>
+          <flat>Flat</flat>
+          <postalCode>>PostalCode</postalCode>
+        </russianAddress>
+        <additionalInfo>
+          <phone>TelephoneNumber</phone>    <!--телефон контактного лица-->
+          <fax>FaxNumber</fax>     <!--факс контактного лица-->
+          <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+          <bankName>BankName</bankName>
+          <BIK>BankId</BIK>
+          <nameOfAccountant>BookkeeperName</nameOfAccountant>       <!--ФИО бухгалтера-->
+        </additionalInfo>
+      </invoicee>
+      <!--конец блока с данными о получателе счёта -->
+      <!-- начало блока данных о грузоотправителе и грузополучателе -->
+    <deliveryInfo>
+      <shippingDate>ShippingDateT00:00:00.000Z</shippingDate>     <!--Дата отгрузки возвращаемого товара / дата самовывоза товара поставщиком из сети-->
+      <deliveryDate>DeliveryDateT00:00:00.000Z</deliveryDate>     <!--Дата доставки возвращаемого товара-->
+      <availabilityDate>AvailabilityDateT00:00:00.000Z</availabilityDate>  <!--дата доступности товара (дата, до которой сеть будет хранить у себя непринятый товар)-->
+      <!-- начало данных грузоотправителя при возврате товаров (магазин сети) -->
+      <shipFrom>
+          <gln>ShipperGln</gln>        <!--gln грузоотправителя-->
+          <organization>
+            <name>ShipperName</name>         <!--наименование грузоотправителя-->
+            <inn>ShipperInn(10)</inn>
+            <kpp>ShipperKpp</kpp>
+          </organization>
+          <russianAddress>        <!--российский адрес-->
+            <regionISOCode>RegionCode</regionISOCode>
+            <district>district</district>
+            <city>City</city>
+            <settlement>Village</settlement>
+            <street>Street</street>
+            <house>House</house>
+            <flat>Flat</flat>
+            <postalCode>>PostalCode</postalCode>
+          </russianAddress>
+          <additionalInfo>
+            <phone>TelephoneNumber</phone>        <!--телефон контактного лица-->
+            <fax>FaxNumber</fax>         <!--факс контактного лица-->
+            <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+            <bankName>BankName</bankName>
+            <BIK>BankId</BIK>
+            <nameOfAccountant>BookkeeperName</nameOfAccountant>      <!--ФИО бухгалтера-->
+          </additionalInfo>
+      </shipFrom>
+      <!-- начало данных грузополучателя при возврате товаров (склад поставщика) -->
+      <shipTo>
+      <gln>DeliveryGln</gln>       <!--gln грузополучателя-->
+          <organization>
+            <name>DeliveryName</name>         <!--наименование грузополучателя-->
+            <inn>DeliveryInn(10)</inn>       <!--ИНН грузополучателя-->
+            <kpp>DeliveryKpp</kpp>         <!--КПП грузополучателя-->
+          </organization>
+          <russianAddress>         <!--российский адрес-->
+            <regionISOCode>RegionCode</regionISOCode>
+            <district>district</district>
+            <city>City</city>
+            <settlement>Village</settlement>
+            <street>Street</street>
+            <house>House</house>
+            <flat>Flat</flat>
+            <postalCode>>PostalCode</postalCode>
+          </russianAddress>
+          <additionalIdentificator>SupplierCodeInBuyerSystem</additionalIdentificator>  <!--дополнительный идентификатор-->
+          <additionalInfo>
+            <phone>TelephoneNumber</phone>       <!--телефон контактного лица-->
+            <fax>FaxNumber</fax>        <!--факс контактного лица-->
+            <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+            <bankName>BankName</bankName>
+            <BIK>BankId</BIK>
+            <nameOfCEO>ChiefName</nameOfCEO>      <!--ФИО руководителя-->
+          </additionalInfo>
+      </shipTo>
+    </deliveryInfo>
+	<physicalOrLogicalState>
+	  <state>PartialReturn</state>      <!--Решение по возврату, возможные значения: 
+	  Return	- Возврат (полный возврат по количеству)
+	  ReturnRefused	- В возврате отказано
+	  PartialReturn	- Частичный возврат
+	  Damaged	- Поврежден
+	  Obsolete	- Устарел
+	  Destroy	- Уничтожить
+	  Repair	- Восстановить
+	  Disposal	- Утилизировать
+	  Expertise	- Удержать на экспертизу-->
+	  <stateDescription>Заберем не все</stateDescription>      <!--Причина данного решения-->
+	</physicalOrLogicalState>
+    <lineItems>
+      <currencyISOCode>RUB</currencyISOCode>
+      <lineItem>
+          <gtin>GTIN</gtin>     <!--GTIN товара-->
+          <internalBuyerCode>BuyerProductId</internalBuyerCode>      <!--внутренний код присвоенный покупателем-->
+          <internalBuyerGroupCode>BuyerProductGroupCode</internalBuyerGroupCode>      <!--код группы товаров-->
+          <internalSupplierCode>SupplierProductId</internalSupplierCode>     <!--артикул товара (код товара присвоенный продавцом)-->
+          <typeOfUnit>RС</typeOfUnit> <!--признак возвратной тары, если это не тара, то строки нет -->
+          <description>Name</description>    <!--название товара-->
+        <physicalOrLogicalState>		
+		      <state>Return</state>    <!--решение по возврату данного товара, возможные значения: 
+		      Return	- Возврат (полный возврат по количеству)
+		      ReturnRefused	- В возврате отказано
+		      PartialReturn	- Частичный возврат
+		      Damaged	- Поврежден
+		      Obsolete	- Устарел
+		      Destroy	- Уничтожить
+		      Repair	- Восстановить
+		      Disposal	- Утилизировать
+		      Expertise	- Удержать на экспертизу-->
+          <stateDescription>Ок</stateDescription>    <!--Причина данного решения-->
+        </physicalOrLogicalState>
+        <offeredReturnQuantity unitOfMeasure="MeasurementUnitCode">OfferedReturnQuantity</offeredReturnQuantity>    <!--количество, предложенное к возврату-->
+        <confirmedReturnQuantity unitOfMeasure="MeasurementUnitCode">ConfirmedReturnQuantity</confirmedReturnQuantity>    <!--количество, подтвержденное к возврату-->
+        <onePlaceQuantity unitOfMeasure="MeasurementUnitCode">OnePlaceQuantity</onePlaceQuantity>  <!-- количество в одном месте (чему д.б. кратно общее кол-во) -->
+        <netPrice>Price</netPrice>     <!--цена единицы товара без НДС-->
+        <netPriceWithVAT>PriceWithVAT</netPriceWithVAT>     <!--цена единицы товара с НДС-->
+        <netAmount>PriceSummary</netAmount>     <!--сумма по позиции без НДС-->
+        <exciseDuty>ExciseTax</exciseDuty>    <!--сумма акциза для товара-->
+        <vATAmount>vatSum</vATAmount>      <!--сумма НДС-->
+        <amount>PriceSummaryWithVAT</amount>      <!--сумма по позиции с НДС-->
+        <originOrder number="ordersNumber" date="ordersDate"/> 	  <!--номер и дата заказа, по которому был куплен данный товар-->
+        <despatchIdentificator number="DespatchNumber" date="DespatchDate" />   <!--номер и дата уведомления об отгрузке при закупке (DESADV)-->
+        <deliveryNoteIdentificator number="deliveryNoteNumber" date="deliveryNoteDate" />   <!--номер и дата закупочной накладной-->
+      </lineItem>
+	  <!-- каждая последующая товарная позиция должна идти в отдельном теге <lineItem> -->
+      <totalSumExcludingTaxes>TotalSumExcludingTaxes</totalSumExcludingTaxes>      <!--общая сумма без НДС-->
+      <totalVATAmount>TotalVATAmount</totalVATAmount>      <!--общая сумма НДС-->
+      <totalAmount>TotalAmount</totalAmount>      <!--общая сумма с НДС-->
+    </lineItems>
+  </instructionsForReturns>
+</eDIMessage>

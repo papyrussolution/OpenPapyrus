@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+  <!-- начало заголовка сообщения -->
+  <interchangeHeader>
+    <sender>SenderGLN</sender>  <!--GLN отправителя сообщения-->
+    <recipient>RecipientGLN</recipient>  <!--GLN получателя сообщения-->
+    <documentType>PARTIN</documentType>   <!--идентификатор типа документа-->
+    <creationDateTime>creationDateTimeT00:00:00.000Z</creationDateTime> <!--дата и время создания сообщения-->
+    <creationDateTimeBySender>creationDateTimeBySenderT00:00:00.000Z</creationDateTimeBySender> <!--дата и время создания сообщения клиентом-->
+    <isTest>1</isTest>  <!--тестовый флаг-->
+  </interchangeHeader>
+  <partyInformation number="PartinNumber" date="PartinDate">  <!--номер и дата PARTIN-->
+    <headGLN>
+      <gln>OwnerId</gln>    <!--gln покупателя-->
+    </headGLN>
+    <parties>
+     <invoicee>
+      <gln>InvoiceeGln</gln>  <!--gln контрагента-->
+      <organization>
+        <name>InvoiceeName</name>  <!--наименование контрагента-->
+        <inn>InvoiceeInn(10)</inn>  <!--ИНН контрагента для ЮЛ-->
+        <kpp>InvoiceeKpp</kpp>  <!--КПП контрагента только для ЮЛ-->
+      </organization>
+      <russianAddress>    <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+	  <taxSystem>Simplified</taxSystem>        <!--признак УСН. Если поставщик не работает по УСН, передавать не надо-->
+      <additionalInfo>
+        <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+        <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		
+        <bankName>BankName</bankName>
+        <BIK>BankId</BIK>
+      </additionalInfo>
+	   <contactInfo>
+        <CEO>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </CEO>
+        <accountant>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </accountant>
+        <salesManager>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </salesManager>
+        <orderContact>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </orderContact>
+      </contactInfo>
+     </invoicee>
+	 <invoicee>
+      <gln>InvoiceeGln</gln>  <!--gln контрагента-->
+      <selfEmployed>  
+        <fullName>      <!--ФИО контрагента для ИП-->
+          <lastName>Фамилия</lastName>
+          <firstName>Имя</firstName>
+          <middleName>Отчество</middleName>
+        </fullName>
+        <inn>InvoiceeInn(12)</inn>  <!--ИНН контрагента-->
+		<soleProprietorRegistrationCertificate>soleProprietorRegistrationCertificate</soleProprietorRegistrationCertificate> <!--Свидетельство о гос. регистрации ИП-->
+      </selfEmployed>
+      <russianAddress>    <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+	   <taxSystem>Simplified</taxSystem>        <!--признак УСН. Если поставщик не работает по УСН, передавать не надо-->
+      <additionalInfo>
+        <bankAccountNumber>BankAccountNumber</bankAccountNumber>
+        <correspondentAccountNumber>correspondentAccountNumber</correspondentAccountNumber>     <!--номер корр.счёта-->		
+        <bankName>BankName</bankName>
+        <BIK>BankId</BIK>
+      </additionalInfo>
+	   <contactInfo>
+        <CEO>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </CEO>
+        <accountant>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </accountant>
+        <salesManager>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </salesManager>
+        <orderContact>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </orderContact>
+      </contactInfo>
+     </invoicee>
+      <deliveryParty>
+	   <gln>deliveryPartyGln</gln> <!--gln точки доставки/ отгрузки-->
+      <organization>
+        <name>deliveryPartyName</name>  <!--наименование точки доставки/ отгрузки-->
+        <inn>deliveryPartyInn(10)</inn>  <!--ИНН точки доставки/ отгрузки для ЮЛ-->
+        <kpp>deliveryPartyKpp</kpp>  <!--КПП точки доставки/ отгрузки только для ЮЛ-->
+      </organization>
+      <russianAddress>  <!--российский адрес-->
+        <regionISOCode>RegionCode</regionISOCode>
+        <district>district</district>
+        <city>City</city>
+        <settlement>Village</settlement>
+        <street>Street</street>
+        <house>House</house>
+        <flat>Flat</flat>
+        <postalCode>PostalCode</postalCode>
+      </russianAddress>
+      <contactInfo>
+        <CEO>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон руководителяа-->
+          <fax>FaxNumber</fax> <!--факс руководителяа-->
+          <email>Email</email> <!--email руководителяа-->
+        </CEO>
+        <accountant>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон бухгалтера-->
+          <fax>FaxNumber</fax> <!--факс бухгалтера-->
+          <email>Email</email> <!--email бухгалтера-->
+        </accountant>
+        <salesManager>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон менеджера-->
+          <fax>FaxNumber</fax> <!--факс менеджера-->
+          <email>Email</email> <!--email менеджера-->
+        </salesManager>
+        <orderContact>
+          <orderContact>TelephoneNumber</orderContact> <!--телефон контактного лица-->
+          <fax>FaxNumber</fax> <!--факс контактного лица-->
+          <email>Email</email> <!--email контактного лица-->
+        </orderContact>
+      </contactInfo>
+      </deliveryParty>
+    </parties>
+  </partyInformation>
+</eDIMessage>

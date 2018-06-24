@@ -157,6 +157,9 @@ public:
 	static int FASTCALL GetSchemeId(const char * pSchemeMnem);
 	static int FASTCALL GetDefProtocolPort(int protocol);
 	static int FASTCALL ValidateComponent(int c);
+	static SString & FASTCALL Mk(int protocol, const char * pHost, const char * pPath);
+	static SString & FASTCALL MkHttp(const char * pHost, const char * pPath) { return Mk(protHttp, pHost, pPath); }
+	static SString & FASTCALL MkHttps(const char * pHost, const char * pPath) { return Mk(protHttps, pHost, pPath); }
 
 	explicit InetUrl(const char * pUrl = 0);
 	InetUrl(const InetUrl & rS);

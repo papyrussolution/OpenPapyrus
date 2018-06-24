@@ -127,10 +127,10 @@ int SLAPI PPObjSCard::EditConfig()
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_CHRGAMT, PPOBJ_AMOUNTTYPE, Data.ChargeAmtID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFSER, PPOBJ_SCARDSERIES, Data.DefSerID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFCSER, PPOBJ_SCARDSERIES, Data.DefCreditSerID, OLW_CANINSERT);
-			setCtrlLong(CTL_SCARDCFG_WARNEXPB, Data.WarnExpiryBefore); // @v8.6.4
+			setCtrlLong(CTL_SCARDCFG_WARNEXPB, Data.WarnExpiryBefore);
 			AddClusterAssoc(CTL_SCARDCFG_FLAGS, 0, PPSCardConfig::fAcceptOwnerInDispDiv);
-			AddClusterAssoc(CTL_SCARDCFG_FLAGS, 1, PPSCardConfig::fDontUseBonusCards);    // @v7.5.12
-			AddClusterAssoc(CTL_SCARDCFG_FLAGS, 2, PPSCardConfig::fCheckBillDebt);    // @v8.6.9
+			AddClusterAssoc(CTL_SCARDCFG_FLAGS, 1, PPSCardConfig::fDontUseBonusCards);
+			AddClusterAssoc(CTL_SCARDCFG_FLAGS, 2, PPSCardConfig::fCheckBillDebt);
 			SetClusterData(CTL_SCARDCFG_FLAGS, Data.Flags);
 			return 1;
 		}
@@ -1251,7 +1251,6 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			setCtrlReal(CTL_SCARDSER_PDIS, fdiv100i(Data.Rec.PDis));
 			setCtrlData(CTL_SCARDSER_MAXCRED, &Data.Rec.MaxCredit);
 			SetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd); // @v8.7.12
-			// @v8.2.10 {
 			{
 				long   bonus_ext_rule = 0;
 				double bonus_ext_rule_val = 0.0;
@@ -1263,7 +1262,6 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					bonus_ext_rule_val = ((double)Data.Rec.BonusChrgExtRule) / 10.0;
 				setCtrlReal(CTL_SCARDSER_BONERVAL, bonus_ext_rule_val);
 			}
-			// } @v8.2.10
 			return 1;
 		}
 		int    getDTS(PPSCardSerPacket * pData)
@@ -1310,7 +1308,6 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			Data.Rec.PDis = (long)(pdis * 100L);
 			getCtrlData(CTL_SCARDSER_MAXCRED, &Data.Rec.MaxCredit);
 			THROW(GetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd));
-			// @v8.2.10 {
 			{
 				long   bonus_ext_rule = 0;
 				double bonus_ext_rule_val = 0.0;
@@ -1325,7 +1322,6 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					Data.Rec.BonusChrgExtRule = (int16)(bonus_ext_rule_val * 10.0);
 				}
 			}
-			// } @v8.2.10
 			ASSIGN_PTR(pData, Data);
 			CATCH
 				ok = PPErrorByDialog(this, sel);
@@ -3109,7 +3105,6 @@ void SCardDialog::SetupCtrls()
 	GetClusterData(CTL_SCARD_FLAGS, &Data.Rec.Flags);
 	const  long   preserve_flags = Data.Rec.Flags;
 	long   flags = Data.Rec.Flags;
-	// @v8.6.10 {
 	if((flags & SCRDF_INHERITED) != (prev_flags & SCRDF_INHERITED)) {
 		GetDiscount(0);
 		getCtrlData(CTL_SCARD_MAXCRED, &Data.Rec.MaxCredit);
@@ -3124,7 +3119,6 @@ void SCardDialog::SetupCtrls()
 			SetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd); // @v8.8.0
 		}
 	}
-	// } @v8.6.10
 	if(!(flags & SCRDF_CLOSED) && (prev_flags & SCRDF_CLOSED)) {
 		flags &= ~SCRDF_NEEDACTIVATION;
 		Data.Rec.PeriodTerm = (int16)getCtrlLong(CTLSEL_SCARD_PRD);
@@ -3174,18 +3168,15 @@ int SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 					UhttSCardPacket scp;
 					if(uhtt_cli.GetSCardByNumber(sc_code, scp)) {
 						uhtt_hash = scp.Hash;
-						if(uhtt_cli.GetSCardRest(scp.Code, 0, uhtt_rest)) {
+						if(uhtt_cli.GetSCardRest(scp.Code, 0, uhtt_rest))
 							uhtt_err = 0;
-						}
 					}
 				}
 				(info_buf = "UHTT").CatDiv(':', 2);
-				if(uhtt_err) {
+				if(uhtt_err)
 					info_buf.Cat("Error");
-				}
-				else {
+				else
 					info_buf.Cat(uhtt_rest, SFMT_MONEY).Space().CatChar('(').Cat(uhtt_hash).CatChar(')');
-				}
 			}
 		}
 	}
@@ -3519,13 +3510,11 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 			pParam->Code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
 		}
 		if(pack.Rec.SeriesID && ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0) {
-			// @v8.6.10 {
 			if(pack.Rec.Code[0] == 0 && scs_pack.Eb.CodeTempl) { // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
 				SString new_code;
 				if(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Eb.CodeTempl, new_code) > 0) // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
 					STRNSCPY(pack.Rec.Code, new_code);
 			}
-			// } @v8.6.10
 			if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) { // @v9.2.8
 				pack.Rec.Flags |= SCRDF_INHERITED;
 				THROW(SetInheritance(&scs_pack, &pack.Rec));
@@ -4981,11 +4970,11 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 								PPLoadString("yes", tok_buf);
 								if(sdr_rec.ClosedTag[0]) {
 									(temp_buf = sdr_rec.ClosedTag).Strip();
-									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0);
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, temp_buf == "1" || temp_buf.IsEqiAscii("yes") || temp_buf.CmpNC(tok_buf) == 0);
 								}
 								else if(sdr_rec.OpenedTag[0]) {
 									(temp_buf = sdr_rec.OpenedTag).Strip();
-									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !((temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0)));
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !((temp_buf == "1" || temp_buf.IsEqiAscii("yes") || temp_buf.CmpNC(tok_buf) == 0)));
 								}
 							}
 							THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
@@ -5025,11 +5014,11 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									PPLoadString("yes", tok_buf);
 									if(sdr_rec.ClosedTag[0]) {
 										(temp_buf = sdr_rec.ClosedTag).Strip();
-										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, (temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0));
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, (temp_buf == "1" || temp_buf.IsEqiAscii("yes") || temp_buf.CmpNC(tok_buf) == 0));
 									}
 									else if(sdr_rec.OpenedTag[0]) {
 										(temp_buf = sdr_rec.OpenedTag).Strip();
-										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !(temp_buf == "1" || temp_buf.IsEqiAscii("YES") || temp_buf.CmpNC(tok_buf) == 0));
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !(temp_buf == "1" || temp_buf.IsEqiAscii("yes") || temp_buf.CmpNC(tok_buf) == 0));
 									}
 								}
 								THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
