@@ -6134,6 +6134,7 @@ int SLAPI SfaHeineken::SendStocks()
 	sess.Setup(SvcUrl, UserName, Password);
 	if(Ep.Fb.LocCodeTagID) {
 		Reference * p_ref = PPRef;
+		PPObjUnit u_obj;
 		PPViewGoodsRest gr_view;
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
@@ -6156,6 +6157,21 @@ int SLAPI SfaHeineken::SendStocks()
 						new_entry.ForeignLocID = temp_buf.ToLong();
 						if(new_entry.ForeignLocID > 0) {
 							new_entry.Rest = R0i(gr_item.Rest);
+							// @v10.1.1 Специальная поправка для нештатного случая учета кегов (Unit = LITER, PhUnit = LITER, gse.Packege = keg's volume) {
+							Goods2Tbl::Rec goods_rec;
+							if(GObj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
+								double rt1 = 0.0;
+								double rt2 = 0.0;
+								int tr1 = u_obj.TranslateToBase(goods_rec.UnitID, PPUNT_LITER, &rt1);
+								int tr2 = u_obj.TranslateToBase(goods_rec.PhUnitID, PPUNT_LITER, &rt2);
+								if(tr1 > 0 && tr2 > 0 && rt1 == rt2) {
+									GoodsStockExt gse;
+									if(GObj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.Package > 0.0) {
+										new_entry.Rest = R0i(gr_item.Rest / gse.Package);
+									}
+								}
+							}
+							// } @v10.1.1
 							THROW_SL(list.insert(&new_entry));
 						}
 					}

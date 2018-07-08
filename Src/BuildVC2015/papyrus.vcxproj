@@ -2003,10 +2003,6 @@
       <Project>{1022ff32-79e9-44df-b5e3-9130f0c4252d}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="db.vcxproj">
-      <Project>{b69839d2-66ea-4506-aa8d-9f1287e0dee7}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="libcurl.vcxproj">
       <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

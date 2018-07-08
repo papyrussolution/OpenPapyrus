@@ -2281,7 +2281,8 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				break;
 			case cmSearchUHTT:
 				{
-					SString name_buf, barcode_buf;
+					SString name_buf;
+					SString barcode_buf;
 					getCtrlString(CTL_GOODS_NAME, name_buf);
 					getCtrlString(CTL_GOODS_BARCODE, barcode_buf);
 					UhttGoodsPacket ugp;

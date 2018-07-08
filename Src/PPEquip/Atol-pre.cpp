@@ -1147,9 +1147,8 @@ int SLAPI ACS_ATOL::ImportSession(int)
 	CATCHZOK
 	return ok;
 }
-// @v6.0.5 VADIM {
+
 int SLAPI ACS_ATOL::FinishImportSession(PPIDArray * pSessList)
 {
 	return pSessList->addUnique(&SessAry);
 }
-// } @v6.0.5 VADIM

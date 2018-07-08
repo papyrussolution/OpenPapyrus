@@ -1333,6 +1333,8 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3); // @v9.8.12
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			// } @v9.0.9
+			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
+			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags); // @v10.1.1
 			// @v9.8.3 {
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
@@ -1396,6 +1398,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			// } @v9.8.3
 			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE); // @v9.0.9
+			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags); // @v10.1.1
 			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			THROW(Data.DrvVerFromStr(temp_buf)); // @v10.0.03
 			ASSIGN_PTR(pData, Data);

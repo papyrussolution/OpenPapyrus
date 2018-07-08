@@ -457,6 +457,15 @@
 				RelativePath="..\SLib\base64.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\bdb.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Bextins.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Bextqry.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Bist.cpp">
 			</File>
 			<File
@@ -467,6 +476,12 @@
 			</File>
 			<File
 				RelativePath="..\SLib\Bnfldlst.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Bnkey.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Btrv.cpp">
 			</File>
 			<File
 				RelativePath="..\Slib\chksyscr.cpp">
@@ -514,10 +529,52 @@
 				RelativePath="..\SLib\curl-parsedate.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\Dbbackup.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbdict.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbeop.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbf.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dboci.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dbprvdr.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbq.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbqbrdef.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbquery.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dbsess.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dbsql.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Dbtable.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dbtablec.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\dec.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\Dlgprocs.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\dti.cpp">
 			</File>
 			<File
 				RelativePath="..\Slib\findfile.cpp">
@@ -565,6 +622,9 @@
 				RelativePath="..\SLib\gencpp.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\gensql.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\hashfunc.cpp">
 			</File>
 			<File
@@ -575,6 +635,9 @@
 			</File>
 			<File
 				RelativePath="..\SLib\json.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\Kr.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\Lbxdef.cpp">
@@ -772,6 +835,9 @@
 				RelativePath="..\SLib\sdraw.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\sdrecord.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\sextprc.cpp">
 			</File>
 			<File
@@ -945,6 +1011,9 @@
 			</File>
 			<File
 				RelativePath="..\SLib\Smrtlbx.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\soapdbt.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\sossl.cpp">
@@ -1184,6 +1253,9 @@
 				RelativePath="..\SLib\Twindow.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\txttable.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\uchardet.cpp">
 			</File>
 			<File
@@ -1242,6 +1314,12 @@
 			</File>
 			<File
 				RelativePath="..\SLib\wmi.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\xlstable.cpp">
+			</File>
+			<File
+				RelativePath="..\Db\xmltable.cpp">
 			</File>
 			<Filter
 				Name="ASMLIB"
@@ -3430,6 +3508,18 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\Include\Db.h">
+			</File>
+			<File
+				RelativePath="..\Include\Dbf.h">
+			</File>
+			<File
+				RelativePath="..\Include\Dbqbrdef.h">
+			</File>
+			<File
+				RelativePath="..\Include\Dbquery.h">
+			</File>
 			<File
 				RelativePath="..\Include\Slconfig.h">
 			</File>

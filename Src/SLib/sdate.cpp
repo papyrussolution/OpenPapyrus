@@ -1215,7 +1215,7 @@ time_t SLAPI LDATETIME::GetTimeT() const
 		_t.tm_hour = t.hour();
 		_t.tm_min = t.minut();
 		_t.tm_sec = t.sec();
-		return (sizeof(time_t) == 8) ? _mktime64(&_t) : mktime(&_t);
+		return (sizeof(time_t) == 8) ? (time_t)_mktime64(&_t) : mktime(&_t);
 	}
 }
 
@@ -1384,7 +1384,7 @@ time_t SLAPI LDATE::GetTimeT() const
 		_t.tm_hour = 12; // @v10.0.03 дабы смещение временного пояса не меняло дату, устанавливаем время полдня.
 		_t.tm_min = 0;
 		_t.tm_sec = 0;
-		return (sizeof(time_t) == 8) ? _mktime64(&_t) : mktime(&_t);
+		return (sizeof(time_t) == 8) ? (time_t)_mktime64(&_t) : mktime(&_t);
 	}
 }
 

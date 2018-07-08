@@ -2691,12 +2691,10 @@ int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 		}
 		if(P_Ext)
 			THROW_DB(deleteFrom(P_Ext, 0, P_Ext->CheckID == id));
-		THROW_DB(deleteFrom(&PaymT, 0, PaymT.CheckID == id)); // @v8.0.0
-		// @v8.2.11 {
+		THROW_DB(deleteFrom(&PaymT, 0, PaymT.CheckID == id));
 		if(do_remove_tags) {
 			p_ref->Ot.RemoveTag(PPOBJ_CCHECK, id, 0, 0);
 		}
-		// } @v8.2.11
 		if(DoCCheckTextLog()) {
 			WriteCCheckLogFile(&pack, 0, (pack.Rec.Flags & CCHKF_JUNK) ? CCheckCore::logJunkRemoved : CCheckCore::logRemoved, 0);
 		}
@@ -3112,6 +3110,31 @@ int SLAPI CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, D
 	return ok;
 }
 
+int SLAPI CCheckCore::GetListByLineExtss(int lnextss /*CCheckPacket::lnextXXX*/, const char * pText, PPIDArray & rCcList)
+{
+	int    ok = -1;
+	rCcList.clear();
+	SString temp_buf;
+	SString target_buf;
+	UnxTextRefCore & r_utrc = PPRef->UtrC;
+	TextRefEnumItem iter_item;
+	StrAssocArray text_by_row_list;
+	for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
+		CCheckPacket::Helper_UnpackLineTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), text_by_row_list);
+		uint   pos = 0;
+		for(uint i = 0; i < text_by_row_list.getCount(); i++) {
+			StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
+			temp_buf = item.Txt;
+			if(PPGetExtStrData(lnextss, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
+				rCcList.add(iter_item.O.Id);
+				ok = 1;
+				break;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * pSerial, double * pResult)
 {
 	int    ok = 1;
@@ -3514,7 +3537,7 @@ int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 				uint   pos = 0;
 				THROW(PPCheckUserBreak());
-				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) // @v7.0.11
+				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP)))
 					ct_list.Add(data.SCardID, MONEYTOLDBL(data.Amount), 1, 1);
 				PPWaitPercent(cntr.Add(data.SCardID-cntr));
 			}
@@ -3730,20 +3753,20 @@ int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
 						int r = Search(id_list.at(i));
 						THROW(r);
 						if(r < 0)
-							rmv_id_list.add(id_list.at(i)); // @v8.1.0 addUnique-->add
+							rmv_id_list.add(id_list.at(i));
 					}
 					id_list.clear();
 				}
 			}
-			id_list.add(Lines.data.CheckID); // @v8.1.0 addUnique-->add
+			id_list.add(Lines.data.CheckID);
 		}
 		for(i = 0; i < id_list.getCount(); i++) {
 			int r = Search(id_list.at(i));
 			THROW(r);
 			if(r < 0)
-				rmv_id_list.add(id_list.at(i)); // @v8.1.0 addUnique-->add
+				rmv_id_list.add(id_list.at(i));
 		}
-		rmv_id_list.sortAndUndup(); // @v8.1.0
+		rmv_id_list.sortAndUndup();
 		for(i = 0; i < rmv_id_list.getCount(); i++) {
 			const PPID rmv_cc_id = rmv_id_list.get(i);
 			THROW_DB(deleteFrom(&Lines, 0, Lines.CheckID == rmv_cc_id));
@@ -4101,10 +4124,8 @@ int SLAPI CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, i
 //
 //
 //
-SLAPI CSessGrouping::CSessGrouping()
+SLAPI CSessGrouping::CSessGrouping() : RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
 {
-	RetOpID  = GetCashRetOp();
-	SellOpID = GetCashOp();
 	ReadEquipConfig(&EqCfg);
 	ComplDfct   = BIN(EqCfg.Flags & PPEquipConfig::fComplDeficit);
 	IgnGenGoods = BIN(EqCfg.Flags & PPEquipConfig::fIgnGenGoodsOnDeficit);
@@ -4245,7 +4266,6 @@ int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 {
 	Goods2Tbl::Rec goods_rec;
 	const  PPID goods_id = pRec->GoodsID;
-	// @v8.7.5 {
 	PPID   founded_goods_id = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	{
@@ -4264,7 +4284,6 @@ int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 		// ‘ункци€ ConvertSign потом обработает эту ситуацию.
 		//
 	}
-	// } @v8.7.5
 	if(founded_goods_id || GObj.Fetch(pRec->AltGoodsID, &goods_rec) > 0) {
 		CgBillCvtItem item;
 		MEMSZERO(item);
@@ -4291,7 +4310,7 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 		if(EqCfg.Flags & EqCfg.fWrOffPartStrucs)
 			pPack->InsertPartitialStruc();
 		// } @v9.8.12
-		p_bobj->SubstMemo(pPack); // @v8.5.10
+		p_bobj->SubstMemo(pPack);
 		if(p_bobj->__TurnPacket(pPack, 0, 1, 0)) {
 			if(pOad) {
 				for(uint i = 0; i < pPack->GetTCount(); i++) {
@@ -4579,7 +4598,6 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 							}
 							THROW(ti.Init(&p_pack->Rec));
 							ti.GoodsID  = goods_id;
-							// @v7.3.1 ti.Price    = TR5(item.Sum / item.Qtty);
 							ti.Quantity_ = item.Dfct;
 							ti.SetupSign(p_pack->Rec.OpID);
 							DS.SetOperDate(date);
@@ -4588,10 +4606,8 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 								ti.Cost = R5(lot_rec.Cost);
 								// @v9.3.9 (Ѕудет безусловно устанавливатьс€ средн€€ цена по чекам) ti.Price = R5(lot_rec.Price); // @v7.3.1
 							}
-							// @v7.3.1 {
 							if(ti.Price <= 0.0)
 								ti.Price = TR5(item.Sum / item.Qtty);
-							// } @v7.3.1
 							if(is_other_loc && (EqCfg.Flags & PPEquipConfig::fIntrPriceByRetailRules || EqCfg.QuotKindID)) {
 								int    r = 0;
 								double price = 0.0;
@@ -4951,7 +4967,7 @@ int SLAPI CSessGrouping::RemoveSession(PPID sessID, int grade)
 		uint   i;
 		PPID * p_id;
 		PPIDArray sess_ary;
-		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFFROLLBACK); // @v8.6.1
+		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFFROLLBACK);
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(cs_obj.UndoWritingOff(sessID, 0));
@@ -5126,7 +5142,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 							long   diff_date;
 							long   diff_time = diffdatetime(p_item->Dtm, p_item2->Dtm, 2, &diff_date);
 							if(diff_date == 0 && labs(diff_time) < uniting_period)
-								if(p_item->SuperGroup == 0)
+								if(p_item->SuperGroup == 0) {
 									if(p_item2->SuperGroup == 0) {
 										last_super_num++;
 										p_item->SuperGroup = p_item2->SuperGroup = last_super_num;
@@ -5135,6 +5151,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 										p_item->SuperGroup = p_item2->SuperGroup;
 										p_item->SuperID    = p_item2->SuperID;
 									}
+								}
 								else if(p_item2->SuperGroup == 0) {
 									p_item2->SuperGroup = p_item->SuperGroup;
 									p_item2->SuperID    = p_item->SuperID;
@@ -5348,7 +5365,6 @@ int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 
 	RefreshCTableStatusList(0);
 	{
 		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Read);
-		//CTableStatusRwl.ReadLock();
 		for(uint i = 0; i < CTStList.getCount(); i++) {
 			const CTableStatus & r_st = CTStList.at(i);
 			if(r_st.Status == CTableStatus::sOrder) {
@@ -5356,7 +5372,6 @@ int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 
 				ok = 1;
 			}
 		}
-		//CTableStatusRwl.Unlock();
 	}
 	return ok;
 }
@@ -5367,7 +5382,6 @@ int CCheckCache::GetCTableStatus(long tableNo, CTableStatus * pStatus)
 	RefreshCTableStatusList(0);
 	{
 		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Read);
-		//CTableStatusRwl.ReadLock();
 		CTableStatus temp_item;
 		temp_item.TableNo = tableNo;
 		for(uint pos = 0; CTStList.lsearch(&tableNo, &pos, CMPF_LONG); pos++) {
@@ -5385,7 +5399,6 @@ int CCheckCache::GetCTableStatus(long tableNo, CTableStatus * pStatus)
 			st.TableNo = tableNo;
 			ASSIGN_PTR(pStatus, st);
 		}
-		//CTableStatusRwl.Unlock();
 	}
 	return status;
 }

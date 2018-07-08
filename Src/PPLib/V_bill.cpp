@@ -706,6 +706,10 @@ void BillFiltDialog::setupAccSheet(PPID sheet, PPID accSheet2ID)
 //
 //
 //
+SLAPI PPViewBill::PoolInsertionParam::PoolInsertionParam() : Verb(2), AddedBillKind(bbtGoodsBills)
+{
+}
+
 SLAPI PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
 	P_BObj(BillObj), CtrlX(0), P_IterState(0), LastSelID(0)
 {
@@ -2370,7 +2374,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	int    tbl_count = 0;
 	DBTable * tbl_l[12];
 	memzero(tbl_l, sizeof(tbl_l));
-	pSubTitle = 0;
+	CALLPTRMEMB(pSubTitle, Z());
 	if(P_TempTbl) {
 		bllt = new TempBillTbl(P_TempTbl->GetName());
 		THROW(CheckTblPtr(bllt));

@@ -1,9 +1,9 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
-#include <tchar.h> // @v9.1.5
 
 BtrCallProc   _BtrCall;
 BtrCallProcID _BtrCallID;

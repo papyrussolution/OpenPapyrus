@@ -1,8 +1,10 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 
 Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : Sqlst(sqlst), Flags(flags)
 {

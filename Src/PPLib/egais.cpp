@@ -70,9 +70,9 @@ PPEgaisProcessor::Reply::Reply() : Status(0)
 {
 }
 
-PPEgaisProcessor::Ticket::Result::Result() 
-{ 
-	Clear(); 
+PPEgaisProcessor::Ticket::Result::Result()
+{
+	Clear();
 }
 
 void PPEgaisProcessor::Ticket::Result::Clear()
@@ -1118,7 +1118,7 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
     return 0;
 }*/
 
-//static 
+//static
 int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
 {
 	return SIntToSymbTab_GetSymb(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), docType, rTag);
@@ -1178,7 +1178,7 @@ static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 	{ PPEgaisProcessor::wbtRetToMe, "WBReturnToMe" }
 };
 
-//static 
+//static
 int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf) // @v10.0.05
 {
 	return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf);
@@ -1673,7 +1673,7 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Importer"), epr_item, woif);
 					manuf_done = 1;
 				}
-				// } @v10.0.06 
+				// } @v10.0.06
 			}
 			if(!manuf_done) {
 				if(lotID) {
@@ -3072,7 +3072,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
 						n_dt.PutInner(SXml::nst("qp", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
-					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07 
+					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07
 						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
 						/*
 						<qp:ClientId>030000194005</qp:ClientId>
@@ -5648,23 +5648,30 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 			}
 		}
     }
-    if(p_bp && (items.getCount() || pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) && checkdate(rest_dtm.d)) {
+    if(p_bp && /*(items.getCount() || pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) &&*/ checkdate(rest_dtm.d)) { // @v10.1.1 Убрана проверка на не пустой документ
 		SString bill_text;
 		int    do_skip = 0;
 		PPID   op_id = 0;
 		PPObjOprKind op_obj;
 		PPOprKind op_rec;
 		ObjTagItem tag_item;
+		const char * p_code_suffix = 0;
+		if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP)
+			p_code_suffix = "-R2";
+		else if(oneof2(pPack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2))
+			p_code_suffix = "-R1";
 		THROW(op_obj.GetEdiStockOp(&op_id, 1));
 		THROW(GetOpData(op_id, &op_rec) > 0); // @v9.6.5
         {
 			period.SetDate(rest_dtm.d);
         	for(DateIter di(&period); !do_skip && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-				LDATETIME ts;
-				if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
-                    // @v10.0.02 if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0)
-					if(tag_item.GetTimestamp(&ts) > 0 && diffdatetimesec(ts, rest_dtm) >= 0) // @v10.0.02
-						do_skip = 1;
+				if(!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0) { // @v10.1.0
+					LDATETIME ts;
+					if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
+						// @v10.0.02 if(tag_item.GetTimestamp(&ts) > 0 && cmp(ts, rest_dtm) >= 0)
+						if(tag_item.GetTimestamp(&ts) > 0 && diffdatetimesec(ts, rest_dtm) >= 0) // @v10.0.02
+							do_skip = 1;
+					}
 				}
 			}
         }
@@ -5673,16 +5680,10 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 			THROW(tra);
 			THROW(p_bp->CreateBlank2(op_id, rest_dtm.d, loc_id, 0));
 			p_bp->Rec.EdiOp = pPack->DocType;
-			if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
-				(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R2"); // SHOP-->R2
+			if(p_code_suffix) {
+				(temp_buf = p_bp->Rec.Code).Cat(p_code_suffix);
 				STRNSCPY(p_bp->Rec.Code, temp_buf);
 			}
-			// @v9.5.0 {
-			else if(oneof2(pPack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
-				(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R1");
-				STRNSCPY(p_bp->Rec.Code, temp_buf);
-			}
-			// } @v9.5.0
 			// @v9.6.5 {
 			if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
 				PPID   ar2_id = 0;
@@ -7103,7 +7104,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList)
+/*int SLAPI PPEgaisProcessor::ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList)
 {
 	int    ok = -1;
 	rResultList.clear();
@@ -7127,7 +7128,7 @@ int SLAPI PPEgaisProcessor::ExpandBaseOpList(const PPIDArray & rBaseOpList, PPID
 	if(rResultList.getCount())
 		ok = 1;
 	return ok;
-}
+}*/
 
 int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList)
 {
@@ -7145,7 +7146,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, lon
 	base_op_list.add(ACfg.Hdr.EgaisRcptOpID);
 	if(!(flags & bilstfRepeal))
 		base_op_list.add(ACfg.Hdr.EgaisRetOpID);
-	ExpandBaseOpList(base_op_list, op_list);
+	PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	for(i = 0; i < op_list.getCount(); i++) {
 		const PPID op_id = op_list.get(i);
 		if(op_id) {
@@ -7337,7 +7338,7 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillExportFilt & 
 			base_op_list.add(Cfg.SupplRetOpID);
 		}
 		// } @v9.5.12
-		ExpandBaseOpList(base_op_list, op_list);
+		PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	}
 	// @v9.0.10 GoodsIterator::GetListByGroup(Cfg.AlcGoodsGrpID, &alc_goods_list);
 	for(i = 0; i < op_list.getCount(); i++) {
@@ -7465,7 +7466,7 @@ int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillExportFilt &
 			base_op_list.add(Cfg.IntrExpndOpID);
 		if(flags & bilstfReturnToSuppl)
 			base_op_list.add(Cfg.SupplRetOpID);
-		ExpandBaseOpList(base_op_list, op_list);
+		PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	}
     for(i = 0; i < op_list.getCount(); i++) {
 		const PPID op_id = op_list.get(i);

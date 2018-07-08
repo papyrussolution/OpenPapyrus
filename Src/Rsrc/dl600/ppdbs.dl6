@@ -1481,6 +1481,7 @@ table VetisEntity {
 	long   Kind;     // Вид записи PPVetisInterface::entXXX
 	long   Flags;
 	long   Status;
+	long   NextGuidRef;
 	raw    Reserve[128];
 index:
 	ID (unique);               // #0
@@ -1572,17 +1573,19 @@ table VetisDocument {
     long   LinkFromDlvrLocID; // Ид адреса доставки отправителя
     long   LinkToPsnID;       // Ид персоналии-получателя, сопоставленной строке
     long   LinkToDlvrLocID;   // Ид адреса доставки получателя
-	raw    Reserve2[40];
+    long   OrgDocEntityID;    // -->VetisDocument.EntityID Ссылка на документ, по которому товар появился у нас
+	raw    Reserve2[36];
 index:
-	EntityID (unique);
-	LinkBillID, LinkBillRow (dup mod allsegnull);
-	IssueDate, IssueNumber (dup mod allsegnull);
-	WayBillDate, WayBillNumber (dup mod allsegnull);
-	FromEntityID (dup mod anysegnull);
-	FromEnterpriseID (dup mod anysegnull);
-    ToEntityID (dup mod anysegnull);
-    ToEnterpriseID (dup mod anysegnull);
-    ProductItemID (dup mod anysegnull);
+	EntityID (unique);                                 // #0
+	LinkBillID, LinkBillRow (dup mod allsegnull);      // #1
+	IssueDate, IssueNumber (dup mod allsegnull);       // #2
+	WayBillDate, WayBillNumber (dup mod allsegnull);   // #3
+	FromEntityID (dup mod anysegnull);                 // #4
+	FromEnterpriseID (dup mod anysegnull);             // #5
+    ToEntityID (dup mod anysegnull);                   // #6
+    ToEnterpriseID (dup mod anysegnull);               // #7
+    ProductItemID (dup mod anysegnull);                // #8
+    OrgDocEntityID (dup mod anysegnull);               // #9
 file:
 	"vetisdoc.btr";
 	access=1;
@@ -4375,18 +4378,19 @@ file:
 //
 // Временная таблица для выборки лотов
 //
-table TempLot {            // size=152
+table TempLot {
 	long   LotID;
 	date   Dt;
-	date   OrgDt;          // @v5.4.6 Дата оригинального лота
-	long   OprNo;
-	long   GoodsID;
-	long   SFlags;         // @v6.1.2 Дополнительные флаги лотов (не сопоставляются с ReceiptTbl::Rec::Flags)
-	string GoodsName[128]; // @v4.4.5 [48]->[64] @v6.3.12 [64]-->[128]
-	double BegRest;
-	double EndRest;
-	double QttyPlus;       // @v5.5.2
-	double QttyMinus;      // @v5.5.2
+	date   OrgDt;          // Дата оригинального лота
+	long   OrgID;          // @v10.1.0 ИД оригинального лота
+	long   OprNo;          //
+	long   GoodsID;        //
+	long   SFlags;         // Дополнительные флаги лотов (не сопоставляются с ReceiptTbl::Rec::Flags)
+	string GoodsName[128]; //
+	double BegRest;        //
+	double EndRest;        //
+	double QttyPlus;       //
+	double QttyMinus;      //
 	string Serial[32];
 	string BillStatus[48];
 index:

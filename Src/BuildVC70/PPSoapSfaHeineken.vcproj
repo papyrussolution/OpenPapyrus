@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -97,7 +97,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -156,7 +156,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -215,7 +215,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -273,7 +273,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -331,7 +331,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Shlwapi.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"

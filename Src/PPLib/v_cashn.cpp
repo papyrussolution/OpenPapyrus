@@ -251,13 +251,13 @@ DBQuery * SLAPI PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
+/* @v10.1.0 (inlined) int SLAPI PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
 {
 	CashNodePaneFilt filt;
 	filt.CashNodeID = cashID;
 	filt.CommandID  = (ppvCmd == PPVCMD_OPPANEL) ? 0 : cmCSOpen;
 	return ::ExecCSPanel(&filt);
-}
+}*/
 
 int SLAPI PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
@@ -299,9 +299,19 @@ int SLAPI PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 						cash_list.add(id);
 						exec_panel = 1;
 					}
-					if(exec_panel)
-						for(uint i = 0; i < cash_list.getCount(); i++)
-							ok = ExecCPanel(ppvCmd, cash_list.at(i));
+					if(exec_panel) {
+						for(uint i = 0; i < cash_list.getCount(); i++) {
+							const PPID node_id = cash_list.get(i);
+							//ok = ExecCPanel(ppvCmd, node_id);
+							//int SLAPI PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
+							{
+								CashNodePaneFilt filt;
+								filt.CashNodeID = node_id;
+								filt.CommandID  = (ppvCmd == PPVCMD_OPPANEL) ? 0 : cmCSOpen;
+								ok = ::ExecCSPanel(&filt);
+							}
+						}
+					}
 				}
 				break;
 			case PPVCMD_LOADSTAT:

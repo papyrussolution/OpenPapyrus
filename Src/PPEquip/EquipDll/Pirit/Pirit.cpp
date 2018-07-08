@@ -41,7 +41,9 @@ char FS = 0x1C;
 #define PIRIT_ERRSTATUSFORFUNC     1 // 01h Функция невыполнима при данном статусе ККМ
 #define PIRIT_ERRFUNCNUMINCOMMAND  2 // 02h В команде указан неверный номер функции
 #define PIRIT_ERRCMDPARAMORFORMAT  3 // 03h Некорректный формат или параметр команды
+#define PIRIT_ENDOFPAPER           8 // 08h Конец бумаги
 #define PIRIT_PRNNOTREADY          9 // 09h Принтер не готов
+#define PIRIT_SESSOVER24H         10 // 0Ah Текущая смена больше 24 часов. Установка даты времени больше чем на 24 часа.
 #define PIRIT_DIFDATE             11 // Дата и время на ККМ отличаются от системных на 8 минут
 #define PIRIT_DATELSLASTOP        12 // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
 #define PIRIT_FATALERROR          32 // 20h Фатальная ошибка ККМ
@@ -293,7 +295,9 @@ static const ErrMessage Pirit_ErrMsg[] = {
 	{PIRIT_ERRSTATUSFORFUNC, "Функция невыполнима при данном статусе ККМ"},
 	{PIRIT_ERRFUNCNUMINCOMMAND, "В команде указан неверный номер функции"},
 	{PIRIT_ERRCMDPARAMORFORMAT, "Некорректный формат или параметр команды"},
+	{PIRIT_ENDOFPAPER,       "Конец бумаги"},
 	{PIRIT_PRNNOTREADY,		 "Принтер не готов"},
+	{PIRIT_SESSOVER24H,      "Текущая смена больше 24 часов. Установка даты времени больше чем на 24 часа."},
 	{PIRIT_DIFDATE,			 "Дата и время на ККМ отличаются от системных на 8 минут. Проверьте время на компьютере"},
 	{PIRIT_DATELSLASTOP,	 "Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ. Проверьте время на компьютере. Если оно верно, обратитесь в ЦТО."},
 	{PIRIT_FATALERROR,		 "Фатальная ошибка ККМ"},

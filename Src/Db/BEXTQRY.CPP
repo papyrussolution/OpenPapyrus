@@ -3,7 +3,8 @@
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
 
 #define EG_sign 0x4745U

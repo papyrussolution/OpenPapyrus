@@ -1054,6 +1054,19 @@ int SLAPI ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & 
 	return ok;
 }
 
+int SLAPI ObjTagCore::GetTagGuid(PPID objType, PPID objID, PPID tagID, S_GUID & rGuid)
+{
+	rGuid.Z();
+	int    ok = -1;
+	ObjTagItem item;
+	int    r = GetTag(objType, objID, tagID, &item);
+	if(r > 0 && item.GetGuid(&rGuid) && !!rGuid)
+		ok = 1;
+	else
+		ok = r;
+	return ok;
+}
+
 int SLAPI ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta)
 {
 	int    ok = -1;

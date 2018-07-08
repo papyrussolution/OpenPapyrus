@@ -2804,7 +2804,10 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 	StringSet ss;
 	TempOrderTbl::Key1 tmp_k1;
 	Goods2Tbl::Rec goods_rec;
-	SString goods_name, msg_buf, temp_buf;
+	SString temp_buf;
+	SString goods_name;
+	SString msg_buf;
+	SString barcode_buf;
 	GoodsFilt filt;
 	TempOrderTbl * p_tmp_tbl = 0;
 	BExtInsert * p_bei = 0;
@@ -2902,10 +2905,11 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 		}
 		MEMSZERO(tmp_k1);
 		while(p_tmp_tbl->search(1, &tmp_k1, spGt)) {
-			char   barcode[32], price_buf[32];
+			//char   barcode[32];
+			char   price_buf[32];
 			uint   p = 0;
 			ss.setBuf(p_tmp_tbl->data.Name, sizeof(p_tmp_tbl->data.Name));
-			ss.get(&p, barcode, sizeof(barcode));
+			ss.get(&p, barcode_buf);
 			ss.get(&p, temp_buf);
 			PPID   out_goods_id = temp_buf.ToLong();
 			PPID   goods_id = out_goods_id & ((1 << bcode_uniq_bias) - 1);
@@ -2922,7 +2926,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 				realfmt(price, MKSFMTD(6, 2, NMBF_NOTRAILZ), price_buf);
 				if(!oneof3(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 					p_bht_rec->PutInt(0, goods_id);
-					p_bht_rec->PutStr(1, barcode);
+					p_bht_rec->PutStr(1, barcode_buf);
 					//
 					// @v4.0.8 p_bht_rec->PutStr(2, price_buf);
 					// int на bht от -32xxx до 32767 -> при бин. поиске 32767 + 1 = -32xxx -> ошибки
@@ -2945,11 +2949,11 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 						goods_name.Trim(47);
 					if(oneof2(bhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 						goods_name.Transf(CTRANSF_INNER_TO_OUTER);
-						SOemToChar(barcode);
+						barcode_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					}
 					else
 						goods_name.ToLower();
-					dbf_rec.put(num_fld++, barcode);
+					dbf_rec.put(num_fld++, barcode_buf);
 					dbf_rec.put(num_fld++, goods_name);
 					if(oneof2(bhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII)) {
 						if(goods_obj.GetStockExt(goods_id, &gse) > 0 && gse.Package > 0)

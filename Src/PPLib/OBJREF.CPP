@@ -817,6 +817,27 @@ int SLAPI PPObjUnit::IsInteger(PPID id)
 	return BIN(Fetch(id, &rec) > 0 && rec.Flags & PPUnit::IntVal);
 }
 
+int SLAPI PPObjUnit::TranslateToBase(PPID unitID, PPID baseUnitID, double * pRatio)
+{
+	int    ok = -1;
+	double ratio = 0.0;
+	if(unitID) {
+		if(unitID == baseUnitID) {
+			ratio = 1.0;
+			ok = 1;
+		}
+		else {
+			PPUnit u_rec;
+			if(Fetch(unitID, &u_rec) > 0 && u_rec.BaseUnitID == baseUnitID && u_rec.BaseRatio > 0.0) {
+				ratio = u_rec.BaseRatio;
+				ok = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pRatio, ratio);
+	return ok;
+}
+
 int SLAPI PPObjUnit::AddSimple(PPID * pID, const char * pName, long flags, int use_ta)
 {
 	int    ok = -1, r;
@@ -912,7 +933,7 @@ int SLAPI PPObjUnit::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 class UnitCache : public ObjCache {
 public:
-	SLAPI UnitCache() : ObjCache(PPOBJ_UNIT, sizeof(UnitData)) 
+	SLAPI UnitCache() : ObjCache(PPOBJ_UNIT, sizeof(UnitData))
 	{
 	}
 private:
@@ -1415,7 +1436,7 @@ int SLAPI PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 
 class ELinkKindCache : public ObjCache {
 public:
-	SLAPI ELinkKindCache() : ObjCache(PPOBJ_ELINKKIND, sizeof(Data)) 
+	SLAPI ELinkKindCache() : ObjCache(PPOBJ_ELINKKIND, sizeof(Data))
 	{
 	}
 private:
@@ -1712,7 +1733,7 @@ int SLAPI SetupCurrencyCombo(TDialog * dlg, uint ctl, PPID id, uint /*flags*/, i
 
 class CurrencyCache : public ObjCache {
 public:
-	SLAPI CurrencyCache() : ObjCache(PPOBJ_CURRENCY, sizeof(Data)) 
+	SLAPI CurrencyCache() : ObjCache(PPOBJ_CURRENCY, sizeof(Data))
 	{
 	}
 private:

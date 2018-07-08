@@ -1,8 +1,10 @@
 // SOAPDBT.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017
+// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 //
 // @ModuleDef(SoapDbFile)
 //
@@ -18,10 +20,8 @@ void SoapDbFile::Param::Init(const char * pRootTag, const char * pHeadTag, const
 	RecTag = pRecTag;
 }
 
-SoapDbFile::SoapDbFile()
+SoapDbFile::SoapDbFile() : Pos(0), NumRecs(0)
 {
-	Pos = 0;
-	NumRecs = 0;
 }
 
 SoapDbFile::~SoapDbFile()

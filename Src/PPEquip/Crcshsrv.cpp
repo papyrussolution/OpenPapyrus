@@ -20,8 +20,8 @@ struct CashierEntry { // @flat
 IMPL_CMPFUNC(CashierEnKey, i1, i2)
 {
 	int    cmp = 0;
-	const CashierEntry * k1 = (CashierEntry*)i1;
-	const CashierEntry * k2 = (CashierEntry*)i2;
+	const CashierEntry * k1 = (const CashierEntry *)i1;
+	const CashierEntry * k2 = (const CashierEntry *)i2;
 	if(k1->TabNum < k2->TabNum)
 		cmp = -1;
 	else if(k1->TabNum > k2->TabNum)
@@ -121,10 +121,11 @@ public:
 			delete(P_IEParam[i]);
 		delete P_SCardPaymTbl;
 	}
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
+	virtual int  SLAPI ExportData(int updOnly);
+	virtual int  SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int  SLAPI ImportSession(int);
+	virtual int  SLAPI FinishImportSession(PPIDArray *);
+	virtual void SLAPI CleanUpSession();
 
 	int SLAPI ExportDataV10(int updOnly);
 	int SLAPI ExportData__(int updOnly);
@@ -158,8 +159,52 @@ private:
 	int    SLAPI SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec);
 	int    SLAPI GetFilesLocal();
 	PPBillImpExpParam * SLAPI CreateImpExpParam(uint sdRecID);
-	int    SLAPI Backup(const char * pPrefix, const char * pPath);
+	void   SLAPI Backup(const char * pPrefix, const char * pPath);
 
+	class DeferredRemovingFileList : public SStrGroup {
+	public:
+		DeferredRemovingFileList()
+		{
+		}
+		DeferredRemovingFileList & Z()
+		{
+			ClearS();
+			L.clear();
+			return *this;
+		}
+		void Add(const char * pBackupPrefix, const char * pPath)
+		{
+			Entry new_entry;
+			new_entry.BackupPrefixP = 0;
+			new_entry.FilePathP = 0;
+			AddS(pBackupPrefix, &new_entry.BackupPrefixP);
+			AddS(pPath, &new_entry.FilePathP);
+			L.insert(&new_entry);
+		}
+		uint GetCount() const { return L.getCount(); }
+		int  Get(uint idx /*0..*/, SString & rBackupPrefix, SString & rPath)
+		{
+			int    ok = 1;
+			rBackupPrefix.Z();
+			rPath.Z();
+			if(idx < L.getCount()) {
+				const Entry & r_entry = L.at(idx);
+				GetS(r_entry.BackupPrefixP, rBackupPrefix);
+				GetS(r_entry.FilePathP, rPath);
+			}
+			else
+				ok = 0;
+			return ok;
+		}
+	private:
+		struct Entry {
+			uint    FilePathP;
+			uint    BackupPrefixP;
+		};
+		TSVector <Entry> L;
+	};
+
+	DeferredRemovingFileList DrfL;
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
 	PPIDArray SessAry;
@@ -599,13 +644,13 @@ int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 #if 0 // @v9.0.9 {
 int SLAPI XmlWriter::TimeStamp(LDATETIME dtm, SString & rBuf)
 {
-	rBuf.Printf("%04d-%02d-%02dT%02d:%02d:%02d.%03d", dtm.d.year(), dtm.d.month(), dtm.d.day(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs() * 10); // @v8.7.8 @fix (*10)
+	rBuf.Printf("%04d-%02d-%02dT%02d:%02d:%02d.%03d", dtm.d.year(), dtm.d.month(), dtm.d.day(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs() * 10);
 	return 1;
 }
 
 int SLAPI XmlWriter::TimeStamp(LTIME tm, SString & rBuf)
 {
-	rBuf.Printf("%02d:%02d:%02d.%03d", tm.hour(), tm.minut(), tm.sec(), tm.hs() * 10); // @v8.7.8 @fix (*10)
+	rBuf.Printf("%02d:%02d:%02d.%03d", tm.hour(), tm.minut(), tm.sec(), tm.hs() * 10);
 	return 1;
 }
 #endif // } 0 @v9.0.9
@@ -650,11 +695,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	struct _SalesGrpEntry {
 		PPID   GrpID;
 		char   GrpName[64];
-		char   Code[24];    // @v8.8.0 [16]-->[24]
+		char   Code[24];
 	};
 	SArray  sales_grp_list(sizeof(_SalesGrpEntry));
 	struct _MaxDisEntry {
-		char   Barcode[24]; // @v8.8.0 [16]-->[24]
+		char   Barcode[24];
 		int16  Deleted;
 		int16  NoDis;
 	};
@@ -670,7 +715,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PPIniFile ini_file;
 	PPWait(1);
 	THROW(GetNodeData(&cn_data) > 0);
-	// @v8.9.11 {
 	{
 		PPLocationConfig loc_cfg;
 		PPObjLocation::ReadConfig(&loc_cfg);
@@ -678,46 +722,12 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
 		}
 	}
-	// } @v8.9.11
 	rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-	// @v8.6.1 THROW(DistributeFile(0, 3));
-	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS)); // @v8.6.1
-	THROW(DistributeFile(0, 3, SUBDIR_CARDS)); // @v8.6.1
+	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS));
+	THROW(DistributeFile(0, 3, SUBDIR_CARDS));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
-	/* @v8.5.4 Инициализация следующих параметров является общей для многих кассовых модулей,
-	    потому вынесена в класс AsyncCashGoodsIterator
-	//
-	// Извлечем информацию о классе алкогольного товара
-	//
-	{
-		i = 0;
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf);
-		StringSet ss(',', temp_buf);
-		ss.get(&i, temp_buf.Z());
-		if(obj_gdscls.SearchBySymb(temp_buf, &alc_cls_id) > 0) {
-			ss.get(&i, alc_proof);
-			ss.get(&i, alc_vol);
-			if(!alc_proof.Len() || !alc_vol.Len() || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
-				alc_cls_id = 0;
-		}
-	}
-	//
-	// Извлечем информацию о классе товара табак
-	//
-	{
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSTOBACCO, temp_buf);
-		obj_gdscls.SearchBySymb(temp_buf, &(tobacco_cls_id = 0));
-	}
-	//
-	// Извлечем информацию о классе товара подарочная карта
-	//
-	{
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf);
-		obj_gdscls.SearchBySymb(temp_buf, &(giftcard_cls_id = 0));
-	}
-	*/
 	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,            path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML,         path_cashiers));
 	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,            path_cards));
@@ -737,7 +747,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(_grp_list.getCount()) {
 			for(i = 0; i < _grp_list.getCount(); i++) {
 				PPGoodsPacket gds_pack;
-				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) {
 					if(gds_pack.GetGroupCode(code) > 0) {
 						_SalesGrpEntry sales_grp_item;
 						sales_grp_item.GrpID = gds_pack.Rec.ID;
@@ -761,15 +771,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		THROW_MEM(p_gds_iter = new AsyncCashGoodsIterator(NodeID, acgif, SinceDlsID, P_Dls));
 	}
 	PROFILE_START
-	// @v8.5.4 {
 	alc_cls_id = p_gds_iter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
-	// @v8.6.1 @fix {
 	if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
 		alc_cls_id = 0;
-	// } @v8.6.1 @fix
 	tobacco_cls_id = p_gds_iter->GetTobaccoGoodsCls();
 	giftcard_cls_id = p_gds_iter->GetGiftCardGoodsCls();
-	// } @v8.5.4
 	//
 	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
 	//
@@ -814,12 +820,10 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			}
 			AddCheckDigToBarcode(prev_gds_info.PrefBarCode);
 			p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
-			// @v8.9.11 {
 			if(store_index.NotEmpty()) {
 				//<shop-indices>2</shop-indices>
 				p_writer->PutElement("shop-indices", store_index);
 			}
-			// } @v8.9.11
 			p_writer->PutElement("name", prev_gds_info.Name);
 			for(i = 0; i < barcodes.getCount(); i++) {
 				BarcodeTbl::Rec bc = barcodes.at(i);
@@ -872,7 +876,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				Goods2Tbl::Rec ggrec;
 				grp_code.Z();
 				if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
-					grp_code.ShiftLeftChr('@'); // @v7.5.3
+					grp_code.ShiftLeftChr('@');
 				else
 					grp_code.Z().Cat(prev_gds_info.ParentID);
 				p_writer->StartElement("group", "id", grp_code);
@@ -988,11 +992,9 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					for(uint pi = 0; pi < price_list.getCount(); pi++) {
 						p_writer->PutPlugin("price", price_list[pi]);
 					}
-					// @v8.7.1 {
 					if(ModuleSubVer >= 2) {
 						p_writer->PutPlugin("price", prev_gds_info.Price);
 					}
-					// } @v8.7.1
 					p_writer->EndElement(); // </plugin-property>
                     /*
 						<plugin-property key="mrc">
@@ -1124,7 +1126,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		sp.Merge(path_cards);
 		THROW_MEM(p_writer = new XmlWriter(path_cards, 1));
 		p_writer->StartElement("cards-catalog");
-		PPLoadText(PPTXT_EXPSCARD, fmt_buf); // @v8.1.0
+		PPLoadText(PPTXT_EXPSCARD, fmt_buf);
 		if(ModuleSubVer >= 3) {
 			int    zero_series_has_seen = 0;
 			for(ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
@@ -1142,9 +1144,9 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					if(!skip) {
 						p_writer->StartElement("internal-card-type");
 							p_writer->AddAttrib("deleted", false);
-							p_writer->AddAttrib("guid", ser_ident); // @v8.9.6 0-->ser_ident
+							p_writer->AddAttrib("guid", ser_ident);
 							p_writer->AddAttrib("name", ser_name);
-							p_writer->AddAttrib("percentage-discount", fdiv100i(ser_rec.PDis)); // @v9.4.3
+							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(ser_rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT))); // @v9.4.3
 							// @v9.3.2 p_writer->AddAttrib("personalized", (info.Rec.PersonID != 0) ? true : false);
 							// p_writer->AddAttrib("workPeriodStart", info.Rec.UsageTmStart.d);
 							// p_writer->AddAttrib("workPeriodEnd", info.Rec.UsageTmEnd.d);
@@ -1158,23 +1160,21 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					PPSCardSerPacket scs_pack;
 					THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 					THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
-					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name); // @v8.1.0
+					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 					ser_name = ser_rec.Name;
-					// @v8.9.6 {
 					ser_ident = ser_rec.Symb;
 					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
 						ser_ident.Z().CatChar('0');
-					// } @v8.9.6
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-						PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
+						PPWaitPercent(iter.GetCounter(), msg_buf);
 						LDATETIME expiry;
 						expiry.d = info.Rec.Expiry;
 						p_writer->StartElement("internal-card");
-							p_writer->AddAttrib("amount", info.Rec.Turnover);
+							p_writer->AddAttrib("amount", temp_buf.Z().Cat(info.Rec.Turnover, MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 							p_writer->AddAttrib("deleted", false);
 							//p_writer->AddAttrib("discountpercent", fdiv100i(info.Rec.PDis));
-							p_writer->AddAttrib("card-type-guid", ser_ident); // @v9.4.1
-							p_writer->AddAttrib("percentage-discount", fdiv100i(info.Rec.PDis));
+							// @v10.1.0 p_writer->AddAttrib("card-type-guid", ser_ident); // @v9.4.1
+							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 							p_writer->AddAttrib("number", info.Rec.Code);
 							if(expiry.d != ZERODATE) {
 								expiry.d.getactual(ZERODATE);
@@ -1199,7 +1199,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 						p_writer->EndElement();
 						iter.SetStat();
 						idx++;
-						// @v8.1.0 PPWaitMsg((out_msg = iter_msg).Space().CatEq(series_word, ser_rec.Name));
 					}
 				}
 			}
@@ -1211,14 +1210,12 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					PPSCardSerPacket scs_pack;
 					THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 					THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
-					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name); // @v8.1.0
-					// @v8.9.6 {
+					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 					ser_ident = ser_rec.Symb;
 					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
 						ser_ident.Z().CatChar('0');
-					// } @v8.9.6
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-						PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
+						PPWaitPercent(iter.GetCounter(), msg_buf);
 						LDATETIME expiry;
 						expiry.d = info.Rec.Expiry;
 						p_writer->StartElement("client");
@@ -1230,7 +1227,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							ser_name = ser_rec.Name;
 							p_writer->StartElement("internal-card-type");
 								p_writer->AddAttrib("deleted", false);
-								p_writer->AddAttrib("guid", ser_ident); // @v8.9.6 0-->ser_ident
+								p_writer->AddAttrib("guid", ser_ident);
 								p_writer->AddAttrib("name", ser_name);
 								p_writer->AddAttrib("personalized", (info.Rec.PersonID != 0) ? true : false);
 								// p_writer->AddAttrib("workPeriodStart", info.Rec.UsageTmStart.d);
@@ -1250,7 +1247,6 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 						p_writer->EndElement();
 						iter.SetStat();
 						idx++;
-						// @v8.1.0 PPWaitMsg((out_msg = iter_msg).Space().CatEq(series_word, ser_rec.Name));
 					}
 				}
 			}
@@ -1472,7 +1468,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	struct _SalesGrpEntry { // @flat
 		PPID   GrpID;
 		char   GrpName[64];
-		char   Code[24];    // @v8.8.0 [16]-->[24]
+		char   Code[24];
 	};
 	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
 	PPObjGoods goods_obj;
@@ -1483,7 +1479,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	LAssocArray  scard_quot_ary, dscnt_code_ary;
 	//
-	// @v7.0.6 Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
+	// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
 	//
 	PPIDArray rtl_quot_list;
 	//
@@ -1512,7 +1508,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		if(_grp_list.getCount()) {
 			for(uint i = 0; i < _grp_list.getCount(); i++) {
 				PPGoodsPacket gds_pack;
-				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) {
 					if(gds_pack.GetGroupCode(code) > 0) {
 						_SalesGrpEntry sales_grp_item;
 						sales_grp_item.GrpID = gds_pack.Rec.ID;
@@ -1543,10 +1539,9 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				THROW(p_tbl);
 				THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
-				(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name); // @v8.1.0
+				(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 				for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-					PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
-					// @v8.1.0 PPWaitMsg((msg_buf = fmt_buf).CatDiv(':', 2).Cat(info.Rec.Code));
+					PPWaitPercent(iter.GetCounter(), msg_buf);
 					const char * p_mode = info.IsClosed ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
 					dbfrC.empty();
@@ -1880,7 +1875,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 								dbfr.put(5, dscnt_sum); // Сумма скидки
 								dbfr.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
 								dbfr.put(7, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
-								dbfr.put(8, (long)4); // @v7.1.0
+								dbfr.put(8, (long)4);
 								THROW_PP(p_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 							}
 						}
@@ -2026,7 +2021,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		struct _SalesGrpEntry { // @flat
 			PPID   GrpID;
 			char   GrpName[64];
-			char   Code[24];    // @v8.8.0 [16]-->[24]
+			char   Code[24];
 		};
 		SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
 		PPObjGoodsGroup ggobj;
@@ -2035,9 +2030,10 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		//
 		LAssocArray  scard_quot_ary, dscnt_code_ary;
 		//
-		// @v7.0.6 Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
+		// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
 		//
-		LAssocArray  rtl_quot_ary, rtl_dscnt_code_ary;
+		LAssocArray rtl_quot_ary;
+		LAssocArray rtl_dscnt_code_ary;
 		//
 		PPQuotArray  grp_dscnt_ary;
 		PPIniFile    ini_file;
@@ -2085,7 +2081,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			if(_grp_list.getCount()) {
 				PPGoodsPacket gds_pack;
 				for(uint i = 0; i < _grp_list.getCount(); i++) {
-					if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+					if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) {
 						if(gds_pack.GetGroupCode(code) > 0) {
 							_SalesGrpEntry sales_grp_item;
 							sales_grp_item.GrpID = gds_pack.Rec.ID;
@@ -2489,15 +2485,12 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char 
 	int    ok = 1;
 	SString sig_num_file;
 	THROW(PPGetFileName(subStrId, PathRpt[filTyp]));
-	// @v8.9.11 {
 	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
 	if(sigNum == 18 && ModuleVer == 5 && ModuleSubVer >= 9)
 		sig_num_file.Cat("all").Dot().Cat("dbf");
 	else
 		sig_num_file.Cat(sigNum).Dot().Cat("txt");
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat(sig_num_file);
-	// } @v8.9.11
-	// @v8.9.11 strcat(setLastSlash(STRNSCPY(PathQue[filTyp], pPath)), replaceExt(itoa(sigNum, sig_num_file, 10), "txt", 1));
 	CATCHZOK
 	return ok;
 }
@@ -2520,7 +2513,6 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 	PathRpt[filTyp] = pName;
 	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat("reports.request");
-	// @v8.9.11 strcat(setLastSlash(STRNSCPY(PathQue[filTyp], pPath)), "reports.request");
 	return 1;
 }
 
@@ -2827,7 +2819,6 @@ int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
 	TempOrderTbl::Key0 k0;
 	PPImpExp * p_ie_csd = 0;
 	DbfTable * p_dbftd  = 0;
-
 	THROW_MEM(P_SCardPaymTbl = CreateTempOrderTbl());
 	if(Options & oUseAltImport) {
 		SString  file_name, save_file_name, ser_name;
@@ -2836,7 +2827,6 @@ int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
 			long   c, count;
 			PPID  ser_id = 0;
 			PPBillImpExpParam * p_ie_param = P_IEParam[PPREC_CS_DSCNT - PPREC_CS_ZREP];
-
 			Backup("dsct", file_name);
 			p_ie_param->FileName = file_name;
 			THROW_MEM(p_ie_csd = new PPImpExp(p_ie_param, 0));
@@ -3115,7 +3105,6 @@ SLAPI XmlReader::~XmlReader()
 	if(P_Doc) {
 		xmlFreeDoc(P_Doc);
 		P_Doc = 0;
-		// @v8.7.10 xmlCleanupParser();
 	}
 }
 
@@ -3240,7 +3229,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		}
 		if(p_items) {
 			for(; p_items; p_items = p_items->next) {
-				if(p_items->type == XML_ELEMENT_NODE && p_items->properties) { // @v7.9.7 (p_item->type == XML_ELEMENT_NODE &&)
+				if(p_items->type == XML_ELEMENT_NODE && p_items->properties) { 
 					Item item;
 					MEMSZERO(item);
 					for(xmlAttr * p_fld = p_items->properties; p_fld; p_fld = p_fld->next) {
@@ -3345,7 +3334,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 					MEMSZERO(head);
 					pack.GetHead(&head);
 					for(xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
-						if(p_paym_fld->type == XML_ELEMENT_NODE) { // @v7.9.7
+						if(p_paym_fld->type == XML_ELEMENT_NODE) {
 							int16  banking = -1;
 							int    amount_type = CCAMTTYP_CASH;
 							double amount  = 0.0;
@@ -3525,19 +3514,11 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 				else if(Flags & PPACSF_TEMPSESS)
 					fl |= CCHKF_TEMPSESS;
 				double chk_dis = hdr.Discount + hdr.AddedDiscount;
-				// @v8.1.0 double add_paym = (hdr.BankingAmount != 0.0) ? (hdr.CheckAmount - hdr.BankingAmount) : 0.0;
 				//
 				// Если подарочная карта не найдена, будем считать что оплата без нее
 				//
 				if(!gift_card_id)
 					hdr.GiftCardAmount = 0.0;
-				/* @v8.1.0
-				// Если платеж нет доплаты и текущая оплата по карте, вычислим доплату
-				if(add_paym == 0.0 && hdr.GiftCardAmount != 0.0 && gift_card_id) {
-					add_paym = hdr.CheckAmount - hdr.GiftCardAmount;
-					hdr.GiftCardAmount = 0;
-				}
-				*/
 				hdr.CheckAmount = (fl & CCHKF_RETURN) ? -hdr.CheckAmount : hdr.CheckAmount;
 				THROW(r = AddTempCheck(&id, hdr.SmenaNum, fl, hdr.CashNum, hdr.ChkNum, cshr_id, 0, &hdr.Dtm, hdr.CheckAmount, 0/*, add_paym, hdr.GiftCardAmount*/));
 				if(r < 0 && !(Flags & PPACSF_TEMPSESS) && !(fl & CCHKF_TEMPSESS)) {
@@ -3570,24 +3551,15 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 						SetupTempCcLineRec(0, chk_id, hdr.ChkNum, P_TmpCcTbl->data.Dt, item.Div, goods_id);
 						SetTempCcLineValues(0, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount, item.Serial);
 						THROW_DB(P_TmpCclTbl->insertRec());
-						/* @v8.1.0
-						if(hdr.BankingAmount && !(P_TmpCcTbl->data.Flags & CCHKF_BANKING)) {
-							THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
-						}
-						*/
 						if(!P_TmpCcTbl->data.SCardID && scard_id)
 							THROW(AddTempCheckSCardID(chk_id, scard_id));
-						/* @v8.1.0
-						if(!P_TmpCcTbl->data.GiftCardID && gift_card_id)
-							THROW(AddTempCheckGiftCardID(chk_id, gift_card_id));
-						*/
 						if(item.Discount) {
 							const double _d = item.Discount * item.Qtty;
 							THROW(AddTempCheckAmounts(chk_id, 0.0, _d));
 						}
 					}
 				}
-				if(id) { // @v8.1.2 if(id)
+				if(id) {
 					/*
 					double Amount;        // извлекается из заголовка чека, как показала практика эта сумма не всегда достоверна
 					double CheckAmount;   // Сумма оплат внесенных за чек
@@ -3627,7 +3599,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 							THROW(AddTempCheckPaym(id, CCAMTTYP_CASH, cash_amount, 0));
 					}
 					if(added_cc_flags) {
-						THROW(UpdateTempCheckFlags(id, added_cc_flags)); // @v8.1.2 chk_id-->id
+						THROW(UpdateTempCheckFlags(id, added_cc_flags));
 					}
 				}
 			}
@@ -3675,7 +3647,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	DbfTable * p_dbfth = 0;
 	DbfTable * p_dbftr = 0;
 
-	Backup("dbfh", PathRpt[filTypChkHeads]); // @v7.7.9 AHTOXA
+	Backup("dbfh", PathRpt[filTypChkHeads]);
 	THROW_MEM(p_dbfth = new DbfTable(PathRpt[filTypChkHeads]));
 	THROW_PP(p_dbfth->isOpened(), PPERR_DBFOPFAULT);
 	p_dbfth->getFieldNumber("operation", &fldn_h_op);
@@ -3685,7 +3657,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	p_dbfth->getFieldNumber("smena",     &fldn_h_sess);
 	p_dbfth->getFieldNumber("cashier",   &fldn_h_cashier);
 
-	Backup("dbfr", PathRpt[filTypChkRows]); // @v7.7.9 AHTOXA
+	Backup("dbfr", PathRpt[filTypChkRows]);
 	THROW_MEM(p_dbftr = new DbfTable(PathRpt[filTypChkRows]));
 	THROW_PP(p_dbftr->isOpened(), PPERR_DBFOPFAULT);
 	p_dbftr->getFieldNumber("chkln_id",  &fldn_l_chkln_id);
@@ -3737,7 +3709,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 					else if(Flags & PPACSF_TEMPSESS)
 						fl |= CCHKF_TEMPSESS;
 					THROW(r = AddTempCheck(&id, nsmena, fl, csh, chk, cshr_id, 0, &dttm, sum, dscnt));
-					if(r < 0 && !(Flags & PPACSF_TEMPSESS)/*@v6.5.6{ */ && !(fl & CCHKF_TEMPSESS) /*}@v6.5.6*/) {
+					if(r < 0 && !(Flags & PPACSF_TEMPSESS) && !(fl & CCHKF_TEMPSESS)) {
 						PPID   sess_id = 0;
 						if(CS.SearchByNumber(&sess_id, NodeID, csh, nsmena, dttm.d) > 0 && sess_id && CS.data.Temporary) {
 							THROW(CS.ResetTempSessTag(sess_id, 0));
@@ -3797,44 +3769,6 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 					PPID   chk_id = P_TmpCcTbl->data.ID;
 					qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 					SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
-#if 0 // @v5.7.4 VADIM {
-					//
-					// Если определено поле суммы по строке, то применяем следующие трюки:
-					// 1. Цену (почти безуспешно ввиду низкой точности представления) пытаемся //
-					//    адаптировать к кассовому модулю делением поля суммы на поле количества.
-					// 2. Так как точности достаточно только в поле количества, то для согласования //
-					//    суммы по чекам с суммами Z-отчетов определяем количество как отношение суммы к цене.
-					//    Эксперименты показывают, что отличие количества будет в пределах -0.0007..+0.0007.
-					//    Такое отклонение практически невозможно отловить на уровне инвентаризаций и пр.
-					// 3. Для гарантированной совместимости с предыдущими релизами, в которых, надо сказать, все
-					//    было хорошо за исключением небольших копеечных отклонений от суммы Z-отчета,
-					//    следим за знаками величин.
-					//
-					int    p_sign = (price < 0) ? -1 : 1;
-					int    is_dscnt = 0;
-					if(fldn_l_sum && fldn_l_price && qtty != 0 && price != 0)
-						net_price = fabs(sum/qtty);
-					else
-						net_price = fabs(price);
-					if(dscnt) {
-						is_dscnt = 1;
-						// @v5.2.8 { Оказывается (мать-перемать) кристалл-сет показывает скидку на
-						// все количество (не на одну единицу)
-						if(qtty != 0.0)
-							dscnt = dscnt / fabs(qtty);
-						// }
-					}
-					double abs_dscnt = dscnt * p_sign;
-					price = R2(net_price + abs_dscnt);
-					net_price *= p_sign;
-					SetTempCcLineValues(0, qtty, price, dscnt);
-					THROW_DB(P_TmpCclTbl->insertRec());
-					if(banking) {
-						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
-					}
-					THROW(AddTempCheckAmounts(chk_id, net_price*qtty, is_dscnt ? dscnt*qtty : 0.0));
-#endif // } 0 @v5.7.4 VADIM
-					// @v5.7.4 VADIM {
 					if(!fldn_l_sum)
 						sum = price * qtty;
 					SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty);
@@ -3843,7 +3777,6 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
 					}
 					THROW(AddTempCheckAmounts(chk_id, sum, dscnt));
-					// } @v5.7.4 VADIM
 					if(!P_TmpCcTbl->data.SCardID && P_SCardPaymTbl) {
 						TempOrderTbl::Key0 k0;
 						MEMSZERO(k0);
@@ -4097,7 +4030,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
 				param.Z().Cat(LogNumList.at(i));
 				if(ini_file.GetParam(sect_name, param, buf) > 0) {
-					SPathStruc  ps1(file_name);
+					SPathStruc ps1(file_name);
 					ps.Split(buf);
 					ps.Drv = ps1.Drv;
 				}
@@ -4242,7 +4175,6 @@ SLAPI XmlZRepReader::~XmlZRepReader()
 	if(P_Doc) {
 		xmlFreeDoc(P_Doc);
 		P_Doc = 0;
-		// @v8.7.10 xmlCleanupParser();
 	}
 }
 
@@ -4258,36 +4190,35 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 		for(; p_fld; p_fld = p_fld->next) {
 			if(p_fld->children && p_fld->children->content) {
 				int idx = 0;
-				val = (const char*)p_fld->children->content;
+				val.Set(p_fld->children->content);
 				if(PPSearchSubStr(p_tag_names, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
 					switch(idx) {
-						case 0:  // Номер смены
-							item.ZRepCode = val.ToLong();
-							break;
-						case 1:  // Номер кассы
-							item.CashCode = val.ToLong();
-							break;
+						case 0: item.ZRepCode = val.ToLong(); break; // Номер смены
+						case 1: item.CashCode = val.ToLong(); break; // Номер кассы
 						case 2:  // Дата время чека
+							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS); // @v10.1.1
+							/* @v10.1.1 
+							{
+								SString s_dt, s_tm;
+								val.Divide('T', s_dt, s_tm);
 								{
-									SString s_dt, s_tm;
-									val.Divide('T', s_dt, s_tm);
-									{
-										int d = 0, m = 0, y = 0;
-										uint i = 0;
-										SString temp_buf;
-										StringSet ss("-");
-										ss.setBuf(s_dt, s_dt.Len() + 1);
-										ss.get(&i, temp_buf);
-										y = temp_buf.ToLong();
-										ss.get(&i, temp_buf);
-										m = temp_buf.ToLong();
-										ss.get(&i, temp_buf);
-										d = temp_buf.ToLong();
-										encodedate(d, m, y, &item.Start.d);
-									}
-									strtotime(s_tm, TIMF_SQL, &item.Start.t);
+									int d = 0, m = 0, y = 0;
+									uint i = 0;
+									SString temp_buf;
+									StringSet ss("-");
+									ss.setBuf(s_dt, s_dt.Len() + 1);
+									ss.get(&i, temp_buf);
+									y = temp_buf.ToLong();
+									ss.get(&i, temp_buf);
+									m = temp_buf.ToLong();
+									ss.get(&i, temp_buf);
+									d = temp_buf.ToLong();
+									encodedate(d, m, y, &item.Start.d);
 								}
-								break;
+								strtotime(s_tm, TIMF_SQL, &item.Start.t);
+							}
+							*/
+							break;
 					}
 				}
 			}
@@ -4333,10 +4264,10 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
-				sd.Init(data_path);
-				while(sd.Next(&sd_entry) > 0) {
+				for(sd.Init(data_path); sd.Next(&sd_entry) > 0;) {
 					(data_path = data_dir).Cat(sd_entry.FileName);
-					Backup("zrep", data_path);
+					// @v10.1.1 Backup("zrep", data_path);
+					DrfL.Add("zrep", data_path); // @v10.1.1
 					{
 						XmlZRepReader _rdr(data_path);
 						while(_rdr.Next(&zrep) > 0) {
@@ -4344,7 +4275,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 							THROW_SL(pZRepList->insert(&zrep));
 						}
 					}
-					SFile::Remove(data_path);
+					// @v10.1.1 SFile::Remove(data_path);
 				}
 			}
 			else if(Options & oUseAltImport) {
@@ -4431,15 +4362,15 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
+void SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
 	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
-	SString backup_dir, dest_path, ext;
+	SString backup_dir, dest_path;
 	SString prefix = pPrefix;
 	prefix.Strip().Trim(4);
 	SPathStruc sp(pPath);
-	ext = sp.Ext;
+	SString ext = sp.Ext;
 	sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
 	createDir(backup_dir);
@@ -4458,29 +4389,7 @@ int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 		dest_path = MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
 	}
 	SCopyFile(pPath, dest_path, 0, FILE_SHARE_READ, 0);
-	return 1;
 }
-
-#if 0 // @v8.1.2 перенесено в единственную точку использования {
-int SLAPI ACS_CRCSHSRV::AcceptTempSess(SArray * pZRepList)
-{
-	int ok = 1;
-	if(pZRepList) {
-		for(uint i = 0; i < pZRepList->getCount(); i++) {
-			PPID   sess_id = 0;
-			ZRep * p_hdr = (ZRep*)pZRepList->at(i);
-			if(p_hdr) {
-				if(CS.SearchByNumber(&sess_id, NodeID, p_hdr->CashCode, p_hdr->ZRepCode, p_hdr->Start.d) > 0 && sess_id && CS.data.Temporary) {
-					THROW(CS.ResetTempSessTag(sess_id, 0));
-					SessAry.addUnique(sess_id);
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v8.1.2
 
 int SLAPI ACS_CRCSHSRV::ImportSession(int)
 {
@@ -4514,9 +4423,10 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				sp.Merge(data_path);
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {
 					(data_path = data_dir).Cat(sd_entry.FileName);
-					Backup("chks", data_path);
+					// @v10.1.1 Backup("chks", data_path);
+					DrfL.Add("chks", data_path); // @v10.1.1 
 					THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
-					SFile::Remove(data_path);
+					// @v10.1.1 SFile::Remove(data_path);
 				}
 				/*
 				MakeQueryBufV10(oper_date, query_buf, 0);
@@ -4576,8 +4486,6 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				//
 				// Сбрасываем признак Temporary с завершенных сессий
 				//
-				// @v8.1.2 AcceptTempSess(&zrep_list);
-				//int SLAPI ACS_CRCSHSRV::AcceptTempSess(SArray * pZRepList)
 				PPTransaction tra(1);
 				THROW(tra);
 				for(uint i = 0; i < zrep_list.getCount(); i++) {
@@ -4600,4 +4508,18 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 int SLAPI ACS_CRCSHSRV::FinishImportSession(PPIDArray * pSessList)
 {
 	return pSessList->addUnique(&SessAry);
+}
+
+void SLAPI ACS_CRCSHSRV::CleanUpSession()
+{
+	const uint c = DrfL.GetCount();
+	SString backup_prefix, path;
+	for(uint i = 0; i < c; i++) {
+		if(DrfL.Get(i, backup_prefix, path)) {
+			if(fileExists(path)) {
+				Backup(backup_prefix, path);
+				SFile::Remove(path);
+			}
+		}
+	}
 }

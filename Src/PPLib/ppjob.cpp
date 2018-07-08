@@ -1197,8 +1197,9 @@ public:
 		THROW(param.Read(*pParam, 0));
 		THROW(!PPObjCashNode::IsLocked(param.CashNodeID));
 		param.Period.Actualize(ZERODATE);
-		THROW(p_cm = PPCashMachine::CreateInstance(param.CashNodeID));
-		THROW(p_cm->AsyncCloseSession(0, &param.Period));
+		THROW(PPCashMachine::AsyncCloseSession2(param.CashNodeID, &param.Period)); // @v10.1.1
+		// @v10.1.1 THROW(p_cm = PPCashMachine::CreateInstance(param.CashNodeID));
+		// @v10.1.1 THROW(p_cm->AsyncCloseSession(0, &param.Period));
 		CATCHZOK
 		delete p_cm;
 		return ok;

@@ -1159,7 +1159,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			PPObjGoods::SubstBlock sgg_blk;
 			sgg_blk.ExclParentID = Filt.GoodsGrpID;
 			sgg_blk.LocID = pTrfrRec->LocID;
-			sgg_blk.LotID = pTrfrRec->LotID; 
+			sgg_blk.LotID = pTrfrRec->LotID;
 			THROW(GObj.SubstGoods(goods_id, &_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 		}
 		if(Filt.Flags & TrfrAnlzFilt::fInitLocCount && dlvr_loc_id < 0) {
@@ -4455,14 +4455,16 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 			rItem.Volume = (goods_rec.PhUPerU > 0.0) ? goods_rec.PhUPerU : 1.0;
 		}
 		if(goods_rec.UnitID) {
-			if(goods_rec.UnitID == PPUNT_LITER)
+			PPObjUnit u_obj;
+			u_obj.TranslateToBase(goods_rec.UnitID, PPUNT_LITER, &rItem.UnpackedVolume); // @v10.1.1
+			/* @v10.1.1 if(goods_rec.UnitID == PPUNT_LITER)
 				rItem.UnpackedVolume = 1.0;
 			else {
 				PPObjUnit u_obj;
 				PPUnit u_rec;
 				if(u_obj.Fetch(goods_rec.UnitID, &u_rec) > 0 && u_rec.BaseUnitID == PPUNT_LITER)
 					rItem.UnpackedVolume = u_rec.BaseRatio;
-			}
+			}*/
 		}
 		{
 			GoodsStockExt gse;

@@ -116,11 +116,11 @@ SLAPI PPAsyncCashSession::~PPAsyncCashSession()
 	delete P_Dls;
 }
 
-int SLAPI PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList) { return -1; }
-int SLAPI PPAsyncCashSession::IsReadyForExport() { return -1; }
-int SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly) { return -1; }
-//virtual
-int SLAPI PPAsyncCashSession::InteractiveQuery() { return -1; }
+int  SLAPI PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList) { return -1; }
+void SLAPI PPAsyncCashSession::CleanUpSession() {}
+int  SLAPI PPAsyncCashSession::IsReadyForExport() { return -1; }
+int  SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly) { return -1; }
+int  SLAPI PPAsyncCashSession::InteractiveQuery() { return -1; }
 
 const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
 {
@@ -755,10 +755,10 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 					// } @v10.0.05 
 				}
 				chk_rec.SessID = sess_id;
-				if(Beg == 0 || dtm.d < Beg)
-					Beg = dtm.d;
-				if(End == 0 || dtm.d > End)
-					End = dtm.d;
+				if(SurveyPeriod.low == 0 || dtm.d < SurveyPeriod.low)
+					SurveyPeriod.low = dtm.d;
+				if(SurveyPeriod.upp == 0 || dtm.d > SurveyPeriod.upp)
+					SurveyPeriod.upp = dtm.d;
 				tmp_chk_id = chk_rec.ID;
 				chk_rec.ID = 0;
 				chk_rec.Flags |= CCHKF_NOTUSED;
@@ -933,10 +933,11 @@ int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 
 int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 {
-	Beg = End = ZERODATE;
-
-	int    ok = 1, r;
-	int    i, sess_count = 0;
+	SurveyPeriod.SetZero();
+	int    ok = 1;
+	int    r;
+	int    i;
+	int    sess_count = 0;
 	int    is_forward_sess = 0;
 	SString msg_debug_fmt, msg_buf;
 	PPIDArray sess_list, super_sess_list;

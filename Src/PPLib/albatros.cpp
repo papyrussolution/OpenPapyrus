@@ -32,6 +32,13 @@ int AlbatrosConfigDialog::EditVetisConfig()
 		dlg->setCtrlString(CTL_VETISCFG_PASSW, temp_buf);
 		Data.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
+		// @v10.1.0 {
+		Data.GetExtStrData(ALBATROSEXSTR_VETISDOCTUSER, temp_buf);
+		dlg->setCtrlString(CTL_VETISCFG_DOCTUSER, temp_buf);
+		Data.GetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
+		dlg->setCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
+		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
+		// } @v10.1.0
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_VETISCFG_USER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Strip());
@@ -39,6 +46,13 @@ int AlbatrosConfigDialog::EditVetisConfig()
 			Data.SetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
 			dlg->getCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
+			// @v10.1.0 {
+			dlg->getCtrlString(CTL_VETISCFG_DOCTUSER, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_VETISDOCTUSER, temp_buf.Strip());
+			dlg->getCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
+			Data.SetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
+			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
+			// } @v10.1.0
 			ok = 1;
 		}
 	}
@@ -172,7 +186,7 @@ int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(oneof2(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW)) {
+	if(oneof3(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW)) {
 		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, temp_buf/*UhttPassword*/);
 		PutExtStrData(fld, temp_buf);
 	}
@@ -186,7 +200,7 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 	rPw.Z();
 	int    ok = 1;
 	SString temp_buf;
-	if(oneof2(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW)) {
+	if(oneof3(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW)) {
 		GetExtStrData(fld, temp_buf);
 		Reference::Helper_DecodeOtherPw(0, temp_buf/*UhttPassword*/, UHTT_PW_SIZE, rPw);
 	}
@@ -196,7 +210,8 @@ int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
 }
 
 static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN, ALBATROSEXSTR_UHTTURLPFX, ALBATROSEXSTR_UHTTACC, ALBATROSEXSTR_UHTTPASSW,
-	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY };
+	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY,
+	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW };
 
 //static
 int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta)

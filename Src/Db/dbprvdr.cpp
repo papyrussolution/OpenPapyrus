@@ -2,9 +2,10 @@
 // Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
+#include <db.h>
 
 DbLoginBlock::DbLoginBlock() : End(0)
 {

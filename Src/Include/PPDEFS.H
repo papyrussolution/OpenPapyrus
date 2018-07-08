@@ -8383,6 +8383,7 @@
 	#define CTL_EXTDEV_HOSTICURL        (26 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EXTDEV_HOSTICURL     (27 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_DRVVER           (28 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_CHKEGMUNIQ       (29 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
@@ -10354,6 +10355,9 @@
 	#define CTL_VETISCFG_USER         (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_PASSW        (2 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_APIKEY       (3 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_TIMEOUT      (4 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_DOCTUSER     (5 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_DOCTPASSW    (6 + WINDOWS_ID_BIAS)
 #define DLG_PHNCPANE              1332
 	#define cmNewContact              101
 	#define cmAttachContact           102
@@ -10452,6 +10456,7 @@
 	#define CTLSEL_MTCHPSN_PSN        (3 + WINDOWS_ID_BIAS)
 	#define CTL_MTCHPSN_LOC           (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MTCHPSN_LOC        (5 + WINDOWS_ID_BIAS)
+#define DLG_SELVDUTLZ             1345
 //
 // Win32 Dialog Identifiers
 //

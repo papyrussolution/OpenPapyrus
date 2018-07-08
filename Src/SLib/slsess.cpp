@@ -981,7 +981,6 @@ SCodepage SLAPI SlSession::GetCodepage() const
 	const SlThreadLocalArea & r_tla = GetConstTLA();
 	return r_tla.CurrentCp;
 }
-
 //
 //
 //
@@ -995,3 +994,5 @@ void __LinkFile_HASHFUNC()
 #pragma warning(disable:4073)
 #pragma init_seg(lib)
 SlSession SLS; // @global
+DbSession DBS; // @global
+

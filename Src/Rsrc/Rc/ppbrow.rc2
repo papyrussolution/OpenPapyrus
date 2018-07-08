@@ -190,6 +190,7 @@ bitmap "..\\rsrc\\bitmap\\tbbutton" {
 	TBBM_VIEWOPTIONS
 	TBBM_SENDCHARRY
 	TBBM_UNLOCK
+	TBBM_MATCHING
 }
 
 bitmap "..\\rsrc\\bitmap" {
@@ -2017,7 +2018,7 @@ browser SELECTLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 	"@supplier",        2, zstring(128), 0, 20, BCO_USERPROC
 	"@rest",            3, double, NMBF_NOTRAILZ, 7.5, BCO_USERPROC
 	"@munit",           4, zstring(48), 0, 6, BCO_USERPROC
-	"@serial",          5, zstring(32), 0, 20, BCO_USERPROC
+	// @v10.1.0 (will set automaticaly) "@serial",          5, zstring(32), 0, 20, BCO_USERPROC
 	"@termcost",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@termprice",       7, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@expirationdate",  8, date, DATF_DMY, 8, BCO_USERPROC
@@ -6201,20 +6202,25 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
 	"IssueDate",             9,  notype, 0, 10
-	"VetForm",              10,  notype, 0, 10
-	"VetType",              11,  notype, 0, 10
-	"VetStatus",            12,  notype, 0, 10
-	"WayBillDate",          13,  notype, 0, 10
-	"WayBillNumber",        14,  notype, 0, 15
-	"From",                 17,  notype, 0, 30
-	"To",                   18,  notype, 0, 30
-	"ProductItem",          15,  notype, 0, 30
-	"Quantity",             16,  notype, 0, 10
+	"IssueNumber",          20,  notype, 0, 10
+	"VetForm",              11,  notype, 0, 10
+	"VetType",              12,  notype, 0, 10
+	"VetStatus",            13,  notype, 0, 10
+	"WayBillDate",          14,  notype, 0, 10
+	"WayBillNumber",        15,  notype, 0, 15
+	"From",                 18,  notype, 0, 30
+	"To",                   19,  notype, 0, 30
+	"ProductItem",          16,  notype, 0, 30
+	"Quantity",             17,  notype, NMBF_NOZERO, 10.3
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
-		MATCHPERSON      : kbCtrlM,    TBBM_NOICON,    "Сопоставить контрагента\tkbCtrlM"
-		UTILIZEDVDOC     : kbCtrlF6,   TBBM_NOICON,    "Погасить ветеринарный документ\tkbCtrlF6"
-		UPDATEITEMS      : kbF5,       TBBM_NOICON,    "@{refresh}\tkbF5"
+		DELETEITEM       : kbDel,      TBBM_DELETE,    "Удалить документ (только для исходящих)\tDelete"
+		LOTOPS           : kbF3,       TBBM_LOTSOPER,  "@{view_lotop}\tF3"
+		MATCHPERSON      : kbCtrlM,    TBBM_MATCHING,  "Сопоставить объекты\tCtrl-M"
+		UTILIZEDVDOC     : kbCtrlF6,   TBBM_NOICON,    "Погасить ветеринарный документ\tCtrl-F6"
+		SETUPOUTGOING    : kbCtrlF5,   TBBM_NOICON,    "Сформировать исходящие документы\tCtrl-F5"
+		SENDOUTGOING     : kbCtrlF8,   TBBM_NOICON,    "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
+		UPDATEITEMS      : kbF5,       TBBM_NOICON,    "@{refresh}\tF5"
 		separator
 		CHANGEFILT       : kbCtrlV,    TBBM_FILTER,    "@{filter}\tCtrl-V"
 	}

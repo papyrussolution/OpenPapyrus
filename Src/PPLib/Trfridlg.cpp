@@ -2634,14 +2634,13 @@ SArray * SLAPI SelLotBrowser::CreateArray()
 }
 
 //static
-int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate,
-	double rest, int onlyWithSerial)
+int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
 {
 	int    ok = 1;
 	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
 		PPObjBill * p_bobj = BillObj;
 		int    sr = 0;
-		SString serial;
+		SString temp_buf;
 		ReceiptTbl::Rec lot_rec = *pRec;
 		Entry  entry;
 		MEMSZERO(entry);
@@ -2651,12 +2650,18 @@ int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * p
 			THROW(p_bobj->trfr->GetLotPrices(&lot_rec, billDate));
 		entry.Cost  = p_bobj->CheckRights(BILLRT_ACCSCOST) ? lot_rec.Cost : 0;
 		entry.Price = lot_rec.Price;
+		entry.Qtty  = lot_rec.Quantity; // @v10.1.0
 		entry.Rest  = rest;
 		entry.GoodsID = labs(lot_rec.GoodsID);
 		entry.Expiry  = lot_rec.Expiry;
 		entry.SupplID = lot_rec.SupplID; // @v9.3.7
-		sr = p_bobj->GetSerialNumberByLot(lot_rec.ID, serial, 1);
-		serial.CopyTo(entry.Serial, sizeof(entry.Serial));
+		sr = p_bobj->GetSerialNumberByLot(lot_rec.ID, temp_buf, 1);
+		temp_buf.CopyTo(entry.Serial, sizeof(entry.Serial));
+		{
+			PPObjGoods goods_obj;
+			goods_obj.FetchSingleBarcode(labs(lot_rec.GoodsID), temp_buf);
+			STRNSCPY(entry.Barcode, temp_buf);
+		}
 		if(!onlyWithSerial || sr > 0)
 			THROW_SL(pAry->insert(&entry));
 	}
@@ -2698,13 +2703,10 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 3: pBlk->Set(p_item->Rest); break; // Rest
 				case 4: // Unit Name
 					temp_buf.Z();
-					{
-						PPObjGoods goods_obj;
-						if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
-							PPUnit unit_rec;
-							if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
-								temp_buf = unit_rec.Name;
-						}
+					if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
+						PPUnit unit_rec;
+						if(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
+							temp_buf = unit_rec.Name;
 					}
 					pBlk->Set(temp_buf);
 					break;
@@ -2746,6 +2748,25 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(temp_buf);
 					}
 					break;
+				case 13: pBlk->Set(p_item->Barcode); break; // Barcode
+				case 14: pBlk->Set(p_item->Qtty); break; // Quantity
+				case 15: // Phisycal quantity
+					{
+						double phuperu = 0.0;
+						GObj.GetPhUPerU(p_item->GoodsID, 0, &phuperu);
+						pBlk->Set(p_item->Qtty * phuperu); 
+					}
+					break;
+				case 16: // VETIS UUID лота
+					{
+						PPObjTag tag_obj;
+						ObjTagItem tag_item;
+						temp_buf.Z();
+						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
+							tag_item.GetStr(temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
 				default:
 					ok = 0;
 			}
@@ -2760,6 +2781,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 	SString single_serial;
 	SString temp_buf;
 	if(pAry) {
+		State |= stNoSerials;
 		for(uint i = 0; i < pAry->getCount(); i++) {
 			const Entry * p_entry = (const Entry *)pAry->at(i);
 			if(!(State & stMultipleGoods) && p_entry->GoodsID) {
@@ -2771,18 +2793,43 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 				}
 			}
 			temp_buf = p_entry->Serial;
-			if(!(State & stMultipleSerial) && temp_buf.NotEmptyS()) {
-				if(single_serial.Empty())
-					single_serial = temp_buf;
-				else if(single_serial.CmpNC(temp_buf) != 0) {
-					single_serial = 0;
-					State |= stMultipleSerial;
+			if(temp_buf.NotEmptyS()) {
+				State &= ~stNoSerials;
+				if(!(State & stMultipleSerial)) {
+					if(single_serial.Empty())
+						single_serial = temp_buf;
+					else if(single_serial.CmpNC(temp_buf) != 0) {
+						single_serial = 0;
+						State |= stMultipleSerial;
+					}
 				}
 			}
 		}
-		if(State & stMultipleGoods) {
-			PPLoadString("ware", temp_buf);
-			insertColumn(0, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
+		{
+			int    at_pos = 0;
+			if(State & stMultipleGoods) {
+				PPLoadString("ware", temp_buf);
+				insertColumn(at_pos++, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
+			}
+			if(Flags & fShowBarcode) {
+				PPLoadString("barcode", temp_buf);
+				insertColumn(at_pos++, temp_buf, 13, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
+			}
+			if(!(State & stNoSerials)) {
+				PPLoadString("serial", temp_buf);
+				insertColumn(at_pos++, temp_buf, 5, MKSTYPE(S_ZSTRING, 32), 0, BCO_CAPLEFT|BCO_USERPROC);
+			}
+			{
+				at_pos += 2;
+				if(Flags & fShowQtty) {
+					PPLoadString("qtty", temp_buf);
+					insertColumn(at_pos++, temp_buf, 14, T_DOUBLE, MKSFMTD(0, 3, 0), BCO_CAPRIGHT|BCO_USERPROC);
+				}
+				if(Flags & fShowPhQtty) {
+					PPLoadString("phqtty", temp_buf);
+					insertColumn(at_pos++, temp_buf, 15, T_DOUBLE, MKSFMTD(0, 3, 0), BCO_CAPRIGHT|BCO_USERPROC);
+				}
+			}
 		}
 		if(Flags & fShowEgaisTags) {
 			PPLoadString("egaiscode", temp_buf);
@@ -2791,6 +2838,10 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			insertColumn(-1, temp_buf, 11, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
 			PPLoadString("egaisrefb", temp_buf);
 			insertColumn(-1, temp_buf, 12, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
+		}
+		if(Flags & fShowVetisTag) {
+			PPLoadString("rtag_lotvetisuuid", temp_buf);
+			insertColumn(-1, temp_buf, 16, MKSTYPE(S_ZSTRING, 40), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
 	}
 	P_BObj = pBObj;
@@ -2962,13 +3013,14 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 				}
 			}
 		}
-		if(rParam.AddendumLotList.getCount()) {
-			for(uint i = 0; i < rParam.AddendumLotList.getCount(); i++) {
-                const PPID addendum_lot_id = rParam.AddendumLotList.get(i);
-                if(trfr->Rcpt.Search(addendum_lot_id, &lot_rec) > 0 && lot_rec.ID != rParam.ExcludeLotID) {
-					THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
-                }
-			}
+	}
+	if(rParam.AddendumLotList.getCount()) {
+		THROW(SETIFZ(p_ary, SelLotBrowser::CreateArray()));
+		for(uint i = 0; i < rParam.AddendumLotList.getCount(); i++) {
+            const PPID addendum_lot_id = rParam.AddendumLotList.get(i);
+            if(trfr->Rcpt.Search(addendum_lot_id, &lot_rec) > 0 && lot_rec.ID != rParam.ExcludeLotID) {
+				THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
+            }
 		}
 	}
 	if(p_ary) {
@@ -2991,7 +3043,20 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 		// } @v9.4.5
 		if(s)
 			s--;
-		THROW_MEM(p_brw = new SelLotBrowser(this, p_ary, s, (rParam.Flags & rParam.fShowEgaisTags) ? SelLotBrowser::fShowEgaisTags : 0));
+		long   slb_flags = 0;
+		if(rParam.Flags & rParam.fShowEgaisTags) 
+			slb_flags |= SelLotBrowser::fShowEgaisTags;
+		if(rParam.Flags & rParam.fShowBarcode) 
+			slb_flags |= SelLotBrowser::fShowBarcode;
+		if(rParam.Flags & rParam.fShowQtty) 
+			slb_flags |= SelLotBrowser::fShowQtty;
+		if(rParam.Flags & rParam.fShowPhQtty) 
+			slb_flags |= SelLotBrowser::fShowPhQtty;
+		if(rParam.Flags & rParam.fShowVetisTag) 
+			slb_flags |= SelLotBrowser::fShowVetisTag;
+		THROW_MEM(p_brw = new SelLotBrowser(this, p_ary, s, slb_flags));
+		if(rParam.Title.NotEmpty())
+			p_brw->setTitle(rParam.Title);
 		if(ExecView(p_brw) == cmOK) {
 			if((p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
 				lotid = p_sel->LotID;

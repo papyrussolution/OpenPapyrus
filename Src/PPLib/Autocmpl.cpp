@@ -780,10 +780,8 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 						ilti.Price = out_quot;
 					}
 					else if(ps->GsiFlags & GSIF_QUERYEXPLOT) {
-						// @v9.0.4 {
 						int    r = 0;
 						ReceiptTbl::Rec lot_rec;
-						// @v9.3.6 {
 						if(LTagL.GetTagStr(pos, PPTAG_LOT_SOURCESERIAL, serial) > 0 && P_BObj->SelectLotBySerial(serial, ps->GoodsID, Rec.LocID, &lot_rec) > 0) {
 							src_serial = serial;
 							convert_ilti_flags = 0;
@@ -799,42 +797,10 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 								r = 1;
 							}
 						}
-						// } @v9.3.6
-						/* @v9.3.6
-						PPID   lot_id = 0;
-						{
-							uint   s = 0;
-							ReceiptCore & r_rcpt = P_BObj->trfr->Rcpt;
-							SArray * p_ary = SelLotBrowser::CreateArray();
-							for(DateIter diter(0, Rec.Dt); r_rcpt.EnumLots(ps->GoodsID, Rec.LocID, &diter, &lot_rec) > 0;) {
-								double rest = lot_rec.Rest;
-								P_BObj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
-								if(serial.NotEmpty())
-									SelLotBrowser::AddItemToArray(p_ary, &lot_rec, Rec.Dt, rest, 1);
-							}
-							serial = 0;
-							if(p_ary->getCount()) {
-								SelLotBrowser::Entry * p_sel = 0;
-								SelLotBrowser * p_brw = new SelLotBrowser(P_BObj, p_ary, s, ps->GoodsID, 0);
-								if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
-									if(strip(p_sel->Serial)[0] != 0) {
-										serial = p_sel->Serial;
-										src_serial = serial; // @v9.1.4
-										convert_ilti_flags = 0;
-										r = 1;
-									}
-								}
-								ZDELETE(p_brw);
-							}
-							else
-								ZDELETE(p_ary);
-						}
-						*/
 						if(r <= 0) {
 							user_cancel = 1;
 							CALLEXCEPT();
 						}
-						// } @v9.0.4
 					}
 					ilti.SetQtty(ps->NeedQty, 0.0, PPTFR_MINUS);
 				}

@@ -1803,8 +1803,9 @@ int SLAPI PPViewCSess::CloseSession()
 	PPCashMachine * p_cm = 0;
 	PPSyncCashSession  * p_scs = 0;
 	PPAsyncCashSession * p_acs = 0;
-	THROW_PP(Filt.NodeList_.GetSingle(), PPERR_UNDEFCASHNODE);
-	THROW(p_cm = PPCashMachine::CreateInstance(Filt.NodeList_.GetSingle()));
+	const PPID single_cn_id = Filt.NodeList_.GetSingle();
+	THROW_PP(single_cn_id, PPERR_UNDEFCASHNODE);
+	THROW(p_cm = PPCashMachine::CreateInstance(single_cn_id));
 	p_scs = p_cm->SyncInterface();
 	if(p_scs) {
 		ZDELETE(p_scs);
@@ -1812,12 +1813,15 @@ int SLAPI PPViewCSess::CloseSession()
 		ok = 1;
 	}
 	else {
+		THROW(PPCashMachine::AsyncCloseSession2(single_cn_id, 0)); // @v10.1.1
+		ok = 1;
+		/* @v10.1.1 
 		p_acs = p_cm->AsyncInterface();
 		if(p_acs) {
 			ZDELETE(p_acs);
-			THROW(p_cm->AsyncCloseSession());
+			THROW(p_cm->AsyncCloseSession(0, 0));
 			ok = 1;
-		}
+		} */
 	}
 	CATCHZOKPPERR
 	delete p_cm;

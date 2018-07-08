@@ -3,7 +3,8 @@
 // @codepage UTF-8
 // Поддержка операции расширенной вставки записей
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
 
 const size_t BExtInsert::DefBufSize = (28*1024U);

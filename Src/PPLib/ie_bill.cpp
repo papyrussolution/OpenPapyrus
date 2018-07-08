@@ -2387,13 +2387,17 @@ int SLAPI PPBillImporter::Import(int useTa)
 			}
 		}
 		if(goods_list.getCount()) {
-			if(ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
-				for(uint i = 0; i < goods_list.getCount(); i++)
-					BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_list.at(i).ResolvedGoodsID;
-				r = 1;
-			}
-			else
+			if(DS.CheckExtFlag(ECF_SYSSERVICE)) // @v10.1.0
 				ok = -1;
+			else {
+				if(ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
+					for(uint i = 0; i < goods_list.getCount(); i++)
+						BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_list.at(i).ResolvedGoodsID;
+					r = 1;
+				}
+				else
+					ok = -1;
+			}
 		}
 	}
 	if(ok > 0) {
@@ -2406,7 +2410,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 				PPObjectTransmit::ReadConfig(&ot_ctx.Cfg);
 			}
 		}
-		Bills.sort(PTR_CMPFUNC(Sdr_Bill)); // @v8.4.8
+		Bills.sort(PTR_CMPFUNC(Sdr_Bill));
 		PPTransaction tra(useTa);
 		THROW(tra);
 		PPWait(1);

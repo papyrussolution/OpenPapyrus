@@ -385,6 +385,7 @@ struct VetisBusinessEntity;
 struct VetisProductItem;
 struct VetisProduct;
 struct VetisSubProduct;
+struct VetisStockEntry;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -3489,6 +3490,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetTagStr(PPID objType, PPID objID, PPID tagID, SString & rBuf);
+	int    SLAPI GetTagGuid(PPID objType, PPID objID, PPID tagID, S_GUID & rGuid);
 	int    SLAPI EnumTags(PPID objType, PPID objID, PPID * pTagID, long * pTagByObj, ObjTagItem *);
 	int    SLAPI EnumTags(PPID objType, PPID objID, PPID tagID, long * tagByObj, ObjTagItem *);
 	//
@@ -13751,6 +13753,15 @@ public:
 	int    SLAPI GetListByExtFilt(const CCheckFilt & rFlt, ObjIdListFilt & rList);
 	int    SLAPI GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList); // @v9.8.5 TSArray-->TSVector
 	//
+	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
+	//   эквивалентный pText.
+	// Returns:
+	//   >0 - найден по крайней мере один чек
+	//   <0 - не найдено ни одного чека
+	//   0  - ошибка
+	//
+	int    SLAPI GetListByLineExtss(int lnextss /*CCheckPacket::lnextXXX*/, const char * pText, PPIDArray & rCcList);
+	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
 	//   только один элемент.
@@ -15228,6 +15239,7 @@ public:
 	int    SLAPI AddSimple(PPID * pID, const char * pName, long flags, int use_ta);
 	int    SLAPI SearchMaxLike(const PPUnit * pRec, PPID * pID);
 	int    SLAPI UniteMaxLike();
+	int    SLAPI TranslateToBase(PPID unitID, PPID baseUnitID, double * pRatio);
 protected:
 	virtual int  SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual int  SLAPI Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
@@ -16235,6 +16247,8 @@ class PPObjOprKind : public PPObjReference {
 public:
 	static int SLAPI GetATTemplList(PPID opID, PPAccTurnTemplArray * pList);
 	static StrAssocArray * SLAPI MakeOprKindList(PPID linkOp, const PPIDArray *, uint flags /* OPKLF_XXX */);
+	static int FASTCALL ExpandOp(PPID opID, PPIDArray & rResultList);
+	static int FASTCALL ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
 
 	SLAPI  PPObjOprKind(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID*, void * extraPtr);
@@ -17241,6 +17255,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_EXTNODEASALT       0x00400000L // @v9.6.9 (sync) Дополнительный кассовый узел используется как альтернативный принтер
 #define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
 	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
+#define CASHFX_CHECKEGAISMUNIQ    0x01000000L // @v10.1.1 (sync) Проверять уникальность сканируемых акцизных марок (медленная операция)
 //
 // Идентификаторы строковых свойств кассоых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -17705,7 +17720,8 @@ public:
 	// Асинхронные методы
 	//
 	int    SLAPI AsyncOpenSession(int update, PPID sinceDlsID);
-	int    SLAPI AsyncCloseSession(int asTempSess = 0, DateRange * pPrd = 0);
+	int    SLAPI AsyncCloseSession(int asTempSess, DateRange * pPrd);
+	static int SLAPI AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod);
 	int    SLAPI AsyncUpdateSession();
 	int    SLAPI AsyncBrowseCheckList();
 	int    SLAPI AsyncBrowseExcess();
@@ -18581,6 +18597,17 @@ public:
 	//   0  - ошибка
 	//
 	virtual int SLAPI InteractiveQuery();
+	//
+	// Descr: Вызывается после завершения процедуры закрытия сессии(й).
+	//   Может быть использована для удаления файлов источника, каких-либо подтверждающих действия и т.д.
+	//   Если сессии закрываются по группе кассовых узлов, то функция вызывается после того, как
+	//   для всех членов группы процедура закрытия будет выполнена.
+	//
+	//   Первичной мотивацией для ввода функции явилась необходимость удалять исходные файлы только
+	//   после того, как все члены группы кассовых узлов извлекут от туда данные (если некоторые члены
+	//   группы испольузют один и тот же источник).
+	//
+	virtual void SLAPI CleanUpSession();
 protected:
 	//
 	// Descr: должна сформировать файлы, необходимые для загрузки кассовых аппаратов.
@@ -18687,7 +18714,7 @@ private:
 	int    SLAPI ConvertTempSession(int forwardSess, PPIDArray & rSessList, void * pTotalLogData);
 	int    SLAPI FlashTempCcLines(const SVector *, LAssocArray * pHasExLineList);
 
-	LDATE  Beg, End;
+	DateRange SurveyPeriod; // Период, в который попадают закрываемые сессии
 	long   CnFlags;     // Флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
 	long   CnExtFlags;  // Расширенные флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
 	PPGoodsConfig * P_GCfg;
@@ -26384,10 +26411,8 @@ public:
 	//   Вызовы функции с противоположными значениями параметра withOrWithout
 	//   в общем случае не являются взаимно обратимыми
 	//
-	void   SLAPI AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
-		double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl = -1);
-	void   SLAPI CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
-		double qtty, double cost, double * pVatSum, int withOrWithout, int vatFreeSuppl = -1, int roundPrec = 2);
+	void   SLAPI AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate, double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl = -1);
+	void   SLAPI CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate, double qtty, double cost, double * pVatSum, int withOrWithout, int vatFreeSuppl = -1, int roundPrec = 2);
 	void   SLAPI AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax);
 	//
 	// Descr: определяет является ли товар id1 совместимым с товаром id2 по единицам измерения.
@@ -27150,14 +27175,16 @@ private:
 //
 //
 //
-#define ALBATROSEXSTR_UHTTURN     1
-#define ALBATROSEXSTR_UHTTURLPFX  2
-#define ALBATROSEXSTR_UHTTACC     3
-#define ALBATROSEXSTR_UHTTPASSW   4
-#define ALBATROSEXSTR_EGAISSRVURL 5 // @v8.8.0 URL сервера обмена данными с системой ЕГАИС
-#define ALBATROSEXSTR_VETISUSER   6 // @v9.8.9
-#define ALBATROSEXSTR_VETISPASSW  7 // @v9.8.9
-#define ALBATROSEXSTR_VETISAPIKEY 8 // @v9.8.9
+#define ALBATROSEXSTR_UHTTURN          1
+#define ALBATROSEXSTR_UHTTURLPFX       2
+#define ALBATROSEXSTR_UHTTACC          3
+#define ALBATROSEXSTR_UHTTPASSW        4
+#define ALBATROSEXSTR_EGAISSRVURL      5 // @v8.8.0 URL сервера обмена данными с системой ЕГАИС
+#define ALBATROSEXSTR_VETISUSER        6 // @v9.8.9
+#define ALBATROSEXSTR_VETISPASSW       7 // @v9.8.9
+#define ALBATROSEXSTR_VETISAPIKEY      8 // @v9.8.9
+#define ALBATROSEXSTR_VETISDOCTUSER    9 // @v10.1.0
+#define ALBATROSEXSTR_VETISDOCTPASSW  10 // @v10.1.0
 
 struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	enum {
@@ -27176,7 +27203,8 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	PPID   Prop;           // Const=PPPRP_ALBATROSCFG2
 	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и
 		// имеет размер sizeof(PropertyTbl)
-	char   Reserve[24];    // @reserve @v8.5.5 [56]-->[36] // @v8.8.0 [36]-->[32] // @v8.8.3 [32]-->[28] // @v8.8.6 [28]-->[24]
+	char   Reserve[22];    // @reserve @v8.5.5 [56]-->[36] // @v8.8.0 [36]-->[32] // @v8.8.3 [32]-->[28] // @v8.8.6 [28]-->[24]
+	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
 	PPID   EgaisRetOpID;   // @v8.9.6 Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
 	//
 	long   Flags;          // @v8.8.3 @flags
@@ -29368,7 +29396,7 @@ public:
 //
 class GRI : public SArray {
 public:
-	SLAPI  GRI(PPID destID);
+	explicit SLAPI GRI(PPID destID);
 	int    SLAPI Add(PPID srcID, double qtty, double ratio);
 	PPID   FASTCALL GetSrcID(uint i) const;
 	double FASTCALL GetQtty(uint i) const;
@@ -29386,10 +29414,7 @@ public:
 	explicit SLAPI  GoodsReplacementArray(PPID specialSubstGroupID = 0);
 	int    SLAPI Add(PPID destID, PPID srcID, double qtty, double ratio);
 	const  GRI *  SLAPI Search(PPID destID) const;
-	const  PPIDArray * SLAPI GetSpecialSubstGoodsList() const
-	{
-		return SpecialSubstGroupID ? &SpecialSubstGoodsList : 0;
-	}
+	const  PPIDArray * SLAPI GetSpecialSubstGoodsList() const;
 private:
 	GRI *  SLAPI SearchNC(PPID destID);
 	PPID   SpecialSubstGroupID;
@@ -30102,7 +30127,11 @@ public:
 			fWithSerialOnly = 0x0002,
 			fEnableZeroRest = 0x0004,
 			fNotEmptySerial = 0x0080,
-			fShowEgaisTags  = 0x0100
+			fShowEgaisTags  = 0x0100,
+			fShowBarcode    = 0x0200, // @v10.1.0
+			fShowQtty       = 0x0400, // @v10.1.0
+			fShowPhQtty     = 0x0800, // @v10.1.0
+			fShowVetisTag   = 0x1000, // @v10.1.0
 		};
 		PPID   LocID;
 		PPID   ExcludeLotID;
@@ -30110,15 +30139,14 @@ public:
 		long   Flags;
 		PPIDArray GoodsList;
 		PPIDArray AddendumLotList; // Список идентификаторов лотов, которыми должен быть дополнен отображаемый список
+		SString Title; // Опциональный заголовок окна выбора лота
 		//
 		PPID   RetLotID;
 		SString RetLotSerial;
 		ReceiptTbl::Rec RetLotRec;
 	};
-	//int    SLAPI SelectLot2(SelectLotParam & rParam);
 	int    SLAPI SelectLot2(PPObjBill::SelectLotParam & rParam);
-	// @v9.8.11 int    SLAPI GetSnByTemplate(const char * pBillCode, PPID goodsID, const ClbNumberList * pExclList, const char * pTempl, SString & rBuf);
-	int    SLAPI GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLotTagContainer * pExclList, const char * pTempl, SString & rBuf); // @v9.8.11
+	int    SLAPI GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLotTagContainer * pExclList, const char * pTempl, SString & rBuf);
 	int    SLAPI GetLabelLotInfo(PPID lotID, RetailGoodsInfo *);
 	//
 	// Descr: Флаги функции GetComplete()
@@ -35097,9 +35125,7 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 
 	struct PoolInsertionParam {
-		PoolInsertionParam() : Verb(2), AddedBillKind(bbtGoodsBills)
-		{
-		}
+		SLAPI  PoolInsertionParam();
 		long   Verb;   // 1 - Insert New, 2 - Insert By Filt
 		BrowseBillsType AddedBillKind;
 		BillFilt Filt;
@@ -35160,7 +35186,7 @@ private:
 	ObjIdListFilt IdList;     // Список идентификаторов документов, которые должны быть в выборке
 	PPBillPoolOpEx * P_BPOX;  // @# {(!Filt.PoolBillID && !Filt.PoolOpID) => P_BPOX==0}
 	PoolInsertionParam Pip;   //
-	PrcssrAlcReport * P_Arp;  // @v8.4.4
+	PrcssrAlcReport * P_Arp;  //
 
 	friend int IterProc_CrTmpTbl(BillViewItem *, long p);
 };
@@ -35547,7 +35573,7 @@ struct LotFilt : public PPBaseFilt {
 	int    SLAPI PutExtssData(int fldID, const char * pBuf);
 	enum {
 		fEmptyPeriod        = 0x00000004,
-		fWithoutQCert       = 0x00000008, // Показывать только лоты, у которых нет серитфиката
+		fWithoutQCert       = 0x00000008, // Показывать только лоты, у которых нет сертификата
 		fOrders             = 0x00000010, // Лоты заказов
 		fCostAbovePrice     = 0x00000020, // Только лоты, у которых цена поступления больше цены реализации
 		fWithoutClb         = 0x00000040, // Лоты без ГТД
@@ -35566,7 +35592,7 @@ struct LotFilt : public PPBaseFilt {
 		fRestByPaym         = 0x00020000, // Спец опция: остаток рассчитывается как количество
 			// товара, не оплаченного поставщику.
 		fInitOrgLot         = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
-		fLotfPrWoTaxes      = 0x00080000  // @v8.9.0 Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
+		fLotfPrWoTaxes      = 0x00080000  // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке ExtString
@@ -42593,7 +42619,7 @@ private:
 	int    SLAPI UpdateTempTable(const PPIDArray * pIdList);
 	int    SLAPI MakeTempEntry(const PPCashNode * pRec, TempCashNodeTbl::Rec * pTempRec);
 	int    SLAPI CheckForFilt(const PPCashNode * pRec) const;
-	int    SLAPI ExecCPanel(uint ppvCmd, PPID cashID);
+	// @v10.1.0 (inlined) int    SLAPI ExecCPanel(uint ppvCmd, PPID cashID);
 
 	SString         CashTypeNames;
 	CashNodeFilt    Filt;
@@ -44307,7 +44333,7 @@ private:
 	//
 	int    SLAPI LogSended(const Packet & rPack);
 	int    SLAPI CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
-	int    SLAPI ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
+	//int    SLAPI ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
 	//int    SLAPI IsAcsLinkedToMainOrg(PPID acsID);
 
 	enum {
@@ -44347,13 +44373,15 @@ public:
 		kCountry        =  7,
 		kRegion         =  8,
 		kVetDocument    =  9,
-		kPackingForm    = 10
+		kPackingForm    = 10,
+		kStockEntry     = 11
 	};
 	struct Entity {
 		SLAPI  Entity();
 		SLAPI  Entity(int kind, const VetisProductItem & rS);
 		SLAPI  Entity(int kind, const VetisNamedGenericVersioningEntity & rS);
 		SLAPI  Entity(const VetisVetDocument & rS);
+		SLAPI  Entity(const VetisStockEntry & rS);
 		Entity & SLAPI Z();
 		void   FASTCALL Get(VetisNamedGenericVersioningEntity & rD) const;
 
@@ -44390,11 +44418,14 @@ public:
 	};
 	SLAPI  VetisEntityCore();
 	static int FASTCALL ValidateEntityKind(int kind);
+	static int SLAPI GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
 	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI DeleteEntity(PPID id, int use_ta);
 	int    SLAPI GetEntity(PPID id, Entity & rE);
 	int    SLAPI GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
 	int    SLAPI GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
 	int    SLAPI Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    SLAPI Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
     int    SLAPI Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
@@ -44439,6 +44470,8 @@ public:
 	uint8   ReserveEnd[32];   // @anchor
 };
 
+typedef VetisDocumentTbl::Rec VetisDocumentViewItem;
+
 class PPViewVetisDocument : public PPView {
 public:
 	struct BrwHdr {
@@ -44452,11 +44485,14 @@ public:
 		PPID   LinkToPsnID;
 		PPID   LinkToDlvrLocID;
 		LDATE  IssueDate;
+		PPID   OrgDocEntityID;
 	};
 	SLAPI  PPViewVetisDocument();
 	SLAPI ~PPViewVetisDocument();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int SLAPI Init_(const PPBaseFilt *);
+	int    SLAPI InitIteration();
+	int    SLAPI NextIteration(VetisDocumentViewItem * pItem);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	static int DynFuncEntityTextFld;
@@ -44471,11 +44507,13 @@ private:
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI LoadDocuments();
 	int    SLAPI ProcessIncoming(PPID entityID);
+	int    SLAPI ProcessOutcoming(PPID entityID);
 	enum {
 		otmFrom = 1,
 		otmTo,
 		otmGoods,
-		otmBill
+		otmBill,
+		otmLot
 	};
 	int    SLAPI MatchObject(VetisDocumentTbl::Rec & rRec, int objToMatch);
 
@@ -48433,15 +48471,21 @@ public:
 		LDATE  Dt;
 		long   OprNo;
 		PPID   GoodsID;
-		LDATE  Expiry;
+		LDATE  Expiry;      // Дата истечения срока годности
 		PPID   SupplID;
-		double Rest;
-		double Cost;
+		double Qtty;        // @v10.1.0 Поступившее с лотом количество
+		double Rest;        // Остаток
+		double Cost;        //
 		double Price;
 		char   Serial[32];
+		char   Barcode[20]; // @v10.1.0
 	};
 	enum {
-		fShowEgaisTags = 0x0001
+		fShowEgaisTags = 0x0001,
+		fShowBarcode   = 0x0002, // @v10.1.0
+		fShowQtty      = 0x0004, // @v10.1.0
+		fShowPhQtty    = 0x0008, // @v10.1.0
+		fShowVetisTag  = 0x0010, // @v10.1.0
 	};
 	static SArray * SLAPI CreateArray();
 	static int SLAPI AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial = 0);
@@ -48453,12 +48497,14 @@ private:
 
 	enum {
 		stMultipleGoods  = 0x0001,
-		stMultipleSerial = 0x0002
+		stMultipleSerial = 0x0002,
+		stNoSerials      = 0x0004  // @v10.1.0 Ни один лот не содержит серийных номеров
 	};
 
 	long   State;
 	long   Flags;
 	PPObjBill * P_BObj;
+	PPObjGoods GObj;
 	SString Serial_;
 };
 //

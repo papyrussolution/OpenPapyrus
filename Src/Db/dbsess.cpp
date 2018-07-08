@@ -1,8 +1,10 @@
 // DBSESS.CPP
 // Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 
 DbThreadLocalArea::DbRegList::DbRegList() : Ht(512)
 {
@@ -294,7 +296,7 @@ void DbSession::SetConfig(const Config * pCfg)
 		SETFLAGBYSAMPLE(Cfg.Flags, fDetectExistByOpen, pCfg->Flags);
 		if(pCfg->NWaitLockTries >= 0)
 			Cfg.NWaitLockTries = pCfg->NWaitLockTries;
-		else if(pCfg->NWaitLockTries == BTR_RECLOCKDISABLE) // @v8.6.3
+		else if(pCfg->NWaitLockTries == BTR_RECLOCKDISABLE)
 			Cfg.NWaitLockTries = BTR_RECLOCKDISABLE;
 		else
 			Cfg.NWaitLockTries = Default_NWaitLockTries;
@@ -509,4 +511,4 @@ int btrnfound__()
 
 #pragma warning(disable:4073)
 #pragma init_seg(lib)
-DbSession DBS; // @global
+// @v10.1.0 (moved to slsess.cpp) DbSession DBS; // @global

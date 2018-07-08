@@ -1,8 +1,10 @@
 // DBEOP.CPP
 // Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 
 enum {
 	op_plus,

@@ -3224,6 +3224,55 @@ int FASTCALL GetOpData(PPID op, PPOprKind * pData)
 	return r;
 }
 
+//static
+int FASTCALL PPObjOprKind::ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList)
+{
+	int    ok = -1;
+	rResultList.clear();
+	PPObjOprKind op_obj;
+	ObjRestrictArray or_list;
+	for(uint i = 0; i < rBaseOpList.getCount(); i++) {
+		const PPID base_op_id = rBaseOpList.get(i);
+		if(base_op_id) {
+			if(IsGenericOp(base_op_id) > 0) {
+				or_list.clear();
+				ObjRestrictItem * p_or_item;
+				op_obj.GetGenericList(base_op_id, &or_list);
+				for(uint oppos = 0; or_list.enumItems(&oppos, (void **)&p_or_item);)
+					rResultList.add(p_or_item->ObjID);
+			}
+			else
+				rResultList.add(base_op_id);
+		}
+	}
+	rResultList.sortAndUndup();
+	if(rResultList.getCount())
+		ok = 1;
+	return ok;
+}
+
+//static
+int FASTCALL PPObjOprKind::ExpandOp(PPID opID, PPIDArray & rResultList)
+{
+	int    ok = -1;
+	rResultList.clear();
+	PPObjOprKind op_obj;
+	ObjRestrictArray or_list;
+	if(IsGenericOp(opID) > 0) {
+		or_list.clear();
+		ObjRestrictItem * p_or_item;
+		op_obj.GetGenericList(opID, &or_list);
+		for(uint oppos = 0; or_list.enumItems(&oppos, (void **)&p_or_item);)
+			rResultList.add(p_or_item->ObjID);
+	}
+	else
+		rResultList.add(opID);
+	rResultList.sortAndUndup();
+	if(rResultList.getCount())
+		ok = 1;
+	return ok;
+}
+
 int FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData)
 {
 	PPID   op_id = 0;

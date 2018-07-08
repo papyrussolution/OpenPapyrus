@@ -1292,6 +1292,65 @@ int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0
 	return ok;
 }
 
+// static
+int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
+{
+	int    ok = 1;
+	PPCashNode cn_rec;
+	PPObjCashNode cn_obj;
+	PPIDArray cn_list;
+	PPIDArray loc_list;
+	SString temp_buf;
+	THROW(cn_obj.Fetch(posNodeID, &cn_rec) > 0);
+	const int is_group = BIN(cn_rec.CashType == PPCMT_CASHNGROUP);
+	if(is_group) {
+		PPIDArray child_list;
+		cn_obj.GetListByGroup(posNodeID, child_list);
+		for(uint i = 0; i < child_list.getCount(); i++) {
+			const PPID child_cn_id = child_list.get(i);
+			PPCashNode child_node;
+			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
+				// @v10.1.1 THROW_PP_S(PPCashMachine::IsAsyncCMT(child_node.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
+				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) { // @v10.1.1 
+					loc_list.add(child_node.LocID);
+					cn_list.add(child_cn_id);
+				}
+			}
+		}
+	}
+	else {
+		THROW_PP_S(PPCashMachine::IsAsyncCMT(cn_rec.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
+		cn_list.add(cn_rec.ID);
+		loc_list.add(cn_rec.LocID);
+	}
+	{
+		TSCollection <PPCashMachine> cm_list;
+		cn_list.sortAndUndup();
+		for(uint i = 0; i < cn_list.getCount(); i++) {
+			const PPID cn_id = cn_list.get(i);
+			//ZDELETE(p_cm);
+			PPCashMachine * p_cm = 0;
+			THROW(p_cm = PPCashMachine::CreateInstance(cn_id));
+			cm_list.insert(p_cm);
+			{
+				CmLocking cml(p_cm->NodeRec);
+				THROW(cml);
+				THROW(p_cm->GetAsyncIntrf());
+				THROW(p_cm->P_AsyncIntrf->CloseSession(0, pPeriod));
+			}
+		}
+		for(uint cmidx = 0; cmidx < cm_list.getCount(); cmidx++) {
+			PPCashMachine * p_cm = cm_list.at(cmidx);
+			if(p_cm && p_cm->GetAsyncIntrf()) {
+				p_cm->P_AsyncIntrf->CleanUpSession();
+			}
+		}
+	}
+	CATCHZOK
+	//delete p_cm;
+	return ok;
+}
+
 int SLAPI PPCashMachine::AsyncInteractiveQuery()
 {
 	int    ok = 1;
@@ -1443,61 +1502,13 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 	return ok;
 }
 
-#if 0 // @construction {
-// static
-int SLAPI PPCashMachine::AsyncCloseSession(PPID posNodeID, DateRange * pPeriod)
-{
-	int    ok = 1;
-	PPCashMachine * p_cm = 0;
-	PPCashNode cn_rec;
-	PPObjCashNode cn_obj;
-	PPIDArray cn_list;
-	SString temp_buf;
-	THROW(cn_obj.Fetch(posNodeID, &cn_rec) > 0);
-	const int is_group = BIN(cn_rec.CashType == PPCMT_CASHNGROUP);
-	if(is_group) {
-		cn_obj.GetListByGroup(cn_id, child_list);
-		for(uint i = 0; i < child_list.getCount(); i++) {
-			const PPID child_cn_id = child_list.get(i);
-			PPCashNode child_node;
-			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
-				loc_list.add(child_node.LocID);
-				THROW_PP_S(PPCashMachine::IsAsyncCMT(child_node.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
-				cn_list.add(child_cn_id);
-			}
-		}
-	}
-	else {
-		THROW_PP_S(PPCashMachine::IsAsyncCMT(cn_rec.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
-		cn_list.add(cn_rec.ID);
-		loc_list.add(cn_rec.LocID);
-	}
-	{
-		cn_list.sortAndUndup();
-		for(uint i = 0; i < cn_list.getCount(); i++) {
-			const PPID cn_id = cn_list.get(i);
-			ZDELETE(p_cm);
-			THROW(p_cm = PPCashMachine::CreateInstance(cn_id));
-			{
-				CmLocking cml(NodeRec);
-				THROW(cml);
-				THROW(p_cm->GetAsyncIntrf());
-				THROW(p_cm->P_AsyncIntrf->CloseSession(0, pPeriod));
-			}
-		}
-	}
-	CATCHZOK
-	delete p_cm;
-	return ok;
-}
-#endif // } @construction
-
 int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 {
 	MemLeakTracer mlt;
 	int    ok = -1, is_single = 0;
 	PPID   ext_cash_node_id = 0;
-	PPCashMachine * p_cm = 0, * p_cm_ext = 0;
+	PPCashMachine * p_cm = 0;
+	PPCashMachine * p_cm_ext = 0;
 	CSPanel       * dlg  = 0;
 	PPBnkTerminal * p_bnk_term = 0;
 	PPID   cn_id = (pFilt && pFilt->CashNodeID) ? (is_single = 1, pFilt->CashNodeID) : PPObjCashNode::Select(0, 0, &is_single);
@@ -1632,7 +1643,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 							if(p_cm_ext) {
 								if(p_cm_ext->GetNodeData().CashType == PPCMT_PAPYRUS) {
 									if(ok > 0)
-										ok = p_cm_ext->AsyncCloseSession(0);
+										ok = p_cm_ext->AsyncCloseSession(0, 0);
 								}
 								else if(ok >= 0) {
 									if(ok == 0)
@@ -1692,8 +1703,11 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 					switch(c) {
 						case cmCSOpen:          ok =  p_cm->AsyncOpenSession(0, 0);  break;
 						case cmACSUpdate:       ok =  p_cm->AsyncOpenSession(1, 0);  break;
-						case cmCSClose:         ok =  p_cm->AsyncCloseSession(0);    break;
-						case cmACSGetChecks:    ok =  p_cm->AsyncCloseSession(1);    break;
+						case cmCSClose:         
+							// @v10.1.1 ok =  p_cm->AsyncCloseSession(0, 0); 
+							ok = PPCashMachine::AsyncCloseSession2(cn_id, 0); // @v10.1.1
+							break;
+						case cmACSGetChecks:    ok =  p_cm->AsyncCloseSession(1, 0); break;
 						case cmCSViewCheckList: ok =  p_cm->AsyncBrowseCheckList();  break;
 						case cmACSViewExcess:   ok =  p_cm->AsyncBrowseExcess();     break;
 						case cmPosNodeQuery:    ok =  p_cm->AsyncInteractiveQuery(); break;

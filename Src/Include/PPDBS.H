@@ -2361,6 +2361,7 @@ public:
 		int32  Kind;
 		int32  Flags;
 		int32  Status;
+		int32  NextGuidRef;
 		uint8  Reserve[128]; // raw
 	} data;
 	struct Key0 {
@@ -2383,6 +2384,7 @@ public:
 	DBField Kind;
 	DBField Flags;
 	DBField Status;
+	DBField NextGuidRef;
 	DBField Reserve;
 };
 
@@ -2506,7 +2508,8 @@ public:
 		int32  LinkFromDlvrLocID;
 		int32  LinkToPsnID;
 		int32  LinkToDlvrLocID;
-		uint8  Reserve2[40]; // raw
+		int32  OrgDocEntityID;
+		uint8  Reserve2[36]; // raw
 	} data;
 	struct Key0 {
 		int32  EntityID;
@@ -2537,6 +2540,9 @@ public:
 	};
 	struct Key8 {
 		int32  ProductItemID;
+	};
+	struct Key9 {
+		int32  OrgDocEntityID;
 	};
 	DBField EntityID;
 	DBField LinkBillID;
@@ -2575,6 +2581,7 @@ public:
 	DBField LinkFromDlvrLocID;
 	DBField LinkToPsnID;
 	DBField LinkToDlvrLocID;
+	DBField OrgDocEntityID;
 	DBField Reserve2;
 };
 
@@ -7416,6 +7423,7 @@ public:
 		int32  LotID;
 		LDATE  Dt;
 		LDATE  OrgDt;
+		int32  OrgID;
 		int32  OprNo;
 		int32  GoodsID;
 		int32  SFlags;
@@ -7442,6 +7450,7 @@ public:
 	DBField LotID;
 	DBField Dt;
 	DBField OrgDt;
+	DBField OrgID;
 	DBField OprNo;
 	DBField GoodsID;
 	DBField SFlags;

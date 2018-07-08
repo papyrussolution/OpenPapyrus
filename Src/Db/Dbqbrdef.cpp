@@ -1,9 +1,10 @@
 // DBQBRO.CPP
 // Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018
 //
-#include <db.h>
-#pragma hdrstop
+#include <slib.h>
 #include <tv.h>
+#pragma hdrstop
+#include <db.h>
 
 SLAPI DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) :
 	BrowserDef(captionHight, aOptions), query(0)

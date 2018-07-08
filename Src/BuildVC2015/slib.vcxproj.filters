@@ -124,6 +124,32 @@
     <ClCompile Include="..\SLib\test-openssl.cpp" />
     <ClCompile Include="..\SLib\saudio.cpp" />
     <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />
+    <ClCompile Include="..\Db\bdb.cpp" />
+    <ClCompile Include="..\Db\Bextins.cpp" />
+    <ClCompile Include="..\Db\Bextqry.cpp" />
+    <ClCompile Include="..\Db\Bnkey.cpp" />
+    <ClCompile Include="..\Db\Btrv.cpp" />
+    <ClCompile Include="..\Db\Dbbackup.cpp" />
+    <ClCompile Include="..\Db\Dbdict.cpp" />
+    <ClCompile Include="..\Db\Dbeop.cpp" />
+    <ClCompile Include="..\Db\Dbf.cpp" />
+    <ClCompile Include="..\Db\dboci.cpp" />
+    <ClCompile Include="..\Db\dbprvdr.cpp" />
+    <ClCompile Include="..\Db\Dbq.cpp" />
+    <ClCompile Include="..\Db\Dbqbrdef.cpp" />
+    <ClCompile Include="..\Db\Dbquery.cpp" />
+    <ClCompile Include="..\Db\dbsess.cpp" />
+    <ClCompile Include="..\Db\dbsql.cpp" />
+    <ClCompile Include="..\Db\Dbtable.cpp" />
+    <ClCompile Include="..\Db\dbtablec.cpp" />
+    <ClCompile Include="..\Db\dti.cpp" />
+    <ClCompile Include="..\Db\gensql.cpp" />
+    <ClCompile Include="..\Db\Kr.cpp" />
+    <ClCompile Include="..\Db\sdrecord.cpp" />
+    <ClCompile Include="..\Db\soapdbt.cpp" />
+    <ClCompile Include="..\Db\txttable.cpp" />
+    <ClCompile Include="..\Db\xlstable.cpp" />
+    <ClCompile Include="..\Db\xmltable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">
@@ -160,6 +186,18 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\uchardet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Db.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbqbrdef.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Dbquery.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

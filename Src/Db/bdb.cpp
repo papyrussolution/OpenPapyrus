@@ -2,9 +2,9 @@
 // Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
-#include <errno.h>
 //#include <berkeleydb.h>
 #include <berkeleydb-6232.h>
 

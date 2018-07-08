@@ -1116,7 +1116,12 @@ SLAPI GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : T
 	if(SpecialSubstGroupID) {
 		GoodsIterator::GetListByGroup(SpecialSubstGroupID, &SpecialSubstGoodsList);
 	}
-	// } @v10.0.12 
+	// } @v10.0.12
+}
+
+const  PPIDArray * SLAPI GoodsReplacementArray::GetSpecialSubstGoodsList() const
+{
+	return SpecialSubstGroupID ? &SpecialSubstGoodsList : 0;
 }
 
 const GRI * SLAPI GoodsReplacementArray::Search(PPID destID) const
@@ -1192,8 +1197,7 @@ int SLAPI ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
 	int    ok = 0;
 	if(rbb) {
 		for(uint i = 0; !ok && i < Lots.getCount(); i++) {
-			const ILTI & r_item = Lots.at(i);
-			if(r_item.RByBill == rbb) {
+			if(Lots.at(i).RByBill == rbb) {
 				ASSIGN_PTR(pPos, i);
 				ok = 1;
 			}
@@ -1559,9 +1563,9 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
 		// @v10.0.12 {
-		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList()) 
+		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList())
 			__ciltif |= CILTIF_USESUBST;
-		// } @v10.0.12 
+		// } @v10.0.12
 		if(trace_sync_lot) {
 			__Debug_TraceLotSync(*this, &rPack, msg_buf);
 			PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1820,8 +1824,8 @@ int SLAPI ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext
 		THROW_SL(pSCtx->Serialize(dir, item.QCert, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.Expiry, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.InTaxGrpID, rBuf));
-		THROW_SL(pSCtx->Serialize(dir, item.RByBill, rBuf)); // @v8.0.3
-		THROW_SL(pSCtx->SerializeBlock(dir, sizeof(item.Reserve), item.Reserve, rBuf, 1)); // @v8.0.3
+		THROW_SL(pSCtx->Serialize(dir, item.RByBill, rBuf));
+		THROW_SL(pSCtx->SerializeBlock(dir, sizeof(item.Reserve), item.Reserve, rBuf, 1));
 		if(dir < 0)
 			THROW_SL(Lots.insert(&item));
 	}
@@ -2216,21 +2220,19 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			int    ok = -1;
 			if(pos >= 0 && pos < (long)LocPeriodList.getCount()) {
 				BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(pos);
+				const BillTransmDeficit::LocPeriod & r_org_item = OrgLocPeriodList.at(pos);
 				LDATE dt = getCtrlDate(CTL_TDEFICIT_DATE);
 				if(!checkdate(dt)) {
 					PPError(PPERR_SLIB);
 				}
+				else if(dt > r_org_item.P.low) {
+					SString temp_buf;
+					temp_buf.Cat(r_org_item.P.low, DATF_DMY);
+					PPError(PPERR_TOOHIGHDATE, temp_buf);
+				}
 				else {
-					const BillTransmDeficit::LocPeriod & r_org_item = OrgLocPeriodList.at(pos);
-					if(dt > r_org_item.P.low) {
-						SString temp_buf;
-						temp_buf.Cat(r_org_item.P.low, DATF_DMY);
-						PPError(PPERR_TOOHIGHDATE, temp_buf);
-					}
-					else {
-						r_item.P.low = dt;
-						ok = 1;
-					}
+					r_item.P.low = dt;
+					ok = 1;
 				}
 			}
 			return ok;
@@ -2240,7 +2242,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 		double PctAddition;
 	};
 	int    ok = -1;
-	if(!CS_SERVER) { // @v8.5.2
+	if(!CS_SERVER) {
 		double pct_add = *pPctAddition;
 		TDeficitDialog * dlg = new TDeficitDialog;
 		if(CheckDialogPtrErr(&dlg)) {
@@ -2270,7 +2272,6 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 					int    do_twopass_rcv = BIN(pCtx->Cfg.Flags & DBDXF_TWOPASSRCV && GetOpType(receipt_op) == PPOPT_GOODSRECEIPT); // @v9.9.6
 					if(do_twopass_rcv || TurnDeficitDialog(&pct_add) > 0) {
 						for(uint i = 0; i < LocPeriodList_.getCount(); i++) {
-							// @v8.1.5 LDATE  dt = Period.low;
 							const LDATE dt = LocPeriodList_.at(i).P.low;
 							const PPID loc_id = LocPeriodList_.at(i).LocID;
 							if(do_twopass_rcv) {
@@ -2439,9 +2440,9 @@ int SLAPI PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & 
 	else if(dir < 0) {
 		// @v9.9.12 {
 		if(!pPack->Ver.IsLt(9, 9, 12)) {
-			THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx)); 
+			THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx));
 		}
-		// } @v9.9.12 
+		// } @v9.9.12
 		{
 			PPOprKind op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec)) {
@@ -3057,7 +3058,7 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 	uint   msg_id = 0;
 	BillTbl::Rec bill_rec, link_rec;
 	MEMSZERO(bill_rec);
-	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH)) {
+	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) { // @v10.1.1 bill_rec.OpID != PPOPK_EDI_STOCK
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			PPID   op_id = bill_rec.OpID;
 			PPOprKind op_rec;

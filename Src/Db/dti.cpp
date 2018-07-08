@@ -3,8 +3,10 @@
 //
 // DTI
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 #define BTI_WIN_32
 #include <psql\dticonst.h>
 /*

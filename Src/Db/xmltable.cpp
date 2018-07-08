@@ -1,8 +1,10 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
-#include <db.h>
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
+#include <db.h>
 
 const int __EnableEmptyRoot = 1;
 //

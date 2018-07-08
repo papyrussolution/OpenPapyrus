@@ -2485,9 +2485,8 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								GObj.ReadBarcodes(r_ti.GoodsID, bc_list);
 								for(i = 0; i < bc_list.getCount(); i++) {
 									const BarcodeTbl::Rec & r_bc = bc_list.at(i);
-									if(sstrlen(r_bc.Code) == 19) {
+									if(sstrlen(r_bc.Code) == 19)
 										ss_egais_codes.add(r_bc.Code);
-									}
 								}
 								ss_egais_codes.sortAndUndup();
 								for(uint ssp = 0; ss_egais_codes.get(&ssp, egais_code);) {
