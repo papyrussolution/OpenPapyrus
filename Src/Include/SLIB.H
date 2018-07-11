@@ -5652,11 +5652,12 @@ enum ComBaudRate {
 };
 
 struct CommPortParams {    // @persistent size=6
+	CommPortParams();
 	int16  Cbr;            // ComBaudRate
 	int8   ByteSize;       // [4..8]
 	int8   Parity;         // [0..4] (no, odd, even, mark, space)
 	int8   StopBits;       // 0, 1, 2 (1, 1.5, 2)
-	int8   Reserve;        // @reserve
+	uint8  Reserve;        // @reserve
 };
 
 struct CommPortTimeouts {
@@ -5678,7 +5679,7 @@ public:
 	void   FASTCALL GetTimeouts(CommPortTimeouts *) const;
 	void   FASTCALL SetParams(const CommPortParams *);
 	void   FASTCALL SetTimeouts(const CommPortTimeouts *);
-	int    SLAPI InitPort(int portNo /* 0..3 */);
+	int    SLAPI InitPort(int portNo, int ctsControl, int rtsControl);
 	int    SLAPI ClosePort();
 	int    FASTCALL PutChr(int c);
 	int    SLAPI GetChr();

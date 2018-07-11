@@ -108,13 +108,12 @@ SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf
 #define CHANGE_DSR      0x02
 #define CHANGE_CTS      0x01
 
-SLAPI SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0)
+CommPortParams::CommPortParams() : Cbr(cbr9600), ByteSize(8), Parity(0), StopBits(0)
 {
-	CPP.Cbr = cbr9600;
-	CPP.ByteSize = 8;
-	CPP.Parity = 0;
-	CPP.StopBits = 0;
+}
 
+SLAPI SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0), CPP()
+{
 	MEMSZERO(CPT);
 	CPT.Get_NumTries = 2000;
 	CPT.Get_Delay = 1;
@@ -165,7 +164,7 @@ int SLAPI SCommPort::ClosePort()
 	return ok;
 }
 
-int SLAPI SCommPort::InitPort(int portNo)
+int SLAPI SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 {
 	PortNo = portNo;
 
@@ -197,11 +196,21 @@ int SLAPI SCommPort::InitPort(int portNo)
 		case cbr256000: dcb.BaudRate = CBR_256000; break;
 		default: dcb.BaudRate = CBR_9600; break;
 	}
-	dcb.fParity  = FALSE;
+	dcb.fParity = FALSE;
 	dcb.fBinary = 1;
 	dcb.Parity   = CPP.Parity;
 	dcb.ByteSize = CPP.ByteSize;
 	dcb.StopBits = CPP.StopBits;
+	// @v10.1.2 {
+	if(ctsControl)
+		dcb.fOutxCtsFlow = 1;
+	if(oneof3(rtsControl, 1, 2, 3))
+		dcb.fRtsControl = rtsControl;
+	//dcb.fRtsControl = CPP.RtsControl; 
+	//dcb.fOutxCtsFlow = (CPP.Flags & CPP.fOutxCtsFlow) ? 1 : 0;
+	//dcb.fOutxDsrFlow = (CPP.Flags & CPP.fOutxDsrFlow) ? 1 : 0;
+	//dcb.fDsrSensitivity = (CPP.Flags & CPP.fDsrSensitivity) ? 1 : 0;
+	// } @v10.1.2 
 	THROW(SetCommState(H_Port, &dcb));
 	cto.ReadIntervalTimeout = MAXDWORD;
 	cto.ReadTotalTimeoutMultiplier = MAXDWORD;

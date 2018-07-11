@@ -4026,7 +4026,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
 													slip_rep.Z();
-													if(bank_amt > 0) {
+													if(bank_amt > 0.0) {
 														r = P_BNKTERM->Pay(bank_amt, slip_rep);
 													}
 													else {

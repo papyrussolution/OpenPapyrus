@@ -4546,7 +4546,7 @@ file:
 //
 //
 //
-table TempQuot { // Size=284 (10*32+128+12)=460
+table TempQuot {
 	autolong ID__;          // @v8.1.1
 	long   GoodsID;         // ->Goods2.ID
 	long   LocID;           // ->Location.ID
@@ -4586,40 +4586,6 @@ table TempQuot { // Size=284 (10*32+128+12)=460
 	uint   QuotP30;
 	uint   QuotP31;
 	uint   QuotP32;
-	/*
-	string Quot1[10];
-	string Quot2[10];
-	string Quot3[10];
-	string Quot4[10];
-	string Quot5[10];
-	string Quot6[10];
-	string Quot7[10];
-	string Quot8[10];
-	string Quot9[10];
-	string Quot10[10];
-	string Quot11[10];
-	string Quot12[10];
-	string Quot13[10];
-	string Quot14[10];
-	string Quot15[10];
-	string Quot16[10];
-	string Quot17[10];
-	string Quot18[10];
-	string Quot19[10];
-	string Quot20[10];
-	string Quot21[10];
-	string Quot22[10];
-	string Quot23[10];
-	string Quot24[10];
-	string Quot25[10];
-	string Quot26[10];
-	string Quot27[10];
-	string Quot28[10];
-	string Quot29[10];
-	string Quot30[10];
-	string Quot31[10];
-	string Quot32[10];
-	*/
 index:
 	ID__ (unique);
 	GoodsID, ArticleID, LocID, PeriodIdx (unique mod);

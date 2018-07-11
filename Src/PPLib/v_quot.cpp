@@ -9,10 +9,10 @@
 //
 #define QUOT_BUF_SIZE    sizeof(((TempQuotTbl::Rec*)0)->Quot1)
 
-IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 3) // @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3
+IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 4) // @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4
 {
-	SetFlatChunk(offsetof(QuotFilt, InitOrder),
-		offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
+	// SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
+	SetFlatChunk(offsetof(QuotFilt, ReserveStart), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(QuotFilt, LocList));
 	Init(1, 0);
 }
@@ -25,7 +25,57 @@ int SLAPI QuotFilt::IsSeries() const
 int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 2) {
+	if(ver == 3) {
+		struct QuotFilt_v3 : public PPBaseFilt {
+			SLAPI  QuotFilt_v3() : PPBaseFilt(PPFILT_QUOT, 0, 3)
+			{
+				SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
+				SetBranchObjIdListFilt(offsetof(QuotFilt, LocList));
+				Init(1, 0);
+			}
+			int32  InitOrder;        // @anchor Порядок сортировки
+			int32  QkCls;
+			DateRange Period;
+			LDATE  EffDate;
+			PPID   QTaID;
+			PPID   SellerID;
+			PPID   SellerLocWorldID;
+			PPID   BrandID;
+			PPID   LocID;
+			PPID   QuotKindID;
+			PPID   CurID;
+			PPID   ArID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			RealRange Val;
+			long   Flags;
+			long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
+			ObjIdListFilt LocList;
+		};
+		QuotFilt_v3 fv3;
+		THROW(fv3.Read(rBuf, 0));
+#define CPYFLD(f) f = fv3.f
+		CPYFLD(InitOrder);
+		CPYFLD(QkCls);
+		CPYFLD(Period);
+		CPYFLD(EffDate);
+		CPYFLD(QTaID);
+		CPYFLD(SellerID);
+		CPYFLD(SellerLocWorldID);
+		CPYFLD(BrandID);
+		CPYFLD(LocID);
+		CPYFLD(QuotKindID);
+		CPYFLD(CurID);
+		CPYFLD(ArID);
+		CPYFLD(GoodsGrpID);
+		CPYFLD(GoodsID);
+		CPYFLD(Val);
+		CPYFLD(Flags);
+		CPYFLD(LocList);
+#undef CPYFLD
+		ok = 1;
+	}
+	else if(ver == 2) {
 		struct QuotFilt_v2 : public PPBaseFilt {
 			SLAPI  QuotFilt_v2::QuotFilt_v2() : PPBaseFilt(PPFILT_QUOT, 0, 2)
 			{
@@ -40,7 +90,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			PPID   QTaID;            // (quot2) ИД транзакции изменения котировки
 			PPID   SellerID;         // ->Article.ID Продавец
 			PPID   SellerLocWorldID; // ->World.ID Ид элемента World, которому должна принадлежать локация LocID
-			PPID   BrandID;          // 
+			PPID   BrandID;          //
 			PPID   LocID;            //
 			PPID   QuotKindID;       //
 			PPID   CurID;            //
@@ -78,7 +128,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0), 
+SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0),
 	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0)
 {
 	if(CConfig.Flags2 & CCFLG2_QUOT2)
@@ -272,6 +322,7 @@ int QuotFiltDialog::setDTS(const QuotFilt * pData)
 	setGroupData(GRP_LOC, &loc_rec);
 	setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
 	SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
+	SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg); // @v10.1.2
 	SetupCtrls();
 	return 1;
 }
@@ -306,6 +357,7 @@ int QuotFiltDialog::getDTS(QuotFilt * pData)
 		Data.Flags &= ~QuotFilt::fCrosstab;
 	if(Data.Flags & QuotFilt::fOnlyAbsence)
 		Data.Flags &= ~QuotFilt::fAbsence;
+	getCtrlData(CTLSEL_QUOTFLT_SGG, &Data.Sgg); // @v10.1.2
 	ASSIGN_PTR(pData, Data);
 	return ok;
 }
@@ -317,7 +369,6 @@ int SLAPI PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
 	return PPDialogProcBody <QuotFiltDialog, QuotFilt> ((QuotFilt *)pFilt);
 }
 
-//char * FASTCALL PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos)
 SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf)
 {
 	rBuf.Z();
@@ -325,7 +376,6 @@ SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint po
 		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
 		uint   p = *(uint *)(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
 		StrPool.GetS(p, rBuf);
-		//return ((char*)pRec) + offs + pos * QUOT_BUF_SIZE;
 	}
 	return rBuf;
 }
@@ -882,7 +932,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 		}
 		goods_list.sortAndUndup();
 		use_goods_list = 1;
-		if(goods_list.getCount() == 0)
+		if(!goods_list.getCount())
 			done = 1;
 	}
 	if(pFilt->BrandID && !pFilt->GoodsID) {
@@ -906,7 +956,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 			goods_list.sortAndUndup();
 			use_goods_list = 1;
 		}
-		if(goods_list.getCount() == 0)
+		if(!goods_list.getCount())
 			done = 1;
 	}
 	if(!done) {
@@ -1317,46 +1367,11 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				tbl->GoodsID,       // #0
 				tbl->LocID,         // #1
 				tbl->ArticleID,     // #2
-				tbl->PeriodIdx,     // #3 
-				tbl->GoodsName,     // #4 
-				dbe_loc,            // #5 
-				dbe_ar,             // #6 
-				dbe_period,         // #7 
-				/*
-				tbl->Quot1,
-				tbl->Quot2,
-				tbl->Quot3,
-				tbl->Quot4,
-				tbl->Quot5,
-				tbl->Quot6,
-				tbl->Quot7,
-				tbl->Quot8,
-				tbl->Quot9,
-				tbl->Quot10,
-				tbl->Quot11,
-				tbl->Quot12,
-				tbl->Quot13,
-				tbl->Quot14,
-				tbl->Quot15,
-				tbl->Quot16,
-
-				tbl->Quot17,
-				tbl->Quot18,
-				tbl->Quot19,
-				tbl->Quot20,
-				tbl->Quot21,
-				tbl->Quot22,
-				tbl->Quot23,
-				tbl->Quot24,
-				tbl->Quot25,
-				tbl->Quot26,
-				tbl->Quot27,
-				tbl->Quot28,
-				tbl->Quot29,
-				tbl->Quot30,
-				tbl->Quot31,
-				tbl->Quot32,
-				*/
+				tbl->PeriodIdx,     // #3
+				tbl->GoodsName,     // #4
+				dbe_loc,            // #5
+				dbe_ar,             // #6
+				dbe_period,         // #7
 				0);
 			for(uint i = 0; i < SIZEOFARRAY(dbe_qv); i++) {
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_qv[i], (&tbl->QuotP1)[i], &StrPool);
@@ -1366,10 +1381,6 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				q->from(p_ot, tbl, 0L).where(p_ot->ID == tbl->ID__).orderBy(p_ot->Name, 0L);
 			else
 				q->from(tbl, 0L);
-			/* @v8.3.5
-			else
-				q->from(tbl, 0L).orderBy(tbl->GoodsName, 0L);
-			*/
 			THROW(CheckQueryPtr(q));
 		}
 		else {
@@ -1411,7 +1422,7 @@ int SLAPI PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewQuot * p_view = (PPViewQuot*)extraPtr;
+	PPViewQuot * p_view = (PPViewQuot *)extraPtr;
 	const QuotFilt * p_filt = (const QuotFilt*)p_view->GetBaseFilt();
 	PPViewQuot::BrwHdr hdr;
 	if(p_view && p_filt && pStyle && paintAction == BrowserWindow::paintNormal) {
@@ -1424,18 +1435,33 @@ int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, Bro
 			}
 		}
 		else {
-			p_view->GetEditIds(pData, &hdr, col);
-			double val = 0.0;
-			p_view->GetCtQuotVal(pData, col, 0, &val);
-			if(val > 0) {
-				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-				pStyle->Color = GetColorRef(SClrGreen);
-				ok = 1;
+			if(p_view->P_Ct) {
+				p_view->GetEditIds(pData, &hdr, col);
+				double val = 0.0;
+				p_view->GetCtQuotVal(pData, col, 0, &val);
+				if(val > 0) {
+					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+					pStyle->Color = GetColorRef(SClrGreen);
+					ok = 1;
+				}
+				else if(val < 0) {
+					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+					pStyle->Color = GetColorRef(SClrRed);
+					ok = 1;
+				}
 			}
-			else if(val < 0) {
-				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-				pStyle->Color = GetColorRef(SClrRed);
-				ok = 1;
+			else if(p_filt->QkCls == PPQuot::clsMtx) {
+				/*
+				if(col == 4) { // value
+					const PPViewQuot::BrwHdr * p_hdr = (const PPViewQuot::BrwHdr *)pData;
+					DateRange period;
+					Quotation2Core::PeriodIdxToPeriod(p_hdr->PeriodIdx, &period);
+					for(uint i = 0; i < p_view->QList_.getCount(); i++) {
+
+					}
+					ok = -1;
+				}
+				*/
 			}
 		}
 	}
@@ -1461,7 +1487,7 @@ void SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->insertColumn(-1, entry.Txt, 7+1+i, 0L, MKSFMTD(8, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
 			}
 		}
-		else if(Filt.QkCls == PPQuot::clsMtx)
+		/*else*/if(Filt.QkCls == PPQuot::clsMtx)
 			pBrw->SetCellStyleFunc(PPViewQuot::CellStyleFunc, this);
 	}
 }
@@ -1489,7 +1515,7 @@ void SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, 
 			hdr.QuotKindID = Filt.QuotKindID;
 		}
 		else {
-			long   quot_col = (Filt.ArID || Filt.LocList.GetSingle()) ? col - 3 : col - 4;
+			long   quot_col = (Filt.ArID || Filt.LocList.GetSingle()) ? (col-3) : (col-4);
 			if(HasPeriodVal == 2)
 				quot_col--;
 			struct E_ {

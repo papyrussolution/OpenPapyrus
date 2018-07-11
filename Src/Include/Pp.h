@@ -3768,24 +3768,23 @@ struct QuotFilt : public PPBaseFilt {
 		fActualOnly          = 0x0080, // (quot2) Только актуальные значения (для quot и так все значения актуальные).
 		fCrosstab            = 0x0100, // Кросстаб
 		fAbsence             = 0x0400, // Показывать товары, для которых котировка, соответствующая фильтру отсутствует
-		fSeries              = 0x0800, // @v7.1.11 Показывать временной ряд значений.
+		fSeries              = 0x0800, // Показывать временной ряд значений.
 			// Данный флаг имеет несколько требований непротиворечивости:
 			// -- должен быть определен товар GoodsID
 			// -- комбинация факторов {QuotKindID, LocID, ArticleID} считается определенной
 			// -- QTaID игнорируется //
 			//
-		fListOnly            = 0x1000, // @v7.1.12 Функция PPViewQuot::Init_ создает только внутренний список
-			// значений котировок (PPQuotItemArray)
-		fZeroArOnly          = 0x2000, // @v7.1.12 Отбирать котировки только с нулевой статьей
-			// (применяется для разрешения неоднозначности по критерию ArID == 0).
-		fByGroupOnly         = 0x4000, // @v8.6.6 Показывать только котировки привязанные к товарным группам
-		fByGoodsOnly         = 0x8000  // @v8.6.6 Показывать только котировки привязанные к товарам
+		fListOnly            = 0x1000, // Функция PPViewQuot::Init_ создает только внутренний список значений котировок (PPQuotItemArray)
+		fZeroArOnly          = 0x2000, // Отбирать котировки только с нулевой статьей (применяется для разрешения неоднозначности по критерию ArID == 0).
+		fByGroupOnly         = 0x4000, // Показывать только котировки привязанные к товарным группам
+		fByGoodsOnly         = 0x8000  // Показывать только котировки привязанные к товарам
 			// @# fByGroupOnly^fByGoodsOnly
 	};
-	int32  InitOrder;        // @anchor @v8.1.1 Порядок сортировки
+	char   ReserveStart[32]; // @anchor @v10.1.2
+	int32  InitOrder;        // @anchor Порядок сортировки
 	int32  QkCls;            // Класс вида котировки
 	DateRange Period;        // (quot2) Период значений
-	LDATE  EffDate;          // @v7.3.5 (quot2) Дата, для которой должны быть действительны отображаемые котировки
+	LDATE  EffDate;          // (quot2) Дата, для которой должны быть действительны отображаемые котировки
 	PPID   QTaID;            // (quot2) ИД транзакции изменения котировки
 	PPID   SellerID;         // ->Article.ID Продавец
 	PPID   SellerLocWorldID; // ->World.ID Ид элемента World, которому должна принадлежать локация LocID
@@ -3795,10 +3794,10 @@ struct QuotFilt : public PPBaseFilt {
 	PPID   CurID;            //
 	PPID   ArID;             //
 	PPID   GoodsGrpID;       // if !0, тогда это поле ограничивает перебор товаров только указанной группой
-	PPID   GoodsID;          // if !0, то строки развернуты либо по складам,
-		// либо по клиентам, либо по видам котировок
+	PPID   GoodsID;          // if !0, то строки развернуты либо по складам, либо по клиентам, либо по видам котировок
 	RealRange Val;           // Диапазон значений котировки (0..0 - игнорируется)
-	long   Flags;
+	long   Flags;            // @flags
+	SubstGrpGoods Sgg;       // @v10.1.2
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt LocList;   // Список складов
 private:
@@ -40703,9 +40702,8 @@ private:
 
 class PPBasketCombine {
 public:
-	SLAPI  PPBasketCombine()
+	SLAPI  PPBasketCombine() : BasketID(0)
 	{
-		BasketID = 0;
 	}
 	PPID   BasketID;
 	PPBasketPacket Pack;
@@ -41000,7 +40998,6 @@ public:
 	int    SLAPI ConvertLinesToBasket();
 	int    SLAPI CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * pPack, int useTa);
 	int    SLAPI EditOrder(PPID ctID, PPID goodsID);
-
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -41096,22 +41093,10 @@ public:
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(OprKindViewItem *);
-	//int    SLAPI EditFilt(OprKindFilt *);
-	/*const  OprKindFilt * SLAPI GetFilt() const
-	{
-		return &Filt;
-	}*/
 	int    SLAPI CreateFlagsMnemonics(const PPOprKind * pOdData, char * pBuf, size_t bufSize);
-	//SArray * SLAPI CreateBrowserArray();
-	//int    SLAPI EditOp(PPID * pOpID);
-	//int    SLAPI AddItem();
-	//int    SLAPI EditItem(PPID);
-	//int    SLAPI DeleteItem(PPID);
 	int    SLAPI AddBySample(PPID sampleID);
 	int    SLAPI ViewLinkOps(PPID opID);
 	int    SLAPI ViewBills(PPID opID);
-	//int    SLAPI Browse(int modeless);
-	//int    SLAPI Print();
 	int    SLAPI Transmit(PPID id);
 private:
 	int    SLAPI InnerIteration(OprKindViewItem * pItem);
@@ -41125,7 +41110,6 @@ private:
 	PPAccTurnTemplArray ATTmpls;
 	OprKindFilt  Filt;
 	PPObjOprKind OpkObj;
-	//IterCounter  Counter;
 };
 //
 // @ModuleDecl(PPObjMrpTab)
@@ -44462,7 +44446,20 @@ public:
 	SLAPI  VetisDocumentFilt();
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
-	uint8  ReserveStart[256]; // @anchor
+	uint8  ReserveStart[240]; // @anchor
+	enum {
+		fkGeneral          = 0,
+		fkInterchangeParam = 1
+	};
+	enum {
+		icacnLoadUpdated = 0x0001,
+		icacnLoadAllDocs = 0x0002,
+		icacnLoadStock   = 0x0004,
+	};
+	long   FiltKind;
+	long   Flags;
+	long   Actions;
+	PPID   MainOrgID;
 	PPID   LocID;
 	DateRange Period;
 	DateRange WayBillPeriod;
@@ -44487,6 +44484,10 @@ public:
 		LDATE  IssueDate;
 		PPID   OrgDocEntityID;
 	};
+
+	static int FASTCALL EditInterchangeParam(VetisDocumentFilt * pFilt);
+	static int FASTCALL RunInterchangeProcess(VetisDocumentFilt * pFilt);
+
 	SLAPI  PPViewVetisDocument();
 	SLAPI ~PPViewVetisDocument();
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);

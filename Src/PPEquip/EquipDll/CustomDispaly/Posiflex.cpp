@@ -173,7 +173,7 @@ int PosiflexEquip::Connect()
 {
 	int    ok = 1;
 	SString control_symbol;
-	THROW(CommPort.InitPort(Port));
+	THROW(CommPort.InitPort(Port, 0, 0));
 	control_symbol.Z().CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
 	for(size_t index = 0; index < control_symbol.Len(); index++)
 		THROW(CommPort.PutChr(control_symbol.C(index)));

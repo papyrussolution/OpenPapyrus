@@ -296,7 +296,8 @@ int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		{
 			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
 			const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
-			static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
+			// @v10.1.2 static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
+			static const int __baud_rate_list[] = { -1, 8, 7, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate // @v10.1.2 
 			/*
 				0: cbr2400  1: cbr4800   2: cbr9600    3: cbr14400    4: cbr19200  5: cbr38400
 				6: cbr56000 7: cbr57600  8: cbr115200  9: cbr128000  10: cbr256000
@@ -722,7 +723,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		// Всегда закрываем чек
 		//if(fiscal != 0.0) {
-			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out));
+			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); 
 		//}
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
@@ -1344,9 +1345,11 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 	StrAssocArray arr_in, arr_out;
 	// SetErrorMessage();
 	// Ожидание окончания операции печати
+	uint   wait_cycle_count = 0;
 	do {
 		GetStatus(status);
 		wait_prn_err = 1;
+		wait_cycle_count++;
 	} while(status & PRNMODE_PRINT);
 	//
 	// Если нет чековой ленты
@@ -1427,7 +1430,8 @@ int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, StrAssocArray & rIn, StrAssocArra
 			ok = 0;
 			break;
 		}
-		r = AllowPrintOper();
+		// @v10.1.2 r = AllowPrintOper();
+		r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : AllowPrintOper(); // @v10.1.2 
 		//
 		// Если выдана ошибка, не описанная в простоколе, то выходим для получения текста ошибки
 		//

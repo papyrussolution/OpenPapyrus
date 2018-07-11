@@ -100,6 +100,7 @@ int FlyTechfdEquip::PrintLine()
 	return ok;
 }
 
-int FlyTechfdEquip::Connect() {
-	return CommPort.InitPort(Port);
+int FlyTechfdEquip::Connect() 
+{
+	return CommPort.InitPort(Port, 0, 0);
 }

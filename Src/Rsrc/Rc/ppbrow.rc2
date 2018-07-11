@@ -6563,7 +6563,8 @@ cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none 
 cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_TEST              none cmTestTddo2 } // @v9.8.3
 cmd TestVetis             { "@{cmd_testvetis}"                             ICON_TEST              none cmTestVetis } // @v9.8.9
 cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
-cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument } // @v10.0.12
+cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument view = VetisDocument } // @v10.0.12
+cmd VetisInterchange      { ""                                             none                   none cmVetisInterchange } // @v10.1.2
 //
 // -------------- Описания серверных задач
 //
@@ -6607,6 +6608,7 @@ job ExportDbTblBill      { "@{job_exportdbtblbill}" } // @v8.6.8
 job ProcessEDI           { "@{job_processedi}" } // @v8.8.0
 job ProcessTSession      { "@{job_processtsession}" } // @v8.8.0
 job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
+job VetisInterchange     { "@{job_vetisinterchange}" } // @v10.1.2
 //
 // -------------- Описания объектов данных PPObject
 //

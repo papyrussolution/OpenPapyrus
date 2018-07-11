@@ -687,7 +687,7 @@ int PPDevice_Leader::OpenConnection(const ConnectionParam & rConnParam)
 			cpt.Put_Delay    = 0;
 			cpt.W_Get_Delay  = 0;
 			P_Cp->SetTimeouts(&cpt);
-			THROW_PP_S(P_Cp->InitPort(port_no), PPERR_SLIB, ConnP.Address);
+			THROW_PP_S(P_Cp->InitPort(port_no, 0, 0), PPERR_SLIB, ConnP.Address);
 			State |= stConnected;
 			ConnP.P_Conn = (long)P_Cp;
 		}

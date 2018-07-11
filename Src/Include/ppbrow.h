@@ -1441,6 +1441,7 @@
 #define PPCMD_TESTVETIS                   1331
 #define PPCMD_PHNSVCMONITOR               1332
 #define PPCMD_VETISDOCUMENT               1333
+#define PPCMD_VETISINTERCHANGE            1334
 //
 // PPJOB definitions
 //
@@ -1484,6 +1485,7 @@
 #define PPJOB_PROCESSEDI                    38
 #define PPJOB_PROCESSTSESSION               39
 #define PPJOB_QUERYEGAIS                    40
+#define PPJOB_VETISINTERCHANGE              41
 //
 // PPVIEW definitions
 //

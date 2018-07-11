@@ -6067,6 +6067,8 @@
 	#define CTL_QUOTFLT_SETPRD           (22 + WINDOWS_ID_BIAS)
 	#define CTLCAL_QUOTFLT_SETPRD        (23 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTFLT_GGRPDIFF         (24 + WINDOWS_ID_BIAS)
+	#define CTL_QUOTFLT_SGG              (25 + WINDOWS_ID_BIAS)
+	#define CTLSEL_QUOTFLT_SGG           (26 + WINDOWS_ID_BIAS)
 //                                598 // Occupied (DLG_PERSON_BNK)
 #define DLG_MAILACC               599 // MailAccount
 	#define CTL_MAILACC_NAME             (1 + WINDOWS_ID_BIAS)
@@ -10425,6 +10427,9 @@
 	#define CTL_VETDOCFLT_STATUS      (5 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_WH          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VETDOCFLT_WH       (7 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_MAINORG     (8 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_MAINORG  (9 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_ACTIONS     (10 + WINDOWS_ID_BIAS)
 #define DLG_VETVDOC               1342
 	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)
@@ -10457,6 +10462,8 @@
 	#define CTL_MTCHPSN_LOC           (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MTCHPSN_LOC        (5 + WINDOWS_ID_BIAS)
 #define DLG_SELVDUTLZ             1345
+#define DLG_VETISIC               1346
+	// CTL_VETDOCFLT_XXX
 //
 // Win32 Dialog Identifiers
 //

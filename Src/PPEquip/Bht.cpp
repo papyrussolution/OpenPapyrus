@@ -2019,7 +2019,7 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
 	if(IsComDvcSymb(rec.Port, &com_port) == comdvcsCom)
 		if(com_port > 0)
 			com_port--;
-	THROW_PP_S(pProt->InitPort(com_port), PPERR_SLIB, itoa(com_port, msg_buf, 10));
+	THROW_PP_S(pProt->InitPort(com_port, 0, 0), PPERR_SLIB, itoa(com_port, msg_buf, 10));
 	CATCHZOK
 	return ok;
 }
@@ -2049,7 +2049,7 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 	if(IsComDvcSymb(rec.Port, &com_port) == comdvcsCom)
 		if(com_port > 0)
 			com_port--;
-	THROW_PP_S(pProt->InitPort(com_port), PPERR_SLIB, itoa(com_port, msg_buf, 10));
+	THROW_PP_S(pProt->InitPort(com_port, 0, 0), PPERR_SLIB, itoa(com_port, msg_buf, 10));
 	CATCHZOK
 	return ok;
 }

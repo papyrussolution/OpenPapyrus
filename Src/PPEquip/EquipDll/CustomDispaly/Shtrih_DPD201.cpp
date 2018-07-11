@@ -126,7 +126,5 @@ int SLAPI ShtrhDpdEquip::ConvertStrTo850CodePage(SString & rStr)
 }
 
 // new {
-int ShtrhDpdEquip::Connect() {
-	return CommPort.InitPort(Port);
-}
+int ShtrhDpdEquip::Connect() { return CommPort.InitPort(Port, 0, 0); }
 // } new

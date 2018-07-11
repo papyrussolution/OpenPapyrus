@@ -270,6 +270,7 @@ private:
 	};
 	DvcTaxEntry DvcTaxArray[8];
 
+	int    ENQ_ACK();
 	int    FormatPaym(double paym, SString & rStr);
 	int    SetLogotype(SString & rPath, size_t size, uint height, uint width);
 	int    PrintLogo(int print);
@@ -414,8 +415,17 @@ int FASTCALL SetError(SString & rErrCode)
 	return 1; 
 }
 
-static int Init();
-int Release();
+int Init()
+{
+	SETIFZ(P_Pirit, new PiritEquip);
+	return 1;
+}
+
+int Release()
+{
+	ZDELETE(P_Pirit);
+	return 1;
+}
 
 #define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
 
@@ -590,10 +600,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int    flag = 0;
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
 			THROW(GetCurFlags(2, flag));
-			THROWERR(!(flag & 0x10), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
-			THROWERR(!(flag & 0x20), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
-			THROWERR(!(flag & 0x80), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
-			THROWERR(!(flag & 0x100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
+			THROWERR(!(flag & 0x0010), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
+			THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
+			THROWERR(!(flag & 0x0080), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
+			THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 			GetTaxTab(); // @v9.7.1
 		}
 		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
@@ -735,7 +745,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
 			SetLastItems(cmd, pInputData);
-			THROW(StartWork());
+			// @v10.1.2 THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("PAYMCASH"))
@@ -900,7 +910,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			double _vat_rate = 0.0;
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
-			THROW(StartWork());
+			// @v10.1.2 THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
 				s_param.ToUpper();
@@ -1087,18 +1097,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	return ok;
 }
 
-int Init()
-{
-	SETIFZ(P_Pirit, new PiritEquip);
-	return 1;
-}
-
-int Release()
-{
-	ZDELETE(P_Pirit);
-	return 1;
-}
-
 SString & PiritEquip::LastErrorText(SString & rMsg)
 {
 	rMsg.Z();
@@ -1145,6 +1143,46 @@ int PiritEquip::NotEnoughBuf(SString & rStr)
 	return 1;
 }
 
+int PiritEquip::ENQ_ACK()
+{
+	const clock_t clk_init = clock();
+	const uint max_clk = 2000;
+	const uint max_tries = 3;
+	const uint try_dealy = 50;
+	uint  try_no = 0;
+	SDelay(try_dealy);
+	do {
+		CommPort.PutChr(ENQ); // Проверка связи с ККМ
+		int r = CommPort.GetChr();
+		if(r == ACK)
+			return 1;
+		else {
+			++try_no;
+			if(try_no >= max_tries) {
+				if(LogFileName.NotEmpty()) {
+					SString msg_buf;
+					(msg_buf = "Error ENQ_ACK() tries exceeded").Space().CatChar('(').Cat(try_no).CatChar(')').Space().CatEq("reply", (long)r);
+					SLS.LogMessage(LogFileName, msg_buf, 8192);
+				}
+				return 0;
+			}
+			else {
+				clock_t clk_current = clock();
+				if((clk_current - clk_init) >= max_clk) {
+					if(LogFileName.NotEmpty()) {
+						SString msg_buf;
+						(msg_buf = "Error ENQ_ACK() timeout exceeded").Space().CatChar('(').Cat(clk_current - clk_init).CatChar(')');
+						SLS.LogMessage(LogFileName, msg_buf, 8192);
+					}
+					return 0;
+				}
+				else
+					SDelay(try_dealy);
+			}
+		}
+	} while(1);
+}
+
 int PiritEquip::SetConnection()
 {
 	int    ok = 1;
@@ -1170,7 +1208,7 @@ int PiritEquip::SetConnection()
 	}
 	CommPort.SetParams(&port_params);
 	{
-		int ipr = CommPort.InitPort(Cfg.Port);
+		int ipr = CommPort.InitPort(Cfg.Port, 1/*ctsControl*/, 2/*rtsControl*/);
 		if(!ipr) {
 			if(LogFileName.NotEmpty())
 				SLS.LogMessage(LogFileName, "Error CommPort.InitPort", 8192);
@@ -1178,32 +1216,17 @@ int PiritEquip::SetConnection()
 		}
 	}
 	// @v9.5.7 delay(200);
-	SDelay(100); // @v10.0.14
-	{
-		const uint max_tries = 2; // @v10.0.14 10-->2
-		int sh_ok = 1; 
-		for(uint try_no = 0; !sh_ok && try_no < max_tries; try_no++) {
-			CommPort.PutChr(ENQ); // Проверка связи с ККМ
-			r = CommPort.GetChr();
-			if(r != ACK) {
-				if(LogFileName.NotEmpty()) {
-					SString msg_buf;
-					(msg_buf = "Error (CommPort.GetChr() != ACK)").Space().CatEq("Try", try_no+1);
-					SLS.LogMessage(LogFileName, msg_buf, 8192);
-				}
-				//CALLEXCEPT();
-				SDelay(100); // @v10.0.14 200-->100
-				sh_ok = 0;
-			}
-			else
-				sh_ok = 1;
-		}
-		THROW(sh_ok);
-	}
+	//SDelay(100); // @v10.0.14
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
+	THROW(ENQ_ACK());
 	CATCH
 		CommPort.ClosePort(); // @v10.0.02
+		if(LogFileName.NotEmpty()) {
+			SString msg_buf;
+			(msg_buf = "Error on connection").CatDiv(':', 2).CatEq("cbr", (long)port_params.Cbr);
+			SLS.LogMessage(LogFileName, msg_buf, 8192);
+		}
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -1253,7 +1276,7 @@ int PiritEquip::GetTaxTab()
 	//SString raw_tax_val;
 	SString temp_buf;
 	SString log_buf;
-	for(int i = 0; i < 5; i++) { // В пирите не более 6 налоговых ставок
+	for(int i = 0; i < 6; i++) { // В пирите не более 6 налоговых ставок // @v10.1.2 (i < 5)-->(i < 6)
 		MEMSZERO(DvcTaxArray[i]);
 		//raw_tax_val.Z();
 		//in_data.Z();
@@ -1399,6 +1422,9 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 	SString out_data, r_error;
 	uint count = 0;
 	rFlags = 0;
+	int    flags_fatal_state = 0;
+	int    flags_current_state = 0;
+	int    flags_doc_status = 0;
 	{
 		OpLogBlock __oplb(LogFileName, "00", 0);
 		THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
@@ -1416,11 +1442,31 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 			StringSet fl_pack(FS, out_data);
 			int    fc = 0; // Считанное количество значений
 			// @v9.6.10 {
-			for(uint sp = 0; fl_pack.get(&sp, /*s_flags*/out_data);) {
-				if(++fc == numFlags)
-					rFlags = /*s_flags*/out_data.ToLong();
+			uint    sp = 0;
+			if(fl_pack.get(&sp, out_data)) {
+				flags_fatal_state = out_data.ToLong();
+				if(fl_pack.get(&sp, out_data)) {
+					flags_current_state = out_data.ToLong();
+					if(fl_pack.get(&sp, out_data)) {
+						flags_doc_status = out_data.ToLong();
+					}
+				}
 			}
-			ok = fc;
+			if(LogFileName.NotEmpty()) {
+				(out_data = "Current state").CatDiv(':', 2).CatHex((long)flags_fatal_state).CatDiv(',', 2).
+					CatHex((long)flags_current_state).CatDiv(',', 2).CatHex((long)flags_doc_status);
+				SLS.LogMessage(LogFileName, out_data, 8192);
+			}
+			switch(numFlags) {
+				case 1: rFlags = flags_fatal_state; break;
+				case 2: rFlags = flags_current_state; break;
+				case 3: rFlags = flags_doc_status; break;
+			}
+			/*for(sp = 0; fl_pack.get(&sp, out_data);) {
+				if(++fc == numFlags)
+					rFlags = out_data.ToLong();
+			}
+			ok = fc;*/
 			// } @v9.6.10
 			/* @v9.6.10
 			for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {

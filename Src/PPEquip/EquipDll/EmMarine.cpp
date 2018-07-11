@@ -91,7 +91,7 @@ int PPDrvReader::Connect(int portNum)
 		cpt.Put_Delay    = 0;
 		cpt.W_Get_Delay  = 0;
 		CommPort.SetTimeouts(&cpt);
-		THROWERR(CommPort.InitPort(portNum), RDRERR_OPENPORTFAILED);
+		THROWERR(CommPort.InitPort(portNum, 0, 0), RDRERR_OPENPORTFAILED);
 		State |= stConnected;
 	}
 	else

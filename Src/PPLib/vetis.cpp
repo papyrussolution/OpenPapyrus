@@ -27,7 +27,7 @@ struct VetisErrorEntry {
 	SString Qualifier;
 };
 
-struct VetisFault { 
+struct VetisFault {
 	VetisFault() : Type(tUndef)
 	{
 	}
@@ -130,7 +130,7 @@ struct VetisGenericVersioningEntity : public VetisGenericEntity {
 		verstatusDeleted                  = 400, // DELETED - Запись была удалена.
 		verstatusDeletedWhenMerge         = 410, // DELETED_WHEN_MERGE - Запись была удалена в результате объединения.
 		verstatusDeletedWhenSplit         = 420, // DELETED_WHEN_SPLIT - Запись была удалена в результате разделения.
-		verstatusDeletedWhenAttach        = 430, // DELETED_WHEN_ATTACH - Запись была удалена в результате присоединения. 
+		verstatusDeletedWhenAttach        = 430, // DELETED_WHEN_ATTACH - Запись была удалена в результате присоединения.
 	};
 	long   Flags;
 	int    Status; // verstatusXXX
@@ -280,20 +280,20 @@ struct VetisOrganization {
 
 enum VetisDocType {
 	vetisdoctypTRANSPORT = 0,
-	vetisdoctypPRODUCTIVE = 1, 
-	vetisdoctypRETURNABLE = 2, 
+	vetisdoctypPRODUCTIVE = 1,
+	vetisdoctypRETURNABLE = 2,
 	vetisdoctypINCOMING = 3,
 	vetisdoctypOUTGOING = 4,
 	vetisdoctypSTOCK = 8, // Специальный тип для отражения остатков (не соответствует ни одному из "родных" типов ВЕТИС)
 };
 
 enum VetisDocStatus {
-	vetisdocstCREATED = 0, 
+	vetisdocstCREATED = 0,
 	vetisdocstCONFIRMED = 1,
-	vetisdocstWITHDRAWN = 2, 
-	vetisdocstUTILIZED = 3, 
+	vetisdocstWITHDRAWN = 2,
+	vetisdocstUTILIZED = 3,
 	vetisdocstFINALIZED = 4,
-	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую 
+	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую
 		// необходимо получить исходящий сертификат
 	vetisdocstSTOCK              = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
 };
@@ -325,7 +325,7 @@ struct VetisDocument : public VetisGenericEntity {
 	LDATE  IssueDate;
 	int    DocumentType;
 	VetisOrganization Issuer;
-	SString For_; 
+	SString For_;
 	SString Qualifier; // ?
 };
 
@@ -499,7 +499,7 @@ enum VetisProductType {
 	vptFood          = 5, // 5 Пищевые продукты.
 	vptNonFood       = 6, // 6 Непищевые продукты и другое.
 	vptFish          = 7, // 7 Рыба и морепродукты.
-	vptDontReqPermit = 8 // 8 Продукция, не требующая разрешения. 
+	vptDontReqPermit = 8 // 8 Продукция, не требующая разрешения.
 };
 
 struct VetisProduct : public VetisNamedGenericVersioningEntity {
@@ -770,7 +770,7 @@ struct VetisTransportNumber {
 	}
 	int    SLAPI IsEmpty() const
 	{
-		return (ContainerNumber.Empty() && WagonNumber.Empty() && VehicleNumber.Empty() && 
+		return (ContainerNumber.Empty() && WagonNumber.Empty() && VehicleNumber.Empty() &&
 			TrailerNumber.Empty() && ShipName.Empty() && FlightNumber.Empty());
 	}
 	SString ContainerNumber;
@@ -981,7 +981,7 @@ struct VetisVetDocument : public VetisDocument {
 			Flags = 0;
 			CargoExpertized = 0;
 			AnimalSpentPeriod = 0;
-			LocationProsperity.Z(); 
+			LocationProsperity.Z();
 			MonthsSpent.Z();
 			SpecialMarks.Z();
 			LaboratoryResearchList.freeAll();
@@ -997,7 +997,7 @@ struct VetisVetDocument : public VetisDocument {
 		long   Flags;
 		int    CargoExpertized; // ResearchResult
 		int    AnimalSpentPeriod; // AnimalSpentPeriod
-		SString LocationProsperity; 
+		SString LocationProsperity;
 		SString MonthsSpent;
 		SString SpecialMarks;
 		TSCollection <VetisLaboratoryResearchEvent> LaboratoryResearchList;
@@ -1064,17 +1064,17 @@ struct VetisVetDocument : public VetisDocument {
 		return *this;
 	}
 	enum Form {
-		formCERTCU1 = 0, 
+		formCERTCU1 = 0,
 		formLIC1 = 1,
-		formCERTCU2 = 2, 
-		formLIC2 = 3, 
-		formCERTCU3 = 4, 
-		formLIC3 = 5, 
-		formNOTE4 = 6, 
-		formCERT5I = 7, 
-		formCERT61 = 8, 
-		formCERT62 = 9, 
-		formCERT63 = 10, 
+		formCERTCU2 = 2,
+		formLIC2 = 3,
+		formCERTCU3 = 4,
+		formLIC3 = 5,
+		formNOTE4 = 6,
+		formCERT5I = 7,
+		formCERT61 = 8,
+		formCERT62 = 9,
+		formCERT63 = 10,
 		formPRODUCTIVE = 11
 	};
 	int    VetDForm;   // VetisVetDocument::formXXX
@@ -1409,15 +1409,15 @@ VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & 
 	return *this;
 }
 
-VetisApplicationBlock::VetisApplicationBlock(uint vetisSvcVer, const VetisApplicationData * pAppParam) : 
-	VetisSvcVer(vetisSvcVer), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), 
+VetisApplicationBlock::VetisApplicationBlock(uint vetisSvcVer, const VetisApplicationData * pAppParam) :
+	VetisSvcVer(vetisSvcVer), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
 	PrdcRsltDate(ZERODATETIME), P_AppParam(pAppParam), LocalTransactionId(0)
 {
 	MEMSZERO(ListResult);
 }
 
-VetisApplicationBlock::VetisApplicationBlock() : 
-	VetisSvcVer(1), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), 
+VetisApplicationBlock::VetisApplicationBlock() :
+	VetisSvcVer(1), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
 	PrdcRsltDate(ZERODATETIME), P_AppParam(0), LocalTransactionId(0)
 {
 	MEMSZERO(ListResult);
@@ -1580,10 +1580,10 @@ SLAPI VetisEntityCore::VetisEntityCore()
 {
 }
 
-//static 
+//static
 int FASTCALL VetisEntityCore::ValidateEntityKind(int kind)
 {
-	return oneof10(kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity, 
+	return oneof10(kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity,
 		kUOM, kCountry, kRegion, kVetDocument, kStockEntry);
 }
 
@@ -2184,7 +2184,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, 
+int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid,
 	const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
@@ -2325,7 +2325,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 	CATCHZOK
 	return ok;
 }
-	
+
 int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
@@ -2644,7 +2644,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TS
 	CATCHZOK
 	return ok;
 }
-	
+
 int SLAPI VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
@@ -2754,7 +2754,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 	}
 	return ok;
 }
-    
+
 int SLAPI VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
@@ -2835,7 +2835,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisSubProduct & rItem)
 	int    ok = -1;
 	return ok;
 }
-	
+
 int SLAPI VetisEntityCore::RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem)
 {
 	int    ok = -1;
@@ -2868,7 +2868,7 @@ public:
 		}
 		PPID   MainOrgID;
 		PPID   LocID;
-		int    Timeout;    // Таймаут ожидания ответа на application-request  
+		int    Timeout;    // Таймаут ожидания ответа на application-request
 		S_GUID IssuerUUID; // GUID предприятия, генерурующей запросы
 		S_GUID EntUUID; // GUID подразделения предприятия (склада)
 	};
@@ -2881,81 +2881,81 @@ public:
 
 	int    SLAPI GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply);
 	//
-	// Операция GetVetDocumentListOperation предназначена для получения всех ветеринарно-сопроводительных документов предприятия. 
+	// Операция GetVetDocumentListOperation предназначена для получения всех ветеринарно-сопроводительных документов предприятия.
 	//   При этом список ВСД может быть отфильтрован по следующим критериям:
-	//     Тип ВСД: входящий ВСД; исходящий ВСД; производственный ВСД; транспортный ВСД; возвратный ВСД. 
-	//     Статус ВСД: оформлен; погашен; аннулирован. 
+	//     Тип ВСД: входящий ВСД; исходящий ВСД; производственный ВСД; транспортный ВСД; возвратный ВСД.
+	//     Статус ВСД: оформлен; погашен; аннулирован.
 	//   На вход системы передаются следующие сведения:
 	//     информация о пользователе - инициаторе запроса;
 	//     информация о предприятии и хозяйствующем субъекте, где осуществляется поиск ВСД;
-	//     параметры, по которым будет отфильтрован список ВСД. 
+	//     параметры, по которым будет отфильтрован список ВСД.
 	//   Результатом выполнения данной операции является:
-	//     пользователю передаются сведения о запрашиваемых ВСД. 
-	//   Запрашиваться пользователем могут только те ВСД, где ветеринарное управление инициатор запроса обслуживает предприятия. 
+	//     пользователю передаются сведения о запрашиваемых ВСД.
+	//   Запрашиваться пользователем могут только те ВСД, где ветеринарное управление инициатор запроса обслуживает предприятия.
 	//
 	int    SLAPI GetVetDocumentList(uint startOffset, uint count, VetisApplicationBlock & rReply);
 	int    SLAPI GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
 	int    SLAPI GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply);
 	//
-	// Операция IncomingOperation предназначена для оформления в системе Меркурий входящей партии. 
+	// Операция IncomingOperation предназначена для оформления в системе Меркурий входящей партии.
 	//   На вход системы, в зависимости от сценария, передаются следующие сведения:
 	//     информация об электронном ВСД, по которому продукция поступила на предприятие (для сценария №1);
 	//     информация о бумажном ВСД, по которому продукция поступила на предприятие (для сценария №2);
 	//     фактические сведения о принимаемой партии;
 	//     акт несоответствия, в случае если фактические сведения о продукции отличаются от сведений, указанных в ВСД;
-	//     возвратный ВСД, в случае если на весь объем или на его часть оформляется возврат. 
+	//     возвратный ВСД, в случае если на весь объем или на его часть оформляется возврат.
 	//   Результатом выполнения данной операции является:
 	//     оформление электронного ВСД, в случае, если продукция поступила по бумажному входящему документу (для сценария №2);
 	//     гашение электронного ВСД (для сценария №1);
 	//     добавление одной записи в журнал входящей продукции;
 	//     возвратный ВСД (формируется в случае, если принимается не весь объем продукции);
-	//     акт несоответствия (формируется в случае, если фактические сведения о продукции не совпадают с указанными в ВСД). 
+	//     акт несоответствия (формируется в случае, если фактические сведения о продукции не совпадают с указанными в ВСД).
 	//
 	int    SLAPI ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
 	//
-	// Операция PrepareOutgoingConsignmentOperation предназначена для оформления в системе Меркурий транспортной партии. 
+	// Операция PrepareOutgoingConsignmentOperation предназначена для оформления в системе Меркурий транспортной партии.
 	//   На вход системы передаются следующие сведения:
 	//     информация об одной или нескольких партиях продукции, из которых будет сформирована транспортная партия;
 	//     сведения о получателе транспортной партии;
 	//     сведения о транспортном средстве и маршруте его следования;
-	//     дополнительные сведения необходимые для оформления ветеринарно-сопроводительного документа (ВСД), например, 
-	//     результат ветеринарно-санитарной экспертизы, сведения о ТТН, особые отметки и т.д. 
+	//     дополнительные сведения необходимые для оформления ветеринарно-сопроводительного документа (ВСД), например,
+	//     результат ветеринарно-санитарной экспертизы, сведения о ТТН, особые отметки и т.д.
 	//   Результатом выполнения данной операции является:
 	//     списание объема с одной или нескольких записей журнала продукции, которые были указаны в заявке;
 	//     гашение производственной сертификата, если был указан весь объем по данной записи журнала вырабатываемой продукции;
-	//     для каждого наименования продукции указанного в транспортной партии, система Меркурий формирует ветеринарно-сопроводительный документ (ВСД). 
+	//     для каждого наименования продукции указанного в транспортной партии, система Меркурий формирует ветеринарно-сопроводительный документ (ВСД).
 	//
 	int    SLAPI PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
 	int    SLAPI WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
 	//
-	// Операция RegisterProductionOperation предназначена для оформления в системе Меркурий производственной партии, как завершённой, так и незавершённой. 
+	// Операция RegisterProductionOperation предназначена для оформления в системе Меркурий производственной партии, как завершённой, так и незавершённой.
 	//   На вход системы передаются следующие сведения:
 	//     информация о сырье, из которого партия или несколько партий были произведены;
 	//     информация о произведенной партии или нескольких партиях продукции;
 	//     информация о хозяйствующем субъекте - собственнике сырья и выпускаемой продукции и информация о площадке, на которой продукция выпускается;
 	//     идентификатор производственной операции (для незавершённого производства);
 	//     номер производственной партии;
-	//     флаг завершения производственной транзакции. 
+	//     флаг завершения производственной транзакции.
 	//   Результатом выполнения данной операции является:
 	//     списание объема с одной или нескольких записей журнала продукции, указанного в качестве сырья;
-	//     добавление одной или нескольких записей в журнал вырабатываемой продукции о партии продукции, которая была произведена или присоединение к 
+	//     добавление одной или нескольких записей в журнал вырабатываемой продукции о партии продукции, которая была произведена или присоединение к
 	//       существующей записи вырабатываемой продукции, если оформляется незаверёшнное производство;
-	//     для каждой записи журнала вырабатываемой продукции, которая была добавлена при выполнении операции, система Меркурий формирует 
-	//       ветеринарно-сопроводительный документ (ВСД) или происходит увеличение объёма выпущенной продукции в уже оформленном ветеринарном документе 
-	//       (для незавершённого производства). 
+	//     для каждой записи журнала вырабатываемой продукции, которая была добавлена при выполнении операции, система Меркурий формирует
+	//       ветеринарно-сопроводительный документ (ВСД) или происходит увеличение объёма выпущенной продукции в уже оформленном ветеринарном документе
+	//       (для незавершённого производства).
 	//
 	int    SLAPI RegisterProductionOperation(); // registerProductionOperationRequest
 	//
-	// Операция AddBussinessEntityUser предназначена для регистрации новых пользователей в системе Меркурий или 
+	// Операция AddBussinessEntityUser предназначена для регистрации новых пользователей в системе Меркурий или
 	//   привязки существующих пользователей к хозяйствующему субъекту.
 	//   При выполнении операции на вход системы передаются следующие сведения:
 	//     информация о пользователе - инициаторе запроса;
 	//     имя пользователя или уникальный идентификатор, если существующий пользователь привязывается к ХС;
 	//     данные пользователя (ФИО, паспортные данные, гражданство, адрес электронной почты), если регистрируется новый пользователь;
 	//     при регистрации нового пользователя опционально могут быть переданы дополнительные данные пользователя (телефон, рабочий телефон, рабочий адрес электронной почты и т.д.), которые будут сохранены в системе "Ветис.Паспорт";
-	//     при регистрации нового пользователя опционально может быть передан список прав пользователя, но назначены эти права будут после активации созданного пользователя. 
+	//     при регистрации нового пользователя опционально может быть передан список прав пользователя, но назначены эти права будут после активации созданного пользователя.
 	//   Результатом выполнения данной операции является:
-	//     регистрация нового пользователя или привязка существующего пользователя к хозяйствующему субъекту. 
+	//     регистрация нового пользователя или привязка существующего пользователя к хозяйствующему субъекту.
 	//
 	int    SLAPI AddBusinessEntityUser(); // addBusinessEntityUserRequest
 
@@ -2964,7 +2964,7 @@ public:
 	int    SLAPI GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    SLAPI GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    SLAPI GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply);
-	
+
 	enum {
 		qtProductItemByGuid = 1,
 		qtProductItemByUuid,
@@ -3027,7 +3027,7 @@ private:
 	int    SLAPI PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const SUniTime & rUt);
 	int    SLAPI ParseStockEntry(xmlNode * pParentNode, VetisStockEntry & rResult);
 	//
-	// Descr: Специализированная структура для оптимизации серии вызовов PutBillRow для одного 
+	// Descr: Специализированная структура для оптимизации серии вызовов PutBillRow для одного
 	//   и того же документа.
 	//
 	struct PutBillRowBlock {
@@ -3075,7 +3075,7 @@ int SLAPI PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMs
 	return ok;
 }
 
-//static 
+//static
 int SLAPI PPVetisInterface::SetupParam(Param & rP)
 {
 	rP.Clear();
@@ -3169,7 +3169,7 @@ int SLAPI PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, co
 	int    ok = -1;
 	SString temp_buf;
 	ScURL  c;
-	const char * p_url = pUrl ? pUrl : InetUrl::MkHttps("api.vetrf.ru", "platform/services/ApplicationManagementService"); 
+	const char * p_url = pUrl ? pUrl : InetUrl::MkHttps("api.vetrf.ru", "platform/services/ApplicationManagementService");
 	InetUrl url(p_url);
 	p_url = 0; // возможно, указывает на револьверный буфер - лучше обнулить во избежании использования //
 	StrStrAssocArray hdr_flds;
@@ -3439,7 +3439,7 @@ int SLAPI PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer &
 		else if(SXml::GetContentByName(p_a, "role", temp_buf)) {
 			if(temp_buf.IsEqiAscii("PRODUCER"))
 				rResult.Role = rResult.rolePRODUCER;
-			else 
+			else
 				rResult.Role = rResult.roleUNKNOWN;
 		}
 	}
@@ -3649,7 +3649,7 @@ int SLAPI PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResu
 		else if(SXml::GetContentByName(p_a, "volume", temp_buf))
 			rResult.Volume = temp_buf.ToReal();
 		else if(SXml::GetContentByName(p_a, "packingAmount", temp_buf))
-			rResult.PackingAmount = temp_buf.ToLong();	
+			rResult.PackingAmount = temp_buf.ToLong();
 		else if(SXml::IsName(p_a, "unit"))
 			ParseUnit(p_a, rResult.Unit);
 		else if(SXml::IsName(p_a, "dateOfProduction"))
@@ -4557,7 +4557,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 											}
 										}
 										if(r_doc.CertifiedConsignment.TransportStorageType) {
-											if(SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), 
+											if(SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab),
 												r_doc.CertifiedConsignment.TransportStorageType, temp_buf)) {
 												n_n2.PutInner(SXml::nst("d9p1", "transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 											}
@@ -4571,7 +4571,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 							}
 							{
 								SXml::WNode n_n2(srb, "deliveryFacts");
-								//<deliveryFacts xmlns:d7p1="http://api.vetrf.ru/schema/cdm/mercury/vet-document">  
+								//<deliveryFacts xmlns:d7p1="http://api.vetrf.ru/schema/cdm/mercury/vet-document">
 								n_n2.PutAttrib(SXml::nst("xmlns", "d7p1"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/vet-document"));
 								n_n2.PutInner(SXml::nst("d7p1", "vetCertificatePresence"), "ELECTRONIC");
 								{
@@ -4651,7 +4651,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
 									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
 									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar")); 
+									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
 									n_req.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
@@ -4680,7 +4680,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
 									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
 									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar")); 
+									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
 									n_req.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
@@ -4702,7 +4702,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								}
 								break;
 							case VetisApplicationData::signGetVetDocumentList:
-								{ 
+								{
 									VetisGetVetDocumentListRequest * p_req = (VetisGetVetDocumentListRequest *)rAppBlk.P_AppParam;
 									SXml::WNode n_req(srb, "getVetDocumentListRequest");
 									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -4716,7 +4716,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
 									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
 									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar")); 
+									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
 									n_req.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
@@ -4733,7 +4733,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								}
 								break;
 							case VetisApplicationData::signGetStockEntryList:
-								{ 
+								{
 									VetisGetStockEntryListRequest * p_req = (VetisGetStockEntryListRequest *)rAppBlk.P_AppParam;
 									SXml::WNode n_req(srb, "getStockEntryListRequest");
 									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -4747,7 +4747,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
 									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
 									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar")); 
+									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
 									n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
 									if(rAppBlk.VetisSvcVer == 2)
@@ -4917,7 +4917,7 @@ int SLAPI PPVetisInterface::GetEntityQuery(int queryType, const char * pQueryPar
 		SString param_tag;
 		VetisSubmitRequestBlock srb;
 		switch(queryType) {
-			case qtProductItemByGuid: 
+			case qtProductItemByGuid:
 				svc = svcProduct;
 				p_soap_req = "getProductItemByGuidRequest";
 				p_soap_action = "GetProductItemByGuid";
@@ -5344,7 +5344,7 @@ int SLAPI PPVetisInterface::GetVetDocumentList(uint startOffset, uint count, Vet
 }
 
 int SLAPI PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply)
-{	
+{
 	int    ok = -1;
 	VetisApplicationBlock doc_reply;
 	if(GetVetDocumentByUuid(rDocUuid, doc_reply) > 0 && doc_reply.VetDocList.getCount() == 1) {
@@ -6150,6 +6150,169 @@ private:
 	VetisDocumentFilt Data;
 };
 
+//static
+int FASTCALL PPViewVetisDocument::EditInterchangeParam(VetisDocumentFilt * pFilt)
+{
+	class VetisInterchangeFiltDialog : public TDialog {
+	public:
+		VetisInterchangeFiltDialog() : TDialog(DLG_VETISIC)
+		{
+			SetupCalPeriod(CTLCAL_VETDOCFLT_PRD, CTL_VETDOCFLT_PRD);
+		}
+		int    setDTS(const VetisDocumentFilt * pData)
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			SetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
+			SetupPersonCombo(this, CTLSEL_VETDOCFLT_MAINORG, 0, Data.MainOrgID, PPPRK_MAIN, 1);
+			SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID, 0, LOCTYP_WAREHOUSE, 0);
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 0, VetisDocumentFilt::icacnLoadUpdated);
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 1, VetisDocumentFilt::icacnLoadStock);
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 2, VetisDocumentFilt::icacnLoadAllDocs);
+			SetClusterData(CTL_VETDOCFLT_ACTIONS, Data.Actions);
+			return ok;
+		}
+		int    getDTS(VetisDocumentFilt * pData)
+		{
+			int    ok = 1;
+			GetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
+			getCtrlData(CTLSEL_VETDOCFLT_MAINORG, &Data.MainOrgID);
+			getCtrlData(CTLSEL_VETDOCFLT_WH, &Data.LocID);
+			GetClusterData(CTL_VETDOCFLT_ACTIONS, &Data.Actions);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		VetisDocumentFilt Data;
+	};
+	if(pFilt) {
+		pFilt->FiltKind = VetisDocumentFilt::fkInterchangeParam;
+	}
+	DIALOG_PROC_BODY(VetisInterchangeFiltDialog, pFilt);
+}
+
+//static
+int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFilt__)
+{
+	int    ok = -1;
+	VetisDocumentFilt inner_filt;
+	if(pFilt__ == 0) {
+		inner_filt.FiltKind = VetisDocumentFilt::fkInterchangeParam;
+		if(EditInterchangeParam(&inner_filt) > 0) {
+			pFilt__ = &inner_filt;
+		}
+	}
+	if(pFilt__ && pFilt__->FiltKind == VetisDocumentFilt::fkInterchangeParam) {
+		VetisDocumentFilt filt;
+		filt = *pFilt__;
+		filt.Period.Actualize(ZERODATE);
+		filt.WayBillPeriod.Actualize(ZERODATE);
+		PPVetisInterface::Param param(filt.MainOrgID, filt.LocID);
+		THROW(PPVetisInterface::SetupParam(param));
+		{
+			SString fmt_buf, msg_buf;
+			SString temp_buf;
+			PPLogger logger;
+			PPVetisInterface ifc(&logger);
+			VetisApplicationBlock reply;
+			TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
+			const uint req_count = 1000;
+			THROW(ifc.Init(param));
+			PPWait(1);
+			if(filt.Actions & VetisDocumentFilt::icacnLoadAllDocs) { // полная загрузка
+				PPLoadText(PPTXT_VETISGETTINGALLDOCS, msg_buf);
+				PPWaitMsg(msg_buf);
+				for(uint req_offs = 0; ifc.GetVetDocumentList(req_offs, req_count, reply);) {
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < reply.VetDocList.getCount(); i++) {
+						const VetisVetDocument * p_item = reply.VetDocList.at(i);
+						if(p_item) {
+							PPID   pi_id = 0;
+							THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+							ok = 1;
+						}
+					}
+					THROW(tra.Commit());
+					PPWaitPercent(reply.ListResult.Count+reply.ListResult.Offset, reply.ListResult.Total, msg_buf);
+					if(reply.VetDocList.getCount() < req_count)
+						break;
+					else
+						req_offs += reply.VetDocList.getCount();
+				}
+			}
+			else if(filt.Actions & VetisDocumentFilt::icacnLoadUpdated) { // изменения
+				STimeChunk tc;
+				if(checkdate(filt.Period.low)) {
+					tc.Start.Set(filt.Period.low, ZEROTIME);
+					if(checkdate(filt.Period.upp))
+						tc.Finish.Set(filt.Period.upp, encodetime(23, 59, 59, 99));
+					else
+						tc.Finish.Set(filt.Period.low, encodetime(23, 59, 59, 99));
+				}
+				else if(checkdate(filt.Period.upp)) {
+					tc.Start.Set(filt.Period.upp, ZEROTIME);
+					tc.Finish.Set(filt.Period.upp, encodetime(23, 59, 59, 99));
+				}
+				else {
+					const LDATE cd = getcurdate_();
+					tc.Start.Set(plusdate(cd, -1), ZEROTIME);
+					tc.Finish.Set(cd, encodetime(23, 59, 59, 99));
+				}
+				PPLoadText(PPTXT_VETISGETTINGUPD, fmt_buf);
+				temp_buf.Z().Cat(tc.Start, DATF_DMY, TIMF_HM).Cat("..").Cat(tc.Finish, DATF_DMY, TIMF_HM);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr());
+				PPWaitMsg(msg_buf);
+				for(uint req_offs = 0; ifc.GetVetDocumentChangesList(tc, req_offs, req_count, reply);) {
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < reply.VetDocList.getCount(); i++) {
+						const VetisVetDocument * p_item = reply.VetDocList.at(i);
+						if(p_item) {
+							PPID   pi_id = 0;
+							THROW(ifc.PeC.Put(&pi_id, *p_item, &ure_list, 0));
+							ok = 1;
+						}
+					}
+					THROW(tra.Commit());
+					PPWaitPercent(reply.ListResult.Count+reply.ListResult.Offset, reply.ListResult.Total, msg_buf);
+					if(reply.VetDocList.getCount() < req_count)
+						break;
+					else
+						req_offs += reply.VetDocList.getCount();
+				}
+			}
+			if(filt.Actions & VetisDocumentFilt::icacnLoadStock) { // текущие остатки
+				PPLoadText(PPTXT_VETISGETTINGSTOCK, msg_buf);
+				PPWaitMsg(msg_buf);
+				for(uint req_offs = 0; ifc.GetStockEntryList(req_offs, req_count, reply);) {
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < reply.VetStockList.getCount(); i++) {
+						const VetisStockEntry * p_item = reply.VetStockList.at(i);
+						if(p_item) {
+							PPID   pi_id = 0;
+							THROW(ifc.PeC.Put(&pi_id, param.IssuerUUID, param.EntUUID, *p_item, &ure_list, 0));
+							ok = 1;
+						}
+					}
+					THROW(tra.Commit());
+					PPWaitPercent(reply.ListResult.Count+reply.ListResult.Offset, reply.ListResult.Total, msg_buf);
+					if(reply.VetStockList.getCount() < req_count)
+						break;
+					else
+						req_offs += reply.VetStockList.getCount();
+				}
+			}
+			if(ok > 0)
+				THROW(ifc.ProcessUnresolvedEntityList(ure_list));
+		}
+		PPWait(0);
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int SLAPI PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
@@ -6163,6 +6326,8 @@ int SLAPI PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
+	Filt.Period.Actualize(ZERODATE);
+	Filt.WayBillPeriod.Actualize(ZERODATE);
 	CATCHZOK
 	return ok;
 }
@@ -6421,14 +6586,14 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		t->EntityID,          //  #0
 		t->Flags,             //  #1
 		t->LinkBillID,        //  #2
-		t->LinkBillRow,       //  #3 
-		t->LinkGoodsID,       //  #4 
-		t->LinkFromPsnID,     //  #5 
-		t->LinkFromDlvrLocID, //  #6 
+		t->LinkBillRow,       //  #3
+		t->LinkGoodsID,       //  #4
+		t->LinkFromPsnID,     //  #5
+		t->LinkFromDlvrLocID, //  #6
 		t->LinkToPsnID,       //  #7
-		t->LinkToDlvrLocID,   //  #8 
+		t->LinkToDlvrLocID,   //  #8
 		t->IssueDate,         //  #9
-		t->OrgDocEntityID,    //  #10  
+		t->OrgDocEntityID,    //  #10
 		dbe_vetdform,         //  #11
 		dbe_vetdtype,         //  #12
 		dbe_vetdstatus,       //  #13
@@ -6495,7 +6660,7 @@ int SLAPI PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 				else if(ff & (1<<vetisdocstSTOCK) && !(rf & vetisdocstSTOCK))
 					ok = -1;
 			}
-			if(ok > 0) 
+			if(ok > 0)
 				EC.DT.copyBufTo(pItem);
 		}
 	}
@@ -6623,7 +6788,7 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 {
 	int    ok = -1;
 	uint   v = 0;
-	if(SelectorDialog(DLG_SELVDUTLZ, STDCTL_SELECTOR_WHAT, &v) > 0) {		
+	if(SelectorDialog(DLG_SELVDUTLZ, STDCTL_SELECTOR_WHAT, &v) > 0) {
 		if(v == 0) { // погасить выбранный
 			VetisVetDocument item;
 			if(EC.Get(entityID, item) > 0) {
@@ -6690,7 +6855,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 	uint   v = 0;
 	PPVetisInterface::Param param(0, Filt.LocID);
 	THROW(PPVetisInterface::SetupParam(param));
-	if(SelectorDialog(DLG_SELVDOCUPD, STDCTL_SELECTOR_WHAT, &v) > 0) {		
+	if(SelectorDialog(DLG_SELVDOCUPD, STDCTL_SELECTOR_WHAT, &v) > 0) {
 		SString fmt_buf, msg_buf;
 		SString temp_buf;
 		PPLogger logger;
@@ -6706,7 +6871,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 				tc.Start.Set(Filt.Period.low, ZEROTIME);
 				if(checkdate(Filt.Period.upp))
 					tc.Finish.Set(Filt.Period.upp, encodetime(23, 59, 59, 99));
-				else 
+				else
 					tc.Finish.Set(Filt.Period.low, encodetime(23, 59, 59, 99));
 			}
 			else if(checkdate(Filt.Period.upp)) {
@@ -6816,7 +6981,7 @@ public:
 		SetupPPObjCombo(this, CTLSEL_MTCHPSN_PSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, (void *)Data.PersonKindID);
 		SetupPPObjCombo(this, CTLSEL_MTCHPSN_LOC, PPOBJ_LOCATION, Data.DlvrLocID, OLW_CANINSERT, 0);
 		selectCtrl(CTL_MTCHPSN_PSN);
-		if(Data.PersonID) 
+		if(Data.PersonID)
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_MTCHPSN_LOC, Data.PersonID, Data.DlvrLocID);
 		return ok;
 	}
@@ -6837,7 +7002,7 @@ private:
 			const PPID preserve_psn_id = Data.PersonID;
 			getCtrlData(CTLSEL_MTCHPSN_PSN, &Data.PersonID);
 			if(preserve_psn_id != Data.PersonID) {
-				if(Data.PersonID) 
+				if(Data.PersonID)
 					PsnObj.SetupDlvrLocCombo(this, CTLSEL_MTCHPSN_LOC, Data.PersonID, Data.DlvrLocID);
 			}
 		}
@@ -7134,7 +7299,7 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 							VetisVetDocument item;
 							if(EC.Get(rec.EntityID, item) > 0 && !!item.Uuid && CONFIRM(PPCFG_VETISWITHDRAWDOC)) {
 								PPVetisInterface::Param param(0, Filt.LocID);
-								if(PPVetisInterface::SetupParam(param)) {							
+								if(PPVetisInterface::SetupParam(param)) {
 									PPLogger logger;
 									PPVetisInterface ifc(&logger);
 									if(ifc.Init(param)) {

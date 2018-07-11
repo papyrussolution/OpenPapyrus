@@ -2545,7 +2545,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	cpt.Put_Delay    = rRec.Put_Timeout;
 	cpt.W_Get_Delay  = rRec.Get_Timeout;
 	cp.SetTimeouts(&cpt);
-	THROW_PP_S(cp.InitPort(port_no), PPERR_SLIB, rRec.Port);
+	THROW_PP_S(cp.InitPort(port_no, 0, 0), PPERR_SLIB, rRec.Port);
 	{
 		char   reply_buf[512];
 		memzero(reply_buf, sizeof(reply_buf));
@@ -3521,7 +3521,7 @@ IMPLEMENT_JOB_HDL_FACTORY(PERSONEVENTBYREADER);
 // @vmiller
 class TSessAutoSmsFiltDialog : public TDialog {
 public:
-	TSessAutoSmsFiltDialog() : TDialog(DLG_JTSASMSFILT) 
+	TSessAutoSmsFiltDialog() : TDialog(DLG_JTSASMSFILT)
 	{
 		SetupCalPeriod(CTLCAL_JTSASMSFILT_STPERIOD, CTL_JTSASMSFILT_STPRD);
 		SetupCalPeriod(CTLCAL_JTSASMSFILT_FNPERIOD, CTL_JTSASMSFILT_FNPRD);
@@ -3840,3 +3840,46 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(QUERYEGAIS);
+//
+//
+//
+class JOB_HDL_CLS(VETISINTERCHANGE) : public PPJobHandler {
+public:
+	SLAPI JOB_HDL_CLS(VETISINTERCHANGE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		VetisDocumentFilt filt;
+		SSerializeContext sctx;
+		const size_t sav_offs = pParam->GetRdOffs();
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0)
+			THROW(filt.Serialize(-1, *pParam, &sctx));
+		if(PPViewVetisDocument::EditInterchangeParam(&filt) > 0) {
+			THROW(filt.Serialize(+1, pParam->Clear(), &sctx));
+			ok = 1;
+		}
+		else
+			pParam->SetRdOffs(sav_offs);
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		SSerializeContext sctx;
+		VetisDocumentFilt filt;
+		THROW(filt.Serialize(-1, *pParam, &sctx));
+		THROW(PPViewVetisDocument::RunInterchangeProcess(&filt));
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(VETISINTERCHANGE);
+

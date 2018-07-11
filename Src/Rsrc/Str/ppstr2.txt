@@ -6980,6 +6980,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_phnsvcmonitor                        "@{view_phnsvcmonitor}"
 @cmd_dump                                 "Дамп данных"
 @cmd_vetisdocument                        "@{view_vetisdocument}"
+@cmd_vetisinerchange                      "@{vetisinterchange}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -6994,6 +6995,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmdpu_repair          			          "Корректировка"
 @cmdpu_sawmilling      			          "Лесопильная промышленность"
 @cmdpu_datainterchange 			          "@{datainterchange}"
+@cmdpu_dbsync 			                  "Синхронизация"
 @cmdpu_equipment       			          "Оборудование"
 @cmdpu_operations      			          "@{op_pl}"
 @cmdpu_industryrefs    			          "Отраслевые справочники"
@@ -7052,6 +7054,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @job_processtsession                      "Обработка технологических сессий"
 @job_supplinterchange                     "Обмен данными с поставщиком"
 @job_queryegais                           "Запрос к @{brand_egais}"
+@job_vetisinterchange                     "@{vetisinterchange}"
 
 @jobitem                                  "Задание Job-сервера"
 @jobitem_id                               "@{id}"
@@ -11392,6 +11395,8 @@ public:
 @billautocreateparam_cc_filt              ""
 @billautocreateparam_cs_filt              ""
 
+@vetisinterchange                         "Обмен с сервисами ВЕТИС"
+
 @vetisdocstcreated                        "Создан" // created
 @vetisdocstconfirmed                      "Оформлен" // confirmed
 @vetisdocstwithdrawn                      "Аннулирован" // withdrawn
@@ -11402,9 +11407,13 @@ public:
 
 @vetisdocfilt                             "Фильтр по докуменам ВЕТИС"
 @vetisdocfilt_loc                         "@{warehouse}"
+@vetisdocfilt_mainorg                     "@{mainorg}"
 @vetisdocfilt_period                      "Период документов"
 @vetisdocfilt_waybillperiod               "Период ТТН"
 @vetisdocfilt_vdstatusflags               "@{status}"
+@vetisdocfilt_icacnloadupdated            "Получить обновление за период"
+@vetisdocfilt_icacnloadalldocs            "Получить все документы (длительная операция)"
+@vetisdocfilt_icacnloadstock              "Получить текущие остатки"
 
 @deletetmpfiles                           "Удаление временных файлов"
 @deletetmpfiles_flags                     "@{flags}"

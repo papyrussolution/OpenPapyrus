@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147491091
+LastSignatureCode=2147491123
 LastAutoCodeList=1,11214;102,10168;103,10071;110,10000;111,11691;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10087;120,10005;1001,10000;121,10000;122,10000;123,10320;1002,10000;1003,10000;1004,10000;1005,10000;124,10097
 
 [SignatureList]
@@ -1520,6 +1520,7 @@ cmd_testvetis=2147489391
 cmd_phnsvcmonitor=2147490112
 cmd_dump=2147490651
 cmd_vetisdocument=2147490897
+cmd_vetisinerchange=2147491119
 cmdpu_admin=2147484422
 cmdpu_salesanalyze=2147484423
 cmdpu_accounting=2147484424
@@ -1533,6 +1534,7 @@ cmdpu_cfgimpexp=2147484431
 cmdpu_repair=2147484432
 cmdpu_sawmilling=2147484433
 cmdpu_datainterchange=2147484434
+cmdpu_dbsync=2147491117
 cmdpu_equipment=2147484435
 cmdpu_operations=2147484436
 cmdpu_industryrefs=2147484437
@@ -1589,6 +1591,7 @@ job_processedi=2147487281
 job_processtsession=2147487282
 job_supplinterchange=2147487283
 job_queryegais=2147488152
+job_vetisinterchange=2147491106
 jobitem=2147488044
 jobitem_id=2147488045
 jobitem_name=2147488046
@@ -5723,6 +5726,7 @@ billautocreateparam_ta_filt=2147489225
 billautocreateparam_ss_filt=2147489226
 billautocreateparam_cc_filt=2147489227
 billautocreateparam_cs_filt=2147489228
+vetisinterchange=2147491121
 vetisdocstcreated=2147491051
 vetisdocstconfirmed=2147491052
 vetisdocstwithdrawn=2147491053
@@ -5732,9 +5736,13 @@ vetisdocstoutgoing_preparing=2147491056
 vetisdocststock=2147491057
 vetisdocfilt=2147491058
 vetisdocfilt_loc=2147491059
+vetisdocfilt_mainorg=2147491109
 vetisdocfilt_period=2147491060
 vetisdocfilt_waybillperiod=2147491061
 vetisdocfilt_vdstatusflags=2147491062
+vetisdocfilt_icacnloadupdated=2147491110
+vetisdocfilt_icacnloadalldocs=2147491111
+vetisdocfilt_icacnloadstock=2147491112
 deletetmpfiles=2147490044
 deletetmpfiles_flags=2147490045
 deletetmpfiles_frmvtempdata=2147490046

@@ -512,5 +512,6 @@
 #define cmViewPhnSvcMonitor            617 // @v9.9.10 Монитор состояний телефонного сервера
 #define cmDumpData                     618 // @v10.0.05 Dump/Undump данных
 #define cmVetisDocument                619 // @v10.0.12 Документы ВЕТИС
+#define cmVetisInterchange             620 // @v10.1.2 Обмен данными с ВЕТИС
 
 #endif /* __PPMENU_H */

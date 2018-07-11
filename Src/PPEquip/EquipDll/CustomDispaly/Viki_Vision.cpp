@@ -103,7 +103,5 @@ int VikiVsnEquip::PrintLine()
 }
 
 // new {
-int VikiVsnEquip::Connect() {
-	return CommPort.InitPort(Port);
-}
+int VikiVsnEquip::Connect() { return CommPort.InitPort(Port, 0, 0); }
 // } new
