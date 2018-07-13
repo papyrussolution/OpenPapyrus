@@ -1351,6 +1351,7 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
       </BrowseInformation>
     </ClCompile>
+    <ClCompile Include="..\SLib\Comdisp.cpp" />
     <ClCompile Include="..\SLib\cregexp.cpp" />
     <ClCompile Include="..\SLib\crypto.cpp" />
     <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />

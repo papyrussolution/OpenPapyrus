@@ -150,6 +150,7 @@
     <ClCompile Include="..\Db\txttable.cpp" />
     <ClCompile Include="..\Db\xlstable.cpp" />
     <ClCompile Include="..\Db\xmltable.cpp" />
+    <ClCompile Include="..\SLib\Comdisp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">

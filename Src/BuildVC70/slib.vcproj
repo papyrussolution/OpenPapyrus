@@ -517,6 +517,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\SLib\Comdisp.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\cregexp.cpp">
 			</File>
 			<File

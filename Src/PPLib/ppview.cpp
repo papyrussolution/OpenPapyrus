@@ -1999,7 +1999,7 @@ int PPViewBrowser::Export()
 			else
 				fmt_rus = fmt.CatChar('@');
 			if(p_sheet->SetColumnFormat(i + 1, fmt) <= 0)
-				THROW(p_sheet->SetColumnFormat(i + 1, fmt_rus) > 0);
+				p_sheet->SetColumnFormat(i + 1, fmt_rus);
 			THROW(p_sheet->SetCellFormat(beg_row, i + 1, "@") > 0);
 			THROW(p_sheet->SetValue(beg_row, i + 1, temp_buf) > 0);
 			THROW(p_sheet->SetBold(beg_row, i + 1, 1) > 0);

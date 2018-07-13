@@ -1159,7 +1159,6 @@
     <ClCompile Include="..\PPLib\Chkpan.cpp" />
     <ClCompile Include="..\PPLib\Cliagt.cpp" />
     <ClCompile Include="..\PPLib\clibnk2.cpp" />
-    <ClCompile Include="..\PPLib\Comdisp.cpp" />
     <ClCompile Include="..\PPLib\Commcfg.cpp" />
     <ClCompile Include="..\PPLib\Cptransf.cpp" />
     <ClCompile Include="..\PPLib\Creval.cpp" />

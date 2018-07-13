@@ -4494,7 +4494,6 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 	LDATETIME lru_time;
 	lru_time.SetFar();
 	{
-		//UhttLock.ReadLock();
 		SRWLOCKER(UhttLock, SReadWriteLocker::Read);
 		for(i = 0; !pos && i < UhttList.getCount(); i++) {
 			const PPObjSCard::UhttEntry & r_entry = UhttList.at(i);
@@ -4517,8 +4516,6 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 		if(ok < 0) {
 			PPUhttClient uhtt_cli;
 			if(uhtt_cli.Auth()) {
-				//UhttLock.Unlock();
-				//UhttLock.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				double uhtt_rest = 0.0;
 				if(ok == -2) {
@@ -4562,7 +4559,6 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 			else
 				ok = 0;
 		}
-		//UhttLock.Unlock();
 	}
 	return ok;
 }

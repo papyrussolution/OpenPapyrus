@@ -2353,6 +2353,7 @@ private:
 #define SLERR_WMI_EXECMETHODRETVAL     217 // Код возврата созданного процесса '%s' не равен 0
 #define SLERR_GLOBOBJIDXNFOUNT         218 // Не найден глобальный объект SLib по индексу %s
 #define SLERR_LANGSYMBNFOUND           219 // Не найден символ языка '%s'
+#define SLERR_DISPIFCCLI               220 // Ошибка вызова dispatch-интерфейса %s
 //
 //
 //
@@ -2364,54 +2365,54 @@ private:
 //
 //
 //
-#define SLERR_INVDBSYMB                400 // Неверный символ базы данных '%s'
-#define SLERR_UTFCVT_SRCEXHAUSTED      401 // Не полный входной буфер UTF8
-#define SLERR_UTFCVT_ILLUTF8           402 // Не допустимый входной символ UTF8
-#define SLERR_UTFCVT_ILLUTF16          403 // Не допустимый входной символ UTF16
-#define SLERR_TAB_NFOUND               404 // Таблица STab '%s' не найдена
-#define SLERR_INVIMAGEPIXFORMAT        405 // Недопустимый формат пикселя.
-#define SLERR_IMAGEFILENOTJPEG         406 // Файл '%s' не является JPEG-файлом.
-#define SLERR_JPEGLOADFAULT            407 // Ошибка загрузки JPEG-Файла '%s'
-#define SLERR_IMAGEFILENOTPNG          408 // Файл '%s' не является PNG-файлом.
-#define SLERR_PNGLOADFAULT             409 // Ошибка загрузки PNG-изображения: '%s'
-#define SLERR_UNSUPPIMGFILEFORMAT      410 // Не поддерживаемый или не допустимый формат файла изображения: '%s'
-#define SLERR_SFILRDSIZE               411 // Ошибка чтения из файла: размер считанных данных не равен запрошенному (%s)
-#define SLERR_IMAGEFILENOTICO          412 // Файл '%s' не является ICO-файлом.
-#define SLERR_PNGSTOREFAULT            413 // Ошибка сохранения PNG-изображения: '%s'
-#define SLERR_INVSDRAWFIGKIND          414 // Internal: Недопустимый вид графической фигуры (%s)
-#define SLERR_DUPDRAWGROUPSYMB         415 // Дублирование символа '%s' элемента, добавляемого в SDrawGroup
-#define SLERR_WTMTA_UNDEFFIG           416 // Для элемента TWhatmanToolArray '%s' не заданы ни фигура, ни иконка.
-#define SLERR_WTMTA_BADCRC             417 // Нарушена целостность WTA-файла '%s'
-#define SLERR_IMAGEFILENOTBMP          418 // Файл '%s' не является BMP-файлом.
-#define SLERR_INVBMPHEADER             419 // Недопустимый BMP-заголок (%s)
-#define SLERR_BMPCOMPRNSUPPORTED       420 // Сжатые BMP-изображения не поддерживаются.
-#define SLERR_SOAPR_UNDEFREF           421 // Неопределенная ссылка '%s' в SOAP-результате
-#define SLERR_SOAPR_UNDEFTYPE          422 // Неопределенный тип данных '%s' в SOAP-результате
-#define SLERR_SOAPR_ITEMREFNFOUND      423 // Не найден элемент SOAP-результата по ссылке '%s'
-#define SLERR_SOAPR_ITEMREFTYPECONFL   424 // Конфликт между атрибутами ref и type (%s) в элементе SOAP-ответа
-#define SLERR_SOPAR_UNRESITEMHASNTREF  425 // Неразрешенный элемент структуры (%s) SAOP-результата не имеет ссылки
-#define SLERR_SOAPR_UNRESOLVEDITEM     426 // Не удалось резрешить элемент структуры (%s) SOAP-результата
-#define SLERR_SOAPR_ITEMNAMENFOUND     427 // Элемент SOAP-пакета '%s' не найден
-#define SLERR_SOAPR_INVITEMPOS         428 // Недопустимый индекс (%s) элемента SOAP-пакета
-#define SLERR_WTMTA_INVSIGNATURE       429 // Неверная сигнатура WT-файла '%s'
-#define SLERR_USB_HIDUSBCLASSFAILED	   430 // Устройство не относится к классу USB или HID
-#define SLERR_SFILRDNULLOUTP           431 // Попытка чтения из NullOutput-файла
-#define SLERR_MAIL_NOTCONNECTED        432 // Внутренняя ошибка - не установлено соединение почтового клиента
-#define SLERR_MAIL_INVPROTOCOL         433 // Внутренняя ошибка - не допустимый протокол '%s' почтового клиента
-#define SLERR_MAIL_SMTP_NOREPLY        434 // Почтовый сервер SMTP не ответил на запрос.
-#define SLERR_MAIL_SMTP_REPLYERR       435 // Почтовый сервер SMTP вернул ошибку %s.
-#define SLERR_MAIL_POP3_NOREPLY        436 // Почтовый сервер POP3 не ответил на запрос.
-#define SLERR_MAIL_POP3_REPLYERR       437 // Почтовый сервер POP3 вернул ошибку '%s'
-#define SLERR_MAIL_POP3_UNDEFREPLY     438 // Почтовый сервер POP3 вернул не известный ответ '%s'
-#define SLERR_FTP_NOTCONNECTED         451 // FTP-соединение не установлено
+#define SLERR_INVDBSYMB                        400 // Неверный символ базы данных '%s'
+#define SLERR_UTFCVT_SRCEXHAUSTED              401 // Не полный входной буфер UTF8
+#define SLERR_UTFCVT_ILLUTF8                   402 // Не допустимый входной символ UTF8
+#define SLERR_UTFCVT_ILLUTF16                  403 // Не допустимый входной символ UTF16
+#define SLERR_TAB_NFOUND                       404 // Таблица STab '%s' не найдена
+#define SLERR_INVIMAGEPIXFORMAT                405 // Недопустимый формат пикселя.
+#define SLERR_IMAGEFILENOTJPEG                 406 // Файл '%s' не является JPEG-файлом.
+#define SLERR_JPEGLOADFAULT                    407 // Ошибка загрузки JPEG-Файла '%s'
+#define SLERR_IMAGEFILENOTPNG                  408 // Файл '%s' не является PNG-файлом.
+#define SLERR_PNGLOADFAULT                     409 // Ошибка загрузки PNG-изображения: '%s'
+#define SLERR_UNSUPPIMGFILEFORMAT              410 // Не поддерживаемый или не допустимый формат файла изображения: '%s'
+#define SLERR_SFILRDSIZE                       411 // Ошибка чтения из файла: размер считанных данных не равен запрошенному (%s)
+#define SLERR_IMAGEFILENOTICO                  412 // Файл '%s' не является ICO-файлом.
+#define SLERR_PNGSTOREFAULT                    413 // Ошибка сохранения PNG-изображения: '%s'
+#define SLERR_INVSDRAWFIGKIND                  414 // Internal: Недопустимый вид графической фигуры (%s)
+#define SLERR_DUPDRAWGROUPSYMB                 415 // Дублирование символа '%s' элемента, добавляемого в SDrawGroup
+#define SLERR_WTMTA_UNDEFFIG                   416 // Для элемента TWhatmanToolArray '%s' не заданы ни фигура, ни иконка.
+#define SLERR_WTMTA_BADCRC                     417 // Нарушена целостность WTA-файла '%s'
+#define SLERR_IMAGEFILENOTBMP                  418 // Файл '%s' не является BMP-файлом.
+#define SLERR_INVBMPHEADER                     419 // Недопустимый BMP-заголок (%s)
+#define SLERR_BMPCOMPRNSUPPORTED               420 // Сжатые BMP-изображения не поддерживаются.
+#define SLERR_SOAPR_UNDEFREF                   421 // Неопределенная ссылка '%s' в SOAP-результате
+#define SLERR_SOAPR_UNDEFTYPE                  422 // Неопределенный тип данных '%s' в SOAP-результате
+#define SLERR_SOAPR_ITEMREFNFOUND              423 // Не найден элемент SOAP-результата по ссылке '%s'
+#define SLERR_SOAPR_ITEMREFTYPECONFL           424 // Конфликт между атрибутами ref и type (%s) в элементе SOAP-ответа
+#define SLERR_SOPAR_UNRESITEMHASNTREF          425 // Неразрешенный элемент структуры (%s) SAOP-результата не имеет ссылки
+#define SLERR_SOAPR_UNRESOLVEDITEM             426 // Не удалось резрешить элемент структуры (%s) SOAP-результата
+#define SLERR_SOAPR_ITEMNAMENFOUND             427 // Элемент SOAP-пакета '%s' не найден
+#define SLERR_SOAPR_INVITEMPOS                 428 // Недопустимый индекс (%s) элемента SOAP-пакета
+#define SLERR_WTMTA_INVSIGNATURE               429 // Неверная сигнатура WT-файла '%s'
+#define SLERR_USB_HIDUSBCLASSFAILED	           430 // Устройство не относится к классу USB или HID
+#define SLERR_SFILRDNULLOUTP                   431 // Попытка чтения из NullOutput-файла
+#define SLERR_MAIL_NOTCONNECTED                432 // Внутренняя ошибка - не установлено соединение почтового клиента
+#define SLERR_MAIL_INVPROTOCOL                 433 // Внутренняя ошибка - не допустимый протокол '%s' почтового клиента
+#define SLERR_MAIL_SMTP_NOREPLY                434 // Почтовый сервер SMTP не ответил на запрос.
+#define SLERR_MAIL_SMTP_REPLYERR               435 // Почтовый сервер SMTP вернул ошибку %s.
+#define SLERR_MAIL_POP3_NOREPLY                436 // Почтовый сервер POP3 не ответил на запрос.
+#define SLERR_MAIL_POP3_REPLYERR               437 // Почтовый сервер POP3 вернул ошибку '%s'
+#define SLERR_MAIL_POP3_UNDEFREPLY             438 // Почтовый сервер POP3 вернул не известный ответ '%s'
+#define SLERR_FTP_NOTCONNECTED                 451 // FTP-соединение не установлено
 
-#define SLERR_PUNYCODE_BADINPUT        452 // PUNYCODE Input is invalid
-#define SLERR_PUNYCODE_BIGOUTPUT       453 // PUNYCODE Output would exceed the space provided
-#define SLERR_PUNYCODE_OVERFLOW        454 // PUNYCODE Wider integers needed to process input
-#define SLERR_CURL                     455 // Ошибка библиотеки libcurl
-#define SLERR_LIBXML                   456 // Ошибка библиотеки libxml
-#define SLERR_DUPSYMBWITHUNEQID        457 // Дублирование символа '%s' элемента с отличным идентификатором
-#define SLERR_INVIMAGESIZE             458 // @v9.9.4 Недопустимый размер изображения ([1..30000], [1..30000])
+#define SLERR_PUNYCODE_BADINPUT                452 // PUNYCODE Input is invalid
+#define SLERR_PUNYCODE_BIGOUTPUT               453 // PUNYCODE Output would exceed the space provided
+#define SLERR_PUNYCODE_OVERFLOW                454 // PUNYCODE Wider integers needed to process input
+#define SLERR_CURL                             455 // Ошибка библиотеки libcurl
+#define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
+#define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
+#define SLERR_INVIMAGESIZE                     458 // @v9.9.4 Недопустимый размер изображения ([1..30000], [1..30000])
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -11341,8 +11342,7 @@ private:
 //
 class WinService {
 public:
-	static int SLAPI Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName,
-		const char * pLoginName, const char * pPassword);
+	static int SLAPI Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLoginName, const char * pPassword);
 	static int SLAPI Uninstall(const char * pServiceName);
 	static int SLAPI Start(const char * pServiceName, int stop = 0);
 

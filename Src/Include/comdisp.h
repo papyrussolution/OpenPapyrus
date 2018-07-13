@@ -9,9 +9,7 @@
 //
 //   Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer, LocalServer) (only WIN32)
 //
-#ifdef __WIN32__ // {
-
-struct DispIDEntry {
+struct DispIDEntry { // @flat
 	long   ID;
 	DISPID DispID;
 	char   Name[64];
@@ -23,7 +21,7 @@ public:
 	SLAPI ~ComDispInterface();
 	int  SLAPI Init(const char * pProgID, int inProcServer = 1);
 	int  SLAPI Init(const wchar_t * pProgID, int inProcServer = 1);
-	virtual int  SLAPI Init(IDispatch * pIDisp);
+	virtual int SLAPI Init(IDispatch * pIDisp);
 	int  SLAPI AssignIDByName(const char * pName, long id);
 	int  SLAPI GetNameByID(long id, SString & rName) const;
 	int  SLAPI GetProperty(long propertyID, int    * pBuf);
@@ -42,7 +40,7 @@ public:
 	int  SLAPI SetProperty(long propertyID, long     lVal, int writeOnly = 0);
 	int  SLAPI SetProperty(long propertyID, double   dVal, int writeOnly = 0);
 	int  SLAPI SetProperty(long propertyID, bool     bVal, int writeOnly = 0);
-	int  SLAPI SetProperty(long propertyID, LDATE    dtVal, int writeOnly = 0); // @v7.4.1
+	int  SLAPI SetProperty(long propertyID, LDATE    dtVal, int writeOnly = 0);
 	int  SLAPI SetPropertyByParams(long propertyID);
 	//
 	// Передаваемая строка - codepage windows-1251
@@ -69,7 +67,7 @@ private:
 	void SLAPI SetErrCode();
 	SString ProgIdent; // Для сообщений об ошибках
 	IDispatch   * P_Disp;
-	TSArray <DispIDEntry> DispIDAry;
+	TSVector <DispIDEntry> DispIDAry; // @v10.1.3 TSArray-->TSVector
 	SArray * P_ParamsAry;
 	HRESULT HRes;
 };
@@ -302,5 +300,4 @@ private:
 	};
 };
 
-#endif // } __WIN32__
 #endif // } __COMDISP_H

@@ -49,7 +49,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 //
-SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0), 
+SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0),
 	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
@@ -547,12 +547,9 @@ int  SLAPI SlSession::GetUiLanguageId() const
 
 SString & SlSession::GetStopEventName(SString & rBuf) const
 {
-	// @v8.1.11 return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat((long)H_Inst);
-	// @v8.1.11 {
 	SString temp_buf;
 	SessUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 	return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat(temp_buf);
-	// } @v8.1.11
 }
 
 int    SLAPI SlSession::RegisterTempFileName(const char * pFileName) { return GetTLA().RegisterTempFileName(pFileName); }

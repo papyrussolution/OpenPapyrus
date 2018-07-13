@@ -4222,7 +4222,7 @@ browser OBJSYNC north(100), 1, 1, "Таблица синхронизации {%s}", OWNER|GRID, 0
 	"@objtype",      8, notype, 0,           12
 	"ИД объекта",    1, notype, 0,           10
 	"Общий ИД",      7, notype, ALIGN_RIGHT, 10
-	"Раздел БД",     4, notype, 0,            9
+	"@dbdiv_s",      4, notype, 0,            9
 	"@modifdate",    5, notype, 0,            8
 	"Время мод",     6, notype, 0,            8
 	"@flags",        9, notype, NMBF_NOZERO,  4
@@ -4245,7 +4245,7 @@ browser OBJSYNCQUEUE north(100), 1, 1, "Очередь синхронизации", OWNER|GRID, 0
 	"@objtype",             13, notype, 0,           12
 	"ИД объекта",            3, notype, 0,           10
 	"Общий ИД",             12, notype, ALIGN_RIGHT, 10
-	"Раздел БД",             1, notype, 0,            9
+	"@dbdiv_s",              1, notype, 0,            9
 	"Наименование объекта", 11, notype, 0,           20
 	"@flags",               10, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
@@ -4274,7 +4274,7 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 	REPLACECARD : kbCtrlM,   TBBM_REPLACE,   "Заменить в чеках\tCtrl-M"
 	AFILLDEFPSN : kbCtrlP,   TBBM_NOICON,    "Авотозаполнение персоналии по умолч.\tCtrl-P"
 	// @v7.7.3 CHNGFLAGS   : kbShiftF3, TBBM_CHGFLAGS,  "Изменить флаги\tShift-F3"
-	RENAMEDUP   : kbCtrlX,   TBBM_NOICON,    "Переименовать дублирущиеся карты\tCtrl-X"
+	RENAMEDUP   : kbCtrlX,   TBBM_NOICON,    "Переименовать дублирующиеся карты\tCtrl-X"
 	PROCESSSELECTION : kbCtrlA, TBBM_NOICON, "Обработать выборку\tCtrl-A"
 	separator
 	PRINT       : kbF7,      TBBM_PRINT,     "@{print}\tF7"

@@ -284,6 +284,58 @@
 		MENUITEM "@cmd_prjtask"								cmPrjTask
 		MENUITEM "@cmd_maintainprjtask"						cmMaintainPrjTask
 		MENUITEM SEPARATOR
+		POPUP "@cmdpu_datainterchange" {
+			POPUP "@cmdpu_dbsync" {
+				MENUITEM "@cmd_transmitmodifications",          cmTransmitModifications
+				MENUITEM "@cmd_sendbills",						cmSendBills
+				MENUITEM "@cmd_sendbillsbyfilt",				cmSendBillsByFilt
+				MENUITEM "@cmd_receivepackets",                 cmReceivePackets
+				MENUITEM SEPARATOR
+				MENUITEM "@cmd_viewobjsync",					cmViewObjSync
+				MENUITEM "@cmd_analyzeobjsynccmp",				cmAnalyzeObjSyncCmp
+				MENUITEM "@cmd_viewobjsyncqueue",				cmViewObjSyncQueue
+			}
+			POPUP "@cmdpu_import" {
+				MENUITEM "@cmd_importgoodsgrp",				cmImportGoodsGrp
+				MENUITEM "@cmd_importgoods",				cmImportGoods
+				// @v10.1.2 MENUITEM "@cmd_importgoodsold",				cmImportGoodsOld
+				MENUITEM "@cmd_importsr25",					cmImportSR25
+				MENUITEM "@cmd_importsuprware",				cmImportSuprWare
+				MENUITEM "@cmd_importcountry",				cmImportCountry
+				MENUITEM "@cmd_importquot2",				cmImportQuot2
+				// @v10.1.2 MENUITEM "@cmd_importquot",					cmImportQuot
+				MENUITEM "@cmd_importperson2",				cmImportPerson2
+				// @v10.1.2 MENUITEM "@cmd_importperson",				cmImportPerson
+				MENUITEM "@cmd_importsuppl",				cmImportSuppl
+				MENUITEM "@cmd_importscard2",				cmImportSCard2
+				// @v10.1.2 MENUITEM "@cmd_importscard",				cmImportSCard
+				MENUITEM "@cmd_importbanks",				cmImportBanks
+				MENUITEM "@cmd_importkladr",				cmImportKLADR
+				MENUITEM "@cmd_importtodofromvcal",			cmImportTodoFromVCal
+				MENUITEM "@cmd_importphonelist"				cmImportPhoneList
+				MENUITEM "@cmd_importworkbook"				cmImportWorkbook
+				MENUITEM SEPARATOR
+				MENUITEM "@cmd_clibnkimport",				cmCliBnkImport
+				MENUITEM "@cmd_importspecseries",			cmImportSpecSeries
+				MENUITEM "@cmd_importbills",				cmImportBills
+				MENUITEM "@cmd_importinventory",			cmImportInventory
+				MENUITEM "@cmd_importemailaccts",			cmImportEmailAccts
+				MENUITEM SEPARATOR
+				MENUITEM "@cmd_importtsessuhtt",			cmImportTSessUHTT
+			}
+			MENUITEM SEPARATOR
+			// @obsolete MENUITEM "@cmd_importorders",					cmImportOrders
+			MENUITEM "@cmd_receivecharry",					cmReceiveCharry
+			MENUITEM "@cmd_mailcharryfiles",				cmMailCharryFiles
+			MENUITEM SEPARATOR
+			// @v9.7.10 @obsolete MENUITEM "@cmd_importcurrlist",					cmImportCurrList
+			MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
+			MENUITEM SEPARATOR
+			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport
+			MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
+			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
+		}
+		MENUITEM SEPARATOR
 		MENUITEM "@cmd_vetisdocument"                       cmVetisDocument
 	}
 	POPUP "@cmdpu_equipment" {
@@ -369,57 +421,6 @@
 		MENUITEM "@cmd_objlikeness",						cmObjLikeness
 		MENUITEM "@cmd_bizscoreval",						cmBizScoreVal
 		MENUITEM "@cmd_bizscvalbytempl",					cmBizScValByTempl
-	}
-	POPUP "@cmdpu_datainterchange" {
-		POPUP "@cmdpu_dbsync" {
-			MENUITEM "@cmd_transmitmodifications",          cmTransmitModifications
-			MENUITEM "@cmd_sendbills",						cmSendBills
-			MENUITEM "@cmd_sendbillsbyfilt",				cmSendBillsByFilt
-			MENUITEM "@cmd_receivepackets",                 cmReceivePackets
-			MENUITEM SEPARATOR
-			MENUITEM "@cmd_viewobjsync",					cmViewObjSync
-			MENUITEM "@cmd_analyzeobjsynccmp",				cmAnalyzeObjSyncCmp
-			MENUITEM "@cmd_viewobjsyncqueue",				cmViewObjSyncQueue
-		}
-		POPUP "@cmdpu_import" {
-			MENUITEM "@cmd_importgoodsgrp",				cmImportGoodsGrp
-			MENUITEM "@cmd_importgoods",				cmImportGoods
-			// @v10.1.2 MENUITEM "@cmd_importgoodsold",				cmImportGoodsOld
-			MENUITEM "@cmd_importsr25",					cmImportSR25
-			MENUITEM "@cmd_importsuprware",				cmImportSuprWare
-			MENUITEM "@cmd_importcountry",				cmImportCountry
-			MENUITEM "@cmd_importquot2",				cmImportQuot2
-			// @v10.1.2 MENUITEM "@cmd_importquot",					cmImportQuot
-			MENUITEM "@cmd_importperson2",				cmImportPerson2
-			// @v10.1.2 MENUITEM "@cmd_importperson",				cmImportPerson
-			MENUITEM "@cmd_importsuppl",				cmImportSuppl
-			MENUITEM "@cmd_importscard2",				cmImportSCard2
-			// @v10.1.2 MENUITEM "@cmd_importscard",				cmImportSCard
-			MENUITEM "@cmd_importbanks",				cmImportBanks
-			MENUITEM "@cmd_importkladr",				cmImportKLADR
-			MENUITEM "@cmd_importtodofromvcal",			cmImportTodoFromVCal
-			MENUITEM "@cmd_importphonelist"				cmImportPhoneList
-			MENUITEM "@cmd_importworkbook"				cmImportWorkbook
-			MENUITEM SEPARATOR
-			MENUITEM "@cmd_clibnkimport",				cmCliBnkImport
-			MENUITEM "@cmd_importspecseries",			cmImportSpecSeries
-			MENUITEM "@cmd_importbills",				cmImportBills
-			MENUITEM "@cmd_importinventory",			cmImportInventory
-			MENUITEM "@cmd_importemailaccts",			cmImportEmailAccts
-			MENUITEM SEPARATOR
-			MENUITEM "@cmd_importtsessuhtt",			cmImportTSessUHTT
-		}
-		MENUITEM SEPARATOR
-		// @obsolete MENUITEM "@cmd_importorders",					cmImportOrders
-		MENUITEM "@cmd_receivecharry",					cmReceiveCharry
-		MENUITEM "@cmd_mailcharryfiles",				cmMailCharryFiles
-		MENUITEM SEPARATOR
-		// @v9.7.10 @obsolete MENUITEM "@cmd_importcurrlist",					cmImportCurrList
-		MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
-		MENUITEM SEPARATOR
-		// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport
-		MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
-		MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
 	}
 	POPUP "@cmdpu_admin" {
 		MENUITEM "@cmd_commconfig",							cmCommConfig

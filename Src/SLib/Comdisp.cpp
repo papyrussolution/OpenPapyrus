@@ -3,7 +3,10 @@
 // @codepage windows-1251
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
-#include <pp.h>
+//#include <pp.h>
+//#pragma hdrstop
+#include <slib.h>
+#include <tv.h>
 #pragma hdrstop
 #include <comdisp.h>
 
@@ -54,13 +57,13 @@ int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 	return ok;
 }
 
+//virtual
 int SLAPI ComDispInterface::Init(IDispatch * pIDisp)
 {
-	int    ok = 1;
 	ProgIdent.Z();
-	DispIDAry.freeAll();
+	DispIDAry.clear();
 	P_Disp = pIDisp;
-	return ok;
+	return 1;
 }
 
 int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
@@ -69,18 +72,18 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	size_t wname_len = 0;
 	DispIDEntry dispid_entry;
 	OLECHAR * p_wname = 0;
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	wname_len = mbstowcs(NULL, pName, MAXPATH) + 1;
-	THROW_MEM(p_wname = new OLECHAR[wname_len]);
+	THROW(p_wname = new OLECHAR[wname_len]);
 	mbstowcs(p_wname, pName, MAXPATH);
 	THROW(SUCCEEDED(HRes = P_Disp->GetIDsOfNames(IID_NULL, (OLECHAR **)&p_wname, 1, LOCALE_USER_DEFAULT, &dispid_entry.DispID)));
 	dispid_entry.ID = nameID;
 	STRNSCPY(dispid_entry.Name, pName);
-	THROW_SL(DispIDAry.insert(&dispid_entry));
+	THROW(DispIDAry.insert(&dispid_entry));
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 		// @v9.1.7 {
-		{
+		/*{
 			SString msg_buf, err_msg;
 			PPLoadText(PPTXT_DISPIFASSGNFAULT, msg_buf);
 			msg_buf.Space().Cat(ProgIdent).Cat("::").Cat(pName);
@@ -88,7 +91,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 			if(err_msg.NotEmptyS())
 				msg_buf.CatDiv(':', 2).Cat(err_msg);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		}
+		}*/
 		// } @v9.1.7
 	ENDCATCH
 	delete [] p_wname;
@@ -123,7 +126,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 	VARTYPE    vt;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
 	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT,
@@ -151,7 +154,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 int SLAPI ComDispInterface::GetProperty(long propertyID, bool * pBuf)
 {
 	int   ok = 1;
-	VARIANTARG   var_arg;
+	VARIANTARG var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt = VT_BOOL;
 	if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
@@ -216,9 +219,9 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t buf
 	VariantInit(&var_arg);
 	if(pBuf && bufLen > 0) {
 		var_arg.vt = VT_BSTR;
-		THROW_MEM(var_arg.bstrVal = SysAllocString(wstr));
+		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-			THROW_MEM(WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, (int)bufLen, NULL, NULL));
+			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, (int)bufLen, NULL, NULL);
 		}
 		else
 			memzero(pBuf, bufLen);
@@ -232,7 +235,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDis
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
-	THROW_INVARG(pDisp);
+	THROW_S(pDisp, SLERR_INVPARAM);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
 	if((ok = _GetProperty(propertyID, &var_arg, 1)) > 0) {
@@ -249,7 +252,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 	VARIANTARG var_arg;
 	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
 	VariantInit(&var_arg);
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var_arg, NULL, NULL)));
 	CATCH
@@ -268,7 +271,7 @@ int SLAPI ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 	DISPID     dispid_put  = DISPID_PROPERTYPUT;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
 	DISPPARAMS dispparams  = {&var_arg, &dispid_put, 1, 1};
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &null_params, &var_arg, NULL, NULL)));
@@ -295,7 +298,7 @@ int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 	DISPID     dispid_put  = DISPID_PROPERTYPUT;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
 	DISPPARAMS dispparams  = {&var_arg, &dispid_put, 1, 1};
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	if(var_arg.vt == VT_NULL || var_arg.vt == VT_EMPTY) {
@@ -316,9 +319,9 @@ int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 int SLAPI ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
-	VARIANTARG   var_arg;
+	VARIANTARG var_arg;
 	VariantInit(&var_arg);
-	var_arg.vt     = VT_INT;
+	var_arg.vt = VT_INT;
 	var_arg.intVal = iVal;
 	ok = writeOnly ? _SetPropertyW(propertyID, &var_arg) : _SetProperty(propertyID, &var_arg);
 	VariantClear(&var_arg);
@@ -380,9 +383,9 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, const char * pStrVal, i
 	OLECHAR    wstr[512];
 	VariantInit(&var_arg);
 	if(pStrVal) {
-		THROW_MEM(MultiByteToWideChar(1251, MB_PRECOMPOSED, pStrVal, -1, wstr, SIZEOFARRAY(wstr) - 1));
+		MultiByteToWideChar(1251, MB_PRECOMPOSED, pStrVal, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		var_arg.vt = VT_BSTR;
-		THROW_MEM(var_arg.bstrVal = SysAllocString(wstr));
+		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		ok = writeOnly ? _SetPropertyW(propertyID, &var_arg) : _SetProperty(propertyID, &var_arg);
 	}
 	CATCHZOK
@@ -404,9 +407,9 @@ int SLAPI ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 	int   ok = 1;
 	VARIANTARG  var_arg;
 	if(!P_ParamsAry)
-		THROW_MEM(P_ParamsAry = new SArray(sizeof(VARIANTARG)));
+		THROW(P_ParamsAry = new SArray(sizeof(VARIANTARG)));
 	VariantInit(&var_arg);
-	THROW_SL(P_ParamsAry->atInsert(0, &var_arg));
+	THROW(P_ParamsAry->atInsert(0, &var_arg));
 	THROW(SUCCEEDED(HRes = VariantCopy((VARIANTARG *)P_ParamsAry->at(0), pVarArg)));
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
@@ -458,9 +461,9 @@ int SLAPI ComDispInterface::SetParam(const char * pStrVal, int codepage/*=1251*/
 	OLECHAR    wstr[2048];
 	VariantInit(&var_arg);
 	if(pStrVal) {
-		THROW_MEM(MultiByteToWideChar(codepage, (codepage == 1251) ? MB_PRECOMPOSED : 0, pStrVal, -1, wstr, SIZEOFARRAY(wstr) - 1));
+		MultiByteToWideChar(codepage, (codepage == 1251) ? MB_PRECOMPOSED : 0, pStrVal, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		var_arg.vt = VT_BSTR;
-		THROW_MEM(var_arg.bstrVal = SysAllocString(wstr));
+		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		ok = _SetParam(&var_arg);
 	}
 	CATCHZOK
@@ -499,8 +502,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	params.cNamedArgs = 0;
 	if(rcv_res)
 		VariantInit(&var_arg);
-
-	THROW_INVARG(P_Disp);
+	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(methodID));
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, rcv_res ? &var_arg : NULL, NULL, NULL)));
 	if(rcv_res) {
@@ -517,12 +519,12 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	}
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
-		if(CConfig.Flags & CCFLG_DEBUG) {
+		/*if(CConfig.Flags & CCFLG_DEBUG) {
 			//PPTXT_LOG_DISPINVOKEFAULT         "Ошибка вызова Dispatch-метода '@zstr': @zstr"
 			SString msg_buf;
 			PPFormatT(PPTXT_LOG_DISPINVOKEFAULT, &msg_buf, (p_die ? p_die->Name : ""), "");
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
-		}
+		}*/
 	ENDCATCH
 	if(rcv_res && (ok <= 0 || var_arg.vt != VT_DISPATCH))
 		VariantClear(&var_arg);
@@ -534,7 +536,7 @@ int  SLAPI ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
-	THROW_INVARG(pDisp);
+	THROW_S(pDisp, SLERR_INVPARAM);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
 	if((ok = CallMethod(methodID, &var_arg)) > 0) {
@@ -559,12 +561,14 @@ void SLAPI ComDispInterface::SetErrCode()
 		}
 	}
 	if(sys_err_buf.Empty()) {
-		PPLoadTextWin(PPTXT_RETCODE, temp_buf);
-		sys_err_buf.Cat(temp_buf).Space().CatHex(HRes);
+		//PPLoadTextWin(PPTXT_RETCODE, temp_buf);
+		sys_err_buf.Cat("retcode").Space().CatHex(HRes);
 	}
 	err_msg.CatQStr(ProgIdent).Space().Cat(sys_err_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	//PPSetError(PPERR_COMINTERFACE, err_msg.ToOem());
-	PPSetError(PPERR_DISPIFCCLI, err_msg);
+	//PPSetError(PPERR_DISPIFCCLI, err_msg);
+	SLS.SetError(SLERR_DISPIFCCLI, err_msg);
+
 }
 //
 // Excel disp interface
@@ -584,7 +588,7 @@ SLAPI ComExcelFont::~ComExcelFont()
 int SLAPI ComExcelFont::Init(IDispatch * pDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pDisp) > 0);
+	ComDispInterface::Init(pDisp);
 	THROW(ASSIGN_ID_BY_NAME(this, Bold) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Color) > 0);
 	CATCHZOK
@@ -614,7 +618,7 @@ SLAPI ComExcelShapes::~ComExcelShapes()
 int SLAPI ComExcelShapes::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pIDisp) > 0);
+	ComDispInterface::Init(pIDisp);
 	THROW(ASSIGN_ID_BY_NAME(this, AddPicture) > 0);
 	CATCHZOK
 	return ok;
@@ -624,8 +628,7 @@ int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 {
 	int    ok = 1;
 	ComDispInterface * p_shape = new ComDispInterface;
-
-	THROW_INVARG(pRect);
+	THROW_S(pRect, SLERR_INVPARAM);
 	THROW(SetParam(pPath));
 	THROW(SetParam(1));
 	THROW(SetParam(0));
@@ -652,7 +655,7 @@ SLAPI ComExcelInterior::~ComExcelInterior()
 int SLAPI ComExcelInterior::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pIDisp) > 0);
+	THROW(ComDispInterface::Init(pIDisp));
 	THROW(ASSIGN_ID_BY_NAME(this, Color) > 0);
 	CATCHZOK
 	return ok;
@@ -676,7 +679,7 @@ SLAPI ComExcelRange::~ComExcelRange()
 int SLAPI ComExcelRange::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pIDisp) > 0);
+	THROW(ComDispInterface::Init(pIDisp));
 	THROW(ASSIGN_ID_BY_NAME(this, Item) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, NumberFormat) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Value) > 0);
@@ -796,7 +799,7 @@ SLAPI ComExcelWorksheet::~ComExcelWorksheet()
 int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pIDisp) > 0);
+	THROW(ComDispInterface::Init(pIDisp));
 	THROW(ASSIGN_ID_BY_NAME(this, Activate) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Name) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Cells) > 0);
@@ -1057,7 +1060,7 @@ SLAPI ComExcelWorksheets::~ComExcelWorksheets()
 int SLAPI ComExcelWorksheets::Init(IDispatch * pDisp)
 {
 	int    ok = 1;
-	THROW(ComDispInterface::Init(pDisp) > 0);
+	THROW(ComDispInterface::Init(pDisp));
 	THROW(ASSIGN_ID_BY_NAME(this, Item) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Add) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Move) > 0);
@@ -1126,7 +1129,7 @@ ComExcelWorksheet * ComExcelWorksheets::Enum(long * pPos)
 ComExcelWorksheet * ComExcelWorksheets::Get(long pos)
 {
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
-	THROW_SL(checkirange(pos, 1, GetCount()));
+	THROW(checkirange(pos, 1, GetCount()));
 	THROW(SetParam(pos) > 0);
 	THROW(GetProperty(Item, (ComDispInterface*)p_sheet) > 0);
 	CATCH
@@ -1275,7 +1278,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::Enum(long * pPos)
 ComExcelWorkbook * SLAPI ComExcelWorkbooks::Get(long pos)
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
-	THROW_SL(checkirange(pos, 1, GetCount()));
+	THROW(checkirange(pos, 1, GetCount()));
 	THROW(SetParam(pos) > 0);
 	THROW(CallMethod(Item, (ComDispInterface*)p_wkbook) > 0);
 	CATCH
