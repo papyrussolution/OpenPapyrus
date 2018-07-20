@@ -268,11 +268,11 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 				PPSetError(PPERR_CRYSTAL_REPORT);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR);
 			}
-			DS.Register(); // @v8.2.11
+			DS.Register();
 			DS.SetMenu(MENU_DEFAULT);
 			PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName());
 			app.run();
-			DS.Unregister(); // @v8.2.11
+			DS.Unregister();
 			// @v9.1.12 {
 			SLS.Stop();
 			// @v9.2.0 SDelay(100); // Задержка для того, чтобы все служебные потоки успели завершиться (это - грубый подход).

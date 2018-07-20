@@ -1,5 +1,7 @@
 // TREEWND.CPP
 // Modified by A.Starodub 2013, 2016, 2018
+// @codepage UTF-8
+// Р”СЂРµРІРѕРІРёРґРЅС‹Р№ СЃРїРёСЃРѕРє РІ Р»РµРІРѕР№ С‡Р°СЃС‚Рё РѕСЃРЅРѕРІРЅРѕРіРѕ РѕРєРЅР°
 //
 #include <slib.h>
 #include <tv.h>
@@ -179,21 +181,12 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 	}
 }
 
-/*
-void TreeWindow::Setup(HMENU hMenu)
-{
-	StrAssocArray * p_list = new StrAssocArray();
-	MenuToList(hMenu, 0, p_list);
-	P_CurLw = new ListWindow(new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 64)), 0, 0);
-	Insert(0, "Команды", P_CurLw);
-
-}
-*/
-
 void TreeWindow::Setup(HMENU hMenu)
 {
 	SetupCmdList(hMenu, 0);
-	Insert(0, "Команды", 0);
+	SString temp_buf;
+	SLS.LoadString("cmd_pl", temp_buf);
+	Insert(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 }
 
 TreeWindow::ListWindowItem * TreeWindow::GetListWinByCmd(long cmd, uint * pPos)
@@ -301,9 +294,7 @@ void TreeWindow::MoveChilds(const RECT & rRect)
 		GetWindowRect(P_Toolbar->H(), &tb_rect);
 		rect.top = tb_rect.bottom - tb_rect.top;
 		rect.bottom -= rect.top;
-
-
-		/* По какой-то причине кнопки не отображаются в данном окне
+		/* РџРѕ РєР°РєРѕР№-С‚Рѕ РїСЂРёС‡РёРЅРµ РєРЅРѕРїРєРё РЅРµ РѕС‚РѕР±СЂР°Р¶Р°СЋС‚СЃСЏ РІ РґР°РЅРЅРѕРј РѕРєРЅРµ
 		int tb_h = (tb_rect.bottom - tb_rect.top) - 4;
 		RECT btn_rect;
 		btn_rect.left = tb_rect.right + 2;
@@ -365,7 +356,6 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		char   title_buf[512];
 		STRNSCPY(title_buf, pTitle);
 		const  size_t title_len = sstrlen(title_buf);
-
 		TVINSERTSTRUCT is;
 		is.hParent         = TVI_ROOT;
 		is.hInsertAfter    = TVI_LAST;
@@ -424,4 +414,7 @@ void TreeWindow::DelItemCmdList(void * ptr)
 int  TreeWindow::IsVisible() {return IsWindowVisible(Hwnd);}
 void TreeWindow::MoveWindow(const RECT &rRect) {::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);}
 void TreeWindow::GetRect(RECT &rRect) {GetWindowRect(Hwnd, &rRect);}
-void TreeWindow::Show(int show) {ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE);}
+void TreeWindow::Show(int show) 
+{
+	ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE);
+}

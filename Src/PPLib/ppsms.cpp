@@ -1309,30 +1309,12 @@ public:
 	SmsProtocolBuf();
 	~SmsProtocolBuf();
 	void   Init();
-	size_t GetSize() const
-	{
-		return Size;
-	}
-	int    AddUInt8(uint8 c)
-	{
-		return AddBytes(&c, 1);
-	}
-	int    AddUInt8Array(uint8 * pBuf, size_t bufSize)
-	{
-		return AddBytes(pBuf, bufSize);
-	}
-	int    AddUInt16(uint16 c)
-	{
-		return AddBytes(&c, sizeof(c));
-	}
-	int    AddString(const char * pStr)
-	{
-		return AddBytes(NZOR(pStr, ""), sstrlen(pStr) + 1);
-	}
-	int    AddString(const char * pStr, size_t len)
-	{
-		return AddBytes(pStr, len);
-	}
+	size_t GetSize() const { return Size; }
+	int    AddUInt8(uint8 c) { return AddBytes(&c, 1); }
+	int    AddUInt8Array(uint8 * pBuf, size_t bufSize) { return AddBytes(pBuf, bufSize); }
+	int    AddUInt16(uint16 c) { return AddBytes(&c, sizeof(c)); }
+	int    AddString(const char * pStr) { return AddBytes(NZOR(pStr, ""), sstrlen(pStr) + 1); }
+	int    AddString(const char * pStr, size_t len) { return AddBytes(pStr, len); }
 	//
 	// Descr: Подсчитывает полную длину команды и заполняет поле PduLen
 	//

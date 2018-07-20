@@ -236,7 +236,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 		{
 			RVALUEPTR(Data, pRentCond);
 			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
-			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
+			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle); 
 			ushort v = BIN(Data.Flags & RENTF_PERCENT);
 			setCtrlData(CTL_RENT_ISPERCENT, &v);
 			setCtrlData(CTL_RENT_PERCENT, &Data.Percent);

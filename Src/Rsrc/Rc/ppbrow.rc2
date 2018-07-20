@@ -1058,7 +1058,7 @@ browser PERSONATTR_BNKACCT north(100), 1, 0, "@{bankaccount_pl} {%s}", OWNER|GRI
 	"@name",         2, notype, 0, 40
 	"Тип счета",     5, notype, 0, 10
 	"@bank",         3, notype, 0, 40
-	"БИК банка",     7, notype, 0, 10
+	"@bic",          7, notype, 0, 10
 	"@account",      4, notype, 0, 12
 	"Дата открытия", 6, notype, 0, 10
 	toolbar PERSON
@@ -7300,7 +7300,7 @@ record RbcBnkSeek {
 	Symb            long         "@{symbol}";
 	Name            zstring(128) "Наименование банка";
 	Empty           zstring(48)  "Неизвестное поле";
-	Bic             zstring(48)  "БИК";
+	Bic             zstring(48)  "@{bic}";
 	CorrAcc         zstring(48)  "Корр счет";
 }
 
@@ -7572,7 +7572,7 @@ record Person {
 	KPP                zstring(48)     "@{kpp}";
 	OKONH              zstring(48)     "ОКОНХ";
 	OKPO               zstring(48)     "ОКПО";
-	BIC                zstring(48)     "БИК банка";
+	BIC                zstring(48)     "@{bic}";
 	CorrAcc            zstring(48)     "Коррсчет банка";
 	BankName           zstring(128)    "Наименование банка";
 	BankAcc            zstring(48)     "Номер расчетного счета";

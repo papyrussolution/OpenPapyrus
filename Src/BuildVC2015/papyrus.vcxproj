@@ -1362,6 +1362,7 @@
     <ClCompile Include="..\PPLib\sartre_imp.cpp" />
     <ClCompile Include="..\PPLib\SCARD.CPP" />
     <ClCompile Include="..\PPLib\scoclass.cpp" />
+    <ClCompile Include="..\PPLib\scspctrt.cpp" />
     <ClCompile Include="..\PPLib\Securdlg.cpp" />
     <ClCompile Include="..\PPLib\soblk.cpp" />
     <ClCompile Include="..\PPLib\specsn.cpp" />

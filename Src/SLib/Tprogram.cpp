@@ -196,7 +196,8 @@ int TProgram::AddListToTree(long cmd, const char * pTitle, ListWindow * pLw)
 			P_TreeWnd->Show(1);
 			PostMessage(H_MainWnd, WM_COMMAND, cmShowTree, 0);
 		}
-		P_TreeWnd->Insert(cmd, pTitle, pLw);
+		if(cmd && pLw) // @v10.1.3
+			P_TreeWnd->Insert(cmd, pTitle, pLw);
 		ok = 1;
 	}
 	return ok;

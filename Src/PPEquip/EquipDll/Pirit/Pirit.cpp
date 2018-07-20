@@ -1208,7 +1208,8 @@ int PiritEquip::SetConnection()
 	}
 	CommPort.SetParams(&port_params);
 	{
-		int ipr = CommPort.InitPort(Cfg.Port, 1/*ctsControl*/, 2/*rtsControl*/);
+		//int ipr = CommPort.InitPort(Cfg.Port, 1/*ctsControl*/, 2/*rtsControl*/);
+		int ipr = CommPort.InitPort(Cfg.Port, 0/*ctsControl*/, 0/*rtsControl*/);
 		if(!ipr) {
 			if(LogFileName.NotEmpty())
 				SLS.LogMessage(LogFileName, "Error CommPort.InitPort", 8192);

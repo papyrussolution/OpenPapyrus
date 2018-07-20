@@ -1,5 +1,6 @@
 // PPDESKTP.CPP
 // Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -30,14 +31,12 @@ PPDesktopAssocCmd & PPDesktopAssocCmd::Z()
 int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 {
 	int    ok = 1, done = 0;
-
 	rBlk.Type = 0;
 	rBlk.Flags = 0;
 	rBlk.AddedIntVal = 0;
 	rBlk.LenRange = 0;
 	rBlk.AddedStrVal.Z();
 	rBlk.Key.Clear();
-
 	SString temp_buf;
 	SStrScan scan(Code);
 	do {
@@ -54,7 +53,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 					if(scan.SearchChar(')')) {
 						scan.Get(temp_buf);
 						scan.IncrLen();
-						scan.Incr(); // Пропускаем завершающий ')'
+						scan.Incr(); // РџСЂРѕРїСѓСЃРєР°РµРј Р·Р°РІРµСЂС€Р°СЋС‰РёР№ ')'
 						rBlk.AddedStrVal = temp_buf.Strip();
 					}
 				}
@@ -74,7 +73,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 			if(scan.SearchChar(']')) {
 				scan.Get(temp_buf);
 				scan.IncrLen();
-				scan.Incr(); // Пропускаем завершающий ']'
+				scan.Incr(); // РџСЂРѕРїСѓСЃРєР°РµРј Р·Р°РІРµСЂС€Р°СЋС‰РёР№ ']'
 			}
 			else {
 				temp_buf = scan;
@@ -113,7 +112,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 				scan.Incr(klen);
 			}
 			else
-				scan.Incr(); // @v8.3.0
+				scan.Incr();
 		}
 	} while(scan[0] != 0 && !done);
 	return ok;
@@ -288,7 +287,7 @@ struct DesktopAssocCmdPool_Strg {
 	int32  ObjID;
 	int32  Prop;
 	uint8  Reserve[60];
-	uint32 Size;         // Полный размер записи (заголовок + хвост переменной длины)
+	uint32 Size;         // РџРѕР»РЅС‹Р№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё (Р·Р°РіРѕР»РѕРІРѕРє + С…РІРѕСЃС‚ РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹)
 	int32  Reseve2;
 	SVerT Ver;
 };
@@ -328,7 +327,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			THROW(p_ref->PutProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz, 0));
-			THROW(p_ref->PutProp(PPOBJ_CONFIG,  desktop_id, PPPRP_DESKCMDASSOC, 0, sz, 0)); // Удаляем старую версию свойств
+			THROW(p_ref->PutProp(PPOBJ_CONFIG,  desktop_id, PPPRP_DESKCMDASSOC, 0, sz, 0)); // РЈРґР°Р»СЏРµРј СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ СЃРІРѕР№СЃС‚РІ
 			THROW(tra.Commit());
 		}
 	}
@@ -624,7 +623,7 @@ int PPDesktop::Init__(long desktopID)
 			THROW(p_mgr->Load__(&desk_list));
 			ZDELETE(p_mgr);
 		}
-		// загружаем рабочий стол
+		// Р·Р°РіСЂСѓР¶Р°РµРј СЂР°Р±РѕС‡РёР№ СЃС‚РѕР»
 		p_item = desk_list.SearchByID(desktopID, 0);
 		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)p_item->Dup() : 0;
 		THROW_PP(P_ActiveDesktop && P_ActiveDesktop->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
@@ -639,7 +638,7 @@ int PPDesktop::Init__(long desktopID)
 		MEMSZERO(MoveIconCoord);
 		Selected = ((p_item = P_ActiveDesktop->SearchFirst(0)) != 0 && p_item->Kind == PPCommandItem::kCommand) ? p_item->ID : 0;
 		//
-		// Если установлены обои, то создадим временный файл для них, и будем использовать его
+		// Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РѕР±РѕРё, С‚Рѕ СЃРѕР·РґР°РґРёРј РІСЂРµРјРµРЅРЅС‹Р№ С„Р°Р№Р» РґР»СЏ РЅРёС…, Рё Р±СѓРґРµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ
 		//
 		if(P_ActiveDesktop->GetLogo().NotEmpty()) {
 			SString path, buf;
@@ -658,8 +657,8 @@ int PPDesktop::Init__(long desktopID)
 		Advise();
 		{
 			//
-			// Инициализируем список USB-устройств для того, чтобы идентифицировать ввод
-			// с серийным номером
+			// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє USB-СѓСЃС‚СЂРѕР№СЃС‚РІ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РІРІРѕРґ
+			// СЃ СЃРµСЂРёР№РЅС‹Рј РЅРѕРјРµСЂРѕРј
 			//
 			UsbList.freeAll();
 			SUsbDevice::GetDeviceList(UsbList);
@@ -1325,7 +1324,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 			uint   pos = 0;
 			const  PPCommandItem * p_item = 0;
 			//
-			// Сохраняем только изменения в расположении, названии и кол-ве иконок на рабочем столе
+			// РЎРѕС…СЂР°РЅСЏРµРј С‚РѕР»СЊРєРѕ РёР·РјРµРЅРµРЅРёСЏ РІ СЂР°СЃРїРѕР»РѕР¶РµРЅРёРё, РЅР°Р·РІР°РЅРёРё Рё РєРѕР»-РІРµ РёРєРѕРЅРѕРє РЅР° СЂР°Р±РѕС‡РµРј СЃС‚РѕР»Рµ
 			//
 			if((p_item = p_desk_list->SearchByID(P_ActiveDesktop->ID, &pos)) && p_item->Kind == PPCommandItem::kGroup) {
 				PPCommandGroup * p_prev = (PPCommandGroup*)p_item->Dup();
@@ -1492,7 +1491,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						PPErrorTooltip(-1, 0);
 				}
 				break;
-			case cmaEdit: // Редактирование иконки
+			case cmaEdit: // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РёРєРѕРЅРєРё
 				{
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						uint   pos = 0;
@@ -1570,7 +1569,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						PPDesktop::Open(id);
 				}
 				break;
-			case cmEditDesktops: // Редактирование опций рабочего стола
+			case cmEditDesktops: // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РѕРїС†РёР№ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
 				{
 					long   id = P_ActiveDesktop->ID;
 					if(EditMenus(0, id, 1) > 0)
@@ -1726,10 +1725,8 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 			return 0;
 		case WM_USER:
 			{
-				//char   cap[256];
-				//::GetWindowText(hWnd, cap, sizeof(cap)); // @unicodeproblem
 				SString temp_buf;
-				TView::SGetWindowText(hWnd, temp_buf); // @v9.1.5
+				TView::SGetWindowText(hWnd, temp_buf);
 				APPL->AddItemToMenu(temp_buf, p_desk);
 			}
 			return 0;
@@ -1752,17 +1749,17 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 						coord.x = LOWORD(lParam);
 						coord.y = HIWORD(lParam);
 						TMenuPopup menu;
-						menu.AddSubstr(temp_buf, 0, cmaInsert); // Добавить
-						menu.AddSubstr(temp_buf, 1, cmaEdit);   // Редактировать
-						menu.AddSubstr(temp_buf, 2, cmaDelete); // Удалить
-						menu.AddSubstr(temp_buf, 3, cmaRename); // Переименовать
-						menu.AddSubstr(temp_buf, 4, cmSelDesktop); // Выбрать рабочий стол
+						menu.AddSubstr(temp_buf, 0, cmaInsert); // Р”РѕР±Р°РІРёС‚СЊ
+						menu.AddSubstr(temp_buf, 1, cmaEdit);   // Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ
+						menu.AddSubstr(temp_buf, 2, cmaDelete); // РЈРґР°Р»РёС‚СЊ
+						menu.AddSubstr(temp_buf, 3, cmaRename); // РџРµСЂРµРёРјРµРЅРѕРІР°С‚СЊ
+						menu.AddSubstr(temp_buf, 4, cmSelDesktop); // Р’С‹Р±СЂР°С‚СЊ СЂР°Р±РѕС‡РёР№ СЃС‚РѕР»
 						menu.AddSubstr(temp_buf, 5, cmEditDesktops);
 						if(p_desk->GetBizScoreWnd() == 0) {
 							UserInterfaceSettings ui_cfg;
 							ui_cfg.Restore();
 							if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop)
-								menu.AddSubstr(temp_buf, 6, cmShowBizScoreOnDesktop); // Показать бизнес-показатели
+								menu.AddSubstr(temp_buf, 6, cmShowBizScoreOnDesktop); // РџРѕРєР°Р·Р°С‚СЊ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»Рё
 						}
 						int    cmd = menu.Execute(hWnd, TMenuPopup::efRet);
 						if(cmd > 0)
@@ -1896,8 +1893,8 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 	if(rCpItem.DvcSerial.NotEmpty()) {
 		if(pInp->DvcSerial.NotEmpty()) {
 			//
-			// В голове и в хвосте pDvcSerial могут находится служебные символы.
-			// По этому, проверяем не точное соответствие, а ищем подстроку без учета регистра.
+			// Р’ РіРѕР»РѕРІРµ Рё РІ С…РІРѕСЃС‚Рµ pDvcSerial РјРѕРіСѓС‚ РЅР°С…РѕРґРёС‚СЃСЏ СЃР»СѓР¶РµР±РЅС‹Рµ СЃРёРјРІРѕР»С‹.
+			// РџРѕ СЌС‚РѕРјСѓ, РїСЂРѕРІРµСЂСЏРµРј РЅРµ С‚РѕС‡РЅРѕРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ, Р° РёС‰РµРј РїРѕРґСЃС‚СЂРѕРєСѓ Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°.
 			//
 			const size_t dsl = pInp->DvcSerial.Len();
 			const size_t cpl = rCpItem.DvcSerial.Len();
@@ -2075,8 +2072,8 @@ int PPDesktop::ProcessRawInput(long rawInputHandle)
 			const ushort vkey = p_ri->data.keyboard.VKey;
 			const ushort kflags = p_ri->data.keyboard.Flags;
 			//
-			// Реагируем только на отпускание клавиши, причем SHIFT, CONTROL и ALT игнорируем - потом обработаем на высокоуровневом
-			// сообщении - все равно специализированные устройства ввода не имеют обычно таких клавиш.
+			// Р РµР°РіРёСЂСѓРµРј С‚РѕР»СЊРєРѕ РЅР° РѕС‚РїСѓСЃРєР°РЅРёРµ РєР»Р°РІРёС€Рё, РїСЂРёС‡РµРј SHIFT, CONTROL Рё ALT РёРіРЅРѕСЂРёСЂСѓРµРј - РїРѕС‚РѕРј РѕР±СЂР°Р±РѕС‚Р°РµРј РЅР° РІС‹СЃРѕРєРѕСѓСЂРѕРІРЅРµРІРѕРј
+			// СЃРѕРѕР±С‰РµРЅРёРё - РІСЃРµ СЂР°РІРЅРѕ СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІР° РІРІРѕРґР° РЅРµ РёРјРµСЋС‚ РѕР±С‹С‡РЅРѕ С‚Р°РєРёС… РєР»Р°РІРёС€.
 			//
 			if(oneof3(vkey, VK_SHIFT, VK_CONTROL, VK_MENU)) {
 				if(kflags == 0) {

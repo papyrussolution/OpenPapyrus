@@ -7382,6 +7382,19 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 					else if(ccol == 9) { // goods --> match lot
 						obj_to_match = otmLot;
 					}
+					if(obj_to_match == 0) {
+						uint   v = 0;
+						if(SelectorDialog(DLG_SELVETMATCHOBJ, STDCTL_SELECTOR_WHAT, &v) > 0) {
+							if(v == 0) 
+								obj_to_match = otmFrom;
+							else if(v == 1)
+								obj_to_match = otmTo;
+							else if(v == 2)
+								obj_to_match = otmBill;
+							else if(v == 3)
+								obj_to_match = otmLot;
+						}
+					}
 					if(obj_to_match) {
 						VetisDocumentTbl::Rec rec;
 						if(EC.SearchDocument(id, &rec) > 0) {

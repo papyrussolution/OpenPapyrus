@@ -3997,6 +3997,7 @@ PCTDIS;WROFFAMOUNT;DEFICIT;GOODSGRP;GOODS;QTTY;PRICEWODIS;PRICE;ITEMDISAMT;ITEMD
 RETURN;RETCASHAMOUNT;RETBANKAMOUNT;CASHAMOUNT;BANKAMOUNT;CHECKCOUNT;CHECKCASHCOUNT;CHECKBANKCOUNT;RETCHECKCOUNT;RETCASHCOUNT;RETBANKCOUNT;DIVISION;CHECKSAMOUNTWODIS;\
 CHECKSAMOUNT;CHECKSDISCOUNT;ITEMNO;BRINGAMOUNT;DELIVERYAMOUNT;FISCALAMOUNT;NONFISCALAMOUNT;ISORDER;ORDERDATE;ORDERTIMESTART;ORDERTIMEEND;ORDERDURATION;LINKORDERNO;LINKORDERDATE;\
 DLVRCITY;DLVRADDR;DLVRPHONE;INITTIME;ISGIFTQUOT;UHTTSCHASH;PHQTTY;PHUNIT;PAYMTYPE;PAYMAMT;TABLN;ISEGAIS;EGAISURL;EGAISSIGN;MANUFSERIAL;DIRECTOR;ACCOUNTANT"
+PPTXT_SCARDSERSPCTREATMENT   "1,Скидки AstraZeneca"
 #!{
 PPTXT_COMBAUDRATE            "1,110;2,300;3,600;4,1200;5,2400;6,4800;7,9600;8,14400;9,19200;10,38400;12,57600;13,115200;15,256000"
 PPTXT_COMSTOPBITS            "1,1;2,1.5;3,2"
@@ -6013,6 +6014,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personevent_pl         "Персональные операции"
 @port                   "Порт"
 @cmd                    "Команда"
+@cmd_pl                 "Команды"
 @zreport                "Z-отчет"
 @xreport                "X-отчет"
 @writtenoff             "Списано"
@@ -9700,6 +9702,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardseries_veriftag                     "Верификация правильности установки флагов"
 @scardseries_usagetime                    "Время действия"
 @scardseries_parent                       "Группа серий"
+@scardseries_specialtreatment             "Специальная трактовка карт"
 
 @trnovrrngdis                             "Правило для диапазона оборотов карты"
 @trnovrrngdisbonus                        "Правило начисления бонуса"

@@ -252,6 +252,8 @@ int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
 		eq = 0;
 	else if(ParentID != rS.ParentID) // @v9.8.9
 		eq = 0;
+	else if(SpecialTreatment != rS.SpecialTreatment) // @v10.1.3
+		eq = 0;
 	else if(!sstreq(Name, rS.Name))
 		eq = 0;
 	else if(!sstreq(Symb, rS.Symb))
@@ -1232,7 +1234,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 1, SCRDSF_MINQUOTVAL);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 2, SCRDSF_UHTTSYNC);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 3, SCRDSF_DISABLEADDPAYM);
-			AddClusterAssoc(CTL_SCARDSER_FLAGS, 4, SCRDSF_NEWSCINHF);       // @v8.8.0
+			AddClusterAssoc(CTL_SCARDSER_FLAGS, 4, SCRDSF_NEWSCINHF);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 5, SCRDSF_TRANSFDISCOUNT);  // @v9.2.8
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 6, SCRDSF_PASSIVE);  // @v9.8.9
 			SetClusterData(CTL_SCARDSER_FLAGS, Data.Rec.Flags);
@@ -1262,6 +1264,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					bonus_ext_rule_val = ((double)Data.Rec.BonusChrgExtRule) / 10.0;
 				setCtrlReal(CTL_SCARDSER_BONERVAL, bonus_ext_rule_val);
 			}
+			SetupStringCombo(this, CTLSEL_SCARDSER_SPCTRT, PPTXT_SCARDSERSPCTREATMENT, Data.Rec.SpecialTreatment); // @v10.1.3
 			return 1;
 		}
 		int    getDTS(PPSCardSerPacket * pData)
@@ -1322,6 +1325,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					Data.Rec.BonusChrgExtRule = (int16)(bonus_ext_rule_val * 10.0);
 				}
 			}
+			getCtrlData(CTLSEL_SCARDSER_SPCTRT, &Data.Rec.SpecialTreatment); // @v10.1.3
 			ASSIGN_PTR(pData, Data);
 			CATCH
 				ok = PPErrorByDialog(this, sel);
@@ -4147,8 +4151,8 @@ public:
 		long   BonusChrgGrpID;
 		long   ChargeGoodsID;
 		long   ParentID;         // @v9.8.9
-		int16  BonusChrgExtRule; // @v8.2.10
-		int16  Reserve;          // @v8.2.10
+		int16  BonusChrgExtRule;
+		int16  Reserve;
 	};
 	PPSCardConfig Cfg;
 	ReadWriteLock CfgLock;
@@ -4205,7 +4209,7 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	CPY_FLD(BonusGrpID);
 	CPY_FLD(BonusChrgGrpID);
 	CPY_FLD(ChargeGoodsID);
-	CPY_FLD(BonusChrgExtRule); // @v8.2.10
+	CPY_FLD(BonusChrgExtRule);
 	CPY_FLD(ParentID); // @v9.8.9
 #undef CPY_FLD
 	char   temp_buf[1024];

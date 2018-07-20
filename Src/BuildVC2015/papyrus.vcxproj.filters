@@ -327,6 +327,7 @@
     <ClCompile Include="..\PPLib\ppedi-base.cpp" />
     <ClCompile Include="..\PPLib\ppifclua.cpp" />
     <ClCompile Include="..\PPEquip\DreamKas.cpp" />
+    <ClCompile Include="..\PPLib\scspctrt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

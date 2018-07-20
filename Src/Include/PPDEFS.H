@@ -5541,6 +5541,8 @@
 	#define CTL_SCARDSER_USAGETM         (25 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_PARENT          (26 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_PARENT       (27 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_SPCTRT          (28 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SCARDSER_SPCTRT       (29 + WINDOWS_ID_BIAS)
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
@@ -10464,6 +10466,7 @@
 #define DLG_SELVDUTLZ             1345
 #define DLG_VETISIC               1346
 	// CTL_VETDOCFLT_XXX
+#define DLG_SELVETMATCHOBJ        1347
 //
 // Win32 Dialog Identifiers
 //

@@ -161,24 +161,34 @@ int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 	PPQuotItem_ item(rQ);
 	if(lsearch(&item, &pos, PTR_CMPFUNC(PPQuotItem_))) {
 		PPQuotItem_ & r_ex_item = at(pos);
-		if(flags == 0) {
-			r_ex_item = item;
-			ok = 2;
+		if(flags & rfCount) {
+			r_ex_item.Flags = PPQuot::fAggrCount;
+			r_ex_item.Val += 1.0;
 		}
-		else if(flags & rfGt) {
-			if(cmp(item.Dtm, r_ex_item.Dtm) > 0) {
+		else {
+			if(flags == 0) {
 				r_ex_item = item;
 				ok = 2;
 			}
-		}
-		else if(flags & rfLt) {
-			if(cmp(item.Dtm, r_ex_item.Dtm) < 0) {
-				r_ex_item = item;
-				ok = 2;
+			else if(flags & rfGt) {
+				if(cmp(item.Dtm, r_ex_item.Dtm) > 0) {
+					r_ex_item = item;
+					ok = 2;
+				}
+			}
+			else if(flags & rfLt) {
+				if(cmp(item.Dtm, r_ex_item.Dtm) < 0) {
+					r_ex_item = item;
+					ok = 2;
+				}
 			}
 		}
 	}
 	else {
+		if(flags & rfCount) {
+			item.Flags = PPQuot::fAggrCount;
+			item.Val = 1.0;
+		}
 		ok = Add(item);
 	}
 	return ok;
@@ -355,8 +365,15 @@ SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
 	if(flags & PPQuot::fZero)
 		rBuf.CatChar('Z');
 	else {
-		long   fmt = (flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)) ?
-			MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO) : MKSFMTD(0, 5, NMBF_NOZERO); // @v9.5.1 MKSFMTD(0, 2, NMBF_NOZERO)-->MKSFMTD(0, 5, NMBF_NOZERO)
+		//long   fmt = (flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)) ?
+			//MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO) : MKSFMTD(0, 5, NMBF_NOZERO); // @v9.5.1 MKSFMTD(0, 2, NMBF_NOZERO)-->MKSFMTD(0, 5, NMBF_NOZERO)
+		long   fmt = 0;
+		if(flags & fAggrCount)
+			fmt = MKSFMTD(0, 0, NMBF_NOZERO);
+		else if(flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase))
+			fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO);
+		else
+			fmt = MKSFMTD(0, 5, NMBF_NOZERO);
 		rBuf.Cat(val, fmt);
 	}
 	if(flags) {

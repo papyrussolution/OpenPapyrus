@@ -363,7 +363,7 @@ int SLAPI Crosstab::CreateTable()
 		THROW_DB(p_dict->CreateTempFile(table_name, file_name, 0));
 		ZDELETE(P_RTbl);
 		THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
-		P_RTbl->SetFlag(XTF_TEMP); // @v8.1.1
+		P_RTbl->SetFlag(XTF_TEMP);
 	}
 	P_RTbl->allocOwnBuffer();
 	CrssFldList.Destroy();

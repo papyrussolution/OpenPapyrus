@@ -576,13 +576,11 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	setGroupData(GRP_LOC, &loc_rec);
 	setWL(BIN(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
 	//
-	// @v8.3.5 {
 	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
 	//
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	// } @v8.3.5
-
+	//
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  0, GoodsOpAnalyzeFilt::fDiffByPrice);
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  1, GoodsOpAnalyzeFilt::fDiffByNetPrice);
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  2, GoodsOpAnalyzeFilt::fPriceWithoutExcise);
@@ -593,10 +591,8 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  7, GoodsOpAnalyzeFilt::fBadSellingGoods);
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  8, GoodsOpAnalyzeFilt::fTradePlanGoodsOnly);
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  9, GoodsOpAnalyzeFilt::fAddNzRestItems);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE, 10, GoodsOpAnalyzeFilt::fCalcCVat); // @v8.3.5
-
+	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE, 10, GoodsOpAnalyzeFilt::fCalcCVat);
 	SetClusterData(CTL_BILLFLT_DIFFBYPRICE, Data.Flags);
-
 	SetupFlags();
 	setCtrlData(CTL_BILLFLT_OPRSET, &(v = (ushort)Data.OpGrpID));
 	disableCtrls(v & 0x01, /*CTL_BILLFLT_PERIOD,*/ CTL_BILLFLT_OPRKIND, CTL_BILLFLT_AMOUNT, 0);
@@ -634,12 +630,10 @@ int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fLabelOnly, getWL());
 	GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
 	//
-	// @v8.3.5 {
 	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
 	//
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	// } @v8.3.5
 	GetClusterData(CTL_BILLFLT_INTRREVAL, &Data.Flags);
 	getCtrlData(CTL_BILLFLT_OPRSET, &(v = 0));
 	Data.OpGrpID = v;
@@ -877,7 +871,7 @@ public:
 			getCtrlData(CTLSEL_BILLFLT_SUPPLAGNT, &Data.SupplAgentID);
 		}
 		getCtrlData(CTLSEL_BILLFLT_OBJCITY, &Data.ObjCityID);
-		getCtrlData(CTLSEL_BILLFLT_FRGHTAGNT, &Data.FreightAgentID); // @v8.1.12
+		getCtrlData(CTLSEL_BILLFLT_FRGHTAGNT, &Data.FreightAgentID);
 		Data.Sgb.S = (SubstGrpBill::_S)getCtrlLong(CTLSEL_BILLFLT_SUBST);
 		if(!Data.Sgb) {
 			Data.Sgg = (SubstGrpGoods)getCtrlLong(CTLSEL_BILLFLT_SUBSTGDS);
@@ -3067,9 +3061,8 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const P
 	else {
 		PPObjGoods::SubstBlock sgg_blk;
 		sgg_blk.ExclParentID = Filt.GoodsGrpID;
-		// @v8.3.4 sgg_blk.SupplID = (Filt.Sgg == sggSupplAgent) ? P_BObj->GetSupplAgent(pTi->LotID) : pTi->Suppl;
 		sgg_blk.LocID = pTi->LocID;
-		sgg_blk.LotID = pTi->LotID; // @v8.3.4
+		sgg_blk.LotID = pTi->LotID;
 		THROW(GObj.SubstGoods(pTi->GoodsID, &pBlk->FinalGoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 	}
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt)

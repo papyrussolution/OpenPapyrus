@@ -9,11 +9,13 @@
 //
 #define QUOT_BUF_SIZE    sizeof(((TempQuotTbl::Rec*)0)->Quot1)
 
-IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 4) // @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4
+IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 5) 
+	// @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4 // @v10.1.3 4-->5
 {
 	// SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
 	SetFlatChunk(offsetof(QuotFilt, ReserveStart), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(QuotFilt, LocList));
+	SetBranchObjIdListFilt(offsetof(QuotFilt, GoodsList)); // @v10.1.3
 	Init(1, 0);
 }
 
@@ -25,12 +27,65 @@ int SLAPI QuotFilt::IsSeries() const
 int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
+	if(ver == 4) {
+		struct QuotFilt_v4 : public PPBaseFilt {
+			SLAPI  QuotFilt_v4() : PPBaseFilt(PPFILT_QUOT, 0, 4)
+			{
+				SetFlatChunk(offsetof(QuotFilt_v4, ReserveStart), offsetof(QuotFilt_v4, Reserve)-offsetof(QuotFilt_v4, ReserveStart)+sizeof(Reserve));
+				SetBranchObjIdListFilt(offsetof(QuotFilt_v4, LocList));
+				Init(1, 0);
+			}
+			char   ReserveStart[32]; // @anchor @v10.1.2
+			int32  InitOrder;        // @anchor Порядок сортировки
+			int32  QkCls;            // Класс вида котировки
+			DateRange Period;        // (quot2) Период значений
+			LDATE  EffDate;          // (quot2) Дата, для которой должны быть действительны отображаемые котировки
+			PPID   QTaID;            // (quot2) ИД транзакции изменения котировки
+			PPID   SellerID;         // ->Article.ID Продавец
+			PPID   SellerLocWorldID; // ->World.ID Ид элемента World, которому должна принадлежать локация LocID
+			PPID   BrandID;          //
+			PPID   LocID;            //
+			PPID   QuotKindID;       //
+			PPID   CurID;            //
+			PPID   ArID;             //
+			PPID   GoodsGrpID;       // if !0, тогда это поле ограничивает перебор товаров только указанной группой
+			PPID   GoodsID;          // if !0, то строки развернуты либо по складам, либо по клиентам, либо по видам котировок
+			RealRange Val;           // Диапазон значений котировки (0..0 - игнорируется)
+			long   Flags;            // @flags
+			SubstGrpGoods Sgg;       // @v10.1.2
+			long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
+			ObjIdListFilt LocList;   // Список складов
+		};
+		QuotFilt_v4 fv4;
+		THROW(fv4.Read(rBuf, 0));
+#define CPYFLD(f) f = fv4.f
+		CPYFLD(InitOrder);
+		CPYFLD(QkCls);
+		CPYFLD(Period);
+		CPYFLD(EffDate);
+		CPYFLD(QTaID);
+		CPYFLD(SellerID);
+		CPYFLD(SellerLocWorldID);
+		CPYFLD(BrandID);
+		CPYFLD(LocID);
+		CPYFLD(QuotKindID);
+		CPYFLD(CurID);
+		CPYFLD(ArID);
+		CPYFLD(GoodsGrpID);
+		CPYFLD(GoodsID);
+		CPYFLD(Val);
+		CPYFLD(Flags);
+		CPYFLD(Sgg);
+		CPYFLD(LocList);
+#undef CPYFLD
+		ok = 1;
+	}
 	if(ver == 3) {
 		struct QuotFilt_v3 : public PPBaseFilt {
 			SLAPI  QuotFilt_v3() : PPBaseFilt(PPFILT_QUOT, 0, 3)
 			{
-				SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
-				SetBranchObjIdListFilt(offsetof(QuotFilt, LocList));
+				SetFlatChunk(offsetof(QuotFilt_v3, InitOrder), offsetof(QuotFilt_v3, Reserve)-offsetof(QuotFilt_v3, InitOrder)+sizeof(Reserve));
+				SetBranchObjIdListFilt(offsetof(QuotFilt_v3, LocList));
 				Init(1, 0);
 			}
 			int32  InitOrder;        // @anchor Порядок сортировки
@@ -420,7 +475,7 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 	Crosstab * p_prev_ct = P_Ct;
 	P_Ct = 0;
 	if(Filt.Flags & QuotFilt::fCrosstab) {
-		uint   fld_pos = 4; // Quot1
+		uint   fld_pos = 4+2; // Quot1 // @v10.1.3 @fix +2
 		DBField quot_fld;
 		SString temp_buf;
 		DBFieldList total_list;
@@ -448,7 +503,7 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 			}
 		}
 		P_TempTbl->getField(fld_pos, &quot_fld);
-		P_Ct->AddAggrField(quot_fld);
+		P_Ct->AddAggrField(quot_fld, (Filt.Sgg ? Crosstab::AggrFunc::afSum : Crosstab::AggrFunc::afCount));
 		THROW(P_Ct->Create(useTa));
 	}
 	ZDELETE(p_prev_ct);
@@ -473,6 +528,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	HasPeriodVal = 0;
 	QList_.freeAll();
 	StrPool.ClearS(); // @v9.8.6
+	Gsl.Init(1, 0); // @v10.1.3
 	//QList_.setDelta(1024);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
@@ -551,17 +607,32 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 			THROW(P_TempTbl = CreateTempFile());
 		}
 		if(Filt.Flags & (QuotFilt::fAbsence|QuotFilt::fOnlyAbsence)) {
-			Goods2Tbl::Rec goods_rec;
+			//Goods2Tbl::Rec goods_rec;
 			QuotIdent qi(Filt.LocList.GetSingle(), Filt.QuotKindID, Filt.CurID, Filt.ArID);
 			PPQuotItemArray temp_list;
 			PPQuotArray quot_list;
+			PPIDArray goods_id_list;
+			{
+				if(Filt.GoodsList.GetCount()) {
+					goods_id_list = Filt.GoodsList.Get();
+				}
+				else if(Filt.GoodsID) {
+					goods_id_list.add(Filt.GoodsID);
+				}
+				else {
+					GoodsIterator::GetListByGroup(Filt.GoodsGrpID, &goods_id_list);
+				}
+				goods_id_list.sortAndUndup();
+			}
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
 			PPLoadText(PPTXT_WAIT_QUOTVIEWBUILDING, msg_buf);
-			for(GoodsIterator iter(Filt.GoodsGrpID, 0); iter.Next(&goods_rec) > 0; PPWaitPercent(iter.GetIterCounter(), msg_buf)) {
+			//for(GoodsIterator iter(Filt.GoodsGrpID, 0); iter.Next(&goods_rec) > 0; PPWaitPercent(iter.GetIterCounter(), msg_buf)) {
+			for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+				const  PPID goods_id = goods_id_list.get(gidx);
 				uint   pos = 0;
 				quot_list.clear();
-				GObj.GetQuotList(goods_rec.ID, 0, quot_list);
+				GObj.GetQuotList(goods_id, 0, quot_list);
 				int    exists = 0;
 				if(!Filt.QuotKindID && Filt.LocList.IsEmpty() && !Filt.CurID && !Filt.ArID && !quot_list.getCount())
 					exists = 1;
@@ -597,16 +668,17 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 				if(!exists || !(Filt.Flags & QuotFilt::fOnlyAbsence)) {
 					if(exists) {
 						QuotFilt temp_filt = Filt;
-						temp_filt.GoodsID = goods_rec.ID;
+						temp_filt.GoodsID = goods_id;
 						temp_list.clear();
 						THROW(Helper_CreateTmpTblEntries(&temp_filt, (Filt.Flags & QuotFilt::fListOnly) ? &QList_ : &temp_list, 0));
 					}
 					else {
 						PPQuotItem_ item_;
-						item_.GoodsID = goods_rec.ID;
+						item_.GoodsID = goods_id;
 						THROW_SL(QList_.insert(&item_));
 					}
 				}
+				PPWaitPercent(gidx+1, goods_id_list.getCount(), msg_buf);
 			}
 			if(!(Filt.Flags & QuotFilt::fListOnly)) {
 				BExtInsert bei(P_TempTbl);
@@ -909,55 +981,64 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 	else
 		QuotKindList.GetListByParent(0, 0, qk_id_list);
 	PPID   filt_group_as_goods = 0;
-	if(pFilt->GoodsID && gg_obj.Fetch(pFilt->GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GROUP) {
-		filt_group_as_goods = pFilt->GoodsID;
-	}
-	const PPID filt_group_id = NZOR(filt_group_as_goods, pFilt->GoodsGrpID);
-	if((pFilt->GoodsGrpID && !pFilt->GoodsID) || filt_group_as_goods) {
-		GoodsIterator::GetListByGroup(filt_group_id, &goods_list);
-		{
-			//
-			// Добавляем в список товаров группы, принадлежащие группе pFilt->GoodsGrpID
-			// (к ним тоже могут быть привязаны котировки).
-			//
-			StrAssocArray * p_list = gg_obj.MakeStrAssocList((void *)filt_group_id);
-			if(p_list) {
-				PPIDArray grp_list;
-				p_list->GetListByParent(filt_group_id, 1, grp_list);
-				for(uint i = 0; i < grp_list.getCount(); i++)
-					goods_list.add(grp_list.get(i));
-			}
-			ZDELETE(p_list);
-			goods_list.add(filt_group_id);
-		}
+	PPID   filt_group_id = 0;
+	if(pFilt->GoodsList.GetCount()) {
+		goods_list = pFilt->GoodsList.Get();
+		assert(goods_list.getCount());
 		goods_list.sortAndUndup();
 		use_goods_list = 1;
-		if(!goods_list.getCount())
-			done = 1;
 	}
-	if(pFilt->BrandID && !pFilt->GoodsID) {
-		if(use_goods_list) {
-			PPIDArray temp_list;
-			for(uint i = 0; i < goods_list.getCount(); i++) {
-				int id = goods_list.at(i);
-				if(GObj.Fetch(id, &goods_rec) > 0) {
-					if(goods_rec.BrandID == pFilt->BrandID)
-						temp_list.add(id);
-				}
-			}
-			temp_list.sort();
-			goods_list.intersect(&temp_list, 1);
+	else {
+		if(pFilt->GoodsID && gg_obj.Fetch(pFilt->GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GROUP) {
+			filt_group_as_goods = pFilt->GoodsID;
 		}
-		else {
-			GoodsFilt filt;
-			filt.BrandList.Add(pFilt->BrandID);
-			for(GoodsIterator iter(&filt, 0); iter.Next(&goods_rec) > 0;)
-				goods_list.add(goods_rec.ID);
+		filt_group_id = NZOR(filt_group_as_goods, pFilt->GoodsGrpID);
+		if((pFilt->GoodsGrpID && !pFilt->GoodsID) || filt_group_as_goods) {
+			GoodsIterator::GetListByGroup(filt_group_id, &goods_list);
+			{
+				//
+				// Добавляем в список товаров группы, принадлежащие группе pFilt->GoodsGrpID
+				// (к ним тоже могут быть привязаны котировки).
+				//
+				StrAssocArray * p_list = gg_obj.MakeStrAssocList((void *)filt_group_id);
+				if(p_list) {
+					PPIDArray grp_list;
+					p_list->GetListByParent(filt_group_id, 1, grp_list);
+					for(uint i = 0; i < grp_list.getCount(); i++)
+						goods_list.add(grp_list.get(i));
+				}
+				ZDELETE(p_list);
+				goods_list.add(filt_group_id);
+			}
 			goods_list.sortAndUndup();
 			use_goods_list = 1;
+			if(!goods_list.getCount())
+				done = 1;
 		}
-		if(!goods_list.getCount())
-			done = 1;
+		if(pFilt->BrandID && !pFilt->GoodsID) {
+			if(use_goods_list) {
+				PPIDArray temp_list;
+				for(uint i = 0; i < goods_list.getCount(); i++) {
+					int id = goods_list.at(i);
+					if(GObj.Fetch(id, &goods_rec) > 0) {
+						if(goods_rec.BrandID == pFilt->BrandID)
+							temp_list.add(id);
+					}
+				}
+				temp_list.sort();
+				goods_list.intersect(&temp_list, 1);
+			}
+			else {
+				GoodsFilt filt;
+				filt.BrandList.Add(pFilt->BrandID);
+				for(GoodsIterator iter(&filt, 0); iter.Next(&goods_rec) > 0;)
+					goods_list.add(goods_rec.ID);
+				goods_list.sortAndUndup();
+				use_goods_list = 1;
+			}
+			if(!goods_list.getCount())
+				done = 1;
+		}
 	}
 	if(!done) {
 		PPID   first_goods_id = 0, last_goods_id = 0; // Первый и последний товары в выборке (используется для индикации хода процесса)
@@ -1051,7 +1132,17 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 										if(CheckGoodsKindDiffRestriction(goods_id)) {
 											PROFILE(P_Qc2->RecToQuotRel(&P_Qc2->data, quot));
 											if(quot.CheckForVal(&pFilt->Val)) {
-												THROW(pQList->Add(quot));
+												if(Filt.Sgg) {
+													PPID subst_goods_id = goods_id;
+													PPObjGoods::SubstBlock sgg_blk;
+													sgg_blk.ExclParentID = Filt.GoodsGrpID;
+													THROW(GObj.SubstGoods(goods_id, &subst_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+													quot.GoodsID = subst_goods_id;
+													THROW(pQList->Set(quot, PPQuotItemArray::rfCount));
+												}
+												else {
+													THROW(pQList->Add(quot));
+												}
 												is_added = BIN(pFilt->GoodsID);
 											}
 										}
@@ -1077,7 +1168,17 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 											if(CheckGoodsKindDiffRestriction(goods_id)) {
 												PROFILE(P_Qc2->RecToQuotRel(&P_Qc2->data, quot));
 												if(quot.CheckForVal(&pFilt->Val)) {
-													THROW(pQList->Set(quot, PPQuotItemArray::rfGt));
+													if(Filt.Sgg) {
+														PPID subst_goods_id = goods_id;
+														PPObjGoods::SubstBlock sgg_blk;
+														sgg_blk.ExclParentID = Filt.GoodsGrpID;
+														THROW(GObj.SubstGoods(goods_id, &subst_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+														quot.GoodsID = subst_goods_id;
+														THROW(pQList->Set(quot, PPQuotItemArray::rfCount));
+													}
+													else {
+														THROW(pQList->Set(quot, PPQuotItemArray::rfGt));
+													}
 													is_added = BIN(pFilt->GoodsID);
 												}
 											}
@@ -1151,7 +1252,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 				if(last_goods_id >= first_goods_id)
 					PPWaitPercent(goods_id - first_goods_id, last_goods_id - first_goods_id + 1, msg_buf);
 			}
-			if(is_added == 0 && single_goods_id && (pFilt->Flags & (QuotFilt::fOnlyAbsence|QuotFilt::fAbsence))) {
+			if(!is_added && single_goods_id && (pFilt->Flags & (QuotFilt::fOnlyAbsence|QuotFilt::fAbsence))) {
 				if(!filt_group_id || (_t.data.GoodsID == filt_group_id) || GObj.BelongToGroup(pFilt->GoodsID, filt_group_id, 0) > 0) {
 					PPQuotItem_ item_;
 					item_.GoodsID = pFilt->GoodsID;
@@ -1806,7 +1907,22 @@ int SLAPI PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 			acc_sheet_id = qk_rec.AccSheetID;
 	}
 	if(pHdr->GoodsID) {
-		if(simple) {
+		if(Filt.Sgg) {
+			QuotFilt local_filt;
+			local_filt = Filt;
+			local_filt.GoodsGrpID = 0;
+			local_filt.GoodsID = 0;
+			local_filt.LocID = pHdr->LocID;
+			local_filt.QuotKindID = pHdr->QuotKindID;
+			local_filt.Sgg = sggNone;
+			PPIDArray goods_id_list;
+			Gsl.GetGoodsBySubstID(pHdr->GoodsID, &goods_id_list);
+			if(goods_id_list.getCount()) {
+				local_filt.GoodsList.Set(&goods_id_list);
+				PPView::Execute(PPVIEW_QUOT, &local_filt, 1, 0);
+			}
+		}
+		else if(simple) {
 			if(pHdr->QuotKindID) {
 				PPQuot quot;
 				PPQuotArray qary(pHdr->GoodsID);

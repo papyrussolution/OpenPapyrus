@@ -996,7 +996,7 @@ public:
 		afCount,
 		afAvg,     // not supported
 		afMin,
-		afMax
+		afMax,
 	};
 	SLAPI  Crosstab();
 	SLAPI ~Crosstab();
@@ -3800,6 +3800,7 @@ struct QuotFilt : public PPBaseFilt {
 	SubstGrpGoods Sgg;       // @v10.1.2
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt LocList;   // Список складов
+	ObjIdListFilt GoodsList; // @v10.1.3 Список товаров, по которым следует получить отчет. Имеет приоритет перед GoodsGrpID и GoodsID
 private:
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 };
@@ -4061,8 +4062,9 @@ public:
 	// Descr: Флаги функции PPQuotItemArray::Replace
 	//
 	enum {
-		rfGt = 0x0001, // Заменять значение, если время установки нового значение превышает существующее
-		rfLt = 0x0002  // Заменять значение, если время установки нового значения меньше существующего
+		rfGt    = 0x0001, // Заменять значение, если время установки нового значение превышает существующее
+		rfLt    = 0x0002, // Заменять значение, если время установки нового значения меньше существующего
+		rfCount = 0x0004  // @v10.1.3 Устанавливать величину котировки как количество значение (для агрегирующих отчетов)
 	};
 	int    SLAPI Set(const PPQuot & rQ, long flags);
 	void   SLAPI Sort();
@@ -5704,14 +5706,8 @@ public:
 	//
 	int    SLAPI ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const;
 	int    SLAPI ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const;
-	const SString & SLAPI GetLastMessage() const
-	{
-		return LastMsg;
-	}
-	const SString & SLAPI GetUrlBase() const
-	{
-		return UrlBase;
-	}
+	const SString & SLAPI GetLastMessage() const { return LastMsg; }
+	const SString & SLAPI GetUrlBase() const { return UrlBase; }
 private:
 	int    SLAPI StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID);
 	int    SLAPI TransferData(int transferID, int chunkNumber, size_t rawChunkSize, const void * pBinaryChunkData);
@@ -28526,6 +28522,7 @@ private:
 	int    FirstQuotBrwColumn;
 	int    HasPeriodVal;        // Временная таблица содержит по крайней мере одно значение, ограниченное периодом действия //
 	PPObjQuotKind::Special Spc;
+	GoodsSubstList Gsl;         // @v10.1.3
 };
 //
 // @ModuleDecl(PPObjScale)
@@ -31677,7 +31674,8 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
 	// @v9.8.9 char   CodeTempl[20];      // Шаблон номеров карт
-	uint8  Reserve3[12];       // @v9.8.9
+	uint8  Reserve3[8];        // @v9.8.9 // @v10.1.3 [12]-->[8]
+	long   SpecialTreatment;   // @v10.1.3 Идентификатор специальной трактовки операций с картами серии.
 	long   QuotKindID_s;       // @v9.8.9 Вид котировки
 	long   PersonKindID;       // @v9.8.9 Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 	LDATE  Issue;              // Дата выпуска
