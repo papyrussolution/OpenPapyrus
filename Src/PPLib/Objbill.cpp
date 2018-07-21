@@ -8439,7 +8439,9 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 	int    ok = 1;
 	SString subst_buf;
 	PPObjTSession * p_tses_obj = 0;
+	PPObjCSession * p_cses_obj = 0;
 	TSessionTbl::Rec tsess_rec;
+	CSessionTbl::Rec csess_rec;
 	PPBillPacket * p_link_pack = 0, * p_rckn_pack = 0;
 	if(pPack && !isempty(pTemplate)) {
 		AgtBlock agt_blk;
@@ -8455,7 +8457,8 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 				}
 				else {
 					const  PPBillPacket * pk = pPack;
-					TSessionTbl::Rec * p_tsess_rec = 0;
+					const TSessionTbl::Rec * p_tsess_rec = 0;
+					const CSessionTbl::Rec * p_csess_rec = 0;
 					if(sym == PPSYM_LINK) {
 						if(p[next] == '.' && pPack->Rec.LinkBillID) {
 							if(p_link_pack == 0) {
@@ -8510,6 +8513,32 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						else
 							sym = 0;
 					}
+					else if(sym == PPSYM_CSESS) {
+						if(pPack->CSessID && pPack->Rec.Flags & BILLF_CSESSWROFF) {
+							SETIFZ(p_cses_obj, new PPObjCSession);
+							THROW_MEM(p_cses_obj);
+							int r = p_cses_obj->Search(pPack->CSessID, &csess_rec);
+							if(r > 0) {
+								if(p[next] == '.') {
+									p_csess_rec = &csess_rec;
+									p += (next+1);
+									next = 0;
+									sym = st.Translate(p, &next);
+								}
+								else {
+									PPObjCSession::MakeCodeString(&csess_rec, subst_buf.Z());
+									rResult.Cat(subst_buf);
+									sym = 0;
+								}
+							}
+							else {
+								sym = 0;
+								THROW(r);
+							}
+						}
+						else
+							sym = 0;
+					}
 					subst_buf.Z();
 					switch(sym) {
 						case PPSYM_BILLNO: BillCore::GetCode(subst_buf = pk->Rec.Code); break;
@@ -8543,7 +8572,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							}
 							break;
 						case PPSYM_LOCATION: GetLocationName(pk->Rec.LocID, subst_buf); break;
-						case PPSYM_OBJECT: GetArticleName(pk->Rec.Object, subst_buf); break;
+						case PPSYM_OBJECT:   GetArticleName(pk->Rec.Object, subst_buf); break;
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
 							if(pk->P_Freight && pk->P_Freight->DlvrAddrID) {
@@ -8605,6 +8634,11 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							if(p_tsess_rec)
 								GetObjectName(PPOBJ_TECH, p_tsess_rec->TechID, subst_buf, 0);
 							break;
+						case PPSYM_POSNODE:
+							if(p_csess_rec && p_csess_rec->CashNodeID) {
+								GetObjectName(PPOBJ_CASHNODE, p_csess_rec->CashNodeID, subst_buf, 0);
+							}
+							break;
 						case PPSYM_AGTCODE:
 							if(agt_blk.Init(pk->Rec.Object) == 1) {
 								//
@@ -8648,6 +8682,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 	delete p_link_pack;
 	delete p_rckn_pack;
 	delete p_tses_obj;
+	delete p_cses_obj;
 	return ok;
 }
 

@@ -360,6 +360,8 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppdrv-ctrl-reversk2.dll"    ; @v7.8.1
 	File "${SRC_TARGET}\ppdrv-crdr-emmarine.dll"    ; @v7.9.6
 	File "${SRC_TARGET}\ppdrv-bnkt-sberbank.dll"    ; @v8.1.8
+	File "${SRC_TARGET}\ppdrv-bnkt-emul.dll"        ; @v10.1.3
+	File "${SRC_TARGET}\ppdrv-bnkt-inpas.dll"       ; @v10.1.3
 	!ifdef INSTALL_UPDATE
 		Exec "${DIR_BIN}\mkmenu.bat"
 		;

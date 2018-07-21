@@ -55,14 +55,19 @@ PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char *
 
 PPBnkTerminal::~PPBnkTerminal()
 {
+	PPSaveErrContext(); // @v10.1.3
 	Disconnect();
 	Release();
 	ZDELETE(P_AbstrDvc);
+	PPRestoreErrContext(); // @v10.1.3
 }
 
 int PPBnkTerminal::IsInited() const { return BIN(State & stInited); }
 int PPBnkTerminal::IsConnected() const { return BIN(State & stConnected); }
-int PPBnkTerminal::Release() { return ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z()); }
+int PPBnkTerminal::Release() 
+{ 
+	return (State & stInited) ? ExecOper(DVCCMD_RELEASE, Arr_In.Z(), Arr_Out.Z()) : -1; 
+}
 int PPBnkTerminal::Disconnect() { return 1; }
 
 int PPBnkTerminal::SetConfig(uint logNum)

@@ -7444,7 +7444,9 @@ enum {
 	PPSYM_KPP,         // @kpp         КПП персоналии
 	PPSYM_LOCCODE,     // @loccode     Код склада/адреса и т.д.
 	PPSYM_DLVRLOCID,   // @dlvrlocid   ИД адреса доставки документа
-    PPSYM_DUMMY        // @dummy       Пустое значение
+    PPSYM_DUMMY,       // @dummy       Пустое значение
+    PPSYM_CSESS,       // @v10.1.3 .csess       Списываемая этим документом кассовая сессия //
+    PPSYM_POSNODE      // @v10.1.3 @posnode     Наименование кассового узла
 };
 //
 class PPSymbTranslator {
@@ -31882,10 +31884,11 @@ private:
 #define SCRDF_AUTOCREATE       0x10000000L // @transient Специальный флаг, предписывающий функции, получившей запись
 	// с таким флагом создать новую карту с некоторыми атрибутами записи.
 #define SCRDF_NEEDACTIVATION   0x00000010L // Карта требует активации
-#define SCRDF_AUTOACTIVATION   0x00000020L // Активаровать карту после первой операции
+#define SCRDF_AUTOACTIVATION   0x00000020L // Активировать карту после первой операции
 #define SCRDF_NOTIFYDISCOUNT   0x00000040L // @v9.6.1 Извещать владельца карты об изменении скидки
 #define SCRDF_NOTIFYDRAW       0x00000080L // @v9.6.1 Извещать владельца карты о списании средств с карты
 #define SCRDF_NOTIFYWITHDRAW   0x00000100L // @v9.6.1 Извещать владельца карты о начислении средств на карту
+#define SCRDF_OWNERVERIFIED    0x00000200L // @v10.1.3 Владелец карты верифицирован (например, посредством СМС)
 
 #define PPTRPROP_SCARDEXT      (PPTRPROP_USER+1)
 

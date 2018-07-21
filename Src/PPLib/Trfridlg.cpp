@@ -2811,6 +2811,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 				PPLoadString("ware", temp_buf);
 				insertColumn(at_pos++, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
 			}
+			at_pos += 4; // @v10.1.3
 			if(Flags & fShowBarcode) {
 				PPLoadString("barcode", temp_buf);
 				insertColumn(at_pos++, temp_buf, 13, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
