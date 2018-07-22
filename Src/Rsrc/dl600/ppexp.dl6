@@ -962,12 +962,14 @@ data SCardSeries {
 data Goods;
 
 data SCard {
+	declare "Set" // @v10.1.3
 	key    ID;                     // @id
 	link   SCardSeries SeriesID;   // Ссылка на серию карт
 	link   PersonReq OwnerReqID;   // Ссылка на владельца карты
 	link   Goods     AutoGoodsID;  // @v7.9.7 Товар для автоматического включения в чек
 	string Code[24];               // Номер карты
 	string Hash[12];               // Хэш
+	string Phone[24];              // @v10.1.3
 	date   IssueDate;              // Дата выпуска
 	date   Expiry;                 // Дата окончания срока действия //
 	time   UsageTmStart;           // @v7.9.7
@@ -989,6 +991,7 @@ data SCard {
 	int16  fNoGift;                // @v7.9.7 При использовании карты в кассовой панели, подарки предоставляться не будут
 	int16  fNeedActivation;        // @v7.9.7 Карта требует активации
 	int16  fAutoActivation;        // @v7.9.7 Карта, требующая активации, активируется автоматически при первом использовании.
+	string Memo[128];              // @v10.1.3 Примечание к карте
 
 	link   SysJournalEntry GetCreationEvent();   // Возвращает ссылку на запись системного журнала, соответствующую созданию карты.
 	link   SysJournalEntry GetActivationEvent(); // Возвращает ссылку на запись системного журнала, соответствующую активации карты.
@@ -8760,7 +8763,6 @@ data UhttProcessor {
         string Descr[256];
 	}
 }
-
 
 data UhttTSession {
 	declare "Set"

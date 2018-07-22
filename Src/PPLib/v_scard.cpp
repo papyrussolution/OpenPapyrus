@@ -366,10 +366,10 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 			finish_series_list.sortAndUndup();
 			SeriesList.Set(&finish_series_list);
 		}
-		else 
-			SeriesList.Set(0); 
+		else
+			SeriesList.Set(0);
 	}
-	// } @v9.8.9 
+	// } @v9.8.9
 	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
 		PPIDArray owner_list;
         PPViewSCard temp_view;
@@ -554,7 +554,7 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 	if(SeriesList.IsExists()) {
 		THROW(SeriesList.CheckID(pRec->SeriesID));
 	}
-	// } @v9.8.9 
+	// } @v9.8.9
 	THROW(!Filt.PersonID || pRec->PersonID == Filt.PersonID);
 	THROW(!Filt.LocID || pRec->LocID == Filt.LocID); // @v9.4.5
 	THROW(Filt.Ft_Closed <= 0 || (pRec->Flags & SCRDF_CLOSED));
@@ -1166,8 +1166,8 @@ int SLAPI PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 }
 
 void * SLAPI PPViewSCard::GetEditExtraParam()
-{ 
-	//return (void *)Filt.SeriesID; 
+{
+	//return (void *)Filt.SeriesID;
 	return (void *)SeriesList.GetSingle();
 }
 
@@ -1761,7 +1761,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			q->addField(p_t->Apart);      // #21 @v9.6.1 #19-->#21
 			q->addField(p_t->AddrAddend); // #22 @v9.6.1 #20-->#22
 			*/
-			DBE    dbe_phone__; 
+			DBE    dbe_phone__;
 			DBE    dbe_address;
 			DBE    dbe_zip;
 			DBE    dbe_localarea;
@@ -1780,15 +1780,15 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_house, p_t->HouseP, &StrPool);
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_apart, p_t->ApartP, &StrPool);
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_addraddend, p_t->AddrAddendP, &StrPool);
-				q->addField(dbe_phone__);    //  #14 
+				q->addField(dbe_phone__);    //  #14
 				q->addField(dbe_address);    //  #15
-				q->addField(dbe_zip);        //  #16 
-				q->addField(dbe_localarea);  //  #17 
-				q->addField(dbe_city);       //  #18 
-				q->addField(dbe_street);     //  #19 
-				q->addField(dbe_house);      //  #20 
-				q->addField(dbe_apart);      //  #21 
-				q->addField(dbe_addraddend); //  #22 
+				q->addField(dbe_zip);        //  #16
+				q->addField(dbe_localarea);  //  #17
+				q->addField(dbe_city);       //  #18
+				q->addField(dbe_street);     //  #19
+				q->addField(dbe_house);      //  #20
+				q->addField(dbe_apart);      //  #21
+				q->addField(dbe_addraddend); //  #22
 			}
 		}
 		if(p_ot)
@@ -3087,16 +3087,15 @@ void PPALDD_SCardSerView::Destroy()
 // Implementation of PPALDD_SCard
 //
 struct DL600_SCardExt {
-	DL600_SCardExt()
+	DL600_SCardExt() : CrEventSurID(0), AcEventSurID(0)
 	{
-		CrEventSurID = 0;
-		AcEventSurID = 0;
-		MEMSZERO(ScRec);
+		//MEMSZERO(ScRec);
 	}
 	PPObjSCard ScObj;
+	PPSCardPacket ScPack;
+	//SCardTbl::Rec ScRec;
 	long   CrEventSurID;
 	long   AcEventSurID;
-	SCardTbl::Rec ScRec;
 };
 
 PPALDD_CONSTRUCTOR(SCard)
@@ -3124,44 +3123,50 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 		DL600_SCardExt * p_ext = (DL600_SCardExt *)Extra[0].Ptr;
 		p_ext->CrEventSurID = 0;
 		p_ext->AcEventSurID = 0;
-		if(p_ext && p_ext->ScObj.Search(rFilt.ID, &p_ext->ScRec) > 0) {
+		// @v10.1.3 if(p_ext && p_ext->ScObj.Search(rFilt.ID, &p_ext->ScRec) > 0) {
+		if(p_ext && p_ext->ScObj.GetPacket(rFilt.ID, &p_ext->ScPack) > 0) { // @v10.1.3
 			SString temp_buf;
 			PPObjSCardSeries scs_obj;
 			PPSCardSeries scs_rec;
-			H.ID = p_ext->ScRec.ID;
-			H.SeriesID = p_ext->ScRec.SeriesID;
-			H.OwnerReqID = p_ext->ScRec.PersonID;
-			H.AutoGoodsID = p_ext->ScRec.AutoGoodsID;
-			STRNSCPY(H.Code, p_ext->ScRec.Code);
-			H.IssueDate = p_ext->ScRec.Dt;
-			H.Expiry = p_ext->ScRec.Expiry;
-			H.UsageTmStart = p_ext->ScRec.UsageTmStart;
-			H.UsageTmEnd   = p_ext->ScRec.UsageTmEnd;
-			if(p_ext->ScRec.UsageTmStart || p_ext->ScRec.UsageTmEnd) {
-				temp_buf.Z().Cat(p_ext->ScRec.UsageTmStart, TIMF_HM);
-				if(p_ext->ScRec.UsageTmEnd != p_ext->ScRec.UsageTmStart) {
+			const SCardTbl::Rec & r_rec = p_ext->ScPack.Rec;
+			H.ID = r_rec.ID;
+			H.SeriesID = r_rec.SeriesID;
+			H.OwnerReqID = r_rec.PersonID;
+			H.AutoGoodsID = r_rec.AutoGoodsID;
+			STRNSCPY(H.Code, r_rec.Code);
+			H.IssueDate = r_rec.Dt;
+			H.Expiry = r_rec.Expiry;
+			H.UsageTmStart = r_rec.UsageTmStart;
+			H.UsageTmEnd   = r_rec.UsageTmEnd;
+			if(r_rec.UsageTmStart || r_rec.UsageTmEnd) {
+				temp_buf.Z().Cat(r_rec.UsageTmStart, TIMF_HM);
+				if(r_rec.UsageTmEnd != r_rec.UsageTmStart) {
 					temp_buf.CatCharN('.', 2);
-					if(p_ext->ScRec.UsageTmEnd)
-						temp_buf.Cat(p_ext->ScRec.UsageTmEnd, TIMF_HM);
+					if(r_rec.UsageTmEnd)
+						temp_buf.Cat(r_rec.UsageTmEnd, TIMF_HM);
 				}
 				temp_buf.CopyTo(H.UsageTmStr, sizeof(H.UsageTmStr));
 			}
-			H.PeriodTerm = p_ext->ScRec.PeriodTerm;
-			H.PeriodCount = p_ext->ScRec.PeriodCount;
-			H.PDis   = fdiv100i(p_ext->ScRec.PDis);
-			H.Overdraft = p_ext->ScRec.MaxCredit;
-			H.Debit = p_ext->ScRec.InTrnovr;
-			H.Credit = p_ext->ScRec.Turnover;
-			H.Rest = p_ext->ScRec.Rest;
-			PPObjSCard::CalcSCardHash(p_ext->ScRec.Code, temp_buf.Z()).CopyTo(H.Hash, sizeof(H.Hash));
-			const long _flags = p_ext->ScRec.Flags;
+			H.PeriodTerm = r_rec.PeriodTerm;
+			H.PeriodCount = r_rec.PeriodCount;
+			H.PDis   = fdiv100i(r_rec.PDis);
+			H.Overdraft = r_rec.MaxCredit;
+			H.Debit = r_rec.InTrnovr;
+			H.Credit = r_rec.Turnover;
+			H.Rest = r_rec.Rest;
+			p_ext->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+			STRNSCPY(H.Phone, temp_buf);
+			p_ext->ScPack.GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
+			STRNSCPY(H.Memo, temp_buf);
+			PPObjSCard::CalcSCardHash(r_rec.Code, temp_buf.Z()).CopyTo(H.Hash, sizeof(H.Hash));
+			const long _flags = r_rec.Flags;
 			H.Flags = _flags;
 			H.fClosed    = BIN(_flags & SCRDF_CLOSED);
 			H.fInherited = BIN(_flags & SCRDF_INHERITED);
 			H.fNoGift    = BIN(_flags & SCRDF_NOGIFT);
 			H.fNeedActivation = BIN(_flags & SCRDF_NEEDACTIVATION);
 			H.fAutoActivation = BIN(_flags & SCRDF_AUTOACTIVATION);
-			if(scs_obj.Fetch(p_ext->ScRec.SeriesID, &scs_rec) > 0)
+			if(scs_obj.Fetch(r_rec.SeriesID, &scs_rec) > 0)
 				H.fCredit = BIN(scs_rec.Flags & SCRDSF_CREDIT);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
@@ -3218,6 +3223,41 @@ void PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		}
 		_RET_INT = sur_id;
 	}
+}
+
+int PPALDD_SCard::Set(long iterId, int commit)
+{
+	int    ok = 1;
+	SETIFZ(Extra[3].Ptr, new PPSCardPacket);
+	PPSCardPacket * p_pack = (PPSCardPacket *)Extra[3].Ptr;
+	if(commit == 0) {
+		if(iterId == 0) {
+			SString temp_buf;
+			p_pack->Rec.ID = H.ID;
+			(temp_buf = strip(H.Code)).RevertSpecSymb(SFileFormat::Html);
+			STRNSCPY(p_pack->Rec.Code, temp_buf);
+			(temp_buf = strip(H.Phone)).RevertSpecSymb(SFileFormat::Html);
+			p_pack->PutExtStrData(PPSCardPacket::extssPhone, temp_buf);
+			(temp_buf = strip(H.Memo)).RevertSpecSymb(SFileFormat::Html);
+			p_pack->PutExtStrData(PPSCardPacket::extssMemo, temp_buf);
+		}
+		else {
+		}
+	}
+	else {
+		PPObjSCard obj;
+		PPID  id = p_pack->Rec.ID;
+		PPSCardPacket pack;
+		pack.Rec = p_pack->Rec;
+		// @construction THROW(obj.PutPacket(&id, &pack, 1));
+		Extra[4].Ptr = (void *)id;
+	}
+	CATCHZOK
+	if(commit) {
+		delete p_pack;
+		Extra[3].Ptr = 0;
+	}
+	return ok;
 }
 //
 // Implementation of PPALDD_SCardList

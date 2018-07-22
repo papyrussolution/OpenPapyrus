@@ -299,6 +299,7 @@ public:
 	int    OwnerID;
 	SString Code;
 	SString Hash;
+	SString Phone; // @v10.1.3
 	UhttDateTime IssueDate;
 	UhttDateTime Expiry;
 	double PDis;
@@ -1075,12 +1076,12 @@ struct SfaHeinekenWarehouseBalanceEntry {
 struct SfaHeinekenOrderStatusEntry {
 	S_GUID OrderUUID;
 	/*enum ns1__Statuses {
-		ns1__Statuses__formed = 0, 
-		ns1__Statuses__accepted = 1, 
-		ns1__Statuses__shipped = 2, 
+		ns1__Statuses__formed = 0,
+		ns1__Statuses__accepted = 1,
+		ns1__Statuses__shipped = 2,
 		ns1__Statuses__comments = 3
 	};*/
-	int    Status; 
+	int    Status;
 	SString Comments;
 };
 
