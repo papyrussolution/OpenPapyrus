@@ -2068,10 +2068,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 							q->addField(tat->ID__);      // #17 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17
                         }
                         if(Filt.Flags & TrfrAnlzFilt::fShowSerial) {
-                        	dbe_serial.init();
-							dbe_serial.push(dbconst(PPTAG_LOT_SN));
-							dbe_serial.push(tat->LotID);
-							dbe_serial.push((DBFunc)PPDbqFuncPool::IdObjTagText);
+							PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, tat->LotID);
 							q->addField(dbe_serial);  // #18 // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
                         }
                         else {

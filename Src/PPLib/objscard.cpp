@@ -3022,7 +3022,7 @@ private:
 				if(temp_buf.Len() >= 5) {
 					SString phone_buf;
 					temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-					if(PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf).Len() >= 5)
+					if(PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf).Len() >= 5)
 						PPObjPhoneService::PhoneTo(phone_buf);
 				}
 			}
@@ -3172,7 +3172,7 @@ int SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 					UhttSCardPacket scp;
 					if(uhtt_cli.GetSCardByNumber(sc_code, scp)) {
 						uhtt_hash = scp.Hash;
-						if(uhtt_cli.GetSCardRest(scp.Code, 0, uhtt_rest))
+						if(uhtt_cli.GetSCardRest(/*scp.Code*/sc_code, 0, uhtt_rest))
 							uhtt_err = 0;
 					}
 				}
@@ -4088,7 +4088,7 @@ int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 		PPID   main_city_id = 0;
 		WorldTbl::Rec main_city_rec;
 		if(GetMainCityID(&main_city_id) > 0 && LocObj.FetchCity(main_city_id, &main_city_rec) > 0)
-			PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, main_city_prefix);
+			PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, 0, main_city_prefix);
 	}
 	{
 		UnxTextRefCore & r_utrc = PPRef->UtrC;
@@ -4100,7 +4100,7 @@ int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 			if(temp_buf.NotEmptyS()) { // temp_buf - в кодировке UTF-8
 				// @v9.9.10 temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				temp_buf.Utf8ToLower(); // @v9.9.11
-				PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+				PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 				if(phone.Len() >= 5) {
 					PPID   city_id = 0;
 					city_prefix = main_city_prefix;

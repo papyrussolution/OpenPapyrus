@@ -493,7 +493,9 @@ UhttSCardPacket::UhttSCardPacket() : ID(0), SeriesID(0), OwnerID(0), PDis(0.0), 
 {
 }
 
-void FASTCALL UhttSCardPacket::SetCode(const char * pCode) { _StripAndTransfToUtf8(Code = pCode); }
+void FASTCALL UhttSCardPacket::SetCode(const char * pText) { _StripAndTransfToUtf8(Code = pText); }
+void FASTCALL UhttSCardPacket::SetPhone(const char * pText) { _StripAndTransfToUtf8(Phone = pText); }
+void FASTCALL UhttSCardPacket::SetMemo(const char * pText) { _StripAndTransfToUtf8(Memo = pText); }
 //
 //
 //

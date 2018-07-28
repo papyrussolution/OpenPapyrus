@@ -1575,6 +1575,15 @@ void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & r
 	rDbe.push((DBFunc)funcId);
 }
 
+// static
+void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld)
+{
+	rDbe.init();
+	rDbe.push(dbconst(tagID));
+	rDbe.push(rFld);
+	rDbe.push((DBFunc)PPDbqFuncPool::IdObjTagText);
+}
+
 //static
 void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
 {

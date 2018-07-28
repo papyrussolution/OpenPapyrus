@@ -2190,7 +2190,8 @@ int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
 	SString rec, s1, s2, temp_buf;
 	PPGlobalAccRights::Rec perm_rec;
 	for(SString tail = rStr; tail.NotEmptyS();) {
-		(temp_buf = tail).Divide(';', rec.Z(), tail.Z());
+		temp_buf = tail;
+		temp_buf.Divide(';', rec.Z(), tail.Z());
 		if(rec.Divide(':', s1, s2) > 0) {
 			if(s1.Empty())
 				STRNSCPY(perm_rec.Scope, "@def");

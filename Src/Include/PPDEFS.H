@@ -1250,6 +1250,9 @@
 #define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
 #define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 #define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - GUID (не UUID)
+#define PPTAG_GUA_SECRET            78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
+	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то
+	// иным причинам.
 
 // } @construction(VETIS)
 
@@ -2641,6 +2644,7 @@
 	#define CTL_FLTLOT_SHOWPRICEDEV     (25 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_CDEVRESTR        (26 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_PDEVRESTR        (27 + WINDOWS_ID_BIAS)
+	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS)
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по

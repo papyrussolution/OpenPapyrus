@@ -292,7 +292,9 @@ public:
 class UhttSCardPacket {
 public:
 	UhttSCardPacket();
-	void FASTCALL SetCode(const char * pCode);
+	void FASTCALL SetCode(const char * pText);
+	void FASTCALL SetPhone(const char * pText);
+	void FASTCALL SetMemo(const char * pText);
 
 	int    ID;
 	int    SeriesID;
@@ -300,6 +302,7 @@ public:
 	SString Code;
 	SString Hash;
 	SString Phone; // @v10.1.3
+	SString Memo;  // @v10.1.4
 	UhttDateTime IssueDate;
 	UhttDateTime Expiry;
 	double PDis;
@@ -647,6 +650,7 @@ typedef UhttStatus * (*UHTTSETIMAGEBYID_PROC)(PPSoapClientSession & rSess, const
 typedef TSCollection <UhttSpecSeriesPacket> * (*UHTTGETSPECSERIESBYPERIOD_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pPeriod);
 typedef UhttStatus * (*UHTTCREATESPECSERIES_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttSpecSeriesPacket & rPack);
 typedef UhttSCardPacket * (*UHTTGETSCARDBYNUMBER_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pNumber);
+typedef UhttStatus * (*UHTTCREATESCARD_PROC)(PPSoapClientSession & rSess, const char * pToken, UhttSCardPacket & rPack);
 typedef UhttStatus * (*UHTTCREATESCARDCHECK_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pLocSymb, const char * pSCardNumber, const UhttCheckPacket & rPack);
 typedef UhttStatus * (*UHTTDEPOSITSCARDAMOUNT_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pNumber, const double amount);
 typedef UhttStatus * (*UHTTWITHDRAWSCARDAMOUNT_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pNumber, const double amount);

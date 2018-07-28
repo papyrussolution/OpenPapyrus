@@ -840,7 +840,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 		uint i;
 		SString phone_buf;
 		temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-		PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
+		PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 		LongArray _pl;
 		P_Tbl->SearchPhoneIndex(phone_buf, 0, _pl);
 		for(i = 0; i < _pl.getCount(); i++) {
@@ -1723,7 +1723,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 			if(temp_buf.Len() >= 5) {
 				SString phone_buf;
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-				if(PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf).Len() >= 5)
+				if(PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf).Len() >= 5)
 					PPObjPhoneService::PhoneTo(phone_buf);
 			}
 		}
@@ -5623,7 +5623,7 @@ int SLAPI PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 		PPID   main_city_id = 0;
 		WorldTbl::Rec main_city_rec;
 		if(GetMainCityID(&main_city_id) > 0 && FetchCity(main_city_id, &main_city_rec) > 0)
-			PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, main_city_prefix);
+			PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, 0, main_city_prefix);
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -5632,13 +5632,13 @@ int SLAPI PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 		if(P_Tbl->search(2, &k2, spGe) && P_Tbl->data.Type == LOCTYP_ADDRESS) do {
 			LocationCore::GetExField(&P_Tbl->data, LOCEXSTR_PHONE, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-			PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 			if(phone.Len() >= 5) {
 				PPID   city_id = P_Tbl->data.CityID;
 				city_prefix = 0;
 				WorldTbl::Rec city_rec;
 				if(FetchCity(city_id, &city_rec) > 0 && city_rec.Phone[0])
-					PPEAddr::Phone::NormalizeStr(city_rec.Phone, city_prefix);
+					PPEAddr::Phone::NormalizeStr(city_rec.Phone, 0, city_prefix);
 				city_prefix.SetIfEmpty(main_city_prefix);
 				objid.Set(PPOBJ_LOCATION, P_Tbl->data.ID);
 				if(city_prefix.Len()) {

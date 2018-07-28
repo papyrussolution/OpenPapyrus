@@ -4449,7 +4449,7 @@ public:
 
 		COLORREF Color;
 		COLORREF Color2; // Цвет для нижнего левого угла
-		COLORREF RightFigColor; // @v8.9.5 Цвет фигуры в правой части ячейки
+		COLORREF RightFigColor; // Цвет фигуры в правой части ячейки
 		long   Flags;
 	};
 
@@ -4496,12 +4496,9 @@ public:
 	//
 	int    SelColByPoint(LPPOINT, int action);
 	void   FocusItem(int hPos, int vPos);
-	int    CheckResizePos(LPPOINT);
 	int    IsResizePos(TPoint);
 	void   Resize(TPoint p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
 	int    refresh();
-	void   init(BrowserDef * pDef = 0);
-	void   initWin();
 	BrowserDef * getDef();
 	void   SetDefUserProc(SBrowserDataProc proc, void * extraPtr);
 	void   go(long p);
@@ -4519,7 +4516,6 @@ public:
 	int    SetCurColumn(int col);
 	void   setInitPos(long p);
 	void   SetColorsSchema(uint32 schemaNum);
-	long   CalcHdrWidth(int plusToolbar = 0) const;
 	int    CopyToClipboard();
 	//
 	// For modeless
@@ -4539,7 +4535,7 @@ public:
 	// Descr: Возвращает цвет некоторой ячейки
 	//
 	int    GetCellColor(long row, long col, COLORREF * pColor);
-	uint   GetRezID() const { return RezID; } // @v6.4.8 AHTOXA
+	uint   GetRezID() const { return RezID; }
 
 	BrowserWindow * view;
 	enum {
@@ -4549,7 +4545,6 @@ public:
 	};
 protected:
 	DECL_HANDLE_EVENT;
-
 	int    WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
 	int    LoadResource(uint, void *, int, uint uOptions = 0);
@@ -4559,13 +4554,15 @@ protected:
 private:
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
+	void   init(BrowserDef * pDef);
+	void   initWin();
 	void   WMHCreate(LPCREATESTRUCT);
+	long   CalcHdrWidth(int plusToolbar) const;
 	int    IsLastPage(uint viewHeight); // AHTOXA
 	void   ClearFocusRect(LPRECT);
 	void   DrawCapBk(HDC, LPRECT, BOOL);
 	void   DrawFocus(HDC, LPRECT, BOOL DrawOrClear, BOOL isCellCursor = 0);
 	void   Paint();
-	void   PaintCaption(HDC);
 	//
 	// col = -1 - раскрашивать строчку целиком
 	//

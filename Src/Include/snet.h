@@ -1,5 +1,5 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018
 // @codepage UTF-8
 //
 #ifndef __SNET_H
@@ -601,7 +601,9 @@ public:
 		hdrTransferExt,    // "TE"
 		hdrUserAgent,      // "User-Agent"
 		//
-		hdrSoapAction      // "SoapAction"
+		hdrSoapAction,     // "SoapAction"
+		hdrAuthToken,      // authorization-token
+		hdrAuthSecret,     // authorization-secret
 	};
 
 	static int FASTCALL GetHeaderTitle(int hdr, SString & rTitle);

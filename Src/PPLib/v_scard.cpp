@@ -596,12 +596,10 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 			GetPDisUpdateDate(pRec->ID, period.upp, &period.low);
 		SCObj.GetTurnover(*pRec, PPObjSCard::gtalgDefault, period, 0, &in_turnover, &turnover);
 	}
-	// @v8.5.3 @fix {
 	else {
 		in_turnover = pRec->InTrnovr;
 		turnover = pRec->Turnover;
 	}
-	// } @v8.5.3 @fix
 	if(Filt.TurnoverR.low != Filt.TurnoverR.upp || Filt.TurnoverR.low != 0.0) {
 		THROW(Filt.TurnoverR.low == 0.0 || turnover >= Filt.TurnoverR.low)
 		THROW(Filt.TurnoverR.upp == 0.0 || turnover <= Filt.TurnoverR.upp)
@@ -1962,10 +1960,9 @@ int SLAPI PPViewSCard::ChangeFlags()
 	return ok;
 }
 
-SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFilt) : TDialog(DLG_FLTSCARDCHNG)
+SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFilt) : 
+	TDialog(DLG_FLTSCARDCHNG), P_View(pView), EditSCardFilt(editSCardFilt)
 {
-	P_View = pView;
-	EditSCardFilt = editSCardFilt;
 	enableCommand(cmSCardFilt, EditSCardFilt);
 	SetupCalCtrl(CTLCAL_FLTSCARDCHNG_DTEND, this, CTL_FLTSCARDCHNG_DTEND, 0);
 }
@@ -2008,7 +2005,10 @@ int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)
 	setCtrlReal(CTL_FLTSCARDCHNG_DSCNT, Data.Discount);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_ZDSCNT, 0, SCardSelPrcssrParam::fZeroDiscount);
 	SetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, Data.Flags);
-
+	// @v10.1.4 {
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 0, SCardSelPrcssrParam::fUhttSync);
+	SetClusterData(CTL_FLTSCARDCHNG_FLAGS, Data.Flags);
+	// } @v10.1.4
 	return 1;
 }
 
@@ -2035,7 +2035,7 @@ int SCardSelPrcssrDialog::getDTS(SCardSelPrcssrParam * pData)
 	GetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, &Data.Flags);
 	if(Data.Flags & SCardSelPrcssrParam::fZeroDiscount)
 		Data.Discount = 0.0;
-
+	GetClusterData(CTL_FLTSCARDCHNG_FLAGS, &Data.Flags); // @v10.1.4
 	THROW(Data.Validate(0));
  	THROW_PP(!Data.IsEmpty(), PPERR_SCARDPRCSSRPARAM);
  	THROW_PP(!EditSCardFilt || Data.SelFilt.IsEmpty() == 0, PPERR_SCARDFILTEMPTY);
@@ -2072,6 +2072,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 	SCardSelPrcssrParam param;
 	PPObjSCardSeries scs_obj;
 	PPObjGoods goods_obj;
+	PPUhttClient * p_uhtt_cli = 0;
 	SString scard_name, msg_buf, fmt_buf, new_scard_name, temp_buf, temp_buf2;
 	THROW(SCObj.CheckRights(SCRDRT_MASSCHANGE));
 	if(pParam && pParam->IsEmpty() == 0) {
@@ -2094,6 +2095,13 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 		PPIDArray sc_id_list;
 		// @v9.6.3 param.DtEnd = param.DtEnd.getactual(ZERODATE);
 		PPWait(1);
+		if(param.Flags & param.fUhttSync) {
+			THROW_MEM(p_uhtt_cli = new PPUhttClient);
+			if(!p_uhtt_cli->Auth()) {
+				ZDELETE(p_uhtt_cli);
+				CALLPTRMEMB(pLog, LogLastError());
+			}
+		}		
 		{
 			SCardViewItem item;
 			for(InitIteration(); NextIteration(&item) > 0;) {
@@ -2103,10 +2111,12 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 					//
 					THROW(param.Validate(item.SeriesID));
 				}
-				sc_id_list.addUnique(item.ID);
+				sc_id_list.add(item.ID);
 			}
+			sc_id_list.sortAndUndup();
 		}
-		SCardTbl::Rec rec;
+		//SCardTbl::Rec rec;
+		PPSCardPacket sc_pack;
 		const long fset = param.FlagsSet;
 		const long freset = param.FlagsReset;
 		const long valid_flags = PPObjSCard::GetValidFlags();
@@ -2119,18 +2129,19 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 				const  PPID sc_id = sc_id_list.get(i);
 				//PPSCardSeries org_scs_rec;
 				PPSCardSerPacket org_scs_pack;
-				if(SCObj.Search(sc_id, &rec) > 0) {
+				//if(SCObj.Search(sc_id, &rec) > 0) {
+				if(SCObj.GetPacket(sc_id, &sc_pack) > 0) {
 					int    upd = 0;
 					int    upd_discount = 0;
-					const  long preserve_pdis = rec.PDis;
-					const  long preserve_flags = rec.Flags;
-					THROW(scs_obj.GetPacket(rec.SeriesID, &org_scs_pack) > 0);
+					const  long preserve_pdis = sc_pack.Rec.PDis;
+					const  long preserve_flags = sc_pack.Rec.Flags;
+					THROW(scs_obj.GetPacket(sc_pack.Rec.SeriesID, &org_scs_pack) > 0);
 					//
 					// Прежде всего нормализуем наследуемую запись
 					//
-					THROW(SCObj.SetInheritance(&org_scs_pack, &rec));
-					if(param.AutoGoodsID && rec.AutoGoodsID != param.AutoGoodsID) {
-						rec.AutoGoodsID = param.AutoGoodsID;
+					THROW(SCObj.SetInheritance(&org_scs_pack, &sc_pack.Rec));
+					if(param.AutoGoodsID && sc_pack.Rec.AutoGoodsID != param.AutoGoodsID) {
+						sc_pack.Rec.AutoGoodsID = param.AutoGoodsID;
 						upd = 1;
 					}
 					if(fset || freset) {
@@ -2138,76 +2149,76 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							const long t = (1L << p);
 							if(t & valid_flags) {
 								if(fset & t)
-									rec.Flags |= t;
+									sc_pack.Rec.Flags |= t;
 								else if(freset & t)
-									rec.Flags &= ~t;
+									sc_pack.Rec.Flags &= ~t;
 							}
 						}
-						if(preserve_flags != rec.Flags)
+						if(preserve_flags != sc_pack.Rec.Flags)
 							upd = 1;
 					}
 					if((param.Discount > 0.0 && param.Discount <= 100.0) || param.Flags & param.fZeroDiscount) {
 						if(param.Flags & param.fZeroDiscount)
-							rec.PDis = 0;
+							sc_pack.Rec.PDis = 0;
 						else if(param.Discount > 0.0 && param.Discount <= 100.0)
-							rec.PDis = (long)(R6(param.Discount) * 100.0);
-						if(rec.PDis != preserve_pdis) {
-							rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+							sc_pack.Rec.PDis = (long)(R6(param.Discount) * 100.0);
+						if(sc_pack.Rec.PDis != preserve_pdis) {
+							sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 							upd = 1;
 							upd_discount = 1;
-						}
+						} 
 					}
-					if(param.Flags & param.fZeroExpiry && rec.Expiry) {
-						rec.Expiry = ZERODATE;
-						rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+					if(param.Flags & param.fZeroExpiry && sc_pack.Rec.Expiry) {
+						sc_pack.Rec.Expiry = ZERODATE;
+						sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 						upd = 1;
 					}
 					else if(param.DtEnd) {
-						LDATE  new_expiry_date = rec.Expiry;
+						LDATE  new_expiry_date = sc_pack.Rec.Expiry;
 						if(expiry_date_cls == LDATE::cNormal) {
 							new_expiry_date = param.DtEnd;
 						}
 						else if(expiry_date_cls == LDATE::cSpecial) {
-							if(rec.Expiry) {
-								new_expiry_date = param.DtEnd.getactual(rec.Expiry);
+							if(sc_pack.Rec.Expiry) {
+								new_expiry_date = param.DtEnd.getactual(sc_pack.Rec.Expiry);
 							}
 						}
-						if(checkdate(new_expiry_date) && new_expiry_date != rec.Expiry) {
-							rec.Expiry = new_expiry_date;
-							rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+						if(checkdate(new_expiry_date) && new_expiry_date != sc_pack.Rec.Expiry) {
+							sc_pack.Rec.Expiry = new_expiry_date;
+							sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 							upd = 1;
 						}
 					}
 					if(param.PeriodTerm && param.PeriodCount) {
-						if(rec.PeriodTerm != param.PeriodTerm) {
-							rec.PeriodTerm = param.PeriodTerm;
+						if(sc_pack.Rec.PeriodTerm != param.PeriodTerm) {
+							sc_pack.Rec.PeriodTerm = param.PeriodTerm;
 							upd = 1;
 						}
-						if(rec.PeriodCount != param.PeriodCount) {
-							rec.PeriodCount = param.PeriodCount;
+						if(sc_pack.Rec.PeriodCount != param.PeriodCount) {
+							sc_pack.Rec.PeriodCount = param.PeriodCount;
 							upd = 1;
 						}
 					}
-					if(param.NewSerID && param.NewSerID != rec.SeriesID) {
+					if(param.NewSerID && param.NewSerID != sc_pack.Rec.SeriesID) {
 						//PPSCardSeries new_ser_rec;
 						PPSCardSerPacket new_ser_pack;
-						(scard_name = org_scs_pack.Rec.Name).CatChar('-').Cat(rec.Code);
+						(scard_name = org_scs_pack.Rec.Name).CatChar('-').Cat(sc_pack.Rec.Code);
 						if(scs_obj.GetPacket(param.NewSerID, &new_ser_pack) > 0) {
 							if(new_ser_pack.Rec.GetType() == org_scs_pack.Rec.GetType()) {
 								SCardTbl::Key2 k2;
 								MEMSZERO(k2);
 								k2.SeriesID = param.NewSerID;
-								STRNSCPY(k2.Code, rec.Code);
+								STRNSCPY(k2.Code, sc_pack.Rec.Code);
 								if(SCObj.P_Tbl->search(2, &k2, spEq)) {
-									(new_scard_name = new_ser_pack.Rec.Name).CatChar('-').Cat(rec.Code);
+									(new_scard_name = new_ser_pack.Rec.Name).CatChar('-').Cat(sc_pack.Rec.Code);
 									PPLoadText(PPTXT_LOG_SCARDEXISTS, fmt_buf);
 									msg_buf.Printf(fmt_buf, new_scard_name.cptr());
 									upd = 0;
 								}
 								else {
 									THROW_DB(BTROKORNFOUND);
-									rec.SeriesID = param.NewSerID;
-									SCObj.SetInheritance(&new_ser_pack, &rec); // Нормализация записи наследуемой карты после установки серии
+									sc_pack.Rec.SeriesID = param.NewSerID;
+									SCObj.SetInheritance(&new_ser_pack, &sc_pack.Rec); // Нормализация записи наследуемой карты после установки серии
 									upd = 1;
 								}
 							}
@@ -2234,11 +2245,65 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							upd = 0;
 						}
 					}
+					if(param.Flags & param.fUhttSync && p_uhtt_cli) {
+						double uhtt_rest = 0.0;
+						double rest = 0.0;
+						UhttSCardPacket scp;
+						THROW(SCObj.P_Tbl->GetRest(sc_pack.Rec.ID, ZERODATE, &rest));
+						if(p_uhtt_cli->GetSCardByNumber(sc_pack.Rec.Code, scp)) {
+							int do_upd_uhtt_card = 0;
+							sc_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+							if(scp.Phone.NotEmptyS()) {
+								if(temp_buf.Empty()) {
+									sc_pack.PutExtStrData(PPSCardPacket::extssPhone, scp.Phone);
+									upd = 1;
+								}
+							}
+							else if(temp_buf.NotEmptyS()) {
+								scp.SetPhone(temp_buf);
+								do_upd_uhtt_card = 1;
+							}
+							//
+							sc_pack.GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
+							if(scp.Memo.NotEmptyS()) {
+								if(temp_buf.Empty()) {
+									sc_pack.PutExtStrData(PPSCardPacket::extssMemo, scp.Memo);
+									upd = 1;
+								}
+							}
+							else if(temp_buf.NotEmptyS()) {
+								scp.SetMemo(temp_buf);
+								do_upd_uhtt_card = 1;
+							}
+							//
+							if(do_upd_uhtt_card) {
+								if(!p_uhtt_cli->CreateSCard(scp)) {
+									CALLPTRMEMB(pLog, LogLastError());
+								}
+							}
+							/*
+							if(p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
+								if(rest != uhtt_rest) {
+									scop_rec.Amount = R2(uhtt_rest - rest);
+									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
+									ok = 1;
+								}
+							}
+							*/
+						}
+						else {
+							CALLPTRMEMB(pLog, LogLastError());
+						}
+					}
 					if(upd) {
+						PPID   temp_id = sc_id;
+						THROW(SCObj.PutPacket(&temp_id, &sc_pack, 0));
+						/*
 						THROW(SCObj.P_Tbl->Update(rec.ID, &rec, 0));
 						if(upd_discount)
 							DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, rec.ID, preserve_pdis, 0);
-						dirty_list.add(rec.ID);
+						*/
+						dirty_list.add(temp_id);
 						ok = 1;
 					}
 				}
@@ -2255,6 +2320,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 	CATCHZOKPPERR
 	CALLPTRMEMB(pLog, Save(PPFILNAM_INFO_LOG, 0));
 	delete dlg;
+	delete p_uhtt_cli;
 	PPWait(0);
 	return ok;
 }
@@ -3228,11 +3294,11 @@ void PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 int PPALDD_SCard::Set(long iterId, int commit)
 {
 	int    ok = 1;
+	SString temp_buf;
 	SETIFZ(Extra[3].Ptr, new PPSCardPacket);
 	PPSCardPacket * p_pack = (PPSCardPacket *)Extra[3].Ptr;
 	if(commit == 0) {
 		if(iterId == 0) {
-			SString temp_buf;
 			p_pack->Rec.ID = H.ID;
 			(temp_buf = strip(H.Code)).RevertSpecSymb(SFileFormat::Html);
 			STRNSCPY(p_pack->Rec.Code, temp_buf);
@@ -3246,11 +3312,20 @@ int PPALDD_SCard::Set(long iterId, int commit)
 	}
 	else {
 		PPObjSCard obj;
-		PPID  id = p_pack->Rec.ID;
 		PPSCardPacket pack;
-		pack.Rec = p_pack->Rec;
-		// @construction THROW(obj.PutPacket(&id, &pack, 1));
-		Extra[4].Ptr = (void *)id;
+		SCardTbl::Rec org_rec;
+		if(obj.SearchCode(0, p_pack->Rec.Code, &org_rec) > 0) {
+			PPID   temp_id = org_rec.ID;
+			THROW(obj.GetPacket(org_rec.ID, &pack) > 0);
+			p_pack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+			pack.PutExtStrData(PPSCardPacket::extssPhone, temp_buf.Strip());
+			p_pack->GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
+			pack.PutExtStrData(PPSCardPacket::extssMemo, temp_buf.Strip());
+			THROW(obj.PutPacket(&temp_id, &pack, 1));
+		}
+		else
+			org_rec.ID = 0;
+		Extra[4].Ptr = (void *)org_rec.ID;
 	}
 	CATCHZOK
 	if(commit) {

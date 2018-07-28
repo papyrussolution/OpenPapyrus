@@ -5843,7 +5843,7 @@ int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 			PPID   main_city_id = 0;
 			WorldTbl::Rec main_city_rec;
 			if(GetMainCityID(&main_city_id) > 0 && LocObj.FetchCity(main_city_id, &main_city_rec) > 0)
-				PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, main_city_prefix);
+				PPEAddr::Phone::NormalizeStr(main_city_rec.Phone, 0, main_city_prefix);
 		}
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -5868,7 +5868,7 @@ int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 				PPID   city_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 				city_prefix = 0;
 				if(LocObj.FetchCityByAddr(city_addr_id, &city_rec) > 0 && city_rec.Phone[0])
-					PPEAddr::Phone::NormalizeStr(city_rec.Phone, city_prefix);
+					PPEAddr::Phone::NormalizeStr(city_rec.Phone, 0, city_prefix);
 				city_prefix.SetIfEmpty(main_city_prefix);
 				P_Tbl->GetELinks(objid.Id, &ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
@@ -5876,7 +5876,7 @@ int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0) {
 						if(elk_rec.Type == ELNKRT_PHONE) {
 							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-							PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+							PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 							if(phone.Len() >= 5) {
 								if(city_prefix.Len()) {
 									size_t sl = phone.Len() + city_prefix.Len();
@@ -5893,7 +5893,7 @@ int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 						}
 						else if(elk_rec.Type == ELNKRT_INTERNALEXTEN) {
 							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-							PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+							PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 							if(phone.Len() > 1 && phone.Len() < 5) {
 								if(!LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
 									if(pLogger)

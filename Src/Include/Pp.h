@@ -1239,6 +1239,7 @@ public:
 
 	static int SLAPI Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static void FASTCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld);
 	static void FASTCALL InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static void SLAPI InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
@@ -4496,7 +4497,6 @@ public:
 	int    SLAPI SearchGListByStruc(PPID strucID, PPIDArray * pAry);
 	int    SLAPI LoadNameList(const PPIDArray *, long flags, StrAssocArray *);
 	int    SLAPI GetListByExtFilt(const ClsdGoodsFilt *, PPIDArray *);
-	// @v8.6.4 @unused int    SLAPI SearchByExt(const ClsdGoodsFilt *, PPID *, Goods2Tbl::Rec * pRec);
 	int    SLAPI SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Goods2Tbl::Rec * pRec);
 	int    SLAPI ReadBarcodes(PPID goodsID, BarcodeArray & rCodeList);
 	//
@@ -5665,6 +5665,7 @@ public:
 	int    SLAPI GetSpecSeriesByPeriod(const char * pPeriod, TSCollection <UhttSpecSeriesPacket> & rResult);
 	int    SLAPI CreateSpecSeries(long * pID, const UhttSpecSeriesPacket & rPack);
 	int    SLAPI GetSCardByNumber(const char * pPeriodNumber, UhttSCardPacket & rResult);
+	int    SLAPI CreateSCard(UhttSCardPacket & rPack); // @v10.1.4
 	int    SLAPI CreateSCardCheck(const char * pLocSymb, const char * pSCardNumber, const UhttCheckPacket & rPack);
 	int    SLAPI CreateBill(UhttBillPacket & rPack);
 	int    SLAPI GetBill(const UhttBillFilter & rFilt, TSCollection <UhttBillPacket> & rResult);
@@ -8376,7 +8377,10 @@ struct PPEAddr { // @persistent @flat size=16
 		uint8 Upp[6];
 	};
 	struct Phone {
-		static SString & FASTCALL NormalizeStr(const char * pOrgPhone, SString & rResult);
+		enum {
+			nsfPlus = 0x0001, // Префикс "8" заменять на "+7"
+		};
+		static SString & FASTCALL NormalizeStr(const char * pOrgPhone, long flags, SString & rResult);
 		static uint FASTCALL GenerateCheckNumber(const char * pOrgPhone, const char * pAddedumCode);
 		static int  SLAPI VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber);
 
@@ -13501,8 +13505,10 @@ public:
 	// Descr: Идентификаторы текстовых расширений строк чека
 	//
 	enum {
-		lnextSerial    = 1, // Серийный номер
-		lnextEgaisMark = 2  // Марка ЕГАИС
+		lnextSerial             = 1, // Серийный номер
+		lnextEgaisMark          = 2, // Марка ЕГАИС
+		lnextRemoveProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
+			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
 	};
 	//
 	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
@@ -35606,7 +35612,7 @@ struct LotFilt : public PPBaseFilt {
 		extssGoodsCodeText = 3
 	};
 	//
-	// Варианты ограничения выборки по изменению цены
+	// Descr: Варианты ограничения выборки по изменению цены
 	//
 	enum {
 		drNone = 0, // Не ограничивать
@@ -35614,7 +35620,16 @@ struct LotFilt : public PPBaseFilt {
 		drAbove,    // Только увеличение
 		drAny       // Только изменения (лоты с неизмененными ценами не показывать) //
 	};
-	uint8  ReserveStart[24]; // @#0 @anchor !Использовать начиная со старших адресов
+	//
+	// Descr: Варианты отображения наборов дополнительных столбцов
+	//
+	enum {
+		exvaNone = 0,
+		exvaEgaisTags,
+		exvaVetisTags
+	};
+	uint8  ReserveStart[20]; // @#0 @anchor !Использовать начиная со старших адресов
+	long   ExtViewAttr;      // @v10.1.4 Параметр, определяющий набор дополнительных столбцов для отображения в таблице
 	int16  CostDevRestr;     // LotFilt::drXXX
 	int16  PriceDevRestr;    // LotFilt::drXXX
 	PPID   ParentLotID;      // Ид лота, дочерние лоты которого следует выбрать. Если это поле
@@ -40313,7 +40328,8 @@ struct SCardSelPrcssrParam { // @persistent
 	enum {
 		fSetClosed    = 0x0001,
 		fZeroDiscount = 0x0002, // Если установлен, но по всем картам скидку требуется обнулить
-		fZeroExpiry   = 0x0004  // @v9.6.2 Пустое значение даты истечения срока действия
+		fZeroExpiry   = 0x0004, // @v9.6.2 Пустое значение даты истечения срока действия
+		fUhttSync     = 0x0008  // @v10.1.4 Синхронизировать (некоторые атрибуты) с сервисом Universe-HTT
 	};
 	SCardSelPrcssrParam();
 	int    IsEmpty() const;
@@ -44506,6 +44522,7 @@ private:
 	static int DynFuncVetDStatus;
 	static int DynFuncVetDForm;
 	static int DynFuncVetDType;
+	static int DynFuncVetStockByDoc;
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);

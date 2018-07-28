@@ -1126,7 +1126,7 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	rList.clear();
 	int    ok = -1;
 	SString caller_buf;
-	PPEAddr::Phone::NormalizeStr(pCaller, caller_buf);
+	PPEAddr::Phone::NormalizeStr(pCaller, 0, caller_buf);
 	THROW_SL(SETIFZ(P_PsnObj, new PPObjPerson));
 	ok = P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, rList);
 	CATCHZOK
@@ -1299,7 +1299,7 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 			PhnSvcChannelStatus status_entry;
 			for(uint i = 0; i < List.GetCount(); i++) {
 				if(List.Get(i, status_entry) && status_entry.IdentifiedCallerName.Empty()) {
-					PPEAddr::Phone::NormalizeStr(status_entry.ConnectedLineNum, caller_buf);
+					PPEAddr::Phone::NormalizeStr(status_entry.ConnectedLineNum, 0, caller_buf);
 					identified_caller_list.clear();
 					if(P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, identified_caller_list) > 0) {
 						contact_buf.Z();

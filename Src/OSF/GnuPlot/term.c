@@ -2214,8 +2214,9 @@ char * stylefont(const char * fontname, bool isbold, bool isitalic)
 	FPRINTF((stderr, "MARKUP FONT: %s -> %s\n", fontname, markup));
 	return markup;
 }
-
-/* Called after the end of recursion to check for errors */
+// 
+// Called after the end of recursion to check for errors 
+// 
 void enh_err_check(const char * str)
 {
 	if(*str == '}')
@@ -2223,17 +2224,16 @@ void enh_err_check(const char * str)
 	else
 		GpGg.IntWarn(NO_CARET, "enhanced text mode parsing error");
 }
-
-/*
- * Text strings containing control information for enhanced text mode
- * contain more characters than will actually appear in the output.
- * This makes it hard to estimate how much horizontal space on the plot
- * (e.g. in the key box) must be reserved to hold them.  To approximate
- * the eventual length we switch briefly to the dummy terminal driver
- * "estimate.trm" and then switch back to the current terminal.
- * If better, perhaps terminal-specific methods of estimation are
- * developed later they can be slotted into this one call site.
- */
+// 
+// Text strings containing control information for enhanced text mode
+// contain more characters than will actually appear in the output.
+// This makes it hard to estimate how much horizontal space on the plot
+// (e.g. in the key box) must be reserved to hold them.  To approximate
+// the eventual length we switch briefly to the dummy terminal driver
+// "estimate.trm" and then switch back to the current terminal.
+// If better, perhaps terminal-specific methods of estimation are
+// developed later they can be slotted into this one call site.
+// 
 int estimate_strlen(char * text)
 {
 	int len;

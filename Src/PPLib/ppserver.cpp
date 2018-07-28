@@ -4807,7 +4807,8 @@ int SLAPI run_client()
 							PPGetLastErrorMessage(1, msg_buf);
 							reply_str.Z().Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
-						printf(reply_str.cptr());
+						// @v10.1.4 printf(reply_str.cptr());
+						puts(reply_str.cptr()); // @v10.1.4
 					}
 					if(is_quit)
 						cli.Disconnect();

@@ -1543,6 +1543,7 @@ int FASTCALL PPViewGeoTracking::NextIteration(GeoTrackingViewItem * pItem)
 	int    ok = -1;
 	if(P_IterQuery) {
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
+			Counter.Increment();
 			T.copyBufTo(pItem);
 			ok = 1;
 		}
@@ -1678,6 +1679,7 @@ int SLAPI PPViewGeoTracking::Export()
 	xmlTextWriter * p_writer = 0;
 	SXml::WNode * p_n_trk = 0;
 	SXml::WNode * p_n_trkseg = 0;
+	PPWait(1);
 	THROW(InitIteration());
 	if(GetCounter().GetTotal()) {
 		SString fn_suffix;
@@ -1744,6 +1746,7 @@ int SLAPI PPViewGeoTracking::Export()
 							n_trkpt.PutInner("time", out_buf);
                     }
 					last_oid = oid;
+					PPWaitPercent(Counter);
 				}
 				ZDELETE(p_n_trkseg);
 				ZDELETE(p_n_trk);
@@ -1753,6 +1756,7 @@ int SLAPI PPViewGeoTracking::Export()
 	}
 	CATCHZOKPPERR
 	xmlFreeTextWriter(p_writer);
+	PPWait(0);
 	return ok;
 }
 

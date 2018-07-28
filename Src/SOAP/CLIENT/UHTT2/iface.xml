@@ -26,8 +26,10 @@
   <xs:element name="createPersonResponse" type="tns:createPersonResponse"/>
   <xs:element name="createProcessor" type="tns:createProcessor"/>
   <xs:element name="createProcessorResponse" type="tns:createProcessorResponse"/>
+  <xs:element name="createSCard" type="tns:createSCard"/>
   <xs:element name="createSCardCheck" type="tns:createSCardCheck"/>
   <xs:element name="createSCardCheckResponse" type="tns:createSCardCheckResponse"/>
+  <xs:element name="createSCardResponse" type="tns:createSCardResponse"/>
   <xs:element name="createSpecSeries" type="tns:createSpecSeries"/>
   <xs:element name="createSpecSeriesResponse" type="tns:createSpecSeriesResponse"/>
   <xs:element name="createStandaloneLocation" type="tns:createStandaloneLocation"/>
@@ -546,6 +548,8 @@
       <xs:element name="Credit" type="xs:double"/>
       <xs:element name="Rest" type="xs:double"/>
       <xs:element name="Flags" type="xs:int"/>
+      <xs:element minOccurs="0" name="Phone" type="xs:string"/>
+      <xs:element minOccurs="0" name="Memo" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="dateTime">
@@ -928,6 +932,17 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="setWorkbookItemContentResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="status" type="tns:status"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSCard">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="token" type="xs:string"/>
+      <xs:element minOccurs="0" name="instance" type="tns:sCard"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createSCardResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="status" type="tns:status"/>
     </xs:sequence>
@@ -1449,6 +1464,10 @@
     <wsdl:part element="tns:createTSessionResponse" name="parameters">
     </wsdl:part>
   </wsdl:message>
+  <wsdl:message name="createSCard">
+    <wsdl:part element="tns:createSCard" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
   <wsdl:message name="DCGetFileVersionList">
     <wsdl:part element="tns:DCGetFileVersionList" name="parameters">
     </wsdl:part>
@@ -1645,6 +1664,10 @@
     <wsdl:part element="tns:getSpecSeriesBySerial" name="parameters">
     </wsdl:part>
   </wsdl:message>
+  <wsdl:message name="createSCardResponse">
+    <wsdl:part element="tns:createSCardResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
   <wsdl:message name="createSCardCheckResponse">
     <wsdl:part element="tns:createSCardCheckResponse" name="parameters">
     </wsdl:part>
@@ -1701,12 +1724,12 @@
     <wsdl:part element="tns:getSpecSeriesBySerialResponse" name="parameters">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="getGoodsObjRefList">
-    <wsdl:part element="tns:getGoodsObjRefList" name="parameters">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="withdrawSCardAmount">
     <wsdl:part element="tns:withdrawSCardAmount" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getGoodsObjRefList">
+    <wsdl:part element="tns:getGoodsObjRefList" name="parameters">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="setWorkbookItemContentResponse">
@@ -2330,6 +2353,18 @@
       <wsdl:input message="tns:setWorkbookItemContent" name="setWorkbookItemContent">
     </wsdl:input>
       <wsdl:output message="tns:setWorkbookItemContentResponse" name="setWorkbookItemContentResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:AuthException" name="AuthException">
+    </wsdl:fault>
+      <wsdl:fault message="tns:OperationException" name="OperationException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSCard">
+      <wsdl:input message="tns:createSCard" name="createSCard">
+    </wsdl:input>
+      <wsdl:output message="tns:createSCardResponse" name="createSCardResponse">
     </wsdl:output>
       <wsdl:fault message="tns:ArgumentException" name="ArgumentException">
     </wsdl:fault>
@@ -3313,6 +3348,42 @@
         <soap:fault name="OperationException" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="createSCard">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSCard">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSCardResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createSCardCheck">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createSCardCheck">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createSCardCheckResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ArgumentException">
+        <soap:fault name="ArgumentException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="AuthException">
+        <soap:fault name="AuthException" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationException">
+        <soap:fault name="OperationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="getGoodsRestList">
       <soap:operation soapAction="" style="document"/>
       <wsdl:input name="getGoodsRestList">
@@ -3341,24 +3412,6 @@
       </wsdl:output>
       <wsdl:fault name="ArgumentException">
         <soap:fault name="ArgumentException" use="literal"/>
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="createSCardCheck">
-      <soap:operation soapAction="" style="document"/>
-      <wsdl:input name="createSCardCheck">
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output name="createSCardCheckResponse">
-        <soap:body use="literal"/>
-      </wsdl:output>
-      <wsdl:fault name="ArgumentException">
-        <soap:fault name="ArgumentException" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="AuthException">
-        <soap:fault name="AuthException" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="OperationException">
-        <soap:fault name="OperationException" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="sendSMS">

@@ -2056,6 +2056,7 @@ PPERR_VETISINITUSERUNDEF         "Не определен инициатор з�
 PPERR_VETISBILLHASNTDLVRLOCGUID  "Адрес доставки документа '%s' не определен или не имеет VETIS-GUID'а"
 PPERR_VETISBILLHASNTOBJGUID      "Контрагент документа '%s' не имеет VETIS-GUID'а"
 PPERR_VETISVETDOCBYLOTNFOUND     "Не найден ветеринарный документ по UUID, определенному в лоте '%s'"
+PPERR_SPCGOODSTAGNDEF            "Не определен специальный тег товаров с символом '%s'"
 // LastError
 
 [102] // confirmation
@@ -4678,6 +4679,7 @@ PPTXT_VETISGETTINGUPD               "Получение изменений до�
 PPTXT_VETISGETTINGALLDOCS           "Получение всех документов ВЕТИС"
 PPTXT_VETISGETTINGSTOCK             "Получение складских остатков ВЕТИС"
 PPTXT_VETISBILLROWALLREADYHASCERT   "Строка документа уже привязана к ветеринарному сертификату (%s)"
+PPTXT_VETISFORCENEXTTRY             "Повторная попытка запроса после отказа сервера ВЕТИС (%s)"
 //
 // LastText
 
@@ -6455,6 +6457,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_personvetisuser                     "ВЕТИС пользователь-инициатор операций"
 @rtag_lotvetisuuid                        "ВЕТИС UUID лота"
 @rtag_locvetisguid                        "ВЕТИС GUID локации"
+@rtag_guasecret                           "Секрет для авторизации"
 //
 // Текстовые представления view и filter
 //
@@ -9664,6 +9667,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardupdselection_movetoser              "Переместить в серию"
 @scardupdselection_expiry                 "Изменить дату окончания действия"
 @scardupdselection_zeroexpiry             "Очистить дату окончания действия"
+@scardupdselection_fuhttsync              "Синхронизировать с Universe-HTT"
 
 @scardremoveall                           "Удаление выборки персональных карт"
 @scardremoveall_move                      "Переместить всю выборку в серию"
@@ -10514,6 +10518,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrestprn_special                     "Специальный отчет"
 
 @lotfilt                                  "Фильтр по лотам"
+@lotfilt_ext                              "Расширение фильтра по лотам"             // generic
+@lotfilt_pricechangeconditions            "Условие и ограничения по изменениям цен" // generic
 @lotfiltorders                            "Фильтр по заказам"
 @lotfilt_costdevrestr                     "По ценам поступления"
 @lotfilt_costrange                        "Диапазон цен поступления"
@@ -10550,6 +10556,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotfilt_closedtag_all                    "@{all}"
 @lotfilt_closedtag_opened                 "Открытые"
 @lotfilt_closedtag_closed                 "@{closed_pl}"
+@lotfilt_extviewattr                      "Вариант отображения"
+@lotfilt_exvanone                         "@{standard}"
+@lotfilt_exvaegaistags                    "Теги ЕГАИС"
+@lotfilt_exvavetistags                    "Теги ВЕТИС"
 
 @egaislotchargeon                         "Постановка лотов на баланс @{brand_egais}"
 @egaislotchargeon_actchargeon             "Постановка на баланс по справкам А"

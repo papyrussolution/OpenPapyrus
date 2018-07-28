@@ -745,6 +745,26 @@ void * BrowserWindow::getItemByPos(long pos) { return (P_Def) ? P_Def->getRow(/*
 void * BrowserWindow::getCurItem() { return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
 const  UserInterfaceSettings * BrowserWindow::GetUIConfig() const { return &UICfg; }
 long   BrowserWindow::CalcHdrWidth(int plusToolbar) const { return (P_Header ? (P_Header->size.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
+int BrowserWindow::GetCurColumn() const
+	{ return (int)HScrollPos; }
+int BrowserWindow::SetCurColumn(int col)
+	{ HScrollPos = (uint)col; return 1; }
+void BrowserWindow::setInitPos(long p)
+	{ InitPos = p; }
+BrowserDef * BrowserWindow::getDef()
+	{ return P_Def; }
+void BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr)
+	{ CALLPTRMEMB(P_Def, SetUserProc(proc, extraPtr)); }
+int BrowserWindow::SetColumnTitle(int colNo, const char * pText)
+	{ return P_Def ? P_Def->setColumnTitle(colNo, pText) : 0; }
+int BrowserWindow::IsLastPage(uint viewHeight)
+	{ return P_Def && P_Def->IsEOQ() && (!(char *)P_Def->getRow(P_Def->_topItem() + viewHeight)) ? 1 : 0; }
+int FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const
+	{ return (ChrSz.x*rC.width + rC.x); }
+int FASTCALL BrowserWindow::GetRowHeightMult(long row) const
+	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? ((RowHeightInfo*)P_RowsHeightAry->at(row))->HeightMult : 1; }
+int FASTCALL BrowserWindow::GetRowTop(long row) const
+	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? ((RowHeightInfo*)P_RowsHeightAry->at(row))->Top : (YCell * row); }
 
 void BrowserWindow::AdjustCursorsForHdr()
 {
@@ -766,7 +786,7 @@ void BrowserWindow::Insert_(TView *p)
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
 	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
 {
-	init();
+	init(0);
 	initWin();
 	RezID = ResourceID = _rezID;
 	LoadResource(_rezID, pQuery, 2, broDefOptions);
@@ -777,7 +797,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOpt
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0*/) :
 	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
 {
-	init();
+	init(0);
 	initWin();
 	RezID = ResourceID = _rezID;
 	LoadResource(_rezID, pAry, 1, broDefOptions);
@@ -804,7 +824,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		ZDELETE(P_Toolbar);
 		setupToolbar(0);
 		SearchPattern = 0;
-		init();
+		init(0);
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pQuery, 2);
@@ -828,7 +848,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		ZDELETE(P_Toolbar);
 		setupToolbar(0);
 		SearchPattern = 0;
-		init();
+		init(0);
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pAry, 1);
@@ -884,13 +904,6 @@ SLAPI BrowserWindow::~BrowserWindow()
 
 // Prototype
 // @v9.1.2 int SLAPI PPCalculator();
-
-int BrowserWindow::GetCurColumn() const
-	{ return (int)HScrollPos; }
-int BrowserWindow::SetCurColumn(int col)
-	{ HScrollPos = (uint)col; return 1; }
-void BrowserWindow::setInitPos(long p)
-	{ InitPos = p; }
 
 int BrowserWindow::CopyToClipboard()
 {
@@ -1108,14 +1121,6 @@ void BrowserWindow::CalcRight()
 	Right = i - 1;
 }
 
-BrowserDef * BrowserWindow::getDef()
-	{ return P_Def; }
-
-void BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr)
-{
-	CALLPTRMEMB(P_Def, SetUserProc(proc, extraPtr));
-}
-
 void BrowserWindow::SetupScroll()
 {
 	ViewHeight = (CliSz.y - CapOffs - CalcHdrWidth(1)) / YCell - 1;
@@ -1243,11 +1248,6 @@ void BrowserWindow::SetColumnWidth(int colNo, int newWidth)
 	}
 }
 
-int BrowserWindow::SetColumnTitle(int colNo, const char * pText)
-{
-	return P_Def ? P_Def->setColumnTitle(colNo, pText) : 0;
-}
-
 int BrowserWindow::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
 	int    ok = P_Def ? P_Def->insertColumn(atPos, pTxt, fldNo, typ, fmt, opt) : 0;
@@ -1295,23 +1295,6 @@ void BrowserWindow::SetFreeze(uint numFreezeCols)
 		}
 	Left = Freeze;
 	CalcRight();
-}
-
-int FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const
-{
-	return (ChrSz.x*rC.width + rC.x);
-}
-
-int FASTCALL BrowserWindow::GetRowHeightMult(long row) const
-{
-	return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ?
-		((RowHeightInfo*)P_RowsHeightAry->at(row))->HeightMult : 1;
-}
-
-int FASTCALL BrowserWindow::GetRowTop(long row) const
-{
-	return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ?
-		((RowHeightInfo*)P_RowsHeightAry->at(row))->Top : (YCell * row);
 }
 
 LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus)
@@ -1940,10 +1923,10 @@ void BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
 
 int BrowserWindow::IsResizePos(TPoint p)
 {
-	long   hdr_width = CalcHdrWidth();
+	const long hdr_width = CalcHdrWidth(0);
 	if(p.y > hdr_width && p.y < hdr_width + ToolBarWidth + P_Def->GetCapHeight() * YCell)
 		for(int i = 0, cn = P_Def->getCount(); i < cn; i++) {
-			int    b = CellRight(P_Def->at(i)) - 1;
+			const int b = CellRight(P_Def->at(i)) - 1;
 			if(p.x > (b-5) && p.x < (b+5))
 				return i + 1;
 		}
@@ -2021,11 +2004,6 @@ void BrowserWindow::FocusItem(int hPos, int vPos)
 		SendMessage(H(), WM_VSCROLL, MAKELONG(SB_THUMBPOSITION, v), v);
 		SendMessage(H(), WM_HSCROLL, MAKELONG(SB_THUMBPOSITION, h), h);
 	}
-}
-
-int BrowserWindow::IsLastPage(uint viewHeight)
-{
-	return P_Def && P_Def->IsEOQ() && (!(char *)P_Def->getRow(P_Def->_topItem() + viewHeight)) ? 1 : 0;
 }
 
 int BrowserWindow::WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop)

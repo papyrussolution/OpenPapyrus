@@ -6212,6 +6212,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 	"To",                   19,  notype, 0, 30
 	"ProductItem",          16,  notype, 0, 30
 	"Quantity",             17,  notype, NMBF_NOZERO, 10.3
+	"Rest",                 21,  notype, NMBF_NOZERO, 10.3
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
 		DELETEITEM       : kbDel,      TBBM_DELETE,    "Удалить документ (только для исходящих)\tDelete"

@@ -64,7 +64,7 @@ int SLAPI EditELink(PPELink * pLink)
 						getCtrlString(CTL_ELINK_ADDR, addr);
 						if(addr.Len()) {
 							addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-							PPEAddr::Phone::NormalizeStr(addr, info_buf);
+							PPEAddr::Phone::NormalizeStr(addr, 0, info_buf);
 						}
 					}
 				}
@@ -76,7 +76,7 @@ int SLAPI EditELink(PPELink * pLink)
 				if(addr.Len()) {
 					SString phone_to;
 					addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-					PPEAddr::Phone::NormalizeStr(addr, phone_to);
+					PPEAddr::Phone::NormalizeStr(addr, 0, phone_to);
 					PPObjPhoneService::PhoneTo(phone_to);
 				}
 			}
@@ -321,7 +321,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 						getCtrlString(position * 3 + 3 + WINDOWS_ID_BIAS, addr_buf);
 						if(addr_buf.Len()) {
 							addr_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-							PPEAddr::Phone::NormalizeStr(addr_buf, rPhone);
+							PPEAddr::Phone::NormalizeStr(addr_buf, 0, rPhone);
 							if(rPhone.Len())
 								mode = 1;
 						}

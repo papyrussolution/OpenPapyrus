@@ -731,7 +731,7 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
 	const  uint addendum = 54167; // Фиксированное слагаемое для контрольной суммы, если она меньше 10000
     uint   result = 0;
 	SString line_buf;
-	PPEAddr::Phone::NormalizeStr(pOrgPhone, line_buf);
+	PPEAddr::Phone::NormalizeStr(pOrgPhone, 0, line_buf);
     line_buf.Cat(pAddedumCode);
     size_t p = 0;
     while(line_buf.StrChr(' ', &p)) {
@@ -776,7 +776,7 @@ int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char *
 }
 
 //static
-SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString & rResult)
+SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long flags, SString & rResult)
 {
 	static StringSet ext_prefix_list;
 	SString temp_buf;
@@ -795,12 +795,22 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString 
 		else if(oneof2(c, 't', 'T'))
 			rResult.CatChar('t');
 		else if(c == '+' && rResult.Len() == 0) {
-			if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так
-				rResult.CatChar('8');
-				p++;
+			if(!(flags & nsfPlus)) {
+				if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так
+					rResult.CatChar('8');
+					p++;
+				}
+				else
+					rResult.CatChar(c);
 			}
 			else
-				rResult.CatChar('+');
+				rResult.CatChar(c);
+		}
+		else if(c == '8' && rResult.Len() == 0) {
+			if(flags & nsfPlus)
+				rResult.CatChar('+').CatChar('8');
+			else
+				rResult.CatChar(c);
 		}
 		else {
 			if(oneof2(c, ',', '#') && (oneof4(p[1], '.', ':', ' ', '\t') || isdec(p[1])))
@@ -847,7 +857,7 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 	SString & r_src_str = SLS.AcquireRvlStr(); // @v9.9.11
 	(r_src_str = pStr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	NormalizeStr(r_src_str, r_temp_buf);
+	NormalizeStr(r_src_str, 0, r_temp_buf);
 	size_t diff = r_temp_buf.Strip().Len();
 	diff = (EADDR_PHONE_MAXCHAR > diff) ? (EADDR_PHONE_MAXCHAR - diff) : 0;
 	if(diff)

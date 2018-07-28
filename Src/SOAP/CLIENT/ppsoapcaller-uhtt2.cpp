@@ -1,5 +1,5 @@
 // PPSOAPCALLER-UHTT.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <ppsoapclient.h>
 #include "uhtt2\uhttSoapWSInterfaceImplServiceSoapBindingProxy.h"
@@ -804,6 +804,48 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateSpecSeries(PPSoapClientS
 	return p_result;
 }
 
+extern "C" __declspec(dllexport) UhttStatus * UhttCreateSCard(PPSoapClientSession & rSess, const char * pToken, UhttSCardPacket & rPack)
+{
+	UhttStatus * p_result = 0;
+	TSCollection <InParamString> arg_str_pool;
+	SString temp_buf;
+	ns1__dateTime arg_issue_date;
+	ns1__dateTime arg_expiry;
+	ns1__sCard instance;
+	instance.Code = GetDynamicParamString(rPack.Code, arg_str_pool);
+	instance.Hash = GetDynamicParamString(rPack.Hash, arg_str_pool);
+	instance.Phone = GetDynamicParamString(rPack.Phone, arg_str_pool);
+	instance.Memo = GetDynamicParamString(rPack.Memo, arg_str_pool);
+	instance.ID = rPack.ID;
+	instance.Flags = rPack.Flags;
+	if(rPack.IssueDate.Date.NotEmpty()) {
+		arg_issue_date.Date = GetDynamicParamString(rPack.IssueDate.Date, arg_str_pool);
+		arg_issue_date.Time = GetDynamicParamString(rPack.IssueDate.Time, arg_str_pool);
+		instance.IssueDate = &arg_issue_date;
+	}
+	if(rPack.Expiry.Date.NotEmpty()) {
+		arg_expiry.Date = GetDynamicParamString(rPack.Expiry.Date, arg_str_pool);
+		arg_expiry.Time = GetDynamicParamString(rPack.Expiry.Time, arg_str_pool);
+		instance.Expiry = &arg_expiry;
+	}
+	instance.OwnerID = rPack.OwnerID;
+	instance.PDis = rPack.PDis;
+	instance.SeriesID = rPack.SeriesID;
+	instance.Overdraft = rPack.Overdraft;
+	instance.Credit = rPack.Credit;
+	instance.Debit = rPack.Debit;
+	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	gSoapClientInit(&proxi, 0, 0);
+	ns1__createSCard param;
+	ns1__createSCardResponse resp;
+	param.token = GetDynamicParamString(pToken, arg_str_pool);
+	param.instance = &instance;
+	if(PreprocessCall(proxi, rSess, proxi.createSCard(rSess.GetUrl(), 0 /* soap_action */, &param, &resp))) {
+		p_result = CreateResultStatus(resp.status);
+	}
+	return p_result;
+}
+
 extern "C" __declspec(dllexport) UhttSCardPacket * UhttGetSCardByNumber(PPSoapClientSession & rSess, const char * pToken, const char * pNumber)
 {
 	SString temp_buf;
@@ -1208,13 +1250,11 @@ extern "C" __declspec(dllexport) TSCollection <UhttBillPacket> * UhttGetBill(PPS
 	filt_param.AgentID = rFilt.AgentID;
 	filt_param.Count = rFilt.Count;
 	filt_param.Last = rFilt.Last;
-	// @v8.3.2 {
 	if(rFilt.Since.Date.NotEmpty()) {
 		arg_filt_since.Date = arg_filt_sinced;
 		arg_filt_since.Time = arg_filt_sincet;
 		filt_param.Since = &arg_filt_since;
 	}
-	// } @v8.3.2
 	{
 		arg_period.LowerDate = arg_filt_prd_low;
 		arg_period.UpperDate = arg_filt_prd_upp;

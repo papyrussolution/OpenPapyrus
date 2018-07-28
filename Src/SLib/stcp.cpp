@@ -2851,7 +2851,9 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	{ SHttpProtocol::hdrReferer, "Referer" },
 	{ SHttpProtocol::hdrTransferExt, "TE" },
 	{ SHttpProtocol::hdrUserAgent, "User-Agent" },
-	{ SHttpProtocol::hdrSoapAction, "SoapAction" }
+	{ SHttpProtocol::hdrSoapAction, "SoapAction" },
+	{ SHttpProtocol::hdrAuthToken, "authorization-token" },
+	{ SHttpProtocol::hdrAuthSecret, "authorization-secret" }
 };
 
 // static

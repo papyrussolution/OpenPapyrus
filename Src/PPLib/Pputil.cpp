@@ -3404,6 +3404,32 @@ int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket 
 	return ok;
 }
 
+int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
+{
+	int    ok = 0;
+	if(State & stAuth && P_Lib) {
+		PPSoapClientSession sess;
+		SString lib_path;
+		SString temp_buf, url;
+		UHTTCREATESCARD_PROC func = (UHTTCREATESCARD_PROC)P_Lib->GetProcAddr("UhttCreateSCard");
+		if(func) {
+			sess.Setup(UrlBase);
+			UhttStatus * p_result = func(sess, Token, rPack);
+			if(PreprocessResult(p_result, sess)) {
+				if(p_result->Code > 0) {
+					//id = p_result->Code;
+					ok = 1;
+				}
+				else {
+					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				DestroyResult((void **)&p_result);
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket & rResult)
 {
 	int    ok = 0;

@@ -5433,7 +5433,7 @@ private:
 				PPIDArray sc_list;
 				PPID   sc_id = 0;
 				if(pEntry->Phone[0]) {
-					PPEAddr::Phone::NormalizeStr(pEntry->Phone, temp_buf);
+					PPEAddr::Phone::NormalizeStr(pEntry->Phone, 0, temp_buf);
 					if(temp_buf.NotEmptyS()) {
 						PPIDArray phone_id_list;
 						PsnObj.LocObj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
@@ -5548,7 +5548,7 @@ private:
 			SString temp_buf, phone_buf;
 			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-			PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
+			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 			if(phone_buf.NotEmptyS()) {
 				PPIDArray addr_list, dlvr_addr_list;
 				PPIDArray phone_id_list;
@@ -8939,24 +8939,35 @@ int SCardInfoDialog::editItem(long pos, long id)
 int SCardInfoDialog::SetupCard(PPID scardID)
 {
 	SString temp_buf, card, info_buf, psn_name;
+	SString phone;
 	ImageBrowseCtrlGroup::Rec ibg_rec;
-	SCardTbl::Rec sc_rec;
+	//SCardTbl::Rec sc_rec;
+	PPSCardPacket sc_pack;
 	SCardID = scardID;
 	OwnerID = 0;
 	LocalState &= ~(stCreditCard|stWarnCardInfo|stNeedActivation|stAutoActivation);
-	MEMSZERO(sc_rec);
+	//MEMSZERO(sc_rec);
 	setStaticText(CTL_SCARDVIEW_SCINFO, info_buf.Z());
 	setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
-	if(ScObj.Search(SCardID, &sc_rec) > 0) {
-		SETFLAG(LocalState, stCreditCard, ScObj.IsCreditSeries(sc_rec.SeriesID));
-		card = sc_rec.Code;
+	// @v10.1.4 if(ScObj.Search(SCardID, &sc_rec) > 0) {
+	if(ScObj.GetPacket(SCardID, &sc_pack) > 0) { // @v10.1.4
+		const SCardTbl::Rec & r_sc_rec = sc_pack.Rec;
+		SETFLAG(LocalState, stCreditCard, ScObj.IsCreditSeries(r_sc_rec.SeriesID));
+		card = r_sc_rec.Code;
 		{
 			LDATETIME cur_dtm = getcurdatetime_();
 			info_buf.Z();
-			if(sc_rec.Expiry) {
+			// @v10.1.4 {
+			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, phone);
+			if(phone.NotEmptyS()) {
+				PPLoadString("phone", temp_buf);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(phone);
+			}
+			// } @v10.1.4 
+			if(r_sc_rec.Expiry) {
 				PPLoadString("validuntil-fem", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Expiry, DATF_DMY);
-				if(sc_rec.Expiry < cur_dtm.d)
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
+				if(r_sc_rec.Expiry < cur_dtm.d)
 					LocalState |= stWarnCardInfo;
 			}
 			{
@@ -8983,40 +8994,39 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					}
 				}
 			}
-			if(sc_rec.UsageTmStart || sc_rec.UsageTmEnd) {
+			if(r_sc_rec.UsageTmStart || r_sc_rec.UsageTmEnd) {
 				PPLoadString("time", temp_buf);
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2);
-				if(sc_rec.UsageTmStart) {
-					info_buf.Cat(sc_rec.UsageTmStart, TIMF_HM);
-					if(sc_rec.UsageTmStart > cur_dtm.t)
+				if(r_sc_rec.UsageTmStart) {
+					info_buf.Cat(r_sc_rec.UsageTmStart, TIMF_HM);
+					if(r_sc_rec.UsageTmStart > cur_dtm.t)
 						LocalState |= stWarnCardInfo;
 				}
-				if(sc_rec.UsageTmEnd) {
-					info_buf.Dot().Dot().Cat(sc_rec.UsageTmEnd, TIMF_HM);
-					if(sc_rec.UsageTmEnd < cur_dtm.t)
+				if(r_sc_rec.UsageTmEnd) {
+					info_buf.Dot().Dot().Cat(r_sc_rec.UsageTmEnd, TIMF_HM);
+					if(r_sc_rec.UsageTmEnd < cur_dtm.t)
 						LocalState |= stWarnCardInfo;
 				}
 			}
-			if(sc_rec.Flags & SCRDF_CLOSED) {
-				if(sc_rec.Flags & SCRDF_NEEDACTIVATION) {
+			if(r_sc_rec.Flags & SCRDF_CLOSED) {
+				if(r_sc_rec.Flags & SCRDF_NEEDACTIVATION) {
 					LocalState |= stNeedActivation;
-					if(sc_rec.Flags & SCRDF_AUTOACTIVATION)
+					if(r_sc_rec.Flags & SCRDF_AUTOACTIVATION)
 						LocalState |= stAutoActivation;
 				}
-				else {
+				else
 					LocalState |= stWarnCardInfo;
-				}
 			}
-			if(sc_rec.PDis) {
+			if(r_sc_rec.PDis) {
 				PPLoadString("discount", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(fdiv100i(sc_rec.PDis), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(fdiv100i(r_sc_rec.PDis), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 			}
 			setStaticText(CTL_SCARDVIEW_SCINFO, info_buf);
 		}
 		info_buf.Z();
 		PPPersonPacket pack;
-		if(PsnObj.GetPacket(sc_rec.PersonID, &pack, 0) > 0) {
-			OwnerID = sc_rec.PersonID;
+		if(PsnObj.GetPacket(r_sc_rec.PersonID, &pack, 0) > 0) {
+			OwnerID = r_sc_rec.PersonID;
 			psn_name = pack.Rec.Name;
 			pack.LinkFiles.Init(PPOBJ_PERSON);
 			if(pack.Rec.Flags & PSNF_HASIMAGES) {
@@ -9043,12 +9053,9 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					}
 				}
 			}
-			{
-				SString phone;
-				if(pack.ELA.GetSinglePhone(phone, 0) > 0) {
-					PPLoadString("phone", temp_buf);
-					info_buf.Space().Space().Cat(temp_buf).CatDiv(':', 2).Cat(phone);
-				}
+			if(pack.ELA.GetSinglePhone(phone, 0) > 0) {
+				PPLoadString("phone", temp_buf);
+				info_buf.Space().Space().Cat(temp_buf).CatDiv(':', 2).Cat(phone);
 			}
 		}
 		else
@@ -9077,7 +9084,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		showButton(cmCharge, charge_goods_id);
 	}
 	// } @v9.8.9
-	setCtrlData(CTL_SCARDVIEW_SALDO,   &sc_rec.Rest);
+	setCtrlReal(CTL_SCARDVIEW_SALDO,   sc_pack.Rec.Rest);
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
 	setCtrlString(CTL_SCARDVIEW_CARD,  card);
 	enableCommand(cmCheckOpSwitch, LocalState & stCreditCard && ScObj.CheckRights(SCRDRT_VIEWOPS));

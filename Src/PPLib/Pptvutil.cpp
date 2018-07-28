@@ -396,7 +396,7 @@ int FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd)
 				if(temp_buf.NotEmptyS()) {
 					SString phone_buf;
 					temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-					PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
+					PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 					if(phone_buf.Len() >= 5)
 						ok = 1;
 				}
@@ -3421,7 +3421,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 				SString phone_buf;
 				LongArray temp_phone_list;
 				pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-				PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
+				PPEAddr::Phone::NormalizeStr(pattern, 0, phone_buf);
 				LocationCore * p_locc = PsnObj.LocObj.P_Tbl;
 				if(phone_buf.Len() >= MIN_PHONE_LEN && p_locc->SearchEAddrMaxLikePhone(phone_buf, 0, temp_phone_list) > 0) {
 					for(uint i = 0; i < temp_phone_list.getCount(); i++) {
@@ -3526,7 +3526,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 		const int srch_substr = BIN(pattern.C(0) == '*');
 		pattern.ShiftLeftChr('*');
 		pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
-		PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
+		PPEAddr::Phone::NormalizeStr(pattern, 0, phone_buf);
 		pattern = phone_buf;
 		size_t len = pattern.Len();
 		EAddrTbl::Rec ea_rec;

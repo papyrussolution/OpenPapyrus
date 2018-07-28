@@ -2126,7 +2126,7 @@ int SLAPI PrcssrPhoneListImport::Run()
 		int    r;
 		IterCounter cntr;
 		Sdr_PhoneList rec;
-		PPEAddr::Phone::NormalizeStr(IeParam.DefCityPhonePrefix, city_prefix);
+		PPEAddr::Phone::NormalizeStr(IeParam.DefCityPhonePrefix, 0, city_prefix);
 		PPTransaction tra(1);
 		THROW(tra);
 		{
@@ -2134,7 +2134,7 @@ int SLAPI PrcssrPhoneListImport::Run()
 			MEMSZERO(rec);
 			while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 				int    found = 0;
-				PPEAddr::Phone::NormalizeStr(rec.Phone, phone);
+				PPEAddr::Phone::NormalizeStr(rec.Phone, 0, phone);
 				if(phone.Len() >= 5) {
 					if(city_prefix.Len()) {
 						size_t sl = phone.Len() + city_prefix.Len();
