@@ -6851,10 +6851,8 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	SString wait_msg;
 	PPTransferItem * pti = 0;
 	PPAccTurn      * pat = 0;
-	// @v8.0.6 {
 	BillUserProfileCounter ufp_counter;
 	PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(pPack->Rec.OpID, PPACN_TURNBILL));
-	// } @v8.0.6
 	// @v9.4.3 {
 	PPIDArray correction_exp_chain;
 	const PPTrfrArray preserve_lots(pPack->GetLots()); // @v9.4.3 Сохраняем строки на случай аварии в проведении документа

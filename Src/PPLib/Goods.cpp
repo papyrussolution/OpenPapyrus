@@ -738,17 +738,16 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 			// С символа '@' начинаются коды товарных групп
 			// @v5.9.9 VADIM - с символа '$' начинаются артикулы товаров (ИД импортированных товаров)
 			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrlen(BCTbl.data.Code)))
-				THROW(rList.add(BCTbl.data.GoodsID)); // @v8.1.0 addUnique-->add
+				THROW(rList.add(BCTbl.data.GoodsID));
 			if(has_zero_len)
-				THROW(temp_list.add(BCTbl.data.GoodsID)); // @v8.1.0 addUnique-->add
+				THROW(temp_list.add(BCTbl.data.GoodsID));
 		}
-		temp_list.sortAndUndup(); // @v8.1.0
+		temp_list.sortAndUndup();
 		ok = 1;
 		PROFILE_END
 	}
 	if(has_zero_len) {
 		PROFILE_START
-		// @v8.1.0 (see above) temp_list.sort();
 		BExtQuery q(this, 2, 256);
 		q.select(this->ID, 0L).where(this->Kind == PPGDSK_GOODS);
 		Goods2Tbl::Key2 k2;
@@ -761,7 +760,7 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 		PROFILE_END
 	}
 	CATCHZOK
-	rList.sortAndUndup(); // @v8.1.0
+	rList.sortAndUndup();
 	return ok;
 }
 
@@ -809,7 +808,9 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 		skip_passive = 1;
 	const StrAssocArray * p_full_list = GetFullList();
 	if(p_full_list) {
+		PPUserFuncProfiler ufp(PPUPRF_SRCHINGOODSFL);
 		Goods2Tbl::Rec goods_rec;
+		uint   result_count = 0;
 		const uint c = p_full_list->getCount();
 		for(uint i = 0; ok && i < c; i++) {
 			StrAssocArray::Item item;
@@ -822,8 +823,9 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			PROFILE_END
 			PROFILE_START
 			if(r > 0 && (!skip_passive || (Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_PASSIV)))) {
+				result_count++;
 				if(p_list) {
-					if(!p_list->addUnique(item.Id)) {
+					if(!p_list->add(item.Id)) { // @v10.1.4 addUnique-->add
 						//
 						// Здесь THROW не годится из-за того, что сразу после завершения цикла
 						// необходимо быстро сделать ReleaseFullList
@@ -839,6 +841,9 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 		}
 		ReleaseFullList(p_full_list);
 		p_full_list = 0;
+		ufp.SetFactor(0, c); // @v10.1.4
+		ufp.SetFactor(1, result_count); // @v10.1.4
+		ufp.Commit(); // @v10.1.4
 	}
 	else {
 		int    r = 0;
@@ -859,7 +864,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 					temp_str_list.Read(reply, 0);
 					for(uint i = 0; i < temp_str_list.getCount(); i++) {
 						StrAssocArray::Item item = temp_str_list.at_WithoutParent(i);
-						THROW_SL(p_list->addUnique(item.Id));
+						THROW_SL(p_list->add(item.Id)); // @v10.1.4 addUnique-->add
 					}
 				}
 				else if(p_str_list) {
@@ -878,7 +883,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 				if(!(skip_passive && data.Flags & GF_PASSIV) && ExtStrSrch(data.Name, pSubstr)) {
 					if(p_list) {
-						THROW_SL(p_list->addUnique(data.ID));
+						THROW_SL(p_list->add(data.ID)); // @v10.1.4 addUnique-->add
 					}
 					else if(p_str_list) {
 						THROW_SL(p_str_list->Add(data.ID, data.Name));
@@ -902,7 +907,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 				if(P_Ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, ext_str) > 0) {
 					if(ExtStrSrch(ext_str, pSubstr)) {
 						if(p_list) {
-							THROW_SL(p_list->addUnique(goods_id));
+							THROW_SL(p_list->add(goods_id)); // @v10.1.4 addUnique-->add
 						}
 						else if(p_str_list) {
 							THROW_SL(p_str_list->Add(goods_id, goods_rec.Name));
@@ -2248,7 +2253,6 @@ public:
 	SLAPI ~GoodsCache();
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	int    SLAPI GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList); // @sync_r
-	// @v8.1.5 int    SLAPI PutGtl(PPID grpID, const PPIDArray * pList, const PPIDArray * pUntermList); // @sync_w
 	int    SLAPI GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
 	int    SLAPI PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt); // @sync_w
 	int    SLAPI GetConfig(PPGoodsConfig * pCfg, int enforce); // @sync_w
@@ -2280,9 +2284,9 @@ private:
 		long   Brutto;
 		PPDimention PckgDim;
 		double Package;
-		double MinShippmQtty; // @v7.2.7
-		int16  ExpiryPeriod;  //
-		int16  GseFlags;      // @v7.4.5 Reserve-->GseFlags
+		double MinShippmQtty;
+		int16  ExpiryPeriod;
+		int16  GseFlags;
 		RAssocArray MinStockList;
 		TSVector <GoodsStockExt::Pallet> PltList; // @v9.8.4 TSArray-->TSVector
 	};
@@ -2342,7 +2346,7 @@ private:
 	ReadWriteLock CfgLock;
 	ReadWriteLock GslLock;
 	ReadWriteLock FglLock;
-	ReadWriteLock TknLock; // @v8.2.2
+	ReadWriteLock TknLock;
 
 	static  void FASTCALL AssignGoodsStockExtCacheRec(const GoodsCache::StockExt & rSrc, GoodsStockExt * pExt);
 };
@@ -2554,6 +2558,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 			if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
 				PPObjGoods goods_obj(SConstructorLite);
 				if(!FullGoodsList.Inited) {
+					PPUserFuncProfiler ufp(PPUPRF_BUILDGOODSFL); // @v10.1.4
 					SString msg_buf, fmt_buf;
 					uint   _mc = 0;
 					if(CS_SERVER) {
@@ -2579,6 +2584,8 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 						}
 					}
 					PROFILE_END
+					ufp.SetFactor(0, _mc); // @v10.1.4
+					ufp.Commit(); // @v10.1.4
 				}
 				else {
 					PROFILE_START
@@ -2586,8 +2593,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					for(ulong id = 0; !err && FullGoodsList.DirtyTable.Enum(&id);) {
 						if(Get((long)id, &goods_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
 							if(goods_rec.Kind == PPGDSK_GOODS) {
-								// @v8.0.9 if(!FullGoodsList.Add(id, goods_rec.ParentID, goods_rec.Name, 1)) {
-								if(!FullGoodsList.Add(id, goods_rec.Name, 1)) { // @v8.0.9
+								if(!FullGoodsList.Add(id, goods_rec.Name, 1)) {
 									PPSetErrorSLib();
 									err = 1;
 								}

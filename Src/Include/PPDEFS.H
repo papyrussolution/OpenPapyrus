@@ -968,8 +968,10 @@
 	#define PPUPRF_BHTPREPBILL       70 // @v9.4.11
 	#define PPUPRF_BHTPREPGOODS      71 // @v9.4.11
 	#define PPUPRF_OSMXMLPARSETAG    72 // @v9.5.8
+	#define PPUPRF_BUILDGOODSFL      73 // @v10.1.4
+	#define PPUPRF_SRCHINGOODSFL     74 // @v10.1.4
 
-	#define PPUPRF_LAST              73
+	#define PPUPRF_LAST              75
 #define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING  1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях

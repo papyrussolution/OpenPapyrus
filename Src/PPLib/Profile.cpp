@@ -72,7 +72,9 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_GETOPENEDLOTS,     0, 2, PPUserProfileFuncEntry::fAccumulate, 10000 },
 	{ PPUPRF_BHTPREPBILL,       0, 1, 0, 0 }, // @v9.4.11
 	{ PPUPRF_BHTPREPGOODS,      0, 1, 0, 0 }, // @v9.4.11
-	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 }  // @v9.5.8
+	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },  // @v9.5.8
+	{ PPUPRF_BUILDGOODSFL,      0, 1, 0, 0 },  // @v10.1.4
+	{ PPUPRF_SRCHINGOODSFL,     0, 2, 0, 0 },  // @v10.1.4
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)
@@ -86,7 +88,7 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 	return 0;
 }
 
-//static 
+//static
 uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
 {
 	ASSIGN_PTR(pFuncVer, (uint16)(logFuncId%1000));

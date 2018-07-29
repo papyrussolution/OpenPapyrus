@@ -2860,7 +2860,27 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
 					if(!CheckExtFlag(ECF_INITONLOGIN)) {
 						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
-						SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v9.4.9 ECF_OPENSOURCE
+						// @v10.1.4 SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v9.4.9 ECF_OPENSOURCE
+						// @v10.1.4 {
+						//SetExtFlag(ECF_SYSSERVICE, 0);
+						//SetExtFlag(ECF_DBDICTDL600, 0);
+						//SetExtFlag(ECF_DETECTCRDBTEXISTBYOPEN, 0);
+						//SetExtFlag(ECF_OPENSOURCE, 0);
+						//SetExtFlag(ECF_FULLGOODSCACHE, 0);
+						//SetExtFlag(ECF_PREPROCBRWONCHGFILT, 0);
+						//SetExtFlag(ECF_TRACESYNCLOT, 0);
+						//SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 0);
+						//SetExtFlag(ECF_DLLMODULE, 0);
+						SetExtFlag(ECF_AVERAGE, 0);
+						SetExtFlag(ECF_INITONLOGIN, 0);
+						SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 0);
+						SetExtFlag(ECF_DEBUGDIRTYMTX, 0);
+						SetExtFlag(ECF_USECDB, 0);
+						SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 0);
+						SetExtFlag(ECF_USESJLOGINEVENT, 0);
+						SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
+						SetExtFlag(ECF_USEGEOTRACKING, 0);
+						// } @v10.1.4 
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GRPACK,                  ECF_GOODSRESTPACK,          1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_TIDPACK,                 ECF_TRFRITEMPACK,           1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT,                ECF_GOODSBILLFILTSHOWDEBT,  1);

@@ -5209,7 +5209,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	// Различия в методах генерации штрихкода определены функцией
 	// int SLAPI GoodsCore::Helper_GetBarcodeByTempl (goods.cpp)
 #define ECF_SYSSERVICE			   0x00000020L // Работа в режиме системного сервиса
-#define ECF_CLIENT				   0x00000040L // Работа в режиме клиента трехзвенки
+// @v10.1.4 #define ECF_CLIENT				   0x00000040L // Работа в режиме клиента трехзвенки
 #define ECF_AVERAGE                0x00000080L // Установленный флаг делает доступными некоторые аварийные операции
 #define ECF_DBDICTDL600            0x00000100L // Использовать в качестве словаря описание таблицы БД в DL600
 #define ECF_FULLGOODSCACHE         0x00000200L // Сеанс использует кэширование полного списка товаров
@@ -7029,7 +7029,7 @@ extern PPSession DS;
 #define PPMaster  (DS.LCfg().State & CFGST_MASTER)
 #define ObjRts    (DS.GetConstTLA().Rights)
 #define CS_SERVER (DS.CheckExtFlag(ECF_SYSSERVICE))
-#define CS_CLIENT (DS.CheckExtFlag(ECF_CLIENT))
+// @v10.1.4 #define CS_CLIENT (DS.CheckExtFlag(ECF_CLIENT))
 
 void   SLAPI PPSaveErrContext();
 void   SLAPI PPRestoreErrContext();
