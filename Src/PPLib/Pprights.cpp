@@ -1685,11 +1685,15 @@ int SaveGrpUsrRights(SecurCollection * pRights)
 {
 	int    ok = -1;
 	if(pRights) {
+		Reference * p_ref = PPRef;
 		PPSecurPacket * p_pack = 0;
+		PPTransaction tra(1);
+		THROW(tra);
 		for(uint i = 0; pRights->enumItems(&i, (void**)&p_pack) > 0;) {
 			p_pack->Secur.ID = (p_pack->Secur.Tag == PPOBJ_USR) ? (p_pack->Secur.ID - USERID_OFFSET) : p_pack->Secur.ID;
-			THROW(PPRef->EditSecur(p_pack->Secur.Tag, p_pack->Secur.ID, p_pack, 0));
+			THROW(p_ref->EditSecur(p_pack->Secur.Tag, p_pack->Secur.ID, p_pack, 0, 0));
 		}
+		THROW(tra.Commit());
 		ok = 1;
 	}
 	CATCHZOK

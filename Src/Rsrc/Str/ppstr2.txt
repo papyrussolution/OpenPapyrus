@@ -7967,6 +7967,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgdbxchng_dbdxf_twopassrcv              "Двухпроходная обработка приема"
 @cfgdbxchng_dbdxf_uniteinvduprec          "Суммировать дублируемые строки инвентаризации"
 @cfgdbxchng_dbdxf_sendtagattchm           "Передавать с тегами прикрепленные файлы"
+@cfgdbxchng_dbdxf_syncusrandgrps          "Синхронизировать пользователей и группы"
 @cfgdbxchng_dfctrcptop                    "Вид операции для оприходования дефицита"
 @cfgdbxchng_spcsubstgoodsgrp              "Группа специальной подстановки дефицита"
 @cfgdbxchng_flags                         "@{flags}"
@@ -11505,6 +11506,7 @@ public:
 @scardinfo                                "Операции по карте"
 @scardinfo_clear                          "@{doclear}"
 @scardinfo_activate                       "Активировать"
+@scardinfo_verify                         "Верифицировать"
 @scardinfo_byowner                        "По владельцу"
 @scardinfo_transfer                       "Перенос"
 @scardinfo_execute                        "Выполнить"
@@ -11985,6 +11987,7 @@ PPHS_PROJECT                   "project"
 PPHS_RESOURCES                 "resources"
 PPHS_VALUES                    "values"
 PPHS_CHEQUE                    "cheque"
+PPHS_GEOTRACKING               "geotracking"
 
 #!}
 

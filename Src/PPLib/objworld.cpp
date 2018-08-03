@@ -884,7 +884,7 @@ int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SArray * pList)
 			p_rec = (WorldTbl::Rec *)&P_Tbl->data;
 			if(rFilt.ParentID == 0 || rFilt.ParentID == p_rec->ParentID) {
 				if(rFilt.CountryID == 0 || rFilt.CountryID == p_rec->CountryID) {
-					if(rFilt.SubName.Empty() || ExtStrSrch(p_rec->Name, (const char *)rFilt.SubName) > 0)
+					if(rFilt.SubName.Empty() || ExtStrSrch(p_rec->Name, rFilt.SubName.cptr(), 0) > 0)
 						THROW_SL(pList->insert(&P_Tbl->data));
 				}
 			}

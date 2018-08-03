@@ -1240,6 +1240,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 {
 	int    ok = 1;
 	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
+	long   glbs_flags = 0; // @v10.1.5 Флаги вызова функции CCheckCore::GetListBySess
 	LDATETIME dtm;
 	SString temp_buf;
 	{
@@ -1249,6 +1250,10 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 		if(rInfo.CashNodeID) {
 			PPCashNode cn_rec;
 			if(CnObj.Search(rInfo.CashNodeID, &cn_rec) > 0) {
+				// @v10.1.5 {
+				if(cn_rec.Flags & CASHF_SYNC && cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS)
+					glbs_flags |= CCheckCore::gglfSkipUnprintedChecks;
+				// } @v10.1.5 
 				THROW(WritePosNode(rB, "pos", cn_rec));
 			}
 		}
@@ -1264,7 +1269,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
             if(p_cc) {
 				CCheckPacket cc_pack;
 				SCardTbl::Rec sc_rec;
-                THROW(p_cc->GetListBySess(rInfo.ID, 0, cc_list));
+                THROW(p_cc->GetListBySess(rInfo.ID, glbs_flags, cc_list)); // @v10.1.5 glbs_flags
 				for(uint i = 0; i < cc_list.getCount(); i++) {
 					const PPID cc_id = cc_list.get(i);
 					cc_pack.Init();

@@ -5330,19 +5330,41 @@ int SLAPI PPVetisInterface::GetStockEntryList(uint startOffset, uint count, Veti
 int SLAPI PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
+	const  uint max_force_try_count = 7;
+	const  uint force_try_timeout = 1000;
+	uint   force_try_count = 0;
+	int    force_next_try = 0;
+	SString fmt_buf, msg_buf;
+	SString temp_buf;
 	VetisGetVetDocumentChangesListRequest app_data;
 	app_data.ListOptions.Set(startOffset, count);
 	app_data.Period = rPeriod;
-	{
+	do {
+		force_next_try = 0;
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
 		VetisApplicationBlock blk(1, &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply));
+			if(rReply.ErrList.getCount() == 1) {
+				const VetisErrorEntry * p_err_entry = rReply.ErrList.at(0);
+				if(p_err_entry && p_err_entry->Code.IsEqiAscii("APLM0012")) {
+					if(++force_try_count < max_force_try_count) {
+						if(P_Logger) {
+							PPLoadText(PPTXT_VETISFORCENEXTTRY, fmt_buf);
+							temp_buf.Z().Cat("GetVetDocumentChangesList").CatDiv('-', 1).Cat(force_try_count+1).CatChar('/').Cat(max_force_try_count);
+							temp_buf.Space().CatEq("timeout", force_try_timeout);
+							P_Logger->Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						}
+						SDelay(force_try_timeout);
+						force_next_try = 1;
+					}
+				}
+			}
 			ok = 1;
 		}
-	}
+	} while(force_next_try);
 	CATCHZOK
 	return ok;
 }

@@ -71,8 +71,7 @@ int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 		LDATETIME dm; dm.Set(chk->Dt, chk->Tm);
 		decodetime(&h, &m, &s, &ts, &dm.t);
 		dm.t = encodetime(h, m, (int)(chk->Code % 60), 0);
-		THROW(r = AddTempCheck(&id, chk->SessID, 0, chk->CashID,
-			chk->Code, chk->UserID, 0 /* cardID */, &dm, sum, dscnt));
+		THROW(r = AddTempCheck(&id, chk->SessID, 0, chk->CashID, chk->Code, chk->UserID, 0 /* cardID */, &dm, sum, dscnt));
 		if(r > 0) {
 			for(i = 0; rows->enumItems(&i, (void**)&e);) {
 				SetupTempCcLineRec(0, id, chk->Code, dm.d, e->div, e->goods);

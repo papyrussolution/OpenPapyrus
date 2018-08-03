@@ -21,7 +21,7 @@ int __db_fchk(ENV *, const char *, uint32, uint32);
 int __db_fcchk(ENV *, const char *, uint32, uint32, uint32);
 int __db_ferr(const ENV *, const char *, int);
 int __db_fnl(const ENV *, const char *);
-int __db_pgerr(DB *, db_pgno_t, int);
+int FASTCALL __db_pgerr(DB *, db_pgno_t, int);
 int __db_pgfmt(ENV *, db_pgno_t);
 #ifdef DIAGNOSTIC
 void __db_assert(ENV *, const char *, const char *, int);

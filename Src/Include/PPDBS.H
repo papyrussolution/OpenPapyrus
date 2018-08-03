@@ -2191,7 +2191,7 @@ public:
 	LotCurRestTbl(const char * pFileName = 0);
 
 	struct Rec {
-		double Rest;
+		double LDRest;
 		int32  LotID;
 		int16  D;
 	} data;
@@ -2203,7 +2203,29 @@ public:
 		int16  D;
 		int32  LotID;
 	};
-	DBField Rest;
+	DBField LDRest;
+	DBField LotID;
+	DBField D;
+};
+
+class LotCurRest2Tbl : public DBTable {
+public:
+	LotCurRest2Tbl(const char * pFileName = 0);
+
+	struct Rec {
+		int32  LDRestF;
+		int32  LotID;
+		int16  D;
+	} data;
+	struct Key0 {
+		int32  LotID;
+		int16  D;
+	};
+	struct Key1 {
+		int16  D;
+		int32  LotID;
+	};
+	DBField LDRestF;
 	DBField LotID;
 	DBField D;
 };

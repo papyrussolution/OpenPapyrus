@@ -326,25 +326,17 @@ lock_next:              if((ret =
 		else {
 			/*
 			 * Decide if we want to return a pointer to the next
-			 * page in the stack.  If we do, write lock it and
-			 * never unlock it.
+			 * page in the stack.  If we do, write lock it and never unlock it.
 			 */
-			if((LF_ISSET(SR_PARENT) &&
-			    (uint8)(stop + 1) >= (uint8)(LEVEL(h) - 1)) ||
-			    (LEVEL(h) - 1) == LEAFLEVEL)
+			if((LF_ISSET(SR_PARENT) && (uint8)(stop + 1) >= (uint8)(LEVEL(h) - 1)) || (LEVEL(h) - 1) == LEAFLEVEL)
 				stack = 1;
-
-			if((ret = __memp_fput(mpf,
-			    dbc->thread_info, h, dbc->priority)) != 0)
+			if((ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
 				goto err;
 			h = NULL;
-
-			lock_mode = stack &&
-			    LF_ISSET(SR_WRITE) ? DB_LOCK_WRITE : DB_LOCK_READ;
+			lock_mode = stack && LF_ISSET(SR_WRITE) ? DB_LOCK_WRITE : DB_LOCK_READ;
 			if(lock_mode == DB_LOCK_WRITE)
 				get_mode = DB_MPOOL_DIRTY;
-			if((ret = __db_lget(dbc,
-			    LCK_COUPLE_ALWAYS, pg, lock_mode, 0, &lock)) != 0) {
+			if((ret = __db_lget(dbc, LCK_COUPLE_ALWAYS, pg, lock_mode, 0, &lock)) != 0) {
 				/*
 				 * If we fail, discard the lock we held.  This
 				 * is OK because this only happens when we are
@@ -354,20 +346,15 @@ lock_next:              if((ret =
 				goto err;
 			}
 		}
-
-		if((ret = __memp_fget(mpf, &pg,
-		    dbc->thread_info, dbc->txn, get_mode, &h)) != 0)
+		if((ret = __memp_fget(mpf, &pg, dbc->thread_info, dbc->txn, get_mode, &h)) != 0)
 			goto err;
 	}
 	/* NOTREACHED */
-
-err:    if(h != NULL && (t_ret = __memp_fput(mpf,
-	    dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+err:    
+	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-
 	BT_STK_POP(cp);
 	(void)__bam_stkrel(dbc, 0);
-
 done:
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);

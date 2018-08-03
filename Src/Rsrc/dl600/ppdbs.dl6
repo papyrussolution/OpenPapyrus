@@ -1376,7 +1376,7 @@ file:
 //
 //
 table LotCurRest {
-	double Rest;   // Остаток на дату D
+	double LDRest; // Остаток на дату D
 	long   LotID;  // ->Receipt.ID
 	int16  D;      // Индекс даты (количество дней от 31/12/1995)
 index:
@@ -1385,6 +1385,19 @@ index:
 file:
 	"lcrest.btr";
 	page=4096;  // @v6.6.10 При автоматически определяемом размере страницы может не хватить предела для размера файла.
+	access=1;
+}
+
+table LotCurRest2 {
+	long   LDRestF; // Остаток на дату D (fixed .001)
+	long   LotID;   // ->Receipt.ID
+	int16  D;       // Индекс даты (количество дней от 31/12/1995)
+index:
+	LotID, D (unique mod);
+	D, LotID (unique mod);
+file:
+	"lcrest2.btr";
+	page=4096;
 	access=1;
 }
 //

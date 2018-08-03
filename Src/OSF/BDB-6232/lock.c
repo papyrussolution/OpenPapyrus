@@ -348,9 +348,6 @@ static int __lock_get_api(ENV *env, uint32 locker, uint32 flags, const DBT * obj
 /*
  * __lock_get --
  *	ENV->lock_get.
- *
- * PUBLIC: int __lock_get __P((ENV *,
- * PUBLIC:     DB_LOCKER *, uint32, const DBT *, db_lockmode_t, DB_LOCK *));
  */
 int __lock_get(ENV *env, DB_LOCKER * locker, uint32 flags, const DBT * obj, db_lockmode_t lock_mode, DB_LOCK * lock)
 {

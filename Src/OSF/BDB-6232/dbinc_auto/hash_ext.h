@@ -52,7 +52,7 @@ uint32 __ham_func5(DB *, const void *, uint32);
 uint32 __ham_func6(DB *, const void *, uint32);
 uint32 __ham_test(DB *, const void *, uint32);
 int __ham_get_meta(DBC *);
-int __ham_release_meta(DBC *);
+int FASTCALL __ham_release_meta(DBC *);
 int __ham_dirty_meta(DBC *, uint32);
 int __ham_return_meta(DBC *, uint32, DBMETA **);
 int __ham_db_create(DB *);

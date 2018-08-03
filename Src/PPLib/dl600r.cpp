@@ -308,10 +308,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 	const  DLSYMBID impl_type_id = pExpr->GetImplicitCast();
 	uint   ret_pos = impl_type_id ? AllocStackType(impl_type_id, 0) : sp;
 	TypeEntry te;
-	// @v8.7.8 {
 	if(pCallerRtm && pRtm != pCallerRtm)
 		pRtm->P_Ep = pCallerRtm->P_Ep;
-	// } @v8.7.8
 	switch(pExpr->GetKind()) {
 		case CtmExpr::kEmpty:
 			break;
@@ -473,10 +471,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 	int    debug_i = *(int *)S.GetPtr(sp);
 #endif
 	// } @debug
-	// @v8.7.8 {
 	if(pCallerRtm && pRtm != pCallerRtm)
 		pRtm->P_Ep = 0;
-	// } @v8.7.8
 	return ok;
 }
 
@@ -1367,7 +1363,8 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 	return ok;
 }
 
-int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
+//int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot, ExportParam & rParam)
+int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot)
 {
 	int     ok = 1;
 	SString left, suffix;
@@ -1376,7 +1373,8 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 	json_t  * p_hdr_obj = new json_t(json_t::tOBJECT);
 	for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
 		if(p_child->Name.IsEqiAscii("hdr")) {
-			THROW(InitData(*pFilt, 0));
+			//THROW(InitData(*pFilt, 0));
+			THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 			Helper_PutScopeToJson(p_child, p_hdr_obj);
 		}
 		else {
@@ -1414,8 +1412,11 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 	THROW(pAry);
 	for(uint i = 0, n = pAry->getCount(); i < n; i++) {
 		PPFilt filt(pAry->Get(i).Id);
-		if(filt.ID > 0)
-			THROW(Helper_PutItemToJson(&filt, p_root_ary));
+		if(filt.ID > 0) {
+			ExportParam ep;
+			ep.P_F = &filt;
+			THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
+		}
 	}
 	THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	CATCHZOK
@@ -1431,7 +1432,28 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	THROW(ptr);
 	{
 		PPFilt filt(ptr);
-		THROW(Helper_PutItemToJson(&filt, p_root_ary));
+		ExportParam ep;
+		ep.P_F = &filt;
+		THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
+		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
+	}
+	CATCHZOK
+	json_free_value(&p_root_ary);
+	return ok;
+}
+
+int SLAPI DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
+{
+	int    ok = 1;
+	json_t * p_root_ary = new json_t(json_t::tARRAY);
+	THROW_MEM(p_root_ary);
+	THROW(pV);
+	{
+		PPFilt filt(pV);
+		ExportParam ep;
+		ep.P_F = &filt;
+		ep.Flags |= ExportParam::fIsView;
+		THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
 		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	}
 	CATCHZOK

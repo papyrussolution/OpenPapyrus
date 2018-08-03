@@ -408,8 +408,8 @@
 	#define PPGRP_EVERYONE       1L
 #define PPOBJ_USR            4L  // $(PPSecur) Пользователи (struct PPSecur)
 	#define PPUSR_MASTER         1L
-	#define PPUSR_ADMIN          2L
-	#define PPUSR_MANAGER        3L
+	// @v10.1.5 (unused) #define PPUSR_ADMIN          2L
+	// @v10.1.5 (unused) #define PPUSR_MANAGER        3L
 #define PPOBJ_UNIT           5L  // $ Единицы измерения (struct PPUnit)
 	#define PPUNT_KILOGRAM       1L
 	#define PPUNT_METRE          2L
@@ -1092,7 +1092,7 @@
 	//
 	// Extra record of PPOBJ_TSESSION
 	#define TSESPRP_WROFFORDER   1L // Порядок списания техн сессий (ID объекта - 0)
-	#define TSESPRP_EXT          2L // @v8.8.0 Расширение пакета сессии (PPProcessorPacket::ExtBlock)
+	#define TSESPRP_EXT          2L // Расширение пакета сессии (PPProcessorPacket::ExtBlock)
 #define PPOBJ_DFCREATERULE  1040L // Правила для создания драфт документа
 	//
 	// Exra record of PPOBJ_DFCREATERULE
@@ -1108,49 +1108,51 @@
 #define PPOBJ_SERIAL        1047L  // !PPObject Ассоциации серийных номеров с уникальными идентификаторами.
 	// Используется для хранения привязки серийных номеров к записям группировка строк кассовых чеков (CGoodsLine)
 	// @store(ObjTagTbl)
-#define PPOBJ_TSALESBUILD   1048L  // !PPObject @v6.0.10 Построение таблицы продаж
-#define PPOBJ_DL600DATA     1049L  // !PPObject @v6.2.1  Структура данных DL600
-#define PPOBJ_QUOT2REL      1050L  // !PPObject @v6.2.7  Группирующие характеристики второй реализации котировок
-#define PPOBJ_QUOT2         1051L  // !PPObject @v6.2.7
-#define PPOBJ_GOODSARCODE   1052L  // !PPObject @v6.2.7
-#define PPOBJ_BILLEXT       1053L  // !PPObject @v6.3.14 Используется для кэширования расширения документов
-#define PPOBJ_BUDGET        1054L  // Бюджеты @v6.5.14
+#define PPOBJ_TSALESBUILD   1048L  // !PPObject Построение таблицы продаж
+#define PPOBJ_DL600DATA     1049L  // !PPObject Структура данных DL600
+#define PPOBJ_QUOT2REL      1050L  // !PPObject Группирующие характеристики второй реализации котировок
+#define PPOBJ_QUOT2         1051L  // !PPObject
+#define PPOBJ_GOODSARCODE   1052L  // !PPObject
+#define PPOBJ_BILLEXT       1053L  // !PPObject Используется для кэширования расширения документов
+#define PPOBJ_BUDGET        1054L  // Бюджеты
 #define PPOBJ_BIZSCTEMPL    1055L  // Шаблоны бизнес показателей
 	#define PPPRP_BIZSCTEMPLCOLS  1L // Колонки шаблона бизнес-показателей
 	#define PPPRP_BIZSCTEMPLROWS  2L // Строки шаблона бизнес-показателей
 	#define PPPRP_BIZSCTEMPLCELLS 3L // Ячейки шаблона бизнес-показателей
-#define PPOBJ_CAFETABLE     1056L  // @v6.7.1 Столы HORECA // Since @v8.4.1 Real Object
+#define PPOBJ_CAFETABLE     1056L  // Столы HORECA // Since @v8.4.1 Real Object
 #define PPOBJ_RFIDDEVICE    1057L  // PPObject rfid устройства
-#define PPOBJ_SPECSERIES    1058L  // @v7.3.0
-#define PPOBJ_EADDR         1059L  // @v7.3.1
-#define PPOBJ_GTA           1060L  // !PPObject @v7.3.8 Специальный тип для обозначения тарифицируемых событий глобальных учетных записей.
-#define PPOBJ_CURRATEIDENT  1061L  // !PPObject @v7.4.6 @uhtt Значение курса валюты
-#define PPOBJ_UHTTSCARDOP   1062L  // !PPObject @v7.4.8 @uhtt Используется для отображения информации о карте
-#define PPOBJ_TAGVALUE      1063L  // !PPObject @v7.7.0 Специальный тип для идентификации значений тегов объектов
-#define PPOBJ_CHKINP        1064L  // !PPObject @v7.7.5 Специальный тип для персональных регистраций
-	#define PPPRP_CHKINP_MEMO     1L // @v7.8.10 Строка примечания к персональной регистрации
+#define PPOBJ_SPECSERIES    1058L  //
+#define PPOBJ_EADDR         1059L  //
+#define PPOBJ_GTA           1060L  // !PPObject Специальный тип для обозначения тарифицируемых событий глобальных учетных записей.
+#define PPOBJ_CURRATEIDENT  1061L  // !PPObject @uhtt Значение курса валюты
+#define PPOBJ_UHTTSCARDOP   1062L  // !PPObject @uhtt Используется для отображения информации о карте
+#define PPOBJ_TAGVALUE      1063L  // !PPObject Специальный тип для идентификации значений тегов объектов
+#define PPOBJ_CHKINP        1064L  // !PPObject Специальный тип для персональных регистраций
+	#define PPPRP_CHKINP_MEMO     1L // Строка примечания к персональной регистрации
 #define PPOBJ_COMPGOODS     1065L  // Товары с составляющими // @vmiller
-#define PPOBJ_WORKBOOK      1066L  // @v8.1.3 рабочие книги (замещает PPOBJ_WORKBOOK_PRE813)
+#define PPOBJ_WORKBOOK      1066L  // рабочие книги (замещает PPOBJ_WORKBOOK_PRE813)
 	#define WBPRP_EXTSTRDATA      1L  // Строка расширения записи PPOBJ_WORKBOOK
-// @unused #define PPOBJ_KEYWORD       1067L  // @v8.1.3 Ключевые слова
-#define PPOBJ_BILLFREIGHT   1068L  // !PPObject @v8.2.9 Используется для кэширования фрахтов документов
-#define PPOBJ_FIAS          1069L  // @v8.6.2 Объект, управляющий данными справочника адресов России ФИАС. Не является полноправным PPObject'ом
+// @unused #define PPOBJ_KEYWORD       1067L  // Ключевые слова
+#define PPOBJ_BILLFREIGHT   1068L  // !PPObject Используется для кэширования фрахтов документов
+#define PPOBJ_FIAS          1069L  // Объект, управляющий данными справочника адресов России ФИАС. Не является полноправным PPObject'ом
 	#define TXTREF_FIAS_FORMTEXT  (TXTREF_PROP_BIAS+1)
 	#define TXTREF_FIAS_OFFCTEXT  (TXTREF_PROP_BIAS+2)
 	#define TXTREF_FIAS_PLAINCODE (TXTREF_PROP_BIAS+3)
 	#define FIASPRP_IMPORTSTATE_  1L  // @obsolete @v8.6.8 Состояние импорта из внешнего источника.
-	#define FIASPRP_IMPORTSTATE2  2L  // @v8.9.4 Состояние импорта из внешнего источника (версия 2).
-#define PPOBJ_UUIDREF      	1070L  // @v8.6.6 !PPObject Специальное значение для идентификации данных таблицы UuidRef
-#define PPOBJ_EGAISREFA     1071L  // @v8.9.5 Специализированный объект, хранящий данные справок А системы ЕГАИС
-#define PPOBJ_EGAISPRODUCT  1072L  // @v8.9.5 Специализированный объект, хранящий данные о товарах системы ЕГАИС
-#define PPOBJ_EGAISPERSON   1073L  // @v8.9.7 Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
+	#define FIASPRP_IMPORTSTATE2  2L  // Состояние импорта из внешнего источника (версия 2).
+#define PPOBJ_UUIDREF      	1070L  // !PPObject Специальное значение для идентификации данных таблицы UuidRef
+#define PPOBJ_EGAISREFA     1071L  // Специализированный объект, хранящий данные справок А системы ЕГАИС
+#define PPOBJ_EGAISPRODUCT  1072L  // Специализированный объект, хранящий данные о товарах системы ЕГАИС
+#define PPOBJ_EGAISPERSON   1073L  // Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
 #define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
+#define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
+	// Значение фактически применяется только для идентификации запроса к JobServer'у.
 #define PPOBJ_DBCONVERT     1100L  // @v6.4.6 Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
 	// Например, после выполнения конвертации 6.4.06 появится запись с ИД 0x060406
-#define PPOBJ_ADVEVENTQUEUE 1101L   // @v8.5.5 Специальное значение для идентификации очереди системных событий
-#define PPOBJ_SELFREFTEXT   2000L   // @v8.6.2 Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
+#define PPOBJ_ADVEVENTQUEUE 1101L   // Специальное значение для идентификации очереди системных событий
+#define PPOBJ_SELFREFTEXT   2000L   // Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
 // LastObject
 
 //
@@ -1701,6 +1703,7 @@
 #define STDCTL_LINKOBJBUTTON      157 // Кнопка "Связанный объект"
 #define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
 #define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
+#define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -3251,6 +3254,8 @@
 	#define CTL_CCFGSYS_LCRUSAGE         (7 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_FLAGS2           (8 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_ICQTTYEPS        (9 + WINDOWS_ID_BIAS)
+	#define CTL_CCFGSYS_LCRV2            (10 + WINDOWS_ID_BIAS)
+	#define CTL_CCFGSYS_LCRSINCE         (11 + WINDOWS_ID_BIAS)
 #define DLG_QCERTFLT              222 // Фильтр по сертификатам
 	#define CTL_QCERTFLT_EXPIRY          (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_INITDATE        (2 + WINDOWS_ID_BIAS)

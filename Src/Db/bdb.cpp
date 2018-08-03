@@ -833,11 +833,6 @@ DBT * FASTCALL BDbTable::Buffer::Get(DBT * pB) const
 	return pB;
 }
 
-BDbTable::Buffer::operator DBT * () const
-{
-	return (DBT *)this;
-}
-
 void BDbTable::Buffer::Reset()
 {
 	P_Data = 0;

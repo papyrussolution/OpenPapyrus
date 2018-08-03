@@ -81,10 +81,8 @@ ngx_module_t ngx_core_module = {
 //static char * ngx_signal;
 static char  ** ngx_os_environ;
 
-NgxStartUpOptions::NgxStartUpOptions()
+NgxStartUpOptions::NgxStartUpOptions() : Flags(0), SigID(0)
 {
-	Flags = 0;
-	SigID = 0;
 }
 
 const char * NgxStartUpOptions::GetSignalText() const

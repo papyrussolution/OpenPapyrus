@@ -18,37 +18,29 @@
  * PUBLIC: int __memp_dirty __P((DB_MPOOLFILE *, void *,
  * PUBLIC:     DB_THREAD_INFO *, DB_TXN *, DB_CACHE_PRIORITY, uint32));
  */
-int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_CACHE_PRIORITY priority, uint32 flags)
+int FASTCALL __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_CACHE_PRIORITY priority, uint32 flags)
 {
-	BH * bhp;
-	DB_MPOOL * dbmp;
 	DB_MPOOL_HASH * hp;
 	DB_TXN * ancestor;
-	ENV * env;
 	MPOOL * c_mp;
 #ifdef DIAG_MVCC
 	MPOOLFILE * mfp;
 #endif
 	REGINFO * infop;
-	int mvcc, ret;
-	db_pgno_t pgno;
-	void * pgaddr;
-
-	env = dbmfp->env;
-	dbmp = env->mp_handle;
-	mvcc = atomic_read(&dbmfp->mfp->multiversion);
-
-	/* Convert the page address to a buffer header. */
-	pgaddr = *(void**)addrp;
-	bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
-	pgno = bhp->pgno;
-	/* If we have it exclusively then its already dirty. */
+	int ret;
+	ENV * env = dbmfp->env;
+	DB_MPOOL * dbmp = env->mp_handle;
+	int mvcc = atomic_read(&dbmfp->mfp->multiversion);
+	// Convert the page address to a buffer header. 
+	void * pgaddr = *(void**)addrp;
+	BH * bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
+	db_pgno_t pgno = bhp->pgno;
+	// If we have it exclusively then its already dirty. 
 	if(F_ISSET(bhp, BH_EXCLUSIVE)) {
 		DB_ASSERT(env, F_ISSET(bhp, BH_DIRTY));
 		return 0;
 	}
-	if(flags == 0)
-		flags = DB_MPOOL_DIRTY;
+	SETIFZ(flags, DB_MPOOL_DIRTY);
 	DB_ASSERT(env, flags == DB_MPOOL_DIRTY || flags == DB_MPOOL_EDIT);
 	if(F_ISSET(dbmfp, MP_READONLY)) {
 		__db_errx(env, DB_STR_A("3008", "%s: dirty flag set for readonly file page", "%s"), __memp_fn(dbmfp));
@@ -64,38 +56,31 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 			(void)atomic_dec(env, &bhp->ref);
 			return ret;
 		}
-		if((ret = __memp_fget(dbmfp,
-		    &pgno, ip, txn, flags, addrp)) != 0) {
+		if((ret = __memp_fget(dbmfp, &pgno, ip, txn, flags, addrp)) != 0) {
 			if(ret != DB_LOCK_DEADLOCK)
 				__db_errx(env, DB_STR_A("3010", "%s: error getting a page for writing", "%s"), __memp_fn(dbmfp));
 			(void)atomic_dec(env, &bhp->ref);
 			return ret;
 		}
 		(void)atomic_dec(env, &bhp->ref);
-		/*
-		 * If the MVCC handle count hasn't changed, we should get a
-		 * different version of the page.
-		 */
+		// If the MVCC handle count hasn't changed, we should get a different version of the page.
 		DB_ASSERT(env, *(void**)addrp != pgaddr || mvcc != (int)atomic_read(&dbmfp->mfp->multiversion));
 		pgaddr = *(void**)addrp;
 		bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
 		DB_ASSERT(env, pgno == bhp->pgno);
 		return 0;
 	}
-
 	infop = &dbmp->reginfo[bhp->region];
 	c_mp = (MPOOL *)infop->primary;
 	hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab);
 	hp = &hp[bhp->bucket];
-
-	/* Drop the shared latch and get an exclusive. We have the buf ref'ed.*/
+	// Drop the shared latch and get an exclusive. We have the buf ref'ed.
 	MUTEX_UNLOCK(env, bhp->mtx_buf);
 	MUTEX_LOCK(env, bhp->mtx_buf);
 	DB_TEST_CRASH(env->test_abort, DB_TEST_EXC_LATCH);
 	DB_ASSERT(env, !F_ISSET(bhp, BH_EXCLUSIVE));
 	F_SET(bhp, BH_EXCLUSIVE);
-
-	/* Set/clear the page bits. */
+	// Set/clear the page bits. 
 	if(!F_ISSET(bhp, BH_DIRTY)) {
 #ifdef DIAGNOSTIC
 		MUTEX_LOCK(env, hp->mtx_hash);
@@ -106,7 +91,6 @@ int __memp_dirty(DB_MPOOLFILE *dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN 
 		MUTEX_UNLOCK(env, hp->mtx_hash);
 #endif
 	}
-
 #ifdef DIAG_MVCC
 	mfp = R_ADDR(env->mp_handle->reginfo, bhp->mf_offset);
 	MVCC_MPROTECT(bhp->buf, mfp->pagesize, PROT_READ | PROT_WRITE);

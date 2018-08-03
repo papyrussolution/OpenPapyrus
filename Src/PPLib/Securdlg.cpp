@@ -19,7 +19,7 @@ int SLAPI UpdatePassword()
 		spack.Rights.GetAccessRestriction(accsr);
 	if(PasswordDialog(0, password, sizeof(password), accsr.PwMinLen) > 0) {
 		memcpy(spack.Secur.Password, password, sizeof(spack.Secur.Password));
-		THROW(p_ref->EditSecur(PPOBJ_USR, LConfig.User, &spack, 0));
+		THROW(p_ref->EditSecur(PPOBJ_USR, LConfig.User, &spack, 0, 1));
 		PPMessage(mfInfo|mfOK, PPINF_PASSWORDUPDATED, 0);
 	}
 	else
@@ -60,8 +60,8 @@ public:
 			AddClusterAssoc(CTL_USR_UERFLAGS, 2, PPEXCLRT_CSESSWROFFROLLBACK);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 3, PPEXCLRT_INVWROFF);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 4, PPEXCLRT_INVWROFFROLLBACK);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 5, PPEXCLRT_DRAFTWROFF); // @v8.6.4
-			AddClusterAssoc(CTL_USR_UERFLAGS, 6, PPEXCLRT_DRAFTWROFFROLLBACK); // @v8.6.4
+			AddClusterAssoc(CTL_USR_UERFLAGS, 5, PPEXCLRT_DRAFTWROFF);
+			AddClusterAssoc(CTL_USR_UERFLAGS, 6, PPEXCLRT_DRAFTWROFFROLLBACK);
 			SetClusterData(CTL_USR_UERFLAGS, secur->UerFlags);
 		}
 		return ok;
@@ -78,7 +78,7 @@ public:
 			memcpy(secur->Password, Password, sizeof(secur->Password));
 			getCtrlData(CTLSEL_USR_GRP, &secur->ParentID);
 			getCtrlData(CTLSEL_USR_PERSON, &secur->PersonID);
-			getCtrlData(CTLSEL_USR_UER, &secur->UerID); // @v8.6.0
+			getCtrlData(CTLSEL_USR_UER, &secur->UerID);
 			getCtrlData(CTL_USR_FLAGS, &v);
 			SETFLAG(secur->Flags, USRF_INHCFG,    v & 1);
 			SETFLAG(secur->Flags, USRF_INHRIGHTS, v & 2);
@@ -264,14 +264,10 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 			if(param.Flags & PPObjSecur::ExtraParam::fSelectNewType) {
 				uint   v = 0;
 				if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
-					if(v == 0) {
-						obj = PPOBJ_USR;
-					}
-					else if(v == 1) {
-                		obj = PPOBJ_USRGRP;
-					}
-					else if(v == 2) {
-                		obj = PPOBJ_USREXCLRIGHTS;
+					switch(v) {
+						case 0: obj = PPOBJ_USR; break;
+						case 1: obj = PPOBJ_USRGRP; break;
+						case 2: obj = PPOBJ_USREXCLRIGHTS; break;
 					}
 				}
 			}
@@ -308,7 +304,7 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			dlg->getDTS(&spack);
 			if(ValidateSecurData(dlg, obj, &spack.Secur)) {
-				THROW(p_ref->EditSecur(obj, dlg->ObjID, &spack, *pID == 0));
+				THROW(p_ref->EditSecur(obj, dlg->ObjID, &spack, *pID == 0, 1));
 				// @v9.8.4 *pID = dlg->ObjID;
 				ASSIGN_PTR(pID, spack.Secur.ID); // @v9.8.4
 				valid_data = 1;

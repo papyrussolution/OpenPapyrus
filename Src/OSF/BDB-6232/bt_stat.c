@@ -60,27 +60,20 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 	/* Walk the metadata free list, counting pages. */
 	for(sp->bt_free = 0, pgno = meta->dbmeta.free; pgno != PGNO_INVALID;) {
 		++sp->bt_free;
-
-		if((ret = __memp_fget(mpf, &pgno,
-		    dbc->thread_info, dbc->txn, 0, &h)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &h)) != 0)
 			goto err;
-
 		pgno = h->next_pgno;
-		if((ret = __memp_fput(mpf,
-		    dbc->thread_info, h, dbc->priority)) != 0)
+		if((ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
 			goto err;
 		h = NULL;
 	}
-
 	/* Get the root page. */
 	BAM_GET_ROOT(dbc, pgno, h, 0, DB_LOCK_READ, lock, ret);
 	if(ret != 0)
 		goto err;
 	DB_ASSERT(env, h != NULL);
-
 	/* Get the levels from the root page. */
 	sp->bt_levels = h->level;
-
 	/* Discard the root page. */
 	ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 	h = NULL;
@@ -88,7 +81,6 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-
 	/* Discard the metadata page. */
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	meta = NULL;
@@ -96,18 +88,13 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-
 	/* Walk the tree. */
-	if((ret = __bam_traverse(dbc,
-	    DB_LOCK_READ, PGNO_INVALID, __bam_stat_callback, sp)) != 0)
+	if((ret = __bam_traverse(dbc, DB_LOCK_READ, PGNO_INVALID, __bam_stat_callback, sp)) != 0)
 		goto err;
-
 #ifdef HAVE_COMPRESSION
-	if(DB_IS_COMPRESSED(dbp) && (ret = __bam_compress_count(dbc,
-	    &sp->bt_nkeys, &sp->bt_ndata)) != 0)
+	if(DB_IS_COMPRESSED(dbp) && (ret = __bam_compress_count(dbc, &sp->bt_nkeys, &sp->bt_ndata)) != 0)
 		goto err;
 #endif
-
 	/*
 	 * Get the subdatabase metadata page if it's not the same as the
 	 * one we already have.
@@ -117,40 +104,29 @@ int __bam_stat(DBC *dbc, void * spp, uint32 flags)
 meta_only:
 	if(meta == NULL || t->bt_meta != PGNO_BASE_MD || write_meta) {
 		if(meta != NULL) {
-			ret = __memp_fput(mpf,
-				dbc->thread_info, meta, dbc->priority);
+			ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 			meta = NULL;
 			if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 				ret = t_ret;
 			if(ret != 0)
 				goto err;
 		}
-
-		if((ret = __db_lget(dbc,
-		    0, t->bt_meta, write_meta ? DB_LOCK_WRITE : DB_LOCK_READ,
-		    0, &metalock)) != 0)
+		if((ret = __db_lget(dbc, 0, t->bt_meta, write_meta ? DB_LOCK_WRITE : DB_LOCK_READ, 0, &metalock)) != 0)
 			goto err;
-		if((ret = __memp_fget(mpf, &t->bt_meta,
-		    dbc->thread_info, dbc->txn,
-		    write_meta ? DB_MPOOL_DIRTY : 0, &meta)) != 0)
+		if((ret = __memp_fget(mpf, &t->bt_meta, dbc->thread_info, dbc->txn, write_meta ? DB_MPOOL_DIRTY : 0, &meta)) != 0)
 			goto err;
 	}
 	if(flags == DB_FAST_STAT) {
-		if(dbp->type == DB_RECNO ||
-		    (dbp->type == DB_BTREE && F_ISSET(dbp, DB_AM_RECNUM))) {
+		if(dbp->type == DB_RECNO || (dbp->type == DB_BTREE && F_ISSET(dbp, DB_AM_RECNUM))) {
 			BAM_GET_ROOT(dbc, pgno, h, 0, DB_LOCK_READ, lock, ret);
 			if(ret != 0)
 				goto err;
-
 			sp->bt_nkeys = RE_NREC(h);
 		}
 		else
 			sp->bt_nkeys = meta->dbmeta.key_count;
-
-		sp->bt_ndata = dbp->type == DB_RECNO ?
-		    sp->bt_nkeys : meta->dbmeta.record_count;
+		sp->bt_ndata = dbp->type == DB_RECNO ? sp->bt_nkeys : meta->dbmeta.record_count;
 	}
-
 	/* Get metadata page statistics. */
 	sp->bt_metaflags = meta->dbmeta.flags;
 	sp->bt_minkey = meta->minkey;
@@ -169,24 +145,18 @@ meta_only:
 	sp->bt_pagesize = meta->dbmeta.pagesize;
 	sp->bt_magic = meta->dbmeta.magic;
 	sp->bt_version = meta->dbmeta.version;
-
 	if(write_meta != 0) {
 		meta->dbmeta.key_count = sp->bt_nkeys;
 		meta->dbmeta.record_count = sp->bt_ndata;
 	}
-
 	*(DB_BTREE_STAT**)spp = sp;
-
 err:    /* Discard the second page. */
-	if(h != NULL && (t_ret = __memp_fput(mpf,
-	    dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/* Discard the metadata page. */
-	if(meta != NULL && (t_ret = __memp_fput(mpf,
-	    dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;

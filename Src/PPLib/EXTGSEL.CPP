@@ -158,7 +158,7 @@ int SLAPI PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 					const uint c = p_full_list->getCount();
 					for(uint i = 0; i < c; i++) {
 						StrAssocArray::Item item = p_full_list->at_WithoutParent(i);
-						int    r = ExtStrSrch(item.Txt, rParam.Text);
+						int    r = ExtStrSrch(item.Txt, rParam.Text, 0);
 						if(r > 0) {
 							ReceiptTbl::Rec lot_rec;
 							if(rcpt.Search(item.Id, &lot_rec) > 0 && !lot_rec.Closed && (!rParam.LocID || lot_rec.LocID == rParam.LocID)) {

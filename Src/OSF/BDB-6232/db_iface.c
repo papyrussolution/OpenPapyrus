@@ -28,7 +28,7 @@ static int __db_cursor_arg(DB *, uint32);
 static int __db_del_arg __P((DB *, DBT *, uint32, int));
 static int __db_get_arg __P((const DB *, DBT *, DBT *, uint32));
 static int __db_join_arg __P((DB *, DBC **, uint32));
-static int __db_pget_arg __P((DB *, DBT *, uint32));
+//static int __db_pget_arg __P((DB *, DBT *, uint32));
 static int __db_put_arg __P((DB *, DBT *, DBT *, uint32, int));
 static int __dbt_ferr __P((const DB *, const char *, const DBT *, int));
 static int __db_compact_func __P((DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *));
@@ -290,21 +290,18 @@ err:    /* Release replication block on error. */
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-
 /*
  * __db_cursor --
  *	DB->cursor.
  *
- * PUBLIC: int __db_cursor __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DBC **, uint32));
+ * PUBLIC: int __db_cursor(DB *, DB_THREAD_INFO *, DB_TXN *, DBC **, uint32);
  */
-int __db_cursor(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 flags)
+int FASTCALL __db_cursor(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 {
 	DBC * dbc;
-	ENV * env;
 	db_lockmode_t mode;
 	int ret;
-	env = dbp->env;
+	ENV * env = dbp->env;
 	if(MULTIVERSION(dbp) && txn == NULL && (LF_ISSET(DB_TXN_SNAPSHOT) || F_ISSET(env->dbenv, DB_ENV_TXN_SNAPSHOT))) {
 		if((ret = __txn_begin(env, ip, NULL, &txn, DB_TXN_SNAPSHOT)) != 0)
 			return ret;
@@ -326,27 +323,20 @@ int __db_cursor(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 
 		if(LF_ISSET(DB_WRITELOCK))
 			F_SET(dbc, DBC_WRITER);
 	}
-
-	if(LF_ISSET(DB_READ_UNCOMMITTED) ||
-	    (txn != NULL && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
+	if(LF_ISSET(DB_READ_UNCOMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
 		F_SET(dbc, DBC_READ_UNCOMMITTED);
-
-	if(LF_ISSET(DB_READ_COMMITTED) ||
-	    (txn != NULL && F_ISSET(txn, TXN_READ_COMMITTED)))
+	if(LF_ISSET(DB_READ_COMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_COMMITTED)))
 		F_SET(dbc, DBC_READ_COMMITTED);
-
 #ifdef HAVE_SLICES
 	if(LF_ISSET(DB_SLICED))
 		ret = __dbc_slice_init(dbc);
 #endif
-
 	*dbcp = dbc;
 	return 0;
-
-err:    (void)__dbc_close(dbc);
+err:    
+	(void)__dbc_close(dbc);
 	return ret;
 }
-
 /*
  * __db_cursor_arg --
  *	Check DB->cursor arguments.
@@ -379,52 +369,40 @@ static int __db_cursor_arg(DB *dbp, uint32 flags)
 			return (__db_rdonly(env, "DB->cursor"));
 		LF_CLR(DB_WRITELOCK);
 	}
-
 	if(flags != 0)
 		return (__db_ferr(env, "DB->cursor", 0));
-
 	return 0;
 }
-
 /*
  * __db_del_pp --
  *	DB->del pre/post processing.
- *
- * PUBLIC: int __db_del_pp __P((DB *, DB_TXN *, DBT *, uint32));
  */
 int __db_del_pp(DB *dbp, DB_TXN * txn, DBT * key, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
-	int forward_op, handle_check, ret, t_ret, txn_local;
-	env = dbp->env;
-	txn_local = 0;
-	forward_op = 0;
+	int handle_check, ret, t_ret;
+	ENV * env = dbp->env;
+	int txn_local = 0;
+	int forward_op = 0;
 #ifdef HAVE_REPLICATION_THREADS
-	forward_op = IS_REP_CLIENT(env) &&
-	    IS_USING_WRITE_FORWARDING(env) && txn == NULL;
+	forward_op = IS_REP_CLIENT(env) && IS_USING_WRITE_FORWARDING(env) && txn == NULL;
 #endif
-
 	STRIP_AUTO_COMMIT(flags);
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->del");
-
 #ifdef CONFIG_TEST
 	if(IS_REP_MASTER(env))
 		DB_TEST_WAIT(env, env->test_check);
 #endif
 	ENV_ENTER(env, ip);
 	XA_CHECK_TXN(ip, txn);
-
 	/* Check for replication block. */
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (ret = __db_rep_enter(dbp, 1, 0, IS_REAL_TXN(txn))) != 0) {
 		handle_check = 0;
 		goto err;
 	}
-
 	if((ret = __db_del_arg(dbp, key, flags, forward_op)) != 0)
 		goto err;
-
 	/* Forward singleton del operation to replication master if needed. */
 #ifdef HAVE_REPLICATION_THREADS
 	if(forward_op) {
@@ -1237,6 +1215,56 @@ int __db_open_arg(DB *dbp, DB_TXN * txn, const char * fname, const char * dname,
 	}
 	return 0;
 }
+// 
+// Check DB->pget arguments.
+// 
+static int FASTCALL __db_pget_arg(DB *dbp, DBT * pkey, uint32 flags)
+{
+	int ret;
+	ENV * env = dbp->env;
+	if(!F_ISSET(dbp, DB_AM_SECONDARY)) {
+		ret = USR_ERR(env, EINVAL);
+		__db_errx(env, DB_STR("0601", "DB->pget may only be used on secondary indices"));
+		return ret;
+	}
+	if(LF_ISSET(DB_MULTIPLE | DB_MULTIPLE_KEY)) {
+		ret = USR_ERR(env, EINVAL);
+		__db_errx(env, DB_STR("0602", "DB_MULTIPLE and DB_MULTIPLE_KEY may not be used on secondary indices"));
+		return ret;
+	}
+	/* DB_CONSUME makes no sense on a secondary index. */
+	LF_CLR(DB_READ_COMMITTED | DB_READ_UNCOMMITTED | DB_RMW);
+	switch(flags) {
+		case DB_CONSUME:
+		case DB_CONSUME_WAIT:
+		    return (__db_ferr(env, "DB->pget", 0));
+		default:
+		    break; // __db_get_arg will catch the rest. 
+	}
+	// 
+	// We allow the pkey field to be NULL, so that we can make the
+	// two-DBT get calls into wrappers for the three-DBT ones.
+	// 
+	if(pkey != NULL && (ret = __dbt_ferr(dbp, "primary key", pkey, 1)) != 0)
+		return ret;
+	// Check invalid partial pkey. 
+	if(pkey != NULL && F_ISSET(pkey, DB_DBT_PARTIAL)) {
+		ret = USR_ERR(env, EINVAL);
+		__db_errx(env, DB_STR("0709", "The primary key returned by pget can't be partial"));
+		return ret;
+	}
+	if(flags == DB_GET_BOTH) {
+		// The pkey field can't be NULL if we're doing a DB_GET_BOTH. 
+		if(pkey == NULL) {
+			ret = USR_ERR(env, EINVAL);
+			__db_errx(env, DB_STR("0603", "DB_GET_BOTH on a secondary index requires a primary key"));
+			return ret;
+		}
+		if((ret = __dbt_usercopy(env, pkey)) != 0)
+			return ret;
+	}
+	return 0;
+}
 /*
  * __db_pget_pp --
  *	DB->pget pre/post processing.
@@ -1246,8 +1274,11 @@ int __db_open_arg(DB *dbp, DB_TXN * txn, const char * fname, const char * dname,
 int __db_pget_pp(DB *dbp, DB_TXN * txn, DBT * skey, DBT * pkey, DBT * data, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
-	int handle_check, ignore_lease, ret, t_ret;
-	ENV * env = dbp->env;
+	int    handle_check;
+	int    ignore_lease;
+	int    ret;
+	int    t_ret;
+	ENV  * env = dbp->env;
 	DB_ILLEGAL_BEFORE_OPEN(dbp, "DB->pget");
 	ignore_lease = LF_ISSET(DB_IGNORE_LEASE) ? 1 : 0;
 	LF_CLR(DB_IGNORE_LEASE);
@@ -1280,8 +1311,7 @@ err:    /* Release replication block. */
  * __db_pget --
  *	DB->pget.
  *
- * PUBLIC: int __db_pget __P((DB *,
- * PUBLIC:     DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, DBT *, uint32));
+ * PUBLIC: int __db_pget(DB *, DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, DBT *, uint32);
  */
 int __db_pget(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * skey, DBT * pkey, DBT * data, uint32 flags)
 {
@@ -1316,69 +1346,16 @@ int __db_pget(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * skey, DBT * pkey
 	 */
 	if(pkey == NULL)
 		dbc->rkey = &dbc->my_rkey;
-	/*
-	 * The cursor is just a perfectly ordinary secondary database cursor.
-	 * Call its c_pget() method to do the dirty work.
-	 */
+	// 
+	// The cursor is just a perfectly ordinary secondary database cursor.
+	// Call its c_pget() method to do the dirty work.
+	// 
 	if(flags == 0 || flags == DB_RMW)
 		flags |= DB_SET;
 	ret = __dbc_pget(dbc, skey, pkey, data, flags);
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
-}
-/*
- * __db_pget_arg --
- *	Check DB->pget arguments.
- */
-static int __db_pget_arg(DB *dbp, DBT * pkey, uint32 flags)
-{
-	int ret;
-	ENV * env = dbp->env;
-	if(!F_ISSET(dbp, DB_AM_SECONDARY)) {
-		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0601", "DB->pget may only be used on secondary indices"));
-		return ret;
-	}
-	if(LF_ISSET(DB_MULTIPLE | DB_MULTIPLE_KEY)) {
-		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0602", "DB_MULTIPLE and DB_MULTIPLE_KEY may not be used on secondary indices"));
-		return ret;
-	}
-	/* DB_CONSUME makes no sense on a secondary index. */
-	LF_CLR(DB_READ_COMMITTED | DB_READ_UNCOMMITTED | DB_RMW);
-	switch(flags) {
-		case DB_CONSUME:
-		case DB_CONSUME_WAIT:
-		    return (__db_ferr(env, "DB->pget", 0));
-		default:
-		    /* __db_get_arg will catch the rest. */
-		    break;
-	}
-
-	/*
-	 * We allow the pkey field to be NULL, so that we can make the
-	 * two-DBT get calls into wrappers for the three-DBT ones.
-	 */
-	if(pkey != NULL && (ret = __dbt_ferr(dbp, "primary key", pkey, 1)) != 0)
-		return ret;
-	/* Check invalid partial pkey. */
-	if(pkey != NULL && F_ISSET(pkey, DB_DBT_PARTIAL)) {
-		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR("0709", "The primary key returned by pget can't be partial"));
-		return ret;
-	}
-	if(flags == DB_GET_BOTH) {
-		/* The pkey field can't be NULL if we're doing a DB_GET_BOTH. */
-		if(pkey == NULL) {
-			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR("0603", "DB_GET_BOTH on a secondary index requires a primary key"));
-			return ret;
-		}
-		if((ret = __dbt_usercopy(env, pkey)) != 0)
-			return ret;
-	}
-	return 0;
 }
 /*
  * __db_put_pp --

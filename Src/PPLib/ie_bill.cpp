@@ -4178,7 +4178,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 		}
 		if(pPack->Rec.Object2) {
 			if(ArObj.Fetch(pPack->Rec.Object2, &ar_rec) > 0) {
-				pBill->Obj2ID = ar_rec.ID; // @v8.1.3
+				pBill->Obj2ID = ar_rec.ID;
 				pBill->Obj2No = ar_rec.Article;
 				STRNSCPY(pBill->Obj2Name, (temp_buf = ar_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
 			}
@@ -4193,7 +4193,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 			ltoa(loc_rec.ID, pBill->LocID, 10);
 			(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->LocName, sizeof(pBill->LocName));
 			(temp_buf = loc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->LocCode, sizeof(pBill->LocCode));
-			LocObj.GetCity(loc_rec.ID, 0, &str_city, 1); // @v8.7.12 @fix loc_rec.CityID-->loc_rec.ID; useCache=1
+			LocObj.GetCity(loc_rec.ID, 0, &str_city, 1);
 			str_city.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->City, sizeof(pBill->City));
 			LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, temp_buf);
 			if(temp_buf.NotEmptyS())
@@ -4207,7 +4207,6 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 			PPIDArray ord_bill_list;
 			BillTbl::Rec ord_bill_rec;
 			const PPID org_link_bill_id = pPack->Rec.LinkBillID;
-			// @v8.6.12 {
 			if(pPack->Rec.EdiOp == PPEDIOP_RECADV) {
 				BillTbl::Rec desadv_bill_rec;
 				PPID   desadv_bill_id = 0;
@@ -4227,7 +4226,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 					}
 				}
 			}
-			else { // } @v8.6.12
+			else {
 				if(P_BObj->P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &ord_bill_list) > 0) {
 					for(uint j = 0; j < ord_bill_list.getCount(); j++) {
 						PPID  ord_bill_id = ord_bill_list.get(j);
@@ -4974,11 +4973,12 @@ int SLAPI Generator_DocNalogRu::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 			}
 		}
 		{
+			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
 			PPLocationPacket loc_pack;
-			if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
+			if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
 				WriteAddress(loc_pack, region_code);
 			}
-			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+			else if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
 				WriteAddress(loc_pack, region_code);
 			}
 		}

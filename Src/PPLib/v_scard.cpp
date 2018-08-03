@@ -576,7 +576,7 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 				THROW(strncmp(pRec->Code, Filt.Number, ss_len) == 0);
 			}
 			else {
-				THROW(ExtStrSrch(pRec->Code, Filt.Number));
+				THROW(ExtStrSrch(pRec->Code, Filt.Number, 0));
 			}
 		}
 	}

@@ -2655,7 +2655,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 	{
 		SString temp_buf;
 		pFilt->GetExtssData(pFilt->extssNameText, temp_buf);
-		if(temp_buf.NotEmptyS() && !ExtStrSrch(rec.Name, temp_buf))
+		if(temp_buf.NotEmptyS() && !ExtStrSrch(rec.Name, temp_buf, 0))
 			CFF_RET;
 	}
 	if(!(implFlags & GOCFIF_ARCODE) && pFilt->IsRestrictedByAr()) {

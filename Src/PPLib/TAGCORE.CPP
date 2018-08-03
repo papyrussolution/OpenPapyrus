@@ -1403,7 +1403,7 @@ int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * 
 	 		do {
 	 			if(data.ObjType == objType) {
 	 				// AHTOXA {
-	 				if(!(substr_srch && srch_str_not_empty) || ExtStrSrch(k3.StrVal, p_str) > 0)
+	 				if(!(substr_srch && srch_str_not_empty) || ExtStrSrch(k3.StrVal, p_str, 0) > 0)
 	 					list.add(data.ObjID);
 	 				// } AHTOXA
 	 			}

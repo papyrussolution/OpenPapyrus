@@ -128,7 +128,9 @@ public:
 		cPlace,     // 
 		cTSession,  // 
 		cPinCode,   // 
-		cCip        // 
+		cCip,       // 
+
+		cGeoTracking // @v10.1.5
 	};
 	//
 	// Подкритерии
@@ -180,21 +182,22 @@ private:
 		ZDELETEFAST(P_QF);
 		ZDELETEFAST(P_GaF);
 		ZDELETEFAST(P_LocF);
-		ZDELETEFAST(P_LocTspF); // @v8.7.8
+		ZDELETEFAST(P_LocTspF);
 		ZDELETEFAST(P_WrldF);
 		ZDELETEFAST(P_SpecSerF);
 		ZDELETEFAST(P_SCardF);
 		ZDELETEFAST(P_CurRateF);
 		ZDELETEFAST(P_UhttSCardOpF);
 		ZDELETEFAST(P_BillF);
+		ZDELETEFAST(P_GeoTrF); // @v10.1.5
 		ZDELETEFAST(P_DtGrF);
 		ZDELETEFAST(P_UhttStorF);
 		ZDELETEFAST(P_WorkbookF);
 		ZDELETEFAST(P_SetBlk);
 		ZDELETEFAST(P_TagBlk);
-		ZDELETEFAST(P_TSesF); // @v8.7.0
-		ZDELETEFAST(P_PrcF); // @v8.7.4
-		ZDELETEFAST(P_UuidList); // @v8.7.5
+		ZDELETEFAST(P_TSesF);
+		ZDELETEFAST(P_PrcF);
+		ZDELETEFAST(P_UuidList);
 		Separate = 0;
 		ExtFiltFlags = 0;
 		DL600StrucName.Z();
@@ -421,17 +424,17 @@ private:
 	SString JSONString;
 	StringSet SrchCodeList;
 	PPIDArray IdList;
-	PPIDArray TagExistList; // @v7.7.4 Список типов тэгов, существование которых (со связкой ИЛИ) определяет список извлекаемых объектов
+	PPIDArray TagExistList; // Список типов тэгов, существование которых (со связкой ИЛИ) определяет список извлекаемых объектов
 
 	int    Separate;
 	long   ExtFiltFlags;
-	IntRange Page;     // @v7.5.12
+	IntRange Page;     // Диапазон номеров страниц для выборки
 	enum {
 		fmtXml = 1, // default
 		fmtTddo,
 		fmtBinary,
 		fmtJson,    // @v7.6.5 @Muxa
-		fmtXmlUtf8  // @v8.6.8 явно задается вывод xml в кодировке UTF-8 (по умолчанию - ANSI)
+		fmtXmlUtf8  // Явно задается вывод xml в кодировке UTF-8 (по умолчанию - ANSI)
 	};
 	int    OutFormat;
 	SString OutTemplate; // Наименование шаблона вывода резульатов в формате TDDO
@@ -443,10 +446,9 @@ private:
 	PPObjTag TagObj;
 	PPObjSCard * P_ScObj;
 	PPObjTSession * P_TSesObj;
-
 	GoodsFilt * P_GoodsF;
 	PersonFilt * P_PsnF;
-	PersonRelFilt * P_PsnRelF; // @v7.6.1
+	PersonRelFilt * P_PsnRelF; 
 	LocalGoodsGroupFilt * P_GgF;
 	LocalBrandFilt * P_BrF;
 	LocalGlobalAccFilt * P_GaF;
@@ -458,7 +460,8 @@ private:
 	SCardFilt * P_SCardF;
 	CurRateFilt * P_CurRateF;
 	UhttSCardOpFilt * P_UhttSCardOpF;
-	BillFilt * P_BillF; // @v7.5.5
+	BillFilt * P_BillF;
+	GeoTrackingFilt * P_GeoTrF;
 	LocalDraftTransitGoodsRestFilt * P_DtGrF;
 	LocalUhttStoreFilt * P_UhttStorF;
 	LocalWorkbookFilt * P_WorkbookF;
@@ -661,6 +664,8 @@ SELECT personkind by id(1002) id(1003)
 
 SELECT person BY kind.symb(BANK) format.binary
 
+SELECT geotracking BY period(1/5/2018..31/5/2018) objtype(BILL)
+
 format.xml
 format.tddo(template_name)
 format.bin
@@ -825,6 +830,11 @@ CITY
 	subname
 	country
 
+GEOTRACKING
+	objtype
+	objid
+	period
+
 QUOT
 	ACTUAL
 	KIND             ID, CODE
@@ -987,7 +997,7 @@ Backend_SelectObjectBlock::SetBlock::~SetBlock()
 
 Backend_SelectObjectBlock::Backend_SelectObjectBlock() : Operator(0), ObjType(0), ObjTypeExt(0), P_ScObj(0),
 	P_TSesObj(0), P_GoodsF(0), P_PsnF(0), P_PsnRelF(0), P_GgF(0), P_BrF(0), P_QF(0), P_GaF(0), P_LocF(0),
-	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0),
+	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0), P_GeoTrF(0),
 	P_DtGrF(0), P_UhttStorF(0), P_WorkbookF(0), P_TSesF(0), P_PrcF(0), P_Qc(0), P_SetBlk(0), P_TagBlk(0),
 	P_DCc(0), OutFormat(fmtXml), Separate(0), P_UuidList(0)
 {
@@ -1096,7 +1106,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cPlace,         "PLACE"     },
 		{ cTSession,      "TSESSION"  },
 		{ cPinCode,       "PINCODE"   },
-		{ cCip,           "CIP"       },
+		{ cCip,           "CIP"       }
 
 		/*
 		{ cCountry,  "COUNTRY" },
@@ -1147,7 +1157,6 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ "GETTSESSPLACESTATUS", oGetTSessPlaceStatus, PPOBJ_TSESSION },
 		{ "TSESSCIPCHECKIN", oTSessCipCheckIn, PPOBJ_TSESSION },
 		{ "TSESSCIPCANCEL",  oTSessCipCancel,  PPOBJ_TSESSION }
-
 	};
 	destroy();
 
@@ -1191,7 +1200,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		if(scan.Skip().GetIdent(temp_buf)) {
 			SString arg_buf;
 			if(Operator == oSelect) {
-				THROW_PP(temp_buf.IsEqNC("BY"), PPERR_CMDSEL_EXP_BY);
+				THROW_PP(temp_buf.IsEqiAscii("BY"), PPERR_CMDSEL_EXP_BY);
 				THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_CRITERION);
 			}
 			do {
@@ -2296,7 +2305,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW(p_bobj->GetCrBillEntry(temp_bill_id, &pack));
 						THROW(p_bobj->__TurnPacket(&pack, 0, 0, 1));
 						THROW(p_bobj->SetCrBillEntry(temp_bill_id, 0)); // Удаляем экземпляр документа из кэша
-						P_SetBlk->U.B.ID = pack.Rec.ID; // @v7.5.10
+						P_SetBlk->U.B.ID = pack.Rec.ID;
 						rResult.SetString(temp_buf.Z().Cat(pack.Rec.ID));
 					}
 				}
@@ -2459,7 +2468,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							PPQuotItem_ & r_item = temp_list.at(--c);
 							Goods2Tbl::Rec goods_rec;
 							if(GObj.Fetch(r_item.GoodsID, &goods_rec) > 0) {
-								if(!ExtStrSrch(goods_rec.Name, P_QF->GoodsSubText))
+								if(!ExtStrSrch(goods_rec.Name, P_QF->GoodsSubText, 0))
 									temp_list.atFree(c);
 							}
 							else
@@ -3308,7 +3317,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 			}
 			break;
-		// @Muxa v7.4.6 {
 		case PPOBJ_CURRATEIDENT:
 			if(Operator == oSelect) {
 				PPViewCurRate     view;
@@ -3362,7 +3370,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				ok = 2;
 			}
 			break;
-		// } @Muxa v7.4.6
 		case PPOBJ_UNIT:
 			if(Operator == oSelect) {
 				use_filt = 1;
@@ -3427,7 +3434,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								if(P_ScObj->SearchCode(0, txt_buf, &sc_rec) > 0) {
 									THROW_SL(ResultList.Add(sc_rec.ID, 0, sc_rec.Code));
 								}
-								// @Muxa @v7.3.9
 								else {
 									ObjTagItem  tag;
 									SString     number, prefix;
@@ -3442,7 +3448,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 										}
 									}
 								}
-								// } @Muxa @v7.3.9
 							}
 						}
 					}
@@ -3453,7 +3458,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					SETIFZ(P_SCardF, new SCardFilt());
 					P_SCardF->Flags |= (SCardFilt::fNoTempTable|SCardFilt::fNoEmployer);
 					THROW(sc_view.Init_(P_SCardF));
-					// @v7.6.6 {
 					{
 						const StrAssocArray & r_list = sc_view.GetList();
 						for(uint i = 0; i < r_list.getCount(); i++) {
@@ -3461,16 +3465,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							THROW_SL(ResultList.Add(item.Id, 0, item.Txt));
 						}
 					}
-					// } @v7.6.6
-					/* @v7.6.6
-					{
-						SCardViewItem sc_item;
-						THROW(sc_view.InitIteration());
-						while(sc_view.NextIteration(&sc_item) > 0) {
-							THROW_SL(ResultList.Add(sc_item.ID, 0, sc_item.Code));
-						}
-					}
-					*/
 				}
 			}
 			else if(Operator == oSCardRest) {
@@ -3687,6 +3681,24 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
 						}
 					}
+				}
+			}
+			break;
+		case PPOBJ_GEOTRACKING:
+			if(Operator == oSelect) {
+				PPViewGeoTracking view;
+				if(view.Init_(P_GeoTrF)) {
+					if(OutFormat == fmtJson) {
+						PPExportDL600DataToJson(/*DL600StrucName*/"GeoTracking", &view, ResultText);
+						THROW(rResult.WriteString(ResultText));
+						rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
+					}
+					else {
+						THROW(PPExportDL600DataToBuffer("GeoTracking", &view, _xmlcp, ResultText));
+						THROW(rResult.WriteString(ResultText));
+						rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
+					}
+					ok = 2;
 				}
 			}
 			break;
@@ -5045,7 +5057,6 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							break;
 					}
 				}
-				// @v8.1.9 {
 				else if(Operator == oGetGoodsMatrix) {
 					SETIFZ(P_QF, new LocalQuotFilt);
 					switch(criterion) {
@@ -5068,7 +5079,6 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							break;
 					}
 				}
-				// } @v8.1.9
 				break;
 			case PPOBJ_GOODSARCODE:
 				if(Operator == oSelect) {
@@ -5134,8 +5144,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					case cBrand:
 						temp_id = 0;
 						THROW(ResolveCrit_Brand(subcriterion, rArg, &temp_id));
-						if(temp_id)
-							P_GoodsF->BrandList.Add(temp_id);
+						P_GoodsF->BrandList.Add(temp_id);
 						break;
 					case cManuf:
 						THROW(ResolveCrit_Person(subcriterion, rArg, &temp_id));
@@ -5206,8 +5215,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						break;
 					case cLocation:
 						THROW(ResolveCrit_Loc(subcriterion, rArg, &temp_id));
-						if(temp_id)
-							P_GoodsF->LocList.Add(temp_id);
+						P_GoodsF->LocList.Add(temp_id);
 						break;
 					case cPage:
 						THROW(ResolveCrit_Page(rArg));
@@ -5432,12 +5440,10 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						if(temp_id)
 							P_LocF->Owner = temp_id;
 						break;
-					// @v8.3.2 {
 					case cPhone:
 						P_LocF->LocType = LOCTYP_ADDRESS;
 						P_LocF->SetExField(LocationFilt::exfPhone, rArg);
 						break;
-					// } @v8.3.2
 					case cPage:
 						THROW(ResolveCrit_Page(rArg));
 						break;
@@ -5450,24 +5456,14 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				SETIFZ(P_WrldF, new PPObjWorld::SelFilt);
 				P_WrldF->KindFlags = (ObjTypeExt == WORLDOBJ_COUNTRY) ? WORLDOBJ_COUNTRY : WORLDOBJ_CITY;
 				switch(criterion) {
-					case cID:
-						IdList.addUnique(rArg.ToLong());
-						break;
-					case cCode:
-						AddSrchCode_BySymb(rArg);
-						break;
-					case cName:
-						AddSrchCode_ByName(rArg);
-						break;
-					case cSubName:
-						P_WrldF->SubName = rArg;
-						break;
+					case cID: IdList.addUnique(rArg.ToLong()); break;
+					case cCode: AddSrchCode_BySymb(rArg); break;
+					case cName: AddSrchCode_ByName(rArg); break;
+					case cSubName: P_WrldF->SubName = rArg; break;
 					case cParent:
 						switch(subcriterion) {
 							case 0:
-							case scID:
-								P_WrldF->ParentID = rArg.ToLong();
-								break;
+							case scID: P_WrldF->ParentID = rArg.ToLong(); break;
 							case scCode:
 								{
 									PPObjWorld w_obj;
@@ -5915,29 +5911,29 @@ STYLOPALM
 							break;
 						case cGtaOp:
 							{
-								if(rArg.IsEqNC("NOOP"))
+								if(rArg.IsEqiAscii("NOOP"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
-								else if(rArg.IsEqNC("OBJGET"))
+								else if(rArg.IsEqiAscii("OBJGET"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJGET;
-								else if(rArg.IsEqNC("OBJADD"))
+								else if(rArg.IsEqiAscii("OBJADD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJADD;
-								else if(rArg.IsEqNC("OBJMOD"))
+								else if(rArg.IsEqiAscii("OBJMOD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJMOD;
-								else if(rArg.IsEqNC("OBJRMV"))
+								else if(rArg.IsEqiAscii("OBJRMV"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJRMV;
-								else if(rArg.IsEqNC("CCHECKCREATE"))
+								else if(rArg.IsEqiAscii("CCHECKCREATE"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_CCHECKCREATE;
-								else if(rArg.IsEqNC("SCARDWITHDRAW"))
+								else if(rArg.IsEqiAscii("SCARDWITHDRAW"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDWITHDRAW;
-								else if(rArg.IsEqNC("SCARDDEPOSIT"))
+								else if(rArg.IsEqiAscii("SCARDDEPOSIT"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDDEPOSIT;
-								else if(rArg.IsEqNC("FILEUPLOAD"))
+								else if(rArg.IsEqiAscii("FILEUPLOAD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_FILEUPLOAD;
-								else if(rArg.IsEqNC("FILEDOWNLOAD"))
+								else if(rArg.IsEqiAscii("FILEDOWNLOAD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_FILEDOWNLOAD;
-								else if(rArg.IsEqNC("BILLCREATE"))
+								else if(rArg.IsEqiAscii("BILLCREATE"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_BILLCREATE;
-								else if(rArg.IsEqNC("SMSSEND"))
+								else if(rArg.IsEqiAscii("SMSSEND"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SMSSEND;
 								else
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
@@ -5969,6 +5965,24 @@ STYLOPALM
 						case cParent: P_WorkbookF->ParentID = rArg.ToLong(); break;
 						case cType: P_WorkbookF->Type = rArg.ToLong(); break;
 						case cStripSSfx: P_WorkbookF->Flags |= LocalWorkbookFilt::fStripSSfx; break;
+						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
+					}
+				}
+				break;
+			case PPOBJ_GEOTRACKING:
+				if(Operator == oSelect) {
+					SETIFZ(P_GeoTrF, new GeoTrackingFilt);
+					switch(criterion) {
+						case cPeriod: THROW(strtoperiod(rArg, &P_GeoTrF->Period, 0)); break;
+						case cObjType:
+							{
+								long   objtypeext = 0;
+								THROW(P_GeoTrF->Oi.Obj = GetObjectTypeBySymb(rArg, &objtypeext));
+							}
+							break;
+						case cObjID:
+							P_GeoTrF->Oi.Id = rArg.ToLong();
+							break;
 						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
 				}

@@ -450,29 +450,20 @@ int __ham_new_subdb(DB *mdbp, DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 	LOCK_INIT(lock);
 	LOCK_INIT(metalock);
 	LOCK_INIT(mmlock);
-
 	if(dbp->blob_threshold) {
-		if((ret = __blob_generate_dir_ids(
-			    dbp, txn, &dbp->blob_sdb_id)) != 0)
+		if((ret = __blob_generate_dir_ids(dbp, txn, &dbp->blob_sdb_id)) != 0)
 			return ret;
 	}
-
-	if((ret = __db_cursor(mdbp, ip, txn,
-	    &dbc, CDB_LOCKING(env) ?  DB_WRITECURSOR : 0)) != 0)
+	if((ret = __db_cursor(mdbp, ip, txn, &dbc, CDB_LOCKING(env) ?  DB_WRITECURSOR : 0)) != 0)
 		return ret;
-
 	/* Get and lock the new meta data page. */
-	if((ret = __db_lget(dbc,
-	    0, dbp->meta_pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+	if((ret = __db_lget(dbc, 0, dbp->meta_pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &dbp->meta_pgno, ip, dbc->txn,
-	    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &dbp->meta_pgno, ip, dbc->txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &meta)) != 0)
 		goto err;
-
 	/* Initialize the new meta-data page. */
 	lsn = meta->dbmeta.lsn;
 	lpgno = __ham_init_meta(dbp, meta, dbp->meta_pgno, &lsn);
-
 	/*
 	 * We are about to allocate a set of contiguous buckets (lpgno
 	 * worth).  We need to get the master meta-data page to figure

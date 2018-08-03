@@ -1046,9 +1046,12 @@ int SLAPI RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * p
 int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPLotFaultArray * pAry)
 {
 	int    ok = 1;
+	LcrBlock * p_lcr = 0;
+	LcrBlock2 * p_lcr2 = 0;
 	if(lotID) {
 		PPObjBill * p_bobj = BillObj;
 		Reference * p_ref = PPRef;
+		const PPCommConfig & r_ccfg = CConfig;
 		ReceiptTbl::Rec rec;
 		Goods2Tbl::Rec goods_rec; // Запись товара, к которому привязан лот
 		SString serial_buf;
@@ -1160,32 +1163,37 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						ProcessLotFault(pAry, PPLotFault::CloseTag, 0, 0);
 				}
 			}
-			// @v8.0.9 {
 			if(rec.Rest < 0.0) {
 				ProcessLotFault(pAry, PPLotFault::NegativeRest, 0, 0);
 			}
-			// } @v8.0.9
 			if(flags & TLRF_CHECKUNIQSERIAL) {
 				p_bobj->GetSerialNumberByLot(rec.ID, serial_buf, 0);
 				if(p_bobj->AdjustSerialForUniq(rec.GoodsID, rec.ID, 1, serial_buf) > 0)
 					ProcessLotFault(pAry, PPLotFault::NonUniqSerial, 0, 0);
 			}
-			// @v8.9.0 {
 			if(rec.Flags & LOTF_PRICEWOTAXES && !(goods_rec.Flags & GF_PRICEWOTAXES)) {
 				ProcessLotFault(pAry, PPLotFault::InadqLotWoTaxFlagOn, 0, 0);
 			}
-			// } @v8.9.0
 			{
 				TransferTbl::Key2 k;
 				long   op_count = 0;
 				double rest    = 0.0;
 				double ph_rest = 0.0;
 				LDATE  last_dt = ZERODATE;
-				LcrBlock lcr(LcrBlock::opTest, P_LcrT, 0);
+				//LcrBlock lcr(LcrBlock::opTest, P_LcrT, 0);
 				RevalArray reval_list(R5(rec.Cost), R5(rec.Price));
 				DBRowIdArray rcpt_pos_list; // Список операций, имеющих флаг PPTFR_RECEIPT
-				lcr.InitLot(lotID);
 				BExtQuery q(this, 2);
+				if(rec.Dt >= r_ccfg.LcrUsageSince) {
+					if(P_Lcr2T) {
+						THROW_MEM(p_lcr2 = new LcrBlock2(LcrBlockBase::opTest, P_Lcr2T, 0));
+						p_lcr2->InitLot(lotID);
+					}
+					else if(P_LcrT) {
+						THROW_MEM(p_lcr = new LcrBlock(LcrBlockBase::opTest, P_LcrT, 0));
+						p_lcr->InitLot(lotID);
+					}
+				}
 				q.selectAll().where(LotID == lotID);
 				MEMSZERO(k);
 				k.LotID = lotID;
@@ -1213,24 +1221,20 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						reval_list.Add(&data, 0);
 					if(labs(rec.GoodsID) != labs(data.GoodsID))
 						ProcessLotFault(pAry, PPLotFault::OpGoodsID, 0, 0);
-					// @v8.3.9 {
 					else if(data.GoodsID) {
 						if((data.Flags & PPTFR_INDEPPHQTTY)  && !(goods_rec.Flags & GF_USEINDEPWT))
 							ProcessLotFault(pAry, PPLotFault::InadqIndepPhFlagOn, 0, 0);
 						else if(!(data.Flags & PPTFR_INDEPPHQTTY) && (goods_rec.Flags & GF_USEINDEPWT))
 							ProcessLotFault(pAry, PPLotFault::InadqIndepPhFlagOff, 0, 0);
 					}
-					// } @v8.3.9
 					if(rec.GoodsID > 0 && rec.LocID != data.LocID)
 						ProcessLotFault(pAry, PPLotFault::OpLocation, 0, 0);
 					if(data.Flags & PPTFR_COSTWOVAT && !(rec.Flags & LOTF_COSTWOVAT))
 						ProcessLotFault(pAry, PPLotFault::OpFlagsCWoVat, 1, 0);
 					if(!(data.Flags & PPTFR_COSTWOVAT) && rec.Flags & LOTF_COSTWOVAT)
 						ProcessLotFault(pAry, PPLotFault::OpFlagsCWoVat, 0, 1);
-					// @v8.9.0 {
 					if(data.Flags & PPTFR_PRICEWOTAXES && !(goods_rec.Flags & GF_PRICEWOTAXES))
 						ProcessLotFault(pAry, PPLotFault::InadqTrfrWoTaxFlagOn, 0, 0);
-					// } @v8.9.0
 					rest = R6(rest + data.Quantity);
 					ph_rest = R6(ph_rest + data.WtQtty);
 					if(R6(data.Rest - rest) != 0.0)
@@ -1240,10 +1244,19 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 					if(data.Flags & PPTFR_RECEIPT) {
 						THROW_SL(rcpt_pos_list.insert(&p));
 					}
-					lcr.Process(data);
+					CALLPTRMEMB(p_lcr2, Process(data));
+					CALLPTRMEMB(p_lcr, Process(data));
 				}
-				lcr.FinishLot();
-				lcr.TranslateErr(pAry);
+				if(p_lcr2) {
+					p_lcr2->FinishLot();
+					p_lcr2->TranslateErr(pAry);
+					ZDELETE(p_lcr2);
+				}
+				else if(p_lcr) {
+					p_lcr->FinishLot();
+					p_lcr->TranslateErr(pAry);
+					ZDELETE(p_lcr);
+				}
 				if(op_count > 0) {
 					if(R6(rec.Rest - rest) != 0)
 						ProcessLotFault(pAry, PPLotFault::Rest, rec.Rest, rest);
@@ -1361,6 +1374,8 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 		}
 	}
 	CATCHZOK
+	delete p_lcr;
+	delete p_lcr2;
 	return ok;
 }
 
@@ -1740,8 +1755,13 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 					THROW(UpdateByID(&Rcpt, PPOBJ_LOT, lotID, &lot_rec, 0));
 					err_lot = 0;
 				}
-				if(P_LcrT && pFaultList->HasLcrFault()) {
-					THROW(Helper_RecalcLotCRest(lotID, 0, 1));
+				if(pFaultList->HasLcrFault()) {
+					if(P_Lcr2T) {
+						THROW(Helper_RecalcLotCRest2(lotID, 0, 1));
+					}
+					else if(P_LcrT) {
+						THROW(Helper_RecalcLotCRest(lotID, 0, 1));
+					}
 				}
 			}
 		}
@@ -1753,40 +1773,83 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 
 int SLAPI Transfer::RecalcLcr()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	int    inner_tbl = 0;
-	LotCurRestTbl * p_tbl = P_LcrT;
-	if(!P_LcrT) {
-		P_LcrT = new LotCurRestTbl;
-		inner_tbl = 1;
-	}
-	if(P_LcrT) {
-		IterCounter cntr;
-		ReceiptTbl::Key0 k0;
-		MEMSZERO(k0);
-		BExtQuery q(&Rcpt, 0);
-		q.select(Rcpt.ID, Rcpt.Dt, 0L);
-		PPWait(1);
-		PPInitIterCounter(cntr, &Rcpt);
-		BExtInsert bei(P_LcrT);
-		THROW(PPStartTransaction(&ta, 1));
-		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
-			THROW(Helper_RecalcLotCRest(Rcpt.data.ID, &bei, 0));
-			PPWaitPercent(cntr.Increment());
-			if((((uint)cntr) % 10000) == 0) {
+	const PPCommConfig & r_ccfg = CConfig;
+	const LDATE start_date = checkdate(r_ccfg.LcrUsageSince) ? r_ccfg.LcrUsageSince : ZERODATE;
+	if(r_ccfg.Flags2 & CCFLG2_USELCR2) {
+		LotCurRest2Tbl * p_tbl = P_Lcr2T;
+		if(!P_Lcr2T) {
+			P_Lcr2T = new LotCurRest2Tbl;
+			inner_tbl = 2;
+		}
+		if(P_Lcr2T) {
+			IterCounter cntr;
+			ReceiptTbl::Key1 k1;
+			MEMSZERO(k1);
+			k1.Dt = start_date;
+			BExtQuery q(&Rcpt, 1);
+			q.select(Rcpt.ID, Rcpt.Dt, 0L).where(Rcpt.Dt >= start_date);
+			PPWait(1);
+			PPInitIterCounter(cntr, &Rcpt);
+			BExtInsert bei(P_Lcr2T);
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+					THROW(Helper_RecalcLotCRest2(Rcpt.data.ID, &bei, 0));
+					PPWaitPercent(cntr.Increment());
+					if((((uint)cntr) % 10000) == 0) {
+						THROW_DB(bei.flash());
+						THROW(tra.Commit());
+						THROW(tra.Start(1));
+					}
+				}
 				THROW_DB(bei.flash());
-				THROW(PPCommitWork(&ta));
-				THROW(PPStartTransaction(&ta, 1));
+				THROW(tra.Commit());
 			}
 		}
-		THROW_DB(bei.flash());
-		THROW(PPCommitWork(&ta));
+	}
+	else {
+		LotCurRestTbl * p_tbl = P_LcrT;
+		if(!P_LcrT) {
+			P_LcrT = new LotCurRestTbl;
+			inner_tbl = 1;
+		}
+		if(P_LcrT) {
+			IterCounter cntr;
+			ReceiptTbl::Key1 k1;
+			MEMSZERO(k1);
+			k1.Dt = start_date;
+			BExtQuery q(&Rcpt, 1);
+			q.select(Rcpt.ID, Rcpt.Dt, 0L).where(Rcpt.Dt >= start_date);
+			PPWait(1);
+			PPInitIterCounter(cntr, &Rcpt);
+			BExtInsert bei(P_LcrT);
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+					THROW(Helper_RecalcLotCRest(Rcpt.data.ID, &bei, 0));
+					PPWaitPercent(cntr.Increment());
+					if((((uint)cntr) % 10000) == 0) {
+						THROW_DB(bei.flash());
+						THROW(tra.Commit());
+						THROW(tra.Start(1));
+					}
+				}
+				THROW_DB(bei.flash());
+				THROW(tra.Commit());
+			}
+		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
-	if(inner_tbl) {
+	if(inner_tbl == 2) {
+		ZDELETE(P_Lcr2T);
+	}
+	else if(inner_tbl == 1) {
 		ZDELETE(P_LcrT);
 	}
 	PPWait(0);
@@ -2637,10 +2700,9 @@ public:
 	struct Param {
 		long   Flags;
 	};
-	SLAPI  PrcssrReceiptPacking()
+	SLAPI  PrcssrReceiptPacking() : P_BObj(BillObj)
 	{
 		MEMSZERO(P);
-		P_BObj = BillObj;
 	}
 	int    SLAPI InitParam(Param * pParam)
 	{

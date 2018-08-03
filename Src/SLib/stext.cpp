@@ -2802,7 +2802,7 @@ int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSr
 	return ok;
 }
 
-int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
+int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 {
 	int    ok = 1;
 	int    done = 0;
@@ -2835,8 +2835,8 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
 				}
 			}
 			if(div) {
-				int r1 = ExtStrSrch(pBuffer, temp_buf); // @recursion
-				int r2 = ExtStrSrch(pBuffer, pPattern+p+inc); // @recursion
+				int r1 = ExtStrSrch(pBuffer, temp_buf, flags); // @recursion
+				int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
 				if(div == 1 && (r1 || r2))
 					ok = 1;
 				else if(div == 2 && (r1 && r2))
@@ -2876,8 +2876,13 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
 				if(ok && ApproxStrSrch(p_srch_str, pBuffer, &sp) != 1)
 					ok = 0;
 			}
-			else if(!stristr866(pBuffer, p_srch_str))
-				ok = 0;
+			else {
+				const char * p_local_r = (flags & essfCaseSensitive) ? strstr(pBuffer, p_srch_str) : stristr866(pBuffer, p_srch_str);
+				if(!p_local_r)
+					ok = 0;
+				/*if(!stristr866(pBuffer, p_srch_str))
+					ok = 0;*/
+			}
 		}
 	}
 	else

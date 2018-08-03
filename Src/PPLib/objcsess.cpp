@@ -338,7 +338,7 @@ int SLAPI PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int
 	THROW(CheckRights(CSESSRT_CORRECT));
 	PPWait(1);
 	{
-		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF); // @v8.6.1
+		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(level == 0) {
@@ -688,7 +688,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 	PPID   sess_id = 0;
 	SString msg_tmpl_buf, msg_buf, err_msg_fmt, err_msg_text, ccheck_code;
 	if(*pID == 0) {
-		PPUserFuncProfiler ufp(PPUPRF_CSESSTXMRESTORE); // @v8.1.3
+		PPUserFuncProfiler ufp(PPUPRF_CSESSTXMRESTORE);
 		PPLoadText(PPTXT_RESTORECSESS, msg_tmpl_buf);
 		PPIniFile ini_file;
 		int    accept_dup_time = 0;
@@ -703,13 +703,12 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 			if(!Rec.SuperSessID)
 				Rec.Incomplete = CSESSINCMPL_CHECKS;
 			//
-			// @v7.1.6 {
 			// Очень редко, но бывает, что суперсессия не принимается из другого раздела по
 			// причине того, что суперсессия по другому разделу имеет ту же временную метку.
 			//
 			if(Rec.SuperSessID == 0 && Rec.CashNumber == 0)
 				SessObj.P_Tbl->CheckUniqueDateTime(Rec.SuperSessID, Rec.CashNumber, &Rec.Dt, &Rec.Tm);
-			// } @v7.1.6
+			//
 			THROW(AddObjRecByID(SessObj.P_Tbl, SessObj.Obj, &sess_id, &Rec, 0));
 			for(i = 0; i < ChecksCount; i++) {
 				CCheckPacket pack;
@@ -727,7 +726,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 					}
 				}
 				pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
-				pack.UpdFlags |= CCheckPacket::ufSkipUhtt; // @v8.4.2
+				pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
 				if(!Cc.TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
@@ -742,8 +741,8 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				THROW(SessObj.Recalc(Rec.SuperSessID, 0));
 			THROW(tra.Commit());
 		}
-		ufp.SetFactor(0, (double)ChecksCount); // @v8.1.3
-		ufp.Commit();                          // @v8.1.3
+		ufp.SetFactor(0, (double)ChecksCount);
+		ufp.Commit();
 		ASSIGN_PTR(pID, sess_id);
 		ok = 1;
 	}
@@ -817,10 +816,9 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 									}
 								}
 							}
-							// @v8.4.2 {
 							else {
 								pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
-								pack.UpdFlags |= CCheckPacket::ufSkipUhtt; // @v8.4.2
+								pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 								if(!Cc.TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
@@ -833,7 +831,6 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 								}
 								pCtx->Output(msg_buf);
 							}
-							// } @v8.4.2
 						}
 					}
 				}
@@ -876,7 +873,6 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 			CCheckLineTbl::Rec & r_line = pack.Items_.at(j);
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_GOODS, &r_line.GoodsID, ary, replace));
 		}
-		// @v8.2.3 {
 		for(uint k = 0; k < pack.AL().getCount(); k++) {
 			CcAmountEntry & r_al_entry = pack.AL().at(k);
 			if(r_al_entry.Type == CCAMTTYP_CRDCARD) {
@@ -884,7 +880,6 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 				THROW(PPObject::ProcessObjRefInArray(PPOBJ_CURRENCY, &r_al_entry.CurID, ary, replace)); // @v9.0.4
 			}
 		}
-		// } @v8.2.3
 		if(replace) {
 			THROW(Cc.SerializePacket(+1, &pack, temp_buf, &pCtx->SCtx));
 		}

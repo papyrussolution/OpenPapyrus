@@ -42,34 +42,28 @@ int __memp_fput_pp(DB_MPOOLFILE *dbmfp, void * pgaddr, DB_CACHE_PRIORITY priorit
  *
  * PUBLIC: int __memp_fput __P((DB_MPOOLFILE *, DB_THREAD_INFO *, void *, DB_CACHE_PRIORITY));
  */
-int __memp_fput(DB_MPOOLFILE *dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACHE_PRIORITY priority)
+int FASTCALL __memp_fput(DB_MPOOLFILE *dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACHE_PRIORITY priority)
 {
-	BH * bhp;
-	DB_ENV * dbenv;
-	DB_MPOOL * dbmp;
 	DB_MPOOL_HASH * hp;
-	ENV * env;
 	MPOOL * c_mp;
-	MPOOLFILE * mfp;
 	PIN_LIST * list, * lp;
 	REGINFO * infop, * reginfo;
 	roff_t b_ref;
 	int region;
-	int adjust, pfactor, ret, t_ret;
+	int adjust, pfactor, t_ret;
 	char buf[DB_THREADID_STRLEN];
-	env = dbmfp->env;
-	dbenv = env->dbenv;
-	dbmp = env->mp_handle;
-	mfp = dbmfp->mfp;
-	bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
-	ret = 0;
+	ENV * env = dbmfp->env;
+	DB_ENV * dbenv = env->dbenv;
+	DB_MPOOL * dbmp = env->mp_handle;
+	MPOOLFILE * mfp = dbmfp->mfp;
+	BH * bhp = (BH*)((uint8*)pgaddr - SSZA(BH, buf));
+	int ret = 0;
 	/*
 	 * If this is marked dummy, we are using it to unpin a buffer for
 	 * another thread.
 	 */
 	if(F_ISSET(dbmfp, MP_DUMMY))
 		goto unpin;
-
 	/*
 	 * If we're mapping the file, there's nothing to do.  Because we can
 	 * stop mapping the file at any time, we have to check on each buffer
@@ -99,22 +93,17 @@ unpin:
 	c_mp = (MPOOL *)infop->primary;
 	hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab);
 	hp = &hp[bhp->bucket];
-
 	/*
 	 * Check for a reference count going to zero.  This can happen if the
 	 * application returns a page twice.
 	 */
 	if(atomic_read(&bhp->ref) == 0) {
-		__db_errx(env, DB_STR_A("3012",
-		    "%s: page %lu: unpinned page returned", "%s %lu"),
-		    __memp_fn(dbmfp), (u_long)bhp->pgno);
+		__db_errx(env, DB_STR_A("3012", "%s: page %lu: unpinned page returned", "%s %lu"), __memp_fn(dbmfp), (u_long)bhp->pgno);
 		DB_ASSERT(env, atomic_read(&bhp->ref) != 0);
 		return (__env_panic(env, EACCES));
 	}
-
 	/* Note the activity so allocation won't decide to quit. */
 	++c_mp->put_counter;
-
 	if(ip != NULL) {
 		reginfo = env->reginfo;
 		list = (PIN_LIST *)R_ADDR(reginfo, ip->dbth_pinlist);
@@ -123,19 +112,14 @@ unpin:
 		for(lp = list; lp < &list[ip->dbth_pinmax]; lp++)
 			if(lp->b_ref == b_ref && lp->region == region)
 				break;
-
 		if(lp == &list[ip->dbth_pinmax]) {
-			__db_errx(env, DB_STR_A("3013",
-			    "__memp_fput: pinned buffer not found for thread %s",
-			    "%s"), dbenv->thread_id_string(dbenv,
-			    ip->dbth_pid, ip->dbth_tid, buf));
+			__db_errx(env, DB_STR_A("3013", "__memp_fput: pinned buffer not found for thread %s",
+			    "%s"), dbenv->thread_id_string(dbenv, ip->dbth_pid, ip->dbth_tid, buf));
 			return (__env_panic(env, EINVAL));
 		}
-
 		lp->b_ref = INVALID_ROFF;
 		ip->dbth_pincount--;
 	}
-
 	/*
 	 * Mark the file dirty.
 	 */
@@ -143,7 +127,6 @@ unpin:
 		DB_ASSERT(env, atomic_read(&hp->hash_page_dirty) > 0);
 		mfp->file_written = 1;
 	}
-
 	/*
 	 * If more than one reference to the page we're done.  Ignore the
 	 * discard flags (for now) and leave the buffer's priority alone.
@@ -154,8 +137,7 @@ unpin:
 	 * for a while.
 	 */
 	DB_ASSERT(env, atomic_read(&bhp->ref) != 0);
-	if(atomic_dec(env, &bhp->ref) > 1 || (atomic_read(&bhp->ref) == 1 &&
-	    !F_ISSET(bhp, BH_DIRTY))) {
+	if(atomic_dec(env, &bhp->ref) > 1 || (atomic_read(&bhp->ref) == 1 && !F_ISSET(bhp, BH_DIRTY))) {
 		/*
 		 * __memp_pgwrite only has a shared lock while it clears
 		 * the BH_DIRTY bit. If we only have a shared latch then
@@ -166,7 +148,6 @@ unpin:
 		MUTEX_UNLOCK_IP(env, bhp->mtx_buf, ip);
 		return 0;
 	}
-
 	/* The buffer should not be accessed again. */
 #ifdef DIAG_MVCC
 	MUTEX_LOCK(env, hp->mtx_hash);

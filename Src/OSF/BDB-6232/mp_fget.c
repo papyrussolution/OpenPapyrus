@@ -62,9 +62,7 @@ int __memp_fget_pp(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, uin
 			    return (__db_ferr(env, "memp_fget", 1));
 		}
 	}
-
 	ENV_ENTER(env, ip);
-
 	rep_blocked = 0;
 	if(txnp == NULL && IS_ENV_REPLICATED(env)) {
 		if((ret = __op_rep_enter(env, 0, 1)) != 0)
@@ -91,7 +89,7 @@ err:
  *
  * PUBLIC: int __memp_fget __P((DB_MPOOLFILE *, db_pgno_t *, DB_THREAD_INFO *, DB_TXN *, uint32, void *));
  */
-int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags, void * addrp)
+int FASTCALL __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags, void * addrp)
 {
 	enum { FIRST_FOUND, FIRST_MISS, SECOND_FOUND, SECOND_MISS } state;
 
@@ -199,15 +197,11 @@ int __memp_fget(DB_MPOOLFILE *dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, 
 	 * It would be possible to do so by reference counting the open
 	 * pages from the mmap, but it's unclear to me that it's worth it.
 	 */
-	if(dbmfp->addr != NULL &&
-	    F_ISSET(mfp, MP_CAN_MMAP) && *pgnoaddr <= mfp->orig_last_pgno) {
-		*(void**)addrp = (uint8*)dbmfp->addr +
-		    (*pgnoaddr * mfp->pagesize);
-		STAT_INC_VERB(env,
-		    mpool, map, mfp->stat.st_map, __memp_fn(dbmfp), *pgnoaddr);
+	if(dbmfp->addr != NULL && F_ISSET(mfp, MP_CAN_MMAP) && *pgnoaddr <= mfp->orig_last_pgno) {
+		*(void**)addrp = (uint8*)dbmfp->addr + (*pgnoaddr * mfp->pagesize);
+		STAT_INC_VERB(env, mpool, map, mfp->stat.st_map, __memp_fn(dbmfp), *pgnoaddr);
 		return 0;
 	}
-
 	/*
 	 * Determine the cache and hash bucket where this page lives and get
 	 * local pointers to them.  Reset on each pass through this code, the
@@ -232,11 +226,8 @@ retry:          MUTEX_LOCK(env, hp->mtx_hash);
 
 		/* Snapshot reads -- get the version visible at read_lsn. */
 		if(read_lsnp != NULL) {
-			while(bhp != NULL &&
-			    !BH_OWNED_BY(env, bhp, txn) &&
-			    !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
+			while(bhp != NULL && !BH_OWNED_BY(env, bhp, txn) && !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
 				bhp = SH_CHAIN_PREV(bhp, vc, __bh);
-
 			/*
 			 * We can get a null bhp if we are looking for a
 			 * page that was created after the transaction was
@@ -248,24 +239,19 @@ retry:          MUTEX_LOCK(env, hp->mtx_hash);
 				goto err;
 			}
 		}
-
 		makecopy = mvcc && dirty && !BH_OWNED_BY(env, bhp, txn);
-
 		/*
 		 * Increment the reference count.  This signals that the
 		 * buffer may not be discarded.  We must drop the hash
 		 * mutex before we lock the buffer mutex.
 		 */
 		if(BH_REFCOUNT(bhp) == UINT16_MAX) {
-			__db_errx(env, DB_STR_A("3022",
-			    "%s: page %lu: reference count overflow",
-			    "%s %lu"), __memp_fn(dbmfp), (u_long)bhp->pgno);
+			__db_errx(env, DB_STR_A("3022", "%s: page %lu: reference count overflow", "%s %lu"), __memp_fn(dbmfp), (u_long)bhp->pgno);
 			ret = __env_panic(env, EINVAL);
 			goto err;
 		}
 		(void)atomic_inc(env, &bhp->ref);
 		b_incr = 1;
-
 		/*
 		 * Lock the buffer. If the page is being read in or modified it
 		 * will be exclusively locked and we will block.
@@ -277,8 +263,7 @@ retry:          MUTEX_LOCK(env, hp->mtx_hash);
 xlatch:
 #endif
 			if(LF_ISSET(DB_MPOOL_TRY)) {
-				if((ret =
-				    MUTEX_TRYLOCK(env, bhp->mtx_buf)) != 0)
+				if((ret = MUTEX_TRYLOCK(env, bhp->mtx_buf)) != 0)
 					goto err;
 			}
 			else
@@ -298,8 +283,7 @@ xlatch:
 		 * If buffer is still in transit once we have a shared latch,
 		 * upgrade to an exclusive latch.
 		 */
-		if(F_ISSET(bhp, BH_FREED | BH_TRASH) &&
-		    !F_ISSET(bhp, BH_EXCLUSIVE)) {
+		if(F_ISSET(bhp, BH_FREED | BH_TRASH) && !F_ISSET(bhp, BH_EXCLUSIVE)) {
 			MUTEX_UNLOCK(env, bhp->mtx_buf);
 			goto xlatch;
 		}

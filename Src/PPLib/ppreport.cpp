@@ -2462,7 +2462,7 @@ int FASTCALL PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
 int FASTCALL PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
 	{ return __PPAlddPrint(rptId, (PPFilt*)pview, 1, pEnv); }
 
-static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, SCodepageIdent cp, SString & rBuf)
+static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
 {
 	rBuf.Z();
 
@@ -2477,7 +2477,7 @@ static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long 
 	f.Ptr = pPtr;
 	ep.P_F = &f;
 	ep.Sort = 0;
-	ep.Flags = 0;
+	ep.Flags = epFlags;
 	ep.Cp = cp;
 	SETFLAG(ep.Flags, DlRtm::ExportParam::fInheritedTblNames, 1);
 	SETFLAG(ep.Flags, DlRtm::ExportParam::fDontWriteXmlDTD, 1);
@@ -2488,12 +2488,34 @@ static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long 
 
 int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf)
 {
-	return Implement_ExportDL600DataToBuffer(pDataName, id, 0, cp, rBuf);
+	return Implement_ExportDL600DataToBuffer(pDataName, id, 0, 0, cp, rBuf);
 }
 
 int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf)
 {
-	return Implement_ExportDL600DataToBuffer(pDataName, 0, ptr, cp, rBuf);
+	return Implement_ExportDL600DataToBuffer(pDataName, 0, ptr, 0, cp, rBuf);
+}
+
+int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf)
+{
+	return Implement_ExportDL600DataToBuffer(pDataName, 0, pView, DlRtm::ExportParam::fIsView, cp, rBuf);
+}
+
+int  FASTCALL PPExportDL600DataToJson(const char * pDataName, PPView * pV, SString & rBuf)
+{
+	int         ok = 1;
+	DlContext * p_ctx = 0;
+	DlRtm     * p_rtm = 0;
+	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
+	if(pV) {
+		THROW(p_rtm = p_ctx->GetRtm(pDataName));
+		THROW(p_rtm->PutToJsonBuffer(pV, rBuf.Z(), 0 /* flags */));
+	}
+	else {
+		ok = 0;
+	}
+	CATCHZOK
+	return ok;
 }
 
 int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pStrAssocAry, void * ptr, SString & rBuf)
@@ -2504,11 +2526,11 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
 	if(pStrAssocAry) {
 		THROW(p_rtm = p_ctx->GetRtm(isempty(pDataName) ? "StrAssocArray" : pDataName));
-		THROW(p_rtm->PutToJsonBuffer(pStrAssocAry, (rBuf = 0), 0 /* flags */));
+		THROW(p_rtm->PutToJsonBuffer(pStrAssocAry, rBuf.Z(), 0 /* flags */));
 	}
 	else if(ptr) {
 		THROW(p_rtm = p_ctx->GetRtm(pDataName));
-		THROW(p_rtm->PutToJsonBuffer(ptr, (rBuf = 0), 0 /* flags */));
+		THROW(p_rtm->PutToJsonBuffer(ptr, rBuf.Z(), 0 /* flags */));
 	}
 	else {
 		ok = 0;

@@ -43,6 +43,7 @@
     <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\ppy\bin</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>daemon</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>

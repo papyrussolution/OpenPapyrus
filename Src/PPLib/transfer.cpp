@@ -6,16 +6,22 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0)
+SLAPI Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0), P_Lcr2T(0)
 {
-	const int lcrusage = CConfig.LcrUsage;
-	if(oneof2(lcrusage, 1, 2))
-		P_LcrT = new LotCurRestTbl;
+	const PPCommConfig & r_ccfg = CConfig;
+	const int lcrusage = r_ccfg.LcrUsage;
+	if(oneof2(lcrusage, 1, 2)) {
+		if(r_ccfg.Flags2 & CCFLG2_USELCR2)
+			P_Lcr2T = new LotCurRest2Tbl;
+		else
+			P_LcrT = new LotCurRestTbl;
+	}
 }
 
 SLAPI Transfer::~Transfer()
 {
 	delete P_LcrT;
+	delete P_Lcr2T;
 }
 
 int SLAPI Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl::Rec * pRec)
@@ -361,7 +367,7 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 	}
 }
 
-int SLAPI Transfer::GetLotPricesCache::Get(ReceiptTbl::Rec * pLotRec)
+int FASTCALL Transfer::GetLotPricesCache::Get(ReceiptTbl::Rec * pLotRec)
 {
 	return RLotList.bsearch(pLotRec->ID) ? BillObj->trfr->GetLotPrices(pLotRec, plusdate(Date, -1), 0) : -1;
 }
@@ -1081,9 +1087,15 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 	double neck    = fabs(*pAddendum);
 	double ph_neck = fabs(*pPhAdd);
 	if(check || neck != 0.0 || ph_neck != 0.0) {
-		if(!check && P_LcrT) {
-			LcrBlock lcr(LcrBlock::opUpdate, P_LcrT, 0);
-			THROW(lcr.Update(lotID, dt, *pAddendum));
+		if(!check) {
+			if(P_Lcr2T) {
+				LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
+				THROW(lcr.Update(lotID, dt, fmul1000i(*pAddendum)));
+			}
+			else if(P_LcrT) {
+				LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
+				THROW(lcr.Update(lotID, dt, *pAddendum));
+			}
 		}
 		while(lotID && (r = EnumByLot(lotID, &dt, &oprno)) > 0) {
 			if(check) {
@@ -1461,9 +1473,13 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 //
 //
 //
-Transfer::LcrBlock::LcrBlock(int op, LotCurRestTbl * pTbl, BExtInsert * pBei) : Op(op), P_Tbl(pTbl), P_Bei(pBei)
+Transfer::LcrBlockBase::LcrBlockBase(int op, BExtInsert * pBei) : Op(op), P_Bei(pBei)
 {
 	assert(oneof3(op, opTest, opRecalc, opUpdate));
+}
+
+Transfer::LcrBlock::LcrBlock(int op, LotCurRestTbl * pTbl, BExtInsert * pBei) : LcrBlockBase(op, pBei), P_Tbl(pTbl)
+{
 	InitLot(0);
 }
 
@@ -1507,7 +1523,7 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 			k0.LotID = lotID;
 			k0.D = dti;
 			if(P_Tbl->search(0, &k0, spLt) && P_Tbl->data.LotID == lotID) {
-				last_rest = P_Tbl->data.Rest;
+				last_rest = P_Tbl->data.LDRest;
 				if((dti - P_Tbl->data.D) > 1) {
 					for(int16 _d = (P_Tbl->data.D+1); _d < dti; _d++) {
 						THROW(AddItem(statusAddRec, WorkDate::ExpandDate(_d), 0.0, last_rest));
@@ -1522,8 +1538,8 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 			k0.LotID = lotID;
 			k0.D = dti;
 			if(P_Tbl->searchForUpdate(0, &k0, spEq) && P_Tbl->data.LotID == lotID) {
-				last_rest = (P_Tbl->data.Rest + addendum);
-				THROW(AddItem(statusUpdRec, dt, P_Tbl->data.Rest, last_rest));
+				last_rest = (P_Tbl->data.LDRest + addendum);
+				THROW(AddItem(statusUpdRec, dt, P_Tbl->data.LDRest, last_rest));
 			}
 			else {
 				THROW(PPDbSearchError());
@@ -1538,7 +1554,7 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 			k0.LotID = lotID;
 			k0.D = dti;
 			while(P_Tbl->searchForUpdate(0, &k0, spGt) && P_Tbl->data.LotID == lotID) {
-				THROW(AddItem(statusUpdRec, WorkDate::ExpandDate(P_Tbl->data.D), P_Tbl->data.Rest, P_Tbl->data.Rest + addendum));
+				THROW(AddItem(statusUpdRec, WorkDate::ExpandDate(P_Tbl->data.D), P_Tbl->data.LDRest, P_Tbl->data.LDRest + addendum));
 			}
 			THROW(PPDbSearchError());
 		}
@@ -1595,7 +1611,7 @@ int Transfer::LcrBlock::FinishLot()
 					k0.D = WorkDate::ShrinkDate(r_item.Dt);
 					int r = SearchByKey(P_Tbl, 0, &k0, 0);
 					if(r > 0) {
-						r_item.ExRest = P_Tbl->data.Rest;
+						r_item.ExRest = P_Tbl->data.LDRest;
 						if(fabs(r_item.ExRest - r_item.ValidRest) > epsilon) {
 							r_item.Status = statusInvRest;
 						}
@@ -1617,12 +1633,12 @@ int Transfer::LcrBlock::FinishLot()
 			LotCurRestTbl::Key0 k0;
 			k0.LotID = LotID;
 			k0.D = 0;
-			q.select(P_Tbl->D, P_Tbl->Rest, 0L).where(P_Tbl->LotID == LotID);
+			q.select(P_Tbl->D, P_Tbl->LDRest, 0L).where(P_Tbl->LotID == LotID);
 			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
 				LDATE dt = WorkDate::ExpandDate(P_Tbl->data.D);
 				uint pos = 0;
 				if(!List.lsearch(&dt, &pos, CMPF_LONG) || List.at(pos).Status == statusRmvRec)
-					THROW(AddItem(statusWaste, dt, P_Tbl->data.Rest, 0.0));
+					THROW(AddItem(statusWaste, dt, P_Tbl->data.LDRest, 0.0));
 			}
 			//
 			// Наконец сортируем массив дабы клиенту было удобнее с ним работать
@@ -1644,7 +1660,7 @@ int Transfer::LcrBlock::FinishLot()
 					k0.D = WorkDate::ShrinkDate(r_item.Dt);
 					THROW_DB(P_Tbl->searchForUpdate(0, &k0, spEq));
 					if(r_item.Status == statusUpdRec) {
-						P_Tbl->data.Rest = r_item.ValidRest;
+						P_Tbl->data.LDRest = r_item.ValidRest;
 						THROW_DB(P_Tbl->updateRec()); // @sfu
 					}
 					else if(r_item.Status == statusRmvRec) {
@@ -1656,7 +1672,7 @@ int Transfer::LcrBlock::FinishLot()
 					MEMSZERO(rec);
 					rec.LotID = LotID;
 					rec.D = WorkDate::ShrinkDate(r_item.Dt);
-					rec.Rest = r_item.ValidRest;
+					rec.LDRest = r_item.ValidRest;
 					THROW_DB(p_bei->insert(&rec));
 				}
 			}
@@ -1744,6 +1760,291 @@ int Transfer::LcrBlock::TranslateErr(PPLotFaultArray * pLfa) const
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+Transfer::LcrBlock2::LcrBlock2(int op, LotCurRest2Tbl * pTbl, BExtInsert * pBei) : LcrBlockBase(op, pBei), P_Tbl(pTbl)
+{
+	InitLot(0);
+}
+
+int Transfer::LcrBlock2::InitLot(PPID lotID)
+{
+	int    ok = 1;
+	LotID = lotID;
+	LastDate = ZERODATE;
+	LastRest = 0.0;
+	CurTrfrRest = 0.0;
+	List.clear();
+	if(Op == opRecalc && P_Tbl && lotID) {
+		THROW_DB(deleteFrom(P_Tbl, 0, (P_Tbl->LotID == lotID)));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int Transfer::LcrBlock2::Update(PPID lotID, LDATE dt, long addendumF)
+{
+	//
+	// Алгоритм, реализуемый функцией, обрабатывает записи по лоту lotID
+	// в хронологическом порядке:
+	// 1. Сначала, если необходимо, заполняются "дырки" от последней записи до даты (dt-1)
+	// 2. Затем модифицируется или добавляется запись на дату dt
+	// 3. Пересчитываются форвардные записи
+	//
+	int    ok = 1;
+	if(Op == opUpdate && P_Tbl && addendumF != 0) {
+		const  int16 dti = WorkDate::ShrinkDate(dt);
+		long   last_rest_f = 0;
+		LotCurRest2Tbl::Key0 k0;
+		THROW(InitLot(lotID));
+		{
+			//
+			// Необходимо оглянуться назад. Если есть запись с остатком по этому лоту
+			// за дату, отстоящую от dt более чем на один день, то следует заполнить
+			// дырки (то есть дни, когда не было операций по лоту) остатком из той самой
+			// последеней записи.
+			//
+			k0.LotID = lotID;
+			k0.D = dti;
+			if(P_Tbl->search(0, &k0, spLt) && P_Tbl->data.LotID == lotID) {
+				last_rest_f = P_Tbl->data.LDRestF;
+				if((dti - P_Tbl->data.D) > 1) {
+					for(int16 _d = (P_Tbl->data.D+1); _d < dti; _d++) {
+						THROW(AddItem(statusAddRec, WorkDate::ExpandDate(_d), 0, last_rest_f));
+					}
+				}
+			}
+		}
+		{
+			//
+			// Обрабатываем дату операции
+			//
+			k0.LotID = lotID;
+			k0.D = dti;
+			if(P_Tbl->searchForUpdate(0, &k0, spEq) && P_Tbl->data.LotID == lotID) {
+				last_rest_f = (P_Tbl->data.LDRestF + addendumF);
+				THROW(AddItem(statusUpdRec, dt, P_Tbl->data.LDRestF, last_rest_f));
+			}
+			else {
+				THROW(PPDbSearchError());
+				last_rest_f += addendumF;
+				THROW(AddItem(statusAddRec, dt, 0, last_rest_f));
+			}
+		}
+		{
+			//
+			// Обрабатываем форвардные записи
+			//
+			k0.LotID = lotID;
+			k0.D = dti;
+			while(P_Tbl->searchForUpdate(0, &k0, spGt) && P_Tbl->data.LotID == lotID) {
+				THROW(AddItem(statusUpdRec, WorkDate::ExpandDate(P_Tbl->data.D), P_Tbl->data.LDRestF, P_Tbl->data.LDRestF + addendumF));
+			}
+			THROW(PPDbSearchError());
+		}
+		THROW(FinishLot());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int Transfer::LcrBlock2::AddItem(int status, LDATE dt, long exRestF, long newRestF)
+{
+	Item item;
+	item.Dt = dt;
+	item.Status = status;
+	item.ExRestF = exRestF;
+	item.ValidRestF = newRestF;
+	return List.insert(&item) ? 1 : PPSetErrorSLib();
+}
+
+int FASTCALL Transfer::LcrBlock2::Process(const TransferTbl::Rec & rTrfrRec)
+{
+	int    ok = 1;
+	CurTrfrRest += rTrfrRec.Quantity;
+	if(LastDate && LastDate != rTrfrRec.Dt) {
+		THROW(AddItem(statusAddRec, LastDate, 0, fmul1000i(LastRest)));
+		for(LDATE _d = plusdate(LastDate, 1); _d < rTrfrRec.Dt; _d = plusdate(_d, 1)) {
+			THROW(AddItem(statusAddRec, _d, 0, fmul1000i(LastRest)));
+		}
+	}
+	LastDate = rTrfrRec.Dt;
+	LastRest = CurTrfrRest;
+	CATCHZOK
+	return ok;
+}
+
+int Transfer::LcrBlock2::FinishLot()
+{
+	int    ok = 1;
+	uint   i;
+	int    inner_bei = 0; // Признак того, что функция создала собственный экземпляр BExtInsert
+	BExtInsert * p_bei = 0;
+	if(LastDate && oneof2(Op, opRecalc, opTest)) {
+		THROW(AddItem(statusAddRec, LastDate, 0, fmul1000i(LastRest)));
+	}
+	if(P_Tbl) {
+		if(Op == opTest) {
+			//const double epsilon = 1E-6;
+			for(i = 0; i < List.getCount(); i++) {
+				Item & r_item = List.at(i);
+				if(oneof2(r_item.Status, statusAddRec, statusUpdRec)) {
+					int    status = statusNone;
+					LotCurRest2Tbl::Key0 k0;
+					k0.LotID = LotID;
+					k0.D = WorkDate::ShrinkDate(r_item.Dt);
+					int r = SearchByKey(P_Tbl, 0, &k0, 0);
+					if(r > 0) {
+						r_item.ExRestF = P_Tbl->data.LDRestF;
+						if(r_item.ExRestF != r_item.ValidRestF) {
+							r_item.Status = statusInvRest;
+						}
+					}
+					else if(r < 0)
+						r_item.Status = statusAbsence;
+					else
+						r_item.Status = statusDb;
+				}
+			}
+			//
+			// Проверка на наличие лишних записей.
+			// В массиве TestList у нас содержатся все необходимые записи.
+			// Извлекаем из базы данных все имеющиеся записи и ищем среди них те,
+			// которых нет в TestList - это и будут лишние записи. Вставляем их в TestList
+			// с кодом ошибки errWaste.
+			//
+			BExtQuery q(P_Tbl, 0);
+			LotCurRest2Tbl::Key0 k0;
+			k0.LotID = LotID;
+			k0.D = 0;
+			q.select(P_Tbl->D, P_Tbl->LDRestF, 0L).where(P_Tbl->LotID == LotID);
+			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
+				LDATE dt = WorkDate::ExpandDate(P_Tbl->data.D);
+				uint pos = 0;
+				if(!List.lsearch(&dt, &pos, CMPF_LONG) || List.at(pos).Status == statusRmvRec)
+					THROW(AddItem(statusWaste, dt, P_Tbl->data.LDRestF, 0));
+			}
+			//
+			// Наконец сортируем массив дабы клиенту было удобнее с ним работать
+			//
+			List.sort(CMPF_LONG);
+		}
+		else if(oneof2(Op, opRecalc, opUpdate)) {
+			if(!P_Bei) {
+				THROW_MEM(p_bei = new BExtInsert(P_Tbl));
+				inner_bei = 1;
+			}
+			else
+				p_bei = P_Bei;
+			for(i = 0; i < List.getCount(); i++) {
+				Item & r_item = List.at(i);
+				if(oneof2(r_item.Status, statusUpdRec, statusRmvRec)) {
+					LotCurRest2Tbl::Key0 k0;
+					k0.LotID = LotID;
+					k0.D = WorkDate::ShrinkDate(r_item.Dt);
+					THROW_DB(P_Tbl->searchForUpdate(0, &k0, spEq));
+					if(r_item.Status == statusUpdRec) {
+						P_Tbl->data.LDRestF = r_item.ValidRestF;
+						THROW_DB(P_Tbl->updateRec()); // @sfu
+					}
+					else if(r_item.Status == statusRmvRec) {
+						THROW_DB(P_Tbl->deleteRec()); // @sfu
+					}
+				}
+				else if(r_item.Status == statusAddRec) {
+					LotCurRest2Tbl::Rec rec;
+					MEMSZERO(rec);
+					rec.LotID = LotID;
+					rec.D = WorkDate::ShrinkDate(r_item.Dt);
+					rec.LDRestF = r_item.ValidRestF;
+					THROW_DB(p_bei->insert(&rec));
+				}
+			}
+			THROW_DB(p_bei->flash());
+		}
+	}
+	CATCHZOK
+	if(!ok)
+		PPSaveErrContext();
+	if(inner_bei)
+		delete p_bei;
+	if(!ok)
+		PPRestoreErrContext();
+	return ok;
+}
+
+int Transfer::LcrBlock2::HasError() const
+{
+	int    yes = 0;
+	const  uint c = List.getCount();
+	for(uint i = 0; !yes && i < c; i++) {
+		const int status = List.at(i).Status;
+		if(oneof4(status, statusInvRest, statusAbsence, statusWaste, statusDb))
+			yes = 1;
+	}
+	return yes;
+}
+
+int Transfer::LcrBlock2::TranslateErr(PPLotFaultArray * pLfa) const
+{
+	int    ok = -1;
+	const uint c = List.getCount();
+	for(uint i = 0; i < c; i++) {
+		const Item & r_item = List.at(i);
+		if(r_item.Status > 0) {
+			PPLotFault f;
+			MEMSZERO(f);
+			f.Dt = r_item.Dt;
+			f.ActualVal = fdiv1000i(r_item.ExRestF);
+			f.ValidVal = fdiv1000i(r_item.ValidRestF);
+			switch(r_item.Status) {
+				case statusInvRest:
+					f.Fault = PPLotFault::LcrInvRest;
+					break;
+				case statusAbsence:
+					f.Fault = PPLotFault::LcrAbsence;
+					{
+						LDATE prev_date = r_item.Dt;
+						while((i+1) < c) {
+							const Item & r_item2 = List.at(i+1);
+							if(r_item2.Status == r_item.Status && r_item2.Dt == plusdate(prev_date, 1)) {
+								prev_date = f.EndDate = r_item2.Dt;
+								i++;
+							}
+							else
+								break;
+						}
+					}
+					break;
+				case statusWaste:
+					f.Fault = PPLotFault::LcrWaste;
+					{
+						LDATE prev_date = r_item.Dt;
+						while((i+1) < c) {
+							const Item & r_item2 = List.at(i+1);
+							if(r_item2.Status == r_item.Status && r_item2.Dt == plusdate(prev_date, 1)) {
+								prev_date = f.EndDate = r_item2.Dt;
+								i++;
+							}
+							else
+								break;
+						}
+					}
+					break;
+				case statusDb:
+					f.Fault = PPLotFault::LcrDb;
+					break;
+			}
+			if(f.Fault) {
+				THROW_SL(pLfa->insert(&f));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebuild)
 {
@@ -1761,7 +2062,7 @@ int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int for
 				k.LotID = lotID;
 				k.Dt    = ZERODATE;
 				k.OprNo = 0;
-				LcrBlock lcr(LcrBlock::opTest, P_LcrT, pBei);
+				LcrBlock lcr(LcrBlockBase::opTest, P_LcrT, pBei);
 				THROW(lcr.InitLot(lotID));
 				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 					THROW(lcr.Process(data));
@@ -1778,7 +2079,53 @@ int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int for
 			k.LotID = lotID;
 			k.Dt    = ZERODATE;
 			k.OprNo = 0;
-			LcrBlock lcr(LcrBlock::opRecalc, P_LcrT, pBei);
+			LcrBlock lcr(LcrBlockBase::opRecalc, P_LcrT, pBei);
+			THROW(lcr.InitLot(lotID));
+			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+				THROW(lcr.Process(data));
+			}
+			THROW(lcr.FinishLot());
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceRebuild)
+{
+	int    ok = -1;
+	if(P_Lcr2T && lotID) {
+		int    do_rebuild = 1;
+		if(!forceRebuild) {
+			LotCurRest2Tbl::Key0 k0;
+			k0.LotID = lotID;
+			k0.D = 0;
+			if(P_Lcr2T->search(0, &k0, spGe) && P_Lcr2T->data.LotID == lotID) {
+				TransferTbl::Key2 k;
+				BExtQuery q(this, 2, 16);
+				q.select(this->Dt, this->Quantity, 0L).where(this->LotID == lotID);
+				k.LotID = lotID;
+				k.Dt    = ZERODATE;
+				k.OprNo = 0;
+				LcrBlock2 lcr(LcrBlockBase::opTest, P_Lcr2T, pBei);
+				THROW(lcr.InitLot(lotID));
+				for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+					THROW(lcr.Process(data));
+				}
+				THROW(lcr.FinishLot());
+				if(!lcr.HasError())
+					do_rebuild = 0;
+			}
+		}
+		if(do_rebuild) {
+			TransferTbl::Key2 k;
+			BExtQuery q(this, 2, 16);
+			q.select(this->Dt, this->Quantity, 0L).where(this->LotID == lotID);
+			k.LotID = lotID;
+			k.Dt    = ZERODATE;
+			k.OprNo = 0;
+			LcrBlock2 lcr(LcrBlockBase::opRecalc, P_Lcr2T, pBei);
 			THROW(lcr.InitLot(lotID));
 			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 				THROW(lcr.Process(data));
@@ -1794,26 +2141,52 @@ int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int for
 int SLAPI Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList)
 {
 	int    ok = 1;
-	if(P_LcrT && dt) {
-		const int16 dti = WorkDate::ShrinkDate(dt);
-		LotCurRestTbl::Key1 k1;
-		k1.D = dti;
-		k1.LotID = 0;
-		BExtQuery q(P_LcrT, 1);
-		if(pRestList)
-			q.select(P_LcrT->LotID, P_LcrT->Rest, 0L);
-		else
-			q.select(P_LcrT->LotID, 0L);
-		q.where(P_LcrT->D == (long)dti);
-		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
-			if(pLotList) {
-				THROW_SL(pLotList->Add((ulong)P_LcrT->data.LotID));
+	const PPCommConfig & r_ccfg = CConfig;
+	if(dt && dt >= r_ccfg.LcrUsageSince) {
+		if(P_Lcr2T) {
+			const int16 dti = WorkDate::ShrinkDate(dt);
+			LotCurRest2Tbl::Key1 k1;
+			k1.D = dti;
+			k1.LotID = 0;
+			BExtQuery q(P_Lcr2T, 1);
+			if(pRestList)
+				q.select(P_Lcr2T->LotID, P_Lcr2T->LDRestF, 0L);
+			else
+				q.select(P_Lcr2T->LotID, 0L);
+			q.where(P_Lcr2T->D == (long)dti);
+			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+				if(pLotList) {
+					THROW_SL(pLotList->Add((ulong)P_Lcr2T->data.LotID));
+				}
+				if(pRestList) {
+					THROW_SL(pRestList->Add(P_Lcr2T->data.LotID, fdiv1000i(P_Lcr2T->data.LDRestF), 0, 0));
+				}
 			}
-			if(pRestList) {
-				THROW_SL(pRestList->Add(P_LcrT->data.LotID, P_LcrT->data.Rest, 0, 0));
-			}
+			CALLPTRMEMB(pRestList, SortByKey());
 		}
-		CALLPTRMEMB(pRestList, SortByKey());
+		else if(P_LcrT) {
+			const int16 dti = WorkDate::ShrinkDate(dt);
+			LotCurRestTbl::Key1 k1;
+			k1.D = dti;
+			k1.LotID = 0;
+			BExtQuery q(P_LcrT, 1);
+			if(pRestList)
+				q.select(P_LcrT->LotID, P_LcrT->LDRest, 0L);
+			else
+				q.select(P_LcrT->LotID, 0L);
+			q.where(P_LcrT->D == (long)dti);
+			for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+				if(pLotList) {
+					THROW_SL(pLotList->Add((ulong)P_LcrT->data.LotID));
+				}
+				if(pRestList) {
+					THROW_SL(pRestList->Add(P_LcrT->data.LotID, P_LcrT->data.LDRest, 0, 0));
+				}
+			}
+			CALLPTRMEMB(pRestList, SortByKey());
+		}
+		else
+			ok = -1;
 	}
 	else
 		ok = -1;
@@ -2098,13 +2471,22 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 							}
 							THROW(GetOprNo(ti->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
-							// @v9.0.0 {
-							if(P_LcrT) {
-								LcrBlock lcr(LcrBlock::opUpdate, P_LcrT, 0);
-								THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
-								THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
+							// @v10.1.5 {
+							if(P_Lcr2T) {
+								LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
+								THROW(lcr.Update(org_lot_id, org_dt, -fmul1000i(org_qtty)));
+								THROW(lcr.Update(org_lot_id, ti->Date, fmul1000i(new_qtty)));
 							}
-							// } @v9.0.0
+							else {
+								// } @v10.1.5 
+								// @v9.0.0 {
+								if(P_LcrT) {
+									LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
+									THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
+									THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
+								}
+								// } @v9.0.0
+							}
 						}
 						THROW(UpdateReceipt(rec.LotID, ti, 0, flags));
 					}

@@ -1513,7 +1513,7 @@ public:
 		setCtrlData(CTL_TRANSPORT_NAME,  Data.Name);
 		setCtrlData(CTL_TRANSPORT_CODE,  Data.Code);
 		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.TrailerCode);
-		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Capacity)); // @v7.2.7
+		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Capacity));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.TrModelID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_CANINSERT, (void *)owner_kind_id);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT, (void *)captain_kind_id);
@@ -1559,7 +1559,7 @@ private:
 		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.OwnerID);
 		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.CountryID);
 		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.CaptainID);
-		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0); // @v7.2.7
+		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
 	}
 	int    LockAutoName;
 	PPTransport Data;

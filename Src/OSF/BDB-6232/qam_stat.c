@@ -19,7 +19,7 @@
  * __qam_stat --
  *	Gather/print the qam statistics
  *
- * PUBLIC: int __qam_stat __P((DBC *, void *, uint32));
+ * PUBLIC: int __qam_stat(DBC *, void *, uint32);
  */
 int __qam_stat(DBC *dbc, void * spp, uint32 flags)
 {
@@ -59,26 +59,22 @@ int __qam_stat(DBC *dbc, void * spp, uint32 flags)
 	}
 	first = QAM_RECNO_PAGE(dbp, meta->first_recno);
 	last = QAM_RECNO_PAGE(dbp, meta->cur_recno);
-
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-
 	pgno = first;
 	if(first > last)
 		stop = QAM_RECNO_PAGE(dbp, UINT32_MAX);
 	else
 		stop = last;
-
 	/* Dump each page. */
 	pg_ext = ((QUEUE*)dbp->q_internal)->page_ext;
 begin:
 	/* Walk through the pages and count. */
 	for(; pgno <= stop; ++pgno) {
-		if((ret =
-		    __db_lget(dbc, 0, pgno, DB_LOCK_READ, 0, &lock)) != 0)
+		if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_READ, 0, &lock)) != 0)
 			goto err;
 		ret = __qam_fget(dbc, &pgno, 0, &h);
 		if(ret == ENOENT) {
@@ -97,26 +93,20 @@ begin:
 		}
 		if(ret != 0)
 			goto err;
-
 		++sp->qs_pages;
-
 		ep = (QAMDATA*)((uint8*)h + dbp->pgsize - re_len);
-		for(indx = 0, qp = QAM_GET_RECORD(dbp, h, indx);
-		    qp <= ep;
-		    ++indx,  qp = QAM_GET_RECORD(dbp, h, indx)) {
+		for(indx = 0, qp = QAM_GET_RECORD(dbp, h, indx); qp <= ep; ++indx,  qp = QAM_GET_RECORD(dbp, h, indx)) {
 			if(F_ISSET(qp, QAM_VALID))
 				sp->qs_ndata++;
 			else
 				sp->qs_pgfree += re_len;
 		}
-
 		ret = __qam_fput(dbc, pgno, h, dbc->priority);
 		if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 			ret = t_ret;
 		if(ret != 0)
 			goto err;
 	}
-
 	if((ret = __LPUT(dbc, lock)) != 0)
 		goto err;
 	if(first > last) {
@@ -125,21 +115,14 @@ begin:
 		first = last;
 		goto begin;
 	}
-
 	/* Get the meta-data page. */
-	if((ret = __db_lget(dbc,
-	    0, t->q_meta, F_ISSET(dbp, DB_AM_RDONLY) ?
-	    DB_LOCK_READ : DB_LOCK_WRITE, 0, &lock)) != 0)
+	if((ret = __db_lget(dbc, 0, t->q_meta, F_ISSET(dbp, DB_AM_RDONLY) ? DB_LOCK_READ : DB_LOCK_WRITE, 0, &lock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn,
-	    F_ISSET(dbp, DB_AM_RDONLY) ? 0 : DB_MPOOL_DIRTY, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &t->q_meta, dbc->thread_info, dbc->txn, F_ISSET(dbp, DB_AM_RDONLY) ? 0 : DB_MPOOL_DIRTY, &meta)) != 0)
 		goto err;
-
 	if(!F_ISSET(dbp, DB_AM_RDONLY))
-		meta->dbmeta.key_count =
-		    meta->dbmeta.record_count = sp->qs_ndata;
+		meta->dbmeta.key_count = meta->dbmeta.record_count = sp->qs_ndata;
 	sp->qs_nkeys = sp->qs_ndata;
-
 meta_only:
 	/* Get the metadata fields. */
 	sp->qs_magic = meta->dbmeta.magic;
@@ -158,34 +141,28 @@ meta_only:
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-
 	*(DB_QUEUE_STAT**)spp = sp;
-
 	if(0) {
-err:            if(sp != NULL)
+err:            
+		if(sp != NULL)
 			__os_ufree(dbp->env, sp);
 	}
-
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * __qam_stat_print --
  *	Display queue statistics.
  *
- * PUBLIC: int __qam_stat_print __P((DBC *, uint32));
+ * PUBLIC: int __qam_stat_print(DBC *, uint32);
  */
 int __qam_stat_print(DBC *dbc, uint32 flags)
 {
-	DB * dbp;
 	DB_QUEUE_STAT * sp;
-	ENV * env;
 	int ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
 	if((ret = __qam_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
@@ -196,39 +173,24 @@ int __qam_stat_print(DBC *dbc, uint32 flags)
 	__db_msg(env, "%lu\tQueue version number", (u_long)sp->qs_version);
 	__db_dl(env, "Fixed-length record size", (u_long)sp->qs_re_len);
 	__db_msg(env, "%#x\tFixed-length record pad", (int)sp->qs_re_pad);
-	__db_dl(env,
-	    "Underlying database page size", (u_long)sp->qs_pagesize);
-	__db_dl(env,
-	    "Underlying database extent size", (u_long)sp->qs_extentsize);
-	__db_dl(env,
-	    "Number of records in the database", (u_long)sp->qs_nkeys);
-	__db_dl(env,
-	    "Number of data items in the database", (u_long)sp->qs_ndata);
+	__db_dl(env, "Underlying database page size", (u_long)sp->qs_pagesize);
+	__db_dl(env, "Underlying database extent size", (u_long)sp->qs_extentsize);
+	__db_dl(env, "Number of records in the database", (u_long)sp->qs_nkeys);
+	__db_dl(env, "Number of data items in the database", (u_long)sp->qs_ndata);
 	__db_dl(env, "Number of database pages", (u_long)sp->qs_pages);
-	__db_dl_pct(env,
-	    "Number of bytes free in database pages",
-	    (u_long)sp->qs_pgfree,
-	    DB_PCT_PG(sp->qs_pgfree, sp->qs_pages, sp->qs_pagesize), "ff");
-	__db_msg(env,
-	    "%lu\tFirst undeleted record", (u_long)sp->qs_first_recno);
-	__db_msg(env,
-	    "%lu\tNext available record number", (u_long)sp->qs_cur_recno);
-
+	__db_dl_pct(env, "Number of bytes free in database pages", (u_long)sp->qs_pgfree, DB_PCT_PG(sp->qs_pgfree, sp->qs_pages, sp->qs_pagesize), "ff");
+	__db_msg(env, "%lu\tFirst undeleted record", (u_long)sp->qs_first_recno);
+	__db_msg(env, "%lu\tNext available record number", (u_long)sp->qs_cur_recno);
 	__os_ufree(env, sp);
-
 	return 0;
 }
 
 #else /* !HAVE_STATISTICS */
 
-int __qam_stat(dbc, spp, flags)
-DBC *dbc;
-void * spp;
-uint32 flags;
+int __qam_stat(DBC * dbc, void * spp, uint32 flags)
 {
 	COMPQUIET(spp, NULL);
 	COMPQUIET(flags, 0);
-
 	return (__db_stat_not_built(dbc->env));
 }
 #endif

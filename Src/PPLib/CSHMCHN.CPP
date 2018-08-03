@@ -449,7 +449,7 @@ int SLAPI PPCashMachine::SyncCloseSession()
 		DS.SetOperDate(NodeRec.CurDate);
 		DS.SetLocation(NodeRec.LocID);
 		if(SyncViewSessionStat(PPCashMachine::cssoCloseSession) == cmOK) {
-			PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF); // @v8.6.1
+			PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 			PPID   sess_id = 0;
 			CSessGrouping csg;
 			CSessTotal   total;
@@ -1311,7 +1311,7 @@ int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
 			PPCashNode child_node;
 			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
 				// @v10.1.1 THROW_PP_S(PPCashMachine::IsAsyncCMT(child_node.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
-				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) { // @v10.1.1 
+				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) { // @v10.1.1
 					loc_list.add(child_node.LocID);
 					cn_list.add(child_cn_id);
 				}
@@ -1703,8 +1703,8 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 					switch(c) {
 						case cmCSOpen:          ok =  p_cm->AsyncOpenSession(0, 0);  break;
 						case cmACSUpdate:       ok =  p_cm->AsyncOpenSession(1, 0);  break;
-						case cmCSClose:         
-							// @v10.1.1 ok =  p_cm->AsyncCloseSession(0, 0); 
+						case cmCSClose:
+							// @v10.1.1 ok =  p_cm->AsyncCloseSession(0, 0);
 							ok = PPCashMachine::AsyncCloseSession2(cn_id, 0); // @v10.1.1
 							break;
 						case cmACSGetChecks:    ok =  p_cm->AsyncCloseSession(1, 0); break;

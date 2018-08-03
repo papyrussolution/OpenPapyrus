@@ -790,12 +790,163 @@ int SLAPI GoodsCore::GetListBySubstring(const char * pSubstr, StrAssocArray * pL
 	return ok;
 }
 
+struct PPTextSrchPatternEntry {
+	PPTextSrchPatternEntry() : P_Sp(0), P_ApxP(0), Kind(kText)
+	{
+	}
+	~PPTextSrchPatternEntry()
+	{
+		delete P_Sp;
+		delete P_ApxP;
+	}
+	enum {
+		kText = 0,
+		kApproxText,
+		kLinkAnd,
+		kLinkOr,
+	};
+	int    Kind;
+	SString Text;
+	SSrchPattern * P_Sp;
+	ApproxStrSrchParam * P_ApxP;
+};
+
+class PPTextSrchPattern : public TSCollection <PPTextSrchPatternEntry> {
+public:
+	PPTextSrchPattern() : TSCollection <PPTextSrchPatternEntry>()
+	{
+	}
+	int    SLAPI Init(const char * pPattern)
+	{
+		freeAll();
+		return Helper_Init(pPattern);
+	}
+	int    SLAPI Detect(const char * pText)
+	{
+		return getCount() ? Helper_Detect(pText, sstrlen(pText), 0) : 0;
+	}
+private:
+	int    SLAPI Helper_Detect(const char * pText, size_t textLen, uint entryIdx)
+	{
+		int    ok = 0;
+		const uint _c = getCount();
+		if(textLen && entryIdx < _c) {
+			const PPTextSrchPatternEntry * p_entry = at(entryIdx);
+			if(p_entry->Kind == PPTextSrchPatternEntry::kText) {
+				size_t fp = 0;
+                if(p_entry->P_Sp->Search(pText, 0, textLen, &fp))
+					ok = 1;
+			}
+			else if(p_entry->Kind == PPTextSrchPatternEntry::kApproxText) {
+				if(ApproxStrSrch(p_entry->Text, pText, p_entry->P_ApxP) > 0)
+					ok = 1;
+			}
+			if((entryIdx+1) < _c) {
+				const PPTextSrchPatternEntry * p_next_entry = at(entryIdx+1);
+				if(p_next_entry->Kind == PPTextSrchPatternEntry::kLinkAnd) {
+					if(ok) {
+						ok = Helper_Detect(pText, textLen, entryIdx+2); // @recursion
+					}
+				}
+				else if(p_next_entry->Kind == PPTextSrchPatternEntry::kLinkOr) {
+					if(!ok) {
+						ok = Helper_Detect(pText, textLen, entryIdx+2); // @recursion
+					}
+				}
+			}
+		}
+		return ok;
+	}
+    int    SLAPI Helper_Init(const char * pPattern)
+    {
+		int    ok = 1;
+		SString temp_buf;
+		uint   p = 0;
+		int    done = 0;
+		// div: 1 - OR, 2 - AND
+		for(int div = 0; !div && pPattern[p]; p++) {
+			const  char c = pPattern[p];
+			uint   inc = 0;
+			if(c == '|' && pPattern[p+1] == '|') {
+				if(p && pPattern[p-1] == '\\') {
+					temp_buf.TrimRight().CatCharN('|', 2);
+				}
+				else {
+					inc = 2;
+					div = 1;
+				}
+			}
+			else if(c == '&' && pPattern[p+1] == '&') {
+				if(p && pPattern[p-1] == '\\') {
+					temp_buf.TrimRight().CatCharN('&', 2);
+				}
+				else {
+					inc = 2;
+					div = 2;
+				}
+			}
+			if(div) {
+                THROW(Helper_Init(temp_buf)); // @recursion
+				if(div == 1) {
+					PPTextSrchPatternEntry * p_new_entry = CreateNewItem();
+					THROW_SL(p_new_entry);
+					p_new_entry->Kind = PPTextSrchPatternEntry::kLinkOr;
+				}
+				else if(div == 2) {
+					PPTextSrchPatternEntry * p_new_entry = CreateNewItem();
+					THROW_SL(p_new_entry);
+					p_new_entry->Kind = PPTextSrchPatternEntry::kLinkAnd;
+				}
+				THROW(Helper_Init(pPattern+p+inc)); // @recursion
+				done = 1;
+			}
+			else
+				temp_buf.CatChar(c);
+		}
+		if(!done) {
+			const char * p_srch_str = temp_buf;
+			PPTextSrchPatternEntry * p_new_entry = CreateNewItem();
+			THROW_SL(p_new_entry);
+			if(*p_srch_str == '!' && *++p_srch_str != '!') {
+				p_new_entry->Kind = PPTextSrchPatternEntry::kApproxText;
+				THROW_SL(p_new_entry->P_ApxP = new ApproxStrSrchParam);
+				p_new_entry->P_ApxP->weight = 1;
+				p_new_entry->P_ApxP->method = 1;
+				p_new_entry->P_ApxP->no_case = 1;
+				if(*p_srch_str == '(') {
+					int i, j;
+					for(i = j = 0, p_srch_str++; i < 2 && *p_srch_str != ')'; i++, p_srch_str++) {
+						THROW(isdec(*p_srch_str));
+						j = j * 10 + *p_srch_str - '0';
+					}
+					THROW(*p_srch_str == ')');
+					p_srch_str++;
+					p_new_entry->P_ApxP->umin = fdiv100i(j);
+				}
+				else
+					p_new_entry->P_ApxP->umin = 0.75;
+				p_new_entry->Text = p_srch_str;
+			}
+			else {
+				p_new_entry->Kind = PPTextSrchPatternEntry::kText;
+				p_new_entry->Text = p_srch_str;
+				THROW_SL(p_new_entry->P_Sp = new SSrchPattern(p_srch_str));
+			}
+		}
+		CATCHZOK
+		return ok;
+    }
+};
+
+
 int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags)
 {
 	int    ok = 1;
 	int    skip_passive = 0;
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
+	SString pattern;
+	(pattern = pSubstr).ToLower();
 	if(flags & glsfStrList)
 		p_str_list = (StrAssocArray *)pList;
 	else
@@ -812,14 +963,14 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 		Goods2Tbl::Rec goods_rec;
 		uint   result_count = 0;
 		const uint c = p_full_list->getCount();
+		PPTextSrchPattern tsp;
+		tsp.Init(pattern);
 		for(uint i = 0; ok && i < c; i++) {
-			StrAssocArray::Item item;
-			PROFILE_START
-			item = p_full_list->at_WithoutParent(i);
-			PROFILE_END
+			StrAssocArray::Item item = p_full_list->at_WithoutParent(i);
 			int r;
 			PROFILE_START
-			r = ExtStrSrch(item.Txt, pSubstr);
+			//r = ExtStrSrch(item.Txt, pattern, essfCaseSensitive); // @v10.1.4 essfCaseSensitive
+			r = tsp.Detect(item.Txt);
 			PROFILE_END
 			PROFILE_START
 			if(r > 0 && (!skip_passive || (Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_PASSIV)))) {
@@ -850,8 +1001,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 		PPJobSrvClient * p_cli = DS.GetClientSession(0);
 		if(p_cli) {
 			SString q;
-			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space();
-			q.Cat("SUBNAME").CatParStr(pSubstr).Space();
+			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space().Cat("SUBNAME").CatParStr(pSubstr).Space();
 			if(skip_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
 			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
@@ -880,13 +1030,23 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			Goods2Tbl::Key2 k2;
 			MEMSZERO(k2);
 			k2.Kind = PPGDSK_GOODS;
+
+			PPTextSrchPattern tsp;
+			tsp.Init(pattern);
+			SString text_buf;
+
 			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-				if(!(skip_passive && data.Flags & GF_PASSIV) && ExtStrSrch(data.Name, pSubstr)) {
-					if(p_list) {
-						THROW_SL(p_list->add(data.ID)); // @v10.1.4 addUnique-->add
-					}
-					else if(p_str_list) {
-						THROW_SL(p_str_list->Add(data.ID, data.Name));
+				if(!(skip_passive && data.Flags & GF_PASSIV)) {
+					(text_buf = data.Name).ToLower();
+					//int r = ExtStrSrch(text_buf, pSubstr, 0);
+					int r = tsp.Detect(text_buf);
+					if(r > 0) {
+						if(p_list) {
+							THROW_SL(p_list->add(data.ID)); // @v10.1.4 addUnique-->add
+						}
+						else if(p_str_list) {
+							THROW_SL(p_str_list->Add(data.ID, data.Name));
+						}
 					}
 				}
 			}
@@ -905,7 +1065,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			Goods2Tbl::Rec goods_rec;
 			if(Fetch(goods_id, &goods_rec) > 0 && !(skip_passive && data.Flags & GF_PASSIV)) {
 				if(P_Ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, ext_str) > 0) {
-					if(ExtStrSrch(ext_str, pSubstr)) {
+					if(ExtStrSrch(ext_str, pSubstr, 0)) {
 						if(p_list) {
 							THROW_SL(p_list->add(goods_id)); // @v10.1.4 addUnique-->add
 						}
@@ -2554,12 +2714,13 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 	const  StrAssocArray * p_result = 0;
 	if(FullGoodsList.Use) {
 		if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
+			SString temp_buf;
 			SRWLOCKER(FglLock, SReadWriteLocker::Write);
 			if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
 				PPObjGoods goods_obj(SConstructorLite);
 				if(!FullGoodsList.Inited) {
 					PPUserFuncProfiler ufp(PPUPRF_BUILDGOODSFL); // @v10.1.4
-					SString msg_buf, fmt_buf;
+					SString fmt_buf;
 					uint   _mc = 0;
 					if(CS_SERVER) {
 						PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
@@ -2572,14 +2733,15 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					Goods2Tbl::Key0 k0;
 					for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
 						_mc++;
-						if(!FullGoodsList.AddFast(p_tbl->data.ID, p_tbl->data.Name)) {
+						(temp_buf = p_tbl->data.Name).ToLower();
+						if(!FullGoodsList.AddFast(p_tbl->data.ID, temp_buf)) {
 							PPSetErrorSLib();
 							err = 1;
 						}
 						else {
 							if(CS_SERVER) {
 								if((_mc % 1000) == 0)
-									PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
+									PPWaitMsg((temp_buf = fmt_buf).Space().Cat(_mc));
 							}
 						}
 					}
@@ -2593,7 +2755,8 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					for(ulong id = 0; !err && FullGoodsList.DirtyTable.Enum(&id);) {
 						if(Get((long)id, &goods_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
 							if(goods_rec.Kind == PPGDSK_GOODS) {
-								if(!FullGoodsList.Add(id, goods_rec.Name, 1)) {
+								(temp_buf = goods_rec.Name).ToLower();
+								if(!FullGoodsList.Add(id, temp_buf, 1)) {
 									PPSetErrorSLib();
 									err = 1;
 								}

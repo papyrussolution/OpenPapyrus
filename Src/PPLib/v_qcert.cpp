@@ -97,7 +97,7 @@ int SLAPI PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 					}
 					else
 						found = 1;
-					if(found && Filt.CodeStr[0] && !ExtStrSrch(rec.Code, Filt.CodeStr))
+					if(found && Filt.CodeStr[0] && !ExtStrSrch(rec.Code, Filt.CodeStr, 0))
 						found = 0;
 					if(found && Filt.InnerCode[0] && stricmp866(strip(rec.InnerCode), Filt.InnerCode) != 0)
 						found = 0;

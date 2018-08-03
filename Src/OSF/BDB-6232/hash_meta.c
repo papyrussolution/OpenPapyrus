@@ -58,7 +58,7 @@ again:
  *
  * PUBLIC: int __ham_release_meta(DBC *);
  */
-int __ham_release_meta(DBC *dbc)
+int FASTCALL __ham_release_meta(DBC *dbc)
 {
 	int ret;
 	DB_MPOOLFILE * mpf = dbc->dbp->mpf;
@@ -75,7 +75,7 @@ int __ham_release_meta(DBC *dbc)
 /*
  * Mark the meta-data page dirty.
  *
- * PUBLIC: int __ham_dirty_meta __P((DBC *, uint32));
+ * PUBLIC: int __ham_dirty_meta(DBC *, uint32);
  */
 int __ham_dirty_meta(DBC *dbc, uint32 flags)
 {

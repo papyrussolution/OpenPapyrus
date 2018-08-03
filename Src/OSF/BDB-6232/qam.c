@@ -719,31 +719,22 @@ aftercurrent:
 				     * Put us in the wait queue, when someone
 				     * adds something they will unlock it.
 				     */
-				    if((ret = __db_lget(dbc,
-					0, PGNO_INVALID, DB_LOCK_WAIT,
-					DB_LOCK_NOWAIT, &metalock)) != 0)
+				    if((ret = __db_lget(dbc, 0, PGNO_INVALID, DB_LOCK_WAIT, DB_LOCK_NOWAIT, &metalock)) != 0)
 					    goto err;
-
 				    /* Drop the metapage before we wait. */
-				    ret = __memp_fput(mpf,
-					    dbc->thread_info, meta, dbc->priority);
+				    ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 				    meta = NULL;
 				    if(ret != 0)
 					    goto err;
-
 				    /* Upgrade the lock to wait on it. */
-				    if((ret = __db_lget(dbc, 0,
-					PGNO_INVALID, DB_LOCK_WAIT,
-					DB_LOCK_UPGRADE, &metalock)) != 0) {
+				    if((ret = __db_lget(dbc, 0, PGNO_INVALID, DB_LOCK_WAIT, DB_LOCK_UPGRADE, &metalock)) != 0) {
 					    if(ret == DB_LOCK_DEADLOCK)
 						    ret = DB_LOCK_NOTGRANTED;
 					    (void)DBC_ERR(dbc, ret);
 					    goto err;
 				    }
 
-				    if((ret = __memp_fget(mpf,
-					&metapno, dbc->thread_info, dbc->txn,
-					meta_mode, &meta)) != 0)
+				    if((ret = __memp_fget(mpf, &metapno, dbc->thread_info, dbc->txn, meta_mode, &meta)) != 0)
 					    goto err;
 				    goto retry;
 			    }
@@ -753,7 +744,6 @@ aftercurrent:
 		case DB_FIRST:
 		    flags = DB_NEXT;
 		    is_first = 1;
-
 		    /* get the first record number */
 		    cp->recno = first = meta->first_recno;
 		    if(old_first == RECNO_OOB)
@@ -764,8 +754,7 @@ aftercurrent:
 		case DB_PREV:
 		case DB_PREV_NODUP:
 		    if(cp->recno != RECNO_OOB) {
-			    if(cp->recno == meta->first_recno ||
-				QAM_BEFORE_FIRST(meta, cp->recno)) {
+			    if(cp->recno == meta->first_recno || QAM_BEFORE_FIRST(meta, cp->recno)) {
 				    ret = DBC_ERR(dbc, DB_NOTFOUND);
 				    goto err;
 			    }
@@ -792,34 +781,25 @@ aftercurrent:
 		    ret = __db_unknown_flag(env, "__qamc_get", flags);
 		    goto err;
 	}
-
-dolock: if(!with_delete || inorder || retrying) {
-		if((ret = __memp_fput(mpf,
-		    dbc->thread_info, meta, dbc->priority)) != 0)
+dolock: 
+	if(!with_delete || inorder || retrying) {
+		if((ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0)
 			goto err;
 		meta = NULL;
 	}
-
 	/* Lock the record. */
 	if(((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, lock_mode,
-	    (with_delete && !inorder && !retrying) ?
-	    DB_LOCK_NOWAIT | DB_LOCK_RECORD : DB_LOCK_RECORD,
-	    &lock)) == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) &&
-	    with_delete) {
+	    (with_delete && !inorder && !retrying) ? DB_LOCK_NOWAIT|DB_LOCK_RECORD : DB_LOCK_RECORD, &lock)) == DB_LOCK_DEADLOCK || 
+		ret == DB_LOCK_NOTGRANTED) && with_delete) {
 #ifdef QDEBUG
 		if(DBC_LOGGING(dbc))
-			(void)__log_printf(env,
-			    dbc->txn, "Queue S: %x %u %u",
-			    dbc->locker ? dbc->locker->id : 0,
-			    cp->recno, first);
+			(void)__log_printf(env, dbc->txn, "Queue S: %x %u %u", dbc->locker ? dbc->locker->id : 0, cp->recno, first);
 #endif
 		skip = 1;
 		goto retry;
 	}
-
 	if(ret != 0)
 		goto err;
-
 	/*
 	 * In the DB_FIRST or DB_LAST cases we must wait and then start over
 	 * since the first/last may have moved while we slept.  If we are
@@ -1231,8 +1211,7 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 	 * If we are not going to update meta->first_recno we
 	 * do not need an exclusive latch.
 	 */
-	if(first != cp->recno && (ret = __memp_dirty(mpf,
-	    &meta, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+	if(first != cp->recno && (ret = __memp_dirty(mpf, &meta, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 		goto err;
 	/*
 	 * If we skipped some deleted records, we need to
@@ -1241,18 +1220,15 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 	 */
 	if(first == RECNO_OOB || !QAM_BEFORE_FIRST(meta, first))
 		first = meta->first_recno;
-
 	if(first != cp->recno) {
-		ret = __db_lget(dbc, 0, first, DB_LOCK_READ,
-			DB_LOCK_NOWAIT | DB_LOCK_RECORD, &lock);
+		ret = __db_lget(dbc, 0, first, DB_LOCK_READ, DB_LOCK_NOWAIT | DB_LOCK_RECORD, &lock);
 		if(ret == DB_LOCK_NOTGRANTED || ret == DB_LOCK_DEADLOCK) {
 			ret = 0;
 			goto done;
 		}
 		if(ret != 0)
 			goto err;
-		if(cp->page != NULL && (ret =
-		    __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
+		if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			goto err;
 		cp->page = NULL;
 		if((ret = __qam_position(dbc, &first, 0, &exact)) != 0) {
@@ -1264,13 +1240,11 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 		if(exact != 0)
 			goto done;
 	}
-
 	current = meta->cur_recno;
 	wrapped = 0;
 	if(first > current)
 		wrapped = 1;
 	rec_extent = meta->page_ext * meta->rec_page;
-
 	/* Loop until we find a record or hit current */
 	for(;;) {
 		/*
@@ -1282,22 +1256,15 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 		if(rec_extent != 0 && ((exact = (first % rec_extent == 0)) || (exact = (first == UINT32_MAX)) || (first % meta->rec_page == 0))) {
 #ifdef QDEBUG
 			if(DBC_LOGGING(dbc))
-				(void)__log_printf(dbp->env, dbc->txn,
-				    "Queue R: %x %u %u %u",
-				    dbc->locker ? dbc->locker->id : 0,
-				    cp->pgno, first, meta->first_recno);
+				(void)__log_printf(dbp->env, dbc->txn, "Queue R: %x %u %u %u", dbc->locker ? dbc->locker->id : 0, cp->pgno, first, meta->first_recno);
 #endif
-			if(cp->page != NULL && (ret = __qam_fput(dbc,
-			    cp->pgno, cp->page, DB_PRIORITY_VERY_LOW)) != 0)
+			if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, DB_PRIORITY_VERY_LOW)) != 0)
 				break;
 			cp->page = NULL;
-
-			if(exact == 1 &&
-			    (ret = __qam_fremove(dbp, cp->pgno)) != 0)
+			if(exact == 1 && (ret = __qam_fremove(dbp, cp->pgno)) != 0)
 				break;
 		}
-		else if(cp->page != NULL && (ret = __qam_fput(dbc,
-		    cp->pgno, cp->page, dbc->priority)) != 0)
+		else if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			break;
 		cp->page = NULL;
 		first++;
@@ -1305,16 +1272,10 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 			wrapped = 0;
 			first++;
 		}
-
-		/*
-		 * LOOP EXIT when we come move to the current
-		 * pointer.
-		 */
+		// LOOP EXIT when we come move to the current pointer.
 		if(!wrapped && first >= current)
 			break;
-
-		ret = __db_lget(dbc, 0, first, DB_LOCK_READ,
-			DB_LOCK_NOWAIT | DB_LOCK_RECORD, &lock);
+		ret = __db_lget(dbc, 0, first, DB_LOCK_READ, DB_LOCK_NOWAIT | DB_LOCK_RECORD, &lock);
 		if(ret == DB_LOCK_NOTGRANTED || ret == DB_LOCK_DEADLOCK) {
 			ret = 0;
 			break;
@@ -1332,12 +1293,10 @@ static int __qam_consume(DBC *dbc, QMETA * meta, db_recno_t first)
 			break;
 		}
 	}
-
 	cp->pgno = save_page;
 	cp->indx = save_indx;
 	cp->recno = save_recno;
 	cp->lock = save_lock;
-
 done:
 	/*
 	 * We have advanced as far as we can.

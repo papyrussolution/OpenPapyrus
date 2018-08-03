@@ -8299,6 +8299,7 @@ reportstub Complete			{ dl600data=Complete,			"Состав изделия"}
 reportstub BillInfo			{ dl600data=BillInfo,			"Специальная информация о документе"}
 reportstub PUGL				{ dl600data=PUGL,				"ДЕФИЦИТ ТОВАРОВ"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
+reportstub GeoTracking      { dl600data=GeoTracking,        "Гео-трекинг" } // @v10.1.5
 //
 // -------------- Описание меню, привязываемых к управляющим элементам диалогов
 //

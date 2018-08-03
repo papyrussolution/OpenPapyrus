@@ -956,12 +956,12 @@ int SLAPI Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
 	return ok;
 }
 
-int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew)
+int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew, int use_ta)
 {
 	int   ok = 1;
-	int   is_user = (obj == PPOBJ_USR);
+	const int is_user = (obj == PPOBJ_USR);
 	{
-		PPTransaction tra(1);
+		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(is_user) {
 			if(isNew)
@@ -1040,15 +1040,11 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 	uchar  PwMinLen;       // Минимальная длина пароля
 	uchar  PwPeriod;       // Продолжительность действия пароля (дней)
 	long   CFlags;         // PPAccessRestriction::cfXXX Общие флаги прав доступу
-	//LDATE  LowRBillDate;   // Дата, до которой R-доступ к документам запрещен
-	//LDATE  UppRBillDate;   // Дата, после которой R-доступ к документам запрещен
-	DateRange RBillPeriod;
+	DateRange RBillPeriod; // Период R-доступа к документам 
 	short  AccessLevel;    // Уровень доступа
 	char   Reserve2[6];    // @reserve
 	ushort ORTailSize;     // Размер хвоста с правами доступа по объектам
-	//LDATE  LowWBillDate;   // Дата, до которой W-доступ к документам запрещен
-	//LDATE  UppWBillDate;   // Дата, после которой W-доступ к документам запрещен
-	DateRange WBillPeriod;
+	DateRange WBillPeriod; // Период W-доступа к документам 
 	ulong  ChkSumOpList;   // Контрольная сумма списка доступных операций
 	ulong  ChkSumLocList;  // Контрольная сумма списка доступных складов
 	ulong  ChkSumCfgList;  // Контрольная сумма списка доступных конфигураций
@@ -1072,10 +1068,56 @@ SLAPI PPRights::~PPRights()
 	Empty();
 }
 
-size_t SLAPI PPRights::Size() const
+int SLAPI PPRights::SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
-	return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailSize) : 0;
+	assert(ppA);
+	int    ok = 1;
+	uint8  ind = 0;
+	if(dir > 0) {
+		ind = *ppA ? 0 : 1;
+		THROW_SL(pSCtx->Serialize(dir, ind, rBuf));
+		if(ind == 0) {
+			THROW_SL(pSCtx->Serialize(dir, *ppA, rBuf));
+		}
+	}
+	else if(dir < 0) {
+		THROW(pSCtx->Serialize(dir, ind, rBuf));
+		if(ind == 0) {
+			if(!*ppA) {
+				THROW_SL(*ppA = new ObjRestrictArray);
+			}
+			else
+				(*ppA)->clear();
+			THROW_SL(pSCtx->Serialize(dir, *ppA, rBuf));
+		}
+		else {
+			if(*ppA) {
+				delete *ppA;
+				*ppA = 0;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
+
+int SLAPI PPRights::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->SerializeBlock(dir, Size(), P_Rt, rBuf, 1));
+	THROW(SerializeArrayPtr(dir, &P_OpList, rBuf, pSCtx));
+	THROW(SerializeArrayPtr(dir, &P_LocList, rBuf, pSCtx));
+	THROW(SerializeArrayPtr(dir, &P_CfgList, rBuf, pSCtx));
+	THROW(SerializeArrayPtr(dir, &P_AccList, rBuf, pSCtx));
+	THROW(SerializeArrayPtr(dir, &P_PosList, rBuf, pSCtx));
+	THROW(SerializeArrayPtr(dir, &P_QkList, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+size_t SLAPI PPRights::Size() const { return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailSize) : 0; }
+int    SLAPI PPRights::IsEmpty() const { return (P_Rt == 0); }
+int    SLAPI PPRights::IsInherited() const { return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED); }
 
 void SLAPI PPRights::Empty()
 {
@@ -1084,18 +1126,8 @@ void SLAPI PPRights::Empty()
 	ZDELETE(P_LocList);
 	ZDELETE(P_CfgList);
 	ZDELETE(P_AccList);
-	ZDELETE(P_PosList); // @v8.9.1
-	ZDELETE(P_QkList); // @v8.9.1
-}
-
-int SLAPI PPRights::IsEmpty() const
-{
-	return (P_Rt == 0);
-}
-
-int SLAPI PPRights::IsInherited() const
-{
-	return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED);
+	ZDELETE(P_PosList);
+	ZDELETE(P_QkList);
 }
 
 int SLAPI PPRights::Merge(const PPRights & rS, long flags)
@@ -1124,12 +1156,6 @@ int SLAPI PPRights::Merge(const PPRights & rS, long flags)
 			P_Rt->TimeEnd = rS.P_Rt->TimeEnd;
 		SETMAX(P_Rt->PwPeriod, rS.P_Rt->PwPeriod);
 		P_Rt->CFlags |= rS.P_Rt->CFlags;
-		/*
-		SETMIN(P_Rt->LowRBillDate, rS.P_Rt->LowRBillDate);
-		SETMAX(P_Rt->UppRBillDate, rS.P_Rt->UppRBillDate);
-		SETMIN(P_Rt->LowWBillDate, rS.P_Rt->LowWBillDate);
-		SETMAX(P_Rt->UppWBillDate, rS.P_Rt->UppWBillDate);
-		*/
 		SETMIN(P_Rt->RBillPeriod.low, rS.P_Rt->RBillPeriod.low);
 		SETMAX(P_Rt->RBillPeriod.upp, rS.P_Rt->RBillPeriod.upp);
 		SETMIN(P_Rt->WBillPeriod.low, rS.P_Rt->WBillPeriod.low);

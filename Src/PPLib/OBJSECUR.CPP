@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,6 +10,37 @@
 SLAPI PPConfig::PPConfig()
 {
 	THISZERO();
+}
+
+int SLAPI PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, Tag, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ObjID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, PropID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DefBillCashID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, InitDate, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OperDate, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, AccessLevel, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, BaseCurID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RealizeOrder, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Menu, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, User, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, LocAccSheetID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Location, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, State, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, BillAccess, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Cash, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RoundPrec, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MainOrg, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, SessionID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DBDiv, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, BaseRateTypeID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DesktopID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MenuID, rBuf));
+	CATCHZOK
+	return ok;
 }
 
 PPObjSecur::Exclusion::Exclusion(int exclrt) : State(0)
@@ -58,10 +89,7 @@ PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::E
     return *this;
 }
 
-int PPObjSecur::ExtraParam::IsConsistent() const
-{
-	return BIN(Signature == SECUREXTRAPARAMSIGN);
-}
+int PPObjSecur::ExtraParam::IsConsistent() const { return BIN(Signature == SECUREXTRAPARAMSIGN); }
 
 static int SLAPI UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {
@@ -232,6 +260,32 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 	return ok;
 }
 
+int SLAPI PPObjSecur::GetPacket(PPID id, PPSecurPacket * pPack)
+{
+	return ref->LoadSecur(Obj, id, pPack);
+}
+
+int SLAPI PPObjSecur::PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	if(pID && *pID) {
+		if(!pPack) {
+			THROW(ref->RemoveSecur(Obj, *pID, use_ta));
+		}
+		else {
+			THROW(ref->EditSecur(Obj, *pID, pPack, 0, use_ta));
+		}
+	}
+	else if(pPack) {
+		THROW(ref->EditSecur(Obj, 0, pPack, 1, use_ta));
+		ASSIGN_PTR(pID, pPack->Secur.ID);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta)
 {
 	int    ok = -1;
@@ -289,6 +343,77 @@ int SLAPI PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
+int SLAPI PPObjSecur::SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(ref->SerializeRecord(dir, &pPack->Secur, rBuf, pSCtx));
+	THROW(pPack->Config.Serialize(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	THROW_MEM(p->Data = new PPSecurPacket);
+	if(stream == 0) {
+		THROW(GetPacket(id, (PPSecurPacket *)p->Data) > 0);
+	}
+	else {
+		SBuffer buffer;
+		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW(SerializePacket(-1, (PPSecurPacket *)p->Data, buffer, &pCtx->SCtx));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	if(p && p->Data) {
+		PPSecurPacket * p_pack = (PPSecurPacket *)p->Data;
+		if(stream == 0) {
+			if(oneof2(p_pack->Secur.Tag, PPOBJ_USR, PPOBJ_USRGRP)) {
+				PPID   same_id = 0;
+				//PPSecur same_rec;
+				if(*pID == 0) {
+					if(p_pack->Secur.ID < PP_FIRSTUSRREF) {
+						*pID = p_pack->Secur.ID;
+					}
+					else {
+						p_pack->Secur.ID = 0;
+						THROW(PutPacket(pID, p_pack, 1));
+					}
+				}
+				else {
+					// Пока изменение делать не будем
+				}
+			}
+		}
+		else {
+			SBuffer buffer;
+			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
+			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+{
+	if(p && p->Data) {
+		PPSecurPacket * p_pack = (PPSecurPacket * )p->Data;
+		ProcessObjRefInArray(PPOBJ_USRGRP,   &p_pack->Secur.ParentID,    ary, replace);
+		ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Secur.PersonID,    ary, replace);
+		return 1;
+	}
+	return -1;
+}
+
 int SLAPI PPObjSecur::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = CheckRights(*pID ? PPR_MOD : PPR_INS) ? EditSecurDialog(Obj, pID, extraPtr) : PPErrorZ();
@@ -331,9 +456,8 @@ int  SLAPI PPObjSecur::RemoveObjV(PPID id, ObjCollection * pObjColl, uint option
 
 class Grp_n_UsrDialog : public ObjViewDialog {
 public:
-	Grp_n_UsrDialog(PPObjSecur * pUsrObj) : ObjViewDialog(DLG_GRPNUSR, pUsrObj, 0), SecurGrpObj(PPOBJ_USRGRP, 0)
+	Grp_n_UsrDialog(PPObjSecur * pUsrObj) : ObjViewDialog(DLG_GRPNUSR, pUsrObj, 0), SecurGrpObj(PPOBJ_USRGRP, 0), P_UsrObj(pUsrObj)
 	{
-		P_UsrObj = pUsrObj;
 	}
 private:
 	virtual void addItem();
@@ -611,7 +735,9 @@ int SLAPI EditMainConfig()
 //
 class UserCache : public ObjCache {
 public:
-	SLAPI  UserCache() : ObjCache(PPOBJ_USR, sizeof(Data)) {}
+	SLAPI  UserCache() : ObjCache(PPOBJ_USR, sizeof(Data))
+	{
+	}
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
@@ -634,9 +760,9 @@ int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	if(sec_obj.Search(id, &rec) > 0) {
 		p_cache_rec->PersonID = rec.PersonID;
 		p_cache_rec->ParentID = rec.ParentID;
-		p_cache_rec->UerID = rec.UerID; // @v8.6.1
+		p_cache_rec->UerID = rec.UerID;
 		p_cache_rec->Flags = rec.Flags;
-		p_cache_rec->UerFlags = rec.UerFlags; // @v8.6.1
+		p_cache_rec->UerFlags = rec.UerFlags;
 		ok = PutName(rec.Name, p_cache_rec);
 	}
 	else

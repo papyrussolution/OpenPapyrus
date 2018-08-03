@@ -1660,7 +1660,6 @@ int __ham_merge_pages(DBC *dbc, uint32 tobucket, uint32 frombucket, DB_COMPACT *
 	uint32 len;
 	db_indx_t dest_indx, n, num_ent;
 	int check_trunc, found, i, ret;
-
 	dbp = dbc->dbp;
 	carray = NULL;
 	env = dbp->env;
@@ -1672,26 +1671,19 @@ int __ham_merge_pages(DBC *dbc, uint32 tobucket, uint32 frombucket, DB_COMPACT *
 	from_pgno = PGNO_INVALID;
 	LOCK_INIT(tlock);
 	LOCK_INIT(firstlock);
-
-	check_trunc =
-	    c_data == NULL ? 0 : c_data->compact_truncate != PGNO_INVALID;
+	check_trunc = c_data == NULL ? 0 : c_data->compact_truncate != PGNO_INVALID;
 	to_pgno = BUCKET_TO_PAGE(hcp, tobucket);
-	if((ret = __db_lget(dbc,
-	    0, to_pgno, DB_LOCK_WRITE, 0, &tlock)) != 0)
+	if((ret = __db_lget(dbc, 0, to_pgno, DB_LOCK_WRITE, 0, &tlock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &to_pgno, dbc->thread_info, dbc->txn,
-	    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &to_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &to_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &to_pagep)) != 0)
 		goto err;
-
 	/* Sort any unsorted pages before adding to the page. */
 	if(to_pagep->type == P_HASH_UNSORTED)
 		if((ret = __ham_sort_page_cursor(dbc, to_pagep)) != 0)
 			return ret;
-
 	/* Fetch the first page of the bucket we are getting rid of. */
 	from_pgno = BUCKET_TO_PAGE(hcp, frombucket);
-	if((ret = __db_lget(dbc,
-	    0, from_pgno, DB_LOCK_WRITE, 0, &firstlock)) != 0)
+	if((ret = __db_lget(dbc, 0, from_pgno, DB_LOCK_WRITE, 0, &firstlock)) != 0)
 		goto err;
 next_page:
 	/*
@@ -2017,31 +2009,22 @@ int __ham_split_page(DBC *dbc, uint32 obucket, uint32 nbucket)
 	temp_pagep = old_pagep = new_pagep = NULL;
 	npgno = PGNO_INVALID;
 	LOCK_INIT(block);
-
 	bucket_pgno = BUCKET_TO_PAGE(hcp, obucket);
-	if((ret = __db_lget(dbc,
-	    0, bucket_pgno, DB_LOCK_WRITE, 0, &block)) != 0)
+	if((ret = __db_lget(dbc, 0, bucket_pgno, DB_LOCK_WRITE, 0, &block)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &bucket_pgno, dbc->thread_info, dbc->txn,
-	    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &old_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &bucket_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &old_pagep)) != 0)
 		goto err;
-
 	/* Sort any unsorted pages before doing a hash split. */
 	if(old_pagep->type == P_HASH_UNSORTED)
 		if((ret = __ham_sort_page_cursor(dbc, old_pagep)) != 0)
 			return ret;
-
 	/* Properly initialize the new bucket page. */
 	npgno = BUCKET_TO_PAGE(hcp, nbucket);
-	if((ret = __memp_fget(mpf, &npgno, dbc->thread_info, dbc->txn,
-	    DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &new_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &npgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE | DB_MPOOL_DIRTY, &new_pagep)) != 0)
 		goto err;
-	P_INIT(new_pagep,
-	    dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
-
+	P_INIT(new_pagep, dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 	temp_pagep = hcp->split_buf;
 	memcpy(temp_pagep, old_pagep, dbp->pgsize);
-
 	if(DBC_LOGGING(dbc)) {
 		page_dbt.size = dbp->pgsize;
 		page_dbt.data = old_pagep;
@@ -2716,12 +2699,9 @@ int __ham_next_cpage(DBC *dbc, db_pgno_t pgno)
 
 	return 0;
 }
-
 /*
  * __ham_lock_bucket --
  *	Get the lock on a particular bucket.
- *
- * PUBLIC: int __ham_lock_bucket __P((DBC *, db_lockmode_t));
  */
 int __ham_lock_bucket(DBC *dbc, db_lockmode_t mode)
 {
@@ -2737,13 +2717,10 @@ int __ham_lock_bucket(DBC *dbc, db_lockmode_t mode)
 	if(gotmeta)
 		if((ret = __ham_release_meta(dbc)) != 0)
 			return ret;
-
 	ret = __db_lget(dbc, 0, pgno, mode, 0, &hcp->lock);
-
 	hcp->lock_mode = mode;
 	return ret;
 }
-
 /*
  * __ham_dpair --
  *	Delete a pair on a page, paying no attention to what the pair
@@ -2757,9 +2734,9 @@ int __ham_lock_bucket(DBC *dbc, db_lockmode_t mode)
  */
 void __ham_dpair(DB *dbp, PAGE * p, uint32 indx)
 {
-	db_indx_t delta, n, * inp;
+	db_indx_t delta, n;
 	uint8 * dest, * src;
-	inp = P_INP(dbp, p);
+	db_indx_t * inp = P_INP(dbp, p);
 	/*
 	 * Compute "delta", the amount we have to shift all of the
 	 * offsets.  To find the delta, we just need to calculate
@@ -2887,15 +2864,13 @@ static int __hamc_delpg_setorder(DBC *cp, DBC *my_dbc, uint32 * foundp, db_pgno_
  */
 static int __hamc_delpg(DBC *dbc, db_pgno_t old_pgno, db_pgno_t new_pgno, uint32 num_ent, db_ham_mode op, uint32 * orderp)
 {
-	DB * dbp;
 	DB_LSN lsn;
-	db_indx_t indx;
 	int ret;
 	uint32 found;
 	struct __hamc_delpg_setorder_args args;
 	/* Which is the worrisome index? */
-	indx = (op == DB_HAM_DELLASTPG) ? (db_indx_t)num_ent : 0;
-	dbp = dbc->dbp;
+	db_indx_t indx = (op == DB_HAM_DELLASTPG) ? (db_indx_t)num_ent : 0;
+	DB * dbp = dbc->dbp;
 	/*
 	 * Find the highest order of any cursor our movement
 	 * may collide with.

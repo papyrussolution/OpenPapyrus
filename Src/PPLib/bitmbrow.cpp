@@ -63,6 +63,7 @@ public:
 		long   CodePos;
 		long   LinkQttyPos;
 		long   OrdQttyPos;
+		long   ShippedQttyPos;
 	};
 	int    GetColPos(ColumnPosBlock & rBlk);
 	int    HasLinkPack() const { return BIN(P_LinkPack); }
@@ -71,6 +72,7 @@ public:
 	//
 	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
+	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal);
 private:
 	DECL_HANDLE_EVENT;
 	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
@@ -108,7 +110,6 @@ private:
 	int    isAllGoodsInPckg(PPID goodsID);
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    SLAPI CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal);
 	long   FASTCALL CalcPriceDevItem(long pos);
 	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    SLAPI UpdatePriceDevList(long pos, int op);
@@ -400,14 +401,14 @@ int BillItemBrowser::subtractRetsFromLinkPack()
 }
 
 SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock() :
-	QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), OrdQttyPos(-2)
+	QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), OrdQttyPos(-2), ShippedQttyPos(-2)
 {
 }
 
 int SLAPI BillItemBrowser::ColumnPosBlock::IsEmpty() const
 {
 	return BIN(QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
-		QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0);
+		QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0);
 }
 
 int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
@@ -428,6 +429,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					case 28: rBlk.SerialPos = (long)i; break;
 					case 30: rBlk.QuotInfoPos = (long)i; break;
 					case 31: rBlk.OrdQttyPos = (long)i; break;
+					case 19: rBlk.ShippedQttyPos = (long)i; break;
 				}
 			}
 			ok = rBlk.IsEmpty() ? -1 : 1;
@@ -468,6 +470,20 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 					double ord_qtty = p_brw->GetOrderedQtty(r_ti);
 					if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
+						pStyle->Color = GetColorRef(SClrOrange);
+						ok = 1;
+					}
+				}
+			}
+			else if(col == posblk.ShippedQttyPos && pos >= 0) { // @v10.1.5
+				const PPBillPacket * p_pack = p_brw->GetPacket();
+				if(p_pack && pos < (int)p_pack->GetTCount()) {
+					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+					AryBrowserDef * p_def = (AryBrowserDef *)p_brw->getDef();
+					BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)p_def->getArray() : 0;
+					double shp_qtty = 0.0;
+					p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
+					if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
 						pStyle->Color = GetColorRef(SClrOrange);
 						ok = 1;
 					}
@@ -1046,7 +1062,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	return p_packed_list;
 }
 
-int SLAPI BillItemBrowser::CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal)
+int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, BillGoodsBrwItemArray * pList, double * pVal)
 {
 	int    ok = 1;
 	double real_val = 0.0;

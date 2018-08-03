@@ -254,7 +254,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 												local_list.add(id);
 										}
 										else {
-											if(ExtStrSrch(rec.Name, srch_buf))
+											if(ExtStrSrch(rec.Name, srch_buf, 0))
 												local_list.add(id);
 										}
 									}
@@ -275,7 +275,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						PersonTbl::Key2 k2;
 					} k, k_;
 					MEMSZERO(k);
-					// @v8.3.5 {
 					Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
 					if(srch_buf.NotEmptyS() && Filt.Flags & PersonFilt::fPrecName) {
 						srch_buf.CopyTo(k.k1.Name, sizeof(k.k1.Name));
@@ -286,7 +285,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						} while(pt->search(1, &k, spNext) && srch_buf.CmpNC(pt->data.Name) == 0);
 					}
 					else {
-					// } @v8.3.5
 						BExtQuery pq(pt, Filt.Category ? 2 : 0);
 						DBQ * dbq = 0;
 						pq.select(pt->ID, pt->Name, pt->Status, pt->MainLoc, pt->Flags, pt->RLoc, 0L);
@@ -300,7 +298,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						cntr.Init(pq.countIterations(0, &k_, spGe));
 						local_list.clear();
 						for(pq.initIteration(0, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
-							if(srch_buf.Empty() || ExtStrSrch(pt->data.Name, srch_buf))
+							if(srch_buf.Empty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
 								local_list.add(pt->data.ID);
 							PPWaitPercent(cntr);
 						}
@@ -815,7 +813,7 @@ int FASTCALL PPViewPerson::CheckForFilt(const PersonTbl::Rec * pRec)
 					ok = 0;
 			}
 			else {
-				if(!ExtStrSrch(pRec->Name, srch_buf))
+				if(!ExtStrSrch(pRec->Name, srch_buf, 0))
 					ok = 0;
 			}
 		}

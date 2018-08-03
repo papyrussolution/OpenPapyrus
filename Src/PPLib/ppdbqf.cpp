@@ -480,7 +480,7 @@ static IMPL_DBE_PROC(dbqf_checkwmsloc_ii)
 // @vmiller
 static IMPL_DBE_PROC(dbqf_strexistsub_ss)
 {
-	long   r = ExtStrSrch(params[0].sptr, params[1].sptr);
+	long   r = ExtStrSrch(params[0].sptr, params[1].sptr, 0);
 	result->init(r);
 }
 

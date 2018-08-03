@@ -536,7 +536,7 @@ int PPApp::processCommand(uint cmd)
 		case cmViewCheckOpJ:         PPView::Execute(PPVIEW_CHECKOPJRNL,     0, PPView::exefModeless, 0); break;
 		case cmJobPool:              PPView::Execute(PPVIEW_JOB,             0, PPView::exefModeless, 0); break;
 		case cmGlobalUserAcc:        PPView::Execute(PPVIEW_GLOBALUSERACC,   0, PPView::exefModeless, 0); break;
-		case cmViewGeoTracking:      PPView::Execute(PPVIEW_GEOTRACKING,     0, PPView::exefModeless, 0); break; // @v8.6.11
+		case cmViewGeoTracking:      PPView::Execute(PPVIEW_GEOTRACKING,     0, PPView::exefModeless, 0); break;
 		case cmCashNode:             PPView::Execute(PPVIEW_CASHNODE,        0, PPView::exefModeless, 0); break;
 		case cmScale:                PPView::Execute(PPVIEW_SCALE,           0, PPView::exefModeless, 0); break;
 		case cmDBDiv:                PPView::Execute(PPVIEW_DBDIV,           0, PPView::exefModeless, 0); break;
@@ -592,7 +592,7 @@ int PPApp::processCommand(uint cmd)
 		case cmCorrectBalance:       p_bobj->atobj->CorrectBalance();    break;
 		case cmCorrectAccrelArRefs:  p_bobj->atobj->CorrectRelsArRefs(); break;
 		case cmCorrectGoodsGroups:   RecoverGoodsGroups(0);               break;
-		case cmCorrectGoodsGroupsNIA: RecoverGoodsGroupsNIA();            break; // @v8.3.6
+		case cmCorrectGoodsGroupsNIA: RecoverGoodsGroupsNIA();            break;
 		case cmCheckGStrucRecursion: PPObjGoodsStruc::CheckRecursion();   break;
 		case cmWriteOffDrafts:       WriteOffDrafts(0);                 break;
 		case cmViewLots:             ViewLots(0, 0, 1);                 break;
@@ -603,7 +603,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPredictSales:         ViewPredictSales(0);               break;
 		case cmFillPredictSalesTbl:  FillPredictSales();                break;
 		case cmTestPredictSalesTbl:  TestPredictSales();                break;
-		case cmTestReconnect:        TestReconnect();                   break; // @v8.0.6
+		case cmTestReconnect:        TestReconnect();                   break;
 		case cmGoodsMov:             ViewGoodsMov(1);                   break;
 		case cmGoodsOprGrouping:     ViewOpGrouping(0);                 break;
 		case cmGoodsOper:            ViewGoodsOpAnalyze(0);             break;
@@ -671,15 +671,15 @@ int PPApp::processCommand(uint cmd)
 		case cmLocationCfg:          PPObjLocation::EditConfig();       break;
 		case cmStockOptCfg:          PPStockOpt::EditConfig();          break;
 		case cmGlobalAccCfg:         PPObjGlobalUserAcc::EditConfig();  break;
-		case cmWorkbookCfg:          PPObjWorkbook::EditConfig();       break; // @v8.1.7
-		case cmAlcReportCfg:         PrcssrAlcReport::EditConfig();     break; // @v8.4.4
+		case cmWorkbookCfg:          PPObjWorkbook::EditConfig();       break;
+		case cmAlcReportCfg:         PrcssrAlcReport::EditConfig();     break;
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
 		case cmCorrectLotsCloseTags: CorrectLotsCloseTags();            break;
 		case cmCorrectLotSuppl:      CorrectLotSuppl();                 break;
 		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(0);  break;
 		case cmCheckPane:            CCheckPane(0, 0);                    break;
 		case cmViewCCheck:           ViewCCheck(0, PPView::exefModeless); break;
-		case cmSCardPane:            ViewSCardInfo(0, 0);               break;
+		case cmSCardPane:            ViewSCardInfo(0, 0, 0);            break;
 		case cmScalePrepareData:     PPObjScale::PrepareData(0);        break;
 		case cmScaleTransmitData:    PPObjScale::TransmitData(0);       break;
 		case cmUpdatePassword:       UpdatePassword();                  break;
@@ -1425,10 +1425,14 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 	return ok;
 }
 
+#if 0 // @v10.1.5 {
 int PPBackupSystemFiles()
 {
 	int    ok = -1;
-	SString bin_dir, backup_dir, fname, lock_path;
+	SString bin_dir;
+	SString backup_dir;
+	SString fname;
+	SString lock_path;
 	PPGetPath(PPPATH_BIN, bin_dir);
 	(backup_dir = bin_dir).SetLastSlash().Cat("backup").SetLastSlash();
 	PPGetFileName(PPFILNAM_BULOCK, fname);
@@ -1449,13 +1453,14 @@ int PPBackupSystemFiles()
 		getcurdate(&cur_dt);
 		if(last_copy_dt < cur_dt) {
 			long start = 1;
-			SString path, dest_dir, dest_path;
+			SString path;
+			SString dest_dir;
+			SString dest_path;
 			dest_dir = MakeTempFileName(backup_dir, 0, 0, &start, dest_dir);
 			if(start > 6) {
 				StrAssocArray temp_dir_list;
 				SDirEntry de;
 				SDirec sdir((path = backup_dir).CatChar('*').Dot().CatChar('*'), 1);
-
 				for(long i = 1; sdir.Next(&de) > 0; i++)
 					if(de.FileName[0] != '.' && de.FileName[1] != 0)
 						temp_dir_list.Add(i, 0, de.FileName);
@@ -1479,45 +1484,26 @@ int PPBackupSystemFiles()
 			(path = bin_dir).SetLastSlash().Cat(fname);
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
-			/* @v9.6.6
-			PPGetFileName(PPFILNAM_PPCMD_BIN, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
-			PPGetFileName(PPFILNAM_PPDESK_BIN, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
-			PPGetFileName(PPFILNAM_JOBPOOL, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
-			PPGetFileName(PPFILNAM_REPORT_INI, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-
-			PPGetFileName(PPFILNAM_IMPEXP_INI, fname);
-			(path = bin_dir).SetLastSlash().Cat(fname);
-			(dest_path = dest_dir).SetLastSlash().Cat(fname);
-			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
-			*/
-			// @v9.6.6 {
 			{
-				static const uint _bin_file_id_list[] = {PPFILNAM_PPCMD_BIN, PPFILNAM_PPDESK_BIN, PPFILNAM_JOBPOOL, PPFILNAM_REPORT_INI, PPFILNAM_IMPEXP_INI };
+				static const uint _bin_file_id_list[] = { 
+					PPFILNAM_PPCMD_BIN, 
+					PPFILNAM_PPDESK_BIN, 
+					PPFILNAM_JOBPOOL, 
+					PPFILNAM_REPORT_INI, 
+					PPFILNAM_IMPEXP_INI,
+					PPFILNAM_BARLABEL_LBL, // @v10.1.5
+					PPFILNAM_REGDATA,      // @v10.1.5
+					PPFILNAM_STDSLIP_FMT   // @v10.1.5
+				};
 				for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
 					PPGetFileName(_bin_file_id_list[i], fname);
 					(path = bin_dir).SetLastSlash().Cat(fname);
-					(dest_path = dest_dir).SetLastSlash().Cat(fname);
-					SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
+					if(fileExists(path)) {
+						(dest_path = dest_dir).SetLastSlash().Cat(fname);
+						SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
+					}
 				}
 			}
-			// } @v9.6.6
-
 			PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
 			PPGetPath(PPPATH_DD, path);
 			path.SetLastSlash().Cat(fname);
@@ -1528,6 +1514,107 @@ int PPBackupSystemFiles()
 				buf.Z().Cat(cur_dt, DATF_DMY);
 				f.WriteLine(buf);
 				ok = 1;
+			}
+		}
+		SFile::Remove(lock_path);
+	}
+	return ok;
+}
+#endif // } 0 @v10.1.5
+
+int PPBackupSystemFiles_Arc()
+{
+	int    ok = -1;
+	SString bin_dir;
+	SString backup_dir;
+	SString fname;
+	SString lock_path;
+	PPGetPath(PPPATH_BIN, bin_dir);
+	(backup_dir = bin_dir).SetLastSlash().Cat("backup").SetLastSlash();
+	PPGetFileName(PPFILNAM_BULOCK, fname);
+	(lock_path = backup_dir).SetLastSlash().Cat(fname);
+	createDir(backup_dir);
+	if(!fileExists(lock_path)) {
+		const LDATETIME cur_dtm = getcurdatetime_();
+		LDATE last_copy_dt;
+		SString buf, last_copy_path;
+		SFile f(lock_path, SFile::mWrite);
+
+		f.Close();
+		PPGetFileName(PPFILNAM_LASTBACKUP, fname);
+		(last_copy_path = backup_dir).SetLastSlash().Cat(fname);
+		f.Open(last_copy_path, SFile::mRead);
+		f.ReadLine(buf);
+		f.Close();
+		strtodate(buf, DATF_DMY, &last_copy_dt);
+		if(last_copy_dt < cur_dtm.d) {
+			SArchive arc;
+			SString arc_file_name;
+			// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
+			(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
+			if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite)) {
+				long start = 1;
+				SString path;
+				SString dest_dir;
+				SString dest_path;
+
+				fname = "PP.INI";
+				(path = bin_dir).SetLastSlash().Cat(fname);
+				(dest_path = dest_dir).SetLastSlash().Cat(fname);
+				arc.AddEntry(path, fname, 0);
+				{
+					static const uint _bin_file_id_list[] = { 
+						PPFILNAM_PPCMD_BIN, 
+						PPFILNAM_PPDESK_BIN, 
+						PPFILNAM_JOBPOOL, 
+						PPFILNAM_REPORT_INI, 
+						PPFILNAM_IMPEXP_INI,
+						PPFILNAM_BARLABEL_LBL, // @v10.1.5
+						PPFILNAM_REGDATA,      // @v10.1.5
+						PPFILNAM_STDSLIP_FMT   // @v10.1.5
+					};
+					for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
+						PPGetFileName(_bin_file_id_list[i], fname);
+						(path = bin_dir).SetLastSlash().Cat(fname);
+						if(fileExists(path)) {
+							(dest_path = dest_dir).SetLastSlash().Cat(fname);
+							arc.AddEntry(path, fname, 0);
+						}
+					}
+				}
+				PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
+				PPGetPath(PPPATH_DD, path);
+				path.SetLastSlash().Cat(fname);
+				(dest_path = dest_dir).SetLastSlash().Cat(fname);
+				arc.AddEntry(path, fname, 0);
+				arc.Close();
+				{
+					const uint max_arc = 5;
+					//
+					// Если количество архивов больше max_arc, то лишние самые старые удаляем
+					//
+					SFileEntryPool fep;
+					fep.Scan(backup_dir, path.Z().Cat("bu").CatChar('-').CatCharN('*', 14), 0);
+					fep.Sort(SFileEntryPool::scByWrTime);
+					if(fep.GetCount() > max_arc) {
+						uint to_remove_count = (fep.GetCount() - max_arc);
+						SFileEntryPool::Entry fep_entry;
+						for(uint i = 0; i < to_remove_count; i++) {
+							if(fep.Get(i, &fep_entry, &path)) {
+								SFile::Remove(path);
+							}
+						}
+					}
+				}
+				{
+					f.Open(last_copy_path, SFile::mWrite);
+					buf.Z().Cat(cur_dtm.d, DATF_DMY|DATF_CENTURY);
+					f.WriteLine(buf);
+					ok = 1;
+				}
+			}
+			else {
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 			}
 		}
 		SFile::Remove(lock_path);
@@ -1781,7 +1868,8 @@ void PPApp::login(int processCmdLine)
 		//
 		SetDatetimeByServer(&ini_file, 0);
 		LDATE  dt = getcurdate_();
-		PPBackupSystemFiles();
+		// @v10.1.5 PPBackupSystemFiles();
+		PPBackupSystemFiles_Arc(); // @v10.1.5
 		// @v10.0.1 @experimental {
 		if(lua_script.NotEmpty()) {
 			ExecuteLuaScriptFile(lua_script);

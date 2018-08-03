@@ -88,9 +88,7 @@ struct __db_foreign_info {
 		dbc = NULL;                                                     \
 		file_dbp = NULL;                                                \
 		COMPQUIET(mpf, NULL); /* Not all recovery routines use mpf. */ \
-		if((ret = func(env, &file_dbp,                                 \
-		    (info != NULL) ? ((DB_TXNHEAD*)info)->td : NULL,           \
-		    dbtp->data, &argp)) != 0) {                                 \
+		if((ret = func(env, &file_dbp, (info ? ((DB_TXNHEAD*)info)->td : NULL), dbtp->data, &argp)) != 0) { \
 			if(ret == DB_DELETED) {                                \
 				ret = 0;                                        \
 				goto done;                                      \
@@ -98,8 +96,7 @@ struct __db_foreign_info {
 			goto out;                                               \
 		}                                                               \
 		if(do_cursor) {                                                \
-			if((ret = __db_cursor(file_dbp,                        \
-			    ip, NULL, &dbc, DB_RECOVER)) != 0)                  \
+			if((ret = __db_cursor(file_dbp, ip, NULL, &dbc, DB_RECOVER)) != 0) \
 				goto out;                                       \
 		}                                                               \
 		mpf = file_dbp->mpf;                                            \
@@ -107,10 +104,8 @@ struct __db_foreign_info {
 
 #define REC_CLOSE {                                                     \
 		int __t_ret;                                                    \
-		if(argp != NULL)                                               \
-			__os_free(env, argp);                                   \
-		if(dbc != NULL &&                                              \
-		    (__t_ret = __dbc_close(dbc)) != 0 && ret == 0)              \
+		__os_free(env, argp);                                   \
+		if(dbc && (__t_ret = __dbc_close(dbc)) != 0 && !ret) \
 			ret = __t_ret;                                          \
 }                                                               \
 	return (ret)
@@ -172,18 +167,14 @@ struct __db_foreign_info {
 #define LCK_COUPLE_ALWAYS       3       /* Lock Couple even in txn. */
 #define LCK_DOWNGRADE           4       /* Downgrade the lock. (internal) */
 #define LCK_ROLLBACK            5       /* Lock even if in rollback */
-
 /*
  * If doing transactions we have to hold the locks associated with a data item
  * from a page for the entire transaction.  However, we don't have to hold the
  * locks associated with walking the tree.  Distinguish between the two so that
  * we don't tie up the internal pages of the tree longer than necessary.
  */
-#define __LPUT(dbc, lock)                                               \
-	__ENV_LPUT((dbc)->env, lock)
-
-#define __ENV_LPUT(env, lock)                                           \
-	(LOCK_ISSET(lock) ? __lock_put(env, &(lock)) : 0)
+#define __LPUT(dbc, lock)     __ENV_LPUT((dbc)->env, lock)
+#define __ENV_LPUT(env, lock) (LOCK_ISSET(lock) ? __lock_put(env, &(lock)) : 0)
 
 /*
  * __TLPUT -- transactional lock put
@@ -195,8 +186,7 @@ struct __db_foreign_info {
  *		downgrade it.
  *	Else do nothing.
  */
-#define __TLPUT(dbc, lock)                                              \
-	(LOCK_ISSET(lock) ? __db_lput(dbc, &(lock)) : 0)
+#define __TLPUT(dbc, lock) (LOCK_ISSET(lock) ? __db_lput(dbc, &(lock)) : 0)
 
 /*
  * Check whether a database is a primary (that is, has associated secondaries).

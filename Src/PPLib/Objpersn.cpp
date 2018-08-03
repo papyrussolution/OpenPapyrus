@@ -1495,7 +1495,7 @@ int SLAPI PPObjPerson::GetListBySubstring(const char * pSubstr, PPID kindID, Str
 	MEMSZERO(k1);
 	for(pq.initIteration(0, &k1, spFirst); pq.nextIteration() > 0;) {
 		const PPID id = t->data.ID;
-		if((!kindID || list_by_kind.bsearch(id)) && ExtStrSrch(t->data.Name, pattern)) {
+		if((!kindID || list_by_kind.bsearch(id)) && ExtStrSrch(t->data.Name, pattern, 0)) {
 			pList->AddFast(id, t->data.Name);
 		}
 	}
@@ -1521,7 +1521,7 @@ int SLAPI PPObjPerson::GetListByPattern(const SrchAnalogPattern * pPattern, PPID
 		}
 		else
 			tbl_name = t->data.Name;
-		if(ExtStrSrch(tbl_name, pat_name))
+		if(ExtStrSrch(tbl_name, pat_name, 0))
 			pList->add(t->data.ID);
 	}
 	return 1;

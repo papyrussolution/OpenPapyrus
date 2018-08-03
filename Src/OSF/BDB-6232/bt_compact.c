@@ -312,17 +312,13 @@ next:   /*
 	saved_pgno = PGNO_INVALID;
 	prev_pgno = PGNO_INVALID;
 	nnext_pgno = PGNO_INVALID;
-
 	/*
 	 * We must lock the metadata page first because we cannot block
 	 * while holding interior nodes of the tree pinned.
 	 */
-
 	if(!LOCK_ISSET(metalock) && pgs_free == c_data->compact_pages_free &&
-	    (ret = __db_lget(dbc,
-			    LCK_ALWAYS, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+	    (ret = __db_lget(dbc, LCK_ALWAYS, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 		goto err;
-
 	/*
 	 * Setup the cursor stack. There are 3 cases:
 	 * 1) the page is empty and will be deleted: nentry == 0.
@@ -679,56 +675,43 @@ retry:  pg = NULL;
 			 * the current transaction before continuing.
 			 */
 			epg = &cp->csp[-1];
-			if((ppgno != PGNO(epg->page) &&
-				    ppgno != PGNO_INVALID) ||
-			    epg->indx == NUM_ENT(epg->page) - 1)
+			if((ppgno != PGNO(epg->page) && ppgno != PGNO_INVALID) || epg->indx == NUM_ENT(epg->page) - 1)
 				do_commit = 1;
 			ppgno = PGNO(epg->page);
 			goto next_page;
 		}
-
 		/* If they have the same parent, just dup the cursor. */
 		if(ndbc != NULL && (ret = __dbc_close(ndbc)) != 0)
 			goto err1;
 		if((ret = __dbc_dup(dbc, &ndbc, DB_POSITION)) != 0)
 			goto err1;
 		ncp = (BTREE_CURSOR*)ndbc->internal;
-
 		/*
 		 * ncp->recno needs to have the recno of the next page.
 		 * Bump it by the number of records on the current page.
 		 */
 		ncp->recno += NUM_ENT(pg);
 	}
-
 	pgno = PGNO(cp->csp->page);
 	ppgno = PGNO(cp->csp[-1].page);
 	/* Fetch pages until we fill this one. */
-	while(!isdone && npgno != PGNO_INVALID &&
-	    P_FREESPACE(dbp, pg) > factor && c_data->compact_pages != 0) {
+	while(!isdone && npgno != PGNO_INVALID && P_FREESPACE(dbp, pg) > factor && c_data->compact_pages != 0) {
 		/*
 		 * merging may have to free the parent page, if it does,
 		 * refetch it but do it descending the tree.
 		 */
 		epg = &cp->csp[-1];
 		if((ppg = epg->page) == NULL) {
-			if((ret = __memp_fput(dbmp, dbc->thread_info,
-					    cp->csp->page, dbc->priority)) != 0)
+			if((ret = __memp_fput(dbmp, dbc->thread_info, cp->csp->page, dbc->priority)) != 0)
 				goto err1;
 			pg = cp->csp->page = NULL;
-			if(F_ISSET(dbc->dbp, DB_AM_READ_UNCOMMITTED) &&
-			    (ret = __db_lget(dbc, 0, ppgno,
-					    DB_LOCK_WRITE, 0, &epg->lock)) != 0)
+			if(F_ISSET(dbc->dbp, DB_AM_READ_UNCOMMITTED) && (ret = __db_lget(dbc, 0, ppgno, DB_LOCK_WRITE, 0, &epg->lock)) != 0)
 				goto err1;
-			if((ret = __memp_fget(dbmp, &ppgno, dbc->thread_info,
-					    dbc->txn, DB_MPOOL_DIRTY, &ppg)) != 0)
+			if((ret = __memp_fget(dbmp, &ppgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &ppg)) != 0)
 				goto err1;
-			if(F_ISSET(dbc->dbp, DB_AM_READ_UNCOMMITTED) &&
-			    (ret = __db_lget(dbc, 0, pgno,
-					    DB_LOCK_WRITE, 0, &cp->csp->lock)) != 0)
+			if(F_ISSET(dbc->dbp, DB_AM_READ_UNCOMMITTED) && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &cp->csp->lock)) != 0)
 				goto err1;
-			if((ret = __memp_fget(dbmp, &pgno, dbc->thread_info,
-					    dbc->txn, DB_MPOOL_DIRTY, &pg)) != 0)
+			if((ret = __memp_fget(dbmp, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &pg)) != 0)
 				goto err1;
 			epg->page = ppg;
 			cp->csp->page = pg;
@@ -1822,39 +1805,29 @@ static int __bam_compact_dups(DBC *dbc, PAGE ** ppg, uint32 factor, int have_loc
 				 * and get the write lock.
 				 */
 				pgno = PGNO(*ppg);
-				if((ret = __memp_fput(dbmp, dbc->thread_info,
-						    *ppg, dbc->priority)) != 0)
+				if((ret = __memp_fput(dbmp, dbc->thread_info, *ppg, dbc->priority)) != 0)
 					goto err;
 				*ppg = NULL;
-				if((ret = __db_lget(dbc, 0, pgno,
-						    DB_LOCK_WRITE, 0, &cp->csp->lock)) != 0)
+				if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &cp->csp->lock)) != 0)
 					goto err;
 				have_lock = 1;
-				if((ret = __memp_fget(dbmp, &pgno,
-						    dbc->thread_info,
-						    dbc->txn, DB_MPOOL_DIRTY, ppg)) != 0)
+				if((ret = __memp_fget(dbmp, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, ppg)) != 0)
 					goto err;
 			}
 			pgno = bo->pgno;
-			if((ret = __bam_truncate_root_page(dbc,
-					    *ppg, i, c_data, pgs_donep)) != 0)
+			if((ret = __bam_truncate_root_page(dbc, *ppg, i, c_data, pgs_donep)) != 0)
 				goto err;
 			/* Just in case it should move.  Could it? */
 			bo = GET_BOVERFLOW(dbp, *ppg, i);
 		}
-
 		if(B_TYPE(bo->type) == B_OVERFLOW) {
-			if((ret = __db_truncate_overflow(dbc,
-					    bo->pgno, have_lock ? NULL : ppg,
-					    c_data, pgs_donep)) != 0)
+			if((ret = __db_truncate_overflow(dbc, bo->pgno, have_lock ? NULL : ppg, c_data, pgs_donep)) != 0)
 				goto err;
 			continue;
 		}
-		if((ret = __bam_compact_opd(dbc, bo->pgno,
-				    have_lock ? NULL : ppg, factor, c_data, pgs_donep)) != 0)
+		if((ret = __bam_compact_opd(dbc, bo->pgno, have_lock ? NULL : ppg, factor, c_data, pgs_donep)) != 0)
 			goto err;
 	}
-
 err:
 	return ret;
 }

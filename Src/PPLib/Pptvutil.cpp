@@ -3278,7 +3278,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 					const uint c = p_full_list->getCount();
 					for(uint i = 0; i < c; i++) {
 						StrAssocArray::Item item = p_full_list->at_WithoutParent(i);
-						int    r = ExtStrSrch(item.Txt, pattern);
+						int    r = ExtStrSrch(item.Txt, pattern, 0);
 						if(r > 0) {
 							int    do_add = 0;
 							if(by_lot_serial) {

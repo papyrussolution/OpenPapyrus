@@ -367,10 +367,9 @@ static int __hamc_del(DBC *dbc, uint32 flags)
 	}
 	else   /* Not a duplicate */
 		ret = __ham_del_pair(dbc, 0, NULL);
-
-out:    if(hcp->page != NULL) {
-		if((t_ret = __memp_fput(mpf, dbc->thread_info,
-		    hcp->page, dbc->priority)) != 0 && ret == 0)
+out:    
+	if(hcp->page) {
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		hcp->page = NULL;
 	}
@@ -378,7 +377,6 @@ out:    if(hcp->page != NULL) {
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __hamc_dup --
  *	Duplicate a hash cursor, such that the new one holds appropriate
@@ -404,27 +402,20 @@ int __hamc_dup(DBC *orig_dbc, DBC *new_dbc)
 
 static int __hamc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
 {
-	DB * dbp;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
-	HASH_CURSOR * hcp;
 	db_lockmode_t lock_type;
 	int ret, t_ret;
-	hcp = (HASH_CURSOR*)dbc->internal;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	mpf = dbp->mpf;
-
+	HASH_CURSOR * hcp = (HASH_CURSOR*)dbc->internal;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
 	/* Clear OR'd in additional bits so we can check for flag equality. */
 	if(F_ISSET(dbc, DBC_RMW))
 		lock_type = DB_LOCK_WRITE;
 	else
 		lock_type = DB_LOCK_READ;
-
 	if((ret = __ham_get_meta(dbc)) != 0)
 		return ret;
 	hcp->seek_size = 0;
-
 	ret = 0;
 	switch(flags) {
 		case DB_PREV_DUP:
@@ -435,7 +426,8 @@ static int __hamc_get(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t *
 		/* FALLTHROUGH */
 		case DB_PREV:
 		    if(IS_INITIALIZED(dbc)) {
-prev:                       ret = __ham_item_prev(dbc, lock_type, pgnop);
+prev:                       
+				ret = __ham_item_prev(dbc, lock_type, pgnop);
 			    break;
 		    }
 		/* FALLTHROUGH */
@@ -452,7 +444,8 @@ prev:                       ret = __ham_item_prev(dbc, lock_type, pgnop);
 		/* FALLTHROUGH */
 		case DB_NEXT:
 		    if(IS_INITIALIZED(dbc)) {
-next:                       ret = __ham_item_next(dbc, lock_type, pgnop);
+next:                       
+				ret = __ham_item_next(dbc, lock_type, pgnop);
 			    break;
 		    }
 		/* FALLTHROUGH */
@@ -1275,11 +1268,9 @@ static int __ham_expand_table(DBC *dbc)
 		/* Get the master meta-data page to do allocation. */
 		if(F_ISSET(dbp, DB_AM_SUBDB)) {
 			mpgno = PGNO_BASE_MD;
-			if((ret = __db_lget(dbc,
-			    0, mpgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+			if((ret = __db_lget(dbc, 0, mpgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 				goto err;
-			if((ret = __memp_fget(mpf, &mpgno, dbc->thread_info,
-			    dbc->txn, DB_MPOOL_DIRTY, &mmeta)) != 0)
+			if((ret = __memp_fget(mpf, &mpgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &mmeta)) != 0)
 				goto err;
 			got_meta = 1;
 		}

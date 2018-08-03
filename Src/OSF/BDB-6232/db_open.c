@@ -658,41 +658,33 @@ int __db_reopen(DBC *arg_dbc)
 	PAGE * new_page, * old_page;
 	db_pgno_t newpgno, oldpgno;
 	int ret, t_ret;
-
 	dbc = arg_dbc;
 	dbp = dbc->dbp;
 	old_page = new_page = NULL;
 	mdbp = NULL;
-
 	COMPQUIET(bt, NULL);
 	COMPQUIET(ht, NULL);
 	COMPQUIET(txn, NULL);
 	LOCK_INIT(new_lock);
 	LOCK_INIT(old_lock);
-
 	/*
 	 * This must be done in the context of a transaction.  If the
 	 * requester does not have a transaction, create one.
 	 */
-
 	if(TXN_ON(dbp->env) && (txn = dbc->txn) == NULL) {
-		if((ret = __txn_begin(dbp->env,
-		    dbc->thread_info, NULL, &txn, 0)) != 0)
+		if((ret = __txn_begin(dbp->env, dbc->thread_info, NULL, &txn, 0)) != 0)
 			return ret;
-		if((ret = __db_cursor(dbp,
-		    dbc->thread_info, txn, &dbc, 0)) != 0) {
+		if((ret = __db_cursor(dbp, dbc->thread_info, txn, &dbc, 0)) != 0) {
 			(void)__txn_abort(txn);
 			return ret;
 		}
 	}
-
 	/*
 	 * Lock and latch the old metadata page before re-opening the
 	 * database so that the information is stable.  Then lock
 	 * and latch the new page before getting the revision so that
 	 * it cannot change.
 	 */
-
 	if(dbp->type == DB_HASH) {
 		ht = (HASH*)dbp->h_internal;
 		oldpgno = ht->meta_pgno;
@@ -701,15 +693,10 @@ int __db_reopen(DBC *arg_dbc)
 		bt = (BTREE*)dbp->bt_internal;
 		oldpgno = bt->bt_root;
 	}
-	if(STD_LOCKING(dbc) && (ret = __db_lget(dbc,
-	    0, oldpgno, DB_LOCK_READ, 0, &old_lock)) != 0)
+	if(STD_LOCKING(dbc) && (ret = __db_lget(dbc, 0, oldpgno, DB_LOCK_READ, 0, &old_lock)) != 0)
 		goto err;
-
-	if((ret = __memp_fget(dbp->mpf, &oldpgno,
-	    dbc->thread_info, dbc->txn, 0, &old_page)) != 0 &&
-	    ret != DB_PAGE_NOTFOUND)
+	if((ret = __memp_fget(dbp->mpf, &oldpgno, dbc->thread_info, dbc->txn, 0, &old_page)) != 0 && ret != DB_PAGE_NOTFOUND)
 		goto err;
-
 	/* If the page is free we must not hold its lock. */
 	if(ret == DB_PAGE_NOTFOUND || TYPE(old_page) == P_INVALID) {
 		if((ret = __LPUT(dbc, old_lock)) != 0)
@@ -743,15 +730,12 @@ done:
 	else
 		bt->revision = dbp->mpf->mfp->revision;
 err:    
-	if(old_page != NULL && (t_ret = __memp_fput(dbp->mpf,
-	    dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
+	if(old_page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(new_page != NULL && (t_ret = __memp_fput(dbp->mpf,
-	    dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
+	if(new_page != NULL && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(mdbp != NULL && (t_ret = __db_close(mdbp, dbc->txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-
 	if(dbc != arg_dbc) {
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;

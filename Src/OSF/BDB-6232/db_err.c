@@ -57,7 +57,7 @@ int __db_ferr(const ENV *env, const char * name, int iscombo)
  * __db_fnl --
  *	Common flag-needs-locking message.
  *
- * PUBLIC: int __db_fnl __P((const ENV *, const char *));
+ * PUBLIC: int __db_fnl(const ENV *, const char *);
  */
 int __db_fnl(const ENV *env, const char * name)
 {
@@ -69,9 +69,9 @@ int __db_fnl(const ENV *env, const char * name)
  * __db_pgerr --
  *	Error when unable to retrieve a specified page.
  *
- * PUBLIC: int __db_pgerr __P((DB *, db_pgno_t, int));
+ * PUBLIC: int __db_pgerr(DB *, db_pgno_t, int);
  */
-int __db_pgerr(DB *dbp, db_pgno_t pgno, int errval)
+int FASTCALL __db_pgerr(DB *dbp, db_pgno_t pgno, int errval)
 {
 	/*
 	 * Three things are certain:
@@ -81,7 +81,6 @@ int __db_pgerr(DB *dbp, db_pgno_t pgno, int errval)
 	__db_errx(dbp->env, DB_STR_A("0057", "unable to create/retrieve page %lu", "%lu"), (u_long)pgno);
 	return (__env_panic(dbp->env, errval));
 }
-
 /*
  * __db_pgfmt --
  *	Error when a page has the wrong format.
@@ -126,7 +125,6 @@ void __db_assert(ENV *env, const char * e, const char * file, int line)
 	}
 }
 #endif
-
 /*
  * __env_panic_event -
  *	Notify the application of a db_register, failchk, or generic panic.
@@ -162,7 +160,6 @@ void __env_panic_event(ENV *env, int errval)
 		event = DB_EVENT_PANIC;
 	DB_EVENT(env, event, info);
 }
-
 /*
  * __env_panic_msg --
  *	Report that we noticed a panic which had been set somewhere else.
@@ -178,7 +175,6 @@ int __env_panic_msg(ENV *env)
 	__env_panic_event(env, ret);
 	return ret;
 }
-
 /*
  * __env_panic --
  *	Lock out the database environment due to unrecoverable error.
@@ -204,7 +200,6 @@ int __env_panic(ENV *env, int errval)
 	__os_abort(env);
 	/* NOTREACHED */
 #endif
-
 	/*
 	 * Chaos reigns within.
 	 * Reflect, repent, and reboot.
@@ -212,7 +207,6 @@ int __env_panic(ENV *env, int errval)
 	 */
 	return (DB_RUNRECOVERY);
 }
-
 /*
  * db_strerror --
  *	ANSI C strerror(3) for DB.

@@ -8,9 +8,9 @@
 /*static*/int PPViewSysJournal::DynFuncEvVerTextFromList = 0;
 /*static*/int PPViewGtaJournal::DynFuncObjNameFromList = 0;
 
-static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2) 
-{ 
-	int    si = memcmp(i1, i2, sizeof(PPObjID)); 
+static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2)
+{
+	int    si = memcmp(i1, i2, sizeof(PPObjID));
 	SETIFZ(si, cmp(((const PPViewSysJournal::EvVerEntry *)i1)->Dtm, ((const PPViewSysJournal::EvVerEntry *)i2)->Dtm));
 	return si;
 }
@@ -231,13 +231,13 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	// @v9.9.2 {
 	if(Filt.Flags & Filt.fShowHistoryObj) {
-		p_ovc = PPRef->P_OvT; 
+		p_ovc = PPRef->P_OvT;
 		if(p_ovc->InitSerializeContext(1))
 			modrmv_acn_list.addzlist(PPACN_OBJUPD, PPACN_OBJRMV, PPACN_UPDBILL, PPACN_RMVBILL, 0);
 		else
 			p_ovc = 0;
 	}
-	// } @v9.9.2 
+	// } @v9.9.2
 	StrPool.ClearS(); // @v9.9.0
 	ObjNameList.clear(); // @v9.9.0
 	EvVerList.clear(); // @v9.9.2
@@ -291,7 +291,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 								temp_rec.Dt = r_rec.Dt;
 							}
 							// @v9.9.0 P_Tbl->GetSubstName(Filt.Sgsj, temp_rec.ID, temp_rec.Name, sizeof(temp_rec.Name));
-							P_Tbl->GetSubstName(Filt.Sgsj, temp_rec.ID, temp_buf); // @v9.9.0 
+							P_Tbl->GetSubstName(Filt.Sgsj, temp_rec.ID, temp_buf); // @v9.9.0
 							StrPool.AddS(temp_buf, &temp_rec.NameP); // @v9.9.0
 							k0.ID  = temp_rec.ID;
 							k0.ID2 = temp_rec.ID2;
@@ -502,8 +502,8 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 			pItem->GrpCount = P_SubstTbl->data.Count;
 			// @v9.9.0 pItem->GrpText1 = P_SubstTbl->data.DtSubst;
 			// @v9.9.0 STRNSCPY(pItem->ObjName, P_SubstTbl->data.Name);
-			StrPool.GetS(P_SubstTbl->data.DtSubstP, pItem->GrpText1); // @v9.9.0 
-			StrPool.GetS(P_SubstTbl->data.NameP, pItem->ObjName); // @v9.9.0 
+			StrPool.GetS(P_SubstTbl->data.DtSubstP, pItem->GrpText1); // @v9.9.0
+			StrPool.GetS(P_SubstTbl->data.NameP, pItem->ObjName); // @v9.9.0
 			{
 				LDATETIME dtm = ZERODATETIME;
 				long days = dtm.settotalsec(P_SubstTbl->data.AvgEvTime);
@@ -524,7 +524,7 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 				if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(PPObjID)))
 					StrPool.GetS(ObjNameList.at(objn_pos).NameP, pItem->ObjName);
 			}
-			// } @v9.9.0 
+			// } @v9.9.0
 			/* @v9.9.0 if(p_t->data.ObjID && P_NamesTbl) {
 				TempDoubleIDTbl::Key1  k1;
 				k1.ScndID = p_t->data.ObjID;
@@ -731,7 +731,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		q->addField(p_t->Count); // #5
 		q->addField(dbe_avg_tm); // #6
 		q->from(p_t, 0L);
-		// } @v9.9.0 
+		// } @v9.9.0
 		/* @v9.9.0 q = & select(
 			p_t->ID,      // #0
 			p_t->ID2,     // #1
@@ -1062,7 +1062,7 @@ int SLAPI PPViewSysJournal::Transmit()
 			ok = 1;
 		}
 	}
-	// } @v9.9.0 
+	// } @v9.9.0
 	/* @v9.9.0 if(P_NamesTbl) {
 		ObjTransmitParam param;
 		if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
@@ -1214,7 +1214,7 @@ int PPALDD_SysJournalEntry::InitData(PPFilt & rFilt, long rsrv)
 			H.ActionID = p_sj_rec->Action;
 			H.Dt       = p_sj_rec->Dt;
 			H.Tm       = p_sj_rec->Tm;
-			H.Extra    = p_sj_rec->Extra; // @v8.1.11
+			H.Extra    = p_sj_rec->Extra;
 			SString temp_buf;
 			if(PPLoadString(PPSTR_ACTION, H.ActionID, temp_buf))
 				temp_buf.CopyTo(H.ActionName, sizeof(H.ActionName));
@@ -1447,7 +1447,7 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 							}
 						}
 					}
-					// } @v9.9.0 
+					// } @v9.9.0
 					if(p_bei)
 						THROW_DB(p_bei->insert(&T.data));
 					/* @v9.9.0 if(P_NamesTbl && T.data.ObjID) {
@@ -1542,7 +1542,7 @@ int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 		if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(PPObjID))) {
 			StrPool.GetS(ObjNameList.at(objn_pos).NameP, pItem->ObjName);
 		}
-		// } @v9.9.0 
+		// } @v9.9.0
 		/* @v9.9.0 if(p_t->data.ObjID && P_NamesTbl) {
 			TempDoubleIDTbl::Key1  k1;
 			k1.ScndID = p_t->data.ObjID;
@@ -1638,7 +1638,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 			dbe_action,   // #6
 			dbe_objtitle, // #7
 			// @v9.9.0 nm->Name,     // #8
-			dbe_objname,  // #8 // @v9.9.0 
+			dbe_objname,  // #8 // @v9.9.0
 			0L).from(t, /*nm,*/ 0L);
 	}
 	else

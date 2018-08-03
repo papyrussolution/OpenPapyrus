@@ -177,7 +177,7 @@ int FASTCALL PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Goods2Tbl::Rec rec;
 			SwObj.P_Tbl->copyBufTo(&rec);
-			if(Filt.SrchStr.Empty() || ExtStrSrch(rec.Name, Filt.SrchStr)) {
+			if(Filt.SrchStr.Empty() || ExtStrSrch(rec.Name, Filt.SrchStr, 0)) {
 				PPSuprWarePacket sw_pack;
 				if(SwObj.Get(rec.ID, &sw_pack) > 0) {
 					ASSIGN_PTR(pItem, sw_pack.Rec);

@@ -1587,25 +1587,19 @@ static int __heapc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 			return ret;
 		else if(flags == DB_NOOVERWRITE)
 			return (DB_KEYEXIST);
-		if((ret = __memp_dirty(mpf, &cp->page,
-		    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &cp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			return ret;
 	}
 	else {
 		/* We have a read lock, but need a write lock. */
 		if(STD_LOCKING(dbc) && cp->lock_mode != DB_LOCK_WRITE &&
-		    (ret = __db_lget(dbc,
-		    LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
+		    (ret = __db_lget(dbc, LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
 			return ret;
-
-		if((ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info,
-		    dbc->txn, DB_MPOOL_DIRTY, &cp->page)) != 0)
+		if((ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &cp->page)) != 0)
 			return ret;
 	}
-
 	/* We've got the page locked and stored in cp->page. */
 	HEAP_CALCSPACEBITS(dbp, HEAP_FREESPACE(dbp, cp->page), oldspace);
-
 	/*
 	 * Figure out the spacing issue.  There is a very rare corner case where
 	 * we don't have enough space on the page to expand the data. Splitting
@@ -1640,18 +1634,15 @@ static int __heapc_put(DBC *dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 			data_size = (tot_size - dlen) + data->size;
 		}
 	}
-	else if F_ISSET(old_hdr, HEAP_RECBLOB)
-	data_size = HEAPBLOBREC_DSIZE;
+	else if(F_ISSET(old_hdr, HEAP_RECBLOB))
+		data_size = HEAPBLOBREC_DSIZE;
 	else
 		data_size = data->size;
 	new_size = DB_ALIGN(data_size + sizeof(HEAPHDR), sizeof(uint32));
 	if(new_size < sizeof(HEAPSPLITHDR))
 		new_size = sizeof(HEAPSPLITHDR);
-
 	/* Check whether we actually have enough space on this page. */
-	if(F_ISSET(old_hdr, HEAP_RECSPLIT) ||
-	    (new_size > old_size &&
-	    new_size - old_size > HEAP_FREESPACE(dbp, cp->page))) {
+	if(F_ISSET(old_hdr, HEAP_RECSPLIT) || (new_size > old_size && new_size - old_size > HEAP_FREESPACE(dbp, cp->page))) {
 		/* Blob database records never change size. */
 		DB_ASSERT(dbp->env, !F_ISSET(old_hdr, HEAP_RECBLOB));
 		/*

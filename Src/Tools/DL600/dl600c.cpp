@@ -1497,11 +1497,9 @@ int SLAPI DlContext::ResolveDbIndexSegFlag(long flags, const char * pSymb, long 
 		flags |= XIF_DESC;
 	else if(sstreqi_ascii(pSymb, "ACS"))
 		flags |= XIF_ACS;
-	// @v8.6.10 {
 	else if(sstreqi_ascii(pSymb, "IGNORECASE") || sstreqi_ascii(pSymb, "NOCASE") || sstreqi_ascii(pSymb, "CASEINSENSITIVE") || sstreqi_ascii(pSymb, "I")) {
 		flags |= XIF_NOCASE;
 	}
-	// } @v8.6.10
 	else {
 		Error(PPERR_DL6_INVIDXSEGFLAG, pSymb, erfLog);
 		ok = 0;

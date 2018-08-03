@@ -142,7 +142,7 @@ int __db_pitem(DBC *, PAGE *, uint32, uint32, DBT *, DBT *);
 int __db_associate_pp(DB *, DB_TXN *, DB *, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
 int __db_close_pp(DB *, uint32);
 int __db_cursor_pp(DB *, DB_TXN *, DBC **, uint32);
-int __db_cursor(DB *, DB_THREAD_INFO *, DB_TXN *, DBC **, uint32);
+int FASTCALL __db_cursor(DB *, DB_THREAD_INFO *, DB_TXN *, DBC **, uint32);
 int __db_del_pp(DB *, DB_TXN *, DBT *, uint32);
 int __db_exists(DB *, DB_TXN *, DBT *, uint32);
 int __db_fd_pp(DB *, int *);
@@ -186,7 +186,7 @@ int __db_pg_truncate(DBC *, DB_TXN *, db_pglist_t *, DB_COMPACT *, uint32 *, db_
 int __db_free_truncate(DB *, DB_THREAD_INFO *, DB_TXN *, uint32, DB_COMPACT *, db_pglist_t **, uint32 *, db_pgno_t *);
 #endif
 int __db_lprint(DBC *);
-int __db_lget(DBC *, int, db_pgno_t, db_lockmode_t, uint32, DB_LOCK *);
+int FASTCALL __db_lget(DBC *, int, db_pgno_t, db_lockmode_t, uint32, DB_LOCK *);
 #ifdef DIAGNOSTIC
 int __db_haslock(ENV *, DB_LOCKER *, DB_MPOOLFILE *, db_pgno_t, db_lockmode_t, uint32);
 #endif

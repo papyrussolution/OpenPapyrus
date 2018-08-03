@@ -2472,6 +2472,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
  	int    _turn_done = 0; // Признак того, что была выполнена функция CCheckCore::TurnCheck или CCheckCore::UpdateCheck
 	int    do_clear_junk_attrs = 0;
 	SString temp_buf;
+	SString uhtt_err_added_msg;
 	PPCheckInPersonMngr cip_mgr;
 	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 	const  LDATETIME dtm = getcurdatetime_();
@@ -2622,7 +2623,6 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 											}
 										}
 										else {
-											SString uhtt_err_added_msg;
 											PPGetMessage(mfError, PPERR_LOCSYMBUNDEF, loc_rec.Name, 0, uhtt_err_added_msg);
 											PPSetError(PPERR_UHTT_SCBONUSREG, uhtt_err_added_msg);
 											is_error = 1;
@@ -2703,7 +2703,6 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 											}
 										}
 										else {
-											SString uhtt_err_added_msg;
 											PPGetMessage(mfError, PPERR_LOCSYMBUNDEF, loc_rec.Name, 0, uhtt_err_added_msg);
 											PPSetError(PPERR_UHTT_SCBONUSREG, uhtt_err_added_msg);
 											is_error = 1;
@@ -6535,7 +6534,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbCtrlF8: // Просмотр информации о персональной карте
 				if(!Barrier()) {
 					PPID   scard_id = CSt.GetID();
-					ViewSCardInfo(&scard_id, 1);
+					ViewSCardInfo(&scard_id, CashNodeID, 1);
 					Barrier(1);
 				}
 				break;
@@ -8716,7 +8715,8 @@ int CheckPaneDialog::AcceptRowDiscount()
 
 class SCardInfoDialog : public PPListDialog {
 public:
-	SCardInfoDialog(int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST), LocalState(0), SCardID(0), OwnerID(0)
+	SCardInfoDialog(PPID posNodeID, int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST), 
+		PosNodeID(posNodeID), LocalState(0), SCardID(0), OwnerID(0)
 	{
 		if(asSelector)
 			LocalState |= stAsSelector;
@@ -8741,6 +8741,7 @@ public:
 		if(!(LocalState & stAsSelector))
 			showCtrl(STDCTL_OKBUTTON, 0);
 		showButton(cmActivate, 0);
+		showButton(cmVerify, 0); // @v10.1.5
 		SetupMode(modeCheckView, 1);
 	}
 	int    setDTS(const PPID * pData)
@@ -8908,6 +8909,7 @@ private:
 		PPObjSCardSeries ScsObj;
 	};
 
+	const  PPID PosNodeID;
 	long   Mode;
 	long   LocalState;
 	PPID   SCardID;
@@ -8939,7 +8941,8 @@ int SCardInfoDialog::editItem(long pos, long id)
 int SCardInfoDialog::SetupCard(PPID scardID)
 {
 	SString temp_buf, card, info_buf, psn_name;
-	SString phone;
+	SString sc_phone;
+	SString psn_phone;
 	ImageBrowseCtrlGroup::Rec ibg_rec;
 	//SCardTbl::Rec sc_rec;
 	PPSCardPacket sc_pack;
@@ -8958,10 +8961,10 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			LDATETIME cur_dtm = getcurdatetime_();
 			info_buf.Z();
 			// @v10.1.4 {
-			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, phone);
-			if(phone.NotEmptyS()) {
+			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone);
+			if(sc_phone.NotEmptyS()) {
 				PPLoadString("phone", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(phone);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(sc_phone);
 			}
 			// } @v10.1.4 
 			if(r_sc_rec.Expiry) {
@@ -9053,9 +9056,9 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					}
 				}
 			}
-			if(pack.ELA.GetSinglePhone(phone, 0) > 0) {
+			if(pack.ELA.GetSinglePhone(psn_phone, 0) > 0) {
 				PPLoadString("phone", temp_buf);
-				info_buf.Space().Space().Cat(temp_buf).CatDiv(':', 2).Cat(phone);
+				info_buf.Space().Space().Cat(temp_buf).CatDiv(':', 2).Cat(psn_phone);
 			}
 		}
 		else
@@ -9071,6 +9074,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			enableCommand(cmEditPerson, enbl_psn);
 		}
 		showButton(cmActivate, (LocalState & stNeedActivation));
+		showButton(cmVerify, sc_phone.NotEmpty()); // @v10.1.5
 		OwnerList.Clear();
 		updateList(-1);
 	}
@@ -9278,6 +9282,7 @@ void SCardInfoDialog::CommitMovCrd()
 
 IMPL_HANDLE_EVENT(SCardInfoDialog)
 {
+	SCardTbl::Rec sc_rec;
 	// @v9.8.0 {
 	if(TVCOMMAND && TVCMD == cmCharge) {
 		SString code;
@@ -9305,7 +9310,6 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 				return; // После endModal не следует обращаться к this
 			}
 			else {
-				SCardTbl::Rec sc_rec;
 				MEMSZERO(sc_rec);
 				if(PPObjSCard::PreprocessSCardCode(code) > 0 && ScObj.SearchCode(0, code, &sc_rec) > 0) {
 					PPIDArray mult_list;
@@ -9395,7 +9399,6 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			if(text.Strip().Len() > 0/*2*/) {
 				OwnerList.Clear();
 				PersonTbl::Rec psn_rec;
-				SCardTbl::Rec sc_rec;
 				PPIDArray psn_list, sc_list;
 				PPObjPerson::SrchAnalogPattern sap(text, 0);
 				PsnObj.GetListByPattern(&sap, &psn_list);
@@ -9443,7 +9446,6 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 		}
 		else if(TVCMD == cmActivate) {
 			if(LocalState & stNeedActivation) {
-				SCardTbl::Rec sc_rec;
 				if(ScObj.Search(SCardID, &sc_rec) > 0) {
 					if(ScObj.ActivateRec(&sc_rec) > 0) {
 						if(ScObj.P_Tbl->Update(sc_rec.ID, &sc_rec, 1))
@@ -9452,6 +9454,11 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 							PPError();
 					}
 				}
+			}
+		}
+		else if(TVCMD == cmVerify) { // @v10.1.5
+			if(SCardID && ScObj.VerifyOwner(SCardID, PosNodeID) > 0) {
+				SetupCard(sc_rec.ID);
 			}
 		}
 		else if(TVCMD == cmCtlColor) {
@@ -9490,11 +9497,11 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 	}
 }
 
-static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, int asSelector)
+static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
 {
 	//DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
 	int    ok = -1;
-	SCardInfoDialog * dlg = new SCardInfoDialog(asSelector);
+	SCardInfoDialog * dlg = new SCardInfoDialog(posNodeID, asSelector);
 	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pSCardID)) {
 		int    cm = 0;
 		while(ok <= 0 && ((cm = ExecView(dlg)) == cmOK || cm == cmCharge)) {
@@ -9512,11 +9519,11 @@ static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, int asSelector)
 	return ok;
 }
 
-int SLAPI ViewSCardInfo(PPID * pSCardID, int asSelector)
+int FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
 {
 	const int preserve_use_large_dialogs_flags = SLS.CheckUiFlag(sluifUseLargeDialogs);
 	SLS.SetUiFlag(sluifUseLargeDialogs, 0);
-	int    ok = Helper_ViewSCardInfo(pSCardID, asSelector);
+	int    ok = Helper_ViewSCardInfo(pSCardID, posNodeID, asSelector);
 	SLS.SetUiFlag(sluifUseLargeDialogs, preserve_use_large_dialogs_flags);
 	return ok;
 }
@@ -9762,7 +9769,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 							scard_id = sc_rec.ID;
 					}
 					{
-						const int cm = ViewSCardInfo(&scard_id, 1);
+						const int cm = ViewSCardInfo(&scard_id, CashNodeID, 1);
 						if(cm > 0) {
 							if(scard_id && ScObj.Search(scard_id, &sc_rec) > 0) {
 								CSt.SetID(scard_id, sc_rec.Code);

@@ -3414,7 +3414,7 @@ int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void 
 				if(flags & clsfFromBeg)
 					r = BIN(strncmp(item.Txt, pSubstr, substr_len) == 0);
 				else
-					r = ExtStrSrch(item.Txt, pSubstr);
+					r = ExtStrSrch(item.Txt, pSubstr, 0);
 				if(r > 0) {
 					if(p_list) {
 						if(!p_list->addUnique(item.Id)) {

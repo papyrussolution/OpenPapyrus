@@ -95,11 +95,10 @@ try_again:
 	 * If we can't get the root shared, then get a lock on it and
 	 * then wait for the latch.
 	 */
-retry:  if(lock_mode == DB_LOCK_WRITE)
+retry:  
+	if(lock_mode == DB_LOCK_WRITE)
 		get_mode = DB_MPOOL_DIRTY;
-	else if(LOCK_ISSET(lock) || !STD_LOCKING(dbc) ||
-	    F_ISSET(dbc, DBC_DOWNREV) ||
-	    dbc->dbtype == DB_RECNO || F_ISSET(cp, C_RECNUM))
+	else if(LOCK_ISSET(lock) || !STD_LOCKING(dbc) || F_ISSET(dbc, DBC_DOWNREV) || dbc->dbtype == DB_RECNO || F_ISSET(cp, C_RECNUM))
 		get_mode = 0;
 	else
 		get_mode = DB_MPOOL_TRY;
@@ -107,9 +106,7 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 	BAM_GET_ROOT(dbc, root_pgno, h, get_mode, lock_mode, lock, ret);
 	if(ret == DB_LOCK_NOTGRANTED && get_mode == DB_MPOOL_TRY) {
 		DB_ASSERT(dbp->env, !LOCK_ISSET(lock));
-		if((ret = __db_lget(dbc, 0,
-		    root_pgno == PGNO_INVALID ? BAM_ROOT_PGNO(dbc) : root_pgno,
-		    lock_mode, 0, &lock)) != 0)
+		if((ret = __db_lget(dbc, 0, root_pgno == PGNO_INVALID ? BAM_ROOT_PGNO(dbc) : root_pgno, lock_mode, 0, &lock)) != 0)
 			return ret;
 		goto retry;
 	}
@@ -150,54 +147,37 @@ retry:  if(lock_mode == DB_LOCK_WRITE)
 		if(!STD_LOCKING(dbc)) {
 			if(lock_mode != DB_LOCK_WRITE)
 				goto done;
-			if((ret = __memp_dirty(mpf, &h, dbc->thread_info,
-			    dbc->txn, dbc->priority, 0)) != 0) {
+			if((ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
 				if(h != NULL)
-					(void)__memp_fput(mpf,
-					    dbc->thread_info, h, dbc->priority);
+					(void)__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 				return ret;
 			}
 		}
 		else {
 			/* Try to lock the page without waiting first. */
-			if((ret = __db_lget(dbc, 0, root_pgno,
-			    lock_mode, DB_LOCK_NOWAIT, &lock)) == 0) {
-				if(lock_mode == DB_LOCK_WRITE && (ret =
-				    __memp_dirty(mpf, &h, dbc->thread_info,
-				    dbc->txn, dbc->priority, 0)) != 0) {
+			if((ret = __db_lget(dbc, 0, root_pgno, lock_mode, DB_LOCK_NOWAIT, &lock)) == 0) {
+				if(lock_mode == DB_LOCK_WRITE && (ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
 					if(h != NULL)
-						(void)__memp_fput(mpf,
-						    dbc->thread_info, h,
-						    dbc->priority);
+						(void)__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 					return ret;
 				}
 				goto done;
 			}
-
-			t_ret = __memp_fput(mpf,
-				dbc->thread_info, h, dbc->priority);
+			t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 			h = NULL;
-
-			if(ret == DB_LOCK_DEADLOCK ||
-			    ret == DB_LOCK_NOTGRANTED)
+			if(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED)
 				ret = 0;
 			if(ret == 0)
 				ret = t_ret;
-
 			if(ret != 0)
 				return ret;
 			get_mode = 0;
 			if(lock_mode == DB_LOCK_WRITE)
 				get_mode = DB_MPOOL_DIRTY;
-
-			if((ret = __db_lget(dbc,
-			    0, root_pgno, lock_mode, 0, &lock)) != 0)
+			if((ret = __db_lget(dbc, 0, root_pgno, lock_mode, 0, &lock)) != 0)
 				return ret;
-			if((ret = __memp_fget(mpf,
-			    &root_pgno, dbc->thread_info, dbc->txn,
-			    (atomic_read(&mpf->mfp->multiversion) == 0 &&
-			    lock_mode == DB_LOCK_WRITE) ? DB_MPOOL_DIRTY : 0,
-			    &h)) != 0) {
+			if((ret = __memp_fget(mpf, &root_pgno, dbc->thread_info, dbc->txn, (atomic_read(&mpf->mfp->multiversion) == 0 &&
+			    lock_mode == DB_LOCK_WRITE) ? DB_MPOOL_DIRTY : 0, &h)) != 0) {
 				/* Did not read it, release the lock */
 				(void)__LPUT(dbc, lock);
 				return ret;

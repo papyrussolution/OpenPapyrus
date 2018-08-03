@@ -2469,6 +2469,12 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 	return ok;
 }
 
+struct BioTaxonomyCPropEntry {
+	CONCEPTID CId;
+	int64  Value;
+	uint8  PropVariant; // 1 - prop_instance, 2 - prop_subclass
+};
+
 int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 {
 	struct InnerMethods {
@@ -2498,7 +2504,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 		}
 	};
 	int    ok = 1;
-	const  uint max_items_per_tx = 128;
+	const  uint max_items_per_tx = 512;
 	uint   items_per_tx = 0;
 	uint   items_per_tx_total = 0;
 	BDbTransaction * p_ta = 0;
@@ -2516,6 +2522,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	LongArray family_list;
 	LongArray generic_name_list;
 	LongArray genus_list;
+	TSVector <BioTaxonomyCPropEntry> cprop_list; // Мы сначала построим список свойств концепций а потом, на отдельной фазе, занесем его в БД
 	enum {
 		taxstatusUnkn = 0,
 		taxstatusAcceptedName, // "accepted name"
@@ -2612,7 +2619,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	enum {
 		phasePreprocess,
 		phase1,
-		phase2,
+		phase2
 	};
 	const  int phase_list[] = { phase1, phase2 };
 	for(uint phase_idx = 0; phase_idx < SIZEOFARRAY(phase_list); phase_idx++) {
@@ -2833,8 +2840,9 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							const int rcr = rDb.SearchConcept(concept_symb_buf, &cid);
 							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
 							THROW(rDb.P_CNgT->Set(cid, ngram_id));
+							THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							// если rcr == 1, то концепция существовала до вызова ResolveConcept
-							if(rDb.GetConceptPropList(cid, cpl) > 0) { 
+							/*if(rDb.GetConceptPropList(cid, cpl) > 0) { 
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
 									if(cpl.GetByPos(pidx, cp)) {
 										CONCEPTID _val = 0;
@@ -2858,14 +2866,24 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 										}
 									}
 								}
-							}
+							}*/
 							if(!skip_instance) {
-								THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+								BioTaxonomyCPropEntry cpe;
+								cpe.CId = cid;
+								cpe.Value = cid_instance_of;
+								cpe.PropVariant = 1;
+								THROW_SL(cprop_list.insert(&cpe));
+								//THROW(rDb.SetConceptProp(cid, prop_instance, 0, cid_instance_of));
+								//THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							}
 							if(parent_cid && !skip_subclass) {
-								THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+								BioTaxonomyCPropEntry cpe;
+								cpe.CId = cid;
+								cpe.Value = parent_cid;
+								cpe.PropVariant = 2;
+								THROW_SL(cprop_list.insert(&cpe));
+								//THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
+								//THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
 							}
 						}
 					}
@@ -2977,6 +2995,22 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 	if(p_ta) {
 		THROW_DB(p_ta->Commit(1));
 		ZDELETE(p_ta);
+	}
+	if(cprop_list.getCount()) {
+		items_per_tx = 0;
+		BDbTransaction tra(rDb, 1);
+		for(uint i = 0; i < cprop_list.getCount(); i++) {
+			BioTaxonomyCPropEntry & r_cpe = cprop_list.at(i);
+			if(r_cpe.PropVariant == 1) {
+				THROW(rDb.SetConceptProp(r_cpe.CId, prop_instance, 0, r_cpe.Value));
+			}
+			else if(r_cpe.PropVariant == 2) {
+				THROW(rDb.SetConceptProp(r_cpe.CId, prop_subclass, 0, r_cpe.Value));
+			}
+			THROW(RechargeTransaction(&tra, ++items_per_tx, 1024));
+			PPWaitPercent(i+1, cprop_list.getCount(), "Sttoring concept props");
+		}
+		THROW(tra.Commit(1));
 	}
 	CATCHZOK
 	delete p_ta;

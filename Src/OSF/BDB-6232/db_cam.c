@@ -22,19 +22,15 @@
 static int __db_s_count(DB *);
 static int __db_wrlock_err(ENV *);
 static int __dbc_del_foreign(DBC *);
-static int __dbc_del_oldskey __P((DB *, DBC *, DBT *, DBT *, DBT *));
+static int __dbc_del_oldskey(DB *, DBC *, DBT *, DBT *, DBT *);
 static int __dbc_del_secondary(DBC *);
-static int __dbc_pget_recno __P((DBC *, DBT *, DBT *, uint32));
-static inline int __dbc_put_append __P((DBC *,
-    DBT *, DBT *, uint32 *, uint32));
-static inline int __dbc_put_fixed_len __P((DBC *, DBT *, DBT *));
-static inline int __dbc_put_partial __P((DBC *,
-    DBT *, DBT *, DBT *, DBT *, uint32 *, uint32));
-static int __dbc_put_primary __P((DBC *, DBT *, DBT *, uint32));
-static inline int __dbc_put_resolve_key __P((DBC *,
-    DBT *, DBT *, uint32 *, uint32));
-static inline int __dbc_put_secondaries __P((DBC *,
-    DBT *, DBT *, DBT *, int, DBT *, uint32 *));
+static int __dbc_pget_recno(DBC *, DBT *, DBT *, uint32);
+static inline int __dbc_put_append(DBC *, DBT *, DBT *, uint32 *, uint32);
+static inline int __dbc_put_fixed_len(DBC *, DBT *, DBT *);
+static inline int __dbc_put_partial(DBC *, DBT *, DBT *, DBT *, DBT *, uint32 *, uint32);
+static int __dbc_put_primary(DBC *, DBT *, DBT *, uint32);
+static inline int __dbc_put_resolve_key(DBC *, DBT *, DBT *, uint32 *, uint32);
+static inline int __dbc_put_secondaries(DBC *, DBT *, DBT *, DBT *, int, DBT *, uint32 *);
 
 #define CDB_LOCKING_INIT(env, dbc)                                      \
 	/* \
@@ -46,18 +42,13 @@ static inline int __dbc_put_secondaries __P((DBC *,
 	if(CDB_LOCKING(env)) {                                         \
 		if(!F_ISSET(dbc, DBC_WRITECURSOR | DBC_WRITER))        \
 			return (__db_wrlock_err(env));                  \
-                                                                        \
-		if(F_ISSET(dbc, DBC_WRITECURSOR) &&                    \
-		    (ret = __lock_get(env,                              \
-		    (dbc)->locker, DB_LOCK_UPGRADE, &(dbc)->lock_dbt,   \
-		    DB_LOCK_WRITE, &(dbc)->mylock)) != 0)               \
+		if(F_ISSET(dbc, DBC_WRITECURSOR) && (ret = __lock_get(env, (dbc)->locker, DB_LOCK_UPGRADE, &(dbc)->lock_dbt, DB_LOCK_WRITE, &(dbc)->mylock)) != 0) \
 			return ret;                                   \
 	}
 #define CDB_LOCKING_DONE(env, dbc)                                      \
 	/* Release the upgraded lock. */                                \
 	if(F_ISSET(dbc, DBC_WRITECURSOR))                              \
-		(void)__lock_downgrade(                                 \
-			env, &(dbc)->mylock, DB_LOCK_IWRITE, 0);
+		(void)__lock_downgrade(env, &(dbc)->mylock, DB_LOCK_IWRITE, 0);
 
 #define SET_READ_LOCKING_FLAGS(dbc, var) do {                           \
 		var = 0;                                                        \
@@ -69,31 +60,24 @@ static inline int __dbc_put_secondaries __P((DBC *,
 		}                                                               \
 		LF_CLR(DB_READ_COMMITTED | DB_READ_UNCOMMITTED);                \
 } while(0)
-
 /*
  * __dbc_close --
  *	DBC->close.
  *
  * PUBLIC: int __dbc_close(DBC *);
  */
-int __dbc_close(DBC *dbc)
+int __dbc_close(DBC * dbc)
 {
-	DB * dbp;
-	DBC * opd;
-	DBC_INTERNAL * cp;
 #ifdef DIAGNOSTIC
 	DB_THREAD_INFO * ip;
 #endif
 	DB_TXN * txn;
-	ENV * env;
-	int ret, t_ret;
-
-	dbp = dbc->dbp;
-	env = dbp->env;
-	cp = dbc->internal;
-	opd = cp->opd;
-	ret = 0;
-
+	int    t_ret;
+	DB   * dbp = dbc->dbp;
+	ENV  * env = dbp->env;
+	DBC_INTERNAL * cp = dbc->internal;
+	DBC  * opd = cp->opd;
+	int    ret = 0;
 	/*
 	 * Remove the cursor(s) from the active queue.  We may be closing two
 	 * cursors at once here, a top-level one and a lower-level, off-page
@@ -106,8 +90,7 @@ int __dbc_close(DBC *dbc)
 	 * order of operations.
 	 */
 	MUTEX_LOCK(env, dbp->mutex);
-
-	if(opd != NULL) {
+	if(opd) {
 		DB_ASSERT(env, F_ISSET(opd, DBC_ACTIVE));
 		F_CLR(opd, DBC_ACTIVE);
 		TAILQ_REMOVE(&dbp->active_queue, opd, links);
@@ -115,14 +98,10 @@ int __dbc_close(DBC *dbc)
 	DB_ASSERT(env, F_ISSET(dbc, DBC_ACTIVE));
 	F_CLR(dbc, DBC_ACTIVE);
 	TAILQ_REMOVE(&dbp->active_queue, dbc, links);
-
 	MUTEX_UNLOCK(env, dbp->mutex);
-
-	/* Call the access specific cursor close routine. */
-	if((t_ret =
-	    dbc->am_close(dbc, PGNO_INVALID, NULL)) != 0 && ret == 0)
+	// Call the access specific cursor close routine. 
+	if((t_ret = dbc->am_close(dbc, PGNO_INVALID, NULL)) != 0 && ret == 0)
 		ret = t_ret;
-
 	/*
 	 * Release the lock after calling the access method specific close
 	 * routine, a Btree cursor may have had pending deletes.
@@ -134,49 +113,42 @@ int __dbc_close(DBC *dbc)
 	if(LOCK_ISSET(dbc->mylock)) {
 		if((t_ret = __LPUT(dbc, dbc->mylock)) != 0 && ret == 0)
 			ret = t_ret;
-		/* For safety's sake, since this is going on the free queue. */
+		// For safety's sake, since this is going on the free queue. 
 		memzero(&dbc->mylock, sizeof(dbc->mylock));
-		if(opd != NULL)
+		if(opd)
 			memzero(&opd->mylock, sizeof(opd->mylock));
 	}
 	/*
 	 * Remove this cursor's locker ID from its family.
 	 */
 	if(F_ISSET(dbc, DBC_OWN_LID) && F_ISSET(dbc, DBC_FAMILY)) {
-		if((t_ret = __lock_familyremove(env->lk_handle,
-		    dbc->lref)) != 0 && ret == 0)
+		if((t_ret = __lock_familyremove(env->lk_handle, dbc->lref)) != 0 && ret == 0)
 			ret = t_ret;
 		F_CLR(dbc, DBC_FAMILY);
 	}
 #ifdef DIAGNOSTIC
-	if(dbc->locker != NULL) {
+	if(dbc->locker) {
 		ENV_GET_THREAD_INFO(env, ip);
-		if(ip != NULL)
+		if(ip)
 			ip->dbth_locker = dbc->locker->prev_locker;
 		dbc->locker->prev_locker = INVALID_ROFF;
 	}
 #endif
-
 	if((txn = dbc->txn) != NULL)
 		txn->cursors--;
-
-	/* Move the cursor(s) to the free queue. */
+	// Move the cursor(s) to the free queue. 
 	MUTEX_LOCK(env, dbp->mutex);
-	if(opd != NULL) {
-		if(txn != NULL)
+	if(opd) {
+		if(txn)
 			txn->cursors--;
 		TAILQ_INSERT_TAIL(&dbp->free_queue, opd, links);
 	}
 	TAILQ_INSERT_TAIL(&dbp->free_queue, dbc, links);
 	MUTEX_UNLOCK(env, dbp->mutex);
-
-	if(txn != NULL && F_ISSET(txn, TXN_PRIVATE) && txn->cursors == 0 &&
-	    (t_ret = __txn_commit(txn, 0)) != 0 && ret == 0)
+	if(txn && F_ISSET(txn, TXN_PRIVATE) && txn->cursors == 0 && (t_ret = __txn_commit(txn, 0)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * __dbc_destroy --
  *	Destroy the cursor, called after DBC->close.
@@ -2856,10 +2828,8 @@ static int __dbc_del_secondary(DBC *dbc)
 	 * interface.  This shouldn't be any less efficient
 	 * anyway.
 	 */
-	if((ret = __db_cursor_int(pdbp, dbc->thread_info, dbc->txn,
-	    pdbp->type, PGNO_INVALID, 0, dbc->locker, &pdbc)) != 0)
+	if((ret = __db_cursor_int(pdbp, dbc->thread_info, dbc->txn, pdbp->type, PGNO_INVALID, 0, dbc->locker, &pdbc)) != 0)
 		return ret;
-
 	/*
 	 * See comment in __dbc_put--if we're in CDB,
 	 * we already hold the locks we need, and we need to flag
@@ -2870,7 +2840,6 @@ static int __dbc_del_secondary(DBC *dbc)
 		DB_ASSERT(env, pdbc->mylock.off == LOCK_INVALID);
 		F_SET(pdbc, DBC_WRITER);
 	}
-
 	/*
 	 * Set the new cursor to the correct primary key.  Then
 	 * delete it.  We don't really care about the datum;
@@ -2884,13 +2853,10 @@ static int __dbc_del_secondary(DBC *dbc)
 		ret = __dbc_del(pdbc, 0);
 	else if(ret == DB_NOTFOUND)
 		ret = __db_secondary_corrupt(pdbp);
-
 	if((t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 		ret = t_ret;
-
 	return ret;
 }
-
 /*
  * __dbc_del_primary --
  *	Perform a delete operation on a primary index.  Loop through
@@ -2902,18 +2868,15 @@ static int __dbc_del_secondary(DBC *dbc)
  */
 int __dbc_del_primary(DBC *dbc)
 {
-	DB * dbp, * sdbp;
+	DB  * sdbp = 0;
 	DBC * sdbc;
 	DBT * tskeyp;
 	DBT data, pkey, skey, temppkey, tempskey;
-	ENV * env;
-	uint32 nskey, rmw;
+	uint32 nskey;
 	int ret, t_ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	sdbp = NULL;
-	rmw = STD_LOCKING(dbc) ? DB_RMW : 0;
-
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	uint32 rmw = STD_LOCKING(dbc) ? DB_RMW : 0;
 	/*
 	 * If we're called at all, we have at least one secondary.
 	 * (Unfortunately, we can't assert this without grabbing the mutex.)
@@ -2939,12 +2902,10 @@ int __dbc_del_primary(DBC *dbc)
 			else   /* We had a substantive error.  Bail. */
 				goto err;
 		}
-
 #ifdef DIAGNOSTIC
 		if(F_ISSET(&skey, DB_DBT_MULTIPLE))
 			__db_check_skeyset(sdbp, &skey);
 #endif
-
 		if(F_ISSET(&skey, DB_DBT_MULTIPLE)) {
 			tskeyp = (DBT*)skey.data;
 			nskey = skey.size;
@@ -2955,18 +2916,14 @@ int __dbc_del_primary(DBC *dbc)
 			tskeyp = &skey;
 			nskey = 1;
 		}
-
 		/* Open a secondary cursor. */
-		if((ret = __db_cursor_int(sdbp,
-		    dbc->thread_info, dbc->txn, sdbp->type,
-		    PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
+		if((ret = __db_cursor_int(sdbp, dbc->thread_info, dbc->txn, sdbp->type, PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
 			goto err;
 		/* See comment above and in __dbc_put. */
 		if(CDB_LOCKING(env)) {
 			DB_ASSERT(env, sdbc->mylock.off == LOCK_INVALID);
 			F_SET(sdbc, DBC_WRITER);
 		}
-
 		for(; nskey > 0; nskey--, tskeyp++) {
 			/*
 			 * Set the secondary cursor to the appropriate item.
@@ -2984,20 +2941,17 @@ int __dbc_del_primary(DBC *dbc)
 			DB_INIT_DBT(tempskey, tskeyp->data, tskeyp->size);
 			SWAP_IF_NEEDED(sdbp, &pkey);
 			DB_INIT_DBT(temppkey, pkey.data, pkey.size);
-			if((ret = __dbc_get(sdbc, &tempskey, &temppkey,
-			    DB_GET_BOTH | rmw)) == 0)
+			if((ret = __dbc_get(sdbc, &tempskey, &temppkey, DB_GET_BOTH | rmw)) == 0)
 				ret = __dbc_del(sdbc, DB_UPDATE_SECONDARY);
 			else if(ret == DB_NOTFOUND)
 				ret = __db_secondary_corrupt(dbp);
 			SWAP_IF_NEEDED(sdbp, &pkey);
 			FREE_IF_NEEDED(env, tskeyp);
 		}
-
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		if(ret != 0)
 			goto err;
-
 		/*
 		 * In the common case where there is a single secondary key, we
 		 * will have freed any application-allocated data in skey
@@ -3007,14 +2961,12 @@ int __dbc_del_primary(DBC *dbc)
 		 */
 		FREE_IF_NEEDED(env, &skey);
 	}
-
-err:    if(sdbp != NULL &&
-	    (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && ret == 0)
+err:    
+	if(sdbp && (t_ret = __db_s_done(sdbp, dbc->txn)) != 0 && !ret)
 		ret = t_ret;
 	FREE_IF_NEEDED(env, &skey);
 	return ret;
 }
-
 /*
  * __dbc_del_foreign --
  *	Apply the foreign database constraints for a particular foreign
@@ -3033,14 +2985,13 @@ err:    if(sdbp != NULL &&
 static int __dbc_del_foreign(DBC *dbc)
 {
 	DB_FOREIGN_INFO * f_info;
-	DB * dbp, * pdbp, * sdbp;
+	DB  * pdbp, * sdbp;
 	DBC * pdbc, * sdbc;
 	DBT data, fkey, pkey;
-	ENV * env;
 	uint32 flags, rmw;
 	int changed, ret, t_ret;
-	dbp = dbc->dbp;
-	env = dbp->env;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
 	memzero(&fkey, sizeof(DBT));
 	memzero(&data, sizeof(DBT));
 	if((ret = __dbc_get(dbc, &fkey, &data, DB_CURRENT)) != 0)
@@ -3069,24 +3020,17 @@ static int __dbc_del_foreign(DBC *dbc)
 		 * primary via __db_cursor_int to avoid deadlocking.
 		 */
 		sdbc = pdbc = NULL;
-		if(!LF_ISSET(DB_FOREIGN_ABORT) && CDB_LOCKING(env) &&
-		    !F_ISSET(env->dbenv, DB_ENV_CDB_ALLDB)) {
-			ret = __db_cursor(sdbp,
-				dbc->thread_info, dbc->txn, &sdbc, DB_WRITECURSOR);
+		if(!LF_ISSET(DB_FOREIGN_ABORT) && CDB_LOCKING(env) && !F_ISSET(env->dbenv, DB_ENV_CDB_ALLDB)) {
+			ret = __db_cursor(sdbp, dbc->thread_info, dbc->txn, &sdbc, DB_WRITECURSOR);
 			if(LF_ISSET(DB_FOREIGN_NULLIFY) && ret == 0) {
-				ret = __db_cursor_int(pdbp,
-					dbc->thread_info, dbc->txn, pdbp->type,
-					PGNO_INVALID, 0, dbc->locker, &pdbc);
+				ret = __db_cursor_int(pdbp, dbc->thread_info, dbc->txn, pdbp->type, PGNO_INVALID, 0, dbc->locker, &pdbc);
 				F_SET(pdbc, DBC_WRITER);
 			}
 		}
 		else {
-			ret = __db_cursor_int(sdbp, dbc->thread_info, dbc->txn,
-				sdbp->type, PGNO_INVALID, 0, dbc->locker, &sdbc);
+			ret = __db_cursor_int(sdbp, dbc->thread_info, dbc->txn, sdbp->type, PGNO_INVALID, 0, dbc->locker, &sdbc);
 			if(LF_ISSET(DB_FOREIGN_NULLIFY) && ret == 0)
-				ret = __db_cursor_int(pdbp, dbc->thread_info,
-					dbc->txn, pdbp->type, PGNO_INVALID, 0,
-					dbc->locker, &pdbc);
+				ret = __db_cursor_int(pdbp, dbc->thread_info, dbc->txn, pdbp->type, PGNO_INVALID, 0, dbc->locker, &pdbc);
 		}
 		if(ret != 0) {
 			if(sdbc != NULL)
@@ -3097,12 +3041,10 @@ static int __dbc_del_foreign(DBC *dbc)
 			DB_ASSERT(env, sdbc->mylock.off == LOCK_INVALID);
 			F_SET(sdbc, DBC_WRITER);
 			if(LF_ISSET(DB_FOREIGN_NULLIFY) && pdbc != NULL) {
-				DB_ASSERT(env,
-				    pdbc->mylock.off == LOCK_INVALID);
+				DB_ASSERT(env, pdbc->mylock.off == LOCK_INVALID);
 				F_SET(pdbc, DBC_WRITER);
 			}
 		}
-
 		/*
 		 * There are three actions possible when a foreign database has
 		 * items corresponding to a deleted item:

@@ -2105,6 +2105,11 @@ int PPALDD_DataObject::InitData(PPFilt & rFilt, long rsrv)
 //
 // Implementation of PPGlobalAccRights
 //
+PPGlobalAccRights::Rec::Rec() : Flags(0)
+{
+	Scope[0] = 0;
+}
+
 PPGlobalAccRights::PPGlobalAccRights(const int tagID)
 {
 	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;

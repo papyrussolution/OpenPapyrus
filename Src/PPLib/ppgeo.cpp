@@ -9,7 +9,7 @@
 //
 //
 //
-SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount) : 
+SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount) :
 	P_N(pN), P_NrWayRefs(0), P_NrRelRefs(0), NCount(nodeCount), NrWayRefsCount(0), NrRelRefsCount(0)
 {
 }
@@ -1390,22 +1390,14 @@ IMPLEMENT_PPFILT_FACTORY(GeoTracking); SLAPI GeoTrackingFilt::GeoTrackingFilt() 
 
 int  SLAPI GeoTrackingFilt::IsEmpty() const
 {
-	if(!Period.IsZero())
-		return 0;
-	else if(Oi.Obj)
-		return 0;
-	else if(ExtOi.Obj)
-		return 0;
-	else if(Flags)
-		return 0;
-	else
-		return 1;
+	return BIN(Period.IsZero() && !Oi.Obj && !ExtOi.Obj && !Flags);
 }
 //
 //
 //
 SLAPI PPViewGeoTracking::PPViewGeoTracking() : PPView(0, &Filt, PPVIEW_GEOTRACKING)
 {
+	DefReportId = REPORT_GEOTRACKING;
 }
 
 SLAPI PPViewGeoTracking::~PPViewGeoTracking()
@@ -1778,6 +1770,59 @@ int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	}
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
+//
+// Implementation of PPALDD_GeoTracking
+//
+PPALDD_CONSTRUCTOR(GeoTracking)
+{
+	InitFixData(rscDefHdr, &H, sizeof(H));
+	InitFixData(rscDefIter, &I, sizeof(I));
+}
+
+PPALDD_DESTRUCTOR(GeoTracking) { Destroy(); }
+
+int PPALDD_GeoTracking::InitData(PPFilt & rFilt, long rsrv)
+{
+	INIT_PPVIEW_ALDD_DATA_U(GeoTracking, rsrv);
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
+	H.FltBegTm = p_filt->BegTm;
+	H.FltObjType = p_filt->Oi.Obj;
+	H.FltObjID = p_filt->Oi.Id;
+	H.FltExtObjType = p_filt->ExtOi.Obj;
+	H.FltExtObjID = p_filt->ExtOi.Id;
+	//double LuLat; // Географическая широта левого верхнего угла
+	//double LuLon; // Географическая долгота левого верхнего угла
+	//double RbLat; // Географическая широта правого нижнего угла
+	//double RbLon; // Географическая долгота правого нижнего угла
+	return DlRtm::InitData(rFilt, rsrv);
+}
+
+int PPALDD_GeoTracking::InitIteration(long iterId, int sortId, long rsrv)
+{
+	INIT_PPVIEW_ALDD_ITER(GeoTracking);
+}
+
+int PPALDD_GeoTracking::NextIteration(long iterId)
+{
+	START_PPVIEW_ALDD_ITER(GeoTracking);
+	I.ObjType = item.ObjType;
+	I.ObjID = item.ObjID;
+	I.Dt = GeoTrackCore::ConvertStorageDate(item.Dts2010);
+	I.Tm = item.Tm;
+	I.ExtEvent = item.ExtEvent;
+	I.ExtObjType = item.ExtObjType;
+	I.ExtObjID = item.ExtObjID;
+	I.Flags = item.Flags;
+	I.Latitude = item.Latitude;
+	I.Longitude = item.Longitude;
+	I.Altitude = item.Altitude;
+	I.Speed = item.Speed;
+	PPWaitPercent(p_v->GetCounter());
+	FINISH_PPVIEW_ALDD_ITER();
+}
+
+void PPALDD_GeoTracking::Destroy() { DESTROY_PPVIEW_ALDD(GeoTracking); }
 //
 //
 //

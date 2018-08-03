@@ -127,8 +127,7 @@ struct NgxModule_Papyrus {
 };
 
 static ngx_command_t ngx_http_papyrus_test_commands[] = {
-	{ ngx_string("papyrus_test"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, 
-		NgxModule_Papyrus::SetHandler, 0, 0, NULL },
+	{ ngx_string("papyrus_test"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, NgxModule_Papyrus::SetHandler, 0, 0, NULL },
 	{ ngx_string("papyrus_dbsymb"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 
 		ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, DbSymb), NULL },
 	{ ngx_string("papyrus_username"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 

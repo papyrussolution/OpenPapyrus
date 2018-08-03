@@ -314,9 +314,7 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, uint32 
 	key.size = sizeof(txnid);
 	tr.txnid = txnid;
 	tr.when_commit = 0;/* This is not a __txn_regop record. */
-
-	if((ret = __db_cursor(lvinfo->txnrngs, lvinfo->ip,
-	    NULL, &csr, 0)) != 0)
+	if((ret = __db_cursor(lvinfo->txnrngs, lvinfo->ip, NULL, &csr, 0)) != 0)
 		goto err;
 	/*
 	 * If the txnid is first seen here or reused later, it's aborted
@@ -324,10 +322,8 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, uint32 
 	 * we have the beginning of the txn; otherwise the log record is one
 	 * of the actions taken within the txn, and we don't do anything.
 	 */
-	if((ret = __dbc_get(csr, &key, &data, DB_SET)) != 0 &&
-	    ret != DB_NOTFOUND)
+	if((ret = __dbc_get(csr, &key, &data, DB_SET)) != 0 && ret != DB_NOTFOUND)
 		goto err;
-
 	ptr = (struct __lv_txnrange *)data.data;
 	if(ret == DB_NOTFOUND || !IS_ZERO_LSN(ptr->begin)) {
 		tr.end = lsn;
@@ -339,8 +335,7 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, uint32 
 		data2.data = &(tr.txnid);
 		data2.size = sizeof(tr.txnid);
 		putflag = DB_KEYFIRST;
-		if((ret2 = __db_put(lvinfo->txnaborts, lvinfo->ip, NULL,
-		    &key2, &data2, 0)) != 0) {
+		if((ret2 = __db_put(lvinfo->txnaborts, lvinfo->ip, NULL, &key2, &data2, 0)) != 0) {
 			ret = ret2;
 			goto err;
 		}
@@ -352,16 +347,13 @@ static int __lv_log_fwdscr_onrec(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, uint32 
 		putflag = DB_CURRENT;
 		doput = 1;
 	}
-
 	if(doput && (ret = __dbc_put(csr, &key, &data, putflag)) != 0)
 		goto err;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
-
 	return ret;
 }
-
 /*
  * Return 0 from dovrfy if verifying logs for a specified db file, and fileid
  * is not the one we want; Otherwise return 1 from dovrfy. If DB operations

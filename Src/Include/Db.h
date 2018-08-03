@@ -4156,7 +4156,7 @@ public:
 		explicit Buffer(size_t initSize = 128);
 		Buffer(const DBT * pB);
 		void   Reset();
-		operator DBT * () const;
+		operator DBT * () const { return (DBT *)this; }
 		int    FASTCALL Alloc(size_t sz);
 		//
 		// Descr: Если ULen < Size и Flags & fUserMem, то увеличивает распределенный

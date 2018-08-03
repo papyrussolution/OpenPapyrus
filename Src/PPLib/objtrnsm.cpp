@@ -85,6 +85,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 4, DBDXF_DESTROYQUEUEBYDEF);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 5, DBDXF_DONTLOGOBJUPD);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 6, DBDXF_SENDTAGATTCHM); // @v9.2.6
+			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 7, DBDXF_SYNCUSRANDGRPS); // @v10.1.5
 			SetClusterData(CTL_DBXCHGCFG_CHARRYF, Data.Flags);
 
 			AddClusterAssocDef(CTL_DBXCHGCFG_RLZORD,  0, RLZORD_UNDEF);
@@ -485,7 +486,7 @@ SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int rec
 	if(Ctx.Cfg.SpcSubstGoodsGrpID) {
 		Ctx.P_Gra = new GoodsReplacementArray(Ctx.Cfg.SpcSubstGoodsGrpID);
 	}
-	// } @v10.0.12 
+	// } @v10.0.12
 	if(Mode == PPObjectTransmit::tmReading) {
 		SetDestDbDivID(r_cfg.DBDiv);
 		Ctx.P_DestDbDivPack = 0;
@@ -739,8 +740,13 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	{
 		PPIDArray exclude_obj_type_list;
-		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER,
-			PPOBJ_STYLOPALM, PPOBJ_USRGRP, PPOBJ_USR, 0L);
+		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER, PPOBJ_STYLOPALM, /*PPOBJ_USRGRP, PPOBJ_USR,*/ 0L);
+		// @v10.1.5 {
+		if(!(Ctx.Cfg.Flags & DBDXF_SYNCUSRANDGRPS)) {
+			exclude_obj_type_list.add(PPOBJ_USR);
+			exclude_obj_type_list.add(PPOBJ_USRGRP);
+		}
+		// } @v10.1.5 
 		if(oi.Obj && oi.Id && !exclude_obj_type_list.lsearch(oi.Obj)) {
 			ObjSyncQueueTbl::Key1 k1;
 			MEMSZERO(k1);
@@ -1317,11 +1323,11 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 				k0.ObjType   = sct_rec.ObjType;
 				k0.CommIdPfx = sct_rec.CommIdPfx;
 				k0.CommID    = sct_rec.CommID;
-				if(SearchByKey(pTbl, 0, &k0, &ex_rec) > 0) { // @v8.5.5 SearchByKey_ForUpdate-->SearchByKey
+				if(SearchByKey(pTbl, 0, &k0, &ex_rec) > 0) {
 					if(cmp(dtm, ex_rec.SrcModDt, ex_rec.SrcModTm) <= 0)
 						skip = 1;
 					else {
-						THROW_DB(pTbl->rereadForUpdate(0, 0)); // @v8.5.5
+						THROW_DB(pTbl->rereadForUpdate(0, 0));
 						THROW_DB(pTbl->deleteRec()); // @sfu
 					}
 				}
@@ -2961,7 +2967,7 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 	const  PPObjectTransmit::Header * p_hdr = (PPObjectTransmit::Header *)pHdr;
 	SString buf, msg_buf, temp_buf;
 	PPLoadText(PPTXT_STARTRCVPACKET, buf);
-	RecoverTransmission = 0; // @v8.2.3
+	RecoverTransmission = 0;
 	if(!p_hdr->DBID || DObj.Get(p_hdr->DBID, &SrcDbDivPack) <= 0) {
 		temp_buf.Cat(p_hdr->DBID);
 		SrcDbDivPack.Init();
@@ -3055,7 +3061,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 			param.Flags |= ObjReceiveParam::fForceDestroyQueue;
 	}
 	THROW(LockReceiving(0));
-	DS.SetDbCacheDeferredState(db_path_id, 1); // @v8.0.3
+	DS.SetDbCacheDeferredState(db_path_id, 1);
 	is_locked = 1;
 	THROW(r = GetTransmitFiles(&param));
 	if(r > 0) {
@@ -3139,7 +3145,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 		ok = -1;
 	CATCHZOKPPERR
 	if(is_locked) {
-		DS.SetDbCacheDeferredState(db_path_id, 0); // @v8.0.3
+		DS.SetDbCacheDeferredState(db_path_id, 0);
 		LockReceiving(1);
 	}
 	return ok;
@@ -3204,7 +3210,7 @@ static int SLAPI SelfSyncDialog(SelfSyncParam * pParam)
 	return ok;
 }
 
-static int SLAPI SyncRefObj(ObjSyncCore * pSyncTbl, PPID obj, PPID dest)
+static int FASTCALL SyncRefObj(ObjSyncCore * pSyncTbl, PPID obj, PPID dest)
 {
 	int    ok = 1, r;
 	SString msg_buf;
@@ -3258,202 +3264,111 @@ int SLAPI SynchronizeObjects(PPID dest)
 	MEMSZERO(param);
 	param.DestDBID = dest;
 	if(dest == 0 && SelfSyncDialog(&param) <= 0)
-		return -1;
-	dest = param.DestDBID;
-	PPWait(1);
-	ObjSyncCore & r_sync = *DS.GetTLA().P_ObjSync;
-	PPObjLocation   loc_obj;
-	PPObjGoods      gobj;
-	PPObjPerson     pobj;
-	PPObjArticle    part;
-	PPObjAccount    pact;
-	PPObjQCert      qcobj;
-	PPObjSCard      scobj;
-	PPObjProject    prj_obj;
-	PPObjPrjTask    todo_obj;
-	PPObjWorld      world_obj;
-	PPObjCSession   cses_obj;
-	PPObjTSession   tses_obj; // @v8.4.12
-	PPObjProcessor  prc_obj;  // @v8.4.12
-	PPObjTech       tec_obj;  // @v8.4.12
-	PPObjBill * p_bobj = BillObj;
+		ok = -1;
+	else {
+		PPDBXchgConfig dbxcfg;
+		PPObjectTransmit::ReadConfig(&dbxcfg);
+		dest = param.DestDBID;
+		PPWait(1);
+		ObjSyncCore & r_sync = *DS.GetTLA().P_ObjSync;
+		PPObjLocation   loc_obj;
+		PPObjGoods      gobj;
+		PPObjPerson     pobj;
+		PPObjArticle    part;
+		PPObjAccount    pact;
+		PPObjQCert      qcobj;
+		PPObjSCard      scobj;
+		PPObjProject    prj_obj;
+		PPObjPrjTask    todo_obj;
+		PPObjWorld      world_obj;
+		PPObjCSession   cses_obj;
+		PPObjTSession   tses_obj;
+		PPObjProcessor  prc_obj;
+		PPObjTech       tec_obj;
+		PPObjBill * p_bobj = BillObj;
 
-	PPIDArray ref_obj_list;
-	{
-		PPTransaction tra(1);
-		THROW(tra);
+		PPIDArray ref_obj_list;
 		{
-			/*
-		PPOBJ_ACCOUNT,      // !
-		PPOBJ_ACCSHEET,     // !
-		PPOBJ_ACCTURN,      // ?
-		PPOBJ_ACTION,       // ?
-		PPOBJ_ADVBILLKIND,
-		PPOBJ_AMOUNTTYPE,   // !
-		PPOBJ_ARTICLE,      // !
-		PPOBJ_ASSTWROFFGRP,
-		PPOBJ_BACCT,        // ?
-		PPOBJ_BCODEPRINTER,
-		PPOBJ_BCODESTRUC,   // !
-		PPOBJ_BHT,
-		PPOBJ_BILL,
-		PPOBJ_BILLSTATUS,
-		PPOBJ_BIZSCORE,
-		PPOBJ_BIZSCTEMPL,
-		PPOBJ_BNKACCTYPE,   // !
-		PPOBJ_BRAND,
-		PPOBJ_BUDGET,
-		PPOBJ_CASHNODE,     // ?
-		PPOBJ_CITY,         // !
-		PPOBJ_CITYSTATUS,   // !
-		PPOBJ_CONFIG,       // ?
-		PPOBJ_COUNTRY,      // !
-		PPOBJ_CSESSION,
-		PPOBJ_CURRATE,      // !
-		PPOBJ_CURRATETYPE,
-		PPOBJ_CURRENCY,
-		PPOBJ_DATETIMEREP,
-		PPOBJ_DBDIV,
-		PPOBJ_DEBTDIM,
-		PPOBJ_DFCREATERULE,
-		PPOBJ_DRAFTWROFF,
-		PPOBJ_DUTYSCHED,
-		PPOBJ_DYNAMICOBJS,
-		PPOBJ_ELINKKIND,
-		PPOBJ_EVENTTOKEN,
-		PPOBJ_FORMULA,
-		PPOBJ_GLOBALUSERACC,
-		PPOBJ_GOODS,        // !
-		PPOBJ_GOODSBASKET,
-		PPOBJ_GOODSCLASS,
-		PPOBJ_GOODSGROUP,   // !
-		PPOBJ_GOODSINFO,
-		PPOBJ_GOODSSTRUC,   // !
-		PPOBJ_GOODSTAX,
-		PPOBJ_GOODSTYPE,    // !
-		PPOBJ_GOODSVALRESTR,
-		PPOBJ_GTACTION,     // ?
-		PPOBJ_INTERNETACCOUNT,
-		PPOBJ_LOCATION,     // !
-		PPOBJ_MRPTAB,
-		PPOBJ_NAMEDOBJASSOC,
-		PPOBJ_OPCOUNTER,
-		PPOBJ_OPRKIND,      // !
-		PPOBJ_OPRTYPE,      // !
-		PPOBJ_PALLET,
-		PPOBJ_PCKGTYPE,
-		PPOBJ_PERSON,       // !
-		PPOBJ_PERSONEVENT,
-		PPOBJ_PERSONOPKIND,
-		PPOBJ_PERSONRELTYPE,
-		PPOBJ_PHONESERVICE
-		PPOBJ_PRICETYPE,    // !
-		PPOBJ_PRJTASK,
-		PPOBJ_PROCESSOR,
-		PPOBJ_PROJECT,
-		PPOBJ_PRSNCATEGORY,
-		PPOBJ_PRSNKIND,     // !
-		PPOBJ_PRSNSTATUS,   // !
-		PPOBJ_QCERT,        // !
-		PPOBJ_QUOTKIND,
-		PPOBJ_REGION,       // !
-		PPOBJ_REGISTER,
-		PPOBJ_REGISTERTYPE,
-		PPOBJ_RFIDDEVICE,
-		PPOBJ_SALCHARGE,
-		PPOBJ_SCALE,
-		PPOBJ_SCARD,
-		PPOBJ_SCARDSERIES,
-		PPOBJ_SMSPRVACCOUNT,
-		PPOBJ_STAFFCAL,
-		PPOBJ_STAFFLIST,
-		PPOBJ_STAFFRANK,    // !
-		PPOBJ_STYLOPALM,
-		PPOBJ_TAG,
-		PPOBJ_TECH,
-		PPOBJ_TOUCHSCREEN,
-		PPOBJ_TRANSPMODEL,
-		PPOBJ_TRANSPORT,
-		PPOBJ_TSESSION,
-		PPOBJ_UNIT,         // !
-		PPOBJ_USR,          // ?
-		PPOBJ_USRGRP,       // ?
-		PPOBJ_VATBOOK,
-		PPOBJ_WOODBREED,
-		PPOBJ_WORLD,
-			*/
-			ref_obj_list.addzlist(
-				PPOBJ_ACCSHEET,
-				PPOBJ_ADVBILLKIND,
-				PPOBJ_AMOUNTTYPE,
-				PPOBJ_ASSTWROFFGRP,
-				PPOBJ_BCODESTRUC,
-				PPOBJ_BILLSTATUS,
-				PPOBJ_BNKACCTYPE,
-				PPOBJ_CASHNODE,
-				PPOBJ_CITYSTATUS,
-				PPOBJ_CURRENCY,
-				PPOBJ_DEBTDIM,
-				PPOBJ_DUTYSCHED,
-				PPOBJ_DYNAMICOBJS,
-				PPOBJ_ELINKKIND,
-				PPOBJ_EVENTTOKEN,      // @v8.4.12
-				PPOBJ_GLOBALUSERACC,
-				PPOBJ_GOODSCLASS,
-				PPOBJ_GOODSTAX,
-				PPOBJ_GOODSTYPE,
-				PPOBJ_GOODSVALRESTR,
-				PPOBJ_INTERNETACCOUNT,
-				PPOBJ_NAMEDOBJASSOC,
-				PPOBJ_OPCOUNTER,
-				PPOBJ_OPRKIND,
-				PPOBJ_OPRTYPE,
-				PPOBJ_PALLET,
-				PPOBJ_PERSONRELTYPE,
-				PPOBJ_PHONESERVICE,
-				PPOBJ_PRICETYPE,
-				PPOBJ_PRSNCATEGORY,
-				PPOBJ_PRSNKIND,
-				PPOBJ_PRSNSTATUS,
-				PPOBJ_QUOTKIND,
-				PPOBJ_REGISTERTYPE,
-				PPOBJ_SALCHARGE,
-				PPOBJ_SCARDSERIES,
-				PPOBJ_SMSPRVACCOUNT,
-				PPOBJ_STAFFCAL,
-				PPOBJ_STAFFRANK,
-				PPOBJ_TAG,
-				PPOBJ_UNIT,
-				PPOBJ_ACCOUNT2,        // @v9.0.4
-				0);
-			for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
-				ref_obj_list.addUnique(dyn_obj_type);
-			for(uint i = 0; i < ref_obj_list.getCount(); i++)
-				THROW(SyncRefObj(&r_sync, ref_obj_list.get(i), dest));
-		}
-		// @v9.0.4 THROW(SyncTblObj(&r_sync, pact.P_Tbl,      PPOBJ_ACCOUNT,    dest));
-		THROW(SyncTblObj(&r_sync, part.P_Tbl,      PPOBJ_ARTICLE,    dest));
-		THROW(SyncTblObj(&r_sync, world_obj.P_Tbl, PPOBJ_WORLD,      dest));
-		THROW(SyncTblObj(&r_sync, loc_obj.P_Tbl,   PPOBJ_LOCATION,   dest));
-		THROW(SyncTblObj(&r_sync, pobj.P_Tbl,      PPOBJ_PERSON,     dest));
-		THROW(SyncTblObj(&r_sync, scobj.P_Tbl,     PPOBJ_SCARD,      dest));
-		if(!(param.Flags & SelfSyncParam::fDontSyncBills)) {
-			THROW(SyncTblObj(&r_sync, p_bobj->P_Tbl, PPOBJ_BILL, dest));
-			if(CConfig.Flags2 & CCFLG2_SYNCLOT) {
-				THROW(SyncTblObj(&r_sync, &p_bobj->trfr->Rcpt, PPOBJ_LOT, dest));
+			PPTransaction tra(1);
+			THROW(tra);
+			{
+				ref_obj_list.addzlist(
+					PPOBJ_ACCSHEET,
+					PPOBJ_ADVBILLKIND,
+					PPOBJ_AMOUNTTYPE,
+					PPOBJ_ASSTWROFFGRP,
+					PPOBJ_BCODESTRUC,
+					PPOBJ_BILLSTATUS,
+					PPOBJ_BNKACCTYPE,
+					PPOBJ_CASHNODE,
+					PPOBJ_CITYSTATUS,
+					PPOBJ_CURRENCY,
+					PPOBJ_DEBTDIM,
+					PPOBJ_DUTYSCHED,
+					PPOBJ_DYNAMICOBJS,
+					PPOBJ_ELINKKIND,
+					PPOBJ_EVENTTOKEN,
+					PPOBJ_GLOBALUSERACC,
+					PPOBJ_GOODSCLASS,
+					PPOBJ_GOODSTAX,
+					PPOBJ_GOODSTYPE,
+					PPOBJ_GOODSVALRESTR,
+					PPOBJ_INTERNETACCOUNT,
+					PPOBJ_NAMEDOBJASSOC,
+					PPOBJ_OPCOUNTER,
+					PPOBJ_OPRKIND,
+					PPOBJ_OPRTYPE,
+					PPOBJ_PALLET,
+					PPOBJ_PERSONRELTYPE,
+					PPOBJ_PHONESERVICE,
+					PPOBJ_PRICETYPE,
+					PPOBJ_PRSNCATEGORY,
+					PPOBJ_PRSNKIND,
+					PPOBJ_PRSNSTATUS,
+					PPOBJ_QUOTKIND,
+					PPOBJ_REGISTERTYPE,
+					PPOBJ_SALCHARGE,
+					PPOBJ_SCARDSERIES,
+					PPOBJ_SMSPRVACCOUNT,
+					PPOBJ_STAFFCAL,
+					PPOBJ_STAFFRANK,
+					PPOBJ_TAG,
+					PPOBJ_UNIT,
+					PPOBJ_ACCOUNT2,        // @v9.0.4
+					0);
+				// @v10.1.5 {
+				if(dbxcfg.Flags & DBDXF_SYNCUSRANDGRPS) {
+					ref_obj_list.add(PPOBJ_USR);
+					ref_obj_list.add(PPOBJ_USRGRP);
+				}
+				// } @v10.1.5 
+				for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
+					ref_obj_list.addUnique(dyn_obj_type);
+				for(uint i = 0; i < ref_obj_list.getCount(); i++)
+					THROW(SyncRefObj(&r_sync, ref_obj_list.get(i), dest));
 			}
+			// @v9.0.4 THROW(SyncTblObj(&r_sync, pact.P_Tbl,      PPOBJ_ACCOUNT,    dest));
+			THROW(SyncTblObj(&r_sync, part.P_Tbl,      PPOBJ_ARTICLE,    dest));
+			THROW(SyncTblObj(&r_sync, world_obj.P_Tbl, PPOBJ_WORLD,      dest));
+			THROW(SyncTblObj(&r_sync, loc_obj.P_Tbl,   PPOBJ_LOCATION,   dest));
+			THROW(SyncTblObj(&r_sync, pobj.P_Tbl,      PPOBJ_PERSON,     dest));
+			THROW(SyncTblObj(&r_sync, scobj.P_Tbl,     PPOBJ_SCARD,      dest));
+			if(!(param.Flags & SelfSyncParam::fDontSyncBills)) {
+				THROW(SyncTblObj(&r_sync, p_bobj->P_Tbl, PPOBJ_BILL, dest));
+				if(CConfig.Flags2 & CCFLG2_SYNCLOT) {
+					THROW(SyncTblObj(&r_sync, &p_bobj->trfr->Rcpt, PPOBJ_LOT, dest));
+				}
+			}
+			THROW(SyncTblObj(&r_sync, qcobj.P_Tbl,    PPOBJ_QCERT,   dest));
+			THROW(SyncTblObj(&r_sync, prj_obj.P_Tbl,  PPOBJ_PROJECT, dest));
+			THROW(SyncTblObj(&r_sync, todo_obj.P_Tbl, PPOBJ_PRJTASK, dest));
+			THROW(SyncGoodsObjs(&r_sync, gobj.P_Tbl, dest));
+			THROW(SyncTblObj(&r_sync, cses_obj.P_Tbl, PPOBJ_CSESSION, dest));
+			THROW(SyncTblObj(&r_sync, prc_obj.P_Tbl,  PPOBJ_PROCESSOR, dest));
+			THROW(SyncTblObj(&r_sync, tec_obj.P_Tbl,  PPOBJ_TECH,      dest));
+			THROW(SyncTblObj(&r_sync, tses_obj.P_Tbl, PPOBJ_TSESSION,  dest));
+			THROW(tra.Commit());
 		}
-		THROW(SyncTblObj(&r_sync, qcobj.P_Tbl,    PPOBJ_QCERT,   dest));
-		THROW(SyncTblObj(&r_sync, prj_obj.P_Tbl,  PPOBJ_PROJECT, dest));
-		THROW(SyncTblObj(&r_sync, todo_obj.P_Tbl, PPOBJ_PRJTASK, dest));
-		THROW(SyncGoodsObjs(&r_sync, gobj.P_Tbl, dest));
-		THROW(SyncTblObj(&r_sync, cses_obj.P_Tbl, PPOBJ_CSESSION, dest));
-
-		THROW(SyncTblObj(&r_sync, prc_obj.P_Tbl,  PPOBJ_PROCESSOR, dest)); // @v8.4.12
-		THROW(SyncTblObj(&r_sync, tec_obj.P_Tbl,  PPOBJ_TECH,      dest)); // @v8.4.12
-		THROW(SyncTblObj(&r_sync, tses_obj.P_Tbl, PPOBJ_TSESSION,  dest)); // @v8.4.12
-
-		THROW(tra.Commit());
 	}
 	CATCHZOKPPERR
 	PPWait(0);

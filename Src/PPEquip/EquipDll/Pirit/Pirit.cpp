@@ -105,9 +105,8 @@ struct Config {
 	{
 		ReadCycleCount = 10; // @v9.6.9 0-->10
 		ReadCycleDelay = 10; // @v9.6.9 0-->10
-	};
-	struct LogoStruct
-	{
+	}
+	struct LogoStruct {
 		LogoStruct() : Height(0), Width(0), Size(0), Print(0)
 		{
 		}
@@ -1154,8 +1153,11 @@ int PiritEquip::ENQ_ACK()
 	do {
 		CommPort.PutChr(ENQ); // Проверка связи с ККМ
 		int r = CommPort.GetChr();
-		if(r == ACK)
+		// @debug @v10.1.5 if(r == ACK || r == 0x30 || r == 0x34) // @v10.1.5 (|| r == 0x30 || r == 0x34)
+		// @debug if(r > 0) { // @v10.1.5
+		if(r == ACK) {
 			return 1;
+		}
 		else {
 			++try_no;
 			if(try_no >= max_tries) {
@@ -1221,6 +1223,11 @@ int PiritEquip::SetConnection()
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
 	THROW(ENQ_ACK());
+	if(LogFileName.NotEmpty()) {
+		SString msg_buf;
+		(msg_buf = "Connection is established").CatDiv(':', 2).CatEq("cbr", (long)port_params.Cbr);
+		SLS.LogMessage(LogFileName, msg_buf, 8192);
+	}
 	CATCH
 		CommPort.ClosePort(); // @v10.0.02
 		if(LogFileName.NotEmpty()) {
@@ -1676,7 +1683,12 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 {
 	int    ok = 0;
 	int    r = 0;
-	SString buf, in_data, out_data, r_error, str, s_output;
+	SString buf;
+	SString in_data;
+	SString out_data;
+	SString r_error;
+	SString str;
+	SString s_output;
 	StringSet params(';', rInput);
 	for(uint i = 0; params.get(&i, buf) > 0;) {
 		in_data.Z();
@@ -1697,6 +1709,12 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
+				// @v10.1.5 {
+				if(LogFileName.NotEmpty()) {
+					(str = "CHECKNUM (Cmd=03 Arg=2)").CatDiv(':', 2).Cat(out_data);
+					SLS.LogMessage(LogFileName, str, 8192);
+				}
+				// } @v10.1.5 
 				uint   k = 0;
 				// Возвращаемые значения (в порядке следования в буфере ответа) {
 				int    cc_type = 0; // Тип чека

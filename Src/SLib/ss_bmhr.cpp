@@ -1,5 +1,5 @@
 // SS_BMHR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016, 2018
 // Реализация алгоритма Boyer-Moore-Horspool-Raita
 // для поиска подстроки в строке
 //
@@ -303,7 +303,7 @@ size_t SSrchPattern::GetLen() const
 
 int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
-	if(Len > 0)
+	if(Len > 0) {
 		if(Len == 1 || Alg == algDefault) {
 			uint8  pat0 = P_Pat[0];
 			uint8  U = (Flags & fNoCase) ? toupper(pat0) : pat0;
@@ -381,6 +381,7 @@ __succ:
 			return Search_BC(pText, start, end, pPos);
 		else if(Alg == algBmGoodSfx)
 			return Search_GS(pText, start, end, pPos);
+	}
 	return 0;
 }
 
@@ -396,11 +397,12 @@ int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t
 			uint8  cur = p_coll[p_text[i]];
 			if(cur == last) {
 				size_t j = le;
-				for(size_t k = i; p_coll[p_text[--k]] == P_Pat[--j];)
+				for(size_t k = i; p_coll[p_text[--k]] == P_Pat[--j];) {
 					if(j == 0) {
 						ASSIGN_PTR(pPos, k);
 						return 1;
 					}
+				}
 				i += p_gs_shift_ptr[j];
 			}
 			else
@@ -412,11 +414,12 @@ int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t
 			uint8  cur  = p_text[i];
 			if(cur == last) {
 				size_t j = le;
-				for(size_t k = i; p_text[--k] == P_Pat[--j];)
+				for(size_t k = i; p_text[--k] == P_Pat[--j];) {
 					if(j == 0) {
 						ASSIGN_PTR(pPos, k);
 						return 1;
 					}
+				}
 				i += p_gs_shift_ptr[j];
 			}
 			else

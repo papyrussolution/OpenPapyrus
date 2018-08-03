@@ -485,8 +485,7 @@ lock:   cp_c = (BTREE_CURSOR*)dbc_c->internal;
 	 * have downgraded its write lock to a was-write lock.
 	 */
 	if(STD_LOCKING(dbc))
-		if((ret = __db_lget(dbc,
-		    LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
+		if((ret = __db_lget(dbc, LCK_COUPLE, cp->pgno, DB_LOCK_WRITE, 0, &cp->lock)) != 0)
 			goto err;
 
 do_del: /*
@@ -2754,19 +2753,14 @@ static int __bamc_physdel(DBC *dbc)
 	/* If we're not going to try and delete the page, we're done. */
 	if(!delete_page)
 		return 0;
-
 	/*
 	 * Lock the previous and next pages before latching the parent
 	 * sub tree.
 	 */
 	if(STD_LOCKING(dbc)) {
-		if((pgno = PREV_PGNO(cp->page)) != PGNO_INVALID &&
-		    (ret = __db_lget(dbc,
-		    0, pgno, DB_LOCK_WRITE, 0, &prev_lock)) != 0)
+		if((pgno = PREV_PGNO(cp->page)) != PGNO_INVALID && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &prev_lock)) != 0)
 			return ret;
-		if((pgno = NEXT_PGNO(cp->page)) != PGNO_INVALID &&
-		    (ret = __db_lget(dbc,
-		    0, pgno, DB_LOCK_WRITE, 0, &next_lock)) != 0) {
+		if((pgno = NEXT_PGNO(cp->page)) != PGNO_INVALID && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &next_lock)) != 0) {
 			(void)__TLPUT(dbc, next_lock);
 			return ret;
 		}
@@ -2775,7 +2769,6 @@ static int __bamc_physdel(DBC *dbc)
 	if(ret != 0)
 		goto err;
 	ret = __bam_search(dbc, PGNO_INVALID, &key, SR_DEL, 0, NULL, &exact);
-
 	/*
 	 * If everything worked, delete the stack, otherwise, release the
 	 * stack and page locks without further damage.

@@ -1901,7 +1901,7 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 					if(flags & clsfFromBeg)
 						r = BIN(strncmp(item.Txt, pSubstr, substr_len) == 0);
 					else
-						r = ExtStrSrch(item.Txt, pSubstr);
+						r = ExtStrSrch(item.Txt, pSubstr, 0);
 					if(r > 0) {
 						if(!seriesID || (Fetch(item.Id, &sc_rec) > 0 && sc_rec.SeriesID == seriesID)) {
 							if(p_list) {
@@ -1951,7 +1951,7 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 						r = BIN(strncmp(P_Tbl->data.Code, pSubstr, substr_len) == 0);
 					}
 					else {
-						r = ExtStrSrch(P_Tbl->data.Code, pSubstr);
+						r = ExtStrSrch(P_Tbl->data.Code, pSubstr, 0);
 					}
 					if(r > 0) {
 						if(p_list) {
@@ -2827,6 +2827,12 @@ int SLAPI PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 			ok = 1;
 		}
 	}
+	return ok;
+}
+
+int SLAPI PPObjSCard::VerifyOwner(PPID id, PPID posNodeID)
+{
+	int    ok = -1;
 	return ok;
 }
 

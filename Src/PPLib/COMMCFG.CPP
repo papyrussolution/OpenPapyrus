@@ -1,8 +1,8 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
-// Диалог редактирования общих параметров настройки
+// Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РѕР±С‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ РЅР°СЃС‚СЂРѕР№РєРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,6 +19,7 @@ private:
 	int    editSysParams();
 	int    getAcc(uint ctl, Acct *);
 	PPCommConfig cfg;
+	PPObjAccount AccObj;
 };
 
 void CommCfgDialog::setDTS(const PPCommConfig * pData)
@@ -47,23 +48,26 @@ int CommCfgDialog::getAcc(uint ctl, Acct * pAcc)
 {
 	getCtrlData(ctl, pAcc);
 	pAcc->ar = 0;
-	PPObjAccount acc_obj;
-	return ((!pAcc->ac && !pAcc->sb) || acc_obj.SearchNum(pAcc->ac, pAcc->sb, 0L /* @curID */) > 0) ? 1 : (selectCtrl(ctl), 0);
+	return BIN((!pAcc->ac && !pAcc->sb) || AccObj.SearchNum(pAcc->ac, pAcc->sb, 0L /* @curID */) > 0);
 }
 
 int CommCfgDialog::getDTS(PPCommConfig * pData)
 {
-	if(!getAcc(CTL_COMMCFG_SUPPLACC, &cfg.SupplAcct) ||
-		!getAcc(CTL_COMMCFG_SELLACC, &cfg.SellAcct) ||
-		!getAcc(CTL_COMMCFG_CASHACC, &cfg.CashAcct) ||
-		!getAcc(CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct) ||
-		!getAcc(CTL_COMMCFG_ASSETACC, &cfg.AssetAcct))
-		return 0;
+	int    ok = 1;
+	uint   sel = 0;
+	THROW(getAcc(sel = CTL_COMMCFG_SUPPLACC, &cfg.SupplAcct));
+	THROW(getAcc(sel = CTL_COMMCFG_SELLACC, &cfg.SellAcct));
+	THROW(getAcc(sel = CTL_COMMCFG_CASHACC, &cfg.CashAcct));
+	THROW(getAcc(sel = CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct));
+	THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, &cfg.AssetAcct));
 	GetClusterData(CTL_COMMCFG_FLAGS, &cfg.Flags);
 	GetClusterData(CTL_COMMCFG_INCM,  &cfg.IncomeCalcMethod);
 	cfg.Reserve2 = 0;
 	ASSIGN_PTR(pData, cfg);
-	return 1;
+	CATCH
+		ok = PPErrorByDialog(this, sel);
+	ENDCATCH
+	return ok;
 }
 
 int CommCfgDialog::editSysParams()
@@ -101,11 +105,16 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 1, 1);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 2, 2);
 			SetClusterData(CTL_CCFGSYS_LCRUSAGE, Data.LcrUsage);
+			// @v10.1.5 {
+			AddClusterAssoc(CTL_CCFGSYS_LCRV2, 0, CCFLG2_USELCR2);
+			SetClusterData(CTL_CCFGSYS_LCRV2, Data.Flags2);
+			setCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
+			// } @v10.1.5 
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM); // @v8.0.0
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT); // @v8.5.8
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB); // @v9.7.11
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE); // @v9.8.11
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
@@ -126,6 +135,10 @@ int CommCfgDialog::editSysParams()
 			getCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			GetClusterData(CTL_CCFGSYS_FLAGS, &Data.Flags);
 			Data.LcrUsage = (int16)GetClusterData(CTL_CCFGSYS_LCRUSAGE);
+			// @v10.1.5 {
+			GetClusterData(CTL_CCFGSYS_LCRV2, &Data.Flags2);
+			getCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
+			// } @v10.1.5 
 			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -248,7 +261,7 @@ int SLAPI EditCommConfig()
 	return r;
 }
 //
-// Редактирование текущей конфигурации
+// Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С‚РµРєСѓС‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 //
 int SLAPI EditCurrConfig()
 {

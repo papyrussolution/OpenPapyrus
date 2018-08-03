@@ -4317,6 +4317,7 @@ int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_PROCESSOR: val = PPHS_PROCESSOR; break;
 			case PPOBJ_TSESSION:  val = PPHS_TSESSION; break;
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
+			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5 
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -4373,6 +4374,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 				case PPHS_TSESSION:       val = PPOBJ_TSESSION; break;
 				case PPHS_STYLOPALM:      val = PPOBJ_STYLOPALM; break;
 				case PPHS_STYLODEVICE:    val = PPOBJ_STYLOPALM; break;
+				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5 
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

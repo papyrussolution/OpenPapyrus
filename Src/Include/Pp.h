@@ -25,7 +25,7 @@
 //
 //  @global - глобальные переменные. Критичны для многопоточного испольнения. Если за этим обозначением
 //    следует @threadsafe, то в программном коде приняты меры для того, чтобы эта переменная //
-//    была безопасна для многопоточного испольнения.
+//    была безопасна для многопоточного исполнения.
 //
 // @transient - этим признаком помечаются флаги, поля структур, сами структуры, которые не сохраняются //
 //    в базе данных или в каких-либо файлах. Признак контекстно-зависимый: используется тогда, когда
@@ -1873,6 +1873,7 @@ public:
 	SLAPI  PPRights();
 	SLAPI ~PPRights();
 	PPRights & FASTCALL operator = (const PPRights &);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	size_t SLAPI Size() const;
 	void   SLAPI Empty();
 	int    SLAPI IsEmpty() const;
@@ -1933,6 +1934,7 @@ private:
 	ulong  SLAPI CheckSum();
 	int    SLAPI Resize(uint);
 	int    SLAPI ReadRights(PPID securType, PPID securID, int ignoreCheckSum);
+	int    SLAPI SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	_PPRights * P_Rt;
 };
@@ -2787,6 +2789,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 
 struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	SLAPI  PPConfig();
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	long   Tag;            //  4  0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
 	long   ObjID;          //  8  Идентификатор объекта к которому относится конфигурация //
@@ -2799,8 +2802,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	short  RealizeOrder;   // 32  Порядок использования лотов при расходе товара
 	short  Menu;           // 34  Номер меню, используемого этой конфигурацией
 	PPID   User;           // 38
-	PPID   LocAccSheetID;  // 42  Таблица аналитических статей, содержащая активную позицию
-	PPID   Location;       // 46  Активная позиция //
+	PPID   LocAccSheetID;  // 42  Таблица аналитических статей, ссылающихся на склады
+	PPID   Location;       // 46  Склад по умолчанию
 	long   Flags;          // 50  Флаги CFGFLG_XXX
 	long   State;          // 54  Текущее состояние (Только для текущего сеанса) CFGST_XXX
 	short  BillAccess;     // 56  Уровень доступа к документу, устанавливаемый по умолчанию
@@ -3705,8 +3708,8 @@ public:
 	int    SLAPI EnumProperties(PPID objType, PPID objID, PPID * pProp, void * pData = 0, uint sz = 0);
 	int    SLAPI GetConfig(PPID, PPID, PPID cfgID, void * = 0, uint sz = 0);
 	int    SLAPI SetConfig(PPID, PPID, PPID cfgID, void *, uint sz = 0);
-	int    SLAPI LoadSecur(PPID, PPID, PPSecurPacket *);
-	int    SLAPI EditSecur(PPID, PPID, PPSecurPacket *, int isNew);
+	int    SLAPI LoadSecur(PPID objType, PPID objID, PPSecurPacket * pPack);
+	int    SLAPI EditSecur(PPID objType, PPID objID, PPSecurPacket * pPack, int isNew, int use_ta);
 	int    SLAPI RemoveSecur(PPID obj, PPID id, int use_ta);
 	int    SLAPI GetPropArrayFromRecBuf(SVectorBase * pAry);
 	int    SLAPI GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry);
@@ -5136,6 +5139,7 @@ struct AccTurnParam {
 #define CCFLG2_USEOMTPAYMAMT       0x00000080L // @v8.5.8 Использовать включенную сумму оплаты по документам
 #define CCFLG2_USESARTREDB         0x00000100L // @v9.7.11 Использовать базу данных Sartre (экпериментальная опция)
 #define CCFLG2_USELOTXCODE         0x00000200L // @v9.8.11 Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
+#define CCFLG2_USELCR2             0x00000400L // @v10.1.5 Использовать 2-ю версию индексации остатков по лотам
 //
 // Общие параметры конфигурации
 //
@@ -5195,6 +5199,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 		// объединенным строкам счет-фактуры (для печати).
 	PPID   PrepayInvoiceGoodsID;        // @v9.7.0 Товара для печати счета-фактуры на предоплату по бухгалтерскому документу
 		// Так же применяется для печати чеков без подробного содержания.
+	LDATE  LcrUsageSince;               // @v10.1.5 Текущие остатки по лотам учитывать начиная с этой даты
 };
 //
 // Extra config flags (from pp.ini)
@@ -12057,18 +12062,13 @@ public:
 	class GetLotPricesCache {
 	public:
 		SLAPI  GetLotPricesCache(LDATE dt, const PPIDArray * pLocList);
-		int    SLAPI Get(ReceiptTbl::Rec * pLotRec);
+		int    FASTCALL Get(ReceiptTbl::Rec * pLotRec);
 	private:
 		LDATE  Date;
 		PPIDArray RLotList; // Список лотов, по которым были переоценки после Date
 	};
 private:
-	//
-	// Descr: Блок обработки текущих остатков по лотам
-	//   Все изменения в базе данных методами класса делаются без
-	//   транзакции. Ergo: вызывающие функции должны позаботиться о транзактивности.
-	//
-	class LcrBlock {
+	class LcrBlockBase {
 	public:
 		enum {
 			opTest = 1, // Проверка правильности заполнения данных
@@ -12085,6 +12085,23 @@ private:
 			statusWaste,       // Лишняя запись
 			statusDb           // Ошибка извлечения записи
 		};
+	protected:
+		LcrBlockBase(int op, BExtInsert * pBei);
+
+		int    Op;
+		PPID   LotID;
+		LDATE  LastDate;
+		double LastRest;
+		double CurTrfrRest; //
+		BExtInsert * P_Bei;
+	};
+	//
+	// Descr: Блок обработки текущих остатков по лотам
+	//   Все изменения в базе данных методами класса делаются без
+	//   транзакции. Ergo: вызывающие функции должны позаботиться о транзактивности.
+	//
+	class LcrBlock : public LcrBlockBase {
+	public:
 		LcrBlock(int op, LotCurRestTbl * pTbl, BExtInsert * pBei);
 		int    InitLot(PPID lotID);
 		//
@@ -12098,8 +12115,6 @@ private:
 		int    HasError() const;
 	private:
 		int    AddItem(int status, LDATE dt, double exRest, double newRest);
-
-		int    Op;
 		//
 		// Descr: Определитель записи. Используется как для обновления состояния таблицы,
 		//   так и для диагностики ошибок.
@@ -12111,12 +12126,35 @@ private:
 			double ValidRest;  // Правильное или новое значение остатка.
 		};
 		TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
-		PPID   LotID;
-		LDATE  LastDate;
-		double LastRest;
-		double CurTrfrRest; //
 		LotCurRestTbl * P_Tbl;
-		BExtInsert * P_Bei;
+	};
+	class LcrBlock2 : public LcrBlockBase {
+	public:
+		LcrBlock2(int op, LotCurRest2Tbl * pTbl, BExtInsert * pBei);
+		int    InitLot(PPID lotID);
+		//
+		// Descr: Изменяет актуальное состояние таблицы в ответ на изменение
+		//   остатка по лоту lotID на дату dt и на величину addendum.
+		//
+		int    Update(PPID lotID, LDATE dt, long addendumF);
+		int    FASTCALL Process(const TransferTbl::Rec & rTrfrRec);
+		int    FinishLot();
+		int    TranslateErr(PPLotFaultArray * pLfa) const;
+		int    HasError() const;
+	private:
+		int    AddItem(int status, LDATE dt, long exRestF, long newRestF);
+		//
+		// Descr: Определитель записи. Используется как для обновления состояния таблицы,
+		//   так и для диагностики ошибок.
+		//
+		struct Item {
+			LDATE  Dt;         // Дата записи
+			int    Status;     // Статус записи
+			long   ExRestF;    // Значение остатка в текущем состоянии записи
+			long   ValidRestF; // Правильное или новое значение остатка.
+		};
+		TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
+		LotCurRest2Tbl * P_Tbl;
 	};
 	struct LotOpMovParam {
 		PPID   SrcLotID;
@@ -12143,8 +12181,10 @@ private:
 	int    SLAPI MergeLots(LotOpMovParam *, uint flags, int use_ta);
 	int    SLAPI CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty);
 	int    SLAPI Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebuild);
+	int    SLAPI Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceRebuild);
 
-	LotCurRestTbl * P_LcrT; //
+	LotCurRestTbl  * P_LcrT; //
+	LotCurRest2Tbl * P_Lcr2T; // @v10.1.5
 public:
 	ReceiptCore  Rcpt;
 	CurRestTbl   CRest;
@@ -16472,6 +16512,8 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  SLAPI ProcessReservedItem(TVRez &);
+	int    SLAPI GetPacket(PPID id, PPSecurPacket * pPack);
+	int    SLAPI PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta);
 	int    SLAPI AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta);
 	int    SLAPI GetPrivateDesktop(PPID userID, PPID * pDesktopID);
 	//
@@ -16479,8 +16521,12 @@ public:
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, Flags, PersonID, ParentID}
 	//
 	int    FASTCALL Fetch(PPID id, PPSecur *);
+	int    SLAPI SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 private:
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	int    SLAPI AssignImages(ListBoxDef * pDef);
 
 	ExtraParam SelectorP; // Блок параметров, с которым был вызван последний Selector.
@@ -16799,11 +16845,7 @@ public:
 private:
 	int    SLAPI Parse(const SString & rStr);
 	struct Rec { // @flat
-		Rec()
-		{
-			Scope[0] = 0;
-			Flags = 0;
-		}
+		Rec();
 		char  Scope[128];
 		int   Flags;
 	};
@@ -25199,10 +25241,8 @@ struct GeoTrackingFilt : public PPBaseFilt {
 // Descr: Итоги выборки гео-треков
 //
 struct GeoTrackingTotal {
-	SLAPI  GeoTrackingTotal()
+	SLAPI  GeoTrackingTotal() : Count(0), ObjCount(0)
 	{
-		Count = 0;
-		ObjCount = 0;
 	}
 	long   Count;     // Количество точек в выборке
 	long   ObjCount;  // Количество объектов в выборке
@@ -32087,6 +32127,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI  ActivateRec(SCardTbl::Rec * pRec);
+	int    SLAPI  VerifyOwner(PPID id, PPID posNodeID);
 
 	enum {
 		gtalgDefault = 0,
@@ -33967,6 +34008,7 @@ private:
 #define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара
 	// трактовать как код товара по контрагенту.
 #define DBDXF_SENDTAGATTCHM        0x00400000L // @9.2.6 Передавать файлы, прикрепленные к тегам
+#define DBDXF_SYNCUSRANDGRPS       0x00800000L // @v10.1.5 Синхронизировать пользователей и группы
 
 struct PPDBXchgConfig { // @transient (Для сохранения транслируется в __PPDBXchgConfig)
 	PPID   OneRcvLocID;        // Единственная локация, на которую должны приниматься все документы,
@@ -50849,7 +50891,7 @@ int    SLAPI ProcessGoodsSaldo();
 //
 int    SLAPI EditHolidays();
 int    SLAPI ViewGoodsInfo(const InfoKioskPaneFilt * pFilt);
-int    SLAPI ViewSCardInfo(PPID * pSCardID, int asSelector);
+int    FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector);
 //
 // Descr: Отображает список товарных позиций, соответсвующих забракованной серии pSerial
 //

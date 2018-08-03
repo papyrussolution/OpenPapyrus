@@ -2602,8 +2602,8 @@ typedef int32 TYPEID;
 #define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
 #define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
 #define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
-#define T_BOOL             MKSTYPE(S_BOOL, 4)                  // @v8.1.2
-#define T_GUID             MKSTYPE(S_UUID_, 16)                // @v8.6.2
+#define T_BOOL             MKSTYPE(S_BOOL, 4)
+#define T_GUID             MKSTYPE(S_UUID_, 16)
 // @v9.8.12 #endif
 
 #if /* @v8.7.2 defined(__cplusplus) &&*/ !defined(RC_INVOKED) /* { */
@@ -5635,16 +5635,16 @@ int SLAPI GetPort(const char * pPortName, int * pPortNo);
 //
 enum ComBaudRate {
 	cbrUndefined = 0,
-	cbr110,
-	cbr300,
-	cbr600,
-	cbr1200,
-	cbr2400,
-	cbr4800,
-	cbr9600,
-	cbr14400,
-	cbr19200,
-	cbr38400,
+	cbr110,   // =1
+	cbr300,   // =2
+	cbr600,   // =3
+	cbr1200,  // =4
+	cbr2400,  // =5
+	cbr4800,  // =6
+	cbr9600,  // =7
+	cbr14400, // =8
+	cbr19200, // =9
+	cbr38400, // =10
 	cbr56000,
 	cbr57600,
 	cbr115200,
@@ -9380,7 +9380,16 @@ private:
 
 int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam *);
 int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore);
-int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern);
+//
+// Descr: Флаги функции ExtStrSrch
+//
+enum {
+	essfCaseSensitive = 0x0001
+};
+//
+// Descr: Ищет образец pPattern в строке pBuffer.
+//
+int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 //
 // Tag parser
 //
@@ -10095,6 +10104,7 @@ float  FASTCALL smin(float a, float b);
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
+long   FASTCALL fmul1000i(double);
 //
 // Descr: Проверяет равенство величин v1 и v2 с точностью до epsilon.
 // Returns:

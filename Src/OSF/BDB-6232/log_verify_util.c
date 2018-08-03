@@ -525,7 +525,7 @@ int __add_recycle_lsn_range(DB_LOG_VRFY_INFO *lvinfo, const DB_LSN * lsn, uint32
 			goto err;
 	}
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	__os_free(lvinfo->dbenv->env, param.ti2u);
 	if(ret != 0)
@@ -637,7 +637,7 @@ out:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	__os_free(lvinfo->dbenv->env, btbuf);
 	return ret;
@@ -1139,7 +1139,7 @@ int __get_last_ckp_info(const DB_LOG_VRFY_INFO *lvinfo, VRFY_CKP_INFO ** ckpinfo
 	memcpy(ckpinfo, data.data, sizeof(VRFY_CKP_INFO));
 	*ckpinfopp = ckpinfo;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	if(ret != 0 && ret != DB_NOTFOUND)
 		__db_err(lvinfo->dbenv->env, ret, "__get_last_ckp_info");
@@ -1209,7 +1209,7 @@ int __get_latest_timestamp_info(const DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, VRFY
 err:
 	if(ret != 0 && ret != DB_NOTFOUND)
 		__db_err(lvinfo->dbenv->env, ret, "__get_latest_timestamp_info");
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1301,7 +1301,7 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO *lvinfo, time_t begin, time_t end, D
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1347,7 +1347,7 @@ int __add_txnrange(DB_LOG_VRFY_INFO *lvinfo, uint32 txnid, DB_LSN lsn, int32 whe
 	}
 
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1383,7 +1383,7 @@ err:
 	/* It's OK if can't find it. */
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1419,7 +1419,7 @@ int __txn_started(DB_LOG_VRFY_INFO *lvinfo, DB_LSN lsn, uint32 txnid, int * res)
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0; /* It's OK if can't find it. */
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1580,7 +1580,7 @@ out:
 err:
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
@@ -1614,7 +1614,7 @@ int __return_txn_pages(DB_LOG_VRFY_INFO *lvh, uint32 ctxn, uint32 ptxn)
 	if((ret = __del_txn_pages(lvh, ctxn)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 err:
-	if(csr != NULL && (tret = __dbc_close(csr)) != 0 && ret == 0)
+	if(csr && (tret = __dbc_close(csr)) != 0 && !ret)
 		ret = tret;
 	return ret;
 }
