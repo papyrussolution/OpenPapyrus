@@ -2830,8 +2830,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						{
 							const int rngr = rDb.ResolveNGram(ngram, &ngram_id);
 							THROW(rngr);
-							if(rngr == 2) {
-								THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+							/*if(rngr == 2)*/ {
+								//items_per_tx++;
+								items_per_tx += 4;
+								THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
 							}
 						}
 						{
@@ -2840,7 +2842,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							const int rcr = rDb.SearchConcept(concept_symb_buf, &cid);
 							assert(rcr > 0); // Все концепции уже были созданы на фазе 1
 							THROW(rDb.P_CNgT->Set(cid, ngram_id));
-							THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+							items_per_tx++;
+							THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
 							// если rcr == 1, то концепция существовала до вызова ResolveConcept
 							/*if(rDb.GetConceptPropList(cid, cpl) > 0) { 
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
@@ -2937,7 +2940,9 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						LEXID lex_id = 0;
 						THROW(rDb.P_WdT->AddSpecial(SrWordTbl::spcConcept, concept_symb_buf, &lex_id));
 						symb_list.add(lex_id);
-						THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+						//items_per_tx++;
+						items_per_tx += 3;
+						THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts symb)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -2954,7 +2959,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						c.ID = 0;
 						c.SymbID  = lex_id;
 						THROW(rDb.P_CT->Add(c));
-						THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+						THROW(RechargeTransaction(p_ta, ++items_per_tx, /*max_items_per_tx*/512+256));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -3008,7 +3013,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 				THROW(rDb.SetConceptProp(r_cpe.CId, prop_subclass, 0, r_cpe.Value));
 			}
 			THROW(RechargeTransaction(&tra, ++items_per_tx, 1024));
-			PPWaitPercent(i+1, cprop_list.getCount(), "Sttoring concept props");
+			PPWaitPercent(i+1, cprop_list.getCount(), "Storing concept props");
 		}
 		THROW(tra.Commit(1));
 	}

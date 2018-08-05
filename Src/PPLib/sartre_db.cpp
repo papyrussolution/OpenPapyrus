@@ -1362,7 +1362,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 {
 	int    ok = 1;
 	BDbDatabase::Config cfg;
-	cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512);
+	cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512+512); // @v10.1.5 512-->512+512
 	cfg.CacheCount  = 1; // @v9.6.4 20-->
 	cfg.MaxLockers  = (flags & oReadOnly) ? SKILOBYTE(64) : SKILOBYTE(512); // @v9.6.2 20000-->256*1024 // @v10.0.01 256-->512
 	cfg.MaxLocks    = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(512); // @v9.6.4 // @v10.0.01 128-->256 // @v10.0.12 256-->512

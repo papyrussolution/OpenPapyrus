@@ -6,49 +6,38 @@
 #include <pp.h>
 #pragma hdrstop
 
-class SCardSpecialTreatment {
-public:
-	struct CardBlock {
-		CardBlock() : PosNodeID(0)
-		{
-		}
-		PPSCardPacket ScPack;
-		PPID   PosNodeID;
-		SString PosNodeCode;
-	};
-	SCardSpecialTreatment()
-	{
-	}
-	virtual ~SCardSpecialTreatment()
-	{
-	}
-	virtual int VerifyOwner(const CardBlock * pScBlk)
-	{
-		return -1;
-	}
-	virtual int QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
-	{
-		return -1;
-	}
-	virtual int CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
-	{
-		return -1;
-	}
-};
+SLAPI SCardSpecialTreatment::CardBlock::CardBlock() : PosNodeID(0)
+{
+}
+
+SLAPI SCardSpecialTreatment::SCardSpecialTreatment()
+{
+}
+
+SLAPI SCardSpecialTreatment::~SCardSpecialTreatment()
+{
+}
+
+int SLAPI SCardSpecialTreatment::VerifyOwner(const CardBlock * pScBlk)
+	{ return -1; }
+int SLAPI SCardSpecialTreatment::QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+	{ return -1; }
+int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+	{ return -1; }
 
 class SCardSpecialTreatment_AstraZeneca : public SCardSpecialTreatment {
 public:
-	SCardSpecialTreatment_AstraZeneca() : SCardSpecialTreatment()
+	SLAPI SCardSpecialTreatment_AstraZeneca() : SCardSpecialTreatment()
 	{
 	}
-	virtual ~SCardSpecialTreatment_AstraZeneca()
+	virtual SLAPI ~SCardSpecialTreatment_AstraZeneca()
 	{
 	}
-	virtual int VerifyOwner(const CardBlock * pScBlk);
-	virtual int QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
-	virtual int CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
+	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
 private:
-	void MakeUrl(const char * pSuffix, SString & rBuf)
+	void SLAPI MakeUrl(const char * pSuffix, SString & rBuf)
 	{
 		//https://astrazeneca.like-pharma.com/api/1.0/register/
 		SString sfx;
@@ -89,7 +78,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::PrepareHtmlFields(StrStrAssocArray 
 	return ok;
 }
 
-int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
+int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 {
 	int    ok = 1;
 	json_t * p_query = 0;
@@ -99,6 +88,7 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 	SString json_buf;
 	SString reply_code;
 	SString phone_buf;
+	SString log_buf;
 	int    last_query_status = -1; // 1 - success, 0 - error, -1 - undefined
 	int    last_query_errcode = 0;
 	SString last_query_message;
@@ -107,91 +97,106 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 	StrStrAssocArray hdr_flds;
 	THROW(PrepareHtmlFields(hdr_flds));
 	{
-		SBuffer ack_buf;
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-		THROW_SL(p_query->Insert("card_number", json_new_string(pScBlk->ScPack.Rec.Code)));
-		pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
-		THROW(temp_buf.NotEmptyS());
-		PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-		THROW_SL(p_query->Insert("phone_number", json_new_string(phone_buf)));
-		THROW_SL(p_query->Insert("trust_key", json_new_string("")));
-		THROW_SL(json_tree_to_string(p_query, json_buf));
-		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		const char * p_debug_file_name = "astrazeneca-debug.log";
+		PPGetFilePath(PPPATH_LOG, p_debug_file_name, temp_buf);
+		SFile f_out_test(temp_buf, SFile::mAppend);
 		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
-			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				//f_out_test.WriteLine(temp_buf.CR().CR());
-				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
-							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("status")) {
-									if(p_obj->P_Child->Text.IsEqiAscii("success"))
-										last_query_status = 1;
-									else if(p_obj->P_Child->Text.IsEqiAscii("error"))
-										last_query_status = 0;
-								}
-								else if(p_obj->Text.IsEqiAscii("error_code")) {
-									last_query_errcode = p_obj->P_Child->Text.ToLong();
-								}
-								else if(p_obj->Text.IsEqiAscii("code")) {
-									reply_code = p_obj->P_Child->Text;
-								}
-								else if(p_obj->Text.IsEqiAscii("message")) {
-									last_query_message = p_obj->P_Child->Text;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			THROW_SL(p_query = new json_t(json_t::tOBJECT));
+			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
+			THROW_SL(p_query->Insert("card_number", json_new_string(pScBlk->ScPack.Rec.Code)));
+			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+			THROW(temp_buf.NotEmptyS());
+			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
+			THROW_SL(p_query->Insert("phone_number", json_new_string(phone_buf)));
+			THROW_SL(p_query->Insert("trust_key", json_new_string("")));
+			THROW_SL(json_tree_to_string(p_query, json_buf));
+			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				if(p_ack_buf) {
+					const int avl_size = (int)p_ack_buf->GetAvailableSize();
+					temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
+					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+						for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Type == json_t::tOBJECT) {
+								for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+									if(p_obj->Text.IsEqiAscii("status")) {
+										if(p_obj->P_Child->Text.IsEqiAscii("success"))
+											last_query_status = 1;
+										else if(p_obj->P_Child->Text.IsEqiAscii("error"))
+											last_query_status = 0;
+									}
+									else if(p_obj->Text.IsEqiAscii("error_code")) {
+										last_query_errcode = p_obj->P_Child->Text.ToLong();
+									}
+									else if(p_obj->Text.IsEqiAscii("code")) {
+										reply_code = p_obj->P_Child->Text;
+									}
+									else if(p_obj->Text.IsEqiAscii("message")) {
+										last_query_message = p_obj->P_Child->Text;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+			if(!last_query_status) {
+				temp_buf.Z().Cat(last_query_errcode).CatDiv('-', 1).Cat(last_query_message.Transf(CTRANSF_UTF8_TO_INNER));
+				CALLEXCEPT_PP_S(PPERR_SCSPCTRT_AZ, temp_buf);
+			}
 		}
-	}
-	json_free_value(&p_query);
-	if(last_query_status > 0 && reply_code.NotEmpty()) {
-		//
-		MakeUrl("confirm_code", temp_buf);
-		url.Clear();
-		url.Parse(temp_buf);
-		//
-		SBuffer ack_buf;
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-		THROW_SL(p_query->Insert("code", json_new_string(reply_code)));
-		THROW_SL(json_tree_to_string(p_query, json_buf));
-		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
-			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				//f_out_test.WriteLine(temp_buf.CR().CR());
-				json_free_value(&p_reply);
-				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
-							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("status")) {
-									if(p_obj->P_Child->Text.IsEqiAscii("success"))
-										last_query_status = 1;
-									else if(p_obj->P_Child->Text.IsEqiAscii("error"))
-										last_query_status = 0;
-								}
-								else if(p_obj->Text.IsEqiAscii("error_code")) {
-									last_query_errcode = p_obj->P_Child->Text.ToLong();
-								}
-								else if(p_obj->Text.IsEqiAscii("message")) {
-									last_query_message = p_obj->P_Child->Text;
+		json_free_value(&p_query);
+		if(last_query_status > 0 && reply_code.NotEmpty()) {
+			//
+			MakeUrl("confirm_code", temp_buf);
+			url.Clear();
+			url.Parse(temp_buf);
+			//
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			THROW_SL(p_query = new json_t(json_t::tOBJECT));
+			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
+			THROW_SL(p_query->Insert("code", json_new_string(reply_code)));
+			THROW_SL(json_tree_to_string(p_query, json_buf));
+			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				if(p_ack_buf) {
+					const int avl_size = (int)p_ack_buf->GetAvailableSize();
+					temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
+					json_free_value(&p_reply);
+					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+						for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Type == json_t::tOBJECT) {
+								for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+									if(p_obj->Text.IsEqiAscii("status")) {
+										if(p_obj->P_Child->Text.IsEqiAscii("success"))
+											last_query_status = 1;
+										else if(p_obj->P_Child->Text.IsEqiAscii("error"))
+											last_query_status = 0;
+									}
+									else if(p_obj->Text.IsEqiAscii("error_code")) {
+										last_query_errcode = p_obj->P_Child->Text.ToLong();
+									}
+									else if(p_obj->Text.IsEqiAscii("message")) {
+										last_query_message = p_obj->P_Child->Text;
+									}
 								}
 							}
 						}
 					}
 				}
+			}
+			if(!last_query_status) {
+				temp_buf.Z().Cat(last_query_errcode).CatDiv('-', 1).Cat(last_query_message.Transf(CTRANSF_UTF8_TO_INNER));
+				CALLEXCEPT_PP_S(PPERR_SCSPCTRT_AZ, temp_buf);
 			}
 		}
 	}
@@ -201,12 +206,12 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 	return ok;
 }
 
-int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
 {
 	return -1;
 }
 
-int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -345,4 +350,15 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, C
 	json_free_value(&p_reply);
 	json_free_value(&p_query);
 	return ok;
+}
+//
+//
+//
+//static 
+SCardSpecialTreatment * FASTCALL SCardSpecialTreatment::CreateInstance(int spcTrtID)
+{
+	if(spcTrtID == SCRDSSPCTRT_AZ)
+		return new SCardSpecialTreatment_AstraZeneca;
+	else
+		return 0;
 }

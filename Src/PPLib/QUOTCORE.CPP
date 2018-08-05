@@ -1527,10 +1527,8 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPI
 					PROFILE_START
 					const  PPID goods_id = labs(goods_list.get(j));
 					loc_list.clear();
-
 					uint     k, n;
 					StrAssocArray hier_list;
-					// @v8.3.4 {
 					if(IgnoreFolderMtx) {
 						Goods2Tbl::Rec goods_rec;
                         if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
@@ -1541,7 +1539,7 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPI
 							}
                         }
 					}
-					else /* } @v8.3.4 */ {
+					else {
 						goods_obj.GetHierarchy(goods_id, &hier_list);
 					}
 					loc_mtx_list.clear();
@@ -1550,8 +1548,7 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPI
 						PPID   id = hier_list.at_WithoutParent(k).Id;
 						ql.clear();
 						if(QuotProviderGeneration == 2) {
-							// @v8.0.9 ((Quotation2Core *)P_QuotProvider)->GetCurrList(id, MtxQkID, 0, ql);
-							((Quotation2Core *)P_QuotProvider)->GetCurrListByRelList(id, rel_list, ql); // @v8.0.9
+							((Quotation2Core *)P_QuotProvider)->GetCurrListByRelList(id, rel_list, ql);
 						}
 						else
 							((QuotationCore *)P_QuotProvider)->GetCurrList(id, MtxQkID, 0, ql);

@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>master /+autotranslate:D:\Papyrus\Src\Rsrc\Str\ppstr2.txt;en /+selfbuild</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>master /+UHTTGOODSTOGITHUBEXPORT /+autotranslate:D:\Papyrus\Src\Rsrc\Str\ppstr2.txt;en /+selfbuild</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\ppy\bin</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

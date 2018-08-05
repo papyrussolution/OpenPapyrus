@@ -2820,3 +2820,84 @@ int SLAPI PPObjGoods::Import(const char * pCfgName, int analyze, int use_ta)
 	PPGoodsImporter gi;
 	return gi.Run(pCfgName, use_ta);
 }
+//
+//
+//
+int SLAPI ExportUhttForGitHub()
+{
+	int    ok = 1;
+
+	const  uint lines_per_file = 65000;
+	uint   line_count = 0;
+	uint   line_total = 0;
+
+	SString temp_buf;
+
+	SString goods_name;
+	SString group_name;
+	SString brand_name;
+
+	SString out_file_name;
+	SString result_barcode;
+	SString line_buf;
+
+	StrAssocArray goods_grp_hier;
+
+	PPObjGoods goods_obj;
+	PPObjBrand brand_obj;
+	GoodsFilt goods_filt;
+	goods_filt.Flags &= ~GoodsFilt::fHidePassive;
+    GoodsIterator giter(&goods_filt, GoodsIterator::ordByName);
+    Goods2Tbl::Rec goods_rec;
+    BarcodeArray codes;
+
+	long   file_no = 1;
+	(temp_buf = "uhtt_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+    PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+    SFile f_out(out_file_name, SFile::mWrite);
+	PPWait(1);
+    while(giter.Next(&goods_rec) > 0) {
+		(goods_name = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+		goods_obj.GetHierarchy(goods_rec.ID, &goods_grp_hier);
+		group_name.Z();
+		if(goods_grp_hier.getCount() > 1) {
+			for(uint j = 0; j < (goods_grp_hier.getCount()-1); j++)	{
+				StrAssocArray::Item item = goods_grp_hier.at_WithoutParent(j);
+				group_name.CatDivIfNotEmpty('/', 0);
+				group_name.Cat(item.Txt);
+			}
+			group_name.Transf(CTRANSF_INNER_TO_UTF8);
+		}
+		brand_name.Z();
+		if(goods_rec.BrandID) {
+			PPBrand brand_rec;
+			if(brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
+				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+			}
+		}
+		goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, codes);
+		for(uint i = 0; i < codes.getCount(); i++) {
+			temp_buf = codes.at(i).Code;
+			int    diag = 0, std = 0;
+			int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+			if(dbr > 0) {
+                line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name).Tab().Cat(goods_rec.ParentID).Tab().
+					Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
+				f_out.WriteLine(line_buf);
+				line_count++;
+				line_total++;
+				if(line_count >= lines_per_file) {
+					f_out.Close();
+					file_no++;
+					(temp_buf = "uhtt_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+					PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+					f_out.Open(out_file_name, SFile::mWrite);
+					line_count = 0;
+				}
+			}
+		}
+		PPWaitPercent(giter.GetIterCounter());
+    }
+	PPWait(0);
+	return ok;
+}

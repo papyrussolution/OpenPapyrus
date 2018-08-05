@@ -311,59 +311,65 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 	UintHashTable bill_list;
 	PPOprKind op_rec;
 	{
-		for(SEnum en = PPRef->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSREVAL); en.Next(&op_rec) > 0;)
-			op_list.addUnique(op_rec.ID);
+		Reference * p_ref = PPRef;
+		{
+			for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSREVAL); en.Next(&op_rec) > 0;)
+				op_list.addUnique(op_rec.ID);
+		}
+		{
+			//
+			// Так как модификация может быть рекомплектацией с функцией переоценки, то
+			// придется учесть и это
+			//
+			for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSMODIF); en.Next(&op_rec) > 0;)
+				op_list.addUnique(op_rec.ID);
+		}
 	}
 	{
+		PPObjBill * p_bobj = BillObj;
 		//
-		// Так как модификация может быть рекомплектацией с функцией переоценки, то
-		// придется учесть и это
+		// Находим список документов переоценки с датой, не превышающей Date
 		//
-		for(SEnum en = PPRef->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSMODIF); en.Next(&op_rec) > 0;)
-			op_list.addUnique(op_rec.ID);
-	}
-	//
-	// Находим список документов переоценки с датой, не превышающей Date
-	//
-	{
-		for(uint i = 0; i < op_list.getCount(); i++) {
-			BillTbl::Rec bill_rec;
-			for(DateIter di(Date, ZERODATE); BillObj->P_Tbl->EnumByOpr(op_list.get(i), &di, &bill_rec) > 0;) {
-				if(!pLocList || pLocList->lsearch(bill_rec.LocID))
-					bill_list.Add((ulong)bill_rec.ID);
+		{
+			for(uint i = 0; i < op_list.getCount(); i++) {
+				BillTbl::Rec bill_rec;
+				for(DateIter di(Date, ZERODATE); p_bobj->P_Tbl->EnumByOpr(op_list.get(i), &di, &bill_rec) > 0;) {
+					if(!pLocList || pLocList->lsearch(bill_rec.LocID))
+						bill_list.Add((ulong)bill_rec.ID);
+				}
 			}
-		}
-		/*
-		 Этот участок выполняетмя медленнее, чем тот, что выше.
-		DateRange period;
-		period.Set(ZERODATE, Date);
-		for(uint i = 0; i < op_list.getCount(); i++) {
-			BillTbl::Rec bill_rec;
-			for(SEnum en = BillObj->tbl->EnumByOp(op_list.get(i), &period, 0); en.Next(&bill_rec) > 0;) {
-				if(!pLocList || pLocList->lsearch(bill_rec.LocID))
-					bill_list.Add((ulong)bill_rec.ID);
+			/*
+			 Этот участок выполняетмя медленнее, чем тот, что выше.
+			DateRange period;
+			period.Set(ZERODATE, Date);
+			for(uint i = 0; i < op_list.getCount(); i++) {
+				BillTbl::Rec bill_rec;
+				for(SEnum en = p_bobj->tbl->EnumByOp(op_list.get(i), &period, 0); en.Next(&bill_rec) > 0;) {
+					if(!pLocList || pLocList->lsearch(bill_rec.LocID))
+						bill_list.Add((ulong)bill_rec.ID);
+				}
 			}
+			*/
 		}
-		*/
-	}
-	//
-	// По каждому документу извлекаем идентификаторы лотов и складываем их
-	// без дублирования в список RLotList
-	//
-	{
-		Transfer * t = BillObj->trfr;
-		for(ulong bill_id_ = 0; bill_list.Enum(&bill_id_);) {
-			const PPID bill_id = (long)bill_id_;
-			BExtQuery q(t, 0, 128);
-			TransferTbl::Key0 k0;
-			MEMSZERO(k0);
-			k0.BillID = bill_id;
-			q.select(t->LotID, t->Flags, 0L).where(t->BillID == bill_id && t->LotID > 0L);
-			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
-				if(t->data.Flags & PPTFR_REVAL)
-					RLotList.add(t->data.LotID);
+		//
+		// По каждому документу извлекаем идентификаторы лотов и складываем их
+		// без дублирования в список RLotList
+		//
+		{
+			Transfer * t = p_bobj->trfr;
+			for(ulong bill_id_ = 0; bill_list.Enum(&bill_id_);) {
+				const PPID bill_id = (long)bill_id_;
+				BExtQuery q(t, 0, 128);
+				TransferTbl::Key0 k0;
+				MEMSZERO(k0);
+				k0.BillID = bill_id;
+				q.select(t->LotID, t->Flags, 0L).where(t->BillID == bill_id && t->LotID > 0L);
+				for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
+					if(t->data.Flags & PPTFR_REVAL)
+						RLotList.add(t->data.LotID);
+			}
+			RLotList.sortAndUndup();
 		}
-		RLotList.sortAndUndup();
 	}
 }
 
@@ -1087,6 +1093,8 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 	double neck    = fabs(*pAddendum);
 	double ph_neck = fabs(*pPhAdd);
 	if(check || neck != 0.0 || ph_neck != 0.0) {
+		const int dont_recalc_reval = BIN(CConfig.Flags & CCFLG_TRFR_DONTRECALCREVAL);
+		PPObjBill * p_bobj = BillObj;
 		if(!check) {
 			if(P_Lcr2T) {
 				LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
@@ -1121,8 +1129,8 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 			*/
 			if(!check) {
 				THROW_DB(updateRec());
-				if(!(CConfig.Flags & CCFLG_TRFR_DONTRECALCREVAL))
-					THROW(!(data.Flags & PPTFR_REVAL) || BillObj->RecalcTurns(data.BillID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
+				if(!dont_recalc_reval)
+					THROW(!(data.Flags & PPTFR_REVAL) || p_bobj->RecalcTurns(data.BillID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
 			}
 			ok = 2;
 		}
@@ -1881,10 +1889,11 @@ int Transfer::LcrBlock2::FinishLot()
 	uint   i;
 	int    inner_bei = 0; // Признак того, что функция создала собственный экземпляр BExtInsert
 	BExtInsert * p_bei = 0;
+	LotCurRest2Tbl * p_tbl = P_Tbl;
 	if(LastDate && oneof2(Op, opRecalc, opTest)) {
 		THROW(AddItem(statusAddRec, LastDate, 0, fmul1000i(LastRest)));
 	}
-	if(P_Tbl) {
+	if(p_tbl) {
 		if(Op == opTest) {
 			//const double epsilon = 1E-6;
 			for(i = 0; i < List.getCount(); i++) {
@@ -1894,9 +1903,9 @@ int Transfer::LcrBlock2::FinishLot()
 					LotCurRest2Tbl::Key0 k0;
 					k0.LotID = LotID;
 					k0.D = WorkDate::ShrinkDate(r_item.Dt);
-					int r = SearchByKey(P_Tbl, 0, &k0, 0);
+					int r = SearchByKey(p_tbl, 0, &k0, 0);
 					if(r > 0) {
-						r_item.ExRestF = P_Tbl->data.LDRestF;
+						r_item.ExRestF = p_tbl->data.LDRestF;
 						if(r_item.ExRestF != r_item.ValidRestF) {
 							r_item.Status = statusInvRest;
 						}
@@ -1914,16 +1923,16 @@ int Transfer::LcrBlock2::FinishLot()
 			// которых нет в TestList - это и будут лишние записи. Вставляем их в TestList
 			// с кодом ошибки errWaste.
 			//
-			BExtQuery q(P_Tbl, 0);
+			BExtQuery q(p_tbl, 0);
 			LotCurRest2Tbl::Key0 k0;
 			k0.LotID = LotID;
 			k0.D = 0;
-			q.select(P_Tbl->D, P_Tbl->LDRestF, 0L).where(P_Tbl->LotID == LotID);
+			q.select(p_tbl->D, p_tbl->LDRestF, 0L).where(p_tbl->LotID == LotID);
 			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-				LDATE dt = WorkDate::ExpandDate(P_Tbl->data.D);
+				LDATE dt = WorkDate::ExpandDate(p_tbl->data.D);
 				uint pos = 0;
 				if(!List.lsearch(&dt, &pos, CMPF_LONG) || List.at(pos).Status == statusRmvRec)
-					THROW(AddItem(statusWaste, dt, P_Tbl->data.LDRestF, 0));
+					THROW(AddItem(statusWaste, dt, p_tbl->data.LDRestF, 0));
 			}
 			//
 			// Наконец сортируем массив дабы клиенту было удобнее с ним работать
@@ -1932,7 +1941,7 @@ int Transfer::LcrBlock2::FinishLot()
 		}
 		else if(oneof2(Op, opRecalc, opUpdate)) {
 			if(!P_Bei) {
-				THROW_MEM(p_bei = new BExtInsert(P_Tbl));
+				THROW_MEM(p_bei = new BExtInsert(p_tbl));
 				inner_bei = 1;
 			}
 			else
@@ -1943,13 +1952,13 @@ int Transfer::LcrBlock2::FinishLot()
 					LotCurRest2Tbl::Key0 k0;
 					k0.LotID = LotID;
 					k0.D = WorkDate::ShrinkDate(r_item.Dt);
-					THROW_DB(P_Tbl->searchForUpdate(0, &k0, spEq));
+					THROW_DB(p_tbl->searchForUpdate(0, &k0, spEq));
 					if(r_item.Status == statusUpdRec) {
-						P_Tbl->data.LDRestF = r_item.ValidRestF;
-						THROW_DB(P_Tbl->updateRec()); // @sfu
+						p_tbl->data.LDRestF = r_item.ValidRestF;
+						THROW_DB(p_tbl->updateRec()); // @sfu
 					}
 					else if(r_item.Status == statusRmvRec) {
-						THROW_DB(P_Tbl->deleteRec()); // @sfu
+						THROW_DB(p_tbl->deleteRec()); // @sfu
 					}
 				}
 				else if(r_item.Status == statusAddRec) {

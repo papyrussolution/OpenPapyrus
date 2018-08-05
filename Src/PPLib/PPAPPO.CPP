@@ -937,7 +937,8 @@ enum {
 	cmdlSartrTest,     // SARTRTEST
 	cmdlAutoTranslate, // AUTOTRANSLATE
 	cmdlConvertCipher, // CONVERTCIPHER
-	cmdlPpIniSubst     // PPINISUBST
+	cmdlPpIniSubst,     // PPINISUBST
+	cmdlUhttGoodsToGitHubExport // UHTTGOODSTOGITHUBEXPORT
 };
 
 static int FASTCALL GetStartUpOption(int o, SString & rArgBuf)
@@ -1703,6 +1704,7 @@ int SLAPI PreprocessCmdLine()
 
 int SLAPI ExecuteLuaScript(const char * pScriptText);
 int SLAPI ExecuteLuaScriptFile(const char * pFileName);
+int SLAPI ExportUhttForGitHub();
 
 void PPApp::login(int processCmdLine)
 {
@@ -1924,6 +1926,9 @@ void PPApp::login(int processCmdLine)
 					PPObjectTransmit::ReceivePackets(0);
 				if(GetStartUpOption(cmdlSyncPut, arg_buf))
 					PPObjectTransmit::TransmitBillsByDBDivList(0);
+				if(GetStartUpOption(cmdlUhttGoodsToGitHubExport, arg_buf)) { // @v10.1.6
+					ExportUhttForGitHub();
+				}
 				{
 					PPID   _id  = 0;
 					if(GetStartUpOption(cmdlSelfBuild, arg_buf))

@@ -142,12 +142,12 @@ static ngx_command_t ngx_http_papyrus_test_commands[] = {
 // The module context
 //
 static ngx_http_module_t ngx_http_papyrus_test_module_ctx = {
-	NULL, /* preconfiguration */
-	NULL, /* postconfiguration */
-	NULL, /* create main configuration */
-	NULL, /* init main configuration */
-	NULL, /* create server configuration */
-	NULL, /* merge server configuration */
+	NULL, // preconfiguration
+	NULL, // postconfiguration
+	NULL, // create main configuration
+	NULL, // init main configuration 
+	NULL, // create server configuration
+	NULL, // merge server configuration 
 	NgxModule_Papyrus::Config::CreateLocConf, /* create location configuration */
 	NgxModule_Papyrus::Config::MergeLocConf /* merge location configuration */
 };
@@ -251,12 +251,10 @@ private:
 //   Для обмена данными использует SBufferPipe.
 // Note: Разрабатывается в рамках включения WEB-сервера в состав процесса Papyrus
 //
-class PPWorkingPipeSession : public /*PPThread*/PPWorkerSession {
+class PPWorkingPipeSession : public PPWorkerSession {
 public:
 	SLAPI  PPWorkingPipeSession(NgxReqQueue * pReqQueue, const DbLoginBlock & rDblBlk) : 
-		PPWorkerSession(PPThread::kWorkerSession), 
-		WakeUpEv(Evnt::modeCreateAutoReset),
-		DblBlk(rDblBlk)
+		PPWorkerSession(PPThread::kWorkerSession), WakeUpEv(Evnt::modeCreateAutoReset), DblBlk(rDblBlk)
 	{
 		P_Queue = pReqQueue;
 		P_OutPipe = 0;
@@ -378,8 +376,10 @@ private:
 
 int PPWorkingPipeSession::PreprocessContent(const char * pSrc, SBuffer & rResult)
 {
-	int       ok = 1;
-	SString   temp_buf, txt_buf, file_name;
+	int    ok = 1;
+	SString temp_buf;
+	SString txt_buf;
+	SString file_name;
 	//StringSet in_line(',', rOutTemplate);
 	StringSet ext_param_list;
 	uint   ip = 0;

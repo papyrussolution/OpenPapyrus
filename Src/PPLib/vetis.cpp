@@ -3844,7 +3844,7 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 		if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOT, PPTAG_LOT_VETIS_UUID, rResult.Uuid, &lot_list) > 0) {
 			ReceiptTbl::Rec lot_rec;
 			TransferTbl::Rec trfr_rec;
-			for(uint i = 0; !rResult.NativeLotID && i < lot_list.getCount(); i++) {
+			for(uint i = 0; /* @v10.1.6 !rResult.NativeLotID &&*/ i < lot_list.getCount(); i++) {
 				const PPID lot_id = lot_list.get(i);
 				if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 					DateIter di;

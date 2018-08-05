@@ -2205,6 +2205,7 @@ public:
 		Data = *pData;
 		SString temp_buf;
 		setCtrlData(CTL_GLOBUSERACC_NAME, Data.Rec.Name);
+		setCtrlData(CTL_GLOBUSERACC_SYMB, Data.Rec.Symb); // @v10.1.6
 		setCtrlLong(CTL_GLOBUSERACC_ID, Data.Rec.ID);
 		disableCtrl(CTL_GLOBUSERACC_ID, 1);
 		Data.Rec.LocalDbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -2222,6 +2223,8 @@ public:
 		getCtrlString(sel = CTL_GLOBUSERACC_NAME, temp_buf);
 		THROW_PP(temp_buf.NotEmptyS(), PPERR_NAMENEEDED);
 		temp_buf.CopyTo(Data.Rec.Name, sizeof(Data.Rec.Name));
+		getCtrlString(sel = CTL_GLOBUSERACC_SYMB, temp_buf); // @v10.1.6
+		temp_buf.CopyTo(Data.Rec.Symb, sizeof(Data.Rec.Symb)); // @v10.1.6
 		getCtrlString(sel = CTL_GLOBUSERACC_DBUUID, temp_buf);
 		THROW_SL(Data.Rec.LocalDbUuid.FromStr(temp_buf));
 		Data.Rec.LocalUserID = getCtrlLong(CTL_GLOBUSERACC_LOCALID);

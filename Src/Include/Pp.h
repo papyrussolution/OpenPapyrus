@@ -21005,7 +21005,7 @@ int SLAPI LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
 	// без акциза (инициализируется при загрузке пакета группы функцией PPObjGoodsTax::GetPacket())
 #define GTAXF_NOLOTEXCISE 0x0010L // При расчете входящих налогов (на лот) акциз исключать
 
-struct PPGoodsTaxEntry {
+struct PPGoodsTaxEntry { // @flat
 	double SLAPI GetVatRate() const;
 	char * SLAPI FormatVAT(char *, size_t) const;
 	char * SLAPI FormatExcise(char *, size_t) const;
@@ -21038,7 +21038,7 @@ struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
 	long   UnionVect;      //
 };
 
-class PPGoodsTaxPacket : public SArray {
+class PPGoodsTaxPacket : public SVector { // @v10.1.6 SArray-->SVector
 public:
 	SLAPI  PPGoodsTaxPacket();
 	PPGoodsTaxPacket & FASTCALL operator = (const PPGoodsTaxPacket &);
@@ -31679,15 +31679,15 @@ public:
 #define SCRDSF_CREDIT          0x0001L // Кредитные карты (иначе дисконтные)
 #define SCRDSF_USEDSCNTIFNQUOT 0x0002L // Если с серией связан вид котировки и значение котировки для товара
 	// не определено, то использовать скидку, заданную в карте.
-#define SCRDSF_BONUS           0x0004L // @v7.3.7 Бонусные кредитные карты (предполагает установленный флаг SCRDSF_CREDIT)
-#define SCRDSF_UHTTSYNC        0x0008L // @v7.3.7 Карты серии синхронизированы с сервисом Universe-HTT
-#define SCRDSF_USEQUOTKINDLIST 0x0010L // @v7.4.0 @internal С серией связан список видов котировок.
+#define SCRDSF_BONUS           0x0004L // Бонусные кредитные карты (предполагает установленный флаг SCRDSF_CREDIT)
+#define SCRDSF_UHTTSYNC        0x0008L // Карты серии синхронизированы с сервисом Universe-HTT
+#define SCRDSF_USEQUOTKINDLIST 0x0010L // @internal С серией связан список видов котировок.
 	// Флаг необходим для игнорирования поля PPSCardSeries2::QuotKindID
-#define SCRDSF_MINQUOTVAL      0x0020L // @v7.4.0 Если с серией карт ассоциирован список видов котировок (более одной),
+#define SCRDSF_MINQUOTVAL      0x0020L // Если с серией карт ассоциирован список видов котировок (более одной),
 	// то применять минимальную цену из котировок, полученных по списку.
-#define SCRDSF_DISABLEADDPAYM  0x0040L // @v7.6.9 Запрет на доплату в кассовой панели (только для кредитных карт)
-#define SCRDSF_BONUSER_ONBNK   0x0080L // @v8.2.10 SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
-#define SCRDSF_NEWSCINHF       0x0100L // @v8.8.0
+#define SCRDSF_DISABLEADDPAYM  0x0040L // Запрет на доплату в кассовой панели (только для кредитных карт)
+#define SCRDSF_BONUSER_ONBNK   0x0080L // SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
+#define SCRDSF_NEWSCINHF       0x0100L // 
 #define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
 #define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
 #define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
@@ -32127,7 +32127,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI  ActivateRec(SCardTbl::Rec * pRec);
-	int    SLAPI  VerifyOwner(PPID id, PPID posNodeID);
+	int    SLAPI  VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID);
 
 	enum {
 		gtalgDefault = 0,
@@ -32199,6 +32199,30 @@ public:
 public:
 	SCardCore * P_Tbl; // Не использует TLP_MEMB поскольку получает этот указатель от P_CcTbl
 	void * ExtraPtr;
+};
+//
+// Descr: Виды специальных тракторовок серий персональных карт
+//
+#define SCRDSSPCTRT_DEFAULT    0 // default
+#define SCRDSSPCTRT_AZ         1 // AstraZeneca
+//
+// Descr: Базовый класс для реализации функционала специальной трактовки серий персональных карт
+//
+class SCardSpecialTreatment {
+public:
+	static SCardSpecialTreatment * FASTCALL CreateInstance(int spcTrtID);
+
+	struct CardBlock {
+		SLAPI  CardBlock();
+		PPSCardPacket ScPack;
+		PPID   PosNodeID;
+		SString PosNodeCode;
+	};
+	SLAPI  SCardSpecialTreatment();
+	virtual SLAPI ~SCardSpecialTreatment();
+	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
+	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
 };
 //
 // @ModuleDecl(PPViewDvcLoadingStat)

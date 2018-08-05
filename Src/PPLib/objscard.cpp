@@ -1,5 +1,7 @@
 // OBJSCARD.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
+// РњРѕРґСѓР»СЊ, СѓРїСЂР°РІР»СЏСЋС‰РёР№ РѕР±СЉРµРєС‚РѕРј PPObjSCard - РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РєР°СЂС‚С‹
 //
 #include <pp.h>
 #pragma hdrstop
@@ -58,7 +60,7 @@ int FASTCALL PPObjSCard::PreprocessSCardCode(SString & rCode)
 						ok = 1;
 					}
 					else
-						templ_buf = 0;
+						templ_buf.Z();
 				}
 			}
 		}
@@ -304,7 +306,7 @@ int SLAPI PPSCardSeries2::Verify()
 	int    ok = -1;
 	if(VerifTag == 0) {
 		//
-		// Верификация v7.3.7 заключается в удалении из поля Flags всех бит, отличных от SCRDSF_CREDIT и SCRDSF_USEDSCNTIFNQUOT.
+		// Р’РµСЂРёС„РёРєР°С†РёСЏ v7.3.7 Р·Р°РєР»СЋС‡Р°РµС‚СЃСЏ РІ СѓРґР°Р»РµРЅРёРё РёР· РїРѕР»СЏ Flags РІСЃРµС… Р±РёС‚, РѕС‚Р»РёС‡РЅС‹С… РѕС‚ SCRDSF_CREDIT Рё SCRDSF_USEDSCNTIFNQUOT.
 		//
 		const long preserve_flags = Flags;
 		Flags &= (SCRDSF_CREDIT|SCRDSF_USEDSCNTIFNQUOT);
@@ -515,8 +517,8 @@ int SLAPI PPSCardSerPacket::Normalize()
 	PPIDArray temp_list;
 	if(QuotKindList_.getCount()) {
 		//
-		// Пусть это и крайне маловероятно, но предупредим существование дубликатов в списке видов котировок.
-		// Кроме того, проверим виды котировок в списке на предмет того, чтобы они не принадлежали специальным видам.
+		// РџСѓСЃС‚СЊ СЌС‚Рѕ Рё РєСЂР°Р№РЅРµ РјР°Р»РѕРІРµСЂРѕСЏС‚РЅРѕ, РЅРѕ РїСЂРµРґСѓРїСЂРµРґРёРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РґСѓР±Р»РёРєР°С‚РѕРІ РІ СЃРїРёСЃРєРµ РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє.
+		// РљСЂРѕРјРµ С‚РѕРіРѕ, РїСЂРѕРІРµСЂРёРј РІРёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє РІ СЃРїРёСЃРєРµ РЅР° РїСЂРµРґРјРµС‚ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРЅРё РЅРµ РїСЂРёРЅР°РґР»РµР¶Р°Р»Рё СЃРїРµС†РёР°Р»СЊРЅС‹Рј РІРёРґР°Рј.
 		//
 		PPObjQuotKind qk_obj;
 		PPQuotKind qk_rec;
@@ -709,7 +711,7 @@ int SCardRuleDlg::setupList()
 	for(uint i = 0; Data.enumItems(&i, (void**)&p_item) > 0;) {
 		ss.clear();
 		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
-			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("руб").ToOem();
+			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("СЂСѓР±").ToOem();
 		ss.add(buf);
 		if(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)
 			buf.Z().CatChar('$').Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ));
@@ -866,8 +868,8 @@ public:
 	PPID   Prop;
 	long   Ver;            //
 	char   Reserve[52];    //
-	uint32 ItemSize;       // @internal Размер элемента.
-	uint32 AllocatedCount; // @internal в базе данных AllocatedCount == ItemsCount
+	uint32 ItemSize;       // @internal Р Р°Р·РјРµСЂ СЌР»РµРјРµРЅС‚Р°.
+	uint32 AllocatedCount; // @internal РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… AllocatedCount == ItemsCount
 	uint32 ItemsCount;     //
 	long   TrnovrPeriod;   // SCARDSER_AUTODIS_XXX
 	// Items[...]
@@ -905,7 +907,7 @@ struct Storage_SCardSerExt {
 	PPID   ObjID;
 	PPID   Prop;
 	long   Ver;            //
-	char   CodeTempl[32];  // @v9.8.9 (перенесено из заголовочной структуры) Шаблон номеров карт
+	char   CodeTempl[32];  // @v9.8.9 (РїРµСЂРµРЅРµСЃРµРЅРѕ РёР· Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹) РЁР°Р±Р»РѕРЅ РЅРѕРјРµСЂРѕРІ РєР°СЂС‚
 	char   Reserve[20];    // @v9.8.9 [52]-->[20]
 	LTIME  UsageTmStart;   // @v8.7.12
 	LTIME  UsageTmEnd;     // @v8.7.12
@@ -931,14 +933,14 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 	if(id) {
 		THROW(Search(id, &pack.Rec) > 0);
 		//
-		// Правила для чеков
+		// РџСЂР°РІРёР»Р° РґР»СЏ С‡РµРєРѕРІ
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_CCHECKRULE) Storage_SCardRule);
 		if(p_ref->GetProperty(Obj, id, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()) > 0)
 			THROW(p_strg->CopyTo(&pack.CcAmtDisRule));
 		ZDELETE(p_strg);
 		//
-		// Правила для расчета бонусов
+		// РџСЂР°РІРёР»Р° РґР»СЏ СЂР°СЃС‡РµС‚Р° Р±РѕРЅСѓСЃРѕРІ
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_BONUSRULE) Storage_SCardRule);
 		if(p_ref->GetProperty(Obj, id, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()) > 0)
@@ -982,11 +984,11 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		}
 		THROW(r);
 		//
-		// Список видов котировок
+		// РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє
 		//
 		THROW(p_ref->GetPropArray(Obj, pack.Rec.ID, SCARDSERIES_QKLIST, &pack.QuotKindList_)); // @v7.4.0
 		{
-			// Блок расширения
+			// Р‘Р»РѕРє СЂР°СЃС€РёСЂРµРЅРёСЏ
 			Storage_SCardSerExt se;
 			int    se_r = 0;
 			THROW(se_r = p_ref->GetProperty(Obj, pack.Rec.ID, SCARDSERIES_EXT, &se, sizeof(se))); // @v8.7.12
@@ -1028,7 +1030,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 				else {
 					pPack->Rec.VerifTag = 2; // @v9.8.9
 					THROW(rec_updated = EditItem(Obj, *pID ? pPack->Rec.ID : 0, &pPack->Rec, 0));
-					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // Удаляем старую версию правил пересчета карт записи
+					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // РЈРґР°Р»СЏРµРј СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ РїСЂР°РІРёР» РїРµСЂРµСЃС‡РµС‚Р° РєР°СЂС‚ Р·Р°РїРёСЃРё
 					if(pattern.Rec.ID && (pPack->Rec.PDis != pattern.Rec.PDis ||
 						pPack->Rec.MaxCredit != pattern.Rec.MaxCredit || pPack->Rec.Expiry != pattern.Rec.Expiry)) {
 						THROW(P_ScObj->UpdateBySeries(pattern.Rec.ID, 0));
@@ -1044,13 +1046,13 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 				THROW_MEM(p_strg = new (&pPack->Rule, 0, SCARDSERIES_RULE2) Storage_SCardRule);
 				THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE2, p_strg, p_strg->GetSize()));
 				//
-				// Правила для скидок по чекам
+				// РџСЂР°РІРёР»Р° РґР»СЏ СЃРєРёРґРѕРє РїРѕ С‡РµРєР°Рј
 				//
 				ZDELETE(p_strg);
 				THROW_MEM(p_strg = new (&pPack->CcAmtDisRule, 0, SCARDSERIES_CCHECKRULE) Storage_SCardRule);
 				THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()));
 				//
-				// Правило расчета бонусов
+				// РџСЂР°РІРёР»Рѕ СЂР°СЃС‡РµС‚Р° Р±РѕРЅСѓСЃРѕРІ
 				//
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgBonusRule)) {
 					ZDELETE(p_strg);
@@ -1070,9 +1072,9 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 				ASSIGN_PTR(pID, pPack->Rec.ID);
 				if(rec_updated < 0) {
 					//
-					// Если запись не была изменена методом PPObjReference::EditItem (по причине эквивалентности),
-					// но правила, тем не менее, изменились, наша функция должна самостоятельно позаботиться о
-					// записи в системный журнал.
+					// Р•СЃР»Рё Р·Р°РїРёСЃСЊ РЅРµ Р±С‹Р»Р° РёР·РјРµРЅРµРЅР° РјРµС‚РѕРґРѕРј PPObjReference::EditItem (РїРѕ РїСЂРёС‡РёРЅРµ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё),
+					// РЅРѕ РїСЂР°РІРёР»Р°, С‚РµРј РЅРµ РјРµРЅРµРµ, РёР·РјРµРЅРёР»РёСЃСЊ, РЅР°С€Р° С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РїРѕР·Р°Р±РѕС‚РёС‚СЊСЃСЏ Рѕ
+					// Р·Р°РїРёСЃРё РІ СЃРёСЃС‚РµРјРЅС‹Р№ Р¶СѓСЂРЅР°Р».
 					//
 					acn_id = PPACN_OBJUPD;
 				}
@@ -1542,7 +1544,7 @@ int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 	if(p_pack)
 		if(stream == 0) {
 			p_pack->Rec.ID = *pID;
-			// @v9.8.9 (блок расширения теперь передается) p_pack->UpdFlags |= PPSCardSerPacket::ufDontChgExt; // @v8.7.12
+			// @v9.8.9 (Р±Р»РѕРє СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РµРїРµСЂСЊ РїРµСЂРµРґР°РµС‚СЃСЏ) p_pack->UpdFlags |= PPSCardSerPacket::ufDontChgExt; // @v8.7.12
 			if(!PutPacket(pID, p_pack, 1)) {
 				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARDSER, p_pack->Rec.ID, p_pack->Rec.Name);
 				ok = -1;
@@ -1907,8 +1909,8 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 							if(p_list) {
 								if(!p_list->addUnique(item.Id)) {
 									//
-									// Здесь THROW не годится из-за того, что сразу после завершения цикла
-									// необходимо быстро сделать ReleaseFullList
+									// Р—РґРµСЃСЊ THROW РЅРµ РіРѕРґРёС‚СЃСЏ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ С†РёРєР»Р°
+									// РЅРµРѕР±С…РѕРґРёРјРѕ Р±С‹СЃС‚СЂРѕ СЃРґРµР»Р°С‚СЊ ReleaseFullList
 									//
 									ok = PPSetErrorSLib();
 								}
@@ -2425,7 +2427,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 								if(upd_dis)
 									DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, sc_rec.ID, prev_pdis, 0);
 								//
-								// Вывод информации в текстовый журнал
+								// Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ С‚РµРєСЃС‚РѕРІС‹Р№ Р¶СѓСЂРЅР°Р»
 								//
 								PPLoadText(PPTXT_LOG_SCARDRULEAPPLY, fmt_buf);
 								msg_buf.Printf(fmt_buf, scard_name.cptr(), r_sct_item.DscntTrnovr).Space();
@@ -2640,7 +2642,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 							if(upd_dis)
 								DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, rec.ID, prev_pdis, 0);
 							//
-							// Вывод информации в текстовый журнал
+							// Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ С‚РµРєСЃС‚РѕРІС‹Р№ Р¶СѓСЂРЅР°Р»
 							//
 							PPLoadText(PPTXT_LOG_SCARDRULEAPPLY, fmt_buf);
 							msg_buf.Printf(fmt_buf, scard_name.cptr(), trnovr).Space();
@@ -2830,12 +2832,6 @@ int SLAPI PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPObjSCard::VerifyOwner(PPID id, PPID posNodeID)
-{
-	int    ok = -1;
-	return ok;
-}
-
 //int SLAPI PPObjSCard::SetInheritance(const PPSCardSeries * pSerRec, SCardTbl::Rec * pRec)
 int SLAPI PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec * pRec)
 {
@@ -2864,7 +2860,6 @@ int SLAPI PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl
 			pRec->Expiry = pScsPack->Rec.Expiry;
 			ok = 1;
 		}
-		// @v8.8.0 {
 		if(pRec->UsageTmStart != pScsPack->Eb.UsageTmStart && pScsPack->Eb.UsageTmStart) {
 			pRec->UsageTmStart = pScsPack->Eb.UsageTmStart;
 			ok = 1;
@@ -2873,7 +2868,6 @@ int SLAPI PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl
 			pRec->UsageTmEnd = pScsPack->Eb.UsageTmEnd;
 			ok = 1;
 		}
-		// } @v8.8.0
 	}
 	CATCHZOK
 	return ok;
@@ -2884,12 +2878,11 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 	int    ok = 1;
 	SString number;
 	PPObjSCardSeries scs_obj;
-	//PPSCardSeries scs_rec;
 	PPSCardSerPacket scs_pack;
 	THROW(CheckRights(PPR_INS));
 	{
 		//
-		// Определяем серию карт и проверяем ее.
+		// РћРїСЂРµРґРµР»СЏРµРј СЃРµСЂРёСЋ РєР°СЂС‚ Рё РїСЂРѕРІРµСЂСЏРµРј РµРµ.
 		//
 		int    is_def_series = 0;
 		if(!seriesID) {
@@ -2913,7 +2906,7 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 	}
 	{
 		//
-		// Проверяем номер карты.
+		// РџСЂРѕРІРµСЂСЏРµРј РЅРѕРјРµСЂ РєР°СЂС‚С‹.
 		//
 		number = rNumber;
 		if(number.NotEmptyS()) {
@@ -2958,12 +2951,10 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 {
 	int    ok = -1; // sample template: L01(290%09[1..6])^
 	SString pattern;
-	//PPSCardSeries ser;
 	PPObjSCardSeries scs_obj;
 	PPSCardSerPacket scs_pack;
 	PPInputStringDialogParam isd_param;
 	THROW(CheckRights(PPR_INS));
-	// @v9.8.9 THROW(SearchObject(PPOBJ_SCARDSERIES, seriesID, &ser) > 0);
 	THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
 	pattern = scs_pack.Eb.CodeTempl; // @v9.8.9 ser.CodeTempl-->scs_pack.Eb.CodeTempl
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
@@ -2978,6 +2969,57 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 }
 
 int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode); // @prototype
+
+int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID)
+{
+	int    ok = -1;
+	SCardSpecialTreatment * p_spctrt = 0;
+	SCardSpecialTreatment::CardBlock cb;
+	cb.ScPack = rScPack;
+	//if(GetPacket(id, &cb.ScPack) > 0) 
+	{
+		PPObjSCardSeries scs_obj;
+		PPSCardSeries scs_rec;
+		SString phone;
+		cb.ScPack.GetExtStrData(PPSCardPacket::extssPhone, phone);
+		if(phone.NotEmpty()) {
+			SString scard_code;
+			uint   check_code = 0;
+			scard_code = cb.ScPack.Rec.Code;
+			if(scs_obj.Search(cb.ScPack.Rec.SeriesID, &scs_rec) > 0) {
+				p_spctrt = SCardSpecialTreatment::CreateInstance(scs_rec.SpecialTreatment);
+				if(p_spctrt) {
+					cb.PosNodeID = posNodeID;
+					if(posNodeID) {
+						if(PPRef->Ot.GetTagStr(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, cb.PosNodeCode) > 0) { // @test
+						}
+						/* @real
+						S_GUID pos_uuid;
+						if(PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, pos_uuid) > 0) {
+							pos_uuid.ToStr(S_GUID::fmtIDL, cb.PosNodeCode);
+						}
+						*/
+					}
+					int r = p_spctrt->VerifyOwner(&cb);
+					if(r > 0)
+						ok = 1;
+					else if(r == 0)
+						ok = 0;
+
+				}
+				else {
+					if(VerifyPhoneNumberBySms(phone, scard_code, &check_code) > 0) {
+						if(check_code) {
+							; // @todo РљР°РєСѓСЋ-С‚Рѕ РѕС‚РјРµС‚РєСѓ СЃРґРµР»Р°С‚СЊ
+						}
+					}
+				}
+			}
+		}
+	}
+	delete p_spctrt;
+	return ok;
+}
 
 class SCardDialog : public TDialog {
 public:
@@ -3043,17 +3085,23 @@ private:
 				return;
 		}
 		else if(event.isCmd(cmVerify)) {
-			SString phone, scard_code;
-			getCtrlString(CTL_SCARD_PHONE, phone);
-			getCtrlString(CTL_SCARD_CODE, scard_code);
-			if(phone.NotEmptyS() && scard_code.NotEmptyS()) {
+			//SString phone, scard_code;
+			SString temp_buf;
+			getCtrlString(CTL_SCARD_PHONE, temp_buf);
+			Data.PutExtStrData(PPSCardPacket::extssPhone, temp_buf);
+			getCtrlString(CTL_SCARD_CODE, temp_buf);
+			STRNSCPY(Data.Rec.Code, temp_buf);
+			if(ScObj.VerifyOwner(Data, 0/*posNodeID*/) > 0) {
+				;
+			}
+			/*if(phone.NotEmptyS() && scard_code.NotEmptyS()) {
 				uint   check_code = 0;
 				if(VerifyPhoneNumberBySms(phone, scard_code, &check_code) > 0) {
 					if(check_code) {
-                        ; // @todo Какую-то отметку сделать
+                        ; // @todo РљР°РєСѓСЋ-С‚Рѕ РѕС‚РјРµС‚РєСѓ СЃРґРµР»Р°С‚СЊ
 					}
 				}
-			}
+			}*/
 		}
 		else if(event.isCmd(cmNotifyOptions))
 			EditNotifyOptions();
@@ -3146,8 +3194,8 @@ void SCardDialog::SetupCtrls()
 	if(!(flags & SCRDF_NEEDACTIVATION))
 		flags &= ~SCRDF_AUTOACTIVATION;
 	//
-	// Все-таки, карта, не имеющая флага SCRDF_NEEDACTIVATION должна допускать ввод периода действия после
-	// активации дабы можно было установить требование активации уже после установки периода.
+	// Р’СЃРµ-С‚Р°РєРё, РєР°СЂС‚Р°, РЅРµ РёРјРµСЋС‰Р°СЏ С„Р»Р°РіР° SCRDF_NEEDACTIVATION РґРѕР»Р¶РЅР° РґРѕРїСѓСЃРєР°С‚СЊ РІРІРѕРґ РїРµСЂРёРѕРґР° РґРµР№СЃС‚РІРёСЏ РїРѕСЃР»Рµ
+	// Р°РєС‚РёРІР°С†РёРё РґР°Р±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С‚СЂРµР±РѕРІР°РЅРёРµ Р°РєС‚РёРІР°С†РёРё СѓР¶Рµ РїРѕСЃР»Рµ СѓСЃС‚Р°РЅРѕРІРєРё РїРµСЂРёРѕРґР°.
 	// disableCtrls(!(flags & SCRDF_NEEDACTIVATION), CTL_SCARD_PRD, CTLSEL_SCARD_PRD, CTL_SCARD_PRDCOUNT, 0);
 	//
 	disableCtrls((flags & SCRDF_INHERITED), CTL_SCARD_DATE, CTL_SCARD_EXPIRY, CTL_SCARD_PDIS, CTL_SCARD_MAXCRED, 0);
@@ -3350,9 +3398,9 @@ int SLAPI PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
 				}
 				else {
 					//
-					// Если в конфигурации не установлен признак CCFLG_THROUGHSCARDUNIQ
-					// (сквозная уникальность номеров карт), то, возможно, карта найдется //
-					// с ненулевым значением серии.
+					// Р•СЃР»Рё РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїСЂРёР·РЅР°Рє CCFLG_THROUGHSCARDUNIQ
+					// (СЃРєРІРѕР·РЅР°СЏ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РЅРѕРјРµСЂРѕРІ РєР°СЂС‚), С‚Рѕ, РІРѕР·РјРѕР¶РЅРѕ, РєР°СЂС‚Р° РЅР°Р№РґРµС‚СЃСЏ //
+					// СЃ РЅРµРЅСѓР»РµРІС‹Рј Р·РЅР°С‡РµРЅРёРµРј СЃРµСЂРёРё.
 					//
 					if(P_Tbl->SearchCode(local_add_param.SerID, code, &rec) > 0) {
 						found = 1;
@@ -3417,17 +3465,17 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 			PPObjSCardSeries scs_obj;
 			PPSCardSeries scs_rec;
 			SCardTbl::Rec rec;
-			LAssocArray sc_dis_list; // Список доступных для применения карт, ассоциированных с соответствующим процентом скидки
+			LAssocArray sc_dis_list; // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РґР»СЏ РїСЂРёРјРµРЅРµРЅРёСЏ РєР°СЂС‚, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРј РїСЂРѕС†РµРЅС‚РѕРј СЃРєРёРґРєРё
 			for(uint i = 0; i < card_id_list.getCount(); i++) {
 				const PPID sc_id = card_id_list.get(i);
 				if(Search(sc_id, &rec) > 0 && scs_obj.Fetch(rec.SeriesID, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_TRANSFDISCOUNT) {
 					const int cr = CheckRestrictions(&rec, chkrfIgnoreUsageTime, getcurdatetime_());
-					if(cr == 1 && rec.PDis > 0) // Значение cr==2 не годится (карта требует активации с возможностью автоактивации)
+					if(cr == 1 && rec.PDis > 0) // Р—РЅР°С‡РµРЅРёРµ cr==2 РЅРµ РіРѕРґРёС‚СЃСЏ (РєР°СЂС‚Р° С‚СЂРµР±СѓРµС‚ Р°РєС‚РёРІР°С†РёРё СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ Р°РІС‚РѕР°РєС‚РёРІР°С†РёРё)
 						sc_dis_list.Add(sc_id, rec.PDis, 0);
 				}
 			}
 			if(sc_dis_list.getCount() == 1) {
-				THROW(Search(sc_dis_list.at(0).Key, &rec) > 0); // После всех телодвижений выше невозможность найти карту - ошибка
+				THROW(Search(sc_dis_list.at(0).Key, &rec) > 0); // РџРѕСЃР»Рµ РІСЃРµС… С‚РµР»РѕРґРІРёР¶РµРЅРёР№ РІС‹С€Рµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РЅР°Р№С‚Рё РєР°СЂС‚Сѓ - РѕС€РёР±РєР°
 				ASSIGN_PTR(pRec, rec);
                 ok = 1;
 			}
@@ -3448,17 +3496,17 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 				}
 				if(common_pdis > 0) {
                     //
-                    // Если во всех картах скидки одинаковы, просто берем ту карту, у которой больший идент
-                    // (вероятно, самая новая, но это - не очень важно)
+                    // Р•СЃР»Рё РІРѕ РІСЃРµС… РєР°СЂС‚Р°С… СЃРєРёРґРєРё РѕРґРёРЅР°РєРѕРІС‹, РїСЂРѕСЃС‚Рѕ Р±РµСЂРµРј С‚Сѓ РєР°СЂС‚Сѓ, Сѓ РєРѕС‚РѕСЂРѕР№ Р±РѕР»СЊС€РёР№ РёРґРµРЅС‚
+                    // (РІРµСЂРѕСЏС‚РЅРѕ, СЃР°РјР°СЏ РЅРѕРІР°СЏ, РЅРѕ СЌС‚Рѕ - РЅРµ РѕС‡РµРЅСЊ РІР°Р¶РЅРѕ)
                     //
                     const PPID sc_id = sc_dis_list.at(sc_dis_list.getCount()-1).Key;
-					THROW(Search(sc_id, &rec) > 0); // После всех телодвижений выше невозможность найти карту - ошибка
+					THROW(Search(sc_id, &rec) > 0); // РџРѕСЃР»Рµ РІСЃРµС… С‚РµР»РѕРґРІРёР¶РµРЅРёР№ РІС‹С€Рµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РЅР°Р№С‚Рё РєР°СЂС‚Сѓ - РѕС€РёР±РєР°
 					ASSIGN_PTR(pRec, rec);
 					ok = 1;
 				}
 				else {
 					//
-					// Если претендентов несколько, то выбираем по последнему времени создания/изменения скидки
+					// Р•СЃР»Рё РїСЂРµС‚РµРЅРґРµРЅС‚РѕРІ РЅРµСЃРєРѕР»СЊРєРѕ, С‚Рѕ РІС‹Р±РёСЂР°РµРј РїРѕ РїРѕСЃР»РµРґРЅРµРјСѓ РІСЂРµРјРµРЅРё СЃРѕР·РґР°РЅРёСЏ/РёР·РјРµРЅРµРЅРёСЏ СЃРєРёРґРєРё
 					//
 					LDATETIME last_upd_moment = ZERODATETIME;
 					PPID   last_upd_sc_id = 0;
@@ -3477,7 +3525,7 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 					}
 					{
 						const PPID sc_id = NZOR(last_upd_sc_id, sc_dis_list.at(sc_dis_list.getCount()-1).Key);
-						THROW(Search(sc_id, &rec) > 0); // После всех телодвижений выше невозможность найти карту - ошибка
+						THROW(Search(sc_id, &rec) > 0); // РџРѕСЃР»Рµ РІСЃРµС… С‚РµР»РѕРґРІРёР¶РµРЅРёР№ РІС‹С€Рµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РЅР°Р№С‚Рё РєР°СЂС‚Сѓ - РѕС€РёР±РєР°
 						ASSIGN_PTR(pRec, rec);
 						ok = 1;
 					}
@@ -3652,7 +3700,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			THROW(GetPacket(*pID, &org_pack) > 0);
 			if(pPack == 0) {
 				//
-				// Удаление пакета
+				// РЈРґР°Р»РµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				THROW(CheckRights(PPR_DEL));
 				THROW(RemoveObjV(*pID, 0, 0, 0));
@@ -3666,11 +3714,11 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			}
 			else {
 				//
-				// Изменение пакета
+				// РР·РјРµРЅРµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				if(IsPacketEq(*pPack, org_pack, 0)) {
 					//
-					// Ничего не изменилось
+					// РќРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 					//
 					log_action_id = 0;
 				}
@@ -3704,7 +3752,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 		}
 		else if(pPack) {
 			//
-			// Вставка нового пакета
+			// Р’СЃС‚Р°РІРєР° РЅРѕРІРѕРіРѕ РїР°РєРµС‚Р°
 			//
 			THROW(CheckRights(PPR_INS));
 			if(pPack->Rec.Code[0] == 0) {
@@ -3780,10 +3828,10 @@ private:
 	PPSCardPacket P;
 	LDATETIME Since;
 	//
-	// При передаче в другой раздел, поле CCheckTbl::Rec.SessID
-	// получает ИД кассового узла (PPOBJ_CASHNODE), к которому
-	// относится чек, кроме того в записи чека устанавливаетс
-	// флаг CCHKF_TRANSMIT
+	// РџСЂРё РїРµСЂРµРґР°С‡Рµ РІ РґСЂСѓРіРѕР№ СЂР°Р·РґРµР», РїРѕР»Рµ CCheckTbl::Rec.SessID
+	// РїРѕР»СѓС‡Р°РµС‚ РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° (PPOBJ_CASHNODE), Рє РєРѕС‚РѕСЂРѕРјСѓ
+	// РѕС‚РЅРѕСЃРёС‚СЃСЏ С‡РµРє, РєСЂРѕРјРµ С‚РѕРіРѕ РІ Р·Р°РїРёСЃРё С‡РµРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃ
+	// С„Р»Р°Рі CCHKF_TRANSMIT
 	//
 	TSVector <CCheckTbl::Rec> CheckList; // @v9.8.5 TSArray-->TSVector
 	TSVector <SCardOpTbl::Rec> ScOpList; // @v9.8.5 TSArray-->TSVector
@@ -4103,7 +4151,7 @@ int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 		THROW(tra);
 		for(SEnum en = r_utrc.Enum(PPOBJ_SCARD, PPTRPROP_SCARDEXT); en.Next(&iter_item) > 0;) {
 			PPGetExtStrData(PPSCardPacket::extssPhone, iter_item.S, temp_buf);
-			if(temp_buf.NotEmptyS()) { // temp_buf - в кодировке UTF-8
+			if(temp_buf.NotEmptyS()) { // temp_buf - РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8
 				// @v9.9.10 temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				temp_buf.Utf8ToLower(); // @v9.9.11
 				PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
@@ -4436,7 +4484,7 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 					else {
 						SCardTbl::Rec sc_rec;
 						for(ulong id = 0; !err && FullCardList.DirtyTable.Enum(&id);) {
-							if(Get((long)id, &sc_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
+							if(Get((long)id, &sc_rec) > 0) { // РР·РІР»РµРєР°РµРј РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РёР· РєСЌС€Р° (РёР· СЃР°РјРѕРіРѕ СЃРµР±СЏ): С‚Р°Рє Р±С‹СЃС‚СЂРµРµ.
 								if(!FullCardList.Add(id, sc_rec.Code, 1)) {
 									PPSetErrorSLib();
 									err = 1;
@@ -4818,7 +4866,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		#if SLTEST_RUNNING
 			//
-			// В режиме автоматического тестирования конфигурация выбирается автоматически по имени pParam->Name
+			// Р’ СЂРµР¶РёРјРµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РІС‹Р±РёСЂР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїРѕ РёРјРµРЅРё pParam->Name
 			//
 			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
 				list.GetText(i, sect);
@@ -5082,7 +5130,7 @@ int SLAPI ConvertSCardSeries9809()
     SysJournal * p_sj = new SysJournal;
     THROW(p_sj);
     if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_CVTSCS9809, &acn_list, &moment) > 0) {
-    	ok = -1; // Конвертация уже сделана
+    	ok = -1; // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ СѓР¶Рµ СЃРґРµР»Р°РЅР°
     }
     else {
 		const PPID obj_type = PPOBJ_SCARDSERIES;

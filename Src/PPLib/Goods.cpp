@@ -1530,20 +1530,19 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 		k2.GoodsID = goodsID;
 		if(arID >= 0)
 			k2.ArID = arID;
-		for(int sp = spGe; ok && ACodT.search(2, &k2, sp) && k2.GoodsID == goodsID; sp = spNext) { // @v7.4.10 spGt-->spNext
+		for(int sp = spGe; ok && ACodT.search(2, &k2, sp) && k2.GoodsID == goodsID; sp = spNext) {
 			if(arID < 0 || k2.ArID == arID) {
 				if(pCodeList)
 					THROW_SL(pCodeList->insert(&ACodT.data));
 				if(pIdList)
-					THROW_SL(pIdList->add(ACodT.data.ArID)); // @v8.1.0 addUnique-->add
+					THROW_SL(pIdList->add(ACodT.data.ArID));
 				ok = 1;
 			}
 		}
 		THROW_DB(BTROKORNFOUND);
 	}
 	CATCHZOK
-	if(pIdList)
-		pIdList->sortAndUndup(); // @v8.1.0
+	CALLPTRMEMB(pIdList, sortAndUndup());
 	return ok;
 }
 

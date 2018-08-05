@@ -1791,7 +1791,7 @@ PPID SLAPI GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 		P_Arp = new PrcssrAlcReport;
 		if(P_Arp) {
 			// @v10.0.06 @fix поменял местами SetConfig и Init
-			P_Arp->SetConfig(0); 
+			P_Arp->SetConfig(0);
 			P_Arp->Init();
 		}
 	}
@@ -3226,7 +3226,7 @@ int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 			break;
 		}
 		else {
-			CALLPTRMEMB(pList, AddFast(id, rec.Name)); // @v8.3.4 Add-->AddFast
+			CALLPTRMEMB(pList, AddFast(id, rec.Name));
 			ok = 1;
 		}
 	}

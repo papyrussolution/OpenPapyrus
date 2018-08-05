@@ -9457,8 +9457,15 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			}
 		}
 		else if(TVCMD == cmVerify) { // @v10.1.5
-			if(SCardID && ScObj.VerifyOwner(SCardID, PosNodeID) > 0) {
-				SetupCard(sc_rec.ID);
+			if(SCardID) {
+				PPSCardPacket sc_pack;
+				if(ScObj.GetPacket(SCardID, &sc_pack) > 0) {
+					int r = ScObj.VerifyOwner(sc_pack, PosNodeID);
+					if(r > 0)
+						SetupCard(sc_rec.ID);
+					else if(r == 0)
+						PPError();
+				}
 			}
 		}
 		else if(TVCMD == cmCtlColor) {

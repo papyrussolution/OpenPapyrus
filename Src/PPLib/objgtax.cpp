@@ -1,6 +1,6 @@
 // OBJGTAX.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -61,7 +61,7 @@ void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 	UnionVect = pEntry->UnionVect;
 }
 
-SLAPI PPGoodsTaxPacket::PPGoodsTaxPacket() : SArray(sizeof(PPGoodsTaxEntry))
+SLAPI PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry)) // @v10.1.6 SArray-->SVector
 {
 	MEMSZERO(Rec);
 }
@@ -100,8 +100,8 @@ int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 
 IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
 {
-	PPGoodsTaxEntry * p_i1 = (PPGoodsTaxEntry *)i1;
-	PPGoodsTaxEntry * p_i2 = (PPGoodsTaxEntry *)i2;
+	const PPGoodsTaxEntry * p_i1 = (const PPGoodsTaxEntry *)i1;
+	const PPGoodsTaxEntry * p_i2 = (const PPGoodsTaxEntry *)i2;
 	int    r = cmp_long((p_i1->TaxGrpID & 0x00ffffffL), (p_i2->TaxGrpID & 0x00ffffffL));
 	r = NZOR(r, cmp_ulong(p_i1->Period.low, p_i2->Period.low));
 	return NZOR(r, cmp_long(p_i1->OpID, p_i2->OpID));
@@ -171,8 +171,8 @@ double SLAPI GTaxVect::CalcTaxValByBase(int idx, double base) const
 	return round(RateVect[idx] * v, RoundPrec);
 }
 //
-// amount - сумма, включающая налоги 1..n (n<=N)
-// Расчитывает сумму без налогов (AmountAfterTaxes) GTaxVect::Vect[0]
+// amount - СЃСѓРјРјР°, РІРєР»СЋС‡Р°СЋС‰Р°СЏ РЅР°Р»РѕРіРё 1..n (n<=N)
+// Р Р°СЃС‡РёС‚С‹РІР°РµС‚ СЃСѓРјРјСѓ Р±РµР· РЅР°Р»РѕРіРѕРІ (AmountAfterTaxes) GTaxVect::Vect[0]
 //
 void SLAPI GTaxVect::CalcForward(int n, double amount)
 {
@@ -210,8 +210,8 @@ void SLAPI GTaxVect::CalcForward(int n, double amount)
 	}
 }
 //
-// amount - сумма, не включающая налоги (n+1)..N (1 <= n <= N)
-// Расчитывает полную сумму со всеми налогами GTaxVect::Amount
+// amount - СЃСѓРјРјР°, РЅРµ РІРєР»СЋС‡Р°СЋС‰Р°СЏ РЅР°Р»РѕРіРё (n+1)..N (1 <= n <= N)
+// Р Р°СЃС‡РёС‚С‹РІР°РµС‚ РїРѕР»РЅСѓСЋ СЃСѓРјРјСѓ СЃРѕ РІСЃРµРјРё РЅР°Р»РѕРіР°РјРё GTaxVect::Amount
 //
 void SLAPI GTaxVect::CalcBackward(int n, double amount)
 {
@@ -273,9 +273,9 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 	}
 	else {
 		int    done = 0;
-		// Сумма не включает некоторые налоги
-		// Если сумма не включает налог n, то она не включает и
-		// налоги с индексами > n
+		// РЎСѓРјРјР° РЅРµ РІРєР»СЋС‡Р°РµС‚ РЅРµРєРѕС‚РѕСЂС‹Рµ РЅР°Р»РѕРіРё
+		// Р•СЃР»Рё СЃСѓРјРјР° РЅРµ РІРєР»СЋС‡Р°РµС‚ РЅР°Р»РѕРі n, С‚Рѕ РѕРЅР° РЅРµ РІРєР»СЋС‡Р°РµС‚ Рё
+		// РЅР°Р»РѕРіРё СЃ РёРЅРґРµРєСЃР°РјРё > n
 		if(amtFlags & GTAXVF_BEFORETAXES) {
 			for(i = 1; !done && i <= N; i++) {
 				if(!(amtFlags & (1 << VectToTax(i)))) {
@@ -286,7 +286,7 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 			}
 			if(!done) {
 				//
-				// Эквивалент GTAXVF_BEFORETAXES
+				// Р­РєРІРёРІР°Р»РµРЅС‚ GTAXVF_BEFORETAXES
 				//
 				Amount = amount;
 				CalcForward((int)N, amount);
@@ -294,9 +294,9 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 		}
 		else {
 			//
-			// Сумма включает некоторые налоги
-			// Если сумма включает налог n, то она включает и
-			// налоги с индексами < n
+			// РЎСѓРјРјР° РІРєР»СЋС‡Р°РµС‚ РЅРµРєРѕС‚РѕСЂС‹Рµ РЅР°Р»РѕРіРё
+			// Р•СЃР»Рё СЃСѓРјРјР° РІРєР»СЋС‡Р°РµС‚ РЅР°Р»РѕРі n, С‚Рѕ РѕРЅР° РІРєР»СЋС‡Р°РµС‚ Рё
+			// РЅР°Р»РѕРіРё СЃ РёРЅРґРµРєСЃР°РјРё < n
 			//
 			for(i = (int)N; !done && i >= 1; i--) {
 				if(amtFlags & (1 << VectToTax(i))) {
@@ -307,7 +307,7 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 			}
 			if(!done) {
 				//
-				// Эквивалент GTAXVF_AFTERTAXES
+				// Р­РєРІРёРІР°Р»РµРЅС‚ GTAXVF_AFTERTAXES
 				//
 				Vect[0] = amount;
 				CalcBackward(1, amount);
@@ -364,7 +364,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			const double cq = R2(pTI->Cost * qtty - pTI->RevalCost * q_pre);
 			const double pq = R2(pTI->Price * qtty - pTI->Discount * q_pre);
 			// @v8.9.8 amount = ((tiamt != TIAMT_COST) ? pq : cq) / q_diff;
-			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // @v8.9.8 Для корректировки НДС всегда в ценах поступления
+			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // @v8.9.8 Р”Р»СЏ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РќР”РЎ РІСЃРµРіРґР° РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ
 		}
 		else
 			amount = 0.0;
@@ -372,9 +372,9 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 	}
 	else {
 		//
-		// При переоценке основных фондов в ценах реализации используем схему расчета
-		// налогов, применяемую для цен поступления, поскольку такая переоценка - суть
-		// изменение цен поступления (балансовой стоимости основных фондов).
+		// РџСЂРё РїРµСЂРµРѕС†РµРЅРєРµ РѕСЃРЅРѕРІРЅС‹С… С„РѕРЅРґРѕРІ РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё РёСЃРїРѕР»СЊР·СѓРµРј СЃС…РµРјСѓ СЂР°СЃС‡РµС‚Р°
+		// РЅР°Р»РѕРіРѕРІ, РїСЂРёРјРµРЅСЏРµРјСѓСЋ РґР»СЏ С†РµРЅ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ, РїРѕСЃРєРѕР»СЊРєСѓ С‚Р°РєР°СЏ РїРµСЂРµРѕС†РµРЅРєР° - СЃСѓС‚СЊ
+		// РёР·РјРµРЅРµРЅРёРµ С†РµРЅ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ (Р±Р°Р»Р°РЅСЃРѕРІРѕР№ СЃС‚РѕРёРјРѕСЃС‚Рё РѕСЃРЅРѕРІРЅС‹С… С„РѕРЅРґРѕРІ).
 		//
 		if(pTI->Flags & PPTFR_REVAL)
 			reval_assets = is_asset;
@@ -648,7 +648,7 @@ int SLAPI PPObjGoodsTax::HandleMsg(int msg, PPID objTypeID, PPID objID, void * e
 	return DBRPL_OK;
 }
 /*
-	Формат хранения пакета PPGoodsTaxPacket
+	Р¤РѕСЂРјР°С‚ С…СЂР°РЅРµРЅРёСЏ РїР°РєРµС‚Р° PPGoodsTaxPacket
 
 	Reference (PPOBJ_GOODSTAX, ID): Rec
 	Property  (PPOBJ_GOODSTAX, ID, GTGPRP_ENTRIES): PPGoodsTaxEntry[]
@@ -998,4 +998,3 @@ int SLAPI PPObjGoodsTax::FetchByID(PPID id, PPGoodsTaxEntry * pEntry)
 	GTaxCache * p_cache = GetDbLocalCachePtr <GTaxCache> (PPOBJ_GOODSTAX);
 	return p_cache ? p_cache->GetByID(id, pEntry) : 0;
 }
-
