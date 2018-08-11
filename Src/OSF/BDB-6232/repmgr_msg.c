@@ -1449,26 +1449,21 @@ retry:
 	 * send() counts acks (we'd have to make active_gmdb_update richer), but
 	 * those seem even more confusing.
 	 */
-	if((ret = __repmgr_set_membership(env,
-	    addr.host, addr.port, pstatus, site_flags)) != 0)
+	if((ret = __repmgr_set_membership(env, addr.host, addr.port, pstatus, site_flags)) != 0)
 		goto err;
 	__repmgr_set_sites(env);
-
 	/*
-	 * Hint to our send() function that we want to know the result of ack
-	 * counting.
+	 * Hint to our send() function that we want to know the result of ack counting.
 	 */
 	orig_lsn = db_rep->limbo_failure;
 	db_rep->active_gmdb_update = gmdb_primary;
 	UNLOCK_MUTEX(db_rep->mutex);
 	locked = FALSE;
-
 	if((ret = __txn_begin(env, ip, NULL, &txn, DB_IGNORE_LEASE)) != 0)
 		goto err;
 	marshal_site_key(env, &addr, key_buf, &key_dbt, &logrec);
 	marshal_site_data(env, pstatus, site_flags, status_buf, &data_dbt);
-	if((ret = __db_put(db_rep->gmdb,
-	    ip, txn, &key_dbt, &data_dbt, 0)) != 0)
+	if((ret = __db_put(db_rep->gmdb, ip, txn, &key_dbt, &data_dbt, 0)) != 0)
 		goto err;
 	if((ret = incr_gm_version(env, ip, txn)) != 0)
 		goto err;
@@ -1480,9 +1475,7 @@ retry:
 	 * local recovery.
 	 */
 	ZERO_LSN(lsn);
-	if((ret = __repmgr_member_log(env,
-	    txn, &lsn, 0, db_rep->membership_version,
-	    orig_status, pstatus, &logrec.host, logrec.port)) != 0)
+	if((ret = __repmgr_member_log(env, txn, &lsn, 0, db_rep->membership_version, orig_status, pstatus, &logrec.host, logrec.port)) != 0)
 		goto err;
 	ret = __txn_commit(txn, 0);
 	txn = NULL;
@@ -1603,7 +1596,6 @@ static int incr_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn)
  */
 int __repmgr_set_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 version)
 {
-	DB_REP * db_rep;
 	DBT key_dbt, data_dbt;
 	__repmgr_membership_key_args key;
 	__repmgr_member_metadata_args metadata;
@@ -1611,23 +1603,17 @@ int __repmgr_set_gm_version(ENV *env, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 
 	uint8 metadata_buf[__REPMGR_MEMBER_METADATA_SIZE];
 	size_t len;
 	int ret;
-
-	db_rep = env->rep_handle;
-
+	DB_REP * db_rep = env->rep_handle;
 	metadata.format = REPMGR_GMDB_FMT_VERSION;
 	metadata.version = version;
 	__repmgr_member_metadata_marshal(env, &metadata, metadata_buf);
 	DB_INIT_DBT(data_dbt, metadata_buf, __REPMGR_MEMBER_METADATA_SIZE);
-
 	DB_INIT_DBT(key.host, NULL, 0);
 	key.port = 0;
-	ret = __repmgr_membership_key_marshal(env,
-		&key, key_buf, sizeof(key_buf), &len);
+	ret = __repmgr_membership_key_marshal(env, &key, key_buf, sizeof(key_buf), &len);
 	DB_ASSERT(env, ret == 0);
 	DB_INIT_DBT(key_dbt, key_buf, len);
-
-	if((ret = __db_put(db_rep->gmdb,
-	    ip, txn, &key_dbt, &data_dbt, 0)) != 0)
+	if((ret = __db_put(db_rep->gmdb, ip, txn, &key_dbt, &data_dbt, 0)) != 0)
 		return ret;
 	return 0;
 }

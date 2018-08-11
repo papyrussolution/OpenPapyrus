@@ -538,6 +538,62 @@ int SLAPI SIniFile::GetIntParam(const char * pSect, const char * pParam, int * p
 	return r;
 }
 
+static int FASTCALL ParseDataSizeString(const char * pText, int64 * pSize, int64 * pMult)
+{
+	int    ok = 0; 
+	int64  value = 0;
+	int64  mult = 1;
+	SString temp_buf;
+	const char * p = pText;
+	while(oneof2(*p, ' ', '\t'))
+		p++;
+	while(isdec(*p)) {
+		temp_buf.CatChar(*p++);
+		ok = 1;
+	}
+	value = temp_buf.ToInt64();
+	if(value != 0) {
+		while(oneof2(*p, ' ', '\t'))
+			p++;
+		temp_buf.Z();
+		while(*p)
+			temp_buf.CatChar(*p++);
+		if(temp_buf.NotEmptyS()) {
+			if(temp_buf.IsEqiAscii("b"))
+				mult = 1;
+			else if(temp_buf.IsEqiAscii("kb") || temp_buf.IsEqiAscii("k"))
+				mult = 1024;
+			else if(temp_buf.IsEqiAscii("mb") || temp_buf.IsEqiAscii("m"))
+				mult = 1024*1024;
+			else if(temp_buf.IsEqiAscii("gb") || temp_buf.IsEqiAscii("g"))
+				mult = 1024*1024*1024;
+			else
+				ok = 0;
+		}
+	}
+	ASSIGN_PTR(pSize, value);
+	ASSIGN_PTR(pMult, mult);
+	return ok;
+}
+
+int SLAPI SIniFile::GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal)
+{
+	int    r = SearchParam(pSect, pParam, TempBuf);
+	if(pVal) {
+		if(r) {
+			int64  s = 0;
+			int64  m = 0;
+			if(ParseDataSizeString(TempBuf, &s, &m))
+				*pVal = s * m;
+			else
+				*pVal = 0;
+		}
+		else
+			*pVal = 0;
+	}
+	return r;
+}
+
 int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
 {
 	int    ok = 1;

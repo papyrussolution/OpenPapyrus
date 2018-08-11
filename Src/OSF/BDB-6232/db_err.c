@@ -27,24 +27,17 @@ int __db_fchk(ENV *env, const char * name, uint32 flags, uint32 ok_flags)
 {
 	return (LF_ISSET(~ok_flags) ? __db_ferr(env, name, 0) : 0);
 }
-/*
- * __db_fcchk --
- *	General combination flags checking routine.
- *
- * PUBLIC: int __db_fcchk
- * PUBLIC:    __P((ENV *, const char *, uint32, uint32, uint32));
- */
+// 
+// __db_fcchk -- General combination flags checking routine.
+// 
 int __db_fcchk(ENV *env, const char * name, uint32 flags, uint32 flag1, uint32 flag2)
 {
 	return (LF_ISSET(flag1) && LF_ISSET(flag2) ? __db_ferr(env, name, 1) : 0);
 }
-/*
- * __db_ferr --
- *	Common flag errors.
- *
- * PUBLIC: int __db_ferr __P((const ENV *, const char *, int));
- */
-int __db_ferr(const ENV *env, const char * name, int iscombo)
+// 
+// __db_ferr -- Common flag errors.
+// 
+int FASTCALL __db_ferr(const ENV *env, const char * name, int iscombo)
 {
 	int ret = USR_ERR(env, EINVAL);
 	if(iscombo)
@@ -73,21 +66,17 @@ int __db_fnl(const ENV *env, const char * name)
  */
 int FASTCALL __db_pgerr(DB *dbp, db_pgno_t pgno, int errval)
 {
-	/*
-	 * Three things are certain:
-	 * Death, taxes, and lost data.
-	 * Guess which has occurred.
-	 */
+	// 
+	// Three things are certain: Death, taxes, and lost data.
+	// Guess which has occurred.
+	// 
 	__db_errx(dbp->env, DB_STR_A("0057", "unable to create/retrieve page %lu", "%lu"), (u_long)pgno);
 	return (__env_panic(dbp->env, errval));
 }
-/*
- * __db_pgfmt --
- *	Error when a page has the wrong format.
- *
- * PUBLIC: int __db_pgfmt __P((ENV *, db_pgno_t));
- */
-int __db_pgfmt(ENV *env, db_pgno_t pgno)
+// 
+// __db_pgfmt -- Error when a page has the wrong format.
+// 
+int FASTCALL __db_pgfmt(ENV *env, db_pgno_t pgno)
 {
 	__db_errx(env, DB_STR_A("0058", "page %lu: illegal page type or format", "%lu"), (u_long)pgno);
 	return (__env_panic(env, EINVAL));
@@ -149,8 +138,7 @@ void __env_panic_event(ENV *env, int errval)
 	if(renv != NULL && renv->failure_panic) {
 		event = DB_EVENT_FAILCHK_PANIC;
 		failinfo.error = errval;
-		(void)strncpy(failinfo.symptom,
-		    renv->failure_symptom, sizeof(failinfo.symptom));
+		(void)strncpy(failinfo.symptom, renv->failure_symptom, sizeof(failinfo.symptom));
 		failinfo.symptom[sizeof(failinfo.symptom) - 1] = '\0';
 		info = &failinfo;
 	}
@@ -647,13 +635,11 @@ int __db_unknown_flag(ENV *env, char * routine, uint32 flag)
 #endif
 	return ret;
 }
-
 /*
  * __db_unknown_type -- report internal database type error
  *
- * PUBLIC: int __db_unknown_type __P((ENV *, char *, DBTYPE));
  */
-int __db_unknown_type(ENV *env, char * routine, DBTYPE type)
+int FASTCALL __db_unknown_type(ENV *env, char * routine, DBTYPE type)
 {
 	int ret = USR_ERR(env, EINVAL);
 	__db_errx(env, DB_STR_A("0094", "%s: Unexpected database type: %s", "%s %s"), routine, __db_dbtype_to_string(type));
@@ -663,13 +649,10 @@ int __db_unknown_type(ENV *env, char * routine, DBTYPE type)
 #endif
 	return ret;
 }
-
-/*
- * __db_unknown_path -- report unexpected database code path error.
- *
- * PUBLIC: int __db_unknown_path __P((ENV *, char *));
- */
-int __db_unknown_path(ENV *env, char * routine)
+//
+// __db_unknown_path -- report unexpected database code path error.
+//
+int FASTCALL __db_unknown_path(ENV *env, char * routine)
 {
 	int ret = USR_ERR(env, EINVAL);
 	__db_errx(env, DB_STR_A("0095", "%s: Unexpected code path error", "%s"), routine);
@@ -679,14 +662,10 @@ int __db_unknown_path(ENV *env, char * routine)
 #endif
 	return ret;
 }
-
-/*
- * __db_check_txn --
- *	Check for common transaction errors.
- *
- * PUBLIC: int __db_check_txn __P((DB *, DB_TXN *, DB_LOCKER *, int));
- */
-int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
+//
+// __db_check_txn -- Check for common transaction errors.
+//
+int FASTCALL __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 {
 	int related, ret;
 	ENV * env = dbp->env;
@@ -700,13 +679,11 @@ int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 	 */
 	if(IS_RECOVERING(env) || F_ISSET(dbp, DB_AM_RECOVER))
 		return 0;
-
 	if(txn != NULL && dbp->blob_threshold && F_ISSET(txn, (TXN_READ_UNCOMMITTED | TXN_SNAPSHOT))) {
 		ret = USR_ERR(env, EINVAL);
 		__db_errx(env, DB_STR("0237", "External file databases do not support DB_READ_UNCOMMITTED and TXN_SNAPSHOT"));
 		return ret;
 	}
-
 	/*
 	 * Check for common transaction errors:
 	 *	an operation on a handle whose open commit hasn't completed.
@@ -718,10 +695,8 @@ int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 		__db_errx(env, DB_STR("0096", "Read-only transaction cannot be used for an update"));
 	}
 	else if(txn == NULL || F_ISSET(txn, TXN_PRIVATE)) {
-		if(dbp->cur_locker != NULL &&
-		    dbp->cur_locker->id >= TXN_MINIMUM)
+		if(dbp->cur_locker != NULL && dbp->cur_locker->id >= TXN_MINIMUM)
 			goto open_err;
-
 		if(!read_op && F_ISSET(dbp, DB_AM_TXN)) {
 			ret = USR_ERR(env, EINVAL);
 			__db_errx(env, DB_STR("0097", "Transaction not specified for a transactional database"));
@@ -729,10 +704,7 @@ int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 		}
 	}
 	else if(F_ISSET(txn, TXN_FAMILY)) {
-		/*
-		 * Family transaction handles can be passed to any method,
-		 * since they only determine locker IDs.
-		 */
+		// Family transaction handles can be passed to any method, since they only determine locker IDs.
 		return 0;
 	}
 	else {
@@ -752,11 +724,9 @@ int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 				goto open_err;
 		}
 	}
-
 	/*
 	 * If dbp->associate_locker is not NULL, that means we're in
-	 * the middle of a DB->associate with DB_CREATE (i.e., a secondary index
-	 * creation).
+	 * the middle of a DB->associate with DB_CREATE (i.e., a secondary index creation).
 	 *
 	 * In addition to the usual transaction rules, we need to lock out
 	 * non-transactional updates that aren't part of the associate (and
@@ -765,8 +735,7 @@ int __db_check_txn(DB *dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 	 * Transactional updates should simply block;  from the time we
 	 * decide to build the secondary until commit, we'll hold a write
 	 * lock on all of its pages, so it should be safe to attempt to update
-	 * the secondary in another transaction (presumably by updating the
-	 * primary).
+	 * the secondary in another transaction (presumably by updating the primary).
 	 */
 	if(!read_op && dbp->associate_locker != NULL && txn != NULL && dbp->associate_locker != assoc_locker) {
 		ret = USR_ERR(env, EINVAL);
@@ -790,14 +759,13 @@ open_err:
 		__db_errx(env, DB_STR("0101", "Transaction that opened the DB handle is still active"));
 	return ret;
 }
-
 /*
  * __db_txn_deadlock_err --
  *	Transaction has allready been deadlocked.
  *
  * PUBLIC: int __db_txn_deadlock_err __P((ENV *, DB_TXN *));
  */
-int __db_txn_deadlock_err(ENV *env, DB_TXN * txn)
+int __db_txn_deadlock_err(ENV * env, DB_TXN * txn)
 {
 	int ret = USR_ERR(env, EINVAL);
 	const char * name = NULL;

@@ -129,8 +129,28 @@ json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Pr
 
 json_t::~json_t()
 {
-	delete P_Next;
-	delete P_Child;
+	//
+	// ¬елик соблазн использовать здесь рекурсивное удаление внутренних объектов, но нельз€!
+	// ѕри больших цепочках возможно переполнение стека.
+	//
+	if(P_Next) {
+		for(json_t * p_next = P_Next; p_next;) {
+			json_t * p_temp = p_next->P_Next;
+			p_next->P_Next = 0;
+			delete p_next;
+			p_next = p_temp;
+		}
+		P_Next = 0;
+	}
+	if(P_Child) {
+		for(json_t * p_child = P_Child; p_child;) {
+			json_t * p_temp = p_child->P_Child;
+			p_child->P_Child = 0;
+			delete p_child;
+			p_child = p_temp;
+		}
+		P_Child = 0;
+	}
 }
 
 /*void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)

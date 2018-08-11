@@ -23,7 +23,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp
 //
 
 #define DEFAULT_TS_FONTSIZE        24
-#define INSTVSRCH_THRESHOLD        50000 // @v8.6.6 7-->50000
+#define INSTVSRCH_THRESHOLD        50000 
 #define TSGGROUPSASITEMS_FONTDELTA 4
 #define UNDEF_CHARGEGOODSID        -1000000000L
 
@@ -82,9 +82,6 @@ int SLAPI showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
 //   ! 6 Внести количество                      Количество + F6 or "* количество" or "количество *"
 //   ! 7 Внести товар из буфера ввода в список  Enter
 //   ! 8 Очистить буфер ввода                   Escape
-//
-//
-//
 //
 struct SaComplexEntry {
 	SaComplexEntry() : GoodsID(0), FinalGoodsID(0), Qtty(1.0), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
@@ -468,10 +465,10 @@ void CPosProcessor::ExtCcData::Clear()
 //
 CPosProcessor::RetBlock::RetBlock()
 {
-	Clear();
+	Z();
 }
 
-CPosProcessor::RetBlock & CPosProcessor::RetBlock::Clear()
+CPosProcessor::RetBlock & CPosProcessor::RetBlock::Z()
 {
 	SellCheckID = 0;
 	SellCheckAmount = 0.0;
@@ -1018,11 +1015,11 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		SETFLAG(OperRightsFlags, orfRowDiscount, CsObj.CheckRights(CSESSOPRT_ROWDISCOUNT, 1));
 		SETFLAG(OperRightsFlags, orfXReport,     CsObj.CheckRights(CSESSOPRT_XREP, 1));
 		SETFLAG(OperRightsFlags, orfSplitCheck,      CsObj.CheckRights(CSESSOPRT_SPLITCHK, 1));
-		SETFLAG(OperRightsFlags, orfMergeChecks,     CsObj.CheckRights(CSESSOPRT_MERGECHK, 1)); // @v8.5.5
+		SETFLAG(OperRightsFlags, orfMergeChecks,     CsObj.CheckRights(CSESSOPRT_MERGECHK, 1));
 		SETFLAG(OperRightsFlags, orfChgPrintedCheck, CsObj.CheckRights(CSESSOPRT_CHGPRINTEDCHK, 1));
 		SETFLAG(OperRightsFlags, orfRestoreSuspWithoutAgent, CsObj.CheckRights(CSESSOPRT_RESTORESUSPWOA, 1));
-		SETFLAG(OperRightsFlags, orfChgAgentInCheck, CsObj.CheckRights(CSESSOPRT_CHGCCAGENT, 1)); // @v8.2.1
-		SETFLAG(OperRightsFlags, orfEscChkLineBeforeOrder, CsObj.CheckRights(CSESSOPRT_ESCCLINEBORD, 1)); // @v8.7.3
+		SETFLAG(OperRightsFlags, orfChgAgentInCheck, CsObj.CheckRights(CSESSOPRT_CHGCCAGENT, 1));
+		SETFLAG(OperRightsFlags, orfEscChkLineBeforeOrder, CsObj.CheckRights(CSESSOPRT_ESCCLINEBORD, 1));
 		*/
 		OrgOperRights = OperRightsFlags;
 	}
@@ -1309,14 +1306,6 @@ void CPosProcessor::SetupRowData(int calcRest)
 int FASTCALL CPosProcessor::BelongToExtCashNode(PPID goodsID) const
 {
 	PPID   assoc_id = 0;
-	/* @v8.2.1 Блок перенесен в CCheckPane::CCheckPane() ради того, чтобы функции BelongToExtCashNode присвоить статус const
-	if(ExtCashNodeID && !P_GTOA) {
-		P_GTOA = DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ?
-			new GoodsToObjAssoc(PPASS_GOODS2LOC, PPOBJ_LOCATION) : new GoodsToObjAssoc(PPASS_GOODS2CASHNODE, PPOBJ_CASHNODE);
-		if(P_GTOA)
-			P_GTOA->Load();
-	}
-	*/
 	return BIN(P_GTOA && P_GTOA->Get(goodsID, &assoc_id) > 0 && assoc_id &&
 		assoc_id == (DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ? ExtCnLocID : ExtCashNodeID));
 }
@@ -1438,7 +1427,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 		else {
 			int    skip_crd_processing = 0;
 			double init_rest = R2((scs_rec.Flags & SCRDSF_UHTTSYNC) ? CSt.UhttRest : sc_rec.Rest);
-			if(init_rest < 0.0 && scst == scstBonus) // @v8.2.0 (&& scst == scstBonus)
+			if(init_rest < 0.0 && scst == scstBonus)
 				init_rest = 0.0;
 			double rest = 0.0;
 			Flags |= fSCardCredit;
@@ -1482,7 +1471,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					Flags &= ~fSCardCredit;
 					CSt.RestByCrdCard = 0.0;
 					skip_crd_processing = 1;
-					MessageError(PPERR_CHKPAN_SCOUTOFCRDLIMIT, sc_rec.Code, /*eomMsgWindow*/eomPopup|eomBeep); // @v8.2.2
+					MessageError(PPERR_CHKPAN_SCOUTOFCRDLIMIT, sc_rec.Code, /*eomMsgWindow*/eomPopup|eomBeep);
 				}
 				else
 					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
@@ -1562,6 +1551,14 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 	RAssocArray gift_dis_list;
 	CCheckItem * p_item;
 	LongArray wodis_pos_list;
+	SCardSpecialTreatment * p_scst = (CSt.GetID() && CSt.SpcCardTreatment) ? SCardSpecialTreatment::CreateInstance(CSt.SpcCardTreatment) : 0; // @v10.1.6
+	SCardSpecialTreatment::CardBlock scst_cb;
+	TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
+	if(p_scst) {
+		if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, scst_cb) <= 0) {
+			ZDELETE(p_scst);
+		}
+	}
 	{
 		double min_qtty  = SMathConst::Max;
 		double max_price = 0.0;
@@ -1639,6 +1636,25 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 						if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
 							no_discount = 1;
 						p_item->Discount = 0.0;
+					}
+					if(p_scst && !p_item->RemoteProcessingTa[0]) {
+						SCardSpecialTreatment::DiscountBlock db;
+						db.GoodsID = goods_id;
+						db.InPrice = p_item->Price;
+						db.ResultPrice = p_item->Price;
+						db.Qtty = fabs(p_item->Quantity);
+						STRNSCPY(db.TaIdent, p_item->RemoteProcessingTa);
+						scst_dbl.clear();
+						scst_dbl.insert(&db);
+						long    qdrf = 0;
+						if(p_scst->QueryDiscount(&scst_cb, scst_dbl, &qdrf) > 0) {
+							SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(0);
+							p_item->Discount = r_db.InPrice - r_db.ResultPrice;
+							p_item->Price = r_db.ResultPrice;
+							p_item->Flags |= cifFixedPrice;
+							STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
+							no_discount = 1;
+						}
 					}
 				}
 				else if(!no_discount) { // @v9.9.3 Дополнительный блок для правильной идентификации блокировки скидки
@@ -1774,10 +1790,14 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			part_amount += (p * qtty); // @debug
 		}
 	}
+	delete p_scst; // @v10.1.6 
 }
 
 void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 {
+	if(CSt.SpcCardTreatment) {
+
+	}
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
 	double amt, dis;
 	CalcTotal(&amt, &dis);
@@ -2254,7 +2274,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			}
 			else {
 				/* @v9.0.4
-				epb.Pack.Ext.AddPaym = 0; // @v8.0.2 dbltointmny(CSt.AdditionalPayment);
+				epb.Pack.Ext.AddPaym = 0;
 				SETFLAG(epb.Pack.Rec.Flags, CCHKF_ADDPAYM, epb.Pack.Ext.AddPaym);
 				if(CSt.AddCrdCardID) {
 					epb.Pack.Ext.AddCrdCardID = CSt.AddCrdCardID;
@@ -3061,7 +3081,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				}
 				// } @v9.7.10
 				ScaleID         = scn.ScaleID;
-				// @v8.6.12 перенесено в CPosProcessor Scf             = scn.Scf;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;
 				scn.GetRoundParam(&R);
 				SETFLAG(Flags, fSelSerial, scn.ExtFlags & CASHFX_SELSERIALBYGOODS);
@@ -3589,7 +3608,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		}
 		else {
 			if(fabs(addpaym_r2) > add_paym_epsilon) {
-				if(addpaym_r2 > fabs(rBlk.GetTotal())) { // @v8.5.5 Модифицировано для случая возврата
+				if(addpaym_r2 > fabs(rBlk.GetTotal())) {
 					MessageError(PPERR_CHKPAN_ADDPAYMABOVEAMT, 0, eomBeep|eomPopup);
 					addpaym_r2 = rBlk.GetTotal() - rBlk.GetUsableBonus();
 				}
@@ -7377,7 +7396,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 	SString temp_buf;
 	Flags |= fSuspSleepTimeout;
 	if(!ret) {
-		Rb.Clear();
+		Rb.Z();
 	}
 	Flags &= ~fRetByCredit;
 	if((!P.HasCur() && !P.getCount()) || oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
@@ -9583,6 +9602,7 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)
 				CSt.P_DisByAmtRule = new PPSCardSerRule;
 				ASSIGN_PTR(CSt.P_DisByAmtRule, scs_pack.CcAmtDisRule);
 			}
+			CSt.SpcCardTreatment = scs_pack.Rec.SpecialTreatment; // @v10.1.6
 		}
 		else {
 			ZDELETE(CSt.P_Eqb);
@@ -9596,7 +9616,6 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)
 int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 {
 	int    ok = 1;
-	//SString temp_buf;
 	SCardTbl::Rec sc_rec;
 	if(scID) {
 		if(pScRec == 0) {
@@ -9606,8 +9625,6 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		assert(pScRec);
 		THROW(Implement_AcceptSCard(*pScRec));
 		if(pScRec->AutoGoodsID) {
-			//double qtty = 1.0;
-			//double price = 0.0;
 			PgsBlock pgsb(1.0);
 			//
 			// CheckPaneDialog::PreprocessGoodsSelection() - интерактивная функция. Ее необходимо разбить на базовую и интерактивные части.
@@ -9617,9 +9634,8 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		CSt.Discount = fdiv100i(pScRec->PDis);
 		Flags |= fPctDis;
 		SetupDiscount(); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
-		if(!CalcRestByCrdCard_(0)) {
+		if(!CalcRestByCrdCard_(0))
 			ResetSCard();
-		}
 	}
 	else {
 		ResetSCard();

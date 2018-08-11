@@ -4146,7 +4146,7 @@ void SLAPI PPServerSession::Run()
 							case 2: // Текстовая команда
 								{
 									const uint64 tm_start = SLS.GetProfileTime();
-									log_buf = 0;
+									log_buf.Z();
 									{
 										//
 										// Убираем терминальную последовательность из считанной строки
@@ -4170,7 +4170,6 @@ void SLAPI PPServerSession::Run()
 											log_level = 0;
 										else if(is_login_cmd)
 											log_level = 2;
-										// @v8.3.4 {
 										if(State & stDebugMode) {
 											Addr.ToStr(0, log_buf);
 											log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2);
@@ -4183,7 +4182,6 @@ void SLAPI PPServerSession::Run()
 											}
 											PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 										}
-										// } @v8.3.4
 										cmdret = ProcessCommand(&cmd, reply);
 										if(log_level) {
 											const uint64 tm_finish = SLS.GetProfileTime();

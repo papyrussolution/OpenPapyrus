@@ -628,6 +628,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			SString msg_buf;
 			TransferTbl::Rec rec;
 			BillTbl::Rec bill_rec;
+			PPObjWorld w_obj;
 			GCTIterator::ItemExtension gct_ext;
 			GCTFilt gct_filt;
 			gct_filt.DueDatePeriod = Filt.DueDatePeriod; // @v10.0.04
@@ -723,9 +724,12 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 										opt = PSNGETADDRO_DLVRADDR;
 									else if(Filt.Flags & TrfrAnlzFilt::fSubstPersonRAddr)
 										opt = PSNGETADDRO_REALADDR;
-									if(PsnObj.GetAddrID(p_rec.ID, dlvr_addr_id, opt, &addr_id) > 0)
-										if(PsnObj.GetCityByAddr(addr_id, &city_id, 0, 1) > 0)
-											skip = (city_id == Filt.CityID) ? 0 : 1;
+									if(PsnObj.GetAddrID(p_rec.ID, dlvr_addr_id, opt, &addr_id) > 0) {
+										if(PsnObj.GetCityByAddr(addr_id, &city_id, 0, 1) > 0) {
+											// @v10.1.6 skip = (city_id == Filt.CityID) ? 0 : 1;
+											skip = w_obj.IsChildOf(city_id, Filt.CityID) ? 0 : 1; // @v10.1.6
+										}
+									}
 								}
 							}
 							else
@@ -2898,7 +2902,8 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(this, CTLSEL_GTO_PSNCAT, PPOBJ_PRSNCATEGORY, Data.PsnCatID, OLW_LOADDEFONOPEN|OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+	// @v10.1.6 SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); 
+	SetupPPObjCombo(this, CTLSEL_GTO_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.1.6
 	{
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 			PPOPT_GOODSORDER, PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);

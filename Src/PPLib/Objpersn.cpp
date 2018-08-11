@@ -6024,7 +6024,7 @@ int SLAPI SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID 
 			p_grp->SetPersonKind(personKindID);
 		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, (void *)personKindID);
 		if(ok)
-			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, 2, 0);
+			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.1.6 WordSel_ExtraBlock::fAlwaysSearchBySubStr
 	}
 	else
 		dlg->setCtrlLong(ctlID, 0);

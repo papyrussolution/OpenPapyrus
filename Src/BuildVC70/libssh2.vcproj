@@ -21,12 +21,19 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="4"
 				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -79,9 +86,270 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBSSH2DEBUG"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Debug_lib/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Release_lib/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBSSH2DEBUG"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Debug_lib/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Release_lib/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName).lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\libssh2\include;..\osf\OpenSSL\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBSSH2DEBUG"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -155,6 +423,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\channel.c">
@@ -170,6 +480,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -203,6 +555,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\crypt.c">
@@ -218,6 +612,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -251,6 +687,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\hostkey.c">
@@ -266,6 +744,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -299,6 +819,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\kex.c">
@@ -314,6 +876,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -347,6 +951,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\Osf\LibSSH2\src\libssh2-pch.cpp">
@@ -361,6 +1007,44 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						BasicRuntimeChecks="0"
@@ -384,6 +1068,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -417,6 +1143,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\misc.c">
@@ -432,6 +1200,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -465,6 +1275,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\packet.c">
@@ -480,6 +1332,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -513,6 +1407,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\publickey.c">
@@ -528,6 +1464,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -561,6 +1539,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\session.c">
@@ -576,6 +1596,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -609,6 +1671,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\transport.c">
@@ -624,6 +1728,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -657,6 +1803,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\version.c">
@@ -681,6 +1869,48 @@
 						BufferSecurityCheck="FALSE"
 						DebugInformationFormat="3"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\wincng.c">
@@ -696,6 +1926,48 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"
+						DebugInformationFormat="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="0"
+						BufferSecurityCheck="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"

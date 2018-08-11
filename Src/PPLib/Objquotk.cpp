@@ -524,8 +524,8 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 		if(*pID) {
 			if(pPack) {
 				PPQuotKindPacket org_pack;
-				THROW(GetPacket(*pID, &org_pack) > 0); // @v8.3.6
-				if(!IsPacketEq(*pPack, org_pack, 0)) { // @v8.3.6
+				THROW(GetPacket(*pID, &org_pack) > 0);
+				if(!IsPacketEq(*pPack, org_pack, 0)) {
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckRights(PPR_MOD));
 					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));

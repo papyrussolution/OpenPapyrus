@@ -14,7 +14,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
-	static const SVerT __MinCompatVer(9, 8, 11);
+	static const SVerT __MinCompatVer(10, 1, 6);
 		// @v6.4.7  6.2.2-->6.4.7
 		// @v7.0.0  6.4.7-->6.9.10
 		// @v7.0.7  6.9.10-->7.0.7
@@ -34,6 +34,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 		// @v9.4.0  9.0.4-->9.4.0
 		// @v9.8.9  9.4.0-->9.8.9
 		// @v9.8.11 9.8.9-->9.8.11
+		// @v10.1.6 9.8.11-->10.1.6
 	return __MinCompatVer;
 }
 //
@@ -746,7 +747,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			exclude_obj_type_list.add(PPOBJ_USR);
 			exclude_obj_type_list.add(PPOBJ_USRGRP);
 		}
-		// } @v10.1.5 
+		// } @v10.1.5
 		if(oi.Obj && oi.Id && !exclude_obj_type_list.lsearch(oi.Obj)) {
 			ObjSyncQueueTbl::Key1 k1;
 			MEMSZERO(k1);
@@ -3341,7 +3342,7 @@ int SLAPI SynchronizeObjects(PPID dest)
 					ref_obj_list.add(PPOBJ_USR);
 					ref_obj_list.add(PPOBJ_USRGRP);
 				}
-				// } @v10.1.5 
+				// } @v10.1.5
 				for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
 					ref_obj_list.addUnique(dyn_obj_type);
 				for(uint i = 0; i < ref_obj_list.getCount(); i++)

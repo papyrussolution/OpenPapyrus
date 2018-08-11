@@ -740,7 +740,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_INITDIALOG:
 			onInitDialog(1);
 			break;
-		case WM_DESTROY: // данная команда практически никогда не вызывается. См. WM_DESTROY в DialogProc. 
+		case WM_DESTROY: // данная команда практически никогда не вызывается. См. WM_DESTROY в DialogProc.
 			// Из-за этого, если список картинок валиден, то на каждом вызове диалога с таким списком теряется 4 объекта GDI.
 			/*{ // @v6.0.14 AHTOXA
 				HIMAGELIST himl = (HIMAGELIST)SendMessage(GetDlgItem(Parent, Id), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)0);
@@ -830,8 +830,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				else
 					return 1;
 			}
-			// } @v10.0.12 
-			/* @v10.0.12 
+			// } @v10.0.12
+			/* @v10.0.12
 			else
 				return 1; // @v9.8.12 0-->1
 			*/

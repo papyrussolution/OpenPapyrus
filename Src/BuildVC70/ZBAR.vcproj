@@ -19,7 +19,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				OptimizeForProcessor="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
@@ -73,7 +77,8 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				OptimizeForProcessor="0"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
@@ -127,6 +132,8 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
@@ -176,6 +183,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
@@ -225,10 +237,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
+				GlobalOptimizations="FALSE"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
@@ -278,6 +293,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\OpenSSL\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
@@ -1754,10 +1774,10 @@
 				RelativePath="..\Osf\Zbar\zbar\debug.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
+				RelativePath="..\Osf\Zbar\zbar\decoder.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\ean.h">
@@ -1775,10 +1795,10 @@
 				RelativePath="..\Osf\Zbar\zbar\decoder\i25.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
+				RelativePath="..\Osf\Zbar\zbar\image.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\image.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\include\zbar\ImageScanner.h">
@@ -1802,10 +1822,10 @@
 				RelativePath="..\Osf\Zbar\zbar\processor\posix.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\processor.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
+				RelativePath="..\Osf\Zbar\zbar\processor.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\qr_finder.h">
@@ -1850,19 +1870,19 @@
 				RelativePath="..\Osf\Zbar\zbar\qrcode\util.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
+				RelativePath="..\Osf\Zbar\zbar\video.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\video.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\win.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
+				RelativePath="..\Osf\Zbar\zbar\window.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\window.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\x.h">

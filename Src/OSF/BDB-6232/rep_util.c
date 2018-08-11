@@ -1049,18 +1049,15 @@ int __env_db_rep_exit(ENV *env)
  * Typically calls with txns set return_now so that we return immediately.
  * We want to return immediately because we want the txn to abort ASAP
  * so that the lockout can proceed.
- *
- * PUBLIC: int __db_rep_enter __P((DB *, int, int, int));
  */
-int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
+int FASTCALL __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 {
 	DB_REP * db_rep;
-	ENV * env;
 	REGENV * renv;
 	REGINFO * infop;
 	REP * rep;
 	time_t timestamp;
-	env = dbp->env;
+	ENV * env = dbp->env;
 	/* Check if locks have been globally turned off. */
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
 		return 0;
@@ -1068,7 +1065,6 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 	rep = db_rep->region;
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
-
 	if(checklock && F_ISSET(renv, DB_REGENV_REPLOCKED)) {
 		(void)time(&timestamp);
 		TIMESTAMP_CHECK(env, timestamp, renv);
@@ -1079,7 +1075,6 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 		if(F_ISSET(renv, DB_REGENV_REPLOCKED))
 			return EINVAL;
 	}
-
 	/*
 	 * Return a dead handle if an internal handle is trying to
 	 * get an exclusive lock on this database.
@@ -1088,7 +1083,6 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 		if(dbp->mpf->mfp->excl_lockout)
 			return (DB_REP_HANDLE_DEAD);
 	}
-
 	REP_SYSTEM_LOCK(env);
 	/*
 	 * !!!
@@ -1107,7 +1101,6 @@ int __db_rep_enter(DB *dbp, int checkgen, int checklock, int return_now)
 			__os_yield(env, 5, 0);
 		return (DB_LOCK_DEADLOCK);
 	}
-
 	if(checkgen && dbp->timestamp != renv->rep_timestamp) {
 		REP_SYSTEM_UNLOCK(env);
 		return (DB_REP_HANDLE_DEAD);

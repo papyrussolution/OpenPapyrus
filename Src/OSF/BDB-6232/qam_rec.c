@@ -91,12 +91,9 @@ int __qam_incfirst_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__qam_incfirst_print);
 	REC_INTRO(__qam_incfirst_read, ip, 0);
-
 	metapg = ((QUEUE*)file_dbp->q_internal)->q_meta;
-
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-	    DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
 
@@ -181,23 +178,17 @@ int __qam_mvptr_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	QUEUE_CURSOR * cp;
 	db_pgno_t metapg;
 	int cmp_n, cmp_p, exact, ret;
-
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__qam_mvptr_print);
 	REC_INTRO(__qam_mvptr_read, ip, 0);
-
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-	    DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
-
 	metapg = ((QUEUE*)file_dbp->q_internal)->q_meta;
-
 	if((ret = __memp_fget(mpf, &metapg, ip, NULL, 0, &meta)) != 0) {
 		if(DB_REDO(op)) {
-			if((ret = __memp_fget(mpf, &metapg, ip, NULL,
-			    DB_MPOOL_CREATE, &meta)) != 0) {
+			if((ret = __memp_fget(mpf, &metapg, ip, NULL, DB_MPOOL_CREATE, &meta)) != 0) {
 				goto out;
 			}
 			meta->dbmeta.pgno = metapg;
@@ -412,28 +403,20 @@ int __qam_delext_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	QPAGE * pagep;
 	db_pgno_t metapg;
 	int cmp_n, ret, t_ret;
-
 	COMPQUIET(pagep, NULL);
 	meta = NULL;
 	pagep = NULL;
-
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__qam_delext_print);
 	REC_INTRO(__qam_delext_read, ip, 0);
-
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
-	if((ret = __db_cursor_int(file_dbp, ip, NULL,
-	    DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
+	if((ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
-
 	metapg = ((QUEUE*)file_dbp->q_internal)->q_meta;
-	if((ret = __memp_fget(mpf, &metapg, ip, NULL,
-	    DB_MPOOL_EDIT, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &metapg, ip, NULL, DB_MPOOL_EDIT, &meta)) != 0)
 		goto err;
-
-	if((ret = __qam_fget(dbc, &argp->pgno,
-	    DB_REDO(op) ? 0 : DB_MPOOL_CREATE, &pagep)) != 0) {
+	if((ret = __qam_fget(dbc, &argp->pgno, DB_REDO(op) ? 0 : DB_MPOOL_CREATE, &pagep)) != 0) {
 		/*
 		 * If we are redoing a delete and the page is not there
 		 * we are done.
@@ -442,7 +425,6 @@ int __qam_delext_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 			goto done;
 		goto out;
 	}
-
 	if(pagep->pgno == PGNO_INVALID) {
 		QAM_DIRTY(dbc, argp->pgno, &pagep);
 		pagep->pgno = argp->pgno;

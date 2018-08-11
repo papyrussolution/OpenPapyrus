@@ -601,13 +601,10 @@ int __env_mpool(DB *dbp, const char * fname, uint32 flags)
 	}
 	return 0;
 }
-/*
- * __db_close --
- *	DB->close method.
- *
- * PUBLIC: int __db_close(DB *, DB_TXN *, uint32);
- */
-int __db_close(DB *dbp, DB_TXN * txn, uint32 flags)
+// 
+// __db_close -- DB->close method.
+// 
+int FASTCALL __db_close(DB *dbp, DB_TXN * txn, uint32 flags)
 {
 	int db_ref, ret, t_ret;
 	ENV * env = dbp->env;

@@ -1,6 +1,6 @@
 // PPNAMEDFILT.CPP
 // Copyright (c) P.Andrianov 2011, 2014, 2016, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -30,7 +30,7 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) const
 	THROW(rBuf.Write(ID));
 	THROW(rBuf.Write(Ver));
 	THROW(rBuf.Write(ViewID));
-	THROW(rBuf.Write(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW(rBuf.Write(Flags)); // @v8.4.2 (Р·Р° СЃС‡РµС‚ Reserve)
 	THROW(rBuf.Write(Reserve, sizeof(Reserve)));
 	THROW(rBuf.Write(Name));
 	THROW(rBuf.Write(DbSymb));
@@ -49,7 +49,7 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 	THROW(rBuf.Read(ID));
 	THROW(rBuf.Read(Ver));
 	THROW(rBuf.Read(ViewID));
-	THROW(rBuf.Read(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW(rBuf.Read(Flags)); // @v8.4.2 (Р·Р° СЃС‡РµС‚ Reserve)
 	THROW(rBuf.Read(Reserve, sizeof(Reserve)));
 	THROW(rBuf.Read(Name));
 	THROW(rBuf.Read(DbSymb));
@@ -217,16 +217,13 @@ int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocA
 	pTextList->Z();
 	if(P_Rez) {
 		ulong pos = 0;
-		for(uint   rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
-			// Исключаем фиктивные PPView
-			if((rsc_id != PPVIEW_GOODSGROUP)&& // "Группы товаров"
-				(rsc_id != PPVIEW_REGISTER)&&   // "Регистры"
-				(rsc_id != PPVIEW_TAG)&&        // "Теги"
-				(rsc_id != PPVIEW_BBOARD)) {    // "Запущенные серверные задачи"
-					THROW(LoadResource(rsc_id, symb, text, &flags));
-					THROW_SL(pSymbList->Add(rsc_id, symb));
-					THROW_SL(pTextList->Add(rsc_id, text));
-				}
+		for(uint rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
+			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // РСЃРєР»СЋС‡Р°РµРј С„РёРєС‚РёРІРЅС‹Рµ PPView
+				THROW(LoadResource(rsc_id, symb, text, &flags));
+				THROW_SL(pSymbList->Add(rsc_id, symb));
+				PPExpandString(text, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+				THROW_SL(pTextList->Add(rsc_id, text));
+			}
 		}
 		pTextList->SortByText();
 	}
@@ -294,7 +291,7 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 	return ok;
 }
 //
-// Descr: Отвечает за диалог "Список фильтров"
+// Descr: РћС‚РІРµС‡Р°РµС‚ Р·Р° РґРёР°Р»РѕРі "РЎРїРёСЃРѕРє С„РёР»СЊС‚СЂРѕРІ"
 //
 class FiltPoolDialog : public PPListDialog {
 public:
@@ -313,7 +310,7 @@ private:
 };
 
 //
-// Descr: Обновляет таблицу фильтров в диалоге "Список фильтров"
+// Descr: РћР±РЅРѕРІР»СЏРµС‚ С‚Р°Р±Р»РёС†Сѓ С„РёР»СЊС‚СЂРѕРІ РІ РґРёР°Р»РѕРіРµ "РЎРїРёСЃРѕРє С„РёР»СЊС‚СЂРѕРІ"
 //
 int FiltPoolDialog::setupList()
 {
@@ -330,7 +327,7 @@ int FiltPoolDialog::setupList()
 }
 
 //
-// Descr: Создает и отображает диалог "Список фильтров"
+// Descr: РЎРѕР·РґР°РµС‚ Рё РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РґРёР°Р»РѕРі "РЎРїРёСЃРѕРє С„РёР»СЊС‚СЂРѕРІ"
 //
 int SLAPI ViewFiltPool()
 {
@@ -356,7 +353,7 @@ int SLAPI ViewFiltPool()
 }
 
 //
-// Descr: Класс, отвечающий за диалог "Создать фильтр"
+// Descr: РљР»Р°СЃСЃ, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° РґРёР°Р»РѕРі "РЎРѕР·РґР°С‚СЊ С„РёР»СЊС‚СЂ"
 //
 class FiltItemDialog : public TDialog {
 public:
@@ -365,26 +362,26 @@ public:
 		P_Mngr->GetResourceLists(&CmdSymbList, &CmdTextList);
 	}
 	//
-	// Descr: Заполняет интерфейс данными из pData
+	// Descr: Р—Р°РїРѕР»РЅСЏРµС‚ РёРЅС‚РµСЂС„РµР№СЃ РґР°РЅРЅС‹РјРё РёР· pData
 	//
 	int    setDTS(const PPNamedFilt * pData);
 	//
-	// Descr: Заполняет pData данными из интерфейса
+	// Descr: Р—Р°РїРѕР»РЅСЏРµС‚ pData РґР°РЅРЅС‹РјРё РёР· РёРЅС‚РµСЂС„РµР№СЃР°
 	//
 	int    getDTS(PPNamedFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    ChangeBaseFilter();    // Обрабатывает изменение базового фильтра
+	int    ChangeBaseFilter();    // РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РёР·РјРµРЅРµРЅРёРµ Р±Р°Р·РѕРІРѕРіРѕ С„РёР»СЊС‚СЂР°
 
-	PPNamedFilt Data;          // Собственно, редактируемый именованный фильтр
-	StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
-	StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
+	PPNamedFilt Data;          // РЎРѕР±СЃС‚РІРµРЅРЅРѕ, СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Р№ РёРјРµРЅРѕРІР°РЅРЅС‹Р№ С„РёР»СЊС‚СЂ
+	StrAssocArray CmdSymbList; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РґР»СЏ РѕР±СЊРµРєС‚РѕРІ PPView {id, СЃРёРјРІРѕР»}
+	StrAssocArray CmdTextList; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ РґР»СЏ РѕР±СЊРµРєС‚РѕРІ PPView {id, РѕРїРёСЃР°РЅРёРµ} (СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Р№ РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ)
 	PPNamedFiltPool * P_Pool;  // @notowned
 	PPNamedFiltMngr * P_Mngr;  // @notowned
 };
 
 //
-// Descr: Отображает диалог редактирования именованного фильтра
+// Descr: РћС‚РѕР±СЂР°Р¶Р°РµС‚ РґРёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РёРјРµРЅРѕРІР°РЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР°
 //
 int SLAPI EditFiltItem(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pNFiltPool, PPNamedFilt * pData)
 {
@@ -392,29 +389,29 @@ int SLAPI EditFiltItem(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pNFiltPool, PP
 }
 
 //
-// Descr: Обрабатывает события диалога "Создать фильтр"
+// Descr: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕР±С‹С‚РёСЏ РґРёР°Р»РѕРіР° "РЎРѕР·РґР°С‚СЊ С„РёР»СЊС‚СЂ"
 //
 IMPL_HANDLE_EVENT(FiltItemDialog)
 {
 	TDialog::handleEvent(event);
 	uint pos;
-	// Событие: выбор элемента в комбобоксе
+	// РЎРѕР±С‹С‚РёРµ: РІС‹Р±РѕСЂ СЌР»РµРјРµРЅС‚Р° РІ РєРѕРјР±РѕР±РѕРєСЃРµ
 	if(event.isCbSelected(CTLSEL_FILTITEM_CMD)) {
 		PPID view_id  = getCtrlLong(CTLSEL_FILTITEM_CMD);
 		if(view_id && CmdTextList.Search(view_id, &pos)) {
-			// Если пользователь еще не ввел название, возможно он захочет совпадающее с именем PPView
+			// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РµС‰Рµ РЅРµ РІРІРµР» РЅР°Р·РІР°РЅРёРµ, РІРѕР·РјРѕР¶РЅРѕ РѕРЅ Р·Р°С…РѕС‡РµС‚ СЃРѕРІРїР°РґР°СЋС‰РµРµ СЃ РёРјРµРЅРµРј PPView
 			SString name;
 			getCtrlString(CTL_FILTITEM_NAME, name);
 			if(!name.NotEmptyS()) {
 				setCtrlString(CTL_FILTITEM_NAME, CmdTextList.Get(pos).Txt);
 			}
-			Data.Param.Clear(); // Поменялся PPView, фильтр устарел
+			Data.Param.Clear(); // РџРѕРјРµРЅСЏР»СЃСЏ PPView, С„РёР»СЊС‚СЂ СѓСЃС‚Р°СЂРµР»
 			enableCommand(cmCmdParam, 1);
 		}
 		else
 			enableCommand(cmCmdParam, 0);
 	}
-	// Событие: нажатие кнопки "Фильтр.."
+	// РЎРѕР±С‹С‚РёРµ: РЅР°Р¶Р°С‚РёРµ РєРЅРѕРїРєРё "Р¤РёР»СЊС‚СЂ.."
 	else if(event.isCmd(cmCmdParam)) {
 		ChangeBaseFilter();
 	}
@@ -456,17 +453,17 @@ int FiltItemDialog::ChangeBaseFilter()
 int FiltItemDialog::setDTS(const PPNamedFilt * pData)
 {
 	int    ok = 1;
-	PPID   view_id = 0;                            // Идентификатор обьекта PPView
+	PPID   view_id = 0;                            // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЊРµРєС‚Р° PPView
 	Data = *pData;
-	setCtrlString(CTL_FILTITEM_NAME, Data.Name); // Поле "Наименование"
-	setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // Поле "Символ"
-	setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // Поле "ID"
-	disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображаетс
-	view_id = Data.ViewID; // Может быть и ноль, если это создание (а не редактирование) именованного фильтра
+	setCtrlString(CTL_FILTITEM_NAME, Data.Name); // РџРѕР»Рµ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ"
+	setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // РџРѕР»Рµ "РЎРёРјРІРѕР»"
+	setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // РџРѕР»Рµ "ID"
+	disableCtrl(CTL_FILTITEM_ID, 1);             // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕР»СЊРєРѕ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃ
+	view_id = Data.ViewID; // РњРѕР¶РµС‚ Р±С‹С‚СЊ Рё РЅРѕР»СЊ, РµСЃР»Рё СЌС‚Рѕ СЃРѕР·РґР°РЅРёРµ (Р° РЅРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ) РёРјРµРЅРѕРІР°РЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР°
 	//
-	// Инициализировать комбобокс:
-	//   отсортированный по описанию список {id PPView, описание PPView}
-	//   активным элементом сделать элемент с идентификатором view_id
+	// РРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РєРѕРјР±РѕР±РѕРєСЃ:
+	//   РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕ РѕРїРёСЃР°РЅРёСЋ СЃРїРёСЃРѕРє {id PPView, РѕРїРёСЃР°РЅРёРµ PPView}
+	//   Р°РєС‚РёРІРЅС‹Рј СЌР»РµРјРµРЅС‚РѕРј СЃРґРµР»Р°С‚СЊ СЌР»РµРјРµРЅС‚ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј view_id
 	//
 	SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, &CmdTextList, view_id, 0);
 	AddClusterAssoc(CTL_FILTITEM_FLAGS, 0, PPNamedFilt::fDontWriteXmlDTD);
@@ -477,8 +474,8 @@ int FiltItemDialog::setDTS(const PPNamedFilt * pData)
 int FiltItemDialog::getDTS(PPNamedFilt * pData)
 {
 	int    ok = 1;
-	PPID   view_id = 0; // Идентификатор обьекта PPView
-	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+	PPID   view_id = 0; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЊРµРєС‚Р° PPView
+	uint   sel = 0;     // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СѓРїСЂР°РІР»СЏСЋС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р°, РґР°РЅРЅС‹Рµ РёР· РєРѕС‚РѕСЂРѕРіРѕ Р°РЅР°Р»РёР·РёСЂРѕРІР°Р»РёСЃСЊ РІ РјРѕРјРµРЅС‚ РѕС€РёР±РєРё
 	uint pos;
 	getCtrlString(sel = CTL_FILTITEM_NAME, Data.Name);
 	THROW_PP(Data.Name.NotEmptyS(), PPERR_NFILTNAMENEEDED);
@@ -492,14 +489,14 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 	Data.ViewID = view_id;
 	ASSIGN_PTR(pData, Data);
 	CATCH
-		// Вывести сообщение о ошибке и активировать породивший его управляющий элемент
+		// Р’С‹РІРµСЃС‚Рё СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РѕС€РёР±РєРµ Рё Р°РєС‚РёРІРёСЂРѕРІР°С‚СЊ РїРѕСЂРѕРґРёРІС€РёР№ РµРіРѕ СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЌР»РµРјРµРЅС‚
 		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
 
 //
-// Descr: Обрабатывает нажатие кнопки "Добавить.."
+// Descr: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РЅР°Р¶Р°С‚РёРµ РєРЅРѕРїРєРё "Р”РѕР±Р°РІРёС‚СЊ.."
 //
 int FiltPoolDialog::addItem(long * pPos, long * pID)
 {
@@ -517,7 +514,7 @@ int FiltPoolDialog::addItem(long * pPos, long * pID)
 }
 
 //
-// Descr: Обрабатывает редактирование именованного фильтра
+// Descr: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РёРјРµРЅРѕРІР°РЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР°
 //
 int FiltPoolDialog::editItem(long pos, long id)
 {
@@ -525,9 +522,9 @@ int FiltPoolDialog::editItem(long pos, long id)
 	const  PPNamedFilt * p_nfilt = P_Data->GetByID(id, 1);
 	if(p_nfilt) {
 		PPNamedFilt nfilt = *p_nfilt;
-		// Вызываем диалог редактировани
+		// Р’С‹Р·С‹РІР°РµРј РґРёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРё
 		if(EditFiltItem(P_Mngr, P_Data, &nfilt) > 0) {
-			// OK - сохраняем данные
+			// OK - СЃРѕС…СЂР°РЅСЏРµРј РґР°РЅРЅС‹Рµ
 			ok = P_Data->PutNamedFilt(&id, &nfilt);
 		}
 		if(!ok)
@@ -540,7 +537,7 @@ int FiltPoolDialog::editItem(long pos, long id)
 }
 
 //
-// Descr: Обрабатывает удаление именованного фильтра из списка
+// Descr: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СѓРґР°Р»РµРЅРёРµ РёРјРµРЅРѕРІР°РЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР° РёР· СЃРїРёСЃРєР°
 //
 int FiltPoolDialog::delItem(long pos, long id)
 {

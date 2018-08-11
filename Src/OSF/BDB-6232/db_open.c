@@ -149,13 +149,11 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 			 * -- we can get it from there as necessary,
 			 * and it saves having two copies.
 			 */
-			if(LOCKING_ON(env) && (ret = __lock_id(env,
-			    (uint32*)dbp->fileid, NULL)) != 0)
+			if(LOCKING_ON(env) && (ret = __lock_id(env, (uint32*)dbp->fileid, NULL)) != 0)
 				return ret;
 		}
 		else
 			MAKE_INMEM(dbp);
-
 		/*
 		 * Normally we would do handle locking here, however, with
 		 * in-memory files, we cannot do any database manipulation
@@ -164,8 +162,7 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 	}
 	else if(dname == NULL && meta_pgno == PGNO_BASE_MD) {
 		/* Open/create the underlying file.  Acquire locks. */
-		if((ret = __fop_file_setup(dbp, ip,
-		    txn, fname, mode, flags, &id)) != 0)
+		if((ret = __fop_file_setup(dbp, ip, txn, fname, mode, flags, &id)) != 0)
 			return ret;
 		/*
 		 * If we are creating the first sub-db then this is the
@@ -194,60 +191,38 @@ int __db_open(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, co
 			ret = __db_new_file(dbp, ip, txn, NULL, NULL);
 		else {
 			id = TXN_INVALID;
-			ret = __fop_file_setup(dbp,
-				ip, txn, dname, mode, flags, &id);
+			ret = __fop_file_setup(dbp, ip, txn, dname, mode, flags, &id);
 		}
 		if(ret != 0)
 			goto err;
 	}
-
 	/*
 	 * Set the open flag here. Below, the underlying access method
 	 * open functions may want to do things like acquire cursors,
 	 * so the open flag has to be set before calling them.
 	 */
 	F_SET(dbp, DB_AM_OPEN_CALLED);
-
 	/*
 	 * Internal exclusive databases need to use the shared
 	 * memory pool to lock out existing database handles before
 	 * it gets its handle lock.  So getting the lock is delayed
 	 * until after the memory pool is allocated.
 	 */
-	if(F2_ISSET(dbp, DB2_AM_INTEXCL) &&
-	    (ret = __db_handle_lock(dbp)) != 0)
+	if(F2_ISSET(dbp, DB2_AM_INTEXCL) && (ret = __db_handle_lock(dbp)) != 0)
 		goto err;
-
 	switch(dbp->type) {
-		case DB_BTREE:
-		    ret = __bam_open(dbp, ip, txn, fname, meta_pgno, flags);
-		    break;
-		case DB_HASH:
-		    ret = __ham_open(dbp, ip, txn, fname, meta_pgno, flags);
-		    break;
-		case DB_HEAP:
-		    ret = __heap_open(dbp,
-			    ip, txn, fname, meta_pgno, flags);
-		    break;
-		case DB_RECNO:
-		    ret = __ram_open(dbp, ip, txn, fname, meta_pgno, flags);
-		    break;
-		case DB_QUEUE:
-		    ret = __qam_open(
-			    dbp, ip, txn, fname, meta_pgno, mode, flags);
-		    break;
-		case DB_UNKNOWN:
-		    return (
-			    __db_unknown_type(env, "__db_dbopen", dbp->type));
+		case DB_BTREE: ret = __bam_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+		case DB_HASH: ret = __ham_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+		case DB_HEAP: ret = __heap_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+		case DB_RECNO: ret = __ram_open(dbp, ip, txn, fname, meta_pgno, flags); break;
+		case DB_QUEUE: ret = __qam_open(dbp, ip, txn, fname, meta_pgno, mode, flags); break;
+		case DB_UNKNOWN: return __db_unknown_type(env, "__db_dbopen", dbp->type);
 	}
 	if(ret != 0)
 		goto err;
-
 	if(dbp->blob_file_id != 0)
-		if((ret = __blob_make_sub_dir(env, &dbp->blob_sub_dir,
-		    dbp->blob_file_id, dbp->blob_sdb_id)) != 0)
+		if((ret = __blob_make_sub_dir(env, &dbp->blob_sub_dir, dbp->blob_file_id, dbp->blob_sdb_id)) != 0)
 			goto err;
-
 #ifdef HAVE_PARTITION
 	if(dbp->p_internal != NULL && (ret =
 	    __partition_open(dbp, ip, txn, fname, type, flags, mode, 1)) != 0)
@@ -460,27 +435,21 @@ int __db_chk_meta(ENV *env, DB * dbp, DBMETA * meta, uint32 flags)
 
 #ifdef HAVE_SLICES
 	/* Automatically open pre-existing sliced databases as sliced. */
-	if(FLD_ISSET(meta->metaflags, DBMETA_SLICED) &&
-	    dbp != NULL && SLICES_ON(env))
+	if(FLD_ISSET(meta->metaflags, DBMETA_SLICED) && dbp != NULL && SLICES_ON(env))
 		FLD_SET(dbp->open_flags, DB_SLICED);
 #endif
 
 #ifdef HAVE_CRYPTO
-	if(__crypto_decrypt_meta(env,
-	    dbp, (uint8*)meta, LF_ISSET(DB_CHK_META)) != 0)
+	if(__crypto_decrypt_meta(env, dbp, (uint8*)meta, LF_ISSET(DB_CHK_META)) != 0)
 		ret = USR_ERR(env, DB_META_CHKSUM_FAIL);
 #endif
 	return ret;
 }
-
 /*
  * __db_meta_setup --
  *
  * Take a buffer containing a meta-data page and figure out if it's
  * valid, and if so, initialize the dbp from the meta-data page.
- *
- * PUBLIC: int __db_meta_setup __P((ENV *,
- * PUBLIC:     DB *, const char *, DBMETA *, uint32, uint32));
  */
 int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32 oflags, uint32 flags)
 {
@@ -564,8 +533,7 @@ int __db_meta_setup(ENV *env, DB * dbp, const char * name, DBMETA * meta, uint32
 		    if(dbp->type != DB_UNKNOWN && dbp->type != DB_QUEUE)
 			    goto bad_format;
 		    dbp->type = DB_QUEUE;
-		    if((oflags & DB_TRUNCATE) == 0 && (ret =
-			__qam_metachk(dbp, name, (QMETA*)meta)) != 0)
+		    if((oflags & DB_TRUNCATE) == 0 && (ret = __qam_metachk(dbp, name, (QMETA*)meta)) != 0)
 			    return ret;
 		    break;
 		case DB_RENAMEMAGIC:

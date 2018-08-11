@@ -19,10 +19,10 @@ int __db_decompress_int(const uint8 *, uint64 *);
 int __db_decompress_int32(const uint8 *, uint32 *);
 int __db_fchk(ENV *, const char *, uint32, uint32);
 int __db_fcchk(ENV *, const char *, uint32, uint32, uint32);
-int __db_ferr(const ENV *, const char *, int);
+int FASTCALL __db_ferr(const ENV *, const char *, int);
 int __db_fnl(const ENV *, const char *);
 int FASTCALL __db_pgerr(DB *, db_pgno_t, int);
-int __db_pgfmt(ENV *, db_pgno_t);
+int FASTCALL __db_pgfmt(ENV *, db_pgno_t);
 #ifdef DIAGNOSTIC
 void __db_assert(ENV *, const char *, const char *, int);
 #endif
@@ -43,9 +43,9 @@ void __db_repmsg(const ENV *, const char *, ...) __attribute__ (__format__ (__pr
 void __db_msgcall(const DB_ENV *, const char *, va_list);
 void __db_msgfile(const DB_ENV *, const char *, va_list);
 int __db_unknown_flag(ENV *, char *, uint32);
-int __db_unknown_type(ENV *, char *, DBTYPE);
-int __db_unknown_path(ENV *, char *);
-int __db_check_txn(DB *, DB_TXN *, DB_LOCKER *, int);
+int FASTCALL __db_unknown_type(ENV *, char *, DBTYPE);
+int FASTCALL __db_unknown_path(ENV *, char *);
+int FASTCALL __db_check_txn(DB *, DB_TXN *, DB_LOCKER *, int);
 int __db_txn_deadlock_err(ENV *, DB_TXN *);
 int __db_not_txn_env(ENV *);
 int __db_rec_toobig(ENV *, uint32, uint32);
@@ -80,7 +80,7 @@ uint32 __db_log2(uint32);
 uint32 __db_tablesize(uint32);
 void __db_hashinit(void *, uint32);
 int __dbt_usercopy(ENV *, DBT *);
-void __dbt_userfree(ENV *, DBT *, DBT *, DBT *);
+void FASTCALL __dbt_userfree(ENV *, DBT *, DBT *, DBT *);
 int __dbt_defcmp(DB *, const DBT *, const DBT *, size_t *);
 int __db_mkpath(ENV *, const char *);
 uint32 __db_openflags(int);

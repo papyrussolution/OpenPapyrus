@@ -2811,10 +2811,10 @@ const PPBillConfig & PPObjBill::GetConfig() const
 //
 SLAPI PPBillConfig::PPBillConfig()
 {
-	Clear();
+	Z();
 }
 
-PPBillConfig & SLAPI PPBillConfig::Clear()
+PPBillConfig & SLAPI PPBillConfig::Z()
 {
 	memzero(PTR8(this)+offsetof(PPBillConfig, SecurID), offsetof(PPBillConfig, TagIndFilt)-offsetof(PPBillConfig, SecurID));
 	Ver = DS.GetVersion();
@@ -2863,7 +2863,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	pCfg->Clear();
+	pCfg->Z();
 	size_t sz = 0;
 	const  size_t fix_size = sizeof(__PPBillConfig);
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, &sz) > 0) {

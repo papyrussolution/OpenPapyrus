@@ -2851,10 +2851,17 @@ int SLAPI ExportUhttForGitHub()
     Goods2Tbl::Rec goods_rec;
     BarcodeArray codes;
 
+	const SString title_line = "ID\tUPCEAN\tName\tCategoryID\tCategoryName\tBrandID\tBrandName\n";
+
 	long   file_no = 1;
-	(temp_buf = "uhtt_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+	(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
     PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
     SFile f_out(out_file_name, SFile::mWrite);
+	(temp_buf = "uhtt_barcode_ref_all").Dot().Cat("csv");
+    PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+	SFile f_out_all(out_file_name, SFile::mWrite);
+	f_out.WriteLine(title_line);
+	f_out_all.WriteLine(title_line);
 	PPWait(1);
     while(giter.Next(&goods_rec) > 0) {
 		(goods_name = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
@@ -2884,14 +2891,16 @@ int SLAPI ExportUhttForGitHub()
                 line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name).Tab().Cat(goods_rec.ParentID).Tab().
 					Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
 				f_out.WriteLine(line_buf);
+				f_out_all.WriteLine(line_buf);
 				line_count++;
 				line_total++;
 				if(line_count >= lines_per_file) {
 					f_out.Close();
 					file_no++;
-					(temp_buf = "uhtt_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+					(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
 					PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 					f_out.Open(out_file_name, SFile::mWrite);
+					f_out.WriteLine(title_line);
 					line_count = 0;
 				}
 			}

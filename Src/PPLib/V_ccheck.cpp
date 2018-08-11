@@ -4498,7 +4498,8 @@ int PPALDD_CCheckPacket::InitIteration(long iterId, int sortId, long rsrv)
 	if(p_pack) {
 		if(sortId >= 0)
 			SortIdx = sortId;
-		return p_pack->InitLineIteration();
+		p_pack->InitLineIteration();
+		return 1;
 	}
 	else
 		return 0;

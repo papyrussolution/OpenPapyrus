@@ -75,6 +75,21 @@ int SLAPI PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
 	return GetIntParam(pSectName, r_param_name, pVal);
 }
 
+int SLAPI PPIniFile::GetDataSize(const char * pSectName, uint paramId, int64 * pVal)
+{
+	SString & r_param_name = SLS.AcquireRvlStr();
+	ParamIdToStrings(0, paramId, 0, &r_param_name);
+	return GetDataSizeParam(pSectName, r_param_name, pVal);
+}
+
+int SLAPI PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
+{
+	SString & r_sect_name = SLS.AcquireRvlStr();
+	SString & r_param_name = SLS.AcquireRvlStr();
+	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
+	return GetDataSizeParam(r_sect_name, r_param_name, pVal);
+}
+
 int SLAPI PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
 {
 	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEnties uses loop)

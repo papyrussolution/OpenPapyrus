@@ -2547,19 +2547,15 @@ err:
  * __bam_salvage_walkdupint --
  *	Walk a known-good btree or recno internal page which is part of
  *	a dup tree, calling __db_salvage_duptree on each child page.
- *
- * PUBLIC: int __bam_salvage_walkdupint __P((DB *, VRFY_DBINFO *, PAGE *,
- * PUBLIC:     DBT *, void *, int (*)(void *, const void *), uint32));
  */
 int __bam_salvage_walkdupint(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, DBT * key, void * handle, int (*callback)(void *, const void *), uint32 flags)
 {
 	BINTERNAL * bi;
-	ENV * env;
 	RINTERNAL * ri;
-	int ret, t_ret;
+	int t_ret;
 	db_indx_t i;
-	env = dbp->env;
-	ret = 0;
+	ENV * env = dbp->env;
+	int ret = 0;
 	for(i = 0; i < NUM_ENT(h); i++) {
 		switch(TYPE(h)) {
 			case P_IBTREE:
@@ -2569,18 +2565,15 @@ int __bam_salvage_walkdupint(DB *dbp, VRFY_DBINFO * vdp, PAGE * h, DBT * key, vo
 			    break;
 			case P_IRECNO:
 			    ri = GET_RINTERNAL(dbp, h, i);
-			    if((t_ret = __db_salvage_duptree(dbp,
-				vdp, ri->pgno, key, handle, callback, flags)) != 0)
+			    if((t_ret = __db_salvage_duptree(dbp, vdp, ri->pgno, key, handle, callback, flags)) != 0)
 				    ret = t_ret;
 			    break;
 			default:
-			    return (__db_unknown_path(
-					   env, "__bam_salvage_walkdupint"));
+			    return (__db_unknown_path(env, "__bam_salvage_walkdupint"));
 		}
 		/* Pass DB_SA_SKIPFIRSTKEY, if set, on to the 0th child only. */
 		flags &= ~LF_ISSET(DB_SA_SKIPFIRSTKEY);
 	}
-
 	return ret;
 }
 

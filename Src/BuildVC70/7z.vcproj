@@ -22,9 +22,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
@@ -85,9 +92,13 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
@@ -123,6 +134,275 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
+				Culture="1049"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="TRUE"
+				DefaultCharIsUnsigned="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				WarnAsError="TRUE"
+				SuppressStartupBanner="TRUE"
+				CallingConvention="0"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/Alone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1049"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				DefaultCharIsUnsigned="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/Alone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1049"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="TRUE"
+				DefaultCharIsUnsigned="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				WarnAsError="TRUE"
+				SuppressStartupBanner="TRUE"
+				CallingConvention="0"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/Alone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1049"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;_7ZIP_LARGE_PAGES;SUPPORT_DEVICE_FILE"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				DefaultCharIsUnsigned="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="2"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/Alone.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
 				Culture="1049"
 				AdditionalIncludeDirectories="..\include;..\osf\7z\include;..\osf\7z\Resource"/>
 			<Tool
@@ -392,6 +672,30 @@
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\Src\7z-bzip2.cpp">
@@ -439,6 +743,34 @@
 					UsePrecompiledHeader="1"
 					PrecompiledHeaderThrough=""/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+					PrecompiledHeaderThrough=""/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+					PrecompiledHeaderThrough=""/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+					PrecompiledHeaderThrough=""/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+					PrecompiledHeaderThrough=""/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\Src\7z-ppmd.cpp">
@@ -460,6 +792,30 @@
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\SRC\7z-tar.cpp">
@@ -475,6 +831,30 @@
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\SRC\7z-util.cpp">
@@ -486,6 +866,30 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
@@ -519,6 +923,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Aes.c">
@@ -535,6 +973,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -559,6 +1031,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Alloc.c">
@@ -575,6 +1081,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -599,6 +1139,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Common\ArchiveExtractCallback.cpp">
@@ -615,6 +1189,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -639,6 +1247,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Bcj2.c">
@@ -655,6 +1297,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -679,6 +1355,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Console\BenchCon.cpp">
@@ -695,6 +1405,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -719,6 +1463,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\SRC\Blake2s.c">
@@ -730,6 +1508,30 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
@@ -754,6 +1556,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Bra86.c">
@@ -770,6 +1606,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -794,6 +1664,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\BwtSort.c">
@@ -810,6 +1714,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -834,6 +1772,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\Osf\7z\Src\ComHandler.cpp">
@@ -848,6 +1820,30 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="3"/>
@@ -872,6 +1868,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\CpuArch.c">
@@ -888,6 +1918,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -912,6 +1976,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\CreateCoder.cpp">
@@ -928,6 +2026,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -952,6 +2084,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Delta.c">
@@ -968,6 +2134,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -992,6 +2192,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Common\Extract.cpp">
@@ -1008,6 +2242,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1032,6 +2300,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\FilterCoder.cpp">
@@ -1048,6 +2350,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1072,6 +2408,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Common\HashCalc.cpp">
@@ -1088,6 +2458,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1112,6 +2516,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\HuffEnc.c">
@@ -1128,6 +2566,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1152,6 +2624,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Common\LoadCodecs.cpp">
@@ -1168,6 +2674,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1192,6 +2732,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\LzFindMt.c">
@@ -1208,6 +2782,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1235,6 +2843,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\LzxDecoder.cpp">
@@ -1251,6 +2893,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1275,6 +2951,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\MtCoder.c">
@@ -1291,6 +3001,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1315,6 +3059,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\NewHandler.cpp">
@@ -1331,6 +3109,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1355,6 +3167,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Console\OpenCallbackConsole.cpp">
@@ -1371,6 +3217,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1398,6 +3278,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Ppmd7.c">
@@ -1418,6 +3332,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Ppmd8.c">
@@ -1434,6 +3382,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1461,6 +3443,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\RandGen.cpp">
@@ -1477,6 +3493,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1501,6 +3551,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Sha1Reg.cpp">
@@ -1517,6 +3601,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1541,6 +3659,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Sha256Reg.cpp">
@@ -1557,6 +3709,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1581,6 +3767,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Threads.c">
@@ -1597,6 +3817,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1621,6 +3875,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Common\Update.cpp">
@@ -1637,6 +3925,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1661,6 +3983,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\UI\Console\UserInputUtils.cpp">
@@ -1677,6 +4033,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1701,6 +4091,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Wildcard.cpp">
@@ -1717,6 +4141,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1741,6 +4199,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\XzCrc64Reg.cpp">
@@ -1757,6 +4249,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
@@ -1781,6 +4307,40 @@
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\ZHandler.cpp">
@@ -1797,6 +4357,40 @@
 				Name="Release|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="ServerDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllRelease|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+					UsePrecompiledHeader="3"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="MtDllDebug|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""
 					UsePrecompiledHeader="3"/>

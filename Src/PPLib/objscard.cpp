@@ -2968,51 +2968,29 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	return ok;
 }
 
-int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode); // @prototype
-
 int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID)
 {
 	int    ok = -1;
 	SCardSpecialTreatment * p_spctrt = 0;
-	SCardSpecialTreatment::CardBlock cb;
-	cb.ScPack = rScPack;
-	//if(GetPacket(id, &cb.ScPack) > 0) 
-	{
-		PPObjSCardSeries scs_obj;
-		PPSCardSeries scs_rec;
-		SString phone;
-		cb.ScPack.GetExtStrData(PPSCardPacket::extssPhone, phone);
-		if(phone.NotEmpty()) {
-			SString scard_code;
-			uint   check_code = 0;
-			scard_code = cb.ScPack.Rec.Code;
-			if(scs_obj.Search(cb.ScPack.Rec.SeriesID, &scs_rec) > 0) {
-				p_spctrt = SCardSpecialTreatment::CreateInstance(scs_rec.SpecialTreatment);
-				if(p_spctrt) {
-					cb.PosNodeID = posNodeID;
-					if(posNodeID) {
-						if(PPRef->Ot.GetTagStr(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, cb.PosNodeCode) > 0) { // @test
-						}
-						/* @real
-						S_GUID pos_uuid;
-						if(PPRef->Ot.GetTagGuid(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, pos_uuid) > 0) {
-							pos_uuid.ToStr(S_GUID::fmtIDL, cb.PosNodeCode);
-						}
-						*/
-					}
-					int r = p_spctrt->VerifyOwner(&cb);
-					if(r > 0)
-						ok = 1;
-					else if(r == 0)
-						ok = 0;
-
-				}
-				else {
-					if(VerifyPhoneNumberBySms(phone, scard_code, &check_code) > 0) {
-						if(check_code) {
-							; // @todo Какую-то отметку сделать
-						}
-					}
+	SString phone;
+	rScPack.GetExtStrData(PPSCardPacket::extssPhone, phone);
+	if(phone.NotEmpty()) {
+		uint   check_code = 0;
+		SCardSpecialTreatment::CardBlock cb;
+		if(SCardSpecialTreatment::InitSpecialCardBlock(rScPack.Rec.ID, posNodeID, cb) > 0) {
+			p_spctrt = SCardSpecialTreatment::CreateInstance(cb.SpecialTreatment);
+		}
+		if(p_spctrt) {
+			int r = p_spctrt->VerifyOwner(&cb);
+			if(r > 0)
+				ok = 1;
+			else if(r == 0)
+				ok = 0;
+		}
+		else {
+			if(VerifyPhoneNumberBySms(phone, rScPack.Rec.Code, &check_code, 0) > 0) {
+				if(check_code) {
+					; // @todo Какую-то отметку сделать
 				}
 			}
 		}

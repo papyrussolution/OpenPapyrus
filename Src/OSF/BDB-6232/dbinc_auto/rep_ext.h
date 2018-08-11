@@ -142,7 +142,7 @@ int __rep_new_master(ENV *, __rep_control_args *, int);
 void __rep_elect_done(ENV *, REP *);
 int __env_rep_enter(ENV *, int);
 int __env_db_rep_exit(ENV *);
-int __db_rep_enter(DB *, int, int, int);
+int FASTCALL __db_rep_enter(DB *, int, int, int);
 int __op_handle_enter(ENV *);
 int __op_rep_enter(ENV *, int, int);
 int __op_rep_exit(ENV *);

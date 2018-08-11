@@ -1382,10 +1382,7 @@ int PiritEquip::SetCfg()
 		}
 	}
 	// Установка/снятие флага печати логотипа
-	if(Cfg.Logo.Print == 1)
-		THROW(PrintLogo(1))
-	else
-		THROW(PrintLogo(0));
+	THROW(PrintLogo((Cfg.Logo.Print == 1) ? 1 : 0))
 	CATCHZOK
 	return ok;
 }
@@ -1698,6 +1695,12 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
+				// @v10.1.6 {
+				if(LogFileName.NotEmpty()) {
+					(str = "AMOUNT (Cmd=03 Arg=1)").CatDiv(':', 2).Cat(out_data);
+					SLS.LogMessage(LogFileName, str, 8192);
+				}
+				// } @v10.1.6 
 				uint k = 0;
 				dataset.get(&k, str); // Номер запроса
 				dataset.get(&k, str);

@@ -62,8 +62,7 @@ static size_t __lv_dbt_arrsz(const DBT *, uint32);
 static int __lv_fidpgno_cmp(DB *, const DBT *, const DBT *, size_t *);
 static int __lv_i32_cmp(DB *, const DBT *, const DBT *, size_t *);
 static int __lv_lsn_cmp(DB *, const DBT *, const DBT *, size_t *);
-static void __lv_on_bdbop_err(int);
-static int __lv_open_db(DB_ENV *, DB **, DB_THREAD_INFO *, const char *, int, btcmp_funct, uint32, dupcmp_funct);
+static int FASTCALL __lv_open_db(DB_ENV *, DB **, DB_THREAD_INFO *, const char *, int, btcmp_funct, uint32, dupcmp_funct);
 static int __lv_pack_filereg(const VRFY_FILEREG_INFO *, DBT *);
 static int __lv_pack_txn_vrfy_info(const VRFY_TXN_INFO *, DBT *, DBT * data);
 static int __lv_seccbk_fname(DB *, const DBT *, const DBT *, DBT *);
@@ -75,9 +74,9 @@ static int __lv_ui32_cmp(DB *, const DBT *, const DBT *, size_t *);
 static int __lv_unpack_txn_vrfy_info(VRFY_TXN_INFO **, const DBT *);
 static int __lv_unpack_filereg(const DBT *, VRFY_FILEREG_INFO **);
 
-static void __lv_on_bdbop_err(int ret)
+static void FASTCALL __lv_on_bdbop_err(int ret)
 {
-	/* Pass lint checks. We need the ret and this function for debugging. */
+	// Pass lint checks. We need the ret and this function for debugging. 
 	COMPQUIET(ret, 0);
 }
 /*
@@ -248,10 +247,10 @@ static int __lv_seccbk_lsn(DB *secdb, const DBT * key, const DBT * data, DBT * r
 	return 0;
 }
 /*
- * Open a BTREE database handle, optionally set the btree compare function
- * and flags if any.
+ * Open a BTREE database handle, optionally set the btree compare function and flags if any.
  */
-static int __lv_open_db(DB_ENV *dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const char * name, int inmem, btcmp_funct cmpf, uint32 sflags, dupcmp_funct dupcmpf)
+static int FASTCALL __lv_open_db(DB_ENV *dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const char * name, 
+	int inmem, btcmp_funct cmpf, uint32 sflags, dupcmp_funct dupcmpf)
 {
 	int ret = 0;
 	const char * dbfname, * dbname;

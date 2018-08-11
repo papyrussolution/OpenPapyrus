@@ -2873,6 +2873,32 @@ int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titl
 	return ok;
 }
 
+//static 
+int FASTCALL SHttpProtocol::ParseAuth(const char * pAuthParam, SHttpProtocol::Auth & rResult)
+{
+	int    ok = 0;
+	rResult.Type = authtUnkn;
+	rResult.Login.Z();
+	rResult.Password.Z();
+	SString temp_buf = pAuthParam;
+	if(temp_buf.NotEmptyS()) {
+		const char * p_basic_prefix = "Basic";
+		if(temp_buf.CmpPrefix(p_basic_prefix, 1) == 0) {
+			rResult.Type = authtBasic;
+			temp_buf.ShiftLeft(sstrlen(p_basic_prefix)).Strip();
+			size_t real_len = 0;
+			char   auth_buf[512];
+			temp_buf.DecodeMime64(auth_buf, sizeof(auth_buf), &real_len);
+			temp_buf.Z().CatN(auth_buf, real_len);
+			temp_buf.Divide(':', rResult.Login, rResult.Password);
+			rResult.Login.Strip();
+			rResult.Password.Strip();
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 #if 0 // {
 
 content_type_t * content_type_new(const char * content_type_str)

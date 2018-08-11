@@ -1751,17 +1751,13 @@ int __db_merge_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	uint32 size;
 	uint8 * bp;
 	int cmp_n, cmp_p, i, ret, t_ret;
-
 	ip = ((DB_TXNHEAD*)info)->thread_info;
 	REC_PRINT(__db_merge_print);
 	REC_INTRO(__db_merge_read, ip, op != DB_TXN_APPLY);
-
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
-	if(op == DB_TXN_APPLY && (ret = __db_cursor_int(file_dbp, ip, NULL,
-	    DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
+	if(op == DB_TXN_APPLY && (ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
-
 	if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, 0, &pagep)) != 0) {
 		if(ret != DB_PAGE_NOTFOUND) {
 			ret = __db_pgerr(file_dbp, argp->pgno, ret);
@@ -1770,12 +1766,10 @@ int __db_merge_recover(ENV *env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		else
 			goto next;
 	}
-
 	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->lsn);
 	CHECK_LSN(file_dbp->env, op, cmp_p, &LSN(pagep), &argp->lsn);
 	CHECK_ABORT(file_dbp->env, op, cmp_n, &LSN(pagep), lsnp);
-
 	if(cmp_p == 0 && DB_REDO(op)) {
 		/*
 		 * When pg_copy is set, we are copying onto a new page.

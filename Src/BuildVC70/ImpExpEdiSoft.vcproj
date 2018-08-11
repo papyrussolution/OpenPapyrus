@@ -21,12 +21,14 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				OptimizeForProcessor="0"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
-				ExceptionHandling="TRUE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
@@ -78,15 +80,18 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="4"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				OptimizeForProcessor="0"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
-				ExceptionHandling="TRUE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
@@ -108,6 +113,259 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="$(OutDir)/ImpExpEdisoft.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\ppdrv-ie-edisoft.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="FALSE"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="$(OutDir)/ImpExpEdisoft.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="ServerDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\ppdrv-ie-edisoft.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/ImpExpEdiSoft.pdb"
+				SubSystem="2"
+				ImportLibrary="$(OutDir)/ImpExpEdisoft.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllRelease|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\ppdrv-ie-edisoft.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="FALSE"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="$(OutDir)/ImpExpEdisoft.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="MtDllDebug|Win32"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="1"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\ppdrv-ie-edisoft.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/ImpExpEdiSoft.pdb"
+				SubSystem="2"
 				ImportLibrary="$(OutDir)/ImpExpEdisoft.lib"
 				TargetMachine="1"/>
 			<Tool
@@ -155,6 +413,54 @@ cd $(SolutionDir)
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ServerDebug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllRelease|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)
+"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MtDllDebug|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources %(FullPath)"

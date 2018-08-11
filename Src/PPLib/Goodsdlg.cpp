@@ -1289,14 +1289,14 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 			SString own_ar_code;
 			Data.GetArCode(0, own_ar_code);
 			setStaticText(CTL_GOODS_OWNARCODE, own_ar_code);
-			SetupAddedInfo(); // @v8.7.2
+			SetupAddedInfo();
 		}
 		else { // gpk == gpkndOrdinaryGroup
 			SetupPPObjCombo(this, CTLSEL_GOODS_BCODESTRUC, PPOBJ_BCODESTRUC, Data.Rec.DefBCodeStrucID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_GOODS_DEFPRC, PPOBJ_PROCESSOR, Data.Rec.DefPrcID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_GOODS_DEFGSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.StrucID, 0);
 			selgrp_bias = GGRTYP_SEL_FOLDER;
-			setCtrlLong(CTL_GOODSGROUP_LIMIT, Data.Rec.Limit); // @v8.6.7
+			setCtrlLong(CTL_GOODSGROUP_LIMIT, Data.Rec.Limit);
 			//
 			AddClusterAssoc(CTL_GOODS_GRPFLAGS, 0, GF_UNCLASSF); // @v9.2.8
 			SetClusterData(CTL_GOODS_GRPFLAGS, Data.Rec.Flags); // @v9.2.8
@@ -1375,7 +1375,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 		getCtrlData(CTLSEL_GOODS_BCODESTRUC, &Data.Rec.DefBCodeStrucID);
 		getCtrlData(CTLSEL_GOODS_DEFPRC, &Data.Rec.DefPrcID);
 		getCtrlData(CTLSEL_GOODS_DEFGSTRUC, &Data.Rec.StrucID);
-		Data.Rec.Limit = getCtrlLong(CTL_GOODSGROUP_LIMIT); // @v8.6.7
+		Data.Rec.Limit = getCtrlLong(CTL_GOODSGROUP_LIMIT);
 		GetClusterData(CTL_GOODS_GRPFLAGS, &Data.Rec.Flags); // @v9.2.8
 	}
 	if(Data.Rec.PhUnitID == 0)
@@ -1488,7 +1488,6 @@ int GoodsDialog::getBarcode()
 	BarcodeTbl::Rec rec;
 	if(getCtrlString(CTL_GOODS_BARCODE, barcode)) {
 		barcode.Strip();
-		// @v8.8.4 {
 		if(PrcssrAlcReport::IsEgaisMark(barcode, &mark_buf)) {
 			PrcssrAlcReport::EgaisMarkBlock emb;
 			if(PrcssrAlcReport::ParseEgaisMark(mark_buf, emb)) {
@@ -1496,7 +1495,6 @@ int GoodsDialog::getBarcode()
 				setCtrlString(CTL_GOODS_BARCODE, barcode);
 			}
 		}
-		// } @v8.8.4
 		if(GObj.SearchBy2dBarcode(barcode, &rec, 0) > 0) {
 			barcode = rec.Code;
 			setCtrlString(CTL_GOODS_BARCODE, barcode);
@@ -1887,7 +1885,7 @@ void GoodsVadDialog::setExtStrData(uint ctlID, /*uint titleCtlID, uint strID,*/ 
 			Data.GetExtStrData(p_entry->FldId, temp_buf);
 		}
 		//
-		// @v8.3.7 Нельзя устанавливать длину поля больше или равной 4096 из-за того,
+		// Нельзя устанавливать длину поля больше или равной 4096 из-за того,
 		// что максрос SFMTLEN предполагает, что значение длины имеет 24 бита.
 		//
 		SetupInputLine(ctlID, MKSTYPE(S_ZSTRING, MaxExtTextLen), MKSFMT(MaxExtTextLen, 0));
@@ -1969,9 +1967,9 @@ int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 	getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
 	SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
 	// @v9.8.12 {
-	getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); 
+	getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff);
 	THROW_PP(Data.Stock.NettBruttCoeff >= 0.0f && Data.Stock.NettBruttCoeff <= 1.0f, PPERR_INVNETTOBRUTTOCOEF);
-	// } @v9.8.12 
+	// } @v9.8.12
 	GetPalletData(-1);
 	ASSIGN_PTR(pData, Data);
 	CATCH
@@ -2350,7 +2348,7 @@ int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, v
 		ok = -1;
 	return ok;
 }
-#endif // } @v9.7.0 
+#endif // } @v9.7.0
 //
 // GoodsCtrlGroup
 //
@@ -2358,7 +2356,7 @@ SLAPI GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags)
 {
 }
 
-GoodsCtrlGroup::GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods) : CtrlGroup(), P_Filt(0), 
+GoodsCtrlGroup::GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods) : CtrlGroup(), P_Filt(0),
 	CtlselGrp(_ctlsel_grp), CtlselGoods(_ctlsel_goods), CtlGrp(0), CtlGoods(0), Flags(0), LocID(0), TempAltGrpID(0), ArID(0)
 {
 }
@@ -3104,14 +3102,14 @@ int GoodsFiltAdvDialog::setDTS(const GoodsFilt * pFilt)
 	ushort v = 0;
 	Data = *pFilt;
 	SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
-	
+
 	// @v9.6.8 SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
 	// @v9.6.8 {
 	{
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &l_rec);
 	}
-	// } @v9.6.8 
+	// } @v9.6.8
 	if(CtlDisableSuppl)
 		disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
 	else
@@ -3154,7 +3152,7 @@ int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
 			getGroupData(ctlgroupLoc, &l_rec);
 			Data.LocList = l_rec.LocList;
 		}
-		// } @v9.6.8 
+		// } @v9.6.8
 		getCtrlData(CTL_GFLTADVOPT_EXTFLT, &(v = 0));
 		SETFLAG(Data.Flags, GoodsFilt::fPassiveOnly,  v == 1);
 		SETFLAG(Data.Flags, GoodsFilt::fGenGoodsOnly, v == 2);
@@ -3594,7 +3592,7 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 1, GoodsFilt::fRestrictByMatrix);
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 2, GoodsFilt::fOutOfMatrix);
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 3, GoodsFilt::fHasImages);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 4, GoodsFilt::fUseIndepWtOnly); // @v8.3.9
+	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 4, GoodsFilt::fUseIndepWtOnly);
 	SetClusterData(CTL_GOODSFLT_FLAGS, Data.Flags);
 	setCtrlUInt16(CTL_GOODSFLT_NOT, BIN(Data.Flags & GoodsFilt::fNegation));
 	setCtrlUInt16(CTL_GOODSFLT_WOTAXGRP, BIN(Data.Flags & GoodsFilt::fWoTaxGrp));

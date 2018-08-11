@@ -867,6 +867,27 @@ InvcMergeTaxCalcAlg2Since=date
 ;
 name=наименование кассового узла
 path=каталог для импорта/экспорта данных
+;
+; Параметры конфигурации (экспериментального) проекта Sartre
+;
+; Размер кэш-буфера базы данных Sartre. Транслируется в вызов функции BDB set_cachesize. default=1024M
+sartredb_cachesize=data_size
+; То же, что и sartredb_cachesize но для режима read-only. default=128M
+sartredb_cachesize_ro=data_size
+; default=512K
+sartredb_maxlockers=data_size
+; default=64K
+sartredb_maxlockers_ro=data_size
+; default=512K
+sartredb_maxlocks=data_size
+; default=32K
+sartredb_maxlocks_ro=data_size
+; default=512K
+sartredb_maxlockobjs=data_size
+; default=32K
+sartredb_maxlockobjs_ro=data_size
+; default=8M
+sartredb_logbufsize=data_size
 //
 //
 //

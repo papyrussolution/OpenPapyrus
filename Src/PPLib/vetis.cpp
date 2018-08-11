@@ -3828,6 +3828,10 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 		}
 		else if(SXml::GetContentByName(p_a, "lastUpdateDate", temp_buf))
 			rResult.LastUpdateDate = strtodate_(temp_buf, DATF_ISO8601);
+		// @v10.1.6 {
+		else if(SXml::GetContentByName(p_a, "waybillSeries", temp_buf))
+			rResult.WayBillSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		// } @v10.1.6 
 		else if(SXml::GetContentByName(p_a, "waybillNumber", temp_buf))
 			rResult.WayBillNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::GetContentByName(p_a, "waybillDate", temp_buf))
@@ -4537,6 +4541,11 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									{
 										SXml::WNode n_wb(srb, SXml::nst("d7p1", "waybill"));
 										n_wb.PutAttrib(SXml::nst("xmlns", "d9p1"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/shipment"));
+										// @v10.1.6 {
+										if(r_doc.WayBillSeries.NotEmpty()) {
+											n_wb.PutInner(SXml::nst("d9p1", "issueSeries"), (temp_buf = r_doc.WayBillSeries).Transf(CTRANSF_INNER_TO_UTF8));
+										}
+										// } @v10.1.6 
 										n_wb.PutInner(SXml::nst("d9p1", "issueNumber"), (temp_buf = r_doc.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
 										n_wb.PutInner(SXml::nst("d9p1", "issueDate"), temp_buf.Z().Cat(r_doc.WayBillDate, DATF_ISO8601|DATF_CENTURY));
 										n_wb.PutInner(SXml::nst("d9p1", "type"), "1");
@@ -6906,16 +6915,20 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				VetisDocumentViewItem vi;
 				PPVetisInterface ifc(&logger);
 				THROW(ifc.Init(param));
+				PPWait(1);
 				for(InitIteration(); NextIteration(&vi) > 0;) {
 					BillTbl::Rec bill_rec;
-					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.LinkBillID && BillObj->Search(vi.LinkBillID, &bill_rec) > 0) {
+					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg && 
+						vi.LinkBillID && BillObj->Search(vi.LinkBillID, &bill_rec) > 0) {
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							VetisApplicationBlock reply;
 							ifc.ProcessIncomingConsignment(item.Uuid, reply);
 						}
 					}
+					PPWaitPercent(Counter);
 				}
+				PPWait(0);
 			}
 		}
 		else if(v == 2) { // Безусловно погасить всю выборку
@@ -6926,15 +6939,18 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				VetisDocumentViewItem vi;
 				PPVetisInterface ifc(&logger);
 				THROW(ifc.Init(param));
+				PPWait(1);
 				for(InitIteration(); NextIteration(&vi) > 0;) {
-					if(vi.VetisDocStatus == vetisdocstCONFIRMED) {
+					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg) {
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							VetisApplicationBlock reply;
 							ifc.ProcessIncomingConsignment(item.Uuid, reply);
 						}
 					}
+					PPWaitPercent(Counter);
 				}
+				PPWait(0);
 			}
 		}
 	}
@@ -7080,7 +7096,8 @@ public:
 				src_info.CRB().Cat(Data.SrcAddr);
 			setCtrlString(CTL_MTCHPSN_SRCINFO, src_info);
 		}
-		SetupPPObjCombo(this, CTLSEL_MTCHPSN_PSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, (void *)Data.PersonKindID);
+		//SetupPPObjCombo(this, CTLSEL_MTCHPSN_PSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, (void *)Data.PersonKindID);
+		SetupPersonCombo(this, CTLSEL_MTCHPSN_PSN, Data.PersonID, OLW_CANINSERT, Data.PersonKindID, 0/*disableIfZeroPersonKind*/);
 		SetupPPObjCombo(this, CTLSEL_MTCHPSN_LOC, PPOBJ_LOCATION, Data.DlvrLocID, OLW_CANINSERT, 0);
 		selectCtrl(CTL_MTCHPSN_PSN);
 		if(Data.PersonID)

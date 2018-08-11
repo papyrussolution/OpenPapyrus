@@ -11007,6 +11007,7 @@ public:
 	// @v9.2.10 int    SLAPI GetParam(const char * pSect, const char * pParam, char *, size_t);
 	int    SLAPI GetParam(const char * pSect, const char * pParam, SString & rBuf);
 	int    SLAPI GetIntParam(const char * pSect, const char * param, int *);
+	int    SLAPI GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);
 
 	int    SLAPI AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
 	int    SLAPI AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite = 1);

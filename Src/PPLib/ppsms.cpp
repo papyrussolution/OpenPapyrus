@@ -2661,11 +2661,11 @@ struct VerifyPhoneNumberBySmsParam {
     int    SendSmsStatus; // 0 - error, 1 - ok, -1 - no try
 };
 
-int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode)
+int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly)
 {
 	class VerifyPhoneBySmsDialog : public TDialog {
 	public:
-		VerifyPhoneBySmsDialog() : TDialog(DLG_VERIFMPHN)
+		VerifyPhoneBySmsDialog(int checkCodeInputOnly) : TDialog(DLG_VERIFMPHN), CheckCodeInputOnly(checkCodeInputOnly)
 		{
 		}
 		int setDTS(const VerifyPhoneNumberBySmsParam * pData)
@@ -2675,10 +2675,18 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
             setCtrlString(CTL_VERIFMPHN_PHONE, Data.Number);
             setCtrlLong(CTL_VERIFMPHN_CCODE, (long)Data.CheckCode);
             Data.SendSmsStatus = -1;
+			if(CheckCodeInputOnly) {
+				disableCtrl(CTL_VERIFMPHN_PHONE, 1);
+				selectCtrl(CTL_VERIFMPHN_CCODE);
+				enableCommand(cmSendSms, 0);
+			}
             return ok;
 		}
 		int getDTS(VerifyPhoneNumberBySmsParam * pData)
 		{
+			if(CheckCodeInputOnly) {
+				getCtrlData(CTL_VERIFMPHN_CCODE, &Data.CheckCode);
+			}
             ASSIGN_PTR(pData, Data);
             return 1;
 		}
@@ -2719,21 +2727,29 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 			setStaticText(CTL_VERIFMPHN_ST_INFO, result);
 			return ok;
 		}
+		int    CheckCodeInputOnly;
 		VerifyPhoneNumberBySmsParam Data;
 	};
 	int    ok = -1;
 	VerifyPhoneNumberBySmsParam param;
-	VerifyPhoneBySmsDialog * dlg = new VerifyPhoneBySmsDialog;
+	VerifyPhoneBySmsDialog * dlg = new VerifyPhoneBySmsDialog(checkCodeInputOnly);
 	if(CheckDialogPtrErr(&dlg)) {
 		param.Number = pNumber;
 		param.Addendum = pAddendum;
-		param.CheckCode = PPEAddr::Phone::GenerateCheckNumber(pNumber, pAddendum);
+		param.CheckCode = checkCodeInputOnly ? 0 : PPEAddr::Phone::GenerateCheckNumber(pNumber, pAddendum);
 		dlg->setDTS(&param);
 		if(ExecView(dlg) == cmOK) {
             dlg->getDTS(&param);
-            if(param.SendSmsStatus > 0) {
-                ok = 1;
-            }
+			if(checkCodeInputOnly) {
+				if(param.CheckCode) {
+					ok = 1;
+				}
+			}
+			else {
+				if(param.SendSmsStatus > 0) {
+					ok = 1;
+				}
+			}
 		}
 	}
 	ASSIGN_PTR(pCheckCode, param.CheckCode);

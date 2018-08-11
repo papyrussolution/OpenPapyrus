@@ -21,8 +21,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				InlineFunctionExpansion="0"
-				OptimizeForProcessor="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
@@ -95,7 +98,8 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				OptimizeForProcessor="0"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
@@ -163,10 +167,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				InlineFunctionExpansion="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -234,9 +243,12 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -299,10 +311,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				InlineFunctionExpansion="0"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -366,13 +383,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
+				GlobalOptimizations="FALSE"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -2287,10 +2308,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\bn.h">

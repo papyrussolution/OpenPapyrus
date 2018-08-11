@@ -7,7 +7,7 @@
 //
 // GoodsIterator
 //
-GoodsIterator::Ext & GoodsIterator::Ext::Clear()
+GoodsIterator::Ext & GoodsIterator::Ext::Z()
 {
 	GoodsID = 0;
 	Price = 0.0;
@@ -753,7 +753,7 @@ int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 						PPGdsClsPacket gc_pack;
 						const InnerExt & r_ext = ExtList.at(elp);
 						assert(r_ext.GoodsID == goods_id);
-						pExt->Clear();
+						pExt->Z();
 						pExt->GoodsID = goods_id;
 						pExt->CurID = r_ext.CurID;
 						pExt->Price = r_ext.Price;

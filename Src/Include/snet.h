@@ -605,10 +605,20 @@ public:
 		hdrAuthToken,      // authorization-token
 		hdrAuthSecret,     // authorization-secret
 	};
+	enum AuthType {
+		authtUnkn = 0,
+		authtBasic
+	};
+	struct Auth {
+		int    Type; // authtXXX
+		SString Login;
+		SString Password;
+	};
 
 	static int FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
 	static int FASTCALL GetHeaderId(const char * pTitle);
 	static int FASTCALL SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
+	static int FASTCALL ParseAuth(const char * pAuthParam, Auth & rResult);
 };
 //
 //

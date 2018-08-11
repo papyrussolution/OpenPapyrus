@@ -577,19 +577,19 @@ SLAPI SStrGroup::SStrGroup()
 }
 
 size_t SLAPI SStrGroup::GetPoolDataLen() const
-{
-	return Pool.getDataLen();
-}
-
+	{ return Pool.getDataLen(); }
 size_t SLAPI SStrGroup::GetPoolSize() const
-{
-	return Pool.getSize();
-}
-
+	{ return Pool.getSize(); }
 SStrGroup & FASTCALL SStrGroup::operator = (const SStrGroup & rS)
-{
-	return CopyS(rS);
-}
+	{ return CopyS(rS); }
+int SLAPI SStrGroup::GetS(uint pos, SString & rStr) const
+	{ return Pool.getnz(pos, rStr); }
+int FASTCALL SStrGroup::WriteS(SBuffer & rBuf) const
+	{ return Pool.Write(rBuf); }
+int FASTCALL SStrGroup::ReadS(SBuffer & rBuf)
+	{ return Pool.Read(rBuf); }
+int SLAPI SStrGroup::SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+	{ return Pool.Serialize(dir, rBuf, pCtx); }
 
 SStrGroup & FASTCALL SStrGroup::CopyS(const SStrGroup & rS)
 {
@@ -631,11 +631,6 @@ int SLAPI SStrGroup::AddS(const char * pStr, uint32 * pPos)
 	return ok;
 }
 
-int SLAPI SStrGroup::GetS(uint pos, SString & rStr) const
-{
-	return Pool.getnz(pos, rStr);
-}
-
 void * SLAPI SStrGroup::Pack_Start() const
 {
 	StringSet * p_handle = new StringSet;
@@ -672,19 +667,4 @@ int SLAPI SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 	else
 		ok = 0;
 	return ok;
-}
-
-int FASTCALL SStrGroup::WriteS(SBuffer & rBuf) const
-{
-	return Pool.Write(rBuf);
-}
-
-int FASTCALL SStrGroup::ReadS(SBuffer & rBuf)
-{
-	return Pool.Read(rBuf);
-}
-
-int SLAPI SStrGroup::SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-{
-	return Pool.Serialize(dir, rBuf, pCtx);
 }

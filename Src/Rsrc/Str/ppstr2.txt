@@ -2824,6 +2824,15 @@ PPINIPARAM_ALTERNATEREGPASS            "alternateregpass" // [config]
 PPINIPARAM_NGINX                       "nginx" // [server]
 PPINIPARAM_WORKSPACE                   "workspace" // [path]
 PPINIPARAM_POSREGISTERKEEPALIVE        "PosRegisterKeepAlive" // [config]
+PPINIPARAM_SARTREDB_CACHESIZE          "sartredb_cachesize"
+PPINIPARAM_SARTREDB_CACHESIZE_RO       "sartredb_cachesize_ro"
+PPINIPARAM_SARTREDB_MAXLOCKERS         "sartredb_maxlockers"
+PPINIPARAM_SARTREDB_MAXLOCKERS_RO      "sartredb_maxlockers_ro"
+PPINIPARAM_SARTREDB_MAXLOCKS           "sartredb_maxlocks"
+PPINIPARAM_SARTREDB_MAXLOCKS_RO        "sartredb_maxlocks_ro"
+PPINIPARAM_SARTREDB_MAXLOCKOBJS        "sartredb_maxlockobjs"
+PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO     "sartredb_maxlockobjs_ro"
+PPINIPARAM_SARTREDB_LOGBUFSIZE         "sartredb_logbufsize"
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -3947,6 +3956,7 @@ PPTXT_ERRACCEPTLOCATION      "Ошибка акцепта локации (%ld %s
 PPTXT_ERRACCEPTBRAND         "Ошибка акцепта торговой марки (%ld %s): %s"
 PPTXT_ERRACCEPTTRANSPORT     "Ошибка акцепта транспортного средства (%ld %s): %s"
 PPTXT_ERRACCEPTSTAFFENTRY    "Ошибка акцепта штатной должности (%ld %s): %s"
+PPTXT_ERRACCEPTGOODSVALRESTR "Ошибка акцепта ограничения товарных величин (%ld %s): %s"
 
 PPTXT_UNITELIKEWORLDS        "Объединение похожих географических объектов"
 PPTXT_UNITELIKEUNITS         "Объединение похожих единиц измерения"

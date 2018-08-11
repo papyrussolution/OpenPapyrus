@@ -21,7 +21,7 @@ int __db_master_update(DB *, DB *, DB_THREAD_INFO *, DB_TXN *, const char *, DBT
 int __env_dbreg_setup(DB *, DB_TXN *, const char *, const char *, uint32);
 int __env_setup(DB *, DB_TXN *, const char *, const char *, uint32, uint32);
 int __env_mpool(DB *, const char *, uint32);
-int __db_close(DB *, DB_TXN *, uint32);
+int FASTCALL __db_close(DB *, DB_TXN *, uint32);
 int __db_refresh(DB *, DB_TXN *, uint32, int *, int);
 int __db_log_page(DB *, DB_TXN *, DB_LSN *, db_pgno_t, PAGE *);
 int __db_walk_cursors(DB *, DBC *, int (*)(DBC *, DBC *, uint32 *, db_pgno_t, uint32, void *), uint32 *, db_pgno_t, uint32, void *);
@@ -31,8 +31,8 @@ int __db_backup_name(ENV *, const char *, DB_TXN *, char **);
 int __db_testcopy(ENV *, DB *, const char *);
 #endif
 int __db_testdocopy(ENV *, const char *);
-int __db_cursor_int(DB *, DB_THREAD_INFO *, DB_TXN *, DBTYPE, db_pgno_t, int, DB_LOCKER *, DBC **);
-int __db_put(DB *, DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, uint32);
+int FASTCALL __db_cursor_int(DB *, DB_THREAD_INFO *, DB_TXN *, DBTYPE, db_pgno_t, int, DB_LOCKER *, DBC **);
+int FASTCALL __db_put(DB *, DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, uint32);
 int __db_del(DB *, DB_THREAD_INFO *, DB_TXN *, DBT *, uint32);
 int __db_sync(DB *);
 int __db_associate(DB *, DB_THREAD_INFO *, DB_TXN *, DB *, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);

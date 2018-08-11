@@ -156,16 +156,16 @@ static ngx_http_module_t ngx_http_papyrus_test_module_ctx = {
 //
 ngx_module_t ngx_http_papyrus_test_module = {
 	NGX_MODULE_V1,
-	&ngx_http_papyrus_test_module_ctx, /* module context */
-	ngx_http_papyrus_test_commands, /* module directives */
-	NGX_HTTP_MODULE, /* module type */
-	NULL, /* init master */
-	NULL, /* init module */
-	NULL, /* init process */
-	NULL, /* init thread */
-	NULL, /* exit thread */
-	NULL, /* exit process */
-	NULL, /* exit master */
+	&ngx_http_papyrus_test_module_ctx, // module context 
+	ngx_http_papyrus_test_commands, // module directives 
+	NGX_HTTP_MODULE, // module type 
+	NULL, // init master
+	NULL, // init module
+	NULL, // init process
+	NULL, // init thread
+	NULL, // exit thread
+	NULL, // exit process
+	NULL, // exit master 
 	NGX_MODULE_V1_PADDING
 };
 //
@@ -254,10 +254,8 @@ private:
 class PPWorkingPipeSession : public PPWorkerSession {
 public:
 	SLAPI  PPWorkingPipeSession(NgxReqQueue * pReqQueue, const DbLoginBlock & rDblBlk) : 
-		PPWorkerSession(PPThread::kWorkerSession), WakeUpEv(Evnt::modeCreateAutoReset), DblBlk(rDblBlk)
+		PPWorkerSession(PPThread::kWorkerSession), WakeUpEv(Evnt::modeCreateAutoReset), DblBlk(rDblBlk), P_Queue(pReqQueue), P_OutPipe(0)
 	{
-		P_Queue = pReqQueue;
-		P_OutPipe = 0;
 		InitStartupSignal();
 	}
 	SLAPI ~PPWorkingPipeSession()
@@ -415,29 +413,44 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 		SString temp_buf;
 		SString cmd_buf;
 		char   sb[256];
+		int    do_preprocess_content = 0;
 
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 		if(r_tla.State & r_tla.stAuth) {
-
 			rReply.Clear();
-
+			SHttpProtocol::Auth a;
 			int cmdret = 0;
-			PPObjWorkbook wb_obj;
-			PPID   wb_id = 0;
-			WorkbookTbl::Rec wb_rec;
-			if(wb_obj.SearchBySymb("PETROGLIF", &wb_id, &wb_rec) > 0) {
-				cmd_buf.Z().Cat("GETWORKBOOKCONTENT").Space().Cat(wb_id);
+			ngx_buf_t * b = 0;
+			if(pReq->GetArg("command", temp_buf)) {
+				temp_buf.DecodeUrl(cmd_buf);
+				if(pReq->GetArg("Authorization", temp_buf)) {
+					SString auth_buf;
+					temp_buf.DecodeUrl(auth_buf);
+					if(SHttpProtocol::ParseAuth(auth_buf, a)) {
+						;
+					}
+				}
 				rCmd.Clear();
 				if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
 					cmdret = ProcessCommand(&rCmd, rReply);
 				}
 			}
+			else {
+				PPObjWorkbook wb_obj;
+				PPID   wb_id = 0;
+				WorkbookTbl::Rec wb_rec;
+				do_preprocess_content = 1;
+				if(wb_obj.SearchBySymb("PETROGLIF", &wb_id, &wb_rec) > 0) {
+					cmd_buf.Z().Cat("GETWORKBOOKCONTENT").Space().Cat(wb_id);
+					rCmd.Clear();
+					if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
+						cmdret = ProcessCommand(&rCmd, rReply);
+					}
+				}
+			}
 			{
 				size_t reply_size = 0;
-				ngx_buf_t * b = 0;
-
 				pReq->SetContentType(SFileFormat::Html, cpUTF8);
-
 				rReply.StartReading(0);
 				if(rReply.CheckRepError()) {
 					PPJobSrvReply::TransmitFileBlock tfb;
@@ -445,12 +458,12 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 						rReply.Read(&tfb, sizeof(tfb));
 					}
 					reply_size = rReply.GetAvailableSize();
-
-					temp_buf.Z().CatN((const char *)rReply.GetBuf(rReply.GetRdOffs()), reply_size);
-					rReply.Clear();
-					PreprocessContent(temp_buf, rReply);
-					reply_size = rReply.GetAvailableSize();
-
+					if(do_preprocess_content) {
+						temp_buf.Z().CatN((const char *)rReply.GetBuf(rReply.GetRdOffs()), reply_size);
+						rReply.Clear();
+						PreprocessContent(temp_buf, rReply);
+						reply_size = rReply.GetAvailableSize();
+					}
 					b = ngx_create_temp_buf(pReq->pool, reply_size);
 					ngx_chain_t out(b, 0/*just one buffer*/);
 					rReply.Read(b->pos, reply_size);
@@ -461,6 +474,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 				else {
 					out_buf = "Error!";
 					reply_size = out_buf.Len();
+						
 					b = ngx_create_temp_buf(pReq->pool, reply_size);
 					ngx_chain_t out(b, 0/*just one buffer*/);
 					rReply.Read(b->pos, reply_size);
@@ -468,16 +482,14 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 					b->memory = 1;
 					b->last_buf = 1; // there will be no more buffers in the request 
 				}
-
 				pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
 				pReq->headers_out.content_length_n = reply_size; // Get the content length of the body. 
-
-				result.ReplyCode = NGX_DONE;
-				result.P_Req = pReq;
-				result.Chain.buf = b;
-				result.Chain.next = 0;
-				NgxPushRequestResult(&result);
 			}
+			result.ReplyCode = NGX_DONE;
+			result.P_Req = pReq;
+			result.Chain.buf = b;
+			result.Chain.next = 0;
+			NgxPushRequestResult(&result);
 		}
 		else {
 			PPVersionInfo vi = DS.GetVersionInfo();

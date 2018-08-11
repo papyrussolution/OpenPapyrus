@@ -2402,12 +2402,13 @@ int ngx_http_request_t::GetArg(const char * pName, SString & rValue) const
 {
 	rValue.Z();
 	int    ok = 0;
-	StringSet ss("&");
-	ss.setBuf((const char *)args.data, args.len);
 	SString temp_buf, key, val;
+	temp_buf.CatN((const char *)args.data, args.len);
+	StringSet ss("&");
+	ss.setBuf(temp_buf);
 	for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
 		if(temp_buf.Divide('=', key, val) > 0) {
-			if(key.CmpNC(pName) == 0) {
+			if(key.IsEqiAscii(pName)) {
 				rValue = val;
 				ok = 1;
 			}

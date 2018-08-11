@@ -807,8 +807,7 @@ int __dbc_idup(DBC *dbc_orig, DBC **dbcp, uint32 flags)
 			    break;
 			case DB_UNKNOWN:
 			default:
-			    ret = __db_unknown_type(env,
-				    "__dbc_idup", dbc_orig->dbtype);
+			    ret = __db_unknown_type(env, "__dbc_idup", dbc_orig->dbtype);
 			    goto err;
 		}
 	}
@@ -819,44 +818,35 @@ int __dbc_idup(DBC *dbc_orig, DBC **dbcp, uint32 flags)
 		 */
 		dbc_n->internal->pgno = dbc_orig->internal->pgno;
 	}
-
 	/* Copy the locking flags to the new cursor. */
-	F_SET(dbc_n, F_ISSET(dbc_orig, DBC_BULK |
-	    DBC_READ_COMMITTED | DBC_READ_UNCOMMITTED | DBC_WRITECURSOR));
-
+	F_SET(dbc_n, F_ISSET(dbc_orig, DBC_BULK|DBC_READ_COMMITTED|DBC_READ_UNCOMMITTED|DBC_WRITECURSOR));
 	/*
 	 * If we're in CDB and this isn't an offpage dup cursor, then
 	 * we need to get a lock for the duplicated cursor.
 	 */
-	if(CDB_LOCKING(env) && !F_ISSET(dbc_n, DBC_OPD) &&
-	    (ret = __lock_get(env, dbc_n->locker, 0,
-	    &dbc_n->lock_dbt, F_ISSET(dbc_orig, DBC_WRITECURSOR) ?
-	    DB_LOCK_IWRITE : DB_LOCK_READ, &dbc_n->mylock)) != 0)
+	if(CDB_LOCKING(env) && !F_ISSET(dbc_n, DBC_OPD) && (ret = __lock_get(env, dbc_n->locker, 0,
+	    &dbc_n->lock_dbt, F_ISSET(dbc_orig, DBC_WRITECURSOR) ? DB_LOCK_IWRITE : DB_LOCK_READ, &dbc_n->mylock)) != 0)
 		goto err;
-
 	dbc_n->priority = dbc_orig->priority;
 	dbc_n->internal->pdbc = dbc_orig->internal->pdbc;
 	*dbcp = dbc_n;
 	return 0;
-
-err:    (void)__dbc_close(dbc_n);
+err:    
+	(void)__dbc_close(dbc_n);
 	return ret;
 }
-
 /*
  * __dbc_newopd --
  *	Create a new off-page duplicate cursor.
  *
- * PUBLIC: int __dbc_newopd __P((DBC *, db_pgno_t, DBC *, DBC **));
+ * PUBLIC: int __dbc_newopd(DBC *, db_pgno_t, DBC *, DBC **);
  */
 int __dbc_newopd(DBC *dbc_parent, db_pgno_t root, DBC * oldopd, DBC ** dbcp)
 {
-	DB * dbp;
 	DBC * opd;
-	DBTYPE dbtype;
 	int ret;
-	dbp = dbc_parent->dbp;
-	dbtype = (dbp->dup_compare == NULL) ? DB_RECNO : DB_BTREE;
+	DB * dbp = dbc_parent->dbp;
+	DBTYPE dbtype = (dbp->dup_compare == NULL) ? DB_RECNO : DB_BTREE;
 	/*
 	 * On failure, we want to default to returning the old off-page dup
 	 * cursor, if any;  our caller can't be left with a dangling pointer
@@ -865,16 +855,11 @@ int __dbc_newopd(DBC *dbc_parent, db_pgno_t root, DBC * oldopd, DBC ** dbcp)
 	 * this should be safe.
 	 */
 	*dbcp = oldopd;
-
-	if((ret = __db_cursor_int(dbp, dbc_parent->thread_info,
-	    dbc_parent->txn,
-	    dbtype, root, DBC_OPD, dbc_parent->locker, &opd)) != 0)
+	if((ret = __db_cursor_int(dbp, dbc_parent->thread_info, dbc_parent->txn, dbtype, root, DBC_OPD, dbc_parent->locker, &opd)) != 0)
 		return ret;
-
 	opd->priority = dbc_parent->priority;
 	opd->internal->pdbc = dbc_parent;
 	*dbcp = opd;
-
 	/*
 	 * Check to see if we already have an off-page dup cursor that we've
 	 * passed in.  If we do, close it.  It'd be nice to use it again
@@ -889,7 +874,6 @@ int __dbc_newopd(DBC *dbc_parent, db_pgno_t root, DBC * oldopd, DBC ** dbcp)
 	 */
 	if(oldopd != NULL && (ret = __dbc_close(oldopd)) != 0)
 		return ret;
-
 	return 0;
 }
 /*
@@ -1572,13 +1556,9 @@ static inline int __dbc_put_secondaries(DBC *dbc, DBT * pkey, DBT * data, DBT * 
 			else
 				goto err;
 		}
-
-		if(sdbp->s_foreign != NULL &&
-		    (ret = __db_cursor_int(sdbp->s_foreign,
-		    dbc->thread_info, dbc->txn, sdbp->s_foreign->type,
-		    PGNO_INVALID, 0, dbc->locker, &fdbc)) != 0)
+		if(sdbp->s_foreign && (ret = __db_cursor_int(sdbp->s_foreign, dbc->thread_info, dbc->txn, 
+			sdbp->s_foreign->type, PGNO_INVALID, 0, dbc->locker, &fdbc)) != 0)
 			goto err;
-
 		/*
 		 * Mark the secondary key DBT(s) as set -- that is, the
 		 * callback returned at least one secondary key.
@@ -2213,47 +2193,38 @@ static int __dbc_del_oldskey(DB *sdbp, DBC * dbc, DBT * skey, DBT * pkey, DBT * 
 		 * set no matter what access method we're in.
 		 */
 		for(i = 0, tskeyp = skey; i < nskey; i++, tskeyp++)
-			if(((BTREE*)sdbp->bt_internal)->bt_compare(sdbp,
-			    toldskeyp, tskeyp, NULL) == 0) {
+			if(((BTREE*)sdbp->bt_internal)->bt_compare(sdbp, toldskeyp, tskeyp, NULL) == 0) {
 				nsame++;
 				F_CLR(tskeyp, DB_DBT_ISSET);
 				break;
 			}
-
 		if(i < nskey) {
 			FREE_IF_NEEDED(env, toldskeyp);
 			continue;
 		}
-
 		if(sdbc == NULL) {
-			if((ret = __db_cursor_int(sdbp,
-			    dbc->thread_info, dbc->txn, sdbp->type,
-			    PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
+			if((ret = __db_cursor_int(sdbp, dbc->thread_info, dbc->txn, sdbp->type, PGNO_INVALID, 0, dbc->locker, &sdbc)) != 0)
 				goto err;
 			if(CDB_LOCKING(env)) {
-				DB_ASSERT(env,
-				    sdbc->mylock.off == LOCK_INVALID);
+				DB_ASSERT(env, sdbc->mylock.off == LOCK_INVALID);
 				F_SET(sdbc, DBC_WRITER);
 			}
 		}
-
 		/*
-		 * Don't let c_get(DB_GET_BOTH) stomp on our data.  Use
-		 * temporary DBTs instead.
+		 * Don't let c_get(DB_GET_BOTH) stomp on our data.  Use temporary DBTs instead.
 		 */
 		SWAP_IF_NEEDED(sdbp, pkey);
 		DB_INIT_DBT(temppkey, pkey->data, pkey->size);
 		DB_INIT_DBT(tempskey, toldskeyp->data, toldskeyp->size);
-		if((ret = __dbc_get(sdbc,
-		    &tempskey, &temppkey, rmw | DB_GET_BOTH)) == 0)
+		if((ret = __dbc_get(sdbc, &tempskey, &temppkey, rmw | DB_GET_BOTH)) == 0)
 			ret = __dbc_del(sdbc, DB_UPDATE_SECONDARY);
 		else if(ret == DB_NOTFOUND)
 			ret = __db_secondary_corrupt(dbp);
 		SWAP_IF_NEEDED(sdbp, pkey);
 		FREE_IF_NEEDED(env, toldskeyp);
 	}
-
-err:    for(; noldskey > 0; noldskey--, toldskeyp++)
+err:    
+	for(; noldskey > 0; noldskey--, toldskeyp++)
 		FREE_IF_NEEDED(env, toldskeyp);
 	FREE_IF_NEEDED(env, &oldskey);
 	if(sdbc != NULL && (t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
@@ -2262,7 +2233,6 @@ err:    for(; noldskey > 0; noldskey--, toldskeyp++)
 		return (DB_KEYEXIST);
 	return ret;
 }
-
 /*
  * __db_duperr()
  *	Error message: we don't currently support sorted duplicate duplicates.

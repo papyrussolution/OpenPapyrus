@@ -344,17 +344,16 @@ int __db_inmem_remove(DB *dbp, DB_TXN * txn, const char * name)
 
 	return ret;
 }
-
 /*
  * __db_subdb_remove --
  *	Remove a subdatabase.
  */
 static int __db_subdb_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, uint32 flags)
 {
-	DB * mdbp, * sdbp;
 	int ret, t_ret;
-	mdbp = sdbp = NULL;
-	/* Open the subdatabase. */
+	DB * mdbp = 0;
+	DB * sdbp = 0;
+	// Open the subdatabase. 
 	if((ret = __db_create_internal(&sdbp, dbp->env, 0)) != 0)
 		goto err;
 	if(F_ISSET(dbp, DB_AM_NOT_DURABLE) && (ret = __db_set_flags(sdbp, DB_TXN_NOT_DURABLE)) != 0)
@@ -364,12 +363,9 @@ static int __db_subdb_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const c
 	if(sdbp->blob_threshold != 0)
 		if((ret = __blob_del_all(sdbp, txn, 0)) != 0)
 			goto err;
-
 	DB_TEST_RECOVERY(sdbp, DB_TEST_PREDESTROY, ret, name);
-
 	/* Have the handle locked so we will not lock pages. */
 	LOCK_CHECK_OFF(ip);
-
 	/* Free up the pages in the subdatabase. */
 	switch(sdbp->type) {
 		case DB_BTREE:
@@ -384,48 +380,34 @@ static int __db_subdb_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const c
 		case DB_QUEUE:
 		case DB_UNKNOWN:
 		default:
-		    ret = __db_unknown_type(
-			    sdbp->env, "__db_subdb_remove", sdbp->type);
+		    ret = __db_unknown_type(sdbp->env, "__db_subdb_remove", sdbp->type);
 		    goto err;
 	}
-
 	/*
-	 * Remove the entry from the main database and free the subdatabase
-	 * metadata page.
+	 * Remove the entry from the main database and free the subdatabase metadata page.
 	 */
 	if((ret = __db_master_open(sdbp, ip, txn, name, 0, 0, &mdbp)) != 0)
 		goto err;
-
-	if((ret = __db_master_update(mdbp,
-	    sdbp, ip, txn, subdb, sdbp->type, MU_REMOVE, NULL, 0)) != 0)
+	if((ret = __db_master_update(mdbp, sdbp, ip, txn, subdb, sdbp->type, MU_REMOVE, NULL, 0)) != 0)
 		goto err;
-
 	DB_TEST_RECOVERY(sdbp, DB_TEST_POSTDESTROY, ret, name);
-
 	DB_TEST_RECOVERY_LABEL
 err:
 	/* Close the main and subdatabases. */
 	if((t_ret = __db_close(sdbp, txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-
-	if(mdbp != NULL && (t_ret = __db_close(mdbp, txn,
-	    (LF_ISSET(DB_NOSYNC) || txn != NULL) ? DB_NOSYNC : 0)) != 0 &&
-	    ret == 0)
+	if(mdbp != NULL && (t_ret = __db_close(mdbp, txn, (LF_ISSET(DB_NOSYNC) || txn != NULL) ? DB_NOSYNC : 0)) != 0 && ret == 0)
 		ret = t_ret;
-
 	LOCK_CHECK_ON(ip);
 	return ret;
 }
 
 static int __db_dbtxn_remove(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, APPNAME appname)
 {
-	ENV * env;
 	int ret;
-	char * tmpname;
-	uint32 flags;
-	env = dbp->env;
-	tmpname = NULL;
-	flags = DB_NOSYNC;
+	ENV * env = dbp->env;
+	char * tmpname = NULL;
+	uint32 flags = DB_NOSYNC;
 	/*
 	 * This is a transactional remove, so we have to keep the name
 	 * of the file locked until the transaction commits.  As a result,

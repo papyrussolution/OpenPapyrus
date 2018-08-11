@@ -6,7 +6,7 @@
 #include <sartre.h>
 #include <locale.h>
 
-static int RechargeTransaction(BDbTransaction * pTa, uint & rItemsPerTx, const uint maxItemsPerTx)
+static int FASTCALL RechargeTransaction(BDbTransaction * pTa, uint & rItemsPerTx, const uint maxItemsPerTx)
 {
 	int    ok = -1;
 	if(rItemsPerTx >= maxItemsPerTx) {
@@ -2919,7 +2919,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
 							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-							THROW(RechargeTransaction(p_ta, ++items_per_tx, max_items_per_tx));
+							items_per_tx++;
+							THROW(RechargeTransaction(p_ta, items_per_tx, /*max_items_per_tx*/512));
 						}
 						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");
 					}
@@ -2940,9 +2941,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						LEXID lex_id = 0;
 						THROW(rDb.P_WdT->AddSpecial(SrWordTbl::spcConcept, concept_symb_buf, &lex_id));
 						symb_list.add(lex_id);
-						//items_per_tx++;
-						items_per_tx += 3;
-						THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
+						items_per_tx++;
+						THROW(RechargeTransaction(p_ta, items_per_tx, /*max_items_per_tx*/200));
 						PPWaitPercent(item_idx+1, tsc, "phase1 accepting (concepts symb)");
 					}
 					THROW_DB(p_ta->Commit(1));
@@ -3012,7 +3012,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 			else if(r_cpe.PropVariant == 2) {
 				THROW(rDb.SetConceptProp(r_cpe.CId, prop_subclass, 0, r_cpe.Value));
 			}
-			THROW(RechargeTransaction(&tra, ++items_per_tx, 1024));
+			THROW(RechargeTransaction(&tra, ++items_per_tx, 128));
 			PPWaitPercent(i+1, cprop_list.getCount(), "Storing concept props");
 		}
 		THROW(tra.Commit(1));

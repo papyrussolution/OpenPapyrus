@@ -1116,6 +1116,8 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 	static const SIntToSymbTabEntry subcrit_titles[] = {
 		{ scID,      "ID"   },
 		{ scCode,    "CODE" },
+		{ scCode,    "SYMBOL" }, // @v10.1.6
+		{ scCode,    "SYMB" }, // @v10.1.6
 		{ scName,    "NAME" },
 		{ scDef,     "DEF"  },
 		{ scXml,     "XML"  },

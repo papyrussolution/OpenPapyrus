@@ -1681,15 +1681,10 @@ static int __db_vrfy_orderchkonly(DB *dbp, VRFY_DBINFO * vdp, const char * name,
 	 * order for cross-endian compatibility.  Swap if appropriate.
 	 */
 	DB_NTOHL_SWAP(env, &meta_pgno);
-
-	if((ret = __memp_fget(mpf,
-	    &meta_pgno, vdp->thread_info, NULL, 0, &h)) != 0)
+	if((ret = __memp_fget(mpf, &meta_pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 		goto err;
-
-	if((ret = __db_vrfy_pgset(env,
-	    vdp->thread_info, dbp->pgsize, &pgset)) != 0)
+	if((ret = __db_vrfy_pgset(env, vdp->thread_info, dbp->pgsize, &pgset)) != 0)
 		goto err;
-
 	switch(TYPE(h)) {
 		case P_BTREEMETA:
 		    btmeta = (BTMETA*)h;
@@ -1698,26 +1693,19 @@ static int __db_vrfy_orderchkonly(DB *dbp, VRFY_DBINFO * vdp, const char * name,
 			    ret = 0;
 			    goto err;
 		    }
-		    if((ret =
-			__db_meta2pgset(dbp, vdp, meta_pgno, flags, pgset)) != 0)
+		    if((ret = __db_meta2pgset(dbp, vdp, meta_pgno, flags, pgset)) != 0)
 			    goto err;
-		    if((ret = __db_cursor_int(pgset, NULL, vdp->txn, dbp->type,
-			PGNO_INVALID, 0, DB_LOCK_INVALIDID, &pgsc)) != 0)
+		    if((ret = __db_cursor_int(pgset, NULL, vdp->txn, dbp->type, PGNO_INVALID, 0, DB_LOCK_INVALIDID, &pgsc)) != 0)
 			    goto err;
 		    while((ret = __db_vrfy_pgset_next(pgsc, &p)) == 0) {
-			    if((ret = __memp_fget(mpf, &p,
-				vdp->thread_info, NULL, 0, &currpg)) != 0)
+			    if((ret = __memp_fget(mpf, &p, vdp->thread_info, NULL, 0, &currpg)) != 0)
 				    goto err;
-			    if((ret = __bam_vrfy_itemorder(dbp, NULL,
-				vdp->thread_info, currpg, p, NUM_ENT(currpg), 1,
-				F_ISSET(&btmeta->dbmeta, BTM_DUP), flags)) != 0)
+			    if((ret = __bam_vrfy_itemorder(dbp, NULL, vdp->thread_info, currpg, p, NUM_ENT(currpg), 1, F_ISSET(&btmeta->dbmeta, BTM_DUP), flags)) != 0)
 				    goto err;
-			    if((ret = __memp_fput(mpf,
-				vdp->thread_info, currpg, dbp->priority)) != 0)
+			    if((ret = __memp_fput(mpf, vdp->thread_info, currpg, dbp->priority)) != 0)
 				    goto err;
 			    currpg = NULL;
 		    }
-
 		    /*
 		     * The normal exit condition for the loop above is DB_NOTFOUND.
 		     * If we see that, zero it and continue on to cleanup.
@@ -1733,74 +1721,54 @@ static int __db_vrfy_orderchkonly(DB *dbp, VRFY_DBINFO * vdp, const char * name,
 		     * Make sure h_charkey is right.
 		     */
 		    if(h_internal == NULL) {
-			    EPRINT((env, DB_STR_A("0560",
-				"Page %lu: DB->h_internal field is NULL", "%lu"),
-				(u_long)meta_pgno));
+			    EPRINT((env, DB_STR_A("0560", "Page %lu: DB->h_internal field is NULL", "%lu"), (u_long)meta_pgno));
 			    ret = DB_VERIFY_BAD;
 			    goto err;
 		    }
 		    if(h_internal->h_hash == NULL)
-			    h_internal->h_hash = hmeta->dbmeta.version < 5
-				? __ham_func4 : __ham_func5;
-		    if(hmeta->h_charkey !=
-			h_internal->h_hash(dbp, CHARKEY, sizeof(CHARKEY))) {
-			    EPRINT((env, DB_STR_A("0561",
-				"Page %lu: incorrect hash function for database",
-				"%lu"), (u_long)meta_pgno));
+			    h_internal->h_hash = hmeta->dbmeta.version < 5 ? __ham_func4 : __ham_func5;
+		    if(hmeta->h_charkey != h_internal->h_hash(dbp, CHARKEY, sizeof(CHARKEY))) {
+			    EPRINT((env, DB_STR_A("0561", "Page %lu: incorrect hash function for database", "%lu"), (u_long)meta_pgno));
 			    ret = DB_VERIFY_BAD;
 			    goto err;
 		    }
-
 		    /*
-		     * Foreach bucket, verify hashing on each page in the
-		     * corresponding chain of pages.
+		     * Foreach bucket, verify hashing on each page in the corresponding chain of pages.
 		     */
-		    if((ret = __db_cursor_int(dbp, NULL, vdp->txn, dbp->type,
-			PGNO_INVALID, 0, DB_LOCK_INVALIDID, &pgsc)) != 0)
+		    if((ret = __db_cursor_int(dbp, NULL, vdp->txn, dbp->type, PGNO_INVALID, 0, DB_LOCK_INVALIDID, &pgsc)) != 0)
 			    goto err;
 		    for(bucket = 0; bucket <= hmeta->max_bucket; bucket++) {
 			    pgno = BS_TO_PAGE(bucket, hmeta->spares);
 			    while(pgno != PGNO_INVALID) {
-				    if((ret = __memp_fget(mpf, &pgno,
-					vdp->thread_info, NULL, 0, &currpg)) != 0)
+				    if((ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &currpg)) != 0)
 					    goto err;
-				    if((ret = __ham_vrfy_hashing(pgsc,
-					NUM_ENT(currpg), hmeta, bucket, pgno,
-					flags, h_internal->h_hash)) != 0)
+				    if((ret = __ham_vrfy_hashing(pgsc, NUM_ENT(currpg), hmeta, bucket, pgno, flags, h_internal->h_hash)) != 0)
 					    goto err;
 				    pgno = NEXT_PGNO(currpg);
-				    if((ret = __memp_fput(mpf, vdp->thread_info,
-					currpg, dbp->priority)) != 0)
+				    if((ret = __memp_fput(mpf, vdp->thread_info, currpg, dbp->priority)) != 0)
 					    goto err;
 				    currpg = NULL;
 			    }
 		    }
 		    break;
 		default:
-		    EPRINT((env, DB_STR_A("0562",
-			"Page %lu: database metapage of bad type %lu",
-			"%lu %lu"), (u_long)meta_pgno, (u_long)TYPE(h)));
+		    EPRINT((env, DB_STR_A("0562", "Page %lu: database metapage of bad type %lu", "%lu %lu"), (u_long)meta_pgno, (u_long)TYPE(h)));
 		    ret = DB_VERIFY_BAD;
 		    break;
 	}
-
-err:    if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
+err:    
+	if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pgset != NULL &&
-	    (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret == 0)
+	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf,
-	    vdp->thread_info, h, dbp->priority)) != 0)
+	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
 		ret = t_ret;
-	if(currpg != NULL &&
-	    (t_ret = __memp_fput(mpf,
-	    vdp->thread_info, currpg, dbp->priority)) != 0)
+	if(currpg != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, currpg, dbp->priority)) != 0)
 		ret = t_ret;
 	if((t_ret = __db_close(mdbp, NULL, 0)) != 0)
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __db_salvage_pg --
  *	Walk through a page, salvaging all likely or plausible (w/

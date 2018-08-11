@@ -414,6 +414,8 @@ int SLAPI PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return -1;
 }
 
+IMPL_DESTROY_OBJ_PACK(PPObjSecur, PPSecurPacket);
+
 int SLAPI PPObjSecur::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = CheckRights(*pID ? PPR_MOD : PPR_INS) ? EditSecurDialog(Obj, pID, extraPtr) : PPErrorZ();
@@ -605,7 +607,7 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 					else
 						::SetFocus(H());
 				}
-				if(event.isKeyDown(kbAltF2) || event.isCmd(cmaAltInsert)) {
+				else if(event.isKeyDown(kbAltF2) || event.isCmd(cmaAltInsert)) {
 					if(Flags & OLW_CANINSERT) {
 						PPID   id = 0;
 						getResult(&cur_id);

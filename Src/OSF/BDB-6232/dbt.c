@@ -24,24 +24,18 @@ int __dbt_usercopy(ENV *env, DBT * dbt)
 	if((ret = __os_umalloc(env, dbt->size, &buf)) != 0 || (ret = env->dbt_usercopy(dbt, 0, buf, dbt->size, DB_USERCOPY_GETDATA)) != 0)
 		goto err;
 	dbt->data = buf;
-
 	return 0;
-
-err:    if(buf != NULL) {
+err:    
+	if(buf != NULL) {
 		__os_ufree(env, buf);
 		dbt->data = NULL;
 	}
-
 	return ret;
 }
-
-/*
- * __dbt_userfree --
- *	Free a copy of the user's data, if necessary.
- *
- * PUBLIC: void __dbt_userfree __P((ENV *, DBT *, DBT *, DBT *));
- */
-void __dbt_userfree(ENV *env, DBT * key, DBT * pkey, DBT * data)
+// 
+// __dbt_userfree -- Free a copy of the user's data, if necessary.
+// 
+void FASTCALL __dbt_userfree(ENV *env, DBT * key, DBT * pkey, DBT * data)
 {
 	if(key != NULL && F_ISSET(key, DB_DBT_USERCOPY) && key->data != NULL) {
 		__os_ufree(env, key->data);
@@ -56,7 +50,6 @@ void __dbt_userfree(ENV *env, DBT * key, DBT * pkey, DBT * data)
 		data->data = NULL;
 	}
 }
-
 /*
  * __dbt_defcmp --
  *	The default DBT comparison routine that returns < 0, == 0, or > 0.

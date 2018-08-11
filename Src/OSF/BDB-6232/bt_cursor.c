@@ -196,7 +196,6 @@ int __bamc_init(DBC *dbc, DBTYPE dbtype)
 		dbc->am_put = __ramc_put;
 		dbc->am_writelock = __bamc_writelock;
 	}
-
 	return 0;
 }
 /*
@@ -239,7 +238,6 @@ int __bamc_refresh(DBC *dbc)
 	cp->prevcursor = 0;
 	cp->prev2cursor = 0;
 #endif
-
 	/*
 	 * The btree leaf page data structures require that two key/data pairs
 	 * (or four items) fit on a page, but other than that there's no fixed
@@ -248,28 +246,21 @@ int __bamc_refresh(DBC *dbc)
 	 *
 	 * Recno uses the btree bt_ovflsize value -- it's close enough.
 	 */
-	cp->ovflsize = B_MINKEY_TO_OVFLSIZE(
-		dbp,  F_ISSET(dbc, DBC_OPD) ? 2 : t->bt_minkey, dbp->pgsize);
-
+	cp->ovflsize = B_MINKEY_TO_OVFLSIZE(dbp,  F_ISSET(dbc, DBC_OPD) ? 2 : t->bt_minkey, dbp->pgsize);
 	cp->recno = RECNO_OOB;
 	cp->order = INVALID_ORDER;
 	cp->flags = 0;
-
 	/* Initialize for record numbers. */
-	if(F_ISSET(dbc, DBC_OPD) ||
-	    dbc->dbtype == DB_RECNO || F_ISSET(dbp, DB_AM_RECNUM)) {
+	if(F_ISSET(dbc, DBC_OPD) || dbc->dbtype == DB_RECNO || F_ISSET(dbp, DB_AM_RECNUM)) {
 		F_SET(cp, C_RECNUM);
-
 		/*
 		 * All btrees that support record numbers, optionally standard
 		 * recno trees, and all off-page duplicate recno trees have
 		 * mutable record numbers.
 		 */
-		if((F_ISSET(dbc, DBC_OPD) && dbc->dbtype == DB_RECNO) ||
-		    F_ISSET(dbp, DB_AM_RECNUM | DB_AM_RENUMBER))
+		if((F_ISSET(dbc, DBC_OPD) && dbc->dbtype == DB_RECNO) || F_ISSET(dbp, DB_AM_RECNUM | DB_AM_RENUMBER))
 			F_SET(cp, C_RENUMBER);
 	}
-
 	return 0;
 }
 /*
@@ -278,18 +269,15 @@ int __bamc_refresh(DBC *dbc)
  */
 static int __bamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 {
-	BTREE_CURSOR * cp, * cp_opd, * cp_c;
-	DB * dbp;
+	BTREE_CURSOR * cp_opd, * cp_c;
 	DBC * dbc_opd, * dbc_c;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
 	PAGE * h;
 	int cdb_lock, ret;
 	uint32 count;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR*)dbc->internal;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	BTREE_CURSOR * cp = (BTREE_CURSOR*)dbc->internal;
 	cp_opd = (dbc_opd = cp->opd) == NULL ? NULL : (BTREE_CURSOR*)dbc_opd->internal;
 	cdb_lock = ret = 0;
 	/*
@@ -353,8 +341,7 @@ static int __bamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 		dbc_c = dbc;
 		switch(dbc->dbtype) {
 			case DB_BTREE:                  /* Case #1, #3. */
-			    if((ret = __bam_ca_delete(
-					dbp, cp->pgno, cp->indx, 1, &count)) != 0)
+			    if((ret = __bam_ca_delete(dbp, cp->pgno, cp->indx, 1, &count)) != 0)
 				    goto err;
 			    if(count == 0)
 				    goto lock;
@@ -372,8 +359,7 @@ static int __bamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 			case DB_QUEUE:
 			case DB_UNKNOWN:
 			default:
-			    ret = __db_unknown_type(
-				    env, "DbCursor.close", dbc->dbtype);
+			    ret = __db_unknown_type(env, "DbCursor.close", dbc->dbtype);
 			    goto err;
 		}
 	}
@@ -398,15 +384,13 @@ static int __bamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 		dbc_c = dbc_opd;
 		switch(dbc_opd->dbtype) {
 			case DB_BTREE:
-			    if((ret = __bam_ca_delete(
-					dbp, cp_opd->pgno, cp_opd->indx, 1, &count)) != 0)
+			    if((ret = __bam_ca_delete(dbp, cp_opd->pgno, cp_opd->indx, 1, &count)) != 0)
 				    goto err;
 			    if(count == 0)
 				    goto lock;
 			    goto done;
 			case DB_RECNO:
-			    if((ret =
-				__ram_ca_delete(dbp, cp_opd->root, &count)) != 0)
+			    if((ret = __ram_ca_delete(dbp, cp_opd->root, &count)) != 0)
 				    goto err;
 			    if(count == 0)
 				    goto lock;
@@ -415,15 +399,13 @@ static int __bamc_close(DBC *dbc, db_pgno_t root_pgno, int * rmroot)
 			case DB_QUEUE:
 			case DB_UNKNOWN:
 			default:
-			    ret = __db_unknown_type(
-				    env, "DbCursor.close", dbc->dbtype);
+			    ret = __db_unknown_type(env, "DbCursor.close", dbc->dbtype);
 			    goto err;
 		}
 	}
 	goto done;
-
-lock:   cp_c = (BTREE_CURSOR*)dbc_c->internal;
-
+lock:   
+	cp_c = (BTREE_CURSOR*)dbc_c->internal;
 	/*
 	 * If this is CDB, upgrade the lock if necessary.  While we acquired
 	 * the write lock to logically delete the record, we released it when
@@ -432,15 +414,12 @@ lock:   cp_c = (BTREE_CURSOR*)dbc_c->internal;
 	 */
 	if(CDB_LOCKING(env)) {
 		if(F_ISSET(dbc, DBC_WRITECURSOR)) {
-			if((ret = __lock_get(env,
-			    dbc->locker, DB_LOCK_UPGRADE, &dbc->lock_dbt,
-			    DB_LOCK_WRITE, &dbc->mylock)) != 0)
+			if((ret = __lock_get(env, dbc->locker, DB_LOCK_UPGRADE, &dbc->lock_dbt, DB_LOCK_WRITE, &dbc->mylock)) != 0)
 				goto err;
 			cdb_lock = 1;
 		}
 		goto do_del;
 	}
-
 	/*
 	 * The variable dbc_c has been initialized to reference the cursor in
 	 * which we're going to do the delete.  Initialize the cursor's lock

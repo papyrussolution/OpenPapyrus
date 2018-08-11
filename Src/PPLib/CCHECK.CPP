@@ -464,7 +464,7 @@ CCheckItem::CCheckItem()
 	THISZERO();
 }
 
-CCheckItem & CCheckItem::Init()
+CCheckItem & CCheckItem::Z()
 {
 	THISZERO();
 	return *this;
@@ -496,7 +496,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 	SETFLAG(Flags, cifModifier,      rS.Flags & CCheckPacket::LineExt::fModifier);
 	SETFLAG(Flags, cifPartOfComplex, rS.Flags & CCheckPacket::LineExt::fPartOfComplex);
 	SETFLAG(Flags, cifQuotedByGift,  rS.Flags & CCheckPacket::LineExt::fQuotedByGift);
-	SETFLAG(Flags, cifFixedPrice,    rS.Flags & CCheckPacket::LineExt::fFixedPrice);    // @v8.6.12
+	SETFLAG(Flags, cifFixedPrice,    rS.Flags & CCheckPacket::LineExt::fFixedPrice);
 	return *this;
 }
 
@@ -532,7 +532,7 @@ int CCheckItem::GetRec(CCheckLineExtTbl::Rec & rRec) const
 		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fModifier,      Flags & cifModifier);
 		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fPartOfComplex, Flags & cifPartOfComplex);
 		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fQuotedByGift,  Flags & cifQuotedByGift);
-		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fFixedPrice,    Flags & cifFixedPrice);    // @v8.6.12
+		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fFixedPrice,    Flags & cifFixedPrice);
 		STRNSCPY(rRec.Serial, Serial);
 		strip(rRec.Serial);
 		ok = 1;
@@ -574,14 +574,15 @@ int CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) c
 	return BIN(rItem.Price == Price && rItem.Discount == Discount && !(rItem.Flags & cifGiftDiscount) &&
 		!(rItem.Flags & cifModifier) && !(Flags & cifModifier) &&
 		(!(pPack->Rec.Flags & CCHKF_SUSPENDED) || (rItem.Flags & cifIsPrinted) == (Flags & cifIsPrinted)) &&
-		rItem.Division == Division && rItem.Queue == Queue && sstreq(rItem.Serial, Serial) && sstreq(rItem.EgaisMark, EgaisMark));
+		rItem.Division == Division && rItem.Queue == Queue && sstreq(rItem.Serial, Serial) && 
+		sstreq(rItem.EgaisMark, EgaisMark) && sstreq(rItem.RemoteProcessingTa, RemoteProcessingTa));
 }
 
 int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 {
 	int    ok = 1;
 	if(Quantity > restQtty && restQtty > 0.0 && !(Flags & cifGift)) {
-		rNewItem.Init();
+		rNewItem.Z();
 		rNewItem = *this;
 
 		rNewItem.GiftID = 0;
@@ -768,14 +769,9 @@ int SLAPI CCheckPacket::HasExt() const
 }
 
 uint SLAPI CCheckPacket::GetCount() const
-{
-	return Items_.getCount();
-}
-
+	{ return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const
-{
-	return Items_.at(pos);
-}
+	{ return Items_.at(pos); }
 
 int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
 {
@@ -801,13 +797,14 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 			const  int _pos = *pPos; // *Pos была увеличена на 1 функцией enumItems()
 			uint   ep = 0;
 			SString serial;
-
-			pItem->Init() = *p_item;
+			pItem->Z() = *p_item;
 			// @v9.0.9 GetSerial(_pos, serial);
 			GetLineTextExt(_pos, CCheckPacket::lnextSerial, serial); // @v9.0.9
 			serial.CopyTo(pItem->Serial, sizeof(pItem->Serial));
 			GetLineTextExt(_pos, CCheckPacket::lnextEgaisMark, serial); // @v9.2.9
 			serial.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark)); // @v9.2.9
+			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, serial); // @v10.1.6
+			serial.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa)); // @v10.1.6
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
@@ -823,10 +820,9 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 		return 0;
 }
 
-int SLAPI CCheckPacket::InitLineIteration()
+void SLAPI CCheckPacket::InitLineIteration()
 {
 	Items_.setPointer(0);
-	return 1;
 }
 
 int SLAPI CCheckPacket::NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial)
@@ -919,11 +915,6 @@ int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocA
 	return ok;
 }
 
-int SLAPI CCheckPacket::UnpackLineTextExt(const SString & rBuf)
-{
-	return Helper_UnpackLineTextExt(rBuf, LnTextList);
-}
-
 // @v9.0.9 {
 
 //static
@@ -950,6 +941,8 @@ int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, co
 	return ok;
 }
 
+int SLAPI CCheckPacket::UnpackLineTextExt(const SString & rBuf)
+	{ return Helper_UnpackLineTextExt(rBuf, LnTextList); }
 int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText)
 	{ return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
 int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const
@@ -1073,6 +1066,11 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark)); // @v9.9.0
 		}
 		// } @v9.0.9
+		// @v10.1.6 {
+		if(rItem.RemoteProcessingTa[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa)); // @v10.1.6
+		}
+		// } @v10.1.6
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;
@@ -4840,15 +4838,11 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 				}
 				pack.Rec.Amount = total.Amount;
 				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
-				// @v9.9.12 #1
-
 				//
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
 				//
-				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS; // @v9.9.12 @fix перенесено из #1
-
+				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
 				THROW(pack.InitAmounts());
-
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
 					THROW(p_bobj->TurnPacket(&pack, 0));

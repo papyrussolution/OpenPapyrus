@@ -11,20 +11,15 @@
 #include "dbinc/lock.h"
 #include "dbinc/log.h"
 
-static int __lock_freelocker_int __P((DB_LOCKTAB *, DB_LOCKREGION *, DB_LOCKER *, int));
-
+static int __lock_freelocker_int(DB_LOCKTAB *, DB_LOCKREGION *, DB_LOCKER *, int);
 /*
- * __lock_id_pp --
- *	DB_ENV->lock_id pre/post processing.
- *
- * PUBLIC: int __lock_id_pp(DB_ENV *, uint32 *);
+ * __lock_id_pp -- DB_ENV->lock_id pre/post processing.
  */
 int __lock_id_pp(DB_ENV *dbenv, uint32 * idp)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret;
-	env = dbenv->env;
+	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_id", DB_INIT_LOCK);
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__lock_id(env, idp, NULL)), 0, ret);
@@ -35,24 +30,17 @@ int __lock_id_pp(DB_ENV *dbenv, uint32 * idp)
  * __lock_id --
  *	Allocate a new lock id as well as a locker struct to hold it. If we wrap
  *	around then we find the minimum currently in use and make sure we can
- *	stay below that. This is similar to __txn_begin_int's code to recover
- *	txn ids.
- *
- *
- * PUBLIC: int  __lock_id __P((ENV *, uint32 *, DB_LOCKER **));
+ *	stay below that. This is similar to __txn_begin_int's code to recover txn ids.
  */
-int __lock_id(ENV *env, uint32 * idp, DB_LOCKER ** lkp)
+int FASTCALL __lock_id(ENV *env, uint32 * idp, DB_LOCKER ** lkp)
 {
-	DB_LOCKER * lk;
-	DB_LOCKREGION * region;
-	DB_LOCKTAB * lt;
-	uint32 id, * ids;
-	int nids, ret;
-	lt = env->lk_handle;
-	region = (DB_LOCKREGION *)lt->reginfo.primary;
-	id = DB_LOCK_INVALIDID;
-	lk = NULL;
-	ret = 0;
+	DB_LOCKER * lk = 0;
+	uint32 * ids;
+	int nids;
+	int ret = 0;
+	DB_LOCKTAB * lt = env->lk_handle;
+	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
+	uint32 id = DB_LOCK_INVALIDID;
 	LOCK_LOCKERS(env, region);
 	/*
 	 * Our current valid range can span the maximum valid value, so check
@@ -69,8 +57,7 @@ int __lock_id(ENV *env, uint32 * idp, DB_LOCKER ** lkp)
 		region->lock_id = DB_LOCK_INVALIDID;
 		region->cur_maxid = DB_LOCK_MAXID;
 		if(nids != 0)
-			__db_idspace(ids, nids,
-			    &region->lock_id, &region->cur_maxid);
+			__db_idspace(ids, nids, &region->lock_id, &region->cur_maxid);
 		__os_free(env, ids);
 	}
 	id = ++region->lock_id;
@@ -85,9 +72,7 @@ err:
 	return ret;
 }
 /*
- * __lock_set_thread_id --
- *	Set the thread_id in an existing locker.
- * PUBLIC: void __lock_set_thread_id __P((void *, pid_t, db_threadid_t));
+ * __lock_set_thread_id -- Set the thread_id in an existing locker.
  */
 void __lock_set_thread_id(void * lref_arg, pid_t pid, db_threadid_t tid)
 {
@@ -96,10 +81,7 @@ void __lock_set_thread_id(void * lref_arg, pid_t pid, db_threadid_t tid)
 	lref->tid = tid;
 }
 /*
- * __lock_id_free_pp --
- *	ENV->lock_id_free pre/post processing.
- *
- * PUBLIC: int __lock_id_free_pp(DB_ENV *, uint32);
+ * __lock_id_free_pp -- ENV->lock_id_free pre/post processing.
  */
 int __lock_id_free_pp(DB_ENV *dbenv, uint32 id)
 {
@@ -120,7 +102,6 @@ int __lock_id_free_pp(DB_ENV *dbenv, uint32 id)
 	}
 	lt = env->lk_handle;
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
-
 	LOCK_LOCKERS(env, region);
 	if((ret =
 	    __lock_getlocker_int(env->lk_handle,
@@ -129,61 +110,44 @@ int __lock_id_free_pp(DB_ENV *dbenv, uint32 id)
 			ret = __lock_freelocker_int(lt, region, sh_locker, 1);
 		else {
 			ret = USR_ERR(env, EINVAL);
-			__db_errx(env, DB_STR_A("2045",
-			    "Unknown locker id: %lx", "%lx"), (u_long)id);
+			__db_errx(env, DB_STR_A("2045", "Unknown locker id: %lx", "%lx"), (u_long)id);
 		}
 	}
 	UNLOCK_LOCKERS(env, region);
-
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
-
-err:    ENV_LEAVE(env, ip);
+err:    
+	ENV_LEAVE(env, ip);
 	return ret;
 }
-
-/*
- * __lock_id_free --
- *	Free a locker id.
- *
- * PUBLIC: int  __lock_id_free __P((ENV *, DB_LOCKER *));
- */
-int __lock_id_free(ENV *env, DB_LOCKER * sh_locker)
+// 
+// __lock_id_free -- Free a locker id.
+// 
+int FASTCALL __lock_id_free(ENV *env, DB_LOCKER * sh_locker)
 {
 	DB_LOCKER locker;
-	DB_LOCKREGION * region;
-	DB_LOCKTAB * lt;
 	DB_MSGBUF mb;
-	int ret;
-	lt = env->lk_handle;
-	region = (DB_LOCKREGION *)lt->reginfo.primary;
-	ret = 0;
+	DB_LOCKTAB * lt = env->lk_handle;
+	DB_LOCKREGION * region = (DB_LOCKREGION *)lt->reginfo.primary;
+	int ret = 0;
 	if(sh_locker->nlocks != 0) {
 		locker = *sh_locker;
 		ret = USR_ERR(env, EINVAL);
-		__db_errx(env, DB_STR_A("2046",
-		    "Locker %d still has %d locks", "%d %d"),
-		    locker.id, locker.nlocks);
+		__db_errx(env, DB_STR_A("2046", "Locker %d still has %d locks", "%d %d"), locker.id, locker.nlocks);
 		DB_MSGBUF_INIT(&mb);
 		(void)__lock_dump_locker(env, &mb, lt, sh_locker);
 		DB_MSGBUF_FLUSH(env, &mb);
 		goto err;
 	}
-
 	LOCK_LOCKERS(env, region);
 	ret = __lock_freelocker_int(lt, region, sh_locker, 1);
 	UNLOCK_LOCKERS(env, region);
-
-err:    return ret;
+err:    
+	return ret;
 }
-
-/*
- * __lock_id_set --
- *	Set the current locker ID and current maximum unused ID (for
- *	testing purposes only).
- *
- * PUBLIC: int __lock_id_set __P((ENV *, uint32, uint32));
- */
+// 
+// __lock_id_set -- Set the current locker ID and current maximum unused ID (for testing purposes only).
+// 
 int __lock_id_set(ENV *env, uint32 cur_id, uint32 max_id)
 {
 	DB_LOCKREGION * region;

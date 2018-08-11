@@ -2177,7 +2177,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									}
 								}
 								THROW_PP_S(gppf & gppfAlc, PPERR_EGAIS_NOALCINBILL, bill_text);
-								THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
+								// @v10.1.6 (moved down) @01 THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
 								GetWayBillTypeText(wb_type, temp_buf);
 								THROW(temp_buf.NotEmpty());
 								n_h.PutInner(SXml::nst("wb", "Type"), temp_buf);
@@ -2192,6 +2192,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										woi_flags |= woifVersion2;
 									}
 									else {
+										THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text); // @v10.1.6 (moved from @01)
 										n_h.PutInner(SXml::nst("wb", "UnitType"), (gppf & gppfUnpacked) ? "Unpacked" : "Packed");
 									}
 									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Shipper"), shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));

@@ -804,32 +804,32 @@ int SLAPI PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int u
 	{
 		PPStyloPalm parent_rec;
 		const    PPID parent_id = pPack->Rec.GroupID;
-		THROW_PP(pPack->Rec.Name[0], PPERR_NAMENEEDED); // @v8.7.0
-        THROW_PP_S(!parent_id || (Search(parent_id, &parent_rec) > 0 && parent_rec.Flags & PLMF_GENERIC), PPERR_INVSTYLOPARENT, parent_id); // @v8.7.1
+		THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_NAMENEEDED); // @v10.1.6 @fix (!pPack ||)
+        THROW_PP_S(!parent_id || (Search(parent_id, &parent_rec) > 0 && parent_rec.Flags & PLMF_GENERIC), PPERR_INVSTYLOPARENT, parent_id);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
 			if(pPack) {
 				PPStyloPalmPacket org_pack;
 				THROW(GetPacket(*pID, &org_pack) > 0);
-				if(!IsPacketEq(*pPack, org_pack, 0)) { // @v8.7.1
-					THROW(CheckDupName(*pID, pPack->Rec.Name)); // @v8.7.1
-					THROW(CheckDupSymb(*pID, pPack->Rec.Symb)); // @v8.7.1
-					THROW(CheckRights(PPR_MOD)); // @v8.7.1
+				if(!IsPacketEq(*pPack, org_pack, 0)) {
+					THROW(CheckDupName(*pID, pPack->Rec.Name));
+					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
+					THROW(CheckRights(PPR_MOD));
 					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 				else
 					ok = -1;
 			}
 			else {
-				THROW(CheckRights(PPR_DEL)); // @v8.7.1
+				THROW(CheckRights(PPR_DEL));
 				THROW(ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
-			THROW(CheckRights(PPR_INS)); // @v8.7.1
-			THROW(CheckDupName(*pID, pPack->Rec.Name)); // @v8.7.1
-			THROW(CheckDupSymb(*pID, pPack->Rec.Symb)); // @v8.7.1
+			THROW(CheckRights(PPR_INS));
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
 			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}

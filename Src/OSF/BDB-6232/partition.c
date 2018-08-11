@@ -565,8 +565,7 @@ static int __part_key_cmp(const void * a, const void *b)
 }
 /*
  * __partition_setup_keys --
- *	Get the partition keys into memory, or put them to disk if we
- * are creating a partitioned database.
+ *	Get the partition keys into memory, or put them to disk if we are creating a partitioned database.
  */
 static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, uint32 flags)
 {
@@ -580,21 +579,16 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 	struct key_sort * ks;
 	int have_keys, ret, t_ret;
 	int (*compare)__P((DB *, const DBT *, const DBT *, size_t *));
-
 	memzero(&data, sizeof(data));
 	memzero(&key, sizeof(key));
 	ks = NULL;
-
 	dbp = dbc->dbp;
 	env = dbp->env;
-
 	/* Need to just read the main database. */
 	dbp->p_internal = NULL;
 	have_keys = 0;
 	dsize = 0;
-
 	keys = part->keys;
-
 	/* First verify that things what we expect. */
 	if((ret = __dbc_get(dbc, &key, &data, DB_FIRST)) != 0) {
 		if(ret != DB_NOTFOUND)
@@ -622,15 +616,13 @@ static int __partition_setup_keys(DBC *dbc, DB_PARTITION * part, uint32 pgsize, 
 		}
 		have_keys = 1;
 	}
-
 	if(LF_ISSET(DB_CREATE) && have_keys == 0) {
 		/*
 		 * Insert the keys into the master database.  We will also
 		 * compute the total size of the keys for later use.
 		 */
 		for(i = 0; i < part->nparts - 1; i++) {
-			if((ret = __db_put(dbp, dbc->thread_info,
-			    dbc->txn, &part->keys[i], &data, 0)) != 0)
+			if((ret = __db_put(dbp, dbc->thread_info, dbc->txn, &part->keys[i], &data, 0)) != 0)
 				goto err;
 			dsize += part->keys[i].size;
 		}
@@ -1233,7 +1225,6 @@ int __partition_stat(DBC *dbc, void * spp, uint32 flags)
 	ENV * env;
 	uint32 i;
 	int ret;
-
 	dbp = dbc->dbp;
 	part = (DB_PARTITION *)dbp->p_internal;
 	env = dbp->env;
@@ -1241,12 +1232,9 @@ int __partition_stat(DBC *dbc, void * spp, uint32 flags)
 #ifdef HAVE_HASH
 	hfsp = NULL;
 #endif
-
 	pdbp = part->handles;
 	for(i = 0; i < part->nparts; i++, pdbp++) {
-		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn,
-		    (*pdbp)->type, PGNO_INVALID,
-		    0, dbc->locker, &new_dbc)) != 0)
+		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn, (*pdbp)->type, PGNO_INVALID, 0, dbc->locker, &new_dbc)) != 0)
 			goto err;
 		switch(new_dbc->dbtype) {
 			case DB_BTREE:
@@ -1307,14 +1295,12 @@ int __partition_stat(DBC *dbc, void * spp, uint32 flags)
 			goto err;
 	}
 	return 0;
-
 err:
 	if(fsp != NULL)
 		__os_ufree(env, fsp);
 	*(DB_BTREE_STAT**)spp = NULL;
 	return ret;
 }
-
 /*
  * __part_truncate --
  *	Truncate a database.
@@ -1323,23 +1309,17 @@ err:
  */
 int __part_truncate(DBC *dbc, uint32 * countp)
 {
-	DB * dbp, ** pdbp;
-	DB_PARTITION * part;
 	DBC * new_dbc;
 	uint32 count, i;
-	int ret, t_ret;
-
-	dbp = dbc->dbp;
-	part = (DB_PARTITION *)dbp->p_internal;
-	pdbp = part->handles;
-	ret = 0;
-
+	int t_ret;
+	DB * dbp = dbc->dbp;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	DB ** pdbp = part->handles;
+	int ret = 0;
 	if(countp != NULL)
 		*countp = 0;
 	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++) {
-		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn,
-		    (*pdbp)->type, PGNO_INVALID,
-		    0, dbc->locker, &new_dbc)) != 0)
+		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn, (*pdbp)->type, PGNO_INVALID, 0, dbc->locker, &new_dbc)) != 0)
 			break;
 		switch(dbp->type) {
 			case DB_BTREE:
@@ -1354,8 +1334,7 @@ int __part_truncate(DBC *dbc, uint32 * countp)
 			case DB_QUEUE:
 			case DB_UNKNOWN:
 			default:
-			    ret = __db_unknown_type(dbp->env,
-				    "DB->truncate", dbp->type);
+			    ret = __db_unknown_type(dbp->env, "DB->truncate", dbp->type);
 			    count = 0;
 			    break;
 		}
@@ -1364,7 +1343,6 @@ int __part_truncate(DBC *dbc, uint32 * countp)
 		if(countp != NULL)
 			*countp += count;
 	}
-
 	return ret;
 }
 /*

@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -60,7 +60,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 5, GTF_ALLOWZEROPRICE);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 6, GTF_EXCLVAT);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 7, GTF_REQBARCODE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 8, GTF_QUASIUNLIM); // @v8.5.1
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 8, GTF_QUASIUNLIM);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 9, GTF_LOOKBACKPRICES); // @v9.8.4
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
 	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance); // @v9.0.4
@@ -173,16 +173,19 @@ int FASTCALL PPObjGoodsType::IsUnlim(PPID id)
 
 int SLAPI PPObjGoodsType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
+	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsType * r = (PPGoodsType*)p->Data;
-		return (
-			ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCost,  ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtPrice, ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtDscnt, ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCVat,  ary, replace)
-		) ? 1 : 0;
+		PPGoodsType * r = (PPGoodsType *)p->Data;
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCost,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtPrice, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtDscnt, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &r->AmtCVat,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_GOODSVALRESTR, &r->PriceRestrID,  ary, replace)); // @v10.1.6
 	}
-	return -1;
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
 }
 //
 // @ModuleDef(PPObjBarCodeStruc)
@@ -559,25 +562,38 @@ int SLAPI PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
 int SLAPI PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	int    acn = 0;
+	THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_NAMENEEDED);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
 			if(pPack) {
-				THROW(CheckDupName(*pID, pPack->Rec.Name));
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				PPGoodsValRestrPacket org_pack;
+				THROW(GetPacket(*pID, &org_pack) > 0);
+				if(!IsPacketEq(*pPack, org_pack, 0)) {
+					THROW(CheckDupName(*pID, pPack->Rec.Name));
+					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
+					THROW(CheckRights(PPR_MOD));
+					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				}
+				else
+					ok = -1;
 			}
 			else {
+				THROW(CheckRights(PPR_DEL));
 				THROW(ref->RemoveItem(Obj, *pID, 0));
-				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
+				acn = PPACN_OBJRMV;
 			}
 		}
 		else if(pPack) {
+			THROW(CheckRights(PPR_INS));
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
-			THROW(CheckDupName(0, pPack->Rec.Name));
 			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
-		if(*pID) {
+		if(ok > 0) {
 			{
 				const char * p = 0;
 				SString text;
@@ -589,12 +605,153 @@ int SLAPI PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket 
 				THROW(ref->PutPropVlrString(Obj, *pID, GVRPROP_TEXT, p));
 			}
 			{
-				const SVector * p_array = pPack->GetBillArRestrictList().getCount() ? &pPack->GetBillArRestrictList() : 0;
+				const SVector * p_array = (pPack && pPack->GetBillArRestrictList().getCount()) ? &pPack->GetBillArRestrictList() : 0;
 				THROW(ref->PutPropArray(Obj, *pID, GVRPROP_BAR, p_array, 0));
 			}
 		}
+		if(acn)
+			DS.LogAction(acn, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
 	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjGoodsValRestr::IsPacketEq(const PPGoodsValRestrPacket & rS1, const PPGoodsValRestrPacket & rS2, long flags)
+{
+#define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
+#define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
+	CMP_MEMB(ID);
+	CMP_MEMBS(Name);
+	CMP_MEMBS(Symb);
+	CMP_MEMB(ScpShipmOpID);
+	CMP_MEMB(ScpRetOpID);
+	CMP_MEMB(ScpDurationDays);
+	CMP_MEMB(ScpUpDev);
+	CMP_MEMB(ScpDnDev);
+	CMP_MEMB(ScpShipmLimitOpID);
+	CMP_MEMB(Flags);
+#undef CMP_MEMBS
+#undef CMP_MEMB
+	if(rS1.LowBoundFormula != rS2.LowBoundFormula)
+		return 0;
+	if(rS1.UppBoundFormula != rS2.UppBoundFormula)
+		return 0;
+	if(!rS1.BillArRestr.IsEqual(rS2.BillArRestr))
+		return 0;
+	return 1;
+}
+
+int SLAPI PPObjGoodsValRestr::SerializePacket(int dir, PPGoodsValRestrPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(pSCtx->Serialize(dir, pPack->LowBoundFormula, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->UppBoundFormula, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, &pPack->BillArRestr, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+IMPL_DESTROY_OBJ_PACK(PPObjGoodsValRestr, PPGoodsValRestrPacket);
+
+//virtual
+int  SLAPI PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	THROW_MEM(p->Data = new PPGoodsValRestrPacket);
+	if(stream == 0) {
+		THROW(GetPacket(id, (PPGoodsValRestrPacket *)p->Data) > 0);
+	}
+	else {
+		SBuffer buffer;
+		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW(SerializePacket(-1, (PPGoodsValRestrPacket *)p->Data, buffer, &pCtx->SCtx));
+	}
+	CATCHZOK
+	return ok;
+}
+
+//virtual
+int  SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+{
+	int    ok = 1, r;
+	if(p && p->Data) {
+		PPGoodsValRestrPacket * p_pack = (PPGoodsValRestrPacket *)p->Data;
+		if(stream == 0) {
+			if(*pID == 0) {
+				PPID   same_id = 0;
+				PPGoodsValRestr same_rec;
+				if(p_pack->Rec.ID < PP_FIRSTUSRREF) {
+					if(Search(p_pack->Rec.ID, &same_rec) > 0) {
+						*pID = same_id = p_pack->Rec.ID;
+						ok = 1;
+					}
+				}
+				else if(p_pack->Rec.Symb[0] && SearchBySymb(p_pack->Rec.Symb, &same_id, &same_rec) > 0) {
+					*pID = same_id;
+					ok = 1;
+				}
+				else if(p_pack->Rec.Name[0] && SearchByName(p_pack->Rec.Name, &same_id, &same_rec) > 0) {
+					*pID = same_id;
+					ok = 1;
+				}
+				else {
+					same_id = p_pack->Rec.ID = 0;
+				}
+				if(same_id == 0) {
+					p_pack->Rec.ID = 0;
+					r = PutPacket(pID, p_pack, 1);
+					if(r == 0) {
+						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSVALRESTR, p_pack->Rec.ID, p_pack->Rec.Name);
+						ok = -1;
+					}
+					else if(r > 0)
+						ok = 1; // 101; // @ObjectCreated
+					else
+						ok = 1;
+				}
+			}
+			else {
+				p_pack->Rec.ID = *pID;
+				r = PutPacket(pID, p_pack, 1);
+				if(r == 0) {
+					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSVALRESTR, p_pack->Rec.ID, p_pack->Rec.Name);
+					ok = -1;
+				}
+				else if(r > 0)
+					ok = 1; // 102; // @ObjectUpdated
+				else
+					ok = 1;
+			}
+		}
+		else {
+			SBuffer buffer;
+			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
+			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+//virtual
+int  SLAPI PPObjGoodsValRestr::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+{
+	int    ok = 1;
+	if(p && p->Data) {
+		PPGoodsValRestrPacket * p_pack = (PPGoodsValRestrPacket *)p->Data;
+		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpShipmOpID, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpRetOpID, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.ScpShipmLimitOpID, ary, replace));
+		for(uint i = 0; i < p_pack->BillArRestr.getCount(); i++) {
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->BillArRestr.at(i).ObjID, ary, replace));
+		}
+	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }

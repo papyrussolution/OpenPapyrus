@@ -1956,6 +1956,14 @@ public:
 	int    SLAPI Get(const char * pSectName, uint paramId, SString & rBuf);
 	int    SLAPI GetInt(uint sectId, uint paramId, int *);
 	int    SLAPI GetInt(const char * pSectName, uint paramId, int *);
+	//
+	// Descr: Возвращает значение параметра [pSectName] paramId заданное как
+	//   размер данных в байтах. В ini-файле значение может быть задано как просто в байтах,
+	//   так и с указанием единицы измерения в формате 9999UNIT где 9999 - не отрицательное целое число, а
+	//   UNIT одно из следующих сокращений: b, kb, k, m, mb, g, gb (регистр символов не важен).
+	//
+	int    SLAPI GetDataSize(const char * pSectName, uint paramId, int64 * pSz);
+	int    SLAPI GetDataSize(uint sectId, uint paramId, int64 * pSz);
 	int    SLAPI Append(uint sectId, uint paramId, const char * pVal, int overwrite);
 	int    SLAPI IsWinCoding();
 	int    SLAPI Backup(uint maxCopies = 5);
@@ -13379,18 +13387,18 @@ enum {
 	cifBySCard       = 0x0040, // Строка сгенерирована автоматически по факту установки карты.
 		// (Карта имеет ненулевое значение SCardTbl::Rec::AutoGoodsID)
 	cifPriceBySerial = 0x0080, // Цена на строку установлена по серийному номеру.
-	cifGiftDiscount  = 0x0100, // @v7.0.2 Строка преодставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
+	cifGiftDiscount  = 0x0100, // Строка преодставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
 		// При формировании окончательного чека сумма по этой строке полностью обнуляется а скидка разносится на весь чек.
 	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} @v7.0.6 Строка соответствует основному
 		// компоненту подарочной структуры
-	cifModifier      = 0x0400,  // @v7.2.0 Элемент является модификатором предшествующего элемента, не имеющего
+	cifModifier      = 0x0400,  // Элемент является модификатором предшествующего элемента, не имеющего
 		// такого признака (элемент может иметь несколько модификаторов, следующих один за другим).
-	cifManualGift    = 0x0800, // @v7.3.7 @#{!cifManualGift || cifGift} Подарочная позиция была выбрана в ручную.
+	cifManualGift    = 0x0800, // @#{!cifManualGift || cifGift} Подарочная позиция была выбрана в ручную.
 		// Позиции с таким признаком обрабатываются специальным образом, дабы не заставлять пользователя по-новой
 		// выбирать один и тот же подарок много раз.
-	cifHasModifier   = 0x1000, // @v8.6.9 Специальный избыточный флаг, идентифицирующий позицию, к которой привязан модификатор
+	cifHasModifier   = 0x1000, // Специальный избыточный флаг, идентифицирующий позицию, к которой привязан модификатор
 		// Устанавливается при печати во временную структуру.
-	cifFixedPrice    = 0x2000  // @v8.6.12 Цена по строке не должна пересчитываться при общем пересчете чека
+	cifFixedPrice    = 0x2000  // Цена по строке не должна пересчитываться при общем пересчете чека
 		// Флаг введен в ответ на новую технику обработки чеков при которой все цены по строкам пересчитываются
 		// по текущим ценам при внесении каких-либо изменений в чек.
 };
@@ -13400,7 +13408,7 @@ enum {
 //
 struct CCheckItem { // @transient
 	CCheckItem();
-	CCheckItem & Init();
+	CCheckItem & Z();
 	CCheckItem & FASTCALL operator = (const CCheckItem & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineTbl::Rec & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineExtTbl::Rec & rS);
@@ -13431,7 +13439,8 @@ struct CCheckItem { // @transient
 	char   BarCode[24];     // @v8.8.0 [16]-->[24]
 	char   GoodsName[128];  //
 	char   Serial[24];      //
-	char   EgaisMark[80];   // @v9.0.9 Марка алкогольной продукции ЕГАИС
+	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
+	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
 
 typedef TSVector <CCheckItem> CCheckItemArray; // @v9.8.4 TSArray-->TSVector
@@ -13547,7 +13556,7 @@ public:
 	enum {
 		lnextSerial             = 1, // Серийный номер
 		lnextEgaisMark          = 2, // Марка ЕГАИС
-		lnextRemoveProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
+		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
 	};
 	//
@@ -13577,7 +13586,7 @@ public:
 	const  CCheckLineTbl::Rec & FASTCALL GetLine(uint pos) const;
 	int    SLAPI EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
 	int    SLAPI EnumLines(uint * pPos, CCheckItem * pItem) const;
-	int    SLAPI InitLineIteration();
+	void   SLAPI InitLineIteration();
 	int    SLAPI NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial = 0);
 	int    SLAPI RemoveLine_(uint pos);
 	int    SLAPI CopyLines(const CCheckPacket & rS);
@@ -15880,7 +15889,7 @@ struct PPGdsClsPacket {
 	SString PhUPerU_Formula;
 	SString TaxMult_Formula;
 	SString Package_Formula;
-	SString LotDimQtty_Formula; // @v8.9.10 Формула пересчета размерностей лота в количество
+	SString LotDimQtty_Formula; // Формула пересчета размерностей лота в количество
 	PPGdsClsProp PropKind;
 	PPGdsClsProp PropGrade;
 	PPGdsClsProp PropAdd;
@@ -16527,6 +16536,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	int    SLAPI AssignImages(ListBoxDef * pDef);
 
 	ExtraParam SelectorP; // Блок параметров, с которым был вызван последний Selector.
@@ -20517,6 +20527,7 @@ struct PPGoodsValRestr {
 
 class PPGoodsValRestrPacket {
 public:
+	friend class PPObjGoodsValRestr;
 	//
 	// Descr: Опции ограничений по статьям документов
 	//
@@ -20567,6 +20578,8 @@ public:
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPack, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPGoodsValRestrPacket * pPack);
+	int    SLAPI SerializePacket(int dir, PPGoodsValRestrPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI IsPacketEq(const PPGoodsValRestrPacket & rS1, const PPGoodsValRestrPacket & rS2, long flags);
 	int    SLAPI ReadBarList(PPID id, ObjRestrictArray & rList);
 	int    SLAPI Fetch(PPID id, PPGoodsValRestrPacket * pPack);
 	//
@@ -20575,6 +20588,10 @@ public:
 	//
 	int    SLAPI FetchBarList(PPObjGoodsValRestr::GvrArray & rList);
 private:
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	int    SLAPI Helper_ReadBarList(PPID id, PPGoodsValRestrPacket & rPack);
 };
 //
@@ -26767,7 +26784,7 @@ public:
 	//   данных в интернет-магазин Universe-HTT
 	//
 	struct Ext {
-		Ext  & SLAPI Clear();
+		Ext  & SLAPI Z();
 
 		PPID   GoodsID;
 		PPID   CurID;
@@ -27269,7 +27286,7 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 class PPAlbatrosConfig {
 public:
 	SLAPI  PPAlbatrosConfig();
-	PPAlbatrosConfig & SLAPI Clear();
+	PPAlbatrosConfig & SLAPI Z();
 	int    SLAPI SetPassword(int fld, const char * pPw);
 	int    SLAPI GetPassword(int fld, SString & rPw);
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
@@ -29204,7 +29221,7 @@ struct CfmReckoningParam {
 
 struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	SLAPI  PPBillConfig();
-	PPBillConfig & Clear();
+	PPBillConfig & SLAPI Z();
 
 	PPID   SecurID;            // Const=PPCFG_MAIN
 	char   OpCodePrfx[8];      // Префикс кода операции
@@ -31687,7 +31704,7 @@ public:
 	// то применять минимальную цену из котировок, полученных по списку.
 #define SCRDSF_DISABLEADDPAYM  0x0040L // Запрет на доплату в кассовой панели (только для кредитных карт)
 #define SCRDSF_BONUSER_ONBNK   0x0080L // SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
-#define SCRDSF_NEWSCINHF       0x0100L // 
+#define SCRDSF_NEWSCINHF       0x0100L //
 #define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
 #define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
 #define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
@@ -32112,12 +32129,12 @@ public:
 	//   0  - ошибка. Если pSerRec == 0 и серия с идентификатором pRec->SeriesID не найдена, то результат также 0.
 	//
 	//int    SLAPI  SetInheritance(const PPSCardSeries * pSerRec, SCardTbl::Rec * pRec);
-	int    SLAPI  SetInheritance(const PPSCardSerPacket * pSerRec, SCardTbl::Rec * pRec);
-	int    SLAPI  AutoFill(PPID seriesID, int use_ta);
-	int    SLAPI  UpdateBySeries(PPID seriesID, int use_ta);
+	int    SLAPI SetInheritance(const PPSCardSerPacket * pSerRec, SCardTbl::Rec * pRec);
+	int    SLAPI AutoFill(PPID seriesID, int use_ta);
+	int    SLAPI UpdateBySeries(PPID seriesID, int use_ta);
 	// @v9.5.4 int    SLAPI  UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
-	int    SLAPI  UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
-	int    SLAPI  PutUhttOp(PPID cardID, double amount);
+	int    SLAPI UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta);
+	int    SLAPI PutUhttOp(PPID cardID, double amount);
 	//
 	// Descr: Устанавливает параметры карты в состояние активности: Flags &= ~(SCRDF_CLOSED|SCRDF_NEEDACTIVATION),
 	//   Expiry рассчитывает исходя из параметров PeriodTerm и PeriodCount.
@@ -32126,8 +32143,8 @@ public:
 	//   <0 - карта не требует активации
 	//   0  - ошибка
 	//
-	int    SLAPI  ActivateRec(SCardTbl::Rec * pRec);
-	int    SLAPI  VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID);
+	int    SLAPI ActivateRec(SCardTbl::Rec * pRec);
+	int    SLAPI VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID);
 
 	enum {
 		gtalgDefault = 0,
@@ -32210,18 +32227,30 @@ public:
 //
 class SCardSpecialTreatment {
 public:
-	static SCardSpecialTreatment * FASTCALL CreateInstance(int spcTrtID);
-
 	struct CardBlock {
 		SLAPI  CardBlock();
+
+		int    SpecialTreatment;
 		PPSCardPacket ScPack;
 		PPID   PosNodeID;
 		SString PosNodeCode;
 	};
+	struct DiscountBlock { // @flat
+		SLAPI  DiscountBlock();
+		PPID   GoodsID;
+		double Qtty;
+		double InPrice;
+		double ResultPrice;
+		char   TaIdent[64];
+	};
+	
+	static SCardSpecialTreatment * FASTCALL CreateInstance(int spcTrtID);
+	static int FASTCALL InitSpecialCardBlock(PPID scID, PPID posNodeID, SCardSpecialTreatment::CardBlock & rBlk);
+
 	SLAPI  SCardSpecialTreatment();
 	virtual SLAPI ~SCardSpecialTreatment();
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
-	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags);
 	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
 };
 //
@@ -49029,7 +49058,7 @@ protected:
 	};
 	struct RetBlock {
 		RetBlock();
-		RetBlock & Clear();
+		RetBlock & Z();
 
 		PPID   SellCheckID;
 		double SellCheckAmount;
@@ -49055,6 +49084,7 @@ protected:
 		// @v9.0.4 PPID   AddCrdCardID_;    // @#{!AddCrdCardID || SCardID}
 			// ИД дополнительной кредитной карты, с которой оплачивается нехватка средств на основной карте.
 		long   Flags;
+		long   SpcCardTreatment; // @v10.1.6 Ид специальной трактовки поведения карт (из серии)
 		double Discount;         // Скидка
 		double SettledDiscount;  // Установленная скидка (в процентах), в результате вызова CheckPaneDialog::SetupDiscount
 		double UhttRest;         // Остаток по карте, извлеченный с сервера uhtt.ru. Актуально только для кредитных и
@@ -50977,6 +51007,7 @@ int    SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckIn
 void   SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId = -1);
 int    SLAPI PPEditTextFile(const char * pFileName);
 int    SLAPI DoDbDump(PPDbEntrySet2 * pDbes);
+int    SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
 
 struct ResolveGoodsItem {
 	ResolveGoodsItem(PPID goodsID = 0);

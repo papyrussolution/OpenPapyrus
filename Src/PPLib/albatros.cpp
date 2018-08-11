@@ -170,7 +170,7 @@ SLAPI PPAlbatrosConfig::PPAlbatrosConfig()
 	MEMSZERO(Hdr);
 }
 
-PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
+PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Z()
 {
 	MEMSZERO(Hdr);
 	ExtString.Z();
@@ -258,7 +258,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 	SString tail;
 	SString temp_buf;
 	STempBuffer buffer(2048);
-	pCfg->Clear();
+	pCfg->Z();
 	if(pRef) {
 		THROW(r = pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, buffer, buffer.GetSize()));
 		if(r > 0) {

@@ -768,11 +768,8 @@ static int __db_join_primget(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_LOCK
 	DBC * dbc;
 	uint32 rmw;
 	int ret, t_ret;
-
-	if((ret = __db_cursor_int(dbp, ip,
-	    txn, dbp->type, PGNO_INVALID, 0, locker, &dbc)) != 0)
+	if((ret = __db_cursor_int(dbp, ip, txn, dbp->type, PGNO_INVALID, 0, locker, &dbc)) != 0)
 		return ret;
-
 	/*
 	 * The only allowable flags here are the two flags copied into "opmods"
 	 * in __db_join_get, DB_RMW and DB_READ_UNCOMMITTED.  The former is an

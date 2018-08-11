@@ -796,8 +796,7 @@ static int __blob_clean_dir(ENV *env, DB_TXN * txn, const char * dir, const char
 			 */
 			if(IS_REAL_TXN(txn))
 				meta->locker = NULL;
-			if((t_ret = __db_close(
-				    meta, NULL, DB_NOSYNC)) != 0 && ret == 0)
+			if((t_ret = __db_close(meta, NULL, DB_NOSYNC)) != 0 && ret == 0)
 				ret = t_ret;
 			meta = NULL;
 			if(ret != 0)
@@ -807,27 +806,23 @@ static int __blob_clean_dir(ENV *env, DB_TXN * txn, const char * dir, const char
 			if(!IS_REAL_TXN(txn))
 				ret = __os_unlink(env, full_path, 0);
 			else {
-				local_path = (subdir == NULL ? full_path :
-				    strstr(full_path, subdir));
+				local_path = (subdir == NULL ? full_path : strstr(full_path, subdir));
 				if(local_path != NULL)
-					ret = __fop_remove(env, txn, NULL,
-						local_path, NULL, DB_APP_BLOB, 0);
+					ret = __fop_remove(env, txn, NULL, local_path, NULL, DB_APP_BLOB, 0);
 			}
 			if(ret != 0)
 				goto err;
 		}
 	}
-err:    if(meta != NULL) {
-		if((t_ret = __db_close(
-			    meta, NULL, DB_NOSYNC)) != 0 && ret == 0)
+err:    
+	if(meta != NULL) {
+		if((t_ret = __db_close(meta, NULL, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	if(dirs != NULL)
 		__os_dirfree(env, dirs, count);
-
 	return ret;
 }
-
 /*
  * __blob_copy_all --
  *	Copy all files in the blob directory.

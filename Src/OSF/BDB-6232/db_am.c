@@ -18,29 +18,22 @@
 #include "dbinc/qam.h"
 #include "dbinc/txn.h"
 
-static int __dbc_set_priority __P((DBC *, DB_CACHE_PRIORITY));
-static int __dbc_get_priority __P((DBC *, DB_CACHE_PRIORITY* ));
-
-/*
- * __db_cursor_int --
- *	Internal routine to create a cursor.
- *
- * PUBLIC: int __db_cursor_int __P((DB *, DB_THREAD_INFO *,
- * PUBLIC:     DB_TXN *, DBTYPE, db_pgno_t, int, DB_LOCKER *, DBC **));
- */
-int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, db_pgno_t root, int flags, DB_LOCKER * locker, DBC ** dbcp)
+static int __dbc_set_priority(DBC *, DB_CACHE_PRIORITY);
+static int __dbc_get_priority(DBC *, DB_CACHE_PRIORITY* );
+// 
+// __db_cursor_int -- Internal routine to create a cursor.
+// 
+int FASTCALL __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, db_pgno_t root, int flags, DB_LOCKER * locker, DBC ** dbcp)
 {
 	DBC * dbc;
 	DBC_INTERNAL * cp;
 	DB_LOCKREQ req;
-	ENV * env;
 	db_threadid_t tid;
-	int allocated, envlid, ret;
+	int allocated = 0;
+	int envlid = 0;
+	int ret;
 	pid_t pid;
-
-	env = dbp->env;
-	allocated = envlid = 0;
-
+	ENV * env = dbp->env;
 	/*
 	 * If dbcp is non-NULL it is assumed to point to an area to initialize
 	 * as a cursor.
@@ -50,7 +43,6 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	 * of cursors on the queue for a single database.
 	 */
 	MUTEX_LOCK(env, dbp->mutex);
-
 #ifndef HAVE_NO_DB_REFCOUNT
 	/*
 	 * If this DBP is being logged then refcount the log filename
@@ -67,9 +59,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 		MUTEX_UNLOCK(env, dbp->mutex);
 		return ret;
 	}
-
 #endif
-
 	TAILQ_FOREACH(dbc, &dbp->free_queue, links)
 	if(dbtype == dbc->dbtype) {
 		TAILQ_REMOVE(&dbp->free_queue, dbc, links);
@@ -77,13 +67,11 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 		break;
 	}
 	MUTEX_UNLOCK(env, dbp->mutex);
-
 	if(dbc == NULL) {
 		if((ret = __os_calloc(env, 1, sizeof(DBC), &dbc)) != 0)
 			return ret;
 		allocated = 1;
 		dbc->flags = 0;
-
 		dbc->dbp = dbp;
 		dbc->dbenv = dbp->dbenv;
 		dbc->env = dbp->env;
@@ -102,8 +90,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 			 */
 			if(!DB_IS_THREADED(dbp)) {
 				if(env->env_lref == NULL) {
-					if((ret = __lock_id(env,
-					    NULL, &env->env_lref)) != 0)
+					if((ret = __lock_id(env, NULL, &env->env_lref)) != 0)
 						goto err;
 					envlid = 1;
 				}
@@ -201,17 +188,14 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	 * as well.  This doesn't apply to CDS group transactions, where the
 	 * cursor can simply use the transaction's locker directly.
 	 */
-	if(!CDB_LOCKING(env) && txn != NULL && F_ISSET(txn, TXN_FAMILY) &&
-	    (F_ISSET(dbc, DBC_OWN_LID) || dbc->lref == NULL || envlid)) {
+	if(!CDB_LOCKING(env) && txn != NULL && F_ISSET(txn, TXN_FAMILY) && (F_ISSET(dbc, DBC_OWN_LID) || dbc->lref == NULL || envlid)) {
 		if(LOCKING_ON(env)) {
 			if(dbc->lref == NULL) {
-				if((ret =
-				    __lock_id(env, NULL, &dbc->lref)) != 0)
+				if((ret = __lock_id(env, NULL, &dbc->lref)) != 0)
 					goto err;
 				F_SET(dbc, DBC_OWN_LID);
 			}
-			if((ret = __lock_addfamilylocker(env,
-			    txn->txnid, dbc->lref->id, 1)) != 0)
+			if((ret = __lock_addfamilylocker(env, txn->txnid, dbc->lref->id, 1)) != 0)
 				goto err;
 		}
 		F_SET(dbc, DBC_FAMILY);
@@ -248,8 +232,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 			dbc->locker = NULL;
 		else {
 			if(dbc->lref == NULL) {
-				if((ret =
-				    __lock_id(env, NULL, &dbc->lref)) != 0)
+				if((ret = __lock_id(env, NULL, &dbc->lref)) != 0)
 					goto err;
 				F_SET(dbc, DBC_OWN_LID);
 			}
@@ -264,7 +247,6 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 			dbc->locker = dbc->lref;
 		}
 	}
-
 	/*
 	 * These fields change when we are used as a secondary index, so
 	 * if the DB is a secondary, make sure they're set properly just
@@ -280,8 +262,7 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	 * a full search avoids taking write locks necessary to maintain
 	 * consistent numbering.
 	 */
-	if(LF_ISSET(DB_CURSOR_BULK) && dbtype == DB_BTREE &&
-	    !F_ISSET(dbp, DB_AM_RECNUM))
+	if(LF_ISSET(DB_CURSOR_BULK) && dbtype == DB_BTREE && !F_ISSET(dbp, DB_AM_RECNUM))
 		F_SET(dbc, DBC_BULK);
 	if(LF_ISSET(DB_CURSOR_TRANSIENT))
 		F_SET(dbc, DBC_TRANSIENT);
@@ -397,7 +378,6 @@ int __db_cursor_int(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, d
 	TAILQ_INSERT_TAIL(&dbp->active_queue, dbc, links);
 	F_SET(dbc, DBC_ACTIVE);
 	MUTEX_UNLOCK(env, dbp->mutex);
-
 	*dbcp = dbc;
 	return 0;
 err:    
@@ -405,27 +385,19 @@ err:
 		__os_free(env, dbc);
 	return ret;
 }
-
 /*
- * __db_put --
- *	Store a key/data pair.
- *
- * PUBLIC: int __db_put __P((DB *,
- * PUBLIC:      DB_THREAD_INFO *, DB_TXN *, DBT *, DBT *, uint32));
+ * __db_put -- Store a key/data pair.
  */
-int __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, uint32 flags)
+int FASTCALL __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, uint32 flags)
 {
 	DB_HEAP_RID rid;
 	DBC * dbc;
 	DBT tdata, tkey;
-	ENV * env;
 	void * bulk_kptr, * bulk_ptr;
 	db_recno_t recno;
 	uint32 cursor_flags;
 	int ret, t_ret;
-
-	env = dbp->env;
-
+	ENV * env = dbp->env;
 	/*
 	 * See the comment in __db_get() regarding DB_CURSOR_TRANSIENT.
 	 *
@@ -445,9 +417,7 @@ int __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, 
 		return ret;
 	DEBUG_LWRITE(dbc, txn, "DB->put", key, data, flags);
 	PERFMON6(env, db, put, dbp->fname, dbp->dname, txn == NULL ? 0 : txn->txnid, key, data, flags);
-
 	SET_RET_MEM(dbc, dbp);
-
 	if(flags == DB_APPEND && !DB_IS_PRIMARY(dbp)) {
 		/*
 		 * If there is an append callback, the value stored in
@@ -456,7 +426,6 @@ int __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, 
 		 * on a copy of the data DBT.
 		 */
 		tdata = *data;
-
 		/*
 		 * Append isn't a normal put operation;  call the appropriate
 		 * access method's append function.
@@ -478,18 +447,16 @@ int __db_put(DB *dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data, 
 			case DB_HASH:
 			case DB_UNKNOWN:
 			default:
-			    /* The interface should prevent this. */
+			    // The interface should prevent this. 
 			    DB_ASSERT(env, dbp->type == DB_QUEUE || dbp->type == DB_RECNO);
 			    ret = __db_ferr(env, "DB->put", 0);
 			    goto err;
 		}
-
 		/*
 		 * The append callback, if one exists, may have allocated
 		 * a new tdata.data buffer.  If so, free it.
 		 */
 		FREE_IF_NEEDED(env, &tdata);
-
 		/* No need for a cursor put;  we're done. */
 #ifdef HAVE_COMPRESSION
 	}
@@ -559,7 +526,6 @@ err:    /* Close the cursor. */
 		ret = t_ret;
 	return ret;
 }
-
 /*
  * __db_del --
  *	Delete the items referenced by a key.
