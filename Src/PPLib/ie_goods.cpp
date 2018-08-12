@@ -2865,6 +2865,7 @@ int SLAPI ExportUhttForGitHub()
 	PPWait(1);
     while(giter.Next(&goods_rec) > 0) {
 		(goods_name = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+		goods_name.ReplaceChar('\t', ' ');
 		goods_obj.GetHierarchy(goods_rec.ID, &goods_grp_hier);
 		group_name.Z();
 		if(goods_grp_hier.getCount() > 1) {
@@ -2875,11 +2876,13 @@ int SLAPI ExportUhttForGitHub()
 			}
 			group_name.Transf(CTRANSF_INNER_TO_UTF8);
 		}
+		group_name.ReplaceChar('\t', ' ');
 		brand_name.Z();
 		if(goods_rec.BrandID) {
 			PPBrand brand_rec;
 			if(brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
 				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				brand_name.ReplaceChar('\t', ' ');
 			}
 		}
 		goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, codes);

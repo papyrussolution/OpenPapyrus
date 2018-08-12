@@ -2116,8 +2116,8 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_egais_ref_a;
 	DBE    dbe_egais_ref_b;
 	DBE    dbe_egais_prodcode;
-	DBE    dbe_egais_manuf;
-	DBE    dbe_egais_prodtypecode;
+	//DBE    dbe_egais_manuf;
+	//DBE    dbe_egais_prodtypecode;
 	DBE    dbe_vetis_vdocuuid;
 
 	DBQ  * dbq = 0;

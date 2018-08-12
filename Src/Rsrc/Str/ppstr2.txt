@@ -3658,7 +3658,7 @@ PPTXT_CFGNAMES               "@{cfg_goods};@{cfg_bill};@{cfg_project};@{cfg_tech
 
 PPTXT_GOODSGRPNGLIST         "1,@{trfranlzfilt_g_goods};2,@{trfranlzfilt_g_cntragent};3,@{trfranlzfilt_g_cntragentdate};\
 4,@{trfranlzfilt_g_goodscntragent};5,@{trfranlzfilt_g_goodscntragentdate};6,@{trfranlzfilt_g_goodsbill};\
-7,@{trfranlzfilt_g_datecntragentagentgoods};8,@{trfranlzfilt_g_goodsdate};9,@{trfranlzfilt_g_billcntragent}"
+7,@{trfranlzfilt_g_datecntragentagentgoods};8,@{trfranlzfilt_g_goodsdate};9,@{trfranlzfilt_g_billcntragent};10,@{trfranlzfilt_g_goodssuppl}"
 PPTXT_TRFRANLZCTVALNAMES     "@{trfranlzfilt_ctv_cost};@{trfranlzfilt_ctv_netprice};@{trfranlzfilt_ctv_income};@{trfranlzfilt_ctv_pctincome};@{trfranlzfilt_ctv_loccount};@{trfranlzfilt_ctv_pctmargin};@{trfranlzfilt_ctv_qtty}"
 // UserInterfaceSettings::wndVKXXX Варианты отображения элементов пользовательского интерфейса
 PPTXT_WINDOWSVIEWKINDS       "1,Standard;2,Flat (не рекомендуется);3,Vector;4,Fancy"
@@ -11053,6 +11053,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_g_datecntragentagentgoods   "По дате/контрагенту/агенту/товару"
 @trfranlzfilt_g_goodsdate                 "По товару/дате"
 @trfranlzfilt_g_billcntragent             "По документу/контрагенту"
+@trfranlzfilt_g_goodssuppl                "По товару/поставщику"
 @trfranlzfilt_subst                       "Подстановка при группировке" // Обобщающее понятие для @trfranlzfilt_sgg @trfranlzfilt_sgp @trfranlzfilt_sgd
 @trfranlzfilt_sgg                         "@{ware}"
 @trfranlzfilt_sgp                         "@{contractor}"

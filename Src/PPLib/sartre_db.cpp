@@ -1365,18 +1365,18 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	PPIniFile ini_file;
 	int64  ini_val;
 	if(flags & oReadOnly) {
-		cfg.CacheSize   = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_CACHESIZE_RO, &ini_val) > 0)   ? ini_val : SMEGABYTE(128);
-		cfg.MaxLockers  = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKERS_RO, &ini_val) > 0)  ? ini_val : SKILOBYTE(64);
-		cfg.MaxLocks    = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKS_RO, &ini_val) > 0)    ? ini_val : SKILOBYTE(32);
-		cfg.MaxLockObjs = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO, &ini_val) > 0) ? ini_val : SKILOBYTE(32);
+		cfg.CacheSize   = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_CACHESIZE_RO, &ini_val) > 0)   ? (uint)ini_val : SMEGABYTE(128);
+		cfg.MaxLockers  = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKERS_RO, &ini_val) > 0)  ? (uint)ini_val : SKILOBYTE(64);
+		cfg.MaxLocks    = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKS_RO, &ini_val) > 0)    ? (uint)ini_val : SKILOBYTE(32);
+		cfg.MaxLockObjs = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO, &ini_val) > 0) ? (uint)ini_val : SKILOBYTE(32);
 	}
 	else {
-		cfg.CacheSize   = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_CACHESIZE, &ini_val) > 0)   ? ini_val : SMEGABYTE(512+512);
-		cfg.MaxLockers  = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKERS, &ini_val) > 0)  ? ini_val : SKILOBYTE(512);
-		cfg.MaxLocks    = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKS, &ini_val) > 0)    ? ini_val : SKILOBYTE(512);
-		cfg.MaxLockObjs = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKOBJS, &ini_val) > 0) ? ini_val : SKILOBYTE(512);
+		cfg.CacheSize   = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_CACHESIZE, &ini_val) > 0)   ? (uint)ini_val : SMEGABYTE(512+512);
+		cfg.MaxLockers  = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKERS, &ini_val) > 0)  ? (uint)ini_val : SKILOBYTE(512);
+		cfg.MaxLocks    = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKS, &ini_val) > 0)    ? (uint)ini_val : SKILOBYTE(512);
+		cfg.MaxLockObjs = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKOBJS, &ini_val) > 0) ? (uint)ini_val : SKILOBYTE(512);
 	}
-	cfg.LogBufSize = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_LOGBUFSIZE, &ini_val) > 0) ? ini_val : SMEGABYTE(8);
+	cfg.LogBufSize = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_LOGBUFSIZE, &ini_val) > 0) ? (uint)ini_val : SMEGABYTE(8);
 	//cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512+512); // @v10.1.5 512-->512+512
 	//cfg.CacheCount  = 1; // @v9.6.4 20-->
 	//cfg.MaxLockers  = (flags & oReadOnly) ? SKILOBYTE(64) : SKILOBYTE(512); // @v9.6.2 20000-->256*1024 // @v10.0.01 256-->512
@@ -2460,9 +2460,9 @@ CONCEPTID SrDatabase::TryOneWordForConcept(const char * pWord, CONCEPTID targetC
 			}
 		}
 	}
-	CATCH
+	/*CATCH
 		result_cid = 0;
-	ENDCATCH
+	ENDCATCH*/
 	return result_cid;
 }
 

@@ -782,23 +782,18 @@ static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * p
 		F_SET(mfp, MP_TEMP);
 	else if(FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE))
 		mfp->mpf_cnt++;
-
 	/* Copy the file identification string into shared memory. */
 	if(F_ISSET(dbmfp, MP_FILEID_SET)) {
-		if((ret = __memp_alloc(dbmp, dbmp->reginfo,
-		    NULL, DB_FILE_ID_LEN, &mfp->fileid_off, &p)) != 0)
+		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, DB_FILE_ID_LEN, &mfp->fileid_off, &p)) != 0)
 			goto err;
 		memcpy(p, dbmfp->fileid, DB_FILE_ID_LEN);
 	}
-
 	/* Copy the file path into shared memory. */
 	if(path != NULL) {
-		if((ret = __memp_alloc(dbmp, dbmp->reginfo,
-		    NULL, strlen(path) + 1, &mfp->path_off, &p)) != 0)
+		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, strlen(path) + 1, &mfp->path_off, &p)) != 0)
 			goto err;
 		memcpy(p, path, strlen(path) + 1);
 	}
-
 	/* Copy the page cookie into shared memory. */
 	if(dbmfp->pgcookie == NULL || dbmfp->pgcookie->size == 0) {
 		mfp->pgcookie_len = 0;
@@ -810,7 +805,6 @@ static int __memp_mpf_alloc(DB_MPOOL *dbmp, DB_MPOOLFILE * dbmfp, const char * p
 		memcpy(p, dbmfp->pgcookie->data, dbmfp->pgcookie->size);
 		mfp->pgcookie_len = dbmfp->pgcookie->size;
 	}
-
 	if((ret = __mutex_alloc(env, MTX_MPOOLFILE_HANDLE, 0, &mfp->mutex)) != 0)
 		goto err;
 #ifndef HAVE_ATOMICFILEREAD

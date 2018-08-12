@@ -50,7 +50,7 @@ IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); SLAPI TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseF
 int SLAPI TrfrAnlzFilt::HasCntragentGrouping() const
 	{ return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent); }
 int SLAPI TrfrAnlzFilt::HasGoodsGrouping() const
-	{ return oneof6(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate); }
+	{ return oneof7(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate, gGoodsSuppl); }
 int SLAPI TrfrAnlzFilt::HasDateGrouping() const
 	{ return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate); }
 int SLAPI TrfrAnlzFilt::HasBillGrouping() const
@@ -251,6 +251,7 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 			case gDateCntragentAgentGoods: temp_buf = STRINGIZE(gDateCntragentAgentGoods); break;
 			case gGoodsDate:               temp_buf = STRINGIZE(gGoodsDate); break;
 			case gBillCntragent:           temp_buf = STRINGIZE(gBillCntragent); break;
+			case gGoodsSuppl:              temp_buf = STRINGIZE(gGoodsSuppl); break; // @v10.1.6
 			default: temp_buf.Z();
 		}
 		PutMembToBuf(temp_buf, STRINGIZE(Grp), rBuf);
@@ -999,6 +1000,9 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	PPFreight freight;
 	PPGoodsTaxEntry gtx;
 	PROFILE_START
+	ReceiptTbl::Rec org_lot_rec;
+	org_lot_rec.ID = 0;
+	Transfer * p_trfr = P_BObj->trfr;
 	if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods || Filt.Sgp == sgpBillAgent) {
 		if(Filt.Flags & (TrfrAnlzFilt::fShowAllArticles|TrfrAnlzFilt::fShowAllGoods) && (Filt.Flags & TrfrAnlzFilt::fByZeroAgent || Filt.AgentList.GetSingle())) {
 			//
@@ -1017,7 +1021,14 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	}
 	const  int  is_vessel_agent = BIN(Filt.Sgp == sgpVesselAgent);
 	const  PPID goods_id = labs(pTrfrRec->GoodsID);
-	const  PPID ar_id  = is_vessel_agent ? 0 : (Filt.Sgp == sgpBillAgent ? bill_agent_id : pBillRec->Object);
+	PPID   suppl_id = 0;
+	if(Filt.Grp == TrfrAnlzFilt::gGoodsSuppl) {
+		if(pTrfrRec->LotID && (org_lot_rec.ID > 0 || (!org_lot_rec.ID && p_trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0)))
+			suppl_id = org_lot_rec.SupplID;
+		else
+			org_lot_rec.ID = -1;
+	}
+	const  PPID ar_id  = is_vessel_agent ? 0 : ((Filt.Sgp == sgpBillAgent) ? bill_agent_id : ((Filt.Grp == TrfrAnlzFilt::gGoodsSuppl) ? suppl_id : pBillRec->Object));
 	const  PPID psn_id = is_vessel_agent ? bill_agent_id : ObjectToPerson(ar_id);
 	PPID   dlvr_loc_id = -1;
 	PPID   _psn_id = 0;
@@ -1049,7 +1060,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					assert(ord_lot_id);
 					DateIter di;
 					TransferTbl::Rec ord_rec;
-					if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
+					if(p_trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
 						if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT))) {
 							if(ext_val_param == Filt.extvLinkOrderDiscount) {
 								if(ord_rec.Discount != 0.0) {
@@ -1108,14 +1119,13 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					LDATE  lot_date = ZERODATE;
 					PPID   in_tax_grp_id = 0;
 					int    vat_free = 0;
-					ReceiptTbl::Rec org_lot_rec;
-					if(pTrfrRec->LotID) {
-						if(P_BObj->trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0) {
-							lot_date = org_lot_rec.Dt;
-							in_tax_grp_id = org_lot_rec.InTaxGrpID;
-							vat_free = IsLotVATFree(org_lot_rec);
-						}
+					if(pTrfrRec->LotID && (org_lot_rec.ID > 0 || (!org_lot_rec.ID && p_trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0))) {
+						lot_date = org_lot_rec.Dt;
+						in_tax_grp_id = org_lot_rec.InTaxGrpID;
+						vat_free = IsLotVATFree(org_lot_rec);
 					}
+					else
+						org_lot_rec.ID = -1;
 					if(pTrfrRec->Flags & PPTFR_COSTWOVAT)
 						GObj.AdjCostToVat(in_tax_grp_id, grec.TaxGrpID, lot_date, tax_factor, &cost, 1, vat_free);
 					if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
@@ -1222,71 +1232,81 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			tg_rec.PersonID  = _psn_id;
 			tg_rec.Dt        = _dt;
 			MEMSZERO(k);
-			if(Filt.Grp == TrfrAnlzFilt::gGoods) {
-				k.GoodsID = _goods_id;
-				tg_rec.PersonID = 0;
-				tg_rec.Dt = ZERODATE;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
-				k.GoodsID = _goods_id;
-				k.Dt      = _dt;
-				tg_rec.PersonID = 0;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gCntragent) {
-				k.PersonID = _psn_id;
-				tg_rec.GoodsID = 0;
-				tg_rec.Dt = ZERODATE;
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				k.DlvrLocID = tg_rec.DlvrLocID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gCntragentDate) {
-				k.PersonID = _psn_id;
-				tg_rec.GoodsID = 0;
-				k.Dt = _dt;
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				k.DlvrLocID = tg_rec.DlvrLocID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragent) {
-				k.GoodsID  = _goods_id;
-				k.PersonID = _psn_id;
-				tg_rec.Dt = ZERODATE;
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				k.DlvrLocID = tg_rec.DlvrLocID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate) {
-				k.GoodsID  = _goods_id;
-				k.PersonID = _psn_id;
-				k.Dt = _dt;
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				k.DlvrLocID = tg_rec.DlvrLocID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gGoodsBill) {
-				tg_rec.BillID = pBillRec->ID;
-				k.GoodsID = _goods_id;
-				k.PersonID = _psn_id;
-				k.Dt = _dt;
-				k.BillID = pBillRec->ID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods) {
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				if(tg_rec.DlvrLocID == 0 && psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0)
-					tg_rec.DlvrLocID = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
-				tg_rec.BillID = bill_agent_id;
-				k.GoodsID  = _goods_id;
-				k.PersonID = _psn_id;
-				k.Dt       = _dt;
-				k.BillID   = tg_rec.BillID;
-				k.DlvrLocID = tg_rec.DlvrLocID;
-			}
-			else if(Filt.Grp == TrfrAnlzFilt::gBillCntragent) {
-				k.PersonID = _psn_id;
-				k.BillID   = pBillRec->ID;
-				k.Dt       = pBillRec->Dt;
-				InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
-				k.DlvrLocID = tg_rec.DlvrLocID;
-				tg_rec.BillID  = pBillRec->ID;
-				tg_rec.GoodsID = 0;
-				tg_rec.Dt      = pBillRec->Dt;
+			switch(Filt.Grp) {
+				case TrfrAnlzFilt::gGoods:
+					k.GoodsID = _goods_id;
+					tg_rec.PersonID = 0;
+					tg_rec.Dt = ZERODATE;
+					break;
+				case TrfrAnlzFilt::gGoodsDate:
+					k.GoodsID = _goods_id;
+					k.Dt      = _dt;
+					tg_rec.PersonID = 0;
+					break;
+				case TrfrAnlzFilt::gCntragent:
+					k.PersonID = _psn_id;
+					tg_rec.GoodsID = 0;
+					tg_rec.Dt = ZERODATE;
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					break;
+				case TrfrAnlzFilt::gCntragentDate:
+					k.PersonID = _psn_id;
+					tg_rec.GoodsID = 0;
+					k.Dt = _dt;
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					break;
+				case TrfrAnlzFilt::gGoodsCntragent:
+					k.GoodsID  = _goods_id;
+					k.PersonID = _psn_id;
+					tg_rec.Dt = ZERODATE;
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					break;
+				case TrfrAnlzFilt::gGoodsSuppl: // @v10.1.6
+					k.GoodsID  = _goods_id;
+					k.PersonID = _psn_id;
+					tg_rec.Dt = ZERODATE;
+					//InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					//k.DlvrLocID = tg_rec.DlvrLocID;
+					k.DlvrLocID = 0;
+					break;
+				case TrfrAnlzFilt::gGoodsCntragentDate:
+					k.GoodsID  = _goods_id;
+					k.PersonID = _psn_id;
+					k.Dt = _dt;
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					break;
+				case TrfrAnlzFilt::gGoodsBill:
+					tg_rec.BillID = pBillRec->ID;
+					k.GoodsID = _goods_id;
+					k.PersonID = _psn_id;
+					k.Dt = _dt;
+					k.BillID = pBillRec->ID;
+					break;
+				case TrfrAnlzFilt::gDateCntragentAgentGoods:
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					if(tg_rec.DlvrLocID == 0 && psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0)
+						tg_rec.DlvrLocID = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
+					tg_rec.BillID = bill_agent_id;
+					k.GoodsID  = _goods_id;
+					k.PersonID = _psn_id;
+					k.Dt       = _dt;
+					k.BillID   = tg_rec.BillID;
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					break;
+				case TrfrAnlzFilt::gBillCntragent:
+					k.PersonID = _psn_id;
+					k.BillID   = pBillRec->ID;
+					k.Dt       = pBillRec->Dt;
+					InitDlvrLocID(pBillRec, &dlvr_loc_id, &tg_rec);
+					k.DlvrLocID = tg_rec.DlvrLocID;
+					tg_rec.BillID  = pBillRec->ID;
+					tg_rec.GoodsID = 0;
+					tg_rec.Dt      = pBillRec->Dt;
+					break;
 			}
 			{
 				TempTrfrGrpngTbl * p_tgt = P_TrGrpngTbl;
@@ -2110,6 +2130,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 				case TrfrAnlzFilt::gCntragent: brw_id = (Flags & fShowSaldo) ? BROWSER_TRFRGR_PS : BROWSER_TRFRGR_P; break;
 				case TrfrAnlzFilt::gCntragentDate: brw_id = BROWSER_TRFRGR_PD; break;
 				case TrfrAnlzFilt::gGoodsCntragent: brw_id = BROWSER_TRFRGR_GP; break;
+				case TrfrAnlzFilt::gGoodsSuppl: brw_id = BROWSER_TRFRGR_GP; break; // @v10.1.6
 				case TrfrAnlzFilt::gGoodsCntragentDate: brw_id = BROWSER_TRFRGR_GPD; break;
 				case TrfrAnlzFilt::gGoodsBill: brw_id = BROWSER_TRFRGR_GB; break;
 				case TrfrAnlzFilt::gDateCntragentAgentGoods: brw_id = BROWSER_TRFRGR_DPAG; break;
@@ -2512,6 +2533,7 @@ int SLAPI PPViewTrfrAnlz::Print(const void *)
 				break;
 			case TrfrAnlzFilt::gNone:                    rpt_id = REPORT_TRFRANLZ; break;
 			case TrfrAnlzFilt::gGoodsCntragent:
+			case TrfrAnlzFilt::gGoodsSuppl: // @v10.1.6
 			case TrfrAnlzFilt::gCntragentDate:
 			case TrfrAnlzFilt::gGoodsBill:
 			case TrfrAnlzFilt::gGoodsDate:               rpt_id = REPORT_TRFRANLZ_G2;   break;
@@ -2628,6 +2650,10 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 									flt.DlvrAddrID = rec.DlvrLocID;
 							}
 						}
+					}
+					else if(Filt.Grp == TrfrAnlzFilt::gGoodsSuppl) { // @v10.1.6
+						flt.SupplID = rec.ArticleID;
+						flt.GoodsID = goods_id;
 					}
 				}
 				if(Filt.HasBillGrouping())
@@ -3069,13 +3095,11 @@ public:
 			Data.CtKind = (Data.CtKind == TrfrAnlzFilt::ctCntragent) ? TrfrAnlzFilt::ctNone : Data.CtKind;
 		}
 		DisableClusterItem(CTL_TAC_KIND, 3, 1);
-
 		AddClusterAssocDef(CTL_TAC_KIND, 0, TrfrAnlzFilt::ctNone);
 		AddClusterAssoc(CTL_TAC_KIND, 1, TrfrAnlzFilt::ctDate);
 		AddClusterAssoc(CTL_TAC_KIND, 2, TrfrAnlzFilt::ctCntragent);
 		AddClusterAssoc(CTL_TAC_KIND, 3, TrfrAnlzFilt::ctLocation);
 		SetClusterData(CTL_TAC_KIND, Data.CtKind);
-
 		if(!Data.CtValList.IsExists())
 			Data.CtValList.InitEmpty();
 		updateList(-1);
@@ -3101,54 +3125,50 @@ private:
 			clearEvent(event);
 		}
 	}
-	virtual int setupList();
+	virtual int TrfrAnlzCtDialog::setupList()
+	{
+		int    ok = 1;
+		SString buf;
+		StringSet text_list(';', CtValNames);
+		StringSet ss(SLBColumnDelim);
+		for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
+			ss.clear();
+			ss.add(buf);
+			buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
+			ss.add(buf);
+			ok = addStringToList(j, ss.getBuf());
+		}
+		return ok;
+	}
 	virtual int editItem(long pos, long id)
 	{
 		return ToggleFlag(id);
 	}
-	int    ToggleFlag(long itemId);
+	int    ToggleFlag(long itemId)
+	{
+		int    ok = 1;
+		if(itemId) {
+			if(Data.CtValList.CheckID(itemId))
+				Data.CtValList.Remove(itemId);
+			else {
+				Data.CtValList.Add(itemId);
+				if(oneof3(itemId, TrfrAnlzFilt::ctvIncome, TrfrAnlzFilt::ctvPctIncome, TrfrAnlzFilt::ctvPctMargin)) {
+					if(itemId != TrfrAnlzFilt::ctvIncome)
+						Data.CtValList.Remove(TrfrAnlzFilt::ctvIncome);
+					if(itemId != TrfrAnlzFilt::ctvPctIncome)
+						Data.CtValList.Remove(TrfrAnlzFilt::ctvPctIncome);
+					if(itemId != TrfrAnlzFilt::ctvPctMargin)
+						Data.CtValList.Remove(TrfrAnlzFilt::ctvPctMargin);
+				}
+			}
+		}
+		else
+			ok = -1;
+		return ok;
+	}
 	SString CtValNames;
 	TrfrAnlzFilt Data;
 };
-
-int TrfrAnlzCtDialog::setupList()
-{
-	int    ok = 1;
-	SString buf;
-	StringSet text_list(';', CtValNames);
-	StringSet ss(SLBColumnDelim);
-	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
-		ss.clear();
-		ss.add(buf);
-		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
-		ss.add(buf);
-		ok = addStringToList(j, ss.getBuf());
-	}
-	return ok;
-}
-
-int TrfrAnlzCtDialog::ToggleFlag(long itemId)
-{
-	if(itemId) {
-		if(Data.CtValList.CheckID(itemId)) {
-			Data.CtValList.Remove(itemId);
-		}
-		else {
-			Data.CtValList.Add(itemId);
-			if(oneof3(itemId, TrfrAnlzFilt::ctvIncome, TrfrAnlzFilt::ctvPctIncome, TrfrAnlzFilt::ctvPctMargin)) {
-				if(itemId != TrfrAnlzFilt::ctvIncome)
-					Data.CtValList.Remove(TrfrAnlzFilt::ctvIncome);
-				if(itemId != TrfrAnlzFilt::ctvPctIncome)
-					Data.CtValList.Remove(TrfrAnlzFilt::ctvPctIncome);
-				if(itemId != TrfrAnlzFilt::ctvPctMargin)
-					Data.CtValList.Remove(TrfrAnlzFilt::ctvPctMargin);
-			}
-		}
-		return 1;
-	}
-	else
-		return -1;
-}
 
 void TrfrAnlzGrpngDialog::SetupCtrls()
 {

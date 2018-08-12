@@ -545,29 +545,23 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 	COMPQUIET(hp, NULL);
 	COMPQUIET(newname_off, 0);
 	COMPQUIET(nlen, 0);
-
 	dbmp = NULL;
 	mfp = NULL;
 	nhp = NULL;
 	p = NULL;
 	locked = ret = 0;
 	purge_dead = 0;
-
 	if(!MPOOL_ON(env))
 		goto fsop;
-
 	dbmp = env->mp_handle;
 	mp = (MPOOL *)dbmp->reginfo[0].primary;
 	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
-
 	if(!op_is_remove) {
 		nlen = strlen(newname);
-		if((ret = __memp_alloc(dbmp, dbmp->reginfo,
-		    NULL,  nlen + 1, &newname_off, &p)) != 0)
+		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL,  nlen + 1, &newname_off, &p)) != 0)
 			return ret;
 		memcpy(p, newname, nlen + 1);
 	}
-
 	/*
 	 * Remove or rename a file that the mpool might know about.  We assume
 	 * that the fop layer has the file locked for exclusive access, so we

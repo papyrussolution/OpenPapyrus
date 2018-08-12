@@ -368,6 +368,7 @@ int BDbDatabase::StartTransaction()
 	THROW(E);
 	THROW_D(!T.T, BE_DBD_INNERTXN);
 	{
+		// DB_READ_UNCOMMITTED | 
 		const uint32 ta_flags = /*DB_TXN_SNAPSHOT |*/DB_TXN_BULK/*| DB_TXN_NOSYNC*/;
 		int r = E->txn_begin(E, 0, &T.T, ta_flags);
 		THROW(ProcessError(r));

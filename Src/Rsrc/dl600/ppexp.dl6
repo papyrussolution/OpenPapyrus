@@ -5296,6 +5296,8 @@ data TrfrAnlz_G : TrfrAnlzBase {
 			else if(Grp == 6) ("по товару и документу")
 			else if(Grp == 7) ("по дате, контрагенту, агенту и товару")
 			else if(Grp == 8) ("по товару и дате")
+			else if(Grp == 9) ("по документу и контрагенту")
+			else if(Grp == 10) ("по товару и поставщику")
 		);
 	ExtraInfo = (
 			if(Grp == 1) ("Контрагент: " + FltObjectID.Name)
