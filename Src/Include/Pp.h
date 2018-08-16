@@ -32144,7 +32144,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI ActivateRec(SCardTbl::Rec * pRec);
-	int    SLAPI VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID);
+	int    SLAPI VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateImmediately);
 
 	enum {
 		gtalgDefault = 0,
@@ -32251,7 +32251,7 @@ public:
 	virtual SLAPI ~SCardSpecialTreatment();
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
 	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags);
-	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
 };
 //
 // @ModuleDecl(PPViewDvcLoadingStat)
@@ -40422,10 +40422,11 @@ struct SCardViewItem : public SCardTbl::Rec {
 
 struct SCardSelPrcssrParam { // @persistent
 	enum {
-		fSetClosed    = 0x0001,
-		fZeroDiscount = 0x0002, // Если установлен, но по всем картам скидку требуется обнулить
-		fZeroExpiry   = 0x0004, // @v9.6.2 Пустое значение даты истечения срока действия
-		fUhttSync     = 0x0008  // @v10.1.4 Синхронизировать (некоторые атрибуты) с сервисом Universe-HTT
+		fSetClosed     = 0x0001,
+		fZeroDiscount  = 0x0002, // Если установлен, но по всем картам скидку требуется обнулить
+		fZeroExpiry    = 0x0004, // @v9.6.2 Пустое значение даты истечения срока действия
+		fUhttSync      = 0x0008, // @v10.1.4 Синхронизировать (некоторые атрибуты) с сервисом Universe-HTT
+		fAppendEan13CD = 0x0010  // @v10.1.6 Дополнить недостающей контрольной цифрой EAN-13
 	};
 	SCardSelPrcssrParam();
 	int    IsEmpty() const;
@@ -49301,7 +49302,6 @@ private:
 	int    Sleep();
 	void   DrawListItem(TDrawItemData *);
 	int    TestCheck(CheckPaymMethod paymMethod);
-
 	int    InitGroupList(const PPTouchScreenPacket & rTsPack);
 	int    MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level); // @recursion
 	int    SelectGroup(PPID * pGrpID);
@@ -49313,7 +49313,6 @@ private:
 	int    AcceptRowDiscount();
 	int    PhnSvcConnect();
 	int    ProcessPhnSvc(int mode);
-
 	int    InputComplexDinner(SaComplex & rComplex);
 	int    EditMemo(const char * pDlvrPhone, const char * pChannel);
 	void   ViewStoragePlaces(PPID goodsId);

@@ -27,7 +27,7 @@ int SLAPI SCardSpecialTreatment::VerifyOwner(const CardBlock * pScBlk)
 	{ return -1; }
 int SLAPI SCardSpecialTreatment::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags)
 	{ return -1; }
-int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
 	{ return -1; }
 
 //static
@@ -72,7 +72,7 @@ public:
 	}
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
 	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags);
-	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
 private:
 	void SLAPI MakeUrl(const char * pSuffix, SString & rBuf)
 	{
@@ -246,45 +246,36 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBl
 	return ok;
 }
 
-int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
 {
 	int    ok = -1;
-	//Reference * p_ref = PPRef;
 	json_t * p_query = 0;
 	json_t * p_reply = 0;
-	ScURL  c;
 	SString temp_buf;
-	//SString barcode;
 	SString ta_ident;
-	SString json_buf;
-	SString reply_code;
-	SString phone_buf;
-	SString log_buf;
-	PPObjGoods goods_obj;
-	BarcodeArray bc_list;
 	int    last_query_status = -1; // 1 - success, 0 - error, -1 - undefined
 	int    last_query_errcode = 0;
 	int    is_cc_suitable = 0;
-	SString last_query_message;
-	//PPObjTag tag_obj;
-	//ObjTagItem tag_item;
-	//PPID   tag_id = 0;
-	MakeUrl("confirm_purchase", temp_buf);
-	InetUrl url(temp_buf);
-	StrStrAssocArray hdr_flds;
-	//const char * p_tag_symb = "ASTRAZENECAGOODS";
-	//THROW_PP_S(tag_obj.FetchBySymb(p_tag_symb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, p_tag_symb);
 	{
 		for(uint lp = 0; !is_cc_suitable && lp < pCcPack->GetCount(); lp++) {
 			const CCheckLineTbl::Rec & r_line = pCcPack->GetLine(lp);
-			pCcPack->GetLineTextExt(lp, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
+			pCcPack->GetLineTextExt(lp+1, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
 			if(ta_ident.NotEmpty())
 				is_cc_suitable = 1;
 		}
 	}
 	if(is_cc_suitable) {
+		SString json_buf;
+		SString reply_code;
+		SString phone_buf;
+		SString log_buf;
+		SString last_query_message;
+		MakeUrl("confirm_purchase", temp_buf);
+		InetUrl url(temp_buf);
+		StrStrAssocArray hdr_flds;
 		THROW(PrepareHtmlFields(hdr_flds));
 		{
+			ScURL  c;
 			PPGetFilePath(PPPATH_LOG, P_Az_DebugFileName, temp_buf);
 			SFile f_out_test(temp_buf, SFile::mAppend);
 			SBuffer ack_buf;
@@ -301,7 +292,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBl
 				THROW_SL(p_array);
 				for(uint lp = 0; lp < pCcPack->GetCount(); lp++) {
 					const CCheckLineTbl::Rec & r_line = pCcPack->GetLine(lp);
-					pCcPack->GetLineTextExt(lp, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
+					pCcPack->GetLineTextExt(lp+1, CCheckPacket::lnextRemoteProcessingTa, ta_ident);
 					if(ta_ident.NotEmpty()) {
 						json_t * p_item = new json_t(json_t::tSTRING);
 						THROW_SL(p_item);
@@ -361,25 +352,12 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 	Reference * p_ref = PPRef;
 	json_t * p_query = 0;
 	json_t * p_reply = 0;
-	ScURL  c;
 	SString temp_buf;
-	SString barcode;
-	SString json_buf;
-	SString reply_code;
-	SString phone_buf;
-	SString log_buf;
 	PPObjGoods goods_obj;
 	BarcodeArray bc_list;
-	int    last_query_status = -1; // 1 - success, 0 - error, -1 - undefined
-	int    last_query_errcode = 0;
 	int    is_cc_suitable = 0;
-	SString last_query_message;
 	PPObjTag tag_obj;
-	ObjTagItem tag_item;
 	PPID   tag_id = 0;
-	MakeUrl("get_discount", temp_buf);
-	InetUrl url(temp_buf);
-	StrStrAssocArray hdr_flds;
 	const char * p_tag_symb = "ASTRAZENECAGOODS";
 	THROW_PP_S(tag_obj.FetchBySymb(p_tag_symb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, p_tag_symb);
 	{
@@ -399,8 +377,20 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 		}
 	}
 	if(is_cc_suitable) {
+		int    last_query_status = -1; // 1 - success, 0 - error, -1 - undefined
+		int    last_query_errcode = 0;
+		SString barcode;
+		SString json_buf;
+		SString reply_code;
+		SString phone_buf;
+		SString log_buf;
+		SString last_query_message;
+		MakeUrl("get_discount", temp_buf);
+		InetUrl url(temp_buf);
+		StrStrAssocArray hdr_flds;
 		THROW(PrepareHtmlFields(hdr_flds));
 		{
+			ScURL  c;
 			PPGetFilePath(PPPATH_LOG, P_Az_DebugFileName, temp_buf);
 			SFile f_out_test(temp_buf, SFile::mAppend);
 			SBuffer ack_buf;

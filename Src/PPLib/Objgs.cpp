@@ -2558,7 +2558,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 			PPGoodsStrucItem * p_item = 0;
 			PPGoodsStruc gstruc;
 			THROW_SL(pStructIDs->add(pStruc->Rec.ID));
-			for(uint i = 0; pStruc->Items.enumItems(&i, (void**)&p_item) > 0;) {
+			for(uint i = 0; !recur && pStruc->Items.enumItems(&i, (void**)&p_item) > 0;) { // @v10.1.7 !recur
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;

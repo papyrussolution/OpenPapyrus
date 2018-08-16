@@ -11,12 +11,9 @@
 #include "dbinc/mp.h"
 #include "dbinc/db_page.h"
 #include "dbinc/hash.h"
-
 /*
  * __memp_env_create --
  *	Mpool specific creation of the DB_ENV structure.
- *
- * PUBLIC: int __memp_env_create(DB_ENV *);
  */
 int __memp_env_create(DB_ENV *dbenv)
 {
@@ -34,12 +31,8 @@ int __memp_env_create(DB_ENV *dbenv)
 	dbenv->mp_ncache = 1;
 	return 0;
 }
-
 /*
- * __memp_env_destroy --
- *	Mpool specific destruction of the DB_ENV structure.
- *
- * PUBLIC: void __memp_env_destroy(DB_ENV *);
+ * __memp_env_destroy -- Mpool specific destruction of the DB_ENV structure.
  */
 void __memp_env_destroy(DB_ENV *dbenv)
 {
@@ -151,19 +144,14 @@ int __memp_set_cachesize(DB_ENV *dbenv, uint32 gbytes, uint32 bytes, int arg_nca
 		ENV_LEAVE(env, ip);
 		return ret;
 	}
-
 	dbenv->mp_gbytes = gbytes;
 	dbenv->mp_bytes = bytes;
 	dbenv->mp_ncache = ncache;
-
 	return 0;
 }
-
 /*
  * __memp_set_config --
  *	Set the cache subsystem configuration.
- *
- * PUBLIC: int __memp_set_config __P((DB_ENV *, uint32, int));
  */
 int __memp_set_config(DB_ENV *dbenv, uint32 which, int on)
 {
@@ -188,12 +176,9 @@ int __memp_set_config(DB_ENV *dbenv, uint32 which, int on)
 	}
 	return 0;
 }
-
 /*
  * __memp_get_config --
  *	Return the cache subsystem configuration.
- *
- * PUBLIC: int __memp_get_config __P((DB_ENV *, uint32, int *));
  */
 int __memp_get_config(DB_ENV *dbenv, uint32 which, int * onp)
 {
@@ -217,7 +202,6 @@ int __memp_get_config(DB_ENV *dbenv, uint32 which, int * onp)
 	}
 	return 0;
 }
-
 /*
  * PUBLIC: int __memp_get_mp_max_openfd __P((DB_ENV *, int *));
  */
@@ -272,20 +256,17 @@ int __memp_set_mp_max_openfd(DB_ENV *dbenv, int maxopenfd)
 		break;
 	return ret;
 }
-
 /*
  * PUBLIC: int __memp_get_mp_max_write __P((DB_ENV *, int *, db_timeout_t *));
  */
 int __memp_get_mp_max_write(DB_ENV *dbenv, int * maxwritep, db_timeout_t * maxwrite_sleepp)
 {
-	DB_MPOOL * dbmp;
 	DB_THREAD_INFO * ip;
-	MPOOL * mp;
 	ENV * env = dbenv->env;
 	ENV_NOT_CONFIGURED(env, env->mp_handle, "DB_ENV->get_mp_max_write", DB_INIT_MPOOL);
 	if(MPOOL_ON(env)) {
-		dbmp = env->mp_handle;
-		mp = (MPOOL *)dbmp->reginfo[0].primary;
+		DB_MPOOL * dbmp = env->mp_handle;
+		MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
 		ENV_ENTER(env, ip);
 		MPOOL_SYSTEM_LOCK(env);
 		*maxwritep = mp->mp_maxwrite;
@@ -299,12 +280,9 @@ int __memp_get_mp_max_write(DB_ENV *dbenv, int * maxwritep, db_timeout_t * maxwr
 	}
 	return 0;
 }
-
 /*
  * __memp_set_mp_max_write --
  *	Set the maximum continuous I/O count.
- *
- * PUBLIC: int __memp_set_mp_max_write __P((DB_ENV *, int, db_timeout_t));
  */
 int __memp_set_mp_max_write(DB_ENV *dbenv, int maxwrite, db_timeout_t maxwrite_sleep)
 {
@@ -361,7 +339,6 @@ int __memp_get_mp_mmapsize(DB_ENV *dbenv, size_t * mp_mmapsizep)
 		*mp_mmapsizep = dbenv->mp_mmapsize;
 	return 0;
 }
-
 /*
  * __memp_set_mp_mmapsize --
  *	DB_ENV->set_mp_mmapsize.
@@ -470,7 +447,6 @@ int __memp_get_mp_tablesize(DB_ENV *dbenv, uint32 * mp_tablesizep)
 		*mp_tablesizep = dbenv->mp_tablesize;
 	return 0;
 }
-
 /*
  * __memp_set_mp_tablesize --
  *	DB_ENV->set_mp_tablesize.
@@ -503,12 +479,8 @@ int __memp_get_mp_mtxcount(DB_ENV *dbenv, uint32 * mp_mtxcountp)
 		*mp_mtxcountp = dbenv->mp_mtxcount;
 	return 0;
 }
-
 /*
- * __memp_set_mp_mtxcount --
- *	DB_ENV->set_mp_mtxcount.
- *
- * PUBLIC: int __memp_set_mp_mtxcount(DB_ENV *, uint32);
+ * __memp_set_mp_mtxcount -- DB_ENV->set_mp_mtxcount.
  */
 int __memp_set_mp_mtxcount(DB_ENV *dbenv, uint32 mp_mtxcount)
 {
@@ -537,10 +509,8 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 	int locked, purge_dead, ret;
 	size_t nlen;
 	void * p;
-
 #undef  op_is_remove
 #define op_is_remove    (newname == NULL)
-
 	COMPQUIET(bucket, 0);
 	COMPQUIET(hp, NULL);
 	COMPQUIET(newname_off, 0);
@@ -585,14 +555,12 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 	}
 	else
 		hp += FNBUCKET(fileid, DB_FILE_ID_LEN);
-
 	if(nhp != NULL && nhp < hp)
 		MUTEX_LOCK(env, nhp->mtx_hash);
 	MUTEX_LOCK(env, hp->mtx_hash);
 	if(nhp != NULL && nhp > hp)
 		MUTEX_LOCK(env, nhp->mtx_hash);
 	locked = 1;
-
 	if(!op_is_remove && inmem) {
 		SH_TAILQ_FOREACH(mfp, &nhp->hash_bucket, q, __mpoolfile)
 		if(!mfp->deadfile && mfp->no_backing_file && strcmp(newname, (const char *)R_ADDR(dbmp->reginfo, mfp->path_off)) == 0)
@@ -603,22 +571,18 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 		}
 	}
 	/*
-	 * Find the file -- if mpool doesn't know about this file, that may
-	 * not be an error.
+	 * Find the file -- if mpool doesn't know about this file, that may not be an error.
 	 */
 	SH_TAILQ_FOREACH(mfp, &hp->hash_bucket, q, __mpoolfile) {
 		/* Ignore non-active files. */
 		if(mfp->deadfile || F_ISSET(mfp, MP_TEMP))
 			continue;
-
 		/* Try to match on fileid. */
-		if(memcmp(fileid, R_ADDR(
-			    dbmp->reginfo, mfp->fileid_off), DB_FILE_ID_LEN) != 0)
+		if(memcmp(fileid, R_ADDR(dbmp->reginfo, mfp->fileid_off), DB_FILE_ID_LEN) != 0)
 			continue;
 
 		break;
 	}
-
 	if(mfp == NULL) {
 		if(inmem) {
 			ret = USR_ERR(env, ENOENT);
@@ -626,7 +590,6 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 		}
 		goto fsop;
 	}
-
 	if(op_is_remove) {
 		MUTEX_LOCK(env, mfp->mutex);
 		/*
@@ -647,7 +610,6 @@ int __memp_nameop(ENV *env, uint8 * fileid, const char * newname, const char * f
 		 */
 		p = R_ADDR(dbmp->reginfo, mfp->path_off);
 		mfp->path_off = newname_off;
-
 		if(inmem && hp != nhp) {
 			DB_ASSERT(env, nhp != NULL);
 			SH_TAILQ_REMOVE(&hp->hash_bucket, mfp, q, __mpoolfile);
@@ -683,14 +645,13 @@ fsop:   /*
 			ret = __os_rename(env, fullold, fullnew, 1);
 		}
 	}
-
 	/* Delete the memory we no longer need. */
-err:    if(p != NULL) {
+err:    
+	if(p != NULL) {
 		MPOOL_REGION_LOCK(env, &dbmp->reginfo[0]);
 		__memp_free(&dbmp->reginfo[0], p);
 		MPOOL_REGION_UNLOCK(env, &dbmp->reginfo[0]);
 	}
-
 	/* If we have buckets locked, unlock them when done moving files. */
 	if(locked == 1) {
 		MUTEX_UNLOCK(env, hp->mtx_hash);
@@ -698,31 +659,22 @@ err:    if(p != NULL) {
 			MUTEX_UNLOCK(env, nhp->mtx_hash);
 	}
 	/*
-	 * __memp_purge_dead_files() must be called when the hash bucket is
-	 * unlocked.
+	 * __memp_purge_dead_files() must be called when the hash bucket is unlocked.
 	 */
 	if(purge_dead)
 		(void)__memp_purge_dead_files(env);
 	return ret;
 }
-
 /*
- * __memp_ftruncate __
- *	Truncate the file.
- *
- * PUBLIC: int __memp_ftruncate __P((DB_MPOOLFILE *, DB_TXN *,
- * PUBLIC:     DB_THREAD_INFO *, db_pgno_t, uint32));
+ * __memp_ftruncate __ Truncate the file.
  */
 int __memp_ftruncate(DB_MPOOLFILE *dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db_pgno_t pgno, uint32 flags)
 {
-	ENV * env;
-	MPOOLFILE * mfp;
 	void * pagep;
 	db_pgno_t last_pgno, pg;
-	int ret;
-	env = dbmfp->env;
-	mfp = dbmfp->mfp;
-	ret = 0;
+	ENV * env = dbmfp->env;
+	MPOOLFILE * mfp = dbmfp->mfp;
+	int ret = 0;
 	MUTEX_LOCK(env, mfp->mutex);
 	last_pgno = mfp->last_pgno;
 	MUTEX_UNLOCK(env, mfp->mutex);

@@ -1650,7 +1650,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 						if(p_scst->QueryDiscount(&scst_cb, scst_dbl, &qdrf) > 0) {
 							SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(0);
 							p_item->Discount = r_db.InPrice - r_db.ResultPrice;
-							p_item->Price = r_db.ResultPrice;
+							p_item->Price = r_db.InPrice/*r_db.ResultPrice*/;
 							p_item->Flags |= cifFixedPrice;
 							STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
 							no_discount = 1;
@@ -1795,9 +1795,6 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 
 void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 {
-	if(CSt.SpcCardTreatment) {
-
-	}
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
 	double amt, dis;
 	CalcTotal(&amt, &dis);
@@ -2606,6 +2603,22 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						const int only_charge_goods = IsOnlyChargeGoodsInPacket(sc_rec.ID, pPack);
 						if(!only_charge_goods && ScObj.ActivateRec(&sc_rec) > 0)
 							THROW(ScObj.P_Tbl->Update(sc_rec.ID, &sc_rec, 0));
+					}
+					if(CSt.SpcCardTreatment) {
+						SCardSpecialTreatment * p_scst = SCardSpecialTreatment::CreateInstance(CSt.SpcCardTreatment);
+						SCardSpecialTreatment::CardBlock scst_cb;
+						TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
+						if(p_scst && SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, scst_cb) > 0) {
+							int    ccr = p_scst->CommitCheck(&scst_cb, pPack, 0);
+							int    ccer = pExtPack ? p_scst->CommitCheck(&scst_cb, pExtPack, 0) : -1;
+							if(ccr > 0 || ccer > 0) {
+								;
+							}
+							else if(!ccr || !ccer) {
+								MessageError(-1, 0, eomPopup);
+							}
+						}
+						ZDELETE(p_scst);
 					}
 				}
 				if(pPack->AL_Const().getCount()) {
@@ -7929,6 +7942,8 @@ void CheckPaneDialog::OnUpdateList(int goBottom)
 					p_def_->SetItemColor(i, SClrBlack, SColor(0xFC, 0xD5, 0xB4));
 				else if(p_item->Flags & cifPartOfComplex)
 					p_def_->SetItemColor(i, SClrBlack, SColor(0xD7, 0xE4, 0xBC));
+				else if(p_item->RemoteProcessingTa[0] && p_item->Flags & cifFixedPrice) // @v10.1.7
+					p_def_->SetItemColor(i, SClrBlack, SClrCadetblue);
 				else
 					p_def_->ResetItemColor(i);
 			}
@@ -9093,7 +9108,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			enableCommand(cmEditPerson, enbl_psn);
 		}
 		showButton(cmActivate, (LocalState & stNeedActivation));
-		showButton(cmVerify, sc_phone.NotEmpty()); // @v10.1.5
+		showButton(cmVerify, sc_phone.NotEmpty() && !(sc_pack.Rec.Flags & SCRDF_OWNERVERIFIED)); // @v10.1.5
 		OwnerList.Clear();
 		updateList(-1);
 	}
@@ -9479,7 +9494,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			if(SCardID) {
 				PPSCardPacket sc_pack;
 				if(ScObj.GetPacket(SCardID, &sc_pack) > 0) {
-					int r = ScObj.VerifyOwner(sc_pack, PosNodeID);
+					int r = ScObj.VerifyOwner(sc_pack, PosNodeID, 1 /*updatImmediately*/);
 					if(r > 0)
 						SetupCard(sc_rec.ID);
 					else if(r == 0)
@@ -11273,7 +11288,7 @@ int CheckPaneDialog::PrintCashReports()
 					break;
 				case cmSCSZReportCopy:
 					if(OperRightsFlags & orfCopyZReport) {
-						CSessInfo  cs_info;
+						CSessInfo cs_info;
 						r = SelectCSession(CashNodeID, ExtCashNodeID, &cs_info);
 						if(r == 1)
 							r = P_CM->SyncPrintZReportCopy(&cs_info);

@@ -109,7 +109,7 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_LCRV2, 0, CCFLG2_USELCR2);
 			SetClusterData(CTL_CCFGSYS_LCRV2, Data.Flags2);
 			setCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
-			// } @v10.1.5 
+			// } @v10.1.5
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
@@ -138,7 +138,7 @@ int CommCfgDialog::editSysParams()
 			// @v10.1.5 {
 			GetClusterData(CTL_CCFGSYS_LCRV2, &Data.Flags2);
 			getCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
-			// } @v10.1.5 
+			// } @v10.1.5
 			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -156,7 +156,7 @@ int CommCfgDialog::editSysParams()
 					if(!(r = obj_scard.CheckUniq())) {
 						flags &= ~CCFLG_THROUGHSCARDUNIQ;
 						SetClusterData(CTL_CCFGSYS_FLAGS, flags);
-						PPError(PPERR_DUPLSCARDFOUND);
+						PPError(PPERR_DUPLSCARDFOUND, "many");
 					}
 				}
 				clearEvent(event);

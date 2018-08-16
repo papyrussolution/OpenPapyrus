@@ -790,8 +790,12 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long fla
 	for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
 		uint  ext_prefix_width = 0; // Если !0 то надо обработать добавочный номер после (ext_prefix_width) символов префикса
 		const uchar c = *p;
-		if(isdec(c))
-			rResult.CatChar(c);
+		if(isdec(c)) {
+			if(flags & nsfPlus && c == '8' && rResult.Len() == 0)
+				rResult.CatChar('+').CatChar('7');
+			else
+				rResult.CatChar(c);
+		}
 		else if(oneof2(c, 't', 'T'))
 			rResult.CatChar('t');
 		else if(c == '+' && rResult.Len() == 0) {
@@ -803,12 +807,6 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long fla
 				else
 					rResult.CatChar(c);
 			}
-			else
-				rResult.CatChar(c);
-		}
-		else if(c == '8' && rResult.Len() == 0) {
-			if(flags & nsfPlus)
-				rResult.CatChar('+').CatChar('8');
 			else
 				rResult.CatChar(c);
 		}

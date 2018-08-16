@@ -768,9 +768,11 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	filt.GoodsGrpID = Ep.GoodsGrpID;
 	filt.Date       = P.ExpPeriod.upp ? P.ExpPeriod.upp : LConfig.OperDate;
 	//
-	filt.DiffParam = GoodsRestParam::_diffSerial;
+	//@v10.1.7 filt.DiffParam = GoodsRestParam::_diffSerial;
 	//filt.DiffParam = GoodsRestParam::_diffLotTag; // @v9.7.11
 	//filt.DiffLotTagID = PPTAG_LOT_MANUFTIME; // @v9.7.11
+	filt.DiffParam = GoodsRestParam::_diffLotTag; // @v10.1.7
+	filt.DiffLotTagID = PPTAG_LOT_MANUFTIME; // @v10.1.7
 	//
 	if(P.LocList.IsEmpty()) {
 		THROW(LocObj.GetWarehouseList(&loc_list));
@@ -2128,7 +2130,7 @@ int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, doubl
 	if(calcByPhPerU) {
 		double phuperu = 0.0;
 		PPGoodsPacket g_pack;
-		if(GObj.GetPacket(goodsID, &g_pack, PPObjGoods::gpoSkipQuot) > 0 && g_pack.Rec.GdsClsID && g_pack.ExtRec.W) { 
+		if(GObj.GetPacket(goodsID, &g_pack, PPObjGoods::gpoSkipQuot) > 0 && g_pack.Rec.GdsClsID && g_pack.ExtRec.W) {
 			phuperu = g_pack.ExtRec.W;
 			/*
 			PPGdsClsPacket  gc_pack;

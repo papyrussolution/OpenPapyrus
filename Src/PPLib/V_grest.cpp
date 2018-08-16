@@ -552,7 +552,6 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	//
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcCVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcPVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
-
 	// @v9.5.8 GetClusterData(CTL_GOODSREST_BYQUOT, &Data.Flags);
 	// @v9.5.8 {
 	{
@@ -831,24 +830,13 @@ PPViewGoodsRest::Cache & SLAPI PPViewGoodsRest::Cache::Clear()
 }
 
 int SLAPI PPViewGoodsRest::Cache::SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial)
-{
-	return AddS(pSerial, &rItem.SerialP);
-}
-
+	{ return AddS(pSerial, &rItem.SerialP); }
 int SLAPI PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
-{
-	return GetS(rItem.SerialP, rBuf);
-}
-
+	{ return GetS(rItem.SerialP, rBuf); }
 int SLAPI PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal)
-{
-	return AddS(pTagVal, &rItem.LotTagP);
-}
-
+	{ return AddS(pTagVal, &rItem.LotTagP); }
 int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
-{
-	return GetS(rItem.LotTagP, rBuf);
-}
+	{ return GetS(rItem.LotTagP, rBuf); }
 
 IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2) { RET_CMPCASCADE5((const PPViewGoodsRest::CacheItem *)_i1, (const PPViewGoodsRest::CacheItem *)_i2, GoodsID, LocID, Cost, Price, UnitPerPack); }
 

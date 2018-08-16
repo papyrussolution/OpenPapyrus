@@ -2987,6 +2987,11 @@ SUniTime::SUniTime()
 	memzero(D, sizeof(D));
 }
 
+int SUniTime::operator !() const
+{
+	return ismemzero(D, sizeof(D));
+}
+
 SUniTime & SUniTime::Z()
 {
 	memzero(D, sizeof(D));

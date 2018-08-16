@@ -522,6 +522,7 @@ void SLAPI GoodsRestParam::Set(const GoodsRestFilt & rF)
 	SETFLAG(Flags_, fLabelOnly, ff & GoodsRestFilt::fLabelOnly);
 	CalcMethod = rF.CalcMethod;
 	DiffParam  = rF.DiffParam;
+	DiffLotTagID = rF.DiffLotTagID; // @v10.1.7 @fix
 	if(ff & GoodsRestFilt::fEachLocation)
 		DiffParam |= GoodsRestParam::_diffLoc;
 	Date    = rF.Date;

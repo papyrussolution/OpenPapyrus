@@ -2992,8 +2992,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(r_ti.Quantity_ > 0.0 && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
-									infb_ident = 0;
-									rar_product_ident = 0;
+									infb_ident.Z();
+									rar_product_ident.Z();
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
 									rar_product_ident.SetIfEmpty(agi.EgaisCode);
@@ -3034,8 +3034,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(r_ti.Quantity_ < 0.0 && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
-									infb_ident = 0;
-									rar_product_ident = 0;
+									infb_ident.Z();
+									rar_product_ident.Z();
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
 									rar_product_ident.SetIfEmpty(agi.EgaisCode);

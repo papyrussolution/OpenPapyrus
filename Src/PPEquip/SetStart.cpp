@@ -1212,7 +1212,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 				dscnt = buf.ToReal();
 				ss.get(&pos, buf);          // #17 пропускаем
 				ss.get(&pos, buf);          // #18 пропускаем
-				ss.get(&pos, barcode);          // #19 barcode
+				ss.get(&pos, barcode);      // #19 barcode
 				ss.get(&pos, buf);          // #20 пропускаем
 				ss.get(&pos, buf.Z());      // #21 Номер отдела
 				div = buf.ToLong();
@@ -1267,6 +1267,11 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 								if(barcode.NotEmptyS() && goods_obj.SearchByBarcode(barcode, 0, &goods_rec) > 0) {
 									goods_id = goods_rec.ID;
 								}
+								// @v10.1.7 В некоторых ситуациях на месте идентификатора может оказаться штрихкод товара: проверим эту гипотезу {
+								else if(goods_ident_txt.NotEmptyS() && goods_obj.SearchByBarcode(goods_ident_txt, 0, &goods_rec) > 0) {
+									goods_id = goods_rec.ID;
+								}
+								// } @v10.1.7
 								else
 									goods_id = 0;
 							}

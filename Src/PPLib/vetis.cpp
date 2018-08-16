@@ -1006,7 +1006,7 @@ struct VetisVetDocument : public VetisDocument {
 		TSCollection <RegionalizationClause> R13nClauseList;
 	};
 	VetisVetDocument() : VetisDocument(), VetDForm(0), VetDType(0), VetDStatus(0), Flags(0), LastUpdateDate(ZERODATETIME),
-		UnionVetDocument(0), P_CertifiedBatch(0), WayBillDate(ZERODATE),
+		UnionVetDocument(0), P_CertifiedBatch(0), WayBillDate(ZERODATE), WayBillType(0),
 		NativeLotID(0), NativeBillID(0), NativeBillRow(0)
 	{
 	}
@@ -4495,12 +4495,12 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										}
 										n_c.PutInner(SXml::nst("d7p1", "packingAmount"), temp_buf.Z().Cat(r_bat.PackingAmount));
 									}
-									{
+									if(!!r_bat.DateOfProduction.FirstDate || !!r_bat.DateOfProduction.SecondDate) {
 										SXml::WNode n_dt(srb, SXml::nst("d7p1", "dateOfProduction"));
 										PutGoodsDate(srb, SXml::nst("d7p1", "firstDate"), r_bat.DateOfProduction.FirstDate);
 										PutGoodsDate(srb, SXml::nst("d7p1", "secondDate"), r_bat.DateOfProduction.SecondDate);
 									}
-									{
+									if(!!r_bat.ExpiryDate.FirstDate || !!r_bat.ExpiryDate.SecondDate) {
 										SXml::WNode n_dt(srb, SXml::nst("d7p1", "expiryDate"));
 										PutGoodsDate(srb, SXml::nst("d7p1", "firstDate"), r_bat.ExpiryDate.FirstDate);
 										PutGoodsDate(srb, SXml::nst("d7p1", "secondDate"), r_bat.ExpiryDate.SecondDate);
@@ -4538,38 +4538,38 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 								}
 								{
 									SXml::WNode n_af(srb, SXml::nst("d7p1", "accompanyingForms"));
+									SXml::WNode n_wb(srb, SXml::nst("d7p1", "waybill"));
+									n_wb.PutAttrib(SXml::nst("xmlns", "d9p1"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/shipment"));
+									// @v10.1.6 {
+									if(r_doc.WayBillSeries.NotEmpty()) {
+										n_wb.PutInner(SXml::nst("d9p1", "issueSeries"), (temp_buf = r_doc.WayBillSeries).Transf(CTRANSF_INNER_TO_UTF8));
+									}
+									// } @v10.1.6 
+									n_wb.PutInner(SXml::nst("d9p1", "issueNumber"), (temp_buf = r_doc.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
+									n_wb.PutInner(SXml::nst("d9p1", "issueDate"), temp_buf.Z().Cat(r_doc.WayBillDate, DATF_ISO8601|DATF_CENTURY));
+									if(r_doc.WayBillType > 0) {
+										n_wb.PutInner(SXml::nst("d9p1", "type"), temp_buf.Z().Cat(r_doc.WayBillType));
+									}
 									{
-										SXml::WNode n_wb(srb, SXml::nst("d7p1", "waybill"));
-										n_wb.PutAttrib(SXml::nst("xmlns", "d9p1"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/shipment"));
-										// @v10.1.6 {
-										if(r_doc.WayBillSeries.NotEmpty()) {
-											n_wb.PutInner(SXml::nst("d9p1", "issueSeries"), (temp_buf = r_doc.WayBillSeries).Transf(CTRANSF_INNER_TO_UTF8));
+										SXml::WNode n_tr(srb, SXml::nst("d9p1", "transportInfo"));
+										if(r_doc.CertifiedConsignment.TransportInfo.TransportType) {
+											temp_buf.Z().Cat(r_doc.CertifiedConsignment.TransportInfo.TransportType);
+											n_tr.PutInner(SXml::nst("d9p1", "transportType"), temp_buf);
 										}
-										// } @v10.1.6 
-										n_wb.PutInner(SXml::nst("d9p1", "issueNumber"), (temp_buf = r_doc.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
-										n_wb.PutInner(SXml::nst("d9p1", "issueDate"), temp_buf.Z().Cat(r_doc.WayBillDate, DATF_ISO8601|DATF_CENTURY));
-										n_wb.PutInner(SXml::nst("d9p1", "type"), "1");
-										{
-											SXml::WNode n_tr(srb, SXml::nst("d9p1", "transportInfo"));
-											if(r_doc.CertifiedConsignment.TransportInfo.TransportType) {
-												temp_buf.Z().Cat(r_doc.CertifiedConsignment.TransportInfo.TransportType);
-												n_tr.PutInner(SXml::nst("d9p1", "transportType"), temp_buf);
-											}
-											if(!r_doc.CertifiedConsignment.TransportInfo.TransportNumber.IsEmpty()) {
-												SXml::WNode n_tn(srb, SXml::nst("d9p1", "transportNumber"));
-												PutNonEmptyText(n_tn, "d9p1", "vehicleNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.VehicleNumber);
-												PutNonEmptyText(n_tn, "d9p1", "trailerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.TrailerNumber);
-												PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
-												PutNonEmptyText(n_tn, "d9p1", "wagonNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.WagonNumber);
-												PutNonEmptyText(n_tn, "d9p1", "shipName", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ShipName);
-												PutNonEmptyText(n_tn, "d9p1", "flightNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.FlightNumber);
-											}
+										if(!r_doc.CertifiedConsignment.TransportInfo.TransportNumber.IsEmpty()) {
+											SXml::WNode n_tn(srb, SXml::nst("d9p1", "transportNumber"));
+											PutNonEmptyText(n_tn, "d9p1", "vehicleNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.VehicleNumber);
+											PutNonEmptyText(n_tn, "d9p1", "trailerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.TrailerNumber);
+											PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
+											PutNonEmptyText(n_tn, "d9p1", "wagonNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.WagonNumber);
+											PutNonEmptyText(n_tn, "d9p1", "shipName", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ShipName);
+											PutNonEmptyText(n_tn, "d9p1", "flightNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.FlightNumber);
 										}
-										if(r_doc.CertifiedConsignment.TransportStorageType) {
-											if(SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab),
-												r_doc.CertifiedConsignment.TransportStorageType, temp_buf)) {
-												n_n2.PutInner(SXml::nst("d9p1", "transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-											}
+									}
+									if(r_doc.CertifiedConsignment.TransportStorageType) {
+										if(SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab),
+											r_doc.CertifiedConsignment.TransportStorageType, temp_buf)) {
+											n_n2.PutInner(SXml::nst("d9p1", "transportStorageType"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 										}
 									}
 									{
@@ -5403,15 +5403,18 @@ int SLAPI PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, 
 	VetisApplicationBlock doc_reply;
 	if(GetVetDocumentByUuid(rDocUuid, doc_reply) > 0 && doc_reply.VetDocList.getCount() == 1) {
 		VetisProcessIncomingConsignmentRequest app_data;
-		app_data.Doc = *doc_reply.VetDocList.at(0);
-		{
-			rReply.Clear();
-			VetisApplicationBlock submit_result;
-			VetisApplicationBlock blk(1, &app_data);
-			THROW(SubmitRequest(blk, submit_result));
-			if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-				THROW(ReceiveResult(submit_result.ApplicationId, rReply));
-				ok = 1;
+		const VetisVetDocument * p_src_doc = doc_reply.VetDocList.at(0);
+		if(p_src_doc && p_src_doc->VetDStatus == vetisdocstCONFIRMED) {
+			app_data.Doc = *p_src_doc;
+			{
+				rReply.Clear();
+				VetisApplicationBlock submit_result;
+				VetisApplicationBlock blk(1, &app_data);
+				THROW(SubmitRequest(blk, submit_result));
+				if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+					THROW(ReceiveResult(submit_result.ApplicationId, rReply));
+					ok = 1;
+				}
 			}
 		}
 	}

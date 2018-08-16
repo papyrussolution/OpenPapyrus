@@ -2046,6 +2046,7 @@ public:
 		indBlnYrAgo     = 0x99
 	};
 	SUniTime();
+	int    operator !() const;
 	SUniTime & Z();
 	//
 	// Descr: Возвращает сигнатуру, идентифицирующую вариант представления времени.

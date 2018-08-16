@@ -1063,12 +1063,10 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgQkList)) {
 					THROW(p_ref->PutPropArray(Obj, pPack->Rec.ID, SCARDSERIES_QKLIST, &pPack->QuotKindList_, 0));
 				}
-				// @v8.7.12 {
 				if(!*pID || !(pPack->UpdFlags & PPSCardSerPacket::ufDontChgExt)) {
 					Storage_SCardSerExt se(pPack->Eb);
 					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_EXT, (pPack->Eb.IsEmpty() ? 0 : &se), sizeof(se), 0));
 				}
-				// } @v8.7.12
 				ASSIGN_PTR(pID, pPack->Rec.ID);
 				if(rec_updated < 0) {
 					//
@@ -2913,7 +2911,7 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 			SCardTbl::Rec temp_rec;
 			int r = P_Tbl->SearchCode(seriesID, number, &temp_rec);
 			THROW(r);
-			THROW_PP(r < 0, PPERR_DUPLSCARDFOUND);
+			THROW_PP_S(r < 0, PPERR_DUPLSCARDFOUND, number);
 		}
 		else {
 			THROW_PP_S(scs_pack.Eb.CodeTempl[0] != 0, PPERR_UNDEFSCSCODETEMPL, scs_pack.Rec.Name);
@@ -2968,7 +2966,7 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID)
+int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateImmediately)
 {
 	int    ok = -1;
 	SCardSpecialTreatment * p_spctrt = 0;
@@ -2977,24 +2975,35 @@ int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID)
 	if(phone.NotEmpty()) {
 		uint   check_code = 0;
 		SCardSpecialTreatment::CardBlock cb;
+		THROW(!updateImmediately || CheckRights(PPR_MOD));
 		if(SCardSpecialTreatment::InitSpecialCardBlock(rScPack.Rec.ID, posNodeID, cb) > 0) {
 			p_spctrt = SCardSpecialTreatment::CreateInstance(cb.SpecialTreatment);
 		}
 		if(p_spctrt) {
 			int r = p_spctrt->VerifyOwner(&cb);
-			if(r > 0)
+			if(r > 0) {
+				rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
+				if(updateImmediately && rScPack.Rec.ID) {
+					THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
+				}
 				ok = 1;
+			}
 			else if(r == 0)
 				ok = 0;
 		}
 		else {
 			if(VerifyPhoneNumberBySms(phone, rScPack.Rec.Code, &check_code, 0) > 0) {
 				if(check_code) {
-					; // @todo Какую-то отметку сделать
+					rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
+					if(updateImmediately && rScPack.Rec.ID) {
+						THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
+					}
+					ok = 1;
 				}
 			}
 		}
 	}
+	CATCHZOK
 	delete p_spctrt;
 	return ok;
 }
@@ -3069,7 +3078,7 @@ private:
 			Data.PutExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			getCtrlString(CTL_SCARD_CODE, temp_buf);
 			STRNSCPY(Data.Rec.Code, temp_buf);
-			if(ScObj.VerifyOwner(Data, 0/*posNodeID*/) > 0) {
+			if(ScObj.VerifyOwner(Data, 0/*posNodeID*/, 0) > 0) {
 				;
 			}
 			/*if(phone.NotEmptyS() && scard_code.NotEmptyS()) {
@@ -3089,7 +3098,7 @@ private:
 				setCtrlDate(CTL_SCARD_EXPIRY, ScExpiryPeriodParam.ResultDate);
 			}
 		}
-		// } @v9.8.9 
+		// } @v9.8.9
 		else
 			return;
 		clearEvent(event);
@@ -3274,6 +3283,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	AddClusterAssoc(CTL_SCARD_FLAGS, 3, SCRDF_NOGIFT);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 4, SCRDF_NEEDACTIVATION);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 5, SCRDF_AUTOACTIVATION);
+	AddClusterAssoc(CTL_SCARD_FLAGS, 6, SCRDF_OWNERVERIFIED); // @v10.1.7
 	SetClusterData(CTL_SCARD_FLAGS, Data.Rec.Flags);
 	setCtrlDate(CTL_SCARD_DATE,   Data.Rec.Dt);
 	setCtrlDate(CTL_SCARD_EXPIRY, Data.Rec.Expiry);
@@ -3704,7 +3714,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					SCardTbl::Rec same_code_rec;
 					THROW(CheckRights(PPR_MOD));
 					THROW(r = SearchCode(pPack->Rec.SeriesID, pPack->Rec.Code, &same_code_rec));
-					THROW_PP(r < 0 || same_code_rec.ID == *pID, PPERR_DUPLSCARDFOUND);
+					THROW_PP_S(r < 0 || same_code_rec.ID == *pID, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
 					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
 					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
@@ -3740,7 +3750,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 				number.CopyTo(pPack->Rec.Code, sizeof(pPack->Rec.Code));
 			}
 			THROW(r = SearchCode(pPack->Rec.SeriesID, pPack->Rec.Code, 0));
-			THROW_PP(r < 0, PPERR_DUPLSCARDFOUND);
+			THROW_PP_S(r < 0, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 			(ext_buffer = pPack->GetBuffer()).Strip();
 			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));

@@ -615,7 +615,7 @@ CCheckPacket::LineExt::LineExt()
 
 int CCheckPacket::LineExt::IsEmpty() const
 {
-	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift)));
+	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice))); // @v10.1.7 fFixedPrice
 }
 //
 //
@@ -812,6 +812,7 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				SETFLAG(pItem->Flags, cifModifier, r_le.Flags & r_le.fModifier);
 				SETFLAG(pItem->Flags, cifPartOfComplex, r_le.Flags & r_le.fPartOfComplex);
 				SETFLAG(pItem->Flags, cifQuotedByGift,  r_le.Flags & r_le.fQuotedByGift);
+				SETFLAG(pItem->Flags, cifFixedPrice,    r_le.Flags & r_le.fFixedPrice); // @v10.1.7
 			}
 		}
 		return 1;
@@ -975,6 +976,7 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			SETFLAG(r_le.Flags, r_le.fModifier,      rExt.Flags & rExt.fModifier);
 			SETFLAG(r_le.Flags, r_le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
 			SETFLAG(r_le.Flags, r_le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
+			SETFLAG(r_le.Flags, r_le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice); // @v10.1.7
 			ok = 1;
 		}
 		else {
@@ -985,6 +987,7 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			SETFLAG(le.Flags, le.fModifier,      rExt.Flags & rExt.fModifier);
 			SETFLAG(le.Flags, le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
 			SETFLAG(le.Flags, le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
+			SETFLAG(le.Flags, le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice); // @v10.1.7
 			THROW_SL(ExtList.insert(&le));
 			ok = 2;
 		}
@@ -1078,6 +1081,7 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 			SETFLAG(le.Flags, le.fModifier, rItem.Flags & cifModifier);
 			SETFLAG(le.Flags, le.fPartOfComplex, rItem.Flags & cifPartOfComplex);
 			SETFLAG(le.Flags, le.fQuotedByGift,  rItem.Flags & cifQuotedByGift);
+			SETFLAG(le.Flags, le.fFixedPrice,    rItem.Flags & cifFixedPrice); // @v10.1.7
 			THROW(SetLineExt(idx, le));
 		}
 	}
@@ -2009,10 +2013,11 @@ int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack
 				{
 					CCheckPacket::LineExt le;
 					le.Queue = lx_rec.Queue;
-					SETFLAG(le.Flags, le.fGroup,    lx_rec.Flags & le.fGroup);    // @v7.1.5
-					SETFLAG(le.Flags, le.fModifier, lx_rec.Flags & le.fModifier); // @v7.2.0
-					SETFLAG(le.Flags, le.fPartOfComplex, lx_rec.Flags & le.fPartOfComplex); // @v7.4.5
-					SETFLAG(le.Flags, le.fQuotedByGift,  lx_rec.Flags & le.fQuotedByGift); // @v7.4.10
+					SETFLAG(le.Flags, le.fGroup,    lx_rec.Flags & le.fGroup);
+					SETFLAG(le.Flags, le.fModifier, lx_rec.Flags & le.fModifier);
+					SETFLAG(le.Flags, le.fPartOfComplex, lx_rec.Flags & le.fPartOfComplex);
+					SETFLAG(le.Flags, le.fQuotedByGift,  lx_rec.Flags & le.fQuotedByGift);
+					SETFLAG(le.Flags, le.fFixedPrice,    lx_rec.Flags & le.fFixedPrice); // @v10.1.7
 					pPack->SetLineExt(pos+1, le);
 				}
 			}
@@ -2483,7 +2488,8 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 				if(P_LnExt) {
 					CCheckPacket::LineExt le;
 					pPack->GetLineExt(i, le);
-					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift)) /*@v9.0.9 || (p_serial && p_serial->NotEmptyS())*/) {
+					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|
+						le.fQuotedByGift|le.fFixedPrice)) /*@v9.0.9 || (p_serial && p_serial->NotEmptyS())*/) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
 						MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
@@ -2494,6 +2500,7 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 						SETFLAG(lx_rec.Flags, le.fModifier, le.Flags & le.fModifier);
 						SETFLAG(lx_rec.Flags, le.fPartOfComplex, le.Flags & le.fPartOfComplex);
 						SETFLAG(lx_rec.Flags, le.fQuotedByGift,  le.Flags & le.fQuotedByGift);
+						SETFLAG(lx_rec.Flags, le.fFixedPrice,  le.Flags & le.fFixedPrice); // @v10.1.7
 						THROW_DB(P_LnExt->insertRecBuf(&lx_rec));
 						ufp_factor += 1.0;
 					}
@@ -2602,7 +2609,8 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 				if(P_LnExt) {
 					CCheckPacket::LineExt le;
 					pPack->GetLineExt(i, le);
-					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift)) /*@v9.0.9|| (p_serial && p_serial->NotEmptyS())*/) {
+					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|
+						le.fQuotedByGift|le.fFixedPrice)) /*@v9.0.9|| (p_serial && p_serial->NotEmptyS())*/) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
 						MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
@@ -2613,6 +2621,7 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 						SETFLAG(lx_rec.Flags, le.fModifier, le.Flags & le.fModifier);
 						SETFLAG(lx_rec.Flags, le.fPartOfComplex, le.Flags & le.fPartOfComplex);
 						SETFLAG(lx_rec.Flags, le.fQuotedByGift,  le.Flags & le.fQuotedByGift);
+						SETFLAG(lx_rec.Flags, le.fFixedPrice,    le.Flags & le.fFixedPrice); // @v10.1.7
 						THROW_DB(P_LnExt->insertRecBuf(&lx_rec));
 						ufp_factor += 1.0;
 					}
@@ -4712,7 +4721,7 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTot
 							r_ti.Discount -= adj;
 							THROW(adj_pack.InitAmounts());
 							THROW(p_bobj->FillTurnList(&adj_pack));
-							adj_pack.ProcessFlags |= PPBillPacket::pfIgnoreStatusRestr; // @v8.6.6
+							adj_pack.ProcessFlags |= PPBillPacket::pfIgnoreStatusRestr;
 							THROW(p_bobj->UpdatePacket(&adj_pack, 0));
 							{
 								const double new_amt = adj_pack.GetAmount();

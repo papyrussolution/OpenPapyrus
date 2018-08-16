@@ -147,6 +147,7 @@ int SLAPI ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
 }
 
 static const char * P_DreamKasUrlBase = "https://kabinet.dreamkas.ru/api";
+static const char * P_Dk_DebugFileName = "dreamkas-debug.log";
 
 int SLAPI ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 {
@@ -198,12 +199,15 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 	SString temp_buf;
 	SString goods_name;
 	SString wait_msg_buf;
+	SString log_buf;
 	ScURL c;
 	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("v2").SetLastDSlash().Cat("products"));
 	StrStrAssocArray hdr_flds;
 	const  long max_chunk_count = 100;
 	long   query_offs = 0;
 	long   ret_count = 0;
+	PPGetFilePath(PPPATH_LOG, P_Dk_DebugFileName, temp_buf);
+	SFile f_out_test(temp_buf, SFile::mAppend);
 	THROW(PrepareHtmlFields(hdr_flds));
 	PPLoadText(PPTXT_IMPGOODS, wait_msg_buf);
 	do {
@@ -211,6 +215,7 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		ret_count = 0;
 		url.SetComponent(InetUrl::cQuery, temp_buf.Z().CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs));
+		f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(temp_buf).CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		//
 		{
@@ -218,6 +223,7 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 			if(p_ack_buf) {
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
 				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					long   seq_id = 0;
 					S_GUID goods_uuid;
@@ -314,6 +320,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 	THROW_SL(p_iter_ary_to_create);
 	THROW_SL(p_iter_ary_to_update);
 	THROW(ImportGoodsList(ex_goods_list));
+	Acn.GetLogNumList(LogNumList);
 	while(rIter.Next(&gds_info) > 0) {
 		if(gds_info.GoodsFlags & GF_PASSIV && Acn.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
 			rmv_goods_list.addUnique(gds_info.ID);
@@ -337,6 +344,18 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new json_t(json_t::tNULL)));
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
 				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
+				if(LogNumList.getCount()) {
+					json_t * p_price_ary = new json_t(json_t::tARRAY);
+					THROW_SL(p_price_ary);
+					for(uint i = 0; i < LogNumList.getCount(); i++) {
+						json_t * p_price_obj = new json_t(json_t::tOBJECT);
+						THROW_SL(p_price_obj);
+						THROW_SL(p_price_obj->Insert("deviceId", json_new_number(temp_buf.Z().Cat(LogNumList.get(i)))));
+						THROW_SL(p_price_obj->Insert("value", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
+						THROW_SL(json_insert_child(p_price_ary, p_price_obj));
+					}
+					THROW_SL(p_iter_obj->Insert("prices", p_price_ary));
+				}
 				if(gds_info.P_CodeList) {
 					normal_bc_pos_list.clear();
 					etc_bc_pos_list.clear();
@@ -527,13 +546,15 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 	SString qbuf;
 	SString enc_buf;
 	SString wait_msg_buf;
+	SString log_buf;
 	ScURL c;
 	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("shifts"));
 	StrStrAssocArray hdr_flds;
 	const  long max_chunk_count = 100;
 	long   query_offs = 0;
 	long   ret_count = 0;
-
+	PPGetFilePath(PPPATH_LOG, P_Dk_DebugFileName, temp_buf);
+	SFile f_out_test(temp_buf, SFile::mAppend);
 	Acn.GetLogNumList(LogNumList);
 	THROW(PrepareHtmlFields(hdr_flds));
 	do {
@@ -544,13 +565,16 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		{
 			LDATETIME dtm;
 			dtm.Set(((pPrd && pPrd->low) ? pPrd->low : encodedate(1, 4, 2018)), ZEROTIME);
-			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).Cat(".000Z");
+			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf, 1));
 		}
 		{
 			LDATETIME dtm;
 			dtm.Set(((pPrd && pPrd->upp) ? pPrd->upp : getcurdate_()), encodetime(23, 59, 59, 99));
-			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).Cat(".000Z");
+			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf, 1));
 		}
+		/*
 		if(LogNumList.getCount()) {
 			temp_buf.Z();
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
@@ -560,9 +584,11 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 			}
 			qbuf.CatChar('&').CatEq("devices", enc_buf.EncodeUrl(temp_buf, 1));
 		}
+		*/
 		qbuf.CatChar('&').CatEq("is_closed", "true");
 		qbuf.CatChar('&').CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs);
 		url.SetComponent(InetUrl::cQuery, qbuf);
+		f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(qbuf).CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		//
 		{
@@ -570,6 +596,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 			if(p_ack_buf) {
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
 				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					json_t * p_next = 0;
 					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
@@ -804,6 +831,7 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 	SString temp_buf;
 	SString qbuf;
 	SString enc_buf;
+	SString log_buf;
 	ScURL c;
 	InetUrl url((temp_buf = P_DreamKasUrlBase).SetLastDSlash().Cat("receipts"));
 	StrStrAssocArray hdr_flds;
@@ -811,6 +839,8 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 	long   query_offs = 0;
 	long   ret_count = 0;
 	if(sessIdx < (int)Scb.SessList.getCount() && sessIdx == 0) {
+		PPGetFilePath(PPPATH_LOG, P_Dk_DebugFileName, temp_buf);
+		SFile f_out_test(temp_buf, SFile::mAppend);
 		THROW(CreateTables());
 		Acn.GetLogNumList(LogNumList);
 		THROW(PrepareHtmlFields(hdr_flds));
@@ -826,12 +856,13 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 			else
 				dtm.Set(encodedate(1, 4, 2018), ZEROTIME);
 			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
-			if(!!Scb.PeriodToCheckQuery.Finish)
+			/*if(!!Scb.PeriodToCheckQuery.Finish)
 				dtm = Scb.PeriodToCheckQuery.Finish;
 			else
-				dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));
+				dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));*/
+			dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));
 			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
-			if(LogNumList.getCount()) {
+			/*if(LogNumList.getCount()) {
 				temp_buf.Z();
 				for(uint i = 0; i < LogNumList.getCount(); i++) {
 					if(i)
@@ -839,15 +870,17 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 					temp_buf.Cat(LogNumList.get(i));
 				}
 				qbuf.CatChar('&').CatEq("devices", enc_buf.EncodeUrl(temp_buf, 1));
-			}
+			}*/
 			qbuf.CatChar('&').CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs);
 			url.SetComponent(InetUrl::cQuery, qbuf);
+			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(qbuf).CR());
 			THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			//
 			p_ack_buf = (SBuffer *)wr_stream;
 			if(p_ack_buf) {
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
 				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 				{
 					json_t * p_next = 0;

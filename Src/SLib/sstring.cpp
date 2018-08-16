@@ -4422,7 +4422,7 @@ int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int forc
 	size_t p = rPath.Len();
 	if(p) {
 		while(ok < 0 && p--) {
-			if(rPath.C(p) == '.') {
+			if(rPath.C(p) == '.' && (p == 0 || rPath.C(p-1) != '.') && rPath.C(p+1) != '.') { // @v10.1.7 (&& (p == 0 || rPath.C(p-1) != '.') && rPath.C(p+1) != '.')
 				if(force) {
 					rPath.Trim(p+1);
 					if(pExt && pExt[0] == '.')

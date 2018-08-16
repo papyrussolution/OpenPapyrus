@@ -145,10 +145,10 @@ IMPLEMENT_PPFILT_FACTORY(SCard); SLAPI SCardFilt::SCardFilt() : PPBaseFilt(PPFIL
 	SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 		offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
 	SetBranchSString(offsetof(SCardFilt, Number));
-	SetBranchObjIdListFilt(offsetof(SCardFilt, ScsList)); // @v8.4.2
+	SetBranchObjIdListFilt(offsetof(SCardFilt, ScsList));
 	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(SCardFilt, P_SjF));
-	SetBranchBaseFiltPtr(PPFILT_SCARD, offsetof(SCardFilt, P_ExludeOwnerF)); // @v8.4.2
-	SetBranchBaseFiltPtr(PPFILT_PERSON, offsetof(SCardFilt, P_OwnerF)); // @v8.4.2
+	SetBranchBaseFiltPtr(PPFILT_SCARD, offsetof(SCardFilt, P_ExludeOwnerF));
+	SetBranchBaseFiltPtr(PPFILT_PERSON, offsetof(SCardFilt, P_OwnerF));
 	Init(1, 0);
 }
 
@@ -2007,6 +2007,7 @@ int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)
 	SetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, Data.Flags);
 	// @v10.1.4 {
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 0, SCardSelPrcssrParam::fUhttSync);
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 1, SCardSelPrcssrParam::fAppendEan13CD); // @v10.1.6
 	SetClusterData(CTL_FLTSCARDCHNG_FLAGS, Data.Flags);
 	// } @v10.1.4
 	return 1;
@@ -2168,6 +2169,23 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							upd_discount = 1;
 						} 
 					}
+					// @v10.1.7 {
+					if(param.Flags & param.fAppendEan13CD) {
+						const size_t cl = sstrlen(sc_pack.Rec.Code);
+						if(cl == 12 && sc_pack.Rec.Code[0] != '0') { // Рассматриваем только EAN13 без контр цифры (UPC etc не рассматриваем)
+							int    skip = 0;
+							for(size_t cli = 0; !skip && cli < cl; cli++) {
+								if(!isdec(sc_pack.Rec.Code[cli]))
+									skip = 1;
+							}
+							if(!skip) {
+								AddBarcodeCheckDigit(sc_pack.Rec.Code);
+								assert(sstrlen(sc_pack.Rec.Code) == 13);
+								upd = 1;
+							}
+						}
+					}
+					// } @v10.1.7 
 					if(param.Flags & param.fZeroExpiry && sc_pack.Rec.Expiry) {
 						sc_pack.Rec.Expiry = ZERODATE;
 						sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
@@ -2227,11 +2245,12 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 								msg_buf.Printf(fmt_buf, scard_name.cptr(), (const char *)new_ser_pack.Rec.Name);
 								upd = 0;
 							}
-							if(!upd)
+							if(!upd) {
 								if(pLog)
 									pLog->Log(msg_buf);
 								else
 									PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
+							}
 						}
 						else {
 							PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
@@ -2297,14 +2316,16 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 					}
 					if(upd) {
 						PPID   temp_id = sc_id;
-						THROW(SCObj.PutPacket(&temp_id, &sc_pack, 0));
-						/*
-						THROW(SCObj.P_Tbl->Update(rec.ID, &rec, 0));
-						if(upd_discount)
-							DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, rec.ID, preserve_pdis, 0);
-						*/
-						dirty_list.add(temp_id);
-						ok = 1;
+						if(!SCObj.PutPacket(&temp_id, &sc_pack, 0)) {
+							if(pLog)
+								pLog->LogLastError();
+							else
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_TIME);
+						}
+						else {
+							dirty_list.add(temp_id);
+							ok = 1;
+						}
 					}
 				}
 				PPWaitPercent(i+1, sc_id_list.getCount());

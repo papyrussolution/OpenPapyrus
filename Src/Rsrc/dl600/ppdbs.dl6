@@ -2981,7 +2981,7 @@ table SjRsrv {
 	long   UserID;         // ->Ref(PPOBJ_USR) @v5.8.11 User-->UserID
 	long   Action;         // @v7.7.8 long-->int16 ->Ref(PPOBJ_ACTION)
 	long   ObjType;        // @v7.7.8 long-->int16
-	long   ObjID;
+	long   ObjID;          //
 	long   Extra;          //
 index:
 	Dt, Tm (dup);          // @v7.7.8 unique-->dup

@@ -11242,26 +11242,26 @@
 #define PPERR_DIRACCESSDENIED_W  1006 // Каталог '%s' не доступен для записи
 #define PPERR_FTPSRVREPLYERR     1010 // FTP сервер вернул ошибку %s
 #define PPERR_BARLABELPRINTFAULT 1011 // Ошибка печать этикетки
-#define PPERR_DUPLSCARDFOUND     1030 // Найдены дублирующиеся номера карточек
-#define PPERR_RECURSIONFOUND     1031 // Найдена рекурсия //
-#define PPERR_MUSTBETAG          1032 // Выбранное значение не является тегом
-#define PPERR_INVEXPRVAR         1033 // Неизвестная переменная '%s' в выражении
-#define PPERR_INVEXPRREF         1034 // Неизвестная ссылка '%s' в выражении
-#define PPERR_INVEXPRCTX_GS      1035 // Использование ссылок в выражениях допустимо только в контексте товарной струкутры
-#define PPERR_INVGOODSPRICE      1036 // Цена на товар %s не определена
-#define PPERR_BHTSUPPFROMEXTMOD  1037 // Загрузка и выгрузка данных на COM терминал, осуществляется с помощью COM объекта (обратитесь к сопровождению).
-#define PPERR_NOTFOUNDCOMBHT     1038 // Терминал не найден или не является COM терминалом.
-#define PPERR_DBXCHGRCVISLOCKED  1039 // Прием данных заблокирован другим пользователем (%s)
-#define PPERR_SERIALUSED         1040 // Серийный номер '%s' уже использован этой техн сессией
-#define PPERR_BHTTSESSNINIT      1041 // Внутренняя ошибка: Технологическая сессия с BHT-терминала не инициализирована
-#define PPERR_UPDTESLNRESTSTATUS 1042 // Попытка изменить признак остатка в строке техн сессии
-#define PPERR_LOTBYSERIALCLOSED  1043 // Лот с серийным номером '%s' закрыт либо находится на другом складе
-#define PPERR_UNEBLCRALDDINST    1044 // Невозможно создать объект ALDD структуры '%s'
-#define PPERR_SCARDSERIESNEEDED  1045 // Введите серию пластиковых карт
-#define PPERR_PSBUILDDATELTLAST  1046 // Дата заполнения таблицы продаж должна быть больше последней заполненной даты
-#define PPERR_PRCPANMUSTBEFREE   1047
-#define PPERR_BILLFORANOTHERPRC  1048
-#define PPERR_HANGGOODSPARENTLNK 1049 // Висячая ссылка на родителя в товаре '%s'
+// @v10.1.7 #define PPERR_DUPLSCARDFOUND     1030 // Найдены дублирующиеся номера карточек
+// @v10.1.7 #define PPERR_RECURSIONFOUND     1031 // Найдена рекурсия //
+// @v10.1.7 #define PPERR_MUSTBETAG          1032 // Выбранное значение не является тегом
+// @v10.1.7 #define PPERR_INVEXPRVAR         1033 // Неизвестная переменная '%s' в выражении
+// @v10.1.7 #define PPERR_INVEXPRREF         1034 // Неизвестная ссылка '%s' в выражении
+// @v10.1.7 #define PPERR_INVEXPRCTX_GS      1035 // Использование ссылок в выражениях допустимо только в контексте товарной струкутры
+// @v10.1.7 #define PPERR_INVGOODSPRICE      1036 // Цена на товар %s не определена
+// @v10.1.7 #define PPERR_BHTSUPPFROMEXTMOD  1037 // Загрузка и выгрузка данных на COM терминал, осуществляется с помощью COM объекта (обратитесь к сопровождению).
+// @v10.1.7 #define PPERR_NOTFOUNDCOMBHT     1038 // Терминал не найден или не является COM терминалом.
+// @v10.1.7 #define PPERR_DBXCHGRCVISLOCKED  1039 // Прием данных заблокирован другим пользователем (%s)
+// @v10.1.7 #define PPERR_SERIALUSED         1040 // Серийный номер '%s' уже использован этой техн сессией
+// @v10.1.7 #define PPERR_BHTTSESSNINIT      1041 // Внутренняя ошибка: Технологическая сессия с BHT-терминала не инициализирована
+// @v10.1.7 #define PPERR_UPDTESLNRESTSTATUS 1042 // Попытка изменить признак остатка в строке техн сессии
+// @v10.1.7 #define PPERR_LOTBYSERIALCLOSED  1043 // Лот с серийным номером '%s' закрыт либо находится на другом складе
+// @v10.1.7 #define PPERR_UNEBLCRALDDINST    1044 // Невозможно создать объект ALDD структуры '%s'
+// @v10.1.7 #define PPERR_SCARDSERIESNEEDED  1045 // Введите серию пластиковых карт
+// @v10.1.7 #define PPERR_PSBUILDDATELTLAST  1046 // Дата заполнения таблицы продаж должна быть больше последней заполненной даты
+// @v10.1.7 #define PPERR_PRCPANMUSTBEFREE   1047
+// @v10.1.7 #define PPERR_BILLFORANOTHERPRC  1048
+// @v10.1.7 #define PPERR_HANGGOODSPARENTLNK 1049 // Висячая ссылка на родителя в товаре '%s'
 #define PPERR_CMDMNGREADONLY     1050 // Внутренняя ошибка: менеджер команд открыт в режиме 'только-для-чтения'
 #define PPERR_CMDFILSIGN         1051 // Неверная сигнатура файла команд '%s'
 #define PPERR_CMDFILCRC          1052 // Нарушена целостность файла команд '%s'
