@@ -2725,7 +2725,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									if(agi.UnpackedVolume > 0.0) {
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
-										qtty_fmt = MKSFMTD(0, 3, 0);
+										// @v10.1.7 qtty_fmt = MKSFMTD(0, 3, 0);
+										qtty_fmt = MKSFMTD(0, 0, 0); // @v10.1.7 Округление до целых (в последнее время ЕГАИС почему-то отказывается принимать дробные значения)
 									}
 									SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));
 									w_p.PutInner(SXml::nst("awr", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));

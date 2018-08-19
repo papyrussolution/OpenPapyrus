@@ -1166,11 +1166,8 @@ int TWindowBase::RegWindowClass(int iconId)
 		return -1;
 }
 
-TWindowBase::TWindowBase(int capability) : TWindow(TRect(), 0, 0)
+TWindowBase::TWindowBase(int capability) : TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
 {
-	WbState = 0;
-	WbCapability = capability;
-	H_DrawBuf = 0;
 }
 
 TWindowBase::~TWindowBase()

@@ -1170,7 +1170,7 @@ ui_cluster_item : T_CONST_STR uirectopt uidescr ';'
 	ZapToken2($1, $3);
 }
 
-ui_cluster_item_list : ui_cluster_item {} | ui_cluster_item_list ui_cluster_item {}
+ui_cluster_item_list : {} | ui_cluster_item {} | ui_cluster_item_list ui_cluster_item {}
 
 listbox_column_list : ';'
 {

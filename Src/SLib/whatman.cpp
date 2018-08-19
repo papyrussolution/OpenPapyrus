@@ -1304,7 +1304,12 @@ int TWhatman::DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj)
 	return ok;
 }
 
-const float __rule_width = 15.5f;
+//static
+float TWhatman::GetRuleWidth()
+{
+	static const float __rule_width = 15.5f;
+	return __rule_width;
+}
 
 int TWhatman::GetNotchList(const Rule & rRule, float size, float offs, int kind, TSVector <RuleNotch> & rList) const
 {
@@ -1313,7 +1318,7 @@ int TWhatman::GetNotchList(const Rule & rRule, float size, float offs, int kind,
 	const float limit = (float)(((size + offs) / rRule.OneUnitDots) + 1.0f);
 	const uint nc = rRule.NotchList.getCount();
 	for(float t = -offs; t < limit; t += 1.0f) {
-		const float start = (float)(t * rRule.OneUnitDots) + __rule_width - offs;
+		const float start = (float)(t * rRule.OneUnitDots) + GetRuleWidth() - offs;
 		for(uint i = 0; i < nc; i++) {
 			RuleNotch notch = rRule.NotchList.at(i);
 			if(kind == 0 || (kind == 1 && notch.H == 1.0f) || (kind == 2 && notch.H >= 0.5f && notch.H < 1.0f)) {
@@ -1371,9 +1376,9 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	//
 	CalcRule(caps.PtPerInch.X, RuleX);
 	hrr.a = Area.a;
-	hrr.a.X += __rule_width;
+	hrr.a.X += TWhatman::GetRuleWidth();
 	hrr.b = Area.b;
-	hrr.b.Y = hrr.a.Y + __rule_width;
+	hrr.b.Y = hrr.a.Y + TWhatman::GetRuleWidth();
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(hrr, TidPenRule, TidBrushRule);
 	//
@@ -1381,9 +1386,9 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	//
 	CalcRule(caps.PtPerInch.Y, RuleY);
 	vrr.a = Area.a;
-	vrr.a.Y += __rule_width;
+	vrr.a.Y += TWhatman::GetRuleWidth();
 	vrr.b = Area.b;
-	vrr.b.X = vrr.a.X + __rule_width;
+	vrr.b.X = vrr.a.X + TWhatman::GetRuleWidth();
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(vrr, TidPenRule, TidBrushRule);
 	//
@@ -1483,7 +1488,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			const RuleNotch & r_n = notch_list.at(i);
 			FPoint p(r_n.P, hrr.b.Y);
 			rCanv.MoveTo(p);
-			p.Y = hrr.b.Y - r_n.H * __rule_width;
+			p.Y = hrr.b.Y - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
 		}
 		//
@@ -1495,7 +1500,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			const RuleNotch & r_n = notch_list.at(i);
 			FPoint p(vrr.b.X, r_n.P);
 			rCanv.MoveTo(p);
-			p.X = vrr.b.X - r_n.H * __rule_width;
+			p.X = vrr.b.X - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
 		}
 		//
@@ -1550,7 +1555,7 @@ int TWhatman::Rule::GetNearest(float p, float size, float * pNearestP) const
 	float  lower_p = 0.0f;
 	const float limit = (float)((size / OneUnitDots) + 1.0f);
 	for(float t = 0.0f; ok < 0 && t < limit; t += 1.0f) {
-		const float start = (float)(t * OneUnitDots) + __rule_width - 0.5f;
+		const float start = (float)(t * OneUnitDots) + TWhatman::GetRuleWidth() - 0.5f;
 		for(uint i = 0; ok < 0 && i < nc; i++) {
 			const RuleNotch & r_n = NotchList.at(i);
 			if(r_n.F & RuleNotch::fSnap) {

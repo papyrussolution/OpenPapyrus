@@ -708,7 +708,7 @@ uint SLAPI DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken
 //
 SString & SLAPI GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldName, size_t indent)
 {
-	rBuf = 0;
+	rBuf.Z();
 	size_t sz = stsize(typ);
 	size_t dim = 0;
 	SString type_text;

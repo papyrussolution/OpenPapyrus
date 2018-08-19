@@ -6743,7 +6743,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									TakeInCountCtrl(h, child_list, seen_pos_list);
 								}
 							}
-							else if(!cls_name.IsEqiAscii("SysTreeView32")) {
+							else if(cls_name.IsEqiAscii("SysTreeView32")) {
 								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = (SmartListBox *)p_view;

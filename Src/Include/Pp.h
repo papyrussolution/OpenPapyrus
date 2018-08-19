@@ -47695,7 +47695,7 @@ private:
 		brushModMode_Incoming,
 		brushModMode_Recompl
 	};
-	SPaintToolBox Ptb;     // @v8.5.0
+	SPaintToolBox Ptb;
 };
 //
 //
@@ -49715,7 +49715,9 @@ public:
 		curResizeNS,
 		curResizeNESW,
 		curResizeNWSE,
-		curOdious // @debug
+		curOdious, // @debug
+
+		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};
 	PPWhatmanWindow(int mode);
 	~PPWhatmanWindow();

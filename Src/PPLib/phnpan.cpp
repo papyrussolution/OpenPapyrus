@@ -353,6 +353,24 @@ private:
 							}
 							break;
 						case param.acnPrjTask:
+							if(param.PersonID) {
+								PrjTaskTbl::Rec rec;
+								PPID   emplr_id = 0;
+								PPID   new_task_id = 0;
+								PPObjPerson::GetCurUserPerson(&emplr_id, 0);
+								if(TodoObj.InitPacket(&rec, 0, 0, param.PersonID, emplr_id, 1)) {
+									S.Flags |= S.fLockAutoExit;
+									if(TodoObj.EditDialog(&rec) > 0) {
+										if(TodoObj.PutPacket(&new_task_id, &rec, 1)) {
+										}
+										else
+											PPError();
+									}
+									S.Flags &= ~S.fLockAutoExit;
+								}
+								else
+									PPError();
+							}
 							break;
 						case param.acnCcOrder:
 							break;

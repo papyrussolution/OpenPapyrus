@@ -1383,7 +1383,6 @@ int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 	MEMSZERO(Item);
 	do {
 		if(NextInnerIteration(pItem) > 0) {
-			// @v8.5.11 {
 			if(CreatorList.IsExists() && !CreatorList.CheckID(Item.CreatorID))
 				continue;
 			else if(EmployerList.IsExists() && !EmployerList.CheckID(Item.EmployerID))
@@ -1393,7 +1392,6 @@ int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 			else if(tm_period_valid && (Item.StartTm < Filt.StartTmPeriodBeg || Item.StartTm > Filt.StartTmPeriodEnd))
 				continue;
 			else
-			// } @v8.5.11
 				ok = 1;
 		}
 	} while(ok < 0 && NextOuterIteration() > 0);
@@ -1607,8 +1605,7 @@ void * SLAPI PPViewPrjTask::GetEditExtraParam()
 
 int SLAPI PPViewPrjTask::Print(const void *)
 {
-	return Helper_Print(Filt.TabType == PrjTaskFilt::crstNone ?
-		REPORT_PRJTASKVIEW : REPORT_PRJTASKVIEWCT, Filt.Order);
+	return Helper_Print(Filt.TabType == PrjTaskFilt::crstNone ? REPORT_PRJTASKVIEW : REPORT_PRJTASKVIEWCT, Filt.Order);
 }
 
 int SLAPI PPViewPrjTask::Export()
@@ -1630,13 +1627,11 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		DBE  * dbe_prior = 0;
 		DBE  * dbe_status = 0;
 		DBE    dbe_psn_cli, dbe_psn_emp;
-
 		brw_id = (Filt.Kind == TODOKIND_TEMPLATE) ? BROWSER_PRJTASKTEMPL : BROWSER_PRJTASK;
 		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
 		THROW(CheckTblPtr(t = new PrjTaskTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_cli, PPDbqFuncPool::IdObjNamePerson, t->ClientID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_emp, PPDbqFuncPool::IdObjNamePerson, t->EmployerID);
-
 		dbe_prior  = & enumtoa(t->Priority, 5, prior_subst.Get(PPTXT_TODO_PRIOR));
 		dbe_status = & enumtoa(t->Status,   5, status_subst.Get(PPTXT_TODO_STATUS));
 		dbq = &(*dbq && t->ID == p_ord->ID);

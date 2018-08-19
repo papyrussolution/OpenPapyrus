@@ -136,8 +136,11 @@ protected:
 	UiRelRect Rect;
 	SString UiText;
 	WhatmanObjectUiCtrl * P_LinkObj;
-
+	enum {
+		brWindowFrame = PPWhatmanWindow::anchorLastTool+1,
+	};
 	int    TidFont;
+	int    TidWindowFrame; // #E8EFFF Цвет шапки окна
 };
 
 IMPLEMENT_WTMOBJ_FACTORY(UiCtrl, "@wtmo_uictrl");
@@ -151,6 +154,7 @@ void WhatmanObjectUiCtrl::Init()
 	SetKind(UiItemKind::kUnkn);
 	P_LinkObj = 0;
 	TidFont = 0;
+	TidWindowFrame = 0;
 	Rect.Reset();
 }
 
@@ -281,8 +285,7 @@ int FASTCALL WhatmanObjectUiCtrl::Copy(const WhatmanObjectUiCtrl & rS)
 TWhatmanObject * WhatmanObjectUiCtrl::Dup() const
 {
 	WhatmanObjectUiCtrl * p_obj = new WhatmanObjectUiCtrl();
-	if(p_obj)
-		p_obj->Copy(*this);
+	CALLPTRMEMB(p_obj, Copy(*this));
 	return p_obj;
 }
 
@@ -334,10 +337,25 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	SPaintToolBox & r_tb = rCanv.GetToolBox();
 	STextLayout tlo;
 	TRect  b = GetBounds();
+	b.move((int)TWhatman::GetRuleWidth(), (int)TWhatman::GetRuleWidth());
 	r_tb.CreateReservedObjects();
 	if(UiKind == UiItemKind::kDialog) {
-		rCanv.DrawEdge(b, TCanvas2::edgeRaised, TCanvas2::borderRect | TCanvas2::borderAdjust);
+		rCanv.DrawEdge(b, TCanvas2::edgeRaised, TCanvas2::borderRect|TCanvas2::borderAdjust);
 		rCanv.Rect(b, 0, SPaintToolBox::rbr3DFace);
+		if(!TidWindowFrame) {
+			TidWindowFrame = r_tb.CreateBrush(brWindowFrame, SPaintObj::bsSolid, SColor(0xE8, 0xEF, 0xFF), 0); //#E8EFFF
+		}
+		TRect  rc_cap;
+		rc_cap = b;
+		rc_cap.b.y = rc_cap.a.y + 20;
+		rCanv.Rect(rc_cap, 0, brWindowFrame);
+		if(CreateTextLayout(r_tb, tlo, ADJ_CENTER) > 0) {
+			FRect fb(rc_cap);
+			fb.Grow((float)-_cxborder, (float)-_cyborder);
+			tlo.SetBounds(fb);
+			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
+			rCanv.DrawTextLayout(&tlo);
+		}
 	}
 	else if(UiKind == UiItemKind::kPushbutton) {
 		rCanv.DrawEdge(b, TCanvas2::edgeRaised, TCanvas2::borderRect | TCanvas2::borderAdjust);
@@ -450,7 +468,16 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		}
 	}
 	else if(UiKind == UiItemKind::kCombobox) {
-		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect | TCanvas2::borderAdjust);
+		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect|TCanvas2::borderAdjust);
+		{
+			TRect rc_button;
+			rc_button.a.x = b.b.x+1;
+			rc_button.a.y = b.a.y-_cyborder;
+			rc_button.b.x = rc_button.a.x+16;
+			rc_button.b.y = b.b.y+_cyborder;
+			rCanv.DrawEdge(rc_button, TCanvas2::edgeRaised, TCanvas2::borderRect|TCanvas2::borderAdjust);
+			//rCanv.Rect(rc_button, 0, SPaintToolBox::rbr3DFace);
+		}
 	}
 	else if(UiKind == UiItemKind::kListbox) {
 		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect | TCanvas2::borderAdjust);
@@ -613,7 +640,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 							}
 						}
 					}
-					else if(UiKind == DlScope::ckInput) {
+					else if(oneof2(UiKind, DlScope::ckInput, DlScope::ckCombobox)) {
 						if(UiText.NotEmpty()) {
 							UiRelRect urr;
 							urr.Reset();
@@ -660,11 +687,8 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 class PPDialogEditWindow : public PPWhatmanWindow {
 public:
 	friend int EditDialogSpec(DlContext * pCtx, uint dlgId);
-
-	PPDialogEditWindow(DlContext * pCtx) : PPWhatmanWindow(modeEdit)
+	PPDialogEditWindow(DlContext * pCtx) : PPWhatmanWindow(modeEdit), P_DCtx(pCtx), P_Scope(0)
 	{
-		P_DCtx = pCtx;
-		P_Scope = 0;
 	}
 	int    Load(uint dlgId);
 private:

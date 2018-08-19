@@ -999,10 +999,7 @@ public:
 	int    FASTCALL SetBounds(const FRect & rBounds);
 	int    EnumGroups(uint * pI, RenderGroup * pGroup);
 	int    Arrange(SDrawContext & rCtx, SPaintToolBox & rTb);
-	const  LongArray GetGlyphIdList() const
-	{
-		return GlyphIdList;
-	}
+	const  LongArray & GetGlyphIdList() const { return GlyphIdList; }
 private:
 	int    Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb);
 	int    FASTCALL CanWrap(uint pos);
@@ -2454,6 +2451,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
+	static float GetRuleWidth();
 private:
 	struct ObjZone {
 		int    I;

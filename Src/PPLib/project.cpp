@@ -1948,11 +1948,12 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		is_new = 1;
 	}
 	task_finished = BIN(rec.Status == TODOSTTS_COMPLETED && rec.FinishDt != ZERODATE);
-	while(ok != cmOK && (r = EditDialog(&rec)) > 0)
+	while(ok != cmOK && (r = EditDialog(&rec)) > 0) {
 		if(PutPacket(pID, &rec, 1))
 			ok = cmOK;
 		else
 			PPError();
+	}
 	if(r == 0)
 		ok = 0;
 	CATCHZOKPPERR
@@ -2034,7 +2035,6 @@ int SLAPI PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 		rec.LinkTaskID = LinkTaskID;
 		PPObjPerson::GetCurUserPerson(&rec.CreatorID, 0);
 		getcurdatetime(&rec.Dt, &rec.Tm);
-		// @v8.5.12 {
 		{
 			PPProjectConfig cfg;
 			PPObjProject::ReadConfig(&cfg);
@@ -2048,7 +2048,6 @@ int SLAPI PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 			if(cntr_id)
 				opc_obj.GetCode(cntr_id, &counter, rec.Code, sizeof(rec.Code), 0, 1);
 		}
-		// } @v8.5.12
 		while(ok <= 0 && (ok = EditDialog(&rec)) > 0)
 			if(PutPacket(pID, &rec, 1))
 				ok = 1;

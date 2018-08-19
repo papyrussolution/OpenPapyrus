@@ -829,10 +829,11 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 					{
 						//LDATETIME serial_dtm;
 						//strtodatetime(item.Serial, &serial_dtm, DATF_DMY, TIMF_HMS);
-						STRNSCPY(line_rec.PartNumber, item.Serial);
+						// @v10.1.7 STRNSCPY(line_rec.PartNumber, item.Serial);
 					}
 					ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
-					GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, 0);
+					GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, &temp_buf);
+					STRNSCPY(line_rec.PartNumber, temp_buf); // @v10.1.7
 					if(bc_pack > 1.0) {
 						line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 					}
@@ -884,9 +885,10 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 							uint   idx = 0;
 							line_rec.Quantity = item.Rest;
 							STRNSCPY(line_rec.UnitId, GetEaText());
-							STRNSCPY(line_rec.PartNumber, item.Serial);
+							// @v10.1.7 STRNSCPY(line_rec.PartNumber, item.Serial);
 							ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
-							GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, 0);
+							GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, &temp_buf);
+							STRNSCPY(line_rec.PartNumber, temp_buf); // @v10.1.7
 							if(bc_pack > 1.0) {
 								line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 							}
