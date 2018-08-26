@@ -349,7 +349,10 @@ coconut%<ccnut
 control%<cntrl%|contrl
 digital%<dgtl%|digtl%|digitl
 earl grey%<ерл грей%|эрл грей
+gluten free%<gluten-free
 g-spot%<g spot%|gspot
+handcrafted%<hand-crafted%|hand crafted
+handmade%<hand-made%|hand made
 helena rubinstein%<h%.%zrubinstein
 hochland%<хохланд
 ice cream%<icecream%|ice crm
@@ -410,6 +413,8 @@ handset%<hndset%|handst
 hardcore%<hrdcore%|hrdcre
 hellmann's%<hellmanns%|hellmans
 hole saw%<holesaw%|hole-saw
+italian style%<italian-style
+japanese style%<jap style%|japanese-style
 jean louis david%<j%.%zl%.%zdavid%|j%.%zlouis david%|ж%.%zл%.%zдавид
 jigsaw%<jig saw
 jigsaw blade%<jigsaw bld
@@ -420,6 +425,7 @@ kitchen towel%<kitchen twl
 tomato%<tmto
 tetra pak%<tetra pk%|tetrapak%|tetrapack%|tetra pack
 тетра пак%<тетра/пак%|тетра-пак%|тетрапак
+multigrain%<multi-grain%|multi grain%|mltgrn
 mr.proper%<мистер пропер%|мр%.%zпропер
 niederegger%<нидереггер
 oatmeal%<oatml
@@ -428,6 +434,7 @@ paco rabanne%<paco rabane%|p%.%zrabanne
 pantyhose%<p/hose%|pntyh%|pntyhs%|panty hose
 paper-mate%<paper mate%|papermate
 parfum%<parfume%|prfum%|prfm%|prfum
+parmesan%<prmsan
 party%<prty
 pickles%<pckles%|pckls
 pickle%<pckle
@@ -448,6 +455,7 @@ ariel detergent powder%<ariel dpow
 soy milk%<soymilk%|soy mlk
 surf detergent powder%<surf dpow
 little%<ltl%|lttle%|lttl
+lowfat%<low fat
 mayonnaise%<myonnaise%|mayonnise%|mayonn%|mayonaise%|mayon%|mayonnais%|mayo
 menthol%<mnthol%|mnthl%|menthl
 monthly%<mthly
@@ -992,6 +1000,7 @@ mr%.%s%(%w%)%>mr.%1
 двухсторонн€€%<двухсторонн€%|2-x сторонн€€%|двусторонн€€%|2-сторонн€€
 двухстороннее%<2-стороннее
 двухстороние%<двухсторон-е%|двустороние
+длинна%>длина
 полна€ библиотека%<полна€ библ%.%|полн%.%zбибл%.
 полна€ энциклопеди€%<полна€ энц%.%|полна€ энцикл%.%|%^полн%.%zэнц%.
 полна€ хрестомати€%<полна€ хрест%.%|полн%.%zхрест%.%|полн%.%zхрестомати€
@@ -1021,6 +1030,8 @@ mr%.%s%(%w%)%>mr.%1
 ежедн%<ежедневные%|ежедневный%|ежедневное%|ежедн.%|ежеднев%.%|ежедневн%.
 удлинитель%<удл-ль%|удлинит%.
 удлинитель сетевой%<сет%.%zудлинитель
+с дерев ручкой%<с дерев€нной ручкой%|с дер%.%zруч%.%|с дер%.%zручк%.
+дерев ручка%<дерев€нна€ ручка%|дер%.%zручка
 
 %(удлинитель %*%) %(%D01%)-местный%>%1 %2-мест
 %(удлинитель %*%) %(%D01%)%zмест%.%>%1 %2-мест
@@ -1441,7 +1452,7 @@ pasta%<psta
 brush%<brsh
 shower%<shwr%|showr
 shower gel%<showergel%|douchegel%|douche gel%|shwr gl%|shwr gel%|shower gl
-sugar free%<sgrfree%|sgrfr%|sgrfre%|sgr free%|sgr fr%|sugrfr
+sugar free%<sgrfree%|sgrfr%|sgrfre%|sgr free%|sgr fr%|sugrfr%|sugarfree%|sugar-free
 lynx shower gel%<lynx s/gel
 dental floss%<dental fls
 aloedent toothpaste%<aloedent tp

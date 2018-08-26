@@ -20,7 +20,8 @@ public:
 			memzero(PTR8(this)+sizeof(Text), sizeof(*this)-sizeof(Text));
 		}
 		enum {
-			fHasIndepPhQtty = 0x0001 // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY
+			fHasIndepPhQtty = 0x0001, // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY
+			fHasVetisGuid   = 0x0002  // @v10.1.8 По крайней мере одна строка имеет сертификат ВЕТИС
 		};
 
 		SString Text;
@@ -916,8 +917,10 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	SString temp_buf, lines;
 	uint   i, lines_count = 0;
 	BillGoodsBrwItem item;
+	Goods2Tbl::Rec goods_rec;
 	GoodsStockExt gse;
 	BarcodeArray bc_list;
+	const int check_spoil = BIN(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES);
 	Total.Init();
 	OrdQttyList.clear();
 	THROW_MEM(p_packed_list = new BillGoodsBrwItemArray);
@@ -935,14 +938,21 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		const double sqtty = p_ti->SQtty(p_pack->Rec.OpID);
 		const double qtty  = p_ti->Qtty();
 		const double __q = (p_pack->OpTypeID == PPOPT_GOODSMODIF) ? sqtty : qtty;
+		if(GObj.Fetch(p_ti->GoodsID, &goods_rec) <= 0)
+			MEMSZERO(goods_rec);
 		if(p_ti->Flags & PPTFR_INDEPPHQTTY) {
 			Total.PhQtty += p_ti->WtQtty;
 			Total.Flags |= Total.fHasIndepPhQtty; // @v10.0.07
 		}
 		else {
 			double phuperu;
-			if(GObj.GetPhUPerU(p_ti->GoodsID, 0, &phuperu) > 0)
+			// @v10.1.8 {
+			const int gphupur = goods_rec.ID ? GObj.GetPhUPerU(&goods_rec, 0, &phuperu) : GObj.GetPhUPerU((Goods2Tbl::Rec *)0, 0, &phuperu);
+			if(gphupur > 0)
 				Total.PhQtty += __q * phuperu;
+			// } @v10.1.8 
+			/* @v10.1.8 if(GObj.GetPhUPerU(p_ti->GoodsID, 0, &phuperu) > 0)
+				Total.PhQtty += __q * phuperu;*/
 		}
 		Total.Qtty  += __q;
 		Total.Price += R2(p_ti->Price * __q); // (см. комментарии ниже)
@@ -965,9 +975,8 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 				if(p_pack->SearchShLot(p_ti->OrdLotID, &sh_lot_pos)) {
                     double ord_qtty = 0.0;
                     ReceiptTbl::Rec lot_rec;
-                    if(P_T->Rcpt.Search(p_ti->OrdLotID, &lot_rec) > 0) {
+                    if(P_T->Rcpt.Search(p_ti->OrdLotID, &lot_rec) > 0)
 						ord_qtty = fabs(lot_rec.Quantity);
-                    }
                     OrdQttyList.Add(p_ti->OrdLotID, ord_qtty, 0, 0);
 					Total.OrderQtty += ord_qtty;
 				}
@@ -1004,36 +1013,40 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		}
 		item.Pos = i-1;
 		item.RByBill = p_ti->RByBill;
-		{
-			if(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
-				// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
-				p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11 
-				if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
-					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-					SpecSeries2Tbl::Rec spc_rec;
-					if(P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &spc_rec) > 0) {
-						item.Flags &= ~BillGoodsBrwItem::fSerialOk;
-						item.Flags |= BillGoodsBrwItem::fSerialBad;
-					}
-					else {
-						item.Flags |= BillGoodsBrwItem::fSerialOk;
-						item.Flags &= ~BillGoodsBrwItem::fSerialBad;
-					}
+		if(check_spoil) {
+			// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
+			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11 
+			if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				SpecSeries2Tbl::Rec spc_rec;
+				if(P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &spc_rec) > 0) {
+					item.Flags &= ~BillGoodsBrwItem::fSerialOk;
+					item.Flags |= BillGoodsBrwItem::fSerialBad;
+				}
+				else {
+					item.Flags |= BillGoodsBrwItem::fSerialOk;
+					item.Flags &= ~BillGoodsBrwItem::fSerialBad;
 				}
 			}
 		}
-		if(AlcoGoodsClsID) {
-			Goods2Tbl::Rec goods_rec;
-			if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GdsClsID == AlcoGoodsClsID) {
-				int    has_egais_code = 0;
-				GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
-				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
-					if(sstrlen(r_bc_rec.Code) == 19)
-						has_egais_code = 1;
-				}
-				SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
+		// @v10.1.8 {
+		if(!(Total.Flags & Total.fHasVetisGuid)) {
+			p_pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, item.Pos, temp_buf); 
+			if(temp_buf.NotEmpty())
+				Total.Flags |= Total.fHasVetisGuid;
+			else if(goods_rec.Flags & GF_WANTVETISCERT)
+				Total.Flags |= Total.fHasVetisGuid;
+		}
+		// } @v10.1.8 
+		if(AlcoGoodsClsID && goods_rec.GdsClsID == AlcoGoodsClsID) {
+			int    has_egais_code = 0;
+			GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
+			for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+				const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
+				if(sstrlen(r_bc_rec.Code) == 19)
+					has_egais_code = 1;
 			}
+			SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
 		}
 		THROW_SL(p_packed_list->insert(&item));
 		lines_count++;
@@ -1131,8 +1144,8 @@ int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, BillG
 // 29 - Количество в упаковках
 // 30 - Информация об установленной котировке @v8.2.0
 // 31 - Заказанное количество (для документов отгрузки) @v9.1.1
+// 32 - GUID сертификата VETIS @v10.1.8
 //
-
 int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
@@ -1433,6 +1446,19 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(ord_qtty);
 					}
 					break;
+				case 32: // GUID сертификата VETIS @v10.1.8
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
+						if(temp_buf.Empty()) {
+							Goods2Tbl::Rec goods_rec;
+							if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
+								temp_buf = "none";
+						}
+						pBlk->Set(temp_buf);
+					}
+					break;
 				default:
 					ok = 0;
 			}
@@ -1483,6 +1509,7 @@ void BillItemBrowser::update(int pos)
 				int    phqtty_col = -1;
 				int    upp_col = -1;
 				int    ordqtty_col = -1;
+				int    vetis_uuid_col = -1;
 				for(uint i = 0; i < p_def->getCount(); i++) {
 					const BroColumn & r_col = p_def->at(i);
 					switch(r_col.Offs) {
@@ -1493,6 +1520,7 @@ void BillItemBrowser::update(int pos)
 						case 29: upp_col = (int)i; break;
 						case 30: setup_quot_info_col = (int)i; break;
 						case 31: ordqtty_col = (int)i; break;
+						case 32: vetis_uuid_col = (int)i; break;
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -1539,6 +1567,10 @@ void BillItemBrowser::update(int pos)
 						view->removeColumn(setup_quot_info_col);
 					}*/
 				}
+				// @v10.1.8 {
+				if(Total.Flags & Total.fHasVetisGuid && vetis_uuid_col < 0)
+					view->insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+				// } @v10.1.8 
 			}
 			if(pos == pos_cur && c >= 0)
 				view->go(c);

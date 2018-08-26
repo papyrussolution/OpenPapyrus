@@ -25731,45 +25731,46 @@ enum GoodsGroupTag {
 //
 // Флаги товаров
 //
-#define GF_INTVAL       0x00000001L // @transient Целочисленная единица измерения //
-#define GF_UNLIM        0x00000002L // @transient Неограниченный ресурс
-#define GF_ODD          0x00000004L // @transient Нестандартный товар
-#define GF_AUTOCOMPL    0x00000008L // @transient Автокомплект
-#define GF_GENERIC      0x00000010L // Обобщенный товар
+#define GF_INTVAL          0x00000001L // @transient Целочисленная единица измерения //
+#define GF_UNLIM           0x00000002L // @transient Неограниченный ресурс
+#define GF_ODD             0x00000004L // @transient Нестандартный товар
+#define GF_AUTOCOMPL       0x00000008L // @transient Автокомплект
+#define GF_GENERIC         0x00000010L // Обобщенный товар
 //
-#define GF_ABSEXCISE    0x00000020L // Obsolete Акциз в денежных единицах (не процентах)
-#define GF_ZEXCISE      0x00000040L // Obsolete Нулевой акциз (акциз не наследуется от группы)
-#define GF_ZVAT         0x00000080L // Obsolete Нулевой НДС (НДС не наследуется от группы)
+#define GF_ABSEXCISE       0x00000020L // Obsolete Акциз в денежных единицах (не процентах)
+#define GF_ZEXCISE         0x00000040L // Obsolete Нулевой акциз (акциз не наследуется от группы)
+#define GF_ZVAT            0x00000080L // Obsolete Нулевой НДС (НДС не наследуется от группы)
 //
-#define GF_TAXFACTOR    0x00000020L // ExtRec содержит ненулевой налоговый фактор
-#define GF_PRICEWOTAXES 0x00000040L // UC Цена реализации товара указана без всех операционных налогов
-#define GF_EXTPROP      0x00000080L // Товар имеет запись расширенных свойств (PPGoodsPacket::ExtString)
-#define GF_ALTGROUP     0x00000100L // Альтернативная группа
-#define GF_FOLDER       0x00000200L // Группа верхнего уровня //
-#define GF_PASSIV       0x00000400L // Пассивный товар
-#define GF_NODISCOUNT   0x00000800L // На товар не распространяется общая скидка
-#define GF_EXCLALTFOLD  0x00001000L // Папка, объединяющая непересекающиеся альтернативные группы
-#define GF_UNIQPCKGCODE 0x00002000L // Уникальный код пакета
-#define GF_DFLTPCKGTYPE 0x00004000L // Тип пакета по умолчанию
-#define GF_PCKG_AROWS   0x00008000L //
-#define GF_PCKG_ANEWROW 0x00010000L //
-#define GF_ASSETS       0x00020000L // @transient Основные фонды
+#define GF_TAXFACTOR       0x00000020L // ExtRec содержит ненулевой налоговый фактор
+#define GF_PRICEWOTAXES    0x00000040L // UC Цена реализации товара указана без всех операционных налогов
+#define GF_EXTPROP         0x00000080L // Товар имеет запись расширенных свойств (PPGoodsPacket::ExtString)
+#define GF_ALTGROUP        0x00000100L // Альтернативная группа
+#define GF_FOLDER          0x00000200L // Группа верхнего уровня //
+#define GF_PASSIV          0x00000400L // Пассивный товар
+#define GF_NODISCOUNT      0x00000800L // На товар не распространяется общая скидка
+#define GF_EXCLALTFOLD     0x00001000L // Папка, объединяющая непересекающиеся альтернативные группы
+#define GF_UNIQPCKGCODE    0x00002000L // Уникальный код пакета
+#define GF_DFLTPCKGTYPE    0x00004000L // Тип пакета по умолчанию
+#define GF_PCKG_AROWS      0x00008000L //
+#define GF_PCKG_ANEWROW    0x00010000L //
+#define GF_ASSETS          0x00020000L // @transient Основные фонды
 	// Проекция флага GTF_ASSETS типа, которому принадлежит товар
-#define GF_WROFFBYPRICE 0x00040000L // Списывать основное средство исходя из остаточной стоимости
-#define GF_TRANSGLED    0x00080000L // @transient Признак передачи в пакете структуры GoodsLotExtData
-#define GF_VOLUMEVAL    0x00100000L // Объем упаковки поставки задается одним значением
-#define GF_TRANSQUOT    0x00200000L // @transient Пакет передачи предназначен для трансмиссии котировок
+#define GF_WROFFBYPRICE    0x00040000L // Списывать основное средство исходя из остаточной стоимости
+#define GF_TRANSGLED       0x00080000L // @transient Признак передачи в пакете структуры GoodsLotExtData
+#define GF_VOLUMEVAL       0x00100000L // Объем упаковки поставки задается одним значением
+#define GF_TRANSQUOT       0x00200000L // @transient Пакет передачи предназначен для трансмиссии котировок
 	// Сами товары не меняются. Не удаляются остутствующие в пакете, но присутствующие в базе котировки.
-#define GF_TEMPALTGRP_  0x00400000L //
-#define GF_USEINDEPWT   0x00800000L // Операции по товару ведуться параллельно в торговых и физических единицах
-#define GF_DYNAMIC      0x01000000L // Динамическая альтернативная группа
-#define GF_HASIMAGES    0x02000000L // К товару присоединены картинки
-#define GF_ABBREQNAME   0x04000000L // @transient Используется у элементов кэша для информации о том, что
+#define GF_TEMPALTGRP_     0x00400000L //
+#define GF_USEINDEPWT      0x00800000L // Операции по товару ведуться параллельно в торговых и физических единицах
+#define GF_DYNAMIC         0x01000000L // Динамическая альтернативная группа
+#define GF_HASIMAGES       0x02000000L // К товару присоединены картинки
+#define GF_ABBREQNAME      0x04000000L // @transient Используется у элементов кэша для информации о том, что
 	// сокращенное наименование эквивалентно полному.
-#define GF_EXCLVAT      0x08000000L // @transient Наследуется от типа товара (GTF_EXCLVAT) при извлечении через кэш
-#define GF_AUTOCREATE   0x10000000L // @v8.8.0 Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
-#define GF_UNCLASSF     0x20000000L // @v9.2.8 Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
+#define GF_EXCLVAT         0x08000000L // @transient Наследуется от типа товара (GTF_EXCLVAT) при извлечении через кэш
+#define GF_AUTOCREATE      0x10000000L // @v8.8.0 Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
+#define GF_UNCLASSF        0x20000000L // @v9.2.8 Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
 	// Используется для автоматической классификации.
+#define GF_WANTVETISCERT   0x40000000L // @v10.1.8 Требует сертификата на приход и отгрузку
 
 #define GF_TEMPALTGROUP      (GF_ALTGROUP|GF_TEMPALTGRP_) // Временная альтернативная группа
 #define GF_DB_FLAGS_GROUP    (GF_ALTGROUP|GF_FOLDER|GF_EXCLALTFOLD)
@@ -32243,7 +32244,7 @@ public:
 		double ResultPrice;
 		char   TaIdent[64];
 	};
-	
+
 	static SCardSpecialTreatment * FASTCALL CreateInstance(int spcTrtID);
 	static int FASTCALL InitSpecialCardBlock(PPID scID, PPID posNodeID, SCardSpecialTreatment::CardBlock & rBlk);
 
@@ -39229,10 +39230,7 @@ private:
 class CCheckFilt : public PPBaseFilt { // @persistent
 public:
 	static int FASTCALL HasGoodsGrouping(int grp)
-	{
-		return BIN(oneof7(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer));
-	}
-
+		{ return BIN(oneof7(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer)); }
 	SLAPI  CCheckFilt();
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
@@ -39243,14 +39241,9 @@ public:
 	//   и вставляется в список NodeList.
 	//
 	int    SLAPI SetLocList(const PPIDArray * pLocList);
-	int    SLAPI HasGoodsGrouping() const
-	{
-		return CCheckFilt::HasGoodsGrouping(Grp);
-	}
+	int    SLAPI HasGoodsGrouping() const { return CCheckFilt::HasGoodsGrouping(Grp); }
 	int    SLAPI HasExtFiltering() const
-	{
-		return BIN(AgentID || TableCode || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr));
-	}
+		{ return BIN(AgentID || TableCode || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
 
 	enum Grouping {
 		gNone = 0,       //
@@ -44460,6 +44453,17 @@ private:
 //
 //
 //
+enum VetisDocStatus {
+	vetisdocstCREATED = 0,
+	vetisdocstCONFIRMED = 1,
+	vetisdocstWITHDRAWN = 2,
+	vetisdocstUTILIZED = 3,
+	vetisdocstFINALIZED = 4,
+	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую
+		// необходимо получить исходящий сертификат
+	vetisdocstSTOCK              = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
+};
+
 class VetisEntityCore {
 public:
 	enum { // @persistent
@@ -44519,7 +44523,7 @@ public:
 	};
 	SLAPI  VetisEntityCore();
 	static int FASTCALL ValidateEntityKind(int kind);
-	static int SLAPI GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
+	static int   SLAPI GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
 	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    SLAPI DeleteEntity(PPID id, int use_ta);
 	int    SLAPI GetEntity(PPID id, Entity & rE);
@@ -44563,7 +44567,7 @@ public:
 	SLAPI  VetisDocumentFilt();
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
-	uint8  ReserveStart[240]; // @anchor
+	uint8  ReserveStart[224]; // @anchor
 	enum {
 		fkGeneral          = 0,
 		fkInterchangeParam = 1
@@ -44573,6 +44577,13 @@ public:
 		icacnLoadAllDocs = 0x0002,
 		icacnLoadStock   = 0x0004,
 	};
+	enum {
+		fAsSelector      = 0x0001
+	};
+	long   FromPersonID;
+	long   FromLocID;
+	long   ToPersonID;
+	long   ToLocID;
 	long   FiltKind;
 	long   Flags;
 	long   Actions;
@@ -44581,7 +44592,8 @@ public:
 	DateRange Period;
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
-	uint8   ReserveEnd[32];   // @anchor
+	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор 
+	uint8   ReserveEnd[28];   // @anchor
 };
 
 typedef VetisDocumentTbl::Rec VetisDocumentViewItem;
@@ -44638,6 +44650,10 @@ private:
 
 	VetisDocumentFilt Filt;
 	VetisEntityCore EC;
+	PPID   FromEntityID;
+	PPID   FromEnterpriseID;
+	PPID   ToEntityID;
+	PPID   ToEnterpriseID;
 };
 //
 // @ModuleDecl(DL200)

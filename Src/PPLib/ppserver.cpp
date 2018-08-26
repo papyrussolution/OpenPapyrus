@@ -414,7 +414,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				ok = 0;
 			PutParam(1, db_symb);
 			PutParam(2, name);
-			PutParam(3, pw); 
+			PutParam(3, pw);
 			break;
 		case tSuspend:
 			if(GetWord(rLine, &p)) {
@@ -571,19 +571,19 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		case tPreparePalmInData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PutParam(1, Term); 
+			PutParam(1, Term);
 			if(GetWord(rLine, &p)) // UUID устройства
 				PutParam(2, Term);
 			break;
 		case tPreparePalmOutData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PutParam(1, Term); 
+			PutParam(1, Term);
 			if(GetWord(rLine, &p)) { // UUID устройства
-				PutParam(2, Term); 
+				PutParam(2, Term);
 				if(GetWord(rLine, &p)) { // Дата последнего обмена
-					PutParam(3, Term); 
+					PutParam(3, Term);
 					if(GetWord(rLine, &p)) // Время последнего обмена
-						PutParam(4, Term); 
+						PutParam(4, Term);
 				}
 			}
 			break;
@@ -4361,7 +4361,7 @@ int SLAPI run_server()
 			PPJobServer * p_job_srv = new PPJobServer;
 			p_job_srv->Start();
 		}
-#if defined(_PPSERVER) // {
+// @v10.1.8 #if defined(_PPSERVER) // {
 		{
 			int    ival = 0;
 			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
@@ -4379,7 +4379,7 @@ int SLAPI run_server()
 				p_ngx_srv->Start();
 			}
 		}
-#endif // } _PPSERVER
+// @v10.1.8 #endif // } _PPSERVER
 		{
 			class PPServer : public TcpServer {
 			public:
@@ -4429,14 +4429,10 @@ int SLAPI run_server()
 					else
 						sib.SleepTimeout = INFINITE;
 				}
-				// @v8.1.1 {
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_TXTCMDTERM, &(ival = 0)) > 0)
 					sib.TxtCmdTerminalCode = ival;
-				// } @v8.1.1
-				// @v8.3.4 {
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_DEBUG, &(ival = 0)) > 0)
 					sib.Flags |= sib.fDebugMode;
-				// } @v8.3.4
 			}
 			addr.Set((ulong)0, port);
 			PPServer server(addr, client_timeout, sib);
@@ -4512,7 +4508,6 @@ int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
 				else
 					addr_buf = pAddr;
 			}
-			// @v8.3.4 {
 			{
 				int   iv = 0;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_DEBUG, &iv) > 0)
@@ -4521,15 +4516,12 @@ int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
 					State &= ~stDebugMode;
 			}
 			PPGetFilePath(PPPATH_LOG, PPFILNAM_SERVERDEBUG_LOG, DebugLogFileName);
-			// } @v8.3.4
 		}
 		InitAddr = addr_buf;
 		InitPort = port;
 		addr.Set(addr_buf, port);
-		// @v7.8.12 {
 		if(timeout > 0)
 			So.SetTimeout(timeout);
-		// } @v7.8.12
 		THROW_SL(So.Connect(addr));
 		State |= stConnected;
 	}
@@ -4545,7 +4537,7 @@ int SLAPI PPJobSrvClient::Disconnect()
 	if(State & stConnected) {
 		So.Disconnect();
 		State &= ~stConnected;
-		State &= ~stDebugMode; // @v8.3.4
+		State &= ~stDebugMode;
 	}
 	else
 		ok = -1;
@@ -4591,17 +4583,15 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	int    do_log_error = 0;
 	const  int preserve_so_timeout = So.GetTimeout(); // @v9.1.8
 	SString log_buf, temp_buf;
-	ExecLock.Lock(); // @v8.3.4 ENTER_CRITICAL_SECTION-->ExecLock.Lock()
+	ExecLock.Lock();
 	State |= stLockExec;
 	rReply.Clear();
 	THROW_PP(State & stConnected, PPERR_JOBSRVCLI_NOTCONN);
-	// @v8.3.4 {
 	if(State & stDebugMode) {
 		log_buf.Z().Cat("CLIENT REQ").CatDiv(':', 2);
 		log_buf.Cat(rCmd.ToStr(temp_buf));
 		PPLogMessage(DebugLogFileName, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 	}
-	// } @v8.3.4
 	THROW_SL(So.SendBuf(rCmd, 0));
 	So.SetTimeout(1000 * 3600 * 24); // @v9.1.8 Временно устанавливаем очень большой таймаут так как процесс может выполнятся сервером очень долго
 	do {

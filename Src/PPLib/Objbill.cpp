@@ -1770,8 +1770,8 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	PPBillPacket pack;
 	if(pExtraParam)
 		egbf |= pExtraParam->Flags;
-	SETFLAG(flags, BPLD_FORCESERIALS, (Cfg.Flags & BCF_SHOWSERIALSINGBLINES));
-	// @v8.6.1 THROW(CheckRights(PPR_MOD));
+	// @v10.1.8 SETFLAG(flags, BPLD_FORCESERIALS, (Cfg.Flags & BCF_SHOWSERIALSINGBLINES));
+	flags |= BPLD_FORCESERIALS; // @v10.1.8 
 	THROW(ExtractPacketWithFlags(id, &pack, flags));
 	DS.SetLocation(pack.Rec.LocID);
 	if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {

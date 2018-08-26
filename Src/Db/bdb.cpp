@@ -233,6 +233,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 		if(options & oExclusive)
 			State |= stExclusive;
 		r = E->open(E, pHomeDir, opf, /* Open flags */0);
+		E->set_flags(E, DB_TXN_NOSYNC, 1); // @v10.1.8
 	}
 	{
 		Config temp_cfg;
@@ -369,7 +370,7 @@ int BDbDatabase::StartTransaction()
 	THROW_D(!T.T, BE_DBD_INNERTXN);
 	{
 		// DB_READ_UNCOMMITTED | 
-		const uint32 ta_flags = /*DB_TXN_SNAPSHOT |*/DB_TXN_BULK/*| DB_TXN_NOSYNC*/;
+		const uint32 ta_flags = /*DB_TXN_SNAPSHOT |*/DB_TXN_BULK/*| DB_TXN_NOSYNC*/ | DB_READ_UNCOMMITTED;
 		int r = E->txn_begin(E, 0, &T.T, ta_flags);
 		THROW(ProcessError(r));
 	}
@@ -485,7 +486,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 		// } @v9.8.2
 	}
 	{
-		int    opf = DB_AUTO_COMMIT | DB_MULTIVERSION | DB_READ_UNCOMMITTED;
+		int    opf = DB_AUTO_COMMIT|DB_MULTIVERSION|DB_READ_UNCOMMITTED;
 		if(flags & BDbTable::ofExclusive) {
 			r = p_db->set_lk_exclusive(p_db, 1);  
 			THROW(ProcessError(r, p_db, pFileName));
@@ -496,6 +497,10 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
 		// } @v9.7.11
+		// @v10.1.8 {
+		if(flags & BDbTable::ofReadUncommited)
+			opf |= DB_READ_UNCOMMITTED;
+		// } @v10.1.8
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, pFileName));

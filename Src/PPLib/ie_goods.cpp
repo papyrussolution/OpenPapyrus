@@ -2893,6 +2893,7 @@ int SLAPI ExportUhttForGitHub()
 			if(dbr > 0) {
                 line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name).Tab().Cat(goods_rec.ParentID).Tab().
 					Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
+				//assert(line_buf.IsLegalUtf8()); // @debug
 				f_out.WriteLine(line_buf);
 				f_out_all.WriteLine(line_buf);
 				line_count++;

@@ -1324,6 +1324,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 	AddClusterAssoc(CTL_GOODS_FLAGS, 1, GF_PRICEWOTAXES);
 	AddClusterAssoc(CTL_GOODS_FLAGS, 2, GF_PASSIV);
 	AddClusterAssoc(CTL_GOODS_FLAGS, 3, GF_USEINDEPWT);
+	AddClusterAssoc(CTL_GOODS_FLAGS, 4, GF_WANTVETISCERT); // @v10.1.8
 	SetClusterData(CTL_GOODS_FLAGS, Data.Rec.Flags);
 	AddClusterAssoc(CTL_GOODS_ASSETFLAGS, 0, GF_WROFFBYPRICE);
 	SetClusterData(CTL_GOODS_ASSETFLAGS, Data.Rec.Flags);

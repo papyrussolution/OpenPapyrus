@@ -173,10 +173,6 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 	delete []buffer;
 }
 
-static const char * const confWordListDesc[] = {
-	"Directives",
-	"Parameters",
-	0
-};
+static const char * const confWordListDesc[] = { "Directives", "Parameters", 0 };
 
 LexerModule lmConf(SCLEX_CONF, ColouriseConfDoc, "conf", 0, confWordListDesc);

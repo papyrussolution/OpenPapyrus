@@ -136,7 +136,7 @@ int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpPara
 			ini_file.Backup(maxBackup);
 		THROW(ini_file.GetSections(&all_sections));
 		for(uint p = 0; all_sections.get(&p, section);)
-			if(section.CmpNC(all_fields_name) != 0) {
+			if(!section.IsEqiAscii(all_fields_name)) {
 				param.OtrRec.Clear();
 				if(param.ReadIni(&ini_file, section, 0)) {
 					if((kind == 1 && param.Direction == 0) || (kind == 2 && param.Direction == 1) || kind == 0)

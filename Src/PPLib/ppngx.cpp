@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //

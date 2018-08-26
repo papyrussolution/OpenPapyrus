@@ -2408,6 +2408,7 @@
 	#define cmOrdLot                  104
 	#define cmLotDim                  105
 	#define cmSourceSerial            106 // @v9.3.6
+	#define cmVetisMatch              107 // @v10.1.8
 	#define CTL_LOT_GOODSGRP             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_GOODSGRP          (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_GOODS                (3 + WINDOWS_ID_BIAS)
@@ -2473,6 +2474,8 @@
 	#define CTL_LOT_MANUF               (70 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_MANUF            (71 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_SOURCESERIAL        (72 + WINDOWS_ID_BIAS)
+	#define CTL_LOT_VETISIND            (73 + WINDOWS_ID_BIAS)
+	#define CTL_LOT_VETISMATCHBUTTON    (74 + WINDOWS_ID_BIAS)
 
 // Однотипные диалоги заполнения документов
 #define DLG_BILL                  101
@@ -3962,6 +3965,8 @@
 	#define CTLSEL_CCHECKFLT_SUBST       (25 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_STARTSRVCP     (26 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_ALTREG         (27 + WINDOWS_ID_BIAS)
+	#define CTL_CCHECKFLT_CSHR           (28 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CCHECKFLT_CSHR        (29 + WINDOWS_ID_BIAS)
 #define DLG_CORLOTS               306 // C_LOTS Корректировка лотов
 	#define CTL_CORLOTS_LOG              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)
@@ -10443,6 +10448,14 @@
 	#define CTL_VETDOCFLT_MAINORG     (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VETDOCFLT_MAINORG  (9 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_ACTIONS     (10 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_FROMP       (11 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_FROMP    (12 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_FROML       (13 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_FROML    (14 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_TOP         (15 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_TOP      (16 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_TOL         (17 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VETDOCFLT_TOL      (18 + WINDOWS_ID_BIAS)
 #define DLG_VETVDOC               1342
 	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)

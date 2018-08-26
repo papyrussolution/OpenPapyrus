@@ -8299,10 +8299,9 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 											for(uint j = 0; j < cc_list.getCount(); j++) {
 												const PPID cc_id = cc_list.get(j);
 												CCheckTbl::Rec cc_rec;
-												if(r_cc.Search(cc_id, &cc_rec) > 0) {
-													if(j == (cc_list.getCount()-1)) {
-														CCheckCore::MakeCodeString(&cc_rec, temp_buf);
-													}
+												if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
+													// @v10.1.8 if(j == (cc_list.getCount()-1))
+													CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 													if(cc_rec.Flags & CCHKF_RETURN)
 														cc_even--;
 													else

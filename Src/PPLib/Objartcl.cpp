@@ -550,8 +550,8 @@ public:
 		AddClusterAssoc(CTL_ARTICLE_FLAGS, 0, ARTRF_STOPBILL);
 		SetClusterData(CTL_ARTICLE_FLAGS, P_Data->Rec.Flags);
 
-		setCtrlData(CTL_ARTICLE_NAME,   P_Data->Rec.Name);
-		setCtrlReadOnly(CTL_ARTICLE_NAME,   BIN(P_Data->Options & ArticleDlgData::fDisableName)); // @v8.5.3 disableCtrl-->setCtrlReadOnly
+		setCtrlData(CTL_ARTICLE_NAME, P_Data->Rec.Name);
+		setCtrlReadOnly(CTL_ARTICLE_NAME, BIN(P_Data->Options & ArticleDlgData::fDisableName));
 		if(!P_Data->Rec.ObjID || !P_Data->Rec.AccSheetID || !AccSheetFounded)
 			enableCommand(cmaMore, 0);
 		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT | ACSHF_USECLIAGT));

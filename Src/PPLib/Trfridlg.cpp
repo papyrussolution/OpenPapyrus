@@ -88,7 +88,9 @@ private:
 		brushChangedCost,    // Цвет поля цены поступления, если значение было изменено по сравнению с последним лотом
 		brushQuotedPrice,    // Цвет поля цены реализации, если на строку установлена котировка
 		brushPriceBelowCost, // Цвет поля цены реализации, если цена не по котировке и ниже цены поступления //
-		brushQuotedPriceNoCancel // // Цвет поля цены реализации, если на строку установлена котировка без права отмены пользователем
+		brushQuotedPriceNoCancel, // Цвет поля цены реализации, если на строку установлена котировка без права отмены пользователем
+		brushVetisUuidExists, // Позитивный цвет индикатора наличия сертификата ВЕТИС
+		brushVetisUuidAbsence // Негативный цвет индикатора наличия сертификата ВЕТИС
 	};
 	SPaintToolBox Ptb;     //
 	PPID   InitGoodsGrpID; //
@@ -420,6 +422,9 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	Ptb.SetBrush(brushQuotedPrice, SPaintObj::bsSolid, GetColorRef(SClrYellow), 0);
 	Ptb.SetBrush(brushQuotedPriceNoCancel, SPaintObj::bsSolid, GetColorRef(SClrLime), 0);
 	Ptb.SetBrush(brushPriceBelowCost, SPaintObj::bsSolid, GetColorRef(SClrAqua), 0);
+	Ptb.SetBrush(brushVetisUuidExists, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0); // @v10.1.8
+	Ptb.SetBrush(brushVetisUuidAbsence, SPaintObj::bsSolid, GetColorRef(SClrRed), 0); // @v10.1.8
+
 	MEMSZERO(Sd);
 	PPLoadText(PPTXT_TIDLG_STRINGS, Strings);
 	setCtrlOption(CTL_LOT_STREST, ofFramed, 1);
@@ -842,6 +847,26 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						setupPriceLimit();
 					}
 					break;
+				case cmVetisMatch: // @v10.1.8
+					if(checkdate(P_Pack->Rec.Dt)) {
+						const PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
+						if(suppl_person_id) {
+							/* @construction
+							VetisDocumentFilt vetis_filt;
+							vetis_filt.VDStatusFlags = (1<<vetisdocstCONFIRMED) | (1<<vetisdocstUTILIZED);
+							vetis_filt.Period.Set(plusdate(P_Pack->Rec.Dt, -3), P_Pack->Rec.Dt);
+							vetis_filt.FromPersonID = suppl_person_id;
+							vetis_filt.Flags |= (VetisDocumentFilt::fAsSelector);
+							PPViewVetisDocument vetis_view;
+							if(vetis_view.Init_(&vetis_filt)) {
+								if(vetis_view.Browse(0) > 0) {
+									PPID vetis_doc_id = ((VetisDocumentFilt *)vetis_view.GetBaseFilt())->Sel;
+								}
+							}
+							*/
+						}
+					}
+					break;
 				case cmTags:
 					{
 						getManuf();
@@ -959,6 +984,20 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									}
 								}
 							}
+							// @v10.1.8 {
+							else if(getCtrlHandle(CTL_LOT_VETISIND) == p_dc->H_Ctl) {
+								SString temp_buf;
+								P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+								if(temp_buf.NotEmpty()) {
+									p_dc->H_Br = (HBRUSH)Ptb.Get(brushVetisUuidExists);
+									clearEvent(event);
+								}
+								else if(GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
+									p_dc->H_Br = (HBRUSH)Ptb.Get(brushVetisUuidAbsence);
+									clearEvent(event);
+								}
+							}
+							// } @v10.1.8 
 						}
 					}
 					return;
@@ -2445,13 +2484,31 @@ int TrfrItemDialog::setupLot()
 	}
 	else
 	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
-	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT)) // @v8.2.5 BCF_DONTINHQCERT
+	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT))
 		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), &Item.QCert);
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);
 		setGroupData(GRP_QCERT, &qc_rec);
 	}
+	// @v10.1.8 {
+	if(Item.Flags & PPTFR_RECEIPT) {
+		P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+		if(temp_buf.NotEmpty() || GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
+			showCtrl(CTL_LOT_VETISIND, 1);
+			showCtrl(CTL_LOT_VETISMATCHBUTTON, 1);
+		}
+		else {
+			showCtrl(CTL_LOT_VETISIND, 0);
+			showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
+		}
+		drawCtrl(CTL_LOT_VETISIND);
+	}
+	else {
+		showCtrl(CTL_LOT_VETISIND, 0);
+		showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
+	}
+	// } @v10.1.8 
 	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);
 	setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);

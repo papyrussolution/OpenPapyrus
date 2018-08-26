@@ -36,8 +36,7 @@ THelpTopic::~THelpTopic()
 		delete t->text;
 		delete t;
 	}
-	if(crossRefs)
-		delete [numRefs]crossRefs;
+	delete [numRefs] crossRefs;
 }
 
 void THelpTopic::read(FILE *f)

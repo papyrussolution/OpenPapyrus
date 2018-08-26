@@ -4038,8 +4038,9 @@ public:
 	// Descr: Флаги открытия таблицы базы данных
 	//
 	enum {
-		ofReadOnly  = 0x0001, // Только для чтения //
-		ofExclusive = 0x0002  // Эксклюзивный режим работы
+		ofReadOnly       = 0x0001, // Только для чтения //
+		ofExclusive      = 0x0002, // Эксклюзивный режим работы
+		ofReadUncommited = 0x0004  // @v10.1.8  DB_READ_UNCOMMITTED 
 	};
 	class Config {
 	public:
@@ -4342,15 +4343,15 @@ public:
 		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x00000008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам
-		oExclusive        = 0x00000010  // @v10.0.12 База данных открывается в эксклюзивном режиме  
+		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме  
 	};
 	struct Config {
 		Config();
 
 		enum {
-			fLogNoSync     = 0x00000004, // @v9.6.6 DB_LOG_NOSYNC
-			fLogAutoRemove = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE
-			fLogInMemory   = 0x00000010, // @v9.6.6 DB_LOG_IN_MEMORY
+			fLogNoSync      = 0x00000004, // @v9.6.6 DB_LOG_NOSYNC
+			fLogAutoRemove  = 0x00000008, // @v9.6.6 DB_LOG_AUTO_REMOVE
+			fLogInMemory    = 0x00000010, // @v9.6.6 DB_LOG_IN_MEMORY
 		};
 
 		long   Flags;

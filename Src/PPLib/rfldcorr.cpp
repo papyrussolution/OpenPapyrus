@@ -1257,185 +1257,175 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 		size_t next_pos = 0;
 		ini_param.Divide('=', par, val);
 		par.Strip();
-		if(pExclParamList && pExclParamList->search(par, 0, 1))
-			continue;
-		switch(tsl_par.Translate(par.Strip(), &next_pos)) {
-			case iefFileName: FileName = val; break;
-			case iefImpExp:
-				if(val.CmpPrefix("IMP", 1) == 0)
-					Direction = 1;
-				else if(val.CmpPrefix("EXP", 1) == 0)
-					Direction = 0;
-				break;
-			case iefFormat:
-				if(val.CmpPrefix("DBF", 1) == 0)
-					DataFormat = dfDbf;
-				else if(val.CmpPrefix("TXT", 1) == 0 || val.CmpPrefix("TEXT", 1) == 0) {
-					DataFormat = dfText;
-					if(fld_div.Empty()) {
-						size_t pos = 0;
-						const char * p = val.StrChr('(', &pos);
-						if(p) {
-							p++;
-							while(*p && *p != ')')
-								fld_div.CatChar(*p++);
+		if(!pExclParamList || !pExclParamList->search(par, 0, 1)) {
+			switch(tsl_par.Translate(par.Strip(), &next_pos)) {
+				case iefFileName: FileName = val; break;
+				case iefImpExp:
+					if(val.CmpPrefix("IMP", 1) == 0)
+						Direction = 1;
+					else if(val.CmpPrefix("EXP", 1) == 0)
+						Direction = 0;
+					break;
+				case iefFormat:
+					if(val.CmpPrefix("DBF", 1) == 0)
+						DataFormat = dfDbf;
+					else if(val.CmpPrefix("TXT", 1) == 0 || val.CmpPrefix("TEXT", 1) == 0) {
+						DataFormat = dfText;
+						if(fld_div.Empty()) {
+							size_t pos = 0;
+							const char * p = val.StrChr('(', &pos);
+							if(p) {
+								p++;
+								while(*p && *p != ')')
+									fld_div.CatChar(*p++);
+							}
 						}
 					}
-				}
-				else if(val.CmpPrefix("XML", 1) == 0)
-					DataFormat = dfXml;
-				else if(val.CmpPrefix("XLS", 1) == 0)
-					DataFormat = dfExcel;
-				break;
-			case iefOrient:
-				if(val.CmpPrefix("HOR", 1) == 0)
-					TdfParam.Flags &= ~TextDbFile::fVerticalRec;
-				else if(val.CmpPrefix("VER", 1) == 0)
-					TdfParam.Flags |= TextDbFile::fVerticalRec;
-				break;
-			case iefCodepage:
-				if(val.IsEqiAscii("windows-1251") || val == "1251") {
-					SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 0);
-				}
-				else
-					SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 1);
-				break;
-			case iefOemText: SETFLAG(TdfParam.Flags, TextDbFile::fOemText, val.ToLong()); break;
-			case iefFldNameRec: SETFLAG(TdfParam.Flags, TextDbFile::fFldNameRec, val.ToLong()); break;
-			case iefQuotStr: SETFLAG(TdfParam.Flags, TextDbFile::fQuotText, val.ToLong()); break;
-			case iefHdrLinesCount: TdfParam.HdrLinesCount = val.ToLong(); break;
-			case iefFieldDiv: fld_div = val; break;
-			case iefFixedFields: SETFLAG(TdfParam.Flags, TextDbFile::fFixedFields, val.ToLong()); break;
-			case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
-			case iefFooterLine: footer_line = val; break;
-			case iefFormula: THROW(ParseFormula(0, par, val)); break;
-			case iefHdrFormula: THROW(ParseFormula(1, par, val)); break;
-			case iefRootTag: XdfParam.RootTag = val; break;
-			case iefRecTag: XdfParam.RecTag = val; break;
-			case iefHdrTag: XdfParam.HdrTag = val; break;
-			case iefUseDTD: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUseDTD, val.ToLong()); break;
-			case iefUtf8Codepage: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, val.ToLong()); break;
-			case iefSubRec: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fHaveSubRec, val.ToLong()); break;
-			case iefSheetNum: XlsdfParam.SheetNum = val.ToLong(); break;
-			case iefSheetName: XlsdfParam.SheetName_ = val; break;
-			case iefEndStr: XlsdfParam.EndStr_ = val; break;
-			case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong()); break;
-			case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;
-			case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong()); break;
-			case iefXlsOrient:
-				if(val.CmpPrefix("HOR", 1) == 0)
-					XlsdfParam.Flags &= ~ExcelDbFile::fVerticalRec;
-				else if(val.CmpPrefix("VER", 1) == 0)
-					XlsdfParam.Flags |= ExcelDbFile::fVerticalRec;
-				break;
-			case iefXlsHdrLinesCount: XlsdfParam.HdrLinesCount = val.ToLong(); break;
-			case iefColumnsCount: XlsdfParam.ColumnsCount = val.ToLong(); break;
-			// @vmiller {
-			case iedllDllPath: ImpExpParamDll.DllPath = val; break;
-			case iedllReceiptTag: ImpExpParamDll.RcptTagID = val.ToLong(); break;
-			case iedllGlobalName:
-				ImpExpParamDll.Login = val;
-				// Получим пароль
-				{
-					PPObjGlobalUserAcc obj_user_acc;
-					PPGlobalUserAcc user_acc;
-					SString pwd;
-					PPID user_id = 0;
-					if(obj_user_acc.SearchByName(ImpExpParamDll.Login, &user_id, &user_acc)) {
-						if(!ImpExpParamDll.Login.CmpNC(user_acc.Name)) {
-							Reference::Decrypt(Reference::crymRef2, user_acc.Password, sstrlen(user_acc.Password), pwd);
-							ImpExpParamDll.Password.CopyFrom(pwd);
+					else if(val.CmpPrefix("XML", 1) == 0)
+						DataFormat = dfXml;
+					else if(val.CmpPrefix("XLS", 1) == 0)
+						DataFormat = dfExcel;
+					break;
+				case iefOrient:
+					if(val.CmpPrefix("HOR", 1) == 0)
+						TdfParam.Flags &= ~TextDbFile::fVerticalRec;
+					else if(val.CmpPrefix("VER", 1) == 0)
+						TdfParam.Flags |= TextDbFile::fVerticalRec;
+					break;
+				case iefCodepage:
+					if(val.IsEqiAscii("windows-1251") || val == "1251") {
+						SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 0);
+					}
+					else
+						SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 1);
+					break;
+				case iefOemText: SETFLAG(TdfParam.Flags, TextDbFile::fOemText, val.ToLong()); break;
+				case iefFldNameRec: SETFLAG(TdfParam.Flags, TextDbFile::fFldNameRec, val.ToLong()); break;
+				case iefQuotStr: SETFLAG(TdfParam.Flags, TextDbFile::fQuotText, val.ToLong()); break;
+				case iefHdrLinesCount: TdfParam.HdrLinesCount = val.ToLong(); break;
+				case iefFieldDiv: fld_div = val; break;
+				case iefFixedFields: SETFLAG(TdfParam.Flags, TextDbFile::fFixedFields, val.ToLong()); break;
+				case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
+				case iefFooterLine: footer_line = val; break;
+				case iefFormula: THROW(ParseFormula(0, par, val)); break;
+				case iefHdrFormula: THROW(ParseFormula(1, par, val)); break;
+				case iefRootTag: XdfParam.RootTag = val; break;
+				case iefRecTag: XdfParam.RecTag = val; break;
+				case iefHdrTag: XdfParam.HdrTag = val; break;
+				case iefUseDTD: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUseDTD, val.ToLong()); break;
+				case iefUtf8Codepage: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, val.ToLong()); break;
+				case iefSubRec: SETFLAG(XdfParam.Flags, XmlDbFile::Param::fHaveSubRec, val.ToLong()); break;
+				case iefSheetNum: XlsdfParam.SheetNum = val.ToLong(); break;
+				case iefSheetName: XlsdfParam.SheetName_ = val; break;
+				case iefEndStr: XlsdfParam.EndStr_ = val; break;
+				case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong()); break;
+				case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;
+				case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong()); break;
+				case iefXlsOrient:
+					if(val.CmpPrefix("HOR", 1) == 0)
+						XlsdfParam.Flags &= ~ExcelDbFile::fVerticalRec;
+					else if(val.CmpPrefix("VER", 1) == 0)
+						XlsdfParam.Flags |= ExcelDbFile::fVerticalRec;
+					break;
+				case iefXlsHdrLinesCount: XlsdfParam.HdrLinesCount = val.ToLong(); break;
+				case iefColumnsCount: XlsdfParam.ColumnsCount = val.ToLong(); break;
+				// @vmiller {
+				case iedllDllPath: ImpExpParamDll.DllPath = val; break;
+				case iedllReceiptTag: ImpExpParamDll.RcptTagID = val.ToLong(); break;
+				case iedllGlobalName:
+					ImpExpParamDll.Login = val;
+					// Получим пароль
+					{
+						PPObjGlobalUserAcc obj_user_acc;
+						PPGlobalUserAcc user_acc;
+						SString pwd;
+						PPID user_id = 0;
+						if(obj_user_acc.SearchByName(ImpExpParamDll.Login, &user_id, &user_acc)) {
+							if(!ImpExpParamDll.Login.CmpNC(user_acc.Name)) {
+								Reference::Decrypt(Reference::crymRef2, user_acc.Password, sstrlen(user_acc.Password), pwd);
+								ImpExpParamDll.Password.CopyFrom(pwd);
+							}
 						}
 					}
-				}
-				break;
-			case iedllBeerGrpId: ImpExpParamDll.BeerGrpID = val.ToLong(); break;
-			case iedllAlcoGrpId: ImpExpParamDll.AlcoGrpID = val.ToLong(); break;
-			case iedllAlcoLicenseRegId: ImpExpParamDll.AlcoLicenseRegID = val.ToLong(); break;
-			case iedllTTNTagId: ImpExpParamDll.TTNTagID = val.ToLong(); break;
-			case iedllManufTagId: ImpExpParamDll.ManufTagID = val.ToLong(); break;
-			case iedllManufKPPRegTagId: ImpExpParamDll.ManufKPPRegTagID = val.ToLong(); break;
-			case iedllManufRegionCode: ImpExpParamDll.ManufRegionCode = val.ToLong(); break;
-			case iedllIsManufTagId: ImpExpParamDll.IsManufTagID = val.ToLong(); break;
-			case iedllGoodsKindSymb: ImpExpParamDll.GoodsKindSymb = val; break;
-			case iedllXmlPrefix: ImpExpParamDll.XmlPrefix = val; break;
-			case iedllGoodsKindTagID: ImpExpParamDll.GoodsKindTagID = val.ToLong(); break;
-			case iedllOperType: ImpExpParamDll.OperType = val; break;
-			case iedllGoodsVolSymb: ImpExpParamDll.GoodsVolSymb = val; break;
-			case iedllManufINNID: ImpExpParamDll.ManufINNID = val.ToLong(); break;
-			// } @vmiller
-			// @v8.4.6 {
-			case iefBaseFlags: BaseFlags = val.ToLong(); break;
-			// } @v8.4.6
-			// @v8.6.1 {
-			case iefFtpAccSymb:
-                {
-                	PPObjInternetAccount ia_obj;
-                	PPInternetAccount ia_pack;
-                	PPID   ia_id = 0;
-                	(msg_buf = val).Transf(CTRANSF_OUTER_TO_INNER);
-                	if(ia_obj.SearchBySymb(msg_buf, &ia_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
-                		InetAccID = ia_pack.ID;
-                	}
-                }
-				break;
-			case iefFtpAccID:
-				if(!InetAccID) {
-                	PPObjInternetAccount ia_obj;
-                	PPInternetAccount ia_pack;
-					if(ia_obj.Get(val.ToLong(), &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
-						InetAccID = ia_pack.ID;
+					break;
+				case iedllBeerGrpId: ImpExpParamDll.BeerGrpID = val.ToLong(); break;
+				case iedllAlcoGrpId: ImpExpParamDll.AlcoGrpID = val.ToLong(); break;
+				case iedllAlcoLicenseRegId: ImpExpParamDll.AlcoLicenseRegID = val.ToLong(); break;
+				case iedllTTNTagId: ImpExpParamDll.TTNTagID = val.ToLong(); break;
+				case iedllManufTagId: ImpExpParamDll.ManufTagID = val.ToLong(); break;
+				case iedllManufKPPRegTagId: ImpExpParamDll.ManufKPPRegTagID = val.ToLong(); break;
+				case iedllManufRegionCode: ImpExpParamDll.ManufRegionCode = val.ToLong(); break;
+				case iedllIsManufTagId: ImpExpParamDll.IsManufTagID = val.ToLong(); break;
+				case iedllGoodsKindSymb: ImpExpParamDll.GoodsKindSymb = val; break;
+				case iedllXmlPrefix: ImpExpParamDll.XmlPrefix = val; break;
+				case iedllGoodsKindTagID: ImpExpParamDll.GoodsKindTagID = val.ToLong(); break;
+				case iedllOperType: ImpExpParamDll.OperType = val; break;
+				case iedllGoodsVolSymb: ImpExpParamDll.GoodsVolSymb = val; break;
+				case iedllManufINNID: ImpExpParamDll.ManufINNID = val.ToLong(); break;
+				// } @vmiller
+				case iefBaseFlags: BaseFlags = val.ToLong(); break;
+				case iefFtpAccSymb:
+					{
+                		PPObjInternetAccount ia_obj;
+                		PPInternetAccount ia_pack;
+                		PPID   ia_id = 0;
+                		(msg_buf = val).Transf(CTRANSF_OUTER_TO_INNER);
+                		if(ia_obj.SearchBySymb(msg_buf, &ia_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/)
+                			InetAccID = ia_pack.ID;
 					}
-				}
-				break;
-			// } @v8.6.1
-			default:
-				{
+					break;
+				case iefFtpAccID:
+					if(!InetAccID) {
+                		PPObjInternetAccount ia_obj;
+                		PPInternetAccount ia_pack;
+						if(ia_obj.Get(val.ToLong(), &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/)
+							InetAccID = ia_pack.ID;
+					}
+					break;
+				default:
 					if(par.CmpPrefix("empty", 1) == 0) {
 						THROW(ParseFormula(0, par, val));
 					}
-					else {
-						if(InrRec.GetFieldByName(par, &fld) > 0) {
-							if(pFile->GetFlags() & SIniFile::fWinCoding)
-								val.Transf(CTRANSF_INNER_TO_OUTER);
-							scan.Set(val, 0);
-							outer_fld.Init();
-							outer_fld.ID = fld.ID;
-							THROW_SL(outer_fld.TranslateString(scan));
-							//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
-							if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
-								size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
-								if(len & 0x3)
-									len = ((len >> 2) << 2) + 4;
-								SETMIN(len, 4096); // @v8.1.1 255-->4096
-								outer_fld.T.Typ = MKSTYPE(S_ZSTRING, len);
-							}
-							THROW_SL(OtrRec.AddField(&outer_fld.ID, &outer_fld));
+					else if(InrRec.GetFieldByName(par, &fld) > 0) {
+						if(pFile->GetFlags() & SIniFile::fWinCoding)
+							val.Transf(CTRANSF_INNER_TO_OUTER);
+						scan.Set(val, 0);
+						outer_fld.Init();
+						outer_fld.ID = fld.ID;
+						THROW_SL(outer_fld.TranslateString(scan));
+						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
+						if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
+							size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
+							if(len & 0x3)
+								len = ((len >> 2) << 2) + 4;
+							SETMIN(len, 4096);
+							outer_fld.T.Typ = MKSTYPE(S_ZSTRING, len);
 						}
-						else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
-							if(pFile->GetFlags() & SIniFile::fWinCoding)
-								val.Transf(CTRANSF_INNER_TO_OUTER);
-							scan.Set(val, 0);
-							outer_fld.Init();
-							outer_fld.ID = fld.ID;
-							THROW_SL(outer_fld.TranslateString(scan));
-							//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
-							if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
-								size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
-								if(len & 0x3)
-									len = ((len >> 2) << 2) + 4;
-								SETMIN(len, 4096); // @v8.1.1 255-->4096
-								outer_fld.T.Typ = MKSTYPE(S_ZSTRING, len);
-							}
-							THROW_SL(HdrOtrRec.AddField(&outer_fld.ID, &outer_fld));
-						}
-						else {
-							msg_buf.Z().Cat(pSect).CatDiv(':', 1).Cat(ini_param);
-							CALLEXCEPT_PP_S(PPERR_INVFLDCORR, msg_buf);
-						}
+						THROW_SL(OtrRec.AddField(&outer_fld.ID, &outer_fld));
 					}
-				}
-				break;
+					else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
+						if(pFile->GetFlags() & SIniFile::fWinCoding)
+							val.Transf(CTRANSF_INNER_TO_OUTER);
+						scan.Set(val, 0);
+						outer_fld.Init();
+						outer_fld.ID = fld.ID;
+						THROW_SL(outer_fld.TranslateString(scan));
+						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
+						if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
+							size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
+							if(len & 0x3)
+								len = ((len >> 2) << 2) + 4;
+							SETMIN(len, 4096);
+							outer_fld.T.Typ = MKSTYPE(S_ZSTRING, len);
+						}
+						THROW_SL(HdrOtrRec.AddField(&outer_fld.ID, &outer_fld));
+					}
+					else {
+						msg_buf.Z().Cat(pSect).CatDiv(':', 1).Cat(ini_param);
+						CALLEXCEPT_PP_S(PPERR_INVFLDCORR, msg_buf);
+					}
+					break;
+			}
 		}
 	}
 	if(fld_div.NotEmptyS()) {

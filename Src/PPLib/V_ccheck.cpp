@@ -438,6 +438,8 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 	int    ok = -1;
 	if(pFilt) {
 		Data = *pFilt;
+		PPEquipConfig eq_cfg;
+		ReadEquipConfig(&eq_cfg);
 		GoodsFiltCtrlGroup::Rec grp_rec(Data.GoodsGrpID, Data.GoodsID);
 		SetupCalPeriod(CTLCAL_CCHECKFLT_PERIOD, CTL_CCHECKFLT_PERIOD);
 		disableCtrls(Data.SessIDList.getCount(), CTL_CCHECKFLT_PERIOD, /*CTL_CCHECKFLT_FLAGS,*/ 0);
@@ -450,8 +452,6 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		}
 		{
 			if(Data.NodeList.GetCount() == 0) {
-				PPEquipConfig eq_cfg;
-				ReadEquipConfig(&eq_cfg);
 				Data.NodeList.Add(eq_cfg.DefCashNodeID);
 			}
 			PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
@@ -509,6 +509,7 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		SetClusterData(CTL_CCHECKFLT_ALTREG, Data.AltRegF);
 		// } @v10.0.02
 		SetupSubstGoodsCombo(this, CTLSEL_CCHECKFLT_SUBST, Data.Sgg);
+		SetupPersonCombo(this, CTLSEL_CCHECKFLT_CSHR, Data.CashierID, 0, eq_cfg.CshrsPsnKindID, 1); // @v10.1.8
 		SetupCtrls();
 		selectCtrl(CTL_CCHECKFLT_PERIOD);
 		ok = 1;
@@ -545,6 +546,7 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 		Data.SCardID = screc.SCardID;
 	}
 	getCtrlData(CTLSEL_CCHECKFLT_AGENT, &Data.AgentID);
+	getCtrlData(CTLSEL_CCHECKFLT_CSHR, &Data.CashierID); // @v10.1.8
 	getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
 	Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
 	if(oneof3(Data.Grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {

@@ -26,10 +26,12 @@ class DOS_DTA;
 class DOS_File
 	{
 public:
-	DOS_File():flags(0)	{ name = 0; refCtr = 0; hdrive = 0xff; };
+	DOS_File() : flags(0), name(0),	refCtr(0), hdrive(0xff) 
+	{
+	}
 	DOS_File(const DOS_File& orig);
 //	DOS_File & operator= (const DOS_File & orig);
-	virtual	~DOS_File()	{ if (name) delete [] name; };
+	virtual	~DOS_File()	{ delete [] name; }
 	virtual bool	Read(Bit8u * data, Bit16u * size) = 0;
 	virtual bool	Write(Bit8u * data, Bit16u * size) = 0;
 	virtual bool	Seek(Bit32u * pos, Bit32u type) = 0;
