@@ -8977,12 +8977,10 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	SString sc_phone;
 	SString psn_phone;
 	ImageBrowseCtrlGroup::Rec ibg_rec;
-	//SCardTbl::Rec sc_rec;
 	PPSCardPacket sc_pack;
 	SCardID = scardID;
 	OwnerID = 0;
 	LocalState &= ~(stCreditCard|stWarnCardInfo|stNeedActivation|stAutoActivation);
-	//MEMSZERO(sc_rec);
 	setStaticText(CTL_SCARDVIEW_SCINFO, info_buf.Z());
 	setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
 	// @v10.1.4 if(ScObj.Search(SCardID, &sc_rec) > 0) {
@@ -9108,12 +9106,24 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		}
 		showButton(cmActivate, (LocalState & stNeedActivation));
 		showButton(cmVerify, sc_phone.NotEmpty() && !(sc_pack.Rec.Flags & SCRDF_OWNERVERIFIED)); // @v10.1.5
+		// @v10.1.9 {
+		{
+			PPLoadString("but_edit", temp_buf);
+			setButtonText(cmCreateSCard, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+		}
+		// } @v10.1.9 
 		OwnerList.Clear();
 		updateList(-1);
 	}
 	else {
 		SCardID = 0;
 		setGroupData(GRP_IBG, &ibg_rec);
+		// @v10.1.9 {
+		{
+			PPLoadString("new_fem", temp_buf);
+			setButtonText(cmCreateSCard, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+		}
+		// } @v10.1.9 
 	}
 	// @v9.8.9 {
 	{
@@ -9133,7 +9143,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 int SCardInfoDialog::setupList()
 {
 	int    ok = -1;
-	SString buf;
+	SString person_name, card_code, ser_name, temp_buf;
 	StringSet ss(SLBColumnDelim);
 	if(Mode == modeCheckView) {
 		if(SCardID) {
@@ -9145,12 +9155,12 @@ int SCardInfoDialog::setupList()
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 				if(!(item.Flags & CCHKF_SKIP)) {
 					ss.clear();
-					ss.add(buf.Z().Cat(item.Dt));                                // Дата
-					ss.add(buf.Z().Cat(item.Tm));                                // Время //
-					ss.add(buf.Z().Cat(item.CashID));                            // Касса
-					ss.add(buf.Z().Cat(item.Code));                              // Номер чека
-					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
-					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+					ss.add(temp_buf.Z().Cat(item.Dt));                                // Дата
+					ss.add(temp_buf.Z().Cat(item.Tm));                                // Время //
+					ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+					ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
+					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
+					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
 					THROW(addStringToList(item.ID, ss.getBuf()));
 				}
 			}
@@ -9167,17 +9177,17 @@ int SCardInfoDialog::setupList()
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
 				ss.clear();
-				ss.add(buf.Z().Cat(item.Dt));                 // Дата
-				ss.add(buf.Z().Cat(item.Tm));                 // Время //
+				ss.add(temp_buf.Z().Cat(item.Dt));                 // Дата
+				ss.add(temp_buf.Z().Cat(item.Tm));                 // Время //
 				if(item.Flags & SCARDOPF_FREEZING) {
 					DateRange frz_prd;
 					frz_prd.Set(item.FreezingStart, item.FreezingEnd);
-					ss.add(buf.Z().Cat(frz_prd));
-					ss.add(buf.Z());
+					ss.add(temp_buf.Z().Cat(frz_prd));
+					ss.add(temp_buf.Z());
 				}
 				else {
-					ss.add(buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
-					ss.add(buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
+					ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
+					ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
 				}
 				THROW(addStringToList(i, ss.getBuf()));
 			}
@@ -9185,7 +9195,6 @@ int SCardInfoDialog::setupList()
 		}
 	}
 	else if(oneof2(Mode, modeSelectByOwner, modeSelectByMultCode)) {
-		SString person_name, card_code, ser_name, temp_buf;
 		for(uint i = 0; i < OwnerList.getCount(); i++) {
 			LDATE  expiry;
 			PPID   card_id = OwnerList.Get(i, person_name, card_code, ser_name, expiry);
@@ -9201,15 +9210,14 @@ int SCardInfoDialog::setupList()
 		}
 	}
 	else if(Mode == modeMovCrd) {
-		SString person_name, card_code, ser_name;
 		for(uint i = 0; i < OwnerList.getCount(); i++) {
 			double rest = 0.0, amount = 0.0;
 			PPID card_id = OwnerList.Get(i, card_code, ser_name, &rest, &amount);
 			ss.clear();
 			ss.add(card_code);
 			ss.add(ser_name);
-			ss.add(buf.Z().Cat(rest, MKSFMTD(0, 2, NMBF_NOZERO)));
-			ss.add(buf.Z().Cat(amount, MKSFMTD(0, 2, NMBF_NOZERO)));
+			ss.add(temp_buf.Z().Cat(rest, MKSFMTD(0, 2, NMBF_NOZERO)));
+			ss.add(temp_buf.Z().Cat(amount, MKSFMTD(0, 2, NMBF_NOZERO)));
 			THROW(addStringToList(card_id, ss.getBuf()));
 		}
 	}
@@ -9397,34 +9405,43 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			}
 		}
 		else if(TVCMD == cmCreateSCard) {
-			// @v9.1.1 const  long  preserve_lc_flags = DS.SetLCfgFlags(DS.GetTLA().Lc.Flags & ~CCFLG_USELARGEDIALOG);
-			const  int preserve_slui_flag = SLS.CheckUiFlag(sluifUseLargeDialogs); // @v9.1.1
-			int    do_create = 0;
-			PPSCardConfig sc_cfg;
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			PPObjPerson::EditBlock peb;
-			ScObj.FetchConfig(&sc_cfg);
-			if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
-				PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
-				peb.SCardSeriesID = sc_cfg.DefCreditSerID;
-				do_create = 1;
-			}
-			else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0) {
-				PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
-				peb.SCardSeriesID = sc_cfg.DefSerID;
-				do_create = 1;
-			}
-			if(do_create) {
-				peb.ShortDialog = 1;
-				PPID   psn_id = 0;
-				if(PsnObj.Edit_(&psn_id, peb) == cmOK) {
-					SetupCard(peb.RetSCardID);
+			if(SCardID) {
+				PPID   temp_sc_id = SCardID;
+				if(ScObj.Edit(&temp_sc_id, 0) > 0) {
+					assert(temp_sc_id == SCardID);
+					SetupCard(SCardID);
 				}
 			}
-			selectCtrl(CTL_SCARDVIEW_INPUT);
-			// @v9.1.1 DS.SetLCfgFlags(preserve_lc_flags);
-			SLS.SetUiFlag(sluifUseLargeDialogs, preserve_slui_flag); // @v9.1.1
+			else {
+				// @v9.1.1 const  long  preserve_lc_flags = DS.SetLCfgFlags(DS.GetTLA().Lc.Flags & ~CCFLG_USELARGEDIALOG);
+				const  int preserve_slui_flag = SLS.CheckUiFlag(sluifUseLargeDialogs); // @v9.1.1
+				int    do_create = 0;
+				PPSCardConfig sc_cfg;
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				PPObjPerson::EditBlock peb;
+				ScObj.FetchConfig(&sc_cfg);
+				if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
+					PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
+					peb.SCardSeriesID = sc_cfg.DefCreditSerID;
+					do_create = 1;
+				}
+				else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0) {
+					PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
+					peb.SCardSeriesID = sc_cfg.DefSerID;
+					do_create = 1;
+				}
+				if(do_create) {
+					peb.ShortDialog = 1;
+					PPID   psn_id = 0;
+					if(PsnObj.Edit_(&psn_id, peb) == cmOK) {
+						SetupCard(peb.RetSCardID);
+					}
+				}
+				selectCtrl(CTL_SCARDVIEW_INPUT);
+				// @v9.1.1 DS.SetLCfgFlags(preserve_lc_flags);
+				SLS.SetUiFlag(sluifUseLargeDialogs, preserve_slui_flag); // @v9.1.1
+			}
 		}
 		else if(TVCMD == cmSelectByOwner) {
 			SString text;

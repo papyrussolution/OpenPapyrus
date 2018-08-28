@@ -6778,20 +6778,21 @@ int SLAPI PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 			const long ff = Filt.VDStatusFlags;
 			const long rf = EC.DT.data.VetisDocStatus;
 			if(ff) {
-				if(ff & (1<<vetisdocstCREATED) && !(rf & vetisdocstCREATED))
-					ok = -1;
-				else if(ff & (1<<vetisdocstCONFIRMED) && !(rf & vetisdocstCONFIRMED))
-					ok = -1;
-				else if(ff & (1<<vetisdocstWITHDRAWN) && !(rf & vetisdocstWITHDRAWN))
-					ok = -1;
-				else if(ff & (1<<vetisdocstUTILIZED) && !(rf & vetisdocstUTILIZED))
-					ok = -1;
-				else if(ff & (1<<vetisdocstFINALIZED) && !(rf & vetisdocstFINALIZED))
-					ok = -1;
-				else if(ff & (1<<vetisdocstOUTGOING_PREPARING) && !(rf & vetisdocstOUTGOING_PREPARING))
-					ok = -1;
-				else if(ff & (1<<vetisdocstSTOCK) && !(rf & vetisdocstSTOCK))
-					ok = -1;
+				ok = -1;
+				if(ff & (1<<vetisdocstCREATED) && rf == vetisdocstCREATED)
+					ok = 1;
+				else if(ff & (1<<vetisdocstCONFIRMED) && rf == vetisdocstCONFIRMED)
+					ok = 1;
+				else if(ff & (1<<vetisdocstWITHDRAWN) && rf == vetisdocstWITHDRAWN)
+					ok = 1;
+				else if(ff & (1<<vetisdocstUTILIZED) && rf == vetisdocstUTILIZED)
+					ok = 1;
+				else if(ff & (1<<vetisdocstFINALIZED) && rf == vetisdocstFINALIZED)
+					ok = 1;
+				else if(ff & (1<<vetisdocstOUTGOING_PREPARING) && rf == vetisdocstOUTGOING_PREPARING)
+					ok = 1;
+				else if(ff & (1<<vetisdocstSTOCK) && rf == vetisdocstSTOCK)
+					ok = 1;
 			}
 			if(ok > 0)
 				EC.DT.copyBufTo(pItem);
@@ -6894,6 +6895,9 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	int    ok = -1;
 	VetisDocumentViewItem vi;
 	PPIDArray entity_id_list;
+	PPLogger logger;
+	SString fmt_buf, msg_buf;
+	SString temp_buf;
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 			entity_id_list.add(vi.EntityID);
@@ -6902,9 +6906,11 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	if(entity_id_list.getCount()) {
 		entity_id_list.sortAndUndup();
 		TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
-		PPLogger logger;
 		PPVetisInterface ifc(&logger);
 		PPVetisInterface::Param param(0, Filt.LocID);
+		PPLoadText(PPTXT_VETISNOUTGDOCSFOUND, fmt_buf);
+		msg_buf.Printf(fmt_buf, temp_buf.Z().Cat(entity_id_list.getCount()).cptr());
+		logger.Log(msg_buf);
 		THROW(PPVetisInterface::SetupParam(param));
 		THROW(ifc.Init(param));
 		for(uint i = 0; i < entity_id_list.getCount(); i++) {
@@ -6914,10 +6920,22 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 				VetisApplicationBlock reply;
 				if(ifc.PrepareOutgoingConsignment(entity_id, &ure_list, reply) > 0)
 					ok = 1;
+				else
+					logger.LogLastError();
+			}
+			else {
+				PPLoadText(PPTXT_VETISOUTGDOCNFOUND, fmt_buf);
+				msg_buf.Printf(fmt_buf, temp_buf.Z().CatChar('#').Cat(entity_id).cptr());
+				logger.Log(msg_buf);
 			}
 		}
 		if(ok > 0)
 			THROW(ifc.ProcessUnresolvedEntityList(ure_list));
+	}
+	else {
+		PPLoadText(PPTXT_VETISNOOUTGDOCS, fmt_buf);
+		msg_buf = fmt_buf;
+		logger.Log(msg_buf);
 	}
 	CATCHZOKPPERR
 	return ok;

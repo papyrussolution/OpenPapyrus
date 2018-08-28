@@ -44444,7 +44444,7 @@ private:
 	const  UtmEntry * P_UtmEntry; // @notowned
 	// @v9.6.4 (useless) DGQCore * P_Dgq;
 	SString EncBuf;
-	StringSet ExclChrgOnMarks; // @v8.9.12 Список марок, которые должны быть исключены при постановке лотов на баланс
+	StringSet ExclChrgOnMarks; // Список марок, которые должны быть исключены при постановке лотов на баланс
 	PPLocAddrStruc * P_Las;
 	LotExtCodeTbl * P_LecT;
 	PPTextAnalyzerWrapper * P_Taw;

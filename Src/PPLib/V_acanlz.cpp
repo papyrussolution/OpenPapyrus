@@ -1,6 +1,6 @@
 // V_ACANLZ.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,7 @@
 //
 // Utility
 //
-static int SLAPI GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
+static int FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
 {
 	char   acc_buf[64];
 	PPID   cur_id = 0;
@@ -72,12 +72,9 @@ char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 //
 //
-SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ)
+SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0)
 {
-	P_BObj = BillObj;
 	P_ATC  = P_BObj->atobj->P_Tbl;
-	P_TmpAATbl = 0;
-	P_TmpATTbl = 0;
 }
 
 SLAPI PPViewAccAnlz::~PPViewAccAnlz()
@@ -125,9 +122,8 @@ PPBaseFilt * SLAPI PPViewAccAnlz::CreateFilt(void * extraPtr) const
 
 class AccAnlzFiltDialog : public WLDialog {
 public:
-	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL)
+	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL), ATObj(_ppobj)
 	{
-		ATObj = _ppobj;
 		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ACCANLZ_ACC, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ACCNAME, CTLSEL_ACCANLZ_ARTNAME);
 		addGroup(GRP_ACC, p_acc_grp);
 		CycleCtrlGroup * p_cycle_grp = new CycleCtrlGroup(CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, CTL_ACCANLZ_PERIOD);
@@ -492,7 +488,7 @@ int SLAPI PPViewAccAnlz::ViewGraph(PPViewBrowser * pBrw)
 	struct I {
 		LDATE  Dt;
 		long   OprNo;
-		long   N;      // Номер операции за день строго по отчету [1..di(Dt).Count]
+		long   N;      // РќРѕРјРµСЂ РѕРїРµСЂР°С†РёРё Р·Р° РґРµРЅСЊ СЃС‚СЂРѕРіРѕ РїРѕ РѕС‚С‡РµС‚Сѓ [1..di(Dt).Count]
 		double IR;
 		double D;
 		double C;
@@ -741,7 +737,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 	THROW_MEM(q = new BExtQuery(P_ATC, idx, 64));
 	q->selectAll().where(*dbq);
 	for(q->initIteration(0, &k, spGe); q->nextIteration() > 0;) {
-		int    ibf = 0; // Признак того, что найден документ, соответствующий текущей записи
+		int    ibf = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РЅР°Р№РґРµРЅ РґРѕРєСѓРјРµРЅС‚, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё
 		BillEntry bill_entry;
 		AccTurnTbl::Rec rec;
 		P_ATC->copyBufTo(&rec);
@@ -1138,7 +1134,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	}
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
 		//
-		// Обороты по статьям
+		// РћР±РѕСЂРѕС‚С‹ РїРѕ СЃС‚Р°С‚СЊСЏРј
 		//
 		int    is_person_rel = 0;
 		ArticleTbl::Rec ar_rec;
@@ -1270,17 +1266,18 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 							else if(Filt.Flags & AccAnlzFilt::fSpprZSaldo && rec.OutRest == 0.0)
 								continue;
 						THROW_DB(bei.insert(&rec));
+						Total.Count++; // @v10.1.9
 					}
 				}
 				PPWaitPercent(i2+1, acr_list.getCount());
 			}
 			THROW_DB(bei.flash());
 		}
-		Total.Count = acr_list.getCount();
+		// @v10.1.9 Total.Count = acr_list.getCount();
 		//
-		// Без вызова этой функции печать оборотной ведомости выдает
-		// непонятно откуда взявшуюся ошибку "Счет не найден"
-		// Только в release-версии.
+		// Р‘РµР· РІС‹Р·РѕРІР° СЌС‚РѕР№ С„СѓРЅРєС†РёРё РїРµС‡Р°С‚СЊ РѕР±РѕСЂРѕС‚РЅРѕР№ РІРµРґРѕРјРѕСЃС‚Рё РІС‹РґР°РµС‚
+		// РЅРµРїРѕРЅСЏС‚РЅРѕ РѕС‚РєСѓРґР° РІР·СЏРІС€СѓСЋСЃСЏ РѕС€РёР±РєСѓ "РЎС‡РµС‚ РЅРµ РЅР°Р№РґРµРЅ"
+		// РўРѕР»СЊРєРѕ РІ release-РІРµСЂСЃРёРё.
 		//
 		CalcTotalAccTrnovr(&Total);
 	}
@@ -1404,7 +1401,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 		}
 		if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc && Filt.CorAco == AccAnlzFilt::aafgByLoc) {
 			//
-			// Установка исходящих остатков в группировке по складам
+			// РЈСЃС‚Р°РЅРѕРІРєР° РёСЃС…РѕРґСЏС‰РёС… РѕСЃС‚Р°С‚РєРѕРІ РІ РіСЂСѓРїРїРёСЂРѕРІРєРµ РїРѕ СЃРєР»Р°РґР°Рј
 			//
 			if(P_TmpATTbl) {
 				TempAccTrnovrTbl::Key0 k;
@@ -1858,7 +1855,7 @@ int SLAPI PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 								AcctRelTbl::Rec acr_rec;
 								if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID, &acr_rec) > 0) {
 									flt.AccID = acr_rec.ID;
-									// @v9.5.11 (Если Filt.AcctId.ar группирующая статья, то это - необходимо) {
+									// @v9.5.11 (Р•СЃР»Рё Filt.AcctId.ar РіСЂСѓРїРїРёСЂСѓСЋС‰Р°СЏ СЃС‚Р°С‚СЊСЏ, С‚Рѕ СЌС‚Рѕ - РЅРµРѕР±С…РѕРґРёРјРѕ) {
 									flt.AcctId.ac = acr_rec.AccID;
 									flt.AcctId.ar = acr_rec.ArticleID;
 									flt.SingleArID = acr_rec.ArticleID;

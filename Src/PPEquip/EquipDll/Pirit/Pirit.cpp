@@ -745,6 +745,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
 			SetLastItems(cmd, pInputData);
 			// @v10.1.2 THROW(StartWork());
+			Check.PaymCash = 0.0;
+			Check.PaymCard = 0.0;
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("PAYMCASH"))
@@ -1044,7 +1046,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("INCASHMENT")) {
 			SetLastItems(cmd, pInputData);
-			THROW(StartWork());
+			// @v10.1.9 THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("AMOUNT"))
@@ -1510,11 +1512,11 @@ int PiritEquip::RunCheck(int opertype)
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
 			THROW(gcf_result = GetCurFlags(3, flag));
-			if((flag >> 4) || (gcf_result < 3)) {
+			if((flag > 4) || (gcf_result < 3)) { // @v10.1.9 @fix (flag >> 4)-->(flag > 4)
 				const uint8 hb1 = (flag & 0x0F);
 				const uint8 hb2 = (flag & 0xF0);
 				if((gcf_result < 3) || (oneof2(hb1, 2, 3) && hb2 != 0x40)) { // Если открыт чек и не была произведена оплата, то операция оплаты
-					in_data = 0;
+					in_data.Z();
 					if(Check.PaymCard != 0.0) {
 						CreateStr(1, in_data); // Тип оплаты
 						FormatPaym(Check.PaymCard, str);
@@ -1522,7 +1524,7 @@ int PiritEquip::RunCheck(int opertype)
 						CreateStr("", in_data);
 						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
-					in_data = 0;
+					in_data.Z();
 					if(Check.PaymCash != 0.0) {
 						CreateStr(0, in_data); // Тип оплаты
 						FormatPaym(Check.PaymCash, str);
@@ -1531,11 +1533,14 @@ int PiritEquip::RunCheck(int opertype)
 						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
 				}
-				in_data = 0;
+				in_data.Z();
 				if(Cfg.Flags & 0x08000000L)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
+				CreateStr("", in_data); // @v10.1.9 Адрес покупателя
+				CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
+				CreateStr((int)0, in_data); // @v10.1.9 (число) Разные флаги
 				THROW(ExecCmd("31", in_data, out_data, r_error));
 			}
 			// new {

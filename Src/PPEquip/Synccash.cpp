@@ -1259,7 +1259,7 @@ int SLAPI SCS_SYNCCASH::PrintIncasso(double sum, int isIncome)
 		//THROW(LineFeed(6, TRUE, FALSE)); // @vmiller Ибо это не сервисный документ, поэтому нельзя тут печатать текст
 	}
 	else {
-		int    is_cash;
+		int    is_cash = 0;
 		THROW(is_cash = CheckForCash(sum));
 		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		Arr_In.Z();
