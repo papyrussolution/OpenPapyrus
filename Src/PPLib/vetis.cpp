@@ -5449,14 +5449,17 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 	THROW_PP_S(app_data.VdRec.OrgDocEntityID, PPERR_VETISDOCRECDONTREFORGDOC, temp_buf);
 	THROW(PeC.Get(app_data.VdRec.OrgDocEntityID, org_doc_entity) > 0);
 	{
+		long   max_stock_id = 0;
 		VetisDocumentTbl::Key9 k9;
 		k9.OrgDocEntityID = app_data.VdRec.OrgDocEntityID;
 		if(PeC.DT.search(9, &k9, spEq)) do {
 			if(PeC.DT.data.VetisDocStatus == vetisdocstSTOCK) {
 				PeC.GetEntity(PeC.DT.data.EntityID, sub_entity);
-				app_data.StockEntryGuid = sub_entity.Guid;
-				app_data.StockEntryUuid = sub_entity.Uuid;
-				break;
+				if(!max_stock_id || sub_entity.ID > max_stock_id) {
+					app_data.StockEntryGuid = sub_entity.Guid;
+					app_data.StockEntryUuid = sub_entity.Uuid;
+					max_stock_id = sub_entity.ID;
+				}
 			}
 		} while(PeC.DT.search(9, &k9, spNext) && PeC.DT.data.OrgDocEntityID == app_data.VdRec.OrgDocEntityID);
 		temp_buf.Z().Cat(org_doc_entity.WayBillNumber).CatDiv('-', 0).Cat(org_doc_entity.WayBillDate).CatChar('-').Cat(org_doc_entity.NativeBillID);

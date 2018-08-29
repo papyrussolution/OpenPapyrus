@@ -9353,6 +9353,25 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			else {
 				MEMSZERO(sc_rec);
 				if(PPObjSCard::PreprocessSCardCode(code) > 0 && ScObj.SearchCode(0, code, &sc_rec) > 0) {
+				}
+				else {
+					SString caller_buf;
+					PPObjIDArray objlist_by_phone;
+					SCardTbl::Rec temp_sc_rec;
+					PPEAddr::Phone::NormalizeStr(code, 0, caller_buf);
+					if(caller_buf.Len() >= 10) {
+						PsnObj.LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, objlist_by_phone);
+						for(uint oli = 0; oli < objlist_by_phone.getCount(); oli++) {
+							if(objlist_by_phone.at(oli).Obj == PPOBJ_SCARD && ScObj.Search(objlist_by_phone.at(oli).Id, &temp_sc_rec) > 0) {
+								if(temp_sc_rec.ID > sc_rec.ID) {
+									sc_rec = temp_sc_rec;
+									code = sc_rec.Code;
+								}
+							}
+						}
+					}
+				}
+				if(sc_rec.ID) {
 					PPIDArray mult_list;
 					const int mc = ScObj.P_Tbl->GetListByCode(code, &mult_list);
 					if(mult_list.getCount() > 1) {

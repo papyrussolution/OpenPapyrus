@@ -1753,6 +1753,8 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 					else if(count == 7)
 						STRNSCPY(_kpk, str);
 				}
+				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегад возвращают 18-й номер чека. Трактуем это как 0.
+					cc_number = 0;
 				s_output.CatEq("CHECKNUM", (long)cc_number).Semicol();
 			}
 		}
