@@ -188,13 +188,9 @@ public:
 	{
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
-	{
-		return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
-	}
+		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
 	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-	{
-		return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
-	}
+		{ return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0; }
 protected:
 	PPViewCCheck * P_V;
 };
@@ -2055,8 +2051,35 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 	return ok;
 }
 
+int PPViewCCheck::DynFuncPosText = 0;
+
+static IMPL_DBE_PROC(dbqf_ccheck_postext_ii) // @construction
+{
+	char   buf[64];
+	if(option == CALC_SIZE) {
+		result->init((long)sizeof(buf));
+	}
+	else {
+		buf[0] = 0;
+		PPID   sess_id = params[0].lval;
+		PPID   pos_id = params[1].lval;
+		SString temp_buf;
+		PPObjCSession cs_obj;
+		CSessionTbl::Rec cs_rec;
+		if(cs_obj.Fetch(params[0].lval, &cs_rec) > 0) {
+			//temp_buf = cs_rec.;
+		}
+
+		//SIntToSymbTab_GetSymb(VetisVetDocType_SymbTab, SIZEOFARRAY(VetisVetDocType_SymbTab), params[0].lval, temp_buf);
+		//temp_buf.CopyTo(buf, sizeof(buf));
+		result->init(buf);
+	}
+}
+
 DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
+	DbqFuncTab::RegisterDyn(&DynFuncPosText, BTS_STRING, dbqf_ccheck_postext_ii, 2, BTS_INT, BTS_INT);
+
 	DBQuery * p_q = 0;
 	DBQ  * dbq = 0;
 	DBE    dbe_psn;
@@ -2201,24 +2224,8 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						dbe_addr_city.push(p_ext->AddrID);
 						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
 					}
-					{
-						/* @v9.6.1
-						dbe_addr_phone.init();
-						dbe_addr_phone.push(p_ext->AddrID);
-						dbe_addr_phone.push(dbconst((long)LOCEXSTR_PHONE));
-						dbe_addr_phone.push((DBFunc)PPDbqFuncPool::IdAddrExField);
-						*/
-						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE)); // @v9.6.1
-					}
-					{
-						/* @v9.6.1
-						dbe_addr.init();
-						dbe_addr.push(p_ext->AddrID);
-						dbe_addr.push(dbconst((long)LOCEXSTR_SHORTADDR));
-						dbe_addr.push((DBFunc)PPDbqFuncPool::IdAddrExField);
-						*/
-						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
-					}
+					PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
+					PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
 					p_q->addField(p_ext->StartOrdDtm); // #18
 					p_q->addField(dbe_addr_phone);     // #19
 					p_q->addField(dbe_addr_city);      // #20
@@ -2269,24 +2276,8 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						dbe_addr_city.push(p_ext->AddrID);
 						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
 					}
-					{
-						/* @v9.6.1
-						dbe_addr_phone.init();
-						dbe_addr_phone.push(p_ext->AddrID);
-						dbe_addr_phone.push(dbconst((long)LOCEXSTR_PHONE));
-						dbe_addr_phone.push((DBFunc)PPDbqFuncPool::IdAddrExField);
-						*/
-						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE)); // @v9.6.1
-					}
-					{
-						/* @v9.6.1
-						dbe_addr.init();
-						dbe_addr.push(p_ext->AddrID);
-						dbe_addr.push(dbconst((long)LOCEXSTR_SHORTADDR));
-						dbe_addr.push((DBFunc)PPDbqFuncPool::IdAddrExField);
-						*/
-						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR)); // @v9.6.1
-					}
+					PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
+					PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
 					p_q->addField(p_ext->StartOrdDtm); // #16
 					p_q->addField(dbe_addr_phone);     // #17
 					p_q->addField(dbe_addr_city);      // #18

@@ -232,7 +232,7 @@ private:
 	public:
 		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg)
 		{
-			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
+			//LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
 			LogFileName = pLogFileName;
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;

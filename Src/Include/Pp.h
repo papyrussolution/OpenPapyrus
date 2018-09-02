@@ -5130,24 +5130,26 @@ struct AccTurnParam {
 //
 //
 //
-#define CCFLG2_QUOT2               0x00000001L // @v7.1.11 БД использует 2-е поколение котировок
-#define CCFLG2_USESDONPURCHOP      0x00000002L // @v7.2.2  Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
-#define CCFLG2_INDEXEADDR          0x00000004L // @v7.3.2  Индексировать телефоны из персоналий и адресов
+#define CCFLG2_QUOT2               0x00000001L // БД использует 2-е поколение котировок
+#define CCFLG2_USESDONPURCHOP      0x00000002L // Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
+#define CCFLG2_INDEXEADDR          0x00000004L // Индексировать телефоны из персоналий и адресов
 	// Если этот флаг включен, то в таблицу EAddr записываются все телефоны из создаваемых и изменяемых
 	// персоналий и адресов для ускоренного извлечения объектов, связанных с телефоном.
-#define CCFLG2_SYNCLOT             0x00000008L // @v7.6.1 Синхронизировать лоты
-#define CCFLG2_ADJCPANCCLINETRANS  0x00000010L // @v7.9.6 При преобразовании строки чека из кассовой панели в запись
+#define CCFLG2_SYNCLOT             0x00000008L // Синхронизировать лоты
+#define CCFLG2_ADJCPANCCLINETRANS  0x00000010L // При преобразовании строки чека из кассовой панели в запись
 	// CCheckLine корректировать разницу за счет скидки. Функция CCheckItem::GetRec().
 	// Необходимость в установке пареметра может возникнуть при работе с товарами, которые продаются большими
 	// количествами и по ценам, имеющим более двух знаков после точки.
 	// Возможно, правило такой корректировки должно быть применено во всех случаях, однако, во
 	// избежании проблем с работающими инсталляциями, страхуемся вводом данного параметра.
-#define CCFLG2_USECCHECKEXTPAYM    0x00000020L // @v8.0.0 Использовать расширение оплат по чекам
-#define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // @v8.1.9 Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
-#define CCFLG2_USEOMTPAYMAMT       0x00000080L // @v8.5.8 Использовать включенную сумму оплаты по документам
+#define CCFLG2_USECCHECKEXTPAYM    0x00000020L // Использовать расширение оплат по чекам
+#define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
+#define CCFLG2_USEOMTPAYMAMT       0x00000080L // Использовать включенную сумму оплаты по документам
 #define CCFLG2_USESARTREDB         0x00000100L // @v9.7.11 Использовать базу данных Sartre (экпериментальная опция)
 #define CCFLG2_USELOTXCODE         0x00000200L // @v9.8.11 Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
 #define CCFLG2_USELCR2             0x00000400L // @v10.1.5 Использовать 2-ю версию индексации остатков по лотам
+#define CCFLG2_USEVETIS            0x00000800L // @v10.1.9 @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
+	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
 //
 // Общие параметры конфигурации
 //
@@ -39482,6 +39484,8 @@ private:
 	int    SLAPI GetReportId() const;
 	int    SLAPI Recover();
 
+	static int DynFuncPosText; // @v10.1.9
+
 	CCheckCore  * P_CC;
 	PPObjCSession CsObj;
 	PPObjGoods  GdsObj;
@@ -44547,7 +44551,12 @@ public:
 	int    SLAPI SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
 	int    SLAPI SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
 	int    SLAPI MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);
-	int    SLAPI MatchDocument(PPID docEntityID, PPID billID, int rowN, int use_ta);
+	//
+	// Descr: Сопоставляет ветеринарный документ docEntityID с документом billID и (если !0) со строкой документа
+	//   {billID; rowN}.
+	//   Если параметр fromBill != 0, то считает, что лот {billID; rowN} уже сопоставлен и не модифицирует документ.
+	//
+	int    SLAPI MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta);
 
 	VetisEntityTbl ET;
 	VetisProductTbl PiT;
@@ -44567,7 +44576,7 @@ public:
 	SLAPI  VetisDocumentFilt();
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
-	uint8  ReserveStart[224]; // @anchor
+	uint8  ReserveStart[208]; // @anchor
 	enum {
 		fkGeneral          = 0,
 		fkInterchangeParam = 1
@@ -44580,6 +44589,8 @@ public:
 	enum {
 		fAsSelector      = 0x0001
 	};
+	S_GUID SelLotUuid; // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
+		// При открытии окна текущая позиция будет установлена на записи с этим идентификатором.
 	long   FromPersonID;
 	long   FromLocID;
 	long   ToPersonID;
@@ -44592,7 +44603,7 @@ public:
 	DateRange Period;
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
-	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор 
+	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
 	uint8   ReserveEnd[28];   // @anchor
 };
 
@@ -44624,6 +44635,8 @@ public:
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(VetisDocumentViewItem * pItem);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+
+	VetisEntityCore EC; // public поскольку внешние модули могут захотеть иметь доступ к этому (дорогому) ресурсу
 private:
 	static int DynFuncEntityTextFld;
 	static int DynFuncBMembTextFld;
@@ -44649,7 +44662,6 @@ private:
 	int    SLAPI MatchObject(VetisDocumentTbl::Rec & rRec, int objToMatch);
 
 	VetisDocumentFilt Filt;
-	VetisEntityCore EC;
 	PPID   FromEntityID;
 	PPID   FromEnterpriseID;
 	PPID   ToEntityID;

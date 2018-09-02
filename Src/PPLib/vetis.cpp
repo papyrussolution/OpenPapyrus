@@ -1847,7 +1847,7 @@ int SLAPI VetisEntityCore::SearchPerson(PPID id, VetisPersonTbl::Rec * pRec)
 int SLAPI VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec)
 	{ return SearchByID(&DT, 0, id, pRec); }
 
-int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int use_ta)
+int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -1878,7 +1878,7 @@ int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN
 				rec.LinkGoodsID = trfr_rec.GoodsID;
 			}
 			THROW_DB(DT.updateRecBuf(&rec));
-			if(trfr_rec.LotID) {
+			if(trfr_rec.LotID && !fromBill) {
 				Entity entity;
 				if(GetEntity(docEntityID, entity) > 0 && !!entity.Uuid) {
 					ObjTagItem tag_item;
@@ -1901,7 +1901,7 @@ int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN
 					} while(DT.search(3, &k3, spNext) && DT.data.WayBillDate == rec.WayBillDate && sstreq(rec.WayBillNumber, DT.data.WayBillNumber));
 					for(uint i = 0; i < additional_to_upd_list.getCount(); i++) {
 						const PPID additional_to_upd_id = additional_to_upd_list.get(i);
-						THROW(MatchDocument(additional_to_upd_id, billID, rowN, 0));
+						THROW(MatchDocument(additional_to_upd_id, billID, rowN, fromBill, 0)); // @recursion
 					}
 				}
 			}
@@ -3073,7 +3073,8 @@ int SLAPI PPVetisInterface::SetupParam(Param & rP)
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	PPAlbatrosConfig acfg;
-	THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
+	// @v10.1.9 THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
+	THROW(DS.FetchAlbatrosConfig(&acfg) > 0); // @v10.1.9
 	if(!rP.MainOrgID) {
 		GetMainOrgID(&rP.MainOrgID);
 	}
@@ -6884,10 +6885,16 @@ int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int 
 
 void SLAPI PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(Filt.Flags & BillFilt::fAsSelector) {
-		if(Filt.Sel) {
-			PPID   temp_id = Filt.Sel;
-			pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0);
+	if(Filt.Flags & VetisDocumentFilt::fAsSelector) {
+		PPID   sel_id = Filt.Sel;
+		if(!sel_id && !!Filt.SelLotUuid) {
+			VetisEntityCore::Entity ent;
+			if(EC.GetEntityByUuid(Filt.SelLotUuid, ent) > 0) {
+				sel_id = ent.ID;
+			}
+		}
+		if(sel_id) {
+			pBrw->search2(&sel_id, CMPF_LONG, srchFirst, 0);
 		}
 	}
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
@@ -7312,7 +7319,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 						if(slp.AddendumLotList.getCount() && p_bobj->SelectLot2(slp) > 0) {
 							long   rbb = 0;
 							if(lot_to_rbb_list.Search(slp.RetLotID, &rbb, 0) && rbb > 0) {
-								ok = EC.MatchDocument(rRec.EntityID, bill_id, rbb, 1);
+								ok = EC.MatchDocument(rRec.EntityID, bill_id, rbb, 0/*fromBill*/, 1);
 								if(!ok)
 									PPError();
 							}
@@ -7380,7 +7387,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 									long   rbb = 0;
 									if(lot_to_rbb_list.Search(slp.RetLotID, &rbb, 0) && rbb > 0) {
 										if(p_bobj->trfr->Rcpt.Search(slp.RetLotID, &lot_rec) > 0 && !lot_rec.PrevLotID) {
-											ok = EC.MatchDocument(rRec.EntityID, lot_rec.BillID, rbb, 1);
+											ok = EC.MatchDocument(rRec.EntityID, lot_rec.BillID, rbb, 0/*fromBill*/, 1);
 											if(!ok)
 												PPError();
 										}
@@ -7445,7 +7452,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 							}
 							if(bill_view.Browse(0) > 0) {
 								bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
-								ok = EC.MatchDocument(rRec.EntityID, bill_id, 0, 1);
+								ok = EC.MatchDocument(rRec.EntityID, bill_id, 0, 0/*fromBill*/, 1);
 								if(!ok)
 									PPError();
 							}
@@ -7467,15 +7474,17 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 			case PPVCMD_EDITITEM:
 				ok = -1;
 				if(id) {
-					if(Filt.Flags & BillFilt::fAsSelector && pBrw->IsInState(sfModal)) {
-						Filt.Sel = id;
-						ok = 1;
-						pBrw->endModal(Filt.Sel ? cmOK : cmCancel);
-					}
-					else {
-						VetisVetDocument item;
-						if(EC.Get(id, item) > 0)
+					VetisVetDocument item;
+					if(EC.Get(id, item) > 0) {
+						if(Filt.Flags & Filt.fAsSelector && pBrw->IsInState(sfModal)) {
+							Filt.Sel = id;
+							Filt.SelLotUuid = item.Uuid;
+							ok = 1;
+							pBrw->endModal(Filt.Sel ? cmOK : cmCancel);
+						}
+						else {
 							EditVetisVetDocument(item);
+						}
 					}
 				}
 				break;

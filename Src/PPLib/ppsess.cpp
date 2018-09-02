@@ -2880,7 +2880,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						SetExtFlag(ECF_USESJLOGINEVENT, 0);
 						SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						SetExtFlag(ECF_USEGEOTRACKING, 0);
-						// } @v10.1.4 
+						// } @v10.1.4
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GRPACK,                  ECF_GOODSRESTPACK,          1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_TIDPACK,                 ECF_TRFRITEMPACK,           1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT,                ECF_GOODSBILLFILTSHOWDEBT,  1);
@@ -2978,6 +2978,20 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
 				else
 					r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
+				// @v10.1.9 {
+				{
+					r_cc.Flags2 &= ~CCFLG2_USEVETIS;
+					PPAlbatrosConfig acfg;
+					if(DS.FetchAlbatrosConfig(&acfg) > 0) {
+						acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Z());
+						if(temp_buf.NotEmpty()) {
+							acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf.Z());
+							if(temp_buf.NotEmpty())
+								r_cc.Flags2 |= CCFLG2_USEVETIS;
+						}
+					}
+				}
+				// } @v10.1.9
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
@@ -4317,7 +4331,7 @@ int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_PROCESSOR: val = PPHS_PROCESSOR; break;
 			case PPOBJ_TSESSION:  val = PPHS_TSESSION; break;
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
-			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5 
+			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -4374,7 +4388,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 				case PPHS_TSESSION:       val = PPOBJ_TSESSION; break;
 				case PPHS_STYLOPALM:      val = PPOBJ_STYLOPALM; break;
 				case PPHS_STYLODEVICE:    val = PPOBJ_STYLOPALM; break;
-				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5 
+				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

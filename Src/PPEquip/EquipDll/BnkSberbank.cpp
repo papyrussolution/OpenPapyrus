@@ -243,16 +243,11 @@ typedef int (__cdecl * TestPinpadProc)();
 
 class PPDrvSberTrmnl : public PPBaseDriver {
 public:
-	PPDrvSberTrmnl()
+	PPDrvSberTrmnl() : LogNum(0), P_Lib(0), CardAuth(0), CloseDay(0), TestPinpad(0)
 	{
-		LogNum = 0;
-		P_Lib = 0;
-		CardAuth = 0;
-		CloseDay = 0;
-		TestPinpad = 0;
-		//GlobalFree = 0;
 		SString file_name;
 		getExecPath(file_name);
+		(SlipLogFileName = file_name).SetLastSlash().Cat("SberTrmnl_Slip.log"); // @v10.1.9
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("SberTrmnl.log"));
 	}
 	~PPDrvSberTrmnl() 
@@ -270,11 +265,11 @@ public:
 private:
 	long   LogNum;
 	SString SlipFileName;
+	SString SlipLogFileName;
 	SDynLibrary * P_Lib;
 	CardAuthProc   CardAuth;
     CloseDayProc   CloseDay;
 	TestPinpadProc TestPinpad;
-	//GlobalFreeProc GlobalFree;
 };
 
 static PPDrvSession::TextTableEntry _ErrMsgTab[] = {
@@ -485,7 +480,7 @@ PPDRV_INSTANCE_ERRTAB(SberTrmnl, 1, 0, PPDrvSberTrmnl, _ErrMsgTab);
 int PPDrvSberTrmnl::Init(const char * pLibPath)
 {
 	int    ok = 1;
-	SlipFileName = 0;
+	SlipFileName.Z();
 	if(P_Lib) {
 		CardAuth = 0;
 		CloseDay = 0;
@@ -587,6 +582,14 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_PAY); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
 		rSlip = auth_answr.P_Check;
+		// @v10.1.9 {
+		{
+			SString temp_buf;
+			temp_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+			SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
+			SLS.LogMessage(SlipLogFileName, rSlip, 8192);
+		}
+		// } @v10.1.9 
 		::GlobalFree(auth_answr.P_Check);
 		auth_answr.P_Check = 0;
 	}
@@ -620,6 +623,14 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_REFUND); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
 		rSlip = auth_answr.P_Check;
+		// @v10.1.9 {
+		{
+			SString temp_buf;
+			temp_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+			SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
+			SLS.LogMessage(SlipLogFileName, rSlip, 8192);
+		}
+		// } @v10.1.9 
 		::GlobalFree(auth_answr.P_Check);
 		auth_answr.P_Check = 0;
 	}

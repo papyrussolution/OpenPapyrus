@@ -848,22 +848,44 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					}
 					break;
 				case cmVetisMatch: // @v10.1.8
-					if(checkdate(P_Pack->Rec.Dt)) {
+					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2 & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
 						const PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
 						if(suppl_person_id) {
-							/* @construction
+							SString temp_buf;
 							VetisDocumentFilt vetis_filt;
 							vetis_filt.VDStatusFlags = (1<<vetisdocstCONFIRMED) | (1<<vetisdocstUTILIZED);
 							vetis_filt.Period.Set(plusdate(P_Pack->Rec.Dt, -3), P_Pack->Rec.Dt);
 							vetis_filt.FromPersonID = suppl_person_id;
 							vetis_filt.Flags |= (VetisDocumentFilt::fAsSelector);
+							if(P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf) > 0) {
+								vetis_filt.SelLotUuid.FromStr(temp_buf);
+							}
 							PPViewVetisDocument vetis_view;
 							if(vetis_view.Init_(&vetis_filt)) {
+								//temp_buf.Z().Cat(P_Pack->R)
+								PPObjBill::MakeCodeString(&P_Pack->Rec, 0, temp_buf);
+								SString item_info_buf;
+								GetGoodsName(Item.GoodsID, item_info_buf);
+								double phupu = 0.0;
+								if(GObj.GetPhUPerU(Item.GoodsID, 0, &phupu) > 0 && phupu > 0.0) {
+									item_info_buf.Space().Cat(fabs(Item.Quantity_) * phupu, MKSFMTD(0, 3, 0));
+								}
+								temp_buf.CatDiv('-', 1).Cat(item_info_buf);
+								vetis_view.SetOuterTitle(temp_buf);
+								//
 								if(vetis_view.Browse(0) > 0) {
-									PPID vetis_doc_id = ((VetisDocumentFilt *)vetis_view.GetBaseFilt())->Sel;
+									VetisDocumentFilt * p_result_filt = (VetisDocumentFilt *)vetis_view.GetBaseFilt();
+									PPID vetis_doc_id = p_result_filt->Sel;
+									if(!!p_result_filt->SelLotUuid && vetis_doc_id) {
+										p_result_filt->SelLotUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+										P_Pack->LTagL.AddNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+										if(P_Pack->Rec.ID && Item.RByBill > 0 && Item.LotID) {
+											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Item.RByBill, 1/*fromBill*/, 1)) 
+												PPError();
+										}
+									}
 								}
 							}
-							*/
 						}
 					}
 					break;

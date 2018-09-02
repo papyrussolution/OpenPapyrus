@@ -1,5 +1,5 @@
 // V_PALM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -22,10 +22,9 @@ PalmFilt & FASTCALL PalmFilt::operator = (const PalmFilt & s)
 	return *this;
 }
 
-PPViewPalm::PPViewPalm() : PPView(&ObjPalm, &Filt, PPVIEW_PALM)
+PPViewPalm::PPViewPalm() : PPView(&ObjPalm, &Filt, PPVIEW_PALM), P_TempTbl(0)
 {
-	ImplementFlags |= implDontEditNullFilter;
-	P_TempTbl = 0;
+	// @v10.1.9 ImplementFlags |= implDontEditNullFilter;
 }
 
 PPViewPalm::~PPViewPalm()

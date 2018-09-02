@@ -937,7 +937,6 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 	GoodsRestViewItem item;
 	PPViewGoodsRest   v;
 	PPIniFile ini_file(0, 0, 0, 1);
-
 	//se_filt = Filt;
 	//se_filt.MaxFileSizeKB = 0;
 	PPGetFilePath(PPPATH_OUT, "sprest.xml", path);
@@ -1230,7 +1229,8 @@ IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const char * pClientCode, PPLogger & rLogger)
 {
 	int    ok = 1;
-	int    is_first = 1, from_consig_loc = 0;
+	int    is_first = 1;
+	int    from_consig_loc = 0;
 	uint   count = 0;
 	PPID   org_id = 0;
 	const  PPID baltika_id = ObjectToPerson(P.SupplID);
@@ -1251,6 +1251,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	SString db_uuid_text;
 	SString horeca_code;
 	SString encode_str;
+	SString add_link_op_str;
 	SString temp_buf;
 	Sdr_SupplBill head_rec;
 	SoapExporter  soap_e(true /*flatStruc*/);
@@ -1303,8 +1304,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		soap_e.SetAddedScheme(PPREC_SUPPLDLVRADDR, "CRMExtClientAddressDef");
 	}
 	soap_e.SetClientCode(pClientCode);
-	THROW(soap_e.Init(path, PPREC_SUPPLBILL, PPREC_SUPPLBILLLINE, PPREC_BALTIKABILLITEMATTRS,
-		"CRMDespatchParam", "CRMDespatch", "CRMDespatchParts", "CRMDespatchEx"));
+	THROW(soap_e.Init(path, PPREC_SUPPLBILL, PPREC_SUPPLBILLLINE, PPREC_BALTIKABILLITEMATTRS, "CRMDespatchParam", "CRMDespatch", "CRMDespatchParts", "CRMDespatchEx"));
 	soap_e.SetMaxTransmitSize(P.MaxTransmitSize);
 	//
 	MEMSZERO(head_rec);
@@ -1331,7 +1331,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		}
 	}
 	for(v.InitIteration(PPViewBill::OrdByDefault); v.NextIteration(&item) > 0;) {
-		ord_num = 0;
+		ord_num.Z();
 		int    send = 0;
 		uint   pos = 0;
 		LDATE  ord_dt = ZERODATE;
@@ -1376,11 +1376,11 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 						if(strtodate(log_msg, DATF_DMY, &temp_dt) && checkdate(temp_dt))
                             ord_dt = temp_dt;
 						else
-							ord_num = 0;
+							ord_num.Z();
                     }
                 }
                 else
-					ord_num = 0;
+					ord_num.Z();
             }
 		}
 		// } @v9.3.2
@@ -1551,7 +1551,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								else if(Ep.PriceQuotID) {
 									double lot_price = 0.0;
 									ReceiptTbl::Rec lot_rec;
-									QuotIdent qi(bpack.Rec.Dt, bpack.Rec.LocID, Ep.PriceQuotID, 0, obj_id);
+									const QuotIdent qi(bpack.Rec.Dt, bpack.Rec.LocID, Ep.PriceQuotID, 0, obj_id);
 									if(GetCurGoodsPrice(trfr_item.GoodsID, bpack.Rec.LocID, 0, &lot_price, &lot_rec) > 0) {
 										use_quot = BIN(GObj.GetQuotExt(trfr_item.GoodsID, qi, lot_rec.Cost, lot_price, &_price, 1) > 0);
 									}
@@ -1571,6 +1571,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								line_rec.Price = R5(line_rec.Price * bc_pack);
 							}
 							doc_type_str.CopyTo(line_rec.DocumentTypeId, sizeof(line_rec.DocumentTypeId));
+							idx = 0;
 							if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplBillLine, WareId)) > 0)
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
@@ -1590,27 +1591,49 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								line_attrs_rec.Quantity = line_rec.Quantity;
 								GetInfoByLot(trfr_item.LotID, &trfr_item, 0, &line_attrs_rec.ProductionDate, &line_attrs_rec.ExpirationDate, &serial);
 								serial.CopyTo(line_attrs_rec.PartNumber, sizeof(line_attrs_rec.PartNumber));
+								idx = 0;
 								if(items_attrs_list.lsearch(&line_attrs_rec, &idx, PTR_CMPFUNC(Sdr_BaltikaBillItemAttrs)))
 									items_attrs_list.at(idx).Quantity += line_rec.Quantity;
 								else
 									items_attrs_list.insert(&line_attrs_rec);
+								// @v10.1.9 {
+								if(oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp)) {
+									Sdr_BaltikaBillItemAttrs line_attrs_mirror_rec;
+									MEMSZERO(line_attrs_mirror_rec);
+									memcpy(&line_attrs_mirror_rec, &line_attrs_rec, sizeof(line_attrs_rec));
+									add_link_op_str.Z();
+									if(item.OpID == Ep.MovInOp)
+										PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGFROM, add_link_op_str);
+									else {
+										// ћежскладские перемещени€ документов с консигнационного склада будем разбивать, на мескладской расход и приход товара от поставщика
+										if(from_consig_loc)
+											PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_RECEIPT, add_link_op_str);
+										else
+											PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGTO, add_link_op_str);
+									}
+									STRNSCPY(line_attrs_mirror_rec.DocumentTypeId, add_link_op_str);
+									idx = 0;
+									if(items_attrs_list.lsearch(&line_attrs_mirror_rec, &idx, PTR_CMPFUNC(Sdr_BaltikaBillItemAttrs)))
+										items_attrs_list.at(idx).Quantity += line_rec.Quantity;
+									else
+										items_attrs_list.insert(&line_attrs_mirror_rec);
+								}
+								// } @v10.1.9 
 							}
 							count++;
 						}
 					}
 				}
 			}
-			if(items_list.getCount() > 0) {
-				int add_link_op = 0;
-				SString add_link_op_str;
+			if(items_list.getCount()) {
+				int    add_link_op = 0;
+				add_link_op_str.Z();
 				if(oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp)) {
 					add_link_op = 1;
 					if(item.OpID == Ep.MovInOp)
 						PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGFROM, add_link_op_str);
 					else {
-						//
 						// ћежскладские перемещени€ документов с консигнационного склада будем разбивать, на мескладской расход и приход товара от поставщика
-						//
 						if(from_consig_loc)
 							PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_RECEIPT, add_link_op_str);
 						else
@@ -1624,7 +1647,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					log_msg.Z().Cat("code=[").Cat(line_rec.DocumentNumber).Cat("]").Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
 					rLogger.Log(log_msg);
 					if(add_link_op) {
-						add_link_op_str.CopyTo(line_rec.DocumentTypeId, sizeof(line_rec.DocumentTypeId));
+						STRNSCPY(line_rec.DocumentTypeId, add_link_op_str);
 						MEMSZERO(line_rec.WareHouseId);
 						ltoa(loc2_id, line_rec.WareHouseId, 10);
 						if(from_consig_loc) {
