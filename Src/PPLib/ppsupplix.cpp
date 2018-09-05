@@ -1523,8 +1523,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 							{
 								SString buf, sale_channel;
 								ObjTagItem tag;
-								WorldTbl::Rec     wrec;
-								LocationTbl::Rec  loc_rec;
+								WorldTbl::Rec wrec;
+								LocationTbl::Rec loc_rec;
 								MEMSZERO(loc_rec);
 								MEMSZERO(wrec);
 								if(dlvr_addr_id && LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
@@ -1612,10 +1612,10 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 											PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGTO, add_link_op_str);
 									}
 									STRNSCPY(line_attrs_mirror_rec.DocumentTypeId, add_link_op_str);
-									idx = 0;
+									/*idx = 0;
 									if(items_attrs_list.lsearch(&line_attrs_mirror_rec, &idx, PTR_CMPFUNC(Sdr_BaltikaBillItemAttrs)))
 										items_attrs_list.at(idx).Quantity += line_rec.Quantity;
-									else
+									else*/
 										items_attrs_list.insert(&line_attrs_mirror_rec);
 								}
 								// } @v10.1.9 

@@ -494,6 +494,10 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 		return 0;
 	else if(!OpList.CheckID(rBillRec.OpID))
 		return 0;
+	// @v10.1.10 {
+	else if(Filt.Flags & OPG_OPENEDDRAFTONLY && IsDraftOp(rBillRec.OpID) && (rBillRec.Flags & BILLF_WRITEDOFF))
+		return 0;
+	// } @v10.1.10 
 	else if(!soft_restr && !ArList.CheckID(rBillRec.Object))
 		return 0;
 	else if(!Filt.BillList.CheckID(rBillRec.ID))

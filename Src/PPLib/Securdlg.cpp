@@ -39,20 +39,21 @@ public:
 
 		int    ok = 1;
 		ushort v  = 0;
-		PPSecur * secur = &Pack.Secur;
-		setCtrlData(CTL_USRGRP_NAME, secur->Name);
+		PPSecur * p_secur = &Pack.Secur;
+		setCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		setCtrlData(CTL_USRGRP_ID, &ObjID);
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
 		if(ObjType == PPOBJ_USR) {
-			disableCtrl(CTL_USRGRP_NAME, secur->ID == PPUSR_MASTER);
+			disableCtrl(CTL_USRGRP_NAME, p_secur->ID == PPUSR_MASTER);
 			memzero(Password, sizeof(Password));
-			memcpy(Password, secur->Password, sizeof(secur->Password));
-			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, secur->ParentID, OLW_CANINSERT);
-			SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, secur->PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
-			SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, secur->UerID, 0, 0); // @v8.6.0
-			enableCommand(cmCfgConfig, (secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
-			enableCommand(cmCfgRights, (secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
+			memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
+			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
+			SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, p_secur->PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
+			SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, p_secur->UerID, 0, 0); // @v8.6.0
+			enableCommand(cmCfgConfig, (p_secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
+			enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
 			setCtrlData(CTL_USR_FLAGS, &v);
+			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
 		}
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			AddClusterAssoc(CTL_USR_UERFLAGS, 0, PPEXCLRT_OBJDBDIVACCEPT);
@@ -62,7 +63,7 @@ public:
 			AddClusterAssoc(CTL_USR_UERFLAGS, 4, PPEXCLRT_INVWROFFROLLBACK);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 5, PPEXCLRT_DRAFTWROFF);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 6, PPEXCLRT_DRAFTWROFFROLLBACK);
-			SetClusterData(CTL_USR_UERFLAGS, secur->UerFlags);
+			SetClusterData(CTL_USR_UERFLAGS, p_secur->UerFlags);
 		}
 		return ok;
 	}
@@ -70,21 +71,22 @@ public:
 	{
 		int    ok = 1;
 		ushort v;
-		PPSecur * secur = &Pack.Secur;
-		getCtrlData(CTL_USRGRP_NAME, secur->Name);
-		getCtrlData(CTL_USRGRP_ID,   &secur->ID);
-		ObjID = secur->ID;
+		PPSecur * p_secur = &Pack.Secur;
+		getCtrlData(CTL_USRGRP_NAME, p_secur->Name);
+		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
+		ObjID = p_secur->ID;
 		if(ObjType == PPOBJ_USR) {
-			memcpy(secur->Password, Password, sizeof(secur->Password));
-			getCtrlData(CTLSEL_USR_GRP, &secur->ParentID);
-			getCtrlData(CTLSEL_USR_PERSON, &secur->PersonID);
-			getCtrlData(CTLSEL_USR_UER, &secur->UerID);
+			memcpy(p_secur->Password, Password, sizeof(p_secur->Password));
+			getCtrlData(CTLSEL_USR_GRP, &p_secur->ParentID);
+			getCtrlData(CTLSEL_USR_PERSON, &p_secur->PersonID);
+			getCtrlData(CTLSEL_USR_UER, &p_secur->UerID);
 			getCtrlData(CTL_USR_FLAGS, &v);
-			SETFLAG(secur->Flags, USRF_INHCFG,    v & 1);
-			SETFLAG(secur->Flags, USRF_INHRIGHTS, v & 2);
+			SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
+			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
+			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
 		}
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
-			GetClusterData(CTL_USR_UERFLAGS, &secur->UerFlags);
+			GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
 		}
 		*pData = Pack;
 		return ok;
@@ -209,6 +211,13 @@ static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, void * pData)
 		ok = PPErrorByDialog(dlg, CTL_USR_GRP, PPERR_USRMUSTBELONGTOGRP);
 	else if(PPRef->SearchName(objType, &temp_id, p_name) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
+	else {
+		if(objType == PPOBJ_USR && ((PPSecur *)pData)->ExpiryDate) {
+			if(!checkdate(((PPSecur *)pData)->ExpiryDate)) {
+				ok = PPErrorByDialog(dlg, CTL_USR_EXPIRY, PPERR_SLIB);
+			}
+		}
+	}
 	return ok;
 }
 

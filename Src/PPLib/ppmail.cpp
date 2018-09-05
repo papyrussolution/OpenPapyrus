@@ -339,10 +339,8 @@ public:
 		IdeaRandMem(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_MAILACC_TIMEOUT, &Data.Timeout);
 		SetupStringCombo(this, CTLSEL_MAILACC_AUTHTYPE, PPTXT_SMTPAUTHTYPES, Data.SmtpAuthType);
-		// @v8.3.5 {
 		AddClusterAssoc(CTL_MAILACC_FLAGS, 0, Data.fUseSSL);
 		SetClusterData(CTL_MAILACC_FLAGS, Data.Flags);
-		// } @v8.3.5
 		return 1;
 	}
 	virtual int getDTS(PPInternetAccount * pData)

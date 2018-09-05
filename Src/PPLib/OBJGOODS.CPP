@@ -3466,6 +3466,12 @@ int SLAPI PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
 	THROW(GetPacket(sampleID, &pack, 0) > 0);
 	gpk = pack.GetPacketKind();
 	pack.Rec.ID = 0;
+	// @v10.1.10 @fix Удаление идентифицирующих зарезервированных тегов {
+	{
+		pack.TagL.PutItem(PPTAG_GOODS_UUID, 0);
+		pack.TagL.PutItem(PPTAG_GOODS_OUTERPOSCODE, 0);
+	}
+	// } @v10.1.10
 	if(!(pack.GS.Rec.Flags & GSF_NAMED)) {
 		pack.Rec.StrucID = 0;
 		pack.GS.Rec.ID = 0;

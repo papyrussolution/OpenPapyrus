@@ -509,6 +509,10 @@ int SLAPI PPCashMachine::SyncCloseSession()
 }
 
 struct CashStat {
+	CashStat()
+	{
+		THISZERO();
+	}
 	PPID   CashID;
 	double BegSum;
 	double Income;
@@ -610,11 +614,9 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 	TDialog * dlg = 0;
 	THROW(GetSyncIntrf());
 	THROW(GetNode() > 0);
-	stat.BegSum = 0.0;
 	DS.SetCurCashNodeID(NodeID);
 	DS.SetLocation(NodeRec.LocID);
 	if(NodeRec.Flags & CASHF_CHKPAN) {
-		// @v8.2.1 {
 		PPObjCSession cs_obj;
 		CSessionTbl::Rec cs_rec;
 		if(NodeRec.CurSessID && cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_rec) > 0) {
@@ -631,25 +633,6 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 			stat.AmtReturn = cs_total.RetAmount;
 			sum = cs_total.Amount;
 		}
-		// } @v8.2.1
-#if 0 // @v8.2.1 {
-		CCheckFilt   ccflt;
-		CCheckTotal  cctotal;
-		PPViewCCheck ccview;
-		// @v7.8.2 ccflt.Period.SetDate(NodeRec.CurDate);
-		ccflt.NodeList.Add(NodeID);
-		ccflt.CashNumber = NodeID;
-		ccflt.Flags = CCheckFilt::fActiveSess;
-		ccflt.SessIDList.add(NodeRec.CurSessID);
-		THROW(ccview.Init_(&ccflt));
-		THROW(ccview.CalcTotal(&cctotal));
-		stat.AmtCash   = cctotal.AmtCash;
-		stat.AmtBank   = cctotal.AmtBank;
-		stat.AmtSCard  = cctotal.AmtSCard;
-		stat.Discount  = cctotal.Discount;
-		stat.AmtReturn = cctotal.AmtReturn;
-		sum = cctotal.Amount;
-#endif // } @v8.2.1
 		if(sum == 0.0)  {
 			SyncGetSummator(&sum);
 			if(sum < 0.0)

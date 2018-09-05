@@ -38,6 +38,7 @@ int AlbatrosConfigDialog::EditVetisConfig()
 		Data.GetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
 		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
+		dlg->setCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
 		// } @v10.1.0
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_VETISCFG_USER, temp_buf);
@@ -53,6 +54,7 @@ int AlbatrosConfigDialog::EditVetisConfig()
 			Data.SetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
 			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout); 
 			// } @v10.1.0
+			dlg->getCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
 			ok = 1;
 		}
 	}

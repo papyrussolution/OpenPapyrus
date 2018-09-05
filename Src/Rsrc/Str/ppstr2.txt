@@ -2078,6 +2078,7 @@ PPERR_VETISBILLHASNTOBJGUID      "Контрагент документа '%s' �
 PPERR_VETISVETDOCBYLOTNFOUND     "Не найден ветеринарный документ по UUID, определенному в лоте '%s'"
 PPERR_SPCGOODSTAGNDEF            "Не определен специальный тег товаров с символом '%s'"
 PPERR_SCSPCTRT_AZ                "Ошибка сервиса AstraZeneca: %s"
+PPERR_USRACCEXPIRED              "Срок действия учетной записи '%s' истек"
 // LastError
 
 [102] // confirmation
@@ -5196,6 +5197,7 @@ PPSSYM_FORMAT "int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;a
 107  "Операции с порциями записей недоступны на заданном файле"
 132  "Файл '%s' достиг предельного размера" // "The file has reached its size limit"
 161  "Достигнуто предельное число пользователей PervasiveSQL" // The maximum number of user count licenses has been reached
+171  "Database login failed" // @v10.1.10
 
 204  "Таблица не определена в словаре данных\nФайл %s"
 
@@ -7755,6 +7757,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalbatros_vetisdoctpassword            "Пароль ветеринарного врача"
 @cfgalbatros_vetisapikey                  "Ключ API"
 @cfgalbatros_vetistimeout                 "Таймаут ожидания ответа"
+@cfgalbatros_vetiscertdelay               "Макс задержка в днях от выпуска сертификата до поступления инвойса"
 @cfgalbatros_ediparams                    "Параметры EDI" // generic
 
 @cfgalcreport_alcgoodscls                 "Товарный класс алкогольной продукции"
@@ -10049,6 +10052,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @usr_uerid                                "@{userexclrights}"
 @usr_usrf_inhcfg                          "Наследует конфигурацию"
 @usr_usrf_inhrights                       "Наследует права"
+@usr_expirydate                           "Дата истечения срока действия"
 @usrgrp_crc                               "Контрольная сумма"
 @usrgrp_id                                "@{id}"
 @usrgrp_name                              "@{appellation}"
@@ -11066,6 +11070,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_fcalcavgrest                ""
 @trfranlzfilt_fcomparewroff               "Сравнивать с документами списания"
 @trfranlzfilt_fcomparewroff_diffonly      "Показывать только отличия от документов списания"
+@trfranlzfilt_funcloseddraftsonly         "Только по не списанным драфт-документам"
 @trfranlzfilt_initord                     "@{sorting}"
 @trfranlzfilt_crosstab                    "Параметры кросстабуляции анализа товарных операций" // Обобщающее понятие
 @trfranlzfilt_ctkind                      "@{crosstab_sh}" // Вид кросстабулированного отчета

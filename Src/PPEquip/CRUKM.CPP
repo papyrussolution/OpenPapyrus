@@ -719,12 +719,12 @@ static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long ch
 }
 */
 
-static SString & SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
+static SString & FASTCALL MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
 {
 	return rBuf.Z().Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
 }
 
-static void SLAPI WaitMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber)
+static void FASTCALL WaitMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber)
 {
 	SString msg_buf;
 	PPWaitMsg(MakeMsgByCheck(pDT, cashCode, chkNumber, msg_buf));

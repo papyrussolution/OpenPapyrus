@@ -2914,3 +2914,68 @@ int SLAPI ExportUhttForGitHub()
 	PPWait(0);
 	return ok;
 }
+
+int SLAPI ReformatIceCat(const char * pFileName)
+{
+	int    ok = 1;
+	SString line_buf;
+	SString temp_buf;
+	SFile f_in(pFileName, SFile::mRead);
+	if(f_in.IsValid()) {
+		SPathStruc ps(pFileName);
+		ps.Nam.CatChar('-').Cat("out");
+		ps.Merge(temp_buf);
+		StringSet ss("\t\t\t");
+		StringSet ean_ss(";");
+		SString part_num;
+		SString brand;
+		SString category;
+		SString model;
+		SString ean;
+		SString family;
+		SString title;
+		SString compose_buf;
+		uint   line_no = 0;
+		SFile f_out(temp_buf, SFile::mWrite);
+		while(f_in.ReadLine(line_buf)) {
+			line_no++;
+			if(line_no > 1) {
+				ss.setBuf(line_buf.Chomp().Strip());
+				// PartNumber; Brand; Quality; Category; ModelName; EAN; MarketPresence; Family; Title; 
+				line_buf.Z();
+				for(uint ssp = 0, fld_no = 0; ss.get(&ssp, temp_buf); fld_no++) {
+					temp_buf.Strip();
+					switch(fld_no) {
+						case 0:	part_num = temp_buf; break;
+						case 1:	brand = temp_buf; break;
+						//case 2: break; // quality
+						case 3:	category = temp_buf; break;
+						case 4:	model = temp_buf; break;
+						case 5:	ean = temp_buf; break;
+						// case 6: break; // marketpresence
+						case 7:	family = temp_buf; break;
+						case 8:	title = temp_buf; break;
+					}
+				}
+				if(ean.NotEmpty()) {
+					ean_ss.setBuf(ean);
+					for(uint ep = 0; ean_ss.get(&ep, temp_buf);) {
+						if(temp_buf.NotEmptyS()) {
+							int    skip = 0;
+							if(title.CmpPrefix("ISBN", 1) == 0) {
+								(compose_buf = "ISBN").Space().Cat(temp_buf);
+								if(title.CmpPrefix(compose_buf, 1) == 0)
+									skip = 1;
+							}
+							if(!skip) {
+								line_buf.Z().Cat(temp_buf).Tab().Cat(title).Tab().Cat(brand).Tab().Cat(category).Tab().Cat(family).Tab().Cat(model).CR();
+								f_out.WriteLine(line_buf);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}

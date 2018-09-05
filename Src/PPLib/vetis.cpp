@@ -7201,11 +7201,17 @@ private:
 static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRange & rPeriod)
 {
 	int    ok = 1;
+	int    delay_days = 0;
+	PPAlbatrosConfig acfg;
+	if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
+		delay_days = acfg.Hdr.VetisCertDelay;
+	else 
+		delay_days = 3;
 	if(checkdate(rRec.WayBillDate)) {
-		rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, 3));
+		rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, delay_days));
 	}
 	else if(checkdate(rRec.IssueDate)) {
-		rPeriod.Set(rRec.IssueDate, plusdate(rRec.WayBillDate, 5));
+		rPeriod.Set(rRec.IssueDate, plusdate(rRec.WayBillDate, delay_days+2));
 	}
 	else {
 		rPeriod.SetDate(getcurdate_());

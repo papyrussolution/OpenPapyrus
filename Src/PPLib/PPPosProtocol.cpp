@@ -3,6 +3,11 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+static SString & FASTCALL MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
+{
+	return rBuf.Z().Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
+}
 /*
 
 pap
@@ -155,6 +160,14 @@ public:
 														}
 													}
 												}
+												// @v10.1.10 {
+												while(SearchTempCheckByTime(local_pos_no, &cc_dtm) > 0) {
+													int    h, m, s, hs;
+													decodetime(&h, &m, &s, &hs, &cc_dtm.t);
+													THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
+													cc_dtm.t = encodetime(h, m, s, hs + 1);
+												}
+												// } @v10.1.10 
 												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
 												if(ccr > 0) { // @v9.9.12
 													for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {

@@ -1759,15 +1759,24 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 			}
 		}
 		else if(buf.IsEqiAscii("CASHAMOUNT")) {
-			CreateStr(7, in_data);
-			THROW(ExecCmd("02", in_data, out_data, r_error));
-			{
-				StringSet dataset(FS, out_data);
-				uint k = 0;
-				dataset.get(&k, str); // Номер запроса
-				dataset.get(&k, str);
-				s_output.CatEq("CASHAMOUNT", str).Semicol();
+			int    succs = 0;
+			for(uint t = 0; !succs && t < 4; t++) {
+				CreateStr(7, in_data);
+				THROW(ExecCmd("02", in_data, out_data, r_error));
+				{
+					StringSet dataset(FS, out_data);
+					const uint dsc = dataset.getCount();
+					if(dsc == 3) {
+						uint k = 0;
+						dataset.get(&k, str); // Номер запроса
+						dataset.get(&k, str);
+						s_output.CatEq("CASHAMOUNT", str).Semicol();
+						succs = 1;
+					}
+				}
 			}
+			if(!succs) 
+				s_output.CatEq("CASHAMOUNT", "0.0").Semicol();
 		}
 	}
 	if(size < s_output.BufSize()){

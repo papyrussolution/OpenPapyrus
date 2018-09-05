@@ -853,8 +853,16 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						if(suppl_person_id) {
 							SString temp_buf;
 							VetisDocumentFilt vetis_filt;
+
+							int    delay_days = 0;
+							PPAlbatrosConfig acfg;
+							if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
+								delay_days = acfg.Hdr.VetisCertDelay;
+							else 
+								delay_days = 3;
 							vetis_filt.VDStatusFlags = (1<<vetisdocstCONFIRMED) | (1<<vetisdocstUTILIZED);
-							vetis_filt.Period.Set(plusdate(P_Pack->Rec.Dt, -3), P_Pack->Rec.Dt);
+							//vetis_filt.Period.Set(plusdate(P_Pack->Rec.Dt, -3), P_Pack->Rec.Dt);
+							vetis_filt.WayBillPeriod.Set(plusdate(P_Pack->Rec.Dt, -delay_days), P_Pack->Rec.Dt);
 							vetis_filt.FromPersonID = suppl_person_id;
 							vetis_filt.Flags |= (VetisDocumentFilt::fAsSelector);
 							if(P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf) > 0) {

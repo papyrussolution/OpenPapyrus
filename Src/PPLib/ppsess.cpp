@@ -2730,6 +2730,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
 			if(!oneof2(logmode, logmService, logmEmptyBaseCreation)) {
 				int    pw_is_wrong = 1;
+				// @v10.1.10 {
+				if(usr_rec.ID != PPUSR_MASTER && checkdate(usr_rec.ExpiryDate)) {
+					THROW_PP_S(getcurdate_() <= usr_rec.ExpiryDate, PPERR_USRACCEXPIRED, usr_rec.Name);
+				}
+				// } @v10.1.10 
 				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)

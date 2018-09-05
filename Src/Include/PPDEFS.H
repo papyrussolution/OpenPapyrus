@@ -1988,6 +1988,7 @@
 	#define CTL_USR_UER                 (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_USR_UER              (17 + WINDOWS_ID_BIAS)
 	#define CTL_USR_UERFLAGS            (18 + WINDOWS_ID_BIAS)
+	#define CTL_USR_EXPIRY              (19 + WINDOWS_ID_BIAS)
 #define DLG_GRPNUSR                42 // Просмотр групп и пользователей
 	#define cmAddSecurGrp                111
 	#define cmEditSecurGrp               112
@@ -10378,6 +10379,7 @@
 	#define CTL_VETISCFG_TIMEOUT      (4 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_DOCTUSER     (5 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_DOCTPASSW    (6 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_DOCCRTDELAY  (7 + WINDOWS_ID_BIAS)
 #define DLG_PHNCPANE              1332
 	#define cmNewContact              101
 	#define cmAttachContact           102

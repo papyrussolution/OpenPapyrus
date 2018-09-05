@@ -1040,11 +1040,11 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 	uchar  PwMinLen;       // Минимальная длина пароля
 	uchar  PwPeriod;       // Продолжительность действия пароля (дней)
 	long   CFlags;         // PPAccessRestriction::cfXXX Общие флаги прав доступу
-	DateRange RBillPeriod; // Период R-доступа к документам 
+	DateRange RBillPeriod; // Период R-доступа к документам
 	short  AccessLevel;    // Уровень доступа
 	char   Reserve2[6];    // @reserve
 	ushort ORTailSize;     // Размер хвоста с правами доступа по объектам
-	DateRange WBillPeriod; // Период W-доступа к документам 
+	DateRange WBillPeriod; // Период W-доступа к документам
 	ulong  ChkSumOpList;   // Контрольная сумма списка доступных операций
 	ulong  ChkSumLocList;  // Контрольная сумма списка доступных складов
 	ulong  ChkSumCfgList;  // Контрольная сумма списка доступных конфигураций

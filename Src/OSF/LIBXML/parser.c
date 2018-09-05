@@ -202,7 +202,7 @@ static const char * xmlW3CPIs[] = {
 static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str);
 static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt * oldctxt,
     xmlSAXHandler * sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list);
-static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding);
+static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding);
 #ifdef LIBXML_LEGACY_ENABLED
 static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode * lastNode);
 #endif /* LIBXML_LEGACY_ENABLED */
@@ -7395,7 +7395,6 @@ const xmlChar * xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value)
 	}
 	return name;
 }
-
 /**
  * xmlParseStartTag:
  * @ctxt:  an XML parser context
@@ -7439,11 +7438,10 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 			xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseStartTag: invalid element name\n");
 		}
 		else {
-			/*
-			* Now parse the attributes, it ends up with the ending
-			*
-			* (S Attribute)* S?
-			*/
+			// 
+			// Now parse the attributes, it ends up with the ending
+			// (S Attribute)* S?
+			// 
 			SKIP_BLANKS;
 			GROW;
 			while((RAW != '>' && (RAW != '/' || NXT(1) != '>') && (IS_BYTE_CHAR(RAW))) && ctxt->instate != XML_PARSER_EOF) {
@@ -7451,11 +7449,10 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 				uint cons = ctxt->input->consumed;
 				attname = xmlParseAttribute(ctxt, &attvalue);
 				if(attname && attvalue) {
-					/*
-					* [WFC: Unique Att Spec]
-					* No attribute name may appear more than once in the same
-					* start-tag or empty-element tag.
-					*/
+					// 
+					// [WFC: Unique Att Spec]
+					// No attribute name may appear more than once in the same start-tag or empty-element tag.
+					// 
 					for(i = 0; i < nbatts; i += 2) {
 						if(sstreq(atts[i], attname)) {
 							xmlErrAttributeDup(ctxt, NULL, attname);
@@ -7463,11 +7460,11 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 							goto failed;
 						}
 					}
-					/*
-					* Add the pair to atts
-					*/
-					if(atts == NULL) {
-						maxatts = 22; /* allow for 10 attrs by default */
+					// 
+					// Add the pair to atts
+					// 
+					if(!atts) {
+						maxatts = 22; // allow for 10 attrs by default 
 						atts = (const xmlChar**)SAlloc::M(maxatts * sizeof(xmlChar *));
 						if(atts == NULL) {
 							xmlErrMemory(ctxt, 0);
@@ -7478,9 +7475,8 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 						ctxt->maxatts = maxatts;
 					}
 					else if(nbatts + 4 > maxatts) {
-						const xmlChar ** n;
 						maxatts *= 2;
-						n = (const xmlChar**)SAlloc::R((void*)atts, maxatts * sizeof(const xmlChar *));
+						const xmlChar ** n = (const xmlChar**)SAlloc::R((void*)atts, maxatts * sizeof(const xmlChar *));
 						if(n == NULL) {
 							xmlErrMemory(ctxt, 0);
 							SAlloc::F(attvalue);
@@ -7513,9 +7509,9 @@ failed:
 				SHRINK;
 				GROW;
 			}
-			/*
-			* SAX: Start of Element !
-			*/
+			// 
+			// SAX: Start of Element !
+			// 
 			if(ctxt->sax && ctxt->sax->startElement && !ctxt->disableSAX) {
 				ctxt->sax->startElement(ctxt->userData, name, (nbatts > 0) ? atts : 0);
 			}
@@ -7527,7 +7523,6 @@ failed:
 	}
 	return name;
 }
-
 /**
  * xmlParseEndTag1:
  * @ctxt:  an XML parser context
@@ -7542,7 +7537,6 @@ failed:
  *
  * [NS 9] ETag ::= '</' QName S? '>'
  */
-
 static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
 {
 	const xmlChar * name;
@@ -7553,9 +7547,9 @@ static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
 	}
 	SKIP(2);
 	name = xmlParseNameAndCompare(ctxt, ctxt->name);
-	/*
-	 * We should definitely be at the ending "S? '>'" part
-	 */
+	// 
+	// We should definitely be at the ending "S? '>'" part
+	// 
 	GROW;
 	SKIP_BLANKS;
 	if((!IS_BYTE_CHAR(RAW)) || (RAW != '>')) {
@@ -7563,26 +7557,23 @@ static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
 	}
 	else
 		NEXT1;
-	/*
-	 * [WFC: Element Type Match]
-	 * The Name in an element's end-tag must match the element type in the
-	 * start-tag.
-	 *
-	 */
+	// 
+	// [WFC: Element Type Match]
+	// The Name in an element's end-tag must match the element type in the start-tag.
+	// 
 	if(name != (xmlChar*)1) {
 		if(!name)
 			name = BAD_CAST "unparseable";
 		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NAME_MISMATCH, "Opening and ending tag mismatch: %s line %d and %s\n", ctxt->name, line, name);
 	}
-	/*
-	 * SAX: End of Tag
-	 */
+	// 
+	// SAX: End of Tag
+	// 
 	if(ctxt->sax && ctxt->sax->endElement && !ctxt->disableSAX)
 		ctxt->sax->endElement(ctxt->userData, ctxt->name);
 	namePop(ctxt);
 	spacePop(ctxt);
 }
-
 /**
  * xmlParseEndTag:
  * @ctxt:  an XML parser context
@@ -7785,7 +7776,6 @@ static const xmlChar * xmlParseQNameAndCompare(xmlParserCtxt * ctxt, xmlChar con
  * Returns the AttValue parsed or NULL. The value has to be freed by the
  *     caller if it was copied, this can be detected by val[*len] == 0.
  */
-
 static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int * alloc, int normalize)
 {
 	xmlChar limit = 0;
@@ -12111,9 +12101,8 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 						ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
 						ctxt->dictNames = 1;
 					}
-					else {
+					else
 						xmlCtxtUseOptionsInternal(ctxt, XML_PARSE_NODICT, 0);
-					}
 					if(doc) {
 						newDoc->intSubset = doc->intSubset;
 						newDoc->extSubset = doc->extSubset;
@@ -13125,7 +13114,6 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	}
 	return 0;
 }
-
 /**
  * xmlCtxtUseOptionsInternal:
  * @ctxt: an XML parser context
@@ -13134,10 +13122,9 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
  *
  * Applies the options to the parser context
  *
- * Returns 0 in case of success, the set of unknown or unimplemented options
- *         in case of error.
+ * Returns 0 in case of success, the set of unknown or unimplemented options in case of error.
  */
-static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding)
+static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding)
 {
 	if(!ctxt)
 		return -1;
@@ -13570,9 +13557,7 @@ xmlDoc * xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const cha
 {
 	xmlParserInputBuffer * input;
 	xmlParserInput * stream;
-	if(fd < 0)
-		return 0;
-	if(!ctxt)
+	if(fd < 0 || !ctxt)
 		return 0;
 	xmlInitParser();
 	xmlCtxtReset(ctxt);
@@ -13588,7 +13573,6 @@ xmlDoc * xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const cha
 	inputPush(ctxt, stream);
 	return xmlDoRead(ctxt, URL, encoding, options, 1);
 }
-
 /**
  * xmlCtxtReadIO:
  * @ctxt:  an XML parser context
@@ -13609,9 +13593,7 @@ xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread,
 {
 	xmlParserInputBuffer * input;
 	xmlParserInput * stream;
-	if(ioread == NULL)
-		return 0;
-	if(!ctxt)
+	if(!ioread || !ctxt)
 		return 0;
 	xmlInitParser();
 	xmlCtxtReset(ctxt);

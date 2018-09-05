@@ -244,6 +244,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 int SLAPI SGetAudioVolume(int decibels, double * pVolume); // @debug
 int SLAPI SSetAudioVolume(int decibels, double volume); // @debug
+int SLAPI ReformatIceCat(const char * pFileName);
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -263,6 +264,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			SGetAudioVolume(0, &curr_volume);
 			SSetAudioVolume(0, 1.0);
 			*/
+			// @debug ReformatIceCat("D:/DEV/Resource/Data/Goods/icecat/prodid_d.txt"); // @once
 //#endif
 			if(!PEOpenEngine()) {
 				PPSetError(PPERR_CRYSTAL_REPORT);

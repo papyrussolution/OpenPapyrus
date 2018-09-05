@@ -897,6 +897,7 @@ int btrnfound__();
 #define BE_CHUNK_INCOMPATIBLE_FILE          107
 #define BE_FILEREACHEDSIZELIMIT             132 // The file has reached its size limit
 #define BE_MAXUSERCOUNTREACHED              161 // The maximum number of user count licenses has been reached
+#define BE_DBLOGINFAILED                    171 // Database login failed (workstation not on a domain)
 //
 // Scalable SQL engine codes (Used for my DB library)
 //
@@ -2923,7 +2924,7 @@ public:
 
 	void   SetConfig(const Config * pCfg);
 	// @v10.0.0 void   FASTCALL GetConfig(Config & rCfg);
-	const  Config & GetConfig() const { return Cfg; } // @v10.0.0 
+	const  Config & GetConfig() const { return Cfg; } // @v10.0.0
 
 	int    SLAPI GetTaState();
 	int    SLAPI InitThread();
@@ -4040,7 +4041,7 @@ public:
 	enum {
 		ofReadOnly       = 0x0001, // Только для чтения //
 		ofExclusive      = 0x0002, // Эксклюзивный режим работы
-		ofReadUncommited = 0x0004  // @v10.1.8  DB_READ_UNCOMMITTED 
+		ofReadUncommited = 0x0004  // @v10.1.8  DB_READ_UNCOMMITTED
 	};
 	class Config {
 	public:
@@ -4336,14 +4337,14 @@ public:
 		stLoggedIn         = 0x0002,
 		stReadOnly         = 0x0004, // @v9.7.11 Экземпляр базы данных создан в режиме READ-ONLY
 		stWriteStatOnClose = 0x0008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
-		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме  
+		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме
 	};
 	enum {
 		oRecover          = 0x00000001,
 		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x00000008, // @v9.7.11 При закрытии базы сохранять статистику по таблицам
-		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме  
+		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме
 	};
 	struct Config {
 		Config();

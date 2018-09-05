@@ -2822,7 +2822,7 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	PPID   DBDiv;          // 80  ИД раздела базы данных (PPOBJ_CONFIG only)
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
 	long   DesktopID;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
-	long   MenuID;         // 92  Идентификатор меню, испольуемого пользователем (группой)
+	long   MenuID;         // 92  Идентификатор меню, используемого пользователем (группой)
 };
 //
 // Descr: Частная конфигурация, привязанная к конкретному пользователю.
@@ -3582,7 +3582,8 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // @unused
 	char   Password[40];   // (USER only) Пароль (зашифрован и свернут в строку кодировкой MIME64)
-	char   Reserve[4];     // @reserve
+	// @v10.1.10 char   Reserve[4];     // @reserve
+	LDATE  ExpiryDate;     // @v10.1.10
 	PPID   UerID;          // @v8.6.0 Исключение прав доступа для PPOBJ_USR
 	long   UerFlags;       // Флаги исключений прав доступа для PPOBJ_USREXCLRIGHTS
 	uint32 Crc;            // Контрольная сумма для гарантии того, что запись не была создана либо
@@ -27269,7 +27270,9 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	PPID   Prop;           // Const=PPPRP_ALBATROSCFG2
 	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и
 		// имеет размер sizeof(PropertyTbl)
-	char   Reserve[22];    // @reserve @v8.5.5 [56]-->[36] // @v8.8.0 [36]-->[32] // @v8.8.3 [32]-->[28] // @v8.8.6 [28]-->[24]
+	char   Reserve[20];    // @reserve @v8.5.5 [56]-->[36] // @v8.8.0 [36]-->[32] // @v8.8.3 [32]-->[28] // @v8.8.6 [28]-->[24]
+	int16  VetisCertDelay; // @v10.1.10 Максимальная задержка в днях от даты выпуска сертификата до получения накладной с ним
+		// Примениятся для фильтрации документов при связывании с сертификатами.
 	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
 	PPID   EgaisRetOpID;   // @v8.9.6 Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
 	//
@@ -31228,6 +31231,7 @@ private:
 	// оплаченной части документа оригинального лота (см. GGEF_COSTBYPAYM)
 #define OPG_INCLACCOPS        0x20000000L // @v8.6.1 Включать в отчет бухгалтерские документы
 #define OPG_SKIPNOUPDLOTREST  0x40000000L // @v8.9.0 Пропускать операции, не изменяющие товарные остатки (OPKF_NOUPDLOTREST)
+#define OPG_OPENEDDRAFTONLY   0x80000000L // @v10.1.10 Если по драфт-документам, то только по открытым (не списанным)
 //
 // Descr: Фильтр для построения перекрестной отчетности
 //
@@ -31634,7 +31638,7 @@ public:
 	static int RightsToString(long rt, long opRt, SString & rBuf);
 	static int StringToRights(const char * pBuf, long * pRt, long * pOpRt);
 
-	SLAPI  PPObjCSession(void * extraPtr = 0);
+	explicit SLAPI PPObjCSession(void * extraPtr = 0);
 	SLAPI ~PPObjCSession();
 	virtual int  SLAPI Search(PPID id, void * b = 0);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
@@ -39690,8 +39694,9 @@ public:
 		fCalcAvgRest        = 0x00100000,   // @v9.1.3 Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
 		fCmpWrOff           = 0x00200000,   // @v9.4.10 Если отчет строится по драфт-документам, то выводить результаты
 			// сравнения с документами списания.
-		fCmpWrOff_DiffOnly  = 0x00400000    // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
+		fCmpWrOff_DiffOnly  = 0x00400000,   // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
 			// списания, то отображать только различающиеся позиции.
+		fUnclosedDraftsOnly = 0x00800000    // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба

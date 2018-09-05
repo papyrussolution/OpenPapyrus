@@ -2067,11 +2067,14 @@ static IMPL_DBE_PROC(dbqf_ccheck_postext_ii) // @construction
 		PPObjCSession cs_obj;
 		CSessionTbl::Rec cs_rec;
 		if(cs_obj.Fetch(params[0].lval, &cs_rec) > 0) {
-			//temp_buf = cs_rec.;
+			PPObjCashNode cn_obj;
+			PPCashNode cn_rec;
+			if(cn_obj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0) {
+				temp_buf = cn_rec.Name;
+			}
 		}
-
-		//SIntToSymbTab_GetSymb(VetisVetDocType_SymbTab, SIZEOFARRAY(VetisVetDocType_SymbTab), params[0].lval, temp_buf);
-		//temp_buf.CopyTo(buf, sizeof(buf));
+		temp_buf.CatDivIfNotEmpty('-', 1).Cat(pos_id);
+		STRNSCPY(buf, temp_buf);
 		result->init(buf);
 	}
 }
@@ -2091,6 +2094,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	DBE    dbe_scowner_name;
 	DBE    dbe_addr;
 	DBE    dbe_checkposnode;
+	DBE    dbe_posnode; // @v10.1.10
 	DBE  * p_add_paym = 0;
 	CCheckTbl * t = 0;
 	CCheckExtTbl * p_ext = 0;
@@ -2190,189 +2194,205 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						p_q->orderBy(g->Text, 0L);
 			}
 		}
-		else if(P_TmpTbl) {
-			cq = new TempCCheckQttyTbl(P_TmpTbl->GetName());
-			PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, cq->SCardID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, cq->SCardID);
-			p_q = & select(
-				cq->ID,           // #0
-				cq->Dt,           // #1
-				cq->Tm,           // #2
-				cq->CashID,       // #3
-				cq->Flags,        // #4
-				cq->Code,         // #5
-				cq->Amount,       // #6
-				dbe_sc_code,      // #7
-				cq->Discount,     // #8
-				cq->Qtty,         // #9
-				cq->LinesCount,   // #10
-				cq->SkuCount,     // #11
-				dbe_scowner_name, // #12
-				0L);
-			if(State & stHasExt) {
-				SETIFZ(p_ext, new CCheckExtTbl);
-				PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
-				p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-				p_q->addField(dbe_saler);           // #13
-				p_q->addField(p_ext->TableNo);      // #14
-				p_q->addField(p_ext->GuestCount);   // #15
-				p_q->addField(*p_add_paym);         // #16
-				p_q->addField(p_ext->Memo);    // #17
-				if(Filt.Flags & CCheckFilt::fDlvrOnly) {
-					{
-						dbe_addr_city.init();
-						dbe_addr_city.push(p_ext->AddrID);
-						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
+		else {
+			if(P_TmpTbl) {
+				cq = new TempCCheckQttyTbl(P_TmpTbl->GetName());
+				PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, cq->SCardID);
+				PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, cq->SCardID);
+				{
+					dbe_posnode.init();
+					dbe_posnode.push(cq->SessID);
+					dbe_posnode.push(cq->CashID);
+					dbe_posnode.push((DBFunc)DynFuncPosText);
+				}
+				p_q = & select(
+					cq->ID,           // #0
+					cq->Dt,           // #1
+					cq->Tm,           // #2
+					// @v10.1.10 cq->CashID,       // #3
+					dbe_posnode,      // #3 // @v10.1.10
+					cq->Flags,        // #4
+					cq->Code,         // #5
+					cq->Amount,       // #6
+					dbe_sc_code,      // #7
+					cq->Discount,     // #8
+					cq->Qtty,         // #9
+					cq->LinesCount,   // #10
+					cq->SkuCount,     // #11
+					dbe_scowner_name, // #12
+					0L);
+				if(State & stHasExt) {
+					SETIFZ(p_ext, new CCheckExtTbl);
+					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
+					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
+					p_q->addField(dbe_saler);           // #13
+					p_q->addField(p_ext->TableNo);      // #14
+					p_q->addField(p_ext->GuestCount);   // #15
+					p_q->addField(*p_add_paym);         // #16
+					p_q->addField(p_ext->Memo);    // #17
+					if(Filt.Flags & CCheckFilt::fDlvrOnly) {
+						{
+							dbe_addr_city.init();
+							dbe_addr_city.push(p_ext->AddrID);
+							dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
+						}
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
+						p_q->addField(p_ext->StartOrdDtm); // #18
+						p_q->addField(dbe_addr_phone);     // #19
+						p_q->addField(dbe_addr_city);      // #20
+						p_q->addField(dbe_addr);           // #21
 					}
-					PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
-					PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-					p_q->addField(p_ext->StartOrdDtm); // #18
-					p_q->addField(dbe_addr_phone);     // #19
-					p_q->addField(dbe_addr_city);      // #20
-					p_q->addField(dbe_addr);           // #21
+					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
+						p_q->addField(p_ext->StartOrdDtm); // #18
+						p_q->addField(p_ext->EndOrdDtm);   // #19
+					}
+					dbq = & (*dbq && (p_ext->CheckID += cq->ID));
+					p_q->from(cq, p_ext, 0L);
 				}
-				else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-					p_q->addField(p_ext->StartOrdDtm); // #18
-					p_q->addField(p_ext->EndOrdDtm);   // #19
+				else {
+					p_q->from(cq, 0L);
 				}
-				dbq = & (*dbq && (p_ext->CheckID += cq->ID));
-				p_q->from(cq, p_ext, 0L);
+				p_q->where(*dbq).orderBy(cq->Dt, cq->Tm, 0L);
 			}
 			else {
-				p_q->from(cq, 0L);
-			}
-			p_q->where(*dbq).orderBy(cq->Dt, cq->Tm, 0L);
-		}
-		else {
-			t = new CCheckTbl;
-			PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, t->UserID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, t->SCardID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, t->SCardID);
-			p_q = & select(
-				t->ID,              // #0
-				t->Dt,              // #1
-				t->Tm,              // #2
-				t->CashID,          // #3
-				t->Flags,           // #4
-				t->Code,            // #5
-				t->Amount,          // #6
-				dbe_sc_code,        // #7
-				t->Discount,        // #8
-				dbe_psn,            // #9
-				dbe_scowner_name,   // #10
-				0L);
-			if(State & stHasExt) {
-				SETIFZ(p_ext, new CCheckExtTbl);
-				PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
-				p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-				p_q->addField(dbe_saler);         // #11
-				p_q->addField(p_ext->TableNo);    // #12
-				p_q->addField(p_ext->GuestCount); // #13
-				p_q->addField(*p_add_paym);       // #14
-				p_q->addField(p_ext->Memo);       // #15
-				if(Filt.Flags & CCheckFilt::fDlvrOnly || Filt.DlvrAddrID) {
-					{
-						dbe_addr_city.init();
-						dbe_addr_city.push(p_ext->AddrID);
-						dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
-					}
-					PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
-					PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-					p_q->addField(p_ext->StartOrdDtm); // #16
-					p_q->addField(dbe_addr_phone);     // #17
-					p_q->addField(dbe_addr_city);      // #18
-					p_q->addField(dbe_addr);           // #19
-				}
-				else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-					p_q->addField(p_ext->StartOrdDtm); // #16
-					p_q->addField(p_ext->EndOrdDtm);   // #17
-				}
-			}
-			if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))
-				dbq = ppcheckflag(dbq, t->Flags, CCHKF_BANKING, (Filt.Flags & CCheckFilt::fBankingOnly) ? 1 : -1);
-			// @v10.0.02 {
-			if(Filt.AltRegF)
-				dbq = ppcheckflag(dbq, t->Flags, CCHKF_ALTREG, Filt.AltRegF);
-			// } @v10.0.02
-			dbq = ppcheckfiltid(dbq, t->CashID, Filt.CashNumber);
-			dbq = ppcheckfiltid(dbq, t->UserID, Filt.CashierID);
-			dbq = & (*dbq && daterange(t->Dt, &Filt.Period));
-			int    cf = 0;
-			if(Filt.Flags & CCheckFilt::fSuspendedOnly)
-				cf = +1;
-			else if(!(Filt.Flags & CCheckFilt::fShowSuspended) && !(Filt.Flags & CCheckFilt::fJunkOnly))
-				cf = -1;
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_SUSPENDED, cf);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_RETURN,   (Filt.Flags & CCheckFilt::fRetOnly)  ? 1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_JUNK,     (Filt.Flags & CCheckFilt::fJunkOnly) ? 1 : -1);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED,  (Filt.Flags & CCheckFilt::fNotPrintedOnly) ? -1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_HASGIFT,  (Filt.Flags & CCheckFilt::fGiftOnly)  ? 1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_ORDER,    (Filt.Flags & CCheckFilt::fOrderOnly) ? 1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_DELIVERY, (Filt.Flags & (CCheckFilt::fDlvrOnly|CCheckFilt::fDlvrOutstandOnly)) ? 1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0);
-			{
-				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
-				// @v9.7.11 {
-				if(State & stSkipUnprinted)
-					dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? 1 : 0);
-				// } @v9.7.11
-			}
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_SPFINISHED, (Filt.Flags & CCheckFilt::fNotSpFinished) ? -1 : 0); // @v9.7.5
-			dbq = &(*dbq && intrange(t->Code, Filt.CodeR));
-			if(!Filt.PcntR.IsZero()) {
-				PPDbqFuncPool::InitPctFunc(dbe_pctdis, t->Discount, t->Amount, 1); // @pctdis
-				dbq = &(*dbq && realrange(dbe_pctdis, Filt.PcntR.low, Filt.PcntR.upp));
-			}
-			if(!Filt.AmtR.IsZero()) {
-				dbq = &(*dbq && realrange(t->Amount, Filt.AmtR.low, Filt.AmtR.upp));
-			}
-			if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
-				dbq = &(*dbq && t->SessID == SessIdList.GetSingle());
-			}
-			else if(!Filt.CashNumber && NodeIdList.GetCount()) {
+				t = new CCheckTbl;
+				PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, t->UserID);
+				PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, t->SCardID);
+				PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, t->SCardID);
 				{
-					dbe_checkposnode.init();
-					dbe_checkposnode.push(t->SessID);
-					if(NodeIdList.GetSingle()) {
-						DBConst dbc_long;
-						dbc_long.init(NodeIdList.GetSingle());
-						dbe_checkposnode.push(dbc_long);
-						dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNode);
-						dbq = & (*dbq && dbe_checkposnode == (long)1);
+					dbe_posnode.init();
+					dbe_posnode.push(t->SessID);
+					dbe_posnode.push(t->CashID);
+					dbe_posnode.push((DBFunc)DynFuncPosText);
+				}
+				p_q = & select(
+					t->ID,              // #0
+					t->Dt,              // #1
+					t->Tm,              // #2
+					// @v10.1.10 t->CashID,          // #3
+					dbe_posnode,        // #3 @v10.1.10
+					t->Flags,           // #4
+					t->Code,            // #5
+					t->Amount,          // #6
+					dbe_sc_code,        // #7
+					t->Discount,        // #8
+					dbe_psn,            // #9
+					dbe_scowner_name,   // #10
+					0L);
+				if(State & stHasExt) {
+					SETIFZ(p_ext, new CCheckExtTbl);
+					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
+					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
+					p_q->addField(dbe_saler);         // #11
+					p_q->addField(p_ext->TableNo);    // #12
+					p_q->addField(p_ext->GuestCount); // #13
+					p_q->addField(*p_add_paym);       // #14
+					p_q->addField(p_ext->Memo);       // #15
+					if(Filt.Flags & CCheckFilt::fDlvrOnly || Filt.DlvrAddrID) {
+						{
+							dbe_addr_city.init();
+							dbe_addr_city.push(p_ext->AddrID);
+							dbe_addr_city.push((DBFunc)PPDbqFuncPool::IdAddrCityName);
+						}
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
+						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
+						p_q->addField(p_ext->StartOrdDtm); // #16
+						p_q->addField(dbe_addr_phone);     // #17
+						p_q->addField(dbe_addr_city);      // #18
+						p_q->addField(dbe_addr);           // #19
 					}
-					else {
-						DBConst dbc_ptr;
-						dbc_ptr.init(&NodeIdList.Get());
-						dbe_checkposnode.push(dbc_ptr);
-						dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNodeList);
-						dbq = & (*dbq && dbe_checkposnode == (long)1);
+					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
+						p_q->addField(p_ext->StartOrdDtm); // #16
+						p_q->addField(p_ext->EndOrdDtm);   // #17
 					}
 				}
-			}
-			if(State & stHasExt) {
-				if(Filt.AgentID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
-					dbq = &(*dbq && p_ext->CheckID == t->ID);
-					dbq = ppcheckfiltid(dbq, p_ext->SalerID, Filt.AgentID);
-					dbq = ppcheckfiltid(dbq, p_ext->TableNo, Filt.TableCode);
-					dbq = ppcheckfiltid(dbq, p_ext->GuestCount, Filt.GuestCount);
-					if(Filt.Flags & CCheckFilt::fZeroDlvrAddr) {
-						dbq = &(*dbq && p_ext->AddrID == 0L);
+				if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))
+					dbq = ppcheckflag(dbq, t->Flags, CCHKF_BANKING, (Filt.Flags & CCheckFilt::fBankingOnly) ? 1 : -1);
+				// @v10.0.02 {
+				if(Filt.AltRegF)
+					dbq = ppcheckflag(dbq, t->Flags, CCHKF_ALTREG, Filt.AltRegF);
+				// } @v10.0.02
+				dbq = ppcheckfiltid(dbq, t->CashID, Filt.CashNumber);
+				dbq = ppcheckfiltid(dbq, t->UserID, Filt.CashierID);
+				dbq = & (*dbq && daterange(t->Dt, &Filt.Period));
+				int    cf = 0;
+				if(Filt.Flags & CCheckFilt::fSuspendedOnly)
+					cf = +1;
+				else if(!(Filt.Flags & CCheckFilt::fShowSuspended) && !(Filt.Flags & CCheckFilt::fJunkOnly))
+					cf = -1;
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SUSPENDED, cf);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_RETURN,   (Filt.Flags & CCheckFilt::fRetOnly)  ? 1 : 0);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_JUNK,     (Filt.Flags & CCheckFilt::fJunkOnly) ? 1 : -1);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED,  (Filt.Flags & CCheckFilt::fNotPrintedOnly) ? -1 : 0);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_HASGIFT,  (Filt.Flags & CCheckFilt::fGiftOnly)  ? 1 : 0);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_ORDER,    (Filt.Flags & CCheckFilt::fOrderOnly) ? 1 : 0);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_DELIVERY, (Filt.Flags & (CCheckFilt::fDlvrOnly|CCheckFilt::fDlvrOutstandOnly)) ? 1 : 0);
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0);
+				{
+					dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
+					// @v9.7.11 {
+					if(State & stSkipUnprinted)
+						dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? 1 : 0);
+					// } @v9.7.11
+				}
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SPFINISHED, (Filt.Flags & CCheckFilt::fNotSpFinished) ? -1 : 0); // @v9.7.5
+				dbq = &(*dbq && intrange(t->Code, Filt.CodeR));
+				if(!Filt.PcntR.IsZero()) {
+					PPDbqFuncPool::InitPctFunc(dbe_pctdis, t->Discount, t->Amount, 1); // @pctdis
+					dbq = &(*dbq && realrange(dbe_pctdis, Filt.PcntR.low, Filt.PcntR.upp));
+				}
+				if(!Filt.AmtR.IsZero()) {
+					dbq = &(*dbq && realrange(t->Amount, Filt.AmtR.low, Filt.AmtR.upp));
+				}
+				if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+					dbq = &(*dbq && t->SessID == SessIdList.GetSingle());
+				}
+				else if(!Filt.CashNumber && NodeIdList.GetCount()) {
+					{
+						dbe_checkposnode.init();
+						dbe_checkposnode.push(t->SessID);
+						if(NodeIdList.GetSingle()) {
+							DBConst dbc_long;
+							dbc_long.init(NodeIdList.GetSingle());
+							dbe_checkposnode.push(dbc_long);
+							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNode);
+							dbq = & (*dbq && dbe_checkposnode == (long)1);
+						}
+						else {
+							DBConst dbc_ptr;
+							dbc_ptr.init(&NodeIdList.Get());
+							dbe_checkposnode.push(dbc_ptr);
+							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNodeList);
+							dbq = & (*dbq && dbe_checkposnode == (long)1);
+						}
 					}
-					else if(Filt.DlvrAddrID) {
-						dbq = &(*dbq && p_ext->AddrID == Filt.DlvrAddrID);
+				}
+				if(State & stHasExt) {
+					if(Filt.AgentID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
+						dbq = &(*dbq && p_ext->CheckID == t->ID);
+						dbq = ppcheckfiltid(dbq, p_ext->SalerID, Filt.AgentID);
+						dbq = ppcheckfiltid(dbq, p_ext->TableNo, Filt.TableCode);
+						dbq = ppcheckfiltid(dbq, p_ext->GuestCount, Filt.GuestCount);
+						if(Filt.Flags & CCheckFilt::fZeroDlvrAddr) {
+							dbq = &(*dbq && p_ext->AddrID == 0L);
+						}
+						else if(Filt.DlvrAddrID) {
+							dbq = &(*dbq && p_ext->AddrID == Filt.DlvrAddrID);
+						}
 					}
+					else
+						dbq = & (*dbq && (p_ext->CheckID += t->ID));
+					p_q->from(t, p_ext, cs, 0L);
 				}
 				else
-					dbq = & (*dbq && (p_ext->CheckID += t->ID));
-				p_q->from(t, p_ext, cs, 0L);
+					p_q->from(t, cs, 0L);
+				p_q->where(*dbq);
+				if(SessIdList.GetCount() == 1) // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+					p_q->orderBy(t->SessID, 0L);
+				else
+					p_q->orderBy(t->Dt, t->Tm, 0L);
 			}
-			else
-				p_q->from(t, cs, 0L);
-			p_q->where(*dbq);
-			if(SessIdList.GetCount() == 1) // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
-				p_q->orderBy(t->SessID, 0L);
-			else
-				p_q->orderBy(t->Dt, t->Tm, 0L);
 		}
 	}
 	ASSIGN_PTR(pBrwId, brw_id);

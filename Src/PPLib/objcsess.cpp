@@ -96,10 +96,8 @@ const PPEquipConfig & SLAPI PPObjCSession::GetEqCfg()
 	return *P_EqCfg;
 }
 
-int SLAPI PPObjCSession::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
+int SLAPI PPObjCSession::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+const char * SLAPI PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
 //static
 SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
@@ -108,11 +106,6 @@ SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, 
 	rBuf.Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
 	GetObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf, 1);
 	return rBuf;
-}
-
-const char * SLAPI PPObjCSession::GetNamePtr()
-{
-	return MakeCodeString(&P_Tbl->data, NameBuf).cptr();
 }
 
 int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
