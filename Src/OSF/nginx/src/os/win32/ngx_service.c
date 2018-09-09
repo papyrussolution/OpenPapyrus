@@ -74,23 +74,12 @@ u_int service_handler(u_int control, u_int type, void * data, void * ctx)
 {
 	/* primary thread */
 	switch(control) {
-		case SERVICE_CONTROL_INTERROGATE:
-		    status = NGX_IOCP_INTERROGATE;
-		    break;
-		case SERVICE_CONTROL_STOP:
-		    status = NGX_IOCP_STOP;
-		    break;
-		case SERVICE_CONTROL_PARAMCHANGE:
-		    status = NGX_IOCP_RECONFIGURE;
-		    break;
-		case NGX_SERVICE_CONTROL_SHUTDOWN:
-		    status = NGX_IOCP_REOPEN;
-		    break;
-		case NGX_SERVICE_CONTROL_REOPEN:
-		    status = NGX_IOCP_REOPEN;
-		    break;
-		default:
-		    return ERROR_CALL_NOT_IMPLEMENTED;
+		case SERVICE_CONTROL_INTERROGATE: status = NGX_IOCP_INTERROGATE; break;
+		case SERVICE_CONTROL_STOP: status = NGX_IOCP_STOP; break;
+		case SERVICE_CONTROL_PARAMCHANGE: status = NGX_IOCP_RECONFIGURE; break;
+		case NGX_SERVICE_CONTROL_SHUTDOWN: status = NGX_IOCP_REOPEN; break;
+		case NGX_SERVICE_CONTROL_REOPEN: status = NGX_IOCP_REOPEN; break;
+		default: return ERROR_CALL_NOT_IMPLEMENTED;
 	}
 	if(ngx_single) {
 		if(PostQueuedCompletionStatus(iocp, ... status, ...) == 0) {

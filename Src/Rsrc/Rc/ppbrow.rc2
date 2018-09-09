@@ -3600,7 +3600,7 @@ browser CCHECK north(100), 1, 1, "Кассовые чеки", OWNER|GRID, 0
 {
 	"@date",          1, notype, DATF_DMY, 8
 	"@time",          2, notype, TIMF_HMS | TIMF_MSEC, 8
-	"@posnode_s",     3, notype, 0, 15
+	"@posnode_s",     9, notype, 0, 15 // @v10.1.11 3-->9
 	"@checkno",       5, notype, 0, 10
 	"@amount",        6, notype, 0, 12.2
 	"@discount",      8, notype, NMBF_NOZERO, 12.2

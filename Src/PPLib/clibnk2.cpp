@@ -119,7 +119,7 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 // ARG(maxBackup IN): ћаксимальное количество копий, которые необходимо оставить при резервном
 //   копировании INI-файла. 0 - не делать копию.
 //
-int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup)
+int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString ini_file_name, section, all_fields_name, temp_buf;
@@ -138,12 +138,17 @@ int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpPara
 		for(uint p = 0; all_sections.get(&p, section);)
 			if(!section.IsEqiAscii(all_fields_name)) {
 				param.OtrRec.Clear();
+				param.HdrOtrRec.Clear(); // @v10.1.11 @fix
 				if(param.ReadIni(&ini_file, section, 0)) {
 					if((kind == 1 && param.Direction == 0) || (kind == 2 && param.Direction == 1) || kind == 0)
 						pSectNames->add(section, 0);
 				}
-				else
-					PPError();
+				else {
+					if(pLogger)
+						pLogger->LogLastError();
+					else
+						PPError();
+				}
 			}
 	}
 	ASSIGN_PTR(pParam, param);
@@ -1048,8 +1053,9 @@ int SetupCliBnkFormatsDialog::setupList()
 	uint   p;
 	SString section, all_fields_name, sect;
 	StringSet all_sections;
+	PPLogger logger;
 	Sections.clear();
-	THROW(GetCliBnkSections(&all_sections, 0, &P, BackupExecuted ? 0 : 5));
+	GetCliBnkSections(&all_sections, 0, &P, BackupExecuted ? 0 : 5, &logger);
 	BackupExecuted = 1;
 	all_sections.sort();
 	THROW(PPLoadText(PPTXT_CLIBNK_SECTION_WITHNAMES, all_fields_name));
@@ -1274,9 +1280,10 @@ int SLAPI CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rS
 	StringSet sections;
 	StrAssocArray show_sections;
 	SString buf, sect;
+	PPLogger logger;
 	TDialog * dlg = 0;
 	PPCliBnkImpExpParam param;
-	THROW(GetCliBnkSections(&sections, kind, &param, 0));
+	GetCliBnkSections(&sections, kind, &param, 0, &logger);
 	THROW_PP(sections.getCount(), PPERR_CLIBNKCFG_NOTFOUND);
 	if(sections.getCount() == 1) {
 		sections.get(&id, rSection);

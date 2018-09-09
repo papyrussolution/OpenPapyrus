@@ -1308,7 +1308,9 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
 				case iefFooterLine: footer_line = val; break;
 				case iefFormula: THROW(ParseFormula(0, par, val)); break;
-				case iefHdrFormula: THROW(ParseFormula(1, par, val)); break;
+				case iefHdrFormula: 
+					THROW(ParseFormula(1, par, val)); 
+					break;
 				case iefRootTag: XdfParam.RootTag = val; break;
 				case iefRecTag: XdfParam.RecTag = val; break;
 				case iefHdrTag: XdfParam.HdrTag = val; break;

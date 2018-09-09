@@ -2210,26 +2210,28 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					cq->Dt,           // #1
 					cq->Tm,           // #2
 					// @v10.1.10 cq->CashID,       // #3
-					dbe_posnode,      // #3 // @v10.1.10
+					cq->CashID,       // #3 // @v10.1.11
+					// @v10.1.11 dbe_posnode,      // #3 // @v10.1.10
 					cq->Flags,        // #4
 					cq->Code,         // #5
 					cq->Amount,       // #6
 					dbe_sc_code,      // #7
 					cq->Discount,     // #8
-					cq->Qtty,         // #9
-					cq->LinesCount,   // #10
-					cq->SkuCount,     // #11
-					dbe_scowner_name, // #12
+					dbe_posnode,      // #9 // @v10.1.11
+					cq->Qtty,         // #10 // @v10.1.11 #++
+					cq->LinesCount,   // #11 // @v10.1.11 #++
+					cq->SkuCount,     // #12 // @v10.1.11 #++
+					dbe_scowner_name, // #13 // @v10.1.11 #++
 					0L);
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-					p_q->addField(dbe_saler);           // #13
-					p_q->addField(p_ext->TableNo);      // #14
-					p_q->addField(p_ext->GuestCount);   // #15
-					p_q->addField(*p_add_paym);         // #16
-					p_q->addField(p_ext->Memo);    // #17
+					p_q->addField(dbe_saler);           // #14 // @v10.1.11 #++
+					p_q->addField(p_ext->TableNo);      // #15 // @v10.1.11 #++
+					p_q->addField(p_ext->GuestCount);   // #16 // @v10.1.11 #++
+					p_q->addField(*p_add_paym);         // #17 // @v10.1.11 #++
+					p_q->addField(p_ext->Memo);         // #18 // @v10.1.11 #++
 					if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 						{
 							dbe_addr_city.init();
@@ -2238,14 +2240,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-						p_q->addField(p_ext->StartOrdDtm); // #18
-						p_q->addField(dbe_addr_phone);     // #19
-						p_q->addField(dbe_addr_city);      // #20
-						p_q->addField(dbe_addr);           // #21
+						p_q->addField(p_ext->StartOrdDtm); // #19 // @v10.1.11 #++
+						p_q->addField(dbe_addr_phone);     // #20 // @v10.1.11 #++
+						p_q->addField(dbe_addr_city);      // #21 // @v10.1.11 #++
+						p_q->addField(dbe_addr);           // #22 // @v10.1.11 #++
 					}
 					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-						p_q->addField(p_ext->StartOrdDtm); // #18
-						p_q->addField(p_ext->EndOrdDtm);   // #19
+						p_q->addField(p_ext->StartOrdDtm); // #19 // @v10.1.11 #++
+						p_q->addField(p_ext->EndOrdDtm);   // #20 // @v10.1.11 #++
 					}
 					dbq = & (*dbq && (p_ext->CheckID += cq->ID));
 					p_q->from(cq, p_ext, 0L);
@@ -2271,24 +2273,26 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					t->Dt,              // #1
 					t->Tm,              // #2
 					// @v10.1.10 t->CashID,          // #3
-					dbe_posnode,        // #3 @v10.1.10
+					t->CashID,          // #3 // @v10.1.11 
+					// @v10.1.11 dbe_posnode,        // #3 @v10.1.10
 					t->Flags,           // #4
 					t->Code,            // #5
 					t->Amount,          // #6
 					dbe_sc_code,        // #7
 					t->Discount,        // #8
-					dbe_psn,            // #9
-					dbe_scowner_name,   // #10
+					dbe_posnode,        // #9   // @v10.1.11
+					dbe_psn,            // #10  // @v10.1.11 #++
+					dbe_scowner_name,   // #11  // @v10.1.11 #++
 					0L);
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-					p_q->addField(dbe_saler);         // #11
-					p_q->addField(p_ext->TableNo);    // #12
-					p_q->addField(p_ext->GuestCount); // #13
-					p_q->addField(*p_add_paym);       // #14
-					p_q->addField(p_ext->Memo);       // #15
+					p_q->addField(dbe_saler);         // #12 // @v10.1.11 #++
+					p_q->addField(p_ext->TableNo);    // #13 // @v10.1.11 #++
+					p_q->addField(p_ext->GuestCount); // #14 // @v10.1.11 #++
+					p_q->addField(*p_add_paym);       // #15 // @v10.1.11 #++
+					p_q->addField(p_ext->Memo);       // #16 // @v10.1.11 #++
 					if(Filt.Flags & CCheckFilt::fDlvrOnly || Filt.DlvrAddrID) {
 						{
 							dbe_addr_city.init();
@@ -2297,14 +2301,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-						p_q->addField(p_ext->StartOrdDtm); // #16
-						p_q->addField(dbe_addr_phone);     // #17
-						p_q->addField(dbe_addr_city);      // #18
-						p_q->addField(dbe_addr);           // #19
+						p_q->addField(p_ext->StartOrdDtm); // #17 // @v10.1.11 #++
+						p_q->addField(dbe_addr_phone);     // #18 // @v10.1.11 #++
+						p_q->addField(dbe_addr_city);      // #19 // @v10.1.11 #++
+						p_q->addField(dbe_addr);           // #20 // @v10.1.11 #++
 					}
 					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-						p_q->addField(p_ext->StartOrdDtm); // #16
-						p_q->addField(p_ext->EndOrdDtm);   // #17
+						p_q->addField(p_ext->StartOrdDtm); // #17 // @v10.1.11 #++
+						p_q->addField(p_ext->EndOrdDtm);   // #18 // @v10.1.11 #++
 					}
 				}
 				if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))
@@ -2503,18 +2507,18 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 		else {
 			if(Filt.Grp == 0) {
 				PPLoadString("scardowner", buf);
-				pBrw->insertColumn(-1, buf, P_TmpTbl ? 12 : 10, 0, MKSFMT(20, 0), 0);
+				pBrw->insertColumn(-1, buf, P_TmpTbl ? 13 : 11, 0, MKSFMT(20, 0), 0); // @v10.1.11 fldNo++
 			}
 			if(DoProcessLines() && Filt.Grp == 0) {
-				pBrw->InsColumn(4, "@qtty", 9, 0, MKSFMTD(12, 3, 0), 0);
+				pBrw->InsColumn(4, "@qtty", 10, 0, MKSFMTD(12, 3, 0), 0); // @v10.1.11 fldNo++
 			}
 			else if(!P_TmpGrpTbl && !P_TmpTbl) {
-				pBrw->InsColumn(6, "@cashier", 9, 0, MKSFMT(12, 0), 0);
+				pBrw->InsColumn(6, "@cashier", 10, 0, MKSFMT(12, 0), 0); // @v10.1.11 fldNo++
 			}
 			if(Filt.Grp == CCheckFilt::gGoodsDate)
 				pBrw->InsColumn(1, "@date", 1, 0, DATF_DMY, 0);
 			if(!P_TmpGrpTbl && (State & stHasExt)) {
-				int    pos = P_TmpTbl ? 13 : 11;
+				int    pos = P_TmpTbl ? 14 : 12; // @v10.1.11 fldNo++
 				pBrw->InsColumn    (-1, "@seller",          pos++, 0, MKSFMT(24, 0), 0);
 				pBrw->InsColumnWord(-1, PPWORD_DINNERTABLE, pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
 				pBrw->InsColumn    (-1, "@guestcount",      pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
@@ -2533,14 +2537,14 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			if(Filt.Flags & CCheckFilt::fCalcSkuStat) {
 				if(P_TmpTbl) {
-					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT, 10, 0, MKSFMT(6, NMBF_NOZERO), 0);
-					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,   11, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT, 11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,   12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
 				}
 				else if(P_TmpGrpTbl) {
-					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT,    10, 0, MKSFMT(6, NMBF_NOZERO), 0);
-					pBrw->InsColumnWord(-1, PPWORD_AVGLINESCOUNT, 12, 0, MKSFMT(6, NMBF_NOZERO), 0);
-					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,      11, 0, MKSFMT(6, NMBF_NOZERO), 0);
-					pBrw->InsColumnWord(-1, PPWORD_AVGSKUCOUNT,   13, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT,    11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumnWord(-1, PPWORD_AVGLINESCOUNT, 13, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,      12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumnWord(-1, PPWORD_AVGSKUCOUNT,   14, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
 				}
 			}
 			if(Filt.Grp == 0)

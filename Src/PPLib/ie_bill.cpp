@@ -499,7 +499,7 @@ int SLAPI EditBillImpExpParams(int editBill)
 //
 // Import/Export Bills
 //
-int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup); // @prototype
+int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup, PPLogger * pLogger); // @prototype
 //
 //
 //
@@ -796,7 +796,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						HdrList.Z();
 						PPCliBnkImpExpParam cb_param;
 						StringSet sections;
-						GetCliBnkSections(&sections, Import ? 2 : 1, &cb_param, 0);
+						GetCliBnkSections(&sections, Import ? 2 : 1, &cb_param, 0, 0);
 						for(uint i = 0; sections.get(&i, buf);) {
 							cb_param.ProcessName(2, sect = buf);
 							HdrList.Add(i+1, sect);

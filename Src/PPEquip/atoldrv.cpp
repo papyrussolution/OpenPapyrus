@@ -326,10 +326,7 @@ int SLAPI SCS_ATOLDRV::SetErrorMessage()
 }
 
 int SLAPI SCS_ATOLDRV::InitChannel()
-{
-	return -1;
-}
-
+	{ return -1; }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, bool propValue)
 	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SLAPI SCS_ATOLDRV::SetProp(uint propID, int propValue)
@@ -435,7 +432,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 	}
 }
 
-static int IsModeOffPrint(int mode)
+static int FASTCALL IsModeOffPrint(int mode)
 	{ return BIN(oneof4(mode, MODE_REGISTER, MODE_XREPORT, MODE_ZREPORT, MODE_EKLZ_REPORT)); }
 
 int SLAPI SCS_ATOLDRV::CheckForSessionOver()
@@ -693,7 +690,28 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						// @v10.0.03 {
 						// @v10.0.10 {
 						int    tax_type_number = 1;
-						if((SCn.DrvVerMinor % 2) == 0) { 
+						if(SCn.DrvVerMinor == 30) { 
+							// 1 - 0%
+							// 2 - 10%
+							// 3 - 18%
+							// 4 - 18/118 ?
+							// 5 - 10/110
+							// 6 - без НДС
+							if(is_vat_free)
+								tax_type_number = 6;
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									tax_type_number = 3;
+								else if(vatrate == 10.0)
+									tax_type_number = 2;
+								else if(vatrate == 0.0)
+									tax_type_number = 1;
+								else
+									tax_type_number = 3; // @default
+							}
+						}
+						else if((SCn.DrvVerMinor % 2) == 0) { 
 							//
 							// 1 - 18
 							// 2 - 10

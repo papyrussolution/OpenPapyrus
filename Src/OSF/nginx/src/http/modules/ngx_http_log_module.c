@@ -530,8 +530,7 @@ static u_char * ngx_http_log_copy_short(ngx_http_request_t * r, u_char * buf, ng
 	return buf;
 }
 
-static u_char * ngx_http_log_copy_long(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
+static u_char * ngx_http_log_copy_long(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
 	return ngx_cpymem(buf, (u_char*)op->data, op->len);
 }
@@ -544,50 +543,31 @@ static u_char * ngx_http_log_pipe(ngx_http_request_t * r, u_char * buf, ngx_http
 	else {
 		*buf = '.';
 	}
-
 	return buf + 1;
 }
 
 static u_char * ngx_http_log_time(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
-{
-	return ngx_cpymem(buf, ngx_cached_http_log_time.data,
-	    ngx_cached_http_log_time.len);
-}
-
+	{ return ngx_cpymem(buf, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len); }
 static u_char * ngx_http_log_iso8601(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
-{
-	return ngx_cpymem(buf, ngx_cached_http_log_iso8601.data,
-	    ngx_cached_http_log_iso8601.len);
-}
+	{ return ngx_cpymem(buf, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len); }
 
 static u_char * ngx_http_log_msec(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	ngx_time_t  * tp;
-
-	tp = ngx_timeofday();
-
+	ngx_time_t  * tp = ngx_timeofday();
 	return ngx_sprintf(buf, "%T.%03M", tp->sec, tp->msec);
 }
 
-static u_char * ngx_http_log_request_time(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
+static u_char * ngx_http_log_request_time(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	ngx_time_t * tp;
-	ngx_msec_int_t ms;
-
-	tp = ngx_timeofday();
-
-	ms = (ngx_msec_int_t)
-	    ((tp->sec - r->start_sec) * 1000 + (tp->msec - r->start_msec));
+	ngx_time_t * tp = ngx_timeofday();
+	ngx_msec_int_t ms = (ngx_msec_int_t)((tp->sec - r->start_sec) * 1000 + (tp->msec - r->start_msec));
 	ms = MAX(ms, 0);
-
 	return ngx_sprintf(buf, "%T.%03M", (time_t)ms / 1000, ms % 1000);
 }
 
 static u_char * ngx_http_log_status(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
 	ngx_uint_t status;
-
 	if(r->err_status) {
 		status = r->err_status;
 	}
@@ -600,55 +580,35 @@ static u_char * ngx_http_log_status(ngx_http_request_t * r, u_char * buf, ngx_ht
 	else {
 		status = 0;
 	}
-
 	return ngx_sprintf(buf, "%03ui", status);
 }
 
-static u_char * ngx_http_log_bytes_sent(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
-{
-	return ngx_sprintf(buf, "%O", r->connection->sent);
-}
-
+static u_char * ngx_http_log_bytes_sent(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
+	{ return ngx_sprintf(buf, "%O", r->connection->sent); }
 /*
  * although there is a real $body_bytes_sent variable,
  * this log operation code function is more optimized for logging
  */
-
-static u_char * ngx_http_log_body_bytes_sent(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
+static u_char * ngx_http_log_body_bytes_sent(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	nginx_off_t length;
-
-	length = r->connection->sent - r->header_size;
-
+	nginx_off_t length = r->connection->sent - r->header_size;
 	if(length > 0) {
 		return ngx_sprintf(buf, "%O", length);
 	}
-
 	*buf = '0';
-
 	return buf + 1;
 }
 
-static u_char * ngx_http_log_request_length(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
-{
-	return ngx_sprintf(buf, "%O", r->request_length);
-}
+static u_char * ngx_http_log_request_length(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
+	{ return ngx_sprintf(buf, "%O", r->request_length); }
 
-static ngx_int_t ngx_http_log_variable_compile(ngx_conf_t * cf, ngx_http_log_op_t * op,
-    ngx_str_t * value, ngx_uint_t json)
+static ngx_int_t ngx_http_log_variable_compile(ngx_conf_t * cf, ngx_http_log_op_t * op, ngx_str_t * value, ngx_uint_t json)
 {
-	ngx_int_t index;
-
-	index = ngx_http_get_variable_index(cf, value);
+	ngx_int_t index = ngx_http_get_variable_index(cf, value);
 	if(index == NGX_ERROR) {
 		return NGX_ERROR;
 	}
-
 	op->len = 0;
-
 	if(json) {
 		op->getlen = ngx_http_log_json_variable_getlen;
 		op->run = ngx_http_log_json_variable;
@@ -657,41 +617,29 @@ static ngx_int_t ngx_http_log_variable_compile(ngx_conf_t * cf, ngx_http_log_op_
 		op->getlen = ngx_http_log_variable_getlen;
 		op->run = ngx_http_log_variable;
 	}
-
 	op->data = index;
-
 	return NGX_OK;
 }
 
 static size_t ngx_http_log_variable_getlen(ngx_http_request_t * r, uintptr_t data)
 {
 	uintptr_t len;
-	ngx_http_variable_value_t  * value;
-
-	value = ngx_http_get_indexed_variable(r, data);
-
+	ngx_http_variable_value_t  * value = ngx_http_get_indexed_variable(r, data);
 	if(value == NULL || value->not_found) {
 		return 1;
 	}
-
 	len = ngx_http_log_escape(NULL, value->data, value->len);
-
 	value->escape = len ? 1 : 0;
-
 	return value->len + len * 3;
 }
 
 static u_char * ngx_http_log_variable(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	ngx_http_variable_value_t  * value;
-
-	value = ngx_http_get_indexed_variable(r, op->data);
-
+	ngx_http_variable_value_t * value = ngx_http_get_indexed_variable(r, op->data);
 	if(value == NULL || value->not_found) {
 		*buf = '-';
 		return buf + 1;
 	}
-
 	if(value->escape == 0) {
 		return ngx_cpymem(buf, value->data, value->len);
 	}
@@ -704,7 +652,6 @@ static uintptr_t ngx_http_log_escape(u_char * dst, u_char * src, size_t size)
 {
 	ngx_uint_t n;
 	static u_char hex[] = "0123456789ABCDEF";
-
 	static uint32_t escape[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 
@@ -722,12 +669,9 @@ static uintptr_t ngx_http_log_escape(u_char * dst, u_char * src, size_t size)
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 	};
-
 	if(dst == NULL) {
 		/* find the number of the characters to be escaped */
-
 		n = 0;
-
 		while(size) {
 			if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 				n++;
@@ -735,10 +679,8 @@ static uintptr_t ngx_http_log_escape(u_char * dst, u_char * src, size_t size)
 			src++;
 			size--;
 		}
-
 		return (uintptr_t)n;
 	}
-
 	while(size) {
 		if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 			*dst++ = '\\';
@@ -752,45 +694,30 @@ static uintptr_t ngx_http_log_escape(u_char * dst, u_char * src, size_t size)
 		}
 		size--;
 	}
-
 	return (uintptr_t)dst;
 }
 
 static size_t ngx_http_log_json_variable_getlen(ngx_http_request_t * r, uintptr_t data)
 {
 	uintptr_t len;
-	ngx_http_variable_value_t  * value;
-
-	value = ngx_http_get_indexed_variable(r, data);
-
+	ngx_http_variable_value_t * value = ngx_http_get_indexed_variable(r, data);
 	if(value == NULL || value->not_found) {
 		return 0;
 	}
-
 	len = ngx_escape_json(NULL, value->data, value->len);
-
 	value->escape = len ? 1 : 0;
-
 	return value->len + len;
 }
 
-static u_char * ngx_http_log_json_variable(ngx_http_request_t * r, u_char * buf,
-    ngx_http_log_op_t * op)
+static u_char * ngx_http_log_json_variable(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	ngx_http_variable_value_t  * value;
-
-	value = ngx_http_get_indexed_variable(r, op->data);
-
-	if(value == NULL || value->not_found) {
+	ngx_http_variable_value_t * value = ngx_http_get_indexed_variable(r, op->data);
+	if(value == NULL || value->not_found)
 		return buf;
-	}
-
-	if(value->escape == 0) {
+	else if(value->escape == 0)
 		return ngx_cpymem(buf, value->data, value->len);
-	}
-	else {
+	else
 		return (u_char*)ngx_escape_json(buf, value->data, value->len);
-	}
 }
 
 static void * ngx_http_log_create_main_conf(ngx_conf_t * cf)
@@ -829,44 +756,34 @@ static char * ngx_http_log_merge_loc_conf(ngx_conf_t * cf, void * parent, void *
 {
 	ngx_http_log_loc_conf_t * prev = (ngx_http_log_loc_conf_t *)parent;
 	ngx_http_log_loc_conf_t * conf = (ngx_http_log_loc_conf_t *)child;
-
 	ngx_http_log_t  * log;
 	ngx_http_log_fmt_t * fmt;
 	ngx_http_log_main_conf_t  * lmcf;
-
 	if(conf->open_file_cache == NGX_CONF_UNSET_PTR) {
 		conf->open_file_cache = prev->open_file_cache;
 		conf->open_file_cache_valid = prev->open_file_cache_valid;
 		conf->open_file_cache_min_uses = prev->open_file_cache_min_uses;
-
 		if(conf->open_file_cache == NGX_CONF_UNSET_PTR) {
 			conf->open_file_cache = NULL;
 		}
 	}
-
 	if(conf->logs || conf->off) {
 		return NGX_CONF_OK;
 	}
-
 	conf->logs = prev->logs;
 	conf->off = prev->off;
-
 	if(conf->logs || conf->off) {
 		return NGX_CONF_OK;
 	}
-
 	conf->logs = ngx_array_create(cf->pool, 2, sizeof(ngx_http_log_t));
 	if(conf->logs == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	log = (ngx_http_log_t *)ngx_array_push(conf->logs);
 	if(log == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(log, sizeof(ngx_http_log_t));
-
 	log->file = ngx_conf_open_file(cf->cycle, &ngx_http_access_log);
 	if(log->file == NULL) {
 		return NGX_CONF_ERROR;
@@ -1089,11 +1006,9 @@ process_formats:
 static const char * ngx_http_log_set_format(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_log_main_conf_t * lmcf = (ngx_http_log_main_conf_t *)conf;
-	ngx_str_t * value;
 	ngx_uint_t i;
-	ngx_http_log_fmt_t  * fmt;
-	value = (ngx_str_t*)cf->args->elts;
-	fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_http_log_fmt_t * fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
 		if(fmt[i].name.len == value[1].len && ngx_strcmp(fmt[i].name.data, value[1].data) == 0) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate \"log_format\" name \"%V\"", &value[1]);
@@ -1258,7 +1173,6 @@ static const char * ngx_http_log_open_file_cache(ngx_conf_t * cf, const ngx_comm
 			if(max == NGX_ERROR) {
 				goto failed;
 			}
-
 			continue;
 		}
 		if(ngx_strncmp(value[i].data, "inactive=", 9) == 0) {
@@ -1317,9 +1231,8 @@ static ngx_int_t ngx_http_log_init(ngx_conf_t * cf)
 	ngx_array_t a;
 	ngx_http_handler_pt * h;
 	ngx_http_log_fmt_t  * fmt;
-	ngx_http_log_main_conf_t * lmcf;
 	ngx_http_core_main_conf_t  * cmcf;
-	lmcf = (ngx_http_log_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_log_module);
+	ngx_http_log_main_conf_t * lmcf = (ngx_http_log_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_log_module);
 	if(lmcf->combined_used) {
 		if(ngx_array_init(&a, cf->pool, 1, sizeof(ngx_str_t)) != NGX_OK) {
 			return NGX_ERROR;
@@ -1343,4 +1256,3 @@ static ngx_int_t ngx_http_log_init(ngx_conf_t * cf)
 	*h = ngx_http_log_handler;
 	return NGX_OK;
 }
-

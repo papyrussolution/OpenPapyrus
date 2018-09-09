@@ -2832,8 +2832,10 @@ int SLAPI ExportUhttForGitHub()
 	uint   line_total = 0;
 
 	SString temp_buf;
+	SString text_ident;
 
-	SString goods_name;
+	SString goods_name_utf;
+	SString goods_name_ascii;
 	SString group_name;
 	SString brand_name;
 
@@ -2841,10 +2843,16 @@ int SLAPI ExportUhttForGitHub()
 	SString result_barcode;
 	SString line_buf;
 
+	LAssocArray brand_concord;
+	LAssocArray categ_concord;
+	LAssocArray word_concord;
+	PPTextAnalyzer text_analyzer2;
+	PPTextAnalyzer::Item text_analyzer_item;
 	StrAssocArray goods_grp_hier;
 
 	PPObjGoods goods_obj;
 	PPObjBrand brand_obj;
+	PPBrand brand_rec;
 	GoodsFilt goods_filt;
 	goods_filt.Flags &= ~GoodsFilt::fHidePassive;
     GoodsIterator giter(&goods_filt, GoodsIterator::ordByName);
@@ -2864,53 +2872,137 @@ int SLAPI ExportUhttForGitHub()
 	f_out_all.WriteLine(title_line);
 	PPWait(1);
     while(giter.Next(&goods_rec) > 0) {
-		(goods_name = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-		goods_name.ReplaceChar('\t', ' ');
-		goods_obj.GetHierarchy(goods_rec.ID, &goods_grp_hier);
-		group_name.Z();
-		if(goods_grp_hier.getCount() > 1) {
-			for(uint j = 0; j < (goods_grp_hier.getCount()-1); j++)	{
-				StrAssocArray::Item item = goods_grp_hier.at_WithoutParent(j);
-				group_name.CatDivIfNotEmpty('/', 0);
-				group_name.Cat(item.Txt);
-			}
-			group_name.Transf(CTRANSF_INNER_TO_UTF8);
-		}
-		group_name.ReplaceChar('\t', ' ');
-		brand_name.Z();
-		if(goods_rec.BrandID) {
-			PPBrand brand_rec;
-			if(brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
-				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-				brand_name.ReplaceChar('\t', ' ');
-			}
-		}
+		int is_there_valid_codes = 0;
+		uint i;
 		goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, codes);
-		for(uint i = 0; i < codes.getCount(); i++) {
+		for(i = 0; !is_there_valid_codes && i < codes.getCount(); i++) {
 			temp_buf = codes.at(i).Code;
 			int    diag = 0, std = 0;
 			int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
-			if(dbr > 0) {
-                line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name).Tab().Cat(goods_rec.ParentID).Tab().
-					Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
-				//assert(line_buf.IsLegalUtf8()); // @debug
-				f_out.WriteLine(line_buf);
-				f_out_all.WriteLine(line_buf);
-				line_count++;
-				line_total++;
-				if(line_count >= lines_per_file) {
-					f_out.Close();
-					file_no++;
-					(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
-					PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
-					f_out.Open(out_file_name, SFile::mWrite);
-					f_out.WriteLine(title_line);
-					line_count = 0;
+			if(dbr > 0)
+				is_there_valid_codes = 1;
+		}
+		if(is_there_valid_codes) {
+			goods_name_utf = goods_rec.Name;
+			goods_name_utf.ReplaceChar('\t', ' ');
+			(goods_name_ascii = goods_name_utf).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+			goods_name_utf.Transf(CTRANSF_INNER_TO_UTF8);
+			goods_obj.GetHierarchy(goods_rec.ID, &goods_grp_hier);
+			group_name.Z();
+			if(goods_grp_hier.getCount() > 1) {
+				for(uint j = 0; j < (goods_grp_hier.getCount()-1); j++)	{
+					StrAssocArray::Item item = goods_grp_hier.at_WithoutParent(j);
+					group_name.CatDivIfNotEmpty('/', 0);
+					group_name.Cat(item.Txt);
+				}
+				group_name.Transf(CTRANSF_INNER_TO_UTF8);
+			}
+			{
+				long cc = 0;
+				uint cp = 0;
+				if(categ_concord.Search(goods_rec.ParentID, &cc, &cp))
+					categ_concord.at(cp).Val = cc+1; 
+				else
+					categ_concord.Add(goods_rec.ParentID, 1); 
+			}
+			group_name.ReplaceChar('\t', ' ');
+			brand_name.Z();
+			if(goods_rec.BrandID && brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
+				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				brand_name.ReplaceChar('\t', ' ');
+				{
+					long cc = 0;
+					uint cp = 0;
+					if(brand_concord.Search(goods_rec.BrandID, &cc, &cp))
+						brand_concord.at(cp).Val = cc+1; 
+					else
+						brand_concord.Add(goods_rec.BrandID, 1); 
+				}
+			}
+			{
+				uint   j;
+				uint   idx_first = 0, idx_count = 0;
+				text_ident.Z().CatChar('#').Cat(goods_rec.ID);
+				text_analyzer2.Write(text_ident, 0, goods_name_ascii, goods_name_ascii.Len()+1);
+				text_analyzer2.Run(&idx_first, &idx_count);
+				for(j = 0; j < idx_count; j++) {
+					if(text_analyzer2.Get(idx_first+j, text_analyzer_item) && text_analyzer_item.Token == STokenizer::tokWord && text_analyzer_item.Text.NotEmpty()) {
+						long cc = 0;
+						uint cp = 0;
+						if(word_concord.Search((long)text_analyzer_item.TextId, &cc, &cp))
+							word_concord.at(cp).Val = cc+1; 
+						else
+							word_concord.Add((long)text_analyzer_item.TextId, 1); 
+					}
+				}
+			}
+			for(i = 0; i < codes.getCount(); i++) {
+				temp_buf = codes.at(i).Code;
+				int    diag = 0, std = 0;
+				int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+				if(dbr > 0) {
+					line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name_utf).Tab().Cat(goods_rec.ParentID).Tab().
+						Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
+					//assert(line_buf.IsLegalUtf8()); // @debug
+					f_out.WriteLine(line_buf);
+					f_out_all.WriteLine(line_buf);
+					line_count++;
+					line_total++;
+					if(line_count >= lines_per_file) {
+						f_out.Close();
+						file_no++;
+						(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+						PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+						f_out.Open(out_file_name, SFile::mWrite);
+						f_out.WriteLine(title_line);
+						line_count = 0;
+					}
 				}
 			}
 		}
 		PPWaitPercent(giter.GetIterCounter());
     }
+	if(brand_concord.getCount()) {
+		(temp_buf = "uhtt_barcode_ref_brand_concord").Dot().Cat("csv");
+		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		SFile f_out_brand(out_file_name, SFile::mWrite);
+		for(uint i = 0; i < brand_concord.getCount(); i++) {
+			const PPID brand_id = brand_concord.at(i).Key;
+			if(brand_id && brand_obj.Fetch(brand_id, &brand_rec) > 0) {
+				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				brand_name.ReplaceChar('\t', ' ');
+				line_buf.Z().Cat(brand_id).Tab().Cat(brand_name).Tab().Cat(brand_concord.at(i).Val).CR();
+				f_out_brand.WriteLine(title_line);
+			}
+		}
+	}
+	if(categ_concord.getCount()) {
+		(temp_buf = "uhtt_barcode_ref_category_concord").Dot().Cat("csv");
+		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		SFile f_out_categ(out_file_name, SFile::mWrite);
+		for(uint i = 0; i < categ_concord.getCount(); i++) {
+			const PPID categ_id = categ_concord.at(i).Key;
+			Goods2Tbl::Rec group_rec;
+			if(categ_id && goods_obj.Fetch(categ_id, &group_rec) > 0) {
+				(group_name = group_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				group_name.ReplaceChar('\t', ' ');
+				line_buf.Z().Cat(categ_id).Tab().Cat(group_name).Tab().Cat(categ_concord.at(i).Val).CR();
+				f_out_categ.WriteLine(title_line);
+			}
+		}
+	}
+	if(word_concord.getCount()) {
+		(temp_buf = "uhtt_barcode_ref_word_concord").Dot().Cat("csv");
+		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		SFile f_out_word(out_file_name, SFile::mWrite);
+		for(uint i = 0; i < word_concord.getCount(); i++) {
+			const uint text_id = (uint)word_concord.at(i).Key;
+			text_analyzer2.GetTextById(text_id, temp_buf);
+			temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+			line_buf.Z().Cat(temp_buf).Tab().Cat(word_concord.at(i).Val).CR();
+			f_out_word.WriteLine(title_line);
+		}
+	}
 	PPWait(0);
 	return ok;
 }

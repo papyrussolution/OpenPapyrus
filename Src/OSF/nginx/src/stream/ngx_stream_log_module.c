@@ -401,9 +401,7 @@ static void ngx_stream_log_gzip_free(void * opaque, void * address)
 {
 #if 0
 	ngx_pool_t * pool = opaque;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pool->log, 0,
-	    "gzip free: %p", address);
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pool->log, 0, "gzip free: %p", address);
 #endif
 }
 
@@ -455,7 +453,6 @@ static u_char * ngx_stream_log_copy_short(ngx_stream_session_t * s, u_char * buf
 		*buf++ = (u_char)(data & 0xff);
 		data >>= 8;
 	}
-
 	return buf;
 }
 
@@ -468,15 +465,11 @@ static u_char * ngx_stream_log_copy_long(ngx_stream_session_t * s, u_char * buf,
 static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log_op_t * op,
     ngx_str_t * value, ngx_uint_t json)
 {
-	ngx_int_t index;
-
-	index = ngx_stream_get_variable_index(cf, value);
+	ngx_int_t index = ngx_stream_get_variable_index(cf, value);
 	if(index == NGX_ERROR) {
 		return NGX_ERROR;
 	}
-
 	op->len = 0;
-
 	if(json) {
 		op->getlen = ngx_stream_log_json_variable_getlen;
 		op->run = ngx_stream_log_json_variable;
@@ -485,42 +478,29 @@ static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log
 		op->getlen = ngx_stream_log_variable_getlen;
 		op->run = ngx_stream_log_variable;
 	}
-
 	op->data = index;
-
 	return NGX_OK;
 }
 
 static size_t ngx_stream_log_variable_getlen(ngx_stream_session_t * s, uintptr_t data)
 {
 	uintptr_t len;
-	ngx_stream_variable_value_t  * value;
-
-	value = ngx_stream_get_indexed_variable(s, data);
-
+	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, data);
 	if(value == NULL || value->not_found) {
 		return 1;
 	}
-
 	len = ngx_stream_log_escape(NULL, value->data, value->len);
-
 	value->escape = len ? 1 : 0;
-
 	return value->len + len * 3;
 }
 
-static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf,
-    ngx_stream_log_op_t * op)
+static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
 {
-	ngx_stream_variable_value_t  * value;
-
-	value = ngx_stream_get_indexed_variable(s, op->data);
-
+	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, op->data);
 	if(value == NULL || value->not_found) {
 		*buf = '-';
 		return buf + 1;
 	}
-
 	if(value->escape == 0) {
 		return ngx_cpymem(buf, value->data, value->len);
 	}
@@ -533,7 +513,6 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 {
 	ngx_uint_t n;
 	static u_char hex[] = "0123456789ABCDEF";
-
 	static uint32_t escape[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 
@@ -551,12 +530,9 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 	};
-
 	if(dst == NULL) {
 		/* find the number of the characters to be escaped */
-
 		n = 0;
-
 		while(size) {
 			if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 				n++;
@@ -564,10 +540,8 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 			src++;
 			size--;
 		}
-
 		return (uintptr_t)n;
 	}
-
 	while(size) {
 		if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 			*dst++ = '\\';
@@ -581,39 +555,27 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 		}
 		size--;
 	}
-
 	return (uintptr_t)dst;
 }
 
 static size_t ngx_stream_log_json_variable_getlen(ngx_stream_session_t * s, uintptr_t data)
 {
 	uintptr_t len;
-	ngx_stream_variable_value_t  * value;
-
-	value = ngx_stream_get_indexed_variable(s, data);
-
+	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, data);
 	if(value == NULL || value->not_found) {
 		return 0;
 	}
-
 	len = ngx_escape_json(NULL, value->data, value->len);
-
 	value->escape = len ? 1 : 0;
-
 	return value->len + len;
 }
 
-static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * buf,
-    ngx_stream_log_op_t * op)
+static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
 {
-	ngx_stream_variable_value_t  * value;
-
-	value = ngx_stream_get_indexed_variable(s, op->data);
-
+	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, op->data);
 	if(value == NULL || value->not_found) {
 		return buf;
 	}
-
 	if(value->escape == 0) {
 		return ngx_cpymem(buf, value->data, value->len);
 	}
@@ -624,12 +586,11 @@ static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * 
 
 static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf)
 {
-	ngx_stream_log_main_conf_t  * conf = (ngx_stream_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_main_conf_t));
-	if(!conf) {
-		return NULL;
-	}
-	if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_stream_log_fmt_t)) != NGX_OK) {
-		return NULL;
+	ngx_stream_log_main_conf_t * conf = (ngx_stream_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_main_conf_t));
+	if(conf) {
+		if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_stream_log_fmt_t)) != NGX_OK) {
+			return NULL;
+		}
 	}
 	return conf;
 }
@@ -637,10 +598,8 @@ static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf)
 static void * ngx_stream_log_create_srv_conf(ngx_conf_t * cf)
 {
 	ngx_stream_log_srv_conf_t  * conf = (ngx_stream_log_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_srv_conf_t));
-	if(!conf) {
-		return NULL;
-	}
-	conf->open_file_cache = (ngx_open_file_cache_t *)NGX_CONF_UNSET_PTR;
+	if(conf)
+		conf->open_file_cache = (ngx_open_file_cache_t *)NGX_CONF_UNSET_PTR;
 	return conf;
 }
 

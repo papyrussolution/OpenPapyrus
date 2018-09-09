@@ -712,7 +712,7 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 	if(Flags & fNamesToUpper)
 		TempBuf.ToUpper();
 	if(SearchName(TempBuf, 0) && !(Flags & fAllowDupName)) {
-		SLS.SetAddedMsgString(TempBuf);
+		SLS.SetAddedMsgString(TempBuf.Transf(CTRANSF_OUTER_TO_INNER)); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
 		CALLEXCEPTV(SLERR_SDREC_DUPFLDNAME);
 	}
 	else {

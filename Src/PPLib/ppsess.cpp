@@ -1767,9 +1767,15 @@ static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandStri
 static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
 {
     rBuf.Z();
-	int    ok = 0;
-	int    path_id = 0;
-    if(sstreqi_ascii(pSignature, "bin"))
+	// @v10.1.11 {
+	static const SIntToSymbTabEntry path_symb_list[] = {
+		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" }, 
+		{ PPPATH_OUT, "out" }, { PPPATH_LOG, "log" },     { PPPATH_TESTROOT, "testroot" }, { PPPATH_WORKSPACE, "workspace" },
+	};
+	int    path_id = SIntToSymbTab_GetId(path_symb_list, SIZEOFARRAY(path_symb_list), pSignature);
+	// } @v10.1.11 
+    /* @v10.1.11
+	if(sstreqi_ascii(pSignature, "bin"))
 		path_id = PPPATH_BIN;
     else if(sstreqi_ascii(pSignature, "local"))
     	path_id = PPPATH_LOCAL;
@@ -1785,6 +1791,7 @@ static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
     	path_id = PPPATH_TESTROOT;
     else if(sstreqi_ascii(pSignature, "workspace"))
     	path_id = PPPATH_WORKSPACE;
+	*/
 	return path_id ? PPGetPath(path_id, rBuf) : 0;
 }
 
@@ -1991,7 +1998,7 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	ENTER_CRITICAL_SECTION
 	TlsSetValue(TlsIdx, p_tla);
 	// @v9.8.9 PPPATH_REPORTDATA
-	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB, PPPATH_REPORTDATA };
+	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB, PPPATH_REPORTDATA, PPPATH_WORKSPACE };
 	for(uint i = 0; i < SIZEOFARRAY(common_path_id_list); i++)
 		MoveCommonPathOnInitThread(common_path_id_list[i]);
 	LEAVE_CRITICAL_SECTION
@@ -2025,14 +2032,15 @@ void SLAPI PPSession::ReleaseThread()
 #define MAX_GETTLA_TRY 5
 
 PPThreadLocalArea & SLAPI PPSession::GetTLA()
-{
-	return *(PPThreadLocalArea *)SGetTls(TlsIdx);
-}
-
+	{ return *(PPThreadLocalArea *)SGetTls(TlsIdx); }
 const PPThreadLocalArea & SLAPI PPSession::GetConstTLA() const
-{
-	return *(PPThreadLocalArea *)SGetTls(TlsIdx);
-}
+	{ return *(PPThreadLocalArea *)SGetTls(TlsIdx); }
+int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList)
+	{ return ThreadList.GetInfoList(type, rList); }
+int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
+	{ return ThreadList.GetInfo(tId, rInfo); }
+int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem)
+	{ return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
 int PPSession::SetThreadNotification(int type, const void * pData)
 {
@@ -2042,16 +2050,6 @@ int PPSession::SetThreadNotification(int type, const void * pData)
 	else if(type == stntText)
 		ok = ThreadList.SetMessage(GetConstTLA().GetThreadID(), 0, (const char *)pData);
 	return ok;
-}
-
-int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList)
-{
-	return ThreadList.GetInfoList(type, rList);
-}
-
-int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
-{
-	return ThreadList.GetInfo(tId, rInfo);
 }
 
 void PPSession::LogLocStk()
@@ -2075,11 +2073,6 @@ int SLAPI PPSession::LockingDllServer(int cmd)
 		ok = 0;
 	}
 	return ok;
-}
-
-int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem)
-{
-	return P_LogQueue ? P_LogQueue->Push(rItem) : -1;
 }
 //
 //

@@ -624,8 +624,6 @@ ngx_int_t ngx_conf_full_name(ngx_cycle_t * cycle, ngx_str_t * name, ngx_uint_t c
 ngx_open_file_t * FASTCALL ngx_conf_open_file(ngx_cycle_t * cycle, const ngx_str_t * name)
 {
 	ngx_str_t full;
-	ngx_uint_t i;
-	ngx_list_part_t * part;
 	ngx_open_file_t * file;
 #if (NGX_SUPPRESS_WARN)
 	ngx_str_null(&full);
@@ -635,19 +633,21 @@ ngx_open_file_t * FASTCALL ngx_conf_open_file(ngx_cycle_t * cycle, const ngx_str
 		if(ngx_conf_full_name(cycle, &full, 0) != NGX_OK) {
 			return NULL;
 		}
-		part = &cycle->open_files.part;
-		file = (ngx_open_file_t *)part->elts;
-		for(i = 0; /* void */; i++) {
-			if(i >= part->nelts) {
-				if(part->next == NULL) {
-					break;
+		else {
+			ngx_list_part_t * part = &cycle->open_files.part;
+			file = (ngx_open_file_t *)part->elts;
+			for(ngx_uint_t i = 0; /* void */; i++) {
+				if(i >= part->nelts) {
+					if(part->next == NULL) {
+						break;
+					}
+					part = part->next;
+					file = (ngx_open_file_t *)part->elts;
+					i = 0;
 				}
-				part = part->next;
-				file = (ngx_open_file_t *)part->elts;
-				i = 0;
-			}
-			if(full.len == file[i].name.len && sstreq(full.data, file[i].name.data)) {
-				return &file[i];
+				if(full.len == file[i].name.len && sstreq(full.data, file[i].name.data)) {
+					return &file[i];
+				}
 			}
 		}
 	}
