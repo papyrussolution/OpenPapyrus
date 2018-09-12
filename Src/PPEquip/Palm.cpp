@@ -4048,7 +4048,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 						if(employer_id) {
 							PrjTaskViewItem item;
 							PrjTaskFilt todo_filt;
-							todo_filt.Flags |= PrjTaskFilt::fNoTempTable; // @v8.5.11
+							todo_filt.Flags |= PrjTaskFilt::fNoTempTable;
 							todo_filt.Kind = TODOKIND_TASK;
 							todo_filt.EmployerID = employer_id;
 							todo_filt.IncludeStatus(TODOSTTS_NEW);

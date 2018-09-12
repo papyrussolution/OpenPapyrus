@@ -1359,10 +1359,10 @@ public:
 	LinkFilesDialog(const PPLinkFilesArray * pAry) : PPListDialog(DLG_LINKFILES, CTL_LINKFILES_LIST)
 	{
 		setDTS(pAry);
-		FileBrowseCtrlGroup * p_fbg = 0;
 		SString temp_buf;
 		PPLoadTextWin(PPTXT_OPENFILET_LINKBILLFILES, temp_buf);
-		if(p_fbg = new FileBrowseCtrlGroup(cmLink, 0, temp_buf, 0)) {
+		FileBrowseCtrlGroup * p_fbg = new FileBrowseCtrlGroup(cmLink, 0, temp_buf, 0);
+		if(p_fbg) {
 			p_fbg->addPattern(PPTXT_FILPAT_ALLLINKFILES);
 			p_fbg->addPattern(PPTXT_FILPAT_TEXT);
 			p_fbg->addPattern(PPTXT_FILPAT_MSWORD);

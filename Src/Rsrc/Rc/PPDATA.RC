@@ -1004,7 +1004,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	71,
+	72,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1077,6 +1077,7 @@ ROD_TAG PP_RCDATA {
 	76, "@{rtag_lotvetisuuid}\0",             "LOTVETISUUID\0",       "LOT\0",        "UUID\0"
 	77, "@{rtag_locvetisguid}\0",             "LOCVETISGUID\0",       "LOCATION\0",   "UUID\0"
 	78, "@{rtag_guasecret}\0",                "GUASECRET\0",          "GLOBALUSER\0", "STRING\0"
+	79, "@{rtag_goodsvetispurpose}\0",        "GOODSVETISPURPOSE\0",  "GOODS\0",      "UUID\0"
 }
 //
 // Зарезервированные записи объекта PPOBJ_OPCOUNTER

@@ -3821,7 +3821,7 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 		// @v10.1.6 {
 		else if(SXml::GetContentByName(p_a, "waybillSeries", temp_buf))
 			rResult.WayBillSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		// } @v10.1.6 
+		// } @v10.1.6
 		else if(SXml::GetContentByName(p_a, "waybillNumber", temp_buf))
 			rResult.WayBillNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::GetContentByName(p_a, "waybillDate", temp_buf))
@@ -4204,6 +4204,7 @@ static SString & FASTCALL VGuidToStr(const S_GUID & rGuid, SString & rBuf)
 int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	SString temp_buf;
 	THROW_PP(State & stInited, PPERR_VETISIFCNOTINITED);
 	THROW(PrepareApplicationBlockForReq(rAppBlk));
@@ -4357,7 +4358,13 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 											// реализация после проведения ветеринарно-санитарной экспертизы
 											// n_prp.PutInner(SXml::nst("bs", "guid"), "d8fb4c77-f461-4eeb-9f4c-31897ddde769");
 											// реализация в пищу людям
-											n_prp.PutInner(SXml::nst("bs", "guid"), "0778b8cb-f49d-4ed9-88b9-5f70af00a211");
+											S_GUID purpose_guid;
+											temp_buf.Z();
+											if(p_req->VdRec.LinkGoodsID && p_ref->Ot.GetTagGuid(PPOBJ_GOODS, p_req->VdRec.LinkGoodsID, PPTAG_GOODS_VETISPURPOSE, purpose_guid) > 0)
+												purpose_guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+											else
+												temp_buf = "0778b8cb-f49d-4ed9-88b9-5f70af00a211";
+											n_prp.PutInner(SXml::nst("bs", "guid"), temp_buf);
 										}
 										if(p_req->Transp.TransportType) {
 											SXml::WNode n_tr(srb, SXml::nst("d7p1", "transportInfo"));
@@ -4377,7 +4384,9 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										n_vc.PutInner(SXml::nst("d7p1", "transportStorageType"), "FROZEN");
 										n_vc.PutInner(SXml::nst("d7p1", "cargoInspected"), "true");
 										n_vc.PutInner(SXml::nst("d7p1", "cargoExpertized"), "false");
-										n_vc.PutInner(SXml::nst("d7p1", "locationProsperity"), "Местность благополучна по заразным болезням животных");
+										PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
+										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										n_vc.PutInner(SXml::nst("d7p1", "locationProsperity"), temp_buf);
 									}
 								}
 							}
@@ -4534,7 +4543,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									if(r_doc.WayBillSeries.NotEmpty()) {
 										n_wb.PutInner(SXml::nst("d9p1", "issueSeries"), (temp_buf = r_doc.WayBillSeries).Transf(CTRANSF_INNER_TO_UTF8));
 									}
-									// } @v10.1.6 
+									// } @v10.1.6
 									n_wb.PutInner(SXml::nst("d9p1", "issueNumber"), (temp_buf = r_doc.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
 									n_wb.PutInner(SXml::nst("d9p1", "issueDate"), temp_buf.Z().Cat(r_doc.WayBillDate, DATF_ISO8601|DATF_CENTURY));
 									if(r_doc.WayBillType > 0) {
@@ -6983,7 +6992,7 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				PPWait(1);
 				for(InitIteration(); NextIteration(&vi) > 0;) {
 					BillTbl::Rec bill_rec;
-					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg && 
+					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg &&
 						vi.LinkBillID && BillObj->Search(vi.LinkBillID, &bill_rec) > 0) {
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
@@ -7205,7 +7214,7 @@ static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRa
 	PPAlbatrosConfig acfg;
 	if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
 		delay_days = acfg.Hdr.VetisCertDelay;
-	else 
+	else
 		delay_days = 3;
 	if(checkdate(rRec.WayBillDate)) {
 		rPeriod.Set(rRec.WayBillDate, plusdate(rRec.WayBillDate, delay_days));

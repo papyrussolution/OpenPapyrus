@@ -2779,6 +2779,25 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len)
 	return result;
 }
 
+uint64 FASTCALL _texttodec64(const char * pT, uint len)
+{
+	uint64 result;
+	switch(len) {
+		case 0: result = 0; break;
+		case 1: result = pT[0] - '0'; break;
+		case 2: result = (10 * (pT[0] - '0')) + (pT[1] - '0'); break;
+		case 3: result = (100 * (pT[0] - '0')) + (10 * (pT[1] - '0')) + (pT[2] - '0'); break;
+		case 4: result = (1000 * (pT[0] - '0')) + (100 * (pT[1] - '0')) + (10 * (pT[2] - '0')) + (pT[3] - '0'); break;
+		case 5: result = (10000 * (pT[0] - '0')) + (1000 * (pT[1] - '0')) + (100 * (pT[2] - '0')) + (10 * (pT[3] - '0')) + (pT[4] - '0'); break;
+		default:
+			result = 0;
+			for(uint i = 0; i < len; i++)
+				result = (result * 10) + (pT[i] - '0');
+			break;
+	}
+	return result;
+}
+
 uint32 FASTCALL _texttohex32(const char * pT, uint len)
 {
 	uint32 result = 0;
@@ -3219,7 +3238,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 	}
 	return 1;
 }
-// } @construction 
+// } @construction
 
 int SLAPI SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
@@ -3816,7 +3835,7 @@ uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 	}
 }
 
-//static 
+//static
 uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 {
 	uint    k = 0;

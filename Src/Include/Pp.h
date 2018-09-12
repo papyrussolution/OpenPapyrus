@@ -10514,9 +10514,6 @@ public:
 	//   возвращает 0 и присваевает rGuid пустое значение.
 	//
 	int    SLAPI GetGuid(S_GUID & rGuid);
-	//
-	//
-	//
 	int    SLAPI AddTSessCip(PPID tsessID, const char * pPlaceCode, PPID personID);
 	int    SLAPI SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
@@ -10634,7 +10631,7 @@ public:
 	PPLinkFilesArray LnkFiles;
 	InventoryArray InvList; // @v9.9.12 Список строк инвентаризации (введен исключительно для сериализации строк удаляемой инвентаризации - дальше будет видно)
 	//
-	// @v8.7.8 Список персональных регистраций, ассоциированных с документом.
+	// Список персональных регистраций, ассоциированных с документом.
 	// Note: Здесь нельзя использовать высокоуровневый класс PPCheckInPersonArray
 	//   поскольку он полностью ассоциирован с одной техсессией в то время как
 	//   с документом может быть связано несколько регистраций, принадлежащих разным сессиям.

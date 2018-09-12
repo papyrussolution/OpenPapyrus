@@ -510,6 +510,166 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 //
 //
 //
+LAssocHashTable::LAssocHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
+{
+	SETFLAG(Flags, fUseAssoc, useAssoc);
+}
+
+LAssocHashTable & FASTCALL LAssocHashTable::operator = (const LAssocHashTable & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL LAssocHashTable::Copy(const LAssocHashTable & rSrc)
+{
+	EXCEPTVAR(SLibError);
+	int    ok = 1;
+	Clear();
+	THROW(HashTableBase::Copy(rSrc));
+	CATCHZOK
+	return ok;
+}
+
+void LAssocHashTable::Clear()
+{
+	HashTableBase::Clear();
+}
+
+size_t FASTCALL LAssocHashTable::Hash(const long & rKey) const
+{
+	uint32 __h = DJBHash(&rKey, sizeof(rKey));
+	return (size_t)(__h % Size);
+}
+
+int LAssocHashTable::Set(long key, long val)
+{
+	int    c = 1;
+	int    found = 0;
+	THROW(InitTab());
+	size_t h = Hash(key);
+	Entry & r_entry = P_Tab[h];
+	if(r_entry.Count > 0) {
+		if(r_entry.Val.Key == key) {
+			r_entry.Val.Val = val;
+			found = 1;
+		}
+		else {
+			for(uint i = 1; !found && i < r_entry.Count; i++) {
+				if(r_entry.P_Ext[i-1].Key == key) {
+					r_entry.P_Ext[i-1].Val = val;
+					found = 1;
+				}
+			}
+		}
+	}
+	if(!found) {
+		c = P_Tab[h].SetVal((uint)key, val);
+		AddCount++;
+	}
+	if(c > 1) {
+		CollCount++;
+		if((c-1) > MaxTail)
+			MaxTail = c-1;
+	}
+	CATCH
+		c = 0;
+	ENDCATCH
+	return c;
+}
+
+int LAssocHashTable::Del(long key, long * pVal)
+{
+	int    ok = 0;
+	uint   val = 0;
+	if(P_Tab) {
+		size_t h  = Hash(key);
+		uint   pos;
+		Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			if(r_entry.Val.Key == key) {
+				val = r_entry.Val.Val;
+				r_entry.Remove(0);
+				ok = 1;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					if(r_entry.P_Ext[i-1].Key == key) {
+						val = r_entry.P_Ext[i-1].Val;
+						r_entry.Remove(i);
+						ok = 1;
+					}
+				}
+			}
+		}
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
+			Assoc.atFree(pos);
+	}
+	ASSIGN_PTR(pVal, val);
+	return ok;
+}
+
+int LAssocHashTable::Search(long key, long * pVal) const
+{
+	int    ok = 0;
+	if(P_Tab) {
+		size_t h  = Hash(key);
+		const  Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			if(r_entry.Val.Key == key) {
+				ASSIGN_PTR(pVal, r_entry.Val.Val);
+				ok = 1;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					if(r_entry.P_Ext[i-1].Key == key) {
+						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int FASTCALL LAssocHashTable::InitIteration(Iter * pI) const
+{
+	return HashTableBase::InitIteration(pI);
+}
+
+int LAssocHashTable::NextIteration(Iter * pI, long * pKey, long * pVal) const
+{
+	if(pI && P_Tab) {
+		while(pI->P < Size) {
+			if(pI->E < P_Tab[pI->P].Count) {
+				if(pI->E == 0) {
+					ASSIGN_PTR(pKey, P_Tab[pI->P].Val.Key);
+					ASSIGN_PTR(pVal, P_Tab[pI->P].Val.Val);
+				}
+				else {
+					ASSIGN_PTR(pKey, P_Tab[pI->P].P_Ext[pI->E-1].Key);
+					ASSIGN_PTR(pVal, P_Tab[pI->P].P_Ext[pI->E-1].Val);
+				}
+				if(pI->E == P_Tab[pI->P].Count) {
+					pI->P++;
+					pI->E = 0;
+				}
+				else
+					pI->E++;
+				return 1;
+			}
+			else {
+				pI->P++;
+				pI->E = 0;
+			}
+		}
+	}
+	return 0;
+}
+//
+//
+//
 GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
 	//Pool.setDelta(1024);
@@ -711,7 +871,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 				r_entry.Remove(0);
 				ok = 1;
 			}
-			else
+			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
 					pos = (uint)r_entry.P_Ext[i-1].Key;
 					if(pos < Pool.getCount() && Pool.at(pos) == rUuid) {
@@ -720,6 +880,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 						ok = 1;
 					}
 				}
+			}
 		}
 		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
 			Assoc.atFree(pos);
@@ -1295,7 +1456,7 @@ struct UT_hash_handle {
 	#define DECLTYPE_ASSIGN(dst, src) do { (dst) = DECLTYPE(dst) (src); } while(0)
 #endif
 //
-// a number of the hash function use uint32_t which isn't defined on win32 
+// a number of the hash function use uint32_t which isn't defined on win32
 #ifdef _MSC_VER
 	typedef unsigned int uint32_t;
 	typedef unsigned char uint8_t;

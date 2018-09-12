@@ -434,23 +434,17 @@ int xmlListSize(xmlList * l)
 	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next, count++) ;
 	return count;
 }
-/**
- * xmlListPopFront:
- * @l:  a list
- *
- * Removes the first element in the list
- */
+// 
+// Descr: Removes the first element in the list
+// 
 void FASTCALL xmlListPopFront(xmlList * l)
 {
 	if(!xmlListEmpty(l))
 		xmlLinkDeallocator(l, l->sentinel->next);
 }
-/**
- * xmlListPopBack:
- * @l:  a list
- *
- * Removes the last element in the list
- */
+// 
+// Descr: Removes the last element in the list
+// 
 void xmlListPopBack(xmlList * l)
 {
 	if(!xmlListEmpty(l))

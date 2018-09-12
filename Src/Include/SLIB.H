@@ -7487,6 +7487,23 @@ private:
 //
 //
 //
+class LAssocHashTable : public HashTableBase {
+public:
+	explicit LAssocHashTable(size_t sz, int useAssoc = 0);
+	LAssocHashTable & FASTCALL operator = (const LAssocHashTable &);
+	int    FASTCALL Copy(const LAssocHashTable & rSrc);
+	void   Clear();
+	int    Set(long key, long val);
+	int    Del(long key, long * pVal);
+	int    Search(long key, long * pVal) const;
+	int    FASTCALL InitIteration(Iter * pI) const;
+	int    NextIteration(Iter *, long * pKey, long * pVal) const;
+private:
+	size_t FASTCALL Hash(const long & rKey) const;
+};
+//
+//
+//
 class GuidHashTable : public HashTableBase  { // @persistent
 public:
 	explicit GuidHashTable(size_t sz, int useAssoc = 0);

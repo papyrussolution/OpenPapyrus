@@ -478,7 +478,7 @@ int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 			pBuf++;
 		if(fmt & TIMF_NODIV) {
 			switch(fmt & 7) {
-				case TIMF_HMS: 
+				case TIMF_HMS:
 					if(checkdeccount(pBuf, 6)) {
 						h = (int)_texttodec32(pBuf, 2);
 						m = (int)_texttodec32(pBuf+2, 2);
@@ -663,7 +663,7 @@ char * FASTCALL realfmt(double val, long fmt, char * pBuf)
 		val = val * fpow10i(prc);
 		prc = 0;
 	}
-	else if(prc > 0) { 
+	else if(prc > 0) {
 		val = round(val, prc);
 	}
 	if(val > -1.e-10 && val < 1.e-10)
@@ -769,6 +769,45 @@ static char * FASTCALL clearDelimiters(char * b)
 }
 
 // @v9.4.3 #pragma warn +pia
+
+int FASTCALL satof(const char * pBuf, double * pVal) // @construction
+{
+    const char * p = pBuf;
+    double a = 0.0;
+    int    e = 0;
+    while(*p == ' ' || *p == '\t')
+		p++;
+	int    sign = 1;
+    while(*p == '-' || *p == '+') {
+		if(*p == '-')
+			sign *= -1;
+		p++;
+    }
+    if(isdec(*p)) {
+		const char * p_dec_start = p;
+		uint dec_len = 0;
+		do {
+			p++;
+			dec_len++;
+		} while(isdec(*p));
+		uint64 i = _texttodec64(p_dec_start, dec_len);
+		a = i;
+    }
+    if(*p == '.') {
+        p++;
+        if(isdec(*p)) {
+			const char * p_dec_start = p;
+			uint dec_len = 0;
+			do {
+				p++;
+				dec_len++;
+			} while(isdec(*p));
+			uint64 f = _texttodec64(p_dec_start, dec_len);
+			a += f * fpow10i(-dec_len);
+        }
+    }
+    return 1;
+}
 
 int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {

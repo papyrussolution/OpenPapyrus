@@ -504,7 +504,7 @@ int FASTCALL PPBill::GetFreight(PPFreight * pFreight) const
 		ASSIGN_PTR(pFreight, *P_Freight);
 		ok = 1;
 	}
-	else 
+	else
 		CALLPTRMEMB(pFreight, Z());
 	return ok;
 }
@@ -1848,9 +1848,7 @@ SLAPI PPBillExt::PPBillExt()
 }
 
 int SLAPI PPBillExt::IsEmpty() const
-{
-	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID) ? 0 : 1;
-}
+	{ return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID) ? 0 : 1; }
 
 int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
 {
@@ -2333,7 +2331,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		// @v10.0.0 {
 		if(op_rec.ExtFlags & OPKFX_AUTOGENUUID)
 			GenerateGuid(0);
-		// } @v10.0.0 
+		// } @v10.0.0
 	}
 	else // Теневой документ
 		Rec.Flags |= BILLF_GEXPEND;
@@ -2624,7 +2622,7 @@ int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pCl
 		THROW(SnL.AddNumber(pos, pSerial)); */
 	// @v9.8.12 {
 	if(pClb)
-		LTagL.AddNumber(PPTAG_LOT_CLB, pos, pClb); 
+		LTagL.AddNumber(PPTAG_LOT_CLB, pos, pClb);
 	if(pSerial)
 		LTagL.AddNumber(PPTAG_LOT_SN, pos, pSerial);
 	// } @v9.8.12

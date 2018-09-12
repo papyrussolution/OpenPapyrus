@@ -101,6 +101,8 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 				new_limit -= minus_delta;
 				ptr = SAlloc::R(data, new_limit * _is);
 			}
+			else
+				break;
 		}
 		if(ptr) {
 			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is);

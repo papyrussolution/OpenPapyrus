@@ -2845,7 +2845,8 @@ int SLAPI ExportUhttForGitHub()
 
 	LAssocArray brand_concord;
 	LAssocArray categ_concord;
-	LAssocArray word_concord;
+	//LAssocArray word_concord;
+	LAssocHashTable word_concord(SMEGABYTE(4));
 	PPTextAnalyzer text_analyzer2;
 	PPTextAnalyzer::Item text_analyzer_item;
 	StrAssocArray goods_grp_hier;
@@ -2923,16 +2924,16 @@ int SLAPI ExportUhttForGitHub()
 				uint   j;
 				uint   idx_first = 0, idx_count = 0;
 				text_ident.Z().CatChar('#').Cat(goods_rec.ID);
+				text_analyzer2.Reset(0);
 				text_analyzer2.Write(text_ident, 0, goods_name_ascii, goods_name_ascii.Len()+1);
 				text_analyzer2.Run(&idx_first, &idx_count);
 				for(j = 0; j < idx_count; j++) {
 					if(text_analyzer2.Get(idx_first+j, text_analyzer_item) && text_analyzer_item.Token == STokenizer::tokWord && text_analyzer_item.Text.NotEmpty()) {
 						long cc = 0;
-						uint cp = 0;
-						if(word_concord.Search((long)text_analyzer_item.TextId, &cc, &cp))
-							word_concord.at(cp).Val = cc+1; 
+						if(word_concord.Search((long)text_analyzer_item.TextId, &cc))
+							word_concord.Set((long)text_analyzer_item.TextId, cc+1); 
 						else
-							word_concord.Add((long)text_analyzer_item.TextId, 1); 
+							word_concord.Set((long)text_analyzer_item.TextId, 1); 
 					}
 				}
 			}
@@ -2972,7 +2973,7 @@ int SLAPI ExportUhttForGitHub()
 				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				brand_name.ReplaceChar('\t', ' ');
 				line_buf.Z().Cat(brand_id).Tab().Cat(brand_name).Tab().Cat(brand_concord.at(i).Val).CR();
-				f_out_brand.WriteLine(title_line);
+				f_out_brand.WriteLine(line_buf);
 			}
 		}
 	}
@@ -2987,20 +2988,23 @@ int SLAPI ExportUhttForGitHub()
 				(group_name = group_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				group_name.ReplaceChar('\t', ' ');
 				line_buf.Z().Cat(categ_id).Tab().Cat(group_name).Tab().Cat(categ_concord.at(i).Val).CR();
-				f_out_categ.WriteLine(title_line);
+				f_out_categ.WriteLine(line_buf);
 			}
 		}
 	}
-	if(word_concord.getCount()) {
+	{
 		(temp_buf = "uhtt_barcode_ref_word_concord").Dot().Cat("csv");
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 		SFile f_out_word(out_file_name, SFile::mWrite);
-		for(uint i = 0; i < word_concord.getCount(); i++) {
-			const uint text_id = (uint)word_concord.at(i).Key;
+		HashTableBase::Iter wciter;
+		long   key = 0;
+		long   val = 0;
+		for(word_concord.InitIteration(&wciter); word_concord.NextIteration(&wciter, &key, &val) > 0;) {
+			const uint text_id = (uint)key;
 			text_analyzer2.GetTextById(text_id, temp_buf);
 			temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
-			line_buf.Z().Cat(temp_buf).Tab().Cat(word_concord.at(i).Val).CR();
-			f_out_word.WriteLine(title_line);
+			line_buf.Z().Cat(temp_buf).Tab().Cat(val).CR();
+			f_out_word.WriteLine(line_buf);
 		}
 	}
 	PPWait(0);

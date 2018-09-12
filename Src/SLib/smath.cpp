@@ -266,35 +266,12 @@ double FASTCALL ffactr(uint i)
 	return (i < FACT_TAB_SIZE) ? p_fact_tab[i] : 0.0;
 }
 
-double FASTCALL degtorad(double deg)
-{
-	return (SMathConst::PiDiv180 * deg);
-}
-
-float FASTCALL degtorad(float deg)
-{
-	return ((float)SMathConst::PiDiv180 * deg);
-}
-
-double FASTCALL degtorad(int deg)
-{
-	return (SMathConst::PiDiv180 * deg);
-}
-
-double FASTCALL radtodeg(double rad)
-{
-	return (rad / SMathConst::PiDiv180);
-}
-
-double fscale(double v, double low, double upp)
-{
-	return (v - low) / (upp - low);
-}
-
-double SLAPI sigmoid(double a, double x)
-{
-	return (1.0 / (1.0 + exp(-(a * x))));
-}
+double FASTCALL degtorad(double deg) { return (SMathConst::PiDiv180 * deg); }
+float  FASTCALL degtorad(float deg) { return ((float)SMathConst::PiDiv180 * deg); }
+double FASTCALL degtorad(int deg) { return (SMathConst::PiDiv180 * deg); }
+double FASTCALL radtodeg(double rad) { return (rad / SMathConst::PiDiv180); }
+double fscale(double v, double low, double upp) { return (v - low) / (upp - low); }
+double SLAPI sigmoid(double a, double x) { return (1.0 / (1.0 + exp(-(a * x)))); }
 //
 //
 //

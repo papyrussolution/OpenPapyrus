@@ -316,7 +316,7 @@ int SLAPI DbfRecord::get(int fldN, double & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
-		data = 0;
+		data = 0.0;
 		return 0;
 	}
 	data = atof(tmp);
@@ -327,7 +327,7 @@ int SLAPI DbfRecord::get(int fldN, float & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
-		data = 0;
+		data = 0.0f;
 		return 0;
 	}
 	data = (float)atof(tmp);

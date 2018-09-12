@@ -5345,7 +5345,9 @@ int32 DL6ICLS_PPBillPacket::PutHeader(SPpyO_Bill * pHeader)
 		THROW(ok = p_pack->CreateBlank2(pHeader->OpID, dt, pHeader->LocID, 1));
 		FillBillPacket(pHeader, p_pack, 1);
 	}
-	CATCHZOK
+	CATCH
+		ok = RaiseAppError();
+	ENDCATCH
 	return ok;
 }
 
