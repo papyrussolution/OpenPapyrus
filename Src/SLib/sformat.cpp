@@ -770,6 +770,7 @@ static char * FASTCALL clearDelimiters(char * b)
 
 // @v9.4.3 #pragma warn +pia
 
+#if 0 // {
 int FASTCALL satof(const char * pBuf, double * pVal) // @construction
 {
     const char * p = pBuf;
@@ -808,6 +809,7 @@ int FASTCALL satof(const char * pBuf, double * pVal) // @construction
     }
     return 1;
 }
+#endif // } 0
 
 int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
