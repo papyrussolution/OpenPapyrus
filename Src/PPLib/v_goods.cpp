@@ -3093,10 +3093,12 @@ int SLAPI PPViewGoods::UpdateFlags()
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 0, GF_NODISCOUNT);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 1, GF_PASSIV);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 2, GF_PRICEWOTAXES);
+	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 3, GF_WANTVETISCERT); // @v10.1.12
 	dlg->SetClusterData(CTL_UPDGOODSFLAGS_SET, setf);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 0, GF_NODISCOUNT);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 1, GF_PASSIV);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 2, GF_PRICEWOTAXES);
+	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 3, GF_WANTVETISCERT); // @v10.1.12
 	dlg->SetClusterData(CTL_UPDGOODSFLAGS_RESET, resetf);
 	if(ExecView(dlg) == cmOK) {
 		setf = resetf = 0;

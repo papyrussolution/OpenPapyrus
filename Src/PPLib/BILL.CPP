@@ -483,12 +483,10 @@ int SLAPI BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 		if(do_update) {
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(updateRecBuf(&rec)); // @sfu
-			// @v8.8.3 {
 			if(flag == BILLF_WRITEDOFF && IsDraftOp(rec.OpID)) {
 				const PPID acn = set ? PPACN_BILLWROFF : PPACN_BILLWROFFUNDO;
 				DS.LogAction(acn, PPOBJ_BILL, billID, 0, 0);
 			}
-			// } @v8.8.3
 			ok = 1;
 		}
 		THROW(tra.Commit());
@@ -574,6 +572,7 @@ int SLAPI BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 	return r;
 }
 
+/* @v10.1.12 (inlined) 
 int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 {
 	int    ok = 1;
@@ -589,11 +588,13 @@ int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 		ok = -1;
 	}
 	return ok;
-}
+}*/
 
 int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
+	Reference * p_ref = PPRef;
 	pInfo->BaseDestroy();
 	THROW(Search(id, &pInfo->Rec) > 0);
 	BillCore::GetCode(pInfo->Rec.Code);
@@ -607,7 +608,7 @@ int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 	if(pInfo->Rec.Flags & BILLF_BANKING) {
 		PPBankingOrder paym_order;
 		MEMSZERO(paym_order);
-		if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
+		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 			THROW_MEM(pInfo->P_PaymOrder = new PPBankingOrder);
 			memcpy(pInfo->P_PaymOrder, &paym_order, sizeof(paym_order));
 		}
@@ -622,8 +623,24 @@ int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 		else
 			THROW(pInfo->SetFreight(0));
 	}
-	if(pInfo->Rec.Flags & BILLF_ADVANCEREP)
-		THROW(GetAdvanceRep(id, &pInfo->P_AdvRep));
+	if(pInfo->Rec.Flags & BILLF_ADVANCEREP) {
+		//THROW(GetAdvanceRep(id, &pInfo->P_AdvRep));
+		PPAdvanceRep advrep;
+		THROW_MEM(SETIFZ(pInfo->P_AdvRep, new PPAdvanceRep));
+		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0) {
+			memcpy(pInfo->P_AdvRep, &advrep, sizeof(advrep));
+		}
+		else
+			memzero(pInfo->P_AdvRep, sizeof(*pInfo->P_AdvRep));
+	}
+	if(GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT) {
+		PPBill::Agreement agt;
+		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0) {
+			THROW_MEM(SETIFZ(pInfo->P_Agt, new PPBill::Agreement(agt)));
+		}
+		else
+			ZDELETE(pInfo->P_Agt);
+	}
 	THROW(GetAmountList(id, &pInfo->Amounts));
 	THROW(GetPayPlan(id, &pInfo->Pays));
 	THROW(r);
@@ -652,7 +669,7 @@ void SLAPI BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 	copyBufFrom(pRec);
 	BillCore::SetCode(data.Code, data.Flags);
 	data.Flags &= ~BILLF_NOLOADTRFR;
-	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT; // @v8.3.2
+	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
 }
 
 int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
@@ -748,6 +765,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, pInfo->Rec.Flags & BILLF_BANKING, pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
 		THROW(PutBillProp(*pID, BILLPRP_FREIGHT, pInfo->Rec.Flags & BILLF_FREIGHT, pInfo->P_Freight, sizeof(PPFreight)));
 		THROW(PutBillProp(*pID, BILLPRP_ADVANCEREP, pInfo->Rec.Flags & BILLF_ADVANCEREP, pInfo->P_AdvRep, sizeof(PPAdvanceRep)));
+		THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement))); // @v10.1.12
 		if(is_new) {
 			{
 				//

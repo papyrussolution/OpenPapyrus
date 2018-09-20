@@ -422,7 +422,7 @@ int SLAPI TestNoLogin()
 	TestSPathStruc("c:\\papyrus\\src\\pptest\\path.txt");
 #endif
 #ifdef TEST_LOCALE
-	char * p_loc = setlocale(LC_ALL, "rus_rus.1251");
+	char * p_loc = setlocale(LC_COLLATE, "rus_rus.1251");
 	SString c1, c2;
 	c1 = "аврора";
 	c2 = "а¬рќра";

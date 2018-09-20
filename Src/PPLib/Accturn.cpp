@@ -956,6 +956,14 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID
 		THROW_PP(AccRel.data.Closed == 0, PPERR_ACCTCLOSED);
 	}
 	else {
+		// @v10.1.12 @debug {
+		/*
+		AcctRelTbl::Rec ex_rec;
+		THROW(r = AccRel.SearchNum(0, &acct, curID, &ex_rec));
+		if(r > 0) {
+		}
+		*/
+		// } @v10.1.12 
 		THROW(AccRel.OpenAcct(pAccRelID, &acct, curID, pAcctId, kind));
 	}
 	CATCHZOK

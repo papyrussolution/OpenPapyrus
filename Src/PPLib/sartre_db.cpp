@@ -6,8 +6,8 @@
 #pragma hdrstop
 #include <sartre.h>
 #include <locale.h>
-//#include <berkeleydb.h>
-#include <berkeleydb-6232.h>
+#include <berkeleydb.h>
+//#include <berkeleydb-6232.h>
 //
 //
 //
@@ -2995,7 +2995,6 @@ struct StoreFiasAddrBlock {
 	CONCEPTID CRussia; // Концепция, представляющая государство Россия (:statu_ru)
 	TSVector <Sdr_FiasRawAddrObj> SrcList;
 	SymbHashTable ProcessedSymbols;
-	//STokenizer T;
 	TextHash   H;
 };
 
@@ -3041,7 +3040,7 @@ int SrDatabase::ResolveNgFromTokenizer(const STokenizer & rTknz, uint idxFirst, 
 	const  uint wftoset_count = pWfToSet ? pWfToSet->GetTagCount() : 0;
 	STokenizer::Item titem, titem_next;
 	rNg.Z();
-	for(uint tidx = idxFirst; tidx < idxCount; tidx++) {
+	for(uint tidx = 0; tidx < idxCount; tidx++) {
 		LEXID word_id = 0;
 		if(rTknz.Get(idxFirst+tidx, titem)) {
 			if(titem.Token == STokenizer::tokWord) {
@@ -3383,7 +3382,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					for(uint namessp = 0; ss_name.get(&namessp, text);) {
 						uint   idx_first = 0;
 						uint   idx_count = 0;
-						tknz.RunSString(0, 0, text, &idx_first, &idx_count);
+						tknz.Reset(0).RunSString(0, 0, text, &idx_first, &idx_count);
 						// @v10.0.11 {
 						const int gngftr = ResolveNgFromTokenizer(tknz, idx_first, idx_count, &wordform, rngftoSkipDotAfterWord, ng);
 						THROW(gngftr);

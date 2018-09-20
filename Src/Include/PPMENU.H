@@ -306,82 +306,82 @@
 #define cmManufPlan                    415 // Производственные планы
 #define cmFTPAcct                      416 // FTP аккаунты
 #define cmReport                       417 // Настройка отчетов
-#define cmPrcBusy                      418 // @v5.0.5  Занятость процессоров
-#define cmPaymWOLinkBill               419 // @v5.0.10 Поиск оплат без связанного документа
-#define cmRemoveZeroLinkCCLines        420 // @v5.1.0  Удаление висячих строк чеков
-#define cmTouchScreen                  421 // @v5.1.2  TouchScreen
-#define cmEditDesktops                 422 // @v5.1.x  Редактирование рабочих столов
-#define cmSelDesktop                   423 // @v5.1.x  Выбор рабочего стола
-#define cmEditMenus                    424 // @v5.1.x  Редактирование меню
-#define cmEditMenusFromFile            425 // @v5.1.x  Редактирование меню из файла
-#define cmDateTimeRep                  426 // @v5.2.0  Периодичность
-#define cmDutySched                    427 // @v5.2.0  График дежурств
-#define cmLocPrinter                   428 // @v5.2.0  Локальные принтеры
-#define cmCfgImpSpecSeries             429 // @v5.2.1  Конфигурация импорта специальных серий
-#define cmEditWorld                    430 // @v5.2.6  Редактирование географических объектов
-#define cmBillExpImpParams             431 // @v5.2.7  Редактирование форматов экспорта/импорта документов
-#define cmBRowExpImpParams             432 // @v5.2.7  Редактирование форматов экспорта/импорта строк документов
-#define cmImportBills                  433 // @v5.2.7  Импорт документов
-#define cmViewGoodsInfo                434 // @v5.2.9  Информационный киоск
-#define cmEditGoodsInfo                435 // @v5.2.9  Редактирование информационных киосков
-#define cmAddPerson                    436 // @v5.2.9  Добавить персоналию
-#define cmAddTask                      437 // @v5.2.9  Добавить задачу
-#define cmPrjTask_ByStatus             438 // @v5.2.9  Показать непросмотренные задачи (вызывается по двойному щелчку мыши из окна статуса)
-#define cmLoadFonts                    439 // @v5.2.12 Загрузка шрифтов на принтер штрихкодов
-#define cmCashSessExpImpParams         440 // @v5.3.0  Редактирование форматов экспорта/импорта кассовых сессий
-#define cmGenerateGoodsBills           441	// @v5.3.1  Генерация товарных документов
-#define cmPersonRel                    442 // @v5.3.2  Редактирование персональных отношений
-#define cmViewLogs                     443 // @v5.3.3  Просмотр логов
-#define cmMailAcct                     444 // @v5.3.4  Редактирование почтовых акаунтов
-#define cmImportEmailAccts             445 // @v5.3.4  Импорт почтовых акаунтов
-#define cmKeyboardWKeyCfg              446 // @v5.3.5  Конфигурация клавиатуры с ключом
-#define cmViewGoodsStruc               447 // @v5.3.6  Товарные структуры
-#define cmCorrectTransfer              448 // @v5.3.7  Восстановление записей transfer
-#define cmSalCharge                    449 // @v5.3.8  Начисления зарплаты
-// @v5.5.1 #define cmSalChargeGrp      450 // @v5.3.8  Группы начислений зарплаты
-#define cmStaffCalendar                451 // @v5.3.9  Календари
-#define cmSCSIncasso                   452 // @v5.3.11 Инкассация (SyncCashSess)
-#define cmSupplGoodsImport             453 // @v5.4.0  Импорт товаров от поставщика
-#define cmSupplInterchange             454 // @v5.4.0  Экспорт данных для поставщика // @v9.2.1 cmExportDataForSuppl-->cmSupplInterchange
+#define cmPrcBusy                      418 // Занятость процессоров
+#define cmPaymWOLinkBill               419 // Поиск оплат без связанного документа
+#define cmRemoveZeroLinkCCLines        420 // Удаление висячих строк чеков
+#define cmTouchScreen                  421 // TouchScreen
+#define cmEditDesktops                 422 // Редактирование рабочих столов
+#define cmSelDesktop                   423 // Выбор рабочего стола
+#define cmEditMenus                    424 // Редактирование меню
+#define cmEditMenusFromFile            425 // Редактирование меню из файла
+#define cmDateTimeRep                  426 // Периодичность
+#define cmDutySched                    427 // График дежурств
+#define cmLocPrinter                   428 // Локальные принтеры
+#define cmCfgImpSpecSeries             429 // Конфигурация импорта специальных серий
+#define cmEditWorld                    430 // Редактирование географических объектов
+#define cmBillExpImpParams             431 // Редактирование форматов экспорта/импорта документов
+#define cmBRowExpImpParams             432 // Редактирование форматов экспорта/импорта строк документов
+#define cmImportBills                  433 // Импорт документов
+#define cmViewGoodsInfo                434 // Информационный киоск
+#define cmEditGoodsInfo                435 // Редактирование информационных киосков
+#define cmAddPerson                    436 // Добавить персоналию
+#define cmAddTask                      437 // Добавить задачу
+#define cmPrjTask_ByStatus             438 // Показать непросмотренные задачи (вызывается по двойному щелчку мыши из окна статуса)
+#define cmLoadFonts                    439 // Загрузка шрифтов на принтер штрихкодов
+#define cmCashSessExpImpParams         440 // Редактирование форматов экспорта/импорта кассовых сессий
+#define cmGenerateGoodsBills           441 // Генерация товарных документов
+#define cmPersonRel                    442 // Редактирование персональных отношений
+#define cmViewLogs                     443 // Просмотр логов
+#define cmMailAcct                     444 // Редактирование почтовых акаунтов
+#define cmImportEmailAccts             445 // Импорт почтовых акаунтов
+#define cmKeyboardWKeyCfg              446 // Конфигурация клавиатуры с ключом
+#define cmViewGoodsStruc               447 // Товарные структуры
+#define cmCorrectTransfer              448 // Восстановление записей transfer
+#define cmSalCharge                    449 // Начисления зарплаты
+// @v5.5.1 #define cmSalChargeGrp      450 // Группы начислений зарплаты
+#define cmStaffCalendar                451 // Календари
+#define cmSCSIncasso                   452 // Инкассация (SyncCashSess)
+#define cmSupplGoodsImport             453 // Импорт товаров от поставщика
+#define cmSupplInterchange             454 // Экспорт данных для поставщика // @v9.2.1 cmExportDataForSuppl-->cmSupplInterchange
 #define cmExportDataForSuppl           cmSupplInterchange // @obsolete
-#define cmSCardCfg                     455 // @v5.4.0  Конфигурация дисконтных карт
-#define cmRecoverAbsenceAccounts       456 // @v5.4.5 Восстановление отсутствующих счетов
-#define cmAddPersonEvent               457 // @v5.4.7  Добавить персональное событие
-#define cmRecoverAbsencePrjTaskPerson  458 // @v5.4.9  Восстановление отсутствующих персоналий в задачах
-#define cmPersonCfg                    459 // @v5.4.10 Конфигурация персоналий
-#define cmReplaceUnit                  460 // @v5.4.11 Объединение единиц измерени
-#define cmReplaceWorld                 461 // @v5.4.11 Объединение географических объектов
-#define cmRegisterComServer            462 // @v5.4.11 Регистрация COM-сервера
-#define cmUnregisterComServer          463 // @v5.4.11 Дерегистрация COM-сервера
-#define cmDBMaintainCfg                464 // @v5.4.14 Конфигурация обслуживания базы данных
-#define cmViewSalary                   465 // @v5.5.1  Просмотр начислений зарплаты
-#define cmChargeSalary                 466 // @v5.5.1  Начисление зарплаты
-#define cmGoods2CashNodeAssoc          467 // @v5.5.6  Ассоциация товар (товарная группа) - кассовый узел
-#define cmViewStaffCal                 468 // @v5.5.7  Анализ штатных календарей
-#define cmImportKLADR                  469 // @v5.5.12 Импорт классификатора адресов (КЛАДР)
-#define cmGoods2WareplaceAssoc         470 // @v5.6.3  Ассоциация товар (товарная группа) - места хранения //
-#define cmViewObjSyncQueue             471 // @v5.6.8  Просмотр очереди синхронизации объектов
-#define cmPriceListExpImpParams        472 // @v5.6.8  Конфигурация форматов экспорта/импорта прайс-листов
-#define cmCreateObjLikeness            473 // @v5.6.14 Создание таблицы сравнения объектов
-#define cmObjLikeness                  474 // @v5.6.14 Сравнение объектов
-#define cmNamedObjAssoc                475 // @v5.7.3  Именованные ассоциации объеков
-#define cmAddBill                      476 // @v5.7.5  Добавить документ
-#define cmExpImpParamsInventory        477 // @v5.8.4  Конфигурация импорта инвентаризации
-#define cmImportInventory              478 // @v5.8.4  Импорт инвентаризации
-#define cmEditPaintCloths              479 // @v5.8.x  Редактирование полотен
-#define cmEditWhatman                  479 // @v6.6.9
-#define cmViewLogsMon		           480 // @v5.8.4  Монитор журналов
-#define cmDebtRate                     481 // @v5.9.9  Процессинг должников
-#define cmBizScore                     482 // @v5.9.10 Бизнес-показатели
-#define cmTransportCfg                 483 // @v5.9.10 Конфигурация транспорта
-#define cmBizScoreCalc                 484 // @v5.9.10 Расчет бизнес-показателей
-#define cmBizScoreVal                  485 // @v5.9.10 Просмотр бизнес-показателей
-#define cmShowBizScoreOnDesktop        486 // @v5.9.11 Показать бизнес-показатели на рабочем столе
-#define cmGlobalUserAcc                487 // @v5.9.12 Глобальные учетные записи
-#define cmCreateGlobalUserAcc          488 // @v5.9.14 Регистрация пользователя в глобальной базе данных
-#define cmDebtorStat                   489 // @v6.0.0  Статистика по дебиторам
-#define cmDebtorStatCfg                490 // @v6.0.1  Конфигурация статистики дебиторов
-#define cmUpdatePpIni                  491 // @v6.0.2  Изменение параметров файла bin\pp.ini посредством транспортного
+#define cmSCardCfg                     455 // Конфигурация дисконтных карт
+#define cmRecoverAbsenceAccounts       456 // Восстановление отсутствующих счетов
+#define cmAddPersonEvent               457 // Добавить персональное событие
+#define cmRecoverAbsencePrjTaskPerson  458 // Восстановление отсутствующих персоналий в задачах
+#define cmPersonCfg                    459 // Конфигурация персоналий
+#define cmReplaceUnit                  460 // Объединение единиц измерени
+#define cmReplaceWorld                 461 // Объединение географических объектов
+#define cmRegisterComServer            462 // Регистрация COM-сервера
+#define cmUnregisterComServer          463 // Дерегистрация COM-сервера
+#define cmDBMaintainCfg                464 // Конфигурация обслуживания базы данных
+#define cmViewSalary                   465 // Просмотр начислений зарплаты
+#define cmChargeSalary                 466 // Начисление зарплаты
+#define cmGoods2CashNodeAssoc          467 // Ассоциация товар (товарная группа) - кассовый узел
+#define cmViewStaffCal                 468 // Анализ штатных календарей
+#define cmImportKLADR                  469 // Импорт классификатора адресов (КЛАДР)
+#define cmGoods2WareplaceAssoc         470 // Ассоциация товар (товарная группа) - места хранения //
+#define cmViewObjSyncQueue             471 // Просмотр очереди синхронизации объектов
+#define cmPriceListExpImpParams        472 // Конфигурация форматов экспорта/импорта прайс-листов
+#define cmCreateObjLikeness            473 // Создание таблицы сравнения объектов
+#define cmObjLikeness                  474 // Сравнение объектов
+#define cmNamedObjAssoc                475 // Именованные ассоциации объеков
+#define cmAddBill                      476 // Добавить документ
+#define cmExpImpParamsInventory        477 // Конфигурация импорта инвентаризации
+#define cmImportInventory              478 // Импорт инвентаризации
+#define cmEditPaintCloths              479 // Редактирование полотен
+#define cmEditWhatman                  479 // 
+#define cmViewLogsMon		           480 // Монитор журналов
+#define cmDebtRate                     481 // Процессинг должников
+#define cmBizScore                     482 // Бизнес-показатели
+#define cmTransportCfg                 483 // Конфигурация транспорта
+#define cmBizScoreCalc                 484 // Расчет бизнес-показателей
+#define cmBizScoreVal                  485 // Просмотр бизнес-показателей
+#define cmShowBizScoreOnDesktop        486 // Показать бизнес-показатели на рабочем столе
+#define cmGlobalUserAcc                487 // Глобальные учетные записи
+#define cmCreateGlobalUserAcc          488 // Регистрация пользователя в глобальной базе данных
+#define cmDebtorStat                   489 // Статистика по дебиторам
+#define cmDebtorStatCfg                490 // Конфигурация статистики дебиторов
+#define cmUpdatePpIni                  491 // Изменение параметров файла bin\pp.ini посредством транспортного
 									       // файла pp_upd.ini
 #define cmGotoSite                     492 // @v6.0.7  Перейти на сайт фирмы Петроглиф
 #define cmGenerateCliBnkImport         493 // @v6.0.9 Генерация платежей для импорта из клиент-банк

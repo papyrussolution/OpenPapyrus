@@ -4758,11 +4758,9 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 						else {
 							THROW(FT.UrT.GetUuid(p_data->HOUSEGUID, &rec.IdUuRef, 0, 0));
 							THROW(sr = FT.SearchHouse(rec.IdUuRef, &org_rec));
-							// @v8.9.10 {
 							if(sr < 0 && r_state.Phase == phaseData && HouseRecChunk.lsearch(&rec.IdUuRef, 0, CMPF_LONG)) {
 								sr = 1;
 							}
-							// } @v8.9.10
 							if(sr < 0) {
 								FiasObjCore::HouseCode hse_code(0);
 								THROW(FT.UrT.GetUuid(p_data->AOGUID, &rec.ParentUuRef, UuidRefCore::sgoHash, 0));

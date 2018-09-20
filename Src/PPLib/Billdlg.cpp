@@ -651,6 +651,7 @@ static uint SLAPI GetBillDialogID(PPBillPacket * pack, uint * pPrnForm)
 				return DLG_ATWROFF;
 			else
 				return DLG_ATEXT;
+		case PPOPT_AGREEMENT: return DLG_AGTBILL; // @v10.1.12
 		case PPOPT_PAYMENT: return DLG_PAYMENT;
 		case PPOPT_CHARGE : return /*DLG_CHARGE*/DLG_PAYMENT;
 		case PPOPT_DRAFTRECEIPT:
@@ -843,13 +844,19 @@ void BillDialog::SetupDiscountCtrls()
 
 void BillDialog::setDiscount(double d, int inPercent)
 {
-	SString buf;
-	buf.Cat(d, MKSFMTD(0, 2, NMBF_TRICOMMA|NMBF_NOZERO));
-	if(inPercent)
-		buf.CatChar('%');
-	if(P_Pack->Rec.Flags & BILLF_RMVEXCISE)
-		buf.CatChar('A');
-	setCtrlString(CTL_BILL_DISCOUNT, buf.Strip());
+	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
+		double agt_dscnt = P_Pack->P_Agt ? P_Pack->P_Agt->Dscnt : 0.0;
+		setCtrlReal(CTL_BILL_DISCOUNT, agt_dscnt);
+	}
+	else {
+		SString buf;
+		buf.Cat(d, MKSFMTD(0, 2, NMBF_TRICOMMA|NMBF_NOZERO));
+		if(inPercent)
+			buf.CatChar('%');
+		if(P_Pack->Rec.Flags & BILLF_RMVEXCISE)
+			buf.CatChar('A');
+		setCtrlString(CTL_BILL_DISCOUNT, buf.Strip());
+	}
 }
 
 int BillDialog::getDiscount(double * pDiscount, int * pInPercent, int * pRmvExcise)
@@ -2380,7 +2387,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	double dis = 0.0;
 	ushort v;
 	AmtEntry * ae;
-	int    dsbl_object = 0, dsbl_object2 = 0;
+	int    dsbl_object = 0;
+	int    dsbl_object2 = 0;
 	PPOprKindPacket op_pack;
 	PPObjOprKind    opkobj;
 	PPID   id = 0;
@@ -2537,6 +2545,15 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	if(!(Flags & fEditMode))
 		P_BObj->SubstMemo(P_Pack);
 	setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	// @v10.1.12 {
+	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
+		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
+		setCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
+		setCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
+		setCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
+		setCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
+	}
+	// } @v10.1.12 
 	setupHiddenButton(OPKF_RENT,        cmRentCondition, CTL_BILL_RENTBUTTON);
 	setupHiddenButton(OPKF_BANKING,     cmPaymOrder,     CTL_BILL_PAYMORDBUTTON);
 	if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_BANKING)) {
@@ -2573,6 +2590,10 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_EDIACKRESP, 0);
 	showCtrl(CTL_BILL_EDIACKSTATUS, 0);
 	showButton(cmEdiAckBill, 0);
+	// @v10.1.12 {
+	if(P_Pack->OpTypeID == PPOPT_AGREEMENT)
+		showButton(cmDetail, 0);
+	// } @v10.1.12 
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
 		const int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
         if(recadv_status) {
@@ -2823,6 +2844,15 @@ int BillDialog::getDTS(int onCancel)
 		}
 	}
 	getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	// @v10.1.12 {
+	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
+		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
+		getCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
+		getCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
+		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
+		getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
+	}
+	// } @v10.1.12 
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
 		THROW(getAdvanceRepData(P_Pack->P_AdvRep));
 	intr = IsIntrOp(P_Pack->Rec.OpID);

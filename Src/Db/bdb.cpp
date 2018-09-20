@@ -5,8 +5,8 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-//#include <berkeleydb.h>
-#include <berkeleydb-6232.h>
+#include <berkeleydb.h>
+//#include <berkeleydb-6232.h>
 
 BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */), T(0)
 {
@@ -465,10 +465,12 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 			DBTYPE db_type = (DBTYPE)0;
 			if(p_db->get_type(p_db, &db_type) == 0) {
 				if(db_type == DB_BTREE) {
-					p_db->set_bt_compare(p_db, BDbTable::CmpCallback_6232);
+					//p_db->set_bt_compare(p_db, BDbTable::CmpCallback_6232);
+					p_db->set_bt_compare(p_db, BDbTable::CmpCallback);
 				}
 				else if(db_type == DB_HASH) {
-					p_db->set_h_compare(p_db, BDbTable::CmpCallback_6232);
+					//p_db->set_h_compare(p_db, BDbTable::CmpCallback_6232);
+					p_db->set_h_compare(p_db, BDbTable::CmpCallback);
 				}
 			}
 		}
@@ -488,8 +490,10 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	{
 		int    opf = DB_AUTO_COMMIT|DB_MULTIVERSION|DB_READ_UNCOMMITTED;
 		if(flags & BDbTable::ofExclusive) {
+			/* @v10.1.12
 			r = p_db->set_lk_exclusive(p_db, 1);  
 			THROW(ProcessError(r, p_db, pFileName));
+			*/
 		}
 		else
 			opf |= DB_THREAD;

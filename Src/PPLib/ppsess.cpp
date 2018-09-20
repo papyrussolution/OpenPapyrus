@@ -1703,6 +1703,7 @@ static void InitTest()
 
 	assert(sizeof(PPGeoTrackingMode) == 8);
 	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
+	assert(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
 	// @v9.0.11 {
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
@@ -1769,11 +1770,11 @@ static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
     rBuf.Z();
 	// @v10.1.11 {
 	static const SIntToSymbTabEntry path_symb_list[] = {
-		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" }, 
+		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" },
 		{ PPPATH_OUT, "out" }, { PPPATH_LOG, "log" },     { PPPATH_TESTROOT, "testroot" }, { PPPATH_WORKSPACE, "workspace" },
 	};
 	int    path_id = SIntToSymbTab_GetId(path_symb_list, SIZEOFARRAY(path_symb_list), pSignature);
-	// } @v10.1.11 
+	// } @v10.1.11
     /* @v10.1.11
 	if(sstreqi_ascii(pSignature, "bin"))
 		path_id = PPPATH_BIN;
@@ -2727,7 +2728,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(usr_rec.ID != PPUSR_MASTER && checkdate(usr_rec.ExpiryDate)) {
 					THROW_PP_S(getcurdate_() <= usr_rec.ExpiryDate, PPERR_USRACCEXPIRED, usr_rec.Name);
 				}
-				// } @v10.1.10 
+				// } @v10.1.10
 				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)

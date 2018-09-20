@@ -365,33 +365,26 @@ static void qr_binary(int datastream[], int version, int target_binlen, char mod
 			    /* Kanji mode */
 			    /* Mode indicator */
 			    strcat(binary, "1000");
-
 			    /* Character count indicator */
 			    qr_bscan(binary, short_data_block_length, 0x20 << (scheme * 2)); /* scheme = 1..3 */
-
 			    if(debug) {
 				    printf("Kanji block (length %d)\n\t", short_data_block_length);
 			    }
-
 			    /* Character representation */
 			    for(i = 0; i < short_data_block_length; i++) {
 				    int jis = jisdata[position + i];
 				    int msb, lsb, prod;
-
 				    if(jis > 0x9fff) {
 					    jis -= 0xc140;
 				    }
 				    msb = (jis & 0xff00) >> 4;
 				    lsb = (jis & 0xff);
 				    prod = (msb * 0xc0) + lsb;
-
 				    qr_bscan(binary, prod, 0x1000);
-
 				    if(debug) {
 					    printf("0x%4X ", prod);
 				    }
 			    }
-
 			    if(debug) {
 				    printf("\n");
 			    }

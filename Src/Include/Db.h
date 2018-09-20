@@ -414,7 +414,6 @@ public:
 	//
 	int    SLAPI IsEqRec() const;
 	SBaseBuffer FASTCALL Get(uint recNo) const;
-// @v6.2.1 protected:
 	//
 	// Descr: Возвращает буфер в котором значение Size равно this->Pos.
 	//
@@ -1373,7 +1372,7 @@ private:
 	DBTable * SLAPI table() const;
 	int    FASTCALL findKey(int key) const;
 	int    FASTCALL findKeyByNumber(int keyNumber) const;
-	int    SLAPI getNumCells() const;
+	uint   SLAPI GetNumCells() const;
 	void * P_Data;
 };
 //

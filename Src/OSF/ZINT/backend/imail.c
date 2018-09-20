@@ -29,10 +29,9 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
  */
-
-/*  The function "USPS_MSB_Math_CRC11GenerateFrameCheckSequence"
-    is Copyright (C) 2006 United States Postal Service */
-
+//
+// The function "USPS_MSB_Math_CRC11GenerateFrameCheckSequence" is Copyright (C) 2006 United States Postal Service 
+//
 #include "common.h"
 #pragma hdrstop
 //#include "large.h"

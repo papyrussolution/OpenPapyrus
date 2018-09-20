@@ -1174,6 +1174,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 				pInfo->Cost     = rtl_ext_item.Cost;
 				pInfo->Price    = rtl_ext_item.Price;
 				pInfo->ExtPrice = rtl_ext_item.ExtPrice;
+				pInfo->OuterPrice = rtl_ext_item.OuterPrice; // @v10.1.12 @fix
 				pInfo->Expiry   = rtl_ext_item.Expiry;
 				pInfo->ManufDtm = rtl_ext_item.ManufDtm;
 				pInfo->QuotKindUsedForPrice    = rtl_ext_item.QuotKindUsedForPrice;
@@ -2734,7 +2735,10 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	// Этот список препятствует двойному применению одной и той же котировки к цене.
 	//
 	PPIDArray used_quot_list;
-	double price = 0.0, ext_price = 0.0, quot = 0.0;
+	int    use_outer_price = 0; // @v10.1.12
+	double price = 0.0;
+	double ext_price = 0.0;
+	double quot = 0.0;
 	double base_price = 0.0;
 	ReceiptTbl::Rec lot_rec;
 	MEMSZERO(lot_rec);
@@ -2766,6 +2770,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 		THROW(ok = ::GetCurGoodsPrice(goodsID, LocID, gp_flags, &price, &lot_rec));
 		if(Flags & RTLPF_USEOUTERPRICE && pItem->OuterPrice > 0.0) {
 			price = pItem->OuterPrice;
+			use_outer_price = 1;
 		}
 		base_price = price;
 		assert(!lot_rec.GoodsID || labs(lot_rec.GoodsID) == goodsID);
@@ -2775,13 +2780,14 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			if(PPRef->Ot.GetTag(PPOBJ_LOT, lot_rec.ID, PPTAG_LOT_MANUFTIME, &tag) > 0 && tag.GetTimestamp(&dtm) > 0)
 				pItem->ManufDtm = dtm;
 		}
-		if(Flags & RTLPF_PRICEBYQUOT) {
+		if(Flags & RTLPF_PRICEBYQUOT) { 
 			double q_price = 0.0;
 			const QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {
 				pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
-				price = q_price;
-				base_price = price;
+				if(!use_outer_price) // @v10.1.12 !use_outer_price
+					price = q_price;
+				base_price = q_price;
 				used_quot_list.addUnique(PPQUOTK_BASE);
 			}
 		}

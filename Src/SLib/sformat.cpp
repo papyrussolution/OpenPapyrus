@@ -770,10 +770,10 @@ static char * FASTCALL clearDelimiters(char * b)
 
 // @v9.4.3 #pragma warn +pia
 
-#if 0 // {
 int FASTCALL satof(const char * pBuf, double * pVal) // @construction
 {
-    const char * p = pBuf;
+	int    ok = 0;
+    const  char * p = pBuf;
     double a = 0.0;
     int    e = 0;
     while(*p == ' ' || *p == '\t')
@@ -784,32 +784,91 @@ int FASTCALL satof(const char * pBuf, double * pVal) // @construction
 			sign *= -1;
 		p++;
     }
-    if(isdec(*p)) {
-		const char * p_dec_start = p;
-		uint dec_len = 0;
-		do {
+    {
+    	char   dec_buf[256];
+		uint   dec_len = 0;
+		if(*p == '0') {
+			do {
+				p++;
+			} while(*p == '0');
+			ok = 1;
+		}
+		if(isdec(*p)) {
+			do {
+				dec_buf[dec_len++] = *p++;
+			} while(isdec(*p));
+			//uint64 i = _texttodec64(p_dec_start, dec_len);
+			//a = (double)i;
+			ok = 1;
+		}
+		if(*p == '.') {
 			p++;
-			dec_len++;
-		} while(isdec(*p));
-		uint64 i = _texttodec64(p_dec_start, dec_len);
-		a = i;
+			if(dec_len == 0 && *p == '0') {
+				do {
+					p++;
+					e--;
+				} while(*p == '0');
+				ok = 1;
+			}
+			if(isdec(*p)) {
+				do {
+					dec_buf[dec_len++] = *p++;
+					e--;
+				} while(isdec(*p));
+				//uint64 f = _texttodec64(p_dec_start, dec_len);
+				//a += f * fpow10i(-(int)dec_len);
+				ok = 1;
+			}
+		}
+		if(dec_len < 9)
+			a = (double)_texttodec32(dec_buf, dec_len);
+		else if(dec_len < 19)
+			a = (double)_texttodec64(dec_buf, dec_len);
+		else {
+			const uint max_sig_dig = 18/*31*/;
+			if(dec_len > max_sig_dig) {
+				for(uint i = 0; i < max_sig_dig; i++)
+					a = (a * 10.0) + (dec_buf[i] - '0');
+				e += (dec_len-max_sig_dig);
+			}
+			else {
+				for(uint i = 0; i < dec_len; i++)
+					a = (a * 10.0) + (dec_buf[i] - '0');
+			}
+		}
     }
-    if(*p == '.') {
+    if(oneof2(*p, 'e', 'E')) {
         p++;
-        if(isdec(*p)) {
+		int    esign = 1;
+		while(*p == '-' || *p == '+') {
+			if(*p == '-')
+				esign *= -1;
+			p++;
+		}
+		if(isdec(*p)) {
 			const char * p_dec_start = p;
 			uint dec_len = 0;
 			do {
 				p++;
 				dec_len++;
 			} while(isdec(*p));
-			uint64 f = _texttodec64(p_dec_start, dec_len);
-			a += f * fpow10i(-dec_len);
-        }
+			uint32 eae = _texttodec32(p_dec_start, dec_len);
+			if(esign < 0)
+				e -= eae;
+			else
+				e += eae;
+			//a *= fpow10i(((long)E) * esign);
+			ok = 1;
+		}
     }
-    return 1;
+	if(a) {
+		a *= fpow10i(e);
+		if(sign < 0)
+			a = -a;
+	}
+    ASSIGN_PTR(pVal, a);
+    return ok;
 }
-#endif // } 0
 
 int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {

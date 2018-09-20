@@ -60,7 +60,7 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 	ngx_time_t * tp;
 	ngx_uint_t n;
 	SYSTEM_INFO si;
-	/* get Windows version */
+	// get Windows version 
 	memzero(&osvi, sizeof(OSVERSIONINFOEX));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 #ifdef _MSC_VER
@@ -104,9 +104,12 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 	ngx_cacheline_size = NGX_CPU_CACHE_LINE;
 	for(n = ngx_pagesize; n >>= 1; ngx_pagesize_shift++) { /* void */
 	}
-	/* delete default "C" locale for _wcsicmp() */
-	setlocale(LC_ALL, "");
-	/* init Winsock */
+	// delete default "C" locale for _wcsicmp() 
+	// @v10.1.12 setlocale(LC_ALL, "");
+	setlocale(LC_COLLATE, ""); // @v10.1.12
+	setlocale(LC_CTYPE, ""); // @v10.1.12
+	setlocale(LC_TIME, ""); // @v10.1.12
+	// init Winsock 
 	if(WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
 		ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno, "WSAStartup() failed");
 		return NGX_ERROR;

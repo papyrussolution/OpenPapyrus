@@ -179,6 +179,16 @@ uint32 FASTCALL swapdw(uint32 dw)
 }
 #endif // } _WIN32_WCE
 
+uint32 FASTCALL msb32(uint32 x)
+{
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	x |= (x >> 16);
+	return (x & ~(x >> 1));
+}
+
 void FASTCALL memswap(void * p1, void * p2, size_t size)
 {
 	switch(size) {

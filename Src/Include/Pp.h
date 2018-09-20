@@ -8512,8 +8512,8 @@ struct PPClientAgreement { // @persistent
 	LDATE  LockPrcBefore;  // Дата, до которой процессинг должников не меняет параметры соглашения //
 	char   Code[12];       // Номер соглашения //
 	float  PriceRoundPrec; // Точность округления окончательной цены в документах
-	int16  RetLimPrd;      // @v7.1.5 Период ограничения доли возвратов от суммы товарооборота
-	uint16 RetLimPart;     // @v7.1.5 Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
+	uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	//
 	// Descr: Значения базы определения даты оплаты по документу
 	//
@@ -9769,6 +9769,39 @@ public:
 		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
 		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
 	SVerT  Ver; // @v9.8.11 Версия системы, которая создала сериализованную копию объекта
+	//
+	// Descr: Блок, содержащий данные о договоре на поставку/продажу. Используется в документах, относящихся к
+	//   типу операции PPOPT_AGREEMENT.
+	//
+	struct Agreement { // @persistent
+		SLAPI  Agreement();
+		int    SLAPI IsEmpty() const;
+		int    SLAPI IsEqual(const Agreement & rS) const;
+
+		long   ObjType;          // Const=PPOBJ_BILL 
+		long   ObjID;            // BillID
+		long   Prop;             // Const=BILLPRP_AGREEMENT
+		// start Text {
+		long   Flags;            // @flags
+		LDATE  Expiry;           // Дата истечения срока действия договора
+		double MaxCredit;        // Максимальный кредит
+		double MaxDscnt;         // Максимальная скидка в %% (>= 100% - неограниченная)
+		double Dscnt;            // Обычная скидка в %%
+		PPID   DefAgentID;       // Агент, закрепленный за клиентом
+		PPID   DefQuotKindID;    // Вид котировки, закрепленный за клиентом
+		long   PaymDateBase;     //
+		int16  DefPayPeriod;     // Количество дней от отгрузки до оплаты по умолчанию
+		int16  RetLimPrd;        // Период ограничения доли возвратов от суммы товарооборота
+		uint16 RetLimPart;       // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+		int16  DefDlvrTerm;      // Срок доставки товара в днях, начиная с даты документа закупки
+		int16  PctRet;           // Максимальный объем возврата товара по накладной в процентах от суммы накладной //
+		uint16 Reserve;          // @alignment
+		uint8  ReserveEnd[8];
+		// } end Text
+		int32  ReserveVal1;
+		int32  ReserveVal2;
+	};
+	Agreement * P_Agt; // @v10.1.12
 };
 //
 // Пакет документа
@@ -10284,7 +10317,7 @@ public:
 	int    FASTCALL AddShadowItem(const PPTransferItem *);
 	int    SLAPI AddShadowItem(const PPTransferItem * pOrdItem, uint * pPos);
 	int    SLAPI InitACPacket();
-	int    SLAPI CreateAccTurn(PPAccTurn *) const;
+	void   SLAPI CreateAccTurn(PPAccTurn *) const;
 	int    SLAPI UngetCounter();
 	void   FASTCALL SetQuantitySign(int minus /*= -1*/);
 	//
@@ -11000,7 +11033,7 @@ private:
 	//
 	// Descr: извлекает из БД запись дополнительных полей авансового отчета.
 	//
-	int    SLAPI GetAdvanceRep(PPID id, PPAdvanceRep ** ppData);
+	// @v10.1.12 (inlined) int    SLAPI GetAdvanceRep(PPID id, PPAdvanceRep ** ppData);
 		// @<<BillCore::Extract, ILBillPacket::Load
 	//
 	// Функция IsThereBill выясняет существует ли по складу locID за день dt
@@ -18602,7 +18635,7 @@ protected:
 //
 class PPAsyncCashSession : public CSessGrouping {
 public:
-	SLAPI  PPAsyncCashSession(PPID cashNodeID);
+	explicit SLAPI PPAsyncCashSession(PPID cashNodeID);
 	virtual SLAPI ~PPAsyncCashSession();
 	int    SLAPI OpenSession(int updOnly, PPID sinceDlsID);
 	int    SLAPI CloseSession(int asTempSess = 0, DateRange * pPrd = 0);
@@ -20683,9 +20716,9 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 #define GSIF_MAINITEM    0x0020L // Основной компонент структуры (используется в производственных отчетах)
 #define GSIF_FORMULA     0x0040L // Компонент содержит формулу для расчета количества
 #define GSIF_SUBPARTSTR  0x0080L // Вычитать количество этого компонента из количества основного товара применяя частичную структуру.
-#define GSIF_GOODSGROUP  0x0100L // @v7.3.0 Вместо товара в поле PPGoodsStrucItem::GoodsID установлена
+#define GSIF_GOODSGROUP  0x0100L // Вместо товара в поле PPGoodsStrucItem::GoodsID установлена
 	// товарная группа. Это необходимо для специальных подарков, распространяемых на целую товарную группу.
-#define GSIF_IDENTICAL   0x0200L // @v7.4.10 Для подарочных структур: заданное количество применимо только для одинаковых позиций.
+#define GSIF_IDENTICAL   0x0200L // Для подарочных структур: заданное количество применимо только для одинаковых позиций.
 #define GSIF_QUERYEXPLOT 0x0400L // @v9.0.4 При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
@@ -20712,7 +20745,7 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	double Denom;          // Знаменатель простой дроби, которая определяет количество компонента
 		// Если Denom == 0, то это эквивалентно Denom = 1
 	double Netto;          //
-	// @construction PPID   PrefInnerGsID;  // @v8.6.5 Предпочтительная структура комплектации/декомплектации для внутреннего элемента
+	// @construction PPID   PrefInnerGsID;  // Предпочтительная структура комплектации/декомплектации для внутреннего элемента
 		// @dbd_exchange Требуется синхронизация //
 	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
 	char   Formula__[64];    // @transient
@@ -30800,7 +30833,7 @@ private:
 	int    SLAPI Helper_GetShipmentByLot(PPID lotID, const DateRange * pPeriod,
 		const ObjIdListFilt & rOpList, long flags, double * pShipment, PPIDArray * pRecurTrace);
 		// @>>PPObjBill::GetShippedPartOfReceipt
-	int    SLAPI SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx); // @v10.1.12 @dbd_exchange
 	int    SLAPI SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter & rDi, const DateRange * pPaymPeriod,
 		const PPIDArray * pOpList, EprBlock & rBlk, PPIDArray & rRecurList);
@@ -39302,17 +39335,17 @@ public:
 		fCTableStatus     = 0x00040000, // Специальный флаг, необходимый для извлечения чеков, которые определяют статус занятости столов
 		fCalcSkuStat      = 0x00080000, // Подсчитывать статистику по строкам чеков
 		fWithoutSkipTag   = 0x00100000, // Пропускать чеки, имеющие признак CCHKF_SKIP
-		fDlvrOnly         = 0x00200000, // @v7.0.8 Только чеки с доставкой
-		fDlvrOutstandOnly = 0x00400000, // @v7.1.0 Только отложенные неисполенные
-		fStartOrderPeriod = 0x00800000, // @v7.3.0 Поле Period трактуется как период времени начала обслуживания по чеку
-		fShowSrvcDuration = 0x01000000, // @v7.3.0 Отображать продолжительность обслуживания по чеку
-		fZeroDlvrAddr     = 0x02000000, // @v7.5.3 Только с пустым адресом доставки
-		fInner            = 0x04000000, // @v7.8.9 @internal
-		fLostJunkAsSusp   = 0x08000000, // @v8.2.12 Специальный флаг, предписывающий отбирать чеки, имеющие признак CCHKF_JUNK,
+		fDlvrOnly         = 0x00200000, // Только чеки с доставкой
+		fDlvrOutstandOnly = 0x00400000, // Только отложенные неисполенные
+		fStartOrderPeriod = 0x00800000, // Поле Period трактуется как период времени начала обслуживания по чеку
+		fShowSrvcDuration = 0x01000000, // Отображать продолжительность обслуживания по чеку
+		fZeroDlvrAddr     = 0x02000000, // Только с пустым адресом доставки
+		fInner            = 0x04000000, // @internal
+		fLostJunkAsSusp   = 0x08000000, // Специальный флаг, предписывающий отбирать чеки, имеющие признак CCHKF_JUNK,
 			// получившие такой признак аварийно завершенной сессией. UUID'ы незавершенных сессий извлекаются из реестра по ключу
 			// HKEY_CURRENT_USER\\Software\\Papyrus\\Sessions
 			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного т'га чека PPTAG_CCHECK_JS_UUID
-		fPrintDetail      = 0x10000000, // @v8.3.7 По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
+		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
 		fNotSpFinished    = 0x20000000  // @v9.7.5 На чеке не установлен флаг CCHKF_SPFINISHED
 	};
 	enum {
@@ -51093,37 +51126,37 @@ int SLAPI Convert4402();
 int SLAPI Convert4405();
 int SLAPI Convert4515();
 int SLAPI Convert4707();
-int SLAPI Convert4802();    // AHTOXA
+int SLAPI Convert4802();
 int SLAPI Convert4805();
 int SLAPI Convert4911();
 // [Перенесено в Convert6202()] int SLAPI Convert5006();    // VADIM
-int SLAPI Convert5009();    // @v5.0.10 AHTOXA
+int SLAPI Convert5009();
 int SLAPI Convert5200();
-int SLAPI Convert5207();    // @v5.2.7 AHTOXA
-int SLAPI Convert5501();    // @v5.5.1
+int SLAPI Convert5207();
+int SLAPI Convert5501();
 // [Перенесено в Convert6202()] int SLAPI Convert5506();    // @v5.5.6 VADIM
 // [Перенесено в Convert6202()] int SLAPI Convert5512();    // @v5.5.12 Добавился индекс к таблице World
 int SLAPI Convert5608();    // ObjSync Значительное изменение
 int SLAPI Convert5810();    // Reference-->Reference2; CGoodsLine
 int SLAPI Convert6202();    // (SpecSeries значительное изменение) +
-int SLAPI Convert6303();    // @v6.3.3
-int SLAPI Convert6407();    // @v6.4.7
-int SLAPI Convert6611();    // @v6.6.11
+int SLAPI Convert6303();
+int SLAPI Convert6407();
+int SLAPI Convert6611();
 // [Перенесено в Convert7601()] int SLAPI Convert6708();    // @v6.7.8
-int SLAPI Convert7311();   // @v7.3.11
-int SLAPI ConvertQuot720(); // @v7.1.11
-int SLAPI Convert7305();    // @v7.3.5
-int SLAPI Convert7506();    // @v7.5.6
-int SLAPI Convert7601();    // @v7.6.1
-// @v9.4.0 int SLAPI Convert7702();    // @v7.7.2
-int SLAPI Convert7708();    // @v7.7.8
-int SLAPI Convert7712();    // @v7.7.12
+int SLAPI Convert7311();
+int SLAPI ConvertQuot720();
+int SLAPI Convert7305();
+int SLAPI Convert7506();
+int SLAPI Convert7601();
+// @v9.4.0 int SLAPI Convert7702();
+int SLAPI Convert7708();
+int SLAPI Convert7712();
 int SLAPI Convert7907();
 // @v8.3.6 int SLAPI Convert8203();
 int SLAPI Convert8306();
 int SLAPI Convert8800();
-int SLAPI ConvertWorkbook813(); // @v8.1.3
-int SLAPI Convert8910(); // @v8.9.10
+int SLAPI ConvertWorkbook813();
+int SLAPI Convert8910();
 // @v9.0.4 int SLAPI Convert9003();
 int SLAPI Convert9004(); // @v9.0.4
 int SLAPI Convert9108(); // @v9.1.8

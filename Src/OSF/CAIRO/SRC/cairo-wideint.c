@@ -498,8 +498,7 @@ int _cairo_int128_cmp(cairo_int128_t a, cairo_int128_t b)
 
 int _cairo_uint128_eq(cairo_uint128_t a, cairo_uint128_t b)
 {
-	return (_cairo_uint64_eq(a.hi, b.hi) &&
-	    _cairo_uint64_eq(a.lo, b.lo));
+	return (_cairo_uint64_eq(a.hi, b.hi) && _cairo_uint64_eq(a.lo, b.lo));
 }
 
 #if HAVE_UINT64_T

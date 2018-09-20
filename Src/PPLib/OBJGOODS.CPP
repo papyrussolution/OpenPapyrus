@@ -1,5 +1,6 @@
 // OBJGOODS.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -81,13 +82,13 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 {
 	/*
-	const char * p_line = "OK;Пустой код;Код содержит нецифровые символы;Неверная контрольная цифра EAN13;Неверная контрольная цифра UPCA;\
-	Неверная контрольная цифра EAN8;Неверная контрольная цифра UPCE;\
-	Лишняя цифра в конце EAN13;Лишняя цифра в конце EAN8;EAN14;Не известный формат;Код UPCA в формате EAN13;\
-	Возможно, лишняя цифра в конце UPCA;Возможно, UPCA без контрольной цифры;Возможно, EAN13 без контрольной цифры;\
-	Возможно, EAN8 без контрольной цифры;UPCA без лидирующего нуля;Возможно, UPCA без лидирующего нуля и без контрольной цифры;\
-	Возможно, UPCE без лидирующего нуля;Возможно, UPCE без контрольной цифры;Возможно, UPCE без лидирующего нуля и без контрольной цифры;\
-	Код EAN8 в формате EAN13;Код EAN8 с лишним ведущим нулем";
+	const char * p_line = "OK;РџСѓСЃС‚РѕР№ РєРѕРґ;РљРѕРґ СЃРѕРґРµСЂР¶РёС‚ РЅРµС†РёС„СЂРѕРІС‹Рµ СЃРёРјРІРѕР»С‹;РќРµРІРµСЂРЅР°СЏ РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ С†РёС„СЂР° EAN13;РќРµРІРµСЂРЅР°СЏ РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ С†РёС„СЂР° UPCA;\
+	РќРµРІРµСЂРЅР°СЏ РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ С†РёС„СЂР° EAN8;РќРµРІРµСЂРЅР°СЏ РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ С†РёС„СЂР° UPCE;\
+	Р›РёС€РЅСЏСЏ С†РёС„СЂР° РІ РєРѕРЅС†Рµ EAN13;Р›РёС€РЅСЏСЏ С†РёС„СЂР° РІ РєРѕРЅС†Рµ EAN8;EAN14;РќРµ РёР·РІРµСЃС‚РЅС‹Р№ С„РѕСЂРјР°С‚;РљРѕРґ UPCA РІ С„РѕСЂРјР°С‚Рµ EAN13;\
+	Р’РѕР·РјРѕР¶РЅРѕ, Р»РёС€РЅСЏСЏ С†РёС„СЂР° РІ РєРѕРЅС†Рµ UPCA;Р’РѕР·РјРѕР¶РЅРѕ, UPCA Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;Р’РѕР·РјРѕР¶РЅРѕ, EAN13 Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;\
+	Р’РѕР·РјРѕР¶РЅРѕ, EAN8 Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;UPCA Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ;Р’РѕР·РјРѕР¶РЅРѕ, UPCA Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ Рё Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;\
+	Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ;Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ Рё Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹;\
+	РљРѕРґ EAN8 РІ С„РѕСЂРјР°С‚Рµ EAN13;РљРѕРґ EAN8 СЃ Р»РёС€РЅРёРј РІРµРґСѓС‰РёРј РЅСѓР»РµРј";
 	*/
 	SString line_buf;
 	PPLoadText(PPTXT_BARCODEDIAGMSG, line_buf);
@@ -111,8 +112,8 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 	else {
 		{
 			//
-			// Код может быть приватным по отношению к активной глобальной учетной записи.
-			// Проверим это по префиксу.
+			// РљРѕРґ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРёРІР°С‚РЅС‹Рј РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє Р°РєС‚РёРІРЅРѕР№ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё.
+			// РџСЂРѕРІРµСЂРёРј СЌС‚Рѕ РїРѕ РїСЂРµС„РёРєСЃСѓ.
 			//
 			const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 			if(glob_acc_id) {
@@ -137,7 +138,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 			int    first = pBarcode[0];
 			int    second = pBarcode[1];
 			int    digit_only = 1;
-			uint   zcount = 0; // Количество ведущих нулей
+			uint   zcount = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РІРµРґСѓС‰РёС… РЅСѓР»РµР№
 			{
 				int    prev_zero = 1;
 				for(j = 0; j < bclen; j++) {
@@ -200,7 +201,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 					}
 				}
 				else if(bclen == 14) {
-					// Возможно, ean13/upca с лишней контрольной цифрой
+					// Р’РѕР·РјРѕР¶РЅРѕ, ean13/upca СЃ Р»РёС€РЅРµР№ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂРѕР№
 					cd = CalcBarcodeCheckDigit((temp_buf = pBarcode).Trim(12));
 					if(cd == pBarcode[bclen-2]-'0') {
 						if(first == '0' && second == '0') {
@@ -215,7 +216,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 							(norm_code = pBarcode).Trim(13);
 							ok = -1;
 						}
-					} //Может быть EAN14?
+					} //РњРѕР¶РµС‚ Р±С‹С‚СЊ EAN14?
 					else if(first >= '1' && first <= '8') {
 						cd = CalcBarcodeCheckDigit((temp_buf = pBarcode+1).Trim(12));
 						if(cd == pBarcode[bclen-1]-'0') {
@@ -236,11 +237,11 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 						ok = 1;
 					}
 					else if(first == '0') {
-						// UPCA с неверной контрольной цифрой
+						// UPCA СЃ РЅРµРІРµСЂРЅРѕР№ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂРѕР№
 						diag = cddInvCheckDigUpca;
 					}
 					else {
-						// Возможно, EAN13 без контрольной цифры
+						// Р’РѕР·РјРѕР¶РЅРѕ, EAN13 Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹
 						cd = CalcBarcodeCheckDigit(pBarcode);
 						diag = cdd_Ean13WoCheckDig;
 						cdstd = BARCSTD_EAN13;
@@ -250,7 +251,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 				}
 				else if(bclen == 11) {
 					if(first == '0') {
-						// Возможно, UPCA без контрольной цифры
+						// Р’РѕР·РјРѕР¶РЅРѕ, UPCA Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹
 						cd = CalcBarcodeCheckDigit(pBarcode);
 						diag = cdd_UpcaWoCheckDig;
 						cdstd = BARCSTD_UPCA;
@@ -258,7 +259,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 						ok = -1;
 					}
 					else {
-						// Возможно, UPCA без лидирующего нуля //
+						// Р’РѕР·РјРѕР¶РЅРѕ, UPCA Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ //
 						cd = CalcBarcodeCheckDigit(temp_buf.Z().CatChar('0').Cat(pBarcode).Trim(11));
 						if(cd == (pBarcode[bclen-1]-'0')) {
 							diag = cdd_UpcaWoLead0;
@@ -271,7 +272,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 					}
 				}
 				else if(bclen == 10) {
-					// Возможно, UPCA без лидирующего нуля и без контрольной цифры
+					// Р’РѕР·РјРѕР¶РЅРѕ, UPCA Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ Рё Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹
 					cd = CalcBarcodeCheckDigit(temp_buf.Z().CatChar('0').Cat(pBarcode));
 					diag = cdd_UpcaWoCheckDigAndLead0;
 					cdstd = BARCSTD_UPCA;
@@ -279,7 +280,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 					ok = -1;
 				}
 				else if(bclen == 9) {
-					// Возможно, EAN8 с лишней цифрой
+					// Р’РѕР·РјРѕР¶РЅРѕ, EAN8 СЃ Р»РёС€РЅРµР№ С†РёС„СЂРѕР№
 					if(zcount > 0) {
 						(temp_buf = pBarcode).ShiftLeft(1);
 						cd = CalcBarcodeCheckDigit(temp_buf.Trim(7));
@@ -334,7 +335,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 				}
 				else if(bclen == 7) {
 					if(first != '0') {
-						// Возможно, UPCE без лидирующего нуля //
+						// Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ //
 						cd = CalcBarcodeCheckDigit(temp_buf.Z().CatChar('0').Cat(pBarcode).Trim(7));
 						if(cd == (pBarcode[bclen-1]-'0')) {
 							diag = cdd_UpceWoLead0;
@@ -343,7 +344,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 							ok = -1;
 						}
 						else {
-							// Возможно, EAN8 без контрольной цифры //
+							// Р’РѕР·РјРѕР¶РЅРѕ, EAN8 Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹ //
 							cd = CalcBarcodeCheckDigit(pBarcode);
 							diag = cdd_Ean8WoCheckDig;
 							cdstd = BARCSTD_EAN8;
@@ -352,7 +353,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 						}
 					}
 					else {
-						// Возможно, UPCE без контрольной цифры //
+						// Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹ //
 						cd = CalcBarcodeCheckDigit(temp_buf.Z().Cat(pBarcode));
 						diag = cdd_UpceWoCheckDig;
 						cdstd = BARCSTD_UPCE;
@@ -361,7 +362,7 @@ int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd
 					}
 				}
 				else if(bclen == 6) {
-					// Возможно, UPCE без лидирующего нуля и без контрольной цифры
+					// Р’РѕР·РјРѕР¶РЅРѕ, UPCE Р±РµР· Р»РёРґРёСЂСѓСЋС‰РµРіРѕ РЅСѓР»СЏ Рё Р±РµР· РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С†РёС„СЂС‹
 					cd = CalcBarcodeCheckDigit(temp_buf.Z().CatChar('0').Cat(pBarcode));
 					diag = cdd_UpceWoCheckDigAndLead0;
 					cdstd = BARCSTD_UPCE;
@@ -562,7 +563,7 @@ int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPI
 								pPack->GS = gs;
 							}
 							else {
-								// @todo К группе привязана неименованная структура
+								// @todo Рљ РіСЂСѓРїРїРµ РїСЂРёРІСЏР·Р°РЅР° РЅРµРёРјРµРЅРѕРІР°РЅРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
 							}
 						}
 					}
@@ -689,8 +690,8 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 	}
 	if(eq) {
 		//
-		// Сравнение полей основной записи оставим на последний 'тап дабы можно было
-		// идентифицировать факт изменения только флагов записи.
+		// РЎСЂР°РІРЅРµРЅРёРµ РїРѕР»РµР№ РѕСЃРЅРѕРІРЅРѕР№ Р·Р°РїРёСЃРё РѕСЃС‚Р°РІРёРј РЅР° РїРѕСЃР»РµРґРЅРёР№ 'С‚Р°Рї РґР°Р±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ
+		// РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ С„Р°РєС‚ РёР·РјРµРЅРµРЅРёСЏ С‚РѕР»СЊРєРѕ С„Р»Р°РіРѕРІ Р·Р°РїРёСЃРё.
 		//
 		LongArray neq_fld_list;
 		if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec, &neq_fld_list)) {
@@ -721,7 +722,7 @@ int SLAPI PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 
 int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf)
 {
-	/* Фиксированная часть записи HistGoodsTbl
+	/* Р¤РёРєСЃРёСЂРѕРІР°РЅРЅР°СЏ С‡Р°СЃС‚СЊ Р·Р°РїРёСЃРё HistGoodsTbl
 	{
 		autolong ID;
 		long   GoodsID;
@@ -740,7 +741,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 		pBuf->Write(id);
 		pBuf->Write(pPack->Rec.ID);
 		pBuf->Write(ver = TLP(HistGoods).IsOpened() ? HistGoods->GetNextVer(pPack->Rec.ID) : 0);
-		pBuf->Write(data_size); // Нулевое значение. В предыдущих версиях инициализировалось, но без необходимости.
+		pBuf->Write(data_size); // РќСѓР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ. Р’ РїСЂРµРґС‹РґСѓС‰РёС… РІРµСЂСЃРёСЏС… РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°Р»РѕСЃСЊ, РЅРѕ Р±РµР· РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё.
 		pBuf->Write(pack_ver);
 		pBuf->Write(&pPack->Rec, sizeof(pPack->Rec));
 		pBuf->Write(&pPack->Codes, 0);
@@ -755,8 +756,8 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 		pPack->GenericList.Write(*pBuf);
 		{
 			//
-			// CRC рассчитываем начиная со смещения sizeof(long) из-за того, что
-			// после записи в БД первые 4 байта будут содержать идентификатор.
+			// CRC СЂР°СЃСЃС‡РёС‚С‹РІР°РµРј РЅР°С‡РёРЅР°СЏ СЃРѕ СЃРјРµС‰РµРЅРёСЏ sizeof(long) РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ
+			// РїРѕСЃР»Рµ Р·Р°РїРёСЃРё РІ Р‘Р” РїРµСЂРІС‹Рµ 4 Р±Р°Р№С‚Р° Р±СѓРґСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ.
 			//
 			CRC32 c;
 			ulong crc = c.Calc(0, ((const uint8 *)pBuf->GetBuf())+sizeof(long), pBuf->GetAvailableSize()-sizeof(long));
@@ -769,8 +770,8 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 		long   size = 0;
 		PPID   id = 0;
 		//
-		// Считываем содержимое буфера во временный буфер b для вычисления CRC32
-		// (для версий пакета 1 или более).
+		// РЎС‡РёС‚С‹РІР°РµРј СЃРѕРґРµСЂР¶РёРјРѕРµ Р±СѓС„РµСЂР° РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ b РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ CRC32
+		// (РґР»СЏ РІРµСЂСЃРёР№ РїР°РєРµС‚Р° 1 РёР»Рё Р±РѕР»РµРµ).
 		//
 		size_t data_len = pBuf->GetAvailableSize();
 		STempBuffer b(data_len);
@@ -939,7 +940,7 @@ int SLAPI PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 	temp_buf = rBuf;
 	while(SearchByName(temp_buf, &temp_nm_goods_id, &ex_goods_rec) > 0 && temp_nm_goods_id != id) {
 		if(temp_buf.CmpNC(ex_goods_rec.Name) != 0) {
-			// PPERR_FALSEGOODSNAMDUPDET        "Сбойная ситуация: ложная идентификация дублирования наименования товара '%s'"
+			// PPERR_FALSEGOODSNAMDUPDET        "РЎР±РѕР№РЅР°СЏ СЃРёС‚СѓР°С†РёСЏ: Р»РѕР¶РЅР°СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёСЏ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РѕРІР°СЂР° '%s'"
 			PPSetError(PPERR_FALSEGOODSNAMDUPDET, temp_buf);
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			break;
@@ -1012,7 +1013,7 @@ int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	int    no_changes = 0; // Устанавливается в 1, если пакет не изменился по сравнению с образом в БД.
+	int    no_changes = 0; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІ 1, РµСЃР»Рё РїР°РєРµС‚ РЅРµ РёР·РјРµРЅРёР»СЃСЏ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ РѕР±СЂР°Р·РѕРј РІ Р‘Р”.
 	long   pack_cmp_result_flags = 0;
 	const  PPID mtx_qk_id = GetConfig().MtxQkID;
 	const  int is_new = (*pID == 0);
@@ -1030,7 +1031,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	PPObjProcessor * p_prc_obj = 0;
 	PPUserFuncProfiler ufp(PPUPRF_GOODSPUT);
 	//
-	// Выясняем возможность создания автотехнологии по новому товару
+	// Р’С‹СЏСЃРЅСЏРµРј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ Р°РІС‚РѕС‚РµС…РЅРѕР»РѕРіРёРё РїРѕ РЅРѕРІРѕРјСѓ С‚РѕРІР°СЂСѓ
 	//
 	if(pPack && pPack->Rec.Kind == PPGDSK_GOODS && Search(pPack->Rec.ParentID, &grp_rec) > 0 && grp_rec.DefPrcID) {
 		def_prc_id = grp_rec.DefPrcID;
@@ -1047,9 +1048,9 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			org_rec = old_pack.Rec;
 			if(pPack) {
 				//
-				// Подготовка пакета к корректному сравнению с оригинальным пакетом:
-				// если pPack пришел из другого раздела, то идентификаторы товара в структурах, хранящихся в
-				// других таблицах могут отличаться от *pID.
+				// РџРѕРґРіРѕС‚РѕРІРєР° РїР°РєРµС‚Р° Рє РєРѕСЂСЂРµРєС‚РЅРѕРјСѓ СЃСЂР°РІРЅРµРЅРёСЋ СЃ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рј РїР°РєРµС‚РѕРј:
+				// РµСЃР»Рё pPack РїСЂРёС€РµР» РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р°, С‚Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С‚РѕРІР°СЂР° РІ СЃС‚СЂСѓРєС‚СѓСЂР°С…, С…СЂР°РЅСЏС‰РёС…СЃСЏ РІ
+				// РґСЂСѓРіРёС… С‚Р°Р±Р»РёС†Р°С… РјРѕРіСѓС‚ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ *pID.
 				// {
 				uint   i;
 				if(!pPack->IsExtRecEmpty())
@@ -1061,13 +1062,13 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					pPack->ArCodes.at(i).GoodsID = *pID;
 				}
 				// }
-				// Если не надо менять изображение, то не следует и сравнивать флаг GF_HASIMAGES
+				// Р•СЃР»Рё РЅРµ РЅР°РґРѕ РјРµРЅСЏС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ, С‚Рѕ РЅРµ СЃР»РµРґСѓРµС‚ Рё СЃСЂР°РІРЅРёРІР°С‚СЊ С„Р»Р°Рі GF_HASIMAGES
 				if(pPack->UpdFlags & PPGoodsPacket::ufDontChgImgFlag) {
 					SETFLAG(pPack->Rec.Flags, GF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
 				}
 				//
-				// GoodsExt::UniqCntr является автоматически управляемым полем. Отличие его
-				// значения не должны приводить к изменению товара
+				// GoodsExt::UniqCntr СЏРІР»СЏРµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СѓРїСЂР°РІР»СЏРµРјС‹Рј РїРѕР»РµРј. РћС‚Р»РёС‡РёРµ РµРіРѕ
+				// Р·РЅР°С‡РµРЅРёСЏ РЅРµ РґРѕР»Р¶РЅС‹ РїСЂРёРІРѕРґРёС‚СЊ Рє РёР·РјРµРЅРµРЅРёСЋ С‚РѕРІР°СЂР°
 				//
 				const long preserve_org_ext_uniq_cntr = old_pack.ExtRec.UniqCntr;
 				const long preserve_new_ext_uniq_cntr = pPack->ExtRec.UniqCntr;
@@ -1075,8 +1076,8 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				pPack->ExtRec.UniqCntr = 0;
 				{
 					//
-					// Из другого раздела может прийти товар с незначащими записями
-					// в MinStockList.
+					// РР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р° РјРѕР¶РµС‚ РїСЂРёР№С‚Рё С‚РѕРІР°СЂ СЃ РЅРµР·РЅР°С‡Р°С‰РёРјРё Р·Р°РїРёСЃСЏРјРё
+					// РІ MinStockList.
 					//
 					i = pPack->Stock.MinStockList.getCount();
 					if(i) do {
@@ -1138,17 +1139,17 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						if(pPack->UpdFlags & PPGoodsPacket::ufDontChgTaxGrp)
 							pPack->Rec.TaxGrpID = org_rec.TaxGrpID;
 						else {
-							// Флаг прав доступа GOODSRT_UPDTAXGRP определяется только для //
-							// объекта PPOBJ_GOODS, но распространяется так же и на        //
-							// объект PPOBJ_GOODSGROUP                                     //
+							// Р¤Р»Р°Рі РїСЂР°РІ РґРѕСЃС‚СѓРїР° GOODSRT_UPDTAXGRP РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ //
+							// РѕР±СЉРµРєС‚Р° PPOBJ_GOODS, РЅРѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ С‚Р°Рє Р¶Рµ Рё РЅР°        //
+							// РѕР±СЉРµРєС‚ PPOBJ_GOODSGROUP                                     //
 							PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 							THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDTAXGRP), PPERR_NRT_GOODS_UPDTAXGRP, pPack->Rec.Name);
 						}
 					}
 					if(org_rec.GoodsTypeID != pPack->Rec.GoodsTypeID) {
-						// Флаг прав доступа GOODSRT_UPDGTYPE определяется только для //
-						// объекта PPOBJ_GOODS, но распространяется так же и на        //
-						// объект PPOBJ_GOODSGROUP                                     //
+						// Р¤Р»Р°Рі РїСЂР°РІ РґРѕСЃС‚СѓРїР° GOODSRT_UPDGTYPE РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ //
+						// РѕР±СЉРµРєС‚Р° PPOBJ_GOODS, РЅРѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ С‚Р°Рє Р¶Рµ Рё РЅР°        //
+						// РѕР±СЉРµРєС‚ PPOBJ_GOODSGROUP                                     //
 						PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 						THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDGTYPE), PPERR_NRT_GOODS_UPDGTYPE, pPack->Rec.Name);
 					}
@@ -1157,14 +1158,14 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					SETFLAG(pPack->Rec.Flags, GF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
 			}
 			//
-			// Обработка структуры товара {
+			// РћР±СЂР°Р±РѕС‚РєР° СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР° {
 			//
 			PPID   struc_id = 0;
 			if(pPack->Rec.Kind == PPGDSK_GOODS) {
 				struc_id = pPack->GS.Rec.ID;
 				if(pPack->GS.IsNamed()) {
 					//
-					// Если структура, ассоциированная с товаром была собственной, то ее удаляем
+					// Р•СЃР»Рё СЃС‚СЂСѓРєС‚СѓСЂР°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ С‚РѕРІР°СЂРѕРј Р±С‹Р»Р° СЃРѕР±СЃС‚РІРµРЅРЅРѕР№, С‚Рѕ РµРµ СѓРґР°Р»СЏРµРј
 					//
 					if(*pID && rec.StrucID && rec.StrucID != struc_id && GSObj.Search(rec.StrucID, &gs_rec) > 0) {
 						if(!(gs_rec.Flags & GSF_NAMED))
@@ -1259,10 +1260,10 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				if(pPack) {
 					if(is_new) {
 						//
-						// Создаваемый товар может быть неявно ассоциирован с товарной матрицей
-						// из-за принадлежности группе, которая состоит в матрице.
-						// Для правильной актуализации кэша работающими сеансами необходимо
-						// сформировать событие, индицирующее этот факт.
+						// РЎРѕР·РґР°РІР°РµРјС‹Р№ С‚РѕРІР°СЂ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЏРІРЅРѕ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅ СЃ С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†РµР№
+						// РёР·-Р·Р° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РіСЂСѓРїРїРµ, РєРѕС‚РѕСЂР°СЏ СЃРѕСЃС‚РѕРёС‚ РІ РјР°С‚СЂРёС†Рµ.
+						// Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ Р°РєС‚СѓР°Р»РёР·Р°С†РёРё РєСЌС€Р° СЂР°Р±РѕС‚Р°СЋС‰РёРјРё СЃРµР°РЅСЃР°РјРё РЅРµРѕР±С…РѕРґРёРјРѕ
+						// СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ СЃРѕР±С‹С‚РёРµ, РёРЅРґРёС†РёСЂСѓСЋС‰РµРµ СЌС‚РѕС‚ С„Р°РєС‚.
 						//
 						if(mtx_qk_id) {
 							int    has_mtx = 0;
@@ -1272,7 +1273,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 							while(!has_mtx && parent_id && Fetch(parent_id, &parent_rec) > 0) {
 								if(recur_list.addUnique(parent_id) < 0) {
 									//
-									// Защита от рекурсии
+									// Р—Р°С‰РёС‚Р° РѕС‚ СЂРµРєСѓСЂСЃРёРё
 									//
 									break;
 								}
@@ -1460,9 +1461,9 @@ void SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 			val_fl = GTAXVF_VAT;
 			//
 			// @v4.2.11 {
-			// Без этой вставки неправильно считалась сумма в ценах поступления //
-			// в остатках товаров если товар оприходован с признаком "Цена поступления без НДС"
-			// от поставщика, свободного от НДС
+			// Р‘РµР· СЌС‚РѕР№ РІСЃС‚Р°РІРєРё РЅРµРїСЂР°РІРёР»СЊРЅРѕ СЃС‡РёС‚Р°Р»Р°СЃСЊ СЃСѓРјРјР° РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+			// РІ РѕСЃС‚Р°С‚РєР°С… С‚РѕРІР°СЂРѕРІ РµСЃР»Рё С‚РѕРІР°СЂ РѕРїСЂРёС…РѕРґРѕРІР°РЅ СЃ РїСЂРёР·РЅР°РєРѕРј "Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Р±РµР· РќР”РЎ"
+			// РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°, СЃРІРѕР±РѕРґРЅРѕРіРѕ РѕС‚ РќР”РЎ
 			//
 			if(vatFreeSuppl > 0)
 				excl_flags |= GTAXVF_VAT;
@@ -1584,7 +1585,7 @@ int SLAPI GoodsSubstList::AssocCollection::Serialize(int dir, SBuffer & rBuf, SS
 			THROW_MEM(p_new_item = new InnerAssocItem(0));
 			THROW(p_new_item->Serialize(dir, rBuf, pSCtx));
 			THROW_SL(insert(p_new_item));
-			p_new_item = 0; // Обязательно обнулить - в случае сбоя объект по указателю будет удален (см. ниже)
+			p_new_item = 0; // РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РѕР±РЅСѓР»РёС‚СЊ - РІ СЃР»СѓС‡Р°Рµ СЃР±РѕСЏ РѕР±СЉРµРєС‚ РїРѕ СѓРєР°Р·Р°С‚РµР»СЋ Р±СѓРґРµС‚ СѓРґР°Р»РµРЅ (СЃРј. РЅРёР¶Рµ)
 		}
 	}
 	CATCHZOK
@@ -1790,7 +1791,7 @@ PPID SLAPI GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 	if(P_Arp == 0) {
 		P_Arp = new PrcssrAlcReport;
 		if(P_Arp) {
-			// @v10.0.06 @fix поменял местами SetConfig и Init
+			// @v10.0.06 @fix РїРѕРјРµРЅСЏР» РјРµСЃС‚Р°РјРё SetConfig Рё Init
 			P_Arp->SetConfig(0);
 			P_Arp->Init();
 		}
@@ -3098,7 +3099,7 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 		do_process = 0;
 		if(adoptSearching) {
 			//
-			// Пытаемся приклеить в конце кода контрольную цифру
+			// РџС‹С‚Р°РµРјСЃСЏ РїСЂРёРєР»РµРёС‚СЊ РІ РєРѕРЅС†Рµ РєРѕРґР° РєРѕРЅС‚СЂРѕР»СЊРЅСѓСЋ С†РёС„СЂСѓ
 			//
 			if(oneof3(init_len, 12, 11, 7)) {
 				int    cd = CalcBarcodeCheckDigit(org_bc);
@@ -3110,7 +3111,7 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 			}
 			if(!do_process) {
 				//
-				// Пытаемся убрать контрольную цифру
+				// РџС‹С‚Р°РµРјСЃСЏ СѓР±СЂР°С‚СЊ РєРѕРЅС‚СЂРѕР»СЊРЅСѓСЋ С†РёС„СЂСѓ
 				//
 				if(oneof3(init_len, 13, 12, 8)) {
 					(temp_buf = org_bc).TrimRight();
@@ -3122,7 +3123,7 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 					}
 				}
 				//
-				// Убираем по-одному ведущие нули
+				// РЈР±РёСЂР°РµРј РїРѕ-РѕРґРЅРѕРјСѓ РІРµРґСѓС‰РёРµ РЅСѓР»Рё
 				//
 				while(!do_process && bc.C(0) == '0') {
 					bc.ShiftLeft();
@@ -3220,7 +3221,7 @@ int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 	for(PPID id = goodsID; id && (r = Fetch(id, &rec)) > 0; id = rec.ParentID) {
 		if(trace.addUnique(id) < 0) {
 			//
-			// Мы зациклились (замкнутый контур в дереве групп)
+			// РњС‹ Р·Р°С†РёРєР»РёР»РёСЃСЊ (Р·Р°РјРєРЅСѓС‚С‹Р№ РєРѕРЅС‚СѓСЂ РІ РґРµСЂРµРІРµ РіСЂСѓРїРї)
 			//
 			ok = 0;
 			break;
@@ -3297,9 +3298,9 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 	while(ok <= 0 && ((cmd = ExecView(dlg)) == cmOK || cmd == cmFullGoodsDialog))
 		if(dlg->getDTS(pPack)) {
 			//
-			// Закладываемся на то, что вызывающая функция (PPObjGoods::Helper_Edit)
-			// обработает код возврата 1000 как сигнал к продолжению редактирования //
-			// пакета товара в полном диалоге
+			// Р—Р°РєР»Р°РґС‹РІР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ (PPObjGoods::Helper_Edit)
+			// РѕР±СЂР°Р±РѕС‚Р°РµС‚ РєРѕРґ РІРѕР·РІСЂР°С‚Р° 1000 РєР°Рє СЃРёРіРЅР°Р» Рє РїСЂРѕРґРѕР»Р¶РµРЅРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ //
+			// РїР°РєРµС‚Р° С‚РѕРІР°СЂР° РІ РїРѕР»РЅРѕРј РґРёР°Р»РѕРіРµ
 			//
 			ok = (cmd == cmFullGoodsDialog) ? 1000 : 1;
 		}
@@ -3330,9 +3331,9 @@ int SLAPI PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacket
 				while(!use_std_dialog && r != cmOK && (r2 = EditClsdGoods(pPack, 0)) > 0) {
 					if(r2 == 1000) {
 						//
-						// Пользователь в сокращенном диалоге редактирования классового товара
-						// выбрал команду редактирования полного диалога - переходим к редактированию
-						// того же пакета в полном диалоге.
+						// РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІ СЃРѕРєСЂР°С‰РµРЅРЅРѕРј РґРёР°Р»РѕРіРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РєР»Р°СЃСЃРѕРІРѕРіРѕ С‚РѕРІР°СЂР°
+						// РІС‹Р±СЂР°Р» РєРѕРјР°РЅРґСѓ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РїРѕР»РЅРѕРіРѕ РґРёР°Р»РѕРіР° - РїРµСЂРµС…РѕРґРёРј Рє СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЋ
+						// С‚РѕРіРѕ Р¶Рµ РїР°РєРµС‚Р° РІ РїРѕР»РЅРѕРј РґРёР°Р»РѕРіРµ.
 						//
 						use_std_dialog = 1;
 					}
@@ -3466,7 +3467,7 @@ int SLAPI PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
 	THROW(GetPacket(sampleID, &pack, 0) > 0);
 	gpk = pack.GetPacketKind();
 	pack.Rec.ID = 0;
-	// @v10.1.10 @fix Удаление идентифицирующих зарезервированных тегов {
+	// @v10.1.10 @fix РЈРґР°Р»РµРЅРёРµ РёРґРµРЅС‚РёС„РёС†РёСЂСѓСЋС‰РёС… Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… С‚РµРіРѕРІ {
 	{
 		pack.TagL.PutItem(PPTAG_GOODS_UUID, 0);
 		pack.TagL.PutItem(PPTAG_GOODS_OUTERPOSCODE, 0);
@@ -3529,8 +3530,8 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 			PPID   cls_id = gp->Rec.GdsClsID;
 			{
 				//
-				// Сложный случай: во время акцепта товара на предварительном этапе
-				// разрешения ссылок ИД класса необходимо получить из таблицы синхронизации.
+				// РЎР»РѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№: РІРѕ РІСЂРµРјСЏ Р°РєС†РµРїС‚Р° С‚РѕРІР°СЂР° РЅР° РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРј СЌС‚Р°РїРµ
+				// СЂР°Р·СЂРµС€РµРЅРёСЏ СЃСЃС‹Р»РѕРє РР” РєР»Р°СЃСЃР° РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕР»СѓС‡РёС‚СЊ РёР· С‚Р°Р±Р»РёС†С‹ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.
 				//
 				PPID   prim_id = 0;
 				if(!replace && pCtx->GetPrimaryObjID(PPOBJ_GOODSCLASS, cls_id, &prim_id) > 0)
@@ -3675,9 +3676,9 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	return ok;
 }
 //
-// Проверка на дублирование кода группы или товара.
-// Если код дублируется в принимающей базе, то он заменяется //
-// на пустой код.
+// РџСЂРѕРІРµСЂРєР° РЅР° РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ РєРѕРґР° РіСЂСѓРїРїС‹ РёР»Рё С‚РѕРІР°СЂР°.
+// Р•СЃР»Рё РєРѕРґ РґСѓР±Р»РёСЂСѓРµС‚СЃСЏ РІ РїСЂРёРЅРёРјР°СЋС‰РµР№ Р±Р°Р·Рµ, С‚Рѕ РѕРЅ Р·Р°РјРµРЅСЏРµС‚СЃСЏ //
+// РЅР° РїСѓСЃС‚РѕР№ РєРѕРґ.
 //
 // private
 int SLAPI PPObjGoods::RemoveDupBarcodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
@@ -3739,7 +3740,7 @@ int SLAPI PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmCon
 int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	//
-	// Если в пакете установлен флаг GF_TRANSQUOT, то сам пакет не изменяем, а меняем только котировки.
+	// Р•СЃР»Рё РІ РїР°РєРµС‚Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі GF_TRANSQUOT, С‚Рѕ СЃР°Рј РїР°РєРµС‚ РЅРµ РёР·РјРµРЅСЏРµРј, Р° РјРµРЅСЏРµРј С‚РѕР»СЊРєРѕ РєРѕС‚РёСЂРѕРІРєРё.
 	//
 	int    ok = 1, r;
 	if(pPack->Rec.Flags & GF_TRANSQUOT) {
@@ -3801,14 +3802,14 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 				if(gp->Rec.Flags & GF_TRANSQUOT) {
 					gp->Rec.ID = *pID;
 					AcceptPacket(pID, gp, pCtx);
-					ok = -1; // Не фиксируем факт приема товара во избежании неверного отражения в таблице синхронизации
+					ok = -1; // РќРµ С„РёРєСЃРёСЂСѓРµРј С„Р°РєС‚ РїСЂРёРµРјР° С‚РѕРІР°СЂР° РІРѕ РёР·Р±РµР¶Р°РЅРёРё РЅРµРІРµСЂРЅРѕРіРѕ РѕС‚СЂР°Р¶РµРЅРёСЏ РІ С‚Р°Р±Р»РёС†Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
 				}
 				else if(!(pCtx->Cfg.Flags & DBDXF_NOUPDGOODS)) {
 					gp->Rec.ID = *pID;
 					//
-					// Структуры передаются. Однако, во избежании затирания связки товар-структура
-					// при приеме товара из другого раздела, если поступивший товар не содержит структуры,
-					// то оставляем ее как есть.
+					// РЎС‚СЂСѓРєС‚СѓСЂС‹ РїРµСЂРµРґР°СЋС‚СЃСЏ. РћРґРЅР°РєРѕ, РІРѕ РёР·Р±РµР¶Р°РЅРёРё Р·Р°С‚РёСЂР°РЅРёСЏ СЃРІСЏР·РєРё С‚РѕРІР°СЂ-СЃС‚СЂСѓРєС‚СѓСЂР°
+					// РїСЂРё РїСЂРёРµРјРµ С‚РѕРІР°СЂР° РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р°, РµСЃР»Рё РїРѕСЃС‚СѓРїРёРІС€РёР№ С‚РѕРІР°СЂ РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂС‹,
+					// С‚Рѕ РѕСЃС‚Р°РІР»СЏРµРј РµРµ РєР°Рє РµСЃС‚СЊ.
 					//
 					if(gp->Rec.StrucID == 0 || (!(GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) && temp_rec.StrucID))
 						gp->Rec.StrucID = temp_rec.StrucID;
@@ -3824,8 +3825,8 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 			else {
 				gp->Rec.ID = *pID = 0;
 				//
-				// Если товара нет в базе данных, то придется его принять несмотря на то, что
-				// предписано принять только котировки
+				// Р•СЃР»Рё С‚РѕРІР°СЂР° РЅРµС‚ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РµРіРѕ РїСЂРёРЅСЏС‚СЊ РЅРµСЃРјРѕС‚СЂСЏ РЅР° С‚Рѕ, С‡С‚Рѕ
+				// РїСЂРµРґРїРёСЃР°РЅРѕ РїСЂРёРЅСЏС‚СЊ С‚РѕР»СЊРєРѕ РєРѕС‚РёСЂРѕРІРєРё
 				//
 				gp->Rec.Flags &= ~GF_TRANSQUOT;
 				ok = AcceptPacket(pID, gp, pCtx);
@@ -3911,7 +3912,7 @@ double SLAPI GoodsStockExt::CalcBrutto(double qtty) const
 {
 	double count = 0.0;
 	if(Package > 0) {
-		/* Алгорит расчета объема с выравниванием до полной упаковки
+		/* РђР»РіРѕСЂРёС‚ СЂР°СЃС‡РµС‚Р° РѕР±СЉРµРјР° СЃ РІС‹СЂР°РІРЅРёРІР°РЅРёРµРј РґРѕ РїРѕР»РЅРѕР№ СѓРїР°РєРѕРІРєРё
 		double fract = R6(modf(round(fabs(qtty) / Package, 6), &count));
 		if(fract != 0)
 			count += 1L;
@@ -3927,7 +3928,7 @@ double SLAPI GoodsStockExt::CalcVolume(double qtty) const
 {
 	double count = 0.0;
 	if(Package > 0) {
-		/* Алгорит расчета объема с выравниванием до полной упаковки
+		/* РђР»РіРѕСЂРёС‚ СЂР°СЃС‡РµС‚Р° РѕР±СЉРµРјР° СЃ РІС‹СЂР°РІРЅРёРІР°РЅРёРµРј РґРѕ РїРѕР»РЅРѕР№ СѓРїР°РєРѕРІРєРё
 		double fract = R6(modf(round(fabs(qtty) / Package, 6), &count));
 		if(fract != 0)
 			count += 1L;
@@ -4151,7 +4152,7 @@ int SLAPI PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPGoodsStruc gs;
-	PPGoodsStruc::Ident gsid(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL);
+	const PPGoodsStruc::Ident gsid(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL);
 	if(LoadGoodsStruc(&gsid, &gs) > 0) {
 		PPGoodsStrucItem gsi;
 		double ratio = 0;

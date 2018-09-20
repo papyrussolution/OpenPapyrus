@@ -2041,12 +2041,14 @@ void OprKindDialog::moreDialog()
 	if(OpObj.CheckRights(OPKRT_MODIFYOPTIONS)) {
 		switch(P_Data->Rec.OpTypeID) {
 			case PPOPT_ACCTURN:
+			case PPOPT_AGREEMENT: // @v10.1.12
 				subtypelist.addzlist((long)OPSUBT_COMMON, OPSUBT_ADVANCEREP, OPSUBT_REGISTER,
 					OPSUBT_WARRANT, OPSUBT_DEBTINVENT, OPSUBT_ACCWROFF, OPSUBT_POSCORRECTION, 0L); // @v10.0.0 OPSUBT_POSCORRECTION
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_AUTOWL, OPKF_EXTACCTURN,
 					OPKF_RENT, OPKF_BANKING, OPKF_CURTRANSIT,
 					OPKF_PROFITABLE, OPKF_OUTBALACCTURN, OPKF_ADVACC, OPKF_ATTACHFILES, OPKF_FREIGHT, 0L);
-				editOptions2(DLG_OPKMORE_AT, 2, &subtypelist, &options_list, 0);
+				ext_options_list.addzlist(OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, 0L); // @v10.1.12
+				editOptions2(DLG_OPKMORE_AT, 2, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSEXPEND:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL,

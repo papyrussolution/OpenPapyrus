@@ -1036,7 +1036,7 @@
 	#define GDSPRP_STOCKDATA     3L  // Параметры товара для заказа, транспортировки и хранения //
 	#define GGPRP_EXSTRTITLES    4L  // Заголовки дополнительных полей товара.
 	#define GDSPRP_PICTURE       5L  // Картинка
-	#define GDSPRP_MINSTOCKBYLOC 6L  // @v6.1.11 Минимальный запас товара по складам
+	#define GDSPRP_MINSTOCKBYLOC 6L  // Минимальный запас товара по складам
 	#define GGPRP_GOODSFILT2     7L  // @v8.6.4 Фильтр товаров для альтернативной группы (сериализованный вариант)
 #define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
 	// Зарезервированные позиции (не используются)
@@ -1052,9 +1052,11 @@
 	#define BILLPRP_FREIGHT      4L  // Фрахт
 	#define BILLPRP_ADVANCEREP   5L  // Авансовый отчет
 	#define BILLPRP_LINKFILES    6L  // Привязанные файлы
-	#define BILLPRP_GUID         7L  // @v6.0.8  GUID, в частности, для документов с BHT терминала
-	#define BILLPRP_DRAFTTAGLIST 8L  // @v8.5.5 Список тегов, привязанных к строкам драфт-документа.
+	#define BILLPRP_GUID         7L  // GUID, в частности, для документов с BHT терминала
+	#define BILLPRP_DRAFTTAGLIST 8L  // Список тегов, привязанных к строкам драфт-документа.
 		// При списании приходного драфт-документа этот список привязывается к лотам создаваемого документа
+	#define BILLPRP_AGREEMENT    9L  // @v10.1.12 Блок, хранящий данные соглашения (договора) с контрагентом. Сопоставляется с документами,
+		// имеющими тип операции PPOPT_AGREEMENT
 #define PPOBJ_ACCTURN       1012L  // Бухгалтерские проводки
 #define PPOBJ_QCERT         1013L  // Сертификаты качества
 #define PPOBJ_PRICELIST     1014L  // Прайс-листы
@@ -2603,6 +2605,11 @@
 	#define CTLSEL_BILL_STRGLOC         (81 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_EDIACKRESP         (82 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_EDIACKSTATUS       (83 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_EXPIRY             (84 + WINDOWS_ID_BIAS)
+	#define CTLCAL_BILL_EXPIRY          (85 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_MAXCREDIT          (86 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_MAXDSCNT           (87 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_PAYPERIOD          (88 + WINDOWS_ID_BIAS)
 
 #define DLG_REVAL                 110 // Переоценка
 	#define CTL_REVAL_DOC                (1 + WINDOWS_ID_BIAS)

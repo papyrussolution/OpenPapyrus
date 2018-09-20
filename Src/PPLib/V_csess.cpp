@@ -1945,10 +1945,14 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 			THROW(cses_exp.PutSess(&sess_list, 0)); // @vmiller
 		}
 		*/
-		PPIDArray sess_list;
-		sess_list.add(id);
-		PPPosProtocol pp;
-		THROW(pp.ExportPosSession(sess_list, 0, 0, 0));
+		PPID   src_pos_node_id = 0;
+		CSessionTbl::Rec cses_rec;
+		if(CsObj.Search(id, &cses_rec) > 0) {
+			PPIDArray sess_list;
+			sess_list.add(id);
+			PPPosProtocol pp;
+			THROW(pp.ExportPosSession(sess_list, cses_rec.CashNodeID, 0, 0));
+		}
 	}
 	else {
 		ObjTransmitParam param;

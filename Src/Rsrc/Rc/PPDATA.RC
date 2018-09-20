@@ -813,7 +813,7 @@ ROD_PERSONRELTYPE PP_RCDATA {
 // { ID, Name }
 //
 ROD_OPRTYPE PP_RCDATA {
-	19,
+	20,
 	1,  "@{roptype_accturn}\0",
 	2,  "@{roptype_goodsreceipt}\0",
 	3,  "@{roptype_goodsexpend}\0",
@@ -831,8 +831,9 @@ ROD_OPRTYPE PP_RCDATA {
 	15, "@{roptype_draftreceipt}\0",
 	16, "@{roptype_draftexpend}\0",
 	17, "@{roptype_warehouse}\0",
+	19, "@{roptype_agreement}\0",
 	20, "@{roptype_correction}\0",
-	21, "@{roptype_drafttransit}\0"
+	21, "@{roptype_drafttransit}\0",
 };
 //
 // Зарезервированные записи объекта PPOBJ_BNKACCTYPE

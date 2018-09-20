@@ -499,7 +499,11 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 		disable_goods = 1;
 	if(OpTypeID == PPOPT_GOODSRETURN) {
 		disable_goods = 1;
-		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_COST, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, CTL_LOT_LOT, 0);
+		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_COST, /*@v10.1.12 CTL_LOT_PRICE, CTL_LOT_DISCOUNT,*/ CTL_LOT_LOT, 0);
+		// @v10.1.12 {
+		if(Item.Flags & PPTFR_PLUS)
+			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
+		// } @v10.1.12 
 	}
 	else if(IsIntrExpndOp(OpID))
 		disableCtrl(CTL_LOT_COST, 1);

@@ -3366,36 +3366,38 @@ float nsCharSetProber::JapaneseContextAnalysis::GetConfidence() const
 //
 bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen)
 {
-	char * newptr;
-	char * prevPtr, * curPtr;
-	bool meetMSB = false;
-	newptr = *newBuf = (char*)SAlloc::M(aLen);
+	char * newptr = (char*)SAlloc::M(aLen);
+	*newBuf = newptr;
 	if(!newptr)
 		return false;
-	for(curPtr = prevPtr = (char*)aBuf; curPtr < aBuf+aLen; curPtr++) {
-		if(*curPtr & 0x80) {
-			meetMSB = true;
-		}
-		else if(*curPtr < 'A' || (*curPtr > 'Z' && *curPtr < 'a') || *curPtr > 'z') {
-			//current char is a symbol, most likely a punctuation. we treat it as segment delimiter
-			if(meetMSB && curPtr > prevPtr) {
-				//this segment contains more than single symbol, and it has upper ASCII, we need to keep
-				// it
-				while(prevPtr < curPtr) 
-					*newptr++ = *prevPtr++;
-				prevPtr++;
-				*newptr++ = ' ';
-				meetMSB = false;
+	else {
+		bool meetMSB = false;
+		char * prevPtr, * curPtr;
+		for(curPtr = prevPtr = (char*)aBuf; curPtr < aBuf+aLen; curPtr++) {
+			if(*curPtr & 0x80) {
+				meetMSB = true;
 			}
-			else //ignore current segment. (either because it is just a symbol or just an English word)
-				prevPtr = curPtr+1;
+			else if(*curPtr < 'A' || (*curPtr > 'Z' && *curPtr < 'a') || *curPtr > 'z') {
+				//current char is a symbol, most likely a punctuation. we treat it as segment delimiter
+				if(meetMSB && curPtr > prevPtr) {
+					//this segment contains more than single symbol, and it has upper ASCII, we need to keep
+					// it
+					while(prevPtr < curPtr) 
+						*newptr++ = *prevPtr++;
+					prevPtr++;
+					*newptr++ = ' ';
+					meetMSB = false;
+				}
+				else //ignore current segment. (either because it is just a symbol or just an English word)
+					prevPtr = curPtr+1;
+			}
 		}
+		if(meetMSB && curPtr > prevPtr)
+			while(prevPtr < curPtr) 
+				*newptr++ = *prevPtr++;
+		newLen = (uint32)(newptr - *newBuf);
+		return true;
 	}
-	if(meetMSB && curPtr > prevPtr)
-		while(prevPtr < curPtr) 
-			*newptr++ = *prevPtr++;
-	newLen = (uint32)(newptr - *newBuf);
-	return true;
 }
 
 //This filter applies to all scripts which contain both English characters and upper ASCII characters.

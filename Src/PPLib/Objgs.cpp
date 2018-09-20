@@ -386,7 +386,7 @@ void SLAPI PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty
 		double iprice = 0.0, tprice = 0.0;
 		int    is_inner_struc = 0;
 		if(calcInner) {
-			PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
+			const PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
 			PPGoodsStruc inner_struc;
 			if(LoadGoodsStruc(&ident, &inner_struc) > 0) {
 				int    uncert = 0;
@@ -1201,7 +1201,7 @@ int GSDialog::enableEditRecurStruc()
 		P_Box->def->getCurID(&pos);
 		if(pos > 0 && pos-1 < (long)Data.Items.getCount()) {
 			int r = 0;
-			PPGoodsStruc::Ident ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL);
+			const PPGoodsStruc::Ident ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL);
 			RecurData.Init();
 			THROW(r = GObj.LoadGoodsStruc(&ident, &RecurData));
 			enable = BIN(r > 0 && RecurData.Rec.ID);
@@ -1322,9 +1322,8 @@ int GSDialog::setupList()
 		double price = 0.0, sum = 0.0;
 		Goods2Tbl::Rec goods_rec;
 		StringSet ss(SLBColumnDelim);
-		PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL);
+		const PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL);
 		PPGoodsStruc inner_struc;
-
 		THROW(GObj.LoadGoodsStruc(&ident, &inner_struc));
 		if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0)
 			sub = goods_rec.Name;
@@ -2439,7 +2438,7 @@ int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, d
 			gsr_item.HasInner = 0;
 			{
 				int    r = 0;
-				PPGoodsStruc::Ident ident(gsr_item.Item.GoodsID);
+				const PPGoodsStruc::Ident ident(gsr_item.Item.GoodsID);
 				PPObjGoodsStruc gs_obj;
 				THROW(r = g_obj.LoadGoodsStruc(&ident, &inner_struc));
 				if(r > 0 && gs_obj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {

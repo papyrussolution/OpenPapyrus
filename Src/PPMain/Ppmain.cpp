@@ -245,6 +245,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 int SLAPI SGetAudioVolume(int decibels, double * pVolume); // @debug
 int SLAPI SSetAudioVolume(int decibels, double volume); // @debug
 int SLAPI ReformatIceCat(const char * pFileName);
+// @experimental void SLAPI ExploreIEEE754();
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -259,6 +260,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 		if(DS.Init(PPSession::fInitPaths)) {
 //#if SLTEST_RUNNING
 			TestNoLogin();
+			// @experimental ExploreIEEE754();
 			/*
 			double curr_volume = 0.0;
 			SGetAudioVolume(0, &curr_volume);

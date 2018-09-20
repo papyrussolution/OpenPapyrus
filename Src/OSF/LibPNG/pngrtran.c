@@ -3570,13 +3570,10 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 				    for(i = 0; i < row_width; i += 2) {
 					    int msb = *sp & 0xf0;
 					    int lsb = *sp & 0x0f;
-
-					    *sp = (uint8)((((int)gamma_table[msb | (msb >> 4)]) & 0xf0)
-						    | (((int)gamma_table[(lsb << 4) | lsb]) >> 4));
+					    *sp = (uint8)((((int)gamma_table[msb | (msb >> 4)]) & 0xf0) | (((int)gamma_table[(lsb << 4) | lsb]) >> 4));
 					    sp++;
 				    }
 			    }
-
 			    else if(row_info->bit_depth == 8) {
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {
@@ -3584,7 +3581,6 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 					    sp++;
 				    }
 			    }
-
 			    else if(row_info->bit_depth == 16) {
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {

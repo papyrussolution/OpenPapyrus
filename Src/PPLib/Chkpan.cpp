@@ -540,11 +540,11 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 		PPGoodsStruc gs;
 		PPID   gen_goods_id = 0;
 		{
-			PPGoodsStruc::Ident gs_ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
+			const PPGoodsStruc::Ident gs_ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
 			THROW(r = GObj.LoadGoodsStruc(&gs_ident, &gs));
 		}
 		if(r < 0 && GObj.BelongToGen(goodsID, &gen_goods_id, 0) > 0) {
-			PPGoodsStruc::Ident gs_ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
+			const PPGoodsStruc::Ident gs_ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
 			THROW(r = GObj.LoadGoodsStruc(&gs_ident, &gs));
 		}
 		if(r > 0) {
@@ -1851,7 +1851,7 @@ int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
 	Goods2Tbl::Rec goods_rec, item_goods_rec;
 	rComplex.Init(goodsID, 0, 1.0);
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.Flags & GF_GENERIC) {
-		PPGoodsStruc::Ident gs_ident(goodsID, GSF_COMPLEX, 0, getcurdate_());
+		const PPGoodsStruc::Ident gs_ident(goodsID, GSF_COMPLEX, 0, getcurdate_());
 		PPGoodsStruc gs;
 		if(GObj.LoadGoodsStruc(&gs_ident, &gs) > 0) {
 			rComplex.Init(goodsID, gs.Rec.ID, 1.0);
@@ -8300,12 +8300,14 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 												const PPID cc_id = cc_list.get(j);
 												CCheckTbl::Rec cc_rec;
 												if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
-													// @v10.1.8 if(j == (cc_list.getCount()-1))
-													CCheckCore::MakeCodeString(&cc_rec, temp_buf);
-													if(cc_rec.Flags & CCHKF_RETURN)
-														cc_even--;
-													else
-														cc_even++;
+													if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
+														// @v10.1.8 if(j == (cc_list.getCount()-1))
+														CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+														if(cc_rec.Flags & CCHKF_RETURN)
+															cc_even--;
+														else
+															cc_even++;
+													}
 												}
 											}
 										}

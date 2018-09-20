@@ -452,8 +452,6 @@ int __env_get_memory_init(DB_ENV * dbenv, DB_MEM_CONFIG type, uint32 * countp)
 /*
  * __env_set_memory_init --
  *	DB_ENV->set_memory_init.
- *
- * PUBLIC: int  __env_set_memory_init __P((DB_ENV *, DB_MEM_CONFIG, uint32));
  */
 int __env_set_memory_init(DB_ENV * dbenv, DB_MEM_CONFIG type, uint32 count)
 {
@@ -472,8 +470,6 @@ int __env_set_memory_init(DB_ENV * dbenv, DB_MEM_CONFIG type, uint32 count)
 /*
  * __env_get_memory_max --
  *	DB_ENV->get_memory_max.
- *
- * PUBLIC: int  __env_get_memory_max __P((DB_ENV *, uint32 *, uint32 *));
  */
 int __env_get_memory_max(DB_ENV * dbenv, uint32 * gbytes, uint32 * bytes)
 {
@@ -491,8 +487,6 @@ int __env_get_memory_max(DB_ENV * dbenv, uint32 * gbytes, uint32 * bytes)
 /*
  * __env_set_memory_max --
  *	DB_ENV->set_memory_max.
- *
- * PUBLIC: int  __env_set_memory_max __P((DB_ENV *, uint32, uint32));
  */
 int __env_set_memory_max(DB_ENV * dbenv, uint32 gbytes, uint32 bytes)
 {

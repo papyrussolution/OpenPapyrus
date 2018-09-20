@@ -420,7 +420,7 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 	for(i = 0; i < pPugl->getCount();) {
 		PUGI   pugi = *(PUGI *)pPugl->at(i++);
 		PPGoodsStruc gs;
-		PPGoodsStruc::Ident gs_ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt);
+		const  PPGoodsStruc::Ident gs_ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt);
 		uint   acpos = 0;
 		const  int lgs_r = LoadGoodsStruc(&gs_ident, &gs);
 		if(lgs_r > 0) {
@@ -495,7 +495,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_t
 		THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
 		// @v9.4.9 if(ilti.Rest == 0.0) {
 		if(!ilti.HasDeficit()) { // @v9.4.9
-			PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
+			const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 			if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
 				for(uint j = rows.getCount()-1; !incomplete && j >= 0; j--) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(rows.at(j));
@@ -588,7 +588,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 			for(uint i = 0; i < rows.getCount(); i++) {
 				PPGoodsStruc gs;
 				PPTransferItem & r_ti = p_pack->TI(rows.at(i));
-				PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, GSF_PARTITIAL, 0, p_pack->Rec.Dt);
+				const PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, GSF_PARTITIAL, 0, p_pack->Rec.Dt);
 				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
 					THROW(gs.InitCompleteData2(r_ti.GoodsID, r_ti.Quantity_, compl_list));
 				}
@@ -797,7 +797,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 			// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
 			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
-				PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
+				const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 				const uint pos = rows.at(j);
 				// @v9.8.11 THROW(p_pack->ClbL.AddNumber(pos, serial_buf));
 				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf)); // @v9.8.11
@@ -861,7 +861,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 			// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
 			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
-				PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
+				const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 				const uint pos = rows.at(j);
 				// @v9.8.11 THROW(p_pack->ClbL.AddNumber(pos, serial_buf));
 				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf)); // @v9.8.11

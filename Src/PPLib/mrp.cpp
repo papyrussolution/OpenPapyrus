@@ -1339,7 +1339,7 @@ int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf *
 	if(ext_req > 0.0) {
 		PPObjGoods goods_obj;
 		PPGoodsStruc gs;
-		PPGoodsStruc::Ident gs_ident(goods_id, GSF_COMPL, GSF_PARTITIAL, pLeaf->Dt);
+		const PPGoodsStruc::Ident gs_ident(goods_id, GSF_COMPL, GSF_PARTITIAL, pLeaf->Dt);
 		THROW(r = goods_obj.LoadGoodsStruc(&gs_ident, &gs));
 		if(r > 0) {
 			PPGoodsStrucItem gs_item;

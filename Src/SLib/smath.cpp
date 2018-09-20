@@ -34,6 +34,54 @@ const double SMathConst::Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
 const double SMathConst::SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
 const double SMathConst::Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
 
+/* @experimental
+static double FASTCALL MakePositiveDouble(uint64 mantissa, int32 order)
+{
+    if(mantissa != 0) {
+		union U {;
+			uint32 i32[2];
+			uint64 i64;
+			double R; 
+		} v;
+		U vt;
+		vt.R = 1.5;
+		vt.R = 0.15;
+		v.i64 = mantissa;
+		uint32 msb_h = msb32(v.i32[1]);
+		if(msb_h > 0x001fffff) {
+			do {
+				v.i64 >>= 1;
+				order++;
+				msb_h = msb32(v.i32[1]);
+			} while(msb_h > 0x001fffff);
+		}
+		if(msb_h) {
+			v.i32[1] &= ~msb_h;
+			//order++;
+		}
+		else {
+			uint32 msb_l = msb32(v.i32[0]);
+			if(msb_l) {
+				v.i32[0] &= ~msb_l;
+				if(msb_l > 1)
+					order++;
+			}
+		}
+		v.i32[1] |= ((order + 1023) << 20);
+		return v.R;
+	}
+	else
+		return 0.0;
+}
+
+void SLAPI ExploreIEEE754()
+{
+	static double temp;
+	double r = atof("2.625");
+	temp = r;
+}
+*/
+
 //int SLAPI IsValidIEEE(double v) { return _finite(v) ? 1 : 0; }
 
 int SLAPI IsValidIEEE(double v)

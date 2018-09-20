@@ -1326,12 +1326,21 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 								if(GObj.Search(r_item.GoodsID, &goods_rec) > 0) {
 									SXml::WNode w_w(rB.P_Xw, "ware");
 									GObj.P_Tbl->ReadArCodesByAr(goods_rec.ID, src_ar_id, &ar_code_list);
-									if(ar_code_list.getCount())
+									int   is_there_codes = 0;
+									if(ar_code_list.getCount()) {
 										w_w.PutInner("id", EncText(temp_buf.Z().Cat(ar_code_list.at(0).Code)));
+										is_there_codes = 1;
+									}
 									w_w.PutInner("innerid", temp_buf.Z().Cat(goods_rec.ID));
                                     GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-                                    if(temp_buf.NotEmptyS())
+                                    if(temp_buf.NotEmptyS()) {
 										w_w.PutInner("code", EncText(temp_buf));
+										is_there_codes = 1;
+									}
+									// @v10.1.12 {
+									if(!is_there_codes)
+										w_w.PutInner("name", EncText(temp_buf = goods_rec.Name));
+									// } @v10.1.12 
 								}
                             }
 							// @v10.0.08 {
@@ -3158,6 +3167,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	Reference * p_ref = PPRef;
 	PPID   native_id = rBlk.NativeID;
 	SString temp_buf;
+	SString fmt_buf, msg_buf;
 	Goods2Tbl::Rec ex_goods_rec;
 	Goods2Tbl::Rec parent_rec;
 	BarcodeTbl::Rec ex_bc_rec;
@@ -3210,7 +3220,37 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		else if(pretend_id)
 			native_id = pretend_id;
 		else {
-			; // @err Невозможно сопоставить переданную ссылку на товар
+			RdB.GetS(rBlk.NameP, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				PPID   temp_id = 0;
+				if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0) {
+					native_id = temp_id;
+				}
+				else {
+					uint   undup_pos = 0;
+					if(PPObjGoods::HasUndupNameSuffix(temp_buf, &undup_pos)) {
+						temp_buf.Trim(undup_pos).Strip();
+						if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0) {
+							native_id = temp_id;
+						}
+					}
+				}
+				if(!native_id) {
+					PPLoadText(PPTXT_PPPP_UNBLRESOLVEGOODS, fmt_buf);
+					RdB.GetS(rBlk.NameP, temp_buf);
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER).Space().CatEq("innerid", rBlk.InnerId);
+					msg_buf.Printf(fmt_buf, temp_buf.cptr());
+					PPLogMessage(PPFILNAM_CCHECK_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+				}
+			}
+			else {
+				PPLoadText(PPTXT_PPPP_UNBLRESOLVEGOODS, fmt_buf);
+				RdB.GetS(rBlk.NameP, temp_buf);
+				temp_buf.Z().CatEq("innerid", rBlk.InnerId);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr());
+				PPLogMessage(PPFILNAM_CCHECK_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			}
 		}
 	}
 	else if(!asRefOnly) {

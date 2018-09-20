@@ -305,7 +305,7 @@ int SLAPI PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 				THROW(pList->AddItem(gs_item.GoodsID, sign));
 				if(useSubst) {
 					PPGoodsStruc subst_gs;
-					PPGoodsStruc::Ident gsid(gs_item.GoodsID, GSF_SUBST);
+					const PPGoodsStruc::Ident gsid(gs_item.GoodsID, GSF_SUBST);
 					if(LoadGoodsStruc(&gsid, &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;

@@ -292,9 +292,10 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 			columns_buf = cstr;
 		columns_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		StringSet columns_ss(';', columns_buf);
+		StringSet ss(",");
 		for(uint columns_pos = 0; columns_ss.get(&columns_pos, cstr);) {
 			uint   pos = 0;
-			StringSet ss(',', cstr);
+			ss.setBuf(cstr);
 			uint   width = 0;
 			uint   format = 0;
 			title_buf.Z();

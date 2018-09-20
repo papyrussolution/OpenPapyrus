@@ -43,36 +43,27 @@ static ossl_inline uint constant_time_msb(uint a);
 /*
  * Returns 0xff..f if a < b and 0 otherwise.
  */
-static ossl_inline uint constant_time_lt(uint a,
-                                                 uint b);
+static ossl_inline uint constant_time_lt(uint a, uint b);
 /* Convenience method for getting an 8-bit mask. */
-static ossl_inline uchar constant_time_lt_8(uint a,
-                                                    uint b);
-
+static ossl_inline uchar constant_time_lt_8(uint a, uint b);
 /*
  * Returns 0xff..f if a >= b and 0 otherwise.
  */
-static ossl_inline uint constant_time_ge(uint a,
-                                                 uint b);
+static ossl_inline uint constant_time_ge(uint a, uint b);
 /* Convenience method for getting an 8-bit mask. */
-static ossl_inline uchar constant_time_ge_8(uint a,
-                                                    uint b);
-
+static ossl_inline uchar constant_time_ge_8(uint a, uint b);
 /*
  * Returns 0xff..f if a == 0 and 0 otherwise.
  */
 static ossl_inline uint constant_time_is_zero(uint a);
 /* Convenience method for getting an 8-bit mask. */
 static ossl_inline uchar constant_time_is_zero_8(uint a);
-
 /*
  * Returns 0xff..f if a == b and 0 otherwise.
  */
-static ossl_inline uint constant_time_eq(uint a,
-                                                 uint b);
+static ossl_inline uint constant_time_eq(uint a, uint b);
 /* Convenience method for getting an 8-bit mask. */
-static ossl_inline uchar constant_time_eq_8(uint a,
-                                                    uint b);
+static ossl_inline uchar constant_time_eq_8(uint a, uint b);
 /* Signed integers. */
 static ossl_inline uint constant_time_eq_int(int a, int b);
 /* Convenience method for getting an 8-bit mask. */
@@ -85,24 +76,18 @@ static ossl_inline uchar constant_time_eq_int_8(int a, int b);
  * the select methods return either |a| (if |mask| is nonzero) or |b|
  * (if |mask| is zero).
  */
-static ossl_inline uint constant_time_select(uint mask,
-                                                     uint a,
-                                                     uint b);
+static ossl_inline uint constant_time_select(uint mask, uint a, uint b);
 /* Convenience method for unsigned chars. */
-static ossl_inline uchar constant_time_select_8(uchar mask,
-                                                        uchar a,
-                                                        uchar b);
+static ossl_inline uchar constant_time_select_8(uchar mask, uchar a, uchar b);
 /* Convenience method for signed integers. */
-static ossl_inline int constant_time_select_int(uint mask, int a,
-                                                int b);
+static ossl_inline int constant_time_select_int(uint mask, int a, int b);
 
 static ossl_inline uint constant_time_msb(uint a)
 {
     return 0 - (a >> (sizeof(a) * 8 - 1));
 }
 
-static ossl_inline uint constant_time_lt(uint a,
-                                                 uint b)
+static ossl_inline uint constant_time_lt(uint a, uint b)
 {
     return constant_time_msb(a ^ ((a ^ b) | ((a - b) ^ b)));
 }

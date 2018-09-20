@@ -968,14 +968,14 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 		PPIDArray ot_list;
 		if(pFilt->Flags & BillFilt::fOrderOnly)
 			ot = PPOPT_GOODSORDER;
-		else if(pFilt->Flags & BillFilt::fAccturnOnly)
-			ot = PPOPT_ACCTURN;
 		else if(pFilt->Flags & BillFilt::fInvOnly)
 			ot = PPOPT_INVENTORY;
 		else if(pFilt->Flags & BillFilt::fPoolOnly)
 			ot = PPOPT_POOL;
 		if(ot)
 			ot_list.add(ot);
+		else if(pFilt->Flags & BillFilt::fAccturnOnly)
+			ot_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
 		else if(pFilt->Flags & BillFilt::fDraftOnly)
 			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
 		else if(pFilt->Flags & BillFilt::fWmsOnly)
@@ -1002,6 +1002,7 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 				ot_list.add(PPOPT_PAYMENT);
 				ot_list.add(PPOPT_CHARGE);
 				ot_list.add(PPOPT_CORRECTION);
+				ot_list.add(PPOPT_AGREEMENT); // @v10.1.12
 			}
 			else {
 				ot_list.add(PPOPT_GOODSRECEIPT);
@@ -2155,7 +2156,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = 1;
 							}
 						}
-						// } @v10.0.01 
+						// } @v10.0.01
 						{
 							const int edi_user_status = P_BObj->GetEdiUserStatus(bill_rec);
 							if(edi_user_status) {
@@ -2690,7 +2691,7 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 						op_id = 0;
 					}
 					else if(Filt.Flags & BillFilt::fAccturnOnly)
-						op_type_list.add(PPOPT_ACCTURN);
+						op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L); // @v10.1.12 PPOPT_AGREEMENT
 					else if(Filt.Flags & BillFilt::fOrderOnly)
 						op_type_list.add(PPOPT_GOODSORDER);
 					else if(Filt.Flags & BillFilt::fInvOnly)
@@ -2702,8 +2703,7 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 					else if(Filt.Flags & BillFilt::fWmsOnly)
 						op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
 					else
-						op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
-							PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, 0L);
+						op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, 0L);
 					if(BillPrelude(&op_type_list, (Filt.AccSheetID ? OPKLF_OPLIST : 0), 0, &op_id, &loc_id) > 0)
 						DS.SetLocation(loc_id);
 					else
@@ -2802,7 +2802,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			getCtrlData(CTLSEL_SELBBSMPL_OP, &Data.OpID);
 			getCtrlData(CTLSEL_SELBBSMPL_QK, &Data.QuotKindID); // @v10.0.02
 			Data.Dt = getCtrlDate(CTL_SELBBSMPL_DT); // @v10.0.02
-			if(oneof4(Data.Action, SelAddBySampleParam::acnShipmByOrder, SelAddBySampleParam::acnDraftExpByOrder, 
+			if(oneof4(Data.Action, SelAddBySampleParam::acnShipmByOrder, SelAddBySampleParam::acnDraftExpByOrder,
 				SelAddBySampleParam::acnDraftExpRestByOrder, SelAddBySampleParam::acnDraftRcpByOrder)) {
 				if(Data.OpID == 0)
 					ok = PPErrorByDialog(this, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
@@ -2911,7 +2911,7 @@ int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 				param.Action = param.acnUndef;
 				param.LocID = bill_rec.LocID;
 				const PPID op_type_id = GetOpType(bill_rec.OpID);
-				int    allow_bulk_mode = 0; 
+				int    allow_bulk_mode = 0;
 				if(op_type_id == PPOPT_GOODSORDER) {
 					// @v10.0.02 {
 					if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)

@@ -112,16 +112,18 @@ static void FASTCALL emit_byte(j_compress_ptr cinfo, int val)
 			ERREXIT(cinfo, JERR_CANT_SUSPEND);
 	}
 }
-
+//
+// Emit a marker code 
+//
 static void FASTCALL emit_marker(j_compress_ptr cinfo, JPEG_MARKER mark)
-/* Emit a marker code */
 {
 	emit_byte(cinfo, 0xFF);
 	emit_byte(cinfo, (int)mark);
 }
-
+//
+// Emit a 2-byte integer; these are always MSB first in JPEG files 
+//
 static void FASTCALL emit_2bytes(j_compress_ptr cinfo, int value)
-/* Emit a 2-byte integer; these are always MSB first in JPEG files */
 {
 	emit_byte(cinfo, (value >> 8) & 0xFF);
 	emit_byte(cinfo, value & 0xFF);

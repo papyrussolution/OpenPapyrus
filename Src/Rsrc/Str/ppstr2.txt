@@ -4716,6 +4716,7 @@ PPTXT_VETISNOUTGDOCSFOUND           "Найдено %s документов дл
 PPTXT_VETISNOOUTGDOCS               "Не найдено ни одного документа для создания исходящих сертификатов"
 PPTXT_VETISOUTGDOCNFOUND            "Неожиданно исходящий документ %s не найден либо имеет не тот статус"
 PPTXT_VETISLOCATIONPROSPERITYISOK   "Местность благополучна по заразным болезням животных"
+PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
 //
 // LastText
 
@@ -6424,6 +6425,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @roptype_warehouse                        "Складская операция"
 @roptype_correction                       "Корректирующий документ"
 @roptype_drafttransit                     "Драфт-транзит"
+@roptype_agreement                        "Договор на поставку товаров"
 //
 // Наименование зарезервированных тегов
 //
@@ -8764,6 +8766,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goods_nettbruttcoeff                     "Коэффициент netto/brutto"
 @goods_aggregations                       "Агрегации" // button
 @goods_suppldeals                         "Контрактные цены" // button
+
+@updategoodsflags                         "Изменение флагов выборки товаров"
+@updategoodsflags_warn                    "@{attention}\nЭта операция устанавливает или снимает указанные флаги со всей выборки товаров.\nПодумайте еще раз, прежде чем нажмете [OK]"
+
 @seekinuhtt                               "Искать в Universe-HTT" // button
 @goodsbasket_flags                        "@{flags}"
 @goodsbasket_gbaskf_default               "Текущая корзина"

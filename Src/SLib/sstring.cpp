@@ -6845,6 +6845,8 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 #if SLTEST_RUNNING // {
 
+//int dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange);
+
 /*class SRevolver_SString : public TSRingStack <SString> {
 public:
 	SLAPI  SRevolver_SString(size_t s) : TSRingStack <SString> (s)
@@ -6890,7 +6892,23 @@ public:
         CATCHZOK
         return ok;
 	}
+	int    FASTCALL InitRandomRealList(uint maxCount)
+	{
+		int    ok = 1;
+		if(!RandomRealList.getCount()) {
+			SlThreadLocalArea & r_tla = SLS.GetTLA();
+			for(uint j = 0; j < maxCount; j++) {
+				//double r = r_tla.Rg.GetReal();
+				double r = r_tla.Rg.GetGaussian(1.0E+9);
+				RandomRealList.insert(&r);
+			}
+		}
+		else
+			ok = -1;
+		return ok;
+	}
     SStrCollection * P_StrList;
+	RealArray RandomRealList;
 };
 
 #include <string>
@@ -6919,7 +6937,7 @@ static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxle
 
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
-	// benchmark: benchmark=stack;sstring;revolver
+	// benchmark: benchmark=stack;sstring;revolver;atof;satof
 	int    ok = 1;
 	int    bm = -1;
 	const  uint max_bm_phase = 10000;
@@ -6930,6 +6948,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	test_buf.Init();
 	SString str, out_buf, in_buf;
     THROW(SLTEST_CHECK_NZ(F.InitStrList(MakeInputFilePath("phrases.en"))));
+	F.InitRandomRealList(1000000);
 	if(pBenchmark == 0)
 		bm = 0;
 	else if(sstreqi_ascii(pBenchmark, "stack"))
@@ -6944,6 +6963,10 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		bm = 3;
 	else if(sstreqi_ascii(pBenchmark, "revolver-tla"))
 		bm = 4;
+	else if(sstreqi_ascii(pBenchmark, "atof"))
+		bm = 7;
+	else if(sstreqi_ascii(pBenchmark, "satof"))
+		bm = 8;
 	else
 		SetInfo("invalid benchmark");
 	if(bm == 0) {
@@ -7184,6 +7207,32 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
 				SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
 				SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
+			}
+			{
+				const char * p_atof_tab[] = {
+					"0", "  -1.0", "+.1", "0.15", "-0.177777777", "+0003.2533333", "0010.0001", "1E-3", ".1e+9",
+					"-1.1", "1111111.3", "333333.7"
+				};
+				for(uint i = 0; i < SIZEOFARRAY(p_atof_tab); i++) {
+					const char * p_text = p_atof_tab[i];
+					double v_satof;
+					double v_atof = atof(p_text);
+					SLTEST_CHECK_NZ(satof(p_text, &v_satof));
+					SLTEST_CHECK_EQ(v_satof, v_atof);
+				}
+				/*
+				SString atof_buf;
+				for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+					atof_buf.Z().Cat(F.RandomRealList.at(j), MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					double v_satof;
+					double v_atof = atof(atof_buf);
+					//const char * p_end = 0;
+					//int erange = 0;
+					//dconvstr_scan(atof_buf, &p_end, &v_satof, &erange);
+					SLTEST_CHECK_NZ(satof(atof_buf, &v_satof));
+					SLTEST_CHECK_EQ(v_satof, v_atof);
+				}
+				*/
 			}
 			{
 				SLTEST_CHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
@@ -7427,6 +7476,27 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				r_buffer = F.P_StrList->at(i);
 				total_len += strlen(r_buffer.cptr());
 			}
+		}
+	}
+	else if(bm == 7) {
+		SString atof_buf;
+		for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+			double r = F.RandomRealList.at(j);
+			atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+			double r2;
+			r2 = atof(atof_buf);
+		}
+	}
+	else if(bm == 8) {
+		SString atof_buf;
+		for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+			double r = F.RandomRealList.at(j);
+			atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+			double r2;
+			satof(atof_buf, &r2);
+			/*const char * p_end = 0;
+			int erange = 0;
+			dconvstr_scan(atof_buf, &p_end, &r2, &erange);*/
 		}
 	}
 	CATCH

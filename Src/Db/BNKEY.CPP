@@ -147,12 +147,12 @@ int SLAPI BNKey::containsField(int fldID, int * pSeg) const
 /*
 	BNKeyList implementation
 */
-SLAPI BNKeyList::BNKeyList()
+SLAPI BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 {
-	if((P_Data = SAlloc::M(sizeof(BNKeyCell))) != 0) {
-		BNKeyCell * cell = (BNKeyCell *)P_Data;
-		cell->ih.numKeys = 0;
-		cell->ih.tblBackOffset = 0;
+	if(P_Data) {
+		BNKeyCell * p_cell = (BNKeyCell *)P_Data;
+		p_cell->ih.numKeys = 0;
+		p_cell->ih.tblBackOffset = 0;
 	}
 }
 
@@ -175,7 +175,7 @@ BNKeyList & FASTCALL BNKeyList::operator = (const BNKeyList & s)
 int FASTCALL BNKeyList::copy(const BNKeyList * src)
 {
 	reset();
-	uint   sz = sizeof(BNKeyCell) * src->getNumCells();
+	uint   sz = sizeof(BNKeyCell) * src->GetNumCells();
 	if(sz)
 		if((P_Data = SAlloc::M(sz)) != 0)
 			memcpy(P_Data, src->P_Data, sz);
@@ -189,7 +189,7 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	int    ok = 1;
 	uint32 sz;
 	if(dir > 0) {
-		sz = sizeof(BNKeyCell) * getNumCells();
+		sz = sizeof(BNKeyCell) * GetNumCells();
 		THROW(rBuf.Write(sz));
 		if(sz)
 			THROW(rBuf.Write(P_Data, sz));
@@ -206,9 +206,9 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-int SLAPI BNKeyList::getNumCells() const
+uint SLAPI BNKeyList::GetNumCells() const
 {
-	int    count = 0;
+	uint   count = 0;
 	if(P_Data) {
 		const  BNKeyCell * cells = (const BNKeyCell *)P_Data;
 		int    num_keys = cells[count++].ih.numKeys;
@@ -260,7 +260,7 @@ int FASTCALL BNKeyList::addKey(BNKey & key)
 	int    ok = 1;
 	BNKeyCell * kc = (BNKeyCell *)key.data;
 	if(kc) {
-		SArray ary(P_Data, sizeof(BNKeyCell), getNumCells());
+		SArray ary(P_Data, sizeof(BNKeyCell), GetNumCells());
 		if(P_Data == 0) {
 			BNKeyCell cell;
 			cell.ih.numKeys = 0;
@@ -292,7 +292,7 @@ int SLAPI BNKeyList::removeKey(int key)
 	int    ok = 1;
 	int    pos = findKey(key);
 	if(pos) {
-		SArray ary(P_Data, sizeof(BNKeyCell), getNumCells());
+		SArray ary(P_Data, sizeof(BNKeyCell), GetNumCells());
 		const int num_seg = ((BNKeyCell *)P_Data)[pos].h.numSeg;
 		for(int i = 0; i < num_seg + 1; i++)
 			ary.atFree(pos);

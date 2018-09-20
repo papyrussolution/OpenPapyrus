@@ -1,7 +1,7 @@
 // AUTOCMPL.CPP
 // Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018
-// @codepage windows-1251
-// Автоматическая комплектация //
+// @codepage UTF-8
+// РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РєРѕРјРїР»РµРєС‚Р°С†РёСЏ //
 //
 #include <pp.h>
 #pragma hdrstop
@@ -598,9 +598,9 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 		s.SrcGsPos = i;
 		s.GsiFlags = gsi.Flags; // @v9.0.4
 		// 
-		// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
-		// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
-		// от ввода этого участка кода для существующих клиентов все-таки ограничение важно.
+		// РЎС‚СЂРѕРіРѕ РіРѕРІРѕСЂСЏ, СѓСЃР»РѕРІРёРµ sqtty==0.0 Р»РёС€РЅРµРµ: С„Р°РєС‚ РїСЂРёСЃСѓС‚СЃС‚РІРёСЏ С„РѕСЂРјСѓР»С‹ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ
+		// РІР»РµС‡СЊ Р·Р° СЃРѕР±РѕР№ СЂР°СЃС‡РµС‚ РєРѕР»РёС‡РµСЃС‚РІР° РёРјРµРЅРЅРѕ РїРѕ С„РѕСЂРјСѓР»Рµ. РќРѕ РґР»СЏ РјРёРЅРёРјРёР·Р°С†РёРё РїРѕСЃР»РµРґСЃС‚РІРёР№
+		// РѕС‚ РІРІРѕРґР° СЌС‚РѕРіРѕ СѓС‡Р°СЃС‚РєР° РєРѕРґР° РґР»СЏ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… РєР»РёРµРЅС‚РѕРІ РІСЃРµ-С‚Р°РєРё РѕРіСЂР°РЅРёС‡РµРЅРёРµ РІР°Р¶РЅРѕ.
 		//
 		if(sqtty == 0.0 && gsi.Formula__[0]) {
 			s.GsiFlags |= GSIF_FORMULA;
@@ -708,8 +708,8 @@ int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplB
 int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
-	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя.
-		// В этом случае функция возвращает -1
+	int    user_cancel = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РѕС€РёР±РєР° РІРѕР·РЅРёРєР»Р° РїРѕ РїСЂРёС‡РёРЅРµ РѕС‚РєР°Р·Р° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
+		// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ -1
 	uint   i;
 	PPObjGoods goods_obj;
 	LongArray positions;
@@ -718,9 +718,9 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 	const  int out_price_by_quot = BIN(P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT);
 	double need_qty = p_ti->Quantity_;
 	//
-	// Расходная позиция может быть введена несколькими строками (автоматическое
-	// использование несколькоих лотов). Поэтому, применяем трюк, благодаря которому,
-	// автоматическая разукомплектация учтет все введенное израсходованное количество.
+	// Р Р°СЃС…РѕРґРЅР°СЏ РїРѕР·РёС†РёСЏ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІРІРµРґРµРЅР° РЅРµСЃРєРѕР»СЊРєРёРјРё СЃС‚СЂРѕРєР°РјРё (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ
+	// РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РЅРµСЃРєРѕР»СЊРєРѕРёС… Р»РѕС‚РѕРІ). РџРѕСЌС‚РѕРјСѓ, РїСЂРёРјРµРЅСЏРµРј С‚СЂСЋРє, Р±Р»Р°РіРѕРґР°СЂСЏ РєРѕС‚РѕСЂРѕРјСѓ,
+	// Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ СЂР°Р·СѓРєРѕРјРїР»РµРєС‚Р°С†РёСЏ СѓС‡С‚РµС‚ РІСЃРµ РІРІРµРґРµРЅРЅРѕРµ РёР·СЂР°СЃС…РѕРґРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ.
 	//
 	if(p_ti->Flags & PPTFR_MINUS) {
 		if((i = pos) != 0) do {
@@ -737,7 +737,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 		double limq = SMathConst::Max;
 		PPComplBlock ary;
 		SString serial;
-		SString src_serial; // @v9.1.4 Серийный номер, который используем для формирования серии новой позиции
+		SString src_serial; // @v9.1.4 РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ, РєРѕС‚РѕСЂС‹Р№ РёСЃРїРѕР»СЊР·СѓРµРј РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ СЃРµСЂРёРё РЅРѕРІРѕР№ РїРѕР·РёС†РёРё
 		PUGL   deficit_list;
 		PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
 		//ComplItem S, * ps;
@@ -861,7 +861,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 			// @v9.8.11 SnL.GetNumber(pos, &serial);
 			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
 			if(serial.Empty()) {
-				// @todo Следует формировать новую серию по какому-либо шаблону
+				// @todo РЎР»РµРґСѓРµС‚ С„РѕСЂРјРёСЂРѕРІР°С‚СЊ РЅРѕРІСѓСЋ СЃРµСЂРёСЋ РїРѕ РєР°РєРѕРјСѓ-Р»РёР±Рѕ С€Р°Р±Р»РѕРЅСѓ
 				(serial = src_serial).CatChar('-').Cat("???");
 				// @v9.8.11 SnL.AddNumber(pos, serial);
 				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
@@ -885,10 +885,10 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 		uint   i, j;
 		PPTransferItem * p_ti;
 		RAssocArray psr_array;
-		RAssocArray cost_array; // Список себестоимостей отдельных позиций
+		RAssocArray cost_array; // РЎРїРёСЃРѕРє СЃРµР±РµСЃС‚РѕРёРјРѕСЃС‚РµР№ РѕС‚РґРµР»СЊРЅС‹С… РїРѕР·РёС†РёР№
 		RAssocArray sub_list;
-		RAssocArray sum_array;  // В этом массиве собираются суммы по тем компонентам, которые
-			// рассчитываются по правилу "количество - 1, цена - процент" (GSIF_QTTYASPRICE)
+		RAssocArray sum_array;  // Р’ СЌС‚РѕРј РјР°СЃСЃРёРІРµ СЃРѕР±РёСЂР°СЋС‚СЃСЏ СЃСѓРјРјС‹ РїРѕ С‚РµРј РєРѕРјРїРѕРЅРµРЅС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ
+			// СЂР°СЃСЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ РїРѕ РїСЂР°РІРёР»Сѓ "РєРѕР»РёС‡РµСЃС‚РІРѕ - 1, С†РµРЅР° - РїСЂРѕС†РµРЅС‚" (GSIF_QTTYASPRICE)
 		LongArray positions, local_pos_list;
 		const  int sign = (oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) ? 1 : -1;
 		PPObjGoods goods_obj;
@@ -896,13 +896,13 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 			PPGoodsStruc gs;
 			PPGoodsStrucItem gsi;
 			//
-			// Локальный список позиций необходим для случая, если количество рассчитывается по
-			// формуле, заданной в компоненте структуры. При этом каждая строка документа должна
-			// обсчитываться независимо (нельзя суммировать строки с одинаковыми товарами).
+			// Р›РѕРєР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РїРѕР·РёС†РёР№ РЅРµРѕР±С…РѕРґРёРј РґР»СЏ СЃР»СѓС‡Р°СЏ, РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РїРѕ
+			// С„РѕСЂРјСѓР»Рµ, Р·Р°РґР°РЅРЅРѕР№ РІ РєРѕРјРїРѕРЅРµРЅС‚Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹. РџСЂРё СЌС‚РѕРј РєР°Р¶РґР°СЏ СЃС‚СЂРѕРєР° РґРѕРєСѓРјРµРЅС‚Р° РґРѕР»Р¶РЅР°
+			// РѕР±СЃС‡РёС‚С‹РІР°С‚СЊСЃСЏ РЅРµР·Р°РІРёСЃРёРјРѕ (РЅРµР»СЊР·СЏ СЃСѓРјРјРёСЂРѕРІР°С‚СЊ СЃС‚СЂРѕРєРё СЃ РѕРґРёРЅР°РєРѕРІС‹РјРё С‚РѕРІР°СЂР°РјРё).
 			//
 			local_pos_list.clear();
 			if(!positions.lsearch(i) && !(p_ti->Flags & PPTFR_PARTSTRUSED)) {
-				PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, GSF_PARTITIAL, 0, Rec.Dt);
+				const PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, GSF_PARTITIAL, 0, Rec.Dt);
 				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
 					RAssocArray local_qtty_list;
 					double qtty = p_ti->Qtty();
@@ -910,13 +910,13 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 					double sum_cost = p_ti->Cost * qtty;
 					double sum_price = p_ti->NetPrice() * qtty;
 					local_qtty_list.Add(i, qtty);
-					positions.add(i); // Отметим, что строка j уже нами рассмотрена
+					positions.add(i); // РћС‚РјРµС‚РёРј, С‡С‚Рѕ СЃС‚СЂРѕРєР° j СѓР¶Рµ РЅР°РјРё СЂР°СЃСЃРјРѕС‚СЂРµРЅР°
 					local_pos_list.add(i);
 					//
-					// Собираем все строки документа по одному товару
-					// и получаем общее количество. Это необходимо для //
-					// расчета количества элементов структуры, которые заданы
-					// с флагом отбрасывания дробной части.
+					// РЎРѕР±РёСЂР°РµРј РІСЃРµ СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РѕРґРЅРѕРјСѓ С‚РѕРІР°СЂСѓ
+					// Рё РїРѕР»СѓС‡Р°РµРј РѕР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ. Р­С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ //
+					// СЂР°СЃС‡РµС‚Р° РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹, РєРѕС‚РѕСЂС‹Рµ Р·Р°РґР°РЅС‹
+					// СЃ С„Р»Р°РіРѕРј РѕС‚Р±СЂР°СЃС‹РІР°РЅРёСЏ РґСЂРѕР±РЅРѕР№ С‡Р°СЃС‚Рё.
 					//
 					PPTransferItem * p_ti2 = 0;
 					for(j = i; EnumTItems(&j, &p_ti2);) {
@@ -926,7 +926,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 							sum_cost += p_ti2->Cost;
 							sum_price += p_ti2->NetPrice() * qtty;
 							local_qtty_list.Add(j, qtty);
-							positions.add(j); // Отметим, что строка j уже нами рассмотрена
+							positions.add(j); // РћС‚РјРµС‚РёРј, С‡С‚Рѕ СЃС‚СЂРѕРєР° j СѓР¶Рµ РЅР°РјРё СЂР°СЃСЃРјРѕС‚СЂРµРЅР°
 							local_pos_list.add(j);
 						}
 					}
@@ -1012,9 +1012,9 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 			}
 			if(sub_list.getCount()) {
 				//
-				// Если какие-то компоненты структуры должны вычитаться из количества
-				// исходного товара, то осуществляем вычитание, предварительно проверив
-				// невозможность перехода начального количества через ноль.
+				// Р•СЃР»Рё РєР°РєРёРµ-С‚Рѕ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґРѕР»Р¶РЅС‹ РІС‹С‡РёС‚Р°С‚СЊСЃСЏ РёР· РєРѕР»РёС‡РµСЃС‚РІР°
+				// РёСЃС…РѕРґРЅРѕРіРѕ С‚РѕРІР°СЂР°, С‚Рѕ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµРј РІС‹С‡РёС‚Р°РЅРёРµ, РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РїСЂРѕРІРµСЂРёРІ
+				// РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРµСЂРµС…РѕРґР° РЅР°С‡Р°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° С‡РµСЂРµР· РЅРѕР»СЊ.
 				//
 				int too_big = 0;
 				for(i = 0; i < sub_list.getCount(); i++) {
@@ -1086,7 +1086,7 @@ int SLAPI PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 	PPTransferItem loti;
 	PPTransferItem & r_ti = TI(pos);
 	if(r_ti.Flags & PPTFR_AUTOCOMPL) {
-		PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, 0, GSF_PARTITIAL, Rec.Dt);
+		const PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, 0, GSF_PARTITIAL, Rec.Dt);
 		THROW(LoadGoodsStruc(&gs_ident, &gs) > 0);
 		if(!P_ACPack)
 			THROW(InitACPacket());

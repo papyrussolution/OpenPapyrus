@@ -77,7 +77,8 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 
 	// Allocate memory for the rendered version
 	render = symbol->rendered = (struct zint_render*)SAlloc::M(sizeof(struct zint_render));
-	if(!symbol->rendered) return ZINT_ERROR_MEMORY;
+	if(!symbol->rendered) 
+		return ZINT_ERROR_MEMORY;
 	render->lines = NULL;
 	render->strings = NULL;
 	render->rings = NULL;

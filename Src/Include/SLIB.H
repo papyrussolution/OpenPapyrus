@@ -4339,6 +4339,7 @@ int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 //   Результат преобразования.
 //
 uint32 FASTCALL _texttodec32(const char * pT, uint len);
+uint64 FASTCALL _texttodec64(const char * pT, uint len);
 //
 // Descr: Низкоуровневая функция преобразования серии последовательных шестнадцатиричных цифр в число.
 //   Никаких проверок не делает и полагается на то, что в строке pT ей передается len
@@ -4348,6 +4349,7 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len);
 //   Результат преобразования.
 //
 uint32 FASTCALL _texttohex32(const char * pT, uint len);
+int    FASTCALL satof(const char * pBuf, double * pVal);
 // @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
 // @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
@@ -5076,6 +5078,17 @@ uint16 FASTCALL swapw(uint16);
 // Descr: Меняет местами слова в двойном слове dw
 //
 uint32 FASTCALL swapdw(uint32 dw);
+//
+// Descr: Находит самый старший установленный бит (MSB) в x.
+// Returns:
+//   Если x == 0, то 0, в противном случае единственный установленный
+//   бит в возвращенном значении будет в позиции MSB(x)
+//   Например:
+//     msb32(0) == 0
+//     msb32(1) == 0x01
+//     msb32(0x8030) == 0x8000
+//
+uint32 FASTCALL msb32(uint32 x);
 char * FASTCALL newStr(const char *);
 //
 // Descr: Меняет значения по указателям pA и pB один с другим
