@@ -741,7 +741,7 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
         line_buf.Excise(p, 1);
     }
     {
-		CRC32  c;
+		SCRC32 c;
 		uint32 crc = c.Calc(0, line_buf.ucptr(), line_buf.Len());
 		if(crc < 10000)
 			crc += addendum;

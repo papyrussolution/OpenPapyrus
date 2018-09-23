@@ -295,7 +295,7 @@ int SLAPI PPObjBill::AutoCharge(PPID id)
 	BillTbl::Rec bill_rec;
 	DateRange period;
 	PPRentCondition rc;
-	period.SetZero();
+	period.Z();
 	if(P_Tbl->GetRentCondition(id, &rc) > 0 && rc.Cycle && !(rc.Flags & RENTF_CLOSED) && Search(id, &bill_rec) > 0) {
 		if(bill_rec.OpID && DateRangeDialog(0, 0, &period) > 0) {
 			PPOprKind op_rec;

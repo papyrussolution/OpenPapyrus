@@ -1164,6 +1164,7 @@ public:
 	enum {
 		signNone = 0,
 		signGetStockEntryList,
+		signGetStockEntryChangesList, // @v10.1.12
 		signGetBusinessEntity,
 		signGetBusinessEntityByGuid,
 		signGetAppliedUserAuthorityList,
@@ -1196,6 +1197,15 @@ public:
 	}
 	VetisListOptions ListOptions;
 	VetisStockEntrySearchPattern SearchPattern;
+};
+
+class VetisGetStockEntryChangesListRequest : public VetisApplicationData {
+public:
+	VetisGetStockEntryChangesListRequest() : VetisApplicationData(signGetStockEntryChangesList)
+	{
+	}
+	VetisListOptions ListOptions;
+	STimeChunk Period;
 };
 
 class VetisGetVetDocumentListRequest : public VetisApplicationData {
@@ -2869,6 +2879,7 @@ public:
 	int    SLAPI Init(const Param & rP);
 
 	int    SLAPI GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply);
+	int    SLAPI GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
 	//
 	// Операция GetVetDocumentListOperation предназначена для получения всех ветеринарно-сопроводительных документов предприятия.
 	//   При этом список ВСД может быть отфильтрован по следующим критериям:
@@ -3956,7 +3967,7 @@ int SLAPI PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationB
 													}
 												}
 											}
-											else if(SXml::IsName(p_r, "getStockEntryListResponse")) {
+											else if(SXml::IsName(p_r, "getStockEntryListResponse") || SXml::IsName(p_r, "getStockEntryChangesListResponse")) {
 												for(xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
@@ -4774,6 +4785,45 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 								}
 								break;
+							case VetisApplicationData::signGetStockEntryChangesList:
+								{
+									VetisGetStockEntryChangesListRequest * p_req = (VetisGetStockEntryChangesListRequest *)rAppBlk.P_AppParam;
+									SXml::WNode n_req(srb, "getStockEntryChangesListRequest");
+									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+									if(rAppBlk.VetisSvcVer == 2)
+										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/vet-document/v2"));
+									else
+										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/vet-document"));
+									n_req.PutAttrib(SXml::nst("xmlns", "sh"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/shipment"));
+									n_req.PutAttrib(SXml::nst("xmlns", "ws"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions"));
+									n_req.PutAttrib(SXml::nst("xmlns", "app"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
+									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
+									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
+									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/production"));
+									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
+									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
+									n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
+									if(rAppBlk.VetisSvcVer == 2)
+										n_req.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2"));
+									else
+										n_req.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
+									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
+									{
+										SXml::WNode n_n2(srb, "initiator");
+										n_n2.PutInner(SXml::nst((rAppBlk.VetisSvcVer == 2) ? "vd" : "co", "login"), rAppBlk.User);
+									}
+									PutListOptions(srb, "bs", p_req->ListOptions);
+									{
+										SXml::WNode n_n2(srb, SXml::nst("bs", "updateDateInterval"));
+										n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601|DATF_CENTURY, 0));
+										n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601|DATF_CENTURY, 0));
+									}
+									if(rAppBlk.VetisSvcVer == 2)
+										n_req.PutInner(SXml::nst("dt", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
+									else
+										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
+								}
+								break;
 							default:
 								CALLEXCEPT();
 								break;
@@ -5290,6 +5340,48 @@ int SLAPI PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisAppl
 			ok = 1;
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
+{
+	int    ok = -1;
+	const  uint max_force_try_count = 10;
+	const  uint force_try_timeout = 5000;
+	uint   force_try_count = 0;
+	int    force_next_try = 0;
+	SString fmt_buf, msg_buf;
+	SString temp_buf;
+	VetisGetStockEntryChangesListRequest app_data;
+	app_data.ListOptions.Set(startOffset, count);
+	app_data.Period = rPeriod;
+	do {
+		force_next_try = 0;
+		rReply.Clear();
+		VetisApplicationBlock submit_result;
+		VetisApplicationBlock blk(2, &app_data);
+		THROW(SubmitRequest(blk, submit_result));
+		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+			THROW(ReceiveResult(submit_result.ApplicationId, rReply));
+			if(rReply.ErrList.getCount() == 1) {
+				const VetisErrorEntry * p_err_entry = rReply.ErrList.at(0);
+				if(p_err_entry && p_err_entry->Code.IsEqiAscii("APLM0012")) {
+					if(++force_try_count < max_force_try_count) {
+						if(P_Logger) {
+							PPLoadText(PPTXT_VETISFORCENEXTTRY, fmt_buf);
+							temp_buf.Z().Cat("GetStockEntryChangesList").CatDiv('-', 1).Cat(force_try_count+1).CatChar('/').Cat(max_force_try_count);
+							temp_buf.Space().CatEq("timeout", force_try_timeout);
+							P_Logger->Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						}
+						SDelay(force_try_timeout);
+						force_next_try = 1;
+					}
+				}
+			}
+			ok = 1;
+		}
+	} while(force_next_try);
 	CATCHZOK
 	return ok;
 }
@@ -6500,7 +6592,7 @@ static IMPL_DBE_PROC(dbqf_vetis_businessmembtextfld_iip)
 
 static IMPL_DBE_PROC(dbqf_vetis_vetstockbydoc_i)
 {
-	double stock = 0.0;
+	double stock = -1.0; // Индицирует отсутствие связанной записи
 	PPID   doc_id = params[0].lval;
 	VetisEntityCore * p_ec = (VetisEntityCore *)params[1].ptrval;
 	if(doc_id) {
@@ -6509,7 +6601,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetstockbydoc_i)
 		if(p_ec->DT.search(9, &k9, spEq)) do {
 			if(p_ec->DT.data.VetisDocStatus == vetisdocstSTOCK) {
 				stock = p_ec->DT.data.Volume;
-				break;
+				// @v10.1.12 (будем считать, что актуальная - последняя запись) break;
 			}
 		} while(p_ec->DT.search(9, &k9, spNext) && p_ec->DT.data.OrgDocEntityID == doc_id);
 	}
@@ -6721,6 +6813,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		}
 		dbe_stock.push((DBFunc)DynFuncVetStockByDoc);
 	}
+	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID); // @v10.1.12
 	dbq = & (*dbq && daterange(t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(t->WayBillDate, &Filt.WayBillPeriod));
 	if(Filt.GetStatusList(status_list) > 0)
@@ -7032,33 +7125,70 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 	return ok;
 }
 
+static int SLAPI VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange * pPeriod)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_SELVDOCUPD);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setCtrlUInt16(STDCTL_SELECTOR_WHAT, *pAction);
+		SetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, pPeriod);
+		if(ExecView(dlg) == cmOK) {
+			GetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, pPeriod);
+			*pAction = dlg->getCtrlUInt16(STDCTL_SELECTOR_WHAT);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
 int SLAPI PPViewVetisDocument::LoadDocuments()
 {
 	int    ok = -1;
 	uint   v = 0;
+	DateRange period;
+	STimeChunk tc;
 	PPVetisInterface::Param param(0, Filt.LocID);
 	THROW(PPVetisInterface::SetupParam(param));
-	if(SelectorDialog(DLG_SELVDOCUPD, STDCTL_SELECTOR_WHAT, &v) > 0) {
+	period.Z();
+	if(checkdate(Filt.Period.low)) {
+		period.low = Filt.Period.low;
+		if(checkdate(Filt.Period.upp))
+			period.upp = Filt.Period.upp;
+		else
+			period.upp = Filt.Period.low;
+	}
+	else if(checkdate(Filt.Period.upp))
+		period.SetDate(Filt.Period.upp);
+	else {
+		const LDATE cd = getcurdate_();
+		period.Set(plusdate(cd, -1), cd);
+	}
+	//if(SelectorDialog(DLG_SELVDOCUPD, STDCTL_SELECTOR_WHAT, &v) > 0) {
+	if(VetisDocumentUpdateSelectorDialog(&v, &period) > 0) {
 		SString fmt_buf, msg_buf;
 		SString temp_buf;
 		PPLogger logger;
 		PPVetisInterface ifc(&logger);
 		VetisApplicationBlock reply;
 		TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
+		const int is_init_period_zero = period.IsZero();
+		period.Actualize(ZERODATE);
 		THROW(ifc.Init(param));
 		PPWait(1);
 		if(v == 0) { // изменения
-			STimeChunk tc;
-			if(checkdate(Filt.Period.low)) {
-				tc.Start.Set(Filt.Period.low, ZEROTIME);
-				if(checkdate(Filt.Period.upp))
-					tc.Finish.Set(Filt.Period.upp, encodetime(23, 59, 59, 99));
+			if(checkdate(period.low)) {
+				tc.Start.Set(period.low, ZEROTIME);
+				if(checkdate(period.upp))
+					tc.Finish.Set(period.upp, encodetime(23, 59, 59, 99));
 				else
-					tc.Finish.Set(Filt.Period.low, encodetime(23, 59, 59, 99));
+					tc.Finish.Set(period.low, encodetime(23, 59, 59, 99));
 			}
-			else if(checkdate(Filt.Period.upp)) {
-				tc.Start.Set(Filt.Period.upp, ZEROTIME);
-				tc.Finish.Set(Filt.Period.upp, encodetime(23, 59, 59, 99));
+			else if(checkdate(period.upp)) {
+				tc.Start.Set(period.upp, ZEROTIME);
+				tc.Finish.Set(period.upp, encodetime(23, 59, 59, 99));
 			}
 			else {
 				const LDATE cd = getcurdate_();
@@ -7113,10 +7243,33 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 			}
 		}
 		else if(v == 2) { // текущие остатки
-			PPLoadText(PPTXT_VETISGETTINGSTOCK, msg_buf);
-			PPWaitMsg(msg_buf);
 			const uint req_count = 1000;
-			for(uint req_offs = 0; ifc.GetStockEntryList(req_offs, req_count, reply);) {
+			if(is_init_period_zero) {
+				PPLoadText(PPTXT_VETISGETTINGSTOCK, msg_buf);
+			}
+			else {
+				if(checkdate(period.low)) {
+					tc.Start.Set(period.low, ZEROTIME);
+					if(checkdate(period.upp))
+						tc.Finish.Set(period.upp, encodetime(23, 59, 59, 99));
+					else
+						tc.Finish.Set(period.low, encodetime(23, 59, 59, 99));
+				}
+				else if(checkdate(period.upp)) {
+					tc.Start.Set(period.upp, ZEROTIME);
+					tc.Finish.Set(period.upp, encodetime(23, 59, 59, 99));
+				}
+				else {
+					const LDATE cd = getcurdate_();
+					tc.Start.Set(plusdate(cd, -1), ZEROTIME);
+					tc.Finish.Set(cd, encodetime(23, 59, 59, 99));
+				}
+				PPLoadText(PPTXT_VETISGETTINGSTOCKUPD, fmt_buf);
+				temp_buf.Z().Cat(tc.Start, DATF_DMY, TIMF_HM).Cat("..").Cat(tc.Finish, DATF_DMY, TIMF_HM);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr());
+			}
+			PPWaitMsg(msg_buf);
+			for(uint req_offs = 0; is_init_period_zero ? ifc.GetStockEntryList(req_offs, req_count, reply) : ifc.GetStockEntryChangesList(tc, req_offs, req_count, reply);) {
 				PPTransaction tra(1);
 				THROW(tra);
 				for(uint i = 0; i < reply.VetStockList.getCount(); i++) {
@@ -7134,6 +7287,8 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 				else
 					req_offs += reply.VetStockList.getCount();
 			}
+		}
+		else if(v == 3) { // актуализация текущих данных
 		}
 		if(ok > 0)
 			THROW(ifc.ProcessUnresolvedEntityList(ure_list));
@@ -7545,6 +7700,16 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 					}
 				}
 				break;
+			case PPVCMD_VIEWLINKREST:
+				if(id) {
+					VetisDocumentTbl::Rec rec;
+					if(EC.SearchDocument(id, &rec) > 0 && rec.VetisDocStatus != vetisdocstSTOCK) {
+						VetisDocumentFilt inner_filt;
+						inner_filt.LinkVDocID = id;
+						PPView::Execute(PPVIEW_VETISDOCUMENT, &inner_filt, /*PPView::exefModeless*/0, 0);
+					}
+				}
+				break;
 			case PPVCMD_UTILIZEDVDOC:
 				ok = ProcessIncoming(id);
 				break;
@@ -7625,5 +7790,52 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 				break;
 		}
 	}
+	return ok;
+}
+
+SLAPI VetisDocumentTotal::VetisDocumentTotal()
+{
+	THISZERO();
+}
+
+int SLAPI PPViewVetisDocument::CalcTotal(VetisDocumentTotal * pTotal)
+{
+	int    ok = 1;
+	VetisDocumentViewItem item;
+	memzero(pTotal, sizeof(*pTotal));
+	for(InitIteration(); NextIteration(&item) > 0;) {
+		pTotal->Count++;
+		switch(item.VetisDocStatus) {
+			case vetisdocstCREATED: pTotal->CtCreated++; break;
+			case vetisdocstCONFIRMED: pTotal->CtConfirmed++; break;
+			case vetisdocstWITHDRAWN: pTotal->CtWithdrawn++; break;
+			case vetisdocstUTILIZED: pTotal->CtUtilized++; break;
+			case vetisdocstFINALIZED: pTotal->CtFinalized++; break;
+			case vetisdocstOUTGOING_PREPARING: pTotal->CtOutgoingPrep++; break;
+			case vetisdocstSTOCK: pTotal->CtStock++; break;
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPViewVetisDocument::ViewTotal()
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	VetisDocumentTotal total;
+	CalcTotal(&total);
+	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_VETDOCTOTAL)))) {
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_COUNT, total.Count);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_CRCT, total.CtCreated);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_CONFCT, total.CtConfirmed);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_WDCT, total.CtWithdrawn);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_UTCT, total.CtUtilized);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_FINCT, total.CtFinalized);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_OGCT, total.CtOutgoingPrep);
+		dlg->setCtrlLong(CTL_VETDOCTOTAL_STKCT, total.CtStock);
+		ExecViewAndDestroy(dlg);
+	}
+	else
+		ok = 0;
 	return ok;
 }

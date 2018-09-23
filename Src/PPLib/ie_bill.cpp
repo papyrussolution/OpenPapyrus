@@ -505,7 +505,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 //
 SLAPI PPBillExportFilt::PPBillExportFilt() : LocID(0)
 {
-	Period.SetZero();
+	Period.Z();
 }
 //
 //
@@ -538,7 +538,7 @@ PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Reset()
 	OpID = 0;
 	LocID = 0;
 	PosNodeID = 0;
-	Period.SetZero();
+	Period.Z();
 	Tp.Reset();
 	return *this;
 }
@@ -2876,7 +2876,7 @@ int SLAPI PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk,
 	if(P_BObj) {
 		if(order_bill_code.NotEmptyS() && dlvr_loc_code.NotEmptyS()) {
 			DateRange period;
-			period.SetZero();
+			period.Z();
 			if(/*pBill->OrderDate*/rBlk.Dt) {
 				period.upp = rBlk.Dt; // pBill->OrderDate;
 				period.low = rBlk.Dt; // pBill->OrderDate;

@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //  ниги продаж и покупок
 //
@@ -10,7 +10,7 @@
 // 
 SLAPI VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasisAtPeriod(0)
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 VATBCfg & FASTCALL VATBCfg::operator = (const VATBCfg & s)
@@ -2413,7 +2413,7 @@ int SLAPI PPViewVatBook::AutoBuild()
 			}
 		}
 		if(by_payments != 1)
-			flt.ExtPeriod.SetZero();
+			flt.ExtPeriod.Z();
 		//
 		// ≈сли книга формируетс€ по отгрузке (не по оплатам), то формирование списка операций простое.
 		//

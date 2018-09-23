@@ -1090,7 +1090,7 @@ int SLAPI CreateBizScGlblUserAcct()
 	}
 	if(ok > 0) {
 		ulong  crc = 0;
-		CRC32  crc32;
+		SCRC32 crc32;
 		SString out_buf, buf, path, sguid, file_name;
 		SFile  file;
 		S_GUID dbuuid;

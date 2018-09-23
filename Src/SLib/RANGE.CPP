@@ -355,10 +355,10 @@ DateRange & FASTCALL DateRange::Set(const DateRange * pSrc)
 	if(pSrc) {
 		low = pSrc->low;
 		upp = pSrc->upp;
+		return *this;
 	}
 	else
-		SetZero();
-	return *this;
+		return Z();
 }
 
 int DateRange::SetPeriod(LDATE dt, int prd)
@@ -411,7 +411,7 @@ int DateRange::SetPeriod(LDATE dt, int prd)
 	return ok;
 }
 
-DateRange & SLAPI DateRange::SetZero()
+DateRange & SLAPI DateRange::Z()
 {
 	low = upp = ZERODATE;
 	return *this;

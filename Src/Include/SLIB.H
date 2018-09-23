@@ -3038,7 +3038,7 @@ struct DateRange { // @persistent @size=8
 	//   в противном случае вызывает SetZero()
 	//
 	DateRange & FASTCALL Set(const DateRange * pSrc);
-	DateRange & SLAPI SetZero();
+	DateRange & SLAPI Z();
 	void   FASTCALL SetDate(LDATE);
 	int    SetPeriod(LDATE date, int prd);
 	void   SLAPI CheckAndSwap();
@@ -5376,10 +5376,10 @@ private:
 //
 // CRC32 functions
 //
-class CRC32 {
+class SCRC32 {
 public:
-	SLAPI  CRC32();
-	SLAPI ~CRC32();
+	SLAPI  SCRC32();
+	SLAPI ~SCRC32();
 	ulong  SLAPI Calc(ulong, const uint8 *, size_t);
 private:
 	int    SLAPI MakeTab();

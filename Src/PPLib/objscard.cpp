@@ -2223,8 +2223,8 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 		int32  bonus_period_idx = 0;
 		DateRange bonus_period;
 		DateRange dscnt_period;
-		bonus_period.SetZero();
-		dscnt_period.SetZero();
+		bonus_period.Z();
+		dscnt_period.Z();
 		if(pack.Rec.GetType() == scstBonus && pack.BonusRule.getCount()) {
 			if(pack.BonusRule.TrnovrPeriod) {
 				THROW_SL(bonus_period.SetPeriod(_cur_date, pack.BonusRule.TrnovrPeriod));
@@ -2678,7 +2678,7 @@ SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 {
 	rHash.Z();
 #define SCARD_HASH_LEN   4
-	CRC32   crc32;
+	SCRC32  crc32;
 	ulong   crc;
 	SString temp_buf;
 	char    buf[128];

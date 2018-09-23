@@ -489,7 +489,7 @@ void BillFiltDialog::extraFilt()
 		else if(Data.CreatorID == cur_user_id)
 			Data.CreatorID = 0;
 		ext.CreatorID = Data.CreatorID;
-		if(BillExtraDialog(&ext, 0, 2) > 0) {
+		if(BillExtraDialog(0, &ext, 0, 2) > 0) {
 			Data.PayerID = ext.PayerID;
 			Data.AgentID = ext.AgentID;
 			Data.Ft_STax = ext.Ft_STax;

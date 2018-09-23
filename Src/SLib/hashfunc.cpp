@@ -821,7 +821,7 @@ SLTEST_R(HashFunction)
 		STestDataArray td;
 		SString key_buf, val_buf;
 		STempBuffer bin_buf(0);
-		CRC32 _c;
+		SCRC32 _c;
 		THROW(td.ReadBotanTestSequence(1, in_file_name, "CRC32"));
 		for(uint i = 0; i < td.GetCount(); i++) {
 			const STestDataArray::Item & r_item = td.Get(i);

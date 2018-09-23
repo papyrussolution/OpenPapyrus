@@ -2643,16 +2643,12 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 {
 	class SCardOpDialog : public TDialog {
 	public:
-		SCardOpDialog(int freezing) : TDialog(freezing ? DLG_SCARDOPFRZ : DLG_SCARDOP)
+		SCardOpDialog(int freezing) : TDialog(freezing ? DLG_SCARDOPFRZ : DLG_SCARDOP), Freezing(freezing), OrgExpiry(ZERODATE), SrcRest(0.0), DestRest(0.0)
 		{
-			Freezing = freezing;
-			OrgExpiry = ZERODATE;
-			OrgFreezingPeriod.SetZero();
+			OrgFreezingPeriod.Z();
 			SetupCalDate(CTLCAL_SCARDOP_DT, CTL_SCARDOP_DT);
 			SetupCalPeriod(CTLCAL_SCARDOP_FRZPERIOD, CTL_SCARDOP_FRZPERIOD);
 			SetupTimePicker(this, CTL_SCARDOP_TM, CTLTM_SCARDOP_TM);
-			SrcRest = 0.0;
-			DestRest = 0.0;
 		}
 		int    setDTS(const SCardCore::OpBlock * pData)
 		{

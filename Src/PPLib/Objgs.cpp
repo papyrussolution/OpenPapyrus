@@ -583,7 +583,7 @@ int SLAPI PPGoodsStruc::Expand()
 		p_child->Rec.VariedPropObjType = Rec.VariedPropObjType;
 
 		Rec.Flags |= GSF_FOLDER;
-		Rec.Period.SetZero();
+		Rec.Period.Z();
 		Rec.CommDenom = 0;
 		Rec.ParentID = 0;
 		THROW(p_child->CopyItemsFrom(this));

@@ -11,13 +11,13 @@
 SLAPI QuotIdent::QuotIdent(PPID locID, PPID quotKindID, PPID curID, PPID arID) :
 	Flags(0), Dt(ZERODATE), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 SLAPI QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PPID arID) :
 	Flags(0), Dt(dt), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 SLAPI QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID),
@@ -47,7 +47,7 @@ void FASTCALL QuotIdent::SetIdentPeriod(const DateRange * pPeriod)
 		Flags |= fUsePeriod;
 	}
 	else {
-		Period.SetZero();
+		Period.Z();
 		Flags &= ~fUsePeriod;
 	}
 }
@@ -2174,7 +2174,7 @@ int FASTCALL Quotation2Core::PeriodIdxToPeriod(int32 periodIdx, DateRange * pPer
 {
 	int    ok = 0;
 	DateRange period;
-	period.SetZero();
+	period.Z();
 	if(periodIdx) {
 		int16 lw = LoWord(periodIdx);
 		int16 hw = HiWord(periodIdx);
@@ -2192,7 +2192,7 @@ int FASTCALL Quotation2Core::PeriodIdxToPeriod(int32 periodIdx, DateRange * pPer
 			SString msg_buf;
 			msg_buf.Cat(period, 0);
 			PPSetError(PPERR_INVQUOTPERIOD, msg_buf);
-			period.SetZero();
+			period.Z();
 		}
 	}
 	else
@@ -2559,7 +2559,7 @@ int SLAPI Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
 		pVal->LocID = 0;
 		pVal->CurID = 0;
 		pVal->MinQtty = 0;
-		pVal->Period.SetZero();
+		pVal->Period.Z();
 	}
 	return ok;
 }

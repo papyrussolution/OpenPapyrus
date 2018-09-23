@@ -684,7 +684,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					THROW_PP(actual_in_buf_size == in_buf_size, PPERR_SBII_PROT_INVARGSIZE);
 					THROW_PP(actual_in_buf_size >= sizeof(uint32), PPERR_SBII_PROT_INVARGSIZE);
-					CRC32 c;
+					SCRC32 c;
 					const uint32 bht_crc = *(uint32 *)(const void *)in_buf;
 					uint32 this_crc = c.Calc(0, ((const uint8 *)(const void *)in_buf)+sizeof(this_crc), in_buf_size-sizeof(this_crc));
 					THROW_PP(this_crc == bht_crc, PPERR_SBII_TEST_INVCRC);

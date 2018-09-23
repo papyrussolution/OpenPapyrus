@@ -336,7 +336,7 @@ int FASTCALL GoodsOpAnalyzeFilt::IsValidABCGroup(short abcGroup) const
 
 void GoodsOpAnalyzeFilt::ZeroCompareItems()
 {
-	CmpPeriod.SetZero();
+	CmpPeriod.Z();
 	CompareItems.freeAll();
 	Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
 	CmpRestCalcDate = ZERODATE;

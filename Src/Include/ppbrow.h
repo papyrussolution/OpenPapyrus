@@ -1101,10 +1101,11 @@
 #define PPVCMD_TRANSACTJ                    269
 #define PPVCMD_UPDATEITEMS                  270
 #define PPVCMD_LOTOPS                       271
-#define PPVCMD_MATCHPERSON                  272
-#define PPVCMD_UTILIZEDVDOC                 273
-#define PPVCMD_SETUPOUTGOING                274
-#define PPVCMD_SENDOUTGOING                 275
+#define PPVCMD_VIEWLINKREST                 272
+#define PPVCMD_MATCHPERSON                  273
+#define PPVCMD_UTILIZEDVDOC                 274
+#define PPVCMD_SETUPOUTGOING                275
+#define PPVCMD_SENDOUTGOING                 276
 //
 // PPCMD definitions
 //

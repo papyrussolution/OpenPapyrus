@@ -785,7 +785,7 @@ int LZAri::GetFileInfo(int compress)
 	SString filename;
 	uint32 len = 0;
 	ulong  crc = 0;
-	CRC32  _crc32;
+	SCRC32 _crc32;
 	THROW_S(p_buf = new char[buf_size], SLERR_NOMEM);
 	if(P_Header) {
 	   	memzero(P_Header, sizeof(*P_Header));
@@ -828,7 +828,7 @@ int LZAri::CheckCrc()
 	char * p_buf = 0;
 	uint32 len = 0;
 	ulong  crc = 0;
-	CRC32  _crc32;
+	SCRC32 _crc32;
 	THROW_S(p_buf = new char[buf_size], SLERR_NOMEM);
 	rewind(P_OutFile);
 	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0)

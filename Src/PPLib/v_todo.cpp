@@ -235,7 +235,6 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 		SString val, attrs;
 		TodoProperty prop;
 		VCalendar::Todo todo_rec;
-
 		pData->Init();
 		PrevTempBuf.Z();
 		while(!end_todo && ReadProp(&prop, val, attrs) > 0) {
@@ -601,9 +600,8 @@ private:
 	TempPrjTaskTbl * P_TempTbl;
 };
 
-SLAPI CrosstabProcessor::CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt)
+SLAPI CrosstabProcessor::CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt) : P_TempTbl(pTbl)
 {
-	P_TempTbl = pTbl;
 	if(!RVALUEPTR(Filt, pFilt))
 		Filt.Init(1, 0);
 }
@@ -1555,7 +1553,7 @@ int SLAPI PPViewPrjTask::CreateByTemplate()
 	int    ok = -1, r = 0;
 	PPIDArray id_list;
 	DateRange period;
-	period.SetZero();
+	period.Z();
 	if(Filt.Kind == TODOKIND_TEMPLATE) {
 		PrjTaskViewItem item;
 		if(DateRangeDialog(0, 0, &period) > 0) {

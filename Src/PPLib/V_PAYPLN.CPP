@@ -615,7 +615,7 @@ int SLAPI PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBil
 {
 	int    ok = 1;
 	DateRange period;
-	period.SetZero();
+	period.Z();
 	if(!Filt.Cycl)
 		period = Filt.Period;
 	else if(CycleList.searchPeriodByDate(dt, &period) <= 0) {

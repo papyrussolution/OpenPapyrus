@@ -599,7 +599,7 @@ void GoodsRestFiltDlg::SetupCtrls()
 		}
 	}
 	else {
-		Data.DraftRcptPrd.SetZero();
+		Data.DraftRcptPrd.Z();
 		SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
 	}
 	disableCtrl(CTL_GOODSREST_DRAFTPRD, !BIN(Data.Flags & GoodsRestFilt::fShowDraftReceipt));

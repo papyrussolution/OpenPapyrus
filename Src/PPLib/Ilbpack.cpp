@@ -1857,7 +1857,7 @@ BillTransmDeficit::LocPeriod * BillTransmDeficit::GetLocPeriod(PPID locID)
 	else {
 		LocPeriod new_item;
 		new_item.LocID = locID;
-		new_item.P.SetZero();
+		new_item.P.Z();
 		pos = LocPeriodList_.getCount();
 		if(LocPeriodList_.insert(&new_item))
 			p_result = &LocPeriodList_.at(pos);

@@ -30,7 +30,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	} header;
 	// @v10.0.0 EXCEPTVAR(SLibError);
 	int    r = 0;
-	CRC32  _crc32;
+	SCRC32 _crc32;
 	FILE * fin = 0, * fout = 0;
 	lzo_uint in_len = 0;
 	lzo_uint out_len = 0;

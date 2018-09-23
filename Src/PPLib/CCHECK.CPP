@@ -5086,7 +5086,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 	uint   i, j;
 	DateRange temp_sess_period;
 	PPIDArray super_sess_list;
-	temp_sess_period.SetZero();
+	temp_sess_period.Z();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

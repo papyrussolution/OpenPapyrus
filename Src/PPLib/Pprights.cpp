@@ -1161,7 +1161,7 @@ int SLAPI PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 	assert(oneof2(setROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW));
 	if(oneof2(setROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW)) {
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		ok = GetPeriodInput(pDlg, ctrlID, &period);
 		if(ok > 0) {
 			if(setROrW == PPAccessRestriction::pparR)

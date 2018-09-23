@@ -79,7 +79,7 @@ SLAPI ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeou
 	}
 	UseAltImport = 0;
 	StatID = 0;
-	ChkRepPeriod.SetZero();
+	ChkRepPeriod.Z();
 }
 
 int SLAPI ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)

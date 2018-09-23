@@ -437,7 +437,7 @@ SLAPI ACS_ATOL::ACS_ATOL(PPID id) : PPAsyncCashSession(id)
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_TIMEOUT, &ImpExpTimeout);
 	UseAltImport = 0;
 	UseInnerAutoDscnt = 0;
-	ChkRepPeriod.SetZero();
+	ChkRepPeriod.Z();
 }
 
 int SLAPI ACS_ATOL::ExportSCard(FILE *, int)

@@ -1,5 +1,6 @@
 // V_PERSON.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -170,14 +171,14 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 								do_insert = 1;
 						}
 						else if(Filt.AttribType == PPPSNATTR_STANDALONEADDR && loc_rec.Flags & LOCF_STANDALONE) {
-							// LocObj.P_Tbl->Enum не заполняет строковый "хвост": придется повторить извлечение записи
+							// LocObj.P_Tbl->Enum РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚ СЃС‚СЂРѕРєРѕРІС‹Р№ "С…РІРѕСЃС‚": РїСЂРёРґРµС‚СЃСЏ РїРѕРІС‚РѕСЂРёС‚СЊ РёР·РІР»РµС‡РµРЅРёРµ Р·Р°РїРёСЃРё
 							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0) // @v9.4.5 Search-->Fetch
 								do_insert = 2;
 						}
 						if(do_insert) {
 							MEMSZERO(vi);
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
-								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) { // @v8.3.3 Search-->Fetch
+								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 									STRNSCPY(vi.Name, owner_rec.Name);
 								}
 								THROW_DB(P_TempPsn->insertRecBuf(&vi));
@@ -238,7 +239,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						use_list = 1;
 					}
 				}
-				// @v8.2.6 {
 				if(use_list) {
 					Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
 					if(Filt.Category || Filt.Status || srch_buf.NotEmptyS()) {
@@ -266,9 +266,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						id_list = local_list;
 					}
 				}
-				else
-				// } @v8.2.6
-				{
+				else {
 					union {
 						PersonTbl::Key0 k0;
 						PersonTbl::Key1 k1;
@@ -332,7 +330,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						}
 						PPWaitPercent(cntr.Increment());
 					}
-					// @v8.3.12 {
 					if(p_used_loc_list) {
 						PsnAttrViewItem vi;
 						for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
@@ -344,7 +341,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 							}
 						}
 					}
-					// } @v8.3.12
 				}
 			}
 			THROW(tra.Commit());
@@ -378,7 +374,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 			}
 		}
 	}
-	// @v8.3.0 {
 	else if(Filt.NewCliPeriod.low && !oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) { // @v9.4.5 else
 		PersonViewItem item;
 		PPWait(1);
@@ -390,7 +385,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 		}
 		PPWait(0);
 	}
-	// } @v8.3.0
 	CATCH
 		ZDELETE(P_Ct);
 		ZDELETE(P_TempPsn);
@@ -415,7 +409,7 @@ int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
 		PPTransaction tra(1);
 		THROW(tra);
 		if(PsnObj.LocObj.Search(addrID, &loc_rec) > 0 && CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
-			if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) { // @v8.6.2 Search-->Fetch
+			if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 				STRNSCPY(vi.Name, owner_rec.Name);
 			}
 			{
@@ -471,7 +465,7 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 		PsnObj.GetPacket(PersonId,  &pack, 0);
 		uint   kind_pos = 0;
 		//
-		// @todo Цикл ужасный - переделать
+		// @todo Р¦РёРєР» СѓР¶Р°СЃРЅС‹Р№ - РїРµСЂРµРґРµР»Р°С‚СЊ
 		//
 		while(!ok && kind_pos < pack.Kinds.getCount()) {
 			PPPersonKind kind_rec;
@@ -913,7 +907,7 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	item.TabID = tabID;
 	STRNSCPY(item.Name, pPsnRec->Name);
 	//
-	// Случаи oneof2(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_BNKACCT) обрабатываются в вызывающий функции
+	// РЎР»СѓС‡Р°Рё oneof2(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_BNKACCT) РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РІ РІС‹Р·С‹РІР°СЋС‰РёР№ С„СѓРЅРєС†РёРё
 	//
 	if(Filt.AttribType == PPPSNATTR_PHONEADDR) {
 		PPELinkArray elink_ary;
@@ -1180,7 +1174,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 							StrPool.AddS(r_ba.Acct, &vi.BnkAcctP);
 							vi.RegInitDate = r_ba.OpenDate;
 							if(r_ba.AccType) {
-								// @todo Чаще всего здесь одно и тоже значение PPBAC_CURRENT: можно ускорить
+								// @todo Р§Р°С‰Рµ РІСЃРµРіРѕ Р·РґРµСЃСЊ РѕРґРЅРѕ Рё С‚РѕР¶Рµ Р·РЅР°С‡РµРЅРёРµ PPBAC_CURRENT: РјРѕР¶РЅРѕ СѓСЃРєРѕСЂРёС‚СЊ
 								GetObjectName(PPOBJ_BNKACCTYPE, r_ba.AccType, buf);
 								buf.CopyTo(vi.RegNumber, sizeof(vi.RegNumber));
 							}
@@ -1473,16 +1467,16 @@ int SLAPI GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 	return ok;
 }
 //
-// Фильтр по персоналиям
+// Р¤РёР»СЊС‚СЂ РїРѕ РїРµСЂСЃРѕРЅР°Р»РёСЏРј
 //
-IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1), P_RegF(0), P_TagF(0), P_SjF(0) // @v8.0.1 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1), P_RegF(0), P_TagF(0), P_SjF(0)
 {
 	SetFlatChunk(offsetof(PersonFilt, ReserveStart),
 		offsetof(PersonFilt, P_RegF) - offsetof(PersonFilt, ReserveStart));
 	SetBranchBaseFiltPtr(PPFILT_REGISTER, offsetof(PersonFilt, P_RegF));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(PersonFilt, P_TagF));
-	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(PersonFilt, P_SjF)); // @v8.0.1
-	SetBranchObjIdListFilt(offsetof(PersonFilt, List)); // @v8.0.1
+	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(PersonFilt, P_SjF));
+	SetBranchObjIdListFilt(offsetof(PersonFilt, List));
 	SetBranchSString(offsetof(PersonFilt, SrchStr_));
 	Init(1, 0);
 }
@@ -1594,7 +1588,7 @@ int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 //
-// Диалог дополнительных опций фильтра по персоналиям
+// Р”РёР°Р»РѕРі РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РѕРїС†РёР№ С„РёР»СЊС‚СЂР° РїРѕ РїРµСЂСЃРѕРЅР°Р»РёСЏРј
 //
 static int SLAPI EditRegFilt(PersonFilt * pFilt)
 {
@@ -1657,7 +1651,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			SString temp_buf;
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PRSNKIND, Data.Kind, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY,   PPOBJ_PRSNCATEGORY, Data.Category, 0, 0); // AHTOXA
+			SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY,   PPOBJ_PRSNCATEGORY, Data.Category, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
 			SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, 0, 0);
 			if(Data.AttribType)
@@ -1669,19 +1663,17 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
 			AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fTagsCrsstab);
 			AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fHasImages);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr); // @v8.3.12
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF); // @v8.6.2
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn); // @v8.6.12
+			AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr);
+			AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF);
+			AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn);
 			SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.AttribType != PPPSNATTR_ALLADDR); // @v8.3.12
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr()); // @v8.6.2
-			// @v8.6.12 {
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.AttribType != PPPSNATTR_ALLADDR);
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 			{
 				PPLocationConfig loc_cfg;
 				PPObjLocation::FetchConfig(&loc_cfg);
 				DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
 			}
-			// } @v8.6.12
 			if(PsnObj.GetConfig().NewClientDetectionList.getCount()) {
 				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, 0);
 				SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
@@ -1770,15 +1762,13 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				}
 				else
 					disableCtrl(CTL_PSNFLT_EMPTY, 0);
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.AttribType != PPPSNATTR_ALLADDR); // @v8.3.12
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr()); // @v8.6.2
-				// @v8.6.12 {
+				DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.AttribType != PPPSNATTR_ALLADDR);
+				DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 				{
 					PPLocationConfig loc_cfg;
 					PPObjLocation::FetchConfig(&loc_cfg);
 					DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
 				}
-				// } @v8.6.12
 			}
 			else if(event.isCmd(cmTags)) {
 				GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
@@ -1800,8 +1790,8 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				}
 				if(Data.P_SjF) {
 					//
-					// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType
-					// не пустым. В данном случае это - не верно.
+					// Р¤СѓРЅРєС†РёСЏ SysJournalFilt::IsEmpty СЃС‡РёС‚Р°РµС‚ С„РёР»СЊС‚СЂ, РІ РєРѕС‚РѕСЂРѕРј СѓСЃС‚Р°РЅРѕРІР»РµРЅ ObjType
+					// РЅРµ РїСѓСЃС‚С‹Рј. Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ - РЅРµ РІРµСЂРЅРѕ.
 					//
 					Data.P_SjF->ObjType = 0;
 					if(Data.P_SjF->IsEmpty()) {
@@ -1813,7 +1803,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			}
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_PSNFLT_NEWCLIPERIOD)) {
 				DateRange temp_period;
-				temp_period.SetZero();
+				temp_period.Z();
 				GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &temp_period);
 				disableCtrl(CTL_PSNFLT_NEWCLIONLY, temp_period.IsZero());
 			}
@@ -1895,7 +1885,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(!p_view->IsCrosstab() && p_filt) {
 			int is_register  = (p_filt->AttribType == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
 			int is_bank_acct = p_filt->AttribType == PPPSNATTR_BNKACCT;
-			if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
+			if(col == 0 && p_view->HasImage(pData)) { // Рљ РїРµСЂСЃРѕРЅР°Р»РёРё РїСЂРёРІСЏР·Р°РЅР° РєР°СЂС‚РёРЅРєР°?
 				pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 				pCellStyle->Color2 = GetColorRef(SClrGreen);
 				ok = 1;
@@ -1905,7 +1895,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pCellStyle->Color = GetColorRef(SClrOrange);
 				ok = 1;
 			}
-			/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
+			/* @v9.8.4 @todo РР·-Р·Р° Р·Р°РјРµРЅС‹ С‚РµРєСЃС‚РѕРІС‹С… РїРѕР»РµР№ РІРѕ РІСЂРµРјРµРЅРЅРѕР№ С‚Р°Р±Р»РёС†Рµ РЅР° СЃСЃС‹Р»РєРё РІ StrPool СЃР»РµРґСѓСЋС‰РёР№ Р±Р»РѕРє РЅР°РґРѕ РїРµСЂРµРґРµР»Р°С‚СЊ
 			else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
 				int is_valid = 0;
 				SString code, bic;
@@ -2100,15 +2090,15 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
 					q = & select(
 						p->ID,                // #0
-						tmp_pt->TabID,        // #1 ИД адреса
-						p->Name,              // #2 Наименование персоналии
-						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
-						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
-						tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
+						tmp_pt->TabID,        // #1 РР” Р°РґСЂРµСЃР°
+						p->Name,              // #2 РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё
+						/*tmp_pt->Address*/dbe_addr,     // #3 РЎС‚СЂРѕРєР° Р°РґСЂРµСЃР°
+						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 РљРѕРґ РёР· Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё
+						tmp_pt->RegNumber,    // #5 РўРёРї Р°РґСЂРµСЃР° (СЋСЂРёРґРёС‡РµСЃРєРёР№ | С„РёР·РёС‡РµСЃРєРёР№ | РґРѕСЃС‚Р°РІРєРё)
 						dbe_city,             // #6
 						p->Flags,             // #7
-						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8 @v8.6.12
-						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9 @v8.6.12
+						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8 
+						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9 
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				}
 				break;
@@ -2123,14 +2113,14 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 					q = & select(
 						tmp_pt->ID,        // #0
-						tmp_pt->TabID,     // #1 ИД адреса
-						tmp_pt->Name,      // #2 Наименование персоналии
-						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
-						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
-						tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
+						tmp_pt->TabID,     // #1 РР” Р°РґСЂРµСЃР°
+						tmp_pt->Name,      // #2 РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё
+						/*tmp_pt->Address*/dbe_addr,     // #3 РЎС‚СЂРѕРєР° Р°РґСЂРµСЃР°
+						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 РљРѕРґ РёР· Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё
+						tmp_pt->RegNumber, // #5 РўРёРї Р°РґСЂРµСЃР° (СЋСЂРёРґРёС‡РµСЃРєРёР№ | С„РёР·РёС‡РµСЃРєРёР№ | РґРѕСЃС‚Р°РІРєРё)
 						dbe_city,          // #6
-						/*tmp_pt->Phone*/dbe_phone,      // #7 Телефон (ассоциированный с адресом)
-						/*tmp_pt->BnkName*/dbe_bnkname,  // #8 Контакт (ассоциированный с адресом)
+						/*tmp_pt->Phone*/dbe_phone,      // #7 РўРµР»РµС„РѕРЅ (Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ Р°РґСЂРµСЃРѕРј)
+						/*tmp_pt->BnkName*/dbe_bnkname,  // #8 РљРѕРЅС‚Р°РєС‚ (Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ Р°РґСЂРµСЃРѕРј)
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				}
 				break;
@@ -2146,9 +2136,9 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						p->Name,             // #2
 						/*tmp_pt->BnkName*/dbe_bnkname,     // #3
 						/*tmp_pt->BnkAcct*/dbe_bnkacct,     // #4
-						tmp_pt->RegNumber,    // #5 Тип счета
-						tmp_pt->RegInitDate,        // #6 Дата открытия //
-						/*tmp_pt->Phone*/dbe_phone, // #7 БИК банка
+						tmp_pt->RegNumber,    // #5 РўРёРї СЃС‡РµС‚Р°
+						tmp_pt->RegInitDate,        // #6 Р”Р°С‚Р° РѕС‚РєСЂС‹С‚РёСЏ //
+						/*tmp_pt->Phone*/dbe_phone, // #7 Р‘РРљ Р±Р°РЅРєР°
 						p->Flags,                   // #8
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 				}
@@ -2218,9 +2208,9 @@ int SLAPI PPViewPerson::Recover()
 	PPLogger logger;
 	SString fmt_buf, msg_buf, addr_buf;
 	PPIDArray psn_list;
-	PPIDArray conflict_owner_addr_list; // Список адресов доставки, принадлежащих нескольким владельцам
-	LAssocArray dlvr_addr_list; // Список ассоциаций {DlvrAddrID; PersonID}
-	LAssocArray invowner_addr_list; // Список ассоциация адресов доставки, имеющий не верного владельца {DlvrAddrID; CorrectOwnerID}
+	PPIDArray conflict_owner_addr_list; // РЎРїРёСЃРѕРє Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РЅРµСЃРєРѕР»СЊРєРёРј РІР»Р°РґРµР»СЊС†Р°Рј
+	LAssocArray dlvr_addr_list; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ {DlvrAddrID; PersonID}
+	LAssocArray invowner_addr_list; // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёСЏ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, РёРјРµСЋС‰РёР№ РЅРµ РІРµСЂРЅРѕРіРѕ РІР»Р°РґРµР»СЊС†Р° {DlvrAddrID; CorrectOwnerID}
 	PersonViewItem item;
 	PPLocationPacket loc_pack;
 	PPWait(1);
@@ -2269,9 +2259,9 @@ int SLAPI PPViewPerson::Recover()
 						if(PsnObj.LocObj.GetPacket(r_assc.Key, &loc_pack) > 0)
 							LocationCore::GetAddress(loc_pack, 0, addr_buf);
 						/*
-						PPTXT_LOG_MANYLINGADDR_ONEBILL  "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом все документы с этим адресом относятся к персоналии '@person'"
-						PPTXT_LOG_MANYLINGADDR_MANYBILL "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом документы с этим адресом относятся к разным персоналиям"
-						PPTXT_LOG_MANYLINGADDR_NOBILL   "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом нет документов с этим адресом"
+						PPTXT_LOG_MANYLINGADDR_ONEBILL  "РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё '@zstr' РїСЂРёРЅР°РґР»РµР¶РёС‚ РЅРµСЃРєРѕР»СЊРєРёРј РїРµСЂСЃРѕРЅР°Р»РёСЏРј РїСЂРё СЌС‚РѕРј РІСЃРµ РґРѕРєСѓРјРµРЅС‚С‹ СЃ СЌС‚РёРј Р°РґСЂРµСЃРѕРј РѕС‚РЅРѕСЃСЏС‚СЃСЏ Рє РїРµСЂСЃРѕРЅР°Р»РёРё '@person'"
+						PPTXT_LOG_MANYLINGADDR_MANYBILL "РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё '@zstr' РїСЂРёРЅР°РґР»РµР¶РёС‚ РЅРµСЃРєРѕР»СЊРєРёРј РїРµСЂСЃРѕРЅР°Р»РёСЏРј РїСЂРё СЌС‚РѕРј РґРѕРєСѓРјРµРЅС‚С‹ СЃ СЌС‚РёРј Р°РґСЂРµСЃРѕРј РѕС‚РЅРѕСЃСЏС‚СЃСЏ Рє СЂР°Р·РЅС‹Рј РїРµСЂСЃРѕРЅР°Р»РёСЏРј"
+						PPTXT_LOG_MANYLINGADDR_NOBILL   "РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё '@zstr' РїСЂРёРЅР°РґР»РµР¶РёС‚ РЅРµСЃРєРѕР»СЊРєРёРј РїРµСЂСЃРѕРЅР°Р»РёСЏРј РїСЂРё СЌС‚РѕРј РЅРµС‚ РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ СЌС‚РёРј Р°РґСЂРµСЃРѕРј"
 						*/
 						PPID   psn_id = 0;
 						uint   str_id = 0;
@@ -2307,7 +2297,7 @@ int SLAPI PPViewPerson::Recover()
 				const PPID inv_owner_id = loc_pack.OwnerID;
 				if(!conflict_owner_addr_list.bsearch(addr_id)) {
 					if(inv_owner_id != valid_owner_id) {
-						// PPTXT_LOG_DLVRADDINVOWNER       "Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person)"
+						// PPTXT_LOG_DLVRADDINVOWNER       "РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё '@zstr' СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅРµ РЅР° С‚РѕРіРѕ РІР»Р°РґРµР»СЊС†Р° (@person), РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ (@person)"
 						loc_pack.OwnerID = valid_owner_id;
 						THROW(PsnObj.LocObj.PutPacket(&addr_id, &loc_pack, 0));
 						if(PPLoadText(PPTXT_LOG_DLVRADDINVOWNER, fmt_buf)) {
@@ -2317,7 +2307,7 @@ int SLAPI PPViewPerson::Recover()
 					}
 				}
 				else {
-					// PPTXT_LOG_DLVRADDINVOWNER_NC    "Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person): исправление невозможно из-за конфликта между владельцами"
+					// PPTXT_LOG_DLVRADDINVOWNER_NC    "РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё '@zstr' СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅРµ РЅР° С‚РѕРіРѕ РІР»Р°РґРµР»СЊС†Р° (@person), РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ (@person): РёСЃРїСЂР°РІР»РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ РёР·-Р·Р° РєРѕРЅС„Р»РёРєС‚Р° РјРµР¶РґСѓ РІР»Р°РґРµР»СЊС†Р°РјРё"
 					if(PPLoadText(PPTXT_LOG_DLVRADDINVOWNER_NC, fmt_buf)) {
 						PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), inv_owner_id, valid_owner_id);
 						logger.Log(msg_buf);
@@ -2430,7 +2420,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, phone_buf);
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
-					LocationCore::GetAddress(loc_rec, 0, addr_buf); // @v8.3.10
+					LocationCore::GetAddress(loc_rec, 0, addr_buf);
 					loc_text_buf = 0;
 					if(loc_rec.Code[0])
 						loc_text_buf.Cat(loc_rec.Code);
@@ -2441,11 +2431,11 @@ int SLAPI PPViewPerson::ExportUhtt()
 					if(addr_buf.NotEmptyS())
 						loc_text_buf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
 
-					//PPTXT_UHTTEXPLOC_FOUND      "На сервере Universe-HTT адрес '@zstr' найден по коду"
-					//PPTXT_UHTTEXPLOC_EXPORTED   "Адрес '@zstr' экспортирован на сервер Universe-HTT"
-					//PPTXT_UHTTEXPLOC_CODEASSGN  "Адресу '@zstr' присвоен код с сервера Universe-HTT"
-					//PPTXT_UHTTEXPLOC_EGETBYCOD  "Ошибка обратного получения адреса '@zstr' по идентификатору Universe-HTT: @zstr"
-					//PPTXT_UHTTEXPLOC_EEXPORT    "Ошибка экспорта адреса '@zstr' на сервер Universe-HTT: @zstr"
+					//PPTXT_UHTTEXPLOC_FOUND      "РќР° СЃРµСЂРІРµСЂРµ Universe-HTT Р°РґСЂРµСЃ '@zstr' РЅР°Р№РґРµРЅ РїРѕ РєРѕРґСѓ"
+					//PPTXT_UHTTEXPLOC_EXPORTED   "РђРґСЂРµСЃ '@zstr' СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅ РЅР° СЃРµСЂРІРµСЂ Universe-HTT"
+					//PPTXT_UHTTEXPLOC_CODEASSGN  "РђРґСЂРµСЃСѓ '@zstr' РїСЂРёСЃРІРѕРµРЅ РєРѕРґ СЃ СЃРµСЂРІРµСЂР° Universe-HTT"
+					//PPTXT_UHTTEXPLOC_EGETBYCOD  "РћС€РёР±РєР° РѕР±СЂР°С‚РЅРѕРіРѕ РїРѕР»СѓС‡РµРЅРёСЏ Р°РґСЂРµСЃР° '@zstr' РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ Universe-HTT: @zstr"
+					//PPTXT_UHTTEXPLOC_EEXPORT    "РћС€РёР±РєР° СЌРєСЃРїРѕСЂС‚Р° Р°РґСЂРµСЃР° '@zstr' РЅР° СЃРµСЂРІРµСЂ Universe-HTT: @zstr"
 					int   dont_update = 0;
 					if(loc_rec.Code[0] && uhtt_cli.GetLocationByCode(loc_rec.Code, ret_loc_pack) > 0) {
 						uhtt_loc_id = ret_loc_pack.ID;
@@ -2462,20 +2452,18 @@ int SLAPI PPViewPerson::ExportUhtt()
 						logger.Log(msg_buf);
 					}
 					else {
-						uhtt_loc_pack.ID = uhtt_loc_id; // @v8.3.10
-						uhtt_loc_pack.SetCode(loc_rec.Code); // @v8.3.10
+						uhtt_loc_pack.ID = uhtt_loc_id;
+						uhtt_loc_pack.SetCode(loc_rec.Code);
 						uhtt_loc_pack.SetPhone(phone_buf);
 						uhtt_loc_pack.SetContact(contact_buf);
 						if(LocationCore::GetExField(&loc_rec, LOCEXSTR_EMAIL, temp_buf) && temp_buf.NotEmptyS())
 							uhtt_loc_pack.SetEMail(temp_buf);
 						uhtt_loc_pack.Type = LOCTYP_ADDRESS;
 						uhtt_loc_pack.Flags = LOCF_STANDALONE;
-						// @v8.3.10 {
 						if(addr_buf.NotEmpty()) {
 							uhtt_loc_pack.SetAddress(addr_buf);
 							uhtt_loc_pack.Flags |= LOCF_MANUALADDR;
 						}
-						// } @v8.3.10
 						uhtt_loc_pack.Latitude = loc_rec.Latitude;
 						uhtt_loc_pack.Longitude = loc_rec.Longitude;
 						int    cr = uhtt_cli.CreateStandaloneLocation(&uhtt_loc_id, uhtt_loc_pack);
@@ -2493,7 +2481,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 								logger.Log(msg_buf);
 							}
 							else {
-								// Ошибка обратного получения адреса по идентификатору Universe-HTT
+								// РћС€РёР±РєР° РѕР±СЂР°С‚РЅРѕРіРѕ РїРѕР»СѓС‡РµРЅРёСЏ Р°РґСЂРµСЃР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ Universe-HTT
 								temp_buf = uhtt_cli.GetLastMessage();
 								PPLoadText(PPTXT_UHTTEXPLOC_CODEASSGN, fmt_buf);
 								PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr(), temp_buf.cptr());
@@ -2501,7 +2489,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 							}
 						}
 						else {
-							// Ошибка экспорта адреса на сервер Universe-HTT
+							// РћС€РёР±РєР° СЌРєСЃРїРѕСЂС‚Р° Р°РґСЂРµСЃР° РЅР° СЃРµСЂРІРµСЂ Universe-HTT
 							temp_buf = uhtt_cli.GetLastMessage();
 							PPLoadText(PPTXT_UHTTEXPLOC_EEXPORT, fmt_buf);
 							PPFormat(fmt_buf, &msg_buf, loc_text_buf.cptr(), temp_buf.cptr());
@@ -2543,7 +2531,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					if(ok = AddItem(&id) > 0) {
 						pBrw->Update();
 						pBrw->search2(&id, PTR_CMPFUNC(long), srchFirst, 0);
-						ok = -1; // Не надо обновлять таблицу после этого вызова
+						ok = -1; // РќРµ РЅР°РґРѕ РѕР±РЅРѕРІР»СЏС‚СЊ С‚Р°Р±Р»РёС†Сѓ РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РІС‹Р·РѕРІР°
 					}
 				}
 				break;
@@ -3026,7 +3014,7 @@ int PPALDD_PersonCat::Set(long iterId, int commit)
 			STRNSCPY(p_prsn_cat->Symb, strip(H.Code));
 		}
 		else {
-			// @todo Ошибка (в этой структуре нет итераторов)
+			// @todo РћС€РёР±РєР° (РІ СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ РЅРµС‚ РёС‚РµСЂР°С‚РѕСЂРѕРІ)
 		}
 	}
 	else {

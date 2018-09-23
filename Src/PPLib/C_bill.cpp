@@ -299,7 +299,7 @@ SLAPI PrcssrAbsentBill::~PrcssrAbsentBill()
 
 int SLAPI PrcssrAbsentBill::InitParam(Param * pParam)
 {
-	CALLPTRMEMB(pParam, Period.SetZero());
+	CALLPTRMEMB(pParam, Period.Z());
 	return 1;
 }
 

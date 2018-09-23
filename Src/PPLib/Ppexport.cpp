@@ -156,7 +156,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 //
 PPDbTableXmlExportParam_TrfrBill::PPDbTableXmlExportParam_TrfrBill() : PPDbTableXmlExporter::BaseParam(0xEF00BC02)
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 int SLAPI PPDbTableXmlExportParam_TrfrBill::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)

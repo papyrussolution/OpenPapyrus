@@ -13,7 +13,7 @@ SLAPI PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID e
 	LocID(locID), ExcludeLotID(excludeLotID), Flags(flags), RetLotID(0)
 {
 	GoodsList.addnz(goodsID);
-	Period.SetZero();
+	Period.Z();
 	MEMSZERO(RetLotRec);
 }
 
@@ -5385,7 +5385,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 PPObjBill::PplBlock::PplBlock(DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) :
 	Flags(0), Period(rPeriod), Amount(0.0), NominalAmount(0.0), Payment(0.0), PaymentBefore(0.0), Part(1.0), PartBefore(1.0)
 {
-	GatherPaymPeriod.SetZero();
+	GatherPaymPeriod.Z();
 	if(pOpList) {
 		OpList = *pOpList;
 		Flags |= fUseOpList;
@@ -7549,7 +7549,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 
 int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 {
-	int    ok = 1, ta = 0, frrl_tag = 0;
+	int    ok = 1;
+	int    ta = 0;
+	int    frrl_tag = 0;
 	int    r, rbybill = 0, is_inventory = 0;
 	PPID   paym_link_id = 0, pull_member_id, op_type_id = 0;
 	SString bill_code;
@@ -7560,15 +7562,21 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 	THROW(P_Tbl->Search(id, &brec) > 0);
 	{
 		Reference * p_ref = PPRef;
+		const  PPRights & r_rt = ObjRts;
 		ObjVersioningCore * p_ovc = p_ref->P_OvT; // @v9.8.11
 		SBuffer hist_buf; // @v9.8.11
 		BillUserProfileCounter ufp_counter;
 		PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(brec.OpID, PPACN_RMVBILL));
 		const int is_shadow = BIN(brec.OpID == 0);
 		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
-			THROW(CheckRights(PPR_DEL));
-			THROW(ObjRts.CheckBillDate(brec.Dt));
-			THROW(ObjRts.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
+			// @v10.1.12 THROW(CheckRights(PPR_DEL));
+			// @v10.1.12 {
+			const int cor = r_rt.CheckOpID(brec.OpID, PPR_DEL);
+			THROW(cor);
+			THROW((cor > 0) || CheckRights(PPR_DEL));
+			// } @v10.1.12 
+			THROW(r_rt.CheckBillDate(brec.Dt));
+			// @v10.1.12 THROW(r_rt.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
 			/* @v9.8.11 if(TLP(HistBill).IsOpened()) {
 				PPBillPacket old_pack;
 				THROW(ExtractPacket(id, &old_pack));

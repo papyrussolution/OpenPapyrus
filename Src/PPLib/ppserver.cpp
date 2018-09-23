@@ -3269,7 +3269,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 {
 	int    ok = 1;
 	size_t actual_size;
-	CRC32  crc;
+	SCRC32 crc;
 	ulong  c, clen;
 	uint   max_size = 16*1024;
 	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
@@ -3412,7 +3412,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	//
 	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
 	SRandGenerator & r_rg = SLS.GetTLA().Rg;
-	CRC32  crc;
+	SCRC32 crc;
 	ulong  c = 0;
 	size_t actual_size;
 	for(uint i = 1; i <= 16*1024; i++) {

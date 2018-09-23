@@ -9389,8 +9389,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	LDATE  PaymBillDate;       // Дата  платежного документа (для печати в счете-фактуре)
 	int16  IsShipped;          // @transient Признак отгруженного документа (проецируется на BillTbl::Rec.Flags как BILLF_SHIPPED)
 	int16  Ft_STax;            // @transient (0 - ignored, <0 - off, >0 - on)
-	int16  Ft_Declined;        // @v8.3.3 @transient (0 - ignored, <0 - off, >0 - on)
-	int16  Reserve;            // @v8.3.3 @alignment @transient
+	int16  Ft_Declined;        // @transient (0 - ignored, <0 - off, >0 - on)
+	int16  Reserve;            // @alignment @transient
 	int16  EdiRecadvStatus;     // @v9.1.6 @transient Статус RECADV по каналу EDI
 	int16  EdiRecadvConfStatus; // @v9.1.6 @transient Статус подтверждения на RECADV по каналу EDI
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
@@ -9398,6 +9398,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ
 		// Проекция поля BillTbl::Rec::SCardID
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
+	PPID   AgtBillID;          // @v10.1.12 @transient. Проекция BillTbl::Rec::AgtBillID
 };
 //
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
@@ -9778,7 +9779,7 @@ public:
 		int    SLAPI IsEmpty() const;
 		int    SLAPI IsEqual(const Agreement & rS) const;
 
-		long   ObjType;          // Const=PPOBJ_BILL 
+		long   ObjType;          // Const=PPOBJ_BILL
 		long   ObjID;            // BillID
 		long   Prop;             // Const=BILLPRP_AGREEMENT
 		// start Text {
@@ -10910,6 +10911,7 @@ public:
 	//    0 - ошибка
 	//
 	int    SLAPI GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList);
+	int    SLAPI GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList);
 	int    SLAPI GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd);
 	int    SLAPI CreateSCardsTurnoverList(const DateRange *, RAssocArray *);
 	int    SLAPI CalcPayment(PPID billID, int byLinks, const DateRange *, PPID curID, double * pPaymentAmount);
@@ -44611,7 +44613,7 @@ public:
 	SLAPI  VetisDocumentFilt();
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
-	uint8  ReserveStart[208]; // @anchor
+	uint8  ReserveStart[204]; // @anchor
 	enum {
 		fkGeneral          = 0,
 		fkInterchangeParam = 1
@@ -44624,6 +44626,7 @@ public:
 	enum {
 		fAsSelector      = 0x0001
 	};
+	PPID   LinkVDocID; // @v10.1.12 Ид документа, привязки к которому необходимо отобразить
 	S_GUID SelLotUuid; // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
 		// При открытии окна текущая позиция будет установлена на записи с этим идентификатором.
 	long   FromPersonID;
@@ -44640,6 +44643,19 @@ public:
 	long    VDStatusFlags;
 	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
 	uint8   ReserveEnd[28];   // @anchor
+};
+
+struct VetisDocumentTotal {
+	SLAPI  VetisDocumentTotal();
+
+	long   Count;
+	long   CtCreated;
+	long   CtConfirmed;
+	long   CtWithdrawn;
+	long   CtUtilized;
+	long   CtFinalized;
+	long   CtOutgoingPrep;
+	long   CtStock;
 };
 
 typedef VetisDocumentTbl::Rec VetisDocumentViewItem;
@@ -44670,6 +44686,7 @@ public:
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(VetisDocumentViewItem * pItem);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+	int    SLAPI CalcTotal(VetisDocumentTotal * pTotal);
 
 	VetisEntityCore EC; // public поскольку внешние модули могут захотеть иметь доступ к этому (дорогому) ресурсу
 private:
@@ -44684,6 +44701,7 @@ private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI ViewTotal();
 	int    SLAPI LoadDocuments();
 	int    SLAPI ProcessIncoming(PPID entityID);
 	int    SLAPI ProcessOutcoming(PPID entityID);
@@ -50521,7 +50539,7 @@ int    SLAPI EditCfgOptionsDialog(PPConfig *, long, EmbedDialog * = 0);
 int    SLAPI EditSecurDialog(PPID obj, PPID * id, void * extraPtr);
 int    SLAPI ViewLots(const LotFilt *, int asOrders, int modeless);
 int    SLAPI ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless);
-int    SLAPI BillExtraDialog(PPBillExt *, ObjTagList * pTagList, int isFilt);
+int    SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pExt, ObjTagList * pTagList, int isFilt);
 int    SLAPI BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
 int    SLAPI BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
 int    SLAPI ViewStatus();

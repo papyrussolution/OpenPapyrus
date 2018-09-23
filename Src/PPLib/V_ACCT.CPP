@@ -1,6 +1,6 @@
 // V_ACCT.CPP
 // Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018
-//
+// @codepage UTF-8
 // PPViewAccount
 //
 #include <pp.h>
@@ -92,7 +92,7 @@ int SLAPI PPViewAccount::ViewAccAnalyze(PPID accID)
 		PPViewAccAnlz * p_temp_view = new PPViewAccAnlz;
 		if(P_AnlzFilt == 0) {
 			P_AnlzFilt = (AccAnlzFilt*)p_temp_view->CreateFilt((void *)aakndGeneric);
-			P_AnlzFilt->Period.SetZero();
+			P_AnlzFilt->Period.Z();
 		}
 		P_AnlzFilt->AccID = accID;
 		P_AnlzFilt->AcctId.ac = accID;
@@ -231,16 +231,16 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		const BrwEntry * p_item = (const BrwEntry *)pBlk->P_SrcData;
 		switch(pBlk->ColumnN) {
-			case 0: // ÈÄ
+			case 0: // Ð˜Ð”
 				pBlk->Set(p_item->ID);
 				break;
-			case 1: // Íîìåð ñ÷åòà
+			case 1: // ÐÐ¾Ð¼ÐµÑ€ ÑÑ‡ÐµÑ‚Ð°
 				pBlk->Set((long)p_item->A.Ac);
 				break;
-			case 2: // Íîìåð ñóáñ÷åòà
+			case 2: // ÐÐ¾Ð¼ÐµÑ€ ÑÑƒÐ±ÑÑ‡ÐµÑ‚Ð°
 				pBlk->Set((long)p_item->A.Sb);
 				break;
-			case 3: // Âèä ñ÷åòà
+			case 3: // Ð’Ð¸Ð´ ÑÑ‡ÐµÑ‚Ð°
 				PPGetSubStrById(PPTXT_ACCKIND, p_item->Kind, temp_buf);
 				pBlk->Set(temp_buf);
 				break;

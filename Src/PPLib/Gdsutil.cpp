@@ -1394,7 +1394,7 @@ int QuotListDialog::setupList()
 				realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
 				ss.add(num_buf);
 				DateRange empty_period;
-				ss.add(temp_buf.Z().Cat(empty_period.SetZero(), 1));
+				ss.add(temp_buf.Z().Cat(empty_period.Z(), 1));
 				intfmt(0, MKSFMTD(0, 0, NMBF_NOZERO), num_buf);
 				ss.add(num_buf);
 				THROW(addStringToList((1000000 + qk_id), ss.getBuf()));

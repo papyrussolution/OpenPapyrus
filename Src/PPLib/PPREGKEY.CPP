@@ -31,7 +31,7 @@ int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 		l = MASK_MATRIX_SIZE;
 	}
 	memcpy(buf+i, pName, l);
-	CRC32  _crc32;
+	SCRC32 _crc32;
 	ulong  crc = _crc32.Calc(0, (uint8*)buf, MASK_MATRIX_SIZE);
 	char   target[32];
 	uint   target_len = 0;

@@ -26,7 +26,7 @@ int SLAPI PPCycleFilt::operator !() const
 //
 SLAPI PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0) // @v9.8.4 TSArray-->TSVector
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 SLAPI PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
@@ -153,7 +153,7 @@ int SLAPI PPCycleArray::getPeriod(uint pos, DateRange * pPeriod) const
 	if(pos < count)
 		dr = at(pos);
 	else {
-		dr.SetZero();
+		dr.Z();
 		ok = 0;
 	}
 	ASSIGN_PTR(pPeriod, dr);

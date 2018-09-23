@@ -458,7 +458,7 @@ int SLAPI strtoperiod(const char * pStr, DateRange * pRange, long flags)
 	TempVar temp_dt;
 	int    nd;
 	long   number = 0;
-    pRange->SetZero();
+    pRange->Z();
 	while(1) {
 		switch(gettoken(&p, &number, &temp_dt, flags)) {
 			case TOK_DATE:
@@ -532,7 +532,7 @@ int SLAPI strtoperiod(const char * pStr, DateRange * pRange, long flags)
 						encodedate(daysPerMonth[q * 3 - 1], q * 3, y ? y : _defyear, &pRange->upp);
 					}
 					else if(!d && !m && !y)
-						pRange->SetZero();
+						pRange->Z();
 					else if(y && !m && !d) {
 						encodedate(1, 1, y, &pRange->low);
 						encodedate(31, 12, y, &pRange->upp);

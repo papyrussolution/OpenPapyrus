@@ -76,7 +76,7 @@ SLAPI ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id)
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHMFRK_TIMEOUT, &ImpExpTimeout);
 	UseInnerAutoDscnt = 0;
-	ChkRepPeriod.SetZero();
+	ChkRepPeriod.Z();
 }
 
 int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)

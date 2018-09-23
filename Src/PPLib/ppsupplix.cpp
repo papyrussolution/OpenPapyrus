@@ -2723,7 +2723,7 @@ int SLAPI iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
     	iSalesGoodsStorageHeader hdr;
         MEMSZERO(hdr);
         memcpy(hdr.Signature, "ISGS", 4);
-        CRC32 cc;
+        SCRC32 cc;
         hdr.CRC = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), bsize);
         //
         GetGoodsStoreFileName(file_name);
@@ -2751,7 +2751,7 @@ int SLAPI iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
         THROW(memcmp(hdr.Signature, "ISGS", 4) == 0);
 		THROW_SL(f_in.Read(buffer));
 		{
-			CRC32 cc;
+			SCRC32 cc;
 			uint32 _crc = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), buffer.GetAvailableSize());
 			THROW(_crc == hdr.CRC);
 		}
@@ -2777,7 +2777,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	GetGoodsStoreFileName(strg_file_name);
 	int     storage_exists = 0;
 	DateRange goods_query_period; // @v9.6.3
-	goods_query_period.SetZero(); // @v9.6.3
+	goods_query_period.Z(); // @v9.6.3
 	if(useStorage && fileExists(strg_file_name)) {
 		storage_exists = 1;
 		LDATETIME mt;

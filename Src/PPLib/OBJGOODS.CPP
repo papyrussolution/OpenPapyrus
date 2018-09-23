@@ -759,7 +759,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 			// CRC рассчитываем начиная со смещения sizeof(long) из-за того, что
 			// после записи в БД первые 4 байта будут содержать идентификатор.
 			//
-			CRC32 c;
+			SCRC32 c;
 			ulong crc = c.Calc(0, ((const uint8 *)pBuf->GetBuf())+sizeof(long), pBuf->GetAvailableSize()-sizeof(long));
 			pBuf->Write(crc);
 		}
@@ -807,7 +807,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 			}
 		}
 		else {
-			CRC32 c;
+			SCRC32 c;
 			ulong crc = 0, crc2;
 			crc = c.Calc(0, ((const uint8 *)(char *)b)+sizeof(long), data_len-sizeof(crc)-sizeof(long));
 			pBuf->Read(&pPack->Rec, sizeof(pPack->Rec));

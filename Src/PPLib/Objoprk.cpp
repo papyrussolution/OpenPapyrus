@@ -173,7 +173,7 @@ int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
 		at_end = 1;
 		temp[sstrlen(temp)-1] = 0;
 	}
-	period.SetZero();
+	period.Z();
 	strtoperiod(temp, &period, 0);
 	Beg = period.low;
 	End = period.upp;

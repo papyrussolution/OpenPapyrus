@@ -31,7 +31,7 @@ IMPL_INVARIANT_C(StaffAmtEntry)
 
 SLAPI StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID), CurID(curID), Amt(amt)
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 int FASTCALL StaffAmtEntry::IsEqual(const StaffAmtEntry & rS) const

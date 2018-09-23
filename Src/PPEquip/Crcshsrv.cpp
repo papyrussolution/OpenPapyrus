@@ -103,7 +103,7 @@ public:
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &ipar); // &UseAltImport);
 		if(ipar > 0)
 			Options |= oUseAltImport;
-		ChkRepPeriod.SetZero();
+		ChkRepPeriod.Z();
 		for(size_t i = 0; i < SIZEOFARRAY(P_IEParam); i++)
 			P_IEParam[i] = 0;
 		{

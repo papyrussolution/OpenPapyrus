@@ -1,5 +1,5 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -234,9 +234,9 @@ int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSa
 				}
 			}
 			DateRange predict_chunk, model_chunk, proto_chunk;
-			predict_chunk.SetZero();
-			model_chunk.SetZero();
-			proto_chunk.SetZero();
+			predict_chunk.Z();
+			model_chunk.Z();
+			proto_chunk.Z();
 			if(period.upp > model_period.upp) {
 				predict_chunk.upp = period.upp;
 				predict_chunk.low = MAX(period.low, plusdate(model_period.upp, 1));
@@ -714,7 +714,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	int    ok = 1;
 	DateRange period = Data.GetPeriod();
 	DateRange norm_period;
-	norm_period.SetZero();
+	norm_period.Z();
 	LDATE  last_dt = ZERODATE;
 	THROW(P_SalesTbl);
 	P_SalesTbl->GetTblUpdateDt(&last_dt);
@@ -1915,7 +1915,7 @@ int SLAPI PrcssrPrediction::SetContinueMode(int reset, PPID lastGoodsID, int use
 		THROW(tra);
 		THROW(Predictor::GetPredictCfg(&cfg));
 		if(reset) {
-			cfg.CbPeriod.SetZero();
+			cfg.CbPeriod.Z();
 			cfg.CbLastGoodsID = 0;
 			cfg.CbProcess = 0;
 			cfg.CbFlags   = 0;

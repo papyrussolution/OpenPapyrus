@@ -236,7 +236,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 		{
 			RVALUEPTR(Data, pRentCond);
 			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
-			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle); 
+			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
 			ushort v = BIN(Data.Flags & RENTF_PERCENT);
 			setCtrlData(CTL_RENT_ISPERCENT, &v);
 			setCtrlData(CTL_RENT_PERCENT, &Data.Percent);
@@ -361,9 +361,10 @@ private:
 	ObjTagList TagL;
 };
 
-int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
+int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	uint   dlg_id = 0;
 	PPObjSCard sc_obj;
 	SString temp_buf;
@@ -382,7 +383,33 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 		ushort v;
 		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
-		if(asFilt == 0) {
+		if(!asFilt) {
+			if(pPack) {
+				ComboBox * p_agt_combo = (ComboBox *)dlg->getCtrlView(CTLSEL_BILLEXT_AGREEMENT);
+				if(p_agt_combo) {
+					PPIDArray agt_list;
+					if(pData->AgtBillID || pPack->Rec.Object) {
+						p_bobj->P_Tbl->GetListOfActualAgreemts(pPack->Rec.Object, pPack->Rec.Dt, 365*2, 20, agt_list);
+						agt_list.addnz(pData->AgtBillID);
+					}
+					if(agt_list.getCount()) {
+						agt_list.sortAndUndup();
+						SString temp_buf;
+						StrAssocArray * p_list = new StrAssocArray;
+						for(uint i = 0; i < agt_list.getCount(); i++) {
+							const PPID agt_bill_id = agt_list.get(i);
+							BillTbl::Rec agt_bill_rec;
+							if(p_bobj->Fetch(agt_bill_id, &agt_bill_rec) > 0) {
+								PPObjBill::MakeCodeString(&agt_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
+								p_list->AddFast(agt_bill_id, temp_buf);
+							}
+						}
+						ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
+						if(p_lw)
+							p_agt_combo->setListWindow(p_lw, pData->AgtBillID);
+					}
+				}
+			}
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_EXTPQUOT, PPOBJ_QUOTKIND, pData->ExtPriceQuotKindID, 0);
 			dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
 			dlg->setCtrlData(CTL_BILLEXT_INVCCODE, pData->InvoiceCode);
@@ -400,7 +427,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 			dlg->setCtrlData(CTL_BILLEXT_SCARDN, scard_no);
 			dlg->disableCtrl(CTL_BILLEXT_SCARDN, !sc_obj.CheckRights(SCRDRT_BINDING));
 		}
-		if(asFilt == 2) {
+		else if(asFilt == 2) {
 			PPAccessRestriction accsr;
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 			{
@@ -437,7 +464,8 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 			valid_data = 1;
 			pData->PayerID = payer_acs_id ? dlg->getCtrlLong(CTLSEL_BILLEXT_PAYER) : 0;
 			pData->AgentID = agent_acs_id ? dlg->getCtrlLong(CTLSEL_BILLEXT_AGENT) : 0;
-			if(asFilt == 0) {
+			if(!asFilt) {
+				dlg->getCtrlData(CTLSEL_BILLEXT_AGREEMENT, &pData->AgtBillID); // @v10.1.12
 				dlg->getCtrlData(CTLSEL_BILLEXT_EXTPQUOT, &pData->ExtPriceQuotKindID);
 				dlg->getCtrlData(CTL_BILLEXT_INVCCODE, pData->InvoiceCode);
 				strip(pData->InvoiceCode);
@@ -467,7 +495,7 @@ int SLAPI BillExtraDialog(PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 					}
 				}
 			}
-			if(asFilt == 2) {
+			else if(asFilt == 2) {
 				{
 					v = dlg->getCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL);
 					pData->Ft_STax = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
@@ -616,7 +644,7 @@ private:
 	};
 	long   Flags;
 	int    PaymTerm;       // Срок оплаты в днях (по соглашению). Инициализируется в setDTS и в ReplyCntragntSelection
-	long   PayDateBase;    // 
+	long   PayDateBase;    //
 	PPObjGoods GObj;
 	PPObjArticle ArObj;
 	PPObjBill    * P_BObj;
@@ -1880,7 +1908,8 @@ IMPL_HANDLE_EVENT(BillDialog)
 					const PPID prev_agent_id = P_Pack->Ext.AgentID;
 					P_Pack->Ext.IsShipped = BIN(P_Pack->Rec.Flags & BILLF_SHIPPED);
 					P_Pack->Ext.SCardID = P_Pack->Rec.SCardID;
-					for(int r = 0; !r && BillExtraDialog(&P_Pack->Ext, &P_Pack->BTagL, 0) > 0;) {
+					P_Pack->Ext.AgtBillID = P_Pack->Rec.AgtBillID; // @v10.1.12
+					for(int r = 0; !r && BillExtraDialog(P_Pack, &P_Pack->Ext, &P_Pack->BTagL, 0) > 0;) {
 						r = 1;
 						if(P_Pack->Ext.AgentID != prev_agent_id) {
 							PPID   debt_dim_id = 0;
@@ -1908,6 +1937,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						if(r) {
 							SETFLAG(P_Pack->Rec.Flags, BILLF_SHIPPED, P_Pack->Ext.IsShipped);
 							P_Pack->Rec.SCardID = P_Pack->Ext.SCardID;
+							P_Pack->Rec.AgtBillID = P_Pack->Ext.AgtBillID; // @v10.1.12
 							if(PayDateBase == PPClientAgreement::pdbInvoice && !P_Pack->Rec.ID) {
 								P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
 								SetupPaymDateCtrls();
@@ -2553,7 +2583,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		setCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
 		setCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
 	}
-	// } @v10.1.12 
+	// } @v10.1.12
 	setupHiddenButton(OPKF_RENT,        cmRentCondition, CTL_BILL_RENTBUTTON);
 	setupHiddenButton(OPKF_BANKING,     cmPaymOrder,     CTL_BILL_PAYMORDBUTTON);
 	if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_BANKING)) {
@@ -2593,7 +2623,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT)
 		showButton(cmDetail, 0);
-	// } @v10.1.12 
+	// } @v10.1.12
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
 		const int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
         if(recadv_status) {
@@ -2852,7 +2882,7 @@ int BillDialog::getDTS(int onCancel)
 		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
 		getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
 	}
-	// } @v10.1.12 
+	// } @v10.1.12
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
 		THROW(getAdvanceRepData(P_Pack->P_AdvRep));
 	intr = IsIntrOp(P_Pack->Rec.OpID);
@@ -3145,12 +3175,12 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 				}
 				else {
 					PPID   person_id = ObjectToPerson(P_Pack->Rec.Object);
-					if(person_id || Data.DlvrAddrID) 
+					if(person_id || Data.DlvrAddrID)
 						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, Data.DlvrAddrID);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
 					// выбрать склад-получатель.
-					// 
+					//
 					else if(IsIntrOp(P_Pack->Rec.OpID) == INTREXPND) {
 						PPID   loc_id = PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object);
 						if(loc_id || Data.DlvrAddrID) {

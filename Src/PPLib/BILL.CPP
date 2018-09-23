@@ -572,7 +572,7 @@ int SLAPI BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 	return r;
 }
 
-/* @v10.1.12 (inlined) 
+/* @v10.1.12 (inlined)
 int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 {
 	int    ok = 1;
@@ -975,6 +975,43 @@ int SLAPI BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillL
 		}
 	}
 	return ok;
+}
+
+int SLAPI BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList)
+{
+	rList.clear();
+    int    ok = -1;
+	if(arID) {
+		PPObjArticle ar_obj;
+		ArticleTbl::Rec ar_rec;
+		if(ar_obj.Fetch(arID, &ar_rec) > 0) {
+			PPIDArray op_list;
+			PPOprKind op_rec;
+			for(PPID op_id = 0; EnumOperations(PPOPT_AGREEMENT, &op_id, &op_rec) > 0;) {
+				if(op_rec.AccSheetID == ar_rec.AccSheetID) {
+					op_list.add(op_rec.ID);
+				}
+			}
+			if(op_list.getCount()) {
+				op_list.sortAndUndup();
+				BillTbl::Key3 k3;
+				MEMSZERO(k3);
+				k3.Object = arID;
+				k3.Dt = dt;
+				if(search(3, &k3, spLe) && data.Object == arID) do {
+					if(!(data.Flags2 & BILLF2_DECLINED) && op_list.bsearch(data.OpID)) {
+						rList.add(data.ID);
+						ok = 1;
+						if(maxItems > 0 && (int)rList.getCount() >= maxItems)
+							break;
+					}
+					else if(dt && maxDays > 0 && diffdate(dt, data.Dt) > maxDays)
+						break;
+				} while(search(3, &k3, spPrev) && data.Object == arID);
+			}
+		}
+	}
+    return ok;
 }
 
 int SLAPI BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRec)

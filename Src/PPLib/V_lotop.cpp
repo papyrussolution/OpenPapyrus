@@ -1,5 +1,5 @@
 // V_LOTOP.CPP
-// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -33,7 +33,7 @@ int SLAPI PPViewLotOp::InitIteration()
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(p_tt, 2));
 	P_IterQuery->selectAll();
-	period.SetZero();
+	period.Z();
 	AdjustPeriodToRights(period, 0);
 	if(Filt.Flags & LotOpFilt::fZeroLotOps)
 		dbq = & (p_tt->LotID == 0L && daterange(p_tt->Dt, &period) &&
@@ -113,7 +113,7 @@ DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_bill;
 	DBConst zero_cost;
 	zero_cost.init(0.0);
-	period.SetZero();
+	period.Z();
 	AdjustPeriodToRights(period, 0);
 	THROW(CheckTblPtr(trf = new TransferTbl));
 	THROW(CheckTblPtr(bll = new BillTbl));

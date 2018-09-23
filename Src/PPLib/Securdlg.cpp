@@ -584,7 +584,7 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 		if(p_sj) {
 			LDATETIME cur_dtm;
 			DateRange srch_prd;
-			srch_prd.SetZero();
+			srch_prd.Z();
 			getcurdatetime(&cur_dtm);
 			plusperiod(&(srch_prd.low = cur_dtm.d), PRD_DAY, -2, 0);
 			if((ok = p_sj->GetLastUserEvent(PPACN_LOGIN, userID, sessID, &srch_prd, &login_dtm)) > 0)

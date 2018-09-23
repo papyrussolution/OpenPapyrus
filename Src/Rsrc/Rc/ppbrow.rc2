@@ -6201,28 +6201,30 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 
 browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
-	"IssueDate",             9,  notype, 0, 10
-	"IssueNumber",          20,  notype, 0, 10
-	"VetForm",              11,  notype, 0, 10
-	"VetType",              12,  notype, 0, 10
-	"VetStatus",            13,  notype, 0, 10
-	"WayBillDate",          14,  notype, 0, 10
-	"WayBillNumber",        15,  notype, 0, 15
-	"From",                 18,  notype, 0, 30
-	"To",                   19,  notype, 0, 30
-	"ProductItem",          16,  notype, 0, 30
-	"Quantity",             17,  notype, NMBF_NOZERO, 10.3
-	"Rest",                 21,  notype, NMBF_NOZERO, 10.3
+	"Дата выпуска",          9,  notype, 0, 10
+	"Номер",                20,  notype, 0, 10
+	"Форма",                11,  notype, 0, 10
+	"@type",                12,  notype, 0, 10
+	"@status",              13,  notype, 0, 10
+	"Дата ТТН",             14,  notype, 0, 10
+	"Номер ТТН",            15,  notype, 0, 15
+	"Отправитель",          18,  notype, 0, 30
+	"Получатель",           19,  notype, 0, 30
+	"Продукт",              16,  notype, 0, 30
+	"@qtty",                17,  notype, NMBF_NOZERO, 10.3
+	"@rest",                21,  notype, NMBF_NOZERO, 10.3
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,      "Детализация\tEnter"
 		DELETEITEM       : kbDel,      TBBM_DELETE,    "Удалить документ (только для исходящих)\tDelete"
 		LOTOPS           : kbF3,       TBBM_LOTSOPER,  "@{view_lotop}\tF3"
+		VIEWLINKREST     : kbF4,       TBBM_LINK,      "Связанные остатки\tF4" // @v10.1.12
 		MATCHPERSON      : kbCtrlM,    TBBM_MATCHING,  "Сопоставить объекты\tCtrl-M"
 		UTILIZEDVDOC     : kbCtrlF6,   TBBM_NOICON,    "Погасить ветеринарный документ\tCtrl-F6"
 		SETUPOUTGOING    : kbCtrlF5,   TBBM_NOICON,    "Сформировать исходящие документы\tCtrl-F5"
 		SENDOUTGOING     : kbCtrlF8,   TBBM_NOICON,    "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
 		UPDATEITEMS      : kbF5,       TBBM_NOICON,    "@{refresh}\tF5"
 		separator
+		TOTAL            : kbF9,       TBBM_SIGM,      "@{totals}\tF9" // @v10.1.12
 		CHANGEFILT       : kbCtrlV,    TBBM_FILTER,    "@{filter}\tCtrl-V"
 	}
 }

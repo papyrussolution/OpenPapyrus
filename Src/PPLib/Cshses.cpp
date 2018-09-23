@@ -933,7 +933,7 @@ int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 
 int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 {
-	SurveyPeriod.SetZero();
+	SurveyPeriod.Z();
 	int    ok = 1;
 	int    r;
 	int    i;

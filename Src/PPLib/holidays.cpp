@@ -202,7 +202,7 @@ void HolidaysDialog::scan()
 	if(P_Driver) {
 		PPPredictConfig cfg;
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		PrcssrPrediction::GetPredictCfg(&cfg);
 		PPID   loc_id = getCtrlLong(CTLSEL_HOLIDAYS_LOC);
 		if(loc_id && cfg.OpID && DateRangeDialog(0, 0, &period) > 0)

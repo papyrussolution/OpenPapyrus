@@ -175,7 +175,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesRoutePacket> * iSalesGetRou
 	param.password = GetDynamicParamString(pPassw, arg_str_pool);
 	DateRange period;
 	if(!RVALUEPTR(period, pPeriod))
-		period.SetZero();
+		period.Z();
 	SETIFZ(period.low, encodedate(1, 1, 2016));
 	SETIFZ(period.upp, encodedate(31, 12, 2030));
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
@@ -429,7 +429,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetRece
 	param.password = GetDynamicParamString(pPassw, arg_str_pool);
 	DateRange period;
 	if(!RVALUEPTR(period, pPeriod))
-		period.SetZero();
+		period.Z();
 	SETIFZ(period.low, encodedate(1, 1, 2001));
 	SETIFZ(period.upp, encodedate(31, 12, 2030));
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
@@ -461,7 +461,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetOrde
 	param.password = GetDynamicParamString(pPassw, arg_str_pool);
 	DateRange period;
 	if(!RVALUEPTR(period, pPeriod))
-		period.SetZero();
+		period.Z();
 	SETIFZ(period.low, encodedate(1, 1, 2001));
 	SETIFZ(period.upp, encodedate(31, 12, 2030));
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);

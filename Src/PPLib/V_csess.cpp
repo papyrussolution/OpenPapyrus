@@ -26,7 +26,7 @@ CSessFilt & FASTCALL CSessFilt::operator = (const CSessFilt & src)
 SLAPI CSessCrDraftParam::CSessCrDraftParam() : Ver(0), RuleGrpID(0), RuleID(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
-	Period.SetZero();
+	Period.Z();
 }
 
 int SLAPI CSessCrDraftParam::Write(SBuffer & rBuf, long)
@@ -2047,7 +2047,7 @@ int SLAPI PPViewCSess::CalcTotal(CSessTotal * pTotal)
 		pTotal->WrOffCost      += item.WrOffCost;
 		pTotal->Income         += item.Income;
 		pTotal->BnkAmount      += item.BnkAmount;    // @CSCardAmount
-		pTotal->CSCardAmount   += item.CSCardAmount; // @v6.2.1
+		pTotal->CSCardAmount   += item.CSCardAmount;
 		pTotal->WORetAmount    += item.WORetAmount;
 		pTotal->WORetBnkAmount += item.WORetBnkAmount;
 		pTotal->BnkDiscount    += item.BnkDiscount;

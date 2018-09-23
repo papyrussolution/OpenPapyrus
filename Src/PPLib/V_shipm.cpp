@@ -1,7 +1,7 @@
 // V_SHIPM.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
-// @codepage windows-1251
-// Анализ отгрузки товаров
+// @codepage UTF-8
+// РђРЅР°Р»РёР· РѕС‚РіСЂСѓР·РєРё С‚РѕРІР°СЂРѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -139,9 +139,9 @@ int SLAPI PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 }
 
 
-class ShipmAnalyzeCache : public SArray {
+class ShipmAnalyzeCache : public SVector { // @v10.1.12 SArray-->SVector
 public:
-	struct Entry {
+	struct Entry { // @flat
 		PPID   GoodsID;
 		PPID   BillID;
 		LDATE  Dt;
@@ -152,7 +152,7 @@ public:
 		double AckQtty;
 		double AckAmount;
 	};
-	ShipmAnalyzeCache() : SArray(sizeof(ShipmAnalyzeCache::Entry))
+	ShipmAnalyzeCache() : SVector(sizeof(ShipmAnalyzeCache::Entry))
 	{
 	}
 	int    Add(int kind, long flags, const BillTbl::Rec * pBillRec, PPID goodsID, double qtty, double price);
@@ -165,14 +165,14 @@ int ShipmAnalyzeCache::Search(PPID goodsID, PPID billID, uint * pPos) const
 	Entry key;
 	key.GoodsID = goodsID;
 	key.BillID = billID;
-	return SArray::lsearch(&key, pPos, PTR_CMPFUNC(_2long));
+	return SVector::lsearch(&key, pPos, PTR_CMPFUNC(_2long));
 }
 
 int ShipmAnalyzeCache::Search(PPID goodsID, uint * pPos) const
 {
 	Entry key;
 	key.GoodsID = goodsID;
-	return SArray::lsearch(&key, pPos, CMPF_LONG);
+	return SVector::lsearch(&key, pPos, CMPF_LONG);
 }
 
 int ShipmAnalyzeCache::Add(int kind, long flags, const BillTbl::Rec * pBillRec, PPID goodsID, double qtty, double price)
@@ -251,7 +251,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			PPViewBill bv;
 			BillTbl::Rec bill_rec, shipm_bill_rec, ack_bill_rec;
 			PPTransferItem ti, shipm_ti, ack_ti;
-			Filt.Period.Actualize(ZERODATE); // @v8.7.7
+			Filt.Period.Actualize(ZERODATE);
 			THROW(AdjustPeriodToRights(Filt.Period, 0));
 			Filt.TranslateToBillFilt(&flt);
 			THROW(bv.Init_(&flt));
@@ -282,7 +282,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 					if(kind == 1) {
 						PPIDArray shipments;
 						DateRange shipm_period;
-						shipm_period.SetZero();
+						shipm_period.Z();
 						if(BObj->GetShipmByOrder(bill_id, &shipm_period, &shipments) > 0) {
 							for(uint j = 0; j < shipments.getCount(); j++)
 								if(BObj->Search(shipments.at(j), &shipm_bill_rec) > 0) {
@@ -522,4 +522,3 @@ int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_ShipmAnlz::Destroy() { DESTROY_PPVIEW_ALDD(ShipmAnalyze); }
-

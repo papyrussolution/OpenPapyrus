@@ -78,7 +78,7 @@ SLAPI ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(
 	}
 	UseAltImport = 0;
 	StatID = 0;
-	ChkRepPeriod.SetZero();
+	ChkRepPeriod.Z();
 }
 
 int SLAPI ACS_FRONTOL::SetGoodsRestLoadFlag(int updOnly)

@@ -416,7 +416,7 @@ void DutySchedDialog::fillStaffCal()
 		PPObjStaffCal sc_obj;
 		PPObjPerson psn_obj;
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		PPID   base_cal_id = psn_obj.GetConfig().RegStaffCalID;
 		{
 			TDialog * dlg = new TDialog(DLG_FILLSCDT);

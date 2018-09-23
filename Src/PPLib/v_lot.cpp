@@ -1172,9 +1172,9 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					if(GetItem(lot_id, &item) > 0) {
 						LotFilt temp_filt;
 						temp_filt.Copy(&Filt, 1);
-						temp_filt.Period.SetZero();
-						temp_filt.ExpiryPrd.SetZero();
-						temp_filt.QcExpiryPrd.SetZero();
+						temp_filt.Period.Z();
+						temp_filt.ExpiryPrd.Z();
+						temp_filt.QcExpiryPrd.Z();
 						temp_filt.GoodsID = item.GoodsID;
 						temp_filt.LocID = item.LocID;
 						ViewLots(&temp_filt, 0, 1);

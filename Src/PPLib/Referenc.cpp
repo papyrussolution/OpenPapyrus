@@ -151,7 +151,7 @@ int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t buf
 int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 {
 	int    ok = 1;
-	CRC32  c;
+	SCRC32 c;
 	size_t offs = offsetof(PPSecur2, Crc);
 	uint32 crc = 0;
 	{
@@ -1826,6 +1826,8 @@ int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 					ok = PPSetError(PPERR_ISNTPRVLGFOROP, added_msg);
 				}
 			}
+			else
+				ok = -1;
 		}
 	}
 	return ok;

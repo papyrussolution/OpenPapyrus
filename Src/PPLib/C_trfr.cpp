@@ -129,7 +129,7 @@ int SLAPI Transfer::CorrectReverse()
 	PPObjBill * p_bobj = BillObj;
 	int    do_process = 0;
 	Param param;
-	param.Period.SetZero();
+	param.Period.Z();
 	param.Flags = 0;
 	param.LogFileName = "trfr_rev.log";
 	{
@@ -254,7 +254,7 @@ int SLAPI RecoverAbsenceLots()
 	ushort v = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CABSLOTS))));
 	dlg->SetupCalPeriod(CTLCAL_CABSLOTS_PERIOD, CTL_CABSLOTS_PERIOD);
-	period.SetZero();
+	period.Z();
 	SetPeriodInput(dlg, CTL_CABSLOTS_PERIOD, &period);
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CABSLOTS_LOG, CTL_CABSLOTS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	PPGetFileName(PPFILNAM_ABSLOTS_LOG, log_fname);

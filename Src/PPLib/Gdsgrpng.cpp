@@ -1,8 +1,8 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 // @Kernel
-// @codepage windows-1251
-// Группировка операций по товару
+// Р“СЂСѓРїРїРёСЂРѕРІРєР° РѕРїРµСЂР°С†РёР№ РїРѕ С‚РѕРІР°СЂСѓ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -148,9 +148,9 @@ int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpL
 	PPID * p_op_id, id;
 	for(i = 0; r && pOpList->enumItems(&i, (void**)&p_op_id);) {
 		//
-		// Сначала найдем идентификаторы всех документов,
-		// оплаты по которым попадают в заданный период и занесем
-		// их в отсортированный массив links без дублирования.
+		// РЎРЅР°С‡Р°Р»Р° РЅР°Р№РґРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РІСЃРµС… РґРѕРєСѓРјРµРЅС‚РѕРІ,
+		// РѕРїР»Р°С‚С‹ РїРѕ РєРѕС‚РѕСЂС‹Рј РїРѕРїР°РґР°СЋС‚ РІ Р·Р°РґР°РЅРЅС‹Р№ РїРµСЂРёРѕРґ Рё Р·Р°РЅРµСЃРµРј
+		// РёС… РІ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ РјР°СЃСЃРёРІ links Р±РµР· РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ.
 		//
 		BillTbl::Key2 k;
 		uint   j;
@@ -176,9 +176,9 @@ int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpL
 			}
 		}
 		//
-		// Теперь из массива links выбираем идентификаторы только тех
-		// документов, которые имеют дату, предшествующую заданному периоду
-		// и одновременно засечем временной диапазон таких документов.
+		// РўРµРїРµСЂСЊ РёР· РјР°СЃСЃРёРІР° links РІС‹Р±РёСЂР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С‚РѕР»СЊРєРѕ С‚РµС…
+		// РґРѕРєСѓРјРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РёРјРµСЋС‚ РґР°С‚Сѓ, РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰СѓСЋ Р·Р°РґР°РЅРЅРѕРјСѓ РїРµСЂРёРѕРґСѓ
+		// Рё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ Р·Р°СЃРµС‡РµРј РІСЂРµРјРµРЅРЅРѕР№ РґРёР°РїР°Р·РѕРЅ С‚Р°РєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ.
 		//
 		for(j = 0; j < links.getCount(); j++) {
 			LDATE _d;
@@ -202,7 +202,7 @@ int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpL
 
 SLAPI AdjGdsGrpng::AdjGdsGrpng()
 {
-	Period.SetZero();
+	Period.Z();
 }
 
 int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
@@ -217,7 +217,7 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	BillList.freeAll();
 	SupplAgentBillList.clear(); // @v8.1.0 freeAll()-->clear()
 	//
-	// Найдем все коды операций оплат по продажам приносящим доход
+	// РќР°Р№РґРµРј РІСЃРµ РєРѕРґС‹ РѕРїРµСЂР°С†РёР№ РѕРїР»Р°С‚ РїРѕ РїСЂРѕРґР°Р¶Р°Рј РїСЂРёРЅРѕСЃСЏС‰РёРј РґРѕС…РѕРґ
 	//
 	for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &op_rec) > 0;) {
 		PPOprKind link_op_rec;
@@ -236,7 +236,7 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	if(pF->Flags & OPG_PROCESSRECKONING) {
 		op_list.freeAll();
 		//
-		// Найдем коды зачитывающих оплат
+		// РќР°Р№РґРµРј РєРѕРґС‹ Р·Р°С‡РёС‚С‹РІР°СЋС‰РёС… РѕРїР»Р°С‚
 		//
 		for(op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
 			int    r = 0;
@@ -258,7 +258,7 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	}
 	if(pF->SupplAgentID) {
 		THROW(BillObj->P_Tbl->GetBillListByExt(pF->SupplAgentID, 0L, SupplAgentBillList));
-		// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) SupplAgentBillList.sort();
+		// @v8.1.0 (СЃРѕСЂС‚РёСЂРѕРІРєСѓ С‚РµРїРµСЂСЊ РІС‹РїРѕР»РЅСЏРµС‚ GetBillListByExt) SupplAgentBillList.sort();
 	}
 	// AHTOXA {
 	if(pF->BillList.IsExists())
@@ -287,14 +287,14 @@ int SLAPI AdjGdsGrpng::EndGoodsGroupingProcess()
 //
 class GCT_Iterator {
 public:
-	SLAPI  GCT_Iterator(const GCTFilt * f, const DateRange * pDR, const AdjGdsGrpng * pAgg);
+	SLAPI  GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg);
 	SLAPI ~GCT_Iterator();
 	int    SLAPI First(TransferTbl::Rec *);
 	int    SLAPI Next(TransferTbl::Rec *);
 private:
 	int    SLAPI TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec);
 	int    SLAPI AcceptTrfrRec(const TransferTbl::Rec *, TransferTbl::Rec * pOuterRec);
-	GCTFilt flt;
+	GCTFilt Filt;
 	DateRange Period;
 	Transfer   * Trfr;
 	BExtQuery  * trfr_q;
@@ -302,11 +302,10 @@ private:
 	const AdjGdsGrpng * P_Agg;
 };
 
-SLAPI GCT_Iterator::GCT_Iterator(const GCTFilt * f, const DateRange * pDR, const AdjGdsGrpng * pAgg) : P_Agg(pAgg), trfr_q(0), rcpt_q(0)
+SLAPI GCT_Iterator::GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg) : P_Agg(pAgg), trfr_q(0), rcpt_q(0), Filt(rF)
 {
-	flt = *f;
 	if(!RVALUEPTR(Period, pDR))
-		Period.SetZero();
+		Period.Z();
 	Trfr = BillObj->trfr;
 }
 
@@ -320,14 +319,14 @@ int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl
 {
 	int    ok = 1;
 	PPID   lot_id = pRec->LotID;
-	if(!flt.BillList.CheckID(pRec->BillID) || (flt.SupplAgentID && !lot_id))
+	if(!Filt.BillList.CheckID(pRec->BillID) || (Filt.SupplAgentID && !lot_id))
 		ok = -1;
-	else if(!flt.LotsPeriod.IsZero() || flt.SupplAgentID) {
+	else if(!Filt.LotsPeriod.IsZero() || Filt.SupplAgentID) {
 		ReceiptTbl::Rec lot_rec;
 		while(lot_id && Trfr->Rcpt.Search(lot_id, &lot_rec) > 0)
 			if(Trfr->Rcpt.data.PrevLotID)
 				lot_id = lot_rec.PrevLotID;
-			else if(flt.LotsPeriod.CheckDate(lot_rec.Dt) && (!flt.SupplAgentID || (P_Agg && P_Agg->SupplAgentBillList.bsearch(lot_rec.BillID))))
+			else if(Filt.LotsPeriod.CheckDate(lot_rec.Dt) && (!Filt.SupplAgentID || (P_Agg && P_Agg->SupplAgentBillList.bsearch(lot_rec.BillID))))
 				lot_id = 0;
 			else {
 				ok = -1;
@@ -343,41 +342,43 @@ int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl
 
 int SLAPI GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
 {
-	union {
-		TransferTbl::Key1 k1;
-		TransferTbl::Key2 k2;
-		TransferTbl::Key3 k3;
-	} k;
-	MEMSZERO(k);
 	Transfer * p_tfr = Trfr;
-	DBQ  * dbq = 0;
-	BExtQuery * q = new BExtQuery(p_tfr, lotID ? 2 : (flt.GoodsID ? 3 : 1), 128);
+	BExtQuery * q = new BExtQuery(p_tfr, lotID ? 2 : (Filt.GoodsID ? 3 : 1), 128);
 	if(q == 0)
 		return PPSetErrorNoMem();
-	if(lotID) {
-		dbq = &(p_tfr->LotID == lotID && daterange(p_tfr->Dt, &Period));
-		k.k2.LotID = lotID;
-		k.k2.Dt = Period.low;
-	}
-	else if(flt.GoodsID) {
-		dbq = &(p_tfr->GoodsID == flt.GoodsID && daterange(p_tfr->Dt, &Period));
-		k.k3.GoodsID = flt.GoodsID;
-		k.k3.Dt = Period.low;
-	}
 	else {
-		dbq = & daterange(p_tfr->Dt, &flt.Period);
-		k.k1.Dt = flt.Period.low;
+		union {
+			TransferTbl::Key1 k1;
+			TransferTbl::Key2 k2;
+			TransferTbl::Key3 k3;
+		} k;
+		MEMSZERO(k);
+		DBQ  * dbq = 0;
+		if(lotID) {
+			dbq = &(p_tfr->LotID == lotID && daterange(p_tfr->Dt, &Period));
+			k.k2.LotID = lotID;
+			k.k2.Dt = Period.low;
+		}
+		else if(Filt.GoodsID) {
+			dbq = &(p_tfr->GoodsID == Filt.GoodsID && daterange(p_tfr->Dt, &Period));
+			k.k3.GoodsID = Filt.GoodsID;
+			k.k3.Dt = Period.low;
+		}
+		else {
+			dbq = & daterange(p_tfr->Dt, &Filt.Period);
+			k.k1.Dt = Filt.Period.low;
+		}
+		if(!lotID && !Filt.LocList.IsEmpty())
+			dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &Filt.LocList.Get());
+		q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->LotID, p_tfr->LocID, p_tfr->Flags, p_tfr->Quantity,
+			p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
+		delete trfr_q;
+		trfr_q = q;
+		for(trfr_q->initIteration(0, &k, spGt); trfr_q->nextIteration() > 0;)
+			if(AcceptTrfrRec(&p_tfr->data, pOuterRec) > 0)
+				return 1;
+		return -1;
 	}
-	if(!lotID && !flt.LocList.IsEmpty())
-		dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &flt.LocList.Get());
-	q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->LotID, p_tfr->LocID, p_tfr->Flags, p_tfr->Quantity,
-		p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
-	delete trfr_q;
-	trfr_q = q;
-	for(trfr_q->initIteration(0, &k, spGt); trfr_q->nextIteration() > 0;)
-		if(AcceptTrfrRec(&p_tfr->data, pOuterRec) > 0)
-			return 1;
-	return -1;
 }
 
 int SLAPI GCT_Iterator::First(TransferTbl::Rec * pRec)
@@ -385,7 +386,7 @@ int SLAPI GCT_Iterator::First(TransferTbl::Rec * pRec)
 	DBQ  * dbq = 0;
 	PPID   lot_id = 0;
 	ReceiptTbl * rt = & Trfr->Rcpt;
-	if(flt.SupplID) {
+	if(Filt.SupplID) {
    		struct {
 			union {
 				PPID goods;
@@ -394,24 +395,24 @@ int SLAPI GCT_Iterator::First(TransferTbl::Rec * pRec)
 			LDATE dt;
 			long  oprno;
 	   	} rk; // #2 : #5
-		if((rcpt_q = new BExtQuery(rt, flt.GoodsID ? 2 : 5, 256)) == 0)
+		if((rcpt_q = new BExtQuery(rt, Filt.GoodsID ? 2 : 5, 256)) == 0)
 			return PPSetErrorNoMem();
-		if(flt.GoodsID) {
-	   	    dbq = &(rt->GoodsID == flt.GoodsID);
+		if(Filt.GoodsID) {
+	   	    dbq = &(rt->GoodsID == Filt.GoodsID);
 			if(Period.upp)
 				dbq = &(*dbq && rt->Dt <= Period.upp);
-			dbq = &(*dbq && rt->SupplID == flt.SupplID);
-			rk.goods = flt.GoodsID;
+			dbq = &(*dbq && rt->SupplID == Filt.SupplID);
+			rk.goods = Filt.GoodsID;
 		}
 		else {
-   		    dbq = &(rt->SupplID == flt.SupplID);
+   		    dbq = &(rt->SupplID == Filt.SupplID);
 			if(Period.upp)
 				dbq = &(*dbq && rt->Dt <= Period.upp);
-   	    	rk.suppl = flt.SupplID;
+   	    	rk.suppl = Filt.SupplID;
 		}
 	   	rk.dt = ZERODATE;
 		rk.oprno = 0;
-		dbq = ppcheckfiltidlist(dbq, rt->LocID, &flt.LocList.Get()); // AHTOXA
+		dbq = ppcheckfiltidlist(dbq, rt->LocID, &Filt.LocList.Get());
 		rcpt_q->select(rt->ID, 0L).where(*dbq);
 		rcpt_q->initIteration(0, &rk, spGt);
 	}
@@ -637,7 +638,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 							if(P_BObj->Fetch(reck_id, &bill_rec) > 0 && pFilt->Period.CheckDate(bill_rec.Dt)) {
 								GetOpData(bill_rec.OpID, &blk.OpRec);
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
-								// Искусственно устанавливаем связанную операцию, указывающую на зачетную операцию (отгрузка)
+								// РСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРІСЏР·Р°РЅРЅСѓСЋ РѕРїРµСЂР°С†РёСЋ, СѓРєР°Р·С‹РІР°СЋС‰СѓСЋ РЅР° Р·Р°С‡РµС‚РЅСѓСЋ РѕРїРµСЂР°С†РёСЋ (РѕС‚РіСЂСѓР·РєР°)
 								PPID   save_link_op = blk.OpRec.LinkOpID;
 								long   save_blk_fl = blk.Flags;
 								blk.OpRec.LinkOpID = link_op;
@@ -682,7 +683,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 					entry.Sign     = (r_blk.TrfrRec.Flags & PPTFR_PLUS) ? 1 : ((r_blk.TrfrRec.Flags & PPTFR_MINUS) ? -1 : 0);
 					if(entry.Sign == 0) {
 						//
-						// Аварийный случай: знак операции не удается определить по флагам.
+						// РђРІР°СЂРёР№РЅС‹Р№ СЃР»СѓС‡Р°Р№: Р·РЅР°Рє РѕРїРµСЂР°С†РёРё РЅРµ СѓРґР°РµС‚СЃСЏ РѕРїСЂРµРґРµР»РёС‚СЊ РїРѕ С„Р»Р°РіР°Рј.
 						//
 						entry.Sign = (r_blk.TrfrRec.Quantity >= 0.0) ? 1 : -1;
 					}
@@ -788,13 +789,13 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 	const PPID single_ar_id = pFilt->ArList.GetSingle();
 	if(single_ar_id) {
 		//
-		// Начиная с v1.9.2 при фильтрации по объекту эта функция возможно
-		// будет выдавать не совсем корректные результаты поскольку оплаты
-		// могут в качестве объекта содержать значение, отличное от
-		// связанного документа.
-		// Сразу эта некорректность не исправлена из-за того, что
-		// фактически эта функция никогда не вызывается с фильтрацией по
-		// объекту (см. GoodsGrpngArray::ProcessGoodsGrouping).
+		// РќР°С‡РёРЅР°СЏ СЃ v1.9.2 РїСЂРё С„РёР»СЊС‚СЂР°С†РёРё РїРѕ РѕР±СЉРµРєС‚Сѓ СЌС‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РјРѕР¶РЅРѕ
+		// Р±СѓРґРµС‚ РІС‹РґР°РІР°С‚СЊ РЅРµ СЃРѕРІСЃРµРј РєРѕСЂСЂРµРєС‚РЅС‹Рµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ РїРѕСЃРєРѕР»СЊРєСѓ РѕРїР»Р°С‚С‹
+		// РјРѕРіСѓС‚ РІ РєР°С‡РµСЃС‚РІРµ РѕР±СЉРµРєС‚Р° СЃРѕРґРµСЂР¶Р°С‚СЊ Р·РЅР°С‡РµРЅРёРµ, РѕС‚Р»РёС‡РЅРѕРµ РѕС‚
+		// СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°.
+		// РЎСЂР°Р·Сѓ СЌС‚Р° РЅРµРєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РЅРµ РёСЃРїСЂР°РІР»РµРЅР° РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ
+		// С„Р°РєС‚РёС‡РµСЃРєРё СЌС‚Р° С„СѓРЅРєС†РёСЏ РЅРёРєРѕРіРґР° РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ СЃ С„РёР»СЊС‚СЂР°С†РёРµР№ РїРѕ
+		// РѕР±СЉРµРєС‚Сѓ (СЃРј. GoodsGrpngArray::ProcessGoodsGrouping).
 		//
 		dbq = & (p_bill->Object == single_ar_id);
 		idx = 3;
@@ -827,7 +828,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 			if(oneof6(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_PAYMENT, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF)) {
 				int    r2 = pFilt->AcceptIntr3(bill_rec);
 				if(r2) {
-					op_id = bill_rec.OpID; // Функция AcceptIntr2 могла изменить вид операции записи
+					op_id = bill_rec.OpID; // Р¤СѓРЅРєС†РёСЏ AcceptIntr2 РјРѕРіР»Р° РёР·РјРµРЅРёС‚СЊ РІРёРґ РѕРїРµСЂР°С†РёРё Р·Р°РїРёСЃРё
 					DateRange shpm_prd = pFilt->ShipmentPeriod;
 					DateRange period   = pFilt->Period;
 					double amount = BR2(bill_rec.Amount);
@@ -1060,15 +1061,15 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 			else
 				goods_list.add(filt.GoodsID);
 			//
-			// Необходимо гарантировать, что в списке нет нулевых элементов
-			// Причина - расчетный цикл (ниже) считает нулевой идентификатор
-			// сигналом для специального расчета (по поставщику или агенту поставщика).
+			// РќРµРѕР±С…РѕРґРёРјРѕ РіР°СЂР°РЅС‚РёСЂРѕРІР°С‚СЊ, С‡С‚Рѕ РІ СЃРїРёСЃРєРµ РЅРµС‚ РЅСѓР»РµРІС‹С… СЌР»РµРјРµРЅС‚РѕРІ
+			// РџСЂРёС‡РёРЅР° - СЂР°СЃС‡РµС‚РЅС‹Р№ С†РёРєР» (РЅРёР¶Рµ) СЃС‡РёС‚Р°РµС‚ РЅСѓР»РµРІРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+			// СЃРёРіРЅР°Р»РѕРј РґР»СЏ СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ СЂР°СЃС‡РµС‚Р° (РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ РёР»Рё Р°РіРµРЅС‚Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°).
 			//
 			uint pos = 0;
 			while(goods_list.lsearch(0, &pos))
 				goods_list.atFree(pos);
 		}
-		else // filt.SupplID || filt.SupplAgentID // по поставщику ИЛИ по агенту поставщика
+		else // filt.SupplID || filt.SupplAgentID // РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ РР›Р РїРѕ Р°РіРµРЅС‚Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°
 			goods_list.add((long)0);
 		for(i = 0; i < goods_list.getCount(); i++) {
 			const PPID goods_id = goods_list.get(i);
@@ -1116,7 +1117,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 				}
 				if(pAgg && pAgg->BillList.getCount()) {
 					filt.Flags |= OPG_ADJPAYM;
-					GCT_Iterator gcti(&filt, &pAgg->Period, pAgg);
+					GCT_Iterator gcti(filt, &pAgg->Period, pAgg);
 					if(gcti.First(&trfr_rec) > 0)
 						do {
 							if(pAgg->BillList.bsearch(trfr_rec.BillID))
@@ -1125,7 +1126,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					filt.Flags &= ~OPG_ADJPAYM;
 				}
 				{
-					GCT_Iterator gcti(&filt, &filt.Period, pAgg);
+					GCT_Iterator gcti(filt, &filt.Period, pAgg);
 					if(gcti.First(&trfr_rec) > 0)
 						do {
 							THROW(Calc(&filt, &trfr_rec, tax_grp_id, phuperu, tax_factor));

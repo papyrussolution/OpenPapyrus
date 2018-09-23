@@ -116,7 +116,7 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	LDATE  lot_date = ZERODATE;
 	SString temp_buf;
 	DateRange period;
-	period.SetZero();
+	period.Z();
 	THROW(P_BObj->trfr->Rcpt.Search(lotID, &org_lot_rec) > 0);
 	qtty = org_lot_rec.Quantity;
 	rest = org_lot_rec.Rest;

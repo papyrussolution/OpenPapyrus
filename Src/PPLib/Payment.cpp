@@ -1628,7 +1628,7 @@ int PPObjBill::DebtBlock::GetDimList(RAssocArray & rList) const
 DateRange * FASTCALL PPObjBill::GetDefaultClientDebtPeriod(DateRange & rPeriod) const
 {
 	DateRange * p_result = 0;
-	rPeriod.SetZero();
+	rPeriod.Z();
 	const PPBillConfig & r_cfg = GetConfig();
 	const LDATE low_debt_calc_date = r_cfg.LowDebtCalcDate.getactual(ZERODATE);
 	if(checkdate(low_debt_calc_date, 0)) {

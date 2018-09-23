@@ -53,7 +53,7 @@ public:
 		int    ok = -1;
 		int    is_forward = 0;
 		ASSIGN_PTR(pSessCount, 0);
-		CALLPTRMEMB(pPrd, SetZero());
+		CALLPTRMEMB(pPrd, Z());
 		ZDELETE(P_Pib);
 		THROW_MEM(P_Pib = new PPPosProtocol::ProcessInputBlock(this));
 		P_Pib->PosNodeID = NodeID;
@@ -781,7 +781,7 @@ SLAPI PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), Cod
 
 SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
 {
-    Period.SetZero();
+    Period.Z();
 	TimeRestriction.SetZero();
 	AmountRestriction.Clear();
 }
@@ -1175,7 +1175,7 @@ void SLAPI PPPosProtocol::ProcessInputBlock::Helper_Construct()
 	Flags = 0;
 	PosNodeID = 0;
 	SessionCount = 0;
-	SessionPeriod.SetZero();
+	SessionPeriod.Z();
 }
 
 SLAPI PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()

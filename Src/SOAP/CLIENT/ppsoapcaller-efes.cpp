@@ -91,7 +91,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 	{
 		DateRange period;
 		if(!RVALUEPTR(period, pPeriod))
-			period.SetZero();
+			period.Z();
 		SETIFZ(period.low, encodedate(1, 12, 2016));
 		SETIFZ(period.upp, encodedate(31, 12, 2017));
 		param.DateFrom =  GetDynamicParamString(period.low, DATF_ISO8601|DATF_CENTURY, arg_str_pool);

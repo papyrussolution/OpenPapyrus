@@ -1,8 +1,8 @@
 // LOADTRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 // @Kernel
-// Загрузка товарных строк документа
+// Р—Р°РіСЂСѓР·РєР° С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -36,10 +36,10 @@ int FASTCALL PPTransferItem::SetupByRec(const TransferTbl::Rec * tr)
 	CurPrice  = TR5(tr->CurPrice);
 	CurID     = (int16)tr->CurID;
 	//
-	// Флаги PPTFR_PLUS и PPTFR_MINUS введены с v1.10.1
-	// Для поддержки совместимости с документами, созданными
-	// предыдущими версиями, при загрузки строк устанавливаем
-	// эти флаги.
+	// Р¤Р»Р°РіРё PPTFR_PLUS Рё PPTFR_MINUS РІРІРµРґРµРЅС‹ СЃ v1.10.1
+	// Р”Р»СЏ РїРѕРґРґРµСЂР¶РєРё СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃ РґРѕРєСѓРјРµРЅС‚Р°РјРё, СЃРѕР·РґР°РЅРЅС‹РјРё
+	// РїСЂРµРґС‹РґСѓС‰РёРјРё РІРµСЂСЃРёСЏРјРё, РїСЂРё Р·Р°РіСЂСѓР·РєРё СЃС‚СЂРѕРє СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј
+	// СЌС‚Рё С„Р»Р°РіРё.
 	//
 	if(!(Flags & (PPTFR_PLUS|PPTFR_MINUS|PPTFR_REVAL))) {
 		if(Quantity_ < 0.0)
@@ -97,13 +97,11 @@ int SLAPI Transfer::SetupItemByLot(PPTransferItem * pItem, ReceiptTbl::Rec * pLo
 						return 0;
 				pItem->Cost  = R5(pLotRec->Cost);
 				pItem->Price = R5(pLotRec->Price);
-				// @v7.8.10 {
 				if(pItem->Flags & PPTFR_CORRECTION) {
 					pItem->QuotPrice = pLotRec->Quantity;
 					pItem->Quantity_ += pLotRec->Quantity;
 					pItem->Flags &= ~(PPTFR_PLUS|PPTFR_MINUS);
 				}
-				// } @v7.8.10
 			}
 			else {
 				pItem->QCert = pLotRec->QCertID;
@@ -142,7 +140,7 @@ int SLAPI Transfer::EnumItems(PPID billID, int *pRByBill, PPTransferItem * pTI)
 		THROW_DB(BTROKORNFOUND);
 	CATCH
 		//
-		// В журнале pperrmsg.log уточняем природу ошибки
+		// Р’ Р¶СѓСЂРЅР°Р»Рµ pperrmsg.log СѓС‚РѕС‡РЅСЏРµРј РїСЂРёСЂРѕРґСѓ РѕС€РёР±РєРё
 		//
 		{
 			SString msg_buf, bill_code;
@@ -222,7 +220,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
 				if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
 					//
-					// Защита от недопустимых значений с плавающей точкой
+					// Р—Р°С‰РёС‚Р° РѕС‚ РЅРµРґРѕРїСѓСЃС‚РёРјС‹С… Р·РЅР°С‡РµРЅРёР№ СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№
 					//
 					if(is_debug) {
 						int    fpok = 1;
@@ -248,7 +246,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 					}
 					info.SetupByRec(&data);
 					if(info.Flags & PPTFR_REVAL)
-						info.Suppl = data.OprNo; // Временно используем поле PPTransferItem::Suppl
+						info.Suppl = data.OprNo; // Р’СЂРµРјРµРЅРЅРѕ РёСЃРїРѕР»СЊР·СѓРµРј РїРѕР»Рµ PPTransferItem::Suppl
 					THROW(rPack.LoadTItem(&info, 0, 0));
 				}
 			}
@@ -264,7 +262,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 					p_ti->QuotPrice = fabs(org_qtty);
 				}
 				else {
-					// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
+					// @todo Р—РґРµСЃСЊ РЅР°РґРѕ РєР°Рє-С‚Рѕ РѕС‚СЂРµР°РіРёСЂРѕРІР°С‚СЊ (РІ Р»РѕРі С‡С‚Рѕ-С‚Рѕ РЅР°РїРёСЃР°С‚СЊ РёР»Рё С‡С‚Рѕ-С‚Рѕ РІ СЌС‚РѕРј СЂРѕРґРµ)
 				}
 			}
 			if(p_ti->LotID) {
@@ -272,8 +270,8 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 				PPID   org_lot_id = 0;
 				int    r = 1;
 				//
-				// Попытка "интеллигентно" обработать ошибку, возникающую в одной
-				// из товарных строк документа, дабы документ все-таки был загружен.
+				// РџРѕРїС‹С‚РєР° "РёРЅС‚РµР»Р»РёРіРµРЅС‚РЅРѕ" РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РѕС€РёР±РєСѓ, РІРѕР·РЅРёРєР°СЋС‰СѓСЋ РІ РѕРґРЅРѕР№
+				// РёР· С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°, РґР°Р±С‹ РґРѕРєСѓРјРµРЅС‚ РІСЃРµ-С‚Р°РєРё Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ.
 				//
 				if(Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, &lot_rec, &org_lot_rec) > 0) {
 					if(p_ti->LotID != lot_rec.ID)
@@ -327,7 +325,7 @@ int SLAPI Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * p
 		if(pTotal)
 			pTotal->LineCount++;
 		if(pList)
-			THROW_SL(pList->add(data.GoodsID)); // @v8.1.0 addUnique-->add
+			THROW_SL(pList->add(data.GoodsID));
 	}
 	CATCHZOK
 	return ok;
@@ -335,11 +333,9 @@ int SLAPI Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * p
 //
 //
 //
-SLAPI GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt)
+SLAPI GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt) : SupplID(0), Flags(0)
 {
-	SupplID = 0;
-	LotPeriod.SetZero();
-	Flags = 0;
+	LotPeriod.Z();
 	if(pGoodsFilt) {
 		SupplID = pGoodsFilt->SupplID;
 		LocList = pGoodsFilt->LocList;
@@ -390,7 +386,7 @@ int SLAPI Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray 
 		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 			if(!inc_nzero_rest || Rcpt.data.Dt >= rFilt.LotPeriod.low || !Rcpt.data.Closed) {
 				if(rFilt.LocList.CheckID(Rcpt.data.LocID)) {
-					THROW(rList.add(Rcpt.data.GoodsID)); // @v8.1.0 addUnique-->add
+					THROW(rList.add(Rcpt.data.GoodsID));
 					if(CS_SERVER) {
 						const uint _mc = rList.getCount();
                         if((_mc % 1000) == 0) {
@@ -400,11 +396,11 @@ int SLAPI Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray 
 				}
 			}
 		}
-		rList.sortAndUndup(); // @v8.1.0
+		rList.sortAndUndup();
 		//
-		// Если требуются только новые товары (лотов по которым не было до периода поступления //
-		// то по каждому товару из списка просматриваем лоты за период 0..pFilt->LotPeriod.low-1
-		// и удаляет из списка товары, для которых найден хотя бы один лот по такому условию.
+		// Р•СЃР»Рё С‚СЂРµР±СѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РЅРѕРІС‹Рµ С‚РѕРІР°СЂС‹ (Р»РѕС‚РѕРІ РїРѕ РєРѕС‚РѕСЂС‹Рј РЅРµ Р±С‹Р»Рѕ РґРѕ РїРµСЂРёРѕРґР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+		// С‚Рѕ РїРѕ РєР°Р¶РґРѕРјСѓ С‚РѕРІР°СЂСѓ РёР· СЃРїРёСЃРєР° РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРј Р»РѕС‚С‹ Р·Р° РїРµСЂРёРѕРґ 0..pFilt->LotPeriod.low-1
+		// Рё СѓРґР°Р»СЏРµС‚ РёР· СЃРїРёСЃРєР° С‚РѕРІР°СЂС‹, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅР°Р№РґРµРЅ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ Р»РѕС‚ РїРѕ С‚Р°РєРѕРјСѓ СѓСЃР»РѕРІРёСЋ.
 		//
 		if(!inc_nzero_rest && rFilt.Flags & GoodsFilt::fNewLots && rFilt.LotPeriod.low) {
 			for(int i = rList.getCount()-1; i >= 0; i--) {

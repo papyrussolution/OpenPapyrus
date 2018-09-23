@@ -1890,7 +1890,7 @@ int SLAPI SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATE
 int SLAPI SFile::CalcCRC(long offs, uint32 * pCrc)
 {
 	int    ok = 1;
-	CRC32  c;
+	SCRC32 c;
 	uint32 crc = 0;
 	int64  save_pos = Tell64();
 	Seek64(0, SEEK_END);

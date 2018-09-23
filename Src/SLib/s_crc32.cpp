@@ -1,5 +1,5 @@
 // S_CRC32.CPP
-// Copyright (c) A.Sobolev 2001, 2003, 2007, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2003, 2007, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -130,11 +130,11 @@ struct CrcModel { // cm_t
 //
 //
 //
-SLAPI CRC32::CRC32() : P_Tab(0)
+SLAPI SCRC32::SCRC32() : P_Tab(0)
 {
 }
 
-SLAPI CRC32::~CRC32()
+SLAPI SCRC32::~SCRC32()
 {
 	delete P_Tab;
 }
@@ -185,7 +185,7 @@ SLAPI CRC32::~CRC32()
   the information needed to generate CRC's on data a byte at a time for all
   combinations of CRC register values and incoming bytes.
 */
-int SLAPI CRC32::MakeTab()
+int SLAPI SCRC32::MakeTab()
 {
 	ulong  c;
 	uint   n, k;
@@ -229,7 +229,7 @@ int SLAPI CRC32::MakeTab()
 		return (SLibError = SLERR_NOMEM, 0);
 }
 
-ulong SLAPI CRC32::Calc(ulong crc, const uint8 * buf, size_t len)
+ulong SLAPI SCRC32::Calc(ulong crc, const uint8 * buf, size_t len)
 {
 	#define DO1(buf)  crc = P_Tab[((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
 	#define DO2(buf)  DO1(buf); DO1(buf);
@@ -1330,7 +1330,7 @@ SLTEST_R(BDT)
 						//
 						// Проверка старой реализации (которой всю жизнь пользуемся)
 						//
-						CRC32 cc;
+						SCRC32 cc;
 						uint32 result = cc.Calc(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
 						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}

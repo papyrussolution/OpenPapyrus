@@ -37,7 +37,7 @@ void SLAPI StyloBhtIIOnHostCfg::Init()
 	Flags        = 0;
 	BcdPrinterID = 0;
 	DefQtty      = 0;
-	ExportBillsPeriod.SetZero();
+	ExportBillsPeriod.Z();
 	ZDELETE(P_OpList);
 }
 
@@ -2412,8 +2412,8 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 struct BHT_BillOpEntry {
 	BHT_BillOpEntry() : OpID(0), Flags(0), Bbt(bbtUndef)
 	{
-		Period.SetZero();
-		DuePeriod.SetZero();
+		Period.Z();
+		DuePeriod.Z();
 	}
 	enum {
 		fUseDueDate = 0x0001

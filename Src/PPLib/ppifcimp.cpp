@@ -5891,7 +5891,7 @@ int32 DL6ICLS_PPObjBill::CalcClientDebt(long clientID, SDateRange * pPeriod, SDe
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_e->P_BObj) {
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		if(pPeriod) {
 			period.low = pPeriod->Low;
 			period.upp = pPeriod->Upp;
@@ -6503,7 +6503,7 @@ int32 DL6ICLS_PPObjBill::CalcPayment(int32 billID, SDateRange * pPeriod, int32 c
 	if(billID) {
 		BillCore  bc;
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		if(pPeriod) {
 			period.low = pPeriod->Low;
 			period.upp = pPeriod->Upp;
@@ -6523,7 +6523,7 @@ IStrAssocList * DL6ICLS_PPObjBill::GetDeletedBillList(SDateRange * pPeriod)
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPIDArray obj_list, act_list;
 		DateRange period;
-		period.SetZero();
+		period.Z();
 		if(pPeriod) {
 			period.low = pPeriod->Low;
 			period.upp = pPeriod->Upp;
@@ -8009,7 +8009,7 @@ ILongList * DL6ICLS_PrcssrAlcReport::GetWkrRegisterListByPeriod(int32 wkr, int32
 		if(pPeriod)
 			period = OleDateRangeToDateRange(*pPeriod);
 		else
-			period.SetZero();
+			period.Z();
 		RegisterArray reg_list;
 		p_prc->GetWkrRegisterListByPeriod(wkr, psnID, locID, period, &reg_list);
         for(uint i = 0; i < reg_list.getCount(); i++) {
