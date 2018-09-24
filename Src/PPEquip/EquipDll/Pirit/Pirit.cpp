@@ -1588,14 +1588,29 @@ int PiritEquip::RunCheck(int opertype)
 				THROW(gcf_result = GetCurFlags(3, flag));
 				const uint8 hb1 = (flag & 0x0F);
 				if(hb1 == 1) { // “екстова€ строка дл€ сервисного документа
+					/*
+						є бита	«начени€ атрибутов текста
+						0..3 (N:шрифта)
+							0 Ц Ўрифт 13х24, 44 символа в строке
+							1 Ц Ўрифт 10х20
+							2 Ц Ўрифт 13х24 жирный
+							3 Ц Ўрифт 10х20 жирный
+							4 Ц Ўрифт 8х14, 56 символов в строке
+							5 Ц Ўрифт 24х45
+							6 Ц Ўрифт 24х45 жирный
+						4	ѕечать двойной высоты текста
+						5	ѕечать двойной ширины текста
+						6	Ќе используетс€ 
+						7	Ќе используетс€
+					*/
 					if(oneof2(Check.FontSize, 1, 2))
-						text_attr = 0x01;
+						text_attr = 0x01; // Ўрифт 13х24, 44 символа в строке
 					else if(Check.FontSize == 3)
 						text_attr = 0;
 					else if(Check.FontSize == 4)
-						text_attr = 0x10;
+						text_attr = 0x10; // Ўрифт 8х14, 56 символов в строке
 					else if(Check.FontSize > 4)
-						text_attr = 0x20 | 0x10;
+						text_attr = (0x20|0x10);
 					if(Check.Text.Len() + 1 > 54)
 						Check.Text.Trim(52);
 					CreateStr(Check.Text.ToOem(), in_data);
