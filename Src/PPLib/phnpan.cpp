@@ -697,6 +697,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 			S.Mode = mode;
 			if(S.PersonID) {
+				PPObjBill * p_bobj = BillObj;
 				InfoListData new_list;
 				PPIDArray person_id_list;
 				PPIDArray ar_id_list;
@@ -708,7 +709,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					for(uint i = 0; i < ar_id_list.getCount(); i++) {
 						const PPID ar_id = ar_id_list.get(i);
 						BillTbl::Rec bill_rec;
-						for(DateIter di(&period); BillObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
+						for(DateIter di(&period); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 							InfoListEntry new_entry;
 							new_entry.ID = bill_rec.ID;
 							new_entry.Dtm.d = bill_rec.Dt;

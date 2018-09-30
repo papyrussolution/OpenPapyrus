@@ -1412,11 +1412,15 @@ int SLAPI LAssocArray::SearchPair(long key, long val, uint * pPos) const
 	return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
 }
 
-void SLAPI LAssocArray::Sort()
+IMPL_CMPFUNC(LAssoc_Val, i1, i2)
 {
-	//SArray::sort(CMPF_LONG);
-	SVector::sort(CMPF_LONG);
+	const LAssoc * p1 = (const LAssoc *)i1;
+	const LAssoc * p2 = (const LAssoc *)i2;
+	return (p1->Val < p2->Val) ? -1 : ((p1->Val > p2->Val) ? +1 : 0);
 }
+
+void SLAPI LAssocArray::Sort() { SVector::sort(CMPF_LONG); }
+void SLAPI LAssocArray::SortByVal() { SVector::sort(PTR_CMPFUNC(LAssoc_Val)); }
 
 int SLAPI LAssocArray::CheckFlag(long key, long mask, int binary) const
 {

@@ -630,9 +630,8 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 0, AGTF_DONTCALCDEBTINBILL);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 1, AGTF_USEMARKEDGOODSONLY);
-				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY); // @v8.4.4
+				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY);
 				SetClusterData(CTL_CLIAGT_FLAGS, data.Flags);
-				// @v8.2.4 {
 				if(data.MaxCredit != 0.0) {
 					PPDebtorStatConfig ds_cfg;
 					if(PPDebtorStatConfig::Read(&ds_cfg) > 0 && ds_cfg.LimitAddedTerm > 0 && ds_cfg.LimitTerm > 0) {
@@ -640,11 +639,9 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 						added_limit_val = R0((data.MaxCredit / ds_cfg.LimitTerm) * added_limit_term);
 					}
 				}
-				// } @v8.2.4
 			}
 			else
 				SetupPPObjCombo(this, CTLSEL_CLIAGT_EXTOBJECT, PPOBJ_ACCSHEET, data.ExtObjectID, 0, 0);
-			// @v8.2.4 {
 			if(added_limit_val != 0.0) {
 				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 1);
 				SString fmt_buf, label_buf;
@@ -656,7 +653,6 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			else {
 				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 0);
 			}
-			// } @v8.2.4
 			SetupStringCombo(this, CTLSEL_CLIAGT_RETLIMPRD, PPTXT_CYCLELIST, data.RetLimPrd);
 			setCtrlReal(CTL_CLIAGT_RETLIM, fdiv100i(data.RetLimPart));
 			return 1;
@@ -1612,7 +1608,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		SupplExpOpListDialog() : PPListDialog(DLG_SUPPLEOPS, CTL_SUPPLEOPS_DBTDIM),
 			PsnTagFlt(PPOBJ_PERSON), LocTagFlt(PPOBJ_LOCATION), BillTagFlt(PPOBJ_BILL)
 		{
-			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPPLEOPS_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.9.5 
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPPLEOPS_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.9.5
 		}
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
 		{
@@ -1650,7 +1646,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				LocationCtrlGroup::Rec l_rec(&Data.WhList);
 				setGroupData(ctlgroupLoc, &l_rec);
 			}
-			// } @v9.9.5 
+			// } @v9.9.5
 			/* @v9.7.2
 			// Приход товара
 			{
@@ -1714,7 +1710,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				getGroupData(ctlgroupLoc, &l_rec);
 				Data.WhList = l_rec.LocList;
 			}
-			// } @v9.9.5 
+			// } @v9.9.5
 			getCtrlData(CTLSEL_SUPPLEOPS_UNIT,      &Data.Fb.DefUnitID); // @v9.2.4
 			getCtrlData(CTLSEL_SUPPLEOPS_CLICTAG,   &Data.Fb.CliCodeTagID); // @v9.4.4
 			getCtrlData(CTLSEL_SUPPLEOPS_LOCCTAG,   &Data.Fb.LocCodeTagID); // @v9.4.4

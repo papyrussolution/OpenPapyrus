@@ -2146,7 +2146,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				path = 0;
 			else {
 				PPSetAddedMsgString(path);
-				if(isDir(path))
+				if(IsDirectory(path))
 					ret = CONFIRM(PPCFM_EXISTDIR);
 				else if((ret = CONFIRM(PPCFM_MAKENEWDIR)) != 0) {
 					if(!createDir(path))
@@ -2168,7 +2168,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				// Создаем подкаталог, в который будут сбрасываться версии файлов "до ремонта"
 				//
 				for(long k = 1; k < 1000000L; k++)
-					if(!::isDir((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
+					if(!::IsDirectory((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
 						THROW_SL(::createDir(bak_path));
 						param.P_BakPath = bak_path;
 						break;
@@ -2279,7 +2279,7 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 		THROW_PP(pPB->GetCopyData(pBDD->CopyID, &copy_data), PPERR_DBLIB);
 		(copy_dir = copy_data.CopyPath).SetLastSlash().Cat(copy_data.SubDir);
 		PPSetAddedMsgString(copy_dir);
-		THROW_PP_S(isDir(copy_dir) > 0, PPERR_DIRNOTEXISTS, copy_dir);
+		THROW_PP_S(IsDirectory(copy_dir) > 0, PPERR_DIRNOTEXISTS, copy_dir);
 		(wildcard = copy_dir).SetLastSlash().Cat("*.*");
 		SDirec file_enum(wildcard);
 		SDirEntry f_data;

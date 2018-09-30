@@ -25,6 +25,14 @@
 using namespace Scintilla;
 #endif
 
+LexInterface::LexInterface(Document * pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false)
+{
+}
+
+LexInterface::~LexInterface()
+{
+}
+
 void LexInterface::Colourise(int start, int end)
 {
 	if(pdoc && instance && !performingStyle) {
@@ -2240,6 +2248,15 @@ void SCI_METHOD Document::ChangeLexerState(Sci_Position start, Sci_Position end)
 {
 	DocModification mh(SC_MOD_LEXERSTATE, start, end-start, 0, 0, 0);
 	NotifyModified(mh);
+}
+
+Document::WatcherWithUserData::WatcherWithUserData(DocWatcher * watcher_, void * userData_) : watcher(watcher_), userData(userData_)
+{
+}
+
+bool FASTCALL Document::WatcherWithUserData::operator == (const WatcherWithUserData &other) const
+{
+	return (watcher == other.watcher) && (userData == other.userData);
 }
 
 /*Document::StyledText::StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_) :

@@ -114,7 +114,8 @@ int SLAPI CreateByExample(const char * pPath)
 						THROW(tra);
 						p_src_tbl->getNumRecs(&rn);
 						if(p_src_tbl->step(spFirst)) {
-							int    is_assoc = BIN(tbl_name.CmpNC("objassoc") == 0);
+							const int is_assoc = tbl_name.IsEqiAscii("objassoc");
+							const int is_ref = tbl_name.IsEqiAscii("reference2");
 							do {
 								int   ins_rec = 0;
 								p_dst_tbl->clearDataBuf();
@@ -126,8 +127,20 @@ int SLAPI CreateByExample(const char * pPath)
 										PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TODOBILLPOOL))
 										ins_rec = 1;
 								}
-								else
+								else {
 									ins_rec = 1;
+									// @v10.2.0 {
+									if(is_ref) {
+                                        Reference2Tbl::Rec * p_rec = (Reference2Tbl::Rec *)p_src_tbl->getDataBuf();
+                                        if(p_rec->ObjType == PPOBJ_CASHNODE) {
+											PPCashNode2 * p_cn = (PPCashNode2 *)p_rec;
+											p_cn->CurRestBillID = 0;
+											p_cn->CurSessID = 0;
+											p_cn->CurDate = ZERODATE;
+                                        }
+									}
+									// } @v10.2.0 
+								}
 								if(ins_rec && !p_dst_tbl->insertRec()) {
 									PPSaveErrContext();
 									SString msg_buf, rec_txt_buf;
@@ -321,7 +334,7 @@ int SLAPI MakeDatabase()
 					PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, dbpath);
 					i = 0;
 				}
-				else if(isDir(dbpath)) {
+				else if(IsDirectory(dbpath)) {
 					//
 					// ѕроверка на то, что бы каталог назначени€ был пустым
 					//

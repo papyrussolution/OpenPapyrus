@@ -4342,7 +4342,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		const  char * p = 0;
 		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
 			SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.0
-			fname_as_dir_part = isDir((r_buf = pPath).RmvLastSlash());
+			fname_as_dir_part = IsDirectory((r_buf = pPath).RmvLastSlash());
 		}
 		if(scan.Is("\\\\") || scan.Is("//")) {
 			Flags |= fUNC;
@@ -6025,7 +6025,7 @@ void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
 	}
 }
 
-int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType)
+int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType, int64 sp)
 {
 	int    ok = 1;
 	const  uint bc = rBuf.getCount();
@@ -6034,6 +6034,7 @@ int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType)
 		MEMSZERO(tok);
 		_CopySrcToAddTokenBuf(rBuf);
 		tok.T = tokType;
+		tok.SP = sp;
 		uint   tv = 0;
 		uint   tp = 0;
 		if(AddTokenBuf.NotEmpty()) {
@@ -6284,6 +6285,8 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 	const  uint preserve_count = L.getCount();
 	uint   idx_first = preserve_count;
 	uint   idx_count = 0;
+	int64  current_pos = 0;
+	int64  start_tok_pos = 0;
 	uint16 chr = 0;
 	uint16 prev_delim = 0;
 	TokenBuf.clear();
@@ -6291,19 +6294,22 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 		if(IsDelim(chr)) {
 			if(prev_delim) {
 				if(P.Flags & fEachDelim) {
-					THROW(AddToken(TokenBuf, tokDelim));
+					THROW(AddToken(TokenBuf, tokDelim, start_tok_pos));
 					idx_count++;
+					start_tok_pos = current_pos;
 				}
 			}
 			else {
-				THROW(AddToken(TokenBuf, tokWord));
+				THROW(AddToken(TokenBuf, tokWord, start_tok_pos));
+				start_tok_pos = current_pos;
 			}
 			TokenBuf.insert(&chr);
 			prev_delim = chr;
 		}
 		else {
 			if(prev_delim) {
-				THROW(AddToken(TokenBuf, tokDelim));
+				THROW(AddToken(TokenBuf, tokDelim, start_tok_pos));
+				start_tok_pos = current_pos;
 			}
 			else if(P.Flags & fDivAlNum && prev_chr) {
 				int is_dig = 0;
@@ -6317,15 +6323,20 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 					is_prev_dig = isdec((char)prev_chr);
 				}
 				if(is_prev_dig != is_dig) {
-					THROW(AddToken(TokenBuf, tokWord));
-					THROW(AddToken(TokenBuf, tokDelim));
+					THROW(AddToken(TokenBuf, tokWord, start_tok_pos));
+					THROW(AddToken(TokenBuf, tokDelim, current_pos));
+					start_tok_pos = current_pos;
 				}
 			}
 			TokenBuf.insert(&chr);
 			prev_delim = 0;
 		}
+		if(P.Flags & fRawOrgOffs)
+			current_pos = S.GetRdOffs();
+		else
+			current_pos++;
 	}
-	THROW(AddToken(TokenBuf, prev_delim ? tokDelim : tokWord));
+	THROW(AddToken(TokenBuf, (prev_delim ? tokDelim : tokWord), start_tok_pos));
 	idx_count = L.getCount() - preserve_count;
 	CATCHZOK
 	ASSIGN_PTR(pIdxFirst, idx_first);

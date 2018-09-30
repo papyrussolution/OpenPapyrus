@@ -750,7 +750,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 			else {
 				if(p_blk->Text == "ppypict" || p_blk->Text == "ppypictsc") {
 					if(p_first_brc_arg) {
-						if(isDir(in_pic_path) && isDir(out_pic_path)) {
+						if(IsDirectory(in_pic_path) && IsDirectory(out_pic_path)) {
 							(temp_buf = in_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
 							if(fileExists(temp_buf)) {
 								(file_name_buf = out_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
@@ -933,7 +933,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 			THROW_MEM(p_new_item);
 			p_new_item->OrgSymb = org_symb;
 
-			if(isDir(in_pic_path) && isDir(out_pic_path)) {
+			if(IsDirectory(in_pic_path) && IsDirectory(out_pic_path)) {
 				(temp_buf = in_pic_path).SetLastSlash().Cat(org_symb).CatChar('.').Cat("png");
 				if(fileExists(temp_buf)) {
 					SString file_name_buf;

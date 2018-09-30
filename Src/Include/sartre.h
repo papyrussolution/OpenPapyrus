@@ -1020,7 +1020,7 @@ public:
 	class ExprStack : public TSStack <ExprItem> {
 	public:
 		SLAPI  ExprStack();
-		int FASTCALL Push(const ExprStack & rS);
+		int    FASTCALL Push(const ExprStack & rS);
 	};
 
 	class Rule {

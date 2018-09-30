@@ -3140,6 +3140,8 @@ PPTXT_BCPT /!/ "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
 PPTXT_SCLT "1,CAS Electronics;2,Масса-К;3,Mettler Toledo;4,Кассовый сервер Кристалл;5,Весовой терминал ТВ;6,DIGI;\
 7,Bizerba;8,Штрих-Принт;9,CAS CL5000J;10,Группа весов;11,Экспорт в файл;12,Штрих PC200 CE"
 
+PPTXT_VANTYPE "1,Замороженный;2,Охлажденный;3,Охлаждаемый;4,Вентилируемый"
+
 PPTXT_ERRACCEPTARTICLE                 "Ошибка акцепта статьи (%ld %s): %s"
 PPTXT_PRNTYPE                          "1,Epson;2,PCL-принтер"
 PPTXT_IMPGOODSGRP                      "Конвертация товарных групп"
@@ -4717,6 +4719,7 @@ PPTXT_VETISNOUTGDOCSFOUND           "Найдено %s документов дл
 PPTXT_VETISNOOUTGDOCS               "Не найдено ни одного документа для создания исходящих сертификатов"
 PPTXT_VETISOUTGDOCNFOUND            "Неожиданно исходящий документ %s не найден либо имеет не тот статус"
 PPTXT_VETISLOCATIONPROSPERITYISOK   "Местность благополучна по заразным болезням животных"
+PPTXT_VETISOUTGSENDING              "Отправка запроса на исходящий сертификат: %s"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
 //
 // LastText
@@ -9927,6 +9930,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @transport_trailercode                    "Номер прицепа"
 @transport_trmodel                        "Модель"
 @transport_trtype                         "Тип транспорта"
+@transport_vantyp                         "Тип фургона"
 @trfr_bill                                "ИД документа"
 @trfr_cost                                "@{termcost}"
 @trfr_cur                                 "@{currency}"

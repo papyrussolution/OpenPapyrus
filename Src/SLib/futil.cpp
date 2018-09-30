@@ -137,7 +137,7 @@ int SLAPI driveValid(const char * pPath)
 
 #pragma warn .asc
 
-int SLAPI isDir(const char * pStr)
+int FASTCALL IsDirectory(const char * pStr)
 {
 	int    yes = 0;
 	if(!isempty(pStr)) {
@@ -149,6 +149,15 @@ int SLAPI isDir(const char * pStr)
 			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				yes = 1;
 			FindClose(h);
+		}
+		else {
+			SString temp_buf;
+			(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
+			h = FindFirstFile(temp_buf, &fd); // @unicodeproblem
+			if(h != INVALID_HANDLE_VALUE) {
+				yes = 1;
+				FindClose(h);
+			}
 		}
 #else
 		struct ffblk ff;
@@ -235,7 +244,7 @@ int SLAPI pathValid(const char * pPath, int existOnly)
 	int    len = sstrlen(fexpand(strcpy(exp_path, pPath)));
 	if(len <= 3)
 		return driveValid(exp_path);
-	return (existOnly ? isDir(rmvLastSlash(exp_path)) : 1);
+	return (existOnly ? IsDirectory(rmvLastSlash(exp_path)) : 1);
 }
 
 static const char * illegalChars = ";,=+<>|\"[] \\";

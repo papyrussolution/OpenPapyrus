@@ -150,7 +150,7 @@ int ScintillaBase::KeyCommand(uint iMessage)
 			ct.CallTipCancel();
 		}
 		if(oneof2(iMessage, SCI_DELETEBACK, SCI_DELETEBACKNOTLINE)) {
-			if(sel.MainCaret() <= ct.posStartCallTip) {
+			if(Sel.MainCaret() <= ct.posStartCallTip) {
 				ct.CallTipCancel();
 			}
 		}
@@ -174,20 +174,20 @@ void ScintillaBase::AutoCompleteInsert(Position startPos, int removeLen, const c
 	}
 	else {
 		// SC_MULTIAUTOC_EACH
-		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
-				int positionInsert = sel.Range(r).Start().Position();
-				positionInsert = RealizeVirtualSpace(positionInsert, sel.Range(r).caret.VirtualSpace());
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			if(!RangeContainsProtected(Sel.Range(r).Start().Position(), Sel.Range(r).End().Position())) {
+				int positionInsert = Sel.Range(r).Start().Position();
+				positionInsert = RealizeVirtualSpace(positionInsert, Sel.Range(r).caret.VirtualSpace());
 				if(positionInsert - removeLen >= 0) {
 					positionInsert -= removeLen;
 					pdoc->DeleteChars(positionInsert, removeLen);
 				}
 				const int lengthInserted = pdoc->InsertString(positionInsert, text, textLen);
 				if(lengthInserted > 0) {
-					sel.Range(r).caret.SetPosition(positionInsert + lengthInserted);
-					sel.Range(r).anchor.SetPosition(positionInsert + lengthInserted);
+					Sel.Range(r).caret.SetPosition(positionInsert + lengthInserted);
+					Sel.Range(r).anchor.SetPosition(positionInsert + lengthInserted);
 				}
-				sel.Range(r).ClearVirtualSpace();
+				Sel.Range(r).ClearVirtualSpace();
 			}
 		}
 	}
@@ -203,18 +203,18 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 			int lenInsert = typeSep ? static_cast<int>(typeSep-list) : static_cast<int>(sstrlen(list));
 			if(ac.GetFlags() & ac.fIgnoreCase) {
 				// May need to convert the case before invocation, so remove lenEntered characters
-				AutoCompleteInsert(sel.MainCaret() - lenEntered, lenEntered, list, lenInsert);
+				AutoCompleteInsert(Sel.MainCaret() - lenEntered, lenEntered, list, lenInsert);
 			}
 			else {
-				AutoCompleteInsert(sel.MainCaret(), 0, list + lenEntered, lenInsert - lenEntered);
+				AutoCompleteInsert(Sel.MainCaret(), 0, list + lenEntered, lenInsert - lenEntered);
 			}
 			ac.Cancel();
 			return;
 		}
 	}
-	ac.Start(wMain, idAutoComplete, sel.MainCaret(), PointMainCaret(), lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
+	ac.Start(wMain, idAutoComplete, Sel.MainCaret(), PointMainCaret(), lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
 	PRectangle rcClient = GetClientRectangle();
-	Point pt = LocationFromPosition(sel.MainCaret() - lenEntered);
+	Point pt = LocationFromPosition(Sel.MainCaret() - lenEntered);
 	PRectangle rcPopupBounds = wMain.GetMonitorRect(pt);
 	if(rcPopupBounds.Height() == 0)
 		rcPopupBounds = rcClient;
@@ -280,10 +280,10 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 void ScintillaBase::AutoCompleteCancel()
 {
 	if(ac.Active()) {
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		scn.nmhdr.code = SCN_AUTOCCANCELLED;
-		scn.wParam = 0;
-		scn.listType = 0;
+		//scn.wParam = 0;
+		//scn.listType = 0;
 		NotifyParent(scn);
 	}
 	ac.Cancel();
@@ -296,7 +296,7 @@ void ScintillaBase::AutoCompleteMove(int delta)
 
 void ScintillaBase::AutoCompleteMoveToCurrentWord()
 {
-	std::string wordCurrent = RangeText(ac.posStart - ac.startLen, sel.MainCaret());
+	std::string wordCurrent = RangeText(ac.posStart - ac.startLen, Sel.MainCaret());
 	ac.Select(wordCurrent.c_str());
 }
 
@@ -312,19 +312,16 @@ void ScintillaBase::AutoCompleteCharacterAdded(char ch)
 
 void ScintillaBase::AutoCompleteCharacterDeleted()
 {
-	if(sel.MainCaret() < ac.posStart - ac.startLen) {
+	if(Sel.MainCaret() < (ac.posStart - ac.startLen))
 		AutoCompleteCancel();
-	}
-	else if(ac.GetFlags() & ac.fCancelAtStartPos && (sel.MainCaret() <= ac.posStart)) {
+	else if(ac.GetFlags() & ac.fCancelAtStartPos && (Sel.MainCaret() <= ac.posStart))
 		AutoCompleteCancel();
-	}
-	else {
+	else
 		AutoCompleteMoveToCurrentWord();
-	}
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_AUTOCCHARDELETED;
-	scn.wParam = 0;
-	scn.listType = 0;
+	//scn.wParam = 0;
+	//scn.listType = 0;
 	NotifyParent(scn);
 }
 
@@ -336,9 +333,9 @@ void ScintillaBase::AutoCompleteCompleted(char ch, uint completionMethod)
 	else {
 		const std::string selected = ac.GetValue(item);
 		ac.Show(false);
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		scn.nmhdr.code = listType > 0 ? SCN_USERLISTSELECTION : SCN_AUTOCSELECTION;
-		scn.message = 0;
+		//scn.message = 0;
 		scn.ch = ch;
 		scn.listCompletionMethod = completionMethod;
 		scn.wParam = listType;
@@ -352,7 +349,7 @@ void ScintillaBase::AutoCompleteCompleted(char ch, uint completionMethod)
 			ac.Cancel();
 			if(listType > 0)
 				return;
-			Position endPos = sel.MainCaret();
+			Position endPos = Sel.MainCaret();
 			if(ac.GetFlags() & ac.fDropRestOfWord)
 				endPos = pdoc->ExtendWordSelect(endPos, 1, true);
 			if(endPos < firstPos)
@@ -403,15 +400,8 @@ void ScintillaBase::CallTipShow(Point pt, const char * defn)
 		pt.x += ptOrigin.x;
 		pt.y += ptOrigin.y;
 	}
-	PRectangle rc = ct.CallTipStart(sel.MainCaret(), pt,
-	    vs.lineHeight,
-	    defn,
-	    vs.styles[ctStyle].fontName,
-	    vs.styles[ctStyle].sizeZoomed,
-	    CodePage(),
-	    vs.styles[ctStyle].characterSet,
-	    vs.technology,
-	    wMain);
+	PRectangle rc = ct.CallTipStart(Sel.MainCaret(), pt, vs.lineHeight, defn, vs.styles[ctStyle].fontName, 
+		vs.styles[ctStyle].sizeZoomed, CodePage(), vs.styles[ctStyle].characterSet, vs.technology, wMain);
 	// If the call-tip window would be out of the client
 	// space
 	PRectangle rcClient = GetClientRectangle();
@@ -434,7 +424,7 @@ void ScintillaBase::CallTipShow(Point pt, const char * defn)
 
 void ScintillaBase::CallTipClick()
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_CALLTIPCLICK;
 	scn.position = ct.clickPlace;
 	NotifyParent(scn);
@@ -453,10 +443,10 @@ void ScintillaBase::ContextMenu(Point pt)
 		AddToPopUp("Undo", idcmdUndo, writable && pdoc->CanUndo());
 		AddToPopUp("Redo", idcmdRedo, writable && pdoc->CanRedo());
 		AddToPopUp("");
-		AddToPopUp("Cut", idcmdCut, writable && !sel.Empty());
-		AddToPopUp("Copy", idcmdCopy, !sel.Empty());
+		AddToPopUp("Cut", idcmdCut, writable && !Sel.Empty());
+		AddToPopUp("Copy", idcmdCopy, !Sel.Empty());
 		AddToPopUp("Paste", idcmdPaste, writable && WndProc(SCI_CANPASTE, 0, 0));
-		AddToPopUp("Delete", idcmdDelete, writable && !sel.Empty());
+		AddToPopUp("Delete", idcmdDelete, writable && !Sel.Empty());
 		AddToPopUp("");
 		AddToPopUp("Select All", idcmdSelectAll);
 		popup.Show(pt, wMain);
@@ -592,11 +582,6 @@ void LexState::SetLexerLanguage(const char * languageName)
 	SetLexerModule(lex);
 }
 
-const char * LexState::DescribeWordListSets()
-{
-	return instance ? instance->DescribeWordListSets() : 0;
-}
-
 void LexState::SetWordList(int n, const char * wl)
 {
 	if(instance) {
@@ -607,30 +592,12 @@ void LexState::SetWordList(int n, const char * wl)
 	}
 }
 
-const char * LexState::GetName() const
-{
-	return lexCurrent ? lexCurrent->languageName : "";
-}
-
-void * LexState::PrivateCall(int operation, void * pointer)
-{
-	return (pdoc && instance) ? instance->PrivateCall(operation, pointer) : 0;
-}
-
-const char * LexState::PropertyNames()
-{
-	return instance ? instance->PropertyNames() : 0;
-}
-
-int LexState::PropertyType(const char * name)
-{
-	return instance ? instance->PropertyType(name) : SC_TYPE_BOOLEAN;
-}
-
-const char * LexState::DescribeProperty(const char * name)
-{
-	return instance ? instance->DescribeProperty(name) : 0;
-}
+const char * LexState::DescribeWordListSets() { return instance ? instance->DescribeWordListSets() : 0; }
+const char * LexState::GetName() const { return lexCurrent ? lexCurrent->languageName : ""; }
+void * LexState::PrivateCall(int operation, void * pointer) { return (pdoc && instance) ? instance->PrivateCall(operation, pointer) : 0; }
+const char * LexState::PropertyNames() { return instance ? instance->PropertyNames() : 0; }
+int LexState::PropertyType(const char * name) { return instance ? instance->PropertyType(name) : SC_TYPE_BOOLEAN; }
+const char * LexState::DescribeProperty(const char * name) { return instance ? instance->DescribeProperty(name) : 0; }
 
 void LexState::PropSet(const char * key, const char * val)
 {
@@ -642,20 +609,9 @@ void LexState::PropSet(const char * key, const char * val)
 	}
 }
 
-const char * LexState::PropGet(const char * key) const
-{
-	return props.Get(key);
-}
-
-int LexState::PropGetInt(const char * key, int defaultValue) const
-{
-	return props.GetInt(key, defaultValue);
-}
-
-int LexState::PropGetExpanded(const char * key, char * result) const
-{
-	return props.GetExpanded(key, result);
-}
+const char * LexState::PropGet(const char * key) const { return props.Get(key); }
+int LexState::PropGetInt(const char * key, int defaultValue) const { return props.GetInt(key, defaultValue); }
+int LexState::PropGetExpanded(const char * key, char * result) const { return props.GetExpanded(key, result); }
 
 int LexState::LineEndTypesSupported()
 {

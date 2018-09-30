@@ -1122,15 +1122,15 @@ int SLAPI GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
 	SString temp_buf;
 	SStrScan scan(pSymb);
 	if(scan.Skip().GetIdent(temp_buf)) {
-		if(temp_buf.IsEqNC("vat"))
+		if(temp_buf.IsEqiAscii("vat"))
 			func_id = funcVat;
-		else if(temp_buf.IsEqNC("vatplus"))
+		else if(temp_buf.IsEqiAscii("vatplus"))
 			func_id = funcVatPlus;
-		else if(temp_buf.IsEqNC("vatminus"))
+		else if(temp_buf.IsEqiAscii("vatminus"))
 			func_id = funcVatMinus;
-		else if(temp_buf.IsEqNC("getquot"))
+		else if(temp_buf.IsEqiAscii("getquot"))
 			func_id = funcGetQuot;
-		else if(temp_buf.IsEqNC("getquotcp"))
+		else if(temp_buf.IsEqiAscii("getquotcp"))
 			func_id = funcGetQuotCP;
 		else {
 			PPSetError(PPERR_UNDEFGOODSFUNC, pSymb);
@@ -1285,26 +1285,26 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 	int    ref_dim = 0;
 	Goods2Tbl::Rec goods_rec;
 	double v = 0.0;
-	if(rSymb.IsEqNC("X")) ref_dim = PPGdsCls::eX;
-	else if(rSymb.IsEqNC("Y")) ref_dim = PPGdsCls::eY;
-	else if(rSymb.IsEqNC("Z")) ref_dim = PPGdsCls::eZ;
-	else if(rSymb.IsEqNC("W")) ref_dim = PPGdsCls::eW;
-	else if(rSymb.IsEqNC("KIND")) ref_dim = PPGdsCls::eKind;
-	else if(rSymb.IsEqNC("GRADE")) ref_dim = PPGdsCls::eGrade;
-	else if(rSymb.IsEqNC("ADDPROP2")) ref_dim = PPGdsCls::eAdd;
-	else if(rSymb.IsEqNC("ADDPROP")) ref_dim = PPGdsCls::eAdd2;
-	else if(rSymb.IsEqNC("PHUPERU")) {
+	if(rSymb.IsEqiAscii("X")) ref_dim = PPGdsCls::eX;
+	else if(rSymb.IsEqiAscii("Y")) ref_dim = PPGdsCls::eY;
+	else if(rSymb.IsEqiAscii("Z")) ref_dim = PPGdsCls::eZ;
+	else if(rSymb.IsEqiAscii("W")) ref_dim = PPGdsCls::eW;
+	else if(rSymb.IsEqiAscii("KIND")) ref_dim = PPGdsCls::eKind;
+	else if(rSymb.IsEqiAscii("GRADE")) ref_dim = PPGdsCls::eGrade;
+	else if(rSymb.IsEqiAscii("ADDPROP2")) ref_dim = PPGdsCls::eAdd;
+	else if(rSymb.IsEqiAscii("ADDPROP")) ref_dim = PPGdsCls::eAdd2;
+	else if(rSymb.IsEqiAscii("PHUPERU")) {
 		if(GObj.Fetch(goodsID, &goods_rec) > 0)
 			v = goods_rec.PhUPerU;
 		else if(P_Pack)
 			v = P_Pack->Rec.PhUPerU;
 	}
-	else if(rSymb.IsEqNC("TYPE")) {
+	else if(rSymb.IsEqiAscii("TYPE")) {
 		PPID   goods_type = (GObj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.GoodsTypeID : 0;
 		PPObjID oid;
 		v = (double)oid.Set(PPOBJ_GOODSTYPE, goods_type);
 	}
-	else if(rSymb.IsEqNC("ID"))
+	else if(rSymb.IsEqiAscii("ID"))
 		v = goodsID;
 	else
 		ok = 0;
@@ -1351,7 +1351,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 	SString ref;
 	if(!ResolveGoodsAttr(ref = pSymb, P_Pack ? 0 : P.GoodsID, &v)) {
 		size_t pos = 0;
-		if(IsRef(pSymb, &pos, ref = 0)) {
+		if(IsRef(pSymb, &pos, ref.Z())) {
 			enum {
 				spcrefQuot = 1,
 				spcrefLotTag,
@@ -1361,14 +1361,14 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 			int    ref_dim = 0;
 			PPID   ref_goods_id = 0;
 			int    ref_gscb_item = -1;
-			if(ref.IsEqNC("MAIN")) {
+			if(ref.IsEqiAscii("MAIN")) {
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				ref_goods_id = P_Gs->GoodsID;
 				if(P_Gs->P_Cb)
 					ref_gscb_item = 0;
 			}
-			else if(ref.IsEqNC("MAINCOM")) {
+			else if(ref.IsEqiAscii("MAINCOM")) {
 				const PPGoodsStrucItem * p_gsi = 0;
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
@@ -1382,13 +1382,13 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					}
 				}
 			}
-			else if(ref.IsEqNC("PREV"))
+			else if(ref.IsEqiAscii("PREV"))
 				ref_goods_id = P.PrevGoodsID;
-			else if(ref.IsEqNC("QUOT"))
+			else if(ref.IsEqiAscii("QUOT"))
 				spcref = spcrefQuot;
-			else if(ref.IsEqNC("LOTTAG"))
+			else if(ref.IsEqiAscii("LOTTAG"))
 				spcref = spcrefLotTag;
-			else if(ref.IsEqNC("TAG"))
+			else if(ref.IsEqiAscii("TAG"))
 				spcref = spcrefGoodsTag;
 			else {
 				THROW(AllocGoodsStruc());
@@ -1483,13 +1483,13 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						tag_item.GetReal(&v);
 				}
 			}
-			else if(ref.IsEqNC("QTTY") || ref.IsEqNC("QTY")) {
+			else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY")) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 0, &v));
 			}
-			else if(ref.IsEqNC("PHQTTY") || ref.IsEqNC("PHQTY")) {
+			else if(ref.IsEqiAscii("PHQTTY") || ref.IsEqiAscii("PHQTY")) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 1, &v));
 			}
-			else if(ref.IsEqNC("QTTYCOM")) {
+			else if(ref.IsEqiAscii("QTTYCOM")) {
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				THROW(P_Gs->GetItemQtty(ref_goods_id, 1, &v));
@@ -1500,37 +1500,37 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 		}
 		else {
 			ref = pSymb;
-			if(ref.IsEqNC("pi"))
+			if(ref.IsEqiAscii("pi"))
 				v = SMathConst::Pi;
-			else if(ref.IsEqNC("a1"))
+			else if(ref.IsEqiAscii("a1"))
 				v = P.Par1;
-			else if(ref.IsEqNC("a2"))
+			else if(ref.IsEqiAscii("a2"))
 				v = P.Par2;
-			else if(ref.IsEqNC("a3"))
+			else if(ref.IsEqiAscii("a3"))
 				v = P.Par3;
 			else {
 				int    r = 1;
-				if(ref.IsEqNC("cost")) {
+				if(ref.IsEqiAscii("cost")) {
 					if(P_Ti)
 						v = P_Ti->Cost;
 					else
 						r = 0; // cost может быть суммой документа
 				}
-				else if(ref.IsEqNC("price")) {
+				else if(ref.IsEqiAscii("price")) {
 					if(P_Ti)
 						v = P_Ti->Price;
 					else
 						r = 0; // price может быть суммой документа
 				}
-				else if(ref.IsEqNC("discount")) {
+				else if(ref.IsEqiAscii("discount")) {
 					if(P_Ti)
 						v = P_Ti->Discount;
 					else
 						r = 0; // discount может быть суммой документа
 				}
-				else if(ref.IsEqNC("QTTY") || ref.IsEqNC("QTY"))
-					v = P_Ti ? P_Ti->Quantity_ : P.Qtty; // @v8.8.6 0.0-->P.Qtty
-				else if(ref.IsEqNC("PHQTTY") || ref.IsEqNC("PHQTY")) {
+				else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY"))
+					v = P_Ti ? P_Ti->Quantity_ : P.Qtty;
+				else if(ref.IsEqiAscii("PHQTTY") || ref.IsEqiAscii("PHQTY")) {
 					if(P_Ti) {
 						if(P_Ti->Flags & PPTFR_INDEPPHQTTY)
 							v = P_Ti->WtQtty;
@@ -1544,14 +1544,12 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					else
 						v = 0.0;
 				}
-				// @v8.9.12 {
-				else if(ref.IsEqNC("LOTDIMX"))
+				else if(ref.IsEqiAscii("LOTDIMX"))
                     v = P.LotDim.X;
-				else if(ref.IsEqNC("LOTDIMY"))
+				else if(ref.IsEqiAscii("LOTDIMY"))
 					v = P.LotDim.Y;
-				else if(ref.IsEqNC("LOTDIMZ"))
+				else if(ref.IsEqiAscii("LOTDIMZ"))
 					v = P.LotDim.Z;
-				// } @v8.9.12
 				else
 					r = 0;
 				if(!r) {

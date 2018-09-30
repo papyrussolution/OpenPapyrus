@@ -4995,14 +4995,21 @@ private:
 
 class SScEditorBase {
 public:
+	enum {
+		indicUnknWord = 27
+	};
 	SScEditorBase();
+	~SScEditorBase();
+	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
 protected:
 	void   Init(HWND hScW, int preserveFileName);
 	int    Release();
+	int    CallFunc(int msg);
+	int    CallFunc(int msg, int param1);
 	int    CallFunc(int msg, int param1, int param2);
-	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
 	int    SetLexer(const char * pLexerName);
 	void   SetSpecialStyle(const SScEditorStyleSet::Style & rStyle);
+	void   ClearIndicator(int indicatorNumber);
 
 	int32  GetCurrentPos();
 	int32  FASTCALL SetCurrentPos(int32 pos);
@@ -5042,6 +5049,7 @@ protected:
 	void * P_SciPtr;
 	SSearchReplaceParam LastSrParam;
 	Document Doc;
+	STokenizer * P_Tknzr;
 };
 
 class STextBrowser : public TBaseBrowserWindow, public SScEditorBase {
@@ -5096,6 +5104,7 @@ private:
 	SCodepage SelectEncoding(SCodepage initCp) const;
 	int    InsertWorkbookLink();
 	int    BraceHtmlTag();
+	int    UpdateIndicators();
 
 	enum {
 		sstLastKeyDownConsumed = 0x0001

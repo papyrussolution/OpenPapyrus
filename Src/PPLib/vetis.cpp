@@ -1260,6 +1260,7 @@ public:
 	S_GUID StockEntryGuid;
 	S_GUID StockEntryUuid;
 	VetisTransportInfo Transp;
+	SString TranspStorageType; // @v10.2.0
 };
 
 class VetisWithdrawVetDocumentRequest : public VetisApplicationData {
@@ -2477,6 +2478,14 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, TSVec
 				VetisDocumentTbl::Key0 k0;
 				k0.EntityID = entity.ID;
 				if(DT.searchForUpdate(0, &k0, spEq)) {
+					// @v10.2.0 {
+					VetisDocumentTbl::Rec ex_rec;
+					DT.copyBufTo(&ex_rec);
+					if(!rec.LinkBillID && ex_rec.LinkBillID && p_bobj->Search(ex_rec.LinkBillID, &bill_rec) > 0) {
+						rec.LinkBillID = ex_rec.LinkBillID;
+						rec.LinkBillRow = ex_rec.LinkBillRow;
+					}
+					// } @v10.2.0 
 					if(memcmp(&DT.data, &rec, sizeof(rec)) != 0) {
 						THROW_DB(DT.updateRecBuf(&rec)); // @sfu
 					}
@@ -4357,7 +4366,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 												PutNonEmptyText(n_tn, "d9p1", "flightNumber", temp_buf = p_req->Transp.TransportNumber.FlightNumber);
 											}
 										}
-										n_af.PutInner(SXml::nst("d9p1", "transportStorageType"), "FROZEN");
+										n_af.PutInner(SXml::nst("d9p1", "transportStorageType"), (temp_buf = p_req->TranspStorageType).SetIfEmpty("FROZEN"));
 									}
 									{
 										SXml::WNode n_vc(srb, SXml::nst("d7p1", "vetCertificate"));
@@ -4392,7 +4401,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 												PutNonEmptyText(n_tn, "d10p1", "flightNumber", temp_buf = p_req->Transp.TransportNumber.FlightNumber);
 											}
 										}
-										n_vc.PutInner(SXml::nst("d7p1", "transportStorageType"), "FROZEN");
+										n_vc.PutInner(SXml::nst("d7p1", "transportStorageType"), (temp_buf = p_req->TranspStorageType).SetIfEmpty("FROZEN"));
 										n_vc.PutInner(SXml::nst("d7p1", "cargoInspected"), "true");
 										n_vc.PutInner(SXml::nst("d7p1", "cargoExpertized"), "false");
 										PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
@@ -5600,6 +5609,19 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 					if(freight.ShipID && tr_obj.Get(freight.ShipID, &tr_rec) > 0) {
 						app_data.Transp.TransportNumber.VehicleNumber = tr_rec.Code;
 						app_data.Transp.TransportNumber.TrailerNumber = tr_rec.TrailerCode;
+						{
+							int tst = -1;
+							switch(tr_rec.VanType) {
+								case PPTransport::vantypFrozen: tst = vtstFROZEN; break;
+								case PPTransport::vantypChilled: tst = vtstCHILLED; break;
+								case PPTransport::vantypCooled: tst = vtstCOOLED; break;
+								case PPTransport::vantypVentilated: tst = vtstVENTILATED; break;
+							}
+							if(tst >= 0) {
+								SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst, temp_buf);
+								app_data.TranspStorageType = temp_buf;
+							}
+						}
 					}
 				}
 				else if(freight.TrType == PPTRTYP_SHIP) {
@@ -7011,6 +7033,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	PPIDArray entity_id_list;
 	PPLogger logger;
 	SString fmt_buf, msg_buf;
+	SString addendum_msg_buf;
 	SString temp_buf;
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
@@ -7018,6 +7041,8 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 		}
 	}
 	if(entity_id_list.getCount()) {
+		PPObjBill * p_bobj = BillObj;
+		Transfer * trfr = p_bobj->trfr;
 		entity_id_list.sortAndUndup();
 		TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
 		PPVetisInterface ifc(&logger);
@@ -7032,9 +7057,32 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 			VetisDocumentTbl::Rec vd_rec;
 			if(EC.SearchDocument(entity_id, &vd_rec) > 0 && vd_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 				VetisApplicationBlock reply;
-				if(ifc.PrepareOutgoingConsignment(entity_id, &ure_list, reply) > 0)
+				// @v10.2.0 {
+				{
+					PPLoadText(PPTXT_VETISOUTGSENDING, fmt_buf);
+					BillTbl::Rec link_bill_rec;
+					TransferTbl::Rec trfr_rec;
+					addendum_msg_buf.Z();
+					if(vd_rec.LinkBillID && p_bobj->Fetch(vd_rec.LinkBillID, &link_bill_rec) > 0) {
+						PPObjBill::MakeCodeString(&link_bill_rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddObjName, temp_buf);
+						addendum_msg_buf.Cat(temp_buf).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
+						if(vd_rec.LinkBillRow && trfr->SearchByBill(vd_rec.LinkBillID, 0, vd_rec.LinkBillRow, &trfr_rec) > 0 && trfr_rec.LotID) {
+							addendum_msg_buf.Space().Cat(fabs(trfr_rec.Quantity), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+							GetGoodsName(trfr_rec.GoodsID, temp_buf);
+							addendum_msg_buf.Space().Cat(temp_buf);
+						}
+					}
+					else {
+						addendum_msg_buf.CatEq("BillID", vd_rec.LinkBillID).Space().CatChar('#').Cat(vd_rec.LinkBillRow);
+					}
+					PPFormat(fmt_buf, &msg_buf, addendum_msg_buf.cptr());
+					logger.Log(msg_buf);
+				}
+				// } @v10.2.0 
+				int cr = ifc.PrepareOutgoingConsignment(entity_id, &ure_list, reply);
+				if(cr > 0)
 					ok = 1;
-				else
+				else if(!cr)
 					logger.LogLastError();
 			}
 			else {
@@ -7599,11 +7647,51 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 				}
 				if(ar_id) {
 					BillFilt bill_filt;
-					bill_filt.LocList.Add(Filt.LocID);
+					{
+						PPIDArray temp_id_list;
+						DateRange sp;
+						if(checkdate(rRec.WayBillDate)) {
+							sp.Set(plusdate(rRec.WayBillDate, -10), plusdate(rRec.WayBillDate, +10));
+						}
+						else if(checkdate(rRec.IssueDate)) {
+							sp.Set(plusdate(rRec.IssueDate, -10), plusdate(rRec.IssueDate, +10));
+						}
+						BillTbl::Rec bill_rec;
+						uint   max_match_codelen = 0;
+						PPID   max_match_id = 0;
+						const  size_t way_bill_code_len = sstrlen(rRec.WayBillNumber);
+						for(DateIter di(&sp); BillObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
+							if((!Filt.LocID || bill_rec.LocID == Filt.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
+								temp_id_list.add(bill_rec.ID);
+								if(way_bill_code_len) {
+									BillCore::GetCode(temp_buf = bill_rec.Code);
+									const size_t min_code_len = MIN(temp_buf.Len(), way_bill_code_len);
+									for(size_t cl = 1; cl <= min_code_len; cl++) {
+										const char * p1 = temp_buf.cptr() + temp_buf.Len() - cl;
+										const char * p2 = rRec.WayBillNumber + way_bill_code_len - cl;
+										if(strnicmp(p1, p2, cl) == 0) {
+											if(cl > max_match_codelen) {
+												max_match_codelen = cl;
+												max_match_id = bill_rec.ID;
+											}
+										}
+										else
+											break;
+									}
+								}
+							}
+						}
+						bill_filt.List.Set(&temp_id_list);
+						if(rRec.LinkBillID && temp_id_list.lsearch(rRec.LinkBillID))
+							bill_filt.Sel = rRec.LinkBillID;
+						else if(max_match_id)
+							bill_filt.Sel = max_match_id;
+					}
+					//bill_filt.LocList.Add(Filt.LocID);
 					//bill_filt.OpID  = op_id;
-					bill_filt.ObjectID = ar_id;
+					//bill_filt.ObjectID = ar_id;
 					bill_filt.Flags |= BillFilt::fAsSelector;
-					if(SetupSurveyPeriod(rRec, bill_filt.Period)) {
+					/*if(SetupSurveyPeriod(rRec, bill_filt.Period))*/ {
 						PPViewBill bill_view;
 						if(bill_view.Init_(&bill_filt)) {
 							{
@@ -7743,7 +7831,11 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 							if(ifc.SetupOutgoingEntries(Filt.LocID, period) > 0)
 								ok = 1;
 						}
+						else
+							PPError();
 					}
+					else
+						PPError();
 				}
 				break;
 			case PPVCMD_SENDOUTGOING:

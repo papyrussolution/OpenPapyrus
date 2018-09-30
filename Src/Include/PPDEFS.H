@@ -5232,6 +5232,8 @@
 	#define CTL_TRANSPORT_MODEL          (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPORT_MODEL       (11 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPORT_CAPACITY       (12 + WINDOWS_ID_BIAS)
+	#define CTL_TRANSPORT_VANTYP         (13 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TRANSPORT_VANTYP      (14 + WINDOWS_ID_BIAS)
 #define DLG_FREIGHT               491 // Фрахт
 	#define cmFreightEditDlvrLocList     101
 	#define CTL_FREIGHT_TRTYP            (1 + WINDOWS_ID_BIAS)

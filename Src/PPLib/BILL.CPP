@@ -1027,7 +1027,7 @@ int SLAPI BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec
 		if(blnk & BLNK_RETURN  && op_type == PPOPT_GOODSRETURN) break;
 		if(blnk & BLNK_CHARGE  && op_type == PPOPT_CHARGE)      break;
 		if(blnk & BLNK_ACK     && op_type == PPOPT_GOODSACK)    break;
-		if(blnk & BLNK_CORRECTION && op_type == PPOPT_CORRECTION)  break; // @v8.9.0
+		if(blnk & BLNK_CORRECTION && op_type == PPOPT_CORRECTION)  break;
 		if(blnk & BLNK_CHARGEPAYM && op_type == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) break;
 		if(blnk & BLNK_EDIRECADV && data.OpID == PPOPK_EDI_RECADV) break;
 		if(blnk & BLNK_WROFFDRAFT) {

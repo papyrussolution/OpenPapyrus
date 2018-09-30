@@ -205,7 +205,7 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 				}
 				if(highlightDelimiter.isEnabled) {
 					int lastLine = model.cs.DocFromDisplay(topLine + model.LinesOnScreen()) + 1;
-					model.pdoc->GetHighlightDelimiters(highlightDelimiter, model.pdoc->LineFromPosition(model.sel.MainCaret()), lastLine);
+					model.pdoc->GetHighlightDelimiters(highlightDelimiter, model.pdoc->LineFromPosition(model.Sel.MainCaret()), lastLine);
 				}
 			}
 			// Old code does not know about new markers needed to distinguish all cases

@@ -447,7 +447,7 @@ int SLAPI PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstOb
 	int    ok = 1;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
 	PPAccount acc_rec;
-	if(pAcct->ac && r_acc_obj.Fetch(pAcct->ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) { // @v8.9.12 Search-->Fetch
+	if(pAcct->ac && r_acc_obj.Fetch(pAcct->ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 		LAssocArray alias_subst;
 		PPID   unresolved_ar_id = 0; // Для сообщения об ошибке
 		const  TSVector <ATSubstObjects::Item> * p_atso_list = 0; // @v9.8.4 TSArray-->TSVector
@@ -976,8 +976,8 @@ int SLAPI PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf)
 	Acct   acct;
 	PPID   cur_id = 0;
 	AcctID * p_acctid = (side == PPDEBIT) ? &DbtID : &CrdID;
-	long   ac_fixed = (side == PPDEBIT) ? (Flags & ATTF_DACCFIX) : (Flags & ATTF_CACCFIX);
-	long   ar_fixed = (side == PPDEBIT) ? (Flags & ATTF_DARTFIX) : (Flags & ATTF_CARTFIX);
+	const long ac_fixed = (side == PPDEBIT) ? (Flags & ATTF_DACCFIX) : (Flags & ATTF_CACCFIX);
+	const long ar_fixed = (side == PPDEBIT) ? (Flags & ATTF_DARTFIX) : (Flags & ATTF_CARTFIX);
 	BillObj->atobj->ConvertAcctID(p_acctid, &acct, &cur_id, 1 /* useCache */);
 	acct.ToStr(ACCF_DEFAULT, rBuf).Space();
 	if(ac_fixed)

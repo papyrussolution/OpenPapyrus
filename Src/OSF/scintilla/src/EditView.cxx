@@ -305,7 +305,7 @@ LineLayout * EditView::RetrieveLineLayout(int lineNumber, const EditModel &model
 	int posLineStart = model.pdoc->LineStart(lineNumber);
 	int posLineEnd = model.pdoc->LineStart(lineNumber + 1);
 	PLATFORM_ASSERT(posLineEnd >= posLineStart);
-	int lineCaret = model.pdoc->LineFromPosition(model.sel.MainCaret());
+	int lineCaret = model.pdoc->LineFromPosition(model.Sel.MainCaret());
 	return llc.Retrieve(lineNumber, lineCaret, posLineEnd - posLineStart, model.pdoc->GetStyleClock(), model.LinesOnScreen() + 1, model.pdoc->LinesTotal());
 }
 
@@ -785,7 +785,7 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 	XYPOSITION virtualSpace = 0;
 	if(lastSubLine) {
 		const XYPOSITION spaceWidth = vsDraw.styles[ll->EndLineStyle()].spaceWidth;
-		virtualSpace = model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line)) * spaceWidth;
+		virtualSpace = model.Sel.VirtualSpaceFor(model.pdoc->LineEnd(line)) * spaceWidth;
 	}
 	XYPOSITION xEol = static_cast<XYPOSITION>(ll->positions[lineEnd] - subLineStart);
 	// Fill the virtual space and show selections within it
@@ -795,18 +795,18 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 		surface->FillRectangle(rcSegment, background.isSet ? background : vsDraw.styles[ll->styles[ll->numCharsInLine]].back);
 		if(/*!hideSelection*/!(EditViewFlags & fHideSelection) && ((vsDraw.selAlpha == SC_ALPHA_NOALPHA) || (vsDraw.selAdditionalAlpha == SC_ALPHA_NOALPHA))) {
 			SelectionSegment virtualSpaceRange(SelectionPosition(model.pdoc->LineEnd(line)), SelectionPosition(model.pdoc->LineEnd(line),
-				    model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line))));
-			for(size_t r = 0; r<model.sel.Count(); r++) {
-				int alpha = (r == model.sel.Main()) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
+				    model.Sel.VirtualSpaceFor(model.pdoc->LineEnd(line))));
+			for(size_t r = 0; r < model.Sel.Count(); r++) {
+				int alpha = (r == model.Sel.Main()) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 				if(alpha == SC_ALPHA_NOALPHA) {
-					SelectionSegment portion = model.sel.Range(r).Intersect(virtualSpaceRange);
+					SelectionSegment portion = model.Sel.Range(r).Intersect(virtualSpaceRange);
 					if(!portion.Empty()) {
 						const XYPOSITION spaceWidth = vsDraw.styles[ll->EndLineStyle()].spaceWidth;
 						rcSegment.left = xStart + ll->positions[portion.start.Position() - posLineStart] - static_cast<XYPOSITION>(subLineStart)+portion.start.VirtualSpace() * spaceWidth;
 						rcSegment.right = xStart + ll->positions[portion.end.Position() - posLineStart] - static_cast<XYPOSITION>(subLineStart)+portion.end.VirtualSpace() * spaceWidth;
 						rcSegment.left = (rcSegment.left > rcLine.left) ? rcSegment.left : rcLine.left;
 						rcSegment.right = (rcSegment.right < rcLine.right) ? rcSegment.right : rcLine.right;
-						surface->FillRectangle(rcSegment, model.SelectionBackground(vsDraw, r == model.sel.Main()));
+						surface->FillRectangle(rcSegment, model.SelectionBackground(vsDraw, r == model.Sel.Main()));
 					}
 				}
 			}
@@ -816,7 +816,7 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 	int alpha = SC_ALPHA_NOALPHA;
 	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
-		eolInSelection = (lastSubLine == true) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
+		eolInSelection = (lastSubLine == true) ? model.Sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 	}
 	// Draw the [CR], [LF], or [CR][LF] blobs if visible line ends are on
@@ -1012,11 +1012,11 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 	int alpha = SC_ALPHA_NOALPHA;
 	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
-		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
+		eolInSelection = (subLine == (ll->lines - 1)) ? model.Sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 	}
 	const XYPOSITION spaceWidth = vsDraw.styles[ll->EndLineStyle()].spaceWidth;
-	XYPOSITION virtualSpace = model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line)) * spaceWidth;
+	XYPOSITION virtualSpace = model.Sel.VirtualSpaceFor(model.pdoc->LineEnd(line)) * spaceWidth;
 	rcSegment.left = xStart + static_cast<XYPOSITION>(ll->positions[ll->numCharsInLine] - subLineStart) + spaceWidth + virtualSpace;
 	rcSegment.right = rcSegment.left + static_cast<XYPOSITION>(widthFoldDisplayText);
 	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & EditModel::Caret::fActive), ll->containsCaret);
@@ -1201,10 +1201,10 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 		return;
 	const int posLineStart = model.pdoc->LineStart(lineDoc);
 	// For each selection draw
-	for(size_t r = 0; (r<model.sel.Count()) || drawDrag; r++) {
-		const bool mainCaret = r == model.sel.Main();
-		SelectionPosition posCaret = (drawDrag ? model.posDrag : model.sel.Range(r).caret);
-		if(vsDraw.caretStyle == CARETSTYLE_BLOCK && !drawDrag && posCaret > model.sel.Range(r).anchor) {
+	for(size_t r = 0; (r < model.Sel.Count()) || drawDrag; r++) {
+		const bool mainCaret = (r == model.Sel.Main());
+		SelectionPosition posCaret = (drawDrag ? model.posDrag : model.Sel.Range(r).caret);
+		if(vsDraw.caretStyle == CARETSTYLE_BLOCK && !drawDrag && posCaret > model.Sel.Range(r).anchor) {
 			if(posCaret.VirtualSpace() > 0)
 				posCaret.SetVirtualSpace(posCaret.VirtualSpace() - 1);
 			else
@@ -1324,11 +1324,8 @@ void EditView::DrawBackground(Surface * surface, const EditModel &model, const V
 	const XYACCUMULATOR subLineStart = ll->positions[lineRange.start];
 	// Does not take margin into account but not significant
 	const int xStartVisible = static_cast<int>(subLineStart)-xStart;
-
-	BreakFinder bfBack(ll, &model.sel, lineRange, posLineStart, xStartVisible, selBackDrawn, model.pdoc, &model.reprs, 0);
-
+	BreakFinder bfBack(ll, &model.Sel, lineRange, posLineStart, xStartVisible, selBackDrawn, model.pdoc, &model.reprs, 0);
 	const bool drawWhitespaceBackground = vsDraw.WhitespaceBackgroundDrawn() && !background.isSet;
-
 	// Background drawing loop
 	while(bfBack.More()) {
 		const BreakFinder::TextSegment ts = bfBack.Next();
@@ -1347,7 +1344,7 @@ void EditView::DrawBackground(Surface * surface, const EditModel &model, const V
 			if(rcSegment.right > rcLine.right)
 				rcSegment.right = rcLine.right;
 
-			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.sel.CharacterInSelection(iDoc);
+			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.Sel.CharacterInSelection(iDoc);
 			const bool inHotspot = (ll->hotspot.Valid()) && ll->hotspot.ContainsCharacter(iDoc);
 			ColourDesired textBack = TextBackground(model, vsDraw, ll, background, inSelection,
 			    inHotspot, ll->styles[i], i);
@@ -1445,28 +1442,28 @@ static void DrawTranslucentSelection(Surface * surface, const EditModel &model, 
 		// For each selection draw
 		int virtualSpaces = 0;
 		if(subLine == (ll->lines - 1)) {
-			virtualSpaces = model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line));
+			virtualSpaces = model.Sel.VirtualSpaceFor(model.pdoc->LineEnd(line));
 		}
 		SelectionPosition posStart(posLineStart + lineRange.start);
 		SelectionPosition posEnd(posLineStart + lineRange.end, virtualSpaces);
 		SelectionSegment virtualSpaceRange(posStart, posEnd);
-		for(size_t r = 0; r < model.sel.Count(); r++) {
-			int alpha = (r == model.sel.Main()) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
+		for(size_t r = 0; r < model.Sel.Count(); r++) {
+			int alpha = (r == model.Sel.Main()) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 			if(alpha != SC_ALPHA_NOALPHA) {
-				SelectionSegment portion = model.sel.Range(r).Intersect(virtualSpaceRange);
+				SelectionSegment portion = model.Sel.Range(r).Intersect(virtualSpaceRange);
 				if(!portion.Empty()) {
 					const XYPOSITION spaceWidth = vsDraw.styles[ll->EndLineStyle()].spaceWidth;
 					PRectangle rcSegment = rcLine;
 					rcSegment.left = xStart + ll->positions[portion.start.Position() - posLineStart] - static_cast<XYPOSITION>(subLineStart)+portion.start.VirtualSpace() * spaceWidth;
 					rcSegment.right = xStart + ll->positions[portion.end.Position() - posLineStart] - static_cast<XYPOSITION>(subLineStart)+portion.end.VirtualSpace() * spaceWidth;
 					if((ll->wrapIndent != 0) && (lineRange.start != 0)) {
-						if((portion.start.Position() - posLineStart) == lineRange.start && model.sel.Range(r).ContainsCharacter(portion.start.Position() - 1))
+						if((portion.start.Position() - posLineStart) == lineRange.start && model.Sel.Range(r).ContainsCharacter(portion.start.Position() - 1))
 							rcSegment.left -= static_cast<int>(ll->wrapIndent);  // indentation added to xStart was truncated to int, so we do the same here
 					}
 					rcSegment.left = (rcSegment.left > rcLine.left) ? rcSegment.left : rcLine.left;
 					rcSegment.right = (rcSegment.right < rcLine.right) ? rcSegment.right : rcLine.right;
 					if(rcSegment.right > rcLine.left)
-						SimpleAlphaRectangle(surface, rcSegment, model.SelectionBackground(vsDraw, r == model.sel.Main()), alpha);
+						SimpleAlphaRectangle(surface, rcSegment, model.SelectionBackground(vsDraw, r == model.Sel.Main()), alpha);
 				}
 			}
 		}
@@ -1516,7 +1513,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 	// Does not take margin into account but not significant
 	const int xStartVisible = static_cast<int>(subLineStart)-xStart;
 	// Foreground drawing loop
-	BreakFinder bfFore(ll, &model.sel, lineRange, posLineStart, xStartVisible,
+	BreakFinder bfFore(ll, &model.Sel, lineRange, posLineStart, xStartVisible,
 	    (((phasesDraw == phasesOne) && selBackDrawn) || vsDraw.selColours.fore.isSet), model.pdoc, &model.reprs, &vsDraw);
 	while(bfFore.More()) {
 		const BreakFinder::TextSegment ts = bfFore.Next();
@@ -1561,7 +1558,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 					}
 				}
 			}
-			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.sel.CharacterInSelection(iDoc);
+			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.Sel.CharacterInSelection(iDoc);
 			if(inSelection && (vsDraw.selColours.fore.isSet)) {
 				textFore = (inSelection == 1) ? vsDraw.selColours.fore : vsDraw.selAdditionalForeground;
 			}
@@ -1835,13 +1832,10 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 		}
 		surface->SetUnicodeMode(SC_CP_UTF8 == model.pdoc->dbcsCodePage);
 		surface->SetDBCSMode(model.pdoc->dbcsCodePage);
-
 		const Point ptOrigin = model.GetVisibleOriginInMain();
-
 		const int screenLinePaintFirst = static_cast<int>(rcArea.top) / vsDraw.lineHeight;
 		const int xStart = vsDraw.textStart - model.xOffset + static_cast<int>(ptOrigin.x);
-
-		SelectionPosition posCaret = model.sel.RangeMain().caret;
+		SelectionPosition posCaret = model.Sel.RangeMain().caret;
 		if(model.posDrag.IsValid())
 			posCaret = model.posDrag;
 		const int lineCaret = model.pdoc->LineFromPosition(posCaret.Position());
@@ -1997,7 +1991,7 @@ void EditView::FillLineRemainder(Surface * surface, const EditModel &model, cons
 	int alpha = SC_ALPHA_NOALPHA;
 	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
-		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
+		eolInSelection = (subLine == (ll->lines - 1)) ? model.Sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 	}
 	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & EditModel::Caret::fActive), ll->containsCaret);

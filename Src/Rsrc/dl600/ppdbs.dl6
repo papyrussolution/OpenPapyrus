@@ -851,11 +851,6 @@ file:
 }
 //
 // Товары, товарные группы, транспортные средства
-// @todo 11/02/2009 {
-//     1. Поле Name увеличить до 128 байт
-//     2. Поле Abbr увеличить до 128 байт
-//     3. Заменить индекс #3 на {Kind, BrandID (anysegnull dup mod)}
-// } @done @v6.2.2
 //
 table Goods2 {             // size=200
 	autolong ID;           // @id
@@ -882,7 +877,8 @@ table Goods2 {             // size=200
 		// PPOBJ_TRANSPORT: Капитан судна (водитель автомобиля)
 	long   Limit;          // Максимальное количество товаров в группе. (<=0) - unlimited
 	int16  Rank;           // @v8.9.8 Ранг записи для изменения порядка сортировки
-	raw    Reserve[6];
+	int16  VanType;        // @v10.2.0 PPOBJ_TRANSPORT: Тип фургона
+	raw    Reserve[4];
 index:
 	ID (unique);                                // #0
 	Kind, ParentID, Name acs (unique mod);      // #1

@@ -1,5 +1,5 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Импорт/Экспорт данных
 //
@@ -255,7 +255,8 @@ SLAPI PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTab
 	PPDbTableXmlExporter(), P_Q(0), P(rParam)
 {
 	P.Period.Actualize(ZERODATE);
-	P_T = BillObj ? BillObj->trfr : 0;
+	PPObjBill * p_bobj = BillObj;
+	P_T = p_bobj ? p_bobj->trfr : 0;
 }
 
 //virtual
@@ -294,7 +295,8 @@ SLAPI PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExp
 	PPDbTableXmlExporter(), P(rParam), P_Q(0)
 {
 	P.Period.Actualize(ZERODATE);
-	P_T = BillObj ? BillObj->P_Tbl : 0;
+	PPObjBill * p_bobj = BillObj;
+	P_T = p_bobj ? p_bobj->P_Tbl : 0;
 }
 
 //virtual

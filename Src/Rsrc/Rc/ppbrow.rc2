@@ -22,6 +22,7 @@ declare command GRAPH       // kbCtrlN
 declare command MOUSEHOVER  // Курсор мыши задержался в одном месте на определенное время.
 declare command REFRESHBYPERIOD  // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
 declare command SEARCHNEXT  // @v8.1.6
+declare command SETUPSARTREINDICATORS // @v10.2.0 @internal
 //
 // Список изображений для иконок тулбаров
 // (текст после TBBM_ должен с точностью до регистра совпадать с наименованием соответствующего файла в каталоге)

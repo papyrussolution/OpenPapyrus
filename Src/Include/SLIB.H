@@ -4818,7 +4818,7 @@ SString & SLAPI getExecPath(SString & rBuf);
 
 int    FASTCALL fileExists(const char * pFileName);
 int    SLAPI driveValid(const char * path);
-int    SLAPI isDir(const char * pStr);
+int    FASTCALL IsDirectory(const char * pStr);
 int    SLAPI pathValid(const char * pPath, int existOnly);
 int    SLAPI validFileName(const char * pFileName);
 //
@@ -6598,6 +6598,7 @@ public:
 	int    SLAPI SearchPair(long key, long val, uint * pPos) const;
 	int    SLAPI CheckFlag(long key, long mask, int binary = 0) const;
 	void   SLAPI Sort();
+	void   SLAPI SortByVal();
 };
 //
 //
@@ -7817,8 +7818,9 @@ public:
 	enum {
 		fRetDelim    = 0x0001, // Возвращать разделители при вызовах Next()
 		fEachDelim   = 0x0002, // Каждый отдельный разделитель возвращать отдельным токеном
-		fDivAlNum    = 0x0008  // Если после цифры идет нецифровой (и не разделительный) символ или
+		fDivAlNum    = 0x0008, // Если после цифры идет нецифровой (и не разделительный) символ или
 			// после нецифрового (не разделительного) символа идет цифра, то считать этот факт неявным разделителем.
+		fRawOrgOffs  = 0x0010  // @v10.2.0 Поле Item::OrgOffs заполнять байтовым смещением токена, а не символьным
 	};
 	enum {
 		coClearSymbTab = 0x0001 //
@@ -7832,8 +7834,8 @@ public:
 	};
 	struct Item {
 		int    Token;
-		uint   TextId;    // Фактически, позиция текста во внутреннем буфере this. Может быть использовано как идентификатор текста в течении жизни this->T
-		int64  OrgOffs;
+		uint   TextId;     // Фактически, позиция текста во внутреннем буфере this. Может быть использовано как идентификатор текста в течении жизни this->T
+		int64  OrgOffs;    // Смещение от начала текста в символах
 		SString Resource;
 		SString Text;
 	};
@@ -7905,7 +7907,7 @@ public:
 private:
 	uint16 SLAPI NextChr();
 	int    FASTCALL IsDelim(uint16 chr) const;
-	int    FASTCALL AddToken(TSVector <uint16> & rBuf, int tok);
+	int    FASTCALL AddToken(TSVector <uint16> & rBuf, int tok, int64 sp);
 	int    SLAPI ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
 	void   SLAPI _CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf);
 

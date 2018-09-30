@@ -819,19 +819,16 @@ inline int LevelNumber(int level) { return level & SC_FOLDLEVELNUMBERMASK; }
 
 class LexInterface {
 public:
-	explicit LexInterface(Document * pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false)
-	{
-	}
-	virtual ~LexInterface()
-	{
-	}
+	explicit LexInterface(Document * pdoc_);
+	virtual ~LexInterface();
 	void   Colourise(int start, int end);
 	int    LineEndTypesSupported();
 	bool   UseContainerLexing() const { return instance == 0; }
 protected:
 	Document * pdoc;
 	ILexer * instance;
-	bool performingStyle;   ///< Prevent reentrance
+	bool   performingStyle;   ///< Prevent reentrance
+	uint8  Reserve[3]; // @alignment
 };
 
 struct RegexError : public std::runtime_error {
@@ -848,13 +845,9 @@ public:
 	// Descr: Used to pair watcher pointer with user data.
 	//
 	struct WatcherWithUserData {
-		WatcherWithUserData(DocWatcher * watcher_ = 0, void * userData_ = 0) : watcher(watcher_), userData(userData_)
-		{
-		}
-		bool FASTCALL operator == (const WatcherWithUserData &other) const
-		{
-			return (watcher == other.watcher) && (userData == other.userData);
-		}
+		WatcherWithUserData(DocWatcher * watcher_ = 0, void * userData_ = 0);
+		bool FASTCALL operator == (const WatcherWithUserData &other) const;
+
 		DocWatcher * watcher;
 		void * userData;
 	};
@@ -1597,18 +1590,9 @@ public:
 	bool FASTCALL operator > (const SelectionPosition &other) const;
 	bool FASTCALL operator <= (const SelectionPosition &other) const;
 	bool FASTCALL operator >= (const SelectionPosition &other) const;
-	int Position() const
-	{
-		return position;
-	}
-	int VirtualSpace() const
-	{
-		return virtualSpace;
-	}
-	bool IsValid() const
-	{
-		return position >= 0;
-	}
+	int Position() const { return position; }
+	int VirtualSpace() const { return virtualSpace; }
+	bool IsValid() const { return (position >= 0); }
 	void FASTCALL SetPosition(int position_);
 	void FASTCALL SetVirtualSpace(int virtualSpace_);
 	void FASTCALL Add(int increment);
@@ -1635,20 +1619,11 @@ struct SelectionRange {
 	explicit SelectionRange(int single);
 	SelectionRange(SelectionPosition caret_, SelectionPosition anchor_);
 	SelectionRange(int caret_, int anchor_);
-	bool Empty() const
-	{
-		return anchor == caret;
-	}
+	bool Empty() const { return (anchor == caret); }
 	int Length() const;
 	// int Width() const;	// Like Length but takes virtual space into account
-	bool FASTCALL operator == (const SelectionRange &other) const
-	{
-		return caret == other.caret && anchor == other.anchor;
-	}
-	bool FASTCALL operator < (const SelectionRange &other) const
-	{
-		return caret < other.caret || ((caret == other.caret) && (anchor < other.anchor));
-	}
+	bool FASTCALL operator == (const SelectionRange &other) const { return (caret == other.caret && anchor == other.anchor); }
+	bool FASTCALL operator < (const SelectionRange &other) const { return (caret < other.caret || ((caret == other.caret) && (anchor < other.anchor))); }
 	void Reset();
 	void ClearVirtualSpace();
 	void MoveForInsertDelete(bool insertion, int startChange, int length);
@@ -1999,7 +1974,7 @@ public:
 	/// Give the largest width of the set.
 	int GetWidth() const;
 private:
-	typedef std::map<int, RGBAImage*> ImageMap;
+	typedef std::map <int, RGBAImage*> ImageMap;
 	ImageMap images;
 	mutable int height;	///< Memorize largest height of the set.
 	mutable int width;	///< Memorize largest width of the set.
@@ -2038,7 +2013,7 @@ public:
 	Position braces[2];
 	int    bracesMatchStyle;
 	int    highlightGuideColumn;
-	Selection sel;
+	Selection Sel; // @sobolev sel-->Sel
 
 	enum IMEInteraction { 
 		imeWindowed, 
@@ -2256,10 +2231,7 @@ public:
 
 	/// Is the auto completion list displayed?
 	bool   Active() const;
-	long   GetFlags() const
-	{
-		return Flags;
-	}
+	long   GetFlags() const { return Flags; }
 	void   SetFlag(long f, int doSet);
 	/// Display the auto completion list positioned to be near a character position
 	void Start(Window &parent, int ctrlID, int position, Point location, int startLen_, int lineHeight, bool unicodeMode, int technology);
@@ -2336,22 +2308,10 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		size_t Length() const;
 		size_t LengthWithTerminator() const;
 		bool Empty() const;
-		bool IsRectangular() const
-		{
-			return rectangular;
-		}
-		bool IsLineCopy() const
-		{
-			return lineCopy;
-		}
-		int  GetCp() const
-		{
-			return codePage;
-		}
-		int  GetCharSet() const
-		{
-			return characterSet;
-		}
+		bool IsRectangular() const { return rectangular; }
+		bool IsLineCopy() const { return lineCopy; }
+		int  GetCp() const { return codePage; }
+		int  GetCharSet() const { return characterSet; }
 	private:
 		void   FixSelectionForClipboard();
 
@@ -2608,11 +2568,8 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	virtual void NotifyChange() = 0;
 	virtual void NotifyFocus(bool focus);
 	virtual void SetCtrlID(int identifier);
-	virtual int GetCtrlID()
-	{
-		return ctrlID;
-	}
-	virtual void NotifyParent(SCNotification scn) = 0;
+	virtual int GetCtrlID() { return ctrlID; }
+	virtual void NotifyParent(SCNotification & rScn) = 0; // @sobolev SCNotification-->SCNotification &
 	virtual void NotifyStyleToNeeded(int endStyleNeeded);
 	virtual void NotifyDoubleClick(Point pt, int modifiers);
 	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);

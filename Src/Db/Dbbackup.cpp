@@ -624,7 +624,7 @@ int SLAPI DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath,
 	SString buf, src_dir, dest_dir;
 	src_dir.CopyFrom(pSrcPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
 	dest_dir.CopyFrom(pDestPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
-	if(isDir(src_dir)) {
+	if(IsDirectory(src_dir)) {
 		SString src_path, dest_path;
 		SDirec direc;
 		SDirEntry fb;

@@ -99,6 +99,11 @@ void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int to
 	}
 #ifndef NDEBUG
 	p_brw->SetSpecialMode(STextBrowser::spcmSartrTest); // @v9.2.0 @debug
+	{
+		KeyDownCommand k;
+		k.SetTvKeyCode(kbCtrlB);
+		p_brw->SetKeybAccelerator(k, PPVCMD_SETUPSARTREINDICATORS);
+	}
 #endif
 	InsertView(p_brw);
 }
@@ -485,7 +490,7 @@ int SLAPI ViewStatus()
 						uint16 ctl_id = ctl_list[i];
 						if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
 							getCtrlString(ctl_id, path);
-							if(isDir(path.RmvLastSlash())) {
+							if(IsDirectory(path.RmvLastSlash())) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
 								p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidPath);
 							}
@@ -2372,7 +2377,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		SString temp_dir, temp_path;
 		PPGetPath(PPPATH_TEMP, temp_dir);
 		temp_dir.SetLastSlash().Cat("IMG");
-		if(!isDir(temp_dir))
+		if(!IsDirectory(temp_dir))
 			createDir(temp_dir);
 		MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
 		if(CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
@@ -6796,6 +6801,10 @@ public:
 	}
 	int    GetFileName(SString & rBuf)
 	{
+		// @v10.2.0 {
+		if(FileName.Empty() && !FileID)
+			getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
+		// } @v10.2.0 
 		if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {
 			SString db_path, log_path;
 			PPGetPath(PPPATH_LOG, log_path);
@@ -7006,7 +7015,6 @@ private:
 	{
 		TDialog::handleEvent(event);
 	}
-
 	SProxiAuthParam Data;
 };
 

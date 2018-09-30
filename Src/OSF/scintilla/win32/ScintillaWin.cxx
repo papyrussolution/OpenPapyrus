@@ -269,7 +269,7 @@ private:
 	virtual void NotifyFocus(bool focus);
 	virtual void SetCtrlID(int identifier);
 	virtual int GetCtrlID();
-	virtual void NotifyParent(SCNotification scn);
+	virtual void NotifyParent(SCNotification & rScn);
 	virtual void NotifyDoubleClick(Point pt, int modifiers);
 	virtual CaseFolder * CaseFolderForEncoding();
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
@@ -815,10 +815,10 @@ bool ScintillaWin::KoreanIME()
 void ScintillaWin::MoveImeCarets(int offset)
 {
 	// Move carets relatively by bytes.
-	for(size_t r = 0; r < sel.Count(); r++) {
-		int positionInsert = sel.Range(r).Start().Position();
-		sel.Range(r).caret.SetPosition(positionInsert + offset);
-		sel.Range(r).anchor.SetPosition(positionInsert + offset);
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		int positionInsert = Sel.Range(r).Start().Position();
+		Sel.Range(r).caret.SetPosition(positionInsert + offset);
+		Sel.Range(r).anchor.SetPosition(positionInsert + offset);
 	}
 }
 
@@ -830,8 +830,8 @@ void ScintillaWin::DrawImeIndicator(int indicator, int len)
 	// It does not affect caret positions.
 	if(indicator >= 8 && indicator <= INDIC_MAX) {
 		pdoc->decorations.SetCurrentIndicator(indicator);
-		for(size_t r = 0; r<sel.Count(); r++) {
-			int positionInsert = sel.Range(r).Start().Position();
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			int positionInsert = Sel.Range(r).Start().Position();
 			pdoc->DecorationFillRange(positionInsert - len, 1, len);
 		}
 	}
@@ -854,8 +854,8 @@ void ScintillaWin::SetCandidateWindowPos()
 void ScintillaWin::SelectionToHangul()
 {
 	// Convert every hanja to hangul within the main range.
-	const int selStart = sel.RangeMain().Start().Position();
-	const int documentStrLen = sel.RangeMain().Length();
+	const int selStart = Sel.RangeMain().Start().Position();
+	const int documentStrLen = Sel.RangeMain().Length();
 	const int selEnd = selStart + documentStrLen;
 	const int utf16Len = pdoc->CountUTF16(selStart, selEnd);
 	if(utf16Len > 0) {
@@ -878,7 +878,7 @@ void ScintillaWin::EscapeHanja()
 	// The candidate box pops up to user to select a hanja.
 	// It comes into WM_IME_COMPOSITION with GCS_RESULTSTR.
 	// The existing hangul or hanja is replaced with it.
-	if(sel.Count() > 1) {
+	if(Sel.Count() > 1) {
 		return; // Do not allow multi carets.
 	}
 	int currentPos = CurrentPosition();
@@ -907,15 +907,13 @@ void ScintillaWin::ToggleHanja()
 {
 	// If selection, convert every hanja to hangul within the main range.
 	// If no selection, commit to IME.
-	if(sel.Count() > 1) {
+	if(Sel.Count() > 1) {
 		return; // Do not allow multi carets.
 	}
-	if(sel.Empty()) {
+	if(Sel.Empty())
 		EscapeHanja();
-	}
-	else {
+	else
 		SelectionToHangul();
-	}
 }
 
 namespace {
@@ -1010,7 +1008,7 @@ sptr_t ScintillaWin::HandleCompositionInline(uptr_t, sptr_t lParam)
 }
 
 // Translate message IDs from WM_* and EM_* to SCI_* so can partly emulate Windows Edit control
-static uint SciMessageFromEM(uint iMessage)
+static uint FASTCALL SciMessageFromEM(uint iMessage)
 {
 	switch(iMessage) {
 		case EM_CANPASTE: return SCI_CANPASTE;
@@ -1077,16 +1075,16 @@ UINT ScintillaWin::CodePageOfDocument() const
 
 sptr_t ScintillaWin::GetTextLength()
 {
-	if(pdoc->Length() == 0)
-		return 0;
-	std::vector<char> docBytes(pdoc->Length(), '\0');
-	pdoc->GetCharRange(&docBytes[0], 0, pdoc->Length());
-	if(IsUnicodeMode()) {
-		return UTF16Length(&docBytes[0], static_cast<uint>(docBytes.size()));
+	sptr_t result_len = 0;
+	if(pdoc->Length() > 0) {
+		std::vector<char> docBytes(pdoc->Length(), '\0');
+		pdoc->GetCharRange(&docBytes[0], 0, pdoc->Length());
+		if(IsUnicodeMode())
+			result_len = UTF16Length(&docBytes[0], static_cast<uint>(docBytes.size()));
+		else
+			result_len = ::MultiByteToWideChar(CodePageOfDocument(), 0, &docBytes[0], static_cast<int>(docBytes.size()), NULL, 0);
 	}
-	else {
-		return ::MultiByteToWideChar(CodePageOfDocument(), 0, &docBytes[0], static_cast<int>(docBytes.size()), NULL, 0);
-	}
+	return result_len;
 }
 
 sptr_t ScintillaWin::GetText(uptr_t wParam, sptr_t lParam)
@@ -1538,30 +1536,24 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				}
 				break;
 			case EM_EXSETSEL: 
-				{
-					if(lParam == 0)
-						return 0;
-					else {
-						Sci_CharacterRange * pCR = reinterpret_cast<Sci_CharacterRange *>(lParam);
-						sel.selType = Selection::selStream;
-						if(pCR->cpMin == 0 && pCR->cpMax == -1)
-							SetSelection(pCR->cpMin, pdoc->Length());
-						else
-							SetSelection(pCR->cpMin, pCR->cpMax);
-						EnsureCaretVisible();
-						return pdoc->LineFromPosition(SelectionStart().Position());
-					}
+				if(lParam == 0)
+					return 0;
+				else {
+					Sci_CharacterRange * pCR = reinterpret_cast<Sci_CharacterRange *>(lParam);
+					Sel.selType = Selection::selStream;
+					if(pCR->cpMin == 0 && pCR->cpMax == -1)
+						SetSelection(pCR->cpMin, pdoc->Length());
+					else
+						SetSelection(pCR->cpMin, pCR->cpMax);
+					EnsureCaretVisible();
+					return pdoc->LineFromPosition(SelectionStart().Position());
 				}
 			case SCI_GETDIRECTFUNCTION: return reinterpret_cast<sptr_t>(DirectFunction);
 			case SCI_GETDIRECTPOINTER: return reinterpret_cast<sptr_t>(this);
-			case SCI_GRABFOCUS:
-			    ::SetFocus(MainHWND());
-			    break;
+			case SCI_GRABFOCUS: ::SetFocus(MainHWND()); break;
 #ifdef INCLUDE_DEPRECATED_FEATURES
-			case SCI_SETKEYSUNICODE:
-			    break;
-			case SCI_GETKEYSUNICODE:
-			    return true;
+			case SCI_SETKEYSUNICODE: break;
+			case SCI_GETKEYSUNICODE: return true;
 #endif
 			case SCI_SETTECHNOLOGY:
 			    if(oneof4(wParam, SC_TECHNOLOGY_DEFAULT, SC_TECHNOLOGY_DIRECTWRITERETAIN, SC_TECHNOLOGY_DIRECTWRITEDC, SC_TECHNOLOGY_DIRECTWRITE)) {
@@ -1587,9 +1579,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    break;
 
 #ifdef SCI_LEXER
-			case SCI_LOADLEXERLIBRARY:
-			    LexerManager::GetInstance()->Load(reinterpret_cast<const char *>(lParam));
-			    break;
+			case SCI_LOADLEXERLIBRARY: LexerManager::GetInstance()->Load(reinterpret_cast<const char *>(lParam)); break;
 #endif
 			case SCI_TARGETASUTF8: return TargetAsUTF8(reinterpret_cast<char*>(lParam));
 			case SCI_ENCODEDFROMUTF8: return EncodedFromUTF8(reinterpret_cast<char*>(wParam), reinterpret_cast<char*>(lParam));
@@ -1828,13 +1818,13 @@ int ScintillaWin::GetCtrlID()
 	return ::GetDlgCtrlID(static_cast<HWND>(wMain.GetID()));
 }
 
-void ScintillaWin::NotifyParent(SCNotification scn)
+void ScintillaWin::NotifyParent(SCNotification & rScn)
 {
 	const HWND hw_main = MainHWND();
 	const int ctrl_id = GetCtrlID();
-	scn.nmhdr.hwndFrom = hw_main;
-	scn.nmhdr.idFrom = ctrl_id;
-	::SendMessage(::GetParent(hw_main), WM_NOTIFY, ctrl_id, reinterpret_cast<LPARAM>(&scn));
+	rScn.nmhdr.hwndFrom = hw_main;
+	rScn.nmhdr.idFrom = ctrl_id;
+	::SendMessage(::GetParent(hw_main), WM_NOTIFY, ctrl_id, reinterpret_cast<LPARAM>(&rScn));
 }
 
 void ScintillaWin::NotifyDoubleClick(Point pt, int modifiers)
@@ -1959,7 +1949,7 @@ std::string ScintillaWin::CaseMapString(const std::string &s, int caseMapping)
 void ScintillaWin::Copy()
 {
 	//Platform::DebugPrintf("Copy\n");
-	if(!sel.Empty()) {
+	if(!Sel.Empty()) {
 		SelectionText selectedText;
 		CopySelectionRange(&selectedText);
 		CopyToClipboard(selectedText);
@@ -2501,7 +2491,7 @@ void ScintillaWin::ImeStartComposition()
 		if(Flags & fStylesValid) {
 			// Since the style creation code has been made platform independent,
 			// The logfont for the IME is recreated here.
-			const int styleHere = pdoc->StyleIndexAt(sel.MainCaret());
+			const int styleHere = pdoc->StyleIndexAt(Sel.MainCaret());
 			LOGFONTW lf = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, L""};
 			int sizeZoomed = vs.styles[styleHere].size + vs.zoomLevel * SC_FONT_SIZE_MULTIPLIER;
 			if(sizeZoomed <= 2 * SC_FONT_SIZE_MULTIPLIER)   // Hangs if sizeZoomed <= 1
@@ -2538,8 +2528,8 @@ LRESULT ScintillaWin::ImeOnReconvert(LPARAM lParam)
 {
 	// Reconversion on windows limits within one line without eol.
 	// Look around:   baseStart  <--  (|mainStart|  -- mainEnd)  --> baseEnd.
-	const int mainStart = sel.RangeMain().Start().Position();
-	const int mainEnd = sel.RangeMain().End().Position();
+	const int mainStart = Sel.RangeMain().Start().Position();
+	const int mainEnd = Sel.RangeMain().End().Position();
 	const int curLine = pdoc->LineFromPosition(mainStart);
 	if(curLine != pdoc->LineFromPosition(mainEnd))
 		return 0;
@@ -2583,12 +2573,12 @@ LRESULT ScintillaWin::ImeOnReconvert(LPARAM lParam)
 	int adjust = static_cast<int>(tgCompStart.length() - rcCompStart.length());
 	int docCompLen = static_cast<int>(tgComp.length());
 	// Make place for next composition string to sit in.
-	for(size_t r = 0; r<sel.Count(); r++) {
-		int rBase = sel.Range(r).Start().Position();
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		int rBase = Sel.Range(r).Start().Position();
 		int docCompStart = rBase + adjust;
 		if(EditModelFlags & fInOverstrike) {  // the docCompLen of bytes will be overstriked.
-			sel.Range(r).caret.SetPosition(docCompStart);
-			sel.Range(r).anchor.SetPosition(docCompStart);
+			Sel.Range(r).caret.SetPosition(docCompStart);
+			Sel.Range(r).anchor.SetPosition(docCompStart);
 		}
 		else {
 			// Ensure docCompStart+docCompLen be not beyond lineEnd.

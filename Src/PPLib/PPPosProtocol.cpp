@@ -180,7 +180,7 @@ public:
 																short  div_n = (short)p_clb->DivN;
 																double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
 																double price = p_clb->Price;
-																double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / qtty) : p_clb->Discount;
+																double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / fabs(qtty)) : p_clb->Discount; // @v10.2.0
 																PPID   goods_id = 0;
 																if(p_clb->GoodsBlkP) {
 																	int    g_type = 0;
@@ -4661,14 +4661,14 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					if(acn_pack.ImpFiles.NotEmptyS()) {
 						StringSet ss_row_paths(';', acn_pack.ImpFiles);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
-							if(isDir(temp_buf.RmvLastSlash()))
+							if(IsDirectory(temp_buf.RmvLastSlash()))
 								ss_paths.add(temp_buf);
 						}
 					}
 				}
 				else if(cn_rec.Flags & CASHF_SYNC && CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
 					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
-						if(isDir(temp_buf.RmvLastSlash()))
+						if(IsDirectory(temp_buf.RmvLastSlash()))
 							ss_paths.add(temp_buf);
 					}
 				}
@@ -5041,7 +5041,7 @@ int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfi
 	}
 	for(uint ssp = 0; ss_paths.get(&ssp, path);) {
 		path.RmvLastSlash();
-		if(isDir(path) || createDir(path)) {
+		if(IsDirectory(path) || createDir(path)) {
 			long   _seq = 0;
 			do {
 				temp_buf = p_base_name;
@@ -5309,14 +5309,14 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
         		PPObjCashNode cn_obj;
 				PPSyncCashNode cn_pack;
 				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
-				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && isDir(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
+				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && IsDirectory(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
 					in_path = temp_buf;
 				}
 				else {
 					PPGetPath(PPPATH_IN, in_path);
 				}
 				in_path.RmvLastSlash();
-				if(!isDir(in_path)) {
+				if(!IsDirectory(in_path)) {
 
 				}
 				else {

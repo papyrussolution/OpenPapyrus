@@ -1399,6 +1399,7 @@ data GoodsGroup {
 	string FullName[128];        // Наименование группы, включающее все группы, в которые вложена эта
 
 	link   GoodsFilt GetFilt();
+	string GetFullName[512](); // @v10.2.0
 }
 //
 // Поставщики товара за последние 3 месяца
@@ -7671,7 +7672,8 @@ data GoodsGroupView {
 		int16  fDynAlt;          // Динамическая альтернативная группа
 		int16  fReserve;         // @alignment
 		Name       = GrpID.Name;
-		FullName   = GrpID.FullName;
+		//@v10.2.0 FullName   = GrpID.FullName;
+		FullName   = GrpID.GetFullName(); // @v10.2.0
 		UnitName   = GrpID.Name;
 		PhUnitName = GrpID.PhUnitID.Name;
 		TypeName   = GrpID.TypeID.Name;

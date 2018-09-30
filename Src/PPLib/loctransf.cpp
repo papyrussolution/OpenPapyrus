@@ -720,6 +720,7 @@ int SLAPI LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whC
 int SLAPI LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1, r;
+	PPObjBill * p_bobj = BillObj;
 	uint   i;
 	SString fmt_buf, msg_buf;
 	PPIDArray out_bill_list;
@@ -727,11 +728,11 @@ int SLAPI LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLo
 	LocTransfDisposeArray dispose_list_in, dispose_list_out;
 	for(i = 0; i < rBillList.getCount(); i++) {
 		const PPID bill_id = rBillList.get(i);
-		Transfer * p_tr = BillObj->trfr;
+		Transfer * p_tr = p_bobj->trfr;
 		BillTbl::Rec bill_rec;
 		TSVector <LocTransfTbl::Rec> disp_list; // @v9.8.4 TSArray-->TSVector
 		THROW(LtT.GetDisposition(bill_id, disp_list));
-		if(BillObj->Search(bill_id, &bill_rec) > 0) {
+		if(p_bobj->Search(bill_id, &bill_rec) > 0) {
 			PPTransferItem ti;
 			for(int rbb = 0; p_tr->EnumItems(bill_id, &rbb, &ti) > 0;) {
 				double disposed_qtty = 0.0;

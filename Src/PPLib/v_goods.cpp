@@ -4287,6 +4287,12 @@ void PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSta
 		}
 		_RET_LONG = sur_id;
 	}
+	// @v10.2.0 {
+	else if(pF->Name == "?GetFullName") {
+		PPObjGoods goods_obj;
+		goods_obj.P_Tbl->MakeFullName(H.ID, 0, _RET_STR);
+	}
+	// } @v10.2.0
 }
 //
 // Implementation of PPALDD_Goods

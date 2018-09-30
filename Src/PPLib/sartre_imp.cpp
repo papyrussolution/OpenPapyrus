@@ -1730,11 +1730,13 @@ int SrConceptParser::Run(const char * pFileName)
 						{
 							THROW(R_Db.ResolveWord(temp_buf, &word_id));
 							assert(word_id);
-							const int lang_id = p_current->GetLangID();
-							if(lang_id) {
-								wf.Clear();
-								wf.SetTag(SRWG_LANGUAGE, lang_id);
-								THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf, &wa_id));
+							if(!temp_buf.IsDigit()) { // @v10.2.0
+								const int lang_id = p_current->GetLangID();
+								if(lang_id) {
+									wf.Clear();
+									wf.SetTag(SRWG_LANGUAGE, lang_id);
+									THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf, &wa_id));
+								}
 							}
 						}
 						ngram.add(word_id);
@@ -2918,8 +2920,10 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						THROW(rwr);
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
-							THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
-							items_per_tx++;
+							if(!temp_buf.IsDigit()) { // @v10.2.0
+								THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
+								items_per_tx++;
+							}
 							THROW(RechargeTransaction(p_ta, items_per_tx, /*max_items_per_tx*/512));
 						}
 						PPWaitPercent(ssi+1, ssc, "phase1 accepting (words)");

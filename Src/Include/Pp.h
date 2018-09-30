@@ -27090,6 +27090,16 @@ struct PPTransportConfig {
 };
 
 struct PPTransport {       // @persistent @store(Goods2Tbl)
+	//
+	// Descr: Типы фургонов (изначально сделаны для сопоставления с соответствующими типами VETIS, в дальнейшем будет расширяться)
+	//
+	enum {
+		vantypUndef       = 0,
+		vantypFrozen      = 1,
+		vantypChilled     = 2,
+		vantypCooled      = 3,
+		vantypVentilated  = 4
+	};
 	PPTransport();
 	int    FASTCALL IsEqual(const PPTransport & rS) const;
 
@@ -27103,6 +27113,8 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	PPID   CountryID;      // ->Country.ID (Stored as Goods2.DefBCodeStrucID)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
 	long   Capacity;       // @v7.2.7 Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
+	int16  VanType;        // @v10.2.0 PPTransport::vantypXXX Тип фургона
+	uint16 Reserve;        // @v10.2.0 @alignment
 };
 
 class PPObjTransport : public PPObjGoods {

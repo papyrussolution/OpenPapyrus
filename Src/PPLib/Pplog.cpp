@@ -172,7 +172,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 void LogListWindowSCI::Refresh(long item)
 {
 	SString temp_buf;
-	CallFunc(SCI_CLEARALL, 0, 0);
+	CallFunc(SCI_CLEARALL);
 	int   line_no_to_select = 0;
 	if(P_MsgLog) {
 		for(long i = 0; i < P_MsgLog->GetVisCount(); i++) {
@@ -185,7 +185,7 @@ void LogListWindowSCI::Refresh(long item)
 			}
 		}
 	}
-	CallFunc(SCI_GOTOLINE, line_no_to_select, 0);
+	CallFunc(SCI_GOTOLINE, line_no_to_select);
 	//::UpdateWindow(H());
 }
 
@@ -199,10 +199,10 @@ void LogListWindowSCI::Append()
 			if(p_buf) {
 				temp_buf = p_buf+sizeof(long);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
-				CallFunc(SCI_SETREADONLY, 0, 0);
+				CallFunc(SCI_SETREADONLY);
 				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (int)temp_buf.cptr());
-				CallFunc(SCI_SETREADONLY, 1, 0);
-				CallFunc(SCI_GOTOLINE, vc, 0);
+				CallFunc(SCI_SETREADONLY, 1);
+				CallFunc(SCI_GOTOLINE, vc);
 			}
 		}
 	}
@@ -291,27 +291,27 @@ int LogListWindowSCI::WMHCreate()
 		KeyAccel.Sort();
 	}
 	{
-		Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
+		Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT);
 		//Setup scratchtilla for new filedata
-		CallFunc(SCI_SETSTATUS, SC_STATUS_OK, 0); // reset error status
+		CallFunc(SCI_SETSTATUS, SC_STATUS_OK); // reset error status
 		CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);
-		CallFunc(SCI_CLEARALL, 0, 0);
-		CallFunc(SCI_ALLOCATE, (WPARAM)128*1024, 0);
-		int sci_status = CallFunc(SCI_GETSTATUS, 0, 0);
-		CallFunc(SCI_SETREADONLY, 1, 0);
+		CallFunc(SCI_CLEARALL);
+		CallFunc(SCI_ALLOCATE, (WPARAM)128*1024);
+		int sci_status = CallFunc(SCI_GETSTATUS);
+		CallFunc(SCI_SETREADONLY, 1);
 
-		CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
-		CallFunc(SCI_SETEOLMODE, SC_EOL_CRLF, 0);
+		CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8);
+		CallFunc(SCI_SETEOLMODE, SC_EOL_CRLF);
 
-		CallFunc(SCI_SETCARETLINEVISIBLE, 1, 0);
-		CallFunc(SCI_SETCARETLINEBACK, RGB(0x57,0xA8,0xFA), 0);
+		CallFunc(SCI_SETCARETLINEVISIBLE, 1);
+		CallFunc(SCI_SETCARETLINEBACK, RGB(0x57,0xA8,0xFA));
 		CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
-		CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED, 0);
+		CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED);
 
-		CallFunc(SCI_SETVSCROLLBAR, 1, 0);
-		CallFunc(SCI_SETHSCROLLBAR, 1, 0);
+		CallFunc(SCI_SETVSCROLLBAR, 1);
+		CallFunc(SCI_SETHSCROLLBAR, 1);
 
-		//CallFunc(SCI_SETYCARETPOLICY, CARET_STRICT, 0);
+		//CallFunc(SCI_SETYCARETPOLICY, CARET_STRICT);
 	}
 	return BIN(P_SciFn && P_SciPtr);
 }
@@ -393,8 +393,8 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_DESTROY:
 			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
-				p_view->CallFunc(SCI_SETREADONLY, 0, 0); // @v9.7.5
-				p_view->CallFunc(SCI_CLEARALL, 0, 0); // @v9.7.5
+				p_view->CallFunc(SCI_SETREADONLY); // @v9.7.5
+				p_view->CallFunc(SCI_CLEARALL); // @v9.7.5
 				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc); // @v9.7.5
 				SETIFZ(p_view->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_view);

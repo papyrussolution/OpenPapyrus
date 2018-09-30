@@ -121,7 +121,7 @@ int CommCfgDialog::editSysParams()
 			{
 				SString db_path;
 				PPGetPath(PPPATH_SARTREDB, db_path);
-				DisableClusterItem(CTL_CCFGSYS_FLAGS2, 5, !isDir(db_path.RmvLastSlash()));
+				DisableClusterItem(CTL_CCFGSYS_FLAGS2, 5, !IsDirectory(db_path.RmvLastSlash()));
 			}
 			return 1;
 		}

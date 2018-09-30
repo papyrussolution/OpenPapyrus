@@ -1332,6 +1332,7 @@ int FASTCALL PPTransport::IsEqual(const PPTransport & rS) const
 	CMP_FLD(CountryID);
 	CMP_FLD(CaptainID);
 	CMP_FLD(Capacity);
+	CMP_FLD(VanType); // @v10.2.0
 	if(!sstreq(Name, rS.Name))
 		return 0;
 	if(!sstreq(Code, rS.Code))
@@ -1364,8 +1365,8 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 			pRec->OwnerID   = goods_rec.ManufID;
 			pRec->CountryID = goods_rec.DefBCodeStrucID;
 			pRec->CaptainID = goods_rec.RspnsPersonID;
-			pRec->Capacity  = (long)goods_rec.PhUPerU; // @v7.2.7
-
+			pRec->Capacity  = (long)goods_rec.PhUPerU;
+			pRec->VanType   = goods_rec.VanType; // @v10.2.0
 			P_Tbl->ReadBarcodes(id, bc_list);
 			for(uint i = 0; i < bc_list.getCount(); i++) {
 				BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
@@ -1397,7 +1398,8 @@ int SLAPI PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2T
 	pRawRec->ManufID = pRec->OwnerID;
 	pRawRec->DefBCodeStrucID = pRec->CountryID;
 	pRawRec->RspnsPersonID = pRec->CaptainID;
-	pRawRec->PhUPerU = pRec->Capacity; // @v7.2.7
+	pRawRec->PhUPerU = pRec->Capacity;
+	pRawRec->VanType = pRec->VanType; // @v10.2.0
 	if(pBcList) {
 		BarcodeTbl::Rec bc_rec;
 		SString temp_buf;
@@ -1518,6 +1520,11 @@ public:
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_CANINSERT, (void *)owner_kind_id);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT, (void *)captain_kind_id);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.CountryID, OLW_CANINSERT);
+		// @v10.2.0 {
+		if(Data.TrType == PPTRTYP_CAR) {
+			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.VanType); 
+		}
+		// } @v10.2.0
 		LockAutoName = 0;
 		return 1;
 	}
@@ -1559,6 +1566,13 @@ private:
 		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.OwnerID);
 		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.CountryID);
 		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.CaptainID);
+		// @v10.2.0 {
+		if(Data.TrType == PPTRTYP_CAR) {
+			long   temp_val = 0;
+			getCtrlData(CTLSEL_TRANSPORT_VANTYP, &temp_val);
+			Data.VanType = (int16)temp_val;
+		}
+		// } @v10.2.0 
 		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
 	}
 	int    LockAutoName;

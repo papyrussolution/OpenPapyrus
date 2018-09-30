@@ -1110,7 +1110,7 @@ SrDatabase * SLAPI PPThreadLocalArea::GetSrDatabase()
     else if(Cc.Flags2 & CCFLG2_USESARTREDB) {
 		SString db_path;
 		PPGetPath(PPPATH_SARTREDB, db_path);
-		if(isDir(db_path.RmvLastSlash())) {
+		if(IsDirectory(db_path.RmvLastSlash())) {
             p_db = new SrDatabase();
             if(p_db) {
 				if(p_db->Open(db_path, SrDatabase::oReadOnly))
@@ -1924,7 +1924,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
 						(path = root_path).SetLastSlash().Cat(temp_buf);
 					}
-					if(!isDir(path) && !createDir(path))
+					if(!IsDirectory(path) && !createDir(path))
 						path = root_path.RmvLastSlash();
 					if(Helper_SetPath(PPPATH_LOG, path))
 						SLS.SetLogPath(path);

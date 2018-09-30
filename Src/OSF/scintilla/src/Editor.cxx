@@ -665,76 +665,58 @@ PRectangle Editor::RectangleFromRange(Range r, int overlap)
 }
 
 void Editor::InvalidateRange(int start, int end)
-{
-	RedrawRect(RectangleFromRange(Range(start, end), view.LinesOverlap() ? vs.lineOverlap : 0));
-}
-
-int Editor::CurrentPosition() const
-{
-	return sel.MainCaret();
-}
-
-bool Editor::SelectionEmpty() const
-{
-	return sel.Empty();
-}
-
-SelectionPosition Editor::SelectionStart()
-{
-	return sel.RangeMain().Start();
-}
-
-SelectionPosition Editor::SelectionEnd()
-{
-	return sel.RangeMain().End();
-}
+	{ RedrawRect(RectangleFromRange(Range(start, end), view.LinesOverlap() ? vs.lineOverlap : 0)); }
+int Editor::CurrentPosition() const { return Sel.MainCaret(); }
+bool Editor::SelectionEmpty() const { return Sel.Empty(); }
+SelectionPosition Editor::SelectionStart() { return Sel.RangeMain().Start(); }
+SelectionPosition Editor::SelectionEnd() { return Sel.RangeMain().End(); }
 
 void Editor::SetRectangularRange()
 {
-	if(sel.IsRectangular()) {
-		int xAnchor = XFromPosition(sel.Rectangular().anchor);
-		int xCaret = XFromPosition(sel.Rectangular().caret);
-		if(sel.selType == Selection::selThin) {
+	if(Sel.IsRectangular()) {
+		int xAnchor = XFromPosition(Sel.Rectangular().anchor);
+		int xCaret = XFromPosition(Sel.Rectangular().caret);
+		if(Sel.selType == Selection::selThin) {
 			xCaret = xAnchor;
 		}
-		int lineAnchorRect = pdoc->LineFromPosition(sel.Rectangular().anchor.Position());
-		int lineCaret = pdoc->LineFromPosition(sel.Rectangular().caret.Position());
+		int lineAnchorRect = pdoc->LineFromPosition(Sel.Rectangular().anchor.Position());
+		int lineCaret = pdoc->LineFromPosition(Sel.Rectangular().caret.Position());
 		int increment = (lineCaret > lineAnchorRect) ? 1 : -1;
 		for(int line = lineAnchorRect; line != lineCaret+increment; line += increment) {
 			SelectionRange range(SPositionFromLineX(line, xCaret), SPositionFromLineX(line, xAnchor));
 			if((virtualSpaceOptions & SCVS_RECTANGULARSELECTION) == 0)
 				range.ClearVirtualSpace();
 			if(line == lineAnchorRect)
-				sel.SetSelection(range);
+				Sel.SetSelection(range);
 			else
-				sel.AddSelectionWithoutTrim(range);
+				Sel.AddSelectionWithoutTrim(range);
 		}
 	}
 }
 
 void Editor::ThinRectangularRange()
 {
-	if(sel.IsRectangular()) {
-		sel.selType = Selection::selThin;
-		if(sel.Rectangular().caret < sel.Rectangular().anchor)
-			sel.Rectangular() = SelectionRange(sel.Range(sel.Count()-1).caret, sel.Range(0).anchor);
+	if(Sel.IsRectangular()) {
+		Sel.selType = Selection::selThin;
+		if(Sel.Rectangular().caret < Sel.Rectangular().anchor)
+			Sel.Rectangular() = SelectionRange(Sel.Range(Sel.Count()-1).caret, Sel.Range(0).anchor);
 		else
-			sel.Rectangular() = SelectionRange(sel.Range(sel.Count()-1).anchor, sel.Range(0).caret);
+			Sel.Rectangular() = SelectionRange(Sel.Range(Sel.Count()-1).anchor, Sel.Range(0).caret);
 		SetRectangularRange();
 	}
 }
 
 void Editor::InvalidateSelection(SelectionRange newMain, bool invalidateWholeSelection)
 {
-	if(!invalidateWholeSelection && (sel.Count() > 1 || sel.RangeMain().anchor != newMain.anchor || sel.IsRectangular()))
+	if(!invalidateWholeSelection && (Sel.Count() > 1 || Sel.RangeMain().anchor != newMain.anchor || Sel.IsRectangular()))
 		invalidateWholeSelection = true;
-	int first_affected = smin(sel.RangeMain().Start().Position(), newMain.Start().Position());
+	int first_affected = smin(Sel.RangeMain().Start().Position(), newMain.Start().Position());
 	// +1 for lastAffected ensures caret repainted
 	int last_affected = smax(newMain.caret.Position()+1, newMain.anchor.Position());
-	last_affected = smax(last_affected, sel.RangeMain().End().Position());
+	last_affected = smax(last_affected, Sel.RangeMain().End().Position());
 	if(invalidateWholeSelection) {
-		for(size_t r = 0; r < sel.Count(); r++) {
-			const SelectionRange & r_range = sel.Range(r);
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			const SelectionRange & r_range = Sel.Range(r);
 			const int caret_pos = r_range.caret.Position();
 			const int anchor_pos = r_range.anchor.Position();
 			first_affected = smin(first_affected, caret_pos);
@@ -749,7 +731,7 @@ void Editor::InvalidateSelection(SelectionRange newMain, bool invalidateWholeSel
 
 void Editor::InvalidateWholeSelection()
 {
-	InvalidateSelection(sel.RangeMain(), true);
+	InvalidateSelection(Sel.RangeMain(), true);
 }
 
 void Editor::SetSelection(SelectionPosition currentPos_, SelectionPosition anchor_)
@@ -757,9 +739,8 @@ void Editor::SetSelection(SelectionPosition currentPos_, SelectionPosition ancho
 	currentPos_ = ClampPositionIntoDocument(currentPos_);
 	anchor_ = ClampPositionIntoDocument(anchor_);
 	int currentLine = pdoc->LineFromPosition(currentPos_.Position());
-	/* For Line selection - ensure the anchor and caret are always
-	   at the beginning and end of the region lines. */
-	if(sel.selType == Selection::selLines) {
+	// For Line selection - ensure the anchor and caret are always at the beginning and end of the region lines. 
+	if(Sel.selType == Selection::selLines) {
 		if(currentPos_ > anchor_) {
 			anchor_ = SelectionPosition(pdoc->LineStart(pdoc->LineFromPosition(anchor_.Position())));
 			currentPos_ = SelectionPosition(pdoc->LineEnd(pdoc->LineFromPosition(currentPos_.Position())));
@@ -770,13 +751,13 @@ void Editor::SetSelection(SelectionPosition currentPos_, SelectionPosition ancho
 		}
 	}
 	SelectionRange rangeNew(currentPos_, anchor_);
-	if(sel.Count() > 1 || !(sel.RangeMain() == rangeNew)) {
+	if(Sel.Count() > 1 || !(Sel.RangeMain() == rangeNew)) {
 		InvalidateSelection(rangeNew);
 	}
-	sel.RangeMain() = rangeNew;
+	Sel.RangeMain() = rangeNew;
 	SetRectangularRange();
 	ClaimSelection();
-	SetHoverIndicatorPosition(sel.MainCaret());
+	SetHoverIndicatorPosition(Sel.MainCaret());
 	if(marginView.highlightDelimiter.NeedsDrawing(currentLine)) {
 		RedrawSelMargin();
 	}
@@ -793,18 +774,18 @@ void Editor::SetSelection(SelectionPosition currentPos_)
 {
 	currentPos_ = ClampPositionIntoDocument(currentPos_);
 	int currentLine = pdoc->LineFromPosition(currentPos_.Position());
-	if(sel.Count() > 1 || !(sel.RangeMain().caret == currentPos_)) {
+	if(Sel.Count() > 1 || !(Sel.RangeMain().caret == currentPos_)) {
 		InvalidateSelection(SelectionRange(currentPos_));
 	}
-	if(sel.IsRectangular()) {
-		sel.Rectangular() = SelectionRange(SelectionPosition(currentPos_), sel.Rectangular().anchor);
+	if(Sel.IsRectangular()) {
+		Sel.Rectangular() = SelectionRange(SelectionPosition(currentPos_), Sel.Rectangular().anchor);
 		SetRectangularRange();
 	}
 	else {
-		sel.RangeMain() = SelectionRange(SelectionPosition(currentPos_), sel.RangeMain().anchor);
+		Sel.RangeMain() = SelectionRange(SelectionPosition(currentPos_), Sel.RangeMain().anchor);
 	}
 	ClaimSelection();
-	SetHoverIndicatorPosition(sel.MainCaret());
+	SetHoverIndicatorPosition(Sel.MainCaret());
 	if(marginView.highlightDelimiter.NeedsDrawing(currentLine)) {
 		RedrawSelMargin();
 	}
@@ -820,14 +801,14 @@ void Editor::SetEmptySelection(SelectionPosition currentPos_)
 {
 	int currentLine = pdoc->LineFromPosition(currentPos_.Position());
 	SelectionRange rangeNew(ClampPositionIntoDocument(currentPos_));
-	if(sel.Count() > 1 || !(sel.RangeMain() == rangeNew)) {
+	if(Sel.Count() > 1 || !(Sel.RangeMain() == rangeNew)) {
 		InvalidateSelection(rangeNew);
 	}
-	sel.Clear();
-	sel.RangeMain() = rangeNew;
+	Sel.Clear();
+	Sel.RangeMain() = rangeNew;
 	SetRectangularRange();
 	ClaimSelection();
-	SetHoverIndicatorPosition(sel.MainCaret());
+	SetHoverIndicatorPosition(Sel.MainCaret());
 	if(marginView.highlightDelimiter.NeedsDrawing(currentLine)) {
 		RedrawSelMargin();
 	}
@@ -843,14 +824,14 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 {
 	if(SelectionEmpty() || !(Flags & fMultipleSelection)) {
 		// Select word at caret
-		const int startWord = pdoc->ExtendWordSelect(sel.MainCaret(), -1, true);
+		const int startWord = pdoc->ExtendWordSelect(Sel.MainCaret(), -1, true);
 		const int endWord = pdoc->ExtendWordSelect(startWord, 1, true);
 		TrimAndSetSelection(endWord, startWord);
 	}
 	else {
 		if(!pdoc->HasCaseFolder())
 			pdoc->SetCaseFolder(CaseFolderForEncoding());
-		const Range rangeMainSelection(sel.RangeMain().Start().Position(), sel.RangeMain().End().Position());
+		const Range rangeMainSelection(Sel.RangeMain().Start().Position(), Sel.RangeMain().End().Position());
 		const std::string selectedText = RangeText(rangeMainSelection.start, rangeMainSelection.end);
 		const Range rangeTarget(targetStart, targetEnd);
 		std::vector<Range> searchRanges;
@@ -875,8 +856,8 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 				int lengthFound = static_cast<int>(selectedText.length());
 				int pos = static_cast<int>(pdoc->FindText(searchStart, searchEnd, selectedText.c_str(), searchFlags, &lengthFound));
 				if(pos >= 0) {
-					sel.AddSelection(SelectionRange(pos + lengthFound, pos));
-					ScrollRange(sel.RangeMain());
+					Sel.AddSelection(SelectionRange(pos + lengthFound, pos));
+					ScrollRange(Sel.RangeMain());
 					Redraw();
 					if(addNumber == addOne)
 						return;
@@ -904,8 +885,8 @@ bool Editor::RangeContainsProtected(int start, int end) const
 
 bool Editor::SelectionContainsProtected()
 {
-	for(size_t r = 0; r<sel.Count(); r++) {
-		if(RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		if(RangeContainsProtected(Sel.Range(r).Start().Position(), Sel.Range(r).End().Position())) {
 			return true;
 		}
 	}
@@ -962,7 +943,7 @@ void Editor::MovedCaret(SelectionPosition newPos, SelectionPosition previousPos,
 	ShowCaretAtCurrentPosition();
 	NotifyCaretMove();
 	ClaimSelection();
-	SetHoverIndicatorPosition(sel.MainCaret());
+	SetHoverIndicatorPosition(Sel.MainCaret());
 	QueueIdleWork(WorkNeeded::workUpdateUI);
 	if(marginView.highlightDelimiter.NeedsDrawing(currentLine)) {
 		RedrawSelMargin();
@@ -971,26 +952,26 @@ void Editor::MovedCaret(SelectionPosition newPos, SelectionPosition previousPos,
 
 void Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, bool ensureVisible)
 {
-	const SelectionPosition spCaret = ((sel.Count() == 1) && sel.Empty()) ? sel.Last() : SelectionPosition(INVALID_POSITION);
-	int delta = newPos.Position() - sel.MainCaret();
+	const SelectionPosition spCaret = ((Sel.Count() == 1) && Sel.Empty()) ? Sel.Last() : SelectionPosition(INVALID_POSITION);
+	int delta = newPos.Position() - Sel.MainCaret();
 	newPos = ClampPositionIntoDocument(newPos);
 	newPos = MovePositionOutsideChar(newPos, delta);
-	if(!(Flags & fMultipleSelection) && sel.IsRectangular() && (selt == Selection::selStream)) {
+	if(!(Flags & fMultipleSelection) && Sel.IsRectangular() && (selt == Selection::selStream)) {
 		// Can't turn into multiple selection so clear additional selections
 		InvalidateSelection(SelectionRange(newPos), true);
-		sel.DropAdditionalRanges();
+		Sel.DropAdditionalRanges();
 	}
-	if(!sel.IsRectangular() && (selt == Selection::selRectangle)) {
+	if(!Sel.IsRectangular() && (selt == Selection::selRectangle)) {
 		// Switching to rectangular
-		InvalidateSelection(sel.RangeMain(), false);
-		SelectionRange rangeMain = sel.RangeMain();
-		sel.Clear();
-		sel.Rectangular() = rangeMain;
+		InvalidateSelection(Sel.RangeMain(), false);
+		SelectionRange rangeMain = Sel.RangeMain();
+		Sel.Clear();
+		Sel.Rectangular() = rangeMain;
 	}
 	if(selt != Selection::noSel) {
-		sel.selType = selt;
+		Sel.selType = selt;
 	}
-	if(selt != Selection::noSel || sel.MoveExtends()) {
+	if(selt != Selection::noSel || Sel.MoveExtends()) {
 		SetSelection(newPos);
 	}
 	else {
@@ -1027,14 +1008,9 @@ SelectionPosition Editor::MovePositionSoVisible(SelectionPosition pos, int moveD
 }
 
 SelectionPosition Editor::MovePositionSoVisible(int pos, int moveDir)
-{
-	return MovePositionSoVisible(SelectionPosition(pos), moveDir);
-}
-
+	{ return MovePositionSoVisible(SelectionPosition(pos), moveDir); }
 Point Editor::PointMainCaret()
-{
-	return LocationFromPosition(sel.Range(sel.Main()).caret);
-}
+	{ return LocationFromPosition(Sel.Range(Sel.Main()).caret); }
 
 /**
  * Choose the x position that the caret will try to stick to
@@ -1099,7 +1075,7 @@ void Editor::HorizontalScrollTo(int xPos)
 
 void Editor::VerticalCentreCaret()
 {
-	int lineDoc = pdoc->LineFromPosition(sel.IsRectangular() ? sel.Rectangular().caret.Position() : sel.MainCaret());
+	int lineDoc = pdoc->LineFromPosition(Sel.IsRectangular() ? Sel.Rectangular().caret.Position() : Sel.MainCaret());
 	int lineDisplay = cs.DisplayFromDoc(lineDoc);
 	int newTop = lineDisplay - (LinesOnScreen() / 2);
 	if(topLine != newTop) {
@@ -1507,7 +1483,7 @@ void Editor::ScrollRange(SelectionRange range)
 
 void Editor::EnsureCaretVisible(bool useMargin, bool vert, bool horiz)
 {
-	SetXYScroll(XYScrollToMakeVisible(SelectionRange(posDrag.IsValid() ? posDrag : sel.RangeMain().caret),
+	SetXYScroll(XYScrollToMakeVisible(SelectionRange(posDrag.IsValid() ? posDrag : Sel.RangeMain().caret),
 		    static_cast<XYScrollOptions>((useMargin ? xysUseMargin : 0)|(vert ? xysVertical : 0)|(horiz ? xysHorizontal : 0))));
 }
 
@@ -1561,8 +1537,8 @@ void Editor::InvalidateCaret()
 		InvalidateRange(posDrag.Position(), posDrag.Position() + 1);
 	}
 	else {
-		for(size_t r = 0; r < sel.Count(); r++) {
-			InvalidateRange(sel.Range(r).caret.Position(), sel.Range(r).caret.Position() + 1);
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			InvalidateRange(Sel.Range(r).caret.Position(), Sel.Range(r).caret.Position() + 1);
 		}
 	}
 	UpdateSystemCaret();
@@ -1989,9 +1965,9 @@ void FASTCALL Editor::AddChar(char ch)
 
 void Editor::FilterSelections()
 {
-	if(!(Flags & fAdditionalSelectionTyping) && (sel.Count() > 1)) {
+	if(!(Flags & fAdditionalSelectionTyping) && (Sel.Count() > 1)) {
 		InvalidateWholeSelection();
-		sel.DropAdditionalRanges();
+		Sel.DropAdditionalRanges();
 	}
 }
 
@@ -2005,11 +1981,11 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 {
 	FilterSelections();
 	{
-		UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty() || (EditModelFlags & fInOverstrike));
+		UndoGroup ug(pdoc, (Sel.Count() > 1) || !Sel.Empty() || (EditModelFlags & fInOverstrike));
 		// Vector elements point into selection in order to change selection.
 		std::vector<SelectionRange *> selPtrs;
-		for(size_t r = 0; r < sel.Count(); r++) {
-			selPtrs.push_back(&sel.Range(r));
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			selPtrs.push_back(&Sel.Range(r));
 		}
 		// Order selections by position in document.
 		std::sort(selPtrs.begin(), selPtrs.end(), cmpSelPtrs);
@@ -2090,22 +2066,22 @@ void Editor::ClearBeforeTentativeStart()
 {
 	// Make positions for the first composition string.
 	FilterSelections();
-	UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty() || (EditModelFlags & fInOverstrike));
-	for(size_t r = 0; r<sel.Count(); r++) {
-		if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
-			int positionInsert = sel.Range(r).Start().Position();
-			if(!sel.Range(r).Empty()) {
-				if(sel.Range(r).Length()) {
-					pdoc->DeleteChars(positionInsert, sel.Range(r).Length());
-					sel.Range(r).ClearVirtualSpace();
+	UndoGroup ug(pdoc, (Sel.Count() > 1) || !Sel.Empty() || (EditModelFlags & fInOverstrike));
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		if(!RangeContainsProtected(Sel.Range(r).Start().Position(), Sel.Range(r).End().Position())) {
+			int positionInsert = Sel.Range(r).Start().Position();
+			if(!Sel.Range(r).Empty()) {
+				if(Sel.Range(r).Length()) {
+					pdoc->DeleteChars(positionInsert, Sel.Range(r).Length());
+					Sel.Range(r).ClearVirtualSpace();
 				}
 				else {
 					// Range is all virtual so collapse to start of virtual space
-					sel.Range(r).MinimizeVirtualSpace();
+					Sel.Range(r).MinimizeVirtualSpace();
 				}
 			}
-			RealizeVirtualSpace(positionInsert, sel.Range(r).caret.VirtualSpace());
-			sel.Range(r).ClearVirtualSpace();
+			RealizeVirtualSpace(positionInsert, Sel.Range(r).caret.VirtualSpace());
+			Sel.Range(r).ClearVirtualSpace();
 		}
 	}
 }
@@ -2113,33 +2089,33 @@ void Editor::ClearBeforeTentativeStart()
 void Editor::InsertPaste(const char * text, int len)
 {
 	if(multiPasteMode == SC_MULTIPASTE_ONCE) {
-		SelectionPosition selStart = RealizeVirtualSpace(sel.Start());
+		SelectionPosition selStart = RealizeVirtualSpace(Sel.Start());
 		const int lengthInserted = pdoc->InsertString(selStart.Position(), text, len);
 		if(lengthInserted > 0)
 			SetEmptySelection(selStart.Position() + lengthInserted);
 	}
 	else {
 		// SC_MULTIPASTE_EACH
-		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
-				int positionInsert = sel.Range(r).Start().Position();
-				if(!sel.Range(r).Empty()) {
-					if(sel.Range(r).Length()) {
-						pdoc->DeleteChars(positionInsert, sel.Range(r).Length());
-						sel.Range(r).ClearVirtualSpace();
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			if(!RangeContainsProtected(Sel.Range(r).Start().Position(), Sel.Range(r).End().Position())) {
+				int positionInsert = Sel.Range(r).Start().Position();
+				if(!Sel.Range(r).Empty()) {
+					if(Sel.Range(r).Length()) {
+						pdoc->DeleteChars(positionInsert, Sel.Range(r).Length());
+						Sel.Range(r).ClearVirtualSpace();
 					}
 					else {
 						// Range is all virtual so collapse to start of virtual space
-						sel.Range(r).MinimizeVirtualSpace();
+						Sel.Range(r).MinimizeVirtualSpace();
 					}
 				}
-				positionInsert = RealizeVirtualSpace(positionInsert, sel.Range(r).caret.VirtualSpace());
+				positionInsert = RealizeVirtualSpace(positionInsert, Sel.Range(r).caret.VirtualSpace());
 				const int lengthInserted = pdoc->InsertString(positionInsert, text, len);
 				if(lengthInserted > 0) {
-					sel.Range(r).caret.SetPosition(positionInsert + lengthInserted);
-					sel.Range(r).anchor.SetPosition(positionInsert + lengthInserted);
+					Sel.Range(r).caret.SetPosition(positionInsert + lengthInserted);
+					Sel.Range(r).anchor.SetPosition(positionInsert + lengthInserted);
 				}
-				sel.Range(r).ClearVirtualSpace();
+				Sel.Range(r).ClearVirtualSpace();
 			}
 		}
 	}
@@ -2155,10 +2131,10 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 		text = convertedText.c_str();
 	}
 	if(shape == pasteRectangular) {
-		PasteRectangular(sel.Start(), text, len);
+		PasteRectangular(Sel.Start(), text, len);
 	}
 	else if(shape == pasteLine) {
-		int insertPos = pdoc->LineStart(pdoc->LineFromPosition(sel.MainCaret()));
+		int insertPos = pdoc->LineStart(pdoc->LineFromPosition(Sel.MainCaret()));
 		int lengthInserted = pdoc->InsertString(insertPos, text, len);
 		// add the newline if necessary
 		if((len > 0) && (text[len-1] != '\n' && text[len-1] != '\r')) {
@@ -2166,8 +2142,8 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 			int length = static_cast<int>(sstrlen(endline));
 			lengthInserted += pdoc->InsertString(insertPos + lengthInserted, endline, length);
 		}
-		if(sel.MainCaret() == insertPos) {
-			SetEmptySelection(sel.MainCaret() + lengthInserted);
+		if(Sel.MainCaret() == insertPos) {
+			SetEmptySelection(Sel.MainCaret() + lengthInserted);
 		}
 	}
 	else
@@ -2176,21 +2152,21 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 
 void FASTCALL Editor::ClearSelection(bool retainMultipleSelections)
 {
-	if(!sel.IsRectangular() && !retainMultipleSelections)
+	if(!Sel.IsRectangular() && !retainMultipleSelections)
 		FilterSelections();
 	UndoGroup ug(pdoc);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		if(!sel.Range(r).Empty()) {
-			if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
-				pdoc->DeleteChars(sel.Range(r).Start().Position(), sel.Range(r).Length());
-				sel.Range(r) = SelectionRange(sel.Range(r).Start());
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		if(!Sel.Range(r).Empty()) {
+			if(!RangeContainsProtected(Sel.Range(r).Start().Position(), Sel.Range(r).End().Position())) {
+				pdoc->DeleteChars(Sel.Range(r).Start().Position(), Sel.Range(r).Length());
+				Sel.Range(r) = SelectionRange(Sel.Range(r).Start());
 			}
 		}
 	}
 	ThinRectangularRange();
-	sel.RemoveDuplicates();
+	Sel.RemoveDuplicates();
 	ClaimSelection();
-	SetHoverIndicatorPosition(sel.MainCaret());
+	SetHoverIndicatorPosition(Sel.MainCaret());
 }
 
 void Editor::ClearAll()
@@ -2206,7 +2182,7 @@ void Editor::ClearAll()
 		}
 	}
 	view.ClearAllTabstops();
-	sel.Clear();
+	Sel.Clear();
 	SetTopLine(0);
 	SetVerticalScrollPos();
 	InvalidateStyleRedraw();
@@ -2251,12 +2227,12 @@ void Editor::PasteRectangular(SelectionPosition pos, const char * ptr, int len)
 	if(pdoc->IsReadOnly() || SelectionContainsProtected()) {
 		return;
 	}
-	sel.Clear();
-	sel.RangeMain() = SelectionRange(pos);
-	int line = pdoc->LineFromPosition(sel.MainCaret());
+	Sel.Clear();
+	Sel.RangeMain() = SelectionRange(pos);
+	int line = pdoc->LineFromPosition(Sel.MainCaret());
 	UndoGroup ug(pdoc);
-	sel.RangeMain().caret = RealizeVirtualSpace(sel.RangeMain().caret);
-	int xInsert = XFromPosition(sel.RangeMain().caret);
+	Sel.RangeMain().caret = RealizeVirtualSpace(Sel.RangeMain().caret);
+	int xInsert = XFromPosition(Sel.RangeMain().caret);
 	bool prevCr = false;
 	while((len > 0) && IsEOLChar(ptr[len-1]))
 		len--;
@@ -2271,19 +2247,19 @@ void Editor::PasteRectangular(SelectionPosition pos, const char * ptr, int len)
 					pdoc->InsertString(pdoc->Length(), "\n", 1);
 			}
 			// Pad the end of lines with spaces if required
-			sel.RangeMain().caret.SetPosition(PositionFromLineX(line, xInsert));
-			if((XFromPosition(sel.MainCaret()) < xInsert) && (i + 1 < len)) {
-				while(XFromPosition(sel.MainCaret()) < xInsert) {
+			Sel.RangeMain().caret.SetPosition(PositionFromLineX(line, xInsert));
+			if((XFromPosition(Sel.MainCaret()) < xInsert) && (i + 1 < len)) {
+				while(XFromPosition(Sel.MainCaret()) < xInsert) {
 					assert(pdoc);
-					const int lengthInserted = pdoc->InsertString(sel.MainCaret(), " ", 1);
-					sel.RangeMain().caret.Add(lengthInserted);
+					const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), " ", 1);
+					Sel.RangeMain().caret.Add(lengthInserted);
 				}
 			}
 			prevCr = ptr[i] == '\r';
 		}
 		else {
-			const int lengthInserted = pdoc->InsertString(sel.MainCaret(), ptr + i, 1);
-			sel.RangeMain().caret.Add(lengthInserted);
+			const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), ptr + i, 1);
+			Sel.RangeMain().caret.Add(lengthInserted);
 			prevCr = false;
 		}
 	}
@@ -2298,19 +2274,19 @@ bool Editor::CanPaste()
 void Editor::Clear()
 {
 	// If multiple selections, don't delete EOLS
-	if(sel.Empty()) {
-		const int main_caret = sel.MainCaret();
-		bool singleVirtual = (sel.Count() == 1 && !RangeContainsProtected(main_caret, main_caret + 1) && sel.RangeMain().Start().VirtualSpace()) ? true : false;
-		UndoGroup ug(pdoc, (sel.Count() > 1) || singleVirtual);
-		for(size_t r = 0; r < sel.Count(); r++) {
-			SelectionRange & r_sr = sel.Range(r);
+	if(Sel.Empty()) {
+		const int main_caret = Sel.MainCaret();
+		bool singleVirtual = (Sel.Count() == 1 && !RangeContainsProtected(main_caret, main_caret + 1) && Sel.RangeMain().Start().VirtualSpace()) ? true : false;
+		UndoGroup ug(pdoc, (Sel.Count() > 1) || singleVirtual);
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			SelectionRange & r_sr = Sel.Range(r);
 			if(!RangeContainsProtected(r_sr.caret.Position(), r_sr.caret.Position() + 1)) {
 				if(r_sr.Start().VirtualSpace()) {
 					const SelectionPosition & r_sp = (r_sr.anchor < r_sr.caret) ? r_sr.anchor : r_sr.caret;
-					sel.Range(r) = SelectionRange(RealizeVirtualSpace(r_sp.Position(), r_sp.VirtualSpace()));
-					r_sr = sel.Range(r);
+					Sel.Range(r) = SelectionRange(RealizeVirtualSpace(r_sp.Position(), r_sp.VirtualSpace()));
+					r_sr = Sel.Range(r);
 				}
-				if(sel.Count() == 1 || !pdoc->IsPositionInLineEnd(r_sr.caret.Position())) {
+				if(Sel.Count() == 1 || !pdoc->IsPositionInLineEnd(r_sr.caret.Position())) {
 					pdoc->DelChar(r_sr.caret.Position());
 					r_sr.ClearVirtualSpace();
 				}  // else multiple selection so don't eat line ends
@@ -2321,13 +2297,13 @@ void Editor::Clear()
 	}
 	else
 		ClearSelection();
-	sel.RemoveDuplicates();
+	Sel.RemoveDuplicates();
 	ShowCaretAtCurrentPosition();           // Avoid blinking
 }
 
 void Editor::SelectAll()
 {
-	sel.Clear();
+	Sel.Clear();
 	SetSelection(0, pdoc->Length());
 	Redraw();
 }
@@ -2356,23 +2332,23 @@ void Editor::Redo()
 void Editor::DelCharBack(bool allowLineStartDeletion)
 {
 	RefreshStyleData();
-	if(!sel.IsRectangular())
+	if(!Sel.IsRectangular())
 		FilterSelections();
-	if(sel.IsRectangular())
+	if(Sel.IsRectangular())
 		allowLineStartDeletion = false;
-	UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty());
-	if(sel.Empty()) {
-		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).caret.Position() - 1, sel.Range(r).caret.Position())) {
-				if(sel.Range(r).caret.VirtualSpace()) {
-					sel.Range(r).caret.SetVirtualSpace(sel.Range(r).caret.VirtualSpace() - 1);
-					sel.Range(r).anchor.SetVirtualSpace(sel.Range(r).caret.VirtualSpace());
+	UndoGroup ug(pdoc, (Sel.Count() > 1) || !Sel.Empty());
+	if(Sel.Empty()) {
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			if(!RangeContainsProtected(Sel.Range(r).caret.Position() - 1, Sel.Range(r).caret.Position())) {
+				if(Sel.Range(r).caret.VirtualSpace()) {
+					Sel.Range(r).caret.SetVirtualSpace(Sel.Range(r).caret.VirtualSpace() - 1);
+					Sel.Range(r).anchor.SetVirtualSpace(Sel.Range(r).caret.VirtualSpace());
 				}
 				else {
-					int lineCurrentPos = pdoc->LineFromPosition(sel.Range(r).caret.Position());
-					if(allowLineStartDeletion || (pdoc->LineStart(lineCurrentPos) != sel.Range(r).caret.Position())) {
-						if(pdoc->GetColumn(sel.Range(r).caret.Position()) <= pdoc->GetLineIndentation(lineCurrentPos) &&
-						    pdoc->GetColumn(sel.Range(r).caret.Position()) > 0 && pdoc->IsDocFlag(pdoc->dfBackspaceUnindents)) {
+					int lineCurrentPos = pdoc->LineFromPosition(Sel.Range(r).caret.Position());
+					if(allowLineStartDeletion || (pdoc->LineStart(lineCurrentPos) != Sel.Range(r).caret.Position())) {
+						if(pdoc->GetColumn(Sel.Range(r).caret.Position()) <= pdoc->GetLineIndentation(lineCurrentPos) &&
+						    pdoc->GetColumn(Sel.Range(r).caret.Position()) > 0 && pdoc->IsDocFlag(pdoc->dfBackspaceUnindents)) {
 							UndoGroup ugInner(pdoc, !ug.Needed());
 							int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 							int indentationStep = pdoc->IndentSize();
@@ -2382,16 +2358,16 @@ void Editor::DelCharBack(bool allowLineStartDeletion)
 							const int posSelect = pdoc->SetLineIndentation(lineCurrentPos,
 							    indentation - indentationChange);
 							// SetEmptySelection
-							sel.Range(r) = SelectionRange(posSelect);
+							Sel.Range(r) = SelectionRange(posSelect);
 						}
 						else {
-							pdoc->DelCharBack(sel.Range(r).caret.Position());
+							pdoc->DelCharBack(Sel.Range(r).caret.Position());
 						}
 					}
 				}
 			}
 			else {
-				sel.Range(r).ClearVirtualSpace();
+				Sel.Range(r).ClearVirtualSpace();
 			}
 		}
 		ThinRectangularRange();
@@ -2399,7 +2375,7 @@ void Editor::DelCharBack(bool allowLineStartDeletion)
 	else {
 		ClearSelection();
 	}
-	sel.RemoveDuplicates();
+	Sel.RemoveDuplicates();
 	ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 	// Avoid blinking during rapid typing:
 	ShowCaretAtCurrentPosition();
@@ -2412,7 +2388,7 @@ int Editor::ModifierFlags(bool shift, bool ctrl, bool alt, bool meta, bool super
 
 void Editor::NotifyFocus(bool focus)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = focus ? SCN_FOCUSIN : SCN_FOCUSOUT;
 	NotifyParent(scn);
 }
@@ -2424,7 +2400,7 @@ void Editor::SetCtrlID(int identifier)
 
 void Editor::NotifyStyleToNeeded(int endStyleNeeded)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_STYLENEEDED;
 	scn.position = endStyleNeeded;
 	NotifyParent(scn);
@@ -2446,7 +2422,7 @@ void Editor::NotifyErrorOccurred(Document *, void *, int status)
 
 void Editor::NotifyChar(int ch)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_CHARADDED;
 	scn.ch = ch;
 	NotifyParent(scn);
@@ -2454,26 +2430,21 @@ void Editor::NotifyChar(int ch)
 
 void Editor::NotifySavePoint(bool isSavePoint)
 {
-	SCNotification scn = {};
-	if(isSavePoint) {
-		scn.nmhdr.code = SCN_SAVEPOINTREACHED;
-	}
-	else {
-		scn.nmhdr.code = SCN_SAVEPOINTLEFT;
-	}
+	SCNotification scn; // = {};
+	scn.nmhdr.code = isSavePoint ? SCN_SAVEPOINTREACHED : isSavePoint;
 	NotifyParent(scn);
 }
 
 void Editor::NotifyModifyAttempt()
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_MODIFYATTEMPTRO;
 	NotifyParent(scn);
 }
 
 void Editor::NotifyDoubleClick(Point pt, int modifiers)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_DOUBLECLICK;
 	scn.line = LineFromLocation(pt);
 	scn.position = PositionFromLocation(pt, true);
@@ -2488,7 +2459,7 @@ void Editor::NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt)
 
 void Editor::NotifyHotSpotDoubleClicked(int position, int modifiers)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_HOTSPOTDOUBLECLICK;
 	scn.position = position;
 	scn.modifiers = modifiers;
@@ -2502,7 +2473,7 @@ void Editor::NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, boo
 
 void Editor::NotifyHotSpotClicked(int position, int modifiers)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_HOTSPOTCLICK;
 	scn.position = position;
 	scn.modifiers = modifiers;
@@ -2516,7 +2487,7 @@ void Editor::NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt)
 
 void Editor::NotifyHotSpotReleaseClick(int position, int modifiers)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_HOTSPOTRELEASECLICK;
 	scn.position = position;
 	scn.modifiers = modifiers;
@@ -2531,7 +2502,7 @@ void Editor::NotifyHotSpotReleaseClick(int position, bool shift, bool ctrl, bool
 bool Editor::NotifyUpdateUI()
 {
 	if(needUpdateUI) {
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		scn.nmhdr.code = SCN_UPDATEUI;
 		scn.updated = needUpdateUI;
 		NotifyParent(scn);
@@ -2543,7 +2514,7 @@ bool Editor::NotifyUpdateUI()
 
 void Editor::NotifyPainted()
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_PAINTED;
 	NotifyParent(scn);
 }
@@ -2552,7 +2523,7 @@ void Editor::NotifyIndicatorClick(bool click, int position, int modifiers)
 {
 	int mask = pdoc->decorations.AllOnFor(position);
 	if((click && mask) || pdoc->decorations.clickNotified) {
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		pdoc->decorations.clickNotified = click;
 		scn.nmhdr.code = click ? SCN_INDICATORCLICK : SCN_INDICATORRELEASE;
 		scn.modifiers = modifiers;
@@ -2569,7 +2540,7 @@ void Editor::NotifyIndicatorClick(bool click, int position, bool shift, bool ctr
 bool Editor::NotifyMarginClick(Point pt, int modifiers)
 {
 	const int marginClicked = vs.MarginFromLocation(pt);
-	if((marginClicked >= 0) && vs.ms[marginClicked].sensitive) {
+	if(marginClicked >= 0 && vs.ms[marginClicked].sensitive) {
 		int position = pdoc->LineStart(LineFromLocation(pt));
 		if((vs.ms[marginClicked].mask & SC_MASK_FOLDERS) && (foldAutomatic & SC_AUTOMATICFOLD_CLICK)) {
 			const bool ctrl = (modifiers & SCI_CTRL) != 0;
@@ -2594,19 +2565,19 @@ bool Editor::NotifyMarginClick(Point pt, int modifiers)
 					}
 				}
 			}
-			return true;
 		}
-		SCNotification scn = {};
-		scn.nmhdr.code = SCN_MARGINCLICK;
-		scn.modifiers = modifiers;
-		scn.position = position;
-		scn.margin = marginClicked;
-		NotifyParent(scn);
+		else {
+			SCNotification scn; // = {};
+			scn.nmhdr.code = SCN_MARGINCLICK;
+			scn.modifiers = modifiers;
+			scn.position = position;
+			scn.margin = marginClicked;
+			NotifyParent(scn);
+		}
 		return true;
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 bool Editor::NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt)
@@ -2619,7 +2590,7 @@ bool Editor::NotifyMarginRightClick(Point pt, int modifiers)
 	int marginRightClicked = vs.MarginFromLocation(pt);
 	if((marginRightClicked >= 0) && vs.ms[marginRightClicked].sensitive) {
 		int position = pdoc->LineStart(LineFromLocation(pt));
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		scn.nmhdr.code = SCN_MARGINRIGHTCLICK;
 		scn.modifiers = modifiers;
 		scn.position = position;
@@ -2634,7 +2605,7 @@ bool Editor::NotifyMarginRightClick(Point pt, int modifiers)
 
 void Editor::NotifyNeedShown(int pos, int len)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_NEEDSHOWN;
 	scn.position = pos;
 	scn.length = len;
@@ -2643,7 +2614,7 @@ void Editor::NotifyNeedShown(int pos, int len)
 
 void Editor::NotifyDwelling(Point pt, bool state)
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = state ? SCN_DWELLSTART : SCN_DWELLEND;
 	scn.position = PositionFromLocation(pt, true);
 	scn.x = static_cast<int>(pt.x + vs.ExternalMarginWidth());
@@ -2653,7 +2624,7 @@ void Editor::NotifyDwelling(Point pt, bool state)
 
 void Editor::NotifyZoom()
 {
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_ZOOM;
 	NotifyParent(scn);
 }
@@ -2740,12 +2711,12 @@ void Editor::NotifyModified(Document *, const DocModification & rMh, void *)
 	else {
 		// Move selection and brace highlights
 		if(rMh.modificationType & SC_MOD_INSERTTEXT) {
-			sel.MovePositions(true, rMh.position, rMh.length);
+			Sel.MovePositions(true, rMh.position, rMh.length);
 			braces[0] = MovePositionForInsertion(braces[0], rMh.position, rMh.length);
 			braces[1] = MovePositionForInsertion(braces[1], rMh.position, rMh.length);
 		}
 		else if(rMh.modificationType & SC_MOD_DELETETEXT) {
-			sel.MovePositions(false, rMh.position, rMh.length);
+			Sel.MovePositions(false, rMh.position, rMh.length);
 			braces[0] = MovePositionForDeletion(braces[0], rMh.position, rMh.length);
 			braces[1] = MovePositionForDeletion(braces[1], rMh.position, rMh.length);
 		}
@@ -2840,7 +2811,7 @@ void Editor::NotifyModified(Document *, const DocModification & rMh, void *)
 			// Real modification made to text of document.
 			NotifyChange(); // Send EN_CHANGE
 		}
-		SCNotification scn = {};
+		SCNotification scn; // = {};
 		scn.nmhdr.code = SCN_MODIFIED;
 		scn.position = rMh.position;
 		scn.modificationType = rMh.modificationType;
@@ -2982,7 +2953,7 @@ void Editor::NotifyMacroRecord(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    return;
 	}
 	// Send notification
-	SCNotification scn = {};
+	SCNotification scn; // = {};
 	scn.nmhdr.code = SCN_MACRORECORD;
 	scn.message = iMessage;
 	scn.wParam = wParam;
@@ -3005,7 +2976,7 @@ void Editor::PageMove(int direction, Selection::selTypes selt, bool stuttered)
 {
 	int topLineNew;
 	SelectionPosition newPos;
-	int currentLine = pdoc->LineFromPosition(sel.MainCaret());
+	int currentLine = pdoc->LineFromPosition(Sel.MainCaret());
 	int topStutterLine = topLine + caretYSlop;
 	const float _x = (lastXChosen - xOffset);
 	Point pt__(_x, 0.0f);
@@ -3022,7 +2993,7 @@ void Editor::PageMove(int direction, Selection::selTypes selt, bool stuttered)
 		newPos = SPositionFromLocation(pt__, false, false, UserVirtualSpace());
 	}
 	else {
-		const Point pt = LocationFromPosition(sel.MainCaret());
+		const Point pt = LocationFromPosition(Sel.MainCaret());
 		topLineNew = Platform::Clamp(topLine + direction * LinesToScroll(), 0, MaxScrollPos());
 		pt__.y = pt.y + direction * (vs.lineHeight * LinesToScroll());
 		newPos = SPositionFromLocation(pt__, false, false, UserVirtualSpace());
@@ -3041,8 +3012,8 @@ void Editor::PageMove(int direction, Selection::selTypes selt, bool stuttered)
 void Editor::ChangeCaseOfSelection(int caseMapping)
 {
 	UndoGroup ug(pdoc);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		SelectionRange current = sel.Range(r);
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		SelectionRange current = Sel.Range(r);
 		SelectionRange currentNoVS = current;
 		currentNoVS.ClearVirtualSpace();
 		size_t rangeBytes = currentNoVS.Length();
@@ -3078,7 +3049,7 @@ void Editor::ChangeCaseOfSelection(int caseMapping)
 					else
 						current.caret.Add(diffSizes);
 				}
-				sel.Range(r) = current;
+				Sel.Range(r) = current;
 			}
 		}
 	}
@@ -3086,7 +3057,7 @@ void Editor::ChangeCaseOfSelection(int caseMapping)
 
 void Editor::LineTranspose()
 {
-	int line = pdoc->LineFromPosition(sel.MainCaret());
+	int line = pdoc->LineFromPosition(Sel.MainCaret());
 	if(line > 0) {
 		UndoGroup ug(pdoc);
 		const int startPrevious = pdoc->LineStart(line - 1);
@@ -3105,7 +3076,7 @@ void Editor::LineTranspose()
 
 void Editor::Duplicate(bool forLine)
 {
-	if(sel.Empty()) {
+	if(Sel.Empty()) {
 		forLine = true;
 	}
 	UndoGroup ug(pdoc);
@@ -3115,11 +3086,11 @@ void Editor::Duplicate(bool forLine)
 		eol = StringFromEOLMode(pdoc->eolMode);
 		eolLen = istrlen(eol);
 	}
-	for(size_t r = 0; r<sel.Count(); r++) {
-		SelectionPosition start = sel.Range(r).Start();
-		SelectionPosition end = sel.Range(r).End();
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		SelectionPosition start = Sel.Range(r).Start();
+		SelectionPosition end = Sel.Range(r).End();
 		if(forLine) {
-			int line = pdoc->LineFromPosition(sel.Range(r).caret.Position());
+			int line = pdoc->LineFromPosition(Sel.Range(r).caret.Position());
 			start = SelectionPosition(pdoc->LineStart(line));
 			end = SelectionPosition(pdoc->LineEnd(line));
 		}
@@ -3129,46 +3100,46 @@ void Editor::Duplicate(bool forLine)
 			lengthInserted = pdoc->InsertString(end.Position(), eol, eolLen);
 		pdoc->InsertString(end.Position() + lengthInserted, text.c_str(), static_cast<int>(text.length()));
 	}
-	if(sel.Count() && sel.IsRectangular()) {
-		SelectionPosition last = sel.Last();
+	if(Sel.Count() && Sel.IsRectangular()) {
+		SelectionPosition last = Sel.Last();
 		if(forLine) {
 			int line = pdoc->LineFromPosition(last.Position());
 			last = SelectionPosition(last.Position() + pdoc->LineStart(line+1) - pdoc->LineStart(line));
 		}
-		if(sel.Rectangular().anchor > sel.Rectangular().caret)
-			sel.Rectangular().anchor = last;
+		if(Sel.Rectangular().anchor > Sel.Rectangular().caret)
+			Sel.Rectangular().anchor = last;
 		else
-			sel.Rectangular().caret = last;
+			Sel.Rectangular().caret = last;
 		SetRectangularRange();
 	}
 }
 
 void Editor::CancelModes()
 {
-	sel.SetMoveExtends(false);
+	Sel.SetMoveExtends(false);
 }
 
 void Editor::NewLine()
 {
 	InvalidateWholeSelection();
-	if(sel.IsRectangular() || !(Flags & fAdditionalSelectionTyping)) {
+	if(Sel.IsRectangular() || !(Flags & fAdditionalSelectionTyping)) {
 		// Remove non-main ranges
-		sel.DropAdditionalRanges();
+		Sel.DropAdditionalRanges();
 	}
-	UndoGroup ug(pdoc, !sel.Empty() || (sel.Count() > 1));
+	UndoGroup ug(pdoc, !Sel.Empty() || (Sel.Count() > 1));
 	// Clear each range
-	if(!sel.Empty()) {
+	if(!Sel.Empty()) {
 		ClearSelection();
 	}
 	// Insert each line end
 	size_t countInsertions = 0;
-	for(size_t r = 0; r < sel.Count(); r++) {
-		sel.Range(r).ClearVirtualSpace();
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		Sel.Range(r).ClearVirtualSpace();
 		const char * eol = StringFromEOLMode(pdoc->eolMode);
-		const int positionInsert = sel.Range(r).caret.Position();
+		const int positionInsert = Sel.Range(r).caret.Position();
 		const int insertLength = pdoc->InsertString(positionInsert, eol, istrlen(eol));
 		if(insertLength > 0) {
-			sel.Range(r) = SelectionRange(positionInsert + insertLength);
+			Sel.Range(r) = SelectionRange(positionInsert + insertLength);
 			countInsertions++;
 		}
 	}
@@ -3243,52 +3214,52 @@ SelectionPosition Editor::PositionUpOrDown(SelectionPosition spStart, int direct
 
 void Editor::CursorUpOrDown(int direction, Selection::selTypes selt)
 {
-	SelectionPosition caretToUse = sel.Range(sel.Main()).caret;
-	if(sel.IsRectangular()) {
+	SelectionPosition caretToUse = Sel.Range(Sel.Main()).caret;
+	if(Sel.IsRectangular()) {
 		if(selt ==  Selection::noSel) {
-			caretToUse = (direction > 0) ? sel.Limits().end : sel.Limits().start;
+			caretToUse = (direction > 0) ? Sel.Limits().end : Sel.Limits().start;
 		}
 		else {
-			caretToUse = sel.Rectangular().caret;
+			caretToUse = Sel.Rectangular().caret;
 		}
 	}
 	if(selt == Selection::selRectangle) {
-		const SelectionRange rangeBase = sel.IsRectangular() ? sel.Rectangular() : sel.RangeMain();
-		if(!sel.IsRectangular()) {
+		const SelectionRange rangeBase = Sel.IsRectangular() ? Sel.Rectangular() : Sel.RangeMain();
+		if(!Sel.IsRectangular()) {
 			InvalidateWholeSelection();
-			sel.DropAdditionalRanges();
+			Sel.DropAdditionalRanges();
 		}
 		const SelectionPosition posNew = MovePositionSoVisible(PositionUpOrDown(caretToUse, direction, lastXChosen), direction);
-		sel.selType = Selection::selRectangle;
-		sel.Rectangular() = SelectionRange(posNew, rangeBase.anchor);
+		Sel.selType = Selection::selRectangle;
+		Sel.Rectangular() = SelectionRange(posNew, rangeBase.anchor);
 		SetRectangularRange();
 		MovedCaret(posNew, caretToUse, true);
 	}
 	else {
 		InvalidateWholeSelection();
-		if(!(Flags & fAdditionalSelectionTyping) || (sel.IsRectangular())) {
-			sel.DropAdditionalRanges();
+		if(!(Flags & fAdditionalSelectionTyping) || Sel.IsRectangular()) {
+			Sel.DropAdditionalRanges();
 		}
-		sel.selType = Selection::selStream;
-		for(size_t r = 0; r < sel.Count(); r++) {
-			const int lastX = (r == sel.Main()) ? lastXChosen : -1;
-			const SelectionPosition spCaretNow = sel.Range(r).caret;
+		Sel.selType = Selection::selStream;
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			const int lastX = (r == Sel.Main()) ? lastXChosen : -1;
+			const SelectionPosition spCaretNow = Sel.Range(r).caret;
 			const SelectionPosition posNew = MovePositionSoVisible(PositionUpOrDown(spCaretNow, direction, lastX), direction);
-			sel.Range(r) = selt == Selection::selStream ? SelectionRange(posNew, sel.Range(r).anchor) : SelectionRange(posNew);
+			Sel.Range(r) = selt == Selection::selStream ? SelectionRange(posNew, Sel.Range(r).anchor) : SelectionRange(posNew);
 		}
-		sel.RemoveDuplicates();
-		MovedCaret(sel.RangeMain().caret, caretToUse, true);
+		Sel.RemoveDuplicates();
+		MovedCaret(Sel.RangeMain().caret, caretToUse, true);
 	}
 }
 
 void Editor::ParaUpOrDown(int direction, Selection::selTypes selt)
 {
-	int lineDoc, savedPos = sel.MainCaret();
+	int lineDoc, savedPos = Sel.MainCaret();
 	do {
-		MovePositionTo(SelectionPosition(direction > 0 ? pdoc->ParaDown(sel.MainCaret()) : pdoc->ParaUp(sel.MainCaret())), selt);
-		lineDoc = pdoc->LineFromPosition(sel.MainCaret());
+		MovePositionTo(SelectionPosition(direction > 0 ? pdoc->ParaDown(Sel.MainCaret()) : pdoc->ParaUp(Sel.MainCaret())), selt);
+		lineDoc = pdoc->LineFromPosition(Sel.MainCaret());
 		if(direction > 0) {
-			if(sel.MainCaret() >= pdoc->Length() && !cs.GetVisible(lineDoc)) {
+			if(Sel.MainCaret() >= pdoc->Length() && !cs.GetVisible(lineDoc)) {
 				if(selt == Selection::noSel) {
 					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
 				}
@@ -3427,19 +3398,19 @@ int Editor::LineEndWrapPosition(int position)
 
 int Editor::HorizontalMove(uint iMessage)
 {
-	if(sel.MoveExtends()) {
+	if(Sel.MoveExtends()) {
 		iMessage = WithExtends(iMessage);
 	}
-	if(!(Flags & fMultipleSelection) && !sel.IsRectangular()) {
+	if(!(Flags & fMultipleSelection) && !Sel.IsRectangular()) {
 		// Simplify selection down to 1
-		sel.SetSelection(sel.RangeMain());
+		Sel.SetSelection(Sel.RangeMain());
 	}
 	// Invalidate each of the current selections
 	InvalidateWholeSelection();
 	if(IsRectExtend(iMessage)) {
-		const SelectionRange rangeBase = sel.IsRectangular() ? sel.Rectangular() : sel.RangeMain();
-		if(!sel.IsRectangular()) {
-			sel.DropAdditionalRanges();
+		const SelectionRange rangeBase = Sel.IsRectangular() ? Sel.Rectangular() : Sel.RangeMain();
+		if(!Sel.IsRectangular()) {
+			Sel.DropAdditionalRanges();
 		}
 		// Will change to rectangular if not currently rectangular
 		SelectionPosition spCaret = rangeBase.caret;
@@ -3453,7 +3424,7 @@ int Editor::HorizontalMove(uint iMessage)
 			    }
 			    break;
 			case SCI_CHARRIGHTRECTEXTEND:
-			    if((virtualSpaceOptions & SCVS_RECTANGULARSELECTION) && pdoc->IsLineEndPosition(sel.MainCaret())) {
+			    if((virtualSpaceOptions & SCVS_RECTANGULARSELECTION) && pdoc->IsLineEndPosition(Sel.MainCaret())) {
 				    spCaret.SetVirtualSpace(spCaret.VirtualSpace() + 1);
 			    }
 			    else {
@@ -3472,24 +3443,23 @@ int Editor::HorizontalMove(uint iMessage)
 		}
 		const int directionMove = (spCaret < rangeBase.caret) ? -1 : 1;
 		spCaret = MovePositionSoVisible(spCaret, directionMove);
-		sel.selType = Selection::selRectangle;
-		sel.Rectangular() = SelectionRange(spCaret, rangeBase.anchor);
+		Sel.selType = Selection::selRectangle;
+		Sel.Rectangular() = SelectionRange(spCaret, rangeBase.anchor);
 		SetRectangularRange();
 	}
-	else if(sel.IsRectangular()) {
+	else if(Sel.IsRectangular()) {
 		// Not a rectangular extension so switch to stream.
-		const SelectionPosition selAtLimit =
-		    (NaturalDirection(iMessage) > 0) ? sel.Limits().end : sel.Limits().start;
-		sel.selType = Selection::selStream;
-		sel.SetSelection(SelectionRange(selAtLimit));
+		const SelectionPosition selAtLimit = (NaturalDirection(iMessage) > 0) ? Sel.Limits().end : Sel.Limits().start;
+		Sel.selType = Selection::selStream;
+		Sel.SetSelection(SelectionRange(selAtLimit));
 	}
 	else {
 		if(!(Flags & fAdditionalSelectionTyping)) {
 			InvalidateWholeSelection();
-			sel.DropAdditionalRanges();
+			Sel.DropAdditionalRanges();
 		}
-		for(size_t r = 0; r < sel.Count(); r++) {
-			const SelectionPosition spCaretNow = sel.Range(r).caret;
+		for(size_t r = 0; r < Sel.Count(); r++) {
+			const SelectionPosition spCaretNow = Sel.Range(r).caret;
 			SelectionPosition spCaret = spCaretNow;
 			switch(iMessage) {
 				case SCI_CHARLEFT:
@@ -3585,12 +3555,12 @@ int Editor::HorizontalMove(uint iMessage)
 			switch(iMessage) {
 				case SCI_CHARLEFT:
 				case SCI_CHARRIGHT:
-				    if(sel.Range(r).Empty()) {
-					    sel.Range(r) = SelectionRange(spCaret);
+				    if(Sel.Range(r).Empty()) {
+					    Sel.Range(r) = SelectionRange(spCaret);
 				    }
 				    else {
-					    sel.Range(r) = SelectionRange(
-					    (iMessage == SCI_CHARLEFT) ? sel.Range(r).Start() : sel.Range(r).End());
+					    Sel.Range(r) = SelectionRange(
+					    (iMessage == SCI_CHARLEFT) ? Sel.Range(r).Start() : Sel.Range(r).End());
 				    }
 				    break;
 
@@ -3608,10 +3578,7 @@ int Editor::HorizontalMove(uint iMessage)
 				case SCI_VCHOMEWRAP:
 				case SCI_LINEEND:
 				case SCI_LINEENDDISPLAY:
-				case SCI_LINEENDWRAP:
-				    sel.Range(r) = SelectionRange(spCaret);
-				    break;
-
+				case SCI_LINEENDWRAP: Sel.Range(r) = SelectionRange(spCaret); break;
 				case SCI_CHARLEFTEXTEND:
 				case SCI_CHARRIGHTEXTEND:
 				case SCI_WORDLEFTEXTEND:
@@ -3628,20 +3595,20 @@ int Editor::HorizontalMove(uint iMessage)
 				case SCI_VCHOMEWRAPEXTEND:
 				case SCI_LINEENDEXTEND:
 				case SCI_LINEENDDISPLAYEXTEND:
-				case SCI_LINEENDWRAPEXTEND: {
-				    SelectionRange rangeNew = SelectionRange(spCaret, sel.Range(r).anchor);
-				    sel.TrimOtherSelections(r, SelectionRange(rangeNew));
-				    sel.Range(r) = rangeNew;
-			    }
-			    break;
-
+				case SCI_LINEENDWRAPEXTEND: 
+					{
+						SelectionRange rangeNew = SelectionRange(spCaret, Sel.Range(r).anchor);
+						Sel.TrimOtherSelections(r, SelectionRange(rangeNew));
+						Sel.Range(r) = rangeNew;
+					}
+					break;
 				default:
 				    PLATFORM_ASSERT(false);
 			}
 		}
 	}
-	sel.RemoveDuplicates();
-	MovedCaret(sel.RangeMain().caret, SelectionPosition(INVALID_POSITION), true);
+	Sel.RemoveDuplicates();
+	MovedCaret(Sel.RangeMain().caret, SelectionPosition(INVALID_POSITION), true);
 	// Invalidate the new state of the selection
 	InvalidateWholeSelection();
 	SetLastXChosen();
@@ -3659,34 +3626,34 @@ int Editor::DelWordOrLine(uint iMessage)
 	const bool leftwards = (iMessage == SCI_DELWORDLEFT) || (iMessage == SCI_DELLINELEFT);
 	if(!(Flags & fAdditionalSelectionTyping)) {
 		InvalidateWholeSelection();
-		sel.DropAdditionalRanges();
+		Sel.DropAdditionalRanges();
 	}
-	UndoGroup ug0(pdoc, (sel.Count() > 1) || !leftwards);
-	for(size_t r = 0; r < sel.Count(); r++) {
+	UndoGroup ug0(pdoc, (Sel.Count() > 1) || !leftwards);
+	for(size_t r = 0; r < Sel.Count(); r++) {
 		if(leftwards) {
 			// Delete to the left so first clear the virtual space.
-			sel.Range(r).ClearVirtualSpace();
+			Sel.Range(r).ClearVirtualSpace();
 		}
 		else {
 			// Delete to the right so first realise the virtual space.
-			sel.Range(r) = SelectionRange(RealizeVirtualSpace(sel.Range(r).caret));
+			Sel.Range(r) = SelectionRange(RealizeVirtualSpace(Sel.Range(r).caret));
 		}
 		Range rangeDelete;
 		switch(iMessage) {
 			case SCI_DELWORDLEFT:
-			    rangeDelete = Range(pdoc->NextWordStart(sel.Range(r).caret.Position(), -1), sel.Range(r).caret.Position());
+			    rangeDelete = Range(pdoc->NextWordStart(Sel.Range(r).caret.Position(), -1), Sel.Range(r).caret.Position());
 			    break;
 			case SCI_DELWORDRIGHT:
-			    rangeDelete = Range(sel.Range(r).caret.Position(), pdoc->NextWordStart(sel.Range(r).caret.Position(), 1));
+			    rangeDelete = Range(Sel.Range(r).caret.Position(), pdoc->NextWordStart(Sel.Range(r).caret.Position(), 1));
 			    break;
 			case SCI_DELWORDRIGHTEND:
-			    rangeDelete = Range(sel.Range(r).caret.Position(), pdoc->NextWordEnd(sel.Range(r).caret.Position(), 1));
+			    rangeDelete = Range(Sel.Range(r).caret.Position(), pdoc->NextWordEnd(Sel.Range(r).caret.Position(), 1));
 			    break;
 			case SCI_DELLINELEFT:
-			    rangeDelete = Range(pdoc->LineStart(pdoc->LineFromPosition(sel.Range(r).caret.Position())), sel.Range(r).caret.Position());
+			    rangeDelete = Range(pdoc->LineStart(pdoc->LineFromPosition(Sel.Range(r).caret.Position())), Sel.Range(r).caret.Position());
 			    break;
 			case SCI_DELLINERIGHT:
-			    rangeDelete = Range(sel.Range(r).caret.Position(), pdoc->LineEnd(pdoc->LineFromPosition(sel.Range(r).caret.Position())));
+			    rangeDelete = Range(Sel.Range(r).caret.Position(), pdoc->LineEnd(pdoc->LineFromPosition(Sel.Range(r).caret.Position())));
 			    break;
 		}
 		if(!RangeContainsProtected(rangeDelete.start, rangeDelete.end)) {
@@ -3694,8 +3661,8 @@ int Editor::DelWordOrLine(uint iMessage)
 		}
 	}
 	// May need something stronger here: can selections overlap at this point?
-	sel.RemoveDuplicates();
-	MovedCaret(sel.RangeMain().caret, SelectionPosition(INVALID_POSITION), true);
+	Sel.RemoveDuplicates();
+	MovedCaret(Sel.RangeMain().caret, SelectionPosition(INVALID_POSITION), true);
 	// Invalidate the new state of the selection
 	InvalidateWholeSelection();
 	SetLastXChosen();
@@ -3818,10 +3785,10 @@ int Editor::KeyCommand(uint iMessage)
 		case SCI_CANCEL:        // Cancel any modes - handled in subclass
 		    // Also unselect text
 		    CancelModes();
-		    if(sel.Count() > 1) {
+		    if(Sel.Count() > 1) {
 			    // Drop additional selections
 			    InvalidateWholeSelection();
-			    sel.DropAdditionalRanges();
+			    Sel.DropAdditionalRanges();
 		    }
 		    break;
 		case SCI_DELETEBACK:
@@ -3900,7 +3867,7 @@ int Editor::KeyCommand(uint iMessage)
 			break;
 		case SCI_LINEDELETE: 
 			{
-				int line = pdoc->LineFromPosition(sel.MainCaret());
+				int line = pdoc->LineFromPosition(Sel.MainCaret());
 				int start = pdoc->LineStart(line);
 				int end = pdoc->LineStart(line + 1);
 				pdoc->DeleteChars(start, end - start);
@@ -3944,24 +3911,24 @@ int Editor::KeyDown(int key, bool shift, bool ctrl, bool alt, bool * consumed)
 void Editor::Indent(bool forwards)
 {
 	UndoGroup ug(pdoc);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		int lineOfAnchor = pdoc->LineFromPosition(sel.Range(r).anchor.Position());
-		int caretPosition = sel.Range(r).caret.Position();
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		int lineOfAnchor = pdoc->LineFromPosition(Sel.Range(r).anchor.Position());
+		int caretPosition = Sel.Range(r).caret.Position();
 		int lineCurrentPos = pdoc->LineFromPosition(caretPosition);
 		if(lineOfAnchor == lineCurrentPos) {
 			if(forwards) {
-				pdoc->DeleteChars(sel.Range(r).Start().Position(), sel.Range(r).Length());
-				caretPosition = sel.Range(r).caret.Position();
+				pdoc->DeleteChars(Sel.Range(r).Start().Position(), Sel.Range(r).Length());
+				caretPosition = Sel.Range(r).caret.Position();
 				if(pdoc->GetColumn(caretPosition) <= pdoc->GetColumn(pdoc->GetLineIndentPosition(lineCurrentPos)) && pdoc->IsDocFlag(pdoc->dfTabIndents)) {
 					int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 					int indentationStep = pdoc->IndentSize();
 					const int posSelect = pdoc->SetLineIndentation(lineCurrentPos, indentation + indentationStep - indentation % indentationStep);
-					sel.Range(r) = SelectionRange(posSelect);
+					Sel.Range(r) = SelectionRange(posSelect);
 				}
 				else {
 					if(pdoc->IsDocFlag(pdoc->dfUseTabs)) {
 						const int lengthInserted = pdoc->InsertString(caretPosition, "\t", 1);
-						sel.Range(r) = SelectionRange(caretPosition + lengthInserted);
+						Sel.Range(r) = SelectionRange(caretPosition + lengthInserted);
 					}
 					else {
 						int numSpaces = (pdoc->tabInChars) - (pdoc->GetColumn(caretPosition) % (pdoc->tabInChars));
@@ -3969,7 +3936,7 @@ void Editor::Indent(bool forwards)
 							numSpaces = pdoc->tabInChars;
 						const std::string spaceText(numSpaces, ' ');
 						const int lengthInserted = pdoc->InsertString(caretPosition, spaceText.c_str(), static_cast<int>(spaceText.length()));
-						sel.Range(r) = SelectionRange(caretPosition + lengthInserted);
+						Sel.Range(r) = SelectionRange(caretPosition + lengthInserted);
 					}
 				}
 			}
@@ -3978,7 +3945,7 @@ void Editor::Indent(bool forwards)
 					int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 					int indentationStep = pdoc->IndentSize();
 					const int posSelect = pdoc->SetLineIndentation(lineCurrentPos, indentation - indentationStep);
-					sel.Range(r) = SelectionRange(posSelect);
+					Sel.Range(r) = SelectionRange(posSelect);
 				}
 				else {
 					int newColumn = ((pdoc->GetColumn(caretPosition) - 1) / pdoc->tabInChars) * pdoc->tabInChars;
@@ -3986,31 +3953,31 @@ void Editor::Indent(bool forwards)
 					int newPos = caretPosition;
 					while(pdoc->GetColumn(newPos) > newColumn)
 						newPos--;
-					sel.Range(r) = SelectionRange(newPos);
+					Sel.Range(r) = SelectionRange(newPos);
 				}
 			}
 		}
 		else {          // Multiline
-			int anchorPosOnLine = sel.Range(r).anchor.Position() - pdoc->LineStart(lineOfAnchor);
+			int anchorPosOnLine = Sel.Range(r).anchor.Position() - pdoc->LineStart(lineOfAnchor);
 			int currentPosPosOnLine = caretPosition - pdoc->LineStart(lineCurrentPos);
 			// Multiple lines selected so indent / dedent
 			int lineTopSel = smin(lineOfAnchor, lineCurrentPos);
 			int lineBottomSel = smax(lineOfAnchor, lineCurrentPos);
-			if(pdoc->LineStart(lineBottomSel) == sel.Range(r).anchor.Position() || pdoc->LineStart(lineBottomSel) ==
+			if(pdoc->LineStart(lineBottomSel) == Sel.Range(r).anchor.Position() || pdoc->LineStart(lineBottomSel) ==
 			    caretPosition)
 				lineBottomSel--;        // If not selecting any characters on a line, do not indent
 			pdoc->Indent(forwards, lineBottomSel, lineTopSel);
 			if(lineOfAnchor < lineCurrentPos) {
 				if(currentPosPosOnLine == 0)
-					sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor));
+					Sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor));
 				else
-					sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos + 1), pdoc->LineStart(lineOfAnchor));
+					Sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos + 1), pdoc->LineStart(lineOfAnchor));
 			}
 			else {
 				if(anchorPosOnLine == 0)
-					sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor));
+					Sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor));
 				else
-					sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor + 1));
+					Sel.Range(r) = SelectionRange(pdoc->LineStart(lineCurrentPos), pdoc->LineStart(lineOfAnchor + 1));
 			}
 		}
 	}
@@ -4181,9 +4148,9 @@ std::string Editor::RangeText(int start, int end) const
 
 void Editor::CopySelectionRange(SelectionText * ss, bool allowLineCopy)
 {
-	if(sel.Empty()) {
+	if(Sel.Empty()) {
 		if(allowLineCopy) {
-			int currentLine = pdoc->LineFromPosition(sel.MainCaret());
+			int currentLine = pdoc->LineFromPosition(Sel.MainCaret());
 			int start = pdoc->LineStart(currentLine);
 			int end = pdoc->LineEnd(currentLine);
 			std::string text = RangeText(start, end);
@@ -4197,20 +4164,20 @@ void Editor::CopySelectionRange(SelectionText * ss, bool allowLineCopy)
 	}
 	else {
 		std::string text;
-		std::vector <SelectionRange> rangesInOrder = sel.RangesCopy();
-		if(sel.selType == Selection::selRectangle)
+		std::vector <SelectionRange> rangesInOrder = Sel.RangesCopy();
+		if(Sel.selType == Selection::selRectangle)
 			std::sort(rangesInOrder.begin(), rangesInOrder.end());
 		for(size_t r = 0; r<rangesInOrder.size(); r++) {
 			SelectionRange current = rangesInOrder[r];
 			text.append(RangeText(current.Start().Position(), current.End().Position()));
-			if(sel.selType == Selection::selRectangle) {
+			if(Sel.selType == Selection::selRectangle) {
 				if(pdoc->eolMode != SC_EOL_LF)
 					text.push_back('\r');
 				if(pdoc->eolMode != SC_EOL_CR)
 					text.push_back('\n');
 			}
 		}
-		ss->Copy(text, pdoc->dbcsCodePage, vs.styles[STYLE_DEFAULT].characterSet, sel.IsRectangular(), sel.selType == Selection::selLines);
+		ss->Copy(text, pdoc->dbcsCodePage, vs.styles[STYLE_DEFAULT].characterSet, Sel.IsRectangular(), Sel.selType == Selection::selLines);
 	}
 }
 
@@ -4287,13 +4254,13 @@ void Editor::DropAt(SelectionPosition position, const char * value, size_t lengt
 		SelectionPosition positionAfterDeletion = position;
 		if((inDragDrop == ddDragging) && moving) {
 			// Remove dragged out text
-			if(rectangular || sel.selType == Selection::selLines) {
-				for(size_t r = 0; r<sel.Count(); r++) {
-					if(position >= sel.Range(r).Start()) {
-						if(position > sel.Range(r).End())
-							positionAfterDeletion.Add(-sel.Range(r).Length());
+			if(rectangular || Sel.selType == Selection::selLines) {
+				for(size_t r = 0; r < Sel.Count(); r++) {
+					if(position >= Sel.Range(r).Start()) {
+						if(position > Sel.Range(r).End())
+							positionAfterDeletion.Add(-Sel.Range(r).Length());
 						else
-							positionAfterDeletion.Add(-SelectionRange(position, sel.Range(r).Start()).Length());
+							positionAfterDeletion.Add(-SelectionRange(position, Sel.Range(r).Start()).Length());
 					}
 				}
 			}
@@ -4312,7 +4279,7 @@ void Editor::DropAt(SelectionPosition position, const char * value, size_t lengt
 			SetEmptySelection(position);
 		}
 		else {
-			position = MovePositionOutsideChar(position, sel.MainCaret() - position.Position());
+			position = MovePositionOutsideChar(position, Sel.MainCaret() - position.Position());
 			position = RealizeVirtualSpace(position);
 			const int lengthInserted = pdoc->InsertString(
 			    position.Position(), convertedText.c_str(), static_cast<int>(convertedText.length()));
@@ -4332,15 +4299,14 @@ void Editor::DropAt(SelectionPosition position, const char * value, bool moving,
 {
 	DropAt(position, value, sstrlen(value), moving, rectangular);
 }
-
 /**
  * @return true if given position is inside the selection,
  */
 bool Editor::PositionInSelection(int pos)
 {
-	pos = MovePositionOutsideChar(pos, sel.MainCaret() - pos);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		if(sel.Range(r).Contains(pos))
+	pos = MovePositionOutsideChar(pos, Sel.MainCaret() - pos);
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		if(Sel.Range(r).Contains(pos))
 			return true;
 	}
 	return false;
@@ -4350,8 +4316,8 @@ bool Editor::PointInSelection(Point pt)
 {
 	SelectionPosition pos = SPositionFromLocation(pt, false, true);
 	Point ptPos = LocationFromPosition(pos);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		SelectionRange range = sel.Range(r);
+	for(size_t r = 0; r < Sel.Count(); r++) {
+		SelectionRange range = Sel.Range(r);
 		if(range.Contains(pos)) {
 			bool hit = true;
 			if(pos == range.Start()) {
@@ -4395,7 +4361,7 @@ Window::Cursor Editor::GetMarginCursor(Point pt) const
 
 void Editor::TrimAndSetSelection(int currentPos_, int anchor_)
 {
-	sel.TrimSelection(SelectionRange(currentPos_, anchor_));
+	Sel.TrimSelection(SelectionRange(currentPos_, anchor_));
 	SetSelection(currentPos_, anchor_);
 }
 
@@ -4503,11 +4469,11 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 	const bool shift = (modifiers & SCI_SHIFT) != 0;
 	const bool alt = (modifiers & SCI_ALT) != 0;
 	SelectionPosition newPos = SPositionFromLocation(pt, false, false, AllowVirtualSpace(virtualSpaceOptions, alt));
-	newPos = MovePositionOutsideChar(newPos, sel.MainCaret() - newPos.Position());
+	newPos = MovePositionOutsideChar(newPos, Sel.MainCaret() - newPos.Position());
 	SelectionPosition newCharPos = SPositionFromLocation(pt, false, true, false);
 	newCharPos = MovePositionOutsideChar(newCharPos, -1);
 	inDragDrop = ddNone;
-	sel.SetMoveExtends(false);
+	Sel.SetMoveExtends(false);
 	if(NotifyMarginClick(pt, modifiers))
 		return;
 	NotifyIndicatorClick(true, newPos.Position(), modifiers);
@@ -4557,18 +4523,18 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 				}
 				else {
 					selectionType = selChar;
-					originalAnchorPos = sel.MainCaret();
+					originalAnchorPos = Sel.MainCaret();
 				}
 			}
 		}
 		if(selectionType == selWord) {
 			int charPos = originalAnchorPos;
-			if(sel.MainCaret() == originalAnchorPos) {
+			if(Sel.MainCaret() == originalAnchorPos) {
 				charPos = PositionFromLocation(pt, false, true);
 				charPos = MovePositionOutsideChar(charPos, -1);
 			}
 			int startWord, endWord;
-			if((sel.MainCaret() >= originalAnchorPos) && !pdoc->IsLineEndPosition(charPos)) {
+			if((Sel.MainCaret() >= originalAnchorPos) && !pdoc->IsLineEndPosition(charPos)) {
 				startWord = pdoc->ExtendWordSelect(pdoc->MovePositionOutsideChar(charPos + 1, 1), -1);
 				endWord = pdoc->ExtendWordSelect(charPos, 1);
 			}
@@ -4587,7 +4553,7 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 			}
 			wordSelectAnchorStartPos = startWord;
 			wordSelectAnchorEndPos = endWord;
-			wordSelectInitialCaretPos = sel.MainCaret();
+			wordSelectInitialCaretPos = Sel.MainCaret();
 			WordSelection(wordSelectInitialCaretPos);
 		}
 		else if(oneof2(selectionType, selSubLine, selWholeLine)) {
@@ -4596,7 +4562,7 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 			//Platform::DebugPrintf("Triple click: %d - %d\n", anchor, currentPos);
 		}
 		else {
-			SetEmptySelection(sel.MainCaret());
+			SetEmptySelection(Sel.MainCaret());
 		}
 		//Platform::DebugPrintf("Double click: %d - %d\n", anchor, currentPos);
 		if(doubleClick) {
@@ -4607,11 +4573,11 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 	}
 	else { // Single click
 		if(inSelMargin) {
-			if(sel.IsRectangular() || (sel.Count() > 1)) {
+			if(Sel.IsRectangular() || Sel.Count() > 1) {
 				InvalidateWholeSelection();
-				sel.Clear();
+				Sel.Clear();
 			}
-			sel.selType = Selection::selStream;
+			Sel.selType = Selection::selStream;
 			if(!shift) {
 				// Single click in margin: select whole line or only subline if word wrap is enabled
 				lineAnchorPos = newPos.Position();
@@ -4620,16 +4586,16 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 			}
 			else {
 				// Single shift+click in margin: select from line anchor to clicked line
-				if(sel.MainAnchor() > sel.MainCaret())
-					lineAnchorPos = sel.MainAnchor() - 1;
+				if(Sel.MainAnchor() > Sel.MainCaret())
+					lineAnchorPos = Sel.MainAnchor() - 1;
 				else
-					lineAnchorPos = sel.MainAnchor();
+					lineAnchorPos = Sel.MainAnchor();
 				// Reset selection type if there is an empty selection.
 				// This ensures that we don't end up stuck in previous selection mode, which is no longer valid.
 				// Otherwise, if there's a non empty selection, reset selection type only if it differs from selSubLine and
 				// selWholeLine.
 				// This ensures that we continue selecting in the same selection mode.
-				if(sel.Empty() || (selectionType != selSubLine && selectionType != selWholeLine))
+				if(Sel.Empty() || (selectionType != selSubLine && selectionType != selWholeLine))
 					selectionType = (Wrapping() && (marginOptions & SC_MARGINOPTION_SUBLINESELECT)) ? selSubLine : selWholeLine;
 				LineSelection(newPos.Position(), lineAnchorPos, selectionType == selWholeLine);
 			}
@@ -4653,26 +4619,26 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 				if(!shift) {
 					if(ctrl && Flags & fMultipleSelection) {
 						SelectionRange range(newPos);
-						sel.TentativeSelection(range);
+						Sel.TentativeSelection(range);
 						InvalidateSelection(range, true);
 					}
 					else {
 						InvalidateSelection(SelectionRange(newPos), true);
-						if(sel.Count() > 1)
+						if(Sel.Count() > 1)
 							Redraw();
-						if((sel.Count() > 1) || (sel.selType != Selection::selStream))
-							sel.Clear();
-						sel.selType = alt ? Selection::selRectangle : Selection::selStream;
+						if((Sel.Count() > 1) || (Sel.selType != Selection::selStream))
+							Sel.Clear();
+						Sel.selType = alt ? Selection::selRectangle : Selection::selStream;
 						SetSelection(newPos, newPos);
 					}
 				}
 				SelectionPosition anchorCurrent = newPos;
 				if(shift)
-					anchorCurrent = sel.IsRectangular() ? sel.Rectangular().anchor : sel.RangeMain().anchor;
-				sel.selType = alt ? Selection::selRectangle : Selection::selStream;
+					anchorCurrent = Sel.IsRectangular() ? Sel.Rectangular().anchor : Sel.RangeMain().anchor;
+				Sel.selType = alt ? Selection::selRectangle : Selection::selStream;
 				selectionType = selChar;
-				originalAnchorPos = sel.MainCaret();
-				sel.Rectangular() = SelectionRange(newPos, anchorCurrent);
+				originalAnchorPos = Sel.MainCaret();
+				Sel.Rectangular() = SelectionRange(newPos, anchorCurrent);
 				SetRectangularRange();
 			}
 		}
@@ -4767,8 +4733,8 @@ void Editor::ButtonMoveWithModifiers(Point pt, int modifiers)
 	if((ptMouseLast.x != pt.x) || (ptMouseLast.y != pt.y)) {
 		DwellEnd(true);
 	}
-	SelectionPosition movePos = SPositionFromLocation(pt, false, false, AllowVirtualSpace(virtualSpaceOptions, sel.IsRectangular()));
-	movePos = MovePositionOutsideChar(movePos, sel.MainCaret() - movePos.Position());
+	SelectionPosition movePos = SPositionFromLocation(pt, false, false, AllowVirtualSpace(virtualSpaceOptions, Sel.IsRectangular()));
+	movePos = MovePositionOutsideChar(movePos, Sel.MainCaret() - movePos.Position());
 	if(inDragDrop == ddInitial) {
 		if(DragThreshold(ptMouseLast, pt)) {
 			SetMouseCapture(false);
@@ -4801,22 +4767,21 @@ void Editor::ButtonMoveWithModifiers(Point pt, int modifiers)
 		}
 		else {
 			if(selectionType == selChar) {
-				if(sel.selType == Selection::selStream && (modifiers & SCI_ALT) && Flags & fMouseSelectionRectangularSwitch) {
-					sel.selType = Selection::selRectangle;
+				if(Sel.selType == Selection::selStream && (modifiers & SCI_ALT) && Flags & fMouseSelectionRectangularSwitch) {
+					Sel.selType = Selection::selRectangle;
 				}
-				if(sel.IsRectangular()) {
-					sel.Rectangular() = SelectionRange(movePos, sel.Rectangular().anchor);
-					SetSelection(movePos, sel.RangeMain().anchor);
+				if(Sel.IsRectangular()) {
+					Sel.Rectangular() = SelectionRange(movePos, Sel.Rectangular().anchor);
+					SetSelection(movePos, Sel.RangeMain().anchor);
 				}
-				else if(sel.Count() > 1) {
-					InvalidateSelection(sel.RangeMain(), false);
-					SelectionRange range(movePos, sel.RangeMain().anchor);
-					sel.TentativeSelection(range);
+				else if(Sel.Count() > 1) {
+					InvalidateSelection(Sel.RangeMain(), false);
+					SelectionRange range(movePos, Sel.RangeMain().anchor);
+					Sel.TentativeSelection(range);
 					InvalidateSelection(range, true);
 				}
-				else {
-					SetSelection(movePos, sel.RangeMain().anchor);
-				}
+				else
+					SetSelection(movePos, Sel.RangeMain().anchor);
 			}
 			else if(selectionType == selWord) {
 				// Continue selecting by word
@@ -4895,15 +4860,15 @@ void Editor::ButtonMove(Point pt)
 void Editor::ButtonUp(Point pt, uint curTime, bool ctrl)
 {
 	//Platform::DebugPrintf("ButtonUp %d %d\n", HaveMouseCapture(), inDragDrop);
-	SelectionPosition newPos = SPositionFromLocation(pt, false, false, AllowVirtualSpace(virtualSpaceOptions, sel.IsRectangular()));
+	SelectionPosition newPos = SPositionFromLocation(pt, false, false, AllowVirtualSpace(virtualSpaceOptions, Sel.IsRectangular()));
 	if(hoverIndicatorPos != INVALID_POSITION)
 		InvalidateRange(newPos.Position(), newPos.Position() + 1);
-	newPos = MovePositionOutsideChar(newPos, sel.MainCaret() - newPos.Position());
+	newPos = MovePositionOutsideChar(newPos, Sel.MainCaret() - newPos.Position());
 	if(inDragDrop == ddInitial) {
 		inDragDrop = ddNone;
 		SetEmptySelection(newPos);
 		selectionType = selChar;
-		originalAnchorPos = sel.MainCaret();
+		originalAnchorPos = Sel.MainCaret();
 	}
 	if(hotSpotClickPos != INVALID_POSITION && PointIsHotspot(pt)) {
 		hotSpotClickPos = INVALID_POSITION;
@@ -4962,21 +4927,21 @@ void Editor::ButtonUp(Point pt, uint curTime, bool ctrl)
 		}
 		else {
 			if(selectionType == selChar) {
-				if(sel.Count() > 1) {
-					sel.RangeMain() = SelectionRange(newPos, sel.Range(sel.Count() - 1).anchor);
+				if(Sel.Count() > 1) {
+					Sel.RangeMain() = SelectionRange(newPos, Sel.Range(Sel.Count() - 1).anchor);
 					InvalidateWholeSelection();
 				}
 				else {
-					SetSelection(newPos, sel.RangeMain().anchor);
+					SetSelection(newPos, Sel.RangeMain().anchor);
 				}
 			}
-			sel.CommitTentative();
+			Sel.CommitTentative();
 		}
 		SetRectangularRange();
 		lastClickTime = curTime;
 		lastClick = pt;
 		lastXChosen = static_cast<int>(pt.x) + xOffset;
-		if(sel.selType == Selection::selStream) {
+		if(Sel.selType == Selection::selStream) {
 			SetLastXChosen();
 		}
 		inDragDrop = ddNone;
@@ -5292,7 +5257,7 @@ void Editor::SetDocPointer(Document * document)
 	pdoc = NZOR(document, new Document());
 	pdoc->AddRef();
 	// Ensure all positions within document
-	sel.Clear();
+	Sel.Clear();
 	targetStart = 0;
 	targetEnd = 0;
 	braces[0] = invalidPosition;
@@ -5369,7 +5334,7 @@ void Editor::FoldLine(int line, int action)
 			if(lineMaxSubord > line) {
 				cs.SetExpanded(line, 0);
 				cs.SetVisible(line + 1, lineMaxSubord, false);
-				int lineCurrent = pdoc->LineFromPosition(sel.MainCaret());
+				int lineCurrent = pdoc->LineFromPosition(Sel.MainCaret());
 				if(lineCurrent > line && lineCurrent <= lineMaxSubord) {
 					EnsureCaretVisible(); // This does not re-expand the fold
 				}
@@ -5665,7 +5630,7 @@ void Editor::AddStyledText(char * buffer, int appendLength)
 	}
 	pdoc->StartStyling(CurrentPosition(), static_cast<uchar>(0xff));
 	pdoc->SetStyles(textLength, text.c_str());
-	SetEmptySelection(sel.MainCaret() + lengthInserted);
+	SetEmptySelection(Sel.MainCaret() + lengthInserted);
 }
 
 bool Editor::ValidMargin(uptr_t wParam) const
@@ -5758,16 +5723,16 @@ sptr_t Editor::StyleGetMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 
 void Editor::SetSelectionNMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 {
-	InvalidateRange(sel.Range(wParam).Start().Position(), sel.Range(wParam).End().Position());
+	InvalidateRange(Sel.Range(wParam).Start().Position(), Sel.Range(wParam).End().Position());
 	switch(iMessage) {
-		case SCI_SETSELECTIONNCARET: sel.Range(wParam).caret.SetPosition(static_cast<int>(lParam)); break;
-		case SCI_SETSELECTIONNANCHOR: sel.Range(wParam).anchor.SetPosition(static_cast<int>(lParam)); break;
-		case SCI_SETSELECTIONNCARETVIRTUALSPACE: sel.Range(wParam).caret.SetVirtualSpace(static_cast<int>(lParam)); break;
-		case SCI_SETSELECTIONNANCHORVIRTUALSPACE: sel.Range(wParam).anchor.SetVirtualSpace(static_cast<int>(lParam)); break;
-		case SCI_SETSELECTIONNSTART: sel.Range(wParam).anchor.SetPosition(static_cast<int>(lParam)); break;
-		case SCI_SETSELECTIONNEND: sel.Range(wParam).caret.SetPosition(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNCARET: Sel.Range(wParam).caret.SetPosition(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNANCHOR: Sel.Range(wParam).anchor.SetPosition(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNCARETVIRTUALSPACE: Sel.Range(wParam).caret.SetVirtualSpace(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNANCHORVIRTUALSPACE: Sel.Range(wParam).anchor.SetVirtualSpace(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNSTART: Sel.Range(wParam).anchor.SetPosition(static_cast<int>(lParam)); break;
+		case SCI_SETSELECTIONNEND: Sel.Range(wParam).caret.SetPosition(static_cast<int>(lParam)); break;
 	}
-	InvalidateRange(sel.Range(wParam).Start().Position(), sel.Range(wParam).End().Position());
+	InvalidateRange(Sel.Range(wParam).Start().Position(), Sel.Range(wParam).End().Position());
 	ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 }
 
@@ -5787,7 +5752,7 @@ sptr_t Editor::StringResult(sptr_t lParam, const char * val)
 sptr_t Editor::BytesResult(sptr_t lParam, const uchar * val, size_t len)
 {
 	// No NUL termination: len is number of valid/displayed bytes
-	if((lParam) && (len > 0)) {
+	if(lParam && len > 0) {
 		char * ptr = CharPtrFromSPtr(lParam);
 		if(val)
 			memcpy(ptr, val, len);
@@ -5888,8 +5853,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				if(nStart < 0)
 					nStart = nEnd;      // Remove selection
 				InvalidateSelection(SelectionRange(nStart, nEnd));
-				sel.Clear();
-				sel.selType = Selection::selStream;
+				Sel.Clear();
+				Sel.selType = Selection::selStream;
 				SetSelection(nEnd, nStart);
 				EnsureCaretVisible();
 			}
@@ -5938,8 +5903,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				UndoGroup ug(pdoc);
 				ClearSelection();
 				char * replacement = CharPtrFromSPtr(lParam);
-				const int lengthInserted = pdoc->InsertString(sel.MainCaret(), replacement, istrlen(replacement));
-				SetEmptySelection(sel.MainCaret() + lengthInserted);
+				const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), replacement, istrlen(replacement));
+				SetEmptySelection(Sel.MainCaret() + lengthInserted);
 				EnsureCaretVisible();
 			}
 			break;
@@ -5956,13 +5921,13 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    targetEnd = pdoc->Length();
 		    break;
 		case SCI_TARGETFROMSELECTION:
-		    if(sel.MainCaret() < sel.MainAnchor()) {
-			    targetStart = sel.MainCaret();
-			    targetEnd = sel.MainAnchor();
+		    if(Sel.MainCaret() < Sel.MainAnchor()) {
+			    targetStart = Sel.MainCaret();
+			    targetEnd = Sel.MainAnchor();
 		    }
 		    else {
-			    targetStart = sel.MainAnchor();
-			    targetEnd = sel.MainCaret();
+			    targetStart = Sel.MainAnchor();
+			    targetEnd = Sel.MainCaret();
 		    }
 		    break;
 		case SCI_GETTARGETTEXT: 
@@ -6057,7 +6022,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_ADDTEXT:
 		    if(lParam) {
 			    const int lengthInserted = pdoc->InsertString(CurrentPosition(), CharPtrFromSPtr(lParam), static_cast<int>(wParam));
-			    SetEmptySelection(sel.MainCaret() + lengthInserted);
+			    SetEmptySelection(Sel.MainCaret() + lengthInserted);
 			}
 		    return 0;
 		case SCI_ADDSTYLEDTEXT:
@@ -6081,32 +6046,16 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    PLATFORM_ASSERT(lParam);
 		    pdoc->ChangeInsertion(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
 		    return 0;
-		case SCI_APPENDTEXT:
-		    pdoc->InsertString(pdoc->Length(), CharPtrFromSPtr(lParam), static_cast<int>(wParam));
-		    return 0;
-		case SCI_CLEARALL:
-		    ClearAll();
-		    return 0;
-		case SCI_DELETERANGE:
-		    pdoc->DeleteChars(static_cast<int>(wParam), static_cast<int>(lParam));
-		    return 0;
-		case SCI_CLEARDOCUMENTSTYLE:
-		    ClearDocumentStyle();
-		    return 0;
-		case SCI_SETUNDOCOLLECTION:
-		    pdoc->SetUndoCollection(wParam != 0);
-		    return 0;
+		case SCI_APPENDTEXT: pdoc->InsertString(pdoc->Length(), CharPtrFromSPtr(lParam), static_cast<int>(wParam)); return 0;
+		case SCI_CLEARALL: ClearAll(); return 0;
+		case SCI_DELETERANGE: pdoc->DeleteChars(static_cast<int>(wParam), static_cast<int>(lParam)); return 0;
+		case SCI_CLEARDOCUMENTSTYLE: ClearDocumentStyle(); return 0;
+		case SCI_SETUNDOCOLLECTION: pdoc->SetUndoCollection(wParam != 0); return 0;
 		case SCI_GETUNDOCOLLECTION: return pdoc->IsCollectingUndo();
-		case SCI_BEGINUNDOACTION:
-		    pdoc->BeginUndoAction();
-		    return 0;
-		case SCI_ENDUNDOACTION:
-		    pdoc->EndUndoAction();
-		    return 0;
+		case SCI_BEGINUNDOACTION: pdoc->BeginUndoAction(); return 0;
+		case SCI_ENDUNDOACTION: pdoc->EndUndoAction(); return 0;
 		case SCI_GETCARETPERIOD: return caret.period;
-		case SCI_SETCARETPERIOD:
-		    CaretSetPeriod(static_cast<int>(wParam));
-		    break;
+		case SCI_SETCARETPERIOD: CaretSetPeriod(static_cast<int>(wParam)); break;
 		case SCI_GETWORDCHARS: return pdoc->GetCharsOfClass(CharClassify::ccWord, reinterpret_cast<uchar *>(lParam));
 		case SCI_SETWORDCHARS: 
 			{
@@ -6124,8 +6073,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccSpace);
 			}
 			break;
-		case SCI_GETPUNCTUATIONCHARS:
-		    return pdoc->GetCharsOfClass(CharClassify::ccPunctuation, reinterpret_cast<uchar *>(lParam));
+		case SCI_GETPUNCTUATIONCHARS: return pdoc->GetCharsOfClass(CharClassify::ccPunctuation, reinterpret_cast<uchar *>(lParam));
 		case SCI_SETPUNCTUATIONCHARS:
 		    if(lParam == 0)
 			    return 0;
@@ -6137,35 +6085,31 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_ALLOCATE: pdoc->Allocate(static_cast<int>(wParam)); break;
 		case SCI_GETCHARAT: return pdoc->CharAt(static_cast<int>(wParam));
 		case SCI_SETCURRENTPOS:
-		    if(sel.IsRectangular()) {
-			    sel.Rectangular().caret.SetPosition(static_cast<int>(wParam));
+		    if(Sel.IsRectangular()) {
+			    Sel.Rectangular().caret.SetPosition(static_cast<int>(wParam));
 			    SetRectangularRange();
 			    Redraw();
 		    }
 		    else {
-			    SetSelection(static_cast<int>(wParam), sel.MainAnchor());
+			    SetSelection(static_cast<int>(wParam), Sel.MainAnchor());
 		    }
 		    break;
-		case SCI_GETCURRENTPOS: return sel.IsRectangular() ? sel.Rectangular().caret.Position() : sel.MainCaret();
+		case SCI_GETCURRENTPOS: return Sel.IsRectangular() ? Sel.Rectangular().caret.Position() : Sel.MainCaret();
 		case SCI_SETANCHOR:
-		    if(sel.IsRectangular()) {
-			    sel.Rectangular().anchor.SetPosition(static_cast<int>(wParam));
+		    if(Sel.IsRectangular()) {
+			    Sel.Rectangular().anchor.SetPosition(static_cast<int>(wParam));
 			    SetRectangularRange();
 			    Redraw();
 		    }
 		    else {
-			    SetSelection(sel.MainCaret(), static_cast<int>(wParam));
+			    SetSelection(Sel.MainCaret(), static_cast<int>(wParam));
 		    }
 		    break;
-		case SCI_GETANCHOR: return sel.IsRectangular() ? sel.Rectangular().anchor.Position() : sel.MainAnchor();
-		case SCI_SETSELECTIONSTART:
-		    SetSelection(smax(sel.MainCaret(), static_cast<int>(wParam)), static_cast<int>(wParam));
-		    break;
-		case SCI_GETSELECTIONSTART: return sel.LimitsForRectangularElseMain().start.Position();
-		case SCI_SETSELECTIONEND:
-		    SetSelection(static_cast<int>(wParam), smin(sel.MainAnchor(), static_cast<int>(wParam)));
-		    break;
-		case SCI_GETSELECTIONEND: return sel.LimitsForRectangularElseMain().end.Position();
+		case SCI_GETANCHOR: return Sel.IsRectangular() ? Sel.Rectangular().anchor.Position() : Sel.MainAnchor();
+		case SCI_SETSELECTIONSTART: SetSelection(smax(Sel.MainCaret(), static_cast<int>(wParam)), static_cast<int>(wParam)); break;
+		case SCI_GETSELECTIONSTART: return Sel.LimitsForRectangularElseMain().start.Position();
+		case SCI_SETSELECTIONEND: SetSelection(static_cast<int>(wParam), smin(Sel.MainAnchor(), static_cast<int>(wParam))); break;
+		case SCI_GETSELECTIONEND: return Sel.LimitsForRectangularElseMain().end.Position();
 		case SCI_SETEMPTYSELECTION: SetEmptySelection(static_cast<int>(wParam)); break;
 		case SCI_SETPRINTMAGNIFICATION: view.printParameters.magnification = static_cast<int>(wParam); break;
 		case SCI_GETPRINTMAGNIFICATION: return view.printParameters.magnification;
@@ -6222,7 +6166,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    break;
 		case SCI_GETCURLINE: 
 			{
-				int lineCurrentPos = pdoc->LineFromPosition(sel.MainCaret());
+				int lineCurrentPos = pdoc->LineFromPosition(Sel.MainCaret());
 				int lineStart = pdoc->LineStart(lineCurrentPos);
 				uint lineEnd = pdoc->LineStart(lineCurrentPos + 1);
 				if(lParam == 0) {
@@ -6236,7 +6180,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 						ptr[iPlace++] = pdoc->CharAt(iChar);
 					}
 					ptr[iPlace] = '\0';
-					return sel.MainCaret() - lineStart;
+					return Sel.MainCaret() - lineStart;
 				}
 			}
 		case SCI_GETENDSTYLED: return pdoc->GetEndStyled();
@@ -6321,15 +6265,9 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    pdoc->SetDocFlag(pdoc->dfUseTabs, wParam);
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_SETLINEINDENTATION:
-		    pdoc->SetLineIndentation(static_cast<int>(wParam), static_cast<int>(lParam));
-		    break;
-		case SCI_SETTABINDENTS:
-		    pdoc->SetDocFlag(pdoc->dfTabIndents, wParam);
-		    break;
-		case SCI_SETBACKSPACEUNINDENTS:
-		    pdoc->SetDocFlag(pdoc->dfBackspaceUnindents, wParam);
-		    break;
+		case SCI_SETLINEINDENTATION: pdoc->SetLineIndentation(static_cast<int>(wParam), static_cast<int>(lParam)); break;
+		case SCI_SETTABINDENTS: pdoc->SetDocFlag(pdoc->dfTabIndents, wParam); break;
+		case SCI_SETBACKSPACEUNINDENTS: pdoc->SetDocFlag(pdoc->dfBackspaceUnindents, wParam); break;
 		case SCI_GETINDENT: return pdoc->indentInChars;
 		case SCI_GETUSETABS: return pdoc->IsDocFlag(pdoc->dfUseTabs);
 		case SCI_GETLINEINDENTATION: return pdoc->GetLineIndentation(static_cast<int>(wParam));
@@ -6395,17 +6333,11 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    SetScrollBars();
 		    }
 		    break;
-		case SCI_SETSCROLLWIDTHTRACKING: 
-			SETFLAG(EditModelFlags, fTrackLineWidth, wParam);
-		    break;
+		case SCI_SETSCROLLWIDTHTRACKING: SETFLAG(EditModelFlags, fTrackLineWidth, wParam); break;
 		case SCI_GETSCROLLWIDTH: return scrollWidth;
 		case SCI_GETSCROLLWIDTHTRACKING: return BIN(EditModelFlags & fTrackLineWidth);
-		case SCI_LINESJOIN:
-		    LinesJoin();
-		    break;
-		case SCI_LINESSPLIT:
-		    LinesSplit(static_cast<int>(wParam));
-		    break;
+		case SCI_LINESJOIN: LinesJoin(); break;
+		case SCI_LINESSPLIT: LinesSplit(static_cast<int>(wParam)); break;
 		case SCI_TEXTWIDTH:
 		    PLATFORM_ASSERT(wParam < vs.styles.size());
 		    PLATFORM_ASSERT(lParam);
@@ -6427,9 +6359,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    caretSticky = static_cast<int>(wParam);
 		    }
 		    break;
-		case SCI_TOGGLECARETSTICKY:
-		    caretSticky = !caretSticky;
-		    break;
+		case SCI_TOGGLECARETSTICKY: caretSticky = !caretSticky; break;
 		case SCI_GETCARETSTICKY: return caretSticky;
 		case SCI_GETCOLUMN: return pdoc->GetColumn(static_cast<int>(wParam));
 		case SCI_FINDCOLUMN: return pdoc->FindColumn(static_cast<int>(wParam), static_cast<int>(lParam));
@@ -6517,20 +6447,17 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    vs.markers[wParam].alpha = static_cast<int>(lParam);
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_MARKERADD: {
-		    int markerID = pdoc->AddMark(static_cast<int>(wParam), static_cast<int>(lParam));
-		    return markerID;
-	    }
+		case SCI_MARKERADD: 
+			{
+				int markerID = pdoc->AddMark(static_cast<int>(wParam), static_cast<int>(lParam));
+				return markerID;
+			}
 		case SCI_MARKERADDSET:
 		    if(lParam != 0)
 			    pdoc->AddMarkSet(static_cast<int>(wParam), static_cast<int>(lParam));
 		    break;
-		case SCI_MARKERDELETE:
-		    pdoc->DeleteMark(static_cast<int>(wParam), static_cast<int>(lParam));
-		    break;
-		case SCI_MARKERDELETEALL:
-		    pdoc->DeleteAllMarks(static_cast<int>(wParam));
-		    break;
+		case SCI_MARKERDELETE: pdoc->DeleteMark(static_cast<int>(wParam), static_cast<int>(lParam)); break;
+		case SCI_MARKERDELETEALL: pdoc->DeleteAllMarks(static_cast<int>(wParam)); break;
 		case SCI_MARKERGET: return pdoc->GetMark(static_cast<int>(wParam));
 		case SCI_MARKERNEXT: return pdoc->MarkerNext(static_cast<int>(wParam), static_cast<int>(lParam));
 		case SCI_MARKERPREVIOUS: {
@@ -6548,15 +6475,9 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleData();
 		    RedrawSelMargin();
 		    break;
-		case SCI_RGBAIMAGESETWIDTH:
-		    sizeRGBAImage.x = static_cast<XYPOSITION>(wParam);
-		    break;
-		case SCI_RGBAIMAGESETHEIGHT:
-		    sizeRGBAImage.y = static_cast<XYPOSITION>(wParam);
-		    break;
-		case SCI_RGBAIMAGESETSCALE:
-		    scaleRGBAImage = static_cast<float>(wParam);
-		    break;
+		case SCI_RGBAIMAGESETWIDTH: sizeRGBAImage.x = static_cast<XYPOSITION>(wParam); break;
+		case SCI_RGBAIMAGESETHEIGHT: sizeRGBAImage.y = static_cast<XYPOSITION>(wParam); break;
+		case SCI_RGBAIMAGESETSCALE: scaleRGBAImage = static_cast<float>(wParam); break;
 		case SCI_MARKERDEFINERGBAIMAGE:
 		    if(wParam <= MARKER_MAX) {
 			    vs.markers[wParam].SetRGBAImage(sizeRGBAImage, scaleRGBAImage / 100.0f,
@@ -6887,24 +6808,16 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    }
 		    break;
 		case SCI_INDICGETOUTLINEALPHA: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].outlineAlpha : 0;
-		case SCI_SETINDICATORCURRENT:
-		    pdoc->decorations.SetCurrentIndicator(static_cast<int>(wParam));
-		    break;
-		case SCI_GETINDICATORCURRENT: return pdoc->decorations.GetCurrentIndicator();
-		case SCI_SETINDICATORVALUE:
-		    pdoc->decorations.SetCurrentValue(static_cast<int>(wParam));
-		    break;
-		case SCI_GETINDICATORVALUE: return pdoc->decorations.GetCurrentValue();
-		case SCI_INDICATORFILLRANGE:
-		    pdoc->DecorationFillRange(static_cast<int>(wParam), pdoc->decorations.GetCurrentValue(), static_cast<int>(lParam));
-		    break;
-		case SCI_INDICATORCLEARRANGE:
-		    pdoc->DecorationFillRange(static_cast<int>(wParam), 0, static_cast<int>(lParam));
-		    break;
-		case SCI_INDICATORALLONFOR: return pdoc->decorations.AllOnFor(static_cast<int>(wParam));
-		case SCI_INDICATORVALUEAT: return pdoc->decorations.ValueAt(static_cast<int>(wParam), static_cast<int>(lParam));
-		case SCI_INDICATORSTART: return pdoc->decorations.Start(static_cast<int>(wParam), static_cast<int>(lParam));
-		case SCI_INDICATOREND: return pdoc->decorations.End(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_SETINDICATORCURRENT:  pdoc->decorations.SetCurrentIndicator(static_cast<int>(wParam)); break;
+		case SCI_GETINDICATORCURRENT:  return pdoc->decorations.GetCurrentIndicator();
+		case SCI_SETINDICATORVALUE:    pdoc->decorations.SetCurrentValue(static_cast<int>(wParam)); break;
+		case SCI_GETINDICATORVALUE:    return pdoc->decorations.GetCurrentValue();
+		case SCI_INDICATORFILLRANGE:   pdoc->DecorationFillRange(static_cast<int>(wParam), pdoc->decorations.GetCurrentValue(), static_cast<int>(lParam)); break;
+		case SCI_INDICATORCLEARRANGE:  pdoc->DecorationFillRange(static_cast<int>(wParam), 0, static_cast<int>(lParam)); break;
+		case SCI_INDICATORALLONFOR:    return pdoc->decorations.AllOnFor(static_cast<int>(wParam));
+		case SCI_INDICATORVALUEAT:     return pdoc->decorations.ValueAt(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_INDICATORSTART:       return pdoc->decorations.Start(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_INDICATOREND:         return pdoc->decorations.End(static_cast<int>(wParam), static_cast<int>(lParam));
 		case SCI_LINEDOWN:
 		case SCI_LINEDOWNEXTEND:
 		case SCI_PARADOWN:
@@ -7078,39 +6991,39 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETMODEVENTMASK: return modEventMask;
 		case SCI_CONVERTEOLS:
 		    pdoc->ConvertLineEnds(static_cast<int>(wParam));
-		    SetSelection(sel.MainCaret(), sel.MainAnchor());    // Ensure selection inside document
+		    SetSelection(Sel.MainCaret(), Sel.MainAnchor());    // Ensure selection inside document
 		    return 0;
 		case SCI_SETLENGTHFORENCODE:
 		    lengthForEncode = static_cast<int>(wParam);
 		    return 0;
-		case SCI_SELECTIONISRECTANGLE: return sel.selType == Selection::selRectangle ? 1 : 0;
+		case SCI_SELECTIONISRECTANGLE: return Sel.selType == Selection::selRectangle ? 1 : 0;
 		case SCI_SETSELECTIONMODE: {
 		    switch(wParam) {
 			    case SC_SEL_STREAM:
-					sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
-					sel.selType = Selection::selStream;
+					Sel.SetMoveExtends(!Sel.MoveExtends() || (Sel.selType != Selection::selStream));
+					Sel.selType = Selection::selStream;
 					break;
 			    case SC_SEL_RECTANGLE:
-					sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selRectangle));
-					sel.selType = Selection::selRectangle;
+					Sel.SetMoveExtends(!Sel.MoveExtends() || (Sel.selType != Selection::selRectangle));
+					Sel.selType = Selection::selRectangle;
 					break;
 			    case SC_SEL_LINES:
-					sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selLines));
-					sel.selType = Selection::selLines;
+					Sel.SetMoveExtends(!Sel.MoveExtends() || (Sel.selType != Selection::selLines));
+					Sel.selType = Selection::selLines;
 					break;
 			    case SC_SEL_THIN:
-					sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selThin));
-					sel.selType = Selection::selThin;
+					Sel.SetMoveExtends(!Sel.MoveExtends() || (Sel.selType != Selection::selThin));
+					Sel.selType = Selection::selThin;
 					break;
 			    default:
-					sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
-					sel.selType = Selection::selStream;
+					Sel.SetMoveExtends(!Sel.MoveExtends() || (Sel.selType != Selection::selStream));
+					Sel.selType = Selection::selStream;
 		    }
 		    InvalidateWholeSelection();
 		    break;
 	    }
 		case SCI_GETSELECTIONMODE:
-		    switch(sel.selType) {
+		    switch(Sel.selType) {
 			    case Selection::selStream: return SC_SEL_STREAM;
 			    case Selection::selRectangle: return SC_SEL_RECTANGLE;
 			    case Selection::selLines: return SC_SEL_LINES;
@@ -7121,8 +7034,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETLINESELENDPOSITION: {
 		    SelectionSegment segmentLine(SelectionPosition(pdoc->LineStart(static_cast<int>(wParam))),
 			    SelectionPosition(pdoc->LineEnd(static_cast<int>(wParam))));
-		    for(size_t r = 0; r<sel.Count(); r++) {
-			    SelectionSegment portion = sel.Range(r).Intersect(segmentLine);
+		    for(size_t r = 0; r<Sel.Count(); r++) {
+			    SelectionSegment portion = Sel.Range(r).Intersect(segmentLine);
 			    if(portion.start.IsValid()) {
 				    return (iMessage == SCI_GETLINESELSTARTPOSITION) ? portion.start.Position() : portion.end.Position();
 			    }
@@ -7286,26 +7199,26 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateCaret();
 		    break;
 		case SCI_CLEARSELECTIONS:
-		    sel.Clear();
+		    Sel.Clear();
 		    ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 		    Redraw();
 		    break;
 		case SCI_SETSELECTION:
-		    sel.SetSelection(SelectionRange(static_cast<int>(wParam), static_cast<int>(lParam)));
+		    Sel.SetSelection(SelectionRange(static_cast<int>(wParam), static_cast<int>(lParam)));
 		    Redraw();
 		    break;
 		case SCI_ADDSELECTION:
-		    sel.AddSelection(SelectionRange(static_cast<int>(wParam), static_cast<int>(lParam)));
+		    Sel.AddSelection(SelectionRange(static_cast<int>(wParam), static_cast<int>(lParam)));
 		    ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 		    Redraw();
 		    break;
 		case SCI_DROPSELECTIONN:
-		    sel.DropSelection(static_cast<int>(wParam));
+		    Sel.DropSelection(static_cast<int>(wParam));
 		    ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 		    Redraw();
 		    break;
 		case SCI_SETMAINSELECTION:
-		    sel.SetMain(static_cast<int>(wParam));
+		    Sel.SetMain(static_cast<int>(wParam));
 		    ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 		    Redraw();
 		    break;
@@ -7318,34 +7231,34 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    SetSelectionNMessage(iMessage, wParam, lParam);
 		    break;
 		case SCI_SETRECTANGULARSELECTIONCARET:
-		    if(!sel.IsRectangular())
-			    sel.Clear();
-		    sel.selType = Selection::selRectangle;
-		    sel.Rectangular().caret.SetPosition(static_cast<int>(wParam));
+		    if(!Sel.IsRectangular())
+			    Sel.Clear();
+		    Sel.selType = Selection::selRectangle;
+		    Sel.Rectangular().caret.SetPosition(static_cast<int>(wParam));
 		    SetRectangularRange();
 		    Redraw();
 		    break;
 		case SCI_SETRECTANGULARSELECTIONANCHOR:
-		    if(!sel.IsRectangular())
-			    sel.Clear();
-		    sel.selType = Selection::selRectangle;
-		    sel.Rectangular().anchor.SetPosition(static_cast<int>(wParam));
+		    if(!Sel.IsRectangular())
+			    Sel.Clear();
+		    Sel.selType = Selection::selRectangle;
+		    Sel.Rectangular().anchor.SetPosition(static_cast<int>(wParam));
 		    SetRectangularRange();
 		    Redraw();
 		    break;
 		case SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE:
-		    if(!sel.IsRectangular())
-			    sel.Clear();
-		    sel.selType = Selection::selRectangle;
-		    sel.Rectangular().caret.SetVirtualSpace(static_cast<int>(wParam));
+		    if(!Sel.IsRectangular())
+			    Sel.Clear();
+		    Sel.selType = Selection::selRectangle;
+		    Sel.Rectangular().caret.SetVirtualSpace(static_cast<int>(wParam));
 		    SetRectangularRange();
 		    Redraw();
 		    break;
 		case SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE:
-		    if(!sel.IsRectangular())
-			    sel.Clear();
-		    sel.selType = Selection::selRectangle;
-		    sel.Rectangular().anchor.SetVirtualSpace(static_cast<int>(wParam));
+		    if(!Sel.IsRectangular())
+			    Sel.Clear();
+		    Sel.selType = Selection::selRectangle;
+		    Sel.Rectangular().anchor.SetVirtualSpace(static_cast<int>(wParam));
 		    SetRectangularRange();
 		    Redraw();
 		    break;
@@ -7372,19 +7285,19 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETMULTIPASTE:                   return multiPasteMode;
 		case SCI_GETADDITIONALCARETSBLINK:        return BIN(view.EditViewFlags & EditView::fAdditionalCaretsBlink); // view.additionalCaretsBlink;
 		case SCI_GETADDITIONALCARETSVISIBLE:      return BIN(view.EditViewFlags & EditView::fAdditionalCaretsVisible); // view.additionalCaretsVisible;
-		case SCI_GETSELECTIONS:                   return sel.Count();
-		case SCI_GETSELECTIONEMPTY:               return sel.Empty();
-		case SCI_GETMAINSELECTION:                return sel.Main();
-		case SCI_GETSELECTIONNCARET:              return sel.Range(wParam).caret.Position();
-		case SCI_GETSELECTIONNANCHOR:             return sel.Range(wParam).anchor.Position();
-		case SCI_GETSELECTIONNCARETVIRTUALSPACE:  return sel.Range(wParam).caret.VirtualSpace();
-		case SCI_GETSELECTIONNANCHORVIRTUALSPACE: return sel.Range(wParam).anchor.VirtualSpace();
-		case SCI_GETSELECTIONNSTART:              return sel.Range(wParam).Start().Position();
-		case SCI_GETSELECTIONNEND:                return sel.Range(wParam).End().Position();
-		case SCI_GETRECTANGULARSELECTIONCARET:    return sel.Rectangular().caret.Position();
-		case SCI_GETRECTANGULARSELECTIONANCHOR:   return sel.Rectangular().anchor.Position();
-		case SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE: return sel.Rectangular().caret.VirtualSpace();
-		case SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE: return sel.Rectangular().anchor.VirtualSpace();
+		case SCI_GETSELECTIONS:                   return Sel.Count();
+		case SCI_GETSELECTIONEMPTY:               return Sel.Empty();
+		case SCI_GETMAINSELECTION:                return Sel.Main();
+		case SCI_GETSELECTIONNCARET:              return Sel.Range(wParam).caret.Position();
+		case SCI_GETSELECTIONNANCHOR:             return Sel.Range(wParam).anchor.Position();
+		case SCI_GETSELECTIONNCARETVIRTUALSPACE:  return Sel.Range(wParam).caret.VirtualSpace();
+		case SCI_GETSELECTIONNANCHORVIRTUALSPACE: return Sel.Range(wParam).anchor.VirtualSpace();
+		case SCI_GETSELECTIONNSTART:              return Sel.Range(wParam).Start().Position();
+		case SCI_GETSELECTIONNEND:                return Sel.Range(wParam).End().Position();
+		case SCI_GETRECTANGULARSELECTIONCARET:    return Sel.Rectangular().caret.Position();
+		case SCI_GETRECTANGULARSELECTIONANCHOR:   return Sel.Rectangular().anchor.Position();
+		case SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE: return Sel.Rectangular().caret.VirtualSpace();
+		case SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE: return Sel.Rectangular().anchor.VirtualSpace();
 		case SCI_GETVIRTUALSPACEOPTIONS: return virtualSpaceOptions;
 		case SCI_GETADDITIONALCARETFORE: return vs.additionalCaretColour.AsLong();
 		case SCI_SETVIRTUALSPACEOPTIONS: virtualSpaceOptions = static_cast<int>(wParam); break;
@@ -7405,12 +7318,12 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_ROTATESELECTION:
-		    sel.RotateMain();
+		    Sel.RotateMain();
 		    InvalidateWholeSelection();
 		    break;
 		case SCI_SWAPMAINANCHORCARET:
-		    InvalidateSelection(sel.RangeMain());
-		    sel.RangeMain().Swap();
+		    InvalidateSelection(Sel.RangeMain());
+		    Sel.RangeMain().Swap();
 		    break;
 		case SCI_MULTIPLESELECTADDNEXT: MultipleSelectAdd(addOne); break;
 		case SCI_MULTIPLESELECTADDEACH: MultipleSelectAdd(addEach); break;

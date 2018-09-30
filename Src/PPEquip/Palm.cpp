@@ -489,7 +489,7 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 0, GTMF_AUTO);
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 1, GTMF_CHECKIN);
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 2, GTMF_EVNT_BILL);
-            AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 3, GTMF_FORCEGPSON); // @v8.6.10
+            AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 3, GTMF_FORCEGPSON);
             SetClusterData(CTL_GEOTRACKMODE_FLAGS, Data.Mode);
             setCtrlLong(CTL_GEOTRACKMODE_CYCLE, Data.Cycle / 1000);
             disableCtrl(CTL_GEOTRACKMODE_CYCLE, !(Data.Mode & GTMF_AUTO));
@@ -592,9 +592,9 @@ void StyloPalmDialog::SetupInheritance()
 	DisableClusterItem(CTL_PALM_FLAGS, 2, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 3, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 4, dsbl_flags);
-	DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags); // @v8.6.10
-	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags); // @v8.6.10
-	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags); // @v8.6.10
+	DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags);
+	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
+	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
 }
 
 int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
@@ -607,14 +607,12 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	setCtrlData(CTL_PALM_SYMB, Data.Rec.Symb);
 	setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
 	disableCtrl(CTL_PALM_ID, (!PPMaster || Data.Rec.ID));
-	// @v8.4.6 {
 	{
 		long   dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
 		AddClusterAssoc(CTL_PALM_DVCTYPE, 0,  1);
 		AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
 		SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
 	}
-	// } @v8.4.6
 	SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, (void *)PLMF_GENERIC);
 	SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
 	{
@@ -627,7 +625,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		setGroupData(GRP_QUOTKIND, &qk_rec);
 	}
 	// } @v9.5.5
-	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN); // @v8.4.6 OLW_LOADDEFONOPEN
+	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, (void *)PPObjInternetAccount::filtfFtp);
 	PPIDArray op_type_list;
 	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
@@ -681,13 +679,11 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 	int    ok = 1, sel = 0;
 	SString path;
 	PPStyloPalm sp_rec;
-	// @v8.4.6 {
 	{
 		long   dvc_type = 0;
 		GetClusterData(CTL_PALM_DVCTYPE, &dvc_type);
 		SETFLAG(Data.Rec.Flags, PLMF_ANDROID, dvc_type == 2);
 	}
-	// } @v8.4.6
 	getCtrlData(sel = CTL_PALM_NAME, Data.Rec.Name);
 	THROW(SpObj.CheckName(Data.Rec.ID, strip(Data.Rec.Name), 1));
 	getCtrlData(sel = CTL_PALM_SYMB, Data.Rec.Symb);
@@ -1445,7 +1441,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 					if(!(pRec->Flags & PLMF_BLOCKED)) { // @v9.4.7
 						reader.ReadBills(pParam, bill_id_bias, &ord_count);
 					}
-					if(DS.CheckExtFlag(ECF_USEGEOTRACKING)) { // @v8.6.11
+					if(DS.CheckExtFlag(ECF_USEGEOTRACKING)) {
 						reader.ReadGeoTracks(pParam);
 					}
 				}
@@ -2525,6 +2521,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 			P_Writer = xmlNewTextWriterFilename(pPath, 0);
 		if(P_Writer) {
 			SString temp_buf;
+			SString uhtt_acc;
 			PPAlbatrosConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			xmlTextWriterSetIndent(P_Writer, 1);
@@ -2546,14 +2543,15 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 				AddAttrib("UhttUrn",        /*cfg.UhttUrn*/temp_buf);
 				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 				AddAttrib("UhttUrlPrefix",  /*cfg.UhttUrlPrefix*/temp_buf);
-				cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
-				AddAttrib("UhttAccount",    /*cfg.UhttAccount*/temp_buf);
-				AddAttrib("GeoTrackingMode",  pHdr->Gtm.Mode); // @v8.6.8
-				AddAttrib("GeoTrackingCycle", pHdr->Gtm.Cycle); // @v8.6.8
-				AddAttrib("StyloFlags",     pHdr->StyloFlags);  // @v8.6.10
-				AddAttrib("TransfDaysAgo",  pHdr->TransfDaysAgo); // @v9.2.2
+				cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, uhtt_acc);
+				AddAttrib("UhttAccount",    /*cfg.UhttAccount*/uhtt_acc);
+				AddAttrib("GeoTrackingMode",  pHdr->Gtm.Mode);
+				AddAttrib("GeoTrackingCycle", pHdr->Gtm.Cycle);
+				AddAttrib("StyloFlags",     pHdr->StyloFlags);
+				AddAttrib("TransfDaysAgo",  pHdr->TransfDaysAgo);
 			}
-			{
+			// @v10.2.0 Если аккаунта нет, то и пароль слать не надо (иначе может передаться мусор)
+			if(uhtt_acc.NotEmpty()) {
 				cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
 				AddAttrib("UhttPassword", temp_buf.cptr());
 				temp_buf.Obfuscate();
@@ -3613,7 +3611,7 @@ struct PalmDebtExpStruc {
 		Flags = (rPack.Rec.Flags & (PLMF_EXPCLIDEBT|PLMF_EXPSTOPFLAG|PLMF_BLOCKED));
 		if(dontPrepareDebtData)
 			Flags &= ~PLMF_EXPCLIDEBT;
-		PalmList.add(rPack.Rec.ID); // @v7.0.5
+		PalmList.add(rPack.Rec.ID);
 	}
 	int    IsAnalog(const PalmDebtExpStruc * pItem, int dontPrepareDebt) const
 	{

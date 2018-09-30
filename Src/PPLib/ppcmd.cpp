@@ -2196,16 +2196,18 @@ public:
 					r = BillPrelude(&op_type_list, 0, 0, &filt.OpID, &filt.LocID);
 				}
 				if(r > 0) {
-					PPID id = 0, save_loc_id = LConfig.Location;
+					PPID   id = 0;
+					PPObjBill * p_bobj = BillObj;
+					const  PPID save_loc_id = LConfig.Location;
 					DS.SetLocation(filt.LocID);
 					if(GetOpType(filt.OpID) == PPOPT_ACCTURN && !CheckOpFlags(filt.OpID, OPKF_EXTACCTURN))
-						r = BillObj->AddGenAccturn(&id, filt.OpID, 0);
+						r = p_bobj->AddGenAccturn(&id, filt.OpID, 0);
 					else {
 						BillFilt bill_filt;
 						bill_filt.SetupBrowseBillsType((BrowseBillsType)filt.Bbt);
 						bill_filt.OpID = filt.OpID;
 						bill_filt.LocList.Add(filt.LocID);
-						r = BillObj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
+						r = p_bobj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
 					}
 					DS.SetLocation(save_loc_id);
 					ok = (r == cmOK) ? 1 : -1;

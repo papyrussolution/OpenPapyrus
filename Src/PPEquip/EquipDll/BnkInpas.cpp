@@ -19,6 +19,19 @@ extern PPDrvSession DRVS;
 #define INPAS_FUNC_CLOSEDAY      59      // Закрытие дня
 
 class PPDrvINPASTrmnl : public PPBaseDriver {
+public:
+	PPDrvINPASTrmnl()
+	{
+		SString file_name;
+		getExecPath(file_name);
+		(SlipLogFileName = file_name).SetLastSlash().Cat("INPAStrmnl_Slip.log"); // @v10.2.0
+		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("INPAStrmnl.log"));
+	}
+	int    ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
+	int	   Init(SString & rCheck);
+	int    Pay(double amount, SString & rSlip);
+	int	   Refund(double amount, SString & rSlip);
+	int	   GetSessReport(SString & rCheck);
 private:
 	enum {
 		InitResources = 1,          // Метод класса DualConnectorInterface
@@ -89,7 +102,8 @@ private:
 		TermResponseCode,           // Св-во объекта класса ISAPacket
 		SlipNumber,                 // Св-во объекта класса ISAPacket
 	};
-	void AsseptDC(ComDispInterface * pNameDCObj) {
+	void AsseptDC(ComDispInterface * pNameDCObj) 
+	{
 		ASSIGN_ID_BY_NAME(pNameDCObj, InitResources);
 		ASSIGN_ID_BY_NAME(pNameDCObj, Exchange);
 		ASSIGN_ID_BY_NAME(pNameDCObj, FreeResources);
@@ -97,8 +111,8 @@ private:
 		ASSIGN_ID_BY_NAME(pNameDCObj, ErrorCode);
 		ASSIGN_ID_BY_NAME(pNameDCObj, ErrorDescription);
 	}
-
-	void AsseptSAP(ComDispInterface * pNameSAPObj) {
+	void AsseptSAP(ComDispInterface * pNameSAPObj) 
+	{
 		ASSIGN_ID_BY_NAME(pNameSAPObj, Amount);
 		ASSIGN_ID_BY_NAME(pNameSAPObj, AdditionalAmount);
 		ASSIGN_ID_BY_NAME(pNameSAPObj, CurrencyCode);
@@ -161,18 +175,7 @@ private:
 		ASSIGN_ID_BY_NAME(pNameSAPObj, SlipNumber);
 		ASSIGN_ID_BY_NAME(pNameSAPObj, Release);
 	}
-public:
-	PPDrvINPASTrmnl()
-	{
-		SString file_name;
-		getExecPath(file_name);
-		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("INPAStrmnl.log"));
-	}
-	int    ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
-	int	   Init(SString & rCheck);
-	int    Pay(double amount, SString & rSlip);
-	int	   Refund(double amount, SString & rSlip);
-	int	   GetSessReport(SString & rCheck);
+	SString SlipLogFileName;
 };
 
 // перечисление статусов
@@ -290,12 +293,11 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 // оплата
 int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString msg_ok, buf_ok;            // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int result_dc = 0;                 // принимает код ошибки из p_dclink
 	int result_sar = 1;	               // принимает значение свойства Status из p_res
 	SString temp_buf;
-
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
 	ComDispInterface * p_dclink = new ComDispInterface;
@@ -332,10 +334,17 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 																		 // Если не 1 значит ошибка. Отправляемся в обработку исключений
 	THROWERR(result_sar == 1, result_dc); 								 //   Надо доработать обработку исключений. 
 	{
-		char slip_ch[1024];                // массив для чека
+		char slip_ch[1024]; // массив для чека
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rSlip = slip_ch;
 	}
+	// @v10.2.0 {
+	{
+		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
+		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
+	}
+	// } @v10.2.0 
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Pay completed");
 	DRVS.Log(msg_ok, 0xffff);
@@ -374,12 +383,11 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 // Возврат
 int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString msg_ok, buf_ok;     // переменные, необходимые для вывода инф-ии в логи в случае успеха
-	int result_dc = 0;          // принимает код ошибки из p_dclink
-	int result_sar = 1;         // принимает значение свойства Status из p_res
+	int    result_dc = 0;          // принимает код ошибки из p_dclink
+	int    result_sar = 1;         // принимает значение свойства Status из p_res
 	SString temp_buf;
-
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
 	ComDispInterface * p_dclink = new ComDispInterface;
@@ -420,10 +428,16 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
 		rSlip = slip_ch;
 	}
+	// @v10.2.0 {
+	{
+		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
+		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
+	}
+	// } @v10.2.0 
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Refund completed");
 	DRVS.Log(msg_ok, 0xffff);
-
 	// выдает информацию о ошибках в логи
 	CATCH
 		ok = 0;

@@ -1383,7 +1383,8 @@ public:
 		int32  RspnsPersonID;
 		int32  Limit;
 		int16  Rank;
-		uint8  Reserve[6]; // raw
+		int16  VanType;
+		uint8  Reserve[4]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -1429,6 +1430,7 @@ public:
 	DBField RspnsPersonID;
 	DBField Limit;
 	DBField Rank;
+	DBField VanType;
 	DBField Reserve;
 };
 

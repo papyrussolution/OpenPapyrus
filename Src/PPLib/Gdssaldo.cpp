@@ -376,6 +376,7 @@ int SLAPI PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const 
 	PPLogger logger;
     DateRange period;
     if(goodsID && arID) {
+		PPObjBill * p_bobj = BillObj;
 		SString msg_buf, fmt_buf;
 		if(pPeriod) {
 			if(!checkdate(pPeriod->upp))
@@ -397,8 +398,8 @@ int SLAPI PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const 
 			double direct_saldo_amt = 0.0;
 			DateRange local_period;
 			local_period.Set(ZERODATE, dt);
-			THROW(BillObj->GetGoodsSaldo(goodsID, arID, dlvrLocID, dt, MAXLONG, &saldo_qtty, &saldo_amt));
-			THROW(BillObj->CalcGoodsSaldo(goodsID, arID, dlvrLocID, &local_period, MAXLONG, &direct_saldo_qtty, &direct_saldo_amt));
+			THROW(p_bobj->GetGoodsSaldo(goodsID, arID, dlvrLocID, dt, MAXLONG, &saldo_qtty, &saldo_amt));
+			THROW(p_bobj->CalcGoodsSaldo(goodsID, arID, dlvrLocID, &local_period, MAXLONG, &direct_saldo_qtty, &direct_saldo_amt));
 			if(direct_saldo_qtty != saldo_qtty) {
                 //PPTXT_TESTGS_LOG_ERROR        "Ошибка в расчета сальдо за @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real"
                 PPFormatT(PPTXT_TESTGS_LOG_ERROR, &msg_buf, dt, saldo_qtty, direct_saldo_qtty);
