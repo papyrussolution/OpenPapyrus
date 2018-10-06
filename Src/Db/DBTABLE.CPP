@@ -431,7 +431,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 			long   rec_offs = FixRecSize;
 			while(result && rest_size) {
 				long   chunk_size = MIN(rest_size, MAX_ONEOP_LOBSIZE);
-				temp_buf.Clear();
+				temp_buf.Z();
 				long   item_value;
 				temp_buf.Write(item_value = CHUNK_DIR_RAND); // sub operation
 				temp_buf.Write(item_value = 1); // number of chunks
@@ -520,7 +520,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 			long   rec_offs = FixRecSize;
 			while(result && rest_size) {
 				long   chunk_size = MIN(rest_size, MAX_ONEOP_LOBSIZE);
-				temp_buf.Clear();
+				temp_buf.Z();
 				long   item_value;
 				temp_buf.Write(item_value = CHUNK_DIR_RAND); // sub operation
 				temp_buf.Write(item_value = 1); // number of chunks

@@ -129,7 +129,7 @@ void SBuffer::Destroy()
 	Reset(1);
 }
 
-SBuffer & SLAPI SBuffer::Clear()
+SBuffer & SLAPI SBuffer::Z()
 {
 	WrOffs = RdOffs = 0;
 	return *this;
@@ -901,7 +901,7 @@ int SLAPI SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 
 	else {
 		uint8  ind = 0;
 		if(dir > 0) {
-			TempSBuf.Clear();
+			TempSBuf.Z();
 			THROW(stype(typ, &_t).Serialize(dir, pData, &ind, TempSBuf, this));
 			THROW(rBuf.Write(&ind, sizeof(ind)));
 			const size_t avsz = TempSBuf.GetAvailableSize();
@@ -1375,7 +1375,7 @@ size_t FASTCALL SBufferPipe::Get(void * pBuf, size_t bufLen)
 void SLAPI SBufferPipe::Reset()
 {
 	Lck.Lock();
-	SBuffer::Clear();
+	SBuffer::Z();
 	Status = 0;
 	Lck.Unlock();
 }

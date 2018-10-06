@@ -4376,16 +4376,15 @@ void SLAPI PalmDisplayBlock::Clear()
 	DvcID = 0;
 	Flags = 0;
 	Ctx = 0;
-	CtxData.Clear();
+	CtxData.Z();
 	DirectMsg.Z();
 	QueuePos = 0;
 }
 
 class StyloDisplayQueue {
 public:
-	StyloDisplayQueue() : Q(128)
+	StyloDisplayQueue() : Q(128), DvcID(0)
 	{
-		DvcID = 0;
 	}
 	int    Lock()
 	{

@@ -1,5 +1,5 @@
 // OFD.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -160,7 +160,7 @@ int SLAPI OfdBuffer::StartPacket(int ofddt)
 {
 	int    ok = 1;
 	int16  _t = ofddt;
-	THROW_SL(Clear().Write(_t));
+	THROW_SL(Z().Write(_t));
     CATCHZOK
     return ok;
 }

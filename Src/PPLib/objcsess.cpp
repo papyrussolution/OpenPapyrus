@@ -889,7 +889,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 int SLAPI CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	Bs.Clear();
+	Bs.Z();
 	THROW_SL(Bs.ReadFromFile(stream, 0))
 	CATCHZOK
 	return ok;
@@ -912,7 +912,7 @@ int SLAPI CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	ChecksCount = 0;
-	Bs.Clear();
+	Bs.Z();
 	if(SessObj.Search(sessID, &Rec) > 0) {
 		PPIDArray id_list;
 		CCheckTbl::Key3 k3;

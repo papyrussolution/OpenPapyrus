@@ -103,7 +103,7 @@ void ScintillaBase::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 	}
 }
 
-void ScintillaBase::Command(int cmdId)
+void FASTCALL ScintillaBase::Command(int cmdId)
 {
 	switch(cmdId) {
 		case idAutoComplete: break; // Nothing to do

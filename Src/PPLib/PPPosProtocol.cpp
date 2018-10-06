@@ -186,8 +186,9 @@ public:
 																	int    g_type = 0;
 																	const PPPosProtocol::GoodsBlock * p_gb = (const PPPosProtocol::GoodsBlock *)p_ib->GetItem(p_clb->GoodsBlkP, &g_type);
 																	assert(g_type == PPPosProtocol::obGoods);
-																	if(p_gb->NativeID)
+																	if(p_gb->NativeID) {
 																		goods_id = p_gb->NativeID;
+																	}
 																	else {
 																		THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
 																	}
@@ -3177,8 +3178,17 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
 		//
 		PPID   pretend_id = 0;
-		if(rBlk.ID > 0 && GObj.Search(rBlk.ID, &ex_goods_rec) > 0) {
-			pretend_id = ex_goods_rec.ID;
+		if(rBlk.ID > 0) {
+			/* @v10.2.1 if(GObj.Search(rBlk.ID, &ex_goods_rec) > 0)
+				pretend_id = ex_goods_rec.ID; */
+			// @v10.2.1 {
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			PPID   goods_id = rBlk.ID;
+			do {
+				if(GObj.Fetch(goods_id, &ex_goods_rec) > 0)
+					pretend_id = ex_goods_rec.ID;
+			} while(!pretend_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, goods_id, &goods_id, 0) > 0);
+			// } @v10.2.1 
 		}
 		for(uint j = 0; j < RdB.GoodsCodeList.getCount(); j++) {
 			const GoodsCode & r_c = RdB.GoodsCodeList.at(j);

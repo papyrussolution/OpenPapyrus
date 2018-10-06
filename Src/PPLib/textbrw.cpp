@@ -647,6 +647,9 @@ void SScEditorBase::Init(HWND hScW, int preserveFileName)
 
 		CallFunc(SCI_INDICSETSTYLE, indicUnknWord, /*INDIC_SQUIGGLE*/INDIC_COMPOSITIONTHICK);
 		CallFunc(SCI_INDICSETFORE, indicUnknWord, GetColorRef(SClrRed));
+		//
+		CallFunc(SCI_INDICSETSTYLE, indicStxRule, INDIC_PLAIN);
+		CallFunc(SCI_INDICSETFORE, indicStxRule, GetColorRef(SClrCyan));
 	}
 }
 
@@ -1195,8 +1198,31 @@ int STextBrowser::UpdateIndicators()
 							}*/
 						}
 						else {
+							int    start_pos = (int)ti.OrgOffs;
+							int    end_pos = 0;
+							P_Tknzr->Get(idx_first+i+1, ti);
+							end_pos = (int)ti.OrgOffs;
 							CallFunc(SCI_SETINDICATORCURRENT, indicUnknWord);
-							CallFunc(SCI_INDICATORFILLRANGE, ti.OrgOffs, 2);
+							CallFunc(SCI_INDICATORFILLRANGE, start_pos, end_pos-start_pos);
+						}
+					}
+				}
+				{
+					const SrSyntaxRuleSet * p_sr = DS.GetSrSyntaxRuleSet();
+					TSCollection <SrSyntaxRuleSet::Result> result_list;
+					if(p_sr && p_sr->ProcessText(*p_srdb, *(SrSyntaxRuleTokenizer *)P_Tknzr, idx_first, idx_count, result_list) > 0) {
+						for(uint residx = 0; residx < result_list.getCount(); residx++) {
+							const SrSyntaxRuleSet::Result * p_result = result_list.at(residx);
+							if(p_result) {
+								int    start_pos = 0;
+								int    end_pos = 0;
+								P_Tknzr->Get(p_result->TIdxFirst, ti);
+								start_pos = (int)ti.OrgOffs;
+								P_Tknzr->Get(p_result->TIdxNext, ti);
+								end_pos = (int)ti.OrgOffs;
+								CallFunc(SCI_SETINDICATORCURRENT, indicStxRule);
+								CallFunc(SCI_INDICATORFILLRANGE, start_pos, end_pos-start_pos);
+							}
 						}
 					}
 				}

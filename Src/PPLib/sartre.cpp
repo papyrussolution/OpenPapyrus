@@ -1070,7 +1070,7 @@ SrCProp & SrCProp::Z()
 {
 	CID = 0;
 	PropID = 0;
-	Value.Clear();
+	Value.Z();
 	return *this;
 }
 
@@ -1128,7 +1128,7 @@ SrCPropList::SrCPropList()
 SrCPropList & SrCPropList::Z()
 {
 	L.clear();
-	D.Clear();
+	D.Z();
 	uint32 zero = 0;
 	D.Write(zero); // zero offset
 	return *this;

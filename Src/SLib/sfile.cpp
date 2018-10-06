@@ -1415,7 +1415,7 @@ int SLAPI SFile::Seek(long offs, int origin)
 		else
 			ok = 0;
 	}
-	BufR.Clear(); // @v9.5.9
+	BufR.Z(); // @v9.5.9
 	return ok;
 }
 
@@ -1423,7 +1423,7 @@ int SLAPI SFile::Seek64(int64 offs, int origin)
 {
 	assert(InvariantC(0));
 	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
-	BufR.Clear(); // @v9.5.9
+	BufR.Z(); // @v9.5.9
 	return ok;
 }
 

@@ -20,8 +20,8 @@
 #define GDSCLS_EXTSTR_FLD_TAXFACTOR  10
 #define GDSCLS_EXTSTR_FLD_PACKAGE    11
 
-#define GDSCLS_EXTSTR_FLD_PROPADD2   12 // @v5.1.9
-#define GDSCLS_EXTSTR_FLD_LOTDIMQTTY 13 // @v8.9.10
+#define GDSCLS_EXTSTR_FLD_PROPADD2   12
+#define GDSCLS_EXTSTR_FLD_LOTDIMQTTY 13
 //
 //
 //
@@ -81,7 +81,7 @@ int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPac
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_PHPERUFORM, rLine, pPack->PhUPerU_Formula);
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_TAXFACTOR,  rLine, pPack->TaxMult_Formula);
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_PACKAGE,    rLine, pPack->Package_Formula);
-	PPPutExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula); // @v8.9.10
+	PPPutExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula);
 
 	THROW(PutProp(rLine, GDSCLS_EXTSTR_FLD_PROPKIND,  &pPack->PropKind));
 	THROW(PutProp(rLine, GDSCLS_EXTSTR_FLD_PROPGRADE, &pPack->PropGrade));
@@ -100,7 +100,7 @@ int SLAPI PPObjGoodsClass::GetPropsFromLine(SString & rLine, PPGdsClsPacket * pP
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_PHPERUFORM, rLine, pPack->PhUPerU_Formula);
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_TAXFACTOR,  rLine, pPack->TaxMult_Formula);
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_PACKAGE,    rLine, pPack->Package_Formula);
-	PPGetExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula); // @v8.9.10
+	PPGetExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula);
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPKIND,  &pPack->PropKind);
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPGRADE, &pPack->PropGrade);
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPADD,   &pPack->PropAdd);
@@ -459,7 +459,7 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 			case cmGdsClsW:     replyDimCmd(&Data.DimW);       break;
 			case cmGdsClsFormList:   EditGcFormulaList(&Data); break;
 			case cmGdsClsDynGenMask: editDynGenMask();         break;
-			case cmGdsClsLotDim:     EditLotDimParam();        break; // @v8.9.1
+			case cmGdsClsLotDim:     EditLotDimParam();        break;
 			case cmClusterClk: 
 				{
 					uint   f_ctl_id = event.getCtlID();
@@ -540,7 +540,7 @@ int GoodsClassDialog::setDTS(const PPGdsClsPacket * pData)
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, (void *)(PPUnit::Trade|PPUnit::Physical));
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_GDSTYPE, PPOBJ_GOODSTYPE, Data.Rec.DefGoodsTypeID, OLW_CANINSERT);
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_TAXGRP, PPOBJ_GOODSTAX, Data.Rec.DefTaxGrpID, OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_GRP, PPOBJ_GOODSGROUP, Data.Rec.DefGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN); // @v8.4.4 OLW_LOADDEFONOPEN
+	SetupPPObjCombo(this, CTLSEL_GDSCLS_GRP, PPOBJ_GOODSGROUP, Data.Rec.DefGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 	setupCmdFlag(PPGdsCls::fUsePropKind,  CTL_GDSCLS_E_KIND,  cmGdsClsKind);
 	setupCmdFlag(PPGdsCls::fUsePropGrade, CTL_GDSCLS_E_GRADE, cmGdsClsGrade);
 	setupCmdFlag(PPGdsCls::fUsePropAdd,   CTL_GDSCLS_E_ADD,   cmGdsClsAdd);
@@ -552,7 +552,7 @@ int GoodsClassDialog::setDTS(const PPGdsClsPacket * pData)
 	AddClusterAssoc(CTL_GDSCLS_FLAGS, 0, PPGdsCls::fStdEditDlg);
 	AddClusterAssoc(CTL_GDSCLS_FLAGS, 1, PPGdsCls::fDupCombine);
 	AddClusterAssoc(CTL_GDSCLS_FLAGS, 2, PPGdsCls::fDisableFreeDim);
-	AddClusterAssoc(CTL_GDSCLS_FLAGS, 3, PPGdsCls::fPrintDiffLots); // @v8.7.9
+	AddClusterAssoc(CTL_GDSCLS_FLAGS, 3, PPGdsCls::fPrintDiffLots);
 	SetClusterData(CTL_GDSCLS_FLAGS, Data.Rec.Flags);
 	return 1;
 }
@@ -639,11 +639,11 @@ int GoodsClassDialog::EditLotDimParam()
 	THROW(CheckDialogPtr(&dlg));
     SetupPPObjCombo(dlg, CTLSEL_GDSCLSLD_UNIT, PPOBJ_UNIT, Data.Rec.LotDimUnitID, 0, (void *)PPUnit::Physical);
     dlg->setCtrlData(CTL_GDSCLSLD_NUMDIM, &Data.Rec.LotDimCount);
-	dlg->setCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula); // @v8.9.10
+	dlg->setCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula);
     while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTLSEL_GDSCLSLD_UNIT, &Data.Rec.LotDimUnitID);
 		dlg->getCtrlData(CTL_GDSCLSLD_NUMDIM, &Data.Rec.LotDimCount);
-		dlg->getCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula); // @v8.9.10
+		dlg->getCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula);
 		ok = 1;
     }
 	CATCHZOKPPERR
@@ -893,9 +893,9 @@ public:
 		uint16 FiltDlgID;
 		long   Flags;
 		int16  DynGenMask;
-		uint8  LotDimCount;    // @v8.9.9
-		uint8  Reserve[1];     // @v8.9.9 @alignment
-		PPID   LotDimUnitID;   // @v8.9.9
+		uint8  LotDimCount;    // 
+		uint8  Reserve[1];     // @alignment
+		PPID   LotDimUnitID;   // 
 
 		PPID   KindID;
 		PPID   GradeID;
@@ -926,8 +926,8 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->FiltDlgID      = gc_pack.Rec.FiltDlgID;
 		p_cache_rec->Flags          = gc_pack.Rec.Flags;
 		p_cache_rec->DynGenMask     = (int16)gc_pack.Rec.DynGenMask;
-		p_cache_rec->LotDimCount    = gc_pack.Rec.LotDimCount;  // @v8.9.9
-		p_cache_rec->LotDimUnitID   = gc_pack.Rec.LotDimUnitID; // @v8.9.9
+		p_cache_rec->LotDimCount    = gc_pack.Rec.LotDimCount;
+		p_cache_rec->LotDimUnitID   = gc_pack.Rec.LotDimUnitID;
 
 		p_cache_rec->KindID     = gc_pack.PropKind.ItemsListID;
 		p_cache_rec->GradeID    = gc_pack.PropGrade.ItemsListID;
@@ -945,7 +945,7 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		ss.add(gc_pack.AbbrConv);
 		ss.add(gc_pack.PhUPerU_Formula);
 		ss.add(gc_pack.TaxMult_Formula);
-		ss.add(gc_pack.LotDimQtty_Formula); // @v8.9.12
+		ss.add(gc_pack.LotDimQtty_Formula);
 		PutName(ss.getBuf(), p_cache_rec);
 	}
 	else
@@ -970,8 +970,8 @@ void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_pack->Rec.FiltDlgID  = p_cache_rec->FiltDlgID;
 	p_data_pack->Rec.Flags      = p_cache_rec->Flags;
 	p_data_pack->Rec.DynGenMask = (long)p_cache_rec->DynGenMask;
-	p_data_pack->Rec.LotDimCount  = p_cache_rec->LotDimCount;  // @v8.9.9
-	p_data_pack->Rec.LotDimUnitID = p_cache_rec->LotDimUnitID; // @v8.9.9
+	p_data_pack->Rec.LotDimCount  = p_cache_rec->LotDimCount;
+	p_data_pack->Rec.LotDimUnitID = p_cache_rec->LotDimUnitID;
 
 	p_data_pack->PropKind.ItemsListID  = p_cache_rec->KindID;
 	p_data_pack->PropGrade.ItemsListID = p_cache_rec->GradeID;
@@ -993,7 +993,7 @@ void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	ss.get(&p, p_data_pack->AbbrConv);
 	ss.get(&p, p_data_pack->PhUPerU_Formula);
 	ss.get(&p, p_data_pack->TaxMult_Formula);
-	ss.get(&p, p_data_pack->LotDimQtty_Formula); // @v8.9.12
+	ss.get(&p, p_data_pack->LotDimQtty_Formula);
 }
 
 int SLAPI PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
@@ -1357,9 +1357,9 @@ void GcCalcDialog::setArg(int argIdx, double arg)
 int GcCalcDialog::setDTS(PPID goodsID, PPID tsessID)
 {
 	int    ok = 0;
-	Result = 0;
+	Result = 0.0;
 	TSessID = tsessID;
-	if(GObj.GetPacket(goodsID, &Pack, PPObjGoods::gpoSkipQuot) > 0 && Pack.Rec.GdsClsID && GcObj.GetPacket(Pack.Rec.GdsClsID, &GcPack) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+	if(GObj.GetPacket(goodsID, &Pack, PPObjGoods::gpoSkipQuot) > 0 && Pack.Rec.GdsClsID && GcObj.GetPacket(Pack.Rec.GdsClsID, &GcPack) > 0) {
 		if(GcPack.FormulaList.getCount()) {
 			setupFormulaCombo();
 			ok = 1;

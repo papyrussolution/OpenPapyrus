@@ -788,7 +788,7 @@ int SLAPI DBTable::StoreAndTrimLob()
 {
 	int    ok = -1;
 	if(State & sHasLob) {
-		LobB.Storage.Clear();
+		LobB.Storage.Z();
 		for(uint i = 0; i < fields.getCount(); i++) {
 			const BNField & r_fld = fields[i];
 			if(oneof2(GETSTYPE(r_fld.T), S_BLOB, S_CLOB)) {
@@ -834,7 +834,7 @@ int SLAPI DBTable::RestoreLob()
 		}
 	}
 	CATCHZOK
-	LobB.Storage.Clear();
+	LobB.Storage.Z();
 	return ok;
 }
 

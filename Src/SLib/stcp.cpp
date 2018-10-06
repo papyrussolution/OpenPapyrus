@@ -4096,7 +4096,7 @@ static size_t CbRead_EMailMessage(char * pBuffer, size_t size, size_t nitems, vo
 				written_sz += s;
 			}
 			else {
-				p_blk->TBuf.Clear();
+				p_blk->TBuf.Z();
 				r = p_blk->Wb.Read(4096, p_blk->TBuf);
 			}
 			avl_sz = p_blk->TBuf.GetAvailableSize();
@@ -4555,7 +4555,7 @@ static void SLAPI Test_MakeEmailMessage(SMailMessage & rMsg)
 			path.SetLastSlash().Cat("data").SetLastSlash().Cat("rustext.txt");
 			SFile f_in(path, SFile::mRead);
 			if(f_in.IsValid()) {
-				data_buf.Clear();
+				data_buf.Z();
 				while(f_in.ReadLine(temp_buf)) {
 					temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 					data_buf.Write(temp_buf, temp_buf.Len());
@@ -4583,10 +4583,10 @@ void SLAPI Test_MakeEmailMessage()
 		SFile f_out(path, SFile::mWrite|SFile::mBinary);
 
 		SMailMessage::WriterBlock wb(msg);
-		data_buf.Clear();
+		data_buf.Z();
 		while(wb.Read(2048, data_buf) > 0) {
 			f_out.Write(data_buf.GetBuf(data_buf.GetRdOffs()), data_buf.GetAvailableSize());
-			data_buf.Clear();
+			data_buf.Z();
 		}
 	}
 }

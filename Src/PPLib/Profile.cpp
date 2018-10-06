@@ -886,7 +886,7 @@ int SLAPI PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
 			if(buf.GetAvailableSize()) {
 				THROW(stb.Serialize(-1, buf, &sctx));
 				if(stb.RemoveItem(*pDbId) > 0) {
-					THROW(stb.Serialize(+1, buf.Clear(), &sctx));
+					THROW(stb.Serialize(+1, buf.Z(), &sctx));
 					THROW(PPRef->PutPropSBuffer(PPOBJ_USERPROFILE, 1L, USERPROFILEPPRP_FILEINFO2, buf, use_ta));
 				}
 			}

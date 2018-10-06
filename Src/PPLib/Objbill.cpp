@@ -1180,7 +1180,7 @@ int SLAPI PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec,
 				SBuffer ov_buf;
 				PPObjID oid;
 				oid.Set(0, 0);
-				ov_buf.Clear();
+				ov_buf.Z();
 				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(ev_mod.ObjType, ev_mod.ObjID)) {
 					PPBillPacket org_pack;
 					THROW(SerializePacket__(-1, &org_pack, ov_buf, &r_sctx));

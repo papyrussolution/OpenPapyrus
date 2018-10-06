@@ -333,7 +333,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 								long   vv = 0;
 								EvVerEntry ev_entry;
 								MEMSZERO(ev_entry);
-								ov_buf.Clear();
+								ov_buf.Z();
 								if(p_ovc->Search(r_rec.Extra, &ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(r_rec.ObjType, r_rec.ObjID)) {
 									PPObject * ppobj = P_ObjColl->GetObjectPtr(ev_entry.Obj);
 									if(ev_entry.Obj == PPOBJ_BILL) {
@@ -353,7 +353,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 													PPBillPacket next_pack;
 													EvVerEntry next_ev_entry;
 													MEMSZERO(next_ev_entry);
-													ov_buf.Clear();
+													ov_buf.Z();
 													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(next_rec.ObjType, next_rec.ObjID)) {
 														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx)) {
 															next_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12

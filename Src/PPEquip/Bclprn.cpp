@@ -1854,7 +1854,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortPara
 		size_t offs = Buf.GetRdOffs();
 		size_t size = Buf.GetAvailableSize();
 		WriteFile(hdl, Buf.GetBuf(offs), (DWORD)size, &written_bytes, 0);
-		Buf.Clear();
+		Buf.Z();
 		THROW_PP(written_bytes, PPERR_BARLABELPRINTFAULT);
 	}
 	CATCHZOK

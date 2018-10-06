@@ -64,7 +64,7 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 
 SLAPI PPNamedFilt::~PPNamedFilt()
 {
-	Param.Clear();
+	Param.Z();
 }
 
 SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt> (), DbSymb(pDbSymb), Flags(0)
@@ -282,7 +282,7 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 	hdr.Count = pPool->getCount();
 	THROW_SL(f.Write(&hdr, sizeof(hdr)));
 	for(uint i = 0; i < hdr.Count; i++) {
-		buf.Clear();
+		buf.Z();
 		PPNamedFilt * p_nfilt = pPool->at(i);
 		THROW(p_nfilt->Write(buf, 0));
 		THROW_SL(f.Write(buf));
@@ -405,7 +405,7 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 			if(!name.NotEmptyS()) {
 				setCtrlString(CTL_FILTITEM_NAME, CmdTextList.Get(pos).Txt);
 			}
-			Data.Param.Clear(); // Поменялся PPView, фильтр устарел
+			Data.Param.Z(); // Поменялся PPView, фильтр устарел
 			enableCommand(cmCmdParam, 1);
 		}
 		else
@@ -434,7 +434,7 @@ int FiltItemDialog::ChangeBaseFilter()
 			}
 			SETIFZ(p_filt, p_view->CreateFilt(0));
 			if((ok = p_view->EditBaseFilt(p_filt)) > 0) {
-				Data.Param.Clear();
+				Data.Param.Z();
 				THROW(p_view->WriteFiltPtr(Data.Param, p_filt));
 			}
 			else

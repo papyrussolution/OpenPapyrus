@@ -1,5 +1,6 @@
 // V_CCHECK.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -66,13 +67,13 @@ int SLAPI CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			RealRange QttyR;
 			RealRange PcntR;
 			double    AmountQuant;
-			long   SortOrder;        // Сортировка
-			long   GcoMinCount;      // Параметры расчета попарных включений товаров в один чек
-			SubstGrpGoods Sgg;       // Подстановка товара для попарных товаров
+			long   SortOrder;        // РЎРѕСЂС‚РёСЂРѕРІРєР°
+			long   GcoMinCount;      // РџР°СЂР°РјРµС‚СЂС‹ СЂР°СЃС‡РµС‚Р° РїРѕРїР°СЂРЅС‹С… РІРєР»СЋС‡РµРЅРёР№ С‚РѕРІР°СЂРѕРІ РІ РѕРґРёРЅ С‡РµРє
+			SubstGrpGoods Sgg;       // РџРѕРґСЃС‚Р°РЅРѕРІРєР° С‚РѕРІР°СЂР° РґР»СЏ РїРѕРїР°СЂРЅС‹С… С‚РѕРІР°СЂРѕРІ
 			PPIDArray SessIDList;    // @anchor
-			ObjIdListFilt NodeList;  // Список узлов.
-			ObjIdListFilt CorrGoodsList; // Список кореллирующих товаров
-			ObjIdListFilt CtValList;     // CCheckFilt::ctvXXX Показатель, вычисляемый в кросстаб-отчете
+			ObjIdListFilt NodeList;  // РЎРїРёСЃРѕРє СѓР·Р»РѕРІ.
+			ObjIdListFilt CorrGoodsList; // РЎРїРёСЃРѕРє РєРѕСЂРµР»Р»РёСЂСѓСЋС‰РёС… С‚РѕРІР°СЂРѕРІ
+			ObjIdListFilt CtValList;     // CCheckFilt::ctvXXX РџРѕРєР°Р·Р°С‚РµР»СЊ, РІС‹С‡РёСЃР»СЏРµРјС‹Р№ РІ РєСЂРѕСЃСЃС‚Р°Р±-РѕС‚С‡РµС‚Рµ
 		};
 		CCheckFilt_v3 fv3;
 		THROW(fv3.Read(rBuf, 0));
@@ -529,7 +530,7 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 		Data.NodeList = cn_rec.List;
 	}
 	getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
-	Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
+	Data.CodeR.Set(0); // @v9.6.8 РїСЂРё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРµ РґРёР°РїР°Р·РѕРЅ РЅРµ РјРµРЅСЏРµС‚СЃСЏ
 	GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
 	GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
 	getGroupData(ctlgroupGoodsFilt, &grp_rec);
@@ -583,7 +584,10 @@ void SLAPI PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckT
 	rResultRec = *pRec;
 	MEMSZERO(rExtRec);
 	const long ff_ = Filt.Flags;
-	if(pRec->Flags & CCHKF_EXT && P_CC->GetExt(pRec->ID, &rExtRec) > 0) {
+	if(!(pRec->Flags & CCHKF_EXT) || (ff_ & Filt.fAvoidExt && !(Filt.HasExtFiltering() || (ff_ & CCheckFilt::fCTableStatus)))) { // @v10.2.1
+		;
+	}
+	else if(/* @seeabove pRec->Flags & CCHKF_EXT &&*/ P_CC->GetExt(pRec->ID, &rExtRec) > 0) {
 		if(ff_ & CCheckFilt::fStartOrderPeriod) {
 			rResultRec.Dt = rExtRec.CreationDtm.d;
 			rResultRec.Tm = rExtRec.CreationDtm.t;
@@ -656,7 +660,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(ff_ & CCheckFilt::fCTableStatus && !(f & (CCHKF_SUSPENDED|CCHKF_ORDER)))
 				return 0;
-			// @v9.7.11 дополнение по состоянию stSkipUnprinted
+			// @v9.7.11 РґРѕРїРѕР»РЅРµРЅРёРµ РїРѕ СЃРѕСЃС‚РѕСЏРЅРёСЋ stSkipUnprinted
 			else if(ff_ & CCheckFilt::fWithoutSkipTag && ((f & CCHKF_SKIP) || (State & stSkipUnprinted && !(f & CCHKF_PRINTED))))
 				return 0;
 			else if(ff_ & CCheckFilt::fNotSpFinished && f & CCHKF_SPFINISHED) // @v9.7.5
@@ -718,9 +722,9 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 			if(NodeIdList.GetCount()) {
 				long   cn_id = 0;
 				//
-				// Если условия фильтрации требуют отображения junk или потерянных junk-чеков,
-				// то для junk-чека игнорируем фильтр по сессии, а кассовый узел проверяем по CCheckTbl::Rec::CashID
-				// (это всегда синхронные кассы)
+				// Р•СЃР»Рё СѓСЃР»РѕРІРёСЏ С„РёР»СЊС‚СЂР°С†РёРё С‚СЂРµР±СѓСЋС‚ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ junk РёР»Рё РїРѕС‚РµСЂСЏРЅРЅС‹С… junk-С‡РµРєРѕРІ,
+				// С‚Рѕ РґР»СЏ junk-С‡РµРєР° РёРіРЅРѕСЂРёСЂСѓРµРј С„РёР»СЊС‚СЂ РїРѕ СЃРµСЃСЃРёРё, Р° РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР» РїСЂРѕРІРµСЂСЏРµРј РїРѕ CCheckTbl::Rec::CashID
+				// (СЌС‚Рѕ РІСЃРµРіРґР° СЃРёРЅС…СЂРѕРЅРЅС‹Рµ РєР°СЃСЃС‹)
 				//
 				if(f & CCHKF_JUNK && (ff_ & CCheckFilt::fLostJunkAsSusp && ff_ & CCheckFilt::fShowSuspended)) {
 					if(!NodeIdList.CheckID(pRec->CashID))
@@ -732,9 +736,9 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				}
 				else {
 					//
-					// Так как сессий может быть очень много, причем чеки по ним
-					// просматриваются достаточно локально, то не будем зря забивать память
-					// и время от времени станем очищать таблицу ассоциаций.
+					// РўР°Рє РєР°Рє СЃРµСЃСЃРёР№ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‡РµРЅСЊ РјРЅРѕРіРѕ, РїСЂРёС‡РµРј С‡РµРєРё РїРѕ РЅРёРј
+					// РїСЂРѕСЃРјР°С‚СЂРёРІР°СЋС‚СЃСЏ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р»РѕРєР°Р»СЊРЅРѕ, С‚Рѕ РЅРµ Р±СѓРґРµРј Р·СЂСЏ Р·Р°Р±РёРІР°С‚СЊ РїР°РјСЏС‚СЊ
+					// Рё РІСЂРµРјСЏ РѕС‚ РІСЂРµРјРµРЅРё СЃС‚Р°РЅРµРј РѕС‡РёС‰Р°С‚СЊ С‚Р°Р±Р»РёС†Сѓ Р°СЃСЃРѕС†РёР°С†РёР№.
 					//
 					const uint max_sescnlist_size = 512;
 					if(SessCnList.getCount() >= max_sescnlist_size)
@@ -748,8 +752,8 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 					}
 					else {
 						//
-						// Висячий ид сессии. Добавляем его в таблицу ассоциаций с нулевым
-						// идентификатором кассового узла и считаем, что проверка не выполнена.
+						// Р’РёСЃСЏС‡РёР№ РёРґ СЃРµСЃСЃРёРё. Р”РѕР±Р°РІР»СЏРµРј РµРіРѕ РІ С‚Р°Р±Р»РёС†Сѓ Р°СЃСЃРѕС†РёР°С†РёР№ СЃ РЅСѓР»РµРІС‹Рј
+						// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° Рё СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ РїСЂРѕРІРµСЂРєР° РЅРµ РІС‹РїРѕР»РЅРµРЅР°.
 						//
 						SessCnList.Add(pRec->SessID, 0, 0);
 						return 0;
@@ -1084,6 +1088,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	CCheckCore * p_cct = P_CC;
 	PPObjLocation loc_obj;
 	PPObjCashNode cn_obj;
+	PPCashNode cn_rec;
 	PPObjSCardSeries sc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
@@ -1105,7 +1110,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	{
 		PPIDArray node_id_list;
 		//
-		// Идентифицируем терминальный список кассовых узлов
+		// РРґРµРЅС‚РёС„РёС†РёСЂСѓРµРј С‚РµСЂРјРёРЅР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
 		//
 		if(Filt.NodeList.GetCount()) {
 			temp_list.clear();
@@ -1116,7 +1121,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		}
 		{
 			//
-			// Идентифицируем терминальный список кассовых сессий
+			// РРґРµРЅС‚РёС„РёС†РёСЂСѓРµРј С‚РµСЂРјРёРЅР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
 			//
 			temp_list.clear();
 			if(Filt.Flags & CCheckFilt::fZeroSess)
@@ -1130,7 +1135,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				}
 			}
 			//
-			// Из каждой кассовой сессии извлекаем ид кассового узла чтобы включить в общий список узлов
+			// РР· РєР°Р¶РґРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РёР·РІР»РµРєР°РµРј РёРґ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° С‡С‚РѕР±С‹ РІРєР»СЋС‡РёС‚СЊ РІ РѕР±С‰РёР№ СЃРїРёСЃРѕРє СѓР·Р»РѕРІ
 			//
 			if(temp_list.getCount()) {
 				SessIdList.Set(&temp_list);
@@ -1146,17 +1151,16 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		// @v9.7.11 {
 		if(node_id_list.getCount()) {
 			//
-			// Теперь, имея исчерпывающий список кассовых узлов можно
-			// определить нужно показывать не отпечатанные чеки или нет.
-			// Note: на самом деле, это не совсем корректно - чеки будут показаны по ПЕРЕСЕЧЕНИЮ
-			//   списка узлов и списка сессий, а здесь решение мы принимаем по ОБЪЕДИНЕНИЮ.
-			//   Пока оставим это противоречие (оно может сказаться в очень редких случаях, но
-			//   не забываем, что здесь есть проблема).
+			// РўРµРїРµСЂСЊ, РёРјРµСЏ РёСЃС‡РµСЂРїС‹РІР°СЋС‰РёР№ СЃРїРёСЃРѕРє РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ РјРѕР¶РЅРѕ
+			// РѕРїСЂРµРґРµР»РёС‚СЊ РЅСѓР¶РЅРѕ РїРѕРєР°Р·С‹РІР°С‚СЊ РЅРµ РѕС‚РїРµС‡Р°С‚Р°РЅРЅС‹Рµ С‡РµРєРё РёР»Рё РЅРµС‚.
+			// Note: РЅР° СЃР°РјРѕРј РґРµР»Рµ, СЌС‚Рѕ РЅРµ СЃРѕРІСЃРµРј РєРѕСЂСЂРµРєС‚РЅРѕ - С‡РµРєРё Р±СѓРґСѓС‚ РїРѕРєР°Р·Р°РЅС‹ РїРѕ РџР•Р Р•РЎР•Р§Р•РќРР®
+			//   СЃРїРёСЃРєР° СѓР·Р»РѕРІ Рё СЃРїРёСЃРєР° СЃРµСЃСЃРёР№, Р° Р·РґРµСЃСЊ СЂРµС€РµРЅРёРµ РјС‹ РїСЂРёРЅРёРјР°РµРј РїРѕ РћР‘РЄР•Р”РРќР•РќРР®.
+			//   РџРѕРєР° РѕСЃС‚Р°РІРёРј СЌС‚Рѕ РїСЂРѕС‚РёРІРѕСЂРµС‡РёРµ (РѕРЅРѕ РјРѕР¶РµС‚ СЃРєР°Р·Р°С‚СЊСЃСЏ РІ РѕС‡РµРЅСЊ СЂРµРґРєРёС… СЃР»СѓС‡Р°СЏС…, РЅРѕ
+			//   РЅРµ Р·Р°Р±С‹РІР°РµРј, С‡С‚Рѕ Р·РґРµСЃСЊ РµСЃС‚СЊ РїСЂРѕР±Р»РµРјР°).
 			//
 			node_id_list.sortAndUndup();
 			State |= stSkipUnprinted;
 			for(i = 0; State & stSkipUnprinted && i < node_id_list.getCount(); i++) {
-				PPCashNode cn_rec;
 				if(cn_obj.Fetch(node_id_list.get(i), &cn_rec) > 0 && !(cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS))
 					State &= ~stSkipUnprinted;
 			}
@@ -1350,11 +1354,8 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							temp_buf.Cat(rec.CashID);
 		   	            	break;
 						case CCheckFilt::gCashNode:
-							{
-								PPCashNode cn_rec;
-								if(cn_obj.Fetch(rec.CashID, &cn_rec) > 0)
-									temp_buf = cn_rec.Name;
-							}
+							if(cn_obj.Fetch(rec.CashID, &cn_rec) > 0)
+								temp_buf = cn_rec.Name;
 		   	            	break;
 						case CCheckFilt::gCard:
 							{
@@ -1551,7 +1552,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		if(!(Filt.Flags & CCheckFilt::fCheckLines)){
 			if(P_TmpTbl && (!IsTempTblNeeded() || !(Filt.Flags & CCheckFilt::fInner)))
 				ZDELETE(P_TmpTbl);
-			if(!P_TmpTbl && IsTempTblNeeded()) { // @todo Из-за того что при вызове ChangeFilt не удаляется таблица P_TmpTbl, возможны артефакты
+			if(!P_TmpTbl && IsTempTblNeeded()) { // @todo РР·-Р·Р° С‚РѕРіРѕ С‡С‚Рѕ РїСЂРё РІС‹Р·РѕРІРµ ChangeFilt РЅРµ СѓРґР°Р»СЏРµС‚СЃСЏ С‚Р°Р±Р»РёС†Р° P_TmpTbl, РІРѕР·РјРѕР¶РЅС‹ Р°СЂС‚РµС„Р°РєС‚С‹
 				THROW(P_TmpTbl = CreateTempFile());
 				{
 					BExtInsert bei(P_TmpTbl);
@@ -1594,9 +1595,18 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								q.select(p_cct->ID, 0L).where(*dbq);
 								MEMSZERO(k);
 								k.SCardID = card_id;
-								k.Dt = Filt.Period.low;
-								for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-									cc_id_list.add(p_cct->data.ID);
+								if(Filt.CountOfLastItems) {
+									uint _c = 0;
+									k.Dt = NZOR(Filt.Period.upp, MAXDATE);
+									for(q.initIteration(1, &k, spLe); _c < Filt.CountOfLastItems && q.nextIteration() > 0; _c++) {
+										cc_id_list.add(p_cct->data.ID);
+									}
+								}
+								else {
+									k.Dt = Filt.Period.low;
+									for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+										cc_id_list.add(p_cct->data.ID);
+									}
 								}
 							}
 							{
@@ -1775,7 +1785,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 		}
 		else {
 			CCheckCore * p_cct = P_CC;
-			if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+			if(SessIdList.GetCount() == 1) { // Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ GetSingle РёР±Рѕ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚С‹ РјРѕР¶РµС‚ Р±С‹С‚СЊ 0
 				idx = 3;
 				sp = spGe;
 				MEMSZERO(k);
@@ -2155,8 +2165,8 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		}
 		else if(P_TmpGrpTbl) {
 			DBE * p_dbe_avrg = 0;
-			DBE * p_dbe_lc_avg = 0; // Среднее количество строк
-			DBE * p_dbe_sc_avg = 0; // Среднее количество товаров
+			DBE * p_dbe_lc_avg = 0; // РЎСЂРµРґРЅРµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє
+			DBE * p_dbe_sc_avg = 0; // РЎСЂРµРґРЅРµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂРѕРІ
 			g = new TempCCheckGrpTbl(P_TmpGrpTbl->GetName());
 			p_dbe_avrg = & (g->Amount / g->Count);
 			p_dbe_lc_avg = & (g->LinesCount / g->Count);
@@ -2349,7 +2359,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 				if(!Filt.AmtR.IsZero()) {
 					dbq = &(*dbq && realrange(t->Amount, Filt.AmtR.low, Filt.AmtR.upp));
 				}
-				if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+				if(SessIdList.GetCount() == 1) { // Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ GetSingle РёР±Рѕ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚С‹ РјРѕР¶РµС‚ Р±С‹С‚СЊ 0
 					dbq = &(*dbq && t->SessID == SessIdList.GetSingle());
 				}
 				else if(!Filt.CashNumber && NodeIdList.GetCount()) {
@@ -2392,7 +2402,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 				else
 					p_q->from(t, cs, 0L);
 				p_q->where(*dbq);
-				if(SessIdList.GetCount() == 1) // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+				if(SessIdList.GetCount() == 1) // Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ GetSingle РёР±Рѕ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚С‹ РјРѕР¶РµС‚ Р±С‹С‚СЊ 0
 					p_q->orderBy(t->SessID, 0L);
 				else
 					p_q->orderBy(t->Dt, t->Tm, 0L);
@@ -2562,8 +2572,8 @@ int SLAPI PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)
 			return -1;
 		}
 		else if(r == 2) {
-			// Опция кассового узла CASHF_NOMODALCHECKVIEW предписывает после кассовой панели
-			// не входить в таблицу чеков
+			// РћРїС†РёСЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° CASHF_NOMODALCHECKVIEW РїСЂРµРґРїРёСЃС‹РІР°РµС‚ РїРѕСЃР»Рµ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё
+			// РЅРµ РІС…РѕРґРёС‚СЊ РІ С‚Р°Р±Р»РёС†Сѓ С‡РµРєРѕРІ
 			return cmCancel;
 		}
 	}
@@ -2610,7 +2620,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 	CCheckViewItem  item;
 	IterCounter cntr;
 	PPIDArray   excl_goods_list;
-	// Кроме ary_count все остальные переменные используются только для тестирования //
+	// РљСЂРѕРјРµ ary_count РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ //
 	ulong  corr_count = 0, ins_count = 0, chk_count = 0;
 	ulong  min_p_la = 0xffffffff;
 	ulong  max_p_la = 0;
@@ -2676,7 +2686,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				ins_count++;
 			}
-			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0)) > 0) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
+			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0)) > 0) // РљРѕР»РёС‡РµСЃС‚РІРѕ С‡РµРєРѕРІ РІ РєРѕС‚РѕСЂС‹С… РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ РІРµРґРѕРјС‹Р№ С‚РѕРІР°СЂ, Р±СѓРґРµРј С…СЂР°РЅРёС‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РјР°СЃСЃРёРІРµ
 				goods_chk_ary.at(goods_chk_pos).Val++;
 			else {
 				THROW_SL(goods_chk_ary.Add(p_gds_qtty1->Key, 1, 0, 1));
@@ -2950,7 +2960,7 @@ int SLAPI PPViewCCheck::ViewGraph()
 		plot.StartData(1);
 		if(Filt.Grp != CCheckFilt::gDate) {
 			//
-			// Заголовки столбцов нужны только для гистрограмм
+			// Р—Р°РіРѕР»РѕРІРєРё СЃС‚РѕР»Р±С†РѕРІ РЅСѓР¶РЅС‹ С‚РѕР»СЊРєРѕ РґР»СЏ РіРёСЃС‚СЂРѕРіСЂР°РјРј
 			//
 			plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
 			plot.PutData(PPGetWord(PPWORD_SALES, 1, temp_buf), 1);
@@ -3030,12 +3040,10 @@ SString & SLAPI PPViewCCheck::GetCtColumnTitle(int ct, SString & rBuf)
 {
 	rBuf.Space() = 0;
 	SString temp_buf;
-	if(ct == CCheckFilt::ctvChecksSum) {
+	if(ct == CCheckFilt::ctvChecksSum)
 		PPLoadText(PPTXT_CCHECKAMOUNT, rBuf);
-	}
-	else if(ct == CCheckFilt::ctvChecksCount) {
+	else if(ct == CCheckFilt::ctvChecksCount)
 		PPLoadText(PPTXT_CCHECKCOUNT, rBuf);
-	}
 	else if(ct == CCheckFilt::ctvSKUCount)
 		PPGetWord(PPWORD_SKUCOUNT, 0, rBuf);
 	return rBuf;
@@ -3133,7 +3141,7 @@ int SLAPI PPViewCCheck::Recover()
 			if(dup_list.getCount()) {
 				SString fmt_buf, msg_buf, cc_buf;
 				PPIDArray list_to_remove;
-				//PPTXT_CCHKERR_DUP            "Обнаружены дублированные чеки: %s"
+				//PPTXT_CCHKERR_DUP            "РћР±РЅР°СЂСѓР¶РµРЅС‹ РґСѓР±Р»РёСЂРѕРІР°РЅРЅС‹Рµ С‡РµРєРё: %s"
 				PPLoadText(PPTXT_CCHKERR_DUP, fmt_buf);
 				for(uint i = 0; i < dup_list.getCount(); i++) {
 					const CcDupEntry & r_entry = dup_list.at(i);
@@ -3160,10 +3168,10 @@ int SLAPI PPViewCCheck::Recover()
 				}
 				if(list_to_remove.getCount()) {
 					list_to_remove.sortAndUndup();
-					//PPTXT_CCHKERR_DUPTOTAL       "Всего обнаружено %ld дубликитов чеков, которые следует удалить"
+					//PPTXT_CCHKERR_DUPTOTAL       "Р’СЃРµРіРѕ РѕР±РЅР°СЂСѓР¶РµРЅРѕ %ld РґСѓР±Р»РёРєРёС‚РѕРІ С‡РµРєРѕРІ, РєРѕС‚РѕСЂС‹Рµ СЃР»РµРґСѓРµС‚ СѓРґР°Р»РёС‚СЊ"
 					PPLoadText(PPTXT_CCHKERR_DUPTOTAL, fmt_buf);
 					logger.Log(msg_buf.Printf(fmt_buf, (long)list_to_remove.getCount()));
-					if(flags & 0x01) { // Исправлять ошибки
+					if(flags & 0x01) { // РСЃРїСЂР°РІР»СЏС‚СЊ РѕС€РёР±РєРё
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint tridx = 0; tridx < list_to_remove.getCount(); tridx++) {
@@ -3246,7 +3254,7 @@ int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				ok = Recover();
 				break;
 			case PPVCMD_DELETEALL:
-				ok = RemoveAll(); // Удаляет только чеки с неопределенной сессией
+				ok = RemoveAll(); // РЈРґР°Р»СЏРµС‚ С‚РѕР»СЊРєРѕ С‡РµРєРё СЃ РЅРµРѕРїСЂРµРґРµР»РµРЅРЅРѕР№ СЃРµСЃСЃРёРµР№
 				break;
 			case PPVCMD_POSPRINT:
 				ok = PosPrint(id, 0);
@@ -3381,7 +3389,7 @@ int SLAPI PPViewCCheck::AddItem()
 		int  to_view = 0, close_imm = 0;
 		if(CsObj.CheckRights(CSESSRT_ADDCHECK))
 			to_view = 1;
-		// Допускается работа с кассовой панелью (в ограниченом режиме: можно создать отложенный чек, но нельзя чек провести)
+		// Р”РѕРїСѓСЃРєР°РµС‚СЃСЏ СЂР°Р±РѕС‚Р° СЃ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»СЊСЋ (РІ РѕРіСЂР°РЅРёС‡РµРЅРѕРј СЂРµР¶РёРјРµ: РјРѕР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РѕС‚Р»РѕР¶РµРЅРЅС‹Р№ С‡РµРє, РЅРѕ РЅРµР»СЊР·СЏ С‡РµРє РїСЂРѕРІРµСЃС‚Рё)
 		else if(Filt.Flags & CCheckFilt::fImmOpenPanel) {
 			close_imm = 1;
 			to_view = 1;
@@ -3461,8 +3469,8 @@ public:
 		setCtrlReal(CTL_CCHECKINFO_ADDPAYM,  0.0); // @v9.0.4 fdiv100i(Data.Ext.AddPaym)-->0.0
 		if((Data.Rec.SessID == 0 || CsObj.Search(Data.Rec.SessID, &csess_rec) <= 0) && PPMaster) {
 			//
-			// Если ИД сессии равен нулю или сессия не найдена и работает master,
-			// то следующие поля не блокируем
+			// Р•СЃР»Рё РР” СЃРµСЃСЃРёРё СЂР°РІРµРЅ РЅСѓР»СЋ РёР»Рё СЃРµСЃСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР° Рё СЂР°Р±РѕС‚Р°РµС‚ master,
+			// С‚Рѕ СЃР»РµРґСѓСЋС‰РёРµ РїРѕР»СЏ РЅРµ Р±Р»РѕРєРёСЂСѓРµРј
 			//
 			// CTL_CCHECKINFO_CODE
 			// CTL_CCHECKINFO_CASHCODE

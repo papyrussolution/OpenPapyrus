@@ -4017,10 +4017,7 @@ struct TestFixtureSArray {
 			Sa[i] = SLS.GetTLA().Rg.GetUniformInt(119000);
 		}
 	}
-	uint GetSaCount() const
-	{
-		return sizeof(Sa) / sizeof(Sa[0]);
-	}
+	uint GetSaCount() const { return SIZEOFARRAY(Sa); }
 	long   Sa[7000];
 	long   Tail[17]; // хвост, который не должен измениться ни при каких условиях
 };

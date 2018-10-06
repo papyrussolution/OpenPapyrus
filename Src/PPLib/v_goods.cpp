@@ -2175,6 +2175,7 @@ int SLAPI PPViewGoods::RemoveAll()
 		}
 		GoodsMoveParam Data;
 	};
+	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
 	int    ok = -1;
 	GoodsMoveDialog * dlg = 0;
 	int    valid_data = 0;
@@ -2491,6 +2492,114 @@ int SLAPI PPViewGoods::RemoveAll()
 			}
 		}
 		else if(GmParam.Action == GoodsMoveParam::aSplitBarcodeItems) {
+			PPIDArray id_list;
+			LAssocArray to_process_list;
+			PPID   prev_id = 0;
+			SString result_barcode;
+			SString goods_name;
+			SString suffix;
+			BarcodeArray bc_list;
+			LongArray valid_bc_pos_list;
+			PPGoodsPacket org_pack;
+			PPGoodsPacket new_pack;
+			THROW(GObj.CheckRights(GOODSRT_UNITE));
+			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				if(item.ID != prev_id) {
+					GObj.ReadBarcodes(item.ID, bc_list);
+					if(bc_list.getCount() > 1) {
+						valid_bc_pos_list.clear();
+						for(uint i = 0; i < bc_list.getCount(); i++) {
+							const BarcodeTbl::Rec & r_bc_item = bc_list.at(i);
+							temp_buf = r_bc_item.Code;
+							int    diag = 0, std = 0;
+							int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+							if(dbr > 0) {
+								assert(temp_buf == result_barcode);
+								valid_bc_pos_list.add(i);
+							}
+						}
+						if(valid_bc_pos_list.getCount() > 1) {
+							id_list.add(item.ID);
+						}
+					}
+					//
+					prev_id = item.ID;
+				}
+				PPWaitPercent(GetCounter());
+			}
+			if(id_list.getCount()) {
+				PPTransaction tra(1);
+				THROW(tra);
+				id_list.sortAndUndup();
+				for(uint idlidx = 0; idlidx < id_list.getCount(); idlidx++) {
+					const PPID goods_id = id_list.get(idlidx);
+					if(GObj.GetPacket(goods_id, &org_pack, 0) > 0) {
+						valid_bc_pos_list.clear();
+						bc_list = org_pack.Codes;
+						for(uint i = 0; i < org_pack.Codes.getCount(); i++) {
+							const BarcodeTbl::Rec & r_bc_item = org_pack.Codes.at(i);
+							temp_buf = r_bc_item.Code;
+							int    diag = 0, std = 0;
+							int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+							if(dbr > 0) {
+								assert(temp_buf == result_barcode);
+								valid_bc_pos_list.add(i);
+							}
+						}
+						if(valid_bc_pos_list.getCount() > 1) {
+							uint j;
+							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) первый код оставляем в оригинальном пакете
+								const uint bc_pos = valid_bc_pos_list.get(j);
+								const BarcodeTbl::Rec & r_bc_item = org_pack.Codes.at(bc_pos);
+								BarcodeTbl::Rec & r_org_bc_item = org_pack.Codes.at(bc_pos);
+								assert(strcmp(r_bc_item.Code, r_org_bc_item.Code) == 0);
+								org_pack.Codes.atFree(bc_pos);
+							}
+							{
+								PPID   temp_id = org_pack.Rec.ID;
+								THROW(GObj.PutPacket(&temp_id, &org_pack, 0));
+								success_count++;
+							}
+							for(j = valid_bc_pos_list.getCount()-1; j > 0; j--) { // (j > 0) первый код оставляем в оригинальном пакете
+								const uint bc_pos = valid_bc_pos_list.get(j);
+								const BarcodeTbl::Rec & r_bc_item = bc_list.at(bc_pos);
+								BarcodeTbl::Rec & r_org_bc_item = bc_list.at(bc_pos);
+								assert(strcmp(r_bc_item.Code, r_org_bc_item.Code) == 0);
+								new_pack = org_pack;
+								new_pack.Rec.ID = 0;
+								new_pack.ArCodes.freeAll();
+								new_pack.Codes.freeAll();
+								new_pack.Codes.insert(&r_bc_item);
+								new_pack.TagL.PutItem(PPTAG_GOODS_UUID, 0);
+								new_pack.TagL.PutItem(PPTAG_GOODS_OUTERPOSCODE, 0);
+								{
+									PPID   temp_nm_goods_id = 0;
+									long   uc = 1;
+									goods_name = new_pack.Rec.Name;
+									temp_buf = goods_name;
+									while(GObj.SearchByName(temp_buf, &temp_nm_goods_id, 0) > 0) {
+										suffix.Z().Space().CatChar('#').Cat(++uc);
+										temp_buf = goods_name;
+										size_t sum_len = temp_buf.Len() + suffix.Len();
+										if(sum_len > max_nm_len)
+											temp_buf.Trim(max_nm_len-suffix.Len());
+										temp_buf.Cat(suffix);
+									} 
+									goods_name = temp_buf;
+									STRNSCPY(new_pack.Rec.Name, goods_name);
+								}
+								{
+									PPID   temp_id = 0;
+									THROW(GObj.PutPacket(&temp_id, &new_pack, 0));
+									success_count++;
+								}
+							}
+						}
+					}
+					PPWaitPercent(idlidx+1, id_list.getCount());
+				}
+				THROW(tra.Commit());
+			}
 		}
 		PPWait(0);
 		{

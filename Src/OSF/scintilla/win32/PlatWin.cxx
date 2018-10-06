@@ -2019,31 +2019,24 @@ void Window::SetTitle(const char * s)
 {
 	::SetWindowTextA(static_cast<HWND>(wid), s);
 }
-
-/* Returns rectangle of monitor pt is on, both rect and pt are in Window's
-   coordinates */
+//
+// Returns rectangle of monitor pt is on, both rect and pt are in Window's coordinates 
+//
 PRectangle Window::GetMonitorRect(Point pt)
 {
 	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 and NT 4.
 	PRectangle rcPosition = GetPosition();
-	POINT ptDesktop = {static_cast<LONG>(pt.x + rcPosition.left),
-			   static_cast<LONG>(pt.y + rcPosition.top)};
+	POINT ptDesktop = { static_cast<LONG>(pt.x + rcPosition.left), static_cast<LONG>(pt.y + rcPosition.top)};
 	HMONITOR hMonitor = NULL;
 	if(MonitorFromPointFn)
 		hMonitor = MonitorFromPointFn(ptDesktop, MONITOR_DEFAULTTONEAREST);
-
 	RECT rcWork = RectFromMonitor(hMonitor);
 	if(rcWork.left < rcWork.right) {
-		PRectangle rcMonitor(
-		    rcWork.left - rcPosition.left,
-		    rcWork.top - rcPosition.top,
-		    rcWork.right - rcPosition.left,
-		    rcWork.bottom - rcPosition.top);
+		PRectangle rcMonitor(rcWork.left - rcPosition.left, rcWork.top - rcPosition.top, rcWork.right - rcPosition.left, rcWork.bottom - rcPosition.top);
 		return rcMonitor;
 	}
-	else {
+	else
 		return PRectangle();
-	}
 }
 
 struct ListItemData {

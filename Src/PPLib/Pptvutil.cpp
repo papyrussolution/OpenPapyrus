@@ -2021,13 +2021,15 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 
 int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 {
-	const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
+	// @v10.2.1 const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
 	int    ok = -1;
 	OPENFILENAME sofn;
 	char   file_name[1024];
-	SString reg_key_buf, saved_path;
+	SString temp_buf;
+	SString reg_key_buf;
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
-
+	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1 
+	StringSet ss_ris; // @v10.2.1 
 	file_name[0] = 0;
 	pDlg->getCtrlData(InputCtlId, file_name);
 	SOemToChar(file_name);
@@ -2036,7 +2038,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
-	sofn.hwndOwner   = pDlg->H(); // @v8.3.3 GetForegroundWindow()-->*pDlg
+	sofn.hwndOwner   = pDlg->H();
 	sofn.lpstrFilter = Patterns.getBuf(); // @unicodeproblem
 	sofn.lpstrFile   = file_name; // @unicodeproblem
 	sofn.nMaxFile    = sizeof(file_name);
@@ -2048,8 +2050,22 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 		sofn.Flags  |= (OFN_NOVALIDATE|OFN_PATHMUSTEXIST);
 	if(!InitDir.NotEmptyS()) {
 		if(Flags & fbcgfSaveLastPath) {
+			/* @v10.2.1
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 1);
 			reg_key.GetString(reg_key_buf, InitDir);
+			*/
+			// @v10.2.1 {
+			if(ris.GetList(ss_ris) > 0) {
+				ss_ris.reverse();
+				for(uint ssp = 0; ss_ris.get(&ssp, temp_buf);) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+					if(IsDirectory(temp_buf)) {
+						InitDir = temp_buf;
+						break;
+					}
+				}
+			}
+			// } @v10.2.1 
 		}
 		if(!InitDir.NotEmptyS())
 			setInitPath(file_name);
@@ -2059,8 +2075,14 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 		SPathStruc ps(file_name);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
+			/* @v10.2.1
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 0);
 			reg_key.PutString(reg_key_buf, InitDir);
+			*/
+			// @v10.2.1 {
+			(temp_buf = InitDir).Transf(CTRANSF_OUTER_TO_UTF8);
+			ris.CheckIn(temp_buf);
+			// } @v10.2.1 
 		}
 		if(Flags & fbcgfPath) {
 			if(sofn.nFileExtension != 0)
@@ -2142,7 +2164,7 @@ int SLAPI PPOpenFile(SString & rPath, const char * pPatterns, long flags, HWND o
 	if(!(flags & ofilfNExist))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
 	sofn.lpstrInitialDir = dir; // @unicodeproblem
-	if((ok = GetOpenFileName((LPOPENFILENAME) &sofn)) == 0) // @unicodeproblem
+	if((ok = GetOpenFileName((LPOPENFILENAME)&sofn)) == 0) // @unicodeproblem
 		memzero(file_name, sizeof(file_name));
 	rPath = file_name;
 	return ok;
@@ -2176,7 +2198,7 @@ int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 	sofn.lpstrTitle  = title.cptr(); // @unicodeproblem
 	sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR|OFN_NOVALIDATE|OFN_FILEMUSTEXIST);
 	sofn.lpstrInitialDir = rPath; // @unicodeproblem
-	if((ok = GetOpenFileName((LPOPENFILENAME) &sofn)) != 0) { // @unicodeproblem
+	if((ok = GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
 		if(sofn.nFileExtension != 0)
 			file_name[sofn.nFileOffset] = 0;
 		rmvLastSlash(file_name);
@@ -6788,147 +6810,264 @@ int SLAPI ExportDialogs(const char * pFileName)
 //
 //
 //
-class OpenEditFileDialog : public TDialog {
-public:
-	OpenEditFileDialog() : TDialog(DLG_OPENEDFILE), FileID(0)
-	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_OPENEDFILE_SELECT, CTL_OPENEDFILE_SELECT, 1, 0,
-			PPTXT_FILPAT_PPYTEXT, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
-		SetupStrListBox(this, CTL_OPENEDFILE_RESERV);
-		SetupStrListBox(this, CTL_OPENEDFILE_RECENT);
-		SetupReservList();
-		SetupRecentList();
-	}
-	int    GetFileName(SString & rBuf)
-	{
-		// @v10.2.0 {
-		if(FileName.Empty() && !FileID)
-			getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
-		// } @v10.2.0 
-		if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {
-			SString db_path, log_path;
-			PPGetPath(PPPATH_LOG, log_path);
-			DBS.GetDbPath(DBS.GetDbPathID(), db_path);
-			PPVerHistory::Log(db_path, log_path);
-		}
-		rBuf = FileName;
-		return BIN(rBuf.NotEmptyS());
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCmd(cmLBDblClk)) {
-			TView * p_view = TVINFOVIEW;
-			if(p_view && p_view->GetId() == CTL_OPENEDFILE_RESERV) {
-				SmartListBox * p_reserv_box = (SmartListBox *)p_view;
-				if(p_reserv_box->def) {
-					long   id = 0;
-					p_reserv_box->getCurID(&id);
-					PPRFile fi;
-					if(DS.GetRFileInfo(id, fi) > 0 && fi.PathID) {
-						SString full_path;
-						PPGetFilePath(fi.PathID, fi.Name, full_path);
-						FileName = full_path;
-						FileID = id;
-						endModal(cmOK);
-					}
-				}
-			}
-		}
-		else if(event.isCmd(cmLBItemFocused)) {
-			TView * p_view = TVINFOVIEW;
-			SString info_buf;
-			if(p_view && p_view->GetId() == CTL_OPENEDFILE_RESERV) {
-				SmartListBox * p_reserv_box = (SmartListBox *)p_view;
-				if(p_reserv_box->def) {
-					long   id = 0;
-					p_reserv_box->getCurID(&id);
-					PPRFile fi;
-					if(DS.GetRFileInfo(id, fi) > 0) {
-						info_buf = fi.Descr;
-						if(fi.PathID) {
-							PPGetFilePath(fi.PathID, fi.Name, FileName);
-							FileID = id;
-							setCtrlString(CTL_OPENEDFILE_SELECT, FileName);
-						}
-					}
-				}
-			}
-			setStaticText(CTL_OPENEDFILE_ST_INFO, info_buf);
-		}
-		if(TVBROADCAST && TVCMD == cmCommitInput) {
-			const uint i = TVINFOVIEW->GetId();
-			if(i == CTL_OPENEDFILE_SELECT) {
-				FileID = 0;
-				getCtrlString(i, FileName);
-			}
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	void   SetupReservList();
-	void   SetupRecentList();
+static const char * WrSubKey_RecentItems = "Software\\Papyrus\\RecentItems";
 
-	PPID   FileID;
-	SString FileName;
-};
-
-void OpenEditFileDialog::SetupRecentList()
+SLAPI RecentItemsStorage::RecentItemsStorage(int ident, uint maxItems, CompFunc cf) : Ident(ident), MaxItems(maxItems), Cf(cf)
 {
 }
 
-void OpenEditFileDialog::SetupReservList()
+SLAPI RecentItemsStorage::RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf) : IdentText(pIdent), MaxItems(maxItems), Cf(cf)
 {
-	PPRFile fi;
-	StringSet ss(SLBColumnDelim);
-	SString temp_buf, full_path;
-	SmartListBox * p_reserv_box = (SmartListBox *)getCtrlView(CTL_OPENEDFILE_RESERV);
-	if(p_reserv_box) {
-		for(SEnum en = DS.EnumRFileInfo(); en.Next(&fi) > 0;) {
-			if(fi.Flags & PPRFILEF_TEXT) {
-				ss.clear();
-				ss.add(fi.Name);
-				if(fi.PathID) {
-					PPGetPath(fi.PathID, temp_buf);
-					PPGetFilePath(fi.PathID, fi.Name, full_path);
+}
+
+SLAPI RecentItemsStorage::~RecentItemsStorage()
+{
+}
+
+int SLAPI RecentItemsStorage::CheckIn(const char * pText)
+{
+	int    ok = -1;
+	if(!isempty(pText)) {
+		SString key;
+		if(IdentText.NotEmpty())
+			key = IdentText;
+		else if(Ident > 0)
+			key.CatChar('#').Cat(Ident);
+		if(key.NotEmpty()) {
+			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_RecentItems, 0);
+			StringSet ss;
+			SString temp_buf;
+			size_t rec_size = 0;
+			THROW_SL(reg_key.GetRecSize(key, &rec_size));
+			if(rec_size) {
+				STempBuffer buff(rec_size);
+				THROW_SL(reg_key.GetBinary(key, buff, rec_size));
+				ss.setBuf(buff, rec_size);
+			}
+			{
+				uint ssc = ss.getCount();
+				StringSet temp_ss;
+				for(uint ssp = 0, j = 0; ss.get(&ssp, temp_buf); j++) {
+					const int is_eq = Cf ? BIN(Cf(pText, temp_buf.cptr(), 0) == 0) : BIN(strcmp(pText, temp_buf) == 0);
+					if(!is_eq && (!(MaxItems > 0 && ssc >= MaxItems) || j > (ssc - MaxItems)))
+						temp_ss.add(temp_buf);
 				}
-				else
-					temp_buf.Z();
-				ss.add(temp_buf);
-				temp_buf.Z();
-				if(full_path.NotEmpty() && fileExists(full_path)) {
-					LDATETIME dtm;
-					SFile::GetTime(full_path, 0, 0, &dtm);
-					temp_buf.Cat(dtm, DATF_DMY, TIMF_HMS);
-				}
-				ss.add(temp_buf);
-				p_reserv_box->addItem(fi.ID, (const char*)ss.getBuf());
+				temp_ss.add(pText);
+				THROW_SL(reg_key.PutBinary(key, temp_ss.getBuf(), temp_ss.getDataLen()));
+				ok = 1;
 			}
 		}
-		p_reserv_box->Draw_();
 	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI RecentItemsStorage::GetList(StringSet & rSs)
+{
+	rSs.clear();
+	int    ok = -1;
+	SString key;
+	if(IdentText.NotEmpty())
+		key = IdentText;
+	else if(Ident > 0)
+		key.CatChar('#').Cat(Ident);
+	if(key.NotEmpty()) {
+		WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_RecentItems, 0);
+		StringSet ss;
+		SString temp_buf;
+		size_t rec_size = 0;
+		THROW_SL(reg_key.GetRecSize(key, &rec_size));
+		if(rec_size) {
+			STempBuffer buff(rec_size);
+			THROW_SL(reg_key.GetBinary(key, buff, rec_size));
+			ss.setBuf(buff, rec_size);
+			for(uint ssp = 0, j = 0; ss.get(&ssp, temp_buf); j++) {
+				rSs.add(temp_buf);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPEditTextFile(const char * pFileName)
 {
+	class OpenEditFileDialog : public TDialog {
+	public:
+		OpenEditFileDialog(RecentItemsStorage * pRis) : TDialog(DLG_OPENEDFILE), FileID(0), P_Ris(pRis)
+		{
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_OPENEDFILE_SELECT, CTL_OPENEDFILE_SELECT, 1, 0,
+				PPTXT_FILPAT_PPYTEXT, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+			SetupStrListBox(this, CTL_OPENEDFILE_RESERV);
+			SetupStrListBox(this, CTL_OPENEDFILE_RECENT);
+			SetupReservList();
+			SetupRecentList();
+		}
+		int    GetFileName(SString & rBuf)
+		{
+			// @v10.2.0 {
+			if(FileName.Empty() && !FileID)
+				getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
+			// } @v10.2.0 
+			if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {
+				SString db_path, log_path;
+				PPGetPath(PPPATH_LOG, log_path);
+				DBS.GetDbPath(DBS.GetDbPathID(), db_path);
+				PPVerHistory::Log(db_path, log_path);
+			}
+			rBuf = FileName;
+			return BIN(rBuf.NotEmptyS());
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmLBDblClk)) {
+				TView * p_view = TVINFOVIEW;
+				if(p_view) {
+					if(p_view->GetId() == CTL_OPENEDFILE_RESERV) {
+						SmartListBox * p_box = (SmartListBox *)p_view;
+						if(p_box->def) {
+							long   id = 0;
+							p_box->getCurID(&id);
+							PPRFile fi;
+							if(DS.GetRFileInfo(id, fi) > 0 && fi.PathID) {
+								SString full_path;
+								PPGetFilePath(fi.PathID, fi.Name, full_path);
+								FileName = full_path;
+								FileID = id;
+								endModal(cmOK);
+							}
+						}
+					}
+					else if(p_view->GetId() == CTL_OPENEDFILE_RECENT) {
+						SmartListBox * p_box = (SmartListBox *)p_view;
+						if(p_box->def) {
+							long   id = 0;
+							SString full_path;
+							p_box->getCurID(&id);
+							if(RecentItems.GetText(id, full_path) > 0) {
+								FileName = full_path;
+								FileID = 0;
+								endModal(cmOK);
+							}
+						}
+					}
+				}
+			}
+			else if(event.isCmd(cmLBItemFocused)) {
+				TView * p_view = TVINFOVIEW;
+				SString info_buf;
+				if(p_view && p_view->GetId() == CTL_OPENEDFILE_RESERV) {
+					SmartListBox * p_reserv_box = (SmartListBox *)p_view;
+					if(p_reserv_box->def) {
+						long   id = 0;
+						p_reserv_box->getCurID(&id);
+						PPRFile fi;
+						if(DS.GetRFileInfo(id, fi) > 0) {
+							info_buf = fi.Descr;
+							if(fi.PathID) {
+								PPGetFilePath(fi.PathID, fi.Name, FileName);
+								FileID = id;
+								setCtrlString(CTL_OPENEDFILE_SELECT, FileName);
+							}
+						}
+					}
+				}
+				setStaticText(CTL_OPENEDFILE_ST_INFO, info_buf);
+			}
+			if(TVBROADCAST && TVCMD == cmCommitInput) {
+				const uint i = TVINFOVIEW->GetId();
+				if(i == CTL_OPENEDFILE_SELECT) {
+					FileID = 0;
+					getCtrlString(i, FileName);
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupRecentList()
+		{
+			RecentItems.Z();
+			if(P_Ris) {
+				SmartListBox * p_recent_box = (SmartListBox *)getCtrlView(CTL_OPENEDFILE_RECENT);
+				if(p_recent_box) {
+					StringSet ss_ris;
+					if(P_Ris->GetList(ss_ris) > 0) {
+						ss_ris.reverse();
+						SString temp_buf;
+						StringSet ss(SLBColumnDelim);
+						long   fid = 0;
+						for(uint ssp = 0; ss_ris.get(&ssp, temp_buf);) {
+							ss.clear();
+							RecentItems.AddFast(++fid, temp_buf);
+							ss.add(temp_buf);
+							ss.add(temp_buf.Z());
+							p_recent_box->addItem(fid, (const char*)ss.getBuf());
+						}
+					}
+					p_recent_box->Draw_();
+				}
+			}
+		}
+		void   SetupReservList()
+		{
+			PPRFile fi;
+			StringSet ss(SLBColumnDelim);
+			SString temp_buf, full_path;
+			SmartListBox * p_reserv_box = (SmartListBox *)getCtrlView(CTL_OPENEDFILE_RESERV);
+			if(p_reserv_box) {
+				for(SEnum en = DS.EnumRFileInfo(); en.Next(&fi) > 0;) {
+					if(fi.Flags & PPRFILEF_TEXT) {
+						ss.clear();
+						ss.add(fi.Name);
+						if(fi.PathID) {
+							PPGetPath(fi.PathID, temp_buf);
+							PPGetFilePath(fi.PathID, fi.Name, full_path);
+						}
+						else
+							temp_buf.Z();
+						ss.add(temp_buf);
+						temp_buf.Z();
+						if(full_path.NotEmpty() && fileExists(full_path)) {
+							LDATETIME dtm;
+							SFile::GetTime(full_path, 0, 0, &dtm);
+							temp_buf.Cat(dtm, DATF_DMY, TIMF_HMS);
+						}
+						ss.add(temp_buf);
+						p_reserv_box->addItem(fi.ID, (const char*)ss.getBuf());
+					}
+				}
+				p_reserv_box->Draw_();
+			}
+		}
+		PPID   FileID;
+		SString FileName;
+		StrAssocArray RecentItems;
+		RecentItemsStorage * P_Ris;
+	};
 	int    ok = -1;
+	RecentItemsStorage ris("PPViewTextBrowser", 20, PTR_CMPFUNC(FilePathUtf8));
 	OpenEditFileDialog * dlg = 0;
 	SString file_name = pFileName;
 	if(!file_name.NotEmptyS() || !fileExists(file_name)) {
-		THROW(CheckDialogPtr(&(dlg = new OpenEditFileDialog)));
+		THROW(CheckDialogPtr(&(dlg = new OpenEditFileDialog(&ris))));
 		dlg->setCtrlString(CTL_OPENEDFILE_SELECT, file_name);
 		if(ExecView(dlg) == cmOK) {
 			dlg->GetFileName(file_name);
 			ZDELETE(dlg);
-			PPViewTextBrowser(file_name, 0);
 			ok = 1;
 		}
 	}
-	else {
-		PPViewTextBrowser(file_name, 0);
+	else
 		ok = 1;
+	if(ok > 0) {
+		SString temp_buf = file_name;
+		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+		ris.CheckIn(temp_buf);
+		PPViewTextBrowser(file_name, 0);
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -6941,10 +7080,9 @@ int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 {
 	class __BigTextDialog : public TDialog {
 	public:
-		__BigTextDialog(uint maxLen = 0) : TDialog(DLG_BIGTXTEDIT)
+		explicit __BigTextDialog(uint maxLen = 0) : TDialog(DLG_BIGTXTEDIT)
 		{
-			if(maxLen)
-				setMaxLen(maxLen);
+			setMaxLen(maxLen);
 		}
 		int   setMaxLen(size_t maxLen)
 		{

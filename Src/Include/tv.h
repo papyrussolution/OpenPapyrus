@@ -4996,7 +4996,8 @@ private:
 class SScEditorBase {
 public:
 	enum {
-		indicUnknWord = 27
+		indicUnknWord = 27,
+		indicStxRule  = 28 // @experimental Распознанное синтаксическое правило
 	};
 	SScEditorBase();
 	~SScEditorBase();

@@ -168,7 +168,7 @@ int SLAPI PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Pu
 		possible_count_logic = forceLogicalCount;
 	THROW(possible_count);
 	const int64 last_possible_id = rP.P_N[possible_count-1].ID;
-	Clear();
+	Z();
     {
 		Int64Array node_id_list;
 		const Node & r_head = rP.P_N[0];
@@ -614,7 +614,7 @@ const void * FASTCALL PPOsm::NodeCluster::GetBuffer(size_t * pSize) const
 int SLAPI PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
 {
 	int    ok = 1;
-	SBuffer::Clear();
+	SBuffer::Z();
 	THROW_SL(SBuffer::Write(pData, size));
 	CATCHZOK
 	return ok;
@@ -629,7 +629,7 @@ SLAPI PPOsm::WayBuffer::WayBuffer() : SBuffer()
 int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 {
 	int    ok = 1;
-	Clear();
+	Z();
     {
 		uint8 indicator = 0;
 		const uint rc = pW->NodeRefs.getCount();
@@ -885,7 +885,7 @@ const void * FASTCALL PPOsm::WayBuffer::GetBuffer(size_t * pSize) const
 int SLAPI PPOsm::WayBuffer::SetBuffer(const void * pData, size_t size)
 {
 	int    ok = 1;
-	SBuffer::Clear();
+	SBuffer::Z();
 	THROW_SL(SBuffer::Write(pData, size));
 	CATCHZOK
 	return ok;

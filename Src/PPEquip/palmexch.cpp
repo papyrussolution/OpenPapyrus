@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016
+// ..2009, 2010, 2012, 2015, 2016, 2018
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -1055,7 +1055,7 @@ int PalmTcpExchange::SpiiCmd(TcpSocket * pSo, const SpiiCmdBuf * pInBuf, const v
 		THROW(pSo->SendBuf(sbuf, 0));
 		if(pInBuf->BufSize && pInParam) {
 			size_t sended = 0;
-			sbuf.Clear();
+			sbuf.Z();
 			sbuf.Write(pInParam, pInBuf->BufSize);
 			THROW(pSo->SendBuf(sbuf, &sended));
 		}

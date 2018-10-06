@@ -661,23 +661,20 @@ int PriceChecker::Connect(const char * pAddr)
 	return ok;
 }
 
-int PriceChecker::CloseConnection()
-{
-	return Socket.Disconnect() ? 1 : 0;
-}
+int PriceChecker::CloseConnection() { return BIN(Socket.Disconnect()); }
 
 int PriceChecker::GetRequest(SString & rRequest)
 {
-	int ok = -1;
+	int    ok = -1;
 	SBuffer buf(BUF_SIZE);
 	size_t recv_bytes = 0;
 	rRequest.Z();
 	memzero((void *)buf.GetBuf(), BUF_SIZE);
-	buf.Clear();
+	buf.Z();
 	while((Socket.RecvBuf(buf, BUF_SIZE, &recv_bytes) && (recv_bytes != 0))) {
 		rRequest.Cat((const char *)buf.GetBuf());
 		memzero((void *)buf.GetBuf(), BUF_SIZE);
-		buf.Clear();
+		buf.Z();
 		recv_bytes = 0;
 		ok = 1;
 	}

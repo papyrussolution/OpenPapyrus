@@ -365,7 +365,7 @@ int SLAPI PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const ch
 	if(curs.Search(key_buf, data_buf, spEq)) {
 		do {
 			int32  id = 0;
-			buf.Clear();
+			buf.Z();
 			key_buf.Get(buf);
 			P_OT->SerializeKeyBuf(-1, &rec, buf);
 			if(rec.Type == type) {
@@ -408,7 +408,7 @@ int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rDa
 	BDbTransaction tra(P_Db, use_ta);
 	THROW_DB(tra);
 	if(*pID == 0) {
-		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Clear());
+		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
 		key_buf = buf;
 		data_buf.Alloc(16);
 		if(P_OT->Search(key_buf, data_buf)) {
@@ -424,7 +424,7 @@ int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rDa
 			if(rHdr.Cmp(rec, 0x0001) != 0) {
 				THROW_DB(P_OT->DeleteRec(key_buf));
 				{
-					P_OT->SerializeKeyBuf(+1, &rHdr, buf.Clear());
+					P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
 					key_buf = buf;
 					data_buf = *pID;
 					THROW_DB(P_OT->InsertRec(key_buf, data_buf));
@@ -436,7 +436,7 @@ int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rDa
 		int64 _id = 0;
 		THROW_DB(P_Db->GetSequence(P_OT->SeqID, &_id));
 		*pID = (int32)_id;
-		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Clear());
+		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
 		key_buf = buf;
 		data_buf = *pID;
 		THROW_DB(P_OT->InsertRec(key_buf, data_buf));

@@ -2085,7 +2085,9 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 {
 	int    ok = 1;
 	int    r;
-	int    unchg = 0, items_unchg = 0;
+	int    unchg = 0;
+	int    items_unchg = 0;
+	int    items_components_updated = 0; // !0 если были добавлены, удалены или изменены товары в строках структуры (изменения остальных атрибутов здесь не важны)
 	int    action = 0;
 	int    cleared = 0;
 	{
@@ -2126,15 +2128,31 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 		}
 		if(*pID) {
 			if(pData) {
+				uint i;
 				PPGoodsStruc temp_struc;
 				LongArray pos_list;
 				THROW(Helper_LoadItems(*pID, &temp_struc));
 				if(temp_struc.Items.getCount() == pData->Items.getCount()) {
 					items_unchg = 1;
-					for(uint i = 0; items_unchg && i < temp_struc.Items.getCount(); i++)
+					for(i = 0; items_unchg && i < temp_struc.Items.getCount(); i++) {
 						if(!(pData->Items.at(i) == temp_struc.Items.at(i)))
 							items_unchg = 0;
+					}
 				}
+				// @v10.2.1 {
+				if(!items_unchg) {
+					for(i = 0; !items_components_updated && i < temp_struc.Items.getCount(); i++) {
+						const PPGoodsStrucItem & r_org_item = temp_struc.Items.at(i);
+						if(!pData->HasGoods(r_org_item.GoodsID))
+							items_components_updated = 1;
+					}
+					for(i = 0; !items_components_updated && i < pData->Items.getCount(); i++) {
+						const PPGoodsStrucItem & r_item = pData->Items.at(i);
+						if(!temp_struc.HasGoods(r_item.GoodsID))
+							items_components_updated = 1;
+					}
+				}
+				// } @v10.2.1 
 			}
 			if(!items_unchg)
 				THROW(ref->Assc.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
@@ -2167,8 +2185,13 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 		if(unchg) {
 			if(items_unchg)
 				ok = -1;
-			else
+			else {
 				DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
+				// @v10.2.1 {
+				if(items_components_updated)
+					DS.LogAction(PPACN_GSTRUCCUPD, Obj, *pID, 0, 0);
+				// } @v10.2.1 
+			}
 		}
 		THROW(tra.Commit());
 	}
@@ -2320,10 +2343,13 @@ int SLAPI PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, O
 			}
 			else {
 				PPObjGoods goods_obj;
-				if(goods_obj.GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) {
-					if(!Put(pID, p_gs, 1)) {
-						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSSTRUC, p_gs->Rec.ID, p_gs->Rec.Name);
-						ok = -1;
+				const long gc_flags = goods_obj.GetConfig().Flags;
+				if(gc_flags & GCF_XCHG_RCVSTRUCUPD) {
+					if(!(gc_flags & GCF_XCHG_RCVSTRUCFROMDDONLY) || (pCtx->P_SrcDbDivPack && pCtx->P_SrcDbDivPack->Rec.Flags & DBDIVF_DISPATCH)) { // @v10.2.1
+						if(!Put(pID, p_gs, 1)) {
+							pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSSTRUC, p_gs->Rec.ID, p_gs->Rec.Name);
+							ok = -1;
+						}
 					}
 				}
 			}

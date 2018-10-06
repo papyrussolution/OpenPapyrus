@@ -955,7 +955,7 @@ int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr,
 		rHdr.SubSymb = InrRec.Name;
 		rHdr.DbSymb.Z();
 		rHdr.OwnerSymb = GlobalUserName;
-		rTail.Clear();
+		rTail.Z();
 	}
 	else if(dir < 0) {
 		THROW(oneof2(rHdr.Type, PPConfigDatabase::tImport, PPConfigDatabase::tExport));
@@ -3050,7 +3050,7 @@ int ImpExpCfgsListDialog::setupList()
 				PPConfigDatabase::CObjHeader cobj_hdr;
 				p_param->OtrRec.Clear();
 				p_param->FileName = 0;
-				THROW(CDb.GetObj(item.Id, &cobj_hdr, &cobj_tail.Clear()));
+				THROW(CDb.GetObj(item.Id, &cobj_hdr, &cobj_tail.Z()));
 				r = p_param->SerializeConfig(-1, cobj_hdr, cobj_tail, &SCtx);
 				if(r) {
 					PROFILE_START

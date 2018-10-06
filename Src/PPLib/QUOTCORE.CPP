@@ -3297,7 +3297,7 @@ struct Quotation2_DumpHeader {
 int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, int64 * pItemsCount)
 {
 	int    ok = 1;
-	rBuf.Clear();
+	rBuf.Z();
 	SSerializeContext sctx;
 	PPQuot quot;
 	PPIDArray rel_list;

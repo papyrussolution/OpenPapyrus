@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -163,14 +163,12 @@ int SLAPI WinRegValue::PutString(const char * pStr)
 //
 //
 //
-SLAPI WinRegKey::WinRegKey()
+SLAPI WinRegKey::WinRegKey() : Key(0)
 {
-	Key = 0;
 }
 
-SLAPI WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly)
+SLAPI WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly) : Key(0)
 {
-	Key = 0;
 	Open(key, pSubKey, readOnly);
 }
 
@@ -284,6 +282,10 @@ int SLAPI WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
 	if(oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA)) {
 		ASSIGN_PTR(pRecSize, size);
 		return 1;
+	}
+	else if(r == ERROR_FILE_NOT_FOUND) {
+		ASSIGN_PTR(pRecSize, 0);
+		return -1;
 	}
 	else
 		return SLS.SetOsError(pParam);

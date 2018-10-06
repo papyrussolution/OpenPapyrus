@@ -3106,6 +3106,9 @@ PPFILNAM_EGAIS_REFA_TXT        "egais-refa.txt"
 PPFILNAM_GENVER_DAT            "genver.dat"
 PPFILNAM_GENVEROPEN_DAT        "genver-open.dat"
 PPFILNAM_REPLACERRULEGOODS     "replacer-rule-goods.sr"
+PPFILNAM_VETISTALK_LOG         "vetis-talk.log"
+PPFILNAM_VETISINFO_LOG         "vetis-info.log"
+
 #!} // dont_translate
 
 //98
@@ -4720,6 +4723,7 @@ PPTXT_VETISNOOUTGDOCS               "Не найдено ни одного до�
 PPTXT_VETISOUTGDOCNFOUND            "Неожиданно исходящий документ %s не найден либо имеет не тот статус"
 PPTXT_VETISLOCATIONPROSPERITYISOK   "Местность благополучна по заразным болезням животных"
 PPTXT_VETISOUTGSENDING              "Отправка запроса на исходящий сертификат: %s"
+PPTXT_VETISOUTGSTOCKENTRY           "Идентифицированая запись складского журнала: %s"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
 //
 // LastText
@@ -4805,6 +4809,9 @@ PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить
 79 "Документ списан"
 80 "Откат списания документа"
 81 "Товар получил признак '@{goods_gf_passiv}'"
+82 "К товару привязана товарная структура"
+83 "От товара отвязана товарная структура"
+84 "Изменился компонентный состав товарной структуры"
 
 [119]
 1  "Объект получен"
@@ -5476,7 +5483,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_cppaym            "20,L,@card;12,R,@dowriteoff;12,R,@rest;6,L,Бонусная"
 @lbt_ccinfopaymlist    "15,L,@type;12,R,@amount;20,L,@card"
 @lbt_rfiles            "30,L,@file;45,L,@directory;18,L,@modiftime"
-@lbt_resentfiles       "50,L,@file;15,L,@modiftime"
+@lbt_recentfiles       "50,L,@file;15,L,@modiftime"
 @lbt_scardrule_dis     "30,R,Диапазон оборотов;10,R,@discount;16,L,@series"
 @lbt_scardrule_ccdis   "30,R,Диапазон суммы чека;10,R,@discount;16,L,@series"
 @lbt_scardrule_bonus   "30,R,Диапазон оборотов;10,R,@bonus;16,L,@series"
@@ -6114,6 +6121,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @newtask                "Новая задача"
 @incompletetasks        "Имеются невыполненные задачи"
 @viewonly               "Только просмотр"
+@addendumfields         "Дополнительные поля"
+@addendumfieldstoload   "Дополнительные поля для загрузки"
 
 @cafetable              "Стол"
 @creditlimit            "Макс кредит"
@@ -6499,12 +6508,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_personvetisuuid                     "ВЕТИС идентификатор предприятия"
 @rtag_gualogin                            "Имя для авторизации"
 @rtag_goodsuuid                           "UUID товара"
-@rtag_personvetisussuuid                  "ВЕТИС issuer UUID"
+@rtag_personvetisussuuid                  "ВЕТИС issuer UUID (unused)"
 @rtag_personvetisuser                     "ВЕТИС пользователь-инициатор операций"
 @rtag_lotvetisuuid                        "ВЕТИС UUID лота"
 @rtag_locvetisguid                        "ВЕТИС GUID локации"
 @rtag_guasecret                           "Секрет для авторизации"
 @rtag_goodsvetispurpose                   "ВЕИТС цель отгрузки товара"
+@rtag_locvetisentityguid                  "ВЕТИС GUID организации (location)"
+@rtag_locvetisuser                        "ВЕТИС пользователь-инициатор (location)"
 //
 // Текстовые представления view и filter
 //
@@ -7635,7 +7646,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_async_exppaths                  "Пути экспорта"
 @cashnode_async_impfiles                  "Файлы импорта"
 @cashnode_async_lognumlist                "Логические номера касс"
-@cashnode_async_addedmsgsign              "Дополнительные поля для загрузки"
+@cashnode_async_addedmsgsign              "@{addendumfieldstoload}"
 @cashnode_sync_devices                    "Дополнительные устройства кассового узла" // generic
 @cashnode_sync_extension                  "Расширеные параметры кассового узла" // generic
 @cashnode_sync_devices_sh                 "Устройства" // generic
@@ -8123,6 +8134,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfggoods_gcf_xchg_sendaltgroup           "Передавать альтернативные группы с содержимым"
 @cfggoods_gcf_xchg_sendattachment         "@{xchg_sendattachment}"
 @cfggoods_gcf_xchg_sendgengoodscontent    "Отправлять содержимое обобщенных товаров"
+@cfggoods_gcf_xchg_rcvstrucfromddonly     "Принимать изменения структур только от диспетчера"
+@cfggoods_gcf_xchg                        "Опции обмена" // generic
+@cfggoods_ownarcounting                   "Нумерация собственных артикулов" // generic
+
 @cfggoods_id                              "@{id}"
 @cfggoods_minuniqbclen                    "Мин длина кода, уникальная между разделами"
 @cfggoods_mtxqk                           "@{goodsmatrix}"
@@ -8130,7 +8145,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfggoods_ownarcodecntr                   "@{counter}"
 @cfggoods_prop                            "@{properties}"
 @cfggoods_tag                             "@{tag}"
-@cfggoods_tagindfilt                      "Фильтр тегов окраски наименований"
+@cfggoods_tagindfilt                      "Фильтр индикаторов тегов"
 @cfggoods_taregrp                         "Группа тары"
 @cfggoods_ver                             "@{version}"
 @cfggoods_wghtcntprefix                   "Префикс кода весового счетного товара"
@@ -9065,7 +9080,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @location_exstr_phone                     "@{phone}"
 @location_exstr_contact                   "@{contact}"
 @location_exstr_email                     "@{email}"
-@location_extfields                       "Дополнительные  поля" // generic
+@location_extfields                       "@{addendumfields}" // generic
 @location_parsingtest                     "Тест разбора адреса" // Специальная команда, отображающая результаты разбора текста адреса
 
 @locprinter_fhaskitchenbell               "Имеет кухонный звонок"
@@ -9652,7 +9667,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @salcharge_tag                            "@{tag}"
 @salcharge_wroffop                        "Вид операции списания"
 
-@scale_addedmsgsign                       "Дополнительные поля для загрузки"
+@scale_addedmsgsign                       "@{addendumfieldstoload}"
 @scale_altgoodsgrp                        "@{goodsgroup}"
 @scale_bcprefix                           "Префикс штрихкода [20..29] или [200..299]"
 @scale_flags                              "@{flags}"

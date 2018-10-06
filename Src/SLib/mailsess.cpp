@@ -491,11 +491,10 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 int SLAPI SMailClient::ReadLine(SString & rBuf)
 {
 	rBuf.Z();
-
 	int    ok = 1;
 	size_t rd_size = 0;
 	THROW_S(State & stConnected, SLERR_MAIL_NOTCONNECTED);
-	THROW(So.RecvUntil(RdBuf.Clear(), "\xD\xA", &rd_size));
+	THROW(So.RecvUntil(RdBuf.Z(), "\xD\xA", &rd_size));
 	{
 		assert(rd_size == RdBuf.GetAvailableSize());
 		const char * p_reply = (const char *)RdBuf.GetBuf(RdBuf.GetRdOffs());

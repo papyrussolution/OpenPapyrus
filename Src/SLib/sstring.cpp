@@ -2359,6 +2359,11 @@ SString & SLAPI SString::ShiftRight(size_t n, int chr)
 	return *this;
 }
 
+SString & FASTCALL SString::SetInt(int val)
+{
+	return Z().Cat(val);
+}
+
 SString & FASTCALL SString::Cat(const SString & s)
 {
 	const size_t add_len = s.Len();
@@ -5907,7 +5912,7 @@ STokenizer & SLAPI STokenizer::Reset(long options)
 {
 	RP = 0;
 	SO = 0;
-	S.Clear();
+	S.Z();
 	L.clear();
 	ZDELETE(P_ResourceIndex);
 	if(options & coClearSymbTab) {
@@ -5919,7 +5924,7 @@ STokenizer & SLAPI STokenizer::Reset(long options)
 
 void SLAPI STokenizer::ClearInput()
 {
-	S.Clear();
+	S.Z();
 }
 
 int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz)

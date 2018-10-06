@@ -9152,6 +9152,8 @@ int SCardInfoDialog::setupList()
 			CCheckFilt flt;
 			CCheckViewItem item;
 			PPViewCCheck view;
+			flt.Flags |= CCheckFilt::fAvoidExt; // @v10.2.1
+			flt.CountOfLastItems = 1000; // @v10.2.1
 			flt.SCardID = SCardID;
 			THROW(view.Init_(&flt));
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {

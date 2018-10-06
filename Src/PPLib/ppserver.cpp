@@ -3581,7 +3581,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						//
 						// Поток, на который мы хотим переключиться занят (не ответил в течении заданного времени).
 						//
-						reply.Clear();
+						reply.Z();
 						reply.SetString("BUSY");
 						ok = cmdretOK;
 					}
@@ -3637,7 +3637,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						}
 						THROW(PPObjStyloPalm::UnlockDisplayQueue(id));
 					}
-					rReply.Clear();
+					rReply.Z();
 					rReply.SetAck();
 					rReply.SetDataType(PPJobSrvReply::htFile, 0);
 					ok = cmdretQuit;
@@ -3785,7 +3785,7 @@ int SLAPI PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal,
 	const  size_t zs = sizeof(H.Zero);
 	size_t actual_size = 0;
 	MEMSZERO(H);
-	Clear();
+	Z();
 	THROW_SL(rSo.RecvBlock(&H.Zero, zs, &actual_size));
 	if(H.Zero == 0) {
 		THROW_SL(rSo.RecvBlock(PTR8(&H) + zs, sizeof(H) - zs, &actual_size));
@@ -3824,7 +3824,7 @@ int SLAPI PPJobSrvCmd::StartWriting(int cmdId)
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = cmdId;
 	H.DataLen = sizeof(H);
-	Clear();
+	Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	State |= stStructured;
 	State &= ~stReading;
@@ -3835,7 +3835,7 @@ int SLAPI PPJobSrvCmd::StartWriting(int cmdId)
 int SLAPI PPJobSrvCmd::StartWriting(const char * pStr)
 {
 	int    ok = 1;
-	Clear();
+	Z();
 	if(pStr)
 		Write(pStr, sstrlen(pStr));
 	State &= ~stStructured;
@@ -3868,7 +3868,7 @@ int SLAPI PPJobSrvReply::StartWriting()
 	MEMSZERO(H);
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = DataType;
-	Clear();
+	Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	State |= stStructured;
 	State &= ~stReading;
@@ -3904,7 +3904,7 @@ int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
 
 void FASTCALL PPJobSrvReply::SetString(const char * pStr)
 {
-	Clear();
+	Z();
 	if(pStr)
 		Write(pStr, sstrlen(pStr));
 	State &= ~stStructured;
@@ -3913,7 +3913,7 @@ void FASTCALL PPJobSrvReply::SetString(const char * pStr)
 
 void FASTCALL PPJobSrvReply::SetString(const SString & rStr)
 {
-	Clear();
+	Z();
 	Write(rStr, rStr.Len());
 	State &= ~stStructured;
 	State &= ~stReading;
@@ -3947,7 +3947,7 @@ int SLAPI PPJobSrvReply::SetError()
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = DataType;
 	H.Flags |= hfRepError;
-	Clear();
+	Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	PPGetLastErrorMessage(1, text);
 	THROW_SL(Write(text, text.Len()));
@@ -4140,7 +4140,7 @@ void SLAPI PPServerSession::Run()
 						}
 					}
 					else if(cmd.Helper_Recv(So, P_TxtCmdTerminal, 0)) {
-						reply.Clear();
+						reply.Z();
 						CmdRet cmdret = cmdretError;
 						switch(cmd.StartReading(&s)) {
 							case 2: // Текстовая команда
@@ -4585,7 +4585,7 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	SString log_buf, temp_buf;
 	ExecLock.Lock();
 	State |= stLockExec;
-	rReply.Clear();
+	rReply.Z();
 	THROW_PP(State & stConnected, PPERR_JOBSRVCLI_NOTCONN);
 	if(State & stDebugMode) {
 		log_buf.Z().Cat("CLIENT REQ").CatDiv(':', 2);

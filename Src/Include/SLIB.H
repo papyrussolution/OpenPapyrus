@@ -3717,6 +3717,7 @@ public:
 	//
 	int       SLAPI GetSubFrom(const char * pStr, int div, int idx);
 	int       SLAPI GetIdxBySub(const char * pSubStr, int div);
+	SString & FASTCALL SetInt(int val);
 	SString & FASTCALL Cat(const SString &);
 	SString & FASTCALL Cat(const char *);
 	SString & FASTCALL CatN(const char * pS, size_t maxLen);
@@ -5261,7 +5262,7 @@ public:
 	// Returns:
 	//   *this
 	//
-	SBuffer & SLAPI Clear();
+	SBuffer & SLAPI Z();
 	//
 	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
 	//
@@ -6377,6 +6378,10 @@ public:
 
 DECL_CMPFUNC(PcharNoCase);
 DECL_CMPFUNC(_PcharNoCase);
+//
+// Descr: Сравнивает файловые пути i1 и i2 заданные в кодировке utf-8. Перед сравнением строки унифицируются.
+//
+IMPL_CMPFUNC(FilePathUtf8, i1, i2);
 DECL_CMPFUNC(Pchar);
 DECL_CMPFUNC(int);
 DECL_CMPFUNC(int16);

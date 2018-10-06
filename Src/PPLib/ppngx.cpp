@@ -424,7 +424,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 		if(r_tla.State & r_tla.stAuth) {
-			rReply.Clear();
+			rReply.Z();
 			SHttpProtocol::Auth a;
 			int cmdret = 0;
 			ngx_buf_t * b = 0;
@@ -437,7 +437,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 						;
 					}
 				}
-				rCmd.Clear();
+				rCmd.Z();
 				if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
 					cmdret = ProcessCommand(&rCmd, rReply);
 				}
@@ -449,7 +449,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 				do_preprocess_content = 1;
 				if(wb_obj.SearchBySymb("PETROGLIF", &wb_id, &wb_rec) > 0) {
 					cmd_buf.Z().Cat("GETWORKBOOKCONTENT").Space().Cat(wb_id);
-					rCmd.Clear();
+					rCmd.Z();
 					if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
 						cmdret = ProcessCommand(&rCmd, rReply);
 					}
@@ -467,7 +467,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 					reply_size = rReply.GetAvailableSize();
 					if(do_preprocess_content) {
 						temp_buf.Z().CatN((const char *)rReply.GetBuf(rReply.GetRdOffs()), reply_size);
-						rReply.Clear();
+						rReply.Z();
 						PreprocessContent(temp_buf, rReply);
 						reply_size = rReply.GetAvailableSize();
 					}

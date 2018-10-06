@@ -2903,7 +2903,7 @@ protected:
 	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
 	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
 
-	void   Command(int cmdId);
+	void   FASTCALL Command(int cmdId);
 	void   AutoCompleteInsert(Position startPos, int removeLen, const char *text, int textLen);
 	void   AutoCompleteStart(int lenEntered, const char *list);
 	void   AutoCompleteCancel();
@@ -2949,7 +2949,7 @@ protected:
 private:
 	// Private so ScintillaBase objects can not be copied
 	explicit ScintillaBase(const ScintillaBase &);
-	ScintillaBase & operator=(const ScintillaBase &);
+	ScintillaBase & operator = (const ScintillaBase &);
 };
 //
 // Descr: Base class for templated SparseVector

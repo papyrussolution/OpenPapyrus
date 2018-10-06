@@ -86,7 +86,7 @@ IMPL_HANDLE_EVENT(CmdItemDialog)
 			PPError();
 	}
 	else if(event.isCmd(cmClearFilt)) {
-		Data.Param.Clear();
+		Data.Param.Z();
 		SetupCtrls();
 	}
 	else if(event.isClusterClk(CTL_CMDITEM_USEDEFICON)) {

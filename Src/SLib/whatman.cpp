@@ -472,7 +472,7 @@ int TWhatman::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		if(dir > 0) {
 			for(uint i = 0; i < c; i++) {
 				TWhatmanObject * p_obj = ObjList.at(i);
-				obj_buf.Clear();
+				obj_buf.Z();
 				THROW(p_obj->Serialize(dir, obj_buf, pCtx));
 				THROW(rBuf.Write(obj_buf));
 			}
@@ -480,7 +480,7 @@ int TWhatman::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		else if(dir < 0) {
 			SString symb;
 			for(uint i = 0; i < c; i++) {
-				obj_buf.Clear();
+				obj_buf.Z();
 				THROW(rBuf.Read(obj_buf));
 				const size_t preserve_offs = obj_buf.GetRdOffs();
 				THROW(pCtx->Serialize(dir, symb, obj_buf));

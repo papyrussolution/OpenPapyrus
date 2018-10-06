@@ -1740,7 +1740,7 @@ public:
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(prc.EditParam(&filt) > 0) {
-			pParam->Clear();
+			pParam->Z();
 			THROW(filt.Write(*pParam, 0));
 		}
 		else
@@ -2523,7 +2523,7 @@ public:
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(prc.EditParam(&filt) > 0) {
-			pParam->Clear();
+			pParam->Z();
 			THROW(filt.Write(*pParam, 0));
 		}
 		else

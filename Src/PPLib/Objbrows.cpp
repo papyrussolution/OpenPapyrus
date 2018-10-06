@@ -1,5 +1,6 @@
 // OBJBROWS.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -154,10 +155,10 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 	ListWindow::handleEvent(event);
 	PPObject * p_obj = P_Obj;
 	if(p_obj) {
-		int    update = 0; // Если установить указатель на элементе с id, то 2
+		int    update = 0; // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЌР»РµРјРµРЅС‚Рµ СЃ id, С‚Рѕ 2
 		PPID   id = 0;
-		PPID   preserve_focus_id = 0; // В некоторых случаях, при редактировании, идентификатор id может быть изменен.
-			// Для таких случаев применяем preserve_focus_id чтобы правильно после спозиционировать текущий элемент.
+		PPID   preserve_focus_id = 0; // Р’ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС…, РїСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё, РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ id РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·РјРµРЅРµРЅ.
+			// Р”Р»СЏ С‚Р°РєРёС… СЃР»СѓС‡Р°РµРІ РїСЂРёРјРµРЅСЏРµРј preserve_focus_id С‡С‚РѕР±С‹ РїСЂР°РІРёР»СЊРЅРѕ РїРѕСЃР»Рµ СЃРїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°С‚СЊ С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚.
 		if(TVCOMMAND) {
 			switch(TVCMD) {
 				case cmLBLoadDef:
@@ -203,7 +204,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 							if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
 								update = 2;
 							else {
-								// @todo Необходимо изменить строку, если текст объекта изменился
+								// @todo РќРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅРёС‚СЊ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё С‚РµРєСЃС‚ РѕР±СЉРµРєС‚Р° РёР·РјРµРЅРёР»СЃСЏ
 								::SetFocus(H());
 							}
 						}
@@ -234,7 +235,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 						if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
 							update = 2;
 						else {
-							// @todo Необходимо изменить строку, если текст объекта изменился
+							// @todo РќРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅРёС‚СЊ СЃС‚СЂРѕРєСѓ, РµСЃР»Рё С‚РµРєСЃС‚ РѕР±СЉРµРєС‚Р° РёР·РјРµРЅРёР»СЃСЏ
 							::SetFocus(H());
 						}
 					}
@@ -394,11 +395,11 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					if(PPLoadTextWin(PPTXT_MENU_LISTBOX, temp_buf)) {
 						getCurItem(&p, &i);
 						TMenuPopup menu;
-						menu.AddSubstr(temp_buf, 0, cmaInsert);     // Добавить
-						menu.AddSubstr(temp_buf, 1, cmaEdit);       // Редактировать
-						menu.AddSubstr(temp_buf, 2, cmaDelete);     // Удалить
+						menu.AddSubstr(temp_buf, 0, cmaInsert);     // Р”РѕР±Р°РІРёС‚СЊ
+						menu.AddSubstr(temp_buf, 1, cmaEdit);       // Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ
+						menu.AddSubstr(temp_buf, 2, cmaDelete);     // РЈРґР°Р»РёС‚СЊ
 						if(p_box && p_box->def && (p_box->def->Options & lbtExtMenu))
-							menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
+							menu.AddSubstr(temp_buf, 3, cmaSendByMail); // РџРѕСЃР»Р°С‚СЊ РїРѕ СЌР». РїРѕС‡С‚Рµ
 						int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 						if(cmd > 0)
 							TView::messageCommand(this, cmd);
@@ -427,7 +428,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 			if(Options & oHasOkButton) {
 				if(IsInState(sfModal)) {
 					endModal(cmOK);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 			}
 			else

@@ -3225,8 +3225,8 @@ private:
 	SVerT Ver;    // Версия системы, создавшая структуру. Необходимо для сериализации.
 	int32  Kind;
 	PPID   PrmrID;
-	long   LastAnonymN;     // @v7.9.1 Последнее значение, использованное для нумерации анонимных записей
-	StringSet MemoPool;     // @v7.8.10
+	long   LastAnonymN;     // Последнее значение, использованное для нумерации анонимных записей
+	StringSet MemoPool;     // 
 };
 //
 // Descr: Класс, управляющий хранением и извлечением агрегации "Регистрация персоналий"
@@ -3283,7 +3283,7 @@ private:
 #define OTTYP_DATE          7  // LDATE
 #define OTTYP_GUID          8  // GUID
 #define OTTYP_IMAGE         9  // Строка, содержащая путь к файлу с изображением
-#define OTTYP_TIMESTAMP    10  // @v7.5.0 Временная метка.
+#define OTTYP_TIMESTAMP    10  // Временная метка.
 #define OTTYP_LAST         10  // Последнее допустимое значение типа тега
 //
 // Флаги тегов
@@ -3293,10 +3293,10 @@ private:
 #define OTF_NMBRULE          0x0004 // Для тега с числовым значением определено правило
 #define OTF_WARNZERO         0x0008 // Нулевое или отрицательное значение тега является поводом для предупреждения //
 	// оператора (в документах, персональных операциях и т.д.)
-#define OTF_INHERITABLE      0x0010 // @v7.4.5 Наследуемый tag. Интерпретация флага зависит от типа объектов,
+#define OTF_INHERITABLE      0x0010 // Наследуемый tag. Интерпретация флага зависит от типа объектов,
 	// к которому относится tag.
 #define OTF_NOTICEINCASHPANE 0x0020 // Извещение в кассовой панели
-#define OTF_HIERENUM         0x0040 // @v8.2.5 Иерерхическое перечисление
+#define OTF_HIERENUM         0x0040 // Иерерхическое перечисление
 
 struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
 	PPID   Tag;         // Const=PPOBJ_TAG
@@ -3398,7 +3398,7 @@ public:
 		double RealVal;    //
 		char * PStr;       //
 		LDATE  DtVal;      //
-		LDATETIME DtmVal;  // @v7.5.0
+		LDATETIME DtmVal;  // 
 	} Val;
 };
 //
@@ -4240,9 +4240,9 @@ public:
 		fSetupDatedSamples = 0x0040   // @v9.1.0 Устанавливать значения котировок по образцу вместе с периодом действия
 	};
 	char   ReserveStart[12]; // @anchor
-	DateRange FiltQuotPeriod; // @v8.3.5 Фильтрующий критерий периода для значений котировок
-	PPID   GoodsID;          // @v7.3.8
-	DateRange QuotValPeriod; // @v7.3.5 Период, устанавливаемый в значения котировок
+	DateRange FiltQuotPeriod; // Фильтрующий критерий периода для значений котировок
+	PPID   GoodsID;          // 
+	DateRange QuotValPeriod; // Период, устанавливаемый в значения котировок
 	PPID   QuotKindID;       //
 	PPID   GoodsGrpID;       //
 	PPID   ArticleID;        //
@@ -4262,7 +4262,7 @@ public:
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt LocList;   //
 	ObjIdListFilt EventList; //
-	ObjIdListFilt ArList;    // @v7.3.5
+	ObjIdListFilt ArList;    // 
 	SString Formula;         //
 private:
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
@@ -4320,11 +4320,12 @@ private:
 #define GCF_USEBRANDINGSELEXTDLG         0x00010000L  // Использовать бренд в расширенном диалоге ввода в товарных строках
 #define GCF_AUTOPREFBARCODE              0x00020000L  // Автоматически присваивать первому штрихкоду признак предпочтительного
 #define GCF_DONTDELFROMMTXGOODSINOPENORD 0x00040000L  // Не удалять из матрицы товары, которые находятся в отрытых заказах
-#define GCF_XCHG_SENDGENGOODSCONTENT     0x00080000L  // @v7.7.12 Передавать в другие разделы содержимое обобщенных товаров
-#define GCF_SHOWGSTRUCPRICE              0x00100000L  // @v8.0.0 В диалоге товарной структуры в списке вместо цены поступления показывать цену реализации
-#define GCF_XCHG_SENDALTGROUP            0x00200000L  // @v8.1.12 Передавать в другие разделы альтернативные группы (не динамические) с содержимым
-#define GCF_XCHG_SENDATTACHMENT          0x00400000L  // @v8.2.3  Передавать в другие разделы привязанные к товарам файлы (обычно, изображения)
-#define GCF_IGNOREFOLDERMATRIX           0x00800000L  // @v8.3.4  Игнорировать значения товарной матрицы, установленные для товарных групп верхнего уровня
+#define GCF_XCHG_SENDGENGOODSCONTENT     0x00080000L  // Передавать в другие разделы содержимое обобщенных товаров
+#define GCF_SHOWGSTRUCPRICE              0x00100000L  // В диалоге товарной структуры в списке вместо цены поступления показывать цену реализации
+#define GCF_XCHG_SENDALTGROUP            0x00200000L  // Передавать в другие разделы альтернативные группы (не динамические) с содержимым
+#define GCF_XCHG_SENDATTACHMENT          0x00400000L  // Передавать в другие разделы привязанные к товарам файлы (обычно, изображения)
+#define GCF_IGNOREFOLDERMATRIX           0x00800000L  // Игнорировать значения товарной матрицы, установленные для товарных групп верхнего уровня
+#define GCF_XCHG_RCVSTRUCFROMDDONLY      0x01000000L  // @v10.2.1 Принимать изменения товарных стуктур только из диспетчерского раздела
 
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	SLAPI  PPGoodsConfig();
@@ -4382,7 +4383,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 #define PPGDSK_PCKGTYPE   3L // Типы пакетов
 #define PPGDSK_TRANSPORT  4L // Транспортные средства
 #define PPGDSK_BRAND      5L // Брэнды
-#define PPGDSK_BRANDGROUP 6L // @v7.2.7 Группы брэндов
+#define PPGDSK_BRANDGROUP 6L // Группы брэндов
 #define PPGDSK_SUPRWARE   7L // Составные товары // @vmiller
 
 #define BARCODE_TYPE_PREFERRED 1000
@@ -4480,10 +4481,10 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	PPDimention PckgDim;   // Габаритные размеры упаковки поставки, мм
 	double Package;        // Емкость упаковки поставки (торговых единиц)
 	int16  ExpiryPeriod;   // Срок годности товара (дней).
-	int16  GseFlags;       // @v7.4.5 Reserve-->GseFlags
-	double MinShippmQtty;  // @v7.2.7 Минимальное количество, которое можно отгрузить в одном документе
+	int16  GseFlags;       // 
+	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
 	float  NettBruttCoeff; // @v9.8.12 Коэффициент пересчета брутто-массы в нетто (для товарных структур)
-	PPDimention RtlDim;    // @v7.2.7 Габаритные размеры торговой единицы, мм
+	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
 	RAssocArray MinStockList; // @anchor Минимальный запас товара по складам
 	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете // @v9.8.4 TSArray-->TSVector
 };
@@ -5202,11 +5203,11 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	int16  LcrUsage;                    // Варианты использования текущих остатков по лотам:
 		// 0 - не использовать, 1 - только поддерживать в актуальном состоянии, 2 - применять при расчетах остатков
 	PPID   DynGoodsTypeForSupplAgent;   // Динамический тип товара для лотов, имеющих агента поставщика
-	long   Flags2;                      // @v7.1.11 CCFLG2_XXX Дополнительное поле флагов
-	int16  IltiCvtQttyEpsilon;          // @v7.6.3 1E-7 Величина количественного дефицита, которую следует игнорировать при
+	long   Flags2;                      // CCFLG2_XXX Дополнительное поле флагов
+	int16  IltiCvtQttyEpsilon;          // 1E-7 Величина количественного дефицита, которую следует игнорировать при
 		// проведении расходных товарных операций. Умножается на 1E-7.
-	int16  Reserve3;                    // @v7.6.3 @alignment
-	LDATE  _InvcMergeTaxCalcAlg2Since;  // @v8.6.0 Дата, начиная с которой применяется алгорим 2 для расчета налогов по
+	int16  Reserve3;                    // @alignment
+	LDATE  _InvcMergeTaxCalcAlg2Since;  // Дата, начиная с которой применяется алгорим 2 для расчета налогов по
 		// объединенным строкам счет-фактуры (для печати).
 	PPID   PrepayInvoiceGoodsID;        // @v9.7.0 Товара для печати счета-фактуры на предоплату по бухгалтерскому документу
 		// Так же применяется для печати чеков без подробного содержания.
@@ -5236,21 +5237,21 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_CHKPAN_USEGDSLOCASSOC  0x00001000L // В кассовой панели использовать ассоциации товар-склад.
 	// В противном случае будут использоваться локальные по отношению к узлу ассоциации товар-кассовый узел.
 	// Речь идет об ассоциациях, применяемых для раздельной печати одного чека на разные кассовые принтеры.
-#define ECF_DEBUGDIRTYMTX          0x00002000L // @v7.3.11 Выводить в журнал mtxdirty.log информацию об актуализации
+#define ECF_DEBUGDIRTYMTX          0x00002000L // Выводить в журнал mtxdirty.log информацию об актуализации
 	// кэша товарной матрицы. Этот журнал - временный и отладочный. Необходим для решения изредка возникающих проблем
 	// с актуализацией кэша матрицы сервером Papyrus.
-#define ECF_USECDB                 0x00004000L // @v7.4.8 Использовать конфигурационную базу данных
-#define ECF_RCPTDLVRLOCASWAREHOUSE 0x00008000L // @v7.5.9 При выборе адеса доставки в диалоге документа прихода товаров,
+#define ECF_USECDB                 0x00004000L // Использовать конфигурационную базу данных
+#define ECF_RCPTDLVRLOCASWAREHOUSE 0x00008000L // При выборе адеса доставки в диалоге документа прихода товаров,
 	// комбо-бокс будет отражать склады главной организации (для драфт-документов прихода такое поведение - безусловно).
 #define ECF_DETECTCRDBTEXISTBYOPEN 0x00010000L // @v8.2.4 (видимо, временный) флаг, предписывающий системе иднтифицировать
 	// существование Btrieve-файлов созданных для печати посредством функций Btrieve, но не через fileExists()
 	// Устанавливается, если в pp.ini включен параметр DETECTDBTEXISTBYOPEN=100
-#define ECF_USESJLOGINEVENT        0x00020000L // @v8.2.5
-#define ECF_CODEPREFIXEDLIST       0x00040000L // @v8.4.11 Элементы списков некоторых объектов предваряются кодами
+#define ECF_USESJLOGINEVENT        0x00020000L // 
+#define ECF_CODEPREFIXEDLIST       0x00040000L // Элементы списков некоторых объектов предваряются кодами
 	// Устанавливается, если в pp.ini включен параметр CodePrefixedList=1
-#define ECF_TRACESYNCLOT           0x00080000L // @v8.5.7 Отладочный флаг для трассировки синхронизации лотов
-#define ECF_DISABLEASYNCADVQUEUE   0x00100000L // @v8.5.12 Защитный флаг, препятствующий применению техники асинхронной очереди системных событий
-#define ECF_USEGEOTRACKING         0x00200000L // @v8.6.11 Если флаг не установлен, то коммуникации с мобильными устройствами по гео-трекингу отключены
+#define ECF_TRACESYNCLOT           0x00080000L // Отладочный флаг для трассировки синхронизации лотов
+#define ECF_DISABLEASYNCADVQUEUE   0x00100000L // Защитный флаг, препятствующий применению техники асинхронной очереди системных событий
+#define ECF_USEGEOTRACKING         0x00200000L // Если флаг не установлен, то коммуникации с мобильными устройствами по гео-трекингу отключены
 #define ECF_DLLMODULE              0x00400000L // @v9.2.6 Работа в режиме DLL-модуля
 #define ECF_OPENSOURCE             0x00800000L // @v9.4.9 Система собрана в opensource-варианте
 //
@@ -5312,8 +5313,8 @@ private:
 #define PPSCMD_CONFIG                10030 // CONFIG устанавливает конфигурационный параметр вказанный следующим за командой токеном.
 #define PPSCMD_REFRESHVIEW           10031 // Требование серверу обновить содержимое PPView, идентификатор которого передается с командой.
 #define PPSCMD_RFIDPRCSSR            10032
-#define PPSCMD_GETTDDO               10033 // @v7.1.2 Извлечение текста по шаблону TDDO
-#define PPSCMD_GETIMAGE              10034 // @v7.1.6 Извлечение изображения, связанного с объектом данных
+#define PPSCMD_GETTDDO               10033 // Извлечение текста по шаблону TDDO
+#define PPSCMD_GETIMAGE              10034 // Извлечение изображения, связанного с объектом данных
 #define PPSCMD_GETNEXTFILEPART       10035 // @v7.1.7 Получить очередную часть файла
 #define PPSCMD_ACKFILE               10036 // @v7.1.7 Подтверждение приема файла клиентом
 #define PPSCMD_CANCELFILE            10037 // @v7.1.7 Отмена приема файла клиентом
@@ -39358,9 +39359,10 @@ public:
 		fLostJunkAsSusp   = 0x08000000, // Специальный флаг, предписывающий отбирать чеки, имеющие признак CCHKF_JUNK,
 			// получившие такой признак аварийно завершенной сессией. UUID'ы незавершенных сессий извлекаются из реестра по ключу
 			// HKEY_CURRENT_USER\\Software\\Papyrus\\Sessions
-			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного т'га чека PPTAG_CCHECK_JS_UUID
+			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного тэга чека PPTAG_CCHECK_JS_UUID
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
-		fNotSpFinished    = 0x20000000  // @v9.7.5 На чеке не установлен флаг CCHKF_SPFINISHED
+		fNotSpFinished    = 0x20000000, // @v9.7.5 На чеке не установлен флаг CCHKF_SPFINISHED
+		fAvoidExt         = 0x40000000  // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
 	};
 	enum {
 		ctNone = 0,
@@ -39371,10 +39373,14 @@ public:
 		ctvChecksCount,
 		ctvSKUCount
 	};
-	uint8  ReserveStart[12]; // @#0 !Использовать начиная со старших адресов
-	S_GUID LostJunkUUID;     // @v8.7.7 GUID по которому следует распознавать потерянные чеки (fLostJunkAsSusp)
-	PPID   GcoExcludeGrpID;  // @v8.4.9 Группа товаров, исключаемая из рассмотрения для попарных включений товаров
-	PPID   DlvrAddrID;       // @v7.5.3 Адрес доставки
+	uint8  ReserveStart[8]; // @#0 !Использовать начиная со старших адресов
+	uint32 CountOfLastItems; // @v10.2.1 Специализированный критерий, предписывающий извлекать не более CountOfLastItems
+		// последних чеков выборки. Нужен для оптимизации информационных списков, где полная выборка менее важна,
+		// нежели время извлечения.
+		// @attention Опция работает очень ограниченно и, в целом, не верно. В регулярных задачах не использовать!
+	S_GUID LostJunkUUID;     // GUID по которому следует распознавать потерянные чеки (fLostJunkAsSusp)
+	PPID   GcoExcludeGrpID;  // Группа товаров, исключаемая из рассмотрения для попарных включений товаров
+	PPID   DlvrAddrID;       // Адрес доставки
 	DateRange Period;
 	TimeRange TimePeriod;    // Временной промежуток, за который выбирать чеки.
 	uint16 LowLinesCount;    // Нижнаяя граница количества строк в чеке
@@ -48272,7 +48278,7 @@ private:
 
 struct GoodsGroupItem : Goods2Tbl::Rec {
 	long   Level;
-	char   Code[24]; // @v8.8.0 [16]-->[24]
+	char   Code[24];
 };
 
 class GoodsGroupView : public PPListDialog {
@@ -49479,6 +49485,27 @@ private:
 	uint   GoodsListFontHeight;
 	int    GoodsListEntryGap;    //
 	SPaintToolBox Ptb;           //
+};
+//
+// Descr: Хранилище для строковых элементов recently-used. Например, для последних открытых файлов.
+//   Объект поддерживает максимальное количество элементов maxItems, заданное в констукторе.
+//   Ключ для списка определяется фактором ident, который может быть либо целочисленным, либо строковым.
+//   Механизм сравнения уже вставленных элементов списка с новым следующий: если задана функция
+//   сравнения Cf, то применяеся она, в противном случае - стандартное строковое сравнение, чувствительное к регистру
+//   символов (strcmp()).
+//
+class RecentItemsStorage {
+public:
+	SLAPI  RecentItemsStorage(int ident, uint maxItems, CompFunc cf);
+	SLAPI  RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf);
+	SLAPI ~RecentItemsStorage();
+	int    SLAPI CheckIn(const char * pText);
+	int    SLAPI GetList(StringSet & rSs);
+private:
+	int    Ident;
+	uint   MaxItems;
+	CompFunc Cf;
+	SString IdentText;
 };
 //
 // PPDesktop and cmd edit

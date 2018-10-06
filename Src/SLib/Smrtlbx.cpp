@@ -24,6 +24,23 @@ IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 		return (r == 0 && p_len < c_len) ? -1 : r;
 	}
 }
+
+IMPL_CMPFUNC(FilePathUtf8, i1, i2)
+{
+	const char * p1 = (const char *)i1;
+	const char * p2 = (const char *)i2;
+	SString & r_s1 = SLS.AcquireRvlStr();
+	SStringU & r_su1 = SLS.AcquireRvlStrU();
+	SString & r_s2 = SLS.AcquireRvlStr();
+	SStringU & r_su2 = SLS.AcquireRvlStrU();
+	SPathStruc::NormalizePath(p1, SPathStruc::npfKeepCase, r_s1);
+	r_su1.CopyFromUtf8Strict(r_s1, r_s1.Len());
+	r_su1.ToLower();
+	SPathStruc::NormalizePath(p2, SPathStruc::npfKeepCase, r_s2);
+	r_su2.CopyFromUtf8Strict(r_s2, r_s2.Len());
+	r_su2.ToLower();
+	return r_su1.Cmp(r_su2);
+}
 //
 //
 //

@@ -572,7 +572,7 @@ int SLAPI PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 		k1.Prop = PRCPRP_EXT2;
 		if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2) do {
 			const PPID prc_id = p_ref->Prop.data.ObjID;
-			buffer.Clear();
+			buffer.Z();
 			if(p_ref->GetPropSBuffer_Current(buffer) > 0) {
 				ext.destroy();
 				if(ext.Serialize(-1, buffer, &sctx) && ext.GetOwnerGuaID() == guaID) {

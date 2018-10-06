@@ -3151,15 +3151,19 @@ int SLAPI ReformatIceCat(const char * pFileName)
 					ean_ss.setBuf(ean);
 					for(uint ep = 0; ean_ss.get(&ep, temp_buf);) {
 						if(temp_buf.NotEmptyS()) {
-							int    skip = 0;
-							if(title.CmpPrefix("ISBN", 1) == 0) {
-								(compose_buf = "ISBN").Space().Cat(temp_buf);
-								if(title.CmpPrefix(compose_buf, 1) == 0)
-									skip = 1;
-							}
-							if(!skip) {
-								line_buf.Z().Cat(temp_buf).Tab().Cat(title).Tab().Cat(brand).Tab().Cat(category).Tab().Cat(family).Tab().Cat(model).CR();
-								f_out.WriteLine(line_buf);
+							int    diag = 0, std = 0;
+							int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, 0);
+							if(r > 0) {
+								int    skip = 0;
+								if(title.CmpPrefix("ISBN", 1) == 0) {
+									(compose_buf = "ISBN").Space().Cat(temp_buf);
+									if(title.CmpPrefix(compose_buf, 1) == 0)
+										skip = 1;
+								}
+								if(!skip) {
+									line_buf.Z().Cat(temp_buf).Tab().Cat(title).Tab().Cat(brand).Tab().Cat(category).Tab().Cat(family).Tab().Cat(model).CR();
+									f_out.WriteLine(line_buf);
+								}
 							}
 						}
 					}

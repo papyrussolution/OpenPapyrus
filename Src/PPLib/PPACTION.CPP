@@ -828,7 +828,7 @@ int SLAPI ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffe
 		CALLPTRMEMB(pOid, Set(data.ObjType, data.ObjID));
 		ASSIGN_PTR(pVer, data.Ver);
 		if(pPackBuf) {
-			pPackBuf->Clear();
+			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);
 		}
 		ok = 1;
@@ -854,7 +854,7 @@ int SLAPI ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * p
 	if(search(1, &k, sp) > 0 && k.ObjType == oid.Obj && k.ObjID == oid.Id) {
 		copyBufTo(pRec);
 		if(pPackBuf) {
-			pPackBuf->Clear();
+			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);
 		}
 		ok = 1;

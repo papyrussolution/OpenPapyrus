@@ -1079,6 +1079,8 @@ ROD_TAG PP_RCDATA {
 	77, "@{rtag_locvetisguid}\0",             "LOCVETISGUID\0",       "LOCATION\0",   "UUID\0"
 	78, "@{rtag_guasecret}\0",                "GUASECRET\0",          "GLOBALUSER\0", "STRING\0"
 	79, "@{rtag_goodsvetispurpose}\0",        "GOODSVETISPURPOSE\0",  "GOODS\0",      "UUID\0"
+	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"
+	// @postponed 81, "@{rtag_locvetisuser}\0",             "LOCVETISUSER\0",       "LOCATION\0",   "STRING\0"
 }
 //
 // Зарезервированные записи объекта PPOBJ_OPCOUNTER

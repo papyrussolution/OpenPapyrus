@@ -690,7 +690,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 	}
 	if(eq) {
 		//
-		// Сравнение полей основной записи оставим на последний 'тап дабы можно было
+		// Сравнение полей основной записи оставим на последний этап дабы можно было
 		// идентифицировать факт изменения только флагов записи.
 		//
 		LongArray neq_fld_list;
@@ -1199,11 +1199,11 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos);
 					if(p_single_item) {
 						pPack->Codes.SetPreferredItem(single_item_pos);
-						pack_cmp_result_flags &= ~pefCodeEq; // @v8.1.3
+						pack_cmp_result_flags &= ~pefCodeEq;
 					}
 				}
 			}
-			if(!(pack_cmp_result_flags & pefCodeEq)) { // @v8.1.3
+			if(!(pack_cmp_result_flags & pefCodeEq)) {
 				THROW(P_Tbl->UpdateBarcodes(*pID, &pPack->Codes, 0));
 			}
 			if(pPack->Rec.Kind == PPGDSK_GOODS) {
@@ -1228,11 +1228,13 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				else
 					THROW(P_Tbl->PutStockExt(*pID, 0, 0));
 			}
-			if(pPack->Rec.Kind == PPGDSK_GROUP && (pPack->Rec.Flags & GF_ALTGROUP) && pPack->P_Filt)
+			if(pPack->Rec.Kind == PPGDSK_GROUP && (pPack->Rec.Flags & GF_ALTGROUP) && pPack->P_Filt) {
 				THROW(pPack->P_Filt->WriteToProp(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_));
+			}
 			THROW(p_ref->PutPropVlrString(Obj, *pID, GDSPRP_EXTSTRDATA, pPack->ExtString));
-			if(pPack->Rec.Kind == PPGDSK_GROUP)
+			if(pPack->Rec.Kind == PPGDSK_GROUP) {
 				THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, *pID, GGPRP_EXSTRTITLES, pPack->ExTitles));
+			}
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 				THROW_PP(goods_obj.CheckRights(GOODSRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
@@ -1300,6 +1302,12 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						// } @v9.5.0
 						if(pPack->Rec.TaxGrpID != org_rec.TaxGrpID)
 							DS.LogAction(PPACN_GOODSVATGRPCHD, Obj, *pID, org_rec.TaxGrpID, 0);
+						// @v10.2.1 {
+						if(!org_rec.StrucID && pPack->Rec.StrucID)
+							DS.LogAction(PPACN_GSTRUCATTACHED, Obj, *pID, pPack->Rec.StrucID, 0);
+						else if(org_rec.StrucID && !pPack->Rec.StrucID)
+							DS.LogAction(PPACN_GSTRUCDETACHED, Obj, *pID, org_rec.StrucID, 0);
+						// } @v10.2.1 
 					}
 				}
 			}

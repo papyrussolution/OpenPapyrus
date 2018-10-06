@@ -25,17 +25,10 @@ int PPDrvInputParamBlock::Get(const char * pParam, SString & rValue)
 int PPDrvSession::ImplementDllMain(HANDLE hModule, DWORD dwReason)
 {
 	switch(dwReason) {
-		case DLL_PROCESS_ATTACH:
-			Init((HINSTANCE)hModule);
-			break;
-		case DLL_THREAD_ATTACH:
-			InitThread();
-			break;
-		case DLL_THREAD_DETACH:
-			ReleaseThread();
-			break;
-		case DLL_PROCESS_DETACH:
-			break;
+		case DLL_PROCESS_ATTACH: Init((HINSTANCE)hModule); break;
+		case DLL_THREAD_ATTACH: InitThread(); break;
+		case DLL_THREAD_DETACH: ReleaseThread(); break;
+		case DLL_PROCESS_DETACH: break;
 	}
 	return TRUE;
 }
@@ -94,20 +87,9 @@ int PPDrvThreadLocalArea::SignalFinishEvent()
 		return 0;
 }
 
-long SLAPI PPDrvThreadLocalArea::GetId() const
-{
-	return Id;
-}
-
-ThreadID SLAPI PPDrvThreadLocalArea::GetThreadID() const
-{
-	return TId;
-}
-
-int SLAPI PPDrvThreadLocalArea::IsConsistent() const
-{
-	return BIN(Sign == SIGN_PPDRVTLA);
-}
+long SLAPI PPDrvThreadLocalArea::GetId() const { return Id; }
+ThreadID SLAPI PPDrvThreadLocalArea::GetThreadID() const { return TId; }
+int SLAPI PPDrvThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPDRVTLA); }
 
 SLAPI PPDrvSession::~PPDrvSession()
 {
@@ -155,20 +137,11 @@ int SLAPI PPDrvSession::ReleaseThread()
 	return 1;
 }
 
-PPDrvThreadLocalArea & SLAPI PPDrvSession::GetTLA()
-{
-	return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx);
-}
-
-const PPDrvThreadLocalArea & SLAPI PPDrvSession::GetConstTLA() const
-{
-	return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx);
-}
-
-PPBaseDriver * PPDrvSession::GetI()
-{
-	return GetTLA().I;
-}
+PPDrvThreadLocalArea & SLAPI PPDrvSession::GetTLA() { return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx); }
+const PPDrvThreadLocalArea & SLAPI PPDrvSession::GetConstTLA() const { return *(PPDrvThreadLocalArea *)TlsGetValue(TlsIdx); }
+PPBaseDriver * PPDrvSession::GetI() { return GetTLA().I; }
+void PPDrvSession::SetErrCode(int errCode) { GetTLA().LastErr = errCode; }
+int PPDrvSession::GetLastErr() { return GetConstTLA().LastErr; }
 
 int PPDrvSession::DefineErrText(int errCode, const char * pText)
 {
@@ -185,16 +158,6 @@ int PPDrvSession::DefineErrTextTable(uint numEntries, const TextTableEntry * pTa
 		}
 	}
 	return ok;
-}
-
-void PPDrvSession::SetErrCode(int errCode)
-{
-	GetTLA().LastErr = errCode;
-}
-
-int PPDrvSession::GetLastErr()
-{
-	return GetConstTLA().LastErr;
 }
 
 int PPDrvSession::GetErrText(int errCode, SString & rBuf)

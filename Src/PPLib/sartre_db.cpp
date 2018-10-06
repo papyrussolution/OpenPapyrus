@@ -345,7 +345,7 @@ int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 	data_buf.Alloc(128);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pWa) {
-			buf.Clear();
+			buf.Z();
 			data_buf.Get(buf);
 			SerializeRecBuf(-1, pWa, buf);
 			key_buf.Get(&pWa->ID);
@@ -368,7 +368,7 @@ int SrWordAssocTbl::Search(LEXID wordID, TSVector <SrWordAssoc> & rList) // @v9.
 		do {
 			int32  id = 0;
 			SrWordAssoc wa;
-			buf.Clear();
+			buf.Z();
 			data_buf.Get(buf);
 			SerializeRecBuf(-1, &wa, buf);
 			if(wa.WordID == wordID) {
@@ -709,7 +709,7 @@ int SrConceptTbl::Update(SrConcept & rRec)
 	if(rRec.IsEqual(org_rec))
 		ok = -1;
 	else {
-		rec_buf.Clear();
+		rec_buf.Z();
 		THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 		data_buf = rec_buf;
 		THROW_DB(UpdateRec(key_buf, data_buf));
@@ -774,7 +774,7 @@ int SrConceptPropTbl::Search(SrCProp & rRec)
 	BDbTable::Buffer key_buf, data_buf;
 	EncodePrimeKey(key_buf, rRec);
 	data_buf.Alloc(512);
-	rRec.Value.Clear();
+	rRec.Value.Z();
 	if(BDbTable::Search(key_buf, data_buf)) {
 		SBuffer rec_buf;
 		data_buf.Get(rec_buf);
@@ -824,7 +824,7 @@ int SrConceptPropTbl::GetPropList(CONCEPTID cID, SrCPropList & rPropList)
 		do {
 			DecodePrimeKey(key_buf, prop.Z());
 			if(prop.CID == cID) {
-				data_buf.Get(rec_buf.Clear());
+				data_buf.Get(rec_buf.Z());
 				SerializeRecBuf(-1, &prop, rec_buf);
 				rPropList.Set(prop.CID, prop.PropID, prop.Value.GetBuf(prop.Value.GetRdOffs()), prop.Value.GetAvailableSize());
 				ok = 1;
@@ -854,7 +854,7 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 		org_rec.CID = rProp.CID;
 		org_rec.PropID = rProp.PropID;
 		if(!org_rec.IsEqual(rProp)) {
-			THROW(SerializeRecBuf(+1, &rProp, rec_buf.Clear()));
+			THROW(SerializeRecBuf(+1, &rProp, rec_buf.Z()));
 			THROW_DB(UpdateRec(key_buf, data_buf = rec_buf));
 		}
 		else
@@ -862,7 +862,7 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 	}
 	else {
 		EncodePrimeKey(key_buf, rProp);
-		THROW(SerializeRecBuf(+1, &rProp, rec_buf.Clear()));
+		THROW(SerializeRecBuf(+1, &rProp, rec_buf.Z()));
 		THROW_DB(InsertRec(key_buf, data_buf = rec_buf));
 	}
 	CATCHZOK

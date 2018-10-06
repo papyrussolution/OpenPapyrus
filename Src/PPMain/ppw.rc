@@ -14232,9 +14232,9 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,305,5,105,185
 END
 
-DLG_GDSCFG DIALOGEX 0, 0, 477, 356
+DLG_GDSCFG DIALOGEX 0, 0, 477, 357
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Опции справочника товаров"
+CAPTION "@cfg_goods"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@cfggoods_barcodelen",4001,10,5,110,8
@@ -14250,13 +14250,13 @@ BEGIN
     GROUPBOX        "",CTL_GDSCFG_FLAGS,10,105,240,170,WS_GROUP
     CONTROL         "@cfggoods_gcf_supprlzero",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,115,195,10
     CONTROL         "@cfggoods_gcf_enablewp",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,125,180,10
-    CONTROL         "@cfggoods_gcf_bcchkdig",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,135,175,10
-    CONTROL         "@cfggoods_gcf_bcndig",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,145,200,10
+    CONTROL         "@cfggoods_gcf_bcchkdig",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,135,230,10
+    CONTROL         "@cfggoods_gcf_bcndig",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,145,225,10
     CONTROL         "@cfggoods_gcf_disablewotaxflag",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,155,185,10
     CONTROL         "@cfggoods_gcf_loadtoscalegid",25779,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,165,210,10
-    CONTROL         "@cfggoods_gcf_retailpricebymostrecentlot",29875,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,175,190,10
-    CONTROL         "@cfggoods_gcf_dontselpassive",33971,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,185,185,10
-    CONTROL         "@cfggoods_gcf_addtoaltgrpwithoutmsg",38067,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,195,195,10
+    CONTROL         "@cfggoods_gcf_retailpricebymostrecentlot",29875,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,175,225,10
+    CONTROL         "@cfggoods_gcf_dontselpassive",33971,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,185,225,10
+    CONTROL         "@cfggoods_gcf_addtoaltgrpwithoutmsg",38067,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,195,225,10
     CONTROL         "@cfggoods_gcf_onunitemovebarcode",42163,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,205,195,10
     CONTROL         "@cfggoods_gcf_usescalebcprefix",46259,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,215,220,10
     CONTROL         "@cfggoods_gcf_usebrandingselextdlg",50355,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,225,220,10
@@ -14264,12 +14264,13 @@ BEGIN
     CONTROL         "@cfggoods_gcf_dontdelfrommtxgoodsinopenord",58547,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,245,225,10
     CONTROL         "@cfggoods_gcf_showgstrucprice",62643,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,255,230,10
-    GROUPBOX        "Опции обмена",CTL_GDSCFG_XCHG_FLAGS,10,285,240,65,WS_GROUP
-    CONTROL         "@cfggoods_gcf_xchg_dontrcvtaxgrpupd",5310,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,296,167,10
-    CONTROL         "@cfggoods_gcf_xchg_rcvstrucupd",9406,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,305,127,10
-    CONTROL         "@cfggoods_gcf_xchg_sendgengoodscontent",13502,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,315,225,10
-    CONTROL         "@cfggoods_gcf_xchg_sendaltgroup",17598,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,325,220,10
-    CONTROL         "@xchg_sendattachment",21694,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,335,225,10
+    GROUPBOX        "@cfggoods_gcf_xchg",CTL_GDSCFG_XCHG_FLAGS,10,275,240,80,WS_GROUP
+    CONTROL         "@cfggoods_gcf_xchg_dontrcvtaxgrpupd",5310,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,286,230,10
+    CONTROL         "@cfggoods_gcf_xchg_rcvstrucupd",9406,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,295,230,10
+    CONTROL         "@cfggoods_gcf_xchg_sendgengoodscontent",13502,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,305,225,10
+    CONTROL         "@cfggoods_gcf_xchg_sendaltgroup",17598,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,315,220,10
+    CONTROL         "@xchg_sendattachment",21694,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,325,225,10
+    CONTROL         "@cfggoods_gcf_xchg_rcvstrucfromddonly",25790,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,335,225,10
     LTEXT           "@cfggoods_defunit",4009,175,5,124,8
     EDITTEXT        CTL_GDSCFG_DEFUNIT,175,15,130,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSCFG_DEFUNIT,305,15,13,13,BS_BITMAP | NOT WS_TABSTOP
@@ -14295,7 +14296,7 @@ BEGIN
     LTEXT           "@cfggoods_mtxrestrqk",4016,260,175,155,8
     EDITTEXT        CTL_GDSCFG_GMTXRESTR,260,186,165,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GDSCFG_GMTXRESTR,425,186,13,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "Нумерация собственных артикулов",IDC_STATIC,260,226,165,65
+    GROUPBOX        "@cfggoods_ownarcounting",IDC_STATIC,260,226,165,65
     LTEXT           "@codetemplate",4007,280,240,100,8
     EDITTEXT        CTL_GDSCFG_OWNACTMPL,280,250,100,13,ES_AUTOHSCROLL
     LTEXT           "@counter",4008,280,266,50,8
@@ -14303,8 +14304,8 @@ BEGIN
     EDITTEXT        CTL_GDSCFG_BCPGUATAG,260,210,165,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@cfggoods_bcprefixguatag",4017,260,200,175,8
     PUSHBUTTON      "",CTLSEL_GDSCFG_BCPGUATAG,425,210,12,13,BS_BITMAP | NOT WS_TABSTOP
-    PUSHBUTTON      "Дополнительные поля...",4018,315,295,110,13
-    PUSHBUTTON      "Фильтр индикаторов тегов...",4019,315,315,110,13
+    PUSHBUTTON      "@{addendumfields}...",4018,315,295,110,13
+    PUSHBUTTON      "@{cfggoods_tagindfilt}...",4019,315,315,110,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,315,335,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,375,335,50,13
 END
@@ -30931,7 +30932,7 @@ BEGIN
     DLG_GDSCFG, DIALOG
     BEGIN
         RIGHTMARGIN, 446
-        BOTTOMMARGIN, 75
+        BOTTOMMARGIN, 76
     END
 
     DLG_DSTATCFG, DIALOG
@@ -34299,6 +34300,11 @@ BEGIN
 END
 
 DLG_TR_CAR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_GDSCFG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

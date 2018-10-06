@@ -1056,7 +1056,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 					cntr.Init((long)r_entry.NumRecs); // @32-64
 					for(int64 i = 0; i < r_entry.NumChunks; i++) {
 						int64  local_count = 0;
-						buffer.Clear();
+						buffer.Z();
 						THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
 						THROW_SL(FDump.Read(buffer));
 						for(int64 j = 0; j < local_count; j++) {
@@ -1092,7 +1092,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 			Quotation2Core qc2;
 			for(int64 i = 0; i < r_entry.NumChunks; i++) {
 				int64  local_count = 0;
-				buffer.Clear();
+				buffer.Z();
 				THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
 				THROW_SL(FDump.Read(buffer));
 				THROW(qc2.UndumpCurrent(buffer, 1));
@@ -1135,7 +1135,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 					// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
 					// правильно сохранить его в потоке.
 					//
-					lob_buf.Clear();
+					lob_buf.Z();
 					tbl.readLobData(lob_fld, lob_buf);
 					tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
 				}
@@ -1151,7 +1151,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 				if(buffer.GetAvailableSize() >= MaxBufLen) {
 					THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
 					THROW_SL(FDump.Write(buffer));
-					buffer.Clear();
+					buffer.Z();
 					local_count = 0;
 					chunk_count++;
 				}
@@ -1162,7 +1162,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 			if(local_count) {
 				THROW_SL(FDump.Write(&local_count, sizeof(local_count)));
 				THROW_SL(FDump.Write(buffer));
-				buffer.Clear();
+				buffer.Z();
 				local_count = 0;
 				chunk_count++;
 			}
@@ -2838,7 +2838,7 @@ int SLAPI TestLargeVlrInputOutput()
 			//
 			// Создание новой записи
 			//
-			src_buf.Clear();
+			src_buf.Z();
 			MEMSZERO(rec);
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
@@ -2852,7 +2852,7 @@ int SLAPI TestLargeVlrInputOutput()
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
-			dest_buf.Clear();
+			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
@@ -2860,7 +2860,7 @@ int SLAPI TestLargeVlrInputOutput()
 			//
 			// Изменение записи на буфер большего размера
 			//
-			src_buf.Clear();
+			src_buf.Z();
 			MEMSZERO(rec);
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
@@ -2874,7 +2874,7 @@ int SLAPI TestLargeVlrInputOutput()
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
-			dest_buf.Clear();
+			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
@@ -2882,7 +2882,7 @@ int SLAPI TestLargeVlrInputOutput()
 			//
 			// Изменение записи на буфер меньшего размера
 			//
-			src_buf.Clear();
+			src_buf.Z();
 			MEMSZERO(rec);
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
@@ -2896,7 +2896,7 @@ int SLAPI TestLargeVlrInputOutput()
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
-			dest_buf.Clear();
+			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
@@ -2904,7 +2904,7 @@ int SLAPI TestLargeVlrInputOutput()
 			//
 			// Изменение записи на буфер совсем маленького размера (без необходимости считывать отдельными отрезками)
 			//
-			src_buf.Clear();
+			src_buf.Z();
 			MEMSZERO(rec);
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
@@ -2918,7 +2918,7 @@ int SLAPI TestLargeVlrInputOutput()
 			}
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
-			dest_buf.Clear();
+			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
@@ -2926,10 +2926,10 @@ int SLAPI TestLargeVlrInputOutput()
 			//
 			// Удаление записи (заносим пустой буфер)
 			//
-			src_buf.Clear();
+			src_buf.Z();
 			THROW(p_ref->PutPropSBuffer(test_obj_type, test_obj_id, test_prop_id, src_buf, 0));
 			//
-			dest_buf.Clear();
+			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) < 0);
 			THROW(dest_buf.IsEqual(src_buf));
 		}
