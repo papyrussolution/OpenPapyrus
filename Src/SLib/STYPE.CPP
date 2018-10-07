@@ -31,7 +31,7 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 
 int FASTCALL btnumber(int bt)
 	{ return oneof2(bt, BTS_INT, BTS_REAL); }
-size_t FASTCALL stsize(TYPEID t)
+uint32 FASTCALL stsize(TYPEID t) // @v10.2.1 size_t-->uint32
 	{ DataType _t; return stype(t, &_t).size(); }
 int FASTCALL stcomp(TYPEID t, const void * i1, const void * i2)
 	{ DataType _t; return stype(t, &_t).comp(i1, i2); }
@@ -56,13 +56,9 @@ void FASTCALL stmaxval(TYPEID t, void * d)
 //
 //
 //
-size_t SLAPI DataType::size() const { return S; }
+uint32 SLAPI DataType::size() const { return S; } // @v10.2.1
 int    SLAPI DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
-
-char * SLAPI DataType::tostr(const void *, long, char * b) const
-{
-	return &(b[0] = 0);
-}
+char * SLAPI DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 
 //virtual
 SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf) const

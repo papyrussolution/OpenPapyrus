@@ -121,13 +121,8 @@ struct K2FrameHeaderSt {
 // Структура кадра для запроса и ответа
 //
 struct K2FrameSt {
-	K2FrameSt()
+	K2FrameSt() : P_Data(FxBuf), Crc(0xFFFF), BufAllocated(0), Size(sizeof(FxBuf))
 	{
-		P_Data = 0;
-		Crc    = 0xFFFF;
-		BufAllocated = 0;
-		P_Data = FxBuf;
-		Size = sizeof(FxBuf);
 	}
 	~K2FrameSt()
 	{

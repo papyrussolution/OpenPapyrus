@@ -988,7 +988,7 @@ int InetUrl::Parse(const char * pUrl)
 		_url.ShiftLeft();
 		while(oneof2(_url.C(0), ' ', '\t'))
 			_url.ShiftLeft();
-		uint qp = 0;
+		size_t qp = 0;
 		if(_url.StrChr('\"', &qp))
 			_url.Trim(qp).Strip();
 	}
@@ -2318,7 +2318,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 	SString temp_buf;
 	SString fragment_buf;
 	for(uint ssp = 0; ss_to.get(&ssp, temp_buf);) {
-		uint ang_pos = 0;
+		size_t ang_pos = 0;
 		nta.clear();
 		tr.Run(temp_buf.ucptr(), -1, nta, 0);
 		if(nta.Has(SNTOK_EMAIL) > 0.0f) {

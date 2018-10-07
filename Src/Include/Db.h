@@ -1491,10 +1491,7 @@ public:
 	int    Fetch(uint count, uint * pActualCount);
 	int    Describe();
 	uint   GetBindingCount(int dir) const;
-	DBLobBlock * GetBindingLob()
-	{
-		return BL.P_Lob;
-	}
+	DBLobBlock * GetBindingLob() { return BL.P_Lob; }
 
 	struct Bind {
 		Bind();
@@ -1962,7 +1959,7 @@ public:
 	// Функция callbackProc должна вернуть значение (>0) если следует
 	// продолжить процесс и 0 - если процесс следует прервать
 	//
-	virtual int SLAPI callbackProc(int event, long lp1 = 0, long lp2 = 0, void * vp = 0);
+	virtual int SLAPI callbackProc(int event, void * lp1 = 0, void * lp2 = 0, void * vp = 0);
 	// IN {
 	const  char * P_DestPath;
 	const  char * P_BakPath;

@@ -49367,6 +49367,7 @@ private:
 	void   FASTCALL SelectGoods__(int mode);
 	void   AddFromBasket();
 	void   AcceptQuantity();
+	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty);
 	void   AcceptSCard(int fromInput, PPID scardID, int ignoreRights = 0);
 	int    LoadCheck(const CCheckPacket *, int makeRetCheck, int notShow = 0);
 	int    SetupOrder(PPID ordCheckID);

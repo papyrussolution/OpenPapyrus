@@ -34,7 +34,7 @@ public:
 	SLAPI PPRecoverParam() : BRecoverParam(), Stop(0)
 	{
 	}
-	virtual int SLAPI callbackProc(int ev, long lp1, long lp2, void * vp);
+	virtual int SLAPI callbackProc(int ev, void * lp1, void * lp2, void * vp);
 	int    Stop;
 	SString LogFileName;
 };
@@ -44,7 +44,7 @@ static int SLAPI LoadRcvrMsg(int msgID, SString & rBuf)
 	return PPLoadText(msgID, rBuf);
 }
 
-int SLAPI PPRecoverParam::callbackProc(int ev, long lp1, long lp2, void * vp)
+int SLAPI PPRecoverParam::callbackProc(int ev, void * lp1, void * lp2, void * vp)
 {
 	int    ok = 1, do_log_msg = 0;
 	SString fmt_buf, msg_buf;
@@ -65,7 +65,7 @@ int SLAPI PPRecoverParam::callbackProc(int ev, long lp1, long lp2, void * vp)
 			if(!PPCheckUserBreak())
 				ok = 0;
 			else
-				PPWaitPercent(lp1, lp2, (char*)vp);
+				PPWaitPercent((long)lp1, (long)lp2, (char*)vp);
 			break;
 		case BREV_ERRCREATE:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRCREATE, fmt_buf))

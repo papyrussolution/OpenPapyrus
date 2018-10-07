@@ -410,7 +410,7 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 			default:
 				{
 					P_RegParse--;
-					int    len = strcspn(P_RegParse, META);
+					int    len = (int)strcspn(P_RegParse, META);
 					if(len <= 0)
 						ErrCode = SLERR_RE_INTERNAL;
 					else {
@@ -646,7 +646,7 @@ int FASTCALL CRegExp::regrepeat(const char * p)
 	const  char * opnd = OPERAND(p);
 	switch(OP(p)) {
 		case ANY:
-			count = strlen(scan);
+			count = (int)strlen(scan);
 			scan += count;
 			break;
 		case EXACTLY:

@@ -1,5 +1,5 @@
 // BITARRAY.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -75,7 +75,7 @@ size_t SLAPI BitArray::getCount() const
 int FASTCALL BitArray::IsEqual(const BitArray & rS) const
 {
 	int    eq = 0;
-	const  uint c = getCount();
+	const  size_t c = getCount();
 	if(c == rS.getCount()) {
 		eq = 1;
 		for(uint i = 0; eq && i < c; i++) {
@@ -88,8 +88,8 @@ int FASTCALL BitArray::IsEqual(const BitArray & rS) const
 
 size_t FASTCALL BitArray::getCountVal(int val) const
 {
-	uint   i;
-	uint   c = (Count / 32);
+	size_t i;
+	size_t c = (Count / 32);
 	uint   r = 0;
 	for(i = 0; i < c; i++) {
 		//
@@ -202,11 +202,11 @@ int FASTCALL BitArray::insertN(int val, size_t N)
 		s = Count; // prev value of BitArray::Count
 		Count += N;
 		if(val) {
-			for(uint i = s; i < Count; i++)
+			for(size_t i = s; i < Count; i++)
 				setbit32(P_Buf, Size, i);
 		}
 		else {
-			for(uint i = s; i < Count; i++)
+			for(size_t i = s; i < Count; i++)
 				resetbit32(P_Buf, Size, i);
 		}
 		return 1;

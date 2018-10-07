@@ -8187,6 +8187,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 			ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
 		}
 		else {
+			ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1); // @v10.2.1
+			/* @v10.2.1
 			const  int is_unlim = BIN(GObj.CheckFlag(goodsID, GF_UNLIM));
 			if((!(CnFlags & CASHF_SELALLGOODS) || CnFlags & CASHF_ABOVEZEROSALE) && !is_unlim) {
 				const double rest = CalcCurrentRest(goodsID, 1);
@@ -8209,6 +8211,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 			}
 			else
 				ok = 1;
+			*/
 			if(ok > 0) {
 				if(Flags & fSelSerial && rBlk.Serial.Empty()) {
 					int    r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
@@ -8560,17 +8563,98 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		SetupInfo(0);
 }
 
+int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty)
+{
+	int    ok = 1;
+	if(goodsID) {
+		if(rQtty <= 0.0 && adjustQtty) {
+			rQtty = 1.0;
+		}
+		if(rQtty != 0.0) {
+			SString temp_buf;
+			//
+			// Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+			//
+			if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
+				PrcssrAlcReport::GoodsItem agi;
+				if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
+					if(rQtty != 1.0) {
+						if(adjustQtty)
+							rQtty = 1.0;
+						else
+							ok = MessageError(PPERR_EGAIS_MARKEDQTTY, 0, eomBeep|eomStatusLine);
+					}
+				}
+			}
+			//
+			// Проверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
+			//
+			if(ok) {
+				const  int is_unlim = BIN(GObj.CheckFlag(goodsID, GF_UNLIM));
+				int    rest_check_wanted = 0;
+				if(!is_unlim) {
+					if(CnFlags & CASHF_ABOVEZEROSALE)
+						rest_check_wanted = 1;
+					else if(adjustQtty && !(CnFlags & CASHF_SELALLGOODS))
+						rest_check_wanted = 1;
+				}
+				if(rest_check_wanted) {
+					const double rest = CalcCurrentRest(goodsID, 0);
+					if(rest < rQtty) {
+						if(adjustQtty && rQtty == 1.0 && rest >= 0.001) {
+							rQtty = round(rest, 0.001, -1);
+							ok = 1;
+						}
+						else if(CnFlags & CASHF_ABOVEZEROSALE) {
+							PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
+							ok = MessageError(PPERR_LOTRESTBOUND, 0, eomBeep|eomStatusLine);
+						}
+						else if(adjustQtty) {
+							GetGoodsName(goodsID, temp_buf);
+							ok = ConfirmMessage(PPCFM_GOODSRESTNOTENOUGH, temp_buf, 1) ? 1 : -2;
+						}
+					}
+				}
+			}
+			//
+			// Проверка на кратность единицы измерения //
+			//
+			if(ok > 0 && CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd) {
+				Goods2Tbl::Rec goods_rec;
+				PPUnit u_rec;
+				if(GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+					if(u_rec.Rounding > 0.0) {
+						const double _r = round(rQtty, u_rec.Rounding, 0);
+						if(!feqeps(_r, rQtty, 1E-7)) {
+							temp_buf.Z().Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+							ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
+						}
+					}
+					else if(u_rec.Flags & PPUnit::IntVal) {
+						if(ffrac(rQtty) != 0.0)
+							ok = MessageError(PPERR_QTTYMUSTBEINT, 0, eomStatusLine|eomBeep);
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 void CheckPaneDialog::AcceptQuantity()
 {
 	int    ok = -1;
+	int    is_input = 0;
 	const PPID goods_id = P.HasCur() ? P.GetCur().GoodsID : 0;
 	if(goods_id) {
 		SString temp_buf;
 		CCheckItem & r_cur = P.GetCur();
 		const CCheckItem preserve_item = r_cur;
-		int    is_input = GetInput();
 		double prev_qtty = r_cur.Quantity;
 		double qtty = 0.0;
+		is_input = GetInput();
 		if(!is_input && ScaleID) {
 			int  r = 0;
 			while(r == 0 && !(Flags & fNotUseScale)) {
@@ -8612,46 +8696,7 @@ void CheckPaneDialog::AcceptQuantity()
 						qtty = R6(qtty / phuperu);
 					}
 				}
-				//
-				// Маркированная алкогольная продукциия - строго по одной штуке на строку чека
-				//
-				if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goods_id)) { // @v9.8.12 (3)
-					PrcssrAlcReport::GoodsItem agi;
-					if(P_EgPrc->PreprocessGoodsItem(goods_id, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
-						if(qtty != 1.0)
-							ok = MessageError(PPERR_EGAIS_MARKEDQTTY, 0, eomBeep|eomStatusLine);
-					}
-				}
-				//
-				// Проверка на не превышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
-				//
-				if(ok && CnFlags & CASHF_ABOVEZEROSALE && !GObj.CheckFlag(goods_id, GF_UNLIM)) {
-					double rest = CalcCurrentRest(goods_id, 0);
-					if(rest < qtty) {
-						PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goods_id));
-						ok = MessageError(PPERR_LOTRESTBOUND, 0, eomBeep|eomStatusLine);
-					}
-				}
-				//
-				// Проверка на кратность единицы измерения //
-				//
-				if(ok && CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd) {
-					Goods2Tbl::Rec goods_rec;
-					PPUnit u_rec;
-					if(GObj.Fetch(goods_id, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-						if(u_rec.Rounding > 0.0) {
-							const double _r = round(qtty, u_rec.Rounding, 0);
-							if(!feqeps(_r, qtty, 1E-7)) {
-								temp_buf.Z().Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-								ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
-							}
-						}
-						else if(u_rec.Flags & PPUnit::IntVal) {
-							if(ffrac(qtty) != 0.0)
-								ok = MessageError(PPERR_QTTYMUSTBEINT, 0, eomStatusLine|eomBeep);
-						}
-					}
-				}
+				ok = VerifyQuantity(goods_id, qtty, 0);
 				if(ok) {
 					r_cur.Quantity = (goods_id == GetChargeGoodsID(CSt.GetID())) ? fabs(R3(qtty)) : qtty;
 					//
@@ -8683,7 +8728,8 @@ void CheckPaneDialog::AcceptQuantity()
 			}
 		}
 	}
-	ClearInput(0);
+	if(is_input != 2) // @v10.2.1 При установке внешнего значение ввод очищать не следует
+		ClearInput(0);
 }
 
 void CheckPaneDialog::AcceptDivision()

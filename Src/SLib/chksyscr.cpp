@@ -1,5 +1,5 @@
 // CHKSYSCR.CPP
-// 2005, 2007, 2008, 2009, 2010, 2016
+// 2005, 2007, 2008, 2009, 2010, 2016, 2018
 // Слегка видоизмененный метод проверки имени пользователя и пароля в Windows
 //
 // ----------------------------------------------------------------
@@ -343,7 +343,7 @@ int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 				LPTIME_OF_DAY_INFO p_server_dtm = NULL;
 				WCHAR  tm_serv[MAXPATH];
 				memzero(tm_serv, sizeof(tm_serv));
-				MultiByteToWideChar(1251, 0, pServerName, sn_len, tm_serv, SIZEOFARRAY(tm_serv));
+				MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, (int)SIZEOFARRAY(tm_serv));
 				int    oserr = proc_NetRemoteTOD(tm_serv, (LPBYTE*)&p_server_dtm);
 				if(oserr == NERR_Success && p_server_dtm) {
 					dtm.d.encode(p_server_dtm->tod_day, p_server_dtm->tod_month, p_server_dtm->tod_year);

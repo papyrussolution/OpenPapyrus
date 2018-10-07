@@ -868,7 +868,7 @@ int FASTCALL BDbTable::Buffer::Alloc(size_t sz)
 	Reset();
 	if(sz < B.GetSize() || (r = B.Alloc(sz))) {
 		P_Data = B;
-		ULen = B.GetSize();
+		ULen = (uint32)B.GetSize();
 		Flags |= fUserMem;
 	}
 	if(!r)
@@ -895,7 +895,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const SBuffer & rBuf)
 	const size_t src_size = rBuf.GetAvailableSize();
 	if(src_size && Alloc(ALIGNSIZE(src_size, 6))) {
 		rBuf.ReadStatic(B, src_size);
-		Size = src_size;
+		Size = (uint32)src_size;
 	}
 	return *this;
 }
@@ -909,7 +909,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const char * pStr)
 			memcpy(B, pStr, src_size);
 		else
 			B[0] = 0;
-		Size = src_size;
+		Size = (uint32)src_size;
 	}
 	return *this;
 }
@@ -923,7 +923,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const wchar_t * pUStr)
 			memcpy(B, pUStr, src_size);
 		else
 			((wchar_t *)((char *)B))[0] = 0;
-		Size = src_size;
+		Size = (uint32)src_size;
 	}
 	return *this;
 }
@@ -943,7 +943,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 				memcpy(B, pData, src_size);
 			else
 				memzero(B, src_size);
-			Size = src_size;
+			Size = (uint32)src_size;
 		}
 	}
 	else
@@ -1063,7 +1063,7 @@ BDbTable::Statistics::ISz::ISz() : Count(0), Total(0), Min(UINT_MAX), Max(0)
 void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
 {
     Count++;
-    size_t _s = rB.GetSize();
+    uint32 _s = (uint32)rB.GetSize();
     Total += _s;
     SETMIN(Min, _s);
     SETMAX(Max, _s);

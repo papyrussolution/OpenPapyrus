@@ -2650,7 +2650,7 @@ class DataType {
 public:
 	explicit SLAPI DataType(uint32 sz) : S(sz) {}
 	SLAPI DataType() : S(0) {}
-	virtual size_t SLAPI size() const;
+	virtual uint32 SLAPI size() const; // @v10.2.1 size_t-->uint32
 	virtual int    SLAPI comp(const void * i1, const void * i2) const;
 	virtual char * SLAPI tostr(const void *, long, char * b) const;
 	//
@@ -2694,7 +2694,7 @@ DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 
 int    FASTCALL btnumber(int bt);
-size_t FASTCALL stsize(TYPEID t);
+uint32 FASTCALL stsize(TYPEID t); // @v10.2.1 size_t-->uint32
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b);
@@ -4720,7 +4720,7 @@ int   SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 // Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
 //
 struct BNField {
-	size_t SLAPI size() const { return stsize(T); }
+	uint   SLAPI size() const { return stsize(T); }
 	int    SLAPI IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
 	int    FASTCALL getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    SLAPI setValue(void * pDataBuf, const void * pValBuf) const;

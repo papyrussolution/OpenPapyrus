@@ -33,7 +33,7 @@ typedef SInt SAutoinc;
 
 class SBool : public DataType {
 public:
-	explicit SLAPI SBool(size_t sz = 4);
+	explicit SLAPI SBool(uint32 sz = 4);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -47,7 +47,7 @@ public:
 
 class SUInt : public DataType {
 public:
- 	explicit SLAPI SUInt(size_t sz = 2);
+ 	explicit SLAPI SUInt(uint32 sz = 2);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -61,7 +61,7 @@ public:
 
 class SFloat : public DataType {
 public:
-	explicit SLAPI SFloat(size_t sz = 8);
+	explicit SLAPI SFloat(uint32 sz = 8);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -76,7 +76,7 @@ public:
 class SDecimal : public DataType {
 public:
 	SLAPI  SDecimal(size_t sz = 8, size_t prec = 2);
-	size_t SLAPI size() const;
+	uint32 SLAPI size() const; // @v10.2.1 size_t-->uint32
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -700,7 +700,7 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 //
 //
 //
-SLAPI SBool::SBool(size_t sz) : DataType(sz)
+SLAPI SBool::SBool(uint32 sz) : DataType(sz)
 {
 }
 
@@ -831,7 +831,7 @@ static void FASTCALL _ulongto(ulong ul, void * d, int sz)
 
 #pragma warn +rvl
 
-SLAPI SUInt::SUInt(size_t sz) : DataType(sz)
+SLAPI SUInt::SUInt(uint32 sz) : DataType(sz)
 {
 }
 
@@ -981,7 +981,7 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 //
 // SFloat
 //
-SLAPI SFloat::SFloat(size_t sz) : DataType(sz)
+SLAPI SFloat::SFloat(uint32 sz) : DataType(sz)
 {
 }
 
@@ -1166,7 +1166,7 @@ SLAPI SDecimal::SDecimal(size_t sz, size_t prec) : DataType(GETSSIZE(MKSTYPED(S_
 {
 }
 
-size_t SLAPI SDecimal::size() const
+uint32 SLAPI SDecimal::size() const // @v10.2.1
 {
 	return (S & 0x00ff);
 }

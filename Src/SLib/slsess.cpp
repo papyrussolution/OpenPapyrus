@@ -331,7 +331,11 @@ static void InitTest()
 	assert(sizeof(S_GUID) == 16);
 	assert(sizeof(IntRange) == 8);
 	assert(sizeof(RealRange) == 16);
+#ifdef _M_X64
+	assert(sizeof(SBaseBuffer) == 16);
+#else
 	assert(sizeof(SBaseBuffer) == 8);
+#endif
 	assert(sizeof(DateRepeating) == 8);
 	assert(sizeof(DateTimeRepeating) == 12);
 	//
