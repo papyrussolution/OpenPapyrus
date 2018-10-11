@@ -7,7 +7,6 @@
 // @construction
 
 int EditDialogSpec(DlContext * pCtx, uint dlgId);
-
 //
 //
 //
@@ -311,7 +310,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 		}
 		if(TidFont) {
 			int    tool_text_pen_id = rTb.CreateColor(0, SColor(SClrBlack));
-			int    tool_text_brush_id = SPaintToolBox::rbr3DFace;
+			int    tool_text_brush_id = 0; // @v10.2.2 SPaintToolBox::rbr3DFace-->0
 			int    tid_cs = rTb.CreateCStyle(0, TidFont, tool_text_pen_id, tool_text_brush_id);
 
 			SParaDescr pd;
@@ -337,7 +336,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	SPaintToolBox & r_tb = rCanv.GetToolBox();
 	STextLayout tlo;
 	TRect  b = GetBounds();
-	b.move((int)TWhatman::GetRuleWidth(), (int)TWhatman::GetRuleWidth());
+	//b.move((int)TWhatman::GetRuleWidth(), (int)TWhatman::GetRuleWidth());
 	r_tb.CreateReservedObjects();
 	if(UiKind == UiItemKind::kDialog) {
 		rCanv.DrawEdge(b, TCanvas2::edgeRaised, TCanvas2::borderRect|TCanvas2::borderAdjust);
@@ -725,7 +724,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 			zoneLeft = 1,
 			zoneCenter
 		};
-		FrameWindow() : TWindowBase()
+		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
 			SRectLayout::Item li;
 			Layout.Add(zoneLeft, li.SetLeft(20, 1));

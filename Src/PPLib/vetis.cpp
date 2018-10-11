@@ -2089,6 +2089,8 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			rItem.IssueNumber = rec.IssueNumber;
 			rItem.WayBillDate = rec.WayBillDate;
 			rItem.WayBillNumber = rec.WayBillNumber;
+			rItem.NativeBillID = rec.LinkBillID; // @v10.2.2 @fix
+			rItem.NativeBillRow = rec.LinkBillRow; // @v10.2.2 @fix
 			r_crtc.Batch.DateOfProduction.FirstDate.FromInt64(rec.ManufDateFrom);
 			r_crtc.Batch.DateOfProduction.SecondDate.FromInt64(rec.ManufDateTo);
 			r_crtc.Batch.ExpiryDate.FirstDate.FromInt64(rec.ExpiryFrom);
@@ -6085,8 +6087,15 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, Pu
 									else {
 										if(P_Logger) {
 											// Строка документа уже имеет сертификат %s
+											SString status_text;
 											PPLoadText(PPTXT_VETISBILLROWALLREADYHASCERT, fmt_buf);
-											msg_buf.Printf(fmt_buf, bill_text.cptr());
+											if(!SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), src_rec.VetisDocStatus, status_text)) {
+												status_text.Z().Cat(src_rec.VetisDocStatus);
+											}
+											(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
+												Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
+											msg_buf.Printf(fmt_buf, temp_buf.cptr());
+											P_Logger->Log(msg_buf);
 										}
 										break;
 									}
@@ -6196,8 +6205,31 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 
 int EditVetisVetDocument(VetisVetDocument & rData)
 {
+	class VetVDocInfoDialog : public TDialog {
+	public:
+		VetVDocInfoDialog(const VetisVetDocument & rData) : TDialog(DLG_VETVDOC), R_Data(rData)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmLinkedBill)) {
+				PPObjBill * p_bobj = BillObj;
+				PPID   bill_id = R_Data.NativeBillID;
+				BillTbl::Rec bill_rec;
+				if(bill_id && p_bobj->Fetch(bill_id, &bill_rec) > 0) {
+					PPObjBill::EditParam ep;
+					ep.Flags |= PPObjBill::efCascade;
+					p_bobj->Edit(&bill_id, &ep);
+				}
+				clearEvent(event);
+			}
+		}
+		const VetisVetDocument & R_Data;
+	};
 	int    ok = -1;
-	TDialog * dlg = new TDialog(DLG_VETVDOC);
+	VetVDocInfoDialog * dlg = new VetVDocInfoDialog(rData);
 	if(CheckDialogPtrErr(&dlg)) {
 		VetisCertifiedConsignment & r_crtc = rData.CertifiedConsignment;
 		SString temp_buf;
@@ -6273,6 +6305,21 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 			GetGoodsName(r_crtc.Batch.NativeGoodsID, temp_buf);
 			dlg->setCtrlString(CTL_VETVDOC_ITEMLNK, temp_buf);
 		}
+		if(rData.NativeBillID) {
+			BillTbl::Rec bill_rec;
+			text_buf.Z();
+			if(BillObj->Search(rData.NativeBillID, &bill_rec) > 0) {
+				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+				text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", (long)rData.NativeBillRow);
+				dlg->setCtrlString(CTL_VETVDOC_LINKBILL, text_buf);
+			}
+			else {
+				text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", (long)rData.NativeBillRow);
+				dlg->enableCommand(cmLinkedBill, 0);
+			}
+		}
+		else
+			dlg->enableCommand(cmLinkedBill, 0);
 		ExecView(dlg);
 	}
 	else
@@ -7914,16 +7961,16 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 				if(id) {
 					const  int ccol = pBrw->GetCurColumn();
 					int    obj_to_match = 0;
-					if(ccol == 7) { // from
+					if(ccol == 8) { // from
 						obj_to_match = otmFrom;
 					}
-					else if(ccol == 8) { // to
+					else if(ccol == 9) { // to
 						obj_to_match = otmTo;
 					}
-					else if(oneof2(ccol, 5, 6)) { // bill
+					else if(oneof2(ccol, 6, 7)) { // bill
 						obj_to_match = otmBill;
 					}
-					else if(ccol == 9) { // goods --> match lot
+					else if(ccol == 10) { // goods --> match lot
 						obj_to_match = otmLot;
 					}
 					if(obj_to_match == 0) {

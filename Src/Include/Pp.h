@@ -3226,7 +3226,7 @@ private:
 	int32  Kind;
 	PPID   PrmrID;
 	long   LastAnonymN;     // Последнее значение, использованное для нумерации анонимных записей
-	StringSet MemoPool;     // 
+	StringSet MemoPool;     //
 };
 //
 // Descr: Класс, управляющий хранением и извлечением агрегации "Регистрация персоналий"
@@ -3398,7 +3398,7 @@ public:
 		double RealVal;    //
 		char * PStr;       //
 		LDATE  DtVal;      //
-		LDATETIME DtmVal;  // 
+		LDATETIME DtmVal;  //
 	} Val;
 };
 //
@@ -4241,7 +4241,7 @@ public:
 	};
 	char   ReserveStart[12]; // @anchor
 	DateRange FiltQuotPeriod; // Фильтрующий критерий периода для значений котировок
-	PPID   GoodsID;          // 
+	PPID   GoodsID;          //
 	DateRange QuotValPeriod; // Период, устанавливаемый в значения котировок
 	PPID   QuotKindID;       //
 	PPID   GoodsGrpID;       //
@@ -4262,7 +4262,7 @@ public:
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt LocList;   //
 	ObjIdListFilt EventList; //
-	ObjIdListFilt ArList;    // 
+	ObjIdListFilt ArList;    //
 	SString Formula;         //
 private:
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
@@ -4481,7 +4481,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	PPDimention PckgDim;   // Габаритные размеры упаковки поставки, мм
 	double Package;        // Емкость упаковки поставки (торговых единиц)
 	int16  ExpiryPeriod;   // Срок годности товара (дней).
-	int16  GseFlags;       // 
+	int16  GseFlags;       //
 	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
 	float  NettBruttCoeff; // @v9.8.12 Коэффициент пересчета брутто-массы в нетто (для товарных структур)
 	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
@@ -5246,7 +5246,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_DETECTCRDBTEXISTBYOPEN 0x00010000L // @v8.2.4 (видимо, временный) флаг, предписывающий системе иднтифицировать
 	// существование Btrieve-файлов созданных для печати посредством функций Btrieve, но не через fileExists()
 	// Устанавливается, если в pp.ini включен параметр DETECTDBTEXISTBYOPEN=100
-#define ECF_USESJLOGINEVENT        0x00020000L // 
+#define ECF_USESJLOGINEVENT        0x00020000L //
 #define ECF_CODEPREFIXEDLIST       0x00040000L // Элементы списков некоторых объектов предваряются кодами
 	// Устанавливается, если в pp.ini включен параметр CodePrefixedList=1
 #define ECF_TRACESYNCLOT           0x00080000L // Отладочный флаг для трассировки синхронизации лотов
@@ -9777,8 +9777,11 @@ public:
 	//
 	struct Agreement { // @persistent
 		SLAPI  Agreement();
+		SLAPI  Agreement(const Agreement & rS);
+		Agreement & FASTCALL operator = (const Agreement & rS);
 		int    SLAPI IsEmpty() const;
-		int    SLAPI IsEqual(const Agreement & rS) const;
+		int    FASTCALL IsEqual(const Agreement & rS) const;
+		int    FASTCALL Copy(const Agreement & rS);
 
 		long   ObjType;          // Const=PPOBJ_BILL
 		long   ObjID;            // BillID

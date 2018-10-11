@@ -1,6 +1,6 @@
 // GOODS.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -306,10 +306,10 @@ int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * p
 				if(len >= (size_t)tbf_entry.MinBarcodeLen && strnicmp(pCodeLine + tbf_entry.FmtDescrOffset, tbf_entry.FmtDescr, descr_len) == 0) {
 					(code = (pCodeLine + tbf_entry.BarcodeOffset)).Trim(tbf_entry.BarcodeLen);
 					//
-					// @note: В версии 6.1.0 вызов PPObjGoods::SearchByBarcode с признаком adoptSearching
-					// заменен на вызов GoodsCore::SearchByBarcode (то есть адаптивный поиск теперь отключен).
-					// По логике здесь адаптивный поиск и не требуется. Тем не менее, следует иметь
-					// в виду указанное изменение при разборе вероятных проблем с поиском по двухмерному коду.
+					// @note: Р’ РІРµСЂСЃРёРё 6.1.0 РІС‹Р·РѕРІ PPObjGoods::SearchByBarcode СЃ РїСЂРёР·РЅР°РєРѕРј adoptSearching
+					// Р·Р°РјРµРЅРµРЅ РЅР° РІС‹Р·РѕРІ GoodsCore::SearchByBarcode (С‚Рѕ РµСЃС‚СЊ Р°РґР°РїС‚РёРІРЅС‹Р№ РїРѕРёСЃРє С‚РµРїРµСЂСЊ РѕС‚РєР»СЋС‡РµРЅ).
+					// РџРѕ Р»РѕРіРёРєРµ Р·РґРµСЃСЊ Р°РґР°РїС‚РёРІРЅС‹Р№ РїРѕРёСЃРє Рё РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ. РўРµРј РЅРµ РјРµРЅРµРµ, СЃР»РµРґСѓРµС‚ РёРјРµС‚СЊ
+					// РІ РІРёРґСѓ СѓРєР°Р·Р°РЅРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ РїСЂРё СЂР°Р·Р±РѕСЂРµ РІРµСЂРѕСЏС‚РЅС‹С… РїСЂРѕР±Р»РµРј СЃ РїРѕРёСЃРєРѕРј РїРѕ РґРІСѓС…РјРµСЂРЅРѕРјСѓ РєРѕРґСѓ.
 					//
 					if(pGoodsTbl->SearchByBarcode(code, &bc_rec, 0) > 0)
 						ok = 1;
@@ -612,12 +612,12 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 	long    ObjType;      // const PPOBJ_GOODS
 	long    ObjID;        // ->Goods2.ID
 	long    Prop;         // const GDSPRP_STOCKDATA
-	long    Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
-	PPDimention PckgDim;  // Габаритные размеры упаковки поставки
-	// @v9.5.10 double  MinStock;     // Минимальный запас товара
+	long    Brutto;       // РњР°СЃСЃР° Р±СЂСѓС‚С‚Рѕ, Рі (Р•СЃР»Рё Package != 0, С‚Рѕ РјР°СЃСЃР° СѓРїР°РєРѕРІРєРё)
+	PPDimention PckgDim;  // Р“Р°Р±Р°СЂРёС‚РЅС‹Рµ СЂР°Р·РјРµСЂС‹ СѓРїР°РєРѕРІРєРё РїРѕСЃС‚Р°РІРєРё
+	// @v9.5.10 double  MinStock;     // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ Р·Р°РїР°СЃ С‚РѕРІР°СЂР°
 	uint32  Reserve3;     // @v9.5.10 // @v9.8.12 [2]-->[1]
 	float   NettBruttCoeff; // @v9.8.12
-	double  Package;      // Емкость упаковки при поставке (торговых единиц)
+	double  Package;      // Р•РјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё РїСЂРё РїРѕСЃС‚Р°РІРєРµ (С‚РѕСЂРіРѕРІС‹С… РµРґРёРЅРёС†)
 	int16   ExpiryPeriod;
 	int16   GseFlags;     //
 	double  MinShippmQtty; //
@@ -643,7 +643,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		p_strg->Prop     = GDSPRP_STOCKDATA;
 		p_strg->Brutto   = pData->Brutto;
 		p_strg->PckgDim  = pData->PckgDim;
-		// @v9.5.10 p_strg->MinStock = 0; // @v6.1.11 AHTOXA больше не используется, храниться в массиве MinStockList с Ид склада = 0
+		// @v9.5.10 p_strg->MinStock = 0; // @v6.1.11 AHTOXA Р±РѕР»СЊС€Рµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, С…СЂР°РЅРёС‚СЊСЃСЏ РІ РјР°СЃСЃРёРІРµ MinStockList СЃ РРґ СЃРєР»Р°РґР° = 0
 		p_strg->NettBruttCoeff = pData->NettBruttCoeff; // @v9.8.12
 		p_strg->Package  = pData->Package;
 		p_strg->ExpiryPeriod = pData->ExpiryPeriod;
@@ -685,7 +685,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 				THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::R(p_strg, sz));
 				THROW(P_Ref->GetProperty(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
 			}
-			// Защита от 'грязных' значений в базе данных {
+			// Р—Р°С‰РёС‚Р° РѕС‚ 'РіСЂСЏР·РЅС‹С…' Р·РЅР°С‡РµРЅРёР№ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… {
 			SETMAX(p_strg->Brutto, 0);
 			SETMAX(p_strg->PckgDim.Length, 0);
 			SETMAX(p_strg->PckgDim.Width, 0);
@@ -735,8 +735,8 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 		BarcodeTbl::Key0 k0;
 		MEMSZERO(k0);
 		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
-			// С символа '@' начинаются коды товарных групп
-			// @v5.9.9 VADIM - с символа '$' начинаются артикулы товаров (ИД импортированных товаров)
+			// РЎ СЃРёРјРІРѕР»Р° '@' РЅР°С‡РёРЅР°СЋС‚СЃСЏ РєРѕРґС‹ С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+			// @v5.9.9 VADIM - СЃ СЃРёРјРІРѕР»Р° '$' РЅР°С‡РёРЅР°СЋС‚СЃСЏ Р°СЂС‚РёРєСѓР»С‹ С‚РѕРІР°СЂРѕРІ (РР” РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹С… С‚РѕРІР°СЂРѕРІ)
 			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrlen(BCTbl.data.Code)))
 				THROW(rList.add(BCTbl.data.GoodsID));
 			if(has_zero_len)
@@ -978,8 +978,8 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 				if(p_list) {
 					if(!p_list->add(item.Id)) { // @v10.1.4 addUnique-->add
 						//
-						// Здесь THROW не годится из-за того, что сразу после завершения цикла
-						// необходимо быстро сделать ReleaseFullList
+						// Р—РґРµСЃСЊ THROW РЅРµ РіРѕРґРёС‚СЃСЏ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ С†РёРєР»Р°
+						// РЅРµРѕР±С…РѕРґРёРјРѕ Р±С‹СЃС‚СЂРѕ СЃРґРµР»Р°С‚СЊ ReleaseFullList
 						//
 						ok = PPSetErrorSLib();
 					}
@@ -1030,11 +1030,9 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			Goods2Tbl::Key2 k2;
 			MEMSZERO(k2);
 			k2.Kind = PPGDSK_GOODS;
-
 			PPTextSrchPattern tsp;
 			tsp.Init(pattern);
 			SString text_buf;
-
 			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
 				if(!(skip_passive && data.Flags & GF_PASSIV)) {
 					(text_buf = data.Name).ToLower();
@@ -2421,7 +2419,7 @@ public:
 	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
 	int    ReleaseFullList(const StrAssocArray * pList);
 	//
-	// Descr: Сбрасывает содержимое кэша наименований товаров
+	// Descr: РЎР±СЂР°СЃС‹РІР°РµС‚ СЃРѕРґРµСЂР¶РёРјРѕРµ РєСЌС€Р° РЅР°РёРјРµРЅРѕРІР°РЅРёР№ С‚РѕРІР°СЂРѕРІ
 	//
 	int    ResetFullList(); // @sync_w
 	int    SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf); // @sync_w
@@ -2431,8 +2429,8 @@ private:
 
 	struct GroupTermList {
 		PPID   GrpID;
-		PPIDArray List;       // Список отсортирован. За это отвечает функция GoodsCache::GetGtl()
-		PPIDArray UntermList; // Список отсортирован. За это отвечает функция GoodsCache::GetGtl()
+		PPIDArray List;       // РЎРїРёСЃРѕРє РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ. Р—Р° СЌС‚Рѕ РѕС‚РІРµС‡Р°РµС‚ С„СѓРЅРєС†РёСЏ GoodsCache::GetGtl()
+		PPIDArray UntermList; // РЎРїРёСЃРѕРє РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ. Р—Р° СЌС‚Рѕ РѕС‚РІРµС‡Р°РµС‚ С„СѓРЅРєС†РёСЏ GoodsCache::GetGtl()
 	};
 	struct AltGrpFiltItem {
 		PPID   GrpID;
@@ -2463,8 +2461,8 @@ private:
 	};
 	TSCollection <GroupTermList> Gtl;
 	TSCollection <AltGrpFiltItem> Agfl;
-	GslArray      Gsl;                  // Массив складских характеристик товаров
-	UintHashTable ExcGsl;               // Список товаров, которые не имеют складского расширения //
+	GslArray      Gsl;                  // РњР°СЃСЃРёРІ СЃРєР»Р°РґСЃРєРёС… С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє С‚РѕРІР°СЂРѕРІ
+	UintHashTable ExcGsl;               // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ РЅРµ РёРјРµСЋС‚ СЃРєР»Р°РґСЃРєРѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ //
 	//
 	class FglArray : public StrAssocArray {
 	public:
@@ -2491,7 +2489,7 @@ private:
 			SRWLOCKER(Lck, SReadWriteLocker::Write);
 			DirtyTable.Add((uint32)labs(goodsID));
 		}
-		UintHashTable ExcTable;   // Список товаров, не имеющих штрихкодов
+		UintHashTable ExcTable;   // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РЅРµ РёРјРµСЋС‰РёС… С€С‚СЂРёС…РєРѕРґРѕРІ
 		UintHashTable DirtyTable;
 		ReadWriteLock Lck;
 	};
@@ -2601,7 +2599,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 		if(!ok) {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
-			// Пока ждали блокировку нашу работу мог сделать другой поток
+			// РџРѕРєР° Р¶РґР°Р»Рё Р±Р»РѕРєРёСЂРѕРІРєСѓ РЅР°С€Сѓ СЂР°Р±РѕС‚Сѓ РјРѕРі СЃРґРµР»Р°С‚СЊ РґСЂСѓРіРѕР№ РїРѕС‚РѕРє
 			//
 			if(goodsID == 0 || ExcGsl.Has(goodsID))
 				ok = -1;
@@ -2629,7 +2627,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 						Gsl.at(pos) = ext;
 					else {
 						//
-						// Здесь позаботимся о том, чтобы не раздвоить указатель в GoodsStockExt::MinStockList
+						// Р—РґРµСЃСЊ РїРѕР·Р°Р±РѕС‚РёРјСЃСЏ Рѕ С‚РѕРј, С‡С‚РѕР±С‹ РЅРµ СЂР°Р·РґРІРѕРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РІ GoodsStockExt::MinStockList
 						//
 						StockExt dummy;
 						Gsl.insert(&dummy);
@@ -2666,7 +2664,7 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 		if(!ok) {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
-			// Еще раз попытаемся получить то, что хотим (пока ждали блокировки другой поток мог сделать нашу работу)
+			// Р•С‰Рµ СЂР°Р· РїРѕРїС‹С‚Р°РµРјСЃСЏ РїРѕР»СѓС‡РёС‚СЊ С‚Рѕ, С‡С‚Рѕ С…РѕС‚РёРј (РїРѕРєР° Р¶РґР°Р»Рё Р±Р»РѕРєРёСЂРѕРІРєРё РґСЂСѓРіРѕР№ РїРѕС‚РѕРє РјРѕРі СЃРґРµР»Р°С‚СЊ РЅР°С€Сѓ СЂР°Р±РѕС‚Сѓ)
 			//
 			if(!SbcList.DirtyTable.Has(goodsID)) {
 				if(SbcList.ExcTable.Has(goodsID))
@@ -2676,8 +2674,8 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 			}
 			if(!ok) {
 				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
-				SString temp_buf; // Рискованно пользоваться буфером rBuf: маловероятно, но он может быть
-					// одновременно использован другими потоками.
+				SString temp_buf; // Р РёСЃРєРѕРІР°РЅРЅРѕ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ Р±СѓС„РµСЂРѕРј rBuf: РјР°Р»РѕРІРµСЂРѕСЏС‚РЅРѕ, РЅРѕ РѕРЅ РјРѕР¶РµС‚ Р±С‹С‚СЊ
+					// РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅ РґСЂСѓРіРёРјРё РїРѕС‚РѕРєР°РјРё.
 				int    r = goods_obj.GetSingleBarcode(goodsID, temp_buf);
 				if(r > 0) {
 					SbcList.Add(goodsID, temp_buf, 1);
@@ -2752,7 +2750,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 					PROFILE_START
 					Goods2Tbl::Rec goods_rec;
 					for(ulong id = 0; !err && FullGoodsList.DirtyTable.Enum(&id);) {
-						if(Get((long)id, &goods_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
+						if(Get((long)id, &goods_rec) > 0) { // РР·РІР»РµРєР°РµРј РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РёР· РєСЌС€Р° (РёР· СЃР°РјРѕРіРѕ СЃРµР±СЏ): С‚Р°Рє Р±С‹СЃС‚СЂРµРµ.
 							if(goods_rec.Kind == PPGDSK_GOODS) {
 								(temp_buf = goods_rec.Name).ToLower();
 								if(!FullGoodsList.Add(id, temp_buf, 1)) {
@@ -2799,7 +2797,7 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 	ObjCacheHash::Dirty(id);
 	{
 		//
-		// Очистка элемента кэша складского расширения товара
+		// РћС‡РёСЃС‚РєР° СЌР»РµРјРµРЅС‚Р° РєСЌС€Р° СЃРєР»Р°РґСЃРєРѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РѕРІР°СЂР°
 		//
 		SRWLOCKER(GslLock, SReadWriteLocker::Write);
 		PPID   abs_id = labs(id);
@@ -2812,10 +2810,10 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 	{
 		SRWLOCKER(GtlLock, SReadWriteLocker::Write);
 		//
-		// Если измененная группа находится хотя бы в одном терминальном списке, то придется //
-		// полностью очистить кэш терминальных групп (мы не можем быстро в условиях блокировки, требующей
-		// моментального исполнения, тратить время на определение того, какая группа из какой и в какую
-		// была перенесена
+		// Р•СЃР»Рё РёР·РјРµРЅРµРЅРЅР°СЏ РіСЂСѓРїРїР° РЅР°С…РѕРґРёС‚СЃСЏ С…РѕС‚СЏ Р±С‹ РІ РѕРґРЅРѕРј С‚РµСЂРјРёРЅР°Р»СЊРЅРѕРј СЃРїРёСЃРєРµ, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ //
+		// РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‡РёСЃС‚РёС‚СЊ РєСЌС€ С‚РµСЂРјРёРЅР°Р»СЊРЅС‹С… РіСЂСѓРїРї (РјС‹ РЅРµ РјРѕР¶РµРј Р±С‹СЃС‚СЂРѕ РІ СѓСЃР»РѕРІРёСЏС… Р±Р»РѕРєРёСЂРѕРІРєРё, С‚СЂРµР±СѓСЋС‰РµР№
+		// РјРѕРјРµРЅС‚Р°Р»СЊРЅРѕРіРѕ РёСЃРїРѕР»РЅРµРЅРёСЏ, С‚СЂР°С‚РёС‚СЊ РІСЂРµРјСЏ РЅР° РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РѕРіРѕ, РєР°РєР°СЏ РіСЂСѓРїРїР° РёР· РєР°РєРѕР№ Рё РІ РєР°РєСѓСЋ
+		// Р±С‹Р»Р° РїРµСЂРµРЅРµСЃРµРЅР°
 		//
 		uint   gtl_pos = 0;
 		for(uint i = 0; i < Gtl.getCount(); i++) {
@@ -2901,7 +2899,7 @@ int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermL
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(Gtl.lsearch(&grpID, &(pos = 0), CMPF_LONG)) {
 				//
-				// Возможно, пока мы ждали блокировку, работу сделал какой-то иной поток
+				// Р’РѕР·РјРѕР¶РЅРѕ, РїРѕРєР° РјС‹ Р¶РґР°Р»Рё Р±Р»РѕРєРёСЂРѕРІРєСѓ, СЂР°Р±РѕС‚Сѓ СЃРґРµР»Р°Р» РєР°РєРѕР№-С‚Рѕ РёРЅРѕР№ РїРѕС‚РѕРє
 				//
 				ASSIGN_PTR(pList, Gtl.at(pos)->List);
 				ASSIGN_PTR(pUntermList, Gtl.at(pos)->UntermList);
@@ -2990,10 +2988,10 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 			if(p_cache_rec->TaxGrpID == 0 || p_cache_rec->TypeID == 0) {
 				Goods2Tbl::Rec grp_rec;
 				//
-				// Здесь необходимо извлечь запись родительской группы товара, но одна трудность
-				// заставляет усложнить процедуру: так как сейчас мы изменяем кэш товаров, то
-				// штатные средства извлечения из него записей заблокированы.
-				// Следовательно, мы вынуждены прибегать к низкоуровневому извлечению записи.
+				// Р—РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ Р·Р°РїРёСЃСЊ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂР°, РЅРѕ РѕРґРЅР° С‚СЂСѓРґРЅРѕСЃС‚СЊ
+				// Р·Р°СЃС‚Р°РІР»СЏРµС‚ СѓСЃР»РѕР¶РЅРёС‚СЊ РїСЂРѕС†РµРґСѓСЂСѓ: С‚Р°Рє РєР°Рє СЃРµР№С‡Р°СЃ РјС‹ РёР·РјРµРЅСЏРµРј РєСЌС€ С‚РѕРІР°СЂРѕРІ, С‚Рѕ
+				// С€С‚Р°С‚РЅС‹Рµ СЃСЂРµРґСЃС‚РІР° РёР·РІР»РµС‡РµРЅРёСЏ РёР· РЅРµРіРѕ Р·Р°РїРёСЃРµР№ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅС‹.
+				// РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РјС‹ РІС‹РЅСѓР¶РґРµРЅС‹ РїСЂРёР±РµРіР°С‚СЊ Рє РЅРёР·РєРѕСѓСЂРѕРІРЅРµРІРѕРјСѓ РёР·РІР»РµС‡РµРЅРёСЋ Р·Р°РїРёСЃРё.
 				//
 				Data * p_parent_entry = 0;
 				uint   c_pos = 0;
@@ -3609,7 +3607,7 @@ int SLAPI GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 {
 	int    ok = 1, r = 0;
 	rResult.clear();
-#if 0 // возникли проблемы {
+#if 0 // РІРѕР·РЅРёРєР»Рё РїСЂРѕР±Р»РµРјС‹ {
 	PPJobSrvClient * p_cli = DS.GetClientSession(0);
 	if(p_cli && !(CConfig.Flags2 & CCFLG2_DONTUSE3TIERGMTX)) {
 		SString q;

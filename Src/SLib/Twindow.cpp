@@ -1143,17 +1143,18 @@ int TScrollBlock::SetupWindow(HWND hWnd) const
 //
 //
 //static
-const char * TWindowBase::P_ClsName = "SLibWindowBase";
+//const char * TWindowBase::P_ClsName = "SLibWindowBase";
+static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 
 //static
 int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
-	if(!::GetClassInfoEx(h_inst, TWindowBase::P_ClsName, &wc)) { // @unicodeproblem
+	if(!::GetClassInfoEx(h_inst, /*TWindowBase::P_ClsName*/P_SLibWindowBaseClsName, &wc)) { // @unicodeproblem
 		MEMSZERO(wc);
 		wc.cbSize        = sizeof(wc);
-		wc.lpszClassName = TWindowBase::P_ClsName; // @unicodeproblem
+		wc.lpszClassName = /*TWindowBase::P_ClsName*/P_SLibWindowBaseClsName; // @unicodeproblem
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
 		wc.style         = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
@@ -1166,14 +1167,13 @@ int TWindowBase::RegWindowClass(int iconId)
 		return -1;
 }
 
-TWindowBase::TWindowBase(int capability) : TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
+TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(pWndClsName), TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
 {
 }
 
 TWindowBase::~TWindowBase()
 {
 	ZDeleteWinGdiObject(&H_DrawBuf);
-	// @v8.0.3 {
 	if(::IsWindow(HW)) {
 		TWindowBase * p_this_view_from_wnd = (TWindowBase *)TView::GetWindowUserData(HW);
 		if(p_this_view_from_wnd) {
@@ -1182,7 +1182,6 @@ TWindowBase::~TWindowBase()
 			HW = 0;
 		}
 	}
-	// } @v8.0.3
 }
 
 int TWindowBase::Create(long parent, long createOptions)
@@ -1191,7 +1190,7 @@ int TWindowBase::Create(long parent, long createOptions)
 	TWindowBase::RegWindowClass(102);
 
 	SString title_buf = getTitle();
-	title_buf.SetIfEmpty(P_ClsName).Transf(CTRANSF_INNER_TO_OUTER);
+	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	HWND  hw_parent = (HWND)parent;
 	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
 	int   x = size.x ? origin.x : CW_USEDEFAULT;
@@ -1232,13 +1231,13 @@ int TWindowBase::Create(long parent, long createOptions)
 	}
 	if(createOptions & coChild) {
 		style = WS_CHILD|WS_TABSTOP;
-		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_ClsName, title_buf, style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, title_buf, style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 	}
 	else { // coPopup
 		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
 		if(createOptions & coMDI) {
 			MDICREATESTRUCT child;
-			child.szClass = P_ClsName; // @unicodeproblem
+			child.szClass = P_SLibWindowBaseClsName; // @unicodeproblem
 			child.szTitle = title_buf; // @unicodeproblem
 			child.hOwner = h_inst;
 			child.x  = CW_USEDEFAULT;
@@ -1250,7 +1249,7 @@ int TWindowBase::Create(long parent, long createOptions)
 			HW = (HWND)LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, (LPARAM)&child)); // @unicodeproblem
 		}
 		else {
-			HW = CreateWindowEx(0, P_ClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 		}
 	}
 	return BIN(HW);
@@ -1620,6 +1619,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_MOUSELEAVE:
 		case WM_MOUSEHOVER:
 			if(p_view) {
+				::SetCapture(hWnd); // @v10.2.2
 				MouseEvent me;
 				p_view->MakeMouseEvent(message, wParam, lParam, me);
 				if(TView::messageCommand(p_view, cmMouse, &me))

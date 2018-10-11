@@ -855,18 +855,60 @@ void SLAPI SString::Destroy()
 	L = Size = 0;
 	ZFREE(P_Buf);
 }
-
-/* inline
-size_t SLAPI SString::Len() const
-{
-	return L ? (L-1) : 0;
-}
-*/
-
+//
+// trivial functions {
+//
+// (inlined) size_t SLAPI SString::Len() const { return L ? (L-1) : 0; }
 size_t SLAPI SString::Len() const { return L ? (L-1) : 0; }
 size_t SLAPI SString::BufSize() const { return Size; }
 int    FASTCALL SString::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; }
 int    SLAPI SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
+SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
+SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
+SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom((const char *)pS); }
+int    FASTCALL SString::operator == (const char * pS) const { return IsEqual(pS); }
+int    FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEqual(pS)); }
+int    FASTCALL SString::operator == (const SString & rS) const { return IsEqual(rS); }
+int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEqual(rS)); }
+int    FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
+int    FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
+int    SLAPI SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
+int    SLAPI SString::Empty() const { return BIN(Len() == 0); }
+int    SLAPI SString::NotEmpty() const { return BIN(Len()); }
+int    SLAPI SString::NotEmptyS() { return Strip().NotEmpty(); }
+SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
+SString & SLAPI SString::Tab()     { return CatChar('\t'); }
+SString & SLAPI SString::Space()   { return CatChar(' ');  }
+SString & SLAPI SString::Dot()     { return CatChar('.');  }
+SString & SLAPI SString::Comma()   { return CatChar(',');  }
+SString & SLAPI SString::Semicol() { return CatChar(';');  }
+SString & SLAPI SString::Eq()      { return CatChar('=');  }
+SString & SLAPI SString::CR()      { return CatChar('\n'); }
+SString & SLAPI SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
+SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Cat(pStr).CatChar('\"'); }
+SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
+SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
+SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
+SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::SetInt(int val) { return Z().Cat(val); }
+SString & SLAPI SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
+SString & SLAPI SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
+SString & SLAPI SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
+SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, (int)cp); }
+SString & SLAPI SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
+SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
+SString & SLAPI SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SLAPI SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SLAPI SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+// } trivial functions
 
 void SLAPI SString::Obfuscate()
 {
@@ -1152,10 +1194,6 @@ int FASTCALL SString::Alloc(size_t sz)
 	}
 	return ok;
 }
-
-SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
-SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
-SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom((const char *)pS); }
 
 SString & FASTCALL SString::CopyFrom(const SString & s)
 {
@@ -1896,11 +1934,6 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 	}
 }
 
-SString & SLAPI SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
-SString & SLAPI SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
-SString & SLAPI SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
-SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, (int)cp); }
-
 SString & SLAPI SString::Utf8ToLower()
 {
 	if(L > 1) {
@@ -2023,11 +2056,6 @@ int FASTCALL SString::IsEqual(const char * pS) const
 		return 0;
 }
 
-int FASTCALL SString::operator == (const char * pS) const { return IsEqual(pS); }
-int FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEqual(pS)); }
-int FASTCALL SString::operator == (const SString & rS) const { return IsEqual(rS); }
-int FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEqual(rS)); }
-
 int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 {
 	if(P_Buf == 0 || pS == 0)
@@ -2035,9 +2063,6 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 	else
 		return ignoreCase ? stricmp866(P_Buf, pS) : strcmp(P_Buf, pS);
 }
-
-int FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
-int FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 
 int FASTCALL SString::IsEqiAscii(const char * pS) const
 {
@@ -2119,11 +2144,6 @@ uint SLAPI SString::OneOf(int div, const char * pPattern, int ignoreCase) const
 				return idx;
 	}
 	return 0;
-}
-
-int SLAPI SString::Last() const
-{
-	return (L > 1) ? P_Buf[L-2] : 0;
 }
 
 SString & SLAPI SString::TrimRight()
@@ -2210,10 +2230,6 @@ SString & SLAPI SString::Chomp()
 	return *this;
 }
 
-int SLAPI SString::Empty() const { return BIN(Len() == 0); }
-int SLAPI SString::NotEmpty() const { return BIN(Len()); }
-int SLAPI SString::NotEmptyS() { return Strip().NotEmpty(); }
-
 SString & SLAPI SString::Strip(int dir)
 {
 	if(dir == 0 || dir == 1) {
@@ -2257,23 +2273,13 @@ SString & SLAPI SString::StripQuotes()
 SString & FASTCALL SString::CatChar(int chr)
 {
 	const size_t new_len = (L ? L : 1) + 1;
-	if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+	if(new_len <= Size || Alloc(new_len)) {
 		L = new_len;
 		P_Buf[new_len-2] = chr;
 		P_Buf[new_len-1] = 0;
 	}
 	return *this;
 }
-
-SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
-SString & SLAPI SString::Tab()     { return CatChar('\t'); }
-SString & SLAPI SString::Space()   { return CatChar(' ');  }
-SString & SLAPI SString::Dot()     { return CatChar('.');  }
-SString & SLAPI SString::Comma()   { return CatChar(',');  }
-SString & SLAPI SString::Semicol() { return CatChar(';');  }
-SString & SLAPI SString::Eq()      { return CatChar('=');  }
-SString & SLAPI SString::CR()      { return CatChar('\n'); }
-SString & SLAPI SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
 
 SString & FASTCALL SString::CatCharN(int chr, size_t n)
 {
@@ -2359,11 +2365,6 @@ SString & SLAPI SString::ShiftRight(size_t n, int chr)
 	return *this;
 }
 
-SString & FASTCALL SString::SetInt(int val)
-{
-	return Z().Cat(val);
-}
-
 SString & FASTCALL SString::Cat(const SString & s)
 {
 	const size_t add_len = s.Len();
@@ -2415,11 +2416,6 @@ SString & FASTCALL SString::Cat(SBuffer & rS)
 		rS.SetRdOffs(Len()-prev_len);
 	return *this;
 }
-
-SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Cat(pStr).CatChar('\"'); }
-SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
-SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
-SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
 
 SString & FASTCALL SString::CatDiv(int c, int addSpaces/*, int ifNotEmpty*/)
 {
@@ -2508,10 +2504,6 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 		Cat(val);
 	return *this;
 }
-
-SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ((long)val, numDigits); }
-SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ((long)val, numDigits); }
-SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ((long)val, numDigits); }
 
 SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
 {
@@ -2679,18 +2671,6 @@ SString & SLAPI SString::CatXmlElem(const char * pName, int kind, StringSet * pL
 	CatChar(')').CatChar('>');
 	return *this;
 }
-
-SString & SLAPI SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
-SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
-SString & SLAPI SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SLAPI SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SLAPI SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 
 SString & SLAPI SString::Insert(size_t pos, const char * pS)
 {

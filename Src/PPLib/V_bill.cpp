@@ -552,8 +552,9 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		if(Data.Flags & BillFilt::fOrderOnly)
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GENERIC, 0L);
-		else if(Data.Flags & BillFilt::fAccturnOnly)
-			types.addzlist(PPOPT_ACCTURN, PPOPT_GENERIC, 0L);
+		else if(Data.Flags & BillFilt::fAccturnOnly) {
+			types.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, PPOPT_GENERIC, 0L); // @v10.2.2 PPOPT_AGREEMENT
+		}
 		else if(Data.Flags & BillFilt::fInvOnly)
 			types.add(PPOPT_INVENTORY);
 		else if(Data.Flags & BillFilt::fPoolOnly)
@@ -2897,120 +2898,118 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 {
 	int    ok = -1;
-	if(sampleBillID) {
+	BillTbl::Rec bill_rec;
+	if(sampleBillID && P_BObj->Search(sampleBillID, &bill_rec) > 0) {
 		PPID   bill_id = 0;
+		const PPID op_type_id = GetOpType(bill_rec.OpID);
 		if(Filt.DenyFlags & BillFilt::fDenyAdd)
 			ok = -1;
-		else if(Filt.Flags & BillFilt::fAccturnOnly)
+		else if(Filt.Flags & BillFilt::fAccturnOnly && op_type_id != PPOPT_AGREEMENT) // @v10.2.2 (&& op_type_id != PPOPT_AGREEMENT)
 			ok = P_BObj->AddAccturnBySample(&bill_id, sampleBillID);
 		else {
-			BillTbl::Rec bill_rec;
-			if(P_BObj->Search(sampleBillID, &bill_rec) > 0) {
-				SelAddBySampleParam param;
-				MEMSZERO(param);
-				param.Action = param.acnUndef;
-				param.LocID = bill_rec.LocID;
-				const PPID op_type_id = GetOpType(bill_rec.OpID);
-				int    allow_bulk_mode = 0;
-				if(op_type_id == PPOPT_GOODSORDER) {
-					// @v10.0.02 {
-					if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)
-						allow_bulk_mode = 1;
-					// } @v10.0.02
-					SelectAddByOrderAction(&param, allow_bulk_mode);
-				}
-				else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
-					SelectAddByRcptAction(&param);
-				else
-					param.Action = SelAddBySampleParam::acnStd;
-				switch(param.Action) {
-					case SelAddBySampleParam::acnStd:
-						{
-							PPObjBill::AddBlock ab;
-							ab.SampleBillID = sampleBillID;
-							ok = P_BObj->AddGoodsBill(&bill_id, &ab);
-						}
-						break;
-					case SelAddBySampleParam::acnShipmByOrder:
-						if(op_type_id == PPOPT_GOODSORDER) {
-							if(allow_bulk_mode && param.Flags & param.fAll) {
-								param.Flags |= param.fNonInteractive;
-								PPIDArray bill_id_list;
-								BillViewItem item;
-								for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
-									bill_id_list.add(item.ID);
-								if(bill_id_list.getCount()) {
-									bill_id_list.sortAndUndup();
-									PPLogger logger;
-									PPWait(1);
-									for(uint i = 0; i < bill_id_list.getCount(); i++) {
-										const PPID sample_bill_id = bill_id_list.get(i);
-										const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
-										if(!local_result)
-											logger.LogLastError();
-										else if(local_result == cmOK) {
-											logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
-											ok = cmOK;
-										}
-										PPWaitPercent(i+1, bill_id_list.getCount());
+			SelAddBySampleParam param;
+			MEMSZERO(param);
+			param.Action = param.acnUndef;
+			param.LocID = bill_rec.LocID;
+			int    allow_bulk_mode = 0;
+			if(op_type_id == PPOPT_GOODSORDER) {
+				// @v10.0.02 {
+				if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)
+					allow_bulk_mode = 1;
+				// } @v10.0.02
+				SelectAddByOrderAction(&param, allow_bulk_mode);
+			}
+			else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
+				SelectAddByRcptAction(&param);
+			else
+				param.Action = SelAddBySampleParam::acnStd;
+			switch(param.Action) {
+				case SelAddBySampleParam::acnStd:
+					{
+						PPObjBill::AddBlock ab;
+						ab.SampleBillID = sampleBillID;
+						ok = P_BObj->AddGoodsBill(&bill_id, &ab);
+					}
+					break;
+				case SelAddBySampleParam::acnShipmByOrder:
+					if(op_type_id == PPOPT_GOODSORDER) {
+						if(allow_bulk_mode && param.Flags & param.fAll) {
+							param.Flags |= param.fNonInteractive;
+							PPIDArray bill_id_list;
+							BillViewItem item;
+							for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
+								bill_id_list.add(item.ID);
+							if(bill_id_list.getCount()) {
+								bill_id_list.sortAndUndup();
+								PPLogger logger;
+								PPWait(1);
+								for(uint i = 0; i < bill_id_list.getCount(); i++) {
+									const PPID sample_bill_id = bill_id_list.get(i);
+									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+									if(!local_result)
+										logger.LogLastError();
+									else if(local_result == cmOK) {
+										logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
+										ok = cmOK;
 									}
-									PPWait(0);
+									PPWaitPercent(i+1, bill_id_list.getCount());
 								}
-							}
-							else {
-								ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+								PPWait(0);
 							}
 						}
-						else
-							ok = -1;
-						break;
-					case SelAddBySampleParam::acnDraftExpByOrder:
-					case SelAddBySampleParam::acnDraftExpRestByOrder:
-					case SelAddBySampleParam::acnDraftRcpByOrder:
-						if(op_type_id == PPOPT_GOODSORDER) {
-							if(allow_bulk_mode && param.Flags & param.fAll) {
-								param.Flags |= param.fNonInteractive; // !
-								PPIDArray bill_id_list;
-								BillViewItem item;
-								for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
-									bill_id_list.add(item.ID);
-								if(bill_id_list.getCount()) {
-									bill_id_list.sortAndUndup();
-									PPLogger logger;
-									PPWait(1);
-									for(uint i = 0; i < bill_id_list.getCount(); i++) {
-										const PPID sample_bill_id = bill_id_list.get(i);
-										const int  local_result = P_BObj->AddDraftByOrder(&bill_id, sample_bill_id, &param);
-										if(!local_result)
-											logger.LogLastError();
-										else if(local_result == cmOK) {
-											logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
-											ok = cmOK;
-										}
-										PPWaitPercent(i+1, bill_id_list.getCount());
-									}
-									PPWait(0);
-								}
-								else
-									ok = cmCancel;
-							}
-							else {
-								ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
-							}
+						else {
+							ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
 						}
-						else
-							ok = -1;
-						break;
-					case SelAddBySampleParam::acnShipmAll:
-						if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
-							ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
-						else
-							ok = -1;
-						break;
-					default:
+					}
+					else
 						ok = -1;
-						break;
-				}
+					break;
+				case SelAddBySampleParam::acnDraftExpByOrder:
+				case SelAddBySampleParam::acnDraftExpRestByOrder:
+				case SelAddBySampleParam::acnDraftRcpByOrder:
+					if(op_type_id == PPOPT_GOODSORDER) {
+						if(allow_bulk_mode && param.Flags & param.fAll) {
+							param.Flags |= param.fNonInteractive; // !
+							PPIDArray bill_id_list;
+							BillViewItem item;
+							for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
+								bill_id_list.add(item.ID);
+							if(bill_id_list.getCount()) {
+								bill_id_list.sortAndUndup();
+								PPLogger logger;
+								PPWait(1);
+								for(uint i = 0; i < bill_id_list.getCount(); i++) {
+									const PPID sample_bill_id = bill_id_list.get(i);
+									const int  local_result = P_BObj->AddDraftByOrder(&bill_id, sample_bill_id, &param);
+									if(!local_result)
+										logger.LogLastError();
+									else if(local_result == cmOK) {
+										logger.LogAcceptMsg(PPOBJ_BILL, bill_id, 0);
+										ok = cmOK;
+									}
+									PPWaitPercent(i+1, bill_id_list.getCount());
+								}
+								PPWait(0);
+							}
+							else
+								ok = cmCancel;
+						}
+						else {
+							ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
+						}
+					}
+					else
+						ok = -1;
+					break;
+				case SelAddBySampleParam::acnShipmAll:
+					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
+						ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
+					else
+						ok = -1;
+					break;
+				default:
+					ok = -1;
+					break;
 			}
 		}
 		if(ok == cmOK) {

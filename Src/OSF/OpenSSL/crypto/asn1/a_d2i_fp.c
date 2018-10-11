@@ -106,7 +106,7 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
 				goto err;
 			}
-			i = BIO_read(in, &(b->data[len]), want);
+			i = BIO_read(in, &(b->data[len]), (int)want);
 			if((i < 0) && ((len - off) == 0)) {
 				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_NOT_ENOUGH_DATA);
 				goto err;
@@ -122,7 +122,7 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 		/* else data already loaded */
 		p = (uchar*)&(b->data[off]);
 		q = p;
-		inf = ASN1_get_object(&q, &slen, &tag, &xclass, len - off);
+		inf = ASN1_get_object(&q, &slen, &tag, &xclass, (long)(len - off));
 		if(inf & 0x80) {
 			ulong e = ERR_GET_REASON(ERR_peek_error());
 			if(e != ASN1_R_TOO_LONG)
@@ -130,7 +130,7 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 			else
 				ERR_clear_error();  /* clear error */
 		}
-		i = q - p;    /* header length */
+		i = (int)(q - p); // header length 
 		off += i;       /* end of data */
 		if(inf & 1) {
 			/* no data body so go round again */
@@ -154,7 +154,6 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 			want = slen;
 			if(want > (len - off)) {
 				size_t chunk_max = ASN1_CHUNK_INITIAL_SIZE;
-
 				want -= (len - off);
 				if(want > INT_MAX /* BIO_read takes an int length */  ||
 				    len + want < len) {
@@ -168,18 +167,16 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 					 * having to allocate the entire content length
 					 * in one go.
 					 */
-					size_t chunk = want > chunk_max ? chunk_max : want;
-
+					size_t chunk = (want > chunk_max) ? chunk_max : want;
 					if(!BUF_MEM_grow_clean(b, len + chunk)) {
 						ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
 						goto err;
 					}
 					want -= chunk;
 					while(chunk > 0) {
-						i = BIO_read(in, &(b->data[len]), chunk);
+						i = BIO_read(in, &(b->data[len]), (int)chunk);
 						if(i <= 0) {
-							ASN1err(ASN1_F_ASN1_D2I_READ_BIO,
-							    ASN1_R_NOT_ENOUGH_DATA);
+							ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_NOT_ENOUGH_DATA);
 							goto err;
 						}
 						/*
@@ -205,14 +202,12 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 				want = HEADER_SIZE;
 		}
 	}
-
 	if(off > INT_MAX) {
 		ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
 		goto err;
 	}
-
 	*pb = b;
-	return off;
+	return (int)off;
 err:
 	BUF_MEM_free(b);
 	return -1;

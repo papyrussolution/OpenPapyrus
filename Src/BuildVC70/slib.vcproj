@@ -575,6 +575,9 @@
 				RelativePath="..\Db\dbtablec.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\dconvstr.c">
+			</File>
+			<File
 				RelativePath="..\SLib\dec.cpp">
 			</File>
 			<File

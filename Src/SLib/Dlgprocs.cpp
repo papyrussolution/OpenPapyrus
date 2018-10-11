@@ -50,7 +50,8 @@ static const __KeyAssoc _KeyAssocTab[] = {
 	{ VK_UP,       kbUp,        0,          0,           0 },
 	{ VK_DOWN,     kbDown,      0,          0,           0 },
 	{ VK_LEFT,     kbLeft,      0,          0,           0 }, 
-	{ VK_RIGHT,    kbRight,     0,          0,           0 }
+	{ VK_RIGHT,    kbRight,     0,          0,           0 },
+	{ VK_TAB,      kbTab,       kbShiftTab, kbCtrlTab,   0 }, // @v10.2.2
 };
 
 static uint16 FASTCALL __MapVk(uint32 vk, uint stateP)

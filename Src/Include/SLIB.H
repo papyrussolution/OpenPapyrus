@@ -5586,8 +5586,8 @@ uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count);
 int    FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos);
 void   SLAPI insbit(void * pBuf, size_t len, size_t);
 void   SLAPI delbit(void * pBuf, size_t len, size_t);
-uint8  bitscanforward(uint32 * pIdx, uint32 mask);
-uint8  bitscanreverse(uint32 * pIdx, uint32 mask);
+uint8  FASTCALL bitscanforward(uint32 * pIdx, uint32 mask);
+uint8  FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask);
 //
 // Table search functions
 //
@@ -5602,8 +5602,8 @@ ulong  SLAPI _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
 //
-int    SLAPI encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
-int    SLAPI decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
+int    FASTCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
+int    FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
 
 class MIME64 {
 public:

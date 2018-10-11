@@ -721,6 +721,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			CreateStr(CshrName, str);
 			THROW(ExecCmd("20", str, out_data, r_error));
 		}
+		else if(cmd.IsEqiAscii("CUT")) { // @v10.2.2
+			SetLastItems(cmd, pInputData);
+			THROW(ExecCmd("34", str, out_data, r_error));
+		}
 		else if(cmd.IsEqiAscii("OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());

@@ -1,5 +1,6 @@
 // WHATMAN.CPP
 // Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -193,12 +194,8 @@ StrAssocArray * TWhatmanObject::MakeStrAssocList()
 	return p_tab ? p_tab->MakeStrAssocList() : 0;
 }
 
-TWhatmanObject::TWhatmanObject(const char * pSymb)
+TWhatmanObject::TWhatmanObject(const char * pSymb) : Symb(pSymb), State(0), Options(0), P_Owner(0)
 {
-	Symb = pSymb;
-	State = 0;
-	Options = 0;
-	P_Owner = 0;
 }
 
 TWhatmanObject::~TWhatmanObject()
@@ -236,20 +233,17 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 	return ok;
 }
 
-int TWhatmanObject::GetTextLayout(STextLayout & rTl, int options) const
-{
-	return -1;
-}
-
-int TWhatmanObject::EditTool(TWhatmanToolArray::Item * pWtaItem)
-{
-	return HandleCommand(cmdEditTool, pWtaItem);
-}
-
-int TWhatmanObject::Edit()
-{
-	return HandleCommand(cmdEdit, 0);
-}
+int    TWhatmanObject::GetTextLayout(STextLayout & rTl, int options) const { return -1; }
+int    TWhatmanObject::EditTool(TWhatmanToolArray::Item * pWtaItem) { return HandleCommand(cmdEditTool, pWtaItem); }
+int    TWhatmanObject::Edit() { return HandleCommand(cmdEdit, 0); }
+int    FASTCALL TWhatmanObject::HasOption(int f) const { return BIN(Options & f); }
+int    FASTCALL TWhatmanObject::HasState(int f) const { return BIN(State & f); }
+TRect  TWhatmanObject::GetBounds() const { return Bounds; }
+TRect  TWhatmanObject::GetInvalidationRect() const { return TRect(Bounds).grow(10, 10); }
+int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
+const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
+TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
+TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
 
 int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
 {
@@ -277,27 +271,11 @@ int TWhatmanObject::SetBounds(const TRect & rRect)
 		return 0;
 }
 
-int FASTCALL TWhatmanObject::HasOption(int f) const
-	{ return BIN(Options & f); }
-int FASTCALL TWhatmanObject::HasState(int f) const
-	{ return BIN(State & f); }
-TRect TWhatmanObject::GetBounds() const
-	{ return Bounds; }
-TRect TWhatmanObject::GetInvalidationRect() const
-	{ return TRect(Bounds).grow(10, 10); }
-int TWhatmanObject::Draw(TCanvas2 & rCanv)
-	{ return -1; }
-
 int TWhatmanObject::SetTextOptions(const TextParam * pParam)
 {
 	if(!RVALUEPTR(TextOptions, pParam))
 		TextOptions.SetDefault();
 	return 1;
-}
-
-const TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const
-{
-	return TextOptions;
 }
 
 TRect TWhatmanObject::GetTextBounds() const
@@ -392,25 +370,13 @@ int TWhatmanObject::Redraw()
 	return ok;
 }
 
-TWhatman * TWhatmanObject::GetOwner() const
-{
-	return P_Owner;
-}
-
-TWindow * TWhatmanObject::GetOwnerWindow() const
-{
-	return P_Owner ? P_Owner->GetOwnerWindow() : 0;
-}
-
 TWhatman::Param::Param()
 {
 	THISZERO();
-
 	//Unit = UNIT_METER;
 	//UnitFactor = 0.001;
 	Unit = UNIT_INCH;
 	UnitFactor = 1.0;
-
 	Scale = 1.0;
 }
 
@@ -439,13 +405,9 @@ int TArrangeParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-TWhatman::TWhatman(TWindow * pOwnerWin)
+TWhatman::TWhatman(TWindow * pOwnerWin) : CurObjPos(-1), SrcFileVer(0), P_Wnd(pOwnerWin), P_MultObjPosList(0)
 {
-	CurObjPos = -1;
 	ScrollPos = 0;
-	SrcFileVer = 0;
-	P_Wnd = pOwnerWin;
-	P_MultObjPosList = 0;
 }
 
 TWhatman::~TWhatman()
@@ -492,7 +454,7 @@ int TWhatman::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 						THROW(InsertObject(p_obj, -1));
 					}
 					else {
-						; // @todo Надо как-то информировать caller о том, что объект не считан
+						; // @todo РќР°РґРѕ РєР°Рє-С‚Рѕ РёРЅС„РѕСЂРјРёСЂРѕРІР°С‚СЊ caller Рѕ С‚РѕРј, С‡С‚Рѕ РѕР±СЉРµРєС‚ РЅРµ СЃС‡РёС‚Р°РЅ
 					}
 				}
 			}
@@ -509,15 +471,16 @@ void TWhatman::Clear()
 	SelArea.set(0, 0, 0, 0);
 }
 
-TWindow * TWhatman::GetOwnerWindow() const
-{
-	return P_Wnd;
-}
-
-const TWhatman::Param & TWhatman::GetParam() const
-{
-	return P;
-}
+TWindow * TWhatman::GetOwnerWindow() const { return P_Wnd; }
+const  TWhatman::Param & TWhatman::GetParam() const { return P; }
+uint   TWhatman::GetObjectsCount() const { return ObjList.getCount(); }
+TWhatmanObject * FASTCALL TWhatman::GetObject(int idx) { return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0; }
+const  TWhatmanObject * FASTCALL TWhatman::GetObjectC(int idx) const { return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0; }
+const  LongArray * TWhatman::GetMultSelIdxList() const { return P_MultObjPosList; }
+int    FASTCALL TWhatman::IsMultSelObject(int idx) const { return BIN(P_MultObjPosList && P_MultObjPosList->lsearch(idx)); }
+const  TRect & TWhatman::GetArea() const { return Area; }
+const  TRect & TWhatman::GetSelArea() const { return SelArea; }
+void   TWhatman::SetScrollPos(TPoint p) { ScrollPos = p; }
 
 int TWhatman::SetParam(const TWhatman::Param & rP)
 {
@@ -530,7 +493,7 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 	int    ok = 1;
 	if(pObj->Options & TWhatmanObject::oBackground) {
 		//
-		// При вставке фонового объекта предварительно удаляем существующие фоновые объекты
+		// РџСЂРё РІСЃС‚Р°РІРєРµ С„РѕРЅРѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СѓРґР°Р»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ С„РѕРЅРѕРІС‹Рµ РѕР±СЉРµРєС‚С‹
 		//
 		uint c = ObjList.getCount();
 		if(c)
@@ -652,7 +615,7 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rPar
 	const  int dir = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ;
 	uint   row_no = 0;
 	uint   item_in_row = 0;
-	int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
+	int    row_bound = 0; // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ РѕС‚СЃС‚СѓРї РѕС‚ РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЂСЏРґР°.
 	for(uint i = 0; i < ObjList.getCount(); i++) {
 		if(!pObjPosList || pObjPosList->lsearch((long)i)) {
 			TWhatmanObject * p_obj = ObjList.at(i);
@@ -660,8 +623,8 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rPar
 				const TRect obj_bounds = p_obj->Bounds;
 				TRect bounds;
 				STextLayout tlo;
-				TPoint ul_txt_gap; // Зазор верхнего левого угла для текста
-				TPoint lr_txt_gap; // Зазор нижнего правого угла для текста
+				TPoint ul_txt_gap; // Р—Р°Р·РѕСЂ РІРµСЂС…РЅРµРіРѕ Р»РµРІРѕРіРѕ СѓРіР»Р° РґР»СЏ С‚РµРєСЃС‚Р°
+				TPoint lr_txt_gap; // Р—Р°Р·РѕСЂ РЅРёР¶РЅРµРіРѕ РїСЂР°РІРѕРіРѕ СѓРіР»Р° РґР»СЏ С‚РµРєСЃС‚Р°
 				ul_txt_gap = 0;
 				lr_txt_gap = 0;
 				if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
@@ -714,21 +677,6 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rPar
 		}
 	}
 	return ok;
-}
-
-uint TWhatman::GetObjectsCount() const
-{
-	return ObjList.getCount();
-}
-
-TWhatmanObject * FASTCALL TWhatman::GetObject(int idx)
-{
-	return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0;
-}
-
-const TWhatmanObject * FASTCALL TWhatman::GetObjectC(int idx) const
-{
-	return (idx >= 0 && idx < (int)ObjList.getCount()) ? ObjList.at(idx) : 0;
 }
 
 int FASTCALL TWhatman::GetCurrentObject(int * pIdx) const
@@ -823,16 +771,6 @@ int TWhatman::SetupMultSelBySelArea()
 	return ok;
 }
 
-const LongArray * TWhatman::GetMultSelIdxList() const
-{
-	return P_MultObjPosList;
-}
-
-int FASTCALL TWhatman::IsMultSelObject(int idx) const
-{
-	return BIN(P_MultObjPosList && P_MultObjPosList->lsearch(idx));
-}
-
 int FASTCALL TWhatman::HaveMultSelObjectsOption(int f) const
 {
 	int    ok = 1;
@@ -899,18 +837,13 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 	return ok;
 }
 
-const TRect & TWhatman::GetArea() const
-{
-	return Area;
-}
-
 int TWhatman::SetArea(TRect & rArea)
 {
 	Area = rArea;
 	CalcScrollRange();
 	{
 		//
-		// Для фонового объекта необходимо изменить размер
+		// Р”Р»СЏ С„РѕРЅРѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂ
 		//
 		uint c = ObjList.getCount();
 		if(c)
@@ -925,11 +858,6 @@ int TWhatman::SetArea(TRect & rArea)
 			} while(c);
 	}
 	return 1;
-}
-
-const  TRect & TWhatman::GetSelArea() const
-{
-	return SelArea;
 }
 
 int TWhatman::SetSelArea(TPoint p, int mode)
@@ -957,11 +885,6 @@ TPoint TWhatman::GetScrollDelta() const
 {
 	TPoint delta;
 	return delta.Set(RuleX.ScrollDelta, RuleY.ScrollDelta);
-}
-
-void TWhatman::SetScrollPos(TPoint p)
-{
-	ScrollPos = p;
 }
 
 static const float frame_sq = 7.0f;
@@ -1361,10 +1284,10 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 {
 	int    ok = 1;
 	uint   i;
-	uint   nc;  // Временная переменная, используемая для хранения количества элементов в notch_list (для ускорения циклов)
+	uint   nc;  // Р’СЂРµРјРµРЅРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ РІ notch_list (РґР»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ С†РёРєР»РѕРІ)
 	FRect  r;
-	FRect  hrr; // Область горизонтальной линейки
-	FRect  vrr; // Область вертикальной линейки
+	FRect  hrr; // РћР±Р»Р°СЃС‚СЊ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
+	FRect  vrr; // РћР±Р»Р°СЃС‚СЊ РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
 	LMatrix2D mtx;
 	FPoint notch_area;
 	FPoint notch_offs;
@@ -1372,7 +1295,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	TCanvas2::Capability caps;
 	rCanv.GetCapability(&caps);
 	//
-	// Расчет горизонтальной линейки
+	// Р Р°СЃС‡РµС‚ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
 	//
 	CalcRule(caps.PtPerInch.X, RuleX);
 	hrr.a = Area.a;
@@ -1382,7 +1305,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(hrr, TidPenRule, TidBrushRule);
 	//
-	// Расчет вертикальной линейки
+	// Р Р°СЃС‡РµС‚ РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
 	//
 	CalcRule(caps.PtPerInch.Y, RuleY);
 	vrr.a = Area.a;
@@ -1398,7 +1321,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	if(P.Flags & Param::fGrid) {
 		{
 			//
-			// Горизонтальная решетка (основные линии)
+			// Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ СЂРµС€РµС‚РєР° (РѕСЃРЅРѕРІРЅС‹Рµ Р»РёРЅРёРё)
 			//
 			GetNotchList(RuleX, notch_area.X, notch_offs.X, 1, notch_list);
 			nc = notch_list.getCount();
@@ -1409,7 +1332,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 				rCanv.Line(p);
 			}
 			//
-			// Вертикальная решетка (основные линии)
+			// Р’РµСЂС‚РёРєР°Р»СЊРЅР°СЏ СЂРµС€РµС‚РєР° (РѕСЃРЅРѕРІРЅС‹Рµ Р»РёРЅРёРё)
 			//
 			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 1, notch_list);
 			nc = notch_list.getCount();
@@ -1420,13 +1343,13 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 				rCanv.Line(p);
 			}
 			//
-			// Отрисовываем решетку (основные линии) горизонтальной и вертикальной линеек сразу
+			// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј СЂРµС€РµС‚РєСѓ (РѕСЃРЅРѕРІРЅС‹Рµ Р»РёРЅРёРё) РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Рё РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµРµРє СЃСЂР°Р·Сѓ
 			//
 			rCanv.Stroke(TidPenGrid, 0);
 		}
 		{
 			//
-			// Горизонтальная решетка (вспомогательные линии)
+			// Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ СЂРµС€РµС‚РєР° (РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ Р»РёРЅРёРё)
 			//
 			GetNotchList(RuleX, notch_area.X, notch_offs.X, 2, notch_list);
 			nc = notch_list.getCount();
@@ -1437,7 +1360,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 				rCanv.Line(p);
 			}
 			//
-			// Вертикальная решетка (вспомогательные линии)
+			// Р’РµСЂС‚РёРєР°Р»СЊРЅР°СЏ СЂРµС€РµС‚РєР° (РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ Р»РёРЅРёРё)
 			//
 			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 2, notch_list);
 			nc = notch_list.getCount();
@@ -1448,13 +1371,13 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 				rCanv.Line(p);
 			}
 			//
-			// Отрисовываем решетку (вспомогательные линии) горизонтальной и вертикальной линеек сразу
+			// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј СЂРµС€РµС‚РєСѓ (РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ Р»РёРЅРёРё) РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Рё РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµРµРє СЃСЂР°Р·Сѓ
 			//
 			rCanv.Stroke(TidPenSubGrid, 0);
 		}
 	}
 	//
-	// Отрисовка объектов
+	// РћС‚СЂРёСЃРѕРІРєР° РѕР±СЉРµРєС‚РѕРІ
 	//
 	rCanv.PushTransform(); // {
 	if(ScrollPos.x || ScrollPos.y) {
@@ -1480,7 +1403,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	rCanv.PopTransform(); // }
 	if(P.Flags & Param::fRule) {
 		//
-		// Засечки горизонтальной линейки
+		// Р—Р°СЃРµС‡РєРё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
 		//
 		GetNotchList(RuleX, notch_area.X, notch_offs.X, 0, notch_list);
 		nc = notch_list.getCount();
@@ -1492,7 +1415,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			rCanv.Line(p);
 		}
 		//
-		// Засечки вертикальной линейки
+		// Р—Р°СЃРµС‡РєРё РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµР№РєРё
 		//
 		GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 0, notch_list);
 		nc = notch_list.getCount();
@@ -1504,11 +1427,11 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			rCanv.Line(p);
 		}
 		//
-		// Отрисовываем засечки горизонтальной и вертикальной линеек сразу
+		// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј Р·Р°СЃРµС‡РєРё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ Рё РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р»РёРЅРµРµРє СЃСЂР°Р·Сѓ
 		//
 		rCanv.Stroke(TidPenRule, 0);
 		//
-		// Область между линейками в левом-верхнем углу
+		// РћР±Р»Р°СЃС‚СЊ РјРµР¶РґСѓ Р»РёРЅРµР№РєР°РјРё РІ Р»РµРІРѕРј-РІРµСЂС…РЅРµРј СѓРіР»Сѓ
 		//
 	}
 	if(!SelArea.IsEmpty()) {
@@ -1606,9 +1529,9 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 		rRule.OneUnitLog10 = min_s;
 		rRule.OneUnitDots  = (dots_per_unit * pow(10.0, min_s));
 
-		uint   nn = 1; // Количество засечек
+		uint   nn = 1; // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°СЃРµС‡РµРє
 		rRule.AddNotch(0.0f, 1.0f, 0);
-		double nd = rRule.OneUnitDots / 20; // Расстояние в точках между засечками
+		double nd = rRule.OneUnitDots / 20; // Р Р°СЃСЃС‚РѕСЏРЅРёРµ РІ С‚РѕС‡РєР°С… РјРµР¶РґСѓ Р·Р°СЃРµС‡РєР°РјРё
 		if(nd < min_notch_dots) {
 			nd = rRule.OneUnitDots / 10;
 			if(nd < min_notch_dots) {
@@ -1656,7 +1579,7 @@ TWhatmanToolArray::Item::Item(const TWhatmanToolArray * pOwner) : Id(0), Flags(0
 }
 
 TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)), SrcFileVer(0) // @v9.8.5 SArray-->SVector
-	// @v9.1.9 В метод Init инициализацию SrcFileVer вставлять нельзя - он вызывается после чтения файла
+	// @v9.1.9 Р’ РјРµС‚РѕРґ Init РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ SrcFileVer РІСЃС‚Р°РІР»СЏС‚СЊ РЅРµР»СЊР·СЏ - РѕРЅ РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРѕСЃР»Рµ С‡С‚РµРЅРёСЏ С„Р°Р№Р»Р°
 {
 	Init();
 }
@@ -1807,13 +1730,13 @@ int TWhatmanToolArray::UpdateFigures(Item & rItem)
 	THROW_S_S(pic_def, SLERR_WTMTA_UNDEFFIG, rItem.Symb);
 	if(!(pic_def & 0x01)) {
 		//
-		// Если не определен путь до фигуры, то вместо фигуры используем иконку
+		// Р•СЃР»Рё РЅРµ РѕРїСЂРµРґРµР»РµРЅ РїСѓС‚СЊ РґРѕ С„РёРіСѓСЂС‹, С‚Рѕ РІРјРµСЃС‚Рѕ С„РёРіСѓСЂС‹ РёСЃРїРѕР»СЊР·СѓРµРј РёРєРѕРЅРєСѓ
 		//
 		THROW(CreateFigure(rItem, rItem.PicPath, 0));
 	}
 	if(!(pic_def & 0x02)) {
 		//
-		// Если не определен путь до иконки, то вместо иконки используем фигуру
+		// Р•СЃР»Рё РЅРµ РѕРїСЂРµРґРµР»РµРЅ РїСѓС‚СЊ РґРѕ РёРєРѕРЅРєРё, С‚Рѕ РІРјРµСЃС‚Рѕ РёРєРѕРЅРєРё РёСЃРїРѕР»СЊР·СѓРµРј С„РёРіСѓСЂСѓ
 		//
 		THROW(CreateFigure(rItem, rItem.FigPath, 1));
 	}
@@ -1969,7 +1892,7 @@ int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 		size_t sz = 0;
 		temp_buf.DecodeMime64(item.ExtData, sizeof(item.ExtData), &sz);
 		THROW_S(sz <= sizeof(item.ExtData), SLERR_BUFTOOSMALL);
-		item.ExtSize = sz;
+		item.ExtSize = (uint32)sz;
 	}
 	item.FigSize = r_entry.FigSize;
 	item.PicSize = r_entry.PicSize;
@@ -2138,4 +2061,3 @@ int TWhatmanToolArray::LockStorage(const char * pFileName)
 {
 }
 */
-

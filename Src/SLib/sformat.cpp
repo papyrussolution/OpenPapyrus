@@ -761,9 +761,9 @@ char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf)
 
 static char * FASTCALL clearDelimiters(char * b)
 {
-	long   skipch = 0x00002720L; /* "' " */
+	//long   skipch = 0x00002720L; /* "' " */
 	char * c = b;
-	while(c = strpbrk(c, (const char *) &skipch))
+	while(c = strpbrk(c, "\' "))
 		strcpy(c, c + 1);
 	return b;
 }

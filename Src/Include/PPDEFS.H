@@ -1781,6 +1781,7 @@
 #define cmVerify                 1165
 #define cmFilter                 1166 // @v9.7.10
 #define cmExtParams              1167 // @v9.8.11 команда стала общей (ранее принадлежала только диалогу фильтра товаров)
+#define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -2508,7 +2509,6 @@
 #define DLG_ATWROFF               121 // Бухгалтерский документ списания по счетам
 	#define cmDetail                  101
 	#define cmExAmountList            102
-	#define cmLinkedBill              103
 	#define cmFilteredDetail          104
 	#define cmInvWriteOff             105 // Списать инвентаризацию
 	#define cmInvRollback             106 // Откат списания //
@@ -10499,6 +10499,8 @@
 	#define CTL_VETVDOC_VDSTATUS      (21 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_VDTYPE        (22 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_QTTY          (23 + WINDOWS_ID_BIAS)
+	#define CTL_VETVDOC_LINKBILL      (24 + WINDOWS_ID_BIAS)
+
 #define DLG_SELVDOCUPD            1343
 	#define CTL_SELVDOCUPD_PERIOD      (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELVDOCUPD_PERIOD   (2 + WINDOWS_ID_BIAS)

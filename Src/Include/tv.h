@@ -1949,7 +1949,6 @@ struct TScrollBlock {
 class TWindowBase : public TWindow {
 public:
 	static int RegWindowClass(int iconId);
-
 	//
 	// Descr: Структура, указатель на которую передается с сообщением cmInit
 	//   (только для экземпляров, порожденных от TWindowBase).
@@ -1986,11 +1985,11 @@ public:
 		coMaxSize = 0x0020  // Окно создавать с максимальными размерами, допускаемыми родительским окном
 	};
 
-	explicit TWindowBase(int capability = 0);
 	~TWindowBase();
 	int    Create(long parent, long createOptions);
 	int    AddChild(TWindowBase *, long createOptions, long zone);
 protected:
+	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;
 	int    SetDefaultCursor();
 
@@ -2002,7 +2001,8 @@ private:
 	int    MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
 	void   RegisterMouseTracking(int force);
 
-	static const char * P_ClsName;
+	//static const char * P_ClsName;
+	const  SString ClsName;     // Window class name
 
 	enum {
 		wbsMDI                  = 0x0001,
@@ -4430,7 +4430,7 @@ protected:
 	};
 	uint    ToolbarID;   // ID Toolbar'a для сохранения в реестре = LastCmd
 		// (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
-	SString ClsName;     // Window class name
+	const  SString ClsName;     // Window class name
 	uint   ResourceID;
 	TPoint PrevMouseCoord;
 	long   BbState;

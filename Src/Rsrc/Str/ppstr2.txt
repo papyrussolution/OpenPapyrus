@@ -5378,6 +5378,7 @@ DVCCMD_OPEN             "OPEN"
 DVCCMD_CLOSE            "CLOSE"
 DVCCMD_LISTEN           "LISTEN"
 DVCCMD_GETDATA          "GETDATA"
+DVCCMD_CUT              "CUT" // @v10.2.2
 DVCPARAM_ID             "ID"
 DVCPARAM_LOGNUM         "LOGNUM"
 DVCPARAM_PORT           "PORT"

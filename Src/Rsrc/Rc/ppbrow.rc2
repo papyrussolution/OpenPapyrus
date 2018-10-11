@@ -5123,7 +5123,7 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 		MOVEUP     : kbCtrlW, TBBM_ARROWUP, "Переместить вверх\tCtrl-W"
 		MOVEDOWN   : kbCtrlS, TBBM_ARROWDN, "Переместить вниз\tCtrl-S"
 		separator
-		VIEWCHILDS : kbF3,    TBBM_DIVISION, "Дочернии технологии\tF3"
+		VIEWCHILDS : kbF3,    TBBM_DIVISION, "Дочерние технологии\tF3"
 		EDITGOODS  : kbF2,    TBBM_GOODS,   "@{ware}\tF2"
 		EDITPRC    : kbF4,    TBBM_PRC,     "@{processor}\tF4"
 		SYSJ       : kbCtrlJ, TBBM_SYSJ,    "@{view_sysjournal}\tCtrl-J"
@@ -6202,6 +6202,7 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 
 browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
+	"ID",                    0,  notype, 0,  5
 	"Дата выпуска",          9,  notype, 0, 10
 	"Номер",                20,  notype, 0, 10
 	"Форма",                11,  notype, 0, 10

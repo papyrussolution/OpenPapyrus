@@ -1603,7 +1603,7 @@ int BillDialog::editLinkFiles()
 	return ok;
 }
 
-#define RESIZE_DELTA 50L
+#define RESIZE_DELTA 75L // @v10.2.2 50-->75
 
 int BillDialog::showLinkFilesList()
 {
@@ -1613,13 +1613,15 @@ int BillDialog::showLinkFilesList()
 		TRect  rect = DefaultRect;
 		if(show_cmd == SW_NORMAL)
 			rect.b.y += RESIZE_DELTA;
-		MoveWindow(H(), rect.a.x, rect.a.y, rect.width(), rect.height(), 1);
+		::MoveWindow(H(), rect.a.x, rect.a.y, rect.width(), rect.height(), 1);
 		if(show_cmd == SW_NORMAL) {
 			TRect  rect = getClientRect();
-			MoveWindow(list, rect.a.x, rect.b.y - RESIZE_DELTA, rect.width(), RESIZE_DELTA, 1);
+			::MoveWindow(list, rect.a.x, rect.b.y - RESIZE_DELTA, rect.width(), RESIZE_DELTA, 1);
+			::ShowWindow(list, show_cmd);
 			updateList(-1);
 		}
-		ShowWindow(list, show_cmd);
+		else
+			::ShowWindow(list, show_cmd);
 		setupPosition();
 	}
 	return 1;

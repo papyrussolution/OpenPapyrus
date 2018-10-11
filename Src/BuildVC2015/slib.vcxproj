@@ -1356,6 +1356,7 @@
     <ClCompile Include="..\SLib\crypto.cpp" />
     <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
+    <ClCompile Include="..\SLib\dconvstr.c" />
     <ClCompile Include="..\SLib\dec.cpp" />
     <ClCompile Include="..\SLib\Dlgprocs.cpp" />
     <ClCompile Include="..\Slib\findfile.cpp">

@@ -1294,7 +1294,7 @@ int PPWhatmanWindow::ResizeState::Setup(int mode, const Loc & rLoc, int * pCurso
 
 #pragma warning(disable : 4355) // Запрет замечания о том, что this используется в списке инициализации
 
-PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(wbcDrawBuffer), W(this)
+PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), wbcDrawBuffer), W(this)
 {
 	St.Mode = mode;
 	St.SelectedObjIdx = -1;
@@ -1741,18 +1741,10 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 						ok = AddTool(obj_symb);
 				}
 				break;
-			case cmaEdit:
-				ok = EditTool(objIdx);
-				break;
-			case cmaDelete:
-				ok = DeleteTool(objIdx);
-				break;
-			case cmFileOpen:
-				ok = FileOpen();
-				break;
-			case cmFileSave:
-				ok = FileSave();
-				break;
+			case cmaEdit: ok = EditTool(objIdx); break;
+			case cmaDelete: ok = DeleteTool(objIdx); break;
+			case cmFileOpen: ok = FileOpen(); break;
+			case cmFileSave: ok = FileSave(); break;
 		}
 	}
 	else if(oneof2(St.Mode, modeEdit, modeView)) {
@@ -1776,12 +1768,8 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 		int cmd = menu.Execute(H(), TMenuPopup::efRet);
 		int do_redraw = 0;
 		switch(LoWord(cmd)) {
-			case cmFileOpen:
-				ok = FileOpen();
-				break;
-			case cmFileSave:
-				ok = FileSave();
-				break;
+			case cmFileOpen: ok = FileOpen(); break;
+			case cmFileSave: ok = FileSave(); break;
 			case cmaEdit:
 				if(W.EditObject(objIdx) > 0)
 					do_redraw = 1;
@@ -1815,7 +1803,43 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 {
 	TRect  b;
 	TWindowBase::handleEvent(event);
-	if(TVINFOPTR) {
+	if(TVKEYDOWN) {
+		int    cur_obj_idx = -1;
+		int    new_obj_idx = -1;
+		switch(TVKEY) {
+			//case kbUp:
+			//case kbLeft:
+			case kbShiftTab:
+				if(W.GetCurrentObject(&cur_obj_idx)) {
+					new_obj_idx = (cur_obj_idx > 0) ? (cur_obj_idx-1) : (int)(W.GetObjectsCount()-1);
+				}
+				break;
+			//case kbDown:
+			//case kbRight:
+			case kbTab:
+				if(W.GetCurrentObject(&cur_obj_idx)) {
+					new_obj_idx = ((cur_obj_idx+1) < (int)W.GetObjectsCount()) ? (cur_obj_idx+1) :  0;
+				}
+				break;
+			case kbDel:
+				if(W.GetCurrentObject(&cur_obj_idx)) {
+					if(W.RemoveObject(cur_obj_idx) > 0) {
+						invalidateAll(0);
+						::UpdateWindow(H());
+					}
+				}
+				break;
+			default:
+				return;
+		}
+		if(new_obj_idx >= 0 && cur_obj_idx >= 0) {
+			W.SetCurrentObject(new_obj_idx, 0);
+			InvalidateObjScope(W.GetObjectC(cur_obj_idx));
+			InvalidateObjScope(W.GetObjectC(new_obj_idx));
+			::UpdateWindow(H());
+		}
+	}
+	else if(TVINFOPTR) {
 		if(event.isCmd(cmInit)) {
 			CreateBlock * p_blk = (CreateBlock *)TVINFOPTR;
 			W.SetArea(getClientRect());
@@ -2003,40 +2027,6 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					break;
 				default:
 					return;
-			}
-		}
-		else if(TVKEYDOWN) {
-			int    cur_obj_idx = -1;
-			int    new_obj_idx = -1;
-			switch(TVKEY) {
-				case kbUp:
-				case kbLeft:
-					if(W.GetCurrentObject(&cur_obj_idx)) {
-						new_obj_idx = (cur_obj_idx > 0) ? (cur_obj_idx-1) : (int)(W.GetObjectsCount()-1);
-					}
-					break;
-				case kbDown:
-				case kbRight:
-					if(W.GetCurrentObject(&cur_obj_idx)) {
-						new_obj_idx = ((cur_obj_idx+1) < (int)W.GetObjectsCount()) ? (cur_obj_idx+1) :  0;
-					}
-					break;
-				case kbDel:
-					if(W.GetCurrentObject(&cur_obj_idx)) {
-						if(W.RemoveObject(cur_obj_idx) > 0) {
-							invalidateAll(0);
-							::UpdateWindow(H());
-						}
-					}
-					break;
-				default:
-					return;
-			}
-			if(new_obj_idx >= 0 && cur_obj_idx >= 0) {
-				W.SetCurrentObject(new_obj_idx, 0);
-				InvalidateObjScope(W.GetObjectC(cur_obj_idx));
-				InvalidateObjScope(W.GetObjectC(new_obj_idx));
-				::UpdateWindow(H());
 			}
 		}
 		else if(event.isCmd(cmScroll)) {
@@ -2338,7 +2328,7 @@ int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
 			zoneLeft = 1,
 			zoneCenter
 		};
-		FrameWindow() : TWindowBase()
+		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
 			SRectLayout::Item li;
 			Layout.Add(zoneLeft, li.SetLeft(20, 1));
@@ -2399,7 +2389,7 @@ public:
 		zoneBottom,
 		zoneCenter
 	};
-	TestFrameWindow() : TWindowBase()
+	TestFrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 	{
 		SRectLayout::Item li;
 		Layout.Add(zoneTop, li.SetTop(40, 0));
@@ -2423,7 +2413,7 @@ public:
 		brForeg,
 		fontMain
 	};
-	TestInnerWindow(const char * pText, SColor backgClr) : TWindowBase()
+	TestInnerWindow(const char * pText, SColor backgClr) : TWindowBase(_T("SLibWindowBase"), 0)
 	{
 		setTitle(pText);
 		Tb.CreatePen(penMain, SPaintObj::psSolid, 1, SColor(SClrBlack));

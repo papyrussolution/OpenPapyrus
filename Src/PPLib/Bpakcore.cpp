@@ -348,12 +348,29 @@ SLAPI PPBill::Agreement::Agreement()
 	THISZERO();
 }
 
+SLAPI PPBill::Agreement::Agreement(const Agreement & rS)
+{
+	Copy(rS);
+}
+
+PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
 int SLAPI PPBill::Agreement::IsEmpty() const
 {
 	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID || DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
 }
 
-int SLAPI PPBill::Agreement::IsEqual(const Agreement & rS) const
+int FASTCALL PPBill::Agreement::Copy(const Agreement & rS)
+{
+	memcpy(this, &rS, sizeof(*this));
+	return 1;
+}
+
+int FASTCALL PPBill::Agreement::IsEqual(const Agreement & rS) const
 {
 	#define CF(f) if(f != rS.f) return 0
 	CF(Flags);
@@ -2255,6 +2272,7 @@ int SLAPI PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int
 int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   op_type_id = 0;
 	BillTbl::Rec rec;
 	THROW(P_BObj->Search(sampleBillID, &rec) > 0);
@@ -2266,41 +2284,57 @@ int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 	Rec.LocID    = rec.LocID;
 	Rec.CurID    = rec.CurID;
 	op_type_id = GetOpType(Rec.OpID);
-	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
-		Rec.Amount = BR2(rec.Amount);
-		if(rec.Flags & BILLF_BANKING) {
-			PPBankingOrder paym_order;
-			MEMSZERO(paym_order);
-			if(PPRef->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
-				THROW_MEM(P_PaymOrder = new PPBankingOrder);
-				*P_PaymOrder = paym_order;
-				Rec.Flags |= BILLF_BANKING;
+	switch(op_type_id) {
+		case PPOPT_ACCTURN:
+		case PPOPT_PAYMENT:
+			Rec.Amount = BR2(rec.Amount);
+			if(rec.Flags & BILLF_BANKING) {
+				PPBankingOrder paym_order;
+				MEMSZERO(paym_order);
+				if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
+					THROW_MEM(P_PaymOrder = new PPBankingOrder);
+					*P_PaymOrder = paym_order;
+					Rec.Flags |= BILLF_BANKING;
+				}
 			}
-		}
-	}
-	else if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
-		P_BObj->P_CpTrfr->LoadItems(rec.ID, this, 0);
-		{
-			//
-			// Проверка на выполнение ограничений по товарам для документа
-			//
-			uint i = GetTCount();
-			if(i) {
-				PPObjGoods goods_obj;
-				do {
-					const PPTransferItem & r_ti = ConstTI(--i);
-					if(!CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), PPBillPacket::cgrfAll, 0))
-						RemoveRow(i);
-				} while(i && GetTCount()); // Теоретически, RemoveRow может удалить несколько строк
-					// из таблицы Lots. Поэтому, для страховки проверяем GetTCount().
+			break;
+		case PPOPT_AGREEMENT:
+			{
+				ZDELETE(P_Agt);
+				PPBill::Agreement agt;
+				if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
+					THROW_MEM(P_Agt = new PPBill::Agreement(agt));
+				}
 			}
-		}
-	}
-	else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
-		PPFreight freight;
-		if(P_BObj->P_Tbl->GetFreight(sampleBillID, &freight) > 0) {
-			SetFreight(&freight);
-		}
+			break;
+		case PPOPT_DRAFTRECEIPT:
+		case PPOPT_DRAFTEXPEND:
+		case PPOPT_DRAFTTRANSIT:
+			P_BObj->P_CpTrfr->LoadItems(rec.ID, this, 0);
+			{
+				//
+				// Проверка на выполнение ограничений по товарам для документа
+				//
+				uint i = GetTCount();
+				if(i) {
+					PPObjGoods goods_obj;
+					do {
+						const PPTransferItem & r_ti = ConstTI(--i);
+						if(!CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), PPBillPacket::cgrfAll, 0))
+							RemoveRow(i);
+					} while(i && GetTCount()); // Теоретически, RemoveRow может удалить несколько строк
+						// из таблицы Lots. Поэтому, для страховки проверяем GetTCount().
+				}
+			}
+			break;
+		case PPOPT_GOODSRECEIPT:
+		case PPOPT_GOODSEXPEND:
+			{
+				PPFreight freight;
+				if(P_BObj->P_Tbl->GetFreight(sampleBillID, &freight) > 0)
+					SetFreight(&freight);
+			}
+			break;
 	}
 	STRNSCPY(Rec.Memo, rec.Memo);
 	CATCHZOK

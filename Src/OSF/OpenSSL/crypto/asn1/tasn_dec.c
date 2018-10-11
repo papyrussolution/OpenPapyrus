@@ -115,8 +115,7 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 			     * template in the template itself.
 			     */
 			    if((tag != -1) || opt) {
-				    ASN1err(ASN1_F_ASN1_ITEM_EMBED_D2I,
-				    ASN1_R_ILLEGAL_OPTIONS_ON_ITEM_TEMPLATE);
+				    ASN1err(ASN1_F_ASN1_ITEM_EMBED_D2I, ASN1_R_ILLEGAL_OPTIONS_ON_ITEM_TEMPLATE);
 				    goto err;
 			    }
 			    return asn1_template_ex_d2i(pval, in, len,
@@ -128,8 +127,7 @@ static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, 
 		case ASN1_ITYPE_MSTRING:
 		    p = *in;
 		    /* Just read in tag and class */
-		    ret = asn1_check_tlen(NULL, &otag, &oclass, NULL, NULL,
-		    &p, len, -1, 0, 1, ctx);
+		    ret = asn1_check_tlen(NULL, &otag, &oclass, NULL, NULL, &p, len, -1, 0, 1, ctx);
 		    if(!ret) {
 			    ASN1err(ASN1_F_ASN1_ITEM_EMBED_D2I, ERR_R_NESTED_ASN1_ERROR);
 			    goto err;

@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -189,7 +189,7 @@ void SLAPI delbit(void * pBuf, size_t len, size_t pos)
 //
 //
 //
-uint8 bitscanforward(uint32 * pIdx, uint32 mask)
+uint8 FASTCALL bitscanforward(uint32 * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
 	if(mask)
@@ -219,7 +219,7 @@ lab_done:
 #endif
 }
 
-uint8 bitscanreverse(uint32 * pIdx, uint32 mask)
+uint8 FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
 	if(mask)

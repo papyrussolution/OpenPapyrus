@@ -151,6 +151,7 @@
     <ClCompile Include="..\Db\xlstable.cpp" />
     <ClCompile Include="..\Db\xmltable.cpp" />
     <ClCompile Include="..\SLib\Comdisp.cpp" />
+    <ClCompile Include="..\SLib\dconvstr.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">

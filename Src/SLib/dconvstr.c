@@ -29,25 +29,19 @@
 #include <tv.h>
 #pragma hdrstop
 #include "dconvstr.h"
-
-//=====================================================================================================
 //
 // TYPES AND CONSTANTS
 //
-
 // 10^18 constant
 #define POW10_18  ((1000ULL * 1000ULL * 1000ULL) * (1000ULL * 1000ULL * 1000ULL))
-
-// Double-to-string parser states
-enum  parser_state { S0, S1, S2, S3, S4, S5, S6, S7 };
 
 // Table: powers of ten in binary representation.
 // 10^decimal_exponent ~= binary_mantissa * 2^binary_exponent.
 // 2^63 < binary_mantissa < 2^64, mantissa has been rounded to nearest integer.
 // Covers entire range of IEEE 754 double, including denormals, plus small spare.
-struct  power_of_ten {
-	int32 decimal_exponent;
-	int32 binary_exponent;
+struct power_of_ten {
+	int32  decimal_exponent;
+	int32  binary_exponent;
 	uint64 binary_mantissa;
 };
 
@@ -372,12 +366,13 @@ static const struct power_of_ten powers_of_ten_[] = {
 	{  290,   900,  11830521861667747110ULL },    {  291,   903,  14788152327084683887ULL },
 	{  292,   907,   9242595204427927429ULL },    {  293,   910,  11553244005534909287ULL }
 };
-
+//
 // Table: powers of two in binary representation.
 // 2^binary_exponent ~= decimal_mantissa * 10^decimal_exponent.
 // 0.1 < decimal_mantissa < 1, mantissa was premultiplied by 2^64 and rounded to nearest integer.
 // Covers entire range of IEEE 754 double, including denormals, plus small spare.
-struct  power_of_two {
+//
+struct power_of_two {
 	int32  binary_exponent;
 	int32  decimal_exponent;
 	uint64 decimal_mantissa;
@@ -1437,19 +1432,14 @@ static const struct power_of_two powers_of_two_[] = {
 	{   960,  289,  17976931348623159077ULL },    {   961,  290,   3595386269724631815ULL },
 	{   962,  290,   7190772539449263631ULL },    {   963,  290,  14381545078898527262ULL }
 };
-
-//=====================================================================================================
 //
 // FUNCTIONS
 //
-/**
- *  Multiply two 64-bit unsigned integers and produce 128-bit result
- *
- *  (u * v) -> w
- *
- *  Element w[0] of two-element array w always holds 64 least significant bits of result,
- *  even on big endian machines.
- */
+// 
+// Multiply two 64-bit unsigned integers and produce 128-bit result
+//   (u * v) -> w
+//   Element w[0] of two-element array w always holds 64 least significant bits of result, even on big endian machines.
+// 
 static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
 {
 	// Make use of 64x64->128 unsigned multiplication instruction
@@ -1478,11 +1468,10 @@ static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
 	w[1] = u1 * v1 + w2 + k;
 #endif
 }
-/**
- *
- *  Count the number of leading zero bits in provided 64-bit unsigned integer
- *  Behavior of this function is undefined if a == 0.
- */
+// 
+// Descr: Count the number of leading zero bits in provided 64-bit unsigned integer
+//   Behavior of this function is undefined if a == 0.
+// 
 static inline uint count_leading_zeros(uint64 a)
 {
 	// Make use of 64-bit leading zero count instruction
@@ -1496,31 +1485,38 @@ static inline uint count_leading_zeros(uint64 a)
 #elif defined(_MSC_VER) && (!defined(_M_X64))
 	if(a <= 0xFFFFFFFFULL) {
 		ulong most_significant_bit_number = 0;
-		_BitScanReverse(&most_significant_bit_number, (uint32)a);
+		//_BitScanReverse(&most_significant_bit_number, (uint32)a);
+		bitscanreverse(&most_significant_bit_number, (uint32)a);
 		return 63 - most_significant_bit_number;
 	}
 	else {
 		ulong most_significant_bit_number = 0;
-		_BitScanReverse(&most_significant_bit_number, (uint32)(a >> 32) );
+		//_BitScanReverse(&most_significant_bit_number, (uint32)(a >> 32));
+		bitscanreverse(&most_significant_bit_number, (uint32)(a >> 32));
 		return 31 - most_significant_bit_number;
 	}
 #else
 	// On other processors and compilers, count leading zero bits manually
 	uint n = 0;
 	if(a <= 0x00000000FFFFFFFFULL) {
-		n += 32; a <<= 32;
+		n += 32; 
+		a <<= 32;
 	}
 	if(a <= 0x0000FFFFFFFFFFFFULL) {
-		n += 16; a <<= 16;
+		n += 16; 
+		a <<= 16;
 	}
 	if(a <= 0x00FFFFFFFFFFFFFFULL) {
-		n += 8;  a <<= 8;
+		n += 8;  
+		a <<= 8;
 	}
 	if(a <= 0x0FFFFFFFFFFFFFFFULL) {
-		n += 4;  a <<= 4;
+		n += 4;  
+		a <<= 4;
 	}
 	if(a <= 0x3FFFFFFFFFFFFFFFULL) {
-		n += 2;  a <<= 2;
+		n += 2;  
+		a <<= 2;
 	}
 	if(a <= 0x7FFFFFFFFFFFFFFFULL) {
 		n += 1;
@@ -1528,25 +1524,20 @@ static inline uint count_leading_zeros(uint64 a)
 	return n;
 #endif
 }
-/**
- *
- *  Convert extended-precision decimal to double-precision binary
- *  (mantissa is rounded to nearest representable value)
- *
- *  (a * 10^b) -> (c * 2^d)
- *
- *  a != 0. Decimal point is on the right side of the input mantissa a.
- *
- *  Resulting binary mantissa c is rounded to 53 bits (as in IEEE 754 double-precision binary).
- *  If remainder >= 0.5, then mantissa is rounded up, otherwise it's rounded down.
- *
- *  On exit from this function, binary point is located after first bit of mantissa,
- *  which is always equal to 1 (binary exponent is adjusted accordingly).
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Invalid argument or internal error.
- *
- */
+// 
+// Convert extended-precision decimal to double-precision binary (mantissa is rounded to nearest representable value)
+// 
+// (a * 10^b) -> (c * 2^d)
+// a != 0. Decimal point is on the right side of the input mantissa a.
+// 
+// Resulting binary mantissa c is rounded to 53 bits (as in IEEE 754 double-precision binary).
+// If remainder >= 0.5, then mantissa is rounded up, otherwise it's rounded down.
+// 
+// On exit from this function, binary point is located after first bit of mantissa,
+// which is always equal to 1 (binary exponent is adjusted accordingly).
+// @returns  1  Exited normally, no errors.
+//   0  Invalid argument or internal error.
+// 
 static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check input arguments
@@ -1591,13 +1582,11 @@ static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32
 	(*d) = exponent;
 	return 1;
 }
-/**
- *  Determine if extended-precision decimal rounds to given double-precision binary with 53-bit mantissa
- *                                                             rounding
- *  @returns  1  if there's a match in conversion  (a * 10^b) ----------> (expected_c * 2^expected_d)
- *
- *  @returns  0  if there's no match or computation error
- */
+// 
+// Descr: Determine if extended-precision decimal rounds to given double-precision binary with 53-bit mantissa
+// @returns  1  if there's a match in conversion  (a * 10^b) ----------> (expected_c * 2^expected_d)
+// @returns  0  if there's no match or computation error
+// 
 static int FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 b, uint64 expected_c, int32 expected_d)
 {
 	// 1. Check/normalize binary (expected_c * 2^expected_d)
@@ -1612,21 +1601,17 @@ static int FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32 
 	if(!convert_extended_decimal_to_binary_and_round(a, b, &actual_c, &actual_d) )
 		return 0;
 	// 3. Compare and compute result of this function
-	return(( actual_c == expected_c )&&( actual_d == expected_d ));
+	return ((actual_c == expected_c) && (actual_d == expected_d));
 }
-/**
- *  Convert extended-precision binary to extended-precision decimal (first approximation)
- *
- *  (a * 2^b) -> (c * 10^d)
- *
- *  a != 0. Binary point is after the most significant bit of the input mantissa a.
- *
- *  Resulting decimal mantissa is in the range 10^18 <= c < 10^19.
- *  Decimal point is on the right side of resulting decimal mantissa c.
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Invalid argument or internal error.
- */
+// 
+// Descr: Convert extended-precision binary to extended-precision decimal (first approximation)
+// (a * 2^b) -> (c * 10^d)
+// a != 0. Binary point is after the most significant bit of the input mantissa a.
+// Resulting decimal mantissa is in the range 10^18 <= c < 10^19.
+// Decimal point is on the right side of resulting decimal mantissa c.
+// @returns  1  Exited normally, no errors.
+//   0  Invalid argument or internal error.
+// 
 static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check/normalize input mantissa.
@@ -1664,27 +1649,20 @@ static int FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint
 	(*d) = exponent;
 	return 1;
 }
-/**
- *
- *  Convert double-precision binary to extended-precision decimal
- *
- *  (a * 2^b) -> (c * 10^d)
- *
- *  a != 0. Binary point is after the most significant bit of the input mantissa a.
- *
- *  Advantages of this function over convert_binary_to_decimal_1st_approx():
- *  - this function works with inexact 53-bit mantissa,
- *    result of bit uncompression of IEEE 754 double precision binary
- *  - this function aims to provide minimal length of decimal representation
- *    by zeroing out decimal digits known to be computed inexactly.
- *
- *  Resulting decimal mantissa is in the range 10^18 <= c < 10^19.
- *  Decimal point is on the right side of resulting decimal mantissa c.
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Invalid argument or internal error.
- *
- */
+// 
+// Descr: Convert double-precision binary to extended-precision decimal
+//   (a * 2^b) -> (c * 10^d)
+//   a != 0. Binary point is after the most significant bit of the input mantissa a.
+// Advantages of this function over convert_binary_to_decimal_1st_approx():
+//   - this function works with inexact 53-bit mantissa,
+//   result of bit uncompression of IEEE 754 double precision binary
+//   - this function aims to provide minimal length of decimal representation
+//   by zeroing out decimal digits known to be computed inexactly.
+//   Resulting decimal mantissa is in the range 10^18 <= c < 10^19.
+//   Decimal point is on the right side of resulting decimal mantissa c.
+// @returns  1  Exited normally, no errors.
+//   0  Invalid argument or internal error.
+// 
 static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check input parameters and convert binary mantissa in such way that
@@ -1760,9 +1738,9 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 	(*d) = base_d;
 	return 1;
 }
-/**
- *  Unpack floating-point double precision binary value according to IEEE 754
- */
+// 
+// Descr: Unpack floating-point double precision binary value according to IEEE 754
+// 
 static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_nan, int * out_sign, uint64 * out_binary_mantissa, int32 * out_binary_exponent, int * out_is_infinity)
 {
 	// 1. Unpack bits
@@ -1805,14 +1783,11 @@ static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_na
 	*out_binary_exponent = ((int32)input_exponent) - 1023;
 	*out_binary_mantissa = (1ULL << 63) | (input_mantissa << 11); // 53rd bit of mantissa is always 1
 }
-/**
- *
- *  Pack floating-point double precision binary value according to IEEE 754
- *
- *  @returns  0  overflow / underflow condition (when strtod(3) would have set errno = ERANGE).
- *            1  exited normally, neither overflow nor underflow
- *
- */
+// 
+// Descr: Pack floating-point double precision binary value according to IEEE 754
+// @returns  0  overflow / underflow condition (when strtod(3) would have set errno = ERANGE).
+//   1  exited normally, neither overflow nor underflow
+// 
 static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64 input_binary_mantissa, int32 input_binary_exponent, int input_is_infinity, double * output)
 {
 	// 1. Initialize values to pack
@@ -1872,9 +1847,9 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 	*(uint64*)output = output_bits;
 	return(!had_overflow_or_underflow_in_exponent );
 }
-/**
- *  Decompress small integer in range 0..9999 to four-digit BCD representation
- */
+// 
+// Descr: Decompress small integer in range 0..9999 to four-digit BCD representation
+// 
 static inline void  bcd_decompress_small(uint32 compressed_bcd, uint8*  decompressed_bcd)
 {
 	uint32 high_pair = compressed_bcd / 100;
@@ -1884,18 +1859,17 @@ static inline void  bcd_decompress_small(uint32 compressed_bcd, uint8*  decompre
 	decompressed_bcd[2] = ((uint8)( low_pair  / 10 ));
 	decompressed_bcd[3] = ((uint8)( low_pair  % 10 ));
 }
-/**
- *  Decompress full range unsigned 64-bit integer to twenty-digit BCD representation
- *
- *  This implementation was written by Douglas W. Jones, it was taken from
- *  http://homepage.cs.uiowa.edu/~jones/bcd/decimal.html#sixtyfour
- */
+// 
+// Descr: Decompress full range unsigned 64-bit integer to twenty-digit BCD representation.
+// This implementation was written by Douglas W. Jones, it was taken from
+// http://homepage.cs.uiowa.edu/~jones/bcd/decimal.html#sixtyfour
+// 
 static void  FASTCALL bcd_decompress(uint64 compressed_bcd, uint8 * decompressed_bcd)
 {
-	uint32 d0 = compressed_bcd         & 0xFFFF;
-	uint32 d1 = (compressed_bcd >> 16) & 0xFFFF;
-	uint32 d2 = (compressed_bcd >> 32) & 0xFFFF;
-	uint32 d3 = (compressed_bcd >> 48) & 0xFFFF;
+	uint32 d0 = (uint32)(compressed_bcd         & 0xFFFF);
+	uint32 d1 = (uint32)((compressed_bcd >> 16) & 0xFFFF);
+	uint32 d2 = (uint32)((compressed_bcd >> 32) & 0xFFFF);
+	uint32 d3 = (uint32)((compressed_bcd >> 48) & 0xFFFF);
 	d0 = 656 * d3 + 7296 * d2 + 5536 * d1 + d0;
 	uint32 q  = d0 / 10000;
 	d0 = d0 % 10000;
@@ -1918,33 +1892,31 @@ static void  FASTCALL bcd_decompress(uint64 compressed_bcd, uint8 * decompressed
 	bcd_decompress_small(d1, decompressed_bcd + 12);
 	bcd_decompress_small(d0, decompressed_bcd + 16);
 }
-/**
- *  Compress four-digit BCD representation to small integer in range 0..9999
- */
+// 
+// Descr: Compress four-digit BCD representation to small integer in range 0..9999
+// 
 static inline uint32 bcd_compress_small(const uint8*  decompressed_bcd)
 {
 	uint32 high_pair = 10 * decompressed_bcd[0] + decompressed_bcd[1];
 	uint32 low_pair  = 10 * decompressed_bcd[2] + decompressed_bcd[3];
 	return 100 * high_pair + low_pair;
 }
-/**
- *  Compress twenty-digit BCD representation to full range unsigned 64-bit integer
- */
+// 
+// Descr: Compress twenty-digit BCD representation to full range unsigned 64-bit integer
+// 
 static uint64 FASTCALL bcd_compress(const uint8 * decompressed_bcd)
 {
-	uint64 d2 =         bcd_compress_small(decompressed_bcd);
+	uint64 d2 = bcd_compress_small(decompressed_bcd);
 	uint64 d1 = 10000 * bcd_compress_small(decompressed_bcd + 4) + bcd_compress_small(decompressed_bcd + 8);
 	uint64 d0 = 10000 * bcd_compress_small(decompressed_bcd + 12) + bcd_compress_small(decompressed_bcd + 16);
 	return ((d2 * (10000ULL * 10000ULL) + d1) * (10000ULL * 10000ULL)) + d0;
 }
-/**
- *  Round twenty-digit BCD representation to given number of significant digits
- *
- *  Most significant digit must be always equal to zero.
- *  Therefore, number of significant digits can be in range from 1 to 19.
- *
- *  @returns  Adjusted number of significant decimal digits
- */
+// 
+// Descr: Round twenty-digit BCD representation to given number of significant digits
+// Most significant digit must be always equal to zero.
+// Therefore, number of significant digits can be in range from 1 to 19.
+// @returns  Adjusted number of significant decimal digits
+// 
 static int FASTCALL bcd_round(int new_ndigits, uint8 * decimal_mantissa, int32 * exponent)
 {
 	// 1. Bounds check and adjustment
@@ -1984,13 +1956,11 @@ static int FASTCALL bcd_round(int new_ndigits, uint8 * decimal_mantissa, int32 *
 	// 6. Return adjusted number of significant decimal digits to the caller
 	return new_ndigits;
 }
-//=====================================================================================================
-/**
- *  Helper formatting function: Print given number of whitespaces to output buffer
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Overflow in the output buffer.
- */
+// 
+// Descr: Helper formatting function: Print given number of whitespaces to output buffer
+// @returns  1  Exited normally, no errors.
+//   0  Overflow in the output buffer.
+// 
 static int FASTCALL format_pad(char ** outbuf, int * outbuf_size, int n)
 {
 	if(*outbuf_size < n)
@@ -2004,12 +1974,11 @@ static int FASTCALL format_pad(char ** outbuf, int * outbuf_size, int n)
 		return 1;
 	}
 }
-/**
- *  Helper formatting function: Print one character to output buffer
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Overflow in the output buffer.
- */
+// 
+// Descr: Helper formatting function: Print one character to output buffer
+// @returns  1  Exited normally, no errors.
+//   0  Overflow in the output buffer.
+// 
 static int FASTCALL format_onechar(char ** outbuf, int * outbuf_size, int c)
 {
 	if(*outbuf_size <= 0)
@@ -2020,12 +1989,11 @@ static int FASTCALL format_onechar(char ** outbuf, int * outbuf_size, int c)
 		return 1;
 	}
 }
-/**
- *  Helper formatting function: Print given string to output buffer
- *
- *  @returns  1  Exited normally, no errors.
- *            0  Overflow in the output buffer.
- */
+// 
+// Descr: Helper formatting function: Print given string to output buffer
+// @returns  1  Exited normally, no errors.
+//   0  Overflow in the output buffer.
+// 
 static int FASTCALL format_copystr(char ** outbuf, int * outbuf_size, const char * str, int str_size)
 {
 	if(*outbuf_size < str_size)
@@ -2039,11 +2007,10 @@ static int FASTCALL format_copystr(char ** outbuf, int * outbuf_size, const char
 		return 1;
 	}
 }
-/**
- *  Helper formatting function: Print exponent like sprintf( p, "e%+02d", e )
- *
- *  There must be at least 16 bytes in the output buffer.
- */
+// 
+// Descr: Helper formatting function: Print exponent like sprintf( p, "e%+02d", e )
+// There must be at least 16 bytes in the output buffer.
+// 
 static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_uppercase)
 {
 	char tmp_buffer[12];
@@ -2065,34 +2032,24 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 		*buffer++ = tmp_buffer[--i];
 	*buffer = 0;
 }
-/**
- *
- *  Print IEEE 754 floating-point double precision value to string
- *
- *  @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
- *                            On entry, this variable is initialized by caller.
- *                            On exit, this variable points to the end of printed string.
- *
- *  @param  outbuf_size       Size of output buffer filled by the function.
- *                            On entry, this variable is initialized by caller to maximum allowed size.
- *                            On exit, this variable contains size of unused portion of the output buffer.
- *
- *  @param  value             Input value (IEEE 754 floating-point double precision).
- *
- *  @param  format_char       Format char. Either 'e', or 'f', or 'g'. Refer to printf(3) manual for details.
- *
- *  @param  format_flags      Any combination of the above (DCONVSTR_FLAG_*).
- *
- *  @param  format_width      Format width. Used only if DCONVSTR_FLAG_HAVE_WIDTH bit is set in flags.
- *                            Refer to printf(3) manual for details.
- *
- *  @param  format_precision  Format precision. Set it to DCONVSTR_DEFAULT_PRECISION if unsure.
- *                            Refer to printf(3) manual for details.
- *
- *  @returns  1  if value was successfully converted to string.
- *            0  if there is not enough room in buffer or internal error happened during conversion.
- *
- */
+// 
+// Descr: Print IEEE 754 floating-point double precision value to string
+// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
+//   On entry, this variable is initialized by caller.
+//   On exit, this variable points to the end of printed string.
+// @param  outbuf_size       Size of output buffer filled by the function.
+//   On entry, this variable is initialized by caller to maximum allowed size.
+//   On exit, this variable contains size of unused portion of the output buffer.
+// @param  value             Input value (IEEE 754 floating-point double precision).
+// @param  format_char       Format char. Either 'e', or 'f', or 'g'. Refer to printf(3) manual for details.
+// @param  format_flags      Any combination of the above (DCONVSTR_FLAG_*).
+// @param  format_width      Format width. Used only if DCONVSTR_FLAG_HAVE_WIDTH bit is set in flags.
+//   Refer to printf(3) manual for details.
+// @param  format_precision  Format precision. Set it to DCONVSTR_DEFAULT_PRECISION if unsure.
+//   Refer to printf(3) manual for details.
+// @returns  1  if value was successfully converted to string.
+//   0  if there is not enough room in buffer or internal error happened during conversion.
+// 
 int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision)
 {
 	// 1. Unpack double precision value
@@ -2299,251 +2256,235 @@ int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_c
 		return 0;
 	return 1;
 }
-
-/**
- *
- *  Convert string to IEEE 754 floating-point double precision value
- *
- *  @param  input          Input buffer, C-style string. Filled by caller.
- *
- *  @param  input_end      Address of pointer to end of scanned value in input buffer.
- *                         Filled by function if address is not NULL.
- *
- *  @param  output         Conversion result (IEEE 754 floating-point double precision).
- *                         Set to 0.0 if string in input buffer has syntax errors.
- *
- *  @param  output_erange  Address of overflow/underflow flag variable, filled by function.
- *                         0  if there is no overflow/underflow condition
- *                         1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
- *
- *  @returns  1  if there were no internal errors
- *            0  if there was internal error during conversion.
- *
- *  In general, interface of this function is similar to strtod(3), except for returning overflow
- *  condition instead of setting errno. If you want just to convert C-style string to double with
- *  error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
- *  condition as an indication of successful conversion.
- *
- */
+// 
+// Convert string to IEEE 754 floating-point double precision value
+// @param  input          Input buffer, C-style string. Filled by caller.
+// @param  input_end      Address of pointer to end of scanned value in input buffer.
+//   Filled by function if address is not NULL.
+// @param  output         Conversion result (IEEE 754 floating-point double precision).
+//   Set to 0.0 if string in input buffer has syntax errors.
+// @param  output_erange  Address of overflow/underflow flag variable, filled by function.
+//   0  if there is no overflow/underflow condition
+//   1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
+// @returns  1  if there were no internal errors
+//   0  if there was internal error during conversion.
+// In general, interface of this function is similar to strtod(3), except for returning overflow
+// condition instead of setting errno. If you want just to convert C-style string to double with
+// error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
+// condition as an indication of successful conversion.
+// 
 int dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange)
 {
 	// 1. Handle special cases
-	if((( input[0] == 'n' )||( input[0] == 'N' )) && (( input[1] == 'a' )||( input[1] == 'A' )) && (( input[2] == 'n' )||( input[2] == 'N' ))) {
+	if(oneof2(input[0], 'n', 'N') && oneof2(input[1], 'a', 'A') && oneof2(input[2], 'n', 'N')) {
 		if(input_end)
 			*input_end = input + 3;
-		pack_ieee754_double(
-			1, // input_is_nan
-			0, // input_sign
-			0, // input_binary_mantissa
-			0, // input_binary_exponent
-			0, // input_is_infinity
-			output
-			);
+		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;
 	}
-	else if((( input[0] == 'i' )||( input[0] == 'I' )) && (( input[1] == 'n' )||( input[1] == 'N' )) && (( input[2] == 'f' )||( input[2] == 'F' ))) {
+	else if(oneof2(input[0], 'i', 'I') && oneof2(input[1], 'n', 'N') && oneof2(input[2], 'f', 'F')) {
 		if(input_end)
-			*input_end = input + 3;
-		pack_ieee754_double(
-			0, // input_is_nan
-			0, // input_sign
-			0, // input_binary_mantissa
-			0, // input_binary_exponent
-			1, // input_is_infinity
-			output
-			);
+			*input_end = (input + 3);
+		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;
 	}
-	else if(( input[0] == '-' ) && (( input[1] == 'i' )||( input[1] == 'I' ))&& (( input[2] == 'n' )||( input[2] == 'N' ))&& (( input[3] == 'f' )||( input[3] == 'F' ))) {
+	else if(input[0] == '-' && oneof2(input[1], 'i', 'I') && oneof2(input[2], 'n', 'N') && oneof2(input[3], 'f', 'F')) {
 		if(input_end)
 			*input_end = input + 4;
 		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;
 	}
-	// 2. Parse input string
-	//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
-	uint8 parsed_digits[20];
-	int n_parsed_digits        = 0;       // number of digits in parsed_digits[]
-	int32 exponent               = 0;
-	int32 exponent_offset        = 0;
-	int flag_negative_mantissa = 0;
-	int flag_negative_exponent = 0;
-	int flag_syntax_error      = 0;
-	enum parser_state state = S0;
-	// S0: _          _S0   +S1   #S2   .S3
-	// S1: _+         #S2   .S3
-	// S2: _+#        #S2   .S4   eS5
-	// S3: _+#.       #S4
-	// S4: _+#.#      #S4   eS5
-	// S5: _+#.#e     +S6   #S7
-	// S6: _+#.#e+    #S7
-	// S7: _+#.#e+#   #S7
-	const char*  s = input;
-	while(!flag_syntax_error && *s) {
-		char ch = *s;
-		switch(state) {
-			// State 0: skip leading whitespaces, before mantissa sign and digits
-			case S0:
-			    if(ch == ' ' || ch == '\t')
-				    ++s; // remain in state S0
-			    else if(ch == '-') {
-				    ++s;
-				    state = S1;
-				    flag_negative_mantissa = 1;
-			    }
-			    else if(ch == '+') {
-				    ++s;
-				    state = S1;
-			    }
-			    else if(ch >= '0' && ch <= '9') {
-				    state = S2;
-			    }
-			    else if(ch == '.') {
-				    ++s;
-				    state = S3;
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 1: after mantissa sign, before mantissa digits
-			case S1:
-			    if(ch >= '0' && ch <= '9')
-				    state = S2;
-			    else if(ch == '.') {
-				    ++s;
-				    state = S3;
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 2: parsing mantissa digits before point
-			case S2:
-			    if(ch >= '0' && ch <= '9') {
-				    ++s;
-				    if(n_parsed_digits < ((int)( sizeof(parsed_digits) )) ) {
-					    parsed_digits[n_parsed_digits] = ch - '0';
-					    if(( ch != '0' )||( n_parsed_digits != 0 ))
-						    ++n_parsed_digits;
-				    }
-				    else
-					    ++exponent_offset;
-			    }
-			    else if(ch == '.') {
-				    ++s;
-				    state = S3;
-			    }
-			    else if(ch == 'e' || ch == 'E') {
-				    ++s;
-				    state = S5;
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 3: parsing first mantissa digit just after the point
-			case S3:
-			    if(ch >= '0' && ch <= '9')
-				    state = S4;
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 4: parsing mantissa digits after the point
-			case S4:
-			    if(ch >= '0' && ch <= '9') {
-				    ++s;
-				    if(n_parsed_digits < ((int)( sizeof(parsed_digits) )) ) {
-					    parsed_digits[n_parsed_digits] = ch - '0';
-					    if(ch != '0' || n_parsed_digits != 0)
-						    ++n_parsed_digits;
-					    --exponent_offset;
-				    }
-			    }
-			    else if(ch == 'e' || ch == 'E') {
-				    ++s;
-				    state = S5;
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 5: parsing sign after the exponent
-			case S5:
-			    if(ch >= '0' && ch <= '9')
-				    state = S7;
-			    else if(ch == '+') {
-				    ++s;
-				    state = S6;
-			    }
-			    else if(ch == '-') {
-				    ++s;
-				    state = S6;
-				    flag_negative_exponent = 1;
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 6: parsing first digits after exponent sign
-			case S6:
-			    if(ch >= '0' && ch <= '9')
-				    state = S7;
-			    else
-				    flag_syntax_error = 1;
-			    break;
-			// State 7: parsing exponent digits
-			case S7:
-			    if(ch >= '0' && ch <= '9') {
-				    ++s;
-				    if(exponent < 350) {
-					    // we aim to avoid overflow/underflow of the exponent
-					    // by using ( exponent >= 350 ) condition as overflow/underflow flag
-					    exponent = (exponent * 10) + (ch - '0');
-				    }
-			    }
-			    else
-				    flag_syntax_error = 1;
-			    break;
+	else {
+		// 2. Parse input string
+		//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
+		uint8  parsed_digits[20];
+		int    n_parsed_digits        = 0;       // number of digits in parsed_digits[]
+		int32  exponent               = 0;
+		int32  exponent_offset        = 0;
+		int    flag_negative_mantissa = 0;
+		int    flag_negative_exponent = 0;
+		int    flag_syntax_error      = 0;
+		// Double-to-string parser states
+		enum parser_state { 
+			S0, // S0: _          _S0   +S1   #S2   .S3
+			S1, // S1: _+         #S2   .S3
+			S2, // S2: _+#        #S2   .S4   eS5
+			S3, // S3: _+#.       #S4
+			S4, // S4: _+#.#      #S4   eS5
+			S5, // S5: _+#.#e     +S6   #S7
+			S6, // S6: _+#.#e+    #S7
+			S7  // S7: _+#.#e+#   #S7
+		};
+		enum parser_state state = S0;
+		const char * s = input;
+		while(!flag_syntax_error && *s) {
+			char ch = *s;
+			switch(state) {
+				// State 0: skip leading whitespaces, before mantissa sign and digits
+				case S0:
+					if(ch == ' ' || ch == '\t')
+						++s; // remain in state S0
+					else if(ch == '-') {
+						++s;
+						state = S1;
+						flag_negative_mantissa = 1;
+					}
+					else if(ch == '+') {
+						++s;
+						state = S1;
+					}
+					else if(ch >= '0' && ch <= '9') {
+						state = S2;
+					}
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 1: after mantissa sign, before mantissa digits
+				case S1:
+					if(ch >= '0' && ch <= '9')
+						state = S2;
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 2: parsing mantissa digits before point
+				case S2:
+					if(ch >= '0' && ch <= '9') {
+						++s;
+						if(n_parsed_digits < (int)sizeof(parsed_digits)) {
+							parsed_digits[n_parsed_digits] = ch - '0';
+							if(ch != '0' || n_parsed_digits != 0)
+								++n_parsed_digits;
+						}
+						else
+							++exponent_offset;
+					}
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else if(oneof2(ch, 'e', 'E')) {
+						++s;
+						state = S5;
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 3: parsing first mantissa digit just after the point
+				case S3:
+					if(ch >= '0' && ch <= '9')
+						state = S4;
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 4: parsing mantissa digits after the point
+				case S4:
+					if(ch >= '0' && ch <= '9') {
+						++s;
+						if(n_parsed_digits < (int)sizeof(parsed_digits)) {
+							parsed_digits[n_parsed_digits] = ch - '0';
+							if(ch != '0' || n_parsed_digits != 0)
+								++n_parsed_digits;
+							--exponent_offset;
+						}
+					}
+					else if(ch == 'e' || ch == 'E') {
+						++s;
+						state = S5;
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 5: parsing sign after the exponent
+				case S5:
+					if(ch >= '0' && ch <= '9')
+						state = S7;
+					else if(ch == '+') {
+						++s;
+						state = S6;
+					}
+					else if(ch == '-') {
+						++s;
+						state = S6;
+						flag_negative_exponent = 1;
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 6: parsing first digits after exponent sign
+				case S6:
+					if(ch >= '0' && ch <= '9')
+						state = S7;
+					else
+						flag_syntax_error = 1;
+					break;
+				// State 7: parsing exponent digits
+				case S7:
+					if(ch >= '0' && ch <= '9') {
+						++s;
+						if(exponent < 350) {
+							// we aim to avoid overflow/underflow of the exponent
+							// by using ( exponent >= 350 ) condition as overflow/underflow flag
+							exponent = (exponent * 10) + (ch - '0');
+						}
+					}
+					else
+						flag_syntax_error = 1;
+					break;
+			}
+		}
+		if(!flag_syntax_error && oneof5(state, S0, S1, S3, S5, S6))
+			flag_syntax_error = 1;
+		if(input_end)
+			*input_end = flag_syntax_error ? input : s;
+		// 3. Zero out the tail of mantissa.
+		//    Move decimal point to the right side of mantissa (adjust exponent offset).
+		//    Get rid of last mantissa digit, set first one to zero, and compress BCD representation of mantissa.
+		if(n_parsed_digits < (int)sizeof(parsed_digits)) {
+			int delta = sizeof(parsed_digits) - n_parsed_digits;
+			memzero(parsed_digits + n_parsed_digits, delta);
+			n_parsed_digits += delta;
+			exponent_offset -= delta;
+		}
+		memmove(parsed_digits + 1, parsed_digits, sizeof(parsed_digits) - 1);
+		parsed_digits[0] = 0;
+		++exponent_offset;
+		uint64 mantissa = bcd_compress(parsed_digits);
+		// 4. Compute exponent
+		if(mantissa == 0)
+			exponent = 0;
+		else
+			exponent = ((exponent < 350) ? exponent_offset : 0) + (flag_negative_exponent ? -exponent : exponent);
+		// 5. Check exponent for overflow and underflow
+		if(exponent <= -350) {
+			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
+			*output_erange = 1; // strtod(3) would set errno = ERANGE
+			return 1;
+		}
+		else if(exponent >= 350) {
+			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
+			*output_erange = 1; // strtod(3) would set errno = ERANGE
+			return 1;
+		}
+		else {
+			// 6. Convert to binary representation, pack bits up and exit
+			if(mantissa != 0) {
+				if(!convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent) )
+					return 0; // internal error
+			}
+			*output_erange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
+				exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, output));
+			return 1;
 		}
 	}
-	if(!flag_syntax_error && oneof5(state, S0, S1, S3, S5, S6))
-		flag_syntax_error = 1;
-	if(input_end)
-		*input_end = flag_syntax_error ? input : s;
-	// 3. Zero out the tail of mantissa.
-	//    Move decimal point to the right side of mantissa (adjust exponent offset).
-	//    Get rid of last mantissa digit, set first one to zero, and compress BCD representation of mantissa.
-	if(n_parsed_digits < ((int)( sizeof(parsed_digits) )) ) {
-		int delta = sizeof(parsed_digits) - n_parsed_digits;
-		memzero(parsed_digits + n_parsed_digits, delta);
-		n_parsed_digits += delta;
-		exponent_offset -= delta;
-	}
-	memmove(parsed_digits + 1, parsed_digits, sizeof(parsed_digits) - 1);
-	parsed_digits[0] = 0;
-	++exponent_offset;
-	uint64 mantissa = bcd_compress(parsed_digits);
-	// 4. Compute exponent
-	if(mantissa == 0)
-		exponent = 0;
-	else
-		exponent = ( (exponent < 350) ? exponent_offset : 0 ) + ( flag_negative_exponent ? -exponent : exponent );
-	// 5. Check exponent for overflow and underflow
-	if(exponent <= -350) {
-		pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
-		*output_erange = 1; // strtod(3) would set errno = ERANGE
-		return 1;
-	}
-	else if(exponent >= 350) {
-		pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
-		*output_erange = 1; // strtod(3) would set errno = ERANGE
-		return 1;
-	}
-	// 6. Convert to binary representation, pack bits up and exit
-	if(mantissa != 0) {
-		if(!convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent) )
-			return 0; // internal error
-	}
-	*output_erange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
-		exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, output));
-	return 1;
 }
