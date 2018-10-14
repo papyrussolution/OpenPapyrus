@@ -2587,8 +2587,11 @@ typedef int32 TYPEID;
 #define T_INT              MKSTYPE(S_INT,2)
 #define T_UINT             MKSTYPE(S_UBINARY,2)
 #define T_UINT16           MKSTYPE(S_UBINARY,2)
-#define T_UINT32           MKSTYPE(S_UBINARY,4
+#define T_UINT32           MKSTYPE(S_UBINARY,4)
+#define T_UINT64           MKSTYPE(S_UBINARY,8)
+#define T_INT16            MKSTYPE(S_INT,2)
 #define T_INT32            MKSTYPE(S_INT,4)
+#define T_INT64            MKSTYPE(S_INT,8)
 #define T_LONG             MKSTYPE(S_INT,4)
 #define T_ULONG            MKSTYPE(S_UBINARY,4)
 #define T_FLOAT            MKSTYPE(S_FLOAT,4)
@@ -9570,10 +9573,7 @@ public:
 };
 
 struct SMathResult {
-	operator double() const
-	{
-		return V;
-	}
+	operator double() const { return V; }
 	void   SetErr(double e, double adjMult);
 	void   AdjustErr(double mult);
 	void   SetZero();

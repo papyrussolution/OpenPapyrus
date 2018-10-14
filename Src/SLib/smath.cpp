@@ -1,5 +1,5 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -41,7 +41,7 @@ static double FASTCALL MakePositiveDouble(uint64 mantissa, int32 order)
 		union U {;
 			uint32 i32[2];
 			uint64 i64;
-			double R; 
+			double R;
 		} v;
 		U vt;
 		vt.R = 1.5;

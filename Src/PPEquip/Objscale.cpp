@@ -969,7 +969,6 @@ int SLAPI CommLP15::SendPLU(const ScalePLU * pPLU)
 			char  name_part_1[48], name_part_2[48];
 			const int name_items_count = 2;
 			SplitStrItem name_items[name_items_count];
-
 			memzero(name_part_1, sizeof(name_part_1));
 			memzero(name_part_2, sizeof(name_part_2));
 			name_items[0].len = 28;
@@ -1660,9 +1659,7 @@ int SLAPI CommMassaK::SetConnection()
 }
 
 int SLAPI CommMassaK::CheckAck(uchar ackCode)
-{
-	return BIN(GetChr() == ackCode);
-}
+	{ return BIN(GetChr() == ackCode); }
 
 int SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 {
@@ -1801,19 +1798,11 @@ ComDispInterface * SLAPI COMMassaK::InitDriver()
 }
 
 int SLAPI COMMassaK::SetMKProp(PPID id, long lVal)
-{
-	return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0);
-}
-
+	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
 int SLAPI COMMassaK::SetParam(long lVal)
-{
-	return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0);
-}
-
+	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
 int SLAPI COMMassaK::SetParam(const char * pStrVal)
-{
-	return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0);
-}
+	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
 
 int SLAPI COMMassaK::ExecMKOper(PPID id)
 {
@@ -3735,11 +3724,8 @@ int SLAPI Bizerba::CloseConnection()
 
 class ShtrihPrint : public PPScaleDevice {
 public:
-	SLAPI  ShtrihPrint(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  ShtrihPrint(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DrvShtrih(0), StrCountInMsg(1), ResCode(RESCODE_NO_ERROR)
 	{
-		P_DrvShtrih = 0;
-		StrCountInMsg = 1;
-		ResCode = RESCODE_NO_ERROR;
 		if(H_Port != INVALID_HANDLE_VALUE) {
 			CloseHandle(H_Port);
 			H_Port = INVALID_HANDLE_VALUE;
@@ -3818,7 +3804,6 @@ private:
 ComDispInterface * SLAPI ShtrihPrint::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
-
 	THROW_MEM(p_drv = new ComDispInterface);
 	THROW(p_drv->Init("AddIn.DrvLP"));
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCode) > 0);
@@ -3876,29 +3861,15 @@ void SLAPI ShtrihPrint::SetErrorMessage()
 }
 
 int SLAPI ShtrihPrint::GetSPProp(PPID id, long & rVal)
-{
-	return (P_DrvShtrih && P_DrvShtrih->GetProperty(id, &rVal) > 0) ? 1 : 0;
-}
-
+	{ return (P_DrvShtrih && P_DrvShtrih->GetProperty(id, &rVal) > 0) ? 1 : 0; }
 int SLAPI ShtrihPrint::SetSPProp(PPID id, long lVal, int writeOnly /*=0*/)
-{
-	return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, lVal, writeOnly) > 0) ? 1 : 0;
-}
-
+	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, lVal, writeOnly) > 0) ? 1 : 0; }
 int SLAPI ShtrihPrint::SetSPProp(PPID id, double dVal, int writeOnly /*=0*/)
-{
-	return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dVal, writeOnly) > 0) ? 1 : 0;
-}
-
+	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dVal, writeOnly) > 0) ? 1 : 0; }
 int SLAPI ShtrihPrint::SetSPProp(PPID id, const char * pStrVal, int writeOnly /*=0*/)
-{
-	return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, pStrVal, writeOnly) > 0) ? 1 : 0;
-}
-
+	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, pStrVal, writeOnly) > 0) ? 1 : 0; }
 int SLAPI ShtrihPrint::SetSPProp(PPID id, LDATE dtVal, int writeOnly /*=0*/)
-{
-	return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dtVal, writeOnly) > 0) ? 1 : 0;
-}
+	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dtVal, writeOnly) > 0) ? 1 : 0; }
 
 int SLAPI ShtrihPrint::ExecSPOper(PPID id)
 {
@@ -4003,10 +3974,7 @@ int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 		}
 		ok = 1;
 	}
-	CATCH
-		// @v5.6.7 (Вероятно, приводит к подвешиванию порта) ExecSPOper(Disconnect);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -4019,10 +3987,8 @@ int SLAPI ShtrihPrint::CloseConnection()
 //
 class ShtrihCE : public PPScaleDevice {
 public:
-	SLAPI  ShtrihCE(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  ShtrihCE(int p, const PPScale * pData) : PPScaleDevice(p, pData), FixedMsgResID(0x00102030), P_FOut(0)
 	{
-		FixedMsgResID = 0x00102030;
-		P_FOut = 0;
 	}
 	SLAPI ~ShtrihCE()
 	{
@@ -4175,12 +4141,12 @@ $$$RPL
 //
 class ExportToFile : public PPScaleDevice {
 public:
-	SLAPI  ExportToFile(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  ExportToFile(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_GoodsExp(0)
 	{
-		P_GoodsExp = 0;
 	}
 	SLAPI ~ExportToFile()
 	{
+		ZDELETE(P_GoodsExp);
 	}
 	virtual int  SLAPI SetConnection();
 	virtual int  SLAPI CloseConnection();
@@ -4217,8 +4183,7 @@ int SLAPI ExportToFile::SetConnection()
 
 int SLAPI ExportToFile::CloseConnection()
 {
-	if(P_GoodsExp)
-		ZDELETE(P_GoodsExp);
+	ZDELETE(P_GoodsExp);
 	return 1;
 }
 
@@ -4966,9 +4931,10 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 				else
 					PPLogMessage(PPFILNAM_SCALE_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 			}
-			THROW(ok);
+			else
+				success_count++;
+			// @v10.2.2 THROW(ok);
 			PPWaitPercent(i+1, load_list.getCount(), msg_buf.Printf(fmt_buf, pScaleData->Name, countbuf));
-			success_count++;
 		}
 		PROFILE_END
 		if(stat_id)

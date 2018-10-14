@@ -1573,7 +1573,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				}
 			}
 		}
-		else // } @v10.1.12  
+		else // } @v10.1.12
 			if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			{
 				int    ignore_stop = 0;
@@ -2392,7 +2392,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	}
 	else
 		Rec.UserID = r_cfg.User;
-	Rec.LocID = NZOR(locID, r_cfg.Location); 
+	Rec.LocID = NZOR(locID, r_cfg.Location);
 	Rec.CurID = 0L;
 	Rec.LinkBillID = linkBillID;
 	if(op_rec.Flags & OPKF_NEEDPAYMENT)
@@ -2434,7 +2434,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	if(OpTypeID == PPOPT_AGREEMENT) {
 		P_Agt = new Agreement;
 	}
-	// } @v10.1.12 
+	// } @v10.1.12
 	if(Rec.LinkBillID) {
 		SString msg_buf;
 		BillTbl::Rec link_rec;
@@ -2975,8 +2975,8 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 	if(ok) {
 		PPObjGoodsType gt_obj;
 		PPGoodsType2 gt_rec;
-		TransferTbl::Rec trfr_rec; // Используеся при вызове методов GCTIterator
-		BillTbl::Rec bill_rec;     // Используеся при вызове методов GCTIterator
+		TransferTbl::Rec trfr_rec; // Используется при вызове методов GCTIterator
+		BillTbl::Rec bill_rec;     // Используется при вызове методов GCTIterator
 		if(goods_rec.GoodsTypeID && gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
 			PPObjGoodsValRestr gvr_obj;
 			PPObjGoodsValRestr::GvrArray gvr_list;
@@ -3768,6 +3768,19 @@ int SLAPI PPBillPacket::SearchGoods(PPID goodsID, uint * pPos) const
 		r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
 	}
 	return r;
+}
+
+int SLAPI PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
+{
+	int    yes = 0;
+	if(rList.GetCount()) {
+		for(uint i = 0; !yes && i < rList.GetCount(); i++) {
+			const PPID goods_id = rList.Get(i);
+			if(goods_id && Lots.lsearch(&goods_id, 0, CMPF_LONG, offsetof(PPTransferItem, GoodsID)))
+				yes = 1;
+		}
+	}
+	return yes;
 }
 
 int SLAPI PPBillPacket::SearchLot(PPID lotID, uint * pPos) const

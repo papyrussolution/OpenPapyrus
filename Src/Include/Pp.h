@@ -10412,6 +10412,7 @@ public:
 	int    SLAPI CalcTotal(BillTotalData *, long btcFlags /* BTC_XXX */);
 	int    SLAPI CalcTotal(BillTotalData *, PPID goodsTypeID, long btcFlags /* BTC_XXX */);
 	int    SLAPI SearchGoods(PPID goodsID, uint * pPos) const;
+	int    SLAPI HasOneOfGoods(const ObjIdListFilt & rList) const;
 	//
 	// Descr: Опции функции CheckGoodsForRestrictions()
 	//
@@ -30187,7 +30188,6 @@ public:
 	//
 	int    SLAPI IsAssetLot(PPID lotID);
 	int    SLAPI MakeAssetCard(PPID lotID, AssetCard *);
-
 	int    SLAPI GetTagList(PPID billID, ObjTagList * pTagList);
 	int    SLAPI SetTagList(PPID billID, const ObjTagList * pTagList, int use_ta);
 
@@ -30280,10 +30280,7 @@ public:
 	//
 	// Descr: Находит парный товарный документ для документа billID.
 	//   Пары могут быть следующего вида:
-	//     драфт - документ списания //
-	//     документ списания - драфт
-	//     товарный документ - подтверждение
-	//     подтверждение - товарный документ
+	//     {драфт - документ списания}, {документ списания - драфт}, {товарный документ - подтверждение}, {подтверждение - товарный документ}
 	//
 	int    SLAPI GetComplementGoodsBillList(PPID billID, PPIDArray & rComplBillList);
 	//
@@ -40142,7 +40139,12 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	virtual int Describe(long flags, SString & rBuff) const;
 	SString & FASTCALL GetOpName(SString & rName) const;
 	int    FASTCALL IsValidABCGroup(short abcGroup) const;
-	void   ZeroCompareItems();
+	//
+	// Descr: Возвращает !0 если фильтр предполагает расчет анализа вход/выход с заданными лидирующими товарами
+	//   (OpGrpID == ogInOutAnalyze && Flags & fLeaderInOutGoods && GoodsIdList.GetCount())
+	//
+	int    SLAPI IsLeadedInOutAnalyze() const;
+	void   SLAPI ZeroCompareItems();
 	void   FASTCALL AddTradePlanBillID(PPID);
 
 	enum { // OpGrp
@@ -40176,8 +40178,9 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		fAddNzRestItems      = 0x00080000, // Дополнить отчет позициями, которые есть на остатке (при наличии флага fCalcRest)
 		fCrosstab            = 0x00100000, // Кросстаб
 		fABCAnlzByGGrps      = 0x00200000, // ABC анализ рассчитывать для каждой товарной группы отдельно
-		fCalcCVat            = 0x00400000, // @v8.3.5 Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat            = 0x00800000  // @v8.3.5 Рассчитывать валовую сумму НДС в ценах реализации //
+		fCalcCVat            = 0x00400000, // Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat            = 0x00800000, // Рассчитывать валовую сумму НДС в ценах реализации //
+		fLeaderInOutGoods    = 0x01000000  // @10.2.2 Список товаров GoodsIdList является ведущим для анализа вход/выход 
 	};
 	//
 	// Ид. дополнительных полей товарного точета по операции
@@ -40281,11 +40284,11 @@ struct GoodsOpAnalyzeViewItem {
 	CmVal  SumCost;
 	CmVal  SumPrice;
 	CmVal  Income;         // SumPrice-SumCost
-	CmVal  SumCVat;        // @v8.3.5 Валовая сумма НДС в ценах поступления
-	CmVal  SumPVat;        // @v8.3.5 Валовая сумма НДС в ценах реализации
-	double PctVal;
-	CmVal  Rest;
-	CmVal  PhRest;         // @v7.5.4 Остаток в физических единицах
+	CmVal  SumCVat;        // Валовая сумма НДС в ценах поступления
+	CmVal  SumPVat;        // Валовая сумма НДС в ценах реализации
+	double PctVal;         //
+	CmVal  Rest;           // Остаток в торговых единицах
+	CmVal  PhRest;         // Остаток в физических единицах
 	CmVal  RestCostSum;
 	CmVal  RestPriceSum;
 };
@@ -40301,10 +40304,10 @@ struct GoodsOpAnalyzeTotal {
 	double Cost;
 	double Price;
 	double Income;
-	double SumCVat;        // @v8.3.5 Валовая сумма НДС в ценах поступления
-	double SumPVat;        // @v8.3.5 Валовая сумма НДС в ценах реализации
-	double Rest;           // @v7.5.4 Остаток в торговых единицах
-	double PhRest;         // @v7.5.4 Остаток в физических единицах
+	double SumCVat;        // Валовая сумма НДС в ценах поступления
+	double SumPVat;        // Валовая сумма НДС в ценах реализации
+	double Rest;           // Остаток в торговых единицах
+	double PhRest;         // Остаток в физических единицах
 	double RestCost;
 	double RestPrice;
 	double PlanQtty;
@@ -40376,7 +40379,7 @@ private:
 	int    SLAPI NextOuterIteration();
 	int    SLAPI SetupCrosstabColumns(PPViewBrowser * pBrw);
 	PPViewGoodsOpAnalyze::IterOrder SLAPI GetIterOrder() const;
-	int    SLAPI InitAddingBlock(const PPBillPacket * pPack, double part, int sign, GoaAddingBlock * pBlk);
+	void   SLAPI InitAddingBlock(const PPBillPacket * pPack, double part, int sign, GoaAddingBlock * pBlk);
 		// @<<PutBillToTempTable
 	int    SLAPI PreprocessTi(const PPTransferItem * pTi, const PPIDArray * pSupplBillList, long substBillVal, GoaAddingBlock * pBlk);
 		// @<<PutBillToTempTable

@@ -720,6 +720,20 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					}
 				}
 				break;
+			case PPVCMD_VIEWGOODSOPANLZ:
+				if(brw_hdr.GStrucID && brw_hdr.StrucEntryP < StrucList.getCount()) {
+					PPGoodsStruc gs;
+					const StrucEntry & r_struc_entry = StrucList.at(brw_hdr.StrucEntryP);
+					if(GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
+						PPID   goods_id = r_struc_entry.PrmrGoodsID;
+						GoodsOpAnalyzeFilt filt;
+						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
+						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
+						filt.GoodsIdList.Add(goods_id);
+						ViewGoodsOpAnalyze(&filt);
+					}
+				}
+				break;
 			case PPVCMD_SYSJ: // @v10.0.09
 				if(brw_hdr.GStrucID) {
 					ViewSysJournal(PPOBJ_GOODSSTRUC, brw_hdr.GStrucID, 0);

@@ -1813,10 +1813,10 @@ table Transfer {        // size=104
 		// это может быть либо цена поступления либо цена реализации).
 		// Если CurID == 0, то CurPrice == (Flags & PPTFR_SELLING) ? Cost : (Price-Discount)
 index:
-	BillID, Reverse, RByBill (unique mod);
-	Dt, OprNo (unique mod);
-	LotID, Dt, OprNo (unique mod);
-	GoodsID, Dt, OprNo (unique mod);
+	BillID, Reverse, RByBill (unique mod); // #0
+	Dt, OprNo (unique mod);                // #1
+	LotID, Dt, OprNo (unique mod);         // #2
+	GoodsID, Dt, OprNo (unique mod);       // #3
 file:
 	"transfer.btr";
 	// @v6.7.5 balanced;
