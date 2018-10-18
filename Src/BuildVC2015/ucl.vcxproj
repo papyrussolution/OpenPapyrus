@@ -685,15 +685,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\ucl-1.03\src\alloc.c" />
-    <ClCompile Include="..\ucl-1.03\src\n2b_99.c" />
     <ClCompile Include="..\ucl-1.03\src\n2b_d.c" />
-    <ClCompile Include="..\ucl-1.03\src\ucl_init.c" />
-    <ClCompile Include="..\ucl-1.03\src\ucl_ptr.c" />
-    <ClCompile Include="..\ucl-1.03\src\ucl_util.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\Doc\install.txt" />
+    <ClCompile Include="..\ucl-1.03\src\sucl.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

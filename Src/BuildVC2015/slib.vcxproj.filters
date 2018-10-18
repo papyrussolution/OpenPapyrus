@@ -26,12 +26,10 @@
     <ClCompile Include="..\SLib\lss_lin.cpp" />
     <ClCompile Include="..\SLib\Lvect.cpp" />
     <ClCompile Include="..\SLib\lzari.cpp" />
-    <ClCompile Include="..\SLib\lzocomp.cpp" />
     <ClCompile Include="..\Slib\macaddr.cpp" />
     <ClCompile Include="..\SLib\mailsess.cpp" />
     <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\Md5.cpp" />
-    <ClCompile Include="..\SLib\Minilzo.cpp" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
     <ClCompile Include="..\SLib\prime.cpp" />

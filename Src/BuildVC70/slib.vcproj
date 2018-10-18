@@ -665,9 +665,6 @@
 				RelativePath="..\SLib\lzari.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\lzocomp.cpp">
-			</File>
-			<File
 				RelativePath="..\Slib\macaddr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -708,9 +705,6 @@
 			</File>
 			<File
 				RelativePath="..\SLib\Md5.cpp">
-			</File>
-			<File
-				RelativePath="..\SLib\Minilzo.cpp">
 			</File>
 			<File
 				RelativePath="..\SLib\Mkstring.cpp">

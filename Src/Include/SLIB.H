@@ -5207,6 +5207,11 @@ public:
 	SLAPI  operator const char * () const;
 	const  uchar * SLAPI ucptr() const;
 	int    FASTCALL Alloc(size_t sz);
+	//
+	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
+	//   случае перераспределяет размер до sz байт.
+	//
+	int    FASTCALL AllocIncr(size_t sz);
 };
 //
 // Descr: Класс, управляющий буфером записи-чтения.
@@ -8336,6 +8341,46 @@ private:
 //
 //
 //
+class SCompressor {
+public:
+	enum {
+		tUnkn = 0,
+		tZLib = 1,
+		tLz4  = 2
+	};
+	SLAPI  SCompressor(int type);
+	SLAPI ~SCompressor();
+	int    SLAPI SetMaxTempBufSize(size_t sz);
+	size_t SLAPI GetMaxTempBufSize() const { return MaxTempBufSize; }
+	//
+	// Descr: Сжимает данные из буфера pSrc размером srcSize в буфер rDest.
+	// ARG(pSrc    IN): Указатель на исходные данные для сжатия
+	// ARG(srcSize IN): Размер исходных данных для сжатия в байтах
+	// ARG(rDest  OUT): Буфер, в который записывается результат сжатия. Буфер не сбрасывается и запись ведется начиная с текущей позиции.
+	// ARG(rate    IN): Синтетический фактор плотности сжатия [1..100]. 0 - по умолчанию, 1 - минимальное сжатие, 100 - максимальное сжатие.
+	// ARG(pExt    IN): Дополнительный блок данных, специфичный для конкретного алгоритма. Спецификация функции гарантирует,
+	//   что любой алгоритм будет адекватно работать при передаче нулевого указателя данным аргументом.
+	// Returns:
+	//   >0 - успех. Значение показывает количество байт, записанных в буфер rDest этим вызовом.
+	//    0 - ошибка
+	//
+	int    SLAPI CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
+	int    SLAPI DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
+	//void * SLAPI CompressIterStart(void * pDest, size_t destSize, const void * pExt);
+	//int    SLAPI CompressIterNext(void * pCtx, const void * pSrc, size_t srcSize, void * pDest, size_t * destSize);
+	//int    SLAPI CompressIterEnd(void * pDest, size_t destSize, const void * pExt);
+
+	enum {
+		estszMax = 0x01, // Функция GetEstimatedXXXSize определила максимальный размер результата
+		estszNr  = 0x02, // Функция GetEstimatedXXXSize определила ближайший размер результата
+	};
+private:
+	const  int Type;
+	size_t MaxTempBufSize; // @construction Максимальный размер внутреннего временного буфера для упаковки/распаковки.
+	// @construction STempBuffer TBuf;
+	void * P_Ctx;
+};
+
 class SArchive {
 public:
 	enum {

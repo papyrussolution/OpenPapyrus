@@ -1393,7 +1393,6 @@
     <ClCompile Include="..\SLib\lss_lin.cpp" />
     <ClCompile Include="..\SLib\Lvect.cpp" />
     <ClCompile Include="..\SLib\lzari.cpp" />
-    <ClCompile Include="..\SLib\lzocomp.cpp" />
     <ClCompile Include="..\Slib\macaddr.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -1418,7 +1417,6 @@
     <ClCompile Include="..\SLib\mailsess.cpp" />
     <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\Md5.cpp" />
-    <ClCompile Include="..\SLib\Minilzo.cpp" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
     <ClCompile Include="..\SLib\prime.cpp" />
@@ -6376,6 +6374,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="lz4.vcxproj">
+      <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

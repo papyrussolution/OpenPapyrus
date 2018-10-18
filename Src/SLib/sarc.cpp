@@ -5,7 +5,163 @@
 #include <tv.h>
 #pragma hdrstop
 #include <..\osf\libzip\lib\zip.h>
+#include <..\osf\lz4\lz4frame.h>
+#include <..\osf\lz4\lz4.h>
+#include <zlib.h>
+//
+//
+//
+static const size_t Default_SCompressor_MaxTempBufSize = SMEGABYTE(1);
 
+SLAPI SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Default_SCompressor_MaxTempBufSize)
+{
+	assert(oneof2(Type, tLz4, tZLib));
+	if(Type == tLz4) {
+		/*LZ4F_cctx * p_ctx = 0;
+		if(LZ4F_createCompressionContext(&p_ctx, LZ4F_getVersion())) {
+			P_Ctx = p_ctx;
+		}*/
+		LZ4_stream_t * p_ctx = (LZ4_stream_t *)SAlloc::M(sizeof(LZ4_stream_t));
+		P_Ctx = p_ctx;
+	}
+}
+
+SLAPI SCompressor::~SCompressor()
+{
+	if(Type == tLz4) {
+		/*LZ4F_cctx * p_ctx = (LZ4F_cctx *)P_Ctx;
+		LZ4F_freeCompressionContext(p_ctx);
+		P_Ctx = 0;*/
+		ZDELETE(P_Ctx);
+	}
+}
+
+int SLAPI SCompressor::SetMaxTempBufSize(size_t sz)
+{
+	int    ok = 1;
+	if(sz == 0)
+		MaxTempBufSize = Default_SCompressor_MaxTempBufSize;
+	else if(sz < SMEGABYTE(64))
+		MaxTempBufSize = sz;
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt)
+{
+	int    ok = 0;
+	if(Type == tLz4) {
+		int    cb = LZ4_compressBound((int)srcSize);
+		if(cb > 0) {
+			STempBuffer temp_buf(cb);
+			int  rs = 0; // result size
+			THROW(temp_buf.IsValid());
+			rs = LZ4_compress_fast_extState(P_Ctx, (const char *)pSrc, (char *)temp_buf, (int)srcSize, temp_buf.GetSize(), 1/*acceleration*/);
+			THROW(rs > 0);
+			THROW(rDest.Write(temp_buf, rs));
+			ok = rs;
+		}
+	}
+	else if(Type == tZLib) {
+		//int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen, int level)
+		int level = (rate == 0) ? Z_DEFAULT_COMPRESSION : (rate / 10);
+		{
+			z_stream stream;
+			int zlib_err;
+			const size_t src_size_limit = (uInt)-1;
+			size_t current_src_size = srcSize;
+			size_t current_src_offs = 0;
+			stream.zalloc = (alloc_func)0;
+			stream.zfree = (free_func)0;
+			stream.opaque = (void *)0;
+			zlib_err = deflateInit(&stream, level);
+			THROW(zlib_err == Z_OK);
+			{
+				int    cb = deflateBound(&stream, current_src_size);
+				STempBuffer temp_buf(/*MIN(SKILOBYTE(1024), cb)*/512); // small buf for testing several iterations
+				THROW(temp_buf.IsValid());
+				do {
+					stream.next_out = (Bytef *)(char *)temp_buf;
+					stream.avail_out = temp_buf.GetSize();
+					stream.next_in = (z_const Bytef*)(PTR8(pSrc)+current_src_offs);
+					stream.avail_in = current_src_size;
+					const uint prev_total_out = stream.total_out;
+					const uint prev_total_in = stream.total_in;
+					zlib_err = deflate(&stream, current_src_size ? Z_NO_FLUSH : Z_FINISH);
+					THROW(rDest.Write(temp_buf, stream.total_out - prev_total_out));
+					current_src_offs += (stream.total_in - prev_total_in);
+					current_src_size -= (stream.total_in - prev_total_in);
+				} while(!zlib_err);
+				ok = stream.total_out;
+				deflateEnd(&stream);
+				if(zlib_err != Z_STREAM_END)
+					ok = 0;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest)
+{
+	int    ok = 0;
+	if(Type == tLz4) {
+		size_t part_buf_size = srcSize * 8;
+		STempBuffer temp_buf(part_buf_size);
+		int rs = LZ4_decompress_safe((const char *)pSrc, temp_buf, (int)srcSize, temp_buf.GetSize());
+		if(rs > 0) {
+			THROW(rDest.Write(temp_buf, (size_t)rs));
+			ok = rs;
+		}
+	}
+	else if(Type == tZLib) {
+		int    zlib_err = 0;
+		size_t written_size = 0;
+		z_stream stream;
+		MEMSZERO(stream);
+		zlib_err = inflateInit(&stream);
+		THROW(zlib_err == Z_OK);
+		{
+			STempBuffer temp_buf(SKILOBYTE(1024));
+			// decompress until deflate stream ends or end of file 
+			stream.avail_in = srcSize;
+			stream.next_in = (z_const Bytef*)pSrc;
+			// run inflate() on input until output buffer not full 
+			do {
+				stream.avail_out = temp_buf.GetSize();
+				stream.next_out = (Bytef *)(char *)temp_buf;
+				zlib_err = inflate(&stream, Z_NO_FLUSH);
+				THROW(zlib_err != Z_STREAM_ERROR); // state not clobbered 
+				switch(zlib_err) {
+					case Z_NEED_DICT:
+						zlib_err = Z_DATA_ERROR; // and fall through 
+					case Z_DATA_ERROR:
+					case Z_MEM_ERROR:
+						inflateEnd(&stream);
+						CALLEXCEPT();
+				}
+				{
+					const size_t chunk_size = temp_buf.GetSize() - stream.avail_out;
+					THROW(rDest.Write(temp_buf, chunk_size));
+					written_size += chunk_size;
+				}
+			} while(stream.avail_out == 0);
+			// clean up and return 
+			inflateEnd(&stream);
+			ok = (int)written_size;
+			if(zlib_err != Z_STREAM_END)
+				ok = 0;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 SLAPI SArchive::SArchive() : Type(0), H(0)
 {
 }
@@ -241,11 +397,85 @@ int SLAPI SArchive::AddEntries(const char * pMask, int flags)
 	return Helper_AddEntries(root, sub, mask, flags);
 }
 
+static int TestCompressor(SCompressor & rC)
+{
+	int   ok = 1;
+	SString temp_buf;
+	STempBuffer pattern_buffer(SKILOBYTE(256));
+	SBuffer compress_buf;
+	SBuffer decompress_buf;
+	{
+		//D:\Papyrus\Src\PPTEST\DATA\phrases-ru-1251.txt 
+		SString pattern_text;
+		SLS.QueryPath("testroot", temp_buf);
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
+		SFile f_in(temp_buf, SFile::mRead);
+		//SLS.QueryPath("testroot", temp_buf);
+		//temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("phrases-ru-1251.txt.out");
+		//SFile f_out(temp_buf, SFile::mWrite);
+		while(f_in.ReadLine(temp_buf)) {
+			pattern_text.Cat(temp_buf);
+		}
+		{
+			compress_buf.Z();
+			decompress_buf.Z();
+			int cs = 0;
+			int ds = 0;
+			const size_t org_size = pattern_text.Len()+1;
+			cs = rC.CompressBlock(pattern_text, org_size, compress_buf, 0, 0);
+			assert(cs > 0 && cs == (int)compress_buf.GetAvailableSize());
+			ds = rC.DecompressBlock(compress_buf.GetBuf(0), compress_buf.GetAvailableSize(), decompress_buf);
+			assert(ds > 0 && ds == org_size && ds == (int)decompress_buf.GetAvailableSize());
+			assert(memcmp(decompress_buf.GetBuf(0), pattern_text, org_size) == 0);
+		}
+	}
+	{
+		LongArray ivec;
+		for(long j = 0; j < 1000000; j++) {
+			ivec.add(j);
+		}
+		{
+			compress_buf.Z();
+			decompress_buf.Z();
+			int cs = 0;
+			int ds = 0;
+			const size_t org_size = ivec.getItemSize() * ivec.getCount();
+			cs = rC.CompressBlock(ivec.dataPtr(), org_size, compress_buf, 0, 0);
+			assert(cs > 0 && cs == (int)compress_buf.GetAvailableSize());
+			ds = rC.DecompressBlock(compress_buf.GetBuf(0), compress_buf.GetAvailableSize(), decompress_buf);
+			assert(ds > 0 && ds == org_size && ds == (int)decompress_buf.GetAvailableSize());
+			assert(memcmp(decompress_buf.GetBuf(0), ivec.dataPtr(), org_size) == 0);
+		}
+	}
+	SlThreadLocalArea & r_tla = SLS.GetTLA();
+	r_tla.Rg.ObfuscateBuffer(pattern_buffer, pattern_buffer.GetSize());
+	for(uint i = 1; i <= pattern_buffer.GetSize(); i++) {
+		compress_buf.Z();
+		decompress_buf.Z();
+		int cs = 0;
+		int ds = 0;
+		cs = rC.CompressBlock(pattern_buffer, i, compress_buf, 0, 0);
+		assert(cs > 0 && cs == (int)compress_buf.GetAvailableSize());
+		ds = rC.DecompressBlock(compress_buf.GetBuf(0), compress_buf.GetAvailableSize(), decompress_buf);
+		assert(ds > 0 && ds == i && ds == (int)decompress_buf.GetAvailableSize());
+		assert(memcmp(decompress_buf.GetBuf(0), pattern_buffer, i) == 0);
+	}
+	return ok;
+}
+
 void SLAPI TestSArchive()
 {
 	int    ok = 1;
-	//const  char * p_root = "d:/papyrus/src/pptest";
 	SString temp_buf;
+	{
+		SCompressor c(SCompressor::tZLib);
+		TestCompressor(c);
+	}
+	{
+		SCompressor c(SCompressor::tLz4);
+		TestCompressor(c);
+	}
+	//const  char * p_root = "d:/papyrus/src/pptest";
 	SArchive arc;
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
 	{

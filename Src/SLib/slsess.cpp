@@ -320,6 +320,10 @@ static void InitTest()
 	assert(sizeof(char) == 1);
 	assert(sizeof(int) == 4);
 	assert(sizeof(unsigned int) == 4);
+	assert(sizeof(short) >= 2); // @v10.2.3
+	assert(sizeof(long)  >= 4); // @v10.2.3
+	assert(sizeof(int) >= sizeof(short)); // @v10.2.3
+	assert(sizeof(long) >= sizeof(int)); // @v10.2.3
 	assert(sizeof(int8) == 1);
 	assert(sizeof(uint8) == 1);
 	assert(sizeof(int16) == 2);

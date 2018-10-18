@@ -1791,18 +1791,18 @@ int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLon
 	stream.avail_in = 0;
 	do {
 		if(stream.avail_out == 0) {
-			stream.avail_out = left > (uLong)max ? max : (uInt)left;
+			stream.avail_out = (left > (uLong)max) ? max : (uInt)left;
 			left -= stream.avail_out;
 		}
 		if(stream.avail_in == 0) {
-			stream.avail_in = sourceLen > (uLong)max ? max : (uInt)sourceLen;
+			stream.avail_in = (sourceLen > (uLong)max) ? max : (uInt)sourceLen;
 			sourceLen -= stream.avail_in;
 		}
 		err = deflate(&stream, sourceLen ? Z_NO_FLUSH : Z_FINISH);
 	} while(err == Z_OK);
 	*destLen = stream.total_out;
 	deflateEnd(&stream);
-	return err == Z_STREAM_END ? Z_OK : err;
+	return (err == Z_STREAM_END) ? Z_OK : err;
 }
 
 int ZEXPORT compress(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen)
@@ -1814,7 +1814,7 @@ int ZEXPORT compress(Bytef * dest, uLongf * destLen, const Bytef * source, uLong
 //
 uLong ZEXPORT compressBound(uLong sourceLen)
 {
-	return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13;
+	return (sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13);
 }
 //
 // GZWRITE
@@ -2514,17 +2514,17 @@ static int gz_decomp(gz_state * state)
 {
 	int ret = Z_OK;
 	z_streamp strm = &(state->strm);
-	/* fill output buffer up to end of deflate stream */
+	// fill output buffer up to end of deflate stream 
 	uint had = strm->avail_out;
 	do {
-		/* get more input for inflate() */
+		// get more input for inflate() 
 		if(strm->avail_in == 0 && gz_avail(state) == -1)
 			return -1;
 		if(strm->avail_in == 0) {
 			gz_error(state, Z_BUF_ERROR, "unexpected end of file");
 			break;
 		}
-		/* decompress and handle errors */
+		// decompress and handle errors 
 		ret = inflate(strm, Z_NO_FLUSH);
 		if(ret == Z_STREAM_ERROR || ret == Z_NEED_DICT) {
 			gz_error(state, Z_STREAM_ERROR, "internal error: inflate stream corrupt");
@@ -2534,15 +2534,15 @@ static int gz_decomp(gz_state * state)
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
 		}
-		if(ret == Z_DATA_ERROR) {       /* deflate stream invalid */
+		if(ret == Z_DATA_ERROR) { // deflate stream invalid 
 			gz_error(state, Z_DATA_ERROR, strm->msg == NULL ? "compressed data error" : strm->msg);
 			return -1;
 		}
 	} while(strm->avail_out && ret != Z_STREAM_END);
-	/* update available output */
+	// update available output 
 	state->x.have = had - strm->avail_out;
 	state->x.next = strm->next_out - state->x.have;
-	/* if the gzip stream completed successfully, look for another */
+	// if the gzip stream completed successfully, look for another 
 	if(ret == Z_STREAM_END)
 		state->how = GZSTATE_LOOK;
 	return 0; // good decompression 
@@ -2610,68 +2610,64 @@ static int FASTCALL gz_skip(gz_state * state, z_off64_t len)
 // 
 static size_t FASTCALL gz_read(gz_state * state, void * buf, size_t len)
 {
-	size_t got;
-	uint   n;
-	/* if len is zero, avoid unnecessary operations */
-	if(len == 0)
-		return 0;
-	/* process a skip request */
-	if(state->seek) {
-		state->seek = 0;
-		if(gz_skip(state, state->skip) == -1)
-			return 0;
-	}
-	/* get len bytes to buf, or less than len if at the end */
-	got = 0;
-	do {
-		// set n to the maximum amount of len that fits in an unsigned int 
-		n = -1;
-		if(n > len)
-			n = len;
-		// first just try copying data from the output buffer 
-		if(state->x.have) {
-			if(state->x.have < n)
+	size_t got = 0;
+	// if len is zero, avoid unnecessary operations 
+	if(len) {
+		// process a skip request 
+		if(state->seek) {
+			state->seek = 0;
+			if(gz_skip(state, state->skip) == -1)
+				return 0;
+		}
+		// get len bytes to buf, or less than len if at the end 
+		do {
+			// set n to the maximum amount of len that fits in an unsigned int 
+			uint   n = (uint)-1;
+			if(n > len)
+				n = len;
+			// first just try copying data from the output buffer 
+			if(state->x.have) {
+				if(state->x.have < n)
+					n = state->x.have;
+				memcpy(buf, state->x.next, n);
+				state->x.next += n;
+				state->x.have -= n;
+			}
+			// output buffer empty -- return if we're at the end of the input 
+			else if(state->eof && state->strm.avail_in == 0) {
+				state->past = 1; /* tried to read past end */
+				break;
+			}
+			// need output data -- for small len or new stream load up our output buffer 
+			else if(state->how == GZSTATE_LOOK || n < (state->size << 1)) {
+				// get more output, looking for header if required 
+				if(gz_fetch(state) == -1)
+					return 0;
+				continue; // no progress yet -- go back to copy above 
+				// the copy above assures that we will leave with space in the output buffer, allowing at least one gzungetc() to succeed 
+			}
+			// large len -- read directly into user buffer 
+			else if(state->how == GZSTATE_COPY) { // read directly 
+				if(gz_load(state, (uchar*)buf, n, &n) == -1)
+					return 0;
+			}
+			// large len -- decompress directly into user buffer 
+			else { // state->how == GZSTATE_GZIP 
+				state->strm.avail_out = n;
+				state->strm.next_out = (uchar*)buf;
+				if(gz_decomp(state) == -1)
+					return 0;
 				n = state->x.have;
-			memcpy(buf, state->x.next, n);
-			state->x.next += n;
-			state->x.have -= n;
-		}
-		// output buffer empty -- return if we're at the end of the input 
-		else if(state->eof && state->strm.avail_in == 0) {
-			state->past = 1; /* tried to read past end */
-			break;
-		}
-		// need output data -- for small len or new stream load up our output buffer 
-		else if(state->how == GZSTATE_LOOK || n < (state->size << 1)) {
-			// get more output, looking for header if required 
-			if(gz_fetch(state) == -1)
-				return 0;
-			continue; /* no progress yet -- go back to copy above */
-			/* the copy above assures that we will leave with space in the
-			   output buffer, allowing at least one gzungetc() to succeed */
-		}
-		/* large len -- read directly into user buffer */
-		else if(state->how == GZSTATE_COPY) { /* read directly */
-			if(gz_load(state, (uchar*)buf, n, &n) == -1)
-				return 0;
-		}
-		/* large len -- decompress directly into user buffer */
-		else { /* state->how == GZSTATE_GZIP */
-			state->strm.avail_out = n;
-			state->strm.next_out = (uchar*)buf;
-			if(gz_decomp(state) == -1)
-				return 0;
-			n = state->x.have;
-			state->x.have = 0;
-		}
-		/* update progress */
-		len -= n;
-		buf = (char*)buf + n;
-		got += n;
-		state->x.pos += n;
-	} while(len);
-	/* return number of bytes read into user buffer */
-	return got;
+				state->x.have = 0;
+			}
+			// update progress 
+			len -= n;
+			buf = (char*)buf + n;
+			got += n;
+			state->x.pos += n;
+		} while(len);
+	}
+	return got; // return number of bytes read into user buffer 
 }
 
 int ZEXPORT gzread(gzFile file, void * buf, uint len)
@@ -2701,20 +2697,20 @@ size_t ZEXPORT gzfread(void * buf, size_t size, size_t nitems, gzFile file)
 {
 	size_t len;
 	gz_state * state;
-	/* get internal structure */
+	// get internal structure 
 	if(file == NULL)
 		return 0;
 	state = (gz_state *)file;
-	/* check that we're reading and that there's no (serious) error */
+	// check that we're reading and that there's no (serious) error 
 	if(state->mode != GZ_READ || (state->err != Z_OK && state->err != Z_BUF_ERROR))
 		return 0;
-	/* compute bytes to read -- error on overflow */
+	// compute bytes to read -- error on overflow 
 	len = nitems * size;
 	if(size && len / size != nitems) {
 		gz_error(state, Z_STREAM_ERROR, "request does not fit in a size_t");
 		return 0;
 	}
-	/* read len or fewer bytes to buf, return the number of full items read */
+	// read len or fewer bytes to buf, return the number of full items read 
 	return len ? gz_read(state, buf, len) / size : 0;
 }
 
@@ -2805,8 +2801,9 @@ int ZEXPORT gzungetc(int c, gzFile file)
 	state->past = 0;
 	return c;
 }
-
-/* -- see zlib.h -- */
+//
+// -- see zlib.h -- 
+//
 char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 {
 	char * str = 0;
@@ -2873,8 +2870,9 @@ int ZEXPORT gzdirect(gzFile file)
 		(void)gz_look(state);
 	return state->direct; // return 1 if transparent, 0 if processing a gzip stream 
 }
-
-/* -- see zlib.h -- */
+//
+// -- see zlib.h -- 
+//
 int ZEXPORT gzclose_r(gzFile file)
 {
 	int ret, err;
@@ -4496,37 +4494,35 @@ uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen)
 {
 	deflate_state * s;
 	uLong wraplen;
-	/* conservative upper bound for compressed data */
+	// conservative upper bound for compressed data 
 	uLong complen = sourceLen + ((sourceLen + 7) >> 3) + ((sourceLen + 63) >> 6) + 5;
-	/* if can't get parameters, return conservative bound plus zlib wrapper */
+	// if can't get parameters, return conservative bound plus zlib wrapper 
 	if(deflateStateCheck(strm))
 		return complen + 6;
-	/* compute wrapper length */
+	// compute wrapper length 
 	s = strm->state;
 	switch(s->wrap) {
-		case 0:                     /* raw deflate */
+		case 0: // raw deflate 
 		    wraplen = 0;
 		    break;
-		case 1:                     /* zlib wrapper */
+		case 1: // zlib wrapper 
 		    wraplen = 6 + (s->strstart ? 4 : 0);
 		    break;
 #ifdef GZIP
-		case 2:                     /* gzip wrapper */
+		case 2: // gzip wrapper 
 		    wraplen = 18;
-		    if(s->gzhead != Z_NULL) { /* user-supplied gzip header */
+		    if(s->gzhead) { // user-supplied gzip header 
 			    Bytef * str;
-			    if(s->gzhead->extra != Z_NULL)
+			    if(s->gzhead->extra)
 				    wraplen += 2 + s->gzhead->extra_len;
 			    str = s->gzhead->name;
-			    if(str != Z_NULL)
-				    do {
-					    wraplen++;
-				    } while(*str++);
+			    if(str) do {
+					wraplen++;
+				} while(*str++);
 			    str = s->gzhead->comment;
-			    if(str != Z_NULL)
-				    do {
-					    wraplen++;
-				    } while(*str++);
+			    if(str) do {
+					wraplen++;
+				} while(*str++);
 			    if(s->gzhead->hcrc)
 				    wraplen += 2;
 		    }
@@ -4671,8 +4667,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			put_byte(s, s->level == 9 ? 2 : (s->strategy >= Z_HUFFMAN_ONLY || s->level < 2 ? 4 : 0));
 			put_byte(s, OS_CODE);
 			s->status = BUSY_STATE;
-
-			/* Compression must start with an empty pending buffer */
+			// Compression must start with an empty pending buffer 
 			flush_pending(strm);
 			if(s->pending != 0) {
 				s->last_flush = -1;
@@ -4781,8 +4776,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			strm->adler = crc32(0L, Z_NULL, 0);
 		}
 		s->status = BUSY_STATE;
-
-		/* Compression must start with an empty pending buffer */
+		// Compression must start with an empty pending buffer 
 		flush_pending(strm);
 		if(s->pending != 0) {
 			s->last_flush = -1;
@@ -4790,9 +4784,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 		}
 	}
 #endif
-
-	/* Start a new block or continue the current one.
-	 */
+	// Start a new block or continue the current one.
 	if(strm->avail_in != 0 || s->lookahead != 0 || (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
 		block_state bstate = s->level == 0 ? deflate_stored(s, flush) :
 		    s->strategy == Z_HUFFMAN_ONLY ? deflate_huff(s, flush) :
@@ -4802,7 +4794,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 		}
 		if(bstate == need_more || bstate == finish_started) {
 			if(strm->avail_out == 0) {
-				s->last_flush = -1; /* avoid BUF_ERROR next call, see above */
+				s->last_flush = -1; // avoid BUF_ERROR next call, see above 
 			}
 			return Z_OK;
 			/* If flush != Z_NO_FLUSH && avail_out == 0, the next call
@@ -4819,9 +4811,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			}
 			else if(flush != Z_BLOCK) { /* FULL_FLUSH or SYNC_FLUSH */
 				_tr_stored_block(s, (char*)0, 0L, 0);
-				/* For a full flush, this empty block will be recognized
-				 * as a special marker by inflate_sync().
-				 */
+				// For a full flush, this empty block will be recognized as a special marker by inflate_sync().
 				if(flush == Z_FULL_FLUSH) {
 					CLEAR_HASH(s); /* forget history */
 					if(s->lookahead == 0) {
@@ -5016,15 +5006,13 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 	do {
 		Assert(cur_match < s->strstart, "no future");
 		match = s->window + cur_match;
-
-		/* Skip to next match if the match length cannot increase
-		 * or if the match length is less than 2.  Note that the checks below
-		 * for insufficient lookahead only occur occasionally for performance
-		 * reasons.  Therefore uninitialized memory will be accessed, and
-		 * conditional jumps will be made that depend on those values.
-		 * However the length of the match is limited to the lookahead, so
-		 * the output of deflate is not affected by the uninitialized values.
-		 */
+		// Skip to next match if the match length cannot increase
+		// or if the match length is less than 2.  Note that the checks below
+		// for insufficient lookahead only occur occasionally for performance
+		// reasons.  Therefore uninitialized memory will be accessed, and
+		// conditional jumps will be made that depend on those values.
+		// However the length of the match is limited to the lookahead, so
+		// the output of deflate is not affected by the uninitialized values.
 #if (defined(UNALIGNED_OK) && MAX_MATCH == 258)
 		/* This code assumes sizeof(ushort) == 2. Do not use
 		 * UNALIGNED_OK if your compiler uses a different size.
@@ -5057,17 +5045,15 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 #else /* UNALIGNED_OK */
 		if(match[best_len] != scan_end  || match[best_len-1] != scan_end1 || *match != *scan || *++match != scan[1]) 
 			continue;
-		/* The check at best_len-1 can be removed because it will be made
-		 * again later. (This heuristic is not always a win.)
-		 * It is not necessary to compare scan[2] and match[2] since they
-		 * are always equal when the other bytes match, given that
-		 * the hash keys are equal and that HASH_BITS >= 8.
-		 */
+		// The check at best_len-1 can be removed because it will be made
+		// again later. (This heuristic is not always a win.)
+		// It is not necessary to compare scan[2] and match[2] since they
+		// are always equal when the other bytes match, given that
+		// the hash keys are equal and that HASH_BITS >= 8.
 		scan += 2, match++;
 		Assert(*scan == *match, "match[2]?");
-		/* We check for insufficient lookahead only every 8th comparison;
-		 * the 256th check will be made at strstart+258.
-		 */
+		// We check for insufficient lookahead only every 8th comparison;
+		// the 256th check will be made at strstart+258.
 		do {
 		} while(*++scan == *++match && *++scan == *++match && *++scan == *++match && *++scan == *++match &&
 		    *++scan == *++match && *++scan == *++match && *++scan == *++match && *++scan == *++match && scan < strend);
@@ -8445,7 +8431,7 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
 {
 	struct inflate_state  * state;
 	struct inflate_state  * copy;
-	uchar  * window;
+	uchar * window;
 	uint wsize;
 	// check input 
 	if(inflateStateCheck(source) || dest == Z_NULL)

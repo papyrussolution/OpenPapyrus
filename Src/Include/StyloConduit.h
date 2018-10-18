@@ -127,10 +127,8 @@ int ScAddDbfRec(DbfTable * pTbl, DbfRecord * pRec, const char * pLogFile);
 class PalmTcpExchange;
 
 struct SpiiExchgContext {
-	SpiiExchgContext(PalmTcpExchange * pPte)
+	SpiiExchgContext(PalmTcpExchange * pPte) : P_Pte(pPte), TransmitComprFile(0), LastErr(0), PackedFileHdrOffs(0)
 	{
-		THISZERO();
-		P_Pte = pPte;
 		HostCfg.Init();
 		PalmCfg.Init();
 	}
@@ -141,7 +139,6 @@ struct SpiiExchgContext {
 	SString CompressFile;        // Имя сжатого файла на хосте
 	SString PalmCompressedFile;  // Имя сжатого файла на КПК
 	SString LogFile;             // Имя лог файла
-
 	PalmConfig HostCfg;          // Конфигурация на хосте
 	PalmConfig PalmCfg;          // Конфигурация на КПК
 };

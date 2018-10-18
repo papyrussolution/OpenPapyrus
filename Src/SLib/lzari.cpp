@@ -1,13 +1,12 @@
-/**************************************************************
-	LZARI.CPP -- A Data Compression Program
-***************************************************************
-	1989, 2002 Haruhiko Okumura, Starodub A.
-	Use, distribute, and modify this program freely.
-	Please send me your improved versions.
-		PC-VAN          SCIENCE
-		NIFTY-Serve     PAF01022
-		CompuServe      74050,1022
-**************************************************************/
+// LZARI.CPP -- A Data Compression Program
+// 
+// 1989, 2002 Haruhiko Okumura, Starodub A.
+// Use, distribute, and modify this program freely.
+// Please send me your improved versions.
+//   PC-VAN          SCIENCE
+//   NIFTY-Serve     PAF01022
+//   CompuServe      74050,1022
+// 
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop

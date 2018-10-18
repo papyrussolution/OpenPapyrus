@@ -24,29 +24,21 @@
    <markus@oberhumer.com>
    http://www.oberhumer.com/opensource/ucl/
  */
-
-
-/***********************************************************************
+// 
 // Windows 16 bit + Watcom C + DLL
-************************************************************************/
-
+// 
 #if (ACC_OS_WIN16 && ACC_CC_WATCOMC) && defined(__SW_BD)
-
-/* don't pull in <windows.h> - we don't need it */
-#if 0
-BOOL FAR PASCAL LibMain ( HANDLE hInstance, WORD wDataSegment,
-                          WORD wHeapSize, LPSTR lpszCmdLine )
-#else
-int __far __pascal LibMain ( int a, short b, short c, long d )
+	/* don't pull in <windows.h> - we don't need it */
+	#if 0
+		BOOL FAR PASCAL LibMain (HANDLE hInstance, WORD wDataSegment, WORD wHeapSize, LPSTR lpszCmdLine)
+	#else
+		int __far __pascal LibMain ( int a, short b, short c, long d )
+	#endif
+	{
+		ACC_UNUSED(a); ACC_UNUSED(b); ACC_UNUSED(c); ACC_UNUSED(d);
+		return 1;
+	}
 #endif
-{
-    ACC_UNUSED(a); ACC_UNUSED(b); ACC_UNUSED(c); ACC_UNUSED(d);
-    return 1;
-}
-
-#endif
-
-
 /*
 vi:ts=4:et
 */

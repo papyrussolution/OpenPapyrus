@@ -37,21 +37,18 @@
 #define __UCL_H_INCLUDED
 
 #ifndef __UCLCONF_H_INCLUDED
- #include <ucl/uclconf.h>
+	#include <ucl/uclconf.h>
 #endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/***********************************************************************
-   // Compression fine-tuning configuration.
-   //
-   // Pass a NULL pointer to the compression functions for default values.
-   // Otherwise set all values to -1 [i.e. initialize the struct by a
-   // `memset(x,0xff,sizeof(x))'] and then set the required values.
- ************************************************************************/
-
+//
+// Compression fine-tuning configuration.
+//
+// Pass a NULL pointer to the compression functions for default values.
+// Otherwise set all values to -1 [i.e. initialize the struct by a
+// `memset(x,0xff,sizeof(x))'] and then set the required values.
+//
 struct ucl_compress_config_t {
 	int bb_endian;
 	int bb_size;

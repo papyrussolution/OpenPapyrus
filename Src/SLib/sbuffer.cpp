@@ -695,6 +695,11 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 	return ok;
 }
 
+int FASTCALL STempBuffer::AllocIncr(size_t sz)
+{
+	return (sz > Size) ? Alloc(sz) : -1;
+}
+
 STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
 {
 	SBaseBuffer::Copy(rS);

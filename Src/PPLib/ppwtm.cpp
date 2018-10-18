@@ -2509,7 +2509,7 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
-	//TestSArchive();
+	TestSArchive();
 	//Test_MakeEmailMessage();
 	//CollectLldFileStat();
 #endif

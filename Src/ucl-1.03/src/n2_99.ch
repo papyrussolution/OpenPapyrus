@@ -5,11 +5,9 @@
 */
 #include "ucl_conf.h"
 #include <ucl/ucl.h>
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 #define SWD_USE_MALLOC 1
 #if(ACC_OS_DOS16)
 	#define SWD_HMASK       (s->hmask)
@@ -181,11 +179,9 @@ static void code_run(UCL_COMPRESS_T *c, const ucl_bytep ii, ucl_uint lit)
 		} while(--lit > 0);
 	}
 }
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 static int len_of_coded_match(UCL_COMPRESS_T *c, ucl_uint m_len, ucl_uint m_off)
 {
     int b;
@@ -236,52 +232,45 @@ static int len_of_coded_match(UCL_COMPRESS_T *c, ucl_uint m_len, ucl_uint m_off)
 
     return b;
 }
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 #if !defined(NDEBUG)
-static void assert_match( const ucl_swd_p swd, ucl_uint m_len, ucl_uint m_off )
-{
-    const UCL_COMPRESS_T *c = swd->c;
-    ucl_uint d_off;
-    assert(m_len >= 2);
-    if(m_off <= (ucl_uint) (c->bp - c->in)) {
-        assert(c->bp - m_off + m_len < c->ip);
-        assert(ucl_memcmp(c->bp, c->bp - m_off, m_len) == 0);
-    }
-    else {
-        assert(swd->dict != NULL);
-        d_off = m_off - (ucl_uint) (c->bp - c->in);
-        assert(d_off <= swd->dict_len);
-        if(m_len > d_off) {
-            assert(ucl_memcmp(c->bp, swd->dict_end - d_off, d_off) == 0);
-            assert(c->in + m_len - d_off < c->ip);
-            assert(ucl_memcmp(c->bp + d_off, c->in, m_len - d_off) == 0);
-        }
-        else {
-            assert(ucl_memcmp(c->bp, swd->dict_end - d_off, m_len) == 0);
-        }
-    }
-}
+	static void assert_match( const ucl_swd_p swd, ucl_uint m_len, ucl_uint m_off )
+	{
+		const UCL_COMPRESS_T *c = swd->c;
+		ucl_uint d_off;
+		assert(m_len >= 2);
+		if(m_off <= (ucl_uint) (c->bp - c->in)) {
+			assert(c->bp - m_off + m_len < c->ip);
+			assert(ucl_memcmp(c->bp, c->bp - m_off, m_len) == 0);
+		}
+		else {
+			assert(swd->dict != NULL);
+			d_off = m_off - (ucl_uint) (c->bp - c->in);
+			assert(d_off <= swd->dict_len);
+			if(m_len > d_off) {
+				assert(ucl_memcmp(c->bp, swd->dict_end - d_off, d_off) == 0);
+				assert(c->in + m_len - d_off < c->ip);
+				assert(ucl_memcmp(c->bp + d_off, c->in, m_len - d_off) == 0);
+			}
+			else {
+				assert(ucl_memcmp(c->bp, swd->dict_end - d_off, m_len) == 0);
+			}
+		}
+	}
 #else
 	#define assert_match(a,b,c)   ((void)0)
 #endif
 
 #if defined(SWD_BEST_OFF)
-
-static void better_match( const ucl_swd_p swd, ucl_uint *m_len, ucl_uint *m_off )
-{
-}
-
+	static void better_match( const ucl_swd_p swd, ucl_uint *m_len, ucl_uint *m_off )
+	{
+	}
 #endif
-
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 UCL_PUBLIC(int) ucl_nrv_99_compress(const ucl_bytep in, ucl_uint in_len,
 	ucl_bytep out, ucl_uintp out_len, ucl_progress_callback_p cb, int level,
 	const struct ucl_compress_config_p conf, ucl_uintp result)
@@ -326,11 +315,9 @@ UCL_PUBLIC(int) ucl_nrv_99_compress(const ucl_bytep in, ucl_uint in_len,
         /* max. compression */
 #undef F
     };
-
     if(level < 1 || level > 10)
         return UCL_E_INVALID_ARGUMENT;
     sc = &swd_config[level - 1];
-
     memset(c, 0, sizeof(*c));
     memset(&c->conf, 0xff, sizeof(c->conf));
     c->ip = c->in = in;

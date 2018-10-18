@@ -3,9 +3,9 @@
         This file is part of the UCL data compression library.
         Copyright (C) 1996-2004 Markus Franz Xaver Johannes Oberhumer
  */
-/***********************************************************************
-   // actual implementation used by a recursive #include
- ************************************************************************/
+//
+// actual implementation used by a recursive #include
+//
 #ifdef getbit
 
 #define SAFE // @v9.1.1
@@ -89,44 +89,41 @@
 	return ilen == src_len ? UCL_E_OK : (ilen < src_len ? UCL_E_INPUT_NOT_CONSUMED : UCL_E_INPUT_OVERRUN);
 }
 
- #undef fail
+#undef fail
 
 #endif /* getbit */
-
-/***********************************************************************
-   // decompressor entries for the different bit-buffer sizes
- ************************************************************************/
-
+//
+// decompressor entries for the different bit-buffer sizes
+//
 #ifndef getbit
 
- #include "ucl_conf.h"
- #include <ucl/ucl.h>
- #include "getbit.h"
+#include "ucl_conf.h"
+#include <ucl/ucl.h>
+#include "getbit.h"
 
 UCL_PUBLIC(int) ucl_nrv2b_decompress_8(const ucl_bytep src, ucl_uint src_len, ucl_bytep dst, ucl_uintp dst_len, ucl_voidp wrkmem)
 {
- #define getbit(bb)      getbit_8(bb, src, ilen)
- #include "n2b_d.c"
- #undef getbit
+	#define getbit(bb)      getbit_8(bb, src, ilen)
+	#include "n2b_d.c"
+	#undef getbit
 }
 
 UCL_PUBLIC(int) ucl_nrv2b_decompress_le16(const ucl_bytep src, ucl_uint src_len, ucl_bytep dst, ucl_uintp dst_len, ucl_voidp wrkmem)
 {
- #define getbit(bb)      getbit_le16(bb, src, ilen)
- #include "n2b_d.c"
- #undef getbit
+	#define getbit(bb)      getbit_le16(bb, src, ilen)
+	#include "n2b_d.c"
+	#undef getbit
 }
 
 UCL_PUBLIC(int) ucl_nrv2b_decompress_le32(const ucl_bytep src, ucl_uint src_len, ucl_bytep dst, ucl_uintp dst_len, ucl_voidp wrkmem)
 {
 	unsigned bc = 0;
- #define getbit(bb)      getbit_le32(bb, bc, src, ilen)
- #include "n2b_d.c"
- #undef getbit
+	#define getbit(bb)      getbit_le32(bb, bc, src, ilen)
+	#include "n2b_d.c"
+	#undef getbit
 }
 
 #endif /* !getbit */
-
 /*
    vi:ts=4:et
  */
