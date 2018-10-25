@@ -475,6 +475,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break; // @v8.4.1
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break; // @v8.5.5
+		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3 @experimental
 		// @v9.6.1 case cmAccArticle:           ViewArticle(0);                          break;
 		// @v9.6.1 case cmPerson:               ViewPerson(0);                           break;
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
@@ -1486,11 +1487,11 @@ int PPBackupSystemFiles()
 			(dest_path = dest_dir).SetLastSlash().Cat(fname);
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
 			{
-				static const uint _bin_file_id_list[] = { 
-					PPFILNAM_PPCMD_BIN, 
-					PPFILNAM_PPDESK_BIN, 
-					PPFILNAM_JOBPOOL, 
-					PPFILNAM_REPORT_INI, 
+				static const uint _bin_file_id_list[] = {
+					PPFILNAM_PPCMD_BIN,
+					PPFILNAM_PPDESK_BIN,
+					PPFILNAM_JOBPOOL,
+					PPFILNAM_REPORT_INI,
 					PPFILNAM_IMPEXP_INI,
 					PPFILNAM_BARLABEL_LBL, // @v10.1.5
 					PPFILNAM_REGDATA,      // @v10.1.5
@@ -1564,11 +1565,11 @@ int PPBackupSystemFiles_Arc()
 				(dest_path = dest_dir).SetLastSlash().Cat(fname);
 				arc.AddEntry(path, fname, 0);
 				{
-					static const uint _bin_file_id_list[] = { 
-						PPFILNAM_PPCMD_BIN, 
-						PPFILNAM_PPDESK_BIN, 
-						PPFILNAM_JOBPOOL, 
-						PPFILNAM_REPORT_INI, 
+					static const uint _bin_file_id_list[] = {
+						PPFILNAM_PPCMD_BIN,
+						PPFILNAM_PPDESK_BIN,
+						PPFILNAM_JOBPOOL,
+						PPFILNAM_REPORT_INI,
 						PPFILNAM_IMPEXP_INI,
 						PPFILNAM_BARLABEL_LBL, // @v10.1.5
 						PPFILNAM_REGDATA,      // @v10.1.5

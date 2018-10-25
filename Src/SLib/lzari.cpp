@@ -113,8 +113,6 @@ private:
 	LZAriTree * P_Tree;
 	LZAriFileHeader * P_Header;
 };
-
-int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf);
 //
 // Bit I/O
 //

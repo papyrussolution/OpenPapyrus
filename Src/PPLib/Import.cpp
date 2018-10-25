@@ -6595,6 +6595,7 @@ int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
 //
 //
 //
+#if 0 // @experimental {
 class PPHistoricalTimeSeries {
 public:
 	/*enum {
@@ -6653,3 +6654,4 @@ int SLAPI Import_Macrotrends(const char * pPath, TSCollection <PPHistoricalTimeS
 	}
 	return ok;
 }
+#endif // } 0 @experimental

@@ -723,6 +723,21 @@ struct SscDbtItem {
 	BNFieldList Fields;
 };
 
+static const uint64 Ssc_CompressionSignature = 0xFDB975312468ACE0ULL;
+
+//static 
+size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
+{
+	if(pBuf)
+		*(uint64 *)pBuf = Ssc_CompressionSignature;
+	return sizeof(Ssc_CompressionSignature);
+}
+//static 
+int  FASTCALL SSerializeContext::IsCompressPrefix(const void * pBuf)
+{
+	return BIN(*(uint64 *)pBuf == Ssc_CompressionSignature);
+}
+
 SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)
 {
 }
@@ -826,7 +841,7 @@ enum SSrlzSign {
 	ssrsignStructData
 };
 
-int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
+int SLAPI SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint16 sign = 0;

@@ -369,7 +369,7 @@
 #define cmExpImpParamsInventory        477 // Конфигурация импорта инвентаризации
 #define cmImportInventory              478 // Импорт инвентаризации
 #define cmEditPaintCloths              479 // Редактирование полотен
-#define cmEditWhatman                  479 // 
+#define cmEditWhatman                  479 //
 #define cmViewLogsMon		           480 // Монитор журналов
 #define cmDebtRate                     481 // Процессинг должников
 #define cmBizScore                     482 // Бизнес-показатели
@@ -513,5 +513,6 @@
 #define cmDumpData                     618 // @v10.0.05 Dump/Undump данных
 #define cmVetisDocument                619 // @v10.0.12 Документы ВЕТИС
 #define cmVetisInterchange             620 // @v10.1.2 Обмен данными с ВЕТИС
+#define cmTimeSeries                   621 // @v10.2.3 @experimental Временные серии
 
 #endif /* __PPMENU_H */

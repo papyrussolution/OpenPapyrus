@@ -1,5 +1,6 @@
 // PSNEVENT.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -657,9 +658,9 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 			};
 			if(options & egdcoThread) {
 				//
-				// Драйвер устройства должен быть многопоточным, но, вместе с тем, мы не имеем права
-				// параллельно обрабатывать более одного запроса к одному устройству.
-				// Допускается только параллельная обработка запросов к разным устройствам.
+				// Р”СЂР°Р№РІРµСЂ СѓСЃС‚СЂРѕР№СЃС‚РІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹Рј, РЅРѕ, РІРјРµСЃС‚Рµ СЃ С‚РµРј, РјС‹ РЅРµ РёРјРµРµРј РїСЂР°РІР°
+				// РїР°СЂР°Р»Р»РµР»СЊРЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ Р·Р°РїСЂРѕСЃР° Рє РѕРґРЅРѕРјСѓ СѓСЃС‚СЂРѕР№СЃС‚РІСѓ.
+				// Р”РѕРїСѓСЃРєР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїР°СЂР°Р»Р»РµР»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РїСЂРѕСЃРѕРІ Рє СЂР°Р·РЅС‹Рј СѓСЃС‚СЂРѕР№СЃС‚РІР°Рј.
 				//
 				SString mutex_name;
 				(mutex_name = "EgdcMutex").Cat(dvcID);
@@ -977,7 +978,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 					break;
 				case POVERB_STYLODISPLAY:
 					if(oneof2(action, PPACN_OBJADD, PPACN_PERSONEVENTREDO) && dir_obj) {
-						if(!pPack->Otb.P_Pdb) { // Более одного действия такого типа пока не допускаем
+						if(!pPack->Otb.P_Pdb) { // Р‘РѕР»РµРµ РѕРґРЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ С‚Р°РєРѕРіРѕ С‚РёРїР° РїРѕРєР° РЅРµ РґРѕРїСѓСЃРєР°РµРј
 							pPack->Otb.P_Pdb = new PalmDisplayBlock;
 							pPack->Otb.P_Pdb->DvcID = dir_obj;
 							pPack->Otb.P_Pdb->Ctx = PalmDisplayBlock::ctxPersonEvent;
@@ -1092,7 +1093,7 @@ int SLAPI PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPa
 	if(!redo) {
 		if(pPokPack->Rec.PairOp && oneof3(pPokPack->Rec.PairType, POKPT_OPEN, POKPT_CLOSE, POKPT_NULLCLOSE)) {
 			//
-			// Проверка парности события //
+			// РџСЂРѕРІРµСЂРєР° РїР°СЂРЅРѕСЃС‚Рё СЃРѕР±С‹С‚РёСЏ //
 			//
 			SString msg_buf;
 			int    forward = 1;
@@ -1291,7 +1292,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 			scnd_id = rec.SecondID;
 			if(pPack == 0) {
 				//
-				// Удаление пакета
+				// РЈРґР°Р»РµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				PPPsnEventPacket temp_pack;
 				THROW(GetPacket(*pID, &temp_pack) > 0);
@@ -1315,7 +1316,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 			}
 			else {
 				//
-				// Изменение пакета
+				// РР·РјРµРЅРµРЅРёРµ РїР°РєРµС‚Р°
 				//
 				if(rec.Dt != pPack->Rec.Dt) {
 					THROW(IncDateKey(P_Tbl, 1, pPack->Rec.Dt, &pPack->Rec.OprNo));
@@ -1328,11 +1329,11 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 		else if(pPack) {
 			int    r = 0;
 			//
-			// Добавление пакета
+			// Р”РѕР±Р°РІР»РµРЅРёРµ РїР°РєРµС‚Р°
 			//
 			log_action_id = PPACN_OBJADD;
 			//
-			// Прежде всего необходимо выяснить не следует ли сделать операцию Redo
+			// РџСЂРµР¶РґРµ РІСЃРµРіРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹СЏСЃРЅРёС‚СЊ РЅРµ СЃР»РµРґСѓРµС‚ Р»Рё СЃРґРµР»Р°С‚СЊ РѕРїРµСЂР°С†РёСЋ Redo
 			//
 			if(pok_pack.Rec.RedoTimeout > 0) {
 				PersonEventCore::PairIdent pi;
@@ -1372,7 +1373,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 				log_action_id = 0;
 		}
 		//
-		// Перепроводка действий по форвардным операциям
+		// РџРµСЂРµРїСЂРѕРІРѕРґРєР° РґРµР№СЃС‚РІРёР№ РїРѕ С„РѕСЂРІР°СЂРґРЅС‹Рј РѕРїРµСЂР°С†РёСЏРј
 		//
 		if(log_action_id) {
 			if(log_action_id != PPACN_PERSONEVENTREDO) {
@@ -1478,6 +1479,7 @@ PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPLi
 		cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
 	addGroup(GRP_PERSON_PRMR, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
 	addGroup(GRP_PERSON_SCND, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
+	SetupInputLine(CTL_PSNEVNT_MEMO, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v10.2.3
 }
 
 int PsnEventDialog::setupList()
@@ -2325,14 +2327,14 @@ int SLAPI AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog
 			port_no--;
 
 	P_AbstrDvc->PCpb.Cls = DVCCLS_READER;
-	P_AbstrDvc->GetDllName(DVCCLS_READER, /*rRec.ID*/1, P_AbstrDvc->PCpb.DllName); // @vmiller Пока напишем номер утсройства в списке - 1, в списке устройств, перечисленных в ppdrv.ini. Хотя ИД здесь и не подойдет, наверное...
+	P_AbstrDvc->GetDllName(DVCCLS_READER, /*rRec.ID*/1, P_AbstrDvc->PCpb.DllName); // @vmiller РџРѕРєР° РЅР°РїРёС€РµРј РЅРѕРјРµСЂ СѓС‚СЃСЂРѕР№СЃС‚РІР° РІ СЃРїРёСЃРєРµ - 1, РІ СЃРїРёСЃРєРµ СѓСЃС‚СЂРѕР№СЃС‚РІ, РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹С… РІ ppdrv.ini. РҐРѕС‚СЏ РР” Р·РґРµСЃСЊ Рё РЅРµ РїРѕРґРѕР№РґРµС‚, РЅР°РІРµСЂРЅРѕРµ...
 	P_AbstrDvc->IdentifyDevice(P_AbstrDvc->PCpb.DllName);
-	// инициализируем
+	// РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_INIT, in_params, out_params.Clear()));
-	// соединяемся
-	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller Пока напишем порт устройства - 7 (ибо все равно через эмулятор)
+	// СЃРѕРµРґРёРЅСЏРµРјСЃСЏ
+	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller РџРѕРєР° РЅР°РїРёС€РµРј РїРѕСЂС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР° - 7 (РёР±Рѕ РІСЃРµ СЂР°РІРЅРѕ С‡РµСЂРµР· СЌРјСѓР»СЏС‚РѕСЂ)
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_CONNECT, in_params, out_params.Clear()));
-	// читаем с устройства
+	// С‡РёС‚Р°РµРј СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_LISTEN, in_params.Clear(), out_params.Clear()));
 	out_params.Get(0, temp_buf);
 	PPOutputMessage(temp_buf, mfOK);

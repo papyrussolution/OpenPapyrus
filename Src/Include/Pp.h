@@ -2921,13 +2921,17 @@ private:
 // Descr: Зарезервированные значения текстовых свойств объектов
 // @persistent
 //
-#define PPTRPROP_DEFAULT   0
-#define PPTRPROP_NAME      1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
-#define PPTRPROP_SYMB      2
-#define PPTRPROP_LONGNAME  3
-#define PPTRPROP_MEMO      4
-#define PPTRPROP_COMBINE   5 // Комбинированная строка, содержащая набор текстовых свойств
-#define PPTRPROP_RAWADDR   6 // @v10.0.12 Простое текстовое представление адреса
+#define PPTRPROP_DEFAULT    0
+#define PPTRPROP_NAME       1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
+#define PPTRPROP_SYMB       2
+#define PPTRPROP_LONGNAME   3
+#define PPTRPROP_MEMO       4
+#define PPTRPROP_COMBINE    5 // Комбинированная строка, содержащая набор текстовых свойств
+#define PPTRPROP_RAWADDR    6 // @v10.0.12 Простое текстовое представление адреса
+#define PPTRPROP_TIMESERIES 7 // @v10.2.3 Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
+	// Применяется только для таблицы UnxTextRefTbl (ное не TextRefTbl).
+	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
+	// свойством как со строкой инициирует ошибку.
 
 #define PPTRPROP_USER    100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
 
@@ -2971,6 +2975,7 @@ class UnxTextRefCore : public UnxTextRefTbl {
 public:
 	SLAPI  UnxTextRefCore();
 	int    SLAPI Search(const TextRefIdent & rI, SStringU & rBuf);
+	int    SLAPI Search(const TextRefIdent & rI, STimeSeries & rTs);
 	int    SLAPI SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta);
 	//
 	// Descr: Возвращает текст в кодировке utf-8
@@ -2980,6 +2985,8 @@ public:
 	// Descr: Сохраняет текст, заданный в кодировке utf-8
 	//
 	int    SLAPI SetText(const TextRefIdent & rI, const char * pText, int use_ta);
+	//
+	int    SLAPI SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta); // @construction
 	//
 	SEnumImp * SLAPI Enum(PPID objType, int prop);
 	int    SLAPI InitEnum(PPID objType, int prop, long * pHandle);
@@ -5777,6 +5784,7 @@ struct PPAdviseEvent {
 	uint   ContextP; // Контекст события
 	uint   ExtenP;   // @? Добавочный номер
 	uint   BridgeP;  // @v10.0.02 Ид моста (BridgeId) для телефонного события
+	uint   OuterCallerIdP; // @v10.2.3 Внешний вызывающий номер (полученный через Bridge, если вызова перенаправлен из внутреннего канала)
 
     ExtObject * ExtraObj; // @notowned
 };
@@ -15038,7 +15046,7 @@ struct PPCommObjEntry {
 	char   Name[48];
 	char   Symb[20];
 	long   Flags;
-	long   ParentID; // @v8.2.3
+	long   ParentID;
 };
 //
 //
@@ -15575,6 +15583,14 @@ class PPObjCurRateType : public PPObjReference {
 public:
 	SLAPI  PPObjCurRateType(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
+};
+
+class PPObjTimeSeries : public PPObjReference {
+public:
+	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
+	virtual int SLAPI Browse(void * extraPtr);
+	//
+	int    SLAPI Test(); // @experimental
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -40180,7 +40196,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		fABCAnlzByGGrps      = 0x00200000, // ABC анализ рассчитывать для каждой товарной группы отдельно
 		fCalcCVat            = 0x00400000, // Рассчитывать валовую сумму НДС в ценах поступления //
 		fCalcPVat            = 0x00800000, // Рассчитывать валовую сумму НДС в ценах реализации //
-		fLeaderInOutGoods    = 0x01000000  // @10.2.2 Список товаров GoodsIdList является ведущим для анализа вход/выход 
+		fLeaderInOutGoods    = 0x01000000  // @10.2.2 Список товаров GoodsIdList является ведущим для анализа вход/выход
 	};
 	//
 	// Ид. дополнительных полей товарного точета по операции

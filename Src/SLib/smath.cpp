@@ -275,6 +275,51 @@ double FASTCALL fpowi(double x, int n)
 	}
 }
 
+float FASTCALL fpowfi(float x, int n)
+{
+	if(n == 0)
+		return 1.0f;
+	else {
+		//
+		// Ничего умнее, чем продублировать код для разных знаков степени я не придумал.
+		// Остальные варианты работать будут (по моему мнению) медленнее.
+		//
+		if(n > 0) {
+			if(n == 1)
+				return x;
+			else {
+				float value = 1.0f;
+				do {
+					if(n & 1)
+						value *= x;
+					n >>= 1;
+					if(!n)
+						return value;
+					else
+						x *= x;
+				} while(1);
+			}
+		}
+		else {
+			n = -n;
+			if(n == 1)
+				return 1.0f / x;
+			else {
+				float value = 1.0f;
+				do {
+					if(n & 1)
+						value *= x;
+					n >>= 1;
+					if(!n)
+						return (1.0f / value);
+					else
+						x *= x;
+				} while(1);
+			}
+		}
+	}
+}
+
 double FASTCALL fpow10i(int n)
 {
 	switch(n) {
@@ -292,6 +337,26 @@ double FASTCALL fpow10i(int n)
 		case -5: return 0.00001;
 		case -6: return 0.000001;
 		default: return fpowi(10., n);
+	}
+}
+
+float  FASTCALL fpow10fi(int n)
+{
+	switch(n) {
+		case  0: return 1.0f;
+		case  1: return 10.0f;
+		case  2: return 100.0f;
+		case  3: return 1000.0f;
+		case  4: return 10000.0f;
+		case  5: return 100000.0f;
+		case  6: return 1000000.0f;
+		case -1: return 0.1f;
+		case -2: return 0.01f;
+		case -3: return 0.001f;
+		case -4: return 0.0001f;
+		case -5: return 0.00001f;
+		case -6: return 0.000001f;
+		default: return fpowfi(10.0f, n);
 	}
 }
 

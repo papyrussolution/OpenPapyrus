@@ -1178,13 +1178,14 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 			}
 		}
 		else {
+			PersonCore * p_tbl = P_Tbl;
 			PersonTbl::Key1 k1;
 			MEMSZERO(k1);
-			BExtQuery q(P_Tbl, 1, 128);
-			q.select(P_Tbl->ID, P_Tbl->Name, 0);
+			BExtQuery q(p_tbl, 1, 128);
+			q.select(p_tbl->ID, p_tbl->Name, 0);
 			THROW_MEM(p_array = new StrAssocArray);
 			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-				THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name));
+				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
 			}
 		}
 	}
@@ -5402,7 +5403,8 @@ static int EditPersonRel(PersonLink * pData)
 		int setDTS(const PersonLink * pData)
 		{
 			Data = *pData;
-			SetupPPObjCombo(this, CTLSEL_PERSONLINK_PRMR,  PPOBJ_PERSON, Data.PrmrPersonID, OLW_CANINSERT, 0);
+			// @v10.2.3 SetupPPObjCombo(this, CTLSEL_PERSONLINK_PRMR,  PPOBJ_PERSON, Data.PrmrPersonID, OLW_CANINSERT, 0);
+			SetupPersonCombo(this, CTLSEL_PERSONLINK_PRMR, Data.PrmrPersonID, OLW_CANINSERT, 0, 0); // @v10.2.3 
 			SetupPPObjCombo(this, CTLSEL_PERSONLINK_LTYPE, PPOBJ_PERSONRELTYPE, Data.LinkTypeID, OLW_CANINSERT, 0);
 			disableCtrl(CTLSEL_PERSONLINK_PRMR,  Data.Flags & PersonLink::fLockPrmr);
 			disableCtrl(CTLSEL_PERSONLINK_LTYPE, Data.Flags & PersonLink::fLockType);
@@ -5463,7 +5465,8 @@ static int EditPersonRel(PersonLink * pData)
 		int SetupGroup()
 		{
 			if(Data.Flags & (PersonLink::fLockScndList|PersonLink::fLockScnd)) {
-				SetupPPObjCombo(this, CTLSEL_PERSONLINK_SCND, PPOBJ_PERSON, Data.ScndPersonList.getSingle(), OLW_CANINSERT, 0);
+				// @v10.2.3 SetupPPObjCombo(this, CTLSEL_PERSONLINK_SCND, PPOBJ_PERSON, Data.ScndPersonList.getSingle(), OLW_CANINSERT, 0);
+				SetupPersonCombo(this, CTLSEL_PERSONLINK_SCND, Data.ScndPersonList.getSingle(), OLW_CANINSERT, 0, 0); // @v10.2.3
 				disableCtrl(CTLSEL_PERSONLINK_KIND, 1);
 				disableCtrl(CTLSEL_PERSONLINK_SCND,  Data.Flags & PersonLink::fLockScnd);
 				enableCommand(cmPersonList, 0);
@@ -6014,7 +6017,7 @@ int SLAPI SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID 
 	int    create_ctl_grp = 0;
 	if(disableIfZeroPersonKind)
 		dlg->disableCtrl(ctlID, personKindID == 0);
-	if(personKindID) {
+	//if(personKindID) {
 		PersonCtrlGroup * p_grp = 0;
 		if(!(p_grp = (PersonCtrlGroup*)dlg->getGroup(ctlID))) {
 			p_grp = new PersonCtrlGroup(ctlID, 0, personKindID);
@@ -6023,11 +6026,13 @@ int SLAPI SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID 
 		else
 			p_grp->SetPersonKind(personKindID);
 		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, (void *)personKindID);
-		if(ok)
-			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.1.6 WordSel_ExtraBlock::fAlwaysSearchBySubStr
-	}
+		if(ok) {
+			int min_symb = personKindID ? 2 : 4;
+			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, min_symb, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.1.6 WordSel_ExtraBlock::fAlwaysSearchBySubStr
+		}
+	/*}
 	else
-		dlg->setCtrlLong(ctlID, 0);
+		dlg->setCtrlLong(ctlID, 0);*/
 	return ok;
 }
 

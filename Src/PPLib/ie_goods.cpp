@@ -2839,6 +2839,24 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByText, p1, p2)
 		return 0;
 }
 
+static IMPL_CMPFUNC(WordConcordAssoc_ByFreq, p1, p2)
+{
+	const LAssoc * p_a1 = (const LAssoc *)p1;
+	const LAssoc * p_a2 = (const LAssoc *)p2;
+	int si = (p_a1->Val < p_a2->Val) ? -1 : ((p_a1->Val > p_a2->Val) ? +1 : 0);
+	if(si == 0) {
+		PPTextAnalyzer * p_ta = (PPTextAnalyzer *)pExtraData;
+		if(p_ta) {
+			SString & r_temp_buf1 = SLS.AcquireRvlStr();
+			SString & r_temp_buf2 = SLS.AcquireRvlStr();
+			p_ta->GetTextById(p_a1->Key, r_temp_buf1);
+			p_ta->GetTextById(p_a2->Key, r_temp_buf2);
+			si = r_temp_buf1.CmpNC(r_temp_buf2);
+		}
+	}
+	return si;
+}
+
 static IMPL_CMPFUNC(BrandConcordAssoc_ByText, p1, p2)
 {
 	const LAssoc * p_a1 = (const LAssoc *)p1;
@@ -2880,10 +2898,21 @@ static IMPL_CMPFUNC(CategoryConcordAssoc_ByText, p1, p2)
 int SLAPI ExportUhttForGitHub()
 {
 	int    ok = 1;
+	struct Stat {
+		Stat() : BarcodeCount(0), DistingWordCount(0), BrandCount(0), CategCount(0)
+		{
+		}
+		uint   BarcodeCount;
+		uint   DistingWordCount;
+		uint   BrandCount;
+		uint   CategCount;
+	} stat;
 
 	const  uint lines_per_file = 65000;
 	uint   line_count = 0;
 	uint   line_total = 0;
+	uint64 bytes_total = 0;
+	uint64 bytes_part = 0;
 
 	SString temp_buf;
 	SString text_ident;
@@ -3000,9 +3029,13 @@ int SLAPI ExportUhttForGitHub()
 					//assert(line_buf.IsLegalUtf8()); // @debug
 					f_out.WriteLine(line_buf);
 					f_out_all.WriteLine(line_buf);
+					bytes_total += line_buf.Len();
+					bytes_part  += line_buf.Len();
 					line_count++;
 					line_total++;
-					if(line_count >= lines_per_file) {
+					stat.BarcodeCount++;
+					//if(line_count >= lines_per_file) {
+					if(bytes_part >= SKILOBYTE(1024-1)) {
 						f_out.Close();
 						file_no++;
 						(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
@@ -3010,6 +3043,7 @@ int SLAPI ExportUhttForGitHub()
 						f_out.Open(out_file_name, SFile::mWrite);
 						f_out.WriteLine(title_line);
 						line_count = 0;
+						bytes_part = 0;
 					}
 				}
 			}
@@ -3030,6 +3064,7 @@ int SLAPI ExportUhttForGitHub()
 				brand_name.ReplaceChar('\t', ' ');
 				line_buf.Z().Cat(brand_id).Tab().Cat(brand_name).Tab().Cat(brand_concord.at(i).Val).CR();
 				f_out_brand.WriteLine(line_buf);
+				stat.BrandCount++;
 			}
 		}
 	}
@@ -3048,6 +3083,7 @@ int SLAPI ExportUhttForGitHub()
 				group_name.ReplaceChar('\t', ' ');
 				line_buf.Z().Cat(categ_id).Tab().Cat(group_name).Tab().Cat(categ_concord.at(i).Val).CR();
 				f_out_categ.WriteLine(line_buf);
+				stat.CategCount++;
 			}
 		}
 	}
@@ -3075,6 +3111,7 @@ int SLAPI ExportUhttForGitHub()
 				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 				line_buf.Z().Cat(temp_buf).Tab().Cat(r_item.Val).CR();
 				f_out_word.WriteLine(line_buf);
+				stat.DistingWordCount++;
 			}
 		}
 		{
@@ -3083,7 +3120,8 @@ int SLAPI ExportUhttForGitHub()
 			SFile f_out_word(out_file_name, SFile::mWrite);
 			line_buf.Z().Cat("Word").Tab().Cat("Count").CR();
 			f_out_word.WriteLine(line_buf);
-			word_concord_assoc_list.SortByVal();
+			//word_concord_assoc_list.SortByVal();
+			word_concord_assoc_list.sort(PTR_CMPFUNC(WordConcordAssoc_ByFreq), &text_analyzer2);
 			for(uint i = 0; i < word_concord_assoc_list.getCount(); i++) {
 				const LAssoc & r_item = word_concord_assoc_list.at(i);
 				const uint text_id = (uint)r_item.Key;
@@ -3100,6 +3138,16 @@ int SLAPI ExportUhttForGitHub()
 			line_buf.Z().Cat(temp_buf).Tab().Cat(val).CR();
 			f_out_word.WriteLine(line_buf);
 		}*/
+		{
+			(temp_buf = "uhtt_barcode_ref_stat").Dot().Cat("txt");
+			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+			SFile f_out_stat(out_file_name, SFile::mWrite);
+			f_out_stat.WriteLine(line_buf.Z().CatEq("barcode-count", stat.BarcodeCount).CR());
+			f_out_stat.WriteLine(line_buf.Z().CatEq("brand-count", stat.BrandCount).CR());
+			f_out_stat.WriteLine(line_buf.Z().CatEq("categ-count", stat.CategCount).CR());
+			f_out_stat.WriteLine(line_buf.Z().CatEq("word-count", stat.DistingWordCount).CR());
+			f_out_stat.WriteLine(line_buf.Z().CatEq("barcode-ref-bytes-count", bytes_total).CR());
+		}
 	}
 	PPWait(0);
 	return ok;

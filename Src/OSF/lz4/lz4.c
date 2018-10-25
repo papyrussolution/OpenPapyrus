@@ -223,7 +223,7 @@ static unsigned LZ4_isLittleEndian(void)
 	static void FASTCALL LZ4_write32(void* memPtr, uint32 value) { memcpy(memPtr, &value, sizeof(value)); }
 #endif // LZ4_FORCE_MEMORY_ACCESS 
 
-static uint16 LZ4_readLE16(const void* memPtr)
+static uint16 FASTCALL LZ4_readLE16(const void* memPtr)
 {
 	if(LZ4_isLittleEndian()) {
 		return LZ4_read16(memPtr);
@@ -234,7 +234,7 @@ static uint16 LZ4_readLE16(const void* memPtr)
 	}
 }
 
-static void LZ4_writeLE16(void* memPtr, uint16 value)
+static void FASTCALL LZ4_writeLE16(void* memPtr, uint16 value)
 {
 	if(LZ4_isLittleEndian()) {
 		LZ4_write16(memPtr, value);
@@ -805,18 +805,20 @@ _next_match:
 			op = token;
 			goto _last_literals;
 		}
-		/* Encode Offset */
+		// Encode Offset 
 		if(maybe_extMem) { /* static test */
 			//DEBUGLOG(6, "             with offset=%u  (ext if > %i)", offset, (int)(ip - (const uint8*)source));
 			assert(offset <= MAX_DISTANCE && offset > 0);
-			LZ4_writeLE16(op, (uint16)offset); op += 2;
+			LZ4_writeLE16(op, (uint16)offset); 
+			op += 2;
 		}
 		else {
 			//DEBUGLOG(6, "             with offset=%u  (same segment)", (uint32)(ip - match));
 			assert(ip-match <= MAX_DISTANCE);
-			LZ4_writeLE16(op, (uint16)(ip - match)); op += 2;
+			LZ4_writeLE16(op, (uint16)(ip - match)); 
+			op += 2;
 		}
-		/* Encode MatchLength */
+		// Encode MatchLength 
 		{   
 			unsigned matchCode;
 		    if((dictDirective==usingExtDict || dictDirective==usingDictCtx) && (lowLimit==dictionary) /* match within extDict */) {
@@ -1401,10 +1403,11 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 			    /* The second stage: prepare for match copying, decode full info.
 			     * If it doesn't work out, the info won't be wasted. */
 			    length = token & ML_MASK; /* match length */
-			    offset = LZ4_readLE16(ip); ip += 2;
+			    offset = LZ4_readLE16(ip); 
+				ip += 2;
 			    match = op - offset;
 			    assert(match <= op); /* check overflow */
-			    /* Do not deal with overlapping matches. */
+			    // Do not deal with overlapping matches. 
 			    if( (length != ML_MASK) && (offset >= 8) && (dict==withPrefix64k || match >= lowPrefix) ) {
 				    /* Copy the match. */
 				    memcpy(op + 0, match + 0, 8);
@@ -1460,7 +1463,8 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 			    ip += length; op = cpy;
 		    }
 		    // get offset 
-		    offset = LZ4_readLE16(ip); ip += 2;
+		    offset = LZ4_readLE16(ip); 
+			ip += 2;
 		    match = op - offset;
 		    // get matchlength 
 		    length = token & ML_MASK;
@@ -1693,21 +1697,17 @@ int LZ4_decoderRingBufferSize(int maxBlockSize)
 	if(maxBlockSize < 16) maxBlockSize = 16;
 	return LZ4_DECODER_RING_BUFFER_SIZE(maxBlockSize);
 }
-
-/*
- *_continue() :
-    These decoding functions allow decompression of multiple blocks in "streaming" mode.
-    Previously decoded blocks must still be available at the memory position where they were decoded.
-    If it's not possible, save the relevant part of decoded data into a safe buffer,
-    and indicate where it stands using LZ4_setStreamDecode()
- */
-LZ4_FORCE_O2_GCC_PPC64LE
-int LZ4_decompress_safe_continue(LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize,
-    int maxOutputSize)
+// 
+// *_continue() :
+// These decoding functions allow decompression of multiple blocks in "streaming" mode.
+// Previously decoded blocks must still be available at the memory position where they were decoded.
+// If it's not possible, save the relevant part of decoded data into a safe buffer,
+// and indicate where it stands using LZ4_setStreamDecode()
+// 
+LZ4_FORCE_O2_GCC_PPC64LE int LZ4_decompress_safe_continue(LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize, int maxOutputSize)
 {
 	LZ4_streamDecode_t_internal* lz4sd = &LZ4_streamDecode->internal_donotuse;
 	int result;
-
 	if(lz4sd->prefixSize == 0) {
 		/* The first call, no dictionary yet. */
 		assert(lz4sd->extDictSize == 0);
@@ -1721,11 +1721,9 @@ int LZ4_decompress_safe_continue(LZ4_streamDecode_t* LZ4_streamDecode, const cha
 		if(lz4sd->prefixSize >= 64 KB - 1)
 			result = LZ4_decompress_safe_withPrefix64k(source, dest, compressedSize, maxOutputSize);
 		else if(lz4sd->extDictSize == 0)
-			result = LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize,
-				lz4sd->prefixSize);
+			result = LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize, lz4sd->prefixSize);
 		else
-			result = LZ4_decompress_safe_doubleDict(source, dest, compressedSize, maxOutputSize,
-				lz4sd->prefixSize, lz4sd->externalDict, lz4sd->extDictSize);
+			result = LZ4_decompress_safe_doubleDict(source, dest, compressedSize, maxOutputSize, lz4sd->prefixSize, lz4sd->externalDict, lz4sd->extDictSize);
 		if(result <= 0) return result;
 		lz4sd->prefixSize += result;
 		lz4sd->prefixEnd  += result;
@@ -1734,18 +1732,15 @@ int LZ4_decompress_safe_continue(LZ4_streamDecode_t* LZ4_streamDecode, const cha
 		/* The buffer wraps around, or they're switching to another buffer. */
 		lz4sd->extDictSize = lz4sd->prefixSize;
 		lz4sd->externalDict = lz4sd->prefixEnd - lz4sd->extDictSize;
-		result = LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize,
-			lz4sd->externalDict, lz4sd->extDictSize);
+		result = LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize, lz4sd->externalDict, lz4sd->extDictSize);
 		if(result <= 0) return result;
 		lz4sd->prefixSize = result;
 		lz4sd->prefixEnd  = (uint8*)dest + result;
 	}
-
 	return result;
 }
 
-LZ4_FORCE_O2_GCC_PPC64LE
-int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize)
+LZ4_FORCE_O2_GCC_PPC64LE int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize)
 {
 	LZ4_streamDecode_t_internal* lz4sd = &LZ4_streamDecode->internal_donotuse;
 	int result;
@@ -1760,8 +1755,7 @@ int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ4_streamDecode, const cha
 		if(lz4sd->prefixSize >= 64 KB - 1 || lz4sd->extDictSize == 0)
 			result = LZ4_decompress_fast(source, dest, originalSize);
 		else
-			result = LZ4_decompress_fast_doubleDict(source, dest, originalSize,
-				lz4sd->prefixSize, lz4sd->externalDict, lz4sd->extDictSize);
+			result = LZ4_decompress_fast_doubleDict(source, dest, originalSize, lz4sd->prefixSize, lz4sd->externalDict, lz4sd->extDictSize);
 		if(result <= 0) return result;
 		lz4sd->prefixSize += originalSize;
 		lz4sd->prefixEnd  += originalSize;
@@ -1769,8 +1763,7 @@ int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ4_streamDecode, const cha
 	else {
 		lz4sd->extDictSize = lz4sd->prefixSize;
 		lz4sd->externalDict = lz4sd->prefixEnd - lz4sd->extDictSize;
-		result = LZ4_decompress_fast_extDict(source, dest, originalSize,
-			lz4sd->externalDict, lz4sd->extDictSize);
+		result = LZ4_decompress_fast_extDict(source, dest, originalSize, lz4sd->externalDict, lz4sd->extDictSize);
 		if(result <= 0) return result;
 		lz4sd->prefixSize = originalSize;
 		lz4sd->prefixEnd  = (uint8*)dest + originalSize;
@@ -1778,16 +1771,13 @@ int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ4_streamDecode, const cha
 
 	return result;
 }
-
-/*
-   Advanced decoding functions :
- *_usingDict() :
-    These decoding functions work the same as "_continue" ones,
-    the dictionary must be explicitly provided within parameters
- */
-
-int LZ4_decompress_safe_usingDict(const char* source, char* dest, int compressedSize, int maxOutputSize, const char* dictStart,
-    int dictSize)
+// 
+// Advanced decoding functions :
+// *_usingDict() :
+// These decoding functions work the same as "_continue" ones,
+// the dictionary must be explicitly provided within parameters
+// 
+int LZ4_decompress_safe_usingDict(const char* source, char* dest, int compressedSize, int maxOutputSize, const char* dictStart, int dictSize)
 {
 	if(dictSize==0)
 		return LZ4_decompress_safe(source, dest, compressedSize, maxOutputSize);

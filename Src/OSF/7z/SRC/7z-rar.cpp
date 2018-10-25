@@ -79,7 +79,6 @@ namespace NCompress {
 		CDecoder::CDecoder() : m_IsSolid(false) 
 		{
 		}
-
 		void CDecoder::InitStructures()
 		{
 			for(int i = 0; i < kNumRepDists; i++)
@@ -88,9 +87,7 @@ namespace NCompress {
 			LastLength = 0;
 			LastDist = 0;
 		}
-
 		uint32 CDecoder::ReadBits(int numBits) { return m_InBitStream.ReadBits(numBits); }
-
 		HRESULT CDecoder::CopyBlock(uint32 distance, uint32 len)
 		{
 			if(len == 0)
@@ -98,7 +95,6 @@ namespace NCompress {
 			m_UnpackSize -= len;
 			return m_OutWindowStream.CopyBlock(distance, len) ? S_OK : S_FALSE;
 		}
-
 		uint32 CDecoder::DecodeNum(const uint32 * posTab)
 		{
 			uint32 startPos = 2;
@@ -128,7 +124,6 @@ namespace NCompress {
 			const Byte * kShortLen;
 			const uint32 * kShortXor;
 			NumHuf = 0;
-
 			if(LCount == 2) {
 				if(ReadBits(1))
 					return CopyBlock(LastDist, LastLength);
@@ -203,7 +198,6 @@ namespace NCompress {
 			uint32 dist;
 			uint32 distancePlace, newDistancePlace;
 			uint32 oldAvr2, oldAvr3;
-
 			NumHuf = 0;
 			Nlzb += 16;
 			if(Nlzb > 0xff) {
@@ -211,7 +205,6 @@ namespace NCompress {
 				Nhfb >>= 1;
 			}
 			oldAvr2 = AvrLn2;
-
 			if(AvrLn2 >= 122)
 				len = DecodeNum(PosL2);
 			else if(AvrLn2 >= 64)
@@ -3664,8 +3657,7 @@ namespace NArchive {
 			switch(HostOS) {
 				case NHeader::NFile::kHostMSDOS:
 				case NHeader::NFile::kHostOS2:
-				case NHeader::NFile::kHostWin32:
-					return ((Attrib & NHeader::NFile::kLabelFileAttribute) != 0);
+				case NHeader::NFile::kHostWin32: return ((Attrib & NHeader::NFile::kLabelFileAttribute) != 0);
 			}
 			return false;
 		}
@@ -4259,9 +4251,7 @@ namespace NArchive {
 				m_CryptoMode = false;
 			}
 		}
-
-		static const Byte kProps[] =
-		{
+		static const Byte kProps[] = {
 			kpidPath,
 			kpidIsDir,
 			kpidSize,
@@ -4334,10 +4324,11 @@ namespace NArchive {
 				// case kpidEncrypted: prop = _arcInfo.IsEncrypted(); break; // it's for encrypted names.
 				case kpidIsVolume: prop = _arcInfo.IsVolume(); break;
 				case kpidNumVolumes: prop = (uint32)_arcs.Size(); break;
-				case kpidOffset: if(_arcs.Size() == 1 && _arcInfo.StartPos != 0) prop = _arcInfo.StartPos; break;
-
+				case kpidOffset: 
+					if(_arcs.Size() == 1 && _arcInfo.StartPos != 0) 
+						prop = _arcInfo.StartPos; 
+					break;
 				case kpidTotalPhySize:
-				{
 					if(_arcs.Size() > 1) {
 						uint64 sum = 0;
 						FOR_VECTOR(v, _arcs)
@@ -4345,14 +4336,10 @@ namespace NArchive {
 						prop = sum;
 					}
 					break;
-				}
-
 				case kpidPhySize:
-				{
 					if(_arcs.Size() != 0)
 						prop = _arcInfo.GetPhySize();
 					break;
-				}
 				// case kpidCommented: prop = _arcInfo.IsCommented(); break;
 				case kpidNumBlocks:
 				{
@@ -4384,11 +4371,9 @@ namespace NArchive {
 					break;
 				}
 				case kpidWarningFlags:
-				{
 					if(_warningFlags != 0)
 						prop = _warningFlags;
 					break;
-				}
 				case kpidExtension:
 					if(_arcs.Size() == 1) {
 						if(_arcInfo.Is_VolNumber_Defined()) {
@@ -4407,13 +4392,11 @@ namespace NArchive {
 			return S_OK;
 			COM_TRY_END
 		}
-
 		STDMETHODIMP CHandler::GetNumberOfItems(uint32 * numItems)
 		{
 			*numItems = _refItems.Size();
 			return S_OK;
 		}
-
 		static bool RarTimeToFileTime(const CRarTime &rarTime, FILETIME &result)
 		{
 			if(!NTime::DosTimeToFileTime(rarTime.DosTime, result))
@@ -4427,7 +4410,6 @@ namespace NArchive {
 				return true;
 			}
 		}
-
 		static void RarTimeToProp(const CRarTime &rarTime, NCOM::CPropVariant &prop)
 		{
 			FILETIME localFileTime, utcFileTime;
@@ -4439,7 +4421,6 @@ namespace NArchive {
 				utcFileTime.dwHighDateTime = utcFileTime.dwLowDateTime = 0;
 			prop = utcFileTime;
 		}
-
 		STDMETHODIMP CHandler::GetProperty(uint32 index, PROPID propID, PROPVARIANT * value)
 		{
 			COM_TRY_BEGIN
@@ -4575,13 +4556,11 @@ namespace NArchive {
 							_errorFlags |= kpv_ErrorFlags_UnexpectedEnd;
 							break;
 						}
-
 						EErrorType error;
 						// bool decryptionError;
 						// AString errorMessageLoc;
 						bool filled;
 						HRESULT result = archive.GetNextItem(item, getTextPassword, filled, error);
-
 						if(error != k_ErrorType_OK) {
 							if(error == k_ErrorType_UnexpectedEnd)
 								_errorFlags |= kpv_ErrorFlags_UnexpectedEnd;
@@ -4589,15 +4568,12 @@ namespace NArchive {
 								_errorFlags |= kpv_ErrorFlags_HeadersError;
 							else if(error == k_ErrorType_DecryptionError)
 								_errorFlags |= kpv_ErrorFlags_EncryptedHeadersError;
-
 							// AddErrorMessage(errorMessageLoc);
 						}
 						RINOK(result);
-
 						if(!filled) {
 							if(error == k_ErrorType_DecryptionError && _items.IsEmpty())
 								return S_FALSE;
-
 							if(archive.ArcInfo.ExtraZeroTail_is_Possible()) {
 								/* if there is recovery record for multivolume archive,
 								   RAR adds 18 bytes (ZERO bytes) at the end for alignment.
@@ -4612,12 +4588,9 @@ namespace NArchive {
 							}
 							break;
 						}
-
 						if(item.IgnoreItem())
 							continue;
-
 						bool needAdd = true;
-
 						if(item.IsSplitBefore()) {
 							if(!_refItems.IsEmpty()) {
 								CRefItem &refItem = _refItems.Back();
@@ -4625,7 +4598,6 @@ namespace NArchive {
 								needAdd = false;
 							}
 						}
-
 						if(needAdd) {
 							CRefItem refItem;
 							refItem.ItemIndex = _items.Size();
@@ -4633,19 +4605,15 @@ namespace NArchive {
 							refItem.VolumeIndex = _arcs.Size();
 							_refItems.Add(refItem);
 						}
-
 						_items.Add(item);
-
 						if(openCallback && _items.Size() % 100 == 0) {
 							uint64 numFiles = _items.Size();
 							uint64 numBytes = curBytes + item.Position;
 							RINOK(openCallback->SetCompleted(&numFiles, &numBytes));
 						}
 					}
-
 					if(archive.HeaderErrorWarning)
 						_warningFlags |= kpv_ErrorFlags_HeadersError;
-
 					/*
 					   if(archive.m_Position < endPos)
 					   _warningFlags |= kpv_ErrorFlags_DataAfterEnd;
@@ -4653,19 +4621,15 @@ namespace NArchive {
 					if(_arcs.IsEmpty())
 						_arcInfo = archive.ArcInfo;
 					// _arcInfo.EndPos = archive.EndPos;
-
 					curBytes += endPos;
 					{
 						CArc &arc = _arcs.AddNew();
 						arc.PhySize = archive.ArcInfo.GetPhySize();
 						arc.Stream = inStream;
 					}
-
 					nextVol_is_Required = false;
-
 					if(!archive.ArcInfo.IsVolume())
 						break;
-
 					if(archive.ArcInfo.EndOfArchive_was_Read) {
 						if(!archive.ArcInfo.AreMoreVolumes())
 							break;
@@ -4673,7 +4637,6 @@ namespace NArchive {
 					}
 				}
 			}
-
 			/*
 			   int baseFileIndex = -1;
 			   for(unsigned i = 0; i < _refItems.Size(); i++) {
@@ -4698,7 +4661,6 @@ namespace NArchive {
 				   if(res != S_OK)
 				   Close();
 				 */
-
 				return res;
 			}
 			// catch(const CInArchiveException &) { Close(); return S_FALSE; }
@@ -4727,15 +4689,6 @@ namespace NArchive {
 		};
 
 		class CVolsInStream : public ISequentialInStream, public CMyUnknownImp {
-			uint64 _rem;
-			ISequentialInStream * _stream;
-			const CObjectVector<CArc> * _arcs;
-			const CObjectVector<CItem> * _items;
-			CRefItem _refItem;
-			unsigned _curIndex;
-			uint32 _crc;
-			bool _calcCrc;
-
 		public:
 			MY_UNKNOWN_IMP
 
@@ -4749,7 +4702,18 @@ namespace NArchive {
 				_stream = NULL;
 				CrcIsOK = true;
 			}
-			bool CrcIsOK;
+		private:
+			uint64 _rem;
+			ISequentialInStream * _stream;
+			const CObjectVector<CArc> * _arcs;
+			const CObjectVector<CItem> * _items;
+			CRefItem _refItem;
+			unsigned _curIndex;
+			uint32 _crc;
+			bool   _calcCrc;
+		public:
+			bool   CrcIsOK;
+			uint8  Reserve[2]; // @alignment
 		};
 
 		STDMETHODIMP CVolsInStream::Read(void * data, uint32 size, uint32 * processedSize)
@@ -4801,10 +4765,8 @@ namespace NArchive {
 						return S_OK;
 				}
 			}
-
 			return S_OK;
 		}
-
 		STDMETHODIMP CHandler::Extract(const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * extractCallback)
 		{
 			COM_TRY_BEGIN
@@ -4831,7 +4793,6 @@ namespace NArchive {
 						censoredTotalUnPacked += item.Size;
 					else
 						isThereUndefinedSize = true;
-
 					// censoredTotalPacked += item.PackSize;
 				}
 				uint   j;
@@ -4961,12 +4922,9 @@ namespace NArchive {
 						RINOK(extractCallback->SetOperationResult(NExtractArc::NOperationResult::kUnsupportedMethod));
 						continue;
 					}
-
 					// RINOK(filterStreamSpec->Filter.QueryInterface(IID_ICryptoSetPassword, &cryptoSetPassword));
-
 					if(!getTextPassword)
 						extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getTextPassword);
-
 					if(!getTextPassword) {
 						outStream.Release();
 						RINOK(extractCallback->SetOperationResult(NExtractArc::NOperationResult::kUnsupportedMethod));
@@ -5123,7 +5081,6 @@ namespace NArchive {
 			}
 			return 0;
 		}
-
 		bool CLinkInfo::Parse(const Byte * p, uint size)
 		{
 			const Byte * pStart = p;
@@ -5149,7 +5106,6 @@ namespace NArchive {
 			NameOffset = (uint)(p - pStart);
 			return true;
 		}
-
 		static void AddHex64(AString &s, uint64 v)
 		{
 			char sz[32];
@@ -5158,7 +5114,6 @@ namespace NArchive {
 			ConvertUInt64ToHex(v, sz + 2);
 			s += sz;
 		}
-
 		static void PrintType(AString &s, const char * const table[], unsigned num, uint64 val)
 		{
 			char sz[32];
@@ -5171,12 +5126,10 @@ namespace NArchive {
 			}
 			s += p;
 		}
-
 		CItem::CItem() 
 		{
 			Clear();
 		}
-
 		void CItem::Clear()
 		{
 			CommonFlags = 0;
@@ -5359,7 +5312,8 @@ namespace NArchive {
 		struct CCryptoInfo {
 			uint64 Algo;
 			uint64 Flags;
-			Byte Cnt;
+			Byte   Cnt;
+			uint8  Reserve[3]; // @alignment
 
 			bool UseMAC() const { return (Flags & NCryptoFlags::kUseMAC) != 0; }
 			bool IsThereCheck() const { return (Flags & NCryptoFlags::kPswCheck) != 0; }
@@ -5474,10 +5428,6 @@ namespace NArchive {
 		}
 
 		class CHash {
-			bool _calcCRC;
-			uint32 _crc;
-			int _blakeOffset;
-			CBlake2sp _blake;
 		public:
 			void Init_NoCalc()
 			{
@@ -5489,13 +5439,18 @@ namespace NArchive {
 			void Update(const void * data, size_t size);
 			uint32 GetCRC() const { return CRC_GET_DIGEST(_crc); }
 			bool Check(const CItem &item, NCrypto::NRar5::CDecoder * cryptoDecoderSpec);
+		private:
+			bool   _calcCRC;
+			uint8  Reserve[3]; // @alignment
+			uint32 _crc;
+			int    _blakeOffset;
+			CBlake2sp _blake;
 		};
 
 		void CHash::Init(const CItem &item)
 		{
 			_crc = CRC_INIT_VAL;
 			_calcCRC = item.Has_CRC();
-
 			_blakeOffset = item.FindExtra_Blake();
 			if(_blakeOffset >= 0)
 				Blake2sp_Init(&_blake);
@@ -6904,7 +6859,6 @@ namespace NArchive {
 						ref.Last = ref.Item;
 						ref.Parent = -1;
 						ref.Link = -1;
-
 						if(item.IsService()) {
 							if(item.Is_STM()) {
 								if(prevMainFile >= 0)
@@ -6914,14 +6868,10 @@ namespace NArchive {
 								needAdd = false;
 								if(item.Is_ACL() && (!item.IsEncrypted() || arch.m_CryptoMode)) {
 									if(prevMainFile >= 0 && item.Size < (1 << 24) && item.Size != 0) {
-										CItem &mainItem = _items[_refs[prevMainFile].Item];
-
+										CItem & mainItem = _items[_refs[prevMainFile].Item];
 										if(mainItem.ACL < 0) {
 											CByteBuffer acl;
-											HRESULT res = tempBuf.Decode(EXTERNAL_CODECS_VARS item,
-														inStream,
-														unpacker,
-														acl);
+											HRESULT res = tempBuf.Decode(EXTERNAL_CODECS_VARS item, inStream, unpacker, acl);
 											if(!item.IsSplitAfter())
 												tempBuf.Clear();
 											if(res != S_OK) {
@@ -7017,6 +6967,7 @@ namespace NArchive {
 		}
 
 		class CVolsInStream : public ISequentialInStream, public CMyUnknownImp {
+		private:
 			uint64 _rem;
 			ISequentialInStream * _stream;
 			const CObjectVector<CArc> * _arcs;
@@ -7428,8 +7379,6 @@ namespace NArchive {
 }
 
 class CBlake2spHasher : public IHasher, public CMyUnknownImp {
-	CBlake2sp _blake;
-	Byte mtDummy[1 << 7];
 public:
 	CBlake2spHasher() 
 	{
@@ -7437,6 +7386,9 @@ public:
 	}
 	MY_UNKNOWN_IMP
 	INTERFACE_IHasher(; )
+private:
+	CBlake2sp _blake;
+	Byte mtDummy[1 << 7];
 };
 
 STDMETHODIMP_(void) CBlake2spHasher::Init() throw() { Blake2sp_Init(&_blake); }

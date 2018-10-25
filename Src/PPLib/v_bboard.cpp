@@ -262,7 +262,7 @@ int SLAPI PPViewServerStat::FetchStat()
 		int32 c = 0;
 		SSerializeContext ctx;
 		PPThread::Info info_rec;
-		THROW_SL(ctx.SerializeState(-1, reply));
+		THROW_SL(ctx.SerializeStateOfContext(-1, reply));
 		THROW_SL(ctx.Serialize(-1, c, reply));
 		for(int i = 0; i < c; i++) {
 			ServerStatViewItem item;

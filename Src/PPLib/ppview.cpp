@@ -1375,7 +1375,7 @@ int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 		//
 		ctx.Init(0, getcurdate_());
 		THROW(p_view->SerializeState(+1, temp_sbuf, &ctx));
-		THROW_SL(ctx.SerializeState(+1, rReply));
+		THROW_SL(ctx.SerializeStateOfContext(+1, rReply));
 		THROW_SL(rReply.Write(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()), temp_sbuf.GetAvailableSize()));
 		p_view = 0; // ”казатель p_view не разрушаетс€ ибо перешел во владение PPThreadLocalArea
 	}
@@ -1395,7 +1395,7 @@ int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 	PPJobSrvClient * p_cli = 0;
 	PPBaseFilt * p_filt = 0;
 	OuterTitle = 0;
-	ExecFlags = flags; // @v8.3.2
+	ExecFlags = flags;
 	if(ImplementFlags & implUseServer && !(flags & exefDisable3Tier) && (p_cli = DS.GetClientSession(0)) != 0) {
 		while(try_reconnect) {
 			SSerializeContext ctx;
@@ -1427,7 +1427,7 @@ int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 			else {
 				reply.StartReading(0);
 				THROW(reply.CheckRepError());
-				ctx.SerializeState(-1, reply);
+				ctx.SerializeStateOfContext(-1, reply);
 				SerializeState(-1, reply, &ctx);
 				do_local = 0;
 				try_reconnect = 0;

@@ -2081,15 +2081,18 @@ public:
 	int    FASTCALL Get(LDATETIME & rD) const;
 	int    FASTCALL Get(time_t & rD) const;
 	int    FASTCALL Get(FILETIME & rD) const;
-
+	//
+	// Descr: Результаты сравнения значений
+	//
 	enum {
-		cmprSureTrue  = 1,
-		cmprSureFalse = 0,
-		cmprUncertainTrue = 2
+		cmprIncompat      = -1, // Значения несовместимы и несравнимы
+		cmprSureTrue      = 1,  // Значения точно равны
+		cmprSureFalse     = 0,  // Значения точно не равны
+		cmprUncertainTrue = 2   // Значения равны с учетом того, что их точности различны ("5 июня 2018" vs "июнь 2018" например)
 	};
-	int    FASTCALL IsEq(const SUniTime &) const;
-	int    FASTCALL IsLt(const SUniTime &) const;
-	int    FASTCALL IsGt(const SUniTime &) const;
+	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
+	int    FASTCALL IsLt(const SUniTime & rS) const;
+	int    FASTCALL IsGt(const SUniTime & rS) const;
 private:
 	int    SLAPI Implement_Set(uint8 signature, const void *);
 	uint8  SLAPI Implement_Get(void *) const;
@@ -4465,7 +4468,7 @@ char * FASTCALL SCharToOem(char * pStr);
 #define NUM_MONTHES        12
 
 extern const char   daysPerMonth[NUM_MONTHES];
-extern const char * monthNames[NUM_MONTHES];
+// @v10.2.3 (static now) extern const char * monthNames[NUM_MONTHES];
 //
 // Functions for date formats convertion
 //
@@ -10001,6 +10004,70 @@ private:
 	LVect  Model;      // [P+Q+1] vect
 };
 //
+// Descr: Новый 'хорошо продуманный :)' вариант представления временных рядов.
+//   Для представления времени применена новая структура SUniTime, а значения
+//   выражаются отдельными векторами с целью достижения гибкости и оптимизации
+//   времени доступа и хранимого объема.
+//
+class STimeSeries {
+public:
+	SLAPI  STimeSeries();
+	//
+	// Descr: Возвращает количество элементов в серии (фактически, в STimeSeries::T)
+	//
+	uint   SLAPI GetCount() const;
+	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
+	int    SLAPI AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
+	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
+    int    SLAPI GetValue(uint itemIdx, uint vecIdx, double * pValue) const;
+	int    SLAPI GetValue(uint itemIdx, uint vecIdx, float * pValue) const;
+	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const;
+	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
+
+    int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
+	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
+	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
+	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
+	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int32 value);
+
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+private:
+	static int FASTCALL VerifyValuVecType(TYPEID typ)
+	{
+		return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64);
+	}
+	struct ValuVec : public SVector {
+	public:
+		SLAPI  ValuVec(const char * pSymb, TYPEID typ, int fxPrec);
+		SLAPI  ValuVec(); // really private. Is used only for serialization
+		const SString & SLAPI GetSymb() const { return Symb; }
+		void   FASTCALL ConvertDoubleToInner(double outer, void * pInner) const;
+		void   FASTCALL ConvertFloatToInner(float outer, void * pInner) const;
+		void   FASTCALL ConvertInt32ToInner(int32 outer, void * pInner) const;
+		void   FASTCALL ConvertInt64ToInner(int64 outer, void * pInner) const;
+		double FASTCALL ConvertInnerToDouble(const void * pInner) const;
+		float  FASTCALL ConvertInnerToFloat(const void * pInner) const;
+		int32  FASTCALL ConvertInnerToInt32(const void * pInner) const;
+		int64  FASTCALL ConvertInnerToInt64(const void * pInner) const;
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	private:
+        /*const*/TYPEID Typ; // Из-за необходимости сериализации элемент не может быть const (фактически, изменять запрещено)
+		int16  FxPrec;
+		uint16 Flags;
+        SString Symb;
+	};
+	ValuVec * FASTCALL GetVecBySymb(const char * pSymb, uint * pVecIdx) const;
+	ValuVec * FASTCALL GetVecByIdx(uint vecIdx) const;
+	int    SLAPI Helper_SetValue(uint itemIdx, uint vecIdx, const void * pValuePtr);
+
+	uint32 Ver; // Номер версии для обеспечения совместимости форматов сериализации в будущем
+	uint8  Reserve[32];
+	uint32 Id;
+	SString Symb;
+	TSVector <SUniTime> T;
+	TSCollection <ValuVec> VL;
+};
+//
 // Arima
 //
 class RDI {
@@ -10224,7 +10291,9 @@ double fgetwsign(double val, int sign);
 #define SQ(x) ((x)*(x))
 
 double FASTCALL fpowi(double x, int n);
+float  FASTCALL fpowfi(float x, int n);
 double FASTCALL fpow10i(int n);
+float  FASTCALL fpow10fi(int n);
 inline double fpow2(double x) { return x * x; }
 inline double fpow3(double x) { return x * x * x; }
 //
@@ -10879,8 +10948,13 @@ public:
 		// в которой записывались.
 		//
 		fSeparateDataStruct    = 0x0001,
-		fDontProcessAttachment = 0x0002  // @v9.8.11 Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
+		fDontProcessAttachment = 0x0002, // @v9.8.11 Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
+		fUseCompression        = 0x0004  // @v10.2.3 Ряд функций сериализации может использовать сжатие данных
 	};
+
+	static size_t FASTCALL GetCompressPrefix(uint8 * pBuf); // size of pBuf >= 8
+	static int    FASTCALL IsCompressPrefix(const void * pBuf);
+
 	SLAPI  SSerializeContext();
 	SLAPI ~SSerializeContext();
 	void   SLAPI Init(long flags, LDATE suppDate);
@@ -10895,7 +10969,7 @@ public:
 	//   предварительно до чтения разрушается внутренний кэш символов и список
 	//   структур.
 	//
-	int    SLAPI SerializeState(int dir, SBuffer & rBuf);
+	int    SLAPI SerializeStateOfContext(int dir, SBuffer & rBuf);
 	int    SLAPI Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf);
 	//
 	// Descr: Считывает из буфера rBuf запись таблицы БД в соответствии с внутренним описанием (в потоке)

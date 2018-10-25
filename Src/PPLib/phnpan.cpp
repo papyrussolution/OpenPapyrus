@@ -1,5 +1,6 @@
 // PHNPAN.CPP
 // Copyright (c) A.Sobolev 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,8 +14,8 @@ public:
 			lmTask,
 			lmPersonEvent,
 			lmScOp,
-			lmScCCheck,  // Чеки по карте
-			lmLocCCheck, // Чеки по автономному адресу
+			lmScCCheck,  // Р§РµРєРё РїРѕ РєР°СЂС‚Рµ
+			lmLocCCheck, // Р§РµРєРё РїРѕ Р°РІС‚РѕРЅРѕРјРЅРѕРјСѓ Р°РґСЂРµСЃСѓ
 			lmSwitchTo
 		};
 		enum {
@@ -27,8 +28,8 @@ public:
 		long   Mode;
 		int    Status; // PhnSvcChannelStatus::stXXX
 		long   Flags;
-		LDATETIME SinceUp;   // Момент времени отсчета поднятой трубки
-		LDATETIME SinceDown; // Момент времени отсчета опущенной трубки
+		LDATETIME SinceUp;   // РњРѕРјРµРЅС‚ РІСЂРµРјРµРЅРё РѕС‚СЃС‡РµС‚Р° РїРѕРґРЅСЏС‚РѕР№ С‚СЂСѓР±РєРё
+		LDATETIME SinceDown; // РњРѕРјРµРЅС‚ РІСЂРµРјРµРЅРё РѕС‚СЃС‡РµС‚Р° РѕРїСѓС‰РµРЅРЅРѕР№ С‚СЂСѓР±РєРё
 		PPID   PhnSvcID;
 		SString Channel;
 		SString CallerID;
@@ -36,9 +37,9 @@ public:
 		SString BridgeID;
 		//
 		PPObjIDArray RelEntries;
-		PPID   PersonID; // Персоналия ассоциированная с выбранным номером звонящего
-		PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
-		PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
+		PPID   PersonID; // РџРµСЂСЃРѕРЅР°Р»РёСЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
+		PPID   SCardID;  // РџРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚Р° Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
+		PPID   LocID;    // Р›РѕРєР°С†РёСЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
 	};
 	static PhonePaneDialog * FindAnalogue(const char * pChannel);
 	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
@@ -61,9 +62,9 @@ private:
 			{
 			}
 			SString Phone;
-			PPID   PersonID; // Персоналия ассоциированная с выбранным номером звонящего
-			PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
-			PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
+			PPID   PersonID; // РџРµСЂСЃРѕРЅР°Р»РёСЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
+			PPID   SCardID;  // РџРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚Р° Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
+			PPID   LocID;    // Р›РѕРєР°С†РёСЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј РЅРѕРјРµСЂРѕРј Р·РІРѕРЅСЏС‰РµРіРѕ
 			long   Action;
 			PPID   ExtSelector;
 		};
@@ -181,7 +182,7 @@ private:
 			setCtrlString(CTL_SELOBJBYPHN_INFO, Data.Phone);
 			AddClusterAssocDef(CTL_SELOBJBYPHN_WHAT, 0, PPOBJ_PERSON);
 			AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 1, PPOBJ_SCARD);
-			AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 2, PPOBJ_LOCATION); // автономный адрес
+			AddClusterAssoc(CTL_SELOBJBYPHN_WHAT, 2, PPOBJ_LOCATION); // Р°РІС‚РѕРЅРѕРјРЅС‹Р№ Р°РґСЂРµСЃ
 			SetClusterData(CTL_SELOBJBYPHN_WHAT, Data.Oid.Obj);
 			SetupCtrls();
 			return 1;
@@ -393,9 +394,9 @@ private:
 	PPObjIDArray OidList;
 	SCycleTimer ChnlStatusReqTmr;
 	//
-	// Descr: Унифицированная структура для отображения различных данных в общем списке
-	//   Применяется для отражения следующих типов данных: документы, задачи, персональные события, 
-	//   операции по персональным картам, кассовые чеки, списки телефонов для переключения вызова
+	// Descr: РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЂР°Р·Р»РёС‡РЅС‹С… РґР°РЅРЅС‹С… РІ РѕР±С‰РµРј СЃРїРёСЃРєРµ
+	//   РџСЂРёРјРµРЅСЏРµС‚СЃСЏ РґР»СЏ РѕС‚СЂР°Р¶РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёС… С‚РёРїРѕРІ РґР°РЅРЅС‹С…: РґРѕРєСѓРјРµРЅС‚С‹, Р·Р°РґР°С‡Рё, РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ, 
+	//   РѕРїРµСЂР°С†РёРё РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рј РєР°СЂС‚Р°Рј, РєР°СЃСЃРѕРІС‹Рµ С‡РµРєРё, СЃРїРёСЃРєРё С‚РµР»РµС„РѕРЅРѕРІ РґР»СЏ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ РІС‹Р·РѕРІР°
 	//
 	struct InfoListEntry {
 		InfoListEntry()
@@ -489,7 +490,7 @@ int PhonePaneDialog::SetupInfo()
 			SetClusterItemText(CTL_PHNCPANE_AUTOCLOSE, 0, temp_buf);
 			if(!(S.Flags & S.fLockAutoExit)) {
 				if(sec_left <= 0 && GetClusterData(CTL_PHNCPANE_AUTOCLOSE) == 1) {
-					// (выбивает сеанс) messageCommand(this, cmClose);
+					// (РІС‹Р±РёРІР°РµС‚ СЃРµР°РЅСЃ) messageCommand(this, cmClose);
 					Sf |= sfCloseMe;
 					result = 100;
 				}
@@ -759,7 +760,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				PrjTaskTbl::Rec todo_rec;
 				{
 					for(SEnum en = TodoObj.P_Tbl->EnumByClient(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
-						// Так как Enum заполняет не все поля в записи нам придется извляечь полную запись 
+						// РўР°Рє РєР°Рє Enum Р·Р°РїРѕР»РЅСЏРµС‚ РЅРµ РІСЃРµ РїРѕР»СЏ РІ Р·Р°РїРёСЃРё РЅР°Рј РїСЂРёРґРµС‚СЃСЏ РёР·РІР»СЏРµС‡СЊ РїРѕР»РЅСѓСЋ Р·Р°РїРёСЃСЊ 
 						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
 							InfoListEntry new_entry;
 							new_entry.ID = todo_rec.ID;
@@ -778,7 +779,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				}
 				{
 					for(SEnum en = TodoObj.P_Tbl->EnumByEmployer(S.PersonID, &period, 0); en.Next(&todo_rec) > 0;) {
-						// Так как Enum заполняет не все поля в записи нам придется извлечь полную запись 
+						// РўР°Рє РєР°Рє Enum Р·Р°РїРѕР»РЅСЏРµС‚ РЅРµ РІСЃРµ РїРѕР»СЏ РІ Р·Р°РїРёСЃРё РЅР°Рј РїСЂРёРґРµС‚СЃСЏ РёР·РІР»РµС‡СЊ РїРѕР»РЅСѓСЋ Р·Р°РїРёСЃСЊ 
 						if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED) && TodoObj.Search(todo_rec.ID, &todo_rec) > 0) {
 							InfoListEntry new_entry;
 							new_entry.ID = todo_rec.ID;
@@ -901,8 +902,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							ss.add(temp_buf.Z());
 						}
 						else {
-							ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
-							ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
+							ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // РЎСѓРјРјР°
+							ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // РћСЃС‚Р°С‚РѕРє
 						}
 						P_Box->addItem(i+1, ss.getBuf());
 						//addStringToList(i, ss.getBuf());
@@ -933,10 +934,10 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
-							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
-							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
-							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
-							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+							ss.add(temp_buf.Z().Cat(item.CashID));                            // РљР°СЃСЃР°
+							ss.add(temp_buf.Z().Cat(item.Code));                              // РќРѕРјРµСЂ С‡РµРєР°
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // РЎСѓРјРјР°
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // РЎРєРёРґРєР°
 							P_Box->addItem(item.ID, ss.getBuf());
 						}
 					}
@@ -966,10 +967,10 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
-							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
-							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
-							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
-							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+							ss.add(temp_buf.Z().Cat(item.CashID));                            // РљР°СЃСЃР°
+							ss.add(temp_buf.Z().Cat(item.Code));                              // РќРѕРјРµСЂ С‡РµРєР°
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // РЎСѓРјРјР°
+							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // РЎРєРёРґРєР°
 							P_Box->addItem(item.ID, ss.getBuf());
 						}
 					}
@@ -1238,11 +1239,11 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 // @ModuleDef(PPViewJobPool)
 //
 //Event: Status;Privilege: Call;Channel: SIP/198-0000027c;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 198;CallerIDName: Sobolev (soft sip);
-	// ConnectedLineNum: 110;ConnectedLineName: Соболев Антон;Accountcode: ;Context: from-internal;Exten: ;Priority: 1;Uniqueid: 1520526041.660;Type: SIP;DNID: ;
-	// EffectiveConnectedLineNum: 110;EffectiveConnectedLineName: Соболев Антон;TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;
+	// ConnectedLineNum: 110;ConnectedLineName: РЎРѕР±РѕР»РµРІ РђРЅС‚РѕРЅ;Accountcode: ;Context: from-internal;Exten: ;Priority: 1;Uniqueid: 1520526041.660;Type: SIP;DNID: ;
+	// EffectiveConnectedLineNum: 110;EffectiveConnectedLineName: РЎРѕР±РѕР»РµРІ РђРЅС‚РѕРЅ;TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;
 	// Linkedid: 1520526041.659;Application: AppDial;Data: (Outgoing Line);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;
 	// Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
-//Event: Status;Privilege: Call;Channel: SIP/110-0000027b;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 110;CallerIDName: Соболев Антон;ConnectedLineNum: 198;ConnectedLineName: Sobolev (soft sip);Accountcode: ;Context: macro-dial-one;Exten: s;Priority: 52;Uniqueid: 1520526041.659;Type: SIP;DNID: 198;EffectiveConnectedLineNum: 198;EffectiveConnectedLineName: Sobolev (soft sip);TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;Linkedid: 1520526041.659;Application: Dial;Data: SIP/198,,TtrIb(func-apply-sipheaders^s^1);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
+//Event: Status;Privilege: Call;Channel: SIP/110-0000027b;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 110;CallerIDName: РЎРѕР±РѕР»РµРІ РђРЅС‚РѕРЅ;ConnectedLineNum: 198;ConnectedLineName: Sobolev (soft sip);Accountcode: ;Context: macro-dial-one;Exten: s;Priority: 52;Uniqueid: 1520526041.659;Type: SIP;DNID: 198;EffectiveConnectedLineNum: 198;EffectiveConnectedLineName: Sobolev (soft sip);TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;Linkedid: 1520526041.659;Application: Dial;Data: SIP/198,,TtrIb(func-apply-sipheaders^s^1);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
 
 IMPLEMENT_PPFILT_FACTORY(PhnSvcMonitor); SLAPI PhnSvcMonitorFilt::PhnSvcMonitorFilt() : PPBaseFilt(PPFILT_PHNSVCMONITOR, 0, 0)
 {

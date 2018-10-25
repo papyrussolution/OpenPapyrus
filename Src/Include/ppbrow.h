@@ -2778,10 +2778,10 @@ struct Sdr_SupplBillLine {
 	char   AddressId[24];
 	char   AddressRegionType[64];
 	char   SaleChannel[8];
-	char   CRMOrderNumber[16];
+	char   CRMOrderNumber[24];
 	LDATE  CRMOrderDate;
 	char   DocumentTypeId[32];
-	char   DocumentNumber[16];
+	char   DocumentNumber[24];
 	LDATE  DocumentDate;
 	char   SrcCRMDbId[36];
 	LDATE  PayDate;

@@ -2508,16 +2508,66 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	rBuf.Z();
 
 	int    ok = 1;
-	UnxTextRefTbl::Key0 k0;
-	MEMSZERO(k0);
-	k0.ObjType = (int16)rI.O.Obj;
-	k0.Prop = rI.P;
-	k0.ObjID = rI.O.Id;
-	k0.Lang = rI.L;
-	if(search(0, &k0, spEq))
-		PostprocessRead(rBuf);
-	else
-		ok = PPDbSearchError();
+	if(rI.P == PPTRPROP_TIMESERIES) {
+		SString temp_buf;
+		rI.O.ToStr(temp_buf).CatDiv(';', 2).Cat(rI.P);
+		ok = PPSetError(PPERR_INVTXREFPROPVALUE, temp_buf);
+	}
+	else {
+		UnxTextRefTbl::Key0 k0;
+		MEMSZERO(k0);
+		k0.ObjType = (int16)rI.O.Obj;
+		k0.Prop = rI.P;
+		k0.ObjID = rI.O.Id;
+		k0.Lang = rI.L;
+		if(search(0, &k0, spEq))
+			PostprocessRead(rBuf);
+		else
+			ok = PPDbSearchError();
+	}
+	return ok;
+}
+
+int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
+{
+	int    ok = 1;
+	const  int16 prop = NZOR(rI.P, PPTRPROP_TIMESERIES);
+	if(prop != PPTRPROP_TIMESERIES) {
+		SString temp_buf;
+		rI.O.ToStr(temp_buf).CatDiv(';', 2).Cat(prop);
+		ok = PPSetError(PPERR_INVTXREFPROPVALUE, temp_buf);
+	}
+	else {
+		UnxTextRefTbl::Key0 k0;
+		MEMSZERO(k0);
+		k0.ObjType = (int16)rI.O.Obj;
+		k0.Prop = prop;
+		k0.ObjID = rI.O.Id;
+		k0.Lang = rI.L;
+		if(search(0, &k0, spEq)) {
+			//PostprocessRead(rBuf);
+			//int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
+			{
+				SSerializeContext sctx;
+				SBuffer temp_buf;
+				readLobData(VT, temp_buf);
+				const size_t actual_size = temp_buf.GetAvailableSize();
+				const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+				if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
+					SCompressor compr(SCompressor::tZLib);
+					SBuffer dbuf;
+					THROW_SL(compr.DecompressBlock(temp_buf.GetBuf(temp_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+					THROW_SL(rTs.Serialize(-1, dbuf, &sctx));
+				}
+				else {
+					THROW_SL(rTs.Serialize(-1, temp_buf, &sctx));
+				}
+			}
+		}
+		else
+			ok = PPDbSearchError();
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -2600,6 +2650,73 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 			{
 				assert(tl); // Ранее мы проверили длину текста на 0
 				THROW(writeLobData(VT, (const char *)utf_buf, tl));
+				data.Size = (long)tl;
+			}
+			THROW_DB(insertRec());
+		}
+		THROW(tra.Commit());
+    }
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta)
+{
+    int    ok = 1;
+    SBuffer sbuf;
+    SBuffer cbuf;
+	STimeSeries ex_ts;
+    SSerializeContext sctx;
+    THROW_INVARG(rI.L >= 0);
+    THROW_INVARG(rI.P >= 0);
+    THROW_INVARG(rI.O.Obj > 0);
+    THROW_INVARG(rI.O.Id > 0);
+    if(pTs) {
+        SCompressor compr(SCompressor::tZLib);
+		THROW_SL(pTs->Serialize(+1, sbuf, &sctx));
+		if(sbuf.GetAvailableSize() > 128) {
+			uint8 cs[32];
+			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			THROW_SL(cbuf.Write(cs, cs_size));
+			THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
+		}
+    }
+	const  size_t tl = cbuf.GetAvailableSize();
+    {
+    	PPTransaction tra(use_ta);
+    	THROW(tra);
+		int    sr = Search(rI, ex_ts);
+		THROW(sr);
+		if(sr > 0) {
+			if(tl == 0) {
+				THROW_DB(rereadForUpdate(0, 0));
+				THROW_DB(deleteRec()); // @sfu
+			}
+			/*else if(_t.IsEqual(pText)) {
+				ok = -1;
+			}*/
+			else {
+				THROW_DB(rereadForUpdate(0, 0));
+				{
+					assert(tl); // Ранее мы проверили длину текста на 0
+					THROW(writeLobData(VT, cbuf.GetBuf(0), tl));
+					data.Size = (long)tl;
+				}
+				THROW_DB(updateRec()); // @sfu
+			}
+		}
+		else if(tl == 0) {
+			ok = -2;
+		}
+		else {
+			MEMSZERO(data);
+			data.ObjType = (int16)rI.O.Obj;
+			data.ObjID = rI.O.Id;
+			data.Prop = rI.P;
+			data.Lang = rI.L;
+			{
+				assert(tl); // Ранее мы проверили длину текста на 0
+				THROW(writeLobData(VT, cbuf.GetBuf(0), tl));
 				data.Size = (long)tl;
 			}
 			THROW_DB(insertRec());

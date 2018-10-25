@@ -861,6 +861,7 @@
 #define PPOBJ_PERSONRELTYPE 49L // $ Тип отношения между персоналиями
 	#define PPPSNRELTYP_AFFIL        1 // Филиал-Головная организация //
 	#define PPPSNRELTYP_UHTTSUBORD   2 // Подчиненная персоналия-Управляющая персоналия  @uhtt
+	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 привязка агента к контрагенту (чаще всего к поставщику)
 	//
 	// Extra record of PPOBJ_PERSONRELTYPE
 	#define PRTPRP_INHREGLIST    1L // @v4.5.2
@@ -983,6 +984,7 @@
 	// специализированной таблицы StaffList в Reference
 #define PPOBJ_ACCOUNT2      77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
+#define PPOBJ_TIMESERIES    78L // @v10.2.3 @experimental Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -10526,6 +10528,7 @@
 	#define CTL_VETDOCTOTAL_FINCT     (6 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCTOTAL_OGCT      (7 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCTOTAL_STKCT     (8 + WINDOWS_ID_BIAS)
+#define DLG_TSVIEW                1350
 //
 // Win32 Dialog Identifiers
 //

@@ -236,7 +236,7 @@ int FASTCALL dayspermonth(int month, int year)
 	return dpm;
 }
 
-const char * monthNames[NUM_MONTHES] = {
+static const char * monthNames[NUM_MONTHES] = {
 	"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]",
 	"Июл[ь|я]", "Август[|а]", "Сентябр[ь|я]", "Октябр[ь|я]", "Ноябр[ь|я]", "Декабр[ь|я]"
 };
@@ -2481,6 +2481,12 @@ struct SUniTime_Inner {
 	{
 		THISZERO();
 	}
+	int    FASTCALL Cmp(const SUniTime_Inner & rS) const
+	{
+		int    si = 0;
+		CMPCASCADE7(si, this, &rS, Y, M, D, Hr, Mn, Sc, MSc);
+		return si;
+	}
 	int    Y;
 	int    M;
 	int    D;
@@ -2489,6 +2495,7 @@ struct SUniTime_Inner {
 	int    Sc;
 	int    MSc;  // milliseconds
 	int    Weekday;
+	int    TimeZone;
 };
 
 #if 1 // {
@@ -2906,6 +2913,183 @@ int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 	return ok;
 }
 
+static int FASTCALL IsSUniTimeCompatibleWithInnerStruc(uint8 signature) 
+{
+	return oneof7(signature, SUniTime::indDefault, SUniTime::indMSec, SUniTime::indSec, SUniTime::indMin, SUniTime::indHr, SUniTime::indDay, SUniTime::indMon) ||
+		oneof7(signature, SUniTime::indQuart, SUniTime::indSmYr, SUniTime::indYr, SUniTime::indDYr, SUniTime::indSmCent, SUniTime::indCent, SUniTime::indMillennium);
+}
+//
+// Descr: Сравнивает точность представления времени с сигнатурами signature1 и signature2.
+// Note: Существуют специальные случаи, которые пока не рассматриваются. А именно: 
+//   -- точность одинакова, но одна из сигнатур предполагает хранение временной зоны; 
+//   -- сравнение точностей для типов значений, которые нельзя привести один к другому (indMillennium vs indMillenniumBC, например).
+//   
+// Returns:
+//   0 - точность эквивалентна
+//  -1 - signature1 имеет меньшую точность (большую гранулярность), чем signature2
+//  +1 - signature1 имеет большую точность (меньшую гранулярность), чем signature2
+//
+static int FASTCALL CmpSUniTimePrecisions(uint8 signature1, uint8 signature2)
+{
+	int    s = 0;
+	int    c1 = IsSUniTimeCompatibleWithInnerStruc(signature1);
+	int    c2 = IsSUniTimeCompatibleWithInnerStruc(signature2);
+	if(c1 && c2) {
+		s = (signature1 < signature2) ? -1 : ((signature1 > signature2) ? +1 : 0);
+	}
+	return s;
+}
+
+static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signature)
+{
+	int    ok = 1;
+	switch(signature) {
+		case SUniTime::indDefault: 
+			break;
+		case SUniTime::indMSec: 
+		case SUniTime::indSec: 
+			rT.MSc = 0;
+			break;
+		case SUniTime::indMin: 
+			rT.MSc = 0;
+			rT.Sc = 0;
+			break;
+		case SUniTime::indHr: 
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			break;
+		case SUniTime::indDay:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			break;
+		case SUniTime::indMon:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.D = 2;
+			break;
+		case SUniTime::indQuart:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = (((rT.M-1) / 3) * 3) + 1;
+			rT.D = 2;
+			break;
+		case SUniTime::indSmYr:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = (((rT.M-1) / 6) * 6) + 1;
+			rT.D = 2;
+			break;
+		case SUniTime::indYr:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = 1;
+			rT.D = 2;
+			break;
+		case SUniTime::indDYr:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = 1;
+			rT.D = 2;
+			rT.Y = (((rT.Y-1) / 10) * 10) + 1;
+			break;
+		case SUniTime::indSmCent:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = 1;
+			rT.D = 2;
+			rT.Y = (((rT.Y-1) / 50) * 50) + 1;
+			break;
+		case SUniTime::indCent:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = 1;
+			rT.D = 2;
+			rT.Y = (((rT.Y-1) / 100) * 100) + 1;
+			break;
+		case SUniTime::indMillennium:
+			rT.MSc = 0;
+			rT.Sc = 0;
+			rT.Mn = 0;
+			rT.Hr = 0;
+			rT.M = 1;
+			rT.D = 2;
+			rT.Y = (((rT.Y-1) / 1000) * 1000) + 1;
+			break;
+		case SUniTime::indDayBC:
+			ok = 0; // @construction
+			break;
+		case SUniTime::indMonBC:
+			ok = 0; // @construction
+			break;
+		case SUniTime::indYrBC:
+			ok = 0; // @construction
+			break;
+		case SUniTime::indDYrBC:
+			ok = 0; // @construction
+			break;
+		case SUniTime::indCentBC:
+			ok = 0; // @construction
+			break;
+		case SUniTime::indMillenniumBC:
+			ok = 0; // @construction
+			break;
+	}
+	return ok;
+}
+
+int FASTCALL SUniTime::IsEq(const SUniTime & rS) const // @construction
+{
+	int   result = cmprSureFalse;
+	uint64 value = 0;
+	uint64 value_s = 0;
+	uint8  signature = SUniTime_Decode(D, &value);
+	uint8  signature_s = SUniTime_Decode(rS.D, &value_s);
+	if(signature == signature_s) {
+		result = (value == value_s) ? cmprSureTrue : cmprSureFalse;
+	}
+	else {
+		int cm = IsSUniTimeCompatibleWithInnerStruc(signature);
+		int cm_s = IsSUniTimeCompatibleWithInnerStruc(signature_s);
+		if(cm && cm_s) {
+			SUniTime_Inner in;
+			SUniTime_Inner in_s;
+			Implement_Get(&in);
+			rS.Implement_Get(&in_s);
+			int cp = CmpSUniTimePrecisions(signature, signature_s);
+			if(cp != 0) {
+				if(cp < 0)
+					Downgrade_SUniTime_Inner(in_s, signature);
+				else if(cp > 0)
+					Downgrade_SUniTime_Inner(in, signature_s);
+				if(in.Cmp(in_s) == 0)
+					result = cmprUncertainTrue;
+			}
+			else {
+				if(in.Cmp(in_s) == 0)
+					result = cmprSureTrue;
+			}
+		}
+	}
+	return result;
+}
+
 uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 {
 	uint64 value = 0;
@@ -2938,7 +3122,7 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 		case indYr:
 			p_inner->Y = (long)value;
 			p_inner->M = 1;
-			p_inner->D = 2;
+			p_inner->D = 2; // day not equal 1 in order to avoid problem with time zones
 			break;
 		case indDYr:
 			p_inner->Y = (((((long)value)-1) / 10) * 10) + 1;

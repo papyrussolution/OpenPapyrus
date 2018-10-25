@@ -981,7 +981,7 @@ int SLAPI PrcssrDbDump::OpenStream(const char * pFileName)
 
 		FDump.Seek64(hdr.CtxOffs);
 		FDump.Read(buffer);
-		THROW_SL(Ctx.SerializeState(-1, buffer));
+		THROW_SL(Ctx.SerializeStateOfContext(-1, buffer));
 		TblEntryList.clear();
 		THROW_SL(Ctx.Serialize(-1, &TblEntryList, buffer));
 		THROW_SL(TblNameList.Read(buffer, 0));
@@ -997,7 +997,7 @@ int SLAPI PrcssrDbDump::CloseStream()
 		DumpHeader hdr;
 		SBuffer buffer;
 		int64  state_offs = FDump.Tell64();
-		THROW_SL(Ctx.SerializeState(+1, buffer));
+		THROW_SL(Ctx.SerializeStateOfContext(+1, buffer));
 		THROW_SL(Ctx.Serialize(+1, &TblEntryList, buffer));
 		THROW_SL(TblNameList.Write(buffer, 0));
 		THROW_SL(FDump.Write(buffer));

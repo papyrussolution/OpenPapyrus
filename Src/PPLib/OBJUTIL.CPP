@@ -234,6 +234,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_GENERICDEVICE: p = new PPObjGenericDevice(extraPtr); break; // @v7.8.0
 		case PPOBJ_WORKBOOK    :  p = new PPObjWorkbook(extraPtr); break; // @Muxa
 		case PPOBJ_EDIPROVIDER :  p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
+		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3 @experimental
 		default                :
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);

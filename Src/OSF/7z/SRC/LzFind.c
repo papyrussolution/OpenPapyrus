@@ -29,12 +29,14 @@ static int LzInWindow_Create(CMatchFinder * p, uint32 keepSizeReserv, ISzAllocPt
 		p->blockSize = blockSize;
 		return 1;
 	}
-	if(!p->bufferBase || p->blockSize != blockSize) {
-		LzInWindow_Free(p, alloc);
-		p->blockSize = blockSize;
-		p->bufferBase = (Byte*)ISzAlloc_Alloc(alloc, (size_t)blockSize);
+	else {
+		if(!p->bufferBase || p->blockSize != blockSize) {
+			LzInWindow_Free(p, alloc);
+			p->blockSize = blockSize;
+			p->bufferBase = (Byte*)ISzAlloc_Alloc(alloc, (size_t)blockSize);
+		}
+		return (p->bufferBase != NULL);
 	}
-	return (p->bufferBase != NULL);
 }
 
 Byte * MatchFinder_GetPointerToCurrentPos(CMatchFinder * p) { return p->buffer; }

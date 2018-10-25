@@ -730,6 +730,8 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
 						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
 						filt.GoodsIdList.Add(goods_id);
+						filt.Period.low = getcurdate_(); // @v10.2.3
+						plusperiod(&filt.Period.low, PRD_ANNUAL, -1, 0); // @v10.2.3
 						ViewGoodsOpAnalyze(&filt);
 					}
 				}

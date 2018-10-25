@@ -2673,7 +2673,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					}
 					THROW(p_item->Serialize(+1, _temp_sbuf, &ctx));
 				}
-				THROW_SL(ctx.SerializeState(+1, rReply));
+				THROW_SL(ctx.SerializeStateOfContext(+1, rReply));
 				THROW_SL(rReply.Write(_temp_sbuf.GetBuf(_temp_sbuf.GetRdOffs()), _temp_sbuf.GetAvailableSize()));
 			}
 			break;

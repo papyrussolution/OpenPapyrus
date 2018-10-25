@@ -2059,8 +2059,8 @@ char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return
 
 char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 {
-	if(dest)
-		if(src)
+	if(dest) {
+		if(src) {
 			if(maxlen) {
 				const char * p = (const char *)/*xeos_*/memchr(src, 0, maxlen);
 				if(p)
@@ -2072,8 +2072,10 @@ char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 			}
 			else
 				strcpy(dest, src);
+		}
 		else
 			dest[0] = 0;
+	}
 	return dest;
 }
 
@@ -2085,8 +2087,8 @@ char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen)
 
 wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 {
-	if(dest)
-		if(src)
+	if(dest) {
+		if(src) {
 			if(maxlen) {
 				const wchar_t * p = (const wchar_t *)wmemchr(src, 0, maxlen);
 				if(p) {
@@ -2099,8 +2101,11 @@ wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 			}
 			else
 				wcscpy(dest, src);
-		else
+		}
+		else {
 			dest[0] = 0;
+		}
+	}
 	return dest;
 }
 

@@ -781,11 +781,9 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 
 	int    ok = 1, use_temp_path = 0;
 	uint   i = 0;
-	// char * p_src_file = 0;
 	SString src_file_name;
 	SString dest, dest_file;
 	SPathStruc ps, ps_inner;
-	//SStrCollection temp_file_list;
 	StringSet temp_ss_files;
 	LogMessage(fnLog, BACKUPLOG_BEGIN, pParam->Path, initParam);
 	if(compr > 0 && pParam->TempPath.NotEmptyS() && fileExists(pParam->TempPath)) {
@@ -797,7 +795,6 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 	ps.Split(dest.SetLastSlash());
 	TotalCopySize  = pParam->TotalSize;
 	TotalCopyReady = 0;
-	// for(i = 0; ok > 0 && pParam->FileList.enumItems(&i, (void**)&p_src_file);) {
 	for(uint ssp = 0; ok > 0 && pParam->SsFiles.get(&ssp, src_file_name);) {
 		int64 sz = 0;
 		SFileUtil::Stat stat;
@@ -808,9 +805,6 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 		else if(compr) {
 			SPathStruc::ReplaceExt(dest_file, (compr > 0) ? "bt_" : "btr", 1);
 			if(use_temp_path) {
-				//char * p = newStr(dest_file);
-				//THROW(p);
-				//THROW(temp_file_list.insert(p));
 				temp_ss_files.add(dest_file);
 				if(fileExists(dest_file))
 					SFile::Remove(dest_file);
@@ -837,7 +831,6 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 	if(use_temp_path) {
 		THROW(CheckAvailableDiskSpace(pParam->Path, TotalCopyReady));
 		ps.Split((dest = pParam->Path).SetLastSlash());
-		//for(i = 0; temp_file_list.enumItems(&i, (void**)&p_src_file);) {
 		for(uint temp_ssp = 0; temp_ss_files.get(&temp_ssp, src_file_name);) {
 			ps_inner.Split(src_file_name);
 			ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);

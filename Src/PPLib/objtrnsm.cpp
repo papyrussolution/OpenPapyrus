@@ -1268,7 +1268,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 		SBuffer state_buf;
 		fseek(stream, hdr.SCtxStOffs, SEEK_SET);
 		THROW_SL(state_buf.ReadFromFile(stream, 0));
-		THROW_SL(Ctx.SCtx.SerializeState(-1, state_buf));
+		THROW_SL(Ctx.SCtx.SerializeStateOfContext(-1, state_buf));
 	}
 	if(hdr.IndexCount > 0) {
 		//
@@ -1609,7 +1609,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				THROW(p_fpi);
 				if(Ctx.LastStreamId != p_fpi->FileId) {
 					p_fpi->SCtxState.SetRdOffs(0);
-					THROW(Ctx.SCtx.SerializeState(-1, p_fpi->SCtxState));
+					THROW(Ctx.SCtx.SerializeStateOfContext(-1, p_fpi->SCtxState));
 					Ctx.LastStreamId = p_fpi->FileId;
 				}
 				p_fpi->F.Seek(rItem.ObjOffs);
@@ -1645,7 +1645,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				//
 				if(Ctx.LastStreamId != p_fpi->FileId) {
 					p_fpi->SCtxState.SetRdOffs(0);
-					THROW(Ctx.SCtx.SerializeState(-1, p_fpi->SCtxState));
+					THROW(Ctx.SCtx.SerializeStateOfContext(-1, p_fpi->SCtxState));
 					Ctx.LastStreamId = p_fpi->FileId;
 				}
 				//
@@ -2073,7 +2073,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				//
 				{
 					SBuffer state_buf;
-					THROW_SL(Ctx.SCtx.SerializeState(+1, state_buf));
+					THROW_SL(Ctx.SCtx.SerializeStateOfContext(+1, state_buf));
 					hdr.SCtxStOffs = ftell(P_OutStream);
 					THROW_SL(state_buf.WriteToFile(P_OutStream, 0, 0));
 				}
@@ -2088,7 +2088,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 	}
 	CATCH
 		ok = 0;
-		CloseOutPacket(); // @v8.0.12
+		CloseOutPacket();
 		if(file_name.NotEmpty())
 			SFile::Remove(file_name);
 		if(temp_file_name.NotEmpty())

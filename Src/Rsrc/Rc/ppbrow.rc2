@@ -666,7 +666,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	CURREG         : kbCtrlF5,    TBBM_CURPERSONATTR, "Текущий регистр\tCtrl-F5"
 	DLVRADDREXFLDS : kbCtrlF9,    TBBM_NOICON,        "Дополнительные поля адреса доставки"
 	AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,       "Штатные суммы работодателя\tShift-F5"
-	RELATIONS      : kbF6,        TBBM_PERSONRELLIST, "Отношения\tF6"
+	RELATIONS      : kbF6,        TBBM_PERSONRELLIST, "@{relation_pl}\tF6"
 	REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "Обратные отношения\tShift-F6"
 	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,  "Добавить отношение\tCtrl-F6"
 	RMVHANGEDITEMS : kbCtrlX,     TBBM_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
@@ -6915,7 +6915,7 @@ record BRow {
 	CVatSum       double       format(8.2) "Сумма входящего НДС по строке";
 	VatRate       double       format(3.1) "Ставка НДС по строке, %";
 	VatSum        double       format(8.2) "Сумма НДС по строке";
-	Expiry        date         "Срок годности лота";
+	Expiry        date         "@{lotexpirationdate}";
 	Serial        zstring(32)  "@{serial}";
 	CLB           zstring(32)  "ГТД";
 	QcCode        zstring(32)  "Код сертификата качества";
@@ -7258,10 +7258,10 @@ record SupplBillLine {
 	AddressId         zstring(24)         "@{clientcode}";
 	AddressRegionType zstring(64)         "Регион";
 	SaleChannel       zstring(8)          "Канал поставки";
-	CRMOrderNumber    zstring(16)         "Номер заказа";
+	CRMOrderNumber    zstring(24)         "Номер заказа"; // @v10.2.3 (16)-->(24)
 	CRMOrderDate      date                "Дата заказа";
 	DocumentTypeId    zstring(32)         "@{typeofdocument}";
-	DocumentNumber    zstring(16)         "@{billno}";
+	DocumentNumber    zstring(24)         "@{billno}";    // @v10.2.3 (16)-->(24)
 	DocumentDate      date                "@{billdate}";
     SrcCRMDbId        zstring(36)         "Ид базы данных-источника";
 	PayDate           date                "Дата оплаты";

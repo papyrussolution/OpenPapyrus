@@ -3232,6 +3232,22 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																		local_action = PPEVNT_PHNS_RINGING;
 																}
 																if(local_action) {
+																	// @v10.2.3 {
+																	/*
+																	SString outer_caller_id = chnl_status.CallerId;
+																	if(chnl_status.BridgeId.NotEmpty()) {
+																		PhnSvcChannelStatusPool bp;
+																		PhnSvcChannelStatus local_status;
+																		chnl_status_list.GetListWithSameBridge(chnl_status.BridgeId, -1, bp);
+																		for(uint i = 0; i < bp.GetCount(); i++) {
+																			if(bp.Get(i, local_status) && !local_status.Channel.IsEqiAscii(chnl_status.Channel)) {
+																				outer_caller_id = local_status.CallerId;
+																				break;
+																			}
+																		}
+																	}
+																	*/
+																	// } @v10.2.3 
 																	PPAdviseEvent ev;
 																	ev.Action = local_action;
 																	ev.Oid.Set(PPOBJ_PHONESERVICE, StartUp_PhnSvcPack.Rec.ID); // @v10.0.02
@@ -3244,6 +3260,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																	temp_list.AddS(chnl_status.Context, &ev.ContextP); // @v9.9.12
 																	temp_list.AddS(chnl_status.Exten, &ev.ExtenP); // @v9.9.12
 																	temp_list.AddS(chnl_status.BridgeId, &ev.BridgeP); // @v10.0.02
+																	//temp_list.AddS(outer_caller_id, &ev.OuterCallerIdP); // @v10.2.3
 																	temp_list.insert(&ev);
 																}
 															}

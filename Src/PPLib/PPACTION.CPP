@@ -748,7 +748,7 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 		ObjVerTbl::Rec rec;
 		SBuffer ctx_buf;
 		if(SearchOid(oid_dummy, (long)sysver, &rec, &ctx_buf) > 0) {
-			THROW(SCtx.SerializeState(-1, ctx_buf));
+			THROW(SCtx.SerializeStateOfContext(-1, ctx_buf));
 		}
 		else {
 			Reference * p_ref = PPRef;
@@ -771,7 +771,7 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 					const DBTable * p_tbl = table_list[i];
 					THROW(SCtx.AddDbtDescr(p_tbl->GetTableName(), &p_tbl->GetFields(), 0));
 				}
-				THROW(SCtx.SerializeState(+1, ctx_buf));
+				THROW(SCtx.SerializeStateOfContext(+1, ctx_buf));
 				{
 					PPID   vv_id = 0;
 					THROW(Add(&vv_id, oid_dummy, &ctx_buf, use_ta));

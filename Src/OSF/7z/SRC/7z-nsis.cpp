@@ -154,8 +154,7 @@ namespace NArchive {
 			Byte NumParams;
 		};
 
-		static const CCommandInfo k_Commands[kNumCmds] =
-		{
+		static const CCommandInfo k_Commands[kNumCmds] = {
 			{ 0 }, // "Invalid" },
 			{ 0 }, // Return
 			{ 1 }, // Nop, Goto

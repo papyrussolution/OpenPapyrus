@@ -74,7 +74,7 @@ TextDbFile::TextDbFile()
 
 TextDbFile::~TextDbFile()
 {
-	Close(); // @v7.4.1
+	Close();
 }
 
 int TextDbFile::CheckParam(const SdRecord & rRec)

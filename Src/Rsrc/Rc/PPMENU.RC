@@ -233,20 +233,21 @@
 			MENUITEM "@cmd_globaluseracc",				cmGlobalUserAcc
 			MENUITEM "@cmd_uhttstore",					cmUhttStore
 			MENUITEM "@cmd_workbook",                   cmWorkbook
-			MENUITEM "@cmd_objtagallobj",					cmObjTagAllObj // @v8.5.3
+			MENUITEM "@cmd_objtagallobj",				cmObjTagAllObj // @v8.5.3
 			MENUITEM SEPARATOR
-			MENUITEM "@cmd_makecrptfiles",					cmMakeCRptFiles
-			MENUITEM "@cmd_verifyallcrpt",					cmVerifyAllCRpt
+			MENUITEM "@cmd_makecrptfiles",				cmMakeCRptFiles
+			MENUITEM "@cmd_verifyallcrpt",				cmVerifyAllCRpt
 			MENUITEM SEPARATOR
-			MENUITEM "@cmd_registration",                   cmRegistration
-			MENUITEM "@cmd_updatelicense",					cmUpdateLicense
+			MENUITEM "@cmd_registration",               cmRegistration
+			MENUITEM "@cmd_updatelicense",				cmUpdateLicense
 		}
 		MENUITEM SEPARATOR
 		POPUP "@cmdpu_industryrefs" {
 			POPUP "@cmdpu_sawmilling" {
-				MENUITEM "@cmd_woodbreed",					cmWoodBreed
+				MENUITEM "@cmd_woodbreed",				cmWoodBreed
 			}
-			MENUITEM "@cmd_transport",						cmTransport
+			MENUITEM "@cmd_transport",					cmTransport
+			MENUITEM "@cmd_timeseries",                 cmTimeSeries // @v10.2.3 #experimental
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_opentextfile",						cmOpenTextFile

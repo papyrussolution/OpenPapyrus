@@ -834,23 +834,19 @@ size_t LZ4F_flush(LZ4F_cctx* cctxPtr, void* dstBuffer, size_t dstCapacity, const
     if(cctxPtr->cStage != 1) return err0r(LZ4F_ERROR_GENERIC);
     if(dstCapacity < (cctxPtr->tmpInSize + 4)) return err0r(LZ4F_ERROR_dstMaxSize_tooSmall);   /* +4 : block header(4)  */
     (void)compressOptionsPtr;   /* not yet useful */
-
-    /* select compression function */
+    // select compression function 
     compress = LZ4F_selectCompression(cctxPtr->prefs.frameInfo.blockMode, cctxPtr->prefs.compressionLevel);
-
-    /* compress tmp buffer */
+    // compress tmp buffer 
     dstPtr += LZ4F_makeBlock(dstPtr, cctxPtr->tmpIn, cctxPtr->tmpInSize,
-                             compress, cctxPtr->lz4CtxPtr, cctxPtr->prefs.compressionLevel,
-                             cctxPtr->cdict, cctxPtr->prefs.frameInfo.blockChecksumFlag);
-    if(cctxPtr->prefs.frameInfo.blockMode==LZ4F_blockLinked) cctxPtr->tmpIn += cctxPtr->tmpInSize;
+		compress, cctxPtr->lz4CtxPtr, cctxPtr->prefs.compressionLevel, cctxPtr->cdict, cctxPtr->prefs.frameInfo.blockChecksumFlag);
+    if(cctxPtr->prefs.frameInfo.blockMode==LZ4F_blockLinked) 
+		cctxPtr->tmpIn += cctxPtr->tmpInSize;
     cctxPtr->tmpInSize = 0;
-
-    /* keep tmpIn within limits */
-    if((cctxPtr->tmpIn + cctxPtr->maxBlockSize) > (cctxPtr->tmpBuff + cctxPtr->maxBufferSize)) {  /* necessarily LZ4F_blockLinked */
+    // keep tmpIn within limits 
+    if((cctxPtr->tmpIn + cctxPtr->maxBlockSize) > (cctxPtr->tmpBuff + cctxPtr->maxBufferSize)) { // necessarily LZ4F_blockLinked 
         int realDictSize = LZ4F_localSaveDict(cctxPtr);
         cctxPtr->tmpIn = cctxPtr->tmpBuff + realDictSize;
     }
-
     return dstPtr - dstStart;
 }
 

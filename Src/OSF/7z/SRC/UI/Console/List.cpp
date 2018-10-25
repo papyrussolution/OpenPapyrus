@@ -53,17 +53,6 @@ enum EAdjustment {
 	kRight
 };
 
-struct CFieldInfo {
-	PROPID PropID;
-	bool   IsRawProp;
-	UString NameU;
-	AString NameA;
-	EAdjustment TitleAdjustment;
-	EAdjustment TextAdjustment;
-	uint   PrefixSpacesWidth;
-	uint   Width;
-};
-
 struct CFieldInfoInit {
 	PROPID PropID;
 	const  char * Name;
@@ -73,8 +62,7 @@ struct CFieldInfoInit {
 	uint   Width;
 };
 
-static const CFieldInfoInit kStandardFieldTable[] =
-{
+static const CFieldInfoInit kStandardFieldTable[] = {
 	{ kpidMTime, "   Date      Time", kLeft, kLeft, 0, 19 },
 	{ kpidAttrib, "Attr", kRight, kCenter, 1, 5 },
 	{ kpidSize, "Size", kRight, kRight, 1, 12 },
@@ -144,7 +132,6 @@ static void PrintString(EAdjustment adj, unsigned width, const char * s)
 		PrintSpaces(numLeftSpaces);
 		numSpaces -= numLeftSpaces;
 	}
-
 	g_StdOut << s;
 	PrintSpaces(numSpaces);
 }
@@ -171,8 +158,6 @@ static void PrintStringToString(char * dest, EAdjustment adj, unsigned width, co
 }
 
 struct CListUInt64Def {
-	uint64 Val;
-	bool Def;
 	CListUInt64Def() : Val(0), Def(false) 
 	{
 	}
@@ -186,6 +171,8 @@ struct CListUInt64Def {
 		if(v.Def) 
 			Add(v.Val);
 	}
+	uint64 Val;
+	bool Def;
 };
 
 struct CListFileTimeDef {
@@ -245,6 +232,16 @@ struct CListStat2 {
 };
 
 class CFieldPrinter {
+	struct CFieldInfo {
+		PROPID PropID;
+		bool   IsRawProp;
+		UString NameU;
+		AString NameA;
+		EAdjustment TitleAdjustment;
+		EAdjustment TextAdjustment;
+		uint   PrefixSpacesWidth;
+		uint   Width;
+	};
 	CObjectVector <CFieldInfo> _fields;
 	void AddProp(const wchar_t * name, PROPID propID, bool isRawProp);
 public:

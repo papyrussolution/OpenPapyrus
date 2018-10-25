@@ -95,19 +95,12 @@
 // 
 // Modify the local functions below should you wish to use some other memory routines for malloc(), free()
 //#include <stdlib.h>
-static void * XXH_malloc(size_t s) 
-{
-	return malloc(s);
-}
-
-static void XXH_free(void* p)  
-{
-	SAlloc::F(p);
-}
+//static void * XXH_malloc(size_t s) { return SAlloc::M(s); }
+//static void XXH_free(void* p) { SAlloc::F(p); }
 
 /*! and for memcpy() */
 //#include <string.h>
-static void * XXH_memcpy(void* dest, const void* src, size_t size) 
+static void * FASTCALL XXH_memcpy(void* dest, const void* src, size_t size) 
 {
 	return memcpy(dest, src, size);
 }
@@ -171,35 +164,31 @@ static uint32 XXH_read32(const void* memPtr)
 // Compiler-specific Functions and Macros
 // 
 #define XXH_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-
-/* Note : although _rotl exists for minGW (GCC under windows), performance seems poor */
+// Note : although _rotl exists for minGW (GCC under windows), performance seems poor 
 #if defined(_MSC_VER)
-#  define XXH_rotl32(x, r) _rotl(x, r)
-#  define XXH_rotl64(x, r) _rotl64(x, r)
+	#define XXH_rotl32(x, r) _rotl(x, r)
+	#define XXH_rotl64(x, r) _rotl64(x, r)
 #else
-#  define XXH_rotl32(x, r) ((x << r) | (x >> (32 - r)))
-#  define XXH_rotl64(x, r) ((x << r) | (x >> (64 - r)))
+	#define XXH_rotl32(x, r) ((x << r) | (x >> (32 - r)))
+	#define XXH_rotl64(x, r) ((x << r) | (x >> (64 - r)))
 #endif
-
 #if defined(_MSC_VER)     /* Visual Studio */
-#  define XXH_swap32 _byteswap_ulong
+	#define XXH_swap32 _byteswap_ulong
 #elif XXH_GCC_VERSION >= 403
-#  define XXH_swap32 __builtin_bswap32
+	#define XXH_swap32 __builtin_bswap32
 #else
-static uint32 XXH_swap32(uint32 x)
-{
-	return ((x << 24) & 0xff000000 ) |
-	       ((x <<  8) & 0x00ff0000 ) |
-	       ((x >>  8) & 0x0000ff00 ) |
-	       ((x >> 24) & 0x000000ff );
-}
-
+	static uint32 XXH_swap32(uint32 x)
+	{
+		return ((x << 24) & 0xff000000 ) | ((x <<  8) & 0x00ff0000 ) | ((x >>  8) & 0x0000ff00 ) | ((x >> 24) & 0x000000ff );
+	}
 #endif
-
-/* *************************************
-*  Architecture Macros
-***************************************/
-typedef enum { XXH_bigEndian = 0, XXH_littleEndian = 1 } XXH_endianess;
+// 
+// Architecture Macros
+// 
+typedef enum { 
+	XXH_bigEndian = 0, 
+	XXH_littleEndian = 1 
+} XXH_endianess;
 
 /* XXH_CPU_LITTLE_ENDIAN can be defined externally, for example on the compiler command line */
 #ifndef XXH_CPU_LITTLE_ENDIAN
@@ -211,11 +200,13 @@ static int XXH_isLittleEndian(void)
 
 #   define XXH_CPU_LITTLE_ENDIAN   XXH_isLittleEndian()
 #endif
-
-/* ***************************
-*  Memory reads
-*****************************/
-typedef enum { XXH_aligned, XXH_unaligned } XXH_alignment;
+// 
+// Memory reads
+// 
+typedef enum { 
+	XXH_aligned, 
+	XXH_unaligned 
+} XXH_alignment;
 
 FORCE_INLINE uint32 XXH_readLE32_align(const void* ptr, XXH_endianess endian, XXH_alignment align)
 {
@@ -226,42 +217,34 @@ FORCE_INLINE uint32 XXH_readLE32_align(const void* ptr, XXH_endianess endian, XX
 }
 
 FORCE_INLINE uint32 XXH_readLE32(const void* ptr, XXH_endianess endian)
-{
-	return XXH_readLE32_align(ptr, endian, XXH_unaligned);
-}
-
-static uint32 XXH_readBE32(const void* ptr)
-{
-	return XXH_CPU_LITTLE_ENDIAN ? XXH_swap32(XXH_read32(ptr)) : XXH_read32(ptr);
-}
-
-/* *************************************
-*  Macros
-***************************************/
+	{ return XXH_readLE32_align(ptr, endian, XXH_unaligned); }
+static uint32 FASTCALL XXH_readBE32(const void* ptr)
+	{ return XXH_CPU_LITTLE_ENDIAN ? XXH_swap32(XXH_read32(ptr)) : XXH_read32(ptr); }
+// 
+// Macros
+// 
 #define XXH_STATIC_ASSERT(c)  { enum { XXH_sa = 1/(int)(!!(c)) }; }  /* use after variable declarations */
-XXH_PUBLIC_API unsigned XXH_versionNumber(void) {
-	return XXH_VERSION_NUMBER;
-}
-
-/* *******************************************************************
-*  32-bit hash functions
-*********************************************************************/
+XXH_PUBLIC_API unsigned XXH_versionNumber(void) { return XXH_VERSION_NUMBER; }
+// 
+// 32-bit hash functions
+// 
 static const uint32 PRIME32_1 = 2654435761U;
 static const uint32 PRIME32_2 = 2246822519U;
 static const uint32 PRIME32_3 = 3266489917U;
 static const uint32 PRIME32_4 =  668265263U;
 static const uint32 PRIME32_5 =  374761393U;
 
-static uint32 XXH32_round(uint32 seed, uint32 input)
+static uint32 FASTCALL XXH32_round(uint32 seed, uint32 input)
 {
 	seed += input * PRIME32_2;
 	seed  = XXH_rotl32(seed, 13);
 	seed *= PRIME32_1;
 	return seed;
 }
-
-/* mix all bits */
-static uint32 XXH32_avalanche(uint32 h32)
+// 
+// mix all bits 
+// 
+static uint32 FASTCALL XXH32_avalanche(uint32 h32)
 {
 	h32 ^= h32 >> 15;
 	h32 *= PRIME32_2;
@@ -273,23 +256,12 @@ static uint32 XXH32_avalanche(uint32 h32)
 
 #define XXH_get32bits(p) XXH_readLE32_align(p, endian, align)
 
-static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len,
-    XXH_endianess endian, XXH_alignment align)
-
+static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_endianess endian, XXH_alignment align)
 {
-	const uint8* p = (const uint8*)ptr;
-
-#define PROCESS1               \
-	h32 += (*p++) * PRIME32_5; \
-	h32 = XXH_rotl32(h32, 11) * PRIME32_1;
-
-#define PROCESS4                         \
-	h32 += XXH_get32bits(p) * PRIME32_3; \
-	p += 4;                                \
-	h32  = XXH_rotl32(h32, 17) * PRIME32_4;
-
-	switch(len&15) /* or switch(bEnd - p) */
-	{
+	const uint8 * p = (const uint8*)ptr;
+#define PROCESS1 h32 += (*p++) * PRIME32_5; h32 = XXH_rotl32(h32, 11) * PRIME32_1;
+#define PROCESS4 h32 += XXH_get32bits(p) * PRIME32_3; p += 4; h32  = XXH_rotl32(h32, 17) * PRIME32_4;
+	switch(len&15) { // or switch(bEnd - p) 
 		case 12:      PROCESS4;
 		/* fallthrough */
 		case 8:       PROCESS4;
@@ -332,13 +304,11 @@ static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len,
 	return h32; /* reaching this point is deemed impossible */
 }
 
-FORCE_INLINE uint32 XXH32_endian_align(const void* input, size_t len, uint32 seed,
-    XXH_endianess endian, XXH_alignment align)
+FORCE_INLINE uint32 XXH32_endian_align(const void* input, size_t len, uint32 seed, XXH_endianess endian, XXH_alignment align)
 {
 	const uint8* p = (const uint8*)input;
 	const uint8* bEnd = p + len;
 	uint32 h32;
-
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
 	if(p==NULL) {
 		len = 0;
@@ -376,7 +346,6 @@ XXH_PUBLIC_API unsigned int XXH32(const void* input, size_t len, unsigned int se
 	return XXH32_digest(&state);
 #else
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if(XXH_FORCE_ALIGN_CHECK) {
 		if((((size_t)input) & 3) == 0) { /* Input is 4-bytes aligned, leverage the speed benefit */
 			if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
@@ -396,12 +365,12 @@ XXH_PUBLIC_API unsigned int XXH32(const void* input, size_t len, unsigned int se
 
 XXH_PUBLIC_API XXH32_state_t* XXH32_createState(void)
 {
-	return (XXH32_state_t*)XXH_malloc(sizeof(XXH32_state_t));
+	return (XXH32_state_t*)SAlloc::M(sizeof(XXH32_state_t));
 }
 
 XXH_PUBLIC_API XXH_errorcode XXH32_freeState(XXH32_state_t* statePtr)
 {
-	XXH_free(statePtr);
+	SAlloc::F(statePtr);
 	return XXH_OK;
 }
 
@@ -453,40 +422,34 @@ FORCE_INLINE XXH_errorcode XXH32_update_endian(XXH32_state_t* state, const void*
 		    p += 16-state->memsize;
 		    state->memsize = 0;
 	    }
-
 	    if(p <= bEnd-16) {
 		    const uint8* const limit = bEnd - 16;
 		    uint32 v1 = state->v1;
 		    uint32 v2 = state->v2;
 		    uint32 v3 = state->v3;
 		    uint32 v4 = state->v4;
-
 		    do {
 			    v1 = XXH32_round(v1, XXH_readLE32(p, endian)); p += 4;
 			    v2 = XXH32_round(v2, XXH_readLE32(p, endian)); p += 4;
 			    v3 = XXH32_round(v3, XXH_readLE32(p, endian)); p += 4;
 			    v4 = XXH32_round(v4, XXH_readLE32(p, endian)); p += 4;
 		    } while(p<=limit);
-
 		    state->v1 = v1;
 		    state->v2 = v2;
 		    state->v3 = v3;
 		    state->v4 = v4;
 	    }
-
 	    if(p < bEnd) {
 		    XXH_memcpy(state->mem32, p, (size_t)(bEnd-p));
 		    state->memsize = (unsigned)(bEnd-p);
 	    }
 	}
-
 	return XXH_OK;
 }
 
 XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* state_in, const void* input, size_t len)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
 		return XXH32_update_endian(state_in, input, len, XXH_littleEndian);
 	else
@@ -496,26 +459,19 @@ XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* state_in, const void* i
 FORCE_INLINE uint32 XXH32_digest_endian(const XXH32_state_t* state, XXH_endianess endian)
 {
 	uint32 h32;
-
 	if(state->large_len) {
-		h32 = XXH_rotl32(state->v1, 1)
-		    + XXH_rotl32(state->v2, 7)
-		    + XXH_rotl32(state->v3, 12)
-		    + XXH_rotl32(state->v4, 18);
+		h32 = XXH_rotl32(state->v1, 1) + XXH_rotl32(state->v2, 7) + XXH_rotl32(state->v3, 12) + XXH_rotl32(state->v4, 18);
 	}
 	else {
 		h32 = state->v3 /* == seed */ + PRIME32_5;
 	}
-
 	h32 += state->total_len_32;
-
 	return XXH32_finalize(h32, state->mem32, state->memsize, endian, XXH_aligned);
 }
 
 XXH_PUBLIC_API unsigned int XXH32_digest(const XXH32_state_t* state_in)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
 		return XXH32_digest_endian(state_in, XXH_littleEndian);
 	else
@@ -533,7 +489,8 @@ XXH_PUBLIC_API unsigned int XXH32_digest(const XXH32_state_t* state_in)
 XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t hash)
 {
 	XXH_STATIC_ASSERT(sizeof(XXH32_canonical_t) == sizeof(XXH32_hash_t));
-	if(XXH_CPU_LITTLE_ENDIAN) hash = XXH_swap32(hash);
+	if(XXH_CPU_LITTLE_ENDIAN) 
+		hash = XXH_swap32(hash);
 	memcpy(dst, &hash, sizeof(*dst));
 }
 
@@ -559,28 +516,24 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 	#endif
 #endif
 #if (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
-
-/* Force direct memory access. Only works on CPU which support unaligned memory access in hardware */
-static uint64 XXH_read64(const void* memPtr) { return *(const uint64*)memPtr; }
-
+	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
+	static uint64 XXH_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))
-// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
-// currently only defined for gcc and icc 
-typedef union { uint32 u32; uint64 u64; } __attribute__((packed)) unalign64;
-static uint64 XXH_read64(const void* ptr) {
-	return ((const unalign64*)ptr)->u64;
-}
+	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
+	// currently only defined for gcc and icc 
+	typedef union { uint32 u32; uint64 u64; } __attribute__((packed)) unalign64;
+	static uint64 XXH_read64(const void* ptr) { return ((const unalign64*)ptr)->u64; }
 #else
-// 
-// portable and safe solution. Generally efficient.
-// see : http://stackoverflow.com/a/32095106/646947
-// 
-static uint64 XXH_read64(const void* memPtr)
-{
-	uint64 val;
-	memcpy(&val, memPtr, sizeof(val));
-	return val;
-}
+	// 
+	// portable and safe solution. Generally efficient.
+	// see : http://stackoverflow.com/a/32095106/646947
+	// 
+	static uint64 XXH_read64(const void* memPtr)
+	{
+		uint64 val;
+		memcpy(&val, memPtr, sizeof(val));
+		return val;
+	}
 #endif // XXH_FORCE_DIRECT_MEMORY_ACCESS 
 
 #if defined(_MSC_VER)     /* Visual Studio */
@@ -615,7 +568,7 @@ FORCE_INLINE uint64 XXH_readLE64(const void* ptr, XXH_endianess endian)
 	return XXH_readLE64_align(ptr, endian, XXH_unaligned);
 }
 
-static uint64 XXH_readBE64(const void* ptr)
+static uint64 FASTCALL XXH_readBE64(const void* ptr)
 {
 	return XXH_CPU_LITTLE_ENDIAN ? XXH_swap64(XXH_read64(ptr)) : XXH_read64(ptr);
 }
@@ -628,7 +581,7 @@ static const uint64 PRIME64_3 =  1609587929392839161ULL;
 static const uint64 PRIME64_4 =  9650029242287828579ULL;
 static const uint64 PRIME64_5 =  2870177450012600261ULL;
 
-static uint64 XXH64_round(uint64 acc, uint64 input)
+static uint64 FASTCALL XXH64_round(uint64 acc, uint64 input)
 {
 	acc += input * PRIME64_2;
 	acc  = XXH_rotl64(acc, 31);
@@ -636,7 +589,7 @@ static uint64 XXH64_round(uint64 acc, uint64 input)
 	return acc;
 }
 
-static uint64 XXH64_mergeRound(uint64 acc, uint64 val)
+static uint64 FASTCALL XXH64_mergeRound(uint64 acc, uint64 val)
 {
 	val  = XXH64_round(0, val);
 	acc ^= val;
@@ -777,14 +730,12 @@ FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64 see
 		uint64 v2 = seed + PRIME64_2;
 		uint64 v3 = seed + 0;
 		uint64 v4 = seed - PRIME64_1;
-
 		do {
 			v1 = XXH64_round(v1, XXH_get64bits(p)); p += 8;
 			v2 = XXH64_round(v2, XXH_get64bits(p)); p += 8;
 			v3 = XXH64_round(v3, XXH_get64bits(p)); p += 8;
 			v4 = XXH64_round(v4, XXH_get64bits(p)); p += 8;
 		} while(p<=limit);
-
 		h64 = XXH_rotl64(v1, 1) + XXH_rotl64(v2, 7) + XXH_rotl64(v3, 12) + XXH_rotl64(v4, 18);
 		h64 = XXH64_mergeRound(h64, v1);
 		h64 = XXH64_mergeRound(h64, v2);
@@ -794,9 +745,7 @@ FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64 see
 	else {
 		h64  = seed + PRIME64_5;
 	}
-
 	h64 += (uint64)len;
-
 	return XXH64_finalize(h64, p, len, endian, align);
 }
 
@@ -819,24 +768,23 @@ XXH_PUBLIC_API unsigned long long XXH64(const void* input, size_t len, unsigned 
 				return XXH64_endian_align(input, len, seed, XXH_bigEndian, XXH_aligned);
 		}
 	}
-
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
 		return XXH64_endian_align(input, len, seed, XXH_littleEndian, XXH_unaligned);
 	else
 		return XXH64_endian_align(input, len, seed, XXH_bigEndian, XXH_unaligned);
 #endif
 }
-
-/*======   Hash Streaming   ======*/
-
-XXH_PUBLIC_API XXH64_state_t* XXH64_createState(void)
+// 
+// Hash Streaming
+// 
+XXH_PUBLIC_API XXH64_state_t * XXH64_createState(void)
 {
-	return (XXH64_state_t*)XXH_malloc(sizeof(XXH64_state_t));
+	return (XXH64_state_t*)SAlloc::M(sizeof(XXH64_state_t));
 }
 
 XXH_PUBLIC_API XXH_errorcode XXH64_freeState(XXH64_state_t* statePtr)
 {
-	XXH_free(statePtr);
+	SAlloc::F(statePtr);
 	return XXH_OK;
 }
 

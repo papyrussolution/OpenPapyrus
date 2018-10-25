@@ -505,67 +505,113 @@ long SLAPI TimSerSpikes::GetMostCommonDistance()
 //
 //
 // @construction {
-#if 0 // {
+#if 1 // {
 
-class STimeSeries {
-public:
-	SLAPI  STimeSeries();
-	int    SLAPI AddValueVec(TYPEID typ, const char * pSymb, uint * pVecIdx);
-	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
-    int    SLAPI GetValue(uint itemIdx, uint vecIdx, double * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, float * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
+int SLAPI STimeSeries::ValuVec::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Typ, rBuf));
+	THROW(pSCtx->Serialize(dir, FxPrec, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, Symb, rBuf));
+	THROW(pSCtx->Serialize(dir, dynamic_cast<SVector *>(this), rBuf));
+	CATCHZOK
+	return ok;
+}
 
-    int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int32 value);
-private:
-	static int FASTCALL VerifyValuVecType(TYPEID typ)
-	{
-		return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64);
-	}
-	struct ValuVec : public SVector {
-	public:
-		SLAPI  ValuVec(TYPEID typ, const char * pSymb) : Typ(typ), SVector(stsize(typ), O_ARRAY), Symb(pSymb), FxPrec(0), Flags(0)
-		{
-			assert(STimeSeries::VerifyValuVecType(typ));
-		}
-		void   FASTCALL ConvertDoubleToInner(double outer, void * pInner) const;
-		double FASTCALL ConvertInnerToDouble(const void * pInner) const;
+SLAPI STimeSeries::ValuVec::ValuVec(const char * pSymb, TYPEID typ, int fxPrec) : Typ(typ), SVector(stsize(typ), O_ARRAY), Symb(pSymb), FxPrec(fxPrec), Flags(0)
+{
+	assert(STimeSeries::VerifyValuVecType(typ));
+	assert(!oneof2(Typ, T_FLOAT, T_DOUBLE) || FxPrec == 0);
+}
 
-        const  TYPEID Typ;
-		int16  FxPrec;
-		uint16 Flags;
-        SString Symb;
-		BitArray UndefList; // Битовый вектор, в котором единичное значение соответствует неопределенной величине 
-			// в той же позиции (относительно STimeSeries::T).
-	};
-	ValuVec * FASTCALL GetVecBySymb(const char * pSymb, uint * pVecIdx) const;
-	ValuVec * FASTCALL GetVecByIdx(uint vecIdx) const;
-
-	TSVector <SUniTime> T;
-	TSCollection <ValuVec> VL;
-};
+SLAPI STimeSeries::ValuVec::ValuVec() : Typ(T_DOUBLE), SVector(stsize(T_DOUBLE), O_ARRAY), FxPrec(0), Flags(0)
+{
+	assert(STimeSeries::VerifyValuVecType(Typ));
+}
 
 void FASTCALL STimeSeries::ValuVec::ConvertDoubleToInner(double outer, void * pInner) const
 {
 	switch(Typ) {
 		case T_DOUBLE: *(double *)pInner = outer; break;
 		case T_FLOAT:  *(float *)pInner = (float)outer; break;
-		case T_INT32:  
+		case T_INT32:
 			if(FxPrec != 0)
-				*(int32 *)pInner = (int32)(outer * fpow10i(FxPrec)); 
+				*(int32 *)pInner = (int32)R0(outer * fpow10i(FxPrec));
 			else
-				*(int32 *)pInner = (int32)outer; 
+				*(int32 *)pInner = (int32)outer;
 			break;
-		case T_INT64: 
+		case T_INT64:
 			if(FxPrec != 0)
-				*(int64 *)pInner = (int64)(outer * fpow10i(FxPrec)); 
+				*(int64 *)pInner = (int64)R0(outer * fpow10i(FxPrec));
 			else
-				*(int64 *)pInner = (int64)outer; 
+				*(int64 *)pInner = (int64)outer;
+			break;
+		default:
+			assert(0);
+	}
+}
+
+void FASTCALL STimeSeries::ValuVec::ConvertFloatToInner(float outer, void * pInner) const
+{
+	switch(Typ) {
+		case T_DOUBLE: *(double *)pInner = outer; break;
+		case T_FLOAT:  *(float *)pInner = outer; break;
+		case T_INT32:
+			if(FxPrec != 0)
+				*(int32 *)pInner = (int32)R0(outer * fpow10fi(FxPrec));
+			else
+				*(int32 *)pInner = (int32)outer;
+			break;
+		case T_INT64:
+			if(FxPrec != 0)
+				*(int64 *)pInner = (int64)R0(outer * fpow10fi(FxPrec));
+			else
+				*(int64 *)pInner = (int64)outer;
+			break;
+		default:
+			assert(0);
+	}
+}
+
+void FASTCALL STimeSeries::ValuVec::ConvertInt32ToInner(int32 outer, void * pInner) const
+{
+	switch(Typ) {
+		case T_DOUBLE: *(double *)pInner = (double)outer; break;
+		case T_FLOAT:  *(float *)pInner = (float)outer; break;
+		case T_INT32:
+			if(FxPrec != 0)
+				*(int32 *)pInner = (int32)(outer * fpow10i(FxPrec));
+			else
+				*(int32 *)pInner = outer;
+			break;
+		case T_INT64:
+			if(FxPrec != 0)
+				*(int64 *)pInner = (int64)(outer * fpow10i(FxPrec));
+			else
+				*(int64 *)pInner = (int64)outer;
+			break;
+		default:
+			assert(0);
+	}
+}
+
+void FASTCALL STimeSeries::ValuVec::ConvertInt64ToInner(int64 outer, void * pInner) const
+{
+	switch(Typ) {
+		case T_DOUBLE: *(double *)pInner = (double)outer; break;
+		case T_FLOAT:  *(float *)pInner = (float)outer; break;
+		case T_INT32:
+			if(FxPrec != 0)
+				*(int32 *)pInner = (int32)(outer * fpow10i(FxPrec));
+			else
+				*(int32 *)pInner = (int32)outer;
+			break;
+		case T_INT64:
+			if(FxPrec != 0)
+				*(int64 *)pInner = (int64)(outer * fpow10i(FxPrec));
+			else
+				*(int64 *)pInner = outer;
 			break;
 		default:
 			assert(0);
@@ -577,14 +623,77 @@ double FASTCALL STimeSeries::ValuVec::ConvertInnerToDouble(const void * pInner) 
 	switch(Typ) {
 		case T_DOUBLE: return *(double *)pInner;
 		case T_FLOAT:  return *(float *)pInner;
-		case T_INT32:  return FxPrec ? (((double)((int32)pInner)) / fpow10i(FxPrec)) : (double)((int32)pInner);
-		case T_INT64:  return FxPrec ? (((double)((int64)pInner)) / fpow10i(FxPrec)) : (double)((int64)pInner);
+		case T_INT32:  return FxPrec ? (((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (double)*(int32 *)pInner;
+		case T_INT64:  return FxPrec ? (((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (double)*(int64 *)pInner;
 		default: assert(0); return 0.0;
 	}
 }
 
-SLAPI STimeSeries::STimeSeries()
+float FASTCALL STimeSeries::ValuVec::ConvertInnerToFloat(const void * pInner) const
 {
+	switch(Typ) {
+		case T_DOUBLE: return (float)*(double *)pInner;
+		case T_FLOAT:  return *(float *)pInner;
+		case T_INT32:  return FxPrec ? (((float)(*(int32 *)pInner)) / fpow10fi(FxPrec)) : (float)*(int32 *)pInner;
+		case T_INT64:  return FxPrec ? (((float)(*(int64 *)pInner)) / fpow10fi(FxPrec)) : (float)*(int64 *)pInner;
+		default: assert(0); return 0.0f;
+	}
+}
+
+int32 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt32(const void * pInner) const
+{
+	switch(Typ) {
+		case T_DOUBLE: return (int32)*(double *)pInner;
+		case T_FLOAT:  return (int32)*(float *)pInner;
+		case T_INT32:  return FxPrec ? (int32)(((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : *(int32 *)pInner;
+		case T_INT64:  return FxPrec ? (int32)(((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (int32)(*(int64 *)pInner);
+		default: assert(0); return 0;
+	}
+}
+
+int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) const
+{
+	switch(Typ) {
+		case T_DOUBLE: return (int64)*(double *)pInner;
+		case T_FLOAT:  return (int64)*(float *)pInner;
+		case T_INT32:  return FxPrec ? (int64)(((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (int64)(*(int32 *)pInner);
+		case T_INT64:  return FxPrec ? (int64)(((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : *(int64 *)pInner;
+		default: assert(0); return 0;
+	}
+}
+
+SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0)
+{
+	memzero(Reserve, sizeof(Reserve));
+}
+
+uint SLAPI STimeSeries::GetCount() const
+{
+	return T.getCount();
+}
+
+int FASTCALL STimeSeries::GetTime(uint itemIdx, SUniTime * pT) const
+{
+	int    ok = 1;
+	if(itemIdx < T.getCount()) {
+		ASSIGN_PTR(pT, T.at(itemIdx));
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI STimeSeries::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Ver, rBuf));
+	THROW(pSCtx->Serialize(dir, Id, rBuf));
+	THROW(pSCtx->Serialize(dir, Symb, rBuf));
+	THROW(pSCtx->SerializeBlock(dir, sizeof(Reserve), Reserve, rBuf, 0));
+	THROW(pSCtx->Serialize(dir, &T, rBuf));
+	THROW(TSCollection_Serialize(VL, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
 }
 
 STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecBySymb(const char * pSymb, uint * pVecIdx) const
@@ -592,7 +701,7 @@ STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecBySymb(const char * pSymb, ui
 	if(!isempty(pSymb)) {
 		for(uint i = 0; i < VL.getCount(); i++) {
 			ValuVec * p_vec = VL.at(i);
-			if(p_vec && p_vec->Symb.IsEqiAscii(pSymb)) {
+			if(p_vec && p_vec->GetSymb().IsEqiAscii(pSymb)) {
 				ASSIGN_PTR(pVecIdx, i);
 				return p_vec;
 			}
@@ -606,14 +715,14 @@ STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecByIdx(uint vecIdx) const
 	return (vecIdx < VL.getCount()) ? VL.at(vecIdx) : 0;
 }
 
-int SLAPI STimeSeries::AddValueVec(TYPEID typ, const char * pSymb, uint * pVecIdx)
+int SLAPI STimeSeries::AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx)
 {
 	int    ok = 1;
 	uint   vec_idx = 0;
 	THROW(!GetVecBySymb(pSymb, 0));
 	THROW(VerifyValuVecType(typ));
 	{
-		ValuVec * p_new_vec = new ValuVec(typ, pSymb);
+		ValuVec * p_new_vec = new ValuVec(pSymb, typ, fxPrec);
 		THROW(p_new_vec);
 		vec_idx = VL.getCount();
 		THROW(VL.insert(p_new_vec));
@@ -638,31 +747,141 @@ int SLAPI STimeSeries::AddItem(SUniTime tm, uint * pItemIdx)
 		return 0;
 }
 
-int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
+int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, uint vecIdx, const void * pValuePtr)
 {
+	assert(pValuePtr);
 	int    ok = 1;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
 	THROW(p_vec);
 	THROW(itemIdx < T.getCount());
 	{
-		uint8 value_buf[16];
-		memzero(value_buf, sizeof(value_buf));
-		p_vec->ConvertDoubleToInner(value, value_buf);
 		const uint org_vec_count = p_vec->getCount();
-		if(itemIdx == org_vec_count) {
-			THROW(p_vec->insert(value_buf));
+		if(itemIdx > org_vec_count) {
+			p_vec->atPut(itemIdx, pValuePtr);
 		}
-		else if(itemIdx > org_vec_count) {
-			uint ulc = p_vec->UndefList.getCount();
-			if(ulc < org_vec_count)
-				p_vec->UndefList.insertN(0, org_vec_count-ulc);
-			assert(p_vec->UndefList.getCount() == org_vec_count);
-			p_vec->UndefList.insertN(1, itemIdx-org_vec_count);
-			
+		else {
+			if(itemIdx > org_vec_count) {
+				uint8 zero_value_buf[16];
+				memzero(zero_value_buf, sizeof(zero_value_buf));
+				for(uint i = 0; i < (itemIdx - org_vec_count); i++) {
+					THROW(p_vec->insert(zero_value_buf));
+				}
+			}
+			assert(itemIdx == p_vec->getCount());
+			THROW(p_vec->insert(pValuePtr));
 		}
 	}
 	CATCHZOK
 	return ok;
 }
+
+int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
+{
+	uint8 value_buf[16];
+	memzero(value_buf, sizeof(value_buf));
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec) {
+		p_vec->ConvertDoubleToInner(value, value_buf);
+		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+	}
+	else
+		return 0;
+}
+
+int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, float value)
+{
+	uint8 value_buf[16];
+	memzero(value_buf, sizeof(value_buf));
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec) {
+		p_vec->ConvertFloatToInner(value, value_buf);
+		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+	}
+	else
+		return 0;
+}
+
+int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int32 value)
+{
+	uint8 value_buf[16];
+	memzero(value_buf, sizeof(value_buf));
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec) {
+		p_vec->ConvertInt32ToInner(value, value_buf);
+		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+	}
+	else
+		return 0;
+}
+
+int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int64 value)
+{
+	uint8 value_buf[16];
+	memzero(value_buf, sizeof(value_buf));
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec) {
+		p_vec->ConvertInt64ToInner(value, value_buf);
+		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+	}
+	else
+		return 0;
+}
+
+int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, double * pValue) const
+{
+	int    ok = 0;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec && itemIdx < p_vec->getCount()) {
+		if(pValue) {
+			const void * p_value_buf = p_vec->at(itemIdx);
+			*pValue = p_vec->ConvertInnerToDouble(p_value_buf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, float * pValue) const
+{
+	int    ok = 0;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec && itemIdx < p_vec->getCount()) {
+		if(pValue) {
+			const void * p_value_buf = p_vec->at(itemIdx);
+			*pValue = p_vec->ConvertInnerToFloat(p_value_buf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const
+{
+	int    ok = 0;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec && itemIdx < p_vec->getCount()) {
+		if(pValue) {
+			const void * p_value_buf = p_vec->at(itemIdx);
+			*pValue = p_vec->ConvertInnerToInt32(p_value_buf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
+{
+	int    ok = 0;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+	if(p_vec && itemIdx < p_vec->getCount()) {
+		if(pValue) {
+			const void * p_value_buf = p_vec->at(itemIdx);
+			*pValue = p_vec->ConvertInnerToInt64(p_value_buf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
 #endif // } 0
 // } @construction

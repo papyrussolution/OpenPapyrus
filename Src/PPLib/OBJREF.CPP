@@ -345,15 +345,11 @@ int SLAPI PPObjReference::EditItem(PPID obj, PPID id, void * pRec, int use_ta)
 	return ok;
 }
 
-PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const char * pSymb, long flags)
+PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const char * pSymb, long flags) :
+	ObjType(objType), ID(id), Flags(flags), ParentID(0)
 {
-	THISZERO();
-	ObjType = objType;
-	ID = id;
 	STRNSCPY(Name, pName);
 	STRNSCPY(Symb, pSymb);
-	Flags = flags;
-	ParentID = 0;
 }
 
 // static
@@ -3892,6 +3888,163 @@ int SLAPI PPObjEdiProvider::SerializePacket(int dir, PPEdiProviderPacket * pPack
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+SLAPI PPObjTimeSeries::PPObjTimeSeries(void * extraPtr) : PPObjReference(PPOBJ_TIMESERIES, extraPtr)
+{
+}
+
+int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
+{
+	class TsViewDialog : public ObjViewDialog {
+	public:
+		TsViewDialog(PPObjTimeSeries * pObj) : ObjViewDialog(DLG_TSVIEW, pObj, 0)
+		{
+		}
+	private:
+		virtual void extraProc(long id)
+		{
+			((PPObjTimeSeries *)P_Obj)->Test();
+		}
+	};
+	//return RefObjView(this, 0, 0);
+	//int SLAPI RefObjView(PPObject * pObj, long charryID, void * extraPtr)
+	{
+		int    ok = 1;
+		TDialog * dlg = new TsViewDialog(this);
+		if(CheckDialogPtrErr(&dlg))
+			ExecViewAndDestroy(dlg);
+		else
+			ok = 0;
+		return ok;
+	}
+}
+
+int SLAPI PPObjTimeSeries::Test() // @experimental
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString src_file_name;
+	SString test_file_name;
+	SLS.QueryPath("testroot", src_file_name);
+	src_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("ts").SetLastSlash().Cat("test-symb-export-eurusd.csv");
+	SFile f_in(src_file_name, SFile::mRead);
+	if(f_in.IsValid()) {
+		test_file_name = src_file_name;
+		SPathStruc::ReplaceExt(test_file_name, "out", 1);
+
+		SString line_buf;
+		StringSet ss_in(",");
+		STimeSeries ts;
+
+		LDATETIME dtm;
+		double open = 0.0;
+		double close = 0.0;
+		long   tick_vol = 0;
+		long   real_vol = 0;
+		long   spread = 0;
+
+		uint   vecidx_open = 0;
+		uint   vecidx_close = 0;
+		uint   vecidx_ticvol = 0;
+		uint   vecidx_realvol = 0;
+		uint   vecidx_spread = 0;
+		//THROW_SL(ts.AddValueVec("open", T_DOUBLE, 0, &vecidx_open));
+		THROW_SL(ts.AddValueVec("open", T_INT32, 5, &vecidx_open));
+		//THROW_SL(ts.AddValueVec("close", T_DOUBLE, 0, &vecidx_close));
+		THROW_SL(ts.AddValueVec("close", T_INT32, 5, &vecidx_close));
+		THROW_SL(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol));
+		THROW_SL(ts.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol));
+		THROW_SL(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread));
+		{
+			uint8 sign[8];
+			size_t actual_size = 0;
+			if(f_in.Read(sign, 4, &actual_size) && actual_size == 4) {
+				if(sign[0] == 0xEF && sign[1] == 0xBB && sign[2] == 0xBF)
+					f_in.Seek(3);
+				else
+					f_in.Seek(0);
+			}
+		}
+		while(f_in.ReadLine(line_buf)) {
+			line_buf.Chomp().Strip();
+			if(line_buf.NotEmpty()) {
+				ss_in.setBuf(line_buf);
+				dtm.Z();
+				open = 0.0;
+				close = 0.0;
+				tick_vol = 0;
+				real_vol = 0;
+				spread = 0;
+				for(uint ssp = 0, fldn = 0; ss_in.get(&ssp, temp_buf); fldn++) {
+					switch(fldn) {
+						case 0: 
+							strtodate(temp_buf, DATF_YMD, &dtm.d);
+							break;
+						case 1: 
+							strtotime(temp_buf, TIMF_HMS, &dtm.t);
+							break;
+						case 2: 
+							open = temp_buf.ToReal();
+							break;
+						case 3: 
+							close = temp_buf.ToReal();
+							break;
+						case 4:
+							tick_vol = temp_buf.ToLong();
+							break;
+						case 5:
+							real_vol = temp_buf.ToLong();
+							break;
+						case 6:
+							spread = temp_buf.ToLong();
+							break;
+					}
+				}
+				if(checkdate(&dtm) && close > 0.0) {
+					SUniTime ut;
+					ut.Set(dtm, SUniTime::indMin);
+					uint   item_idx = 0;
+					THROW_SL(ts.AddItem(ut, &item_idx));
+					THROW_SL(ts.SetValue(item_idx, vecidx_open, open));
+					THROW_SL(ts.SetValue(item_idx, vecidx_close, close));
+					THROW_SL(ts.SetValue(item_idx, vecidx_ticvol, tick_vol));
+					THROW_SL(ts.SetValue(item_idx, vecidx_realvol, real_vol));
+					THROW_SL(ts.SetValue(item_idx, vecidx_spread, spread));
+				}
+			}
+		}
+		{
+			SFile f_out(test_file_name, SFile::mWrite);
+			//
+			SBuffer sbuf;
+			SBuffer cbuf;
+			SSerializeContext sctx;
+			SCompressor c(SCompressor::tZLib);
+			THROW_SL(ts.Serialize(+1, sbuf, &sctx));
+			THROW_SL(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0));
+			//
+			if(f_out.IsValid()) {
+				for(uint i = 0; i < ts.GetCount(); i++) {
+					SUniTime ut;
+					ts.GetTime(i, &ut);
+					ut.Get(dtm);
+					THROW_SL(ts.GetValue(i, vecidx_open, &open));
+					THROW_SL(ts.GetValue(i, vecidx_close, &close));
+					THROW_SL(ts.GetValue(i, vecidx_ticvol, &tick_vol));
+					THROW_SL(ts.GetValue(i, vecidx_realvol, &real_vol));
+					THROW_SL(ts.GetValue(i, vecidx_spread, &spread));
+					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
+						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
+					f_out.WriteLine(line_buf);
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }

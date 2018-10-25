@@ -427,16 +427,15 @@ LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8** ip, uint8** op, const ui
 	/* Copy Literals */
 	LZ4_wildCopy(*op, *anchor, (*op) + length);
 	*op += length;
-
 	/* Encode Offset */
-	assert( (*ip - match) <= MAX_DISTANCE); /* note : consider providing offset as a value, rather than as a pointer
-	                                           difference */
-	LZ4_writeLE16(*op, (uint16)(*ip-match)); *op += 2;
-
+	assert( (*ip - match) <= MAX_DISTANCE); // note : consider providing offset as a value, rather than as a pointer difference 
+	LZ4_writeLE16(*op, (uint16)(*ip-match)); 
+	*op += 2;
 	/* Encode MatchLength */
 	assert(matchLength >= MINMATCH);
 	length = (size_t)(matchLength - MINMATCH);
-	if((limit) && (*op + (length >> 8) + (1 + LASTLITERALS) > oend)) return 1; /* Check output limit */
+	if((limit) && (*op + (length >> 8) + (1 + LASTLITERALS) > oend)) 
+		return 1; /* Check output limit */
 	if(length >= ML_MASK) {
 		*token += ML_MASK;
 		length -= ML_MASK;
