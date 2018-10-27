@@ -619,15 +619,10 @@
   <ItemGroup>
     <ClCompile Include="..\Osf\Libzip\lib\libzip.c" />
     <ClCompile Include="..\OSF\LIBZIP\lib\szip_win32.c" />
-    <ClCompile Include="..\Osf\Libzip\lib\zip_extra_field.c" />
-    <ClCompile Include="..\Osf\Libzip\lib\zip_open.c" />
-    <ClCompile Include="..\Osf\Libzip\lib\zip_source_filep.c" />
-    <ClCompile Include="..\Osf\Libzip\lib\zip_utf-8.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\Libzip\lib\zip.h" />
     <ClInclude Include="..\Osf\Libzip\lib\zipint.h" />
-    <ClInclude Include="..\Osf\Libzip\lib\zipwin32.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

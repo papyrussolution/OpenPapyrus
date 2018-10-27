@@ -1,5 +1,6 @@
 // PPACTION.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -38,10 +39,10 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 				int    rsrv_ok = -1;
 				if(P_RsrvT) {
 					//
-					// Следующий участок кода полностью повторяет внесение записи в SysJournal (см. выше),
-					// с поправкой на то, что запись вносится в резервную таблицу.
-					// Дата и время инициализируются тем же значением, с которым осуществлялась
-					// самая первая попытка добавления записи в регулярную таблицу.
+					// РЎР»РµРґСѓСЋС‰РёР№ СѓС‡Р°СЃС‚РѕРє РєРѕРґР° РїРѕР»РЅРѕСЃС‚СЊСЋ РїРѕРІС‚РѕСЂСЏРµС‚ РІРЅРµСЃРµРЅРёРµ Р·Р°РїРёСЃРё РІ SysJournal (СЃРј. РІС‹С€Рµ),
+					// СЃ РїРѕРїСЂР°РІРєРѕР№ РЅР° С‚Рѕ, С‡С‚Рѕ Р·Р°РїРёСЃСЊ РІРЅРѕСЃРёС‚СЃСЏ РІ СЂРµР·РµСЂРІРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ.
+					// Р”Р°С‚Р° Рё РІСЂРµРјСЏ РёРЅРёС†РёР°Р»РёР·РёСЂСѓСЋС‚СЃСЏ С‚РµРј Р¶Рµ Р·РЅР°С‡РµРЅРёРµРј, СЃ РєРѕС‚РѕСЂС‹Рј РѕСЃСѓС‰РµСЃС‚РІР»СЏР»Р°СЃСЊ
+					// СЃР°РјР°СЏ РїРµСЂРІР°СЏ РїРѕРїС‹С‚РєР° РґРѕР±Р°РІР»РµРЅРёСЏ Р·Р°РїРёСЃРё РІ СЂРµРіСѓР»СЏСЂРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ.
 					//
 					P_RsrvT->data.Dt      = dtm.d;
 					P_RsrvT->data.Tm      = dtm.t;
@@ -364,7 +365,7 @@ int SLAPI SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournal
 		if(CheckFiltID(pFilt->ObjType, objType) && CheckFiltID(pFilt->ObjID, objID)) {
 			SysJournalTbl::Key1 k1;
 			DBQ * dbq = 0;
-			BExtQuery q(this, 1, 1); // Нам достаточно одной записи
+			BExtQuery q(this, 1, 1); // РќР°Рј РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РѕРґРЅРѕР№ Р·Р°РїРёСЃРё
 			dbq = &(*dbq && this->ObjType == objType && this->ObjID == objID && daterange(this->Dt, &pFilt->Period));
 			dbq = ppcheckfiltid(dbq, this->UserID, pFilt->UserID);
 			dbq = &(*dbq && ppidlist(this->Action, &pFilt->ActionIDList));
@@ -549,7 +550,7 @@ PPID FASTCALL PPObjBill::GetGtaGoodsID(const PPGta & rGta)
 	if(!GtaB.OpGoodsAssoc.Search(assoc_key, &goods_id, 0)) {
 		if(GObj.P_Tbl->SearchBarcode(GetGoodsCodeForOp(rGta.Op, rGta.ObjId.Obj, code), &bc_rec) > 0)
 			goods_id = bc_rec.GoodsID;
-		if(goods_id) // Пока нет актуализации списка нулевые goods_id туда запихавать не будем
+		if(goods_id) // РџРѕРєР° РЅРµС‚ Р°РєС‚СѓР°Р»РёР·Р°С†РёРё СЃРїРёСЃРєР° РЅСѓР»РµРІС‹Рµ goods_id С‚СѓРґР° Р·Р°РїРёС…Р°РІР°С‚СЊ РЅРµ Р±СѓРґРµРј
 			GtaB.OpGoodsAssoc.Add(assoc_key, goods_id, 0);
 	}
 	if(!goods_id && rGta.ObjId.Obj) {
@@ -557,7 +558,7 @@ PPID FASTCALL PPObjBill::GetGtaGoodsID(const PPGta & rGta)
 		if(!GtaB.OpGoodsAssoc.Search(assoc_key, &goods_id, 0)) {
 			if(GObj.P_Tbl->SearchBarcode(GetGoodsCodeForOp(rGta.Op, 0, code), &bc_rec) > 0)
 				goods_id = bc_rec.GoodsID;
-			if(goods_id) // Пока нет актуализации списка нулевые goods_id туда запихавать не будем
+			if(goods_id) // РџРѕРєР° РЅРµС‚ Р°РєС‚СѓР°Р»РёР·Р°С†РёРё СЃРїРёСЃРєР° РЅСѓР»РµРІС‹Рµ goods_id С‚СѓРґР° Р·Р°РїРёС…Р°РІР°С‚СЊ РЅРµ Р±СѓРґРµРј
 				GtaB.OpGoodsAssoc.Add(assoc_key, goods_id, 0);
 		}
 	}
@@ -683,7 +684,7 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 		rec.Duration = rGta.Duration;
 		{
 			//
-			// Суррогатная уникальность индекса по времени
+			// РЎСѓСЂСЂРѕРіР°С‚РЅР°СЏ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РёРЅРґРµРєСЃР° РїРѕ РІСЂРµРјРµРЅРё
 			//
 			LDATETIME dtm;
 			dtm.Set(rec.Dt, rec.Tm);
@@ -699,9 +700,9 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 					inc_count++;
 				} while(search(1, &k1, spEq));
 				//
-				// В случае, если время операции является текущим (как чаще всего и бывает)
-				// необходимо задержать выполнение функции на величину искусственного смещения времени
-				// для того, чтобы следующая операция не оказалась бы впереди предыдущей.
+				// Р’ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РІСЂРµРјСЏ РѕРїРµСЂР°С†РёРё СЏРІР»СЏРµС‚СЃСЏ С‚РµРєСѓС‰РёРј (РєР°Рє С‡Р°С‰Рµ РІСЃРµРіРѕ Рё Р±С‹РІР°РµС‚)
+				// РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґРµСЂР¶Р°С‚СЊ РІС‹РїРѕР»РЅРµРЅРёРµ С„СѓРЅРєС†РёРё РЅР° РІРµР»РёС‡РёРЅСѓ РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕРіРѕ СЃРјРµС‰РµРЅРёСЏ РІСЂРµРјРµРЅРё
+				// РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СЃР»РµРґСѓСЋС‰Р°СЏ РѕРїРµСЂР°С†РёСЏ РЅРµ РѕРєР°Р·Р°Р»Р°СЃСЊ Р±С‹ РІРїРµСЂРµРґРё РїСЂРµРґС‹РґСѓС‰РµР№.
 				//
 				SDelay(inc_count * 10);
 				//

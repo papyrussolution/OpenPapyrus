@@ -11,7 +11,7 @@
 //
 //
 //
-static const size_t Default_SCompressor_MaxTempBufSize = SMEGABYTE(1);
+static const size_t Default_SCompressor_MaxTempBufSize = SKILOBYTE(256);
 
 SLAPI SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Default_SCompressor_MaxTempBufSize)
 {
@@ -80,7 +80,8 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 			THROW(zlib_err == Z_OK);
 			{
 				int    cb = deflateBound(&stream, current_src_size);
-				STempBuffer temp_buf(/*MIN(SKILOBYTE(1024), cb)*/512); // small buf for testing several iterations
+				const size_t temp_buf_size = MIN(MaxTempBufSize, cb);
+				STempBuffer temp_buf(temp_buf_size); // small buf for testing several iterations
 				THROW(temp_buf.IsValid());
 				do {
 					stream.next_out = (Bytef *)(char *)temp_buf;
@@ -125,7 +126,8 @@ int SLAPI SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffe
 		zlib_err = inflateInit(&stream);
 		THROW(zlib_err == Z_OK);
 		{
-			STempBuffer temp_buf(SKILOBYTE(1024));
+			const size_t temp_buf_size = MaxTempBufSize;
+			STempBuffer temp_buf(temp_buf_size);
 			// decompress until deflate stream ends or end of file 
 			stream.avail_in = srcSize;
 			stream.next_in = (z_const Bytef*)pSrc;

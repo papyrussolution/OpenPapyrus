@@ -56,7 +56,27 @@
 	#endif
 #endif
 */
-#include <zipconf.h>
+//#include <zipconf.h>
+#if defined(HAVE_STDINT_H_LIBZIP)
+	#include <stdint.h>
+#elif defined(HAVE_INTTYPES_H_LIBZIP)
+	#include <inttypes.h>
+#elif defined(HAVE_SYS_TYPES_H_LIBZIP)
+	#include <sys/types.h>
+#endif
+//#define ZIP_INT8_MIN	-0x80
+//#define ZIP_INT8_MAX	 0x7f
+//#define ZIP_UINT8_MAX	 0xff
+//#define ZIP_INT16_MIN	-0x8000
+//#define ZIP_INT16_MAX	 0x7fff
+#define ZIP_UINT16_MAX	 0xffff
+//#define ZIP_INT32_MIN	-0x80000000L
+#define ZIP_INT32_MAX	 0x7fffffffL
+#define ZIP_UINT32_MAX	 0xffffffffLU
+//#define ZIP_INT64_MIN	 (-ZIP_INT64_MAX-1LL)
+#define ZIP_INT64_MAX	 0x7fffffffffffffffLL
+#define ZIP_UINT64_MAX	 0xffffffffffffffffULL
+//
 //#include <sys/types.h>
 //#include <stdio.h>
 //#include <time.h>

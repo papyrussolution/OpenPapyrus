@@ -26,8 +26,52 @@
 // IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 #include "zipint.h"
-#include "zipwin32.h"
+//#include "zipwin32.h"
 
+// 0x0501 => Windows XP; needs to be at least this value because of GetFileSizeEx 
+// @sobolev #define _WIN32_WINNT 0x0501
+// @sobolev #include <windows.h>
+//
+// context for Win32 source 
+//
+struct _zip_source_win32_file_ops;
+
+struct _zip_source_win32_read_file {
+    zip_error_t error;      /* last error information */
+    int64 supports;
+	struct _zip_source_win32_file_ops * ops; // operations 
+    /* reading */
+    void *fname;            /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
+    void *h;                /* HANDLE for file to read from */
+    int closep;             /* whether to close f on ZIP_CMD_FREE */
+    zip_stat_t st;     /* stat information passed in */
+    uint64 start;     /* start offset of data to read */
+    uint64 end;       /* end offset of data to read, 0 for up to EOF */
+    uint64 current;   /* current offset */
+
+    /* writing */
+    void *tmpname;          /* name of temp file - ANSI (char *) or Unicode (wchar_t *) */
+    void *hout;             /* HANDLE for output file */
+};
+
+typedef struct _zip_source_win32_read_file _zip_source_win32_read_file_t;
+
+/* internal operations for Win32 source */
+
+struct _zip_source_win32_file_ops {
+    void *(*op_strdup)(const void *);
+    void *(*op_open)(_zip_source_win32_read_file_t *);
+    void *(*op_create_temp)(_zip_source_win32_read_file_t *, void **, uint32, PSECURITY_ATTRIBUTES);
+    int (*op_rename_temp)(_zip_source_win32_read_file_t *);
+    int (*op_remove)(const void *);
+};
+
+typedef struct _zip_source_win32_file_ops _zip_source_win32_file_ops_t;
+
+zip_source_t *_zip_source_win32_handle_or_name(const void *, void *, uint64, int64, int, const zip_stat_t *, _zip_source_win32_file_ops_t *, zip_error_t *);
+//
+//
+//
 static void * _win32_strdup_a(const void * str);
 static HANDLE _win32_open_a(_zip_source_win32_read_file_t * ctx);
 static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa);
@@ -35,11 +79,11 @@ static int _win32_rename_temp_a(_zip_source_win32_read_file_t * ctx);
 static int _win32_remove_a(const void * fname);
 static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_cmd_t cmd);
 static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx);
-static int _zip_filetime_to_time_t(FILETIME ft, time_t * t);
-static int _zip_seek_win32_u(void * h, uint64 offset, int whence, zip_error_t * error);
-static int _zip_seek_win32(void * h, int64 offset, int whence, zip_error_t * error);
-static int _zip_win32_error_to_errno(ulong win32err);
-static int _zip_stat_win32(void * h, zip_stat_t * st, _zip_source_win32_read_file_t * ctx);
+//static int _zip_filetime_to_time_t(FILETIME ft, time_t * t);
+//static int _zip_seek_win32_u(void * h, uint64 offset, int whence, zip_error_t * error);
+//static int _zip_seek_win32(void * h, int64 offset, int whence, zip_error_t * error);
+//static int _zip_win32_error_to_errno(ulong win32err);
+//static int _zip_stat_win32(void * h, zip_stat_t * st, _zip_source_win32_read_file_t * ctx);
 static void * _win32_strdup_w(const void * str);
 static HANDLE _win32_open_w(_zip_source_win32_read_file_t * ctx);
 static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa);
@@ -47,6 +91,21 @@ static int _win32_rename_temp_w(_zip_source_win32_read_file_t * ctx);
 static int _win32_remove_w(const void * fname);
 
 static _zip_source_win32_file_ops_t win32_ops_a = { _win32_strdup_a, _win32_open_a, _win32_create_temp_a, _win32_rename_temp_a, _win32_remove_a };
+
+static int FASTCALL _zip_win32_error_to_errno(DWORD win32err)
+{
+	// Note: This list isn't exhaustive, but should cover common cases.
+	switch(win32err) {
+		case ERROR_INVALID_PARAMETER: return EINVAL;
+		case ERROR_FILE_NOT_FOUND: return ENOENT;
+		case ERROR_INVALID_HANDLE: return EBADF;
+		case ERROR_ACCESS_DENIED: return EACCES;
+		case ERROR_FILE_EXISTS: return EEXIST;
+		case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
+		case ERROR_DISK_FULL: return ENOSPC;
+		default: return 0;
+	}
+}
 
 ZIP_EXTERN zip_source_t * zip_source_win32a(zip_t * za, const char * fname, uint64 start, int64 len)
 {
@@ -96,6 +155,81 @@ static int _win32_rename_temp_a(_zip_source_win32_read_file_t * ctx)
 static int _win32_remove_a(const void * fname)
 {
 	DeleteFileA((const char*)fname);
+	return 0;
+}
+
+static int _zip_seek_win32(HANDLE h, int64 offset, int whence, zip_error_t * error)
+{
+	LARGE_INTEGER li;
+	DWORD method;
+	switch(whence) {
+		case SEEK_SET: method = FILE_BEGIN; break;
+		case SEEK_END: method = FILE_END; break;
+		case SEEK_CUR: method = FILE_CURRENT; break;
+		default: return zip_error_set(error, SLERR_ZIP_SEEK, EINVAL);
+	}
+	li.QuadPart = (LONGLONG)offset;
+	if(!SetFilePointerEx(h, li, NULL, method))
+		return zip_error_set(error, SLERR_ZIP_SEEK, _zip_win32_error_to_errno(GetLastError()));
+	else
+		return 0;
+}
+
+static int _zip_seek_win32_u(HANDLE h, uint64 offset, int whence, zip_error_t * error)
+{
+	if(offset > ZIP_INT64_MAX)
+		return zip_error_set(error, SLERR_ZIP_SEEK, EOVERFLOW);
+	else
+		return _zip_seek_win32(h, (int64)offset, whence, error);
+}
+
+static int _zip_filetime_to_time_t(FILETIME ft, time_t * t)
+{
+	// Inspired by http://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
+	const int64 WINDOWS_TICK = 10000000LL;
+	const int64 SEC_TO_UNIX_EPOCH = 11644473600LL;
+	ULARGE_INTEGER li;
+	int64 secs;
+	time_t temp;
+	li.LowPart = ft.dwLowDateTime;
+	li.HighPart = ft.dwHighDateTime;
+	secs = (li.QuadPart / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
+	temp = (time_t)secs;
+	if(secs != (int64)temp)
+		return -1;
+	else {
+		*t = temp;
+		return 0;
+	}
+}
+
+static int _zip_stat_win32(HANDLE h, zip_stat_t * st, _zip_source_win32_read_file_t * ctx)
+{
+	FILETIME mtimeft;
+	time_t mtime;
+	LARGE_INTEGER size;
+	int regularp;
+	if(!GetFileTime(h, NULL, NULL, &mtimeft))
+		return zip_error_set(&ctx->error, SLERR_ZIP_READ, _zip_win32_error_to_errno(GetLastError()));
+	if(_zip_filetime_to_time_t(mtimeft, &mtime) < 0)
+		return zip_error_set(&ctx->error, SLERR_ZIP_READ, ERANGE);
+	regularp = 0;
+	if(GetFileType(h) == FILE_TYPE_DISK) {
+		regularp = 1;
+	}
+	if(!GetFileSizeEx(h, &size))
+		return zip_error_set(&ctx->error, SLERR_ZIP_READ, _zip_win32_error_to_errno(GetLastError()));
+	zip_stat_init(st);
+	st->mtime = mtime;
+	st->valid |= ZIP_STAT_MTIME;
+	if(ctx->end != 0) {
+		st->size = ctx->end - ctx->start;
+		st->valid |= ZIP_STAT_SIZE;
+	}
+	else if(regularp) {
+		st->size = (uint64)size.QuadPart;
+		st->valid |= ZIP_STAT_SIZE;
+	}
 	return 0;
 }
 //
@@ -430,100 +564,6 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 		SAlloc::F(psd);
 		ctx->hout = th;
 		ctx->tmpname = temp;
-		return 0;
-	}
-}
-
-static int _zip_seek_win32_u(HANDLE h, uint64 offset, int whence, zip_error_t * error)
-{
-	if(offset > ZIP_INT64_MAX)
-		return zip_error_set(error, SLERR_ZIP_SEEK, EOVERFLOW);
-	else
-		return _zip_seek_win32(h, (int64)offset, whence, error);
-}
-
-static int _zip_seek_win32(HANDLE h, int64 offset, int whence, zip_error_t * error)
-{
-	LARGE_INTEGER li;
-	DWORD method;
-	switch(whence) {
-		case SEEK_SET: method = FILE_BEGIN; break;
-		case SEEK_END: method = FILE_END; break;
-		case SEEK_CUR: method = FILE_CURRENT; break;
-		default: return zip_error_set(error, SLERR_ZIP_SEEK, EINVAL);
-	}
-	li.QuadPart = (LONGLONG)offset;
-	if(!SetFilePointerEx(h, li, NULL, method))
-		return zip_error_set(error, SLERR_ZIP_SEEK, _zip_win32_error_to_errno(GetLastError()));
-	else
-		return 0;
-}
-
-static int _zip_win32_error_to_errno(DWORD win32err)
-{
-	/*
-	   Note: This list isn't exhaustive, but should cover common cases.
-	 */
-	switch(win32err) {
-		case ERROR_INVALID_PARAMETER: return EINVAL;
-		case ERROR_FILE_NOT_FOUND: return ENOENT;
-		case ERROR_INVALID_HANDLE: return EBADF;
-		case ERROR_ACCESS_DENIED: return EACCES;
-		case ERROR_FILE_EXISTS: return EEXIST;
-		case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
-		case ERROR_DISK_FULL: return ENOSPC;
-		default: return 0;
-	}
-}
-
-static int _zip_stat_win32(HANDLE h, zip_stat_t * st, _zip_source_win32_read_file_t * ctx)
-{
-	FILETIME mtimeft;
-	time_t mtime;
-	LARGE_INTEGER size;
-	int regularp;
-	if(!GetFileTime(h, NULL, NULL, &mtimeft))
-		return zip_error_set(&ctx->error, SLERR_ZIP_READ, _zip_win32_error_to_errno(GetLastError()));
-	if(_zip_filetime_to_time_t(mtimeft, &mtime) < 0)
-		return zip_error_set(&ctx->error, SLERR_ZIP_READ, ERANGE);
-	regularp = 0;
-	if(GetFileType(h) == FILE_TYPE_DISK) {
-		regularp = 1;
-	}
-	if(!GetFileSizeEx(h, &size))
-		return zip_error_set(&ctx->error, SLERR_ZIP_READ, _zip_win32_error_to_errno(GetLastError()));
-	zip_stat_init(st);
-	st->mtime = mtime;
-	st->valid |= ZIP_STAT_MTIME;
-	if(ctx->end != 0) {
-		st->size = ctx->end - ctx->start;
-		st->valid |= ZIP_STAT_SIZE;
-	}
-	else if(regularp) {
-		st->size = (uint64)size.QuadPart;
-		st->valid |= ZIP_STAT_SIZE;
-	}
-	return 0;
-}
-
-static int _zip_filetime_to_time_t(FILETIME ft, time_t * t)
-{
-	/*
-	   Inspired by http://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
-	 */
-	const int64 WINDOWS_TICK = 10000000LL;
-	const int64 SEC_TO_UNIX_EPOCH = 11644473600LL;
-	ULARGE_INTEGER li;
-	int64 secs;
-	time_t temp;
-	li.LowPart = ft.dwLowDateTime;
-	li.HighPart = ft.dwHighDateTime;
-	secs = (li.QuadPart / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
-	temp = (time_t)secs;
-	if(secs != (int64)temp)
-		return -1;
-	else {
-		*t = temp;
 		return 0;
 	}
 }

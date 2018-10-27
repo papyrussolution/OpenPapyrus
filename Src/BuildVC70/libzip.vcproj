@@ -346,18 +346,6 @@
 			<File
 				RelativePath="..\Osf\Libzip\lib\szip_win32.c">
 			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_extra_field.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_open.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_source_filep.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_utf-8.c">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -368,9 +356,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Libzip\lib\zipint.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zipwin32.h">
 			</File>
 		</Filter>
 		<Filter

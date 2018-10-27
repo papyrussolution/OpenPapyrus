@@ -6376,8 +6376,14 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="libzip.vcxproj">
+      <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
+    </ProjectReference>
     <ProjectReference Include="lz4.vcxproj">
       <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

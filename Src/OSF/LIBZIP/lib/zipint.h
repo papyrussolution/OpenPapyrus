@@ -420,10 +420,9 @@ struct zip_string {
     uint8 *converted;     	/* autoconverted string */
     uint32 converted_length;	/* length of converted */
 };
-
-
-/* bounds checked access to memory buffer */
-
+//
+// bounds checked access to memory buffer 
+//
 struct zip_buffer {
     bool   ok;
     bool   free_data;
@@ -431,9 +430,9 @@ struct zip_buffer {
     uint64 size;
     uint64 offset;
 };
-
-/* which files to write in which order */
-
+//
+// which files to write in which order 
+//
 struct zip_filelist {
     uint64 idx;
 /* @todo    const char *name; */
@@ -461,8 +460,8 @@ uint8  FASTCALL _zip_buffer_get_8(zip_buffer_t *buffer);
 uint64 FASTCALL _zip_buffer_left(zip_buffer_t *buffer);
 zip_buffer_t * FASTCALL _zip_buffer_new(uint8 *data, size_t size);
 zip_buffer_t * _zip_buffer_new_from_source(zip_source_t *src, size_t size, uint8 *buf, zip_error_t *error);
-uint64 FASTCALL _zip_buffer_offset(zip_buffer_t *buffer);
-bool   FASTCALL _zip_buffer_ok(zip_buffer_t *buffer);
+//uint64 FASTCALL _zip_buffer_offset(zip_buffer_t *buffer);
+//bool   FASTCALL _zip_buffer_ok(zip_buffer_t *buffer);
 int    FASTCALL _zip_buffer_put(zip_buffer_t *buffer, const void *src, size_t length);
 int    FASTCALL _zip_buffer_put_16(zip_buffer_t *buffer, uint16 i);
 int    FASTCALL _zip_buffer_put_32(zip_buffer_t *buffer, uint32 i);
@@ -498,10 +497,10 @@ uint16 _zip_ef_size(const zip_extra_field_t *, zip_flags_t);
 int    _zip_ef_write(zip_t *za, const zip_extra_field_t *ef, zip_flags_t flags);
 void   _zip_entry_finalize(zip_entry_t *);
 void   _zip_entry_init(zip_entry_t *);
-void   _zip_error_clear(zip_error_t *);
+//void   FASTCALL _zip_error_clear(zip_error_t *);
 //void   _zip_error_get(const zip_error_t *, int *, int *);
-void   _zip_error_copy(zip_error_t *dst, const zip_error_t *src);
-void   _zip_error_set_from_source(zip_error_t *, zip_source_t *);
+//void   FASTCALL _zip_error_copy(zip_error_t *dst, const zip_error_t *src);
+//void   FASTCALL _zip_error_set_from_source(zip_error_t *, zip_source_t *);
 const  uint8 *_zip_extract_extra_field_by_id(zip_error_t *, uint16, int, const uint8 *, uint16, uint16 *);
 int    _zip_file_extra_field_prepare_for_change(zip_t *, uint64);
 int    _zip_file_fillbuf(void *, size_t, zip_file_t *);

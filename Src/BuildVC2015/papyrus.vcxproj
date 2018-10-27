@@ -1276,6 +1276,7 @@
     <ClCompile Include="..\PPLib\Ppappo.cpp" />
     <ClCompile Include="..\PPLib\PPARRAY.CPP" />
     <ClCompile Include="..\PPLib\ppbuild.cpp" />
+    <ClCompile Include="..\PPLib\ppbulletinboard.cpp" />
     <ClCompile Include="..\PPLib\Ppcalc.cpp" />
     <ClCompile Include="..\PPLib\ppcmd.cpp" />
     <ClCompile Include="..\PPLib\ppcolors.cpp" />

@@ -172,11 +172,7 @@ double FASTCALL fdiv100i(long v)      { return ((double)v) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return ((double)v) / 1000.0; }
 long   FASTCALL fmul1000i(double v)   { return R0i(v * 1000.0); }
 double FASTCALL fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
-
-int FASTCALL feqeps(double v1, double v2, double epsilon)
-{
-	return (fabs(v1-v2) < epsilon) ? 1 : 0;
-}
+int    FASTCALL feqeps(double v1, double v2, double epsilon) { return BIN(fabs(v1-v2) < epsilon); }
 
 double FASTCALL fint(double v)
 {

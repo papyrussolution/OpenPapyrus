@@ -3982,27 +3982,13 @@ int SLAPI PPObjTimeSeries::Test() // @experimental
 				spread = 0;
 				for(uint ssp = 0, fldn = 0; ss_in.get(&ssp, temp_buf); fldn++) {
 					switch(fldn) {
-						case 0: 
-							strtodate(temp_buf, DATF_YMD, &dtm.d);
-							break;
-						case 1: 
-							strtotime(temp_buf, TIMF_HMS, &dtm.t);
-							break;
-						case 2: 
-							open = temp_buf.ToReal();
-							break;
-						case 3: 
-							close = temp_buf.ToReal();
-							break;
-						case 4:
-							tick_vol = temp_buf.ToLong();
-							break;
-						case 5:
-							real_vol = temp_buf.ToLong();
-							break;
-						case 6:
-							spread = temp_buf.ToLong();
-							break;
+						case 0: strtodate(temp_buf, DATF_YMD, &dtm.d); break;
+						case 1: strtotime(temp_buf, TIMF_HMS, &dtm.t); break;
+						case 2: open = temp_buf.ToReal(); break;
+						case 3: close = temp_buf.ToReal(); break;
+						case 4: tick_vol = temp_buf.ToLong(); break;
+						case 5: real_vol = temp_buf.ToLong(); break;
+						case 6: spread = temp_buf.ToLong(); break;
 					}
 				}
 				if(checkdate(&dtm) && close > 0.0) {
@@ -4021,23 +4007,34 @@ int SLAPI PPObjTimeSeries::Test() // @experimental
 		{
 			SFile f_out(test_file_name, SFile::mWrite);
 			//
-			SBuffer sbuf;
-			SBuffer cbuf;
+			STimeSeries dts;
+			SBuffer sbuf; // serialize buf
+			SBuffer cbuf; // compress buf
+			SBuffer dbuf; // decompress buf
 			SSerializeContext sctx;
-			SCompressor c(SCompressor::tZLib);
 			THROW_SL(ts.Serialize(+1, sbuf, &sctx));
-			THROW_SL(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0));
+			{
+				{
+					SCompressor c(SCompressor::tZLib);
+					THROW_SL(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0));
+				}
+				{
+					SCompressor c(SCompressor::tZLib);
+					THROW_SL(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf));
+				}
+				THROW_SL(dts.Serialize(-1, dbuf, &sctx));
+			}
 			//
 			if(f_out.IsValid()) {
-				for(uint i = 0; i < ts.GetCount(); i++) {
+				for(uint i = 0; i < dts.GetCount(); i++) {
 					SUniTime ut;
-					ts.GetTime(i, &ut);
+					dts.GetTime(i, &ut);
 					ut.Get(dtm);
-					THROW_SL(ts.GetValue(i, vecidx_open, &open));
-					THROW_SL(ts.GetValue(i, vecidx_close, &close));
-					THROW_SL(ts.GetValue(i, vecidx_ticvol, &tick_vol));
-					THROW_SL(ts.GetValue(i, vecidx_realvol, &real_vol));
-					THROW_SL(ts.GetValue(i, vecidx_spread, &spread));
+					THROW_SL(dts.GetValue(i, vecidx_open, &open));
+					THROW_SL(dts.GetValue(i, vecidx_close, &close));
+					THROW_SL(dts.GetValue(i, vecidx_ticvol, &tick_vol));
+					THROW_SL(dts.GetValue(i, vecidx_realvol, &real_vol));
+					THROW_SL(dts.GetValue(i, vecidx_spread, &spread));
 					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
 						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
 					f_out.WriteLine(line_buf);

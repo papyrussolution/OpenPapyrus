@@ -1006,7 +1006,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				}
 			}
 			// @v9.5.2 {
-			if(gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
+			if(prev_gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0) { // @v10.2.3 @fix gds_info-->prev_gds_info
 				//<delete-from-cash>true</delete-from-cash>
 				p_writer->PutElement("delete-from-cash", true);
 			}

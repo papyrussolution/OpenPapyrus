@@ -3738,7 +3738,7 @@ SLTEST_R(TestDbSerialization)
 					break;
 			}
 		}
-		THROW(SLTEST_CHECK_NZ(ctx.SerializeState(+1, state_buf)));
+		THROW(SLTEST_CHECK_NZ(ctx.SerializeStateOfContext(+1, state_buf)));
 		THROW(SLTEST_CHECK_NZ(srlz_file.Write(state_buf)));
 		THROW(SLTEST_CHECK_NZ(srlz_file.Write(srlz_buf)));
 	}
@@ -3751,13 +3751,11 @@ SLTEST_R(TestDbSerialization)
 	//
 	{
 		SFile srlz_file(srlz_file_name, SFile::mRead|SFile::mBinary);
-
 		SSerializeContext ctx;
 		SBuffer srlz_buf, state_buf;
-
 		THROW(SLTEST_CHECK_NZ(srlz_file.Read(state_buf)));
 		THROW(SLTEST_CHECK_NZ(srlz_file.Read(srlz_buf)));
-		THROW(SLTEST_CHECK_NZ(ctx.SerializeState(-1, state_buf)));
+		THROW(SLTEST_CHECK_NZ(ctx.SerializeStateOfContext(-1, state_buf)));
 		for(i = 0; i < serial_list.getCount(); i++) {
 			const int s = serial_list.get(i);
 			PPID id = id_list.get(i);

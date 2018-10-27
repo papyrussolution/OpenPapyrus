@@ -263,41 +263,41 @@ static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_endian
 #define PROCESS4 h32 += XXH_get32bits(p) * PRIME32_3; p += 4; h32  = XXH_rotl32(h32, 17) * PRIME32_4;
 	switch(len&15) { // or switch(bEnd - p) 
 		case 12:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 8:       PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 4:       PROCESS4;
 		    return XXH32_avalanche(h32);
 
 		case 13:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 9:       PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 5:       PROCESS4;
 		    PROCESS1;
 		    return XXH32_avalanche(h32);
 
 		case 14:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 10:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 6:       PROCESS4;
 		    PROCESS1;
 		    PROCESS1;
 		    return XXH32_avalanche(h32);
 
 		case 15:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 11:      PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 7:       PROCESS4;
-		/* fallthrough */
+		// @fallthrough
 		case 3:       PROCESS1;
-		/* fallthrough */
+		// @fallthrough
 		case 2:       PROCESS1;
-		/* fallthrough */
+		// @fallthrough
 		case 1:       PROCESS1;
-		/* fallthrough */
+		// @fallthrough
 		case 0:       return XXH32_avalanche(h32);
 	}
 	assert(0);
@@ -477,15 +477,14 @@ XXH_PUBLIC_API unsigned int XXH32_digest(const XXH32_state_t* state_in)
 	else
 		return XXH32_digest_endian(state_in, XXH_bigEndian);
 }
-
-/*======   Canonical representation   ======*/
-
-/*! Default XXH result types are basic unsigned 32 and 64 bits.
- *   The canonical representation follows human-readable write convention, aka big-endian (large digits first).
- *   These functions allow transformation of hash result into and from its canonical format.
- *   This way, hash values can be written into a file or buffer, remaining comparable across different systems.
- */
-
+//
+// Canonical representation 
+//
+// Default XXH result types are basic unsigned 32 and 64 bits.
+// The canonical representation follows human-readable write convention, aka big-endian (large digits first).
+// These functions allow transformation of hash result into and from its canonical format.
+// This way, hash values can be written into a file or buffer, remaining comparable across different systems.
+// 
 XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t hash)
 {
 	XXH_STATIC_ASSERT(sizeof(XXH32_canonical_t) == sizeof(XXH32_hash_t));
@@ -543,14 +542,10 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 #else
 static uint64 XXH_swap64(uint64 x)
 {
-	return ((x << 56) & 0xff00000000000000ULL) |
-	       ((x << 40) & 0x00ff000000000000ULL) |
-	       ((x << 24) & 0x0000ff0000000000ULL) |
-	       ((x << 8)  & 0x000000ff00000000ULL) |
-	       ((x >> 8)  & 0x00000000ff000000ULL) |
-	       ((x >> 24) & 0x0000000000ff0000ULL) |
-	       ((x >> 40) & 0x000000000000ff00ULL) |
-	       ((x >> 56) & 0x00000000000000ffULL);
+	return ((x << 56) & 0xff00000000000000ULL) | ((x << 40) & 0x00ff000000000000ULL) |
+       ((x << 24) & 0x0000ff0000000000ULL) | ((x << 8)  & 0x000000ff00000000ULL) |
+       ((x >> 8)  & 0x00000000ff000000ULL) | ((x >> 24) & 0x0000000000ff0000ULL) |
+       ((x >> 40) & 0x000000000000ff00ULL) | ((x >> 56) & 0x00000000000000ffULL);
 }
 
 #endif
@@ -563,15 +558,8 @@ FORCE_INLINE uint64 XXH_readLE64_align(const void* ptr, XXH_endianess endian, XX
 		return endian==XXH_littleEndian ? *(const uint64*)ptr : XXH_swap64(*(const uint64*)ptr);
 }
 
-FORCE_INLINE uint64 XXH_readLE64(const void* ptr, XXH_endianess endian)
-{
-	return XXH_readLE64_align(ptr, endian, XXH_unaligned);
-}
-
-static uint64 FASTCALL XXH_readBE64(const void* ptr)
-{
-	return XXH_CPU_LITTLE_ENDIAN ? XXH_swap64(XXH_read64(ptr)) : XXH_read64(ptr);
-}
+FORCE_INLINE uint64 XXH_readLE64(const void* ptr, XXH_endianess endian) { return XXH_readLE64_align(ptr, endian, XXH_unaligned); }
+static uint64 FASTCALL XXH_readBE64(const void* ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_swap64(XXH_read64(ptr)) : XXH_read64(ptr); }
 //
 // xxh64
 //
@@ -630,63 +618,57 @@ static uint64 XXH64_finalize(uint64 h64, const void* ptr, size_t len, XXH_endian
 
 	switch(len&31) {
 		case 24: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 16: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  8: PROCESS8_64;
 		    return XXH64_avalanche(h64);
-
 		case 28: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 20: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 12: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  4: PROCESS4_64;
 		    return XXH64_avalanche(h64);
-
 		case 25: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 17: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  9: PROCESS8_64;
 		    PROCESS1_64;
 		    return XXH64_avalanche(h64);
-
 		case 29: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 21: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 13: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  5: PROCESS4_64;
 		    PROCESS1_64;
 		    return XXH64_avalanche(h64);
-
 		case 26: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 18: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 10: PROCESS8_64;
 		    PROCESS1_64;
 		    PROCESS1_64;
 		    return XXH64_avalanche(h64);
-
 		case 30: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 22: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 14: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  6: PROCESS4_64;
 		    PROCESS1_64;
 		    PROCESS1_64;
 		    return XXH64_avalanche(h64);
-
 		case 27: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 19: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 11: PROCESS8_64;
 		    PROCESS1_64;
 		    PROCESS1_64;
@@ -694,19 +676,19 @@ static uint64 XXH64_finalize(uint64 h64, const void* ptr, size_t len, XXH_endian
 		    return XXH64_avalanche(h64);
 
 		case 31: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 23: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case 15: PROCESS8_64;
-		/* fallthrough */
+		// @fallthrough
 		case  7: PROCESS4_64;
-		/* fallthrough */
+		// @fallthrough
 		case  3: PROCESS1_64;
-		/* fallthrough */
+		// @fallthrough
 		case  2: PROCESS1_64;
-		/* fallthrough */
+		// @fallthrough
 		case  1: PROCESS1_64;
-		/* fallthrough */
+		// @fallthrough
 		case  0: return XXH64_avalanche(h64);
 	}
 	assert(0); // impossible to reach 
@@ -759,7 +741,6 @@ XXH_PUBLIC_API unsigned long long XXH64(const void* input, size_t len, unsigned 
 	return XXH64_digest(&state);
 #else
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if(XXH_FORCE_ALIGN_CHECK) {
 		if((((size_t)input) & 7)==0) { /* Input is aligned, let's leverage the speed advantage */
 			if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
@@ -778,19 +759,14 @@ XXH_PUBLIC_API unsigned long long XXH64(const void* input, size_t len, unsigned 
 // Hash Streaming
 // 
 XXH_PUBLIC_API XXH64_state_t * XXH64_createState(void)
-{
-	return (XXH64_state_t*)SAlloc::M(sizeof(XXH64_state_t));
-}
+	{ return (XXH64_state_t*)SAlloc::M(sizeof(XXH64_state_t)); }
+XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dstState, const XXH64_state_t* srcState)
+	{ memcpy(dstState, srcState, sizeof(*dstState)); }
 
 XXH_PUBLIC_API XXH_errorcode XXH64_freeState(XXH64_state_t* statePtr)
-{
+{ 
 	SAlloc::F(statePtr);
 	return XXH_OK;
-}
-
-XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dstState, const XXH64_state_t* srcState)
-{
-	memcpy(dstState, srcState, sizeof(*dstState));
 }
 
 XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long long seed)
@@ -815,17 +791,14 @@ FORCE_INLINE XXH_errorcode XXH64_update_endian(XXH64_state_t* state, const void*
 		return XXH_ERROR;
 #endif
 
-	{   const uint8* p = (const uint8*)input;
-	    const uint8* const bEnd = p + len;
-
+	{   const uint8 * p = (const uint8*)input;
+	    const uint8 * const bEnd = p + len;
 	    state->total_len += len;
-
 	    if(state->memsize + len < 32) { /* fill in tmp buffer */
 		    XXH_memcpy(((uint8*)state->mem64) + state->memsize, input, len);
 		    state->memsize += (uint32)len;
 		    return XXH_OK;
 	    }
-
 	    if(state->memsize) { /* tmp buffer is full */
 		    XXH_memcpy(((uint8*)state->mem64) + state->memsize, input, 32-state->memsize);
 		    state->v1 = XXH64_round(state->v1, XXH_readLE64(state->mem64+0, endian));
@@ -835,14 +808,12 @@ FORCE_INLINE XXH_errorcode XXH64_update_endian(XXH64_state_t* state, const void*
 		    p += 32-state->memsize;
 		    state->memsize = 0;
 	    }
-
 	    if(p+32 <= bEnd) {
 		    const uint8* const limit = bEnd - 32;
 		    uint64 v1 = state->v1;
 		    uint64 v2 = state->v2;
 		    uint64 v3 = state->v3;
 		    uint64 v4 = state->v4;
-
 		    do {
 			    v1 = XXH64_round(v1, XXH_readLE64(p, endian)); p += 8;
 			    v2 = XXH64_round(v2, XXH_readLE64(p, endian)); p += 8;
@@ -880,7 +851,6 @@ FORCE_INLINE uint64 XXH64_digest_endian(const XXH64_state_t* state, XXH_endianes
 		uint64 const v2 = state->v2;
 		uint64 const v3 = state->v3;
 		uint64 const v4 = state->v4;
-
 		h64 = XXH_rotl64(v1, 1) + XXH_rotl64(v2, 7) + XXH_rotl64(v3, 12) + XXH_rotl64(v4, 18);
 		h64 = XXH64_mergeRound(h64, v1);
 		h64 = XXH64_mergeRound(h64, v2);

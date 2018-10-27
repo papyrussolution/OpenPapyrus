@@ -10038,6 +10038,8 @@ private:
 	}
 	struct ValuVec : public SVector {
 	public:
+		friend class STimeSeries;
+
 		SLAPI  ValuVec(const char * pSymb, TYPEID typ, int fxPrec);
 		SLAPI  ValuVec(); // really private. Is used only for serialization
 		const SString & SLAPI GetSymb() const { return Symb; }
@@ -10049,7 +10051,7 @@ private:
 		float  FASTCALL ConvertInnerToFloat(const void * pInner) const;
 		int32  FASTCALL ConvertInnerToInt32(const void * pInner) const;
 		int64  FASTCALL ConvertInnerToInt64(const void * pInner) const;
-		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
         /*const*/TYPEID Typ; // Из-за необходимости сериализации элемент не может быть const (фактически, изменять запрещено)
 		int16  FxPrec;
