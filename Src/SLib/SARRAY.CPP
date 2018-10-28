@@ -438,14 +438,15 @@ void SLAPI SVectorBase::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 
 void SLAPI SVectorBase::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
 {
-	/*
-		Note: the number of stack entries required is no more than
-		1 + log2(num), so 30 is sufficient for any array
-	*/
+	//
+	// Note: the number of stack entries required is no more than
+	// 1 + log2(num), so 30 is sufficient for any array
+	//
 	uint8 * mid;                  // points to middle of subarray
 	uint8 * loguy, *higuy;        // traveling pointers for partition step
 	size_t size;                 // size of the sub-array
-	uint8 * lostk[STKSIZ], * histk[STKSIZ];
+	uint8 * lostk[STKSIZ];
+	uint8 * histk[STKSIZ];
 	const  size_t num = count;
 	const  size_t width = isize;
 	if(num > 1 && width > 0) {
@@ -454,11 +455,11 @@ void SLAPI SVectorBase::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
 		uint8 * base = PTR8(data);
 		uint8 * lo = base;
 		uint8 * hi = base + width * (num-1); // initialize limits
-		/*
-			this entry point is for pseudo-recursion calling: setting
-			lo and hi and jumping to here is like recursion, but stkptr is
-			preserved, locals aren't, so we preserve stuff on the stack
-		*/
+		//
+		// this entry point is for pseudo-recursion calling: setting
+		// lo and hi and jumping to here is like recursion, but stkptr is
+		// preserved, locals aren't, so we preserve stuff on the stack
+		//
 recurse:
 		size = (hi - lo) / width + 1; // number of el's to sort
 		//
@@ -489,48 +490,45 @@ recurse:
 			// A[i] <= A[j] for i <= j, j > lo, which implies A[i] <= A[j] for i < j, so array is sorted
 		}
 		else {
-			/*
-				First we pick a partitioning element.  The efficiency of the
-				algorithm demands that we find one that is approximately the median
-				of the values, but also that we select one fast.  We choose the
-				median of the first, middle, and last elements, to avoid bad
-				performance in the face of already sorted data, or data that is made
-				up of multiple sorted runs appended together.  Testing shows that a
-				median-of-three algorithm provides better performance than simply
-				picking the middle element for the latter case.
-			*/
-			mid = lo + (size / 2) * width;      /* find middle element */
-			/* Sort the first, middle, last elements into order */
+			//
+			// First we pick a partitioning element.  The efficiency of the
+			// algorithm demands that we find one that is approximately the median
+			// of the values, but also that we select one fast.  We choose the
+			// median of the first, middle, and last elements, to avoid bad
+			// performance in the face of already sorted data, or data that is made
+			// up of multiple sorted runs appended together.  Testing shows that a
+			// median-of-three algorithm provides better performance than simply
+			// picking the middle element for the latter case.
+			//
+			mid = lo + (size / 2) * width; // find middle element
+			// Sort the first, middle, last elements into order
 			if(Helper_Cmp(lo, mid, fcmp, pExtraData) > 0)
 				memswap(lo, mid, width);
 			if(Helper_Cmp(lo, hi, fcmp, pExtraData) > 0)
 				memswap(lo, hi, width);
 			if(Helper_Cmp(mid, hi, fcmp, pExtraData) > 0)
 				memswap(mid, hi, width);
-			/*
-				We now wish to partition the array into three pieces, one consisting
-				of elements <= partition element, one of elements equal to the
-				partition element, and one of elements > than it.  This is done
-				below; comments indicate conditions established at every step.
-			*/
+			//
+			// We now wish to partition the array into three pieces, one consisting
+			// of elements <= partition element, one of elements equal to the
+			// partition element, and one of elements > than it.  This is done
+			// below; comments indicate conditions established at every step.
+			//
 			loguy = lo;
 			higuy = hi;
-			/*
-				Note that higuy decreases and loguy increases on every iteration,
-				so loop must terminate.
-			*/
+			//
+			// Note that higuy decreases and loguy increases on every iteration, so loop must terminate.
+			//
 			for(;;) {
-				/*
-					lo <= loguy < hi, lo < higuy <= hi,
-					A[i] <= A[mid] for lo <= i <= loguy,
-					A[i] > A[mid] for higuy <= i < hi,
-					A[hi] >= A[mid]
-				*/
-				/*
-					The doubled loop is to avoid calling comp(mid,mid), since some
-					existing comparison funcs don't work when passed the same
-					value for both pointers.
-				*/
+				//
+				// lo <= loguy < hi, lo < higuy <= hi,
+				// A[i] <= A[mid] for lo <= i <= loguy,
+				// A[i] > A[mid] for higuy <= i < hi,
+				// A[hi] >= A[mid]
+				//
+				// The doubled loop is to avoid calling comp(mid,mid), since some
+				// existing comparison funcs don't work when passed the same value for both pointers.
+				//
 				if(mid > loguy) {
 					do {
 						loguy += width;
@@ -541,52 +539,49 @@ recurse:
 						loguy += width;
 					} while(loguy <= hi && Helper_Cmp(loguy, mid, fcmp, pExtraData) <= 0);
 				}
-				/*
-					lo < loguy <= hi+1, A[i] <= A[mid] for lo <= i < loguy,
-					either loguy > hi or A[loguy] > A[mid]
-				*/
+				//
+				// lo < loguy <= hi+1, A[i] <= A[mid] for lo <= i < loguy,
+				// either loguy > hi or A[loguy] > A[mid]
+				//
 				do  {
 					higuy -= width;
 				} while(higuy > mid && Helper_Cmp(higuy, mid, fcmp, pExtraData) > 0);
-				/*
-					lo <= higuy < hi, A[i] > A[mid] for higuy < i < hi,
-					either higuy == lo or A[higuy] <= A[mid]
-				*/
+				//
+				// lo <= higuy < hi, A[i] > A[mid] for higuy < i < hi,
+				// either higuy == lo or A[higuy] <= A[mid]
+				//
 				if(higuy < loguy)
 					break;
-				/*
-					if loguy > hi or higuy == lo, then we would have exited, so
-					A[loguy] > A[mid], A[higuy] <= A[mid],
-					loguy <= hi, higuy > lo
-				*/
+				//
+				// if loguy > hi or higuy == lo, then we would have exited, so
+				// A[loguy] > A[mid], A[higuy] <= A[mid],
+				// loguy <= hi, higuy > lo
+				//
 				memswap(loguy, higuy, width);
-				/*
-					If the partition element was moved, follow it.  Only need
-					to check for mid == higuy, since before the swap,
-					A[loguy] > A[mid] implies loguy != mid.
-				*/
+				//
+				// If the partition element was moved, follow it.  Only need
+				// to check for mid == higuy, since before the swap,
+				// A[loguy] > A[mid] implies loguy != mid.
+				//
 				if(mid == higuy)
 					mid = loguy;
-				/*
-					A[loguy] <= A[mid], A[higuy] > A[mid]; so condition at top
-					of loop is re-established
-				*/
+				//
+				// A[loguy] <= A[mid], A[higuy] > A[mid]; so condition at top of loop is re-established
+				//
 			}
-			/*
-				A[i] <= A[mid] for lo <= i < loguy,
-				A[i] > A[mid] for higuy < i < hi,
-				A[hi] >= A[mid]
-				higuy < loguy
-				implying:
-				higuy == loguy-1
-				or higuy == hi - 1, loguy == hi + 1, A[hi] == A[mid]
-			*/
-			/*
-				Find adjacent elements equal to the partition element.  The
-				doubled loop is to avoid calling comp(mid,mid), since some
-				existing comparison funcs don't work when passed the same value
-				for both pointers.
-			*/
+			//
+			// A[i] <= A[mid] for lo <= i < loguy,
+			// A[i] > A[mid] for higuy < i < hi,
+			// A[hi] >= A[mid]
+			// higuy < loguy
+			// implying:
+			// higuy == loguy-1
+			// or higuy == hi - 1, loguy == hi + 1, A[hi] == A[mid]
+			//
+			// Find adjacent elements equal to the partition element.  The
+			// doubled loop is to avoid calling comp(mid,mid), since some
+			// existing comparison funcs don't work when passed the same value for both pointers.
+			//
 			higuy += width;
 			if(mid < higuy) {
 				do {
@@ -598,21 +593,19 @@ recurse:
 					higuy -= width;
 				} while(higuy > lo && Helper_Cmp(higuy, mid, fcmp, pExtraData) == 0);
 			}
-			/*
-				OK, now we have the following:
-				higuy < loguy
-				lo <= higuy <= hi
-				A[i]  <= A[mid] for lo <= i <= higuy
-				A[i]  == A[mid] for higuy < i < loguy
-				A[i]  >  A[mid] for loguy <= i < hi
-				A[hi] >= A[mid]
-			*/
-			/*
-				We've finished the partition, now we want to sort the subarrays
-				[lo, higuy] and [loguy, hi].
-				We do the smaller one first to minimize stack usage.
-				We only sort arrays of length 2 or more.
-			*/
+			//
+			// OK, now we have the following:
+			// higuy < loguy
+			// lo <= higuy <= hi
+			// A[i]  <= A[mid] for lo <= i <= higuy
+			// A[i]  == A[mid] for higuy < i < loguy
+			// A[i]  >  A[mid] for loguy <= i < hi
+			// A[hi] >= A[mid]
+			//
+			// We've finished the partition, now we want to sort the subarrays [lo, higuy] and [loguy, hi].
+			// We do the smaller one first to minimize stack usage.
+			// We only sort arrays of length 2 or more.
+			//
 			if(higuy - lo >= hi-loguy) {
 				if(lo < higuy) {
 					lostk[stkptr] = lo;
@@ -636,10 +629,10 @@ recurse:
 				}
 			}
 		}
-		/*
-			We have sorted the array, except for any pending sorts on the stack.
-			Check if there are any, and do them.
-		*/
+		//
+		// We have sorted the array, except for any pending sorts on the stack.
+		// Check if there are any, and do them.
+		//
 		--stkptr;
 		if(stkptr >= 0) {
 			lo = lostk[stkptr];

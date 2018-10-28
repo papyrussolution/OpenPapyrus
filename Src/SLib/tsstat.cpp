@@ -655,6 +655,40 @@ SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0)
 	memzero(Reserve, sizeof(Reserve));
 }
 
+STimeSeries & SLAPI STimeSeries::Z()
+{
+	for(uint i = 0; i < VL.getCount(); i++) {
+		ValuVec * p_vv = VL.at(i);
+		CALLPTRMEMB(p_vv, clear());
+	}
+	T.clear();
+	return *this;
+}
+
+void SLAPI STimeSeries::Destroy()
+{
+	VL.freeAll();
+	T.freeAll();
+}
+
+int SLAPI STimeSeries::SetupBySample(const STimeSeries * pSample)
+{
+	int    ok = 1;
+	Destroy();
+	if(pSample) {
+		for(uint i = 0; i < pSample->VL.getCount(); i++) {
+			const ValuVec * p_s_vec = pSample->VL.at(i);
+			ValuVec * p_new_vec = 0;
+			if(p_s_vec) {
+				THROW(p_new_vec = new ValuVec(p_s_vec->Symb, p_s_vec->Typ, p_s_vec->FxPrec));
+			}
+			THROW(VL.insert(p_new_vec));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 uint SLAPI STimeSeries::GetCount() const
 {
 	return T.getCount();
@@ -671,17 +705,95 @@ int FASTCALL STimeSeries::GetTime(uint itemIdx, SUniTime * pT) const
 	return ok;
 }
 
-/*int SLAPI STimeSeries::ValuVec::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int FASTCALL STimeSeries::Swap(uint p1, uint p2)
 {
 	int    ok = 1;
-	THROW(pSCtx->Serialize(dir, Typ, rBuf));
-	THROW(pSCtx->Serialize(dir, FxPrec, rBuf));
-	THROW(pSCtx->Serialize(dir, Flags, rBuf));
-	THROW(pSCtx->Serialize(dir, Symb, rBuf));
-	THROW(pSCtx->Serialize(dir, dynamic_cast<SVector *>(this), rBuf));
+	if(p1 == p2) 
+		ok = -1;
+	else {
+		THROW(T.swap(p1, p2));
+		for(uint i = 0; i < VL.getCount(); i++) {
+			ValuVec * p_vv = VL.at(i);
+			if(p_vv)
+				THROW(p_vv->swap(p1, p2));
+		}
+	}
 	CATCHZOK
 	return ok;
-}*/
+}
+
+int SLAPI STimeSeries::AddItemFromSample(const STimeSeries & rSample, uint samplePos)
+{
+	int    ok = 1;
+	uint   idx = 0;
+	assert(rSample.VL.getCount() == VL.getCount());
+	THROW(rSample.VL.getCount() == VL.getCount());
+	THROW(AddItem(rSample.T.at(samplePos), &idx));
+	for(uint i = 0; i < rSample.VL.getCount(); i++) {
+		const ValuVec * p_s_vec = rSample.VL.at(i);
+		ValuVec * p_vec = VL.at(i);
+		assert((p_s_vec && p_vec) || (!p_s_vec && !p_vec));
+		THROW((p_s_vec && p_vec) || (!p_s_vec && !p_vec));
+		if(p_s_vec) {
+			assert(p_s_vec->Typ == p_vec->Typ && p_s_vec->FxPrec == p_vec->FxPrec);
+			THROW(p_s_vec->Typ == p_vec->Typ && p_s_vec->FxPrec == p_vec->FxPrec);
+			THROW(Helper_SetValue(idx, p_vec, p_s_vec->at(samplePos)));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+static IMPL_CMPFUNC(STimeSeriesIndex, p1, p2)
+{
+	int    si = 0;
+	const  STimeSeries * p_ts = (const STimeSeries *)pExtraData;
+	if(p_ts) {
+		SUniTime t1;
+		SUniTime t2;
+		if(p_ts->GetTime(*(uint *)p1, &t1) && p_ts->GetTime(*(uint *)p2, &t2)) {
+			int sq;
+			si = t1.Compare(t2, &sq);
+		}
+	}
+	return si;
+}
+
+int SLAPI STimeSeries::Sort(/*CompFunc fcmp, void * pExtraData*/ /*=0*/)
+{
+	int    ok = 1;
+	const  uint tc = T.getCount();
+	if(tc > 1) {
+		uint i;
+		TSVector <uint> pos_vec;
+		for(i = 0; i < VL.getCount(); i++) {
+			const ValuVec * p_vv = VL.at(i);
+			if(p_vv) {
+				THROW(p_vv->getCount() == tc);
+			}
+		}
+		for(i = 0; i < tc; i++)
+			pos_vec.insert(&i);
+		assert(pos_vec.getCount() == tc);
+		pos_vec.sort2(PTR_CMPFUNC(STimeSeriesIndex), this);
+		assert(pos_vec.getCount() == tc);
+		{
+			STimeSeries ts_temp;
+			THROW(ts_temp.SetupBySample(this));
+			for(i = 0; i < tc; i++) {
+				uint pos = pos_vec.at(i);
+				THROW(ts_temp.AddItemFromSample(*this, pos));
+			}
+			//
+			Z();
+			for(i = 0; i < tc; i++) {
+				THROW(AddItemFromSample(ts_temp, i));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 int SLAPI STimeSeries::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
@@ -788,28 +900,27 @@ int SLAPI STimeSeries::AddItem(SUniTime tm, uint * pItemIdx)
 		return 0;
 }
 
-int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, uint vecIdx, const void * pValuePtr)
+int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, STimeSeries::ValuVec * pVec, const void * pValuePtr)
 {
 	assert(pValuePtr);
 	int    ok = 1;
-	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
-	THROW(p_vec);
+	THROW(pVec);
 	THROW(itemIdx < T.getCount());
 	{
-		const uint org_vec_count = p_vec->getCount();
+		const uint org_vec_count = pVec->getCount();
 		if(itemIdx > org_vec_count) {
-			p_vec->atPut(itemIdx, pValuePtr);
+			pVec->atPut(itemIdx, pValuePtr);
 		}
 		else {
 			if(itemIdx > org_vec_count) {
 				uint8 zero_value_buf[16];
 				memzero(zero_value_buf, sizeof(zero_value_buf));
 				for(uint i = 0; i < (itemIdx - org_vec_count); i++) {
-					THROW(p_vec->insert(zero_value_buf));
+					THROW(pVec->insert(zero_value_buf));
 				}
 			}
-			assert(itemIdx == p_vec->getCount());
-			THROW(p_vec->insert(pValuePtr));
+			assert(itemIdx == pVec->getCount());
+			THROW(pVec->insert(pValuePtr));
 		}
 	}
 	CATCHZOK
@@ -823,7 +934,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
 	if(p_vec) {
 		p_vec->ConvertDoubleToInner(value, value_buf);
-		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+		return Helper_SetValue(itemIdx, p_vec, value_buf);
 	}
 	else
 		return 0;
@@ -836,7 +947,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, float value)
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
 	if(p_vec) {
 		p_vec->ConvertFloatToInner(value, value_buf);
-		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+		return Helper_SetValue(itemIdx, p_vec, value_buf);
 	}
 	else
 		return 0;
@@ -849,7 +960,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int32 value)
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
 	if(p_vec) {
 		p_vec->ConvertInt32ToInner(value, value_buf);
-		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+		return Helper_SetValue(itemIdx, p_vec, value_buf);
 	}
 	else
 		return 0;
@@ -862,7 +973,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int64 value)
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
 	if(p_vec) {
 		p_vec->ConvertInt64ToInner(value, value_buf);
-		return Helper_SetValue(itemIdx, vecIdx, value_buf);
+		return Helper_SetValue(itemIdx, p_vec, value_buf);
 	}
 	else
 		return 0;

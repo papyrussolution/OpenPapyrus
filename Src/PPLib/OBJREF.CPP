@@ -3894,8 +3894,92 @@ int SLAPI PPObjEdiProvider::SerializePacket(int dir, PPEdiProviderPacket * pPack
 //
 //
 //
+SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0)
+{
+	PTR32(Name)[0] = 0;
+	PTR32(Symb)[0] = 0;
+	memzero(Reserve, sizeof(Reserve));
+	Reserve2[0] = 0;
+	Reserve2[1] = 0;
+}
+
+int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
+{
+	int    eq = 1;
+	if(!sstreq(Name, rS.Name))
+		eq = 0;
+	else if(!sstreq(Symb, rS.Symb))
+		eq = 0;
+	else if(Flags != rS.Flags)
+		eq = 0;
+	return eq;	
+}
+
 SLAPI PPObjTimeSeries::PPObjTimeSeries(void * extraPtr) : PPObjReference(PPOBJ_TIMESERIES, extraPtr)
 {
+}
+
+int SLAPI PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta)
+{
+	int    ok = 1;
+	PPID   _id = DEREFPTRORZ(pID);
+	const  int is_new = (_id == 0);
+	const  int is_removing = BIN(*pID != 0 && pPack == 0);
+	PPID   hid = 0;
+	PPTimeSeries org_pack;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(_id) {
+			THROW(GetPacket(_id, &org_pack) > 0);
+		}
+		if(pPack == 0) {
+			if(*pID) {
+				TextRefIdent tri(Obj, _id, PPTRPROP_TIMESERIES);
+				THROW(CheckRights(PPR_DEL));
+				THROW(ref->RemoveItem(Obj, _id, 0));
+				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
+				//THROW(ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(ref->UtrC.SetTimeSeries(tri, 0, 0));
+				//THROW(RemoveSync(_id));
+				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
+			}
+		}
+		else {
+			THROW(CheckRightsModByID(pID));
+			if(_id) {
+				if(pPack->IsEqual(org_pack))
+					ok = -1;
+				else {
+					THROW(ref->UpdateItem(Obj, _id, pPack, 1, 0));
+					//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
+				}
+			}
+			else {
+				THROW(ref->AddItem(Obj, &_id, pPack, 0));
+				pPack->ID = _id;
+				//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
+				ASSIGN_PTR(pID, _id);
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		if(is_new) {
+			*pID = 0;
+			if(pPack)
+				pPack->ID = 0;
+		}
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int SLAPI PPObjTimeSeries::GetPacket(PPID id, PPTimeSeries * pPack)
+{
+	return Search(id, pPack);
 }
 
 int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
@@ -3948,18 +4032,18 @@ int SLAPI PPObjTimeSeries::Test() // @experimental
 		long   real_vol = 0;
 		long   spread = 0;
 
-		uint   vecidx_open = 0;
+		//uint   vecidx_open = 0;
 		uint   vecidx_close = 0;
-		uint   vecidx_ticvol = 0;
+		//uint   vecidx_ticvol = 0;
 		uint   vecidx_realvol = 0;
-		uint   vecidx_spread = 0;
+		//uint   vecidx_spread = 0;
 		//THROW_SL(ts.AddValueVec("open", T_DOUBLE, 0, &vecidx_open));
-		THROW_SL(ts.AddValueVec("open", T_INT32, 5, &vecidx_open));
+		//THROW_SL(ts.AddValueVec("open", T_INT32, 5, &vecidx_open));
 		//THROW_SL(ts.AddValueVec("close", T_DOUBLE, 0, &vecidx_close));
 		THROW_SL(ts.AddValueVec("close", T_INT32, 5, &vecidx_close));
-		THROW_SL(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol));
+		//THROW_SL(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol));
 		THROW_SL(ts.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol));
-		THROW_SL(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread));
+		//THROW_SL(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread));
 		{
 			uint8 sign[8];
 			size_t actual_size = 0;
@@ -3996,48 +4080,73 @@ int SLAPI PPObjTimeSeries::Test() // @experimental
 					ut.Set(dtm, SUniTime::indMin);
 					uint   item_idx = 0;
 					THROW_SL(ts.AddItem(ut, &item_idx));
-					THROW_SL(ts.SetValue(item_idx, vecidx_open, open));
+					//THROW_SL(ts.SetValue(item_idx, vecidx_open, open));
 					THROW_SL(ts.SetValue(item_idx, vecidx_close, close));
-					THROW_SL(ts.SetValue(item_idx, vecidx_ticvol, tick_vol));
+					//THROW_SL(ts.SetValue(item_idx, vecidx_ticvol, tick_vol));
 					THROW_SL(ts.SetValue(item_idx, vecidx_realvol, real_vol));
-					THROW_SL(ts.SetValue(item_idx, vecidx_spread, spread));
+					//THROW_SL(ts.SetValue(item_idx, vecidx_spread, spread));
 				}
 			}
 		}
 		{
-			SFile f_out(test_file_name, SFile::mWrite);
+			//SFile f_out(test_file_name, SFile::mWrite);
 			//
-			STimeSeries dts;
-			SBuffer sbuf; // serialize buf
-			SBuffer cbuf; // compress buf
-			SBuffer dbuf; // decompress buf
-			SSerializeContext sctx;
-			THROW_SL(ts.Serialize(+1, sbuf, &sctx));
 			{
+				STimeSeries dts;
+				SBuffer sbuf; // serialize buf
+				SBuffer cbuf; // compress buf
+				SBuffer dbuf; // decompress buf
+				SSerializeContext sctx;
+				THROW_SL(ts.Serialize(+1, sbuf, &sctx));
 				{
-					SCompressor c(SCompressor::tZLib);
-					THROW_SL(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0));
+					{
+						SCompressor c(SCompressor::tZLib);
+						THROW_SL(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0));
+					}
+					{
+						SCompressor c(SCompressor::tZLib);
+						THROW_SL(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf));
+					}
+					THROW_SL(dts.Serialize(-1, dbuf, &sctx));
 				}
+				dts.GetCount();
+				THROW(dts.Sort());
 				{
-					SCompressor c(SCompressor::tZLib);
-					THROW_SL(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf));
+					SFile f_out(test_file_name, SFile::mWrite);
+					THROW(f_out.IsValid());
+					for(uint i = 0; i < dts.GetCount(); i++) {
+						SUniTime ut;
+						dts.GetTime(i, &ut);
+						ut.Get(dtm);
+						//THROW(dts.GetValue(i, vecidx_open, &open));
+						THROW(dts.GetValue(i, vecidx_close, &close));
+						//THROW(dts.GetValue(i, vecidx_ticvol, &tick_vol));
+						THROW(dts.GetValue(i, vecidx_realvol, &real_vol));
+						//THROW(dts.GetValue(i, vecidx_spread, &spread));
+						line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
+							/*Cat(open, MKSFMTD(0, 5, 0)).Comma().*/Cat(close, MKSFMTD(0, 5, 0)).Comma()./*Cat(tick_vol).Comma().*/Cat(real_vol)/*.Comma().Cat(spread)*/.CR();
+						THROW(f_out.WriteLine(line_buf));
+					}
 				}
-				THROW_SL(dts.Serialize(-1, dbuf, &sctx));
 			}
-			//
-			if(f_out.IsValid()) {
-				for(uint i = 0; i < dts.GetCount(); i++) {
-					SUniTime ut;
-					dts.GetTime(i, &ut);
-					ut.Get(dtm);
-					THROW_SL(dts.GetValue(i, vecidx_open, &open));
-					THROW_SL(dts.GetValue(i, vecidx_close, &close));
-					THROW_SL(dts.GetValue(i, vecidx_ticvol, &tick_vol));
-					THROW_SL(dts.GetValue(i, vecidx_realvol, &real_vol));
-					THROW_SL(dts.GetValue(i, vecidx_spread, &spread));
-					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
-						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
-					f_out.WriteLine(line_buf);
+			{
+				PPID    id = 0;
+				PPTimeSeries ts_rec;
+				STimeSeries ex_ts;
+				int gts = 0;
+				if(SearchBySymb("eurusd", &id, &ts_rec) > 0) {
+					TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
+					gts = PPRef->UtrC.Search(tri, ex_ts);
+				}
+				else {
+					MEMSZERO(ts_rec);
+					STRNSCPY(ts_rec.Name, "eurusd");
+					STRNSCPY(ts_rec.Symb, "eurusd");
+					THROW(PutPacket(&id, &ts_rec, 1));
+				}
+				{
+					TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
+					THROW(PPRef->UtrC.SetTimeSeries(tri, &ts, 1));
 				}
 			}
 		}

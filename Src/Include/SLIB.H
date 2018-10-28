@@ -2081,6 +2081,12 @@ public:
 	int    FASTCALL Get(LDATETIME & rD) const;
 	int    FASTCALL Get(time_t & rD) const;
 	int    FASTCALL Get(FILETIME & rD) const;
+	enum {
+		cqUndef     =  0,
+		cqSure      =  1,
+		cqUncertain = -1
+	};
+	int    FASTCALL Compare(const SUniTime & rS, int * pQualification) const;
 	//
 	// Descr: Результаты сравнения значений
 	//
@@ -2091,8 +2097,6 @@ public:
 		cmprUncertainTrue = 2   // Значения равны с учетом того, что их точности различны ("5 июня 2018" vs "июнь 2018" например)
 	};
 	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
-	int    FASTCALL IsLt(const SUniTime & rS) const;
-	int    FASTCALL IsGt(const SUniTime & rS) const;
 private:
 	int    SLAPI Implement_Set(uint8 signature, const void *);
 	uint8  SLAPI Implement_Get(void *) const;
@@ -9893,7 +9897,7 @@ public:
 		fGaussianTest = 0x0004, // Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series
 	};
-	SLAPI  StatBase(long flags = 0);
+	explicit SLAPI  StatBase(long flags = 0);
 	virtual SLAPI ~StatBase();
 	virtual int SLAPI Init(long flags = 0);
 	virtual int SLAPI Finish();
@@ -10013,6 +10017,22 @@ class STimeSeries {
 public:
 	SLAPI  STimeSeries();
 	//
+	// Descr: Удаляет данные из экземпляра, но спецификацию (колонки и проч.) оставляет не изменной.
+	//   Данные удаляются методом clear() (то есть без освобождения памяти)
+	//
+	STimeSeries & SLAPI Z();
+	//
+	// Descr: Полностью разрушает экземпляр (удаляет и данные и спецификацию).
+	//   Вся память, занятая под данные, возвращается в кучу.
+	//
+	void   SLAPI Destroy();
+	//
+	// Descr: Копирует спецификацию экземпляра (но не данные) из pSample.
+	//   Если pSample == 0, то экземпляр this просто разрушается (вызовом Destroy())
+	// Note: Функция исходит из предположения, что pSample (если не нулевой) полностью валиден.
+	//
+	int    SLAPI SetupBySample(const STimeSeries * pSample);
+	//
 	// Descr: Возвращает количество элементов в серии (фактически, в STimeSeries::T)
 	//
 	uint   SLAPI GetCount() const;
@@ -10025,11 +10045,15 @@ public:
 	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
 
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
+	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int32 value);
-
+	//
+	// Descr: Сортирует элементы объекта в хронологическом порядке
+	//
+	int    SLAPI Sort();
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ)
@@ -10060,7 +10084,8 @@ private:
 	};
 	ValuVec * FASTCALL GetVecBySymb(const char * pSymb, uint * pVecIdx) const;
 	ValuVec * FASTCALL GetVecByIdx(uint vecIdx) const;
-	int    SLAPI Helper_SetValue(uint itemIdx, uint vecIdx, const void * pValuePtr);
+	int    SLAPI Helper_SetValue(uint itemIdx, ValuVec * pVec, const void * pValuePtr);
+	int    FASTCALL Swap(uint p1, uint p2);
 
 	uint32 Ver; // Номер версии для обеспечения совместимости форматов сериализации в будущем
 	uint8  Reserve[32];

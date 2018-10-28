@@ -15585,10 +15585,25 @@ public:
 	virtual int SLAPI Browse(void * extraPtr);
 };
 
+struct PPTimeSeries { // @persistent @store(Reference2Tbl)
+	SLAPI  PPTimeSeries();
+	int    FASTCALL IsEqual(const PPTimeSeries & rS) const;
+	PPID   Tag;            // Const=PPOBJ_TIMESERIES
+	PPID   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];       //
+	char   Reserve[60];    // @reserve
+	long   Flags;          //
+	long   Reserve2[2];    // @reserve
+};
+
 class PPObjTimeSeries : public PPObjReference {
 public:
 	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
+	//
+	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
 	//
 	int    SLAPI Test(); // @experimental
 };

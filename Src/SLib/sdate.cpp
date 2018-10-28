@@ -3054,15 +3054,17 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 	return ok;
 }
 
-int FASTCALL SUniTime::IsEq(const SUniTime & rS) const // @construction
+int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 {
-	int   result = cmprSureFalse;
+	int    result = 0;
+	int    qualification = cqUndef;
 	uint64 value = 0;
 	uint64 value_s = 0;
 	uint8  signature = SUniTime_Decode(D, &value);
 	uint8  signature_s = SUniTime_Decode(rS.D, &value_s);
 	if(signature == signature_s) {
-		result = (value == value_s) ? cmprSureTrue : cmprSureFalse;
+		qualification = cqSure;
+		result = CMPSIGN(value, value_s);
 	}
 	else {
 		int cm = IsSUniTimeCompatibleWithInnerStruc(signature);
@@ -3078,16 +3080,32 @@ int FASTCALL SUniTime::IsEq(const SUniTime & rS) const // @construction
 					Downgrade_SUniTime_Inner(in_s, signature);
 				else if(cp > 0)
 					Downgrade_SUniTime_Inner(in, signature_s);
-				if(in.Cmp(in_s) == 0)
-					result = cmprUncertainTrue;
+				result = in.Cmp(in_s);
+				qualification = cqUncertain;
 			}
 			else {
-				if(in.Cmp(in_s) == 0)
-					result = cmprSureTrue;
+				result = in.Cmp(in_s);
+				qualification = cqSure;
 			}
 		}
+		else {
+			// Результат не определен (мы не можем пока сопоставить такие значения)
+		}
 	}
+	ASSIGN_PTR(pQualification, qualification);
 	return result;
+}
+
+int FASTCALL SUniTime::IsEq(const SUniTime & rS) const
+{
+	int   cq = 0;
+	int   result = Compare(rS, &cq);
+	if(cq == cqSure)
+		return (result == 0) ? cmprSureTrue : cmprSureFalse;
+	else if(cq == cqUncertain)
+		return (result == 0) ? cmprUncertainTrue : cmprSureFalse;
+	else
+		return cmprIncompat;
 }
 
 uint8  SLAPI SUniTime::Implement_Get(void * pData) const
