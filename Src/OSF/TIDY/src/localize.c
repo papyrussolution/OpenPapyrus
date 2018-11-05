@@ -1254,7 +1254,6 @@ static const TidyOptionDoc option_docs[] =
 const TidyOptionDoc* TY_(OptGetDocDesc) (TidyOptionId optId)
 {
 	uint i = 0;
-
 	while(option_docs[i].opt != N_TIDY_OPTIONS) {
 		if(option_docs[i].opt == optId)
 			return &option_docs[i];
@@ -1263,32 +1262,17 @@ const TidyOptionDoc* TY_(OptGetDocDesc) (TidyOptionId optId)
 	return NULL;
 }
 
-static char* LevelPrefix(TidyReportLevel level, char* buf, size_t count)
+static char * LevelPrefix(TidyReportLevel level, char * buf, /*size_t*/uint count)
 {
 	*buf = 0;
-	switch(level)
-	{
-		case TidyInfo:
-		    TY_(tmbstrncpy) (buf, "Info: ", count);
-		    break;
-		case TidyWarning:
-		    TY_(tmbstrncpy) (buf, "Warning: ", count);
-		    break;
-		case TidyConfig:
-		    TY_(tmbstrncpy) (buf, "Config: ", count);
-		    break;
-		case TidyAccess:
-		    TY_(tmbstrncpy) (buf, "Access: ", count);
-		    break;
-		case TidyError:
-		    TY_(tmbstrncpy) (buf, "Error: ", count);
-		    break;
-		case TidyBadDocument:
-		    TY_(tmbstrncpy) (buf, "Document: ", count);
-		    break;
-		case TidyFatal:
-		    TY_(tmbstrncpy) (buf, "panic: ", count);
-		    break;
+	switch(level) {
+		case TidyInfo: TY_(tmbstrncpy)(buf, "Info: ", count); break;
+		case TidyWarning: TY_(tmbstrncpy)(buf, "Warning: ", count); break;
+		case TidyConfig: TY_(tmbstrncpy)(buf, "Config: ", count); break;
+		case TidyAccess: TY_(tmbstrncpy)(buf, "Access: ", count); break;
+		case TidyError: TY_(tmbstrncpy)(buf, "Error: ", count); break;
+		case TidyBadDocument: TY_(tmbstrncpy)(buf, "Document: ", count); break;
+		case TidyFatal: TY_(tmbstrncpy)(buf, "panic: ", count); break;
 	}
 	return buf + TY_(tmbstrlen) (buf);
 }
@@ -1361,8 +1345,7 @@ static void messagePos(TidyDocImpl* doc, TidyReportLevel level,
 __attribute__((format(printf, 5, 0)))
 #endif
 ;
-static void messagePos(TidyDocImpl* doc, TidyReportLevel level,
-    int line, int col, ctmbstr msg, va_list args)
+static void messagePos(TidyDocImpl* doc, TidyReportLevel level, int line, int col, ctmbstr msg, va_list args)
 {
 	enum { 
 		sizeMessageBuf = 2048 
@@ -1619,12 +1602,10 @@ void TY_(ReportEncodingError) (TidyDocImpl* doc, uint code, uint c, bool discard
 		messageLexer(doc, TidyWarning, fmt, action, buf);
 }
 
-void TY_(ReportEntityError) (TidyDocImpl* doc, uint code, ctmbstr entity,
-    int ARG_UNUSED(c) )
+void TY_(ReportEntityError) (TidyDocImpl* doc, uint code, ctmbstr entity, int ARG_UNUSED(c) )
 {
 	ctmbstr entityname = ( entity ? entity : "NULL" );
 	ctmbstr fmt = GetFormatFromCode(code);
-
 	if(fmt)
 		messageLexer(doc, TidyWarning, fmt, entityname);
 }

@@ -679,7 +679,7 @@
 // #define _WINSOCKAPI_    // stops windows.h including winsock.h
 // #include <windows.h>
 // #include "stdsoap2.h"
-  #include <winsock2.h> /* Visual Studio 2005 users: install Platform SDK (R2) */
+  // @v10.2.3 #include <winsock2.h> /* Visual Studio 2005 users: install Platform SDK (R2) */
   #include <ws2tcpip.h>
 // #define _WSPIAPI_COUNTOF /* DEV NOTE: enble to fix problems with VC6 */
 // #include <wspiapi.h>

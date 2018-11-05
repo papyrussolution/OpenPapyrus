@@ -1414,8 +1414,8 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_LOCLIST, P_LocList, 0));
 		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_CFG, P_CfgList, 0));
 		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_ACCLIST, P_AccList, 0));
-		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_POSLIST, P_PosList, 0)); // @v8.9.1
-		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_QKLIST,  P_QkList, 0));  // @v8.9.1
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_POSLIST, P_PosList, 0));
+		THROW(p_ref->PutPropArray(securType, securID, PPPRP_RT_QKLIST,  P_QkList, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -1451,22 +1451,14 @@ ObjRights * SLAPI PPRights::GetObjRights(PPID objType, int use_default) const
 			ObjRights * o = (ObjRights *)(PTR8(P_Rt + 1) + s);
 			const uint osz = o->Size;
 			if(o->ObjType == objType) {
-				// @v8.9.8 p_result = new (osz) ObjRights;
-				p_result = ObjRights::Create(objType, osz); // @v8.9.8
+				p_result = ObjRights::Create(objType, osz);
 				memcpy(p_result, o, osz);
 			}
 			else
 				s += osz;
 		}
 		if(!p_result && use_default) {
-			// @v8.9.8 p_result = new ObjRights;
-			p_result = ObjRights::Create(objType, 0); // @v8.9.8
-			/* @v8.9.8
-			p_result->ObjType = objType;
-			p_result->Size = sizeof(ObjRights);
-			p_result->Flags = PPRights::GetDefaultFlags();
-			p_result->OprFlags = PPRights::GetDefaultOprFlags();
-			*/
+			p_result = ObjRights::Create(objType, 0);
 		}
 	}
 	return p_result;
@@ -1712,15 +1704,8 @@ int SLAPI PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 	return ok;
 }
 
-int SLAPI PPRights::IsOpRights() const
-{
-	return BIN(P_OpList && P_OpList->getCount());
-}
-
-int SLAPI PPRights::IsLocRights() const
-{
-	return BIN(P_LocList && P_LocList->getCount());
-}
+int SLAPI PPRights::IsOpRights() const { return BIN(P_OpList && P_OpList->getCount()); }
+int SLAPI PPRights::IsLocRights() const { return BIN(P_LocList && P_LocList->getCount()); }
 
 int SLAPI PPRights::MaskOpRightsByOps(PPIDArray * pOpList, PPIDArray * pResultOpList) const
 {
@@ -1830,6 +1815,8 @@ int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 				ok = -1;
 		}
 	}
+	else
+		ok = -1;
 	return ok;
 }
 

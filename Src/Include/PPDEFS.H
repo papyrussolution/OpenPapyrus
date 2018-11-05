@@ -675,8 +675,7 @@
 		// товарной матрице (по любому складу). Это событие необходимо для обновления кэша товарной матрицы другими
 		// сеансами для адекватной вставки товара в матрицу.
 		// Доп параметр: ID родительской группы, принадлежащей матрице //
-	#define PPACN_CCHECKTOGGLEDLVR 59L // Изменен признак завершения доставки по чеку.
-		// Доп параметр: 1 - признак установлен, 0 - признак снят
+	#define PPACN_CCHECKTOGGLEDLVR 59L // Изменен признак завершения доставки по чеку. Доп параметр: 1 - признак установлен, 0 - признак снят
 	#define PPACN_UNDOCSESSWROFF   60L // Откат списания кассовой сессии
 	#define PPACN_UNDOCSESSGRPNG   61L // Откат группировки кассовой сессии
 	#define PPACN_SUPPLDEALUPD     62L // Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
@@ -684,10 +683,8 @@
 	#define PPACN_QUOTRMV2         64L // Удалена котировка (2) товара. Доп параметр: ИД транзакции.
 	#define PPACN_DISPOSEBILL      65L // Товарный документ был размещен по складским ячейкам
 	#define PPACN_EVENTTOKEN       66L // Событийная метка с объектом типа PPOBJ_EVENTTOKEN
-	#define PPACN_UNITECCHECK      67L // Объединены два чека. ИД объекта - чек, который остался,
-		// доп параметр: ИД чека, который был влит в первый.
-	#define PPACN_SCARDBONUSCHARGE 68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение
-		// периода начисления.
+	#define PPACN_UNITECCHECK      67L // Объединены два чека. ИД объекта - чек, который остался, доп параметр: ИД чека, который был влит в первый.
+	#define PPACN_SCARDBONUSCHARGE 68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение периода начисления.
 	#define PPACN_OBJTAGRMV        69L // Удален тег объекта. Доп параметр - ID тега.
 	#define PPACN_PERSONEVENTREDO  70L // Повтор персонального события //
 	#define PPACN_SCARDOPMOV       71L // Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
@@ -8308,6 +8305,7 @@
 	#define CTLBRW_PSNCFG_FOLDER       (9  + WINDOWS_ID_BIAS)
 	#define CTL_PSNCFG_CALQUANT        (10 + WINDOWS_ID_BIAS)
 	#define CTL_PSNCFG_SMSTIMEOUT      (11 + WINDOWS_ID_BIAS)
+	#define CTL_PSNCFG_SMSPRTR         (12 + WINDOWS_ID_BIAS)
 #define DLG_REPLOBJ               978
 	#define CTL_REPLOBJ_SRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLOBJ_SRC         (2 + WINDOWS_ID_BIAS)
@@ -10529,6 +10527,10 @@
 	#define CTL_VETDOCTOTAL_OGCT      (7 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCTOTAL_STKCT     (8 + WINDOWS_ID_BIAS)
 #define DLG_TSVIEW                1350
+#define DLG_JOB_SNRSCO            1351
+	#define CTL_JOB_SNRSCO_DT         (1 + WINDOWS_ID_BIAS)
+	#define CTLCAL_JOB_SNRSCO_DT      (2 + WINDOWS_ID_BIAS)
+	#define CTL_JOB_SNRSCO_TM         (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

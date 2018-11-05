@@ -181,18 +181,14 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 	} sz = {
 		0
 	};
-
 	/* Is a timer active? */
 	if(data->next_timeout.tv_sec > 0 || data->next_timeout.tv_usec > 0) {
 		struct timeval timenow, timeleft;
-
 		/* Read current socket timeout */
 #  ifdef OPENSSL_SYS_WINDOWS
 		int timeout;
-
 		sz.i = sizeof(timeout);
-		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO,
-			    (char*)&timeout, &sz.i) < 0) {
+		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, &sz.i) < 0) {
 			perror("getsockopt");
 		}
 		else {
@@ -201,17 +197,14 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 		}
 #  else
 		sz.i = sizeof(data->socket_timeout);
-		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO,
-			    &(data->socket_timeout), (void*)&sz) < 0) {
+		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &(data->socket_timeout), (void*)&sz) < 0) {
 			perror("getsockopt");
 		}
 		else if(sizeof(sz.s) != sizeof(sz.i) && sz.i == 0)
 			OPENSSL_assert(sz.s <= sizeof(data->socket_timeout));
 #  endif
-
 		/* Get current time */
 		get_current_time(&timenow);
-
 		/* Calculate time left until timer expires */
 		memcpy(&timeleft, &(data->next_timeout), sizeof(struct timeval));
 		if(timeleft.tv_usec < timenow.tv_usec) {

@@ -2996,7 +2996,7 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 							// его убрать и повторить попытку поиска.
 							// Например: ucp-a == upca или pdf 417 == pdf417
 							//
-							uint cpos = 0;
+							size_t cpos = 0;
 							if(text.StrChr('-', &cpos) || text.StrChr(' ', &cpos)) {
 								text.Excise(cpos, 1);
 								do_again = 1;
@@ -3102,7 +3102,7 @@ int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
 	}
     {
 		const int rot_angle = oneof4(rParam.Angle, 0, 90, 180, 270) ? rParam.Angle : 0;
-		THROW(ZBarcode_Encode(p_zs, rParam.Code.ucptr(), rParam.Code.Len()) == 0);
+		THROW(ZBarcode_Encode(p_zs, rParam.Code.ucptr(), (int)rParam.Code.Len()) == 0);
     	if(rParam.OutputFormat == 0) {
 			THROW(ZBarcode_Buffer(p_zs, rot_angle) == 0);
 			THROW_SL(rParam.Buffer.Init(p_zs->bitmap_width, p_zs->bitmap_height));

@@ -45,7 +45,14 @@
 		#define _WIN32_IE 0x0500
 	#endif
 	// } @papyrus @v5.9.3
+#if _M_X64
+	#pragma pack(push)
+	#pragma pack(8)
+#endif
 	#include <winsock2.h>
+#if _M_X64
+	#pragma pack(pop)
+#endif
 	#include <windows.h>
 	#define _Windows
 	// @v9.6.4 #define far
@@ -3077,9 +3084,10 @@ struct DateRange { // @persistent @size=8
 inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) > 0); }
 inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) < 0); }
 
-struct TimeRange {
+struct TimeRange { // @persistent
 	void   SLAPI Set(LTIME lowTm, LTIME uppTm);
 	void   SLAPI SetZero();
+	int    SLAPI IsZero() const;
 	//
 	// Descr: Проверяет принадлежность момента tm диапазону low..upp.
 	//   -- Если low == upp && low == ZEROTIME, то не зависимо от значения tm возвращается !0.
@@ -10016,6 +10024,8 @@ private:
 class STimeSeries {
 public:
 	SLAPI  STimeSeries();
+	void   FASTCALL SetSymb(const char * pSymb);
+	const char * FASTCALL GetSymb() const;
 	//
 	// Descr: Удаляет данные из экземпляра, но спецификацию (колонки и проч.) оставляет не изменной.
 	//   Данные удаляются методом clear() (то есть без освобождения памяти)
@@ -10036,6 +10046,8 @@ public:
 	// Descr: Возвращает количество элементов в серии (фактически, в STimeSeries::T)
 	//
 	uint   SLAPI GetCount() const;
+	int    SLAPI SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
+	int    SLAPI SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const;
 	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
 	int    SLAPI AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
 	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
@@ -10046,6 +10058,7 @@ public:
 
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
+	int    SLAPI AddItems(const STimeSeries & rSrc);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
@@ -10087,9 +10100,13 @@ private:
 	int    SLAPI Helper_SetValue(uint itemIdx, ValuVec * pVec, const void * pValuePtr);
 	int    FASTCALL Swap(uint p1, uint p2);
 
+	enum {
+		stOrdered = 0x0001
+	};
 	uint32 Ver; // Номер версии для обеспечения совместимости форматов сериализации в будущем
 	uint8  Reserve[32];
 	uint32 Id;
+	uint32 State;
 	SString Symb;
 	TSVector <SUniTime> T;
 	TSCollection <ValuVec> VL;
@@ -13635,7 +13652,7 @@ public:
 	//
 	// Descr: Получает данные ввода вызовом GetRawInputData
 	//
-	int    FASTCALL Get(long rawInputHandle);
+	int    FASTCALL Get(/*long*/void * rawInputHandle);
 	//
 	// Descr: Получает строку наименования устройства, из которого приняты данные предшествующим вызовом
 	//   this->Get(long).

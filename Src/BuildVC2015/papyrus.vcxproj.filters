@@ -329,6 +329,7 @@
     <ClCompile Include="..\PPEquip\DreamKas.cpp" />
     <ClCompile Include="..\PPLib\scspctrt.cpp" />
     <ClCompile Include="..\PPLib\ppbulletinboard.cpp" />
+    <ClCompile Include="..\PPLib\ppsprot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

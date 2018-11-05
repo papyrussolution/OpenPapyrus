@@ -842,11 +842,9 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 							pPack->TI(ti_pos).RByBill = ilti->RByBill;
 							full_sync = 1;
 						}
-						else {
-							if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-								_MakeNSyncMsg(ilti, msg_buf, "TI(ti_pos).LotID!=sync_lot_id");
-								PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-							}
+						else if(flags & CILTIF_REPFULLSYNCPROBLEM) {
+							_MakeNSyncMsg(ilti, msg_buf, "TI(ti_pos).LotID!=sync_lot_id");
+							PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 						}
 					}
 				}

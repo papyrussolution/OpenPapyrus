@@ -2067,74 +2067,185 @@ int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 	return ok;
 }
 
+int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
+{
+	int    ok = -1;
+	//
+	// Из-за того, что таблица SCardOp не имеет индекса по времени (только с префиксом карты)
+	// придется идти сложным путем: найти все системные события по картам с момента rSince 
+	// и, получив идентификаторы соответствующих карт, перебрать операции по каждой из них.
+	//
+	SysJournal * p_sj = DS.GetTLA().P_SysJ;
+	if(p_sj) {
+		SString temp_buf;
+		SString phone_buf;
+		SString msg_buf;
+		PPIDArray sc_id_list;
+		PPIDArray acn_list;
+		acn_list.addzlist(PPACN_OBJUPD, PPACN_SCARDBONUSCHARGE, 0);
+		p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, rSince, sc_id_list);
+		if(sc_id_list.getCount()) {
+			TSVector <SCardCore::UpdateRestNotifyEntry> urne_list;
+			sc_id_list.sortAndUndup();
+			for(uint i = 0; i < sc_id_list.getCount(); i++) {
+				const PPID sc_id = sc_id_list.get(i);
+				PPSCardPacket sc_pack;
+				//
+				// Дабы не тратить время на перебор операций по карте, у которой нет телефона, сразу проверим чтобы таковой был.
+				// 
+				if(GetPacket(sc_id, &sc_pack) > 0) {
+					if(sc_pack.GetExtStrData(sc_pack.extssPhone, temp_buf) > 0 && temp_buf.NotEmptyS() && FormatPhone(temp_buf, phone_buf, msg_buf)) {
+						LDATETIME dtm = rSince;
+						dtm.t.addhs(-100);
+						SCardOpTbl::Rec op_rec;
+						while(P_Tbl->EnumOpByCard(sc_id, &dtm, &op_rec) > 0) {
+							if(!(op_rec.Flags & SCARDOPF_NOTIFYSENDED)) {
+								SCardCore::UpdateRestNotifyEntry new_entry;
+								new_entry.SCardID = op_rec.SCardID;
+								new_entry.OpDtm.Set(op_rec.Dt, op_rec.Tm);
+								new_entry.NewRest = op_rec.Rest;
+								new_entry.PrevRest = op_rec.Rest - op_rec.Amount;
+								urne_list.insert(&new_entry);
+							}
+						}
+					}
+				}
+			}
+			FinishSCardUpdNotifyList(urne_list);
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(rList.getCount()) { // @v9.6.12
-		PPAlbatrosConfig  albtr_cfg;
-		SmsClient sms_cli(0);
-		if(PPAlbatrosCfgMngr::Get(&albtr_cfg) && sms_cli.SmsInit_(albtr_cfg.Hdr.SmsAccID, "UHTT") > 0) {
-			Reference * p_ref = PPRef;
-			SString phone_buf;
-			SString fmt_buf, msg_buf;
-			SString temp_buf;
-			SString status_buf;
-			//TSCollection <UhttSmsPacket> sms_list;
-			StrAssocArray gua_to_prefix_list;
-			UintHashTable gua_byprefix_list;
-			p_ref->Ot.GetObjectList(PPOBJ_GLOBALUSERACC, PPTAG_GUA_SCARDPREFIX, gua_byprefix_list);
-			for(ulong iter_gua_id = 0; gua_byprefix_list.Enum(&iter_gua_id);) {
-				if(p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, (long)iter_gua_id, PPTAG_GUA_SCARDPREFIX, temp_buf) > 0) {
-					gua_to_prefix_list.Add((long)iter_gua_id, temp_buf, 0);
+		SString fmt_buf, msg_buf;
+		SString temp_buf;
+		PPPersonConfig psn_cfg;
+		PPObjPerson::ReadConfig(&psn_cfg);
+		if(!psn_cfg.SmsProhibitedTr.IsZero() && psn_cfg.SmsProhibitedTr.Check(getcurtime_())) {
+			PPLoadText(PPTXT_SMSDECLINEDDUETIMERANGE, fmt_buf);
+			temp_buf.Z().Cat(psn_cfg.SmsProhibitedTr.low, TIMF_HM).Dot().Dot().Cat(psn_cfg.SmsProhibitedTr.upp, TIMF_HM);
+			msg_buf.Printf(fmt_buf, temp_buf.cptr());
+			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+		}
+		else {
+			PPAlbatrosConfig  albtr_cfg;
+			SmsClient sms_cli(0);
+			if(PPAlbatrosCfgMngr::Get(&albtr_cfg) && sms_cli.SmsInit_(albtr_cfg.Hdr.SmsAccID, "UHTT") > 0) {
+				Reference * p_ref = PPRef;
+				PPObjBill * p_bobj = BillObj;
+				GtaJournalCore * p_gtaj = DS.GetGtaJ();
+				SString phone_buf;
+				SString status_buf;
+				StrAssocArray gua_to_prefix_list;
+				UintHashTable gua_byprefix_list;
+				p_ref->Ot.GetObjectList(PPOBJ_GLOBALUSERACC, PPTAG_GUA_SCARDPREFIX, gua_byprefix_list);
+				for(ulong iter_gua_id = 0; gua_byprefix_list.Enum(&iter_gua_id);) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, (long)iter_gua_id, PPTAG_GUA_SCARDPREFIX, temp_buf) > 0) {
+						gua_to_prefix_list.Add((long)iter_gua_id, temp_buf, 0);
+					}
 				}
-			}
-			for(uint i = 0; i < rList.getCount(); i++) {
-				const SCardCore::UpdateRestNotifyEntry & r_entry = rList.at(i);
-				PPSCardPacket sc_pack;
-				if(GetPacket(r_entry.SCardID, &sc_pack) > 0) {
-					int   do_notify = 0; // 1 - draw, 2 - withdraw
-					double _withdraw = R2(r_entry.NewRest - r_entry.PrevRest);
-					SETMAX(_withdraw, 0.0);
-					double _draw = R2(r_entry.PrevRest - r_entry.NewRest);
-					SETMAX(_draw, 0.0);
-					if(_draw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYDRAW)
-						do_notify = 1;
-					else if(_withdraw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYWITHDRAW)
-						do_notify = 2;
-					if(do_notify) {
-						if(sc_pack.GetExtStrData(sc_pack.extssPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-							if(FormatPhone(temp_buf, phone_buf, msg_buf)) {
-								PPID   gua_id = 0;
-								double amount = 0.0;
-								if(do_notify == 1) {
-									PPLoadText(PPTXT_SCARDDRAW, fmt_buf);
-									amount = _draw;
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const SCardCore::UpdateRestNotifyEntry & r_entry = rList.at(i);
+					PPSCardPacket sc_pack;
+					if(GetPacket(r_entry.SCardID, &sc_pack) > 0) {
+						SCardOpTbl::Rec op_rec;
+						int   do_notify = 0; // 1 - draw, 2 - withdraw
+						double _withdraw = R2(r_entry.NewRest - r_entry.PrevRest);
+						SETMAX(_withdraw, 0.0);
+						double _draw = R2(r_entry.PrevRest - r_entry.NewRest);
+						SETMAX(_draw, 0.0);
+						if(_draw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYDRAW)
+							do_notify = 1;
+						else if(_withdraw > 0.0 && sc_pack.Rec.Flags & SCRDF_NOTIFYWITHDRAW)
+							do_notify = 2;
+						if(do_notify && sc_pack.GetExtStrData(sc_pack.extssPhone, temp_buf) > 0 && temp_buf.NotEmptyS() && FormatPhone(temp_buf, phone_buf, msg_buf)) {
+							PPID   gua_id = 0;
+							double amount = 0.0;
+							if(do_notify == 1) {
+								PPLoadText(PPTXT_SCARDDRAW, fmt_buf);
+								amount = _draw;
+							}
+							else if(do_notify == 2) {
+								PPLoadText(PPTXT_SCARDWITHDRAW, fmt_buf);
+								amount = _withdraw;
+							}
+							temp_buf = sc_pack.Rec.Code;
+							for(uint i = 0; i < gua_to_prefix_list.getCount(); i++) {
+								StrAssocArray::Item gua_to_prefix_item = gua_to_prefix_list.at_WithoutParent(i);
+								if(temp_buf.CmpPrefix(gua_to_prefix_item.Txt, 1) == 0) {
+									gua_id = gua_to_prefix_item.Id;
+									temp_buf.ShiftLeft(sstrlen(gua_to_prefix_item.Txt));
+									break;
 								}
-								else if(do_notify == 2) {
-									PPLoadText(PPTXT_SCARDWITHDRAW, fmt_buf);
-									amount = _withdraw;
-								}
-								temp_buf = sc_pack.Rec.Code;
-								for(uint i = 0; i < gua_to_prefix_list.getCount(); i++) {
-									StrAssocArray::Item gua_to_prefix_item = gua_to_prefix_list.at_WithoutParent(i);
-									if(temp_buf.CmpPrefix(gua_to_prefix_item.Txt, 1) == 0) {
-										gua_id = gua_to_prefix_item.Id;
-										temp_buf.ShiftLeft(sstrlen(gua_to_prefix_item.Txt));
-										break;
+							}
+							if(temp_buf.NotEmptyS()) {
+								int    skip = 0;
+								if(!!r_entry.OpDtm && P_Tbl->SearchOp(r_entry.SCardID, r_entry.OpDtm.d, r_entry.OpDtm.t, &op_rec) > 0) {
+									if(op_rec.Flags & SCARDOPF_NOTIFYSENDED) {
+										skip = 1;
 									}
 								}
-								if(temp_buf.NotEmptyS()) {
+								if(!skip) {
+									PPGta  gta_blk;
+									if(gua_id && p_bobj) {
+										gta_blk.GlobalUserID = gua_id;
+										gta_blk.Op = GTAOP_SMSSEND;
+										p_bobj->InitGta(gta_blk);
+										if(gta_blk.Quot != 0.0) { // Для рассылки SMS кредит не применяется!
+											if((gta_blk.SCardRest/*+ gta_blk.SCardMaxCredit*/) <= 0.0) {
+												PPSetError(PPERR_GTAOVERDRAFT);
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+												skip = 1;
+											}
+										}
+									}
 									msg_buf.Z();
 									PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), amount);
-									sms_cli.SendSms(phone_buf, msg_buf, status_buf);
+									if(sms_cli.SendSms(phone_buf, msg_buf, status_buf) > 0) {
+										if(!!r_entry.OpDtm) {
+											int    local_err = 0;
+											if(P_Tbl->SearchOp(r_entry.SCardID, r_entry.OpDtm.d, r_entry.OpDtm.t, &op_rec) > 0) {
+												PPTransaction tra(1);
+												if(!tra)
+													local_err = 1;
+												else if(!P_Tbl->ScOp.rereadForUpdate(-1, 0))
+													local_err = 1;
+												else {
+													op_rec.Flags |= SCARDOPF_NOTIFYSENDED;
+													if(!P_Tbl->ScOp.updateRecBuf(&op_rec))
+														local_err = 1;
+													else if(!tra.Commit())
+														local_err = 1;
+												}
+											}
+											if(local_err)
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+										}
+										if(gua_id && p_bobj) {
+											gta_blk.Count = 1;
+											gta_blk.Duration = ZEROTIME;
+											gta_blk.Dtm = getcurdatetime_();
+											if(p_gtaj) {
+												if(!p_gtaj->CheckInOp(gta_blk, 1)) {
+													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+												}
+											}
+										}
+									}
+									else
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 								}
 							}
 						}
 					}
 				}
 			}
+			sms_cli.SmsRelease_();
 		}
-		sms_cli.SmsRelease_();
 	}
 	return ok;
 }

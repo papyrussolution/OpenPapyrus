@@ -288,12 +288,11 @@ int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return
 double SLAPI PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
 double SLAPI PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
 
-int SLAPI PPDimention::SetVolumeM(double volume)
+void SLAPI PPDimention::SetVolumeM(double volume)
 {
 	Width  = 100L;
 	Height = 100L;
 	Length = R0i(volume * fpow10i(5));
-	return 1;
 }
 
 int SLAPI PPDimention::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1438,7 +1437,6 @@ int SLAPI PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rB
 int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
 {
 	rBuf.Z();
-
 	int    ok = -1;
 	int    fld_id = 0;
     uint   pos = DEREFPTRORZ(pPos);
@@ -1453,11 +1451,11 @@ int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFl
 			size_t start = scan.Offs;
 			if(Re.Find(&scan)) {
 				//pos = scan.Offs+scan.Len;
-				pos = scan.Offs;
+				pos = (uint)scan.Offs;
 				rBuf.CopyFromN(rLine+start, scan.Offs-start);
 			}
 			else {
-				pos = rLine.Len();
+				pos = (uint)rLine.Len();
 				rBuf.CopyFrom(rLine+start);
 			}
 			ok = 1;
@@ -3691,7 +3689,7 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 				ps.Split(pFileName);
 				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 				temp_buf.ToUtf8();
-				THROW(StartTransferData(temp_buf, file_size, chunk_count + BIN(tail_size), &transfer_id));
+				THROW(StartTransferData(temp_buf, file_size, (int32)(chunk_count + BIN(tail_size)), &transfer_id));
 				assert(tail_size < chunk_size);
 				//
 				dest_display_name = pKey;
@@ -4465,7 +4463,7 @@ int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList
 	int    do_continue = 0;
     if(P_ShT) {
 		uint   _ut = 0;
-		uint   colon_pos = 0;
+		size_t colon_pos = 0;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		(r_temp_buf = pName).ToLower();
 		if(r_temp_buf.StrChr(':', &colon_pos))

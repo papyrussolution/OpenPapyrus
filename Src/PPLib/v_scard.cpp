@@ -3074,6 +3074,15 @@ int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 							ok = PPErrorZ();
 				}
 				break;
+			case PPVCMD_EDITSCARD: // @v10.2.3
+				ok = -1;
+				if(p_hdr && p_hdr->SCardID) {
+					PPID   temp_id = p_hdr->SCardID;
+					if(SCObj.Edit(&temp_id, 0) > 0) {
+						ok = 1;
+					}
+				}
+				break;
 			case PPVCMD_DORECOVER:
 				ok = Recover();
 				break;

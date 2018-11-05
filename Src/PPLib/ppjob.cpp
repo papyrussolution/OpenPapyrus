@@ -3672,6 +3672,80 @@ IMPLEMENT_JOB_HDL_FACTORY(TSESSAUTOSMS);
 //
 //
 //
+class JOB_HDL_CLS(SENDNOTIFIESBYRECENTSCOPS) : public PPJobHandler {
+public:
+	struct Param {
+		Param() : Ver(1), Since(ZERODATETIME)
+		{
+			memzero(Reserve, sizeof(Reserve));
+		}
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+		{
+			int    ok = 1;
+			THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
+			THROW_SL(pSCtx->Serialize(dir, Since, rBuf));
+			THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Reserve), Reserve, rBuf, 1));
+			CATCHZOK
+			return ok;
+		}
+		uint32 Ver;
+		LDATETIME Since;
+		uint8  Reserve[32];
+	};
+	SLAPI JOB_HDL_CLS(SENDNOTIFIESBYRECENTSCOPS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		TDialog * dlg = new TDialog(DLG_JOB_SNRSCO);
+		Param  filt;
+		SSerializeContext sctx;
+		const size_t sav_offs = pParam->GetRdOffs();
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0)
+			THROW(filt.Serialize(-1, *pParam, &sctx));
+		THROW(CheckDialogPtr(&dlg));
+		dlg->setCtrlDatetime(CTL_JOB_SNRSCO_DT, CTL_JOB_SNRSCO_TM, filt.Since);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlDatetime(CTL_JOB_SNRSCO_DT, CTL_JOB_SNRSCO_TM, filt.Since);
+			THROW(filt.Serialize(+1, pParam->Z(), &sctx));
+			ok = 1;
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
+			ok = 0;
+		ENDCATCH
+		delete dlg;
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		Param  filt;
+		SSerializeContext sctx;
+		THROW(filt.Serialize(-1, *pParam, &sctx));
+		{
+			LDATETIME since;
+			since.d = filt.Since.d.getactual(ZERODATE);
+			since.t = filt.Since.t;
+			if(checkdate(since.d)) {
+				long dd = diffdate(getcurdate_(), since.d);
+				if(dd >= 0 && dd < 7) {
+					PPObjSCard sc_obj;
+					THROW(sc_obj.NotifyAboutRecentOps(since));
+				}
+			}
+		}
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(SENDNOTIFIESBYRECENTSCOPS);
+//
+//
+//
 class JOB_HDL_CLS(EXPORTDBTBLTRANSFER) : public PPJobHandler {
 public:
 	SLAPI JOB_HDL_CLS(EXPORTDBTBLTRANSFER)(PPJobDescr * pDescr) : PPJobHandler(pDescr)

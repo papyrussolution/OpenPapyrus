@@ -498,6 +498,11 @@ void SLAPI TimeRange::SetZero()
 	upp = ZEROTIME;
 }
 
+int SLAPI TimeRange::IsZero() const
+{
+	return (low == ZEROTIME && upp == ZEROTIME);
+}
+
 int FASTCALL TimeRange::Check(LTIME tm) const
 {
 	if(low == ZEROTIME && upp == ZEROTIME)

@@ -1852,7 +1852,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 			return 0;
 		// @vmiller {
 		case WM_INPUT:
-			if(p_desk->ProcessRawInput(lParam) > 0)
+			if(p_desk->ProcessRawInput((void *)lParam) > 0)
 				return 0;
 			break;
 		// } @vmiller
@@ -2061,7 +2061,7 @@ PPDesktop::InputArray * PPDesktop::RawInputBlock::AddKeyDownCommand(const KeyDow
 //
 //
 //
-int PPDesktop::ProcessRawInput(long rawInputHandle)
+int PPDesktop::ProcessRawInput(void * rawInputHandle)
 {
 	int    ok = -1;
 	ENTER_CRITICAL_SECTION

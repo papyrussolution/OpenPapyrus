@@ -1589,7 +1589,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				//
 				// Рекурсивная ссылка обнуляется //
 				//
-				comm_id.SetZero();
+				comm_id.Z();
 				primary_id = 0;
 				LogRcvObj(PPTXT_LOG_OBJSYNC_RCVRECUR, rItem);
 			}
@@ -1889,7 +1889,7 @@ int SLAPI PPObjectTransmit::SearchQueueItem(PPID objType, PPID objID, PPID dbID,
 
 int SLAPI PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta)
 {
-	rCommID.SetZero();
+	rCommID.Z();
 	int    ok = 1;
 	ObjSyncQueueTbl::Key1 k;
 	k.ObjType = (short)objid.Obj;

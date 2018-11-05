@@ -4727,6 +4727,7 @@ PPTXT_VETISLOCATIONPROSPERITYISOK   "Местность благополучна
 PPTXT_VETISOUTGSENDING              "Отправка запроса на исходящий сертификат: %s"
 PPTXT_VETISOUTGSTOCKENTRY           "Идентифицированая запись складского журнала: %s"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
+PPTXT_SMSDECLINEDDUETIMERANGE       "Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)"
 //
 // LastText
 
@@ -7132,6 +7133,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @job_supplinterchange                     "Обмен данными с поставщиком"
 @job_queryegais                           "Запрос к @{brand_egais}"
 @job_vetisinterchange                     "@{vetisinterchange}"
+@job_sendnotifiesbyrecentscops            "Рассылка уведомлений о последних операциях по персональным картам"
 
 @jobitem                                  "Задание Job-сервера"
 @jobitem_id                               "@{id}"
@@ -8194,8 +8196,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgperson_regstaffcal                    "Регулярный штатный календарь"
 @cfgperson_sendsmssamepersontimeout       "Мин тайм-аут между посылками SMS одному контрагенту, сек"
 @cfgperson_staffcalquant                  "Квант времени во временной диаграмме, сек"
+@cfgperson_smsprohibitedtr                "Время запрещенное для рассылки SMS"
 @cfgperson_topfolder                      "Каталог персональных папок"
 @cfgperson_tradelicregtype                "Тип регистра торговой лицензии"
+@cfgperson_newclientdetectionlist         "Транзакции нового клиента"
+@cfgperson_dlvraddrextfldlist             "Дополнительные поля адресов"
 
 @cfgpredictsales_correctkoeff             "Вид котировки поправочного коэффициента"
 @cfgpredictsales_definsurstock            "Страховочный запас по умолчанию (@{days})"
@@ -8370,11 +8375,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @cfgtechsess_statuscolors                 "Цвета статусов технологических сессий" // generic
 @cfgtechsess_statuscolors_s               "Цвета статусов" // generic
-@cfgtechsess_colorcanceledstatus          "Отмененная"
-@cfgtechsess_colorclosedstatus            "@{closed_fem}"
-@cfgtechsess_colorinprogressstatus        "Выполняется"
-@cfgtechsess_colorpendingstatus           "Ожидаемая"
-@cfgtechsess_colorplannedstatus           "Планируемая"
+@cfgtechsess_colorcanceledstatus          "@{tsks_canceled}"
+@cfgtechsess_colorclosedstatus            "@{tsks_closed}"
+@cfgtechsess_colorinprogressstatus        "@{tsks_runned}"
+@cfgtechsess_colorpendingstatus           "@{tsks_pending}"
+@cfgtechsess_colorplannedstatus           "@{tsks_planned}"
 @cfgtechsess_deftimetech                  "Технология для повременных сессий по умолчанию"
 @cfgtechsess_fallowlinesinpendingsessions "Допускать ввод строк в ожидающих сессиях"
 @cfgtechsess_fallowlinesinwroffsessions   "Допускать ввод строк в списанных сессиях"
@@ -12084,6 +12089,7 @@ PPHS_RESOURCES                 "resources"
 PPHS_VALUES                    "values"
 PPHS_CHEQUE                    "cheque"
 PPHS_GEOTRACKING               "geotracking"
+PPHS_SETTIMESERIES             "settimeseries" // @v10.2.3
 
 #!}
 

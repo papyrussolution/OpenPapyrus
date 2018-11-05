@@ -65,10 +65,8 @@ BIO * BIO_new_file(const char * filename, const char * mode)
 	BIO  * ret;
 	FILE * file = openssl_fopen(filename, mode);
 	int fp_flags = BIO_CLOSE;
-
 	if(strchr(mode, 'b') == NULL)
 		fp_flags |= BIO_FP_TEXT;
-
 	if(file == NULL) {
 		SYSerr(SYS_F_FOPEN, get_last_sys_error());
 		ERR_add_error_data(5, "fopen('", filename, "','", mode, "')");
@@ -142,9 +140,7 @@ static int file_read(BIO * b, char * out, int outl)
 			ret = UP_fread(out, 1, (int)outl, b->ptr);
 		else
 			ret = fread(out, 1, (int)outl, (FILE*)b->ptr);
-		if(ret == 0
-		    && (b->flags & BIO_FLAGS_UPLINK) ? UP_ferror((FILE*)b->ptr) :
-		    ferror((FILE*)b->ptr)) {
+		if(ret == 0 && (b->flags & BIO_FLAGS_UPLINK) ? UP_ferror((FILE*)b->ptr) : ferror((FILE*)b->ptr)) {
 			SYSerr(SYS_F_FREAD, get_last_sys_error());
 			BIOerr(BIO_F_FILE_READ, ERR_R_SYS_LIB);
 			ret = -1;

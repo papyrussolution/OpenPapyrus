@@ -751,8 +751,7 @@ CURLMcode curl_multi_fdset(struct Curl_multi * multi, fd_set * read_fd_set, fd_s
 				FD_SET(sockbunch[i], write_fd_set);
 				s = sockbunch[i];
 			}
-			if(s == CURL_SOCKET_BAD)
-				/* this socket is unused, break out of loop */
+			if(s == CURL_SOCKET_BAD) // this socket is unused, break out of loop 
 				break;
 			if((int)s > this_max_fd)
 				this_max_fd = (int)s;

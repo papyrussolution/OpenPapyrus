@@ -23,7 +23,7 @@ TreeWindow::ListWindowItem::~ListWindowItem()
 
 TreeWindow::TreeWindow(HWND parentWnd) : P_CurLw(0), P_Toolbar(0)
 {
-	Hwnd = APPL->CreateDlg(4100, parentWnd, TreeWindow::WndProc, (long)this);
+	Hwnd = APPL->CreateDlg(4100, parentWnd, TreeWindow::WndProc, (LPARAM)this);
 	H_CmdList = GetDlgItem(Hwnd, MENU_TREELIST);
 	APPL->SetWindowViewByKind(Hwnd, TProgram::wndtypNone);
 	ShortcWnd.Create(Hwnd);
@@ -46,7 +46,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 		case WM_INITDIALOG:
 			{
 				//SetWindowLong(hWnd, GWLP_USERDATA, (long)lParam);
-				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)lParam);
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv)
 					TreeView_SetBkColor(h_tv, GetGrayColorRef(0.8f));
@@ -360,7 +360,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		is.hParent         = TVI_ROOT;
 		is.hInsertAfter    = TVI_LAST;
 		is.item.mask       = TVIF_TEXT | TVIF_PARAM;
-		is.item.lParam     = (UINT)ptr;
+		is.item.lParam     = (LPARAM)ptr;
 		is.item.cChildren  = 0;
 		is.item.pszText    = title_buf; // @unicodeproblem
 		is.item.cchTextMax = sizeof(title_buf);

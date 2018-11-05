@@ -2215,7 +2215,7 @@ table SCardOp {         // size=60 // @v7.7.12 48-->60
 	// @v7.7.12 long   CheckID;     // ->CCheck.ID (may be zero)
 	long   UserID;      // ->Ref(PPOBJ_USR)
 	// @v7.7.12 long   BillID;      // ->Bill.ID (may be zero)
-	long   Flags;       //
+	long   Flags;       // @flags SCARDOPF_XXX
 	double Amount;      // Сумма операции
 	double Rest;        // Остаток после операции
 	long   DestSCardID; // @v6.8.0 (was reserved) Ссылка на карту, на которую перенесена сумма по данной операции.

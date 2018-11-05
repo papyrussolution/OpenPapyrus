@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <uri.h>
 #include <snet.h>
-#include <winsock2.h>
+// @v10.2.3 #include <winsock2.h>
 #include <wininet.h>
 // @v9.6.3 #include <idea.h>
 #include <openssl/ssl.h>
@@ -235,8 +235,6 @@ int SLAPI InetAddr::Set(const char * pHostName, int port)
 	return ok;
 }
 //
-//
-//
 // @v7.3.0 При большом размере буфера чтения не стабильно принимаются значительные по объему данные без терминатора
 // и без информации о требуемом размере чтения (т.е. сколько-есть).
 //
@@ -290,22 +288,9 @@ int TcpSocket::SslBlock::Accept()
 	return LastError ? 0 : 1;
 }
 
-int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize)
-{
-	return BIN(P_S);
-}
-
-int TcpSocket::SslBlock::Read(void * pBuf, int bufLen)
-{
-	int    ret_len = P_S ? SSL_read((SSL *)P_S, pBuf, bufLen) : -1;
-	return ret_len;
-}
-
-int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen)
-{
-	int    ret = P_S ? SSL_write((SSL *)P_S, pBuf, bufLen) : -1;
-	return ret;
-}
+int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize) { return BIN(P_S); }
+int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read((SSL *)P_S, pBuf, bufLen) : -1; }
+int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write((SSL *)P_S, pBuf, bufLen) : -1; }
 
 SLAPI TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), P_Ssl(0)
 {
@@ -316,6 +301,11 @@ SLAPI TcpSocket::~TcpSocket()
 {
 	Disconnect();
 }
+
+int SLAPI TcpSocket::IsValid() const { return BIN(S != INVALID_SOCKET); }
+int SLAPI TcpSocket::GetTimeout() const { return Timeout; }
+int SLAPI TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr) { return Helper_Connect(sslm, rAddr); }
+int SLAPI TcpSocket::Connect(const InetAddr & rAddr) { return Helper_Connect(sslmNone, rAddr); }
 
 void SLAPI TcpSocket::Reset()
 {
@@ -365,11 +355,6 @@ int SLAPI TcpSocket::CopyS(TcpSocket & rSrc)
 	return ok;
 }
 
-int SLAPI TcpSocket::IsValid() const
-{
-	return BIN(S != INVALID_SOCKET);
-}
-
 // private
 int SLAPI TcpSocket::Init(SOCKET s)
 {
@@ -404,11 +389,6 @@ int SLAPI TcpSocket::CheckErrorStatus()
 	return ok;
 }
 
-int SLAPI TcpSocket::GetTimeout() const
-{
-	return Timeout;
-}
-
 int FASTCALL TcpSocket::SetTimeout(int timeout)
 {
 	if(timeout >= 0) {
@@ -417,16 +397,6 @@ int FASTCALL TcpSocket::SetTimeout(int timeout)
 	}
 	else
 		return 0;
-}
-
-int SLAPI TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr)
-{
-	return Helper_Connect(sslm, rAddr);
-}
-
-int SLAPI TcpSocket::Connect(const InetAddr & rAddr)
-{
-	return Helper_Connect(sslmNone, rAddr);
 }
 
 int SLAPI TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
@@ -559,7 +529,9 @@ int SLAPI TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
 	}
 	return ok;
 }
-
+//
+//
+//
 int SLAPI TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize)
 {
 	int    ok = 1;
@@ -567,10 +539,28 @@ int SLAPI TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t 
 		ok = P_Ssl->Select(mode, timeout, pAvailableSize);
 	}
 	else {
+		int    pending_ms = 0;
 		size_t av_size = 0;
-		fd_set set, * p_rset = 0, * p_wset = 0;
-		FD_ZERO(&set);
-		FD_SET(S, &set);
+		fd_set rset;
+		fd_set wset;
+		fd_set eset;
+		fd_set * p_rset = 0;
+		fd_set * p_wset = 0;
+		FD_ZERO(&rset);
+		FD_ZERO(&wset);
+		FD_ZERO(&eset);
+		if(mode == mRead) {
+			FD_SET(S, &rset);
+			FD_SET(S, &eset);
+			p_rset = &rset;
+			assert(FD_ISSET(S, &rset));
+		}
+		else {
+			FD_SET(S, &wset);
+			FD_SET(S, &eset);
+			p_wset = &wset;
+			assert(FD_ISSET(S, &wset));
+		}
 		struct timeval tval, * p_tval = 0;
 		tval.tv_sec = 0;
 		tval.tv_usec = 0;
@@ -584,23 +574,29 @@ int SLAPI TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t 
 			tval.tv_usec = (Timeout % 1000) * 10;
 			p_tval = &tval;
 		}
-		if(mode == mRead)
-			p_rset = &set;
-		else
-			p_wset = &set;
-		int    r = ::select(S+1 /* ignored */, p_rset, p_wset, 0, p_tval);
+		int    r = ::select(S+1/* ignored */, p_rset, p_wset, &eset, p_tval);
 		if(r == 0)
 			ok = (SLibError = SLERR_SOCK_TIMEOUT, 0);
 		else if(r == SOCKET_ERROR)
 			ok = SLS.SetError(SLERR_SOCK_WINSOCK);
 		else {
 			av_size = (size_t)r; // !!!
+			// @v10.2.3 {
+			if(p_rset && !FD_ISSET(S, p_rset)) {
+				ok = (SLibError = SLERR_SOCK_NONBLOCKINGRD, 0);
+			}
+			else if(p_wset && !FD_ISSET(S, p_wset)) {
+				ok = (SLibError = SLERR_SOCK_NONBLOCKINGWR, 0);
+			}
+			// } @v10.2.3 
+			/* @v10.2.3
 			if(!FD_ISSET(S, &set)) {
 				if(mode == mRead)
 					ok = (SLibError = SLERR_SOCK_NONBLOCKINGRD, 0);
 				else if(mode == mWrite)
 					ok = (SLibError = SLERR_SOCK_NONBLOCKINGWR, 0);
 			}
+			*/
 		}
 		ASSIGN_PTR(pAvailableSize, av_size);
 	}
@@ -849,6 +845,7 @@ int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 		case protRTMPS:    port = 443; break;
 		case protLDAP:     port = 389; break;
 		case protLDAPS:    port = 636; break;
+		case protPapyrusServer: port = 28015; break;
 	}
 	return port;
 }

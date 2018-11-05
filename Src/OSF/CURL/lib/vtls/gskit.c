@@ -564,8 +564,7 @@ static int inetsocketpair(int sv[2])
 	return 0;
 }
 
-static int pipe_ssloverssl(struct connectdata * conn, int sockindex,
-    int directions)
+static int pipe_ssloverssl(struct connectdata * conn, int sockindex, int directions)
 {
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
 	struct ssl_connect_data * connproxyssl = &conn->proxy_ssl[sockindex];
@@ -577,10 +576,8 @@ static int pipe_ssloverssl(struct connectdata * conn, int sockindex,
 	int ret = 0;
 	struct timeval tv = {0, 0};
 	char buf[CURL_MAX_WRITE_SIZE];
-
 	if(!connssl->use || !connproxyssl->use)
 		return 0;  /* No SSL over SSL: OK. */
-
 	FD_ZERO(&fds_read);
 	FD_ZERO(&fds_write);
 	n = -1;

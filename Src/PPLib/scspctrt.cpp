@@ -1,7 +1,7 @@
 // SCSPCTRT.CPP
 // Copyright (c) A.Sobolev 2018
 // @codepage UTF-8
-// Реализация специальных интерпретаций поведения персоанльных карт
+// Реализация специальных интерпретаций поведения персональных карт
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,7 +10,7 @@ SLAPI SCardSpecialTreatment::CardBlock::CardBlock() : SpecialTreatment(0), PosNo
 {
 }
 
-SLAPI SCardSpecialTreatment::DiscountBlock::DiscountBlock() : GoodsID(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
+SLAPI SCardSpecialTreatment::DiscountBlock::DiscountBlock() : RowN(0), GoodsID(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
 {
 	PTR32(TaIdent)[0] = 0;
 }
@@ -25,7 +25,9 @@ SLAPI SCardSpecialTreatment::~SCardSpecialTreatment()
 
 int SLAPI SCardSpecialTreatment::VerifyOwner(const CardBlock * pScBlk)
 	{ return -1; }
-int SLAPI SCardSpecialTreatment::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags)
+int SLAPI SCardSpecialTreatment::DoesWareBelongToScope(PPID goodsID)
+	{ return 0; }
+int SLAPI SCardSpecialTreatment::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList)
 	{ return -1; }
 int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
 	{ return -1; }
@@ -71,7 +73,8 @@ public:
 	{
 	}
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
-	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags);
+	virtual int SLAPI DoesWareBelongToScope(PPID goodsID);
+	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList);
 	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
 private:
 	void SLAPI MakeUrl(const char * pSuffix, SString & rBuf)
@@ -346,7 +349,34 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBl
 	return ok;
 }
 
-int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags)
+static const char * /*p_tag_symb*/P_AstraZenecaGoodsTagSymb = "ASTRAZENECAGOODS";
+
+int SLAPI SCardSpecialTreatment_AstraZeneca::DoesWareBelongToScope(PPID goodsID)
+{
+	int    ok = 0;
+	PPID   tag_id = 0;
+	PPObjTag tag_obj;
+	Reference * p_ref = PPRef;
+	THROW_PP_S(tag_obj.FetchBySymb(P_AstraZenecaGoodsTagSymb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, P_AstraZenecaGoodsTagSymb);
+	if(p_ref->Ot.GetTag(PPOBJ_GOODS, goodsID, tag_id, 0) > 0) {
+		PPObjGoods goods_obj;
+		BarcodeArray bc_list;
+		SString temp_buf;
+		goods_obj.P_Tbl->ReadBarcodes(goodsID, bc_list);
+		for(uint bcidx = 0; !ok && bcidx < bc_list.getCount(); bcidx++) {
+			int    d = 0;
+			int    std = 0;
+			const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
+			(temp_buf = r_bc_item.Code).Strip();
+			if(goods_obj.DiagBarcode(temp_buf, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
+				ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -358,23 +388,24 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 	int    is_cc_suitable = 0;
 	PPObjTag tag_obj;
 	PPID   tag_id = 0;
-	const char * p_tag_symb = "ASTRAZENECAGOODS";
-	THROW_PP_S(tag_obj.FetchBySymb(p_tag_symb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, p_tag_symb);
-	{
-		for(uint i = 0; i < rDL.getCount(); i++) {
-			const DiscountBlock & r_line = rDL.at(i);
-			if(r_line.Qtty != 0 && p_ref->Ot.GetTag(PPOBJ_GOODS, r_line.GoodsID, tag_id, 0) > 0) {
-				goods_obj.P_Tbl->ReadBarcodes(r_line.GoodsID, bc_list);
-				for(uint bcidx = 0; !is_cc_suitable && bcidx < bc_list.getCount(); bcidx++) {
-					int    d = 0;
-					int    std = 0;
-					const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
-					(temp_buf = r_bc_item.Code).Strip();
-					if(goods_obj.DiagBarcode(temp_buf, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
-						is_cc_suitable = 1;
-				}
-			}
+	//const char * p_tag_symb = "ASTRAZENECAGOODS";
+	THROW_PP_S(tag_obj.FetchBySymb(P_AstraZenecaGoodsTagSymb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, P_AstraZenecaGoodsTagSymb);
+	for(uint i = 0; i < rDL.getCount(); i++) {
+		const DiscountBlock & r_line = rDL.at(i);
+		if(r_line.Qtty != 0 && DoesWareBelongToScope(r_line.GoodsID) > 0) {
+			is_cc_suitable = 1;
 		}
+		/*if(r_line.Qtty != 0 && p_ref->Ot.GetTag(PPOBJ_GOODS, r_line.GoodsID, tag_id, 0) > 0) {
+			goods_obj.P_Tbl->ReadBarcodes(r_line.GoodsID, bc_list);
+			for(uint bcidx = 0; !is_cc_suitable && bcidx < bc_list.getCount(); bcidx++) {
+				int    d = 0;
+				int    std = 0;
+				const  BarcodeTbl::Rec & r_bc_item = bc_list.at(bcidx);
+				(temp_buf = r_bc_item.Code).Strip();
+				if(goods_obj.DiagBarcode(temp_buf, &d, &std, 0) > 0 && oneof4(std, BARCSTD_EAN8, BARCSTD_EAN13, BARCSTD_UPCA, BARCSTD_UPCE))
+					is_cc_suitable = 1;
+			}
+		}*/
 	}
 	if(is_cc_suitable) {
 		int    last_query_status = -1; // 1 - success, 0 - error, -1 - undefined
@@ -470,6 +501,10 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 								else if(p_obj->Text.IsEqiAscii("message")) {
 									last_query_message = p_obj->P_Child->Text;
 								}
+								else if(p_obj->Text.IsEqiAscii("description")) {
+									(temp_buf = p_obj->P_Child->Text).Strip().Chomp().Strip().Transf(CTRANSF_UTF8_TO_INNER);
+									CALLPTRMEMB(pRetMsgList, add(temp_buf));
+								}
 								else if(p_obj->Text.IsEqiAscii("pos_id")) {
 								}
 								else if(p_obj->Text.IsEqiAscii("card_number")) {
@@ -518,7 +553,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 												else if(p_item->Text.IsEqiAscii("transaction")) {
 													item_ta = p_item->P_Child->Text;
 												}
-												else if(p_item->Text.IsEqiAscii("descrpition")) {
+												else if(p_item->Text.IsEqiAscii("descrption")) {
 												}
 												else if(p_item->Text.IsEqiAscii("error_code")) {
 													item_err_code = p_item->P_Child->Text.ToLong();

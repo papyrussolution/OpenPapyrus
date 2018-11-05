@@ -44,23 +44,21 @@
 
 int Curl_ack_eintr = 0;
 #define ERROR_NOT_EINTR(error) (Curl_ack_eintr || error != EINTR)
-
-/*
- * Internal function used for waiting a specific amount of ms
- * in Curl_socket_check() and Curl_poll() when no file descriptor
- * is provided to wait on, just being used to delay execution.
- * WinSock select() and poll() timeout mechanisms need a valid
- * socket descriptor in a not null file descriptor set to work.
- * Waiting indefinitely with this function is not allowed, a
- * zero or negative timeout value will return immediately.
- * Timeout resolution, accuracy, as well as maximum supported
- * value is system dependent, neither factor is a citical issue
- * for the intended use of this function in the library.
- *
- * Return values:
- *   -1 = system call error, invalid timeout value, or interrupted
- *    0 = specified timeout has elapsed
- */
+// 
+// Internal function used for waiting a specific amount of ms
+// in Curl_socket_check() and Curl_poll() when no file descriptor
+// is provided to wait on, just being used to delay execution.
+// WinSock select() and poll() timeout mechanisms need a valid
+// socket descriptor in a not null file descriptor set to work.
+// Waiting indefinitely with this function is not allowed, a
+// zero or negative timeout value will return immediately.
+// Timeout resolution, accuracy, as well as maximum supported
+// value is system dependent, neither factor is a citical issue
+// for the intended use of this function in the library.
+// Return values:
+//   -1 = system call error, invalid timeout value, or interrupted
+// 0 = specified timeout has elapsed
+// 
 int FASTCALL Curl_wait_ms(int timeout_ms)
 {
 #if !defined(MSDOS) && !defined(USE_WINSOCK)
@@ -265,27 +263,26 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 			pending_tv.tv_sec = 0;
 			pending_tv.tv_usec = 0;
 		}
-		/* WinSock select() must not be called with an fd_set that contains zero
-		   fd flags, or it will return WSAEINVAL.  But, it also can't be called
-		   with no fd_sets at all!  From the documentation:
-
-		     Any two of the parameters, readfds, writefds, or exceptfds, can be
-		     given as null. At least one must be non-null, and any non-null
-		     descriptor set must contain at least one handle to a socket.
-
-		   We know that we have at least one bit set in at least two fd_sets in
-		   this case, but we may have no bits set in either fds_read or fd_write,
-		   so check for that and handle it.  Luckily, with WinSock, we can _also_
-		   ask how many bits are set on an fd_set.
-
-		   It is unclear why WinSock doesn't just handle this for us instead of
-		   calling this an error.
-
-		   Note also that WinSock ignores the first argument, so we don't worry
-		   about the fact that maxfd is computed incorrectly with WinSock (since
-		   curl_socket_t is unsigned in such cases and thus -1 is the largest
-		   value).
-		 */
+		// 
+		// WinSock select() must not be called with an fd_set that contains zero
+		// fd flags, or it will return WSAEINVAL.  But, it also can't be called
+		// with no fd_sets at all!  From the documentation:
+		// 
+		//   Any two of the parameters, readfds, writefds, or exceptfds, can be
+		//   given as null. At least one must be non-null, and any non-null
+		//   descriptor set must contain at least one handle to a socket.
+		// 
+		// We know that we have at least one bit set in at least two fd_sets in
+		// this case, but we may have no bits set in either fds_read or fd_write,
+		// so check for that and handle it.  Luckily, with WinSock, we can _also_
+		// ask how many bits are set on an fd_set.
+		// 
+		// It is unclear why WinSock doesn't just handle this for us instead of calling this an error.
+		// 
+		// Note also that WinSock ignores the first argument, so we don't worry
+		// about the fact that maxfd is computed incorrectly with WinSock (since
+		// curl_socket_t is unsigned in such cases and thus -1 is the largest value).
+		// 
 #ifdef USE_WINSOCK
 		r = select((int)maxfd + 1, fds_read.fd_count ? &fds_read : NULL, fds_write.fd_count ? &fds_write : NULL, &fds_err, ptimeout);
 #else
@@ -299,7 +296,7 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		if(timeout_ms > 0) {
 			pending_ms = (int)(timeout_ms - ELAPSED_MS());
 			if(pending_ms <= 0) {
-				r = 0; /* Simulate a "call timed out" case */
+				r = 0; // Simulate a "call timed out" case 
 				break;
 			}
 		}

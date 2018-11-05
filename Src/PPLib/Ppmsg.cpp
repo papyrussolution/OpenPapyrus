@@ -187,7 +187,7 @@ int FASTCALL PPSetError(int errCode)
 		tla.LastErr = errCode;
 		tla.AddedMsgString.Z();
 	}
-	return 0; // @v8.7.0 1-->0
+	return 0;
 }
 
 int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
@@ -207,7 +207,7 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 		if(!tla.AddedMsgString.NotEmptyS())
 			tla.AddedMsgString = "unknown";
 	}
-	return 0; // @v8.7.0 1-->0
+	return 0;
 }
 
 int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); } // @v8.5.10 (,0)
@@ -222,7 +222,7 @@ int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 		tla.LastErr = errCode;
 		tla.AddedMsgString.Z().CatN(pAddedMsg, 256);
 	}
-	return 0; // @v8.7.0 1-->0
+	return 0;
 }
 
 int FASTCALL PPSetError(int errCode, long val)
@@ -232,7 +232,7 @@ int FASTCALL PPSetError(int errCode, long val)
 		tla.LastErr = errCode;
 		tla.AddedMsgString.Z().Cat(val);
 	}
-	return 0; // @v8.7.0 1-->0
+	return 0;
 }
 
 int FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID)

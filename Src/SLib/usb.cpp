@@ -622,7 +622,7 @@ int SUsbDevice::Write(const void * pBuf, size_t bufSize)
 				p_buf += OutputReportByteLength - 2;
 				buf_size -= (buf_size < (OutputReportByteLength - 2)) ? (char)buf_size : (OutputReportByteLength - 2);
 				retnd_size = 0;
-				THROW_S_S(WriteFile(Handle, p_segm_buf, OutputReportByteLength, (LPDWORD)retnd_size, /*NULL*/(LPOVERLAPPED)&Ovl), SLERR_USB, GetErrorStr());
+				THROW_S_S(WriteFile(Handle, p_segm_buf, OutputReportByteLength, (LPDWORD)&retnd_size, /*NULL*/(LPOVERLAPPED)&Ovl), SLERR_USB, GetErrorStr()); // @v10.2.3 @fix retnd_size-->&retnd_size
 				THROW_S_S(WaitForSingleObject(Event, INFINITE) != WAIT_FAILED, SLERR_USB, GetErrorStr()); // new Ждем окончания работы процесса
 			}
 		}
@@ -665,7 +665,7 @@ int SUsbDevice::Read(void * pBuf, size_t bufSize)
 	p_buf = new char[IntputReportByteLength];
 	memzero(p_buf, IntputReportByteLength);
 	// Будем надеятся, что операция чтения у usb и hid происходит одинаково
-	if(!ReadFile(Handle, p_buf, bufSize, NULL, (LPOVERLAPPED)&Ovl)) { // Если вернул FALSE, то это либо ошибка,
+	if(!ReadFile(Handle, p_buf, (DWORD)bufSize, NULL, (LPOVERLAPPED)&Ovl)) { // Если вернул FALSE, то это либо ошибка,
 			// либо чтение закончилось асинхронно. В это случае смотрим дальше: либо опять-таки ошибка, либо все нормально.
 		res = GetLastError();
 		// ERROR_HANDLE_EOF - чтение окончено
@@ -808,10 +808,8 @@ int SRawInputData::Register(SRawInputInitArray * pRiia)
 	return ok;
 }
 
-SRawInputData::SRawInputData()
+SRawInputData::SRawInputData() : AllocatedSize(0), P_Buf(FixedBuffer)
 {
-	AllocatedSize = 0;
-	P_Buf = FixedBuffer;
 }
 
 SRawInputData::~SRawInputData()
@@ -834,7 +832,7 @@ SRawInputData::operator RAWINPUT * ()
 	return (RAWINPUT *)P_Buf;
 }
 
-int FASTCALL SRawInputData::Get(long rawInputHandle)
+int FASTCALL SRawInputData::Get(/*long*/void * rawInputHandle)
 {
 	int    ok = 1;
 	uint   buf_size = 0;

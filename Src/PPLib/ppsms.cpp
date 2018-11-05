@@ -2095,7 +2095,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 					MessageCount++;
 					ReSendQueueMsgTryNums = 0;
 				}
-			} while(((cmd_status == ESME_RMSGQFULL) && (ReSendQueueMsgTryNums <= Config.ResendTriesNum)) || ((cmd_status == ESME_RINVMSGLEN) && (ResendErrLenMsg <= 1)));
+			} while((cmd_status == ESME_RMSGQFULL && ReSendQueueMsgTryNums <= Config.ResendTriesNum) || (cmd_status == ESME_RINVMSGLEN && ResendErrLenMsg <= 1));
 			if(cmd_status == ESME_RINVDSTADR) {
 				AddErrorSubmit(SMParams.DestinationAddress, cmd_status);
 				sms_text = 0;
@@ -2174,7 +2174,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 		}
 	}
 	else {
-		if((ConnectionState == SMPP_BINDED) /*&& (UndeliverableMessages <= UNDELIVERABLE_MESSAGES)*/) // @replace поставлен комментарий
+		if(ConnectionState == SMPP_BINDED /*&& (UndeliverableMessages <= UNDELIVERABLE_MESSAGES)*/) // @replace поставлен комментарий
 			ok = SendSms_(Config.From, pTo, pText);
 		//GetRestOfReceives();
 		//int SmsClient::GetRestOfReceives()
@@ -2399,7 +2399,6 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 {
 	int    ok = 1, skip = 0;
 	SString temp_buf, msg_buf, result, err_msg;
-	// @v8.0.6 {
 	PPObjPerson psn_obj;
 	PersonTbl::Rec psn_rec;
 	if(psn_obj.Search(personID, &psn_rec) > 0 && !(psn_rec.Flags & PSNF_NONOTIFICATIONS)) {
@@ -2428,7 +2427,6 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 				}
 			}
 		}
-		// } @v8.0.6
 		if(!skip) {
 			const SString org_phone = pPhone;
 			int    connected = 0;

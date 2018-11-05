@@ -504,9 +504,6 @@ long SLAPI TimSerSpikes::GetMostCommonDistance()
 //
 //
 //
-// @construction {
-#if 1 // {
-
 SLAPI STimeSeries::ValuVec::ValuVec(const char * pSymb, TYPEID typ, int fxPrec) : Typ(typ), SVector(stsize(typ), O_ARRAY), Symb(pSymb), FxPrec(fxPrec), Flags(0)
 {
 	assert(STimeSeries::VerifyValuVecType(typ));
@@ -650,9 +647,19 @@ int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) co
 	}
 }
 
-SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0)
+SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0), State(0)
 {
 	memzero(Reserve, sizeof(Reserve));
+}
+
+void FASTCALL STimeSeries::SetSymb(const char * pSymb)
+{
+	Symb = pSymb;
+}
+
+const char * FASTCALL STimeSeries::GetSymb() const
+{
+	return Symb;
 }
 
 STimeSeries & SLAPI STimeSeries::Z()
@@ -738,6 +745,73 @@ int SLAPI STimeSeries::AddItemFromSample(const STimeSeries & rSample, uint sampl
 			assert(p_s_vec->Typ == p_vec->Typ && p_s_vec->FxPrec == p_vec->FxPrec);
 			THROW(p_s_vec->Typ == p_vec->Typ && p_s_vec->FxPrec == p_vec->FxPrec);
 			THROW(Helper_SetValue(idx, p_vec, p_s_vec->at(samplePos)));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const
+{
+	int    ok = 0;
+	for(uint i = startPos; !ok && i < T.getCount(); i++) {
+		const SUniTime & r_ut = T.at(i);
+		int cr = r_ut.IsEq(rUt);
+		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
+			ASSIGN_PTR(pIdx, i);
+			ok = cr;
+		}
+	}
+	return ok;
+}
+
+int SLAPI STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const
+{
+	int    ok = 0;
+	uint   i = startPos;
+	if(i) do {
+		const SUniTime & r_ut = T.at(--i);
+		int cr = r_ut.IsEq(rUt);
+		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
+			ASSIGN_PTR(pIdx, i);
+			ok = cr;
+		}
+	} while(!ok && i);
+	return ok;
+}
+
+int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc)
+{
+	int    ok = -1;
+	LAssocArray src_to_this_vl_assoc_list;
+	for(uint i = 0; i < rSrc.VL.getCount(); i++) {
+		const ValuVec * p_s_vec = rSrc.VL.at(i);
+		if(p_s_vec->Symb.NotEmpty()) {
+			uint tidx = 0;
+			if(GetValueVecIndex(p_s_vec->Symb, &tidx)) {
+				src_to_this_vl_assoc_list.Add(i+1, tidx+1);
+			}
+		}
+	}
+	if(src_to_this_vl_assoc_list.getCount()) {
+		for(uint j = 0; j < rSrc.GetCount(); j++) {
+			SUniTime ut;
+			if(rSrc.GetTime(j, &ut)) {
+				uint ii = 0;
+				if(SearchEntryReverse(ut, T.getCount(), &ii) > 0) {
+					;
+				}
+				else {
+					THROW(AddItem(ut, &ii));
+				}
+				for(uint k = 0; k < src_to_this_vl_assoc_list.getCount(); k++) {
+					const LAssoc & r_asc = src_to_this_vl_assoc_list.at(k);
+					double val = 0.0;
+					THROW(rSrc.GetValue(j, r_asc.Key-1, &val));
+					THROW(SetValue(ii, r_asc.Val-1, val));
+				}
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK
@@ -908,7 +982,7 @@ int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, STimeSeries::ValuVec * pVec
 	THROW(itemIdx < T.getCount());
 	{
 		const uint org_vec_count = pVec->getCount();
-		if(itemIdx > org_vec_count) {
+		if(itemIdx < org_vec_count) {
 			pVec->atPut(itemIdx, pValuePtr);
 		}
 		else {
@@ -1034,9 +1108,6 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
 	}
 	return ok;
 }
-
-#endif // } 0
-// } @construction
 //
 //
 //

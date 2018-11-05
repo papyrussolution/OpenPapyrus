@@ -3935,7 +3935,7 @@ double SLAPI GoodsStockExt::CalcBrutto(double qtty) const
 double SLAPI GoodsStockExt::CalcVolume(double qtty) const
 {
 	double count = 0.0;
-	if(Package > 0) {
+	if(Package > 0.0) {
 		/* Алгорит расчета объема с выравниванием до полной упаковки
 		double fract = R6(modf(round(fabs(qtty) / Package, 6), &count));
 		if(fract != 0)
@@ -3948,8 +3948,8 @@ double SLAPI GoodsStockExt::CalcVolume(double qtty) const
 	return (count * PckgDim.CalcVolumeM());
 }
 
-int SLAPI GoodsStockExt::SetVolume(double volume)
-	{ return PckgDim.SetVolumeM(volume); }
+void SLAPI GoodsStockExt::SetVolume(double volume)
+	{ PckgDim.SetVolumeM(volume); }
 
 void SLAPI GoodsStockExt::Init()
 {

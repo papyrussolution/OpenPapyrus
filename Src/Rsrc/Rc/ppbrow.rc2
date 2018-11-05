@@ -4436,6 +4436,7 @@ browser SCARDOP north(100), 1, 1, "Операции по персональной карте {%s}", OWNER|G
 		ADDITEM     : kbIns,     TBBM_INSERT,  "@{add}\tInsert"
 		DELETEITEM  : kbDel,     TBBM_DELETE,  "@{delete}\tDelete"
 		ADDFREEZING : kbF5,      TBBM_NOICON,  "Добавить приостановку действия карты\tF5"
+		EDITSCARD   : kbF2,      TBBM_SCARD,   "@{card}\tF2"
 		separator
 		DORECOVER   : kbCtrlR,   TBBM_HAMMER,  "@{verificationandrecovery}\tCtrl-R"
 		separator
@@ -6615,6 +6616,7 @@ job ProcessEDI           { "@{job_processedi}" } // @v8.8.0
 job ProcessTSession      { "@{job_processtsession}" } // @v8.8.0
 job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
 job VetisInterchange     { "@{job_vetisinterchange}" } // @v10.1.2
+job SendNotifiesByRecentScOps { "@{job_sendnotifiesbyrecentscops}" } // @v10.2.3
 //
 // -------------- Описания объектов данных PPObject
 //

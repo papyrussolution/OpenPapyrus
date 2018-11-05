@@ -765,7 +765,7 @@ TuneToolsDialog::~TuneToolsDialog()
 int TuneToolsDialog::ToggleMarker()
 {
 	LVITEM lvi;
-	lvi.iItem = SendMessage(H_List, LVM_GETNEXTITEM, -1, LVNI_SELECTED);
+	lvi.iItem = (int)SendMessage(H_List, LVM_GETNEXTITEM, -1, LVNI_SELECTED);
 	if(lvi.iItem >= 0) {
 		lvi.iSubItem = 0;
 		lvi.mask  = LVIF_IMAGE;

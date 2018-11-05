@@ -240,7 +240,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tQueryNaturalToken, // @v8.8.12
 		tGetArticleByPerson,
 		tGetPersonByArticle,
-		tLogLockStack // @v9.8.1
+		tLogLockStack, // @v9.8.1
+		tSetTimeSeries // @v10.2.3
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -315,10 +316,10 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_DRAFTTRANSITGOODSREST    , "DRAFTTRANSITGOODSREST",     tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
 		{ PPHS_DRAFTTRANSITGOODSRESTLIST, "DRAFTTRANSITGOODSRESTLIST", tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
 		{ PPHS_GETGOODSMATRIX           , "GETGOODSMATRIX",            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
-		{ PPHS_GETOBJATTACHMENTINFO     , "GETOBJATTACHMENTINFO",      tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth }, // @v8.4.1
-		{ PPHS_GETTSESSPLACESTATUS      , "GETTSESSPLACESTATUS",       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth }, // @v8.7.8
-		{ PPHS_TSESSCIPCHECKIN          , "TSESSCIPCHECKIN",           tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth }, // @v8.8.2
-		{ PPHS_TSESSCIPCANCEL           , "TSESSCIPCANCEL",            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth }, // @v8.8.2
+		{ PPHS_GETOBJATTACHMENTINFO     , "GETOBJATTACHMENTINFO",      tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_GETTSESSPLACESTATUS      , "GETTSESSPLACESTATUS",       tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_TSESSCIPCHECKIN          , "TSESSCIPCHECKIN",           tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
+		{ PPHS_TSESSCIPCANCEL           , "TSESSCIPCANCEL",            tSoBlock,                 PPSCMD_SOBLK,                 cmdfNeedAuth },
 		{ PPHS_EXPTARIFFTA              , "EXPTARIFFTA",               tExpTariffTA,             PPSCMD_EXPTARIFFTA,           cmdfNeedAuth },
 		{ PPHS_SENDSMS                  , "SENDSMS",                   tSendSMS,                 PPSCMD_SENDSMS,               cmdfNeedAuth },
 		{ PPHS_RESETCACHE               , "RESETCACHE",                tResetCache,              PPSCMD_RESETCACHE,            cmdfNeedAuth },
@@ -342,21 +343,22 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_CPOSSELECTTBL            , "CPOSSELECTTBL",             tCPosProcessorCommand,    PPSCMD_POS_SELECTCTABLE,      cmdfNeedAuth },
 		{ PPHS_CPOSGETRIGHTS            , "CPOSGETRIGHTS",             tCPosProcessorCommand,    PPSCMD_POS_GETCPOSRIGHTS,     cmdfNeedAuth },
 		{ PPHS_CPOSDECRYPTAUTHDATA      , "CPOSDECRYPTAUTHDATA",       tCPosProcessorCommand,    PPSCMD_POS_DECRYPTAUTHDATA,   cmdfNeedAuth },
-		{ PPHS_CPOSGETGOODSPRICE        , "CPOSGETGOODSPRICE",         tCPosProcessorCommand,    PPSCMD_POS_GETGOODSPRICE,     cmdfNeedAuth },    // @v8.6.8
-		{ PPHS_CPOSGETCURRENTSTATE      , "CPOSGETCURRENTSTATE",       tCPosProcessorCommand,    PPSCMD_POS_GETCURRENTSTATE,   cmdfNeedAuth },  // @v8.6.10
-		{ PPHS_CPOSRESETCURRENTLINE     , "CPOSRESETCURRENTLINE",      tCPosProcessorCommand,    PPSCMD_POS_RESETCURRENTLINE,  cmdfNeedAuth }, // @v8.6.10
-		{ PPHS_CPOSPROCESSBARCODE       , "CPOSPROCESSBARCODE",        tCPosProcessorCommand,    PPSCMD_POS_PROCESSBARCODE,    cmdfNeedAuth },   // @v8.6.10
-		{ PPHS_CPOSSETCCROWQUEUE        , "CPOSSETCCROWQUEUE",         tCPosProcessorCommand,    PPSCMD_POS_CPOSSETCCROWQUEUE, cmdfNeedAuth }, // @v8.6.12
-		{ PPHS_CPOSGETMODIFLIST         , "CPOSGETMODIFLIST",          tCPosProcessorCommand,    PPSCMD_POS_GETMODIFLIST,      cmdfNeedAuth },      // @v8.8.10
+		{ PPHS_CPOSGETGOODSPRICE        , "CPOSGETGOODSPRICE",         tCPosProcessorCommand,    PPSCMD_POS_GETGOODSPRICE,     cmdfNeedAuth },
+		{ PPHS_CPOSGETCURRENTSTATE      , "CPOSGETCURRENTSTATE",       tCPosProcessorCommand,    PPSCMD_POS_GETCURRENTSTATE,   cmdfNeedAuth },
+		{ PPHS_CPOSRESETCURRENTLINE     , "CPOSRESETCURRENTLINE",      tCPosProcessorCommand,    PPSCMD_POS_RESETCURRENTLINE,  cmdfNeedAuth },
+		{ PPHS_CPOSPROCESSBARCODE       , "CPOSPROCESSBARCODE",        tCPosProcessorCommand,    PPSCMD_POS_PROCESSBARCODE,    cmdfNeedAuth },
+		{ PPHS_CPOSSETCCROWQUEUE        , "CPOSSETCCROWQUEUE",         tCPosProcessorCommand,    PPSCMD_POS_CPOSSETCCROWQUEUE, cmdfNeedAuth },
+		{ PPHS_CPOSGETMODIFLIST         , "CPOSGETMODIFLIST",          tCPosProcessorCommand,    PPSCMD_POS_GETMODIFLIST,      cmdfNeedAuth },
 		{ PPHS_GETDISPLAYINFO           , "GETDISPLAYINFO",            tGetDisplayInfo,          PPSCMD_GETDISPLAYINFO,        cmdfNeedAuth },
 		{ PPHS_GETWORKBOOKCONTENT       , "GETWORKBOOKCONTENT",        tGetWorkbookContent,      PPSCMD_GETWORKBOOKCONTENT,    cmdfNeedAuth },
 		{ PPHS_SETTXTCMDTERM            , "SETTXTCMDTERM",             tSetTxtCmdTerm,           PPSCMD_SETTXTCMDTERM,                    0 },
-		{ PPHS_GETKEYWORDSEQ            , "GETKEYWORDSEQ",             tGetKeywordSeq,           PPSCMD_GETKEYWORDSEQ,         cmdfNeedAuth }, // @v8.2.9
-		{ PPHS_REGISTERSTYLO            , "REGISTERSTYLO",             tRegisterStylo,           PPSCMD_REGISTERSTYLO,         cmdfNeedAuth }, // @v8.7.1
-		{ PPHS_SETWORKBOOKCOTENT        , "SETWORKBOOKCONTENT",        tSetWorkbookContent,      PPSCMD_SETWORKBOOKCONTENT,    cmdfNeedAuth }, // @v8.7.2
-		{ PPHS_QUERYNATURALTOKEN        , "QUERYNATURALTOKEN",         tQueryNaturalToken,       PPSCMD_QUERYNATURALTOKEN,     cmdfNeedAuth }, // @v8.8.12
-		{ PPHS_GETARTICLEBYPERSON       , "GETARTICLEBYPERSON",        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth }, // @v8.9.0
-		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth } // @v8.9.0
+		{ PPHS_GETKEYWORDSEQ            , "GETKEYWORDSEQ",             tGetKeywordSeq,           PPSCMD_GETKEYWORDSEQ,         cmdfNeedAuth },
+		{ PPHS_REGISTERSTYLO            , "REGISTERSTYLO",             tRegisterStylo,           PPSCMD_REGISTERSTYLO,         cmdfNeedAuth },
+		{ PPHS_SETWORKBOOKCOTENT        , "SETWORKBOOKCONTENT",        tSetWorkbookContent,      PPSCMD_SETWORKBOOKCONTENT,    cmdfNeedAuth },
+		{ PPHS_QUERYNATURALTOKEN        , "QUERYNATURALTOKEN",         tQueryNaturalToken,       PPSCMD_QUERYNATURALTOKEN,     cmdfNeedAuth },
+		{ PPHS_GETARTICLEBYPERSON       , "GETARTICLEBYPERSON",        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth },
+		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
+		{ PPHS_SETTIMESERIES            , "settimeseries",             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -644,6 +646,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tGetPersonByArticle:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // Необходимый параметр - идентификатор статьи
 			PutParam(1, Term);
+			break;
+		case tSetTimeSeries: // @v10.2.3
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -1929,6 +1933,7 @@ private:
 	CmdRet SLAPI Testing();
 	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
 	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
+	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
 
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
 	uint32 CloseSocketTimeout; // Таймаут (ms) ожидания восстановления сессии после разрыва соединения //
@@ -2983,7 +2988,6 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 						message.Z().Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
 					}
 					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
-					// @v8.5.4 client.SetRecvTimeout(0);
 					if(FormatPhone(old_phone, new_phone, err_msg)) {
 						THROW(client.SendSms(new_phone, message, result.Z()));
 						temp_buf.Z().Cat(new_phone).Space().Cat(result);
@@ -3240,6 +3244,41 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 	ZDELETE(p_f);
 	return ret;
 }
+
+// @v10.2.3 {
+PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
+{
+	CmdRet ret = cmdretOK;
+	uint32 size_to_read = 0;
+	size_t recv_size = 0;
+	THROW_SL(So.RecvBlock(&size_to_read, sizeof(size_to_read), &recv_size) > 0 && recv_size == sizeof(size_to_read));
+	{
+		SBuffer buffer;
+		THROW_SL(So.RecvBuf(buffer, size_to_read, &recv_size));
+		{
+			STimeSeries ts;
+			SSerializeContext sctx;
+			const size_t actual_size = buffer.GetAvailableSize();
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(buffer.GetBuf(buffer.GetRdOffs()))) {
+				SCompressor compr(SCompressor::tZLib);
+				SBuffer dbuf;
+				THROW_SL(compr.DecompressBlock(buffer.GetBuf(buffer.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+				THROW_SL(ts.Serialize(-1, dbuf, &sctx));
+			}
+			else {
+				THROW_SL(ts.Serialize(-1, buffer, &sctx));
+			}
+		}
+	}
+	CATCH
+		rReply.SetError();
+		ret = cmdretError;
+	ENDCATCH
+	return cmdretOK;
+}
+// } @v10.2.3 
+
 /*
 	Сценарий теста:
 
@@ -3609,6 +3648,9 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_TEST:
 				ok = Testing();
 				break;
+			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
+				ok = SetTimeSeries(rReply);
+				break;
 			case PPSCMD_GETDISPLAYINFO:
 				{
 					long   id = 0;
@@ -3661,281 +3703,18 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 //
 //
 //
-//static
-const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
-
-SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
-{
-	rBuf.Z();
-	if(Zero == 0) {
-		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).
-			CatEq("DataLen", DataLen).CatDiv(';', 2).
-			CatEq("Type", Type).CatDiv(';', 2).
-			Cat("Flags").Eq().CatHex(Flags);
-	}
-	else {
-		rBuf.CatChar(((char *)&Zero)[0]);
-		rBuf.CatChar(((char *)&Zero)[1]);
-	}
-	return rBuf;
-}
-
-SLAPI PPJobSrvProtocol::PPJobSrvProtocol() : SBuffer(), State(0), P_TokAck("ACK"), P_TokErr("ERROR")
-{
-}
-
-int SLAPI PPJobSrvProtocol::TestSpecToken(const char * pTok)
-{
-	int    yes = 0;
-	size_t spec_sz = sstrlen(pTok);
-	if(GetAvailableSize() == (spec_sz+2)) {
-		STempBuffer temp_buf(spec_sz+2+1);
-		THROW_SL(ReadStatic(temp_buf, temp_buf.GetSize()-1));
-		temp_buf[temp_buf.GetSize()-1] = 0;
-		if(strncmp(temp_buf, pTok, spec_sz) == 0)
-			yes = 1;
-	}
-	CATCH
-		yes = 0;
-	ENDCATCH
-	return yes;
-}
-
-int SLAPI PPJobSrvProtocol::StartReading(SString * pRepString)
+int FASTCALL PPJobSrvReply::SendInformer(const char * pMsg)
 {
 	int    ok = 1;
-	ASSIGN_PTR(pRepString, 0);
-	ErrText = 0;
-	State |= stReading;
-	size_t avl_sz = GetAvailableSize();
-	THROW_PP(avl_sz >= 2, PPERR_JOBSRV_INVREPLYSIZE);
-	THROW_SL(ReadStatic(&H, 2));
-	if(H.Zero == 0) {
-		THROW_SL(Read(&H, sizeof(H)));
-		THROW_PP(H.DataLen == avl_sz, PPERR_JOBSRV_MISSMATCHREPLYSIZE);
-		if(H.Flags & hfRepError) {
-			if(H.Type == htGenericText)
-				ErrText.CatN((const char *)Ptr(GetRdOffs()), GetAvailableSize());
-		}
-	}
-	else {
-		MEMSZERO(H);
-		H.Flags  |= hfSlString;
-		H.DataLen = (int32)avl_sz;
-		if(TestSpecToken(P_TokErr))
-			H.Flags |= hfRepError;
-		else if(TestSpecToken(P_TokAck))
-			H.Flags |= hfAck;
-		CALLPTRMEMB(pRepString, CatN((const char *)Ptr(GetRdOffs()), avl_sz));
-		ok = 2;
-	}
-	CATCHZOK
-	return ok;
-}
-
-SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
-{
-	if(State & stStructured) {
-		H.ToStr(rBuf);
-	}
-	else {
-		size_t avl_sz = MIN(GetWrOffs(), 255);
-		rBuf.Z().CatN((const char *)GetBuf(), avl_sz);
-		rBuf.Chomp();
-	}
-	return rBuf;
-}
-
-int SLAPI PPJobSrvProtocol::CheckRepError()
-{
-	if(H.Flags & hfRepError) {
-		PPSetError(PPERR_JOBSRVCLI_ERR, ErrText);
-		return 0;
+	if(P_Sess && P_Sess->IsConsistent()) {
+		PPJobSrvReply reply;
+		THROW(reply.SetInformer(pMsg));
+		THROW(P_Sess->SendReply(reply));
 	}
 	else
-		return 1;
-}
-
-SLAPI PPJobSrvProtocol::StopThreadBlock::StopThreadBlock() : TId(0)
-{
-	MAddr.Init();
-}
-
-int SLAPI PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-{
-	int    ok = 1;
-	THROW_SL(pCtx->SerializeBlock(dir, sizeof(TId)+sizeof(MAddr), &TId, rBuf, 0));
-	THROW_SL(pCtx->Serialize(dir, HostName, rBuf));
-	THROW_SL(pCtx->Serialize(dir, UserName, rBuf));
+		ok = -1;
 	CATCHZOK
 	return ok;
-}
-
-SLAPI PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODATETIME), AccsTime(ZERODATETIME), ModTime(ZERODATETIME),
-	Size(0), Format(SFileFormat::Unkn), Flags(0), Cookie(0), PartSize(0), TransmType(ttGeneric), Reserve(0), ObjType(0), ObjID(0)
-{
-	memzero(Hash, sizeof(Hash));
-	memzero(Reserve2, sizeof(Reserve));
-	memzero(Name, sizeof(Name));
-}
-
-int SLAPI PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize)
-{
-	int    ok = 1;
-	const  size_t zs = sizeof(H.Zero);
-	size_t actual_size = 0;
-	MEMSZERO(H);
-	Z();
-	THROW_SL(rSo.RecvBlock(&H.Zero, zs, &actual_size));
-	if(H.Zero == 0) {
-		THROW_SL(rSo.RecvBlock(PTR8(&H) + zs, sizeof(H) - zs, &actual_size));
-		THROW_SL(Write(&H, sizeof(H)));
-		if(H.DataLen > sizeof(H))
-			THROW_SL(rSo.RecvBuf(*this, H.DataLen - sizeof(H), &actual_size));
-		State |= stStructured; // @v8.7.4
-	}
-	else {
-		WriteByte(((char *)&H)[0]);
-		WriteByte(((char *)&H)[1]);
-		if(pTerminal != 0) {
-			THROW_SL(rSo.RecvUntil(*this, pTerminal, &actual_size));
-		}
-		else {
-			THROW_SL(rSo.RecvBuf(*this, 0, &actual_size));
-		}
-		actual_size += zs;
-		State &= ~stStructured; // @v8.7.4
-	}
-	CATCHZOK
-	ASSIGN_PTR(pActualSize, actual_size);
-	return ok;
-}
-//
-//
-//
-SLAPI PPJobSrvCmd::PPJobSrvCmd() : PPJobSrvProtocol()
-{
-}
-
-int SLAPI PPJobSrvCmd::StartWriting(int cmdId)
-{
-	int    ok = 1;
-	MEMSZERO(H);
-	H.ProtocolVer = CurrentProtocolVer;
-	H.Type = cmdId;
-	H.DataLen = sizeof(H);
-	Z();
-	THROW_SL(Write(&H, sizeof(H)));
-	State |= stStructured;
-	State &= ~stReading;
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI PPJobSrvCmd::StartWriting(const char * pStr)
-{
-	int    ok = 1;
-	Z();
-	if(pStr)
-		Write(pStr, sstrlen(pStr));
-	State &= ~stStructured;
-	State &= ~stReading;
-	return ok;
-}
-
-int SLAPI PPJobSrvCmd::FinishWriting()
-{
-	int    ok = 1;
-	if(State & stStructured) {
-		((Header *)Ptr(GetRdOffs()))->DataLen = (int32)GetAvailableSize();
-	}
-	else {
-		Write("\xD\xA", 2);
-	}
-	return ok;
-}
-//
-//
-//
-SLAPI PPJobSrvReply::PPJobSrvReply(PPServerSession * pSess) : PPJobSrvProtocol(), P_Sess(pSess)
-{
-}
-
-int SLAPI PPJobSrvReply::StartWriting()
-{
-	int    ok = 1;
-	SetDataType(htGeneric, 0);
-	MEMSZERO(H);
-	H.ProtocolVer = CurrentProtocolVer;
-	H.Type = DataType;
-	Z();
-	THROW_SL(Write(&H, sizeof(H)));
-	State |= stStructured;
-	State &= ~stReading;
-	CATCHZOK
-	return ok;
-}
-
-void SLAPI PPJobSrvReply::SetDataType(int dataType, const char * pDataTypeText)
-{
-	DataType = dataType;
-	DataTypeText = pDataTypeText;
-}
-
-int FASTCALL PPJobSrvReply::WriteString(const SString & rStr)
-{
-	return Write(rStr.cptr(), rStr.Len()) ? 1 : PPSetErrorSLib();
-}
-
-int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
-{
-	int    ok = 1;
-	if(State & stStructured) {
-		((Header *)Ptr(GetRdOffs()))->DataLen = (int32)GetAvailableSize();
-		((Header *)Ptr(GetRdOffs()))->Type = DataType;
-		if(hdrFlags)
-			((Header *)Ptr(GetRdOffs()))->Flags |= hdrFlags;
-	}
-	else {
-		Write("\xD\xA", 2);
-	}
-	return ok;
-}
-
-void FASTCALL PPJobSrvReply::SetString(const char * pStr)
-{
-	Z();
-	if(pStr)
-		Write(pStr, sstrlen(pStr));
-	State &= ~stStructured;
-	State &= ~stReading;
-}
-
-void FASTCALL PPJobSrvReply::SetString(const SString & rStr)
-{
-	Z();
-	Write(rStr, rStr.Len());
-	State &= ~stStructured;
-	State &= ~stReading;
-}
-
-int FASTCALL PPJobSrvReply::SetInformer(const char * pMsg)
-{
-	int    ok = 1;
-	THROW(StartWriting());
-	if(pMsg) {
-		SetDataType(htGenericText, 0);
-		THROW_SL(Write(pMsg, sstrlen(pMsg)));
-	}
-	THROW(FinishWriting(hfInformer));
-	State &= ~stReading;
-	CATCHZOK
-	return ok;
-}
-
-void SLAPI PPJobSrvReply::SetAck()
-{
-	SetString(P_TokAck);
 }
 
 int SLAPI PPJobSrvReply::SetError()
@@ -3957,18 +3736,9 @@ int SLAPI PPJobSrvReply::SetError()
 	return ok;
 }
 
-int FASTCALL PPJobSrvReply::SendInformer(const char * pMsg)
+int FASTCALL PPJobSrvReply::WriteString(const SString & rStr)
 {
-	int    ok = 1;
-	if(P_Sess && P_Sess->IsConsistent()) {
-		PPJobSrvReply reply;
-		THROW(reply.SetInformer(pMsg));
-		THROW(P_Sess->SendReply(reply));
-	}
-	else
-		ok = -1;
-	CATCHZOK
-	return ok;
+	return Write(rStr.cptr(), rStr.Len()) ? 1 : PPSetErrorSLib();
 }
 //
 //
@@ -4201,32 +3971,26 @@ void SLAPI PPServerSession::Run()
 										reply.SetError();
 										reply.FinishWriting();
 									}
-									// @v8.3.4 {
 									if(State & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REP").CatDiv(':', 2).Cat(reply.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 									}
-									// } @v8.3.4
 								}
 								break;
 							case 1: // Бинарная команда
 								{
-									// @v8.3.4 {
 									if(State & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2).Cat(cmd.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 									}
-									// } @v8.3.4
 									cmdret = ProcessCommand(&cmd, reply);
-									// @v8.3.4 {
 									if(State & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REP").CatDiv(':', 2).Cat(reply.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 									}
-									// } @v8.3.4
 								}
 								break;
 							default:
@@ -4347,8 +4111,6 @@ int SLAPI CheckVersion()
 //
 //
 //
-#define DEFAULT_SERVER_PORT 28015
-
 int SLAPI RunNginxServer(); // @prototype(ppngx.cpp)
 
 int SLAPI run_server()
@@ -4412,7 +4174,7 @@ int SLAPI run_server()
 			{
 				int    ival = 0;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port == 0)
-					port = DEFAULT_SERVER_PORT;
+					port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer); //DEFAULT_SERVER_PORT;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SOCKETTIMEOUT, &client_timeout) <= 0 || client_timeout <= 0)
 					client_timeout = -1;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_CLOSEDSOCKTIMEOUT, &(ival = 0)) > 0) {
@@ -4441,270 +4203,6 @@ int SLAPI run_server()
 		}
 	}
 	return 1;
-}
-//
-//
-//
-SLAPI PPJobSrvClient::PPJobSrvClient() : So(120000), SyncTimer(120000) // @v7.8.10 So(600000)-->So(60000) // @v8.7.4 60000-->120000
-{
-	State = 0;
-	SessId = 0;
-	InformerCallbackProc = 0;
-	P_InformerCallbackParam = 0;
-	InitPort = 0;
-}
-
-SLAPI PPJobSrvClient::~PPJobSrvClient()
-{
-	Logout();
-	Disconnect();
-}
-
-int FASTCALL PPJobSrvClient::Sync(int force)
-{
-	int    ok = -1;
-	if((force || SyncTimer.Check(0)) && !(State & stLockExec)) {
-		PPJobSrvReply reply;
-		if(Exec("HELLO", reply) && reply.StartReading(0) && reply.CheckRepError())
-			ok = 1;
-		else
-			ok = 0;
-	}
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam)
-{
-	InformerCallbackProc = proc;
-	P_InformerCallbackParam = pParam;
-	return 1;
-}
-
-int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
-{
-	int    ok = 1;
-	if(!(State & stConnected)) {
-		int    timeout = -1;
-		InetAddr addr;
-		SString addr_buf;
-		if(pAddr) {
-			const char * p = strchr(pAddr, ':');
-			if(p) {
-				addr_buf.CatN(pAddr, (size_t)(p - pAddr));
-				port = atoi(p+1);
-			}
-		}
-		{
-			PPIniFile ini_file;
-			if(pAddr == 0 || port <= 0) {
-				if(port <= 0 && (ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port <= 0))
-					port = DEFAULT_SERVER_PORT;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &timeout) <= 0 || timeout <= 0) // @v8.7.4 PPINIPARAM_SERVER_SOCKETTIMEOUT-->PPINIPARAM_CLIENTSOCKETTIMEOUT
-					timeout = -1;
-				if(!pAddr) {
-					if(ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, addr_buf) <= 0)
-						addr_buf = "localhost";
-				}
-				else
-					addr_buf = pAddr;
-			}
-			{
-				int   iv = 0;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_DEBUG, &iv) > 0)
-					State |= stDebugMode;
-				else
-					State &= ~stDebugMode;
-			}
-			PPGetFilePath(PPPATH_LOG, PPFILNAM_SERVERDEBUG_LOG, DebugLogFileName);
-		}
-		InitAddr = addr_buf;
-		InitPort = port;
-		addr.Set(addr_buf, port);
-		if(timeout > 0)
-			So.SetTimeout(timeout);
-		THROW_SL(So.Connect(addr));
-		State |= stConnected;
-	}
-	else
-		ok = -1;
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::Disconnect()
-{
-	int    ok = 1;
-	if(State & stConnected) {
-		So.Disconnect();
-		State &= ~stConnected;
-		State &= ~stDebugMode;
-	}
-	else
-		ok = -1;
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::Reconnect(const char * pAddr, int port)
-{
-	int    ok = -1;
-	Disconnect();
-	if(pAddr == 0 && InitAddr.NotEmpty())
-		pAddr = InitAddr;
-	if(port <= 0 && InitPort > 0)
-		port = InitPort;
-	if(Connect(pAddr, port)) {
-		if(AuthCookie.NotEmpty()) {
-			PPJobSrvReply reply;
-			SString temp_buf;
-			(temp_buf = "RESUME").Space().Cat(AuthCookie);
-			if(Exec(temp_buf, reply) && reply.StartReading(&temp_buf.Z()) && reply.CheckRepError()) {
-				if(reply.GetH().Flags & PPJobSrvReply::hfAck)
-					ok = 2;
-			}
-		}
-		if(ok < 0) {
-			ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::TestBreakConnection()
-{
-	So.Disconnect();
-	return 1;
-}
-
-int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply)
-{
-	int    ok = 1;
-	int    do_log_error = 0;
-	const  int preserve_so_timeout = So.GetTimeout(); // @v9.1.8
-	SString log_buf, temp_buf;
-	ExecLock.Lock();
-	State |= stLockExec;
-	rReply.Z();
-	THROW_PP(State & stConnected, PPERR_JOBSRVCLI_NOTCONN);
-	if(State & stDebugMode) {
-		log_buf.Z().Cat("CLIENT REQ").CatDiv(':', 2);
-		log_buf.Cat(rCmd.ToStr(temp_buf));
-		PPLogMessage(DebugLogFileName, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
-	}
-	THROW_SL(So.SendBuf(rCmd, 0));
-	So.SetTimeout(1000 * 3600 * 24); // @v9.1.8 Временно устанавливаем очень большой таймаут так как процесс может выполнятся сервером очень долго
-	do {
-		size_t actual_size = 0;
-		do_log_error = 1;
-		const int rr = rReply.Helper_Recv(So, pTerminal, &actual_size);
-		THROW(rr);
-		if(rReply.GetH().Flags & PPJobSrvReply::hfInformer) {
-			TempBuf = 0;
-			if(rReply.GetH().Type == PPJobSrvReply::htGenericText) {
-				PPJobSrvReply::Header temp_hdr;
-				rReply.Read(&temp_hdr, sizeof(temp_hdr));
-				TempBuf.Cat(rReply);
-			}
-			if(InformerCallbackProc) {
-				InformerCallbackProc(TempBuf, P_InformerCallbackParam);
-			}
-			//
-			// Для информеров в журнал отладки ничего не выводим (слишком большой поток мало значащих сообщений)
-			//
-		}
-		else if(State & stDebugMode) {
-			log_buf.Z().Cat("CLIENT REP").CatDiv(':', 2);
-			log_buf.Cat(rReply.ToStr(temp_buf));
-			PPLogMessage(DebugLogFileName, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
-		}
-	} while(rReply.GetH().Flags & PPJobSrvReply::hfInformer);
-	CATCH
-		if(do_log_error)
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		ok = 0;
-	ENDCATCH
-	So.SetTimeout(preserve_so_timeout); // @v9.1.8
-	State &= ~stLockExec;
-	ExecLock.Unlock(); // @v8.3.4 LEAVE_CRITICAL_SECTION-->ExecLock.Unlock()
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
-{
-	return Exec(rCmd, 0, rReply);
-}
-
-int SLAPI PPJobSrvClient::Exec(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply)
-{
-	PPJobSrvCmd cmd;
-	cmd.StartWriting(pCmd);
-	cmd.FinishWriting();
-	return Exec(cmd, pTerminal, rReply);
-}
-
-int SLAPI PPJobSrvClient::Exec(const char * pCmd, PPJobSrvReply & rReply)
-{
-	PPJobSrvCmd cmd;
-	cmd.StartWriting(pCmd);
-	cmd.FinishWriting();
-	return Exec(cmd, 0, rReply);
-}
-
-int SLAPI PPJobSrvClient::GetLastErr(SString & rBuf)
-{
-	int    ok = 1;
-	PPJobSrvReply reply;
-	THROW(Exec("GETLASTERR", reply));
-	THROW(reply.StartReading(&rBuf));
-	CATCHZOK
-	rBuf.Chomp();
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
-{
-	int    ok = 1;
-	SString cmd, reply_str;
-	PPJobSrvReply reply;
-	if(State & stLoggedIn) {
-		THROW(Logout());
-	}
-	cmd.Cat("LOGIN").Space().Cat(pDbSymb).Space().Cat(pUserName).Space().Cat(pPassword);
-	THROW(Exec(cmd, reply));
-	THROW(reply.StartReading(0));
-	THROW(reply.CheckRepError());
-	{
-		THROW(Exec("HSH", reply));
-		THROW(reply.StartReading(&reply_str));
-		THROW(reply.CheckRepError());
-		AuthCookie = reply_str.Chomp();
-	}
-	State |= stLoggedIn;
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI PPJobSrvClient::Logout()
-{
-	int    ok = 1;
-	if(State & stLoggedIn) {
-		SString reply_str;
-		PPJobSrvReply reply;
-		THROW(Exec("LOGOUT", reply));
-		THROW(reply.StartReading(0));
-		if(reply.GetH().Flags & PPJobSrvReply::hfRepError) {
-			GetLastErr(reply_str);
-			PPSetError(PPERR_JOBSRVCLI_ERR, reply_str);
-			CALLEXCEPT();
-		}
-		AuthCookie = 0;
-		State &= ~stLoggedIn;
-	}
-	else
-		ok = -1;
-	CATCHZOK
-	return ok;
 }
 //
 //
@@ -5099,7 +4597,7 @@ SLTEST_R(PapyrusTcpClient)
 	}
 	srv_addr_line.SetIfEmpty("localhost");
 	if(port <= 0)
-		port = DEFAULT_SERVER_PORT;
+		port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer);//DEFAULT_SERVER_PORT;
 	if(timeout < 0 || timeout > 100000)
 		timeout = 30000;
 	if(fileExists(str_file_name)) {
@@ -5180,7 +4678,7 @@ SLTEST_R(PapyrusRestoreSess)
 	if(srv_addr_line.Empty())
 		srv_addr_line = "localhost";
 	if(port <= 0)
-		port = DEFAULT_SERVER_PORT;
+		port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer);//DEFAULT_SERVER_PORT;
 	timeout = 30000;
 	if(addr.Set(srv_addr_line, port)) {
 		TcpSocket so(timeout);

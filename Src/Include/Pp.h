@@ -425,10 +425,8 @@ struct PPDimention { // @noctr @novtbl
 	//
 	// Descr: Устанавливает общий объем в куб.метрах.
 	//   При этом ширина и высота устанавливаются равными 100мм, а длина в R0i(volume * fpow10i(5))
-	// Returns:
-	//   1
 	//
-	int    SLAPI SetVolumeM(double volume);
+	void   SLAPI SetVolumeM(double volume);
 
 	long   Length;
 	long   Width;
@@ -4461,7 +4459,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	// Descr: Разносит объем, указанный одним числом (в куб. метрах)
 	//   по полям Length, Width, Height (уже в миллиметрах)
 	//
-	int    SLAPI SetVolume(double volume);
+	void   SLAPI SetVolume(double volume);
 	//
 	// Descr: Возвращает минимальный запас товара на складе locID, Если locID == 0,
 	// то запас товара общий для всех складов.
@@ -5292,9 +5290,7 @@ private:
 	long   Flags;
 };
 //
-//
-//
-
+// @v10.2.3 (replaced with InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer)) #define DEFAULT_SERVER_PORT 28015
 //
 // Descr: Команды сервера
 //
@@ -5380,6 +5376,7 @@ private:
 #define PPSCMD_GETARTICLEBYPERSON    10109 // @v8.9.0
 #define PPSCMD_GETPERSONBYARTICLE    10110 // @v8.9.0
 #define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
+#define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -5451,10 +5448,7 @@ public:
 	//
 	int    FASTCALL StartReading(SString * pRepString);
 	int    SLAPI Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize);
-	const  Header & SLAPI GetH() const
-	{
-		return H;
-	}
+	const  Header & SLAPI GetH() const { return H; }
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    SLAPI CheckRepError();
 
@@ -5596,15 +5590,12 @@ public:
 		stLoggedIn  = 0x0002,
 		stLockExec  = 0x0004, // Сигнализирует от том, что Exec запущен. Необходим
 			// для предотвращения параллельного вызова по cmIdle
-		stDebugMode = 0x0008  // @v8.3.4 Клиент находится в отладочном режиме (вывод дополнительной информации в журнал)
+		stDebugMode = 0x0008  // Клиент находится в отладочном режиме (вывод дополнительной информации в журнал)
 	};
 
 	SLAPI  PPJobSrvClient();
 	SLAPI ~PPJobSrvClient();
-	long   SLAPI GetState() const
-	{
-		return State;
-	}
+	long   SLAPI GetState() const { return State; }
 	int    SLAPI Connect(const char * pAddr, int port);
 	int    SLAPI Disconnect();
 	int    SLAPI Reconnect(const char * pAddr, int port);
@@ -5616,7 +5607,7 @@ public:
 	int    SLAPI Logout();
 	int    SLAPI GetLastErr(SString & rBuf);
 
-	int    SLAPI SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam);
+	void   SLAPI SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam);
 	//
 	// Descr: Отсылает серверу запрос на подтверждение соединения по таймеру.
 	// Returns:
@@ -12377,7 +12368,7 @@ struct PPCommSyncID { // @persistent @size=6
 	int    FASTCALL operator == (const PPCommSyncID s) const;
 	int    FASTCALL operator != (const PPCommSyncID s) const;
 	int    SLAPI IsZero() const;
-	PPCommSyncID & SLAPI SetZero();
+	PPCommSyncID & SLAPI Z();
 	PPCommSyncID FASTCALL operator = (const PPCommSyncID s);
 	PPCommSyncID FASTCALL operator = (const ObjSyncTbl::Rec & rRec);
 	PPCommSyncID FASTCALL operator = (const ObjSyncQueueTbl::Rec & rRec);
@@ -13033,7 +13024,8 @@ private:
 //
 // Descr: Флаги операция по персональным картам
 //
-#define SCARDOPF_FREEZING 0x0004 // Операция приостановки действия карты
+#define SCARDOPF_FREEZING      0x0004 // Операция приостановки действия карты
+#define SCARDOPF_NOTIFYSENDED  0x0008 // @v10.2.3 Связанному с картой контрагенту отправлено уведомление об операции (флаг нужен во избежании повторной рассылки)
 
 class SCardCore : public SCardTbl {
 public:
@@ -13067,6 +13059,7 @@ public:
 	//
 	struct UpdateRestNotifyEntry { // @flat
 		PPID   SCardID;
+		LDATETIME OpDtm; // @v10.2.3
 		double PrevRest;
 		double NewRest;
 	};
@@ -13149,7 +13142,7 @@ public:
 
 	SCardOpTbl ScOp;
 private:
-	int    SLAPI UpdateRest_(PPID, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta); // @v9.8.4 TSArray-->TSVector
+	int    SLAPI UpdateRest_(PPID scID, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI UpdateExpiryDelta(PPID id, long delta, int use_ta);
 };
 //
@@ -13435,7 +13428,7 @@ enum {
 	cifBySCard       = 0x0040, // Строка сгенерирована автоматически по факту установки карты.
 		// (Карта имеет ненулевое значение SCardTbl::Rec::AutoGoodsID)
 	cifPriceBySerial = 0x0080, // Цена на строку установлена по серийному номеру.
-	cifGiftDiscount  = 0x0100, // Строка преодставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
+	cifGiftDiscount  = 0x0100, // Строка предоставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
 		// При формировании окончательного чека сумма по этой строке полностью обнуляется а скидка разносится на весь чек.
 	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} @v7.0.6 Строка соответствует основному
 		// компоненту подарочной структуры
@@ -22847,15 +22840,16 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 		fSyncMergeRegList          = 0x0008, // При синхронизации объединять регистры
 		fValid                     = 0x1000, // Признак того, что запись является действительной (загруженной из базы данных)
 		fShowPsnImageAfterCmdAssoc = 0x2000, // Показывать диалог с картинкой персоналии после ввода ассоциированной команды с рабочего стола (или из панели чеков)
-		fSendAttachment            = 0x4000  // @v8.2.3 Передавать в другие разделы файлы, прикрепленные к персоналиям (обычно, изображения)
+		fSendAttachment            = 0x4000  // Передавать в другие разделы файлы, прикрепленные к персоналиям (обычно, изображения)
 	};
 	PPID   TradeLicRegTypeID;     // Тип регистрационного документа, используемого для торговой лицензии предприятия //
 	PPID   RegStaffCalID;         // Регулярный штатный календарь
 	long   Flags;
-	long   SendSmsSamePersonTimeout; // @v8.0.6 Таймаут на отсылку SMS одной и той же персоналии (seconds).
+	long   SendSmsSamePersonTimeout; // Таймаут на отсылку SMS одной и той же персоналии (seconds).
 	long   StaffCalQuant;         // Квант времени в сек. для временной диаграммы анализа штатных календарей.
-	SString TopFolder;             // @anchor
-	SString AddImageFolder;        // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
+	TimeRange SmsProhibitedTr;    // @v10.2.3 Диапазон времени, в течении которого запрещено отсылать SMS-сообщения (ночь, очевидно)
+	SString TopFolder;            // @anchor
+	SString AddImageFolder;       // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
 	TaggedStringArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки
 	TSVector <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12 // @v9.8.4 TSArray-->TSVector
 };
@@ -30040,6 +30034,7 @@ public:
 
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr /* (PPObjBill::EditParam *) */);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+	int    SLAPI CheckRightsWithOp(PPID opID, long rtflags);
 	int    SLAPI Lock(PPID);
 	int    SLAPI Unlock(PPID);
 	int    SLAPI CheckStatusFlag(PPID statusID, long flag);
@@ -32269,6 +32264,7 @@ public:
 	int    SLAPI CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm);
 	int    SLAPI CheckExpiredBillDebt(PPID scardID);
 	int    SLAPI FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList); // @v9.8.4 TSArray-->TSVector
+	int    SLAPI NotifyAboutRecentOps(const LDATETIME & rSince);
 	//
 	int    SLAPI IndexPhones(PPLogger * pLogger, int use_ta);
 protected:
@@ -32320,6 +32316,7 @@ public:
 	};
 	struct DiscountBlock { // @flat
 		SLAPI  DiscountBlock();
+		int    RowN;    // Ссылка на номер позиции в контейнере (в чеке, например). 0 - undefined
 		PPID   GoodsID;
 		double Qtty;
 		double InPrice;
@@ -32333,7 +32330,14 @@ public:
 	SLAPI  SCardSpecialTreatment();
 	virtual SLAPI ~SCardSpecialTreatment();
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
-	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags);
+	//
+	// Descr: Функция должна проверить принадлежит ли товар множеству, подпадающему под потенциальную скидку.
+	// Returns:
+	//   >0 - товар подпадает под действие карты (тем или иным образом)
+	//   0  - товар никаким образом не обрабатывается специальной трактовкой карты
+	//
+	virtual int SLAPI DoesWareBelongToScope(PPID goodsID);
+	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList);
 	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
 };
 //
@@ -48868,8 +48872,10 @@ struct SaModifEntry { // @flat
 };
 
 typedef TSVector <SaModifEntry> SaModif; // @v9.8.6 TSArray-->TSVector
+struct CPosProcessor_SetupDiscontBlock; // @v10.2.3
 
 class CPosProcessor {
+	friend class CPosProcessor_MsgToDisp_Frame;
 public:
 	//
 	// Descr: Состояния панели
@@ -49126,7 +49132,9 @@ protected:
 	int    Backend_AcceptSCard(PPID scardID, int ignoreRights);
 	int    Implement_AcceptSCard(const SCardTbl::Rec & rScRec);
 	double RoundDis(double d) const;
+
 	void   Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount);
+	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
 	void   SetupDiscount(int distributeGiftDiscount = 0);
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const; // @v9.8.6 TSArray-->TSVector
@@ -49145,6 +49153,9 @@ protected:
 	//
 	int    IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPack);
 	int    LoadModifiers(PPID goodsID, SaModif & rModif);
+	void   MsgToDisp_Clear(); // @v10.2.3
+	int    MsgToDisp_Add(const char * pMsg); // @v10.2.3
+	virtual int MsgToDisp_Show(); // @v10.2.3
 
 	struct Packet : public CCheckItemArray {
 	public:
@@ -49317,7 +49328,7 @@ protected:
 		// Права агента имеют приоритет перед правами пользователя или ключа.
 	PPID   CheckID;
 	PPID   SuspCheckID;      // Загружен отложенный чек с указанным идентификатором
-	PPID   AuthAgentID;      // @v8.6.10 Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
+	PPID   AuthAgentID;      // Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
 	PPID   AbstractGoodsID;  // @v9.5.10 Абстрактный товар для проведения строк по свободной цене.
 		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
 	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
@@ -49325,14 +49336,16 @@ protected:
 	PPGenCashNode::RoundParam R;      // Параметры округления //
 	PPSyncCashNode::SuspCheckFilt Scf;
 	SString CnName;          // Наименование кассового узла
-	SString CnSymb;          // @v8.8.3 Символ кассового узла
+	SString CnSymb;          // Символ кассового узла
 	SString Input;
 	SString ErrMsgBuf;
 	SString TableSelWhatman;
 	SString KitchenBellCmd;  // Команда кухонного звонка
 	SString KitchenBellPort; // Порты отправки команды кухонного звонка
 	SString PhnSvcLocalChannelSymb;
-	SString RptPrnPort;      // @v8.8.3 Порт принтера для печати регулярный отчетов (предчек, например)
+	SString RptPrnPort;      // Порт принтера для печати регулярный отчетов (предчек, например)
+	StringSet MsgToDisp;     // @v10.2.3 Список текстовых сообщений, которые следует отобразить 
+		// Протокол обработки пока четко не определен.
 	Packet P;
 	CCheckPacket SelPack;  // Чек, выбранный в качестве образца при возврате
 	RAssocArray  SelLines; // Строки чека, относящиеся к образцу, выбранному при возврате
@@ -49387,6 +49400,7 @@ private:
 	virtual int  MessageError(int errCode, const char * pAddedMsg, long outputMode);
 	virtual int  ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse);
 	virtual int  CDispCommand(int cmd, int iVal, double rv1, double rv2);
+	virtual int  MsgToDisp_Show();
 	int    SetDlgResizeParams();
 	int    FASTCALL Barrier(int rmv = 0);
 	int    RemoveRow();
@@ -49730,7 +49744,7 @@ private:
 	int    ArrangeIcon(TPoint * pCoord);
 	int    SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList);
 	int    WaitCommand();
-	int    ProcessRawInput(long rawInputHandle);
+	int    ProcessRawInput(void * rawInputHandle);
 	int    ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDesktopAssocCmd & rCpItem);
 	int    Helper_AcceptInputString(const PPDesktop::InputArray * pInp, const PPDesktopAssocCmd & rCpItem, SString & rBuf);
 

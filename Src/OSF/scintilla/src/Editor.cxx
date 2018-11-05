@@ -315,7 +315,7 @@ void Editor::SetRepresentations()
 	*/
 	// @sobolev {
 	{
-		for(size_t j = 0; j < 32; j++) {
+		for(uint j = 0; j < 32; j++) {
 			const char * p_rep = STextConst::Get(STextConst::cAsciiCtrl, j);
 			if(!isempty(p_rep)) {
 				char c[2] = { static_cast<char>(j), 0 };

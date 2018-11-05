@@ -30,6 +30,18 @@ int SLAPI PPObjBill::IsPoolOwnedByBill(PPID assocID)
 	return BIN(oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL));
 }
 
+int SLAPI PPObjBill::CheckRightsWithOp(PPID opID, long rtflags)
+{
+	int    ok = 0;
+	const  PPRights & r_rt = ObjRts;
+	int    op_result = r_rt.CheckOpID(opID, rtflags); //
+	if(op_result > 0)
+		ok = 1;
+	else if(op_result < 0)
+		ok = CheckRights(rtflags);
+	return ok;
+}
+
 static int FASTCALL _Lock(PPID id)
 {
 	if(id) {
@@ -6860,7 +6872,8 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
-		THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS)); // @v9.6.1
+		// @v10.2.3 THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS)); // @v9.6.1
+		THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_INS)); // @v10.2.3
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -7149,8 +7162,13 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
-		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) // @v9.8.3
-			THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
+		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) { // @v9.8.3
+			// @v10.2.3 THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
+			THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)); // @v10.2.3 
+		}
+		else {
+			THROW(CheckRights(PPR_MOD)); // @v10.2.3
+		}
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -7571,10 +7589,11 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
 			// @v10.1.12 THROW(CheckRights(PPR_DEL));
 			// @v10.1.12 {
-			const int cor = r_rt.CheckOpID(brec.OpID, PPR_DEL);
-			THROW(cor);
-			THROW((cor > 0) || CheckRights(PPR_DEL));
+			// @v10.2.3 const int cor = r_rt.CheckOpID(brec.OpID, PPR_DEL);
+			// @v10.2.3 THROW(cor);
+			// @v10.2.3 THROW((cor > 0) || CheckRights(PPR_DEL));
 			// } @v10.1.12 
+			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL)); // @v10.2.3
 			THROW(r_rt.CheckBillDate(brec.Dt));
 			// @v10.1.12 THROW(r_rt.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
 			/* @v9.8.11 if(TLP(HistBill).IsOpened()) {

@@ -2007,6 +2007,17 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 			}
 		}
 	}
+	// @v10.2.3 {
+	else if(event.isCmd(cmInputUpdated)) { 
+		if(event.isCtlEvent(CTL_GOODSVAD_SZWD) || event.isCtlEvent(CTL_GOODSVAD_SZLN) || event.isCtlEvent(CTL_GOODSVAD_SZHT) || event.isCtlEvent(CTL_GOODSVAD_PACKAGE)) {
+			if(!getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL)) {
+				getCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
+				getDimentions();
+				setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1));
+			}
+		}
+	}
+	// } @v10.2.3 
 	else if(event.wasFocusChanged3(CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT)) {
 		getDimentions();
 		setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1));

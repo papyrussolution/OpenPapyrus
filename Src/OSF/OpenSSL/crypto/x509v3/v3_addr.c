@@ -776,11 +776,9 @@ static void * v2i_IPAddrBlocks(const struct v3_ext_method * method, struct v3_ex
 			X509V3err(X509V3_F_V2I_IPADDRBLOCKS, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
-
-		/*
-		 * Check for inheritance.  Not worth additional complexity to
-		 * optimize this (seldom-used) case.
-		 */
+		// 
+		// Check for inheritance.  Not worth additional complexity to optimize this (seldom-used) case.
+		// 
 		if(strcmp(s, "inherit") == 0) {
 			if(!X509v3_addr_add_inherit(addr, afi, safi)) {
 				X509V3err(X509V3_F_V2I_IPADDRBLOCKS, X509V3_R_INVALID_INHERITANCE);

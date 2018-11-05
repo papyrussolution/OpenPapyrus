@@ -1678,26 +1678,20 @@ void TY_(NormalizeSpaces) (Lexer *lexer, Node *node)
 	while(node) {
 		if(node->content)
 			TY_(NormalizeSpaces) (lexer, node->content);
-
 		if(TY_(nodeIsText) (node)) {
 			uint i, c;
 			tmbstr p = lexer->lexbuf + node->start;
-
 			for(i = node->start; i < node->end; ++i) {
 				c = (byte)lexer->lexbuf[i];
-
 				/* look for UTF-8 multibyte character */
 				if(c > 0x7F)
 					i += TY_(GetUTF8) (lexer->lexbuf + i, &c);
-
 				if(c == 160)
 					c = ' ';
-
 				p = TY_(PutUTF8) (p, c);
 			}
-			node->end = p - lexer->lexbuf;
+			node->end = (uint)(p - lexer->lexbuf);
 		}
-
 		node = node->next;
 	}
 }
@@ -2244,33 +2238,26 @@ void TY_(DowngradeTypography) (TidyDocImpl* doc, Node* node)
 
 				p = TY_(PutUTF8) (p, c);
 			}
-
-			node->end = p - lexer->lexbuf;
+			node->end = (uint)(p - lexer->lexbuf);
 		}
-
 		if(node->content)
 			TY_(DowngradeTypography) (doc, node->content);
-
 		node = next;
 	}
 }
 
 void TY_(ReplacePreformattedSpaces) (TidyDocImpl* doc, Node* node)
 {
-	Node* next;
-
+	Node * next;
 	while(node) {
 		next = node->next;
-
 		if(node->tag && node->tag->parser == TY_(ParsePre)) {
 			TY_(NormalizeSpaces) (doc->lexer, node->content);
 			node = next;
 			continue;
 		}
-
 		if(node->content)
 			TY_(ReplacePreformattedSpaces) (doc, node->content);
-
 		node = next;
 	}
 }

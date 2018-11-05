@@ -360,7 +360,8 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	long   StaffCalQuant;     // Квант времени в сек. для временной диаграммы анализа штатных календарей.
 	SVerT  Ver;               // Версия системы, создавшей запись
 	long   SendSmsSamePersonTimeout;
-	char   Reserve[40];
+	TimeRange SmsProhibitedTr; // @v10.2.3
+	char   Reserve[32];        // @v10.2.3 [40]-->[32]
 	long   Reserve1[2];
 	//char   ExtString[];
 	//TSArray <PPPersonConfig::NewClientDetectionItem> NewClientDetectionList; // @vmiller
@@ -402,6 +403,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			p_cfg->StaffCalQuant     = pCfg->StaffCalQuant;
 			p_cfg->Ver               = DS.GetVersion();
 			p_cfg->SendSmsSamePersonTimeout = pCfg->SendSmsSamePersonTimeout;
+			p_cfg->SmsProhibitedTr   = pCfg->SmsProhibitedTr; // @v10.2.3
 			if(ext_size) {
 				size_t pos = 0;
 				char * p_buf = (char *)(p_cfg+1);
@@ -454,6 +456,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->StaffCalQuant     = p_cfg->StaffCalQuant;
 		//pCfg->Ver               = p_cfg->Ver; // @vmiller
 		pCfg->SendSmsSamePersonTimeout = p_cfg->SendSmsSamePersonTimeout;
+		pCfg->SmsProhibitedTr   = p_cfg->SmsProhibitedTr; // @v10.2.3
 		if(p_cfg->StrPosTopFolder)
 			pCfg->TopFolder = ((char *)(p_cfg+1)) + p_cfg->StrPosTopFolder;
 		else
@@ -876,8 +879,8 @@ SLAPI PPPersonConfig::PPPersonConfig()
 void SLAPI PPPersonConfig::Init()
 {
 	memzero(this, offsetof(PPPersonConfig, TopFolder));
-	TopFolder = 0;
-	AddImageFolder = 0;
+	TopFolder.Z();
+	AddImageFolder.Z();
 	DlvrAddrExtFldList.freeAll();
 	NewClientDetectionList.freeAll();
 }
@@ -910,6 +913,7 @@ int SLAPI PPObjPerson::EditConfig()
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 4, PPPersonConfig::fSyncMergeRegList);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 5, PPPersonConfig::fSendAttachment);
 			SetClusterData(CTL_PSNCFG_FLAGS, Data.Flags);
+			SetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
 			return 1;
 		}
 		int getDTS(PPPersonConfig * pData)
@@ -921,6 +925,7 @@ int SLAPI PPObjPerson::EditConfig()
 			getCtrlData(CTL_PSNCFG_CALQUANT,    &Data.StaffCalQuant);
 			getCtrlData(CTL_PSNCFG_SMSTIMEOUT,  &Data.SendSmsSamePersonTimeout);
 			GetClusterData(CTL_PSNCFG_FLAGS,    &Data.Flags);
+			GetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
 			getCtrlString(CTL_PSNCFG_IMGFOLDER,  Data.AddImageFolder);
 			THROW_PP_S(!Data.AddImageFolder.Len() || pathValid(Data.AddImageFolder, 1), PPERR_DIRNOTEXISTS, Data.AddImageFolder);
 			ASSIGN_PTR(pData, Data);

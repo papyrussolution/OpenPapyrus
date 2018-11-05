@@ -1507,33 +1507,52 @@ int SCS_SYNCCASH::SetLogotype()
 int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 {
 	int    ok = 1;
-	SString str;
-	StringSet str_set('\n', pZCheck);
-	Arr_In.Z();
-	Arr_Out.Z();
-	THROW(Connect());
-	{
-		//SlipDocCommonParam sdc_param;
-		//THROW(P_SlipFmt->Init("CCheck", &sdc_param));
-		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
-		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
-		THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-		for(uint pos = 0; str_set.get(&pos, str) > 0;) {
-			Arr_In.Z();
-			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-			THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
-		}
+	size_t zc_len = sstrlen(pZCheck);
+	if(zc_len) {
+		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);
+		const char * p_delim = 0;
+		if(eolf == eolWindows)
+			p_delim = "\xD\xA";
+		else if(eolf == eolUnix)
+			p_delim = "\xA";
+		else if(eolf == eolMac)
+			p_delim = "\xD";
+		else
+			p_delim = "\n";
+		SString str;
+		//StringSet str_set('\n', pZCheck);
+		StringSet str_set(p_delim);
+		str_set.setBuf(pZCheck, zc_len+1);
 		Arr_In.Z();
-		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));
-		// @v10.2.2 {
+		Arr_Out.Z();
+		THROW(Connect());
 		{
+			//SlipDocCommonParam sdc_param;
+			//THROW(P_SlipFmt->Init("CCheck", &sdc_param));
+			THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
+			THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
+			THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
+			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+				str.Chomp();
+				Arr_In.Z();
+				THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+				THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+			}
 			Arr_In.Z();
-			THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));
+			// @v10.2.2 {
+			/* @v10.2.3 {
+				Arr_In.Z();
+				THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+			}*/
+			// } @v10.2.2
 		}
-		// } @v10.2.2
 	}
-	CATCHZOK;
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }

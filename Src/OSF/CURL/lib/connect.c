@@ -79,14 +79,13 @@ struct tcp_keepalive {
 static void tcpkeepalive(struct Curl_easy * data, curl_socket_t sockfd)
 {
 	int optval = data->set.tcp_keepalive ? 1 : 0;
-	/* only set IDLE and INTVL if setting KEEPALIVE is successful */
+	// only set IDLE and INTVL if setting KEEPALIVE is successful 
 	if(setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&optval, sizeof(optval)) < 0) {
 		infof(data, "Failed to set SO_KEEPALIVE on fd %d\n", sockfd);
 	}
 	else {
 #if defined(SIO_KEEPALIVE_VALS)
 		struct tcp_keepalive vals;
-
 		DWORD dummy;
 		vals.onoff = 1;
 		optval = curlx_sltosi(data->set.tcp_keepidle);
@@ -95,10 +94,8 @@ static void tcpkeepalive(struct Curl_easy * data, curl_socket_t sockfd)
 		optval = curlx_sltosi(data->set.tcp_keepintvl);
 		KEEPALIVE_FACTOR(optval);
 		vals.keepaliveinterval = optval;
-		if(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, sizeof(vals),
-			    NULL, 0, &dummy, NULL, NULL) != 0) {
-			infof(data, "Failed to set SIO_KEEPALIVE_VALS on fd %d: %d\n",
-			    (int)sockfd, WSAGetLastError());
+		if(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, sizeof(vals), NULL, 0, &dummy, NULL, NULL) != 0) {
+			infof(data, "Failed to set SIO_KEEPALIVE_VALS on fd %d: %d\n", (int)sockfd, WSAGetLastError());
 		}
 #else
 #ifdef TCP_KEEPIDLE
@@ -116,7 +113,7 @@ static void tcpkeepalive(struct Curl_easy * data, curl_socket_t sockfd)
 		}
 #endif
 #ifdef TCP_KEEPALIVE
-		/* Mac OS X style */
+		// Mac OS X style 
 		optval = curlx_sltosi(data->set.tcp_keepidle);
 		KEEPALIVE_FACTOR(optval);
 		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE, (void*)&optval, sizeof(optval)) < 0) {
@@ -168,8 +165,7 @@ time_t FASTCALL Curl_timeleft(struct Curl_easy * data, struct timeval * nowp, bo
 		default: // use the default 
 		    if(!duringconnect) {
 			    // if we're not during connect, there's no default timeout so if we're
-			    // at zero we better just return zero and not make it a negative number
-			    // by the math below 
+			    // at zero we better just return zero and not make it a negative number by the math below 
 			    return 0;
 			}
 		    break;

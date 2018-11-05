@@ -20,7 +20,7 @@ int SLAPI PPCommSyncID::IsZero() const
 	return BIN(P == 0 && I == 0);
 }
 
-PPCommSyncID & SLAPI PPCommSyncID::SetZero()
+PPCommSyncID & SLAPI PPCommSyncID::Z()
 {
 	P = 0;
 	I = 0;

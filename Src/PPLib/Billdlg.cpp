@@ -723,10 +723,12 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	MemLeakTracer mlt;
 	int    ok = -1, r;
 	const  PPRights & r_rt = ObjRts;
+	PPObjBill * p_bobj = BillObj;
 	uint   prn_form = 0;
 	BillDialog * dlg = 0;
 	uint   dlg_id = 0;
-	THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_READ));
+	// @v10.2.3 THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_READ));
+	THROW(p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_READ)); // @v10.2.3
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_CURTRANSIT)) {
 		THROW(r = EditCurTransitBill(pPack));
 	}
@@ -738,7 +740,8 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 		if(egbFlags & PPObjBill::efEdit && egbFlags & PPObjBill::efForceModify/*options == 2*/)
 			dlg->Flags |= BillDialog::fModified;
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
-			if(!BillObj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
+			// @v10.2.3 if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
+			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) { // @v10.2.3
 				dlg->enableCommand(cmOK, 0);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;

@@ -124,8 +124,9 @@ public:
 		protRTMPS    = 33,
 		protLDAP     = 34,
 		protLDAPS    = 35,
-		protMailFrom = 36  // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
+		protMailFrom = 36, // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
 			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
+		protPapyrusServer = 37 // @v10.2.3 private-протокол системы Papyrus
 	};
 	//
 	// Descr: Компоненты URL
@@ -212,10 +213,7 @@ public:
 	SLAPI  TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
 	SLAPI ~TcpSocket();
 	int    SLAPI IsValid() const;
-	operator SOCKET () const
-	{
-		return S;
-	}
+	operator SOCKET () const { return S; }
 	//
 	// Descr:
 	//
@@ -318,18 +316,10 @@ private:
 	struct SslBlock {
 		SslBlock();
 		~SslBlock();
-
-		int    operator !() const
-		{
-			return !IsValid();
-		}
-		int    IsValid() const
-		{
-			return (P_Ctx && P_S);
-		}
+		int    operator !() const { return !IsValid(); }
+		int    IsValid() const { return (P_Ctx && P_S); }
 		int    Init();
 		int    Shutdown();
-
 		int    Connect(SOCKET s);
 		int    Accept();
 		int    Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize);

@@ -568,7 +568,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 		if(P_Logger)
 			P_Logger->LogLastError();
 		else
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR | LOGMSGF_USER | LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_TIME);
 		++ErrDetected;
 	}
 	else {
