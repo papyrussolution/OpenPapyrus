@@ -5377,6 +5377,7 @@ private:
 #define PPSCMD_GETPERSONBYARTICLE    10110 // @v8.9.0
 #define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
 #define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
+#define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -6123,7 +6124,7 @@ struct PPAdviseBlock {
 		evTodoChanged,          // Оповещать об изменении задач
 		evBillChanged,          // Оповещать об изменении документов
 		evSysJournalChanged,    // Оповещать об изменении в системном журнале
-		evLogsChanged,          // Оповещать о изменениях выбранных журналов
+		evLogsChanged,          // Оповещать об изменениях выбранных журналов
 		evBizScoreChanged,      // Оповещать об изменениях бизнес-показателей
 		evWaitMsg,              // Оповещать о вызове PPWaitMsg или PPWaitPercent
 		evQuartz,               // Оповещать через секундные интервалы
@@ -15594,11 +15595,33 @@ class PPObjTimeSeries : public PPObjReference {
 public:
 	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
+	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	//
 	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
+	int    SLAPI SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta);
+	int    SLAPI GetTimeSeries(PPID id, STimeSeries & rTs);
+	//
+	struct QuoteReqEntry {
+		enum {
+			fAllowLong  = 0x0001,
+			fAllowShort = 0x0002
+		};
+		char   Ticker[32];
+		long   Flags;
+		LDATETIME LastValTime;
+	};
+
+	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
+	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	//
 	int    SLAPI Test(); // @experimental
+	int    SLAPI AnalyzeTsTradeFrames();
+	int    SLAPI TrainNN(const STimeSeries & rTs, uint frameSize, double target, double maxDuck);
+private:
+	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
+	int    SLAPI EditDialog(PPTimeSeries * pEntry);
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -27118,7 +27141,9 @@ struct PPTransportConfig {
 	SString NameTemplate;   // Шаблон наименования записи. Если определен, то
 		// имя новой записи формируется автоматически по этому шаблону.
 };
-
+//
+// @todo @dbd_exchange Добавить теги
+//
 struct PPTransport {       // @persistent @store(Goods2Tbl)
 	//
 	// Descr: Типы фургонов (изначально сделаны для сопоставления с соответствующими типами VETIS, в дальнейшем будет расширяться)
@@ -27144,7 +27169,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
 	long   Capacity;       // @v7.2.7 Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
 	int16  VanType;        // @v10.2.0 PPTransport::vantypXXX Тип фургона
-	uint16 Reserve;        // @v10.2.0 @alignment
+	int16  Flags;          // @v10.2.4 (вместо Reserve) @flags 
 };
 
 class PPObjTransport : public PPObjGoods {
@@ -27154,8 +27179,8 @@ public:
 	static int SLAPI EditConfig();
 
 	SLAPI  PPObjTransport(void * extraPtr = 0);
-	int    SLAPI Get(PPID, PPTransport * pPack);
-	int    SLAPI Put(PPID *, const PPTransport * pPack, int use_ta);
+	int    SLAPI Get(PPID id, PPTransport * pPack);
+	int    SLAPI Put(PPID * pID, const PPTransport * pPack, int use_ta);
 	int    SLAPI GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const;
 
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);

@@ -2890,19 +2890,23 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 		Goods2Tbl::Key4 k4;
 	} k_;
 	if(oneof3(Kind, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_PCKGTYPE)) {
-		BExtQuery q(P_Tbl, (options & selfByName) ? 2 : 4);
-		DBQ * dbq = &(P_Tbl->Kind == Kind);
+		GoodsCore * p_tbl = P_Tbl;
+		BExtQuery q(p_tbl, (options & selfByName) ? 2 : 4);
+		DBQ * dbq = &(p_tbl->Kind == Kind);
 		if(Kind == PPGDSK_TRANSPORT && (long)extraPtr)
-			dbq = &(*dbq && P_Tbl->GdsClsID == (long)extraPtr);
-		q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->GoodsTypeID, P_Tbl->Flags, 0L).where(*dbq);
+			dbq = &(*dbq && p_tbl->GdsClsID == (long)extraPtr);
+		q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->Flags, 0L).where(*dbq);
 		MEMSZERO(k_);
 		k_.k2.Kind = Kind;
 		SETIFZ(p_array, new StrAssocArray);
 		THROW_MEM(p_array);
-		for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;)
-			THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name));
+		for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;) {
+			if(!(Kind == PPGDSK_TRANSPORT && p_tbl->data.Flags & GF_PASSIV)) { // @v10.2.4
+				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
+			}
+		}
 	}
-	else if(mtx_qk_id || grp || brand || exist_only || code_prefix) { // @v8.4.11 code_prefix
+	else if(mtx_qk_id || grp || brand || exist_only || code_prefix) {
 		int    r = -1;
 		SETIFZ(p_array, new StrAssocArray);
 		PPJobSrvClient * p_cli = DS.GetClientSession(0);

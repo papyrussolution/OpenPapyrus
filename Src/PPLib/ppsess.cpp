@@ -3049,6 +3049,22 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
 							if(r == WAIT_OBJECT_0 + 0) { // timer
 								DS.DirtyDbCache(DbPathID, 0);
+								// @v10.2.4 {
+								{
+									PPAdviseList adv_list;
+									if(DS.GetAdviseList(PPAdviseBlock::evQuartz, 0, adv_list) > 0) {
+										PPNotifyEvent ev;
+										PPAdviseBlock adv_blk;
+										for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
+											if(adv_blk.Proc) {
+												ev.Clear();
+												ev.ObjID   = -1;
+												adv_blk.Proc(PPAdviseBlock::evQuartz, &ev, adv_blk.ProcExtPtr);
+											}
+										}
+									}
+								}
+								// } @v10.2.4 
 							}
 							else if(r == WAIT_OBJECT_0 + 2) { // stop event
 								stop = 1; // quit loop

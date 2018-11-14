@@ -2166,8 +2166,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				if(link_pack.SearchGoods(p_item->GoodsID, &pos))
 					p_link_ti = &link_pack.TI(pos);
 			}
-			if(trfr->Rcpt.GetCurrentGoodsPrice(p_item->GoodsID,
-				pPack->Rec.LocID, GPRET_MOSTRECENT, &last_price, &lot_rec) == GPRET_ERROR) {
+			if(trfr->Rcpt.GetCurrentGoodsPrice(p_item->GoodsID, pPack->Rec.LocID, GPRET_MOSTRECENT, &last_price, &lot_rec) == GPRET_ERROR) {
 				logger.LogLastError();
 				continue;
 			}

@@ -1333,6 +1333,7 @@ int FASTCALL PPTransport::IsEqual(const PPTransport & rS) const
 	CMP_FLD(CaptainID);
 	CMP_FLD(Capacity);
 	CMP_FLD(VanType); // @v10.2.0
+	CMP_FLD(Flags); // @v10.2.4
 	if(!sstreq(Name, rS.Name))
 		return 0;
 	if(!sstreq(Code, rS.Code))
@@ -1367,6 +1368,7 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 			pRec->CaptainID = goods_rec.RspnsPersonID;
 			pRec->Capacity  = (long)goods_rec.PhUPerU;
 			pRec->VanType   = goods_rec.VanType; // @v10.2.0
+			SETFLAG(pRec->Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV); // @v10.2.4
 			P_Tbl->ReadBarcodes(id, bc_list);
 			for(uint i = 0; i < bc_list.getCount(); i++) {
 				BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
@@ -1400,6 +1402,7 @@ int SLAPI PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2T
 	pRawRec->RspnsPersonID = pRec->CaptainID;
 	pRawRec->PhUPerU = pRec->Capacity;
 	pRawRec->VanType = pRec->VanType; // @v10.2.0
+	SETFLAG(pRawRec->Flags, GF_PASSIV, pRec->Flags & GF_PASSIV); // @v10.2.4
 	if(pBcList) {
 		BarcodeTbl::Rec bc_rec;
 		SString temp_buf;
@@ -1525,6 +1528,10 @@ public:
 			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.VanType); 
 		}
 		// } @v10.2.0
+		// @v10.2.4 {
+		AddClusterAssoc(CTL_TRANSPORT_FLAGS, 0, GF_PASSIV);
+		SetClusterData(CTL_TRANSPORT_FLAGS, Data.Flags);
+		// } @v10.2.4 
 		LockAutoName = 0;
 		return 1;
 	}
@@ -1574,6 +1581,7 @@ private:
 		}
 		// } @v10.2.0 
 		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
+		Data.Flags = (int16)GetClusterData(CTL_TRANSPORT_FLAGS); // @v10.2.4
 	}
 	int    LockAutoName;
 	PPTransport Data;
@@ -1734,7 +1742,6 @@ int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pT
 }
 //
 // @ModuleDef(PPObjBrand)
-//
 //
 SLAPI PPBrand::PPBrand()
 {

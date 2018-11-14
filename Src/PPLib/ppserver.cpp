@@ -241,7 +241,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetArticleByPerson,
 		tGetPersonByArticle,
 		tLogLockStack, // @v9.8.1
-		tSetTimeSeries // @v10.2.3
+		tSetTimeSeries, // @v10.2.3
+		tGetReqQuotes   // @v10.2.4
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -359,6 +360,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_GETARTICLEBYPERSON       , "GETARTICLEBYPERSON",        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth },
 		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
 		{ PPHS_SETTIMESERIES            , "settimeseries",             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
+		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -1934,6 +1936,7 @@ private:
 	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
 	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
 	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
+	CmdRet SLAPI GetReqQuotes(PPJobSrvReply & rReply);
 
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
 	uint32 CloseSocketTimeout; // Таймаут (ms) ожидания восстановления сессии после разрыва соединения //
@@ -2321,6 +2324,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_PUTNEXTFILEPART:
 		case PPSCMD_TEST:
 		case PPSCMD_GETDISPLAYINFO:
+		case PPSCMD_SETTIMESERIES: // @v10.2.4
+		case PPSCMD_GETREQQUOTES: // @v10.2.4
 			ok = cmdretUnprocessed;
 			break;
 		// }
@@ -3245,6 +3250,25 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 	return ret;
 }
 
+PPServerSession::CmdRet SLAPI PPServerSession::GetReqQuotes(PPJobSrvReply & rReply)
+{
+	CmdRet ret = cmdretOK;
+	PPObjTimeSeries ts_obj;
+	TSVector <PPObjTimeSeries::QuoteReqEntry> list;
+	if(ts_obj.GetReqQuotes(list)) {
+		SSerializeContext sctx;
+		if(!sctx.Serialize(+1, &list, rReply))
+			ret = cmdretError;
+		else {
+			rReply.SetDataType(PPJobSrvReply::htGeneric, 0);
+			rReply.FinishWriting();
+		}
+	}
+	else
+		ret = cmdretError;
+	return ret;
+}
+
 // @v10.2.3 {
 PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 {
@@ -3268,6 +3292,10 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rRe
 			}
 			else {
 				THROW_SL(ts.Serialize(-1, buffer, &sctx));
+			}
+			{
+				PPObjTimeSeries ts_obj;
+				THROW(ts_obj.SetExternTimeSeries(ts));
 			}
 		}
 	}
@@ -3647,6 +3675,9 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				break;
 			case PPSCMD_TEST:
 				ok = Testing();
+				break;
+			case PPSCMD_GETREQQUOTES: // @v10.2.4 @construction
+				ok = GetReqQuotes(rReply);
 				break;
 			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
 				ok = SetTimeSeries(rReply);

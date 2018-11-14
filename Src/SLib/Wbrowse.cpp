@@ -1453,7 +1453,7 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 	return ok;
 }
 
-int BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt)
+void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt)
 {
 	if(pTextRect && pBuf) {
 		char   buf[256];
@@ -1462,7 +1462,6 @@ int BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, in
 		for(uint i = 0; ss.get(&i, buf, sizeof(buf)); rect.top += YCell, rect.bottom += YCell)
 			::DrawText(hdc, buf, sstrlen(buf), &rect, fmt); // @unicodeproblem 
 	}
-	return 1;
 }
 
 int BrowserWindow::GetCellColor(long row, long col, COLORREF * pColor)
@@ -1662,7 +1661,7 @@ void BrowserWindow::Paint()
 					r.right   = CellRight(P_Def->at(rt));
 					r.top     = hdr_width;
 					r.bottom  = YCell * p_grp->hight + hdr_width;
-					fmt = DT_CENTER | DT_EXTERNALLEADING;
+					fmt = DT_CENTER|DT_EXTERNALLEADING;
 					DrawCapBk(ps.hdc, &r, FALSE);
 					r.left++;
 					r.top++;

@@ -4516,11 +4516,11 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 						}
 						p_ti->Discount = R2(p_ti->Price - quot);
 						p_ti->SetupQuot(quot, 1);
-						pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0); // @v8.2.0
+						pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
 						ok = 1;
 					}
 					else {
-						pPack->SetupItemQuotInfo(i-1, qk_id, 0.0, PPBillPacket::QuotSetupInfoItem::fMissingQuot); // @v8.2.0
+						pPack->SetupItemQuotInfo(i-1, qk_id, 0.0, PPBillPacket::QuotSetupInfoItem::fMissingQuot);
 						ok = 1;
 					}
 				}
@@ -4644,7 +4644,7 @@ private:
 			double Cost;
 			PPID   AgentID;
 			PPID   ShipID;
-			PPID   StorageLocID; // @v8.8.6
+			PPID   StorageLocID;
 		};
 		SLAPI  BillFreightCache() : ObjCacheHash(PPOBJ_BILLFREIGHT, sizeof(Data), 512*1024, 4, ObjCache::fUseUndefList)
 		{
@@ -4742,8 +4742,8 @@ private:
 	TSCollection <CrBillEntry> CrBillList;
 	FslArray FullSerialList;
 
-	PPProjectConfig PrjCfg;   // @v8.0.2
-	ReadWriteLock PrjCfgLock; // @v8.0.2 Блокировка конфигурации проектов
+	PPProjectConfig PrjCfg;   // 
+	ReadWriteLock PrjCfgLock; // Блокировка конфигурации проектов
 };
 
 int FASTCALL BillCache::Dirty(PPID id)

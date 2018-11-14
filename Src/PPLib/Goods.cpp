@@ -2496,7 +2496,7 @@ private:
 	SingleBarcodeArray SbcList;
 	//
 	TwoDimBarcodeFormatArray * P_Bc2dSpec;
-	PPObjectTokenizer * P_ObjTkn; // @v8.2.2
+	PPObjectTokenizer * P_ObjTkn;
 	PPGoodsConfig Cfg;
 	ReadWriteLock GtlLock;
 	ReadWriteLock AgflLock;

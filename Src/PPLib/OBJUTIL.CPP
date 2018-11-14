@@ -978,7 +978,7 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 			PPWait(1);
 		PPTransaction tra(BIN(options & use_transaction));
 		THROW(tra);
-		if(!(options & not_objnotify)) { // @v8.0.4
+		if(!(options & not_objnotify)) {
 			r = SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl);
 			THROW(r == DBRPL_OK && Search(id) > 0 && DeleteObj(id));
 		}

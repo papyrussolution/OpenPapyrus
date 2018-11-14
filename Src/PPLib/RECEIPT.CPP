@@ -229,8 +229,7 @@ int SLAPI ReceiptCore::GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint 
 	return Helper_GetCurrentGoodsPrice(goodsID, locID, date, flags, pPrice, pRec);
 }
 
-int SLAPI ReceiptCore::Helper_GetCurrentGoodsPrice(
-	PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
+int SLAPI ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 {
 	int    r  = GPRET_NOLOTS;
 	PROFILE_START

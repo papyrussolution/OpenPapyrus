@@ -799,14 +799,21 @@ double iSalesGoodsPacket::RecalcUnits(long uomFrom, long uomTo, double qtty) con
 {
     double result = qtty;
 	if(uomFrom && uomTo) {
-		for(uint i = 0; i < CvtList.getCount(); i++) {
+		const  uint _c = CvtList.getCount();
+		uint   i;
+		int    direct_ratio_found = 0;
+		for(i = 0; i < _c; i++) {
 			const iSalesUOMCvt * p_cvt = CvtList.at(i);
-			if(p_cvt) {
-				if(p_cvt->UomFrom.ToLong() == uomFrom && p_cvt->UomTo.ToLong() == uomTo) {
-					result = qtty * p_cvt->Rate;
-					break;
-				}
-				else if(p_cvt->UomFrom.ToLong() == uomTo && p_cvt->UomTo.ToLong() == uomFrom) {
+			if(p_cvt && p_cvt->UomFrom.ToLong() == uomFrom && p_cvt->UomTo.ToLong() == uomTo) {
+				result = qtty * p_cvt->Rate;
+				direct_ratio_found = 1;
+				break;
+			}
+		}
+		if(!direct_ratio_found) {
+			for(i = 0; i < _c; i++) {
+				const iSalesUOMCvt * p_cvt = CvtList.at(i);
+				if(p_cvt && p_cvt->UomFrom.ToLong() == uomTo && p_cvt->UomTo.ToLong() == uomFrom) {
 					result = fdivnz(qtty, p_cvt->Rate);
 					break;
 				}

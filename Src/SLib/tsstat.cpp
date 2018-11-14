@@ -780,10 +780,31 @@ int SLAPI STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, u
 	return ok;
 }
 
-int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc)
+static IMPL_CMPFUNC(SUniTime, p1, p2)
+{
+	int sq;
+	return ((SUniTime *)p1)->Compare(*(SUniTime *)p2, &sq);
+}
+
+int SLAPI STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const
+{
+	return T.bsearch(&rUt, pIdx, PTR_CMPFUNC(SUniTime));
+}
+
+SLAPI STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), IntersectFldsCount(0), TmProfile(0)
+{
+}
+
+int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 {
 	int    ok = -1;
+	SProfile::Measure pm;
 	LAssocArray src_to_this_vl_assoc_list;
+	if(pStat) {
+		pStat->SrcFldsCount = rSrc.VL.getCount();
+		pStat->AppendCount = 0;
+		pStat->UpdCount = 0;
+	}
 	for(uint i = 0; i < rSrc.VL.getCount(); i++) {
 		const ValuVec * p_s_vec = rSrc.VL.at(i);
 		if(p_s_vec->Symb.NotEmpty()) {
@@ -793,13 +814,25 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc)
 			}
 		}
 	}
+	if(pStat)
+		pStat->IntersectFldsCount = src_to_this_vl_assoc_list.getCount();
 	if(src_to_this_vl_assoc_list.getCount()) {
+		SUniTime ut_last;
+		SUniTime ut;
+		SUniTime fut; 
+		int    skip_existance_checking = 0;
+		if(GetCount())
+			GetTime(GetCount()-1, &ut_last);
+		else
+			skip_existance_checking = 1;
 		for(uint j = 0; j < rSrc.GetCount(); j++) {
-			SUniTime ut;
 			if(rSrc.GetTime(j, &ut)) {
-				uint ii = 0;
-				if(SearchEntryReverse(ut, T.getCount(), &ii) > 0) {
-					;
+				uint   ii = 0;
+				int    mod = 0; // 1 - append, 2 - update
+				//const int  ser = SearchEntryReverse(ut, T.getCount(), &ii);
+				const int  ser = skip_existance_checking ? 0 : SearchEntryBinary(ut, &ii);
+				if(ser > 0) {
+					GetTime(ii, &fut);
 				}
 				else {
 					THROW(AddItem(ut, &ii));
@@ -808,13 +841,35 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc)
 					const LAssoc & r_asc = src_to_this_vl_assoc_list.at(k);
 					double val = 0.0;
 					THROW(rSrc.GetValue(j, r_asc.Key-1, &val));
-					THROW(SetValue(ii, r_asc.Val-1, val));
+					if(ser > 0) {
+						double ex_val = 0.0;
+						THROW(GetValue(ii, r_asc.Val-1, &ex_val));
+						if(ex_val != val) {
+							THROW(SetValue(ii, r_asc.Val-1, val));
+							mod = 2;
+							if(pStat)
+								pStat->UpdCount++;
+						}
+					}
+					else {
+						THROW(SetValue(ii, r_asc.Val-1, val));
+						mod = 1;
+					}
+				}
+				assert(mod == 1 || ser > 0);
+				if(pStat) {
+					if(mod == 2)
+						pStat->UpdCount++;
+					else if(mod == 1)
+						pStat->AppendCount++;
 				}
 				ok = 1;
 			}
 		}
 	}
 	CATCHZOK
+	if(pStat)
+		pStat->TmProfile = pm.Get();
 	return ok;
 }
 
@@ -1107,6 +1162,92 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
 		ok = 1;
 	}
 	return ok;
+}
+
+int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
+{
+	int    ok = 1;
+	uint   vec_idx = 0;
+	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	const  uint _c = GetCount();
+	rS.State |= Stat::stSorted;
+	SUniTime prev_utm;
+	SUniTime utm;
+	for(uint i = 0; i < _c; i++) {
+		THROW(GetTime(i, &utm));
+		if(i) {
+			int   sq = 0;
+			int   si = utm.Compare(prev_utm, &sq);
+			if(si < 0)
+				rS.State &= ~Stat::stSorted;
+			else if(si == 0 && sq == SUniTime::cmprSureTrue)
+				rS.State |= Stat::stHasTmDup;
+		}
+		if(p_vec) {
+			const void * p_value_buf = p_vec->at(i);
+			double value = p_vec->ConvertInnerToDouble(p_value_buf);
+			rS.Step(value);
+		}
+		prev_utm = utm;
+	}
+	rS.Finish();
+	CATCHZOK
+	return ok;
+}
+
+uint SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const
+{
+	rList.clear();
+	uint   result = 0;
+	uint   vec_idx = 0;
+	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	if(p_vec && startIdx < p_vec->getCount()) {
+		const uint last_idx = MIN(startIdx+count, p_vec->getCount());
+		if(normFlags == 0) {
+			for(uint i = startIdx; i < last_idx; i++) {
+				const void * p_value_buf = p_vec->at(i);
+				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				THROW(rList.insert(&value));
+			}
+		}
+		else {
+			double base = 0.0;
+			StatBase sb(StatBase::fStoreVals);
+			for(uint i = startIdx; i < last_idx; i++) {
+				const void * p_value_buf = p_vec->at(i);
+				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				sb.Step(value);
+			}
+			sb.Finish();
+			const RealArray & r_sb_ser = sb.GetSeries();
+			assert(r_sb_ser.getCount() == (last_idx-startIdx));
+			if(normFlags & nfBaseAvg)
+				base = sb.GetExp();
+			else {
+				base = r_sb_ser.at(0);
+			}
+			if(base == 0.0 && !(normFlags & nfZero)) {
+				// Деление на ноль: ничего нельзя сделать - возвращаем пустой список
+			}
+			else {
+				for(uint j = 0; j < r_sb_ser.getCount(); j++) {
+					double ex_value = r_sb_ser.at(j);
+					double value;
+					if(normFlags & nfZero) {
+						value = ex_value - base;
+					}
+					else {
+						value = ex_value / base;
+					}
+					THROW(rList.insert(&value));
+				}
+			}
+		}
+	}
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
 }
 //
 //

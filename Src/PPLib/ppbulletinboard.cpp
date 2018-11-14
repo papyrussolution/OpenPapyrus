@@ -149,5 +149,295 @@ PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerBySymb(const char
 	}
 	return p_result;
 }
+//
+//
+//
+class TimeSeriesCache : public ObjCache {
+public:
+	struct Data : public ObjCacheEntry {
+		long   Flags;
+	};
+	static int OnQuartz(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+	{
+		TimeSeriesCache * p_this = (TimeSeriesCache *)procExtPtr;
+		if(p_this) {
+			LDATETIME cdtm = getcurdatetime_();
+			long sec = diffdatetimesec(cdtm, p_this->LastFlashDtm);
+			if(sec >= 120) {
+				p_this->Flash();
+			}
+		}
+		return 1;
+	}
+	TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), LastFlashDtm(getcurdatetime_()), P_ReqQList(0)
+	{
+		{
+			long   cookie = 0;
+			PPAdviseBlock adv_blk;
+			MEMSZERO(adv_blk);
+			adv_blk.Kind = PPAdviseBlock::evQuartz;
+			adv_blk.DbPathID = DBS.GetDbPathID();
+			adv_blk.ObjType = 0;
+			adv_blk.Proc = TimeSeriesCache::OnQuartz;
+			adv_blk.ProcExtPtr = this;
+			DS.Advise(&cookie, &adv_blk);
+		}
+	}
+	~TimeSeriesCache()
+	{
+		delete P_ReqQList;
+	}
+	int    SLAPI SetTimeSeries(STimeSeries & rTs);
+	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SLAPI Flash();
+private:
+	struct TimeSeriesBlock {
+		SLAPI  TimeSeriesBlock();
+		enum {
+			fDirty = 0x0001
+		};
+		long   Flags;
+		PPTimeSeries PPTS;
+		STimeSeries T;
+	};
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	TimeSeriesBlock * SLAPI SearchBlockBySymb(const char * pSymb, uint * pIdx) const;
+	TimeSeriesBlock * SLAPI InitBlock(const char * pSymb);
+
+	TSCollection <TimeSeriesBlock> TsC;
+	TSVector <PPObjTimeSeries::QuoteReqEntry> * P_ReqQList;
+	SMtLock OpL; // Блокировка для операций, иных нежели штатные методы ObjCache
+	LDATETIME LastFlashDtm;
+};
+
+int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+{
+	int    ok = 1;
+	Data * p_cache_rec = (Data *)pEntry;
+	PPObjTimeSeries ts_obj;
+	PPTimeSeries rec;
+	if(ts_obj.Search(id, &rec) > 0) {
+		p_cache_rec->Flags    = rec.Flags;
+
+		MultTextBlock b;
+		b.Add(rec.Name);
+		b.Add(rec.Symb);
+		ok = PutTextBlock(b, p_cache_rec);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+{
+	PPTimeSeries * p_data_rec = (PPTimeSeries *)pDataRec;
+	const Data * p_cache_rec = (const Data *)pEntry;
+	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Tag   = PPOBJ_TIMESERIES;
+	p_data_rec->ID    = p_cache_rec->ID;
+	p_data_rec->Flags = p_cache_rec->Flags;
+	//
+	MultTextBlock b(this, pEntry);
+	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
+	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
+}
+
+SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0)
+{
+}
+
+int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
+{
+	int    ok = -1;
+	PPObjTimeSeries ts_obj;
+	OpL.Lock();
+	if(P_ReqQList) {
+		rList = *P_ReqQList;
+	}
+	else {
+		P_ReqQList = new TSVector <PPObjTimeSeries::QuoteReqEntry>;
+		ok = P_ReqQList ? ts_obj.LoadQuoteReqList(*P_ReqQList) : PPSetErrorSLib();
+		if(ok > 0) {
+			rList = *P_ReqQList;
+		}
+	}
+	for(uint i = 0; i < rList.getCount(); i++) {
+		PPObjTimeSeries::QuoteReqEntry & r_entry = rList.at(i);
+		SUniTime last_utm;
+		TimeSeriesBlock * p_blk = SearchBlockBySymb(r_entry.Ticker, 0);
+		SETIFZ(p_blk, InitBlock(r_entry.Ticker));
+		const uint tc = p_blk ? p_blk->T.GetCount() : 0;
+		if(tc && p_blk->T.GetTime(tc-1, &last_utm)) {
+			last_utm.Get(r_entry.LastValTime);
+		}
+		else
+			r_entry.LastValTime.Z();
+	}
+	OpL.Unlock();
+	return ok;
+}
+
+TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchBlockBySymb(const char * pSymb, uint * pIdx) const
+{
+	SString temp_buf;
+	for(uint i = 0; i < TsC.getCount(); i++) {
+		TimeSeriesBlock * p_blk = TsC.at(i);
+		if(p_blk) {
+			temp_buf = p_blk->T.GetSymb();
+			if(temp_buf.IsEqiAscii(pSymb)) {
+				ASSIGN_PTR(pIdx, i);
+				return p_blk;
+			}
+		}
+	}
+	return 0;
+}
+
+TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(const char * pSymb)
+{
+	TimeSeriesBlock * p_fblk = 0;
+	PPID   id = 0;
+	PPObjTimeSeries ts_obj;
+	PPTimeSeries ts_rec;
+	int r = ts_obj.SearchBySymb(pSymb, &id, &ts_rec);
+	THROW(r);
+	if(r < 0) {
+		id = 0;
+		MEMSZERO(ts_rec);
+		STRNSCPY(ts_rec.Name, pSymb);
+		STRNSCPY(ts_rec.Symb, pSymb);
+		THROW(ts_obj.PutPacket(&id, &ts_rec, 1));
+		ts_rec.ID = id;
+	}
+	THROW_SL(p_fblk = TsC.CreateNewItem());
+	p_fblk->T.SetSymb(pSymb);
+	p_fblk->PPTS = ts_rec;
+	THROW(r = ts_obj.GetTimeSeries(id, p_fblk->T));
+	if(r < 0) {
+		//uint   vecidx_open = 0;
+		uint   vecidx_close = 0;
+		//uint   vecidx_ticvol = 0;
+		uint   vecidx_realvol = 0;
+		//uint   vecidx_spread = 0;
+		//THROW_SL(p_fblk->T.AddValueVec("open", T_INT32, 5, &vecidx_open));
+		//THROW_SL(p_fblk->T.AddValueVec("close", T_DOUBLE, 0, &vecidx_close));
+		THROW_SL(p_fblk->T.AddValueVec("close", T_INT32, 5, &vecidx_close));
+		//THROW_SL(p_fblk->T.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol));
+		THROW_SL(p_fblk->T.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol));
+		//THROW_SL(p_fblk->T.AddValueVec("spread", T_INT32, 0, &vecidx_spread));
+	}
+	CATCH
+		p_fblk = 0;
+	ENDCATCH
+	return p_fblk;
+}
+
+int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
+{
+	int    ok = -1;
+	STimeSeries::AppendStat apst;
+	OpL.Lock();
+	SString temp_buf = rTs.GetSymb();
+	if(temp_buf.NotEmpty()) {
+		TimeSeriesBlock * p_fblk = SearchBlockBySymb(temp_buf, 0);
+		THROW(SETIFZ(p_fblk, InitBlock(temp_buf)));
+		{
+			rTs.Sort();
+			THROW_SL(p_fblk->T.AddItems(rTs, &apst));
+			p_fblk->Flags |= p_fblk->fDirty;
+		}
+		{
+			//PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64"
+			SString fmt_buf;
+			PPLoadText(PPTXT_SETTIMESERIESSTAT, fmt_buf);
+			PPFormat(fmt_buf, &temp_buf, (const char *)rTs.GetSymb(), (int)apst.AppendCount, (int)apst.UpdCount, (int)apst.IntersectFldsCount, (int64)apst.TmProfile);
+			/*temp_buf.Z().Cat("SetTimeSeries").CatDiv(':', 2).Cat(rTs.GetSymb()).Space().CatEq("append-count", apst.AppendCount).Space().
+				CatEq("update-count", apst.UpdCount).Space().CatEq("field-count", apst.IntersectFldsCount).Space().CatEq("profile", apst.TmProfile);*/
+			PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		}
+	}
+	CATCHZOK
+	OpL.Unlock();
+	return ok;
+}
+
+int SLAPI TimeSeriesCache::Flash()
+{
+	int    ok = 1;
+	OpL.Lock();
+	if(TsC.getCount()) {
+		PPObjTimeSeries ts_obj;
+		PPTransaction tra(1);
+		THROW(tra);
+		for(uint i = 0; i < TsC.getCount(); i++) {
+			TimeSeriesBlock * p_blk = TsC.at(i);
+			if(p_blk && p_blk->Flags & TimeSeriesBlock::fDirty && p_blk->PPTS.ID) {
+				PPID   id = p_blk->PPTS.ID;
+				THROW(ts_obj.PutPacket(&id, &p_blk->PPTS, 0));
+				THROW(ts_obj.SetTimeSeries(id, &p_blk->T, 0));
+				p_blk->Flags &= ~TimeSeriesBlock::fDirty;
+			}
+		}
+		THROW(tra.Commit());
+		LastFlashDtm = getcurdatetime_();
+	}
+	CATCHZOK
+	OpL.Unlock();
+	return ok;
+}
+
+int SLAPI PPObjTimeSeries::LoadQuoteReqList(TSVector <QuoteReqEntry> & rList)
+{
+	rList.clear();
+	int    ok = -1;
+	SString temp_buf;
+	PPGetFilePath(PPPATH_DD, "quotereq.txt", temp_buf);
+	if(fileExists(temp_buf)) {
+		SFile f_in(temp_buf, SFile::mRead);
+		if(f_in.IsValid()) {
+			uint   line_no = 0;
+			SString line_buf;
+			StringSet ss("\t");
+			while(f_in.ReadLine(line_buf)) {
+				line_no++;
+				if(line_no > 1) { // The first line is title
+					line_buf.Chomp().Strip();
+					ss.setBuf(line_buf);
+					QuoteReqEntry entry;
+					MEMSZERO(entry);
+					for(uint ssp = 0, fld_no = 0; ss.get(&ssp, temp_buf); fld_no++) {
+						if(fld_no == 0)
+							STRNSCPY(entry.Ticker, temp_buf);
+						else if(fld_no == 1) {
+							if(temp_buf.StrChr('L', 0) || temp_buf.StrChr('l', 0))
+								entry.Flags |= entry.fAllowLong;
+							if(temp_buf.StrChr('S', 0) || temp_buf.StrChr('s', 0))
+								entry.Flags |= entry.fAllowShort;
+						}
+					}
+					if(entry.Ticker[0]) {
+						rList.insert(&entry);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPObjTimeSeries::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
+{
+	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+	return p_cache ? p_cache->GetReqQuotes(rList) : 0;
+}
+
+int SLAPI PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
+{
+	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+	return p_cache ? p_cache->SetTimeSeries(rTs) : 0;
+}
 
 // } @construction 

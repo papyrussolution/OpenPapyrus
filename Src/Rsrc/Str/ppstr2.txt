@@ -4728,6 +4728,7 @@ PPTXT_VETISOUTGSENDING              "Отправка запроса на исх
 PPTXT_VETISOUTGSTOCKENTRY           "Идентифицированая запись складского журнала: %s"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
 PPTXT_SMSDECLINEDDUETIMERANGE       "Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)"
+PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64"
 //
 // LastText
 
@@ -4852,7 +4853,7 @@ MANUFREGIONCODE;ISMANUFTAGID;GOODSKINDSYMB;XMLPREFIX;ALCOGRPID;GOODSKINDTAGID;OP
 // Метасимволы формул полей SdbField
 PPSSYM_IMPEXPFORMULA "EMPTY;RECNO;CURDATE_GERMAN;CURDATE;CURTIME;CURYEAR;CURMONTH;CURDAY;PERSONREGNUM;ARREGNUM;OBJTAG;ARREGDATE;CAT;CATS"
 // Метасимволы форматированного вывода (PPFormat)
-PPSSYM_FORMAT "int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;article;loc;bill;prc;tech;tsess;period;salcharge;pperr;staffcal;psnopkind;debtdim;quotkind;scard;tag;objtitle;locaddr"
+PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;article;loc;bill;prc;tech;tsess;period;salcharge;pperr;staffcal;psnopkind;debtdim;quotkind;scard;tag;objtitle;locaddr"
 #!}
 
 [7] // PPSTR_SLIBERR
@@ -5862,6 +5863,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @crdcard                "Кредитная карта"
 @bonuscard              "Бонусная карта"
 @car                    "Автомобиль"
+@merchantship           "Торговое судно"
 @ship                   "Судно"
 @meas_volume            "Емкость" // Размерность
 @meas_alcostrength      "Крепость"
@@ -7594,7 +7596,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_cashf_nafcl                     "Не активизировать первую строку чека"
 @cashnode_cashf_noaskpaymtype             "Не запрашивать вид оплаты"
 @cashnode_cashf_notusecheckcutter         "Не использовать отрезчик чеков"
-@cashnode_cashf_openbox                   "Открывать денежный ящик при пробивке чека"
+@cashnode_cashf_openbox                   "Открывать денежный ящик при расчете"
 @cashnode_cashf_roundint                  "Округлять в чеке % скидки до целого"
 @cashnode_cashf_showrest                  "Показывать остаток"
 @cashnode_cashf_skipunprintedchecks       "Пропускать 'не отпечатанные' чеки"
@@ -12090,6 +12092,7 @@ PPHS_VALUES                    "values"
 PPHS_CHEQUE                    "cheque"
 PPHS_GEOTRACKING               "geotracking"
 PPHS_SETTIMESERIES             "settimeseries" // @v10.2.3
+PPHS_GETREQQUOTES              "getreqquotes"  // @v10.2.4
 
 #!}
 

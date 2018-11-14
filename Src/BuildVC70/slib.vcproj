@@ -848,6 +848,9 @@
 				RelativePath="..\SLib\sfann.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sfann2.cpp">
+			</File>
+			<File
 				RelativePath="..\Slib\sfile.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3523,6 +3526,9 @@
 			</File>
 			<File
 				RelativePath="..\Include\Dbquery.h">
+			</File>
+			<File
+				RelativePath="..\Include\fann2.h">
 			</File>
 			<File
 				RelativePath="..\Include\Slconfig.h">

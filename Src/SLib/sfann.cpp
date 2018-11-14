@@ -6232,10 +6232,8 @@ class FannTest : public testing::Test {
 protected:
     neural_net net;
     training_data data;
-    void AssertCreateAndCopy(neural_net &net, uint numLayers, const uint *layers, uint neurons,
-		uint connections);
-    void AssertCreate(neural_net &net, uint numLayers, const uint *layers,
-		uint neurons, uint connections);
+    void AssertCreateAndCopy(neural_net &net, uint numLayers, const uint *layers, uint neurons, uint connections);
+    void AssertCreate(neural_net &net, uint numLayers, const uint *layers, uint neurons, uint connections);
     void AssertWeights(neural_net &net, float min, float max, float avg);
     virtual void SetUp();
     virtual void TearDown();
@@ -6252,10 +6250,8 @@ protected:
     float **outputData;
     virtual void SetUp();
     virtual void TearDown();
-    void AssertTrainData(FANN::training_data &trainingData, uint numData, uint numInput,
-		uint numOutput, float inputValue, float outputValue);
-    void InitializeTrainDataStructure(uint numData, uint numInput, uint numOutput,
-		float inputValue, float outputValue, float **inputData, float **outputData);
+    void AssertTrainData(FANN::training_data &trainingData, uint numData, uint numInput, uint numOutput, float inputValue, float outputValue);
+    void InitializeTrainDataStructure(uint numData, uint numInput, uint numOutput, float inputValue, float outputValue, float **inputData, float **outputData);
 };
 
 using namespace std;
@@ -6273,8 +6269,7 @@ void FannTest::TearDown()
     data.destroy_train();
 }
 
-void FannTest::AssertCreate(neural_net &net, uint numLayers, const uint *layers,
-	uint neurons, uint connections)
+void FannTest::AssertCreate(neural_net &net, uint numLayers, const uint *layers, uint neurons, uint connections)
 {
     EXPECT_EQ(numLayers, net.get_num_layers());
     EXPECT_EQ(layers[0], net.get_num_input());
@@ -6290,8 +6285,7 @@ void FannTest::AssertCreate(neural_net &net, uint numLayers, const uint *layers,
     AssertWeights(net, -0.09, 0.09, 0.0);
 }
 
-void FannTest::AssertCreateAndCopy(neural_net &net, uint numLayers, const uint *layers, uint neurons,
-	uint connections)
+void FannTest::AssertCreateAndCopy(neural_net &net, uint numLayers, const uint *layers, uint neurons, uint connections)
 {
     AssertCreate(net, numLayers, layers, neurons, connections);
     neural_net net_copy(net);
@@ -6671,8 +6665,8 @@ static int AssertWeights(STestCase * pTc, const Fann * pNet, float min, float ma
             max_weight = connections.at(i).Weight;
         total_weight += connections.at(i).Weight;
     }
-    pTc->SLTEST_CHECK_EQ_TOL(min, min_weight, 0.05f);
-    pTc->SLTEST_CHECK_EQ_TOL(max, max_weight, 0.05f);
+    pTc->SLTEST_CHECK_EQ_TOL(min, min_weight, 0.06f); // @v10.2.4 0.05f--0.06f
+    pTc->SLTEST_CHECK_EQ_TOL(max, max_weight, 0.06f); // @v10.2.4 0.05f--0.06f
     pTc->SLTEST_CHECK_EQ_TOL(avg, total_weight / (float)conn_count, 0.5f);
 	return pTc->GetCurrentStatus();
 }
@@ -6823,7 +6817,8 @@ SLTEST_R(FANN)
 				ann.Train(XorInput + 2 * c_in, XorOutput + 2 * c_out);
 				ann.Train(XorInput + 3 * c_in, XorOutput + 3 * c_out);
 			}
-			SLTEST_CHECK_LT(ann.GetMSE(), 0.01f);
+			const float _mse = ann.GetMSE();
+			SLTEST_CHECK_LT(_mse, 0.01f);
 			SLTEST_CHECK_EQ(ann.Run(XorInput + 0 * c_in)[0], XorOutput[0 * c_out]);
 			SLTEST_CHECK_EQ(ann.Run(XorInput + 1 * c_in)[0], XorOutput[1 * c_out]);
 			SLTEST_CHECK_EQ(ann.Run(XorInput + 2 * c_in)[0], XorOutput[2 * c_out]);

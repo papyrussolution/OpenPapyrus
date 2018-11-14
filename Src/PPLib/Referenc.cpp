@@ -2517,6 +2517,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 
 int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 {
+	rTs.Z();
 	int    ok = 1;
 	const  int16 prop = NZOR(rI.P, PPTRPROP_TIMESERIES);
 	if(prop != PPTRPROP_TIMESERIES) {
@@ -2532,8 +2533,6 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 		k0.ObjID = rI.O.Id;
 		k0.Lang = rI.L;
 		if(search(0, &k0, spEq)) {
-			//PostprocessRead(rBuf);
-			//int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 			{
 				SSerializeContext sctx;
 				SBuffer temp_buf;

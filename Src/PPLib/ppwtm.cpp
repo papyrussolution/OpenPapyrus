@@ -2496,6 +2496,7 @@ int TestFrameWindow::Run()
 //
 int SLAPI TestSuffixTree(); //
 int TestFann();
+int TestFann2();
 int SLAPI CollectLldFileStat();
 int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
@@ -2509,7 +2510,8 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
-	TestSArchive();
+	//TestSArchive();
+	TestFann2();
 	//Test_MakeEmailMessage();
 	//CollectLldFileStat();
 #endif

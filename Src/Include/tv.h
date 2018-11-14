@@ -4569,7 +4569,7 @@ private:
 	int    DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, int fmt, int isLineCursor);
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
-	int    DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt);
+	void   DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt);
 	int    FASTCALL CellRight(const BroColumn & rC) const;
 	int    FASTCALL GetRowHeightMult(long row) const;
 	int    FASTCALL GetRowTop(long row) const;

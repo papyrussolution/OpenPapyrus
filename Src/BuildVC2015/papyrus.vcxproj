@@ -1248,6 +1248,7 @@
     <ClCompile Include="..\PPLib\Objstaff.cpp" />
     <ClCompile Include="..\PPLib\objsync.cpp" />
     <ClCompile Include="..\PPLib\Objtag.cpp" />
+    <ClCompile Include="..\PPLib\objtimeseries.cpp" />
     <ClCompile Include="..\PPLib\objtrnsm.cpp" />
     <ClCompile Include="..\PPLib\objtsess.cpp" />
     <ClCompile Include="..\PPLib\Objutil.cpp" />
@@ -2059,10 +2060,6 @@
     </ProjectReference>
     <ProjectReference Include="ZBAR.vcxproj">
       <Project>{64adc8ff-d2ce-4d6e-a2c0-a0c75f5ba7d5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

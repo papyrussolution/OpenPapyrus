@@ -2024,7 +2024,8 @@ void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLe
 static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*...*/va_list pArgList)
 {
 	enum {
-		tokInt = 1,   // int
+		tokInt64 = 1, // int64 @v10.2.4
+		tokInt,       // int
 		tokHex,       // hex
 		tokReal,      // real
 		tokSStr,      // sstr
@@ -2052,7 +2053,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 		tokSCard,     // scard
 		tokTag,       // tag
 		tokObjTitle,  // objtitle
-		tokLocAddr    // locaddr
+		tokLocAddr,   // locaddr
 	};
 	//va_list arg_list;
 	//va_start(arg_list, pBuf);
@@ -2068,6 +2069,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 				long   sym  = st.Translate(scan);
 				PPID   obj_id = 0;
 				switch(sym) {
+					case tokInt64: buf.Cat(va_arg(pArgList, int64)); break; // @v10.2.4
 					case tokInt: buf.Cat(va_arg(pArgList, long)); break;
 					case tokHex: buf.Cat(va_arg(pArgList, long)); break; // @todo HEX
 					case tokReal: buf.Cat(va_arg(pArgList, double), MKSFMTD(0, 6, NMBF_NOTRAILZ)); break;

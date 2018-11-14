@@ -150,6 +150,7 @@
     <ClCompile Include="..\Db\xmltable.cpp" />
     <ClCompile Include="..\SLib\Comdisp.cpp" />
     <ClCompile Include="..\SLib\dconvstr.c" />
+    <ClCompile Include="..\SLib\sfann2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">
@@ -198,6 +199,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Dbquery.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\fann2.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

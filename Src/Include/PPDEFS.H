@@ -5239,6 +5239,7 @@
 	#define CTL_TRANSPORT_CAPACITY       (12 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPORT_VANTYP         (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPORT_VANTYP      (14 + WINDOWS_ID_BIAS)
+	#define CTL_TRANSPORT_FLAGS          (15 + WINDOWS_ID_BIAS)
 #define DLG_FREIGHT               491 // Фрахт
 	#define cmFreightEditDlvrLocList     101
 	#define CTL_FREIGHT_TRTYP            (1 + WINDOWS_ID_BIAS)
@@ -10531,6 +10532,13 @@
 	#define CTL_JOB_SNRSCO_DT         (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_JOB_SNRSCO_DT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_JOB_SNRSCO_TM         (3 + WINDOWS_ID_BIAS)
+#define DLG_TIMSER                1352
+	#define cmTimSerStat              101
+	#define CTL_TIMSER_NAME           (1 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_SYMB           (2 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_ID             (9 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_FLAGS          (10 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_STAT           (11 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

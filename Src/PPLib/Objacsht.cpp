@@ -406,7 +406,6 @@ public:
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-
 };
 
 int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)

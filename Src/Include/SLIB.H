@@ -8098,7 +8098,7 @@ struct SFileSortProgressData {
 	int64  SplitBytesRead; // Количество байт считанных на фазе сплиттинга
 	int    SplitThreadCount; // Количество потоков, осуществляющих сплиттинг
 	uint   MergeChunkCount; // Начальное количество блоков для слияния
-	uint   MergeChunkLeft;  // Оставшее число не слитых блоков
+	uint   MergeChunkLeft;  // Оставшееся число не слитых блоков
 	const void * ExtraPtr;
 };
 
@@ -9922,6 +9922,7 @@ public:
 	double SLAPI GetStdDev() const;
 	int    SLAPI GetValue(long idx, double * pVal) const;
 	int    SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
+	const  RealArray & GetSeries() const { return Series; }
 protected:
 	long   Flags;
 	long   IterCount;
@@ -10048,6 +10049,7 @@ public:
 	uint   SLAPI GetCount() const;
 	int    SLAPI SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
 	int    SLAPI SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const;
+	int    SLAPI SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const;
 	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
 	int    SLAPI AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
 	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
@@ -10058,7 +10060,17 @@ public:
 
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
-	int    SLAPI AddItems(const STimeSeries & rSrc);
+
+	struct AppendStat {
+		SLAPI  AppendStat();
+		uint   AppendCount;
+		uint   UpdCount;
+		uint   SrcFldsCount;
+		uint   IntersectFldsCount;
+		uint64 TmProfile; // Время выполнения функции
+	};
+
+	int    SLAPI AddItems(const STimeSeries & rSrc, AppendStat * pStat);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
 	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
@@ -10068,6 +10080,41 @@ public:
 	//
 	int    SLAPI Sort();
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	struct Stat : public StatBase {
+		SLAPI  Stat(long flags) : StatBase(flags), State(0)
+		{
+		}
+		enum {
+			stSorted   = 0x0001,
+			stHasTmDup = 0x0002
+		};
+		long   State;
+	};
+
+	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;
+	//
+	// Descr: Опции нормализации фрейма временного ряда
+	//
+	enum {
+		nfOne       = 0x0001, // @default Нормализовать относительно единицы
+		nfZero      = 0x0002, // Нормализовать относительно нуля
+		nfBaseStart = 0x0004, // База нормализации - первое значение фрейма
+		nfBaseAvg   = 0x0008  // База нормализации - среднее по всем значениям фрейма
+	};
+	//
+	// Descr: Извлекает из вектора ряда с символом pVecSymb фрейм значений, начиная со startIdx в количестве count величин.
+	// ARG(pVecSymb    IN): Символ вектора, из которого необходимо извлечь фрейм значений
+	// ARG(startIdx    IN): Первый индекс вектора, начиная с которого извлекаются значения
+	// ARG(count       IN): Количество значений, которые следует извлечь
+	// ARG(normFlags   IN): Опции нормализации фрейма (STimeSeries::nfXXX)
+	// ARG(rList      OUT): Вещественный вектор, в который заносятся значения фрейма.
+	//   Функция предварительно очищает этот список.
+	// Returns:
+	//   Количество извлеченных во фрейм значений. Если фрейм попадает на конец ряда, то результат
+	//   может оказаться меньше, чем count.
+	//
+	uint   SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ)
 	{

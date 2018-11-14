@@ -1626,10 +1626,6 @@ void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pPr
 	P_SignalProcExtra = pProcExtra;
 }
 
-/*struct NnBlock {
-	NnBlock();
-};*/
-
 int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 {
 	int    ok = 1;

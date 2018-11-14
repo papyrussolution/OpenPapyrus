@@ -916,7 +916,7 @@ public:
 	int    CascadeTrainOnData(const Fann::TrainData * pData, uint maxNeurons, uint neuronsBetweenReports, float desiredError);
 
 	int    TrainCandidates(const Fann::TrainData * pData);
-	float TrainCandidatesEpoch(const Fann::TrainData * pData);
+	float  TrainCandidatesEpoch(const Fann::TrainData * pData);
 	int    TrainOutputs(const Fann::TrainData * pData, float desiredError);
 	float  TrainOutputsEpoch(const Fann::TrainData * pData);
 	int    ClearTrainArrays();

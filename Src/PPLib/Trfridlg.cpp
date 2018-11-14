@@ -450,6 +450,12 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 			setTitle(temp_buf);
 	}
 	// } @v9.4.3
+	// @v10.2.4 {
+	{
+		TInputLine * p_pk_inp = (TInputLine *)getCtrlView(CTL_LOT_PACKS);
+		CALLPTRMEMB(p_pk_inp, setFormat(MKSFMTD(10, 6, NMBF_NOTRAILZ)));
+	}
+	// } @v10.2.4 
 }
 
 int TrfrItemDialog::isModifPlus() const
@@ -971,15 +977,27 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					}
 					break;
 				case cmInputUpdated:
-					if(event.isCtlEvent(CTL_LOT_PRICE) || event.isCtlEvent(CTL_LOT_DISCOUNT)) {
-						//
-						// При изменении поля цены реализации либо скидки необходимо перерисовать его
-						// дабы его цвет изменился (см. ниже cmCtlColor)
-						//
-						drawCtrl(CTL_LOT_PRICE);
+					{
+						static int __lock = 0;
+						if(!__lock) {
+							__lock = 1;
+							i = TVINFOVIEW->GetId();
+							if(oneof2(i, CTL_LOT_PRICE, CTL_LOT_DISCOUNT)) {
+								//
+								// При изменении поля цены реализации либо скидки необходимо перерисовать его
+								// дабы его цвет изменился (см. ниже cmCtlColor)
+								//
+								drawCtrl(CTL_LOT_PRICE);
+							}
+							else if(oneof3(i, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, CTL_LOT_QUANTITY)) {
+								setupQuantity(i, 1);
+								setupVatSum();
+							}
+							else if(i == CTL_LOT_SERIAL)
+								SetupSerialWarn();
+							__lock = 0;
+						}
 					}
-					else if(event.isCtlEvent(CTL_LOT_SERIAL))
-						SetupSerialWarn();
 					break;
 				case cmCtlColor:
 					{
@@ -1679,6 +1697,12 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 		setStaticText(CTL_LOT_PHQTTY, phq_txt);
 	}
 	setupRest();
+	// @v10.2.4 {
+	{
+		TInputLine * il = (TInputLine *)getCtrlView(master);
+		CALLPTRMEMB(il, disableDeleteSelection(1));
+	}
+	// } @v10.2.4 
 	CATCH
 		;
 	ENDCATCH
