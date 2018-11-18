@@ -3273,9 +3273,33 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		if(rBlk.ID > 0) {
 			temp_buf.Z().Cat(rBlk.ID);
 			if(GObj.P_Tbl->SearchByArCode(rP.SrcArID, temp_buf, 0, &ex_goods_rec) > 0) {
-				goods_by_ar_id = ex_goods_rec.ID;
+				//
+				// @v10.2.4 —пециальный случай: товар имеет более одного кода по статье rP.SrcArID в числе которых наш.
+				// ¬ этом случае мы отбираем наш код у этого товара и создаем новую товарную позицию. ¬ противном
+				// случае возможны негативные эффекты в виде невозможности правильно идентифицировать товар. 
+				//
+				int    is_there_another_arcode = 0;
+				uint   my_arcode_pos = 0;
+				ArGoodsCodeArray local_arcode_list;
+				GObj.P_Tbl->ReadArCodes(ex_goods_rec.ID, &local_arcode_list);
+				if(local_arcode_list.getCount() > 1) {
+					for(uint acidx = 0; acidx < local_arcode_list.getCount(); acidx++) {
+						ArGoodsCodeTbl::Rec & r_arcode_item = local_arcode_list.at(acidx);
+						if(r_arcode_item.ArID == rP.SrcArID)
+							if(sstreq(r_arcode_item.Code, temp_buf))
+								my_arcode_pos = acidx;
+							else
+								is_there_another_arcode = 1;
+					}
+				}
+				if(is_there_another_arcode) {
+					local_arcode_list.atFree(my_arcode_pos);
+					THROW(GObj.P_Tbl->UpdateArCodes(ex_goods_rec.ID, &local_arcode_list, 1));
+				}
+				else
+					goods_by_ar_id = ex_goods_rec.ID;
 			}
-			else {
+			if(!goods_by_ar_id) {
 				ArGoodsCodeTbl::Rec new_ar_code;
 				MEMSZERO(new_ar_code);
 				new_ar_code.ArID = rP.SrcArID;

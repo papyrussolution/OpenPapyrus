@@ -2112,11 +2112,9 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 		const PPID db_div_id = LConfig.DBDiv;
 		PPTransaction tra(1);
 		THROW(tra);
-		// @v8.0.12 {
 		if(pDbDivUuid) {
 			THROW(DObj.GetUuid(db_div_id, pDbDivUuid, 0));
 		}
-		// } @v8.0.12
 		do {
 			THROW(DObj.GetCounter(db_div_id, &counter, 0));
 			file_name.Z().CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPSEXT);

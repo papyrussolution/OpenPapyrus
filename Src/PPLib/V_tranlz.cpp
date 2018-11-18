@@ -4065,6 +4065,7 @@ public:
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  3, PrcssrAlcReport::Config::woswByBills);
 		SetClusterData(CTL_ALCREPCFG_WOSW, Data.E.WrOffShopWay);
 		// } @v9.3.10
+		SetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
 		enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks); // @v9.4.0
 		return ok;
 	}
@@ -4101,6 +4102,7 @@ public:
 
 		GetClusterData(CTL_ALCREPCFG_FLAGS, &Data.E.Flags); // @v9.0.10
 		GetClusterData(CTL_ALCREPCFG_WOSW, &Data.E.WrOffShopWay); // @v9.3.10
+		GetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
 
 		ASSIGN_PTR(pData, Data);
 		return ok;

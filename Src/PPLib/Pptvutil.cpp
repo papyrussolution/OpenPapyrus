@@ -231,34 +231,22 @@ static int SLAPI Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pP
 int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0); }
 int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags); }
 
-int SLAPI SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)
-{
-	TimeRange prd;
-	if(pTimePeriod)
-		prd = *pTimePeriod;
-	else
-		prd.low = prd.upp = ZEROTIME;
-	return SetTimeRangeInput(pDlg, ctl, fmt, &prd.low, &prd.upp);
-}
-
-int SLAPI SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp)
+void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)
 {
 	SString buf;
-	LTIME   low, upp;
-	low = pLow ? *pLow : ZEROTIME;
-	upp = pUpp ? *pUpp : ZEROTIME;
-	if(low != ZEROTIME || upp != ZEROTIME) {
-		if(low != ZEROTIME)
-			buf.Cat(low, fmt);
-		buf.Dot().Dot();
-		if(upp != ZEROTIME)
-			buf.Cat(upp, fmt);
-	}
+	if(pTimePeriod && !pTimePeriod->IsZero())
+		pTimePeriod->ToStr(fmt, buf);
 	CALLPTRMEMB(pDlg, setCtrlString(ctl, buf));
-	return 1;
 }
 
-int SLAPI GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * pTimePeriod)
+void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp)
+{
+	TimeRange tr;
+	tr.Set((pLow ? *pLow : ZEROTIME), (pUpp ? *pUpp : ZEROTIME));
+	SetTimeRangeInput(pDlg, ctl, fmt, &tr);
+}
+
+int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * pTimePeriod)
 {
 	int    ok = -1;
 	TimeRange prd;
@@ -269,7 +257,7 @@ int SLAPI GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * pTim
 	return ok;
 }
 
-int SLAPI GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp)
+int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp)
 {
 	int    ok = -1;
 	if(pDlg) {

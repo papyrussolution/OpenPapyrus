@@ -2084,11 +2084,13 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 			BillTbl::Rec bill_rec;
 			PPViewBill::BrwHdr * p_hdr = (PPViewBill::BrwHdr *)pData;
 			if(p_hdr->ID) {
-				if(r_col.OrgOffs == 0 && PPMaster) { // ID
-					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FULLSYNC) {
-						pStyle->Color = GetColorRef(SClrDodgerblue);
-						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						ok = 1;
+				if(r_col.OrgOffs == 0) { // ID
+					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
+						if(bill_rec.Flags2 & BILLF2_FULLSYNC && PPMaster) {
+							pStyle->Color2 = GetColorRef(SClrDodgerblue);
+							pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+							ok = 1;
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // BillNo
@@ -2136,24 +2138,23 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const PPID op_type_id = GetOpType(bill_rec.OpID);
-						//if(IsDraftOp(bill_rec.OpID)) {
 						if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 							if(bill_rec.Flags2 & BILLF2_DECLINED) {
-								pStyle->Color = GetColorRef(SClrGrey);
-								pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+								pStyle->Color2 = GetColorRef(SClrGrey);
+								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 								ok = 1;
 							}
 							else if(bill_rec.Flags & BILLF_WRITEDOFF) {
-								pStyle->Color = GetColorRef(SClrOrange);
-								pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+								pStyle->Color2 = GetColorRef(SClrOrange);
+								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 								ok = 1;
 							}
 						}
 						// @v10.0.01 {
 						else if(op_type_id == PPOPT_GOODSORDER) {
 							if(bill_rec.Flags & BILLF_CLOSEDORDER) {
-								pStyle->Color = GetColorRef(SClrOrange);
-								pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+								pStyle->Color2 = GetColorRef(SClrOrange);
+								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 								ok = 1;
 							}
 						}
@@ -2185,6 +2186,16 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = 1;
 							}
 						}
+						// @v10.2.4 {
+						if(bill_rec.StatusID) {
+							PPBillStatus bs_rec;
+							PPObjBillStatus bs_obj;
+							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty()) {
+								pStyle->Color = bs_rec.IndColor;
+								ok = 1;
+							}
+						}
+						// } @v10.2.4 
 					}
 				}
 			}

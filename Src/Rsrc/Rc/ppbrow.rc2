@@ -6571,7 +6571,8 @@ cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_
 cmd TestVetis             { "@{cmd_testvetis}"                             ICON_TEST              none cmTestVetis } // @v9.8.9
 cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
 cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument view = VetisDocument } // @v10.0.12
-cmd VetisInterchange      { ""                                             none                   none cmVetisInterchange } // @v10.1.2
+cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       none                   none cmVetisInterchange } // @v10.1.2
+cmd TimeSeriesNnTrain     { "@{cmd_timeseriesnntrain}"                     none                   none cmTimeSeriesNnTrain } // @v10.1.4
 //
 // -------------- Описания серверных задач
 //

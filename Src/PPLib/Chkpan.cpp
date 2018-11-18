@@ -987,7 +987,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	CnSymb = cn_rec.Symb;
 	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE |
 		CASHF_SHOWREST | CASHF_KEYBOARDWKEY | CASHF_WORKWHENLOCK | CASHF_DISABLEZEROAGENT |
-		CASHF_UNIFYGDSATCHECK | CASHF_UNIFYGDSTOPRINT | CASHF_CHECKFORPRESENT | CASHF_ABOVEZEROSALE | CASHF_SYNC);
+		CASHF_UNIFYGDSATCHECK | CASHF_UNIFYGDSTOPRINT | CASHF_CHECKFORPRESENT | CASHF_ABOVEZEROSALE | CASHF_SYNC | CASHF_SKIPUNPRINTEDCHECKS); // @v10.2.4 CASHF_SKIPUNPRINTEDCHECKS
 	CnExtFlags = cn_rec.ExtFlags;
 	CnSpeciality = (long)cn_rec.Speciality;
 	CnLocID = cn_rec.LocID;
@@ -8380,67 +8380,75 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
                     if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
 						PrcssrAlcReport::GoodsItem agi;
 						if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
-							SString egais_mark;
-							rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
-							if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
-								int    dup_mark = 0;
-								for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-									const CCheckItem & r_item = P.at(i);
-									if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
-										dup_mark = 1;
-								}
-								if(!dup_mark) {
-									const CCheckItem & r_item = P.GetCur();
-									if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
-										dup_mark = 1;
-								}
-								if(!dup_mark) {
-									// @v10.1.1 {
-									if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
-										PPIDArray cc_list;
-										CCheckCore & r_cc = GetCc();
-										int    cc_even = 0;
-										temp_buf.Z();
-										if(r_cc.GetListByLineExtss(CCheckPacket::lnextEgaisMark, egais_mark, cc_list) > 0) {
-											for(uint j = 0; j < cc_list.getCount(); j++) {
-												const PPID cc_id = cc_list.get(j);
-												CCheckTbl::Rec cc_rec;
-												if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
-													if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
-														// @v10.1.8 if(j == (cc_list.getCount()-1))
-														if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
-															CCheckCore::MakeCodeString(&cc_rec, temp_buf);
-															if(cc_rec.Flags & CCHKF_RETURN)
-																cc_even--;
-															else
-																cc_even++;
+							// @v10.2.4 {
+							const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
+							if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
+								ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine); 
+							}
+							else {
+								// } @v10.2.4 
+								SString egais_mark;
+								rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+								if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
+									int    dup_mark = 0;
+									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
+										const CCheckItem & r_item = P.at(i);
+										if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
+											dup_mark = 1;
+									}
+									if(!dup_mark) {
+										const CCheckItem & r_item = P.GetCur();
+										if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
+											dup_mark = 1;
+									}
+									if(!dup_mark) {
+										// @v10.1.1 {
+										if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
+											PPIDArray cc_list;
+											CCheckCore & r_cc = GetCc();
+											int    cc_even = 0;
+											temp_buf.Z();
+											if(r_cc.GetListByLineExtss(CCheckPacket::lnextEgaisMark, egais_mark, cc_list) > 0) {
+												for(uint j = 0; j < cc_list.getCount(); j++) {
+													const PPID cc_id = cc_list.get(j);
+													CCheckTbl::Rec cc_rec;
+													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
+														if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
+															// @v10.1.8 if(j == (cc_list.getCount()-1))
+															if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
+																CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+																if(cc_rec.Flags & CCHKF_RETURN)
+																	cc_even--;
+																else
+																	cc_even++;
+															}
 														}
 													}
 												}
 											}
-										}
-										if(cc_even & 1 && !F(fRetCheck)) {
-											temp_buf.Space().Cat(egais_mark);
-											ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
-										}
-										else if(!(cc_even & 1) && F(fRetCheck)) {
-											temp_buf.Space().Cat(egais_mark);
-											ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
+											if(cc_even & 1 && !F(fRetCheck)) {
+												temp_buf.Space().Cat(egais_mark);
+												ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
+											}
+											else if(!(cc_even & 1) && F(fRetCheck)) {
+												temp_buf.Space().Cat(egais_mark);
+												ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
+											}
+											else
+												rBlk.EgaisMark = egais_mark;
 										}
 										else
 											rBlk.EgaisMark = egais_mark;
+										// } @v10.1.1
 									}
-									else
-										rBlk.EgaisMark = egais_mark;
-									// } @v10.1.1
+									else {
+										// @v10.1.0 PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
+										ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0
+									}
 								}
-								else {
-									// @v10.1.0 PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
-									ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0
-								}
+								else
+									ok = -1;
 							}
-							else
-								ok = -1;
 						}
 					}
 				}
@@ -9815,6 +9823,20 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)
 		}
 	}
 	SETFLAG(CSt.Flags, CardState::fNoGift, rScRec.Flags & SCRDF_NOGIFT);
+	// @v10.2.4 {
+	CSt.OwnerID = rScRec.PersonID;
+	if(CSt.OwnerID) {
+		ObjTagItem tag_item;
+		if(PPRef->Ot.GetTag(PPOBJ_PERSON, CSt.OwnerID, PPTAG_PERSON_DOB, &tag_item) > 0) {
+			LDATE   dob_dt = ZERODATE;
+			if(tag_item.GetDate(&dob_dt)) {
+				const LDATE cdt = getcurdate_();
+				if(dob_dt.day() == cdt.day() && dob_dt.month() == cdt.month())
+					CSt.Flags |= CardState::fBirthday;
+			}
+		}
+	}
+	// } @v10.2.4 
 	return ok;
 }
 
@@ -10083,11 +10105,33 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 									ResetSCard();
 								OnUpdateList(0);
 							}
-							if(cr == 2) {
+							{
 								SString msg_buf;
-								msg_buf.Printf(PPLoadTextS(PPTXT_SCARDISAUTOACTIVATED, temp_buf), sc_rec.Code);
-								PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange),
-									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+								if(cr == 2) {
+									msg_buf.Printf(PPLoadTextS(PPTXT_SCARDISAUTOACTIVATED, temp_buf), sc_rec.Code);
+									PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange),
+										SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+								}
+								// @v10.2.4 {
+								else if(CSt.Flags & CSt.fBirthday) {
+									if(CSt.OwnerID) {
+										PPObjPerson psn_obj;
+										PersonTbl::Rec psn_rec;
+										if(psn_obj.Search(CSt.OwnerID, &psn_rec) > 0) {
+											ObjTagItem tag_item;
+											if(PPRef->Ot.GetTag(PPOBJ_PERSON, CSt.OwnerID, PPTAG_PERSON_DOB, &tag_item) > 0) {
+												LDATE   dob_dt = ZERODATE;
+												if(tag_item.GetDate(&dob_dt)) {
+													PPLoadText(PPTXT_CLIBIRTHDAY, temp_buf);
+													PPFormat(temp_buf, &msg_buf, psn_rec.Name, (int)(getcurdate_().year() - dob_dt.year()));
+													PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrPink),
+														SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+												}
+											}
+										}
+									}
+								}
+								// } @v10.2.4
 							}
 						}
 						Flags &= ~fWaitOnSCard;

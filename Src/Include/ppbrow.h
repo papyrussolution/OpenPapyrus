@@ -1445,6 +1445,7 @@
 #define PPCMD_PHNSVCMONITOR               1332
 #define PPCMD_VETISDOCUMENT               1333
 #define PPCMD_VETISINTERCHANGE            1334
+#define PPCMD_TIMESERIESNNTRAIN           1335
 //
 // PPJOB definitions
 //

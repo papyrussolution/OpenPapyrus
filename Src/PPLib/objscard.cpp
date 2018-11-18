@@ -1252,7 +1252,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			setCtrlData(CTL_SCARDSER_EXPIRY, &Data.Rec.Expiry);
 			setCtrlReal(CTL_SCARDSER_PDIS, fdiv100i(Data.Rec.PDis));
 			setCtrlData(CTL_SCARDSER_MAXCRED, &Data.Rec.MaxCredit);
-			SetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd); // @v8.7.12
+			SetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd);
 			{
 				long   bonus_ext_rule = 0;
 				double bonus_ext_rule_val = 0.0;
@@ -3266,13 +3266,13 @@ void SCardDialog::SetupCtrls()
 		getCtrlData(CTL_SCARD_MAXCRED, &Data.Rec.MaxCredit);
 		getCtrlData(CTL_SCARD_DATE,   &Data.Rec.Dt);
 		getCtrlData(CTL_SCARD_EXPIRY, &Data.Rec.Expiry);
-		GetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd); // @v8.8.0
+		GetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd);
 		if(ScObj.SetInheritance(0, &Data.Rec) > 0) {
 			SetDiscount();
 			setCtrlData(CTL_SCARD_MAXCRED, &Data.Rec.MaxCredit);
 			setCtrlDate(CTL_SCARD_DATE,   Data.Rec.Dt);
 			setCtrlDate(CTL_SCARD_EXPIRY, Data.Rec.Expiry);
-			SetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd); // @v8.8.0
+			SetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd);
 		}
 	}
 	if(!(flags & SCRDF_CLOSED) && (prev_flags & SCRDF_CLOSED)) {

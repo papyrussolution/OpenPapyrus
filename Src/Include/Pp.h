@@ -15618,7 +15618,30 @@ public:
 	//
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsTradeFrames();
-	int    SLAPI TrainNN(const STimeSeries & rTs, uint frameSize, double target, double maxDuck);
+
+	struct TrainNnParam {
+		SLAPI  TrainNnParam(const char * pSymb, long flags);
+		SString & SLAPI MakeFileName(SString & rBuf) const;
+		enum {
+			fTeach   = 0x0001,
+			fTest    = 0x0002,
+			fAnalyze = 0x0004
+		};
+		const  SString Symb;     // Символ временной серии
+		long   Flags;            // @flags 
+		double Margin;           // Маржа 
+		uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
+		double Target;           // Максимальный рост относительно 0 [0..]
+		double MaxDuck;          // Максимальная величина "проседания" относительно нуля [0..]
+
+		uint   InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
+		uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
+		uint   EpochCount;       // Количество эпох обучения каждого паттерна
+		float  LearningRate;     // Фактор скорости обучения
+	};
+
+	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
+	int    SLAPI TrainNN();
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -16497,7 +16520,8 @@ struct PPBillStatus2 {     // @persistent @store(Reference2Tbl+)
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // Символ статуса
-	char   Reserve[48];    // @reserve
+	char   Reserve[44];    // @reserve
+	SColor IndColor;       // @v10.2.4 Цвет, которым подствечиваются документы с этим статусом
 	PPID   CounterID;      // Счетчик, по которому назначается номер документа при присвоении данного статуса
 	PPID   RestrictOpID;   // Вид операции (возможно, обобщенный) документам которого может быть присвоен данный статус.
 	int16  Rank;           //
@@ -27169,7 +27193,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
 	long   Capacity;       // @v7.2.7 Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
 	int16  VanType;        // @v10.2.0 PPTransport::vantypXXX Тип фургона
-	int16  Flags;          // @v10.2.4 (вместо Reserve) @flags 
+	int16  Flags;          // @v10.2.4 (вместо Reserve) @flags
 };
 
 class PPObjTransport : public PPObjGoods {
@@ -27616,7 +27640,8 @@ public:
 			long   WrOffShopWay;  // @v9.3.10
 			PPID   EgaisInvOpID;  // @v9.3.12 Вид операции инвентаризации - необходим для идентификации видов операций
 				// списания излишков и недостач.
-			uint8  Reserve[36];
+            TimeRange RtlSaleAllwTime; // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
+			uint8  Reserve[28];        // @v10.2.4 [36]-->[28]
 		};
 		ExtBlock  E;                 // @anchor
 		PPIDArray StorageLocList;    // @anchor
@@ -49246,6 +49271,7 @@ protected:
 			fAmtDiscountGrade = 0x0004, // Для карты применяется скидка с градацией по сумме чека (наследуемой из серии карт)
 			fUhtt             = 0x0008, // Выбранная карта синхронизирована с системой Universe-HTT
 			fUseMinQuotVal    = 0x0010, // Проекция флага SCRDSF_MINQUOTVAL из серии карт
+			fBirthday         = 0x0020  // @v10.2.4 У владельца карты день рождения
 		};
 		CardState();
 		~CardState();
@@ -49259,6 +49285,7 @@ protected:
 			// ИД дополнительной кредитной карты, с которой оплачивается нехватка средств на основной карте.
 		long   Flags;
 		long   SpcCardTreatment; // @v10.1.6 Ид специальной трактовки поведения карт (из серии)
+		PPID   OwnerID;          // @v10.2.4 Ид владельца карты
 		double Discount;         // Скидка
 		double SettledDiscount;  // Установленная скидка (в процентах), в результате вызова CheckPaneDialog::SetupDiscount
 		double UhttRest;         // Остаток по карте, извлеченный с сервера uhtt.ru. Актуально только для кредитных и
@@ -49369,7 +49396,7 @@ protected:
 	SString KitchenBellPort; // Порты отправки команды кухонного звонка
 	SString PhnSvcLocalChannelSymb;
 	SString RptPrnPort;      // Порт принтера для печати регулярный отчетов (предчек, например)
-	StringSet MsgToDisp;     // @v10.2.3 Список текстовых сообщений, которые следует отобразить 
+	StringSet MsgToDisp;     // @v10.2.3 Список текстовых сообщений, которые следует отобразить
 		// Протокол обработки пока четко не определен.
 	Packet P;
 	CCheckPacket SelPack;  // Чек, выбранный в качестве образца при возврате
@@ -50664,10 +50691,10 @@ int    SLAPI ViewPredictSales(PredictSalesFilt *);
 void    FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
 int    FASTCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
 int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
-int    SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
-int    SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
-int    SLAPI GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
-int    SLAPI GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
+void   FASTCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
+void   FASTCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
+int    FASTCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
+int    FASTCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
 SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf);
 SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf);
 int    SLAPI SetRealRangeInput(TDialog *, uint ctl, double lo, double up, int prc = 0);

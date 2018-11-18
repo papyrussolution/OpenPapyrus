@@ -2377,6 +2377,7 @@ private:
 #define SLERR_MATH_OVERFLOW            302 // Ошибка переполнения ieee-числа
 #define SLERR_MATH_UNDERFLOW           303 // Ошибка переполнения нижней границы точности ieee-числа
 #define SLERR_MATH_MAXITER             304 // Ошибка превышения максимального числа итераций
+#define SLERR_MATH_TSVECBYSYMBNFOUND   305 // Вектор временной серии с символом '%s' не найден
 //
 //
 //
@@ -3095,6 +3096,17 @@ struct TimeRange { // @persistent
 	//   -- Если low > upp, то !0 возвращается в случае, если tm принадлежит одному из двух периодов: [upp..24:00:00[ или [00:00:00..low].
 	//
 	int    FASTCALL Check(LTIME tm) const;
+	//
+	// Descr: Форматирует диапазон в строковый буфер rBuf. Время выводится в соответствии с форматом tmFormat.
+	//   Разделитель начального и конечного времени - две точки (..)
+	//   Если this->IsZero() то буфер rBuf останется пустым.
+	//   Перед началом форматирования буфер rBuf очищается вызовом rBuf.Z().
+	// Example:
+	//   ToStr(TIMF_HMS, rBuf): 12:30:00..15:09:55; 12:30:00..; ..15:09:55
+	// Returns:
+	//   rBuf
+	//
+	SString & SLAPI ToStr(long tmFormat, SString & rBuf) const;
 
 	LTIME  low;
 	LTIME  upp;
@@ -10111,10 +10123,13 @@ public:
 	// ARG(rList      OUT): Вещественный вектор, в который заносятся значения фрейма.
 	//   Функция предварительно очищает этот список.
 	// Returns:
-	//   Количество извлеченных во фрейм значений. Если фрейм попадает на конец ряда, то результат
-	//   может оказаться меньше, чем count.
+	//   !0 - функция выполнена успешно
+	//   0 - ошибка
 	//
-	uint   SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
+	int    SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
+	int    SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
+	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const;
+	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ)
 	{
@@ -10146,6 +10161,7 @@ private:
 	ValuVec * FASTCALL GetVecByIdx(uint vecIdx) const;
 	int    SLAPI Helper_SetValue(uint itemIdx, ValuVec * pVec, const void * pValuePtr);
 	int    FASTCALL Swap(uint p1, uint p2);
+	int    SLAPI Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
 
 	enum {
 		stOrdered = 0x0001
@@ -10989,8 +11005,12 @@ struct SColorBase { // @persistent
 	uint8  R;
 	uint8  Alpha;
 };
-
-struct SColor : public SColorBase {
+//
+// Descr: То же, что и SColorBase, но с конструкторами
+// Attention: Как и SColorBase эта структура перманентная. Ее размер фиксирован и новых member-переменных в нее добавлять нельзя.
+// Размер верифицируется в run-time
+//
+struct SColor : public SColorBase { // @persistent
 	//
 	// Descr: @ctr Создает экземпляр черного непрозрачного цвета (Alpha = 0xff, RGB = 0x000000)
 	// Note: Специальная глобальная константа ZEROCOLOR содержит неопределенное значение цвета (Alpha = 0x00, RGB = 0x000000)

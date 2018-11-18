@@ -7585,6 +7585,9 @@
 	#define CTL_BILLSTATUS_OP         (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLSTATUS_OP      (10 + WINDOWS_ID_BIAS)
 	#define CTL_BILLSTATUS_CHECKF2    (11 + WINDOWS_ID_BIAS)
+	#define CTL_BILLSTATUS_COLOR      (12 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BILLSTATUS_COLOR   (13 + WINDOWS_ID_BIAS)
+	#define CTL_BILLSTATUS_SELCOLOR   (14 + WINDOWS_ID_BIAS)
 #define DLG_TSA2                 854 // Анализ технологических сессий
 	#define CTL_TSA_PRCGROUPONLY      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSA_PRC               (2 + WINDOWS_ID_BIAS)
@@ -10102,6 +10105,7 @@
 	#define CTL_ALCREPCFG_WOSW         (40 + WINDOWS_ID_BIAS)
 	#define CTL_ALCREPCFG_OP_INV       (41 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCREPCFG_OP_INV    (42 + WINDOWS_ID_BIAS)
+	#define CTL_ALCREPCFG_RSAT         (43 + WINDOWS_ID_BIAS) // RtlSaleAllwTime
 
 #define DLG_INPUTNUM              1271
 	#define CTL_INPUTNUM_NUM           (1 + WINDOWS_ID_BIAS)

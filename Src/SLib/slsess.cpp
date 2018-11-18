@@ -333,8 +333,12 @@ static void InitTest()
 	assert(sizeof(int64) == 8);
 	assert(sizeof(uint64) == 8);
 	assert(sizeof(S_GUID) == 16);
+	assert(sizeof(SColorBase) == 4); // @v10.2.4
+	assert(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4
 	assert(sizeof(IntRange) == 8);
 	assert(sizeof(RealRange) == 16);
+	assert(sizeof(DateRange) == 8); // @v10.2.4
+	assert(sizeof(TimeRange) == 8); // @v10.2.4
 #ifdef _M_X64
 	assert(sizeof(SBaseBuffer) == 16);
 #else

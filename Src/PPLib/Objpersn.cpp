@@ -1226,7 +1226,7 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 
 int SLAPI PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	{ return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg); }
-const char * SLAPI PPObjPerson::GetNamePtr() 
+const char * SLAPI PPObjPerson::GetNamePtr()
 	{ return P_Tbl->data.Name; }
 ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr)
 	{ return _Selector2(0, extraPtr); }
@@ -3711,7 +3711,7 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 		if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
 			Data.ELA.insert(&el);
 	}
-	// } @v10.0.01 
+	// } @v10.0.01
 	if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
 		PhonePos = (int)i;
 		setCtrlString(CTL_PERSON_PHONE, temp_buf);
@@ -4342,7 +4342,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			if(rBlk.InitPhone.NotEmpty()) {
 				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
 			}
-			// } @v10.0.01 
+			// } @v10.0.01
 			p_dlg->setDTS(&info);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				const  PPID dup_id = p_dlg->GetDupID();
@@ -4368,7 +4368,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			if(rBlk.InitPhone.NotEmpty()) {
 				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
 			}
-			// } @v10.0.01 
+			// } @v10.0.01
 			p_dlg->setDTS(&info);
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
@@ -4660,7 +4660,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 		}
 		// Далее управление передается базовому классу
 	}
-	// } @v10.0.01 
+	// } @v10.0.01
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
@@ -5409,7 +5409,7 @@ static int EditPersonRel(PersonLink * pData)
 		{
 			Data = *pData;
 			// @v10.2.3 SetupPPObjCombo(this, CTLSEL_PERSONLINK_PRMR,  PPOBJ_PERSON, Data.PrmrPersonID, OLW_CANINSERT, 0);
-			SetupPersonCombo(this, CTLSEL_PERSONLINK_PRMR, Data.PrmrPersonID, OLW_CANINSERT, 0, 0); // @v10.2.3 
+			SetupPersonCombo(this, CTLSEL_PERSONLINK_PRMR, Data.PrmrPersonID, OLW_CANINSERT, 0, 0); // @v10.2.3
 			SetupPPObjCombo(this, CTLSEL_PERSONLINK_LTYPE, PPOBJ_PERSONRELTYPE, Data.LinkTypeID, OLW_CANINSERT, 0);
 			disableCtrl(CTLSEL_PERSONLINK_PRMR,  Data.Flags & PersonLink::fLockPrmr);
 			disableCtrl(CTLSEL_PERSONLINK_LTYPE, Data.Flags & PersonLink::fLockType);
@@ -6047,14 +6047,18 @@ int SLAPI MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 	ObjTagItem tag;
 	LDATE  dob;
 	const  LDATE cday = getcurdate_();
-	if(pDlg && psnID && PPRef->Ot.GetTag(PPOBJ_PERSON, psnID, PPTAG_PERSON_DOB, &tag) > 0 &&
-		tag.GetDate(&dob) > 0 && dob.day() == cday.day() && dob.month() == cday.month()) {
-		SString name_buf, msg_buf, fmt_buf;
+	if(pDlg && psnID && PPRef->Ot.GetTag(PPOBJ_PERSON, psnID, PPTAG_PERSON_DOB, &tag) > 0 && tag.GetDate(&dob) > 0 && dob.day() == cday.day() && dob.month() == cday.month()) {
+		SString name_buf;
 		if(GetPersonName(psnID, name_buf) > 0) {
-			PPLoadText(PPTXT_BIRTHDAYINFO, fmt_buf);
-			msg_buf.Printf(fmt_buf, name_buf.cptr());
+			SString msg_buf, fmt_buf;
+			// @v10.2.4 PPLoadText(PPTXT_BIRTHDAYINFO, fmt_buf);
+			// @v10.2.4 msg_buf.Printf(fmt_buf, name_buf.cptr());
+			// @v10.2.4 {
+			PPLoadText(PPTXT_CLIBIRTHDAY, fmt_buf);
+			PPFormat(fmt_buf, &msg_buf, name_buf.cptr(), (int)(getcurdate_().year() - dob.year()));
 			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink),
 				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus/*|SMessageWindow::fLargeText*/);
+			// } @v10.2.4
 			ok = 1;
 		}
 	}

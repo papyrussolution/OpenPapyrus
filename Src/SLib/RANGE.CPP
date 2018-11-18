@@ -519,3 +519,16 @@ int FASTCALL TimeRange::Check(LTIME tm) const
 			return 0;
 	}
 }
+
+SString & SLAPI TimeRange::ToStr(long tmFormat, SString & rBuf) const
+{
+	rBuf.Z();
+	if(low != ZEROTIME || upp != ZEROTIME) {
+		if(low != ZEROTIME)
+			rBuf.Cat(low, tmFormat);
+		rBuf.Dot().Dot();
+		if(upp != ZEROTIME)
+			rBuf.Cat(upp, tmFormat);
+	}
+	return rBuf;
+}

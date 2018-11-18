@@ -1935,6 +1935,7 @@ PPERR_MSFTTRANSLKEY_INV          "Ключ доступа к сервису Micr
 PPERR_APNCORR_N_INV              "Номер корреспондирующего кассового узла должен быть больше нуля"
 PPERR_APNCORR_N_DUP              "Номер корреспондирующего кассового узла должен быть уникальным"
 PPERR_APNCORR_UUID_DUP           "UUID корреспондирующего кассового узла должен быть уникальным"
+PPERR_ALCRETAILPROHIBTIME        "Розничная продажа алкоголя в это время запрещена (%s)"
 //
 // Decl Struc Parsing
 //
@@ -3110,6 +3111,7 @@ PPFILNAM_GENVEROPEN_DAT        "genver-open.dat"
 PPFILNAM_REPLACERRULEGOODS     "replacer-rule-goods.sr"
 PPFILNAM_VETISTALK_LOG         "vetis-talk.log"
 PPFILNAM_VETISINFO_LOG         "vetis-info.log"
+PPFILNAM_NNTRAIN_LOG           "nntrain.log"
 
 #!} // dont_translate
 
@@ -4320,7 +4322,8 @@ PPTXT_CHKPAN_HINT14               "Продажа по цене        = Цен�
 PPTXT_COMPGDS_TYPES               "1,Продукты питания;2,Лекарственные препараты"
 // @v9.2.4 PPTXT_GOODS                       "Товары"
 PPTXT_COMPONENTS                  "Компоненты/аналоги"
-PPTXT_BIRTHDAYINFO                "%s сегодня празднует день рождения!"
+// @v10.2.4 PPTXT_BIRTHDAYINFO                "%s сегодня празднует день рождения!"
+PPTXT_CLIBIRTHDAY                 "Сегодня @zstr отмечает свой @int-й день рождения!"
 PPTXT_PSNEVTURNINFO               "Проведена операция '@psnopkind' по персоналии @person"
 PPTXT_MAKETRNSMFILENAME           "Выбор имени файла передачи '%s'"
 PPTXT_TRFRRBYBILLCONFLICT         "Конфликт счетчика Bill::RByBill в функции Transfer::AddItem() (@bill; @int)"
@@ -4989,6 +4992,8 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 219 "Не найден символ языка '%s'"
 220 "Ошибка вызова dispatch-интерфейса: %s"
 
+305 "Вектор временной серии с символом '%s' не найден" // SLERR_MATH_TSVECBYSYMBNFOUND
+
 400 "Неверный символ базы данных '%s'"
 401 "Не полный входной буфер UTF8"
 402 "Не допустимый входной символ UTF8"
@@ -5610,6 +5615,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @latitude                "Широта"
 @longitude               "Долгота"
 @altitude                "Высота"
+@color                   "Цвет"
 @speed                   "Скорость"
 @maximum                 "Максимум"
 @minimum                 "Минимум"
@@ -7061,6 +7067,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_vetisdocument                        "@{view_vetisdocument}"
 @cmd_vetisinerchange                      "@{vetisinterchange}"
 @cmd_timeseries                           "Временные серии"
+@cmd_timeseriesnntrain                    "Обучение нейронной сети по временным сериям"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -7509,6 +7516,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billstatus_restrictop                    "Допустимый вид операции"
 @billstatus_symb                          "@{symbol}"
 @billstatus_tag                           "@{tag}"
+@billstatus_indcolor                      "@{color}"
 
 @billrunie                                "Конфигурация экспорта/импорта документов"
 @billrunie_exp                            "Конфигурация экспорта документов"
@@ -7829,6 +7837,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalcreport_woswbalancewithlots         "Уровнять с текущими остатками"
 @cfgalcreport_woswbycchecks               "Списать по кассовым чекам"
 @cfgalcreport_woswbybills                 "Списать по документам"
+@cfgalcreport_rtlsaleallwtime             "Разрешенное время розничной продажи алкоголя"
 
 @cfgbill_addfilesfolder                   "Папка для добавления файлов"
 @cfgbill_bcf_acceptgoodsbillchg           "Принимать изменения товарных документов из других разделов"
@@ -9846,7 +9855,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @staffamt_cur                             "@{currency}"
 @staffamt_period                          "@{validity}"
 
-@staffcal_color                           "Цвет"
+@staffcal_color                           "@{color}"
 @staffcal_fdaygap                         "Допускает множественные элементы за день"
 @staffcal_finherited                      "Унаследованный"
 @staffcal_flags                           "@{flags}"

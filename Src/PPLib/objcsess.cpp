@@ -33,9 +33,9 @@ static struct __RtToS {
 	{ CSESSOPRT_CTBLORD,          1, "K" }, // .
 	{ CSESSOPRT_SPLITCHK,         1, "F" },
 	{ CSESSOPRT_CHGPRINTEDCHK,    1, "G" },
-	{ CSESSOPRT_CHGCCAGENT,       1, "J" }, // @v8.1.1
-	{ CSESSOPRT_MERGECHK,         1, "M" }, // @v8.5.5
-	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" }  // @v8.7.3
+	{ CSESSOPRT_CHGCCAGENT,       1, "J" },
+	{ CSESSOPRT_MERGECHK,         1, "M" },
+	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" }
 };
 
 //static
@@ -190,7 +190,7 @@ int SLAPI PPObjCSession::Recalc(PPID sessID, int use_ta)
 			PPID   bill_id = 0, sess_id = sub_list.at(i);
 			BillTbl::Rec bill_rec;
 			while(p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sess_id, &bill_id) > 0) {
-				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID != wroff_acc_op_id) { // @v8.6.6 (bill_rec.OpID != wroff_acc_op_id))
+				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID != wroff_acc_op_id) {
 					double amt = BR2(bill_rec.Amount);
 					if(bill_rec.OpID == ret_op_id)
 						amt = -amt;
@@ -285,7 +285,7 @@ int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
 				CSessTotal sub_total;
 				BillTbl::Rec bill_rec;
 				while(p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sess_id, &bill_id) > 0) {
-					if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID != wroff_acc_op_id) // @v8.6.6 (bill_rec.OpID != wroff_acc_op_id)
+					if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID != wroff_acc_op_id)
 						cs_total.WrOffAmount += BR2((bill_rec.OpID == ret_op_id) ? -bill_rec.Amount : bill_rec.Amount);
 				}
 				THROW(cgl.CalcSessTotal(sess_id, &cs_total));
@@ -368,7 +368,7 @@ int SLAPI PPObjCSession::UndoWritingOff(PPID sessID, int use_ta)
 	CGoodsLine cgl;
 	CSessTotal cs_total;
 	{
-		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFFROLLBACK); // @v8.6.1
+		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFFROLLBACK);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(RemoveWrOffBills(sessID, 0));
@@ -379,7 +379,7 @@ int SLAPI PPObjCSession::UndoWritingOff(PPID sessID, int use_ta)
 			set(P_Tbl->AggrAmount, dbconst(cs_total.AggrAmount)).
 			set(P_Tbl->AggrRest, dbconst(cs_total.AggrRest)).
 			set(P_Tbl->Incomplete, dbconst((long)CSESSINCMPL_GLINES))));
-		DS.LogAction(PPACN_UNDOCSESSWROFF, PPOBJ_CSESSION, sessID, 0, 0); // @v7.1.4
+		DS.LogAction(PPACN_UNDOCSESSWROFF, PPOBJ_CSESSION, sessID, 0, 0);
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -1067,10 +1067,10 @@ int SLAPI EditDueToKeyboardRights()
 			KWKCfg.OperRights[7].OperRightFlag = CSESSOPRT_ROWDISCOUNT;
 			KWKCfg.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP пересекается с CSESSRT_CLOSE
 			KWKCfg.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;
-			KWKCfg.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;      // @v8.5.5
+			KWKCfg.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;
 			KWKCfg.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK;
-			KWKCfg.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;    // @v8.5.5
-			KWKCfg.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;  // @v8.7.3
+			KWKCfg.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;
+			KWKCfg.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;
 			ASSIGN_PTR(pCfg, KWKCfg);
 			CATCH
 				ok = PPErrorByDialog(this, sel);
@@ -1108,8 +1108,7 @@ int SLAPI EditDueToKeyboardRights()
 //
 CTableOrder::Packet::Packet() : SCardID(0)
 {
-	LDATETIME dtm = ZERODATETIME;
-	Init(0, dtm, 0);
+	Init(0, ZERODATETIME, 0);
 }
 
 void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDuration)
@@ -1238,8 +1237,8 @@ public:
 		setCtrlDatetime(CTL_CTBLORD_FNDT, CTL_CTBLORD_FNTM, Data.Chunk.Finish);
 		long   cont = Data.Chunk.GetDuration();
 		setCtrlLong(CTL_CTBLORD_CONT, cont / 60);
-		setCtrlString(CTL_CTBLORD_MEMO, Data.Memo); // @v7.1.3
-		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID); // @v6.8.0
+		setCtrlString(CTL_CTBLORD_MEMO, Data.Memo);
+		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID);
 		disableCtrls((Data.ChkID != 0), CTLSEL_CTBLORD_POSNODE, CTL_CTBLORD_CCN, CTL_CTBLORD_SCARD,
 			CTL_CTBLORD_PREPAY, 0);
 		return ok;
@@ -1465,7 +1464,7 @@ int CTableOrder::Update(const Packet * pPack, int use_ta)
 		ccext_rec.TableNo = pPack->TableNo;
 		ccext_rec.StartOrdDtm = pPack->Chunk.Start;
 		ccext_rec.EndOrdDtm = pPack->Chunk.Finish;
-		pPack->Memo.CopyTo(ccext_rec.Memo, sizeof(ccext_rec.Memo)); // @v7.1.3
+		pPack->Memo.CopyTo(ccext_rec.Memo, sizeof(ccext_rec.Memo));
 		ok = P_ScObj->P_CcTbl->UpdateExt(pPack->ChkID, &ccext_rec, 0);
 		THROW(ok);
 		THROW(tra.Commit());
@@ -1509,7 +1508,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	pCcPack->Ext.TableNo = pPack->TableNo;
 	pCcPack->Ext.StartOrdDtm = pPack->Chunk.Start;
 	pCcPack->Ext.EndOrdDtm = pPack->Chunk.Finish;
-	pPack->Memo.CopyTo(pCcPack->Ext.Memo, sizeof(pCcPack->Ext.Memo)); // @v7.1.3
+	pPack->Memo.CopyTo(pCcPack->Ext.Memo, sizeof(pCcPack->Ext.Memo));
 	getcurdatetime(&pCcPack->Rec.Dt, &pCcPack->Rec.Tm);
 	if(pPack->PrepayAmount > 0.0 && pPack->SCardID) {
 		const PPID chg_goods_id = P_ScObj->GetConfig().ChargeGoodsID;
@@ -1640,7 +1639,7 @@ int CTableOrder::GetCheck(const CCheckTbl::Rec * pCcRec, const CCheckExtTbl::Rec
 			if(pCcExtRec) {
 				pPack->TableNo = (int16)pCcExtRec->TableNo;
 				pPack->Chunk.Init(pCcExtRec->StartOrdDtm, pCcExtRec->EndOrdDtm);
-				pPack->Memo = pCcExtRec->Memo; // @v7.1.3
+				pPack->Memo = pCcExtRec->Memo;
 			}
 		}
 	}

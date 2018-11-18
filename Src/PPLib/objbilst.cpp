@@ -1,5 +1,5 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,6 +11,8 @@ SLAPI PPObjBillStatus::PPObjBillStatus(void * extraPtr) : PPObjReference(PPOBJ_B
 {
 	ImplementFlags |= implStrAssocMakeList;
 }
+
+#define GRP_COLOR 1
 
 int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 {
@@ -25,6 +27,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	}
 	else
 		MEMSZERO(rec);
+	dlg->addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_BILLSTATUS_COLOR, CTLSEL_BILLSTATUS_COLOR, cmSelColor, CTL_BILLSTATUS_SELCOLOR));
 	dlg->setCtrlData(CTL_BILLSTATUS_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BILLSTATUS_SYMB, rec.Symb);
 	dlg->setCtrlLong(CTL_BILLSTATUS_ID,   rec.ID);
@@ -34,11 +37,11 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 1, BILSTF_DENY_DEL);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 2, BILSTF_DENY_TRANSM);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 3, BILSTF_DENY_CHANGELINK);
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 4, BILSTF_DENY_RANKDOWN);   // @v6.2.8
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 5, BILSTF_LOCK_ACCTURN);    // @v6.2.8
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 6, BILSTF_LOCK_PAYMENT);    // @v6.6.3
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 7, BILSTF_LOCDISPOSE);      // @v7.2.0
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 8, BILSTF_READYFOREDIACK);  // @v8.8.0
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 4, BILSTF_DENY_RANKDOWN);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 5, BILSTF_LOCK_ACCTURN);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 6, BILSTF_LOCK_PAYMENT);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 7, BILSTF_LOCDISPOSE);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 8, BILSTF_READYFOREDIACK);
 	dlg->SetClusterData(CTL_BILLSTATUS_FLAGS, rec.Flags);
 
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  0, BILCHECKF_AGENT);
@@ -50,18 +53,24 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  6, BILCHECKF_ARRIVALDT);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  7, BILCHECKF_SHIP);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  8, BILCHECKF_FREIGHTCOST);
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  9, BILCHECKF_CAPTAIN);  // @v6.7.3
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 10, BILCHECKF_TRBROKER); // @v7.0.0
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 11, BILCHECKF_OBJECT);   // @v6.7.3 // @v7.0.0 10-->11
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 12, BILCHECKF_OBJECT2);  // @v7.0.4
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 13, BILCHECKF_DUEDATE);  // @v8.3.5
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  9, BILCHECKF_CAPTAIN);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 10, BILCHECKF_TRBROKER);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 11, BILCHECKF_OBJECT); 
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 12, BILCHECKF_OBJECT2);
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS, 13, BILCHECKF_DUEDATE);
 	dlg->SetClusterData(CTL_BILLSTATUS_CHECKFLDS, rec.CheckFields);
-	// @v8.5.2 {
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKF2, 0, BILCHECKF_CODE);
 	dlg->SetClusterData(CTL_BILLSTATUS_CHECKF2, rec.CheckFields);
-	// } @v8.5.2
 	SetupPPObjCombo(dlg, CTLSEL_BILLSTATUS_OPCNTR, PPOBJ_OPCOUNTER, rec.CounterID, OLW_CANINSERT, 0);
 	SetupOprKindCombo(dlg, CTLSEL_BILLSTATUS_OP, rec.RestrictOpID, 0, 0, 0);
+	// @v10.2.4 {
+	{
+		ColorCtrlGroup::Rec color_rec;
+		color_rec.SetupStdColorList();
+		color_rec.C = (COLORREF)rec.IndColor;
+		dlg->setGroupData(GRP_COLOR, &color_rec);
+	}
+	// } @v10.2.4 
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		dlg->getCtrlData(CTL_BILLSTATUS_NAME, rec.Name);
@@ -76,9 +85,19 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_BILLSTATUS_RANK, &rec.Rank);
 			dlg->GetClusterData(CTL_BILLSTATUS_FLAGS, &rec.Flags);
 			dlg->GetClusterData(CTL_BILLSTATUS_CHECKFLDS, &rec.CheckFields);
-			dlg->GetClusterData(CTL_BILLSTATUS_CHECKF2,   &rec.CheckFields); // @v8.5.2
+			dlg->GetClusterData(CTL_BILLSTATUS_CHECKF2,   &rec.CheckFields);
 			rec.CounterID = dlg->getCtrlLong(CTLSEL_BILLSTATUS_OPCNTR);
 			rec.RestrictOpID = dlg->getCtrlLong(CTLSEL_BILLSTATUS_OP);
+			// @v10.2.4 {
+			{
+				ColorCtrlGroup::Rec color_rec;
+				dlg->getGroupData(GRP_COLOR, &color_rec);
+				if(color_rec.C == 0)
+					rec.IndColor.SetEmpty();
+				else
+					rec.IndColor = SColor((COLORREF)color_rec.C);
+			}
+			// } @v10.2.4 
 			if(*pID)
 				*pID = rec.ID;
 			THROW(EditItem(PPOBJ_BILLSTATUS, *pID, &rec, 1));
@@ -135,7 +154,6 @@ int SLAPI PPObjBillStatus::Browse(void * extraPtr)
 {
 	return RefObjView(this, PPDS_CRRBILLSTATUS, 0);
 }
-
 
 int SLAPI PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -239,6 +257,7 @@ public:
 		long   CheckFields;
 		PPID   CounterID;
 		PPID   RestrictOpID;
+		SColor IndColor; // @v10.2.4
 	};
 };
 
@@ -255,6 +274,7 @@ int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(CheckFields);
 		FLD(CounterID);
 		FLD(RestrictOpID);
+		FLD(IndColor); // @v10.2.4
 		#undef FLD
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -279,6 +299,7 @@ void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	FLD(CheckFields);
 	FLD(CounterID);
 	FLD(RestrictOpID);
+	FLD(IndColor); // @v10.2.4
 	#undef FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

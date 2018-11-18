@@ -723,15 +723,10 @@ ColorCtrlGroup::Rec::Rec() : C(UndefC)
 {
 }
 
-int ColorCtrlGroup::Rec::AddColorItem(SColor c, const char * pName)
-{
-	return AddColorItem((COLORREF)c, pName);
-}
-
-int ColorCtrlGroup::Rec::AddColorItem(COLORREF rgb, const char * pName)
-{
-	return ColorList.Add((long)rgb, NZOR(pName, ""), 1);
-}
+int    ColorCtrlGroup::Rec::AddColorItem(SColor c, const char * pName) { return AddColorItem((COLORREF)c, pName); }
+int    ColorCtrlGroup::Rec::AddColorItem(COLORREF rgb, const char * pName) { return ColorList.Add((long)rgb, NZOR(pName, ""), 1); }
+uint   ColorCtrlGroup::Rec::GetColorItemsCount() const { return ColorList.getCount(); }
+int    ColorCtrlGroup::Rec::SearchColorItem(COLORREF c, uint * pPos) const { return ColorList.Search((long)c, pPos); }
 
 int ColorCtrlGroup::Rec::AddUndefColorItem()
 {
@@ -766,11 +761,6 @@ void ColorCtrlGroup::Rec::SetupStdColorList()
 	AddColorItem(PPDesktop::GetDefaultBgColor(), 0);
 }
 
-uint ColorCtrlGroup::Rec::GetColorItemsCount() const
-{
-	return ColorList.getCount();
-}
-
 int ColorCtrlGroup::Rec::GetColorItem(uint pos, COLORREF & rC, SString & rNameBuf) const
 {
 	int    ok = 0;
@@ -786,11 +776,6 @@ int ColorCtrlGroup::Rec::GetColorItem(uint pos, COLORREF & rC, SString & rNameBu
 		ok = 0;
 	}
 	return ok;
-}
-
-int ColorCtrlGroup::Rec::SearchColorItem(COLORREF c, uint * pPos) const
-{
-	return ColorList.Search((long)c, pPos);
 }
 
 ColorCtrlGroup::ColorCtrlGroup(uint ctl, uint ctlSel, uint cmNewColor, uint ctlNewColor) : CtrlGroup(),

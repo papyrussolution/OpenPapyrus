@@ -514,5 +514,6 @@
 #define cmVetisDocument                619 // @v10.0.12 Документы ВЕТИС
 #define cmVetisInterchange             620 // @v10.1.2 Обмен данными с ВЕТИС
 #define cmTimeSeries                   621 // @v10.2.3 @experimental Временные серии
+#define cmTimeSeriesNnTrain            622 // @v10.2.4 @experimental обучение нейронной сети по временным сериям
 
 #endif /* __PPMENU_H */

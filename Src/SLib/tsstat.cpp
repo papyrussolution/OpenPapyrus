@@ -989,7 +989,7 @@ STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecBySymb(const char * pSymb, ui
 			}
 		}
 	}
-	return 0;
+	return (SLS.SetError(SLERR_MATH_TSVECBYSYMBNFOUND, pSymb), 0);
 }
 
 STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecByIdx(uint vecIdx) const
@@ -1195,18 +1195,19 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 	return ok;
 }
 
-uint SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const
+int SLAPI STimeSeries::Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
 {
 	rList.clear();
-	uint   result = 0;
-	uint   vec_idx = 0;
-	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
-	if(p_vec && startIdx < p_vec->getCount()) {
-		const uint last_idx = MIN(startIdx+count, p_vec->getCount());
+	int    ok = 1;
+	const  bool is_diff_scale = (diffScale != 0.0);
+	//uint   vec_idx = 0;
+	//STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	if(pVec && startIdx < pVec->getCount()) {
+		const uint last_idx = MIN(startIdx+count, pVec->getCount());
 		if(normFlags == 0) {
 			for(uint i = startIdx; i < last_idx; i++) {
-				const void * p_value_buf = p_vec->at(i);
-				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				const void * p_value_buf = pVec->at(i);
+				double value = pVec->ConvertInnerToDouble(p_value_buf);
 				THROW(rList.insert(&value));
 			}
 		}
@@ -1214,8 +1215,8 @@ uint SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint coun
 			double base = 0.0;
 			StatBase sb(StatBase::fStoreVals);
 			for(uint i = startIdx; i < last_idx; i++) {
-				const void * p_value_buf = p_vec->at(i);
-				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				const void * p_value_buf = pVec->at(i);
+				double value = pVec->ConvertInnerToDouble(p_value_buf);
 				sb.Step(value);
 			}
 			sb.Finish();
@@ -1235,6 +1236,8 @@ uint SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint coun
 					double value;
 					if(normFlags & nfZero) {
 						value = ex_value - base;
+						if(is_diff_scale)
+							value *= diffScale;
 					}
 					else {
 						value = ex_value / base;
@@ -1244,11 +1247,18 @@ uint SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint coun
 			}
 		}
 	}
-	CATCH
-		result = 0;
-	ENDCATCH
-	return result;
+	CATCHZOK
+	return ok;
 }
+
+int SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const
+	{ return Helper_GetFrame(GetVecBySymb(pVecSymb, 0), startIdx, count, 0.0, normFlags, rList); }
+int SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
+	{ return Helper_GetFrame(GetVecBySymb(pVecSymb, 0), startIdx, count, diffScale, normFlags, rList); }
+int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const
+	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, 0.0, normFlags, rList); }
+int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
+	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, diffScale, normFlags, rList); }
 //
 //
 //

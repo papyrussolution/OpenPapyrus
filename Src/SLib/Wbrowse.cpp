@@ -1491,6 +1491,23 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 			HPEN   oldpen = 0;
 			HBRUSH br = 0;
 			HBRUSH oldbr = 0;
+			//
+			// @v10.2.4 {
+			// Блок перенесен вверх на случай если одновременно задана окраска всей ячейки и (CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle)
+			//
+			if(style.Color && !(style.Flags & CellStyle::fCorner)) {
+				pen = CreatePen(PS_SOLID, 1, style.Color);
+				oldpen = (HPEN)SelectObject(hdc, pen);
+				br = CreateSolidBrush(style.Color);
+				oldbr = (HBRUSH)SelectObject(hdc, br);
+				Rectangle(hdc, (long)r.left, (long)r.top, (long)r.right-1, (long)r.bottom);
+
+				SelectObject(hdc, oldpen);
+				SelectObject(hdc, oldbr);
+				ZDeleteWinGdiObject(&pen);
+				ZDeleteWinGdiObject(&br);
+			}
+			// } 
 			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle)) {
 				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
 					if(paintAction == BrowserWindow::paintClear)
@@ -1563,18 +1580,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
 				}
-			}
-			else {
-				pen = CreatePen(PS_SOLID, 1, style.Color);
-				oldpen = (HPEN)SelectObject(hdc, pen);
-				br = CreateSolidBrush(style.Color);
-				oldbr = (HBRUSH)SelectObject(hdc, br);
-				Rectangle(hdc, (long)r.left, (long)r.top, (long)r.right-1, (long)r.bottom);
-
-				SelectObject(hdc, oldpen);
-				SelectObject(hdc, oldbr);
-				ZDeleteWinGdiObject(&pen);
-				ZDeleteWinGdiObject(&br);
 			}
 		}
 		else if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))

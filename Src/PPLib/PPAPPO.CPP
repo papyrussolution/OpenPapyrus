@@ -546,6 +546,12 @@ int PPApp::processCommand(uint cmd)
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break; // @v9.9.10
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
+		case cmTimeSeriesNnTrain:
+			{
+				PPObjTimeSeries ts_obj;
+				ts_obj.TrainNN();
+			}
+			break;
 		case cmCTblOrdTimeGraph:
 			{
 				CTableOrder::Param param;
