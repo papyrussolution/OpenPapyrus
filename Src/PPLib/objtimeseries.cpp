@@ -333,7 +333,8 @@ int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 			PPObjTimeSeries * p_obj = (PPObjTimeSeries *)P_Obj;
 			if(p_obj) {
 				//p_obj->Test();
-				p_obj->AnalyzeTsTradeFrames();
+				//p_obj->AnalyzeTsTradeFrames();
+				p_obj->AnalyzeTsAftershocks();
 			}
 		}
 	};
@@ -527,6 +528,30 @@ static int SLAPI AnalyzeTsTradeFrame(const STimeSeries & rTs, uint frameSize, do
 	return ok;
 }
 
+int SLAPI PPObjTimeSeries::AnalyzeTsAftershocks()
+{
+	int    ok = 1;
+	PPIDArray id_list;
+	PPTimeSeries ts_rec;
+	for(SEnum en = Enum(0); en.Next(&ts_rec) > 0;) {
+		id_list.add(ts_rec.ID);
+	}
+	if(id_list.getCount()) {
+		id_list.sortAndUndup();
+		for(uint i = 0; i < id_list.getCount(); i++) {
+			const PPID id = id_list.get(i);
+			if(Search(id, &ts_rec) > 0) {
+				STimeSeries ts;
+				if(GetTimeSeries(id, ts) > 0) {
+					TrainNnParam tnnp(ts_rec.Symb, TrainNnParam::fAnalyzeFrame);
+					AnalyzeAftershock(ts, tnnp);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPObjTimeSeries::AnalyzeTsTradeFrames()
 {
 	static const char * pp_symbols[] = { "eurusd", /*"USDJPY", "USDCHF",*/ "GBPUSD", "AUDUSD"/*, "EURCAD", "GBPJPY"*/ };
@@ -552,14 +577,12 @@ int SLAPI PPObjTimeSeries::AnalyzeTsTradeFrames()
 			if(Search(id, &ts_rec) > 0) {
 				STimeSeries ts;
 				if(GetTimeSeries(id, ts) > 0) {
-					TrainNnParam tnnp(ts_rec.Symb, TrainNnParam::fAnalyze);
+					TrainNnParam tnnp(ts_rec.Symb, TrainNnParam::fAnalyzeFrame);
 					tnnp.Margin = 0.005;
 					tnnp.InputFrameSize = 500;
 					static const uint frame_size_list[] = { 5, 10, 15, 20 };
 					static const double target_list[] = { 0.0, 0.10, 0.25, 0.5, 1.0, 1.25, 1.5 };
-					//static const double duck_list[] =   { 0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.50, 0.75, 1.00 };
 					for(uint fi = 0; fi < SIZEOFARRAY(frame_size_list); fi++) {
-						//const uint frame_size = frame_size_list[fi];
 						tnnp.ForwardFrameSize = frame_size_list[fi];
 						for(uint ti = 0; ti < SIZEOFARRAY(target_list); ti++) {
 							const double target = target_list[ti];
@@ -575,12 +598,6 @@ int SLAPI PPObjTimeSeries::AnalyzeTsTradeFrames()
 									ProcessNN(ts, tnnp);
 								}
 							}
-							/*for(uint di = 0; di < SIZEOFARRAY(duck_list); di++) {
-								tnnp.Target = target;
-								tnnp.MaxDuck = duck_list[di];
-								tnnp.ForwardFrameSize = frame_size_list[fi];
-								ProcessNN(ts, tnnp);
-							}*/
 						}
 					}
 				}
@@ -607,8 +624,8 @@ int SLAPI PPObjTimeSeries::TrainNN()
 		tnnp.Target = 0.5;
 		tnnp.MaxDuck = 0.25;
 
-		tnnp.InputFrameSize = 300;
-		tnnp.HiddenLayerDim = 6000;
+		tnnp.InputFrameSize = 500;
+		tnnp.HiddenLayerDim = 9000;
 		tnnp.LearningRate = 0.25f;
 		tnnp.EpochCount = 2;
 		if(GetTimeSeries(id, ts) > 0) {
@@ -629,6 +646,78 @@ SString & SLAPI PPObjTimeSeries::TrainNnParam::MakeFileName(SString & rBuf) cons
 {
 	return rBuf.Z().Cat(Symb).CatChar('-').Cat(ForwardFrameSize).CatChar('-').Cat((long)R0(Target * 1000.0)).
 		CatChar('-').Cat((long)R0(MaxDuck * 1000.0)).Dot().Cat("fann").ToLower();
+}
+
+int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP)
+{
+	int    ok = 1;
+	uint   vec_idx = 0;
+	SString temp_buf;
+	SString out_file_name;
+	SString msg_buf;
+	StatBase stat_plus(StatBase::fStoreVals/*|StatBase::fGammaTest|StatBase::fGaussianTest*/);
+	StatBase stat_minus(StatBase::fStoreVals/*|StatBase::fGammaTest|StatBase::fGaussianTest*/);
+	const  uint tsc = rTs.GetCount();
+	if(tsc > 1) {
+		THROW_SL(rTs.GetValueVecIndex("close", &vec_idx));
+		{
+			PPGetFilePath(PPPATH_OUT, "AnalyzeTsAfetershock.txt", out_file_name);
+			const int is_out_file_exists = fileExists(out_file_name);
+			SFile f_out(out_file_name, SFile::mAppend);
+			if(!is_out_file_exists) {
+				msg_buf.Z().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS);
+				f_out.WriteLine(msg_buf.CR());
+				// symb count stat-plus-max  stat-plus-mean  stat-plus-disp  stat-plus-gauss-test  stat-plus-gamma-test
+				msg_buf.Z().Cat("symb").
+					Tab().Cat("count").
+					Tab().Cat("sign").
+					Tab().Cat("stat-max").
+					Tab().Cat("stat-mean").
+					Tab().Cat("stat-disp").
+					Tab().Cat("stat-gauss").
+					Tab().Cat("stat-gamma");
+				f_out.WriteLine(msg_buf.CR());
+			}
+			double prev_value;
+			rTs.GetValue(0, vec_idx, &prev_value);
+			for(uint i = 1; i < tsc; i++) {
+				double value;
+				rTs.GetValue(i, vec_idx, &value);
+				if(prev_value != 0.0) {
+					const double delta = (value - prev_value) / prev_value;
+					if(delta > 0.0)
+						stat_plus.Step(delta);
+					else if(delta < 0.0)
+						stat_minus.Step(-delta);
+				}
+				prev_value = value;
+			}
+			stat_plus.Finish();
+			stat_minus.Finish();
+			// symb count stat-plus-max  stat-plus-mean  stat-plus-disp  stat-plus-gauss-test  stat-plus-gamma-test
+			// symb count stat-minus-max stat-minus-mean stat-minus-disp stat-minus-gauss-test stat-minus-gamma-test
+			msg_buf.Z().Cat((temp_buf = rP.Symb).Align(12, ADJ_LEFT)).
+				Tab().Cat(tsc).
+				Tab().Cat("plus").
+				Tab().Cat(stat_plus.GetMax(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_plus.GetExp(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_plus.GetStdDev(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_plus.GetTestGaussian(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_plus.GetTestGamma(), MKSFMTD(0, 8, 0));
+			f_out.WriteLine(msg_buf.CR());
+			msg_buf.Z().Cat((temp_buf = rP.Symb).Align(12, ADJ_LEFT)).
+				Tab().Cat(tsc).
+				Tab().Cat("minus").
+				Tab().Cat(stat_minus.GetMax(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_minus.GetExp(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_minus.GetStdDev(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_minus.GetTestGaussian(), MKSFMTD(0, 8, 0)).
+				Tab().Cat(stat_minus.GetTestGamma(), MKSFMTD(0, 8, 0));
+			f_out.WriteLine(msg_buf.CR());
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPObjTimeSeries::ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP)
@@ -679,7 +768,7 @@ int SLAPI PPObjTimeSeries::ProcessNN(const STimeSeries & rTs, const TrainNnParam
 		uint duck_count = 0;
 		StatBase max_target_stat;
 		StatBase max_duck_stat;
-		if(rP.Flags & rP.fAnalyze) {
+		if(rP.Flags & rP.fAnalyzeFrame) {
 			const int is_anlz_file_exists = fileExists(anlz_file_name);
 			THROW_MEM(p_anlz_file = new SFile(anlz_file_name, SFile::mAppend));
 			if(!is_anlz_file_exists) {
@@ -702,7 +791,7 @@ int SLAPI PPObjTimeSeries::ProcessNN(const STimeSeries & rTs, const TrainNnParam
 			//if(inp_frame.getCount() == input_frame_size) {
 				if((fs+rP.ForwardFrameSize) <= tsc) {
 					total_set_count++;
-					if(rP.Flags & rP.fAnalyze) {
+					if(rP.Flags & rP.fAnalyzeFrame) {
 						double last_signal_val = 0.0;
 						rTs.GetValue(fs, vec_idx, &last_signal_val);
 						int   target_reached = 0;

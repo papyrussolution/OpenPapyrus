@@ -1317,6 +1317,8 @@ int TProgram::InitUiToolBox()
 			UiToolBox.CreateColor(tbiIconAlertColor, SColor(0xDD, 0x1C, 0x1A));
 			UiToolBox.CreateColor(tbiIconAccentColor, SColor(0x2A, 0x9D, 0x8F));
 			UiToolBox.CreateColor(tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
+			
+			UiToolBox.CreateBrush(tbiInvalInpBrush, SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
 //#ifdef USE_CANVAS2_DRAWING
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)

@@ -845,9 +845,6 @@
 				RelativePath="..\SLib\sextprc.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\sfann.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\sfann2.cpp">
 			</File>
 			<File

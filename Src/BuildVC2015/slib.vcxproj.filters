@@ -53,7 +53,6 @@
     <ClCompile Include="..\SLib\Sdirec.cpp" />
     <ClCompile Include="..\SLib\sdraw.cpp" />
     <ClCompile Include="..\SLib\sextprc.cpp" />
-    <ClCompile Include="..\SLib\sfann.cpp" />
     <ClCompile Include="..\Slib\sfile.cpp" />
     <ClCompile Include="..\SLib\sformat.cpp" />
     <ClCompile Include="..\SLib\sfsort.cpp" />
@@ -153,9 +152,6 @@
     <ClCompile Include="..\SLib\sfann2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\fann.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\json.h">
       <Filter>Header</Filter>
     </ClInclude>

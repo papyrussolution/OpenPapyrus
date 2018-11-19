@@ -2495,7 +2495,7 @@ int TestFrameWindow::Run()
 //
 //
 int SLAPI TestSuffixTree(); //
-int TestFann();
+// @v10.2.4 int TestFann();
 int TestFann2();
 int SLAPI CollectLldFileStat();
 int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);

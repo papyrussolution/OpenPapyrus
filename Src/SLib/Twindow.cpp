@@ -300,8 +300,7 @@ static bool searchItem(TView * v, void *ptr)
 
 TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 {
-	// @v8.6.11 return Id ? firstThat(searchItem, &ctlID) : 0;
-	// @v8.6.11 Функция вызывается очень часто потому ради скорости исполнения развернута {
+	// Функция вызывается очень часто потому ради скорости исполнения развернута {
 	if(ctlID) {
 		TView * p_temp = P_Last;
 		if(p_temp) {
@@ -318,7 +317,26 @@ TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 		}
 	}
 	return 0;
-	// } @v8.6.11
+}
+
+TView * FASTCALL TWindow::getCtrlByHandle(HWND h)
+{
+	if(h) {
+		TView * p_temp = P_Last;
+		if(p_temp) {
+			const TView * p_term = P_Last;
+			do {
+				p_temp = p_temp->P_Next;
+				if(p_temp && p_temp->IsConsistent()) {
+					if(p_temp->GetId() && GetDlgItem(HW, p_temp->GetId()) == h)
+						return p_temp;
+				}
+				else
+					return 0;
+			} while(p_temp != p_term);
+		}
+	}
+	return 0;
 }
 
 HWND FASTCALL TWindow::getCtrlHandle(ushort ctlID)

@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <fann.h>
+// @v10.2.4 #include <fann.h>
 //
 //
 //
@@ -1629,6 +1629,7 @@ void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pPr
 int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 {
 	int    ok = 1;
+#if 0 // @v10.2.4 {
 	float * p_result = 0;
 	float * p_nn_input = 0;
 	float * p_nn_output = 0;
@@ -1868,6 +1869,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 	delete [] p_nn_test_output;
 	fann_destroy(p_ann);
 	PPWait(0);
+#endif // } 0
 	return ok;
 }
 

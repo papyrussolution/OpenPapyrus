@@ -497,6 +497,29 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 				dc.H_Br  = 0;
 				if(TView::messageCommand(p_dlg, cmCtlColor, &dc))
 					return (BOOL)dc.H_Br;
+				/* @construction
+				else {
+					if(dc.Src == TDrawCtrlData::cEdit) {
+						TView * p_view = p_dlg->getCtrlByHandle(dc.H_Ctl);
+						if(p_view && p_view->GetSubSign() == TV_SUBSIGN_INPUTLINE) {
+							TInputLine * p_il = (TInputLine *)p_view;
+							if(GETSTYPE(p_il->getType()) == S_DATE) {
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								p_il->getText(r_temp_buf);
+								if(r_temp_buf.NotEmpty()) {
+									int    d, m, y;
+									long   sdret = 0;
+									_strtodate(r_temp_buf, p_il->getFormat(), &d, &m, &y, &sdret);
+									if(sdret & strtodatefInvalid) {
+										SPaintToolBox & r_tb = APPL->GetUiToolBox();
+										return (BOOL)r_tb.Get(TProgram::tbiInvalInpBrush);
+									}
+								}
+							}
+						}
+					}
+				}
+				@construction */
 			}
 			// no break: ret FALSE by default
 		case WM_PAINT:

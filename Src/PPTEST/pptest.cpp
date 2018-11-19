@@ -1063,6 +1063,8 @@ int TestSStringPerf()
 //
 //
 //
+#if 0 // @v10.2.4 {
+
 #include <fann.h>
 
 int TestFann()
@@ -1163,3 +1165,4 @@ int TestFann()
 #endif // } NDEBUG
     return ok;
 }
+#endif // } @v10.2.4

@@ -1728,6 +1728,7 @@ public:
 	/* @v9.0.4 virtual*/ void  endModal(ushort command);
 	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
+	TView * FASTCALL getCtrlByHandle(HWND h);
 	HWND   SLAPI H() const { return this ? /*hWnd*/HW : (HWND)0; }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
 	void   FASTCALL setCtrlReadOnly(ushort ctlID, int set);
@@ -3983,7 +3984,9 @@ public:
         tbiButtonFont       = 40,
         //
         tbiButtonBrush_F    = 50, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
-        tbiButtonPen_F      = 60  // Идентификатор для Fancy-интерфейса (более развиваться не будет)
+        tbiButtonPen_F      = 60, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
+		//
+		tbiInvalInpBrush    = 70  // Кисть для индикации недопустимого ввода данных
 	};
 
     int    InitUiToolBox();

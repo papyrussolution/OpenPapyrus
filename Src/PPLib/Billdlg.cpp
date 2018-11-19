@@ -1987,18 +1987,26 @@ IMPL_HANDLE_EVENT(BillDialog)
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
 									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
 									p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllPaymDate);
-									clearEvent(event);
+									//clearEvent(event);
 								}
+								else
+									return;
 							}
+							else
+								return;
 						}
 						else if(getCtrlHandle(CTL_BILL_DOC) == p_dc->H_Ctl) {
 							int    ss = P_Pack->GetSyncStatus();
 							if(ss > 0) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
 								p_dc->H_Br = (HBRUSH)Ptb.Get(brushSynced);
-								clearEvent(event);
+								//clearEvent(event);
 							}
+							else
+								return;
 						}
+						else
+							return;
 					}
 				}
 				break;

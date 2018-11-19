@@ -1684,8 +1684,7 @@ void fann_init_error_data(struct fann_error *errdat)
 
 void fann_print_connections_raw(struct fann * ann)
 {
-	uint i;
-	for(i = 0; i < ann->total_connections_allocated; i++) {
+	for(uint i = 0; i < ann->total_connections_allocated; i++) {
 		if(i == ann->total_connections) {
 			printf("* ");
 		}
@@ -1693,11 +1692,11 @@ void fann_print_connections_raw(struct fann * ann)
 	}
 	printf("\n\n");
 }
-
-/* Cascade training directly on the training data.
-   The connected_neurons pointers are not valid during training,
-   but they will be again after training.
- */
+// 
+// Cascade training directly on the training data.
+// The connected_neurons pointers are not valid during training,
+// but they will be again after training.
+// 
 FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(struct fann * ann, struct fann_train_data * data, uint max_neurons, uint neurons_between_reports, float desired_error)
 {
 	float error;
@@ -1756,11 +1755,10 @@ FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(struct fann * ann, struct 
 FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(struct fann * ann, const char * filename, uint max_neurons, uint neurons_between_reports, float desired_error)
 {
 	struct fann_train_data * data = fann_read_train_from_file(filename);
-	if(data == NULL) {
-		return;
+	if(data) {
+		fann_cascadetrain_on_data(ann, data, max_neurons, neurons_between_reports, desired_error);
+		fann_destroy_train(data);
 	}
-	fann_cascadetrain_on_data(ann, data, max_neurons, neurons_between_reports, desired_error);
-	fann_destroy_train(data);
 }
 
 int fann_train_outputs(struct fann * ann, struct fann_train_data * data, float desired_error)
@@ -1772,53 +1770,38 @@ int fann_train_outputs(struct fann * ann, struct fann_train_data * data, float d
 	uint max_epochs = ann->cascade_max_out_epochs;
 	uint min_epochs = ann->cascade_min_out_epochs;
 	uint stagnation = max_epochs;
-
 	/* TODO should perhaps not clear all arrays */
 	fann_clear_train_arrays(ann);
-
 	/* run an initial epoch to set the initital error */
 	initial_error = fann_train_outputs_epoch(ann, data);
-
 	if(fann_desired_error_reached(ann, desired_error) == 0)
 		return 1;
-
 	for(i = 1; i < max_epochs; i++) {
 		error = fann_train_outputs_epoch(ann, data);
-
 		/*printf("Epoch %6d. Current error: %.6f. Bit fail %d.\n", i, error, ann->num_bit_fail); */
-
 		if(fann_desired_error_reached(ann, desired_error) == 0) {
 #ifdef CASCADE_DEBUG
 			printf("Error %f < %f\n", error, desired_error);
 #endif
 			return i + 1;
 		}
-
-		/* Improvement since start of train */
+		// Improvement since start of train 
 		error_improvement = initial_error - error;
-
-		/* After any significant change, set a new goal and
-		 * allow a new quota of epochs to reach it */
-
-		if((target_improvement >= 0 &&
-		    (error_improvement > target_improvement || error_improvement < backslide_improvement)) ||
-		    (target_improvement < 0 &&
-		    (error_improvement < target_improvement || error_improvement > backslide_improvement))) {
+		// After any significant change, set a new goal and allow a new quota of epochs to reach it 
+		if((target_improvement >= 0 && (error_improvement > target_improvement || error_improvement < backslide_improvement)) ||
+		    (target_improvement < 0 && (error_improvement < target_improvement || error_improvement > backslide_improvement))) {
 			/*printf("error_improvement=%f, target_improvement=%f, backslide_improvement=%f,
 			   stagnation=%d\n", error_improvement, target_improvement, backslide_improvement, stagnation);
 			   */
-
 			target_improvement = error_improvement * (1.0f + ann->cascade_output_change_fraction);
 			backslide_improvement = error_improvement * (1.0f - ann->cascade_output_change_fraction);
 			stagnation = i + ann->cascade_output_stagnation_epochs;
 		}
-
 		/* No improvement in allotted period, so quit */
 		if(i >= stagnation && i >= min_epochs) {
 			return i + 1;
 		}
 	}
-
 	return max_epochs;
 }
 
@@ -4707,15 +4690,10 @@ FANN_EXTERNAL void FANN_API fann_descale_input(struct fann * ann, fann_type * in
 	}
 	for(cur_neuron = 0; cur_neuron < ann->num_input; cur_neuron++)
 		if(ann->scale_deviation_in[ cur_neuron ] != 0.0)
-			input_vector[ cur_neuron ] = (
-				(
-					input_vector[cur_neuron] - ann->scale_new_min_in[cur_neuron]
-				)
-				/ ann->scale_factor_in[ cur_neuron ]
+			input_vector[cur_neuron] = ((input_vector[cur_neuron] - ann->scale_new_min_in[cur_neuron])
+				/ ann->scale_factor_in[cur_neuron]
 				+ ( (fann_type)-1.0 )         /* This is old_min */
-			    )
-			    * ann->scale_deviation_in[ cur_neuron ]
-			    + ann->scale_mean_in[ cur_neuron ];
+			    ) * ann->scale_deviation_in[cur_neuron] + ann->scale_mean_in[cur_neuron];
 }
 // 
 // Descale data in output vector after get it from ann based on previously calculated parameters.
@@ -4729,12 +4707,9 @@ FANN_EXTERNAL void FANN_API fann_descale_output(struct fann * ann, fann_type * o
 	}
 	for(cur_neuron = 0; cur_neuron < ann->num_output; cur_neuron++)
 		if(ann->scale_deviation_out[ cur_neuron ] != 0.0)
-			output_vector[ cur_neuron ] =((output_vector[cur_neuron] - ann->scale_new_min_out[cur_neuron])
-				/ ann->scale_factor_out[ cur_neuron ]
-				+ ( (fann_type)-1.0 )         /* This is old_min */
-			    )
-			    * ann->scale_deviation_out[ cur_neuron ]
-			    + ann->scale_mean_out[ cur_neuron ];
+			output_vector[cur_neuron] =((output_vector[cur_neuron] - ann->scale_new_min_out[cur_neuron])
+				/ ann->scale_factor_out[cur_neuron] + ((fann_type)-1.0) /* This is old_min */
+			    ) * ann->scale_deviation_out[cur_neuron] + ann->scale_mean_out[cur_neuron];
 }
 // 
 // Scale input and output data based on previously calculated parameters.
@@ -4746,10 +4721,9 @@ FANN_EXTERNAL void FANN_API fann_scale_train(struct fann * ann, struct fann_trai
 		fann_error_2((struct fann_error *)ann, FANN_E_SCALE_NOT_PRESENT);
 		return;
 	}
-	/* Check that we have good training data. */
+	// Check that we have good training data. 
 	if(fann_check_input_output_sizes(ann, data) == -1)
 		return;
-
 	for(cur_sample = 0; cur_sample < data->num_data; cur_sample++) {
 		fann_scale_input(ann, data->input[ cur_sample ]);
 		fann_scale_output(ann, data->output[ cur_sample ]);

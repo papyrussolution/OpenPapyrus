@@ -15618,14 +15618,16 @@ public:
 	//
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsTradeFrames();
+	int    SLAPI AnalyzeTsAftershocks();
 
 	struct TrainNnParam {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
-			fTeach   = 0x0001,
-			fTest    = 0x0002,
-			fAnalyze = 0x0004
+			fTeach            = 0x0001,
+			fTest             = 0x0002,
+			fAnalyzeFrame     = 0x0004,
+			fAnalyzeAfershock = 0x0080
 		};
 		const  SString Symb;     // Символ временной серии
 		long   Flags;            // @flags 
@@ -15642,6 +15644,7 @@ public:
 
 	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI TrainNN();
+	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);

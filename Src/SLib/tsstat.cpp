@@ -120,9 +120,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 	int    Tx25 = 0, Ty25 = 0;
 	int    tie, N0, N1, S;
 	uint   i;
-	/*
-		populate sorter
-	*/
+	// 
+	// populate sorter
+	// 
 	uint   j = 0;
 	rXy.clear();
 	for(i = 0; i < x.getCount(); i++) {
@@ -134,9 +134,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 		//}
 	}
 	rXy.SortByX(); // sort pairs by x
-	/*
-		make order counts
-	*/
+	// 
+	// make order counts
+	// 
 	N0 = N1 = 0;
 	uint   nn = rXy.getCount();
 	for(i = 0; i < nn; i++) {
@@ -144,20 +144,20 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 		double y_i = xy_i.Y;
 		double x_i = xy_i.X;
 		for(j = i+1; j < nn; j++) {
-			const RPair xy = rXy[j];
-			if(xy.Y == y_i)
+			const RPair & r_xy = rXy[j];
+			if(r_xy.Y == y_i)
 				Ty++;
-			else if(xy.X != x_i) {
-				if(xy.Y > y_i)
+			else if(r_xy.X != x_i) {
+				if(r_xy.Y > y_i)
 					N0++;
-				else if(xy.Y < y_i)
+				else if(r_xy.Y < y_i)
 					N1++;
 			}
 		}
 		if(i > 0) {
-			/*
-				account for ties in x
-			*/
+			// 
+			// account for ties in x
+			// 
 			tie = (x_i == rXy[i-1].X);
 			if(tie)
 				tx++;
@@ -172,9 +172,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 		}
 	}
 	if(Ty > 0) {
-		/*
-			account for ties in y
-		*/
+		// 
+		// account for ties in y
+		// 
 		Ty = 0;
 		rXy.SortByY();
 		for(i = 1; i < nn; i++) {

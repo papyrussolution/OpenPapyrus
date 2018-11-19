@@ -1482,7 +1482,6 @@
     <ClCompile Include="..\SLib\Sdirec.cpp" />
     <ClCompile Include="..\SLib\sdraw.cpp" />
     <ClCompile Include="..\SLib\sextprc.cpp" />
-    <ClCompile Include="..\SLib\sfann.cpp" />
     <ClCompile Include="..\SLib\sfann2.cpp" />
     <ClCompile Include="..\Slib\sfile.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
@@ -3654,7 +3653,6 @@
     <ClInclude Include="..\Include\Dbf.h" />
     <ClInclude Include="..\Include\Dbqbrdef.h" />
     <ClInclude Include="..\Include\Dbquery.h" />
-    <ClInclude Include="..\Include\fann.h" />
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\layout-2d.h" />

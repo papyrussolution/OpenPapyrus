@@ -76,11 +76,12 @@ private:
 	int    ItemNo;
 	int    EditMode;
 	enum {
-		stModified      = 0x0001,
-		stGoodsByPrice  = 0x0002, // Признак выбора товара по цене
-		stAllowSupplSel = 0x0004, // Позволяет выбор поставщика
-		stGoodsFixed    = 0x0008, // Фиксированный товар (выбран до входа в диалог)
-		stWasCostInput  = 0x0010
+		stModified        = 0x0001,
+		stGoodsByPrice    = 0x0002, // Признак выбора товара по цене
+		stAllowSupplSel   = 0x0004, // Позволяет выбор поставщика
+		stGoodsFixed      = 0x0008, // Фиксированный товар (выбран до входа в диалог)
+		stWasCostInput    = 0x0010,
+		stLockQttyAutoUpd = 0x0020 // @v10.2.4 Блокировка автоматического пересчета полей количества/емкость упаковки/количество упаковок
 	};
 	long   St;
 	enum {
@@ -978,9 +979,8 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					break;
 				case cmInputUpdated:
 					{
-						static int __lock = 0;
-						if(!__lock) {
-							__lock = 1;
+						if(!(St & stLockQttyAutoUpd)) {
+							St |= stLockQttyAutoUpd;
 							i = TVINFOVIEW->GetId();
 							if(oneof2(i, CTL_LOT_PRICE, CTL_LOT_DISCOUNT)) {
 								//
@@ -995,7 +995,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							}
 							else if(i == CTL_LOT_SERIAL)
 								SetupSerialWarn();
-							__lock = 0;
+							St &= ~stLockQttyAutoUpd;
 						}
 					}
 					break;
@@ -1650,10 +1650,13 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 				NumPacks = Item.Quantity_ / Item.UnitPerPack;
 		}
 		else
-			NumPacks = 0;
-		setCtrlReal(CTL_LOT_UNITPERPACK, Item.UnitPerPack);
-		setCtrlReal(CTL_LOT_PACKS,       NumPacks);
-		setCtrlReal(CTL_LOT_QUANTITY,    Item.Quantity_);
+			NumPacks = 0.0;
+		if(master != CTL_LOT_UNITPERPACK) // @v10.2.4
+			setCtrlReal(CTL_LOT_UNITPERPACK, Item.UnitPerPack);
+		if(master != CTL_LOT_PACKS) // @v10.2.4
+			setCtrlReal(CTL_LOT_PACKS,       NumPacks);
+		if(master != CTL_LOT_QUANTITY) // @v10.2.4
+			setCtrlReal(CTL_LOT_QUANTITY,    Item.Quantity_);
 		// @v9.4.3 {
 		if(Item.IsCorrectionExp()) {
 			const double eff_qtty = Item.GetEffCorrectionExpQtty();
@@ -1685,7 +1688,8 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 			if(Item.Flags & PPTFR_INDEPPHQTTY)
 				getCtrlData(CTL_LOT_INDEPPHQTTY, &Item.WtQtty);
 		}
-		setCtrlReal(CTL_LOT_QUANTITY, Item.Qtty());
+		if(master != CTL_LOT_QUANTITY) // @v10.2.4
+			setCtrlReal(CTL_LOT_QUANTITY, Item.Qtty());
 	}
 	{
 		SString phq_txt;
@@ -1842,6 +1846,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	Goods2Tbl::Rec grp_rec;
 	ushort v;
 	SString temp_buf;
+	St |= stLockQttyAutoUpd; // @v10.2.4
 	Item  = *pItem;
 	Price = Item.Price;
 	setCtrlCost();
@@ -1980,6 +1985,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	// } @v9.3.6
 	setupManuf();
 	CATCHZOK
+	St &= ~stLockQttyAutoUpd; // @v10.2.4
 	return ok;
 }
 //
