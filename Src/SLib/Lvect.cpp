@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -173,13 +173,18 @@ int FASTCALL LMatrix::operator -= (const LMatrix & s)
 //
 //
 //
-SLAPI LVect::LVect() : Dim(0), P_Vals(0), P_Name(0)
+SLAPI LVect::LVect() : Dim(0), P_Vals(0)/*, P_Name(0)*/
 {
+}
+
+SLAPI LVect::LVect(LMIDX dim) : Dim(0), P_Vals(0)
+{
+	init(dim, 0);
 }
 
 SLAPI LVect::~LVect()
 {
-	delete P_Vals;
+	delete [] P_Vals;
 }
 
 int SLAPI LVect::init(LMIDX dim, const double * pVals)
@@ -201,11 +206,11 @@ int FASTCALL LVect::copy(const LVect & s)
 	return init(s.Dim, s.P_Vals);
 }
 
-void FASTCALL LVect::setname(const char * pName)
+/*void FASTCALL LVect::setname(const char * pName)
 {
 	delete P_Name;
 	P_Name = newStr(pName);
-}
+}*/
 
 double FASTCALL LVect::get(LMIDX p) const
 {
@@ -215,6 +220,15 @@ double FASTCALL LVect::get(LMIDX p) const
 int SLAPI LVect::set(LMIDX p, double v)
 {
 	return checkupper((uint)p, (uint)Dim) ? ((P_Vals[p] = v), 1) : 0;
+}
+
+void SLAPI LVect::FillWithSequence(double startVal, double incr)
+{
+	double value = startVal;
+	for(LMIDX i = 0; i < Dim; i++) {
+        set(i, value);
+        value += incr;
+	}
 }
 
 int SLAPI LVect::zero(LMIDX p)
@@ -245,10 +259,12 @@ int SLAPI LVect::add(const LVect & v)
 {
 	if(size() != v.size())
 		return (SLibError = SLERR_MTX_INCOMPATDIM_VADD, 0);
-	if(P_Vals && v.P_Vals)
-		for(LMIDX i = 0; i < Dim; i++)
-			P_Vals[i] += v.P_Vals[i];
-	return 1;
+	else {
+		if(P_Vals && v.P_Vals)
+			for(LMIDX i = 0; i < Dim; i++)
+				P_Vals[i] += v.P_Vals[i];
+		return 1;
+	}
 }
 
 double SLAPI LVect::dot(const LVect & s) const // return this * s (scalar)
@@ -273,7 +289,7 @@ void SLAPI LVect::saxpy(double a, const LVect & y) // this = this * a + y
 //
 //
 //
-LVect * SLAPI operator * (const LMatrix & m, const LVect & v)
+LVect * FASTCALL operator * (const LMatrix & m, const LVect & v)
 {
 	EXCEPTVAR(SLibError);
 	LMIDX i, j;
@@ -303,7 +319,7 @@ LVect * SLAPI gaxpy(const LMatrix & a, const LVect & x, const LVect & y)
 	return p_result;
 }
 
-LMatrix * SLAPI operator * (const LMatrix & x, const LMatrix & y)
+LMatrix * FASTCALL operator * (const LMatrix & x, const LMatrix & y)
 {
 	EXCEPTVAR(SLibError);
 	LMatrix * p_z = 0;
@@ -326,7 +342,7 @@ LMatrix * SLAPI operator * (const LMatrix & x, const LMatrix & y)
 //
 // Product of row-vect[m] and matrix[m, n] : row-vect[n]
 //
-LVect * SLAPI operator * (const LVect & x, const LMatrix & y)
+LVect * FASTCALL operator * (const LVect & x, const LMatrix & y)
 {
 	EXCEPTVAR(SLibError);
 	LVect * p_z = 0;
@@ -345,7 +361,7 @@ LVect * SLAPI operator * (const LVect & x, const LMatrix & y)
 //
 // Product of column-vect[n] and row-vect[m] : matrix[n, m]
 //
-LMatrix * SLAPI operator * (const LVect & x, const LVect & y)
+LMatrix * FASTCALL operator * (const LVect & x, const LVect & y)
 {
 	EXCEPTVAR(SLibError);
 	LMatrix * p_z = 0;
@@ -368,8 +384,8 @@ LMatrix * SLAPI operator * (const LVect & x, const LVect & y)
 void SLAPI print(const LVect & vect, FILE * pF, long fmt)
 {
 	fprintf(pF, "\n[");
-	if(vect.getname())
-		fprintf(pF, vect.getname());
+	/*if(vect.getname())
+		fprintf(pF, vect.getname());*/
 	fprintf(pF, ",1,%ld]\n", vect.size());
 	for(LMIDX i = 0; i < vect.size(); i++) {
 		char buf[64];
@@ -448,13 +464,13 @@ static int SLAPI read_row(FILE * pF, LVect * pVect)
 
 int SLAPI read(LVect * pVect, FILE * pF)
 {
-	int ok = 1;
-	LMIDX rows = 0, cols = 0;
+	int    ok = 1;
+	LMIDX  rows = 0, cols = 0;
 	char name_buf[64];
 	THROW(read_header(pF, &rows, &cols, name_buf, sizeof(name_buf)));
 	THROW(rows == 1);
 	pVect->init(cols);
-	pVect->setname(name_buf);
+	//pVect->setname(name_buf);
 	THROW(read_row(pF, pVect));
 	CATCHZOK
 	return ok;
@@ -613,8 +629,8 @@ int inverse(LMatrix & a)
 	LMIDX i, j;
 	int   ret = 0;
 	LMIDX n = a.rows();
-	LMatrix ai; 
-	LVect col; 
+	LMatrix ai;
+	LVect col;
 	int d;
 	ai.init(n, n);
 	col.init(n);
@@ -630,7 +646,7 @@ int inverse(LMatrix & a)
 		a = ai;
 		ret = 1;
 	}
-	delete [] p_indx; // @v9.8.4 @fix [] 
+	delete [] p_indx; // @v9.8.4 @fix []
 	return ret;
 };
 //
@@ -740,7 +756,7 @@ LMatrix2D::LMatrix2D()
 	InitUnit(1.0);
 }
 
-LMatrix2D & LMatrix2D::operator = (double s)
+LMatrix2D & FASTCALL LMatrix2D::operator = (double s)
 {
 	return InitUnit(s);
 }

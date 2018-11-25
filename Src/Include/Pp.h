@@ -5378,6 +5378,7 @@ private:
 #define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
 #define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
 #define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
+#define PPSCMD_GETTIMESERIESPROP     10114 // @v10.2.5
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -15227,7 +15228,7 @@ public:
 	//
 	int    SLAPI FetchBySymb(const char * pSymb, PPID * pID);
 	//
-	// Descr: Функция определяет является ли тег "неотражаемым" в котнектсе лотов.
+	// Descr: Функция определяет является ли тег "неотражаемым" в контексте лотов.
 	//   Под "неотражаемостью" подразумевается требование не переносить тег на
 	//   заркальные лоты при внутреннем перемещении товара.
 	// Returns:
@@ -15586,7 +15587,11 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       //
-	char   Reserve[60];    // @reserve
+	double BuyMarg;
+	double SellMarg;
+	int16  Prec;
+	char   CurrencySymb[12];
+	char   Reserve[30];    // @reserve
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -15613,6 +15618,7 @@ public:
 	};
 
 	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
+	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	//
@@ -15622,6 +15628,7 @@ public:
 
 	struct TrainNnParam {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
+		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
 			fTeach            = 0x0001,
@@ -15630,8 +15637,8 @@ public:
 			fAnalyzeAfershock = 0x0080
 		};
 		const  SString Symb;     // Символ временной серии
-		long   Flags;            // @flags 
-		double Margin;           // Маржа 
+		long   Flags;            // @flags
+		double Margin;           // Маржа
 		uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
 		double Target;           // Максимальный рост относительно 0 [0..]
 		double MaxDuck;          // Максимальная величина "проседания" относительно нуля [0..]
@@ -15645,6 +15652,7 @@ public:
 	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI TrainNN();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
+	int    SLAPI AnalyzeTrend(const STimeSeries & rTs, const TrainNnParam & rP);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -16497,6 +16505,8 @@ private:
 #define BILSTF_LOCDISPOSE             0x0080 // @v7.2.0 Автоматически размещать товарный документ по ячейкам склада после
 	// установки этого статуса.
 #define BILSTF_READYFOREDIACK         0x0100 // @v8.8.0 Документ с таким статусом готов к отправке по нему подтверждения провайдеру EDI
+#define BILSTF_STRICTPRICECONSTRAINS  0x0200 // @v10.2.5 Для документов с таким статусом включается блокировка проведения если какая-либо из цен реализации
+	// нарушает ограничения, заданные в товарных типах.
 //
 // Флаги обязательности атрибутов документа
 //
@@ -16512,9 +16522,9 @@ private:
 #define BILCHECKF_OBJECT          0x00000200
 #define BILCHECKF_CAPTAIN         0x00000400
 #define BILCHECKF_TRBROKER        0x00000800
-#define BILCHECKF_OBJECT2         0x00001000 // @v7.0.4
-#define BILCHECKF_DUEDATE         0x00002000 // @v8.3.5
-#define BILCHECKF_CODE            0x00004000 // @v8.5.2 Проверка не не пустой номер документа
+#define BILCHECKF_OBJECT2         0x00001000 //
+#define BILCHECKF_DUEDATE         0x00002000 //
+#define BILCHECKF_CODE            0x00004000 // Проверка на не пустой номер документа
 #define BILCHECKF_FREIGHT         (BILCHECKF_DLVRADDR|BILCHECKF_PORTOFLOADING|BILCHECKF_PORTOFDISCHARGE|\
 	BILCHECKF_ARRIVALDT|BILCHECKF_SHIP|BILCHECKF_FREIGHTCOST|BILCHECKF_CAPTAIN|BILCHECKF_TRBROKER)
 
@@ -20307,8 +20317,8 @@ private:
 
 class PPObjWorkbook : public PPObject {
 public:
-	static int FASTCALL ReadConfig(PPWorkbookConfig * pCfg);
-	static int SLAPI EditConfig();
+	static int  FASTCALL ReadConfig(PPWorkbookConfig * pCfg);
+	static int  SLAPI EditConfig();
 
 	SLAPI  PPObjWorkbook(void * extraPtr = 0);
 	SLAPI ~PPObjWorkbook();
@@ -20391,6 +20401,7 @@ public:
 	int    SLAPI Export(PPID rootID);
 	int    SLAPI Transmit(PPID rootID);
 	int    SLAPI RemoveAll();
+	void   SLAPI SortIdListByRankAndName(LongArray & rList);
 
 	LDATETIME SLAPI GetLastModifTime(PPID id);
 	LDATETIME SLAPI GetContentLastModifTime(PPID id);
@@ -21137,6 +21148,8 @@ int SLAPI LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
 #define GTAXF_NOLOTEXCISE 0x0010L // При расчете входящих налогов (на лот) акциз исключать
 
 struct PPGoodsTaxEntry { // @flat
+	SLAPI  PPGoodsTaxEntry();
+	int    FASTCALL IsEqual(const PPGoodsTaxEntry & rS) const;
 	double SLAPI GetVatRate() const;
 	char * SLAPI FormatVAT(char *, size_t) const;
 	char * SLAPI FormatExcise(char *, size_t) const;
@@ -21187,9 +21200,10 @@ public:
 	static int   SLAPI Fetch(PPID, LDATE, PPID opID, PPGoodsTaxEntry *);
 	static int   SLAPI FetchByID(PPID, PPGoodsTaxEntry *);
 
-	SLAPI  PPObjGoodsTax(void * extraPtr = 0);
+	explicit SLAPI PPObjGoodsTax(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
+	int    SLAPI IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags);
 	int    SLAPI Search(PPID id, PPGoodsTaxEntry * pEntry);
 	int    SLAPI Search(PPID id, PPGoodsTax * pRec);
 	int    SLAPI AddBySample(PPID *, long sampleID);
@@ -30102,7 +30116,7 @@ public:
 	// Descr: Проверяет непротиворечивость и правильность пакета pPack.
 	//   Флаги flags могут ограничивать область проверки.
 	//
-	int    SLAPI ValidatePacket(const PPBillPacket * pPack, long flags);
+	int    SLAPI ValidatePacket(PPBillPacket * pPack, long flags);
 	int    SLAPI IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, long flags);
 	int    SLAPI IsPaymentBill(const BillTbl::Rec & rRec);
 	int    SLAPI ViewHistory(PPID histID);

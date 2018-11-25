@@ -24,6 +24,14 @@ int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
 		eq = 0;
 	else if(Flags != rS.Flags)
 		eq = 0;
+	else if(BuyMarg != rS.BuyMarg)
+		eq = 0;
+	else if(SellMarg != rS.SellMarg)
+		eq = 0;
+	else if(Prec != rS.Prec)
+		eq = 0;
+	else if(!sstreq(CurrencySymb, rS.CurrencySymb))
+		eq = 0;
 	return eq;	
 }
 
@@ -543,7 +551,7 @@ int SLAPI PPObjTimeSeries::AnalyzeTsAftershocks()
 			if(Search(id, &ts_rec) > 0) {
 				STimeSeries ts;
 				if(GetTimeSeries(id, ts) > 0) {
-					TrainNnParam tnnp(ts_rec.Symb, TrainNnParam::fAnalyzeFrame);
+					TrainNnParam tnnp(ts_rec, TrainNnParam::fAnalyzeFrame);
 					AnalyzeAftershock(ts, tnnp);
 				}
 			}
@@ -577,8 +585,7 @@ int SLAPI PPObjTimeSeries::AnalyzeTsTradeFrames()
 			if(Search(id, &ts_rec) > 0) {
 				STimeSeries ts;
 				if(GetTimeSeries(id, ts) > 0) {
-					TrainNnParam tnnp(ts_rec.Symb, TrainNnParam::fAnalyzeFrame);
-					tnnp.Margin = 0.005;
+					TrainNnParam tnnp(ts_rec, TrainNnParam::fAnalyzeFrame);
 					tnnp.InputFrameSize = 500;
 					static const uint frame_size_list[] = { 5, 10, 15, 20 };
 					static const double target_list[] = { 0.0, 0.10, 0.25, 0.5, 1.0, 1.25, 1.5 };
@@ -642,10 +649,32 @@ SLAPI PPObjTimeSeries::TrainNnParam::TrainNnParam(const char * pSymb, long flags
 {
 }
 
+SLAPI PPObjTimeSeries::TrainNnParam::TrainNnParam(const PPTimeSeries & rTsRec, long flags) : Symb(rTsRec.Symb), Flags(flags), Margin(rTsRec.BuyMarg), ForwardFrameSize(0), Target(0.0), 
+	MaxDuck(0.0), InputFrameSize(0), HiddenLayerDim(0), EpochCount(1), LearningRate(0.1f)
+{
+}
+
 SString & SLAPI PPObjTimeSeries::TrainNnParam::MakeFileName(SString & rBuf) const
 {
 	return rBuf.Z().Cat(Symb).CatChar('-').Cat(ForwardFrameSize).CatChar('-').Cat((long)R0(Target * 1000.0)).
 		CatChar('-').Cat((long)R0(MaxDuck * 1000.0)).Dot().Cat("fann").ToLower();
+}
+
+struct __TsProbEntry {
+	uint   MeanMult;
+	uint   Duration;
+
+	uint   CaseCount;
+	uint   WinCount;
+	uint   LossCount;
+	double WinSum;
+	double LossSum;
+};
+
+int SLAPI PPObjTimeSeries::AnalyzeTrend(const STimeSeries & rTs, const TrainNnParam & rP)
+{
+	int    ok = 1;
+	return ok;
 }
 
 int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP)
@@ -657,8 +686,14 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 	SString msg_buf;
 	StatBase stat_plus(StatBase::fStoreVals/*|StatBase::fGammaTest|StatBase::fGaussianTest*/);
 	StatBase stat_minus(StatBase::fStoreVals/*|StatBase::fGammaTest|StatBase::fGaussianTest*/);
+	TSVector <__TsProbEntry> prob_result_list;
+	const  uint lss_dist = /*2000*/0; // Дистанция для отсчета назад с целью вычисления тренда
 	const  uint tsc = rTs.GetCount();
-	if(tsc > 1) {
+	LVect lss_vect_x(lss_dist);
+	LVect lss_vect_y(lss_dist);
+	lss_vect_x.FillWithSequence(1.0, 1.0); // Заполняем ось ординат последовательными значениями 1.0..lss_dim
+	if(tsc > (1+lss_dist)) {
+		const double margin = (rP.Margin > 0.0) ? rP.Margin : 1.0;
 		THROW_SL(rTs.GetValueVecIndex("close", &vec_idx));
 		{
 			PPGetFilePath(PPPATH_OUT, "AnalyzeTsAfetershock.txt", out_file_name);
@@ -669,13 +704,12 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 				f_out.WriteLine(msg_buf.CR());
 				// symb count stat-plus-max  stat-plus-mean  stat-plus-disp  stat-plus-gauss-test  stat-plus-gamma-test
 				msg_buf.Z().Cat("symb").
+					Tab().Cat("margin").
 					Tab().Cat("count").
 					Tab().Cat("sign").
 					Tab().Cat("stat-max").
 					Tab().Cat("stat-mean").
-					Tab().Cat("stat-disp").
-					Tab().Cat("stat-gauss").
-					Tab().Cat("stat-gamma");
+					Tab().Cat("stat-disp");
 				f_out.WriteLine(msg_buf.CR());
 			}
 			double prev_value;
@@ -684,7 +718,7 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 				double value;
 				rTs.GetValue(i, vec_idx, &value);
 				if(prev_value != 0.0) {
-					const double delta = (value - prev_value) / prev_value;
+					const double delta = ((value - prev_value) / prev_value) / margin;
 					if(delta > 0.0)
 						stat_plus.Step(delta);
 					else if(delta < 0.0)
@@ -697,15 +731,15 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 			// symb count stat-plus-max  stat-plus-mean  stat-plus-disp  stat-plus-gauss-test  stat-plus-gamma-test
 			// symb count stat-minus-max stat-minus-mean stat-minus-disp stat-minus-gauss-test stat-minus-gamma-test
 			msg_buf.Z().Cat((temp_buf = rP.Symb).Align(12, ADJ_LEFT)).
+				Tab().Cat(margin, MKSFMTD(0, 5, 0)).
 				Tab().Cat(tsc).
 				Tab().Cat("plus").
 				Tab().Cat(stat_plus.GetMax(), MKSFMTD(0, 8, 0)).
 				Tab().Cat(stat_plus.GetExp(), MKSFMTD(0, 8, 0)).
-				Tab().Cat(stat_plus.GetStdDev(), MKSFMTD(0, 8, 0)).
-				Tab().Cat(stat_plus.GetTestGaussian(), MKSFMTD(0, 8, 0)).
-				Tab().Cat(stat_plus.GetTestGamma(), MKSFMTD(0, 8, 0));
+				Tab().Cat(stat_plus.GetStdDev(), MKSFMTD(0, 8, 0));
 			f_out.WriteLine(msg_buf.CR());
 			msg_buf.Z().Cat((temp_buf = rP.Symb).Align(12, ADJ_LEFT)).
+				Tab().Cat(margin, MKSFMTD(0, 5, 0)).
 				Tab().Cat(tsc).
 				Tab().Cat("minus").
 				Tab().Cat(stat_minus.GetMax(), MKSFMTD(0, 8, 0)).
@@ -714,6 +748,168 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 				Tab().Cat(stat_minus.GetTestGaussian(), MKSFMTD(0, 8, 0)).
 				Tab().Cat(stat_minus.GetTestGamma(), MKSFMTD(0, 8, 0));
 			f_out.WriteLine(msg_buf.CR());
+			if(1) { 
+				//
+				// Grid: mean-mult; target; duck; duration
+				//
+				const double mean_plus = stat_plus.GetExp();
+				static const uint   mean_mult_grid[] = { 2, 5, 10, 20, 30, 40, 50 };         // #0
+				static const uint   duration_grid[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30 };   // #1
+				static const double target_grid[] = { 0.1, 0.5, 1.0, 1.5 };            // #2
+				static const double duck_part_grid[] = { 0.1, 0.25, 0.50, 0.75, 1.0 }; // #3
+
+				RealArray trend_vect;
+				uint plus_trend_count = 0;
+				uint minus_trend_count = 0;
+				if(lss_dist) {
+					for(uint j = lss_dist+1; j < tsc; j++) {
+						assert(j >= lss_dist);
+						LssLin lss;
+						rTs.GetLVect(vec_idx, j-lss_dist, lss_vect_y);
+						lss.Solve(lss_vect_x, lss_vect_y);
+						double trend = lss.B;
+						if(trend > 0.0) {
+							plus_trend_count++;
+						}
+						else {
+							minus_trend_count++;
+						}
+						THROW_SL(trend_vect.insert(&trend));
+					}
+				}
+				msg_buf.Z().CR().
+					Cat("mean-mult").
+					Tab().Cat("duration").
+					//Tab().Cat("target").
+					//Tab().Cat("duck").
+					Tab().Cat("case-count").
+					Tab().Cat("trend-avg").
+					Tab().Cat("win-count").
+					Tab().Cat("win-sum").
+					Tab().Cat("loss-count").
+					Tab().Cat("loss-summ").
+					Tab().Cat("win-loss-count").
+					Tab().Cat("win-loss-sum");
+				f_out.WriteLine(msg_buf.CR());
+
+				for(uint mmi = 0; mmi < SIZEOFARRAY(mean_mult_grid); mmi++) {
+					const uint mean_mult = mean_mult_grid[mmi];
+					const double threshold = mean_plus * mean_mult;
+					for(uint duri = 0; duri < SIZEOFARRAY(duration_grid); duri++) {
+						const uint duration = duration_grid[duri];
+						//for(uint ti = 0; ti < SIZEOFARRAY(target_grid); ti++) {
+							//const double target = target_grid[ti];
+							//for(uint dpi = 0; dpi < SIZEOFARRAY(duck_part_grid); dpi++) {
+								//const double duck_part = duck_part_grid[dpi];
+								rTs.GetValue(lss_dist/*0*/, vec_idx, &prev_value);
+								StatBase stat_trend;
+								__TsProbEntry prob_result_entry;
+								MEMSZERO(prob_result_entry);
+								prob_result_entry.MeanMult = mean_mult;
+								prob_result_entry.Duration = duration;
+								for(uint j = lss_dist+1; j < tsc; j++) {
+									double value;
+									rTs.GetValue(j, vec_idx, &value);
+									const double delta = ((value - prev_value) / prev_value) / margin;
+									if(delta >= threshold && (j+duration) < tsc) {
+										assert(j >= lss_dist);
+										double trend = lss_dist ? trend_vect.at(j-lss_dist-1) : 1.0;
+										if(trend > 0.0) {
+											stat_trend.Step(trend);
+											plus_trend_count++;
+											prob_result_entry.CaseCount++;
+											double next_value;
+											/*for(uint k = 1; k <= duration; k++) {
+												rTs.GetValue(j+k, vec_idx, &next_value);
+												if(next_value > value) {
+												}
+												else if(next_value < value) {
+												}
+											}*/
+											rTs.GetValue(j+duration, vec_idx, &next_value);
+											const double result_delta = (next_value - value) / margin;
+											if(result_delta > 0.0) {
+												prob_result_entry.WinCount++;
+												prob_result_entry.WinSum += result_delta;
+											}
+											else {
+												prob_result_entry.LossCount++;
+												prob_result_entry.LossSum += -result_delta;
+											}
+										}
+									}
+								}
+								prob_result_list.insert(&prob_result_entry);
+								stat_trend.Finish();
+								msg_buf.Z().
+									Cat(mean_mult, MKSFMTD(0, 3, 0)).
+									Tab().Cat(duration).
+									//Tab().Cat(target, MKSFMTD(0, 5, 0)).
+									//Tab().Cat(duck, MKSFMTD(0, 5, 0)).
+									Tab().Cat(prob_result_entry.CaseCount).
+									Tab().Cat(stat_trend.GetExp(), MKSFMTD(0, 9, 0)).
+									Tab().Cat(prob_result_entry.WinCount).
+									Tab().Cat(prob_result_entry.WinSum, MKSFMTD(0, 5, 0)).
+									Tab().Cat(prob_result_entry.LossCount).
+									Tab().Cat(prob_result_entry.LossSum, MKSFMTD(0, 5, 0)).
+									Tab().Cat((int)prob_result_entry.WinCount-(int)prob_result_entry.LossCount).
+									Tab().Cat(prob_result_entry.WinSum-prob_result_entry.LossSum, MKSFMTD(0, 5, 0));
+								f_out.WriteLine(msg_buf.CR());
+							//}
+						//}
+					}
+				}
+				{
+					int    best_count = -1000000;
+					double best_result = -1E9;
+					uint   best_count_idx = 0;
+					uint   best_result_idx = 0;
+					for(uint bi = 0; bi < prob_result_list.getCount(); bi++) {
+						const __TsProbEntry & r_pe = prob_result_list.at(bi);
+						int c = ((int)r_pe.WinCount-(int)r_pe.LossCount);
+						double r = (r_pe.WinSum-r_pe.LossSum);
+						if(best_count < c) {
+							best_count = c;
+							best_count_idx = bi;
+						}
+						if(best_result < r) {
+							best_result = r;
+							best_result_idx = bi;
+						}
+					}
+					const __TsProbEntry & r_pe_best_count = prob_result_list.at(best_count_idx);
+					const __TsProbEntry & r_pe_best_result = prob_result_list.at(best_result_idx);
+					msg_buf.Z().Cat("The best count").Tab().
+						Cat(r_pe_best_count.MeanMult).
+						Tab().Cat(r_pe_best_count.Duration).
+						//Tab().Cat(target, MKSFMTD(0, 5, 0)).
+						//Tab().Cat(duck, MKSFMTD(0, 5, 0)).
+						Tab().Cat(r_pe_best_count.CaseCount).
+						Tab().Cat("").
+						Tab().Cat(r_pe_best_count.WinCount).
+						Tab().Cat(r_pe_best_count.WinSum, MKSFMTD(0, 5, 0)).
+						Tab().Cat(r_pe_best_count.LossCount).
+						Tab().Cat(r_pe_best_count.LossSum, MKSFMTD(0, 5, 0)).
+						Tab().Cat((int)r_pe_best_count.WinCount-(int)r_pe_best_count.LossCount).
+						Tab().Cat(r_pe_best_count.WinSum-r_pe_best_count.LossSum, MKSFMTD(0, 5, 0));
+					f_out.WriteLine(msg_buf.CR());
+					//
+					msg_buf.Z().Cat("The best result").Tab().
+						Cat(r_pe_best_result.MeanMult).
+						Tab().Cat(r_pe_best_result.Duration).
+						//Tab().Cat(target, MKSFMTD(0, 5, 0)).
+						//Tab().Cat(duck, MKSFMTD(0, 5, 0)).
+						Tab().Cat(r_pe_best_result.CaseCount).
+						Tab().Cat("").
+						Tab().Cat(r_pe_best_result.WinCount).
+						Tab().Cat(r_pe_best_result.WinSum, MKSFMTD(0, 5, 0)).
+						Tab().Cat(r_pe_best_result.LossCount).
+						Tab().Cat(r_pe_best_result.LossSum, MKSFMTD(0, 5, 0)).
+						Tab().Cat((int)r_pe_best_result.WinCount-(int)r_pe_best_result.LossCount).
+						Tab().Cat(r_pe_best_result.WinSum-r_pe_best_result.LossSum, MKSFMTD(0, 5, 0));
+					f_out.WriteLine(msg_buf.CR());
+				}
+			}
 		}
 	}
 	CATCHZOK
@@ -1011,3 +1207,12 @@ int SLAPI PPObjTimeSeries::ProcessNN(const STimeSeries & rTs, const TrainNnParam
 	delete p_anlz_file;
 	return ok;
 }
+
+/*
+time-series-precision: точность представления значений
+time-series-margin-buy:  маржина при покупке инструмента, представленного символом
+time-series-margin-sell: маржина при продаже инструмента, представленного символом
+time-series-currency-base: основная валюта
+time-series-currency-profit: валюта прибыли
+time-series-currency-margin: валюта маржины
+*/

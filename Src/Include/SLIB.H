@@ -9560,6 +9560,11 @@ private:
 #define SNTOK_REALNUMBER    23 // 9.9 || .9 || 9. || 9,9
 #define SNTOK_INTNUMBER     24 // 9 || -9
 #define SNTOK_PECENTAGE     25 //
+#define SNTOK_NUMERIC_DOT   26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
+	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
+#define SNTOK_NUMERIC_COM   27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
+	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
+	// Если число не имеет дробной части, то применяется SNTOK_NUMERIC_DOT
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -9582,6 +9587,8 @@ private:
 #define SNTOKSEQ_LEADMINUS  0x00040000 // Лидирующий символ - (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
 #define SNTOKSEQ_LEADDOLLAR 0x00080000 // Лидирующий символ $ (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
 #define SNTOKSEQ_BACKPCT    0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
+#define SNTOKSEQ_NUMERIC    0x00200000 // @v10.2.5 Многовариантное представление числа [+\-0-9.,' ]
+	// -9,999.99  +99'999,9  9 999.999  999
 
 struct SNaturalTokenStat {
 	SLAPI  SNaturalTokenStat();
@@ -9747,18 +9754,22 @@ private:
 //
 class LVect {
 public:
+	friend class     LMatrix;
+
 	enum {
 		fNotOwner = 0x0001
 	};
 	SLAPI  LVect();
+	explicit SLAPI LVect(LMIDX dim);
 	SLAPI ~LVect();
 	int    SLAPI init(LMIDX dim, const double * pVals = 0);
 	int    FASTCALL copy(const LVect &);
-	const  char * SLAPI getname() const { return P_Name; }
-	void   FASTCALL setname(const char * pName);
+	//const  char * SLAPI getname() const { return P_Name; }
+	//void   FASTCALL setname(const char * pName);
 	LMIDX  SLAPI size() const { return Dim; }
 	double FASTCALL get(LMIDX) const;
 	int    SLAPI set(LMIDX, double);
+	void   SLAPI FillWithSequence(double startVal, double incr);
 	int    SLAPI zero(LMIDX = -1);
 
 	void   SLAPI mult(double val);           // this *= val
@@ -9767,13 +9778,12 @@ public:
 	double SLAPI dot(const LVect & s) const; // return this * s (scalar)
 	void   SLAPI saxpy(double a, const LVect & y); // this = this * a + y
 
-	friend class     LMatrix;
-	friend LVect   * SLAPI operator * (const LMatrix &, const LVect &);
-	friend LMatrix * SLAPI operator * (const LMatrix &, const LMatrix &);
-	friend LVect   * SLAPI operator * (const LVect &, const LMatrix &);
-	friend LMatrix * SLAPI operator * (const LVect &, const LVect &);
+	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
+	friend LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
+	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
+	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
-	char * P_Name;
+	//char * P_Name;
 	LMIDX  Dim;
 	double * P_Vals;
 };
@@ -9807,10 +9817,10 @@ public:
 	int    FASTCALL operator += (const LMatrix &);
 	int    FASTCALL operator -= (const LMatrix &);
 
-	friend LVect   * SLAPI operator * (const LMatrix &, const LVect &);
-	friend LMatrix * SLAPI operator * (const LMatrix &, const LMatrix &);
-	friend LVect   * SLAPI operator * (const LVect &, const LMatrix &);
-	friend LMatrix * SLAPI operator * (const LVect &, const LVect &);
+	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
+	friend LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
+	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
+	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
 	double * SLAPI sget(LMIDX, LMIDX) const;
 	int    SLAPI add(const LMatrix &, int minus);
@@ -9830,16 +9840,16 @@ void   SLAPI print(const LMatrix &, FILE *, long fmt);
 int    SLAPI read(LVect *, FILE *);
 int    SLAPI read(LMatrix *, FILE *);
 
-LVect   * SLAPI operator * (const LMatrix &, const LVect &);
-LMatrix * SLAPI operator * (const LMatrix &, const LMatrix &);
+LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
+LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
 //
 // Descr: Product of row-vect[m] and matrix[m, n] : row-vect[n]
 //
-LVect   * SLAPI operator * (const LVect &, const LMatrix &);
+LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
 //
 // Descr: Product of column-vect[n] and row-vect[m] : matrix[n, m]
 //
-LMatrix * SLAPI operator * (const LVect &, const LVect &);
+LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 //
 //
 //
@@ -9861,7 +9871,7 @@ public:
 	LMatrix2D & InitRotateDeg(double tetaDeg);
 	LMatrix2D & InitSkew(double angleX, double angleY);
 	LMatrix2D & InitSkewDeg(double angleXDeg, double angleYDeg);
-	LMatrix2D & operator = (double s);
+	LMatrix2D & FASTCALL operator = (double s);
 	LMatrix2D & FASTCALL operator = (const LMatrix2D & rS);
 	LMatrix2D & Mult(const LMatrix2D & rM1, const LMatrix2D & rM2);
 	LMatrix2D & Mult(double m);
@@ -9914,7 +9924,7 @@ public:
 	enum {
 		fExt          = 0x0001, // Рассчитывать дополнительные статистики
 		fGammaTest    = 0x0002, // Выполнить тест на гамма-распределение
-		fGaussianTest = 0x0004, // Выполнить тест на нормальное распределение
+		fGaussianTest = 0x0004, // @unimplemented Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series
 	};
 	explicit SLAPI  StatBase(long flags = 0);
@@ -9941,8 +9951,7 @@ protected:
 	long   Count;
 	double Min;
 	double Max;
-	double Sum[4]; // Sum[0] - линейная сумма, Sum[1] - сумма квадратов, Sum[2] - сумма кубов,
-		// Sum[3] - сумма четвертых степеней
+	double Sum[4]; // Sum[0] - линейная сумма, Sum[1] - сумма квадратов, Sum[2] - сумма кубов, Sum[3] - сумма четвертых степеней
 	double Exp;    // Математическое ожидание
 	double Var;    // Дисперсия //
 	double Kurtosis; // if (Flags & fExt) ((Sum4 / Count) / pow(SumQ / Count, 2)) - 3.0;
@@ -10069,6 +10078,14 @@ public:
 	int    SLAPI GetValue(uint itemIdx, uint vecIdx, float * pValue) const;
 	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const;
 	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
+	//
+	// Descr: Извлекает из вектора с индексом vecIdx вектор значений размерности rV.size(), начиная с индекса startItemIdx.
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//   <0 - не нашлось достаточное количество элементов, начиная с startItemIdx
+	//   0  - ошибка
+	//
+	int    SLAPI GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
 
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);

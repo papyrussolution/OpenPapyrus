@@ -4404,23 +4404,25 @@ int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::E
 	SString mark = pMark;
 	mark.Strip();
 	THROW(PrcssrAlcReport::IsEgaisMark(mark, 0));
-    mark.Sub(0, 2, temp_buf);
-	rMb.Ver = (int16)temp_buf.ToLong();
-	{
-		mark.Sub(3, 5, temp_buf);
-		size_t ap_start = 0;
-		size_t ap_len = 0;
-		if(temp_buf == "00000") {
-			ap_start = 8;
-			ap_len = 11;
+	ok = 1;
+	if(mark.Len() == 68) { // Марки длиной 150 символов не имеют осмысленной информации
+		mark.Sub(0, 2, temp_buf);
+		rMb.Ver = (int16)temp_buf.ToLong();
+		{
+			mark.Sub(3, 5, temp_buf);
+			size_t ap_start = 0;
+			size_t ap_len = 0;
+			if(temp_buf == "00000") {
+				ap_start = 8;
+				ap_len = 11;
+			}
+			else {
+				ap_start = 7;
+				ap_len = 12;
+			}
+			mark.Sub(ap_start, ap_len, temp_buf);
+			Base36ToAlcoCode(temp_buf, rMb.EgaisCode);
 		}
-		else {
-			ap_start = 7;
-			ap_len = 12;
-		}
-		mark.Sub(ap_start, ap_len, temp_buf);
-		Base36ToAlcoCode(temp_buf, rMb.EgaisCode);
-		ok = 1;
 	}
 	CATCHZOK
 	return ok;

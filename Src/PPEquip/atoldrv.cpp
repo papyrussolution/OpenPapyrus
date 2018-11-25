@@ -154,6 +154,7 @@ private:
 		PrintPurpose,       // @v9.1.8
 		BarcodeControlCode, // @v9.1.8
 		TaxTypeNumber,      // @v10.0.03 1..5
+		OperatorName        // @v10.2.5 Имя кассира 
 	};
 
 	enum AtolDrvFlags {
@@ -284,6 +285,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);       // @v9.1.8
 	THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0); // @v9.1.8
 	THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
+	THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0); // @v10.2.5
 	CATCH
 		ZDELETE(p_disp);
 	ENDCATCH
@@ -645,6 +647,19 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		}
 		THROW(SetProp(Mode, MODE_REGISTER));
+		// @v10.2.5 {
+		//
+		// Имя кассира
+		//
+		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
+			PPObjSecur sec_obj(PPOBJ_USR, 0);
+			PPSecur sec_rec;
+			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0) {
+				(temp_buf = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+				THROW(SetProp(OperatorName, temp_buf));
+			}
+		}
+		// } @v10.2.5 
 		THROW(ExecOper(NewDocument));
 		THROW(GetProp(CharLineLength, &CheckStrLen));
 		{

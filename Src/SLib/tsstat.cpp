@@ -32,7 +32,7 @@ int SLAPI StatBase::Init(long flags /*=0*/)
 }
 
 // @prototype
-double Lockes_Z_Test(const RealArray & x);
+static double Lockes_Z_Test(const RealArray & x);
 
 int SLAPI StatBase::Finish()
 {
@@ -120,9 +120,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 	int    Tx25 = 0, Ty25 = 0;
 	int    tie, N0, N1, S;
 	uint   i;
-	// 
+	//
 	// populate sorter
-	// 
+	//
 	uint   j = 0;
 	rXy.clear();
 	for(i = 0; i < x.getCount(); i++) {
@@ -134,9 +134,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 		//}
 	}
 	rXy.SortByX(); // sort pairs by x
-	// 
+	//
 	// make order counts
-	// 
+	//
 	N0 = N1 = 0;
 	uint   nn = rXy.getCount();
 	for(i = 0; i < nn; i++) {
@@ -155,9 +155,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 			}
 		}
 		if(i > 0) {
-			// 
+			//
 			// account for ties in x
-			// 
+			//
 			tie = (x_i == rXy[i-1].X);
 			if(tie)
 				tx++;
@@ -172,9 +172,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 		}
 	}
 	if(Ty > 0) {
-		// 
+		//
 		// account for ties in y
-		// 
+		//
 		Ty = 0;
 		rXy.SortByY();
 		for(i = 1; i < nn; i++) {
@@ -197,10 +197,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 	fprintf(stderr, "Tx = %d, Ty = %d\n", Tx, Ty);
 #endif
 	nn1 = nn * (nn - 1.0);
-	/*
-		normal approximation as in Shapiro and Chen,
-		Journal of Quality Technology, 2001
-	*/
+	//
+	// normal approximation as in Shapiro and Chen, Journal of Quality Technology, 2001
+	//
 	if(Tx == 0 && Ty == 0) {
 		tau = 2 * S / nn1;
 		s2 = (1.0/18) * nn1 * (2 * nn + 5);
@@ -219,10 +218,9 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 	ASSIGN_PTR(pz, z);
 	return 1;
 }
-/*
-	check for negative values, screen out missing values,
-	and load x into an array for randomization
-*/
+//
+// check for negative values, screen out missing values, and load x into an array for randomization
+//
 static int locke_shuffle_init(const RealArray & rX, RealArray & rResult)
 {
 	uint   i, m = 0;
@@ -252,19 +250,19 @@ IMPL_CMPCFUNC(lockes_test_rand, i1, i2)
 	ulong r = p_rng ? p_rng->GetUniformInt(8096) : 0;
 	return (r - 4097);
 }
-/*
-	lockes_test:
-	@x: data series.
-
-	Performs Charles Locke's nonparametric test for whether an
-	empirical distribution (namely, that of @x over the range @t1 to @t2) is gamma.
-	See C. Locke, "A Test for the Composite Hypothesis that a Population has a Gamma Distribution,"
-	Commun. Statis.-Theor. Meth. A5(4), 351-364 (1976).  Also see Shapiro and Chen,
-	Journal of Quality Technology 33(1), Jan 2001.
-
-	Returns: the z value for test, or #NADBL on error.
-*/
-double Lockes_Z_Test(const RealArray & x)
+//
+// lockes_test:
+// @x: data series.
+//
+// Performs Charles Locke's nonparametric test for whether an
+// empirical distribution (namely, that of @x over the range @t1 to @t2) is gamma.
+// See C. Locke, "A Test for the Composite Hypothesis that a Population has a Gamma Distribution,"
+// Commun. Statis.-Theor. Meth. A5(4), 351-364 (1976).  Also see Shapiro and Chen,
+// Journal of Quality Technology 33(1), Jan 2001.
+// Returns:
+//   the z value for test, or #NADBL on error.
+//
+static double Lockes_Z_Test(const RealArray & x)
 {
 	double z = 0.0; // NADBL
 	double zj;
@@ -289,10 +287,10 @@ double Lockes_Z_Test(const RealArray & x)
 			nrepeat = 1;
 		else if(x.getCount() > 1000)
 			nrepeat = 10;
-		/*
-			repeat the shuffling of the series NREPEAT times, since the
-			test statistic is sensitive to the ordering under the null
-		*/
+		//
+		// repeat the shuffling of the series NREPEAT times, since the
+		// test statistic is sensitive to the ordering under the null
+		//
 		p_rng = SRng::CreateInstance(SRng::algMT, 0);
 		p_rng->Set(getcurtime_());
 		for(uint j = 0; j < nrepeat; j++) {
@@ -354,15 +352,13 @@ int SLAPI TimSerStat::SetNumLags(long numLags)
 	ZDELETE(P_AC_Mul);
 	if(NumLags > 0) {
 		size_t n = (size_t)NumLags;
-		THROW_V(P_Queue = new DblQueue(n), SLERR_NOMEM);
-		THROW_V(P_AC_Add = new double[n], SLERR_NOMEM);
-		THROW_V(P_AC_Mul = new double[n], SLERR_NOMEM);
+		THROW(P_Queue = new DblQueue(n));
+		THROW(P_AC_Add = new double[n]);
+		THROW(P_AC_Mul = new double[n]);
 		memzero(P_AC_Add, sizeof(double) * n);
 		memzero(P_AC_Mul, sizeof(double) * n);
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -715,7 +711,7 @@ int FASTCALL STimeSeries::GetTime(uint itemIdx, SUniTime * pT) const
 int FASTCALL STimeSeries::Swap(uint p1, uint p2)
 {
 	int    ok = 1;
-	if(p1 == p2) 
+	if(p1 == p2)
 		ok = -1;
 	else {
 		THROW(T.swap(p1, p2));
@@ -819,7 +815,7 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 	if(src_to_this_vl_assoc_list.getCount()) {
 		SUniTime ut_last;
 		SUniTime ut;
-		SUniTime fut; 
+		SUniTime fut;
 		int    skip_existance_checking = 0;
 		if(GetCount())
 			GetTime(GetCount()-1, &ut_last);
@@ -1161,6 +1157,26 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
 		}
 		ok = 1;
 	}
+	return ok;
+}
+
+int SLAPI STimeSeries::GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const
+{
+	int    ok = -1;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+    THROW(p_vec);
+	if(rV.size() > 0) {
+		const uint last_idx = startItemIdx+rV.size()-1;
+		if(last_idx < p_vec->getCount()) {
+			for(uint i = startItemIdx, j = 0; i <= last_idx; i++, j++) {
+				const void * p_value_buf = p_vec->at(i);
+				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				THROW(rV.set(j, value));
+			}
+			ok = 1;
+		}
+	}
+    CATCHZOK
 	return ok;
 }
 

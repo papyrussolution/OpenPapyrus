@@ -895,34 +895,27 @@ struct fann_train_data {
 /* Group: Training */
 
 #ifndef FIXEDFANN
-/* Function: fann_train
-
-   Train one iteration with a set of inputs, and a set of desired outputs.
-   This training is always incremental training (see <fann_train_enum>), since
-   only one pattern is presented.
-
-   Parameters:
-        ann - The neural network structure
-        input - an array of inputs. This array must be exactly <fann_get_num_input> long.
-        desired_output - an array of desired outputs. This array must be exactly <fann_get_num_output> long.
-
-        See also: <fann_train_on_data>, <fann_train_epoch>
-
-        This function appears in FANN >= 1.0.0.
- */
+// 
+// Train one iteration with a set of inputs, and a set of desired outputs.
+// This training is always incremental training (see <fann_train_enum>), since only one pattern is presented.
+// 
+// Parameters:
+//   ann - The neural network structure
+//   input - an array of inputs. This array must be exactly <fann_get_num_input> long.
+//   desired_output - an array of desired outputs. This array must be exactly <fann_get_num_output> long.
+// See also: <fann_train_on_data>, <fann_train_epoch>
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL void FANN_API fann_train(struct fann * ann, fann_type * input, fann_type * desired_output);
 
 #endif  /* NOT FIXEDFANN */
-
-/* Function: fann_test
-   Test with a set of inputs, and a set of desired outputs.
-   This operation updates the mean square error, but does not
-   change the network in any way.
-
-   See also: <fann_test_data>, <fann_train>
-
-   This function appears in FANN >= 1.0.0.
- */
+// 
+// Test with a set of inputs, and a set of desired outputs.
+// This operation updates the mean square error, but does not change the network in any way.
+// 
+// See also: <fann_test_data>, <fann_train>
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL fann_type * FANN_API fann_test(struct fann * ann, fann_type * input, fann_type * desired_output);
 
 /* Function: fann_get_MSE
@@ -1161,43 +1154,29 @@ FANN_EXTERNAL void FANN_API fann_shuffle_train_data(struct fann_train_data * tra
    This function appears in FANN >= 2.3.0
  */
 FANN_EXTERNAL fann_type FANN_API fann_get_min_train_input(struct fann_train_data * train_data);
-
-/* Function: fann_get_max_train_input
-
-   Get the maximum value of all in the input data
-
-   This function appears in FANN >= 2.3.0
- */
+// 
+// Get the maximum value of all in the input data
+// This function appears in FANN >= 2.3.0
+// 
 FANN_EXTERNAL fann_type FANN_API fann_get_max_train_input(struct fann_train_data * train_data);
-
-/* Function: fann_get_min_train_output
-
-   Get the minimum value of all in the output data
-
-   This function appears in FANN >= 2.3.0
- */
+// 
+// Get the minimum value of all in the output data
+// This function appears in FANN >= 2.3.0
+// 
 FANN_EXTERNAL fann_type FANN_API fann_get_min_train_output(struct fann_train_data * train_data);
-
-/* Function: fann_get_max_train_output
-
-   Get the maximum value of all in the output data
-
-   This function appears in FANN >= 2.3.0
- */
+// 
+// Get the maximum value of all in the output data
+// This function appears in FANN >= 2.3.0
+// 
 FANN_EXTERNAL fann_type FANN_API fann_get_max_train_output(struct fann_train_data * train_data);
-
-/* Function: fann_scale_train
-
-   Scale input and output data based on previously calculated parameters.
-
-   Parameters:
-     ann      - ann for which trained parameters were calculated before
-     data     - training data that needs to be scaled
-
-   See also: <fann_descale_train>, <fann_set_scaling_params>
-
-    This function appears in FANN >= 2.1.0
- */
+// 
+// Scale input and output data based on previously calculated parameters.
+// Parameters:
+//   ann      - ann for which trained parameters were calculated before
+//   data     - training data that needs to be scaled
+// See also: <fann_descale_train>, <fann_set_scaling_params>
+// This function appears in FANN >= 2.1.0
+// 
 FANN_EXTERNAL void FANN_API fann_scale_train(struct fann * ann, struct fann_train_data * data);
 
 /* Function: fann_descale_train
@@ -2031,15 +2010,11 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_temperature(struct fann * ann, floa
         This function appears in FANN >= 2.0.0.
  */
 FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(struct fann * ann, struct fann_train_data * data, uint max_neurons, uint neurons_between_reports, float desired_error);
-
-/* Function: fann_cascadetrain_on_file
-
-   Does the same as <fann_cascadetrain_on_data>, but reads the training data directly from a file.
-
-   See also: <fann_cascadetrain_on_data>
-
-        This function appears in FANN >= 2.0.0.
- */
+// 
+// Does the same as <fann_cascadetrain_on_data>, but reads the training data directly from a file.
+// See also: <fann_cascadetrain_on_data>
+// This function appears in FANN >= 2.0.0.
+// 
 FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(struct fann * ann, const char * filename, uint max_neurons, uint neurons_between_reports, float desired_error);
 
 /* Group: Parameters */
@@ -2066,69 +2041,52 @@ FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(struct fann * ann, const c
         This function appears in FANN >= 2.0.0.
  */
 FANN_EXTERNAL float FANN_API fann_get_cascade_output_change_fraction(struct fann * ann);
-
-/* Function: fann_set_cascade_output_change_fraction
-
-   Sets the cascade output change fraction.
-
-   See also: <fann_get_cascade_output_change_fraction>
-
-        This function appears in FANN >= 2.0.0.
- */
+// 
+// Descr: Sets the cascade output change fraction.
+// See also: <fann_get_cascade_output_change_fraction>
+// This function appears in FANN >= 2.0.0.
+// 
 FANN_EXTERNAL void FANN_API fann_set_cascade_output_change_fraction(struct fann * ann, float cascade_output_change_fraction);
-
-/* Function: fann_get_cascade_output_stagnation_epochs
-
-   The number of cascade output stagnation epochs determines the number of epochs training is allowed to
-   continue without changing the MSE by a fraction of <fann_get_cascade_output_change_fraction>.
-
-   See more info about this parameter in <fann_get_cascade_output_change_fraction>.
-
-   The default number of cascade output stagnation epochs is 12.
-
-   See also: <fann_set_cascade_output_stagnation_epochs>, <fann_get_cascade_output_change_fraction>
-
-        This function appears in FANN >= 2.0.0.
- */
+// 
+// Descr: The number of cascade output stagnation epochs determines the number of epochs training is allowed to
+// continue without changing the MSE by a fraction of <fann_get_cascade_output_change_fraction>.
+// 
+// See more info about this parameter in <fann_get_cascade_output_change_fraction>.
+// 
+// The default number of cascade output stagnation epochs is 12.
+// See also: <fann_set_cascade_output_stagnation_epochs>, <fann_get_cascade_output_change_fraction>
+// This function appears in FANN >= 2.0.0.
+// 
 FANN_EXTERNAL uint FANN_API fann_get_cascade_output_stagnation_epochs(struct fann * ann);
 // 
-// Sets the number of cascade output stagnation epochs.
+// Descr: Sets the number of cascade output stagnation epochs.
 // See also: <fann_get_cascade_output_stagnation_epochs>
 // This function appears in FANN >= 2.0.0.
 // 
 FANN_EXTERNAL void FANN_API fann_set_cascade_output_stagnation_epochs(struct fann * ann, uint cascade_output_stagnation_epochs);
-
-/* Function: fann_get_cascade_candidate_change_fraction
-
-   The cascade candidate change fraction is a number between 0 and 1 determining how large a fraction
-   the <fann_get_MSE> value should change within <fann_get_cascade_candidate_stagnation_epochs> during
-   training of the candidate neurons, in order for the training not to stagnate. If the training
-   stagnates, the training of the candidate neurons will be ended and the best candidate will be selected.
-
-   This means:
-   If the MSE does not change by a fraction of <fann_get_cascade_candidate_change_fraction> during a
-   period of <fann_get_cascade_candidate_stagnation_epochs>, the training of the candidate neurons
-   is stopped because the training has stagnated.
-
-   If the cascade candidate change fraction is low, the candidate neurons will be trained more and if the
-   fraction is high they will be trained less.
-
-   The default cascade candidate change fraction is 0.01, which is equivalent to a 1% change in MSE.
-
-   See also: <fann_set_cascade_candidate_change_fraction>, <fann_get_MSE>, <fann_get_cascade_candidate_stagnation_epochs>
-
-        This function appears in FANN >= 2.0.0.
- */
+// 
+// Descr: The cascade candidate change fraction is a number between 0 and 1 determining how large a fraction
+// the <fann_get_MSE> value should change within <fann_get_cascade_candidate_stagnation_epochs> during
+// training of the candidate neurons, in order for the training not to stagnate. If the training
+// stagnates, the training of the candidate neurons will be ended and the best candidate will be selected.
+// This means:
+// If the MSE does not change by a fraction of <fann_get_cascade_candidate_change_fraction> during a
+// period of <fann_get_cascade_candidate_stagnation_epochs>, the training of the candidate neurons
+// is stopped because the training has stagnated.
+// 
+// If the cascade candidate change fraction is low, the candidate neurons will be trained more and if the
+// fraction is high they will be trained less.
+// The default cascade candidate change fraction is 0.01, which is equivalent to a 1% change in MSE.
+// 
+// See also: <fann_set_cascade_candidate_change_fraction>, <fann_get_MSE>, <fann_get_cascade_candidate_stagnation_epochs>
+// This function appears in FANN >= 2.0.0.
+// 
 FANN_EXTERNAL float FANN_API fann_get_cascade_candidate_change_fraction(struct fann * ann);
-
-/* Function: fann_set_cascade_candidate_change_fraction
-
-   Sets the cascade candidate change fraction.
-
-   See also: <fann_get_cascade_candidate_change_fraction>
-
-        This function appears in FANN >= 2.0.0.
- */
+// 
+// Sets the cascade candidate change fraction.
+// See also: <fann_get_cascade_candidate_change_fraction>
+// This function appears in FANN >= 2.0.0.
+//
 FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_change_fraction(struct fann * ann, float cascade_candidate_change_fraction);
 
 /* Function: fann_get_cascade_candidate_stagnation_epochs
@@ -2527,30 +2485,22 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_standard_2(uint num_layers, ...
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_standard_array(uint num_layers,
-    const uint * layers);
-
-/* Function: fann_create_sparse
-
-        Creates a standard backpropagation neural network, which is not fully connected.
-
-        Parameters:
-                connection_rate - The connection rate controls how many connections there will be in the
-                        network. If the connection rate is set to 1, the network will be fully
-                        connected, but if it is set to 0.5 only half of the connections will be set.
-                        A connection rate of 1 will yield the same result as <fann_create_standard>
-                num_layers - The total number of layers including the input and the output layer.
-                ... - Integer values determining the number of neurons in each layer starting with the
-                        input layer and ending with the output layer.
-
-        Returns:
-                A pointer to the newly created <struct fann>.
-
-        See also:
-                <fann_create_sparse_array>, <fann_create_standard>, <fann_create_shortcut>
-
-        This function appears in FANN >= 2.0.0.
- */
+FANN_EXTERNAL struct fann * FANN_API fann_create_standard_array(uint num_layers, const uint * layers);
+// 
+// Creates a standard backpropagation neural network, which is not fully connected.
+// Parameters:
+//   connection_rate - The connection rate controls how many connections there will be in the
+//    network. If the connection rate is set to 1, the network will be fully
+//    connected, but if it is set to 0.5 only half of the connections will be set.
+//    A connection rate of 1 will yield the same result as <fann_create_standard>
+//   num_layers - The total number of layers including the input and the output layer.
+//    ... - Integer values determining the number of neurons in each layer starting with the
+//    input layer and ending with the output layer.
+// Returns:
+//    A pointer to the newly created <struct fann>.
+// See also: <fann_create_sparse_array>, <fann_create_standard>, <fann_create_shortcut>
+// This function appears in FANN >= 2.0.0.
+// 
 FANN_EXTERNAL struct fann * FANN_API fann_create_sparse_2(float connection_rate, uint num_layers, ...);
 
 /* Function: fann_create_sparse_array
@@ -2680,65 +2630,45 @@ FANN_EXTERNAL void FANN_API fann_init_weights(struct fann * ann, struct fann_tra
         This function appears in FANN >= 1.2.0.
  */
 FANN_EXTERNAL void FANN_API fann_print_connections(struct fann * ann);
+// 
+// Group: Parameters 
+//
 
-/* Group: Parameters */
-/* Function: fann_print_parameters
-
-        Prints all of the parameters and options of the ANN
-
-        This function appears in FANN >= 1.2.0.
- */
+// 
+// Descr: Prints all of the parameters and options of the ANN
+// This function appears in FANN >= 1.2.0.
+// 
 FANN_EXTERNAL void FANN_API fann_print_parameters(struct fann * ann);
-
-/* Function: fann_get_num_input
-
-   Get the number of input neurons.
-
-        This function appears in FANN >= 1.0.0.
- */
+// 
+// Get the number of input neurons.
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL uint FANN_API fann_get_num_input(struct fann * ann);
-
-/* Function: fann_get_num_output
-
-   Get the number of output neurons.
-
-        This function appears in FANN >= 1.0.0.
- */
+// 
+// Get the number of output neurons.
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL uint FANN_API fann_get_num_output(struct fann * ann);
-
-/* Function: fann_get_total_neurons
-
-   Get the total number of neurons in the entire network. This number does also include the
-        bias neurons, so a 2-4-2 network has 2+4+2 +2(bias) = 10 neurons.
-
-        This function appears in FANN >= 1.0.0.
- */
+// 
+// Get the total number of neurons in the entire network. This number does also include the
+//   bias neurons, so a 2-4-2 network has 2+4+2 +2(bias) = 10 neurons.
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL uint FANN_API fann_get_total_neurons(struct fann * ann);
-
-/* Function: fann_get_total_connections
-
-   Get the total number of connections in the entire network.
-
-        This function appears in FANN >= 1.0.0.
- */
+// 
+// Get the total number of connections in the entire network.
+// This function appears in FANN >= 1.0.0.
+// 
 FANN_EXTERNAL uint FANN_API fann_get_total_connections(struct fann * ann);
-
-/* Function: fann_get_network_type
-
-    Get the type of neural network it was created as.
-
-    Parameters:
-                ann - A previously created neural network structure of
-            type <struct fann> pointer.
-
-        Returns:
-        The neural network type from enum <fann_network_type_enum>
-
-    See Also:
-        <fann_network_type_enum>
-
-   This function appears in FANN >= 2.1.0
- */
+// 
+// Get the type of neural network it was created as.
+// Parameters:
+//   ann - A previously created neural network structure of type <struct fann> pointer.
+// Returns:
+//   The neural network type from enum <fann_network_type_enum>
+// See Also: <fann_network_type_enum>
+// This function appears in FANN >= 2.1.0
+// 
 FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(struct fann * ann);
 
 /* Function: fann_get_connection_rate

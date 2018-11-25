@@ -599,8 +599,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int    flag = 0;
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
 			THROW(GetCurFlags(2, flag));
-			THROWERR(!(flag & 0x0010), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
-			THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
+			// @v10.2.5 THROWERR(!(flag & 0x0010), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
+			// @v10.2.5 THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
 			// @v10.2.3 THROWERR(!(flag & 0x0080), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
 			THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 			GetTaxTab(); // @v9.7.1
@@ -1388,7 +1388,7 @@ int PiritEquip::SetCfg()
 		}
 	}
 	// Установка/снятие флага печати логотипа
-	THROW(PrintLogo((Cfg.Logo.Print == 1) ? 1 : 0))
+	// @v10.2.5 THROW(PrintLogo((Cfg.Logo.Print == 1) ? 1 : 0))
 	CATCHZOK
 	return ok;
 }

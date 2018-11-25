@@ -2000,7 +2000,7 @@ static int FASTCALL format_copystr(char ** outbuf, int * outbuf_size, const char
 		return 0;
 	else {
 		*outbuf_size -= str_size;
-		char*  p = *outbuf;
+		char *  p = *outbuf;
 		while(str_size-- > 0)
 			*p++ = *str++;
 		*outbuf = p;
@@ -2050,7 +2050,7 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision)
+int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision)
 {
 	// 1. Unpack double precision value
 	int is_nan      = 0;
@@ -2099,13 +2099,13 @@ int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_c
 	//    ndigits - number of digits to print from decimal_mantissa[1..19].
 	//    suffix  - formatted exponent like "e-5"
 	//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
-	int point   = 1;
-	int z1      = 0;
-	int z2      = 0;
-	int ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
-	char suffix[16];
-	int suffix_width = 0;
-	int original_format_char = format_char;
+	int    point   = 1;
+	int    z1      = 0;
+	int    z2      = 0;
+	int    ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
+	char   suffix[16];
+	int    suffix_width = 0;
+	int    original_format_char = format_char;
 	if(format_char == 'g') {
 		// get rid of excess precision
 		if(format_precision == 0)
@@ -2114,10 +2114,9 @@ int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_c
 			exponent += (ndigits - format_precision); // retain invariant "point after mantissa"
 			ndigits = bcd_round(format_precision, decimal_mantissa, &exponent);
 		}
-
 		// choose format: e or f
 		int e = exponent + (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
-		if(( e >= -4 )&&( e < format_precision )) { // so printf(3) rules say
+		if((e >= -4) && (e < format_precision)) { // so printf(3) rules say
 			format_char = 'f';
 		}
 		else {
@@ -2273,26 +2272,23 @@ int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_c
 // error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 // condition as an indication of successful conversion.
 // 
-int dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange)
+int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange)
 {
 	// 1. Handle special cases
 	if(oneof2(input[0], 'n', 'N') && oneof2(input[1], 'a', 'A') && oneof2(input[2], 'n', 'N')) {
-		if(input_end)
-			*input_end = input + 3;
+		ASSIGN_PTR(input_end, input + 3);
 		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;
 	}
 	else if(oneof2(input[0], 'i', 'I') && oneof2(input[1], 'n', 'N') && oneof2(input[2], 'f', 'F')) {
-		if(input_end)
-			*input_end = (input + 3);
+		ASSIGN_PTR(input_end, input + 3);
 		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;
 	}
 	else if(input[0] == '-' && oneof2(input[1], 'i', 'I') && oneof2(input[2], 'n', 'N') && oneof2(input[3], 'f', 'F')) {
-		if(input_end)
-			*input_end = input + 4;
+		ASSIGN_PTR(input_end, input + 4);
 		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
 		*output_erange = 0;
 		return 1;

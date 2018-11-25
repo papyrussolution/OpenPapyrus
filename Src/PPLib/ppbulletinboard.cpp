@@ -156,6 +156,10 @@ class TimeSeriesCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
 		long   Flags;
+		double BuyMarg;
+		double SellMarg;
+		int16  Prec;
+		uint16 Reserve; // @alignment
 	};
 	static int OnQuartz(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	{
@@ -219,10 +223,14 @@ int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	PPTimeSeries rec;
 	if(ts_obj.Search(id, &rec) > 0) {
 		p_cache_rec->Flags    = rec.Flags;
+		p_cache_rec->BuyMarg  = rec.BuyMarg;
+		p_cache_rec->SellMarg = rec.SellMarg;
+		p_cache_rec->Prec     = rec.Prec;
 
 		MultTextBlock b;
 		b.Add(rec.Name);
 		b.Add(rec.Symb);
+		b.Add(rec.CurrencySymb);
 		ok = PutTextBlock(b, p_cache_rec);
 	}
 	else
@@ -238,10 +246,14 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_rec->Tag   = PPOBJ_TIMESERIES;
 	p_data_rec->ID    = p_cache_rec->ID;
 	p_data_rec->Flags = p_cache_rec->Flags;
+	p_data_rec->BuyMarg  = p_cache_rec->BuyMarg;
+	p_data_rec->SellMarg = p_cache_rec->SellMarg;
+	p_data_rec->Prec     = p_cache_rec->Prec;
 	//
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
+	b.Get(p_data_rec->CurrencySymb, sizeof(p_data_rec->CurrencySymb));
 }
 
 SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0)
@@ -438,6 +450,74 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->SetTimeSeries(rTs) : 0;
+}
+
+int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)
+{
+	int    ok = -1;
+	int    do_update = 0;
+	PPTimeSeries ts_rec;
+	PPID   id = 0;
+	THROW(SearchBySymb(pSymb, &id, &ts_rec) > 0);
+	if(!isempty(pPropSymb)) {
+		const SymbHashTable * p_sht = PPGetStringHash(PPSTR_HASHTOKEN);
+		if(p_sht) {
+			uint   _ut = 0;
+			SString temp_buf = SLS.AcquireRvlStr();
+			(temp_buf = pPropSymb).Strip().ToLower();
+			p_sht->Search(temp_buf, &_ut, 0);
+			(temp_buf = pPropVal).Strip();
+			switch(_ut) {
+				case PPHS_TIMSER_PROP_PRECISION:
+					{
+						long prec = temp_buf.NotEmpty() ? temp_buf.ToLong() : 0;
+						if(prec != (long)ts_rec.Prec) {
+							ts_rec.Prec = (int16)prec;
+							do_update = 1;
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_MARGIN_BUY:
+					{
+						double marg = temp_buf.ToReal();
+						if(marg != (long)ts_rec.BuyMarg) {
+							ts_rec.BuyMarg = marg;
+							do_update = 1;
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_MARGIN_SELL:
+					{
+						double marg = temp_buf.ToReal();
+						if(marg != (long)ts_rec.SellMarg) {
+							ts_rec.SellMarg = marg;
+							do_update = 1;
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_CURRENCY_BASE:
+					// not implemented
+					break;
+				case PPHS_TIMSER_PROP_CURRENCY_PROFIT:
+					if(temp_buf.NotEmpty()) {
+						if(!sstreqi_ascii(temp_buf, ts_rec.CurrencySymb) && temp_buf.Len() < sizeof(ts_rec.CurrencySymb)) {
+							STRNSCPY(ts_rec.CurrencySymb, temp_buf);
+							do_update = 1;
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_CURRENCY_MARGIN:
+					// not implemented
+					break;
+			}
+			if(do_update) {
+				THROW(PutPacket(&id, &ts_rec, 1));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 // } @construction 

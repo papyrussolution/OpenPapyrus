@@ -6440,6 +6440,12 @@ int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 	999-999
 	999-9999
 	russia: 8(999)999-99-99 (8 9999)99-99-99
+
+Числа:
+	9'999'999.99
+	9'999'999,99
+	99,999.99
+	[0-9],. '-+
 */
 
 static int FASTCALL _ProbeDate(const SString & rText)
@@ -6474,6 +6480,8 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		};
 		uint32 f = 0;
 		uint   i;
+		uchar  num_potential_frac_delim = 0;
+		uchar  num_potential_tri_delim = 0;
 		LAssocArray chr_list;
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		const char the_first_chr = pToken[0];
@@ -6498,21 +6506,32 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		if(f & fUtf8) {
 			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
 				SNTOKSEQ_ASCII|SNTOKSEQ_866|SNTOKSEQ_1251|SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|
-				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH);
+				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
 		}
 		else {
-			if(the_first_chr == '#')
+			int is_lead_plus = 0;
+			int has_dec = 0;
+			i = 0;
+			if(the_first_chr == '#') {
 				h |= SNTOKSEQ_LEADSHARP;
+				i++;
+			}
 			else if(the_first_chr == '-')
 				h |= SNTOKSEQ_LEADMINUS;
 			else if(the_first_chr == '$')
 				h |= SNTOKSEQ_LEADDOLLAR;
+			else if(the_first_chr == '+')
+				is_lead_plus = 1;
 			const uint clc = chr_list.getCount();
-			for(i = 0; i < clc; i++) {
+			for(; i < clc; i++) {
 				const uchar c = (uchar)chr_list.at(i).Key;
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
+					const int is_hex_c = ishex(c);
+					const int is_dec_c = isdec(c);
+					if(is_dec_c)
+						has_dec = 1;
 					if(h & SNTOKSEQ_LAT && !IsLetterASCII(c))
 						h &= ~SNTOKSEQ_LAT;
 					else {
@@ -6521,26 +6540,40 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
 							h &= ~SNTOKSEQ_LATUPR;
 					}
-					if(h & SNTOKSEQ_HEX && !ishex(c))
+					if(h & SNTOKSEQ_HEX && !is_hex_c)
 						h &= ~SNTOKSEQ_HEX;
-					else if(h & SNTOKSEQ_DEC && !isdec(c))
+					else if(h & SNTOKSEQ_DEC && !is_dec_c)
 						h &= ~SNTOKSEQ_DEC;
-					if(h & SNTOKSEQ_DECHYPHEN && !(c == '-' || isdec(c)))
+					if(h & SNTOKSEQ_DECHYPHEN && !(c == '-' || is_dec_c))
 						h &= ~SNTOKSEQ_DECHYPHEN;
-					if(h & SNTOKSEQ_HEXHYPHEN && !(c == '-' || ishex(c)))
+					if(h & SNTOKSEQ_HEXHYPHEN && !(c == '-' || is_hex_c))
 						h &= ~SNTOKSEQ_HEXHYPHEN;
-					if(h & SNTOKSEQ_DECLAT && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c)))
+					if(h & SNTOKSEQ_DECLAT && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || is_dec_c))
 						h &= ~SNTOKSEQ_DECLAT;
-					if(h & SNTOKSEQ_DECCOLON && !(c == ':' || isdec(c)))
+					if(h & SNTOKSEQ_DECCOLON && !(c == ':' || is_dec_c))
 						h &= ~SNTOKSEQ_DECCOLON;
-					if(h & SNTOKSEQ_HEXCOLON && !(c == ':' || ishex(c)))
+					if(h & SNTOKSEQ_HEXCOLON && !(c == ':' || is_hex_c))
 						h &= ~SNTOKSEQ_HEXCOLON;
-					if(h & SNTOKSEQ_DECDOT && !(c == '.' || isdec(c)))
+					if(h & SNTOKSEQ_DECDOT && !(c == '.' || is_dec_c))
 						h &= ~SNTOKSEQ_DECDOT;
-					if(h & SNTOKSEQ_HEXDOT && !(c == '.' || ishex(c)))
+					if(h & SNTOKSEQ_HEXDOT && !(c == '.' || is_hex_c))
 						h &= ~SNTOKSEQ_HEXDOT;
-					if(h & SNTOKSEQ_DECSLASH && !(c == '/' || isdec(c)))
+					if(h & SNTOKSEQ_DECSLASH && !(c == '/' || is_dec_c))
 						h &= ~SNTOKSEQ_DECSLASH;
+					if(h & SNTOKSEQ_NUMERIC) {
+						if(!is_dec_c && !oneof7(c, ',', '.', '\'', '`', ' ', '+', '-'))
+							h &= ~SNTOKSEQ_NUMERIC;
+						else if(the_first_chr == ' ')
+							h &= ~SNTOKSEQ_NUMERIC;
+						else if(oneof2(c, '+', '-')) {
+							if(chr_list.at(i).Val > 1)
+								h &= ~SNTOKSEQ_NUMERIC;
+							else if(c == '+' && !is_lead_plus)
+								h &= ~SNTOKSEQ_NUMERIC;
+							else if(c == '-' && !(h & SNTOKSEQ_LEADMINUS))
+								h &= ~SNTOKSEQ_NUMERIC;
+						}
+					}
 				}
 				if(h & SNTOKSEQ_866 && !IsLetter866(c))
 					h &= ~SNTOKSEQ_866;
@@ -6550,7 +6583,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(!(h & SNTOKSEQ_ASCII)) {
 				h &= ~(SNTOKSEQ_LAT|SNTOKSEQ_LATUPR|SNTOKSEQ_LATLWR|SNTOKSEQ_HEX|SNTOKSEQ_DEC|SNTOKSEQ_DECLAT|
 					SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|
-					SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH);
+					SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
 			}
 			else {
 				if(!(h & SNTOKSEQ_HEX))
@@ -6667,14 +6700,83 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					}
 				}
 			}
+			{
+				const uint32 tf = SNTOKSEQ_NUMERIC;
+				if(h & tf) {
+					if(!has_dec)
+						h &= ~tf;
+					else {
+						uint   comma_chr_pos = 0;
+						const  uint comma_count = chr_list.Search((long)',', 0, &comma_chr_pos) ? chr_list.at(comma_chr_pos).Val : 0;
+						uint   last_dec_ser = 0;
+						uint   j = stat.Len;
+						if(j) do {
+							const uchar lc = pToken[--j];
+							if(isdec(lc))
+								last_dec_ser++;
+							else {
+								if(lc == '.') {
+									if(!num_potential_frac_delim)
+										num_potential_frac_delim = lc;
+									else {
+										h &= ~tf;
+										break; // Две точки в разбираемом формате невозможны
+									}
+								}
+								else if(lc == ',' && comma_count == 1) {
+									// 999,99
+									// 999,999 - самый плохой случай. 
+									if(last_dec_ser == 3) {
+										num_potential_tri_delim = lc;
+									}
+									else if(num_potential_frac_delim) {
+										h &= ~tf;
+										break; // Роль десятичного разделителя занята, а на роль разделителя разрядов запятая здесь не годится - уходим.
+									}
+									if(!num_potential_frac_delim)
+										num_potential_frac_delim = lc;
+								}
+								else if((comma_count > 1) ? oneof4(lc, ',', '\'', '`', ' ') : oneof3(lc, '\'', '`', ' ')) {
+									if(last_dec_ser != 3) {
+										h &= ~tf;
+										break; // Потенциальный резделитель должен иметь точно 3 цифры справа. Это не так - уходим.
+									}
+									else {
+										if(!num_potential_tri_delim) {
+											num_potential_tri_delim = lc;
+										}
+										else if(num_potential_tri_delim != lc) {
+											h &= ~tf;
+											break; // Более одного символа могут претендовать на роль разделителя разрядов - уходим
+										}
+									}
+								}
+								else if(lc == '+') {
+									if(j) {
+										h &= ~tf;
+										break; // + может быть только в первой позиции
+									}
+								}
+								else if(lc == '-') {
+									if(j) {
+										h &= ~tf;
+										break; // - может быть только в первой позиции
+									}
+								}
+								last_dec_ser = 0;
+							}
+						} while(j);
+					}
+				}
+			}
 		}
 		if(h & SNTOKSEQ_LEADSHARP) {
 			if(h & SNTOKSEQ_HEX && stat.Len == 7) {
 				rResultList.Add(SNTOK_COLORHEX, 0.9f);
 			}
 		}
-		else if(h & SNTOKSEQ_LEADMINUS) {
-		}
+		/*else if(h & SNTOKSEQ_LEADMINUS) {
+		}*/
 		else if(h & SNTOKSEQ_LEADDOLLAR) {
 		}
 		else if(h & SNTOKSEQ_BACKPCT) {
@@ -6822,6 +6924,18 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					}
 				}
 			}
+			if(h & SNTOKSEQ_NUMERIC) {
+				if(num_potential_frac_delim && num_potential_frac_delim == num_potential_tri_delim) {
+					rResultList.Add(SNTOK_NUMERIC_COM, 0.6f);
+					rResultList.Add(SNTOK_NUMERIC_DOT, 0.6f);
+				}
+				else if(num_potential_frac_delim == ',') {
+					rResultList.Add(SNTOK_NUMERIC_COM, num_potential_tri_delim ? 0.7f : 0.95f);
+				}
+				else {
+					rResultList.Add(SNTOK_NUMERIC_DOT, num_potential_tri_delim ? 0.8f : 0.99f);
+				}
+			}
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
@@ -6841,7 +6955,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 #if SLTEST_RUNNING // {
 
-//int dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange);
+int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
 /*class SRevolver_SString : public TSRingStack <SString> {
 public:
@@ -7206,29 +7320,32 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 			{
 				const char * p_atof_tab[] = {
-					"0", "  -1.0", "+.1", "0.15", "-0.177777777", "+0003.2533333", "0010.0001", "1E-3", ".1e+9",
-					"-1.1", "1111111.3", "333333.7"
+					"0", " 0.001 ", "  -1.0", "+.1", "0.15", "-0.177777777", "+0003.2533333", "0010.0001", "1E-3", ".1e+9",
+					"-1.1", "1111111.315687841464787467897878", "-333333.7646878744111165464", "1548754.02117e-17"
 				};
 				for(uint i = 0; i < SIZEOFARRAY(p_atof_tab); i++) {
 					const char * p_text = p_atof_tab[i];
 					double v_satof;
-					double v_atof = atof(p_text);
-					SLTEST_CHECK_NZ(satof(p_text, &v_satof));
+					const double v_atof = atof(p_text);
+					//SLTEST_CHECK_NZ(satof(p_text, &v_satof));
+					//SLTEST_CHECK_EQ(v_satof, v_atof);
+
+					const char * p_end = 0;
+					int erange = 0;
+					SLTEST_CHECK_NZ(dconvstr_scan(p_text, &p_end, &v_satof, &erange));
 					SLTEST_CHECK_EQ(v_satof, v_atof);
 				}
-				/*
 				SString atof_buf;
 				for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
 					atof_buf.Z().Cat(F.RandomRealList.at(j), MKSFMTD(0, 20, NMBF_NOTRAILZ));
 					double v_satof;
-					double v_atof = atof(atof_buf);
-					//const char * p_end = 0;
-					//int erange = 0;
-					//dconvstr_scan(atof_buf, &p_end, &v_satof, &erange);
-					SLTEST_CHECK_NZ(satof(atof_buf, &v_satof));
+					const double v_atof = atof(atof_buf);
+					const char * p_end = 0;
+					int erange = 0;
+					SLTEST_CHECK_NZ(dconvstr_scan(atof_buf, &p_end, &v_satof, &erange));
+					//SLTEST_CHECK_NZ(satof(atof_buf, &v_satof));
 					SLTEST_CHECK_EQ(v_satof, v_atof);
 				}
-				*/
 			}
 			{
 				SLTEST_CHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
@@ -7406,6 +7523,65 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			(str = p_src_xmlenc).Decode_XMLENT(out_buf);
 			SLTEST_CHECK_EQ(out_buf, p_result_xmlenc);
 		}
+		{
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			tr.Run((const uchar *)"0123", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			tr.Run((const uchar *)"4610017121115", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_EAN13));
+			tr.Run((const uchar *)"4610017121116", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_EAN13)); // Инвалидная контрольная цифра
+			tr.Run((const uchar *)"20352165", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_EAN8));
+			tr.Run((const uchar *)"100100802804", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_RU_INN));
+			tr.Run((const uchar *)"0034012000001472206", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_EGAISWARECODE));
+			tr.Run((const uchar *)"a98P8s00W", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGLAT));
+			tr.Run((const uchar *)"4FC737F1-C7A5-4376-A066-2A32D752A2FF", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_GUID));
+			tr.Run((const uchar *)"mail.123@gogo-fi.com", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_EMAIL));
+			// @notimplemented tr.Run((const uchar *)"123-15-67", -1, nta.Z(), 0); 
+			// @notimplemented SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_PHONE));
+			// @notimplemented tr.Run((const uchar *)"+7(911)123-15-67", -1, nta.Z(), 0); 
+			// @notimplemented SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_PHONE));
+			tr.Run((const uchar *)"354190023896443", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_IMEI));
+			tr.Run((const uchar *)"192.168.0.1", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_IP4));
+			tr.Run((const uchar *)"1/12/2018", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DATE));
+			tr.Run((const uchar *)"20180531", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DATE));
+			// @notimplemented tr.Run((const uchar *)"11:30", -1, nta.Z(), 0); 
+			// @notimplemented SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_TIME));
+			// @notimplemented tr.Run((const uchar *)"11:30:46", -1, nta.Z(), 0); 
+			// @notimplemented SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_TIME));
+			tr.Run((const uchar *)"10.2.5", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_SOFTWAREVER));
+			tr.Run((const uchar *)"#000000", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_COLORHEX));
+			tr.Run((const uchar *)"#f82aB7", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_COLORHEX));
+
+			tr.Run((const uchar *)"+100,000.00", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_DOT));
+			tr.Run((const uchar *)"+100 000,00", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_COM));
+			tr.Run((const uchar *)"-100'000,00", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_COM));
+			tr.Run((const uchar *)"9", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_DOT));
+		}
 	}
 	else if(bm == 1) {
 		uint64 total_len = 0;
@@ -7489,10 +7665,11 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			double r = F.RandomRealList.at(j);
 			atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
 			double r2;
-			satof(atof_buf, &r2);
-			/*const char * p_end = 0;
+			//satof(atof_buf, &r2);
+			//
+			const char * p_end = 0;
 			int erange = 0;
-			dconvstr_scan(atof_buf, &p_end, &r2, &erange);*/
+			dconvstr_scan(atof_buf, &p_end, &r2, &erange);
 		}
 	}
 	CATCH

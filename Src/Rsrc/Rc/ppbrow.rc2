@@ -1249,7 +1249,7 @@ browser ACCOUNT_SYS north(100), 1, 0, "%s", OWNER|GRID, 0
 browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30, BCO_DONTSHOWDUPL
+	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"@group",       16, notype, 0, 20
 	"@manufacturer", 3, notype, 0, 20
 	"@brand",       15, notype, 0, 20
@@ -1264,7 +1264,7 @@ browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30, BCO_DONTSHOWDUPL
+	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"@manufacturer", 3, notype, 0, 20
 	"@brand",       15, notype, 0, 20
 	group "@munits" {
@@ -1297,7 +1297,7 @@ browser GOODSCARGO north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNE
 browser GOODSCARGOBARCODE north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30, BCO_DONTSHOWDUPL
+	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"@manufacturer", 3, notype, 0, 15
 	"@brand",       15, notype, 0, 15
 	group "@munits" {
@@ -1324,7 +1324,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 {
 	"@id",                 0, long, 0,             10, BCO_USERPROC
 	"N",                   7, long, 0,              4, BCO_USERPROC
-	"@ware",               1, zstring(128), 0,     60, BCO_USERPROC|BCO_DONTSHOWDUPL
+	"@ware",               1, zstring(128), 0,     60, BCO_USERPROC // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"Компонент структуры", 2, zstring(128), 0,     60, BCO_USERPROC
 	"Общий делитель",      6, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
 	"@qtty",               3, zstring(20), ALIGN_RIGHT, 10, BCO_USERPROC
@@ -5567,8 +5567,8 @@ browser PRCFREE north(100), 3, 1, "Свободные процессоры {%s}", OWNER|GRID, 0
 
 browser OBJLIKENESS north(100), 1, 1, "Сравнение объектов {%s}", OWNER|GRID, 0
 {
-	"Имя 1",                4, notype, 0, 30, BCO_DONTSHOWDUPL
-	"Имя 2",                5, notype, 0, 30
+	"@{name} 1",      4, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
+	"@{name} 2",      5, notype, 0, 30
 	"Совпадение (%)", 3, notype, NMBF_NOZERO, 20.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM1 : kbF2,     TBBM_NOICON, "Редактировать объект1\tF2"

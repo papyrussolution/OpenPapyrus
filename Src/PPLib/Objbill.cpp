@@ -421,7 +421,7 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 	return eq;
 }
 
-int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
+int SLAPI PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -472,6 +472,26 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 					}
 				}
 			}
+			// @v10.2.5 {
+			if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS) {
+				RealRange restr_bounds;
+				for(uint tidx = 0; tidx < pPack->GetTCount(); tidx++) {
+					const PPTransferItem & r_ti = pPack->ConstTI(tidx);
+					if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
+						const double validated_price = r_ti.NetPrice();
+						//THROW(restr_bounds.CheckVal(validated_price));
+						if(restr_bounds.low > 0.0) {
+							temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY);
+							THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
+						}
+						if(restr_bounds.upp > 0.0) {
+							temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY);
+							THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
+						}
+					}
+				}
+			}
+			// } @v10.2.5 
 		}
 	}
 	else

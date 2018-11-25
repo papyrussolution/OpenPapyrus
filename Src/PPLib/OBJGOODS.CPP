@@ -2034,7 +2034,7 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 					gsitem.Par1 = gext_rec.Y;
 				else if(sgg == sggDimZ)
 					gsitem.Par1 = gext_rec.Z;
-				else if(sgg == sggDimW) // @v8.6.1
+				else if(sgg == sggDimW)
 					gsitem.Par1 = gext_rec.W;
 				else if(sgg == sggClsKind)
 					gsitem.Par1 = gext_rec.KindID;

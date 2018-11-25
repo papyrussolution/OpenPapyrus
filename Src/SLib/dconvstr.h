@@ -54,7 +54,7 @@
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
+int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
 // 
 // Descr: Convert string to IEEE 754 floating-point double precision value
 // @param  input          Input buffer, C-style string. Filled by caller.
@@ -73,6 +73,6 @@ int dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_c
 // error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 // condition as an indication of successful conversion.
 // 
-int dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
+int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
 #endif // DCONVSTR_H

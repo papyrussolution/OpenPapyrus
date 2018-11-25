@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <crpe.h> // @v8.6.8
+#include <crpe.h>
 #include <StyloConduit.h>
 #include <ppds.h>
 //
@@ -53,15 +53,8 @@ void FASTCALL PPThread::SetJobID(PPID jobID)
 		JobID = jobID;
 }
 
-void FASTCALL PPThread::SetText(const char * pTxt)
-{
-	Text = pTxt;
-}
-
-void FASTCALL PPThread::SetMessage(const char * pMsg)
-{
-	LastMsg_ = pMsg;
-}
+void FASTCALL PPThread::SetText(const char * pTxt) { Text = pTxt; }
+void FASTCALL PPThread::SetMessage(const char * pMsg) { LastMsg_ = pMsg; }
 
 void FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
 {
@@ -242,7 +235,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetPersonByArticle,
 		tLogLockStack, // @v9.8.1
 		tSetTimeSeries, // @v10.2.3
-		tGetReqQuotes   // @v10.2.4
+		tGetReqQuotes,  // @v10.2.4
+		tSetTimeSeriesProp // @10.2.5
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -361,6 +355,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
 		{ PPHS_SETTIMESERIES            , "settimeseries",             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
 		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
+		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_GETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -650,6 +645,17 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			PutParam(1, Term);
 			break;
 		case tSetTimeSeries: // @v10.2.3
+			break;
+		case tSetTimeSeriesProp: // @v10.2.5
+			// SETTIMESERIESPROP symb prop value
+			{
+				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_TIMSERSYMB, rLine); // symb
+				PutParam(1, Term);
+				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PROPSYMB, rLine); // prop
+				PutParam(2, Term);
+				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PROPVAL, rLine); // value
+				PutParam(3, Term);
+			}
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -2326,6 +2332,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_GETDISPLAYINFO:
 		case PPSCMD_SETTIMESERIES: // @v10.2.4
 		case PPSCMD_GETREQQUOTES: // @v10.2.4
+		case PPSCMD_GETTIMESERIESPROP: // @v10.2.5
 			ok = cmdretUnprocessed;
 			break;
 		// }
@@ -3681,6 +3688,20 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				break;
 			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
 				ok = SetTimeSeries(rReply);
+				break;
+			case PPSCMD_GETTIMESERIESPROP: // @v10.2.5 @construction
+				{
+					pEv->GetParam(1, db_symb);
+					pEv->GetParam(2, name);
+					pEv->GetParam(3, temp_buf);
+					PPObjTimeSeries ts_obj;
+					if(!ts_obj.SetExternTimeSeriesProp(db_symb, name, temp_buf)) {
+						rReply.SetError();
+						ok = cmdretError;
+					}
+					else
+						ok = cmdretOK;
+				}
 				break;
 			case PPSCMD_GETDISPLAYINFO:
 				{

@@ -3636,10 +3636,13 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				use_filt = 1;
 				PPObjWorkbook wb_obj;
 				WorkbookTbl::Rec wb_rec;
+				PPIDArray temp_list; // @v10.2.5 
 				if(IdList.getCount()) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
-						if(wb_obj.Fetch(IdList.at(i), &wb_rec) > 0) // @v8.1.3 Search-->Fetch
-							THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+						if(wb_obj.Fetch(IdList.at(i), &wb_rec) > 0) {
+							// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+							temp_list.add(wb_rec.ID); // @v10.2.5 
+						}
 					}
 					use_filt = 0;
 				}
@@ -3655,12 +3658,15 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							const long _ep = o_buf.ToLong();
 							if(_ep == 2) {
 								if(wb_obj.SearchBySymb(txt_buf, &(temp_id = 0), &wb_rec) > 0) {
-									THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+									temp_list.add(wb_rec.ID); // @v10.2.5 
 								}
 							}
 							else if(_ep == 1) {
-								if(wb_obj.SearchByName(txt_buf, &temp_id, &wb_rec) > 0)
-									THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+								if(wb_obj.SearchByName(txt_buf, &temp_id, &wb_rec) > 0) {
+									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+									temp_list.add(wb_rec.ID); // @v10.2.5 
+								}
 							}
 						}
 					}
@@ -3669,21 +3675,36 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				if(use_filt) {
 					if(P_WorkbookF->ParentID) {
 						for(SEnum en = wb_obj.P_Tbl->EnumByParent(P_WorkbookF->ParentID, 0); en.Next(&wb_rec) > 0;) {
-							if(P_WorkbookF->Type == 0 || wb_rec.Type == P_WorkbookF->Type)
-								THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+							if(P_WorkbookF->Type == 0 || wb_rec.Type == P_WorkbookF->Type) {
+								// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+								temp_list.add(wb_rec.ID); // @v10.2.5 
+							}
 						}
 					}
 					else if(P_WorkbookF->Type) {
 						for(SEnum en = wb_obj.P_Tbl->EnumByType(P_WorkbookF->Type, 0); en.Next(&wb_rec) > 0;) {
-							THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+							temp_list.add(wb_rec.ID); // @v10.2.5 
 						}
 					}
 					else {
 						for(SEnum en = wb_obj.P_Tbl->Enum(0); en.Next(&wb_rec) > 0;) {
+							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
+							temp_list.add(wb_rec.ID); // @v10.2.5 
+						}
+					}
+				}
+				// @v10.2.5 {
+				if(temp_list.getCount()) {
+					temp_list.sortAndUndup();
+					wb_obj.SortIdListByRankAndName(temp_list);
+					for(uint i = 0; i < temp_list.getCount(); i++) {
+						if(wb_obj.Fetch(temp_list.get(i), &wb_rec) > 0) {
 							THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
 						}
 					}
 				}
+				// } @v10.2.5 
 			}
 			break;
 		case PPOBJ_GEOTRACKING:

@@ -1521,9 +1521,7 @@ FANN_EXTERNAL void FANN_API fann_reset_errno(struct fann_error *errdat)
 // 
 FANN_EXTERNAL void FANN_API fann_reset_errstr(struct fann_error *errdat)
 {
-	if(errdat->errstr != NULL)
-		SAlloc::F(errdat->errstr);
-	errdat->errstr = NULL;
+	ZFREE(errdat->errstr);
 }
 // 
 // returns the last error number
@@ -1723,22 +1721,17 @@ FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(struct fann * ann, struct 
 				}
 				printf("\n");
 			}
-			else if((*ann->callback)(ann, data, max_neurons,
-			    neurons_between_reports, desired_error, total_epochs) == -1) {
-				/* you can break the training by returning -1 */
-				break;
+			else if((*ann->callback)(ann, data, max_neurons, neurons_between_reports, desired_error, total_epochs) == -1) {
+				break; // you can break the training by returning -1 
 			}
 		}
 		if(desired_error_reached == 0)
 			break;
 		if(fann_initialize_candidates(ann) == -1) {
-			/* Unable to initialize room for candidates */
-			break;
+			break; // Unable to initialize room for candidates 
 		}
-		/* train new candidates */
-		total_epochs += fann_train_candidates(ann, data);
-		/* this installs the best candidate */
-		fann_install_candidate(ann);
+		total_epochs += fann_train_candidates(ann, data); // train new candidates 
+		fann_install_candidate(ann); // this installs the best candidate 
 	}
 	/* Train outputs one last time but without any desired error */
 	total_epochs += fann_train_outputs(ann, data, 0.0);
@@ -1889,11 +1882,9 @@ int fann_reallocate_neurons(struct fann * ann, uint total_neurons)
 	}
 	if(neurons != ann->first_layer->first_neuron) {
 		/* Then the memory has moved, also move the pointers */
-
 #ifdef CASCADE_DEBUG_FULL
 		printf("Moving neuron pointers\n");
 #endif
-
 		/* Move pointers from layers to neurons */
 		for(layer_it = ann->first_layer; layer_it != ann->last_layer; layer_it++) {
 			num_neurons = (uint)(layer_it->last_neuron - layer_it->first_neuron);
@@ -1902,27 +1893,22 @@ int fann_reallocate_neurons(struct fann * ann, uint total_neurons)
 			num_neurons_so_far += num_neurons;
 		}
 	}
-
 	return 0;
 }
 
 void initialize_candidate_weights(struct fann * ann, uint first_con, uint last_con, float scale_factor)
 {
 	fann_type prev_step;
-	uint i = 0;
-	uint bias_weight = (uint)(first_con + (ann->first_layer->last_neuron - ann->first_layer->first_neuron) - 1);
-
+	const uint bias_weight = (uint)(first_con + (ann->first_layer->last_neuron - ann->first_layer->first_neuron) - 1);
 	if(ann->training_algorithm == FANN_TRAIN_RPROP)
 		prev_step = ann->rprop_delta_zero;
 	else
 		prev_step = 0;
-
-	for(i = first_con; i < last_con; i++) {
+	for(uint i = first_con; i < last_con; i++) {
 		if(i == bias_weight)
 			ann->weights[i] = fann_rand(-scale_factor, scale_factor);
 		else
 			ann->weights[i] = fann_rand(0, scale_factor);
-
 		ann->train_slopes[i] = 0;
 		ann->prev_steps[i] = prev_step;
 		ann->prev_train_slopes[i] = 0;
@@ -1931,40 +1917,36 @@ void initialize_candidate_weights(struct fann * ann, uint first_con, uint last_c
 
 int fann_initialize_candidates(struct fann * ann)
 {
-	/* The candidates are allocated after the normal neurons and connections,
-	 * but there is an empty place between the real neurons and the candidate neurons,
-	 * so that it will be possible to make room when the chosen candidate are copied in
-	 * on the desired place.
-	 */
+	// 
+	// The candidates are allocated after the normal neurons and connections,
+	// but there is an empty place between the real neurons and the candidate neurons,
+	// so that it will be possible to make room when the chosen candidate are copied in
+	// on the desired place.
+	// 
 	uint neurons_to_allocate, connections_to_allocate;
 	uint num_candidates = fann_get_cascade_num_candidates(ann);
 	uint num_neurons = ann->total_neurons + num_candidates + 1;
 	uint num_hidden_neurons = ann->total_neurons - ann->num_input - ann->num_output;
 	uint candidate_connections_in = ann->total_neurons - ann->num_output;
 	uint candidate_connections_out = ann->num_output;
-
-	/* the number of connections going into a and out of a candidate is
-	 * ann->total_neurons */
-	uint num_connections =
-	    ann->total_connections + (ann->total_neurons * (num_candidates + 1));
+	// the number of connections going into a and out of a candidate is ann->total_neurons 
+	uint num_connections = ann->total_connections + (ann->total_neurons * (num_candidates + 1));
 	uint first_candidate_connection = ann->total_connections + ann->total_neurons;
 	uint first_candidate_neuron = ann->total_neurons + 1;
 	uint connection_it, i, j, k, candidate_index;
 	struct fann_neuron * neurons;
 	float scale_factor;
-
-	/* First make sure that there is enough room, and if not then allocate a
-	 * bit more so that we do not need to allocate more room each time.
-	 */
+	// 
+	// First make sure that there is enough room, and if not then allocate a
+	// bit more so that we do not need to allocate more room each time.
+	// 
 	if(num_neurons > ann->total_neurons_allocated) {
-		/* Then we need to allocate more neurons
-		 * Allocate half as many neurons as already exist (at least ten)
-		 */
+		// Then we need to allocate more neurons
+		// Allocate half as many neurons as already exist (at least ten)
 		neurons_to_allocate = num_neurons + num_neurons / 2;
 		if(neurons_to_allocate < num_neurons + 10) {
 			neurons_to_allocate = num_neurons + 10;
 		}
-
 		if(fann_reallocate_neurons(ann, neurons_to_allocate) == -1) {
 			return -1;
 		}
@@ -2307,12 +2289,12 @@ void fann_add_candidate_neuron(struct fann * ann, struct fann_layer * layer)
 	int i;
 	struct fann_layer * layer_it;
 	struct fann_neuron * neuron_it, * neuron_place, * candidate;
-	/* We know that there is enough room for the new neuron
-	 * (the candidates are in the same arrays), so move
-	 * the last neurons to make room for this neuron.
-	 */
-
-	/* first move the pointers to neurons in the layer structs */
+	// 
+	// We know that there is enough room for the new neuron
+	// (the candidates are in the same arrays), so move
+	// the last neurons to make room for this neuron.
+	// 
+	// first move the pointers to neurons in the layer structs 
 	for(layer_it = ann->last_layer - 1; layer_it != layer; layer_it--) {
 #ifdef CASCADE_DEBUG_FULL
 		printf("move neuron pointers in layer %d, first(%d -> %d), last(%d -> %d)\n",
@@ -2325,25 +2307,23 @@ void fann_add_candidate_neuron(struct fann * ann, struct fann_layer * layer)
 		layer_it->first_neuron++;
 		layer_it->last_neuron++;
 	}
-	/* also move the last neuron in the layer that needs the neuron added */
+	// also move the last neuron in the layer that needs the neuron added 
 	layer->last_neuron++;
-	/* this is the place that should hold the new neuron */
+	// this is the place that should hold the new neuron 
 	neuron_place = layer->last_neuron - 1;
 #ifdef CASCADE_DEBUG_FULL
 	printf("num_connections_in=%d, num_connections_out=%d\n", num_connections_in, num_connections_out);
 #endif
 	candidate = ann->first_layer->first_neuron + ann->cascade_best_candidate;
-	/* the output weights for the candidates are located after the input weights */
+	// the output weights for the candidates are located after the input weights 
 	candidate_output_weight = candidate->last_con;
-	/* move the actual output neurons and the indexes to the connection arrays */
+	// move the actual output neurons and the indexes to the connection arrays 
 	for(neuron_it = (ann->last_layer - 1)->last_neuron - 1; neuron_it != neuron_place; neuron_it--) {
 #ifdef CASCADE_DEBUG_FULL
-		printf("move neuron %d -> %d\n", neuron_it - ann->first_layer->first_neuron - 1,
-		    neuron_it - ann->first_layer->first_neuron);
+		printf("move neuron %d -> %d\n", neuron_it - ann->first_layer->first_neuron - 1, neuron_it - ann->first_layer->first_neuron);
 #endif
 		*neuron_it = *(neuron_it - 1);
-
-		/* move the weights */
+		// move the weights 
 #ifdef CASCADE_DEBUG_FULL
 		printf("move weight[%d ... %d] -> weight[%d ... %d]\n", neuron_it->first_con,
 		    neuron_it->last_con - 1, neuron_it->first_con + num_connections_move - 1,
@@ -2355,18 +2335,14 @@ void fann_add_candidate_neuron(struct fann * ann, struct fann_layer * layer)
 #endif
 			ann->weights[i + num_connections_move - 1] = ann->weights[i];
 		}
-
 		/* move the indexes to weights */
 		neuron_it->last_con += num_connections_move;
 		num_connections_move--;
 		neuron_it->first_con += num_connections_move;
-
 		/* set the new weight to the newly allocated neuron */
-		ann->weights[neuron_it->last_con - 1] =
-		    (ann->weights[candidate_output_weight]) * ann->cascade_weight_multiplier;
+		ann->weights[neuron_it->last_con - 1] = (ann->weights[candidate_output_weight]) * ann->cascade_weight_multiplier;
 		candidate_output_weight++;
 	}
-
 	/* Now inititalize the actual neuron */
 	neuron_place->value = 0;
 	neuron_place->sum = 0;

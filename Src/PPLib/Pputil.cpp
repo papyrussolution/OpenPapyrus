@@ -4438,8 +4438,7 @@ PPI_OBJECT * PPI_EDI_GetMessageList(int ediMsgType);
 //
 //
 //
-PPXmlFileDetector::PPXmlFileDetector() : SXmlSaxParser(SXmlSaxParser::fStartElement), 
-	ElementCount(0), Result(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+PPXmlFileDetector::PPXmlFileDetector() : SXmlSaxParser(SXmlSaxParser::fStartElement), ElementCount(0), Result(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
 }
 
@@ -4456,7 +4455,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 	return ok;
 }
 
-//virtual 
+//virtual
 int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList)
 {
 	ElementCount++;
@@ -4474,7 +4473,7 @@ int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList
 		tok = _ut;
 		if(ElementCount == 1) {
 			switch(tok) {
-				case PPHS_ORDERS: 
+				case PPHS_ORDERS:
 				case PPHS_ORDRSP:
 				case PPHS_DESADV:
 				case PPHS_ALCDES:

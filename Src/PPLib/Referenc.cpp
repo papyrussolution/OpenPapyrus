@@ -548,7 +548,7 @@ int SLAPI Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, si
 int SLAPI Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, size_t offs)
 {
 	int    ok = 1;
-	if(pSymb && pSymb[0] != 0) {
+	if(!isempty(pSymb)) {
 		long   h = -1;
 		ReferenceTbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok && NextEnum(h, &rec) > 0;)

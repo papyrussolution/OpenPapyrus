@@ -1,5 +1,5 @@
 // LSS_LIN.CPP
-// Copyright (c) A.Sobolev 2004, 2007, 2010, 2016
+// Copyright (c) A.Sobolev 2004, 2007, 2010, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -27,45 +27,50 @@ SLAPI LssLin::LssLin()
 
 int SLAPI LssLin::Solve(const LVect & x, const LVect & y)
 {
-	double m_x = 0, m_y = 0, m_dx2 = 0, m_dxdy = 0;
-	LMIDX  i;
-	THISZERO();
 	if(x.size() != y.size())
 		return 0;
-	const  LMIDX n = x.size();
-	for(i = 0; i < n; i++) {
-		m_x += (x.get(i) - m_x) / (i + 1);
-		m_y += (y.get(i) - m_y) / (i + 1);
-	}
-	for(i = 0; i < n; i++) {
-		const double dx = x.get(i) - m_x;
-		const double dy = y.get(i) - m_y;
-		m_dx2 += (dx * dx - m_dx2) / (i + 1);
-		m_dxdy += (dx * dy - m_dxdy) / (i + 1);
-	}
-	//
-	// In terms of y = a + b x
-	//
-	{
-		double s2 = 0, d2 = 0;
-		B = m_dxdy / m_dx2;
-		A = m_y - m_x * B;
-		//
-		// Compute chi^2 = \sum (y_i - (a + b * x_i))^2
-		//
+	else {
+		double m_x = 0.0;
+		double m_y = 0.0;
+		double m_dx2 = 0.0;
+		double m_dxdy = 0.0;
+		LMIDX  i;
+		THISZERO();
+		const  LMIDX n = x.size();
+		for(i = 0; i < n; i++) {
+			m_x += (x.get(i) - m_x) / (i + 1);
+			m_y += (y.get(i) - m_y) / (i + 1);
+		}
 		for(i = 0; i < n; i++) {
 			const double dx = x.get(i) - m_x;
 			const double dy = y.get(i) - m_y;
-			const double d = dy - B * dx;
-			d2 += d * d;
-   		}
-		s2 = d2 / (n - 2); // chisq per degree of freedom
-		Cov00 = s2 * (1 / n) * (1 + m_x * m_x / m_dx2);
-		Cov11 = s2 * 1 / (n * m_dx2);
-		Cov01 = s2 * (-m_x) / (n * m_dx2);
-		SumSq = d2;
+			m_dx2 += (dx * dx - m_dx2) / (i + 1);
+			m_dxdy += (dx * dy - m_dxdy) / (i + 1);
+		}
+		//
+		// In terms of y = a + b x
+		//
+		{
+			double s2 = 0, d2 = 0;
+			B = m_dxdy / m_dx2;
+			A = m_y - m_x * B;
+			//
+			// Compute chi^2 = \sum (y_i - (a + b * x_i))^2
+			//
+			for(i = 0; i < n; i++) {
+				const double dx = x.get(i) - m_x;
+				const double dy = y.get(i) - m_y;
+				const double d = dy - B * dx;
+				d2 += d * d;
+			}
+			s2 = d2 / (n - 2); // chisq per degree of freedom
+			Cov00 = s2 * (1 / n) * (1 + m_x * m_x / m_dx2);
+			Cov11 = s2 * 1 / (n * m_dx2);
+			Cov01 = s2 * (-m_x) / (n * m_dx2);
+			SumSq = d2;
+		}
+		return 1;
 	}
-	return 1;
 }
 
 double SLAPI LssLin::Estimation(double x, double * pYErr) const

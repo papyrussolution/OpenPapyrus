@@ -7,6 +7,27 @@
 //
 //
 //
+SLAPI PPGoodsTaxEntry::PPGoodsTaxEntry()
+{
+	THISZERO();
+}
+
+int FASTCALL PPGoodsTaxEntry::IsEqual(const PPGoodsTaxEntry & rS) const
+{
+#define CMP_FLD(f) if(f != rS.f) return 0;
+	CMP_FLD(TaxGrpID);
+	CMP_FLD(Period);
+	CMP_FLD(OpID);
+	CMP_FLD(VAT);
+	CMP_FLD(Excise);
+	CMP_FLD(SalesTax);
+	CMP_FLD(Flags);
+	CMP_FLD(Order);
+	CMP_FLD(UnionVect);
+	return 1;
+#undef CMP_FLD
+}
+
 double SLAPI PPGoodsTaxEntry::GetVatRate() const
 {
 	return fdiv100i(VAT);
@@ -354,7 +375,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 	if(pTI->IsCorrectionRcpt()) {
 		if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
 			tax_grp_id = pTI->LotTaxGrpID;
-		MEMSZERO(gtx);
+		// @v10.2.5 (ctr) MEMSZERO(gtx);
 		gtobj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
 
 		const double q_pre = fabs(pTI->QuotPrice);
@@ -386,7 +407,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			const int  re = BIN(pTI->Flags & PPTFR_RMVEXCISE);
 			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
-			MEMSZERO(gtx);
+			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			gtobj.Fetch(tax_grp_id, pTI->Date, opID, &gtx);
 			if(!is_exclvat)
 				amount = pTI->NetPrice();
@@ -394,7 +415,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 		else {
 			if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
 				tax_grp_id = pTI->LotTaxGrpID;
-			MEMSZERO(gtx);
+			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			gtobj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
 			if(pTI->Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
@@ -432,6 +453,34 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 //
 SLAPI PPObjGoodsTax::PPObjGoodsTax(void * extraPtr) : PPObjReference(PPOBJ_GOODSTAX, extraPtr)
 {
+}
+
+int SLAPI PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags)
+{
+#define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
+#define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
+	CMP_MEMB(ID);
+	CMP_MEMB(VAT);
+	CMP_MEMB(Excise);
+	CMP_MEMB(SalesTax);
+	CMP_MEMB(Flags);
+	CMP_MEMB(Order);
+	CMP_MEMB(UnionVect);
+	CMP_MEMBS(Name);
+	CMP_MEMBS(Symb);
+#undef CMP_MEMBS
+#undef CMP_MEMB
+	if(rS1.getCount() != rS2.getCount()) {
+		return 0;
+	}
+	else {
+		for(uint i = 0; i < rS1.getCount(); i++) {
+			if(!((PPGoodsTaxEntry *)rS1.at(i))->IsEqual(*(PPGoodsTaxEntry *)rS2.at(i))) {
+				return 0;
+			}
+		}
+	}
+	return 1;
 }
 
 int SLAPI PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec)
@@ -659,19 +708,38 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pPack) {
-			THROW(CheckDupName(*pID, pPack->Rec.Name));
-			if(*pID) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+		if(*pID) {
+			if(pPack) {
+				PPGoodsTaxPacket org_pack;
+				THROW(GetPacket(*pID, &org_pack) > 0);
+				if(pPack->IsEqual(org_pack)) {
+					ok = -1;
+				}
+				else {
+					THROW(CheckRights(PPR_MOD));
+					THROW(CheckDupName(*pID, pPack->Rec.Name));
+					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
+					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
+					THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack, 0));
+					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
+				}
 			}
 			else {
-				*pID = pPack->Rec.ID;
-				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				THROW(CheckRights(PPR_DEL));
+				THROW(ref->RemoveItem(Obj, *pID, 0));
+				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
-			THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack, 0));
+			if(ok > 0)
+				THROW(Dirty(*pID));
 		}
-		else if(*pID) {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+		else if(pPack) {
+			THROW(CheckRights(PPR_INS));
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
+			*pID = pPack->Rec.ID;
+			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack, 0));
+			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
 	}
@@ -689,12 +757,13 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 		int  is_zero_excise = 1;
 		if(pPack->Rec.Excise != 0)
 			is_zero_excise = 0;
-		else
+		else {
 			for(i = 0; pPack->enumItems(&i, (void**)&p_item);)
 				if(p_item->Excise != 0) {
 					is_zero_excise = 0;
 					break;
 				}
+		}
 		for(i = 0; pPack->enumItems(&i, (void**)&p_item);) {
 			SETFLAG(p_item->Flags, GTAXF_ZEROEXCISE, is_zero_excise);
 			p_item->Flags |= GTAXF_ENTRY;
@@ -924,7 +993,7 @@ int SLAPI GTaxCache::GetFromBase(PPID id)
 		PPGoodsTaxEntry item, * p_item;
 		for(uint i = 0; gt_pack.enumItems(&i, (void**)&p_item);)
 			P_Ary->insert(p_item);
-		MEMSZERO(item);
+		// @v10.2.5 (ctr) MEMSZERO(item);
 		gt_pack.Rec.ToEntry(&item);
 		item.Flags &= ~GTAXF_USELIST;
 		P_Ary->insert(&item);

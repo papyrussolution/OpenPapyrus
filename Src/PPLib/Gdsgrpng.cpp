@@ -1080,7 +1080,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 			double tax_factor = 1.0;
 			Goods2Tbl::Rec goods_rec;
 			PPGoodsTaxEntry gtx;
-			MEMSZERO(gtx);
+			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			if(filt.GoodsID && GObj.Fetch(filt.GoodsID, &goods_rec) > 0) {
 				PPUnit urec;
 				GoodsExtTbl::Rec gext_rec;

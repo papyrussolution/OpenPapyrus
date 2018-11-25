@@ -1060,6 +1060,9 @@ PPERR_INVJOBPARAMBUF            "@{err_internal}: недопустимый ра�
 PPERR_INVJOBCMD                 "Задание не определено или определено не верно"
 PPERR_JOBPOOLLOCKED             "Пул серверных задач заблокирован для редактирование другим сеансом"
 PPERR_JOBPOOLNOPENWR            "Невозможно сохранить пул серверных задач, который не был считан в режиме 'для записи'"
+PPERR_JOBSRV_ARG_TIMSERSYMB     "Отсутствует обязательный параметр symbol в команде '%s'"
+PPERR_JOBSRV_ARG_PROPSYMB       "Отсутствует обязательный параметр propery-symbol в команде '%s'"
+PPERR_JOBSRV_ARG_PROPVAL        "Отсутствует обязательный параметр propery-value в команде '%s'"
 
 PPERR_CMDSEL_EXP_SELECT          "@{err_incmd}: ожидается SELECT"
 PPERR_CMDSEL_EXP_OBJTYPE         "@{err_incmd}: ожидается тип объекта"
@@ -4635,6 +4638,7 @@ PPTXT_LOG_WBS_LISTVGOTFROMUHTT      "Получен список рабочих 
 PPTXT_LOG_WBS_WBVACCEPTED           "Рабочая книга '@zstr' акцептирована в базе данных"
 PPTXT_LOG_WBS_WBVSENTTOUHTT         "Рабочая книга '@zstr' передана на сервер"
 PPTXT_LOG_WBS_WBCVSENTTOUHTT        "Содержимое рабочей книги '@zstr' передано на сервер"
+PPTXT_LOG_WBS_WBVACCEPTERROR        "Ошибка акцепта рабочей книги '@zstr'"
 PPTXT_GREETING                      "Вас приветствует система"
 PPTXT_UNKNOWNACC                    "Неизвестный бухгалтерский счет"
 PPTXT_CALCREST                      "Расчет товарных остатков"
@@ -7492,6 +7496,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billstatus_bilcheckf_duedate             "@{duedate}"
 @billstatus_bilcheckf_freight             "@{freight}"
 @billstatus_bilcheckf_freightcost         "@{bill_freightcost}"
+@billstatus_bilcheckf_object              "Контрагент по документу"
 @billstatus_bilcheckf_issuedt             "@{issuedate}"
 @billstatus_bilcheckf_payer               "@{payer}"
 @billstatus_bilcheckf_portofdischarge     "Порт разгрузки"
@@ -7507,6 +7512,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billstatus_bilstf_lock_accturn           "Не проводить проводки по документу"
 @billstatus_bilstf_lock_payment           "Не учитывать как оплату"
 @billstatus_bilstf_readyforediack         "Документ готов для отправки EDI-подтверждения"
+@billstatus_bilstf_strictpriceconstrains  "Строгая проверка ценовых ограничений"
+
 @billstatus_checkfields                   "Обязательные поля"
 @billstatus_counter                       "@{counter}"
 @billstatus_flags                         "@{flags}"
@@ -12102,6 +12109,13 @@ PPHS_CHEQUE                    "cheque"
 PPHS_GEOTRACKING               "geotracking"
 PPHS_SETTIMESERIES             "settimeseries" // @v10.2.3
 PPHS_GETREQQUOTES              "getreqquotes"  // @v10.2.4
+PPHS_SETTIMESERIESPROP         "settimeseriesprop" // @v10.2.5
+PPHS_TIMSER_PROP_PRECISION       "time-series-precision"       // точность представления значений
+PPHS_TIMSER_PROP_MARGIN_BUY      "time-series-margin-buy"      //  маржина при покупке инструмента, представленного символом
+PPHS_TIMSER_PROP_MARGIN_SELL     "time-series-margin-sell"     // маржина при продаже инструмента, представленного символом
+PPHS_TIMSER_PROP_CURRENCY_BASE   "time-series-currency-base"   // основная валюта
+PPHS_TIMSER_PROP_CURRENCY_PROFIT "time-series-currency-profit" // валюта прибыли
+PPHS_TIMSER_PROP_CURRENCY_MARGIN "time-series-currency-margin" // валюта маржины
 
 #!}
 

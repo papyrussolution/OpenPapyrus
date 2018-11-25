@@ -4,8 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-
-// @v7.9.2 @Muxa {
 //
 // @ModuleDecl(PPObjWorkbook)
 //
@@ -240,6 +238,31 @@ static int SLAPI PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterP
 	}
 	CATCHZOK
 	return ok;
+}
+
+static IMPL_CMPFUNC(WorkbookIdByRank_Name, p1, p2)
+{
+	int    si = 0;
+	PPObjWorkbook * p_obj = (PPObjWorkbook *)pExtraData;
+	if(p_obj) {
+		const PPID * p_id1 = (const PPID *)p1;
+		const PPID * p_id2 = (const PPID *)p2;
+		WorkbookTbl::Rec rec1;
+		WorkbookTbl::Rec rec2;
+		if(p_obj->Fetch(*p_id1, &rec1) > 0 && p_obj->Fetch(*p_id2, &rec2) > 0) {
+			CMPCASCADE2(si, &rec1, &rec2, ParentID, Rank);
+			//si = CMPSIGN(rec1.Rank, rec2.Rank);
+			if(!si) {
+				si = stricmp866(rec1.Name, rec2.Name);
+			}
+		}
+	}
+	return si;
+}
+
+void SLAPI PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
+{
+	rList.SVectorBase::sort(PTR_CMPFUNC(WorkbookIdByRank_Name), this);
 }
 
 //static
@@ -2347,6 +2370,7 @@ int SLAPI PPObjWorkbook::InterchangeUhtt()
 	if(is_allowed) {
 		PPWait(1);
 		SString temp_buf;
+		SString last_err_msg_buf;
 		PPIDArray to_transmit_list;
 		PPIDArray native_list;
 		PPIDArray updated_list;
@@ -2378,22 +2402,33 @@ int SLAPI PPObjWorkbook::InterchangeUhtt()
 			logger.Log(PPFormatT(PPTXT_LOG_WBS_LISTVGOTFROMUHTT, &msg_buf, (long)result.getCount()));
 			{
 				ProcessUhttImportBlock blk(uhtt_cli, result, since_ev);
+				int    accept_err_occured = 0;
 				{
 					for(uint i = 0; i < result.getCount(); i++) {
 						PPID   native_id = 0;
+						const  UhttWorkbookItemPacket * p_item = blk.R_SrcList.at(i);
 						int    cpr = Helper_CreatePacketByUhttList(&native_id, blk, i, 1);
-						THROW(cpr);
+						// @v10.2.5 THROW(cpr);
 						if(cpr > 0) {
 							updated_list.add(native_id);
 							// PPTXT_LOG_WBS_WBVACCEPTED      "Рабочая книга '@zstr' акцептирована в базе данных"
-							const UhttWorkbookItemPacket * p_item = blk.R_SrcList.at(i);
 							logger.Log(PPFormatT(PPTXT_LOG_WBS_WBVACCEPTED, &msg_buf, p_item->Name.cptr()));
 						}
+						// @v10.2.5 {
+						else if(!cpr) {
+							PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), last_err_msg_buf);
+							temp_buf.Z().Cat(p_item->ID).CatDiv('-', 1).Cat(p_item->Symb).CatDiv('-', 1).Cat(p_item->Name);
+							PPFormatT(PPTXT_LOG_WBS_WBVACCEPTERROR, &msg_buf, temp_buf.cptr());
+							msg_buf.CatDiv(':', 2).Cat(last_err_msg_buf);
+							logger.Log(msg_buf);
+							accept_err_occured = 1;
+						}
+						// } @v10.2.5 
 						ok = 1;
 					}
 					updated_list.sortAndUndup();
 				}
-				{
+				if(!accept_err_occured) { // @v10.2.5
 					WorkbookTbl::Rec rec;
 					SString native_symb;
 					THROW(Helper_Transmit(0, native_list, 0));

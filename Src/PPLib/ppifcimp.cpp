@@ -5457,7 +5457,7 @@ int32 DL6ICLS_PPBillPacket::GetTaxInfo(SPpyO_TrfrItem * pItem, PpyOTrfrItemAmtTy
 	int    ok = -1;
 	SPpy_TaxInfo tax_info;
 	PPTransferItem ti;
-	GTaxVect vect(5); // @v8.7.0 default(2)-->5
+	GTaxVect vect(5);
 	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
 	MEMSZERO(tax_info);
 	if(p_pack && pItem) {

@@ -123,7 +123,7 @@ int GoodsTaxDialog::getDTS(PPGoodsTaxPacket * pData)
 		GTxObj.GetDefaultName(&Data.Rec, Data.Rec.Name, sizeof(Data.Rec.Name));
 	if(Data.Rec.ID == 0)
 		getCtrlData(CTL_GDSTAX_ID, &Data.Rec.ID);
-	MEMSZERO(entry);
+	// @v10.2.5 (ctr) MEMSZERO(entry);
 	if(getEntry(&entry)) {
 		Data.Rec.FromEntry(&entry);
 		GetClusterData(CTL_GDSTAX_FLAGS, &Data.Rec.Flags);
@@ -250,7 +250,7 @@ int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPGoodsTaxEntry item;
-	MEMSZERO(item);
+	// @v10.2.5 (ctr) MEMSZERO(item);
 	Data.Rec.ToEntry(&item);
 	item.Flags |= GTAXF_ENTRY;
 	item.Flags &= ~GTAXF_USELIST;
@@ -315,7 +315,9 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 
 int SLAPI PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPGoodsTaxPacket pack;
 	GoodsTaxDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new GoodsTaxDialog(DLG_GDSTAX))));
@@ -327,8 +329,7 @@ int SLAPI PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		if(dlg->getDTS(&pack))
-			if(CheckDupName(*pID, pack.Rec.Name) &&
-				ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
+			if(CheckDupName(*pID, pack.Rec.Name) && ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
 				if(PutPacket(pID, &pack, 1)) {
 					Dirty(*pID);
 					valid_data = 1;

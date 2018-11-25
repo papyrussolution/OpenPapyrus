@@ -947,7 +947,7 @@ ObjTagFilt & SLAPI PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
 
 int FASTCALL PPObjTag::IsUnmirrored(PPID tagID)
 {
-	if(oneof2(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB))
+	if(oneof3(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_VETIS_UUID)) // @v10.2.5 PPTAG_LOT_VETIS_UUID
 		return 1;
 	else
 		return 0;

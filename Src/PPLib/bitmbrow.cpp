@@ -111,7 +111,12 @@ private:
 	int    isAllGoodsInPckg(PPID goodsID);
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	long   FASTCALL CalcPriceDevItem(long pos);
+
+	enum {
+		cpdifRestrOnly = 0x0001
+	};
+
+	long   FASTCALL CalcPriceDevItem(long pos, long flags);
 	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    SLAPI UpdatePriceDevList(long pos, int op);
 	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
@@ -609,40 +614,42 @@ const StrAssocArray & SLAPI BillItemBrowser::GetProblemsList() const { return Pr
 int SLAPI BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange)
 	{ return P_BObj->GetPriceRestrictions(*P_Pack, rTi, itemPos, pRange); }
 
-long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos)
+long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos, long flags)
 {
 	long   price_flags = 0;
-	RealRange restr_bounds;
 	if(P_Pack && pos >= 0 && pos < (long)P_Pack->GetTCount()) {
 		const PPTransferItem & r_ti = P_Pack->ConstTI(pos);
-		if(!GObj.CheckFlag(r_ti.GoodsID, GF_UNLIM)) {
-			int   r = 0;
-			ReceiptTbl::Rec prev_rec, rec;
-			if(r_ti.LotID == 0) {
-				THROW(r = P_T->Rcpt.GetLastLot(r_ti.GoodsID, r_ti.LocID, r_ti.Date, &prev_rec));
+		RealRange restr_bounds;
+		if(!(flags & cpdifRestrOnly)) {
+			if(!GObj.CheckFlag(r_ti.GoodsID, GF_UNLIM)) {
+				int   r = 0;
+				ReceiptTbl::Rec prev_rec, rec;
+				if(r_ti.LotID == 0) {
+					THROW(r = P_T->Rcpt.GetLastLot(r_ti.GoodsID, r_ti.LocID, r_ti.Date, &prev_rec));
+				}
+				else if(P_T->Rcpt.Search(r_ti.LotID, &rec) > 0) {
+					THROW(r = P_T->Rcpt.GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec));
+				}
+				if(r > 0) {
+					if(r_ti.Cost > prev_rec.Cost)
+						price_flags |= LOTSF_COSTUP;
+					else if(r_ti.Cost < prev_rec.Cost)
+						price_flags |= LOTSF_COSTDOWN;
+					if(r_ti.Price > prev_rec.Price)
+						price_flags |= LOTSF_PRICEUP;
+					else if(r_ti.Price < prev_rec.Price)
+						price_flags |= LOTSF_PRICEDOWN;
+				}
+				else
+					price_flags |= LOTSF_FIRST;
 			}
-			else if(P_T->Rcpt.Search(r_ti.LotID, &rec) > 0) {
-				THROW(r = P_T->Rcpt.GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec));
-			}
-			if(r > 0) {
-				if(r_ti.Cost > prev_rec.Cost)
-					price_flags |= LOTSF_COSTUP;
-				else if(r_ti.Cost < prev_rec.Cost)
-					price_flags |= LOTSF_COSTDOWN;
-				if(r_ti.Price > prev_rec.Price)
-					price_flags |= LOTSF_PRICEUP;
-				else if(r_ti.Price < prev_rec.Price)
-					price_flags |= LOTSF_PRICEDOWN;
-			}
-			else
-				price_flags |= LOTSF_FIRST;
 		}
 		if(GetPriceRestrictions(pos, r_ti, &restr_bounds) > 0) {
 			if(!restr_bounds.CheckVal(r_ti.NetPrice())) {
 				price_flags |= LOTSF_RESTRBOUNDS;
 			}
 		}
-		if(P_LinkPack) {
+		if(P_LinkPack && !(flags & cpdifRestrOnly)) {
 			uint _p = 0;
 			if(P_LinkPack->SearchGoods(labs(r_ti.GoodsID), &_p)) {
 				double link_cost = P_LinkPack->ConstTI(_p).Cost;
@@ -662,28 +669,35 @@ long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos)
 int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
 {
 	int    ok = 1;
-	if(P_Pack && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
-		long   ti_count = P_Pack->GetTCount();
-		if(pos < 0) {
-			PriceDevList.clear();
-			for(long i = 0; i < ti_count; i++) {
-				THROW_SL(PriceDevList.add(CalcPriceDevItem(i)));
-			}
-		}
-		else {
-			if(op == 0) {
-				if(pos < (long)PriceDevList.getCount())
-					PriceDevList.at(pos) = CalcPriceDevItem(pos);
-			}
-			else if(op > 0) {
-				if(pos <= (long)PriceDevList.getCount()) {
-					long   price_flags = CalcPriceDevItem(pos);
-					PriceDevList.atInsert((uint)pos, &price_flags);
+	if(P_Pack) {
+		long cpdif = -1;
+		if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT)
+			cpdif = 0;
+		else if(P_Pack->OpTypeID == PPOPT_GOODSEXPEND)
+			cpdif = cpdifRestrOnly;
+		if(cpdif != -1) {
+			const long ti_count = P_Pack->GetTCount();
+			if(pos < 0) {
+				PriceDevList.clear();
+				for(long i = 0; i < ti_count; i++) {
+					THROW_SL(PriceDevList.add(CalcPriceDevItem(i, cpdif)));
 				}
 			}
-			else if(op < 0) {
-				if(pos < (long)PriceDevList.getCount())
-					PriceDevList.atFree((uint)pos);
+			else {
+				if(op == 0) {
+					if(pos < (long)PriceDevList.getCount())
+						PriceDevList.at(pos) = CalcPriceDevItem(pos, cpdif);
+				}
+				else if(op > 0) {
+					if(pos <= (long)PriceDevList.getCount()) {
+						long   price_flags = CalcPriceDevItem(pos, cpdif);
+						PriceDevList.atInsert((uint)pos, &price_flags);
+					}
+				}
+				else if(op < 0) {
+					if(pos < (long)PriceDevList.getCount())
+						PriceDevList.atFree((uint)pos);
+				}
 			}
 		}
 	}
