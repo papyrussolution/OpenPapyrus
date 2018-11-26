@@ -25,7 +25,11 @@ www.petroglif.ru
 
 Язык: Русский
 
-features.pdf: подробное (но, увы, не полное) описание вожможностей.
+![Диалог товара]("http://uhtt.ru/dispatcher/dc/download?key=sh-dlg-goods")
+![Диалог персоналии]("http://uhtt.ru/dispatcher/dc/download?key=sh-dlg-person")
+![Кассовая панель]("http://uhtt.ru/dispatcher/dc/download?key=sh-pospane")
+
+features.pdf: подробное (но, увы, не полное) описание возможностей.
 
 ppmanual.pdf: документация (большая, но тоже очень не полная).
 
