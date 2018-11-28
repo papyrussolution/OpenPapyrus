@@ -1495,6 +1495,12 @@ data Goods {
 	//
 	link   Lot GetLastLotForDate(long locID, date dt);
 	//
+	// Descr: Возвращает среднюю себестоимость товара на дату dt по складу locID.
+	//   Если serial не пустой, то ограничивает выборку лотов для расчета себестоимости
+	//   только теми, которые имеют этот серийный номер (чаще всего это - единственный лот).
+	//
+	double GetAverageCost(date dt, long locID, string serial);
+	//
 	// Descr: Возвращает значение товарной котировки вида quotKindSymb
 	//   по складу locID статье arID и для валюты curID.
 	//
@@ -1547,8 +1553,8 @@ data Goods {
 	string GetImagePath[256](int rel, string stub[256]);
 	//
 	// Descr: Возвращает номер, идентифицирующий товар внутри альтернативной группы altGroupID.
-	// Если товар не принадлежит группе algGroupID или эта группа не является альтернативной(не динамической),
-	// то возвращает 0.
+	//   Если товар не принадлежит группе algGroupID или эта группа не является альтернативной(не динамической),
+	//   то возвращает 0.
 	//
 	long   GetCodeInAltGroup(long altGroupID);
 	//
@@ -4737,6 +4743,8 @@ data CCheckView {
 		else if(FltGrp == 23) ("по товару и серии карт")
 		else if(FltGrp == 24) ("по сумме и товару")
 		else if(FltGrp == 25) ("по агенту-товару-серии карт")
+		else if(FltGrp == 26) ("по товару-дате-серии")
+
 	);
 	GrpngHdrText = (
 		if(FltGrp == 1)       ("Время")
@@ -4834,6 +4842,11 @@ data CCheckView {
 		DlvrPhone = CheckID.DlvrLocID.Phone;     // @v7.0.9 Контактный телефон для доставки
 		OrderStartTxt = CheckID.OrderStartTxt;   // @v7.0.9 Время начала обслуживания по заказу (время доставки)
 		OrderEndTxt   = CheckID.OrderEndTxt;     // @v7.0.9 Время завершения обслуживания по заказу
+		//
+		// Descr: Если отчет строится с группировкой, включающей серийный номер строки чека,
+		//   то эта функция вернет соответствующий строке серийный номер.
+		//
+		string GetSerial[32]();
 	}
 }
 

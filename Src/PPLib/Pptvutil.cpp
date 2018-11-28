@@ -78,14 +78,14 @@ STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser() { return APPL ? (STimeChu
 PPPaintCloth * SLAPI PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 2) : 0; }
 static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName) { return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0; }
 
-void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId)
+void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId)
 {
 	STextBrowser * p_brw = PPFindLastTextBrowser(pFileName);
 	if(p_brw) {
 		PPCloseBrowser(p_brw);
 		p_brw = 0;
 	}
-	p_brw = new STextBrowser(pFileName, toolbarId);
+	p_brw = new STextBrowser(pFileName, pLexerSymb, toolbarId);
 	{
 		SString title_buf;
 		if(!isempty(pTitle)) {
@@ -7055,7 +7055,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 		SString temp_buf = file_name;
 		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 		ris.CheckIn(temp_buf);
-		PPViewTextBrowser(file_name, 0);
+		PPViewTextBrowser(file_name, 0, 0, -1);
 	}
 	CATCHZOKPPERR
 	delete dlg;

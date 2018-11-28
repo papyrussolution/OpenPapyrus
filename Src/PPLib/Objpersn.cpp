@@ -6684,7 +6684,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		*/
 	}
 	if(pF->Name == "?FormatRegister") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		RegisterTbl::Rec reg_rec;
 		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec);
 		if(reg_type_id) {
@@ -6695,7 +6695,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 	}
 	if(pF->Name == "?FormatRegisterD") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		RegisterTbl::Rec reg_rec;
 		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec);
 		if(reg_type_id) {
@@ -6732,7 +6732,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 	// @v9.4.1 {
 	else if(pF->Name == "?GetSingleEmail") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
 		if(p_obj) {
 			PPELinkArray ela;
@@ -6752,7 +6752,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	else if(pF->Name == "?GetTagStr") {
 		tag_symb = _ARG_STR(1);
 		tag_type = tStr;
-		_RET_STR = 0;
+		_RET_STR.Z();
 	}
 	else if(pF->Name == "?GetTagInt") {
 		tag_symb = _ARG_STR(1);

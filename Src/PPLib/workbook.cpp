@@ -1748,10 +1748,10 @@ void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 												SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
 										}
 										else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.IsEqiAscii("vm")) {
-											PPViewTextBrowser(file_name, rec.Name, TOOLBAR_TEXTBROWSER_WB_HTML);
+											PPViewTextBrowser(file_name, rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
 										}
 										else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
-											PPViewTextBrowser(file_name, rec.Name);
+											PPViewTextBrowser(file_name, 0, rec.Name);
 										}
 									}
 								}

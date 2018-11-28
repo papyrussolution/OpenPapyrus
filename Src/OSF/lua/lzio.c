@@ -1,13 +1,15 @@
 /*
-** $Id: lzio.c,v 1.37 2015/09/08 15:41:05 roberto Exp $
+** $Id: lzio.c,v 1.37.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Buffered streams
 ** See Copyright Notice in lua.h
 */
+#include "lprefix.h"
+#pragma hdrstop
 
 #define lzio_c
 #define LUA_CORE
-#include "lprefix.h"
-#include <string.h>
+
+//#include <string.h>
 #include "lua.h"
 #include "llimits.h"
 #include "lmem.h"
@@ -29,7 +31,8 @@ int luaZ_fill(ZIO * z)
 	return cast_uchar(*(z->p++));
 }
 
-void luaZ_init(lua_State * L, ZIO * z, lua_Reader reader, void * data) {
+void luaZ_init(lua_State * L, ZIO * z, lua_Reader reader, void * data) 
+{
 	z->L = L;
 	z->reader = reader;
 	z->data = data;
@@ -38,12 +41,13 @@ void luaZ_init(lua_State * L, ZIO * z, lua_Reader reader, void * data) {
 }
 
 /* --------------------------------------------------------------- read --- */
-size_t luaZ_read(ZIO * z, void * b, size_t n) {
+size_t luaZ_read(ZIO * z, void * b, size_t n) 
+{
 	while(n) {
 		size_t m;
 		if(z->n == 0) { /* no bytes in buffer? */
 			if(luaZ_fill(z) == EOZ) /* try to read more */
-				return n;  /* no more input; return number of missing bytes */
+				return n; /* no more input; return number of missing bytes */
 			else {
 				z->n++; /* luaZ_fill consumed first byte; put it back */
 				z->p--;
@@ -58,4 +62,3 @@ size_t luaZ_read(ZIO * z, void * b, size_t n) {
 	}
 	return 0;
 }
-

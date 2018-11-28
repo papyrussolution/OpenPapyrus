@@ -1,24 +1,28 @@
 /*
-** $Id: lbitlib.c,v 1.30 2015/11/11 19:08:09 roberto Exp $
+** $Id: lbitlib.c,v 1.30.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Standard library for bitwise operations
 ** See Copyright Notice in lua.h
 */
+#include "lprefix.h"
+#pragma hdrstop
 
 #define lbitlib_c
 #define LUA_LIB
 
-#include "lprefix.h"
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
 
 #if defined(LUA_COMPAT_BITLIB)          /* { */
+
 #define pushunsigned(L, n)       lua_pushinteger(L, (lua_Integer)(n))
 #define checkunsigned(L, i)      ((lua_Unsigned)luaL_checkinteger(L, i))
+
 /* number of bits to consider in a number */
 #if !defined(LUA_NBITS)
-	#define LUA_NBITS       32
+#define LUA_NBITS       32
 #endif
+
 /*
 ** a lua_Unsigned with its first LUA_NBITS bits equal to 1. (Shift must
 ** be made in two parts to avoid problems when LUA_NBITS is equal to the
@@ -32,8 +36,7 @@
 /* builds a number with 'n' ones (1 <= n <= LUA_NBITS) */
 #define mask(n)         (~((ALLONES << 1) << ((n) - 1)))
 
-static lua_Unsigned andaux(lua_State * L) 
-{
+static lua_Unsigned andaux(lua_State * L) {
 	int i, n = lua_gettop(L);
 	lua_Unsigned r = ~(lua_Unsigned)0;
 	for(i = 1; i <= n; i++)
@@ -109,7 +112,7 @@ static int b_arshift(lua_State * L) {
 	else { /* arithmetic shift for 'negative' number */
 		if(i >= LUA_NBITS) r = ALLONES;
 		else
-			r = trim((r >> i) | ~(trim(~(lua_Unsigned)0) >> i));  /* add signal bit */
+			r = trim((r >> i) | ~(trim(~(lua_Unsigned)0) >> i)); /* add signal bit */
 		pushunsigned(L, r);
 		return 1;
 	}

@@ -379,7 +379,7 @@ int PPApp::processCommand(uint cmd)
 	LastCmd = cmd;
 	PPObjBill * p_bobj = BillObj;
 	switch(cmd) {
-		case cmTextBrowserTest:      PPViewTextBrowser(0, 0);             break;
+		case cmTextBrowserTest:      PPViewTextBrowser(0, 0, 0, -1);      break;
 		case cmOpenTextFile:         PPEditTextFile(0);                   break;
 		case cmQuit:                 TView::messageCommand(this, cmQuit); break;
 		case cmInit:                 login(1);                            break;
@@ -1880,9 +1880,9 @@ void PPApp::login(int processCmdLine)
 		// @v10.1.5 PPBackupSystemFiles();
 		PPBackupSystemFiles_Arc(); // @v10.1.5
 		// @v10.0.1 @experimental {
-		if(lua_script.NotEmpty()) {
+		/*if(lua_script.NotEmpty()) {
 			ExecuteLuaScriptFile(lua_script);
-		}
+		}*/
 		// } @v10.0.1
 		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &dt, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;

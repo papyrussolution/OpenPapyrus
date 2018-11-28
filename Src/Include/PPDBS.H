@@ -4026,6 +4026,7 @@ public:
 	struct Rec {
 		int32  ID__;
 		char   Text[128];
+		char   Serial[32];
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  CashID;
@@ -4052,6 +4053,7 @@ public:
 		int32  CashID;
 		int32  SCardID;
 		int32  GoodsID;
+		char   Serial[32];
 	};
 	struct Key2 {
 		char   Text[128];
@@ -4080,6 +4082,7 @@ public:
 	};
 	DBField ID__;
 	DBField Text;
+	DBField Serial;
 	DBField Dt;
 	DBField Tm;
 	DBField CashID;

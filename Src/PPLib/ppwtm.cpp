@@ -2496,14 +2496,15 @@ int TestFrameWindow::Run()
 //
 int SLAPI TestSuffixTree(); //
 // @v10.2.4 int TestFann();
-int TestFann2();
-int SLAPI CollectLldFileStat();
-int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
+int  TestFann2();
+int  SLAPI LuaTest();
+int  SLAPI CollectLldFileStat();
+int  SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
 void SLAPI Test_MailMsg_ReadFromFile();
 void SLAPI Test_MakeEmailMessage();
-int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
+int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
 
 int SLAPI DoConstructionTest()
 {
@@ -2511,7 +2512,8 @@ int SLAPI DoConstructionTest()
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
 	//TestSArchive();
-	TestFann2();
+	LuaTest();
+	//TestFann2();
 	//Test_MakeEmailMessage();
 	//CollectLldFileStat();
 #endif

@@ -4534,6 +4534,8 @@ struct Sdr_FiasRawAddrObj {
 #define PPRFILE_DBXRECV_LOG                   23
 #define PPRFILE_LOTERR_LOG                    24
 #define PPRFILE_EGAIS_LOG                     25
+#define PPRFILE_VETIS_TALK_LOG                26
+#define PPRFILE_VETIS_INFO_LOG                27
 //
 // DRAWVECTOR definitions
 //

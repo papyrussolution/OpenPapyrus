@@ -39383,7 +39383,7 @@ private:
 class CCheckFilt : public PPBaseFilt { // @persistent
 public:
 	static int FASTCALL HasGoodsGrouping(int grp)
-		{ return BIN(oneof7(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer)); }
+		{ return BIN(oneof8(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial)); }
 	SLAPI  CCheckFilt();
 	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
@@ -39399,32 +39399,33 @@ public:
 		{ return BIN(AgentID || TableCode || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
 
 	enum Grouping {
-		gNone = 0,       //
-		gTime,           //
-		gDate,           //
-		gDayOfWeek,      // Группировать по дням недели.
-		gDowNTime,       // Группировать по дням недели и часам.
-		gCash,           //
-		gCard,           //
-		gDscntPct,       // Группировать по проценту скидки
-		gAmount,         // Группировать по диапазону сумм. Дробность группировки определяется полем AmountQuant.
-		gQtty,           // Группировать по диапазону количества. Дробность группировки определяется полем AmountQuant.
-		gGoods,          // Группировать по товарам.
-		gGoodsDate,      // Группировать по товару/дате
-		gCashiers,       // Группировать по кассирам.
-		gAgents,         // Группировать по агентам.
-		gLinesCount,     // Группировать по количеству строк в чеке
-		gDiv,            // Группировать по номеру отдела (по строкам)
-		gGuestCount,     // Группировать по количеству гостей
-		gTableNo,        // Группировать по номеру стола
-		gAgentsNHour,    // Группировать по агентам и часам
-		gCashNode,       // Группировать по кассовым узлам
-		gAgentsNGoods,   // Группировать по агентам и товарам
-		gCashiersNGoods, // Группировать по кассирам и товарам
-		gDlvrAddr,       // Группировать по адресу доставки
-		gGoodsSCSer,     // Группировка по товару и серии карт
-		gAmountNGoods,   // @v8.4.8
-		gAgentGoodsSCSer // @v9.6.6 Группировать по агентам, товарам и сериям карт
+		gNone = 0,        //
+		gTime,            //
+		gDate,            //
+		gDayOfWeek,       // Группировать по дням недели.
+		gDowNTime,        // Группировать по дням недели и часам.
+		gCash,            //
+		gCard,            //
+		gDscntPct,        // Группировать по проценту скидки
+		gAmount,          // Группировать по диапазону сумм. Дробность группировки определяется полем AmountQuant.
+		gQtty,            // Группировать по диапазону количества. Дробность группировки определяется полем AmountQuant.
+		gGoods,           // Группировать по товарам.
+		gGoodsDate,       // Группировать по товару/дате
+		gCashiers,        // Группировать по кассирам.
+		gAgents,          // Группировать по агентам.
+		gLinesCount,      // Группировать по количеству строк в чеке
+		gDiv,             // Группировать по номеру отдела (по строкам)
+		gGuestCount,      // Группировать по количеству гостей
+		gTableNo,         // Группировать по номеру стола
+		gAgentsNHour,     // Группировать по агентам и часам
+		gCashNode,        // Группировать по кассовым узлам
+		gAgentsNGoods,    // Группировать по агентам и товарам
+		gCashiersNGoods,  // Группировать по кассирам и товарам
+		gDlvrAddr,        // Группировать по адресу доставки
+		gGoodsSCSer,      // Группировка по товару и серии карт
+		gAmountNGoods,    // @v8.4.8
+		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
+		gGoodsDateSerial  // @v10.2.6 Группировать по товару/дате/серийному номеру
 	};
 	enum {
 		fZeroSess         = 0x00000001, // Чеки по неопределенным кассовым сессиям
@@ -39555,29 +39556,29 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	int16  Div;            // Номер отдела (по строкам)
 	int16  GuestCount;     // Количество гостей за столом
 	PPID   AgentID;        // ->Article.ID ИД агента (официаната)
-	PPID   AddrID;         // @7.5.3 ->Location.ID ИЛ адреса доставки для чека с доставкой
-	double BnkAmt;         // @v8.3.0 Сумма, уплаченная банковской картой
-	double CrdCardAmt;     // @v8.3.0 Сумма, уплаченная корпоративной кредитной картой
+	PPID   AddrID;         // ->Location.ID ИЛ адреса доставки для чека с доставкой
+	double BnkAmt;         // Сумма, уплаченная банковской картой
+	double CrdCardAmt;     // Сумма, уплаченная корпоративной кредитной картой
 	long   G_GoodsID;      //
 	long   G_Goods2ID;     //
 	long   G_Count;        // Коичество чеков в группировке
 	double G_Amount;       // Итоговая сумма чеков в группировке
-	double G_Price;        // @v8.3.7 Цена по строке (строкам) чеков (с учетом скидки)
+	double G_Price;        // Цена по строке (строкам) чеков (с учетом скидки)
 	double G_Discount;     // Итоговая скидка по чека в группировке
 	double G_PctPart;      // Процентаня доля группировке в общей выборке по сумме чеков
 	double G_Qtty;         // Суммарное количество торговых единиц товаров в группировке
 	long   G_SkuCount;     // Суммарное количество (различных) товаров в группировке
 	double G_LinesCount;   // Суммарное количество чековых строк в группировке
 	long   CashNodeID;     //
-	long   LinesCount;     // Количество строк в чеке (инициализируется только если
-		// в фильтре установлен флаг fInitLinesCount
+	long   LinesCount;     // Количество строк в чеке (инициализируется только если в фильтре установлен флаг fInitLinesCount
 	long   LinkCheckID;    // Связанный чек (обычно, чек заказа)
-	long   RByCheck;       // @v8.3.7  Номер строки по чеку
-	long   LineFlags;      // @v8.3.7  Флаги строки чека
-	long   LineQueue;      // @v8.3.7  Очередь подачи (для ресторанов)
+	long   RByCheck;       // Номер строки по чеку
+	long   LineFlags;      // Флаги строки чека
+	long   LineQueue;      // Очередь подачи (для ресторанов)
 	STimeChunk OrderTime;  // Отрезок времени, на который заказан стол
 	LDATETIME CreationDtm; // Время создания чека (начало обслуживания)
-	char   G_Text[128];    // Текст наименования группы. При итерации по строкам - серийный номер
+	char   G_Text_[128];   // Текст наименования группы. При итерации по строкам - серийный номер
+	char   Serial[32];     // @v10.2.6 Серийный номер (при итерации по строкам)
 };
 
 class PPViewCCheck : public PPView {
@@ -39609,6 +39610,8 @@ public:
 
 	const  BVATAccmArray * GetInOutVATList() const;
 	CCheckCore * SLAPI GetCc();
+	int    SLAPI AllocInnerIterItem();
+	const  CCheckViewItem * GetInnerIterItem() const;
 
 	static int SLAPI CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID);
 private:
@@ -39650,6 +39653,7 @@ private:
 	TempCCheckQttyTbl * P_TmpTbl;
 	TempCCheckGrpTbl  * P_TmpGrpTbl;
 	TempCCheckGdsCorrTbl * P_TmpGdsCorrTbl;
+	CCheckViewItem * P_InnerIterItem; // @v10.2.6 Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
 	CCheckFilt  Filt;
 	enum {
 		stHasExt        = 0x0001,
@@ -51247,7 +51251,7 @@ int    SLAPI EditDebtLimList(PPClientAgreement & rCliAgt);
 
 int    SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData);
 int    SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData);
-void   SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId = -1);
+void   SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId = -1);
 int    SLAPI PPEditTextFile(const char * pFileName);
 int    SLAPI DoDbDump(PPDbEntrySet2 * pDbes);
 int    SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);

@@ -6887,7 +6887,7 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		if(p_ext->Rec.ID)
 			_RET_STR = p_ext->Rec.Memo;
 		else
-			_RET_STR = 0;
+			_RET_STR.Z();
 	}
 }
 //

@@ -8412,6 +8412,8 @@ file psales_log   { "psales.log"   LOG TEXT             "Журнал заполнения табли
 file dbxrecv_log  { "dbxrecv.log"  LOG TEXT             "Журнал приема данных из других разделов БД" }
 file loterr_log   { "loterr.log"   LOG TEXT             "Журнал проверки лотов" }
 file egais_log    { "egais.log"    LOG TEXT             "Журнал обмена с ЕГАИС" }
+file vetis_talk_log { "vetis-talk.log" LOG TEXT         "Журнал обмена с ВЕТИС" }
+file vetis_info_log { "vetis-info.log" LOG TEXT         "Журнал сообщений при обмене с ВЕТИС" }
 //
 // Определение векторных изображений.
 // Заголовок: (каталог, в котором храняться svg-файлы изображений) [общий замещаемый цвет]

@@ -1,10 +1,12 @@
 /*
-** $Id: lzio.h,v 1.31 2015/09/08 15:41:05 roberto Exp $
+** $Id: lzio.h,v 1.31.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Buffered streams
 ** See Copyright Notice in lua.h
 */
+
 #ifndef lzio_h
 #define lzio_h
+
 #include "lua.h"
 #include "lmem.h"
 
@@ -21,16 +23,23 @@ typedef struct Mbuffer {
 } Mbuffer;
 
 #define luaZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
+
 #define luaZ_buffer(buff)       ((buff)->buffer)
 #define luaZ_sizebuffer(buff)   ((buff)->buffsize)
 #define luaZ_bufflen(buff)      ((buff)->n)
+
 #define luaZ_buffremove(buff, i) ((buff)->n -= (i))
 #define luaZ_resetbuffer(buff) ((buff)->n = 0)
-#define luaZ_resizebuffer(L, buff, size) ((buff)->buffer = luaM_reallocvchar(L, (buff)->buffer, (buff)->buffsize, size), (buff)->buffsize = size)
+
+#define luaZ_resizebuffer(L, buff, size) \
+	((buff)->buffer = luaM_reallocvchar(L, (buff)->buffer, \
+	(buff)->buffsize, size), \
+	(buff)->buffsize = size)
 
 #define luaZ_freebuffer(L, buff)        luaZ_resizebuffer(L, buff, 0)
 
-LUAI_FUNC void luaZ_init(lua_State * L, ZIO * z, lua_Reader reader, void * data);
+LUAI_FUNC void luaZ_init(lua_State * L, ZIO * z, lua_Reader reader,
+    void * data);
 LUAI_FUNC size_t luaZ_read(ZIO* z, void * b, size_t n); /* read next n bytes */
 
 /* --------- Private Part ------------------ */

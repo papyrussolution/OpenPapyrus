@@ -3317,7 +3317,7 @@ void PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 {
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	if(pF->Name == "?GetStr") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		size_t data_len = 0;
 		const ObjTagTbl::Rec * p_tag_rec = (const ObjTagTbl::Rec *)DS.GetTLA().SurIdList.Get(H.SurID, &data_len);
 		if(p_tag_rec && data_len == sizeof(*p_tag_rec)) {

@@ -2415,6 +2415,7 @@ file:
 table TempCCheckGrp {
 	autolong ID__;
 	string Text[128];  // @v6.3.7 [48]-->[128]
+	string Serial[32]; // @v10.2.6
 	date   Dt;
 	time   Tm;
 	long   CashID;
@@ -2433,7 +2434,7 @@ table TempCCheckGrp {
 	double Qtty;
 index:
 	ID__ (unique);
-	Dt, Tm, CashID, SCardID, GoodsID (unique mod);
+	Dt, Tm, CashID, SCardID, GoodsID, Serial (unique mod); // @v10.2.6 Serial
 	Text (dup mod);
 	Count desc, Dt, Tm, Text (dup mod);
 	Qtty desc, Dt, Tm, Text (dup mod);

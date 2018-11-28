@@ -1,13 +1,14 @@
 /*
-** $Id: lcorolib.c,v 1.10 2016/04/11 19:19:55 roberto Exp $
+** $Id: lcorolib.c,v 1.10.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Coroutine Library
 ** See Copyright Notice in lua.h
 */
+#include "lprefix.h"
+#pragma hdrstop
 
 #define lcorolib_c
 #define LUA_LIB
-#include "lprefix.h"
-#include <stdlib.h>
+//#include <stdlib.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
@@ -19,8 +20,7 @@ static lua_State * getco(lua_State * L)
 	return co;
 }
 
-static int auxresume(lua_State * L, lua_State * co, int narg) 
-{
+static int auxresume(lua_State * L, lua_State * co, int narg) {
 	int status;
 	if(!lua_checkstack(co, narg)) {
 		lua_pushliteral(L, "too many arguments to resume");
@@ -48,8 +48,7 @@ static int auxresume(lua_State * L, lua_State * co, int narg)
 	}
 }
 
-static int luaB_coresume(lua_State * L) 
-{
+static int luaB_coresume(lua_State * L) {
 	lua_State * co = getco(L);
 	int r;
 	r = auxresume(L, co, lua_gettop(L) - 1);
@@ -109,11 +108,11 @@ static int luaB_costatus(lua_State * L) {
 			case LUA_OK: {
 			    lua_Debug ar;
 			    if(lua_getstack(co, 0, &ar) > 0) /* does it have frames? */
-				    lua_pushliteral(L, "normal");  /* it is running */
+				    lua_pushliteral(L, "normal"); /* it is running */
 			    else if(lua_gettop(co) == 0)
 				    lua_pushliteral(L, "dead");
 			    else
-				    lua_pushliteral(L, "suspended");  /* initial state */
+				    lua_pushliteral(L, "suspended"); /* initial state */
 			    break;
 		    }
 			default: /* some error occurred */
@@ -150,4 +149,3 @@ LUAMOD_API int luaopen_coroutine(lua_State * L) {
 	luaL_newlib(L, co_funcs);
 	return 1;
 }
-

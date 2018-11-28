@@ -862,12 +862,12 @@ long STextBrowser::Document::SetState(long st, int set)
 
 STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
 {
-	Init(0);
+	Init(0, 0, 0);
 }
 
-STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
+STextBrowser::STextBrowser(const char * pFileName, const char * pLexerSymb, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
 {
-	Init(pFileName, toolbarId);
+	Init(pFileName, pLexerSymb, toolbarId);
 }
 
 STextBrowser::~STextBrowser()
@@ -917,9 +917,10 @@ TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow:
 	return rBlk;
 }
 
-int STextBrowser::Init(const char * pFileName, int toolbarId)
+int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int toolbarId)
 {
 	SScEditorBase::Init(0, 0);
+	LexerSymb = pLexerSymb; // @v10.2.6
 	OrgScintillaWndProc = 0;
 	SysState = 0;
 	Doc.FileName = pFileName;
@@ -1671,10 +1672,13 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 					CallFunc(SCI_SETREADONLY, 0, 0);
 				}
 				CallFunc(SCI_CLEARALL, 0, 0);
-				/*
-					Здесь следует установить LEXER
-				*/
-				if(oneof3(fir, 1, 2, 3)) {
+				//
+				// Здесь следует установить LEXER
+				//
+				if(LexerSymb.NotEmpty()) {
+					SetLexer(LexerSymb);
+				}
+				else if(oneof3(fir, 1, 2, 3)) {
 					if(ff == ff.Ini) {
 						SetLexer("ini");
 					}

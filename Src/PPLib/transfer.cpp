@@ -884,7 +884,7 @@ int SLAPI Transfer::GetCurRest(GoodsRestParam * pGrParam)
 			THROW(Rcpt.GetList(pGrParam->GoodsID, loc_list.get(j), pGrParam->SupplID, ZERODATE, opened_only, 1, &lot_list));
 			for(uint i = 0; i < lot_list.getCount(); i++) {
 				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-				if((r_lot_rec.GoodsID >= 0) || !(r_lot_rec.Flags & LOTF_CLOSEDORDER)) { // @v6.4.4
+				if((r_lot_rec.GoodsID >= 0) || !(r_lot_rec.Flags & LOTF_CLOSEDORDER)) {
 					LDATE  org_lot_date = ZERODATE;
 					if(pGrParam->CheckBill(&r_lot_rec, &org_lot_date))
 						THROW(pGrParam->AddLot(this, &r_lot_rec, r_lot_rec.Rest, org_lot_date));
@@ -2488,7 +2488,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 								THROW(lcr.Update(org_lot_id, ti->Date, fmul1000i(new_qtty)));
 							}
 							else {
-								// } @v10.1.5 
+								// } @v10.1.5
 								// @v9.0.0 {
 								if(P_LcrT) {
 									LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);

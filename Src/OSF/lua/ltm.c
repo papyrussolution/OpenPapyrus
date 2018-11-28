@@ -1,14 +1,15 @@
 /*
-** $Id: ltm.c,v 2.38 2016/12/22 13:08:50 roberto Exp $
+** $Id: ltm.c,v 2.38.1.1 2017/04/19 17:39:34 roberto Exp $
 ** Tag methods
 ** See Copyright Notice in lua.h
 */
+#include "lprefix.h"
+#pragma hdrstop
 
 #define ltm_c
 #define LUA_CORE
 
-#include "lprefix.h"
-#include <string.h>
+//#include <string.h>
 #include "lua.h"
 #include "ldebug.h"
 #include "ldo.h"
@@ -28,8 +29,7 @@ LUAI_DDEF const char * const luaT_typenames_[LUA_TOTALTAGS] = {
 	"proto" /* this last case is used for tests only */
 };
 
-void luaT_init(lua_State * L) 
-{
+void luaT_init(lua_State * L) {
 	static const char * const luaT_eventname[] = { /* ORDER TM */
 		"__index", "__newindex",
 		"__gc", "__mode", "__len", "__eq",
@@ -45,12 +45,12 @@ void luaT_init(lua_State * L)
 		luaC_fix(L, obj2gco(G(L)->tmname[i])); /* never collect these names */
 	}
 }
+
 /*
 ** function to be used with macro "fasttm": optimized for absence of
 ** tag methods
 */
-const TValue * luaT_gettm(Table * events, TMS event, TString * ename) 
-{
+const TValue * luaT_gettm(Table * events, TMS event, TString * ename) {
 	const TValue * tm = luaH_getshortstr(events, ename);
 	lua_assert(event <= TM_EQ);
 	if(ttisnil(tm)) { /* no tag method? */
@@ -60,8 +60,7 @@ const TValue * luaT_gettm(Table * events, TMS event, TString * ename)
 	else return tm;
 }
 
-const TValue * luaT_gettmbyobj(lua_State * L, const TValue * o, TMS event) 
-{
+const TValue * luaT_gettmbyobj(lua_State * L, const TValue * o, TMS event) {
 	Table * mt;
 	switch(ttnov(o)) {
 		case LUA_TTABLE:
@@ -86,7 +85,7 @@ const char * luaT_objtypename(lua_State * L, const TValue * o) {
 	    (ttisfulluserdata(o) && (mt = uvalue(o)->metatable) != NULL)) {
 		const TValue * name = luaH_getshortstr(mt, luaS_new(L, "__name"));
 		if(ttisstring(name)) /* is '__name' a string? */
-			return getstr(tsvalue(name));  /* use it as type name */
+			return getstr(tsvalue(name)); /* use it as type name */
 	}
 	return ttypename(ttnov(o)); /* else use standard type name */
 }
@@ -100,7 +99,7 @@ void luaT_callTM(lua_State * L, const TValue * f, const TValue * p1,
 	setobj2s(L, func + 2, p2); /* 2nd argument */
 	L->top += 3;
 	if(!hasres) /* no result? 'p3' is third argument */
-		setobj2s(L, L->top++, p3);  /* 3rd argument */
+		setobj2s(L, L->top++, p3); /* 3rd argument */
 	/* metamethod may yield only when called from Lua code */
 	if(isLua(L->ci))
 		luaD_call(L, func, hasres);
@@ -116,7 +115,7 @@ int luaT_callbinTM(lua_State * L, const TValue * p1, const TValue * p2,
     StkId res, TMS event) {
 	const TValue * tm = luaT_gettmbyobj(L, p1, event); /* try first operand */
 	if(ttisnil(tm))
-		tm = luaT_gettmbyobj(L, p2, event);  /* try second operand */
+		tm = luaT_gettmbyobj(L, p2, event); /* try second operand */
 	if(ttisnil(tm)) return 0;
 	luaT_callTM(L, tm, p1, p2, res, 1);
 	return 1;
@@ -147,8 +146,7 @@ void luaT_trybinTM(lua_State * L, const TValue * p1, const TValue * p2,
 int luaT_callorderTM(lua_State * L, const TValue * p1, const TValue * p2,
     TMS event) {
 	if(!luaT_callbinTM(L, p1, p2, L->top, event))
-		return -1;  /* no metamethod */
+		return -1; /* no metamethod */
 	else
 		return !l_isfalse(L->top);
 }
-

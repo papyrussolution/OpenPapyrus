@@ -3645,7 +3645,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
 	if(pF->Name == "?GetAddedString") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
 		LocationTbl::Rec loc_rec;
 		if(p_obj->Search(H.ID, &loc_rec) > 0) {
@@ -3653,7 +3653,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		}
 	}
 	else if(pF->Name == "?GetLongAddr") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
 		LocationTbl::Rec loc_rec;
 		if(p_obj->Search(H.ID, &loc_rec) > 0) {

@@ -1148,7 +1148,7 @@ void PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rt
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
 	if(pF->Name == "?Format") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
 		if(p_blk && p_blk->Rec.ID) {
 			PPObjRegister::Format(p_blk->Rec, 0, _RET_STR);

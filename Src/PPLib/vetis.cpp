@@ -6188,7 +6188,7 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	uint   i;
 	ObjTagItem tag_item;
 	PPIDArray bill_id_list;
-	PPObjOprKind op_obj;
+	//PPObjOprKind op_obj;
 	BillTbl::Rec bill_rec;
 	PPIDArray temp_bill_list; // Список идентификаторов документов продажи
 	SString temp_buf;
@@ -7799,8 +7799,10 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 			if(i_am_side == 0) {
 				PPID   acs_id = GetSupplAccSheet();
 				PPID   ar_id = 0;
+				PPID   rcvr_ar_id = 0;
 				PPID   loc_id = 0;
 				PPID   bill_id = 0;
+				int    select_intrrcpt = 0; // Выбирать из межскладских приходов
 				if(rRec.LinkFromPsnID) {
 					ar_obj.P_Tbl->PersonToArticle(rRec.LinkFromPsnID, acs_id, &ar_id);
 				}
@@ -7808,8 +7810,16 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 					LocationTbl::Rec loc_rec;
 					if(psn_obj.LocObj.Fetch(rRec.LinkFromDlvrLocID, &loc_rec) > 0) {
 						loc_id = loc_rec.ID;
-						if(!ar_id && loc_rec.OwnerID)
-							ar_obj.P_Tbl->PersonToArticle(loc_rec.OwnerID, acs_id, &ar_id);
+						if(!ar_id) {
+							if(loc_rec.Type == LOCTYP_WAREHOUSE) {
+								select_intrrcpt = 1;
+								if(rRec.LinkToDlvrLocID)
+									rcvr_ar_id = PPObjLocation::WarehouseToObj(rRec.LinkToDlvrLocID);
+								ar_id = PPObjLocation::WarehouseToObj(rRec.LinkFromDlvrLocID);
+							}
+							else if(loc_rec.OwnerID)
+								ar_obj.P_Tbl->PersonToArticle(loc_rec.OwnerID, acs_id, &ar_id);
+						}
 					}
 				}
 				if(ar_id) {
@@ -7824,22 +7834,24 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 							sp.Set(plusdate(rRec.IssueDate, -10), plusdate(rRec.IssueDate, +10));
 						}
 						BillTbl::Rec bill_rec;
-						uint   max_match_codelen = 0;
-						PPID   max_match_id = 0;
-						const  size_t way_bill_code_len = sstrlen(rRec.WayBillNumber);
-						for(DateIter di(&sp); BillObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
-							if((!Filt.LocID || bill_rec.LocID == Filt.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
-								temp_id_list.add(bill_rec.ID);
+						class MatchCodeBlock {
+						public:
+							MatchCodeBlock(const char * pWayBillNumber) : MaxMatchCodelen(0), MaxMatchID(0), WayBillNumber(pWayBillNumber)
+							{
+							}
+							void ProcessBillCode(PPID billID, const SString & rCode)
+							{
+								const size_t way_bill_code_len = WayBillNumber.Len();
 								if(way_bill_code_len) {
-									BillCore::GetCode(temp_buf = bill_rec.Code);
-									const size_t min_code_len = MIN(temp_buf.Len(), way_bill_code_len);
+									//BillCore::GetCode(temp_buf = bill_rec.Code);
+									const size_t min_code_len = MIN(rCode.Len(), way_bill_code_len);
 									for(size_t cl = 1; cl <= min_code_len; cl++) {
-										const char * p1 = temp_buf.cptr() + temp_buf.Len() - cl;
-										const char * p2 = rRec.WayBillNumber + way_bill_code_len - cl;
+										const char * p1 = rCode.cptr() + rCode.Len() - cl;
+										const char * p2 = WayBillNumber.cptr() + way_bill_code_len - cl;
 										if(strnicmp(p1, p2, cl) == 0) {
-											if(cl > max_match_codelen) {
-												max_match_codelen = cl;
-												max_match_id = bill_rec.ID;
+											if(cl > MaxMatchCodelen) {
+												MaxMatchCodelen = cl;
+												MaxMatchID = billID;
 											}
 										}
 										else
@@ -7847,12 +7859,68 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 									}
 								}
 							}
+							PPID   MaxMatchID;
+						private:
+							uint   MaxMatchCodelen;
+							const  SString WayBillNumber;
+						};
+						//uint   max_match_codelen = 0;
+						//PPID   max_match_id = 0;
+						//const  size_t way_bill_code_len = sstrlen(rRec.WayBillNumber);
+						MatchCodeBlock mcb(rRec.WayBillNumber);
+						if(select_intrrcpt) {
+							PPObjOprKind op_obj;
+							PPOprKind op_rec;
+							PPIDArray op_list_intrexpnd;
+							PPIDArray op_list_intrrcpt;
+							for(SEnum en = op_obj.Enum(0); en.Next(&op_rec) > 0;) {
+								const int intrt = IsIntrOp(op_rec.ID);
+								if(intrt == INTREXPND)
+									op_list_intrexpnd.add(op_rec.ID);
+								else if(intrt == INTRRCPT)
+									op_list_intrrcpt.add(op_rec.ID);
+							}
+							if(op_list_intrexpnd.getCount() && rcvr_ar_id) {
+								op_list_intrexpnd.sortAndUndup();
+								for(uint i = 0; i < op_list_intrexpnd.getCount(); i++) {
+									const PPID op_id = op_list_intrexpnd.get(i);
+									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(rcvr_ar_id, &di, &bill_rec) > 0;) {
+										if(bill_rec.OpID == op_id && (!loc_id || bill_rec.LocID == loc_id)) {
+											temp_id_list.add(bill_rec.ID);
+											BillCore::GetCode(temp_buf = bill_rec.Code);
+											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
+										}
+									}
+								}
+							}
+							if(op_list_intrrcpt.getCount()) {
+								op_list_intrrcpt.sortAndUndup();
+								for(uint i = 0; i < op_list_intrrcpt.getCount(); i++) {
+									const PPID op_id = op_list_intrrcpt.get(i);
+									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
+										if(bill_rec.OpID == op_id && (!Filt.LocID || bill_rec.LocID == Filt.LocID)) {
+											temp_id_list.add(bill_rec.ID);
+											BillCore::GetCode(temp_buf = bill_rec.Code);
+											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
+										}
+									}
+								}
+							}
+						}
+						else {
+							for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
+								if((!Filt.LocID || bill_rec.LocID == Filt.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
+									temp_id_list.add(bill_rec.ID);
+									BillCore::GetCode(temp_buf = bill_rec.Code);
+									mcb.ProcessBillCode(bill_rec.ID, temp_buf);
+								}
+							}
 						}
 						bill_filt.List.Set(&temp_id_list);
 						if(rRec.LinkBillID && temp_id_list.lsearch(rRec.LinkBillID))
 							bill_filt.Sel = rRec.LinkBillID;
-						else if(max_match_id)
-							bill_filt.Sel = max_match_id;
+						else if(mcb.MaxMatchID)
+							bill_filt.Sel = mcb.MaxMatchID;
 					}
 					//bill_filt.LocList.Add(Filt.LocID);
 					//bill_filt.OpID  = op_id;

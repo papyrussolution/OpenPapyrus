@@ -5083,9 +5083,9 @@ public:
 	};
 
 	STextBrowser();
-	STextBrowser(const char * pFileName, int toolbarId = -1);
+	STextBrowser(const char * pFileName, const char * pLexerSymb, int toolbarId = -1);
 	~STextBrowser();
-	int    Init(const char * pFileName, int toolbarId = -1);
+	int    Init(const char * pFileName, const char * pLexerSymb, int toolbarId = -1);
 	int    GetStatus(StatusBlock * pSb);
 	int    SetSpecialMode(int spcm);
 	int    WMHCreate();
@@ -5119,6 +5119,7 @@ private:
 	TToolbar * P_Toolbar;
 	long   ToolBarWidth;
 	uint   ToolbarId;
+	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
 	// @v9.7.11 SrDatabase * P_SrDb; // @v9.2.0 База данных SARTR
 };

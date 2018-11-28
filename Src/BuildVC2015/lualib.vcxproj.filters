@@ -114,6 +114,9 @@
     <ClCompile Include="..\Osf\lua\lzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\lua\lua-pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\lua\lapi.h">

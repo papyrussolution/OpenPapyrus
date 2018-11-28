@@ -1,14 +1,15 @@
 /*
-** $Id: lstring.c,v 2.56 2015/11/23 11:32:51 roberto Exp $
+** $Id: lstring.c,v 2.56.1.1 2017/04/19 17:20:42 roberto Exp $
 ** String table (keeps all strings handled by Lua)
 ** See Copyright Notice in lua.h
 */
+#include "lprefix.h"
+#pragma hdrstop
 
 #define lstring_c
 #define LUA_CORE
 
-#include "lprefix.h"
-#include <string.h>
+//#include <string.h>
 #include "lua.h"
 #include "ldebug.h"
 #include "ldo.h"
@@ -18,13 +19,15 @@
 #include "lstring.h"
 
 #define MEMERRMSG       "not enough memory"
+
 /*
 ** Lua will use at most ~(2^LUAI_HASHLIMIT) bytes from a string to
 ** compute its hash
 */
 #if !defined(LUAI_HASHLIMIT)
-	#define LUAI_HASHLIMIT          5
+#define LUAI_HASHLIMIT          5
 #endif
+
 /*
 ** equality for long strings
 */
@@ -33,7 +36,7 @@ int luaS_eqlngstr(TString * a, TString * b) {
 	lua_assert(a->tt == LUA_TLNGSTR && b->tt == LUA_TLNGSTR);
 	return (a == b) || /* same instance or... */
 	       ((len == b->u.lnglen) && /* equal length and ... */
-	    (memcmp(getstr(a), getstr(b), len) == 0)); /* equal contents */
+	       (memcmp(getstr(a), getstr(b), len) == 0)); /* equal contents */
 }
 
 unsigned int luaS_hash(const char * str, size_t l, unsigned int seed) {
@@ -44,8 +47,7 @@ unsigned int luaS_hash(const char * str, size_t l, unsigned int seed) {
 	return h;
 }
 
-unsigned int luaS_hashlongstr(TString * ts) 
-{
+unsigned int luaS_hashlongstr(TString * ts) {
 	lua_assert(ts->tt == LUA_TLNGSTR);
 	if(ts->extra == 0) { /* no hash? */
 		ts->hash = luaS_hash(getstr(ts), ts->u.lnglen, ts->hash);
@@ -53,11 +55,11 @@ unsigned int luaS_hashlongstr(TString * ts)
 	}
 	return ts->hash;
 }
+
 /*
 ** resizes the string table
 */
-void luaS_resize(lua_State * L, int newsize) 
-{
+void luaS_resize(lua_State * L, int newsize) {
 	int i;
 	stringtable * tb = &G(L)->strt;
 	if(newsize > tb->size) { /* grow table if needed */
@@ -88,20 +90,19 @@ void luaS_resize(lua_State * L, int newsize)
 ** Clear API string cache. (Entries cannot be empty, so fill them with
 ** a non-collectable string.)
 */
-void luaS_clearcache(global_State * g) 
-{
+void luaS_clearcache(global_State * g) {
 	int i, j;
 	for(i = 0; i < STRCACHE_N; i++)
 		for(j = 0; j < STRCACHE_M; j++) {
 			if(iswhite(g->strcache[i][j])) /* will entry be collected? */
-				g->strcache[i][j] = g->memerrmsg;  /* replace it with something fixed */
+				g->strcache[i][j] = g->memerrmsg; /* replace it with something fixed */
 		}
 }
+
 /*
 ** Initialize the string table and the string cache
 */
-void luaS_init(lua_State * L) 
-{
+void luaS_init(lua_State * L) {
 	global_State * g = G(L);
 	int i, j;
 	luaS_resize(L, MINSTRTABSIZE); /* initial size of string table */
@@ -112,6 +113,7 @@ void luaS_init(lua_State * L)
 		for(j = 0; j < STRCACHE_M; j++)
 			g->strcache[i][j] = g->memerrmsg;
 }
+
 /*
 ** creates a new string object
 */
@@ -128,15 +130,13 @@ static TString * createstrobj(lua_State * L, size_t l, int tag, unsigned int h) 
 	return ts;
 }
 
-TString * luaS_createlngstrobj(lua_State * L, size_t l) 
-{
+TString * luaS_createlngstrobj(lua_State * L, size_t l) {
 	TString * ts = createstrobj(L, l, LUA_TLNGSTR, G(L)->seed);
 	ts->u.lnglen = l;
 	return ts;
 }
 
-void luaS_remove(lua_State * L, TString * ts) 
-{
+void luaS_remove(lua_State * L, TString * ts) {
 	stringtable * tb = &G(L)->strt;
 	TString ** p = &tb->hash[lmod(ts->hash, tb->size)];
 	while(*p != ts) /* find previous element */
@@ -144,6 +144,7 @@ void luaS_remove(lua_State * L, TString * ts)
 	*p = (*p)->u.hnext; /* remove element from its list */
 	tb->nuse--;
 }
+
 /*
 ** checks whether short string exists and reuses it or creates a new one
 */
@@ -158,7 +159,7 @@ static TString * internshrstr(lua_State * L, const char * str, size_t l) {
 		    (memcmp(str, getstr(ts), l * sizeof(char)) == 0)) {
 			/* found! */
 			if(isdead(g, ts)) /* dead (but not collected yet)? */
-				changewhite(ts);  /* resurrect it */
+				changewhite(ts); /* resurrect it */
 			return ts;
 		}
 	}
@@ -190,24 +191,24 @@ TString * luaS_newlstr(lua_State * L, const char * str, size_t l) {
 		return ts;
 	}
 }
+
 /*
 ** Create or reuse a zero-terminated string, first checking in the
 ** cache (using the string address as a key). The cache can contain
 ** only zero-terminated strings, so it is safe to use 'strcmp' to
 ** check hits.
 */
-TString * luaS_new(lua_State * L, const char * str) 
-{
+TString * luaS_new(lua_State * L, const char * str) {
 	unsigned int i = point2uint(str) % STRCACHE_N; /* hash */
 	int j;
 	TString ** p = G(L)->strcache[i];
 	for(j = 0; j < STRCACHE_M; j++) {
 		if(strcmp(str, getstr(p[j])) == 0) /* hit? */
-			return p[j];  /* that is it */
+			return p[j]; /* that is it */
 	}
 	/* normal route */
 	for(j = STRCACHE_M - 1; j > 0; j--)
-		p[j] = p[j - 1];  /* move out last element */
+		p[j] = p[j - 1]; /* move out last element */
 	/* new element is first in the list */
 	p[0] = luaS_newlstr(L, str, strlen(str));
 	return p[0];
@@ -225,4 +226,3 @@ Udata * luaS_newudata(lua_State * L, size_t s) {
 	setuservalue(L, u, luaO_nilobject);
 	return u;
 }
-

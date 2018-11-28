@@ -2584,7 +2584,7 @@ int SLAPI PPViewGoods::RemoveAll()
 										if(sum_len > max_nm_len)
 											temp_buf.Trim(max_nm_len-suffix.Len());
 										temp_buf.Cat(suffix);
-									} 
+									}
 									goods_name = temp_buf;
 									STRNSCPY(new_pack.Rec.Name, goods_name);
 								}
@@ -4502,14 +4502,14 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	PPObjBill * p_bobj = BillObj;
 	ReceiptTbl::Rec lot_rec;
 	if(pF->Name == "?GetArCode") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
 		PPObjGoods * p_obj = (PPObjGoods *)(Extra[0].Ptr);
 		if(p_blk)
 			p_blk->Obj.P_Tbl->GetArCode(_ARG_LONG(1), H.ID, _RET_STR, 0);
 	}
 	else if(pF->Name == "?GetAbbr") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			_RET_STR = p_blk->Pack.Rec.Abbr;
@@ -4526,6 +4526,29 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 			_RET_LONG = lot_rec.ID;
 		else
 			_RET_LONG = 0;
+	}
+	else if(pF->Name == "?GetAverageCost") { // @v10.2.6
+		//double GetAverageCost(date dt, long locID, string serial);
+		LDATE  dt = _ARG_DT(1);
+		PPID   loc_id = _ARG_LONG(2);
+		const  SString & r_serial = _ARG_STR(3);
+		LotArray lot_list;
+		p_bobj->trfr->Rcpt.GetList(H.ID, loc_id, 0, dt, 0/*opened only*/, 0/*non-zero rest only*/, &lot_list);
+		double sum_cost = 0.0;
+		double sum_rest = 0.0;
+		SString temp_buf;
+		for(uint i = 0; i < lot_list.getCount(); i++) {
+			const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+			if(r_serial.Empty() || (p_bobj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0 && temp_buf == r_serial)) {
+				double rest = 0.0;
+				p_bobj->trfr->GetRest(r_lot_rec.ID, dt, MAXLONG, &rest, 0);
+				if(rest > 0.0) {
+					sum_rest += rest;
+					sum_cost += rest * r_lot_rec.Cost;
+				}
+			}
+		}
+		_RET_DBL = (sum_rest > 0.0) ? (sum_cost / sum_rest) : 0.0;
 	}
 	else if(pF->Name == "?GetQuot") {
 		//double GetQuot(string quotKindSymb[20], long locID, long arID, long curID);
@@ -4567,7 +4590,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		}
 	}
 	else if(pF->Name == "?GetAddedText") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		const char * p_symb = _ARG_STR(1);
 		if(!isempty(p_symb)) {
 			DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
@@ -4595,7 +4618,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		_RET_LONG = PPObjTag::Helper_GetTag(PPOBJ_GOODS, H.ID, _ARG_STR(1));
 	}
 	else if(pF->Name == "?GetManufCountryText") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		long   k = _ARG_LONG(1);
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
 		if(p_blk) {
@@ -4645,7 +4668,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	}
 	// } @v9.4.10
 	else if(pF->Name == "?GetImagePath") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		//string GetImagePath[256](int rel, string stub[256]);
 		const int rel = _ARG_LONG(1);
 		SString stub = _ARG_STR(2);
@@ -4731,7 +4754,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		_RET_LONG = (int)val;
 	}
 	else if(pF->Name == "?GetExtProp") {
-		_RET_STR = 0;
+		_RET_STR.Z();
 		const int prop_id = _ARG_LONG(1);
 		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
 		if(prop_id && p_blk && p_blk->Pack.Rec.ID) {
