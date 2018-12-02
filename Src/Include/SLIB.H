@@ -2864,8 +2864,8 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define SFFLAGMASK  0x0000ffffL
 #define SFLENMASK   0x0fff0000L
 #define SFPRCMASK   0xf0000000L
-#define SFALIGNMASK  ((unsigned long)(ALIGN_LEFT | ALIGN_RIGHT | ALIGN_CENTER))
-#define SFCOMMONMASK ((unsigned long)(SFALIGNMASK | COMF_FILLOVF))
+#define SFALIGNMASK  ((unsigned long)(ALIGN_LEFT|ALIGN_RIGHT|ALIGN_CENTER))
+#define SFCOMMONMASK ((unsigned long)(SFALIGNMASK|COMF_FILLOVF))
 #define MKSFMT(l,f)           ((((long)(l))<<16)|(long)(f))
 #define MKSFMTD(l,p,f)        ((((long)(p))<<28)|(((long)(l))<<16)|(long)(f))
 #define SFMTFLAG(fmt)         (unsigned)((fmt)&SFFLAGMASK)
@@ -10111,7 +10111,7 @@ public:
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	struct Stat : public StatBase {
-		SLAPI  Stat(long flags) : StatBase(flags), State(0)
+		SLAPI  Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0)
 		{
 		}
 		enum {
@@ -10119,6 +10119,7 @@ public:
 			stHasTmDup = 0x0002
 		};
 		long   State;
+		double DeltaAvg; // Среднее значение изменения относительно предыдущего значения в долях от единицы
 	};
 
 	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;

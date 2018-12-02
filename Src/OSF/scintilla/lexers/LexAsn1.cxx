@@ -154,7 +154,6 @@ static void FoldAsn1Doc(Sci_PositionU, Sci_Position, int, WordList *[], Accessor
 	// No folding enabled, no reason to continue...
 	if(styler.GetPropertyInt("fold") == 0)
 		return;
-
 	// No folding implemented: doesn't make sense for ASN.1
 }
 

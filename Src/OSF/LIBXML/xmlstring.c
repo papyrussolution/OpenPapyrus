@@ -475,10 +475,10 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	xmlChar * ret;
 	if(len < 0)
 		len = sstrlen(str2);
-	if((str2 == NULL) || (len == 0))
+	if(!str2 || !len)
 		return sstrdup(str1);
-	if(str1 == NULL)
-		return(xmlStrndup(str2, len));
+	if(!str1)
+		return xmlStrndup(str2, len);
 	size = sstrlen(str1);
 	ret = (xmlChar*)SAlloc::M((size + len + 1) * sizeof(xmlChar));
 	if(!ret) {

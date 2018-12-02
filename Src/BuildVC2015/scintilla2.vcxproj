@@ -826,10 +826,7 @@
     <ClCompile Include="..\Osf\scintilla\lexlib\Accessor.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\CharacterCategory.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\CharacterSet.cxx" />
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerBase.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\LexerModule.cxx" />
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerNoExceptions.cxx" />
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerSimple.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\PropSetSimple.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\StyleContext.cxx" />
     <ClCompile Include="..\OSF\scintilla\lexlib\SubStyles.cxx" />

@@ -560,22 +560,13 @@
 				RelativePath="..\Osf\scintilla\lexers\LexEiffel.cxx">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\lexlib\LexerBase.cxx">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\lexers\LexErlang.cxx">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\lexlib\LexerModule.cxx">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\lexlib\LexerNoExceptions.cxx">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\lexers\LexErrorList.cxx">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\lexlib\LexerSimple.cxx">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\lexers\LexEScript.cxx">

@@ -1970,8 +1970,8 @@ PPBillPacket::TiItemExt::TiItemExt()
 
 void PPBillPacket::TiItemExt::Clear()
 {
-	Clb = 0;
-	Pckg = 0;
+	Clb.Z();
+	Pckg.Z();
 	MEMSZERO(LctRec);
 	MergePosList.clear();
 }
@@ -3185,14 +3185,9 @@ int SLAPI PPBillPacket::ShrinkTRows(long fl /* = ETIEF_DIFFBYLOT | ETIEF_UNITEBY
 }
 
 int FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec)
-{
-	return BIN(IsSupplVATFree(rLotRec.SupplID) > 0 || PPObjLocation::CheckWarehouseFlags(rLotRec.LocID, LOCF_VATFREE));
-}
-
+	{ return BIN(IsSupplVATFree(rLotRec.SupplID) > 0 || PPObjLocation::CheckWarehouseFlags(rLotRec.LocID, LOCF_VATFREE)); }
 double FASTCALL PPBillPacket::GetAmount(int minus /*= 0*/) const
-{
-	return BR2(minus ? -Rec.Amount : Rec.Amount);
-}
+	{ return BR2(minus ? -Rec.Amount : Rec.Amount); }
 
 double FASTCALL PPBillPacket::GetBaseAmount(int minus /*= 0*/) const
 {

@@ -9708,7 +9708,6 @@ public:
     void   SLAPI RemovePosition(int rowIdx);
 	int    SLAPI ReplacePosition(int rowIdx, int newRowIdx);
     int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
 	int    SLAPI Store(LotExtCodeTbl * pTbl, PPID billID, int use_ta);
 	int    SLAPI Load(LotExtCodeTbl * pTbl, PPID billID);
 	static int SLAPI RemoveAllByBill(LotExtCodeTbl * pTbl, PPID billID, int use_ta);
@@ -12213,8 +12212,7 @@ private:
 		TransferTbl::Rec TrRec;
 	};
 	int    SLAPI ProcessLotFault(PPLotFaultArray *, int fault, double act, double valid);
-	int    SLAPI UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno,
-		double cost, double price, uint * pUF /* TRUCLF_UPDCOST || TRUCLF_UPDPRICE */);
+	int    SLAPI UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF /* TRUCLF_UPDCOST || TRUCLF_UPDPRICE */);
 	int    SLAPI UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF);
 	int    SLAPI Search(PPID lot, LDATE, long oprno, int spMode);
 	int    SLAPI GetLotOprNo(LDATE, long * oprno);
@@ -15625,10 +15623,14 @@ public:
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsTradeFrames();
 	int    SLAPI AnalyzeTsAftershocks();
+	int    SLAPI AnalyzeStrategies();
 
 	struct TrainNnParam {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
 		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
+		void   SLAPI Reset();
+		int    SLAPI AppendSeq(int quantCount, int condition);
+		int    SLAPI GetSeq(uint seqIdx, int * pQuantCount, int * pCondition) const;
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
 			fTeach            = 0x0001,
@@ -15647,15 +15649,39 @@ public:
 		uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
 		uint   EpochCount;       // Количество эпох обучения каждого паттерна
 		float  LearningRate;     // Фактор скорости обучения
+		//
+		double SpikeQuant;
+		//uint   BackSurvey;
+		double TrendGe;
+		uint   TargetQuant;
+		uint   MaxDuckQuant;
+		//uint   MaxSideCycles;
+		uint   SeqCount;
+		uint32 Seq[32];
+	};
+	struct Strategy__ {
+		SLAPI  Strategy__();
+		void   SLAPI Reset();
+		int    SLAPI AppendSeq(int quantCount, int condition);
+		int    SLAPI GetSeq(uint seqIdx, int * pQuantCount, int * pCondition) const;
+
+		double SpikeQuant;
+		uint   BackSurvey;
+		double TrendGe;
+		uint   MaxDuckQuant;
+		uint   MaxSideCycles;
+		uint   SeqCount;
+		uint32 Seq[32];
 	};
 
 	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI TrainNN();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
-	int    SLAPI AnalyzeTrend(const STimeSeries & rTs, const TrainNnParam & rP);
+	int    SLAPI AnalyzeStrategy(const STimeSeries & rTs, const TrainNnParam & rP);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
+	int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -21182,12 +21208,19 @@ struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
 	long   UnionVect;      //
 };
 
-class PPGoodsTaxPacket : public SVector { // @v10.1.6 SArray-->SVector
+class PPGoodsTaxPacket : private SVector { // @v10.1.6 SArray-->SVector
 public:
 	SLAPI  PPGoodsTaxPacket();
 	PPGoodsTaxPacket & FASTCALL operator = (const PPGoodsTaxPacket &);
+	uint   SLAPI GetCount() const;
+	PPGoodsTaxEntry & FASTCALL Get(uint idx) const;
 	int    SLAPI PutEntry(int pos, const PPGoodsTaxEntry *);
 	void   SLAPI Sort();
+	//
+	// Descr: Calls SVectot::insert(&rEntry)
+	//
+	int    FASTCALL Insert(const PPGoodsTaxEntry & rEntry);
+	SVector * SLAPI vecptr();
 
 	PPGoodsTax Rec;
 };
@@ -29187,7 +29220,7 @@ public:
 	SLAPI  BVATAccmArray(uint aFlags = 0);
 	int    SLAPI CalcBill(PPID);
 	int    SLAPI CalcBill(const PPBillPacket *);
-	int    SLAPI Scale_(double part, int useRounding);
+	void   SLAPI Scale_(double part, int useRounding);
 	int    SLAPI Add(const PPTransferItem *, PPID opID);
 	int    SLAPI Add(const BVATAccm *, int dontRound = 0);
 private:
@@ -44118,10 +44151,7 @@ private:
 	int    SLAPI AcceptData(PPID posNodeID, int silent);
 	int    SLAPI BackupInputFile(const char * pFileName);
     void   SLAPI DestroyReadBlock();
-	const PPPosProtocol::ReadBlock & SLAPI GetReadBlock() const
-	{
-		return RdB;
-	}
+	const  PPPosProtocol::ReadBlock & SLAPI GetReadBlock() const { return RdB; }
 	struct ResolveGoodsParam {
 		SLAPI  ResolveGoodsParam();
 		void   SLAPI SetupGoodsPack(const PPPosProtocol::ReadBlock & rRB, const GoodsBlock & rBlk, PPGoodsPacket & rPack) const;
@@ -44181,7 +44211,7 @@ private:
 class PPEgaisProcessor : public PrcssrAlcReport {
 public:
 	struct Packet {
-		Packet(int docType);
+		explicit Packet(int docType);
 		~Packet();
 		enum {
 			fAcceptedBill = 0x0001, // В пакете содержится импортированный в базу данных документ
@@ -44448,7 +44478,6 @@ public:
 	void   SLAPI SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
 	int    SLAPI GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
 	int    SLAPI GetURL(PPID locID, SString & rBuf);
-
 	int    SLAPI EditQueryParam(PPEgaisProcessor::QueryParam * pData);
 	int    SLAPI ImplementQuery(PPEgaisProcessor::QueryParam & rParam);
 	int    SLAPI InteractiveQuery();
@@ -44464,10 +44493,8 @@ public:
     int    SLAPI QueryRestsShop(PPID locID, const char * /* @unused */);
     int    SLAPI QueryInfA(PPID locID, const char * pInfA);
     int    SLAPI QueryInfB(PPID locID, const char * pInfB);
-
     int    SLAPI Write(Packet & rPack, PPID locID, const char * pFileName);
     int    SLAPI Write(Packet & rPack, PPID locID, SBuffer & rBuffer);
-
     int    SLAPI PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck);
     int    SLAPI PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck);
     PPEgaisProcessor::Packet * SLAPI GetReply(const PPEgaisProcessor::Reply & rReply);
@@ -44508,14 +44535,12 @@ public:
 	int    SLAPI ReadInput(PPID locID, const DateRange * pPeriod, long flags);
 	int    SLAPI DebugReadInput(PPID locID);
 	int    SLAPI RemoveOutputMessages(PPID locID, int debugMode);
-
 	//int    SLAPI SendBillActs(PPID locID, const DateRange * pPeriod);
 	//int    SLAPI SendBills(PPID locID, const DateRange * pPeriod);
 	int    SLAPI SendBillActs(const PPBillExportFilt & rP);
 	int    SLAPI SendBillRepeals(const PPBillExportFilt & rP);
 	int    SLAPI SendBills(const PPBillExportFilt & rP);
 	int    SLAPI CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
-
 	int    SLAPI CollectRefs();
 private:
 	struct BillTransmissionPattern {
@@ -44576,7 +44601,6 @@ private:
 	int    SLAPI SearchActChargeByActInform(const PPEgaisProcessor::ActInform & rInf, PPID * pBillID);
 	int    SLAPI MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName);
 	int    SLAPI DeleteSrcPacket(const Packet * pPack, TSCollection <PPEgaisProcessor::Reply> & rReplyList);
-
 	int    SLAPI Helper_SendBills(PPID billID, int ediOp, PPID locID, const char * pUrlSuffix);
 	int    SLAPI Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack);
 	int    SLAPI Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList);
@@ -44588,7 +44612,6 @@ private:
 	int    SLAPI Helper_CreateWriteOffShop(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
 	int    SLAPI Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
 	int    SLAPI Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
-
 	void   FASTCALL Log(const SString & rMsg);
 	void   SLAPI LogTextWithAddendum(int msgCode, const SString & rAddendum);
 	void   SLAPI LogLastError();

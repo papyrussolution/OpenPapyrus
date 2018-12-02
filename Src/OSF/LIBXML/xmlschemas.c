@@ -23356,7 +23356,7 @@ static void xmlSchemaClearValidCtxt(xmlSchemaValidCtxt * vctxt)
  *
  * Free the resources associated to the schema validation context
  */
-void xmlSchemaFreeValidCtxt(xmlSchemaValidCtxt * ctxt)
+void FASTCALL xmlSchemaFreeValidCtxt(xmlSchemaValidCtxt * ctxt)
 {
 	if(ctxt) {
 		xmlSchemaFreeValue(ctxt->value);

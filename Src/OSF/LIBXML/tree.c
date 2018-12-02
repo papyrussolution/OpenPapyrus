@@ -282,13 +282,9 @@ const xmlChar * xmlSplitQName3(const xmlChar * name, int * len)
 	*len = l;
 	return &name[l+1];
 }
-
-/************************************************************************
-*									*
-*		Check Name, NCName and QName strings			*
-*									*
-************************************************************************/
-
+// 
+// Check Name, NCName and QName strings
+// 
 #define CUR_SCHAR(s, l) xmlStringCurrentChar(NULL, s, &l)
 
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_DEBUG_ENABLED) || \
@@ -567,13 +563,9 @@ try_complex:
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
-/************************************************************************
-*									*
-*		Allocation and deallocation of basic structures		*
-*									*
-************************************************************************/
-
+// 
+// Allocation and deallocation of basic structures
+// 
 /**
  * xmlSetBufferAllocationScheme:
  * @scheme:  allocation method to use
@@ -2386,7 +2378,6 @@ xmlNode * xmlNewDocComment(xmlDoc * doc, const xmlChar * content)
 		cur->doc = doc;
 	return cur;
 }
-
 /**
  * xmlSetTreeDoc:
  * @tree:  the top element
@@ -2394,7 +2385,7 @@ xmlNode * xmlNewDocComment(xmlDoc * doc, const xmlChar * content)
  *
  * update all nodes under the tree to point to the right document
  */
-void xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc) 
+void FASTCALL xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc) 
 {
 	if(tree && tree->type != XML_NAMESPACE_DECL) {
 		if(tree->doc != doc) {
@@ -2410,7 +2401,6 @@ void xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc)
 		}
 	}
 }
-
 /**
  * xmlSetListDoc:
  * @list:  the first element
@@ -2418,7 +2408,7 @@ void xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc)
  *
  * update all nodes in the list to point to the right document
  */
-void xmlSetListDoc(xmlNode * list, xmlDoc * doc) 
+void FASTCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc) 
 {
 	if(list && list->type != XML_NAMESPACE_DECL) {
 		for(xmlNode * cur = list; cur; cur = cur->next) {
@@ -2494,7 +2484,6 @@ xmlNode * xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const 
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
 /**
  * xmlAddPropSibling:
  * @prev:  the attribute to which @prop is added after
@@ -2508,7 +2497,7 @@ xmlNode * xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const 
  *
  * Returns the attribute being inserted or NULL in case of error.
  */
-static xmlNode * xmlAddPropSibling(xmlNode * prev, xmlNode * cur, xmlNode * prop)
+static xmlNode * FASTCALL xmlAddPropSibling(xmlNode * prev, xmlNode * cur, xmlNode * prop)
 {
 	xmlAttr * attr;
 	if(!cur || (cur->type != XML_ATTRIBUTE_NODE) || !prop || (prop->type != XML_ATTRIBUTE_NODE) || (prev && prev->type != XML_ATTRIBUTE_NODE))
@@ -2538,7 +2527,6 @@ static xmlNode * xmlAddPropSibling(xmlNode * prev, xmlNode * cur, xmlNode * prop
 	}
 	return prop;
 }
-
 /**
  * xmlAddNextSibling:
  * @cur:  the child node
@@ -2622,7 +2610,7 @@ xmlNode * xmlAddNextSibling(xmlNode * cur, xmlNode * elem)
  *
  * Returns the new node or NULL in case of error.
  */
-xmlNode * xmlAddPrevSibling(xmlNode * cur, xmlNode * elem) 
+xmlNode * FASTCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem) 
 {
 	if(!cur || (cur->type == XML_NAMESPACE_DECL)) {
 #ifdef DEBUG_TREE
@@ -2636,7 +2624,6 @@ xmlNode * xmlAddPrevSibling(xmlNode * cur, xmlNode * elem)
 #endif
 		return 0;
 	}
-
 	if(cur == elem) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlAddPrevSibling : cur == elem\n");
@@ -2886,7 +2873,7 @@ xmlNode * FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur)
 	if((parent->type == XML_TEXT_NODE) && parent->content && (parent != cur)) {
 		xmlNodeAddContent(parent, cur->content);
 		xmlFreeNode(cur);
-		return(parent);
+		return parent;
 	}
 	if(cur->type == XML_ATTRIBUTE_NODE) {
 		if(parent->type != XML_ELEMENT_NODE)
@@ -7870,7 +7857,6 @@ exit:
 	xmlDOMWrapNsMapFree(nsMap);
 	return ret;
 }
-
 /*
  * xmlDOMWrapAdoptBranch:
  * @ctxt: the optional context for custom processing
@@ -8028,8 +8014,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 				     */
 				    ns = ctxt->getNsForNodeFunc(ctxt, cur, cur->ns->href, cur->ns->prefix);
 				    /*
-				     * Insert mapping if ns is available; it's the users fault
-				     * if not.
+				     * Insert mapping if ns is available; it's the users fault if not.
 				     */
 				    if(xmlDOMWrapNsMapAddItem(&nsMap, -1, cur->ns, ns, XML_TREE_NSMAP_CUSTOM) == NULL)
 					    goto internal_error;
@@ -8061,9 +8046,7 @@ ns_end:
 				     * Walk attributes.
 				     */
 				    if(cur->properties) {
-					    /*
-					     * Process first attribute node.
-					     */
+						// Process first attribute node.
 					    cur = (xmlNode *)cur->properties;
 					    continue;
 				    }
@@ -8164,9 +8147,7 @@ exit:
 	 */
 	if(nsMap) {
 		if(ctxt && (ctxt->namespaceMap == nsMap)) {
-			/*
-			 * Just cleanup the map but don't free.
-			 */
+			// Just cleanup the map but don't free.
 			if(nsMap->first) {
 				if(nsMap->pool)
 					nsMap->last->next = nsMap->pool;
@@ -8692,8 +8673,7 @@ exit:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAttr * attr,
-    xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
+static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAttr * attr, xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
 {
 	xmlNode * cur;
 	int adoptStr = 1;
@@ -8785,7 +8765,6 @@ next_sibling:
 internal_error:
 	return -1;
 }
-
 /*
  * xmlDOMWrapAdoptNode:
  * @ctxt: the optional context for custom processing

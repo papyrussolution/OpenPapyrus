@@ -138,22 +138,13 @@
     <ClCompile Include="..\Osf\scintilla\lexers\LexEiffel.cxx">
       <Filter>Lex</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerBase.cxx">
-      <Filter>Lex</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\scintilla\lexers\LexErlang.cxx">
       <Filter>Lex</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\scintilla\lexlib\LexerModule.cxx">
       <Filter>Lex</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerNoExceptions.cxx">
-      <Filter>Lex</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\scintilla\lexers\LexErrorList.cxx">
-      <Filter>Lex</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\scintilla\lexlib\LexerSimple.cxx">
       <Filter>Lex</Filter>
     </ClCompile>
     <ClCompile Include="..\Osf\scintilla\lexers\LexEScript.cxx">

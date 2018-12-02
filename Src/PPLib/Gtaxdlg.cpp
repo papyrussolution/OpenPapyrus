@@ -187,19 +187,19 @@ int GoodsTaxListDialog::getDTS(PPGoodsTaxPacket * pData)
 
 int GoodsTaxListDialog::setupList()
 {
-	PPGoodsTaxEntry * p_item = 0;
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; i < Data.GetCount(); i++) {
+		const PPGoodsTaxEntry & r_item = Data.Get(i);
 		StringSet ss(SLBColumnDelim);
 		char   sub[64];
-		ss.add(periodfmt(&p_item->Period, sub));
-		if(p_item->OpID)
-			GetOpName(p_item->OpID, sub, sizeof(sub));
+		ss.add(periodfmt(&r_item.Period, sub));
+		if(r_item.OpID)
+			GetOpName(r_item.OpID, sub, sizeof(sub));
 		else
 			sub[0] = 0;
 		ss.add(sub);
-		ss.add(p_item->FormatExcise(sub, sizeof(sub)));
-		ss.add(p_item->FormatVAT(sub, sizeof(sub)));
-		ss.add(p_item->FormatSTax(sub, sizeof(sub)));
+		ss.add(r_item.FormatExcise(sub, sizeof(sub)));
+		ss.add(r_item.FormatVAT(sub, sizeof(sub)));
+		ss.add(r_item.FormatSTax(sub, sizeof(sub)));
 		if(!addStringToList(i, ss.getBuf()))
 			return 0;
 	}
@@ -210,7 +210,7 @@ int GoodsTaxListDialog::delItem(long pos, long)
 {
 	int    ok = -1;
 	if(pos >= 0) {
-		Data.atFree((uint)pos);
+		Data.PutEntry(pos, 0);
 		ok = 1;
 	}
 	return ok;
@@ -240,7 +240,7 @@ void GoodsTaxListDialog::addBySample()
 {
 	long   p, i;
 	if(getCurItem(&p, &i)) {
-		PPGoodsTaxEntry item = *(PPGoodsTaxEntry*)Data.at((uint)p);
+		PPGoodsTaxEntry item = Data.Get((uint)p);
 		if(editItemDialog(-1, &item) > 0)
 			updateList(-1);
 	}
@@ -255,8 +255,9 @@ int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 	item.Flags |= GTAXF_ENTRY;
 	item.Flags &= ~GTAXF_USELIST;
 	if(editItemDialog(-1, &item) > 0) {
-		ASSIGN_PTR(pPos, Data.getCount()-1);
-		ASSIGN_PTR(pID, Data.getCount());
+		const long _c = (long)Data.GetCount();
+		ASSIGN_PTR(pPos, _c-1);
+		ASSIGN_PTR(pID, _c);
 		ok = 1;
 	}
 	return ok;
@@ -265,8 +266,8 @@ int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 int GoodsTaxListDialog::editItem(long pos, long)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
-		PPGoodsTaxEntry item = *(PPGoodsTaxEntry*)Data.at((uint)pos);
+	if(pos >= 0 && pos < (long)Data.GetCount()) {
+		PPGoodsTaxEntry item = Data.Get((uint)pos);
 		if(editItemDialog((int)pos, &item) > 0)
 			ok = 1;
 	}
@@ -291,10 +292,11 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 	PPGoodsTaxPacket pack;
 	GoodsTaxDialog * dlg = 0;
 	if(GetPacket(sampleID, &pack) > 0) {
-		PPGoodsTaxEntry * p_entry;
+		//PPGoodsTaxEntry * p_entry;
 		pack.Rec.ID = 0;
-		for(uint i = 0; pack.enumItems(&i, (void **)&p_entry);)
-			p_entry->TaxGrpID = 0;
+		for(uint i = 0; i < pack.GetCount(); i++) {
+			pack.Get(i).TaxGrpID = 0;
+		}
 		if(CheckDialogPtrErr(&(dlg = new GoodsTaxDialog(DLG_GDSTAX)))) {
 			dlg->setDTS(&pack);
 			for(int valid_data = 0; !valid_data && (r = ExecView(dlg)) == cmOK;)

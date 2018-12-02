@@ -2019,8 +2019,7 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 				PPObjArticle ar_obj;
 				PPIDArray    psn_list;
 				VatFreeSupplList.clear();
-				if(psn_obj.P_Tbl->GetVATFreePersonList(&psn_list) &&
-					ar_obj.GetByPersonList(0, &psn_list, &VatFreeSupplList)) {
+				if(psn_obj.P_Tbl->GetVATFreePersonList(&psn_list) && ar_obj.GetByPersonList(0, &psn_list, &VatFreeSupplList)) {
 					VatFreeSupplList.sort();
 					IsVatFreeListInited = 1;
 					ok = VatFreeSupplList.bsearch(supplID) ? 1 : -1;
@@ -2038,11 +2037,9 @@ int FASTCALL ArticleCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
 		// @todo process VatFreeSupplList
-		//RwL.Unlock();
 	}
 	return ok;
 }

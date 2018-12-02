@@ -100,7 +100,7 @@ XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags);
  */
 XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL xmlXIncludeNewContext(xmlDocPtr doc);
 XMLPUBFUN int XMLCALL xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
-XMLPUBFUN void XMLCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr tree);
 #ifdef __cplusplus
 }

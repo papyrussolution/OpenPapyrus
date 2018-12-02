@@ -90,7 +90,6 @@ typedef enum {
 	XML_READER_TYPE_END_ENTITY = 16,
 	XML_READER_TYPE_XML_DECLARATION = 17
 } xmlReaderTypes;
-
 /**
  * xmlTextReader:
  *
@@ -103,15 +102,14 @@ struct xmlTextReader;
  *
  * Pointer to an xmlReader context.
  */
-typedef xmlTextReader * xmlTextReaderPtr;
+//typedef xmlTextReader * xmlTextReaderPtr;
 /*
  * Constructors & Destructor
  */
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlNewTextReader(xmlParserInputBuffer * input, const char * URI);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlNewTextReaderFilename(const char * URI);
+XMLPUBFUN xmlTextReader * XMLCALL xmlNewTextReader(xmlParserInputBuffer * input, const char * URI);
+XMLPUBFUN xmlTextReader * XMLCALL xmlNewTextReaderFilename(const char * URI);
 XMLPUBFUN void XMLCALL  xmlFreeTextReader(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderSetup(xmlTextReader * reader, xmlParserInputBuffer * input, const char * URL, const char * encoding, int options);
-
 /*
  * Iterators
  */
@@ -213,21 +211,18 @@ XMLPUBFUN long XMLCALL xmlTextReaderByteConsumed(xmlTextReader * reader);
 /*
  * New more complete APIs for simpler creation and reuse of readers
  */
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderWalker(xmlDoc * doc);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForFile(const char * filename, const char * encoding, int options);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForMemory(const char * buffer, int size, const char * URL, const char * encoding, int options);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForFd(int fd, const char * URL, const char * encoding, int options);
-XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
-    void * ioctx, const char * URL, const char * encoding, int options);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderWalker(xmlDoc * doc);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderForFile(const char * filename, const char * encoding, int options);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderForMemory(const char * buffer, int size, const char * URL, const char * encoding, int options);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderForFd(int fd, const char * URL, const char * encoding, int options);
+XMLPUBFUN xmlTextReader * XMLCALL xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
 XMLPUBFUN int XMLCALL xmlReaderNewWalker(xmlTextReader * reader, xmlDoc * doc);
 XMLPUBFUN int XMLCALL xmlReaderNewDoc(xmlTextReader * reader, const xmlChar * cur, const char * URL, const char * encoding, int options);
 XMLPUBFUN int XMLCALL xmlReaderNewFile(xmlTextReader * reader, const char * filename, const char * encoding, int options);
-XMLPUBFUN int XMLCALL xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size, const char * URL,
-    const char * encoding, int options);
+XMLPUBFUN int XMLCALL xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size, const char * URL, const char * encoding, int options);
 XMLPUBFUN int XMLCALL xmlReaderNewFd(xmlTextReader * reader, int fd, const char * URL, const char * encoding, int options);
-XMLPUBFUN int XMLCALL xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx,
-    const char * URL, const char * encoding, int options);
+XMLPUBFUN int XMLCALL xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
 /*
  * Error handling extensions
  */

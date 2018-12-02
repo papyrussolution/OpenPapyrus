@@ -637,7 +637,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlAddChildList(xmlNode * parent, xmlNode * cur);
 	XMLPUBFUN xmlNode * XMLCALL xmlReplaceNode(xmlNode * old, xmlNode * cur);
 #endif
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED)
-	XMLPUBFUN xmlNode * XMLCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem);
+	XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem);
 #endif
 XMLPUBFUN xmlNode * XMLCALL xmlAddSibling(xmlNode * cur, xmlNode * elem);
 XMLPUBFUN xmlNode * XMLCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
@@ -646,8 +646,8 @@ XMLPUBFUN xmlNode * XMLCALL xmlTextMerge(xmlNode * first, xmlNode * second);
 XMLPUBFUN int XMLCALL xmlTextConcat(xmlNode * P_Node, const xmlChar * content, int len);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNodeList(xmlNode * cur);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNode(xmlNode * pCur);
-XMLPUBFUN void XMLCALL xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc);
-XMLPUBFUN void XMLCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc);
 // 
 // Namespaces.
 // 

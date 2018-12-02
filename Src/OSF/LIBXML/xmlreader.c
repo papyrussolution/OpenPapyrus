@@ -779,7 +779,7 @@ static int FASTCALL xmlTextReaderPushData(xmlTextReader * reader)
  *
  * Push the current node for validation
  */
-static void FASTCALL xmlTextReaderValidatePush(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
+static void FASTCALL xmlTextReaderValidatePush(xmlTextReader * reader ATTRIBUTE_UNUSED)
 {
 	xmlNode * P_Node = reader->P_Node;
 #ifdef LIBXML_VALID_ENABLED
@@ -1432,7 +1432,7 @@ int xmlTextReaderNext(xmlTextReader * reader)
  *         is neither an element nor attribute, or has no child nodes. The
  *         string must be deallocated by the caller.
  */
-xmlChar * xmlTextReaderReadInnerXml(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
+xmlChar * xmlTextReaderReadInnerXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
 {
 	xmlChar * resbuf = 0;
 	if(xmlTextReaderExpand(reader)) {
@@ -1468,10 +1468,9 @@ xmlChar * xmlTextReaderReadInnerXml(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
  * Reads the contents of the current node, including child nodes and markup.
  *
  * Returns a string containing the node and any XML content, or NULL if the
- *         current node cannot be serialized. The string must be deallocated
- *         by the caller.
+ *         current node cannot be serialized. The string must be deallocated by the caller.
  */
-xmlChar * xmlTextReaderReadOuterXml(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
+xmlChar * xmlTextReaderReadOuterXml(xmlTextReader * reader ATTRIBUTE_UNUSED)
 {
 	xmlChar * resbuf = 0;
 	if(xmlTextReaderExpand(reader)) {
@@ -1753,11 +1752,11 @@ int xmlTextReaderNextSibling(xmlTextReader * reader)
  *
  * Returns the new xmlTextReaderPtr or NULL in case of error
  */
-xmlTextReaderPtr xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
+xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 {
 	if(!input)
 		return 0;
-	xmlTextReaderPtr ret = (xmlTextReaderPtr)SAlloc::M(sizeof(xmlTextReader));
+	xmlTextReader * ret = (xmlTextReader *)SAlloc::M(sizeof(xmlTextReader));
 	if(!ret) {
 		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
@@ -1849,7 +1848,6 @@ xmlTextReaderPtr xmlNewTextReader(xmlParserInputBuffer * input, const char * URI
 #endif
 	return ret;
 }
-
 /**
  * xmlNewTextReaderFilename:
  * @URI: the URI of the resource to process
@@ -1858,24 +1856,24 @@ xmlTextReaderPtr xmlNewTextReader(xmlParserInputBuffer * input, const char * URI
  *
  * Returns the new xmlTextReaderPtr or NULL in case of error
  */
-xmlTextReaderPtr xmlNewTextReaderFilename(const char * URI) 
+xmlTextReader * xmlNewTextReaderFilename(const char * URI) 
 {
-	xmlTextReaderPtr ret;
-	char * directory = NULL;
+	xmlTextReader * ret = 0;
 	xmlParserInputBuffer * input = xmlParserInputBufferCreateFilename(URI, XML_CHAR_ENCODING_NONE);
-	if(!input)
-		return 0;
-	ret = xmlNewTextReader(input, URI);
-	if(!ret) {
-		xmlFreeParserInputBuffer(input);
-		return 0;
+	if(input) {
+		ret = xmlNewTextReader(input, URI);
+		if(!ret)
+			xmlFreeParserInputBuffer(input);
+		else {
+			char * directory = NULL;
+			ret->allocs |= XML_TEXTREADER_INPUT;
+			if(ret->ctxt->directory == NULL)
+				directory = xmlParserGetDirectory(URI);
+			if(!ret->ctxt->directory && directory)
+				ret->ctxt->directory = sstrdup(directory);
+			SAlloc::F(directory);
+		}
 	}
-	ret->allocs |= XML_TEXTREADER_INPUT;
-	if(ret->ctxt->directory == NULL)
-		directory = xmlParserGetDirectory(URI);
-	if(!ret->ctxt->directory && directory)
-		ret->ctxt->directory = sstrdup(directory);
-	SAlloc::F(directory);
 	return ret;
 }
 /**
@@ -1918,9 +1916,7 @@ void xmlFreeTextReader(xmlTextReader * reader)
 			SAlloc::F(reader->patternTab);
 		}
 #endif
-		if(reader->faketext) {
-			xmlFreeNode(reader->faketext);
-		}
+		xmlFreeNode(reader->faketext);
 		if(reader->ctxt) {
 			if(reader->dict == reader->ctxt->dict)
 				reader->dict = NULL;
@@ -3403,7 +3399,7 @@ static void XMLCDECL xmlTextReaderValidityWarning(void * ctxt, const char * msg,
 
 static void XMLCDECL xmlTextReaderValidityErrorRelay(void * ctx, const char * msg, ...)
 {
-	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx;
+	xmlTextReader * reader = (xmlTextReader *)ctx;
 	char * str;
 	va_list ap;
 	va_start(ap, msg);
@@ -3420,7 +3416,7 @@ static void XMLCDECL xmlTextReaderValidityErrorRelay(void * ctx, const char * ms
 
 static void XMLCDECL xmlTextReaderValidityWarningRelay(void * ctx, const char * msg, ...)
 {
-	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx;
+	xmlTextReader * reader = (xmlTextReader *)ctx;
 	char * str;
 	va_list ap;
 	va_start(ap, msg);
@@ -3439,15 +3435,12 @@ static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error);
 
 static void xmlTextReaderValidityStructuredRelay(void * userData, xmlErrorPtr error)
 {
-	xmlTextReaderPtr reader = (xmlTextReaderPtr)userData;
-	if(reader->sErrorFunc) {
+	xmlTextReader * reader = (xmlTextReader *)userData;
+	if(reader->sErrorFunc)
 		reader->sErrorFunc(reader->errorFuncArg, error);
-	}
-	else {
+	else
 		xmlTextReaderStructuredError(reader, error);
-	}
 }
-
 /**
  * xmlTextReaderRelaxNGSetSchema:
  * @reader:  the (xmlTextReader *) used
@@ -3514,12 +3507,12 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReader * reader, xmlRelaxNGPtr schema)
  */
 static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * line)
 {
-	xmlTextReaderPtr reader;
+	xmlTextReader * reader;
 	if(!ctx || ((file == NULL) && (line == NULL)))
 		return -1;
 	ASSIGN_PTR(file, 0);
 	ASSIGN_PTR(line, 0);
-	reader = (xmlTextReaderPtr)ctx;
+	reader = (xmlTextReader *)ctx;
 	if(reader->ctxt && reader->ctxt->input) {
 		ASSIGN_PTR(file, reader->ctxt->input->filename);
 		ASSIGN_PTR(line, reader->ctxt->input->line);
@@ -4022,7 +4015,7 @@ xmlChar * xmlTextReaderLocatorBaseURI(xmlTextReaderLocatorPtr locator)
 static void xmlTextReaderGenericError(void * ctxt, xmlParserSeverities severity, char * str)
 {
 	xmlParserCtxt * ctx = (xmlParserCtxt *)ctxt;
-	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx->_private;
+	xmlTextReader * reader = (xmlTextReader *)ctx->_private;
 	if(str) {
 		if(reader->errorFunc)
 			reader->errorFunc(reader->errorFuncArg, str, severity, (xmlTextReaderLocatorPtr)ctx);
@@ -4033,7 +4026,7 @@ static void xmlTextReaderGenericError(void * ctxt, xmlParserSeverities severity,
 static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error)
 {
 	xmlParserCtxt * ctx = (xmlParserCtxt *)ctxt;
-	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx->_private;
+	xmlTextReader * reader = (xmlTextReader *)ctx->_private;
 	if(error && reader->sErrorFunc) {
 		reader->sErrorFunc(reader->errorFuncArg, (xmlErrorPtr)error);
 	}
@@ -4431,12 +4424,12 @@ long xmlTextReaderByteConsumed(xmlTextReader * reader)
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderWalker(xmlDoc * doc)
+xmlTextReader * xmlReaderWalker(xmlDoc * doc)
 {
-	xmlTextReaderPtr ret;
+	xmlTextReader * ret;
 	if(!doc)
 		return 0;
-	ret = (xmlTextReaderPtr)SAlloc::M(sizeof(xmlTextReader));
+	ret = (xmlTextReader *)SAlloc::M(sizeof(xmlTextReader));
 	if(!ret) {
 		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
@@ -4455,7 +4448,6 @@ xmlTextReaderPtr xmlReaderWalker(xmlDoc * doc)
 	ret->dict = xmlDictCreate();
 	return ret;
 }
-
 /**
  * xmlReaderForDoc:
  * @cur:  a pointer to a zero terminated string
@@ -4468,15 +4460,13 @@ xmlTextReaderPtr xmlReaderWalker(xmlDoc * doc)
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options)
+xmlTextReader * xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
-	int len;
 	if(!cur)
 		return 0;
-	len = sstrlen(cur);
+	int len = sstrlen(cur);
 	return xmlReaderForMemory((const char*)cur, len, URL, encoding, options);
 }
-
 /**
  * xmlReaderForFile:
  * @filename:  a file or URL
@@ -4488,15 +4478,14 @@ xmlTextReaderPtr xmlReaderForDoc(const xmlChar * cur, const char * URL, const ch
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderForFile(const char * filename, const char * encoding, int options)
+xmlTextReader * xmlReaderForFile(const char * filename, const char * encoding, int options)
 {
-	xmlTextReaderPtr reader = xmlNewTextReaderFilename(filename);
+	xmlTextReader * reader = xmlNewTextReaderFilename(filename);
 	if(!reader)
 		return 0;
 	xmlTextReaderSetup(reader, NULL, NULL, encoding, options);
-	return (reader);
+	return reader;
 }
-
 /**
  * xmlReaderForMemory:
  * @buffer:  a pointer to a char array
@@ -4510,7 +4499,7 @@ xmlTextReaderPtr xmlReaderForFile(const char * filename, const char * encoding, 
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderForMemory(const char * buffer, int size, const char * URL, const char * encoding, int options)
+xmlTextReader * xmlReaderForMemory(const char * buffer, int size, const char * URL, const char * encoding, int options)
 {
 	xmlTextReader * reader = 0;
 	xmlParserInputBuffer * buf = xmlParserInputBufferCreateStatic(buffer, size, XML_CHAR_ENCODING_NONE);
@@ -4540,7 +4529,7 @@ xmlTextReaderPtr xmlReaderForMemory(const char * buffer, int size, const char * 
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderForFd(int fd, const char * URL, const char * encoding, int options)
+xmlTextReader * xmlReaderForFd(int fd, const char * URL, const char * encoding, int options)
 {
 	xmlTextReader * reader = 0;
 	if(fd >= 0) {
@@ -4572,8 +4561,7 @@ xmlTextReaderPtr xmlReaderForFd(int fd, const char * URL, const char * encoding,
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
-    void * ioctx, const char * URL, const char * encoding, int options)
+xmlTextReader * xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options)
 {
 	xmlTextReader * reader = 0;
 	if(ioread) {
@@ -4595,7 +4583,6 @@ xmlTextReaderPtr xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallba
 	}
 	return reader;
 }
-
 /**
  * xmlReaderNewWalker:
  * @reader:  an XML reader
@@ -4627,7 +4614,6 @@ int xmlReaderNewWalker(xmlTextReader * reader, xmlDoc * doc)
 		return 0;
 	}
 }
-
 /**
  * xmlReaderNewDoc:
  * @reader:  an XML reader
@@ -4644,15 +4630,11 @@ int xmlReaderNewWalker(xmlTextReader * reader, xmlDoc * doc)
  */
 int xmlReaderNewDoc(xmlTextReader * reader, const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
-	int len;
-	if(!cur)
+	if(!cur || !reader)
 		return -1;
-	if(!reader)
-		return -1;
-	len = sstrlen(cur);
-	return (xmlReaderNewMemory(reader, (const char*)cur, len, URL, encoding, options));
+	int len = sstrlen(cur);
+	return xmlReaderNewMemory(reader, (const char*)cur, len, URL, encoding, options);
 }
-
 /**
  * xmlReaderNewFile:
  * @reader:  an XML reader
@@ -4668,17 +4650,9 @@ int xmlReaderNewDoc(xmlTextReader * reader, const xmlChar * cur, const char * UR
  */
 int xmlReaderNewFile(xmlTextReader * reader, const char * filename, const char * encoding, int options)
 {
-	xmlParserInputBuffer * input;
-	if(filename == NULL)
-		return -1;
-	if(!reader)
-		return -1;
-	input = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
-	if(!input)
-		return -1;
-	return (xmlTextReaderSetup(reader, input, filename, encoding, options));
+	xmlParserInputBuffer * input = (filename && reader) ? xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE) : 0;
+	return input ? xmlTextReaderSetup(reader, input, filename, encoding, options) : -1;
 }
-
 /**
  * xmlReaderNewMemory:
  * @reader:  an XML reader
@@ -4694,21 +4668,11 @@ int xmlReaderNewFile(xmlTextReader * reader, const char * filename, const char *
  *
  * Returns 0 in case of success and -1 in case of error
  */
-int xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size,
-    const char * URL, const char * encoding, int options)
+int xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputBuffer * input;
-	if(!reader)
-		return -1;
-	if(!buffer)
-		return -1;
-	input = xmlParserInputBufferCreateStatic(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(!input) {
-		return -1;
-	}
-	return (xmlTextReaderSetup(reader, input, URL, encoding, options));
+	xmlParserInputBuffer * input = (reader && buffer) ? xmlParserInputBufferCreateStatic(buffer, size, XML_CHAR_ENCODING_NONE) : 0;
+	return input ? xmlTextReaderSetup(reader, input, URL, encoding, options) : -1;
 }
-
 /**
  * xmlReaderNewFd:
  * @reader:  an XML reader
@@ -4738,7 +4702,6 @@ int xmlReaderNewFd(xmlTextReader * reader, int fd, const char * URL, const char 
 	input->closecallback = NULL;
 	return xmlTextReaderSetup(reader, input, URL, encoding, options);
 }
-
 /**
  * xmlReaderNewIO:
  * @reader:  an XML reader
@@ -4772,12 +4735,9 @@ int xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallback ioread,
 	}
 	return (xmlTextReaderSetup(reader, input, URL, encoding, options));
 }
-
-/************************************************************************
-*									*
-*			Utilities					*
-*									*
-************************************************************************/
+// 
+// Utilities
+// 
 #ifdef NOT_USED_YET
 
 /**
@@ -4901,7 +4861,6 @@ int main(int argc, char ** argv)
 	 * Direct
 	 */
 	ret = xmlBase64Decode(input, &inlen, output, &outlen);
-
 	output[outlen] = 0;
 	printf("ret: %d, inlen: %ld , outlen: %ld, output: '%s'\n", ret, inlen,
 	    outlen, output) indent : Standard input : 179 : Error : Unmatched # endif

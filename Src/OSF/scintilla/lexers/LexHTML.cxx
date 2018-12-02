@@ -51,7 +51,7 @@ bool FASTCALL IsOperator(int ch)
 	return false;
 }
 
-static void GetTextSegment(Accessor &styler, Sci_PositionU start, Sci_PositionU end, char * s, size_t len)
+static void FASTCALL GetTextSegment(Accessor &styler, Sci_PositionU start, Sci_PositionU end, char * s, size_t len)
 {
 	Sci_PositionU i = 0;
 	for(; (i < end - start + 1) && (i < len-1); i++) {
@@ -229,7 +229,7 @@ static bool FASTCALL isCommentASPState(int state)
 	return bResult;
 }
 
-static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler)
+static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
 {
 	bool wordIsNumber = IsNumber(start, styler);
 	char chAttr = SCE_H_ATTRIBUTEUNKNOWN;
@@ -247,7 +247,7 @@ static void classifyAttribHTML(Sci_PositionU start, Sci_PositionU end, WordList 
 	styler.ColourTo(end, chAttr);
 }
 
-static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, bool &tagDontFold,
+static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, bool &tagDontFold,
     bool caseSensitive, bool isXml, bool allowScripts)
 {
 	char withSpace[30 + 2] = " ";
@@ -303,7 +303,7 @@ static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end, WordList &key
 	return chAttr;
 }
 
-static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, script_mode inScriptType)
+static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, script_mode inScriptType)
 {
 	char s[30 + 1];
 	Sci_PositionU i = 0;
@@ -322,7 +322,7 @@ static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, WordList &k
 	styler.ColourTo(end, statePrintForState(chAttr, inScriptType));
 }
 
-static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, script_mode inScriptType)
+static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, script_mode inScriptType)
 {
 	char chAttr = SCE_HB_IDENTIFIER;
 	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.');
@@ -345,7 +345,7 @@ static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, WordList &ke
 		return SCE_HB_DEFAULT;
 }
 
-static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, char * prevWord, script_mode inScriptType, bool isMako)
+static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler, char * prevWord, script_mode inScriptType, bool isMako)
 {
 	bool wordIsNumber = IsADigit(styler[start]);
 	char s[30 + 1];
@@ -371,7 +371,7 @@ static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, WordList &k
 
 // Update the word colour to default or keyword
 // Called when in a PHP word
-static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler)
+static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
 {
 	char chAttr = SCE_HPHP_DEFAULT;
 	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.' && start+1 <= end && IsADigit(styler[start+1]));
@@ -387,7 +387,7 @@ static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, WordList &
 	styler.ColourTo(end, chAttr);
 }
 
-static bool isWordHSGML(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler)
+static bool isWordHSGML(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor &styler)
 {
 	char s[30 + 1];
 	Sci_PositionU i = 0;
@@ -527,13 +527,12 @@ static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter, const int 
 
 static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler, bool isXml)
 {
-	WordList &keywords = *keywordlists[0];
-	WordList &keywords2 = *keywordlists[1];
-	WordList &keywords3 = *keywordlists[2];
-	WordList &keywords4 = *keywordlists[3];
-	WordList &keywords5 = *keywordlists[4];
-	WordList &keywords6 = *keywordlists[5]; // SGML (DTD) keywords
-
+	const WordList & keywords = *keywordlists[0];
+	const WordList & keywords2 = *keywordlists[1];
+	const WordList & keywords3 = *keywordlists[2];
+	const WordList & keywords4 = *keywordlists[3];
+	const WordList & keywords5 = *keywordlists[4];
+	const WordList & keywords6 = *keywordlists[5]; // SGML (DTD) keywords
 	styler.StartAt(startPos);
 	char prevWord[200];
 	char phpStringDelimiter[200]; // PHP is not limited in length, we are
@@ -607,36 +606,22 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 	const bool foldHTML = styler.GetPropertyInt("fold.html", 0) != 0;
 	const bool fold = foldHTML && styler.GetPropertyInt("fold", 0);
 	// property fold.html.preprocessor
-	//	Folding is turned on or off for scripts embedded in HTML files with this option.
-	//	The default is on.
-	const bool foldHTMLPreprocessor = foldHTML && styler.GetPropertyInt("fold.html.preprocessor", 1);
+	const bool foldHTMLPreprocessor = foldHTML && styler.GetPropertyInt("fold.html.preprocessor", 1); // Folding is turned on or off for scripts embedded in HTML files with this option. The default is on.
 	const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	// property fold.hypertext.comment
-	//	Allow folding for comments in scripts embedded in HTML.
-	//	The default is off.
-	const bool foldComment = fold && styler.GetPropertyInt("fold.hypertext.comment", 0) != 0;
-
+	const bool foldComment = fold && styler.GetPropertyInt("fold.hypertext.comment", 0) != 0; // Allow folding for comments in scripts embedded in HTML. The default is off.
 	// property fold.hypertext.heredoc
-	//	Allow folding for heredocs in scripts embedded in HTML.
-	//	The default is off.
-	const bool foldHeredoc = fold && styler.GetPropertyInt("fold.hypertext.heredoc", 0) != 0;
-
+	const bool foldHeredoc = fold && styler.GetPropertyInt("fold.hypertext.heredoc", 0) != 0; // Allow folding for heredocs in scripts embedded in HTML. The default is off.
 	// property html.tags.case.sensitive
 	//	For XML and HTML, setting this property to 1 will make tags match in a case
 	//	sensitive way which is the expected behaviour for XML and XHTML.
 	const bool caseSensitive = styler.GetPropertyInt("html.tags.case.sensitive", 0) != 0;
-
 	// property lexer.xml.allow.scripts
-	//	Set to 0 to disable scripts in XML.
-	const bool allowScripts = styler.GetPropertyInt("lexer.xml.allow.scripts", 1) != 0;
-
+	const bool allowScripts = styler.GetPropertyInt("lexer.xml.allow.scripts", 1) != 0; // Set to 0 to disable scripts in XML.
 	// property lexer.html.mako
-	//	Set to 1 to enable the mako template language.
-	const bool isMako = styler.GetPropertyInt("lexer.html.mako", 0) != 0;
-
+	const bool isMako = styler.GetPropertyInt("lexer.html.mako", 0) != 0; // Set to 1 to enable the mako template language.
 	// property lexer.html.django
-	//	Set to 1 to enable the django template language.
-	const bool isDjango = styler.GetPropertyInt("lexer.html.django", 0) != 0;
+	const bool isDjango = styler.GetPropertyInt("lexer.html.django", 0) != 0; // Set to 1 to enable the django template language.
 	const CharacterSet setHTMLWord(CharacterSet::setAlphaNum, ".-_:!#", 0x80, true);
 	const CharacterSet setTagContinue(CharacterSet::setAlphaNum, ".-_:!#[", 0x80, true);
 	const CharacterSet setAttributeContinue(CharacterSet::setAlphaNum, ".-_:!#/", 0x80, true);
@@ -821,7 +806,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					    do {
 						    chr = static_cast<int>(*tag++);
 					    } while(chr != 0 && chr == MakeLowerCase(styler.SafeGetCharAt(j++)));
-					    if(chr != 0) break;
+					    if(chr != 0) 
+							break;
 				    }
 				    // closing tag of the script (it's a closing HTML tag anyway)
 				    styler.ColourTo(i - 1, state_to_print);
@@ -1043,15 +1029,11 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			scriptLanguage = eScriptNone;
 			continue;
 		}
-
 		// handle the end of Django template code
-		else if(isDjango &&
-		    ((inScriptType == eNonHtmlPreProc) || (inScriptType == eNonHtmlScriptPreProc)) &&
-		    (scriptLanguage != eScriptNone) && stateAllowsTermination(state) &&
+		else if(isDjango && oneof2(inScriptType, eNonHtmlPreProc, eNonHtmlScriptPreProc) && (scriptLanguage != eScriptNone) && stateAllowsTermination(state) &&
 		    isDjangoBlockEnd(ch, chNext, djangoBlockType)) {
 			if(state == SCE_H_ASPAT) {
-				aspScript = segIsScriptingIndicator(styler,
-				    styler.GetStartSegment(), i - 1, aspScript);
+				aspScript = segIsScriptingIndicator(styler, styler.GetStartSegment(), i - 1, aspScript);
 			}
 			if(state == SCE_HP_WORD) {
 				classifyWordHTPy(styler.GetStartSegment(), i - 1, keywords4, styler, prevWord, inScriptType, isMako);
@@ -1303,8 +1285,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    break;
 			case SCE_H_TAGUNKNOWN:
 			    if(!setTagContinue.Contains(ch) && !((ch == '/') && (chPrev == '<'))) {
-				    int eClass = classifyTagHTML(styler.GetStartSegment(),
-				    i - 1, keywords, styler, tagDontFold, caseSensitive, isXml, allowScripts);
+				    int eClass = classifyTagHTML(styler.GetStartSegment(), i - 1, keywords, styler, tagDontFold, caseSensitive, isXml, allowScripts);
 				    if(oneof2(eClass, SCE_H_SCRIPT, SCE_H_COMMENT)) {
 					    if(!tagClosing) {
 						    inScriptType = eNonHtmlScript;

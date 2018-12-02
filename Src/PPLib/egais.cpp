@@ -2726,7 +2726,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 										// @v10.1.7 Округление до целых (в последнее время ЕГАИС почему-то отказывается принимать дробные значения) {
-										if(qtty > 1.0) 
+										if(qtty > 1.0)
 											qtty = floor(qtty);
 										// } @v10.1.7
 										qtty_fmt = MKSFMTD(0, 3, 0);
@@ -5439,6 +5439,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 			SString ref_a, ref_b, egais_code;
 			SString goods_name;
 			LongArray row_idx_list;
+			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
 			{
 				PPIDArray ref_b_lot_list; // Список лотов со справкой Б той же, что и в строке текущих остатков по складу
 				LongArray processed_csr_rows; // Список индексов строк pCurrentRestPack, которые были затронуты созданным документом
@@ -5457,6 +5458,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 						const double cwr_rest = r_cwr_item.Quantity_;
 						double shop_rest = 0.0;
 						PPID   lot_id = 0;
+						int    is_lot_in_3format = 0; // @v10.2.6
 						ReceiptTbl::Rec lot_rec;
 						ref_b_lot_list.clear();
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
@@ -5464,6 +5466,24 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 							const PPID temp_lot_id = ref_b_lot_list.get(llidx);
 							if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
 								if(IsAlcGoods(lot_rec.GoodsID)) { // @v9.4.7
+									// @v10.2.6 {
+									const PPID lot_bill_id = lot_rec.BillID;
+									TransferTbl::Rec trfr_rec;
+									for(DateIter di; P_BObj->trfr->EnumByLot(lot_id, &di, &trfr_rec) > 0;) {
+										if(trfr_rec.BillID == lot_bill_id) {
+											const int16 rbb = trfr_rec.RByBill;
+											LotExtCodeTbl::Key2 k2;
+											MEMSZERO(k2);
+											k2.BillID = lot_bill_id;
+											k2.RByBill = rbb;
+											if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == rbb) do {
+												if(P_LecT->data.Code[0])
+													is_lot_in_3format = 1;
+											} while(!is_lot_in_3format && P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == rbb);
+											break;
+										}
+									}
+									// } @v10.2.6 
 									lot_id = lot_rec.ID;
 									break;
 								}
@@ -5497,6 +5517,11 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 							// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
 							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
 							LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
+						}
+						else if(is_lot_in_3format) { // @v10.2.6
+							//PPTXT_EGAIS_LOTFORWHRESTIN3F
+							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+							LogTextWithAddendum(PPTXT_EGAIS_LOTFORWHRESTIN3F, temp_buf);
 						}
 						else if(cwr_rest > 0.0) {
 							double transfer_qtty = 0.0;

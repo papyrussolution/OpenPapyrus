@@ -223,29 +223,19 @@ struct PPDefinition {
 };
 
 class LinePPState {
-	int state;
-	int ifTaken;
-	int level;
-	bool ValidLevel() const
-	{
-		return level >= 0 && level < 32;
-	}
-	int maskLevel() const
-	{
-		return 1 << level;
-	}
+private:
+	bool  ValidLevel() const { return level >= 0 && level < 32; }
+	int   maskLevel() const { return 1 << level; }
+
+	int   state;
+	int   ifTaken;
+	int   level;
 public:
 	LinePPState() : state(0), ifTaken(0), level(-1)
 	{
 	}
-	bool IsInactive() const
-	{
-		return state != 0;
-	}
-	bool CurrentIfTaken() const
-	{
-		return (ifTaken & maskLevel()) != 0;
-	}
+	bool IsInactive() const { return state != 0; }
+	bool CurrentIfTaken() const { return (ifTaken & maskLevel()) != 0; }
 	void StartSection(bool on)
 	{
 		level++;
@@ -275,7 +265,7 @@ public:
 // Hold the preprocessor state for each line seen.
 // Currently one entry per line but could become sparse with just one entry per preprocessor line.
 class PPStates {
-	std::vector<LinePPState> vlls;
+	std::vector <LinePPState> vlls;
 public:
 	LinePPState ForLine(Sci_Position line) const
 	{
@@ -297,27 +287,28 @@ public:
 
 // Options used for LexerCPP
 struct OptionsCPP {
-	bool stylingWithinPreprocessor;
-	bool identifiersAllowDollars;
-	bool trackPreprocessor;
-	bool updatePreprocessor;
-	bool verbatimStringsAllowEscapes;
-	bool triplequotedStrings;
-	bool hashquotedStrings;
-	bool backQuotedStrings;
-	bool escapeSequence;
-	bool fold;
-	bool foldSyntaxBased;
-	bool foldComment;
-	bool foldCommentMultiline;
-	bool foldCommentExplicit;
+	bool   stylingWithinPreprocessor;
+	bool   identifiersAllowDollars;
+	bool   trackPreprocessor;
+	bool   updatePreprocessor;
+	bool   verbatimStringsAllowEscapes;
+	bool   triplequotedStrings;
+	bool   hashquotedStrings;
+	bool   backQuotedStrings;
+	bool   escapeSequence;
+	bool   fold;
+	bool   foldSyntaxBased;
+	bool   foldComment;
+	bool   foldCommentMultiline;
+	bool   foldCommentExplicit;
+	bool   foldExplicitAnywhere;
+	bool   foldPreprocessor;
+	bool   foldPreprocessorAtElse;
+	bool   foldCompact;
+	bool   foldAtElse;
+	uint8  Reserve; // @alignment
 	std::string foldExplicitStart;
 	std::string foldExplicitEnd;
-	bool foldExplicitAnywhere;
-	bool foldPreprocessor;
-	bool foldPreprocessorAtElse;
-	bool foldCompact;
-	bool foldAtElse;
 	OptionsCPP()
 	{
 		stylingWithinPreprocessor = false;
@@ -361,47 +352,31 @@ struct OptionSetCPP : public OptionSet<OptionsCPP> {
 			    "For C++ code, determines whether all preprocessor code is styled in the "
 			    "preprocessor style (0, the default) or only from the initial # to the end "
 			    "of the command word(1).");
-		DefineProperty("lexer.cpp.allow.dollars", &OptionsCPP::identifiersAllowDollars,
-			    "Set to 0 to disallow the '$' character in identifiers with the cpp lexer.");
-		DefineProperty("lexer.cpp.track.preprocessor", &OptionsCPP::trackPreprocessor,
-			    "Set to 1 to interpret #if/#else/#endif to grey out code that is not active.");
-		DefineProperty("lexer.cpp.update.preprocessor", &OptionsCPP::updatePreprocessor,
-			    "Set to 1 to update preprocessor definitions when #define found.");
-		DefineProperty("lexer.cpp.verbatim.strings.allow.escapes", &OptionsCPP::verbatimStringsAllowEscapes,
-			    "Set to 1 to allow verbatim strings to contain escape sequences.");
-		DefineProperty("lexer.cpp.triplequoted.strings", &OptionsCPP::triplequotedStrings,
-			    "Set to 1 to enable highlighting of triple-quoted strings.");
-		DefineProperty("lexer.cpp.hashquoted.strings", &OptionsCPP::hashquotedStrings,
-			    "Set to 1 to enable highlighting of hash-quoted strings.");
-		DefineProperty("lexer.cpp.backquoted.strings", &OptionsCPP::backQuotedStrings,
-			    "Set to 1 to enable highlighting of back-quoted raw strings .");
-		DefineProperty("lexer.cpp.escape.sequence", &OptionsCPP::escapeSequence,
-			    "Set to 1 to enable highlighting of escape sequences in strings");
+		DefineProperty("lexer.cpp.allow.dollars", &OptionsCPP::identifiersAllowDollars, "Set to 0 to disallow the '$' character in identifiers with the cpp lexer.");
+		DefineProperty("lexer.cpp.track.preprocessor", &OptionsCPP::trackPreprocessor, "Set to 1 to interpret #if/#else/#endif to grey out code that is not active.");
+		DefineProperty("lexer.cpp.update.preprocessor", &OptionsCPP::updatePreprocessor, "Set to 1 to update preprocessor definitions when #define found.");
+		DefineProperty("lexer.cpp.verbatim.strings.allow.escapes", &OptionsCPP::verbatimStringsAllowEscapes, "Set to 1 to allow verbatim strings to contain escape sequences.");
+		DefineProperty("lexer.cpp.triplequoted.strings", &OptionsCPP::triplequotedStrings, "Set to 1 to enable highlighting of triple-quoted strings.");
+		DefineProperty("lexer.cpp.hashquoted.strings", &OptionsCPP::hashquotedStrings, "Set to 1 to enable highlighting of hash-quoted strings.");
+		DefineProperty("lexer.cpp.backquoted.strings", &OptionsCPP::backQuotedStrings, "Set to 1 to enable highlighting of back-quoted raw strings .");
+		DefineProperty("lexer.cpp.escape.sequence", &OptionsCPP::escapeSequence, "Set to 1 to enable highlighting of escape sequences in strings");
 		DefineProperty("fold", &OptionsCPP::fold);
-		DefineProperty("fold.cpp.syntax.based", &OptionsCPP::foldSyntaxBased,
-			    "Set this property to 0 to disable syntax based folding.");
+		DefineProperty("fold.cpp.syntax.based", &OptionsCPP::foldSyntaxBased, "Set this property to 0 to disable syntax based folding.");
 		DefineProperty("fold.comment", &OptionsCPP::foldComment,
 			    "This option enables folding multi-line comments and explicit fold points when using the C++ lexer. "
 			    "Explicit fold points allows adding extra folding by placing a //{ comment at the start and a //} "
 			    "at the end of a section that should fold.");
-		DefineProperty("fold.cpp.comment.multiline", &OptionsCPP::foldCommentMultiline,
-			    "Set this property to 0 to disable folding multi-line comments when fold.comment=1.");
-		DefineProperty("fold.cpp.comment.explicit", &OptionsCPP::foldCommentExplicit,
-			    "Set this property to 0 to disable folding explicit fold points when fold.comment=1.");
-		DefineProperty("fold.cpp.explicit.start", &OptionsCPP::foldExplicitStart,
-			    "The string to use for explicit fold start points, replacing the standard //{.");
-		DefineProperty("fold.cpp.explicit.end", &OptionsCPP::foldExplicitEnd,
-			    "The string to use for explicit fold end points, replacing the standard //}.");
-		DefineProperty("fold.cpp.explicit.anywhere", &OptionsCPP::foldExplicitAnywhere,
-			    "Set this property to 1 to enable explicit fold points anywhere, not just in line comments.");
-		DefineProperty("fold.cpp.preprocessor.at.else", &OptionsCPP::foldPreprocessorAtElse,
-			    "This option enables folding on a preprocessor #else or #endif line of an #if statement.");
+		DefineProperty("fold.cpp.comment.multiline", &OptionsCPP::foldCommentMultiline, "Set this property to 0 to disable folding multi-line comments when fold.comment=1.");
+		DefineProperty("fold.cpp.comment.explicit", &OptionsCPP::foldCommentExplicit, "Set this property to 0 to disable folding explicit fold points when fold.comment=1.");
+		DefineProperty("fold.cpp.explicit.start", &OptionsCPP::foldExplicitStart, "The string to use for explicit fold start points, replacing the standard //{.");
+		DefineProperty("fold.cpp.explicit.end", &OptionsCPP::foldExplicitEnd, "The string to use for explicit fold end points, replacing the standard //}.");
+		DefineProperty("fold.cpp.explicit.anywhere", &OptionsCPP::foldExplicitAnywhere, "Set this property to 1 to enable explicit fold points anywhere, not just in line comments.");
+		DefineProperty("fold.cpp.preprocessor.at.else", &OptionsCPP::foldPreprocessorAtElse, "This option enables folding on a preprocessor #else or #endif line of an #if statement.");
 		DefineProperty("fold.preprocessor", &OptionsCPP::foldPreprocessor,
 			    "This option enables folding preprocessor directives when using the C++ lexer. "
 			    "Includes C#'s explicit #region and #endregion folding directives.");
 		DefineProperty("fold.compact", &OptionsCPP::foldCompact);
-		DefineProperty("fold.at.else", &OptionsCPP::foldAtElse,
-			    "This option enables C++ folding on a \"} else {\" line of an if statement.");
+		DefineProperty("fold.at.else", &OptionsCPP::foldAtElse, "This option enables C++ folding on a \"} else {\" line of an if statement.");
 		DefineWordListSets(cppWordLists);
 	}
 };
@@ -768,9 +743,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				continue;
 			}
 		}
-
 		const bool atLineEndBeforeSwitch = sc.atLineEnd;
-
 		// Determine if the current state should terminate.
 		switch(MaskActive(sc.state)) {
 			case SCE_C_OPERATOR:
@@ -781,10 +754,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    if(sc.ch == '_') {
 				    sc.ChangeState(SCE_C_USERLITERAL|activitySet);
 			    }
-			    else if(!(setWord.Contains(sc.ch)
-				    || (sc.ch == '\'')
-				    || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E' ||
-						    sc.chPrev == 'p' || sc.chPrev == 'P')))) {
+			    else if(!(setWord.Contains(sc.ch) || (sc.ch == '\'') || (oneof2(sc.ch, '+', '-') && oneof4(sc.chPrev, 'e', 'E', 'p', 'P')))) {
 				    sc.SetState(SCE_C_DEFAULT|activitySet);
 			    }
 			    break;
@@ -873,7 +843,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 					    else {
 						    sc.SetState(SCE_C_PREPROCESSORCOMMENT|activitySet);
 					    }
-					    sc.Forward();       // Eat the *
+					    sc.Forward(); // Eat the *
 				    }
 				    else if(sc.Match('/', '/')) {
 					    sc.SetState(SCE_C_DEFAULT|activitySet);

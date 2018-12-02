@@ -2195,7 +2195,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = 1;
 							}
 						}
-						// } @v10.2.4 
+						// } @v10.2.4
 					}
 				}
 			}
@@ -6326,8 +6326,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 			I.STSum = plu;
 		}
 		else {
-			QttyToStr(p_ti->Quantity_, upp, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
-				MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
+			QttyToStr(p_ti->Quantity_, upp, ((LConfig.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK|QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
 		}
 	}
 	if(p_pack->P_PckgList) {
@@ -7145,8 +7144,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		if(p_ti->Flags & PPTFR_COSTWOVAT && tiamt == TIAMT_COST) {
 			I.MainPrice += /*round(*/I.VATSum / fabs(p_ti->Qtty())/*, 2)*/;
 		}
-		QttyToStr(p_ti->Quantity_, p_ti->UnitPerPack, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
-			MKSFMT(0, QTTYF_SIMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
+		QttyToStr(p_ti->Quantity_, p_ti->UnitPerPack, ((LConfig.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_SIMPLPACK|QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
 	}
 	return DlRtm::NextIteration(iterId);
 }

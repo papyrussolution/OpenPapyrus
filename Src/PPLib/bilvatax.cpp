@@ -1,5 +1,5 @@
 // BILVATAX.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Расчет НДС по документам, соответствующим заданному запросу
 //
@@ -92,10 +92,10 @@ int SLAPI BVATAccmArray::Add(const PPTransferItem * pTI, PPID opID)
 	return ok;
 }
 
-int SLAPI BVATAccmArray::Scale_(double part, int useRounding)
+void SLAPI BVATAccmArray::Scale_(double part, int useRounding)
 {
 	BVATAccm * p_item;
-	if(part != 1.0 /* @v6.7.12 && part != 0.0*/)
+	if(part != 1.0 /* @v6.7.12 && part != 0.0*/) {
 		for(uint i = 0; enumItems(&i, (void**)&p_item);) {
 			p_item->Cost    = p_item->Cost    * part;
 			p_item->Price   = p_item->Price   * part;
@@ -108,11 +108,12 @@ int SLAPI BVATAccmArray::Scale_(double part, int useRounding)
 				p_item->PVATSum = R2(p_item->PVATSum);
 			}
 		}
-	return 1;
+	}
 }
 
 int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 {
+	int    ok = 1;
 	int    inited = 0;
 	uint   i;
 	PPID   op_type_id = GetOpType(pPack->Rec.OpID);
@@ -138,34 +139,35 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		}
 		if(num_vat_rates) {
 			for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);) {
-				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
+				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0) {
 					if(amtt_rec.IsTax(GTAX_VAT)) {
 						BVATAccm item;
 						if(amtt_rec.TaxRate) {
-							double rate = fdiv100i(amtt_rec.TaxRate);
-							double vat = p_ae->Amt;
-							double a = (num_vat_rates > 1) ? (vat / SalesTaxMult(rate)) : amt;
+							const double rate = fdiv100i(amtt_rec.TaxRate);
+							const double vat = p_ae->Amt;
+							const double a = (num_vat_rates > 1) ? (vat / SalesTaxMult(rate)) : amt;
 							item.IsVatFree = 0;
 							item.PRate   = item.CRate   = rate;
 							item.CVATSum = item.PVATSum = vat;
 							item.Cost    = item.Price   = a;
 						}
-						if(!Add(&item))
-							return 0;
+						THROW(Add(&item));
 						inited = 1;
 					}
+				}
 			}
 		}
 	}
 	if(!inited) {
 		PPTransferItem * p_ti;
-		for(i = 0; pPack->EnumTItems(&i, &p_ti);)
-			if(!Add(p_ti, pPack->Rec.OpID))
-				return 0;
-			else
-				inited = 1;
+		for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
+			THROW(Add(p_ti, pPack->Rec.OpID));
+			inited = 1;
+		}
 	}
-	return inited ? 1 : -1;
+	ok = inited ? 1 : -1;
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI BVATAccmArray::CalcBill(PPID id)

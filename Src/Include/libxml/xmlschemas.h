@@ -140,7 +140,7 @@ XMLPUBFUN int XMLCALL xmlSchemaSetValidOptions(xmlSchemaValidCtxt * ctxt, int op
 XMLPUBFUN void XMLCALL xmlSchemaValidateSetFilename(xmlSchemaValidCtxt * vctxt, const char * filename);
 XMLPUBFUN int XMLCALL xmlSchemaValidCtxtGetOptions(xmlSchemaValidCtxt * ctxt);
 XMLPUBFUN xmlSchemaValidCtxt * XMLCALL xmlSchemaNewValidCtxt(xmlSchemaPtr schema);
-XMLPUBFUN void XMLCALL xmlSchemaFreeValidCtxt(xmlSchemaValidCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlSchemaFreeValidCtxt(xmlSchemaValidCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlSchemaValidateDoc(xmlSchemaValidCtxt * ctxt, xmlDocPtr instance);
 XMLPUBFUN int XMLCALL xmlSchemaValidateOneElement(xmlSchemaValidCtxt * ctxt, xmlNodePtr elem);
 XMLPUBFUN int XMLCALL xmlSchemaValidateStream(xmlSchemaValidCtxt * ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc, xmlSAXHandler * sax, void * user_data);

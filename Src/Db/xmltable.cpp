@@ -250,7 +250,7 @@ int XmlDbFile::IsUtf8() const
 int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * pRec, int readOnly)
 {
 	int    ok = 1;
-	xmlTextReaderPtr reader = 0;
+	xmlTextReader * reader = 0;
 	St.Pos = 0;
 	ReadOnly = readOnly;
 	St.SetParam(pParam);

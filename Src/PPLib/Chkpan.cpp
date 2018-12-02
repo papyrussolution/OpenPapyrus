@@ -6124,10 +6124,14 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(P_ChkPack) {
 					CCheckLineTbl::Rec * p_line = 0, chk_line;
 					SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+					SString egais_mark;
+					SString serial;
 					if(p_list) {
 						long  cur = p_list->def ? p_list->def->_curItem() : -1;
 						if(cur >= 0 && cur < (long)P_ChkPack->GetCount()) {
 							chk_line = P_ChkPack->GetLine((uint)cur);
+							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
+							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
 							p_line   = &chk_line;
 						}
 					}
@@ -6135,8 +6139,15 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(p_line) {
 						if(!P_ChkPack->InsertItem(p_line->GoodsID, p_line->Quantity, intmnytodbl(p_line->Price), p_line->Dscnt))
 							PPErrorZ();
-						else
+						else {
+							// @v10.2.6 {
+							if(serial.NotEmpty())
+								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextSerial, serial);
+							if(egais_mark.NotEmpty())
+								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextEgaisMark, egais_mark);
+							// } @v10.2.6 
 							P_ChkPack->Discount = p_line->Dscnt;
+						}
 					}
 					else
 						P_ChkPack->Discount = 0.0;
@@ -7558,6 +7569,10 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							r_cur_item.Quantity = -fabs(cclr.Quantity);
 							r_cur_item.Price    = intmnytodbl(cclr.Price);
 							r_cur_item.Discount = cclr.Dscnt;
+							// @v10.2.6 {
+							chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
+							STRNSCPY(r_cur_item.EgaisMark, temp_buf);
+							// } @v10.2.6 
 							P.CurPos = P.getCount();
 							SetupRowData(1);
 							SetupState(sLISTSEL_BUF);

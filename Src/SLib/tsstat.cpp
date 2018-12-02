@@ -1186,9 +1186,11 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 	uint   vec_idx = 0;
 	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
 	const  uint _c = GetCount();
+	StatBase stat_delta(0);
 	rS.State |= Stat::stSorted;
 	SUniTime prev_utm;
 	SUniTime utm;
+	double prev_value = 0.0;
 	for(uint i = 0; i < _c; i++) {
 		THROW(GetTime(i, &utm));
 		if(i) {
@@ -1203,10 +1205,17 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 			const void * p_value_buf = p_vec->at(i);
 			double value = p_vec->ConvertInnerToDouble(p_value_buf);
 			rS.Step(value);
+			if(i) {
+				double delta = (value - prev_value) / prev_value;
+				stat_delta.Step(fabs(delta));
+			}
+			prev_value = value;
 		}
 		prev_utm = utm;
 	}
+	stat_delta.Finish();
 	rS.Finish();
+	rS.DeltaAvg = stat_delta.GetExp();
 	CATCHZOK
 	return ok;
 }

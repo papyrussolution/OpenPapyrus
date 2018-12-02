@@ -5306,7 +5306,6 @@ double xmlXPathCastBooleanToNumber(int val)
 {
 	return val ? 1.0 : 0.0;
 }
-
 /**
  * xmlXPathCastStringToNumber:
  * @val:  a string
@@ -5319,7 +5318,6 @@ double xmlXPathCastStringToNumber(const xmlChar * val)
 {
 	return xmlXPathStringEvalNumber(val);
 }
-
 /**
  * xmlXPathCastNodeToNumber:
  * @node:  a node
@@ -5340,7 +5338,6 @@ double xmlXPathCastNodeToNumber(xmlNode * P_Node)
 	}
 	return ret;
 }
-
 /**
  * xmlXPathCastNodeSetToNumber:
  * @ns:  a node-set
@@ -8845,7 +8842,6 @@ void xmlXPathNumberFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	cur = valuePop(ctxt);
 	valuePush(ctxt, xmlXPathCacheConvertNumber(ctxt->context, cur));
 }
-
 /**
  * xmlXPathSumFunction:
  * @ctxt:  the XPath Parser context
@@ -9251,25 +9247,20 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 	}
 	if(len == 0)
 		return 0;
-	return(xmlStrndup(buf, len));
+	return xmlStrndup(buf, len);
 }
 
 #define MAX_FRAC 20
-
 /*
  * These are used as divisors for the fractional part of a number.
  * Since the table includes 1.0 (representing '0' fractional digits),
  * it must be dimensioned at MAX_FRAC+1 (bug 133921)
  */
-static double my_pow10[MAX_FRAC+1] = {
-	1.0, 10.0, 100.0, 1000.0, 10000.0,
-	100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0,
-	10000000000.0, 100000000000.0, 1000000000000.0, 10000000000000.0,
-	100000000000000.0,
-	1000000000000000.0, 10000000000000000.0, 100000000000000000.0,
-	1000000000000000000.0, 10000000000000000000.0, 100000000000000000000.0
-};
-
+/* (replaced with fpow10i()) static double my_pow10[MAX_FRAC+1] = {
+	1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0,
+	10000000000.0, 100000000000.0, 1000000000000.0, 10000000000000.0, 100000000000000.0,
+	1000000000000000.0, 10000000000000000.0, 100000000000000000.0, 1000000000000000000.0, 10000000000000000000.0, 100000000000000000000.0
+};*/
 /**
  * xmlXPathStringEvalNumber:
  * @str:  A string to scan
@@ -9298,10 +9289,12 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 	unsigned long tmp = 0;
 	double temp;
 #endif
-	if(!cur) return 0;
-	while(IS_BLANK_CH(*cur)) cur++;
+	if(!cur) 
+		return 0;
+	while(IS_BLANK_CH(*cur)) 
+		cur++;
 	if((*cur != '.') && ((*cur < '0') || (*cur > '9')) && (*cur != '-')) {
-		return(xmlXPathNAN);
+		return xmlXPathNAN;
 	}
 	if(*cur == '-') {
 		isneg = 1;
@@ -9309,10 +9302,9 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 	}
 
 #ifdef __GNUC__
-	/*
-	 * tmp/temp is a workaround against a gcc compiler bug
-	 * http://veillard.com/gcc.bug
-	 */
+	// 
+	// tmp/temp is a workaround against a gcc compiler bug http://veillard.com/gcc.bug
+	// 
 	ret = 0;
 	while((*cur >= '0') && (*cur <= '9')) {
 		ret = ret * 10;
@@ -9330,14 +9322,12 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 		cur++;
 	}
 #endif
-
 	if(*cur == '.') {
 		int v, frac = 0;
 		double fraction = 0;
-
 		cur++;
 		if(((*cur < '0') || (*cur > '9')) && (!ok)) {
-			return(xmlXPathNAN);
+			return xmlXPathNAN;
 		}
 		while(((*cur >= '0') && (*cur <= '9')) && (frac < MAX_FRAC)) {
 			v = (*cur - '0');
@@ -9345,7 +9335,7 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 			frac = frac + 1;
 			cur++;
 		}
-		fraction /= my_pow10[frac];
+		fraction /= fpow10i(frac)/*my_pow10[frac]*/;
 		ret = ret + fraction;
 		while((*cur >= '0') && (*cur <= '9'))
 			cur++;
@@ -9364,20 +9354,22 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 			cur++;
 		}
 	}
-	while(IS_BLANK_CH(*cur)) cur++;
-	if(*cur != 0) return(xmlXPathNAN);
-	if(isneg) ret = -ret;
-	if(is_exponent_negative) exponent = -exponent;
+	while(IS_BLANK_CH(*cur)) 
+		cur++;
+	if(*cur != 0) 
+		return(xmlXPathNAN);
+	if(isneg) 
+		ret = -ret;
+	if(is_exponent_negative) 
+		exponent = -exponent;
 	ret *= pow(10.0, (double)exponent);
 	return ret;
 }
-
 /**
  * xmlXPathCompNumber:
  * @ctxt:  the XPath Parser context
  *
- *  [30]   Number ::=   Digits ('.' Digits?)?
- *                    | '.' Digits
+ *  [30]   Number ::=   Digits ('.' Digits?)? | '.' Digits
  *  [31]   Digits ::=   [0-9]+
  *
  * Compile a Number, then push it on the stack
@@ -9393,7 +9385,6 @@ static void xmlXPathCompNumber(xmlXPathParserContextPtr ctxt)
 	unsigned long tmp = 0;
 	double temp;
 #endif
-
 	CHECK_ERROR;
 	if((CUR != '.') && ((CUR < '0') || (CUR > '9'))) {
 		XP_ERROR(XPATH_NUMBER_ERROR);
@@ -9423,7 +9414,6 @@ static void xmlXPathCompNumber(xmlXPathParserContextPtr ctxt)
 	if(CUR == '.') {
 		int v, frac = 0;
 		double fraction = 0;
-
 		NEXT;
 		if(((CUR < '0') || (CUR > '9')) && (!ok)) {
 			XP_ERROR(XPATH_NUMBER_ERROR);
@@ -9434,7 +9424,7 @@ static void xmlXPathCompNumber(xmlXPathParserContextPtr ctxt)
 			frac = frac + 1;
 			NEXT;
 		}
-		fraction /= my_pow10[frac];
+		fraction /= fpow10i(frac)/*my_pow10[frac]*/;
 		ret = ret + fraction;
 		while((CUR >= '0') && (CUR <= '9'))
 			NEXT;

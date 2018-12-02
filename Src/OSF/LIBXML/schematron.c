@@ -1156,7 +1156,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 		if((test->report != NULL) && (test->report[0] != 0))
 			report = test->report;
 #endif
-		if(test->P_Node != NULL)
+		if(test->P_Node)
 			report = xmlSchematronFormatReport(ctxt, test->P_Node, cur);
 		if(report == NULL) {
 			if(test->type == XML_SCHEMATRON_ASSERT) {

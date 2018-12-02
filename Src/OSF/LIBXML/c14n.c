@@ -857,19 +857,16 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
 	xmlChar * tmp_str;
 	xmlChar * tmp_str2;
 	int tmp_str_len;
-
 	if(!ctx || (xml_base_attr == NULL) || (xml_base_attr->parent == NULL)) {
 		xmlC14NErrParam("processing xml:base attribute");
 		return 0;
 	}
-
 	/* start from current value */
 	res = xmlNodeListGetString(ctx->doc, xml_base_attr->children, 1);
 	if(res == NULL) {
 		xmlC14NErrInternal("processing xml:base attribute - can't get attr value");
 		return 0;
 	}
-
 	/* go up the stack until we find a node that we rendered already */
 	cur = xml_base_attr->parent->parent;
 	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->parent))) {

@@ -25,7 +25,6 @@ void initxmlDefaultSAXHandler(xmlSAXHandlerV1 * hdlr, int warning)
 {
 	if(hdlr->initialized == 1)
 		return;
-
 	hdlr->internalSubset = xmlSAX2InternalSubset;
 	hdlr->externalSubset = xmlSAX2ExternalSubset;
 	hdlr->isStandalone = xmlSAX2IsStandalone;
@@ -55,12 +54,10 @@ void initxmlDefaultSAXHandler(xmlSAXHandlerV1 * hdlr, int warning)
 		hdlr->warning = xmlParserWarning;
 	hdlr->error = xmlParserError;
 	hdlr->fatalError = xmlParserError;
-
 	hdlr->initialized = 1;
 }
 
 #ifdef LIBXML_HTML_ENABLED
-
 /**
  * inithtmlDefaultSAXHandler:
  * @hdlr:  the SAX handler
@@ -72,7 +69,6 @@ void inithtmlDefaultSAXHandler(xmlSAXHandlerV1 * hdlr)
 {
 	if(hdlr->initialized == 1)
 		return;
-
 	hdlr->internalSubset = xmlSAX2InternalSubset;
 	hdlr->externalSubset = NULL;
 	hdlr->isStandalone = NULL;
@@ -100,7 +96,6 @@ void inithtmlDefaultSAXHandler(xmlSAXHandlerV1 * hdlr)
 	hdlr->warning = xmlParserWarning;
 	hdlr->error = xmlParserError;
 	hdlr->fatalError = xmlParserError;
-
 	hdlr->initialized = 1;
 }
 

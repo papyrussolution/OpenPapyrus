@@ -94,29 +94,40 @@ PPGoodsTaxPacket & FASTCALL PPGoodsTaxPacket::operator = (const PPGoodsTaxPacket
 	return *this;
 }
 
+uint SLAPI PPGoodsTaxPacket::GetCount() const { return SVector::getCount(); }
+PPGoodsTaxEntry & FASTCALL PPGoodsTaxPacket::Get(uint idx) const { return *(PPGoodsTaxEntry *)SVector::at(idx); }
+int  FASTCALL PPGoodsTaxPacket::Insert(const PPGoodsTaxEntry & rEntry) { return SVector::insert(&rEntry) ? 1 : PPSetErrorSLib(); }
+SVector * SLAPI PPGoodsTaxPacket::vecptr() { return this; }
+
 int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 {
-	uint   i;
-	long   max_idx = 0;
-	PPGoodsTaxEntry * p_item;
-	for(i = 0; enumItems(&i, (void**)&p_item);) {
-		if(pos != (int)(i-1) && pEntry->Period.IsIntersect(p_item->Period))
-			if(pEntry->OpID == p_item->OpID)
-				return PPSetError(PPERR_GTAXENTINTRSCT);
-		long idx = ((p_item->TaxGrpID & 0xff000000L) >> 24);
-		max_idx = MAX(max_idx, idx);
-	}
-	if(pos < 0 || pos >= (int)getCount()) {
-		PPGoodsTaxEntry item = *pEntry;
-		item.TaxGrpID &= 0x00ffffffL;
-		item.TaxGrpID |= ((max_idx+1) << 24);
-		if(!insert(&item))
-			return PPSetErrorSLib();
+	int    ok = 1;
+	if(pEntry) {
+		long   max_idx = 0;
+		for(uint i = 0; i < getCount(); i++) {
+			const PPGoodsTaxEntry & r_item = Get(i);
+			if(pos != (int)i && pEntry->Period.IsIntersect(r_item.Period))
+				if(pEntry->OpID == r_item.OpID)
+					return PPSetError(PPERR_GTAXENTINTRSCT);
+			long idx = ((r_item.TaxGrpID & 0xff000000L) >> 24);
+			max_idx = MAX(max_idx, idx);
+		}
+		if(pos < 0 || pos >= (int)getCount()) {
+			PPGoodsTaxEntry item = *pEntry;
+			item.TaxGrpID &= 0x00ffffffL;
+			item.TaxGrpID |= ((max_idx+1) << 24);
+			THROW_SL(insert(&item));
+		}
+		else {
+			Get(pos) = *pEntry;
+		}
 	}
 	else {
-		(*(PPGoodsTaxEntry*)at(pos)) = *pEntry;
+		assert(pos >= 0 && pos < (int)getCount());
+		THROW_SL(atFree((uint)pos));
 	}
-	return 1;
+	CATCHZOK
+	return ok;
 }
 
 IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
@@ -470,12 +481,13 @@ int SLAPI PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsT
 	CMP_MEMBS(Symb);
 #undef CMP_MEMBS
 #undef CMP_MEMB
-	if(rS1.getCount() != rS2.getCount()) {
+	const uint _c1 = rS1.GetCount();
+	if(_c1 != rS2.GetCount()) {
 		return 0;
 	}
 	else {
-		for(uint i = 0; i < rS1.getCount(); i++) {
-			if(!((PPGoodsTaxEntry *)rS1.at(i))->IsEqual(*(PPGoodsTaxEntry *)rS2.at(i))) {
+		for(uint i = 0; i < _c1; i++) {
+			if(!rS1.Get(i).IsEqual(rS2.Get(i))) {
 				return 0;
 			}
 		}
@@ -712,7 +724,7 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 			if(pPack) {
 				PPGoodsTaxPacket org_pack;
 				THROW(GetPacket(*pID, &org_pack) > 0);
-				if(pPack->IsEqual(org_pack)) {
+				if(IsPacketEq(*pPack, org_pack, 0)) {
 					ok = -1;
 				}
 				else {
@@ -720,7 +732,7 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
-					THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack, 0));
+					THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 				}
 			}
@@ -738,7 +750,7 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
 			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack, 0));
+			THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
 			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
@@ -751,27 +763,28 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
-		ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack);
-		PPGoodsTaxEntry * p_item;
+		ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
 		uint i;
 		int  is_zero_excise = 1;
 		if(pPack->Rec.Excise != 0)
 			is_zero_excise = 0;
 		else {
-			for(i = 0; pPack->enumItems(&i, (void**)&p_item);)
-				if(p_item->Excise != 0) {
+			for(i = 0; i < pPack->GetCount(); i++) {
+				if(pPack->Get(i).Excise != 0) {
 					is_zero_excise = 0;
 					break;
 				}
+			}
 		}
-		for(i = 0; pPack->enumItems(&i, (void**)&p_item);) {
-			SETFLAG(p_item->Flags, GTAXF_ZEROEXCISE, is_zero_excise);
-			p_item->Flags |= GTAXF_ENTRY;
-			long s = (long)i;
-			p_item->TaxGrpID = ((id & 0x00ffffffL) | (s << 24));
+		for(i = 0; i < pPack->GetCount(); i++) {
+			PPGoodsTaxEntry & r_entry = pPack->Get(i);
+			SETFLAG(r_entry.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
+			r_entry.Flags |= GTAXF_ENTRY;
+			long s = (long)(i+1);
+			r_entry.TaxGrpID = ((id & 0x00ffffffL) | (s << 24));
 		}
 		SETFLAG(pPack->Rec.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
-		SETFLAG(pPack->Rec.Flags, GTAXF_USELIST, pPack->getCount());
+		SETFLAG(pPack->Rec.Flags, GTAXF_USELIST, pPack->GetCount());
 		ok = 1;
 	}
 	return ok;
@@ -780,13 +793,13 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	int32  c = (int32)pPack->getCount(); // @persistent
+	int32  c = (int32)pPack->GetCount(); // @persistent
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int i = 0; i < c; i++) {
 		PPGoodsTaxEntry item;
 		if(dir > 0)
-			item = *(PPGoodsTaxEntry *)pPack->at(i);
+			item = pPack->Get(i);
 		THROW_SL(pSCtx->Serialize(dir, item.TaxGrpID, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.Period.low, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.Period.upp, rBuf));
@@ -798,7 +811,7 @@ int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuf
 		THROW_SL(pSCtx->Serialize(dir, item.Order, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, item.UnionVect, rBuf));
 		if(dir < 0) {
-			THROW_SL(pPack->insert(&item));
+			THROW_SL(pPack->Insert(item));
 		}
 	}
 	CATCHZOK
@@ -864,11 +877,19 @@ int  SLAPI PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 				if(same_id == 0) {
 					if(p_pack->Rec.ID >= PP_FIRSTUSRREF)
 						p_pack->Rec.ID = 0;
-					THROW(PutPacket(pID, p_pack, 1));
+					if(!PutPacket(pID, p_pack, 1)) {
+						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSTAX, p_pack->Rec.ID, p_pack->Rec.Name);
+						ok = -1;
+					}
 				}
 			}
 			else {
-				;
+				// @v10.2.6 {
+				if(!PutPacket(pID, p_pack, 1)) {
+					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSTAX, p_pack->Rec.ID, p_pack->Rec.Name);
+					ok = -1;
+				}
+				// } @v10.2.6 
 			}
 		}
 		else {
@@ -886,9 +907,9 @@ int SLAPI PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	int    ok = 1;
 	if(p && p->Data) {
 		PPGoodsTaxPacket * p_pack = (PPGoodsTaxPacket *)p->Data;
-		for(uint i = 0; i < p_pack->getCount(); i++) {
-			PPGoodsTaxEntry * p_entry = (PPGoodsTaxEntry *)p_pack->at(i);
-			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_entry->OpID, ary, replace));
+		for(uint i = 0; i < p_pack->GetCount(); i++) {
+			PPGoodsTaxEntry & r_entry = p_pack->Get(i);
+			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &r_entry.OpID, ary, replace));
 		}
 	}
 	else
@@ -990,9 +1011,9 @@ int SLAPI GTaxCache::GetFromBase(PPID id)
 	PPObjGoodsTax    gt_obj;
 	PPGoodsTaxPacket gt_pack;
 	if(gt_obj.GetPacket(id, &gt_pack) > 0) {
-		PPGoodsTaxEntry item, * p_item;
-		for(uint i = 0; gt_pack.enumItems(&i, (void**)&p_item);)
-			P_Ary->insert(p_item);
+		PPGoodsTaxEntry item;
+		for(uint i = 0; i < gt_pack.GetCount(); i++)
+			P_Ary->insert(&gt_pack.Get(i));
 		// @v10.2.5 (ctr) MEMSZERO(item);
 		gt_pack.Rec.ToEntry(&item);
 		item.Flags &= ~GTAXF_USELIST;

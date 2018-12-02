@@ -6957,20 +6957,6 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
-/*class SRevolver_SString : public TSRingStack <SString> {
-public:
-	SLAPI  SRevolver_SString(size_t s) : TSRingStack <SString> (s)
-	{
-		SString empty_str;
-		empty_str.Z();
-		for(uint i = 0; i < s; i++) {
-			uint8 temp_buf[sizeof(SString)];
-			memzero(temp_buf, sizeof(temp_buf));
-
-		}
-	}
-};*/
-
 struct SlTestFixtureSString {
 public:
 	SlTestFixtureSString() : P_StrList(0)
@@ -7005,12 +6991,15 @@ public:
 	int    FASTCALL InitRandomRealList(uint maxCount)
 	{
 		int    ok = 1;
+		SString temp_buf;
 		if(!RandomRealList.getCount()) {
 			SlThreadLocalArea & r_tla = SLS.GetTLA();
 			for(uint j = 0; j < maxCount; j++) {
 				//double r = r_tla.Rg.GetReal();
 				double r = r_tla.Rg.GetGaussian(1.0E+9);
 				RandomRealList.insert(&r);
+				temp_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+				SsRrl.add(temp_buf);
 			}
 		}
 		else
@@ -7019,6 +7008,7 @@ public:
 	}
     SStrCollection * P_StrList;
 	RealArray RandomRealList;
+	StringSet SsRrl;
 };
 
 #include <string>
@@ -7652,18 +7642,20 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	}
 	else if(bm == 7) {
 		SString atof_buf;
-		for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-			double r = F.RandomRealList.at(j);
-			atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+		for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
+		//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+			//double r = F.RandomRealList.at(j);
+			//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
 			double r2;
 			r2 = atof(atof_buf);
 		}
 	}
 	else if(bm == 8) {
 		SString atof_buf;
-		for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-			double r = F.RandomRealList.at(j);
-			atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+		for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
+		//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+			//double r = F.RandomRealList.at(j);
+			//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
 			double r2;
 			//satof(atof_buf, &r2);
 			//
