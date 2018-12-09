@@ -374,7 +374,7 @@ int FASTCALL SDrawFigure::GetViewPort(SViewPort * pVp) const
 	return ok;
 }
 
-int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg)
+int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) const
 {
 	int    ok = 1;
 	FPoint size = rImg.GetDimF();
@@ -1251,6 +1251,16 @@ uint32 FASTCALL SImageBuffer::PixF::UniformToGrayscale(uint32 u)
 	return (_r == _g && _r == _b) ? _r : ((_r * 307 + _g * 604 + _b * 113) >> 10);
 }
 
+// static
+COLORREF FASTCALL SImageBuffer::PixF::UniformToRGB(uint32 u)
+{
+	//const uint32 _r = (u & 0x00ff0000) >> 16;
+	//const uint32 _g = (u & 0x0000ff00) >> 8;
+	//const uint32 _b = (u & 0x000000ff);
+	//return RGB(_r, _g, _b);
+	return RGB(((u & 0x00ff0000) >> 16), ((u & 0x0000ff00) >> 8), (u & 0x000000ff));
+}
+
 int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint width, SImageBuffer::Palette * pPalette) const
 {
 	int    ok = 0;
@@ -2049,6 +2059,77 @@ int SImageBuffer::GetSubImage(SImageBuffer & rDest, TPoint start, TPoint size) c
 		ok = -1;
 	CATCHZOK
 	return ok;
+}
+
+void * SImageBuffer::TransformToIcon() const
+{
+	HICON h_icon = 0;
+	HDC hDC        = ::GetDC(NULL);
+	HDC hMainDC    = ::CreateCompatibleDC(hDC);
+	HDC hAndMaskDC = ::CreateCompatibleDC(hDC);
+	HDC hXorMaskDC = ::CreateCompatibleDC(hDC);
+	const int _w = (int)S.x;
+	const int _h = (int)S.y;
+	//
+	// Получаем размеры битмапа
+	//
+	//BITMAP bm;
+	//::GetObject(hBitmap, sizeof(BITMAP), &bm);
+	HBITMAP hAndMaskBitmap  = ::CreateCompatibleBitmap(hDC, _w, _h);
+	HBITMAP hXorMaskBitmap  = ::CreateCompatibleBitmap(hDC, _w, _h);
+
+	//Select the bitmaps to DC
+
+	//HBITMAP hOldMainBitmap     = (HBITMAP)::SelectObject(hMainDC,    hBitmap);
+	HBITMAP hOldAndMaskBitmap  = (HBITMAP)::SelectObject(hAndMaskDC, hAndMaskBitmap);
+	HBITMAP hOldXorMaskBitmap  = (HBITMAP)::SelectObject(hXorMaskDC, hXorMaskBitmap);
+	//Scan each pixel of the souce bitmap and create the masks
+	//COLORREF MainBitPixel;
+
+	STempBuffer uniform_buf(0);
+	//int    row_stride;
+	THROW_S((_w >= 1 && _w <= 30000) && (_h >= 1 && _h <= 30000), SLERR_INVIMAGESIZE); // no image
+	THROW(uniform_buf.Alloc(S.x * 4));
+
+	for(int y = 0; y < _h; ++y) {
+		size_t uboffs = 0;
+		THROW(F.GetUniform(GetScanline(y), uniform_buf, S.x, 0));
+		for(int x = 0; x < _w; x++) {
+			COLORREF and_mask = RGB(0, 0, 0);
+			COLORREF xor_mask = SImageBuffer::PixF::UniformToRGB(*PTR32(uniform_buf.ucptr() + uboffs));
+			::SetPixel(hAndMaskDC, x, y, and_mask);
+			::SetPixel(hXorMaskDC, x, y, xor_mask);
+			uboffs += 4;
+		}
+	}
+	{
+		ICONINFO iconinfo = {0};
+		iconinfo.fIcon    = TRUE; // icon (FALSE - cursor)
+		iconinfo.xHotspot = 0;
+		iconinfo.yHotspot = 0;
+		iconinfo.hbmMask  = hAndMaskBitmap;
+		iconinfo.hbmColor = hXorMaskBitmap;
+		h_icon = ::CreateIconIndirect(&iconinfo);
+		//::SelectObject(hMainDC,    hOldMainBitmap);
+		//::SelectObject(hAndMaskDC, hOldAndMaskBitmap);
+		//::SelectObject(hXorMaskDC, hOldXorMaskBitmap);
+
+		::DeleteDC(hXorMaskDC);
+		::DeleteDC(hAndMaskDC);
+		::DeleteDC(hMainDC);
+
+		::ReleaseDC(NULL, hDC);
+
+		::DeleteObject(hAndMaskBitmap);
+		::DeleteObject(hXorMaskBitmap);
+		//::DeleteObject(hOldMainBitmap);
+		//::DeleteObject(hOldAndMaskBitmap);
+		//::DeleteObject(hOldXorMaskBitmap);
+	}
+	CATCH
+		h_icon = 0;
+	ENDCATCH
+	return h_icon;
 }
 //
 //
@@ -2962,6 +3043,572 @@ int SDrawImage::TransformToGrayscale()
 {
 	return Buf.TransformToGrayscale();
 }
+//
+//
+//
+#if 0 // {
+// 
+// Pointers to unaligned-bits.  These are necessary for handling bitmap-info's loaded from file.
+// 
+typedef BITMAPINFO       UNALIGNED *UPBITMAPINFO;
+typedef BITMAPINFOHEADER UNALIGNED *UPBITMAPINFOHEADER;
+typedef BITMAPCOREHEADER UNALIGNED *UPBITMAPCOREHEADER;
+// 
+// Bitmap resource IDs
+// 
+#define BMR_ICON    1
+#define BMR_BITMAP  2
+#define BMR_CURSOR  3
+#define BPP01_MAXCOLORS     2
+#define BPP04_MAXCOLORS    16
+#define BPP08_MAXCOLORS   256
+#define RESCLR_BLACK      0x00000000
+#define RESCLR_WHITE      0x00FFFFFF
+#define MR_FAILFOR40    0x01
+#define MR_MONOCHROME   0x02
+
+//#define GETINITDC() (gfSystemInitialized ? NtUserGetDC(NULL) : CreateDCW(L"DISPLAY", L"", NULL, NULL))
+//#define RELEASEINITDC(hdc) (gfSystemInitialized ? ReleaseDC(NULL, hdc) : DeleteDC(hdc))
+#define ISRIFFFORMAT(p) (((UNALIGNED RTAG *)(p))->ckID == FOURCC_RIFF)
+#define IS_PTR(p)       ((((ULONG_PTR)(p)) & ~USHRT_MAX/*MAXUSHORT*/) != 0)
+#define PTR_TO_ID(p)    ((USHORT)(((ULONG_PTR)(p)) & USHRT_MAX/*MAXUSHORT*/))
+
+#define BitmapSize(cx, cy, planes, bits) (BitmapWidth(cx, bits) * (cy) * (planes))
+#define BitmapWidth(cx, bpp)             (((((cx)*(bpp)) + 31) & ~31) >> 3)
+#define RGBX(rgb)  RGB(GetBValue(rgb), GetGValue(rgb), GetRValue(rgb))
+//#define SYSRGB(i)  gpsi->argbSystem[COLOR_##i]
+
+typedef struct _OLDCURSOR {
+	BYTE bType;
+	BYTE bFormat;
+	WORD xHotSpot;  // 0 for icons
+	WORD yHotSpot;  // 0 for icons
+	WORD cx;
+	WORD cy;
+	WORD cxBytes;
+	WORD wReserved2;
+	BYTE abBitmap[1];
+} OLDCURSOR, *POLDCURSOR;
+
+typedef OLDCURSOR UNALIGNED * UPOLDCURSOR;
+
+DWORD HowManyColors(IN UPBITMAPINFOHEADER upbih, IN BOOL fOldFormat, OUT OPTIONAL LPBYTE * ppColorTable)
+{
+#define upbch ((UPBITMAPCOREHEADER)upbih)
+	if(fOldFormat) {
+		if(ppColorTable != NULL) {
+			*ppColorTable = (LPBYTE)(upbch + 1);
+	}
+	if(upbch->bcBitCount <= 8)
+		return (1 << upbch->bcBitCount);
+	} 
+	else {
+		if(ppColorTable != NULL) {
+			*ppColorTable = (LPBYTE)(upbih + 1);
+		}
+		if(upbih->biClrUsed)
+			return (DWORD)upbih->biClrUsed;
+		else if (upbih->biBitCount <= 8)
+			return (1 << upbih->biBitCount);
+		else if ((upbih->biBitCount == 16) || (upbih->biBitCount == 32))
+			return 3;
+	}
+	return 0;
+#undef upbch
+}
+// 
+// Checks to see if a DIB colro table is truly monochrome.  ie: the color table has black & white entries only.
+// 
+BOOL TrulyMonochrome(LPVOID lpColorTable, BOOL fOldFormat)
+{
+#define lpRGB  ((UNALIGNED LONG *)lpColorTable)
+#define lpRGBw ((UNALIGNED WORD *)lpColorTable)
+	if(fOldFormat) {
+		// Honey - its triplets.
+		if(lpRGBw[0] == 0x0000)
+			return (lpRGBw[1] == 0xFF00) && (lpRGBw[2] == 0xFFFF);
+		else if(lpRGBw[0] == 0xFFFF)
+			return (lpRGBw[1] == 0x00FF) && (lpRGBw[2] == 0x0000);
+	} 
+	else {
+		// Honey - its quadruplets!
+		if(lpRGB[0] == RESCLR_BLACK)
+			return (lpRGB[1] == RESCLR_WHITE);
+		else if (lpRGB[0] == RESCLR_WHITE)
+			return (lpRGB[1] == RESCLR_BLACK);
+	}
+#undef lpRGB
+#undef lpRGBw
+	return FALSE;
+}
+/***************************************************************************\
+* CopyDibHdr
+*
+* Copies and converts a DIB resource header
+*
+* Handles conversion of OLDICON, OLDCURSOR and BITMAPCOREHEADER
+* structures to BITMAPINFOHEADER headers.
+*
+* Note: fSingleHeightMasks is set for OLDICON and OLDCURSOR formats.
+*       This identifies that a monochrome AND/Color mask
+*       is NOT double height as it is in the newer formats.
+*
+* NOTE:  On the off chance that LR_LOADTRANSPARENT is used, we want to
+*     copy a DWORD of the bits.  Since DIB bits are DWORD aligned, we know
+*     at least a DWORD is there, even if the thing is a 1x1 mono bmp.
+*
+* The returned buffer is allocated in this function and needs to be
+* freed by the caller.
+*
+* 22-Oct-1995 SanfordS  Revised
+\***************************************************************************/
+LPBITMAPINFOHEADER CopyDibHdr(IN UPBITMAPINFOHEADER upbih, OUT LPSTR * lplpBits, OUT LPBOOL lpfMono)
+{
+#define upbch ((UPBITMAPCOREHEADER)upbih)
+	DWORD              cColors;
+	DWORD              i;
+	LPBITMAPINFOHEADER lpbihNew;
+	DWORD              cbAlloc;
+	LPBYTE             lpColorTable;
+	struct {
+		BITMAPINFOHEADER bih;
+		DWORD  rgb[256];
+		DWORD  dwBuffer;
+	} Fake;
+	switch(upbih->biSize) {
+		case sizeof(BITMAPINFOHEADER):
+			// Cool.  No conversion needed.
+			cColors   = HowManyColors(upbih, FALSE, &lpColorTable);
+			*lplpBits = (LPSTR)(((LPDWORD)lpColorTable) + cColors);
+			break;
+		case sizeof(BITMAPCOREHEADER):
+			// Convert the BITMAPCOREHEADER to a BITMAPINFOHEADER
+			Fake.bih.biSize          = sizeof(BITMAPINFOHEADER);
+			Fake.bih.biWidth         = upbch->bcWidth;
+			Fake.bih.biHeight        = upbch->bcHeight;
+			Fake.bih.biPlanes        = upbch->bcPlanes;
+			Fake.bih.biBitCount      = upbch->bcBitCount;
+			Fake.bih.biCompression   =
+			Fake.bih.biXPelsPerMeter =
+			Fake.bih.biYPelsPerMeter =
+			Fake.bih.biClrImportant  = 0;
+			Fake.bih.biClrUsed       = cColors = HowManyColors(upbih, TRUE, &lpColorTable);
+			Fake.bih.biSizeImage     = BitmapWidth(Fake.bih.biWidth, Fake.bih.biBitCount) * Fake.bih.biHeight;
+			// Copy and convert tripplet color table to rgbQuad color table.
+			for(i = 0; i < cColors; i++, lpColorTable += 3) {
+				Fake.rgb[i] = lpColorTable[0] + (lpColorTable[1] << 8) + (lpColorTable[2] << 16);
+			}
+			Fake.rgb[i] = *(DWORD UNALIGNED *)lpColorTable;  // For LR_LOADTRANSPARENT
+			upbih       = (UPBITMAPINFOHEADER)&Fake;
+			*lplpBits   = (LPSTR)lpColorTable;
+			break;
+		default:
+#define upOldIcoCur ((UPOLDCURSOR)upbih)
+			if(upOldIcoCur->bType == BMR_ICON || upOldIcoCur->bType == BMR_CURSOR) {
+				// Convert OLDICON/OLDCURSOR header to BITMAPINFHEADER
+				//RIPMSG0(RIP_WARNING, "USER32:Converting a OLD header. - email sanfords if you see this");
+				Fake.bih.biSize          = sizeof(BITMAPINFOHEADER);
+				Fake.bih.biWidth         = upOldIcoCur->cx;
+				Fake.bih.biHeight        = upOldIcoCur->cy * 2;
+				Fake.bih.biPlanes        =
+				Fake.bih.biBitCount      = 1;
+				Fake.bih.biCompression   =
+				Fake.bih.biXPelsPerMeter =
+				Fake.bih.biYPelsPerMeter =
+				Fake.bih.biClrImportant  = 0;
+				Fake.bih.biClrUsed       = cColors = BPP01_MAXCOLORS;
+				Fake.bih.biSizeImage     = BitmapWidth(upOldIcoCur->cx, 1) * upOldIcoCur->cy;
+				Fake.rgb[0] = RESCLR_BLACK;
+				Fake.rgb[1] = RESCLR_WHITE;
+				upbih       = (LPBITMAPINFOHEADER)&Fake;
+				*lplpBits   = (LPSTR)upOldIcoCur->abBitmap;
+				Fake.rgb[2] = *((LPDWORD)*lplpBits);  // For LR_LOADTRANSPARENT
+			} 
+			else {
+				//RIPMSG0(RIP_WARNING, "ConvertDIBBitmap: not a valid format");
+				return NULL;
+			}
+#undef pOldIcoCur
+			break;
+	}
+	*lpfMono = (cColors == BPP01_MAXCOLORS) && TrulyMonochrome((LPBYTE)upbih + sizeof(BITMAPINFOHEADER), FALSE);
+	cbAlloc = sizeof(BITMAPINFOHEADER) + (cColors * sizeof(RGBQUAD)) + 4;
+	if(lpbihNew = UserLocalAlloc(0, cbAlloc))
+		RtlCopyMemory(lpbihNew, upbih, cbAlloc);
+	return lpbihNew;
+#undef upbch
+}
+// 
+// Given a DIB, processes LR_MONOCHROME, LR_LOADTRANSPARENT and
+// LR_LOADMAP3DCOLORS flags on the given header and colortable.
+// 
+VOID ChangeDibColors(IN LPBITMAPINFOHEADER lpbih, IN UINT LR_flags)
+{
+	LPDWORD lpColorTable;
+	DWORD  rgb;
+	UINT   iColor;
+	UINT cColors = HowManyColors(lpbih, FALSE, (LPBYTE *)&lpColorTable);
+	/*
+	* NT Bug 366661: Don't check the color count here b/c we will do different
+	* things depending on what type of change we are performing.  For example,
+	* when loading hi-color/true-color icons, we always need to do the 
+	* monochrome conversion in order to properly get an icon-mask.
+	*/
+	// 
+	// LR_MONOCHROME is the only option that handles PM dibs.
+	// 
+	if(LR_flags & LR_MONOCHROME) {
+		/*
+		* LR_MONOCHROME is the only option that handles PM dibs.
+		*
+		* DO THIS NO MATTER WHETHER WE HAVE A COLOR TABLE!  We need 
+		* to do this for mono conversion and for > 8 BPP 
+		* icons/cursors.  In CopyDibHdr, we already made a copy of 
+		* the header big enough to hold 2 colors even on 16 and 24 BPP images.
+		*/
+		lpbih->biBitCount = lpbih->biPlanes = 1;
+		lpColorTable[0] = RESCLR_BLACK;
+		lpColorTable[1] = RESCLR_WHITE;
+	} 
+	else if(LR_flags & LR_LOADTRANSPARENT) {
+		LPBYTE pb;
+		// No color table!  Do nothing.
+		if(cColors == 0) {
+			//RIPMSG0(RIP_WARNING, "ChangeDibColors: DIB doesn't have a color table");
+			return;
+		}
+		pb = (LPBYTE)(lpColorTable + cColors);
+		// 
+		// Change the first pixel's color table entry to RGB_WINDOW
+		// Gosh, I love small-endian
+		// 
+		if(lpbih->biCompression == 0)
+			iColor = (UINT)pb[0];
+		else
+			iColor = (UINT)(pb[0] == 0 ? pb[2] : pb[1]); // RLE bitmap, will start with cnt,clr  or  0,cnt,clr
+		switch(cColors) {
+			case BPP01_MAXCOLORS: iColor &= 0x01; break;
+			case BPP04_MAXCOLORS: iColor &= 0x0F; break;
+			case BPP08_MAXCOLORS: iColor &= 0xFF; break;
+		}
+		rgb = (LR_flags & LR_LOADMAP3DCOLORS ? SYSRGB(3DFACE) : SYSRGB(WINDOW));
+		lpColorTable[iColor] = RGBX(rgb);
+	} 
+	else if(LR_flags & LR_LOADMAP3DCOLORS) {
+		// 
+		// Fix up the color table, mapping shades of grey to the current 3D colors.
+		// 
+		for(iColor = 0; iColor < cColors; iColor++) {
+			switch(*lpColorTable & 0x00FFFFFF) {
+				case RGBX(RGB(223, 223, 223)): rgb = SYSRGB(3DLIGHT); goto ChangeColor;
+				case RGBX(RGB(192, 192, 192)): rgb = SYSRGB(3DFACE); goto ChangeColor;
+				case RGBX(RGB(128, 128, 128)): rgb = SYSRGB(3DSHADOW);
+					// NOTE: byte-order is different in DIBs than in RGBs
+		ChangeColor:
+					*lpColorTable = RGBX(rgb);
+					break;
+			}
+			lpColorTable++;
+		}
+	}
+}
+
+/***************************************************************************\
+* ConvertDIBBitmap
+*
+* This takes a BITMAPCOREHEADER, OLDICON, OLDCURSOR or BITMAPINFOHEADER DIB
+* specification and creates a physical object from it.
+* Handles Color fixups, DIB sections, color depth, and stretching options.
+*
+* Passes back: (if lplpbih is not NULL)
+*   lplpbih = copy of given header converted to BITMAPINFOHEADER form.
+*   lplpBits = pointer to next mask bits, or NULL if no second mask.
+*   Caller must free lplpbih returned.
+*
+* If lplpBits is not NULL and points to a non-NULL value, it supplies
+* the location of the DIB bits allowing the header to be from a different
+* location.
+*
+* 04-Oct-1995 SanfordS  Recreated.
+\***************************************************************************/
+
+HBITMAP ConvertDIBBitmap(IN /*UPBITMAPINFOHEADER*/LPBITMAPINFOHEADER upbih, IN  DWORD cxDesired, IN  DWORD cyDesired, IN  UINT LR_flags,
+    OUT OPTIONAL LPBITMAPINFOHEADER *lplpbih, IN OUT OPTIONAL LPSTR *lplpBits)
+{
+	LPBITMAPINFOHEADER lpbihNew;
+	BOOL   fMono, fMonoGiven;
+	BYTE   bPlanesDesired;
+	BYTE   bppDesired;
+	LPSTR   lpBits;
+	HBITMAP hBmpRet;
+	/*
+	* Make a copy of the DIB-Header.  This returns a pointer
+	* which was allocated, so it must be freed later.
+	* The also converts the header to BITMAPINFOHEADER format.
+	*/
+	if((lpbihNew = CopyDibHdr(upbih, &lpBits, &fMono)) == NULL)
+		return NULL;
+	/*
+	* When loading a DIB file, we may need to use a different
+	* bits pointer.  See RtlRes.c/RtlLoadObjectFromDIBFile.
+	*/
+	if(lplpBits && *lplpBits)
+		lpBits = *lplpBits;
+	fMonoGiven = fMono;
+	if(!fMono) {
+		if(LR_flags & (LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS))
+			ChangeDibColors(lpbihNew, LR_flags & ~LR_MONOCHROME);
+		bPlanesDesired = gpsi->Planes;
+		bppDesired     = gpsi->BitsPixel;
+		fMono          = LR_flags & LR_MONOCHROME;
+	}
+	if(fMono) {
+		bPlanesDesired =
+		bppDesired     = 1;
+	}
+	// 
+	// HACK area
+	// 
+	if(lplpbih != NULL) {
+		// 
+		// pass back the translated/copied header
+		// 
+		*lplpbih = lpbihNew;
+		// 
+		// When loading icon/cursors on a system with multiple monitors
+		// with different color depths, always convert to VGA color.
+		// 
+		if(!fMono && !SYSMET(SAMEDISPLAYFORMAT)) {
+			bPlanesDesired = 1;
+			bppDesired = 4;
+		}
+		/*
+		* Return a ponter to the bits following this set of bits
+		* if there are any there.
+		*
+		* Note that the header given with an ICON DIB always reflects
+		* twice the height of the icon desired but the COLOR bitmap
+		* (if there is one) will only be half that high.  We need to
+		* fixup cyDesired for monochrome icons so that the mask isnt
+		* stretched to half the height its supposed to be.  Color
+		* bitmaps, however, must have the header corrected to reflect
+		* the bits actual height which is half what the header said.
+		* The correction must later be backed out so that the returned
+		* header reflects the dimensions of the XOR mask that immediately
+		* follows the color mask.
+		*/
+		if(fMonoGiven) {
+			*lplpBits = NULL;
+			if(cyDesired)
+				cyDesired <<= 1;    // mono icon bitmaps are double high.
+		} 
+		else {
+			//UserAssert(!(lpbihNew->biHeight & 1));
+			lpbihNew->biHeight >>= 1;  // color icon headers are off by 2
+			// 
+			// Gross calculation!  We subtract the XOR part of the mask
+			// for this calculation so that we submit a double-high mask.
+			// The first half of this is garbage, but for icons its not
+			// used.  This may be a bug for cursor use of icons.
+			// 
+			*lplpBits = lpBits + (BitmapWidth(lpbihNew->biWidth, lpbihNew->biBitCount) - BitmapWidth(lpbihNew->biWidth, 1)) * lpbihNew->biHeight;
+		}
+	}
+	if(cxDesired == 0)
+		cxDesired = lpbihNew->biWidth;
+	if(cyDesired == 0)
+		cyDesired = lpbihNew->biHeight;
+	hBmpRet = BitmapFromDIB(cxDesired, cyDesired, bPlanesDesired, bppDesired, LR_flags, lpbihNew->biWidth, lpbihNew->biHeight, lpBits, (LPBITMAPINFO)lpbihNew, NULL);
+	if(lplpbih == NULL || hBmpRet == NULL) {
+		UserLocalFree(lpbihNew);
+	} 
+	else if(!fMonoGiven) {
+		lpbihNew->biHeight <<= 1;   // restore header for next mask
+	}
+	return hBmpRet;
+}
+
+
+HANDLE ObjectFromDIBResource(HINSTANCE hmod, LPCWSTR lpName, LPWSTR type, DWORD cxDesired, DWORD cyDesired, UINT LR_flags)
+{
+	HANDLE  hObj = NULL;
+	if(LR_flags & LR_LOADFROMFILE) {
+		hObj = RtlLoadObjectFromDIBFile(lpName, type, cxDesired, cyDesired, LR_flags);
+	} 
+	else {
+		HANDLE hdib = LoadDIB(hmod, lpName, type, cxDesired, cyDesired, LR_flags);
+		if(hdib != NULL) {
+			LPBITMAPINFOHEADER lpbih;
+			// 
+			// We cast the resource-bits to a BITMAPINFOHEADER.  If the
+			// resource is a CURSOR type, then there are actually two
+			// WORDs preceeding the BITMAPINFOHDEADER indicating the
+			// hot-spot.  Be careful in assuming you have a real dib in this case.
+			// 
+			if(lpbih = (LPBITMAPINFOHEADER)LOCKRESOURCE(hdib, hmod)) {
+				switch(PTR_TO_ID(type)) {
+					case PTR_TO_ID(RT_BITMAP):
+						// 
+						// Create a physical bitmap from the DIB.
+						// 
+						hObj = ConvertDIBBitmap(lpbih, cxDesired, cyDesired, LR_flags, NULL, NULL);
+						break;
+					case PTR_TO_ID(RT_ICON):
+					case PTR_TO_ID(RT_CURSOR):
+					case PTR_TO_ID(RT_ANICURSOR):
+					case PTR_TO_ID(RT_ANIICON):
+						// 
+						// Animated icon\cursors resources use the RIFF format
+						// 
+						if(ISRIFFFORMAT(lpbih)) {
+							hObj = LoadCursorIconFromResource((PBYTE)lpbih, lpName, cxDesired, cyDesired, LR_flags);
+						} 
+						else {
+							// Create the object from the DIB.
+							hObj = ConvertDIBIcon(lpbih, hmod, lpName, (type == RT_ICON), cxDesired, cyDesired, LR_flags);
+						}
+						break;
+				}
+				UNLOCKRESOURCE(hdib, hmod);
+			}
+			// 
+			// DO THIS TWICE!  The resource compiler always makes icon images
+			// (RT_ICON) in a group icon discardable, whether the group dude
+			// is or not!  So the first free won't really free the thing;
+			// it'll just set the ref count to 0 and let the discard logic go on its merry way.
+			// 
+			// We take care of shared guys, so we don't need this dib no more.
+			// Don't need this DIB no more no more, no more no more no more don't need this DIB no more.
+			// 
+			SplFreeResource(hdib, hmod, LR_flags);
+		}
+	}
+	return hObj;
+}
+
+HICON LoadIcoCur(HINSTANCE hmod, LPCWSTR pszResName, LPWSTR type, DWORD cxDesired, DWORD cyDesired, UINT LR_flags)
+{
+	HICON     hico;
+	LPWSTR    pszModName;
+	WCHAR     achModName[MAX_PATH];
+	ConnectIfNecessary();
+	/*
+	* Setup module name and handles for lookup.
+	*/
+	if(hmod == NULL)  {
+		hmod = hmodUser;
+		pszModName = szUSER32;
+	} 
+	else {
+		WowGetModuleFileName(hmod, achModName, sizeof(achModName) / sizeof(WCHAR));
+		pszModName = achModName;
+	}
+	if(LR_flags & LR_CREATEDIBSECTION)
+		LR_flags = (LR_flags & ~LR_CREATEDIBSECTION) | LR_CREATEREALDIB;
+	/*
+	* Setup defaults.
+	*/
+	if((hmod == hmodUser) && !IS_PTR(pszResName)) {
+		int      imapMax;
+		LPMAPRES lpMapRes;
+		/*
+		* Map some old OEM IDs for people.
+		*/
+		if(type == RT_ICON) {
+			static MAPRES MapOemOic[] = { {OCR_ICOCUR, OIC_WINLOGO, MR_FAILFOR40} };
+			lpMapRes = MapOemOic;
+			imapMax  = 1;
+		} 
+		else {
+			static MAPRES MapOemOcr[] = { {OCR_ICON, OCR_ICON, MR_FAILFOR40}, {OCR_SIZE, OCR_SIZE, MR_FAILFOR40} };
+			lpMapRes = MapOemOcr;
+			imapMax  = 2;
+		}
+		while(--imapMax >= 0) {
+			if(lpMapRes->idDisp == PTR_TO_ID(pszResName)) {
+				if((lpMapRes->bFlags & MR_FAILFOR40) && GETAPPVER() >= VER40) {
+					RIPMSG1(RIP_WARNING, "LoadIcoCur: Old ID 0x%x not allowed for 4.0 apps", PTR_TO_ID(pszResName));
+					return NULL;
+				}
+				pszResName = MAKEINTRESOURCE(lpMapRes->idUser);
+				break;
+			}
+			++lpMapRes;
+		}
+	}
+	// 
+	// Determine size of requested object.
+	// 
+	cxDesired = GetIcoCurWidth(cxDesired , (type == RT_ICON), LR_flags, 0);
+	cyDesired = GetIcoCurHeight(cyDesired, (type == RT_ICON), LR_flags, 0);
+	// 
+	// See if this is a cached icon/cursor, and grab it if we have one already.
+	// 
+	if(LR_flags & LR_SHARED) {
+		CURSORFIND cfSearch;
+		/*
+		* Note that win95 fails to load any USER resources unless
+		* LR_SHARED is specified - so we do too.  Also, win95 will
+		* ignore your cx, cy and LR_flag parameters and just give
+		* you whats in the cache so we do too.
+		* A shame but thats life...
+		*
+		* Setup search criteria.  Since this is a load, we will have
+		* no source-cursor to lookup.  Find something respectable.
+		*/
+		cfSearch.hcur = (HCURSOR)NULL;
+		cfSearch.rt   = PtrToUlong(type);
+		if(hmod == hmodUser) {
+			cfSearch.cx  = 0;
+			cfSearch.cy  = 0;
+			cfSearch.bpp = 0;
+		} 
+		else {
+			cfSearch.cx  = cxDesired;
+			cfSearch.cy  = cyDesired;
+			/*
+			* On NT we have a more strict cache-lookup.  By passing in (zero), we
+			* will tell the cache-lookup to ignore the bpp.  This fixes a problem
+			* in Crayola Art Studio where the coloring-book cursor was being created
+			* as an invisible cursor.  This lookup is compatible with Win95.
+			*/
+			#if 0
+			cfSearch.bpp = GetIcoCurBpp(LR_flags);
+			#else
+			cfSearch.bpp = 0;
+			#endif
+		}
+		hico = FindExistingCursorIcon(pszModName, pszResName, &cfSearch);
+		if(hico != NULL)
+			goto IcoCurFound;
+	}
+#ifdef LATER // SanfordS
+	/*
+	* We need to handle the case where a configurable icon has been
+	* loaded from some arbitrary module or file and someone now wants
+	* to load the same thing in a different size or color content.
+	*
+	* A cheezier alternative is to just call CopyImage on what we
+	* found.
+	*/
+	if(hmod == hmodUser) {
+		hico = FindExistingCursorIcon(NULL, szUSER, type, pszResName, 0, 0, 0);
+		if(hico != NULL) {
+			/*
+			* Find out where the original came from and load it.
+			* This may require some redesign to remember the
+			* filename that LR_LOADFROMFILE images came from.
+			*/
+			_GetIconInfo(....);
+			return LoadIcoCur(....);
+		}
+	}
+#endif
+	hico = (HICON)ObjectFromDIBResource(hmod, pszResName, type, cxDesired, cyDesired, LR_flags);
+IcoCurFound:
+	return hico;
+}
+#endif // } 0
 //
 //
 //

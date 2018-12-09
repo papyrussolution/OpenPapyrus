@@ -2192,7 +2192,7 @@ int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 #endif // } 0
 		copyBufFrom(&header);
 		THROW_DB(insertRec(0, &id));
-		if(!(header.Flags & (CCHKF_JUNK|CCHKF_SKIP))) // @v7.0.11
+		if(!(header.Flags & (CCHKF_JUNK|CCHKF_SKIP)))
 			THROW(Cards.AddTurnover(header.SCardID, MONEYTOLDBL(header.Amount), 0));
 		THROW(tra.Commit());
 		//WriteCCheckLogFile(&header, logWrited); // @vmiller Защита от дублирования записи в логе
@@ -2925,7 +2925,7 @@ int SLAPI CCheckCore::UpdateRec(PPID checkID, const CCheckTbl::Rec * pRec, int u
 	if(pRec) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, checkID, &rec) > 0) { // @v7.0.11 CCheckCore::Search-->::SearchByID_ForUpdate
+		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, checkID, &rec) > 0) {
 			if(pRec->SessID != rec.SessID || pRec->Code != rec.Code || pRec->CashID != rec.CashID || pRec->Dt != rec.Dt || pRec->Tm != rec.Tm) {
 				data.SessID = pRec->SessID;
 				data.Code   = pRec->Code;

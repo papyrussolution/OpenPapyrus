@@ -5608,6 +5608,8 @@
 	#define CTL_SCARD_PHONEINPUT         (26 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_PHONE              (27 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_ACN1               (28 + WINDOWS_ID_BIAS)
+	#define CTL_SCARD_POOLDSER           (29 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SCARD_POOLDSER        (30 + WINDOWS_ID_BIAS)
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -10448,6 +10450,7 @@
 	#define CTL_CORCC_LOG             (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORCC_LOG          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CORCC_FLAGS           (3 + WINDOWS_ID_BIAS)
+	#define CTL_CORCC_SESSID          (4 + WINDOWS_ID_BIAS)
 #define DLG_SELACNBYPHN           1338
 	#define CTL_SELACNBYPHN_WHAT      (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELACNBYPHN_INFO      (2 + WINDOWS_ID_BIAS)

@@ -545,8 +545,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 								if(unit_id == def_unit_id) {
 									w_s.PutInner("default", "true");
 								}
-								if(unit_rec.Flags & PPUnit::Physical)
-									w_s.PutInner("physical", "true");
+								w_s.PutInner("physical", (unit_rec.Flags & PPUnit::Physical) ? "true" : "false");
+								w_s.PutInner("integer", (unit_rec.Flags & PPUnit::IntVal) ? "true" : "false"); // @v10.2.7
 								if(unit_rec.Rounding > 0.0) {
 									temp_buf.Z().Cat(unit_rec.Rounding, MKSFMTD(0, 8, NMBF_NOTRAILZ|NMBF_OMITEPS));
 									w_s.PutInner("rounding", temp_buf);
@@ -2768,6 +2768,15 @@ int PPPosProtocol::EndElement(const char * pName)
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
+				}
+				break;
+			case PPHS_INTEGER: // @v10.2.7
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					if(RdB.IsTagValueBoolTrue())
+						((UnitBlock *)p_item)->UnitFlags |= PPUnit::IntVal;
+					else
+						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::IntVal;
 				}
 				break;
 			case PPHS_DEFAULT:

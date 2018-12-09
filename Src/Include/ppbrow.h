@@ -4651,5 +4651,8 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_PHONE02                 110
 #define PPDV_PHONE03                 111
 #define PPDV_PHONEFORWARDED01        112
-#define PPDV_LOGOPAPYRUS             113
+#define PPDV_SCARDBONUS              113
+#define PPDV_SCARDCREDIT             114
+#define PPDV_SCARDDISCOUNT           115
+#define PPDV_LOGOPAPYRUS             116
 

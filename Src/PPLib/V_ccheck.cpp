@@ -278,7 +278,7 @@ public:
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
-		if(oneof2(Data.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
+		if(!oneof2(Data.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
 			DisableClusterItem(CTL_CROSST_KIND, 1, 1);
 			Data.CtKind = TrfrAnlzFilt::ctNone;
 		}
@@ -732,7 +732,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				else
 					return 0;
 			}
-			if(NodeIdList.GetCount()) {
+			if(NodeIdList.GetCount() && !(Filt.Flags & CCheckFilt::fZeroSess)) { // @v10.2.7 !(Filt.Flags & CCheckFilt::fZeroSess)
 				long   cn_id = 0;
 				//
 				// Если условия фильтрации требуют отображения junk или потерянных junk-чеков,
@@ -957,10 +957,10 @@ struct CCheckGrpItem { // @flat @size=104 // @v10.2.6 72-->104
 	char   Serial[32]; // @v10.2.6
 };
 
-IMPL_CMPFUNC(CCheckGrpItem, p1, p2) 
-{ 
+IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
+{
 	int   si = 0;
-	CMPCASCADE5(si, (const CCheckGrpItem *)p1, (const CCheckGrpItem *)p2, Dt, Tm, CashID, SCardID, GoodsID); 
+	CMPCASCADE5(si, (const CCheckGrpItem *)p1, (const CCheckGrpItem *)p2, Dt, Tm, CashID, SCardID, GoodsID);
 	if(si == 0)
 		si = strcmp(((const CCheckGrpItem *)p1)->Serial, ((const CCheckGrpItem *)p2)->Serial);
 	return si;
@@ -1327,12 +1327,12 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								ccgitem.Dt = item.Dt;
 								STRNSCPY(ccgitem.Serial, item.Serial);
 								break;
-							case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6 
+							case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
 								ccgitem.CashID = item.AgentID;
 								SCardTbl::Rec sc_rec;
 								ccgitem.SCardID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
 								break;
-							case CCheckFilt::gGoodsSCSer: 
+							case CCheckFilt::gGoodsSCSer:
 								{
 									SCardTbl::Rec sc_rec;
 									ccgitem.CashID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
@@ -1993,10 +1993,10 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 									pItem->LinesCount = CcPack.GetCount();
 									// @v10.2.6 {
 									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, serial) > 0)
-										STRNSCPY(pItem->Serial, serial); 
+										STRNSCPY(pItem->Serial, serial);
 									else
 										pItem->Serial[0] = 0;
-									// } @v10.2.6 
+									// } @v10.2.6
 									ok = 1;
 									break;
 								}
@@ -2597,12 +2597,14 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(Filt.Flags & CCheckFilt::fCalcSkuStat) {
 				if(P_TmpTbl) {
 					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT, 11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,   12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					// @v10.2.7 pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,   12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumn    (-1, "@skucount",       12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++ // @v10.2.7
 				}
 				else if(P_TmpGrpTbl) {
 					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT,    11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
 					pBrw->InsColumnWord(-1, PPWORD_AVGLINESCOUNT, 13, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,      12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					// @v10.2.7 pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,      12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumn    (-1, "@skucount",          12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++ // @v10.2.7
 					pBrw->InsColumnWord(-1, PPWORD_AVGSKUCOUNT,   14, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
 				}
 			}
@@ -3093,8 +3095,10 @@ SString & SLAPI PPViewCCheck::GetCtColumnTitle(int ct, SString & rBuf)
 		PPLoadText(PPTXT_CCHECKAMOUNT, rBuf);
 	else if(ct == CCheckFilt::ctvChecksCount)
 		PPLoadText(PPTXT_CCHECKCOUNT, rBuf);
-	else if(ct == CCheckFilt::ctvSKUCount)
-		PPGetWord(PPWORD_SKUCOUNT, 0, rBuf);
+	else if(ct == CCheckFilt::ctvSKUCount) {
+		// @v10.2.7 PPGetWord(PPWORD_SKUCOUNT, 0, rBuf);
+		PPLoadString("skucount", rBuf); // @v10.2.7
+	}
 	return rBuf;
 }
 
@@ -3155,9 +3159,12 @@ int SLAPI PPViewCCheck::Recover()
 		PPLogger logger;
 		SString log_fname;
 		long   flags = 0;
+		PPID   csess_id_for_zsess_cc_assignment = 0;
+		CSessionTbl::Rec cses_rec;
 		CCheckViewItem item;
 		TSVector <CcDupEntry> full_list;
 		TSVector <CcDupEntry> dup_list;
+		PPIDArray unassigned_list; // Список идентификаторов чеков, не привязанных ни к какой сессии
 		int   do_cancel = 1;
 		{
 			TDialog * dlg = new TDialog(DLG_CORCC);
@@ -3167,14 +3174,28 @@ int SLAPI PPViewCCheck::Recover()
 			dlg->setCtrlString(CTL_CORCC_LOG, log_fname);
 			dlg->AddClusterAssoc(CTL_CORCC_FLAGS, 0, 0x01);
 			dlg->SetClusterData(CTL_CORCC_FLAGS, flags);
-			if(ExecView(dlg) == cmOK) {
+			dlg->disableCtrl(CTL_CORCC_SESSID, !(Filt.Flags & Filt.fZeroSess));
+			while(do_cancel && ExecView(dlg) == cmOK) {
+				do_cancel = 0;
 				dlg->getCtrlString(CTL_CORCC_LOG, log_fname);
 				dlg->GetClusterData(CTL_CORCC_FLAGS, &flags);
-				do_cancel = 0;
+				if(Filt.Flags & Filt.fZeroSess) {
+					csess_id_for_zsess_cc_assignment = dlg->getCtrlLong(CTL_CORCC_SESSID);
+					if(csess_id_for_zsess_cc_assignment) {
+						if(CsObj.Search(csess_id_for_zsess_cc_assignment, &cses_rec) > 0) {
+						}
+						else {
+							csess_id_for_zsess_cc_assignment = 0;
+							do_cancel = 1;
+							PPError();
+						}
+					}
+				}
 			}
 			delete dlg;
 		}
 		if(!do_cancel) {
+			SString fmt_buf, msg_buf, cc_buf;
 			PPWait(1);
 			for(InitIteration(0); PPCheckUserBreak() && NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 				P_CC->ValidateCheck(item.ID, 0.001, logger);
@@ -3185,10 +3206,12 @@ int SLAPI PPViewCCheck::Recover()
 				dup_entry.Dtm.Set(item.Dt, item.Tm);
 				dup_entry.Amount = MONEYTOLDBL(item.Amount);
 				full_list.insert(&dup_entry);
+				if(item.SessID == 0 && csess_id_for_zsess_cc_assignment) {
+					unassigned_list.add(item.ID);
+				}
 			}
 			DetectCcDups(full_list, dup_list);
 			if(dup_list.getCount()) {
-				SString fmt_buf, msg_buf, cc_buf;
 				PPIDArray list_to_remove;
 				//PPTXT_CCHKERR_DUP            "Обнаружены дублированные чеки: %s"
 				PPLoadText(PPTXT_CCHKERR_DUP, fmt_buf);
@@ -3229,6 +3252,26 @@ int SLAPI PPViewCCheck::Recover()
 						}
 						THROW(tra.Commit());
 					}
+				}
+			}
+			if(flags & 0x01 && csess_id_for_zsess_cc_assignment && unassigned_list.getCount()) {
+				PPTransaction tra(1);
+				THROW(tra);
+				unassigned_list.sortAndUndup();
+				for(uint i = 0; i < unassigned_list.getCount(); i++) {
+					const PPID cc_id = unassigned_list.get(i);
+					CCheckTbl::Rec cc_rec;
+					if(P_CC->Search(cc_id, &cc_rec) > 0 && cc_rec.SessID == 0) {
+						cc_rec.SessID = csess_id_for_zsess_cc_assignment;
+						THROW(P_CC->UpdateRec(cc_id, &cc_rec, 0));
+					}
+				}
+				THROW(tra.Commit());
+				{
+					//PPTXT_CCHKERR_ZSCCASSIGNED   "'Висячие' чеки были привязаны к кассовой сессии %s. Возможно, следует пересчитать эту сессию. Проконсультируйтесь у специалиста."
+					PPLoadText(PPTXT_CCHKERR_ZSCCASSIGNED, fmt_buf);
+					PPObjCSession::MakeCodeString(&cses_rec, cc_buf);
+					logger.Log(msg_buf.Printf(fmt_buf, cc_buf.cptr()));
 				}
 			}
 			PPWait(0);

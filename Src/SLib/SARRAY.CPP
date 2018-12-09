@@ -2913,6 +2913,11 @@ double & FASTCALL RealArray::operator [] (size_t i) const
 	return at(i);
 }
 
+int SLAPI RealArray::add(double v)
+{
+	return insert(&v);
+}
+
 int FASTCALL RealArray::dim(uint numItems)
 {
     clear();

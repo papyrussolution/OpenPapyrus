@@ -2084,6 +2084,7 @@ PPERR_SPCGOODSTAGNDEF            "Не определен специальный
 PPERR_SCSPCTRT_AZ                "Ошибка сервиса AstraZeneca: %s"
 PPERR_USRACCEXPIRED              "Срок действия учетной записи '%s' истек"
 PPERR_INVTXREFPROPVALUE          "Недопустимое значение текстового свойства (%s) в операции с TextRef"
+PPERR_SCARDPOOLDSERISPOOL        "Серия карт (%s) для переноса из резервного пула не может быть резервным пулом"
 // LastError
 
 [102] // confirmation
@@ -3346,7 +3347,7 @@ PPWORD_SERIES              "Серия"
 PPWORD_NOTFOUND            "Не найдена"
 PPWORD_LINESCOUNT          "Строк"
 PPWORD_AVGLINESCOUNT       "Строк (ср)"
-PPWORD_SKUCOUNT            "SKU"
+// @v10.2.7 PPWORD_SKUCOUNT            "SKU"
 PPWORD_AVGSKUCOUNT         "SKU (ср)"
 
 220 "Объект создан: [%s:%ld] %s;Объект изменен: [%s:%ld] %s"
@@ -4026,6 +4027,7 @@ PPTXT_CCHKERR_INVSCARDID     "Ошибка по чеку %s: висячая сс
 PPTXT_CCHKERR_INVALENTRYSIGN "Ошибка по чеку %s: не верный знак суммы оплаты по чеку (%lf)"
 PPTXT_CCHKERR_DUP            "Обнаружены дублированные чеки: %s"
 PPTXT_CCHKERR_DUPTOTAL       "Всего обнаружено %ld дубликатов чеков, которые следует удалить"
+PPTXT_CCHKERR_ZSCCASSIGNED   "'Висячие' чеки были привязаны к кассовой сессии %s. Возможно, следует пересчитать эту сессию. Проконсультируйтесь у специалиста."
 
 PPTXT_MOVARCOD_EXISTSGEN     "Статья '@article' уже имеет товарный код '@zstr' (@goods). Добавлен автоматически сгенерированный код '@zstr'"
 PPTXT_MOVARCOD_EXISTSNGEN    "Статья '@article' уже имеет товарный код '@zstr' (@goods). Код не перенесен"
@@ -5791,6 +5793,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @egaiscode         "Код @{brand_egais}"
 @egaisrefa         "Справка А"
 @egaisrefb         "Справка Б"
+@skucount      /!/ "SKU" // Stock Keeping Unit
 @ware              "Товар"
 @ware_pl           "Товары"
 @goodsname         "Наименование товара"
@@ -7774,6 +7777,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_ordertime                         "Время заказа" // generic Для сокращенного отображения периода @ccheck_startorddtm..@ccheck_endorddtm
 @ccheck_dlvraddr                          "@{daddress}"
 @ccheck_doattachphonetocard               "Привязать телефон к карте" // command
+@ccheck_docreatecardbyphone               "Создать новую карту, привязанную к телефону" // command
 
 @cfgalbatros_desadvop                     "Вид операции DESADV"
 @cfgalbatros_egaisrcptop                  "Вид операции прихода от поставщика через @{brand_egais}"
@@ -9812,6 +9816,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardseries_scrdsf_transfdiscount        "Передают скидку новым картам владельца"
 @scardseries_scrdsf_passive               "Пассивная"
 @scardseries_scrdsf_group                 "Группирующая серия"
+@scardseries_scrdsf_rsrvpool              "Резервный пул"
 @scardseries_symb                         "@{symbol}"
 @scardseries_tag                          "@{tag}"
 @scardseries_veriftag                     "Верификация правильности установки флагов"
@@ -11375,6 +11380,11 @@ public:
 @goodsrecoverparam_fcheckalcoattribs      "Проверять атрибуты алкогольной продукции"
 @goodsrecoverparam_logfilename            "@{logfilename}"
 
+@ccrecoverparam                           "Корректировка кассовых чеков"
+@ccrecoverparam_fcorrect                  "@{docorrecterrors}"
+@ccrecoverparam_sessid                    "Ид сессии для 'висячих' чеков"
+@ccrecoverparam_logfilename               "@{logfilename}"
+
 @smssendparam                             "Рассылка SMS-сообщений"
 @smssendparam_text                        "Текст шаблона сообщения"
 @smssendparam_symbolcount                 "Длина сообщения"
@@ -12060,6 +12070,7 @@ PPHS_ITERCOUNT                 "itercount"
 PPHS_TEXT                      "text"
 PPHS_INCLUDE                   "include"
 PPHS_PHYSICAL                  "physical"
+PPHS_INTEGER                   "integer" // @v10.2.7
 PPHS_ROUNDING                  "rounding"
 PPHS_BASE                      "base"
 PPHS_BASERATIO                 "baseratio"

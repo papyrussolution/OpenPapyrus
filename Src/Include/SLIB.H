@@ -6444,6 +6444,7 @@ public:
 	SLAPI  RealArray(const RealArray & s);
 	RealArray & FASTCALL operator = (const RealArray & s);
 	double & FASTCALL operator [] (size_t i) const;
+	int    SLAPI add(double v);
 	//
 	// Descr: Распределяет память ровно на numItems элементов.
 	//   Все элементы обнуляются.
@@ -10086,6 +10087,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
+	int    SLAPI GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
 
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
@@ -10111,9 +10113,7 @@ public:
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	struct Stat : public StatBase {
-		SLAPI  Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0)
-		{
-		}
+		explicit SLAPI Stat(long flags);
 		enum {
 			stSorted   = 0x0001,
 			stHasTmDup = 0x0002
@@ -10123,6 +10123,21 @@ public:
 	};
 
 	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;
+
+	struct AnalyzeFitParam {
+		SLAPI  AnalyzeFitParam(uint distance, uint firstIdx, uint count) : Distance(distance), FirstIdx(firstIdx), IdxCount(count), Flags(0)
+		{
+		}
+		enum {
+			fEnchMode = 0x0001 // Отладочный флаг (не использовать)
+		};
+		uint   Distance;
+		uint   FirstIdx; // Индекс, с которого начинать анализ
+		uint   IdxCount; // 0 - до конца серии
+		long   Flags;
+	};
+
+	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList) const;
 	//
 	// Descr: Опции нормализации фрейма временного ряда
 	//
@@ -10226,6 +10241,7 @@ private:
 struct LssLin {
 	SLAPI  LssLin();
 	int    SLAPI Solve(const LVect & x, const LVect & y);
+	int    SLAPI Solve(uint count, const double * pX, const double * pY);
 	double SLAPI Estimation(double x, double * pYErr) const;
 
 	// y = A + x*B
@@ -12885,6 +12901,7 @@ public:
 		};
 
 		static uint32 FASTCALL UniformToGrayscale(uint32 u);
+		static COLORREF FASTCALL UniformToRGB(uint32 u);
 
 		PixF(int s = 0);
 		int    IsValid() const;
@@ -12943,6 +12960,7 @@ public:
 	int    Store(const StoreParam &, SFile & rF);
 	int    TransformToBounds(TPoint size, const SViewPort * pVp);
 	int    TransformToGrayscale();
+	void * TransformToIcon() const;
 private:
 	int    LoadJpeg(SFile & rF, int fileFmt);
 	int    LoadPng(SFile & rF);
@@ -13029,7 +13047,7 @@ public:
 	const  FPoint   & GetSize() const;
 	const  LMatrix2D & GetTransform() const;
 	SPaintToolBox * GetToolBox() const;
-	int    TransformToImage(const SViewPort * pVp, SImageBuffer & rImg);
+	int    TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) const;
 	SDrawImage * DupToImage(TPoint size, const SViewPort * pVp, const char * pSid);
 protected:
 	SDrawFigure(int kind, const char * pSid);

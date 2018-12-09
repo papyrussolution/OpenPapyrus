@@ -19,7 +19,7 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 
 class ACS_FRONTOL : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_FRONTOL(PPID id);
+	explicit SLAPI ACS_FRONTOL(PPID id);
 	virtual int SLAPI ExportData(int updOnly);
 	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
 	virtual int SLAPI ImportSession(int);
@@ -28,6 +28,10 @@ public:
 protected:
 	PPID   StatID;
 private:
+	int    SLAPI IsXPos(const PPAsyncCashNode & rCn) const
+	{
+		return BIN(rCn.DrvVerMajor >= 10);
+	}
 	int    SLAPI ConvertWareList(const char * pImpPath);
 	long   SLAPI ModifDup(long cashNo, long chkNo);
 	int    SLAPI ImportFiles();
@@ -126,6 +130,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 
 	THROW(GetNodeData(&cn_data) > 0);
+	const int is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
 		p_load_symb = "#";
 	//
@@ -523,6 +528,99 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					fputs(f_str, p_file);
 				}
 			}
+			// @10.2.7 {
+#if 0 // @construction {
+			if(is_xpos) {
+				PPIDArray scs_list;
+				PPSCardSerPacket scs_pack;
+				const long default_scheme_id = 999999L;
+				for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
+					if(ser_rec.GetType() == scstDiscount || (ser_rec.GetType() == scstCredit && CrdCardAsDsc)) {
+						scs_list.add(ser_id);
+					}
+				}
+				if(scs_list.getCount()) {
+					scs_list.sortAndUndup();
+					long   dscnt_code = 0;
+					PPQuotKind qk_rec;
+					SString card_code_low, card_code_upp;
+					if(!updOnly) {
+						fputs((f_str = "$$$DELETEALLAUTODISCCONDS").CR(), p_file);
+					}
+					int    is_first = 1;
+					for(uint scsidx = 0; scsidx < scs_list.getCount(); scsidx++) {
+						const PPID scs_id = scs_list.get(scsidx);
+						if(scs_obj.GetPacket(scs_id, &scs_pack) > 0 && scs_pack.Rec.PDis != 0) {
+							//int SLAPI SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
+							TSCollection <SCardCore::PrefixRange> prefix_ranges;
+							CC.Cards.GetPrefixRanges(scs_id, 10, prefix_ranges);
+							for(uint pridx = 0; pridx < prefix_ranges.getCount(); pridx++) {
+								const SCardCore::PrefixRange * p_prefix_range = prefix_ranges.at(pridx);
+								if(is_first) {
+									fputs((f_str = "$$$ADDAUTODISCCONDS").CR(), p_file);
+									is_first = 0;
+								}
+								f_str.Z();
+								// Для Сет-Старт default-scheme = 999999
+								f_str.Cat(default_scheme_id).Semicol();               // #1 - код схемы внутренней авт.скидки
+								f_str.Cat(scs_id).Semicol();                          // #2 - код скидки
+								f_str.Semicol();                                      // #3 - unused
+								(temp_buf = ser_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+								f_str.Cat(temp_buf).Semicol();                        // #4 - наименование скидки (код карты)
+								f_str.Cat(0L).Semicol();                              // #5 - тип скидки (0 - percent, 1 - absolute)
+								f_str.Cat(fdiv100i(scs_pack.Rec.PDis)).Semicol();     // #6 - значение скидки
+								//
+								// #7-#8 Период действия цены
+								//
+								f_str.CatCharN(';', 2);
+								f_str.Semicol();                                      // #9 reserve
+								f_str.Cat(scs_pack.Eb.UsageTmStart, TIMF_HMS).Semicol(); // #10 время начала действия скидки
+								if(scs_pack.Eb.UsageTmEnd) {                             // #11 время окончания действия скидки
+									f_str.Cat(scs_pack.Eb.UsageTmEnd, TIMF_HMS).Semicol();
+								}
+								else {
+									f_str.Semicol().Semicol();
+								}
+								//f_str.Semicol();                                          // #12 reserve
+								//
+								//                                                        #12 - #24 - не используем
+								//
+								temp_buf.Z().CatCharN(';', 2).CatChar('0').Semicol();
+								f_str.Cat(temp_buf);
+								f_str.Cat(temp_buf);
+								f_str.Cat(temp_buf);
+								f_str.Cat(temp_buf);
+								f_str.Cat(p_prefix_range->Low).Semicol();              // #25, #26 Диапазон номеров карт
+								f_str.Cat(p_prefix_range->Upp).Semicol();
+								f_str.CatChar('0').Semicol();                         // #27 - reserve
+								//
+								//
+								//
+								f_str.Semicol();                                      // #28
+								f_str.Semicol();                                      // #29
+								f_str.Semicol();                                      // #30
+								f_str.Semicol();                                      // #31
+								f_str.Semicol();                                      // #32
+								f_str.Semicol();                                      // #33
+								f_str.Semicol();                                      // #34 - ИД товара
+								f_str.Semicol();                                      // #35
+								f_str.Semicol();                                      // #36
+								f_str.Semicol();                                      // #37
+								f_str.Semicol();                                      // #38
+								f_str.Semicol();                                      // #39
+								f_str.Semicol();                                      // #40
+								f_str.Semicol();                                      // #41
+								f_str.Cat(p_prefix_range->Len).Semicol();             // #42
+								f_str.Semicol();                                      // #43
+								f_str.Semicol();                                      // #44
+								THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
+							}
+						}
+					}
+				}
+			}
+#endif // } 0 @construction
+			// } @10.2.7
 			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { 
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;

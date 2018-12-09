@@ -922,6 +922,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	SString serial_buf, clb_buf;
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
+	StringSet ss_lotxcode; // @v10.2.7
 	// @v9.4.0 PPComplBlock compl_list;
 	LongArray rows;
 	WrOffDraftBlock blk(pWrOffParam, pDfctList);
@@ -1063,6 +1064,12 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
 									}
+									// @v10.2.7 {
+									{
+										blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
+										p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+									}
+									// } @v10.2.7 
 								}
 							}
 						}
@@ -1113,6 +1120,12 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
 									}
+									// @v10.2.7 {
+									{
+										blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
+										p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+									}
+									// } @v10.2.7 
 								}
 							}
 							p_pack->ProcessFlags |= PPBillPacket::pfForceRByBill;

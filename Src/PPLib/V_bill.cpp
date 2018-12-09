@@ -1799,7 +1799,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 		PPID   single_op_id_on_deficit = 0;
 		PUGL   deficit_list;
 		for(int try_again = 1; try_again != 0;) {
-			if(s == 0) {
+			if(s == 0) { // Списать выбранный документ
 				if(P_BObj->Search(id, &bill_rec) > 0) {
 					if(bill_rec.Flags & BILLF_WRITEDOFF)
 						PPMessage(mfInfo|mfOK, PPINF_DRAFTALLREADYWROFF);
@@ -1815,7 +1815,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 					}
 				}
 			}
-			else if(s == 1) {
+			else if(s == 1) { // Списать всю выборку документов
 				PPIDArray idlist;
 				PPWait(1);
 				THROW(GetBillIDList(&idlist));
@@ -1840,7 +1840,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 				}
 				PPWait(0);
 			}
-			else if(s == 2) {
+			else if(s == 2) { // Перенести теги с драфт-документа на документ списания
 				if(P_BObj->Search(id, &bill_rec) > 0) {
 					if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
 						PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF);
@@ -1851,10 +1851,13 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 						for(DateIter diter; P_BObj->P_Tbl->EnumLinks(bill_rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;)
 							wroff_bill_list.add(wroff_bill_rec.ID);
 						if(wroff_bill_list.getCount() == 1) {
+							SString temp_buf;
 							SString bill_text;
 							PPBillPacket _this_bp;
 							PPBillPacket _link_bp;
 							const PPID   _link_id = wroff_bill_list.get(0);
+							StringSet _this_lxc_ss;
+							StringSet _link_lxc_ss;
 							int    do_update = 0;
 							THROW(P_BObj->ExtractPacketWithFlags(id, &_this_bp, BPLD_FORCESERIALS) > 0);
 							THROW(P_BObj->ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
@@ -1888,6 +1891,17 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 											do_update = 1;
 										}
 									}
+									// @v10.2.7 {
+									if(_this_bp.XcL.Get(tbpi+1, 0, _this_lxc_ss) > 0) {
+										_link_bp.XcL.Get(_lp+1, 0, _link_lxc_ss);
+										if(_link_lxc_ss.getDataLen() == 0) {
+											for(uint thislxcssp = 0; _this_lxc_ss.get(&thislxcssp, temp_buf);) {
+												_link_bp.XcL.Add(_lp+1, temp_buf, 0);
+												do_update = 1;
+											}
+										}
+									}
+									// } @v10.2.7 
 								}
 							}
 							if(do_update) {

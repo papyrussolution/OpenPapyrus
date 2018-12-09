@@ -44,7 +44,7 @@ int SLAPI LssLin::Solve(const LVect & x, const LVect & y)
 		for(i = 0; i < n; i++) {
 			const double dx = x.get(i) - m_x;
 			const double dy = y.get(i) - m_y;
-			m_dx2 += (dx * dx - m_dx2) / (i + 1);
+			m_dx2  += (dx * dx - m_dx2)  / (i + 1);
 			m_dxdy += (dx * dy - m_dxdy) / (i + 1);
 		}
 		//
@@ -71,6 +71,51 @@ int SLAPI LssLin::Solve(const LVect & x, const LVect & y)
 		}
 		return 1;
 	}
+}
+
+int SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
+{
+	if(count > 2) {
+		double m_x = 0.0;
+		double m_y = 0.0;
+		double m_dx2 = 0.0;
+		double m_dxdy = 0.0;
+		uint   i;
+		THISZERO();
+		for(i = 0; i < count; i++) {
+			m_x += (pX[i] - m_x) / (i + 1);
+			m_y += (pY[i] - m_y) / (i + 1);
+		}
+		for(i = 0; i < count; i++) {
+			const double dx = pX[i] - m_x;
+			const double dy = pY[i] - m_y;
+			m_dx2  += (dx * dx - m_dx2)  / (i + 1);
+			m_dxdy += (dx * dy - m_dxdy) / (i + 1);
+		}
+		//
+		// In terms of y = a + b x
+		//
+		{
+			double s2 = 0, d2 = 0;
+			B = m_dxdy / m_dx2;
+			A = m_y - m_x * B;
+			//
+			// Compute chi^2 = \sum (y_i - (a + b * x_i))^2
+			//
+			for(i = 0; i < count; i++) {
+				//const double dx = pX[i] - m_x;
+				//const double dy = pY[i] - m_y;
+				const double d = (pY[i] - m_y) - B * (pX[i] - m_x);
+				d2 += d * d;
+			}
+			s2 = d2 / (count - 2); // chisq per degree of freedom
+			Cov00 = s2 * (1 / count) * (1 + m_x * m_x / m_dx2);
+			Cov11 = s2 * 1 / (count * m_dx2);
+			Cov01 = s2 * (-m_x) / (count * m_dx2);
+			SumSq = d2;
+		}
+	}
+	return 1;
 }
 
 double SLAPI LssLin::Estimation(double x, double * pYErr) const

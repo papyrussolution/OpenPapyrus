@@ -779,69 +779,71 @@ int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char *
 SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long flags, SString & rResult)
 {
 	static StringSet ext_prefix_list;
-	SString temp_buf;
-	if(ext_prefix_list.getDataLen() == 0) {
-		ext_prefix_list.add("exten");
-		ext_prefix_list.add("ext");
-		ext_prefix_list.add("x");
-		ext_prefix_list.add("доб"); // this source file has UTF-8 codepage (see header of file above)
-	}
 	rResult.Z();
-	for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
-		uint  ext_prefix_width = 0; // Если !0 то надо обработать добавочный номер после (ext_prefix_width) символов префикса
-		const uchar c = *p;
-		if(isdec(c)) {
-			if(flags & nsfPlus && c == '8' && rResult.Len() == 0)
-				rResult.CatChar('+').CatChar('7');
-			else
-				rResult.CatChar(c);
+	if(!isempty(pOrgPhone)) {
+		SString temp_buf;
+		if(ext_prefix_list.getDataLen() == 0) {
+			ext_prefix_list.add("exten");
+			ext_prefix_list.add("ext");
+			ext_prefix_list.add("x");
+			ext_prefix_list.add("доб"); // this source file has UTF-8 codepage (see header of file above)
 		}
-		else if(oneof2(c, 't', 'T'))
-			rResult.CatChar('t');
-		else if(c == '+' && rResult.Len() == 0) {
-			if(!(flags & nsfPlus)) {
-				if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так
-					rResult.CatChar('8');
-					p++;
+		for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
+			uint  ext_prefix_width = 0; // Если !0 то надо обработать добавочный номер после (ext_prefix_width) символов префикса
+			const uchar c = *p;
+			if(isdec(c)) {
+				if(flags & nsfPlus && c == '8' && rResult.Len() == 0)
+					rResult.CatChar('+').CatChar('7');
+				else
+					rResult.CatChar(c);
+			}
+			else if(oneof2(c, 't', 'T'))
+				rResult.CatChar('t');
+			else if(c == '+' && rResult.Len() == 0) {
+				if(!(flags & nsfPlus)) {
+					if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так
+						rResult.CatChar('8');
+						p++;
+					}
+					else
+						rResult.CatChar(c);
 				}
 				else
 					rResult.CatChar(c);
 			}
-			else
-				rResult.CatChar(c);
-		}
-		else {
-			if(oneof2(c, ',', '#') && (oneof4(p[1], '.', ':', ' ', '\t') || isdec(p[1])))
-				ext_prefix_width = isdec(p[1]) ? 1 : 2;
 			else {
-				for(uint ssp = 0; ext_prefix_list.get(&ssp, temp_buf);) {
-					size_t pl = temp_buf.Len();
-					if(strncmp(temp_buf, (const char *)p, pl) == 0 && (oneof4(p[pl+1], '.', ':', ' ', '\t') || isdec(p[pl+1]))) {
-						ext_prefix_width = isdec(p[pl+1]) ? pl : (pl+1);
-						break;
+				if(oneof2(c, ',', '#') && (oneof4(p[1], '.', ':', ' ', '\t') || isdec(p[1])))
+					ext_prefix_width = isdec(p[1]) ? 1 : 2;
+				else {
+					for(uint ssp = 0; ext_prefix_list.get(&ssp, temp_buf);) {
+						size_t pl = temp_buf.Len();
+						if(strncmp(temp_buf, (const char *)p, pl) == 0 && (oneof4(p[pl+1], '.', ':', ' ', '\t') || isdec(p[pl+1]))) {
+							ext_prefix_width = isdec(p[pl+1]) ? pl : (pl+1);
+							break;
+						}
 					}
 				}
+				if(!ext_prefix_width && !oneof9(c, ' ', '-', '(', ')', 't', 'T', 'w', 'W', '+')) {
+					//
+					// Как только встречаем символ, отличный от перечисленных - выходим: далее может следовать текст
+					// комментария к телефону.
+					//
+					break;
+				}
 			}
-			if(!ext_prefix_width && !oneof9(c, ' ', '-', '(', ')', 't', 'T', 'w', 'W', '+')) {
-				//
-				// Как только встречаем символ, отличный от перечисленных - выходим: далее может следовать текст
-				// комментария к телефону.
-				//
-				break;
+			//
+			if(ext_prefix_width) {
+				p += ext_prefix_width;
+				while(oneof2(*p, ' ', '\t'))
+					p++;
+				if(isdec(*p)) {
+					rResult.CatChar('x');
+					do {
+						rResult.CatChar(*p++);
+					} while(isdec(*p));
+				}
+				break; // Не зависимо от того, был добавочный номер правильный или нет, выходим. Добавочный номер - может быть только в конце.
 			}
-		}
-		//
-		if(ext_prefix_width) {
-			p += ext_prefix_width;
-			while(oneof2(*p, ' ', '\t'))
-				p++;
-			if(isdec(*p)) {
-				rResult.CatChar('x');
-				do {
-					rResult.CatChar(*p++);
-				} while(isdec(*p));
-			}
-			break; // Не зависимо от того, был добавочный номер правильный или нет, выходим. Добавочный номер - может быть только в конце.
 		}
 	}
 	return rResult;

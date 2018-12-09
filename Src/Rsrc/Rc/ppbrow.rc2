@@ -8534,6 +8534,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_PHONE02
 	PPDV_PHONE03
 	PPDV_PHONEFORWARDED01
+	PPDV_SCARDBONUS
+	PPDV_SCARDCREDIT
+	PPDV_SCARDDISCOUNT
 }
 //
 // Следующие изображения используются без замещения цвета

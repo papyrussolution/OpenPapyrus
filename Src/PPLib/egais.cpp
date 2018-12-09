@@ -5469,7 +5469,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 									// @v10.2.6 {
 									const PPID lot_bill_id = lot_rec.BillID;
 									TransferTbl::Rec trfr_rec;
-									for(DateIter di; P_BObj->trfr->EnumByLot(lot_id, &di, &trfr_rec) > 0;) {
+									for(DateIter di; P_BObj->trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
 										if(trfr_rec.BillID == lot_bill_id) {
 											const int16 rbb = trfr_rec.RByBill;
 											LotExtCodeTbl::Key2 k2;

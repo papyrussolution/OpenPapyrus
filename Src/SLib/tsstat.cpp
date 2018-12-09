@@ -1180,42 +1180,136 @@ int SLAPI STimeSeries::GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) cons
 	return ok;
 }
 
+int SLAPI STimeSeries::GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const
+{
+	rV.clear();
+	int    ok = -1;
+	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
+    THROW(p_vec);
+	if(idxCount) {
+		const uint last_idx = (startItemIdx+idxCount-1);
+		if(last_idx < p_vec->getCount()) {
+			double buffer[128];
+			uint   buffer_ptr = 0;
+			for(uint i = startItemIdx, j = 0; i <= last_idx; i++, j++) {
+				const void * p_value_buf = p_vec->at(i);
+				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				if(buffer_ptr == SIZEOFARRAY(buffer)) {
+					THROW(rV.insertChunk(buffer_ptr, buffer));
+					buffer_ptr = 0;					
+				}
+				assert(buffer_ptr < SIZEOFARRAY(buffer));
+				buffer[buffer_ptr++] = value;
+			}
+			if(buffer_ptr) {
+				THROW(rV.insertChunk(buffer_ptr, buffer));
+				buffer_ptr = 0;					
+			}
+			ok = 1;
+		}
+	}
+    CATCHZOK
+	return ok;
+}
+
+SLAPI STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0)
+{
+}
+
 int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 {
 	int    ok = 1;
 	uint   vec_idx = 0;
 	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
-	const  uint _c = GetCount();
-	StatBase stat_delta(0);
-	rS.State |= Stat::stSorted;
-	SUniTime prev_utm;
-	SUniTime utm;
-	double prev_value = 0.0;
-	for(uint i = 0; i < _c; i++) {
-		THROW(GetTime(i, &utm));
-		if(i) {
-			int   sq = 0;
-			int   si = utm.Compare(prev_utm, &sq);
-			if(si < 0)
-				rS.State &= ~Stat::stSorted;
-			else if(si == 0 && sq == SUniTime::cmprSureTrue)
-				rS.State |= Stat::stHasTmDup;
-		}
-		if(p_vec) {
-			const void * p_value_buf = p_vec->at(i);
-			double value = p_vec->ConvertInnerToDouble(p_value_buf);
-			rS.Step(value);
+	THROW(p_vec);
+	{
+		const  uint _c = GetCount();
+		StatBase stat_delta(0);
+		rS.State |= Stat::stSorted;
+		SUniTime prev_utm;
+		SUniTime utm;
+		double prev_value = 0.0;
+		for(uint i = 0; i < _c; i++) {
+			THROW(GetTime(i, &utm));
 			if(i) {
-				double delta = (value - prev_value) / prev_value;
-				stat_delta.Step(fabs(delta));
+				int   sq = 0;
+				int   si = utm.Compare(prev_utm, &sq);
+				if(si < 0)
+					rS.State &= ~Stat::stSorted;
+				else if(si == 0 && sq == SUniTime::cmprSureTrue)
+					rS.State |= Stat::stHasTmDup;
 			}
-			prev_value = value;
+			if(p_vec) {
+				const void * p_value_buf = p_vec->at(i);
+				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				rS.Step(value);
+				if(i) {
+					double delta = (value - prev_value) / prev_value;
+					stat_delta.Step(fabs(delta));
+				}
+				prev_value = value;
+			}
+			prev_utm = utm;
 		}
-		prev_utm = utm;
+		stat_delta.Finish();
+		rS.Finish();
+		rS.DeltaAvg = stat_delta.GetExp();
 	}
-	stat_delta.Finish();
-	rS.Finish();
-	rS.DeltaAvg = stat_delta.GetExp();
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList) const
+{
+	CALLPTRMEMB(pTrendList, clear());
+	CALLPTRMEMB(pSumSqList, clear());
+	int    ok = 1;
+	uint   vec_idx = 0;
+	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	THROW(p_vec);
+	{
+		const  uint _c = GetCount();
+		if(_c && rP.FirstIdx < _c) {
+			const  uint ic = (rP.IdxCount == 0) ? _c : MIN(rP.FirstIdx + rP.IdxCount, _c);
+			const  uint distance = rP.Distance;
+			RealArray lss_rv_x;
+			RealArray lss_rv_y;
+			for(uint i = 0; i < distance; i++) {
+				THROW(lss_rv_x.add((double)(i+1)));
+			}
+			THROW(lss_rv_y.dim(distance));
+			if(pTrendList) {
+				THROW(pTrendList->add(0.0));
+			}
+			if(pSumSqList) {
+				THROW(pSumSqList->add(0.0));
+			}
+			for(uint j = rP.FirstIdx+1; j < ic; j++) {
+				double trend;
+				double sumsq;
+				if(j >= distance) {
+					LssLin lss;
+					int gvr = GetRealArray(vec_idx, j-distance, distance, lss_rv_y);
+					assert(gvr > 0);
+					assert(lss_rv_x.getCount() == distance);
+					assert(lss_rv_y.getCount() == distance);
+					lss.Solve(distance, (double *)lss_rv_x.dataPtr(), (double *)lss_rv_y.dataPtr());
+					trend = lss.B;
+					sumsq = lss.SumSq;
+				}
+				else {
+					trend = 0.0;
+					sumsq = 0.0;
+				}
+				if(pTrendList) {
+					THROW(pTrendList->add(trend));
+				}
+				if(pSumSqList) {
+					THROW(pSumSqList->add(sumsq));
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }

@@ -1624,6 +1624,10 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_LBUTTONDOWN:
 			if(hWnd != GetFocus())
 				SetFocus(hWnd);
+			// @v10.2.7 {
+			if(hWnd != GetCapture())
+				::SetCapture(hWnd);
+			// } @v10.2.7 
 		case WM_LBUTTONUP:
 		case WM_LBUTTONDBLCLK:
 		case WM_RBUTTONDOWN:
@@ -1637,7 +1641,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_MOUSELEAVE:
 		case WM_MOUSEHOVER:
 			if(p_view) {
-				::SetCapture(hWnd); // @v10.2.2
+				// @v10.2.7 ::SetCapture(hWnd); // @v10.2.2
 				MouseEvent me;
 				p_view->MakeMouseEvent(message, wParam, lParam, me);
 				if(TView::messageCommand(p_view, cmMouse, &me))

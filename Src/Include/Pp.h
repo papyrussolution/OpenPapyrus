@@ -386,6 +386,7 @@ struct VetisProductItem;
 struct VetisProduct;
 struct VetisSubProduct;
 struct VetisStockEntry;
+struct Fann2;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -15589,7 +15590,8 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	double SellMarg;
 	int16  Prec;
 	char   CurrencySymb[12];
-	char   Reserve[30];    // @reserve
+	double SpikeQuant;     //
+	char   Reserve[22];    // @reserve
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -15629,14 +15631,14 @@ public:
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
 		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
 		void   SLAPI Reset();
-		int    SLAPI AppendSeq(int quantCount, int condition);
-		int    SLAPI GetSeq(uint seqIdx, int * pQuantCount, int * pCondition) const;
+		//int    SLAPI AppendSeq(int quantCount, int condition);
+		//int    SLAPI GetSeq(uint seqIdx, int * pQuantCount, int * pCondition) const;
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
-			fTeach            = 0x0001,
+			fTrainNN          = 0x0001,
 			fTest             = 0x0002,
 			fAnalyzeFrame     = 0x0004,
-			fAnalyzeAfershock = 0x0080
+			fTestStrategyNN   = 0x0008
 		};
 		const  SString Symb;     // Символ временной серии
 		long   Flags;            // @flags
@@ -15651,13 +15653,9 @@ public:
 		float  LearningRate;     // Фактор скорости обучения
 		//
 		double SpikeQuant;
-		//uint   BackSurvey;
-		double TrendGe;
 		uint   TargetQuant;
 		uint   MaxDuckQuant;
-		//uint   MaxSideCycles;
-		uint   SeqCount;
-		uint32 Seq[32];
+		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 	};
 	struct Strategy__ {
 		SLAPI  Strategy__();
@@ -15677,11 +15675,11 @@ public:
 	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI TrainNN();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
-	int    SLAPI AnalyzeStrategy(const STimeSeries & rTs, const TrainNnParam & rP);
+	int    SLAPI AnalyzeStrategy(const STimeSeries & rTs, const TrainNnParam & rP, const RealArray & rTrendList, Fann2 ** ppAnn);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
-	int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
+	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -16653,7 +16651,7 @@ public:
 	};
 	class Exclusion {
 	public:
-		Exclusion(int exclrt);
+		explicit Exclusion(int exclrt);
 		~Exclusion();
 	private:
 		enum {
@@ -27075,9 +27073,9 @@ public:
 	virtual int  SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
 	int    SLAPI SearchCode(const char * pCode, BarcodeTbl::Rec * = 0);
 	//
-	// Присваивает картинки каждому элементу списка для древовидных списков
+	// Descr: Присваивает картинки каждому элементу списка для древовидных списков
 	//
-	int    SLAPI AssignImages(ListBoxDef *);
+	int    SLAPI AssignImages(ListBoxDef * pDef);
 	//
 	// Descr: Вычисляет уровень вложенности группы grpID.
 	//   Для группы, не имеющей предков, уровень вложенности - 0.
@@ -31886,6 +31884,7 @@ public:
 #define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
 #define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
 #define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
+#define SCRDSF_RSRVPOOL        0x1000L // @v10.2.7 Резервный пул 
 //
 // Descr: Типы серий карт
 //
@@ -31894,7 +31893,8 @@ enum {
 	scstDiscount = 1, // Простые дисконтные карты
 	scstCredit,       // Кредитные карты
 	scstBonus,        // Бонусные карты
-	scstGroup         // @v9.8.9 Серия верхнего уровня
+	scstGroup,        // @v9.8.9 Серия верхнего уровня
+	scstRsrvPool      // @v10.2.7 Резервный пул для динамического сопоставления карт из него с телефоном или персоналией и переноса в действующую серию
 };
 
 struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
@@ -31917,7 +31917,9 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
 	// @v9.8.9 char   CodeTempl[20];      // Шаблон номеров карт
-	uint8  Reserve3[8];        // @v9.8.9 // @v10.1.3 [12]-->[8]
+	uint8  Reserve3[4];        // @v9.8.9 // @v10.1.3 [12]-->[8]
+	PPID   RsrvPoolDestSerID;  // @v10.2.7 Серия, в котороую должна переносится карта из резервного пула (которым является данная серия) при
+		// активации (динамическом сопоставлении с телефоном или персоналией)
 	long   SpecialTreatment;   // @v10.1.3 Идентификатор специальной трактовки операций с картами серии.
 	long   QuotKindID_s;       // @v9.8.9 Вид котировки
 	long   PersonKindID;       // @v9.8.9 Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
@@ -32077,6 +32079,8 @@ public:
 	SLAPI ~PPObjSCardSeries();
 	virtual int    SLAPI Search(PPID id, void * b);
 	virtual int    SLAPI Edit(PPID * pID, void * extraPtr);
+	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
+	virtual int    SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
 	virtual int    SLAPI Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    SLAPI GetPacket(PPID id, PPSCardSerPacket * pPack);
@@ -32103,6 +32107,7 @@ private:
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	int    SLAPI SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack);
+	int    SLAPI AssignImages(ListBoxDef * pDef); // @v10.2.7
 
 	PPObjSCard * P_ScObj;
 };
@@ -32151,7 +32156,7 @@ public:
 class PPObjSCard : public PPObject {
 public:
 	struct AddParam {
-		AddParam(PPID serID = 0, PPID ownerID = 0);
+		explicit SLAPI AddParam(PPID serID = 0, PPID ownerID = 0);
 
 		PPID   SerID;
 		PPID   OwnerID;
@@ -33703,18 +33708,16 @@ public:
 	int    SLAPI ImportUHTT();
 	int    SLAPI ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest);
 private:
-	static int  SLAPI PutWrOffOrder(TSessWrOffOrder *, int use_ta);
-	static int  SLAPI GetWrOffOrder(TSessWrOffOrder *);
-
+	static  int SLAPI PutWrOffOrder(TSessWrOffOrder *, int use_ta);
+	static  int SLAPI GetWrOffOrder(TSessWrOffOrder *);
 	virtual int SLAPI DeleteObj(PPID id);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	virtual const char * SLAPI GetNamePtr();
-	virtual int SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
+	virtual int  SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-
 	int    SLAPI SerializePacket(int dir, TSessionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Helper_SetSessionState(TSessionTbl::Rec *, int newState, int checkOnly, int updateChilds);
 	int    SLAPI Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger &, int use_ta);
@@ -49016,6 +49019,7 @@ public:
 			fFixedPrice         = 0x0002, // @v8.7.7 Проекция флага CCHKF_FIXEDPRICE
 			fAttachPhoneToSCard = 0x0004, // @v9.4.11 @transient Привязать номер телефона к выбранной карте
 			fSpFinished         = 0x0008, // @v9.7.7 CCHKF_SPFINISHED
+			fCreateCardByPhone  = 0x0010  // @v10.2.7 @transient Создать новую карту, привязанную к телефону
 		};
 		ExtCcData();
 		void   Clear();
@@ -50121,10 +50125,16 @@ const  SymbHashTable * FASTCALL PPGetStringHash(int group);
 //
 int    FASTCALL PPExpandString(SString & rS, int ctransf);
 //
-// Descr: Загружает строку категории PPSTR_TEXT в буфер s
+// Descr: Загружает строку категории PPSTR_TEXT с идентификатором code (PPTXT_XXX) в буфер rS.
+// Note: Буфер rS предварительно очищается функцией.
 //
-int    FASTCALL PPLoadText(int code, SString & s);
-SString & FASTCALL PPLoadTextS(int code, SString & s);
+int    FASTCALL PPLoadText(int code, SString & rS);
+//
+// Descr: Загружает строку категории PPSTR_TEXT с идентификатором code (PPTXT_XXX) в буфер rS.
+// Note: Буфер rS предварительно очищается функцией.
+// Returns: rS
+//
+SString & FASTCALL PPLoadTextS(int code, SString & rS);
 //
 // Descr: Загружает строку с ошибкой в буфер s
 //

@@ -5370,6 +5370,7 @@ public:
 		// @v9.4.11 {
 		{
 			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
+			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 1, Data.fCreateCardByPhone); // @v10.2.7
 			SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
 		}
 		// } @v9.4.11
@@ -5660,72 +5661,97 @@ private:
 	int    ReplyPhone(int immSelect)
 	{
 		AddrByPhoneList.clear();
-		if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
-			SString temp_buf, phone_buf;
-			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+		SString temp_buf, phone_buf;
+		getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+		if(temp_buf.NotEmptyS()) {
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
-			if(phone_buf.NotEmptyS()) {
-				PPIDArray addr_list, dlvr_addr_list;
-				PPIDArray phone_id_list;
-				PsnObj.LocObj.P_Tbl->SearchPhoneIndex(phone_buf, 0, phone_id_list);
-				for(uint i = 0; i < phone_id_list.getCount(); i++) {
-					EAddrTbl::Rec ea_rec;
-					LocationTbl::Rec loc_rec;
-					PersonTbl::Rec psn_rec;
-					if(PsnObj.LocObj.P_Tbl->GetEAddr(phone_id_list.get(i), &ea_rec) > 0) {
-						if(ea_rec.LinkObjType == PPOBJ_LOCATION && PsnObj.LocObj.Search(ea_rec.LinkObjID, &loc_rec) > 0) {
-							AddrByPhoneItem ap_item;
-							MEMSZERO(ap_item);
-							ap_item.ObjType = ea_rec.LinkObjType;
-							ap_item.ObjID = ea_rec.LinkObjID;
-							ap_item.ObjFlags = loc_rec.Flags;
-							ap_item.CityID = loc_rec.CityID;
-							phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-							temp_buf.CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
-							temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
-							AddrByPhoneList.insert(&ap_item);
-						}
-						else if(ea_rec.LinkObjType == PPOBJ_PERSON && PsnObj.Search(ea_rec.LinkObjID, &psn_rec) > 0) {
-							uint j;
-							addr_list.clear();
-							addr_list.addnz(psn_rec.RLoc);
-							PsnObj.GetDlvrLocList(psn_rec.ID, &dlvr_addr_list);
-							for(j = 0; j < dlvr_addr_list.getCount(); j++) {
-								addr_list.addnz(dlvr_addr_list.get(j));
-							}
-							addr_list.addnz(psn_rec.MainLoc);
-							if(addr_list.getCount() == 0) {
-								//
-								// Если у персоналии нет ни одного адреса, то все равно необходимо
-								// отобразить эту персоналию в списке с пустым адресом, дабы
-								// пользователь мог ее выбрать и ввести адрес, который ему назовет клиент.
-								//
-								addr_list.add(0L);
-							}
-							for(j = 0; j < addr_list.getCount(); j++) {
-								const PPID addr_id = addr_list.get(j);
-								AddrByPhoneItem ap_item;
-								MEMSZERO(ap_item);
-								ap_item.ObjType = ea_rec.LinkObjType;
-								ap_item.ObjID = ea_rec.LinkObjID;
-								phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
-								STRNSCPY(ap_item.Contact, psn_rec.Name);
-								ap_item.AddrID = addr_id;
-								if(addr_id) {
-									// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
-									PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
-									temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
-								}
-								AddrByPhoneList.insert(&ap_item);
+			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
+				if(phone_buf.NotEmptyS()) {
+					PPIDArray addr_list, dlvr_addr_list;
+					PPIDArray sc_list;
+					PPIDArray phone_id_list;
+					PsnObj.LocObj.P_Tbl->SearchPhoneIndex(phone_buf, 0, phone_id_list);
+					for(uint i = 0; i < phone_id_list.getCount(); i++) {
+						EAddrTbl::Rec ea_rec;
+						LocationTbl::Rec loc_rec;
+						PersonTbl::Rec psn_rec;
+						SCardTbl::Rec sc_rec;
+						if(PsnObj.LocObj.P_Tbl->GetEAddr(phone_id_list.get(i), &ea_rec) > 0) {
+							switch(ea_rec.LinkObjType) {
+								case PPOBJ_SCARD:
+									if(ScObj.Fetch(ea_rec.LinkObjID, &sc_rec) > 0) {
+										sc_list.addUnique(sc_rec.ID);
+									}
+									break;
+								case PPOBJ_LOCATION:
+									if(PsnObj.LocObj.Search(ea_rec.LinkObjID, &loc_rec) > 0) {
+										AddrByPhoneItem ap_item;
+										MEMSZERO(ap_item);
+										ap_item.ObjType = ea_rec.LinkObjType;
+										ap_item.ObjID = ea_rec.LinkObjID;
+										ap_item.ObjFlags = loc_rec.Flags;
+										ap_item.CityID = loc_rec.CityID;
+										phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
+										LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+										temp_buf.CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
+										LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
+										temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+										AddrByPhoneList.insert(&ap_item);
+									}
+									break;
+								case PPOBJ_PERSON:
+									if(PsnObj.Search(ea_rec.LinkObjID, &psn_rec) > 0) {
+										uint j;
+										addr_list.clear();
+										addr_list.addnz(psn_rec.RLoc);
+										PsnObj.GetDlvrLocList(psn_rec.ID, &dlvr_addr_list);
+										for(j = 0; j < dlvr_addr_list.getCount(); j++)
+											addr_list.addnz(dlvr_addr_list.get(j));
+										addr_list.addnz(psn_rec.MainLoc);
+										if(addr_list.getCount() == 0) {
+											//
+											// Если у персоналии нет ни одного адреса, то все равно необходимо
+											// отобразить эту персоналию в списке с пустым адресом, дабы
+											// пользователь мог ее выбрать и ввести адрес, который ему назовет клиент.
+											//
+											addr_list.add(0L);
+										}
+										for(j = 0; j < addr_list.getCount(); j++) {
+											const PPID addr_id = addr_list.get(j);
+											AddrByPhoneItem ap_item;
+											MEMSZERO(ap_item);
+											ap_item.ObjType = ea_rec.LinkObjType;
+											ap_item.ObjID = ea_rec.LinkObjID;
+											phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
+											STRNSCPY(ap_item.Contact, psn_rec.Name);
+											ap_item.AddrID = addr_id;
+											if(addr_id) {
+												// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
+												PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
+												temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+											}
+											AddrByPhoneList.insert(&ap_item);
+										}
+									}
+									break;
 							}
 						}
 					}
+					// @v10.2.7 {
+					if(sc_list.getCount()) {
+						SCardCtrlGroup::Rec scgrec;
+						getGroupData(GRP_SCARD, &scgrec);
+						if(!scgrec.SCardID) {
+							scgrec.SCardID = sc_list.get(0);
+							setGroupData(GRP_SCARD, &scgrec);
+						}
+					}
+					// } @v10.2.7 
 				}
 			}
 		}
+		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.Empty()); // @v10.2.7
 		{
 			const  uint c = AddrByPhoneList.getCount();
 			enableCommand(cmSelAddrByPhone, BIN(c));
@@ -5776,7 +5802,8 @@ private:
 			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
 			LocationCore::GetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
 			setCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
-			{
+			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6 
+			if(temp_buf.Empty()) { // @v10.2.6 
 				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, loc_phone);
 				if(loc_phone.Empty() && PersonID)
 					loc_phone = DlvrPhone;
@@ -5839,8 +5866,7 @@ private:
 			// } @v9.4.11
 		}
 		disableCtrls(!(Data.Flags & Data.fDelivery), CTL_CCHKDLVR_ADDRID, CTLSEL_CCHKDLVR_CITY,
-			CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT,
-			CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
+			CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT, CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
 		LockAddrModChecking = 0;
 	}
 

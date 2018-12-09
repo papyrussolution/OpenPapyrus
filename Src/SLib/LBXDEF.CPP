@@ -131,7 +131,8 @@ long   SLAPI ListBoxDef::getRecsCount() { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
 int    SLAPI ListBoxDef::refresh() { return 1; }
 int    SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
-int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, imageID, 0); }
+int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~0x40000000), 0); }
+int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | 0x40000000), 0); }
 int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
@@ -196,10 +197,61 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 			long image_id = ImageAssoc.at(i).Val;
 			long image_idx = -1;
 			if(added_list.Search(image_id, &image_idx, 0) <= 0) {
-				HICON h_icon = LoadIcon(hInst, MAKEINTRESOURCE(image_id));
-				image_idx = ImageList_AddIcon(himl, h_icon);
-				added_list.Add(image_id, image_idx, 0);
-				DestroyIcon(h_icon);
+				if(image_id & 0x40000000) {
+					{
+						//SETIFZ(dv_id, PPDV_TESTFLOWER);
+						TWhatmanToolArray::Item tool_item;
+						//const SDrawFigure * p_fig = APPL->DvToolList.GetFigById(1, dv_id, &tool_item);
+						const SDrawFigure * p_fig = APPL->LoadDrawFigureById((image_id & ~0x40000000), &tool_item);
+						if(p_fig) {
+							const uint _w = 16;
+							const uint _h = 16;
+							SImageBuffer ib(_w, _h);
+							{
+								//p_fig->TransformToImage(0, ib);
+								TCanvas2 canv(APPL->GetUiToolBox(), ib);
+								//canv.SetBkColor(GetColorRef(SClrWhite));
+								//canv.Fill(SClrWhite, 1);
+								//canv.SetBkTranparent();
+								if(!tool_item.ReplacedColor.IsEmpty()) {
+									SColor replacement_color;
+									replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+									canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+								}
+								FRect pic_bounds;
+								pic_bounds.a.X = 0.0f;
+								pic_bounds.a.Y = 0.0f;
+								pic_bounds.b.X = (float)_w;
+								pic_bounds.b.Y = (float)_h;
+								//
+								LMatrix2D mtx;
+								SViewPort vp;
+								
+								canv.Rect(pic_bounds);
+								canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+
+								canv.PushTransform();
+								p_fig->GetViewPort(&vp);
+								canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+								canv.Draw(p_fig);
+								//canv.PopTransform();
+								//canv.ResetColorReplacement();
+							}
+							HICON h_icon = (HICON)ib.TransformToIcon();
+							if(h_icon) {
+								image_idx = ImageList_AddIcon(himl, h_icon);
+								added_list.Add(image_id, image_idx, 0);
+								DestroyIcon(h_icon);
+							}
+						}
+					}
+				}
+				else {
+					HICON h_icon = LoadIcon(hInst, MAKEINTRESOURCE(image_id));
+					image_idx = ImageList_AddIcon(himl, h_icon);
+					added_list.Add(image_id, image_idx, 0);
+					DestroyIcon(h_icon);
+				}
 			}
 			if(image_idx >= 0)
 				ImageIdxAssoc.Add(item_id, image_idx, 0);
@@ -777,8 +829,7 @@ int SLAPI DBQListBoxDef::setRestrict(DBQ & rQ)
 
 void SLAPI DBQListBoxDef::setViewHight(int h)
 {
-	if(query)
-		query->setFrame(h, UNDEF, UNDEF);
+	CALLPTRMEMB(query, setFrame(h, UNDEF, UNDEF));
 	ListBoxDef::setViewHight(h);
 }
 
@@ -873,7 +924,7 @@ int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 	int    ok = 1;
 	int    f;
 	void * p_srch_extra = 0;
-	if(srchMode & lbSrchByID)
+	if(srchMode & lbSrchByID) {
 		if(!(Options & lbtAutoID)) {
 			p_srch_extra = (void *)(((Options & lbtWordID) ? MKSTYPE(S_INT, 2) : MKSTYPE(S_INT, 4)));
 			SETIFZ(fcmp, substFCMP);
@@ -881,6 +932,7 @@ int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 		}
 		else
 			ok = 0;
+	}
 	else {
 		p_srch_extra = (void *)Type;
 		SETIFZ(fcmp, substFCMP);

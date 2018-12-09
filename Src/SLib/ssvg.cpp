@@ -632,6 +632,8 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken((const char *)p_node->name) : 0;
 		uint32 coord_ready = 0;
 		switch(token) {
+			case tSymbol: // @todo
+				break;
 			case tGroup:
 				{
 					SDrawGroup * p_group = new SDrawGroup;
@@ -833,8 +835,6 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 				ParsePrimitivs(p_node, rGroup, rTempScan); // @recursion
 				break;
 			case tUse:
-				break;
-			case tSymbol:
 				break;
 			case tText:
 				break;

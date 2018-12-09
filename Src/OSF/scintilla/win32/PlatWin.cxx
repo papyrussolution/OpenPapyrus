@@ -1875,9 +1875,7 @@ void Window::SetPositionRelative(PRectangle rc, Window w)
 		POINT ptOther = {0, 0};
 		::ClientToScreen(static_cast<HWND>(w.GetID()), &ptOther);
 		rc.Move(static_cast<XYPOSITION>(ptOther.x), static_cast<XYPOSITION>(ptOther.y));
-
 		RECT rcMonitor = RectFromPRectangle(rc);
-
 		HMONITOR hMonitor = NULL;
 		if(MonitorFromRectFn)
 			hMonitor = MonitorFromRectFn(&rcMonitor, MONITOR_DEFAULTTONEAREST);
@@ -1913,10 +1911,7 @@ PRectangle Window::GetClientPosition()
 
 void Window::Show(bool show)
 {
-	if(show)
-		::ShowWindow(static_cast<HWND>(wid), SW_SHOWNOACTIVATE);
-	else
-		::ShowWindow(static_cast<HWND>(wid), SW_HIDE);
+	::ShowWindow(static_cast<HWND>(wid), show ? SW_SHOWNOACTIVATE : SW_HIDE);
 }
 
 void Window::InvalidateAll()
@@ -1937,8 +1932,7 @@ static LRESULT Window_SendMessage(Window * w, UINT msg, WPARAM wParam = 0, LPARA
 
 void Window::SetFont(Font &font)
 {
-	Window_SendMessage(this, WM_SETFONT,
-	    reinterpret_cast<WPARAM>(font.GetID()), 0);
+	Window_SendMessage(this, WM_SETFONT, reinterpret_cast<WPARAM>(font.GetID()), 0);
 }
 
 static void FlipBitmap(HBITMAP bitmap, int width, int height)
@@ -1956,7 +1950,6 @@ static HCURSOR GetReverseArrowCursor()
 {
 	if(reverseArrowCursor != NULL)
 		return reverseArrowCursor;
-
 	::EnterCriticalSection(&crPlatformLock);
 	HCURSOR cursor = reverseArrowCursor;
 	if(cursor == NULL) {
@@ -1969,12 +1962,10 @@ static HCURSOR GetReverseArrowCursor()
 				if(info.hbmColor != NULL)
 					FlipBitmap(info.hbmColor, bmp.bmWidth, bmp.bmHeight);
 				info.xHotspot = (DWORD)bmp.bmWidth - 1 - info.xHotspot;
-
 				reverseArrowCursor = ::CreateIconIndirect(&info);
 				if(reverseArrowCursor != NULL)
 					cursor = reverseArrowCursor;
 			}
-
 			::DeleteObject(info.hbmMask);
 			if(info.hbmColor != NULL)
 				::DeleteObject(info.hbmColor);

@@ -38,7 +38,7 @@
 
 #define FANN_VERSION "2.2.0"
 //
-typedef float fann_type;
+//typedef float fann_type__Removed;
 
 #undef FLOATFANN
 #define FLOATFANN
@@ -153,7 +153,7 @@ struct fann_error;
  */
 
 /* Enum: fann_errno_enum
-        Used to define error events on <struct fann> and <struct fann_train_data>.
+        Used to define error events on <Fann2> and <struct fann_train_data>.
 
         See also:
                 <fann_get_errno>, <fann_reset_errno>, <fann_get_errstr>
@@ -209,13 +209,13 @@ enum fann_errno_enum {
 // 
 // Group: Error Handling 
 // 
-// Change where errors are logged to. Both <struct fann> and <struct fann_data> can be
+// Change where errors are logged to. Both <Fann2> and <struct fann_data> can be
 // casted to <struct fann_error>, so this function can be used to set either of these.
 // 
 // If log_file is NULL, no errors will be printed.
 // 
 // If errdat is NULL, the default log will be set. The default log is the log used when creating
-// <struct fann> and <struct fann_data>. This default log will also be the default for all new structs
+// <Fann2> and <struct fann_data>. This default log will also be the default for all new structs
 // that are created.
 // 
 // The default behavior is to log them to stderr.
@@ -306,14 +306,14 @@ __doublefann_h__ is not defined
 #define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * steepness * steepness)
 
 /* FANN_ELLIOT */
-/* #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fann_abs(sum * steepness)) + 0.5f) */
-#define fann_elliot_real(sum) (((sum) / 2.0f) / (1.0f + fann_abs(sum)) + 0.5f)
-#define fann_elliot_derive(steepness, value, sum) (steepness * 1.0f / (2.0f * (1.0f + fann_abs(sum)) * (1.0f + fann_abs(sum))))
+/* #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fabsf(sum * steepness)) + 0.5f) */
+#define fann_elliot_real(sum) (((sum) / 2.0f) / (1.0f + fabsf(sum)) + 0.5f)
+#define fann_elliot_derive(steepness, value, sum) (steepness * 1.0f / (2.0f * (1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 
 /* FANN_ELLIOT_SYMMETRIC */
-/* #define fann_elliot_symmetric(steepness, sum) ((sum * steepness) / (1.0f + fann_abs(sum * steepness)))*/
-#define fann_elliot_symmetric_real(sum) ((sum) / (1.0f + fann_abs(sum)))
-#define fann_elliot_symmetric_derive(steepness, value, sum) (steepness * 1.0f / ((1.0f + fann_abs(sum)) * (1.0f + fann_abs(sum))))
+/* #define fann_elliot_symmetric(steepness, sum) ((sum * steepness) / (1.0f + fabsf(sum * steepness)))*/
+#define fann_elliot_symmetric_real(sum) ((sum) / (1.0f + fabsf(sum)))
+#define fann_elliot_symmetric_derive(steepness, value, sum) (steepness * 1.0f / ((1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 /* FANN_SIN_SYMMETRIC */
 #define fann_sin_symmetric_real(sum) (FANN_SIN(sum))
 #define fann_sin_symmetric_derive(steepness, sum) (steepness*cos(steepness*sum))
@@ -329,42 +329,42 @@ __doublefann_h__ is not defined
 
 #define fann_activation_switch(activation_function, value, result) \
 switch(activation_function) { \
-	case FANN_LINEAR: result = (fann_type)value; break; \
-	case FANN_LINEAR_PIECE: result = (fann_type)((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
-	case FANN_LINEAR_PIECE_SYMMETRIC: result = (fann_type)((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
-	case FANN_SIGMOID: result = (fann_type)fann_sigmoid_real(value); break; \
-	case FANN_SIGMOID_SYMMETRIC: result = (fann_type)fann_sigmoid_symmetric_real(value); break; \
-	case FANN_SIGMOID_SYMMETRIC_STEPWISE: \
-		result = (fann_type)fann_stepwise(((fann_type)-2.64665293693542480469e+00), ((fann_type)-1.47221934795379638672e+00), ((fann_type)-5.49306154251098632812e-01), ((fann_type)5.49306154251098632812e-01), ((fann_type)1.47221934795379638672e+00), ((fann_type)2.64665293693542480469e+00), ((fann_type)-9.90000009536743164062e-01), ((fann_type)-8.99999976158142089844e-01), ((fann_type)-5.00000000000000000000e-01), ((fann_type)5.00000000000000000000e-01), ((fann_type)8.99999976158142089844e-01), ((fann_type)9.90000009536743164062e-01), -1, 1, value); \
+	case Fann2::FANN_LINEAR: result = (float)value; break; \
+	case Fann2::FANN_LINEAR_PIECE: result = (float)((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
+	case Fann2::FANN_LINEAR_PIECE_SYMMETRIC: result = (float)((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
+	case Fann2::FANN_SIGMOID: result = (float)fann_sigmoid_real(value); break; \
+	case Fann2::FANN_SIGMOID_SYMMETRIC: result = (float)fann_sigmoid_symmetric_real(value); break; \
+	case Fann2::FANN_SIGMOID_SYMMETRIC_STEPWISE: \
+		result = (float)fann_stepwise(((float)-2.64665293693542480469e+00), ((float)-1.47221934795379638672e+00), ((float)-5.49306154251098632812e-01), ((float)5.49306154251098632812e-01), ((float)1.47221934795379638672e+00), ((float)2.64665293693542480469e+00), ((float)-9.90000009536743164062e-01), ((float)-8.99999976158142089844e-01), ((float)-5.00000000000000000000e-01), ((float)5.00000000000000000000e-01), ((float)8.99999976158142089844e-01), ((float)9.90000009536743164062e-01), -1, 1, value); \
         break; \
-	case FANN_SIGMOID_STEPWISE: \
-		result = (fann_type)fann_stepwise(((fann_type)-2.64665246009826660156e+00), ((fann_type)-1.47221946716308593750e+00), ((fann_type)-5.49306154251098632812e-01), ((fann_type)5.49306154251098632812e-01), ((fann_type)1.47221934795379638672e+00), ((fann_type)2.64665293693542480469e+00), ((fann_type) 4.99999988824129104614e-03), ((fann_type) 5.00000007450580596924e-02), ((fann_type) 2.50000000000000000000e-01), ((fann_type)7.50000000000000000000e-01), ((fann_type)9.49999988079071044922e-01), ((fann_type)9.95000004768371582031e-01), 0, 1, value); \
+	case Fann2::FANN_SIGMOID_STEPWISE: \
+		result = (float)fann_stepwise(((float)-2.64665246009826660156e+00), ((float)-1.47221946716308593750e+00), ((float)-5.49306154251098632812e-01), ((float)5.49306154251098632812e-01), ((float)1.47221934795379638672e+00), ((float)2.64665293693542480469e+00), ((float) 4.99999988824129104614e-03), ((float) 5.00000007450580596924e-02), ((float) 2.50000000000000000000e-01), ((float)7.50000000000000000000e-01), ((float)9.49999988079071044922e-01), ((float)9.95000004768371582031e-01), 0, 1, value); \
         break; \
-	case FANN_THRESHOLD: result = (fann_type)((value < 0) ? 0 : 1); break; \
-	case FANN_THRESHOLD_SYMMETRIC: result = (fann_type)((value < 0) ? -1 : 1); break; \
-	case FANN_GAUSSIAN: result = (fann_type)fann_gaussian_real(value); break; \
-	case FANN_GAUSSIAN_SYMMETRIC: result = (fann_type)fann_gaussian_symmetric_real(value); break; \
-	case FANN_ELLIOT: result = (fann_type)fann_elliot_real(value); break; \
-	case FANN_ELLIOT_SYMMETRIC: result = (fann_type)fann_elliot_symmetric_real(value); break; \
-	case FANN_SIN_SYMMETRIC: result = (fann_type)fann_sin_symmetric_real(value); break; \
-	case FANN_COS_SYMMETRIC: result = (fann_type)fann_cos_symmetric_real(value); break; \
-	case FANN_SIN: result = (fann_type)fann_sin_real(value); break; \
-	case FANN_COS: result = (fann_type)fann_cos_real(value); break; \
-	case FANN_GAUSSIAN_STEPWISE: result = 0; break; \
+	case Fann2::FANN_THRESHOLD: result = (float)((value < 0) ? 0 : 1); break; \
+	case Fann2::FANN_THRESHOLD_SYMMETRIC: result = (float)((value < 0) ? -1 : 1); break; \
+	case Fann2::FANN_GAUSSIAN: result = (float)fann_gaussian_real(value); break; \
+	case Fann2::FANN_GAUSSIAN_SYMMETRIC: result = (float)fann_gaussian_symmetric_real(value); break; \
+	case Fann2::FANN_ELLIOT: result = (float)fann_elliot_real(value); break; \
+	case Fann2::FANN_ELLIOT_SYMMETRIC: result = (float)fann_elliot_symmetric_real(value); break; \
+	case Fann2::FANN_SIN_SYMMETRIC: result = (float)fann_sin_symmetric_real(value); break; \
+	case Fann2::FANN_COS_SYMMETRIC: result = (float)fann_cos_symmetric_real(value); break; \
+	case Fann2::FANN_SIN: result = (float)fann_sin_real(value); break; \
+	case Fann2::FANN_COS: result = (float)fann_cos_real(value); break; \
+	case Fann2::FANN_GAUSSIAN_STEPWISE: result = 0; break; \
 }
 //
 //#include "fann_data.h"
 /* Section: FANN Datatypes
 
-   The two main datatypes used in the fann library are <struct fann>,
+   The two main datatypes used in the fann library are <Fann2>,
    which represents an artificial neural network, and <struct fann_train_data>,
    which represents training data.
  */
 
-/* Type: fann_type
-   fann_type is the type used for the weights, inputs and outputs of the neural network.
+/* Type: float
+   float is the type used for the weights, inputs and outputs of the neural network.
 
-        fann_type is defined as a:
+        float is defined as a:
         float - if you include fann.h or floatfann.h
         double - if you include doublefann.h
         int - if you include fixedfann.h (please be aware that fixed point usage is
@@ -411,43 +411,6 @@ enum fann_train_enum {
 // See Also: <fann_train_enum>
 // 
 static char const * const FANN_TRAIN_NAMES[] = { "FANN_TRAIN_INCREMENTAL", "FANN_TRAIN_BATCH", "FANN_TRAIN_RPROP", "FANN_TRAIN_QUICKPROP", "FANN_TRAIN_SARPROP" };
-// 
-// Descr: The activation functions used for the neurons during training. The activation functions
-//   can either be defined for a group of neurons by <fann_set_activation_function_hidden> and
-//   <fann_set_activation_function_output> or it can be defined for a single neuron by <fann_set_activation_function>.
-// 
-// The steepness of an activation function is defined in the same way by
-// <fann_set_activation_steepness_hidden>, <fann_set_activation_steepness_output> and <fann_set_activation_steepness>.
-// 
-// The functions are described with functions where:
-// * x is the input to the activation function,
-// * y is the output,
-// * s is the steepness and
-// * d is the derivation.
-// See also: <fann_set_activation_function_layer>, <fann_set_activation_function_hidden>,
-//   <fann_set_activation_function_output>, <fann_set_activation_steepness>, <fann_set_activation_function>
-// 
-enum fann_activationfunc_enum {
-	FANN_LINEAR = 0, // Linear activation function. span: -inf < y < inf; y = x*s; d = 1*s; Can NOT be used in fixed point.
-	FANN_THRESHOLD,  // Threshold activation function. x < 0 -> y = 0, x >= 0 -> y = 1; Can NOT be used during training.
-	FANN_THRESHOLD_SYMMETRIC, // Threshold activation function. x < 0 -> y = -1, x >= 0 -> y = 1; Can NOT be used during training.
-	FANN_SIGMOID, // Sigmoid activation function. One of the most used activation functions. span: 0 < y < 1; y = 1/(1 + exp(-2*s*x)); d = 2*s*y*(1 - y)
-	FANN_SIGMOID_STEPWISE, // Stepwise linear approximation to sigmoid. Faster than sigmoid but a bit less precise.
-	FANN_SIGMOID_SYMMETRIC, // Symmetric sigmoid activation function, aka. tanh. One of the most used activation functions.
-		// * span: -1 < y < 1; y = tanh(s*x) = 2/(1 + exp(-2*s*x)) - 1; d = s*(1-(y*y))
-	FANN_SIGMOID_SYMMETRIC_STEPWISE, // Stepwise linear approximation to symmetric sigmoid. Faster than symmetric sigmoid but a bit less precise.
-	FANN_GAUSSIAN, // Gaussian activation function. 0 when x = -inf, 1 when x = 0 and 0 when x = inf. span: 0 < y < 1; y = exp(-x*s*x*s); d = -2*x*s*y*s
-	FANN_GAUSSIAN_SYMMETRIC, // Symmetric gaussian activation function. -1 when x = -inf, 1 when x = 0 and 0 when x = inf. span: -1 < y < 1; y = exp(-x*s*x*s)*2-1; d = -2*x*s*(y+1)*s
-	FANN_GAUSSIAN_STEPWISE, // Stepwise linear approximation to gaussian. Faster than gaussian but a bit less precise. NOT implemented yet.
-	FANN_ELLIOT, // Fast (sigmoid like) activation function defined by David Elliott. span: 0 < y < 1; y = ((x*s) / 2) / (1 + |x*s|) + 0.5; d = s*1/(2*(1+|x*s|)*(1+|x*s|))
-	FANN_ELLIOT_SYMMETRIC, // Fast (symmetric sigmoid like) activation function defined by David Elliott. span: -1 < y < 1; y = (x*s) / (1 + |x*s|); d = s*1/((1+|x*s|)*(1+|x*s|))
-	FANN_LINEAR_PIECE, // Bounded linear activation function. span: 0 <= y <= 1; y = x*s; d = 1*s
-	FANN_LINEAR_PIECE_SYMMETRIC, // Bounded linear activation function. span: -1 <= y <= 1; y = x*s; d = 1*s
-	FANN_SIN_SYMMETRIC, // Periodical sinus activation function. span: -1 <= y <= 1; y = sin(x*s); d = s*cos(x*s)
-	FANN_COS_SYMMETRIC, // Periodical cosinus activation function. span: -1 <= y <= 1; y = cos(x*s); d = s*-sin(x*s)
-	FANN_SIN, // Periodical sinus activation function. span: 0 <= y <= 1; y = sin(x*s)/2+0.5; d = s*cos(x*s)/2
-	FANN_COS  // Periodical cosinus activation function. span: 0 <= y <= 1; y = cos(x*s)/2+0.5; d = s*-sin(x*s)/2
-};
 
 /* Constant: FANN_ACTIVATIONFUNC_NAMES
 
@@ -553,71 +516,42 @@ enum fann_nettype_enum {
 static char const * const FANN_NETTYPE_NAMES[] = { "FANN_NETTYPE_LAYER", "FANN_NETTYPE_SHORTCUT" };
 
 // forward declarations for use with the callback 
-struct fann;
+struct Fann2;
 struct fann_train_data;
-
-/* Type: fann_callback_type
-   This callback function can be called during training when using <fann_train_on_data>,
-   <fann_train_on_file> or <fann_cascadetrain_on_data>.
-
-        >typedef int (FANN_API * fann_callback_type) (struct fann *ann, struct fann_train_data *train,
-        >											  uint
-           max_epochs,
-        >                                             uint epochs_between_reports,
-        >                                             float desired_error, uint epochs);
-
-        The callback can be set by using <fann_set_callback> and is very useful for doing custom
-        things during training. It is recommended to use this function when implementing custom
-        training procedures, or when visualizing the training in a GUI etc. The parameters which the
-        callback function takes are the parameters given to <fann_train_on_data>, plus an epochs
-        parameter which tells how many epochs the training has taken so far.
-
-        The callback function should return an integer, if the callback function returns -1, the training
-        will terminate.
-
-        Example of a callback function:
-                >int FANN_API test_callback(struct fann *ann, struct fann_train_data *train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs)
-                >{
-                >	printf("Epochs     %8d. MSE: %.5f. Desired-MSE: %.5f\n", epochs, fann_get_MSE(ann),
-                   desired_error);
-                >	return 0;
-                >}
-
-        See also: <fann_set_callback>, <fann_train_on_data>
- */
-FANN_EXTERNAL typedef int (FANN_API * fann_callback_type)(struct fann * ann, struct fann_train_data * train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs);
+// 
+// Type: fann_callback_type
+// This callback function can be called during training when using <fann_train_on_data>, <fann_train_on_file> or <fann_cascadetrain_on_data>.
+// 
+//   >typedef int (FANN_API * fann_callback_type) (Fann2 *ann, struct fann_train_data *train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs);
+// 
+// The callback can be set by using <fann_set_callback> and is very useful for doing custom
+// things during training. It is recommended to use this function when implementing custom
+// training procedures, or when visualizing the training in a GUI etc. The parameters which the
+// callback function takes are the parameters given to <fann_train_on_data>, plus an epochs
+// parameter which tells how many epochs the training has taken so far.
+// 
+// The callback function should return an integer, if the callback function returns -1, the training
+// will terminate.
+// 
+// Example of a callback function:
+//   >int FANN_API test_callback(Fann2 *ann, struct fann_train_data *train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs)
+//   >{
+//   >	printf("Epochs     %8d. MSE: %.5f. Desired-MSE: %.5f\n", epochs, fann_get_MSE(ann), desired_error);
+//   >	return 0;
+//   >}
+// 
+// See also: <fann_set_callback>, <fann_train_on_data>
+// 
+FANN_EXTERNAL typedef int (FANN_API * fann_callback_type)(Fann2 * ann, struct fann_train_data * train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs);
 //
 // Data structures
 // No data within these structures should be altered directly by the user.
 // 
-struct fann_neuron {
-	// Index to the first and last connection (actually the last is a past end index)
-	uint first_con;
-	uint last_con;
-	fann_type sum; // The sum of the inputs multiplied with the weights 
-	fann_type value; // The value of the activation function applied to the sum 
-	fann_type activation_steepness; // The steepness of the activation function 
-	enum fann_activationfunc_enum activation_function; // Used to choose which activation function to use 
-#ifdef __GNUC__
-} __attribute__ ((packed));
 
-#else
-};
-#endif
 // 
-// A single layer in the neural network.
-// 
-struct fann_layer {
-	// A pointer to the first neuron in the layer
-	// When allocated, all the neurons in all the layers are actually
-	// in one long array, this is because we want to easily clear all the neurons at once.
-	struct fann_neuron * first_neuron;
-	struct fann_neuron * last_neuron; // A pointer to the neuron past the last neuron in the layer the number of neurons is last_neuron - first_neuron 
-};
-// 
-// Structure used to store error-related information, both
-// <struct fann> and <struct fann_train_data> can be casted to this type.
-// See also: <fann_set_error_log>, <fann_get_errno>
+// Descr: Structure used to store error-related information, both
+//   <Fann2> and <struct fann_train_data> can be casted to this type.
+//   See also: <fann_set_error_log>, <fann_get_errno>
 // 
 struct fann_error {
 	enum fann_errno_enum errno_f;
@@ -631,11 +565,100 @@ struct fann_error {
 //  * fann_get_...* and *fann_set_...* functions.
 // 
 // The fann structure is created using one of the *fann_create_...* functions and each of
-// the functions which operates on the structure takes *struct fann * ann* as the first parameter.
+// the functions which operates on the structure takes *Fann2 * ann* as the first parameter.
 // 
 // See also: <fann_create_standard>, <fann_destroy>
 // 
-struct fann {
+struct Fann2 {
+	// 
+	// Descr: The activation functions used for the neurons during training. The activation functions
+	//   can either be defined for a group of neurons by <fann_set_activation_function_hidden> and
+	//   <fann_set_activation_function_output> or it can be defined for a single neuron by <fann_set_activation_function>.
+	// 
+	// The steepness of an activation function is defined in the same way by
+	// <fann_set_activation_steepness_hidden>, <fann_set_activation_steepness_output> and <fann_set_activation_steepness>.
+	// 
+	// The functions are described with functions where:
+	// * x is the input to the activation function,
+	// * y is the output,
+	// * s is the steepness and
+	// * d is the derivation.
+	// See also: <fann_set_activation_function_layer>, <fann_set_activation_function_hidden>,
+	//   <fann_set_activation_function_output>, <fann_set_activation_steepness>, <fann_set_activation_function>
+	// 
+	enum ActivationFunc {
+		FANN_LINEAR = 0, // Linear activation function. span: -inf < y < inf; y = x*s; d = 1*s; Can NOT be used in fixed point.
+		FANN_THRESHOLD,  // Threshold activation function. x < 0 -> y = 0, x >= 0 -> y = 1; Can NOT be used during training.
+		FANN_THRESHOLD_SYMMETRIC, // Threshold activation function. x < 0 -> y = -1, x >= 0 -> y = 1; Can NOT be used during training.
+		FANN_SIGMOID, // Sigmoid activation function. One of the most used activation functions. span: 0 < y < 1; y = 1/(1 + exp(-2*s*x)); d = 2*s*y*(1 - y)
+		FANN_SIGMOID_STEPWISE, // Stepwise linear approximation to sigmoid. Faster than sigmoid but a bit less precise.
+		FANN_SIGMOID_SYMMETRIC, // Symmetric sigmoid activation function, aka. tanh. One of the most used activation functions.
+			// * span: -1 < y < 1; y = tanh(s*x) = 2/(1 + exp(-2*s*x)) - 1; d = s*(1-(y*y))
+		FANN_SIGMOID_SYMMETRIC_STEPWISE, // Stepwise linear approximation to symmetric sigmoid. Faster than symmetric sigmoid but a bit less precise.
+		FANN_GAUSSIAN, // Gaussian activation function. 0 when x = -inf, 1 when x = 0 and 0 when x = inf. span: 0 < y < 1; y = exp(-x*s*x*s); d = -2*x*s*y*s
+		FANN_GAUSSIAN_SYMMETRIC, // Symmetric gaussian activation function. -1 when x = -inf, 1 when x = 0 and 0 when x = inf. span: -1 < y < 1; y = exp(-x*s*x*s)*2-1; d = -2*x*s*(y+1)*s
+		FANN_GAUSSIAN_STEPWISE, // Stepwise linear approximation to gaussian. Faster than gaussian but a bit less precise. NOT implemented yet.
+		FANN_ELLIOT, // Fast (sigmoid like) activation function defined by David Elliott. span: 0 < y < 1; y = ((x*s) / 2) / (1 + |x*s|) + 0.5; d = s*1/(2*(1+|x*s|)*(1+|x*s|))
+		FANN_ELLIOT_SYMMETRIC, // Fast (symmetric sigmoid like) activation function defined by David Elliott. span: -1 < y < 1; y = (x*s) / (1 + |x*s|); d = s*1/((1+|x*s|)*(1+|x*s|))
+		FANN_LINEAR_PIECE,           // Bounded linear activation function. span: 0 <= y <= 1; y = x*s; d = 1*s
+		FANN_LINEAR_PIECE_SYMMETRIC, // Bounded linear activation function. span: -1 <= y <= 1; y = x*s; d = 1*s
+		FANN_SIN_SYMMETRIC, // Periodical sinus activation function. span: -1 <= y <= 1; y = sin(x*s); d = s*cos(x*s)
+		FANN_COS_SYMMETRIC, // Periodical cosinus activation function. span: -1 <= y <= 1; y = cos(x*s); d = s*-sin(x*s)
+		FANN_SIN,           // Periodical sinus activation function. span: 0 <= y <= 1; y = sin(x*s)/2+0.5; d = s*cos(x*s)/2
+		FANN_COS            // Periodical cosinus activation function. span: 0 <= y <= 1; y = cos(x*s)/2+0.5; d = s*-sin(x*s)/2
+	};
+	struct Neuron {
+		int    FASTCALL IsEqual(const Neuron & rS) const // @construction
+		{
+#define FLD(f) if(f != rS.f) return 0;
+			FLD(first_con);
+			FLD(last_con);
+			FLD(sum);
+			FLD(value);
+			FLD(activation_steepness);
+			FLD(activation_function);
+#undef FLD
+			return 1;
+		}
+		// Index to the first and last connection (actually the last is a past end index)
+		uint   first_con;
+		uint   last_con;
+		float sum; // The sum of the inputs multiplied with the weights 
+		float value; // The value of the activation function applied to the sum 
+		float activation_steepness; // The steepness of the activation function 
+		Fann2::ActivationFunc activation_function; // Used to choose which activation function to use 
+	#ifdef __GNUC__
+	} __attribute__ ((packed));
+	#else
+	};
+	#endif
+	// 
+	// Descr: A single layer in the neural network.
+	// 
+	struct Layer {
+		int    FASTCALL IsEqual(const Layer & rS) const // @construction
+		{
+			const uint nn = (uint)(last_neuron - first_neuron);
+			const uint nn_s = (uint)(rS.last_neuron - rS.first_neuron);
+			if(nn != nn_s)
+				return 0;
+			else {
+				for(uint i = 0; i < nn; i++) {
+					if(!first_neuron[i].IsEqual(rS.first_neuron[i]))
+						return 0;
+				}
+			}
+			return 1;
+		}
+		// A pointer to the first neuron in the layer
+		// When allocated, all the neurons in all the layers are actually
+		// in one long array, this is because we want to easily clear all the neurons at once.
+		Neuron * first_neuron;
+		Neuron * last_neuron; // A pointer to the neuron past the last neuron in the layer the number of neurons is last_neuron - first_neuron 
+	};
+	
+	int    FASTCALL IsEqual(const Fann2 & rS) const; // @construction
+
 	enum fann_errno_enum errno_f; // The type of error that last occured. 
 	FILE * error_log;         // Where to log error messages. 
 	char * errstr;            // A string representation of the last error. 
@@ -647,18 +670,19 @@ struct fann {
 	// A fully connected ann with shortcut connections are a ann where
 	// neurons have connections to all neurons in all later layers.
 	enum fann_nettype_enum network_type;
-	struct fann_layer * first_layer; // pointer to the first layer (input layer) in an array af all the layers, including the input and outputlayers
-	struct fann_layer * last_layer;  // pointer to the layer past the last layer in an array af all the layers, including the input and outputlayers
+	Layer * first_layer; // pointer to the first layer (input layer) in an array af all the layers, including the input and outputlayers
+	Layer * last_layer;  // pointer to the layer past the last layer in an array af all the layers, including the input and outputlayers
 	uint   total_neurons; // Total number of neurons. very useful, because the actual neurons are allocated in one long array
 	uint   num_input;     // Number of input neurons (not calculating bias) 
 	uint   num_output;    // Number of output neurons (not calculating bias) 
-	fann_type * weights;  // The weight array 
-	struct fann_neuron ** connections; // The connection array 
-	/* Used to contain the errors used during training
-	 * Is allocated during first training session,
-	 * which means that if we do not train, it is never allocated.
-	 */
-	fann_type * train_errors;
+	float * weights;  // The weight array 
+	Neuron ** connections; // The connection array 
+	// 
+	// Used to contain the errors used during training
+	// Is allocated during first training session,
+	// which means that if we do not train, it is never allocated.
+	// 
+	float * train_errors;
 	// Training algorithm used when calling fann_train_on_..
 	enum fann_train_enum training_algorithm;
 #ifdef FIXEDFANN
@@ -671,13 +695,13 @@ struct fann {
 	// activation_results array, the result is saved, and in the
 	// two values arrays, the values that gives the results are saved.
 	// 
-	fann_type sigmoid_results[6];
-	fann_type sigmoid_values[6];
-	fann_type sigmoid_symmetric_results[6];
-	fann_type sigmoid_symmetric_values[6];
+	float sigmoid_results[6];
+	float sigmoid_values[6];
+	float sigmoid_symmetric_results[6];
+	float sigmoid_symmetric_values[6];
 #endif
 	uint   total_connections; // Total number of connections. very useful, because the actual connections are allocated in one long array
-	fann_type * output; // used to store outputs in 
+	float * output; // used to store outputs in 
 	uint   num_MSE; // the number of data used to calculate the mean square error.
 	float  MSE_value; // the total error value. the real mean square error is MSE_value/num_MSE
 	uint   num_bit_fail; // The number of outputs which would fail (only valid for classification problems)
@@ -685,7 +709,7 @@ struct fann {
 	// which is accepted when counting the bit fails.
 	// This difference is multiplied by two when dealing with symmetric activation functions,
 	// so that symmetric and not symmetric activation functions can use the same limit.
-	fann_type bit_fail_limit;
+	float bit_fail_limit;
 	enum fann_errorfunc_enum train_error_function; // The error function used during training. (default FANN_ERRORFUNC_TANH)
 	enum fann_stopfunc_enum train_stop_function; // The stop function used during training. (default FANN_STOPFUNC_MSE)
 	fann_callback_type callback; // The callback function used during training. (default NULL)
@@ -698,20 +722,20 @@ struct fann {
 	float  cascade_candidate_change_fraction; // The error must change by at least this fraction of its old value to count as a significant change.
 	uint   cascade_candidate_stagnation_epochs; // No change in this number of epochs will cause stagnation.
 	uint   cascade_best_candidate; // The current best candidate, which will be installed.
-	fann_type cascade_candidate_limit; // The upper limit for a candidate score
-	fann_type cascade_weight_multiplier; // Scale of copied candidate output weights
+	float cascade_candidate_limit; // The upper limit for a candidate score
+	float cascade_weight_multiplier; // Scale of copied candidate output weights
 	uint   cascade_max_out_epochs; // Maximum epochs to train the output neurons during cascade training
 	uint   cascade_max_cand_epochs; // Maximum epochs to train the candidate neurons during cascade training
 	uint   cascade_min_out_epochs; // Minimum epochs to train the output neurons during cascade training
 	uint   cascade_min_cand_epochs; // Minimum epochs to train the candidate neurons during cascade training
-	enum   fann_activationfunc_enum * cascade_activation_functions; // An array consisting of the activation functions used when doing cascade training.
+	ActivationFunc * cascade_activation_functions; // An array consisting of the activation functions used when doing cascade training.
 	uint   cascade_activation_functions_count; // The number of elements in the cascade_activation_functions array.
-	fann_type * cascade_activation_steepnesses; // An array consisting of the steepnesses used during cascade training.
+	float * cascade_activation_steepnesses; // An array consisting of the steepnesses used during cascade training.
 	uint   cascade_activation_steepnesses_count; // The number of elements in the cascade_activation_steepnesses array.
 	// The number of candidates of each type that will be present.
 	// The actual number of candidates is then (cascade_activation_functions_count * cascade_activation_steepnesses_count * cascade_num_candidate_groups)
 	uint   cascade_num_candidate_groups;
-	fann_type * cascade_candidate_scores; // An array consisting of the score of the individual candidates, which is used to decide which candidate is the best
+	float * cascade_candidate_scores; // An array consisting of the score of the individual candidates, which is used to decide which candidate is the best
 	// 
 	// The number of allocated neurons during cascade correlation algorithms.
 	// This number might be higher than the actual number of neurons to avoid allocating new space too often.
@@ -743,13 +767,13 @@ struct fann {
 	// Used to contain the slope errors used during batch training
 	// Is allocated during first training session,
 	// which means that if we do not train, it is never allocated.
-	fann_type * train_slopes;
-	fann_type * prev_steps; // The previous step taken by the quickprop/rprop procedures. Not allocated if not used.
-	fann_type * prev_train_slopes; // The slope values used by the quickprop/rprop procedures. Not allocated if not used.
+	float * train_slopes;
+	float * prev_steps; // The previous step taken by the quickprop/rprop procedures. Not allocated if not used.
+	float * prev_train_slopes; // The slope values used by the quickprop/rprop procedures. Not allocated if not used.
 	// The last delta applied to a connection weight.
 	// This is used for the momentum term in the backpropagation algorithm.
 	// Not allocated if not used.
-	fann_type * prev_weights_deltas;
+	float * prev_weights_deltas;
 #ifndef FIXEDFANN
 	float * scale_mean_in;       // Arithmetic mean used to remove steady component in input data.  
 	float * scale_deviation_in;  // Standart deviation used to normalize input data (mostly to [-1;1]). 
@@ -769,7 +793,7 @@ struct fann {
 struct fann_connection {
 	uint from_neuron; // Unique number used to identify source neuron 
 	uint to_neuron; // Unique number used to identify destination neuron 
-	fann_type weight; // The numerical value of the weight 
+	float weight; // The numerical value of the weight 
 };
 //
 //#include "fann_internal.h"
@@ -786,49 +810,49 @@ struct fann_connection {
 #else
 	#define FANN_CONF_VERSION FANN_FLO_VERSION
 #endif
-#define FANN_GET(type, name) FANN_EXTERNAL type FANN_API fann_get_ ## name(struct fann *ann) { return ann->name; }
-#define FANN_SET(type, name) FANN_EXTERNAL void FANN_API fann_set_ ## name(struct fann *ann, type value) { ann->name = value; }
+#define FANN_GET(type, name) FANN_EXTERNAL type FANN_API fann_get_ ## name(Fann2 *ann) { return ann->name; }
+#define FANN_SET(type, name) FANN_EXTERNAL void FANN_API fann_set_ ## name(Fann2 *ann, type value) { ann->name = value; }
 #define FANN_GET_SET(type, name) FANN_GET(type, name) FANN_SET(type, name)
 
-//struct fann *fann_allocate_structure(uint num_layers);
-//void fann_allocate_neurons(struct fann *ann);
-//void fann_allocate_connections(struct fann *ann);
-//int fann_save_internal_fd(struct fann *ann, FILE * conf, const char *configuration_file, uint save_as_fixed);
+//Fann2 *fann_allocate_structure(uint num_layers);
+//void fann_allocate_neurons(Fann2 *ann);
+//void fann_allocate_connections(Fann2 *ann);
+//int fann_save_internal_fd(Fann2 *ann, FILE * conf, const char *configuration_file, uint save_as_fixed);
 //int fann_save_train_internal(struct fann_train_data *data, const char *filename, uint save_as_fixed, uint decimal_point);
 //int fann_save_train_internal_fd(struct fann_train_data *data, FILE * file, const char *filename, uint save_as_fixed, uint decimal_point);
-void fann_update_stepwise(struct fann *ann);
+void fann_update_stepwise(Fann2 *ann);
 //void fann_seed_rand();
 void fann_error_2(struct fann_error *errdat, const enum fann_errno_enum errno_f, ...);
 void fann_init_error_data(struct fann_error *errdat);
-struct fann * fann_create_from_fd(FILE * conf, const char *configuration_file);
+Fann2 * fann_create_from_fd(FILE * conf, const char *configuration_file);
 struct fann_train_data * fann_read_train_from_fd(FILE * file, const char *filename);
-void fann_compute_MSE(struct fann *ann, fann_type * desired_output);
-void fann_update_output_weights(struct fann *ann);
-void fann_backpropagate_MSE(struct fann *ann);
-//void fann_update_weights(struct fann *ann);
-void fann_update_slopes_batch(struct fann *ann, struct fann_layer *layer_begin, struct fann_layer *layer_end);
-void fann_update_weights_quickprop(struct fann *ann, uint num_data, uint first_weight, uint past_end);
-//void fann_update_weights_batch(struct fann *ann, uint num_data, uint first_weight, uint past_end);
-void fann_update_weights_irpropm(struct fann *ann, uint first_weight, uint past_end);
-void fann_update_weights_sarprop(struct fann *ann, uint epoch, uint first_weight, uint past_end);
-void fann_clear_train_arrays(struct fann *ann);
-fann_type fann_activation(struct fann * ann, uint activation_function, fann_type steepness, fann_type value);
-fann_type fann_activation_derived(uint activation_function, fann_type steepness, fann_type value, fann_type sum);
-int fann_desired_error_reached(struct fann *ann, float desired_error);
+void fann_compute_MSE(Fann2 *ann, float * desired_output);
+void fann_update_output_weights(Fann2 *ann);
+void fann_backpropagate_MSE(Fann2 *ann);
+//void fann_update_weights(Fann2 *ann);
+void fann_update_slopes_batch(Fann2 *ann, Fann2::Layer *layer_begin, Fann2::Layer *layer_end);
+void fann_update_weights_quickprop(Fann2 *ann, uint num_data, uint first_weight, uint past_end);
+//void fann_update_weights_batch(Fann2 *ann, uint num_data, uint first_weight, uint past_end);
+void fann_update_weights_irpropm(Fann2 *ann, uint first_weight, uint past_end);
+void fann_update_weights_sarprop(Fann2 *ann, uint epoch, uint first_weight, uint past_end);
+void fann_clear_train_arrays(Fann2 *ann);
+float fann_activation(Fann2 * ann, uint activation_function, float steepness, float value);
+//float fann_activation_derived(uint activation_function, float steepness, float value, float sum);
+int fann_desired_error_reached(Fann2 *ann, float desired_error);
 //
 // Some functions for cascade 
 //
-int fann_train_outputs(struct fann *ann, struct fann_train_data *data, float desired_error);
-float fann_train_outputs_epoch(struct fann *ann, struct fann_train_data *data);
-int fann_train_candidates(struct fann *ann, struct fann_train_data *data);
-fann_type fann_train_candidates_epoch(struct fann *ann, struct fann_train_data *data);
-void fann_install_candidate(struct fann *ann);
-int fann_check_input_output_sizes(struct fann *ann, struct fann_train_data *data);
-int fann_initialize_candidates(struct fann *ann);
-void fann_set_shortcut_connections(struct fann *ann);
-//int fann_allocate_scale(struct fann *ann);
+int fann_train_outputs(Fann2 *ann, struct fann_train_data *data, float desired_error);
+float fann_train_outputs_epoch(Fann2 *ann, struct fann_train_data *data);
+int fann_train_candidates(Fann2 *ann, struct fann_train_data *data);
+float fann_train_candidates_epoch(Fann2 *ann, struct fann_train_data *data);
+void fann_install_candidate(Fann2 *ann);
+int fann_check_input_output_sizes(Fann2 *ann, struct fann_train_data *data);
+int fann_initialize_candidates(Fann2 *ann);
+void fann_set_shortcut_connections(Fann2 *ann);
+//int fann_allocate_scale(Fann2 *ann);
 
-FANN_EXTERNAL void FANN_API fann_scale_data_to_range(fann_type ** data, uint num_data, uint num_elem, fann_type old_min, fann_type old_max, fann_type new_min, fann_type new_max);
+FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_data, uint num_elem, float old_min, float old_max, float new_min, float new_max);
 
 // called fann_max, in order to not interferre with predefined versions of max 
 //#define fann_max(x, y) (((x) > (y)) ? (x) : (y))
@@ -838,13 +862,13 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(fann_type ** data, uint num
 #define fann_exp2(x) exp(0.69314718055994530942*(x))
 /*#define fann_clip(x, lo, hi) (x)*/
 #define fann_rand(min_value, max_value) (((float)(min_value))+(((float)(max_value)-((float)(min_value)))*rand()/(RAND_MAX+1.0f)))
-#define fann_abs(value) (((value) > 0) ? (value) : -(value))
+//#define fann_abs__Removed(value) (((value) > 0) ? (value) : -(value))
 
 #ifdef FIXEDFANN
 	#define fann_mult(x,y) ((x*y) >> decimal_point)
 	#define fann_div(x,y) (((x) << decimal_point)/y)
-	#define fann_random_weight() (fann_type)(fann_rand(0,multiplier/10))
-	#define fann_random_bias_weight() (fann_type)(fann_rand((0-multiplier)/10,multiplier/10))
+	#define fann_random_weight() (float)(fann_rand(0,multiplier/10))
+	#define fann_random_bias_weight() (float)(fann_rand((0-multiplier)/10,multiplier/10))
 #else
 	#define fann_mult(x,y) (x*y)
 	#define fann_div(x,y) (x/y)
@@ -883,11 +907,11 @@ struct fann_train_data {
 	enum fann_errno_enum errno_f;
 	FILE * error_log;
 	char * errstr;
-	uint num_data;
-	uint num_input;
-	uint num_output;
-	fann_type ** input;
-	fann_type ** output;
+	uint   num_data;
+	uint   num_input;
+	uint   num_output;
+	float ** input;
+	float ** output;
 };
 
 /* Section: FANN Training */
@@ -906,7 +930,7 @@ struct fann_train_data {
 // See also: <fann_train_on_data>, <fann_train_epoch>
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL void FANN_API fann_train(struct fann * ann, fann_type * input, fann_type * desired_output);
+FANN_EXTERNAL void FANN_API fann_train(Fann2 * ann, float * input, float * desired_output, float * pRunOutput);
 
 #endif  /* NOT FIXEDFANN */
 // 
@@ -916,7 +940,7 @@ FANN_EXTERNAL void FANN_API fann_train(struct fann * ann, fann_type * input, fan
 // See also: <fann_test_data>, <fann_train>
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL fann_type * FANN_API fann_test(struct fann * ann, fann_type * input, fann_type * desired_output);
+FANN_EXTERNAL float * FANN_API fann_test(Fann2 * ann, float * input, float * desired_output);
 
 /* Function: fann_get_MSE
    Reads the mean square error from the network.
@@ -929,7 +953,7 @@ FANN_EXTERNAL fann_type * FANN_API fann_test(struct fann * ann, fann_type * inpu
 
         This function appears in FANN >= 1.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_MSE(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_MSE(Fann2 * ann);
 
 /* Function: fann_get_bit_fail
 
@@ -945,7 +969,7 @@ FANN_EXTERNAL float FANN_API fann_get_MSE(struct fann * ann);
 
         This function appears in FANN >= 2.0.0
  */
-FANN_EXTERNAL uint FANN_API fann_get_bit_fail(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_bit_fail(Fann2 * ann);
 
 /* Function: fann_reset_MSE
    Resets the mean square error from the network.
@@ -956,7 +980,7 @@ FANN_EXTERNAL uint FANN_API fann_get_bit_fail(struct fann * ann);
 
     This function appears in FANN >= 1.1.0
  */
-FANN_EXTERNAL void FANN_API fann_reset_MSE(struct fann * ann);
+FANN_EXTERNAL void FANN_API fann_reset_MSE(Fann2 * ann);
 
 /* Group: Training Data Training */
 
@@ -985,13 +1009,13 @@ FANN_EXTERNAL void FANN_API fann_reset_MSE(struct fann * ann);
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_train_on_data(struct fann * ann, struct fann_train_data * data, uint max_epochs, uint epochs_between_reports, float desired_error);
+FANN_EXTERNAL void FANN_API fann_train_on_data(Fann2 * ann, struct fann_train_data * data, uint max_epochs, uint epochs_between_reports, float desired_error);
 // 
 // Does the same as <fann_train_on_data>, but reads the training data directly from a file.
 // See also: <fann_train_on_data>
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL void FANN_API fann_train_on_file(struct fann * ann, const char * filename, uint max_epochs, uint epochs_between_reports, float desired_error);
+FANN_EXTERNAL void FANN_API fann_train_on_file(Fann2 * ann, const char * filename, uint max_epochs, uint epochs_between_reports, float desired_error);
 // 
 // Train one epoch with a set of training data.
 // Train one epoch with the training data stored in data. One epoch is where all of
@@ -1006,7 +1030,7 @@ FANN_EXTERNAL void FANN_API fann_train_on_file(struct fann * ann, const char * f
 // See also: <fann_train_on_data>, <fann_test_data>
 // This function appears in FANN >= 1.2.0.
 // 
-FANN_EXTERNAL float FANN_API fann_train_epoch(struct fann * ann, struct fann_train_data * data);
+FANN_EXTERNAL float FANN_API fann_train_epoch(Fann2 * ann, struct fann_train_data * data);
 #endif  /* NOT FIXEDFANN */
 // 
 // Test a set of training data and calculates the MSE for the training data.
@@ -1014,7 +1038,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch(struct fann * ann, struct fann_tra
 // See also: <fann_test>, <fann_get_MSE>, <fann_get_bit_fail>
 // This function appears in FANN >= 1.2.0.
 // 
-FANN_EXTERNAL float FANN_API fann_test_data(struct fann * ann, struct fann_train_data * data);
+FANN_EXTERNAL float FANN_API fann_test_data(Fann2 * ann, struct fann_train_data * data);
 
 /* Group: Training Data Manipulation */
 
@@ -1059,8 +1083,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train(uint num_data,
 
     This function appears in FANN >= 2.3.0
  */
-FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_pointer_array(uint num_data,
-    uint num_input, fann_type ** input, uint num_output, fann_type ** output);
+FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_pointer_array(uint num_data, uint num_input, float ** input, uint num_output, float ** output);
 
 /* Function: fann_create_train_array
    Creates an training data struct and fills it with data from provided arrays, where the arrays must have the
@@ -1076,8 +1099,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_pointer_array(
 
     This function appears in FANN >= 2.3.0
  */
-FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_array(uint num_data,
-    uint num_input, fann_type * input, uint num_output, fann_type * output);
+FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_array(uint num_data, uint num_input, float * input, uint num_output, float * output);
 
 /* Function: fann_create_train_from_callback
    Creates the training data struct from a user supplied function.
@@ -1108,7 +1130,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_array(uint num
     This function appears in FANN >= 2.1.0
  */
 FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_from_callback(uint num_data,
-    uint num_input, uint num_output, void(FANN_API * user_function)(uint, uint, uint, fann_type *, fann_type *));
+    uint num_input, uint num_output, void(FANN_API * user_function)(uint, uint, uint, float *, float *));
 
 /* Function: fann_destroy_train
    Destructs the training data and properly deallocates all of the associated data.
@@ -1125,7 +1147,7 @@ FANN_EXTERNAL void FANN_API fann_destroy_train(struct fann_train_data * train_da
 
    This function appears in FANN >= 2.3.0
  */
-FANN_EXTERNAL fann_type * FANN_API fann_get_train_input(struct fann_train_data * data, uint position);
+FANN_EXTERNAL float * FANN_API fann_get_train_input(struct fann_train_data * data, uint position);
 
 /* Function: fann_get_train_output
    Gets the training output data at the given position
@@ -1134,7 +1156,7 @@ FANN_EXTERNAL fann_type * FANN_API fann_get_train_input(struct fann_train_data *
 
    This function appears in FANN >= 2.3.0
  */
-FANN_EXTERNAL fann_type * FANN_API fann_get_train_output(struct fann_train_data * data, uint position);
+FANN_EXTERNAL float * FANN_API fann_get_train_output(struct fann_train_data * data, uint position);
 
 /* Function: fann_shuffle_train_data
 
@@ -1153,22 +1175,22 @@ FANN_EXTERNAL void FANN_API fann_shuffle_train_data(struct fann_train_data * tra
 
    This function appears in FANN >= 2.3.0
  */
-FANN_EXTERNAL fann_type FANN_API fann_get_min_train_input(struct fann_train_data * train_data);
+FANN_EXTERNAL float FANN_API fann_get_min_train_input(struct fann_train_data * train_data);
 // 
 // Get the maximum value of all in the input data
 // This function appears in FANN >= 2.3.0
 // 
-FANN_EXTERNAL fann_type FANN_API fann_get_max_train_input(struct fann_train_data * train_data);
+FANN_EXTERNAL float FANN_API fann_get_max_train_input(struct fann_train_data * train_data);
 // 
 // Get the minimum value of all in the output data
 // This function appears in FANN >= 2.3.0
 // 
-FANN_EXTERNAL fann_type FANN_API fann_get_min_train_output(struct fann_train_data * train_data);
+FANN_EXTERNAL float FANN_API fann_get_min_train_output(struct fann_train_data * train_data);
 // 
 // Get the maximum value of all in the output data
 // This function appears in FANN >= 2.3.0
 // 
-FANN_EXTERNAL fann_type FANN_API fann_get_max_train_output(struct fann_train_data * train_data);
+FANN_EXTERNAL float FANN_API fann_get_max_train_output(struct fann_train_data * train_data);
 // 
 // Scale input and output data based on previously calculated parameters.
 // Parameters:
@@ -1177,7 +1199,7 @@ FANN_EXTERNAL fann_type FANN_API fann_get_max_train_output(struct fann_train_dat
 // See also: <fann_descale_train>, <fann_set_scaling_params>
 // This function appears in FANN >= 2.1.0
 // 
-FANN_EXTERNAL void FANN_API fann_scale_train(struct fann * ann, struct fann_train_data * data);
+FANN_EXTERNAL void FANN_API fann_scale_train(Fann2 * ann, struct fann_train_data * data);
 
 /* Function: fann_descale_train
 
@@ -1191,7 +1213,7 @@ FANN_EXTERNAL void FANN_API fann_scale_train(struct fann * ann, struct fann_trai
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_descale_train(struct fann * ann, struct fann_train_data * data);
+FANN_EXTERNAL void FANN_API fann_descale_train(Fann2 * ann, struct fann_train_data * data);
 
 /* Function: fann_set_input_scaling_params
 
@@ -1207,7 +1229,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train(struct fann * ann, struct fann_tr
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL int FANN_API fann_set_input_scaling_params(struct fann * ann, const struct fann_train_data * data, float new_input_min, float new_input_max);
+FANN_EXTERNAL int FANN_API fann_set_input_scaling_params(Fann2 * ann, const struct fann_train_data * data, float new_input_min, float new_input_max);
 
 /* Function: fann_set_output_scaling_params
 
@@ -1223,7 +1245,7 @@ FANN_EXTERNAL int FANN_API fann_set_input_scaling_params(struct fann * ann, cons
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL int FANN_API fann_set_output_scaling_params(struct fann * ann, const struct fann_train_data * data, float new_output_min, float new_output_max);
+FANN_EXTERNAL int FANN_API fann_set_output_scaling_params(Fann2 * ann, const struct fann_train_data * data, float new_output_min, float new_output_max);
 
 /* Function: fann_set_scaling_params
 
@@ -1241,7 +1263,7 @@ FANN_EXTERNAL int FANN_API fann_set_output_scaling_params(struct fann * ann, con
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL int FANN_API fann_set_scaling_params(struct fann * ann, const struct fann_train_data * data, float new_input_min, float new_input_max, float new_output_min, float new_output_max);
+FANN_EXTERNAL int FANN_API fann_set_scaling_params(Fann2 * ann, const struct fann_train_data * data, float new_input_min, float new_input_max, float new_output_min, float new_output_max);
 
 /* Function: fann_clear_scaling_params
 
@@ -1252,7 +1274,7 @@ FANN_EXTERNAL int FANN_API fann_set_scaling_params(struct fann * ann, const stru
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL int FANN_API fann_clear_scaling_params(struct fann * ann);
+FANN_EXTERNAL int FANN_API fann_clear_scaling_params(Fann2 * ann);
 
 /* Function: fann_scale_input
 
@@ -1266,7 +1288,7 @@ FANN_EXTERNAL int FANN_API fann_clear_scaling_params(struct fann * ann);
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_scale_input(struct fann * ann, fann_type * input_vector);
+FANN_EXTERNAL void FANN_API fann_scale_input(Fann2 * ann, float * input_vector);
 
 /* Function: fann_scale_output
 
@@ -1280,7 +1302,7 @@ FANN_EXTERNAL void FANN_API fann_scale_input(struct fann * ann, fann_type * inpu
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_scale_output(struct fann * ann, fann_type * output_vector);
+FANN_EXTERNAL void FANN_API fann_scale_output(Fann2 * ann, float * output_vector);
 
 /* Function: fann_descale_input
 
@@ -1294,7 +1316,7 @@ FANN_EXTERNAL void FANN_API fann_scale_output(struct fann * ann, fann_type * out
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_descale_input(struct fann * ann, fann_type * input_vector);
+FANN_EXTERNAL void FANN_API fann_descale_input(Fann2 * ann, float * input_vector);
 
 /* Function: fann_descale_output
 
@@ -1308,7 +1330,7 @@ FANN_EXTERNAL void FANN_API fann_descale_input(struct fann * ann, fann_type * in
 
     This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_descale_output(struct fann * ann, fann_type * output_vector);
+FANN_EXTERNAL void FANN_API fann_descale_output(Fann2 * ann, float * output_vector);
 
 #endif
 
@@ -1328,7 +1350,7 @@ FANN_EXTERNAL void FANN_API fann_descale_output(struct fann * ann, fann_type * o
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_input_train_data(struct fann_train_data * train_data, fann_type new_min, fann_type new_max);
+FANN_EXTERNAL void FANN_API fann_scale_input_train_data(struct fann_train_data * train_data, float new_min, float new_max);
 
 /* Function: fann_scale_output_train_data
 
@@ -1346,7 +1368,7 @@ FANN_EXTERNAL void FANN_API fann_scale_input_train_data(struct fann_train_data *
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_output_train_data(struct fann_train_data * train_data, fann_type new_min, fann_type new_max);
+FANN_EXTERNAL void FANN_API fann_scale_output_train_data(struct fann_train_data * train_data, float new_min, float new_max);
 
 /* Function: fann_scale_train_data
 
@@ -1364,7 +1386,7 @@ FANN_EXTERNAL void FANN_API fann_scale_output_train_data(struct fann_train_data 
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_train_data(struct fann_train_data * train_data, fann_type new_min, fann_type new_max);
+FANN_EXTERNAL void FANN_API fann_scale_train_data(struct fann_train_data * train_data, float new_min, float new_max);
 
 /* Function: fann_merge_train_data
 
@@ -1456,7 +1478,7 @@ FANN_EXTERNAL int FANN_API fann_save_train_to_fixed(struct fann_train_data * dat
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL enum fann_train_enum FANN_API fann_get_training_algorithm(struct fann * ann);
+FANN_EXTERNAL enum fann_train_enum FANN_API fann_get_training_algorithm(Fann2 * ann);
 
 /* Function: fann_set_training_algorithm
 
@@ -1466,7 +1488,7 @@ FANN_EXTERNAL enum fann_train_enum FANN_API fann_get_training_algorithm(struct f
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_training_algorithm(struct fann * ann, enum fann_train_enum training_algorithm);
+FANN_EXTERNAL void FANN_API fann_set_training_algorithm(Fann2 * ann, enum fann_train_enum training_algorithm);
 
 /* Function: fann_get_learning_rate
 
@@ -1482,7 +1504,7 @@ FANN_EXTERNAL void FANN_API fann_set_training_algorithm(struct fann * ann, enum 
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_learning_rate(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_learning_rate(Fann2 * ann);
 
 /* Function: fann_set_learning_rate
 
@@ -1492,7 +1514,7 @@ FANN_EXTERNAL float FANN_API fann_get_learning_rate(struct fann * ann);
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_learning_rate(struct fann * ann, float learning_rate);
+FANN_EXTERNAL void FANN_API fann_set_learning_rate(Fann2 * ann, float learning_rate);
 
 /* Function: fann_get_learning_momentum
 
@@ -1509,7 +1531,7 @@ FANN_EXTERNAL void FANN_API fann_set_learning_rate(struct fann * ann, float lear
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_learning_momentum(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_learning_momentum(Fann2 * ann);
 
 /* Function: fann_set_learning_momentum
 
@@ -1519,7 +1541,7 @@ FANN_EXTERNAL float FANN_API fann_get_learning_momentum(struct fann * ann);
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_learning_momentum(struct fann * ann, float learning_momentum);
+FANN_EXTERNAL void FANN_API fann_set_learning_momentum(Fann2 * ann, float learning_momentum);
 
 /* Function: fann_get_activation_function
 
@@ -1538,7 +1560,7 @@ FANN_EXTERNAL void FANN_API fann_set_learning_momentum(struct fann * ann, float 
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL enum fann_activationfunc_enum FANN_API fann_get_activation_function(struct fann * ann, int layer, int neuron);
+FANN_EXTERNAL Fann2::ActivationFunc FANN_API fann_get_activation_function(Fann2 * ann, int layer, int neuron);
 
 /* Function: fann_set_activation_function
 
@@ -1560,7 +1582,7 @@ FANN_EXTERNAL enum fann_activationfunc_enum FANN_API fann_get_activation_functio
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_function(struct fann * ann, enum fann_activationfunc_enum activation_function, int layer, int neuron);
+FANN_EXTERNAL void FANN_API fann_set_activation_function(Fann2 * ann, Fann2::ActivationFunc activation_function, int layer, int neuron);
 
 /* Function: fann_set_activation_function_layer
 
@@ -1574,7 +1596,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_function(struct fann * ann, enum
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_function_layer(struct fann * ann, enum fann_activationfunc_enum activation_function, int layer);
+FANN_EXTERNAL void FANN_API fann_set_activation_function_layer(Fann2 * ann, Fann2::ActivationFunc activation_function, int layer);
 
 /* Function: fann_set_activation_function_hidden
 
@@ -1585,7 +1607,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_function_layer(struct fann * ann
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_function_hidden(struct fann * ann, enum fann_activationfunc_enum activation_function);
+FANN_EXTERNAL void FANN_API fann_set_activation_function_hidden(Fann2 * ann, Fann2::ActivationFunc activation_function);
 
 /* Function: fann_set_activation_function_output
 
@@ -1596,7 +1618,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_function_hidden(struct fann * an
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_function_output(struct fann * ann, enum fann_activationfunc_enum activation_function);
+FANN_EXTERNAL void FANN_API fann_set_activation_function_output(Fann2 * ann, Fann2::ActivationFunc activation_function);
 
 /* Function: fann_get_activation_steepness
 
@@ -1622,7 +1644,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_function_output(struct fann * an
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL fann_type FANN_API fann_get_activation_steepness(struct fann * ann, int layer, int neuron);
+FANN_EXTERNAL float FANN_API fann_get_activation_steepness(Fann2 * ann, int layer, int neuron);
 
 /* Function: fann_set_activation_steepness
 
@@ -1645,7 +1667,7 @@ FANN_EXTERNAL fann_type FANN_API fann_get_activation_steepness(struct fann * ann
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness(struct fann * ann, fann_type steepness, int layer, int neuron);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness(Fann2 * ann, float steepness, int layer, int neuron);
 
 /* Function: fann_set_activation_steepness_layer
 
@@ -1659,7 +1681,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness(struct fann * ann, fan
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(struct fann * ann, fann_type steepness, int layer);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann2 * ann, float steepness, int layer);
 
 /* Function: fann_set_activation_steepness_hidden
 
@@ -1670,7 +1692,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(struct fann * an
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(struct fann * ann, fann_type steepness);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(Fann2 * ann, float steepness);
 
 /* Function: fann_set_activation_steepness_output
 
@@ -1681,7 +1703,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(struct fann * a
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(struct fann * ann, fann_type steepness);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(Fann2 * ann, float steepness);
 
 /* Function: fann_get_train_error_function
 
@@ -1695,7 +1717,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(struct fann * a
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL enum fann_errorfunc_enum FANN_API fann_get_train_error_function(struct fann * ann);
+FANN_EXTERNAL enum fann_errorfunc_enum FANN_API fann_get_train_error_function(Fann2 * ann);
 
 /* Function: fann_set_train_error_function
 
@@ -1707,7 +1729,7 @@ FANN_EXTERNAL enum fann_errorfunc_enum FANN_API fann_get_train_error_function(st
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_train_error_function(struct fann * ann, enum fann_errorfunc_enum train_error_function);
+FANN_EXTERNAL void FANN_API fann_set_train_error_function(Fann2 * ann, enum fann_errorfunc_enum train_error_function);
 
 /* Function: fann_get_train_stop_function
 
@@ -1721,7 +1743,7 @@ FANN_EXTERNAL void FANN_API fann_set_train_error_function(struct fann * ann, enu
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL enum fann_stopfunc_enum FANN_API fann_get_train_stop_function(struct fann * ann);
+FANN_EXTERNAL enum fann_stopfunc_enum FANN_API fann_get_train_stop_function(Fann2 * ann);
 
 /* Function: fann_set_train_stop_function
 
@@ -1735,7 +1757,7 @@ FANN_EXTERNAL enum fann_stopfunc_enum FANN_API fann_get_train_stop_function(stru
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_train_stop_function(struct fann * ann, enum fann_stopfunc_enum train_stop_function);
+FANN_EXTERNAL void FANN_API fann_set_train_stop_function(Fann2 * ann, enum fann_stopfunc_enum train_stop_function);
 
 /* Function: fann_get_bit_fail_limit
 
@@ -1754,7 +1776,7 @@ FANN_EXTERNAL void FANN_API fann_set_train_stop_function(struct fann * ann, enum
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL fann_type FANN_API fann_get_bit_fail_limit(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_bit_fail_limit(Fann2 * ann);
 
 /* Function: fann_set_bit_fail_limit
 
@@ -1764,7 +1786,7 @@ FANN_EXTERNAL fann_type FANN_API fann_get_bit_fail_limit(struct fann * ann);
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_bit_fail_limit(struct fann * ann, fann_type bit_fail_limit);
+FANN_EXTERNAL void FANN_API fann_set_bit_fail_limit(Fann2 * ann, float bit_fail_limit);
 
 /* Function: fann_set_callback
 
@@ -1776,7 +1798,7 @@ FANN_EXTERNAL void FANN_API fann_set_bit_fail_limit(struct fann * ann, fann_type
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_callback(struct fann * ann, fann_callback_type callback);
+FANN_EXTERNAL void FANN_API fann_set_callback(Fann2 * ann, fann_callback_type callback);
 
 /* Function: fann_get_quickprop_decay
 
@@ -1790,7 +1812,7 @@ FANN_EXTERNAL void FANN_API fann_set_callback(struct fann * ann, fann_callback_t
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_quickprop_decay(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_quickprop_decay(Fann2 * ann);
 
 /* Function: fann_set_quickprop_decay
 
@@ -1800,7 +1822,7 @@ FANN_EXTERNAL float FANN_API fann_get_quickprop_decay(struct fann * ann);
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_quickprop_decay(struct fann * ann, float quickprop_decay);
+FANN_EXTERNAL void FANN_API fann_set_quickprop_decay(Fann2 * ann, float quickprop_decay);
 
 /* Function: fann_get_quickprop_mu
 
@@ -1814,7 +1836,7 @@ FANN_EXTERNAL void FANN_API fann_set_quickprop_decay(struct fann * ann, float qu
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_quickprop_mu(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_quickprop_mu(Fann2 * ann);
 
 /* Function: fann_set_quickprop_mu
 
@@ -1824,7 +1846,7 @@ FANN_EXTERNAL float FANN_API fann_get_quickprop_mu(struct fann * ann);
 
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_quickprop_mu(struct fann * ann, float quickprop_mu);
+FANN_EXTERNAL void FANN_API fann_set_quickprop_mu(Fann2 * ann, float quickprop_mu);
 
 /* Function: fann_get_rprop_increase_factor
    The increase factor is a value larger than 1, which is used to
@@ -1833,14 +1855,14 @@ FANN_EXTERNAL void FANN_API fann_set_quickprop_mu(struct fann * ann, float quick
    See also: <fann_set_rprop_increase_factor>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_rprop_increase_factor(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_rprop_increase_factor(Fann2 * ann);
 
 /* Function: fann_set_rprop_increase_factor
    The increase factor used during RPROP training.
    See also: <fann_get_rprop_increase_factor>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_rprop_increase_factor(struct fann * ann, float rprop_increase_factor);
+FANN_EXTERNAL void FANN_API fann_set_rprop_increase_factor(Fann2 * ann, float rprop_increase_factor);
 
 /* Function: fann_get_rprop_decrease_factor
    The decrease factor is a value smaller than 1, which is used to decrease the step-size during RPROP training.
@@ -1848,14 +1870,14 @@ FANN_EXTERNAL void FANN_API fann_set_rprop_increase_factor(struct fann * ann, fl
    See also: <fann_set_rprop_decrease_factor>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_rprop_decrease_factor(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_rprop_decrease_factor(Fann2 * ann);
 
 /* Function: fann_set_rprop_decrease_factor
    The decrease factor is a value smaller than 1, which is used to decrease the step-size during RPROP training.
    See also: <fann_get_rprop_decrease_factor>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_rprop_decrease_factor(struct fann * ann, float rprop_decrease_factor);
+FANN_EXTERNAL void FANN_API fann_set_rprop_decrease_factor(Fann2 * ann, float rprop_decrease_factor);
 
 /* Function: fann_get_rprop_delta_min
    The minimum step-size is a small positive number determining how small the minimum step-size may be.
@@ -1863,14 +1885,14 @@ FANN_EXTERNAL void FANN_API fann_set_rprop_decrease_factor(struct fann * ann, fl
    See also: <fann_set_rprop_delta_min>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_rprop_delta_min(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_rprop_delta_min(Fann2 * ann);
 
 /* Function: fann_set_rprop_delta_min
    The minimum step-size is a small positive number determining how small the minimum step-size may be.
    See also: <fann_get_rprop_delta_min>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_rprop_delta_min(struct fann * ann, float rprop_delta_min);
+FANN_EXTERNAL void FANN_API fann_set_rprop_delta_min(Fann2 * ann, float rprop_delta_min);
 
 /* Function: fann_get_rprop_delta_max
    The maximum step-size is a positive number determining how large the maximum step-size may be.
@@ -1878,14 +1900,14 @@ FANN_EXTERNAL void FANN_API fann_set_rprop_delta_min(struct fann * ann, float rp
    See also: <fann_set_rprop_delta_max>, <fann_get_rprop_delta_min>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_rprop_delta_max(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_rprop_delta_max(Fann2 * ann);
 
 /* Function: fann_set_rprop_delta_max
    The maximum step-size is a positive number determining how large the maximum step-size may be.
    See also: <fann_get_rprop_delta_max>, <fann_get_rprop_delta_min>
    This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_rprop_delta_max(struct fann * ann, float rprop_delta_max);
+FANN_EXTERNAL void FANN_API fann_set_rprop_delta_max(Fann2 * ann, float rprop_delta_max);
 
 /* Function: fann_get_rprop_delta_zero
    The initial step-size is a positive number determining the initial step size.
@@ -1893,14 +1915,14 @@ FANN_EXTERNAL void FANN_API fann_set_rprop_delta_max(struct fann * ann, float rp
    See also: <fann_set_rprop_delta_zero>, <fann_get_rprop_delta_min>, <fann_get_rprop_delta_max>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_rprop_delta_zero(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_rprop_delta_zero(Fann2 * ann);
 
 /* Function: fann_set_rprop_delta_zero
    The initial step-size is a positive number determining the initial step size.
    See also: <fann_get_rprop_delta_zero>, <fann_get_rprop_delta_zero>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_rprop_delta_zero(struct fann * ann, float rprop_delta_max);
+FANN_EXTERNAL void FANN_API fann_set_rprop_delta_zero(Fann2 * ann, float rprop_delta_max);
 
 /* Method: fann_get_sarprop_weight_decay_shift
    The sarprop weight decay shift.
@@ -1908,14 +1930,14 @@ FANN_EXTERNAL void FANN_API fann_set_rprop_delta_zero(struct fann * ann, float r
    See also: <fann fann_set_sarprop_weight_decay_shift>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_sarprop_weight_decay_shift(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_sarprop_weight_decay_shift(Fann2 * ann);
 
 /* Method: fann_set_sarprop_weight_decay_shift
    Set the sarprop weight decay shift.
    This function appears in FANN >= 2.1.0.
    See also: <fann_set_sarprop_weight_decay_shift>
  */
-FANN_EXTERNAL void FANN_API fann_set_sarprop_weight_decay_shift(struct fann * ann, float sarprop_weight_decay_shift);
+FANN_EXTERNAL void FANN_API fann_set_sarprop_weight_decay_shift(Fann2 * ann, float sarprop_weight_decay_shift);
 
 /* Method: fann_get_sarprop_step_error_threshold_factor
    The sarprop step error threshold factor.
@@ -1923,14 +1945,14 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_weight_decay_shift(struct fann * an
    See also: <fann fann_get_sarprop_step_error_threshold_factor>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_sarprop_step_error_threshold_factor(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_sarprop_step_error_threshold_factor(Fann2 * ann);
 
 /* Method: fann_set_sarprop_step_error_threshold_factor
    Set the sarprop step error threshold factor.
    This function appears in FANN >= 2.1.0.
    See also: <fann_get_sarprop_step_error_threshold_factor>
  */
-FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_threshold_factor(struct fann * ann, float sarprop_step_error_threshold_factor);
+FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_threshold_factor(Fann2 * ann, float sarprop_step_error_threshold_factor);
 
 /* Method: fann_get_sarprop_step_error_shift
    The get sarprop step error shift.
@@ -1938,14 +1960,14 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_threshold_factor(struct 
    See also: <fann_set_sarprop_step_error_shift>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_sarprop_step_error_shift(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_sarprop_step_error_shift(Fann2 * ann);
 
 /* Method: fann_set_sarprop_step_error_shift
    Set the sarprop step error shift.
    This function appears in FANN >= 2.1.0.
    See also: <fann_get_sarprop_step_error_shift>
  */
-FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_shift(struct fann * ann, float sarprop_step_error_shift);
+FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_shift(Fann2 * ann, float sarprop_step_error_shift);
 
 /* Method: fann_get_sarprop_temperature
    The sarprop weight decay shift.
@@ -1953,14 +1975,14 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_step_error_shift(struct fann * ann,
    See also: <fann_set_sarprop_temperature>
    This function appears in FANN >= 2.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_sarprop_temperature(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_sarprop_temperature(Fann2 * ann);
 
 /* Method: fann_set_sarprop_temperature
    Set the sarprop_temperature.
    This function appears in FANN >= 2.1.0.
    See also: <fann_get_sarprop_temperature>
  */
-FANN_EXTERNAL void FANN_API fann_set_sarprop_temperature(struct fann * ann, float sarprop_temperature);
+FANN_EXTERNAL void FANN_API fann_set_sarprop_temperature(Fann2 * ann, float sarprop_temperature);
 //
 //#include "fann_cascade.h"
 /* Section: FANN Cascade Training
@@ -1985,7 +2007,7 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_temperature(struct fann * ann, floa
    This algorithm adds neurons to the neural network while training, which means that it
    needs to start with an ANN without any hidden layers. The neural network should also use
    shortcut connections, so <fann_create_shortcut> should be used to create the ANN like this:
-   >struct fann *ann = fann_create_shortcut(2, fann_num_input_train_data(train_data),
+   >Fann2 *ann = fann_create_shortcut(2, fann_num_input_train_data(train_data),
       fann_num_output_train_data(train_data));
 
    This training uses the parameters set using the fann_set_cascade_..., but it also uses another
@@ -2009,13 +2031,13 @@ FANN_EXTERNAL void FANN_API fann_set_sarprop_temperature(struct fann * ann, floa
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(struct fann * ann, struct fann_train_data * data, uint max_neurons, uint neurons_between_reports, float desired_error);
+FANN_EXTERNAL void FANN_API fann_cascadetrain_on_data(Fann2 * ann, struct fann_train_data * data, uint max_neurons, uint neurons_between_reports, float desired_error);
 // 
 // Does the same as <fann_cascadetrain_on_data>, but reads the training data directly from a file.
 // See also: <fann_cascadetrain_on_data>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(struct fann * ann, const char * filename, uint max_neurons, uint neurons_between_reports, float desired_error);
+FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(Fann2 * ann, const char * filename, uint max_neurons, uint neurons_between_reports, float desired_error);
 
 /* Group: Parameters */
 
@@ -2040,13 +2062,13 @@ FANN_EXTERNAL void FANN_API fann_cascadetrain_on_file(struct fann * ann, const c
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_cascade_output_change_fraction(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_output_change_fraction(Fann2 * ann);
 // 
 // Descr: Sets the cascade output change fraction.
 // See also: <fann_get_cascade_output_change_fraction>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL void FANN_API fann_set_cascade_output_change_fraction(struct fann * ann, float cascade_output_change_fraction);
+FANN_EXTERNAL void FANN_API fann_set_cascade_output_change_fraction(Fann2 * ann, float cascade_output_change_fraction);
 // 
 // Descr: The number of cascade output stagnation epochs determines the number of epochs training is allowed to
 // continue without changing the MSE by a fraction of <fann_get_cascade_output_change_fraction>.
@@ -2057,13 +2079,13 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_output_change_fraction(struct fann 
 // See also: <fann_set_cascade_output_stagnation_epochs>, <fann_get_cascade_output_change_fraction>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_cascade_output_stagnation_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_output_stagnation_epochs(Fann2 * ann);
 // 
 // Descr: Sets the number of cascade output stagnation epochs.
 // See also: <fann_get_cascade_output_stagnation_epochs>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL void FANN_API fann_set_cascade_output_stagnation_epochs(struct fann * ann, uint cascade_output_stagnation_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_output_stagnation_epochs(Fann2 * ann, uint cascade_output_stagnation_epochs);
 // 
 // Descr: The cascade candidate change fraction is a number between 0 and 1 determining how large a fraction
 // the <fann_get_MSE> value should change within <fann_get_cascade_candidate_stagnation_epochs> during
@@ -2081,13 +2103,13 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_output_stagnation_epochs(struct fan
 // See also: <fann_set_cascade_candidate_change_fraction>, <fann_get_MSE>, <fann_get_cascade_candidate_stagnation_epochs>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL float FANN_API fann_get_cascade_candidate_change_fraction(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_candidate_change_fraction(Fann2 * ann);
 // 
 // Sets the cascade candidate change fraction.
 // See also: <fann_get_cascade_candidate_change_fraction>
 // This function appears in FANN >= 2.0.0.
 //
-FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_change_fraction(struct fann * ann, float cascade_candidate_change_fraction);
+FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_change_fraction(Fann2 * ann, float cascade_candidate_change_fraction);
 
 /* Function: fann_get_cascade_candidate_stagnation_epochs
 
@@ -2102,7 +2124,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_change_fraction(struct fa
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_candidate_stagnation_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_candidate_stagnation_epochs(Fann2 * ann);
 
 /* Function: fann_set_cascade_candidate_stagnation_epochs
 
@@ -2112,7 +2134,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_candidate_stagnation_epochs(struct 
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_stagnation_epochs(struct fann * ann, uint cascade_candidate_stagnation_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_stagnation_epochs(Fann2 * ann, uint cascade_candidate_stagnation_epochs);
 
 /* Function: fann_get_cascade_weight_multiplier
 
@@ -2126,14 +2148,14 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_stagnation_epochs(struct 
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL fann_type FANN_API fann_get_cascade_weight_multiplier(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_weight_multiplier(Fann2 * ann);
 
 /* Function: fann_set_cascade_weight_multiplier
    Sets the weight multiplier.
    See also: <fann_get_cascade_weight_multiplier>
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(struct fann * ann, fann_type cascade_weight_multiplier);
+FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(Fann2 * ann, float cascade_weight_multiplier);
 
 /* Function: fann_get_cascade_candidate_limit
    The candidate limit is a limit for how much the candidate neuron may be trained.
@@ -2144,7 +2166,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(struct fann * ann
    See also: <fann_set_cascade_candidate_limit>
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL fann_type FANN_API fann_get_cascade_candidate_limit(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_candidate_limit(Fann2 * ann);
 
 /* Function: fann_set_cascade_candidate_limit
 
@@ -2154,7 +2176,7 @@ FANN_EXTERNAL fann_type FANN_API fann_get_cascade_candidate_limit(struct fann * 
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_limit(struct fann * ann, fann_type cascade_candidate_limit);
+FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_limit(Fann2 * ann, float cascade_candidate_limit);
 
 /* Function: fann_get_cascade_max_out_epochs
 
@@ -2167,7 +2189,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_limit(struct fann * ann, 
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_max_out_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_max_out_epochs(Fann2 * ann);
 
 /* Function: fann_set_cascade_max_out_epochs
 
@@ -2177,7 +2199,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_max_out_epochs(struct fann * ann);
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_max_out_epochs(struct fann * ann, uint cascade_max_out_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_max_out_epochs(Fann2 * ann, uint cascade_max_out_epochs);
 
 /* Function: fann_get_cascade_min_out_epochs
 
@@ -2190,7 +2212,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_max_out_epochs(struct fann * ann, u
 
         This function appears in FANN >= 2.2.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_min_out_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_min_out_epochs(Fann2 * ann);
 
 /* Function: fann_set_cascade_min_out_epochs
 
@@ -2200,7 +2222,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_min_out_epochs(struct fann * ann);
 
         This function appears in FANN >= 2.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_min_out_epochs(struct fann * ann, uint cascade_min_out_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_min_out_epochs(Fann2 * ann, uint cascade_min_out_epochs);
 
 /* Function: fann_get_cascade_max_cand_epochs
 
@@ -2213,7 +2235,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_min_out_epochs(struct fann * ann, u
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_max_cand_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_max_cand_epochs(Fann2 * ann);
 
 /* Function: fann_set_cascade_max_cand_epochs
 
@@ -2223,7 +2245,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_max_cand_epochs(struct fann * ann);
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_max_cand_epochs(struct fann * ann, uint cascade_max_cand_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_max_cand_epochs(Fann2 * ann, uint cascade_max_cand_epochs);
 
 /* Function: fann_get_cascade_min_cand_epochs
 
@@ -2236,7 +2258,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_max_cand_epochs(struct fann * ann, 
 
         This function appears in FANN >= 2.2.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_min_cand_epochs(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_min_cand_epochs(Fann2 * ann);
 
 /* Function: fann_set_cascade_min_cand_epochs
 
@@ -2246,7 +2268,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_min_cand_epochs(struct fann * ann);
 
         This function appears in FANN >= 2.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_min_cand_epochs(struct fann * ann, uint cascade_min_cand_epochs);
+FANN_EXTERNAL void FANN_API fann_set_cascade_min_cand_epochs(Fann2 * ann, uint cascade_min_cand_epochs);
 
 /* Function: fann_get_cascade_num_candidates
 
@@ -2270,7 +2292,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_min_cand_epochs(struct fann * ann, 
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(Fann2 * ann);
 
 /* Function: fann_get_cascade_activation_functions_count
 
@@ -2282,7 +2304,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(struct fann * ann);
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_functions_count(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_functions_count(Fann2 * ann);
 
 /* Function: fann_get_cascade_activation_functions
 
@@ -2300,7 +2322,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_functions_count(struct f
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL enum fann_activationfunc_enum * FANN_API fann_get_cascade_activation_functions(struct fann * ann);
+FANN_EXTERNAL Fann2::ActivationFunc * FANN_API fann_get_cascade_activation_functions(Fann2 * ann);
 
 /* Function: fann_set_cascade_activation_functions
 
@@ -2314,14 +2336,14 @@ FANN_EXTERNAL enum fann_activationfunc_enum * FANN_API fann_get_cascade_activati
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(struct fann * ann, enum fann_activationfunc_enum * cascade_activation_functions, uint cascade_activation_functions_count);
+FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann2 * ann, Fann2::ActivationFunc * cascade_activation_functions, uint cascade_activation_functions_count);
 // 
 // The number of activation steepnesses in the <fann_get_cascade_activation_functions> array.
 // The default number of activation steepnesses is 4.
 // See also: <fann_get_cascade_activation_steepnesses>, <fann_set_cascade_activation_functions>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_steepnesses_count(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_steepnesses_count(Fann2 * ann);
 // 
 // The cascade activation steepnesses array is an array of the different activation functions used by the candidates.
 // 
@@ -2331,7 +2353,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_steepnesses_count(struct
 // See also: <fann_set_cascade_activation_steepnesses>, <fann_get_cascade_activation_steepnesses_count>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL fann_type * FANN_API fann_get_cascade_activation_steepnesses(struct fann * ann);
+FANN_EXTERNAL float * FANN_API fann_get_cascade_activation_steepnesses(Fann2 * ann);
 
 /* Function: fann_set_cascade_activation_steepnesses
 
@@ -2345,7 +2367,7 @@ FANN_EXTERNAL fann_type * FANN_API fann_get_cascade_activation_steepnesses(struc
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(struct fann * ann, fann_type * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
+FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann, float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
 
 /* Function: fann_get_cascade_num_candidate_groups
    The number of candidate groups is the number of groups of identical candidates which will be used
@@ -2357,14 +2379,14 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(struct fann 
    See also: <fann_set_cascade_num_candidate_groups>
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidate_groups(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidate_groups(Fann2 * ann);
 
 /* Function: fann_set_cascade_num_candidate_groups
    Sets the number of candidate groups.
    See also: <fann_get_cascade_num_candidate_groups>
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_num_candidate_groups(struct fann * ann, uint cascade_num_candidate_groups);
+FANN_EXTERNAL void FANN_API fann_set_cascade_num_candidate_groups(Fann2 * ann, uint cascade_num_candidate_groups);
 #endif // } FIXEDFANN 
 //
 //#include "fann_io.h"
@@ -2383,7 +2405,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_num_candidate_groups(struct fann * 
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_from_file(const char * configuration_file);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_from_file(const char * configuration_file);
 
 /* Function: fann_save
 
@@ -2405,7 +2427,7 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_from_file(const char * configur
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL int FANN_API fann_save(struct fann * ann, const char * configuration_file);
+FANN_EXTERNAL int FANN_API fann_save(Fann2 * ann, const char * configuration_file);
 
 /* Function: fann_save_to_fixed
 
@@ -2438,7 +2460,7 @@ FANN_EXTERNAL int FANN_API fann_save(struct fann * ann, const char * configurati
 
    This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL int FANN_API fann_save_to_fixed(struct fann * ann, const char * configuration_file);
+FANN_EXTERNAL int FANN_API fann_save_to_fixed(Fann2 * ann, const char * configuration_file);
 //
 /* Function: fann_create_standard
 
@@ -2448,7 +2470,7 @@ FANN_EXTERNAL int FANN_API fann_save_to_fixed(struct fann * ann, const char * co
         and this bias neuron will be connected to all neurons in the next layer.
         When running the network, the bias nodes always emits 1.
 
-        To destroy a <struct fann> use the <fann_destroy> function.
+        To destroy a <Fann2> use the <fann_destroy> function.
 
         Parameters:
                 num_layers - The total number of layers including the input and the output layer.
@@ -2456,19 +2478,19 @@ FANN_EXTERNAL int FANN_API fann_save_to_fixed(struct fann * ann, const char * co
                         input layer and ending with the output layer.
 
         Returns:
-                A pointer to the newly created <struct fann>.
+                A pointer to the newly created <Fann2>.
 
         Example:
                 > // Creating an ANN with 2 input neurons, 1 output neuron,
                 > // and two hidden layers with 8 and 9 neurons
-                > struct fann *ann = fann_create_standard(4, 2, 8, 9, 1);
+                > Fann2 *ann = fann_create_standard(4, 2, 8, 9, 1);
 
         See also:
                 <fann_create_standard_array>, <fann_create_sparse>, <fann_create_shortcut>
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_standard_2(uint num_layers, ...);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_standard_2(uint num_layers, ...);
 
 /* Function: fann_create_standard_array
    Just like <fann_create_standard>, but with an array of layer sizes
@@ -2478,14 +2500,14 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_standard_2(uint num_layers, ...
                 > // Creating an ANN with 2 input neurons, 1 output neuron,
                 > // and two hidden layers with 8 and 9 neurons
                 > uint layers[4] = {2, 8, 9, 1};
-                > struct fann *ann = fann_create_standard_array(4, layers);
+                > Fann2 *ann = fann_create_standard_array(4, layers);
 
         See also:
                 <fann_create_standard>, <fann_create_sparse>, <fann_create_shortcut>
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_standard_array(uint num_layers, const uint * layers);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_standard_array(uint num_layers, const uint * layers);
 // 
 // Creates a standard backpropagation neural network, which is not fully connected.
 // Parameters:
@@ -2497,11 +2519,11 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_standard_array(uint num_layers,
 //    ... - Integer values determining the number of neurons in each layer starting with the
 //    input layer and ending with the output layer.
 // Returns:
-//    A pointer to the newly created <struct fann>.
+//    A pointer to the newly created <Fann2>.
 // See also: <fann_create_sparse_array>, <fann_create_standard>, <fann_create_shortcut>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL struct fann * FANN_API fann_create_sparse_2(float connection_rate, uint num_layers, ...);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_2(float connection_rate, uint num_layers, ...);
 
 /* Function: fann_create_sparse_array
    Just like <fann_create_sparse>, but with an array of layer sizes
@@ -2514,7 +2536,7 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_sparse_2(float connection_rate,
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_sparse_array(float connection_rate, uint num_layers, const uint * layers);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, uint num_layers, const uint * layers);
 
 /* Function: fann_create_shortcut
 
@@ -2532,7 +2554,7 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_sparse_array(float connection_r
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_shortcut_2(uint num_layers, ...);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_shortcut_2(uint num_layers, ...);
 
 /* Function: fann_create_shortcut_array
    Just like <fann_create_shortcut>, but with an array of layer sizes
@@ -2545,13 +2567,13 @@ FANN_EXTERNAL struct fann * FANN_API fann_create_shortcut_2(uint num_layers, ...
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_create_shortcut_array(uint num_layers, const uint * layers);
+FANN_EXTERNAL Fann2 * FANN_API fann_create_shortcut_array(uint num_layers, const uint * layers);
 /* Function: fann_destroy
    Destroys the entire network, properly freeing all the associated memory.
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_destroy(struct fann * ann);
+FANN_EXTERNAL void FANN_API fann_destroy(Fann2 * ann);
 
 /* Function: fann_copy
    Creates a copy of a fann structure.
@@ -2560,7 +2582,7 @@ FANN_EXTERNAL void FANN_API fann_destroy(struct fann * ann);
 
         This function appears in FANN >= 2.2.0.
  */
-FANN_EXTERNAL struct fann * FANN_API fann_copy(struct fann * ann);
+FANN_EXTERNAL Fann2 * FANN_API fann_copy(Fann2 * ann);
 
 /* Function: fann_run
         Will run input through the neural network, returning an array of outputs, the number of which being
@@ -2571,7 +2593,7 @@ FANN_EXTERNAL struct fann * FANN_API fann_copy(struct fann * ann);
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL fann_type * FANN_API fann_run(struct fann * ann, fann_type * input);
+FANN_EXTERNAL float * FANN_API fann_run(Fann2 * ann, float * input);
 
 /* Function: fann_randomize_weights
         Give each connection a random weight between *min_weight* and *max_weight*
@@ -2583,7 +2605,7 @@ FANN_EXTERNAL fann_type * FANN_API fann_run(struct fann * ann, fann_type * input
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_randomize_weights(struct fann * ann, fann_type min_weight, fann_type max_weight);
+FANN_EXTERNAL void FANN_API fann_randomize_weights(Fann2 * ann, float min_weight, float max_weight);
 
 /* Function: fann_init_weights
         Initialize the weights using Widrow + Nguyen's algorithm.
@@ -2602,7 +2624,7 @@ FANN_EXTERNAL void FANN_API fann_randomize_weights(struct fann * ann, fann_type 
 
         This function appears in FANN >= 1.1.0.
  */
-FANN_EXTERNAL void FANN_API fann_init_weights(struct fann * ann, struct fann_train_data * train_data);
+FANN_EXTERNAL void FANN_API fann_init_weights(Fann2 * ann, struct fann_train_data * train_data);
 
 /* Function: fann_print_connections
         Will print the connections of the ann in a compact matrix, for easy viewing of the internals
@@ -2629,7 +2651,7 @@ FANN_EXTERNAL void FANN_API fann_init_weights(struct fann * ann, struct fann_tra
 
         This function appears in FANN >= 1.2.0.
  */
-FANN_EXTERNAL void FANN_API fann_print_connections(struct fann * ann);
+FANN_EXTERNAL void FANN_API fann_print_connections(Fann2 * ann);
 // 
 // Group: Parameters 
 //
@@ -2638,38 +2660,38 @@ FANN_EXTERNAL void FANN_API fann_print_connections(struct fann * ann);
 // Descr: Prints all of the parameters and options of the ANN
 // This function appears in FANN >= 1.2.0.
 // 
-FANN_EXTERNAL void FANN_API fann_print_parameters(struct fann * ann);
+FANN_EXTERNAL void FANN_API fann_print_parameters(Fann2 * ann);
 // 
 // Get the number of input neurons.
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_num_input(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_num_input(Fann2 * ann);
 // 
 // Get the number of output neurons.
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_num_output(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_num_output(Fann2 * ann);
 // 
 // Get the total number of neurons in the entire network. This number does also include the
 //   bias neurons, so a 2-4-2 network has 2+4+2 +2(bias) = 10 neurons.
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_total_neurons(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_total_neurons(Fann2 * ann);
 // 
 // Get the total number of connections in the entire network.
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_total_connections(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_total_connections(Fann2 * ann);
 // 
 // Get the type of neural network it was created as.
 // Parameters:
-//   ann - A previously created neural network structure of type <struct fann> pointer.
+//   ann - A previously created neural network structure of type <Fann2> pointer.
 // Returns:
 //   The neural network type from enum <fann_network_type_enum>
 // See Also: <fann_network_type_enum>
 // This function appears in FANN >= 2.1.0
 // 
-FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(struct fann * ann);
+FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(Fann2 * ann);
 
 /* Function: fann_get_connection_rate
 
@@ -2677,14 +2699,14 @@ FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(struct fann 
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
         Returns:
         The connection rate
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL float FANN_API fann_get_connection_rate(struct fann * ann);
+FANN_EXTERNAL float FANN_API fann_get_connection_rate(Fann2 * ann);
 
 /* Function: fann_get_num_layers
 
@@ -2692,19 +2714,19 @@ FANN_EXTERNAL float FANN_API fann_get_connection_rate(struct fann * ann);
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
         Returns:
                 The number of layers in the neural network
 
         Example:
                 > // Obtain the number of layers in a neural network
-                > struct fann *ann = fann_create_standard(4, 2, 8, 9, 1);
+                > Fann2 *ann = fann_create_standard(4, 2, 8, 9, 1);
         > uint num_layers = fann_get_num_layers(ann);
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL uint FANN_API fann_get_num_layers(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_num_layers(Fann2 * ann);
 
 /*Function: fann_get_layer_array
 
@@ -2714,14 +2736,14 @@ FANN_EXTERNAL uint FANN_API fann_get_num_layers(struct fann * ann);
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     The layers array must be preallocated to at least
     sizeof(uint) * fann_num_layers() long.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_get_layer_array(struct fann * ann, uint * layers);
+FANN_EXTERNAL void FANN_API fann_get_layer_array(Fann2 * ann, uint * layers);
 
 /* Function: fann_get_bias_array
 
@@ -2729,14 +2751,14 @@ FANN_EXTERNAL void FANN_API fann_get_layer_array(struct fann * ann, uint * layer
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     The bias array must be preallocated to at least
     sizeof(uint) * fann_num_layers() long.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_get_bias_array(struct fann * ann, uint * bias);
+FANN_EXTERNAL void FANN_API fann_get_bias_array(Fann2 * ann, uint * bias);
 
 /* Function: fann_get_connection_array
 
@@ -2744,14 +2766,14 @@ FANN_EXTERNAL void FANN_API fann_get_bias_array(struct fann * ann, uint * bias);
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     The connections array must be preallocated to at least
     sizeof(struct fann_connection) * fann_get_total_connections() long.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_get_connection_array(struct fann * ann, struct fann_connection * connections);
+FANN_EXTERNAL void FANN_API fann_get_connection_array(Fann2 * ann, struct fann_connection * connections);
 
 /* Function: fann_set_weight_array
 
@@ -2759,7 +2781,7 @@ FANN_EXTERNAL void FANN_API fann_get_connection_array(struct fann * ann, struct 
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     Only the weights can be changed, connections and weights are ignored
     if they do not already exist in the network.
@@ -2768,7 +2790,7 @@ FANN_EXTERNAL void FANN_API fann_get_connection_array(struct fann * ann, struct 
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_set_weight_array(struct fann * ann, struct fann_connection * connections, uint num_connections);
+FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann2 * ann, struct fann_connection * connections, uint num_connections);
 
 /* Function: fann_set_weight
 
@@ -2776,15 +2798,15 @@ FANN_EXTERNAL void FANN_API fann_set_weight_array(struct fann * ann, struct fann
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     Only the weights can be changed. The connection/weight is
     ignored if it does not already exist in the network.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_set_weight(struct fann * ann,
-    uint from_neuron, uint to_neuron, fann_type weight);
+FANN_EXTERNAL void FANN_API fann_set_weight(Fann2 * ann,
+    uint from_neuron, uint to_neuron, float weight);
 
 /* Function: fann_get_weights
 
@@ -2792,13 +2814,13 @@ FANN_EXTERNAL void FANN_API fann_set_weight(struct fann * ann,
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
-                weights - A fann_type pointer to user data. It is the responsibility
+            type <Fann2> pointer.
+                weights - A float pointer to user data. It is the responsibility
                         of the user to allocate sufficient space to store all the weights.
 
    This function appears in FANN >= x.y.z
  */
-FANN_EXTERNAL void FANN_API fann_get_weights(struct fann * ann, fann_type * weights);
+FANN_EXTERNAL void FANN_API fann_get_weights(Fann2 * ann, float * weights);
 
 /* Function: fann_set_weights
 
@@ -2806,14 +2828,14 @@ FANN_EXTERNAL void FANN_API fann_get_weights(struct fann * ann, fann_type * weig
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
-                weights - A fann_type pointer to user data. It is the responsibility
+            type <Fann2> pointer.
+                weights - A float pointer to user data. It is the responsibility
                         of the user to make the weights array sufficient long
                         to store all the weights.
 
    This function appears in FANN >= x.y.z
  */
-FANN_EXTERNAL void FANN_API fann_set_weights(struct fann * ann, fann_type * weights);
+FANN_EXTERNAL void FANN_API fann_set_weights(Fann2 * ann, float * weights);
 
 /* Function: fann_set_user_data
 
@@ -2824,12 +2846,12 @@ FANN_EXTERNAL void FANN_API fann_set_weights(struct fann * ann, fann_type * weig
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
                 user_data - A void pointer to user defined data.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_set_user_data(struct fann * ann, void * user_data);
+FANN_EXTERNAL void FANN_API fann_set_user_data(Fann2 * ann, void * user_data);
 
 /* Function: fann_get_user_data
 
@@ -2839,14 +2861,14 @@ FANN_EXTERNAL void FANN_API fann_set_user_data(struct fann * ann, void * user_da
 
     Parameters:
                 ann - A previously created neural network structure of
-            type <struct fann> pointer.
+            type <Fann2> pointer.
 
     Returns:
         A void pointer to user defined data.
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void * FANN_API fann_get_user_data(struct fann * ann);
+FANN_EXTERNAL void * FANN_API fann_get_user_data(Fann2 * ann);
 
 /* Function: fann_disable_seed_rand
 
@@ -2887,7 +2909,7 @@ FANN_EXTERNAL void FANN_API fann_enable_seed_rand();
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_decimal_point(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_decimal_point(Fann2 * ann);
 
 /* Function: fann_get_multiplier
 
@@ -2906,7 +2928,7 @@ FANN_EXTERNAL uint FANN_API fann_get_decimal_point(struct fann * ann);
 
         This function appears in FANN >= 1.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_multiplier(struct fann * ann);
+FANN_EXTERNAL uint FANN_API fann_get_multiplier(Fann2 * ann);
 
 #endif  /* FIXEDFANN */
 

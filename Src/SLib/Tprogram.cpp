@@ -2183,6 +2183,12 @@ const SDrawFigure * TProgram::LoadDrawFigureBySymb(const char * pSymb, TWhatmanT
 	return p_fig;
 }
 
+const SDrawFigure * TProgram::LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const
+{
+	const SDrawFigure * p_fig = DvToolList.GetFigById(1, id, pInfo);
+	return p_fig;
+}
+
 int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 1;

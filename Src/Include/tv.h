@@ -3095,7 +3095,20 @@ public:
 	int    SLAPI HasCapability(long c) const { return BIN(CFlags & c); }
 	int    SLAPI GetImageIdxByID(long id, long * pIDx);
 	HIMAGELIST SLAPI CreateImageList(HINSTANCE hInst);
+	//
+	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с иконкой,
+	//   идентифицируемой как imageID.
+	//   Значение imageID должно быть либо нулевым, либо ссылаться на ресурс иконок ICON_XXX.
+	//
 	int    SLAPI AddImageAssoc(long itemID, long imageID);
+	//
+	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с векторной иконкой,
+	//   идентифицируемой как imageID.
+	//   Значение imageID должно быть либо нулевым, либо ссылаться на ресурс векторных изображений PPDV_XXX.
+	// Note: Идентификатор imageID хранится в списке ImageAssoc с дополнительным битом 0x40000000 чтобы 
+	//   можно было отличить векторную иконку от растровой.
+	//
+	int    SLAPI AddVecImageAssoc(long itemID, long imageID);
 	void   SLAPI ClearImageAssocList();
 	int    SLAPI SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
 	int    SLAPI ResetItemColor(long itemID);
@@ -3117,10 +3130,9 @@ protected:
 	long   TopItem;
 	long   CurItem;
 private:
-	uint32 Sign;               // @v7.8.1 Подпись экземпляра класса. Используется для идентификации порожденных классов и инвалидных экземпляров
-		//
+	uint32 Sign;               // Подпись экземпляра класса. Используется для идентификации порожденных классов и инвалидных экземпляров
 	long   CFlags;
-	SBaseBuffer UserData;       // @obsolete
+	SBaseBuffer UserData;      // 
 	LAssocArray ImageAssoc;    // Список ид элементов и ассоциированных с ним id иконок
 	LAssocArray ImageIdxAssoc; // Список ид элементов и ассоциированных с ним индексов картинок содержащихся в HIMAGELIST
 	struct ColorItem {
@@ -3992,6 +4004,7 @@ public:
     int    InitUiToolBox();
 	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
+	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
 
 	static TProgram * application;   // @global
 
