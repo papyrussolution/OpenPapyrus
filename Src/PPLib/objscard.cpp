@@ -256,6 +256,8 @@ int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
 		eq = 0;
 	else if(SpecialTreatment != rS.SpecialTreatment) // @v10.1.3
 		eq = 0;
+	else if(RsrvPoolDestSerID != rS.RsrvPoolDestSerID) // @v10.2.8
+		eq = 0;
 	else if(!sstreq(Name, rS.Name))
 		eq = 0;
 	else if(!sstreq(Symb, rS.Symb))
@@ -793,6 +795,8 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 			ok = 0;
 		else if(pFilt->Flags & SCardSeriesFilt::fOnlySeries && (rRec.Flags & SCRDSF_GROUP))
 			ok = 0;
+		else if(pFilt->Flags & SCardSeriesFilt::fOnlyReal && (rRec.Flags & (SCRDSF_GROUP|SCRDSF_RSRVPOOL))) // @v10.2.8
+			ok = 0;
 		else if(pFilt->ParentID && (rRec.ParentID != pFilt->ParentID && rRec.ID != pFilt->ParentID))
 			ok = 0;
 	}
@@ -925,10 +929,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	size_t SLAPI GetSize() const
-	{
-		return (sizeof(*this) + AllocatedCount * ItemSize);
-	}
+	size_t SLAPI GetSize() const { return (sizeof(*this) + AllocatedCount * ItemSize); }
 	PPID   ObjType;
 	PPID   ObjID;
 	PPID   Prop;
@@ -1285,6 +1286,13 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, &scs_filt);
 			}
 			// } @v9.8.9
+			// @v10.2.8 {
+			{
+				SCardSeriesFilt scs_filt;
+				scs_filt.Flags = scs_filt.fOnlyReal;
+				SetupPPObjCombo(this, CTLSEL_SCARDSER_RPDEST, PPOBJ_SCARDSERIES, Data.Rec.RsrvPoolDestSerID, 0, &scs_filt);
+			}
+			// } @v10.2.8
 			AddClusterAssocDef(CTL_SCARDSER_TYPE, 0, scstDiscount);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 1, scstCredit);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 2, scstBonus);
@@ -1372,6 +1380,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				Data.Rec.BonusChrgGrpID = 0;
 				Data.Rec.ChargeGoodsID = 0;
 			}
+			Data.Rec.RsrvPoolDestSerID = (Data.Rec.GetType() == scstRsrvPool) ? getCtrlLong(CTLSEL_SCARDSER_RPDEST) : 0; // @v10.2.8
 			Data.Rec.PersonKindID = NZOR(Data.Rec.PersonKindID, PPPRK_CLIENT);
 			getCtrlData(sel = CTL_SCARDSER_PDIS, &pdis);
 			THROW_PP(pdis >= -300 && pdis <= 100, PPERR_USERINPUT);
@@ -1481,14 +1490,15 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			SString temp_buf;
 			int    txt_id = 0;
 			int    txt2_id = 0;
-			long   _type = Data.Rec.GetType();
+			const  long _type = Data.Rec.GetType();
 			PPID   init_grp_id = 0;
-			enableCommand(cmBonusRule, (Data.Rec.GetType() == scstBonus));
+			enableCommand(cmBonusRule, _type == scstBonus);
+			disableCtrl(CTLSEL_SCARDSER_RPDEST, _type != scstRsrvPool); // @v10.2.8
 			if(prevType == scstBonus)
 				Data.Rec.BonusChrgGrpID = getCtrlLong(CTLSEL_SCARDSER_BONCGRP);
 			else if(prevType == scstCredit)
 				Data.Rec.ChargeGoodsID = getCtrlLong(CTLSEL_SCARDSER_BONCGRP);
-			DisableClusterItem(CTL_SCARDSER_FLAGS, 3, _type != scstCredit); // @v7.6.9
+			DisableClusterItem(CTL_SCARDSER_FLAGS, 3, _type != scstCredit);
 			if(_type == scstBonus) {
 				txt_id = PPTXT_SCS_AUTOWROFFGGRP_BON;
 				txt2_id = PPTXT_SCS_BONUSCHARGEGGRP;
@@ -3402,11 +3412,13 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 	else
 		setCtrlLong(CTLSEL_SCARD_AUTOGOODS, Data.Rec.AutoGoodsID = 0);
 	disableCtrl(CTLSEL_SCARD_AUTOGOODS, !goods_grp_id);
-	disableCtrl(CTL_SCARD_PHONE, scst == scstRsrvPool); // @v10.2.7
-	disableCtrl(CTLSEL_SCARD_PERSON, scst == scstRsrvPool); // @v10.2.7
-	disableCtrl(CTL_SCARD_PSW, scst == scstRsrvPool); // @v10.2.7
-	showCtrl(CTLSEL_SCARD_POOLDSER, scst == scstRsrvPool); // @v10.2.7
-	disableCtrl(CTLSEL_SCARD_POOLDSER, scst != scstRsrvPool); // @v10.2.7
+	// @v10.2.7 {
+	disableCtrl(CTL_SCARD_PHONE, scst == scstRsrvPool); 
+	disableCtrl(CTLSEL_SCARD_PERSON, scst == scstRsrvPool);
+	disableCtrl(CTL_SCARD_PSW, scst == scstRsrvPool);
+	showCtrl(CTLSEL_SCARD_POOLDSER, scst == scstRsrvPool);
+	disableCtrl(CTLSEL_SCARD_POOLDSER, scst != scstRsrvPool);
+	// } @v10.2.7
 	setStaticText(CTL_SCARD_ST_INFO, info_buf);
 }
 
@@ -3974,6 +3986,57 @@ int SLAPI PPObjSCard::Browse(void * extraPtr)
 	SCardFilt flt;
 	flt.SeriesID = (long)extraPtr;
 	return ViewSCard(&flt, 0);
+}
+
+int SLAPI PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesID, PPID * pID, int use_ta)
+{
+	int    ok = -1;
+	PPID   sc_id = 0;
+	PPID   pool_id = pPoolID ? *pPoolID : 0;
+	PPID   dest_series_id = destSeriesID;
+	PPObjSCardSeries scs_obj;
+	PPSCardSeries2 scs_rec;
+	PPSCardSeries2 scs_dest_rec;
+	if(pool_id) {
+		THROW(scs_obj.Search(pool_id, &scs_rec) > 0);
+		THROW_PP_S(scs_rec.GetType() == scstRsrvPool, PPERR_SCARDSERMUSTBERSRVPOOL, scs_rec.Name);
+		SETIFZ(dest_series_id, scs_rec.RsrvPoolDestSerID);
+	}
+	else {
+		for(SEnum en = scs_obj.Enum(0); !pool_id && en.Next(&scs_rec) > 0;) {
+			if(scs_rec.GetType() == scstRsrvPool && !(scs_rec.Flags & SCRDSF_PASSIVE)) {
+				pool_id = scs_rec.ID;
+				SETIFZ(dest_series_id, scs_rec.RsrvPoolDestSerID);
+			}
+		}
+	}
+	THROW_PP(pool_id, PPERR_NOSCARDSERRSRVPOOL);
+	THROW(scs_obj.Search(dest_series_id, &scs_dest_rec) > 0);
+	const int dest_ser_type = scs_dest_rec.GetType();
+	THROW_PP_S(oneof3(dest_ser_type, scstDiscount, scstCredit, scstBonus), PPERR_SCARDSERMUSTBEREGTYPE, scs_dest_rec.Name);
+	{
+		SCardTbl::Key2 k2;
+		MEMSZERO(k2);
+		k2.SeriesID = pool_id;
+		while(!sc_id && P_Tbl->search(2, &k2, spGt) && k2.SeriesID == pool_id) {
+			sc_id = P_Tbl->data.ID;
+		}
+		THROW_PP_S(sc_id, PPERR_SCARDSERRSRVPOOLISEMPTY, scs_rec.Name);
+		{
+			PPSCardPacket pack;
+			THROW(GetPacket(sc_id, &pack) > 0);
+			pack.Rec.SeriesID = dest_series_id;
+			{
+				PPID   temp_id = sc_id;
+				THROW(PutPacket(&sc_id, &pack, use_ta));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pPoolID, pool_id);
+	ASSIGN_PTR(pID, sc_id);
+	return ok;
 }
 //
 //
@@ -4676,24 +4739,20 @@ int FASTCALL SCardCache::Dirty(PPID id)
 	ObjCacheHash::Dirty(id);
 	ExtBlk.Dirty(id);
 	{
-		//FclLock.WriteLock();
 		SRWLOCKER(FclLock, SReadWriteLocker::Write);
 		FullCardList.Dirty(id);
-		//FclLock.Unlock();
 	}
 	return ok;
 }
 
 int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry)
 {
-	const long rest_actual_timeout =
 #ifdef NDEBUG
-		10;
+	const long rest_actual_timeout = 10;
 #else
-		30;
+	const long rest_actual_timeout = 30;
 #endif
 	const uint max_entries = 20;
-
 	int    ok = -1;
 	uint   pos = 0;
 	uint   i;
@@ -4957,6 +5016,7 @@ int SLAPI EditSCardParam(const char * pIniSection)
    	return ok;
 }
 
+#if 0 // @v10.2.8 @unused {
 class SCardImpExpCfgListDialog : public ImpExpCfgListDialog {
 public:
 	SCardImpExpCfgListDialog() : ImpExpCfgListDialog()
@@ -4970,13 +5030,19 @@ private:
 	}
 	PPSCardImpExpParam Param;
 };
+#endif // } 0 @v10.2.8 @unused
 //
 //
 //
 class PPSCardImporter {
 public:
-	SLAPI  PPSCardImporter();
-	SLAPI ~PPSCardImporter();
+	SLAPI  PPSCardImporter() : P_IE(0)
+	{
+	}
+	SLAPI ~PPSCardImporter()
+	{
+		ZDELETE(P_IE);
+	}
 	int    SLAPI Run(const char * pCfgName, int use_ta);
 private:
 	int    SLAPI IdentifyOwner(const char * pName, const char * pCode, PPID kindID, PPID regTypeID, PPID * pID);
@@ -4987,15 +5053,6 @@ private:
 	PPObjSCardSeries ScsObj;
 	PPObjPerson PsnObj;
 };
-
-SLAPI PPSCardImporter::PPSCardImporter() : P_IE(0)
-{
-}
-
-SLAPI PPSCardImporter::~PPSCardImporter()
-{
-	ZDELETE(P_IE);
-}
 
 static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 {

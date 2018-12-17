@@ -62,14 +62,8 @@ public:
 	int    FASTCALL operator != (const InetAddr & rS) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI IsEmpty() const;
-	int    SLAPI GetPort() const
-	{
-		return Port;
-	}
-	const SString & SLAPI GetHostName() const
-	{
-		return HostName;
-	}
+	int    SLAPI GetPort() const { return Port; }
+	const SString & SLAPI GetHostName() const { return HostName; }
 	int    SLAPI Set(ulong addr, int port = 0);
 	int    SLAPI Set(const char * pHostName, int port = 0);
 	int    SLAPI Set(const sockaddr_in *);
@@ -210,7 +204,7 @@ public:
 		sslmClient = 1
 	};
 
-	SLAPI  TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
+	explicit SLAPI TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
 	SLAPI ~TcpSocket();
 	int    SLAPI IsValid() const;
 	operator SOCKET () const { return S; }

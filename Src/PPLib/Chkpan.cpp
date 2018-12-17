@@ -21,7 +21,6 @@ int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp
 // Example: 1B 70 0 5 5
 // "1B70000505"
 //
-
 #define DEFAULT_TS_FONTSIZE        24
 #define INSTVSRCH_THRESHOLD        50000 
 #define TSGGROUPSASITEMS_FONTDELTA 4
@@ -1601,62 +1600,43 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 {
 	int    result = 1;
 	CPosProcessor_SetupDiscontBlock & r_blk = *(CPosProcessor_SetupDiscontBlock *)pBlk;
-	CCheckItem * p_item;
-	double min_qtty  = SMathConst::Max;
-	double max_price = 0.0;
-	//const  long rpe_flags = ((CSt.Flags & CardState::fUseMinQuotVal) ? RTLPF_USEMINEXTQVAL : 0) | RTLPF_USEQUOTWTIME;
-	uint    i;
-	StringSet addendum_msg_list;
-	SString temp_buf;
-	int     is_there_scst_goods_to_query = 0;
-	for(i = 0; P.enumItems(&i, (void**)&p_item);) {
-		double qtty = fabs(p_item->Quantity);
-		double gift_item_dis = 0.0; // Подарочная суммовая скидка по строке
-		const  PPID goods_id = p_item->GoodsID;
-		if(p_item->Flags & cifGiftDiscount && r_blk.DistributeGiftDiscount) {
-			gift_item_dis = qtty * p_item->Discount;
-			if(gift_item_dis != 0.0) {
-				r_blk.GiftDisList.Add((long)(i-1), gift_item_dis);
-				if(!r_blk.IsRounding) {
-					r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
-				}
-			}
-			assert(p_item->Price == 0.0);
-			p_item->Discount = 0.0;
-		}
-		int    no_discount = 0;
-		int    no_calcprice = 0;
-		if(p_item->Flags & (cifGift|cifQuotedByGift|cifPartOfComplex)) {
-			no_calcprice = 1;
-			no_discount = 1;
-		}
-		if(r_blk.IsRounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) {
-			no_calcprice = 1;
-			// @v10.2.3 {
-			if(p_item->RemoteProcessingTa[0])
-				no_discount = 1;
-			// } @v10.2.3 
-		}
-		{
+	if(mode == 0 || (mode == 1 && r_blk.P_Scst)) {
+		PPObjBill * p_bobj = BillObj;
+		CCheckItem * p_item;
+		double min_qtty  = SMathConst::Max;
+		double max_price = 0.0;
+		//const  long rpe_flags = ((CSt.Flags & CardState::fUseMinQuotVal) ? RTLPF_USEMINEXTQVAL : 0) | RTLPF_USEQUOTWTIME;
+		uint    i;
+		PPIDArray lot_list;
+		StringSet addendum_msg_list;
+		SString temp_buf;
+		int     is_there_scst_goods_to_query = 0;
+		TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
+		for(i = 0; P.enumItems(&i, (void**)&p_item);) {
+			double qtty = fabs(p_item->Quantity);
+			double gift_item_dis = 0.0; // Подарочная суммовая скидка по строке
+			double item_price = p_item->Price; // @v10.2.8
+			double item_discount = p_item->Discount; // @v10.2.8
+			int    no_discount = 0;
+			int    no_calcprice = 0;
 			RetailGoodsInfo rgi;
 			long   ext_rgi_flags = 0;
-			if(!no_calcprice) {
+			const  PPID goods_id = p_item->GoodsID;
+			{
+				//
+				// Рассчитываем цену {
+				//
 				double price_by_serial = 0.0;
-				if(p_item->Serial[0]) {
-					PPIDArray  lot_list;
-					PPObjBill * p_bobj = BillObj;
-					if(p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
-						ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-						LDATE  last_date = ZERODATE;
-						ReceiptTbl::Rec lot_rec;
-						const  PPID  loc_id = GetCnLocID(goods_id);
-						for(uint j = 0; j < lot_list.getCount(); j++) {
-							if(r_rcpt.Search(lot_list.get(j), &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id) {
-								if(last_date < lot_rec.Dt) {
-									price_by_serial = lot_rec.Price;
-									last_date = lot_rec.Dt;
-								}
-							}
+				lot_list.clear();
+				if(p_item->Serial[0] && p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
+					ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
+					LDATE  last_date = ZERODATE;
+					ReceiptTbl::Rec lot_rec;
+					const  PPID  loc_id = GetCnLocID(goods_id);
+					for(uint j = 0; j < lot_list.getCount(); j++) {
+						if(r_rcpt.Search(lot_list.get(j), &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id && last_date < lot_rec.Dt) {
+							price_by_serial = lot_rec.Price;
+							last_date = lot_rec.Dt;
 						}
 					}
 				}
@@ -1669,75 +1649,106 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					no_discount = 1;
 				//
 				if(_gpr > 0)
-					p_item->Price = rgi.Price;
+					item_price = rgi.Price;
 				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
 					if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
-						p_item->Price = rgi.ExtPrice;
-						p_item->Discount = 0.0;
+						item_price = rgi.ExtPrice;
+						item_discount = 0.0;
 					}
 					else
-						p_item->Discount = (p_item->Price - rgi.ExtPrice);
+						item_discount = (item_price - rgi.ExtPrice);
 					no_discount = 1;
 				}
 				else {
 					const RetailPriceExtractor::ExtQuotBlock * p_eqb = GetCStEqbND(no_discount);
 					if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
 						no_discount = 1;
-					p_item->Discount = 0.0;
+					item_discount = 0.0;
 				}
-				if(r_blk.P_Scst && !p_item->RemoteProcessingTa[0] && r_blk.P_Scst->DoesWareBelongToScope(goods_id) > 0) {
-					TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
+				// }
+			}
+			if(mode == 1) {
+				assert(r_blk.P_Scst);
+				if(r_blk.P_Scst && /* @v10.2.8 !p_item->RemoteProcessingTa[0] &&*/ r_blk.P_Scst->DoesWareBelongToScope(goods_id) > 0) {
 					SCardSpecialTreatment::DiscountBlock db;
 					db.RowN = i;
 					db.GoodsID = goods_id;
-					db.InPrice = p_item->Price;
-					db.ResultPrice = p_item->Price;
+					SETFLAG(db.Flags, db.fProcessed, p_item->RemoteProcessingTa[0]); // @v10.2.8
+					db.InPrice = item_price-item_discount;
+					db.ResultPrice = item_price-item_discount;
 					db.Qtty = fabs(p_item->Quantity);
 					STRNSCPY(db.TaIdent, p_item->RemoteProcessingTa);
 					//scst_dbl.clear();
 					scst_dbl.insert(&db);
-					long    qdrf = 0;
-					if(r_blk.P_Scst->QueryDiscount(&r_blk.ScstCb, scst_dbl, &qdrf, &addendum_msg_list.Z()) > 0) {
-						SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(0);
-						//p_item->BeforeGiftPrice = p_item->Price; // @v10.2.3
-						//p_item->Discount = r_db.InPrice - r_db.ResultPrice;
-						//p_item->Price = r_db.InPrice/*r_db.ResultPrice*/;
-						p_item->Discount = 0.0;
-						p_item->Price = r_db.ResultPrice;
-						//
-						p_item->Flags |= cifFixedPrice;
-						STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
-						// @v10.2.3 {
-						{
-							for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);)
-								MsgToDisp_Add(temp_buf);
-						}
-						// } @v10.2.3 
+				}
+			}
+			else {
+				if(p_item->Flags & cifGiftDiscount && r_blk.DistributeGiftDiscount) {
+					gift_item_dis = qtty * p_item->Discount;
+					if(gift_item_dis != 0.0) {
+						r_blk.GiftDisList.Add((long)(i-1), gift_item_dis);
+						if(!r_blk.IsRounding)
+							r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
+					}
+					assert(p_item->Price == 0.0);
+					p_item->Discount = 0.0;
+				}
+				if(p_item->Flags & (cifGift|cifQuotedByGift|cifPartOfComplex)) {
+					no_calcprice = 1;
+					no_discount = 1;
+				}
+				if(r_blk.IsRounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) {
+					no_calcprice = 1;
+					// @v10.2.3 {
+					if(p_item->RemoteProcessingTa[0])
 						no_discount = 1;
-
+					// } @v10.2.3 
+				}
+				if(!no_calcprice) {
+					p_item->Price = item_price;
+					p_item->Discount = item_discount;
+				}
+				else if(!no_discount) { // @v9.9.3 Дополнительный блок для правильной идентификации блокировки скидки
+					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
+					if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
+						no_discount = 1;
+				}
+				if(no_discount) {
+					r_blk.WoDisPosList.addUnique(i);
+				}
+				else {
+					const double p = R2(r_blk.IsRounding ? p_item->NetPrice() : p_item->Price);
+					r_blk.Amount = R2(r_blk.Amount + p * qtty);
+					if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
+						r_blk.LastIndex = i;
+						min_qtty = qtty;
+						max_price = p;
 					}
 				}
 			}
-			else if(!no_discount) { // @v9.9.3 Дополнительный блок для правильной идентификации блокировки скидки
-				const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
-				if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
-					no_discount = 1;
+		}
+		if(scst_dbl.getCount()) {
+			assert(mode == 1);
+			long    qdrf = 0;
+			if(r_blk.P_Scst->QueryDiscount(&r_blk.ScstCb, scst_dbl, &qdrf, &addendum_msg_list.Z()) > 0) {
+				for(i = 0; i < scst_dbl.getCount(); i++) {
+					SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
+					p_item = &P.at(r_db.RowN-1);
+					if(isempty(p_item->RemoteProcessingTa)) {
+						p_item->Discount = 0.0;
+						p_item->Price = r_db.ResultPrice;
+						p_item->Flags |= cifFixedPrice;
+						STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
+					}
+				}
+				// @v10.2.3 {
+				for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);)
+					MsgToDisp_Add(temp_buf);
+				// } @v10.2.3 
 			}
 		}
-		if(no_discount) {
-			r_blk.WoDisPosList.addUnique(i);
-		}
-		else {
-			const double p = R2(r_blk.IsRounding ? p_item->NetPrice() : p_item->Price);
-			r_blk.Amount = R2(r_blk.Amount + p * qtty);
-			if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
-				r_blk.LastIndex = i;
-				min_qtty = qtty;
-				max_price = p;
-			}
-		}
+		r_blk.Amount = R2(r_blk.Amount);
 	}
-	r_blk.Amount = R2(r_blk.Amount);
 	return result;
 }
 
@@ -1757,11 +1768,14 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 	sdb.P_Scst = (CSt.GetID() && CSt.SpcCardTreatment) ? SCardSpecialTreatment::CreateInstance(CSt.SpcCardTreatment) : 0; // @v10.1.6
 	//SCardSpecialTreatment::CardBlock scst_cb;
 	if(sdb.P_Scst) {
-		if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, sdb.ScstCb) <= 0) {
+		if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, sdb.ScstCb) > 0) {
+			Helper_PreprocessDiscountLoop(1/*mode*/, &sdb); // Первый цикл (mode = 1) для запроса к сторонним сервисам
+		}
+		else {
 			ZDELETE(sdb.P_Scst);
 		}
 	}
-	Helper_PreprocessDiscountLoop(0/*mode*/, &sdb);
+	Helper_PreprocessDiscountLoop(0/*mode*/, &sdb); // Основной цикл (mode = 0)
 	{
 		//
 		// Специальный признак, индицирующий то, что финишная скидка
@@ -2594,8 +2608,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 				pPack->Ext.StartOrdDtm = P.Eccd.DlvrDtm;
 				if(P.Eccd.Addr_.Tail[0]) {
 					if(!P.Eccd.Addr_.ID) {
-						LocationCore::GetExField(&P.Eccd.Addr_, LOCEXSTR_PHONE, temp_buf);
-						if(temp_buf.NotEmptyS()) {
+						if(LocationCore::GetExFieldS(&P.Eccd.Addr_, LOCEXSTR_PHONE, temp_buf).NotEmptyS()) {
 							//
 							// Если у адреса есть телефон, то объявляем такой адрес автономным,
 							// дабы при повторном обращении этого клиента можно было бы
@@ -4830,13 +4843,10 @@ int SelCheckListDialog::SetupItemList()
 						PPObjLocation loc_obj;
 						LocationTbl::Rec loc_rec;
 						if(loc_obj.Search(pack.Ext.AddrID, &loc_rec) > 0) {
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, sub);
-							memo_buf.Cat(sub);
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, sub);
-							if(sub.NotEmptyS())
+							memo_buf.Cat(LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_PHONE, sub));
+							if(LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_SHORTADDR, sub).NotEmptyS())
 								memo_buf.CatDivIfNotEmpty(',', 2).Cat(sub);
-							LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, sub);
-							if(sub.NotEmptyS())
+							if(LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_CONTACT, sub).NotEmptyS())
 								memo_buf.CatDivIfNotEmpty(',', 2).Cat(sub);
 						}
 					}
@@ -5326,7 +5336,7 @@ struct AddrByPhoneItem { // @flat
 
 class CheckDlvrDialog : public TDialog {
 public:
-	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), Channel(pChannel),
+	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), ScsRsrvPoolID(0), Channel(pChannel),
 		LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
 	{
 		addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
@@ -5429,6 +5439,39 @@ private:
 			GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
 			SetupDeliveryCtrls(0);
 		}
+		// @v10.2.8 {
+		else if(event.isClusterClk(CTL_CCHKDLVR_LPHTOCRD)) {
+			const long preserve_flags = Data.Flags;
+			SString temp_buf;
+			SString phone_buf;
+			GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags);
+			if(Data.Flags & Data.fCreateCardByPhone) {
+				if(Data.SCardID_ == 0) {
+					getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+						PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
+						PPID   scs_pool_id = 0;
+						PPID   sc_id = 0;
+						int    scr = ScObj.SelectCardFromReservePool(&scs_pool_id, 0, &sc_id, 1);
+						if(scr > 0) {
+						}
+						else {
+							PPError();
+							Data.Flags &= ~Data.fCreateCardByPhone;
+							SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
+						}
+					}
+				}
+			}
+			else {
+				if(Data.SCardID_) {
+					if(ScsRsrvPoolID) {
+					}
+				}
+			}
+		}
+		// } @v10.2.8 
 		/* @v9.4.5 else if(event.isCbSelected(CTLSEL_CCHKDLVR_SCARD)) {
 			SCardID = getCtrlLong(CTLSEL_CCHKDLVR_SCARD);
 		} */
@@ -5492,18 +5535,15 @@ private:
 				is_mod = 1;
 			else {
 				getCtrlString(CTL_CCHKDLVR_ADDR, now_buf);
-				LocationCore::GetExField(&OrgLocRec, LOCEXSTR_SHORTADDR, org_buf);
-				if(now_buf.CmpNC(org_buf) != 0)
+				if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_SHORTADDR, org_buf)) != 0)
 					is_mod = 1;
 				else {
 					getCtrlString(CTL_CCHKDLVR_PHONE, now_buf);
-					LocationCore::GetExField(&OrgLocRec, LOCEXSTR_PHONE, org_buf);
-					if(now_buf.CmpNC(org_buf) != 0)
+					if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_PHONE, org_buf)) != 0)
 						is_mod = 1;
 					else {
 						getCtrlString(CTL_CCHKDLVR_CONTACT, now_buf);
-						LocationCore::GetExField(&OrgLocRec, LOCEXSTR_CONTACT, org_buf);
-						if(now_buf.CmpNC(org_buf) != 0)
+						if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_CONTACT, org_buf)) != 0)
 							is_mod = 1;
 					}
 				}
@@ -5693,10 +5733,8 @@ private:
 										ap_item.ObjFlags = loc_rec.Flags;
 										ap_item.CityID = loc_rec.CityID;
 										phone_buf.CopyTo(ap_item.Phone, sizeof(ap_item.Phone));
-										LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-										temp_buf.CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
-										LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
-										temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
+										LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_CONTACT, temp_buf).CopyTo(ap_item.Contact, sizeof(ap_item.Contact));
+										LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf).CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
 										AddrByPhoneList.insert(&ap_item);
 									}
 									break;
@@ -5800,17 +5838,14 @@ private:
 			}
 			setCtrlLong(CTL_CCHKDLVR_ADDRID, Data.Addr_.ID);
 			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
-			LocationCore::GetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf);
-			setCtrlString(CTL_CCHKDLVR_ADDR, temp_buf);
+			setCtrlString(CTL_CCHKDLVR_ADDR, LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf));
 			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6 
 			if(temp_buf.Empty()) { // @v10.2.6 
-				LocationCore::GetExField(&Data.Addr_, LOCEXSTR_PHONE, loc_phone);
-				if(loc_phone.Empty() && PersonID)
+				if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_PHONE, loc_phone).Empty() && PersonID)
 					loc_phone = DlvrPhone;
 				setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
 			}
-			LocationCore::GetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
-			if(temp_buf.Empty() && PersonID)
+			if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf).Empty() && PersonID)
 				GetPersonName(PersonID, temp_buf);
 			setCtrlString(CTL_CCHKDLVR_CONTACT, temp_buf);
 			SETIFZ(Data.DlvrDtm.d, getcurdate_());
@@ -5870,6 +5905,7 @@ private:
 		LockAddrModChecking = 0;
 	}
 
+	PPID   ScsRsrvPoolID; // Персональная карта была акцептирована из резервного пула ScsRsrvPoolID.
 	CheckPaneDialog::ExtCcData Data;
 	LocationTbl::Rec OrgLocRec;
 	PPID   DefCityID;
@@ -5902,8 +5938,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 					if(sc_id && P.Eccd.Flags & P.Eccd.fAttachPhoneToSCard) {
 						SString loc_phone;
 						SString ex_sc_phone;
-						LocationCore::GetExField(&P.Eccd.Addr_, LOCEXSTR_PHONE, loc_phone);
-						if(loc_phone.NotEmptyS()) {
+						if(LocationCore::GetExFieldS(&P.Eccd.Addr_, LOCEXSTR_PHONE, loc_phone).NotEmptyS()) {
 							PPSCardPacket sc_pack;
 							if(ScObj.GetPacket(P.Eccd.SCardID_, &sc_pack) > 0) {
 								sc_pack.GetExtStrData(PPSCardPacket::extssPhone, ex_sc_phone);

@@ -566,7 +566,7 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 	int    ok = 0;
 	int    pos_undefined = 1; // @debug
 	uint   idx = *pPos;
-	long   min_count = MAXLONG; // @v8.9.8 MAXINT-->MAXLONG
+	long   min_count = MAXLONG;
 	for(uint t = 0; min_count && !ok && t < MaxTries; t++) {
 		const  uint f = Hash(pEntry->ID, t);
 		ObjCacheEntry * p_entry = SearchByPos(f, 0);

@@ -376,7 +376,7 @@ public:
 		SetupCalCtrl(CTLCAL_PRJ_START, this, CTL_PRJ_START, 4);
 		SetupCalCtrl(CTLCAL_PRJ_ESTFINISH, this, CTL_PRJ_ESTFINISH, 4);
 		SetupCalCtrl(CTLCAL_PRJ_FINISH, this, CTL_PRJ_FINISH, 4);
-		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0)); // @v6.2.2
+		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
 	}
 	int    setDTS(const ProjectTbl::Rec *);
 	int    getDTS(ProjectTbl::Rec *);

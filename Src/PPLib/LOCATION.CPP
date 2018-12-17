@@ -146,6 +146,13 @@ int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, 
 	return ok;
 }
 
+//static 
+SString & FASTCALL LocationCore::GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+{
+	LocationCore::GetExField(pRec, fldId, rBuf);
+	return rBuf;
+}
+
 //static
 int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
 {
@@ -158,9 +165,8 @@ int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const 
 	return ok;
 }
 
-SLAPI LocationCore::LocationCore() : LocationTbl()
+SLAPI LocationCore::LocationCore() : LocationTbl(), P_Eac((CConfig.Flags2 & CCFLG2_INDEXEADDR) ? new EAddrCore : 0)
 {
-	P_Eac = (CConfig.Flags2 & CCFLG2_INDEXEADDR) ? new EAddrCore : 0;
 }
 
 SLAPI LocationCore::~LocationCore()

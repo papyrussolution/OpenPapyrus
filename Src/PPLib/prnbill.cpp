@@ -331,12 +331,10 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 		PPFilt pf(pPack);
 		ok = PPAlddPrint(rpt_id, &pf, &env);
 	}
-	// @v8.6.2 {
 	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
 		PPFilt pf(pPack);
 		ok = PPAlddPrint(REPORT_INVOICECORR, &pf, &env);
 	}
-	// } @v8.6.2
 	else if(pPack->OpTypeID == PPOPT_INVENTORY) {
 		PPViewInventory iv;
 		InventoryFilt filt;

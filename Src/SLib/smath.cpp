@@ -402,6 +402,53 @@ double lnfact(uint n)
 	flnfact(n, &lf);
 	return lf.V;
 }
+// 
+// Descr: Calculate Pearson correlation = cov(X, Y) / (sigma_X * sigma_Y)
+//   This routine efficiently computes the correlation in one pass of the
+//   data and makes use of the algorithm described in:
+// 
+// B. P. Welford, "Note on a Method for Calculating Corrected Sums of
+// Squares and Products", Technometrics, Vol 4, No 3, 1962.
+// 
+// This paper derives a numerically stable recurrence to compute a sum of products
+// 
+// S = sum_{i=1..N} [ (x_i - mu_x) * (y_i - mu_y) ]
+// 
+// with the relation
+// 
+// S_n = S_{n-1} + ((n-1)/n) * (x_n - mu_x_{n-1}) * (y_n - mu_y_{n-1})
+// 
+double SLAPI scorrelation(const double * pData1, const double * pData2, const size_t n)
+{
+	double result = 0.0;
+	if(pData1 && pData2 && n > 1) {
+		double sum_xsq = 0.0;
+		double sum_ysq = 0.0;
+		double sum_cross = 0.0;
+		// 
+		// Compute:
+		// sum_xsq = Sum [ (x_i - mu_x)^2 ],
+		// sum_ysq = Sum [ (y_i - mu_y)^2 ] and
+		// sum_cross = Sum [ (x_i - mu_x) * (y_i - mu_y) ]
+		// using the above relation from Welford's paper
+		// 
+		double mean_x = pData1[0];
+		double mean_y = pData2[0];
+		for(size_t i = 1; i < n; i++) {
+			const double ratio = i / (i + 1.0);
+			const double delta_x = pData1[i] - mean_x;
+			const double delta_y = pData2[i] - mean_y;
+			sum_xsq += delta_x * delta_x * ratio;
+			sum_ysq += delta_y * delta_y * ratio;
+			sum_cross += delta_x * delta_y * ratio;
+			mean_x += delta_x / (i + 1.0);
+			mean_y += delta_y / (i + 1.0);
+		}
+		result = sum_cross / (sqrt(sum_xsq) * sqrt(sum_ysq));
+	}
+	return result;
+}
+
 //
 //
 //
@@ -414,7 +461,7 @@ SLAPI SHistogram::~SHistogram()
 	delete P_Stat;
 }
 
-int SLAPI SHistogram::Setup()
+void SLAPI SHistogram::Setup()
 {
 	BinList.freeAll();
 	ValList.freeAll();
@@ -426,19 +473,17 @@ int SLAPI SHistogram::Setup()
 	ZDELETE(P_Stat);
 	DevMean = 0.0;
 	DevWidth = 0.0;
-	return 1;
 }
 
-int SLAPI SHistogram::SetupDynamic(double leftEdge, double step)
+void SLAPI SHistogram::SetupDynamic(double leftEdge, double step)
 {
 	Setup();
 	Flags |= fDynBins;
 	LeftEdge = leftEdge;
 	Step = step;
-	return 1;
 }
 
-int SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
+void SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 {
 	Setup();
 	Flags |= fDeviation;
@@ -448,7 +493,6 @@ int SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 		Flags |= fEven;
 	DevWidthSigm = widthSigm;
 	DevBinCount = binCount;
-	return 1;
 }
 
 int SLAPI SHistogram::AddBin(long binId, double lowBound)

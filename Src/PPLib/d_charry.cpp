@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3599,12 +3599,10 @@ int SLAPI PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 								STRNSCPY(rec.Code, Data.Code);
 								break;
 							case DSF_CRRLOCATION_ZIP:
-								LocationCore::GetExField(&Data, LOCEXSTR_ZIP, temp_buf);
-								LocationCore::SetExField(&rec, LOCEXSTR_ZIP, temp_buf);
+								LocationCore::SetExField(&rec, LOCEXSTR_ZIP, LocationCore::GetExFieldS(&Data, LOCEXSTR_ZIP, temp_buf));
 								break;
 							case DSF_CRRLOCATION_ADDRESS:
-								LocationCore::GetExField(&Data, LOCEXSTR_SHORTADDR, temp_buf);
-								LocationCore::SetExField(&rec, LOCEXSTR_SHORTADDR, temp_buf);
+								LocationCore::SetExField(&rec, LOCEXSTR_SHORTADDR, LocationCore::GetExFieldS(&Data, LOCEXSTR_SHORTADDR, temp_buf));
 								break;
 							case DSF_CRRLOCATION_MASSCAPACITY:
 								rec.MassCapacity = Data.MassCapacity;
@@ -3618,8 +3616,7 @@ int SLAPI PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 							case DSF_CRRLOCATION_NUMLAYERS: rec.NumLayers = Data.NumLayers; break;
 							case DSF_CRRLOCATION_DEPTH:     rec.Depth     = Data.Depth; break;
 							case DSF_CRRLOCATION_FULLADDR:
-								LocationCore::GetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
-								LocationCore::SetExField(&rec, LOCEXSTR_FULLADDR, temp_buf);
+								LocationCore::SetExField(&rec, LOCEXSTR_FULLADDR, LocationCore::GetExFieldS(&Data, LOCEXSTR_FULLADDR, temp_buf));
 								break;
 							case DSF_CRRLOCATION_FVATFREE:
 								SETFLAGBYSAMPLE(rec.Flags, LOCF_VATFREE, Data.Flags);

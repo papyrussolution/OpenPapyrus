@@ -704,6 +704,7 @@ int PPApp::processCommand(uint cmd)
 		case cmRecalcBillTurns:      RecalcBillTurns(0);                break;
 		case cmCheckBillAmounts:     RecalcBillTurns(1);                break;
 		case cmCorrectZeroQCertRefs: CorrectZeroQCertRefs();            break;
+		case cmCorrectZeroDebtDimRefs: CorrectZeroDebtDimRefs();        break; // @v10.2.8
 		case cmCorrectAbsenceLots:   RecoverAbsenceLots();              break;
 		case cmCorrectAbsenceGoods:  RecoverAbsenceGoods();             break;
 		case cmRecoverAbsenceBills:  RecoverAbsenceBills();             break;

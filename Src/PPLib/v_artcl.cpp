@@ -827,6 +827,16 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 			case PPVCMD_TRANSMIT:
 				ok = Transmit(id);
 				break;
+			case PPVCMD_TB_CBX_SELECTED: // @v10.2.8
+				{
+					ok = -1;
+					PPID   acs_id = 0;
+					if(pBrw && pBrw->GetToolbarComboData(&acs_id) && Filt.AccSheetID != acs_id) {
+						Filt.AccSheetID = acs_id;
+						ok = ChangeFilt(1, pBrw);
+					}
+				}
+				break;
 			case PPVCMD_INPUTCHAR:
 				if(((const char*)pHdr)[0] == kbCtrlX)
 					CtrlX++;
@@ -843,6 +853,12 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 		UpdateTempTable(*(PPID *)pHdr);
 	}
 	return ok;
+}
+
+int SLAPI PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw) // @v10.2.8
+{
+	pBrw->SetupToolbarCombo(PPOBJ_ACCSHEET, Filt.AccSheetID, 0, 0);
+	return -1;
 }
 
 DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

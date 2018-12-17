@@ -1722,12 +1722,16 @@ void SmsClient::DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t body
 
 void SmsClient::DisconnectSocket()
 {
-	if(ClientSocket != INVALID_SOCKET) {
+	// @v10.2.8 {
+	ClientSocket.Disconnect();
+	ConnectionState = SMPP_SOCKET_DISCONNECTED; 
+	// } @v10.2.8 
+	/* @v10.2.8 if(ClientSocket != INVALID_SOCKET) {
 		ConnectionState = SMPP_SOCKET_DISCONNECTED;
 		shutdown(ClientSocket, 2);
 		closesocket(ClientSocket);
 		ClientSocket = INVALID_SOCKET;
-	}
+	}*/
 }
 
 /* @v9.5.12 (emitted) int SmsClient::SendEnquireLink(int sequenceNumber)

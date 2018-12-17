@@ -2085,6 +2085,10 @@ PPERR_SCSPCTRT_AZ                "Ошибка сервиса AstraZeneca: %s"
 PPERR_USRACCEXPIRED              "Срок действия учетной записи '%s' истек"
 PPERR_INVTXREFPROPVALUE          "Недопустимое значение текстового свойства (%s) в операции с TextRef"
 PPERR_SCARDPOOLDSERISPOOL        "Серия карт (%s) для переноса из резервного пула не может быть резервным пулом"
+PPERR_NOSCARDSERRSRVPOOL         "Не удалось найти серию карт резервного пула"
+PPERR_SCARDSERMUSTBERSRVPOOL     "Серия карт (%s) должна быть резервным пулом"
+PPERR_SCARDSERMUSTBEREGTYPE      "Серия карт (%s) должна иметь регулярный тип (дисконтная, кредитная или бонусная)"
+PPERR_SCARDSERRSRVPOOLISEMPTY    "Нет доступных карт в резервном пуле %s"
 // LastError
 
 [102] // confirmation
@@ -6763,6 +6767,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_correcttrfrintrunite  		          "Корректировка ошибочных объединений документов внутренней передачи"
 @cmd_correcttrfrrvrs       		          "Корректировка зеркальных товарных проводок"
 @cmd_correctzeroqcertrefs  		          "Обнуление висячих ссылок на сертификаты в лотах"
+@cmd_correctzerodebtdimrefs               "Обнуление висячих ссылок на долговые размерности" // @v10.2.8
 @cmd_country               		          "Государства"
 @cmd_createdraftbysupplorder	          "Формирование документов на основе заказа поставщику"
 @cmd_createglobaluseracc 		          "Регистрация пользователя в глобальной базе"
@@ -9030,6 +9035,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsvalrestr_lowboundformula            "Формула нижней границы цены"
 @goodsvalrestr_uppboundformula            "Формула верхней границы цены"
 @goodsvalrestr_scp                        "Параметры управления отгрузкой" // generic
+@goodsvalrestr_billarrestr                "Ограничения для статей документов"
+@goodsvalrestr_validateformulas           "Проверить формулы"
 
 @internetaccount_fftppassive              "Пассивный режим"
 @internetaccount_flags                    "@{flags}"

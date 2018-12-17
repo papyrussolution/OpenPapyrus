@@ -56,6 +56,7 @@
 		MENUITEM "@cmd_correcttrfrintrunite"						cmCorrectTrfrIntrUnite
 		MENUITEM "@cmd_correctccheckline01"							cmCorrectCCheckLine01
 		MENUITEM "@cmd_recoverlostunifiedlinks"						cmRecoverLostUnifiedLinks
+		MENUITEM "@cmd_correctzerodebtdimrefs"                      cmCorrectZeroDebtDimRefs // @v10.2.8
 	}
 	POPUP "@cmdpu_other" {
 		MENUITEM "@cmd_selfsync"									cmSelfSync

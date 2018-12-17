@@ -4461,7 +4461,7 @@ char * FASTCALL SCharToOem(char * pStr);
 #define DF_DOS              1
 #define DF_FAT              2
 #define DF_XBASE            3
-#define DF_PARADOX          4
+// @v10.2.8 #define DF_PARADOX          4
 #define DF_CLARION          5
 #define DF_BTRIEVE          6
 //
@@ -4538,7 +4538,7 @@ enum {
 //   >0 - строка преобразована успешно
 //   0  - ошибка
 //
-int   SLAPI strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
+int   FASTCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
 // Current date getting
 //
@@ -4574,7 +4574,7 @@ void  FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //
 void  SLAPI _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
 int   FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
-long  SLAPI diffdate(const void *, const void *, int _360);
+long  FASTCALL diffdate(const void *, const void *, int _360);
 void  FASTCALL plusdate(void *, int, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
@@ -4586,7 +4586,7 @@ void  FASTCALL plusdate(void *, int, int _360);
 // ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void  SLAPI plusperiod(void * pDest, int period, int numperiods, int _360);
+void  FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360);
 //
 // Descr: возвращает день недели, на который приходится дата pDate.
 // Parameters:
@@ -4714,8 +4714,8 @@ enum {
 //   недопустимым символом считаются две следующие одна за другой точки.
 // Returns: смещение от начала строки до первого после принятой даты символа.
 //
-int   SLAPI _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
-int   SLAPI strtodate(const char * pBuf, long fmt, void *);
+int   FASTCALL _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
+int   FASTCALL strtodate(const char * pBuf, long fmt, void *);
 LDATE FASTCALL strtodate_(const char * pBuf, long fmt);
 //
 // Descr: Заимствованная у CURL функция преобразования строки в дату/время.
@@ -4743,7 +4743,7 @@ char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t 
 //   1
 //
 int   FASTCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
-int   SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
+int   FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
 //
 // Descr: Обобщанная структура поля данных. Используется в основном для работы
 //   с таблицами баз данных.
@@ -4885,7 +4885,7 @@ int    FASTCALL createEmptyFile(const char * pFileName);
 char * SLAPI MakeTempFileName(const char * pDir, const char * pPrefix,
 	const char * pExt, long * pStart, char * pFileNameBuf, size_t fileNameBufLen); // @obsolete
 */
-SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
 //
 // Descr: Searches a binary file for a string.
 //   @>>SearchStrInFile(Filename, startoffset, string, ignoreCase);
@@ -9715,9 +9715,9 @@ public:
 	};
 	SLAPI  SHistogram();
 	SLAPI ~SHistogram();
-	int    SLAPI Setup();
-	int    SLAPI SetupDynamic(double leftEdge, double step);
-	int    SLAPI SetupDev(int even, double widthSigm, uint binCount = 0);
+	void   SLAPI Setup();
+	void   SLAPI SetupDynamic(double leftEdge, double step);
+	void   SLAPI SetupDev(int even, double widthSigm, uint binCount = 0);
 	int    SLAPI AddBin(long binId, double lowBound);
 	int    SLAPI GetBin(long binId, Val *) const;
 	int    SLAPI GetTotal(Val *) const;
@@ -10462,6 +10462,11 @@ double fscale(double v, double low, double upp);
 //   y = 1 / (1 + exp(-a * x))
 //
 double SLAPI sigmoid(double a, double x);
+//
+// Descr: Расчитывает коэффициент корреляции между последовательностями pData1 и pData2
+//   длиной n значений.
+//
+double SLAPI scorrelation(const double * pData1, const double * pData2, const size_t n);
 //
 //
 //
@@ -13464,10 +13469,7 @@ public:
 		P16    RL;
 	};
     static uint32 FASTCALL Combine(uint16 x, uint16 y);
-    static uint32 FASTCALL Combine(const P16 & rP)
-    {
-    	return Combine(rP.X, rP.Y);
-    }
+    static uint32 FASTCALL Combine(const P16 & rP) { return Combine(rP.X, rP.Y); }
     static uint64 FASTCALL Combine(uint32 x, uint32 y);
 };
 //
@@ -13853,10 +13855,7 @@ public:
 	// Descr: Возвращает IntputReportByteLength. Полезно вызвать эту функцию перед Read
 	//
 	int    GetInputReportDataLength();
-	SBuffer & GetExtBuf()
-	{
-		return ExtBuffer;
-	}
+	SBuffer & GetExtBuf() { return ExtBuffer; }
 private:
 	// Descr: Перебирает все подключенные usb-устройства, получает их HID-идентификатор и сравнивает его с заданными PID и VID
 	//		 (ибо HID-идентификатор соcтоит из PID и VID и прочих других идентификаторов)

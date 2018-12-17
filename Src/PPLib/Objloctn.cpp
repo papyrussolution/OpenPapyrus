@@ -268,8 +268,8 @@ int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 		pCfg->Flags = cfg.Flags;
 		pCfg->Flags |= PPLocationConfig::fValid;
 		pCfg->DefPalletID = cfg.DefPalletID;
-		pCfg->StoreIdxTagID = cfg.StoreIdxTagID; // @v8.9.11
-		STRNSCPY(pCfg->AddrCodeTempl, cfg.AddrCodeTempl); // @v7.3.8
+		pCfg->StoreIdxTagID = cfg.StoreIdxTagID;
+		STRNSCPY(pCfg->AddrCodeTempl, cfg.AddrCodeTempl);
 		ok = 1;
 	}
 	else {
@@ -301,7 +301,7 @@ int FASTCALL PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_t
 		cfg.Flags       = pCfg->Flags;
 		cfg.Flags &= ~PPLocationConfig::fValid;
 		cfg.DefPalletID = pCfg->DefPalletID;
-		cfg.StoreIdxTagID = pCfg->StoreIdxTagID; // @v8.9.11
+		cfg.StoreIdxTagID = pCfg->StoreIdxTagID;
 		STRNSCPY(cfg.AddrCodeTempl, pCfg->AddrCodeTempl);
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, &cfg, sizeof(cfg), 0));
 		THROW(tra.Commit());
@@ -330,17 +330,13 @@ int SLAPI PPObjLocation::EditConfig()
 	dlg->SetClusterData(CTL_LOCCFG_DIVCOD, cfg.WhCodingDiv);
 	SetupPPObjCombo(dlg, CTLSEL_LOCCFG_DEFPALTYPE, PPOBJ_PALLET, cfg.DefPalletID, 0, 0);
 	dlg->setCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
-	// @v8.9.11 {
 	{
 		ObjTagFilt tag_filt;
 		tag_filt.ObjTypeID = PPOBJ_LOCATION;
 		SetupObjTagCombo(dlg, CTLSEL_LOCCFG_STRIDXTAG, cfg.StoreIdxTagID, OLW_CANINSERT, &tag_filt);
 	}
-	// } @v8.9.11
-	// @v8.6.12 {
 	dlg->AddClusterAssoc(CTL_LOCCFG_FLAGS, 0, PPLocationConfig::fUseFias);
 	dlg->SetClusterData(CTL_LOCCFG_FLAGS, cfg.Flags);
-	// } @v8.6.12
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTLSEL_LOCCFG_WHZONECOD, &cfg.WhZoneCoding);
 		dlg->getCtrlData(CTLSEL_LOCCFG_WHCOLCOD,  &cfg.WhColCoding);
@@ -348,8 +344,8 @@ int SLAPI PPObjLocation::EditConfig()
 		dlg->GetClusterData(CTL_LOCCFG_DIVCOD, &cfg.WhCodingDiv);
 		dlg->getCtrlData(CTLSEL_LOCCFG_DEFPALTYPE, &cfg.DefPalletID);
 		dlg->getCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
-		dlg->getCtrlData(CTLSEL_LOCCFG_STRIDXTAG, &cfg.StoreIdxTagID); // @v8.9.11
-		dlg->GetClusterData(CTL_LOCCFG_FLAGS, &cfg.Flags); // @v8.6.12
+		dlg->getCtrlData(CTLSEL_LOCCFG_STRIDXTAG, &cfg.StoreIdxTagID);
+		dlg->GetClusterData(CTL_LOCCFG_FLAGS, &cfg.Flags);
 		ok = 1;
 		if(memcmp(&cfg, &org_cfg, sizeof(cfg)) != 0) {
 			if(!WriteConfig(&cfg, 1))
@@ -763,15 +759,14 @@ int PPObjLocation::AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec
 				THROW(AddListItem(pList, &par_rec, zeroParentId, pRecurTrace)); // @recursion
 			}
 			else {
-				PPSetError(PPERR_LOCATIONRECUR, par_rec.Name); // @v8.1.0
+				PPSetError(PPERR_LOCATIONRECUR, par_rec.Name);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
 				par_id = 0;
 			}
 		}
 		else
 			par_id = zeroParentId;
-		// @v8.1.0 THROW_SL(pList->Add(pLocRec->ID, par_id, pLocRec->Name, 0 /* don't replace dup */));
-		THROW_SL(pList->AddFast(pLocRec->ID, par_id, pLocRec->Name)); // @v8.1.0
+		THROW_SL(pList->AddFast(pLocRec->ID, par_id, pLocRec->Name));
 	}
 	CATCHZOK
 	return ok;
@@ -864,7 +859,6 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 			// те группы, которые не имеют дочерних элементов.
 			//
 			THROW(MakeListByType(LOCTYP_WAREHOUSEGROUP, parent_id, zeroParentId, f, p_list));
-			// @v8.1.9 {
 			{
 				const uint elc = p_filt->ExtLocList.GetCount();
 				if(elc) {
@@ -893,7 +887,6 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 					}
 				}
 			}
-			// } @v8.1.9
 		}
 	}
 	if(zeroParentId) {
@@ -1300,10 +1293,6 @@ private:
 				ViewWareplaces();
 			else if(event.isCmd(cmLocGoodsAssoc)) {
 				if(IsWareplaceView) {
-					/* @v8.1.9
-					LocationFilt * p_filt = (LocationFilt *)SAlloc::M(sizeof(LocationFilt));
-					memzero(p_filt, sizeof(*p_filt));
-					*/
 					LocationFilt loc_filt;
 					loc_filt.LocType = LOCTYP_WAREPLACE;
 					loc_filt.Parent = ParentID;
@@ -2204,7 +2193,7 @@ int SLAPI PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use
 							objid.Set(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 						}
-						pPack->Counter = org_rec.Counter; // @v8.3.10
+						pPack->Counter = org_rec.Counter;
 						THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
 						DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 					}
@@ -3660,7 +3649,6 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 			LocationCore::GetAddress(loc_rec, 0, _RET_STR);
 		}
 	}
-	// @v8.3.7 {
 	else if(pF->Name == "?GetRegister") {
 		_RET_INT = 0;
 		PPID   reg_type_id = 0;
@@ -3686,7 +3674,6 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 	else if(pF->Name == "?GetTag") {
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_LOCATION, H.ID, _ARG_STR(1));
 	}
-	// } @v8.3.7
 }
 //
 // Implementation of PPALDD_Warehouse
@@ -3719,8 +3706,8 @@ int PPALDD_Warehouse::InitData(PPFilt & rFilt, long rsrv)
 		if(locobj->Search(rFilt.ID, &rec) > 0) {
 			SString temp_buf;
 			H.ID = rec.ID;
-			H.LocID = rec.ID; // @v8.3.7
-			H.ParentID = rec.ParentID; // @v8.3.5
+			H.LocID = rec.ID;
+			H.ParentID = rec.ParentID;
 			H.RspnsPersonID = rec.RspnsPersonID;
 			H.CityID = rec.CityID;
 			H.Flags  = rec.Flags;
@@ -5684,7 +5671,7 @@ struct UhttLocationBlock {
 PPALDD_CONSTRUCTOR(UhttLocation)
 {
 	if(Valid) {
-		MEMSZERO(H); // @v8.3.2
+		MEMSZERO(H);
 		AssignHeadData(&H, sizeof(H));
 		Extra[0].Ptr = new UhttLocationBlock;
 	}
@@ -5752,7 +5739,7 @@ int PPALDD_UhttLocation::Set(long iterId, int commit)
 			STRNSCPY(r_blk.Rec.Name, strip(H.Name));
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_ZIP, H.ZIP);
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_PHONE, H.Phone);
-			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_EMAIL, H.EMail); // @v8.2.3
+			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_EMAIL, H.EMail);
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_CONTACT, H.Contact);
 			if(H.Address[0] && !sstreq(H.Address, "0")) {
 				if(r_blk.Rec.Flags & LOCF_MANUALADDR)
@@ -5830,9 +5817,9 @@ int PPALDD_UhttStore::InitData(PPFilt & rFilt, long rsrv)
 		H.ID        = r_blk.Pack.Rec.ID;
 		H.OwnerID   = r_blk.Pack.Rec.PersonID;
 		H.LocID     = r_blk.Pack.Rec.LocID;
-		H.Kind      = r_blk.Pack.Rec.Kind; // @v8.7.5
+		H.Kind      = r_blk.Pack.Rec.Kind;
 		H.Flags     = r_blk.Pack.Rec.Flags;
-		H.UpRestShowThreshold = r_blk.Pack.Rec.UpRestShowThreshold; // @v7.9.1
+		H.UpRestShowThreshold = r_blk.Pack.Rec.UpRestShowThreshold;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
 		ok = DlRtm::InitData(rFilt, rsrv);
@@ -5897,8 +5884,8 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 			r_blk.Pack.Rec.PersonID = H.OwnerID;
 			r_blk.Pack.Rec.LocID    = H.LocID;
 			r_blk.Pack.Rec.Flags    = H.Flags;
-			r_blk.Pack.Rec.Kind     = H.Kind; // @v8.7.5
-			r_blk.Pack.Rec.UpRestShowThreshold = H.UpRestShowThreshold; // @v7.9.1
+			r_blk.Pack.Rec.Kind     = H.Kind;
+			r_blk.Pack.Rec.UpRestShowThreshold = H.UpRestShowThreshold;
 			STRNSCPY(r_blk.Pack.Rec.Name, strip(H.Name));
 			STRNSCPY(r_blk.Pack.Rec.Symb, strip(H.Symb));
 		}

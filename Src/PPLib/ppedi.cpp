@@ -2665,6 +2665,22 @@ private:
 	void   SLAPI Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec);
 };
 
+class EdiProviderImplementation_Exite : public PPEdiProcessor::ProviderImplementation {
+public:
+	SLAPI  EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	virtual SLAPI ~EdiProviderImplementation_Exite();
+	virtual int    SLAPI  GetDocumentList(PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+private:
+	int    SLAPI Auth(SString & rToken);
+	int    SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
+	int    SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    SLAPI Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    SLAPI Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+};
+
 EdiProviderImplementation_Kontur::OwnFormatCommonAttr::OwnFormatCommonAttr() : Dt(ZERODATE)
 {
 }
@@ -3805,6 +3821,9 @@ PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImp
 	if(sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR") || sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR-T")) {
 		p_imp = new EdiProviderImplementation_Kontur(ep_pack, mainOrgID, flags);
 	}
+	else if(sstreqi_ascii(ep_pack.Rec.Symb, "EXITE")) { // @v10.2.8
+		p_imp = new EdiProviderImplementation_Exite(ep_pack, mainOrgID, flags);
+	}
 	else {
 		CALLEXCEPT_PP_S(PPERR_EDI_THEREISNTPRVIMP, ep_pack.Rec.Symb);
 	}
@@ -3863,7 +3882,7 @@ int SLAPI PPEdiProcessor::SendOrders(const PPBillExportFilt & rP, const PPIDArra
 	{
 		PPPredictConfig cfg;
 		PrcssrPrediction::GetPredictCfg(&cfg);
-		op_list.addnz(ACfg.Hdr.OpID);
+		op_list.addnz(ACfg.Hdr.EdiOrderOpID/*OpID*/);
 		op_list.addnz(cfg.PurchaseOpID);
 		op_list.addnz(CConfig.DraftRcptOp);
 		op_list.sortAndUndup();
@@ -3897,7 +3916,7 @@ int SLAPI PPEdiProcessor::SendOrders(const PPBillExportFilt & rP, const PPIDArra
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
 		const PPID bill_id = temp_bill_list.get(k);
-		if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+		if(P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 			PPEdiProcessor::Packet pack(PPEDIOP_ORDER);
 			if(P_BObj->ExtractPacket(bill_id, (PPBillPacket *)pack.P_Data) > 0) {
 				DocumentInfo di;
@@ -4881,4 +4900,688 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 	if(!ok && path.NotEmpty())
 		SFile::Remove(path);
     return ok;
+}
+//
+//
+//
+SLAPI EdiProviderImplementation_Exite::EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
+	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
+{
+}
+
+SLAPI EdiProviderImplementation_Exite::~EdiProviderImplementation_Exite()
+{
+}
+
+int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::DocumentInfoList & rList)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
+{
+	/*
+	1. Адрес сайта: https://e-vo.ru/
+	2. Логин: testTStest
+	3. Пароль: OVXmgv
+	*/
+	int    ok = -1;
+	json_t * p_query = 0;
+	json_t * p_reply = 0;
+	ScURL c;
+	SString temp_buf;
+	SString json_buf;
+	SString req;
+	InetUrl url;
+	SBuffer ack_buf;
+	if(Epp.MakeUrl(0, url)) {
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		StrStrAssocArray hdr_flds;
+		url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
+		THROW_SL(p_query = new json_t(json_t::tOBJECT));
+		url.GetComponent(url.cUserName, 0, temp_buf);
+		THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf)));
+		url.GetComponent(url.cPassword, 0, temp_buf);
+		THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf)));
+		THROW_SL(json_tree_to_string(p_query, temp_buf));
+		json_buf.EncodeUrl(temp_buf, 0);
+
+		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			if(p_ack_buf) {
+				const int avl_size = (int)p_ack_buf->GetAvailableSize();
+				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				//f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
+				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Type == json_t::tOBJECT) {
+							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+								if(p_obj->Text.IsEqiAscii("varToken")) {
+								}
+								else if(p_obj->Text.IsEqiAscii("varMessage")) {
+								}
+								else if(p_obj->Text.IsEqiAscii("intCode")) {
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	json_free_value(&p_reply);
+	json_free_value(&p_query);
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+{
+	int    ok = -1;
+	SString token;
+	if(Auth(token)) {
+	}
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString main_org_gln;
+	SString contractor_gln;
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "ORDER");
+	THROW(GetMainOrgGLN(main_org_gln));
+	THROW(GetArticleGLN(rBp.Rec.Object, contractor_gln));
+	{
+		n_docs.PutInner("DOCUMENTNAME", "218"); // 218 order
+		n_docs.PutInner("NUMBER", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_docs.PutInner("DATE", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+		//n_docs.PutInner("PROMO", 0);
+		n_docs.PutInner("DELIVERYDATE", temp_buf.Z().Cat(NZOR(rBp.Rec.DueDate, rBp.Rec.Dt), DATF_ISO8601|DATF_CENTURY));
+		//n_docs.PutInner("DELIVERYTIME", 0);
+		//n_docs.PutInner("SHIPMENTDATE", 0);
+		//n_docs.PutInner("CAMPAIGNNUMBER", 0); // Номер договора на поставку
+		n_docs.PutInner("CURRENCY", "RUB");
+		//n_docs.PutInner("TRANSPORTQUANTITY", 0);
+		/*{
+			SXml::WNode n_inner(_doc, "LIMES");
+			{
+				n_inner.PutInner("LIMESNAME", 0);
+				n_inner.PutInner("DATEFROM", 0);
+				n_inner.PutInner("TIMEFROM", 0);
+				n_inner.PutInner("DATETO", 0);
+				n_inner.PutInner("TIMETO", 0);
+			}
+		}*/
+		//n_docs.PutInner("VAT", 0);
+		//n_docs.PutInner("TRANSPORTATIONTYPES", 0);
+		//n_docs.PutInner("TRANSPORTATIONMEANS", 0);
+		//n_docs.PutInner("TRANSPORTATIONPAYMENTTYPE", 0);
+		//n_docs.PutInner("TRANSPORTATIONROUTE", 0); // Маршрут доставки
+		//n_docs.PutInner("BLANKETORDERNUMBER", 0); // Номер бланкового заказа
+		//n_docs.PutInner("INFOCODED", 0);
+		n_docs.PutInner("DOCTYPE", "O"); // Тип документа: O — оригинал, R — замена, D — удаление
+		//n_docs.PutInner("SUPORDER", 0);
+		//n_docs.PutInner("KDKNUM", 0);
+		n_docs.PutInner("ORDRTYPE", "O"); // Тип заказа: поле O - оригинал R - корректировка, D - отмена
+		n_docs.PutInner("INFO", (temp_buf = rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		// n_docs.PutInner("TYPE", 0); // 1 - Оборудование, 2 - Расходные материалы, 3 - Оборудование и услуга.
+		//n_docs.PutInner("EARLIESTDELIVERYDATE", 0);
+		//n_docs.PutInner("PRODUCTTYPE", 0); // 1 - Оборудование, 2 - Услуга
+		//n_docs.PutInner("LATESTDELIVERYDATE", 0);
+		{
+			SXml::WNode n_inner(_doc, "HEAD");
+			{
+				SString goods_code;
+				SString goods_ar_code;
+				Goods2Tbl::Rec goods_rec;
+				n_inner.PutInner("SUPPLIER", contractor_gln); // GLN поставщика
+				n_inner.PutInner("BUYER", main_org_gln); // GLN покупателя
+				//n_inner.PutInner("BUYERCODE", 0); // Код покупателя
+				THROW(GetLocGLN(rBp.Rec.LocID, temp_buf));
+				n_inner.PutInner("DELIVERYPLACE", 0); // GLN места доставки
+				//n_inner.PutInner("FINALRECIPIENT", 0); // GLN конечного консигнатора
+				//n_inner.PutInner("INVOICEPARTNER", 0); // GLN плательщика
+				n_inner.PutInner("SENDER", main_org_gln); // GLN отправителя сообщения
+				n_inner.PutInner("RECIPIENT", contractor_gln); // GLN получателя сообщения
+				//n_inner.PutInner("RECIPIENTCODE", 0); // Код получателя
+				GetArticleName(rBp.Rec.Object, temp_buf);
+				if(temp_buf.NotEmptyS()) 
+					n_inner.PutInner("RECIPIENTNAME", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // Имя получателя
+				//n_inner.PutInner("RECIPIENTCONTACTFACE", 0); // Контактное лицо
+				//n_inner.PutInner("RECIPIENTPHONE", 0); // Телефон получателя
+				//n_inner.PutInner("RECIPIENTCITY", 0); // Город получателя
+				//n_inner.PutInner("RECIPIENTADRESS", 0); // Адрес получателя
+				//n_inner.PutInner("EDIINTERCHANGEID", 0); // Номер транзакции
+				for(uint i = 0; i < rBp.GetTCount(); i++) {
+					const PPTransferItem & r_ti = rBp.ConstTI(i);
+					SXml::WNode n_inner2(_doc, "POSITION");
+					{
+						const PPID goods_id = labs(r_ti.GoodsID);
+						double qtty = fabs(r_ti.Quantity_);
+						double cost = r_ti.Cost;
+						double amount = cost * qtty;
+						//
+							GTaxVect tvect;
+							tvect.CalcTI(&r_ti, 0 /*opID*/, TIAMT_COST);
+							const double amount_with_vat = tvect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+							const double amount_without_vat = tvect.GetValue(GTAXVF_AFTERTAXES);
+							const double vat_rate = tvect.GetTaxRate(GTAX_VAT, 0);
+							const double price_with_vat = R5(amount_with_vat / qtty);
+							const double price_without_vat = R5(amount_without_vat / qtty);
+						//
+						THROW(GetGoodsInfo(goods_id, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
+						n_inner2.PutInner("POSITIONNUMBER", temp_buf.Z().Cat(r_ti.RByBill));
+						n_inner2.PutInner("PRODUCT", goods_code);
+						if(goods_ar_code.NotEmpty())
+							n_inner2.PutInner("PRODUCTIDSUPPLIER", goods_ar_code);
+						n_inner2.PutInner("PRODUCTIDBUYER", temp_buf.Z().Cat(goods_rec.ID)); // Внутренний номер в БД покупателя
+						//n_inner2.PutInner("BUYERPARTNUMBER", 0); // Внутренний системный номер артикула в БД покупателя
+						n_inner2.PutInner("ORDEREDQUANTITY", temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
+						//n_inner2.PutInner("QUANTITYOFCUINTU", 0); // Количество в упаковке
+						n_inner2.PutInner("BOXESQUANTITY", 0); // Количество упаковок
+						n_inner2.PutInner("ORDERUNIT", "PCE"); // Единицы измерения
+						n_inner2.PutInner("ORDERPRICE", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Цена продукта без НДС
+						n_inner2.PutInner("PRICEWITHVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Цена продукта с НДС
+						n_inner2.PutInner("VAT", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+						//n_inner2.PutInner("CLAIMEDDELIVERYDATE", 0); // Объявленная дата доставки
+						//n_inner2.PutInner("CLAIMEDDELIVERYTIME", 0); // Объявленное время доставки
+						//n_inner2.PutInner("INFOCODED", 0); // Инфокод
+						//n_inner2.PutInner("MINIMUMORDERQUANTITY", 0); // Минимальное заказанное количество
+						//n_inner2.PutInner("INFO", 0); // Свободный текст
+						//n_inner2.PutInner("COMPAIGNNUMBER", 0); // Номер поставщика
+						//n_inner2.PutInner("EARLIESTDELIVERYDATE", 0); // Поставка не раньше указанной даты
+						//n_inner2.PutInner("LATESTDELIVERYDATE", 0); // Поставка не позднее указанной даты
+						//n_inner2.PutInner("LATESTDELIVERYTIME", 0); // Поставка не позднее указанного времени
+						//n_inner2.PutInner("CONDITIONSTATUS", 0); // Статус кондиции
+						//n_inner2.PutInner("PACKAGEID", 0); // Идентификатор упаковки
+						{
+							SXml::WNode n_inner3(_doc, "CHARACTERISTIC");
+							n_inner3.PutInner("DESCRIPTION", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+{
+	int    ok = 1;
+	const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
+	SString temp_buf;
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "ORDRSP");
+	{
+		n_docs.PutInner("NUMBER", 0);
+		n_docs.PutInner("DATE", 0);
+		n_docs.PutInner("TIME", 0);
+		n_docs.PutInner("ORDERNUMBER", 0);
+		n_docs.PutInner("ORDERDATE", 0);
+		n_docs.PutInner("DELIVERYDATE", 0);
+		n_docs.PutInner("DELIVERYTIME", 0);
+		n_docs.PutInner("REASONDECREACEQUANTITYALL", 0);
+		n_docs.PutInner("CURRENCY", "RUB");
+		{
+			SXml::WNode n_inner(_doc, "LIMES");
+			{
+				n_inner.PutInner("LIMESNAME", 0);
+				n_inner.PutInner("DATEFROM", 0);
+				n_inner.PutInner("TIMEFROM", 0);
+				n_inner.PutInner("DATETO", 0);
+				n_inner.PutInner("TIMETO", 0);
+			}
+		}
+		n_docs.PutInner("VAT", 0);
+		n_docs.PutInner("ACTION", 0);
+		n_docs.PutInner("SELFSHIPMENT", 0);
+		{
+			SXml::WNode n_inner(_doc, "SELFSHIPLIMES");
+			{
+				n_inner.PutInner("SELFSHIPLIMECODE", 0);
+				n_inner.PutInner("SELFSHIPLIMENAME", 0);
+				n_inner.PutInner("SELFSHIPLIMEADDRES", 0);
+				n_inner.PutInner("TOTALPACKAGESSPACE", 0);
+				n_inner.PutInner("TRANSPORTTYPE", 0);
+			}
+		}
+		n_docs.PutInner("TOTALPACKAGES", 0);
+		n_docs.PutInner("TOTALPACKAGESSPACE", 0);
+		n_docs.PutInner("TRANSPORTQUANTITY", 0);
+		n_docs.PutInner("INFO", 0);
+		{
+			SXml::WNode n_inner(_doc, "HEAD");
+			{
+				n_inner.PutInner("BUYER", 0);
+				n_inner.PutInner("BUYERCODE", 0);
+				n_inner.PutInner("SUPPLIER", 0);
+				n_inner.PutInner("DELIVERYPLACE", 0);
+				n_inner.PutInner("FINALRECIPIENT", 0);
+				n_inner.PutInner("INVOICEPARTNER", 0);
+				n_inner.PutInner("SENDER", 0);
+				n_inner.PutInner("RECIPIENT", 0);
+				n_inner.PutInner("RECIPIENTCODE", 0);
+				n_inner.PutInner("RECIPIENTNAME", 0);
+				n_inner.PutInner("RECIPIENTCONTACTFACE", 0);
+				n_inner.PutInner("RECIPIENTPHONE", 0);
+				n_inner.PutInner("RECIPIENTCITY", 0);
+				n_inner.PutInner("RECIPIENTADRESS", 0);
+				n_inner.PutInner("EDIINTERCHANGEID", 0);
+				for(uint i = 0; i < rBp.GetTCount(); i++) {
+					const PPTransferItem & r_ti = rBp.ConstTI(i);
+					SXml::WNode n_inner2(_doc, "POSITION");
+					{
+						n_inner2.PutInner("POSITIONNUMBER", 0);
+						n_inner2.PutInner("PRODUCT", 0);
+						n_inner2.PutInner("PRODUCTIDBUYER", 0);
+						n_inner2.PutInner("PRODUCTIDSUPPLIER", 0);
+						n_inner2.PutInner("ORDRSPUNIT", 0);
+						n_inner2.PutInner("DESCRIPTION", 0);
+						n_inner2.PutInner("PRICE", 0);
+						n_inner2.PutInner("PRICEWITHVAT", 0);
+						n_inner2.PutInner("VAT", 0);
+						n_inner2.PutInner("PRODUCTTYPE", 0);
+						n_inner2.PutInner("ORDEREDQUANTITY", 0);
+						n_inner2.PutInner("ACCEPTEDQUANTITY", 0);
+						n_inner2.PutInner("REASONDECREACEQUANTITY", 0);
+						n_inner2.PutInner("BOXESQUANTITY", 0);
+						n_inner2.PutInner("INFO", 0);
+						n_inner2.PutInner("CONDITIONSTATUS", 0);
+						n_inner2.PutInner("PACKAGEID", 0);
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString bill_text;
+	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName, bill_text);
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "DESADV");
+	{
+		n_docs.PutInner("NUMBER", 0);
+		n_docs.PutInner("DATE", 0);
+		n_docs.PutInner("DELIVERYDATE", 0);
+		n_docs.PutInner("DELIVERYTIME", 0);
+		n_docs.PutInner("ORDERNUMBER", 0);
+		n_docs.PutInner("ORDERDATE", 0);
+		n_docs.PutInner("DELIVERYNOTENUMBER", 0);
+		n_docs.PutInner("DELIVERYNOTEDATE", 0);
+		n_docs.PutInner("TTNNUMBER", 0);
+		n_docs.PutInner("SELFSHIPMENT", 0);
+		n_docs.PutInner("WAYBILLNUMBER", 0);
+		n_docs.PutInner("WAYBILLDATE", 0);
+		n_docs.PutInner("INVOICENUMBER", 0);
+		n_docs.PutInner("INVOICEDATE", 0);
+		n_docs.PutInner("UPDNUMBER", 0);
+		n_docs.PutInner("UPDDATE", 0);
+		//n_docs.PutInner("SFAKTNUMBER", 0);
+		//n_docs.PutInner("SFAKTDATE", 0);
+		n_docs.PutInner("EGAISNUMBER", 0);
+		n_docs.PutInner("SUPPLIERORDENUMBER", 0);
+		n_docs.PutInner("SUPPLIERORDERDATE", 0);
+		n_docs.PutInner("TOTALPACKAGES", 0);
+		n_docs.PutInner("INFO", 0);
+		n_docs.PutInner("SHIPMENTS", 0);
+		n_docs.PutInner("CAMPAIGNNUMBER", 0);
+		n_docs.PutInner("TRANSPORTQUANTITY", 0);
+		n_docs.PutInner("TRANSPORTMARK", 0);
+		n_docs.PutInner("TRANSPORTID", 0);
+		n_docs.PutInner("TRANSPORTERNAME", 0);
+		n_docs.PutInner("TRANSPORTTYPE", 0);
+		n_docs.PutInner("TRANSPORTERTYPE", 0);
+		n_docs.PutInner("CARRIERNAME", 0);
+		n_docs.PutInner("CARRIERINN", 0);
+		n_docs.PutInner("CARRIERKPP", 0);
+		n_docs.PutInner("PACKAGEWIGHT", 0);
+		{
+			SXml::WNode n_inner(_doc, "HEAD");
+			{
+				n_inner.PutInner("SUPPLIER", 0);
+				n_inner.PutInner("SUPPLIERNAME", 0);
+				n_inner.PutInner("BUYER", 0);
+				n_inner.PutInner("BUYERCODE", 0);
+				n_inner.PutInner("DELIVERYPLACE", 0);
+				n_inner.PutInner("FINALRECIPIENT", 0);
+				n_inner.PutInner("SENDER", 0);
+				n_inner.PutInner("SENDERNAME", 0);
+				n_inner.PutInner("SENDERPHONE", 0);
+				n_inner.PutInner("SENDERCITY", 0);
+				n_inner.PutInner("SENDERADRESS", 0);
+				n_inner.PutInner("RECIPIENT", 0);
+				n_inner.PutInner("EDIINTERCHANGEID", 0);
+				{
+					SXml::WNode n_inner_ps(_doc, "PACKINGSEQUENCE");
+					n_inner_ps.PutInner("HIERARCHICALID", 0);
+					for(uint i = 0; i < rBp.GetTCount(); i++) {
+						const PPTransferItem & r_ti = rBp.ConstTI(i);
+						SXml::WNode n_inner2(_doc, "POSITION");
+						{
+							n_inner2.PutInner("POSITIONNUMBER", 0);
+							n_inner2.PutInner("PRODUCT", 0);
+							n_inner2.PutInner("PRODUCTIDSUPPLIER", 0);
+							n_inner2.PutInner("PRODUCTIDBUYER", 0);
+							n_inner2.PutInner("DELIVEREDQUANTITY", 0);
+							n_inner2.PutInner("DELIVEREDUNIT", 0);
+							n_inner2.PutInner("ORDEREDQUANTITY", 0);
+							n_inner2.PutInner("ORDERUNIT", 0);
+							n_inner2.PutInner("QUANTITYOFCUINTU", 0);
+							n_inner2.PutInner("BOXESQUANTITY", 0);
+							n_inner2.PutInner("PRODINN", 0);
+							n_inner2.PutInner("PRODKPP", 0);
+							n_inner2.PutInner("PARTYNAME", 0);
+							n_inner2.PutInner("PRODUCTIONCODE", 0);
+							n_inner2.PutInner("DISPLACEMENT", 0);
+							n_inner2.PutInner("BOXWEIGHT", 0);
+							n_inner2.PutInner("IMPORTPARTYNAME", 0);
+							n_inner2.PutInner("LICENSE", 0);
+							n_inner2.PutInner("LICGIVEN", 0);
+							n_inner2.PutInner("LICSTART", 0);
+							n_inner2.PutInner("LICEND", 0);
+							n_inner2.PutInner("INVOICEDQUANTITY", 0);
+							n_inner2.PutInner("PORTAL_CERT", 0);
+							n_inner2.PutInner("MANUFACTUREDATE", 0);
+							n_inner2.PutInner("CERTSTART", 0);
+							n_inner2.PutInner("CERTEND", 0);
+							n_inner2.PutInner("CERTS_URL", 0);
+							{
+								SXml::WNode n_egais(_doc, "EGAIS");
+								{
+									n_egais.PutInner("EGAISCODE", 0);
+									n_egais.PutInner("EGAISQUANTITY", 0);
+								}
+							}
+							n_inner2.PutInner("SHELFLIFEDATE", 0);
+							n_inner2.PutInner("EXPIREDATE", 0);
+							n_inner2.PutInner("INVOICEUNIT", 0);
+							n_inner2.PutInner("AMOUNT", 0); // без ндс
+							n_inner2.PutInner("COUNTRYORIGIN", 0);
+							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // гтд
+							n_inner2.PutInner("PRICE", 0); // без ндс
+							n_inner2.PutInner("PRICEWITHVAT", 0);
+							n_inner2.PutInner("AMOUNTWITHVAT", 0);
+							n_inner2.PutInner("DISCOUNT", 0);
+							n_inner2.PutInner("TAXRATE", 0);
+							n_inner2.PutInner("CONDITIONSTATUS", 0);
+							n_inner2.PutInner("DESCRIPTION", 0);
+							n_inner2.PutInner("PACKAGEID", 0);
+							n_inner2.PutInner("PARTNUMBER", 0);
+							n_inner2.PutInner("CERTIFICATE", 0);
+							n_inner2.PutInner("MINIMUMORDERQUANTITY", 0);
+							{
+								SXml::WNode n_vetis(_doc, "VETDOCUMENT");
+								{
+									n_vetis.PutInner("BATCHID", 0);
+									n_vetis.PutInner("UUID", 0);
+									n_vetis.PutInner("VOLUME", 0);
+									n_vetis.PutInner("DATEOFPRODUCTION", 0);
+									n_vetis.PutInner("TIMEOFPRODUCTION", 0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString bill_text;
+	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName, bill_text);
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "RECADV");
+	{
+		n_docs.PutInner("NUMBER", 0);
+		n_docs.PutInner("DATE", 0);
+		n_docs.PutInner("RECEPTIONDATE", 0);
+		n_docs.PutInner("ORDERNUMBER", 0);
+		n_docs.PutInner("ORDERDATE", 0);
+		n_docs.PutInner("DESADVNUMBER", 0);
+		n_docs.PutInner("DESADVDATE", 0);
+		n_docs.PutInner("DELIVERYNOTENUMBER", 0);
+		n_docs.PutInner("DELIVERYNOTEDATE", 0);
+		n_docs.PutInner("CAMPAIGNNUMBER", 0);
+		n_docs.PutInner("DOCTYPE", 0);
+		n_docs.PutInner("SUPPLIERORDENUMBER", 0);
+		n_docs.PutInner("SUPPLIERORDERDATE", 0);
+		n_docs.PutInner("TRANSPORTID", 0);
+		n_docs.PutInner("TOTALPACKAGES", 0);
+		n_docs.PutInner("INFO", 0);
+		{
+			SXml::WNode n_inner(_doc, "HEAD");
+			{
+				n_inner.PutInner("SUPPLIER", 0);
+				n_inner.PutInner("SUPPLIERNAME", 0);
+				n_inner.PutInner("BUYER", 0);
+				n_inner.PutInner("DELIVERYPLACE", 0);
+				n_inner.PutInner("FINALRECIPIENT", 0);
+				n_inner.PutInner("SENDER", 0);
+				n_inner.PutInner("SENDERNAME", 0);
+				n_inner.PutInner("SENDERPHONE", 0);
+				n_inner.PutInner("SENDERCITY", 0);
+				n_inner.PutInner("SENDERADRESS", 0);
+				n_inner.PutInner("RECIPIENT", 0);
+				n_inner.PutInner("RECIPIENTCODE", 0);
+				n_inner.PutInner("RECIPIENTNAME", 0);
+				n_inner.PutInner("RECIPIENTCONTACTFACE", 0);
+				n_inner.PutInner("RECIPIENTPHONE", 0);
+				n_inner.PutInner("RECIPIENTCITY", 0);
+				n_inner.PutInner("RECIPIENTADRESS", 0);
+				n_inner.PutInner("EDIINTERCHANGEID", 0);
+				{
+					SXml::WNode n_inner_ps(_doc, "PACKINGSEQUENCE");
+					n_inner_ps.PutInner("HIERARCHICALID", 0);
+					for(uint i = 0; i < rBp.GetTCount(); i++) {
+						const PPTransferItem & r_ti = rBp.ConstTI(i);
+						SXml::WNode n_inner2(_doc, "POSITION");
+						{
+							n_inner2.PutInner("POSITIONNUMBER", 0);
+							n_inner2.PutInner("PRODUCT", 0);
+							n_inner2.PutInner("PRODUCTIDSUPPLIER", 0);
+							n_inner2.PutInner("PRODUCTIDBUYER", 0);
+							n_inner2.PutInner("BUYERPARTNUMBER", 0);
+							n_inner2.PutInner("ACCEPTEDQUANTITY", 0);
+							n_inner2.PutInner("NOTACCEPTEDREASON", 0);
+							n_inner2.PutInner("NOTACCEPTEDQUANTITY", 0);
+							n_inner2.PutInner("DELIVERQUANTITY", 0);
+							n_inner2.PutInner("ORDERQUANTITY", 0);
+							n_inner2.PutInner("DELTAQUANTITY", 0);
+							n_inner2.PutInner("PRICE", 0);
+							n_inner2.PutInner("PRICEUSD", 0);
+							n_inner2.PutInner("PRICEWITHVATUSD", 0);
+							n_inner2.PutInner("AMOUNT", 0);
+							n_inner2.PutInner("AMOUNTWITHVAT", 0);
+							n_inner2.PutInner("TAXRATE", 0);
+							n_inner2.PutInner("CONDITIONSTATUS", 0);
+							n_inner2.PutInner("DESCRIPTION", 0);
+							n_inner2.PutInner("PACKAGEID", 0);
+						}
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString bill_text;
+	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName, bill_text);
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "INVOICE");
+	{
+		n_docs.PutInner("DOCUMENTNAME", 0);
+		n_docs.PutInner("NUMBER", 0);
+		n_docs.PutInner("DATE", 0);
+		n_docs.PutInner("DELIVERYDATE", 0);
+		n_docs.PutInner("DELIVERYTIME", 0);
+		n_docs.PutInner("CURRENCY", 0);
+		n_docs.PutInner("ORDERNUMBER", 0);
+		n_docs.PutInner("ISPRORIGINALDOCNUMBER", 0);
+		n_docs.PutInner("ISPRORIGINALDOCDATE", 0);
+		n_docs.PutInner("ORDERDATE", 0);
+		n_docs.PutInner("CORRNUMBER", 0);
+		n_docs.PutInner("CORRDATE", 0);
+		n_docs.PutInner("DELIVERYNOTENUMBER", 0);
+		n_docs.PutInner("DELIVERYNOTEDATE", 0);
+		n_docs.PutInner("RECADVNUMBER", 0);
+		n_docs.PutInner("RECADVDATE", 0);
+		n_docs.PutInner("REFERENCEINVOICENUMBER", 0);
+		n_docs.PutInner("REFERENCEINVOICEDATE", 0);
+		{
+			SXml::WNode n_inner(_doc, "DOCUMENTBASE");
+			{
+				n_inner.PutInner("OPERATION", 0);
+				n_inner.PutInner("BASENUMBER", 0);
+				n_inner.PutInner("BASEDATE", 0);
+				n_inner.PutInner("BASENAME", 0);
+			}
+		}
+		n_docs.PutInner("GOODSTOTALAMOUNT", 0);
+		n_docs.PutInner("POSITIONSAMOUNT", 0);
+		n_docs.PutInner("VATSUM", 0);
+		n_docs.PutInner("INVOICETOTALAMOUNT", 0);
+		n_docs.PutInner("TAXABLEAMOUNT", 0);
+		n_docs.PutInner("DISCOUNTAMOUNT", 0);
+		n_docs.PutInner("PAYMENTORDERNUMBER", 0);
+		n_docs.PutInner("FISCALNUMBER", 0);
+		n_docs.PutInner("REGISTRATIONNUMBER", 0);
+		n_docs.PutInner("VATNUMBER", 0);
+		n_docs.PutInner("CAMPAIGNNUMBER", 0);
+		n_docs.PutInner("SUPPLIERCODE", 0);
+		n_docs.PutInner("MANAGER", 0);
+		{
+			SXml::WNode n_inner(_doc, "MANAGERDATA");
+			{
+				n_inner.PutInner("POSITION", 0);
+				n_inner.PutInner("AUTHORIZATION", 0);
+				n_inner.PutInner("STATUS", 0);
+				n_inner.PutInner("CREDENTIALS", 0);
+				n_inner.PutInner("INN", 0);
+			}
+		}
+		n_docs.PutInner("ACCOUNTING", 0);
+		{
+			SXml::WNode n_inner(_doc, "ACCOUNTINGDATA");
+			{
+				n_inner.PutInner("POSITION", 0);
+				n_inner.PutInner("AUTHORIZATION", 0);
+				n_inner.PutInner("STATUS", 0);
+				n_inner.PutInner("CREDENTIALS", 0);
+			}
+		}
+		n_docs.PutInner("VAT", 0);
+		{
+			SXml::WNode n_inner(_doc, "HEAD");
+			{
+				n_inner.PutInner("SUPPLIER", 0);
+				n_inner.PutInner("SUPPLIERNAME", 0);
+				{
+					SXml::WNode n_inner_ps(_doc, "PACKINGSEQUENCE");
+					n_inner_ps.PutInner("HIERARCHICALID", 0);
+					for(uint i = 0; i < rBp.GetTCount(); i++) {
+						const PPTransferItem & r_ti = rBp.ConstTI(i);
+						SXml::WNode n_inner2(_doc, "POSITION");
+						{
+							n_inner2.PutInner("POSITIONNUMBER", 0);
+							n_inner2.PutInner("PRODUCT", 0);
+							n_inner2.PutInner("PRODUCTIDSUPPLIER", 0);
+							n_inner2.PutInner("PRODUCTIDBUYER", 0);
+							n_inner2.PutInner("DELIVEREDQUANTITY", 0);
+							n_inner2.PutInner("DELIVEREDUNIT", 0);
+							n_inner2.PutInner("ORDEREDQUANTITY", 0);
+							n_inner2.PutInner("ORDERUNIT", 0);
+							n_inner2.PutInner("QUANTITYOFCUINTU", 0);
+							n_inner2.PutInner("BOXESQUANTITY", 0);
+							n_inner2.PutInner("PRODINN", 0);
+							n_inner2.PutInner("PRODKPP", 0);
+							n_inner2.PutInner("PARTYNAME", 0);
+							n_inner2.PutInner("PRODUCTIONCODE", 0);
+							n_inner2.PutInner("DISPLACEMENT", 0);
+							n_inner2.PutInner("BOXWEIGHT", 0);
+							n_inner2.PutInner("IMPORTPARTYNAME", 0);
+							n_inner2.PutInner("LICENSE", 0);
+							n_inner2.PutInner("LICGIVEN", 0);
+							n_inner2.PutInner("LICSTART", 0);
+							n_inner2.PutInner("LICEND", 0);
+							n_inner2.PutInner("INVOICEDQUANTITY", 0);
+							n_inner2.PutInner("PORTAL_CERT", 0);
+							n_inner2.PutInner("MANUFACTUREDATE", 0);
+							n_inner2.PutInner("CERTSTART", 0);
+							n_inner2.PutInner("CERTEND", 0);
+							n_inner2.PutInner("CERTS_URL", 0);
+							{
+								SXml::WNode n_egais(_doc, "EGAIS");
+								{
+									n_egais.PutInner("EGAISCODE", 0);
+									n_egais.PutInner("EGAISQUANTITY", 0);
+								}
+							}
+							n_inner2.PutInner("SHELFLIFEDATE", 0);
+							n_inner2.PutInner("EXPIREDATE", 0);
+							n_inner2.PutInner("INVOICEUNIT", 0);
+							n_inner2.PutInner("AMOUNT", 0); // без ндс
+							n_inner2.PutInner("COUNTRYORIGIN", 0);
+							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // гтд
+							n_inner2.PutInner("PRICE", 0); // без ндс
+							n_inner2.PutInner("PRICEWITHVAT", 0);
+							n_inner2.PutInner("AMOUNTWITHVAT", 0);
+							n_inner2.PutInner("DISCOUNT", 0);
+							n_inner2.PutInner("TAXRATE", 0);
+							n_inner2.PutInner("CONDITIONSTATUS", 0);
+							n_inner2.PutInner("DESCRIPTION", 0);
+							n_inner2.PutInner("PACKAGEID", 0);
+							n_inner2.PutInner("PARTNUMBER", 0);
+							n_inner2.PutInner("CERTIFICATE", 0);
+							n_inner2.PutInner("MINIMUMORDERQUANTITY", 0);
+							{
+								SXml::WNode n_vetis(_doc, "VETDOCUMENT");
+								{
+									n_vetis.PutInner("BATCHID", 0);
+									n_vetis.PutInner("UUID", 0);
+									n_vetis.PutInner("VOLUME", 0);
+									n_vetis.PutInner("DATEOFPRODUCTION", 0);
+									n_vetis.PutInner("TIMEOFPRODUCTION", 0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	return ok;
 }

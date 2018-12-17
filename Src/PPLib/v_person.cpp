@@ -1518,7 +1518,7 @@ PersonFilt & FASTCALL PersonFilt::operator = (const PersonFilt &src)
 	return *this;
 }
 
-int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, extssNameText, SrchStr_, rBuf); }
+int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }
 int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
 //virtual
@@ -1871,9 +1871,10 @@ int FASTCALL PPViewPerson::IsNewCliPerson(PPID id) const
 	return NewCliList.Has(id);
 }
 
-void FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
+SString & FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
 {
 	StrPool.GetS(strP, rBuf);
+	return rBuf;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
@@ -3094,28 +3095,16 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 	}
 	{
 		SString temp_buf;
-		p_v->GetFromStrPool(item.AttrItem.PhoneP, temp_buf);
-		STRNSCPY(I.Phone,    temp_buf);
-		p_v->GetFromStrPool(item.AttrItem.AddressP, temp_buf);
-		STRNSCPY(I.Address,  temp_buf);
-		p_v->GetFromStrPool(item.AttrItem.RAddressP, temp_buf);
-		STRNSCPY(I.RAddress, temp_buf);
-		p_v->GetFromStrPool(item.AttrItem.BnkNameP, temp_buf);
-		STRNSCPY(I.BnkName,  temp_buf);
-		p_v->GetFromStrPool(item.AttrItem.BnkAcctP, temp_buf);
-		STRNSCPY(I.BnkAcct,  temp_buf);
-		p_v->GetFromStrPool(item.AttrItem.RegSerialP, temp_buf);
-		STRNSCPY(I.Serial,   temp_buf);
-		//STRNSCPY(I.Phone,    item.AttrItem.Phone);
-		//STRNSCPY(I.Address,  item.AttrItem.Address);
-		//STRNSCPY(I.RAddress, item.AttrItem.RAddress);
-		//STRNSCPY(I.BnkName,  item.AttrItem.BnkName);
-		//STRNSCPY(I.BnkAcct,  item.AttrItem.BnkAcct);
-		//STRNSCPY(I.Serial,   item.AttrItem.RegSerial);
+		STRNSCPY(I.Phone,    p_v->GetFromStrPool(item.AttrItem.PhoneP, temp_buf));
+		STRNSCPY(I.Address,  p_v->GetFromStrPool(item.AttrItem.AddressP, temp_buf));
+		STRNSCPY(I.RAddress, p_v->GetFromStrPool(item.AttrItem.RAddressP, temp_buf));
+		STRNSCPY(I.BnkName,  p_v->GetFromStrPool(item.AttrItem.BnkNameP, temp_buf));
+		STRNSCPY(I.BnkAcct,  p_v->GetFromStrPool(item.AttrItem.BnkAcctP, temp_buf));
+		STRNSCPY(I.Serial,   p_v->GetFromStrPool(item.AttrItem.RegSerialP, temp_buf));
 		STRNSCPY(I.Number,   item.AttrItem.RegNumber);
 	}
-	I.InitDate =         item.AttrItem.RegInitDate;
-	I.Expiry   =         item.AttrItem.RegExpiry;
+	I.InitDate = item.AttrItem.RegInitDate;
+	I.Expiry   = item.AttrItem.RegExpiry;
 	FINISH_PPVIEW_ALDD_ITER();
 }
 

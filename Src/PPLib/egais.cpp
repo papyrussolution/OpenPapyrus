@@ -2883,8 +2883,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											const ObjTagItem * p_infaid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFA);
 											const ObjTagItem * p_infbid_tag = tag_list.GetItem(PPTAG_LOT_FSRARINFB);
 											SXml::WNode n_infab(_doc, SXml::nst("ain", "InformAB"));
-											if(p_infaid_tag && p_infbid_tag && p_infaid_tag->GetStr(infa_ident) && infa_ident.NotEmptyS() &&
-												p_infbid_tag->GetStr(infb_ident) && infb_ident.NotEmptyS()) {
+											if(p_infaid_tag && p_infbid_tag && p_infaid_tag->GetStr(infa_ident) && infa_ident.NotEmptyS() && p_infbid_tag->GetStr(infb_ident) && infb_ident.NotEmptyS()) {
 												SXml::WNode n_infabkey(_doc, SXml::nst("ain", "InformABKey"));
 												n_infabkey.PutInner(SXml::nst("ain", "FormA"), EncText(infa_ident));
 												n_infabkey.PutInner(SXml::nst("ain", "LastFormB"), EncText(infb_ident));
@@ -5483,7 +5482,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 											break;
 										}
 									}
-									// } @v10.2.6 
+									// } @v10.2.6
 									lot_id = lot_rec.ID;
 									break;
 								}

@@ -677,6 +677,7 @@ public:
 	int    FASTCALL Add(const PPIDArray * pList);
 	int    SLAPI Update(uint pos, PPID newId, int ignoreZero = 1);
 	int    SLAPI Remove(PPID, int bsearch = 0);
+	int    SLAPI RemoveByIdx(uint idx);
 	PPID   SLAPI GetSingle() const;
 	PPID   FASTCALL Get(uint pos) const;
 	uint   SLAPI IncPointer(); // @>>P_List->incPointer
@@ -691,7 +692,6 @@ public:
 	void   SLAPI FreeAll();
 	int    FASTCALL CopyTo(PPIDArray * pAry) const;
 	int    SLAPI Intersect(const ObjIdListFilt * pList, int binary = 0); // -> LongArray::intersect
-
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -7313,15 +7313,44 @@ public:
 	SLAPI  PPExtStringStorage();
 	int    SLAPI Put(SString & rLine, int fldID, const char * pBuf);
 	int    SLAPI Put(SString & rLine, int fldID, const SString & rBuf);
+	//
+	// Descr: Извлекает из пула-хранилища rLine строку с идентификатором fldID и 
+	//   присваивает ее буферу rBuf.
+	// Note: буфер rBuf предварительно очищается функцией.
+	// Returns:
+	//    >0 - строка с идентификатором fldID найдена в пуле и присвоена буферу rBuf
+	//     0 - строка с идентификатором fldID не найдена в пуле
+	//    -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
+	//
 	int    SLAPI Get(const SString & rLine, int fldID, SString & rBuf);
 	int    SLAPI Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
 private:
 	int    SLAPI Excise(SString & rLine, int fldID);
 	CRegExp Re;
 };
-
-int    FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf);
+//
+// Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает
+//   ее буферу rBuf.
+// Note: буфер rBuf предварительно очищается функцией.
+// Returns:
+//   >0 - строка с идентификатором fldID найдена в пуле и присвоена буферу rBuf
+//    0 - строка с идентификатором fldID не найдена в пуле
+//   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
+//
 int    FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
+//
+// Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает
+//   ее буферу rBuf. Если в пуле строка с идентификатором fldID не найдена, но пул не 
+//   содержит ни одного формального тега (плоская строка) и defFldID == fldID, то
+//   функция считает, что вся строка преставляет искомую и возвращает ее в rBuf
+//   (функция используется для обеспечения обратной совместимости для некоторых типов объектов данных).
+// Note: буфер rBuf предварительно очищается функцией.
+// Returns:
+//   >0 - строка с идентификатором fldID найдена в пуле и присвоена буферу rBuf
+//    0 - строка с идентификатором fldID не найдена в пуле
+//   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
+//
+int    FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf);
 //
 // Descr: Сравнивает значения тегированных подстрок с идентификатором fldID в строке rLine1 и rLine2.
 // ARG(fldID   IN): Идентификатор тега подстроки
@@ -8318,8 +8347,20 @@ public:
 	static int FASTCALL GetAddress(const LocationTbl::Rec &, uint, SString & rBuf);
 	static int FASTCALL IsEmptyAddressRec(const LocationTbl::Rec & rRec);
 	static int FASTCALL IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2);
-
-	static int FASTCALL GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf);
+	//
+	// Descr: Извлекает из записи локации pRec строку расширения с идентификатором fldID (LOCEXSTR_XXX)
+	//   и присваивает ее буферу rBuf.
+	// Note: буфер rBuf предварительно очищается функцией.
+	// Returns:
+	//   >0 - строка с идентификатором fldID найдена в пуле и присвоена буферу rBuf
+	//    0 - строка с идентификатором fldID не найдена в пуле
+	//   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
+	//
+	static int FASTCALL GetExField(const LocationTbl::Rec * pRec, int fldID, SString & rBuf);
+	//
+	// Descr: То же, что и LocationCore::GetExField, но всегда возвращает rBuf.
+	//
+	static SString & FASTCALL GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf);
 	static int FASTCALL SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf);
 	//
 	// Descr: Возвращает описатель типа локации locType.
@@ -13094,7 +13135,6 @@ public:
 	int    SLAPI GetListByPerson(PPID personID, PPID seriesID, PPIDArray * pList);
 	int    SLAPI GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList);
 	int    SLAPI AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta);
-
 	int    SLAPI SearchOp(PPID cardID, LDATE, LTIME, SCardOpTbl::Rec * pRec);
 	int    SLAPI SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec);
 	int    SLAPI SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRec);
@@ -13110,12 +13150,10 @@ public:
 	int    SLAPI EnumOpByCard(PPID cardID, LDATETIME *, SCardOpTbl::Rec *);
 	int    SLAPI PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, int use_ta);
 	int    SLAPI PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta); // @v9.8.4 TSArray-->TSVector
-
 	int    SLAPI GetOp(PPID cardID, const LDATETIME & rDtm, OpBlock * pBlk);
 	int    SLAPI PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList); // @v9.8.4 TSArray-->TSVector
-
 	int    SLAPI RemoveOp(PPID cardID, LDATE, LTIME, int use_ta);
 	int    SLAPI RemoveOpByCheck(PPID checkID, int use_ta);
 	int    SLAPI RemoveOpAll(PPID cardID, int use_ta);
@@ -15627,7 +15665,19 @@ public:
 	int    SLAPI AnalyzeTsAftershocks();
 	int    SLAPI AnalyzeStrategies();
 
-	struct TrainNnParam {
+	struct Strategy {
+		SLAPI  Strategy();
+		void   SLAPI Reset();
+
+		double Margin;           // Маржа
+		double Target;           // Максимальный рост относительно 0 [0..]
+		double MaxDuck;          // Максимальная величина "проседания" относительно нуля [0..]
+		double SpikeQuant;
+		uint   TargetQuant;
+		uint   MaxDuckQuant;
+		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
+	};
+	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
 		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
 		void   SLAPI Reset();
@@ -15642,20 +15692,11 @@ public:
 		};
 		const  SString Symb;     // Символ временной серии
 		long   Flags;            // @flags
-		double Margin;           // Маржа
 		uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
-		double Target;           // Максимальный рост относительно 0 [0..]
-		double MaxDuck;          // Максимальная величина "проседания" относительно нуля [0..]
-
 		uint   InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
 		uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
 		uint   EpochCount;       // Количество эпох обучения каждого паттерна
 		float  LearningRate;     // Фактор скорости обучения
-		//
-		double SpikeQuant;
-		uint   TargetQuant;
-		uint   MaxDuckQuant;
-		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 	};
 	struct Strategy__ {
 		SLAPI  Strategy__();
@@ -15676,6 +15717,7 @@ public:
 	int    SLAPI TrainNN();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI AnalyzeStrategy(const STimeSeries & rTs, const TrainNnParam & rP, const RealArray & rTrendList, Fann2 ** ppAnn);
+	int    SLAPI CalcStrategyResult(const STimeSeries & rTs, const Strategy & rS, uint vecIdx, uint valueIdx, double * pResult, uint * pTmCount, uint * pTmSec) const;
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -24893,7 +24935,7 @@ public:
 	int    SLAPI CreateAuthFile(PPID psnId);
 
 	int    FASTCALL IsNewCliPerson(PPID id) const;
-	void   FASTCALL GetFromStrPool(uint strP, SString & rBuf) const;
+	SString & FASTCALL GetFromStrPool(uint strP, SString & rBuf) const;
 	int    FASTCALL HasImage(const void * pData);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -31884,7 +31926,7 @@ public:
 #define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
 #define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
 #define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
-#define SCRDSF_RSRVPOOL        0x1000L // @v10.2.7 Резервный пул 
+#define SCRDSF_RSRVPOOL        0x1000L // @v10.2.7 Резервный пул
 //
 // Descr: Типы серий карт
 //
@@ -32063,7 +32105,8 @@ struct SCardSeriesFilt {
 	enum {
 		fOnlyGroups   = 0x0001, // Только группы серий
 		fOnlySeries   = 0x0002, // Только терминальные серии
-		fShowPassive  = 0x0004  // Показывать пассивные серии
+		fShowPassive  = 0x0004, // Показывать пассивные серии
+		fOnlyReal     = 0x0008  // @v10.2.8 Только "рабочие" серии (scstDiscount, scstCredit, scstBonus)
 	};
 	PPID   ParentID;   // Группа серий
 	long   Flags;      //
@@ -32370,7 +32413,7 @@ public:
 	int    SLAPI CheckExpiredBillDebt(PPID scardID);
 	int    SLAPI FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI NotifyAboutRecentOps(const LDATETIME & rSince);
-	//
+	int    SLAPI SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesID, PPID * pID, int use_ta);
 	int    SLAPI IndexPhones(PPLogger * pLogger, int use_ta);
 protected:
 	virtual const char * SLAPI GetNamePtr();
@@ -32421,8 +32464,13 @@ public:
 	};
 	struct DiscountBlock { // @flat
 		SLAPI  DiscountBlock();
+		enum {
+			fProcessed = 0x0001 // Признак того, что по этой строке ранее был получен ответ. 
+				// Текущая передача обусловлена лишь необходимостью информировать провайдера обо всех его товарах в чеке.
+		};
 		int    RowN;    // Ссылка на номер позиции в контейнере (в чеке, например). 0 - undefined
 		PPID   GoodsID;
+		long   Flags;
 		double Qtty;
 		double InPrice;
 		double ResultPrice;
@@ -40877,6 +40925,7 @@ private:
 	virtual void * SLAPI GetEditExtraParam();
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int   SLAPI OnExecBrowser(PPViewBrowser * pBrw); // @v10.2.8
 	virtual int   SLAPI Print(const void *);
 	int    SLAPI UpdateTempTable(PPID arID);
 	int    SLAPI EditLinkObject(PPID arID);
@@ -40891,9 +40940,9 @@ private:
 	PPObjArticle ArObj;
 	ArticleFilt  Filt;
 	int    CurIterOrd;
-	int    CtrlX;   // @v8.0.3
-	long   LimitTerm;      // @v8.2.4 @*Init_
-	long   AddedLimitTerm; // @v8.2.4 @*Init_
+	int    CtrlX;
+	long   LimitTerm;      // @*Init_
+	long   AddedLimitTerm; // @*Init_
 	PPID   AgtProp; // @#[ARTPRP_CLIAGT, ARTPRP_SUPPLAGT]
 	TempArAgtTbl * P_TempTbl;
 };
@@ -49232,6 +49281,12 @@ protected:
 	double RoundDis(double d) const;
 
 	void   Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount);
+	//
+	// Descr: Хелпер, вызываемый из Helper_SetupDiscount для предварительной обработки строк чека.
+	// ARG(mode IN): Режим обработки строк чека
+	//   0 - основной режим
+	//   1 - режим запроса к строронним службам
+	//
 	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
 	void   SetupDiscount(int distributeGiftDiscount = 0);
 	int    ProcessGift();
@@ -51183,6 +51238,7 @@ int    SLAPI SynchronizeObjects(PPID dest);
 int    SLAPI CorrectLotsCloseTags();
 int    SLAPI CorrectLotSuppl();
 int    SLAPI CorrectZeroQCertRefs();
+int    SLAPI CorrectZeroDebtDimRefs(); // @v10.2.8
 int    SLAPI CorrectAccturn();       // PPACC\C_ATURN.CPP
 int    SLAPI EditQuotVal(PPQuot * pQ, int quotCls);
 int    SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt);

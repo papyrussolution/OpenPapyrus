@@ -296,7 +296,7 @@ PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & 
 	return *this;
 }
 
-int SLAPI PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, OPKEXSTR_MEMO, ExtString, rBuf); }
+int SLAPI PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, ExtString, rBuf); }
 int SLAPI PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
@@ -613,9 +613,7 @@ int SLAPI PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
 {
 	SString line_buf;
 	rBuf.Z();
-	if(ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0)
-		return PPGetExtStrData(fldID, OPKEXSTR_MEMO, line_buf, rBuf);
-	return -1;
+	return (ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0) ? PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, line_buf, rBuf) : -1;
 }
 
 int SLAPI PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
@@ -2800,8 +2798,7 @@ int SLAPI PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				else if(oneof2(_obj, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 					PPAccTurnTempl att;
 					for(PPID prop = 0; ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
-						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.ac == _id || att.CrdID.ac == _id)) ||
-							(_obj == PPOBJ_ARTICLE && (att.DbtID.ar == _id || att.CrdID.ar == _id)))
+						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.ac == _id || att.CrdID.ac == _id)) || (_obj == PPOBJ_ARTICLE && (att.DbtID.ar == _id || att.CrdID.ar == _id)))
 							return RetRefsExistsErr(Obj, op_rec.ID);
 				}
 			}

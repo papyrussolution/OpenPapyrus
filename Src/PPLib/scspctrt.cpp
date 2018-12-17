@@ -10,7 +10,7 @@ SLAPI SCardSpecialTreatment::CardBlock::CardBlock() : SpecialTreatment(0), PosNo
 {
 }
 
-SLAPI SCardSpecialTreatment::DiscountBlock::DiscountBlock() : RowN(0), GoodsID(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
+SLAPI SCardSpecialTreatment::DiscountBlock::DiscountBlock() : RowN(0), GoodsID(0), Flags(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
 {
 	PTR32(TaIdent)[0] = 0;
 }
@@ -527,43 +527,34 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 											double item_discount = 0.0;
 											double item_price = 0.0;
 											for(const json_t * p_item = p_ary_item->P_Child; p_item; p_item = p_item->P_Next) {
-												if(p_item->Text.IsEqiAscii("barcode")) {
-												}
-												else if(p_item->Text.IsEqiAscii("count")) {
+												if(p_item->Text.IsEqiAscii("barcode"))
+													;
+												else if(p_item->Text.IsEqiAscii("count"))
 													item_count = p_item->P_Child->Text.ToReal();
-												}
-												else if(p_item->Text.IsEqiAscii("discount")) {
+												else if(p_item->Text.IsEqiAscii("discount"))
 													item_discount = p_item->P_Child->Text.ToReal();
-												}
 												else if(p_item->Text.IsEqiAscii("type")) {
 													if(p_item->P_Child->Text.IsEqiAscii("cash"))
 														item_discount_type = 1;
 													else if(p_item->P_Child->Text.IsEqiAscii("percent"))
 														item_discount_type = 2;
 												}
-												else if(p_item->Text.IsEqiAscii("value")) {
+												else if(p_item->Text.IsEqiAscii("value"))
 													item_value = p_item->P_Child->Text.ToReal();
-												}
-												else if(p_item->Text.IsEqiAscii("value_per_item")) {
+												else if(p_item->Text.IsEqiAscii("value_per_item"))
 													item_value_per_item = p_item->P_Child->Text.ToReal();
-												}
-												else if(p_item->Text.IsEqiAscii("price")) {
+												else if(p_item->Text.IsEqiAscii("price"))
 													item_price = p_item->P_Child->Text.ToReal();
-												}
-												else if(p_item->Text.IsEqiAscii("transaction")) {
+												else if(p_item->Text.IsEqiAscii("transaction"))
 													item_ta = p_item->P_Child->Text;
-												}
-												else if(p_item->Text.IsEqiAscii("descrption")) {
-												}
-												else if(p_item->Text.IsEqiAscii("error_code")) {
+												else if(p_item->Text.IsEqiAscii("descrption"))
+													;
+												else if(p_item->Text.IsEqiAscii("error_code"))
 													item_err_code = p_item->P_Child->Text.ToLong();
-												}
-												else if(p_item->Text.IsEqiAscii("message")) {
+												else if(p_item->Text.IsEqiAscii("message"))
 													item_msg = p_item->P_Child->Text;
-												}
-												else if(p_item->Text.IsEqiAscii("any_data")) {
+												else if(p_item->Text.IsEqiAscii("any_data"))
 													item_any_data = p_item->P_Child->Text;
-												}
 											}
 											{
 												const long row_no = item_any_data.ToLong();

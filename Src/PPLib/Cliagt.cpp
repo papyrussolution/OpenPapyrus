@@ -1177,8 +1177,7 @@ int SLAPI PPSupplAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	THROW_SL(pSCtx->Serialize(dir, InvPriceAction, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, DefDlvrTerm, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, PctRet, rBuf));
-	// @v8.5.2 THROW_SL(pSCtx->Serialize(dir, OrdPrdDays, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Reserve_opd, rBuf)); // @v8.5.2
+	THROW_SL(pSCtx->Serialize(dir, Reserve_opd, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, DefAgentID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, CostQuotKindID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, PurchaseOpID, rBuf));

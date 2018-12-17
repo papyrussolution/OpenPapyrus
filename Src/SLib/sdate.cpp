@@ -432,19 +432,6 @@ static void _ltodate(long nd, void * dt, int format)
 {
 	int    y, m, d;
 	DaysSinceChristmasToDate(nd, &y, &m, &d);
-	/*
-	ldiv_t xd = ldiv(nd, 1461L);
-	y = (int)(4 * xd.quot);
-	xd = ldiv(xd.rem, 365L);
-	y += (int)xd.quot;
-	if(xd.rem) {
-		y++;
-		d = (int)xd.rem;
-	}
-	else
-		d = xd.quot ? 365 : 366;
-	m = getMon(&d, !(y % 4));
-	*/
 	_encodedate(d, m, y, dt, format);
 }
 
@@ -517,12 +504,7 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 	char   tmp[64];
 	switch(format) {
 		case DF_BTRIEVE:
-			{
-				/*LDATE temp_dt;
-				temp_dt.encode(day, mon, year);
-				*(LDATE *)pBuf = temp_dt;*/
-				((LDATE *)pBuf)->encode(day, mon, year);
-			}
+			((LDATE *)pBuf)->encode(day, mon, year);
 			break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
@@ -538,9 +520,7 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 			sprintf(tmp, "%04d%02d%02d", year, mon, day);
 			memcpy(pBuf, tmp, 8);
 			break;
-		case DF_PARADOX:
-			formatNotSupported("Paradox");
-			break;
+		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 			{
 #ifdef USE_DF_CLARION
@@ -568,14 +548,7 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 	SDosDate d;
 #endif
 	switch(format)  {
-		case DF_BTRIEVE:
-			/*
-			*year = (int)(*(long *)pBuf >> 16);
-			*mon  = (int)((*(long *)pBuf & 0x0000ff00) >> 8);
-			*day  = (int)(*(long *)pBuf & 0x000000ff);
-			*/
-			((const LDATE *)pBuf)->decode(day, mon, year);
-			break;
+		case DF_BTRIEVE: ((const LDATE *)pBuf)->decode(day, mon, year); break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
 			*day  = ((SDosDate *)pBuf)->da_day;
@@ -592,9 +565,7 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 			((char *)memcpy(tmp, pBuf, 8))[8] = '\0';
 			sscanf(tmp, "%4d%2d%2d", year, mon, day);
 			break;
-		case DF_PARADOX:
-			formatNotSupported("Paradox");
-			break;
+		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 #ifdef USE_DF_CLARION
 			CLALongToDate(*(long *)pBuf, &d);
@@ -678,23 +649,16 @@ int FASTCALL _dayofweek(const void * pDate, int format)
 	return (int)((4 + _diffdate(pDate, beg, format, 0) % 7) % 7);
 }
 
-void FASTCALL encodedate(int day, int mon, int year, void * pBinDate)
-	{ _encodedate(day, mon, year, pBinDate, BinDateFmt); }
-void FASTCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate)
-	{ _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
-long SLAPI diffdate(const void * pDest, const void * pSrc, int _360)
-	{ return _diffdate(pDest, pSrc, BinDateFmt, _360); }
-void FASTCALL plusdate(void * pDest, int numdays, int _360)
-	{ _plusdate(pDest, numdays, BinDateFmt, _360); }
-void SLAPI plusperiod(void * pDest, int period, int numperiods, int _360)
-	{ _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
+void FASTCALL encodedate(int day, int mon, int year, void * pBinDate)                { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
+void FASTCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
+long FASTCALL diffdate(const void * pDest, const void * pSrc, int _360)              { return _diffdate(pDest, pSrc, BinDateFmt, _360); }
+void FASTCALL plusdate(void * pDest, int numdays, int _360)                          { _plusdate(pDest, numdays, BinDateFmt, _360); }
+void FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360)         { _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
 
 int FASTCALL dayofweek(const void * pDate, int sundayIsSeventh)
 {
-	int    dow = _dayofweek(pDate, BinDateFmt);
-	if(sundayIsSeventh)
-		dow = dow ? dow : 7;
-	return dow;
+	const int dow = _dayofweek(pDate, BinDateFmt);
+	return !sundayIsSeventh ? dow : (dow ? dow : 7);
 }
 
 LDATE FASTCALL encodedate(int day, int month, int year)

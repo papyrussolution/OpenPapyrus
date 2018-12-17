@@ -631,11 +631,11 @@ int SLAPI PPExprParser::GetToken()
 			Name = buf;
 			Token = tokName;
 		}
-		else if(isalpha(Cur) || oneof3(Cur, '_', '@', '?')) {
+		else if(isalpha((uchar)Cur) || oneof3(Cur, '_', '@', '?')) {
 			do {
 				*p++ = Cur;
 				Next();
-			} while(isalnum(Cur) || oneof2(Cur, '_', '.'));
+			} while(isalnum((uchar)Cur) || oneof2(Cur, '_', '.'));
 			*p = 0;
 			Func = 0;
 			if(sstreqi_ascii(buf, "abs"))        { Func = funcAbs; }

@@ -257,7 +257,7 @@ int SLAPI validFileName(const char * pFileName)
 		strpbrk(ext + 1, illegalChars) || strchr(ext + 1, '.')) ? 0 : 1;
 }
 
-SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
 	char   prefix[128], ext[128];
 	size_t prefix_len = 0;

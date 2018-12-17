@@ -8487,6 +8487,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 	PPObjCSession * p_cses_obj = 0;
 	TSessionTbl::Rec tsess_rec;
 	CSessionTbl::Rec csess_rec;
+	LocationTbl::Rec loc_rec;
 	PPBillPacket * p_link_pack = 0, * p_rckn_pack = 0;
 	if(pPack && !isempty(pTemplate)) {
 		AgtBlock agt_blk;
@@ -8610,28 +8611,19 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 							break;
 						case PPSYM_AMOUNT: subst_buf.Cat(pk->GetAmount(), MKSFMTD(0, 0, NMBF_TRICOMMA)); break;
 						case PPSYM_LOCCODE:
-							if(pk->Rec.LocID) {
-								LocationTbl::Rec loc_rec;
-								if(LocObj.Fetch(pk->Rec.LocID, &loc_rec) > 0)
-									subst_buf.Cat(loc_rec.Code);
-							}
+							if(pk->Rec.LocID && LocObj.Fetch(pk->Rec.LocID, &loc_rec) > 0)
+								subst_buf.Cat(loc_rec.Code);
 							break;
 						case PPSYM_LOCATION: GetLocationName(pk->Rec.LocID, subst_buf); break;
 						case PPSYM_OBJECT:   GetArticleName(pk->Rec.Object, subst_buf); break;
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
-							if(pk->P_Freight && pk->P_Freight->DlvrAddrID) {
-								LocationTbl::Rec loc_rec;
-								if(LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
-									subst_buf.Cat(loc_rec.Code);
-							}
+							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
+								subst_buf.Cat(loc_rec.Code);
 							break;
 						case PPSYM_DLVRLOCID:
-							if(pk->P_Freight && pk->P_Freight->DlvrAddrID) {
-								LocationTbl::Rec loc_rec;
-								if(LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
-									subst_buf.Cat(loc_rec.ID);
-							}
+							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
+								subst_buf.Cat(loc_rec.ID);
 							break;
 						case PPSYM_INN:
 							{

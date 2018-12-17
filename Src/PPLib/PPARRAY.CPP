@@ -526,6 +526,8 @@ int SLAPI ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 	return (Search(id, &p, binary) > 0) ? P_List->atFree(p) : -1;
 }
 
+int SLAPI ObjIdListFilt::RemoveByIdx(uint idx)
+	{ return (P_List && idx < P_List->getCount()) ? P_List->atFree(idx) : 0; }
 void SLAPI ObjIdListFilt::FreeAll() { CALLPTRMEMB(P_List, freeAll()); }
 int SLAPI ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
 uint SLAPI ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }

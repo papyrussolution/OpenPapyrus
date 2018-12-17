@@ -1440,6 +1440,54 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 						ok = _ProcessSearch(r, ar_id);
 					}
 					break;
+				// @v10.2.8 {
+				case PPOBJ_DEBTDIM:
+					{
+						Reference * p_ref = PPRef;
+						PropertyTbl::Key1 k1;
+						{
+							const PPID prop_id = ARTPRP_DEBTLIMLIST2;
+							PPIDArray ar_list;
+							TSVector <PPClientAgreement::DebtLimit> debt_lim_list;
+							MEMSZERO(k1);
+							k1.ObjType = PPOBJ_ARTICLE;
+							k1.Prop = prop_id;
+							if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id) do {
+								ar_list.add(p_ref->Prop.data.ObjID);
+							} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
+							ar_list.sortAndUndup();
+							for(uint i = 0; i < ar_list.getCount(); i++) {
+								if(p_ref->GetPropArray(PPOBJ_ARTICLE, ar_list.get(i), prop_id, &debt_lim_list) > 0) {
+									for(uint j = 0; j < debt_lim_list.getCount(); j++) {
+										if(debt_lim_list.at(j).DebtDimID == _id)
+											return RetRefsExistsErr(Obj, ar_list.get(i));
+									}
+								}
+							}
+						}
+						{
+							const PPID prop_id = ARTPRP_SUPPLAGT2;
+							PPIDArray ar_list;
+							SBuffer _buf;
+							MEMSZERO(k1);
+							k1.ObjType = PPOBJ_ARTICLE;
+							k1.Prop = prop_id;
+							if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id) do {
+								ar_list.add(p_ref->Prop.data.ObjID);
+							} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
+							ar_list.sortAndUndup();
+							for(uint i = 0; i < ar_list.getCount(); i++) {
+								if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, ar_list.get(i), prop_id, _buf) > 0) {
+									SSerializeContext ctx;
+									PPSupplAgreement agt;
+									if(agt.Serialize(-1, _buf, &ctx) && agt.Ep.DebtDimList.Search(_id, 0, 0))
+										return RetRefsExistsErr(Obj, ar_list.get(i));
+								}
+							}
+						}
+					}
+					break;
+				// } @v10.2.8
 			}
 			break;
 		case DBMSG_PERSONLOSEKIND:
@@ -1474,7 +1522,8 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(oneof2(_obj, PPOBJ_PERSON, PPOBJ_LOCATION)) {
 				int    r;
 				PPID   acs_id = 0;
-				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName((const char *)extraPtr)) != 0);
+				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName((const char *)extraPtr)) != 0)
+					;
 				ok = r ? DBRPL_OK : DBRPL_ERROR;
 			}
 			break;
@@ -2455,6 +2504,94 @@ int SLAPI PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffe
 		PPIDArray agent_list;
 		THROW_SL(ok = pSCtx->Serialize(dir, &agent_list, rBuf));
 		pPack->AgentList.Set(&agent_list);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI CorrectZeroDebtDimRefs()
+{
+	int    ok = -1;
+	{
+		Reference * p_ref = PPRef;
+		PPObjDebtDim dd_obj;
+		PPDebtDim dd_rec;
+		PropertyTbl::Key1 k1;
+		{
+			const PPID prop_id = ARTPRP_DEBTLIMLIST2;
+			PPIDArray ar_list;
+			TSVector <PPClientAgreement::DebtLimit> debt_lim_list;
+			MEMSZERO(k1);
+			k1.ObjType = PPOBJ_ARTICLE;
+			k1.Prop = prop_id;
+			if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id) do {
+				ar_list.add(p_ref->Prop.data.ObjID);
+			} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
+			ar_list.sortAndUndup();
+			for(uint i = 0; i < ar_list.getCount(); i++) {
+				const PPID ar_id = ar_list.get(i);
+				debt_lim_list.clear();
+				if(p_ref->GetPropArray(PPOBJ_ARTICLE, ar_id, prop_id, &debt_lim_list) > 0) {
+					int    do_update = 0;
+					uint   ri = debt_lim_list.getCount();
+					if(ri) do {
+						const PPID dd_id = debt_lim_list.at(--ri).DebtDimID;
+						if(dd_obj.Search(dd_id, &dd_rec) > 0) {
+							;
+						}
+						else {
+							debt_lim_list.atFree(ri);
+							do_update = 1;
+						}
+					} while(ri);
+					if(do_update) {
+						THROW(p_ref->PutPropArray(PPOBJ_ARTICLE, ar_id, prop_id, &debt_lim_list, 1));
+					}
+				}
+			}
+		}
+		{
+			const PPID prop_id = ARTPRP_SUPPLAGT2;
+			PPIDArray ar_list;
+			SBuffer _buf;
+			MEMSZERO(k1);
+			k1.ObjType = PPOBJ_ARTICLE;
+			k1.Prop = prop_id;
+			if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id) do {
+				ar_list.add(p_ref->Prop.data.ObjID);
+			} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
+			ar_list.sortAndUndup();
+			for(uint i = 0; i < ar_list.getCount(); i++) {
+				const PPID ar_id = ar_list.get(i);
+				if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, ar_id, prop_id, _buf) > 0) {
+					SSerializeContext ctx;
+					PPSupplAgreement agt;
+					if(agt.Serialize(-1, _buf, &ctx)) {
+						int    do_update = 0;
+						uint   ri = agt.Ep.DebtDimList.GetCount();
+						if(ri) do {
+							const PPID dd_id = agt.Ep.DebtDimList.Get(--ri);
+							if(dd_obj.Search(dd_id, &dd_rec) > 0) {
+								;
+							}
+							else {
+								agt.Ep.DebtDimList.RemoveByIdx(ri);
+								do_update = 1;
+							}
+						} while(ri);
+						if(do_update) {
+							if(agt.Ep.DebtDimList.GetCount() == 0)
+								agt.Ep.DebtDimList.Set(0);
+
+							_buf.Z();
+							if(agt.Serialize(+1, _buf, &ctx)) {
+								THROW(p_ref->PutPropSBuffer(PPOBJ_ARTICLE, ar_id, prop_id, _buf, 1));
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;

@@ -2663,6 +2663,9 @@ data GoodsBillDispose {
 	long   TotalGoodsLines;   // Количество товарных строк в документе
 	long   TotalGoodsNames;   // Количество наименований товаров (<= TotalLines)
 
+	DlvrName = DlvrID.Name; // @v10.2.8
+	RcvrName = RcvrID.Name; // @v10.2.8
+
 	iteration {
 		long   nn;                      // Порядковый номер строки.
 		link   Goods       GoodsID;     // ИД товара

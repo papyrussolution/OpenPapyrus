@@ -515,5 +515,6 @@
 #define cmVetisInterchange             620 // @v10.1.2 Обмен данными с ВЕТИС
 #define cmTimeSeries                   621 // @v10.2.3 @experimental Временные серии
 #define cmTimeSeriesNnTrain            622 // @v10.2.4 @experimental обучение нейронной сети по временным сериям
+#define cmCorrectZeroDebtDimRefs       623 // @v10.2.8 Обнуление висячих ссылок на долговые размерности
 
 #endif /* __PPMENU_H */

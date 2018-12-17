@@ -1466,7 +1466,7 @@ int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFl
     return ok;
 }
 
-int FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf)
+int FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf)
 {
 	int    ok = -1;
 	int    r = 0;

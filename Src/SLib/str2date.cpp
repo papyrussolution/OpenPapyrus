@@ -17,7 +17,7 @@ static int * FASTCALL getnmb(int cnt, int ord, int * d, int * m, int * y)
 	}
 }
 
-int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int * pYear, long * pRetFlags)
+int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int * pYear, long * pRetFlags)
 {
 	// DATF_DMY
 
@@ -266,7 +266,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 	return (int)(c - pBuf);
 }
 
-int SLAPI strtodate(const char * pBuf, long fmt, void * pDate)
+int FASTCALL strtodate(const char * pBuf, long fmt, void * pDate)
 {
 	int    d, m, y;
 	_strtodate(pBuf, SFMTFLAG(fmt), &d, &m, &y);
@@ -281,7 +281,7 @@ LDATE FASTCALL strtodate_(const char * pBuf, long fmt)
 	return encodedate(d, m, y);
 }
 
-int SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
+int FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
 {
 	pDtm->Z();
 	const char * p = pBuf;
@@ -367,7 +367,7 @@ struct TempVar {
 	int    Y;
 };
 
-static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
+static int FASTCALL gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 {
 	//static const char * quarters[4] = { "I", "II", "III", "IV" };
 	int    result = TOK_UNKNOWN;
@@ -444,7 +444,7 @@ static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 	return result;
 }
 
-int SLAPI strtoperiod(const char * pStr, DateRange * pRange, long flags)
+int FASTCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
 {
 	const  int _defyear  = DefaultYear;
 	const  int _defmonth = DefaultMonth;
