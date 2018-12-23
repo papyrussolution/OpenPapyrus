@@ -3765,6 +3765,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 int SLAPI PrcssrDebtRate::Run()
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	PPLogger logger;
 	PPWait(1);
 	if(P.AccSheetID) {
@@ -3828,12 +3829,12 @@ int SLAPI PrcssrDebtRate::Run()
 						dim_set_stop_list.clear();
 						if(r < 0 && P.Flags & Param::fReportAgtAbsence)
 							logger.LogString(PPTXT_ARHASNTAGREEMENT, ar_rec.Name);
-						BillObj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Reset()); // @v9.8.12 0-->&period
+						p_bobj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Z()); // @v9.8.12 0-->&period
 						if(blk.Debt > 0.0) {
 							if(blk.MaxExpiry > P.Gandicap || P.Flags & Param::fAllowForMaxCredit && agt_rec.MaxCredit > 0.0 || update_stop_debtdim) {
 								AmtList amt_list, paym_list;
 								PayableBillList list(&amt_list, &paym_list);
-								THROW(BillObj->GetReceivableBillList(ar_id, 0, &list));
+								THROW(p_bobj->GetReceivableBillList(ar_id, 0, &list));
 								rckn = amt_list.Get(0, 0) - paym_list.Get(0, 0);
 								if(rckn < blk.Debt) { // Если сумма незачтенных оплат больше или равна долгу, то считаем долг закрытым
 									if(blk.MaxExpiry > P.Gandicap) {

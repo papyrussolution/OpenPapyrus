@@ -1579,12 +1579,11 @@ int SLAPI PPObjBill::GetReceivableBillList(PPID arID, PPID curID, PayableBillLis
 //
 //
 //
-PPObjBill::DebtBlock::DebtBlock()
+SLAPI PPObjBill::DebtBlock::DebtBlock() : Amount(0.0), Debt(0.0), HasMatured(0), MaxDelay(0), MaxExpiry(0)
 {
-	Reset();
 }
 
-PPObjBill::DebtBlock & PPObjBill::DebtBlock::Reset()
+PPObjBill::DebtBlock & PPObjBill::DebtBlock::Z()
 {
 	Amount = 0.0;
 	Debt = 0.0;
@@ -1595,7 +1594,7 @@ PPObjBill::DebtBlock & PPObjBill::DebtBlock::Reset()
 	return *this;
 }
 
-int PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
+int SLAPI PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -1615,7 +1614,7 @@ int PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
 	return ok;
 }
 
-int PPObjBill::DebtBlock::GetDimList(RAssocArray & rList) const
+int SLAPI PPObjBill::DebtBlock::GetDimList(RAssocArray & rList) const
 {
 	rList.clear();
 	for(uint i = 0; i < DebtDimList.getCount(); i++) {
@@ -1653,14 +1652,14 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 	PPIDArray op_list;
 	DateRange period;
 	{
-		PPUserFuncProfiler ufp(PPUPRF_CALCARTDEBT); // @v8.5.7
-		double ufp_factor = 0.0; // @v8.5.7
+		PPUserFuncProfiler ufp(PPUPRF_CALCARTDEBT);
+		double ufp_factor = 0.0;
 		period.Set(pPeriod);
-		rBlk.Reset();
+		rBlk.Z();
 		if(ArObj.Fetch(clientID, &ar_rec) > 0) {
 			P_OpObj->GetPayableOpList(ar_rec.AccSheetID, &op_list);
 			if(op_list.getCount()) {
-				const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT); // @v8.5.8
+				const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 				PROFILE_START
 				BillCore * p_t = P_Tbl;
 				PPObjDebtDim dd_obj;

@@ -187,15 +187,12 @@ xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 	ret->no_doc_free = 0;
 	return ret;
 }
-/**
- * xmlNewTextWriterFilename:
- * @uri:  the URI of the resource for the output
- * @compression:  compress the output?
- *
- * Create a new xmlNewTextWriter structure with @uri as output
- *
- * Returns the new xmlTextWriterPtr or NULL in case of error
- */
+// 
+// Descr: Create a new xmlNewTextWriter structure with @uri as output
+// @uri:  the URI of the resource for the output
+// @compression:  compress the output?
+// Returns the new xmlTextWriterPtr or NULL in case of error
+// 
 xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 {
 	const char * _p_func_name = "xmlNewTextWriterFilename";
@@ -217,16 +214,13 @@ xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 	}
 	return ret;
 }
-/**
- * xmlNewTextWriterMemory:
- * @buf:  xmlBufferPtr
- * @compression:  compress the output?
- *
- * Create a new xmlNewTextWriter structure with @buf as output
- * @todo handle compression
- *
- * Returns the new xmlTextWriterPtr or NULL in case of error
- */
+// 
+// Descr: Create a new xmlNewTextWriter structure with @buf as output
+// @buf:  xmlBufferPtr
+// @compression:  compress the output?
+// @todo handle compression
+// Returns the new xmlTextWriterPtr or NULL in case of error
+// 
 xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUTE_UNUSED)
 {
 	const char * _p_func_name = "xmlNewTextWriterMemory";
@@ -251,8 +245,7 @@ xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUT
  * @compression:  compress the output?
  *
  * Create a new xmlNewTextWriter structure with @ctxt as output
- * NOTE: the @ctxt context will be freed with the resulting writer
- *       (if the call succeeds).
+ * NOTE: the @ctxt context will be freed with the resulting writer (if the call succeeds).
  * @todo handle compression
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error

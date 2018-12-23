@@ -610,7 +610,7 @@ int SLAPI PPObjCashNode::DeleteObj(PPID id)
 int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
-	if(p && p->Data)
+	if(p && p->Data) {
 		if(stream == 0) {
 			PPCashNode * p_rec = (PPCashNode *)p->Data;
 			if(*pID == 0) {
@@ -641,6 +641,7 @@ int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
 		}
+	}
 	CATCHZOK
 	return ok;
 }

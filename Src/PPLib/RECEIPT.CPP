@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -48,9 +48,9 @@ int SLAPI ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, Ob
 	return ok;
 }
 
-SLAPI ReceiptCore::LotDimensions::LotDimensions()
+SLAPI ReceiptCore::LotDimensions::LotDimensions() : X(0.0), Y(0.0), Z(0.0)
 {
-	Clear();
+	MEMSZERO(Reserve);
 }
 
 void SLAPI ReceiptCore::LotDimensions::Clear()
@@ -63,11 +63,8 @@ void SLAPI ReceiptCore::LotDimensions::Clear()
 
 SString & FASTCALL ReceiptCore::LotDimensions::ToString(SString & rBuf) const
 {
-    rBuf.Z();
-    rBuf.CatEq("x", X, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
-    rBuf.CatEq("y", Y, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
-    rBuf.CatEq("z", Z, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-    return rBuf;
+	const long fmt = MKSFMTD(0, 6, NMBF_NOTRAILZ);
+    return rBuf.Z().CatEq("x", X, fmt).Space().CatEq("y", Y, fmt).Space().CatEq("z", Z, fmt);
 }
 
 int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
@@ -107,11 +104,8 @@ int SLAPI ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_LOT, id, pRec); }
 int SLAPI ReceiptCore::Update(PPID id, ReceiptTbl::Rec * pRec, int use_ta)
 	{ return UpdateByID(this, PPOBJ_LOT, id, pRec, use_ta); }
-
 int SLAPI ReceiptCore::Add(PPID * pID, ReceiptTbl::Rec * pRec, int use_ta)
-{
-	return AddByID(this, pID, pRec, use_ta);
-}
+	{ return AddByID(this, pID, pRec, use_ta); }
 
 int SLAPI ReceiptCore::Remove(PPID id, int use_ta)
 {
@@ -220,14 +214,9 @@ int SLAPI ReceiptCore::GetLastOpenedLot(PPID goodsID, PPID locID, LDATE date, vo
 }
 
 int SLAPI ReceiptCore::GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
-{
-	return Helper_GetCurrentGoodsPrice(goodsID, locID, MAXDATE, flags, pPrice, pRec);
-}
-
+	{ return Helper_GetCurrentGoodsPrice(goodsID, locID, MAXDATE, flags, pPrice, pRec); }
 int SLAPI ReceiptCore::GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
-{
-	return Helper_GetCurrentGoodsPrice(goodsID, locID, date, flags, pPrice, pRec);
-}
+	{ return Helper_GetCurrentGoodsPrice(goodsID, locID, date, flags, pPrice, pRec); }
 
 int SLAPI ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 {
@@ -623,12 +612,11 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID lo
 
 int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LDATE beforeDt, LotArray * pList)
 {
-	const int use_bextq = 0; // @v8.5.6 // @v8.6.5 1-->0
-
+	const int use_bextq = 0;
 	int    ok = -1;
 	const PPConfig & r_cfg = LConfig;
 	{
-		PPUserFuncProfiler ufp(PPUPRF_GETOPENEDLOTS); // @v8.5.8
+		PPUserFuncProfiler ufp(PPUPRF_GETOPENEDLOTS);
 		uint   ufp_factor_i = 0;
 		ReceiptTbl::Key3 k;
 		MEMSZERO(k);
@@ -656,7 +644,6 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 				}
 			}
 		}
-		// @v8.5.6 {
 		else {
 			if(search(3, &k, spGe) && !data.Closed && data.GoodsID == goodsID && data.LocID == locID && (!beforeDt || data.Dt <= beforeDt)) do {
 				ufp_factor_i++;
@@ -666,7 +653,6 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 				}
 			} while(search(3, &k, spNext) && !data.Closed && data.GoodsID == goodsID && data.LocID == locID && (!beforeDt || data.Dt <= beforeDt));
 		}
-		// } @v8.5.6
 		if(ok > 0 && pList) {
 			if(r_cfg.Flags & CFGFLG_FEFO) {
 				if(dir == 0) {
@@ -779,18 +765,222 @@ int SLAPI ReceiptCore::GetSupplList(PPID goodsID, const PPIDArray * pLocList, LD
 	q.select(this->SupplID, this->Dt, 0L).where(*dbq);
 	for(q.initIteration(1, &k, spLe); q.nextIteration() > 0;) {
 		SETIFZ(first_date, data.Dt);
-		if(pSupplList)
-			pSupplList->addUnique(data.SupplID);
+		CALLPTRMEMB(pSupplList, addUnique(data.SupplID));
 		if(++count > min_lots && diffdate(first_date, data.Dt) > max_days)
 			break;
 	}
-	if(pSupplList)
-		pSupplList->sort();
+	CALLPTRMEMB(pSupplList, sort());
 	ok = count ? 1 : -1;
 	return ok;
 }
 
-int SLAPI GetCurGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pLotRec)
+int FASTCALL GetCurGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pLotRec)
+	{ return BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, locID, flags, pPrice, pLotRec); }
+//
+//
+//
+SLAPI LotExtCodeCore::LotExtCodeCore() : LotExtCodeTbl(0)
 {
-	return BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, locID, flags, pPrice, pLotRec);
+}
+
+int SLAPI LotExtCodeCore::RemoveAllByBill(PPID billID, int use_ta)
+{
+	int    ok = -1;
+	LotExtCodeTbl::Key2 k2;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		MEMSZERO(k2);
+		k2.BillID = billID;
+		if(search(2, &k2, spGe) && data.BillID == billID) do {
+			THROW_DB(rereadForUpdate(2, &k2));
+			THROW_DB(deleteRec());
+			ok = 1;
+		} while(search(2, &k2, spNext) && data.BillID == billID);
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI LotExtCodeCore::PutContainer(PPID billID, PPLotExtCodeContainer * pC, int use_ta)
+{
+	int    ok = -1;
+	LongArray found_idx_list;
+	//SString code_buf;
+	PPLotExtCodeContainer::Item2 citem;
+	LotExtCodeTbl::Key2 k2;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		MEMSZERO(k2);
+		k2.BillID = billID;
+		if(search(2, &k2, spGe) && data.BillID == billID) do {
+			int    is_found = 0;
+			for(uint i = 0; !is_found && i < pC->GetCount(); i++) {
+				pC->GetByIdx(i, citem);
+				//Item & r_item = *(Item *)at(i);
+				// @v10.2.9 if(r_item.RowIdx == pTbl->data.RByBill && r_item.Sign == pTbl->data.Sign) {
+				if(citem.RowIdx == data.RByBill && citem.Flags == data.Flags && citem.BoxId == data.BoxNo && citem.Num == data.Code) { // @v10.2.9
+					is_found = 1;
+					found_idx_list.add(i+1);
+				}
+			}
+			if(!is_found) {
+				THROW_DB(rereadForUpdate(2, &k2));
+				THROW_DB(deleteRec());
+				ok = 1;
+			}
+		} while(search(2, &k2, spNext) && data.BillID == billID);
+		{
+			found_idx_list.sortAndUndup();
+			if(found_idx_list.getCount() < pC->GetCount()) {
+				BExtInsert bei(this);
+				for(uint i = 0; i < pC->GetCount(); i++) {
+					if(!found_idx_list.bsearch(i+1)) {
+						pC->GetByIdx(i, citem);
+						//Item & r_item = *(Item *)at(i);
+						//GetS(r_item.CodeP, code_buf);
+						LotExtCodeTbl::Rec rec;
+						MEMSZERO(rec);
+						rec.BillID = billID;
+						rec.RByBill = citem.RowIdx;
+						// @v10.2.9 rec.Sign = r_item.Sign;
+						rec.Flags = citem.Flags; // @v10.2.9
+						rec.BoxNo = citem.BoxId; // @v10.2.9
+						STRNSCPY(rec.Code, citem.Num);
+						THROW_DB(bei.insert(&rec));
+						ok = 1;
+					}
+				}
+				THROW_DB(bei.flash());
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
+{
+	int    ok = -1;
+	rC.Release();
+	SString code_buf;
+	LotExtCodeTbl::Key2 k2;
+	MEMSZERO(k2);
+	k2.BillID = billID;
+	BExtQuery q(this, 2);
+	q.selectAll().where(this->BillID == billID);
+	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+		LotExtCodeTbl::Rec rec;
+		copyBufTo(&rec);
+		code_buf = rec.Code;
+		if(rec.BillID == billID && code_buf.NotEmptyS()) {
+			THROW(rC.Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount)
+{
+	rSsExtCodes.clear();
+	int    ok = -1;
+	uint   ext_code_count = 0;
+	if(lotID) {
+		LotExtCodeTbl::Key0 k0;
+		MEMSZERO(k0);
+		k0.LotID = lotID;
+		if(search(0, &k0, spGe) && data.LotID == lotID && data.BillID == 0) {
+			ok = 1;
+			SString temp_buf;
+			do {
+				temp_buf = data.Code;
+				if(!pExcludeList || !pExcludeList->search(temp_buf, 0, 1)) {
+					ext_code_count++;
+					rSsExtCodes.add(temp_buf);
+				}
+			} while(search(0, &k0, spNext) && data.LotID == lotID && data.BillID == 0);
+		}
+	}
+	ASSIGN_PTR(pExtCodeCount, ext_code_count);
+	return ok;
+}
+
+int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPLotExtCodeContainer::MarkSet & rResult)
+{
+	int    ok = -1;
+	rResult.Clear();
+	if(!isempty(pCode)) {
+		PPObjBill * p_bobj = BillObj;
+		BillTbl::Rec bill_rec;
+		TransferTbl::Rec trfr_rec;
+		LotExtCodeTbl::Key1 k1;
+		int    is_box = 0;
+		MEMSZERO(k1);
+		STRNSCPY(k1.Code, pCode);
+		if(search(1, &k1, spGe) && stricmp(data.Code, pCode) == 0) {
+			int   parity = 0;
+			PPID  first_bill_id = 0;
+			int   first_rbb = 0;
+			long  box_no = 0;
+			if(data.Flags & PPLotExtCodeContainer::fBox)
+				is_box = 1;
+			do {
+				if(data.BillID && p_bobj->Fetch(data.BillID, &bill_rec) > 0) {
+					const PPID op_type_id = GetOpType(bill_rec.OpID);
+					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
+						if(data.RByBill && p_bobj->trfr->SearchByBill(data.BillID, 0, data.RByBill, &trfr_rec) > 0) {
+							if(trfr_rec.Quantity > 0.0) {
+								if(!first_bill_id) {
+									first_bill_id = data.BillID;
+									first_rbb = data.RByBill;
+									box_no = data.BoxNo;
+								}
+								parity++;
+							}
+							else if(trfr_rec.Quantity < 0.0)
+								parity--;
+						}
+					}
+				}
+			} while(search(1, &k1, spNext) && stricmp(data.Code, pCode) == 0);
+			THROW_PP_S(parity >= 0, PPERR_EGAISMARKISEXHAUSTED, pCode);
+			if(is_box) {
+				LotExtCodeTbl::Key2 k2;
+				MEMSZERO(k2);
+				k2.BillID = first_bill_id;
+				k2.RByBill = first_rbb;
+				k2.BoxNo = box_no;
+				int    box_count = 0;
+				uint   mark_count = 0;
+				if(search(2, &k2, spGe) && data.BillID == first_bill_id && data.RByBill == first_rbb && data.BoxNo == box_no) {
+					do {
+						if(data.Flags & PPLotExtCodeContainer::fBox) {
+							THROW(rResult.AddBox(box_no, data.Code));
+							box_count++;
+						}
+						else {
+							THROW(rResult.AddNum(box_no, data.Code));
+							mark_count++;
+						}
+					} while(search(2, &k2, spNext) && data.BillID == first_bill_id && data.RByBill == first_rbb && data.BoxNo == box_no);
+				}
+				THROW(box_count == 1);
+				THROW(mark_count > 0);
+			}
+			else {
+				THROW(rResult.AddNum(0, data.Code));
+			}
+			ok = 1;
+		}
+		else {
+			CALLEXCEPT_PP_S(PPERR_EGAISMARKNOTFOUND, pCode);
+		}
+	}
+	CATCHZOK
+	return ok;
 }

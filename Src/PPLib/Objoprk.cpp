@@ -385,7 +385,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 	return p_list;
 }
 
-int SLAPI SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
+int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
 {
 	int    ok = 0;
 	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
@@ -3327,7 +3327,7 @@ int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 		return 0;
 }
 
-int SLAPI EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
+int FASTCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 {
 	int    r;
 	PPOprKind rec;
@@ -3508,7 +3508,7 @@ int FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID)
 	return ok;
 }
 
-int SLAPI GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID)
+int FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID)
 {
 	int    ok = -1;
 	PPID   acc_sheet_id = 0, acc_sheet2_id = 0;

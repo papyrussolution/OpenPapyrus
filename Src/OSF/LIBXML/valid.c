@@ -4584,10 +4584,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 					case XML_ELEMENT_NODE:
 					    if(cur->ns && (cur->ns->prefix != NULL)) {
 						    xmlChar fn[50];
-						    xmlChar * fullname;
-
-						    fullname = xmlBuildQName(cur->name,
-						    cur->ns->prefix, fn, 50);
+						    xmlChar * fullname = xmlBuildQName(cur->name, cur->ns->prefix, fn, 50);
 						    if(fullname == NULL) {
 							    ret = -1;
 							    goto fail;

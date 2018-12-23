@@ -1384,7 +1384,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			Data.Rec.PersonKindID = NZOR(Data.Rec.PersonKindID, PPPRK_CLIENT);
 			getCtrlData(sel = CTL_SCARDSER_PDIS, &pdis);
 			THROW_PP(pdis >= -300 && pdis <= 100, PPERR_USERINPUT);
-			Data.Rec.PDis = (long)(pdis * 100L);
+			Data.Rec.PDis = fmul100i(pdis); // @v10.2.9 @fix (long)(pdis * 100L)-->fmul100i(pdis)
 			getCtrlData(CTL_SCARDSER_MAXCRED, &Data.Rec.MaxCredit);
 			THROW(GetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd));
 			{
@@ -3284,7 +3284,8 @@ private:
 	{
 		uint   sel = 0;
 		const  double pdis = getCtrlReal(sel = CTL_SCARD_PDIS);
-		Data.Rec.PDis = (long)(pdis * 100L);
+		// @v10.2.9 Data.Rec.PDis = (long)(pdis * 100L);
+		Data.Rec.PDis = fmul100i(pdis); // @v10.2.9
 		ASSIGN_PTR(pSel, sel);
 	}
 	void   SetupSeries(PPID seriesID, PPID personID);
@@ -5220,8 +5221,10 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 								SETIFZ(owner_kind_id, ScObj.GetConfig().PersonKindID);
 								THROW(IdentifyOwner(sdr_rec.OwnerName, sdr_rec.OwnerCode, owner_kind_id, owner_reg_type_id, &sc_pack.Rec.PersonID));
 							}
-							if(sdr_rec.PercentDis > 0.0 && sdr_rec.PercentDis < 50.0)
-								sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
+							if(sdr_rec.PercentDis > 0.0 && sdr_rec.PercentDis < 50.0) {
+								// @v10.2.9 sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
+								sc_pack.Rec.PDis = fmul100i(sdr_rec.PercentDis); // @v10.2.9
+							}
 							if(sdr_rec.MaxCredit > 0.0)
 								sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
 							if(checkdate(sdr_rec.Expiry))
@@ -5264,8 +5267,10 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									owner_kind_id = scs_rec.PersonKindID;
 								SETIFZ(owner_kind_id, ScObj.GetConfig().PersonKindID);
 								THROW(IdentifyOwner(sdr_rec.OwnerName, sdr_rec.OwnerCode, owner_kind_id, owner_reg_type_id, &sc_pack.Rec.PersonID));
-								if(sdr_rec.PercentDis > 0.0 && sdr_rec.PercentDis < 50.0)
-									sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
+								if(sdr_rec.PercentDis > 0.0 && sdr_rec.PercentDis < 50.0) {
+									// @v10.2.9 sc_pack.Rec.PDis = (long)(sdr_rec.PercentDis * 100L);
+									sc_pack.Rec.PDis = fmul100i(sdr_rec.PercentDis); // @v10.2.9
+								}
 								if(sdr_rec.MaxCredit > 0.0)
 									sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
 								if(checkdate(sdr_rec.Expiry))

@@ -359,13 +359,13 @@ int SLAPI PPObjLocation::EditConfig()
 //
 // Helper functions
 //
-int SLAPI SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID locType, PPID owner)
+int FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID locType, PPID owner)
 {
 	LocationFilt flt(locType, owner);
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_LOCATION, id, flags, &flt);
 }
 
-int SLAPI SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, const LocationFilt * pFilt)
+int FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, const LocationFilt * pFilt)
 {
 	LocationFilt flt; //(locType, owner);
 	if(!RVALUEPTR(flt, pFilt))

@@ -201,6 +201,9 @@ private:
 			fDirty = 0x0001
 		};
 		long   Flags;
+		// Следующие 2 поля нужны для расчета среднего спреда
+		uint   SpreadSum; // Накопленная сумма величин спредов
+		uint   SpreadCount; // Количество накопленных величин спредов
 		PPTimeSeries PPTS;
 		STimeSeries T;
 	};
@@ -256,7 +259,7 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	b.Get(p_data_rec->CurrencySymb, sizeof(p_data_rec->CurrencySymb));
 }
 
-SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0)
+SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0)
 {
 }
 
@@ -358,9 +361,11 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 		{
 			rTs.Sort();
 			THROW_SL(p_fblk->T.AddItems(rTs, &apst));
+			p_fblk->SpreadSum += apst.SpreadSum;
+			p_fblk->SpreadCount += apst.SpreadCount;
 			p_fblk->Flags |= p_fblk->fDirty;
 		}
-		{
+		if(apst.AppendCount || apst.UpdCount) {
 			//PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64"
 			SString fmt_buf;
 			PPLoadText(PPTXT_SETTIMESERIESSTAT, fmt_buf);
@@ -387,6 +392,9 @@ int SLAPI TimeSeriesCache::Flash()
 			TimeSeriesBlock * p_blk = TsC.at(i);
 			if(p_blk && p_blk->Flags & TimeSeriesBlock::fDirty && p_blk->PPTS.ID) {
 				PPID   id = p_blk->PPTS.ID;
+				if(p_blk->SpreadCount && p_blk->SpreadSum) {
+					p_blk->PPTS.AvgSpread = (double)p_blk->SpreadSum / (double)p_blk->SpreadCount;
+				}
 				THROW(ts_obj.PutPacket(&id, &p_blk->PPTS, 0));
 				THROW(ts_obj.SetTimeSeries(id, &p_blk->T, 0));
 				p_blk->Flags &= ~TimeSeriesBlock::fDirty;

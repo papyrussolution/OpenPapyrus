@@ -643,6 +643,35 @@ recurse:
 			return; // all subarrays done
 	}
 }
+
+double SLAPI SVectorBase::sumDouble(uint offs, uint firstIdx, uint lastIdx) const
+{
+	double result = 0.0;
+	assert(firstIdx >= 0 && firstIdx < count);
+	assert(lastIdx >= 0 && lastIdx < count && lastIdx >= firstIdx);
+	if(firstIdx >= 0 && firstIdx < count && lastIdx >= firstIdx && lastIdx < count) {
+		const size_t _is1 = isize;
+		const size_t _is2 = isize*2;
+		const size_t _is3 = isize*3;
+		const size_t _is4 = isize*4;
+		const size_t _is5 = isize*5;
+		const size_t _is6 = isize*6;
+		const size_t _is7 = isize*7;
+		const uint  _cr = lastIdx - firstIdx + 1;
+		const uint _c8 = (_cr & ~0x07);
+		uint  i = firstIdx;
+		const uint8 * p = (data + offs + _is1 * firstIdx);
+		for(; i < _c8; i += 8) {
+			result += (*PTRDBL(p) + *PTRDBL(p + _is1) + *PTRDBL(p + _is2) + *PTRDBL(p + _is3) + *PTRDBL(p + _is4) + *PTRDBL(p + _is5) + *PTRDBL(p + _is6) + *PTRDBL(p + _is7));
+			p += (_is1 * 8);
+		}
+		for(; i <= lastIdx; i++) {
+			result += *PTRDBL(p);
+			p += _is1;
+		}
+	}
+	return result;
+}
 //
 // Returns:
 //   >0 - если элемент idx на выходе больше, чем key,

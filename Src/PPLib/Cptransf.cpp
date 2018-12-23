@@ -922,7 +922,8 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	SString serial_buf, clb_buf;
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
-	StringSet ss_lotxcode; // @v10.2.7
+	// @v10.2.9 StringSet ss_lotxcode; // @v10.2.7
+	PPLotExtCodeContainer::MarkSet lotxcode_set; // @v10.2.9
 	// @v9.4.0 PPComplBlock compl_list;
 	LongArray rows;
 	WrOffDraftBlock blk(pWrOffParam, pDfctList);
@@ -1066,8 +1067,10 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									}
 									// @v10.2.7 {
 									{
-										blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
-										p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
+										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
+										p_pack->XcL.Set(dest_pos+1, &lotxcode_set); // @v10.2.9 
 									}
 									// } @v10.2.7 
 								}
@@ -1122,8 +1125,10 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									}
 									// @v10.2.7 {
 									{
-										blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
-										p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
+										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
+										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
+										p_pack->XcL.Set(dest_pos+1, &lotxcode_set); // @v10.2.9 
 									}
 									// } @v10.2.7 
 								}

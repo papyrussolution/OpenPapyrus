@@ -256,7 +256,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * 
 XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlParseName(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseNmtoken(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig);
-XMLPUBFUN xmlChar * XMLCALL xmlParseAttValue(xmlParserCtxt * ctxt);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlParseAttValue(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseSystemLiteral(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParsePubidLiteral(xmlParserCtxt * ctxt);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseCharData(xmlParserCtxt * ctxt, int cdata);
@@ -283,7 +283,7 @@ XMLPUBFUN void XMLCALL xmlParseReference(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParsePEReference(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseDocTypeDecl(xmlParserCtxt * ctxt);
 #ifdef LIBXML_SAX1_ENABLED
-	XMLPUBFUN const xmlChar * XMLCALL xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value);
+	XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value);
 	XMLPUBFUN const xmlChar * XMLCALL xmlParseStartTag(xmlParserCtxt * ctxt);
 	XMLPUBFUN void XMLCALL xmlParseEndTag(xmlParserCtxt * ctxt);
 #endif /* LIBXML_SAX1_ENABLED */

@@ -210,10 +210,10 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 	return 0;
 }
 
-int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); } // @v8.5.10 (,0)
-int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
-int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
-int PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
+int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int SLAPI PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
+int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int SLAPI PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
 
 int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 {

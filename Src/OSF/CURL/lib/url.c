@@ -5022,8 +5022,8 @@ static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_co
 	result = parse_remote_port(data, conn);
 	if(result)
 		goto out;
-	/* Check for overridden login details and set them accordingly so they
-	   they are known when protocol->setup_connection is called! */
+	// Check for overridden login details and set them accordingly so they
+	// they are known when protocol->setup_connection is called! 
 	result = override_login(data, conn, &user, &passwd, &options);
 	if(result)
 		goto out;
@@ -5092,19 +5092,16 @@ static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_co
 			conn->data = data;
 			conn->bits.tcpconnect[FIRSTSOCKET] = TRUE; /* we are "connected */
 			Curl_conncache_add_conn(data->state.conn_cache, conn);
-			/*
-			 * Setup whatever necessary for a resumed transfer
-			 */
-			result = setup_range(data);
+			result = setup_range(data); // Setup whatever necessary for a resumed transfer
 			if(result) {
 				DEBUGASSERT(conn->handler->done);
-				/* we ignore the return code for the protocol-specific DONE */
+				// we ignore the return code for the protocol-specific DONE 
 				(void)conn->handler->done(conn, result, FALSE);
 				goto out;
 			}
 			Curl_setup_transfer(conn, -1, -1, FALSE, NULL/* no download */, -1, 0/* no upload */);
 		}
-		/* since we skip do_init() */
+		// since we skip do_init() 
 		Curl_init_do(data, conn);
 		goto out;
 	}

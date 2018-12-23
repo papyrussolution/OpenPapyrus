@@ -787,7 +787,8 @@ int SLAPI STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) cons
 	return T.bsearch(&rUt, pIdx, PTR_CMPFUNC(SUniTime));
 }
 
-SLAPI STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), IntersectFldsCount(0), TmProfile(0)
+SLAPI STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), 
+	IntersectFldsCount(0), TmProfile(0), SpreadSum(0), SpreadCount(0)
 {
 }
 
@@ -796,6 +797,7 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 	int    ok = -1;
 	SProfile::Measure pm;
 	LAssocArray src_to_this_vl_assoc_list;
+	const ValuVec * p_src_spread_vec = 0;
 	if(pStat) {
 		pStat->SrcFldsCount = rSrc.VL.getCount();
 		pStat->AppendCount = 0;
@@ -805,6 +807,8 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 		const ValuVec * p_s_vec = rSrc.VL.at(i);
 		if(p_s_vec->Symb.NotEmpty()) {
 			uint tidx = 0;
+			if(pStat && p_s_vec->Symb.IsEqiAscii("spread"))
+				p_src_spread_vec = p_s_vec;
 			if(GetValueVecIndex(p_s_vec->Symb, &tidx)) {
 				src_to_this_vl_assoc_list.Add(i+1, tidx+1);
 			}
@@ -849,6 +853,17 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 					}
 					else {
 						THROW(SetValue(ii, r_asc.Val-1, val));
+						if(p_src_spread_vec) {
+							assert(pStat != 0); // Иначе p_src_spread_vec был бы нулевым (see above)
+							const void * p_value_buf = p_src_spread_vec->at(j);
+							if(p_value_buf) {
+								int32 temp_val = p_src_spread_vec->ConvertInnerToInt32(p_value_buf);
+								if(temp_val >= 0) {
+									pStat->SpreadSum += temp_val;
+									pStat->SpreadCount++;
+								}
+							}
+						}
 						mod = 1;
 					}
 				}

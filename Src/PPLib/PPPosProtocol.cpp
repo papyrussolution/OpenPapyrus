@@ -539,9 +539,9 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
                             if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
 								SXml::WNode w_s(wb.P_Xw, "unit");
 								w_s.PutInner("id", temp_buf.Z().Cat(unit_rec.ID));
-								w_s.PutInner("name", EncText(unit_rec.Name));
-								w_s.PutInnerSkipEmpty("symb", EncText(unit_rec.Abbr));
-								w_s.PutInnerSkipEmpty("code", EncText(unit_rec.Code));
+								w_s.PutInner("name", CorrectAndEncText(unit_rec.Name));
+								w_s.PutInnerSkipEmpty("symb", CorrectAndEncText(unit_rec.Abbr));
+								w_s.PutInnerSkipEmpty("code", CorrectAndEncText(unit_rec.Code));
 								if(unit_id == def_unit_id) {
 									w_s.PutInner("default", "true");
 								}
@@ -656,8 +656,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 						if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
 							SXml::WNode w_s(wb.P_Xw, "scardseries");
 							w_s.PutInner("id", temp_buf.Z().Cat(scs_pack.Rec.ID));
-							w_s.PutInner("name", EncText(scs_pack.Rec.Name));
-							w_s.PutInnerSkipEmpty("code", EncText(scs_pack.Rec.Symb));
+							w_s.PutInner("name", CorrectAndEncText(scs_pack.Rec.Name));
+							w_s.PutInnerSkipEmpty("code", CorrectAndEncText(scs_pack.Rec.Symb));
 							//
 							if(scs_rec.QuotKindID_s)
 								THROW_SL(scard_quot_list.Add(scs_rec.ID, scs_rec.QuotKindID_s, 0));
@@ -961,7 +961,7 @@ int SLAPI PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, Ro
 
 int SLAPI PPPosProtocol::ReadBlock::IsTagValueBoolTrue() const
 {
-	return (TagValue.Empty() || TagValue.CmpNC("true") == 0 || TagValue.CmpNC("yes") == 0 || TagValue == "1");
+	return (TagValue.Empty() || TagValue.IsEqiAscii("true") || TagValue.IsEqiAscii("yes") || TagValue == "1");
 }
 
 void * SLAPI PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) const
@@ -1188,14 +1188,9 @@ SLAPI PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()
 }
 
 static SString & FASTCALL MakeProcessedFileEntryHashString(const char * pName, LDATETIME dtm, int64 sz, SString & rBuf)
-{
-	return rBuf.Z().Cat(pName).ToLower().Cat(dtm, DATF_YMD|DATF_CENTURY|DATF_NODIV, TIMF_HMS|TIMF_NODIV).Cat(sz);
-}
-
+	{ return rBuf.Z().Cat(pName).ToLower().Cat(dtm, DATF_YMD|DATF_CENTURY|DATF_NODIV, TIMF_HMS|TIMF_NODIV).Cat(sz); }
 void FASTCALL PPPosProtocol::ProcessInputBlock::SetOuterProcessedFileList(SymbHashTable * pT)
-{
-	P_ProcessedFiles = pT;
-}
+	{ P_ProcessedFiles = pT; }
 
 int FASTCALL PPPosProtocol::ProcessInputBlock::CheckFileForProcessedFileList(const SDirEntry & rDe)
 {
@@ -1230,6 +1225,31 @@ SLAPI PPPosProtocol::PPPosProtocol() : P_BObj(BillObj)
 SLAPI PPPosProtocol::~PPPosProtocol()
 	{}
 
+const SString & FASTCALL PPPosProtocol::CorrectAndEncText(const char * pS)
+{
+	EncBuf = pS;
+	PROFILE(XMLReplaceSpecSymb(EncBuf, "&<>\'"));
+	int    has_inv_chars = 0;
+	const uint len = EncBuf.Len();
+	for(uint i = 0; !has_inv_chars && i < len; i++) {
+		const char c = EncBuf.C(i);
+		if(c < 0x20 && !oneof3(c, 0x09, 0x0a, 0x0d))
+			has_inv_chars = 1;
+	}
+	if(has_inv_chars) {
+		SString temp_buf;
+		for(uint i = 0; i < len; i++) {
+			const char c = EncBuf.C(i);
+			if(c < 0x20 && !oneof3(c, 0x09, 0x0a, 0x0d))
+				temp_buf.Cat('?');
+			else
+				temp_buf.Cat(c);
+		}
+		EncBuf = temp_buf;
+	}
+	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
+}
+
 const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 {
 	EncBuf = pS;
@@ -1244,8 +1264,8 @@ int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
         w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
-        w_s.PutInnerSkipEmpty("code", EncText(rInfo.Symb));
-        w_s.PutInnerSkipEmpty("name", EncText(rInfo.Name));
+        w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
+        w_s.PutInnerSkipEmpty("name", CorrectAndEncText(rInfo.Name));
 	}
     return ok;
 }
@@ -1309,17 +1329,15 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 						}
 						if(cc_pack.Rec.SCardID && ScObj.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
 							SXml::WNode w_sc(rB.P_Xw, "card");
-							w_sc.PutInner("code", EncText(sc_rec.Code));
+							w_sc.PutInner("code", CorrectAndEncText(sc_rec.Code));
 						}
 						for(uint ln_idx = 0; ln_idx < cc_pack.GetCount(); ln_idx++) {
 							const CCheckLineTbl::Rec & r_item = cc_pack.GetLine(ln_idx);
-
 							const double item_qtty  = fabs(r_item.Quantity);
 							const double item_price = intmnytodbl(r_item.Price);
 							const double item_discount = r_item.Dscnt;
 							const double item_amount   = item_price * item_qtty;
 							const double item_sum_discount = item_discount * item_qtty;
-
 							SXml::WNode w_ccl(rB.P_Xw, "ccl");
                             w_ccl.PutInner("id", temp_buf.Z().Cat(r_item.RByCheck));
                             if(r_item.GoodsID) {
@@ -1335,18 +1353,18 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 									w_w.PutInner("innerid", temp_buf.Z().Cat(goods_rec.ID));
                                     GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
                                     if(temp_buf.NotEmptyS()) {
-										w_w.PutInner("code", EncText(temp_buf));
+										w_w.PutInner("code", CorrectAndEncText(temp_buf));
 										is_there_codes = 1;
 									}
 									// @v10.1.12 {
 									if(!is_there_codes)
-										w_w.PutInner("name", EncText(temp_buf = goods_rec.Name));
+										w_w.PutInner("name", CorrectAndEncText(temp_buf = goods_rec.Name));
 									// } @v10.1.12 
 								}
                             }
 							// @v10.0.08 {
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextSerial, temp_buf) > 0 && temp_buf.NotEmpty())
-								w_ccl.PutInner("serial", EncText(temp_buf));
+								w_ccl.PutInner("serial", CorrectAndEncText(temp_buf));
 							// } @v10.0.08 
                             w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
                             w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
@@ -1375,7 +1393,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 											w_cp.PutInner("type", "card");
 											if(r_ai.AddedID && ScObj.Search(r_ai.AddedID, &sc_rec) > 0) {
 												SXml::WNode w_sc(rB.P_Xw, "card");
-												w_sc.PutInner("code", EncText(sc_rec.Code));
+												w_sc.PutInner("code", CorrectAndEncText(sc_rec.Code));
 											}
 										}
 										else
@@ -1394,7 +1412,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 									w_cp.PutInner("type", "card");
 									if(cc_pack.Rec.SCardID && ScObj.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
 										SXml::WNode w_sc(rB.P_Xw, "card");
-										w_sc.PutInner("code", EncText(sc_rec.Code));
+										w_sc.PutInner("code", CorrectAndEncText(sc_rec.Code));
 									}
 								}
 								else {
@@ -1418,10 +1436,10 @@ int SLAPI PPPosProtocol::WriteGoodsGroupInfo(WriteBlock & rB, const char * pScop
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
-		w_s.PutInner("name", EncText(rInfo.Name));
+		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
 		if(rInfo.Code[0]) {
 			temp_buf = rInfo.Code;
-			w_s.PutInner("code", EncText(temp_buf));
+			w_s.PutInner("code", CorrectAndEncText(temp_buf));
 		}
 		if(rInfo.ParentID) {
 			SXml::WNode w_p(rB.P_Xw, "parent");
@@ -1467,11 +1485,11 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
-		w_s.PutInner("name", EncText(rInfo.Name));
+		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
 		if(rInfo.P_CodeList && rInfo.P_CodeList->getCount()) {
 			for(uint i = 0; i < rInfo.P_CodeList->getCount(); i++) {
 				const BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
-				w_s.PutInner("code", EncText(r_bc_rec.Code));
+				w_s.PutInner("code", CorrectAndEncText(r_bc_rec.Code));
 			}
 		}
 		if(rInfo.ParentID) {
@@ -1597,7 +1615,7 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 					if(r_lot_rec.Rest > 0.0)
 						w_l.PutInner("rest", temp_buf.Z().Cat(r_lot_rec.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 					if(P_BObj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0)
-						w_l.PutInnerSkipEmpty("serial", EncText(temp_buf));
+						w_l.PutInnerSkipEmpty("serial", CorrectAndEncText(temp_buf));
                 }
 			}
         }
@@ -1618,8 +1636,8 @@ int SLAPI PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeX
     {
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
-		w_s.PutInner("name", EncText(rInfo.Name));
-		w_s.PutInnerSkipEmpty("code", EncText(rInfo.Symb));
+		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
+		w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
 		w_s.PutInner("rank", temp_buf.Z().Cat(rInfo.Rank));
 		if(!rInfo.Period.IsZero() || rInfo.HasWeekDayRestriction() || rInfo.GetTimeRange(tr) > 0 || !rInfo.AmtRestr.IsZero()) {
 			SXml::WNode w_r(rB.P_Xw, "restriction");
@@ -1693,11 +1711,11 @@ int SLAPI PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXml
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rPack.Rec.ID));
-		w_s.PutInner("name", EncText(rPack.Rec.Name));
+		w_s.PutInner("name", CorrectAndEncText(rPack.Rec.Name));
 		if(codeRegTypeID) {
             rPack.GetRegNumber(codeRegTypeID, temp_buf);
             if(temp_buf.NotEmptyS()) {
-				w_s.PutInner("code", EncText(temp_buf));
+				w_s.PutInner("code", CorrectAndEncText(temp_buf));
             }
 		}
 	}
@@ -1712,7 +1730,7 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		const int sc_type = 0; // @todo
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.Rec.ID));
-		w_s.PutInner("code", EncText(rInfo.Rec.Code));
+		w_s.PutInner("code", CorrectAndEncText(rInfo.Rec.Code));
 		/*
 		if(rInfo.Rec.SeriesID) {
 			SXml::WNode w_r(rB.P_Xw, "series");
@@ -1773,34 +1791,15 @@ int SLAPI PPPosProtocol::FinishWriting(PPPosProtocol::WriteBlock & rB)
 }
 
 //static
-void PPPosProtocol::Scb_StartDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartDocument());
-}
-
+void PPPosProtocol::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartDocument()); }
 //static
-void PPPosProtocol::Scb_EndDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndDocument());
-}
-
+void PPPosProtocol::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndDocument()); }
 //static
-void PPPosProtocol::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList)
-{
-	CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartElement((const char *)pName, (const char **)ppAttrList));
-}
-
+void PPPosProtocol::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
 //static
-void PPPosProtocol::Scb_EndElement(void * ptr, const xmlChar * pName)
-{
-	CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndElement((const char *)pName));
-}
-
+void PPPosProtocol::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndElement((const char *)pName)); }
 //static
-void PPPosProtocol::Scb_Characters(void * ptr, const uchar * pC, int len)
-{
-	CALLTYPEPTRMEMB(PPPosProtocol, ptr, Characters((const char *)pC, len));
-}
+void PPPosProtocol::Scb_Characters(void * ptr, const uchar * pC, int len) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, Characters((const char *)pC, len)); }
 
 int PPPosProtocol::StartDocument()
 {
@@ -4282,7 +4281,8 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						STRNSCPY(sc_pack.Rec.Code, temp_buf);
 						if(r_blk.Discount != 0.0) {
-							sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
+							// @v10.2.9 sc_pack.Rec.PDis = R0i(r_blk.Discount * 100);
+							sc_pack.Rec.PDis = fmul100i(r_blk.Discount); // @v10.2.9
 						}
 						if(r_blk.SeriesBlkP) {
 							int   inner_type = 0;
@@ -4599,7 +4599,7 @@ struct PosProtocolFileProcessedEntry {
 	S_GUID DestRouteUUID;
 };
 
-static int SLAPI MakePosProtocolFileProcessedListName(const char * pPath, SString & rFileName)
+static int FASTCALL MakePosProtocolFileProcessedListName(const char * pPath, SString & rFileName)
 {
 	rFileName.Z();
 	SPathStruc ps(pPath);
@@ -4609,7 +4609,7 @@ static int SLAPI MakePosProtocolFileProcessedListName(const char * pPath, SStrin
 	return 1;
 }
 
-static int SLAPI AppendPosProtocolFileProcessedListEntry(const char * pPath, PosProtocolFileProcessedEntry & rEntry)
+static int FASTCALL AppendPosProtocolFileProcessedListEntry(const char * pPath, PosProtocolFileProcessedEntry & rEntry)
 {
 	int    ok = -1;
 	if((!rEntry.FileUUID.IsZero() || checkdate(rEntry.FileDtm.d, 0)) && !rEntry.DestRouteUUID.IsZero()) {
@@ -4629,7 +4629,7 @@ static int SLAPI AppendPosProtocolFileProcessedListEntry(const char * pPath, Pos
 	return ok;
 }
 
-static int SLAPI ReadPosProtocolFileProcessedList(const char * pPath, TSVector <PosProtocolFileProcessedEntry> & rList)
+static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVector <PosProtocolFileProcessedEntry> & rList)
 {
 	int    ok = -1;
 	SString temp_buf;

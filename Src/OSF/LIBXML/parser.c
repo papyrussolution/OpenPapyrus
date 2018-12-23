@@ -3603,12 +3603,10 @@ error:
  *
  * Returns the AttValue parsed or NULL. The value has to be freed by the caller.
  */
-
-xmlChar * xmlParseAttValue(xmlParserCtxt * ctxt)
+xmlChar * FASTCALL xmlParseAttValue(xmlParserCtxt * ctxt)
 {
 	return (ctxt && ctxt->input) ? xmlParseAttValueInternal(ctxt, NULL, NULL, 0) : 0;
 }
-
 /**
  * xmlParseSystemLiteral:
  * @ctxt:  an XML parser context
@@ -3619,7 +3617,6 @@ xmlChar * xmlParseAttValue(xmlParserCtxt * ctxt)
  *
  * Returns the SystemLiteral parsed or NULL
  */
-
 xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
 {
 	xmlChar * buf = NULL;
@@ -3716,7 +3713,6 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt)
 	xmlChar stop;
 	int count = 0;
 	xmlParserInputState oldstate = ctxt->instate;
-
 	SHRINK;
 	if(RAW == '"') {
 		NEXT;
@@ -3784,7 +3780,6 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt)
 }
 
 static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata);
-
 /*
  * used for the test in the inner loop of the char data testing
  */
@@ -3822,7 +3817,6 @@ static const uchar test_char_data[256] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
 /**
  * xmlParseCharData:
  * @ctxt:  an XML parser context
@@ -3979,16 +3973,13 @@ get_more:
 	ctxt->input->col = col;
 	xmlParseCharDataComplex(ctxt, cdata);
 }
-
-/**
- * xmlParseCharDataComplex:
- * @ctxt:  an XML parser context
- * @cdata:  int indicating whether we are within a CDATA section
- *
- * parse a CharData section.this is the fallback function
- * of xmlParseCharData() when the parsing requires handling
- * of non-ASCII characters.
- */
+// 
+// @ctxt:  an XML parser context
+// @cdata:  int indicating whether we are within a CDATA section
+// 
+// parse a CharData section.this is the fallback function
+// of xmlParseCharData() when the parsing requires handling of non-ASCII characters.
+// 
 static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata)
 {
 	xmlChar buf[XML_PARSER_BIG_BUFFER_SIZE + 5];
@@ -4010,9 +4001,7 @@ static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata)
 		COPY_BUF(l, buf, nbchar, cur);
 		if(nbchar >= XML_PARSER_BIG_BUFFER_SIZE) {
 			buf[nbchar] = 0;
-			/*
-			 * OK the segment is to be consumed as chars.
-			 */
+			// OK the segment is to be consumed as chars.
 			if(ctxt->sax && (!ctxt->disableSAX)) {
 				if(areBlanks(ctxt, buf, nbchar, 0)) {
 					if(ctxt->sax->ignorableWhitespace)
@@ -4042,9 +4031,7 @@ static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata)
 	}
 	if(nbchar != 0) {
 		buf[nbchar] = 0;
-		/*
-		 * OK the segment is to be consumed as chars.
-		 */
+		// OK the segment is to be consumed as chars.
 		if(ctxt->sax && (!ctxt->disableSAX)) {
 			if(areBlanks(ctxt, buf, nbchar, 0)) {
 				if(ctxt->sax->ignorableWhitespace)
@@ -4957,7 +4944,6 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
  * returns: XML_ATTRIBUTE_NONE, XML_ATTRIBUTE_REQUIRED, XML_ATTRIBUTE_IMPLIED
  *          or XML_ATTRIBUTE_FIXED.
  */
-
 int xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value)
 {
 	*value = NULL;
@@ -7266,29 +7252,27 @@ void xmlParseDocTypeDecl(xmlParserCtxt * ctxt)
  *
  * [28 end] ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  */
-
 static void xmlParseInternalSubset(xmlParserCtxt * ctxt)
 {
-	/*
-	 * Is there any DTD definition ?
-	 */
+	// 
+	// Is there any DTD definition ?
+	// 
 	if(RAW == '[') {
 		ctxt->instate = XML_PARSER_DTD;
 		NEXT;
-		/*
-		 * Parse the succession of Markup declarations and
-		 * PEReferences.
-		 * Subsequence (markupdecl | PEReference | S)*
-		 */
+		// 
+		// Parse the succession of Markup declarations and PEReferences.
+		// Subsequence (markupdecl | PEReference | S)*
+		// 
 		while((RAW != ']') && (ctxt->instate != XML_PARSER_EOF)) {
 			const xmlChar * check = CUR_PTR;
 			uint cons = ctxt->input->consumed;
 			SKIP_BLANKS;
 			xmlParseMarkupDecl(ctxt);
 			xmlParsePEReference(ctxt);
-			/*
-			 * Pop-up of finished entities.
-			 */
+			// 
+			// Pop-up of finished entities.
+			// 
 			while((RAW == 0) && (ctxt->inputNr > 1))
 				xmlPopInput(ctxt);
 			if((CUR_PTR == check) && (cons == ctxt->input->consumed)) {
@@ -7301,10 +7285,9 @@ static void xmlParseInternalSubset(xmlParserCtxt * ctxt)
 			SKIP_BLANKS;
 		}
 	}
-
-	/*
-	 * We should be at the end of the DOCTYPE declaration.
-	 */
+	// 
+	// We should be at the end of the DOCTYPE declaration.
+	// 
 	if(RAW != '>') {
 		xmlFatalErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, 0);
 	}
@@ -7322,16 +7305,14 @@ static void xmlParseInternalSubset(xmlParserCtxt * ctxt)
  * [41] Attribute ::= Name Eq AttValue
  *
  * [WFC: No External Entity References]
- * Attribute values cannot contain direct or indirect entity references
- * to external entities.
+ * Attribute values cannot contain direct or indirect entity references to external entities.
  *
  * [WFC: No < in Attribute Values]
  * The replacement text of any entity referred to directly or indirectly in
  * an attribute value (other than "&lt;") must not contain a <.
  *
  * [VC: Attribute Value Type]
- * The attribute must have been declared; the value must be of the type
- * declared for it.
+ * The attribute must have been declared; the value must be of the type declared for it.
  *
  * [25] Eq ::= S? '=' S?
  *
@@ -7339,25 +7320,23 @@ static void xmlParseInternalSubset(xmlParserCtxt * ctxt)
  *
  * [NS 11] Attribute ::= QName Eq AttValue
  *
- * Also the case QName == xmlns:??? is handled independently as a namespace
- * definition.
+ * Also the case QName == xmlns:??? is handled independently as a namespace definition.
  *
  * Returns the attribute name, and the value in *value.
  */
-const xmlChar * xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value)
+const xmlChar * FASTCALL xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value)
 {
-	const xmlChar * name = 0;
 	xmlChar * val;
 	*value = NULL;
 	GROW;
-	name = xmlParseName(ctxt);
+	const xmlChar * name = xmlParseName(ctxt);
 	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "error parsing attribute name\n");
 	}
 	else {
-		/*
-		* read the value
-		*/
+		// 
+		// read the value
+		// 
 		SKIP_BLANKS;
 		if(RAW == '=') {
 			NEXT;
@@ -7369,19 +7348,19 @@ const xmlChar * xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value)
 			xmlFatalErrMsgStr(ctxt, XML_ERR_ATTRIBUTE_WITHOUT_VALUE, "Specification mandate value for attribute %s\n", name);
 			return 0;
 		}
-		/*
-		* Check that xml:lang conforms to the specification
-		* No more registered as an error, just generate a warning now
-		* since this was deprecated in XML second edition
-		*/
+		// 
+		// Check that xml:lang conforms to the specification
+		// No more registered as an error, just generate a warning now
+		// since this was deprecated in XML second edition
+		// 
 		if(ctxt->pedantic && sstreq(name, "xml:lang")) {
 			if(!xmlCheckLanguageID(val)) {
 				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", val, 0);
 			}
 		}
-		/*
-		* Check that xml:space conforms to the specification
-		*/
+		// 
+		// Check that xml:space conforms to the specification
+		// 
 		if(sstreq(name, "xml:space")) {
 			if(sstreq(val, "default"))
 				*(ctxt->space) = 0;
@@ -7586,20 +7565,15 @@ static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
  *
  * [NS 9] ETag ::= '</' QName S? '>'
  */
-
 void xmlParseEndTag(xmlParserCtxt * ctxt)
 {
 	xmlParseEndTag1(ctxt, 0);
 }
 
 #endif /* LIBXML_SAX1_ENABLED */
-
-/************************************************************************
-*									*
-*		      SAX 2 specific operations				*
-*									*
-************************************************************************/
-
+// 
+// SAX 2 specific operations
+// 
 /*
  * xmlGetNamespace:
  * @ctxt:  an XML parser context
@@ -7636,7 +7610,6 @@ static const xmlChar * FASTCALL xmlGetNamespace(xmlParserCtxt * ctxt, const xmlC
  *
  * Returns the Name parsed or NULL
  */
-
 static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlChar ** prefix)
 {
 	const xmlChar * l, * p;
@@ -7742,7 +7715,6 @@ static const xmlChar * xmlParseQNameAndCompare(xmlParserCtxt * ctxt, xmlChar con
 		return ((ret == name) && (prefix == prefix2)) ? (const xmlChar*)1 : ret;
 	}
 }
-
 /**
  * xmlParseAttValueInternal:
  * @ctxt:  an XML parser context
@@ -7791,11 +7763,9 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 		return 0;
 	}
 	ctxt->instate = XML_PARSER_ATTRIBUTE_VALUE;
-
 	/*
 	 * try to handle in this routine the most common case where no
-	 * allocation of a new string is required and where content is
-	 * pure ASCII.
+	 * allocation of a new string is required and where content is pure ASCII.
 	 */
 	limit = *in++;
 	col++;
@@ -7866,10 +7836,9 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 		/*
 		 * skip the trailing blanks
 		 */
-		while((last[-1] == 0x20) && (last > start)) last--;
-		while((in < end) && (*in != limit) &&
-		    ((*in == 0x20) || (*in == 0x9) ||
-			    (*in == 0xA) || (*in == 0xD))) {
+		while((last[-1] == 0x20) && (last > start)) 
+			last--;
+		while((in < end) && (*in != limit) && ((*in == 0x20) || (*in == 0x9) || (*in == 0xA) || (*in == 0xD))) {
 			if(*in == 0xA) {
 				line++, col = 1;
 			}
@@ -7902,8 +7871,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 		if(*in != limit) goto need_complex;
 	}
 	else {
-		while((in < end) && (*in != limit) && (*in >= 0x20) &&
-		    (*in <= 0x7f) && (*in != '&') && (*in != '<')) {
+		while((in < end) && (*in != limit) && (*in >= 0x20) && (*in <= 0x7f) && (*in != '&') && (*in != '<')) {
 			in++;
 			col++;
 			if(in >= end) {
@@ -7928,7 +7896,8 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 			xmlFatalErrMsg(ctxt, XML_ERR_ATTRIBUTE_NOT_FINISHED, "AttValue length too long\n");
 			return 0;
 		}
-		if(*in != limit) goto need_complex;
+		if(*in != limit) 
+			goto need_complex;
 	}
 	in++;
 	col++;
@@ -7937,16 +7906,16 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 		ret = (xmlChar*)start;
 	}
 	else {
-		if(alloc) *alloc = 1;
+		ASSIGN_PTR(alloc, 1);
 		ret = xmlStrndup(start, last - start);
 	}
 	CUR_PTR = in;
 	ctxt->input->line = line;
 	ctxt->input->col = col;
-	if(alloc) *alloc = 0;
+	ASSIGN_PTR(alloc, 0);
 	return ret;
 need_complex:
-	if(alloc) *alloc = 1;
+	ASSIGN_PTR(alloc, 1);
 	return xmlParseAttValueComplex(ctxt, len, normalize);
 }
 

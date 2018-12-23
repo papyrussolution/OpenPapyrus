@@ -170,6 +170,7 @@ float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return ((double)v) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return ((double)v) / 1000.0; }
+long   FASTCALL fmul100i(double v)   { return R0i(v * 100.0); }
 long   FASTCALL fmul1000i(double v)   { return R0i(v * 1000.0); }
 double FASTCALL fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
 int    FASTCALL feqeps(double v1, double v2, double epsilon) { return BIN(fabs(v1-v2) < epsilon); }
@@ -402,22 +403,22 @@ double lnfact(uint n)
 	flnfact(n, &lf);
 	return lf.V;
 }
-// 
+//
 // Descr: Calculate Pearson correlation = cov(X, Y) / (sigma_X * sigma_Y)
 //   This routine efficiently computes the correlation in one pass of the
 //   data and makes use of the algorithm described in:
-// 
+//
 // B. P. Welford, "Note on a Method for Calculating Corrected Sums of
 // Squares and Products", Technometrics, Vol 4, No 3, 1962.
-// 
+//
 // This paper derives a numerically stable recurrence to compute a sum of products
-// 
+//
 // S = sum_{i=1..N} [ (x_i - mu_x) * (y_i - mu_y) ]
-// 
+//
 // with the relation
-// 
+//
 // S_n = S_{n-1} + ((n-1)/n) * (x_n - mu_x_{n-1}) * (y_n - mu_y_{n-1})
-// 
+//
 double SLAPI scorrelation(const double * pData1, const double * pData2, const size_t n)
 {
 	double result = 0.0;
@@ -425,13 +426,13 @@ double SLAPI scorrelation(const double * pData1, const double * pData2, const si
 		double sum_xsq = 0.0;
 		double sum_ysq = 0.0;
 		double sum_cross = 0.0;
-		// 
+		//
 		// Compute:
 		// sum_xsq = Sum [ (x_i - mu_x)^2 ],
 		// sum_ysq = Sum [ (y_i - mu_y)^2 ] and
 		// sum_cross = Sum [ (x_i - mu_x) * (y_i - mu_y) ]
 		// using the above relation from Welford's paper
-		// 
+		//
 		double mean_x = pData1[0];
 		double mean_y = pData2[0];
 		for(size_t i = 1; i < n; i++) {

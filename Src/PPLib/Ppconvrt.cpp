@@ -7008,6 +7008,7 @@ int SLAPI Convert9811()
 //
 //
 //
+#if 0 // @v10.2.9 {
 class PPCvtLotExtCode10012 : public PPTableConversion {
 private:
 	int   Before9811;
@@ -7033,7 +7034,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = p_tbl->getRecSize();
-			if(recsz == sizeof(LotExtCodeRec_Before9811)) 
+			if(recsz == sizeof(LotExtCodeRec_Before9811))
 				Before9811 = 1;
 			*pNeedConversion = BIN(recsz < sizeof(LotExtCodeTbl::Rec));
 		}
@@ -7063,3 +7064,82 @@ public:
 };
 
 CONVERT_PROC(Convert10012, PPCvtLotExtCode10012);
+#endif // } 0 @v10.2.9
+//
+//
+//
+class PPCvtLotExtCode10209 : public PPTableConversion {
+private:
+	int   Before9811;
+	int   Before10012;
+	struct LotExtCodeRec_Before9811 {
+		long   LotID;
+		char   Code[96];
+	};
+	struct LotExtCodeRec_Before10012 {
+		long   LotID;
+		long   BillID;
+		int16  RByBill;
+		int16  Sign;
+		char   Code[80];
+	};
+	struct LotExtCodeRec_Before10209 {
+		long   LotID;
+		long   BillID;
+		int16  RByBill;
+		int16  Sign;
+		char   Code[156];
+	};
+public:
+	PPCvtLotExtCode10209() : PPTableConversion(), Before9811(0), Before10012(0)
+	{
+	}
+	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new LotExtCodeTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			if(recsz == sizeof(LotExtCodeRec_Before9811))
+				Before9811 = 1;
+			else if(recsz == sizeof(LotExtCodeRec_Before10012))
+				Before10012 = 1;
+			*pNeedConversion = BIN(recsz < sizeof(LotExtCodeTbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+		if(Before9811) {
+			LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+			LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
+			memzero(p_data, sizeof(*p_data));
+			p_data->LotID = p_old_rec->LotID;
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+		}
+		else if(Before10012) {
+			LotExtCodeRec_Before10012 * p_old_rec = (LotExtCodeRec_Before10012 *)pOldRec;
+			memzero(p_data, sizeof(*p_data));
+			p_data->LotID = p_old_rec->LotID;
+			p_data->BillID = p_old_rec->BillID;
+			p_data->RByBill = p_old_rec->RByBill;
+			p_data->Flags = 0; //p_old_rec->Sign;
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+		}
+		else {
+			LotExtCodeRec_Before10209 * p_old_rec = (LotExtCodeRec_Before10209 *)pOldRec;
+			memzero(p_data, sizeof(*p_data));
+			p_data->LotID = p_old_rec->LotID;
+			p_data->BillID = p_old_rec->BillID;
+			p_data->RByBill = p_old_rec->RByBill;
+			p_data->Flags = 0; //p_old_rec->Sign;
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+		}
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert10209, PPCvtLotExtCode10209);
+

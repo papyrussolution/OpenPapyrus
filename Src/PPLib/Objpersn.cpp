@@ -3971,7 +3971,8 @@ int ShortPersonDialog::AcceptSCard(uint * pSel)
 				temp_buf.CopyTo(sc_pack.Rec.Code, sizeof(sc_pack.Rec.Code));
 			}
 			sc_pack.Rec.Expiry = getCtrlDate(CTL_PERSON_SCEXPIRY);
-			sc_pack.Rec.PDis = (long)(getCtrlReal(CTL_PERSON_SCDIS) * 100L);
+			// @v10.2.9 sc_pack.Rec.PDis = (long)(getCtrlReal(CTL_PERSON_SCDIS) * 100L);
+			sc_pack.Rec.PDis = fmul100i(getCtrlReal(CTL_PERSON_SCDIS)); // @v10.2.9
 			THROW(GetTimeRangeInput(this, sel = CTL_PERSON_SCTIME, TIMF_HM, &sc_pack.Rec.UsageTmStart, &sc_pack.Rec.UsageTmEnd));
 			getCtrlData(CTLSEL_PERSON_SCAG, &sc_pack.Rec.AutoGoodsID);
 			Data.SetSCard(&sc_pack, 0);
@@ -3980,7 +3981,8 @@ int ShortPersonDialog::AcceptSCard(uint * pSel)
 		else if(St & stSCardAutoCreate) {
 			sc_pack.Rec.SeriesID = SCardSerID;
 			sc_pack.Rec.Expiry = getCtrlDate(CTL_PERSON_SCEXPIRY);
-			sc_pack.Rec.PDis = (long)(getCtrlReal(CTL_PERSON_SCDIS) * 100L);
+			// @v10.2.9 sc_pack.Rec.PDis = (long)(getCtrlReal(CTL_PERSON_SCDIS) * 100L);
+			sc_pack.Rec.PDis = fmul100i(getCtrlReal(CTL_PERSON_SCDIS)); // @v10.2.9
 			GetTimeRangeInput(this, CTL_PERSON_SCTIME, TIMF_HM, &sc_pack.Rec.UsageTmStart, &sc_pack.Rec.UsageTmEnd);
 			THROW(GetTimeRangeInput(this, sel = CTL_PERSON_SCTIME, TIMF_HM, &sc_pack.Rec.UsageTmStart, &sc_pack.Rec.UsageTmEnd));
 			getCtrlData(CTLSEL_PERSON_SCAG, &sc_pack.Rec.AutoGoodsID);
@@ -6016,7 +6018,7 @@ IMPL_OBJ_FETCH(PPObjPerson, PersonTbl::Rec, PersonCache)
 //
 //
 //
-int SLAPI SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
+int FASTCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
 {
 	int    ok = 1;
 	int    create_ctl_grp = 0;

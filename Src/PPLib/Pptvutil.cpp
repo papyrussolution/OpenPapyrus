@@ -40,7 +40,7 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 	//return v ? (v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0), APPL->P_DeskTop->execView(v)) : cmError;
 }
 
-int SLAPI InsertView(TBaseBrowserWindow * v)
+int FASTCALL InsertView(TBaseBrowserWindow * v)
 {
 	if(v) {
 		const uint last_cmd = ((PPApp *)APPL)->LastCmd;
@@ -287,7 +287,7 @@ int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow,
 	return ok;
 }
 
-int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int prc)
+int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int prc)
 {
 	char   buf[256];
 	char * b = buf;
@@ -307,7 +307,7 @@ int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int p
 	return 1;
 }
 
-int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
+int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
 {
 	char   buf[256];
 	double low = 0, upp = 0;
@@ -321,16 +321,16 @@ int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUp
 		return 0;
 }
 
-int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc) { return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc); }
-int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0); }
+int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc) { return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc); }
+int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0); }
 
-int SLAPI SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
+int FASTCALL SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
 {
 	SString temp_buf;
 	return dlg->setCtrlString(ctl, pR->Format(0, temp_buf));
 }
 
-int SLAPI GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
+int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 {
 	SString temp_buf;
 	if(dlg->getCtrlString(ctl, temp_buf)) {
@@ -555,7 +555,7 @@ int SLAPI ViewStatus()
 	return ok;
 }
 
-int SLAPI SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
+int FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
 {
 	int    ok = 1;
 	ComboBox * cb = (ComboBox*)dlg->getCtrlView(ctl);
@@ -568,7 +568,7 @@ int SLAPI SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
 	return ok;
 }
 
-int SLAPI SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID)
+int FASTCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID)
 {
 	int    ok = 1;
 	ComboBox * cb = (ComboBox *)dlg->getCtrlView(ctl);
@@ -4917,7 +4917,7 @@ int RemoveAllDialog::getDTS(RemoveAllParam * pData)
 	return ok;
 }
 
-ResolveGoodsItem::ResolveGoodsItem(PPID goodsID /*= 0*/)
+SLAPI ResolveGoodsItem::ResolveGoodsItem(PPID goodsID /*= 0*/)
 {
 	THISZERO();
 	GoodsID = goodsID;

@@ -14,7 +14,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
-	static const SVerT __MinCompatVer(10, 1, 6);
+	static const SVerT __MinCompatVer(10, 2, 9);
 		// @v6.4.7  6.2.2-->6.4.7
 		// @v7.0.0  6.4.7-->6.9.10
 		// @v7.0.7  6.9.10-->7.0.7
@@ -35,6 +35,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 		// @v9.8.9  9.4.0-->9.8.9
 		// @v9.8.11 9.8.9-->9.8.11
 		// @v10.1.6 9.8.11-->10.1.6
+		// @v10.2.9 10.1.6-->10.2.9
 	return __MinCompatVer;
 }
 //

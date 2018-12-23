@@ -38,8 +38,8 @@ IMPL_CMPFUNC(PPTLBItem, i1, i2)
 	return 0;
 }
 
-long SLAPI CheckXORFlags(long v, long f1, long f2) { return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0; }
-long SLAPI SetXORFlags(long v, long f1, long f2, long f) { return ((v & ~(f1 | f2)) | f); }
+long FASTCALL CheckXORFlags(long v, long f1, long f2) { return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0; }
+long FASTCALL SetXORFlags(long v, long f1, long f2, long f) { return ((v & ~(f1 | f2)) | f); }
 
 int FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl)
 {

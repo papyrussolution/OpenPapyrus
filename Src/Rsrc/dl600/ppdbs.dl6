@@ -1404,12 +1404,14 @@ table LotExtCode {
 	long   LotID;
 	long   BillID;    // @v9.8.11
 	int16  RByBill;   // @v9.8.11
-	int16  Sign;      // @v9.8.11 +1 - приход, -1 - расход, 0 - не определено (или по контексту)
+	// @v10.2.9 int16  Sign;      // @v9.8.11 +1 - приход, -1 - расход, 0 - не определено (или по контексту)
+	int16  Flags;     // @v10.2.9 0x01 box, 0x02 minus, 0x04 plus
+	long   BoxNo;     // @v10.2.9
 	string Code[156]; // @v9.8.11 [96]-->[80] // @v10.0.12 [80]-->[156]
 index:
-	LotID, BillID, RByBill, Code (unique mod);
-	Code, BillID, RByBill (unique mod);
-    BillID, RByBill, Code (unique mod anysegnull); // @v9.8.11
+	LotID, BillID, RByBill, Code (unique mod); // #0
+	Code, BillID, RByBill (unique mod);        // #1
+    BillID, RByBill, BoxNo, Code (unique mod /*@v10.2.9 anysegnull*/); // @v9.8.11 // #2 // @v10.2.9 BoxNo
 file:
 	"lotxcode.btr";
 	compress;
@@ -4756,7 +4758,7 @@ table TempArAgt {
 	double Discount;
 	double MaxDiscount;
 	double MaxCredit;
-	string Code[12];      // Номер соглашения //
+	string Code[24];      // Номер соглашения // @v10.2.9 [12]-->[24]
 	long   Flags;         // Флаги соглашения //
 	double MaxCredit1;
 	double MaxCredit2;

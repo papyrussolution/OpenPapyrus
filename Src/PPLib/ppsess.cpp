@@ -2672,7 +2672,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						THROW(Convert9400()); // @v9.4.0
 						THROW(ConvertSCardSeries9809()); // @v9.8.9
 						THROW(Convert9811()); // @v9.8.11
-						THROW(Convert10012()); // @v10.0.12
+						// @v10.2.9 THROW(Convert10012()); // @v10.0.12
+						THROW(Convert10209()); // @v10.2.9
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -3064,7 +3065,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 										}
 									}
 								}
-								// } @v10.2.4 
+								// } @v10.2.4
 							}
 							else if(r == WAIT_OBJECT_0 + 2) { // stop event
 								stop = 1; // quit loop
@@ -3263,7 +3264,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 																		}
 																	}
 																	*/
-																	// } @v10.2.3 
+																	// } @v10.2.3
 																	PPAdviseEvent ev;
 																	ev.Action = local_action;
 																	ev.Oid.Set(PPOBJ_PHONESERVICE, StartUp_PhnSvcPack.Rec.ID); // @v10.0.02

@@ -2674,6 +2674,7 @@ public:
 	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
 	int    SLAPI Auth(SString & rToken);
+	int    SLAPI Helper_SendDocument(const char * pToken, const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent);
 	int    SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
 	int    SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
@@ -4919,20 +4920,23 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
-{
 	/*
 	1. Адрес сайта: https://e-vo.ru/
 	2. Логин: testTStest
 	3. Пароль: OVXmgv
 	*/
+
+int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
+{
 	int    ok = -1;
 	json_t * p_query = 0;
 	json_t * p_reply = 0;
 	ScURL c;
 	SString temp_buf;
 	SString json_buf;
-	SString req;
+	SString log_buf;
+	SString reply_message;
+	int    reply_code = 0;
 	InetUrl url;
 	SBuffer ack_buf;
 	if(Epp.MakeUrl(0, url)) {
@@ -4941,36 +4945,111 @@ int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
 		url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
 		THROW_SL(p_query = new json_t(json_t::tOBJECT));
 		url.GetComponent(url.cUserName, 0, temp_buf);
-		THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf)));
+		THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+		url.SetComponent(url.cUserName, 0);
 		url.GetComponent(url.cPassword, 0, temp_buf);
-		THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf)));
+		THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+		url.SetComponent(url.cPassword, 0);
+		url.Composite(0, temp_buf);
+		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		THROW_SL(json_tree_to_string(p_query, temp_buf));
-		json_buf.EncodeUrl(temp_buf, 0);
+		json_buf = temp_buf;
+		//json_buf.EncodeUrl(temp_buf, 0);
 
+		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		THROW_SL(c.SetupDefaultSslOptions());
+		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
 			if(p_ack_buf) {
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
 				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				//f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
+				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(p_cur->Type == json_t::tOBJECT) {
 							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("varToken")) {
-								}
-								else if(p_obj->Text.IsEqiAscii("varMessage")) {
-								}
-								else if(p_obj->Text.IsEqiAscii("intCode")) {
-								}
+								if(p_obj->Text.IsEqiAscii("varToken"))
+									rToken = p_obj->P_Child->Text;
+								else if(p_obj->Text.IsEqiAscii("varMessage"))
+									reply_message = p_obj->P_Child->Text;
+								else if(p_obj->Text.IsEqiAscii("intCode"))
+									reply_code = p_obj->P_Child->Text.ToLong();
 							}
 						}
 					}
 				}
 			}
+			if(reply_code == 200)
+				ok = 1;
+		}
+	}
+	CATCHZOK
+	json_free_value(&p_reply);
+	json_free_value(&p_query);
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pToken, const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent)
+{
+	rRetIdent.Z();
+	int    ok = -1;
+	json_t * p_query = 0;
+	json_t * p_reply = 0;
+	ScURL c;
+	SString temp_buf;
+	SString json_buf;
+	SString log_buf;
+	SString reply_message;
+	int    reply_code = 0;
+	InetUrl url;
+	SBuffer ack_buf;
+	if(Epp.MakeUrl(0, url)) {
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		StrStrAssocArray hdr_flds;
+		url.SetComponent(url.cPath, "Api/V1/Edo/Document/Send");
+		THROW_SL(p_query = new json_t(json_t::tOBJECT));
+		THROW_SL(p_query->Insert("varToken", json_new_string(pToken)));
+		THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
+		THROW_SL(p_query->Insert("document_name", json_new_string(pDocName)));
+		THROW_SL(p_query->Insert("body", json_new_string(pDocMime64)));
+		THROW_SL(p_query->Insert("return_id", json_new_number(temp_buf.Z().Cat(1))));
+		url.Composite(0, temp_buf);
+		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+		THROW_SL(json_tree_to_string(p_query, temp_buf));
+		json_buf = temp_buf;
+		//json_buf.EncodeUrl(temp_buf, 0);
+
+		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
+		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		THROW_SL(c.SetupDefaultSslOptions());
+		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			if(p_ack_buf) {
+				const int avl_size = (int)p_ack_buf->GetAvailableSize();
+				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Type == json_t::tOBJECT) {
+							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+								if(p_obj->Text.IsEqiAscii("varMessage"))
+									reply_message = p_obj->P_Child->Text;
+								else if(p_obj->Text.IsEqiAscii("intCode"))
+									reply_code = p_obj->P_Child->Text.ToLong();
+								else if(p_obj->Text.IsEqiAscii("intDocID"))
+									rRetIdent = p_obj->P_Child->Text;
+							}
+						}
+					}
+				}
+			}
+			if(reply_code == 200)
+				ok = 1;
 		}
 	}
 	CATCHZOK
@@ -4985,13 +5064,104 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	return ok;
 }
 
+/*
 int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
 	int    ok = -1;
+	SString raw_doc_buf;
+	xmlTextWriter * p_writer = 0;
+	xmlBuffer * p_xml_buf = 0;
 	SString token;
 	if(Auth(token)) {
+		THROW(p_xml_buf = xmlBufferCreate());
+		THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+
+		//Write_OwnFormat_ORDERS(p_writer, )
+
+		xmlTextWriterFlush(p_writer);
+		raw_doc_buf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
 	}
+	CATCHZOK
+	xmlFreeTextWriter(p_writer);
+	xmlBufferFree(p_xml_buf);
 	return ok;
+}
+*/
+
+int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+{
+	int    ok = -1;
+	xmlTextWriter * p_x = 0;
+	xmlBuffer * p_xml_buf = 0;
+	SString path;
+	SString ret_doc_ident; // Идент документа, возвращаемый провайдером
+	if(rPack.P_Data && oneof5(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
+		S_GUID msg_uuid;
+		msg_uuid.Generate();
+		const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+		SString temp_buf;
+		SString doc_type_buf;
+		SString doc_buf_raw;
+		SString doc_buf_mime;
+		//SString edi_format_symb;
+		GetTempOutputPath(rPack.DocType, path);
+		THROW_SL(::createDir(path.RmvLastSlash()));
+		//
+		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
+		path.SetLastSlash().Cat(temp_buf);
+		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+		path.CatChar('_').Cat(temp_buf).Dot().Cat("xml");
+		//
+		THROW(p_xml_buf = xmlBufferCreate());
+		THROW(p_x = xmlNewTextWriterMemory(p_xml_buf, 0));
+		//Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
+		switch(rPack.DocType) {
+			case PPEDIOP_ORDER: 
+				doc_type_buf = "ORDER";
+				THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); 
+				break;
+			case PPEDIOP_ORDERRSP: 
+				doc_type_buf = "ORDRSP";
+				THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, (const PPBillPacket *)rPack.P_ExtData)); 
+				break;
+			case PPEDIOP_DESADV: 
+				doc_type_buf = "DESADV";
+				THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *p_bp)); 
+				break;
+			case PPEDIOP_RECADV: 
+				doc_type_buf = "RECADV";
+				THROW(Write_OwnFormat_RECADV(p_x, msg_uuid, *p_bp)); 
+				break;
+			//case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
+			case PPEDIOP_INVOIC: 
+				doc_type_buf = "INVOICE";
+				THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); 
+				break;
+		}
+		xmlTextWriterFlush(p_x);
+		doc_buf_raw.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
+		xmlFreeTextWriter(p_x);
+		p_x = 0;
+		if(!(Flags & ctrfTestMode)) {
+			SString token;
+			if(Auth(token)) {
+				//
+				temp_buf.Z().Cat(msg_uuid, S_GUID::fmtIDL);
+				doc_buf_mime.EncodeMime64(doc_buf_raw, doc_buf_raw.Len());
+				Helper_SendDocument(token, doc_type_buf, temp_buf, doc_buf_mime, ret_doc_ident);
+				//
+				pIdent->EdiOp = rPack.DocType;
+				pIdent->Uuid = msg_uuid;
+				pIdent->Box = 0;//p_box_name;
+				pIdent->Time = getcurdatetime_();
+				ok = 1;
+			}
+		}
+	}
+    CATCHZOK
+	xmlFreeTextWriter(p_x);
+	xmlBufferFree(p_xml_buf);
+    return ok;
 }
 
 int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)

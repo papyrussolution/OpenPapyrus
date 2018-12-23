@@ -1920,13 +1920,13 @@ int SLAPI PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainO
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount)
+/* @v10.2.9 (moved to LotExtCodeCore) int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount)
 {
 	rSsExtCodes.clear();
 
 	int    ok = -1;
 	uint   ext_code_count = 0;
-	THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
+	THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 	if(lotID) {
 		LotExtCodeTbl::Key0 k0;
 		MEMSZERO(k0);
@@ -1946,8 +1946,7 @@ int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCo
 	CATCHZOK
 	ASSIGN_PTR(pExtCodeCount, ext_code_count);
 	return ok;
-}
-
+}*/
 /*int SLAPI PPEgaisProcessor::IsAcsLinkedToMainOrg(PPID acsID)
 {
 	PPAccSheet acs_rec;
@@ -1967,7 +1966,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	SString temp_buf;
 	SString bill_text;
 	SString lot_text;
-	StringSet ss_ext_codes;
+	//StringSet ss_ext_codes;
+	PPLotExtCodeContainer::MarkSet ext_codes_set;
 	PrcssrAlcReport::GoodsItem agi;
 	assert(pX);
 	THROW_INVARG(pX);
@@ -2249,6 +2249,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	SString ref_a;
                         	SString ref_b;
                         	SString ref_b_fw;
+							StringSet ss;
+							PPLotExtCodeContainer::MarkSet::Entry msentry;
                         	for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(!seen_pos_list.lsearch(tidx) && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
@@ -2279,12 +2281,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										const PPTransferItem & r_fw_ti = p_bp->ConstTI(fw_tidx);
 										if(r_fw_ti.GoodsID == r_ti.GoodsID && !seen_pos_list.lsearch(fw_tidx)) {
 											int   do_merge = 0;
-											if(r_fw_ti.LotID == r_ti.LocID) {
+											if(r_fw_ti.LotID == r_ti.LocID)
 												do_merge = 1;
-											}
-											else if(p_bp->LTagL.GetTagStr(fw_tidx, PPTAG_LOT_FSRARINFB, ref_b_fw) > 0 && ref_b_fw.CmpNC(ref_b) == 0) {
+											else if(p_bp->LTagL.GetTagStr(fw_tidx, PPTAG_LOT_FSRARINFB, ref_b_fw) > 0 && ref_b_fw.CmpNC(ref_b) == 0)
 												do_merge = 1;
-											}
 											if(do_merge) {
 												double fw_qtty = fabs(r_fw_ti.Qtty());
 												double fw_price = 0.0;
@@ -2328,18 +2328,52 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V3) {
 											SXml::WNode w_s(_doc, SXml::nst("wb", "InformF2"));
 											w_s.PutInner(SXml::nst("ce", "F2RegId"), EncText(ref_b));
-											if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0 && ss_ext_codes.getCount()) {
+											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
-												{
+												/* @v10.2.9 {
 													SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
-													(temp_buf = "box").CatChar('-').Cat((long)(tidx+1));
-													w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(temp_buf));
+													//(temp_buf = "box").CatChar('-').Cat((long)(tidx+1));
+													//w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(temp_buf));
 													{
 														SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-														for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-															w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+														// @v10.2.9 for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
+														// @v10.2.9   w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+														PPLotExtCodeContainer::MarkSet::Entry msentry;
+														for(uint msidx = 0; msidx < ext_codes_set.GetCount(); msidx++) {
+															if(ext_codes_set.GetByIdx(msidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+															}
+														}
+													}
+												}*/
+												// @v10.2.9 {
+												for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
+													if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+														SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+														w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Num));
+														{
+															SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+															ext_codes_set.GetByBoxID(msentry.BoxID, ss);
+															for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+														}
 													}
 												}
+												{
+													//
+													// В конце вставляем марки, не привязанные к боксам
+													//
+													ext_codes_set.GetByBoxID(0, ss);
+													if(ss.getCount()) {
+														SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+														{
+															SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+															for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+														}
+													}
+												}
+												// } @v10.2.9 
 											}
 										}
 										else {
@@ -2576,7 +2610,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
 										BillCore::GetCode(temp_buf = p_bp->Rec.Code);
 										n_h.PutInner(SXml::nst("wa", "WBRegId"), EncText(temp_buf = edi_ident));
-										n_h.PutInner(SXml::nst("wa", "Note"), EncText(/*p_bp->Rec.Memo*/"")); // @v8.9.10 Не хотят передавать свои примечания в ЕГАИС
+										n_h.PutInner(SXml::nst("wa", "Note"), EncText(/*p_bp->Rec.Memo*/"")); // Не хотят передавать свои примечания в ЕГАИС
 									}
 									{
 										SXml::WNode n_c(_doc, SXml::nst("wa", "Content"));
@@ -2613,7 +2647,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 													else {
 														real_qtty = p_lti ? MIN(fabs(r_ti.Quantity_), fabs(p_lti->Quantity_)) : 0.0;
 													}
-													// @v8.9.10 {
 													{
 														GoodsItem _agi;
 														PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, _agi);
@@ -2622,7 +2655,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 															real_qtty = (real_qtty * mult); // Неупакованная продукция передается в декалитрах
 														}
 													}
-													// } @v8.9.10
 													{
 														SXml::WNode n_pos(_doc, SXml::nst("wa", "Position"));
 														temp_buf.Z().Cat(r_ti.RByBill);
@@ -2642,7 +2674,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 												LogTextWithAddendum(PPTXT_EGAIS_BILLPARTACCEPTEDP, bill_text);
 										}
 									}
-									BillCore::SetRecadvStatus(recadv_status, p_bp->Rec); // @v8.9.5
+									BillCore::SetRecadvStatus(recadv_status, p_bp->Rec);
 								}
 								else
 									LogTextWithAddendum(PPTXT_EGAIS_BILLSTATUSNREADY, bill_text);
@@ -2737,10 +2769,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									THROW(WriteProductInfo(_doc, SXml::nst("awr", "Product"), r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
 									w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 									// @v9.9.1 {
-									if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
+									if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0) {
 										SXml::WNode w_mc(_doc, SXml::nst("awr", "MarkCodeInfo"));
-										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-											w_mc.PutInner("MarkCode", temp_buf); // @v9.9.2 "awr:MarkCode"-->"MarkCode"
+										//for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+										PPLotExtCodeContainer::MarkSet::Entry msentry;
+										for(uint msidx = 0; msidx < ext_codes_set.GetCount(); msidx++) {
+											if(ext_codes_set.GetByIdx(msidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+												w_mc.PutInner("MarkCode", msentry.Num); // @v9.9.2 "awr:MarkCode"-->"MarkCode"
+											}
 										}
 									}
 									// } @v9.9.1
@@ -2767,7 +2803,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							}
 							// } @v9.8.0
 						}
-						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
+						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 						{
 							SXml::WNode n_c(_doc, SXml::nst("ainp", "Content"));
 							SString infa_ident;
@@ -2782,7 +2818,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									uint   ext_code_count = 0;
 									int    ext_code_exists = 0;
 									if(tag_list.GetCount()) {
-										const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
+										// @v10.2.9 const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
+										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count); // @v10.2.9 
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
@@ -2843,7 +2880,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner(SXml::nst("ain", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
 						}
-						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
+						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 						{
 							SXml::WNode n_c(_doc, SXml::nst("ain", "Content"));
 							SString infa_ident;
@@ -2858,7 +2895,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									uint   ext_code_count = 0;
 									int    ext_code_exists = 0;
 									if(tag_list.GetCount()) {
-										const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
+										// @v10.2.9 const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
+										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count); // @v10.2.9 
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
@@ -4460,11 +4498,13 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			}
 			else {
 				SString serial;
-				StringSet ss_ext_codes;
+				SString box_number;
+				//StringSet ss_ext_codes;
+				PPLotExtCodeContainer::MarkSet ext_codes_set;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
 					serial.Z();
-					ss_ext_codes.Z();
+					ext_codes_set.Clear();
 					if(p_bp) {
 						THROW(ti.Init(&p_bp->Rec, 0, 0));
 					}
@@ -4530,13 +4570,18 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									else if(SXml::IsName(p_inf, "MarkInfo")) {
 										for(xmlNode * p_boxpos = p_inf->children; p_boxpos; p_boxpos = p_boxpos->next) {
 											if(SXml::IsName(p_boxpos, "boxpos")) {
+												box_number.Z();
+												long   box_id = 0;
 												for(xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
-													if(SXml::IsName(p_box, "boxnumber")) {
+													if(SXml::GetContentByName(p_box, "boxnumber", temp_buf)) {
+														if(temp_buf.NotEmpty()) {
+															box_id = ext_codes_set.AddBox(0, temp_buf);
+														}
 													}
 													else if(SXml::IsName(p_box, "amclist")) {
 														for(xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
 															if(SXml::GetContentByName(p_amc, "amc", temp_buf) > 0) {
-																ss_ext_codes.add(temp_buf.Strip());
+																ext_codes_set.AddNum(box_id, temp_buf);
 															}
 														}
 													}
@@ -4589,8 +4634,8 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							uint   new_pos = p_bp->GetTCount();
 							THROW(p_bp->LoadTItem(&ti, 0, 0/*serial*/));
 							// @v9.9.5 {
-							if(ss_ext_codes.getCount()) {
-								p_bp->XcL.Set(new_pos+1, &ss_ext_codes);
+							if(ext_codes_set.GetCount()) {
+								p_bp->XcL.Set(new_pos+1, &ext_codes_set);
 							}
 							// } @v9.9.5
 							{
@@ -5299,7 +5344,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 														r_ex_ti.Quantity_ -= wroff_qtty;
 														// @v9.9.0 {
 														if(use_lotxcode && egais_mark.NotEmpty())
-															p_wroff_bp->XcL.Add(ex_pos+1, egais_mark, 0);
+															p_wroff_bp->XcL.Add(ex_pos+1, 0, 0, egais_mark, 0);
 														// } @v9.0.0
 													}
 													else {
@@ -5316,7 +5361,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 														}
 														// @v9.8.11 {
 														if(use_lotxcode && egais_mark.NotEmpty())
-															p_wroff_bp->XcL.Add(new_pos+1, egais_mark, 0);
+															p_wroff_bp->XcL.Add(new_pos+1, 0, 0, egais_mark, 0);
 														// } @v9.8.11
 													}
 													ccl_rest -= wroff_qtty;
@@ -5438,7 +5483,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 			SString ref_a, ref_b, egais_code;
 			SString goods_name;
 			LongArray row_idx_list;
-			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
+			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 			{
 				PPIDArray ref_b_lot_list; // Список лотов со справкой Б той же, что и в строке текущих остатков по складу
 				LongArray processed_csr_rows; // Список индексов строк pCurrentRestPack, которые были затронуты созданным документом
@@ -7671,7 +7716,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 	SString temp_buf;
 	PPIDArray totransm_bill_list, reject_bill_list;
 	{
-		const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
+		static const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
 			{ bilstfReadyForAck|bilstfChargeOn|bilstfV1, PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
 			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2|bilstfV3, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
 			{ bilstfReadyForAck|bilstfChargeOnShop,      PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },

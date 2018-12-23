@@ -104,8 +104,8 @@ static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
 //
 #ifdef DL200C // {
 
-int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 int FASTCALL PPSetError(int errCode) { return PPSetError(errCode, (const char *)0); }
 int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 {

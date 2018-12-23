@@ -2124,6 +2124,7 @@ private:
 #define PTR16(p)              ((uint16*)(p))
 #define PTR32(p)              ((uint32*)(p))
 #define PTR64(p)              ((uint64*)(p))
+#define PTRDBL(p)             ((double*)(p))
 #define PTR2U(p)              ((uint32)(p))
 #define U2PTR(typ,u)          ((typ*)(u))
 #define U2PTRV(u)             ((void*)(u))
@@ -5976,6 +5977,7 @@ public:
 	int    SLAPI lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
 	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
+	double SLAPI sumDouble(uint offs, uint firstIdx, uint lastIdx) const;
 protected:
 	SLAPI  SVectorBase(uint itemSize, uint o);
 	SLAPI ~SVectorBase();
@@ -10098,6 +10100,8 @@ public:
 		uint   UpdCount;
 		uint   SrcFldsCount;
 		uint   IntersectFldsCount;
+		uint   SpreadSum;
+		uint   SpreadCount;
 		uint64 TmProfile; // Время выполнения функции
 	};
 
@@ -10395,6 +10399,7 @@ float  FASTCALL smin(float a, float b);
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
+long   FASTCALL fmul100i(double);
 long   FASTCALL fmul1000i(double);
 //
 // Descr: Проверяет равенство величин v1 и v2 с точностью до epsilon.

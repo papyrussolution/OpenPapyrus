@@ -352,7 +352,7 @@ int SLAPI PPObjSCard::Import(int use_ta)
 							}
 							SCardTbl::Key0 k0;
 							rec.get(fldn_pctdis, pctdis);
-							sc_rec.PDis = (long)(pctdis * 100L);
+							sc_rec.PDis = fmul100i(pctdis); // @v10.2.9 @fix (long)(pctdis * 100L)-->fmul100i(pctdis)
 							P_Tbl->copyBufFrom(&sc_rec);
 							THROW_DB(P_Tbl->insertRec(0, &k0));
 							scard_id = k0.ID;

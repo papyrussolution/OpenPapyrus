@@ -464,7 +464,7 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 	}
 }
 
-int SLAPI PPListDialog::getCurItem(long * pPos, long * pID)
+int SLAPI PPListDialog::getCurItem(long * pPos, long * pID) const
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box && p_box->def) {
@@ -476,6 +476,23 @@ int SLAPI PPListDialog::getCurItem(long * pPos, long * pID)
 	}
 	else
 		return 0;
+}
+
+int SLAPI PPListDialog::getCurString(SString & rBuf) const
+{
+	SmartListBox * p_box = P_Box;
+	if(p_box && p_box->def) {
+		p_box->getCurString(rBuf);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int SLAPI PPListDialog::getText(long itemN /* 0.. */, SString & rBuf)
+{
+	SmartListBox * p_box = P_Box;
+	return (p_box && p_box->def) ? p_box->getText(itemN, rBuf) : 0;
 }
 
 int PPListDialog::setupList() { return -1; }

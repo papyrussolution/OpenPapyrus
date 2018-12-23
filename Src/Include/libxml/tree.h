@@ -525,7 +525,7 @@ XMLPUBFUN int XMLCALL xmlValidateNCName(const xmlChar * value, int space);
 	XMLPUBFUN int XMLCALL xmlValidateName(const xmlChar * value, int space);
 	XMLPUBFUN int XMLCALL xmlValidateNMToken(const xmlChar * value, int space);
 #endif
-XMLPUBFUN xmlChar * XMLCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len);
 XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix);
 XMLPUBFUN const xmlChar * XMLCALL xmlSplitQName3(const xmlChar * name, int * len);
 /*

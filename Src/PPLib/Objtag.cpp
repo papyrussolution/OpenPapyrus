@@ -739,7 +739,7 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 //
 //
 //
-int SLAPI SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjTagFilt * pFilt)
+int FASTCALL SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjTagFilt * pFilt)
 {
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_TAG, id, flags, pFilt);
 }
@@ -2039,7 +2039,7 @@ int TagFiltDialog::getDTS(TagFilt * pData)
 	return 1;
 }
 
-int SLAPI EditTagFilt(PPID objType, TagFilt * pData)
+int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 {
 	int    ok = 1, valid_data = 0;
 	TagFiltDialog * p_dlg = 0;
@@ -2292,7 +2292,7 @@ static int SLAPI EditPosRights(ObjTagItem * pItem)
 	return ok;
 }
 
-int SLAPI EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
+int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
 {
 	class TagValDialog : public TDialog {
 	public:

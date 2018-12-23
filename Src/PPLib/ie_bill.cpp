@@ -5013,8 +5013,8 @@ int SLAPI Generator_DocNalogRu::GetAgreementParams(PPID arID, SString & rAgtCode
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt;
 			if(ArObj.GetClientAgreement(arID, &cli_agt, 0) > 0) {
-				if(!isempty(cli_agt.Code)) {
-					rAgtCode = cli_agt.Code;
+				if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
+					rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
 					if(checkdate(cli_agt.BegDt))
 						rAgtDate = cli_agt.BegDt;
 					rAgtExpiry = cli_agt.Expiry;

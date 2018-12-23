@@ -1593,7 +1593,7 @@ void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld
 }
 
 //static
-void SLAPI PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
+void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
 {
 	rDbe.init();
 	rDbe.push(rA1);
@@ -1602,7 +1602,7 @@ void SLAPI PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBI
 }
 
 //static
-void SLAPI PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
+void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
 {
 	rDbe.init();
 	rDbe.push(rFld1);

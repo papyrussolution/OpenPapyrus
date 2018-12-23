@@ -1023,10 +1023,8 @@ static CURLcode multi_do(struct connectdata ** connp, bool * done)
  *
  * @todo A future libcurl should be able to work away this state.
  *
- * 'complete' can return 0 for incomplete, 1 for done and -1 for go back to
- * DOING state there's more work to do!
+ * 'complete' can return 0 for incomplete, 1 for done and -1 for go back to DOING state there's more work to do!
  */
-
 static CURLcode multi_do_more(struct connectdata * conn, int * complete)
 {
 	CURLcode result = CURLE_OK;
@@ -1056,16 +1054,14 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 	if(!GOOD_EASY_HANDLE(data))
 		return CURLM_BAD_EASY_HANDLE;
 	do {
-		/* A "stream" here is a logical stream if the protocol can handle that
-		   (HTTP/2), or the full connection for older protocols */
+		// A "stream" here is a logical stream if the protocol can handle that (HTTP/2), or the full connection for older protocols 
 		bool stream_error = FALSE;
 		rc = CURLM_OK;
-		/* Handle the case when the pipe breaks, i.e., the connection
-		   we're using gets cleaned up and we're left with nothing. */
+		// Handle the case when the pipe breaks, i.e., the connection we're using gets cleaned up and we're left with nothing. 
 		if(data->state.pipe_broke) {
 			infof(data, "Pipe broke: handle %p, url = %s\n", (void*)data, data->state.path);
 			if(data->mstate < CURLM_STATE_COMPLETED) {
-				/* Head back to the CONNECT state */
+				// Head back to the CONNECT state 
 				multistate(data, CURLM_STATE_CONNECT);
 				rc = CURLM_CALL_MULTI_PERFORM;
 				result = CURLE_OK;
@@ -1075,9 +1071,8 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 			continue;
 		}
 		if(!data->easy_conn && data->mstate > CURLM_STATE_CONNECT && data->mstate < CURLM_STATE_DONE) {
-			/* In all these states, the code will blindly access 'data->easy_conn'
-			   so this is precaution that it isn't NULL. And it silences static
-			   analyzers. */
+			// In all these states, the code will blindly access 'data->easy_conn'
+			// so this is precaution that it isn't NULL. And it silences static analyzers. 
 			failf(data, "In state %d with no easy_conn, bail out!\n", data->mstate);
 			return CURLM_INTERNAL_ERROR;
 		}
@@ -1086,14 +1081,13 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 			Curl_multi_process_pending_handles(multi);
 		}
 		if(data->easy_conn && data->mstate > CURLM_STATE_CONNECT && data->mstate < CURLM_STATE_COMPLETED)
-			/* Make sure we set the connection's current owner */
-			data->easy_conn->data = data;
+			data->easy_conn->data = data; // Make sure we set the connection's current owner 
 		if(data->easy_conn && (data->mstate >= CURLM_STATE_CONNECT) && (data->mstate < CURLM_STATE_COMPLETED)) {
-			/* we need to wait for the connect state as only then is the start time
-			   stored, but we must not check already completed handles */
+			// we need to wait for the connect state as only then is the start time
+			// stored, but we must not check already completed handles 
 			timeout_ms = Curl_timeleft(data, &now, (data->mstate <= CURLM_STATE_WAITDO) ? TRUE : FALSE);
 			if(timeout_ms < 0) {
-				/* Handle timed out */
+				// Handle timed out 
 				if(data->mstate == CURLM_STATE_WAITRESOLVE)
 					failf(data, "Resolving timed out after %ld milliseconds", Curl_tvdiff(now, data->progress.t_startsingle));
 				else if(data->mstate == CURLM_STATE_WAITCONNECT)
@@ -1109,35 +1103,32 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 						    Curl_tvdiff(now, data->progress.t_startsingle), k->bytecount);
 					}
 				}
-
-				/* Force connection closed if the connection has indeed been used */
+				// Force connection closed if the connection has indeed been used 
 				if(data->mstate > CURLM_STATE_DO) {
 					streamclose(data->easy_conn, "Disconnected with pending data");
 					stream_error = TRUE;
 				}
 				result = CURLE_OPERATION_TIMEDOUT;
 				(void)multi_done(&data->easy_conn, result, TRUE);
-				/* Skip the statemachine and go directly to error handling section. */
-				goto statemachine_end;
+				goto statemachine_end; // Skip the statemachine and go directly to error handling section. 
 			}
 		}
 		switch(data->mstate) {
 			case CURLM_STATE_INIT:
-			    /* init this transfer. */
+			    // init this transfer. 
 			    result = Curl_pretransfer(data);
 			    if(!result) {
-				    /* after init, go CONNECT */
+				    // after init, go CONNECT 
 				    multistate(data, CURLM_STATE_CONNECT);
 				    Curl_pgrsTime(data, TIMER_STARTOP);
 				    rc = CURLM_CALL_MULTI_PERFORM;
 			    }
 			    break;
 			case CURLM_STATE_CONNECT_PEND:
-			    /* We will stay here until there is a connection available. Then
-			       we try again in the CURLM_STATE_CONNECT state. */
+			    // We will stay here until there is a connection available. Then we try again in the CURLM_STATE_CONNECT state. 
 			    break;
 			case CURLM_STATE_CONNECT:
-			    /* Connect. We want to get a connection identifier filled in. */
+			    // Connect. We want to get a connection identifier filled in. 
 			    Curl_pgrsTime(data, TIMER_STARTSINGLE);
 			    result = Curl_connect(data, &data->easy_conn, &async, &protocol_connect);
 			    if(CURLE_NO_CONNECTION_AVAILABLE == result) {
@@ -1159,14 +1150,11 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 					    stream_error = TRUE;
 				    else {
 					    if(async)
-						    /* We're now waiting for an asynchronous name lookup */
-						    multistate(data, CURLM_STATE_WAITRESOLVE);
+						    multistate(data, CURLM_STATE_WAITRESOLVE); // We're now waiting for an asynchronous name lookup 
 					    else {
-						    /* after the connect has been sent off, go WAITCONNECT unless the
-						       protocol connect is already done and we can go directly to
-						       WAITDO or DO! */
+						    // after the connect has been sent off, go WAITCONNECT unless the
+						    // protocol connect is already done and we can go directly to WAITDO or DO! 
 						    rc = CURLM_CALL_MULTI_PERFORM;
-
 						    if(protocol_connect)
 							    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ? CURLM_STATE_WAITDO : CURLM_STATE_DO);
 						    else {
@@ -1181,9 +1169,8 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    }
 			    }
 			    break;
-
 			case CURLM_STATE_WAITRESOLVE:
-			    /* awaiting an asynch name resolve to complete */
+			    // awaiting an asynch name resolve to complete 
 		    {
 			    struct Curl_dns_entry * dns = NULL;
 			    struct connectdata * conn = data->easy_conn;
@@ -1194,7 +1181,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    hostname = conn->conn_to_host.name;
 			    else
 				    hostname = conn->host.name;
-			    /* check if we have the name resolved by now */
+			    // check if we have the name resolved by now 
 			    dns = Curl_fetch_addr(conn, hostname, (int)conn->port);
 			    if(dns) {
 #ifdef CURLRES_ASYNCH
@@ -1220,7 +1207,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 					    // if Curl_async_resolved() returns failure, the connection struct is already freed and gone 
 					    data->easy_conn = NULL;  /* no more connection */
 				    else {
-					    /* call again please so that we get the next socket setup */
+					    // call again please so that we get the next socket setup 
 					    rc = CURLM_CALL_MULTI_PERFORM;
 					    if(protocol_connect)
 						    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ? CURLM_STATE_WAITDO : CURLM_STATE_DO);

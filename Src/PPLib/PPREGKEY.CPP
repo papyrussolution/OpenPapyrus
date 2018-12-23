@@ -128,8 +128,8 @@ int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
 #ifdef PPMKREG // {
 
 int FASTCALL PPSetError(int errCode) { PPErrCode = errCode; return 0; }
-int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 
 #endif // } PPMKREG
 

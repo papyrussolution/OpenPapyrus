@@ -174,7 +174,7 @@ static xmlEntity * xmlGetParameterEntityFromDtd(const xmlDtd * dtd, const xmlCha
  * Returns the new string which must be freed by the caller if different from
  *         @memory and @ncname or NULL in case of error
  */
-xmlChar * xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len)
+xmlChar * FASTCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len)
 {
 	xmlChar * ret = 0;
 	if(ncname) {

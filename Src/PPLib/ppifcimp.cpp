@@ -2638,7 +2638,7 @@ void FillArticleRec(const PPArticlePacket * pInner, SPpyO_Article * pOuter)
 		FLD_CA(DefPayPeriod);
 		FLD_CA(DefAgentID);
 		FLD_CA(DefQuotKindID);
-		(temp_buf = pInner->P_CliAgt->Code).CopyToOleStr(&pOuter->CaCode);
+		(temp_buf = pInner->P_CliAgt->Code2).CopyToOleStr(&pOuter->CaCode); // @v10.2.9 Code-->Code2
 	}
 	else {
 		pOuter->CaFlags = 0;
@@ -11029,7 +11029,7 @@ int32 DL6ICLS_PPObjSCard::PutPacket(int32* pID, SPpyO_SCard* pPack, int32 useTa)
 		inner_pack.Rec.Flags = pPack->Flags;
 		inner_pack.Rec.Dt = pPack->Dt;
 		inner_pack.Rec.Expiry = pPack->Expiry;
-		inner_pack.Rec.PDis = (long)(pPack->PctDiscount * 100L);
+		inner_pack.Rec.PDis = fmul100i(pPack->PctDiscount); // @10.2.9 @fix (long)(pPack->PctDiscount * 100L)-->fmul100i(pPack->PctDiscount)
 		inner_pack.Rec.AutoGoodsID = pPack->AutoGoodsID;
 		inner_pack.Rec.MaxCredit = pPack->MaxCredit;
 		inner_pack.Rec.Turnover = pPack->Turnover;

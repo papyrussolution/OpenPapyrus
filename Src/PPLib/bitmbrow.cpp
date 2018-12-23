@@ -2256,8 +2256,9 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 	class LotXCodeListDialog : public PPListDialog {
 	public:
 		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : PPListDialog(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, fOmitSearchByFirstChar), 
-			P_Pack(pPack), RowIdx(rowIdx)
+			P_Pack(pPack), RowIdx(rowIdx), P_LotXcT(BillObj->P_LotXcT)
 		{
+			SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
 		}
 		int    setDTS(const PPLotExtCodeContainer * pData)
 		{
@@ -2277,9 +2278,11 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				uchar  c = TVCHR;
 				if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
 					LotExtCodeTbl::Rec rec;
-					if(EditItemDialog(rec, c) > 0) {
-						uint   idx = 0;
-						if(Data.Add(RowIdx, rec.Code, &idx))
+					PPLotExtCodeContainer::MarkSet set;
+					if(EditItemDialog(rec, c, set) > 0) {
+						//uint   idx = 0;
+						//if(Data.Add(RowIdx, 0, 0, rec.Code, &idx))
+						if(Data.Add(RowIdx, set))
 							updateList(-1);
 						else
 							PPError();
@@ -2293,14 +2296,32 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		{
 			int    ok = 1;
 			SString temp_buf;
+			SString box_num;
 			StringSet ss;
+			PPLotExtCodeContainer::MarkSet ms;
+			PPLotExtCodeContainer::MarkSet::Entry msentry;
 			LongArray idx_list;
-			Data.Get(RowIdx, &idx_list, ss);
-			for(uint i = 0; i < idx_list.getCount(); i++) {
-				int   row_idx = 0;
-				const long  idx = idx_list.get(i);
-				if(Data.GetByIdx(idx, &row_idx, temp_buf) && row_idx == RowIdx) {
-					THROW(addStringToList(idx, temp_buf));
+			//Data.Get(RowIdx, &idx_list, ss);
+			Data.Get(RowIdx, &idx_list, ms);
+			long list_pos_idx = 0;
+			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+				if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+					++list_pos_idx;
+					THROW(addStringToList(list_pos_idx, temp_buf));
+					ms.GetByBoxID(msentry.BoxID, ss);
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						temp_buf.Insert(0, " ");
+						++list_pos_idx;
+						THROW(addStringToList(list_pos_idx, temp_buf));
+					}
+				}
+			}
+			{
+				ms.GetByBoxID(0, ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					++list_pos_idx;
+					THROW(addStringToList(list_pos_idx, temp_buf));
 				}
 			}
 			{
@@ -2319,14 +2340,16 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		virtual int addItem(long * pPos, long * pID)
 		{
 			int    ok = -1;
+			PPLotExtCodeContainer::MarkSet set;
 			LotExtCodeTbl::Rec rec;
 			MEMSZERO(rec);
 			rec.BillID = P_Pack->Rec.ID;
 			rec.RByBill = RowIdx;
-			while(ok < 0 && EditItemDialog(rec, 0) > 0) {
-				uint   idx = 0;
-				if(Data.Add(RowIdx, rec.Code, &idx)) {
-					ASSIGN_PTR(pID, idx);
+			while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
+				//uint   idx = 0;
+				//if(Data.Add(RowIdx, 0, 0, rec.Code, &idx)) {
+				if(Data.Add(RowIdx, set)) {
+					//ASSIGN_PTR(pID, idx);
 					ok = 1;
 				}
 				else
@@ -2337,17 +2360,30 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		virtual int delItem(long pos, long id)
 		{
 			int    ok = -1;
-			if(Data.Delete(RowIdx, id))
-				ok = 1;
+			SString text_buf;
+			if(getText(pos, text_buf)) {
+				if(text_buf.CmpPrefix("box:", 1) == 0)
+					text_buf.ShiftLeft(4);
+				text_buf.Strip();
+				int   row_idx = 0;
+				uint  inner_idx = 0;
+				if(Data.Search(text_buf, &row_idx, &inner_idx)) {
+					if(Data.Delete(row_idx, inner_idx))
+						ok = 1;
+				}
+			}
+			/*if(Data.Delete(RowIdx, id))
+				ok = 1;*/
 			return ok;
 		}
-		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar)
+		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 		{
 			int    ok = -1;
 			uint   sel = 0;
 			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
 			SString temp_buf, info_buf;
 			SString mark_buf;
+			//PPLotExtCodeContainer::MarkSet mark_set;
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
 			THROW(CheckDialogPtr(&dlg));
@@ -2377,10 +2413,16 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					PPErrorByDialog(dlg, sel);
 				}
 				else if(!PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
-					PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
-					PPErrorByDialog(dlg, sel);
+					if(P_LotXcT && P_LotXcT->FindMarkToTransfer(temp_buf, rSet) > 0) {
+						ok = 1;
+					}
+					else {
+						PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
+						PPErrorByDialog(dlg, sel);
+					}
 				}
 				else {
+					rSet.AddNum(0, mark_buf);
 					STRNSCPY(rRec.Code, mark_buf);
 					// PPBarcode::CreateImage(temp_buf, BARCSTD_PDF417, SFileFormat::Png, 0); // @debug
 					ok = 1;
@@ -2393,6 +2435,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		const PPBillPacket * P_Pack;
 		const int RowIdx;
 		PPLotExtCodeContainer Data;
+		LotExtCodeCore * P_LotXcT;
 	};
 	int    ok = -1;
 	LotXCodeListDialog * dlg = new LotXCodeListDialog(P_Pack, rowIdx);

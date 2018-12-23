@@ -63,8 +63,8 @@ int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
 				rec.MaxCredit     = cli_agt.MaxCredit;
 				rec.ExtObjectID   = cli_agt.ExtObjectID;
 				rec.Flags         = cli_agt.Flags;
-				STRNSCPY(rec.Code, cli_agt.Code);
-				InitDebtLim(&rec, &cli_agt);
+				STRNSCPY(rec.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+				InitDebtLim(&rec, &cli_agt); 
 				r = 1;
 			}
 		}
@@ -179,7 +179,7 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							rec.MaxCredit     = cli_agt.MaxCredit;
 							rec.ExtObjectID   = cli_agt.ExtObjectID;
 							rec.Flags         = cli_agt.Flags;
-							STRNSCPY(rec.Code, cli_agt.Code);
+							STRNSCPY(rec.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
 							InitDebtLim(&rec, &cli_agt);
 							THROW_DB(bei.insert(&rec));
 						}

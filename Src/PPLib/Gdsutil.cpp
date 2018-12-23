@@ -484,7 +484,9 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		Goods2Tbl::Rec goods_rec;
 		STRNSCPY(code, pBlk->Code);
 		SOemToChar(code);
-		if(oneof2(code[0], '#', '№') && code[1]) {
+		SString & r_num_symb = SLS.AcquireRvlStr();
+		(r_num_symb = "№").Transf(CTRANSF_UTF8_TO_OUTER); 
+		if(oneof2(code[0], '#', r_num_symb.C(0)) && code[1]) {
 			PPID   goods_id = atol(code+1);
 			if(Fetch(goods_id, &goods_rec) > 0) {
 				pBlk->GoodsID = goods_rec.ID;

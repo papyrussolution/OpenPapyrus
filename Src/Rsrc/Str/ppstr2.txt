@@ -1925,6 +1925,8 @@ PPERR_DUPDEBTDIMINLIST           "Долговая размерность '%s' �
 PPERR_FILEISNTPPAPI              "Файл '%s' имеет формат, отличный от Papyrus Async POS Interchange"
 PPERR_DUPEGAISMARKINCC           "Марка @{brand_egais} уже была просканирована в этом чеке (%s)"
 PPERR_DUPEGAISMARKINOTHRCC       "Марка @{brand_egais} была просканирована в другом чеке (%s)"
+PPERR_EGAISMARKISEXHAUSTED       "Акцизная марка (или бокс) уже израсходована '%s'"
+PPERR_EGAISMARKNOTFOUND          "Акцизная марка (или бокс) не может быть израсходована поскольку не идентифицирована '%s'"
 PPERR_ARHASNTAGREEMENT           "@{msg_arhasntagreement}"
 PPERR_ARHASNTEXCHGPARAMS         "Для статьи '%s' не определены параметры обмена данными"
 PPERR_SUPPLIXNOTINITED           "@{err_internal}: объект PrcssrSupplInterchange не инициализирован"
@@ -3120,6 +3122,7 @@ PPFILNAM_REPLACERRULEGOODS     "replacer-rule-goods.sr"
 PPFILNAM_VETISTALK_LOG         "vetis-talk.log"
 PPFILNAM_VETISINFO_LOG         "vetis-info.log"
 PPFILNAM_NNTRAIN_LOG           "nntrain.log"
+PPFILNAM_EDIEXITE_LOG          "edi-exite.log"
 
 #!} // dont_translate
 

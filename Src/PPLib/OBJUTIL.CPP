@@ -1064,7 +1064,7 @@ PPObject * FASTCALL GetPPObject(PPID obj, void * extraPtr)
 	return _GetPPObject(obj, extraPtr);
 }
 
-int SLAPI PPGetObjTypeList(PPIDArray * pList, long flags)
+int FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags)
 {
 	int    ok = 1;
 	if(pList) {
@@ -1142,7 +1142,7 @@ PPObject * FASTCALL ObjCollection::GetObjectPtr(PPID objType)
 	return p_obj;
 }
 
-static int SLAPI Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
+static int FASTCALL Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
 {
 	int    r = DBRPL_OK;
 	PPIDArray obj_type_list;
@@ -1183,12 +1183,12 @@ static int SLAPI Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID id,
 	return r;
 }
 
-int SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
+int FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
 	{ return Helper_SendObjMessage(msg, destObj, obj, id, msgExtraPtr, pDestObjColl); }
-int SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id)
+int FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id)
 	{ return Helper_SendObjMessage(msg, destObj, obj, id, 0, 0); }
 
-int SLAPI BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr)
+int FASTCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr)
 {
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeObsolete);
@@ -1375,7 +1375,7 @@ IMPL_CMPFUNC(Acct, k1, k2)
 	return 0;
 }
 
-ListWindow * SLAPI GetPPObjList(PPID obj, uint flags, void * extraPtr)
+ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
 {
 	PPObjListWindow * olw = 0;
 	PPObject * o = GetPPObject(obj, extraPtr);
@@ -1400,7 +1400,7 @@ int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint fl
 	return ok;
 }
 
-int SLAPI SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, void * extraPtr)
+int FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, void * extraPtr)
 {
 	int    ok = 1;
 	if(pCombo) {

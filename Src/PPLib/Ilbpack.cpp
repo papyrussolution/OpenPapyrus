@@ -1393,7 +1393,12 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				Amounts.Put(&r_amt_entry, 1, 1);
 		}
 	}
-	THROW(XcL.Load(p_bobj->P_LotXcT, billID)); // @v9.8.11
+	// @v10.2.9 THROW(XcL.Load(p_bobj->P_LotXcT, billID)); // @v9.8.11
+	// @v10.2.9 {
+	if(p_bobj->P_LotXcT) {
+		THROW(p_bobj->P_LotXcT->GetContainer(billID, XcL));
+	}
+	// } @v10.2.9
 	BTagL.Destroy();
 	THROW(p_bobj->GetTagList(billID, &BTagL));
 	CATCHZOK
@@ -1556,7 +1561,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	else {
 		const int ccflg_synclot = BIN(CConfig.Flags2 & CCFLG2_SYNCLOT);
 		ObjTagList lot_tag_list;
-		StringSet ss_lotxcode;
+		// @v10.2.9 StringSet ss_lotxcode;
+		PPLotExtCodeContainer::MarkSet lotxcode_set; // @v10.2.9
 		LongArray rows;
 		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
@@ -1611,8 +1617,9 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			// @v9.8.11 SnL.GetNumber(i-1, &org_serial);
 			LTagL.GetNumber(PPTAG_LOT_SN, i-1, org_serial); // @v9.8.11
 			const ObjTagList * p_org_lot_tag_list = LTagL.Get(i-1);
-			ss_lotxcode.clear(); // @v9.8.11
-			XcL.Get(i, 0, ss_lotxcode); // @v9.8.11
+			//ss_lotxcode.clear(); // @v9.8.11
+			//XcL.Get(i, 0, ss_lotxcode); // @v9.8.11
+			XcL.Get(i, 0, lotxcode_set); // @v10.2.9
 			//
 			// Трансформируем идентификаторы лотов из чужого раздела в соответствующие нашему разделу
 			//
@@ -1697,7 +1704,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 									slfl |= TISL_ADJPRICE;
 								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
 								r_ti.Quantity_ = p_ilti->Quantity;
-								rPack.XcL.Set(tipos+1, &ss_lotxcode); // @v9.8.11
+								// @v10.2.9 rPack.XcL.Set(tipos+1, &ss_lotxcode); // @v9.8.11
+								rPack.XcL.Set(tipos+1, &lotxcode_set); // @v10.2.9
 							}
 							do_add = 0;
 						}
@@ -1743,7 +1751,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						}
 						// @v9.8.11 {
 						if(rows.getCount() == 1) { // Если при приеме строка не разъехалась на несколько, то переносим расширенные коды
-                            rPack.XcL.Set(rj+1, &ss_lotxcode);
+                            // @v10.2.9 rPack.XcL.Set(rj+1, &ss_lotxcode);
+							rPack.XcL.Set(rj+1, &lotxcode_set); // @v10.2.9
 						}
 						// } @v9.8.11
 						if(is_intr_expnd && p_bobj->GetSerialNumberByLot(lot_id, local_serial, 0) > 0) {
@@ -2388,7 +2397,12 @@ int SLAPI PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBu
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Pays, rBuf));
 	THROW(pPack->LTagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->BTagL.Serialize(dir, rBuf, pSCtx));
-	THROW(pPack->XcL.Serialize(dir, rBuf, pSCtx));
+	if(dir < 0 && pPack->Ver.IsLt(10, 2, 9)) {
+		THROW(pPack->XcL.Serialize_Before10209(dir, rBuf, pSCtx));
+	}
+	else {
+		THROW(pPack->XcL.Serialize(dir, rBuf, pSCtx));
+	}
 	THROW(pPack->AdvList.Serialize(dir, rBuf, pSCtx));
 	if(dir > 0) {
 		const long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);

@@ -1702,7 +1702,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 	}
 	setupRest();
 	// @v10.2.4 {
-	{
+	if(!(St & stLockQttyAutoUpd)) { // @v10.2.9
 		TInputLine * il = (TInputLine *)getCtrlView(master);
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}

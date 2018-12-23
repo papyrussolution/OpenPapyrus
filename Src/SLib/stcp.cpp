@@ -3564,6 +3564,22 @@ int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
     return ok;
 }
 
+int ScURL::SetupDefaultSslOptions()
+{
+	int    ok = 1;
+	const SGlobalSecureConfig & r_cfg = SLS.GetGlobalSecureConfig();
+	SString ca_file;
+	SString ca_path;
+	SPathStruc::NormalizePath(r_cfg.CaFile, SPathStruc::npfSlash, ca_file);
+	SPathStruc::NormalizePath(r_cfg.CaPath, SPathStruc::npfSlash, ca_path);
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAINFO, ca_file.cptr())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAPATH, ca_path.cptr())));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 1L)));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, 2L)));
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 {
 	/*

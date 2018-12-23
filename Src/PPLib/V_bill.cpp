@@ -1856,8 +1856,10 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 							PPBillPacket _this_bp;
 							PPBillPacket _link_bp;
 							const PPID   _link_id = wroff_bill_list.get(0);
-							StringSet _this_lxc_ss;
-							StringSet _link_lxc_ss;
+							// @v10.2.9 StringSet _this_lxc_ss;
+							// @v10.2.9 StringSet _link_lxc_ss;
+							PPLotExtCodeContainer::MarkSet _this_lxc_set; // @v10.2.9 
+							PPLotExtCodeContainer::MarkSet _link_lxc_set; // @v10.2.9 
 							int    do_update = 0;
 							THROW(P_BObj->ExtractPacketWithFlags(id, &_this_bp, BPLD_FORCESERIALS) > 0);
 							THROW(P_BObj->ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
@@ -1892,13 +1894,21 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 										}
 									}
 									// @v10.2.7 {
-									if(_this_bp.XcL.Get(tbpi+1, 0, _this_lxc_ss) > 0) {
-										_link_bp.XcL.Get(_lp+1, 0, _link_lxc_ss);
-										if(_link_lxc_ss.getDataLen() == 0) {
-											for(uint thislxcssp = 0; _this_lxc_ss.get(&thislxcssp, temp_buf);) {
+									if(_this_bp.XcL.Get(tbpi+1, 0, _this_lxc_set) > 0) {
+										_link_bp.XcL.Get(_lp+1, 0, _link_lxc_set);
+										if(_link_lxc_set.GetCount() == 0) {
+											/* @v10.2.9 for(uint thislxcssp = 0; _this_lxc_ss.get(&thislxcssp, temp_buf);) {
 												_link_bp.XcL.Add(_lp+1, temp_buf, 0);
 												do_update = 1;
+											}*/
+											// @v10.2.9 {
+											PPLotExtCodeContainer::MarkSet::Entry lxentry;
+											for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
+												if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
+													_link_bp.XcL.Add(_lp+1, lxentry.BoxID, (int16)lxentry.Flags, lxentry.Num, 0);
+												}
 											}
+											// } @v10.2.9 
 										}
 									}
 									// } @v10.2.7 

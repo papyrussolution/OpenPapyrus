@@ -2217,7 +2217,8 @@ public:
 		int32  LotID;
 		int32  BillID;
 		int16  RByBill;
-		int16  Sign;
+		int16  Flags;
+		int32  BoxNo;
 		char   Code[156];
 	} data;
 	struct Key0 {
@@ -2234,12 +2235,14 @@ public:
 	struct Key2 {
 		int32  BillID;
 		int16  RByBill;
+		int32  BoxNo;
 		char   Code[156];
 	};
 	DBField LotID;
 	DBField BillID;
 	DBField RByBill;
-	DBField Sign;
+	DBField Flags;
+	DBField BoxNo;
 	DBField Code;
 };
 
@@ -7985,7 +7988,7 @@ public:
 		double Discount;
 		double MaxDiscount;
 		double MaxCredit;
-		char   Code[12];
+		char   Code[24];
 		int32  Flags;
 		double MaxCredit1;
 		double MaxCredit2;

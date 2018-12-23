@@ -2161,8 +2161,10 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 					if((param.Discount > 0.0 && param.Discount <= 100.0) || param.Flags & param.fZeroDiscount) {
 						if(param.Flags & param.fZeroDiscount)
 							sc_pack.Rec.PDis = 0;
-						else if(param.Discount > 0.0 && param.Discount <= 100.0)
-							sc_pack.Rec.PDis = (long)(R6(param.Discount) * 100.0);
+						else if(param.Discount > 0.0 && param.Discount <= 100.0) {
+							// @v10.2.9 sc_pack.Rec.PDis = (long)(R6(param.Discount) * 100.0);
+							sc_pack.Rec.PDis = fmul100i(param.Discount); // @v10.2.9 
+						}
 						if(sc_pack.Rec.PDis != preserve_pdis) {
 							sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 							upd = 1;
