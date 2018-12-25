@@ -318,7 +318,7 @@ int SLAPI PPViewBalance::ViewTotal()
 }
 
 // static
-int PPViewBalance::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewBalance::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewBalance * p_v = (PPViewBalance *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
@@ -332,9 +332,7 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		BalanceViewItem * p_item = (BalanceViewItem *)pBlk->P_SrcData;
 		switch(pBlk->ColumnN) {
-			case 3: // Номер счета
-				*(Acct *)pBlk->P_DestData = *(Acct *)&p_item->Ac;
-				break;
+			case 3: *(Acct *)pBlk->P_DestData = *(Acct *)&p_item->Ac; break; // Номер счета
 			case 4: // Символ валюты
 				if(p_item->CurID > 0) {
 					PPCurrency cur_rec;
@@ -346,24 +344,12 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				else
 					pBlk->SetZero();
 				break;
-			case 5: // Входящий дебет
-				pBlk->Set(p_item->InDbtRest);
-				break;
-			case 6: // Входящий кредит
-				pBlk->Set(p_item->InCrdRest);
-				break;
-			case 7: // Обороты дебет
-				pBlk->Set(p_item->DbtTrnovr);
-				break;
-			case 8: // Обороты кредит
-				pBlk->Set(p_item->CrdTrnovr);
-				break;
-			case 9: // Исходящий дебет
-				pBlk->Set(p_item->OutDbtRest);
-				break;
-			case 10: // Исходящий кредит
-				pBlk->Set(p_item->OutCrdRest);
-				break;
+			case 5: pBlk->Set(p_item->InDbtRest); break; // Входящий дебет
+			case 6: pBlk->Set(p_item->InCrdRest); break; // Входящий кредит
+			case 7: pBlk->Set(p_item->DbtTrnovr); break; // Обороты дебет
+			case 8: pBlk->Set(p_item->CrdTrnovr); break; // Обороты кредит
+			case 9: pBlk->Set(p_item->OutDbtRest); break; // Исходящий дебет
+			case 10: pBlk->Set(p_item->OutCrdRest); break; // Исходящий кредит
 			case 11: // Наименование счета
 				if(p_item->AccID > 0) {
 					PPAccount acc_rec;

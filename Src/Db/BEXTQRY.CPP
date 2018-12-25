@@ -336,12 +336,12 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		//
 		//
 		if(pInitKey) {
-			memcpy(key, pInitKey, MAXKEYLEN);
+			memcpy(_Key, pInitKey, MAXKEYLEN);
 			sp = initSpMode;
 		}
 		else
 			sp = (initSpMode >= 0) ? spMode : UNDEF;
-		if(sp != (int)UNDEF && !P_Tbl->search(key, sp)) {
+		if(sp != (int)UNDEF && !P_Tbl->search(_Key, sp)) {
 			if(BTRNFOUND)
 				State |= stEOF;
 			ok = -1;
@@ -394,7 +394,7 @@ __again:
 				memcpy(Buf, P_QBuf, P_QHead->bufLen);
 				P_Tbl->setDataBuf(Buf, (RECORDSIZE)Buf.GetSize());
 				P_Tbl->setIndex(index);
-				r = P_Tbl->getExtended(key, spMode);
+				r = P_Tbl->getExtended(_Key, spMode);
 				P_Tbl->setBuffer(saved_buf);
 				ActCount = *(uint16 *)(char *)Buf;
 				State &= ~stRejectLimit;

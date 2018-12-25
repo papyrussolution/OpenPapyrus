@@ -331,7 +331,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
  	if(P_OutDlg && OutCtlId) {
  		uint   ctl_id = OutCtlId;
  		TDialog * p_dlg = P_OutDlg;
-		TView * p_v = p_dlg ? p_dlg->getCtrlView(ctl_id) : 0;
+		TView * p_v = p_dlg->getCtrlView(ctl_id);
  		if(p_v) {
  			if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 				bool   preserve_text_mode = CtrlTextMode;
@@ -488,57 +488,59 @@ int WordSelector::Refresh(const char * pText)
 IMPL_HANDLE_EVENT(WordSelector)
 {
 	if(event.isCmd(cmExecute)) {
-		ushort last_cmd = 0;
-		int    lw_dlg_id = DLGW_LBXFLAT;
-		HWND   hwnd_parent = P_Blk->H_InputDlg;
-		MessageCommandToOwner(cmLBLoadDef);
-		Id = lw_dlg_id;
-		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
-		APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
-		MoveWindow(P_Blk->H_InputDlg, 0);
-		if(APPL->PushModalWindow(this, H())) {
-			::ShowWindow(H(), SW_SHOW);
-			resourceID = -1;
-			EndModalCmd = 0;
-			MSG    msg;
-			const  uint ctl_id = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
-			HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
-			ActivateInput();
-			do {
-				GetMessage(&msg, 0, 0, 0);
-				if(oneof5(msg.message, WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_NCLBUTTONDOWN, WM_NCRBUTTONDOWN, WM_MBUTTONDOWN)) {
-					if(H() != msg.hwnd && H() != GetParent(msg.hwnd)) {
-						::PostMessage(H(), WM_COMMAND, IDCANCEL, 0);
-						break;
+		if(P_Blk) {
+			ushort last_cmd = 0;
+			int    lw_dlg_id = DLGW_LBXFLAT;
+			HWND   hwnd_parent = P_Blk->H_InputDlg;
+			MessageCommandToOwner(cmLBLoadDef);
+			Id = lw_dlg_id;
+			HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
+			APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
+			MoveWindow(P_Blk->H_InputDlg, 0);
+			if(APPL->PushModalWindow(this, H())) {
+				::ShowWindow(H(), SW_SHOW);
+				resourceID = -1;
+				EndModalCmd = 0;
+				MSG    msg;
+				const  uint ctl_id = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
+				HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
+				ActivateInput();
+				do {
+					GetMessage(&msg, 0, 0, 0);
+					if(oneof5(msg.message, WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_NCLBUTTONDOWN, WM_NCRBUTTONDOWN, WM_MBUTTONDOWN)) {
+						if(H() != msg.hwnd && H() != GetParent(msg.hwnd)) {
+							::PostMessage(H(), WM_COMMAND, IDCANCEL, 0);
+							break;
+						}
 					}
-				}
-				if(!IsDialogMessage(H(), &msg)) {
-					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
-				}
-				if(EndModalCmd && APPL->TestWindowForEndModal(this) && !valid(EndModalCmd))
-					EndModalCmd = 0;
-			} while(!EndModalCmd);
-			last_cmd = EndModalCmd;
-			EndModalCmd = 0;
-			APPL->PopModalWindow(this, 0);
-			{
-				HWND h_input = P_Blk ? P_Blk->H_InputDlg : 0;
-				if(h_input) {
-					if(EndModalCmd == cmOK) {
-						::PostMessage(h_input, WM_COMMAND, IDCANCEL, 0);
+					if(!IsDialogMessage(H(), &msg)) {
+						::TranslateMessage(&msg);
+						::DispatchMessage(&msg);
 					}
-					else {
-						SetForegroundWindow(h_input);
-						SetActiveWindow(h_input);
+					if(EndModalCmd && APPL->TestWindowForEndModal(this) && !valid(EndModalCmd))
+						EndModalCmd = 0;
+				} while(!EndModalCmd);
+				last_cmd = EndModalCmd;
+				EndModalCmd = 0;
+				APPL->PopModalWindow(this, 0);
+				{
+					HWND h_input = P_Blk ? P_Blk->H_InputDlg : 0;
+					if(h_input) {
+						if(EndModalCmd == cmOK) {
+							::PostMessage(h_input, WM_COMMAND, IDCANCEL, 0);
+						}
+						else {
+							SetForegroundWindow(h_input);
+							SetActiveWindow(h_input);
+						}
 					}
 				}
 			}
+			::DestroyWindow(H());
+			HW = 0;
+			clearEvent(event);
+			event.message.infoLong = last_cmd;
 		}
-		::DestroyWindow(H());
-		HW = 0;
-		clearEvent(event);
-		event.message.infoLong = last_cmd;
 	}
 	else {
 		if(TVCOMMAND) {
@@ -642,7 +644,7 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 	int    found = 0;
 	TView * p_next = 0;
 	P_Def = pDef;
-	if(P_Def) {
+	if(P_Def && P_Lb) {
 		int    create_scroll = 0;
 		uint   elem_count = P_Def->getRecsCount();
 		if(elem_count > 20) {
@@ -652,8 +654,7 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		P_Lb->CreateScrollBar(create_scroll);
 		P_Def->setViewHight(elem_count);
 		P_Def->SetOption(lbtHSizeAlreadyDef, 1);
-	}
-	if(P_Lb) {
+		//
 		TView * p = GetFirstView();
 		do {
 			if(p->TestId(P_Lb->GetId())) {

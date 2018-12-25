@@ -5366,7 +5366,8 @@ private:
 #define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
 #define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
 #define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
-#define PPSCMD_GETTIMESERIESPROP     10114 // @v10.2.5
+#define PPSCMD_SETTIMESERIESPROP     10114 // @v10.2.5
+#define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -13559,7 +13560,7 @@ struct CCheckItem { // @transient
 	int8   Reserve[3];      // @alignment
 	char   BarCode[24];     // @v8.8.0 [16]-->[24]
 	char   GoodsName[128];  //
-	char   Serial[24];      //
+	char   Serial[32];      // @v10.2.10 [24]-->[32]
 	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -15671,7 +15672,8 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	char   CurrencySymb[12];
 	double SpikeQuant;     //
 	double AvgSpread;      //
-	char   Reserve[14];    // @reserve
+	uint32 OptMaxDuck;     //
+	char   Reserve[10];    // @reserve
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -15789,8 +15791,163 @@ private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
 	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
-	int    SLAPI FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep, 
+	int    SLAPI FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
 		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
+};
+
+class TsStakeEnvironment : public SStrGroup {
+public:
+	SLAPI  TsStakeEnvironment();
+	enum {
+		tickfBid    = 0x0001, // TICK_FLAG_BID – тик изменил цену бид
+		tickfAsk    = 0x0002, // TICK_FLAG_ASK  – тик изменил цену аск
+		tickfLast   = 0x0004, // TICK_FLAG_LAST – тик изменил цену последней сделки
+		tickfVolume = 0x0008, // TICK_FLAG_VOLUME – тик изменил объем
+		tickfBuy    = 0x0010, // TICK_FLAG_BUY – тик возник в результате сделки на покупку
+		tickfSell   = 0x0020  // TICK_FLAG_SELL – тик возник в результате сделки на продажу
+	};
+	enum { // ENUM_ORDER_TYPE
+		ordtBuy = 1,       // ORDER_TYPE_BUY             Рыночный ордер на покупку
+		ordtSell,          // ORDER_TYPE_SELL            Рыночный ордер на продажу
+		ordtBuyLimit,      // ORDER_TYPE_BUY_LIMIT       Отложенный ордер Buy Limit
+		ordtSellLimit,     // ORDER_TYPE_SELL_LIMIT      Отложенный ордер Sell Limit
+		ordtBuyStop,       // ORDER_TYPE_BUY_STOP        Отложенный ордер Buy Stop
+		ordtSellStop,      // ORDER_TYPE_SELL_STOP       Отложенный ордер Sell Stop
+		ordtBuyStopLimit,  // ORDER_TYPE_BUY_STOP_LIMIT  По достижении цены ордера выставляется отложенный ордер Buy Limit по цене StopLimit
+		ordtSellStopLimit, // ORDER_TYPE_SELL_STOP_LIMIT По достижении цены ордера выставляется отложенный ордер Sell Limit по цене StopLimit
+		ordtCloseBy        // ORDER_TYPE_CLOSE_BY        Ордер на закрытие позиции встречной позицией
+	};
+	enum { // ENUM_TRADE_REQUEST_ACTIONS
+		traDeal = 1, // TRADE_ACTION_DEAL Установить торговый ордер на немедленное совершение сделки с указанными параметрами (поставить рыночный ордер)
+		traPending,  // TRADE_ACTION_PENDING Установить торговый ордер на совершение сделки при указанных условиях (отложенный ордер)
+		traSLTP,     // TRADE_ACTION_SLTP Изменить значения Stop Loss и Take Profit у открытой позиции
+		traModify,   // TRADE_ACTION_MODIFY Изменить параметры ранее установленного торгового ордера
+		traRemove,   // TRADE_ACTION_REMOVE Удалить ранее выставленный отложенный торговый ордер
+		traCloseBy   // TRADE_ACTION_CLOSE_BY Закрыть позицию встречной
+	};
+	enum { // ENUM_ORDER_TYPE_FILLING
+		ordtfFOK = 1, // ORDER_FILLING_FOK Данная политика исполнения означает, что ордер может быть исполнен исключительно в указанном объеме.
+			// Если на рынке в данный момент не присутствует достаточного объема финансового инструмента, то ордер не будет исполнен.
+			// Необходимый объем может быть составлен из нескольких предложений, доступных в данный момент на рынке.
+		ordtfIOC,     // ORDER_FILLING_IOC Означает согласие совершить сделку по максимально доступному на рынке объему в пределах указанного в ордере.
+			// В случае невозможности полного исполнения ордер будет исполнен на доступный объем, а неисполненный объем ордера будет отменен.
+		ordtfReturn   // ORDER_FILLING_RETURN Данный режим используется для рыночных (ORDER_TYPE_BUY и ORDER_TYPE_SELL), лимитных и стоп-лимитных ордеров
+			// (ORDER_TYPE_BUY_LIMIT, ORDER_TYPE_SELL_LIMIT, ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT) и только в режимах
+			// "Исполнение по рынку" и "Биржевое исполнение". В случае частичного исполнения рыночный или лимитный ордер с остаточным объемом
+			// не снимается, а продолжает действовать.
+			// Для ордеров ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT при активации будет создан соответствующий лимитный ордер
+			// ORDER_TYPE_BUY_LIMIT/ORDER_TYPE_SELL_LIMIT с типом исполнения ORDER_FILLING_RETURN
+	};
+	enum { // ENUM_ORDER_TYPE_TIME
+		ordttGTC = 1,     // ORDER_TIME_GTC Ордер будет находится в очереди до тех пор, пока не будет снят
+		ordttDay,         // ORDER_TIME_DAY Ордер будет действовать только в течение текущего торгового дня
+		ordttSpecified,   // ORDER_TIME_SPECIFIED Ордер будет действовать до даты истечения
+		ordttSpecifiedDay // ORDER_TIME_SPECIFIED_DAY Ордер будет действовать до 23:59:59 указанного дня.
+			// Если это время не попадает на торговую сессию, истечение наступит в ближайшее торговое время.
+	};
+	struct Tick { // @flat
+		PPID   TsID;    // ->Ref(PPOBJ_TIMESERIES)
+		LDATETIME Dtm;  // Время последнего обновления цен
+		double Bid;     // Текущая цена Bid
+		double Ask;     // Текущая цена Ask
+		double Last;    // Текущая цена последней сделки (Last)
+		uint   Volume;  // Объем для текущей цены Last
+		long   TmMsc;   // Время последнего обновления цен в миллисекундах
+		long   Flags;   // tickfXXX
+		double VolumeReal; // Объем для текущей цены Last c повышенной точностью
+	};
+	struct AccountInfo {
+		SLAPI  AccountInfo();
+		int    ID; // Ид счета в торговой системе
+		LDATETIME ActualDtm; // Время актуальности данных
+		double Balance; // Текущий баланс счета
+		double Profit;  // Текущее значение прибыли (убытка) по счету
+	};
+	struct Stake { // @flat
+		SLAPI  Stake();
+		PPID   TsID;
+		long   Ticket;           // Тикет ордера. Уникальное число, которое присваивается каждому ордеру
+		long   Magic;            // Идентификатор эксперта выставившего ордер
+		LDATETIME SetupDtm;      // Время постановки ордера
+		LDATETIME ExpirationDtm; // Время истечения ордера
+		LDATETIME DoneDtm;       // Время исполнения или снятия ордера
+		long   SetupMsc;         // Время установки ордера на исполнение в миллисекундах с 01.01.1970
+		long   DoneMsc;          // Время исполнения/снятия ордера в миллисекундах с 01.01.1970
+		long   TypeFilling;      // ordtfXXX Тип исполнения по остатку
+		long   TypeTime;         // ordttXXX Время жизни ордера
+		long   Type;             // ordtXXX Тип ордера
+		long   State;            // Статус ордера
+		long   Reason;           // Причина или источник выставления ордера
+		long   PositionId;       // Идентификатор позиции, который ставится на ордере при его исполнении.
+			// Каждый исполненный ордер порождает сделку, которая открывает новую или изменяет уже существующую позицию.
+			// Идентификатор этой позиции и устанавливается исполненному ордеру в этот момент
+		long   PositionById;     // Идентификатор встречной позиции для ордеров типа ORDER_TYPE_CLOSE_BY.
+		uint   SymbP;
+		uint   CommentP;
+		uint   ExternalIdP;    // Идентификатор ордера во внешней торговой системе (на бирже)
+		double VolumeInit;     // Первоначальный объем при постановке ордера
+		double VolumeCurrent;  // Невыполненный объем
+		double PriceOpen;      // Цена, указанная в ордере
+		double PriceCurrent;   // Текущая цена по символу ордера
+		double SL;             // Уровень Stop Loss
+		double TP;             // Уровень Take Profit
+		double PriceStopLimit; // Цена постановки Limit ордера при срабатывании StopLimit ордера
+	};
+
+	class StakeRequestBlock {
+	public:
+		SLAPI  StakeRequestBlock(TsStakeEnvironment & rEnv);
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//
+		// Позиции на текстовые строки в этом блоке ссылаются на головную структуру TsStakeEnvironment & R_Env
+		//
+		struct Req {
+			SLAPI  Req();
+			long   Action;           // traXXX Тип выполняемого действия
+			ulong  Magic;            // Штамп эксперта (идентификатор magic number)
+			ulong  Ticket;           // Тикет ордера
+			PPID   TsID;             //
+			uint   SymbolP;          // Имя торгового инструмента
+			double Volume;           // Запрашиваемый объем сделки в лотах
+			double Price;            // Цена
+			double StopLimit;        // Уровень StopLimit ордера
+			double SL;               // Уровень Stop Loss ордера
+			double TP;               // Уровень Take Profit ордера
+			ulong  Deviation;        // Максимально приемлемое отклонение от запрашиваемой цены
+			long   Type;             // ordtXXX Тип ордера
+			long   TypeFilling;      // ordtfXXX Тип ордера по исполнению
+			long   TypeTime;         // ordttXXX Тип ордера по времени действия
+			LDATETIME Expiration;    // Срок истечения ордера (для ордеров типа ORDER_TIME_SPECIFIED)
+			uint   CommentP;         // Комментарий к ордеру
+			ulong  PositionTicket;   // Тикет позиции
+			ulong  PositionByTicket; // Тикет встречной позиции
+		};
+		struct Result {
+			SLAPI  Result();
+			uint   RetCode;         // Код результата операции
+			ulong  DealTicket;      // Тикет сделки, если она совершена
+			ulong  OrderTicket;     // Тикет ордера, если он выставлен
+			double Volume;          // Объем сделки, подтверждённый брокером
+			double Price;           // Цена в сделке, подтверждённая брокером
+			double Bid;             // Текущая рыночная цена предложения (цены реквота)
+			double Ask;             // Текущая рыночная цена спроса (цены реквота)
+			uint   CommentP;        // Комментарий брокера к операции (по умолчанию заполняется расшифровкой кода возврата торгового сервера)
+			uint   RequestId;       // Идентификатор запроса, устанавливается терминалом при отправке
+			uint   RetCodeExternal; // Код ответа внешней торговой системы
+		};
+
+		TsStakeEnvironment & R_Env;
+		TSVector <Req> L;
+		TSVector <Result> RL;
+	};
+
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	AccountInfo Acc;
+	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
+	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
+private:
+	long   Ver;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -19857,7 +20014,7 @@ public:
 	//int    SLAPI InitIteration();
 	//int    FASTCALL NextIteration(PhnSvcMonitorViewItem *);
 private:
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -23875,7 +24032,7 @@ private:
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void * SLAPI GetEditExtraParam();
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	static int   GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI FetchData(PPID id);
 
@@ -28193,7 +28350,7 @@ public:
 	int    SLAPI GetCurrentViewOrder() const { return CurrentViewOrder; }
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -28281,7 +28438,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI AddItem(PPViewBrowser * pBrw);
 	int    SLAPI EditItem(PPViewBrowser * pBrw, const BrwHdr *);
@@ -30484,6 +30641,7 @@ public:
 			fShowQtty       = 0x0400, // @v10.1.0
 			fShowPhQtty     = 0x0800, // @v10.1.0
 			fShowVetisTag   = 0x1000, // @v10.1.0
+			fShowManufTime  = 0x2000  // @v10.2.10
 		};
 		PPID   LocID;
 		PPID   ExcludeLotID;
@@ -35634,7 +35792,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LinkedBillViewItem * pItem);
 private:
-	static int    GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	struct Entry {
 		PPID   ID;
@@ -37492,7 +37650,7 @@ public:
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(StockOptViewItem *);
 private:
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -38525,8 +38683,8 @@ public:
 	//
 	int    SLAPI Transmit(PPID id, int transmitKind);
 private:
-	static  int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	static  void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
 
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -38637,7 +38795,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BalanceViewItem *);
 private:
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -39101,6 +39259,7 @@ public:
 	int    SLAPI CalcStat(BillStatArray * pList);
 private:
 	struct OpGroupingStatEntry {
+		SLAPI  OpGroupingStatEntry();
 		PPID   OpID;
 		int    Sign;
 		StatBase S;
@@ -42917,7 +43076,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BizScValByTemplViewItem *);
 private:
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -43122,7 +43281,7 @@ public:
 	//int    SLAPI InitIteration();
 	//int    FASTCALL NextIteration(ServerStatViewItem *);
 private:
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -43222,7 +43381,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(AmountTypeViewItem *);
 private:
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -43271,8 +43430,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(RegTypeViewItem *);
 private:
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -43429,7 +43587,7 @@ public:
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(DBMonitorViewItem *);
 private:
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -43669,7 +43827,7 @@ public:
 	int    SLAPI EditItem(PPID);
 	int    SLAPI DeleteItem(PPID);
 private:
-	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -48951,13 +49109,14 @@ public:
 		fShowQtty      = 0x0004, // @v10.1.0
 		fShowPhQtty    = 0x0008, // @v10.1.0
 		fShowVetisTag  = 0x0010, // @v10.1.0
+		fShowManufTime = 0x0020  // @v10.2.10
 	};
 	static SArray * SLAPI CreateArray();
-	static int SLAPI AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial = 0);
+	static int FASTCALL AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial = 0);
 	SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags);
 private:
 	DECL_HANDLE_EVENT;
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	enum {

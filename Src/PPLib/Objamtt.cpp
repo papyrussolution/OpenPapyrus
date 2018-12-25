@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,14 +8,9 @@
 // @ModuleDef(PPObjAmountType)
 //
 int SLAPI PPAmountType::IsTax(PPID taxID  /* GTAX_XXX */) const
-{
-	return BIN(Flags & PPAmountType::fTax && Tax == taxID);
-}
-
+	{ return BIN(Flags & PPAmountType::fTax && Tax == taxID); }
 int SLAPI PPAmountType::IsComplementary() const
-{
-	return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount));
-}
+	{ return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)); }
 
 SLAPI PPAmountTypePacket::PPAmountTypePacket()
 {
@@ -430,7 +425,6 @@ int SLAPI PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int
 						THROW(ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, pPack->Formula));
 					}
 					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
-					// @v8.5.5 @fix ok = -1;
 				}
 			}
 			else {
@@ -439,7 +433,7 @@ int SLAPI PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int
 				THROW(ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
-			if(ok > 0) // @v8.5.5 @fix (ok < 0)-->(ok > 0)
+			if(ok > 0)
 				THROW(Dirty(*pID));
 		}
 		else if(pPack) {
@@ -600,10 +594,8 @@ public:
 	{
 		int    yes = 0;
 		{
-			//RwL.ReadLock();
 			SRWLOCKER(RwL, SReadWriteLocker::Read);
 			yes = IsThereDistribCostAmounts;
-			//RwL.Unlock();
 		}
 		return yes;
 	}
@@ -632,13 +624,11 @@ SLAPI AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(Amo
 	PPObjAmountType amt_obj;
 	PPAmountType temp_rec;
 	{
-		//LocRwL.WriteLock();
 		SRWLOCKER(LocRwL, SReadWriteLocker::Write);
 		IsThereDistribCostAmounts = 0;
 		for(PPID i = 0; amt_obj.EnumItems(&i, &temp_rec) > 0;)
 			Get(i, &temp_rec);
 		InitTaxBlock();
-		//LocRwL.Unlock();
 	}
 }
 
@@ -690,10 +680,8 @@ int FASTCALL AmountTypeCache::Dirty(PPID id)
 	int    ok = 1;
 	PPAmountType temp_rec;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
-		//RwL.Unlock();
 	}
 	//
 	// Функция Get вызывает блокировку чтения. По этому, мы вынуждены разорвать
@@ -701,10 +689,8 @@ int FASTCALL AmountTypeCache::Dirty(PPID id)
 	//
 	Get(id, &temp_rec);
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		InitTaxBlock();
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -712,10 +698,8 @@ int FASTCALL AmountTypeCache::Dirty(PPID id)
 int SLAPI AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 {
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		ASSIGN_PTR(pBlk, TaxBlock);
-		//RwL.Unlock();
 	}
 	return 1;
 }

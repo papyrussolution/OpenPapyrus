@@ -62,6 +62,7 @@ public:
 	virtual int SLAPI AddSummator(double add);
 	virtual int SLAPI EditParam(void *);
 	virtual int SLAPI CheckForSessionOver();
+	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
 private:
 	virtual int SLAPI InitChannel();
 	int  SLAPI Connect();
@@ -716,7 +717,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								tax_type_number = 6;
 							else {
 								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0)
+								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
 									tax_type_number = 3;
 								else if(vatrate == 10.0)
 									tax_type_number = 2;
@@ -737,7 +738,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								tax_type_number = 4;
 							else {
 								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0)
+								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
 									tax_type_number = 1;
 								else if(vatrate == 10.0)
 									tax_type_number = 2;
@@ -762,7 +763,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								tax_type_number = 6;
 							else {
 								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0)
+								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
 									tax_type_number = 1;
 								else if(vatrate == 10.0)
 									tax_type_number = 2;
@@ -1203,5 +1204,45 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		Exec(ResetMode);
 	ENDCATCH
 	Flags &= ~sfOpenCheck;
+	return ok;
+}
+
+//virtual 
+int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
+{
+	int    ok = 1;
+	size_t zc_len = sstrlen(pZCheck);
+	if(zc_len) {
+		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);
+		const char * p_delim = 0;
+		if(eolf == eolWindows)
+			p_delim = "\xD\xA";
+		else if(eolf == eolUnix)
+			p_delim = "\xA";
+		else if(eolf == eolMac)
+			p_delim = "\xD";
+		else
+			p_delim = "\n";
+		SString str;
+		StringSet str_set(p_delim);
+		str_set.setBuf(pZCheck, zc_len+1);
+		THROW(Connect());
+		SetProp(Mode, MODE_REGISTER);
+		{
+			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+				str.Chomp();
+				THROW(SetProp(TextWrap, 1L));
+				THROW(SetProp(Caption, str));
+				THROW(ExecOper(PrintString));
+			}
+			//THROW(ExecOper(PrintHeader));
+			if(!(Flags & sfNotUseCutter))
+				THROW(ExecOper(FullCut));
+		}
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }

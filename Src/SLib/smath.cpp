@@ -488,8 +488,8 @@ void SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 {
 	Setup();
 	Flags |= fDeviation;
-	P_Stat = new StatBase;
-	P_Stat->Init();
+	P_Stat = new StatBase(0);
+	// @v10.2.10 P_Stat->Init(0);
 	if(even)
 		Flags |= fEven;
 	DevWidthSigm = widthSigm;

@@ -33,6 +33,10 @@ int SLAPI OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) c
 		return IsEqual(&rS, 1);
 }
 
+SLAPI PPViewOpGrouping::OpGroupingStatEntry::OpGroupingStatEntry() : OpID(0), Sign(0), S(0)
+{
+}
+
 SLAPI PPViewOpGrouping::PPViewOpGrouping() : PPView(0, &Filt, PPVIEW_OPGROUPING), P_TempTbl(0), P_TempStatTbl(0), P_ViewTrfrAnlz(0), P_ViewBill(0)
 {
 }
@@ -635,11 +639,11 @@ int OpGroupingFiltDialog::setDTS(const OpGroupingFilt * pFilt)
 	setWL(BIN(Data.Flags & OpGroupingFilt::fLabelOnly));
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
-	AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps); // @v8.6.1
+	AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
-	DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID); // @v8.6.1
+	DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID);
 	return 1;
 }
 

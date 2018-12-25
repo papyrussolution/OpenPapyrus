@@ -358,7 +358,7 @@ SLAPI BDictionary::~BDictionary()
 //
 //
 //
-SLAPI BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), OrgNumRecs(0), ActNumRecs(0), ErrCode(0), Tm(0)
+SLAPI BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), Format(0), Flags(0), OrgNumRecs(0), ActNumRecs(0), ErrCode(0), Tm(0)
 {
 }
 

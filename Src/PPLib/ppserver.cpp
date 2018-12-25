@@ -10,18 +10,12 @@
 //
 // Пустая функция, используемая для насильственной линковки данного модуля.
 //
-int dummy_ppserver()
-{
-	return 0;
-}
+int dummy_ppserver() { return 0; }
 //
 //
 //
 //static
-int FASTCALL PPThread::GetKindText(int kind, SString & rBuf)
-{
-	return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf);
-}
+int FASTCALL PPThread::GetKindText(int kind, SString & rBuf) { return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf); }
 
 SLAPI PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
 {
@@ -116,10 +110,8 @@ void SLAPI PPServerCmd::Init()
 	ZDELETE(P_SoBlk);
 }
 
-void SLAPI PPServerCmd::ClearParams()
-{
-	ParamL.Z();
-}
+void SLAPI PPServerCmd::ClearParams() { ParamL.Z(); }
+int  FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const { return ParamL.GetText(parid, rVal); }
 
 int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 {
@@ -135,11 +127,6 @@ int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 	else
 		ok = 0;
 	return ok;
-}
-
-int FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const
-{
-	return ParamL.GetText(parid, rVal);
 }
 
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
@@ -236,7 +223,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tLogLockStack, // @v9.8.1
 		tSetTimeSeries, // @v10.2.3
 		tGetReqQuotes,  // @v10.2.4
-		tSetTimeSeriesProp // @10.2.5
+		tSetTimeSeriesProp,  // @10.2.5
+		tSetTimeSeriesStkEnv // @v10.2.10
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -355,7 +343,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_GETPERSONBYARTICLE       , "GETPERSONBYARTICLE",        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
 		{ PPHS_SETTIMESERIES            , "settimeseries",             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
 		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
-		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_GETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
+		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
+		{ PPHS_SETTIMESERIESSTKENV      , "settimeseriesstkenv",       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -1942,6 +1931,7 @@ private:
 	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
 	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
 	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
+	CmdRet SLAPI SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply);
 	CmdRet SLAPI GetReqQuotes(PPJobSrvReply & rReply);
 
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
@@ -2332,7 +2322,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_GETDISPLAYINFO:
 		case PPSCMD_SETTIMESERIES: // @v10.2.4
 		case PPSCMD_GETREQQUOTES: // @v10.2.4
-		case PPSCMD_GETTIMESERIESPROP: // @v10.2.5
+		case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
+		case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10
 			ok = cmdretUnprocessed;
 			break;
 		// }
@@ -3276,6 +3267,23 @@ PPServerSession::CmdRet SLAPI PPServerSession::GetReqQuotes(PPJobSrvReply & rRep
 	return ret;
 }
 
+PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply) // @construction
+{
+	CmdRet ret = cmdretOK;
+	uint32 size_to_read = 0;
+	size_t recv_size = 0;
+	THROW_SL(So.RecvBlock(&size_to_read, sizeof(size_to_read), &recv_size) > 0 && recv_size == sizeof(size_to_read));
+	{
+		SBuffer buffer;
+		THROW_SL(So.RecvBuf(buffer, size_to_read, &recv_size));
+	}
+	CATCH
+		rReply.SetError();
+		ret = cmdretError;
+	ENDCATCH
+	return ret;
+}
+
 // @v10.2.3 {
 PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 {
@@ -3310,7 +3318,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rRe
 		rReply.SetError();
 		ret = cmdretError;
 	ENDCATCH
-	return cmdretOK;
+	return ret;
 }
 // } @v10.2.3 
 
@@ -3689,7 +3697,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_SETTIMESERIES: // @v10.2.3 @construction
 				ok = SetTimeSeries(rReply);
 				break;
-			case PPSCMD_GETTIMESERIESPROP: // @v10.2.5 @construction
+			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5 @construction
 				{
 					pEv->GetParam(1, db_symb);
 					pEv->GetParam(2, name);
@@ -3702,6 +3710,9 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					else
 						ok = cmdretOK;
 				}
+				break;
+			case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10 @construction
+				ok = SetTimeSeriesStakeEnvironment(rReply);
 				break;
 			case PPSCMD_GETDISPLAYINFO:
 				{

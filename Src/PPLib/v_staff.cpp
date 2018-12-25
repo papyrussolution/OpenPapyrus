@@ -209,7 +209,7 @@ int FASTCALL PPViewStaffList::NextIteration(StaffListViewItem * pItem)
 }
 
 // static
-int PPViewStaffList::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewStaffList::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewStaffList * p_v = (PPViewStaffList *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

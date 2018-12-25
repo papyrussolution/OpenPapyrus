@@ -6,7 +6,6 @@
  *
  * alfred@mickautsch.de
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -18,12 +17,10 @@
 
 #define B64LINELEN 72
 #define B64CRLF "\r\n"
-/*
- * The following VA_COPY was coded following an example in
- * the Samba project.  It may not be sufficient for some
- * esoteric implementations of va_list but (hopefully) will
- * be sufficient for libxml2.
- */
+// 
+// The following VA_COPY was coded following an example in the Samba project.  It may not be sufficient for some
+// esoteric implementations of va_list but (hopefully) will be sufficient for libxml2.
+// 
 #ifndef VA_COPY
 	#ifdef HAVE_VA_COPY
 		#define VA_COPY(dest, src) va_copy(dest, src)
@@ -40,9 +37,9 @@
 		#endif
 	#endif
 #endif
-/*
- * Types are kept private
- */
+// 
+// Types are kept private
+// 
 typedef enum {
 	XML_TEXTWRITER_NONE = 0,
 	XML_TEXTWRITER_NAME,
@@ -94,7 +91,7 @@ struct xmlTextWriter {
 static void xmlFreeTextWriterStackEntry(xmlLink * lk);
 static int xmlCmpTextWriterStackEntry(const void * data0, const void * data1);
 static int xmlTextWriterOutputNSDecl(xmlTextWriter * writer);
-static void FASTCALL xmlFreeTextWriterNsStackEntry(xmlLink * pLk);
+static void xmlFreeTextWriterNsStackEntry(xmlLink * pLk);
 static int xmlCmpTextWriterNsStackEntry(const void * data0, const void * data1);
 static int xmlTextWriterWriteDocCallback(void * context, const xmlChar * str, int len);
 static int xmlTextWriterCloseDocCallback(void * context);
@@ -160,13 +157,13 @@ xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 		return NULL;
 	}
 	memzero(ret, (size_t)sizeof(xmlTextWriter));
-	ret->nodes = xmlListCreate((xmlListDeallocator)xmlFreeTextWriterStackEntry, (xmlListDataCompare)xmlCmpTextWriterStackEntry);
+	ret->nodes = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterStackEntry);
 	if(ret->nodes == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
 		SAlloc::F(ret);
 		return NULL;
 	}
-	ret->nsstack = xmlListCreate((xmlListDeallocator)xmlFreeTextWriterNsStackEntry, (xmlListDataCompare)xmlCmpTextWriterNsStackEntry);
+	ret->nsstack = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterNsStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterNsStackEntry);
 	if(ret->nsstack == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
 		xmlListDelete(ret->nodes);
@@ -371,11 +368,10 @@ xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compre
 	}
 	return ret;
 }
-/**
- * @writer:  the xmlTextWriterPtr
- *
- * Deallocate all the resources associated to the writer
- */
+// 
+// Descr: Deallocate all the resources associated to the writer
+// @writer:  the xmlTextWriterPtr
+// 
 void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter)
 {
 	if(pWriter) {
@@ -3440,13 +3436,11 @@ static int xmlTextWriterOutputNSDecl(xmlTextWriter * writer)
 	}
 	return sum;
 }
-/**
- * xmlFreeTextWriterNsStackEntry:
- * @lk:  the xmlLinkPtr
- *
- * Free callback for the xmlList.
- */
-static void FASTCALL xmlFreeTextWriterNsStackEntry(xmlLink * pLk)
+// 
+// Descr: Free callback for the xmlList.
+// @lk:  the xmlLinkPtr
+// 
+static void xmlFreeTextWriterNsStackEntry(xmlLink * pLk)
 {
 	xmlTextWriterNsStackEntry * p = (xmlTextWriterNsStackEntry*)xmlLinkGetData(pLk);
 	if(p) {
@@ -3455,15 +3449,12 @@ static void FASTCALL xmlFreeTextWriterNsStackEntry(xmlLink * pLk)
 		SAlloc::F(p);
 	}
 }
-/**
- * xmlCmpTextWriterNsStackEntry:
- * @data0:  the first data
- * @data1:  the second data
- *
- * Compare callback for the xmlList.
- *
- * Returns -1, 0, 1
- */
+//
+// Descr: Compare callback for the xmlList.
+// @data0:  the first data
+// @data1:  the second data
+// Returns -1, 0, 1
+// 
 static int xmlCmpTextWriterNsStackEntry(const void * data0, const void * data1)
 {
 	int rc;

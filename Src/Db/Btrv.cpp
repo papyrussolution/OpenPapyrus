@@ -442,7 +442,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(p_bei->flash());
 	ZDELETE(p_bei);
 	THROW(p_bei = new BExtInsert(&xindex));
-	for(i = 0; i < kl.getNumKeys(); i++)
+	for(i = 0; i < kl.getNumKeys(); i++) {
 		for(key = kl.getKey(i), j = 0; j < key.getNumSeg(); j++) {
 			indexBuf.XiFile   = pTbl->tableID;
 			const int fld_id = key.getFieldID(j);
@@ -454,6 +454,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 			indexBuf.XiFlags  = key.getFlags(j);
 			THROW(p_bei->insert(&indexBuf));
 		}
+	}
 	THROW(p_bei->flash());
 	THROW(Btrieve::CommitWork());
 	ta = 0;

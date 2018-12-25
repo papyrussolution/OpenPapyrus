@@ -133,12 +133,13 @@ int SLAPI DBBackup::InfoFile::ReadItem(long copyID, BCopyData * pData)
 	int    ok = -1;
 	BCopyData bc_data;
 	if(OpenStream(1)) {
-		while(ok && ReadRecord(Stream, &bc_data) > 0)
+		while(ok < 0 && ReadRecord(Stream, &bc_data) > 0) {
 			if(bc_data.ID == copyID) {
 				ASSIGN_PTR(pData, bc_data);
 				ok = 1;
 				break;
 			}
+		}
 		CloseStream();
 	}
 	else
@@ -270,12 +271,9 @@ int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 //
 //
 //
-SLAPI DBBackup::DBBackup()
+SLAPI DBBackup::DBBackup() : P_Db(0), InfoF(0), AbortProcessFlag(0), SpaceSafetyFactor(DEFAULT_SPACE_SAFETY_FACTOR),
+	TotalCopySize(0), TotalCopyReady(0)
 {
-	P_Db = 0;
-	InfoF = 0;
-	SpaceSafetyFactor = DEFAULT_SPACE_SAFETY_FACTOR;
-	AbortProcessFlag = 0;
 }
 
 SLAPI DBBackup::~DBBackup()
@@ -696,7 +694,7 @@ int SLAPI DBBackup::Restore(BCopyData * pData, BackupLogFunc fnLog, long initPar
 	if(CheckAvailableDiskSpace(cp.Path, cp.TotalSize) && CheckCopy(pData, &cp, fnLog, initParam) > 0) {
 		SString copy_path;
 		THROW(RemoveDatabase(1));
-		THROW(DoCopy(&cp, -(pData->SrcSize != pData->DestSize), fnLog, initParam));
+		THROW(DoCopy(&cp, -BIN(pData->SrcSize != pData->DestSize), fnLog, initParam));
 		THROW(CopyByRedirect(cp.Path, fnLog, initParam));
 		(copy_path = pData->CopyPath).Strip().SetLastSlash().Cat(pData->SubDir).Strip();
 		THROW(CopyLinkFiles(copy_path, cp.Path, fnLog, initParam)); // v5.6.12 AHTOXA
@@ -718,7 +716,7 @@ int SLAPI DBBackup::RemoveCopy(BCopyData * pData, BackupLogFunc fnLog, long init
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	GetCopyParams(pData, &cp);
 	// @v9.6.4 for(i = 0; ok > 0 && cp.FileList.enumItems(&i, (void**)&p_src_file);) {
-	for(uint ssp = 0; ok > 0 && cp.SsFiles.get(&ssp, src_file_name);) {
+	for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
 		SFile::Remove(src_file_name);
 		if(pData->DestSize != pData->SrcSize) {
 			SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
@@ -795,7 +793,7 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 	ps.Split(dest.SetLastSlash());
 	TotalCopySize  = pParam->TotalSize;
 	TotalCopyReady = 0;
-	for(uint ssp = 0; ok > 0 && pParam->SsFiles.get(&ssp, src_file_name);) {
+	for(uint ssp = 0; pParam->SsFiles.get(&ssp, src_file_name);) {
 		int64 sz = 0;
 		SFileUtil::Stat stat;
 		ps_inner.Split(src_file_name);

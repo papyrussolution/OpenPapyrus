@@ -388,18 +388,17 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			tax_grp_id = pTI->LotTaxGrpID;
 		// @v10.2.5 (ctr) MEMSZERO(gtx);
 		gtobj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
-
 		const double q_pre = fabs(pTI->QuotPrice);
 		qtty = fabs(pTI->Quantity_);
 		const double q_diff = (qtty - q_pre);
-		if(q_diff != 0.0) { // @v8.9.7 qtty-->q_diff
+		if(q_diff != 0.0) {
 			const double cq = R2(pTI->Cost * qtty - pTI->RevalCost * q_pre);
 			const double pq = R2(pTI->Price * qtty - pTI->Discount * q_pre);
-			// @v8.9.8 amount = ((tiamt != TIAMT_COST) ? pq : cq) / q_diff;
-			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // @v8.9.8 Для корректировки НДС всегда в ценах поступления
+			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // Для корректировки НДС всегда в ценах поступления
 		}
-		else
+		else {
 			amount = 0.0;
+		}
 		qtty = q_diff;
 	}
 	else {

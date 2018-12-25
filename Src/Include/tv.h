@@ -4172,7 +4172,7 @@ struct SBrowserDataProcBlock {
 	SString TempBuf;         // @allocreuse Может использоваться реализацией функции SBrowserDataProc для ускорения работы
 };
 
-typedef int (*SBrowserDataProc)(SBrowserDataProcBlock * pBlk);
+typedef int (FASTCALL * SBrowserDataProc)(SBrowserDataProcBlock * pBlk);
 
 struct BroColumn {
 	BroColumn();

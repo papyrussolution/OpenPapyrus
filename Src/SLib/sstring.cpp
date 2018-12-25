@@ -7041,6 +7041,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	int    ok = 1;
 	int    bm = -1;
 	const  uint max_bm_phase = 10000;
+	const  uint max_strlen_phase = 100000;
 	uint32 line_no = 0;
 	SBaseBuffer temp_buf;
 	SBaseBuffer test_buf;
@@ -7049,26 +7050,18 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	SString str, out_buf, in_buf;
     THROW(SLTEST_CHECK_NZ(F.InitStrList(MakeInputFilePath("phrases.en"))));
 	F.InitRandomRealList(1000000);
-	if(pBenchmark == 0)
-		bm = 0;
-	else if(sstreqi_ascii(pBenchmark, "stack"))
-		bm = 1;
-	else if(sstreqi_ascii(pBenchmark, "stack-xeos"))
-		bm = 6;
-	else if(sstreqi_ascii(pBenchmark, "sstring"))
-		bm = 2;
-	else if(sstreqi_ascii(pBenchmark, "std::string"))
-		bm = 5;
-	else if(sstreqi_ascii(pBenchmark, "revolver"))
-		bm = 3;
-	else if(sstreqi_ascii(pBenchmark, "revolver-tla"))
-		bm = 4;
-	else if(sstreqi_ascii(pBenchmark, "atof"))
-		bm = 7;
-	else if(sstreqi_ascii(pBenchmark, "satof"))
-		bm = 8;
-	else
-		SetInfo("invalid benchmark");
+	if(pBenchmark == 0) bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "stack"))        bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "stack-xeos"))   bm = 6;
+	else if(sstreqi_ascii(pBenchmark, "sstring"))      bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "std::string"))  bm = 5;
+	else if(sstreqi_ascii(pBenchmark, "revolver"))     bm = 3;
+	else if(sstreqi_ascii(pBenchmark, "revolver-tla")) bm = 4;
+	else if(sstreqi_ascii(pBenchmark, "atof"))         bm = 7;
+	else if(sstreqi_ascii(pBenchmark, "satof"))        bm = 8;
+	else if(sstreqi_ascii(pBenchmark, "strlen"))       bm = 9;
+	else if(sstreqi_ascii(pBenchmark, "sstrlen"))      bm = 10;
+	else SetInfo("invalid benchmark");
 	if(bm == 0) {
 		SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
 		for(uint i = 0; i < 1000; i++) {
@@ -7515,8 +7508,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		}
 		{
 			STokenRecognizer tr;
+			SNaturalTokenStat nts;
 			SNaturalTokenArray nta;
-			tr.Run((const uchar *)"0123", -1, nta.Z(), 0); 
+			tr.Run((const uchar *)"0123", -1, nta.Z(), &nts); 
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			tr.Run((const uchar *)"4610017121115", -1, nta.Z(), 0); 
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
@@ -7573,95 +7567,99 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_DOT));
 		}
 	}
-	else if(bm == 1) {
+	else {
 		uint64 total_len = 0;
 		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				char buffer[2048];
-				strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
-				total_len += strlen(buffer);
+		if(bm == 1) {
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					char buffer[2048];
+					strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
+					total_len += strlen(buffer);
+				}
 			}
 		}
-	}
-	else if(bm == 6) {
-		uint64 total_len = 0;
-		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				char buffer[2048];
-				xeos_strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
-				total_len += xeos_strlen(buffer);
+		else if(bm == 6) {
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					char buffer[2048];
+					xeos_strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
+					total_len += xeos_strlen(buffer);
+				}
 			}
 		}
-	}
-	else if(bm == 2) {
-		uint64 total_len = 0;
-		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				SString buffer;
-				buffer = F.P_StrList->at(i);
-				total_len += strlen(buffer.cptr());
+		else if(bm == 2) {
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					SString buffer;
+					buffer = F.P_StrList->at(i);
+					total_len += strlen(buffer.cptr());
+				}
 			}
 		}
-	}
-	else if(bm == 5) {
-		uint64 total_len = 0;
-		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				std::string buffer;
-				buffer = F.P_StrList->at(i);
-				total_len += strlen(buffer.c_str());
+		else if(bm == 5) {
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					std::string buffer;
+					buffer = F.P_StrList->at(i);
+					total_len += strlen(buffer.c_str());
+				}
 			}
 		}
-	}
-	else if(bm == 3) {
-		SRevolver_SString rvl(1024);
-		uint64 total_len = 0;
-		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				SString & r_buffer = rvl.Get();
-				r_buffer = F.P_StrList->at(i);
-				total_len += strlen(r_buffer.cptr());
+		else if(bm == 3) {
+			SRevolver_SString rvl(1024);
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					SString & r_buffer = rvl.Get();
+					r_buffer = F.P_StrList->at(i);
+					total_len += strlen(r_buffer.cptr());
+				}
 			}
 		}
-	}
-	else if(bm == 4) {
-		uint64 total_len = 0;
-		const uint scc = F.P_StrList->getCount();
-		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < scc; i++) {
-				SString & r_buffer = SLS.AcquireRvlStr();
-				r_buffer = F.P_StrList->at(i);
-				total_len += strlen(r_buffer.cptr());
+		else if(bm == 4) {
+			for(uint phase = 0; phase < max_bm_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					SString & r_buffer = SLS.AcquireRvlStr();
+					r_buffer = F.P_StrList->at(i);
+					total_len += strlen(r_buffer.cptr());
+				}
 			}
 		}
-	}
-	else if(bm == 7) {
-		SString atof_buf;
-		for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
-		//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-			//double r = F.RandomRealList.at(j);
-			//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
-			double r2;
-			r2 = atof(atof_buf);
+		else if(bm == 7) {
+			SString atof_buf;
+			for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
+			//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+				//double r = F.RandomRealList.at(j);
+				//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+				double r2;
+				r2 = atof(atof_buf);
+			}
 		}
-	}
-	else if(bm == 8) {
-		SString atof_buf;
-		for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
-		//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-			//double r = F.RandomRealList.at(j);
-			//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
-			double r2;
-			//satof(atof_buf, &r2);
-			//
-			const char * p_end = 0;
-			int erange = 0;
-			dconvstr_scan(atof_buf, &p_end, &r2, &erange);
+		else if(bm == 8) {
+			SString atof_buf;
+			for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
+			//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
+				//double r = F.RandomRealList.at(j);
+				//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
+				double r2;
+				//satof(atof_buf, &r2);
+				//
+				const char * p_end = 0;
+				int erange = 0;
+				dconvstr_scan(atof_buf, &p_end, &r2, &erange);
+			}
+		}
+		else if(bm == 9) { // strlen
+			for(uint phase = 0; phase < max_strlen_phase; phase++) {
+				for(uint i = 0; i < scc; i++)
+					total_len += strlen(F.P_StrList->at(i));
+			}
+		}
+		else if(bm == 10) { // sstrlen
+			for(uint phase = 0; phase < max_strlen_phase; phase++) {
+				for(uint i = 0; i < scc; i++)
+					total_len += sstrlen(F.P_StrList->at(i));
+			}
 		}
 	}
 	CATCH

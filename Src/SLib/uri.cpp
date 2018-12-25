@@ -1282,7 +1282,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 					if(relative) {
 						if(p_prev == NULL)
 							removeSegment = FALSE;
-						else if(p_prev && p_prev->text.Len() == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
+						else if(p_prev->text.Len() == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
 							removeSegment = FALSE;
 					}
 					if(removeSegment) {

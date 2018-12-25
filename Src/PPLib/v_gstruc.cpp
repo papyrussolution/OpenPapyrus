@@ -376,27 +376,17 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 		SString temp_buf;
 		int    r = 0;
 		switch(pBlk->ColumnN) {
-			case 0: // @id
-				pBlk->Set(p_item->GStrucID);
-				break;
+			case 0: pBlk->Set(p_item->GStrucID); break; // @id
 			case 1: // Primary goods name
-				if(p_item->StrucEntryP < StrucList.getCount()) {
-					GetGoodsName(StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf);
-					pBlk->Set(temp_buf);
-				}
+				if(p_item->StrucEntryP < StrucList.getCount())
+					pBlk->Set(GetGoodsName(StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
 				break;
-			case 2: // Secondary goods name
-				{
-					GetGoodsName(p_item->GoodsID, temp_buf);
-					pBlk->Set(temp_buf);
-				}
-				break;
+			case 2: pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); break; // Secondary goods name
 			case 3: // Simple representation of component qtty per one primary ware item
 				{
 					double qtty = 0.0;
 					PPGoodsStrucItem::GetEffectiveQuantity(1.0, p_item->GoodsID, p_item->Median, p_item->Denom, p_item->Flags, &qtty);
-					temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOZERO));
-					pBlk->Set(temp_buf);
+					pBlk->Set(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOZERO)));
 				}
 				break;
 			case 4: // Text representation of flags
@@ -408,9 +398,7 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 					temp_buf.Z();
 				pBlk->Set(temp_buf);
 				break;
-			case 5: // Netto
-				pBlk->Set(p_item->Netto);
-				break;
+			case 5: pBlk->Set(p_item->Netto); break; // Netto
 			case 6: // Общий делитель структуры
 				if(p_item->StrucEntryP < StrucList.getCount()) {
 					const StrucEntry & r_entry = StrucList.at(p_item->StrucEntryP);
@@ -419,16 +407,14 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 				else
 					pBlk->Set(0.0);
 				break;
-			case 7: // Номер строки внутри стурктуры
-				pBlk->Set(p_item->ItemNo);
-				break;
+			case 7: pBlk->Set(p_item->ItemNo); break; // Номер строки внутри стурктуры
 		}
 	}
 	return ok;
 }
 
 // static
-int PPViewGoodsStruc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewGoodsStruc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewGoodsStruc * p_v = (PPViewGoodsStruc *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

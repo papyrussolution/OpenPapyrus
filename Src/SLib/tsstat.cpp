@@ -320,9 +320,9 @@ static double Lockes_Z_Test(const RealArray & x)
 //
 //
 //
-SLAPI TimSerStat::TimSerStat() : P_Queue(0), P_AC_Add(0), P_AC_Mul(0)
+SLAPI TimSerStat::TimSerStat() : StatBase(0), P_Queue(0), P_AC_Add(0), P_AC_Mul(0)
 {
-	Init();
+	Init(0);
 }
 
 SLAPI TimSerStat::~TimSerStat()
@@ -332,9 +332,9 @@ SLAPI TimSerStat::~TimSerStat()
 	delete P_AC_Mul;
 }
 
-int SLAPI TimSerStat::Init()
+int SLAPI TimSerStat::Init(long flags)
 {
-	StatBase::Init();
+	StatBase::Init(flags);
 	NumLags = 0;
 	ZDELETE(P_Queue);
 	ZDELETE(P_AC_Add);
@@ -1254,7 +1254,7 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 				else if(si == 0 && sq == SUniTime::cmprSureTrue)
 					rS.State |= Stat::stHasTmDup;
 			}
-			if(p_vec) {
+			{
 				const void * p_value_buf = p_vec->at(i);
 				double value = p_vec->ConvertInnerToDouble(p_value_buf);
 				rS.Step(value);

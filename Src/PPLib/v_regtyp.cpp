@@ -44,7 +44,7 @@ int SLAPI PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) c
 }
 
 // static
-int PPViewRegisterType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewRegisterType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewRegisterType * p_v = (PPViewRegisterType *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

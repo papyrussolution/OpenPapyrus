@@ -1397,7 +1397,7 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 }
 
 //static 
-int SLAPI PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewPhnSvcMonitor * p_v = (PPViewPhnSvcMonitor *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

@@ -2777,7 +2777,6 @@ int SLAPI PPDebtorStat::Finish()
 {
 	{
 		StatBase stat(StatBase::fGammaTest);
-		stat.Init();
 		for(uint j = 0; j < DelayList.getCount(); j++) {
 			stat.Step((double)DelayList.get(j));
 		}
@@ -2788,8 +2787,7 @@ int SLAPI PPDebtorStat::Finish()
 		stat.GetGammaParams(&DelayGammaAlpha, &DelayGammaBeta);
 	}
 	{
-		StatBase expiry_stat;
-		expiry_stat.Init();
+		StatBase expiry_stat(0);
 		for(uint j = 0; j < ExpiryList.getCount(); j++) {
 			expiry_stat.Step((double)ExpiryList.get(j));
 		}
@@ -2918,9 +2916,9 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVe
 	SString rate_buf;
 	SHistogram sh_delay;
 	SHistogram sh_paym;
-	StatBase st_period;
-	StatBase st_expiry;
-	StatBase st_delayvarrate;
+	StatBase st_period(0);
+	StatBase st_expiry(0);
+	StatBase st_delayvarrate(0);
 	PPObjPerson psn_obj;
 	PPObjArticle ar_obj;
 	if(pOutMatrix)

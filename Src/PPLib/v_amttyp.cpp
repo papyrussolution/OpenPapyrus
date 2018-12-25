@@ -49,7 +49,7 @@ int SLAPI PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 }
 
 // static
-int PPViewAmountType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewAmountType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewAmountType * p_v = (PPViewAmountType *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

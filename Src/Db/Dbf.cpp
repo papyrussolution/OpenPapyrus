@@ -519,11 +519,8 @@ int SLAPI DbfTable::close()
 int SLAPI DbfTable::flush()
 {
 	if(Mod) {
-		//flushBuffer();
-		if(Mod) {
-			putHeader();
-			putFields();
-		}
+		putHeader();
+		putFields();
 	}
 	return 1;
 }

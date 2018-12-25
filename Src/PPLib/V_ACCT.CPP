@@ -217,7 +217,7 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 }
 
 // static
-int PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewAccount * p_v = (PPViewAccount *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

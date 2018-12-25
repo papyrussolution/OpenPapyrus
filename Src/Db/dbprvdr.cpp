@@ -697,17 +697,15 @@ int SLAPI DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 	int    ok = 1;
 	DBQuery * q = & selectAll().from(pTbl, 0L).where(rQ);
 	q->setDestroyTablesMode(0);
-	// @v8.1.4 q->setSearchForUpdateMode(1);
 	if(!useTa || DBS.GetTLA().StartTransaction()) {
 		for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
-			// @v8.1.4 {
 			uint8  key_buf[512];
 			DBRowId _dbpos;
 			if(!pTbl->getPosition(&_dbpos))
 				ok = 0;
 			else if(!pTbl->getDirectForUpdate(pTbl->getCurIndex(), key_buf, _dbpos))
 				ok = 0;
-			else { // } @v8.1.4
+			else {
 				if(pTbl->deleteRec() == 0) // @sfu
 					ok = 0;
 			}

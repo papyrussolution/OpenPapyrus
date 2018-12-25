@@ -1233,7 +1233,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 }
 
 // static
-int PPViewBizScValByTempl::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewBizScValByTempl::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewBizScValByTempl * p_v = (PPViewBizScValByTempl *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

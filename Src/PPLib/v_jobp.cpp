@@ -586,31 +586,19 @@ int SLAPI PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		JobViewItem * p_item = (JobViewItem*)pBlk->P_SrcData;
 		int    r = 0;
 		switch(pBlk->ColumnN) {
-			case 0: // @id
-				pBlk->Set(p_item->ID);
-				break;
-			case 1: // @name
-				pBlk->Set(p_item->Name);
-				break;
-			case 2: // @symb
-				pBlk->Set(p_item->Symb);
-				break;
-			case 3: // @datetime repeating
-				pBlk->Set(p_item->Dtr);
-				break;
-			case 4: // @next job
-				pBlk->Set(p_item->NextJob);
-				break;
-			case 5: // @database symbol
-				pBlk->Set(p_item->DbSymb);
-				break;
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: pBlk->Set(p_item->Name); break; // @name
+			case 2: pBlk->Set(p_item->Symb); break; // @symb
+			case 3: pBlk->Set(p_item->Dtr); break; // @datetime repeating
+			case 4: pBlk->Set(p_item->NextJob); break; // @next job
+			case 5: pBlk->Set(p_item->DbSymb); break; // @database symbol
 		}
 	}
 	return ok;
 }
 
 // static
-int PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewJob * p_v = (PPViewJob *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

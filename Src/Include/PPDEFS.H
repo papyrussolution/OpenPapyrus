@@ -1267,6 +1267,7 @@
 	// в зависимости от товара.
 // @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
 // @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
+#define PPTAG_GOODS_TRANSPVANTYPE   82L // @v10.2.12 Тип транспортного фургона для отправки данных в Меркурий
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //

@@ -1865,7 +1865,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		else */
 		if(p_user_data) {
 			TButton * p_btn = (TButton *)p_user_data;
-			if(p_btn && p_btn->IsConsistent()) {
+			if(p_btn->IsConsistent()) {
 				if(item_state == 0 && p_btn->IsDefault())
 					item_state = tbisDefault;
 				uint   bmp_id = p_btn->GetBmpID();

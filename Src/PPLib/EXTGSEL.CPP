@@ -20,7 +20,7 @@ public:
 		char   Serial[32];     // #192
 	};
 	static SArray * SLAPI CreateArray();
-	static int SLAPI AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest);
+	static int FASTCALL AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest);
 	static int SLAPI SortArray(SArray * pAry, int f);
 	PickLotBrowser(SArray * pList);
 private:
@@ -39,7 +39,7 @@ SArray * SLAPI PickLotBrowser::CreateArray()
 }
 
 //static
-int SLAPI PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest)
+int FASTCALL PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest)
 {
 	int    ok = 1;
 	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
@@ -267,12 +267,12 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fForceExhausted, flags);
 	SETFLAGBYSAMPLE(Flags, fHidePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
-	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags); // @v8.4.12
+	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
 	P_List = (SmartListBox*)getCtrlView(CTL_EXTGSEL_LIST);
 	showCtrl(CTL_EXTGSEL_MTX_IND, 0);
-	showCtrl(CTL_EXTGSEL_INFO, 0); // @v8.1.1
+	showCtrl(CTL_EXTGSEL_INFO, 0);
 	//
 	Ptb.SetBrush(brushModMode_Expend,   SPaintObj::bsSolid, GetColorRef(SClrOrangered), 0);
 	Ptb.SetBrush(brushModMode_Incoming, SPaintObj::bsSolid, GetColorRef(SClrMediumblue), 0);

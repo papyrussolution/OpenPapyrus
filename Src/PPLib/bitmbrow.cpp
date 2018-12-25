@@ -109,7 +109,7 @@ private:
 	int    getCurItemPos();
 	void   selectPckg(PPID goodsID);
 	int    isAllGoodsInPckg(PPID goodsID);
-	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	enum {
@@ -1123,7 +1123,6 @@ int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, BillG
 	ASSIGN_PTR(pVal, real_val);
 	return ok;
 }
-
 //
 // Порядок следования полей броузера товарных строк документа:
 //  0 - Номер строки (в порядке, в котором строки расположены в документе 1..) *
@@ -1496,7 +1495,7 @@ double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) cons
 	{ return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0; }
 
 //static
-int BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	BillItemBrowser * p_brw = (BillItemBrowser *)pBlk->ExtraPtr;
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
@@ -2573,7 +2572,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								StringSet ss_egais_codes;
                                 BarcodeArray bc_list;
                                 PPIDArray temp_list;
-                                PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowEgaisTags);
+                                PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowEgaisTags|PPObjBill::SelectLotParam::fShowManufTime);
                                 slp.GoodsList.add(labs(r_ti.GoodsID));
                                 if(P_Pack->LTagL.GetTagStr(c, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
 									temp_list.clear();
@@ -2605,7 +2604,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							else {
 								// @v9.3.6 PPID   lot_id = r_ti.LotID;
 								// @v9.3.6 SelectLot(r_ti.LocID, labs(r_ti.GoodsID), 0, &lot_id, 0);
-								PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, 0); // @v9.3.6
+								PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowManufTime); // @v9.3.6
 								slp.RetLotID = r_ti.LotID; // @v9.3.6
 								P_BObj->SelectLot2(slp);
 							}
@@ -2959,9 +2958,7 @@ void BillItemBrowser::addItemBySerial()
 	else {
 		isd_param.P_Wse = new ObjTagSelExtra(PPOBJ_LOT, PPTAG_LOT_SN);
 		{
-			long  _flags = 0;
-			if(opened_only)
-				_flags |= ObjTagSelExtra::fOpenedSerialsOnly;
+			const long _flags = opened_only ? ObjTagSelExtra::fOpenedSerialsOnly : 0;
 			((ObjTagSelExtra *)isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
 		}
 		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
@@ -3119,7 +3116,6 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 			disableCtrls(1, CTL_PCKG_ID, CTL_PCKG_COST, CTL_PCKG_PRICE, 0);
 			return 1;
 		}
-
 		int    getDTS(LPackage * pData)
 		{
 			int    ok = 1;

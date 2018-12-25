@@ -512,7 +512,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 				//
 				// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
 				//
-				if(_vat_rate == 18.0) {
+				if(_vat_rate == 18.0 || _vat_rate == 20.0) { // @v10.2.10 (|| _vat_rate == 20.0)
 					tax_entry_n = 0;
 					tax_entry_id_result = 1;
 				}
@@ -1505,7 +1505,7 @@ int PiritEquip::RunCheck(int opertype)
 	SString str;
 	switch(opertype) {
 		case 0: // Открыть документ
-			in_data = 0;
+			in_data.Z();
 			CreateStr(Check.CheckType, in_data);
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
@@ -1542,10 +1542,11 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				CreateStr("", in_data); // @v10.1.9 Адрес покупателя
-				CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
-				CreateStr((int)0, in_data); // @v10.1.9 (число) Разные флаги
+				// @v10.2.10 CreateStr("", in_data); // @v10.1.9 Адрес покупателя
+				// @v10.2.10 CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
+				// @v10.2.10 CreateStr((int)0, in_data); // @v10.1.9 (число) Разные флаги
 				THROW(ExecCmd("31", in_data, out_data, r_error));
+				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug 
 			}
 			// new {
 			else {

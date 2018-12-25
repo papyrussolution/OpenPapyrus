@@ -3961,7 +3961,7 @@ private:
 	SSqlStmt * P_Stmt;
 	int    InitSpMode;
 	char   InitKey[ALIGNSIZE(MAXKEYLEN, 2)];
-	char   key[ALIGNSIZE(MAXKEYLEN, 2)];
+	char   _Key[ALIGNSIZE(MAXKEYLEN, 2)];
 };
 //
 //

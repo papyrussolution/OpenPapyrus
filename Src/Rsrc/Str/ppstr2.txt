@@ -6553,6 +6553,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_goodsvetispurpose                   "ВЕИТС цель отгрузки товара"
 @rtag_locvetisentityguid                  "ВЕТИС GUID организации (location)"
 @rtag_locvetisuser                        "ВЕТИС пользователь-инициатор (location)"
+@rtag_goodstranpvantype                   "ВЕТИС Тип транспортного фургона"
 //
 // Текстовые представления view и filter
 //
@@ -10023,6 +10024,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfr_suppl                               "@{supplier}"
 @trfr_unitperpack                         "@{unitperpack}"
 @trfr_wtqtty                              "В физических единицах"
+@trfr_waretaxgroup                        "Налоговая группа товара (справочно)"
+@trfr_oldcost                             "Старая цена поступления"
+@trfr_oldprice                            "Старая цена реализации"
+@trfr_newcurprice                         "Новая валютная цена"
+@trfr_newcost                             "Новая цена поступления"
+@trfr_newprice                            "Новая цена реализации"
+@trfr_orgqtty                             "Поступившее количество"
+@trfr_newqtty                             "Принятое количество" // ? возможно, нужно уточнить текст
+@trfr_sourceserial                        "Исходный серийный номер"
 
 @tsession_actqtty                         "@{fact}"
 @tsession_amount                          "@{amount}"
@@ -10679,7 +10689,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotfilt_period                           "@{daterange}"
 @lotfilt_pricedevrestr                    "По ценам реализации"
 @lotfilt_pricerange                       "Диапазон цен реализации"
-@lotfilt_qcexpiryprd                      "Период истечения срока серитфикатов"
+@lotfilt_qcexpiryprd                      "Период истечения срока сертификатов"
 @lotfilt_suppl                            "@{supplier}"
 @lotfilt_closedtag                        "Признак закрытости"
 @lotfilt_closedtag_all                    "@{all}"
@@ -12133,6 +12143,7 @@ PPHS_GEOTRACKING               "geotracking"
 PPHS_SETTIMESERIES             "settimeseries" // @v10.2.3
 PPHS_GETREQQUOTES              "getreqquotes"  // @v10.2.4
 PPHS_SETTIMESERIESPROP         "settimeseriesprop" // @v10.2.5
+PPHS_SETTIMESERIESSTKENV       "settimeseriesstkenv" // @v10.2.10
 PPHS_TIMSER_PROP_PRECISION       "time-series-precision"       // точность представления значений
 PPHS_TIMSER_PROP_MARGIN_BUY      "time-series-margin-buy"      //  маржина при покупке инструмента, представленного символом
 PPHS_TIMSER_PROP_MARGIN_SELL     "time-series-margin-sell"     // маржина при продаже инструмента, представленного символом

@@ -7,7 +7,8 @@
 #pragma hdrstop
 #include <fann2.h>
 
-SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), BuyMarg(0.0), SellMarg(0.0), SpikeQuant(0.0), Prec(0)
+SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), BuyMarg(0.0), SellMarg(0.0), 
+	SpikeQuant(0.0), Prec(0), AvgSpread(0.0), OptMaxDuck(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
@@ -35,6 +36,8 @@ int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
 	else if(SpikeQuant != rS.SpikeQuant)
 		eq = 0;
 	else if(AvgSpread != rS.AvgSpread)
+		eq = 0;
+	else if(OptMaxDuck != rS.OptMaxDuck)
 		eq = 0;
 	else if(!sstreq(CurrencySymb, rS.CurrencySymb))
 		eq = 0;
@@ -521,7 +524,7 @@ static int SLAPI AnalyzeTsTradeFrame(const STimeSeries & rTs, uint frameSize, do
 	RealArray frame;
 	uint   frame_count = 0;
 	uint   target_count = 0;
-	StatBase max_duck_stat;
+	StatBase max_duck_stat(0);
 	const double zero = 0.0;
 	for(uint fs = 0; fs < (tsc-frameSize); fs++) {
 		rTs.GetFrame("close", fs, frameSize, STimeSeries::nfOne|STimeSeries::nfBaseStart, frame);
@@ -933,6 +936,11 @@ int SLAPI PPObjTimeSeries::FindOptimalMaxDuck(const STimeSeries & rTs, uint vecI
 			rResult = mdr_list.at(0);
 			ok = 1;
 		}
+		if(ok > 0) {
+			log_buf.Z().Cat("!OptimalMaxDuck").CatDiv(':', 2).Cat(rTs.GetSymb()).Space().CatEq("MaxDuckQuant", rResult.MaxDuckQuant).Space().
+				CatEq("Result", rResult.Result, MKSFMTD(15, 5, 0));
+			PPLogMessage(log_file_name, log_buf, LOGMSGF_TIME);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -945,13 +953,13 @@ int SLAPI PPObjTimeSeries::AnalyzeStrategies()
 		processfFindOptMaxDuck = 0x0001,
 		processfFindStrategies = 0x0002
 	};
-	long   process_flags = (processfFindOptMaxDuck /*| processfFindStrategies*/);
+	long   process_flags = (processfFindOptMaxDuck | processfFindStrategies);
 	Fann2 * p_ann = 0;
 	SString temp_buf;
 	SString save_file_name;
 	SString msg_buf;
-	static const char * pp_symbols[] = { /*"GOOGL",*/ /*"intc",*/ "eurusd" /*"amzn"*/ /*, "USDJPY", "USDCHF", "GBPUSD", "AUDUSD", "EURCAD", "GBPJPY"*/ };
-	//static const char * pp_symbols[] = { "" };
+	//static const char * pp_symbols[] = { /*"GOOGL",*/ /*"intc",*/ "eurusd" /*"amzn"*/ /*, "USDJPY", "USDCHF", "GBPUSD", "AUDUSD", "EURCAD", "GBPJPY"*/ };
+	static const char * pp_symbols[] = { "" };
 	PPIDArray id_list;
 	PPTimeSeries ts_rec;
 	for(SEnum en = Enum(0); en.Next(&ts_rec) > 0;) {
@@ -1004,7 +1012,7 @@ int SLAPI PPObjTimeSeries::AnalyzeStrategies()
 				if(GetTimeSeries(id, ts) > 0) {
 					const uint tsc = ts.GetCount();
 					//static const uint max_duck_quant_list[] = { 50 };
-					static const uint max_duck_quant_list[] = { /*5, 10, 20, 30, 40,*/ 50, 60, 70, 80, 90, 100, 150 };
+					//static const uint max_duck_quant_list[] = { /*5, 10, 20, 30, 40,*/ 50, 60, 70, 80, 90, 100, 150 };
 					//static const uint max_duck_quant_list[] = { 2, 6, 10, 14, 18, 22, 26, 30 };
 					static const uint input_frame_size_list[] = { /*100,*/ 500, 1000, 1500, 2000, 2500 };
 					STimeSeries::Stat st(0);
@@ -1018,7 +1026,7 @@ int SLAPI PPObjTimeSeries::AnalyzeStrategies()
 						THROW(PutPacket(&temp_id, &ts_rec, 1));
 					}
 					const double spike_quant = ts_rec.SpikeQuant;
-					if(process_flags & processfFindOptMaxDuck) {
+					if(process_flags & processfFindOptMaxDuck && ts_rec.OptMaxDuck <= 0) {
 						TrainNnParam tnnp(ts_rec, TrainNnParam::fAnalyzeFrame);
 						tnnp.SpikeQuant = spike_quant;
 						tnnp.TargetQuant = 0;
@@ -1030,6 +1038,11 @@ int SLAPI PPObjTimeSeries::AnalyzeStrategies()
 						md_range.Set(50, 500);
 						TSVector <MaxDuckToResultRelation> opt_max_duck_set;
 						THROW(FindOptimalMaxDuck(ts, vec_idx, tnnp, md_range, 50, &opt_max_duck_set, opt_max_duck));
+						{
+							ts_rec.OptMaxDuck = opt_max_duck.MaxDuckQuant;
+							PPID   temp_id = id;
+							THROW(PutPacket(&temp_id, &ts_rec, 1));
+						}
 					}
 					if(process_flags & processfFindStrategies) {
 						for(uint ifsidx = 0; ifsidx < SIZEOFARRAY(input_frame_size_list); ifsidx++) {
@@ -1043,14 +1056,32 @@ int SLAPI PPObjTimeSeries::AnalyzeStrategies()
 							}
 							PROFILE_END
 							if(1) {
+								uint __max_duck_quant_list[64];
+								uint __max_duck_quant_count = 0;
+								if(ts_rec.OptMaxDuck > 0 && ts_rec.OptMaxDuck < 1000) {
+									const uint gr_count = 7;
+									uint gr = ts_rec.OptMaxDuck / gr_count;
+									for(uint i = 0; i < gr_count; i++) {
+										__max_duck_quant_list[__max_duck_quant_count++] = ts_rec.OptMaxDuck - (gr * i);
+									}
+								}
+								else {
+									__max_duck_quant_list[__max_duck_quant_count++] = 50;
+									__max_duck_quant_list[__max_duck_quant_count++] = 60;
+									__max_duck_quant_list[__max_duck_quant_count++] = 70;
+									__max_duck_quant_list[__max_duck_quant_count++] = 80;
+									__max_duck_quant_list[__max_duck_quant_count++] = 90;
+									__max_duck_quant_list[__max_duck_quant_count++] = 100;
+									__max_duck_quant_list[__max_duck_quant_count++] = 150;
+								}
 								uint phase_n = 1;
-								for(uint mdidx = 0; mdidx < SIZEOFARRAY(max_duck_quant_list); mdidx++) {
+								for(uint mdidx = 0; mdidx < __max_duck_quant_count; mdidx++) {
 									TrainNnParam tnnp(ts_rec, TrainNnParam::fAnalyzeFrame);
 									tnnp.SpikeQuant = spike_quant;
 									tnnp.TargetQuant = 0;
 									tnnp.EpochCount = 1;
 									tnnp.InputFrameSize = input_frame_size;
-									tnnp.MaxDuckQuant = max_duck_quant_list[mdidx];
+									tnnp.MaxDuckQuant = __max_duck_quant_list[mdidx];
 									tnnp.StakeThreshold = 0.05;
 									{
 										StrategyResultEntry sre(tnnp);
@@ -1487,7 +1518,7 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 							//for(uint dpi = 0; dpi < SIZEOFARRAY(duck_part_grid); dpi++) {
 								//const double duck_part = duck_part_grid[dpi];
 								rTs.GetValue(lss_dist/*0*/, vec_idx, &prev_value);
-								StatBase stat_trend;
+								StatBase stat_trend(0);
 								__TsProbEntry prob_result_entry;
 								MEMSZERO(prob_result_entry);
 								prob_result_entry.MeanMult = mean_mult;
@@ -2038,8 +2069,8 @@ int SLAPI PPObjTimeSeries::ProcessNN(const STimeSeries & rTs, const TrainNnParam
 
 		uint target_count = 0;
 		uint duck_count = 0;
-		StatBase max_target_stat;
-		StatBase max_duck_stat;
+		StatBase max_target_stat(0);
+		StatBase max_duck_stat(0);
 		if(rP.Flags & rP.fAnalyzeFrame) {
 			const int is_anlz_file_exists = fileExists(anlz_file_name);
 			THROW_MEM(p_anlz_file = new SFile(anlz_file_name, SFile::mAppend));

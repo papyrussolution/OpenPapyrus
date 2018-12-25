@@ -371,7 +371,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			if(p_spc_core) {
 				SpecSeries2Tbl::Rec spc_rec;
 				// @v9.8.11 if(pPack->SnL.GetNumber(itemNo, &serial) > 0) {
-				if(pPack->LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) { // @v9.8.11 
+				if(pPack->LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) { // @v9.8.11
 					serial.Transf(CTRANSF_INNER_TO_OUTER);
 					if(p_spc_core->SearchBySerial(SPCSERIK_SPOILAGE, serial, &spc_rec) > 0) {
 						if(ViewSpoilList(p_spc_core, serial, 1) < 0)
@@ -415,7 +415,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 #define GRP_LOC    2
 
 TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opID), OpTypeID(GetOpType(opID)),
-	InitGoodsGrpID(0), GoodsGrpID(0), P_BObj(BillObj), Rest(0.0), OrdRest(0.0), OrdReserved(0.0), MinQtty(0.0), MaxQtty(0.0), 
+	InitGoodsGrpID(0), GoodsGrpID(0), P_BObj(BillObj), Rest(0.0), OrdRest(0.0), OrdReserved(0.0), MinQtty(0.0), MaxQtty(0.0),
 	NumPacks(0.0), OrgQtty(0.0), OrgPrice(0.0), EditMode(0), ItemNo(0), P_Pack(0), P_OrderItem(0), St(0)
 {
 	P_Trfr = P_BObj->trfr;
@@ -456,7 +456,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 		TInputLine * p_pk_inp = (TInputLine *)getCtrlView(CTL_LOT_PACKS);
 		CALLPTRMEMB(p_pk_inp, setFormat(MKSFMTD(10, 6, NMBF_NOTRAILZ)));
 	}
-	// } @v10.2.4 
+	// } @v10.2.4
 }
 
 int TrfrItemDialog::isModifPlus() const
@@ -510,7 +510,7 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 		// @v10.1.12 {
 		if(Item.Flags & PPTFR_PLUS)
 			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
-		// } @v10.1.12 
+		// } @v10.1.12
 	}
 	else if(IsIntrExpndOp(OpID))
 		disableCtrl(CTL_LOT_COST, 1);
@@ -680,7 +680,7 @@ void TrfrItemDialog::editQCertData()
 				lqcd.IsInheritedClb = 1;
 				P_BObj->GetClbNumberByLot(Item.LotID, 0, org_clb);
 				// @v9.8.11 P_Pack->SnL.GetNumber(ItemNo, &serial);
-				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial); // @v9.8.11 
+				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial); // @v9.8.11
 				org_clb.Strip().CopyTo(lqcd.CLB, sizeof(lqcd.CLB));
 				serial.Strip().CopyTo(lqcd.Serial, sizeof(lqcd.Serial));
 				dlg->setDTS(&lqcd);
@@ -690,7 +690,7 @@ void TrfrItemDialog::editQCertData()
 						Item.QCert = lqcd.QCertID;
 						Item.Expiry = lqcd.Expiry;
 						// @v9.8.11 P_Pack->SnL.AddNumber(ItemNo, lqcd.Serial);
-						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial); // @v9.8.11 
+						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial); // @v9.8.11
 						setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
 					}
 			}
@@ -869,7 +869,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							PPAlbatrosConfig acfg;
 							if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
 								delay_days = acfg.Hdr.VetisCertDelay;
-							else 
+							else
 								delay_days = 3;
 							vetis_filt.VDStatusFlags = (1<<vetisdocstCONFIRMED) | (1<<vetisdocstUTILIZED);
 							//vetis_filt.Period.Set(plusdate(P_Pack->Rec.Dt, -3), P_Pack->Rec.Dt);
@@ -899,7 +899,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 										p_result_filt->SelLotUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 										P_Pack->LTagL.AddNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 										if(P_Pack->Rec.ID && Item.RByBill > 0 && Item.LotID) {
-											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Item.RByBill, 1/*fromBill*/, 1)) 
+											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Item.RByBill, 1/*fromBill*/, 1))
 												PPError();
 										}
 									}
@@ -1049,7 +1049,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									clearEvent(event);
 								}
 							}
-							// } @v10.1.8 
+							// } @v10.1.8
 						}
 					}
 					return;
@@ -1423,7 +1423,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
 			if(ret > 0) {
 				// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
-				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf)); // @v9.8.11 
+				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf)); // @v9.8.11
 			}
 		}
 		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
@@ -1706,7 +1706,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 		TInputLine * il = (TInputLine *)getCtrlView(master);
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}
-	// } @v10.2.4 
+	// } @v10.2.4
 	CATCH
 		;
 	ENDCATCH
@@ -1955,10 +1955,10 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	if(P_Pack) {
 		if(ItemNo >= 0) {
 			// @v9.8.11 if(P_Pack->ClbL.GetNumber(ItemNo, &temp_buf) > 0)
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0) // @v9.8.11 
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0) // @v9.8.11
 				setCtrlString(CTL_LOT_CLB, temp_buf);
 			// @v9.8.11 if(P_Pack->SnL.GetNumber(ItemNo, &temp_buf) > 0)
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0) // @v9.8.11 
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0) // @v9.8.11
 				setCtrlString(CTL_LOT_SERIAL, temp_buf);
 		}
 		else if(IsTaggedItem() && P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
@@ -2324,13 +2324,13 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
 			getCtrlString(CTL_LOT_CLB, clb_number.Z());
 			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11 
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11
 			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
 		}
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
 		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11 
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11
 		// @v9.3.6 {
 		if(IsSourceSerialUsed()) {
 			getCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
@@ -2365,10 +2365,10 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11 
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11
 		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0) {
 			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11 
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11
 		}
 	}
 	getManuf();
@@ -2572,7 +2572,7 @@ int TrfrItemDialog::setupLot()
 		showCtrl(CTL_LOT_VETISIND, 0);
 		showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
 	}
-	// } @v10.1.8 
+	// } @v10.1.8
 	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);
 	setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
@@ -2755,7 +2755,7 @@ SArray * SLAPI SelLotBrowser::CreateArray()
 }
 
 //static
-int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
+int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
 {
 	int    ok = 1;
 	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
@@ -2793,7 +2793,7 @@ int SLAPI SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * p
 }
 
 //static
-int SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	SelLotBrowser * p_brw = (SelLotBrowser *)pBlk->ExtraPtr;
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
@@ -2875,7 +2875,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					{
 						double phuperu = 0.0;
 						GObj.GetPhUPerU(p_item->GoodsID, 0, &phuperu);
-						pBlk->Set(p_item->Qtty * phuperu); 
+						pBlk->Set(p_item->Qtty * phuperu);
 					}
 					break;
 				case 16: // VETIS UUID лота
@@ -2885,6 +2885,21 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						temp_buf.Z();
 						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 17: // @v10.2.12 Тег дата производства
+					{
+						PPObjTag tag_obj;
+						ObjTagItem tag_item;
+						temp_buf.Z();
+						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
+							LDATETIME dtm;
+							tag_item.GetTimestamp(&dtm);
+							if(checkdate(dtm.d)) {
+								temp_buf.Cat(dtm, DATF_DMY, TIMF_HM);
+							}
+						}
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -2965,6 +2980,12 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			PPLoadString("rtag_lotvetisuuid", temp_buf);
 			insertColumn(-1, temp_buf, 16, MKSTYPE(S_ZSTRING, 40), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
+		// @v10.2.10 {
+		if(Flags & fShowManufTime) {
+			PPLoadString("rtag_manuftime", temp_buf);
+			insertColumn(-1, temp_buf, 17, MKSTYPE(S_ZSTRING, 12), 0, BCO_CAPLEFT|BCO_USERPROC);
+		}
+		// } @v10.2.10
 	}
 	P_BObj = pBObj;
 	setInitPos(pos);
@@ -3063,7 +3084,7 @@ void TrfrItemDialog::selectLot()
 				s = p_ary->getCount() - 1;
 			}
 		}
-		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, 0));
+		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, PPObjBill::SelectLotParam::fShowManufTime));
 		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0)
 			if(p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
 				Item.LotID = p_sel->LotID;
@@ -3166,16 +3187,18 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 		if(s)
 			s--;
 		long   slb_flags = 0;
-		if(rParam.Flags & rParam.fShowEgaisTags) 
+		if(rParam.Flags & rParam.fShowEgaisTags)
 			slb_flags |= SelLotBrowser::fShowEgaisTags;
-		if(rParam.Flags & rParam.fShowBarcode) 
+		if(rParam.Flags & rParam.fShowBarcode)
 			slb_flags |= SelLotBrowser::fShowBarcode;
-		if(rParam.Flags & rParam.fShowQtty) 
+		if(rParam.Flags & rParam.fShowQtty)
 			slb_flags |= SelLotBrowser::fShowQtty;
-		if(rParam.Flags & rParam.fShowPhQtty) 
+		if(rParam.Flags & rParam.fShowPhQtty)
 			slb_flags |= SelLotBrowser::fShowPhQtty;
-		if(rParam.Flags & rParam.fShowVetisTag) 
+		if(rParam.Flags & rParam.fShowVetisTag)
 			slb_flags |= SelLotBrowser::fShowVetisTag;
+		if(rParam.Flags & rParam.fShowManufTime) // @v10.2.10
+			slb_flags |= SelLotBrowser::fShowManufTime;
 		THROW_MEM(p_brw = new SelLotBrowser(this, p_ary, s, slb_flags));
 		if(rParam.Title.NotEmpty())
 			p_brw->setTitle(rParam.Title);

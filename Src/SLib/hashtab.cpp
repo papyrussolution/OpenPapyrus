@@ -75,7 +75,7 @@ int HashTableBase::CalcStat(Stat & rResult) const
 	int    ok = 1;
 	MEMSZERO(rResult);
 	if(P_Tab) {
-		StatBase stat;
+		StatBase stat(0);
 		rResult.NumEntries = Size;
 		for(uint i = 0; i < Size; i++) {
 			const Entry & r_entry = P_Tab[i];
@@ -1066,16 +1066,14 @@ int PtrHashTable::NextIteration(Iter * pI, uint * pVal, void ** ppPtr) const
 					ASSIGN_PTR(pVal, P_Tab[pI->P].Val.Val);
 					if(ppPtr) {
 						pos = P_Tab[pI->P].Val.Key;
-						if(ppPtr)
-							*ppPtr = Pool.at(pos);
+						*ppPtr = Pool.at(pos);
 					}
 				}
 				else {
 					ASSIGN_PTR(pVal, P_Tab[pI->P].P_Ext[pI->E-1].Val);
 					if(ppPtr) {
 						pos = P_Tab[pI->P].P_Ext[pI->E-1].Key;
-						if(ppPtr)
-							*ppPtr = Pool.at(pos);
+						*ppPtr = Pool.at(pos);
 					}
 				}
 				if(pI->E == P_Tab[pI->P].Count) {

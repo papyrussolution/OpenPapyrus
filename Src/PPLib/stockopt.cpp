@@ -694,7 +694,6 @@ public:
 		grp_rec.GoodsID = Data.GoodsID;
 		grp_rec.Flags   = (GoodsCtrlGroup::enableSelUpLevel|GoodsCtrlGroup::disableEmptyGoods);
 		setGroupData(CTLGRP_GOODS, &grp_rec);
-
 		setCtrlReal(CTL_SOI_COST, Data.Cost);
 		setCtrlReal(CTL_SOI_PRICE, Data.Price);
 		setCtrlReal(CTL_SOI_DEMAND, Data.AvgD);
@@ -737,71 +736,32 @@ int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		PPStockOpt::Item * p_item = (_pos >= 0 && _pos < (long)So.GetItems().getCount()) ? &So.GetItems().at(_pos) : 0;
 		PPStockOpt::GoodsResult * p_result = (_pos >= 0 && _pos < (long)So.GetResult().getCount()) ? &So.GetResult().at(_pos) : 0;
 		switch(pBlk->ColumnN) {
-			case 0:
-				pBlk->Set(p_item ? p_item->GoodsID : (p_result ? p_result->GoodsID : 0));
-				break;
-			case 1:
-				GetGoodsName(p_item ? p_item->GoodsID : (p_result ? p_result->GoodsID : 0), pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf);
-				break;
-			case 2:
-				pBlk->Set(p_item ? p_item->Cost : 0.0);
-				break;
-			case 3:
-				pBlk->Set(p_item ? p_item->Price : 0.0);
-				break;
-			case 4:
-				pBlk->Set(p_item ? p_item->AvgD : 0.0);
-				break;
-			case 5:
-				pBlk->Set(p_item ? p_item->Pckg : 0.0);
-				break;
-			case 6:
-				pBlk->Set(p_item ? p_item->MinRest : 0.0);
-				break;
-			case 7:
-				pBlk->Set(p_item ? p_item->ExpiryPeriod : (int32)0);
-				break;
-			case 8:
-				pBlk->Set(p_item ? p_item->InRest : 0.0);
-				break;
-			case 21:
-				pBlk->Set(p_result ? p_result->Bounds.low : 0.0);
-				break;
-			case 22:
-				pBlk->Set(p_result ? p_result->Bounds.upp : 0.0);
-				break;
-			case 23:
-				pBlk->Set(p_result ? p_result->R0 : 0.0);
-				break;
-			case 24:
-				pBlk->Set(p_result ? p_result->R0p : 0.0);
-				break;
-			case 25:
-				pBlk->Set(p_result ? p_result->R : 0.0);
-				break;
-			case 26:
-				pBlk->Set(p_result ? (long)R0(p_result->Period) : 0L);
-				break;
-			case 27:
-				pBlk->Set(p_result ? p_result->Income : 0.0);
-				break;
-			case 28:
-				pBlk->Set(p_result ? p_result->Expend : 0.0);
-				break;
-			case 29:
-				pBlk->Set(p_result ? (p_result->Income - p_result->Expend) : 0.0);
-				break;
-			case 30:
-				pBlk->Set(p_result ? p_result->LastDelta : 0.0);
-				break;
+			case 0: pBlk->Set(p_item ? p_item->GoodsID : (p_result ? p_result->GoodsID : 0)); break;
+			case 1: pBlk->Set(GetGoodsName(p_item ? p_item->GoodsID : (p_result ? p_result->GoodsID : 0), pBlk->TempBuf)); break;
+			case 2: pBlk->Set(p_item ? p_item->Cost : 0.0); break;
+			case 3: pBlk->Set(p_item ? p_item->Price : 0.0); break;
+			case 4: pBlk->Set(p_item ? p_item->AvgD : 0.0); break;
+			case 5: pBlk->Set(p_item ? p_item->Pckg : 0.0); break;
+			case 6: pBlk->Set(p_item ? p_item->MinRest : 0.0); break;
+			case 7: pBlk->Set(p_item ? p_item->ExpiryPeriod : (int32)0); break;
+			case 8: pBlk->Set(p_item ? p_item->InRest : 0.0); break;
+			case 21: pBlk->Set(p_result ? p_result->Bounds.low : 0.0); break;
+			case 22: pBlk->Set(p_result ? p_result->Bounds.upp : 0.0); break;
+			case 23: pBlk->Set(p_result ? p_result->R0 : 0.0); break;
+			case 24: pBlk->Set(p_result ? p_result->R0p : 0.0); break;
+			case 25: pBlk->Set(p_result ? p_result->R : 0.0); break;
+			case 26: pBlk->Set(p_result ? (long)R0(p_result->Period) : 0L); break;
+			case 27: pBlk->Set(p_result ? p_result->Income : 0.0); break;
+			case 28: pBlk->Set(p_result ? p_result->Expend : 0.0); break;
+			case 29: pBlk->Set(p_result ? (p_result->Income - p_result->Expend) : 0.0); break;
+			case 30: pBlk->Set(p_result ? p_result->LastDelta : 0.0); break;
 		}
 	}
 	return ok;
 }
 
 // static
-int PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewStockOpt * p_v = (PPViewStockOpt *)pBlk->ExtraPtr;
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

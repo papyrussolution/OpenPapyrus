@@ -1906,6 +1906,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 											for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
 												if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
 													_link_bp.XcL.Add(_lp+1, lxentry.BoxID, (int16)lxentry.Flags, lxentry.Num, 0);
+													do_update = 1; // @v10.2.10 @fix
 												}
 											}
 											// } @v10.2.9 

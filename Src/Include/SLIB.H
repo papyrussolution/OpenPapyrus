@@ -9930,9 +9930,9 @@ public:
 		fGaussianTest = 0x0004, // @unimplemented Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series
 	};
-	explicit SLAPI  StatBase(long flags = 0);
+	explicit SLAPI  StatBase(long flags);
 	virtual SLAPI ~StatBase();
-	virtual int SLAPI Init(long flags = 0);
+	virtual int SLAPI Init(long flags);
 	virtual int SLAPI Finish();
 	int    SLAPI Step(double);
 	long   SLAPI GetCount() const { return Count; }
@@ -9980,7 +9980,7 @@ class TimSerStat : public StatBase {
 public:
 	SLAPI  TimSerStat();
 	virtual SLAPI ~TimSerStat();
-	virtual int SLAPI Init();
+	virtual int SLAPI Init(long flags);
 	virtual int SLAPI Finish();
 	int    SLAPI SetNumLags(long);
 	int    SLAPI Step(double, int whiteSpace = 0);
