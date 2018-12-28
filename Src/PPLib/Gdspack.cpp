@@ -34,28 +34,30 @@ void SLAPI PPGoodsPacket::destroy()
 	GenericList.Set(0);
 }
 
-PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
+PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & rS)
 {
-	destroy();
-	UpdFlags = src.UpdFlags;
-	ClsDimZeroFlags = src.ClsDimZeroFlags;
-	Rec = src.Rec;
-	ExtRec = src.ExtRec;
-	Stock = src.Stock;
-	Codes.copy(src.Codes);
-	ArCodes.copy(src.ArCodes);
-	GS = src.GS;
-	ExtString = src.ExtString;
-	ExTitles = src.ExTitles;
-	if(src.P_Filt)
-		P_Filt = new GoodsFilt(*src.P_Filt);
-	if(src.P_Quots)
-		P_Quots = new PPQuotArray(*src.P_Quots);
-	if(src.P_Gled)
-		P_Gled = new GoodsLotExtData(*src.P_Gled);
-	LinkFiles = src.LinkFiles;
-	TagL = src.TagL;
-	GenericList = src.GenericList;
+	if(this != &rS) {
+		destroy();
+		UpdFlags = rS.UpdFlags;
+		ClsDimZeroFlags = rS.ClsDimZeroFlags;
+		Rec = rS.Rec;
+		ExtRec = rS.ExtRec;
+		Stock = rS.Stock;
+		Codes.copy(rS.Codes);
+		ArCodes.copy(rS.ArCodes);
+		GS = rS.GS;
+		ExtString = rS.ExtString;
+		ExTitles = rS.ExTitles;
+		if(rS.P_Filt)
+			P_Filt = new GoodsFilt(*rS.P_Filt);
+		if(rS.P_Quots)
+			P_Quots = new PPQuotArray(*rS.P_Quots);
+		if(rS.P_Gled)
+			P_Gled = new GoodsLotExtData(*rS.P_Gled);
+		LinkFiles = rS.LinkFiles;
+		TagL = rS.TagL;
+		GenericList = rS.GenericList;
+	}
 	return *this;
 }
 

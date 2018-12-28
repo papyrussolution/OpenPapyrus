@@ -747,7 +747,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 	return ok;
 }
 
-Helper_ClientBank2::Helper_ClientBank2(const DateRange * pPeriod) : AcceptedCount(0), RejectedCount(0), AcceptedAmount(0.0), P_ImEx(0)
+Helper_ClientBank2::Helper_ClientBank2(const DateRange * pPeriod) : AcceptedCount(0), RejectedCount(0), AcceptedAmount(0.0), P_ImEx(0), P_FldList(0)
 {
 	Period.Set(pPeriod);
 }

@@ -413,7 +413,7 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 int LZAri::StartModel()  /* Initialize model */
 {
 	int    ok = 1;
-	if(P_SymCum && P_CharToSym && P_SymToChar && P_SymFreq && P_SymCum && P_PositionCum) {
+	if(P_SymCum && P_CharToSym && P_SymToChar && P_SymFreq && P_PositionCum) {
 		P_SymCum[N_CHAR] = 0;
 		for(int sym = N_CHAR; sym >= 1; sym--) {
 			P_CharToSym[sym-1] = sym;

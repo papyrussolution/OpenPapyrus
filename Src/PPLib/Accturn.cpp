@@ -1127,7 +1127,7 @@ int SLAPI AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, d
 int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 {
 	int    ok = 1;
-	int    zero_crd_acc = BIN((pAturn->Flags & PPAF_REGISTER) || (pAturn->Flags & PPAF_OUTBAL) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
+	const  int zero_crd_acc = BIN((pAturn->Flags & (PPAF_REGISTER|PPAF_OUTBAL)) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
 	PPID   dbt_rel = 0, crd_rel = 0;
 	AccTurnParam dbt_param, crd_param;
 	THROW_PP(pAturn->Amount != 0.0, PPERR_INVTURNAMOUNT);

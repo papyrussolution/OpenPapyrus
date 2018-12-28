@@ -152,61 +152,6 @@ PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerBySymb(const char
 //
 //
 //
-SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0)
-{
-}
-
-SLAPI TsStakeEnvironment::Stake::Stake()
-{
-	THISZERO();
-}
-
-SLAPI TsStakeEnvironment::StakeRequestBlock::Req::Req()
-{
-	THISZERO();
-}
-
-SLAPI TsStakeEnvironment::StakeRequestBlock::Result::Result()
-{
-	THISZERO();
-}
-
-SLAPI TsStakeEnvironment::StakeRequestBlock::StakeRequestBlock(TsStakeEnvironment & rEnv) : R_Env(rEnv)
-{
-}
-
-int SLAPI TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	long   ver = R_Env.Ver;
-	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &RL, rBuf));
-	THROW_SL(dynamic_cast<SStrGroup &>(R_Env).SerializeS(dir, rBuf, pSCtx));
-	CATCHZOK
-	return ok;
-}
-
-SLAPI TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(1)
-{
-}
-
-int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	long   ver = Ver;
-	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.ID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.ActualDtm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.Balance, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.Profit, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &TL, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &SL, rBuf));
-	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
-	CATCHZOK
-	return ok;
-}
-
 class TimeSeriesCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
@@ -248,6 +193,7 @@ public:
 	}
 	int    SLAPI SetTimeSeries(STimeSeries & rTs);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv);
 	int    SLAPI Flash();
 private:
 	struct TimeSeriesBlock {
@@ -269,6 +215,7 @@ private:
 
 	TSCollection <TimeSeriesBlock> TsC;
 	TSVector <PPObjTimeSeries::QuoteReqEntry> * P_ReqQList;
+	TsStakeEnvironment StkEnv;
 	SMtLock OpL; // Блокировка для операций, иных нежели штатные методы ObjCache
 	LDATETIME LastFlashDtm;
 };
@@ -402,6 +349,12 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(const char *
 		p_fblk = 0;
 	ENDCATCH
 	return p_fblk;
+}
+
+int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv)
+{
+	int    ok = 1;
+	return ok;
 }
 
 int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)

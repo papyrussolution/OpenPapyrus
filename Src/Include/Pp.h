@@ -12184,7 +12184,7 @@ public:
 	//
 	int    SLAPI SubtractBillQtty(PPID billID, PPID lotID, double * pRest);
 	int    SLAPI PreprocessCorrectionExp(PPTransferItem & rTi, const PPIDArray & rBillChain);
-	int    SLAPI CheckLot(PPID lotID, const ReceiptTbl::Rec *, long flags, PPLotFaultArray *);
+	int    SLAPI CheckLot(PPID lotID, const ReceiptTbl::Rec *, long flags, PPLotFaultArray & rResultList);
 	int    SLAPI RecoverLot(PPID lotID, PPLotFaultArray *, long flags /* TLRF_XXX */, int use_ta);
 	int    SLAPI RecalcLcr();
 	int    SLAPI MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotID, int use_ta);
@@ -12295,7 +12295,7 @@ private:
 		ReceiptTbl::Rec  DestLot;
 		TransferTbl::Rec TrRec;
 	};
-	int    SLAPI ProcessLotFault(PPLotFaultArray *, int fault, double act, double valid);
+	int    SLAPI ProcessLotFault(PPLotFaultArray & rList, int fault, double act, double valid);
 	int    SLAPI UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF /* TRUCLF_UPDCOST || TRUCLF_UPDPRICE */);
 	int    SLAPI UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF);
 	int    SLAPI Search(PPID lot, LDATE, long oprno, int spMode);
@@ -15942,6 +15942,7 @@ public:
 	};
 
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    FASTCALL Copy(const TsStakeEnvironment & rS);
 
 	AccountInfo Acc;
 	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
@@ -28578,7 +28579,7 @@ int SLAPI EditPhoneListParam(const char * pIniSection);
 //
 class PPPersonImpExpParam : public PPImpExpParam {
 public:
-	SLAPI  PPPersonImpExpParam(uint recId = 0, long flags = 0);
+	explicit SLAPI PPPersonImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
@@ -30133,7 +30134,6 @@ private:
 	CCheckCore * P_Cc;
 	BillTransmDeficit * P_Btd;
 	StringSet ToRemoveFiles;
-
 	PPLotTagContainer TagC;
 };
 //
@@ -30210,7 +30210,6 @@ public:
 		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList) { return -1; }
 		virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
 		virtual int    SLAPI  SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
-
 		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
 		int    SLAPI GetTempInputPath(int docType, SString & rBuf);
 		int    SLAPI GetPersonGLN(PPID psnID, SString & rGLN);
@@ -30218,7 +30217,6 @@ public:
 		int    SLAPI GetMainOrgGLN(SString & rGLN);
 		int    SLAPI GetLocGLN(PPID locID, SString & rGLN);
 		int    SLAPI GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
-
 		int    SLAPI ValidateGLN(const SString & rGLN);
 		int    SLAPI GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
 
@@ -30237,6 +30235,7 @@ public:
 		int    SLAPI Helper_GetPersonGLN(PPID psnID, SString & rGLN);
 	};
 
+	static int FASTCALL GetEdiMsgTypeByText(const char * pSymb);
 	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
 
 	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);

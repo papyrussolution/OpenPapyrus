@@ -888,7 +888,7 @@ int BizScTemplDialog::delItem(long pos, long id)
 		p_list = &Data.Cols;
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
 		p_list = &Data.Rows;
-	if(pos >= 0 && pos < (long)p_list->getCount())
+	if(p_list && pos >= 0 && pos < (long)p_list->getCount())
 		if(CONFIRM(PPCFM_DELITEM)) {
 			if(GetSelList() == CTL_BIZSCT_LIST)
 				ok = Data.RemoveCol(pos);

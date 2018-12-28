@@ -1158,7 +1158,7 @@ int SLAPI PPObjBill::Debug_TrfrError(const PPBillPacket * pPack)
 		for(i = 0; i < lot_list.getCount(); i++) {
 			const PPID lot_id = lot_list.get(i);
 			PPLotFaultArray lfa(lot_id, logger);
-			THROW(trfr->CheckLot(lot_id, 0, 0, &lfa));
+			THROW(trfr->CheckLot(lot_id, 0, 0, lfa));
 		}
 		for(i = 0; i < goods_list.getCount(); i++) {
 			THROW(trfr->CorrectCurRest(goods_list.get(i), 0, &logger, 0));

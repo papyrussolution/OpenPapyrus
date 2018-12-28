@@ -2154,11 +2154,11 @@ int SLAPI ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		if(pEntry->Font[0]) {
 			PutChr('^');
 			PutStr(pEntry->Font);
-			int rot = pEntry->Rotation % 360;
+			const int rot = pEntry->Rotation % 360;
 			c = 0;
 			if(rot == 1)
 				c = 0;
-			else if((rot > 315 && rot < 360) || (rot >= 0 && rot <= 45))
+			else if(rot > 315 || (rot >= 0 && rot <= 45))
 				c = 'N';
 			else if(rot > 45 && rot <= 135)
 				c = 'R';
@@ -2296,10 +2296,10 @@ static BarCStdToEltronEntry _E_BarCStdTab[] = {
 int SLAPI EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabelEntry * pEntry)
 {
 	int    rot_c = '0';
-	int    rot = pEntry->Rotation % 360;
+	const  int rot = pEntry->Rotation % 360;
 	if(rot == 1)
 		rot_c = '0';
-	else if((rot > 315 && rot < 360) || (rot >= 0 && rot <= 45))
+	else if(rot > 315 || (rot >= 0 && rot <= 45))
 		rot_c = '0';
 	else if(rot > 45 && rot <= 135)
 		rot_c = '1';

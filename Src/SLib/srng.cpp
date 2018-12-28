@@ -486,8 +486,7 @@ SRng * SRng::CreateInstance(Algorithm alg, uint level)
 		p_rng = new SRngRANLUX(alg, level);
 	else if(alg == algMT)
 		p_rng = new SRngMT(alg, level);
-	if(p_rng)
-		p_rng->Set(0 /* default seed */);
+	CALLPTRMEMB(p_rng, Set(0 /* default seed */));
 	return p_rng;
 }
 //

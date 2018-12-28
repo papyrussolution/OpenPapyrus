@@ -7068,24 +7068,22 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				if(GObj.Fetch(selGroupID, &grp_rec) > 0)
 					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 				else
-					grp_name = 0;
+					grp_name.Z();
 				p_def = GObj.Selector((void *)selGroupID);
 				PPWait(0);
 			}
-			if(ok > 0) {
-				if(!(Flags & fNoEdit)) {
-					RECT   list_rect;
-					GetClientRect(p_list->getHandle(), &list_rect);
-					if(p_def) {
-						p_def->setViewHight((list_rect.bottom - list_rect.top) / GoodsListFontHeight);
-						p_def->SetOption(lbtHSizeAlreadyDef, 1);
-					}
+			if(!(Flags & fNoEdit)) {
+				RECT   list_rect;
+				GetClientRect(p_list->getHandle(), &list_rect);
+				if(p_def) {
+					p_def->setViewHight((list_rect.bottom - list_rect.top) / GoodsListFontHeight);
+					p_def->SetOption(lbtHSizeAlreadyDef, 1);
 				}
-				p_list->setDef(p_def);
-				CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
-				ActiveListID = CTL_CHKPAN_GDSLIST;
-				p_list->Draw_();
 			}
+			p_list->setDef(p_def);
+			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
+			ActiveListID = CTL_CHKPAN_GDSLIST;
+			p_list->Draw_();
 		}
 		else {
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELGROUP, grp_name);
@@ -7147,17 +7145,15 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			}
 			LastGrpListUpdTime = getcurdatetime_();
 		}
-		if(ok > 0) {
-			showCtrl(CTL_CHKPAN_GRPLIST,    !updGoodsList);
-			disableCtrl(CTL_CHKPAN_GRPLIST,  updGoodsList);
-			ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1)), updGoodsList ? SW_HIDE : SW_SHOW);
-			showCtrl(CTL_CHKPAN_GDSLIST,     updGoodsList);
-			disableCtrl(CTL_CHKPAN_GDSLIST, !updGoodsList);
-			ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1)), updGoodsList ? SW_SHOW : SW_HIDE);
-			enableCommand(cmaSelect, updGoodsList);
-			LastCtrlID = ActiveListID;
-			setStaticText(CTL_CHKPAN_GRPNAME, grp_name);
-		}
+		showCtrl(CTL_CHKPAN_GRPLIST,    !updGoodsList);
+		disableCtrl(CTL_CHKPAN_GRPLIST,  updGoodsList);
+		ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1)), updGoodsList ? SW_HIDE : SW_SHOW);
+		showCtrl(CTL_CHKPAN_GDSLIST,     updGoodsList);
+		disableCtrl(CTL_CHKPAN_GDSLIST, !updGoodsList);
+		ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1)), updGoodsList ? SW_SHOW : SW_HIDE);
+		enableCommand(cmaSelect, updGoodsList);
+		LastCtrlID = ActiveListID;
+		setStaticText(CTL_CHKPAN_GRPNAME, grp_name);
 	}
 	return ok;
 }

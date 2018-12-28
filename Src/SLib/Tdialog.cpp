@@ -1454,7 +1454,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 			RECT  ctrl_rect, added_rect;
 			GetWindowRect(ctrl_wnd, &ctrl_rect);
 			TLabel * p_label = getCtlLabel(new_coord.CtrlID);
-			if(p_label->GetId() && (ctrl_wnd = GetDlgItem(H(), p_label->GetId())) != 0) {
+			if(p_label && p_label->GetId() && (ctrl_wnd = GetDlgItem(H(), p_label->GetId())) != 0) {
 				GetWindowRect(ctrl_wnd, &added_rect);
 				added_ctrl.CtrlID  = p_label->GetId();
 				added_ctrl.CtrlWnd = ctrl_wnd;

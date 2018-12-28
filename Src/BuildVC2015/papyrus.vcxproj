@@ -1381,6 +1381,7 @@
     <ClCompile Include="..\PPLib\transfer.cpp" />
     <ClCompile Include="..\PPLib\Trfridlg.cpp" />
     <ClCompile Include="..\PPLib\Trfritem.cpp" />
+    <ClCompile Include="..\PPLib\tsenv.cpp" />
     <ClCompile Include="..\PPLib\tsess.cpp" />
     <ClCompile Include="..\PPLib\tsessdlg.cpp" />
     <ClCompile Include="..\PPLib\txtanlz.cpp" />

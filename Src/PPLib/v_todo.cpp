@@ -1972,7 +1972,7 @@ int SLAPI ViewPrjTask_ByReminder()
 //
 //
 //
-SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid() : STimeChunkGrid()
+SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid() : STimeChunkGrid(), P_View(0)
 {
 }
 

@@ -3041,6 +3041,9 @@ int PersonImpExpDialog::getDTS(PPPersonImpExpParam * pData)
 class PrcssrPersonImport {
 public:
 	struct Param {
+		SLAPI  Param() : CategoryID(0)
+		{
+		}
 		PPID   CategoryID;
 		SString CfgName;
 	};

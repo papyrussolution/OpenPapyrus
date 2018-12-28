@@ -583,10 +583,10 @@ void tm_mutex_init()
 		fprintf(stderr, "%s: DB_ENV->mutex_alloc (global): %s\n", progname, db_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-	if(verbose)
+	if(verbose) {
 		printf("%lu\n", (ulong)mp->mutex);
-	if(verbose)
 		printf("Allocate %d per-thread, self-blocking mutexes: ", nthreads*nprocs);
+	}
 	for(i = 0; i < nthreads*nprocs; ++i) {
 		mp = (TM *)(tm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_alloc(dbenv, DB_MUTEX_SELF_BLOCK, &mp->mutex)) != 0) {
@@ -600,10 +600,10 @@ void tm_mutex_init()
 		if(verbose)
 			printf("%lu ", (ulong)mp->mutex);
 	}
-	if(verbose)
+	if(verbose) {
 		printf("\n");
-	if(verbose)
 		printf("Allocate %d per-lock mutexes: ", maxlocks);
+	}
 	for(i = 0; i < maxlocks; ++i) {
 		mp = (TM *)(lm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_alloc(dbenv, 0, &mp->mutex)) != 0) {

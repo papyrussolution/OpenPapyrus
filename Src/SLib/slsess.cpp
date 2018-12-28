@@ -745,8 +745,8 @@ int SLAPI SlSession::SetupDragndropObj(int ddoType, void * pObj)
 	if(ddoType) {
 		TSClassWrapper <DdoEntry> ptr_cls;
 		DragndropObjIdx = CreateGlobalObject(ptr_cls);
-		if(DragndropObjIdx) {
-			 DdoEntry * p_item = (DdoEntry *)SLS.GetGlobalObject(DragndropObjIdx);
+        DdoEntry * p_item = DragndropObjIdx ? (DdoEntry *)SLS.GetGlobalObject(DragndropObjIdx) : 0;
+		if(p_item) {
 			 p_item->Type = ddoType;
 			 p_item->P_Obj = pObj;
 		}

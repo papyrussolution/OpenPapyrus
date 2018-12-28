@@ -1744,10 +1744,10 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_nan, int * out_sign, uint64 * out_binary_mantissa, int32 * out_binary_exponent, int * out_is_infinity)
 {
 	// 1. Unpack bits
-	uint64 input_bits     = *(const uint64 *)input;
-	uint64 input_sign     = (input_bits >> 63);
-	uint64 input_exponent = (input_bits >> 52) & 0x7FFULL;
-	uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
+	const uint64 input_bits     = *(const uint64 *)input;
+	const uint64 input_sign     = (input_bits >> 63);
+	const uint64 input_exponent = (input_bits >> 52) & 0x7FFULL;
+	const uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
 	// 2. Handle special case: NaN
 	if(input_exponent == 0x7FFULL && input_mantissa != 0) {
 		*out_is_nan          = 1;
@@ -1755,33 +1755,37 @@ static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_na
 		*out_is_infinity     = 0;
 		*out_binary_exponent = 0;
 		*out_binary_mantissa = 0;
-		return;
 	}
-	*out_is_nan = 0;
-	// 3. Handle special case: +INF/-INF
-	*out_sign = (input_sign != 0);
-	if(input_exponent == 0x7FFULL) {
-		*out_is_infinity     = 1;
-		*out_binary_exponent = 0;
-		*out_binary_mantissa = 0;
-		return;
+	else {
+		*out_is_nan = 0;
+		// 3. Handle special case: +INF/-INF
+		*out_sign = (input_sign != 0);
+		if(input_exponent == 0x7FFULL) {
+			*out_is_infinity     = 1;
+			*out_binary_exponent = 0;
+			*out_binary_mantissa = 0;
+		}
+		else {
+			*out_is_infinity = 0;
+			// 4. Handle special case: +0/-0
+			if((input_exponent == 0) && (input_mantissa == 0)) {
+				*out_binary_exponent = 0;
+				*out_binary_mantissa = 0;
+			}
+			else {
+				// 5. Handle denormalized numbers
+				if(input_exponent == 0) {
+					*out_binary_exponent = -1022;
+					*out_binary_mantissa = (input_mantissa << 11); // most significant 53rd bit of mantissa is always 0
+				}
+				else {
+					// 6. Handle normalized numbers
+					*out_binary_exponent = ((int32)input_exponent) - 1023;
+					*out_binary_mantissa = (1ULL << 63) | (input_mantissa << 11); // 53rd bit of mantissa is always 1
+				}
+			}
+		}
 	}
-	*out_is_infinity = 0;
-	// 4. Handle special case: +0/-0
-	if(( input_exponent == 0 )&&( input_mantissa == 0 )) {
-		*out_binary_exponent = 0;
-		*out_binary_mantissa = 0;
-		return;
-	}
-	// 5. Handle denormalized numbers
-	if(input_exponent == 0) {
-		*out_binary_exponent = -1022;
-		*out_binary_mantissa = (input_mantissa << 11); // most significant 53rd bit of mantissa is always 0
-		return;
-	}
-	// 6. Handle normalized numbers
-	*out_binary_exponent = ((int32)input_exponent) - 1023;
-	*out_binary_mantissa = (1ULL << 63) | (input_mantissa << 11); // 53rd bit of mantissa is always 1
 }
 // 
 // Descr: Pack floating-point double precision binary value according to IEEE 754
@@ -1850,14 +1854,14 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 // 
 // Descr: Decompress small integer in range 0..9999 to four-digit BCD representation
 // 
-static inline void  bcd_decompress_small(uint32 compressed_bcd, uint8*  decompressed_bcd)
+static inline void bcd_decompress_small(uint32 compressed_bcd, uint8 * decompressed_bcd)
 {
 	uint32 high_pair = compressed_bcd / 100;
 	uint32 low_pair  = compressed_bcd % 100;
-	decompressed_bcd[0] = ((uint8)( high_pair / 10 ));
-	decompressed_bcd[1] = ((uint8)( high_pair % 10 ));
-	decompressed_bcd[2] = ((uint8)( low_pair  / 10 ));
-	decompressed_bcd[3] = ((uint8)( low_pair  % 10 ));
+	decompressed_bcd[0] = ((uint8)(high_pair / 10));
+	decompressed_bcd[1] = ((uint8)(high_pair % 10));
+	decompressed_bcd[2] = ((uint8)(low_pair  / 10));
+	decompressed_bcd[3] = ((uint8)(low_pair  % 10));
 }
 // 
 // Descr: Decompress full range unsigned 64-bit integer to twenty-digit BCD representation.
@@ -2053,207 +2057,197 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision)
 {
 	// 1. Unpack double precision value
-	int is_nan      = 0;
-	int is_negative = 0;
-	int is_infinity = 0;
+	int    is_nan      = 0;
+	int    is_negative = 0;
+	int    is_infinity = 0;
 	uint64 mantissa    = 0;
-	int32 exponent    = 0;
+	int32  exponent    = 0;
 	unpack_ieee754_double(&value, &is_nan, &is_negative, &mantissa, &exponent, &is_infinity);
 	// 2. Handle special cases
-	if(is_nan) {
-		if(format_flags & DCONVSTR_FLAG_UPPERCASE)
-			return format_copystr(outbuf, outbuf_size, "NAN", 3);
-		else
-			return format_copystr(outbuf, outbuf_size, "nan", 3);
-	}
-	if(is_infinity && !is_negative) {
-		if(format_flags & DCONVSTR_FLAG_UPPERCASE)
-			return format_copystr(outbuf, outbuf_size, "INF", 3);
-		else
-			return format_copystr(outbuf, outbuf_size, "inf", 3);
-	}
-	if(is_infinity && is_negative) {
-		if(format_flags & DCONVSTR_FLAG_UPPERCASE)
-			return format_copystr(outbuf, outbuf_size, "-INF", 4);
-		else
-			return format_copystr(outbuf, outbuf_size, "-inf", 4);
-	}
-	// 3. Get exact decimal representation.
-	//    Decimal point is located on the right side of decimal mantissa
-	uint8 decimal_mantissa[20];
-	if(mantissa == 0) {
-		memzero(decimal_mantissa, sizeof(decimal_mantissa) );
-		exponent = -18;
-	}
+	if(is_nan)
+		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "NAN" : "nan", 3);
+	else if(is_infinity && !is_negative)
+		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "INF" : "inf", 3);
+	else if(is_infinity && is_negative)
+		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "-INF" : "-inf", 4);
 	else {
-		if(!convert_binary_to_extended_decimal(mantissa, exponent, &mantissa, &exponent) )
-			return 0; // internal error during conversion
-		bcd_decompress(mantissa, decimal_mantissa);
-		if(decimal_mantissa[0] != 0 || decimal_mantissa[1] == 0)
-			return 0; // invariant does not hold : mantissa >= 10^19 || mantissa < 10^18
-	}
-	// 4. Compute the following fields:
-	//    z1      - number of zeros inserted before the digits
-	//    z2      - number of zeros inserted after the digits
-	//    point   - number of digits printed before decimal point
-	//    ndigits - number of digits to print from decimal_mantissa[1..19].
-	//    suffix  - formatted exponent like "e-5"
-	//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
-	int    point   = 1;
-	int    z1      = 0;
-	int    z2      = 0;
-	int    ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
-	char   suffix[16];
-	int    suffix_width = 0;
-	int    original_format_char = format_char;
-	if(format_char == 'g') {
-		// get rid of excess precision
-		if(format_precision == 0)
-			format_precision = 1;
-		if(format_precision < ndigits) {
-			exponent += (ndigits - format_precision); // retain invariant "point after mantissa"
-			ndigits = bcd_round(format_precision, decimal_mantissa, &exponent);
-		}
-		// choose format: e or f
-		int e = exponent + (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
-		if((e >= -4) && (e < format_precision)) { // so printf(3) rules say
-			format_char = 'f';
+		// 3. Get exact decimal representation.
+		//    Decimal point is located on the right side of decimal mantissa
+		uint8 decimal_mantissa[20];
+		if(mantissa == 0) {
+			memzero(decimal_mantissa, sizeof(decimal_mantissa));
+			exponent = -18;
 		}
 		else {
-			format_char = 'e';
-			--format_precision; // one digit before the point, rest after
+			if(!convert_binary_to_extended_decimal(mantissa, exponent, &mantissa, &exponent) )
+				return 0; // internal error during conversion
+			bcd_decompress(mantissa, decimal_mantissa);
+			if(decimal_mantissa[0] != 0 || decimal_mantissa[1] == 0)
+				return 0; // invariant does not hold : mantissa >= 10^19 || mantissa < 10^18
 		}
-	}
-	if(format_char == 'e') {
-		exponent += (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
-		// compute trailing zero padding or truncate digits
-		if(1 + format_precision >= ndigits)
-			z2 = 1 + format_precision - ndigits;
-		else
-			ndigits = bcd_round(1 + format_precision, decimal_mantissa, &exponent);
-		format_exponent(suffix, exponent, format_flags & DCONVSTR_FLAG_UPPERCASE);
-		suffix_width = ((int)( strlen(suffix) ));
-	}
-	else if(format_char == 'f') {
-		// determine where digits go with respect to decimal point
-		if(ndigits + exponent > 0) {
-			point = ndigits + exponent;
-			z1    = 0;
-		}
-		else {
-			point = 1;
-			z1    = 1 + -(ndigits + exponent);
-		}
-		// %g specifies prec = number of significant digits
-		// convert to number of digits after decimal point
-		if(original_format_char == 'g')
-			format_precision += (z1 - point);
-
-		// compute trailing zero padding or truncate digits
-		if(point + format_precision >= z1 + ndigits)
-			z2 = point + format_precision - (z1 + ndigits);
-		else {
-			int new_ndigits = point + format_precision - z1;
-			if(new_ndigits < 0) {
-				z1 += new_ndigits;
-				ndigits = 0;
+		// 4. Compute the following fields:
+		//    z1      - number of zeros inserted before the digits
+		//    z2      - number of zeros inserted after the digits
+		//    point   - number of digits printed before decimal point
+		//    ndigits - number of digits to print from decimal_mantissa[1..19].
+		//    suffix  - formatted exponent like "e-5"
+		//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
+		int    point   = 1;
+		int    z1      = 0;
+		int    z2      = 0;
+		int    ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
+		char   suffix[16];
+		int    suffix_width = 0;
+		int    original_format_char = format_char;
+		if(format_char == 'g') {
+			// get rid of excess precision
+			if(format_precision == 0)
+				format_precision = 1;
+			if(format_precision < ndigits) {
+				exponent += (ndigits - format_precision); // retain invariant "point after mantissa"
+				ndigits = bcd_round(format_precision, decimal_mantissa, &exponent);
 			}
-			else if(new_ndigits == 0) {
-				if(decimal_mantissa[1] >= 5) {
-					decimal_mantissa[1] = 1;
-					ndigits = 1;
-					if(z1 > 0)
-						--z1;
-					else
-						++point;
-				}
+			// choose format: e or f
+			int e = exponent + (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
+			if((e >= -4) && (e < format_precision)) { // so printf(3) rules say
+				format_char = 'f';
 			}
 			else {
-				int32 new_exponent = exponent;
-				ndigits = bcd_round(new_ndigits, decimal_mantissa, &new_exponent);
-				for(; new_exponent > exponent; --new_exponent) {
-					++z2;
-					if(z1 > 0)
-						--z1;
-					else
-						++point;
-				}
+				format_char = 'e';
+				--format_precision; // one digit before the point, rest after
 			}
 		}
-		suffix_width = 0;
-	}
-	else
-		return 0;
-	// 5. If %g is given without DCONVSTR_FLAG_SHARP, remove trailing zeros.
-	//    Must do after truncation, so that e.g. print %.3g 1.001 produces 1, not 1.00.
-	//    Sorry, but them's the rules.
-	if(original_format_char == 'g' && (!(format_flags & DCONVSTR_FLAG_SHARP)) && (z1 + ndigits + z2 >= point)) {
-		if(z1 + ndigits < point)
-			z2 = point - (z1 + ndigits);
-		else {
-			z2 = 0;
-			while(( z1 + ndigits > point )&&( decimal_mantissa[ndigits] == 0 ))
-				--ndigits;
+		if(format_char == 'e') {
+			exponent += (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
+			// compute trailing zero padding or truncate digits
+			if(1 + format_precision >= ndigits)
+				z2 = 1 + format_precision - ndigits;
+			else
+				ndigits = bcd_round(1 + format_precision, decimal_mantissa, &exponent);
+			format_exponent(suffix, exponent, format_flags & DCONVSTR_FLAG_UPPERCASE);
+			suffix_width = ((int)( strlen(suffix) ));
 		}
-	}
-	// 6. Compute width of all digits and decimal point and suffix if any
-	int total_width = z1 + ndigits + z2;
-	if(total_width > point)
-		total_width += 1;
-	else if(total_width == point) {
-		if(format_flags & DCONVSTR_FLAG_SHARP)
+		else if(format_char == 'f') {
+			// determine where digits go with respect to decimal point
+			if(ndigits + exponent > 0) {
+				point = ndigits + exponent;
+				z1    = 0;
+			}
+			else {
+				point = 1;
+				z1    = 1 + -(ndigits + exponent);
+			}
+			// %g specifies prec = number of significant digits
+			// convert to number of digits after decimal point
+			if(original_format_char == 'g')
+				format_precision += (z1 - point);
+			// compute trailing zero padding or truncate digits
+			if(point + format_precision >= z1 + ndigits)
+				z2 = point + format_precision - (z1 + ndigits);
+			else {
+				int new_ndigits = point + format_precision - z1;
+				if(new_ndigits < 0) {
+					z1 += new_ndigits;
+					ndigits = 0;
+				}
+				else if(new_ndigits == 0) {
+					if(decimal_mantissa[1] >= 5) {
+						decimal_mantissa[1] = 1;
+						ndigits = 1;
+						if(z1 > 0)
+							--z1;
+						else
+							++point;
+					}
+				}
+				else {
+					int32 new_exponent = exponent;
+					ndigits = bcd_round(new_ndigits, decimal_mantissa, &new_exponent);
+					for(; new_exponent > exponent; --new_exponent) {
+						++z2;
+						if(z1 > 0)
+							--z1;
+						else
+							++point;
+					}
+				}
+			}
+			suffix_width = 0;
+		}
+		else
+			return 0;
+		// 5. If %g is given without DCONVSTR_FLAG_SHARP, remove trailing zeros.
+		//    Must do after truncation, so that e.g. print %.3g 1.001 produces 1, not 1.00.
+		//    Sorry, but them's the rules.
+		if(original_format_char == 'g' && (!(format_flags & DCONVSTR_FLAG_SHARP)) && (z1 + ndigits + z2 >= point)) {
+			if(z1 + ndigits < point)
+				z2 = point - (z1 + ndigits);
+			else {
+				z2 = 0;
+				while((z1 + ndigits > point) && (decimal_mantissa[ndigits] == 0))
+					--ndigits;
+			}
+		}
+		// 6. Compute width of all digits and decimal point and suffix if any
+		int total_width = z1 + ndigits + z2;
+		if(total_width > point)
 			total_width += 1;
-		else
-			++point; // point is not printed at the end
-	}
-	total_width += suffix_width;
-	// 7. Determine sign
-	int sign = 0;
-	if(is_negative)
-		sign = '-';
-	else {
-		if(format_flags & DCONVSTR_FLAG_PRINT_PLUS)
-			sign = '+';
-		if(format_flags & DCONVSTR_FLAG_SPACE_IF_PLUS)
-			sign = ' ';
-	}
-	if(sign)
-		++total_width;
-	// 8. Compute padding
-	int padding = 0;
-	if((format_flags & DCONVSTR_FLAG_HAVE_WIDTH) && format_width > total_width)
-		padding = format_width - total_width;
-	if(padding && (!(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY)) && (format_flags & DCONVSTR_FLAG_PAD_WITH_ZERO)) {
-		z1     += padding;
-		point  += padding;
-		padding = 0;
-	}
-	// 9. Collect everything together and dump to output buffer
-	if(padding && !(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && !format_pad(outbuf, outbuf_size, padding))
-		return 0;
-	if(sign && !format_onechar(outbuf, outbuf_size, sign))
-		return 0;
-	const uchar * digits = decimal_mantissa + 1;
-	while(( z1 > 0 )||( ndigits > 0 )||( z2 > 0 )) {
-		int c = '0';
-		if(z1 > 0)
-			z1--;
-		else if(ndigits > 0) {
-			ndigits--;
-			c = '0' + (*digits++);
+		else if(total_width == point) {
+			if(format_flags & DCONVSTR_FLAG_SHARP)
+				total_width += 1;
+			else
+				++point; // point is not printed at the end
 		}
+		total_width += suffix_width;
+		// 7. Determine sign
+		int sign = 0;
+		if(is_negative)
+			sign = '-';
+		else {
+			if(format_flags & DCONVSTR_FLAG_PRINT_PLUS)
+				sign = '+';
+			if(format_flags & DCONVSTR_FLAG_SPACE_IF_PLUS)
+				sign = ' ';
+		}
+		if(sign)
+			++total_width;
+		// 8. Compute padding
+		int padding = 0;
+		if((format_flags & DCONVSTR_FLAG_HAVE_WIDTH) && format_width > total_width)
+			padding = format_width - total_width;
+		if(padding && (!(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY)) && (format_flags & DCONVSTR_FLAG_PAD_WITH_ZERO)) {
+			z1     += padding;
+			point  += padding;
+			padding = 0;
+		}
+		// 9. Collect everything together and dump to output buffer
+		if(padding && !(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && !format_pad(outbuf, outbuf_size, padding))
+			return 0;
+		if(sign && !format_onechar(outbuf, outbuf_size, sign))
+			return 0;
+		const uchar * digits = decimal_mantissa + 1;
+		while((z1 > 0) || (ndigits > 0) || (z2 > 0)) {
+			int c = '0';
+			if(z1 > 0)
+				z1--;
+			else if(ndigits > 0) {
+				ndigits--;
+				c = '0' + (*digits++);
+			}
+			else
+				z2--;
+			if(!format_onechar(outbuf, outbuf_size, c) )
+				return 0;
+			if((--point == 0) && !format_onechar(outbuf, outbuf_size, '.'))
+				return 0;
+		}
+		if(suffix_width && !format_copystr(outbuf, outbuf_size, suffix, suffix_width))
+			return 0;
+		else if(padding && (format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && (!format_pad(outbuf, outbuf_size, padding)))
+			return 0;
 		else
-			z2--;
-		if(!format_onechar(outbuf, outbuf_size, c) )
-			return 0;
-		if((--point == 0) && !format_onechar(outbuf, outbuf_size, '.'))
-			return 0;
+			return 1;
 	}
-	if(suffix_width && !format_copystr(outbuf, outbuf_size, suffix, suffix_width))
-		return 0;
-	if(padding && (format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && (!format_pad(outbuf, outbuf_size, padding)))
-		return 0;
-	return 1;
 }
 // 
 // Convert string to IEEE 754 floating-point double precision value

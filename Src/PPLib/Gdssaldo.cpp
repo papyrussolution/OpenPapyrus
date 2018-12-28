@@ -166,6 +166,9 @@ struct GArSLastEntry {
 class PrcssrGoodsSaldo {
 public:
 	struct Param {
+		SLAPI Param() : GoodsGrpID(0), GoodsID(0), ArID(0), Dt(ZERODATE), CalcPeriod(0), FullCalc(0)
+		{
+		}
 		PPID  GoodsGrpID;
 		PPID  GoodsID;
 		PPID  ArID;

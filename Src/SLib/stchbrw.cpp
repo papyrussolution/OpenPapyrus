@@ -24,7 +24,7 @@ STimeChunkGrid::~STimeChunkGrid()
 
 STimeChunkGrid & FASTCALL STimeChunkGrid::operator = (const STimeChunkGrid & s)
 {
-	if(&s) {
+	if(&s && &s != this) {
 		freeAll();
 		NameList = s.NameList;
 		for(uint i = 0; i < s.getCount(); i++) {

@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Корректировка документов
 //
@@ -288,7 +288,7 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 	return ok;
 }
 
-SLAPI PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj)
+SLAPI PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj), P_List(0)
 {
 	MEMSZERO(P);
 }

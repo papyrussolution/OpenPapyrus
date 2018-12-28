@@ -72,8 +72,7 @@ int SLAPI XTagParser::Run(const char * pFileName)
 	char tag_buf[64];
 	if(pFileName && (P_Stream = fopen(pFileName, "r")) != NULL) {
 		STRNSCPY(FileName, pFileName);
-		while((tok = GetToken(0, tag_buf, sizeof(tag_buf))) != tokEOF
-			&& tok != tokErr) {
+		while((tok = GetToken(0, tag_buf, sizeof(tag_buf))) != tokEOF && tok != tokErr) {
 			if(tok == tokTag) {
 				if(ProcessTag(tag_buf, 0) == tokErr) {
 					tok = tokErr;

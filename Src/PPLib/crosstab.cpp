@@ -136,7 +136,7 @@ int SLAPI Crosstab::Summary::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 //
 //
 //
-SLAPI Crosstab::Crosstab() : P_Tbl(0), P_RTbl(0), P_CtValList(0), P_TotalRows(0), P_TotalCols(0)
+SLAPI Crosstab::Crosstab() : Flags(0), P_Tbl(0), P_RTbl(0), P_CtValList(0), P_TotalRows(0), P_TotalCols(0)
 {
 }
 
@@ -567,7 +567,7 @@ int SLAPI Crosstab::Create(int use_ta)
 			long   ext_sort_val = 0;
 			SString title_buf;
 			for(csb.TotalItemPos = 0; csb.TotalItemPos < total_rows_count; csb.TotalItemPos++) {
-				size_t offs = 0, sz = 0;
+				size_t offs = 0;
 				P_RTbl->clearDataBuf();
 				if(ext_sort_fld_pos) {
 					++ext_sort_val;

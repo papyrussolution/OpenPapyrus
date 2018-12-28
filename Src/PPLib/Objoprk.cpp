@@ -2624,7 +2624,7 @@ void OprKindDialog::editPoolOptions()
 {
 	class OpkPoolDialog : public OpListDialog {
 	public:
-		OpkPoolDialog(PPIDArray * pOpTypesList) : OpListDialog(DLG_OPRPOOL, CTL_OPRPOOL_LIST, 0, pOpTypesList)
+		OpkPoolDialog(PPIDArray * pOpTypesList) : OpListDialog(DLG_OPRPOOL, CTL_OPRPOOL_LIST, 0, pOpTypesList), P_Data(0)
 		{
 		}
 		int    setDTS(PPOprKindPacket * pData)

@@ -6,7 +6,7 @@
 //
 //
 //
-DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Flags(0), ImplID(0)
+DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Flags(0), Pad(0), ImplID(0)
 {
 	ArgNamList.add("$"); // zero index - undefined name
 }
@@ -763,9 +763,14 @@ int CtmExpr::SetResolvedVar(const CtmVar & rVar, DLSYMBID typeID)
 int FASTCALL CtmExpr::SetResolvedFunc(const CtmFunc & rFunc)
 {
 	if(Kind == kFuncName || Kind == kOp) {
-		Kind = kFunc;
+		/* @v10.2.11 Kind = kFunc;
+		if(Kind == kFuncName)
+			ZDELETE(U.S); */
+		// @v10.2.11 {
 		if(Kind == kFuncName)
 			ZDELETE(U.S);
+		Kind = kFunc;
+		// } @v10.2.11 
 		U.F = rFunc;
 		return 1;
 	}
@@ -1925,14 +1930,17 @@ int SLAPI DlContext::RegisterTypeLib(const DlScope * pCls, int unreg)
 	}
 	else {
 		BSTR buf = NULL;
-		ITypeLib * p_tbl = 0;
 		SString path = SLS.GetExePath();
 		path.CopyToOleStr(&buf);
-		HRESULT res = LoadTypeLibEx(buf, REGKIND_REGISTER, &p_tbl);
-		ok = (res == S_OK) ? 1 : 0;
-		CALLPTRMEMB(p_tbl, Release());
-		if(buf)
+		if(buf) {
+			ITypeLib * p_tbl = 0;
+			HRESULT res = LoadTypeLibEx(buf, REGKIND_REGISTER, &p_tbl);
+			ok = (res == S_OK) ? 1 : 0;
+			CALLPTRMEMB(p_tbl, Release());
 			SysFreeString(buf);
+		}
+		else
+			ok = 0;
 	}
 	CATCHZOK
 	return ok;

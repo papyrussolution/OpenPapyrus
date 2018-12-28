@@ -4451,12 +4451,10 @@ int SLAPI PPDS_CrrAccturnTempl::TransferField(long fldID, Tfd dir, uint * pIter,
 				ok = TransferData(&id, dir, rBuf);
 			}
 			break;
-		case DSF_CRRACCTURNTEMPL_EXPR:
-			ok = TransferData(Data.Expr, sizeof(Data.Expr), dir, rBuf);
-			break;
+		case DSF_CRRACCTURNTEMPL_EXPR: ok = TransferData(Data.Expr, sizeof(Data.Expr), dir, rBuf); break;
 		case DSF_CRRACCTURNTEMPL_SUBST:
 			{
-				TempBuf = 0;
+				TempBuf.Z();
 				if(dir == tfdDataToBuf) {
 					if((*pIter) < 8)
 						ok = -1;
@@ -4467,47 +4465,26 @@ int SLAPI PPDS_CrrAccturnTempl::TransferField(long fldID, Tfd dir, uint * pIter,
 					ok = -1;
 			}
 			break;
-		case DSF_CRRACCTURNTEMPL_PERIOD:
-			ok = TransferData(&Data.Period, dir, rBuf);
-			break;
-		case DSF_CRRACCTURNTEMPL_FDACCFIX:
-			ok = TransferDataFlag(&Data.Flags, ATTF_DACCFIX, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FDARTFIX:
-			ok = TransferDataFlag(&Data.Flags, ATTF_DARTFIX, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FCACCFIX:
-			ok = TransferDataFlag(&Data.Flags, ATTF_CACCFIX, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FCARFIX:
-			ok = TransferDataFlag(&Data.Flags, ATTF_CARTFIX, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FPRIMONCREDIT:
-			ok = TransferDataFlag(&Data.Flags, ATTF_PRIMONCREDIT, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FEXPRESSION:
-			ok = TransferDataFlag(&Data.Flags, ATTF_EXPRESSION, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FPSKIPONZOBJ:
-			ok = TransferDataFlag(&Data.Flags, ATTF_PSKIPONZOBJ, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FFSKIPONZOBJ:
-			ok = TransferDataFlag(&Data.Flags, ATTF_FSKIPONZOBJ, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FPSUBSTRULE:
-			ok = TransferDataFlag(&Data.Flags, ATTF_PSUBSTRULE, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FFSUBSTRULE:
-			ok = TransferDataFlag(&Data.Flags, ATTF_FSUBSTRULE, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FSKIPNEG:
-			ok = TransferDataFlag(&Data.Flags, ATTF_SKIPNEG, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FINVERTNEG:
-			ok = TransferDataFlag(&Data.Flags, ATTF_INVERTNEG, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FBASEPROJECTION:
-			ok = TransferDataFlag(&Data.Flags, ATTF_BASEPROJECTION, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FINTROUNDING:
-			ok = TransferDataFlag(&Data.Flags, ATTF_INTROUNDING, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FPASSIVE:
-			ok = TransferDataFlag(&Data.Flags, ATTF_PASSIVE, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FSUBSTDACC:
-			ok = TransferDataFlag(&Data.Flags, ATTF_SUBSTDACC, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FSUBSTCACC:
-			ok = TransferDataFlag(&Data.Flags, ATTF_SUBSTCACC, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FBYADVLINES:
-			ok = TransferDataFlag(&Data.Flags, ATTF_BYADVLINES, dir, rBuf); break;
-		case DSF_CRRACCTURNTEMPL_FSKIPEMPTYALIAS:
-			ok = TransferDataFlag(&Data.Flags, ATTF_SKIPEMPTYALIAS, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_PERIOD: ok = TransferData(&Data.Period, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FDACCFIX: ok = TransferDataFlag(&Data.Flags, ATTF_DACCFIX, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FDARTFIX: ok = TransferDataFlag(&Data.Flags, ATTF_DARTFIX, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FCACCFIX: ok = TransferDataFlag(&Data.Flags, ATTF_CACCFIX, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FCARFIX: ok = TransferDataFlag(&Data.Flags, ATTF_CARTFIX, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FPRIMONCREDIT: ok = TransferDataFlag(&Data.Flags, ATTF_PRIMONCREDIT, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FEXPRESSION: ok = TransferDataFlag(&Data.Flags, ATTF_EXPRESSION, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FPSKIPONZOBJ: ok = TransferDataFlag(&Data.Flags, ATTF_PSKIPONZOBJ, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FFSKIPONZOBJ: ok = TransferDataFlag(&Data.Flags, ATTF_FSKIPONZOBJ, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FPSUBSTRULE: ok = TransferDataFlag(&Data.Flags, ATTF_PSUBSTRULE, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FFSUBSTRULE: ok = TransferDataFlag(&Data.Flags, ATTF_FSUBSTRULE, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FSKIPNEG: ok = TransferDataFlag(&Data.Flags, ATTF_SKIPNEG, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FINVERTNEG: ok = TransferDataFlag(&Data.Flags, ATTF_INVERTNEG, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FBASEPROJECTION: ok = TransferDataFlag(&Data.Flags, ATTF_BASEPROJECTION, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FINTROUNDING: ok = TransferDataFlag(&Data.Flags, ATTF_INTROUNDING, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FPASSIVE: ok = TransferDataFlag(&Data.Flags, ATTF_PASSIVE, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FSUBSTDACC: ok = TransferDataFlag(&Data.Flags, ATTF_SUBSTDACC, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FSUBSTCACC: ok = TransferDataFlag(&Data.Flags, ATTF_SUBSTCACC, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FBYADVLINES: ok = TransferDataFlag(&Data.Flags, ATTF_BYADVLINES, dir, rBuf); break;
+		case DSF_CRRACCTURNTEMPL_FSKIPEMPTYALIAS: ok = TransferDataFlag(&Data.Flags, ATTF_SKIPEMPTYALIAS, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;

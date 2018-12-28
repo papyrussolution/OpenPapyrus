@@ -108,7 +108,7 @@ private:
     };
     class PageAllocationTable : public TSArray <SStorage::Page> {
 	public:
-		SLAPI  PageAllocationTable() : TSArray <SStorage::Page> (aryEachItem|aryDataOwner)
+		SLAPI  PageAllocationTable() : TSArray <SStorage::Page> (aryEachItem|aryDataOwner), PageSize(0)
 		{
 		}
         int    SLAPI Put(const void * pData, uint size, SStorage::Address & rA);

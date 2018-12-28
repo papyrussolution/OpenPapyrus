@@ -459,26 +459,23 @@ int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
 
 int CfgOptionsDialog::getDTS(PPConfig * pCfg)
 {
-	int    ok = -1;
-	if(pCfg) {
-		getCtrlData(CTL_CFGOPTIONS_ACCESS,   &Cfg.AccessLevel);
-		getCtrlData(CTL_CFGOPTIONS_MENU,     &Cfg.Menu);
-		getCtrlData(CTLSEL_CONFIG_MAINORG,   &Cfg.MainOrg);
-		getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Cfg.LocAccSheetID);
-		getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Cfg.Location);
-		getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Cfg.DBDiv);
-		if(Id == DLG_CFGOPTIONS) {
-			getCtrlData(CTLSEL_CFGOPTIONS_DESK,  &Cfg.DesktopID);
-			getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Cfg.MenuID);
-			DS.GetTLA().Lc.DesktopID = Cfg.DesktopID;
-		}
-		Cfg.RealizeOrder = (short)GetClusterData(CTL_CFGOPTIONS_RLZORD);
-		GetClusterData(CTL_CFGOPTIONS_FEFO, &Cfg.Flags);
-		GetClusterData(CTL_CFGOPTIONS_OPTIONS, &Cfg.Flags);
-		GetClusterData(CTL_CFGOPTIONS_STAFF,   &Cfg.Flags);
-		GetClusterData(CTL_CFGOPTIONS_SECFLAGS, &Cfg.Flags);
-		ok = 1;
+	int    ok = 1;
+	getCtrlData(CTL_CFGOPTIONS_ACCESS,   &Cfg.AccessLevel);
+	getCtrlData(CTL_CFGOPTIONS_MENU,     &Cfg.Menu);
+	getCtrlData(CTLSEL_CONFIG_MAINORG,   &Cfg.MainOrg);
+	getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Cfg.LocAccSheetID);
+	getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Cfg.Location);
+	getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Cfg.DBDiv);
+	if(Id == DLG_CFGOPTIONS) {
+		getCtrlData(CTLSEL_CFGOPTIONS_DESK,  &Cfg.DesktopID);
+		getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Cfg.MenuID);
+		DS.GetTLA().Lc.DesktopID = Cfg.DesktopID;
 	}
+	Cfg.RealizeOrder = (short)GetClusterData(CTL_CFGOPTIONS_RLZORD);
+	GetClusterData(CTL_CFGOPTIONS_FEFO, &Cfg.Flags);
+	GetClusterData(CTL_CFGOPTIONS_OPTIONS, &Cfg.Flags);
+	GetClusterData(CTL_CFGOPTIONS_STAFF,   &Cfg.Flags);
+	GetClusterData(CTL_CFGOPTIONS_SECFLAGS, &Cfg.Flags);
 	ASSIGN_PTR(pCfg, Cfg);
 	return ok;
 }

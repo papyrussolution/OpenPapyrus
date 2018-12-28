@@ -3012,7 +3012,7 @@ library PapyrusInterfaceLib version(1.1) {
 		double Discount;    // Скидка (при переоценке - старая цена реализации)
 		double CurPrice;    // Валютная цена
 		double QuotPrice;   // Фиксированная цена по котировке
-		long   LotTaxGrpID; // Входящая налолговая группа по лоту
+		long   LotTaxGrpID; // Входящая налоговая группа по лоту
 		long   QCert;       // Серитфикат качества
 		long   Suppl;       // Поставщик
 		PpyOTrfrItemFlags  Flags;       // Флаги

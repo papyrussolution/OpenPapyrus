@@ -32,7 +32,7 @@ SLAPI SCompressor::~SCompressor()
 		/*LZ4F_cctx * p_ctx = (LZ4F_cctx *)P_Ctx;
 		LZ4F_freeCompressionContext(p_ctx);
 		P_Ctx = 0;*/
-		ZDELETE(P_Ctx);
+		ZFREE(P_Ctx);
 	}
 }
 

@@ -1308,6 +1308,9 @@ PPInventoryImpExpParam::PPInventoryImpExpParam(uint recId, long flags) : PPImpEx
 class PrcssrInvImport {
 public:
 	struct Param {
+		SLAPI  Param() : OpID(0), LocID(0), Dt(ZERODATE)
+		{
+		}
 		PPID   OpID;
 		PPID   LocID;
 		LDATE  Dt;
@@ -1647,6 +1650,9 @@ int SLAPI EditInventoryImpExpParams()
 class GeneratorGoods {
 public:
 	struct Param {
+		SLAPI  Param() : LocID(0), GoodsGrpID(0), Part(0), Flags(0)
+		{
+		}
 		enum {
 			fOnStockOnly = 0x0001,
 			fAllowDup    = 0x0002
@@ -1669,9 +1675,8 @@ private:
 	SRng * P_Rng;
 };
 
-SLAPI GeneratorGoods::GeneratorGoods()
+SLAPI GeneratorGoods::GeneratorGoods() : P_Rng(0)
 {
-	P_Rng = 0;
 }
 
 SLAPI GeneratorGoods::~GeneratorGoods()

@@ -395,7 +395,7 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 	if(&q != 0) {
 		int  id;
 		int  i = 0;
-		size_t delta;
+		size_t delta = 0;
 		while((id = *(int *)list) != 0) {
 			q.flds = (DBQuery::Fld*)SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1));
 			if(q.flds == 0) {

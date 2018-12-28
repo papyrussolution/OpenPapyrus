@@ -922,7 +922,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			else
 				Flags &= fEgaisVer3;
 		}
-		// } @v9.9.9 
+		// } @v9.9.9
 		THROW(dlg->setDTS(this));
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS())
@@ -2659,10 +2659,10 @@ int SLAPI PPBillImporter::Import(int useTa)
 										pack.LTagL.Set(new_item_pos, p_tag_list);
 										// @v9.9.4 {
 										if(temp_buf.NotEmpty())
-											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf); 
+											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf);
 										if(serial.NotEmpty())
 											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_item_pos, serial);
-										// } @v9.9.4 
+										// } @v9.9.4
 									}
 								}
 								if(need_price_restrict) {
@@ -3269,7 +3269,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 			if(doc_info_list.GetCount()) {
 				TSCollection <PPEdiProcessor::Packet> doc_pack_list;
 				for(uint i = 0; i < doc_info_list.GetCount(); i++) {
-					if(doc_info_list.GetByIdx(i, doc_inf)) { 
+					if(doc_info_list.GetByIdx(i, doc_inf)) {
 						PPEdiProcessor::Packet doc_pack(doc_inf.EdiOp);
 						if(!prc.ReceiveDocument(&doc_inf, doc_pack_list))
 							Logger.LogLastError();
@@ -3293,12 +3293,10 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 										int    is_valuation_modif = 0;
 										if(CheckOpFlags(p_bp->Rec.OpID, OPKF_NEEDVALUATION))
 											P_BObj->AutoCalcPrices(p_bp, 0, &is_valuation_modif);
-										if(P_BObj->__TurnPacket(p_bp, 0, 1, 1)) {
+										if(P_BObj->__TurnPacket(p_bp, 0, 1, 1))
 											Logger.LogAcceptMsg(PPOBJ_BILL, p_bp->Rec.ID, 0);
-										}
-										else {
+										else
 											Logger.LogLastError();
-										}
 									}
 								}
 							}
@@ -3348,7 +3346,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 				temp_id_list.clear();
 				for(uint i = 0; i < suppl_list.GetCount(); i++) {
 					const PPID ar_id = suppl_list.Get(i);
-					if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 && 
+					if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 &&
 						suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf) && temp_buf.IsEqiAscii(ediprv_rec.Symb)) {
 						temp_id_list.add(ar_id);
 					}
@@ -3367,16 +3365,15 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 				temp_id_list.clear();
 				for(uint i = 0; i < cli_list.GetCount(); i++) {
 					const PPID ar_id = cli_list.Get(i);
-					if(ArObj.GetClientAgreement(ar_id, &cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID) {
+					if(ArObj.GetClientAgreement(ar_id, &cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID)
 						temp_id_list.add(ar_id);
-					}
 				}
 				if(temp_id_list.getCount()) {
 					// temp_id_list содержит идентификаторы покупателей, которые, согласно соглашению, используют данного провайдера
 					prc.SendOrderRsp(be_filt, temp_id_list);
 					prc.SendDESADV(PPEDIOP_DESADV, be_filt, temp_id_list);
 					if(ediprv_rec.SuppOpFlags & (1 << PPEDIOP_INVOIC)) {
-						prc.SendDESADV(PPEDIOP_INVOIC, be_filt, temp_id_list);						
+						prc.SendDESADV(PPEDIOP_INVOIC, be_filt, temp_id_list);
 					}
 					if(ediprv_rec.SuppOpFlags & (1 << PPEDIOP_ALCODESADV)) {
 						prc.SendDESADV(PPEDIOP_ALCODESADV, be_filt, temp_id_list);
@@ -3725,7 +3722,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			else if(edi_op_symb.IsEqNC("ORDER"))
 				edi_op = PPEDIOP_ORDER;
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
-            pPack->Rec.EdiOp = edi_op; 
+            pPack->Rec.EdiOp = edi_op;
 			THROW(BillRecToBill(pPack, &bill));
 			THROW_PP_S(edi_op != PPEDIOP_RECADV || bill.DesadvBillNo[0], PPERR_EDI_SPRRECADVWOTTN, temp_buf);
 			// Если отклоненный заказ
@@ -3753,7 +3750,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			BarcodeArray bcd_ary;
 			MEMSZERO(brow);
 			STRNSCPY(brow.BillID, bill.ID);
-			brow.LineNo = i; 
+			brow.LineNo = i;
 			brow.GoodsID = goods_id;
 			brow.LotID = p_ti->LotID;
 			if(GObj.Fetch(goods_id, &goods_rec) <= 0)

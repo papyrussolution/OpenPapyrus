@@ -1232,14 +1232,14 @@ const SString & FASTCALL PPPosProtocol::CorrectAndEncText(const char * pS)
 	int    has_inv_chars = 0;
 	const uint len = EncBuf.Len();
 	for(uint i = 0; !has_inv_chars && i < len; i++) {
-		const char c = EncBuf.C(i);
+		const uchar c = EncBuf.C(i);
 		if(c < 0x20 && !oneof3(c, 0x09, 0x0a, 0x0d))
 			has_inv_chars = 1;
 	}
 	if(has_inv_chars) {
 		SString temp_buf;
 		for(uint i = 0; i < len; i++) {
-			const char c = EncBuf.C(i);
+			const uchar c = EncBuf.C(i);
 			if(c < 0x20 && !oneof3(c, 0x09, 0x0a, 0x0d))
 				temp_buf.Cat('?');
 			else

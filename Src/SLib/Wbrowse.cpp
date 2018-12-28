@@ -2558,7 +2558,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 					}
 				}
 				else if(wParam == VK_TAB) {
-					if(GetKeyState(VK_CONTROL) & 0x8000 && p_view != 0 && !p_view->IsInState(sfModal)) {
+					if(GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
 						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 						return 0;
 					}

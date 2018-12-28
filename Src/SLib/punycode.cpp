@@ -35,11 +35,8 @@ typedef enum {
 } Punycode_status;
 #endif // }0
 
-/* basic(cp) tests whether cp is a basic code point: */
-#define basic(cp) ((uint)(cp) < 0x80)
-
-/* delim(cp) tests whether cp is a delimiter: */
-#define delim(cp) ((cp) == delimiter)
+#define basic(cp) ((uint)(cp) < 0x80) // basic(cp) tests whether cp is a basic code point
+#define delim(cp) ((cp) == delimiter) // delim(cp) tests whether cp is a delimiter
 
 /* decode_digit(cp) returns the numeric value of a basic code */
 /* point (for use in representing integers) in the range 0 to */

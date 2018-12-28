@@ -712,11 +712,9 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    /* Byte value */
 				    glyph = 7777 + gbdata[sp];
 			    }
-
 			    if(debug) {
 				    printf("[%d] ", glyph);
 			    }
-
 			    for(q = 0; q < 13; q++) {
 				    if(glyph & (0x1000 >> q)) {
 					    strcat(binary, "1");

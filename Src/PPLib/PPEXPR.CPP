@@ -797,14 +797,12 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					case funcRound:
 						*pResult = round(first_arg, (arg_count > 1) ? (int)fc.ArgList.at(1) : 0);
 						break;
-					// @v8.1.9 {
 					case funcRoundUp:
 						*pResult = round(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 0.01, +1);
 						break;
 					case funcRoundDown:
 						*pResult = round(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 0.01, -1);
 						break;
-					// } @v8.1.9
 					case funcEq:
 						if(arg_count == 2)
 							*pResult = BIN(first_arg == fc.ArgList.at(1));
@@ -824,9 +822,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 								double v = fc.ArgList.at(i);
 								SETMIN(t, v);
 							}
-							if(t == SMathConst::Max)
-								*pResult = 0.0;
-							*pResult = t;
+							*pResult = (t == SMathConst::Max) ? 0.0 : t;
 						}
 						break;
 					case funcMinZ:
@@ -838,9 +834,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 									SETMIN(t, v);
 								}
 							}
-							if(t == SMathConst::Max)
-								*pResult = 0.0;
-							*pResult = t;
+							*pResult = (t == SMathConst::Max) ? 0.0 : t;
 						}
 						break;
 					case funcMax:

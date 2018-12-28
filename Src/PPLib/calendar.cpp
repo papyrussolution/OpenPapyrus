@@ -1652,7 +1652,7 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					case CTL_CALENDAR_RESET:      on_call = 2; on_param = 0;  break;
 					case CTL_CALENDAR_RIGHTRESET: on_call = 2; on_param = 1;  break;
 					case CTL_CALENDAR_FASTPRD:
-						if(HIWORD(wParam) == CBN_SELENDOK && pc && pc)
+						if(HIWORD(wParam) == CBN_SELENDOK && pc)
 							pc->SelectByFastPrd(hWnd);
 				}
 				if(on_call && pc->P_Inner) {

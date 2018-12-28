@@ -1022,6 +1022,7 @@ int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldLis
 	uint32 dbt_id = 0;
 	uint16 temp_val = -999; // -999 - умышленный мусор
 	uint8 * p_ind_list = 0;
+	uint8  st_ind_list[512];
 	int    own_ind_list = 0;
 	BNFieldList inner_fld_list;
 	THROW(rBuf.Read(dbt_id));
@@ -1048,7 +1049,6 @@ int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldLis
 		const uint fld_count = inner_fld_list.getCount();
 		const uint ind_len = ALIGNSIZE(fld_count, 2);
 		SBuffer temp_buf;
-		uint8  st_ind_list[512];
 		if(ind_len > SIZEOFARRAY(st_ind_list)) {
 			//
 			// Страховка от случая, когда количество полей больше, чем 512

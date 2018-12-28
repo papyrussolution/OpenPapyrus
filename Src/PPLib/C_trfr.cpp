@@ -959,9 +959,9 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 	return  rBuf;
 }
 
-int SLAPI Transfer::ProcessLotFault(PPLotFaultArray * pAry, int fault, double act, double valid)
+int SLAPI Transfer::ProcessLotFault(PPLotFaultArray & rList, int fault, double act, double valid)
 {
-	return pAry ? pAry->AddFault(fault, &data, act, valid) : 1;
+	return rList.AddFault(fault, &data, act, valid);
 }
 
 class RevalArray : public SVector { // @v9.8.8 SArray-->SVector
@@ -1043,7 +1043,7 @@ int SLAPI RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * p
 	return 1;
 }
 
-int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPLotFaultArray * pAry)
+int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPLotFaultArray & rResultList)
 {
 	int    ok = 1;
 	LcrBlock * p_lcr = 0;
@@ -1070,7 +1070,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 							;
 						}
 						else {
-                            pAry->AddFault(PPLotFault::EgaisCodeAlone, &rec, 0, 0);
+                            rResultList.AddFault(PPLotFault::EgaisCodeAlone, &rec, 0, 0);
 						}
 					}
 				}
@@ -1085,69 +1085,63 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 							if(sstrlen(r_bc_rec.Code) != 19)
 								bc_list.atFree(bcc);
 						} while(bcc);
-						if(bc_list.getCount() == 1) {
-							pAry->AddFault(PPLotFault::NoEgaisCode, &rec, 0, 0);
-						}
-						else if(bc_list.getCount() > 1) {
-							pAry->AddFault(PPLotFault::NoEgaisCodeAmbig, &rec, 0, 0);
-						}
+						if(bc_list.getCount() == 1)
+							rResultList.AddFault(PPLotFault::NoEgaisCode, &rec, 0, 0);
+						else if(bc_list.getCount() > 1)
+							rResultList.AddFault(PPLotFault::NoEgaisCodeAmbig, &rec, 0, 0);
 					}
 				}
 				// } @v9.7.8
             }
-            else {
-				pAry->AddFault(PPLotFault::RefGoods, &rec, 0, 0);
-            }
+            else
+				rResultList.AddFault(PPLotFault::RefGoods, &rec, 0, 0);
 		}
-		else {
-			pAry->AddFault(PPLotFault::RefGoodsZero, &rec, 0, 0);
-		}
+		else
+			rResultList.AddFault(PPLotFault::RefGoodsZero, &rec, 0, 0);
 		if(rec.BillID) { // Если не котировка и не специальный лот
 			if(flags & TLRF_REPAIRPACK && rec.UnitPerPack <= 0.0) {
-				pAry->AddFault(PPLotFault::NoPack, &rec, 0, 0);
+				rResultList.AddFault(PPLotFault::NoPack, &rec, 0, 0);
 			}
 			else if(flags & TLRF_REPAIRPACKUNCOND) {
 				GoodsStockExt gse;
 				if(goods_obj.GetStockExt(labs(rec.GoodsID), &gse, 0) > 0 && gse.Package > 0 && !feqeps(gse.Package, rec.UnitPerPack, 1E-7))
-					pAry->AddFault(PPLotFault::PackDifferentGSE, &rec, 0, 0);
+					rResultList.AddFault(PPLotFault::PackDifferentGSE, &rec, 0, 0);
 			}
 			if(rec.PrevLotID) {
 				if(rec.ID == rec.PrevLotID)
-					ProcessLotFault(pAry, PPLotFault::RefPrevEqID, 0, 0);
-				if(pAry) {
-					//
-					// Проверка на циклическую ссылку и плохие связи
-					//
-					PPID   org_lot_id = rec.ID;
-					PPIDArray looked;
-					ReceiptTbl::Rec lot_rec, prev_lot_rec;
-					prev_lot_rec = rec;
-					for(PPID id = rec.PrevLotID; id != 0; id = lot_rec.PrevLotID) {
-						if(Rcpt.Search(id, &lot_rec) > 0) {
-							if(lot_rec.GoodsID != prev_lot_rec.GoodsID) {
-								pAry->AddFault(PPLotFault::PrevLotGoods, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
-							}
-							if(lot_rec.LocID == prev_lot_rec.LocID) {
-								pAry->AddFault(PPLotFault::PrevLotLoc, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
-							}
-							if((lot_rec.Flags & LOTF_COSTWOVAT) != (prev_lot_rec.Flags & LOTF_COSTWOVAT)) {
-								pAry->AddFault(PPLotFault::PrevLotFlagsCWoVat, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
-							}
-							if(looked.lsearch(id)) {
-								pAry->AddFault(PPLotFault::CyclicLink, &rec, org_lot_id, id);
-								break;
-							}
-							else {
-								looked.add(id);
-								org_lot_id = id;
-							}
+					ProcessLotFault(rResultList, PPLotFault::RefPrevEqID, 0, 0);
+				//
+				// Проверка на циклическую ссылку и плохие связи
+				//
+				PPID   org_lot_id = rec.ID;
+				PPIDArray looked;
+				ReceiptTbl::Rec lot_rec, prev_lot_rec;
+				prev_lot_rec = rec;
+				for(PPID id = rec.PrevLotID; id != 0; id = lot_rec.PrevLotID) {
+					if(Rcpt.Search(id, &lot_rec) > 0) {
+						if(lot_rec.GoodsID != prev_lot_rec.GoodsID) {
+							rResultList.AddFault(PPLotFault::PrevLotGoods, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
 						}
-						else {
-							pAry->AddFault(PPLotFault::LinkNotFound, &rec, org_lot_id, id);
+						if(lot_rec.LocID == prev_lot_rec.LocID) {
+							rResultList.AddFault(PPLotFault::PrevLotLoc, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
+						}
+						if((lot_rec.Flags & LOTF_COSTWOVAT) != (prev_lot_rec.Flags & LOTF_COSTWOVAT)) {
+							rResultList.AddFault(PPLotFault::PrevLotFlagsCWoVat, &lot_rec, lot_rec.ID, prev_lot_rec.ID);
+						}
+						if(looked.lsearch(id)) {
+							rResultList.AddFault(PPLotFault::CyclicLink, &rec, org_lot_id, id);
 							break;
 						}
-						prev_lot_rec = lot_rec;
+						else {
+							looked.add(id);
+							org_lot_id = id;
+						}
 					}
+					else {
+						rResultList.AddFault(PPLotFault::LinkNotFound, &rec, org_lot_id, id);
+						break;
+					}
+					prev_lot_rec = lot_rec;
 				}
 			}
 			if(rec.GoodsID < 0) { // Заказ
@@ -1155,24 +1149,24 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 				if(p_bobj->Search(rec.BillID, &bill_rec) > 0) {
 					if(CheckOpFlags(bill_rec.OpID, OPKF_ORDRESERVE)) {
 						if(!(rec.Flags & LOTF_ORDRESERVE))
-							ProcessLotFault(pAry, PPLotFault::OrdReserveFlag, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::OrdReserveFlag, 0, 0);
 					}
 					else if(rec.Flags & LOTF_ORDRESERVE)
-						ProcessLotFault(pAry, PPLotFault::OrdReserveFlag, 0, 0);
+						ProcessLotFault(rResultList, PPLotFault::OrdReserveFlag, 0, 0);
 					if(bill_rec.Flags & BILLF_CLOSEDORDER && !(rec.Flags & LOTF_CLOSEDORDER))
-						ProcessLotFault(pAry, PPLotFault::CloseTag, 0, 0);
+						ProcessLotFault(rResultList, PPLotFault::CloseTag, 0, 0);
 				}
 			}
 			if(rec.Rest < 0.0) {
-				ProcessLotFault(pAry, PPLotFault::NegativeRest, 0, 0);
+				ProcessLotFault(rResultList, PPLotFault::NegativeRest, 0, 0);
 			}
 			if(flags & TLRF_CHECKUNIQSERIAL) {
 				p_bobj->GetSerialNumberByLot(rec.ID, serial_buf, 0);
 				if(p_bobj->AdjustSerialForUniq(rec.GoodsID, rec.ID, 1, serial_buf) > 0)
-					ProcessLotFault(pAry, PPLotFault::NonUniqSerial, 0, 0);
+					ProcessLotFault(rResultList, PPLotFault::NonUniqSerial, 0, 0);
 			}
 			if(rec.Flags & LOTF_PRICEWOTAXES && !(goods_rec.Flags & GF_PRICEWOTAXES)) {
-				ProcessLotFault(pAry, PPLotFault::InadqLotWoTaxFlagOn, 0, 0);
+				ProcessLotFault(rResultList, PPLotFault::InadqLotWoTaxFlagOn, 0, 0);
 			}
 			{
 				TransferTbl::Key2 k;
@@ -1205,42 +1199,42 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						int    invalid_first_op = 0;
 						reval_list.Add(&data, 1);
 						if(rec.BillID != data.BillID) {
-							ProcessLotFault(pAry, PPLotFault::FirstBillID, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::FirstBillID, 0, 0);
 							invalid_first_op = 1;
 						}
 						if(rec.Dt != data.Dt) {
-							ProcessLotFault(pAry, PPLotFault::FirstDt, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::FirstDt, 0, 0);
 							invalid_first_op = 1;
 						}
 						if(!invalid_first_op) {
 							if(R6(rec.Quantity - data.Quantity) != 0.0)
-								ProcessLotFault(pAry, PPLotFault::Quantity, rec.Quantity, data.Quantity);
+								ProcessLotFault(rResultList, PPLotFault::Quantity, rec.Quantity, data.Quantity);
 						}
 					}
 					else if(data.Flags & PPTFR_REVAL)
 						reval_list.Add(&data, 0);
 					if(labs(rec.GoodsID) != labs(data.GoodsID))
-						ProcessLotFault(pAry, PPLotFault::OpGoodsID, 0, 0);
+						ProcessLotFault(rResultList, PPLotFault::OpGoodsID, 0, 0);
 					else if(data.GoodsID) {
 						if((data.Flags & PPTFR_INDEPPHQTTY)  && !(goods_rec.Flags & GF_USEINDEPWT))
-							ProcessLotFault(pAry, PPLotFault::InadqIndepPhFlagOn, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::InadqIndepPhFlagOn, 0, 0);
 						else if(!(data.Flags & PPTFR_INDEPPHQTTY) && (goods_rec.Flags & GF_USEINDEPWT))
-							ProcessLotFault(pAry, PPLotFault::InadqIndepPhFlagOff, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::InadqIndepPhFlagOff, 0, 0);
 					}
 					if(rec.GoodsID > 0 && rec.LocID != data.LocID)
-						ProcessLotFault(pAry, PPLotFault::OpLocation, 0, 0);
+						ProcessLotFault(rResultList, PPLotFault::OpLocation, 0, 0);
 					if(data.Flags & PPTFR_COSTWOVAT && !(rec.Flags & LOTF_COSTWOVAT))
-						ProcessLotFault(pAry, PPLotFault::OpFlagsCWoVat, 1, 0);
+						ProcessLotFault(rResultList, PPLotFault::OpFlagsCWoVat, 1, 0);
 					if(!(data.Flags & PPTFR_COSTWOVAT) && rec.Flags & LOTF_COSTWOVAT)
-						ProcessLotFault(pAry, PPLotFault::OpFlagsCWoVat, 0, 1);
+						ProcessLotFault(rResultList, PPLotFault::OpFlagsCWoVat, 0, 1);
 					if(data.Flags & PPTFR_PRICEWOTAXES && !(goods_rec.Flags & GF_PRICEWOTAXES))
-						ProcessLotFault(pAry, PPLotFault::InadqTrfrWoTaxFlagOn, 0, 0);
+						ProcessLotFault(rResultList, PPLotFault::InadqTrfrWoTaxFlagOn, 0, 0);
 					rest = R6(rest + data.Quantity);
 					ph_rest = R6(ph_rest + data.WtQtty);
 					if(R6(data.Rest - rest) != 0.0)
-						ProcessLotFault(pAry, PPLotFault::OpRest, data.Rest, rest);
+						ProcessLotFault(rResultList, PPLotFault::OpRest, data.Rest, rest);
 					if(R6(data.WtRest - ph_rest) != 0.0)
-						ProcessLotFault(pAry, PPLotFault::OpWtRest, (double)data.WtRest, ph_rest);
+						ProcessLotFault(rResultList, PPLotFault::OpWtRest, (double)data.WtRest, ph_rest);
 					if(data.Flags & PPTFR_RECEIPT) {
 						THROW_SL(rcpt_pos_list.insert(&p));
 					}
@@ -1249,39 +1243,39 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 				}
 				if(p_lcr2) {
 					p_lcr2->FinishLot();
-					p_lcr2->TranslateErr(pAry);
+					p_lcr2->TranslateErr(&rResultList);
 					ZDELETE(p_lcr2);
 				}
 				else if(p_lcr) {
 					p_lcr->FinishLot();
-					p_lcr->TranslateErr(pAry);
+					p_lcr->TranslateErr(&rResultList);
 					ZDELETE(p_lcr);
 				}
 				if(op_count > 0) {
 					if(R6(rec.Rest - rest) != 0)
-						ProcessLotFault(pAry, PPLotFault::Rest, rec.Rest, rest);
+						ProcessLotFault(rResultList, PPLotFault::Rest, rec.Rest, rest);
 					if(R6(rec.WtRest - ph_rest) != 0)
-						ProcessLotFault(pAry, PPLotFault::WtRest, (double)rec.WtRest, ph_rest);
+						ProcessLotFault(rResultList, PPLotFault::WtRest, (double)rec.WtRest, ph_rest);
 					if(rest == 0.0) {
 						if(!rec.Closed)
-							ProcessLotFault(pAry, PPLotFault::CloseTag, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::CloseTag, 0, 0);
 						if(rec.GoodsID > 0)
 							if(rec.CloseDate != last_dt)
-								ProcessLotFault(pAry, PPLotFault::CloseDate, 0, 0);
+								ProcessLotFault(rResultList, PPLotFault::CloseDate, 0, 0);
 					}
 					else if(rec.GoodsID > 0) {
 						if(rec.Closed)
-							ProcessLotFault(pAry, PPLotFault::CloseTag, 0 , 0);
+							ProcessLotFault(rResultList, PPLotFault::CloseTag, 0 , 0);
 						if(rec.CloseDate != MAXLONG)
-							ProcessLotFault(pAry, PPLotFault::CloseDate, 0, 0);
+							ProcessLotFault(rResultList, PPLotFault::CloseDate, 0, 0);
 					}
 				}
 				else
-					ProcessLotFault(pAry, PPLotFault::NoOps, 0, 0);
+					ProcessLotFault(rResultList, PPLotFault::NoOps, 0, 0);
 				if(rcpt_pos_list.getCount() > 1) {
 					DBRowId last_p = rcpt_pos_list.at(rcpt_pos_list.getCount()-1);
 					THROW_DB(getDirect(0, 0, last_p));
-					ProcessLotFault(pAry, PPLotFault::NonSingleRcptOp, 0, 0);
+					ProcessLotFault(rResultList, PPLotFault::NonSingleRcptOp, 0, 0);
 				}
 				if(rec.GoodsID > 0) {  // Not Order
 					reval_list.Shift();
@@ -1295,7 +1289,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 								if(data.Flags & PPTFR_ORDER) {
 									BillTbl::Rec bill_rec;
 									if(p_bobj->Search(data.BillID, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) {
-										ProcessLotFault(pAry, PPLotFault::OrdOpOnSimpleLot, 0.0, 0.0);
+										ProcessLotFault(rResultList, PPLotFault::OrdOpOnSimpleLot, 0.0, 0.0);
 									}
 								}
 							}
@@ -1306,11 +1300,11 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 							reval_list.GetPrices(data.Dt, data.OprNo, &cost, &price, &reval_idx);
 							if(R5(op_cost - cost) != 0.0) {
 								if(op_count)
-									ProcessLotFault(pAry, PPLotFault::OpCost, op_cost, cost);
+									ProcessLotFault(rResultList, PPLotFault::OpCost, op_cost, cost);
 								else {
-									ProcessLotFault(pAry, PPLotFault::FirstCost, cost, op_cost);
+									ProcessLotFault(rResultList, PPLotFault::FirstCost, cost, op_cost);
 									if(reval_idx < 0) {
-										ProcessLotFault(pAry, PPLotFault::FirstCost, cost, op_cost);
+										ProcessLotFault(rResultList, PPLotFault::FirstCost, cost, op_cost);
 										reval_list.LotCost = op_cost;
 									}
 									else {
@@ -1325,22 +1319,22 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 											k1.Dt = p_rai->Dt;
 											k1.OprNo = p_rai->OprNo;
 											if(search(1, &k1, spEq))
-												ProcessLotFault(pAry, PPLotFault::RevalOldCost, cost, op_cost);
+												ProcessLotFault(rResultList, PPLotFault::RevalOldCost, cost, op_cost);
 											else
-												ProcessLotFault(pAry, PPLotFault::FirstCost, cost, op_cost);
+												ProcessLotFault(rResultList, PPLotFault::FirstCost, cost, op_cost);
 											p_rai->OldCost = op_cost;
 										}
 										else
-											ProcessLotFault(pAry, PPLotFault::FirstCost, cost, op_cost);
+											ProcessLotFault(rResultList, PPLotFault::FirstCost, cost, op_cost);
 									}
 								}
 							}
 							if(R5(op_price - price) != 0.0) {
 								if(op_count)
-									ProcessLotFault(pAry, PPLotFault::OpPrice, op_price, price);
+									ProcessLotFault(rResultList, PPLotFault::OpPrice, op_price, price);
 								else {
 									if(reval_idx < 0) {
-										ProcessLotFault(pAry, PPLotFault::FirstPrice, price, op_price);
+										ProcessLotFault(rResultList, PPLotFault::FirstPrice, price, op_price);
 										reval_list.LotPrice = op_price;
 									}
 									else {
@@ -1355,13 +1349,13 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 											k1.Dt = p_rai->Dt;
 											k1.OprNo = p_rai->OprNo;
 											if(search(1, &k1, spEq))
-												ProcessLotFault(pAry, PPLotFault::RevalOldPrice, price, op_price);
+												ProcessLotFault(rResultList, PPLotFault::RevalOldPrice, price, op_price);
 											else
-												ProcessLotFault(pAry, PPLotFault::FirstPrice, price, op_price);
+												ProcessLotFault(rResultList, PPLotFault::FirstPrice, price, op_price);
 											p_rai->OldPrice = op_price;
 										}
 										else
-											ProcessLotFault(pAry, PPLotFault::FirstPrice, price, op_price);
+											ProcessLotFault(rResultList, PPLotFault::FirstPrice, price, op_price);
 									}
 								}
 							}
@@ -1370,7 +1364,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 					}
 				}
 			}
-			ok = (pAry && pAry->getCount()) ? -1 : 1;
+			ok = rResultList.getCount() ? -1 : 1;
 		}
 	}
 	CATCHZOK

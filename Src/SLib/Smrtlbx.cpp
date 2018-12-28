@@ -113,23 +113,13 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
 	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
 	switch(uMsg) {
-		case WM_DESTROY: // Не вызывается. Непонятно правда почему.
-			CALLPTRMEMB(p_view, OnDestroy(hWnd));
-			return 0;
+		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-			::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), (LPARAM)hWnd);
-			break; // Process by default
+		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), (LPARAM)hWnd); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
-			break;
-		case WM_CHAR:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
-			return 0;
-		case WM_NOTIFY:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
-			return 0;
+		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd); break;
+		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd); return 0;
+		case WM_NOTIFY: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); return 0;
 		case WM_ERASEBKGND:
 			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
 				TDrawItemData di;

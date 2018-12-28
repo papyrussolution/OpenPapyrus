@@ -838,7 +838,7 @@ int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 //
 class VATBCfgDialog : public PPListDialog {
 public:
-	VATBCfgDialog(uint rezID) : PPListDialog(rezID, CTL_VATBCFG_LIST)
+	VATBCfgDialog(uint rezID) : PPListDialog(rezID, CTL_VATBCFG_LIST), P_List(0)
 	{
 		updateList(-1);
 	}

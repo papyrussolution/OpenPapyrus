@@ -973,7 +973,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 
 class Print2Dialog : public TDialog {
 public:
-	Print2Dialog() : TDialog(DLG_PRINT2), EnableEMail(0)
+	Print2Dialog() : TDialog(DLG_PRINT2), EnableEMail(0), P_Data(0)
 	{
 	}
 	int    setDTS(PrnDlgAns * pData)

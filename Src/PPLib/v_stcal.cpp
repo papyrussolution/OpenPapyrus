@@ -685,7 +685,7 @@ int SLAPI PPViewStaffCal::Print(const void *)
 //
 //
 //
-SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid() : STimeChunkGrid()
+SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid() : STimeChunkGrid(), P_View(0)
 {
 }
 

@@ -760,7 +760,7 @@ int SLAPI PPViewLot::RecoverLots()
 				ReceiptTbl::Rec lot_rec;
 				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
 					PPLotFaultArray ary(_lot_id, logger);
-					THROW(r = p_trfr->CheckLot(_lot_id, 0, param.Flags, &ary));
+					THROW(r = p_trfr->CheckLot(_lot_id, 0, param.Flags, ary));
 					if(r < 0) {
 						err_lot_count++;
 						ary.AddMessage();

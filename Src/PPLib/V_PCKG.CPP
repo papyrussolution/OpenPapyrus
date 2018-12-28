@@ -81,14 +81,11 @@ private:
 	SmartListBox * P_List;
 	const  SArray * P_PckgList;
 	PPID   SelPckgID;
-
 	PPObjBill * P_BObj;
 };
 
-SelPckgDialog::SelPckgDialog(PPObjBill * pBObj) : TDialog(DLG_SELPCKG)
+SelPckgDialog::SelPckgDialog(PPObjBill * pBObj) : TDialog(DLG_SELPCKG), P_BObj(pBObj), SelPckgID(0), P_PckgList(0)
 {
-	P_BObj = pBObj;
-	SelPckgID = 0;
 	P_List = (SmartListBox*)getCtrlView(CTL_SELPCKG_LIST);
 	if(!SetupStrListBox(P_List))
 		PPError();

@@ -2792,7 +2792,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define NMBF_DELAPOSTR NMBF_TRIAPOSTR  // @obsolete (still used in resource)
 #define NMBF_DELSPACE  NMBF_TRISPACE   // @obsolete (still used in resource)
 #define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
-#define NMBF_DECCOMMA  0x0100  // @v9.4.3 Десятичный разделитель - запатая ',', иначе - точка '.'
+#define NMBF_DECCOMMA  0x0100  // @v9.4.3 Десятичный разделитель - запятая ',', иначе - точка '.'
 #define NMBF_EXPLFLOAT 0x0200  // @v9.7.8 Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
 #define NMBF_OMITEPS   0x0400  // @v9.8.0 Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
 	// число форматируется с округлением до ближайшей соседней десятичной цифры с заменой последующих на нули.

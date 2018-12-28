@@ -709,12 +709,12 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 					;
 				else if(p_cur->Text.IsEqiAscii("positions")) {
 					const json_t * p_ary = p_cur->P_Child;
-					if(p_ary && p_ary->Type == json_t::tARRAY)
+					if(p_ary->Type == json_t::tARRAY)
 						p_positions_ary = p_ary;
 				}
 				else if(p_cur->Text.IsEqiAscii("payments")) {
 					const json_t * p_ary = p_cur->P_Child;
-					if(p_ary && p_ary->Type == json_t::tARRAY)
+					if(p_ary->Type == json_t::tARRAY)
 						p_payms_ary = p_ary;
 				}
 			}

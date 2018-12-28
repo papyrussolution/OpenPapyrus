@@ -769,7 +769,7 @@ void PPALDD_PrcBusyView::Destroy() { DESTROY_PPVIEW_ALDD(PrcBusy); }
 //
 // STimeChunkBrowser {
 //
-SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid() : STimeChunkGrid()
+SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid() : STimeChunkGrid(), P_View(0)
 {
 }
 

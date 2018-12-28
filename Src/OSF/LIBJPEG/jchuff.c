@@ -155,7 +155,7 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 	p = 0;
 	for(l = 1; l <= 16; l++) {
 		i = (int)htbl->bits[l];
-		if(i < 0 || p + i > 256) /* protect against table overrun */
+		if(i < 0 || (p + i) > 256) /* protect against table overrun */
 			ERREXIT(cinfo, JERR_BAD_HUFF_TABLE);
 		while(i--)
 			huffsize[p++] = (char)l;
