@@ -1241,7 +1241,7 @@ const SString & FASTCALL PPPosProtocol::CorrectAndEncText(const char * pS)
 		for(uint i = 0; i < len; i++) {
 			const uchar c = EncBuf.C(i);
 			if(c < 0x20 && !oneof3(c, 0x09, 0x0a, 0x0d))
-				temp_buf.Cat('?');
+				temp_buf.CatChar('?');
 			else
 				temp_buf.Cat(c);
 		}
