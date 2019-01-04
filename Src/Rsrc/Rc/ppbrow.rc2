@@ -5437,6 +5437,7 @@ browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств%s", OWNER|GRI
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS       : kbF2,     TBBM_GOODS,     "@{cmd_goods}\tF2"
 		SCARDS          : kbF3,     TBBM_EXTRAVIEW, "Карты\tF3"
+		VIEWBILLS       : kbF4,     TBBM_BILLS,     "Документы, учтенные при расчете изменений\tF4"
 		EDITDEVICE      : kbF5,     TBBM_DEVICE,    "@{device}\tF5"
 		EXPORT          : kbF8,     TBBM_EXPORT,    "Загрузить изменения\tF8"
 		EXPORTREDOSINCE : kbCtrlF8, TBBM_NOICON,    "Повторная загрузка данных\tCtrl-F8"
@@ -5444,7 +5445,6 @@ browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств%s", OWNER|GRI
 		CHANGEFILT      : kbCtrlV,  TBBM_FILTER,    "@{filter}\tCtrl-V"
 	}
 }
-
 //
 // @ModuleDef(PPViewDLSDetail)
 //
@@ -6201,6 +6201,22 @@ browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
 	"Data",                 16,  zstring(64), 0,  20, BCO_USERPROC
 	"BridgeId",             17,  zstring(64), 0,  12, BCO_USERPROC // @v10.0.02
 }
+//
+// @construction
+//
+browser TSSTKENVMONITOR north(100), 1, 0, "TSSTKENVMONITOR", OWNER|GRID, 0
+{
+	"Ticker",                1,  zstring(32), 0,  20, BCO_USERPROC
+	"Ident",                 2,  zstring(32), 0,  20, BCO_USERPROC
+	"InitTime",              3,  datetime,    0,  20, BCO_USERPROC
+	"Volume",                4,  double,      0,  20, BCO_USERPROC
+	"Price Open",            5,  double,      0,  20, BCO_USERPROC
+	"Price Current",         6,  double,      0,  20, BCO_USERPROC
+	"Ask",                   7,  double,      0,  20, BCO_USERPROC
+	"Bid",                   8,  double,      0,  20, BCO_USERPROC
+	"StopLimit",             9,  double,      0,  20, BCO_USERPROC
+	"TakeProfit",           10,  double,      0,  20, BCO_USERPROC
+}
 
 browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
@@ -6532,33 +6548,33 @@ cmd ImportSCard2          { "@{cmd_importscard2}"                          none 
 cmd GlobalAccCfg          { "@{cmd_globalacccfg}"                          none                  none cmGlobalAccCfg }
 cmd TestPredictSalesTbl   { "@{cmd_testpredictsalestbl}"                   ICON_TEST             none cmTestPredictSalesTbl }
 cmd ExportGoodsRestUhtt   { "Экспорт цен и остатков в Universe-HTT"        none                  none cmExportGoodsRestUhtt }
-cmd GenericDevice         { "@{cmd_genericdevice}"                         none                  none cmGenericDevice }    // @v7.8.0
-cmd IndexTextObjects      { "Индексация текстовых объектов (construction)" none                  none cmIndexTextObjects } // @v7.8.0
-cmd OpenTextFile          { "@{cmd_opentextfile}"                          ICON_OPENTEXTFILE     none cmOpenTextFile }     // @v7.8.7
-cmd ProcessObjText        { "Обработка текстовых объектов"                 none                  none cmProcessObjText }   // @v7.9.2
-cmd PersonEventByReader   { "Персональное событие по считыванию с устройства" none               none cmPersonEventByReader } // @v7.9.6
-cmd TestReconnect         { "Тест реконнекта серверной сессии"             ICON_TEST             none cmTestReconnect }    // @v8.0.6
+cmd GenericDevice         { "@{cmd_genericdevice}"                         none                  none cmGenericDevice }
+cmd IndexTextObjects      { "Индексация текстовых объектов (construction)" none                  none cmIndexTextObjects }
+cmd OpenTextFile          { "@{cmd_opentextfile}"                          ICON_OPENTEXTFILE     none cmOpenTextFile }
+cmd ProcessObjText        { "Обработка текстовых объектов"                 none                  none cmProcessObjText }
+cmd PersonEventByReader   { "Персональное событие по считыванию с устройства" none               none cmPersonEventByReader }
+cmd TestReconnect         { "Тест реконнекта серверной сессии"             ICON_TEST             none cmTestReconnect }
 cmd TSessAutoSms          { "Рассылка смс на основе технологических сессий" none                  none cmTSessAutoSms }
-cmd Workbook              { "@{cmd_workbook}"                              ICON_WORKBOOK          none cmWorkbook } // @v8.1.1
-cmd WorkbookConfig        { "@{cmd_workbookcfg}"                           none                   none cmWorkbookCfg } // @v8.1.7
-cmd ConvertLatexToHtml    { "Конвертация LATEX-документации (только для внутреннего использования)" none none cmConvertLatexToHtml } // @v8.1.12
-cmd GenerateKeywordSeq    { "Генерация последовательностей слов (тест)"    none                   none cmGenerateKeywordSeq } // @v8.2.10
-cmd TestUhttGetLocByPhone { "Тест SOAP-функции получения адресов по номеру телефона" ICON_TEST    none cmTestUhttGetLocByPhone } // @v8.3.2
-cmd GoodsMovOld           { "Движение товаров (старая версия)"             ICON_GOODSMOV          none cmGoodsMov view=GoodsMov   }
-cmd TestUhttGetQuotByLoc  { "Тест SOAP-функции получения котировок по коду локации"  ICON_TEST    none cmTestUhttGetQuotByLoc } // @v8.3.6
-cmd LocationTag           { "@{cmd_locationtag}"                           ICON_TAGS              none cmLocationTag } // @v8.3.6
-cmd ConvertVersionToHtml  { "Конвертация version.txt (только для внутреннего использования)" none none cmConvertVersionToHtml } // @v8.3.12
-cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          ICON_TAGS              none cmObjTagAllObj } // @v8.5.3
-cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias } // @v8.6.2
-cmd ExportDbTblTransfer   { "Экспорт таблицы Transfer"                     none                   none cmExportDbTblTransfer } // @v8.6.7
-cmd ExportDbTblBill       { "Экспорт таблицы Bill"                         none                   none cmExportDbTblBill } // @v8.6.8
-cmd TestFias              { "@{cmd_testfias}"                              none                   none cmTestFias } // @v8.6.10
-cmd ViewGeoTracking       { "@{cmd_viewgeotracking}"                       none                   none cmViewGeoTracking } // @v8.6.11
-cmd ImportTSessUHTT       { "@{cmd_importtsessuhtt}"                       none                   none cmImportTSessUHTT } // @v8.7.10
-cmd TestCURL              { "@{cmd_testcurl}"                              ICON_TEST              none cmTestCURL } // @v8.8.0
-cmd TestEGAIS             { "@{cmd_testegais}"                             ICON_TEST              none cmTestEGAIS } // @v8.8.0
-cmd QueryEGAIS            { "@{cmd_queryegais}"                            none                   none cmQueryEGAIS } // @v8.8.1
-cmd TestSearchEmail       { "@{cmd_testsearchemail}"                       ICON_TEST              none cmTestSearchEmail } // @v8.8.9
+cmd Workbook              { "@{cmd_workbook}"                              ICON_WORKBOOK          none cmWorkbook }
+cmd WorkbookConfig        { "@{cmd_workbookcfg}"                           none                   none cmWorkbookCfg }
+cmd ConvertLatexToHtml    { "Конвертация LATEX-документации (только для внутреннего использования)" none none cmConvertLatexToHtml }
+cmd GenerateKeywordSeq    { "Генерация последовательностей слов (тест)"    none                   none cmGenerateKeywordSeq }
+cmd TestUhttGetLocByPhone { "Тест SOAP-функции получения адресов по номеру телефона" ICON_TEST    none cmTestUhttGetLocByPhone }
+cmd GoodsMovOld           { "Движение товаров (старая версия)"             ICON_GOODSMOV          none cmGoodsMov view=GoodsMov }
+cmd TestUhttGetQuotByLoc  { "Тест SOAP-функции получения котировок по коду локации"  ICON_TEST    none cmTestUhttGetQuotByLoc }
+cmd LocationTag           { "@{cmd_locationtag}"                           ICON_TAGS              none cmLocationTag }
+cmd ConvertVersionToHtml  { "Конвертация version.txt (только для внутреннего использования)" none none cmConvertVersionToHtml }
+cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          ICON_TAGS              none cmObjTagAllObj }
+cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias }
+cmd ExportDbTblTransfer   { "Экспорт таблицы Transfer"                     none                   none cmExportDbTblTransfer }
+cmd ExportDbTblBill       { "Экспорт таблицы Bill"                         none                   none cmExportDbTblBill }
+cmd TestFias              { "@{cmd_testfias}"                              none                   none cmTestFias }
+cmd ViewGeoTracking       { "@{cmd_viewgeotracking}"                       none                   none cmViewGeoTracking }
+cmd ImportTSessUHTT       { "@{cmd_importtsessuhtt}"                       none                   none cmImportTSessUHTT }
+cmd TestCURL              { "@{cmd_testcurl}"                              ICON_TEST              none cmTestCURL }
+cmd TestEGAIS             { "@{cmd_testegais}"                             ICON_TEST              none cmTestEGAIS }
+cmd QueryEGAIS            { "@{cmd_queryegais}"                            none                   none cmQueryEGAIS }
+cmd TestSearchEmail       { "@{cmd_testsearchemail}"                       ICON_TEST              none cmTestSearchEmail }
 cmd BuildLocalDL600       { "@{cmd_buildlocaldl600}"                       none                   none cmBuildLocalDL600 } // @v9.1.7
 cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none                   none cmSupplInterchange } // @v9.2.1
 cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange } // @v9.3.10
@@ -6572,7 +6588,7 @@ cmd TestVetis             { "@{cmd_testvetis}"                             ICON_
 cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
 cmd VetisDocument         { "@{cmd_vetisdocument}"                         none                   none cmVetisDocument view = VetisDocument } // @v10.0.12
 cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       none                   none cmVetisInterchange } // @v10.1.2
-cmd TimeSeriesNnTrain     { "@{cmd_timeseriesnntrain}"                     none                   none cmTimeSeriesNnTrain } // @v10.1.4
+cmd TimeSeriesSA          { "@{cmd_tsstrategyanalyze}"                     none                   none cmTimeSeriesSA } // @v10.1.4
 //
 // -------------- Описания серверных задач
 //
@@ -6744,8 +6760,9 @@ filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
 filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
 view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
 view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
+filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
 //
-// lastviewfilter ATTENTION: New view && filt befor this line!
+// lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
 //
 // -------------- Описания встроенных записей данных (не базы данных)

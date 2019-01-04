@@ -1110,12 +1110,10 @@ int SLAPI PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID
 		bill_filt.OpID = opID;
 		if(locID)
 			bill_filt.LocList.Add(locID);
-		if(!Filt.Operation.IsZero()) {
+		if(!Filt.Operation.IsZero())
 			bill_filt.Period = Filt.Operation;
-		}
-		else {
+		else
 			bill_filt.Period.Set(plusdate(_curdate, -3), _curdate);
-		}
 		if(bill_view.Init_(&bill_filt)) {
 			BillViewItem bill_item;
 			PPBillPacket bp;

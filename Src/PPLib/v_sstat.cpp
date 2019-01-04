@@ -1495,9 +1495,10 @@ int SLAPI PPViewSStat::ViewCreatedBills()
 {
 	int    ok = -1;
 	if(CreatedBillList.getCount()) {
-		PPViewBill view;
+		// @v10.2.11 (unused) PPViewBill view;
 		BillFilt filt;
 		filt.List.Set(&CreatedBillList);
+		filt.Flags |= BillFilt::fBillListOnly; // @v10.2.11
 		PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
 	}
 	return ok;

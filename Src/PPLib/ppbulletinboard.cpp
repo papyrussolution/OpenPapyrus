@@ -1,5 +1,5 @@
 // PPBulletinBoard.cpp
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 // @codepage UTF-8
 // Концепт доски объявлений, реализующей функционал общедоступных системных задач
 //
@@ -194,6 +194,25 @@ public:
 	int    SLAPI SetTimeSeries(STimeSeries & rTs);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv);
+	int    SLAPI SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep)
+	{
+		int    ok = 1;
+		uint   idx = 0;
+		OpL.Lock();
+		TimeSeriesBlock * p_blk = SearchBlockBySymb(pSymb, &idx);
+		if(p_blk) {
+			if(volumeMin > 0.0)
+				p_blk->VolumeMin = volumeMin;
+			if(volumeMax > 0.0)
+				p_blk->VolumeMax = volumeMax;
+			if(volumeStep > 0.0)
+				p_blk->VolumeStep = volumeStep;
+		}
+		else
+			ok = 0;
+		OpL.Unlock();
+		return ok;
+	}
 	int    SLAPI Flash();
 private:
 	struct TimeSeriesBlock {
@@ -205,6 +224,9 @@ private:
 		// Следующие 2 поля нужны для расчета среднего спреда
 		uint   SpreadSum; // Накопленная сумма величин спредов
 		uint   SpreadCount; // Количество накопленных величин спредов
+		double VolumeMin;
+		double VolumeMax;
+		double VolumeStep;
 		PPTimeSeries PPTS;
 		STimeSeries T;
 	};
@@ -261,7 +283,7 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	b.Get(p_data_rec->CurrencySymb, sizeof(p_data_rec->CurrencySymb));
 }
 
-SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0)
+SLAPI TimeSeriesCache::TimeSeriesBlock::TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0)
 {
 }
 
@@ -351,9 +373,74 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(const char *
 	return p_fblk;
 }
 
+static void LogStateEnvironment(const TsStakeEnvironment & rEnv)
+{
+	SString file_name;
+	SString line_buf;
+	SString temp_buf;
+	SString comment_buf;
+	PPGetFilePath(PPPATH_LOG, "TsStakeEnvironment.log", file_name);
+	SFile f_out(file_name, SFile::mAppend);
+	line_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+	f_out.WriteLine(line_buf.CR());
+	line_buf.Z().Cat("Account").CatDiv(':', 2).Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+		Cat(rEnv.Acc.ID).Space().
+		Cat(rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
+		Cat(rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().
+		Cat(rEnv.Acc.Profit, MKSFMTD(0, 2, 0));
+	f_out.WriteLine(line_buf.CR());
+	{
+		for(uint i = 0; i < rEnv.SL.getCount(); i++) {
+			const TsStakeEnvironment::Stake & r_stk = rEnv.SL.at(i);
+			rEnv.GetS(r_stk.SymbP, temp_buf);
+			rEnv.GetS(r_stk.CommentP, comment_buf);
+			line_buf.Z().Cat("Stake").CatDiv(':', 2).
+				Cat(temp_buf).Space().
+				Cat(r_stk.Type).Space().
+				Cat(r_stk.Ticket).Space().
+				Cat(r_stk.SetupDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+				Cat(r_stk.VolumeInit, MKSFMTD(0, 0, 0)).Space().
+				Cat(r_stk.PriceOpen, MKSFMTD(0, 5, 0)).Space().
+				Cat(r_stk.PriceCurrent).Space().
+				Cat(r_stk.SL, MKSFMTD(0, 5, 0)).Space().
+				Cat(r_stk.TP, MKSFMTD(0, 5, 0)).Space().
+				Cat(comment_buf);
+			f_out.WriteLine(line_buf.CR());
+		}
+	}
+	{
+		for(uint i = 0; i < rEnv.TL.getCount(); i++) {
+			const TsStakeEnvironment::Tick & r_tk = rEnv.TL.at(i);
+			rEnv.GetS(r_tk.SymbP, temp_buf);
+			line_buf.Z().Cat("Tick").CatDiv(':', 2).
+				Cat(temp_buf).Space().
+				Cat(r_tk.TsID).Space().
+				Cat(r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+				Cat(r_tk.Bid, MKSFMTD(0, 5, 0)).Space().
+				Cat(r_tk.Ask, MKSFMTD(0, 5, 0)).Space().
+				Cat(r_tk.Last, MKSFMTD(0, 5, 0)).Space().
+				Cat(r_tk.Volume);
+			f_out.WriteLine(line_buf.CR());
+		}
+	}
+}
+
 int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv)
 {
 	int    ok = 1;
+	OpL.Lock();
+	if(pEnv) {
+		StkEnv = *pEnv;
+	}
+	else {
+		ok = -1;
+		;//StkEnv
+	}
+	OpL.Unlock();
+	// @debug {
+	if(ok > 0)
+		LogStateEnvironment(*pEnv); 
+	// } @debug
 	return ok;
 }
 
@@ -446,6 +533,10 @@ int SLAPI PPObjTimeSeries::LoadQuoteReqList(TSVector <QuoteReqEntry> & rList)
 						}
 					}
 					if(entry.Ticker[0]) {
+						PPTimeSeries ts_rec;
+						PPID   ts_id = 0;
+						if(SearchBySymb(entry.Ticker, &ts_id, &ts_rec) > 0)
+							entry.TsID = ts_rec.ID;
 						rList.insert(&entry);
 						ok = 1;
 					}
@@ -468,18 +559,24 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
 	return p_cache ? p_cache->SetTimeSeries(rTs) : 0;
 }
 
+int SLAPI PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & rEnv)
+{
+	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+	return p_cache ? p_cache->SetCurrentStakeEnvironment(&rEnv) : 0;
+}
+
 int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)
 {
 	int    ok = -1;
 	int    do_update = 0;
 	PPTimeSeries ts_rec;
 	PPID   id = 0;
-	THROW(SearchBySymb(pSymb, &id, &ts_rec) > 0);
-	if(!isempty(pPropSymb)) {
+	if(!isempty(pSymb) && !isempty(pPropSymb)) {
+		THROW(SearchBySymb(pSymb, &id, &ts_rec) > 0);
 		const SymbHashTable * p_sht = PPGetStringHash(PPSTR_HASHTOKEN);
 		if(p_sht) {
 			uint   _ut = 0;
-			SString temp_buf = SLS.AcquireRvlStr();
+			SString temp_buf;
 			(temp_buf = pPropSymb).Strip().ToLower();
 			p_sht->Search(temp_buf, &_ut, 0);
 			(temp_buf = pPropVal).Strip();
@@ -524,6 +621,33 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 					break;
 				case PPHS_TIMSER_PROP_CURRENCY_MARGIN:
 					// not implemented
+					break;
+				case PPHS_TIMSER_PROP_VOLUME_MIN: // "time-series-volume-min"      // минимальный объем сделки
+					{
+						double val = temp_buf.ToReal();
+						if(val > 0.0) {
+							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, val, 0.0, 0.0));
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_VOLUME_MAX: // "time-series-volume-max"      // максимальный объем сделки
+					{
+						double val = temp_buf.ToReal();
+						if(val > 0.0) {
+							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, 0.0, val, 0.0));
+						}
+					}
+					break;
+				case PPHS_TIMSER_PROP_VOLUME_STEP: // "time-series-volume-step"     // Минимальный шаг изменения объема для заключения сделки
+					{
+						double val = temp_buf.ToReal();
+						if(val > 0.0) {
+							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
+							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, 0.0, 0.0, val));
+						}
+					}
 					break;
 			}
 			if(do_update) {

@@ -5153,8 +5153,7 @@ public:
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 3, Data.fImport);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 4, Data.fExtractSizes);
 		SetClusterData(CTL_PRCROSM_FLAGS, Data.Flags);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCROSM_PATH, CTL_PRCROSM_PATH, 1, 0,
-			PPTXT_FILPAT_OSM, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCROSM_PATH, CTL_PRCROSM_PATH, 1, 0, PPTXT_FILPAT_OSM, FileBrowseCtrlGroup::fbcgfFile);
 		setCtrlString(CTL_PRCROSM_PATH, Data.SrcFileName);
 		return ok;
 	}

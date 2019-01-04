@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2683,13 +2683,25 @@ public:
 	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
-	int    SLAPI Auth(SString & rToken);
-	int    SLAPI Helper_SendDocument(const char * pToken, const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent);
+	int    SLAPI Implement_Auth(SString & rToken);
+	int    SLAPI Auth();
+	int    SLAPI Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent);
 	int    SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
 	int    SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    SLAPI Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    SLAPI Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    SLAPI ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
+	int    SLAPI ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
+
+	struct AuthToken {
+		SLAPI  AuthToken() : Tm(ZERODATETIME)
+		{
+		}
+		SString Token; // Токен авторизации
+		LDATETIME Tm;  // Время получения (необходимо для идентификации факта просроченности токена)
+	};
+	AuthToken AT;
 };
 
 EdiProviderImplementation_Kontur::OwnFormatCommonAttr::OwnFormatCommonAttr() : Dt(ZERODATE)
@@ -2785,7 +2797,6 @@ int SLAPI EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const Own
 		SString msg_buf;
 		const PPID reg_type_id = PPREGT_GLN;
 		PPIDArray psn_list_by_gln;
-		PPIDArray loc_list_by_gln;
 		PPIDArray ar_list;
 		if(rC.GLN.NotEmpty()) {
 			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.GLN);
@@ -4136,32 +4147,31 @@ int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(PPEdiProcessor::Docu
 	SString left, right;
 	SPathStruc ps;
 	InetUrl url;
-	if(Epp.MakeUrl(0, url)) {
-		int    prot = url.GetProtocol();
-		if(prot == InetUrl::protUnkn) {
-			url.SetProtocol(InetUrl::protFtp);
-		}
-		if(prot == InetUrl::protFtp) {
-			const char * p_box = "Inbox";
-			int    last_id = 0;
-			ScURL  curl;
-			url.SetComponent(url.cPath, p_box);
-			SFileEntryPool fp;
-			SFileEntryPool::Entry fpe;
-			THROW_SL(curl.FtpList(url, ScURL::mfVerbose, fp));
-			for(uint i = 0; i < fp.GetCount(); i++) {
-				if(fp.Get(i, &fpe, 0) > 0) {
-					ps.Split(fpe.Name);
-					if(ps.Ext.IsEqiAscii("xml") && ps.Nam.Divide('_', left, right) > 0) {
-						PPEdiProcessor::DocumentInfo entry;
-						entry.Uuid.FromStr(right);
-						entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(left);
-						entry.Box = p_box;
-						entry.ID = ++last_id;
-						entry.SId = fpe.Name;
-						entry.Time = fpe.WriteTime;
-						THROW(rList.Add(entry, 0));
-					}
+	THROW(Epp.MakeUrl(0, url));
+	const int prot = url.GetProtocol();
+	if(prot == InetUrl::protUnkn) {
+		url.SetProtocol(InetUrl::protFtp);
+	}
+	if(prot == InetUrl::protFtp) {
+		const char * p_box = "Inbox";
+		int    last_id = 0;
+		ScURL  curl;
+		url.SetComponent(url.cPath, p_box);
+		SFileEntryPool fp;
+		SFileEntryPool::Entry fpe;
+		THROW_SL(curl.FtpList(url, ScURL::mfVerbose, fp));
+		for(uint i = 0; i < fp.GetCount(); i++) {
+			if(fp.Get(i, &fpe, 0) > 0) {
+				ps.Split(fpe.Name);
+				if(ps.Ext.IsEqiAscii("xml") && ps.Nam.Divide('_', left, right) > 0) {
+					PPEdiProcessor::DocumentInfo entry;
+					entry.Uuid.FromStr(right);
+					entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(left);
+					entry.Box = p_box;
+					entry.ID = ++last_id;
+					entry.SId = fpe.Name;
+					entry.Time = fpe.WriteTime;
+					THROW(rList.Add(entry, 0));
 				}
 			}
 		}
@@ -4808,40 +4818,39 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 		}
 		if(!skip) {
 			InetUrl url;
-			if(Epp.MakeUrl(0, url)) {
-				int    prot = url.GetProtocol();
-				if(prot == InetUrl::protUnkn) {
-					url.SetProtocol(InetUrl::protFtp);
-				}
-				if(prot == InetUrl::protFtp) {
-					const char * p_box = pIdent->Box;
-					ScURL  curl;
-					THROW(p_ctx = xmlNewParserCtxt());
-					(temp_buf = p_box).SetLastDSlash().Cat(pIdent->SId);
-					url.SetComponent(url.cPath, temp_buf);
+			THROW(Epp.MakeUrl(0, url));
+			const int prot = url.GetProtocol();
+			if(prot == InetUrl::protUnkn) {
+				url.SetProtocol(InetUrl::protFtp);
+			}
+			if(prot == InetUrl::protFtp) {
+				const char * p_box = pIdent->Box;
+				ScURL  curl;
+				THROW(p_ctx = xmlNewParserCtxt());
+				(temp_buf = p_box).SetLastDSlash().Cat(pIdent->SId);
+				url.SetComponent(url.cPath, temp_buf);
 
-					GetTempInputPath(pIdent->EdiOp, temp_buf);
-					temp_buf.SetLastSlash().Cat(pIdent->SId);
-					if(!fileExists(temp_buf)) {
-						THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
-					}
-					{
-						int    format = 0;
-						PPXmlFileDetector xfd;
-						if(xfd.Run(temp_buf, &format)) {
-							if(format == xfd.Eancom) {
-								PPEanComDocument s_doc(this);
-								const int rdr = s_doc.Read_Document(p_ctx, temp_buf, edi_ident_buf, rList);
-								THROW(rdr);
-							}
-							else if(format == xfd.KonturEdi) {
-								const int rdr = ReadOwnFormatDocument(p_ctx, temp_buf, edi_ident_buf, rList);
-								THROW(rdr);
-							}
+				GetTempInputPath(pIdent->EdiOp, temp_buf);
+				temp_buf.SetLastSlash().Cat(pIdent->SId);
+				if(!fileExists(temp_buf)) {
+					THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
+				}
+				{
+					int    format = 0;
+					PPXmlFileDetector xfd;
+					if(xfd.Run(temp_buf, &format)) {
+						if(format == xfd.Eancom) {
+							PPEanComDocument s_doc(this);
+							const int rdr = s_doc.Read_Document(p_ctx, temp_buf, edi_ident_buf, rList);
+							THROW(rdr);
+						}
+						else if(format == xfd.KonturEdi) {
+							const int rdr = ReadOwnFormatDocument(p_ctx, temp_buf, edi_ident_buf, rList);
+							THROW(rdr);
 						}
 					}
-					ok = 1;
 				}
+				ok = 1;
 			}
 		}
 	}
@@ -4897,22 +4906,21 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		p_x = 0;
 		if(!(Flags & ctrfTestMode)) {
 			InetUrl url;
-			if(Epp.MakeUrl(0, url)) {
-				int    prot = url.GetProtocol();
-				if(prot == InetUrl::protUnkn) {
-					url.SetProtocol(InetUrl::protFtp);
-				}
-				if(prot == InetUrl::protFtp) {
-					ScURL curl;
-					const char * p_box_name = "Outbox";
-					url.SetComponent(url.cPath, p_box_name);
-					THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0));
-					pIdent->EdiOp = rPack.DocType;
-					pIdent->Uuid = msg_uuid;
-					pIdent->Box = p_box_name;
-					pIdent->Time = getcurdatetime_();
-					ok = 1;
-				}
+			THROW(Epp.MakeUrl(0, url));
+			const int prot = url.GetProtocol();
+			if(prot == InetUrl::protUnkn) {
+				url.SetProtocol(InetUrl::protFtp);
+			}
+			if(prot == InetUrl::protFtp) {
+				ScURL curl;
+				const char * p_box_name = "Outbox";
+				url.SetComponent(url.cPath, p_box_name);
+				THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0));
+				pIdent->EdiOp = rPack.DocType;
+				pIdent->Uuid = msg_uuid;
+				pIdent->Box = p_box_name;
+				pIdent->Time = getcurdatetime_();
+				ok = 1;
 			}
 		}
 	}
@@ -4941,7 +4949,6 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 	json_t * p_reply = 0;
 	SString temp_buf;
 	SString left, right;
-	SString token;
 	SString json_buf;
 	SString log_buf;
 	SString reply_message;
@@ -4949,7 +4956,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 	SPathStruc ps;
 	InetUrl url;
 	THROW(Epp.MakeUrl(0, url));
-	THROW(Auth(token));
+	THROW(Auth());
 	{
 		ScURL c;
 		SBuffer ack_buf;
@@ -4957,7 +4964,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 		StrStrAssocArray hdr_flds;
 		url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocs");
 		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		THROW_SL(p_query->Insert("varToken", json_new_string(token)));
+		THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
 
 		// unread : отметка о прочтении; 0 - не прочитан, 1 - прочитан
 		// doc_type : тип документа
@@ -5041,7 +5048,19 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 3. Пароль: OVXmgv
 */
 
-int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
+int SLAPI EdiProviderImplementation_Exite::Auth()
+{
+	int    ok = -1;
+	if(AT.Token.Empty() || !AT.Tm || diffdatetimesec(getcurdatetime_(), AT.Tm) >= 3600) {
+		THROW(Implement_Auth(AT.Token));
+		AT.Tm = getcurdatetime_();
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 {
 	int    ok = -1;
 	json_t * p_query = 0;
@@ -5054,55 +5073,54 @@ int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
 	int    reply_code = 0;
 	InetUrl url;
 	SBuffer ack_buf;
-	if(Epp.MakeUrl(0, url)) {
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		StrStrAssocArray hdr_flds;
-		url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
-		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		url.GetComponent(url.cUserName, 0, temp_buf);
-		THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
-		url.SetComponent(url.cUserName, 0);
-		url.GetComponent(url.cPassword, 0, temp_buf);
-		THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
-		url.SetComponent(url.cPassword, 0);
-		url.Composite(0, temp_buf);
-		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		THROW_SL(json_tree_to_string(p_query, temp_buf));
-		json_buf = temp_buf;
-		//json_buf.EncodeUrl(temp_buf, 0);
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	StrStrAssocArray hdr_flds;
+	THROW(Epp.MakeUrl(0, url));
+	url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
+	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	url.GetComponent(url.cUserName, 0, temp_buf);
+	THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+	url.SetComponent(url.cUserName, 0);
+	url.GetComponent(url.cPassword, 0, temp_buf);
+	THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+	url.SetComponent(url.cPassword, 0);
+	url.Composite(0, temp_buf);
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	json_buf = temp_buf;
+	//json_buf.EncodeUrl(temp_buf, 0);
 
-		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
-		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-		THROW_SL(c.SetupDefaultSslOptions());
-		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
-			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
-							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("varToken"))
-									rToken = p_obj->P_Child->Text;
-								else if(p_obj->Text.IsEqiAscii("varMessage"))
-									reply_message = p_obj->P_Child->Text;
-								else if(p_obj->Text.IsEqiAscii("intCode"))
-									reply_code = p_obj->P_Child->Text.ToLong();
-							}
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+	{
+		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+		if(p_ack_buf) {
+			const int avl_size = (int)p_ack_buf->GetAvailableSize();
+			temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == json_t::tOBJECT) {
+						for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->Text.IsEqiAscii("varToken"))
+								rToken = p_obj->P_Child->Text;
+							else if(p_obj->Text.IsEqiAscii("varMessage"))
+								reply_message = p_obj->P_Child->Text;
+							else if(p_obj->Text.IsEqiAscii("intCode"))
+								reply_code = p_obj->P_Child->Text.ToLong();
 						}
 					}
 				}
 			}
-			if(reply_code == 200)
-				ok = 1;
-			else {
-				temp_buf.Z().Cat("EXITE").Space().Cat(reply_code).Space().Cat(reply_message.Chomp()).Transf(CTRANSF_UTF8_TO_INNER);
-				CALLEXCEPT_PP_S(PPERR_EDI_SVCAUTH, temp_buf);
-			}
+		}
+		if(reply_code == 200)
+			ok = 1;
+		else {
+			temp_buf.Z().Cat("EXITE").Space().Cat(reply_code).Space().Cat(reply_message.Chomp()).Transf(CTRANSF_UTF8_TO_INNER);
+			CALLEXCEPT_PP_S(PPERR_EDI_SVCAUTH, temp_buf);
 		}
 	}
 	CATCHZOK
@@ -5111,7 +5129,7 @@ int SLAPI EdiProviderImplementation_Exite::Auth(SString & rToken)
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pToken, const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent)
+int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent)
 {
 	rRetIdent.Z();
 	int    ok = -1;
@@ -5125,54 +5143,54 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pTok
 	int    reply_code = 0;
 	InetUrl url;
 	SBuffer ack_buf;
-	if(Epp.MakeUrl(0, url)) {
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		StrStrAssocArray hdr_flds;
-		url.SetComponent(url.cPath, "Api/V1/Edo/Document/Send");
-		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		THROW_SL(p_query->Insert("varToken", json_new_string(pToken)));
-		THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
-		THROW_SL(p_query->Insert("document_name", json_new_string(pDocName)));
-		THROW_SL(p_query->Insert("body", json_new_string(pDocMime64)));
-		THROW_SL(p_query->Insert("return_id", json_new_number(temp_buf.Z().Cat(1))));
-		url.Composite(0, temp_buf);
-		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		THROW_SL(json_tree_to_string(p_query, temp_buf));
-		json_buf = temp_buf;
-		//json_buf.EncodeUrl(temp_buf, 0);
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	StrStrAssocArray hdr_flds;
+	THROW(Epp.MakeUrl(0, url));
+	THROW(Auth());
+	url.SetComponent(url.cPath, "Api/V1/Edo/Document/Send");
+	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
+	THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
+	THROW_SL(p_query->Insert("document_name", json_new_string(pDocName)));
+	THROW_SL(p_query->Insert("body", json_new_string(pDocMime64)));
+	THROW_SL(p_query->Insert("return_id", json_new_number(temp_buf.Z().Cat(1))));
+	url.Composite(0, temp_buf);
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	json_buf = temp_buf;
+	//json_buf.EncodeUrl(temp_buf, 0);
 
-		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
-		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
-		THROW_SL(c.SetupDefaultSslOptions());
-		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
-		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
-			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
-				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
-					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
-							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-								if(p_obj->Text.IsEqiAscii("varMessage"))
-									reply_message = p_obj->P_Child->Text;
-								else if(p_obj->Text.IsEqiAscii("intCode"))
-									reply_code = p_obj->P_Child->Text.ToLong();
-								else if(p_obj->Text.IsEqiAscii("intDocID"))
-									rRetIdent = p_obj->P_Child->Text;
-							}
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+	{
+		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+		if(p_ack_buf) {
+			const int avl_size = (int)p_ack_buf->GetAvailableSize();
+			temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == json_t::tOBJECT) {
+						for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->Text.IsEqiAscii("varMessage"))
+								reply_message = p_obj->P_Child->Text;
+							else if(p_obj->Text.IsEqiAscii("intCode"))
+								reply_code = p_obj->P_Child->Text.ToLong();
+							else if(p_obj->Text.IsEqiAscii("intDocID"))
+								rRetIdent = p_obj->P_Child->Text;
 						}
 					}
 				}
 			}
-			if(reply_code == 200)
-				ok = 1;
-			else {
-				temp_buf.Z().Cat("EXITE").Space().Cat(reply_code).Space().Cat(reply_message.Chomp()).Transf(CTRANSF_UTF8_TO_INNER);
-				CALLEXCEPT_PP_S(PPERR_EDI_SVCSENDDOC, temp_buf);
-			}
+		}
+		if(reply_code == 200)
+			ok = 1;
+		else {
+			temp_buf.Z().Cat("EXITE").Space().Cat(reply_code).Space().Cat(reply_message.Chomp()).Transf(CTRANSF_UTF8_TO_INNER);
+			CALLEXCEPT_PP_S(PPERR_EDI_SVCSENDDOC, temp_buf);
 		}
 	}
 	CATCHZOK
@@ -5181,9 +5199,449 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pTok
 	return ok;
 }
 
+int  SLAPI EdiProviderImplementation_Exite::ResolveDlvrLoc(const char * pText, PPBillPacket * pPack)
+{
+	int    ok = -1;
+	if(!isempty(pText)) {
+		PPIDArray loc_list_by_gln;
+		PPID   final_dlvr_loc_id = 0;
+		int    is_warehouse = 0;
+		int    loc_type = 0;
+		if(oneof4(pPack->Rec.EdiOp, PPEDIOP_DESADV, PPEDIOP_ORDERRSP, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
+			loc_type = LOCTYP_WAREHOUSE;
+		}
+		else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
+			loc_type = LOCTYP_ADDRESS;
+		}
+		if(loc_type) {
+			PsnObj.LocObj.ResolveGLN(loc_type, pText, loc_list_by_gln);
+			THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, pText);
+			for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
+				const PPID loc_id = loc_list_by_gln.get(i);
+				LocationTbl::Rec loc_rec;
+				if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Type == loc_type) {
+					if(loc_type == LOCTYP_WAREHOUSE) {
+						final_dlvr_loc_id = loc_id;
+						is_warehouse = 1;
+					}
+					else if(loc_type == LOCTYP_ADDRESS) {
+						if(loc_rec.OwnerID) {
+							PPID   acs_id = 0;
+							PPID   psn_id = ObjectToPerson(pPack->Rec.Object, &acs_id);
+							if(psn_id) {
+								if(loc_rec.OwnerID == psn_id) {
+									final_dlvr_loc_id = loc_id;
+								}
+							}
+							else if(pPack->Rec.Object == 0) {
+								final_dlvr_loc_id = loc_id;
+							}
+						}
+					}
+				}
+			}
+			THROW_PP_S(final_dlvr_loc_id, PPERR_EDI_UNBLRSLV_BILLDLVRLOC, pText);
+			if(is_warehouse) {
+				pPack->Rec.LocID = final_dlvr_loc_id;
+				ok = 1;
+			}
+			else {
+				PPFreight freight;
+				pPack->GetFreight(&freight);
+				freight.DlvrAddrID = final_dlvr_loc_id;
+				pPack->SetFreight(&freight);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI EdiProviderImplementation_Exite::ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack)
+{
+	int    ok = 1;
+	SString msg_buf;
+	if(!isempty(pText) && pPack && pPack->Rec.EdiOp) {
+		if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
+			THROW(ResolveDlvrLoc(pText, pPack));
+		}
+		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
+		}
+		else {
+			const PPID reg_type_id = PPREGT_GLN;
+			PPIDArray psn_list_by_gln;
+			//PPIDArray loc_list_by_gln;
+			PPIDArray ar_list;
+			msg_buf.CatDivIfNotEmpty('/', 0).Cat(pText);
+			THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, pText, psn_list_by_gln));
+			if(oneof2(partyQ, EDIPARTYQ_SELLER, EDIPARTYQ_SUPPLIER)) {
+				if(oneof4(pPack->Rec.EdiOp, PPEDIOP_DESADV, PPEDIOP_ORDERRSP, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
+					THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					{
+						PPBillPacket::SetupObjectBlock sob;
+						THROW(pPack->SetupObject(ar_list.get(0), sob));
+					}
+				}
+				else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
+					PPID   main_org_id = 0;
+					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+						const PPID _id = psn_list_by_gln.get(i);
+						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+				}
+			}
+			else if(oneof2(partyQ, EDIPARTYQ_BUYER, EDIPARTYQ_INVOICEE)) {
+				if(oneof4(pPack->Rec.EdiOp, PPEDIOP_DESADV, PPEDIOP_ORDERRSP, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
+					PPID   main_org_id = 0;
+					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+						const PPID _id = psn_list_by_gln.get(i);
+						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+				}
+				else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
+					THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					{
+						PPBillPacket::SetupObjectBlock sob;
+						THROW(pPack->SetupObject(ar_list.get(0), sob));
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
+	PPEdiProcessor::Packet * p_pack = 0;
+	PPBillPacket * p_bpack = 0; // is owned by p_pack
+	json_t * p_query = 0;
+	json_t * p_reply = 0;
+	ScURL c;
+	SString temp_buf;
+	SString json_buf;
+	SString log_buf;
+	SString reply_message;
+	SString addendum_msg_buf;
+	SString gtin;
+	SString ar_goods_code;
+	SString goods_name;
+	int    reply_code = 0;
+	InetUrl url;
+	SBuffer ack_buf;
+	SBuffer * p_ack_buf = 0;
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	StrStrAssocArray hdr_flds;
+	PPObjOprKind op_obj;
+	//
+	// Следующие 2 вида операций являются зарезервированными и создаются автоматически (если отсутствуют) вызовами ниже {
+	//
+	PPID   ordrsp_op_id = 0;
+	PPID   recadv_op_id = 0;
+	if(pIdent->EdiOp == PPEDIOP_ORDERRSP) {
+		THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1));
+	}
+	else if(pIdent->EdiOp == PPEDIOP_RECADV) {
+		THROW(op_obj.GetEdiRecadvOp(&recadv_op_id, 1));
+	}
+	// }
+	THROW(Epp.MakeUrl(0, url));
+	THROW(Auth());
+	url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocBody");
+	THROW_SL(p_query = new json_t(json_t::tOBJECT));
+	THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
+	THROW_SL(p_query->Insert("intDocID", json_new_string(pIdent->SId)));
+	url.Composite(0, temp_buf);
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	json_buf = temp_buf;
+	//json_buf.EncodeUrl(temp_buf, 0);
+	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
+	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+	THROW_SL(c.SetupDefaultSslOptions());
+	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+	p_ack_buf = (SBuffer *)wr_stream;
+	if(p_ack_buf) {
+		const int avl_size = (int)p_ack_buf->GetAvailableSize();
+		temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+			const  int edi_op = pIdent->EdiOp;
+			for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == json_t::tOBJECT) {
+					for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("intDocID")) {
+							//rRetIdent = p_obj->P_Child->Text;
+						}
+						else if(p_obj->Text.IsEqiAscii("body") && p_obj->P_Child && p_obj->P_Child->Type == json_t::tOBJECT) {
+							int    edipartyq_whoami = 0; // EDIPARTYQ_BUYER || EDIPARTYQ_SUPPLIER
+							if(oneof4(edi_op, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC))
+								edipartyq_whoami = EDIPARTYQ_BUYER;
+							else if(oneof2(edi_op, PPEDIOP_ORDER, PPEDIOP_RECADV))
+								edipartyq_whoami = EDIPARTYQ_SUPPLIER;
+							PPID   link_order_id = 0;
+							SString order_number;
+							LDATE  order_date = ZERODATE;
+							LDATETIME delivery_dtm = ZERODATETIME;
+							PPID   sender_psn_id = 0;
+							PPID   rcvr_psn_id = 0;
+							PPID   contractor_ar_id = 0;
+							PPID   goods_id_by_gtin = 0;
+							PPID   goods_id_by_arcode = 0;
+							Goods2Tbl::Rec goods_rec;
+							BarcodeTbl::Rec bc_rec;
+							gtin.Z();
+							THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
+							p_bpack = (PPBillPacket *)p_pack->P_Data;
+							//addendum_msg_buf.Z().Cat("ORDERRSP").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
+							THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
+							if(edi_op == PPEDIOP_ORDERRSP) {
+								THROW(p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0, 0, 1));
+								p_bpack->Rec.EdiOp = p_pack->DocType;
+								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+									temp_buf = p_bf->P_Child->Text;
+									if(p_bf->Text.IsEqiAscii("HEAD")) {
+										if(p_bf->P_Child && p_bf->P_Child->Type == json_t::tARRAY) {
+											for(json_t * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+												if(p_hi->Type == json_t::tOBJECT) {
+													for(json_t * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+														temp_buf = p_hf->P_Child->Text;
+														if(p_hf->Text.IsEqiAscii("RECIPIENT")) {
+															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &rcvr_psn_id) > 0, PPERR_EDI_UNBLRSLV_RCVR, temp_buf);
+														}
+														else if(p_hf->Text.IsEqiAscii("BUYER")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_BUYER, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("DELIVERYPLACE")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SHIPTO, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("FINALRECIPIENT")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("INVOICEPARTNER")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_INVOICEE, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("DELIVERYPOINT")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("CONSIGNEE")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_CONSIGNEE, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("SENDER")) {
+															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &sender_psn_id) > 0, PPERR_EDI_UNBLRSLV_SENDER, temp_buf);
+														}
+														else if(p_hf->Text.IsEqiAscii("EDIINTERCHANGEID")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("POSITION")) {
+															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
+																goods_id_by_gtin = 0;
+																goods_id_by_arcode = 0;
+																ar_goods_code.Z();
+																double ord_qtty = 0.0; // заказанное количество
+																double acc_qtty = 0.0; // количество, принятое к исполнению
+																double price_with_vat = 0.0;
+																double price_without_vat = 0.0;
+																double vat = 0.0;
+																PPTransferItem ti;
+																THROW(ti.Init(&p_bpack->Rec, 1));
+																for(json_t * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																	if(p_pli->Type == json_t::tOBJECT) {
+																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																			temp_buf = p_pf->P_Child->Text;
+																			if(p_pf->Text.IsEqiAscii("PRODUCT")) {
+																				gtin = temp_buf;
+																				if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0)
+																					goods_id_by_gtin = goods_rec.ID;
+																			}
+																			else if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
+																				ti.RByBill = (int16)temp_buf.ToLong();
+																				if(ti.RByBill < 0)
+																					ti.RByBill = 0;
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCTIDSUPPLIER")) {
+																				if(edipartyq_whoami == EDIPARTYQ_SUPPLIER)
+																					goods_id_by_arcode = temp_buf.ToLong();
+																				else {
+																					ar_goods_code = temp_buf;
+																					if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+																						goods_id_by_arcode = goods_rec.ID;
+																				}
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCTIDBUYER")) {
+																				if(edipartyq_whoami == EDIPARTYQ_BUYER)
+																					goods_id_by_arcode = temp_buf.ToLong();
+																				else {
+																					ar_goods_code = temp_buf;
+																					if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+																						goods_id_by_arcode = goods_rec.ID;
+																				}
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRICEWITHVAT")) {
+																				price_with_vat = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("VAT")) {
+																				vat = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCTTYPE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("AVAILABILITYDATE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRICE")) {
+																				price_without_vat = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ORDRSPUNIT")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ORDEREDQUANTITY")) {
+																				ord_qtty = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ACCEPTEDQUANTITY")) {
+																				acc_qtty = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("DESCRIPTION")) {
+																				goods_name = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER);
+																			}
+																		}
+																	}
+																}
+																if(goods_id_by_gtin)
+																	ti.GoodsID = goods_id_by_gtin;
+																else if(goods_id_by_arcode)
+																	ti.GoodsID = goods_id_by_arcode;
+																if(ti.GoodsID && (ord_qtty > 0.0 || acc_qtty > 0.0) && ti.RByBill) {
+																	ti.Quantity_ = acc_qtty;
+																	if(price_with_vat > 0.0)
+																		ti.Cost = price_with_vat;
+																	else if(price_without_vat > 0.0) {
+																		double result_price = price_without_vat;
+																		PPGoodsTaxEntry gtx;
+																		if(GObj.FetchTax(ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																			double tax_factor = 1.0;
+																			GObj.MultTaxFactor(ti.GoodsID, &tax_factor);
+																			GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
+																		}
+																		ti.Cost = result_price;
+																	}
+																	THROW(p_bpack->LoadTItem(&ti, 0, 0));
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+									else if(p_bf->Text.IsEqiAscii("NUMBER")) {
+										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Code, sizeof(p_bpack->Rec.Code));
+									}
+									else if(p_bf->Text.IsEqiAscii("DATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											p_bpack->Rec.Dt = dt;
+									}
+									else if(p_bf->Text.IsEqiAscii("TIME")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("ORDERNUMBER")) {
+										order_number = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER);
+									}
+									else if(p_bf->Text.IsEqiAscii("ORDERDATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											order_date = dt;
+									}
+									else if(p_bf->Text.IsEqiAscii("DELIVERYDATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											delivery_dtm.d = dt;
+									}
+									else if(p_bf->Text.IsEqiAscii("DELIVERYTIME")) {
+										LTIME t = ZEROTIME;
+										strtotime(temp_buf, TIMF_HMS, &t);
+										delivery_dtm.t = t;
+									}
+									else if(p_bf->Text.IsEqiAscii("CURRENCY")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("VAT")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTQUANTITY")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("CAMPAIGNNUMBER")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("ORDRTYPE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("BASED_ON_OTHER")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("ACTION")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TOTALPACKAGES")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TOTALPACKAGESSPACE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("INFO")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("REASONDECREACEQUANTITYALL")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTATIONCONDITION")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("LIMES")) {
+										// []
+									}
+								}
+								if(order_number.NotEmptyS() && checkdate(order_date)) {
+									//P_BObj->SearchA
+
+									PPID   ord_bill_id = 0;
+									BillTbl::Rec ord_bill_rec;
+									BillTbl::Rec ord_bill_rec_pattern;
+									MEMSZERO(ord_bill_rec_pattern);
+									STRNSCPY(ord_bill_rec_pattern.Code, order_number);
+									ord_bill_rec_pattern.Dt = order_date;
+									ord_bill_rec_pattern.Object = p_bpack->Rec.Object;
+									if(P_BObj->P_Tbl->SearchAnalog(&ord_bill_rec_pattern, BillCore::safIgnoreOp, &ord_bill_id, &ord_bill_rec) > 0) {
+									}
+								}
+							}
+						}
+						else if(p_obj->Text.IsEqiAscii("varMessage"))
+							reply_message = p_obj->P_Child->Text;
+						else if(p_obj->Text.IsEqiAscii("intCode"))
+							reply_code = p_obj->P_Child->Text.ToLong();
+					}
+				}
+			}
+		}
+	}
+	if(reply_code == 200)
+		ok = 1;
+	else {
+		temp_buf.Z().Cat("EXITE").Space().Cat(reply_code).Space().Cat(reply_message.Chomp()).Transf(CTRANSF_UTF8_TO_INNER);
+		CALLEXCEPT_PP_S(PPERR_EDI_SVCGETDOC, temp_buf);
+	}
+	if(p_pack) {
+		if(p_bpack)
+			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent->SId);
+		rList.insert(p_pack);
+		p_pack = 0; // Перед выходом экземпляр разрушается
+	}
+	CATCHZOK
+	delete p_pack;
+	json_free_value(&p_reply);
+	json_free_value(&p_query);
 	return ok;
 }
 
@@ -5246,12 +5704,9 @@ int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::Document
 			f_out.Write(doc_buf_raw, doc_buf_raw.Len());
 		}
 		if(!(Flags & ctrfTestMode)) {
-			SString token;
-			THROW(Auth(token));
-			//
 			temp_buf.Z().Cat(msg_uuid, S_GUID::fmtIDL);
 			doc_buf_mime.EncodeMime64(doc_buf_raw, doc_buf_raw.Len());
-			THROW(Helper_SendDocument(token, doc_type_buf, temp_buf, doc_buf_mime, ret_doc_ident));
+			THROW(Helper_SendDocument(doc_type_buf, temp_buf, doc_buf_mime, ret_doc_ident));
 			//
 			pIdent->EdiOp = rPack.DocType;
 			pIdent->Uuid = msg_uuid;

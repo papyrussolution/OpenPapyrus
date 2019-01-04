@@ -1,5 +1,5 @@
 // PPDEFS.H
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
@@ -522,6 +522,7 @@
 	#define PPOPK_EDI_SHOPCHARGEON    15L // @v9.2.11 Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
 	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // @v9.2.11 Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
 	#define PPOPK_EDI_WRITEOFFSHOP    17L // @v9.3.19 Списание с баланса торгового зала в ЕГАИС (регистр 2)
+	#define PPOPK_EDI_ORDERRSP        18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
 	#define PPOPK_UNASSIGNED        1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
@@ -975,13 +976,14 @@
 
 	#define PPUPRF_LAST              75
 #define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
-	#define EDIPRVPRP_EXTSTRING  1L // Текстовые данные пакета
+	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях
 #define PPOBJ_STAFFLIST2    76L // @v9.0.3 Штатное расписание (2-я версия объекта - записи перемещены из
 	// специализированной таблицы StaffList в Reference
 #define PPOBJ_ACCOUNT2      77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
 #define PPOBJ_TIMESERIES    78L // @v10.2.3 @experimental Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
+	#define TIMSERPRP_STAKEMODEL      1L // @v10.2.11
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -10550,6 +10552,19 @@
 	#define CTL_TIMSER_ID             (9 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_FLAGS          (10 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_STAT           (11 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_BUYMARG        (12 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_SELLMARG       (13 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_PREC           (14 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_QUANT          (15 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_OPTMD          (16 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_OPTMDS         (17 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_AVGSPRD        (18 + WINDOWS_ID_BIAS)
+#define DLG_TSSA                  1353 //
+	#define cmTsList                  101
+	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TSSA_TS            (2 + WINDOWS_ID_BIAS)
+	#define CTL_TSSA_FLAGS            (3 + WINDOWS_ID_BIAS)
+	#define CTL_TSSA_CLOSEMODE        (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -11960,8 +11975,8 @@
 #define PPTXT_DEBTTO_CYCLEKINDTITLE       308 // Заголовки видов цикличности в долговой ведомости
 #define PPTXT_USEDSERIALFROMTSESS         309 // Использован серийный номер '%s' из технологической сессии '%s'
 #define PPTXT_TODOORDER                   312 // Список вариантов сортировки задач PrjTaskFilt::Order
-#define PPTXT_LOG_PSALESPROCESS           313 // Сформировано %ld%% таблицы продаж. Осталось %s часов
-#define PPTXT_LOG_PSALESRETRANSACT        314 // Заполнение таблицы продаж: завершена промежуточная транзакция //
+// @v10.2.11 (автомат) #define PPTXT_LOG_PSALESPROCESS           313 // Сформировано %ld%% таблицы продаж. Осталось %s часов
+// @v10.2.11 (автомат) #define PPTXT_LOG_PSALESRETRANSACT        314 // Заполнение таблицы продаж: завершена промежуточная транзакция //
 #define PPTXT_STATLOG_OBJCACHE            315 // Статистика по кэшу объектов
 #define PPTXT_TODOTEMPL_STATUS            316 // Список статусов шаблонов задач
 #define PPTXT_WAIT_CHNGTODOSTATUS         317 // Изменение статусов задач

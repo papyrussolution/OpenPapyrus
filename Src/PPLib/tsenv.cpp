@@ -1,5 +1,5 @@
 // TSENV.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,7 +7,7 @@
 //
 //
 //
-SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0)
+SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), MarginFree(0.0)
 {
 }
 
@@ -42,8 +42,21 @@ int SLAPI TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rB
 	return ok;
 }
 
-SLAPI TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(1)
+static const int TsStakeEnvironment_CurrentVersion = 1;
+
+SLAPI TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
+}
+
+SLAPI TsStakeEnvironment::TsStakeEnvironment(const TsStakeEnvironment & rS) : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+{
+	Copy(rS);
+}
+
+TsStakeEnvironment & FASTCALL TsStakeEnvironment::operator = (const TsStakeEnvironment & rS)
+{
+	Copy(rS);
+	return *this;
 }
 
 int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)

@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу:
@@ -387,6 +387,7 @@ struct VetisProduct;
 struct VetisSubProduct;
 struct VetisStockEntry;
 struct Fann2;
+class  TsStakeEnvironment;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -15672,132 +15673,146 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	char   CurrencySymb[12];
 	double SpikeQuant;     //
 	double AvgSpread;      //
-	uint32 OptMaxDuck;     //
-	char   Reserve[10];    // @reserve
+	uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
+	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
+	char   Reserve[6];     // @reserve
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
 
 class PPObjTimeSeries : public PPObjReference {
 public:
-	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
-	virtual int SLAPI Browse(void * extraPtr);
-	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
-	//
-	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
-	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
-	int    SLAPI SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta);
-	int    SLAPI GetTimeSeries(PPID id, STimeSeries & rTs);
-	//
 	struct QuoteReqEntry {
 		enum {
 			fAllowLong  = 0x0001,
 			fAllowShort = 0x0002
 		};
+		PPID   TsID;
 		char   Ticker[32];
 		long   Flags;
 		LDATETIME LastValTime;
 	};
+	struct StrategyResultValue { // @flat @persistent
+		SLAPI  StrategyResultValue();
+		StrategyResultValue & SLAPI Z();
+		double SLAPI GetResultPerSec() const;
+		double SLAPI GetResultPerDay() const;
 
-	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
-	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
-	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
-	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
-	//
-	int    SLAPI Test(); // @experimental
-	int    SLAPI AnalyzeTsTradeFrames();
-	int    SLAPI AnalyzeTsAftershocks();
-	int    SLAPI AnalyzeStrategies();
-
-	struct Strategy {
+		double Result;
+		uint64 TmCount;
+		uint64 TmSec;
+	};
+	struct Strategy { // @flat @persistent
 		SLAPI  Strategy();
 		void   SLAPI Reset();
-		uint   InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
-		int    Prec;             // Точность представления значений (количество знаков после десятичной точки)
+		void   FASTCALL SetValue(const StrategyResultValue & rV);
+		double SLAPI CalcSL(double stakeValue, double peak, double bottom) const;
+		enum {
+			bfShort = 0x0001 // Стратегия для short-торговли
+		};
+		enum {
+			clsmodFullMaxDuck = 0,
+			clsmodAdjustLoss  = 1
+		};
+		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
+		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
+		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
+		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
+		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
+		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда
+		uint32 BaseFlags;        // @flags
 		double Margin;           // Маржа
-		double Target;           // Максимальный рост относительно 0 [0..]
-		double MaxDuck;          // Максимальная величина "проседания" относительно нуля [0..]
-		double SpikeQuant;
-		double SpreadAvg;
-		uint   TargetQuant;
-		uint   MaxDuckQuant;
+		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
+		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
 		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 		RealRange OptDeltaRange;
-		uint   OptDelta2Stride; // Оптимальный шаг назад при расчете изменения тренда
 		RealRange OptDelta2Range;
+		uint32 OptDeltaCount;    // Количество элементов исходного ряда, входящих в диапазон OptDeltaRange при тестировании
+		uint32 OptDelta2Count;   // Количество элементов исходного ряда, входящих в диапазон OptDelta2Range при тестировании
+		uint32 StakeCount;       // Количество ставок при тестировании
+		uint32 WinCount;         // Количество выигрышей в результате тестирования
+		StrategyResultValue V;   // Результат тестирования
+		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
+		uint8  Reserve[30];
+	};
+	class StrategyContainer : public TSVector <Strategy> {
+	public:
+		SLAPI  StrategyContainer();
+		void   SLAPI SetLastValTm(LDATETIME dtm);
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	private:
+		uint32 Ver;
+		LDATETIME StorageTm;
+		LDATETIME LastValTm;
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
 		SLAPI  TrainNnParam(const PPTimeSeries & rTsRec, long flags);
 		void   SLAPI Reset();
-		//int    SLAPI AppendSeq(int quantCount, int condition);
-		//int    SLAPI GetSeq(uint seqIdx, int * pQuantCount, int * pCondition) const;
 		SString & SLAPI MakeFileName(SString & rBuf) const;
 		enum {
-			fTrainNN          = 0x0001,
-			fTest             = 0x0002,
-			fAnalyzeFrame     = 0x0004,
-			fTestStrategyNN   = 0x0008
+			afTrainNN          = 0x0001,
+			afTest             = 0x0002,
+			afAnalyzeFrame     = 0x0004,
+			afTestStrategyNN   = 0x0008
 		};
 		const  SString Symb;     // Символ временной серии
-		long   Flags;            // @flags
+		long   ActionFlags;      // @flags
 		uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
 		uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
 		uint   EpochCount;       // Количество эпох обучения каждого паттерна
 		float  LearningRate;     // Фактор скорости обучения
 	};
-	struct StrategyResultEntry {
-		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp);
+	struct StrategyResultEntry : public Strategy {
+		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode);
 
 		char   Symb[32];
-		long   Flags;     // @flags
-		int    StakeMode; // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда
-		double SpikeQuant;
-		uint   MaxDuckQuant;
-		uint   InputFrameSize;
-		uint   StakeCount;
-		uint   WinCount;
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
-		double Result;
-		double TotalStakeTmCount;
-		double TotalStakeTmSec;
-		//
-		// OptDelta - оптимизация результата по значению тренда
-		//
-		RealRange OptDeltaRange;
-		uint   OptDeltaCount; // Количество элементов исходного ряда, входящих в диапазон OptDeltaRange
 		double OptDeltaResult;
-		//
-		// OptDelta2 - оптимизация результата по измененю тренда за последние OptDelta2Stride шагов
-		//
-		uint   OptDelta2Stride; // Оптимальный шаг назад при расчете изменения тренда
-		RealRange OptDelta2Range;
-		uint   OptDelta2Count; // Количество элементов исходного ряда, входящих в диапазон OptDelta2Range
 		double OptDelta2Result;
 	};
-
-	int    SLAPI ProcessNN(const STimeSeries & rTs, const TrainNnParam & rP);
-	int    SLAPI TrainNN();
+	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
+	virtual int SLAPI Browse(void * extraPtr);
+	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
+	int    SLAPI PutPacket(PPID * pID, PPTimeSeries * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPTimeSeries * pPack);
+	int    SLAPI PutStrategies(PPID id, StrategyContainer * pL, int use_ta);
+	int    SLAPI GetStrategies(PPID id, StrategyContainer & rL);
+	int    SLAPI SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta);
+	int    SLAPI GetTimeSeries(PPID id, STimeSeries & rTs);
+	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
+	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
+	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv);
+	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
+	int    SLAPI Test(); // @experimental
+	int    SLAPI AnalyzeTsAftershocks();
+	//int    SLAPI AnalyzeStrategies();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
 	int    SLAPI AnalyzeStrategy(const STimeSeries & rTs, const TrainNnParam & rP, const RealArray & rTrendList, Fann2 ** ppAnn);
-	int    SLAPI CalcStrategyResult(const STimeSeries & rTs, const Strategy & rS, uint vecIdx, uint valueIdx, double * pResult, uint * pTmCount, uint * pTmSec) const;
-	int    SLAPI TestStrategy(const STimeSeries & rTs, uint vecIdx, const RealArray & rTrendList, const Strategy & rS, int stakeMode, StrategyResultEntry & rResult, RealArray & rResultList);
-private:
+	int    SLAPI CalcStrategyResult(const STimeSeries & rTs, const Strategy & rS, uint vecIdx, uint valueIdx, StrategyResultValue & rV) const;
+	int    SLAPI TestStrategy(const STimeSeries & rTs, uint vecIdx, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
+
 	struct MaxDuckToResultRelation {
 		uint   MaxDuckQuant;
 		double Result;
 	};
+	int    SLAPI FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
+		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
+private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
 	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
-	int    SLAPI FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
-		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
 };
 
 class TsStakeEnvironment : public SStrGroup {
 public:
 	SLAPI  TsStakeEnvironment();
+	SLAPI  TsStakeEnvironment(const TsStakeEnvironment & rS);
+	TsStakeEnvironment & FASTCALL operator = (const TsStakeEnvironment & rS);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    FASTCALL Copy(const TsStakeEnvironment & rS);
 	enum {
 		tickfBid    = 0x0001, // TICK_FLAG_BID – тик изменил цену бид
 		tickfAsk    = 0x0002, // TICK_FLAG_ASK  – тик изменил цену аск
@@ -15847,6 +15862,7 @@ public:
 	};
 	struct Tick { // @flat
 		PPID   TsID;    // ->Ref(PPOBJ_TIMESERIES)
+		uint   SymbP;   //
 		LDATETIME Dtm;  // Время последнего обновления цен
 		double Bid;     // Текущая цена Bid
 		double Ask;     // Текущая цена Ask
@@ -15858,10 +15874,11 @@ public:
 	};
 	struct AccountInfo {
 		SLAPI  AccountInfo();
-		int    ID; // Ид счета в торговой системе
+		int    ID;           // Ид счета в торговой системе
 		LDATETIME ActualDtm; // Время актуальности данных
-		double Balance; // Текущий баланс счета
-		double Profit;  // Текущее значение прибыли (убытка) по счету
+		double Balance;      // Текущий баланс счета
+		double Profit;       // Текущее значение прибыли (убытка) по счету
+		double MarginFree;   // Объем текущей доступной маржи
 	};
 	struct Stake { // @flat
 		SLAPI  Stake();
@@ -15941,14 +15958,44 @@ public:
 		TSVector <Result> RL;
 	};
 
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    FASTCALL Copy(const TsStakeEnvironment & rS);
-
 	AccountInfo Acc;
 	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
 	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
 private:
 	long   Ver;
+};
+//
+//
+//
+class PrcssrTsStrategyAnalyzeFilt : public PPBaseFilt { // @persistent
+public:
+	SLAPI  PrcssrTsStrategyAnalyzeFilt();
+	PrcssrTsStrategyAnalyzeFilt & FASTCALL operator = (const PrcssrTsStrategyAnalyzeFilt & rS);
+
+	enum {
+		fFindOptMaxDuck = 0x0001,
+		fFindStrategies = 0x0002,
+		fForce          = 0x0004,
+		fProcessLong    = 0x0008,
+		fProcessShort   = 0x0010
+	};
+	uint8  ReserveStart[32]; // @anchor
+	long   Flags;            // @flags
+	long   CloseMode;        // PPObjTimeSeries::Strategy::clsmodXXX
+	uint8  ReserveEnd[60];   // @reserve
+	ObjIdListFilt TsList;    // @anchor
+};
+
+class PrcssrTsStrategyAnalyze {
+public:
+	SLAPI  PrcssrTsStrategyAnalyze();
+	SLAPI ~PrcssrTsStrategyAnalyze();
+	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
+	int    SLAPI Run();
+private:
+	PrcssrTsStrategyAnalyzeFilt P;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -16741,7 +16788,6 @@ public:
 	int    SLAPI GetPacket(PPID, PPOprKindPacket *);
 	int    SLAPI PutPacket(PPID *, PPOprKindPacket *, int use_ta);
 	int    SLAPI FetchInventoryData(PPID, PPInventoryOpEx *);
-
 	int    SLAPI GetPaymentOpList(PPID linkOpID, PPIDArray *);
 	//
 	// Descr: Возвращает список видов операций, требующих оплаты и связанных
@@ -16753,12 +16799,22 @@ public:
 	//
 	int    SLAPI GetPayableOpList(PPID accSheetID, PPIDArray * pList);
 	int    SLAPI GetProfitableOpList(PPID accSheetID, PPIDArray * pList);
-
 	int    SLAPI GetEdiRecadvOp(PPID * pID, int use_ta);
+	int    SLAPI GetEdiOrdrspOp(PPID * pID, int use_ta);
 	int    SLAPI GetEdiStockOp(PPID * pID, int use_ta);
 	int    SLAPI GetEdiShopChargeOnOp(PPID * pID, int use_ta);
 	int    SLAPI GetEdiWrOffShopOp(PPID * pID, int use_ta);
 private:
+	struct ReservedOpCreateBlock {
+		SLAPI  ReservedOpCreateBlock();
+		PPID   OpID;
+		PPID   OpTypeID;
+		uint   NameTxtId;
+		PPID   AccSheetID; // @v9.4.8
+		long   Flags;
+		const char * P_Symb;
+		const char * P_CodeTempl;
+	};
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -16770,18 +16826,6 @@ private:
 	int    SLAPI SetPoolExData(PPID, PPBillPoolOpEx *, int use_ta);
 	int    SLAPI SetDraftExData(PPID id, const PPDraftOpEx * pData);
 	int    SLAPI SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-
-	struct ReservedOpCreateBlock {
-		SLAPI  ReservedOpCreateBlock();
-		PPID   OpID;
-		PPID   OpTypeID;
-		uint   NameTxtId;
-		PPID   AccSheetID; // @v9.4.8
-		long   Flags;
-		const char * P_Symb;
-		const char * P_CodeTempl;
-	};
-
 	int    SLAPI Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta);
 };
 //
@@ -16875,7 +16919,6 @@ public:
 	// Descr: Вызывает диалог выбора размерности
 	//
 	static PPID SLAPI Select();
-
 	SLAPI  PPObjDebtDim();
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -16889,7 +16932,6 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-
 	int    SLAPI SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 //
@@ -17046,7 +17088,6 @@ struct BizScoreViewItem {
 class PPViewBizScore : public PPView {
 public:
 	SLAPI  PPViewBizScore();
-
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
 	int    SLAPI InitIteration();
@@ -17121,7 +17162,6 @@ typedef BizScoreTbl::Rec BizScoreValViewItem;
 class PPViewBizScoreVal : public PPView {
 public:
 	static int SLAPI SendXml(PPID ftpAcctID, const char * pFilePath); // Отправка xml файла на FTP-сервер
-
 	SLAPI  PPViewBizScoreVal();
 	SLAPI ~PPViewBizScoreVal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
@@ -28687,6 +28727,7 @@ public:
 	int    SLAPI StartLoading(PPID * pStatID, int deviceType, PPID deviceID, int use_ta);
 	int    SLAPI RegisterGoods(PPID statID, const GoodsInfo *);
 	int    SLAPI RegisterSCard(PPID statID, const SCardInfo *);
+	int    SLAPI RegisterBillList(PPID statID, const PPIDArray & rBillList);
 	int    SLAPI FinishLoading(PPID statID, int status, int use_ta);
 	int    SLAPI Search(PPID statID, DvcLoadingStatTbl::Rec *);
 	PPID   SLAPI GetCurStatID() const { return StatID; }
@@ -28715,6 +28756,15 @@ public:
 		// @>>GetLastObjInfo(int, PPID, PPID, PPID, LDATE, DlsObjTbl::Rec *)
 	int    SLAPI GetUpdatedObjects(PPID objType, const LDATETIME & since, PPIDArray * pObjList);
 	int    SLAPI GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PPIDArray * pObjList);
+	//
+	// Descr: Возвращает список идентификаторов документов, повлиявших на выбор товаров
+	//   для обновления statID.
+	// Returns:
+	//   >0 - найден по крайней мере один искомый идентификатор документа
+	//   <0 - ничего не найдено
+	//    0 - error
+	//
+	int    SLAPI GetBillList(PPID statID, PPIDArray & rList);
 	int    SLAPI DoMaintain(LDATE toDt);
 		// @>>DoDBMaintain
 	int    SLAPI Remove(PPID id, int useTa);
@@ -28728,6 +28778,7 @@ private:
 	RAssocArray SCardList;
 	SVector GoodsList; // @v9.8.11 SArray-->SVector
 	SVector StatCache; // @v9.8.11 SArray-->SVector
+	PPIDArray UpdatedBillList; // @v10.2.11
 };
 //
 // Descr: Класс AsyncCashGoodsGroupIterator, испольуемый для экспорта товарных групп в асинхронный кассовый модуль.
@@ -28879,57 +28930,78 @@ private:
 	PPID   LocID;
 	PPID   UserOnlyGoodsGrpID;    // Товарная группа, которой ограничен пользователь при загрузке изменений.
 	PPID   SinceDlsID;            // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
+	PPID   AlcoGoodsClsID;        //
+	PPID   TobaccoGoodsClsID;     //
+	PPID   GiftCardGoodsClsID;    //
+	int    PricesLookBackPeriod;  // Количество дней за которые необходимо просмотреть прошлые лоты для нахождения списка дополнительных цен
+	uint   CodePos;               // Текущая позиция экспортируемого штрихкода в списке кодов текущего товара
+	uint   GoodsPos;              //
+	LDATE  CurDate;               // @!Init()
+	//
+	// Descr: Алгоритм формирования списка измененных товаров для асинхронных кассовых сессий.
+	//
 	enum {
+		//
+		// Традиционный - перебирается весь справочник товаров для идентификации
+		// тех позиций, цены по которым изменились. Список измененных товаров извлекается из системного журнала
+		//
 		algDefault = 0,
-		algUpdBillsVerify,
-		algUpdBills
+		//
+		// Традиционный с тестом алгоритма "по измененным документам". Переходный
+		// режим, позволяющий оценить погрешность перехода на алгоритм algUpdBills(2). Позиции,
+		// которые должны быть признаны измененными в соответствии с алгоритмом 0,
+		// но не признаны таковыми в соответствии с алгоритмом algUpdBills(2), заносятся в
+		// файл журнала ppinfo.log сообщением "AsyncCashGoodsIterator miss: [id=ид товара] наименование товара"
+		//
+		algUpdBillsVerify = 1,
+		//
+		// Алгоритм "по изменениям документов". По системному журналу извлекается //
+		// список документов, которые были добавлены или изменены с момента
+		// последней загрузки кассового узла. По документам, которые влияют на состояние
+		// склада, извлекается список товаров, в него вливается список измененных
+		// товаров, и перебор идет уже по результирующему списку, а не по всему справочнику товаров
+		//
+		algUpdBills = 2
 	};
-	int    Algorithm;             //
+	int    Algorithm;             // AsyncCashGoodsIterator::algXXX Алгоритм выбора измененных товаров, которые необходимо загрузить во внешний модуль.
+	AsyncCashGoodsInfo Rec;       //
 	SString VerMissMsg;           // Шаблон сообщения для вывода информации о том, что товар,
 		// попавший в загрузку, не соответствует критерию нового алгоритма algUpdBills
+	SString AlcoProofExpr;        //
+	SString AlcoVolExpr;          //
+	//
+	// Списки идентификаторов объектов, на которые ссылаются товары, попадающие в выборку
+	//
+	PPIDArray GroupList;          // @v9.8.6 Родительские группы
+	PPIDArray UnitList;           // @v9.8.6 Единицы измерения (и торговые и физические)
+	PPIDArray GdsClsList;         // @v9.8.6 Классы товаров
+	PPIDArray GdsTypeList;        // @v9.8.6 Типы товаров
+	//
+	PPIDArray UpdGoods;           //
+	PPIDArray IterGoodsList;      //
+	PPIDArray NoDisToggleGoodsList; // Список товаров, по которым был снят признак "без скидки" (за заданный период)
+	PPIDArray UpdatedBillList;    // @v10.2.11 Список измененных документов, по которым идентифицированы модифицированные товары.
+		// Список сохраняется в DlsObjTbl в диагностических целях.
+	PPQuotArray QuotByQttyList;   // Список котировок, применяемых для скидки на кол-во товара
+	BarcodeArray  Codes;          // Список кодов для текущего товара
+	LAssocArray LocPrnAssoc;      // Список ассоциаций Склад-Локальный принтер
+	LAssocArray GroupAssoc;       // Список товарных групп, ассоциированных с товарами.
 	PPAsyncCashNode AcnPack;      //
 	LAssocArray BcPrefixList;     // Список весов, ассоциированных с префиксами штрихкодов
 	SysJournal SJ;                //
 	CCurPriceTbl CCP;             //
 	PPObjGoods GObj;              //
-	PPObjGoodsClass GcObj;        // @v8.5.4
+	PPObjGoodsClass GcObj;        //
 	PPObjLocPrinter LpObj;        //
 	PPObjCashNode CnObj;          //
 	GoodsIterator Iter;           // Итератор по товарам
-	BarcodeArray  Codes;          // Список кодов для текущего товара
-	//
-	// @v9.8.6 {
-	// Списки идентификаторов объектов, на которые ссылаются товары, попадающие в выборку
-	//
-	PPIDArray GroupList;          // Родительские группы
-	PPIDArray UnitList;           // Единицы измерения (и торговые и физические)
-	PPIDArray GdsClsList;         // Классы товаров
-	PPIDArray GdsTypeList;        // Типы товаров
-	// } @v9.8.6
-	PPID   AlcoGoodsClsID;        // @v8.5.4
-	PPID   TobaccoGoodsClsID;     // @v8.5.4
-	PPID   GiftCardGoodsClsID;    // @v8.5.4
-	int    PricesLookBackPeriod;  // @v8.5.4 Количество дней за которые необходимо просмотреть прошлые лоты для нахождения списка дополнительных цен
-	SString AlcoProofExpr;        // @v8.5.4
-	SString AlcoVolExpr;          // @v8.5.4
-
-	uint   CodePos;               //
-	uint   GoodsPos;              //
-	LDATE  CurDate;               // @!Init()
-	AsyncCashGoodsInfo Rec;       //
-	PPIDArray   UpdGoods;         //
-	PPIDArray   IterGoodsList;    //
-	PPIDArray   NoDisToggleGoodsList; // @v8.1.0 Список товаров, по которым был снят признак "без скидки" (за заданный период)
-	PPQuotArray QuotByQttyList;   // Список котировок, применяемых для скидки на кол-во товара
 	RetailPriceExtractor RetailExtr;
 	DeviceLoadingStat * P_Dls;    // @notowned
 	GoodsToObjAssoc * P_G2OAssoc; //
 	GoodsToObjAssoc * P_G2DAssoc; // Ассоцииации {товар-кассовый узел} для загрузки номеров кассовый аппаратов, ассоциированных с товарами
-	LAssocArray LocPrnAssoc;      // Список ассоциаций Склад-Локальный принтер
-	LAssocArray GroupAssoc;       // Список товарных групп, ассоциированных с товарами.
 	IterCounter InnerCounter;     // Используется если (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills)
 	AsyncCashGoodsGroupIterator * P_AcggIter; //
-	PrcssrAlcReport * P_AlcPrc;   // @v8.9.8
+	PrcssrAlcReport * P_AlcPrc;   //
 };
 //
 // @ModuleDecl(PPViewQuot)
@@ -31076,7 +31148,7 @@ public:
 	// Note: список rGoodsList функция предварительно не чистит, а после добавления в него товаров
 	//   сортирует и удаляет дубликаты.
 	//
-	int    SLAPI GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PPIDArray & rGoodsList);
+	int    SLAPI GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PPIDArray & rGoodsList, PPIDArray * pBillList);
 	int    SLAPI SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	const  PPBillConfig & GetConfig() const;
 	//
@@ -32759,8 +32831,10 @@ struct DLSDetailFilt {
 	SLAPI  DLSDetailFilt();
 	long   DlsID;
 	short  DvcType;
+	uint16 Reserve; // @alignment
 	long   DvcID;
 	long   ObjType;
+	PPIDArray BillList; // @v10.2.11 Список документов, повлиявших на подбор измененных товаров
 };
 
 class PPViewDLSDetail : public PPView {
@@ -36766,13 +36840,11 @@ public:
 
 	const BuildStat & SLAPI GetBuildStat() const;
 private:
-	static int    SLAPI Lock(int unlock);
-
 	struct _MassGoodsRestBlock {
 		DateRange Period;
 		TSVector <PrcssrPrediction::_GoodsLocRestItem> List; // @v9.8.4 TSArray-->TSVect
 	};
-
+	static int FASTCALL Lock(int unlock);
 	int    SLAPI ProcessGoodsList(PPIDArray & rGoodsList, const PrcssrPrediction::_MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta);
 	int    SLAPI StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta);
 	int    SLAPI SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, LDATE date, __HolidayArray & rHa, SArray * pVect);
@@ -47675,7 +47747,7 @@ private:
 class BrandCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		Rec(const PPIDArray * pList = 0);
+		explicit Rec(const PPIDArray * pList = 0);
 		PPIDArray List;
 	};
 	BrandCtrlGroup(uint ctlsel, uint cmSelList);
@@ -51332,7 +51404,7 @@ int    SLAPI SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr);
 int    SLAPI ViewOprKind(OprKindFilt * pFilt); // AHTOXA
 int    SLAPI ViewBillDetails(PPBillPacket * pPack, long options, PPObjBill *);
 int    SLAPI ViewMrpTab(const MrpTabFilt *);
-int    SLAPI ViewDLSDetail(DLSDetailFilt * pFilt);
+int    SLAPI ViewDLSDetail(const DLSDetailFilt & rFilt);
 // @todo Member of PPObjOpCounter
 int    SLAPI EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID = 0); // AHTOXA
 //

@@ -885,6 +885,18 @@ int SLAPI PPObjOprKind::GetEdiRecadvOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
+int SLAPI PPObjOprKind::GetEdiOrdrspOp(PPID * pID, int use_ta)
+{
+	ReservedOpCreateBlock blk;
+	blk.OpID = PPOPK_EDI_ORDERRSP;
+	blk.OpTypeID = PPOPT_DRAFTRECEIPT;
+	blk.NameTxtId = PPTXT_OPK_EDI_ORDRSP;
+	blk.Flags = OPKF_PASSIVE;
+	blk.P_Symb = "EDIORDRSP";
+	blk.P_CodeTempl = "ORDRSP%05";
+	return Helper_GetReservedOp(pID, blk, use_ta);
+}
+
 int SLAPI PPObjOprKind::GetEdiShopChargeOnOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;

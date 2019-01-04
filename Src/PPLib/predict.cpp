@@ -7,17 +7,11 @@
 //
 //
 struct LocValEntry { // @flat
-	LocValEntry(PPID locID, LDATE lastOpDate, double rest)
+	LocValEntry(PPID locID, LDATE lastOpDate, double rest) : LocID(locID), LastOpDate(lastOpDate), Rest(rest),
+		Sell(0.0), SellAmt(0.0), FirstIterTag(0), Reserve(0)
 	{
-		THISZERO();
-		LocID = locID;
-		LastOpDate = lastOpDate;
-		Rest = rest;
 	}
-	int    IsFirstIter() const
-	{
-		return BIN(FirstIterTag == 0);
-	}
+	int    IsFirstIter() const { return BIN(FirstIterTag == 0); }
 	PPID   LocID;
 	LDATE  LastOpDate;
 	double Rest;
@@ -347,15 +341,8 @@ int SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const 
 //
 //
 //
-void FASTCALL PrcssrPrediction::Param::SetPeriod(const DateRange & rPeriod)
-{
-	Period = rPeriod;
-}
-
-DateRange PrcssrPrediction::Param::GetPeriod() const
-{
-	return Period;
-}
+void FASTCALL PrcssrPrediction::Param::SetPeriod(const DateRange & rPeriod) { Period = rPeriod; }
+DateRange PrcssrPrediction::Param::GetPeriod() const { return Period; }
 
 DateRange PrcssrPrediction::Param::GetNormPeriod() const
 {
@@ -604,11 +591,10 @@ private:
 
 class PredictionParamDialog : public TDialog {
 public:
-	PredictionParamDialog(PPPredictConfig * pCfg, PredictSalesCore * pSalesTbl) : TDialog(DLG_FILLSALESTBL)
+	PredictionParamDialog(PPPredictConfig * pCfg, PredictSalesCore * pSalesTbl) : TDialog(DLG_FILLSALESTBL), P_SalesTbl(pSalesTbl)
 	{
 		if(!RVALUEPTR(Cfg, pCfg))
 			MEMSZERO(Cfg);
-		P_SalesTbl = pSalesTbl;
 		PrevContinueMode = BIN(Cfg.Flags & PPPredictConfig::fContinueBuilding);
 		SetCtrlBitmap(CTL_FILLSALESTBL_IMG, BM_FILLSALESTBL);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_FILLSALESTBL_GRP, CTLSEL_FILLSALESTBL_GDS));
@@ -692,10 +678,8 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 	SetClusterData(CTL_FILLSALESTBL_UPDATE, Data.Replace);
 	AddClusterAssoc(CTL_FILLSALESTBL_CONT, 0, PrcssrPrediction::Param::fRemoveContinueMode);
 	SetClusterData(CTL_FILLSALESTBL_CONT, Data.Flags);
-	// @v8.0.10 {
 	AddClusterAssoc(CTL_FILLSALESTBL_FLAGS, 0, PrcssrPrediction::Param::fUsePPViewGoodsRest);
 	SetClusterData(CTL_FILLSALESTBL_FLAGS, Data.Flags);
-	// } @v8.0.10
 	if(PrevContinueMode) {
 		SString msg_buf;
 		PPLoadText(PPTXT_PSALES_CONTINUEMODE, msg_buf);
@@ -745,7 +729,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	SETFLAG(Data.Flags, PrcssrPrediction::Param::fRecalcByPeriod, period.low);
 	Data.SetPeriod(period);
 	GetClusterData(CTL_FILLSALESTBL_CONT, &Data.Flags);
-	GetClusterData(CTL_FILLSALESTBL_FLAGS, &Data.Flags); // @v8.0.10
+	GetClusterData(CTL_FILLSALESTBL_FLAGS, &Data.Flags);
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		ok = PPErrorByDialog(this, sel);
@@ -783,7 +767,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 }
 
 // static
-int SLAPI PrcssrPrediction::Lock(int unlock)
+int FASTCALL PrcssrPrediction::Lock(int unlock)
 {
 	int    ok = 1;
 	if(!unlock) {
@@ -856,20 +840,25 @@ int SLAPI PrcssrPrediction::Init(const Param * pParam)
 int SLAPI PrcssrPrediction::CheckInterruption()
 {
 	int    ok = 0;
+	int    msg_id = 0;
 	if(SLS.CheckStopFlag()) {
-		PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by stop event", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		msg_id = PPTXT_LOG_PSALESSTOPBYEVNT;
+		//PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by stop event", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		ok = 1;
 	}
-	else {
-		if(MaxTime > 0 && diffdatetimesec(getcurdatetime_(), TimerStart) >= MaxTime) {
-			PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by time limit", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
-			ok = 1;
-		}
-		else if(fileExists(StopFileName)) {
-			PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by stop file", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
-			SFile::Remove(StopFileName);
-			ok = 1;
-		}
+	else if(MaxTime > 0 && diffdatetimesec(getcurdatetime_(), TimerStart) >= MaxTime) {
+		msg_id = PPTXT_LOG_PSALESSTOPBYTIMELIMIT;
+		//PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by time limit", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		ok = 1;
+	}
+	else if(fileExists(StopFileName)) {
+		msg_id = PPTXT_LOG_PSALESSTOPBYFILE;
+		//PPLogMessage(PPFILNAM_PSALES_LOG, "Process interrupted by stop file", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		SFile::Remove(StopFileName);
+		ok = 1;
+	}
+	if(msg_id) {
+		PPLogMessage(PPFILNAM_PSALES_LOG, PPSTR_TEXT, msg_id, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	}
 	return ok;
 }
@@ -910,15 +899,14 @@ int SLAPI PrcssrPrediction::Run()
 		period.Actualize(ZERODATE);
 		if(!period.upp || period.upp > last_dt)
 			period.upp = last_dt;
-		if(!period.low)
-			period.low = plusdate(period.upp, -1);
+		SETIFZ(period.low, plusdate(period.upp, -1));
 		THROW_PP_S(period.upp >= period.low, PPERR_INVPERIOD, msg_buf.Z().Cat(period, 0));
 		P.SetPeriod(period);
 		if(P.Flags & Param::fTestUpdatedItems) {
 			LDATETIME since;
 			since.d = period.low;
 			since.t = ZEROTIME;
-			THROW(BillObj->GetGoodsListByUpdatedBills(0, since, goods_list));
+			THROW(BillObj->GetGoodsListByUpdatedBills(0, since, goods_list, 0));
 			if(P.GoodsGrpID) {
 				PPIDArray temp_goods_list;
 				THROW(GoodsIterator::GetListByGroup(P.GoodsGrpID, &temp_goods_list));
@@ -974,7 +962,7 @@ int SLAPI PrcssrPrediction::Run()
 		PPLoadText(PPTXT_LOG_PSALESRETRANSACT, ta_msg_buf);
 		if(P.GoodsID) {
 			if(goods_obj.Fetch(P.GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_GENERIC)) {
-				P.Replace = Param::rsReplaceExistance; // @v8.1.2
+				P.Replace = Param::rsReplaceExistance;
 				goods_list.addUnique(P.GoodsID);
 				goods_count = 1;
 				THROW(ProcessGoodsList(goods_list, p_rest_blk, 1, use_ta));
@@ -1035,7 +1023,7 @@ int SLAPI PrcssrPrediction::Run()
 			for(uint gi = 0; !break_process && gi < total_goods_list.getCount(); gi++) {
 				++goods_processed;
 				const PPID _goods_id = total_goods_list.get(gi);
-				goods_list.add(_goods_id); // @v8.0.10 addUnique-->add
+				goods_list.add(_goods_id);
 				if(goods_list.getCount() >= goods_chunk_size) {
 					THROW(r = ProcessGoodsList(goods_list, p_rest_blk, 0, use_ta));
 					if(r > 0) {
@@ -1065,7 +1053,7 @@ int SLAPI PrcssrPrediction::Run()
 					Stat.GoodsCount += goods_list.getCount();
 					if(!P.GoodsGrpID)
 						do_update_common_last_date = 1;
-					THROW(RecalcStat(P.GetNormPeriod().upp, &Stat.Sse, 1)); // @v8.2.6
+					THROW(RecalcStat(P.GetNormPeriod().upp, &Stat.Sse, 1));
 				}
 				else
 					break_process = 1;
@@ -1168,7 +1156,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 	// Ќе смотр€ на старани€ этот вариант расчета получилс€ крайне медленным
 	// ¬идимо, тормозит выборка записей по условию (>= low_goods_id && <= upp_goods_id)
 	//
-	// @v8.1.8 ¬се таки, 'тот вариант оказалс€ более производительным. ¬озможно, дело в том,
+	// @v8.1.8 ¬се таки, этот вариант оказалс€ более производительным. ¬озможно, дело в том,
 	// что теперь мы его вывели из под действи€ транзакции.
 	//
 	for(i = 0; i < loc_count; i++) {
@@ -1196,7 +1184,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		// «аполн€ем статистику по товарам
 		//
 		if(loc_id && goods_count) {
-			BExtQuery q(&T, 0, 1024); // @v8.1.7 128-->1024
+			BExtQuery q(&T, 0, 1024);
 			DBQ * dbq = & (T.RType == (long)PSRECTYPE_DAY && T.Loc == (long)loc_idx &&
 				T.GoodsID >= low_goods_id && T.GoodsID <= upp_goods_id+1);
 			q.select(T.GoodsID, T.Dt, T.Quantity, T.Amount, 0L).where(*dbq);
@@ -1272,7 +1260,6 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		//
 		for(j = 0; !break_process && j < goods_count; j++) {
 			const PPID goods_id = rGoodsList.get(j);
-			// @v8.0.11 {
 			{
 				GoodsStatTbl::Key1 sk1;
 				sk1.GoodsID = goods_id;
@@ -1281,8 +1268,6 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 					THROW_DB(T.StT.deleteRec());
 				} while(T.StT.search(1, &sk1, spNext) && T.StT.data.GoodsID == goods_id);
 			}
-			// } @v8.0.11
-			// @v8.0.11 THROW_DB(deleteFrom(&T.StT, 0, T.StT.GoodsID == goods_id));
 			if(show_wait_msg)
 				PPWaitPercent(j+1, goods_count, "Removing of old total statistic");
 			if(CheckInterruption())
@@ -1521,8 +1506,7 @@ int SLAPI __HolidayArray::Is(int16 locIdx, LDATE dt)
 
 int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta)
 {
-	PPUserFuncProfiler ufp((P.Process == P.prcsTest) ? PPUPRF_PSALBLDGOODSTEST : PPUPRF_PSALBLDGOODS); // @v8.1.2
-
+	PPUserFuncProfiler ufp((P.Process == P.prcsTest) ? PPUPRF_PSALBLDGOODSTEST : PPUPRF_PSALBLDGOODS);
 	int    ok = 1, /*ta = 0,*/ r;
 	int    break_process = 0;
 	uint   j;
@@ -1543,7 +1527,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	// ‘ормируем список lvl_list, содержащий структуры, необходимые дл€ заполнени€ таблицы
 	//
 	const uint c = rGoodsList.getCount();
-	ufp.SetFactor(0, (double)c); // @v8.1.2
+	ufp.SetFactor(0, (double)c);
 	if(pRestBlk) {
 		comm_period = pRestBlk->Period;
 	}
@@ -1611,7 +1595,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 		// ќсновной цикл
 		//
 		const long _num_days = diffdate(comm_period.upp, comm_period.low)+1;
-		ufp.SetFactor(1, (double)_num_days); // @v8.1.2
+		ufp.SetFactor(1, (double)_num_days);
 		int    _gctr = 0;
 		PROFILE(_gctr = gctiter.First(&trfr_rec, &bill_rec));
 		if(_gctr > 0) {
@@ -1833,7 +1817,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	CATCHZOK
 	ZDELETE(p_vect);
 	CALLPTRMEMB(p_logger, Save(PPFILNAM_ERR_LOG, 0));
-	ufp.Commit(); // @v8.1.2
+	ufp.Commit();
 	return ok;
 }
 

@@ -1984,10 +1984,10 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 {
 	class ExtDebtTrnovrTotalDialog : public TDialog {
 	public:
-		ExtDebtTrnovrTotalDialog(int kind, const DebtTrnovrTotal * pTotal) : TDialog((kind == 1) ? DLG_DEBTTOTAL01 : DLG_EXTTDEBT), Kind(kind), P_Total(pTotal)
+		ExtDebtTrnovrTotalDialog(int kind, const DebtTrnovrTotal & rTotal) : TDialog((kind == 1) ? DLG_DEBTTOTAL01 : DLG_EXTTDEBT), Kind(kind), R_Total(rTotal)
 		{
 			SetupCurrencyCombo(this, CTLSEL_EXTTDEBT_CUR, 0L, 0, 1, 0);
-			setCtrlLong(CTL_EXTTDEBT_COUNT,   P_Total->Count);
+			setCtrlLong(CTL_EXTTDEBT_COUNT, R_Total.Count);
 			UpdatePage(0);
 		}
 	private:
@@ -2002,28 +2002,28 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 		void   UpdatePage(PPID curID)
 		{
 			if(Kind == 1) {
-				const double debt = P_Total->Debit.Get(0L, curID);
-				const double exp_debt = P_Total->Debt.Get(0L, curID);
+				const double debt = R_Total.Debit.Get(0L, curID);
+				const double exp_debt = R_Total.Debt.Get(0L, curID);
 				const double part = fdivnz(exp_debt, debt) * 100.0;
 				setCtrlReal(CTL_EXTTDEBT_DEBT,    debt);
 				setCtrlReal(CTL_EXTTDEBT_EXPDEBT, exp_debt);
 				setCtrlReal(CTL_EXTTDEBT_EXPDEBTPART, part);
 			}
 			else {
-				setCtrlReal(CTL_EXTTDEBT_SELL,   P_Total->Debit.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_PAYM,   P_Total->Credit.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_DEBT,   P_Total->Debt.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_RPAYM,  P_Total->RPaym.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_RECKON, P_Total->Reckon.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_RDEBT,  P_Total->RDebt.Get(0L, curID));
-				setCtrlReal(CTL_EXTTDEBT_TDEBT,  P_Total->TDebt.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_SELL,   R_Total.Debit.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_PAYM,   R_Total.Credit.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_DEBT,   R_Total.Debt.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_RPAYM,  R_Total.RPaym.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_RECKON, R_Total.Reckon.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_RDEBT,  R_Total.RDebt.Get(0L, curID));
+				setCtrlReal(CTL_EXTTDEBT_TDEBT,  R_Total.TDebt.Get(0L, curID));
 			}
 		}
-		const  DebtTrnovrTotal * P_Total;
+		const  DebtTrnovrTotal & R_Total;
 		int    Kind;
 	};
 	const int  kind = (Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) ? 1 : 0;
-	ExtDebtTrnovrTotalDialog * dlg = new ExtDebtTrnovrTotalDialog(kind, &Total);
+	ExtDebtTrnovrTotalDialog * dlg = new ExtDebtTrnovrTotalDialog(kind, Total);
 	if(CheckDialogPtrErr(&dlg)) {
 		ExecViewAndDestroy(dlg);
 		return 1;

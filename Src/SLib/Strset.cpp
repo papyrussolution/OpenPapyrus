@@ -111,9 +111,10 @@ int FASTCALL StringSet::Write(SBuffer & rBuf) const
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5 SLS.AcquireRvlStr()
 	r_temp_buf = Delim;
+	const  uint32 data_len = DataLen; // sizeof(data_len) == 4
 	rBuf.Write(r_temp_buf);
-	rBuf.Write(&DataLen, sizeof(DataLen));
-	rBuf.Write(P_Buf, DataLen);
+	rBuf.Write(&data_len, sizeof(data_len));
+	rBuf.Write(P_Buf, data_len);
 	return 1;
 }
 
@@ -152,11 +153,12 @@ int SLAPI StringSet::Write(SFile & rFile, long) const
 	{
 		SBuffer buf;
 		SString temp_buf = Delim;
+		const  uint32 data_len = DataLen; // sizeof(data_len) == 4
 		THROW(buf.Write(temp_buf));
-		THROW(buf.Write(&DataLen, sizeof(DataLen)));
+		THROW(buf.Write(&data_len, sizeof(data_len)));
 		THROW(rFile.Write(buf));
 		if(DataLen)
-			THROW(rFile.Write(P_Buf, DataLen));
+			THROW(rFile.Write(P_Buf, data_len));
 	}
 	CATCHZOK
 	return ok;

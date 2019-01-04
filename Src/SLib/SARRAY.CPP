@@ -2953,13 +2953,20 @@ int FASTCALL RealArray::dim(uint numItems)
 	return insertChunk(numItems, 0);
 }
 
+double SLAPI RealArray::StrideDifference(uint idx, uint stride) const
+{
+	assert(idx < count && idx > stride);
+	return (idx < count && idx > stride) ? (PTRDBL(data)[idx] - PTRDBL(data)[idx-stride]) : 0.0;
+}
+
 double SLAPI RealArray::Sum() const
 {
-	double sum = 0.0;
+	return count ? SVectorBase::sumDouble(0, 0, count-1) : 0.0;
+	/*double sum = 0.0;
 	for(uint i = 0; i < count; i++) {
 		sum += at(i);
 	}
-	return sum;
+	return sum;*/
 }
 
 void SLAPI RealArray::Sort()

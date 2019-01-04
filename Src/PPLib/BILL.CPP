@@ -1097,8 +1097,7 @@ int SLAPI BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocAr
 	PPOprKind op_rec;
 	BillTbl::Key6 k, k_;
 	BExtQuery q(this, 6, 64);
-	q.select(this->ID, this->OpID, this->Amount, this->SCardID, 0L).
-		where(this->SCardID > 0L && daterange(this->Dt, pPeriod));
+	q.select(this->ID, this->OpID, this->Amount, this->SCardID, 0L).where(this->SCardID > 0L && daterange(this->Dt, pPeriod));
 	MEMSZERO(k);
 	k.SCardID = 1L;
 	k.Dt = pPeriod->low;

@@ -3602,12 +3602,11 @@ int SLAPI PPObjBill::IsInfluenceToStock(PPID billID, PPID locID)
 	BillTbl::Rec bill_rec;
 	if(Search(billID, &bill_rec) > 0) {
 		PPID   op_type_id = GetOpType(bill_rec.OpID);
-		if(oneof6(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSREVAL, PPOPT_GOODSRETURN,
-			PPOPT_GOODSMODIF, PPOPT_GOODSACK)) {
+		if(oneof6(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSREVAL, PPOPT_GOODSRETURN, PPOPT_GOODSMODIF, PPOPT_GOODSACK)) {
 			if(!locID || bill_rec.LocID == locID)
 				ok = 1;
 			else if(IsIntrExpndOp(bill_rec.OpID)) {
-				if(bill_rec.LocID == PPObjLocation::ObjToWarehouse(bill_rec.Object))
+				if(locID == PPObjLocation::ObjToWarehouse(bill_rec.Object)) // @v10.2.11 @fix (bill_rec.LocID ==)-->(locID ==)
 					ok = 1;
 			}
 		}
@@ -3615,9 +3614,10 @@ int SLAPI PPObjBill::IsInfluenceToStock(PPID billID, PPID locID)
 	return ok;
 }
 
-int SLAPI PPObjBill::GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PPIDArray & rGoodsList)
+int SLAPI PPObjBill::GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PPIDArray & rGoodsList, PPIDArray * pBillList)
 {
 	int    ok = 1;
+	CALLPTRMEMB(pBillList, clear());
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	if(p_sj) {
 		PPIDArray acn_list, bill_list;
@@ -3630,8 +3630,10 @@ int SLAPI PPObjBill::GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rD
 				int r = IsInfluenceToStock(bill_id, locID);
 				THROW(r);
 				if(r > 0) {
-					if(trfr->CalcBillTotal(bill_id, 0, &goods_list) > 0) {
+					goods_list.clear();
+					if(trfr->CalcBillTotal(bill_id, 0, &goods_list) > 0 && goods_list.getCount()) {
 						THROW(rGoodsList.add(&goods_list));
+						CALLPTRMEMB(pBillList, add(bill_id));
 					}
 					goods_list.clear();
 				}

@@ -1364,7 +1364,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
 	P_Dls = pDls;
-	Flags    = (flags & ~ACGIF_EXCLALTFOLD); // ACGIF_EXCLALTFOLD - internal flag
+	Flags = (flags & ~ACGIF_EXCLALTFOLD); // ACGIF_EXCLALTFOLD - internal flag
 	CashNodeID = cashNodeID;
 	LocID    = 0;
 	CodePos  = 0;
@@ -1376,6 +1376,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	UnitList.clear(); // @v9.8.6
 	GdsClsList.clear(); // @v9.8.6
 	GdsTypeList.clear(); // @v9.8.6
+	UpdatedBillList.clear(); // @v10.2.11
 	{
 		AlcoGoodsClsID = 0;
 		TobaccoGoodsClsID = 0;
@@ -1567,17 +1568,22 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		UpdGoods.sortAndUndup();
 		if(oneof2(Algorithm, algUpdBillsVerify, algUpdBills)) {
 			IterGoodsList = UpdGoods;
-			THROW(BillObj->GetGoodsListByUpdatedBills(LocID, moment, IterGoodsList));
+			THROW(BillObj->GetGoodsListByUpdatedBills(LocID, moment, IterGoodsList, &UpdatedBillList));
 			if(AcnPack.GoodsGrpID) {
 				uint c = IterGoodsList.getCount();
 				if(c) do {
-					PPID goods_id = IterGoodsList.get(--c);
+					const PPID goods_id = IterGoodsList.get(--c);
 					if(!GObj.BelongToGroup(goods_id, AcnPack.GoodsGrpID))
 						IterGoodsList.atFree(c);
 				} while(c);
 			}
 			IterGoodsList.sort();
 			InnerCounter.Init(IterGoodsList.getCount());
+			// @v10.2.11 {
+			if(P_Dls && P_Dls->GetCurStatID() && UpdatedBillList.getCount()) {
+				P_Dls->RegisterBillList(P_Dls->GetCurStatID(), UpdatedBillList);
+			}
+			// } @v10.2.11 
 		}
 	}
 	{
@@ -1736,7 +1742,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				break;
 			}
 			else {
-				int    updated = 1, c;
+				int    updated = 1;
+				int    c;
 				double old_price = 0.0;
 				RetailExtrItem  rtl_ext_item;
 				Rec.Init();

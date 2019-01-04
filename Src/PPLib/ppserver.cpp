@@ -3272,13 +3272,17 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJ
 	CmdRet ret = cmdretOK;
 	uint32 size_to_read = 0;
 	size_t recv_size = 0;
-	TsStakeEnvironment stkevn;
+	TsStakeEnvironment stkenv;
 	THROW_SL(So.RecvBlock(&size_to_read, sizeof(size_to_read), &recv_size) > 0 && recv_size == sizeof(size_to_read));
 	{
 		SBuffer buffer;
 		SSerializeContext sctx;
 		THROW_SL(So.RecvBuf(buffer, size_to_read, &recv_size));
-		THROW(stkevn.Serialize(-1, buffer, &sctx));
+		THROW(stkenv.Serialize(-1, buffer, &sctx));
+		{
+			PPObjTimeSeries ts_obj;
+			THROW(ts_obj.SetExternStakeEnvironment(stkenv));
+		}
 	}
 	CATCH
 		rReply.SetError();

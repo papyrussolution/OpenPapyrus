@@ -3169,9 +3169,9 @@ int SLAPI PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 		{
 			size_t sd_size = sd_buf.GetAvailableSize();
 			if(sd_size) {
-				STempBuffer temp_buf(sd_size);
+				// @v10.2.11 STempBuffer temp_buf(sd_size);
 				SSerializeContext sctx;
-				THROW_SL(temp_buf.IsValid());
+				// @v10.2.11 THROW_SL(temp_buf.IsValid());
 				//THROW(pPack->Sd.Serialize(-1, sd_buf, &sctx));
 				pPack->Sd.Serialize(-1, sd_buf, &sctx);
 			}
@@ -3569,34 +3569,34 @@ int SLAPI PPEdiProviderPacket::MakeUrl(int reserved, InetUrl & rUrl)
 	int    ok = 0;
 	SString temp_buf;
 	GetExtStrData(reserved ? extssAddr2 : extssAddr, temp_buf);
-	if(temp_buf.NotEmptyS()) {
-		rUrl.Parse(temp_buf);
-		ok |= 0x01;
-		if(Rec.GuaID) {
-			PPObjGlobalUserAcc gua_obj;
-			PPGlobalUserAcc gua_rec;
-			if(gua_obj.Search(Rec.GuaID, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
-				SString pwd;
-				SString login;
-				Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
-				if(PPRef->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, Rec.GuaID, PPTAG_GUA_LOGIN, login) > 0) {
-					;
-				}
-				else {
-					login = gua_rec.Name;
-				}
-				if(login.NotEmptyS()) {
-					rUrl.SetComponent(InetUrl::cUserName, login.Transf(CTRANSF_INNER_TO_OUTER));
-					ok |= 0x02;
-					if(pwd.NotEmptyS()) {
-						rUrl.SetComponent(InetUrl::cPassword, pwd.Transf(CTRANSF_INNER_TO_OUTER));
-						pwd.Obfuscate();
-						ok |= 0x04;
-					}
+	THROW_PP_S(temp_buf.NotEmptyS(), PPERR_EDI_SVCADDRUNDEF, Rec.Name);
+	rUrl.Parse(temp_buf);
+	ok |= 0x01;
+	if(Rec.GuaID) {
+		PPObjGlobalUserAcc gua_obj;
+		PPGlobalUserAcc gua_rec;
+		if(gua_obj.Search(Rec.GuaID, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
+			SString pwd;
+			SString login;
+			Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
+			if(PPRef->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, Rec.GuaID, PPTAG_GUA_LOGIN, login) > 0) {
+				;
+			}
+			else {
+				login = gua_rec.Name;
+			}
+			if(login.NotEmptyS()) {
+				rUrl.SetComponent(InetUrl::cUserName, login.Transf(CTRANSF_INNER_TO_OUTER));
+				ok |= 0x02;
+				if(pwd.NotEmptyS()) {
+					rUrl.SetComponent(InetUrl::cPassword, pwd.Transf(CTRANSF_INNER_TO_OUTER));
+					pwd.Obfuscate();
+					ok |= 0x04;
 				}
 			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 

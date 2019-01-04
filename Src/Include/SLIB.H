@@ -6453,6 +6453,10 @@ public:
 	//
 	int    FASTCALL dim(uint numItems);
 	double SLAPI Sum() const;
+	//
+	// Descr: Вычисляет разницу между элементами [idx] и [idx-stride]
+	//
+	double SLAPI StrideDifference(uint idx, uint stride) const;
 	void   SLAPI Sort();
 };
 //

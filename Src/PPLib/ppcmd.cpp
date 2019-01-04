@@ -3649,3 +3649,43 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(BILLAUTOCREATE);
+//
+//
+//
+class CMD_HDL_CLS(TIMESERIESSA) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(TIMESERIESSA)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrTsStrategyAnalyze prc;
+			PrcssrTsStrategyAnalyzeFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		PrcssrTsStrategyAnalyzeFilt filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrTsStrategyAnalyze prc;
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else
+			ok = DoProcessOsm(0);
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(TIMESERIESSA);

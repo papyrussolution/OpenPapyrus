@@ -113,6 +113,16 @@ int SLAPI DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID d
 	return ok;
 }
 
+int SLAPI DeviceLoadingStat::RegisterBillList(PPID statID, const PPIDArray & rBillList)
+{
+	int    ok = 1;
+	THROW_INVARG(statID == StatID);
+	THROW_SL(UpdatedBillList.add(&rBillList));
+	UpdatedBillList.sortAndUndup();
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 {
 	int    ok = 1;
@@ -197,6 +207,18 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 					THROW_DB(bei.insert(&dlso_rec));
 				}
 			}
+			// @v10.2.11 {
+			if(UpdatedBillList.getCount()) {
+				UpdatedBillList.sortAndUndup();
+				for(uint i = 0; i < UpdatedBillList.getCount(); i++) {
+					MEMSZERO(dlso_rec);
+					dlso_rec.DlsID   = statID;
+					dlso_rec.ObjType = PPOBJ_BILL;
+					dlso_rec.ObjID   = UpdatedBillList.get(i);
+					THROW_DB(bei.insert(&dlso_rec));
+				}
+			}
+			// } @v10.2.11 
 			THROW_DB(bei.flash());
 		}
 		StatID = 0;
@@ -246,6 +268,25 @@ int SLAPI DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDls
     return ok;
 }
 
+int SLAPI DeviceLoadingStat::GetBillList(PPID statID, PPIDArray & rList)
+{
+	rList.clear();
+	int    ok = -1;
+	DlsObjTbl::Key1 k1;
+	MEMSZERO(k1);
+	k1.DlsID = statID;
+	k1.ObjType = PPOBJ_BILL;
+	if(DlsoT.search(1, &k1, spGe) && DlsoT.data.DlsID == statID && DlsoT.data.ObjType == PPOBJ_BILL) do {
+		rList.add(DlsoT.data.ObjID);
+		ok = 1;
+	} while(DlsoT.search(1, &k1, spNext) && DlsoT.data.DlsID == statID && DlsoT.data.ObjType == PPOBJ_BILL);
+	if(ok > 0) {
+		assert(rList.getCount() != 0);
+		rList.sortAndUndup();
+	}
+	return ok;
+}
+
 int SLAPI DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & since, PPIDArray * pObjList)
 {
 	int    ok = 1;
@@ -265,9 +306,9 @@ int SLAPI DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & s
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 		if(cmp(since, p_sj->data.Dt, p_sj->data.Tm) < 0 && acn_list.bsearch(p_sj->data.Action))
 			if(pObjList)
-				THROW(pObjList->add(p_sj->data.ObjID)); // @v8.0.10 addUnique-->add
+				THROW(pObjList->add(p_sj->data.ObjID));
 	}
-	CALLPTRMEMB(pObjList, sortAndUndup()); // @v8.0.10 sort-->sortAndUndup
+	CALLPTRMEMB(pObjList, sortAndUndup());
 	CATCHZOK
 	return ok;
 }
@@ -287,7 +328,7 @@ int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
 	}
 	k.Dt      = toDt;
 	k.Tm.v    = MAXLONG;
-	k.DvcType = MAXSHORT; // @v8.9.8 MAXINT-->MAXSHORT
+	k.DvcType = MAXSHORT;
 	k.DvcID   = MAXLONG;
 	if(search(2, &k, spLe) && k.Dt <= toDt) {
 		total++;
@@ -297,7 +338,7 @@ int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
 	counter.Init(total);
 	k.Dt      = toDt;
 	k.Tm.v    = MAXLONG;
-	k.DvcType = MAXSHORT; // @v8.9.8 MAXINT-->MAXSHORT
+	k.DvcType = MAXSHORT;
 	k.DvcID   = MAXLONG;
 	while(search(2, &k, spLe) && k.Dt <= toDt) {
 		THROW(Remove(data.ID, 1));
@@ -603,13 +644,20 @@ int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, P
 			hdr = *(PPViewDvcLoadingStat::BrwHdr *)pHdr;
 		else
 			MEMSZERO(hdr);
-		if(ppvCmd == PPVCMD_EDITGOODS || (ppvCmd == PPVCMD_SCARDS && hdr.DvcType == dvctCashs)) {
+		if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_VIEWBILLS) || (hdr.DvcType == dvctCashs && ppvCmd == PPVCMD_SCARDS)) {
 			DLSDetailFilt  dlsd_flt;
 			dlsd_flt.DlsID   = hdr.DlsID;
 			dlsd_flt.DvcType = hdr.DvcType;
 			dlsd_flt.DvcID   = hdr.DvcID;
-			dlsd_flt.ObjType = (ppvCmd == PPVCMD_EDITGOODS) ? PPOBJ_GOODS : PPOBJ_SCARD;
-			ViewDLSDetail(&dlsd_flt);
+			if(ppvCmd == PPVCMD_VIEWBILLS) {
+				dlsd_flt.ObjType = PPOBJ_BILL;
+				if(DlsT.GetBillList(hdr.DlsID, dlsd_flt.BillList) > 0)
+					ViewDLSDetail(dlsd_flt);
+			}
+			else {
+				dlsd_flt.ObjType = (ppvCmd == PPVCMD_EDITGOODS) ? PPOBJ_GOODS : PPOBJ_SCARD;
+				ViewDLSDetail(dlsd_flt);
+			}
 			ok = -1;
 		}
 		else if(ppvCmd == PPVCMD_EDITDEVICE) {
@@ -647,9 +695,8 @@ int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, P
 //
 // @ModuleDef(PPViewDLSDetail)
 //
-SLAPI DLSDetailFilt::DLSDetailFilt()
+SLAPI DLSDetailFilt::DLSDetailFilt() : DlsID(0), DvcType(0), Reserve(0), DvcID(0), ObjType(0)
 {
-	THISZERO();
 }
 
 SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0, 0, 0), P_DlsObjTbl(0)
@@ -694,7 +741,7 @@ DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		q->addField(dbe_goods);   // #5
 		q->from(tbl, 0L);
 	}
-	else {
+	else if(Filt.ObjType == PPOBJ_SCARD) {
 		THROW(CheckTblPtr(sc = new SCardTbl));
 		dbq = & (*dbq && (sc->ID == tbl->ObjID));
 		q->addField(sc->Code);    // #5
@@ -767,13 +814,25 @@ int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 //
 //
 //
-int SLAPI ViewDLSDetail(DLSDetailFilt * pFilt)
+int SLAPI ViewDLSDetail(const DLSDetailFilt & rFilt)
 {
 	int    ok = 1;
-	PPViewDLSDetail * p_v = new PPViewDLSDetail;
-	PPWait(1);
-	THROW(p_v->Init(pFilt));
-	THROW(p_v->Browse(0));
+	PPViewDLSDetail * p_v = 0;
+	// @v10.2.11 {
+	if(rFilt.ObjType == PPOBJ_BILL) {
+		if(rFilt.BillList.getCount()) {
+			BillFilt filt;
+			filt.List.Set(&rFilt.BillList);
+			filt.Flags |= BillFilt::fBillListOnly; 
+			PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
+		}
+	} // } @v10.2.11 
+	else if(oneof2(rFilt.ObjType, PPOBJ_GOODS, PPOBJ_SCARD)) {
+		p_v = new PPViewDLSDetail;
+		PPWait(1);
+		THROW(p_v->Init(&rFilt));
+		THROW(p_v->Browse(0));
+	}
 	CATCHZOKPPERR
 	delete p_v;
 	return ok;
