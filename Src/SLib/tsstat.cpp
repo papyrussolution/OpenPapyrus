@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -646,6 +646,10 @@ int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) co
 SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0), State(0)
 {
 	memzero(Reserve, sizeof(Reserve));
+}
+
+SLAPI STimeSeries::~STimeSeries()
+{
 }
 
 void FASTCALL STimeSeries::SetSymb(const char * pSymb)
@@ -1393,6 +1397,18 @@ int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, long nor
 	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, 0.0, normFlags, rList); }
 int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
 	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, diffScale, normFlags, rList); }
+
+int SLAPI STimeSeries::GetChunkRecentCount(uint count, STimeSeries & rResult) const
+{
+	int    ok = -1;
+	return ok;
+}
+
+int SLAPI STimeSeries::GetChunkRecentSince(const SUniTime & rSince, STimeSeries & rResult) const
+{
+	int    ok = -1;
+	return ok;
+}
 //
 //
 //

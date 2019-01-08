@@ -792,6 +792,12 @@ SLAPI KeyDownCommand::KeyDownCommand()
 }
 */
 
+void SLAPI KeyDownCommand::Clear()
+{
+	State = 0;
+	Code = 0;
+}
+
 int SLAPI KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 {
 	int    ok = -1;

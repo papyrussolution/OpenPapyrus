@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3300,6 +3300,62 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 									}
 								}
 							}
+							else if(p_pack->DocType == PPEDIOP_ORDERRSP) {
+								PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
+								PPBillPacket * p_bp_org = (PPBillPacket *)p_pack->P_ExtData;
+								assert(p_bp);
+								assert(p_bp_org);
+								if(p_bp && p_bp_org && p_bp_org->Rec.ID) {
+									const PPID order_bill_id = p_bp_org->Rec.ID;
+									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, order_bill_id, PPTAG_BILL_EDIORDRSPRCV, temp_buf) > 0) {
+									}
+									else {
+										int   all_equal = 1;
+										int   prices_equal = 1;
+										int   exc_items = 0; // ѕризнак того, что в ORDRSP присутствуют лишние строки
+										for(uint i = 0; all_equal && i < p_bp_org->GetTCount(); i++) {
+											const PPTransferItem & r_org_ti = p_bp_org->ConstTI(i);
+											uint rsp_pos = 0;
+											if(p_bp->SearchTI(r_org_ti.RByBill, &rsp_pos)) {
+												const PPTransferItem & r_rsp_ti = p_bp->ConstTI(rsp_pos);
+												if(r_rsp_ti.GoodsID != r_org_ti.GoodsID)
+													all_equal = 0;
+												else if(!feqeps(r_rsp_ti.Quantity_, r_org_ti.Quantity_, 1E-7))
+													all_equal = 0;
+												else if(r_rsp_ti.Cost != r_org_ti.Cost)
+													prices_equal = 0;
+											}
+											else 
+												all_equal = 0;
+										}
+										for(uint j = 0; !exc_items && j < p_bp->GetTCount(); j++) {
+											const PPTransferItem & r_rsp_ti = p_bp->ConstTI(j);
+											uint org_pos = 0;
+											if(!p_bp_org->SearchTI(r_rsp_ti.RByBill, &org_pos))
+												exc_items = 1;
+										}
+										{
+											ObjTagItem tag_item;
+											temp_buf.Z();
+											temp_buf.Cat(all_equal ? "ACCEPTED" : "CHANGED");
+											temp_buf.Space().Cat(p_bp->Rec.Code).Space().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+											if(!tag_item.SetStr(PPTAG_BILL_EDIORDRSPRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, order_bill_id, &tag_item, 1)) {
+												Logger.LogLastError();
+											}
+											else if(!all_equal || exc_items) {
+												assert(p_bp->Rec.LinkBillID == p_bp_org->Rec.ID); // —в€зка должна была быть установлена ранее
+												p_bp->Rec.LinkBillID = p_bp_org->Rec.ID; // Ќесмотр€ на параноидальную проверку выше, страхуемс€
+												if(!P_BObj->__TurnPacket(p_bp, 0, 0, 1)) {
+													Logger.LogLastError();
+												}
+											}
+										}
+									}
+								}
+							}
+							else if(p_pack->DocType == PPEDIOP_DESADV) {
+								; // @todo
+							}
 							else if(p_pack->DocType == PPEDIOP_RECADV) {
 								PPEdiProcessor::RecadvPacket * p_recadv_pack = (PPEdiProcessor::RecadvPacket *)p_pack->P_Data;
 								if(p_recadv_pack && p_recadv_pack->DesadvBillCode.NotEmpty() && checkdate(p_recadv_pack->DesadvBillDate)) {
@@ -3316,10 +3372,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 										else {
 											ObjTagItem tag_item;
 											temp_buf.Z();
-											if(p_recadv_pack->AllRowsAccepted)
-												temp_buf.Cat("ACCEPTED");
-											else
-												temp_buf.Cat("CHANGED");
+											temp_buf.Cat(p_recadv_pack->AllRowsAccepted ? "ACCEPTED" : "CHANGED");
 											temp_buf.Space().Cat(p_recadv_pack->Bp.Rec.Code).Space().Cat(p_recadv_pack->Bp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
 											if(!tag_item.SetStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, desadv_bill_id, &tag_item, 1)) {
 												Logger.LogLastError();
@@ -3333,6 +3386,9 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 										}
 									}
 								}
+							}
+							else if(p_pack->DocType == PPEDIOP_INVOIC) {
+								; // @todo
 							}
 						}
 					}

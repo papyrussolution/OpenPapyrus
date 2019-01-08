@@ -158,6 +158,12 @@ public:
 		long   Flags;
 		double BuyMarg;
 		double SellMarg;
+		//
+		double SpikeQuant;     //
+		double AvgSpread;      //
+		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
+		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
+		//
 		int16  Prec;
 		uint16 Reserve; // @alignment
 	};
@@ -193,7 +199,7 @@ public:
 	}
 	int    SLAPI SetTimeSeries(STimeSeries & rTs);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
-	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv);
+	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet);
 	int    SLAPI SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep)
 	{
 		int    ok = 1;
@@ -214,6 +220,67 @@ public:
 		return ok;
 	}
 	int    SLAPI Flash();
+	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult)
+	{
+		int    ok = -1;
+		const  LDATETIME now = getcurdatetime_();
+		SString temp_buf;
+		SString tk_symb;
+		SString stk_symb;
+		SString stk_memo;
+		for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
+			const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
+			long d = diffdatetimesec(now, r_tk.Dtm);
+			if(d < 10) {
+				StkEnv.GetS(r_tk.SymbP, tk_symb);
+				uint  blk_idx = 0;
+				const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
+				if(p_blk) {
+					int   is_there_stake = 0;
+					uint  stake_idx = 0;
+					for(uint si = 0; si < StkEnv.SL.getCount(); si++) {
+						const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
+						StkEnv.GetS(r_stk.SymbP, stk_symb);
+						if(stk_symb.IsEqiAscii(tk_symb)) {
+							is_there_stake = 1;
+							stake_idx = si;
+						}
+					}
+					// @debug {
+					/*if(tk_symb.IsEqiAscii("EURUSD")) {
+						if(!is_there_stake) {
+							TsStakeEnvironment::StakeRequestBlock::Req req;
+							req.Action = TsStakeEnvironment::traDeal;
+							req.Type = TsStakeEnvironment::ordtBuy;
+							req.TsID = p_blk->PPTS.ID;
+							rResult.AddS(tk_symb, &req.SymbolP);
+							req.Volume = 1000;
+							rResult.AddS("PPAT-TEST", &req.CommentP);
+							rResult.L.insert(&req);
+						}
+						else {
+							if(p_blk->PPTS.OptMaxDuck > 0 && p_blk->PPTS.SpikeQuant > 0.0) {
+								const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(stake_idx);
+								TsStakeEnvironment::StakeRequestBlock::Req req;
+								req.Ticket = r_stk.Ticket;
+								req.Action = TsStakeEnvironment::traSLTP;
+								req.Type = TsStakeEnvironment::ordtBuy;
+								req.TsID = p_blk->PPTS.ID;
+								rResult.AddS(tk_symb, &req.SymbolP);
+								req.Volume = 0;
+								req.SL = round(r_tk.Last * (1.0 - p_blk->PPTS.OptMaxDuck * p_blk->PPTS.SpikeQuant), p_blk->PPTS.Prec);
+								temp_buf.Z().Cat("PPAT-TEST").Space().Cat("SETSL").Space().Cat(req.SL);
+								rResult.AddS(temp_buf, &req.CommentP);
+								rResult.L.insert(&req);
+							}
+						}
+					}*/
+					// } @debug 
+				}
+			}
+		}
+		return ok;
+	}
 private:
 	struct TimeSeriesBlock {
 		SLAPI  TimeSeriesBlock();
@@ -252,6 +319,10 @@ int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->Flags    = rec.Flags;
 		p_cache_rec->BuyMarg  = rec.BuyMarg;
 		p_cache_rec->SellMarg = rec.SellMarg;
+		p_cache_rec->SpikeQuant = rec.SpikeQuant;
+		p_cache_rec->AvgSpread = rec.AvgSpread;
+		p_cache_rec->OptMaxDuck = rec.OptMaxDuck;
+		p_cache_rec->OptMaxDuck_S = rec.OptMaxDuck_S;
 		p_cache_rec->Prec     = rec.Prec;
 
 		MultTextBlock b;
@@ -275,6 +346,10 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_rec->Flags = p_cache_rec->Flags;
 	p_data_rec->BuyMarg  = p_cache_rec->BuyMarg;
 	p_data_rec->SellMarg = p_cache_rec->SellMarg;
+	p_data_rec->SpikeQuant = p_cache_rec->SpikeQuant;
+	p_data_rec->AvgSpread = p_cache_rec->AvgSpread;
+	p_data_rec->OptMaxDuck = p_cache_rec->OptMaxDuck;
+	p_data_rec->OptMaxDuck_S = p_cache_rec->OptMaxDuck_S;
 	p_data_rec->Prec     = p_cache_rec->Prec;
 	//
 	MultTextBlock b(this, pEntry);
@@ -419,18 +494,22 @@ static void LogStateEnvironment(const TsStakeEnvironment & rEnv)
 				Cat(r_tk.Bid, MKSFMTD(0, 5, 0)).Space().
 				Cat(r_tk.Ask, MKSFMTD(0, 5, 0)).Space().
 				Cat(r_tk.Last, MKSFMTD(0, 5, 0)).Space().
-				Cat(r_tk.Volume);
+				Cat(r_tk.Volume).Space().
+				Cat(r_tk.MarginReq, MKSFMTD(0, 5, 0));
 			f_out.WriteLine(line_buf.CR());
 		}
 	}
 }
 
-int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv)
+int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet)
 {
 	int    ok = 1;
 	OpL.Lock();
 	if(pEnv) {
 		StkEnv = *pEnv;
+		if(pRet) {
+			EvaluateStakes(*pRet);
+		}
 	}
 	else {
 		ok = -1;
@@ -480,6 +559,7 @@ int SLAPI TimeSeriesCache::Flash()
 	int    ok = 1;
 	OpL.Lock();
 	if(TsC.getCount()) {
+		STimeSeries t;
 		PPObjTimeSeries ts_obj;
 		PPTransaction tra(1);
 		THROW(tra);
@@ -487,12 +567,16 @@ int SLAPI TimeSeriesCache::Flash()
 			TimeSeriesBlock * p_blk = TsC.at(i);
 			if(p_blk && p_blk->Flags & TimeSeriesBlock::fDirty && p_blk->PPTS.ID) {
 				PPID   id = p_blk->PPTS.ID;
-				if(p_blk->SpreadCount && p_blk->SpreadSum) {
-					p_blk->PPTS.AvgSpread = (double)p_blk->SpreadSum / (double)p_blk->SpreadCount;
+				PPTimeSeries rec;
+				if(ts_obj.GetPacket(id, &rec) > 0) {
+					if(p_blk->SpreadCount && p_blk->SpreadSum) {
+						rec.AvgSpread = (double)p_blk->SpreadSum / (double)p_blk->SpreadCount;
+					}
+					THROW(ts_obj.PutPacket(&id, &rec, 0));
+					THROW(ts_obj.SetTimeSeries(id, &p_blk->T, 0));
+					p_blk->PPTS = rec;
+					p_blk->Flags &= ~TimeSeriesBlock::fDirty;
 				}
-				THROW(ts_obj.PutPacket(&id, &p_blk->PPTS, 0));
-				THROW(ts_obj.SetTimeSeries(id, &p_blk->T, 0));
-				p_blk->Flags &= ~TimeSeriesBlock::fDirty;
 			}
 		}
 		THROW(tra.Commit());
@@ -559,10 +643,10 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
 	return p_cache ? p_cache->SetTimeSeries(rTs) : 0;
 }
 
-int SLAPI PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & rEnv)
+int SLAPI PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
-	return p_cache ? p_cache->SetCurrentStakeEnvironment(&rEnv) : 0;
+	return p_cache ? p_cache->SetCurrentStakeEnvironment(&rEnv, &rRet) : 0;
 }
 
 int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)

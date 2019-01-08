@@ -5,7 +5,7 @@
 // Спасибо за проделанную работу:
 //   Насонову Вадиму (VADIM), Стародубу Антону (AHTOXA), Казакову Михаилу (Muxa), Миллер Владиславе (vmiller),
 //   Осолоткину Алексею [rip], Антонову Валерию, Симанову Александру [rip], Курилову Андрею (Andrew), Кретову Алексею,
-//   Ванаг Светлане.
+//   Ванаг Светлане, Соболеву Эрику.
 //
 //  Соглашение об обозначениях:
 //
@@ -4611,7 +4611,6 @@ public:
 	int    SLAPI GetExtPropRefList(PPID clsID, int gcProp, PPID propVal, LAssocArray * pGoodsIdList);
 	int    SLAPI ReplaceExtObjRefs(PPID clsID, int gcProp, LAssocArray * pSubstList, int use_ta);
 	int    SLAPI ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long newScale, int use_ta);
-
 	int    FASTCALL Fetch(PPID id, Goods2Tbl::Rec * pRec);
 	int    FASTCALL Dirty(PPID id);
 	int    FASTCALL FetchConfig(PPGoodsConfig * pCfg);
@@ -4635,7 +4634,6 @@ public:
 	// Descr: Сбрасывает кэш наименований товаров.
 	//
 	int    SLAPI ResetFullList();
-
 	int    SLAPI SearchBarcode(const char * pCode, BarcodeTbl::Rec *);
 	int    SLAPI SearchByBarcode(const char * pCode, BarcodeTbl::Rec *, Goods2Tbl::Rec * pGoodsRec = 0);
 	int    SLAPI SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec);
@@ -4697,7 +4695,6 @@ public:
 	int    SLAPI IsExclusiveAltGrp(PPID altGrpID, PPID * pParentID);
 	int    SLAPI CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID);
 	int    SLAPI GetExclusiveAltParent(PPID goodsID, PPID parentID, PPID * pAltGrpID);
-
 	int    SLAPI IsCompatibleByUnit(PPID id1, PPID id2, double * ratio);
 	int    SLAPI IsChildOf(PPID, PPID parent);
 	int    SLAPI IsAltGroup(PPID);
@@ -4840,16 +4837,6 @@ private:
 	int    SLAPI Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags);
 };
 //
-// HistGoodsCore
-//
-class HistGoodsCore : public HistGoodsTbl {
-public:
-	int    SLAPI Insert(PPID * pHistID, SBuffer * pBuf, int use_ta);
-	int    SLAPI Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
-	int    SLAPI Search(PPID histID, SBuffer * pBuf);
-	long   SLAPI GetNextVer(PPID goodsID);
-};
-//
 // Структуры представления счетов. Существенно,
 // что обе структуры имеют одинаковый размер.
 //
@@ -4862,7 +4849,6 @@ struct Acct {
 	void   SLAPI Clear();
 	Acct & FASTCALL operator = (const AcctRelTbl::Rec &);
 	Acct & FASTCALL operator = (const PPAccount &);
-
 	char * SLAPI ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
 	SString & SLAPI ToStr(long format, SString & rBuf) const;
 	int    SLAPI FromStr(long format, const char *); // ACCBIN_NATURE
@@ -4988,12 +4974,10 @@ struct PPAccTurn { // @persistent
 class PPAccTurnTempl { // @persistent @store(PropertyTbl)
 public:
 	static int SLAPI Convert_6407(PropertyTbl::Rec * pRec);
-
 	int    SLAPI SetupSubst(char * primStr, char * foreignStr);
 	int    SLAPI SubstToStrings(SString & rPrimStr, SString & rForeignStr);
 	int    SLAPI CreateAccturns(PPBillPacket *);
 	int    SLAPI CreateBaseProjectionAccturns(PPBillPacket *);
-
 	int    SLAPI AccTemplToStr(int side, SString & rBuf);
 	int    SLAPI AccTemplFromStr(int side, const char * pBuf);
 
@@ -5261,8 +5245,7 @@ struct PPLastInputData {
 	DateRange GctPeriod; // PPViewGoodsRest::ViewGoodsOpGrouping()
 };
 //
-// Descr: Структура, определяющая арранжировку штрихкодов с списке,
-//   принадлежащем одному товару.
+// Descr: Структура, определяющая арранжировку штрихкодов с списке, принадлежащем одному товару.
 //
 class BarcodeArrangeConfig {
 public:
@@ -5353,7 +5336,6 @@ private:
 #define PPSCMD_POS_GETCTABLELIST     10080 // CPOSGETCTABLELIST
 #define PPSCMD_POS_CPOSSETCCROWQUEUE 10081 // CPOSSETCCROWQUEUE
 #define PPSCMD_POS_GETMODIFLIST      10082 // CPOSGETMODIFLIST goodsID
-
 #define PPSCMD_RESETCACHE            10101 // RESETCACHE
 #define PPSCMD_GETDISPLAYINFO        10102
 #define PPSCMD_GETWORKBOOKCONTENT    10103
@@ -5551,7 +5533,6 @@ public:
 	int    FASTCALL WriteString(const SString & rStr);
 	int    SLAPI WriteFile(const char * pFileName);
 	int    FASTCALL FinishWriting(int hdrFlags = 0);
-
 	void   FASTCALL SetString(const char * pStr);
 	void   FASTCALL SetString(const SString & rStr);
 	int    FASTCALL SetInformer(const char * pMsg);
@@ -5598,7 +5579,6 @@ public:
 	int    SLAPI Login(const char * pDbSymb, const char * pUserName, const char * pPassword);
 	int    SLAPI Logout();
 	int    SLAPI GetLastErr(SString & rBuf);
-
 	void   SLAPI SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam);
 	//
 	// Descr: Отсылает серверу запрос на подтверждение соединения по таймеру.
@@ -5636,7 +5616,7 @@ class PPUhttClient {
 public:
 	static int SLAPI TestUi_GetLocationListByPhone();
 	static int SLAPI TestUi_GetQuotByLoc();
-
+	static int SLAPI ViewNewVerList(int showSelDlg);
 	SLAPI  PPUhttClient();
 	SLAPI ~PPUhttClient();
 	int    SLAPI HasAccount() const;
@@ -5649,7 +5629,6 @@ public:
 	//
 	int    SLAPI GetPersonByID(int id, UhttPersonPacket & rResult);
 	int    SLAPI GetPersonByName(const char * pName, TSCollection <UhttPersonPacket> & rResult);
-
 	int    SLAPI GetBrandByName(const char * pName, TSCollection <UhttBrandPacket> & rResult);
 	int    SLAPI GetGoodsByCode(const char * pCode, TSCollection <UhttGoodsPacket> & rResult);
 	int    SLAPI GetGoodsByName(const char * pName, TSCollection <UhttGoodsPacket> & rResult);
@@ -5686,7 +5665,6 @@ public:
 		const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra);
 	int    SLAPI GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer);
 	int    SLAPI SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult);
-
 	int    SLAPI GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack);
 	int    SLAPI GetWorkbookItemByCode(const char * pCode, UhttWorkbookItemPacket & rPack);
 	int    SLAPI GetWorkbookListByParentCode(const char * pParentCode, TSCollection <UhttWorkbookItemPacket> & rResult);
@@ -5694,24 +5672,16 @@ public:
 	int    SLAPI CreateWorkbookItem(long * pID, const UhttWorkbookItemPacket & rPack);
 	int    SLAPI SetWorkbookContentByID(int id, const char * pFileName);
 	//int    SLAPI SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, const char * pFileName);
-
 	int    SLAPI GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack);
 	int    SLAPI GetStyloDeviceByCode(const char * pCode, UhttStyloDevicePacket & rPack);
 	int    SLAPI CreateStyloDevice(long * pID, const UhttStyloDevicePacket & rPack);
-
 	int    SLAPI GetProcessorByID(long id, UhttProcessorPacket & rPack);
 	int    SLAPI GetProcessorByCode(const char * pCode, UhttProcessorPacket & rPack);
 	int    SLAPI CreateProcessor(long * pID, const UhttProcessorPacket & rPack);
-
 	int    SLAPI GetTSessionByID(long id, UhttTSessionPacket & rPack);
 	int    SLAPI GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPacket & rPack);
 	int    SLAPI GetTSessionByPrc(long prcID, const LDATETIME & rSince, TSCollection <UhttTSessionPacket> & rResult);
 	int    SLAPI CreateTSession(long * pID, const UhttTSessionPacket & rPack);
-
-	static int SLAPI ViewNewVerList(int showSelDlg);
-	//
-	//
-	//
 	int    SLAPI ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const;
 	int    SLAPI ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const;
 	const SString & SLAPI GetLastMessage() const { return LastMsg; }
@@ -5731,7 +5701,6 @@ private:
 	SString UrlBase;
 	SString Token;
 	SString LastMsg;
-
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 };
@@ -6347,7 +6316,6 @@ protected:
 		PPID   ObjType;
 		int    Inited;
 		PPIDArray DirtyTable;
-
 		ReadWriteLock SlLock;
 	};
 protected:
@@ -6470,7 +6438,6 @@ public:
 	int    SLAPI Read(const char * pDataPath, Info * pInfo);
 	int    SLAPI Write(const char * pDataPath, const Info * pInfo);
 private:
-
 	struct Header {
 		uint32 Signature;
 		uint32 CRC;
@@ -6519,7 +6486,6 @@ public:
 		enum {
 			stLocalStop = 0x0004
 		};
-
 		int32   Id;            // Thread ID
 		int32   Kind;          // PPThread::kXXX
 		int32   Status;        // Состояние потока PPThread::Info::stXXX
@@ -6547,9 +6513,7 @@ public:
 		kWorkerSession,  // @v9.8.0 Рабочий поток для исполнения команд (также является базовым для kNetSession)
 		kNginxWorker     // @v9.8.1 Рабочий поток сервера NGINX (запускается потоком kNginxServer)
 	};
-
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
-
 	SLAPI  PPThread(int kind, const char * pText, void * pInitData);
 	int    SLAPI GetKind() const { return Kind; }
 	void   FASTCALL SetText(const char * pTxt);
@@ -6569,7 +6533,7 @@ private:
 	LDATETIME StartMoment;
 	SString Text;
 	SString LastMsg_;
-	int32   UniqueSessID;
+	int32  UniqueSessID;
 };
 
 class PPWorkerSession : public PPThread {
@@ -11394,7 +11358,7 @@ public:
 	int    SLAPI PutContainer(PPID billID, PPLotExtCodeContainer * pC, int use_ta);
 	int    SLAPI GetContainer(PPID billID, PPLotExtCodeContainer & rC);
 	int    SLAPI GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount);
-	int    SLAPI FindMarkToTransfer(const char * pCode, PPLotExtCodeContainer::MarkSet & rResult);
+	int    SLAPI FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult);
 };
 //
 //
@@ -13538,7 +13502,6 @@ struct CCheckItem { // @transient
 	void   GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
 	int    GetRec(CCheckLineExtTbl::Rec & rRec) const;
 	int    SplitByQtty(double restQtty, CCheckItem & rNewItem);
-
 	double NetPrice() const;
 	double GetAmount() const;
 	int    SetupGiftQuot(double quot, int forceZero);
@@ -15660,6 +15623,168 @@ public:
 	virtual int SLAPI Browse(void * extraPtr);
 };
 
+class TsStakeEnvironment : public SStrGroup {
+public:
+	SLAPI  TsStakeEnvironment();
+	SLAPI  TsStakeEnvironment(const TsStakeEnvironment & rS);
+	TsStakeEnvironment & FASTCALL operator = (const TsStakeEnvironment & rS);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    FASTCALL Copy(const TsStakeEnvironment & rS);
+	enum {
+		tickfBid    = 0x0002, // TICK_FLAG_BID=2 – тик изменил цену бид
+		tickfAsk    = 0x0004, // TICK_FLAG_ASK=4  – тик изменил цену аск
+		tickfLast   = 0x0008, // TICK_FLAG_LAST=8 – тик изменил цену последней сделки
+		tickfVolume = 0x0010, // TICK_FLAG_VOLUME=16 – тик изменил объем
+		tickfBuy    = 0x0020, // TICK_FLAG_BUY=32 – тик возник в результате сделки на покупку
+		tickfSell   = 0x0040  // TICK_FLAG_SELL=64 – тик возник в результате сделки на продажу
+	};
+	enum { // ENUM_ORDER_TYPE
+		ordtBuy           = 0, // ORDER_TYPE_BUY             Рыночный ордер на покупку
+		ordtSell          = 1, // ORDER_TYPE_SELL            Рыночный ордер на продажу
+		ordtBuyLimit      = 2, // ORDER_TYPE_BUY_LIMIT       Отложенный ордер Buy Limit
+		ordtSellLimit     = 3, // ORDER_TYPE_SELL_LIMIT      Отложенный ордер Sell Limit
+		ordtBuyStop       = 4, // ORDER_TYPE_BUY_STOP        Отложенный ордер Buy Stop
+		ordtSellStop      = 5, // ORDER_TYPE_SELL_STOP       Отложенный ордер Sell Stop
+		ordtBuyStopLimit  = 6, // ORDER_TYPE_BUY_STOP_LIMIT  По достижении цены ордера выставляется отложенный ордер Buy Limit по цене StopLimit
+		ordtSellStopLimit = 7, // ORDER_TYPE_SELL_STOP_LIMIT По достижении цены ордера выставляется отложенный ордер Sell Limit по цене StopLimit
+		ordtCloseBy       = 8  // ORDER_TYPE_CLOSE_BY        Ордер на закрытие позиции встречной позицией
+	};
+	enum { // ENUM_TRADE_REQUEST_ACTIONS
+		traDeal    =  1, // TRADE_ACTION_DEAL Установить торговый ордер на немедленное совершение сделки с указанными параметрами (поставить рыночный ордер)
+		traPending =  5, // TRADE_ACTION_PENDING Установить торговый ордер на совершение сделки при указанных условиях (отложенный ордер)
+		traSLTP    =  6, // TRADE_ACTION_SLTP Изменить значения Stop Loss и Take Profit у открытой позиции
+		traModify  =  7, // TRADE_ACTION_MODIFY Изменить параметры ранее установленного торгового ордера
+		traRemove  =  8, // TRADE_ACTION_REMOVE Удалить ранее выставленный отложенный торговый ордер
+		traCloseBy = 10  // TRADE_ACTION_CLOSE_BY Закрыть позицию встречной
+	};
+	enum { // ENUM_ORDER_TYPE_FILLING
+		ordtfFOK    = 0, // ORDER_FILLING_FOK Данная политика исполнения означает, что ордер может быть исполнен исключительно в указанном объеме.
+			// Если на рынке в данный момент не присутствует достаточного объема финансового инструмента, то ордер не будет исполнен.
+			// Необходимый объем может быть составлен из нескольких предложений, доступных в данный момент на рынке.
+		ordtfIOC    = 1, // ORDER_FILLING_IOC Означает согласие совершить сделку по максимально доступному на рынке объему в пределах указанного в ордере.
+			// В случае невозможности полного исполнения ордер будет исполнен на доступный объем, а неисполненный объем ордера будет отменен.
+		ordtfReturn = 2 // ORDER_FILLING_RETURN Данный режим используется для рыночных (ORDER_TYPE_BUY и ORDER_TYPE_SELL), лимитных и стоп-лимитных ордеров
+			// (ORDER_TYPE_BUY_LIMIT, ORDER_TYPE_SELL_LIMIT, ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT) и только в режимах
+			// "Исполнение по рынку" и "Биржевое исполнение". В случае частичного исполнения рыночный или лимитный ордер с остаточным объемом
+			// не снимается, а продолжает действовать.
+			// Для ордеров ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT при активации будет создан соответствующий лимитный ордер
+			// ORDER_TYPE_BUY_LIMIT/ORDER_TYPE_SELL_LIMIT с типом исполнения ORDER_FILLING_RETURN
+	};
+	enum { // ENUM_ORDER_TYPE_TIME
+		ordttGTC          = 0, // ORDER_TIME_GTC Ордер будет находится в очереди до тех пор, пока не будет снят
+		ordttDay          = 1, // ORDER_TIME_DAY Ордер будет действовать только в течение текущего торгового дня
+		ordttSpecified    = 2, // ORDER_TIME_SPECIFIED Ордер будет действовать до даты истечения
+		ordttSpecifiedDay = 3  // ORDER_TIME_SPECIFIED_DAY Ордер будет действовать до 23:59:59 указанного дня.
+			// Если это время не попадает на торговую сессию, истечение наступит в ближайшее торговое время.
+	};
+	struct Tick { // @flat
+		PPID   TsID;    // ->Ref(PPOBJ_TIMESERIES)
+		uint   SymbP;   //
+		LDATETIME Dtm;  // Время последнего обновления цен
+		double Bid;     // Текущая цена Bid
+		double Ask;     // Текущая цена Ask
+		double Last;    // Текущая цена последней сделки (Last)
+		uint   Volume;  // Объем для текущей цены Last
+		long   TmMsc;   // Время последнего обновления цен в миллисекундах
+		long   Flags;   // tickfXXX
+		double VolumeReal; // Объем для текущей цены Last c повышенной точностью
+		double MarginReq;  // Требуемая величина маржи на минимальный объем сделки (исходя из цены Last)
+	};
+	struct AccountInfo {
+		SLAPI  AccountInfo();
+		int    ID;           // Ид счета в торговой системе
+		LDATETIME ActualDtm; // Время актуальности данных
+		double Balance;      // Текущий баланс счета
+		double Profit;       // Текущее значение прибыли (убытка) по счету
+		double MarginFree;   // Объем текущей доступной маржи
+	};
+	struct Stake { // @flat
+		SLAPI  Stake();
+		PPID   TsID;
+		long   Ticket;           // Тикет ордера. Уникальное число, которое присваивается каждому ордеру
+		long   Magic;            // Идентификатор эксперта выставившего ордер
+		LDATETIME SetupDtm;      // Время постановки ордера
+		LDATETIME ExpirationDtm; // Время истечения ордера
+		LDATETIME DoneDtm;       // Время исполнения или снятия ордера
+		long   SetupMsc;         // Время установки ордера на исполнение в миллисекундах с 01.01.1970
+		long   DoneMsc;          // Время исполнения/снятия ордера в миллисекундах с 01.01.1970
+		long   TypeFilling;      // ordtfXXX Тип исполнения по остатку
+		long   TypeTime;         // ordttXXX Время жизни ордера
+		long   Type;             // ordtXXX Тип ордера
+		long   State;            // Статус ордера
+		long   Reason;           // Причина или источник выставления ордера
+		long   PositionId;       // Идентификатор позиции, который ставится на ордере при его исполнении.
+			// Каждый исполненный ордер порождает сделку, которая открывает новую или изменяет уже существующую позицию.
+			// Идентификатор этой позиции и устанавливается исполненному ордеру в этот момент
+		long   PositionById;     // Идентификатор встречной позиции для ордеров типа ORDER_TYPE_CLOSE_BY.
+		uint   SymbP;
+		uint   CommentP;
+		uint   ExternalIdP;    // Идентификатор ордера во внешней торговой системе (на бирже)
+		double VolumeInit;     // Первоначальный объем при постановке ордера
+		double VolumeCurrent;  // Невыполненный объем
+		double PriceOpen;      // Цена, указанная в ордере
+		double PriceCurrent;   // Текущая цена по символу ордера
+		double SL;             // Уровень Stop Loss
+		double TP;             // Уровень Take Profit
+		double PriceStopLimit; // Цена постановки Limit ордера при срабатывании StopLimit ордера
+	};
+
+	class StakeRequestBlock : public SStrGroup {
+	public:
+		SLAPI  StakeRequestBlock(/*TsStakeEnvironment & rEnv*/);
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//
+		// Позиции на текстовые строки в этом блоке ссылаются на головную структуру TsStakeEnvironment & R_Env
+		//
+		struct Req {
+			SLAPI  Req();
+			long   Action;           // traXXX Тип выполняемого действия
+			ulong  Magic;            // Штамп эксперта (идентификатор magic number)
+			ulong  Ticket;           // Тикет ордера
+			PPID   TsID;             //
+			uint   SymbolP;          // Имя торгового инструмента
+			double Volume;           // Запрашиваемый объем сделки в лотах
+			double Price;            // Цена
+			double StopLimit;        // Уровень StopLimit ордера
+			double SL;               // Уровень Stop Loss ордера
+			double TP;               // Уровень Take Profit ордера
+			ulong  Deviation;        // Максимально приемлемое отклонение от запрашиваемой цены
+			long   Type;             // ordtXXX Тип ордера
+			long   TypeFilling;      // ordtfXXX Тип ордера по исполнению
+			long   TypeTime;         // ordttXXX Тип ордера по времени действия
+			LDATETIME Expiration;    // Срок истечения ордера (для ордеров типа ORDER_TIME_SPECIFIED)
+			uint   CommentP;         // Комментарий к ордеру
+			ulong  PositionTicket;   // Тикет позиции
+			ulong  PositionByTicket; // Тикет встречной позиции
+		};
+		struct Result {
+			SLAPI  Result();
+			uint   RetCode;         // Код результата операции
+			ulong  DealTicket;      // Тикет сделки, если она совершена
+			ulong  OrderTicket;     // Тикет ордера, если он выставлен
+			double Volume;          // Объем сделки, подтверждённый брокером
+			double Price;           // Цена в сделке, подтверждённая брокером
+			double Bid;             // Текущая рыночная цена предложения (цены реквота)
+			double Ask;             // Текущая рыночная цена спроса (цены реквота)
+			uint   CommentP;        // Комментарий брокера к операции (по умолчанию заполняется расшифровкой кода возврата торгового сервера)
+			uint   RequestId;       // Идентификатор запроса, устанавливается терминалом при отправке
+			uint   RetCodeExternal; // Код ответа внешней торговой системы
+		};
+
+		//TsStakeEnvironment & R_Env;
+		TSVector <Req> L;
+		TSVector <Result> RL;
+	private:
+		long   Ver;
+	};
+
+	AccountInfo Acc;
+	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
+	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
+private:
+	long   Ver;
+};
+
 struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	SLAPI  PPTimeSeries();
 	int    FASTCALL IsEqual(const PPTimeSeries & rS) const;
@@ -15739,6 +15864,8 @@ public:
 	public:
 		SLAPI  StrategyContainer();
 		void   SLAPI SetLastValTm(LDATETIME dtm);
+		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
+		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
 		uint32 Ver;
@@ -15783,7 +15910,7 @@ public:
 	int    SLAPI GetTimeSeries(PPID id, STimeSeries & rTs);
 	int    SLAPI SetExternTimeSeries(STimeSeries & rTs);
 	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
-	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv);
+	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
@@ -15805,165 +15932,6 @@ private:
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
 	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
-
-class TsStakeEnvironment : public SStrGroup {
-public:
-	SLAPI  TsStakeEnvironment();
-	SLAPI  TsStakeEnvironment(const TsStakeEnvironment & rS);
-	TsStakeEnvironment & FASTCALL operator = (const TsStakeEnvironment & rS);
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    FASTCALL Copy(const TsStakeEnvironment & rS);
-	enum {
-		tickfBid    = 0x0001, // TICK_FLAG_BID – тик изменил цену бид
-		tickfAsk    = 0x0002, // TICK_FLAG_ASK  – тик изменил цену аск
-		tickfLast   = 0x0004, // TICK_FLAG_LAST – тик изменил цену последней сделки
-		tickfVolume = 0x0008, // TICK_FLAG_VOLUME – тик изменил объем
-		tickfBuy    = 0x0010, // TICK_FLAG_BUY – тик возник в результате сделки на покупку
-		tickfSell   = 0x0020  // TICK_FLAG_SELL – тик возник в результате сделки на продажу
-	};
-	enum { // ENUM_ORDER_TYPE
-		ordtBuy = 1,       // ORDER_TYPE_BUY             Рыночный ордер на покупку
-		ordtSell,          // ORDER_TYPE_SELL            Рыночный ордер на продажу
-		ordtBuyLimit,      // ORDER_TYPE_BUY_LIMIT       Отложенный ордер Buy Limit
-		ordtSellLimit,     // ORDER_TYPE_SELL_LIMIT      Отложенный ордер Sell Limit
-		ordtBuyStop,       // ORDER_TYPE_BUY_STOP        Отложенный ордер Buy Stop
-		ordtSellStop,      // ORDER_TYPE_SELL_STOP       Отложенный ордер Sell Stop
-		ordtBuyStopLimit,  // ORDER_TYPE_BUY_STOP_LIMIT  По достижении цены ордера выставляется отложенный ордер Buy Limit по цене StopLimit
-		ordtSellStopLimit, // ORDER_TYPE_SELL_STOP_LIMIT По достижении цены ордера выставляется отложенный ордер Sell Limit по цене StopLimit
-		ordtCloseBy        // ORDER_TYPE_CLOSE_BY        Ордер на закрытие позиции встречной позицией
-	};
-	enum { // ENUM_TRADE_REQUEST_ACTIONS
-		traDeal = 1, // TRADE_ACTION_DEAL Установить торговый ордер на немедленное совершение сделки с указанными параметрами (поставить рыночный ордер)
-		traPending,  // TRADE_ACTION_PENDING Установить торговый ордер на совершение сделки при указанных условиях (отложенный ордер)
-		traSLTP,     // TRADE_ACTION_SLTP Изменить значения Stop Loss и Take Profit у открытой позиции
-		traModify,   // TRADE_ACTION_MODIFY Изменить параметры ранее установленного торгового ордера
-		traRemove,   // TRADE_ACTION_REMOVE Удалить ранее выставленный отложенный торговый ордер
-		traCloseBy   // TRADE_ACTION_CLOSE_BY Закрыть позицию встречной
-	};
-	enum { // ENUM_ORDER_TYPE_FILLING
-		ordtfFOK = 1, // ORDER_FILLING_FOK Данная политика исполнения означает, что ордер может быть исполнен исключительно в указанном объеме.
-			// Если на рынке в данный момент не присутствует достаточного объема финансового инструмента, то ордер не будет исполнен.
-			// Необходимый объем может быть составлен из нескольких предложений, доступных в данный момент на рынке.
-		ordtfIOC,     // ORDER_FILLING_IOC Означает согласие совершить сделку по максимально доступному на рынке объему в пределах указанного в ордере.
-			// В случае невозможности полного исполнения ордер будет исполнен на доступный объем, а неисполненный объем ордера будет отменен.
-		ordtfReturn   // ORDER_FILLING_RETURN Данный режим используется для рыночных (ORDER_TYPE_BUY и ORDER_TYPE_SELL), лимитных и стоп-лимитных ордеров
-			// (ORDER_TYPE_BUY_LIMIT, ORDER_TYPE_SELL_LIMIT, ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT) и только в режимах
-			// "Исполнение по рынку" и "Биржевое исполнение". В случае частичного исполнения рыночный или лимитный ордер с остаточным объемом
-			// не снимается, а продолжает действовать.
-			// Для ордеров ORDER_TYPE_BUY_STOP_LIMIT и ORDER_TYPE_SELL_STOP_LIMIT при активации будет создан соответствующий лимитный ордер
-			// ORDER_TYPE_BUY_LIMIT/ORDER_TYPE_SELL_LIMIT с типом исполнения ORDER_FILLING_RETURN
-	};
-	enum { // ENUM_ORDER_TYPE_TIME
-		ordttGTC = 1,     // ORDER_TIME_GTC Ордер будет находится в очереди до тех пор, пока не будет снят
-		ordttDay,         // ORDER_TIME_DAY Ордер будет действовать только в течение текущего торгового дня
-		ordttSpecified,   // ORDER_TIME_SPECIFIED Ордер будет действовать до даты истечения
-		ordttSpecifiedDay // ORDER_TIME_SPECIFIED_DAY Ордер будет действовать до 23:59:59 указанного дня.
-			// Если это время не попадает на торговую сессию, истечение наступит в ближайшее торговое время.
-	};
-	struct Tick { // @flat
-		PPID   TsID;    // ->Ref(PPOBJ_TIMESERIES)
-		uint   SymbP;   //
-		LDATETIME Dtm;  // Время последнего обновления цен
-		double Bid;     // Текущая цена Bid
-		double Ask;     // Текущая цена Ask
-		double Last;    // Текущая цена последней сделки (Last)
-		uint   Volume;  // Объем для текущей цены Last
-		long   TmMsc;   // Время последнего обновления цен в миллисекундах
-		long   Flags;   // tickfXXX
-		double VolumeReal; // Объем для текущей цены Last c повышенной точностью
-	};
-	struct AccountInfo {
-		SLAPI  AccountInfo();
-		int    ID;           // Ид счета в торговой системе
-		LDATETIME ActualDtm; // Время актуальности данных
-		double Balance;      // Текущий баланс счета
-		double Profit;       // Текущее значение прибыли (убытка) по счету
-		double MarginFree;   // Объем текущей доступной маржи
-	};
-	struct Stake { // @flat
-		SLAPI  Stake();
-		PPID   TsID;
-		long   Ticket;           // Тикет ордера. Уникальное число, которое присваивается каждому ордеру
-		long   Magic;            // Идентификатор эксперта выставившего ордер
-		LDATETIME SetupDtm;      // Время постановки ордера
-		LDATETIME ExpirationDtm; // Время истечения ордера
-		LDATETIME DoneDtm;       // Время исполнения или снятия ордера
-		long   SetupMsc;         // Время установки ордера на исполнение в миллисекундах с 01.01.1970
-		long   DoneMsc;          // Время исполнения/снятия ордера в миллисекундах с 01.01.1970
-		long   TypeFilling;      // ordtfXXX Тип исполнения по остатку
-		long   TypeTime;         // ordttXXX Время жизни ордера
-		long   Type;             // ordtXXX Тип ордера
-		long   State;            // Статус ордера
-		long   Reason;           // Причина или источник выставления ордера
-		long   PositionId;       // Идентификатор позиции, который ставится на ордере при его исполнении.
-			// Каждый исполненный ордер порождает сделку, которая открывает новую или изменяет уже существующую позицию.
-			// Идентификатор этой позиции и устанавливается исполненному ордеру в этот момент
-		long   PositionById;     // Идентификатор встречной позиции для ордеров типа ORDER_TYPE_CLOSE_BY.
-		uint   SymbP;
-		uint   CommentP;
-		uint   ExternalIdP;    // Идентификатор ордера во внешней торговой системе (на бирже)
-		double VolumeInit;     // Первоначальный объем при постановке ордера
-		double VolumeCurrent;  // Невыполненный объем
-		double PriceOpen;      // Цена, указанная в ордере
-		double PriceCurrent;   // Текущая цена по символу ордера
-		double SL;             // Уровень Stop Loss
-		double TP;             // Уровень Take Profit
-		double PriceStopLimit; // Цена постановки Limit ордера при срабатывании StopLimit ордера
-	};
-
-	class StakeRequestBlock {
-	public:
-		SLAPI  StakeRequestBlock(TsStakeEnvironment & rEnv);
-		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-		//
-		// Позиции на текстовые строки в этом блоке ссылаются на головную структуру TsStakeEnvironment & R_Env
-		//
-		struct Req {
-			SLAPI  Req();
-			long   Action;           // traXXX Тип выполняемого действия
-			ulong  Magic;            // Штамп эксперта (идентификатор magic number)
-			ulong  Ticket;           // Тикет ордера
-			PPID   TsID;             //
-			uint   SymbolP;          // Имя торгового инструмента
-			double Volume;           // Запрашиваемый объем сделки в лотах
-			double Price;            // Цена
-			double StopLimit;        // Уровень StopLimit ордера
-			double SL;               // Уровень Stop Loss ордера
-			double TP;               // Уровень Take Profit ордера
-			ulong  Deviation;        // Максимально приемлемое отклонение от запрашиваемой цены
-			long   Type;             // ordtXXX Тип ордера
-			long   TypeFilling;      // ordtfXXX Тип ордера по исполнению
-			long   TypeTime;         // ordttXXX Тип ордера по времени действия
-			LDATETIME Expiration;    // Срок истечения ордера (для ордеров типа ORDER_TIME_SPECIFIED)
-			uint   CommentP;         // Комментарий к ордеру
-			ulong  PositionTicket;   // Тикет позиции
-			ulong  PositionByTicket; // Тикет встречной позиции
-		};
-		struct Result {
-			SLAPI  Result();
-			uint   RetCode;         // Код результата операции
-			ulong  DealTicket;      // Тикет сделки, если она совершена
-			ulong  OrderTicket;     // Тикет ордера, если он выставлен
-			double Volume;          // Объем сделки, подтверждённый брокером
-			double Price;           // Цена в сделке, подтверждённая брокером
-			double Bid;             // Текущая рыночная цена предложения (цены реквота)
-			double Ask;             // Текущая рыночная цена спроса (цены реквота)
-			uint   CommentP;        // Комментарий брокера к операции (по умолчанию заполняется расшифровкой кода возврата торгового сервера)
-			uint   RequestId;       // Идентификатор запроса, устанавливается терминалом при отправке
-			uint   RetCodeExternal; // Код ответа внешней торговой системы
-		};
-
-		TsStakeEnvironment & R_Env;
-		TSVector <Req> L;
-		TSVector <Result> RL;
-	};
-
-	AccountInfo Acc;
-	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
-	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
-private:
-	long   Ver;
-};
 //
 //
 //
@@ -15973,11 +15941,12 @@ public:
 	PrcssrTsStrategyAnalyzeFilt & FASTCALL operator = (const PrcssrTsStrategyAnalyzeFilt & rS);
 
 	enum {
-		fFindOptMaxDuck = 0x0001,
-		fFindStrategies = 0x0002,
-		fForce          = 0x0004,
-		fProcessLong    = 0x0008,
-		fProcessShort   = 0x0010
+		fFindOptMaxDuck    = 0x0001,
+		fFindStrategies    = 0x0002,
+		fForce             = 0x0004,
+		fProcessLong       = 0x0008,
+		fProcessShort      = 0x0010,
+		fAutodetectTargets = 0x0020  // Автоматически идентифицировать серии, модели по которым следует пересчитать
 	};
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
@@ -19999,7 +19968,7 @@ public:
 	int    ReadReply(Message & rOut);
 	int    Read(Message & rMsg);
 private:
-	int    Log(const char * pText);
+	void   FASTCALL Log(const char * pText);
 
 	struct AsteriskAmiStateStr {
 		long   State;
@@ -30225,6 +30194,18 @@ public:
 	struct Packet {
 		explicit Packet(int docType);
 		~Packet();
+		//
+		// PPEDIOP_ORDER: 
+		//   P_Data - (PPBillPacket *)
+		//   P_ExtData - 0
+		// PPEDIOP_ORDERRSP
+		//   При отправке:
+		//     P_Data - (PPBillPacket *) пакет текущего заказа
+		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (при создании)
+		//   При получении:
+		//     P_Data - (PPBillPacket *) пакет подтвержденного заказа
+		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (отправленного поставщику)
+		//
 		void * P_Data;
 		void * P_ExtData;
 		const  int  DocType;
@@ -47451,7 +47432,7 @@ private:
 //
 class SpecialInputCtrlGroup : public CtrlGroup {
 public:
-	SpecialInputCtrlGroup(uint ctlId, uint rdDelay = 1000);
+	explicit SpecialInputCtrlGroup(uint ctlId, uint rdDelay = 1000);
 	~SpecialInputCtrlGroup();
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
@@ -47534,7 +47515,7 @@ private:
 
 class SCardSelExtra : public WordSel_ExtraBlock {
 public:
-	SCardSelExtra(PPID serId);
+	explicit SCardSelExtra(PPID serId);
 	virtual StrAssocArray * GetList(const char * pText);
 	virtual int Search(long id, SString & rBuf);
 	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
@@ -47550,7 +47531,7 @@ public:
 		lfLocation          = 0x0002,
 		lfStandaloneLocOnly = 0x0004
 	};
-	PhoneSelExtra(long localFlags);
+	explicit PhoneSelExtra(long localFlags);
 	virtual StrAssocArray * GetList(const char * pText);
 	virtual int Search(long id, SString & rBuf);
 	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
@@ -47562,7 +47543,7 @@ private:
 
 class FiasSelExtra : public WordSel_ExtraBlock {
 public:
-	FiasSelExtra(PPFiasReference * pOuterFiasRef);
+	explicit FiasSelExtra(PPFiasReference * pOuterFiasRef);
 	~FiasSelExtra();
 	virtual StrAssocArray * GetList(const char * pText);
 	virtual int Search(long id, SString & rBuf);
@@ -47650,7 +47631,7 @@ private:
 class PersonListCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		Rec(PPID psnKindID = 0, const PPIDArray * pPersonList = 0);
+		explicit Rec(PPID psnKindID = 0, const PPIDArray * pPersonList = 0);
 		void   Init(PPID psnKindID = 0, const PPIDArray * pPersonList = 0);
 
 		PPID   PsnKindID;
@@ -47719,7 +47700,7 @@ private:
 class GoodsFiltCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, long flags = 0, long extra = 0);
+		explicit Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, long flags = 0, long extra = 0);
 		PPID   GoodsID;
 		PPID   GoodsGrpID;
 		PPID   LocID;
@@ -47764,7 +47745,7 @@ private:
 
 class EmbedDialog : public TDialog {
 public:
-	EmbedDialog(uint resID);
+	explicit EmbedDialog(uint resID);
 	~EmbedDialog();
 	int    Embed(TDialog * pDlg);
 protected:
@@ -47847,7 +47828,7 @@ public:
 		ignoreRtOnlyGroup                 = 0x0020  // Игнорировать ограничение правам доступа единственной группы
 	};
 	struct Rec {
-		SLAPI  Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
+		explicit SLAPI  Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
 		PPID   GrpID;
 		PPID   GoodsID;
 		PPID   LocID;      // Склад (используется только если задан флаг existsGoodsOnly)
@@ -49200,6 +49181,7 @@ private:
 	long   Flags;
 	PPObjBill * P_BObj;
 	PPObjGoods GObj;
+	PPObjTag TagObj; // @v10.2.11
 	SString Serial_;
 };
 //
@@ -50125,12 +50107,10 @@ public:
 	static int GetDeskName(long deskId, SString & rDeskName);
 	static int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	static COLORREF GetDefaultBgColor();
-
 	PPDesktop();
 	~PPDesktop();
 	int    Init__(long desktopID);
 	int    Destroy(int dontAssignToDb);
-
 	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
 	int    GetIconSize() const { return IconSize; }
 	int    GetIconGap() const { return IconGap; }
@@ -51091,7 +51071,6 @@ int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, RealRange *);
 int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
-
 int    SLAPI ViewGoodsTurnover(long);
 int    SLAPI PrintDialog(SPrinter *);
 int    SLAPI FastEditRightsDialog();
@@ -51107,7 +51086,6 @@ enum {
 };
 //
 int    SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf);
-//
 int    SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags = 0);
 int    FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry = 0, int printingNoAsk = 0); // @v9.8.6 SArray-->SVector
 //
@@ -51192,7 +51170,7 @@ int    SLAPI SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, co
 //
 class ListBoxSelDlg : public PPListDialog {
 public:
-	ListBoxSelDlg(ListBoxDef * pDef, uint dlgID = 0);
+	explicit ListBoxSelDlg(ListBoxDef * pDef, uint dlgID = 0);
 	int    setDTS(PPID id);
 	int    getDTS(PPID * pID);
 protected:

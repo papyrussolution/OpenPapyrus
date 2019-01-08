@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 // Release for WIN32
 //
 #include <slib.h>
@@ -1583,10 +1583,8 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 			}
 		}
 	}
-	// @v8.9.11 {
 	if(ok <= 0)
 		delete pExtra;
-	// } @v8.9.11
 	return ok;
 }
 

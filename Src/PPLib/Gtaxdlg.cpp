@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop

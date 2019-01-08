@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -70,20 +70,11 @@ InetAddr & SLAPI InetAddr::Clear()
 	return *this;
 }
 
-int FASTCALL InetAddr::IsEqual(const InetAddr & rS) const
-{
-	return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName);
-}
-
-int FASTCALL InetAddr::operator == (const InetAddr & rS) const
-{
-	return IsEqual(rS);
-}
-
-int FASTCALL InetAddr::operator != (const InetAddr & rS) const
-{
-	return BIN(!IsEqual(rS));
-}
+int FASTCALL InetAddr::IsEqual(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
+int FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEqual(rS); }
+int FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEqual(rS)); }
+int SLAPI    InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.Empty()); }
+int SLAPI    InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
 
 int SLAPI InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
@@ -93,11 +84,6 @@ int SLAPI InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(pSCtx->Serialize(dir, Port, rBuf));
 	CATCHZOK
 	return ok;
-}
-
-int SLAPI InetAddr::IsEmpty() const
-{
-	return BIN(V4 == 0 && HostName.Empty());
 }
 
 SString & SLAPI InetAddr::ToStr(long flags, SString & rBuf) const
@@ -146,11 +132,6 @@ int SLAPI InetAddr::SetPort(int port)
 	int    preserve_port = Port;
 	Port = port;
 	return preserve_port;
-}
-
-int SLAPI InetAddr::Set(const sockaddr_in * pAddr)
-{
-	return Set(pAddr->sin_addr.s_addr, pAddr->sin_port);
 }
 
 sockaddr * SLAPI InetAddr::Get(sockaddr_in * pAddr) const

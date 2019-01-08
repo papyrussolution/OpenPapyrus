@@ -92,11 +92,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 		stateShift = 0x0004
 	};
 	//SLAPI  KeyDownCommand();
-	void   Clear()
-	{
-		State = 0;
-		Code = 0;
-	}
+	void   SLAPI Clear();
 	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
 	operator long() const { return *(long *)this; }
 	int    SLAPI GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
@@ -3207,9 +3203,9 @@ public:
 	int    SLAPI GetStringByID(long id, SString & rBuf);
 
 	int    SLAPI GoByID(long id);
-	int    FASTCALL HasChild(long id);
+	int    FASTCALL HasChild(long id) const;
 	int    SLAPI GetListByParent(long parentId, LongArray & rList) const;
-	int    SLAPI GetParent(long child, long * pParent);
+	int    SLAPI GetParent(long child, long * pParent) const;
 	int    SLAPI GetChildList(long parentId, LongArray * pChildList);
 protected:
 	void   SLAPI setupView();

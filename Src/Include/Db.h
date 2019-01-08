@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -1678,6 +1678,7 @@ public:
 	int    getLobSize(DBField fld, size_t * pSz) const;
 	int    readLobData(DBField fld, SBuffer & rBuf) const;
 	int    writeLobData(DBField fld, const void * pBuf, size_t dataSize, int forceCanonical = 0);
+	void   FASTCALL destroyLobData(DBField fld);
 	DBLobBlock * getLobBlock();
 	int    SLAPI StoreAndTrimLob();
 	int    SLAPI RestoreLob();
@@ -1781,51 +1782,27 @@ public:
 	// ARG(NCC IN): No Change Currency (не изменять текущую позицию таблицы)
 	//
 	int    Btr_Implement_BExtInsert(BExtInsert * pBei); // really private
-	int    FASTCALL SetPageSize(uint newPageSize);
+	void   FASTCALL SetPageSize(uint newPageSize);
 	int    Debug_Output(SString & rBuf) const;
 
-	int    SLAPI GetHandle() const
-	{
-		return handle;
-	}
-	BTBLID SLAPI GetTableID() const
-	{
-		return tableID;
-	}
+	int    SLAPI GetHandle() const { return handle; }
+	BTBLID SLAPI GetTableID() const { return tableID; }
 	void   FASTCALL SetTableID(BTBLID _id);
-	const  BNKeyList & SLAPI GetIndices() const
-	{
-		return indexes;
-	}
+	const  BNKeyList & SLAPI GetIndices() const { return indexes; }
 	void   SLAPI SetIndicesTblRef();
-	const  BNFieldList & SLAPI GetFields() const
-	{
-		return fields;
-	}
-	BNFieldList & SLAPI GetFieldsNonConst()
-	{
-		return fields;
-	}
+	const  BNFieldList & SLAPI GetFields() const { return fields; }
+	BNFieldList & SLAPI GetFieldsNonConst() { return fields; }
 	//
 	// Descr: returns fileName
 	//
-	const SString & SLAPI GetName() const
-	{
-		return fileName;
-	}
+	const SString & SLAPI GetName() const { return fileName; }
 	//
 	// Descr: set fileName
 	//
 	void   FASTCALL SetName(const char * pN);
-	const  char * SLAPI GetTableName() const
-	{
-		return tableName;
-	}
+	const  char * SLAPI GetTableName() const { return tableName; }
 	void   FASTCALL SetTableName(const char * pN);
-	int    SLAPI GetFlags() const
-	{
-		return flags;
-	}
+	int    SLAPI GetFlags() const { return flags; }
 	void   FASTCALL SetFlag(int f);
 	void   FASTCALL ResetFlag(int f);
 	int    SLAPI AddField(const char * pName, TYPEID fldType, int fldId = UNDEF);

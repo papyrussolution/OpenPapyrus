@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7307,8 +7307,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			PPGoodsTaxEntry gtx_price;
 			gobj.FetchTax(labs(p_ti->GoodsID), p_ti->LotDate, 0, &gtx_price);
 			if(p_ti->LotTaxGrpID) {
-				PPObjGoodsTax gtobj;
-				gtobj.Fetch(p_ti->LotTaxGrpID, p_ti->LotDate, 0, &gtx_cost);
+				gobj.GTxObj.Fetch(p_ti->LotTaxGrpID, p_ti->LotDate, 0, &gtx_cost);
 			}
 			else {
 				gtx_cost = gtx_price;

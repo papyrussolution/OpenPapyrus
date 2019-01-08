@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1113,14 +1113,13 @@ int AsteriskAmiClient::Connect(const char * pServerAddr, int serverPort)
 	return ok;
 }
 
-int AsteriskAmiClient::Log(const char * pText)
+void FASTCALL AsteriskAmiClient::Log(const char * pText)
 {
 	if(Flags & fDoLog) {
 		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.10
 		(r_temp_buf = pText).ReplaceStr("\xD\xA", ";", 0).Transf(CTRANSF_UTF8_TO_INNER);
 		PPLogMessage(PPFILNAM_PHNSVC_LOG, r_temp_buf, LOGMSGF_TIME);
 	}
-	return 1;
 }
 
 int AsteriskAmiClient::ReadReply(Message & rOut)

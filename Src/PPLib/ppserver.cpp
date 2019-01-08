@@ -3281,7 +3281,14 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJ
 		THROW(stkenv.Serialize(-1, buffer, &sctx));
 		{
 			PPObjTimeSeries ts_obj;
-			THROW(ts_obj.SetExternStakeEnvironment(stkenv));
+			TsStakeEnvironment::StakeRequestBlock rb;
+			THROW(ts_obj.SetExternStakeEnvironment(stkenv, rb));
+			if(!rb.Serialize(+1, rReply, &sctx))
+				ret = cmdretError;
+			else {
+				rReply.SetDataType(PPJobSrvReply::htGeneric, 0);
+				rReply.FinishWriting();
+			}
 		}
 	}
 	CATCH

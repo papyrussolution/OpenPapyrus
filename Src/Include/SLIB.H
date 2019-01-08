@@ -3531,7 +3531,6 @@ public:
 	BSTR   FASTCALL CopyToOleStr(BSTR * pBuf) const;
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
 	SString & SLAPI Z();
-
 	size_t SLAPI Len() const;
 	size_t SLAPI BufSize() const;
 	void   SLAPI Obfuscate();
@@ -3906,12 +3905,10 @@ public:
 		rfc2207encMime64 = 1, // mime64
 		rfc2207encQP,         // quoted-printable
 	};
-
 	SString & SLAPI Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc);
 	size_t SLAPI Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
 	SString & SLAPI EncodeUrl(const char * pSrc, int mode);
 	int    SLAPI DecodeUrl(SString & rBuf) const;
-
 	int    SLAPI DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	//
 	// Descr: Утилитная функция, формирующая унифицированную строку сообщения при разборе файла.
@@ -10053,6 +10050,7 @@ private:
 class STimeSeries {
 public:
 	SLAPI  STimeSeries();
+	SLAPI ~STimeSeries();
 	void   FASTCALL SetSymb(const char * pSymb);
 	const char * FASTCALL GetSymb() const;
 	//
@@ -10094,7 +10092,6 @@ public:
 	//
 	int    SLAPI GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
 	int    SLAPI GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
-
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
 
@@ -10171,6 +10168,11 @@ public:
 	int    SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
 	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const;
 	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
+	//
+	// Descr: Извлекает подмножество временного ряда, состоящее из последних count элементов.
+	//
+	int    SLAPI GetChunkRecentCount(uint count, STimeSeries & rResult) const;
+	int    SLAPI GetChunkRecentSince(const SUniTime & rSince, STimeSeries & rResult) const;
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ)
 	{

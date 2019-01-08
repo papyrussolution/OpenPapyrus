@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Теги объектов
 //
@@ -788,11 +788,9 @@ PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSy
 	if(p_ref) {
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
-		if(tag_obj.SearchBySymb(pTagSymb, &tag_id, 0) > 0) {
-			ObjTagTbl::Rec tag_rec;
-			if(p_ref->Ot.GetTagRec(objType, objID, tag_id, &tag_rec) > 0)
-				DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
-		}
+		ObjTagTbl::Rec tag_rec;
+		if(tag_obj.SearchBySymb(pTagSymb, &tag_id, 0) > 0 && p_ref->Ot.GetTagRec(objType, objID, tag_id, &tag_rec) > 0)
+			DS.GetTLA().SurIdList.Add(&sur_id, &tag_rec, sizeof(tag_rec));
 	}
 	return sur_id;
 }

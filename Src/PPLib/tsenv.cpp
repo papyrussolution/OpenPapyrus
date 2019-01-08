@@ -7,6 +7,41 @@
 //
 //
 //
+/*
+ORDER_TYPE_BUY	0
+ORDER_TYPE_SELL	1
+ORDER_TYPE_BUY_LIMIT	2
+ORDER_TYPE_SELL_LIMIT	3
+ORDER_TYPE_BUY_STOP	4
+ORDER_TYPE_SELL_STOP	5
+ORDER_TYPE_BUY_STOP_LIMIT	6
+ORDER_TYPE_SELL_STOP_LIMIT	7
+ORDER_TYPE_CLOSE_BY	8
+TRADE_ACTION_DEAL	1
+TRADE_ACTION_PENDING	5
+TRADE_ACTION_SLTP	6
+TRADE_ACTION_MODIFY	7
+TRADE_ACTION_REMOVE	8
+TRADE_ACTION_CLOSE_BY	10
+ORDER_FILLING_FOK	0
+ORDER_FILLING_IOC	1
+ORDER_FILLING_RETURN	2
+ORDER_TIME_GTC	0
+ORDER_TIME_DAY	1
+ORDER_TIME_SPECIFIED	2
+ORDER_TIME_SPECIFIED_DAY	3
+TICK_FLAG_BID	2
+TICK_FLAG_ASK	4
+TICK_FLAG_LAST	8
+TICK_FLAG_VOLUME	16
+TICK_FLAG_BUY	32
+TICK_FLAG_SELL	64
+POSITION_TYPE_BUY	0
+POSITION_TYPE_SELL	1
+*/
+
+static const int TsStakeEnvironment_CurrentVersion = 1;
+
 SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), MarginFree(0.0)
 {
 }
@@ -26,23 +61,25 @@ SLAPI TsStakeEnvironment::StakeRequestBlock::Result::Result()
 	THISZERO();
 }
 
-SLAPI TsStakeEnvironment::StakeRequestBlock::StakeRequestBlock(TsStakeEnvironment & rEnv) : R_Env(rEnv)
+SLAPI TsStakeEnvironment::StakeRequestBlock::StakeRequestBlock(/*TsStakeEnvironment & rEnv*/) : /*R_Env(rEnv)*/SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
 }
 
 int SLAPI TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	long   ver = R_Env.Ver;
+	long   ver = Ver;
 	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &RL, rBuf));
-	THROW_SL(dynamic_cast<SStrGroup &>(R_Env).SerializeS(dir, rBuf, pSCtx));
+	if(dir < 0 && ver < Ver) 
+		ok = -1;
+	else {
+		THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, &RL, rBuf));
+		THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	}
 	CATCHZOK
 	return ok;
 }
-
-static const int TsStakeEnvironment_CurrentVersion = 1;
 
 SLAPI TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
@@ -64,13 +101,18 @@ int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 	int    ok = 1;
 	long   ver = Ver;
 	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.ID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.ActualDtm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.Balance, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Acc.Profit, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &TL, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, &SL, rBuf));
-	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	if(dir < 0 && ver < Ver) {
+		ok = -1;
+	}
+	else {
+		THROW_SL(pSCtx->Serialize(dir, Acc.ID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Acc.ActualDtm, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Acc.Balance, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Acc.Profit, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, &TL, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, &SL, rBuf));
+		THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	}
 	CATCHZOK
 	return ok;
 }

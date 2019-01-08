@@ -2693,6 +2693,7 @@ private:
 	int    SLAPI Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    SLAPI ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
 	int    SLAPI ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
+	int    SLAPI SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
 
 	struct AuthToken {
 		SLAPI  AuthToken() : Tm(ZERODATETIME)
@@ -5321,6 +5322,64 @@ int SLAPI EdiProviderImplementation_Exite::ResolveContractor(const char * pText,
 	return ok;
 }
 
+int SLAPI EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec)
+{
+	int    ok = -1;
+	char   scode[32];
+	BillCore * p_bt = P_BObj->P_Tbl;
+	Reference * p_ref = PPRef;
+	DBQ  * dbq = 0;
+	union {
+		BillTbl::Key1 k1;
+		BillTbl::Key2 k2;
+		BillTbl::Key3 k3;
+	} k;
+	int    idx = 2;
+	STRNSCPY(scode, pCode);
+	BillCore::GetCode(scode);
+	MEMSZERO(k);
+	if(arID) {
+		k.k3.Object = arID;
+		k.k3.Dt     = dt;
+		dbq = & (p_bt->Object == arID && p_bt->Dt == dt);
+		idx = 3;
+	}
+	else {
+		k.k1.Dt = dt;
+		dbq = & (p_bt->Dt == dt);
+		idx = 1;
+	}
+	SString temp_buf;
+	BExtQuery q(p_bt, idx, 256);
+	q.select(p_bt->ID, p_bt->Dt, p_bt->Code, p_bt->EdiOp, 0L).where(*dbq);
+	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
+		temp_buf = p_bt->data.Code;
+		BillCore::GetCode(temp_buf);
+		if(temp_buf.NotEmptyS() && stricmp866(temp_buf, scode) == 0) {
+			const PPID bill_id = p_bt->data.ID;
+			S_GUID sent_guid;
+			sent_guid.Z();
+			int    is_suited = 0;
+			if(ediOp == PPEDIOP_ORDER) {
+				if(p_ref->Ot.GetTagGuid(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIORDERSENT, sent_guid) > 0)
+					is_suited = 1;
+			}
+			else if(ediOp == PPEDIOP_DESADV) {
+				if(p_ref->Ot.GetTagGuid(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIDESADVSENT, sent_guid) > 0)
+					is_suited = 1;
+			}
+			else
+				is_suited = 1;
+			if(is_suited) {
+				if(!pBillRec || p_bt->Search(bill_id, pBillRec) > 0) {
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
@@ -5354,6 +5413,9 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	}
 	else if(pIdent->EdiOp == PPEDIOP_RECADV) {
 		THROW(op_obj.GetEdiRecadvOp(&recadv_op_id, 1));
+	}
+	else if(pIdent->EdiOp == PPEDIOP_ORDER) {
+		THROW_PP(ACfg.Hdr.OpID, PPERR_EDI_OPNDEF_ORDER);
 	}
 	// }
 	THROW(Epp.MakeUrl(0, url));
@@ -5404,10 +5466,271 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 							BarcodeTbl::Rec bc_rec;
 							gtin.Z();
 							THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
-							p_bpack = (PPBillPacket *)p_pack->P_Data;
 							//addendum_msg_buf.Z().Cat("ORDERRSP").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
-							THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
-							if(edi_op == PPEDIOP_ORDERRSP) {
+							if(edi_op == PPEDIOP_ORDER) {
+								p_bpack = (PPBillPacket *)p_pack->P_Data;
+								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
+								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
+								p_bpack->Rec.EdiOp = PPEDIOP_ORDER;
+								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
+									temp_buf = p_bf->P_Child->Text;
+									if(p_bf->Text.IsEqiAscii("HEAD")) {
+										if(p_bf->P_Child && p_bf->P_Child->Type == json_t::tARRAY) {
+											for(json_t * p_hi = p_bf->P_Child->P_Child; p_hi; p_hi = p_hi->P_Next) {
+												if(p_hi->Type == json_t::tOBJECT) {
+													for(json_t * p_hf = p_hi->P_Child; p_hf; p_hf = p_hf->P_Next) {
+														temp_buf = p_hf->P_Child->Text;
+														if(p_hf->Text.IsEqiAscii("SUPPLIER")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SUPPLIER, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("BUYER")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_BUYER, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("BUYERCODE")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("DELIVERYPLACE")) {
+															THROW(ResolveContractor(temp_buf, EDIPARTYQ_SHIPTO, p_bpack));
+														}
+														else if(p_hf->Text.IsEqiAscii("FINALRECIPIENT")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("INVOICEPARTNER")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("SENDER")) {
+															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &sender_psn_id) > 0, PPERR_EDI_UNBLRSLV_SENDER, temp_buf);
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENT")) {
+															THROW_PP_S(PsnObj.ResolveGLN(temp_buf, &rcvr_psn_id) > 0, PPERR_EDI_UNBLRSLV_RCVR, temp_buf);
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTCODE")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTNAME")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTCONTACTFACE")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTPHONE")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTCITY")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("RECIPIENTADRESS")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("EDIINTERCHANGEID")) {
+														}
+														else if(p_hf->Text.IsEqiAscii("POSITION")) {
+															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
+																for(json_t * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
+																	if(p_pli->Type == json_t::tOBJECT) {
+																		goods_id_by_gtin = 0;
+																		goods_id_by_arcode = 0;
+																		ar_goods_code.Z();
+																		double ord_qtty = 0.0; // заказанное количество
+																		double acc_qtty = 0.0; // количество, принятое к исполнению
+																		double price_with_vat = 0.0;
+																		double price_without_vat = 0.0;
+																		double vat = 0.0;
+																		PPTransferItem ti;
+																		THROW(ti.Init(&p_bpack->Rec, 1));
+																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
+																			temp_buf = p_pf->P_Child->Text;
+																			if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
+																				ti.RByBill = (int16)temp_buf.ToLong();
+																				if(ti.RByBill < 0)
+																					ti.RByBill = 0;
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCT")) {
+																				gtin = temp_buf;
+																				if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0)
+																					goods_id_by_gtin = goods_rec.ID;
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCTIDSUPPLIER")) {
+																				if(edipartyq_whoami == EDIPARTYQ_SUPPLIER)
+																					goods_id_by_arcode = temp_buf.ToLong();
+																				else {
+																					ar_goods_code = temp_buf;
+																					if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+																						goods_id_by_arcode = goods_rec.ID;
+																				}
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRODUCTIDBUYER")) {
+																				if(edipartyq_whoami == EDIPARTYQ_BUYER)
+																					goods_id_by_arcode = temp_buf.ToLong();
+																				else {
+																					ar_goods_code = temp_buf;
+																					if(GObj.P_Tbl->SearchByArCode(p_bpack->Rec.Object, temp_buf, 0, &goods_rec) > 0)
+																						goods_id_by_arcode = goods_rec.ID;
+																				}
+																			}
+																			else if(p_pf->Text.IsEqiAscii("BUYERPARTNUMBER")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ORDEREDQUANTITY")) {
+																				ord_qtty = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("QUANTITYOFCUINTU")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("BOXESQUANTITY")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ORDERUNIT")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("ORDERPRICE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PRICEWITHVAT")) {
+																				price_with_vat = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("VAT")) {
+																				vat = temp_buf.ToReal();
+																			}
+																			else if(p_pf->Text.IsEqiAscii("CLAIMEDDELIVERYDATE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("CLAIMEDDELIVERYTIME")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("INFOCODED")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("MINIMUMORDERQUANTITY")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("INFO")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("COMPAIGNNUMBER")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("EARLIESTDELIVERYDATE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("LATESTDELIVERYDATE")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("LATESTDELIVERYTIME")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("CONDITIONSTATUS")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("PACKAGEID")) {
+																			}
+																			else if(p_pf->Text.IsEqiAscii("CHARACTERISTIC")) {
+																				if(p_pf->P_Child && p_pf->P_Child->Type == json_t::tOBJECT) {
+																					for(json_t * p_cf = p_pf->P_Child; p_cf; p_cf = p_cf->P_Next) {
+																						if(p_cf->Text.IsEqiAscii("DESCRIPTION")) {
+																						}
+																					}
+																				}
+																			}
+																		}
+																		if(goods_id_by_gtin)
+																			ti.GoodsID = goods_id_by_gtin;
+																		else if(goods_id_by_arcode)
+																			ti.GoodsID = goods_id_by_arcode;
+																		if(ti.GoodsID && ord_qtty > 0.0 && ti.RByBill) {
+																			ti.Quantity_ = ord_qtty;
+																			if(price_with_vat > 0.0)
+																				ti.Price = price_with_vat;
+																			else if(price_without_vat > 0.0) {
+																				double result_price = price_without_vat;
+																				PPGoodsTaxEntry gtx;
+																				if(GObj.FetchTax(ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																					double tax_factor = 1.0;
+																					GObj.MultTaxFactor(ti.GoodsID, &tax_factor);
+																					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
+																				}
+																				ti.Price = result_price;
+																			}
+																			THROW(p_bpack->LoadTItem(&ti, 0, 0));
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+									else if(p_bf->Text.IsEqiAscii("DOCUMENTNAME")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("NUMBER")) {
+										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Code, sizeof(p_bpack->Rec.Code));
+									}
+									else if(p_bf->Text.IsEqiAscii("DATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											p_bpack->Rec.Dt = dt;
+									}
+									else if(p_bf->Text.IsEqiAscii("TIME")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("PROMO")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("DELIVERYDATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											delivery_dtm.d = dt;
+									}
+									else if(p_bf->Text.IsEqiAscii("DELIVERYTIME")) {
+										LTIME t = ZEROTIME;
+										strtotime(temp_buf, TIMF_HMS, &t);
+										delivery_dtm.t = t;
+									}
+									else if(p_bf->Text.IsEqiAscii("SHIPMENTDATE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("CAMPAIGNNUMBER")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("CURRENCY")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTQUANTITY")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("VAT")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTATIONTYPES")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTATIONMEANS")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTATIONPAYMENTTYPE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TRANSPORTATIONROUTE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("BLANKETORDERNUMBER")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("INFOCODED")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("DOCTYPE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("SUPORDER")) { // Номер заказа поставщика
+									}
+									else if(p_bf->Text.IsEqiAscii("KDKNUM")) { // Номер общего заказа КДК
+									}
+									else if(p_bf->Text.IsEqiAscii("ORDRTYPE")) { // Тип заказа: поле O - оригинал R - корректировка, D - отмена
+									}
+									else if(p_bf->Text.IsEqiAscii("INFO")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("TYPE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("EARLIESTDELIVERYDATE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("PRODUCTTYPE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("LATESTDELIVERYDATE")) {
+									}
+									else if(p_bf->Text.IsEqiAscii("LIMES")) {
+										// []
+										/*if(p_bf->Text.IsEqiAscii("LIMESNAME")) {
+										}
+										else if(p_bf->Text.IsEqiAscii("DATEFROM")) {
+										}
+										else if(p_bf->Text.IsEqiAscii("TIMEFROM")) {
+										}
+										else if(p_bf->Text.IsEqiAscii("DATETO")) {
+										}
+										else if(p_bf->Text.IsEqiAscii("TIMETO")) {
+										}*/
+									}
+								}
+							}
+							else if(edi_op == PPEDIOP_DESADV) {
+								;
+							}
+							else if(edi_op == PPEDIOP_RECADV) {
+								;
+							}
+							else if(edi_op == PPEDIOP_INVOIC) {
+								;
+							}
+							else if(edi_op == PPEDIOP_ORDERRSP) {
+								p_bpack = (PPBillPacket *)p_pack->P_Data;
+								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0, 0, 1));
 								p_bpack->Rec.EdiOp = p_pack->DocType;
 								for(json_t * p_bf = p_obj->P_Child->P_Child; p_bf; p_bf = p_bf->P_Next) {
@@ -5447,18 +5770,18 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 														}
 														else if(p_hf->Text.IsEqiAscii("POSITION")) {
 															if(p_hf->P_Child && p_hf->P_Child->Type == json_t::tARRAY) {
-																goods_id_by_gtin = 0;
-																goods_id_by_arcode = 0;
-																ar_goods_code.Z();
-																double ord_qtty = 0.0; // заказанное количество
-																double acc_qtty = 0.0; // количество, принятое к исполнению
-																double price_with_vat = 0.0;
-																double price_without_vat = 0.0;
-																double vat = 0.0;
-																PPTransferItem ti;
-																THROW(ti.Init(&p_bpack->Rec, 1));
 																for(json_t * p_pli = p_hf->P_Child->P_Child; p_pli; p_pli = p_pli->P_Next) {
 																	if(p_pli->Type == json_t::tOBJECT) {
+																		goods_id_by_gtin = 0;
+																		goods_id_by_arcode = 0;
+																		ar_goods_code.Z();
+																		double ord_qtty = 0.0; // заказанное количество
+																		double acc_qtty = 0.0; // количество, принятое к исполнению
+																		double price_with_vat = 0.0;
+																		double price_without_vat = 0.0;
+																		double vat = 0.0;
+																		PPTransferItem ti;
+																		THROW(ti.Init(&p_bpack->Rec, 1));
 																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("PRODUCT")) {
@@ -5514,27 +5837,27 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 																				goods_name = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER);
 																			}
 																		}
-																	}
-																}
-																if(goods_id_by_gtin)
-																	ti.GoodsID = goods_id_by_gtin;
-																else if(goods_id_by_arcode)
-																	ti.GoodsID = goods_id_by_arcode;
-																if(ti.GoodsID && (ord_qtty > 0.0 || acc_qtty > 0.0) && ti.RByBill) {
-																	ti.Quantity_ = acc_qtty;
-																	if(price_with_vat > 0.0)
-																		ti.Cost = price_with_vat;
-																	else if(price_without_vat > 0.0) {
-																		double result_price = price_without_vat;
-																		PPGoodsTaxEntry gtx;
-																		if(GObj.FetchTax(ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
-																			double tax_factor = 1.0;
-																			GObj.MultTaxFactor(ti.GoodsID, &tax_factor);
-																			GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
+																		if(goods_id_by_gtin)
+																			ti.GoodsID = goods_id_by_gtin;
+																		else if(goods_id_by_arcode)
+																			ti.GoodsID = goods_id_by_arcode;
+																		if(ti.GoodsID && (ord_qtty > 0.0 || acc_qtty > 0.0) && ti.RByBill) {
+																			ti.Quantity_ = acc_qtty;
+																			if(price_with_vat > 0.0)
+																				ti.Cost = price_with_vat;
+																			else if(price_without_vat > 0.0) {
+																				double result_price = price_without_vat;
+																				PPGoodsTaxEntry gtx;
+																				if(GObj.FetchTax(ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																					double tax_factor = 1.0;
+																					GObj.MultTaxFactor(ti.GoodsID, &tax_factor);
+																					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
+																				}
+																				ti.Cost = result_price;
+																			}
+																			THROW(p_bpack->LoadTItem(&ti, 0, 0));
 																		}
-																		ti.Cost = result_price;
 																	}
-																	THROW(p_bpack->LoadTItem(&ti, 0, 0));
 																}
 															}
 														}
@@ -5603,16 +5926,10 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 									}
 								}
 								if(order_number.NotEmptyS() && checkdate(order_date)) {
-									//P_BObj->SearchA
-
-									PPID   ord_bill_id = 0;
 									BillTbl::Rec ord_bill_rec;
-									BillTbl::Rec ord_bill_rec_pattern;
-									MEMSZERO(ord_bill_rec_pattern);
-									STRNSCPY(ord_bill_rec_pattern.Code, order_number);
-									ord_bill_rec_pattern.Dt = order_date;
-									ord_bill_rec_pattern.Object = p_bpack->Rec.Object;
-									if(P_BObj->P_Tbl->SearchAnalog(&ord_bill_rec_pattern, BillCore::safIgnoreOp, &ord_bill_id, &ord_bill_rec) > 0) {
+									if(SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
+										p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+										THROW(P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, (PPBillPacket *)p_pack->P_ExtData) > 0);
 									}
 								}
 							}

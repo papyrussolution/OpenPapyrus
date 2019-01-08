@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -90,7 +90,6 @@ int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
 			const RECORDSIZE frs = FixRecSize;
 			size_t s = (frs && frs < bufLen) ? frs : bufLen;
 			memcpy(P_DBuf, pBuf, s);
-
 			DBField last_fld;
 			THROW(getField(fields.getCount()-1, &last_fld));
 			if(srcBufSize)
@@ -106,10 +105,9 @@ int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
 	return ok;
 }
 
-int FASTCALL DBTable::SetPageSize(uint newPageSize)
+void FASTCALL DBTable::SetPageSize(uint newPageSize)
 {
 	PageSize = (uint16)newPageSize; // @todo Ќадо провер€ть валидность передаваемого размера.
-	return 1;
 }
 
 void   FASTCALL DBTable::SetTableID(BTBLID _id) { tableID = _id; }

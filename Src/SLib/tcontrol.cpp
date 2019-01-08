@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -379,9 +379,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 {
 	TInputLine * p_view = (TInputLine *)TView::GetWindowUserData(hWnd);
 	switch(uMsg) {
-		case WM_DESTROY:
-			p_view->OnDestroy(hWnd);
-			return 0;
+		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
 				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
@@ -395,9 +393,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				}
 			}
 			break;
-		case WM_KEYUP:
-			p_view->SendToParent(hWnd, uMsg, wParam, (long)hWnd);
-			break;
+		case WM_KEYUP: p_view->SendToParent(hWnd, uMsg, wParam, (long)hWnd); break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			{

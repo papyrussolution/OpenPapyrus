@@ -304,7 +304,7 @@ int CopyPaste(HWND hWnd, int copy, const char * pPath)
 	Gdiplus::Bitmap * p_bmp = 0;
 	OLECHAR wstr[MAXPATH];
 	HBITMAP h_bmp = 0;
-	if(OpenClipboard(hWnd)) {
+	if(::OpenClipboard(hWnd)) {
 		if(copy) {
 			EmptyClipboard();
 			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);

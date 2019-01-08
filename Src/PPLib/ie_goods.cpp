@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1229,7 +1229,6 @@ private:
 	PPObjQCert QcObj;
 	PPObjPerson PsnObj;
 	PPObjUnit UnitObj;
-	PPObjGoodsTax GTaxObj;
 	PPObjWorld WObj;
 };
 
@@ -1674,7 +1673,7 @@ int SLAPI PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack
 	int    ok = -1;
 	if(UseTaxes && pPack) {
 		PPID   tax_grp_id = 0;
-		GTaxObj.GetByScheme(&pPack->Rec.TaxGrpID, rRec.Vat, 0, rRec.SalesTax, 0, 0/*use_ta*/);
+		GObj.GTxObj.GetByScheme(&pPack->Rec.TaxGrpID, rRec.Vat, 0, rRec.SalesTax, 0, 0/*use_ta*/);
 		ok = 1;
 	}
 	return ok;

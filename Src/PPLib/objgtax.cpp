@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -361,7 +361,6 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 	PPID   tax_grp_id = 0;
 	PPGoodsTaxEntry gtx;
 	PPObjGoods    gobj;
-	PPObjGoodsTax gtobj;
 	Goods2Tbl::Rec goods_rec;
 	double amount = 0.0;
 	double qtty   = fabs(pTI->Qtty());
@@ -387,7 +386,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 		if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
 			tax_grp_id = pTI->LotTaxGrpID;
 		// @v10.2.5 (ctr) MEMSZERO(gtx);
-		gtobj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
+		gobj.GTxObj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
 		const double q_pre = fabs(pTI->QuotPrice);
 		qtty = fabs(pTI->Quantity_);
 		const double q_diff = (qtty - q_pre);
@@ -418,7 +417,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
 			// @v10.2.5 (ctr) MEMSZERO(gtx);
-			gtobj.Fetch(tax_grp_id, pTI->Date, opID, &gtx);
+			gobj.GTxObj.Fetch(tax_grp_id, pTI->Date, opID, &gtx);
 			if(!is_exclvat)
 				amount = pTI->NetPrice();
 		}
@@ -426,7 +425,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 			if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
 				tax_grp_id = pTI->LotTaxGrpID;
 			// @v10.2.5 (ctr) MEMSZERO(gtx);
-			gtobj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
+			gobj.GTxObj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
 			if(pTI->Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
 				if(calcti_costwovat_byprice)
@@ -1007,7 +1006,7 @@ int FASTCALL GTaxCache::Dirty(PPID id)
 int SLAPI GTaxCache::GetFromBase(PPID id)
 {
 	int    ok = -1;
-	PPObjGoodsTax    gt_obj;
+	PPObjGoodsTax gt_obj;
 	PPGoodsTaxPacket gt_pack;
 	if(gt_obj.GetPacket(id, &gt_pack) > 0) {
 		PPGoodsTaxEntry item;

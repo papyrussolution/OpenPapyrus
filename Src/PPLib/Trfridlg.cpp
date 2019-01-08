@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -15,7 +15,6 @@ private:
 	TrfrItemDialog(uint dlgID, PPID opID);
 	int    setDTS(PPTransferItem *);
 	int    getDTS(PPTransferItem *, double * pExtraQtty);
-
 	DECL_HANDLE_EVENT;
 	void   selectLot();
 	int    addLotEntry(SArray *, const ReceiptTbl::Rec *);
@@ -58,12 +57,18 @@ private:
 	// Descr: Возвращает !0 если с редактируемой строкой может быть сопоставлен серийный номер или иные теги.
 	//   Применяется для определения возможности редактировать серийный номер или иные теги.
 	//
-	int    IsTaggedItem() const
-	{
-		return BIN(oneof3(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER) || isModifPlus());
-	}
+	int    IsTaggedItem() const { return BIN(oneof3(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER) || isModifPlus()); }
 	int    IsSourceSerialUsed();
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
+	int    readQttyFld(uint master, uint ctl, double * val);
+	int    checkQuantityForIntVal();
+	int    checkQuantityVal(double * pExtraQtty);
+	int    isDiscountInSum() const;
+	int    isAllowZeroPrice();
+	int    setupAllQuantity(int byLot);
+	void   setQuotSign();
+	// @v10.2.11 (unused) SArray * SelectGoodsByPrice(PPID loc, double price);
+	int    ProcessRevalOnAllLots(const PPTransferItem *);
 
 	PPObjBill * P_BObj;
 	Transfer  * P_Trfr;
@@ -107,10 +112,8 @@ private:
 	double OrdReserved;    // Зарезервированное количество (OrdReserved <= OrdRest)
 	double MinQtty;        // Минимальное количество, которое может быть введено
 	double MaxQtty;        // Максимальное количество, которое может быть введено
-	double OrgQtty;        // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество,
-		// поступившее в оригинальном документе.
-	double OrgPrice;       // @v9.4.3 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации
-		// в оригинальном документе
+	double OrgQtty;        // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество, поступившее в оригинальном документе.
+	double OrgPrice;       // @v9.4.3 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации в оригинальном документе
 	PPSupplDeal Sd;        // Контрактная цена по поставщику
 	enum {
 		strNoVAT     = 0,
@@ -121,16 +124,6 @@ private:
 	ObjTagList InheritedLotTagList; // Список тегов, унаследованных от предыдущего лота того же товара
 		// Список необходимо отделить от общего пула тегов из-за необходимость отличать создаваемые в ручную
 		// теги от тегов унаследованных.
-
-	int    readQttyFld(uint master, uint ctl, double * val);
-	int    checkQuantityForIntVal();
-	int    checkQuantityVal(double * pExtraQtty);
-	int    isDiscountInSum() const;
-	int    isAllowZeroPrice();
-	int    setupAllQuantity(int byLot);
-	void   setQuotSign();
-	SArray * SelectGoodsByPrice(PPID loc, double price);
-	int    ProcessRevalOnAllLots(const PPTransferItem *);
 };
 
 static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
@@ -864,7 +857,6 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						if(suppl_person_id) {
 							SString temp_buf;
 							VetisDocumentFilt vetis_filt;
-
 							int    delay_days = 0;
 							PPAlbatrosConfig acfg;
 							if(DS.FetchAlbatrosConfig(&acfg) > 0 && acfg.Hdr.VetisCertDelay > 0)
@@ -978,25 +970,23 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					}
 					break;
 				case cmInputUpdated:
-					{
-						if(!(St & stLockQttyAutoUpd)) {
-							St |= stLockQttyAutoUpd;
-							i = TVINFOVIEW->GetId();
-							if(oneof2(i, CTL_LOT_PRICE, CTL_LOT_DISCOUNT)) {
-								//
-								// При изменении поля цены реализации либо скидки необходимо перерисовать его
-								// дабы его цвет изменился (см. ниже cmCtlColor)
-								//
-								drawCtrl(CTL_LOT_PRICE);
-							}
-							else if(oneof3(i, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, CTL_LOT_QUANTITY)) {
-								setupQuantity(i, 1);
-								setupVatSum();
-							}
-							else if(i == CTL_LOT_SERIAL)
-								SetupSerialWarn();
-							St &= ~stLockQttyAutoUpd;
+					if(!(St & stLockQttyAutoUpd)) {
+						St |= stLockQttyAutoUpd;
+						i = TVINFOVIEW->GetId();
+						if(oneof2(i, CTL_LOT_PRICE, CTL_LOT_DISCOUNT)) {
+							//
+							// При изменении поля цены реализации либо скидки необходимо перерисовать его
+							// дабы его цвет изменился (см. ниже cmCtlColor)
+							//
+							drawCtrl(CTL_LOT_PRICE);
 						}
+						else if(oneof3(i, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, CTL_LOT_QUANTITY)) {
+							setupQuantity(i, 1);
+							setupVatSum();
+						}
+						else if(i == CTL_LOT_SERIAL)
+							SetupSerialWarn();
+						St &= ~stLockQttyAutoUpd;
 					}
 					break;
 				case cmCtlColor:
@@ -2402,7 +2392,7 @@ void TrfrItemDialog::setupRest()
 		if(c.StrChr(':', &p))
 			c.Trim(p+1);
 		else
-			c = 0;
+			c.Z();
 		if(!(Item.Flags & PPTFR_UNLIM)) {
 			c.Space();
 			if(Item.Flags & PPTFR_AUTOCOMPL) {
@@ -2610,10 +2600,6 @@ void TrfrItemDialog::SetupInheritedSerial()
 {
 	if(getCtrlView(CTL_LOT_SERIAL)) {
 		SString serial;
-#if 0 // @v8.5.5 {
-		if(Item.LotID /* @v8.3.11 && P_Pack && IsIntrExpndOp(P_Pack->Rec.OpID) */)
-			P_BObj->GetSerialNumberByLot(Item.LotID, serial, 0);
-#endif // } 0 @v8.5.5
 		if(Item.LotID) {
 			const int inh_serial = BIN(P_BObj->GetConfig().Flags & BCF_INHSERIAL);
 			if((P_Pack && IsIntrExpndOp(P_Pack->Rec.OpID)) || (Item.Flags & PPTFR_RECEIPT && inh_serial))
@@ -2812,18 +2798,17 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			double real_val = 0.0;
 			Goods2Tbl::Rec goods_rec;
 			void * p_dest = pBlk->P_DestData;
+			temp_buf.Z();
 			switch(pBlk->ColumnN) {
 				case 0: pBlk->Set(p_item->LotID); break; // LotID
 				case 1: pBlk->Set(p_item->Dt);    break; // Lot date
 				case 2: // Supplier Name
-					temp_buf.Z();
 					if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 						GetArticleName(p_item->SupplID, temp_buf);
 					pBlk->Set(temp_buf);
 					break;
 				case 3: pBlk->Set(p_item->Rest); break; // Rest
 				case 4: // Unit Name
-					temp_buf.Z();
 					if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
 						PPUnit unit_rec;
 						if(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
@@ -2841,30 +2826,24 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					break;
 				case 10: // Alco code of lot
 					{
-						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf.Z();
-						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARLOTGOODSCODE, &tag_item) > 0)
+						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARLOTGOODSCODE, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
 				case 11: // Alco REF-A
 					{
-						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf.Z();
-						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFA, &tag_item) > 0)
+						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFA, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
 				case 12: // Alco REF-B
 					{
-						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf.Z();
-						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFB, &tag_item) > 0)
+						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFB, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
 					}
@@ -2880,25 +2859,20 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					break;
 				case 16: // VETIS UUID лота
 					{
-						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf.Z();
-						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
+						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
 				case 17: // @v10.2.12 Тег дата производства
 					{
-						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf.Z();
-						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
+						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
 							LDATETIME dtm;
 							tag_item.GetTimestamp(&dtm);
-							if(checkdate(dtm.d)) {
+							if(checkdate(dtm.d))
 								temp_buf.Cat(dtm, DATF_DMY, TIMF_HM);
-							}
 						}
 						pBlk->Set(temp_buf);
 					}
@@ -3084,7 +3058,7 @@ void TrfrItemDialog::selectLot()
 				s = p_ary->getCount() - 1;
 			}
 		}
-		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, PPObjBill::SelectLotParam::fShowManufTime));
+		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, SelLotBrowser::fShowManufTime));
 		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0)
 			if(p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
 				Item.LotID = p_sel->LotID;

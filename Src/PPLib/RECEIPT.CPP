@@ -910,7 +910,7 @@ int SLAPI LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExclud
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPLotExtCodeContainer::MarkSet & rResult)
+int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult)
 {
 	int    ok = -1;
 	rResult.Clear();
@@ -920,6 +920,8 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPLotExtCodeCon
 		TransferTbl::Rec trfr_rec;
 		LotExtCodeTbl::Key1 k1;
 		int    is_box = 0;
+		int    goods_detected = 0;
+		int    lot_detected = 0;
 		MEMSZERO(k1);
 		STRNSCPY(k1.Code, pCode);
 		if(search(1, &k1, spGe) && stricmp(data.Code, pCode) == 0) {
@@ -934,6 +936,12 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPLotExtCodeCon
 					const PPID op_type_id = GetOpType(bill_rec.OpID);
 					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 						if(data.RByBill && p_bobj->trfr->SearchByBill(data.BillID, 0, data.RByBill, &trfr_rec) > 0) {
+							if(trfr_rec.Flags & PPTFR_RECEIPT) {
+								if(lotID && trfr_rec.LotID == lotID)
+									lot_detected = 1;
+								if(goodsID && trfr_rec.GoodsID == goodsID)
+									goods_detected = 1;
+							}
 							if(trfr_rec.Quantity > 0.0) {
 								if(!first_bill_id) {
 									first_bill_id = data.BillID;
@@ -948,6 +956,8 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPLotExtCodeCon
 					}
 				}
 			} while(search(1, &k1, spNext) && stricmp(data.Code, pCode) == 0);
+			THROW_PP_S(!goodsID || goods_detected, PPERR_EGAISMARKMISSGOODS, pCode);
+			THROW_PP_S(!lotID || lot_detected, PPERR_EGAISMARKMISSLOT, pCode);
 			THROW_PP_S(parity >= 0, PPERR_EGAISMARKISEXHAUSTED, pCode);
 			if(is_box) {
 				LotExtCodeTbl::Key2 k2;

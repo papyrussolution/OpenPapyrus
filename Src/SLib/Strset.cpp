@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -344,22 +344,22 @@ int FASTCALL StringSet::add(const char * pStr)
 	return add(pStr, 0);
 }
 
-int FASTCALL StringSet::add(const char * str, uint * pPos)
+int FASTCALL StringSet::add(const char * pStr, uint * pPos)
 {
 	int    ok = 1;
 	char   temp_buf[32];
-	if(str == 0) {
+	if(!pStr) {
 		temp_buf[0] = 0;
-		str = temp_buf;
+		pStr = temp_buf;
 	}
 	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
-	const size_t add_len   = sstrlen(str);
+	const size_t add_len   = sstrlen(pStr);
 	const size_t new_len   = DataLen + add_len + delim_len;
 	uint   p;
-	if(new_len <= Size || Alloc(new_len)) { // @v8.2.9 (new_len <= Size ||) ради ускорения //
+	if(new_len <= Size || Alloc(new_len)) {
 		if(DataLen == 0) {
 			p = 0;
-			memcpy(P_Buf + p, str, add_len+1);
+			memcpy(P_Buf + p, pStr, add_len+1);
 			if(Delim[0] == 0)
 				P_Buf[add_len+1] = 0;
 		}
@@ -368,10 +368,10 @@ int FASTCALL StringSet::add(const char * str, uint * pPos)
 			if(Delim[0]) {
 				strcpy(P_Buf + p, Delim);
 				p += delim_len;
-				memcpy(P_Buf + p, str, add_len+1);
+				memcpy(P_Buf + p, pStr, add_len+1);
 			}
 			else {
-				memcpy(P_Buf + p, str, add_len+1);
+				memcpy(P_Buf + p, pStr, add_len+1);
 				P_Buf[new_len-1] = 0;
 			}
 		}

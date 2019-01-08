@@ -2320,7 +2320,7 @@ int STimeChunkBrowser::CopyToClipboard()
 			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
 			dec.Cat(buf);
 		}
-		OpenClipboard(APPL->H_MainWnd);
+		::OpenClipboard(APPL->H_MainWnd);
 		EmptyClipboard();
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);

@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Диалог редактирования товара
@@ -2251,10 +2251,8 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			case cmGoodsEditTax:
 				if(oneof2(gpk, gpkndGoods, gpkndOrdinaryGroup)) {
 					PPID   tax_id = getCtrlLong(CTLSEL_GOODS_TAX);
-					if(tax_id) {
-						PPObjGoodsTax gtobj;
-						gtobj.Edit(&tax_id, 0);
-					}
+					if(tax_id)
+						GObj.GTxObj.Edit(&tax_id, 0);
 				}
 				break;
 			case cmGoodsExt:

@@ -1,13 +1,14 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016Р± 2017, 2018, 2019
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 //
-// Максимальная доля (%) неиспользуемого пространства, занятого для хранения //
-// наименований объектов, при превышении которой класс ObjCache запускает
-// функцию уплотнения этого пространства (ObjCache::PackNames).
+// РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґРѕР»СЏ (%) РЅРµРёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°, Р·Р°РЅСЏС‚РѕРіРѕ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ //
+// РЅР°РёРјРµРЅРѕРІР°РЅРёР№ РѕР±СЉРµРєС‚РѕРІ, РїСЂРё РїСЂРµРІС‹С€РµРЅРёРё РєРѕС‚РѕСЂРѕР№ РєР»Р°СЃСЃ ObjCache Р·Р°РїСѓСЃРєР°РµС‚
+// С„СѓРЅРєС†РёСЋ СѓРїР»РѕС‚РЅРµРЅРёСЏ СЌС‚РѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° (ObjCache::PackNames).
 //
 #define UNUSED_NAME_SPACE_THRESOULD 80 // @v8.1.4 30-->80
 //
@@ -143,7 +144,7 @@ int SLAPI ObjCache::PackNames()
 		double p = ((double)UnusedNameSpace * 100) / (double)ss_len;
 		if(p > UNUSED_NAME_SPACE_THRESOULD) {
 			const uint64 pt = SLS.GetProfileTime();
-			if(!LastPackNamesClock || (pt - LastPackNamesClock) > 1000000000i64) { // 1sec (чистое процессорное время) @v8.1.5 // @v9.0.8 60-->1
+			if(!LastPackNamesClock || (pt - LastPackNamesClock) > 1000000000i64) { // 1sec (С‡РёСЃС‚РѕРµ РїСЂРѕС†РµСЃСЃРѕСЂРЅРѕРµ РІСЂРµРјСЏ) @v8.1.5 // @v9.0.8 60-->1
 				PPUserFuncProfiler ufp(PPUPRF_PACKCACHETEXT); // @v8.1.4
 				SString temp_buf;
 				StringSet tempss;
@@ -161,8 +162,8 @@ int SLAPI ObjCache::PackNames()
 				}
 				Ss = tempss;
 				UnusedNameSpace = 0;
-				ufp.SetFactor(0, (double)c); // @v8.1.4
-				ufp.Commit();                // @v8.1.4
+				ufp.SetFactor(0, (double)c);
+				ufp.Commit();
 				ok = 1;
 				LastPackNamesClock = SLS.GetProfileTime();
 			}
@@ -205,11 +206,11 @@ int SLAPI ObjCache::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 		ObjCacheEntry * p_entry = 0;
 		if(Search(pEntry->ID, &idx) && (p_entry = (ObjCacheEntry *)P_Ary->at(idx)) != 0) {
 			// @v8.1.5 if(Ss.getDataLen())
-			if(p_entry->NameIdx && Ss.getDataLen() > 3) // @v8.1.5 (3) - нулевая заглушка и терминатор
-				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+			if(p_entry->NameIdx && Ss.getDataLen() > 3) // @v8.1.5 (3) - РЅСѓР»РµРІР°СЏ Р·Р°РіР»СѓС€РєР° Рё С‚РµСЂРјРёРЅР°С‚РѕСЂ
+				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚СЂРѕРє
 			//
-			// Чтобы не затереть счетчик обращений копируем только прикладную часть буфера
-			// и индекс строки наименования //
+			// Р§С‚РѕР±С‹ РЅРµ Р·Р°С‚РµСЂРµС‚СЊ СЃС‡РµС‚С‡РёРє РѕР±СЂР°С‰РµРЅРёР№ РєРѕРїРёСЂСѓРµРј С‚РѕР»СЊРєРѕ РїСЂРёРєР»Р°РґРЅСѓСЋ С‡Р°СЃС‚СЊ Р±СѓС„РµСЂР°
+			// Рё РёРЅРґРµРєСЃ СЃС‚СЂРѕРєРё РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ //
 			//
 			memcpy(p_entry+1, pEntry+1, EntrySize-sizeof(ObjCacheEntry));
 			p_entry->F &= ~ObjCacheEntry::fDirty;
@@ -349,9 +350,9 @@ int SLAPI ObjCache::Get(PPID id, void * pDataRec, long extraData)
 		if(ok < 0) {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
-			// Пока мы ждали своей очереди на запись
-			// другой поток мог занести нужный нам элемент в кэш.
-			// По-этому снова проверяем наличие этого элемента.
+			// РџРѕРєР° РјС‹ Р¶РґР°Р»Рё СЃРІРѕРµР№ РѕС‡РµСЂРµРґРё РЅР° Р·Р°РїРёСЃСЊ
+			// РґСЂСѓРіРѕР№ РїРѕС‚РѕРє РјРѕРі Р·Р°РЅРµСЃС‚Рё РЅСѓР¶РЅС‹Р№ РЅР°Рј СЌР»РµРјРµРЅС‚ РІ РєСЌС€.
+			// РџРѕ-СЌС‚РѕРјСѓ СЃРЅРѕРІР° РїСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ СЌС‚РѕРіРѕ СЌР»РµРјРµРЅС‚Р°.
 			//
 			ok = Helper_Get(id, pDataRec);
 			if(ok < 0) {
@@ -416,8 +417,8 @@ void FASTCALL ObjCache::RefSymbArray::Dirty(PPID id) // @sync_w
 		SRWLOCKER(SlLock, SReadWriteLocker::Write);
 		if(Inited) {
 			//
-			// Ради ускорения не используем здесь addUnique. Метод FetchBySymb
-			// выполнит sortAndUndup прежде чем использовать массив DirtyTable.
+			// Р Р°РґРё СѓСЃРєРѕСЂРµРЅРёСЏ РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј Р·РґРµСЃСЊ addUnique. РњРµС‚РѕРґ FetchBySymb
+			// РІС‹РїРѕР»РЅРёС‚ sortAndUndup РїСЂРµР¶РґРµ С‡РµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°СЃСЃРёРІ DirtyTable.
 			//
 			DirtyTable.add(id);
 		}
@@ -516,11 +517,11 @@ int SLAPI ObjCacheHash::Init(size_t cacheSize, uint maxTries)
 uint FASTCALL ObjCacheHash::Hash(PPID id, uint n) const
 {
 	//
-	// Результаты сравнения эффективности хэш-функций до v7.8.3 (закомментировано ниже) и v7.8.3 для товаров
-	// Общее улучшение эффективности попаданий ~0.4%
+	// Р РµР·СѓР»СЊС‚Р°С‚С‹ СЃСЂР°РІРЅРµРЅРёСЏ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё С…СЌС€-С„СѓРЅРєС†РёР№ РґРѕ v7.8.3 (Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРѕ РЅРёР¶Рµ) Рё v7.8.3 РґР»СЏ С‚РѕРІР°СЂРѕРІ
+	// РћР±С‰РµРµ СѓР»СѓС‡С€РµРЅРёРµ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё РїРѕРїР°РґР°РЅРёР№ ~0.4%
 	// before 7.8.3 1009;1206872;1124424;82448;[0.931685];0;16384;3;0.000183;0;
 	// 7.8.3        1009;1206872;1128818;78054;[0.935325];0;16384;0;0;0;
-	// Надо еще сопоставить среднее количество попыток для нахождения цели.
+	// РќР°РґРѕ РµС‰Рµ СЃРѕРїРѕСЃС‚Р°РІРёС‚СЊ СЃСЂРµРґРЅРµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРїС‹С‚РѕРє РґР»СЏ РЅР°С…РѕР¶РґРµРЅРёСЏ С†РµР»Рё.
 	//
 	// @v7.8.3 {
 	uint32 d[2];
@@ -574,12 +575,11 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 			if(p_entry->ID == pEntry->ID) {
 				idx = f;
 				pos_undefined = 0;
-				// @v8.1.5 if(Ss.getDataLen())
-				if(p_entry->NameIdx && Ss.getDataLen() > 3) // @v8.1.5
-					UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+				if(p_entry->NameIdx && Ss.getDataLen() > 3)
+					UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚СЂРѕРє
 				//
-				// Чтобы не затереть счетчик обращений копируем только прикладную часть буфера
-				// и индекс строки наименования //
+				// Р§С‚РѕР±С‹ РЅРµ Р·Р°С‚РµСЂРµС‚СЊ СЃС‡РµС‚С‡РёРє РѕР±СЂР°С‰РµРЅРёР№ РєРѕРїРёСЂСѓРµРј С‚РѕР»СЊРєРѕ РїСЂРёРєР»Р°РґРЅСѓСЋ С‡Р°СЃС‚СЊ Р±СѓС„РµСЂР°
+				// Рё РёРЅРґРµРєСЃ СЃС‚СЂРѕРєРё РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ //
 				//
 				memcpy(p_entry+1, pEntry+1, EntrySize-sizeof(ObjCacheEntry));
 				p_entry->F &= ~ObjCacheEntry::fDirty;
@@ -598,9 +598,8 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 	if(ok <= 0 && idx < GetCount()) {
 		ObjCacheEntry * p_entry = SearchByPos(idx, 0);
 		if(p_entry) {
-			// @v8.1.5 if(Ss.getDataLen())
-			if(p_entry->NameIdx && Ss.getDataLen() > 3) // @v8.1.5
-				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+			if(p_entry->NameIdx && Ss.getDataLen() > 3)
+				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚СЂРѕРє
 			memcpy(p_entry, pEntry, EntrySize);
 			PackNames();
 			ok = 1;
@@ -610,7 +609,7 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 	return ok;
 }
 //
-// Менеджер локальных по отношению к базе данных объектных кэшей
+// РњРµРЅРµРґР¶РµСЂ Р»РѕРєР°Р»СЊРЅС‹С… РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… РѕР±СЉРµРєС‚РЅС‹С… РєСЌС€РµР№
 //
 SLAPI DbLocalCacheMng::DbLocalCacheMng() : TSArray <DbLocalCacheEntry> (aryDataOwner | aryEachItem), DbEntryList(sizeof(CDbEntry))
 {
@@ -635,7 +634,7 @@ int SLAPI DbLocalCacheMng::CreateDbEntry(long dbPathID)
 			if(!DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
 				CDbEntry entry;
 				entry.DbPathId = dbPathID;
-				entry.State = 0; // @v8.0.3
+				entry.State = 0;
 				entry.LastCacheUpdate = getcurdatetime_();
 				DbEntryList.insert(&entry);
 				ok = 1;
@@ -747,7 +746,7 @@ PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID
 		if(!p_queue) {
 			SRWLOCKER(RwL, SReadWriteLocker::Write);
 			//
-			// Возможно, пока мы ждали, объект уже был создан
+			// Р’РѕР·РјРѕР¶РЅРѕ, РїРѕРєР° РјС‹ Р¶РґР°Р»Рё, РѕР±СЉРµРєС‚ СѓР¶Рµ Р±С‹Р» СЃРѕР·РґР°РЅ
 			//
 			p_queue = (PPAdviseEventQueue *)Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 0 /* without locking */);
 			if(!p_queue) {

@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -602,6 +602,7 @@ int SLAPI Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	temp_buf.Write(&Prop.data, fix_rec_size);
 	Prop.readLobData(Prop.VT, temp_buf);
+	Prop.destroyLobData(Prop.VT); // @v10.2.11 @fix
 	actual_size = temp_buf.GetAvailableSize();
 	temp_buf.Read(b, s);
 	ASSIGN_PTR(pActualSize, actual_size);
@@ -2480,6 +2481,7 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 	int    ok = 1;
 	SBuffer temp_buf;
 	readLobData(VT, temp_buf);
+	destroyLobData(VT); // @v10.2.11 @fix
 	const size_t actual_size = temp_buf.GetAvailableSize();
 	rBuf.CopyFromUtf8((const char *)temp_buf.GetBuf(0), actual_size);
 	return ok;
@@ -2537,6 +2539,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 				SSerializeContext sctx;
 				SBuffer temp_buf;
 				readLobData(VT, temp_buf);
+				destroyLobData(VT); // @v10.2.11 @fix
 				const size_t actual_size = temp_buf.GetAvailableSize();
 				const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 				if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
@@ -2622,6 +2625,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 					data.Size = (long)tl;
 				}
 				THROW_DB(updateRec()); // @sfu
+				destroyLobData(VT); // @v10.2.11 @fix
 			}
 		}
 		else if(tl == 0) {
@@ -2639,6 +2643,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 				data.Size = (long)tl;
 			}
 			THROW_DB(insertRec());
+			destroyLobData(VT); // @v10.2.11 @fix
 		}
 		THROW(tra.Commit());
     }
@@ -2689,6 +2694,7 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 					data.Size = (long)tl;
 				}
 				THROW_DB(updateRec()); // @sfu
+				destroyLobData(VT); // @v10.2.11 @fix
 			}
 		}
 		else if(tl == 0) {
@@ -2706,6 +2712,7 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 				data.Size = (long)tl;
 			}
 			THROW_DB(insertRec());
+			destroyLobData(VT); // @v10.2.11 @fix
 		}
 		THROW(tra.Commit());
     }

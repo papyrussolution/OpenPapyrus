@@ -57,21 +57,9 @@
 #define URI_ERROR_REMOVEBASE_REL_SOURCE    7 // Given base is not absolute 
 #endif // } 0
 // 
-// Holds an IPv4 address.
-// 
-typedef struct UriIp4Struct {
-	uchar data[4]; /**< Each octet in one byte */
-} UriIp4; /**< @copydoc UriIp4Struct */
-// 
-// Holds an IPv6 address.
-// 
-typedef struct UriIp6Struct {
-	uchar data[16]; /**< Each quad in two bytes */
-} UriIp6; /**< @copydoc UriIp6Struct */
-// 
 // Specifies a line break conversion mode
 // 
-typedef enum UriBreakConversionEnum {
+enum UriBreakConversion {
 	URI_BR_TO_LF, /**< Convert to Unix line breaks ("\\x0a") */
 	URI_BR_TO_CRLF, /**< Convert to Windows line breaks ("\\x0d\\x0a") */
 	URI_BR_TO_CR, /**< Convert to Macintosh line breaks ("\\x0d") */
@@ -79,7 +67,7 @@ typedef enum UriBreakConversionEnum {
 	URI_BR_TO_WINDOWS = URI_BR_TO_CRLF, /**< @copydoc UriBreakConversionEnum::URI_BR_TO_CRLF */
 	URI_BR_TO_MAC = URI_BR_TO_CR, /**< @copydoc UriBreakConversionEnum::URI_BR_TO_CR */
 	URI_BR_DONT_TOUCH /**< Copy line breaks unmodified */
-} UriBreakConversion; /**< @copydoc UriBreakConversionEnum */
+}; /**< @copydoc UriBreakConversionEnum */
 //
 //
 //
@@ -87,7 +75,7 @@ struct UriTextRange {
 	UriTextRange();
 	UriTextRange(const char * pFirst, const char * pAfterLast);
 	void   Clear();
-	UriTextRange & operator = (const UriTextRange & rS);
+	UriTextRange & FASTCALL operator = (const UriTextRange & rS);
 	int    Len() const;
 	int    FixPercentEncodingMalloc();
 
@@ -95,15 +83,25 @@ struct UriTextRange {
 	const char * P_AfterLast; // Pointer to character after the last one still in 
 };
 
-struct UriHostData {
-	UriIp4 * ip4; // IPv4 address 
-	UriIp6 * ip6; // IPv6 address 
-	UriTextRange ipFuture; // IPvFuture address 
-};
-
 struct UriUri {
 	void   Destroy();
-
+	// 
+	// Descr: Holds an IPv4 address.
+	// 
+	struct UriIp4 {
+		uchar data[4]; // Each octet in one byte
+	};
+	// 
+	// Descr: Holds an IPv6 address.
+	// 
+	struct UriIp6 {
+		uchar data[16]; // Each quad in two bytes
+	};
+	struct HostData {
+		UriIp4 * ip4; // IPv4 address 
+		UriIp6 * ip6; // IPv6 address 
+		UriTextRange ipFuture; // IPvFuture address 
+	};
 	struct PathSegment {
 		PathSegment(const char * pFirst, const char * pAfterLast);
 		UriTextRange text;     // Path segment name 
@@ -113,7 +111,7 @@ struct UriUri {
 	UriTextRange Scheme;       // Scheme (e.g. "http") 
 	UriTextRange UserInfo;     // User info (e.g. "user:pass") 
 	UriTextRange HostText;     // Host text (set for all hosts, excluding square brackets) 
-	UriHostData  HostData;     // Structured host type specific data 
+	HostData   HostData;       // Structured host type specific data 
 	UriTextRange PortText;     // Port (e.g. "80") 
 	PathSegment * pathHead;    // Head of a linked list of path segments 
 	PathSegment * pathTail;    // Tail of the list behind pathHead 
@@ -185,12 +183,12 @@ struct UriQueryList {
 //int UriParseUriEx(UriParserState * state, const char * pFirst, const char * afterLast);
 int    UriParseUri(UriParserState * state, const char * text);
 //void UriFreeUriMembers(UriUri*uri);
-char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
-char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks);
-const  char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
-const  char * UriUnescapeInPlace(char * inout);
-int    UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);
-int    UriRemoveBaseUri(UriUri * dest, const UriUri * absoluteSource, const UriUri * absoluteBase, int domainRootMode);
+//char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
+//char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks);
+//const  char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
+//const  char * UriUnescapeInPlace(char * inout);
+//int    UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);
+//int    UriRemoveBaseUri(UriUri * dest, const UriUri * absoluteSource, const UriUri * absoluteBase, int domainRootMode);
 int    UriEqualsUri(const UriUri*a, const UriUri*b);
 int    FASTCALL UriToStringCharsRequired(const UriUri*uri, int * charsRequired);
 int    UriToString(char * dest, const UriUri * uri, int maxChars, int * charsWritten);

@@ -26,9 +26,6 @@ struct UriIp4Parser {
 	uchar stackTwo;
 	uchar stackThree;
 };
-
-void FASTCALL uriPushToStack(UriIp4Parser * parser, uchar digit);
-void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet);
 //
 //
 //
@@ -98,7 +95,7 @@ static int FASTCALL uriIsUnreserved(int code)
 	}
 }
 
-void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet)
+static void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet)
 {
 	switch(parser->stackCount) {
 	    case 1: *octet = parser->stackOne; break;
@@ -109,7 +106,7 @@ void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet)
 	parser->stackCount = 0;
 }
 
-void FASTCALL uriPushToStack(UriIp4Parser * parser, uchar digit)
+static void FASTCALL uriPushToStack(UriIp4Parser * parser, uchar digit)
 {
 	switch(parser->stackCount) {
 	    case 0:
@@ -176,7 +173,7 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 	return ok;
 }
 
-static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const UriUri * absBase)
+/*static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const UriUri * absBase)
 {
 	int    ok = 1;
 	THROW_S(absDest, SLERR_URI_NULL);
@@ -240,15 +237,15 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 	absDest->fragment = relSource->fragment; // [32/32] T.fragment = R.fragment; 
 	CATCHZOK
 	return ok;
-}
+}*/
 
-int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri * pAbsBase)
+/*static int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri * pAbsBase)
 {
 	int    ok = UriAddBaseUriImpl(absDest, relSource, pAbsBase);
 	if(!ok && absDest)
 		absDest->Destroy();
 	return ok;
-}
+}*/
 //
 //
 //
@@ -287,6 +284,7 @@ static int FASTCALL UriEqualsAuthority(const UriUri * pFirst, const UriUri * sec
 		return (second->HostText.P_First == NULL);
 }
 
+#if 0 // {
 int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
 {
 	if(dest == NULL) {
@@ -296,27 +294,25 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 	if((absSource == NULL) ||(absBase == NULL)) {
 		return SLERR_URI_NULL;
 	}
-	/* absBase absolute? */
-	if(absBase->Scheme.P_First == NULL) {
+	if(absBase->Scheme.P_First == NULL) { // absBase absolute?
 		return SLERR_URI_REMOVEBASE_REL_BASE;
 	}
-	/* absSource absolute? */
-	if(absSource->Scheme.P_First == NULL) {
+	if(absSource->Scheme.P_First == NULL) { // absSource absolute? 
 		return SLERR_URI_REMOVEBASE_REL_SOURCE;
 	}
-	/* [01/50]	if(A.scheme != Base.scheme) then */
+	// [01/50]	if(A.scheme != Base.scheme) then 
 	if(strncmp(absSource->Scheme.P_First, absBase->Scheme.P_First, absSource->Scheme.P_AfterLast-absSource->Scheme.P_First)) {
-		/* [02/50]	   T.scheme    = A.scheme; */
+		// [02/50]	   T.scheme    = A.scheme; 
 		dest->Scheme = absSource->Scheme;
-		/* [03/50]	   T.authority = A.authority; */
+		// [03/50]	   T.authority = A.authority; 
 		if(!UriCopyAuthority(dest, absSource)) {
 			return SLERR_NOMEM;
 		}
-		/* [04/50]	   T.path      = A.path; */
+		// [04/50]	   T.path      = A.path; 
 		if(!UriCopyPath(dest, absSource)) {
 			return SLERR_NOMEM;
 		}
-		/* [05/50]	else */
+		// [05/50]	else 
 	}
 	else {
 		/* [06/50]	   undef(T.scheme); */
@@ -451,9 +447,120 @@ int UriRemoveBaseUri(UriUri * dest, const UriUri * absSource, const UriUri * abs
 	}
 	return res;
 }
+#endif // } 0
 //
 //
 //
+static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks)
+{
+	const char * read = inFirst;
+	char * write = out;
+	int prevWasCr = FALSE;
+	if(!out || inFirst == out) {
+		return NULL;
+	}
+	else if(inFirst == NULL) {
+		ASSIGN_PTR(out, _UT('\0'));
+		return out;
+	}
+	else {
+		for(;; ) {
+			if(inAfterLast && read >= inAfterLast) {
+				write[0] = _UT('\0');
+				return write;
+			}
+			else {
+				switch(read[0]) {
+					case _UT('\0'):
+						write[0] = _UT('\0');
+						return write;
+					case _UT(' '):
+						if(spaceToPlus) {
+							write[0] = _UT('+');
+							write++;
+						}
+						else {
+							write[0] = _UT('%');
+							write[1] = _UT('2');
+							write[2] = _UT('0');
+							write += 3;
+						}
+						prevWasCr = FALSE;
+						break;
+					// ALPHA 
+					case _UT('a'): case _UT('A'): case _UT('b'): case _UT('B'): case _UT('c'): case _UT('C'): case _UT('d'): case _UT('D'):
+					case _UT('e'): case _UT('E'): case _UT('f'): case _UT('F'): case _UT('g'): case _UT('G'): case _UT('h'): case _UT('H'):
+					case _UT('i'): case _UT('I'): case _UT('j'): case _UT('J'): case _UT('k'): case _UT('K'): case _UT('l'): case _UT('L'):
+					case _UT('m'): case _UT('M'): case _UT('n'): case _UT('N'): case _UT('o'): case _UT('O'): case _UT('p'): case _UT('P'):
+					case _UT('q'): case _UT('Q'): case _UT('r'): case _UT('R'): case _UT('s'): case _UT('S'): case _UT('t'): case _UT('T'):
+					case _UT('u'): case _UT('U'): case _UT('v'): case _UT('V'): case _UT('w'): case _UT('W'): case _UT('x'): case _UT('X'):
+					case _UT('y'): case _UT('Y'): case _UT('z'): case _UT('Z'):
+					// DIGIT 
+					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+					// "-" / "." / "_" / "~" 
+					case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
+						// Copy unmodified 
+						write[0] = read[0];
+						write++;
+						prevWasCr = FALSE;
+						break;
+					case _UT('\x0a'):
+						if(normalizeBreaks) {
+							if(!prevWasCr) {
+								write[0] = _UT('%');
+								write[1] = _UT('0');
+								write[2] = _UT('D');
+								write[3] = _UT('%');
+								write[4] = _UT('0');
+								write[5] = _UT('A');
+								write += 6;
+							}
+						}
+						else {
+							write[0] = _UT('%');
+							write[1] = _UT('0');
+							write[2] = _UT('A');
+							write += 3;
+						}
+						prevWasCr = FALSE;
+						break;
+					case _UT('\x0d'):
+						if(normalizeBreaks) {
+							write[0] = _UT('%');
+							write[1] = _UT('0');
+							write[2] = _UT('D');
+							write[3] = _UT('%');
+							write[4] = _UT('0');
+							write[5] = _UT('A');
+							write += 6;
+						}
+						else {
+							write[0] = _UT('%');
+							write[1] = _UT('0');
+							write[2] = _UT('D');
+							write += 3;
+						}
+						prevWasCr = TRUE;
+						break;
+					default:
+						{ // Percent encode 
+							const uchar code =(uchar)read[0];
+							write[0] = _UT('%');
+							write[1] = UriHexToLetter(code>>4);
+							write[2] = UriHexToLetter(code&0x0f);
+							write += 3;
+						}
+						prevWasCr = FALSE;
+						break;
+				}
+				read++;
+			}
+		}
+	}
+}
+
+//char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks) { return UriEscapeEx(in, NULL, out, spaceToPlus, normalizeBreaks); }
+
 static int UriComposeQueryEngine(char * dest, const UriQueryList*queryList, int maxChars,
 	int * charsWritten, int * charsRequired, int spaceToPlus, int normalizeBreaks);
 static int UriAppendQueryItem(UriQueryList**prevNext, int * itemCount, const char * keyFirst, const char * keyAfter,
@@ -588,6 +695,148 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 	}
 	return SLERR_SUCCESS;
 }
+
+static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion)
+{
+	char * p_write = inout;
+	char * p_read = inout;
+	int prevWasCr = FALSE;
+	THROW(inout);
+	while(p_read[0] != _UT('\0')) {
+		switch(p_read[0]) {
+		    /*case _UT('\0'):
+				if(read > p_write)
+					p_write[0] = _UT('\0');
+				return p_write;*/
+		    case _UT('%'):
+			switch(p_read[1]) {
+			    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
+			    case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+			    case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'):
+			    case _UT('f'): case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'):
+			    case _UT('E'): case _UT('F'):
+				switch(p_read[2]) {
+				    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): 
+					case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'): 
+					case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'):
+				    case _UT('f'): case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'):
+				    case _UT('E'): case _UT('F'):
+				    {
+					    // Percent group found 
+					    const uchar left = UriHexdigToInt(p_read[1]);
+					    const uchar right = UriHexdigToInt(p_read[2]);
+					    const int code = 16*left+right;
+					    switch(code) {
+							case 10:
+								switch(breakConversion) {
+									case URI_BR_TO_LF:
+										if(!prevWasCr) {
+											p_write[0] =(char)10;
+											p_write++;
+										}
+										break;
+									case URI_BR_TO_CRLF:
+										if(!prevWasCr) {
+											p_write[0] =(char)13;
+											p_write[1] =(char)10;
+											p_write += 2;
+										}
+										break;
+									case URI_BR_TO_CR:
+										if(!prevWasCr) {
+											p_write[0] =(char)13;
+											p_write++;
+										}
+										break;
+									case URI_BR_DONT_TOUCH:
+									default:
+										p_write[0] =(char)10;
+										p_write++;
+								}
+								prevWasCr = FALSE;
+								break;
+							case 13:
+								switch(breakConversion) {
+									case URI_BR_TO_LF:
+										p_write[0] =(char)10;
+										p_write++;
+										break;
+									case URI_BR_TO_CRLF:
+										p_write[0] =(char)13;
+										p_write[1] =(char)10;
+										p_write += 2;
+										break;
+									case URI_BR_TO_CR:
+										p_write[0] =(char)13;
+										p_write++;
+										break;
+									case URI_BR_DONT_TOUCH:
+									default:
+										p_write[0] =(char)13;
+										p_write++;
+								}
+								prevWasCr = TRUE;
+								break;
+							default:
+								p_write[0] =(char)(code);
+								p_write++;
+								prevWasCr = FALSE;
+							}
+							p_read += 3;
+						}
+						break;
+				    default:
+						// Copy two chars unmodified and 
+						// look at this char again 
+						if(p_read > p_write) {
+							p_write[0] = p_read[0];
+							p_write[1] = p_read[1];
+						}
+						p_read += 2;
+						p_write += 2;
+						prevWasCr = FALSE;
+				}
+				break;
+			    default:
+					// Copy one char unmodified and 
+					// look at this char again 
+					if(p_read > p_write)
+						p_write[0] = p_read[0];
+					p_read++;
+					p_write++;
+					prevWasCr = FALSE;
+			}
+			break;
+		    case _UT('+'):
+				if(plusToSpace) // Convert '+' to ' ' 
+					p_write[0] = _UT(' ');
+				else { // Copy one char unmodified 
+					if(p_read > p_write)
+						p_write[0] = p_read[0];
+				}
+				p_read++;
+				p_write++;
+				prevWasCr = FALSE;
+				break;
+		    default:
+				// Copy one char unmodified 
+				if(p_read > p_write) {
+					p_write[0] = p_read[0];
+				}
+				p_read++;
+				p_write++;
+				prevWasCr = FALSE;
+		}
+	}
+	if(p_read > p_write)
+		p_write[0] = _UT('\0');
+	CATCH
+		p_write = 0;
+	ENDCATCH
+	return p_write;
+}
+
+//const char * UriUnescapeInPlace(char * inout) { return UriUnescapeInPlaceEx(inout, FALSE, URI_BR_DONT_TOUCH); }
 
 int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char * pKeyFirst, const char * pKeyAfter,
 	const char * pValueFirst, const char * pValueAfter, int plusToSpace, UriBreakConversion breakConversion)
@@ -796,318 +1045,13 @@ static int UriUriStringToFilename(const char * uriString, char * filename, int t
 }
 
 int UriUnixFilenameToUriString(const char * filename, char * uriString)
-{
-	return UriFilenameToUriString(filename, uriString, TRUE);
-}
-
+	{ return UriFilenameToUriString(filename, uriString, TRUE); }
 int UriWindowsFilenameToUriString(const char * filename, char * uriString)
-{
-	return UriFilenameToUriString(filename, uriString, FALSE);
-}
-
+	{ return UriFilenameToUriString(filename, uriString, FALSE); }
 int UriUriStringToUnixFilename(const char * uriString, char * filename)
-{
-	return UriUriStringToFilename(uriString, filename, TRUE);
-}
-
+	{ return UriUriStringToFilename(uriString, filename, TRUE); }
 int UriUriStringToWindowsFilename(const char * uriString, char * filename)
-{
-	return UriUriStringToFilename(uriString, filename, FALSE);
-}
-//
-//
-//
-char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks)
-{
-	return UriEscapeEx(in, NULL, out, spaceToPlus, normalizeBreaks);
-}
-
-char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks)
-{
-	const char * read = inFirst;
-	char * write = out;
-	int prevWasCr = FALSE;
-	if(!out || inFirst == out) {
-		return NULL;
-	}
-	else if(inFirst == NULL) {
-		ASSIGN_PTR(out, _UT('\0'));
-		return out;
-	}
-	else {
-		for(;; ) {
-			if(inAfterLast && read >= inAfterLast) {
-				write[0] = _UT('\0');
-				return write;
-			}
-			else {
-				switch(read[0]) {
-					case _UT('\0'):
-						write[0] = _UT('\0');
-						return write;
-					case _UT(' '):
-						if(spaceToPlus) {
-							write[0] = _UT('+');
-							write++;
-						}
-						else {
-							write[0] = _UT('%');
-							write[1] = _UT('2');
-							write[2] = _UT('0');
-							write += 3;
-						}
-						prevWasCr = FALSE;
-						break;
-					// ALPHA 
-					case _UT('a'): case _UT('A'): case _UT('b'): case _UT('B'): case _UT('c'): case _UT('C'): case _UT('d'): case _UT('D'):
-					case _UT('e'): case _UT('E'): case _UT('f'): case _UT('F'): case _UT('g'): case _UT('G'): case _UT('h'): case _UT('H'):
-					case _UT('i'): case _UT('I'): case _UT('j'): case _UT('J'): case _UT('k'): case _UT('K'): case _UT('l'): case _UT('L'):
-					case _UT('m'): case _UT('M'): case _UT('n'): case _UT('N'): case _UT('o'): case _UT('O'): case _UT('p'): case _UT('P'):
-					case _UT('q'): case _UT('Q'): case _UT('r'): case _UT('R'): case _UT('s'): case _UT('S'): case _UT('t'): case _UT('T'):
-					case _UT('u'): case _UT('U'): case _UT('v'): case _UT('V'): case _UT('w'): case _UT('W'): case _UT('x'): case _UT('X'):
-					case _UT('y'): case _UT('Y'): case _UT('z'): case _UT('Z'):
-					// DIGIT 
-					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-					// "-" / "." / "_" / "~" 
-					case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
-						// Copy unmodified 
-						write[0] = read[0];
-						write++;
-						prevWasCr = FALSE;
-						break;
-					case _UT('\x0a'):
-						if(normalizeBreaks) {
-							if(!prevWasCr) {
-								write[0] = _UT('%');
-								write[1] = _UT('0');
-								write[2] = _UT('D');
-								write[3] = _UT('%');
-								write[4] = _UT('0');
-								write[5] = _UT('A');
-								write += 6;
-							}
-						}
-						else {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('A');
-							write += 3;
-						}
-						prevWasCr = FALSE;
-						break;
-					case _UT('\x0d'):
-						if(normalizeBreaks) {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('D');
-							write[3] = _UT('%');
-							write[4] = _UT('0');
-							write[5] = _UT('A');
-							write += 6;
-						}
-						else {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('D');
-							write += 3;
-						}
-						prevWasCr = TRUE;
-						break;
-					default:
-						{ // Percent encode 
-							const uchar code =(uchar)read[0];
-							write[0] = _UT('%');
-							write[1] = UriHexToLetter(code>>4);
-							write[2] = UriHexToLetter(code&0x0f);
-							write += 3;
-						}
-						prevWasCr = FALSE;
-						break;
-				}
-				read++;
-			}
-		}
-	}
-}
-
-const char * UriUnescapeInPlace(char * inout)
-{
-	return UriUnescapeInPlaceEx(inout, FALSE, URI_BR_DONT_TOUCH);
-}
-
-const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion)
-{
-	char * p_write = inout;
-	char * p_read = inout;
-	int prevWasCr = FALSE;
-	THROW(inout);
-	while(p_read[0] != _UT('\0')) {
-		switch(p_read[0]) {
-		    /*case _UT('\0'):
-				if(read > p_write)
-					p_write[0] = _UT('\0');
-				return p_write;*/
-		    case _UT('%'):
-			switch(p_read[1]) {
-			    case _UT('0'):
-			    case _UT('1'):
-			    case _UT('2'):
-			    case _UT('3'):
-			    case _UT('4'):
-			    case _UT('5'):
-			    case _UT('6'):
-			    case _UT('7'):
-			    case _UT('8'):
-			    case _UT('9'):
-			    case _UT('a'):
-			    case _UT('b'):
-			    case _UT('c'):
-			    case _UT('d'):
-			    case _UT('e'):
-			    case _UT('f'):
-			    case _UT('A'):
-			    case _UT('B'):
-			    case _UT('C'):
-			    case _UT('D'):
-			    case _UT('E'):
-			    case _UT('F'):
-				switch(p_read[2]) {
-				    case _UT('0'):
-				    case _UT('1'):
-				    case _UT('2'):
-				    case _UT('3'):
-				    case _UT('4'):
-				    case _UT('5'):
-				    case _UT('6'):
-				    case _UT('7'):
-				    case _UT('8'):
-				    case _UT('9'):
-				    case _UT('a'):
-				    case _UT('b'):
-				    case _UT('c'):
-				    case _UT('d'):
-				    case _UT('e'):
-				    case _UT('f'):
-				    case _UT('A'):
-				    case _UT('B'):
-				    case _UT('C'):
-				    case _UT('D'):
-				    case _UT('E'):
-				    case _UT('F'):
-				    {
-					    // Percent group found 
-					    const uchar left = UriHexdigToInt(p_read[1]);
-					    const uchar right = UriHexdigToInt(p_read[2]);
-					    const int code = 16*left+right;
-					    switch(code) {
-							case 10:
-								switch(breakConversion) {
-									case URI_BR_TO_LF:
-										if(!prevWasCr) {
-											p_write[0] =(char)10;
-											p_write++;
-										}
-										break;
-									case URI_BR_TO_CRLF:
-										if(!prevWasCr) {
-											p_write[0] =(char)13;
-											p_write[1] =(char)10;
-											p_write += 2;
-										}
-										break;
-									case URI_BR_TO_CR:
-										if(!prevWasCr) {
-											p_write[0] =(char)13;
-											p_write++;
-										}
-										break;
-									case URI_BR_DONT_TOUCH:
-									default:
-										p_write[0] =(char)10;
-										p_write++;
-								}
-								prevWasCr = FALSE;
-								break;
-							case 13:
-								switch(breakConversion) {
-									case URI_BR_TO_LF:
-										p_write[0] =(char)10;
-										p_write++;
-										break;
-									case URI_BR_TO_CRLF:
-										p_write[0] =(char)13;
-										p_write[1] =(char)10;
-										p_write += 2;
-										break;
-									case URI_BR_TO_CR:
-										p_write[0] =(char)13;
-										p_write++;
-										break;
-									case URI_BR_DONT_TOUCH:
-									default:
-										p_write[0] =(char)13;
-										p_write++;
-								}
-								prevWasCr = TRUE;
-								break;
-							default:
-								p_write[0] =(char)(code);
-								p_write++;
-								prevWasCr = FALSE;
-							}
-							p_read += 3;
-						}
-						break;
-				    default:
-						// Copy two chars unmodified and 
-						// look at this char again 
-						if(p_read > p_write) {
-							p_write[0] = p_read[0];
-							p_write[1] = p_read[1];
-						}
-						p_read += 2;
-						p_write += 2;
-						prevWasCr = FALSE;
-				}
-				break;
-			    default:
-					// Copy one char unmodified and 
-					// look at this char again 
-					if(p_read > p_write)
-						p_write[0] = p_read[0];
-					p_read++;
-					p_write++;
-					prevWasCr = FALSE;
-			}
-			break;
-		    case _UT('+'):
-				if(plusToSpace) // Convert '+' to ' ' 
-					p_write[0] = _UT(' ');
-				else { // Copy one char unmodified 
-					if(p_read > p_write)
-						p_write[0] = p_read[0];
-				}
-				p_read++;
-				p_write++;
-				prevWasCr = FALSE;
-				break;
-		    default:
-				// Copy one char unmodified 
-				if(p_read > p_write) {
-					p_write[0] = p_read[0];
-				}
-				p_read++;
-				p_write++;
-				prevWasCr = FALSE;
-		}
-	}
-	if(p_read > p_write)
-		p_write[0] = _UT('\0');
-	CATCH
-		p_write = 0;
-	ENDCATCH
-	return p_write;
-}
+	{ return UriUriStringToFilename(uriString, filename, FALSE); }
 //
 // Compares two text ranges for equal text content 
 //
@@ -1197,15 +1141,11 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 //
 //
 void UriResetUri(UriUri * pUri)
-{
-	memzero(pUri, sizeof(*pUri));
-}
+	{ memzero(pUri, sizeof(*pUri)); }
 
 // Properly removes "." and ".." path segments 
 int UriRemoveDotSegments(UriUri * uri, int relative)
-{
-	return uri ? UriRemoveDotSegmentsEx(uri, relative, uri->IsOwner) : TRUE;
-}
+	{ return uri ? UriRemoveDotSegmentsEx(uri, relative, uri->IsOwner) : TRUE; }
 
 int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 {
@@ -1428,9 +1368,7 @@ char FASTCALL UriHexToLetterEx(uint value, int uppercase)
 // Checks if a URI has the host component set
 //
 int UriIsHostSet(const UriUri * uri)
-{
-	return (uri && (uri->HostText.P_First || uri->HostData.ip4 || uri->HostData.ip6 || uri->HostData.ipFuture.P_First));
-}
+	{ return (uri && (uri->HostText.P_First || uri->HostData.ip4 || uri->HostData.ip6 || uri->HostData.ipFuture.P_First)); }
 //
 // Copies the path segment list from one URI to another.
 //
@@ -1472,7 +1410,7 @@ int UriCopyPath(UriUri * dest, const UriUri * source)
 //
 // Copies the authority part of an URI over to another. 
 //
-int UriCopyAuthority(UriUri*dest, const UriUri*source)
+int UriCopyAuthority(UriUri * dest, const UriUri * source)
 {
 	// From this functions usage we know that the dest URI cannot be uri->owner  
 	/* Copy userInfo */
@@ -1481,9 +1419,9 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	dest->HostText = source->HostText;
 	/* Copy hostData */
 	if(source->HostData.ip4) {
-		dest->HostData.ip4 =(UriIp4 *)SAlloc::M(sizeof(UriIp4));
+		dest->HostData.ip4 =(UriUri::UriIp4 *)SAlloc::M(sizeof(UriUri::UriIp4));
 		if(dest->HostData.ip4 == NULL) {
-			return FALSE; /* Raises SAlloc::M error */
+			return FALSE; // Raises SAlloc::M error 
 		}
 		*(dest->HostData.ip4) = *(source->HostData.ip4);
 		dest->HostData.ip6 = NULL;
@@ -1491,7 +1429,7 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	}
 	else if(source->HostData.ip6) {
 		dest->HostData.ip4 = NULL;
-		dest->HostData.ip6 = (UriIp6 *)SAlloc::M(sizeof(UriIp6));
+		dest->HostData.ip6 = (UriUri::UriIp6 *)SAlloc::M(sizeof(UriUri::UriIp6));
 		if(dest->HostData.ip6 == NULL) {
 			return FALSE; // Raises SAlloc::M error 
 		}
@@ -1747,7 +1685,7 @@ void UriTextRange::Clear()
 	P_AfterLast = 0;
 }
 
-UriTextRange & UriTextRange::operator = (const UriTextRange & rS)
+UriTextRange & FASTCALL UriTextRange::operator = (const UriTextRange & rS)
 {
 	P_First = rS.P_First;
 	P_AfterLast = rS.P_AfterLast;
@@ -3045,7 +2983,7 @@ const char * FASTCALL UriParserState::ParseIpLit2(const char * first, const char
 			case _UT(':'):
 			case _UT(']'):
 			case URI_SET_HEXDIG:
-				P_Uri->HostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));   /* Freed when stopping on parse error */
+				P_Uri->HostData.ip6 =(UriUri::UriIp6 *)SAlloc::M(1*sizeof(UriUri::UriIp6)); // Freed when stopping on parse error 
 				if(!P_Uri->HostData.ip6)
 					StopMalloc();
 				else
@@ -3405,7 +3343,7 @@ int FASTCALL UriParserState::OnExitOwnHost2(const char * first)
 {
 	P_Uri->HostText.P_AfterLast = first; // HOST END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 = (UriIp4 *)SAlloc::M(1*sizeof(UriIp4)); // Freed when stopping on parse error 
+	P_Uri->HostData.ip4 = (UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL)
 		return FALSE; // Raises SAlloc::M error 
 	else {
@@ -3456,11 +3394,11 @@ const char * FASTCALL UriParserState::ParseOwnHost2(const char * pFirst, const c
 int FASTCALL UriParserState::OnExitOwnHostUserInfo(const char * first)
 {
 	int    ok = 1;
-	P_Uri->HostText.P_First = P_Uri->UserInfo.P_First; /* Host instead of userInfo, update */
+	P_Uri->HostText.P_First = P_Uri->UserInfo.P_First; // Host instead of userInfo, update
 	P_Uri->UserInfo.P_First = NULL; // Not a userInfo, reset 
 	P_Uri->HostText.P_AfterLast = first; // HOST END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 =(UriIp4 *)SAlloc::M(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
+	P_Uri->HostData.ip4 =(UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL) {
 		ok = 0; /* Raises SAlloc::M error */
 	}
@@ -3551,7 +3489,7 @@ int FASTCALL UriParserState::OnExitOwnPortUserInfo(const char * pFirst)
 	P_Uri->UserInfo.P_First = NULL; // Not a userInfo, reset 
 	P_Uri->PortText.P_AfterLast = pFirst; // PORT END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 = (UriIp4 *)SAlloc::M(1*sizeof(UriIp4)); // Freed when stopping on parse error 
+	P_Uri->HostData.ip4 = (UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL) {
 		ok = 0; // Raises SAlloc::M error 
 	}
@@ -4268,7 +4206,7 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 	parser.Reset();
 	UriResetUri(&uri);
 	parser.P_Uri = &uri;
-	parser.P_Uri->HostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));
+	parser.P_Uri->HostData.ip6 =(UriUri::UriIp6 *)SAlloc::M(1*sizeof(UriUri::UriIp6));
 	res = parser.ParseIPv6address2(pText, p_after_ip_six);
 	uri.Destroy();
 	return (res == p_after_ip_six) ? TRUE : FALSE;

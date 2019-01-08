@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -731,6 +731,12 @@ int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 		}
 	}
 	return ok;
+}
+
+void FASTCALL DBTable::destroyLobData(DBField fld)
+{
+	SLob * p_fld_data = (SLob *)fld.getValuePtr();
+	p_fld_data->DestroyPtr();
 }
 
 int DBTable::readLobData(DBField fld, SBuffer & rBuf) const

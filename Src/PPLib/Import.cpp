@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 // Функции импорта справочников
@@ -961,7 +961,6 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	ImportGoodsParam igp;
 	PPObjGoodsGroup gg_obj;
 	PPObjBrand      brand_obj;
-	PPObjGoodsTax   gt_obj;
 	PPObjQCert      qc_obj;
 	PPObjPerson     psn_obj;
 	PPObjWorld      w_obj;
@@ -1004,7 +1003,6 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	int    fldn_clb = 0;
 	int    fldn_serial = 0;
 	int    fldn_expiry = 0;
-
 	int    fldn_manufname = 0;
 	int    fldn_brand = 0;
 	int    fldn_ext_a = 0;
@@ -1012,9 +1010,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	int    fldn_ext_c = 0;
 	int    fldn_ext_d = 0;
 	int    fldn_ext_e = 0;
-
 	int    fldn_article = 0;
-
 	int    fldn_hier_objcode = 0;
 	int    fldn_hier_parentcode = 0;
 	int    is_hier = 0;
@@ -1302,7 +1298,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 								double vat_rate = 0.0, stax_rate = 0.0;
 								rec.get(fldn_salestax, stax_rate);
 								rec.get(fldn_vat, vat_rate);
-								gt_obj.GetByScheme(&tax_grp_id, vat_rate, 0, stax_rate, 0, 0/*use_ta*/);
+								/*gt_obj*/GTxObj.GetByScheme(&tax_grp_id, vat_rate, 0, stax_rate, 0, 0/*use_ta*/);
 								pack.Rec.TaxGrpID = tax_grp_id;
 							}
 							if(PutPacket(&goods_id, &pack, 0)) {

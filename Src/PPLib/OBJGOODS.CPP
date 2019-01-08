@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -10,8 +10,18 @@
 TLP_IMPL(PPObjGoods, GoodsCore, P_Tbl);
 // @v9.8.11 TLP_IMPL(PPObjGoods, HistGoodsCore, HistGoods);
 //
+#if 0 // @v10.2.11 HistGoodsCore - устаревшая технология - убираем {
+//
 // HistGoodsCore
 //
+class HistGoodsCore : public HistGoodsTbl {
+public:
+	int    SLAPI Insert(PPID * pHistID, SBuffer * pBuf, int use_ta);
+	int    SLAPI Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
+	int    SLAPI Search(PPID histID, SBuffer * pBuf);
+	long   SLAPI GetNextVer(PPID goodsID);
+};
+
 int SLAPI HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
 {
 	int    ok = -1;
@@ -26,6 +36,7 @@ int SLAPI HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
 			copyBufFrom(p_data_buf, fix_rec_size);
 			THROW(writeLobData(this->Data, PTR8(p_data_buf)+fix_rec_size, (data_len > fix_rec_size) ? (data_len-fix_rec_size) : 0));
 			THROW_DB(insertRec(0, pHistID));
+			destroyLobData(this->Data); // @v10.2.11 @fix
 			THROW(tra.Commit());
 		}
 		ok = 1;
@@ -66,6 +77,7 @@ int SLAPI HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
 			pBuf->Write(&data, fix_rec_size);
 			readLobData(this->Data, *pBuf);
 		}
+		destroyLobData(this->Data); // @v10.2.11 @fix
 		ok = 1;
 	}
 	return ok;
@@ -76,7 +88,7 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 	HistGoodsTbl::Rec rec;
 	return (Search(goodsID, 0, &rec) > 0) ? (rec.Ver + 1) : 1;
 }
-//
+#endif // } 0 
 //
 //static
 int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)

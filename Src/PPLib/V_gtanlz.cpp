@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 //
 // Налоговый анализ товарооборота
@@ -22,12 +22,8 @@ int SLAPI GoodsTaxAnalyzeFilt::HasCycleFlags() const
 	return BIN(Flags & (fDayly|fMonthly));
 }
 
-SLAPI PPViewGoodsTaxAnalyze::PPViewGoodsTaxAnalyze() : PPView(0, &Filt, PPVIEW_GOODSTAXANALYZE)
+SLAPI PPViewGoodsTaxAnalyze::PPViewGoodsTaxAnalyze() : PPView(0, &Filt, PPVIEW_GOODSTAXANALYZE), P_TempTbl(0), IterIdx(0), P_GGIter(0), P_InOutVATList(0)
 {
-	P_TempTbl = 0;
-	IterIdx = 0;
-	P_GGIter = 0;
-	P_InOutVATList = 0;
 }
 
 SLAPI PPViewGoodsTaxAnalyze::~PPViewGoodsTaxAnalyze()
@@ -200,16 +196,15 @@ int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf,
 {
 	PPGoodsTax gtx;
 	PPGoodsTaxEntry gtx_entry;
-	PPObjGoodsTax gtx_obj;
 	SString temp_buf;
 	if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffByInVAT | GoodsTaxAnalyzeFilt::fDiffByOutVAT | GoodsTaxAnalyzeFilt::fDiffAll)) {
 		temp_buf.CatChar((pGGE->Flags & GGEF_TOGGLESTAX) ? 'A' : '.');
 		temp_buf.CatChar((pGGE->Flags & GGEF_VATFREE)    ? '*' : '.');
 		if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffAll | GoodsTaxAnalyzeFilt::fDiffByOutVAT))
 			if(pGGE->GoodsTaxGrpID) {
-				if(gtx_obj.FetchByID(pGGE->GoodsTaxGrpID, &gtx_entry) > 0)
+				if(GObj.GTxObj.FetchByID(pGGE->GoodsTaxGrpID, &gtx_entry) > 0)
 					if(Filt.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
-						if(gtx_obj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
+						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
 							temp_buf.Cat(strip(gtx.Name));
 						else
 							temp_buf.CatChar('#').Cat(gtx_entry.TaxGrpID & 0x00ffffffL);
@@ -219,11 +214,11 @@ int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf,
 					temp_buf.CatChar('#').Cat(pGGE->GoodsTaxGrpID);
 			}
 		if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffAll | GoodsTaxAnalyzeFilt::fDiffByInVAT))
-			if(pGGE->LotTaxGrpID && gtx_obj.Search((pGGE->LotTaxGrpID & 0x00ffffffL), &gtx) > 0) {
+			if(pGGE->LotTaxGrpID && GObj.GTxObj.Search((pGGE->LotTaxGrpID & 0x00ffffffL), &gtx) > 0) {
 				temp_buf.Space().CatChar('(');
-				if(gtx_obj.FetchByID(pGGE->LotTaxGrpID, &gtx_entry) > 0)
+				if(GObj.GTxObj.FetchByID(pGGE->LotTaxGrpID, &gtx_entry) > 0)
 					if(Filt.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
-						if(gtx_obj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
+						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
 							temp_buf.Cat(strip(gtx.Name));
 						else
 							temp_buf.CatChar('#').Cat(gtx_entry.TaxGrpID & 0x00ffffffL);
@@ -252,7 +247,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	int    by_comlex_paym = 0;
 	SString temp_buf;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE); // @v8.7.7
+	Filt.Period.Actualize(ZERODATE);
 	OpList.freeAll();
 	if(Filt.OpID)
 		if(IsGenericOp(Filt.OpID) > 0)
@@ -282,7 +277,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 		uint   i;
 		int    monthly = 0; // Признак того, что отчет рассчитывается по месяцам (фактически
 			// расчет осуществляется по дням, но группируется в месяцы).
-		PPObjGoodsTax gtx_obj;
+		//PPObjGoodsTax gtx_obj;
 		PPGoodsTaxEntry gtx;
 		GoodsGrpngArray gga;
 		PPIDArray goods_list, local_goods_list;
@@ -551,10 +546,10 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								}
 								else {
 									if((Filt.Flags & GoodsTaxAnalyzeFilt::fDiffByOutVAT) &&
-										p_gge->GoodsTaxGrpID && gtx_obj.Search((p_gge->GoodsTaxGrpID & 0x00ffffffL), &gtx) > 0)
+										p_gge->GoodsTaxGrpID && GObj.GTxObj.Search((p_gge->GoodsTaxGrpID & 0x00ffffffL), &gtx) > 0)
 										_goods_tax_grp_id = (long)(gtx.VAT * 100);
 									if(Filt.Flags & GoodsTaxAnalyzeFilt::fDiffByInVAT) {
-										if(p_gge->LotTaxGrpID && gtx_obj.Search(p_gge->LotTaxGrpID, &gtx) > 0)
+										if(p_gge->LotTaxGrpID && GObj.GTxObj.Search(p_gge->LotTaxGrpID, &gtx) > 0)
 											_lot_tax_grp_id = (long)(gtx.VAT * 100);
 										_tax_flags = (p_gge->Flags & GGEF_VATFREE);
 									}

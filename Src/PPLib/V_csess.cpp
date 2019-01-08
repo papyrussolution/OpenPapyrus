@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1262,11 +1262,12 @@ int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
 int SLAPI PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPDfCreateRulePacket rule;
-	THROW((ok = PPRef->GetItem(PPOBJ_DFCREATERULE, id, &rule.Rec)));
+	THROW((ok = p_ref->GetItem(PPOBJ_DFCREATERULE, id, &rule.Rec)));
 	if(ok > 0) {
 		SString cash_nn;
-		THROW(PPRef->GetPropVlrString(PPOBJ_DFCREATERULE, id, DFCRRULPRP_CASHNN, cash_nn)); // AHTOXA
+		THROW(p_ref->GetPropVlrString(PPOBJ_DFCREATERULE, id, DFCRRULPRP_CASHNN, cash_nn)); // AHTOXA
 		THROW(rule.SetCashNN((const char*)cash_nn));
 	}
 	ASSIGN_PTR(pPack, rule);
@@ -1379,6 +1380,7 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, const SString & rMsg2, int use_ta)
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	PPCashNode cn_rec;
 	PPObjCashNode cn_obj;
 	PPObjGoods g_obj;
@@ -1389,7 +1391,6 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 		PPIDArray sess_list;
 		PPDfCreateRulePacket rule;
 		PPObjDraftCreateRule obj_rule;
-
 		THROW(obj_rule.GetPacket(ruleID, &rule));
 		THROW(CsObj.P_Tbl->GetSubSessList(sessID, &sess_list));
 		if(rule.Rec.Flags & PPDraftCreateRule::fUseGoodsLocAssoc) {
@@ -1409,7 +1410,6 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			CCheckLineTbl::Rec * p_crec = 0;
 			PPBillPacket b_pack;
 			SString memo_buf, csess_buf;
-
 			THROW(CsObj.Search(sessID, &csess_rec) > 0);
 			bill_dt = csess_rec.Dt;
 			rule.GetCashNN(&cash_list);
@@ -1507,12 +1507,11 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			}
 			goods.sort(PTR_CMPFUNC(EGOODSLOC));
 
-			int    cost_nominal = BIN(IsSellingOp(rule.Rec.OpID) <= 0);
-			long   pos  = 0, prev_loc_id = (goods.getCount()) ? ((_E *)goods.at(0))->LocID : def_loc_id;
-			double sum = 0.0, add_sum = 0.0;
-			//
-			//
-			//
+			const  int cost_nominal = BIN(IsSellingOp(rule.Rec.OpID) <= 0);
+			long   pos  = 0;
+			long   prev_loc_id = (goods.getCount()) ? ((_E *)goods.at(0))->LocID : def_loc_id;
+			double sum = 0.0;
+			double add_sum = 0.0;
 			{
 				PPTransaction tra(use_ta);
 				THROW(tra);
@@ -1541,11 +1540,11 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					//
 					// берем цены поступления и реализации из последнего лота
 					//
-					if(oneof2(price_alg, PPDraftCreateRule::pByLastLot, PPDraftCreateRule::pByQuot) ||
-						oneof2(cost_alg, PPDraftCreateRule::cByLastLot, PPDraftCreateRule::cByQuot)) {
+					if(oneof2(price_alg, PPDraftCreateRule::pByLastLot, PPDraftCreateRule::pByQuot) || oneof2(cost_alg, PPDraftCreateRule::cByLastLot, PPDraftCreateRule::cByQuot)) {
 						int    r = 0;
-						double price = 0.0, add_summ = 0.0;
-						LDATE  oper_dt = LConfig.OperDate;
+						double price = 0.0;
+						double add_summ = 0.0;
+						const LDATE preserve_oper_dt = LConfig.OperDate;
 						//
 						// LConfig.OperDate = last_check_dt нужно для того, чтобы достать последний лот до заданной даты
 						//
@@ -1555,7 +1554,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						//
 						// LConfig.OperDate = oper_dt возвращаем LConfig.OperDate в исходное состояние
 						//
-						DS.SetOperDate(oper_dt);
+						DS.SetOperDate(preserve_oper_dt);
 						THROW(r != GPRET_ERROR);
 						//
 						// если цена реализации 0, то то будем брать в качестве цены среднее арифметическое по чекам
@@ -1572,7 +1571,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					// Рассчитываем цену поступления по котировке
 					//
 					if(cost_alg == PPDraftCreateRule::cByQuot) {
-						QuotIdent qi(loc_id, rule.Rec.CQuot, 0, 0);
+						const QuotIdent qi(loc_id, rule.Rec.CQuot, 0, 0);
 						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Cost, 1));
 						// если цена по котировке 0, то будем брать из последнего лота
 						if(ti.Cost == 0.0)
@@ -1582,7 +1581,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					// Рассчитываем цену реализации по котировке
 					//
 					if(price_alg == PPDraftCreateRule::pByQuot) {
-						QuotIdent qi(loc_id, rule.Rec.PQuot, 0, 0);
+						const QuotIdent qi(loc_id, rule.Rec.PQuot, 0, 0);
 						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Price, 1));
 						//
 						// если цена по котировке 0, то будем брать в качестве цены среднее арифметическое по чека
@@ -1608,7 +1607,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					add_sum = ti.Quantity_ * (cost_nominal ? ti.Cost : ti.Price);
 					if((rule.Rec.MaxPos && pos + 1 > rule.Rec.MaxPos) || (rule.Rec.MaxSum && sum + add_sum > rule.Rec.MaxSum) || new_doc_by_loc) {
 						if((!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum) && (!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) || new_doc_by_loc) {
-							THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
+							THROW(p_bobj->__TurnPacket(&b_pack, 0, 1, 0));
 							new_doc_by_loc = 0;
 							ok = 1;
 						}
@@ -1636,7 +1635,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					PPWaitPercent(p, goods.getCount(), rMsg2);
 				}
 				if((!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) && (!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum)) {
-					THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
+					THROW(p_bobj->__TurnPacket(&b_pack, 0, 1, 0));
 					ok = 1;
 				}
 				THROW(tra.Commit());

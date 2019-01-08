@@ -367,6 +367,12 @@ int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 				//p_obj->Test();
 				//p_obj->AnalyzeTsAftershocks();
 				//p_obj->AnalyzeStrategies();
+				StrategyContainer scontainer;
+				if(p_obj->GetStrategies(id, scontainer) > 0) {
+					for(uint i = 0; i < scontainer.getCount(); i++) {
+						const Strategy & r_s = scontainer.at(i);
+					}
+				}
 			}
 		}
 	};
@@ -2188,6 +2194,7 @@ int SLAPI PrcssrTsStrategyAnalyze::EditParam(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_TSSA_FLAGS, 2, Data.fForce);
 			AddClusterAssoc(CTL_TSSA_FLAGS, 3, Data.fProcessLong);
 			AddClusterAssoc(CTL_TSSA_FLAGS, 4, Data.fProcessShort);
+			AddClusterAssoc(CTL_TSSA_FLAGS, 5, Data.fAutodetectTargets);
 			SetClusterData(CTL_TSSA_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_TSSA_CLOSEMODE, 0, PPObjTimeSeries::Strategy::clsmodFullMaxDuck);
 			AddClusterAssoc(CTL_TSSA_CLOSEMODE, 1, PPObjTimeSeries::Strategy::clsmodAdjustLoss);
@@ -2260,20 +2267,52 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 	SString symb_buf;
 	SString save_file_name;
 	SString msg_buf;
-	PPIDArray id_list;
+	PPIDArray id_pre_list;
 	PPTimeSeries ts_rec;
 	TSVector <PPObjTimeSeries::QuoteReqEntry> quote_req_list;
 	ts_obj.LoadQuoteReqList(quote_req_list);
 	if(P.TsList.GetCount()) {
-		P.TsList.Get(id_list);
+		P.TsList.Get(id_pre_list);
 	}
 	else {
 		for(SEnum en = ts_obj.Enum(0); en.Next(&ts_rec) > 0;) {
-			id_list.add(ts_rec.ID);
+			id_pre_list.add(ts_rec.ID);
 		}
 	}
-	if(id_list.getCount()) {
-		id_list.sortAndUndup();
+	if(id_pre_list.getCount()) {
+		id_pre_list.sortAndUndup();
+		PPIDArray id_list;
+		if(P.Flags & P.fAutodetectTargets) {
+			//
+			// При автодетекте серий, требующих пересчета формируем список в порядке убывания времени 
+			// последнего изменения модели. Те серии, у которых нет модели вообще окажутся в начале списка 
+			// (будут пересчитаны в первую очередь)
+			//
+			struct TempEntry {
+				LDATETIME StorageDtm;
+				PPID   ID;
+			};
+			SVector temp_list(sizeof(TempEntry));
+			for(uint i1 = 0; i1 < id_pre_list.getCount(); i1++) {
+				const PPID id = id_pre_list.get(i1);
+				if(ts_obj.Search(id, &ts_rec) > 0) {
+					PPObjTimeSeries::StrategyContainer sc;
+					TempEntry new_entry;
+					new_entry.ID = id;
+					if(ts_obj.GetStrategies(id, sc) > 0)
+						new_entry.StorageDtm = sc.GetStorageTm();
+					else
+						new_entry.StorageDtm = ZERODATETIME;
+					THROW_SL(temp_list.insert(&new_entry));
+				}
+			}
+			temp_list.sort(PTR_CMPFUNC(LDATETIME));
+			for(uint i2 = 0; i2 < temp_list.getCount(); i2++) {
+				THROW_SL(id_list.add(((TempEntry *)temp_list.at(i2))->ID));
+			}
+		}
+		else
+			id_list = id_pre_list;
 		RealArray trend_list;
 		RealArray temp_trendinc_list;
 		RealArray temp_result_list;

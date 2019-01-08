@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -5003,14 +5003,12 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			(temp_buf = H.Name).Strip().RevertSpecSymb(SFileFormat::Html);
 			STRNSCPY(r_blk.Pack.Rec.Name, temp_buf);
 			STRNSCPY(r_blk.Pack.Rec.Abbr, temp_buf);
-			// @v8.0.7 {
 			r_blk.Pack.PutExtStrData(GDSEXSTR_STORAGE,  (temp_buf = H.Storage).Strip().RevertSpecSymb(SFileFormat::Html));
 			r_blk.Pack.PutExtStrData(GDSEXSTR_STANDARD, (temp_buf = H.Standard).Strip().RevertSpecSymb(SFileFormat::Html));
 			r_blk.Pack.PutExtStrData(GDSEXSTR_INGRED,   (temp_buf = H.Ingred).Strip().RevertSpecSymb(SFileFormat::Html));
 			r_blk.Pack.PutExtStrData(GDSEXSTR_ENERGY,   (temp_buf = H.Energy).Strip().RevertSpecSymb(SFileFormat::Html));
 			r_blk.Pack.PutExtStrData(GDSEXSTR_USAGE,    (temp_buf = H.Usage).Strip().RevertSpecSymb(SFileFormat::Html));
 			r_blk.Pack.PutExtStrData(GDSEXSTR_OKOF,     (temp_buf = H.OKOF).Strip().RevertSpecSymb(SFileFormat::Html));
-			// } @v8.0.7
 			{
 				PPObjUnit u_obj;
 				PPUnit u_rec;
@@ -5027,12 +5025,10 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 						r_blk.Pack.Rec.PhUPerU = H.PhPerUnit;
 					}
 				}
-				// @v8.2.10 {
 				if(!r_blk.Pack.Rec.UnitID && r_blk.DefUnitID) {
 					if(u_obj.Fetch(r_blk.DefUnitID, &u_rec) > 0 && u_rec.Flags & u_rec.Trade)
 						r_blk.Pack.Rec.UnitID = r_blk.DefUnitID;
 				}
-				// } @v8.2.10
 			}
 			if(H.ManufID) {
 				PPObjPerson psn_obj;

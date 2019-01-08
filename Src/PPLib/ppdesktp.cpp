@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -135,20 +135,10 @@ void PPDesktopAssocCmdPool::Init(PPID desktopId)
 	P.add("$"); // zero index - is empty string
 }
 
-void PPDesktopAssocCmdPool::SetDesktopID(PPID id)
-{
-	DesktopID = id;
-}
-
-PPID PPDesktopAssocCmdPool::GetDesktopID() const
-{
-	return DesktopID;
-}
-
-uint PPDesktopAssocCmdPool::GetCount() const
-{
-	return L.getCount();
-}
+void PPDesktopAssocCmdPool::SetDesktopID(PPID id) { DesktopID = id; }
+PPID PPDesktopAssocCmdPool::GetDesktopID() const { return DesktopID; }
+uint PPDesktopAssocCmdPool::GetCount() const { return L.getCount(); }
+int  PPDesktopAssocCmdPool::AddItem(const PPDesktopAssocCmd * pCmd) { return SetItem(L.getCount(), pCmd); }
 
 int PPDesktopAssocCmdPool::Pack()
 {
@@ -198,11 +188,6 @@ int PPDesktopAssocCmdPool::MakeItem(const PPDesktopAssocCmd & rOuter, Item & rIn
 	if(temp_buf.NotEmptyS())
 		P.add(temp_buf, (uint *)&rInner.CmdParamP);
 	return ok;
-}
-
-int PPDesktopAssocCmdPool::AddItem(const PPDesktopAssocCmd * pCmd)
-{
-	return SetItem(L.getCount(), pCmd);
 }
 
 int PPDesktopAssocCmdPool::SetItem(uint pos, const PPDesktopAssocCmd * pCmd)
@@ -583,19 +568,9 @@ BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPA
 // PPDesktop
 //
 
-PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1)
+PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1), IconSize(32), IconGap(8), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
+	P_ScObj(0), P_GObj(0), P_PsnObj(0)
 {
-	IconSize = 32; // default=32
-	IconGap  = 8;  // default=8
-	HwndTT = 0;
-	HW = 0;
-	P_ActiveDesktop = 0;
-	State = 0;
-	//IsChanged = 0;
-	HBizScoreWnd = 0;
-	P_ScObj = 0;
-	P_GObj = 0;
-	P_PsnObj = 0;
 }
 
 PPDesktop::~PPDesktop()

@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -732,11 +732,11 @@ int SLAPI StdTreeListBoxDef::GoByID(long id)
 	return 1;
 }
 
-int FASTCALL StdTreeListBoxDef::HasChild(long id)
+int FASTCALL StdTreeListBoxDef::HasChild(long id) const
 	{ return P_SaList ? P_SaList->HasChild(id) : 0; }
 int SLAPI StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
 	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
-int SLAPI StdTreeListBoxDef::GetParent(long child, long * pParent)
+int SLAPI StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
 // StringListBoxDef

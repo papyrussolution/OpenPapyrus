@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -4023,11 +4023,10 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				}
 			}
 			if(tax_rate_list.getCount()) {
-				PPObjGoodsTax gt_obj;
 				for(uint j = 0; j < tax_rate_list.getCount(); j++) {
 					SurrTaxRateEntry * p_entry = (SurrTaxRateEntry *)tax_rate_list.at(j);
 					PPID   gt_id = 0;
-					if(gt_obj.GetByScheme(&gt_id, inttodbl2(p_entry->VatRate), 0.0, inttodbl2(p_entry->SalesTaxRate), 0/*flags*/, 1/*use_ta*/)) {
+					if(GObj.GTxObj.GetByScheme(&gt_id, inttodbl2(p_entry->VatRate), 0.0, inttodbl2(p_entry->SalesTaxRate), 0/*flags*/, 1/*use_ta*/)) {
 						p_entry->NativeID = gt_id;
 					}
 				}

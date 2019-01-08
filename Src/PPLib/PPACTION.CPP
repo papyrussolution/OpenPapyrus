@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -814,6 +814,7 @@ int SLAPI ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int us
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW_DB(insertRec(0, pID));
+		destroyLobData(this->Data); // @v10.2.11 @fix
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -832,6 +833,7 @@ int SLAPI ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffe
 			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);
 		}
+		destroyLobData(this->Data); // @v10.2.11 @fix
 		ok = 1;
 	}
 	return ok;
@@ -858,6 +860,7 @@ int SLAPI ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * p
 			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);
 		}
+		destroyLobData(this->Data); // @v10.2.11 @fix
 		ok = 1;
 	}
 	return ok;

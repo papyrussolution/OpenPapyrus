@@ -929,8 +929,8 @@ int BrowserWindow::CopyToClipboard()
 			if(cn >= 0 && cn < (long)P_Def->getCount())
 				col_types.add((long)GETSTYPE(P_Def->at(cn).T));
 		}
-		OpenClipboard(APPL->H_MainWnd);
-		EmptyClipboard();
+		::OpenClipboard(APPL->H_MainWnd);
+		::EmptyClipboard();
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);
 		sw.PutRec('F', "G");

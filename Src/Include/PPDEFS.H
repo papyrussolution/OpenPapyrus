@@ -1270,7 +1270,8 @@
 // @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
 // @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
 #define PPTAG_GOODS_TRANSPVANTYPE   82L // @v10.2.11 Тип транспортного фургона для отправки данных в Меркурий
-#define PPTAG_BILL_EDIORDERSENT     83L // @v10.2.13 Информация об отправленном ORDER
+#define PPTAG_BILL_EDIORDERSENT     83L // @v10.2.11 Информация об отправленном ORDER
+#define PPTAG_BILL_EDIORDRSPRCV     84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -10427,6 +10428,8 @@
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334
+	#define cmCopyToClipboard         101
+	#define cmCopyToClipboardAll      102
 	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
 #define DLG_GSFILT                1335
