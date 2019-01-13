@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -171,12 +171,12 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 	Reference * p_ref = PPRef;
 	PPIDArray grp_list, goods_list;
 	if(pGrpList) {
-		THROW(grp_list.add(pGrpList)); // @v8.1.0 addUnique-->add
+		THROW(grp_list.add(pGrpList));
 	}
 	if(grpID) {
 		THROW(grp_list.add(grpID));
 	}
-	grp_list.sortAndUndup(); // @v8.1.0
+	grp_list.sortAndUndup();
 	uint   i = grp_list.getCount();
 	if(i) {
 		PPIDArray id_list;

@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -739,10 +739,9 @@ int SLAPI ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)
 	k.QCertID = qcertID;
 	BExtQuery q(this, 6, 1);
 	q.select(this->ID, 0L).where(this->QCertID == qcertID && this->Rest > 0.0);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+	q.initIteration(0, &k, spGe);
+	if(q.nextIteration() > 0)
 		ok = 1;
-		break;
-	}
 	return ok;
 }
 

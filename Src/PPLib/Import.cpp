@@ -2011,6 +2011,9 @@ private:
 class PrcssrPhoneListImport {
 public:
 	struct Param {
+		Param() : DefCityID(0)
+		{
+		}
 		PPID   DefCityID;
 		SString CfgName;
 	};

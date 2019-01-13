@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -71,7 +71,6 @@ private:
 
 	SArray * P_TmpSessList;
 	char   * PP_SalesFileName[2];
-
 	Cr_CashDCrdTbl * P_DsCrdTbl;
 	Cr_CashAuthTbl * P_CrCrdTbl;
 	PPIDArray  ShopList;
@@ -80,11 +79,8 @@ private:
 	PPID   StatID;
 };
 
-SLAPI  ACS_CRUKM::ACS_CRUKM(PPID n) : PPAsyncCashSession(n)
+SLAPI  ACS_CRUKM::ACS_CRUKM(PPID n) : PPAsyncCashSession(n), P_TmpSessList(0), P_DsCrdTbl(0), P_CrCrdTbl(0), StatID(0)
 {
-	P_TmpSessList = 0;
-	P_DsCrdTbl = 0;
-	P_CrCrdTbl = 0;
 	PP_SalesFileName[0] = 0;
 	PP_SalesFileName[1] = 0;
 }

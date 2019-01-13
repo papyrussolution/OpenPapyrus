@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,7 +18,7 @@ PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNam
 }
 #endif // } 0
 
-template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBConst * result, DBConst * params)
+template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBConst * result, const DBConst * params)
 {
 	objrec rec;
 	if(option == CALC_SIZE)
@@ -79,7 +79,7 @@ static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 	}
 }
 
-template <class objcls, class objrec> inline void dbqf_objsymb_i(int option, DBConst * result, DBConst * params)
+template <class objcls, class objrec> inline void dbqf_objsymb_i(int option, DBConst * result, const DBConst * params)
 {
 	objrec rec;
 	if(option == CALC_SIZE)

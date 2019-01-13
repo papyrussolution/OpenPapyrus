@@ -1,5 +1,5 @@
 // DECLSTRU.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -123,6 +123,10 @@ int SLAPI SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 class PrcssrMailCharry {
 public:
 	struct Param {
+		Param() : MailAccID(0), Flags(0), DestPersonID(0)
+		{
+			PTR32(DestAddr)[0] = 0;
+		}
 		enum {
 			fRemoveSrcFiles = 0x0001 // После успешной передачи удалить исходные файлы
 		};

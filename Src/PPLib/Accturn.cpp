@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // @Kernel
 //
@@ -228,8 +228,7 @@ int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * 
 			AccObj.GetSubacctList(acc_rec.A.Ac, -1, acc_rec.CurID, &acc_list);
 			for(uint i = 0; i < acc_list.getCount(); i++) {
 				double d = 0.0, c = 0.0;
-				uint   fl = flags;
-				fl = flags & ~(BALRESTF_ACO1GROUPING | BALRESTF_INCOMING);
+				const  uint fl = (flags & ~(BALRESTF_ACO1GROUPING | BALRESTF_INCOMING));
 				GetBalRest(dt, acc_list.at(i), &d, &c, fl);
 				dbt += d;
 				crd += c;

@@ -197,7 +197,7 @@ private:
 
 class PPDS_CrrPerson : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrPerson() : PPDeclStruc() {}
+	SLAPI  PPDS_CrrPerson() : PPDeclStruc(), OrigID(0) {}
 	PPPersonPacket Data;
 	PPID   OrigID; // При приеме структуры из файла это поле аполняется из поля "ID"
 private:

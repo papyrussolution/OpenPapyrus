@@ -441,19 +441,15 @@ void CBenchInfoCalc::SetFinishTime(CBenchInfo &dest)
 	dest.UserTime = UserTime.GetUserTime();
 }
 
-class CBenchProgressInfo :
-	public ICompressProgressInfo,
-	public CMyUnknownImp,
-	public CBenchInfoCalc
-{
+class CBenchProgressInfo : public ICompressProgressInfo, public CMyUnknownImp, public CBenchInfoCalc {
 public:
 	CBenchProgressStatus * Status;
 	HRESULT Res;
 	IBenchCallback * Callback;
 
-	CBenchProgressInfo() : Callback(0) {
+	CBenchProgressInfo() : Callback(0) 
+	{
 	}
-
 	MY_UNKNOWN_IMP
 	STDMETHOD(SetRatioInfo) (const uint64 *inSize, const uint64 *outSize);
 };

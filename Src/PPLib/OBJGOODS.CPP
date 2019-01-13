@@ -2518,7 +2518,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	CATCH
 		ok = DBRPL_ERROR;
 	ENDCATCH
-	return ok; // @v8.5.3 @fix DBRPL_OK-->ok
+	return ok;
 }
 
 int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)

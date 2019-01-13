@@ -1779,7 +1779,7 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 			if(search(2, &k2, spLt) && data.CashID == cc_pack.Rec.CashID) {
 				if(data.Code < (cc_pack.Rec.Code-1)) {
 					SString code_buf;
-					code_buf.Space() = 0;
+					code_buf.Space().Z();
 					for(long i = data.Code+1; i < cc_pack.Rec.Code; i++) {
 						if(i > (data.Code+1))
 							code_buf.CatDiv(',', 2);

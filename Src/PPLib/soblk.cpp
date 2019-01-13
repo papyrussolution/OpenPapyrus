@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -999,7 +999,7 @@ Backend_SelectObjectBlock::Backend_SelectObjectBlock() : Operator(0), ObjType(0)
 	P_TSesObj(0), P_GoodsF(0), P_PsnF(0), P_PsnRelF(0), P_GgF(0), P_BrF(0), P_QF(0), P_GaF(0), P_LocF(0),
 	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0), P_GeoTrF(0),
 	P_DtGrF(0), P_UhttStorF(0), P_WorkbookF(0), P_TSesF(0), P_PrcF(0), P_Qc(0), P_SetBlk(0), P_TagBlk(0),
-	P_DCc(0), OutFormat(fmtXml), Separate(0), P_UuidList(0)
+	P_DCc(0), OutFormat(fmtXml), Separate(0), P_UuidList(0), P_DlRtm(0), ExtFiltFlags(0)
 {
 	Page = 0;
 }

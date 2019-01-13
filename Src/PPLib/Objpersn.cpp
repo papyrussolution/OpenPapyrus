@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -616,8 +616,8 @@ int ExtFieldsDialog::setupList()
 	for(uint i = 0; i < Data.getCount(); i++) {
 		StringSet ss(SLBColumnDelim);
 		TaggedString item = Data.at(i);
-		ss.add(temp_buf.Z().Cat(item.Id), 0);
-		ss.add(item.Txt, 0);
+		ss.add(temp_buf.Z().Cat(item.Id));
+		ss.add(item.Txt);
 		if(!addStringToList(item.Id, ss.getBuf())) {
 			ok = 0;
 			PPError();
@@ -830,23 +830,23 @@ int NewPersMarksDialog::setupList()
 			PPPsnOpKind pok_rec;
 			MEMSZERO(pok_rec);
 			pok_obj.Fetch(item.Id, &pok_rec);
-			ss.add(pok_rec.Name, 0);
+			ss.add(pok_rec.Name);
 		}
 		else if(item.Obj == PPOBJ_OPRKIND) {
 			PPOprKind op_kind;
 			GetOpName(item.Id, temp_buf.Z());
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 		}
 		else if(item.Obj == PPOBJ_SCARDSERIES) {
 			if(item.Id)
 				GetObjectName(item.Obj, item.Id, temp_buf.Z());
 			else
 				PPLoadString("all", temp_buf);
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 		}
 		else {
 			temp_buf = "#unkn";
-			ss.add(temp_buf, 0);
+			ss.add(temp_buf);
 		}
 		if(!addStringToList(item.Id, ss.getBuf())) {
 			ok = 0;
@@ -5618,14 +5618,11 @@ int PersonRelListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  LAssocArray * p_rel_list = IsReverse ? &Reverse : &Data.GetRelList();
 	if(p_rel_list && pos >= 0 && pos < (long)p_rel_list->getCount()) {
-		int r = 0;
 		PPID psn_id = p_rel_list->at(pos).Key;
 		PPObjPerson::EditBlock edit_block;
 		edit_block.UpdFlags |= PPPersonPacket::ufDontEditRelPsn;
-		if(r = PsnObj.Edit_(&psn_id, edit_block))
-			ok = (r == cmOK) ? 1 : -1;
-		else
-			ok = 0;
+		const int r = PsnObj.Edit_(&psn_id, edit_block);
+		ok = (r == cmOK) ? 1 : (r ? -1 : 0);
 	}
 	return ok;
 }
@@ -6304,12 +6301,10 @@ int SLAPI PPNewContragentDetectionBlock::InitProcess()
 					else
 						OpList.add(r_item.Oi.Id);
 				}
-				else if(r_item.Oi.Obj == PPOBJ_PERSONOPKIND) {
+				else if(r_item.Oi.Obj == PPOBJ_PERSONOPKIND)
 					PsnOpList.add(r_item.Oi.Id);
-				}
-				else if(r_item.Oi.Obj == PPOBJ_SCARDSERIES) {
+				else if(r_item.Oi.Obj == PPOBJ_SCARDSERIES)
 					ScOpList.add(r_item.Oi.Id);
-				}
 			}
 			OpList.sortAndUndup();
 			{

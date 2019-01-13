@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -28,7 +28,7 @@ int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 
 SLAPI PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPOBJ_INTERNETACCOUNT, extraPtr)
 {
-	filt = InternetAccountFilter;
+	FiltProc = InternetAccountFilter;
 }
 
 int SLAPI PPObjInternetAccount::Browse(void * extraPtr)

@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -4521,8 +4521,8 @@ int SLAPI PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByG
 			SerialByGoodsListItem * p_item;
 			for(uint i = 0; list.enumItems(&i, (void **)&p_item);) {
 				ss.clear();
-				ss.add(p_item->Serial, 0);
-				ss.add(p_item->Text, 0);
+				ss.add(p_item->Serial);
+				ss.add(p_item->Text);
 				dlg->addStringToList(i, ss.getBuf());
 			}
 			dlg->Draw_();

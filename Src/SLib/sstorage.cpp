@@ -1,5 +1,5 @@
 // SSTORAGE.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -9,46 +9,31 @@ class SStorage {
 public:
 	class Address {
 	public:
-		SLAPI   Address()
+		SLAPI   Address() : P(0)
 		{
-			P = 0;
 		}
-		SLAPI   Address(uint64 p)
+		SLAPI   Address(uint64 p) : P(p)
 		{
-			P = p;
 		}
-		SLAPI   Address(const Address & rS)
+		SLAPI   Address(const Address & rS) : P(rS.P)
 		{
-			P = rS.P;
 		}
         uint64  P;
 	};
 	SLAPI  SStorage();
 	SLAPI ~SStorage();
-
     int    Add(const void * pData, uint size, Address * pA);
 	int    Remove(const Address & rS);
     int    Get(const Address & rS, void * pData, uint * pSize);
-
-    uint32 GetPageSize() const
-    {
-    	return PgSize;
-    }
-    uint32 GetRecSize() const
-    {
-    	return RcSize;
-    }
-	uint   GetFlags() const
-	{
-		return Flags;
-	}
+    uint32 GetPageSize() const { return PgSize; }
+    uint32 GetRecSize() const { return RcSize; }
+	uint   GetFlags() const { return Flags; }
 private:
 	static const uint32 DefPgDelta;
 
 	enum {
 		fFixRcSize = 0x0001,
 		fFixPgSize = 0x0002,
-
 		fStError   = 0x0004
 	};
     uint32 PgSize;
@@ -65,7 +50,6 @@ private:
 		int    Add(const void * pData, uint size, SStorage::Address & rA);
 		int    Remove(const SStorage::Address & rA);
 		int    Get(const Address & rS, void * pData, uint * pSize);
-
 		int    Debug_Output(SString & rBuf) const
 		{
 			rBuf.Z();
@@ -334,17 +318,12 @@ void SStorage::Page::DestroyEntries()
 	}
 }
 
-SStorage::Page::Entry32::Entry32(uint p, uint s)
+SStorage::Page::Entry32::Entry32(uint p, uint s) : P(p), S(s)
 {
-	P = p;
-	S = s;
 }
 
-SLAPI SStorage::SStorage()
+SLAPI SStorage::SStorage() : Flags(0), PgSize(0), RcSize(0)
 {
-	Flags = 0;
-	PgSize = 0;
-	RcSize = 0;
 }
 
 SLAPI SStorage::~SStorage()

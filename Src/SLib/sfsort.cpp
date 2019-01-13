@@ -1,5 +1,5 @@
 // SFSORT.CPP
-// Copyright (c) A.Sobolev 2017, 2018
+// Copyright (c) A.Sobolev 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -469,15 +469,11 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 				class SfSortSplitThread : public SlThread {
 				public:
 					struct InitBlock {
-						InitBlock(const char * pSrcFileName, SfSortStringPool * pPool, SFSortChunkInfo * pInfo, volatile int * pResult, ACount * pCntr)
+						InitBlock(const char * pSrcFileName, SfSortStringPool * pPool, SFSortChunkInfo * pInfo, volatile int * pResult, ACount * pCntr) :
+							P_Pool(pPool), P_ChunkInfo(pInfo), SrcFileName(pSrcFileName), P_Result(pResult), P_Counter(pCntr)
 						{
-							P_Pool = pPool;
-							P_ChunkInfo = pInfo;
-							SrcFileName = pSrcFileName;
-							P_Result = pResult;
-							P_Counter = pCntr;
 						}
-						InitBlock(InitBlock & rS)
+						InitBlock(const InitBlock & rS)
 						{
 							P_Pool = rS.P_Pool;
 							P_ChunkInfo = rS.P_ChunkInfo;

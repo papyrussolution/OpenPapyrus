@@ -1,11 +1,11 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 
-int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
+int FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 {
 	int    dot = 0;
 	char * p_tmp = strdup(pBuf);
@@ -130,7 +130,7 @@ SString & SLAPI IntRange::Format(long fmt, SString & rBuf) const
 //
 //
 //
-SSzChunk & SSzChunk::Clear()
+SSzChunk & SSzChunk::Z()
 {
 	Begin = 0;
 	Len = 0;
@@ -162,7 +162,7 @@ int SSzChunk::IsEmpty() const
 //
 //
 //
-RealRange & RealRange::Clear()
+RealRange & SLAPI RealRange::Z()
 {
 	low = 0.0;
 	upp = 0.0;
@@ -179,6 +179,20 @@ int SLAPI RealRange::IsZero() const
 	{ return BIN(low == 0.0 && upp == 0.0); }
 int SLAPI RealRange::CheckVal(double v) const
 	{ return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
+
+int SLAPI RealRange::CheckValEps(double val, double eps) const
+{
+	if(low != 0.0) {
+		if(!feqeps(val, low, eps) && val < low)
+			return 0;
+	}
+	if(upp != 0.0) {
+		if(!feqeps(val, upp, eps) && val > upp)
+			return 0;
+	}
+	return 1;
+}
+
 int SLAPI RealRange::Check(double v) const
 	{ return BIN(v >= low && v <= upp); }
 int SLAPI RealRange::CheckX(double v) const

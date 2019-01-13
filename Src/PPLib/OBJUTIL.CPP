@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -650,13 +650,13 @@ void FASTCALL PPObject::Helper_GetRights(int onStartUp)
 			Rt_  = PPRights::GetDefaultFlags();
 			ORt_ = PPRights::GetDefaultOprFlags();
 		}
-		RightsUpdateCounter = r_tla.RightsUpdateCounter; // @v8.6.1
+		RightsUpdateCounter = r_tla.RightsUpdateCounter;
 		if(r_tla.Lc.State & CFGST_MASTER) // PPMaster
 			Rt_ |= PPR_ADM;
 	}
 }
 
-SLAPI PPObject::PPObject(PPID aObj) : Obj(aObj), filt(0), ImplementFlags(0), Rt_(0), ORt_(0)
+SLAPI PPObject::PPObject(PPID aObj) : Obj(aObj), FiltProc(0), ImplementFlags(0), Rt_(0), ORt_(0)
 {
 	if(Obj != 0)
 		Helper_GetRights(1);
@@ -2446,13 +2446,9 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 		I.Tm = r_item.Dtm.t;
 		I.Value = r_item.Val;
 		if((r_item.GoodsID > 0) && (r_item.LocID > 0)) {
-			PPID   rest_op_id = 0;
-			PPID   order_op_id = 0;
 			PPOprKind op_rec;
-			if(GetOpBySymb("GOODSREST", &op_rec) > 0)
-				rest_op_id = op_rec.ID;
-			if(GetOpBySymb("DRAFTORDER", &op_rec) > 0)
-				order_op_id = op_rec.ID;
+			const PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
+			const PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 			if(rest_op_id)
 				BillObj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, r_item.LocID, 0, &I.Rest, 0);
 		}

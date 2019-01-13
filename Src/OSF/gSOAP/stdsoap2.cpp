@@ -3559,12 +3559,10 @@ again:
 			  if(retries-- > 0)
 				  goto again;
 		  }
-		  else if(soap->connect_timeout &&
-				    (err == SOAP_EINPROGRESS || err == SOAP_EAGAIN || err == SOAP_EWOULDBLOCK)) {
+		  else if(soap->connect_timeout && oneof3(err, SOAP_EINPROGRESS, SOAP_EAGAIN, SOAP_EWOULDBLOCK)) {
 			  SOAP_SOCKLEN_T k;
 			  for(;; ) {
-				  int r;
-				  r = tcp_select(soap, fd, SOAP_TCP_SELECT_SND, soap->connect_timeout);
+				  int r = tcp_select(soap, fd, SOAP_TCP_SELECT_SND, soap->connect_timeout);
 				  if(r > 0)
 					  break;
 				  if(!r) {

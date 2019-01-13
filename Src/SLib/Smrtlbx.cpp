@@ -974,8 +974,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 										}
 									}
 									else {
-										p_cd->clrText = p_cd->clrText;
-										p_cd->clrTextBk = p_cd->clrTextBk;
+										// @v10.2.12 @fix p_cd->clrText = p_cd->clrText;
+										// @v10.2.12 @fix p_cd->clrTextBk = p_cd->clrTextBk;
 									}
 								}
 								break;

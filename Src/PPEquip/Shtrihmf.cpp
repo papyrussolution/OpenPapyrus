@@ -480,8 +480,7 @@ int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess,
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			ChkRepPeriod.low = LConfig.OperDate;
-			ChkRepPeriod.upp = LConfig.OperDate;
+			ChkRepPeriod.SetDate(LConfig.OperDate);
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWait(0);

@@ -1502,6 +1502,7 @@
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
 #define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
+#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //

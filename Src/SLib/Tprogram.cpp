@@ -2399,8 +2399,9 @@ int TProgram::EraseBackground(TView * pView, HWND hWnd, HDC hDC, int ctlType)
 	if(pView && oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 		DRAWITEMSTRUCT di;
 		memzero(&di, sizeof(di));
-		di.CtlID      = pView->GetId();
-		di.itemID     = pView->GetId();
+		const uint ctl_id = pView->GetId();
+		di.CtlID      = ctl_id;
+		di.itemID     = ctl_id;
 		di.itemAction = ODA_DRAWENTIRE;
 		di.CtlType    = ctlType; // ODT_BUTTON;
 		di.hwndItem   = hWnd;

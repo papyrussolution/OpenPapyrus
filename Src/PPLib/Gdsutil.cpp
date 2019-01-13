@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -836,7 +836,7 @@ int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 }
 
 //static
-int SLAPI PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
+int FASTCALL PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
 {
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -849,7 +849,7 @@ int SLAPI PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
 }
 
 //static
-GoodsPacketKind SLAPI PPObjGoods::GetRecKind(const Goods2Tbl::Rec * pRec)
+GoodsPacketKind FASTCALL PPObjGoods::GetRecKind(const Goods2Tbl::Rec * pRec)
 {
 	if(pRec->Kind == PPGDSK_GOODS)
 		return gpkndGoods;
@@ -1767,23 +1767,25 @@ int QuotationDialog::SetupLocList()
 		loc_filt.ExtLocList.Set(&ext_loc_list);
 	StrAssocArray * p_list = LocObj.MakeList_(&loc_filt, MAXLONG);
 	SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_LOCLIST);
-	long   cur_foc_pos = (p_box && p_box->def) ? p_box->def->_curItem() : -1;
-	if(oneof2(Cls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
-		SetupStrListBox(p_box);
-		SetupMatrixLocList(p_list, p_box, MAXLONG, 0);
+	if(p_box) {
+		const long cur_foc_pos = p_box->def ? p_box->def->_curItem() : -1;
+		if(oneof2(Cls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
+			SetupStrListBox(p_box);
+			SetupMatrixLocList(p_list, p_box, MAXLONG, 0);
+		}
+		else {
+			SetupTreeListBox(this, CTL_GQUOT_LOCLIST, p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify, 0);
+		}
+		if(SelLocID < 0)
+			SelLocID = 0;
+		setPage();
+		if(cur_foc_pos < 0)
+			p_box->TransmitData(+1, &SelLocID);
+		else
+			p_box->focusItem(cur_foc_pos);
+		p_box->Draw_();
+		selectCtrl(CTL_GQUOT_LOCLIST);
 	}
-	else {
-		SetupTreeListBox(this, CTL_GQUOT_LOCLIST, p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify, 0);
-	}
-	if(SelLocID < 0)
-		SelLocID = 0;
-	setPage();
-	if(cur_foc_pos < 0)
-		p_box->TransmitData(+1, &SelLocID);
-	else
-		p_box->focusItem(cur_foc_pos);
-	p_box->Draw_();
-	selectCtrl(CTL_GQUOT_LOCLIST);
 	return 1;
 }
 

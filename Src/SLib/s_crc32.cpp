@@ -1,5 +1,5 @@
 // S_CRC32.CPP
-// Copyright (c) A.Sobolev 2001, 2003, 2007, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2003, 2007, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -1067,11 +1067,8 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 #endif // } 0 @construction
 
 struct BdtTestItem {
-	BdtTestItem()
+	BdtTestItem() : Flags(0), OutLen(0), Iterations(0), Seek(0)
 	{
-		Flags = 0;
-		OutLen = 0;
-		Seek = 0;
 	}
 	~BdtTestItem()
 	{
@@ -1093,10 +1090,9 @@ struct BdtTestItem {
 	};
 	struct Buffer : private SBaseBuffer {
 	public:
-		Buffer()
+		Buffer() : DataLen(0)
 		{
 			SBaseBuffer::Init();
-			DataLen = 0;
 		}
 		~Buffer()
 		{

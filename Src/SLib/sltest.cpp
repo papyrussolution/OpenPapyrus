@@ -533,7 +533,7 @@ SEnumImp * STestCase::EnumTab(const char * pTabName)
 //
 // }
 //
-STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark)), MaxCount(0), SuccCount(0), FailCount(0), Timing(0)
+STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark)), MaxCount(0), SuccCount(0), FailCount(0), Timing(0), SysTiming(0)
 {
 	MEMSZERO(HeapBefore);
 	MEMSZERO(HeapAfter);

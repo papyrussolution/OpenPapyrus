@@ -1705,7 +1705,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
 								r_ti.Quantity_ = p_ilti->Quantity;
 								// @v10.2.9 rPack.XcL.Set(tipos+1, &ss_lotxcode); // @v9.8.11
-								rPack.XcL.Set(tipos+1, &lotxcode_set); // @v10.2.9
+								rPack.XcL.Set_2(tipos+1, &lotxcode_set); // @v10.2.9
 							}
 							do_add = 0;
 						}
@@ -1752,7 +1752,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						// @v9.8.11 {
 						if(rows.getCount() == 1) { // Если при приеме строка не разъехалась на несколько, то переносим расширенные коды
                             // @v10.2.9 rPack.XcL.Set(rj+1, &ss_lotxcode);
-							rPack.XcL.Set(rj+1, &lotxcode_set); // @v10.2.9
+							rPack.XcL.Set_2(rj+1, &lotxcode_set); // @v10.2.9
 						}
 						// } @v9.8.11
 						if(is_intr_expnd && p_bobj->GetSerialNumberByLot(lot_id, local_serial, 0) > 0) {

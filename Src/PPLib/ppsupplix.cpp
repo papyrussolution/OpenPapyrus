@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2050,18 +2050,18 @@ PPID SLAPI PPSupplExchange_Baltika::GetSaleChannelTagID()
 {
 	PPID   sale_channel_tag = 0;
 	SString sale_channel_tag_symb;
-	SArray * p_tags_list = 0;
 	PPObjTag   obj_tag;
 	sale_channel_tag_symb = "SaleChannel";
-	if(p_tags_list = obj_tag.CreateList(0, 0)) {
+	SArray * p_tags_list = obj_tag.CreateList(0, 0);
+	if(p_tags_list) {
    		for(uint i = 0; !sale_channel_tag && i < p_tags_list->getCount(); i++) {
    			const PPID tag_id = *(PPID *)p_tags_list->at(i);
 			PPObjectTag tag_kind;
 			if(obj_tag.Search(tag_id, &tag_kind) > 0 && sale_channel_tag_symb.CmpPrefix(tag_kind.Symb, 1) == 0)
 				sale_channel_tag = tag_id;
 		}
+		ZDELETE(p_tags_list);
 	}
-	ZDELETE(p_tags_list);
 	return sale_channel_tag;
 }
 

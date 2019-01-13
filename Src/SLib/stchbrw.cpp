@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -483,10 +483,10 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 
 STimeChunkBrowser::Param::Param()
 {
-	Clear();
+	Z();
 }
 
-STimeChunkBrowser::Param & STimeChunkBrowser::Param::Clear()
+STimeChunkBrowser::Param & STimeChunkBrowser::Param::Z()
 {
 	memzero(this, offsetof(STimeChunkBrowser::Param, RegSaveParam));
 	SingleRowIdx = -1;
@@ -495,10 +495,10 @@ STimeChunkBrowser::Param & STimeChunkBrowser::Param::Clear()
 
 STimeChunkBrowser::Area::Area()
 {
-	THISZERO();
+	Z();
 }
 
-STimeChunkBrowser::Area & STimeChunkBrowser::Area::Clear()
+STimeChunkBrowser::Area & STimeChunkBrowser::Area::Z()
 {
 	THISZERO();
 	return *this;
@@ -508,7 +508,7 @@ STimeChunkBrowser::SRect::SRect() : TRect(), RowId(0), DayN(0)
 {
 }
 
-STimeChunkBrowser::SRect & STimeChunkBrowser::SRect::Clear()
+STimeChunkBrowser::SRect & STimeChunkBrowser::SRect::Z()
 {
 	THISZERO();
 	return *this;
@@ -703,7 +703,7 @@ void STimeChunkBrowser::SetupScroll()
 		x_scroll_max = St.QBounds-days_per_screen;
 	}
 	else {
-		const  uint dc = P_Data->getCount();
+		// @v10.2.12 @fix const  uint dc = P_Data->getCount();
 		if(P_Data) {
 			uint   decrement = 0;
 			int    height = 0;
@@ -736,7 +736,7 @@ void STimeChunkBrowser::SetupScroll()
 	si.nPos = MIN(si.nMax, (int)St.ScrollX);
 	::SetScrollInfo(H(), SB_HORZ, &si, TRUE);
 	{
-		GetArea(a2.Clear());
+		GetArea(a2.Z());
 		CalcChunkRect(&a2, RL);
 	}
 }
@@ -1927,7 +1927,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 			srect.setheightrel(upp_edge + P.PixRowMargin, P.PixRow);
 			for(uint k = 0; k < p_row->getCount(); k++) {
 				const  STimeChunkAssoc * p_chunk = (STimeChunkAssoc *)p_row->at(k);
-				srect.Clear();
+				srect.Z();
 				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
 					uint   day_n = 0;
 					for(long quant = St.ScrollX; ; quant++) {

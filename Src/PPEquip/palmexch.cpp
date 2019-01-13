@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016, 2018
+// ..2009, 2010, 2012, 2015, 2016, 2018, 2019
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -296,7 +296,7 @@ SyncTable::SyncTable(int compress, int palmCompressed, SpiiExchgContext * pCtx) 
 	Compress(compress), PalmCompressed(palmCompressed), DefReopenDelta(2000)
 {
 	Handle[0] = 0;
-	Handle[0] = 0;
+	// @v10.2.12 @fix Handle[0] = 0;
 	MEMSZERO(RecInfo);
 	TblName[0] = 0;
 }

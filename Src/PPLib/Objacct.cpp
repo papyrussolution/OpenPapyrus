@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -115,7 +115,7 @@ int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_t
 			}
 			THROW(EditItem(Obj, new_id, &pPack->Rec, 0));
 			new_id = pPack->Rec.ID;
-			pPack->Rec.ID = new_id;
+			// @v10.2.12 @fix pPack->Rec.ID = new_id;
 			ASSIGN_PTR(pID, new_id);
 			if(pPack->Rec.CurID == 0 && pPack->CurList.getCount()) {
 				for(i = 0; i < pPack->CurList.getCount(); i++) {
@@ -1124,9 +1124,9 @@ int SLAPI PPObjAccount::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	PPAccount rec;
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_ACCSHEET) {
-			for(SEnum en = EnumByIdxVal(2, _id); en.Next(&rec) > 0;) {
+			SEnum en = EnumByIdxVal(2, _id); 
+			if(en.Next(&rec) > 0)
 				return RetRefsExistsErr(Obj, rec.ID);
-			}
 		}
 		else if(_obj == PPOBJ_CURRENCY) {
 			for(SEnum en = Enum(0); en.Next(&rec) > 0;) {

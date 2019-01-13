@@ -3141,7 +3141,7 @@ int SLAPI EditImpExpConfigs()
 //
 //
 //
-ImpExpCfgListDialog::ImpExpCfgListDialog() : PPListDialog(DLG_IMPEXPVIEW, CTL_OBJVIEW_LIST)
+ImpExpCfgListDialog::ImpExpCfgListDialog() : PPListDialog(DLG_IMPEXPVIEW, CTL_OBJVIEW_LIST), IniFileID(0), SDRecID(0), P_Param(0), P_ParamDlg(0)
 {
 }
 

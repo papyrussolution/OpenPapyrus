@@ -1124,29 +1124,6 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 	return ok;
 }
 
-/*int SLAPI PPLotExtCodeContainer::Set(int rowIdx, StringSet * pSsCode)
-{
-	int    ok = -1;
-	THROW_PP(rowIdx >= 0, PPERR_INVPARAM);
-	if(!pSsCode) {
-		uint i = getCount();
-		if(i) do {
-			Item & r_entry = *(Item *)at(--i);
-			if(r_entry.RowIdx == (int16)rowIdx)
-				atFree(i);
-		} while(i);
-	}
-	else {
-		SString temp_buf;
-		THROW(Set(rowIdx, 0)); // @recursion Вычищаем все коды для строки rowIdx
-		for(uint ssp = 0; pSsCode->get(&ssp, temp_buf);) {
-			THROW(Add(rowIdx, temp_buf, 0));
-		}
-	}
-	CATCHZOK
-	return ok;
-}*/
-
 int SLAPI PPLotExtCodeContainer::Add(int rowIdx, MarkSet & rS)
 {
 	int    ok = -1;
@@ -1161,7 +1138,7 @@ int SLAPI PPLotExtCodeContainer::Add(int rowIdx, MarkSet & rS)
 	return ok;
 }
 
-int SLAPI PPLotExtCodeContainer::Set(int rowIdx, MarkSet * pS)
+int SLAPI PPLotExtCodeContainer::Set_2(int rowIdx, const MarkSet * pS)
 {
 	int    ok = -1;
 	THROW_PP(rowIdx >= 0, PPERR_INVPARAM);
@@ -1177,14 +1154,21 @@ int SLAPI PPLotExtCodeContainer::Set(int rowIdx, MarkSet * pS)
 	}
 	else {
 		SString temp_buf;
-		THROW(Set(rowIdx, 0)); // @recursion Вычищаем все коды для строки rowIdx
-		/*for(uint ssp = 0; pSsCode->get(&ssp, temp_buf);) {
-			THROW(Add(rowIdx, temp_buf, 0));
-		}*/
+		THROW(Set_2(rowIdx, 0)); // @recursion Вычищаем все коды для строки rowIdx
 		MarkSet::Entry entry;
 		for(uint i = 0; i < pS->GetCount(); i++) {
 			if(pS->GetByIdx(i, entry)) {
-				THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, entry.Num, 0));
+				if(entry.Flags & fBox) {
+					long suffix_code = 0;
+					temp_buf = entry.Num;
+					while(Search(temp_buf, 0, 0)) {
+						(temp_buf = entry.Num).CatChar('-').Cat(++suffix_code);
+					}
+					THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, temp_buf, 0));
+				}
+				else {
+					THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, entry.Num, 0));
+				}
 				ok = 1;
 			}
 		}
@@ -3481,9 +3465,11 @@ int SLAPI PPBillPacket::GetQuotExt(const PPTransferItem & rTi, double * pPrice)
 		PPObjGoods goods_obj;
 		for(uint i = 0; i < qk_list.getCount(); i++) {
 			const QuotIdent qi(QIDATE(rTi.Date), rTi.LocID, qk_list.get(i), 0 /* curID */, 0 /* arID */);
-			if((r = goods_obj.GetQuotExt(labs(rTi.GoodsID), qi, rTi.Cost, *pPrice, &result, 1)) > 0)
+			if((r = goods_obj.GetQuotExt(labs(rTi.GoodsID), qi, rTi.Cost, *pPrice, &result, 1)) > 0) {
 				ok = r;
-			break;
+				break; // @v10.2.12
+			}
+			// @v10.2.12 (An unconditional 'break' within a loop) break;
 		}
 	}
 	ASSIGN_PTR(pPrice, result);

@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1092,7 +1092,7 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 // PPViewGoodsBasket
 //
 SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) :
-	IterCount(0), NumIters(0), P_OrdTbl(0), P_IterQuery(0), P_GBPacket(pPacket), Flags(0)
+	IterCount(0), NumIters(0), P_OrdTbl(0), P_IterQuery(0), P_GBPacket(pPacket), Order(0), Flags(0)
 {
 }
 

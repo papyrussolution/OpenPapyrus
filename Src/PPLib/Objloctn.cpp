@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1569,13 +1569,13 @@ int LocationExtFieldsDialog::setupList()
 		TaggedString item = FieldNames.at(i);
 		ss.clear();
 		temp_buf.Z().Cat(item.Id);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		temp_buf = item.Txt;
 		if(temp_buf.Empty())
 			temp_buf.CatEq("ID", item.Id);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		Fields.GetText(item.Id, temp_buf);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		if(!addStringToList(item.Id, ss.getBuf())) {
 			ok = 0;
 			PPError();

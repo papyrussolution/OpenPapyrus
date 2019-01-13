@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -446,11 +446,11 @@ int DebtLimListDialog::setupList()
 		SString temp_buf;
 		PPClientAgreement::DebtLimit debt_lim = Data.at(i);
 		GetObjectName(PPOBJ_DEBTDIM, debt_lim.DebtDimID, temp_buf);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		temp_buf.Z().Cat(debt_lim.Limit, SFMT_MONEY);
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		temp_buf.Z().CatChar((debt_lim.Flags & PPClientAgreement::DebtLimit::fStop) ? 'X' : ' ');
-		ss.add(temp_buf, 0);
+		ss.add(temp_buf);
 		if(!addStringToList(debt_lim.DebtDimID, ss.getBuf()))
 			ok = PPErrorZ();
 	}

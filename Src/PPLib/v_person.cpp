@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2529,7 +2529,8 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_ADDITEM:
 				{
 					PPID id = 0;
-					if(ok = AddItem(&id) > 0) {
+					ok = AddItem(&id);
+					if(ok > 0) {
 						pBrw->Update();
 						pBrw->search2(&id, PTR_CMPFUNC(long), srchFirst, 0);
 						ok = -1; // Не надо обновлять таблицу после этого вызова

@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -15,10 +15,10 @@ ClsdGoodsFilt & SLAPI ClsdGoodsFilt::Clear()
 {
 	GdsClsID = 0;
 	Flags = 0;
-	DimX_Rng.Clear();
-	DimY_Rng.Clear();
-	DimZ_Rng.Clear();
-	DimW_Rng.Clear();
+	DimX_Rng.Z();
+	DimY_Rng.Z();
+	DimZ_Rng.Z();
+	DimW_Rng.Z();
 	return *this;
 }
 
@@ -753,9 +753,11 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 		Goods2Tbl::Key2 k2;
 		MEMSZERO(k2);
 		k2.Kind = PPGDSK_GOODS;
-		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;)
-			if(!temp_list.bsearch(data.ID))
-				THROW(rList.add(data.ID)); // @v8.1.0 addUnique-->add
+		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+			if(!temp_list.bsearch(data.ID)) {
+				THROW(rList.add(data.ID));
+			}
+		}
 		ok = 1;
 		PROFILE_END
 	}
@@ -2283,11 +2285,11 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 		}
 		else {
 			ObjAssocTbl::Rec assc_rec;
-			for(SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1); en.Next(&assc_rec) > 0;) {
+			SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1); 
+			if(en.Next(&assc_rec) > 0) {
 				ASSIGN_PTR(pGenID, assc_rec.PrmrObjID);
 				ASSIGN_PTR(b, assc_rec);
 				ok = 1;
-				break;
 			}
 		}
 		if(ok < 0)
@@ -3692,8 +3694,8 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 	const  uint max_query_items = 32;
 	uint   pos = 0;
 	PPIDArray temp_src_list;
-	THROW(temp_src_list.add(pIdList)); // @v8.1.0 addUnique-->add
-	temp_src_list.sortAndUndup(); // @v8.1.0 sort-->sortAndUndup
+	THROW(temp_src_list.add(pIdList));
+	temp_src_list.sortAndUndup();
 	if(temp_src_list.getCount()) {
 		SString temp_buf;
 		PPID   min_id = temp_src_list.at(0);

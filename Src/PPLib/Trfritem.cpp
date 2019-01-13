@@ -1,5 +1,5 @@
 // TRFRITEM.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -174,8 +174,9 @@ int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 			Quantity_ = 1.0;
 			if(CurID)
 				CurPrice = pPack->GetAmount();
-			Cost  = pPack->GetBaseAmount();
-			Price = pPack->GetBaseAmount();
+			const double base_amount = pPack->GetBaseAmount();
+			Cost  = base_amount;
+			Price = base_amount;
 			LotDate = pPack->Rec.Dt;
 			ok = 1;
 		}

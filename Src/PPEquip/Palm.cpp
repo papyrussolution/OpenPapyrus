@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -31,8 +31,8 @@ int SLAPI PalmBillQueue::Push(PalmBillPacket * pPack)
 
 IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 {
-	PalmBillPacket * p_i1 = (PalmBillPacket*)i1;
-	PalmBillPacket * p_i2 = (PalmBillPacket*)i2;
+	const PalmBillPacket * p_i1 = (const PalmBillPacket *)i1;
+	const PalmBillPacket * p_i2 = (const PalmBillPacket *)i2;
 	int    r = COMPARE(p_i1->Hdr.PalmID, p_i2->Hdr.PalmID);
 	return r ? r : COMPARE(p_i1->Hdr.ID, p_i2->Hdr.ID);
 }
@@ -309,7 +309,7 @@ static int SLAPI StyloPalmListFilt(void * pRec, void * extraPtr)
 
 SLAPI PPObjStyloPalm::PPObjStyloPalm(void * extraPtr) : PPObjReference(PPOBJ_STYLOPALM, extraPtr)
 {
-	filt = StyloPalmListFilt;
+	FiltProc = StyloPalmListFilt;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 

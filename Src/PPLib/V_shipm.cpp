@@ -1,5 +1,5 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Анализ отгрузки товаров
 //
@@ -371,12 +371,13 @@ int SLAPI PPViewShipmAnalyze::InitIteration()
 
 int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 {
-	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
+	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Tbl->copyBufTo(pItem);
 		Counter.Increment();
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 // virtual

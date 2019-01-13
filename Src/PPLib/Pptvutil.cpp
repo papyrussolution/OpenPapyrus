@@ -56,7 +56,7 @@ int SLAPI InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Pa
 {
 	int    ok = 1;
 	if(pParam) {
-		pParam->Clear();
+		pParam->Z();
 		pParam->RegSaveParam = pSymbol;
 		{
 			UserInterfaceSettings ui_cfg;
@@ -1157,26 +1157,27 @@ int Lst2LstObjDialog::setupRightList()
 		return setupRightTList();
 	}
 	else {
-		SString name_buf;
-		PPID * p_id;
-		uint   i;
 		SmartListBox * p_lb = GetRightList();
-		long   pos = (p_lb && p_lb->def) ? p_lb->def->_curItem() : 0L;
-		THROW_MEM(p_ary = new TaggedStringArray);
-		for(i = 0; Data.P_List->enumItems(&i, (void**)&p_id);) {
-			/* @v9.2.1
-			P_Object->GetName(*p_id, &name_buf);
-			if(name_buf.Empty())
-				name_buf.Cat(*p_id);
-			*/
-			GetItemText(*p_id, name_buf); // @v9.2.1
-			THROW_SL(p_ary->Add(*p_id, name_buf));
+		if(p_lb) {
+			PPID * p_id;
+			SString name_buf;
+			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
+			THROW_MEM(p_ary = new TaggedStringArray);
+			for(uint i = 0; Data.P_List->enumItems(&i, (void**)&p_id);) {
+				/* @v9.2.1
+				P_Object->GetName(*p_id, &name_buf);
+				if(name_buf.Empty())
+					name_buf.Cat(*p_id);
+				*/
+				GetItemText(*p_id, name_buf); // @v9.2.1
+				THROW_SL(p_ary->Add(*p_id, name_buf));
+			}
+			p_ary->SortByText();
+			THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
+			p_lb->setDef(p_def);
+			p_lb->def->go(pos);
+			p_lb->Draw_();
 		}
-		p_ary->SortByText();
-		THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
-		p_lb->setDef(p_def);
-		p_lb->def->go(pos);
-		p_lb->Draw_();
 	}
 	CATCH
 		if(p_def)
@@ -6804,7 +6805,7 @@ SLAPI RecentItemsStorage::RecentItemsStorage(int ident, uint maxItems, CompFunc 
 {
 }
 
-SLAPI RecentItemsStorage::RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf) : IdentText(pIdent), MaxItems(maxItems), Cf(cf)
+SLAPI RecentItemsStorage::RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf) : Ident(0), IdentText(pIdent), MaxItems(maxItems), Cf(cf)
 {
 }
 

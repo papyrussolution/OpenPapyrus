@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -394,7 +394,7 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 {
 	SString temp_buf;
-	while(P_IterQuery->nextIteration() > 0) {
+	if(P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		if(pItem) {
 			memzero(pItem, sizeof(*pItem));
@@ -420,7 +420,8 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 		}
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int SLAPI PPViewFreight::ViewTotal()

@@ -2736,8 +2736,7 @@ public:
 					scan.Get(temp_buf.Z());
 					if(strtoperiod(temp_buf, &period, 0)) {
 						if(checkdate(period.low, 1)) {
-							LDATE dt_ = ZERODATE;
-							dt_ = period.low.getactual(ZERODATE);
+							LDATE dt_ = period.low.getactual(ZERODATE);
 							dt_list.add(dt_.v);
 						}
 					}

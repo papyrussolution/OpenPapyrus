@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -882,7 +882,7 @@ int SOraDbProvider::Exec(SSqlStmt & rS, uint count, int mode)
 #ifndef NDEBUG // {
 	if(!ok) {
 		SString log_buf;
-		log_buf.Cat("EXEC").CatDiv(':', 2).Cat(ok ? "OK" : LastErrMsg);
+		log_buf.Cat("EXEC").CatDiv(':', 2).Cat(LastErrMsg);
 		DEBUG_LOG(log_buf);
 	}
 #endif // } !NDEBUG

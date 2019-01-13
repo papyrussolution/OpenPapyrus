@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1591,7 +1591,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 			PPErrorByDialog(dlg, CTL_GSITEM_VALUE);
 		else if(!item.SetFormula(formula, pStruc))
 			PPErrorByDialog(dlg, CTL_GSITEM_FORMULA);
-		else if(item.Flags & GSIF_PHUVAL && goods_rec.PhUPerU == 0)
+		else if(item.Flags & GSIF_PHUVAL && goods_rec.PhUPerU == 0) //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 'goods_rec.PhUPerU' used.
 			PPErrorByDialog(dlg, CTL_GSITEM_UNITS, PPERR_PHUFORGOODSWOPHU);
 		else {
 			item.GoodsID = (item.Flags & GSIF_GOODSGROUP) ? rec.GrpID : rec.GoodsID;
@@ -1949,7 +1949,7 @@ static int SLAPI GSListFilt(void * pRec, void * extraPtr)
 
 SLAPI PPObjGoodsStruc::PPObjGoodsStruc(void * extraPtr) : PPObjReference(PPOBJ_GOODSSTRUC, extraPtr)
 {
-	filt = GSListFilt;
+	FiltProc = GSListFilt;
 	ImplementFlags |= implStrAssocMakeList;
 }
 
@@ -2388,9 +2388,9 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 	if(msg == DBMSG_OBJDELETE)
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
-			for(SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1); en.Next(&assc_rec) > 0;) {
+			SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1); 
+			if(en.Next(&assc_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
-				break;
 			}
 		}
 	if(msg == DBMSG_OBJREPLACE)

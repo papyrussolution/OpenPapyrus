@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -100,7 +100,7 @@ static int SLAPI UsrListFilt(void * rec, void * extraPtr/*grp*/)
 SLAPI PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraPtr)
 {
 	if(Obj == PPOBJ_USR)
-		filt = UsrListFilt;
+		FiltProc = UsrListFilt;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 

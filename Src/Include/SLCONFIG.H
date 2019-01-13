@@ -1,5 +1,5 @@
 // SLCONFIG.H
-// Copyright (c) Sobolev A. 1995, 1996, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #ifndef __SLCONFIG_H
@@ -16,6 +16,13 @@
 // MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
 // MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
 // MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
+// Visual Studio 2017 RTW (15.0) 	1910
+// Visual Studio 2017 версия 15.3 	1911
+// Visual Studio 2017 версии 15.5 	1912
+// Visual Studio 2017 версии 15.6 	1913
+// Visual Studio 2017 версии 15.7 	1914
+// Visual Studio 2017 версии 15.8 	1915
+// Visual Studio 2017 версии 15.9 	1916
 //
 #if (_MSC_VER < 1900)
 	#ifndef _WIN32_WINNT

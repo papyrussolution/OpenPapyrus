@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -470,20 +470,22 @@ IMPL_DBE_PROC(_ltoa_i)
 IMPL_DBE_PROC(_enumtoa_iii)
 {
 	int    i;
-	char ** p = (char **)IPAR(2);
+	const char ** p = (const char **)IPAR(2);
 	if(option == CALC_SIZE) {
 		uint   m = 1;
-		for(i = 0; i < IPAR(1); i++)
+		for(i = 0; i < IPAR(1); i++) {
 			if((sstrlen(p[i]+2)+1) > m)
 				m = sstrlen(p[i]+2) + 1;
+		}
 		RES((long)m);
 	}
 	else {
-		for(i = 0; i < IPAR(1); i++)
+		for(i = 0; i < IPAR(1); i++) {
 			if(*(int16*)p[i] == IPAR(0)) {
 				RES(p[i]+2);
 				return;
 			}
+		}
 		RES((char *)&(i = 0));
 	}
 }
@@ -594,7 +596,13 @@ IMPL_DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)d
 IMPL_DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)m);}
 IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)y);}
 IMPL_DBE_PROC(_weekday_d) { RES((long)dayofweek(&DPAR(0), 1)); }
-IMPL_DBE_PROC(_add_di) { plusdate(&DPAR(0), IPAR(1), 0); result->copy(params[0]); }
+IMPL_DBE_PROC(_add_di) 
+{ 
+	LDATE dt = DPAR(0);
+	plusdate(&dt, IPAR(1), 0); 
+	RES(dt);
+	//result->copy(params[0]); 
+}
 IMPL_DBE_PROC(_sub_dd) { RES((long)diffdate(&DPAR(0), &DPAR(1), 0)); }
 
 IMPL_DBE_PROC(_count_v)

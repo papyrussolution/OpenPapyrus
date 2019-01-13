@@ -1251,7 +1251,6 @@ int SLAPI GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty
 			}
 		}
 		else if(P_BillPack) {
-			//PPBillPacket
             for(uint i = 0; i < P_BillPack->GetTCount(); i++) {
 				const PPTransferItem & r_ti = P_BillPack->ConstTI(i);
 				if(labs(r_ti.GoodsID) == labs(goodsID)) {

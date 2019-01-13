@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -2943,16 +2943,18 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVe
 	total.DelayVarRateMean = st_delayvarrate.GetExp();
 	for(i = 0; i < getCount(); i++) {
 		PPDebtorStat * p_item = at(i);
-		memzero(p_item->Rating, sizeof(p_item->Rating));
-		if(p_item && !p_item->IsAggregate()) {
-			double v;
-			if(CalcDelayIndex(p_item, &total, exp_weight, &v) > 0) {
-				THROW(sh_delay.PreparePut(PreprocessRatingVal(v)));
-			}
-			if(p_item->PaymDensity) {
-				double s = GetSigmFactor(sigm_a, p_item->PaymPeriod, total.PaymPeriodMean) * p_item->PaymDensity;
-				if(IsValidIEEE(s) && s > 0.0)
-					THROW(sh_paym.PreparePut(PreprocessRatingVal(s)));
+		if(p_item) {
+			memzero(p_item->Rating, sizeof(p_item->Rating));
+			if(!p_item->IsAggregate()) {
+				double v;
+				if(CalcDelayIndex(p_item, &total, exp_weight, &v) > 0) {
+					THROW(sh_delay.PreparePut(PreprocessRatingVal(v)));
+				}
+				if(p_item->PaymDensity) {
+					double s = GetSigmFactor(sigm_a, p_item->PaymPeriod, total.PaymPeriodMean) * p_item->PaymDensity;
+					if(IsValidIEEE(s) && s > 0.0)
+						THROW(sh_paym.PreparePut(PreprocessRatingVal(s)));
+				}
 			}
 		}
 	}

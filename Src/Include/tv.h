@@ -4630,7 +4630,7 @@ class STimeChunkBrowser : public TBaseBrowserWindow {
 public:
 	struct Param {
 		Param();
-		Param & Clear();
+		Param & Z();
 		int    SetScrPeriod(const DateRange & rPeriod);
 		enum {
 			fSnapToQuant = 0x0001, // При создании или редактировании отрезков время округлять до ближайшего кванта
@@ -4761,7 +4761,7 @@ protected:
 	};
 	struct Area {
 		Area();
-		Area & Clear();
+		Area & Z();
 
 		enum {
 			fInited = 0x0001 // Структура инициализирована вызовом STimeChunkBrowser::GetArea()
@@ -4785,7 +4785,7 @@ protected:
 	};
 	struct SRect : public TRect {
 		SRect();
-		SRect & Clear();
+		SRect & Z();
 
 		long   RowId;
 		uint   DayN;  // Служебное значение, идентифицирующее номер даты на экране в режиме vHourDay

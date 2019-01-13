@@ -1,14 +1,13 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // @ModuleDef(PPObjOpCounter)
 //
-PPOpCounterPacket::PPOpCounterPacket()
+PPOpCounterPacket::PPOpCounterPacket() : P_Items(0)
 {
-	P_Items = 0;
 	Init(0, 0);
 	//DontLogUpdAction = 0;
 	Flags = 0;
@@ -127,7 +126,7 @@ static int SLAPI OpCounterListFilt(void * rec, void * extraPtr)
 
 SLAPI PPObjOpCounter::PPObjOpCounter(void * extraPtr) : PPObjReference(PPOBJ_OPCOUNTER, extraPtr)
 {
-	filt = OpCounterListFilt;
+	FiltProc = OpCounterListFilt;
 }
 
 int SLAPI PPObjOpCounter::Edit(PPID * pID, void * extraPtr)

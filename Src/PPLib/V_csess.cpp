@@ -1203,7 +1203,7 @@ static int SLAPI RulesListFilt(void * rec, void * extraPtr)
 
 SLAPI PPObjDraftCreateRule::PPObjDraftCreateRule(void * extraPtr) : PPObjReference(PPOBJ_DFCREATERULE, extraPtr)
 {
-	filt = RulesListFilt;
+	FiltProc = RulesListFilt;
 }
 
 int SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)

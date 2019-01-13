@@ -193,7 +193,7 @@ public:
 	int    FASTCALL Copy(const SdRecord & rSrc);
 	void   Clear();
 	int    FASTCALL IsEqual(const SdRecord & rPat) const;
-	int    SetDescription(const char *);
+	void   FASTCALL SetDescription(const char *);
 	int    GetDescription(SString &) const;
 	//
 	// Descr: Сериализация объекта.
@@ -3092,8 +3092,8 @@ extern DbSession DBS;
 // option == AGGR_END в параметр result должно быть занесено
 // окончательное значение.
 //
-typedef void (SLAPI * DBQProc)(int option, DBConst * result, DBConst * params);
-#define IMPL_DBE_PROC(name) void SLAPI name(int option, DBConst * result, DBConst * params)
+typedef void (SLAPI * DBQProc)(int option, DBConst * result, const DBConst * params);
+#define IMPL_DBE_PROC(name) void SLAPI name(int option, DBConst * result, const DBConst * params)
 
 enum DBFunc {
 	dbq_error = 0,
@@ -4379,7 +4379,7 @@ public:
 	SSerializeContext * GetSCtx() const;
 private:
 	int    Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
-	int    Helper_SetConfig(const char * pHomeDir, Config & rCfg);
+	int    Helper_SetConfig(const char * pHomeDir, const Config & rCfg);
 	//
 	// Descr: Вспомогательная функция, реализующая открытие таблицы базы данных.
 	// ARG(pFileName IN): Имя таблицы

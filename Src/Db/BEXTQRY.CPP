@@ -476,7 +476,7 @@ void FASTCALL BExtQuery::where(DBQ & q)
 	}
 }
 
-inline uint FASTCALL sizeofterm(BExtTerm * term)
+static inline uint FASTCALL sizeofterm(const BExtTerm * term)
 {
 	return (sizeof(BExtTerm) + term->fldLen);
 }

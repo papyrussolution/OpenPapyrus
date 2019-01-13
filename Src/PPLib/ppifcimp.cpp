@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -8893,7 +8893,7 @@ SPpyI_SupplDeal DL6ICLS_PPQuotation::GetSupplDeal(int32 goodsID, int32 locID, in
 {
 	SPpyI_SupplDeal od;
 	MEMSZERO(od);
-	QuotIdent qi(locID, 0, curID, supplID);
+	const QuotIdent qi(locID, 0, curID, supplID);
 	PPSupplDeal sd;
 	((PPObjGoods *)ExtraPtr)->GetSupplDeal(goodsID, qi, &sd, 1);
 	od.Val = sd.Cost;

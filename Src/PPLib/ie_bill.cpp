@@ -2669,15 +2669,17 @@ int SLAPI PPBillImporter::Import(int useTa)
 									RealRange price_range;
 									if(P_BObj->GetPriceRestrictions(pack, ti, new_item_pos, &price_range) > 0) {
 										PPTransferItem & r_ti = pack.TI(new_item_pos);
-										if(price_range.low > 0.0 && r_ti.Price < price_range.low) {
-											PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDLO, &msg_buf, ti.GoodsID, r_ti.Price, price_range.low);
-											Logger.Log(msg_buf);
-											r_ti.Price = price_range.low;
-										}
-										else if(price_range.upp > 0.0 && r_ti.Price > price_range.upp) {
-											PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDUP, &msg_buf, ti.GoodsID, r_ti.Price, price_range.upp);
-											Logger.Log(msg_buf);
-											r_ti.Price = price_range.upp;
+										if(!price_range.CheckValEps(r_ti.Price, 1E-7)) { // @v10.2.12
+											if(price_range.low > 0.0 && r_ti.Price < price_range.low) {
+												PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDLO, &msg_buf, ti.GoodsID, r_ti.Price, price_range.low);
+												Logger.Log(msg_buf);
+												r_ti.Price = price_range.low;
+											}
+											else if(price_range.upp > 0.0 && r_ti.Price > price_range.upp) {
+												PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDUP, &msg_buf, ti.GoodsID, r_ti.Price, price_range.upp);
+												Logger.Log(msg_buf);
+												r_ti.Price = price_range.upp;
+											}
 										}
 									}
 								}
@@ -3354,7 +3356,25 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 								}
 							}
 							else if(p_pack->DocType == PPEDIOP_DESADV) {
-								; // @todo
+								PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
+								if(p_bp && ((!this->LocID || p_bp->Rec.LocID == this->LocID) /*&& this->Period.CheckDate(p_bp->Rec.Dt)*/)) {
+									PPID   ex_bill_id = 0;
+									BillTbl::Rec ex_bill_rec;
+									if(P_BObj->P_Tbl->SearchAnalog(&p_bp->Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+										PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
+										if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
+											Logger.Log(msg_buf);
+									}
+									else {
+										int    is_valuation_modif = 0;
+										if(CheckOpFlags(p_bp->Rec.OpID, OPKF_NEEDVALUATION))
+											P_BObj->AutoCalcPrices(p_bp, 0, &is_valuation_modif);
+										if(P_BObj->__TurnPacket(p_bp, 0, 1, 1))
+											Logger.LogAcceptMsg(PPOBJ_BILL, p_bp->Rec.ID, 0);
+										else
+											Logger.LogLastError();
+									}
+								}
 							}
 							else if(p_pack->DocType == PPEDIOP_RECADV) {
 								PPEdiProcessor::RecadvPacket * p_recadv_pack = (PPEdiProcessor::RecadvPacket *)p_pack->P_Data;
@@ -3410,6 +3430,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 				if(temp_id_list.getCount()) {
 					// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
 					prc.SendOrders(be_filt, temp_id_list);
+					prc.SendRECADV(be_filt, temp_id_list); // @v10.2.12
 				}
 			}
 			{

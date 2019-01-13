@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2516,7 +2516,7 @@ IMPLEMENT_PPFILT_FACTORY(SCardOp); SLAPI SCardOpFilt::SCardOpFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewSCardOp::PPViewSCardOp() : PPView(0, &Filt, PPVIEW_SCARDOP)
+SLAPI PPViewSCardOp::PPViewSCardOp() : PPView(0, &Filt, PPVIEW_SCARDOP), IterPos(ZERODATETIME)
 {
 	DefReportId = REPORT_SCARDOPLIST;
 }
@@ -3215,54 +3215,56 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		DL600_SCardExt * p_ext = (DL600_SCardExt *)Extra[0].Ptr;
-		p_ext->CrEventSurID = 0;
-		p_ext->AcEventSurID = 0;
-		// @v10.1.3 if(p_ext && p_ext->ScObj.Search(rFilt.ID, &p_ext->ScRec) > 0) {
-		if(p_ext && p_ext->ScObj.GetPacket(rFilt.ID, &p_ext->ScPack) > 0) { // @v10.1.3
-			SString temp_buf;
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			const SCardTbl::Rec & r_rec = p_ext->ScPack.Rec;
-			H.ID = r_rec.ID;
-			H.SeriesID = r_rec.SeriesID;
-			H.OwnerReqID = r_rec.PersonID;
-			H.AutoGoodsID = r_rec.AutoGoodsID;
-			STRNSCPY(H.Code, r_rec.Code);
-			H.IssueDate = r_rec.Dt;
-			H.Expiry = r_rec.Expiry;
-			H.UsageTmStart = r_rec.UsageTmStart;
-			H.UsageTmEnd   = r_rec.UsageTmEnd;
-			if(r_rec.UsageTmStart || r_rec.UsageTmEnd) {
-				temp_buf.Z().Cat(r_rec.UsageTmStart, TIMF_HM);
-				if(r_rec.UsageTmEnd != r_rec.UsageTmStart) {
-					temp_buf.CatCharN('.', 2);
-					if(r_rec.UsageTmEnd)
-						temp_buf.Cat(r_rec.UsageTmEnd, TIMF_HM);
+		if(p_ext) {
+			p_ext->CrEventSurID = 0;
+			p_ext->AcEventSurID = 0;
+			// @v10.1.3 if(p_ext && p_ext->ScObj.Search(rFilt.ID, &p_ext->ScRec) > 0) {
+			if(p_ext->ScObj.GetPacket(rFilt.ID, &p_ext->ScPack) > 0) { // @v10.1.3
+				SString temp_buf;
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				const SCardTbl::Rec & r_rec = p_ext->ScPack.Rec;
+				H.ID = r_rec.ID;
+				H.SeriesID = r_rec.SeriesID;
+				H.OwnerReqID = r_rec.PersonID;
+				H.AutoGoodsID = r_rec.AutoGoodsID;
+				STRNSCPY(H.Code, r_rec.Code);
+				H.IssueDate = r_rec.Dt;
+				H.Expiry = r_rec.Expiry;
+				H.UsageTmStart = r_rec.UsageTmStart;
+				H.UsageTmEnd   = r_rec.UsageTmEnd;
+				if(r_rec.UsageTmStart || r_rec.UsageTmEnd) {
+					temp_buf.Z().Cat(r_rec.UsageTmStart, TIMF_HM);
+					if(r_rec.UsageTmEnd != r_rec.UsageTmStart) {
+						temp_buf.CatCharN('.', 2);
+						if(r_rec.UsageTmEnd)
+							temp_buf.Cat(r_rec.UsageTmEnd, TIMF_HM);
+					}
+					temp_buf.CopyTo(H.UsageTmStr, sizeof(H.UsageTmStr));
 				}
-				temp_buf.CopyTo(H.UsageTmStr, sizeof(H.UsageTmStr));
+				H.PeriodTerm = r_rec.PeriodTerm;
+				H.PeriodCount = r_rec.PeriodCount;
+				H.PDis   = fdiv100i(r_rec.PDis);
+				H.Overdraft = r_rec.MaxCredit;
+				H.Debit = r_rec.InTrnovr;
+				H.Credit = r_rec.Turnover;
+				H.Rest = r_rec.Rest;
+				p_ext->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+				STRNSCPY(H.Phone, temp_buf);
+				p_ext->ScPack.GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
+				STRNSCPY(H.Memo, temp_buf);
+				PPObjSCard::CalcSCardHash(r_rec.Code, temp_buf.Z()).CopyTo(H.Hash, sizeof(H.Hash));
+				const long _flags = r_rec.Flags;
+				H.Flags = _flags;
+				H.fClosed    = BIN(_flags & SCRDF_CLOSED);
+				H.fInherited = BIN(_flags & SCRDF_INHERITED);
+				H.fNoGift    = BIN(_flags & SCRDF_NOGIFT);
+				H.fNeedActivation = BIN(_flags & SCRDF_NEEDACTIVATION);
+				H.fAutoActivation = BIN(_flags & SCRDF_AUTOACTIVATION);
+				if(scs_obj.Fetch(r_rec.SeriesID, &scs_rec) > 0)
+					H.fCredit = BIN(scs_rec.Flags & SCRDSF_CREDIT);
+				ok = DlRtm::InitData(rFilt, rsrv);
 			}
-			H.PeriodTerm = r_rec.PeriodTerm;
-			H.PeriodCount = r_rec.PeriodCount;
-			H.PDis   = fdiv100i(r_rec.PDis);
-			H.Overdraft = r_rec.MaxCredit;
-			H.Debit = r_rec.InTrnovr;
-			H.Credit = r_rec.Turnover;
-			H.Rest = r_rec.Rest;
-			p_ext->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
-			STRNSCPY(H.Phone, temp_buf);
-			p_ext->ScPack.GetExtStrData(PPSCardPacket::extssMemo, temp_buf);
-			STRNSCPY(H.Memo, temp_buf);
-			PPObjSCard::CalcSCardHash(r_rec.Code, temp_buf.Z()).CopyTo(H.Hash, sizeof(H.Hash));
-			const long _flags = r_rec.Flags;
-			H.Flags = _flags;
-			H.fClosed    = BIN(_flags & SCRDF_CLOSED);
-			H.fInherited = BIN(_flags & SCRDF_INHERITED);
-			H.fNoGift    = BIN(_flags & SCRDF_NOGIFT);
-			H.fNeedActivation = BIN(_flags & SCRDF_NEEDACTIVATION);
-			H.fAutoActivation = BIN(_flags & SCRDF_AUTOACTIVATION);
-			if(scs_obj.Fetch(r_rec.SeriesID, &scs_rec) > 0)
-				H.fCredit = BIN(scs_rec.Flags & SCRDSF_CREDIT);
-			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
 	return ok;

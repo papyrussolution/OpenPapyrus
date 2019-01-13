@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1213,8 +1213,7 @@ int SLAPI PPObjBill::Helper_Reckon(PPID billID, ReckonOpArList * pOpList, CfmRec
 						debt_id = pParam->DebtOrPaym ? billID : *p_id;
 						paym_id = pParam->DebtOrPaym ? *p_id : billID;
 						if(Reckon(paym_id, debt_id, op_id, &(rckn_id = 0), pParam->DateOption, pParam->Dt, use_ta)) {
-							if(rckn_id) // @v8.1.2
-								pParam->ResultBillList.add(rckn_id); // @v8.0.11
+							pParam->ResultBillList.addnz(rckn_id);
 							ok = 1;
 						}
 						else {
@@ -1232,7 +1231,7 @@ int SLAPI PPObjBill::Helper_Reckon(PPID billID, ReckonOpArList * pOpList, CfmRec
 					ok = Reckon(paym_id, debt_id, op_id, &rckn_id, pParam->DateOption, pParam->Dt, use_ta) ?
 						(pParam->ForceBillID ? 3 : 2) : 0;
 					if(ok > 0 && rckn_id)
-						pParam->ResultBillList.add(rckn_id); // @v8.0.11
+						pParam->ResultBillList.add(rckn_id);
 				}
 			}
 		}
@@ -1418,10 +1417,8 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 						}
 					}
 				} while(r == 2 && paym_amt > 0);
-				// @v8.0.11 {
 				if(rParam.Flags & rParam.fPopupInfo)
 					Helper_PopupReckonInfo(result_bill_list);
-				// } @v8.0.11
 			}
 		}
 	}
@@ -1488,14 +1485,12 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 						P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &debt_amt);
 						debt_amt = R2(bill_rec.Amount - debt_amt);
 	   	        	}
-					result_bill_list.add(&crp.ResultBillList); // @v8.0.11
+					result_bill_list.add(&crp.ResultBillList);
 					do_popup = 1;
 				}
 			} while(r == 2 && debt_amt > 0.0);
-			// @v8.0.11 {
 			if(rParam.Flags & rParam.fPopupInfo && do_popup)
 				Helper_PopupReckonInfo(result_bill_list);
-			// } @v8.0.11
 		}
 	}
 	CATCHZOKPPERR

@@ -108,12 +108,14 @@ int SLAPI SysJournal::GetEvent(PPID action, int mode, LDATETIME * pMoment, int m
 	}
 	dbq = ppcheckfiltid(dbq, this->Action, action);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(((mode > 0) ? 0 : 1), &k, sp); q.nextIteration() > 0;) {
+	q.initIteration(((mode > 0) ? 0 : 1), &k, sp);
+	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(b);
 		return 1;
 	}
-	return PPDbSearchError();
+	else
+		return PPDbSearchError();
 }
 
 int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const DateRange * pSrchPeriod, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
@@ -133,12 +135,14 @@ int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, co
 	dbq = ppcheckfiltid(dbq, this->UserID, userID);
 	dbq = ppcheckfiltid(dbq, this->Extra, sessID);
 	q.selectAll().where(*dbq);
-	for(q.initIteration(1, &k, spLt); q.nextIteration() > 0;) {
+	q.initIteration(1, &k, spLt);
+	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(pRec);
 		return 1;
 	}
-	return PPDbSearchError();
+	else
+		return PPDbSearchError();
 }
 
 int SLAPI SysJournal::GetLastEvent(PPID action, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
@@ -318,11 +322,11 @@ int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pAc
 	q.where(*dbq);
 	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 		if(cmp(rSince, data.Dt, data.Tm) < 0 && (!pActList || pActList->lsearch(data.Action))) {
-			THROW(rObjList.add(data.ObjID)); // @v8.1.0 addUnique-->add
+			THROW(rObjList.add(data.ObjID));
 			ok = 1;
 		}
 	}
-	rObjList.sortAndUndup(); // @v8.1.0
+	rObjList.sortAndUndup();
 	CATCHZOK
 	return ok;
 }

@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -29,7 +29,7 @@ static int SalChargeFilt(void * pRec, void * extraPtr)
 
 SLAPI PPObjSalCharge::PPObjSalCharge(void * extraPtr) : PPObjReference(PPOBJ_SALCHARGE, extraPtr)
 {
-	filt = SalChargeFilt;
+	FiltProc = SalChargeFilt;
 }
 
 class SalChargeDialog : public PPListDialog {
@@ -2339,8 +2339,8 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(Color);
 #undef FLD
 		PPStringSetSCD ss;
-		ss.add(rec.Name, 0);
-		ss.add(rec.Symb, 0);
+		ss.add(rec.Name);
+		ss.add(rec.Symb);
 		PutName(ss.getBuf(), p_cache_rec);
 	}
 	else

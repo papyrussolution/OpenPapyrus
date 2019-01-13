@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -496,13 +496,12 @@ int SdRecord::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 
-int SdRecord::SetDescription(const char * pDescr)
+void FASTCALL SdRecord::SetDescription(const char * pDescr)
 {
-	if(pDescr && pDescr[0])
+	if(!isempty(pDescr))
 		StringPool.add(pDescr, (uint *)&DescrPos);
 	else
 		DescrPos = 0;
-	return 1;
 }
 
 int SdRecord::GetDescription(SString & rDescr) const

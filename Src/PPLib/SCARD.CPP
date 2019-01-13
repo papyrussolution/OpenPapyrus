@@ -1088,7 +1088,7 @@ int SLAPI SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 int SLAPI SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 {
 	int    ok = 1;
-	TSVector <LDATETIME> list; // @v9.8.4 TSArray-->TSVector
+	DateTimeArray list; // @v9.8.4 TSArray-->TSVector
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1106,12 +1106,11 @@ int SLAPI SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 			k0.Tm = MAXLONG;
 			if(ScOp.search(0, &k0, spLast) && ScOp.data.SCardID == cardID) do {
 				LDATETIME dtm;
-				dtm.Set(ScOp.data.Dt, ScOp.data.Tm);
-				list.insert(&dtm);
+				list.add(dtm.Set(ScOp.data.Dt, ScOp.data.Tm));
 			} while(ScOp.search(0, &k0, spPrev) && ScOp.data.SCardID == cardID);
 		}
 		for(uint i = 0; i < list.getCount(); i++) {
-			const LDATETIME dtm = list.at(i);
+			const LDATETIME dtm = list.get(i);
 			THROW(RemoveOp(cardID, dtm.d, dtm.t, 0));
 		}
 		THROW(tra.Commit());

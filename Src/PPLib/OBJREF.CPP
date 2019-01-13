@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -497,7 +497,7 @@ StrAssocArray * SLAPI PPObjReference::MakeStrAssocList(void * extraPtr)
 		const int is_hier = BIN(IS_DYN_OBJTYPE(Obj) && ImplementFlags & implTreeSelector);
 		ReferenceTbl::Rec rec;
 		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
-			if(!filt || filt(&rec, extraPtr)) {
+			if(!FiltProc || FiltProc(&rec, extraPtr)) {
 				if(*strip(rec.ObjName) == 0)
 					ideqvalstr(rec.ObjID, rec.ObjName, sizeof(rec.ObjName));
 				if(is_hier) {
@@ -711,7 +711,7 @@ static int SLAPI UnitListFilt(void * rec, void * extraPtr)
 
 SLAPI PPObjUnit::PPObjUnit(void * extraPtr) : PPObjReference(PPOBJ_UNIT, extraPtr)
 {
-	filt = UnitListFilt;
+	FiltProc = UnitListFilt;
 }
 
 int SLAPI PPObjUnit::Browse(void * extraPtr)

@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -479,14 +479,16 @@ int SLAPI PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					const PPTransferItem & r_ti = pPack->ConstTI(tidx);
 					if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
 						const double validated_price = r_ti.NetPrice();
-						//THROW(restr_bounds.CheckVal(validated_price));
-						if(restr_bounds.low > 0.0) {
-							temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY);
-							THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
-						}
-						if(restr_bounds.upp > 0.0) {
-							temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY);
-							THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
+						if(!restr_bounds.CheckValEps(validated_price, 1E-7)) { // @v10.2.12
+							//THROW(restr_bounds.CheckVal(validated_price));
+							if(restr_bounds.low > 0.0) {
+								temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY);
+								THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
+							}
+							if(restr_bounds.upp > 0.0) {
+								temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY);
+								THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
+							}
 						}
 					}
 				}
@@ -1537,7 +1539,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 	return ok ? res : 0;
 }
 
-int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID opID, PPID sCardID, CCheckTbl::Rec * pChkRec)
+int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID opID, PPID sCardID, const CCheckTbl::Rec * pChkRec)
 {
 	int    ok = 1, r = cmCancel;
 	PPID   op_type = 0L;
@@ -1845,7 +1847,7 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	return ok;
 }
 
-int SLAPI PPObjBill::GetAccturn(AccTurnTbl::Rec * pATRec, PPAccTurn * pAturn, int useCache)
+int SLAPI PPObjBill::GetAccturn(const AccTurnTbl::Rec * pATRec, PPAccTurn * pAturn, int useCache)
 {
 	int    ok = 0;
 	BillTbl::Rec bill_rec;
@@ -2311,12 +2313,13 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			ok = ReplyArticleReplace(_id, (long)extraPtr);
 		else if(_obj == PPOBJ_GOODSTAX) {
 			// @todo update_for
-			for(k = 0; ok == DBRPL_OK && trfr->Rcpt.search(0, &k, spGt);)
+			for(k = 0; trfr->Rcpt.search(0, &k, spGt);) {
 				if(trfr->Rcpt.data.InTaxGrpID == _id) {
 					THROW_DB(trfr->Rcpt.rereadForUpdate(0, &k));
 					trfr->Rcpt.data.InTaxGrpID = (long)extraPtr;
 					THROW_DB(trfr->Rcpt.updateRec()); // @sfu
 				}
+			}
 		}
 		else if(_obj == PPOBJ_LOCATION) {
 			LAssocArray dlvr_addr_list;
@@ -2324,7 +2327,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			THROW(LocObj.Search((long)extraPtr, &replacement_rec) > 0);
 			THROW_PP(replacement_rec.Type == LOCTYP_ADDRESS, PPERR_REPLACEMENTID_NOTADDR);
 			p_tbl->GetDlvrAddrList(&dlvr_addr_list);
-			for(uint i = 0; ok == DBRPL_OK && i < dlvr_addr_list.getCount(); i++) {
+			for(uint i = 0; i < dlvr_addr_list.getCount(); i++) {
 				if(dlvr_addr_list.at(i).Val == _id) {
 					const PPID bill_id = dlvr_addr_list.at(i).Key;
 					PPFreight freight;
@@ -2390,7 +2393,7 @@ int SLAPI PPObjBill::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg
 				s = TDialog::TransmitData(dir, pData);
 			return s;
 		}
-		int setDTS(ObjRights * pData)
+		int setDTS(const ObjRights * pData)
 		{
 			AddClusterAssoc(CTL_RTBILL_SFLAGS, 0, BILLRT_CASH);
 			AddClusterAssoc(CTL_RTBILL_SFLAGS, 1, BILLRT_CLOSECASH);
@@ -3034,6 +3037,9 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 }
 
 struct TDisCalcMethodParam {
+	TDisCalcMethodParam() : Method(0), ThresholdDate(ZERODATE), Prec(0), Pad(0)
+	{
+	}
 	long   Method;        //
 	LDATE  ThresholdDate; //
 	int16  Prec;          //
@@ -3412,7 +3418,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 }
 
 // AHTOXA {
-int PPObjBill::GetDeficitList(DateRange * pPeriod, const PPIDArray * pLocList, RAssocArray * pAry)
+int PPObjBill::GetDeficitList(const DateRange * pPeriod, const PPIDArray * pLocList, RAssocArray * pAry)
 {
 	int    ok = 1;
 	PPID   bill_id = 0, prmr_id = 0;
@@ -3423,8 +3429,7 @@ int PPObjBill::GetDeficitList(DateRange * pPeriod, const PPIDArray * pLocList, R
 	for(uint i = 0; i < pool_memb_ary.getCount(); i++) {
 		BillTbl::Rec b_rec;
 		bill_id = pool_memb_ary.at(i).Val;
-		if(!pPeriod || Search(bill_id, &b_rec) > 0 && pPeriod->CheckDate(b_rec.Dt) &&
-			(!pLocList || pLocList->lsearch(b_rec.LocID))) {
+		if((!pPeriod || (Search(bill_id, &b_rec) > 0 && pPeriod->CheckDate(b_rec.Dt))) && (!pLocList || pLocList->lsearch(b_rec.LocID))) {
 			BExtQuery q(P_CpTrfr, 0);
 			q.select(P_CpTrfr->GoodsID, P_CpTrfr->Qtty, 0).where(P_CpTrfr->BillID == bill_id);
 			MEMSZERO(k0);
@@ -3445,7 +3450,7 @@ IMPL_CMPFUNC(DraftRcptItem, _i1, _i2)
 	return NZOR(r, cmp_long(((DraftRcptItem*)_i1)->LocID, ((DraftRcptItem*)_i2)->LocID));
 }
 
-int PPObjBill::GetDraftRcptList(DateRange * pPeriod, const PPIDArray * pLocList, DraftRcptArray * pList)
+int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLocList, DraftRcptArray * pList)
 {
 	int    ok = 1;
 	const  PPID draft_op_id = DS.GetTLA().Cc.DraftRcptOp;
@@ -4584,7 +4589,7 @@ public:
 	int    SLAPI FetchExt(PPID id, PPBillExt * pExt)   { return ExtCache.Get(id, pExt); } // @sync_w
 	int    SLAPI FetchFreight(PPID id, PPFreight * pFreight) { return FreightCache.Get(id, pFreight); } // @sync_w
 	int    SLAPI GetCrBillEntry(long & rTempID, PPBillPacket * pPack); // @sync_w
-	int    SLAPI SetCrBillEntry(long tempID, PPBillPacket * pPack);    // @sync_w
+	int    SLAPI SetCrBillEntry(long tempID, const PPBillPacket * pPack);    // @sync_w
 	int    SLAPI GetPrjConfig(PPProjectConfig * pCfg, int enforce);    // @sync_w
 
 	const  StrAssocArray * SLAPI GetFullSerialList(); // @sync_w
@@ -4863,7 +4868,7 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
+int SLAPI BillCache::SetCrBillEntry(long tempID, const PPBillPacket * pPack)
 {
 	int    ok = 0;
 	if(tempID) {
@@ -4958,7 +4963,7 @@ int SLAPI PPObjBill::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 	return p_cache ? p_cache->GetCrBillEntry(rTempID, pPack) : 0;
 }
 
-int SLAPI PPObjBill::SetCrBillEntry(long tempID, PPBillPacket * pPack)
+int SLAPI PPObjBill::SetCrBillEntry(long tempID, const PPBillPacket * pPack)
 {
 	BillCache * p_cache = GetDbLocalCachePtr <BillCache> (PPOBJ_BILL);
 	return p_cache ? p_cache->SetCrBillEntry(tempID, pPack) : 0;
@@ -8213,7 +8218,7 @@ int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int us
 	return ok;
 }
 
-int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, PPIDArray * pSrcList, int use_ta)
+int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int use_ta)
 {
 	int    ok = 1, frrl_tag = 0;
 	int    r_by_bill = 0;
@@ -8228,8 +8233,8 @@ int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, PPIDArray * pSrcList, int
 	for(i = 0; dest_pack.EnumTItems(&i, &p_ti);)
 		THROW_SL(ary.Add(p_ti->GoodsID, p_ti->LotID, 0, 0));
 	ary.Sort();
-	for(j = 0; j < pSrcList->getCount(); j++) {
-		/*PPID*/   src_bill_id = pSrcList->at(j);
+	for(j = 0; j < rSrcList.getCount(); j++) {
+		/*PPID*/   src_bill_id = rSrcList.at(j);
 		BillTbl::Rec src_bill_rec;
 		THROW(Search(src_bill_id, &src_bill_rec) > 0);
 		if(dest_pack.Rec.Object == src_bill_rec.Object && dest_pack.Rec.OpID == src_bill_rec.OpID &&

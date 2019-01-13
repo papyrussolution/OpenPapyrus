@@ -784,7 +784,7 @@ SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), R
 {
     Period.Z();
 	TimeRestriction.SetZero();
-	AmountRestriction.Clear();
+	AmountRestriction.Z();
 }
 
 SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0), PhUnitBlkP(0), UnitFlags(0), BaseId(0), BaseRatio(0.0), PhRatio(0.0)

@@ -9,8 +9,7 @@
 // BillCore
 //
 #define WHITE_LABEL_SIGN '!'
-
-#define BILLCODE_SIZ sizeof(((BillTbl::Rec*)0)->Code)
+#define BILLCODE_SIZ     sizeof(((BillTbl::Rec*)0)->Code)
 
 // static
 char * FASTCALL BillCore::SetCode(char * code, long f)
@@ -1575,11 +1574,11 @@ int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rLi
 		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 			const BillCore::Extra_Strg * p_ext = (BillCore::Extra_Strg*)&p_tbl->data;
 			if((!payerID || p_ext->PayerID == payerID) && (!agentID || p_ext->AgentID == agentID)) {
-				rList.add(p_tbl->data.ObjID); // @v8.1.0 addUnique-->add
+				rList.add(p_tbl->data.ObjID);
 				ok = 1;
 			}
 		}
-		rList.sortAndUndup(); // @v8.1.0
+		rList.sortAndUndup();
 	}
 	return ok;
 }

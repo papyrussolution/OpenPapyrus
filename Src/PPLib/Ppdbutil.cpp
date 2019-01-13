@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -234,8 +234,6 @@ PPBackup * SLAPI PPBackup::CreateInstance(PPDbEntrySet2 * dbes)
 
 SLAPI PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList(0), P_Sync(0)
 {
-	//Valid = 1;
-	//IsDBLocked = 0;
 	SString data_path;
 	THROW_MEM(P_Sync = new PPSync);
 	pDb->GetDataPath(data_path);
@@ -297,55 +295,57 @@ int SLAPI PPBackup::GetDefaultScen(PPBackupScen * pScen)
 int SLAPI PPBackup::GetScenList(SArray * pScenList)
 {
 	int    ok = 1;
-	uint   pos = 0;
-	const  char * p_sect = BACKUP;
-	SString buf;
-	StringSet temp;
-	PPIniFile ini_file;
-	THROW(ini_file.IsValid());
-	pScenList->freeAll();
-	ini_file.GetEntries(p_sect, &temp);
-	for(pos = 0; temp.get(&pos, buf);) {
-		uint   i = 0;
-		PPBackupScen entry;
-		STRNSCPY(entry.Name, buf);
-		ini_file.GetParam(p_sect, entry.Name, buf);
-		StringSet ss(',', buf);
-		ss.get(&i, entry.DBName, sizeof(entry.DBName));
-		if(stricmp866(entry.DBName, DBName) == 0) {
-			int    r = ss.get(&i, entry.BackupPath, sizeof(entry.BackupPath));
-			if(!r || entry.BackupPath[0] == 0)
-				GetDefaultBackupPath(entry.BackupPath);
-			if(r) {
-				if(ss.get(&i, buf)) {
-					entry.Period = buf.ToLong();
-					if(entry.Period < 1 || entry.Period > 365)
+	if(pScenList) {
+		uint   pos = 0;
+		const  char * p_sect = BACKUP;
+		SString buf;
+		StringSet temp;
+		PPIniFile ini_file;
+		THROW(ini_file.IsValid());
+		pScenList->freeAll();
+		ini_file.GetEntries(p_sect, &temp);
+		for(pos = 0; temp.get(&pos, buf);) {
+			uint   i = 0;
+			PPBackupScen entry;
+			STRNSCPY(entry.Name, buf);
+			ini_file.GetParam(p_sect, entry.Name, buf);
+			StringSet ss(',', buf);
+			ss.get(&i, entry.DBName, sizeof(entry.DBName));
+			if(stricmp866(entry.DBName, DBName) == 0) {
+				int    r = ss.get(&i, entry.BackupPath, sizeof(entry.BackupPath));
+				if(!r || entry.BackupPath[0] == 0)
+					GetDefaultBackupPath(entry.BackupPath);
+				if(r) {
+					if(ss.get(&i, buf)) {
+						entry.Period = buf.ToLong();
+						if(entry.Period < 1 || entry.Period > 365)
+							entry.Period = 1;
+					}
+					else
 						entry.Period = 1;
-				}
-				else
-					entry.Period = 1;
-				if(ss.get(&i, buf)) {
-					entry.Flags = buf.ToLong();
-					if(entry.Flags != 0)
-						entry.Flags = 1;
-				}
-				else
-					entry.Flags = 0;
-				if(ss.get(&i, buf)) {
-					entry.numCopies = buf.ToLong();
-					if(entry.numCopies <= 0)
+					if(ss.get(&i, buf)) {
+						entry.Flags = buf.ToLong();
+						if(entry.Flags != 0)
+							entry.Flags = 1;
+					}
+					else
+						entry.Flags = 0;
+					if(ss.get(&i, buf)) {
+						entry.numCopies = buf.ToLong();
+						if(entry.numCopies <= 0)
+							entry.numCopies = 1;
+					}
+					else
 						entry.numCopies = 1;
 				}
-				else
-					entry.numCopies = 1;
+				THROW_SL(pScenList->insert(&entry));
 			}
+		}
+		if(pScenList->getCount() == 0) {
+			PPBackupScen entry;
+			THROW(GetDefaultScen(&entry));
 			THROW_SL(pScenList->insert(&entry));
 		}
-	}
-	if(pScenList->getCount() == 0) {
-		PPBackupScen entry;
-		THROW(GetDefaultScen(&entry));
-		THROW_SL(pScenList->insert(&entry));
 	}
 	CATCHZOK
 	return ok;
@@ -455,17 +455,17 @@ static int SLAPI SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 
 class ConfigBackupDialog : public TDialog {
 public:
-	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT), IniFile(pIniFile)
+	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT), P_IniFile(pIniFile)
 	{
-		List = (SmartListBox *)getCtrlView(CTL_BUCFG_SCNAME);
-		SetupListBox(List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
-		DBES.ReadFromProfile(IniFile, 0);
-		ScenList = new SArray(sizeof(PPBackupScen));
+		P_List = (SmartListBox *)getCtrlView(CTL_BUCFG_SCNAME);
+		SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
+		DBES.ReadFromProfile(P_IniFile, 0);
+		P_ScenList = new SArray(sizeof(PPBackupScen));
 		updateList();
 	}
 	virtual ~ConfigBackupDialog()
 	{
-		delete ScenList;
+		delete P_ScenList;
 	}
 private:
 	DECL_HANDLE_EVENT;
@@ -475,28 +475,30 @@ private:
 	int    updateEntry();
 	int    deleteEntry();
 	PPDbEntrySet2 DBES;
-	SmartListBox * List;
-	SArray       * ScenList;
-	PPIniFile    * IniFile;
+	SmartListBox * P_List;
+	SArray       * P_ScenList;
+	PPIniFile    * P_IniFile;
 };
 
 int ConfigBackupDialog::updateList()
 {
-	getScenList(ScenList);
-	List->freeAll();
-	SString n, pn;
-	for(uint i = 0; i < ScenList->getCount(); i++) {
-		char sub[128];
-		StringSet ss(SLBColumnDelim);
-		PPBackupScen * p_entry = (PPBackupScen *)ScenList->at(i);
-		ss.add(strip(strcpy(sub, p_entry->Name)), 0);
-		DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbSymb, n);
-		DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbFriendlyName, pn);
-		pn.SetIfEmpty(n);
-		ss.add(pn.Strip(), 0);
-		List->addItem(i+1, ss.getBuf());
+	if(P_ScenList && P_List) {
+		getScenList(P_ScenList);
+		P_List->freeAll();
+		SString n, pn;
+		for(uint i = 0; i < P_ScenList->getCount(); i++) {
+			char sub[128];
+			StringSet ss(SLBColumnDelim);
+			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at(i);
+			ss.add(strip(strcpy(sub, p_entry->Name)));
+			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbSymb, n);
+			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbFriendlyName, pn);
+			pn.SetIfEmpty(n);
+			ss.add(pn.Strip(), 0);
+			P_List->addItem(i+1, ss.getBuf());
+		}
+		P_List->Draw_();
 	}
-	List->Draw_();
 	return 1;
 }
 
@@ -549,7 +551,7 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 				sel = CTL_BUCFG_CFGNAME;
 				err_text = PPINF_SCENNAME;
 			}
-			else if(IniFile->GetParam(BACKUP, temp_scen_name, temp_buf) > 0) {
+			else if(P_IniFile->GetParam(BACKUP, temp_scen_name, temp_buf) > 0) {
 				sel = CTL_BUCFG_CFGNAME;
 				err_text = PPINF_SCENEXIST;
 			}
@@ -584,7 +586,7 @@ int ConfigBackupDialog::addEntry()
 	if(editEntry(1, &entry) > 0) {
 		SString temp_buf;
 		entry.ToStr(temp_buf);
-		IniFile->AppendParam(BACKUP, entry.Name, temp_buf, 1);
+		P_IniFile->AppendParam(BACKUP, entry.Name, temp_buf, 1);
 		updateList();
 		ok = 1;
 	}
@@ -594,19 +596,21 @@ int ConfigBackupDialog::addEntry()
 int ConfigBackupDialog::updateEntry()
 {
 	int    ok = -1;
-	PPID   ssid = 0;
-	SString org_entry_name, buf;
-	getCtrlData(CTL_BUCFG_SCNAME, &ssid);
-	if(ssid) {
-		PPBackupScen * p_entry = (PPBackupScen *)ScenList->at((int)ssid-1);
-		org_entry_name = p_entry->Name;
-		DBES.SetSelection(DBES.GetBySymb(p_entry->DBName, 0));
-		if(editEntry(1, p_entry) > 0) {
-			p_entry->ToStr(buf);
-			IniFile->RemoveParam(BACKUP, org_entry_name);
-			IniFile->AppendParam(BACKUP, p_entry->Name, buf, 1);
-			updateList();
-			ok = 1;
+	if(P_ScenList && P_IniFile) {
+		PPID   ssid = 0;
+		SString org_entry_name, buf;
+		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
+		if(ssid) {
+			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at((int)ssid-1);
+			org_entry_name = p_entry->Name;
+			DBES.SetSelection(DBES.GetBySymb(p_entry->DBName, 0));
+			if(editEntry(1, p_entry) > 0) {
+				p_entry->ToStr(buf);
+				P_IniFile->RemoveParam(BACKUP, org_entry_name);
+				P_IniFile->AppendParam(BACKUP, p_entry->Name, buf, 1);
+				updateList();
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -615,14 +619,16 @@ int ConfigBackupDialog::updateEntry()
 int ConfigBackupDialog::deleteEntry()
 {
 	int    ok = -1;
-	PPID   ssid = 0;
-	getCtrlData(CTL_BUCFG_SCNAME, &ssid);
-	if(ssid) {
-		PPBackupScen * p_entry = (PPBackupScen *)ScenList->at((int)ssid-1);
-		if(PPMessage(mfConf, PPCFM_REMOVECFG, p_entry->Name) == cmYes) {
-			IniFile->RemoveParam(BACKUP, p_entry->Name);
-			updateList();
-			ok = 1;
+	if(P_ScenList && P_IniFile) {
+		PPID   ssid = 0;
+		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
+		if(ssid) {
+			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at((int)ssid-1);
+			if(PPMessage(mfConf, PPCFM_REMOVECFG, p_entry->Name) == cmYes) {
+				P_IniFile->RemoveParam(BACKUP, p_entry->Name);
+				updateList();
+				ok = 1;
+			}
 		}
 	}
 	return ok;

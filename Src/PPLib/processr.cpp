@@ -1998,12 +1998,13 @@ int SLAPI PPViewProcessor::InitIteration()
 
 int FASTCALL PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
 {
-	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
+	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PrcObj.P_Tbl->copyBufTo(pItem);
 		Counter.Increment();
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 void * SLAPI PPViewProcessor::GetEditExtraParam()

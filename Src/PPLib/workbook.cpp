@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -505,9 +505,7 @@ int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 				}
 			}
 		}
-		// @v8.1.2 THROW(PPRef->RemoveItem(Obj, id, 0));
-		// @v8.1.2 DS.LogAction(PPACN_OBJRMV, Obj, id, 0, 0);
-		THROW(PutPacket(&id, 0, 0)); // @v8.1.2
+		THROW(PutPacket(&id, 0, 0));
 		THROW(tra.Commit());
 		ok = 1;
 	}
@@ -639,35 +637,27 @@ public:
 	int    setDTS(const PPWorkbookPacket * pData)
 	{
 		Data = *pData;
-
 		SString temp_buf;
-
 		setCtrlLong(CTL_WORKBOOK_ID, Data.Rec.ID);
 		disableCtrl(CTL_WORKBOOK_ID, 1);
 		setCtrlString(CTL_WORKBOOK_NAME, Data.Rec.Name);
 		setCtrlString(CTL_WORKBOOK_CODE, Data.Rec.Symb);
-
 		setCtrlLong(CTL_WORKBOOK_RANK, Data.Rec.Rank);
-
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 0, PPWBTYP_SITE);
 		AddClusterAssocDef(CTL_WORKBOOK_TYPE, 1, PPWBTYP_PAGE);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 2, PPWBTYP_CSS);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 3, PPWBTYP_MEDIA);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 4, PPWBTYP_FOLDER);
 		SetClusterData(CTL_WORKBOOK_TYPE, Data.Rec.Type);
-
 		AddClusterAssoc(CTL_WORKBOOK_FLAGS, 0, PPWBF_HIDDEN);
 		AddClusterAssoc(CTL_WORKBOOK_FLAGS, 1, PPWBF_DONTSHOWCHILDREN);
 		SetClusterData(CTL_WORKBOOK_FLAGS, Data.Rec.Flags);
-		// @v8.1.8 {
 		if(getCtrlView(CTL_WORKBOOK_KWFLAGS)) {
 			AddClusterAssoc(CTL_WORKBOOK_KWFLAGS, 0, PPWBF_KWDONTSHOWMAINC);
 			SetClusterData(CTL_WORKBOOK_KWFLAGS, Data.Rec.Flags);
 		}
-		// } @v8.1.8
-		setCtrlDate(CTL_WORKBOOK_DT, Data.Rec.Dt); // @v8.1.6
-		setCtrlTime(CTL_WORKBOOK_TM, Data.Rec.Tm); // @v8.1.6
-
+		setCtrlDate(CTL_WORKBOOK_DT, Data.Rec.Dt);
+		setCtrlTime(CTL_WORKBOOK_TM, Data.Rec.Tm);
 		WbObj.SetupParentCombo(this, CTLSEL_WORKBOOK_PARENT, Data.Rec.Type, Data.Rec.ID, Data.Rec.ParentID);
 		WbObj.SetupCSSCombo(this, CTLSEL_WORKBOOK_CSS, Data.Rec.Type, Data.Rec.ID, Data.Rec.CssID);
 		WbObj.SetupLinkCombo(this, CTLSEL_WORKBOOK_LINK, Data.Rec.Type, Data.Rec.ID, Data.Rec.LinkID);
@@ -700,7 +690,6 @@ public:
 		if(Data.Rec.Type == PPWBTYP_KEYWORD) {
 			setCtrlData(CTL_WORKBOOK_KWC, &Data.Rec.KeywordCount);
 			setCtrlData(CTL_WORKBOOK_KWD, &Data.Rec.KeywordDilute);
-			// @v8.1.12 {
 			{
 				ObjTagItem tag_kws;
 				if(tag_kws.Init(PPTAG_WORKBOOK_KWSYN)) {
@@ -723,7 +712,6 @@ public:
 				else
 					disableCtrl(CTL_WORKBOOK_KWLOC, 1);
 			}
-			// } @v8.1.12
 		}
 		else {
 			ObjTagItem tag_kw;
@@ -744,7 +732,7 @@ public:
 				setCtrlString(CTL_WORKBOOK_DESCR, temp_buf);
 			}
 		}
-		setCtrlString(CTL_WORKBOOK_VER, temp_buf = Data.Rec.Version); // @v8.2.0
+		setCtrlString(CTL_WORKBOOK_VER, temp_buf = Data.Rec.Version);
 		return 1;
 	}
 	int    getDTS(PPWorkbookPacket * pData)
@@ -767,26 +755,21 @@ public:
 
 		GetClusterData(CTL_WORKBOOK_TYPE, &Data.Rec.Type);
 		GetClusterData(CTL_WORKBOOK_FLAGS, &Data.Rec.Flags);
-		// @v8.1.8 {
 		if(getCtrlView(CTL_WORKBOOK_KWFLAGS)) {
 			GetClusterData(CTL_WORKBOOK_KWFLAGS, &Data.Rec.Flags);
 		}
-		// } @v8.1.8
-		getCtrlData(CTL_WORKBOOK_DT, &Data.Rec.Dt); // @v8.1.6
-		getCtrlData(CTL_WORKBOOK_TM, &Data.Rec.Tm); // @v8.1.6
-
+		getCtrlData(CTL_WORKBOOK_DT, &Data.Rec.Dt);
+		getCtrlData(CTL_WORKBOOK_TM, &Data.Rec.Tm);
 		getCtrlData(CTLSEL_WORKBOOK_PARENT, &Data.Rec.ParentID);
 		getCtrlData(CTLSEL_WORKBOOK_CSS, &Data.Rec.CssID);
 		getCtrlData(CTLSEL_WORKBOOK_LINK, &Data.Rec.LinkID);
 		if(Data.Rec.Type == PPWBTYP_KEYWORD) {
 			getCtrlData(CTL_WORKBOOK_KWC, &Data.Rec.KeywordCount);
 			getCtrlData(CTL_WORKBOOK_KWD, &Data.Rec.KeywordDilute);
-			// @v8.1.12 {
 			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
 			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
-			// } @v8.1.12
 		}
 		else {
 			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf.Z());
@@ -817,10 +800,8 @@ public:
 			getCtrlString(CTL_WORKBOOK_DESCR, temp_buf.Z());
 			Data.PutExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
 		}
-		// @v8.2.0 {
 		getCtrlString(CTL_WORKBOOK_VER, temp_buf);
 		temp_buf.CopyTo(Data.Rec.Version, sizeof(Data.Rec.Version));
-		// } @v8.2.0
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = PPErrorByDialog(this, sel);
@@ -1344,7 +1325,6 @@ int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use
 			ext_string = pPack->ExtString;
 		}
 		if(is_new) {
-			// @v8.3.3 {
 			{
 				PPID   dup_id = 0;
 				WorkbookTbl::Rec dup_rec;
@@ -1355,8 +1335,6 @@ int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use
 					THROW_PP_S(SearchByName(pPack->Rec.Name, &dup_id, &dup_rec) < 0, PPERR_DUPNEWWORKBOOKNAME, pPack->Rec.Name);
 				}
 			}
-			// } @v8.3.3
-
 			P_Tbl->copyBufFrom(&pPack->Rec);
 			THROW_DB(P_Tbl->insertRec(0, &_id));
 			pPack->Rec.ID = _id;
@@ -1473,7 +1451,7 @@ int SLAPI PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, Obj
 			if((*pID) == 0) {
 				PPID   same_id = 0;
 				WorkbookTbl::Rec same_rec;
-				p_pack->Rec.ID = 0; // @v7.3.11
+				p_pack->Rec.ID = 0;
 				if((r = SearchAnalog(&p_pack->Rec, &same_id, &same_rec)) > 0) {
 					*pID = same_id;
 					is_analog = 1;
@@ -1894,14 +1872,11 @@ int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemTyp
 		p_list->SortByText();
 		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
 		if(p_lw) {
-			// @v8.2.0 {
 			if(parentID == 0 && itemType == PPWBTYP_MEDIA) {
 				PPWorkbookConfig cfg;
-				if(PPObjWorkbook::ReadConfig(&cfg) > 0 && cfg.DefImageFolderID && p_list->Search(cfg.DefImageFolderID)) {
+				if(PPObjWorkbook::ReadConfig(&cfg) > 0 && cfg.DefImageFolderID && p_list->Search(cfg.DefImageFolderID))
 					parentID = cfg.DefImageFolderID;
-				}
 			}
-			// } @v8.2.0
 			p_combo->setListWindow(p_lw, parentID);
 			ok = 1;
 		}
@@ -3104,7 +3079,7 @@ int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 		// } @v9.3.7
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
-		STRNSCPY(H.Version, r_blk.Pack.Rec.Version); // @v8.2.0
+		STRNSCPY(H.Version, r_blk.Pack.Rec.Version);
 		{
 			r_blk.Pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf.Z());
 			STRNSCPY(H.Descr, temp_buf);
@@ -3169,7 +3144,6 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 				case OTTYP_STRING:
 				case OTTYP_GUID:
 					p_item->GetStr(temp_buf.Z());
-					// @v8.2.2 {
 					if(p_item->TagID == PPTAG_WORKBOOK_KWLOC) {
 						if(temp_buf.HasChr('@')) {
 							StringSet ss(',', temp_buf);
@@ -3191,8 +3165,6 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 						}
 						ShuffleWordList(temp_buf);
 					}
-					// } @v8.2.2
-					// @v8.3.6 {
 					if(p_item->TagID == PPTAG_WORKBOOK_KEYWORDS) {
 						if(temp_buf.HasChr('#') || temp_buf.HasChr('$')) {
 							StringSet ss(',', temp_buf);
@@ -3217,12 +3189,9 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 						}
 						ShuffleWordList(temp_buf);
 					}
-					// } @v8.3.6
-					// @v8.2.10 {
 					else if(p_item->TagID == PPTAG_WORKBOOK_KWSYN) {
 						ShuffleWordList(temp_buf);
 					}
-					// } @v8.2.10
 					temp_buf.CopyTo(I_TagList.StrVal, sizeof(I_TagList.StrVal));
 					break;
 				case OTTYP_NUMBER:

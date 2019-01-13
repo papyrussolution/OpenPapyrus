@@ -1070,7 +1070,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
 										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
 										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
-										p_pack->XcL.Set(dest_pos+1, &lotxcode_set); // @v10.2.9 
+										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9 
 									}
 									// } @v10.2.7 
 								}
@@ -1128,7 +1128,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
 										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
 										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
-										p_pack->XcL.Set(dest_pos+1, &lotxcode_set); // @v10.2.9 
+										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9 
 									}
 									// } @v10.2.7 
 								}

@@ -2108,7 +2108,8 @@ int TrfrItemDialog::CheckPrice()
 {
 	int    ok = 1;
 	SString msg;
-	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == CConfig.DraftRcptOp && CConfig.Flags2 & CCFLG2_USESDONPURCHOP)) {
+	const PPCommConfig & r_ccfg = CConfig;
+	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP)) {
 		int    ret = Sd.CheckCost(Item.Cost);
 		if(!ret) {
 			int    invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
@@ -2122,13 +2123,15 @@ int TrfrItemDialog::CheckPrice()
 	{
 		RealRange range;
 		if(GetPriceRestrictions(&range) > 0) {
-			if(range.low > 0.0) {
-				msg.Z().Cat(range.low, SFMT_MONEY);
-				THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
-			}
-			if(range.upp > 0.0) {
-				msg.Z().Cat(range.upp, SFMT_MONEY);
-				THROW_PP_S(Item.NetPrice() <= range.upp, PPERR_PRICERESTRUPP, msg);
+			if(range.CheckValEps(Item.NetPrice(), 1E-7)) { // @v10.2.12
+				if(range.low > 0.0) {
+					msg.Z().Cat(range.low, SFMT_MONEY);
+					THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
+				}
+				if(range.upp > 0.0) {
+					msg.Z().Cat(range.upp, SFMT_MONEY);
+					THROW_PP_S(Item.NetPrice() <= range.upp, PPERR_PRICERESTRUPP, msg);
+				}
 			}
 		}
 	}

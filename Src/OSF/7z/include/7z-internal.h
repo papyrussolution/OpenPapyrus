@@ -8833,7 +8833,7 @@ HRESULT FASTCALL ParsePropToUInt32(const UString &name, const PROPVARIANT &prop,
 HRESULT ParseMtProp(const UString &name, const PROPVARIANT &prop, uint32 defaultNumThreads, uint32 &numThreads);
 
 struct CProp {
-	CProp() : IsOptional(false) 
+	CProp() : Id(0), IsOptional(false)
 	{
 	}
 	PROPID Id;

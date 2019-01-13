@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -840,11 +840,8 @@ int SLAPI GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)
 	int    ok = -1;
 	rList.clear();
 	{
-		//BarLock.ReadLock();
 		SRWLOCKER(BarLock, SReadWriteLocker::Read);
 		if(!P_BarList) {
-			//BarLock.Unlock();
-			//BarLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!P_BarList) {
 				PPObjGoodsValRestr gvr_obj;
@@ -878,7 +875,6 @@ int SLAPI GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)
 			rList = *P_BarList;
 			ok = 1;
 		}
-		//BarLock.Unlock();
 	}
 	return ok;
 }
@@ -888,10 +884,8 @@ int FASTCALL GoodsValRestrCache::Dirty(PPID id)
 	int    ok = 1;
 	ObjCache::Dirty(id);
 	{
-		//BarLock.WriteLock();
 		SRWLOCKER(BarLock, SReadWriteLocker::Write);
 		ZDELETE(P_BarList);
-		//BarLock.Unlock();
 	}
 	return ok;
 }

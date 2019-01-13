@@ -2963,7 +2963,7 @@ struct IntRange { // @persistent @size=8
 //
 //
 struct SSzChunk { // @flat @noctr @novtbl
-	SSzChunk & Clear();
+	SSzChunk & Z();
 	SSzChunk & Set(int begin, int len);
 	SSzChunk & SetRange(int begin, int end);
 	int    operator !() const;
@@ -2989,7 +2989,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Возвращает наибольшее значение из (low, upp)
 	//
 	double SLAPI GetActualUpp() const;
-	RealRange & Clear();
+	RealRange & SLAPI Z();
 	RealRange & FASTCALL operator = (const IntRange & rS);
 	int    FASTCALL operator != (const RealRange & rS) const;
 	//
@@ -3002,14 +3002,20 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	int    SLAPI CheckX(double v) const;
 	//
-	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
-	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она
-	//   не проверяется.
+	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
+	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
 	//   Например,
 	//     -1 удовлетворяет диапазону [0..5.2]
 	//     10 удовлетворяет диапазону [-3.1..0]
 	//
-	int    SLAPI CheckVal(double) const;
+	int    SLAPI CheckVal(double val) const;
+	//
+	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
+	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
+	//   Если разница между val и границей диапазона меньше eps, то функция считает условие
+	//   выполненным.
+	//
+	int    SLAPI CheckValEps(double val, double eps) const;
 	double SLAPI Clip(double v) const;
 	RealRange & SLAPI SetVal(double);
 	RealRange & SLAPI Set(double, double);
@@ -4673,7 +4679,7 @@ int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
 char * SLAPI strfmt(const char * str, long fmt, char * buf);
 //char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
 // @v9.6.0 int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
-int   SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp);
+int   FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int   FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int   FASTCALL strtodoub(const char * pBuf, double *);
 int   FASTCALL strtolong(const char * pBuf, long *);
@@ -6572,6 +6578,16 @@ public:
 //
 //
 typedef TSVector <S_GUID> UuidArray; // @v9.8.4 TSArray-->TSVector
+//
+//
+//
+class DateTimeArray : public TSVector <LDATETIME> {
+public:
+	SLAPI  DateTimeArray();
+	int    FASTCALL add(LDATETIME dtm);
+	LDATETIME FASTCALL get(uint idx) const;
+	void   SLAPI sort();
+};
 //
 //
 //
@@ -10074,6 +10090,17 @@ public:
 	//
 	uint   SLAPI GetCount() const;
 	int    SLAPI SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
+	//
+	// Descr: Ищет первый элемент, время которого больше или равно rSince.
+	// Note: Смысл (но не формальное поведение) функции предполагает, что элементы отсортированы 
+	//   по мере возрастания времени. Если это не так, то функция отработает, однако 
+	//   нет никакой гарантии, что элементы с индексами большими, чем *pIdx, имеют большее
+	//   значение времени, чем rSince.
+	// Returns:
+	//   >0 - искомый элемент найден. По адресу pIdx присвоен его индекс.
+	//    0 - нет ни одного элемента, время которого было бы больше или равно rSince
+	//
+	int    SLAPI SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) const;
 	int    SLAPI SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const;
 	int    SLAPI SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const;
 	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
@@ -10092,8 +10119,24 @@ public:
 	//
 	int    SLAPI GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
 	int    SLAPI GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
+	int    SLAPI GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const;
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
+	//
+	// Descr: Структура, предназначенная для хранения одного элемента серии
+	//   с целью обеспечения интерфеса. 
+	//
+	struct SnapshotEntry {
+		SLAPI  SnapshotEntry();
+		SnapshotEntry & SLAPI Z();
+
+		uint   Idx;
+		SUniTime Tm;
+		RAssocArray Values;
+	};
+	int    SLAPI GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const;
+	int    SLAPI SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry);
+	int    SLAPI AppendSnapshotEntry(const SnapshotEntry & rEntry);
 
 	struct AppendStat {
 		SLAPI  AppendStat();
@@ -10130,9 +10173,7 @@ public:
 	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;
 
 	struct AnalyzeFitParam {
-		SLAPI  AnalyzeFitParam(uint distance, uint firstIdx, uint count) : Distance(distance), FirstIdx(firstIdx), IdxCount(count), Flags(0)
-		{
-		}
+		SLAPI  AnalyzeFitParam(uint distance, uint firstIdx, uint count);
 		enum {
 			fEnchMode = 0x0001 // Отладочный флаг (не использовать)
 		};
@@ -10174,10 +10215,7 @@ public:
 	int    SLAPI GetChunkRecentCount(uint count, STimeSeries & rResult) const;
 	int    SLAPI GetChunkRecentSince(const SUniTime & rSince, STimeSeries & rResult) const;
 private:
-	static int FASTCALL VerifyValuVecType(TYPEID typ)
-	{
-		return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64);
-	}
+	static int FASTCALL VerifyValuVecType(TYPEID typ) { return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64); }
 	struct ValuVec : public SVector {
 	public:
 		friend class STimeSeries;

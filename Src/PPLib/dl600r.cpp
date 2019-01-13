@@ -1122,7 +1122,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 						suffix = p_child->Name;
 					if(!is_hdr)
 						suffix.CatChar('+');
-					dtd.add(suffix, 0);
+					dtd.add(suffix);
 				}
 				suffix.Z().CatParStr(dtd.getBuf());
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
@@ -1242,7 +1242,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 						suffix = p_child->Name;
 					if(!is_hdr)
 						suffix.CatChar('+');
-					dtd.add(suffix, 0);
+					dtd.add(suffix);
 				}
 				suffix.Z().CatParStr(dtd.getBuf());
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());

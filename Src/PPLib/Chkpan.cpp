@@ -8775,8 +8775,22 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 			// ѕроверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
 			//
 			if(ok) {
+				const  int restr_qtty_by_unit = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd);
 				const  int is_unlim = BIN(GObj.CheckFlag(goodsID, GF_UNLIM));
 				int    rest_check_wanted = 0;
+				Goods2Tbl::Rec goods_rec;
+				PPUnit u_rec;
+				double u_rounding = 0.0;
+				if(restr_qtty_by_unit && GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+					if(u_rec.Rounding > 0.0)
+						u_rounding = u_rec.Rounding;
+					else if(u_rec.Flags & PPUnit::IntVal)
+						u_rounding = 1.0;
+				}
+				else {
+					MEMSZERO(goods_rec);
+					MEMSZERO(u_rec);
+				}
 				if(!is_unlim) {
 					if(CnFlags & CASHF_ABOVEZEROSALE)
 						rest_check_wanted = 1;
@@ -8786,8 +8800,9 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 				if(rest_check_wanted) {
 					const double rest = CalcCurrentRest(goodsID, 0);
 					if(rest < rQtty) {
-						if(adjustQtty && rQtty == 1.0 && rest >= 0.001) {
-							rQtty = round(rest, 0.001, -1);
+						const double __prec = (u_rounding != 0.0) ? u_rounding : 0.001;
+						if(adjustQtty && rQtty == 1.0 && rest >= __prec) {
+							rQtty = round(rest, __prec, -1);
 							ok = 1;
 						}
 						else if(CnFlags & CASHF_ABOVEZEROSALE) {
@@ -8800,18 +8815,14 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 						}
 					}
 				}
-			}
-			//
-			// ѕроверка на кратность единицы измерени€ //
-			//
-			if(ok > 0 && CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd) {
-				Goods2Tbl::Rec goods_rec;
-				PPUnit u_rec;
-				if(GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-					if(u_rec.Rounding > 0.0) {
-						const double _r = round(rQtty, u_rec.Rounding, 0);
+				//
+				// ѕроверка на кратность единицы измерени€ //
+				//
+				if(ok > 0 && restr_qtty_by_unit) {
+					if(u_rounding > 0.0) {
+						const double _r = round(rQtty, u_rounding, 0);
 						if(!feqeps(_r, rQtty, 1E-7)) {
-							temp_buf.Z().Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+							temp_buf.Z().Cat(u_rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 							ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
 						}
 					}

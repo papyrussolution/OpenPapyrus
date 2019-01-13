@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -1662,9 +1662,8 @@ int SLAPI RAssocArray::GetList(LongArray & rList, int unique) const
 {
 	int    ok = -1;
 	for(uint i = 0; i < getCount(); i++) {
-		if(unique) {
+		if(unique)
 			rList.addUnique(at(i).Key);
-		}
 		else
 			rList.add(at(i).Key);
 		ok = 1;
@@ -3034,7 +3033,7 @@ int SLAPI LongArray::addExclusive(const LongArray * pS, const LongArray * pExcl)
 		if(pExcl) {
 			for(uint i = 0; ok && i < _c; i++) {
 				const long val = pS->at(i);
-				if(!pExcl || !pExcl->lsearch(val))
+				if(!pExcl->lsearch(val))
 					if(!add(val))
 						ok = 0;
 			}
@@ -3058,7 +3057,7 @@ int SLAPI LongArray::addUniqueExclusive(const LongArray * pS, const LongArray * 
 		if(pExcl) {
 			for(uint i = 0; i < c; i++) {
 				const long val = pS->at(i);
-				if(!pExcl || !pExcl->lsearch(val))
+				if(!pExcl->lsearch(val))
 					if(!addUnique(val))
 						return 0;
 			}
@@ -3116,9 +3115,9 @@ int FASTCALL LongArray::setSingleNZ(long id)
 void SLAPI LongArray::sortAndUndup()
 {
 	uint   c = getCount();
-	SVector::sort(CMPF_LONG);
-	assert(c == getCount()); // @paranoic
 	if(c > 1) {
+		SVector::sort(CMPF_LONG);
+		assert(c == getCount()); // @paranoic
 		long   prev = get(--c);
 		do {
 			const long t = get(--c);
@@ -3296,6 +3295,27 @@ int FASTCALL FloatArray::IsEqual(const FloatArray * pS) const
 		}
 	}
 	return 0;
+}
+//
+//
+//
+SLAPI DateTimeArray::DateTimeArray() : TSVector <LDATETIME>()
+{
+}
+
+int FASTCALL DateTimeArray::add(LDATETIME dtm)
+{
+	return insert(&dtm);
+}
+
+LDATETIME FASTCALL DateTimeArray::get(uint idx) const
+{
+	return at(idx);
+}
+
+void SLAPI DateTimeArray::sort()
+{
+	SVector::sort(PTR_CMPFUNC(LDATETIME));
 }
 //
 //

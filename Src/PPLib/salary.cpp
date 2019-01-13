@@ -1107,7 +1107,7 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 				if(sc_pack.Rec.Flags & PPSalCharge::fWrOffSingle) {
 					PPBillPacket pack;
 					THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, LConfig.Location, 0));
-					pack.Rec.Amount = s_rec.Amount;
+					pack.Rec.Amount = s_rec.Amount; //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 's_rec.Amount' used.
 					pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
 					STRNSCPY(pack.Rec.Memo, memo_buf);
 					THROW(p_bobj->FillTurnList(&pack));

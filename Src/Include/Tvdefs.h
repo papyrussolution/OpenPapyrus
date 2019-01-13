@@ -1,5 +1,5 @@
 // TVDEFS.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019
 // @codepage UTF-8
 //
 #ifndef __TVDEFS_H
@@ -712,168 +712,168 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 	#define TB_ICON_DELETE	         STD_DELETE
 	#define TB_ICON_PRINT	         STD_PRINT
 	#define TB_ICON_BROWSE	         STD_FIND
-	#define TB_ICON_NOICON           0+TB_ICON_USER
-	#define TB_ICON_LINS             1+TB_ICON_USER
-	#define TB_ICON_SIGM             2+TB_ICON_USER
-	#define TB_ICON_BARCODE          3+TB_ICON_USER
-	#define TB_ICON_HAMMER           4+TB_ICON_USER
-	#define TB_ICON_PAYMENT          5+TB_ICON_USER
-	#define TB_ICON_GOODSRET         6+TB_ICON_USER
-	#define TB_ICON_CHGFLAGS         7+TB_ICON_USER
-	#define TB_ICON_REFRESHVIEW      8+TB_ICON_USER
-	#define TB_ICON_QCERT            9+TB_ICON_USER
-	#define TB_ICON_LOTSOPER        10+TB_ICON_USER
-	#define TB_ICON_CHNGQCERT       11+TB_ICON_USER
-	#define TB_ICON_GOODS           12+TB_ICON_USER
-	#define TB_ICON_GOODSSTRCT      13+TB_ICON_USER
-	#define TB_ICON_PRNLABELS       14+TB_ICON_USER
-	#define TB_ICON_GENGOODS        15+TB_ICON_USER
-	#define TB_ICON_PERCENT         16+TB_ICON_USER
-	#define TB_ICON_PRINTLIST       17+TB_ICON_USER
-	#define TB_ICON_SYSTEMINFO      18+TB_ICON_USER
-	#define TB_ICON_QUOTATION       19+TB_ICON_USER
-	#define TB_ICON_RENTA           20+TB_ICON_USER
-	#define TB_ICON_CHECKSTAT       21+TB_ICON_USER
-	#define TB_ICON_COPYBYSAMPLE    22+TB_ICON_USER
-	#define TB_ICON_CHNGPRICE       23+TB_ICON_USER
-	#define TB_ICON_REFRESH         24+TB_ICON_USER
-	#define TB_ICON_OPERMOVE        25+TB_ICON_USER
-	#define TB_ICON_LOTS            26+TB_ICON_USER
-	#define TB_ICON_ORDLOTS         27+TB_ICON_USER
-	#define TB_ICON_DELETEALL       28+TB_ICON_USER
-	#define TB_ICON_EXTADDTI        29+TB_ICON_USER
-	#define TB_ICON_ADDTIFROMORD    30+TB_ICON_USER
-	#define TB_ICON_DEBTCARD        31+TB_ICON_USER
-	#define TB_ICON_UNCHECKED       32+TB_ICON_USER
-	#define TB_ICON_CHECKED         33+TB_ICON_USER
-	#define TB_ICON_SORT            34+TB_ICON_USER
-	#define TB_ICON_PERSONS         35+TB_ICON_USER
-	#define TB_ICON_GOLD1           36+TB_ICON_USER
-	#define TB_ICON_GOLD2           37+TB_ICON_USER
-	#define TB_ICON_TO_TRASH        38+TB_ICON_USER
-	#define TB_ICON_HOUSE           39+TB_ICON_USER
-	#define TB_ICON_BILLS            40+TB_ICON_USER
-	#define TB_ICON_TAGS             41+TB_ICON_USER
-	#define TB_ICON_CLOSECSESS       42+TB_ICON_USER
-	#define TB_ICON_COMPLETECSESS    43+TB_ICON_USER
-	#define TB_ICON_RECKON           44+TB_ICON_USER
-	#define TB_ICON_RECKONPAYM       45+TB_ICON_USER
-	#define TB_ICON_RECKONDEBT       46+TB_ICON_USER
-	#define TB_ICON_OPGRPNG          47+TB_ICON_USER
-	#define TB_ICON_ACCANLZ          48+TB_ICON_USER
-	#define TB_ICON_CSESSEXC         49+TB_ICON_USER
-	#define TB_ICON_CSESSEXCALL      50+TB_ICON_USER
-	#define TB_ICON_CSEXCAG          51+TB_ICON_USER
-	#define TB_ICON_ACCTURNSBYBILL   52+TB_ICON_USER
-	#define TB_ICON_GOODSANLZ        53+TB_ICON_USER
-	#define TB_ICON_SENDOBJ          54+TB_ICON_USER
-	#define TB_ICON_SYSJ             55+TB_ICON_USER
-	#define TB_ICON_PCKGNEW          56+TB_ICON_USER
-	#define TB_ICON_PCKGLINES        57+TB_ICON_USER
-	#define TB_ICON_BASKET 	         58+TB_ICON_USER
-	#define TB_ICON_RECKONBILLS      59+TB_ICON_USER
-	#define TB_ICON_PROGNOSIS        60+TB_ICON_USER
-	#define TB_ICON_CCHECKS          61+TB_ICON_USER
-	#define TB_ICON_CHARGE           62+TB_ICON_USER
-	#define TB_ICON_ADDTISFROMBASKET 63+TB_ICON_USER
-	#define TB_ICON_POSTALBATROS     64+TB_ICON_USER
-	#define TB_ICON_TEST             65+TB_ICON_USER // Переключатель
-	#define TB_ICON_FILTER           66+TB_ICON_USER
-	#define TB_ICON_EXPORT           67+TB_ICON_USER
-	#define TB_ICON_DIVISION         68+TB_ICON_USER
-	#define TB_ICON_INSERT           69+TB_ICON_USER
-	#define TB_ICON_ADDTISTOBASKET   70+TB_ICON_USER
-	#define TB_ICON_TOGGLESHIPMTAG   71+TB_ICON_USER
-	#define TB_ICON_EXTRAVIEW        72+TB_ICON_USER
-	#define TB_ICON_MEMBERSHIP       73+TB_ICON_USER // Членство
-	#define TB_ICON_NEWFOLDER        74+TB_ICON_USER //
-	#define TB_ICON_COMPARE          75+TB_ICON_USER // Сравнение
-	#define TB_ICON_REGISTER         76+TB_ICON_USER // Регистры персоналии
-	#define TB_ICON_SELLTAB          77+TB_ICON_USER // Таблица продаж
-	#define TB_ICON_PERSONRELLIST    78+TB_ICON_USER // Список отношений персоналии
-	#define TB_ICON_ADDPERSONREL     79+TB_ICON_USER // Добавить отношение персоналии
-	#define TB_ICON_TRFRANLZ         80+TB_ICON_USER // Анализ товарных операций
-	#define TB_ICON_MRPTAB           81+TB_ICON_USER // MRP-таблица
-	#define TB_ICON_PRJTASK          82+TB_ICON_USER // Задания //
-	#define TB_ICON_BARLABEL         83+TB_ICON_USER // Задания //
-	#define TB_ICON_SUPPLQUOTS       84+TB_ICON_USER // Контрактные цены поставщиков
-	#define TB_ICON_TECH             85+TB_ICON_USER // Технологии
-	#define TB_ICON_PRC              86+TB_ICON_USER // Процессор
-	#define TB_ICON_TSESS            87+TB_ICON_USER // Технологические сессии
-	#define TB_ICON_DFCTBILLS        88+TB_ICON_USER // Документы покрытия дефицита
-	#define TB_ICON_TSESSANLZ        89+TB_ICON_USER // Анализ технологические сессии
-	#define TB_ICON_FOLDER   	     90+TB_ICON_USER //
-	#define TB_ICON_MAIL		     91+TB_ICON_USER //
-	#define TB_ICON_ABC              92+TB_ICON_USER // Поиск по наименованию
-	#define TB_ICON_STAFFCAL         93+TB_ICON_USER // Штатные календари
-	#define TB_ICON_POSPRINT         94+TB_ICON_USER // Печать на POS-принтер
-	#define TB_ICON_REPLACE          95+TB_ICON_USER // Символ замены
-	#define TB_ICON_LINK             96+TB_ICON_USER // Связь
-	#define TB_ICON_HANDSHAKE        97+TB_ICON_USER // Рукопожатие
-	#define TB_ICON_PSNOPKIND        98+TB_ICON_USER // Вид персональной операции
-	#define TB_ICON_PSNEVENTS        99+TB_ICON_USER // Персональные операции
-	#define TB_ICON_MARK            100+TB_ICON_USER // Пометка
-	#define TB_ICON_UNITE           101+TB_ICON_USER // Объединение объектов
-	#define TB_ICON_ADDBILLBYSCARD  102+TB_ICON_USER // Создать документ по карте
-	#define TB_ICON_SWITCH          103+TB_ICON_USER // Переключатель
-	#define TB_ICON_OPLIST          104+TB_ICON_USER // Виды операций
-	#define TB_ICON_TIMEGRAPH       105+TB_ICON_USER // Временная диаграмма
-	#define TB_ICON_MATRIX          106+TB_ICON_USER // Матрица (в частности, товарная)
-	#define TB_ICON_ARCODE          107+TB_ICON_USER // Коды товара по статьям
-	#define TB_ICON_AMOUNTS         108+TB_ICON_USER // Суммы
-	#define TB_ICON_SALARY          109+TB_ICON_USER // Просмотр начислений зарплаты
-	#define TB_ICON_PERSONRELLIST_R 110+TB_ICON_USER // Список обратных отношений персоналии
-	#define TB_ICON_PLOT            111+TB_ICON_USER // График
-	#define TB_ICON_BIZSCORE        112+TB_ICON_USER // Значения бизнес-показателей
-	#define TB_ICON_CONFIG          113+TB_ICON_USER // Конфигурация //
-	#define TB_ICON_TRANSPORT       114+TB_ICON_USER // Транспорт //
-	#define TB_ICON_CURPERSONATTR   115+TB_ICON_USER // Редактирование текущего атрибута персоналии //
-	#define TB_ICON_WROFFDRAFT      116+TB_ICON_USER // Списание драфт-документов
-	#define TB_ICON_WHCELL          117+TB_ICON_USER // Складская ячейка
-	#define TB_ICON_DEVICE          118+TB_ICON_USER // Устройство
-	#define TB_ICON_SERIALGEN       119+TB_ICON_USER // Генерирация серийных номеров
-	#define TB_ICON_TAGSALL         120+TB_ICON_USER // Изменить теги по всей выборке объектов
-	#define TB_ICON_EXPORTUHTT      121+TB_ICON_USER // Экспорт в Universe-HTT
-	#define TB_ICON_ARROWUP         122+TB_ICON_USER
-	#define TB_ICON_ARROWDN         123+TB_ICON_USER
-	#define TB_ICON_STAT            124+TB_ICON_USER
-	#define TB_ICON_PANE            125+TB_ICON_USER
-	#define TB_ICON_TEST2           126+TB_ICON_USER // Галка
-	#define TB_ICON_MEMO            127+TB_ICON_USER
+	#define TB_ICON_NOICON           (0+TB_ICON_USER)
+	#define TB_ICON_LINS             (1+TB_ICON_USER)
+	#define TB_ICON_SIGM             (2+TB_ICON_USER)
+	#define TB_ICON_BARCODE          (3+TB_ICON_USER)
+	#define TB_ICON_HAMMER           (4+TB_ICON_USER)
+	#define TB_ICON_PAYMENT          (5+TB_ICON_USER)
+	#define TB_ICON_GOODSRET         (6+TB_ICON_USER)
+	#define TB_ICON_CHGFLAGS         (7+TB_ICON_USER)
+	#define TB_ICON_REFRESHVIEW      (8+TB_ICON_USER)
+	#define TB_ICON_QCERT            (9+TB_ICON_USER)
+	#define TB_ICON_LOTSOPER         (10+TB_ICON_USER)
+	#define TB_ICON_CHNGQCERT        (11+TB_ICON_USER)
+	#define TB_ICON_GOODS            (12+TB_ICON_USER)
+	#define TB_ICON_GOODSSTRCT       (13+TB_ICON_USER)
+	#define TB_ICON_PRNLABELS        (14+TB_ICON_USER)
+	#define TB_ICON_GENGOODS         (15+TB_ICON_USER)
+	#define TB_ICON_PERCENT          (16+TB_ICON_USER)
+	#define TB_ICON_PRINTLIST        (17+TB_ICON_USER)
+	#define TB_ICON_SYSTEMINFO       (18+TB_ICON_USER)
+	#define TB_ICON_QUOTATION        (19+TB_ICON_USER)
+	#define TB_ICON_RENTA            (20+TB_ICON_USER)
+	#define TB_ICON_CHECKSTAT        (21+TB_ICON_USER)
+	#define TB_ICON_COPYBYSAMPLE     (22+TB_ICON_USER)
+	#define TB_ICON_CHNGPRICE        (23+TB_ICON_USER)
+	#define TB_ICON_REFRESH          (24+TB_ICON_USER)
+	#define TB_ICON_OPERMOVE         (25+TB_ICON_USER)
+	#define TB_ICON_LOTS             (26+TB_ICON_USER)
+	#define TB_ICON_ORDLOTS          (27+TB_ICON_USER)
+	#define TB_ICON_DELETEALL        (28+TB_ICON_USER)
+	#define TB_ICON_EXTADDTI         (29+TB_ICON_USER)
+	#define TB_ICON_ADDTIFROMORD     (30+TB_ICON_USER)
+	#define TB_ICON_DEBTCARD         (31+TB_ICON_USER)
+	#define TB_ICON_UNCHECKED        (32+TB_ICON_USER)
+	#define TB_ICON_CHECKED          (33+TB_ICON_USER)
+	#define TB_ICON_SORT             (34+TB_ICON_USER)
+	#define TB_ICON_PERSONS          (35+TB_ICON_USER)
+	#define TB_ICON_GOLD1            (36+TB_ICON_USER)
+	#define TB_ICON_GOLD2            (37+TB_ICON_USER)
+	#define TB_ICON_TO_TRASH         (38+TB_ICON_USER)
+	#define TB_ICON_HOUSE            (39+TB_ICON_USER)
+	#define TB_ICON_BILLS            (40+TB_ICON_USER)
+	#define TB_ICON_TAGS             (41+TB_ICON_USER)
+	#define TB_ICON_CLOSECSESS       (42+TB_ICON_USER)
+	#define TB_ICON_COMPLETECSESS    (43+TB_ICON_USER)
+	#define TB_ICON_RECKON           (44+TB_ICON_USER)
+	#define TB_ICON_RECKONPAYM       (45+TB_ICON_USER)
+	#define TB_ICON_RECKONDEBT       (46+TB_ICON_USER)
+	#define TB_ICON_OPGRPNG          (47+TB_ICON_USER)
+	#define TB_ICON_ACCANLZ          (48+TB_ICON_USER)
+	#define TB_ICON_CSESSEXC         (49+TB_ICON_USER)
+	#define TB_ICON_CSESSEXCALL      (50+TB_ICON_USER)
+	#define TB_ICON_CSEXCAG          (51+TB_ICON_USER)
+	#define TB_ICON_ACCTURNSBYBILL   (52+TB_ICON_USER)
+	#define TB_ICON_GOODSANLZ        (53+TB_ICON_USER)
+	#define TB_ICON_SENDOBJ          (54+TB_ICON_USER)
+	#define TB_ICON_SYSJ             (55+TB_ICON_USER)
+	#define TB_ICON_PCKGNEW          (56+TB_ICON_USER)
+	#define TB_ICON_PCKGLINES        (57+TB_ICON_USER)
+	#define TB_ICON_BASKET 	         (58+TB_ICON_USER)
+	#define TB_ICON_RECKONBILLS      (59+TB_ICON_USER)
+	#define TB_ICON_PROGNOSIS        (60+TB_ICON_USER)
+	#define TB_ICON_CCHECKS          (61+TB_ICON_USER)
+	#define TB_ICON_CHARGE           (62+TB_ICON_USER)
+	#define TB_ICON_ADDTISFROMBASKET (63+TB_ICON_USER)
+	#define TB_ICON_POSTALBATROS     (64+TB_ICON_USER)
+	#define TB_ICON_TEST             (65+TB_ICON_USER) // Переключатель
+	#define TB_ICON_FILTER           (66+TB_ICON_USER)
+	#define TB_ICON_EXPORT           (67+TB_ICON_USER)
+	#define TB_ICON_DIVISION         (68+TB_ICON_USER)
+	#define TB_ICON_INSERT           (69+TB_ICON_USER)
+	#define TB_ICON_ADDTISTOBASKET   (70+TB_ICON_USER)
+	#define TB_ICON_TOGGLESHIPMTAG   (71+TB_ICON_USER)
+	#define TB_ICON_EXTRAVIEW        (72+TB_ICON_USER)
+	#define TB_ICON_MEMBERSHIP       (73+TB_ICON_USER) // Членство
+	#define TB_ICON_NEWFOLDER        (74+TB_ICON_USER) //
+	#define TB_ICON_COMPARE          (75+TB_ICON_USER) // Сравнение
+	#define TB_ICON_REGISTER         (76+TB_ICON_USER) // Регистры персоналии
+	#define TB_ICON_SELLTAB          (77+TB_ICON_USER) // Таблица продаж
+	#define TB_ICON_PERSONRELLIST    (78+TB_ICON_USER) // Список отношений персоналии
+	#define TB_ICON_ADDPERSONREL     (79+TB_ICON_USER) // Добавить отношение персоналии
+	#define TB_ICON_TRFRANLZ         (80+TB_ICON_USER) // Анализ товарных операций
+	#define TB_ICON_MRPTAB           (81+TB_ICON_USER) // MRP-таблица
+	#define TB_ICON_PRJTASK          (82+TB_ICON_USER) // Задания //
+	#define TB_ICON_BARLABEL         (83+TB_ICON_USER) // Задания //
+	#define TB_ICON_SUPPLQUOTS       (84+TB_ICON_USER) // Контрактные цены поставщиков
+	#define TB_ICON_TECH             (85+TB_ICON_USER) // Технологии
+	#define TB_ICON_PRC              (86+TB_ICON_USER) // Процессор
+	#define TB_ICON_TSESS            (87+TB_ICON_USER) // Технологические сессии
+	#define TB_ICON_DFCTBILLS        (88+TB_ICON_USER) // Документы покрытия дефицита
+	#define TB_ICON_TSESSANLZ        (89+TB_ICON_USER) // Анализ технологические сессии
+	#define TB_ICON_FOLDER   	     (90+TB_ICON_USER) //
+	#define TB_ICON_MAIL		     (91+TB_ICON_USER) //
+	#define TB_ICON_ABC              (92+TB_ICON_USER) // Поиск по наименованию
+	#define TB_ICON_STAFFCAL         (93+TB_ICON_USER) // Штатные календари
+	#define TB_ICON_POSPRINT         (94+TB_ICON_USER) // Печать на POS-принтер
+	#define TB_ICON_REPLACE          (95+TB_ICON_USER) // Символ замены
+	#define TB_ICON_LINK             (96+TB_ICON_USER) // Связь
+	#define TB_ICON_HANDSHAKE        (97+TB_ICON_USER) // Рукопожатие
+	#define TB_ICON_PSNOPKIND        (98+TB_ICON_USER) // Вид персональной операции
+	#define TB_ICON_PSNEVENTS        (99+TB_ICON_USER) // Персональные операции
+	#define TB_ICON_MARK            (100+TB_ICON_USER) // Пометка
+	#define TB_ICON_UNITE           (101+TB_ICON_USER) // Объединение объектов
+	#define TB_ICON_ADDBILLBYSCARD  (102+TB_ICON_USER) // Создать документ по карте
+	#define TB_ICON_SWITCH          (103+TB_ICON_USER) // Переключатель
+	#define TB_ICON_OPLIST          (104+TB_ICON_USER) // Виды операций
+	#define TB_ICON_TIMEGRAPH       (105+TB_ICON_USER) // Временная диаграмма
+	#define TB_ICON_MATRIX          (106+TB_ICON_USER) // Матрица (в частности, товарная)
+	#define TB_ICON_ARCODE          (107+TB_ICON_USER) // Коды товара по статьям
+	#define TB_ICON_AMOUNTS         (108+TB_ICON_USER) // Суммы
+	#define TB_ICON_SALARY          (109+TB_ICON_USER) // Просмотр начислений зарплаты
+	#define TB_ICON_PERSONRELLIST_R (110+TB_ICON_USER) // Список обратных отношений персоналии
+	#define TB_ICON_PLOT            (111+TB_ICON_USER) // График
+	#define TB_ICON_BIZSCORE        (112+TB_ICON_USER) // Значения бизнес-показателей
+	#define TB_ICON_CONFIG          (113+TB_ICON_USER) // Конфигурация //
+	#define TB_ICON_TRANSPORT       (114+TB_ICON_USER) // Транспорт //
+	#define TB_ICON_CURPERSONATTR   (115+TB_ICON_USER) // Редактирование текущего атрибута персоналии //
+	#define TB_ICON_WROFFDRAFT      (116+TB_ICON_USER) // Списание драфт-документов
+	#define TB_ICON_WHCELL          (117+TB_ICON_USER) // Складская ячейка
+	#define TB_ICON_DEVICE          (118+TB_ICON_USER) // Устройство
+	#define TB_ICON_SERIALGEN       (119+TB_ICON_USER) // Генерирация серийных номеров
+	#define TB_ICON_TAGSALL         (120+TB_ICON_USER) // Изменить теги по всей выборке объектов
+	#define TB_ICON_EXPORTUHTT      (121+TB_ICON_USER) // Экспорт в Universe-HTT
+	#define TB_ICON_ARROWUP         (122+TB_ICON_USER)
+	#define TB_ICON_ARROWDN         (123+TB_ICON_USER)
+	#define TB_ICON_STAT            (124+TB_ICON_USER)
+	#define TB_ICON_PANE            (125+TB_ICON_USER)
+	#define TB_ICON_TEST2           (126+TB_ICON_USER) // Галка
+	#define TB_ICON_MEMO            (127+TB_ICON_USER)
 
 #define TB_GLOBAL            302
-	#define TB_GLOBAL_NOICON      0+TB_ICON_USER
-	#define TB_GLOBAL_ACCBILLS    1+TB_ICON_USER
-	#define TB_GLOBAL_GOODSBILLS  2+TB_ICON_USER
-	#define TB_GLOBAL_ORDERBILLS  3+TB_ICON_USER
-	#define TB_GLOBAL_INVENTORY   4+TB_ICON_USER
-	#define TB_GLOBAL_ATURNLIST   5+TB_ICON_USER
-	#define TB_GLOBAL_ATURNLIST2  6+TB_ICON_USER
-	#define TB_GLOBAL_ACCANLZ     7+TB_ICON_USER
-	#define TB_GLOBAL_LOTS        8+TB_ICON_USER
-	#define TB_GLOBAL_ORDLOTS     9+TB_ICON_USER
-	#define TB_GLOBAL_GOODSREST  10+TB_ICON_USER
-	#define TB_GLOBAL_UNIFYPRICE 11+TB_ICON_USER
-	#define TB_GLOBAL_UNCHECKED  12+TB_ICON_USER
-	#define TB_GLOBAL_CHECKED    13+TB_ICON_USER
-	#define TB_GLOBAL_OPGRPNG    14+TB_ICON_USER
-	#define TB_GLOBAL_PRICELIST  15+TB_ICON_USER
-	#define TB_GLOBAL_GOODSVIEW  16+TB_ICON_USER
-	#define TB_GLOBAL_GOODSVIEW2 17+TB_ICON_USER
-	#define TB_GLOBAL_GGRPVIEW   18+TB_ICON_USER
-	#define TB_GLOBAL_PERSONS    19+TB_ICON_USER
-	#define TB_GLOBAL_GOODSANLZ  20+TB_ICON_USER
-	#define TB_GLOBAL_SENDOBJ    21+TB_ICON_USER
-	#define TB_GLOBAL_BALANCE    22+TB_ICON_USER
-	#define TB_GLOBAL_CASHBOOK   23+TB_ICON_USER
-	#define TB_GLOBAL_VATBOOK    24+TB_ICON_USER
-	#define TB_GLOBAL_BASKET     25+TB_ICON_USER
-	#define TB_GLOBAL_SCARD      26+TB_ICON_USER // Пластиковые карты
-	#define TB_GLOBAL_DRAFTBILLS 27+TB_ICON_USER // Драфт-документы
-	#define TB_GLOBAL_OPLIST     28+TB_ICON_USER // Виды операций
-	#define TB_GLOBAL_TRFRANLZ   29+TB_ICON_USER // Анализ товарных операций
-	#define TB_GLOBAL_STAFFCAL   30+TB_ICON_USER // Штатные календари
-	#define TB_GLOBAL_PSNOPKIND  31+TB_ICON_USER // Виды персональных операций
-	#define TB_GLOBAL_PSNEVENTS  32+TB_ICON_USER // Персональные операции
+	#define TB_GLOBAL_NOICON      (0+TB_ICON_USER)
+	#define TB_GLOBAL_ACCBILLS    (1+TB_ICON_USER)
+	#define TB_GLOBAL_GOODSBILLS  (2+TB_ICON_USER)
+	#define TB_GLOBAL_ORDERBILLS  (3+TB_ICON_USER)
+	#define TB_GLOBAL_INVENTORY   (4+TB_ICON_USER)
+	#define TB_GLOBAL_ATURNLIST   (5+TB_ICON_USER)
+	#define TB_GLOBAL_ATURNLIST2  (6+TB_ICON_USER)
+	#define TB_GLOBAL_ACCANLZ     (7+TB_ICON_USER)
+	#define TB_GLOBAL_LOTS        (8+TB_ICON_USER)
+	#define TB_GLOBAL_ORDLOTS     (9+TB_ICON_USER)
+	#define TB_GLOBAL_GOODSREST  (10+TB_ICON_USER)
+	#define TB_GLOBAL_UNIFYPRICE (11+TB_ICON_USER)
+	#define TB_GLOBAL_UNCHECKED  (12+TB_ICON_USER)
+	#define TB_GLOBAL_CHECKED    (13+TB_ICON_USER)
+	#define TB_GLOBAL_OPGRPNG    (14+TB_ICON_USER)
+	#define TB_GLOBAL_PRICELIST  (15+TB_ICON_USER)
+	#define TB_GLOBAL_GOODSVIEW  (16+TB_ICON_USER)
+	#define TB_GLOBAL_GOODSVIEW2 (17+TB_ICON_USER)
+	#define TB_GLOBAL_GGRPVIEW   (18+TB_ICON_USER)
+	#define TB_GLOBAL_PERSONS    (19+TB_ICON_USER)
+	#define TB_GLOBAL_GOODSANLZ  (20+TB_ICON_USER)
+	#define TB_GLOBAL_SENDOBJ    (21+TB_ICON_USER)
+	#define TB_GLOBAL_BALANCE    (22+TB_ICON_USER)
+	#define TB_GLOBAL_CASHBOOK   (23+TB_ICON_USER)
+	#define TB_GLOBAL_VATBOOK    (24+TB_ICON_USER)
+	#define TB_GLOBAL_BASKET     (25+TB_ICON_USER)
+	#define TB_GLOBAL_SCARD      (26+TB_ICON_USER) // Пластиковые карты
+	#define TB_GLOBAL_DRAFTBILLS (27+TB_ICON_USER) // Драфт-документы
+	#define TB_GLOBAL_OPLIST     (28+TB_ICON_USER) // Виды операций
+	#define TB_GLOBAL_TRFRANLZ   (29+TB_ICON_USER) // Анализ товарных операций
+	#define TB_GLOBAL_STAFFCAL   (30+TB_ICON_USER) // Штатные календари
+	#define TB_GLOBAL_PSNOPKIND  (31+TB_ICON_USER) // Виды персональных операций
+	#define TB_GLOBAL_PSNEVENTS  (32+TB_ICON_USER) // Персональные операции
 
 #endif /* __TVDEFS_H */

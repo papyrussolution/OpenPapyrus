@@ -124,7 +124,8 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 	PPLoadTextS(PPTXT_BNKTRM_CLOSESESS, msg);
 	PPWait(1);
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
-	if(ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out))
+	ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out);
+	if(ok)
 		Arr_Out.GetText(0, rZCheck);
 	PPWait(0);
 	return ok;

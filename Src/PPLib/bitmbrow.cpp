@@ -633,7 +633,7 @@ long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos, long flags)
 			}
 		}
 		if(GetPriceRestrictions(pos, r_ti, &restr_bounds) > 0) {
-			if(!restr_bounds.CheckVal(r_ti.NetPrice())) {
+			if(!restr_bounds.CheckValEps(r_ti.NetPrice(), 1E-7)) { // @v10.2.12
 				price_flags |= LOTSF_RESTRBOUNDS;
 			}
 		}
@@ -2026,7 +2026,7 @@ void BillItemBrowser::viewPckgItems(int activateNewRow)
 
 void BillItemBrowser::GetMinMaxQtty(uint itemPos, RealRange & rBounds) const
 {
-	rBounds.Clear();
+	rBounds.Z();
 	const PPTransferItem & r_ti = P_Pack->ConstTI(itemPos);
 	if(P_Pack->OpTypeID == PPOPT_GOODSEXPEND) {
 		if(P_Pack->Rec.ID) {
@@ -2453,8 +2453,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			SString mark_buf;
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-			uint row_pos = 0;
-			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCount()) ? &P_Pack->ConstTI(row_pos) : 0;
+			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
 			const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
 			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
@@ -2484,8 +2483,11 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					PPErrorByDialog(dlg, sel);
 				}
 				else if(!PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
-					if(P_LotXcT && P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0) {
-						ok = 1;
+					if(P_LotXcT) {
+						if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
+							ok = 1;
+						else
+							PPErrorByDialog(dlg, sel);
 					}
 					else {
 						PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);

@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -138,7 +138,7 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 	return ok;
 }
 
-int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
+int BDbDatabase::Helper_SetConfig(const char * pHomeDir, const Config & rCfg)
 {
 	int    ok = 1;
 	SString temp_buf;

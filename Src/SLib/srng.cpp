@@ -202,7 +202,7 @@ private:
 	long   X[64];
 };
 
-SRngUnix::SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits)
+SRngUnix::SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits), I(0), J(0)
 {
 	assert(oneof3(alg, algBSD, algLibC5, algGLibC2));
 	assert(oneof5(bits, 8, 32, 64, 128, 256));

@@ -1,5 +1,5 @@
 // ROUND.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016, 2017, 2018, 2019
 // @threadsafe
 //
 #include <slib.h>
@@ -54,13 +54,26 @@ double FASTCALL round(double v, double prec, int dir)
 {
 	SETIFZ(prec, 0.01);
 	double r = (v / prec);
-	if(dir > 0)
-		return prec * ceil(r);
-	else if(dir < 0)
-		return prec * floor(r);
+	const double f_ = floor(r);
+	const double c_ = ceil(r);
+	/*
+	Экспериментальный участок кода: надежда решить проблему мизерного отклонения от требуемого значения.
+	В строй не вводим из-за риска напороться на неожиданные эффекты.
+	if(feqeps(r, c_, 1E-10))
+		return prec * c_;
+	else if(feqeps(r, f_, 1E-10))
+		return prec * f_;
+	else
+	*/
+	if(dir > 0) {
+		return prec * c_;
+	}
+	else if(dir < 0) {
+		return prec * f_;
+	}
 	else {
-		double down = prec * floor(r);
-		double up   = prec * ceil(r);
+		double down = prec * f_;
+		double up   = prec * c_;
 		return ((2.0 * v - down - up) >= 0) ? up : down;
 	}
 }

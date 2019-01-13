@@ -1858,8 +1858,8 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 							const PPID   _link_id = wroff_bill_list.get(0);
 							// @v10.2.9 StringSet _this_lxc_ss;
 							// @v10.2.9 StringSet _link_lxc_ss;
-							PPLotExtCodeContainer::MarkSet _this_lxc_set; // @v10.2.9 
-							PPLotExtCodeContainer::MarkSet _link_lxc_set; // @v10.2.9 
+							PPLotExtCodeContainer::MarkSet _this_lxc_set; // @v10.2.9
+							PPLotExtCodeContainer::MarkSet _link_lxc_set; // @v10.2.9
 							int    do_update = 0;
 							THROW(P_BObj->ExtractPacketWithFlags(id, &_this_bp, BPLD_FORCESERIALS) > 0);
 							THROW(P_BObj->ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
@@ -1909,10 +1909,10 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 													do_update = 1; // @v10.2.10 @fix
 												}
 											}
-											// } @v10.2.9 
+											// } @v10.2.9
 										}
 									}
-									// } @v10.2.7 
+									// } @v10.2.7
 								}
 							}
 							if(do_update) {
@@ -3548,7 +3548,7 @@ int SLAPI PPViewBill::UniteReceiptBills()
 			PPID   dest_id = ary.get(0);
 			ary.reverse(0, ary.getCount());
 			ary.atFree(ary.getCount()-1);
-			THROW(P_BObj->UniteReceiptBill(dest_id, &ary, 1));
+			THROW(P_BObj->UniteReceiptBill(dest_id, ary, 1));
 			ok = 1;
 		}
 		PPWait(0);
@@ -5939,6 +5939,9 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 		const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
+	/* @v10.2.12 @construction else if(pF->Name == "?GetEgaisMarkCount") {
+        //
+	}*/
 }
 
 static void SLAPI setupDiscountText(const PPBillPacket * pPack, int enableSTaxText, char * pBuf, size_t bufSize)

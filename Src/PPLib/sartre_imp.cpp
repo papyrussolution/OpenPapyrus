@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018
+// Copyright (c) A.Sobolev 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -4532,7 +4532,7 @@ int SLAPI SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup(), LineNo(0)
+SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup(), LineNo(0), State(0)
 {
 }
 

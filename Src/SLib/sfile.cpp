@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -1981,7 +1981,7 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 			rMime.CatChar('/').Cat(r_temp_buf);
 			ok = 1;
 		}
-		break;
+		// @v10.2.12 @fix break;
 	}
 	// } @v10.0.05 
 	/* @v10.0.05
