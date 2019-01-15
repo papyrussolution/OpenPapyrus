@@ -46,14 +46,13 @@ bool Curl_meets_timecondition(struct Curl_easy * data, time_t timeofdoc);
 //
 // This sets up a forthcoming transfer 
 //
-void Curl_setup_transfer(struct connectdata * data,
-    int sockindex,                      /* socket index to read from or -1 */
-    curl_off_t size,                    /* -1 if unknown at this point */
-    bool getheader,                     /* TRUE if header parsing is wanted */
-    curl_off_t * bytecountp,            /* return number of bytes read */
-    int writesockindex,                 /* socket index to write to, it may very well be the same we read from. -1 disables */
-    curl_off_t * writecountp           /* return number of bytes written */
-);
+void FASTCALL Curl_setup_transfer(struct connectdata * data,
+    int sockindex/* socket index to read from or -1 */,
+    curl_off_t size/* -1 if unknown at this point */,
+    bool getheader/* TRUE if header parsing is wanted */,
+    curl_off_t * bytecountp/* return number of bytes read */,
+    int writesockindex/* socket index to write to, it may very well be the same we read from. -1 disables */,
+    curl_off_t * writecountp/* return number of bytes written */);
 
 #endif /* HEADER_CURL_TRANSFER_H */
 

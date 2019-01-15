@@ -125,7 +125,7 @@ void Curl_pgrsResetTimesSizes(struct Curl_easy * data)
 	Curl_pgrsSetUploadSize(data, -1);
 }
 
-void Curl_pgrsTime(struct Curl_easy * data, timerid timer)
+void FASTCALL Curl_pgrsTime(struct Curl_easy * data, timerid timer)
 {
 	struct timeval now = Curl_tvnow();
 	switch(timer) {
@@ -176,7 +176,6 @@ void Curl_pgrsStartNow(struct Curl_easy * data)
 	/* clear all bits except HIDE and HEADERS_OUT */
 	data->progress.flags &= PGRS_HIDE|PGRS_HEADERS_OUT;
 }
-
 /*
  * This is used to handle speed limits, calculating how much milliseconds we
  * need to wait until we're back under the speed limit, if needed.
@@ -214,11 +213,11 @@ long Curl_pgrsLimitWaitTime(curl_off_t cursize, curl_off_t startsize, curl_off_t
 	return 0;
 }
 
-void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size)
+void FASTCALL Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size)
 {
 	struct timeval now = Curl_tvnow();
 	data->progress.downloaded = size;
-	/* download speed limit */
+	// download speed limit 
 	if((data->set.max_recv_speed > 0) && (Curl_pgrsLimitWaitTime(data->progress.downloaded,
 		data->progress.dl_limit_size, data->set.max_recv_speed, data->progress.dl_limit_start, now) == 0)) {
 		data->progress.dl_limit_start = now;
@@ -226,11 +225,11 @@ void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size)
 	}
 }
 
-void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size)
+void FASTCALL Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size)
 {
 	struct timeval now = Curl_tvnow();
 	data->progress.uploaded = size;
-	/* upload speed limit */
+	// upload speed limit 
 	if((data->set.max_send_speed > 0) && (Curl_pgrsLimitWaitTime(data->progress.uploaded,
 		data->progress.ul_limit_size, data->set.max_send_speed, data->progress.ul_limit_start, now) == 0)) {
 		data->progress.ul_limit_start = now;
@@ -238,7 +237,7 @@ void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size)
 	}
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size)
+void FASTCALL Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size)
 {
 	if(size >= 0) {
 		data->progress.size_dl = size;
@@ -250,7 +249,7 @@ void Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size)
 	}
 }
 
-void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size)
+void FASTCALL Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size)
 {
 	if(size >= 0) {
 		data->progress.size_ul = size;
@@ -261,11 +260,10 @@ void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size)
 		data->progress.flags &= ~PGRS_UL_SIZE_KNOWN;
 	}
 }
-/*
- * Curl_pgrsUpdate() returns 0 for success or the value returned by the
- * progress callback!
- */
-int Curl_pgrsUpdate(struct connectdata * conn)
+//
+// Descr: returns 0 for success or the value returned by the progress callback!
+//
+int FASTCALL Curl_pgrsUpdate(struct connectdata * conn)
 {
 	int result;
 	char max5[6][10];

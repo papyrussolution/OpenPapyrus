@@ -2087,10 +2087,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			    failf(data, "Failed sending POST request");
 		    else
 			    /* setup variables for the upcoming transfer */
-			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE,
-			    &http->readbytecount, FIRSTSOCKET,
-			    &http->writebytecount);
-
+			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, FIRSTSOCKET, &http->writebytecount);
 		    if(result) {
 			    Curl_formclean(&http->sendit); /* free that whole lot */
 			    return result;
@@ -2101,9 +2098,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			    Curl_formclean(&http->sendit); /* free that whole lot */
 			    return result;
 		    }
-
 		    break;
-
 		case HTTPREQ_PUT: /* Let's PUT the data to the server! */
 		    if(conn->bits.authneg)
 			    postsize = 0;
@@ -2258,31 +2253,22 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		    /* issue the request */
 		    result = Curl_add_buffer_send(req_buffer, conn, &data->info.request_size,
 		    (size_t)included_body, FIRSTSOCKET);
-
 		    if(result)
 			    failf(data, "Failed sending HTTP POST request");
 		    else
-			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE,
-			    &http->readbytecount, http->postdata ? FIRSTSOCKET : -1,
-			    http->postdata ? &http->writebytecount : NULL);
+			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, http->postdata ? FIRSTSOCKET : -1, http->postdata ? &http->writebytecount : NULL);
 		    break;
-
 		default:
 		    result = Curl_add_buffer(req_buffer, "\r\n", 2);
 		    if(result)
 			    return result;
-
 		    /* issue the request */
-		    result = Curl_add_buffer_send(req_buffer, conn,
-		    &data->info.request_size, 0, FIRSTSOCKET);
-
+		    result = Curl_add_buffer_send(req_buffer, conn, &data->info.request_size, 0, FIRSTSOCKET);
 		    if(result)
 			    failf(data, "Failed sending HTTP request");
 		    else
 			    /* HTTP GET/HEAD download: */
-			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount,
-			    http->postdata ? FIRSTSOCKET : -1,
-			    http->postdata ? &http->writebytecount : NULL);
+			    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, http->postdata ? FIRSTSOCKET : -1, http->postdata ? &http->writebytecount : NULL);
 	}
 	if(result)
 		return result;

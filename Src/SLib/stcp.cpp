@@ -3693,7 +3693,7 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 	}
 	{
 		long   npf = SPathStruc::npfSlash;
-		if(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps))
+		if(oneof4(prot, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protFtp, InetUrl::protFtps)) // @v10.3.0 InetUrl::protFtp, InetUrl::protFtps
 			npf |= SPathStruc::npfKeepCase;
 		rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
 		SPathStruc::NormalizePath(temp_buf, npf, rInfo.Path);
@@ -3758,6 +3758,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDa
 	{
 		SPathStruc ps(pLocalFile);
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.3.0
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
 		{
@@ -4190,10 +4191,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 		THROW(!(url_dest.GetState() & (InetUrl::stEmpty|InetUrl::stError)));
         const int prot_src = url_src.GetProtocol();
         const int prot_dest = url_dest.GetProtocol();
-        THROW(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
-			InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S));
-        THROW(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
-			InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS));
+        THROW(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S));
+        THROW(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS));
 		THROW(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile);
 		if(prot_src == InetUrl::protFile) { // Отправка локального файла
 			SString local_path_src;

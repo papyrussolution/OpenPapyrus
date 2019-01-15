@@ -364,9 +364,6 @@ int SLAPI PPObjTimeSeries::Browse(void * extraPtr)
 		{
 			PPObjTimeSeries * p_obj = (PPObjTimeSeries *)P_Obj;
 			if(p_obj) {
-				//p_obj->Test();
-				//p_obj->AnalyzeTsAftershocks();
-				//p_obj->AnalyzeStrategies();
 				PPTimeSeries ts_rec;
 				if(p_obj->Search(id, &ts_rec) > 0) {
 					SString temp_buf;
@@ -815,7 +812,7 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	STRNSCPY(Symb, rTnnp.Symb);
 	InputFrameSize = rTnnp.InputFrameSize;
 	Prec = rTnnp.Prec;
-	TargetQuant = rTnnp.TargetQuant;
+	TargetQuant_Unused = rTnnp.TargetQuant_Unused;
 	MaxDuckQuant = rTnnp.MaxDuckQuant;
 	OptDelta2Stride = rTnnp.OptDelta2Stride;
 	StakeMode = stakeMode;
@@ -933,117 +930,6 @@ int SLAPI PPObjTimeSeries::TestStrategy2(const DateTimeArray & rTmList, const Re
 	return ok;
 }
 
-#if 0 // {
-int SLAPI PPObjTimeSeries::TestStrategy(const STimeSeries & rTs, uint vecIdx, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rSre)
-{
-	int    ok = 1;
-	TSVector <StrategyOptEntry> so_list;
-	RealArray result_list;
-	rSre.LastResultIdx = 0;
-	const uint tsc = rTs.GetCount();
-	DateTimeArray ts_tm_list;
-	RealArray ts_val_list;
-	THROW_SL(rTs.GetRealArray(vecIdx, 0, tsc, ts_val_list));
-	THROW_SL(rTs.GetTimeArray(0, tsc, ts_tm_list));
-	assert(ts_val_list.getCount() == tsc);
-	assert(ts_tm_list.getCount() == tsc);
-	assert(tsc == rTrendList.getCount());
-	THROW(rTrendList.getCount() == tsc);
-	PROFILE_START
-	for(uint i = 0; i < tsc; i++) {
-		StrategyResultValue rv;
-		int    is_signal = 1;
-		if(rSre.StakeMode == 1) {
-			is_signal = 0;
-			if(i >= (rS.InputFrameSize+1) && rS.OptDeltaRange.Check(rTrendList.at(i))) {
-				//const  int csr = CalcStrategyResult(rTs, rS, vecIdx, i, rv);
-				const  int csr = CalcStrategyResult2(ts_tm_list, ts_val_list, rS, i, rv);
-				THROW(csr);
-				if(csr != 2)
-					rSre.LastResultIdx = i;
-				is_signal = BIN(csr == 2);
-			}
-		}
-		else if(rSre.StakeMode == 2) {
-			is_signal = 0;
-			if(i >= (rS.InputFrameSize+rS.OptDelta2Stride)) {
-				double d2 = rTrendList.StrideDifference(i, rS.OptDelta2Stride);
-				if(rS.OptDelta2Range.Check(d2)) {
-					//const  int csr = CalcStrategyResult(rTs, rS, vecIdx, i, rv);
-					const  int csr = CalcStrategyResult2(ts_tm_list, ts_val_list, rS, i, rv);
-					THROW(csr);
-					if(csr != 2)
-						rSre.LastResultIdx = i;
-					is_signal = BIN(csr == 2);
-				}
-			}
-		}
-		else {
-			//const  int csr = CalcStrategyResult(rTs, rS, vecIdx, i, rv);
-			const  int csr = CalcStrategyResult2(ts_tm_list, ts_val_list, rS, i, rv);
-			THROW(csr);
-			if(csr != 2)
-				rSre.LastResultIdx = i;
-			is_signal = BIN(csr == 2);
-		}
-		if(is_signal) {
-			result_list.add(rv.Result);
-			rSre.SetValue(rv);
-		}
-		else
-			result_list.add(0.0);
-	}
-	assert(result_list.getCount() == tsc);
-	{
-		const double tr = result_list.Sum();
-		assert(feqeps(rSre.V.Result, tr, 1e-7));
-	}
-	PROFILE_END
-	if(rSre.StakeMode == 0) {
-		const uint  first_correl_idx = rS.InputFrameSize;
-		PROFILE_START
-		{
-			so_list.clear();
-			for(uint i = 0; i <= rSre.LastResultIdx; i++) {
-				if(i >= (first_correl_idx+1)) {
-					StrategyOptEntry entry(rTrendList.at(i), result_list.at(i));
-					THROW_SL(so_list.insert(&entry));
-				}
-			}
-			FindOptimalFactorRange(so_list, rSre.OptDeltaRange, rSre.OptDeltaCount, rSre.OptDeltaResult);
-		}
-		PROFILE_END
-		PROFILE_START
-		{
-			double max_result = 0.0;
-			for(uint stride = 1; stride <= 4; stride++) {
-				so_list.clear();
-				for(uint i = 0; i <= rSre.LastResultIdx; i++) {
-					if(i >= (first_correl_idx+stride)) {
-						StrategyOptEntry entry(rTrendList.StrideDifference(i, stride), result_list.at(i));
-						THROW_SL(so_list.insert(&entry));
-					}
-				}
-				RealRange opt_range;
-				uint32 opt_count;
-				double opt_result;
-				FindOptimalFactorRange(so_list, opt_range, opt_count, opt_result);
-				if(max_result < opt_result) {
-					max_result = opt_result;
-					rSre.OptDelta2Result = opt_result;
-					rSre.OptDelta2Count = opt_count;
-					rSre.OptDelta2Range = opt_range;
-					rSre.OptDelta2Stride = stride;
-				}
-			}
-		}
-		PROFILE_END
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
-
 int SLAPI PPObjTimeSeries::FindOptimalMaxDuck2(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
 		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult)
 {
@@ -1060,10 +946,6 @@ int SLAPI PPObjTimeSeries::FindOptimalMaxDuck2(const DateTimeArray & rTmList, co
 	const bool the_first_call = (!pSet || pSet->getCount() == 0);
 	const uint tsc = rTmList.getCount();
 	TSVector <MaxDuckToResultRelation> mdr_list;
-	//DateTimeArray ts_tm_list;
-	//RealArray ts_val_list;
-	//THROW_SL(rTs.GetRealArray(vecIdx, 0, tsc, ts_val_list));
-	//THROW_SL(rTs.GetTimeArray(0, tsc, ts_tm_list));
 	assert(rValList.getCount() == tsc);
 	for(uint md = rMdRange.low; (int)md <= rMdRange.upp; md += mdStep) {
 		int    done = 0;
@@ -1083,18 +965,12 @@ int SLAPI PPObjTimeSeries::FindOptimalMaxDuck2(const DateTimeArray & rTmList, co
 			sre.LastResultIdx = 0;
 			for(uint i = 0; i < tsc; i++) {
 				StrategyResultValue rv;
-				int    is_signal = 1;
-				{
-					//const  int csr = CalcStrategyResult(rTs, local_s, vecIdx, i, rv);
-					const  int csr = CalcStrategyResult2(rTmList, rValList, local_s, i, rv);
-					THROW(csr);
-					if(csr != 2)
-						sre.LastResultIdx = i;
-					is_signal = BIN(csr == 2);
-				}
-				if(is_signal) {
+				const  int csr = CalcStrategyResult2(rTmList, rValList, local_s, i, rv);
+				THROW(csr);
+				if(csr == 2)
 					sre.SetValue(rv);
-				}
+				else
+					sre.LastResultIdx = i;
 			}
 			local_result = sre.V.GetResultPerSec() * 3600 * 24;
 			if(pSet) {
@@ -1132,8 +1008,9 @@ int SLAPI PPObjTimeSeries::FindOptimalMaxDuck2(const DateTimeArray & rTmList, co
 			double max_result = -MAXDOUBLE;
 			int    best_idx = -1;
 			for(uint j = 0; j < mdrc; j++) {
-				if(max_result < mdr_list.at(j).Result) {
-					max_result = mdr_list.at(j).Result;
+				const double local_mdr_result = mdr_list.at(j).Result;
+				if(max_result < local_mdr_result) {
+					max_result = local_mdr_result;
 					best_idx = (int)j;
 				}
 			}
@@ -1167,131 +1044,7 @@ int SLAPI PPObjTimeSeries::FindOptimalMaxDuck2(const DateTimeArray & rTmList, co
 	return ok;
 }
 
-int SLAPI PPObjTimeSeries::FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, 
-	const IntRange & rMdRange, int mdStep, TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult)
-{
-	int    ok = -1;
-	assert(rMdRange.low > 0 && rMdRange.upp > rMdRange.low && mdStep > 0);
-	SString log_buf;
-	SString temp_buf;
-	SString log_file_name;
-	SString symb_buf;
-	rResult.MaxDuckQuant = 0;
-	rResult.Result = 0.0;
-	PPGetFilePath(PPPATH_LOG, "Ts-FindOptimalMaxDuck.log", log_file_name);
-	TrainNnParam local_s(rS);
-	const bool the_first_call = (!pSet || pSet->getCount() == 0);
-	const uint tsc = rTs.GetCount();
-	TSVector <MaxDuckToResultRelation> mdr_list;
-	DateTimeArray ts_tm_list;
-	RealArray ts_val_list;
-	THROW_SL(rTs.GetRealArray(vecIdx, 0, tsc, ts_val_list));
-	THROW_SL(rTs.GetTimeArray(0, tsc, ts_tm_list));
-	assert(ts_val_list.getCount() == tsc);
-	assert(ts_tm_list.getCount() == tsc);
-	for(uint md = rMdRange.low; (int)md <= rMdRange.upp; md += mdStep) {
-		int    done = 0;
-		double local_result = 0.0;
-		if(pSet) {
-			for(uint i = 0; !done && i < pSet->getCount(); i++) {
-				const MaxDuckToResultRelation & r_set_item = pSet->at(i);
-				if(r_set_item.MaxDuckQuant == (int)md) {
-					local_result = r_set_item.Result;
-					done = 1;
-				}
-			}
-		}
-		if(!done) {
-			local_s.MaxDuckQuant = md;
-			StrategyResultEntry sre(local_s, 0);
-			sre.LastResultIdx = 0;
-			for(uint i = 0; i < tsc; i++) {
-				StrategyResultValue rv;
-				int    is_signal = 1;
-				{
-					//const  int csr = CalcStrategyResult(rTs, local_s, vecIdx, i, rv);
-					const  int csr = CalcStrategyResult2(ts_tm_list, ts_val_list, local_s, i, rv);
-					THROW(csr);
-					if(csr != 2)
-						sre.LastResultIdx = i;
-					is_signal = BIN(csr == 2);
-				}
-				if(is_signal) {
-					sre.SetValue(rv);
-				}
-			}
-			local_result = sre.V.GetResultPerSec() * 3600 * 24;
-			if(pSet) {
-				MaxDuckToResultRelation new_set_entry;
-				new_set_entry.MaxDuckQuant = md;
-				new_set_entry.Result = local_result;
-				THROW_SL(pSet->insert(&new_set_entry));
-			}
-		}
-		{
-			symb_buf = rTs.GetSymb();
-			if(rS.BaseFlags & rS.bfShort)
-				symb_buf.CatChar('-').Cat("REV");
-			log_buf.Z().Cat("FindOptimalMaxDuck").CatDiv(':', 2).Cat(symb_buf).Space().CatEq("MaxDuckQuant", md).Space().
-				CatEq("Result", local_result, MKSFMTD(15, 5, 0));
-			PPLogMessage(log_file_name, log_buf, LOGMSGF_TIME);
-		}
-		{
-			MaxDuckToResultRelation mdr_entry;
-			mdr_entry.MaxDuckQuant = md;
-			mdr_entry.Result = local_result;
-			uint  last_mdr_pos = mdr_list.getCount();
-			THROW_SL(mdr_list.insert(&mdr_entry));
-			if(the_first_call && mdr_list.getCount() > 1) {
-				const double prev_result = mdr_list.at(last_mdr_pos-1).Result;
-				if(local_result < prev_result)
-					break;
-			}
-		}
-	}
-	{
-		const uint mdrc = mdr_list.getCount();
-		if(mdrc > 1) {
-			IntRange local_md_range;
-			double max_result = -MAXDOUBLE;
-			int    best_idx = -1;
-			for(uint j = 0; j < mdrc; j++) {
-				if(max_result < mdr_list.at(j).Result) {
-					max_result = mdr_list.at(j).Result;
-					best_idx = (int)j;
-				}
-			}
-			assert(best_idx >= 0);
-			const uint low_idx = (uint)((best_idx > 0) ? (best_idx-1) : best_idx);
-			const uint upp_idx = (uint)(((best_idx+1) < (int)mdrc) ? (best_idx+1) : best_idx);
-			local_md_range.Set(mdr_list.at(low_idx).MaxDuckQuant, mdr_list.at(upp_idx).MaxDuckQuant);
-			assert(local_md_range.upp > local_md_range.low);
-			THROW(local_md_range.upp > local_md_range.low);
-			const  int range_divider = (local_md_range == rMdRange) ? 5 : 4;
-			int    local_md_step = (local_md_range.upp - local_md_range.low) / range_divider;
-			if(local_md_step > 0) {
-				THROW(FindOptimalMaxDuck(rTs, vecIdx, rS, local_md_range, local_md_step, pSet, rResult)); // @recursion
-			}
-			else {
-				rResult = mdr_list.at((best_idx >= 0 && best_idx < (int)mdrc) ? best_idx : 0);
-				ok = 1;
-			}
-		}
-		else if(mdrc) {
-			rResult = mdr_list.at(0);
-			ok = 1;
-		}
-		if(ok > 0) {
-			log_buf.Z().Cat("!OptimalMaxDuck").CatDiv(':', 2).Cat(rTs.GetSymb()).Space().CatEq("MaxDuckQuant", rResult.MaxDuckQuant).Space().
-				CatEq("Result", rResult.Result, MKSFMTD(15, 5, 0));
-			PPLogMessage(log_file_name, log_buf, LOGMSGF_TIME);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-SLAPI PPObjTimeSeries::Strategy::Strategy() : InputFrameSize(0), Prec(0), TargetQuant(0), MaxDuckQuant(0), OptDelta2Stride(0), StakeMode(0),
+SLAPI PPObjTimeSeries::Strategy::Strategy() : InputFrameSize(0), Prec(0), TargetQuant_Unused(0), MaxDuckQuant(0), OptDelta2Stride(0), StakeMode(0),
 	BaseFlags(0), Margin(0.0), SpikeQuant(0.0), StakeThreshold(0.0), SpreadAvg(0.0), OptDeltaCount(0), OptDelta2Count(0), StakeCount(0), WinCount(0),
 	StakeCloseMode(0)
 {
@@ -1693,35 +1446,30 @@ int SLAPI PPObjTimeSeries::AnalyzeAftershock(const STimeSeries & rTs, const Trai
 	return ok;
 }
 
-double SLAPI PPObjTimeSeries::Strategy::CalcSL(double stakeValue, double peak, double bottom) const
+static double FORCEINLINE Implement_CalcSL(int sell, double mdv, int prec, double peak)
 {
-	double sl = 0.0;
+	return sell ? round(peak * (1.0 + mdv), prec) : round(peak * (1.0 - mdv), prec);
+}
+
+static double FORCEINLINE Implement_CalcSL_Short(double mdv, int prec, double peak)
+{
+	return round(peak * (1.0 + mdv), prec);
+}
+
+static double FORCEINLINE Implement_CalcSL_Long(double mdv, int prec, double peak)
+{
+	return round(peak * (1.0 - mdv), prec);
+}
+
+double SLAPI PPObjTimeSeries::Strategy::CalcSL(double peak) const
+{
 	const  double mdv = (MaxDuckQuant * SpikeQuant);
 	if(BaseFlags & bfShort) {
-		if(StakeCloseMode == 1) {
-			double dp = stakeValue - peak;
-			double db = bottom - stakeValue;
-			if(dp > db)
-				sl = peak * (1.0 + mdv);
-			else 
-				sl = (stakeValue - db) * (1.0 + mdv);
-		}
-		else
-			sl = peak * (1.0 + mdv);
+		return round(peak * (1.0 + mdv), Prec);
 	}
 	else {
-		if(StakeCloseMode == 1) {
-			double dp = peak - stakeValue;
-			double db = stakeValue - bottom;
-			if(dp > db)
-				sl = peak * (1.0 - mdv);
-			else 
-				sl = (stakeValue + db) * (1.0 - mdv);
-		}
-		else
-			sl = peak * (1.0 - mdv);
+		return round(peak * (1.0 - mdv), Prec);
 	}
-	return round(sl, Prec);
 }
 
 int SLAPI PPObjTimeSeries::CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValue & rV) const
@@ -1731,59 +1479,61 @@ int SLAPI PPObjTimeSeries::CalcStrategyResult2(const DateTimeArray & rTmList, co
 	const  uint tsc = rTmList.getCount();
 	assert(tsc == rValList.getCount());
 	if(tsc && tsc == rValList.getCount() && valueIdx < tsc) {
-		double prev_value = rValList.at(valueIdx);
+		//double prev_value = rValList.at(valueIdx);
 		const LDATETIME start_tm = rTmList.get(valueIdx);
-		const double stake_value = prev_value;
-		double peak = prev_value;
-		double bottom = prev_value;
+		const double stake_value = rValList.at(valueIdx);
+		double peak = stake_value;
+		//double bottom = stake_value;
 		const  uint org_max_duck_quant = rS.MaxDuckQuant;
 		const  uint max_duck_quant = org_max_duck_quant; // Возможно, будет меняться в течении жизни ставки (пока нет)
+		const  double mdv = (rS.MaxDuckQuant * rS.SpikeQuant);
+		const  int is_short = BIN(rS.BaseFlags & rS.bfShort);
+		const  int prec = rS.Prec;
 		{
-			const int is_short = BIN(rS.BaseFlags & rS.bfShort);
 			const double spike_quant = rS.SpikeQuant;
-			const double target_value = rS.TargetQuant * spike_quant;
+			//const double target_value = rS.TargetQuant * spike_quant;
 			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec)) : 0.0;
-			double sl = rS.CalcSL(stake_value, peak, bottom);
+			const double margin = rS.Margin;
+			//double sl = rS.CalcSL(peak);
 			uint k = valueIdx+1;
-			while(k < tsc) {
-				const double value = rValList.at(k);
-				if(is_short) {
+			if(is_short) {
+				double sl = Implement_CalcSL_Short(mdv, prec, peak);
+				while(k < tsc) {
+					const double value = rValList.at(k);
 					const double value_with_spread = (value + spread);
 					const double stake_delta = -((value - stake_value) / stake_value);
-					rV.Result = -((value_with_spread - stake_value) / stake_value) / rS.Margin;
+					rV.Result = -((value_with_spread - stake_value) / stake_value) / margin;
 					if(value >= sl) {
 						ok = 2;
 						break;
 					}
-					else if(rS.TargetQuant && (stake_delta > target_value)) {
-						ok = 2;
-						break;									
-					}
 					else {
-						SETMIN(peak, value);
-						SETMAX(bottom, value);
-						prev_value = value;
-						sl = rS.CalcSL(stake_value, peak, bottom);
+						//SETMIN(peak, value);
+						if(peak > value) {
+							peak = value;
+							sl = Implement_CalcSL_Short(mdv, prec, peak);
+						}
 						k++;
 					}
 				}
-				else {
+			}
+			else {
+				double sl = Implement_CalcSL_Long(mdv, prec, peak);
+				while(k < tsc) {
+					const double value = rValList.at(k);
 					const double value_with_spread = (value - spread);
 					const double stake_delta = ((value - stake_value) / stake_value);
-					rV.Result = ((value_with_spread - stake_value) / stake_value) / rS.Margin;
+					rV.Result = ((value_with_spread - stake_value) / stake_value) / margin;
 					if(value <= sl) {
 						ok = 2;
 						break;
 					}
-					else if(rS.TargetQuant && (stake_delta > target_value)) {
-						ok = 2;
-						break;									
-					}
 					else {
-						SETMAX(peak, value);
-						SETMIN(bottom, value);
-						prev_value = value;
-						sl = rS.CalcSL(stake_value, peak, bottom);
+						//SETMAX(peak, value);
+						if(peak < value) {
+							peak = value;
+							sl = Implement_CalcSL_Long(mdv, prec, peak);
+						}
 						k++;
 					}
 				}
@@ -1802,90 +1552,6 @@ int SLAPI PPObjTimeSeries::CalcStrategyResult2(const DateTimeArray & rTmList, co
 	}
 	return ok;
 }
-
-#if 0 // {
-int SLAPI PPObjTimeSeries::CalcStrategyResult(const STimeSeries & rTs, const Strategy & rS, uint vecIdx, uint valueIdx, StrategyResultValue & rV) const
-{
-	int    ok = 1;
-	const  uint tsc = rTs.GetCount();
-	rV.Z();
-	if(valueIdx < tsc) {
-		double prev_value;
-		LDATETIME start_tm;
-		SUniTime ut;
-		THROW(rTs.GetValue(valueIdx, vecIdx, &prev_value));
-		rTs.GetTime(valueIdx, &ut);
-		ut.Get(start_tm);
-		const double stake_value = prev_value;
-		double peak = prev_value;
-		double bottom = prev_value;
-		const  uint org_max_duck_quant = rS.MaxDuckQuant;
-		const  uint max_duck_quant = org_max_duck_quant; // Возможно, будет меняться в течении жизни ставки (пока нет)
-		{
-			const int is_short = BIN(rS.BaseFlags & rS.bfShort);
-			const double spike_quant = rS.SpikeQuant;
-			const double target_value = rS.TargetQuant * spike_quant;
-			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec)) : 0.0;
-			double sl = rS.CalcSL(stake_value, peak, bottom);
-			uint k = valueIdx+1;
-			while(k < tsc) {
-				double value;
-				THROW(rTs.GetValue(k, vecIdx, &value));
-				if(is_short) {
-					const double value_with_spread = (value + spread);
-					const double stake_delta = -((value - stake_value) / stake_value);
-					rV.Result = -((value_with_spread - stake_value) / stake_value) / rS.Margin;
-					if(value >= sl) {
-						ok = 2;
-						break;
-					}
-					else if(rS.TargetQuant && (stake_delta > target_value)) {
-						ok = 2;
-						break;									
-					}
-					else {
-						SETMIN(peak, value);
-						SETMAX(bottom, value);
-						prev_value = value;
-						sl = rS.CalcSL(stake_value, peak, bottom);
-						k++;
-					}
-				}
-				else {
-					const double value_with_spread = (value - spread);
-					const double stake_delta = ((value - stake_value) / stake_value);
-					rV.Result = ((value_with_spread - stake_value) / stake_value) / rS.Margin;
-					if(value <= sl) {
-						ok = 2;
-						break;
-					}
-					else if(rS.TargetQuant && (stake_delta > target_value)) {
-						ok = 2;
-						break;									
-					}
-					else {
-						SETMAX(peak, value);
-						SETMIN(bottom, value);
-						prev_value = value;
-						sl = rS.CalcSL(stake_value, peak, bottom);
-						k++;
-					}
-				}
-			}
-			if(k == tsc)
-				ok = 3;
-			rV.TmCount = k - valueIdx;
-			SUniTime local_ut;
-			LDATETIME local_tm;
-			rTs.GetTime(k, &local_ut);
-			local_ut.Get(local_tm);
-			rV.TmSec = diffdatetimesec(local_tm, start_tm);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
 /*
 time-series-precision: точность представления значений
 time-series-margin-buy:  маржина при покупке инструмента, представленного символом
@@ -2126,11 +1792,16 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 						const double spike_quant = ts_rec.SpikeQuant;
 						DateTimeArray ts_tm_list;
 						RealArray ts_val_list;
+						PPObjTimeSeries::StrategyContainer scontainer;
 						THROW_SL(ts.GetRealArray(vec_idx, 0, tsc, ts_val_list));
 						THROW_SL(ts.GetTimeArray(0, tsc, ts_tm_list));
 						assert(ts_tm_list.getCount() == tsc);
 						assert(ts_val_list.getCount() == tsc);
 						const LDATETIME last_val_dtm = ts_tm_list.get(tsc-1);
+						scontainer.SetLastValTm(last_val_dtm);
+						if(P.Flags & P.fFindStrategies && P.Flags & P.fForce) {
+							THROW(ts_obj.PutStrategies(id, 0, 1));
+						}
 						//
 						// stake_side: 0 - long, 1 - short
 						// 
@@ -2147,7 +1818,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 								if(P.Flags & P.fFindOptMaxDuck && (org_opt_max_duck_val <= 0 || (P.Flags & P.fForce))) {
 									PPObjTimeSeries::TrainNnParam tnnp(ts_rec, PPObjTimeSeries::TrainNnParam::afAnalyzeFrame);
 									tnnp.SpikeQuant = spike_quant;
-									tnnp.TargetQuant = 0;
 									tnnp.EpochCount = 1;
 									tnnp.InputFrameSize = 0;
 									tnnp.MaxDuckQuant = 0;
@@ -2175,11 +1845,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									}
 								}
 								if(P.Flags & P.fFindStrategies) {
-									PPObjTimeSeries::StrategyContainer scontainer;
-									scontainer.SetLastValTm(last_val_dtm);
-									if(P.Flags & P.fForce) {
-										THROW(ts_obj.PutStrategies(id, 0, 1));
-									}
 									for(uint ifsidx = 0; ifsidx < SIZEOFARRAY(input_frame_size_list); ifsidx++) {
 										const uint input_frame_size = input_frame_size_list[ifsidx];
 										trend_list.clear();
@@ -2214,7 +1879,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											if(stake_side == 1)
 												symb_buf.CatChar('-').Cat("REV");
 											tnnp.SpikeQuant = spike_quant;
-											tnnp.TargetQuant = 0;
 											tnnp.EpochCount = 1;
 											tnnp.InputFrameSize = input_frame_size;
 											tnnp.MaxDuckQuant = __max_duck_quant_list[mdidx];
@@ -2224,7 +1888,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											SETFLAG(tnnp.BaseFlags, tnnp.bfShort, stake_side == 1);
 											{
 												PPObjTimeSeries::StrategyResultEntry sre(tnnp, 0);
-												//THROW(ts_obj.TestStrategy(ts, vec_idx, trend_list, tnnp, sre));
 												THROW(ts_obj.TestStrategy2(ts_tm_list, ts_val_list, trend_list, tnnp, sre));
 												THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre)));
 												{
@@ -2257,7 +1920,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											}
 											{
 												PPObjTimeSeries::StrategyResultEntry sre_test(tnnp, 1);
-												//THROW(ts_obj.TestStrategy(ts, vec_idx, trend_list, tnnp, sre_test));
 												THROW(ts_obj.TestStrategy2(ts_tm_list, ts_val_list, trend_list, tnnp, sre_test));
 												THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
 												{
@@ -2288,7 +1950,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											}
 											{
 												PPObjTimeSeries::StrategyResultEntry sre_test(tnnp, 2);
-												//THROW(ts_obj.TestStrategy(ts, vec_idx, trend_list, tnnp, sre_test));
 												THROW(ts_obj.TestStrategy2(ts_tm_list, ts_val_list, trend_list, tnnp, sre_test));
 												THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
 												{
@@ -2319,9 +1980,11 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											}
 										}
 									}
-									THROW(ts_obj.PutStrategies(id, &scontainer, 1));
 								}
 							}
+						}
+						if(P.Flags & P.fFindStrategies) {
+							THROW(ts_obj.PutStrategies(id, &scontainer, 1));
 						}
 					}
 				}

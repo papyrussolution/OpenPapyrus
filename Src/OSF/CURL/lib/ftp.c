@@ -664,13 +664,11 @@ static int ftp_domore_getsock(struct connectdata * conn, curl_socket_t * socks, 
 	 * remote site, or we could wait for that site to connect to us. Or just
 	 * handle ordinary commands.
 	 */
-
 	if(FTP_STOP == ftpc->state) {
 		int bits = GETSOCK_READSOCK(0);
 		/* if stopped and still in this state, then we're also waiting for a
 		   connect on the secondary connection */
 		socks[0] = conn->sock[FIRSTSOCKET];
-
 		if(!conn->data->set.ftp_use_port) {
 			int s;
 			int i;
@@ -687,7 +685,6 @@ static int ftp_domore_getsock(struct connectdata * conn, curl_socket_t * socks, 
 			socks[1] = conn->sock[SECONDARYSOCKET];
 			bits |= GETSOCK_WRITESOCK(1) | GETSOCK_READSOCK(1);
 		}
-
 		return bits;
 	}
 	return Curl_pp_getsock(&conn->proto.ftpc.pp, socks, numsocks);
@@ -703,39 +700,31 @@ static CURLcode ftp_state_cwd(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
-
 	if(ftpc->cwddone)
-		/* already done and fine */
-		result = ftp_state_mdtm(conn);
+		result = ftp_state_mdtm(conn); // already done and fine 
 	else {
-		ftpc->count2 = 0; /* count2 counts failed CWDs */
-
-		/* count3 is set to allow a MKD to fail once. In the case when first CWD
-		   fails and then MKD fails (due to another session raced it to create the
-		   dir) this then allows for a second try to CWD to it */
+		ftpc->count2 = 0; // count2 counts failed CWDs 
+		// count3 is set to allow a MKD to fail once. In the case when first CWD
+		// fails and then MKD fails (due to another session raced it to create the
+		// dir) this then allows for a second try to CWD to it 
 		ftpc->count3 = (conn->data->set.ftp_create_missing_dirs==2) ? 1 : 0;
-
 		if(conn->bits.reuse && ftpc->entrypath) {
-			/* This is a re-used connection. Since we change directory to where the
-			   transfer is taking place, we must first get back to the original dir
-			   where we ended up after login: */
-			ftpc->count1 = 0; /* we count this as the first path, then we add one
-			                     for all upcoming ones in the ftp->dirs[] array */
+			// This is a re-used connection. Since we change directory to where the
+			// transfer is taking place, we must first get back to the original dir
+			// where we ended up after login: 
+			ftpc->count1 = 0; // we count this as the first path, then we add one for all upcoming ones in the ftp->dirs[] array 
 			PPSENDF(&conn->proto.ftpc.pp, "CWD %s", ftpc->entrypath);
 			state(conn, FTP_CWD);
 		}
 		else {
 			if(ftpc->dirdepth) {
 				ftpc->count1 = 1;
-				/* issue the first CWD, the rest is sent when the CWD responses are
-				   received... */
+				// issue the first CWD, the rest is sent when the CWD responses are received...
 				PPSENDF(&conn->proto.ftpc.pp, "CWD %s", ftpc->dirs[ftpc->count1 -1]);
 				state(conn, FTP_CWD);
 			}
-			else {
-				/* No CWD necessary */
-				result = ftp_state_mdtm(conn);
-			}
+			else
+				result = ftp_state_mdtm(conn); // No CWD necessary 
 		}
 	}
 	return result;
@@ -1271,18 +1260,17 @@ static CURLcode ftp_state_type(struct connectdata * conn)
 		result = ftp_state_size(conn);
 	return result;
 }
-
-/* This is called after the CWD commands have been done in the beginning of
-   the DO phase */
+// 
+// This is called after the CWD commands have been done in the beginning of the DO phase 
+//
 static CURLcode ftp_state_mdtm(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
-	/* Requested time of file or time-depended transfer? */
+	// Requested time of file or time-depended transfer? 
 	if((data->set.get_filetime || data->set.timecondition) && ftpc->file) {
-		/* we have requested to get the modified-time of the file, this is a white
-		   spot as the MDTM is not mentioned in RFC959 */
+		// we have requested to get the modified-time of the file, this is a white spot as the MDTM is not mentioned in RFC959 
 		PPSENDF(&ftpc->pp, "MDTM %s", ftpc->file);
 		state(conn, FTP_MDTM);
 	}
@@ -1290,8 +1278,9 @@ static CURLcode ftp_state_mdtm(struct connectdata * conn)
 		result = ftp_state_type(conn);
 	return result;
 }
-
-/* This is called after the TYPE and possible quote commands have been sent */
+//
+// This is called after the TYPE and possible quote commands have been sent 
+//
 static CURLcode ftp_state_ul_setup(struct connectdata * conn, bool sizechecked)
 {
 	CURLcode result = CURLE_OK;
@@ -1319,16 +1308,11 @@ static CURLcode ftp_state_ul_setup(struct connectdata * conn, bool sizechecked)
 			state(conn, FTP_STOR_SIZE);
 			return result;
 		}
-
-		/* enable append */
-		data->set.ftp_append = TRUE;
-
-		/* Let's read off the proper amount of bytes from the input. */
+		data->set.ftp_append = TRUE; // enable append 
+		// Let's read off the proper amount of bytes from the input. 
 		if(conn->seek_func) {
-			seekerr = conn->seek_func(conn->seek_client, data->state.resume_from,
-			    SEEK_SET);
+			seekerr = conn->seek_func(conn->seek_client, data->state.resume_from, SEEK_SET);
 		}
-
 		if(seekerr != CURL_SEEKFUNC_OK) {
 			curl_off_t passed = 0;
 			if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
@@ -1341,8 +1325,7 @@ static CURLcode ftp_state_ul_setup(struct connectdata * conn, bool sizechecked)
 				size_t actuallyread = data->state.fread_func(data->state.buffer, 1, readthisamountnow, data->state.in);
 				passed += actuallyread;
 				if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
-					/* this checks for greater-than only to make sure that the
-					   CURL_READFUNC_ABORT return code still aborts */
+					// this checks for greater-than only to make sure that the CURL_READFUNC_ABORT return code still aborts 
 					failf(data, "Failed to read data");
 					return CURLE_FTP_COULDNT_USE_REST;
 				}
@@ -2230,20 +2213,13 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    return result;
 			    break;
 			case FTP_USER:
-			case FTP_PASS:
-			    result = ftp_state_user_resp(conn, ftpcode, ftpc->state);
-			    break;
-			case FTP_ACCT:
-			    result = ftp_state_acct_resp(conn, ftpcode);
-			    break;
-
+			case FTP_PASS: result = ftp_state_user_resp(conn, ftpcode, ftpc->state); break;
+			case FTP_ACCT: result = ftp_state_acct_resp(conn, ftpcode); break;
 			case FTP_PBSZ:
 			    PPSENDF(&ftpc->pp, "PROT %c",
 			    data->set.use_ssl == CURLUSESSL_CONTROL ? 'C' : 'P');
 			    state(conn, FTP_PROT);
-
 			    break;
-
 			case FTP_PROT:
 			    if(ftpcode/100 == 2)
 				    /* We have enabled SSL for the data connection! */
@@ -2354,7 +2330,6 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 						    state(conn, FTP_SYST);
 						    break;
 					    }
-
 					    ZFREE(ftpc->entrypath);
 					    ftpc->entrypath = dir; /* remember this */
 					    infof(data, "Entry path is '%s'\n", ftpc->entrypath);
@@ -2370,13 +2345,11 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 			    state(conn, FTP_STOP); /* we are done with the CONNECT phase! */
 			    DEBUGF(infof(data, "protocol connect phase DONE\n"));
 			    break;
-
 			case FTP_SYST:
 			    if(ftpcode == 215) {
 				    char * ptr = &data->state.buffer[4]; /* start on the first letter */
-				    char * os;
 				    char * store;
-				    os = (char *)SAlloc::M(nread + 1);
+				    char * os = (char *)SAlloc::M(nread + 1);
 				    if(!os)
 					    return CURLE_OUT_OF_MEMORY;
 				    /* Reply format is like
@@ -2433,14 +2406,11 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 			    result = ftp_state_quote(conn, FALSE, ftpc->state);
 			    if(result)
 				    return result;
-
 			    break;
-
 			case FTP_CWD:
 			    if(ftpcode/100 != 2) {
 				    /* failure to CWD there */
-				    if(conn->data->set.ftp_create_missing_dirs &&
-				    ftpc->count1 && !ftpc->count2) {
+				    if(conn->data->set.ftp_create_missing_dirs && ftpc->count1 && !ftpc->count2) {
 					    /* try making it */
 					    ftpc->count2++; /* counter to prevent CWD-MKD loops */
 					    PPSENDF(&ftpc->pp, "MKD %s", ftpc->dirs[ftpc->count1 - 1]);
@@ -2449,8 +2419,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    else {
 					    /* return failure */
 					    failf(data, "Server denied you to change to the given directory");
-					    ftpc->cwdfail = TRUE; /* don't remember this path as we failed
-					                             to enter it */
+					    ftpc->cwdfail = TRUE; // don't remember this path as we failed to enter it 
 					    return CURLE_REMOTE_ACCESS_DENIED;
 				    }
 			    }
@@ -2822,26 +2791,17 @@ static CURLcode ftp_sendquote(struct connectdata * conn, struct curl_slist * quo
 	}
 	return CURLE_OK;
 }
-
-/***********************************************************************
- *
- * ftp_need_type()
- *
- * Returns TRUE if we in the current situation should send TYPE
- */
+// 
+// Returns TRUE if we in the current situation should send TYPE
+// 
 static int ftp_need_type(struct connectdata * conn, bool ascii_wanted)
 {
 	return conn->proto.ftpc.transfertype != (ascii_wanted ? 'A' : 'I');
 }
-
-/***********************************************************************
- *
- * ftp_nb_type()
- *
- * Set TYPE. We only deal with ASCII or BINARY so this function
- * sets one of them.
- * If the transfer type is not sent, simulate on OK response in newstate
- */
+// 
+// Set TYPE. We only deal with ASCII or BINARY so this function sets one of them.
+// If the transfer type is not sent, simulate on OK response in newstate
+// 
 static CURLcode ftp_nb_type(struct connectdata * conn, bool ascii, ftpstate newstate)
 {
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
@@ -3056,14 +3016,9 @@ static CURLcode ftp_do_more(struct connectdata * conn, int * completep)
 	}
 	return result;
 }
-
-/***********************************************************************
- *
- * ftp_perform()
- *
- * This is the actual DO function for FTP. Get a file/directory according to
- * the options previously setup.
- */
+// 
+// This is the actual DO function for FTP. Get a file/directory according to the options previously setup.
+// 
 static CURLcode ftp_perform(struct connectdata * conn, bool * connected/* connect status after PASV / PORT */, bool * dophase_done)
 {
 	// this is FTP and no proxy 
@@ -3129,9 +3084,8 @@ static CURLcode init_wc_data(struct connectdata * conn)
 			return result;
 		}
 	}
-	/* program continues only if URL is not ending with slash, allocate needed
-	   resources for wildcard transfer */
-	/* allocate ftp protocol specific temporary wildcard data */
+	// program continues only if URL is not ending with slash, allocate needed resources for wildcard transfer 
+	// allocate ftp protocol specific temporary wildcard data 
 	ftp_tmp = (struct ftp_wc_tmpdata *)SAlloc::C(1, sizeof(struct ftp_wc_tmpdata));
 	if(!ftp_tmp) {
 		ZFREE(wildcard->pattern);
@@ -3618,19 +3572,14 @@ static CURLcode ftp_doing(struct connectdata * conn, bool * dophase_done)
 	}
 	return result;
 }
-
-/***********************************************************************
- *
- * ftp_regular_transfer()
- *
- * The input argument is already checked for validity.
- *
- * Performs all commands done before a regular transfer between a local and a
- * remote host.
- *
- * ftp->ctl_valid starts out as FALSE, and gets set to TRUE if we reach the
- * ftp_done() function without finding any major problem.
- */
+// 
+// The input argument is already checked for validity.
+// 
+// Performs all commands done before a regular transfer between a local and a remote host.
+// 
+// ftp->ctl_valid starts out as FALSE, and gets set to TRUE if we reach the
+// ftp_done() function without finding any major problem.
+// 
 static CURLcode ftp_regular_transfer(struct connectdata * conn, bool * dophase_done)
 {
 	CURLcode result = CURLE_OK;
@@ -3646,8 +3595,7 @@ static CURLcode ftp_regular_transfer(struct connectdata * conn, bool * dophase_d
 	result = ftp_perform(conn, &connected/* have we connected after PASV/PORT */, dophase_done/* all commands in the DO-phase done? */);
 	if(!result) {
 		if(!*dophase_done)
-			/* the DO phase has not completed yet */
-			return CURLE_OK;
+			return CURLE_OK; // the DO phase has not completed yet 
 		result = ftp_dophase_done(conn, connected);
 		if(result)
 			return result;

@@ -4557,13 +4557,13 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 												for(xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
 													if(SXml::GetContentByName(p_box, "boxnumber", temp_buf)) {
 														if(temp_buf.NotEmpty()) {
-															box_id = ext_codes_set.AddBox(0, temp_buf);
+															box_id = ext_codes_set.AddBox(0, temp_buf, 0);
 														}
 													}
 													else if(SXml::IsName(p_box, "amclist")) {
 														for(xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
 															if(SXml::GetContentByName(p_amc, "amc", temp_buf) > 0) {
-																ext_codes_set.AddNum(box_id, temp_buf);
+																ext_codes_set.AddNum(box_id, temp_buf, 0);
 															}
 														}
 													}

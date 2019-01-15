@@ -402,10 +402,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 		size_t pos = 0;
 		size_t len = 0;
 		size_t real_pos = 0;
-		SSrchParam p;
-		p.P_Pattern = " "; // (char*)onecstr(' ');
-		p.P_WordChars = 0;
-		p.Flags = 0;
+		SSrchParam p(" ", 0, 0);
 		while(p_buf && searchstr(p_buf, p, &pos, &len) > 0) {
 			if(pos > strLen) {
 				size_t cut_pos = (prev_pos) ? prev_pos : pos;

@@ -903,7 +903,7 @@ void SLAPI PPLotExtCodeContainer::MarkSet::Clear()
 	L.clear();
 }
 
-long SLAPI PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum)
+long SLAPI PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVerify)
 {
 	int    real_id = 0;
 	long max_id = 0;
@@ -912,7 +912,8 @@ long SLAPI PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum)
 		const InnerEntry & r_entry = L.at(i);
 		if(r_entry.Flags & fBox) {
 			SETMAX(max_id, r_entry.BoxID);
-			THROW(!id || r_entry.BoxID != id);
+			if(doVerify)
+				THROW(!id || r_entry.BoxID != id);
 		}
 	}
 	{
@@ -946,17 +947,19 @@ int SLAPI PPLotExtCodeContainer::MarkSet::GetBoxNum(long boxId, SString & rNum) 
 	return ok;
 }
 
-int SLAPI PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum)
+int SLAPI PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum, int doVerify)
 {
 	int    ok = 1;
 	SString temp_buf;
 	THROW(!isempty(pNum));
 	THROW(!boxId || GetBoxNum(boxId, temp_buf));
-	for(uint i = 0; !ok && i < L.getCount(); i++) {
-		const InnerEntry & r_entry = L.at(i);
-		if(!(r_entry.Flags & fBox)) {
-			GetS(r_entry.NumP, temp_buf);
-			THROW(temp_buf != pNum);
+	if(doVerify) {
+		for(uint i = 0; !ok && i < L.getCount(); i++) {
+			const InnerEntry & r_entry = L.at(i);
+			if(!(r_entry.Flags & fBox)) {
+				GetS(r_entry.NumP, temp_buf);
+				THROW(temp_buf != pNum);
+			}
 		}
 	}
 	{
@@ -1119,7 +1122,39 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 	int    ok = 1;
     THROW(rowIdx >= 0);
 	THROW(itemIdx < SVector::getCount());
-	SVector::atFree(itemIdx);
+	{
+		Item2 item;
+		if(GetByIdx(itemIdx, item)) {
+			if(item.Flags & fBox) {
+				uint i = SVector::getCount();
+				if(i) do {
+					InnerItem * p_ii = (InnerItem *)SVector::at(--i);
+					if(p_ii->BoxId == item.BoxId)
+						SVector::atFree(i);
+				} while(i);
+			}
+			else {
+				SVector::atFree(itemIdx);
+				if(item.BoxId) {
+					uint i;
+					int   is_other_by_box = 0;
+					int   box_pos = -1;
+					for(i = 0; i < SVector::getCount(); i++) {
+						InnerItem * p_ii = (InnerItem *)SVector::at(i);
+						if(p_ii->BoxId == item.BoxId) {
+							if(p_ii->Flags & fBox)
+								box_pos = (int)i;
+							else
+								is_other_by_box = 1;
+						}
+					}
+					if(!is_other_by_box && box_pos >= 0) {
+						SVector::atFree(box_pos);
+					}
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1177,23 +1212,6 @@ int SLAPI PPLotExtCodeContainer::Set_2(int rowIdx, const MarkSet * pS)
 	return ok;
 }
 
-/* @v10.2.9 int SLAPI PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, StringSet & rSsCode) const
-{
-	int    ok = -1;
-	CALLPTRMEMB(pIdxList, clear());
-	rSsCode.clear();
-	SString temp_buf;
-	for(uint i = 0; i < getCount(); i++) {
-        const Item & r_item = *(const Item *)at(i);
-        if(r_item.RowIdx == rowIdx && GetS(r_item.CodeP, temp_buf)) {
-			rSsCode.add(temp_buf);
-			CALLPTRMEMB(pIdxList, add((long)i));
-			ok = 1;
-        }
-	}
-	return ok;
-}*/
-
 int SLAPI PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) const
 {
 	int    ok = -1;
@@ -1203,12 +1221,11 @@ int SLAPI PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet &
 	for(uint i = 0; i < getCount(); i++) {
         const InnerItem & r_item = *(const InnerItem *)at(i);
         if(r_item.RowIdx == rowIdx && GetS(r_item.CodeP, temp_buf)) {
-			//rSsCode.add(temp_buf);
 			if(r_item.Flags & fBox) {
-				THROW(rS.AddBox(r_item.BoxId, temp_buf));
+				THROW(rS.AddBox(r_item.BoxId, temp_buf, 0));
 			}
 			else {
-				THROW(rS.AddNum(r_item.BoxId, temp_buf));
+				THROW(rS.AddNum(r_item.BoxId, temp_buf, 0));
 			}
 			CALLPTRMEMB(pIdxList, add((long)i));
 			ok = 1;
@@ -1238,25 +1255,10 @@ int SLAPI PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2
 	return ok;
 }
 
-/*int SLAPI PPLotExtCodeContainer::GetByIdx(uint idx, int * pRowIdx, SString & rCode) const
-{
-	rCode.Z();
-	int    ok = 0;
-	if(idx < getCount()) {
-		const InnerItem & r_item = *(const InnerItem *)at(idx);
-		ASSIGN_PTR(pRowIdx, r_item.RowIdx);
-		GetS(r_item.CodeP, rCode);
-		ok = 1;
-	}
-	return ok;
-}*/
-
-
 int SLAPI PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const
 {
 	int    ok = 0;
-	uint   pos = 0;
-	if(SStrGroup::Pool.search(pCode, &pos, 1)) {
+	for(uint pos = 0; !ok && SStrGroup::Pool.search(pCode, &pos, 1); pos++) {
 		uint vpos = 0;
         if(SVector::lsearch(&pos, &vpos, PTR_CMPFUNC(long), offsetof(InnerItem, CodeP))) {
 			const InnerItem * p_item = (InnerItem *)SVector::at(vpos);
@@ -4542,8 +4544,8 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 				const  PPID suppl_id = (rf > 0) ? p_ti->Suppl : 0;
 				int    to_add_entry = 1;
 				size_t nl = 0, gl = 0;
-				grp_name = 0;
-				goods_name = 0;
+				grp_name.Z();
+				goods_name.Z();
 				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 					goods_name = goods_rec.Name;
 					if(Flags & ETIEF_DISPOSE) {
@@ -4998,7 +5000,6 @@ int SLAPI PPBillPacket::CompareTIByCorrection(long tidFlags, long filtGrpID, TSC
 int SLAPI PPBillPacket::CompareTI(PPBillPacket & rS, long tidFlags, long filtGrpID, TSCollection <TiDifferenceItem> & rDiffList)
 {
 	rDiffList.freeAll();
-
 	int    ok = 1;
 	TiItemExt et, eo;
 	PPTransferItem ti, ti_other;
@@ -5009,9 +5010,8 @@ int SLAPI PPBillPacket::CompareTI(PPBillPacket & rS, long tidFlags, long filtGrp
 			for(TiIter iter_other(&rS, etief, filtGrpID); !found && rS.EnumTItemsExt(&iter_other, &ti_other, &eo) > 0;) {
 				if(!(tidFlags & tidfRByBillPrec) || ti_other.RByBill == ti.RByBill) {
 					if(ti_other.GoodsID == ti.GoodsID || (tidFlags & tidfIgnoreGoods)) {
-						if((tidFlags & tidfIgnoreSign) || (ti.Flags & (PPTFR_PLUS|PPTFR_MINUS)) == (ti_other.Flags & (PPTFR_PLUS|PPTFR_MINUS))) {
+						if((tidFlags & tidfIgnoreSign) || (ti.Flags & (PPTFR_PLUS|PPTFR_MINUS)) == (ti_other.Flags & (PPTFR_PLUS|PPTFR_MINUS)))
 							found = 1;
-						}
 					}
 				}
 			}

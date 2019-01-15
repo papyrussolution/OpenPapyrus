@@ -957,7 +957,7 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 			} while(search(1, &k1, spNext) && stricmp(data.Code, pCode) == 0);
 			THROW_PP_S(!goodsID || goods_detected, PPERR_EGAISMARKMISSGOODS, pCode);
 			THROW_PP_S(!lotID || lot_detected, PPERR_EGAISMARKMISSLOT, pCode);
-			THROW_PP_S(parity >= 0, PPERR_EGAISMARKISEXHAUSTED, pCode);
+			THROW_PP_S(parity > 0, PPERR_EGAISMARKISEXHAUSTED, pCode); // @v10.3.0 @fix (parity >= 0)-->(parity > 0)
 			if(is_box) {
 				LotExtCodeTbl::Key2 k2;
 				MEMSZERO(k2);
@@ -969,11 +969,11 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 				if(search(2, &k2, spGe) && data.BillID == first_bill_id && data.RByBill == first_rbb && data.BoxNo == box_no) {
 					do {
 						if(data.Flags & PPLotExtCodeContainer::fBox) {
-							THROW(rResult.AddBox(box_no, data.Code));
+							THROW(rResult.AddBox(box_no, data.Code, 1));
 							box_count++;
 						}
 						else {
-							THROW(rResult.AddNum(box_no, data.Code));
+							THROW(rResult.AddNum(box_no, data.Code, 1));
 							mark_count++;
 						}
 					} while(search(2, &k2, spNext) && data.BillID == first_bill_id && data.RByBill == first_rbb && data.BoxNo == box_no);
@@ -982,7 +982,7 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 				THROW(mark_count > 0);
 			}
 			else {
-				THROW(rResult.AddNum(0, data.Code));
+				THROW(rResult.AddNum(0, data.Code, 1));
 			}
 			ok = 1;
 		}

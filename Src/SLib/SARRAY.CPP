@@ -2954,8 +2954,8 @@ int FASTCALL RealArray::dim(uint numItems)
 
 double SLAPI RealArray::StrideDifference(uint idx, uint stride) const
 {
-	assert(idx < count && idx > stride);
-	return (idx < count && idx > stride) ? (PTRDBL(data)[idx] - PTRDBL(data)[idx-stride]) : 0.0;
+	assert(idx < count && idx >= stride);
+	return (idx < count && idx >= stride) ? (PTRDBL(data)[idx] - PTRDBL(data)[idx-stride]) : 0.0;
 }
 
 double SLAPI RealArray::Sum() const

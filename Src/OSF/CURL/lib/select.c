@@ -125,7 +125,7 @@ int FASTCALL Curl_wait_ms(int timeout_ms)
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_socket_t readfd1,
+int FASTCALL Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_socket_t readfd1,
     curl_socket_t writefd/* socket to write to */, time_t timeout_ms/* milliseconds to wait */)
 {
 #ifdef HAVE_POLL_FINE
@@ -324,9 +324,7 @@ int Curl_socket_check(curl_socket_t readfd0/* two sockets to read from */, curl_
 		if(FD_ISSET(writefd, &fds_err))
 			ret |= CURL_CSELECT_ERR;
 	}
-
 	return ret;
-
 #endif  /* HAVE_POLL_FINE */
 }
 // 

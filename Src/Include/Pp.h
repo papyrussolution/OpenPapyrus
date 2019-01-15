@@ -9684,8 +9684,8 @@ public:
 		};
 		SLAPI  MarkSet();
 		void   SLAPI Clear();
-		long   SLAPI AddBox(long id, const char * pNum);
-		int    SLAPI AddNum(long boxId, const char * pNum);
+		long   SLAPI AddBox(long id, const char * pNum, int doVerify);
+		int    SLAPI AddNum(long boxId, const char * pNum, int doVerify);
 		uint   SLAPI GetCount() const;
 		int    SLAPI GetByIdx(uint idx, Entry & rEntry) const;
 		int    SLAPI GetBoxNum(long boxId, SString & rNum) const;
@@ -10355,9 +10355,9 @@ public:
 		tidfOtherAbsent        = 0x0040, // В пакете other отсутствует строка, соответствующая строке в this
 		tidfRByBillPrec        = 0x0080, // Сравнение документов осуществляется с точностью до номера строки
 			// (имеется в виду внутренний идентификатор позиции RByBill)
-		tidfIgnoreGoods        = 0x0100, // @v8.9.4 Игнорировать отличие товаров в сравниваемых строках
-		tidfStrictEgaisCodeTag = 0x0200, // @v8.9.4 Сопоставлять код ЕГАИС в теге лота
-		tidfIgnoreSign         = 0x0400  // @v8.9.6 При сопоставлении игнорировать знаки операци (приход/расход)
+		tidfIgnoreGoods        = 0x0100, // Игнорировать отличие товаров в сравниваемых строках
+		tidfStrictEgaisCodeTag = 0x0200, // Сопоставлять код ЕГАИС в теге лота
+		tidfIgnoreSign         = 0x0400  // При сопоставлении игнорировать знаки операци (приход/расход)
 	};
 	struct TiDifferenceItem {
 		TiDifferenceItem(long flags, const LongArray * pThisPList, const LongArray * pOtherPList);
@@ -12642,12 +12642,10 @@ public:
 	//
 	int    SLAPI LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STimeChunk * pPeriod, PrcBusyArray * pList);
 		// @<<TSessionCore::InitPrcEntry
-
 	int    SLAPI Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta);
 	int    SLAPI UpdateFlags(PPID id, long setF, long resetF, int use_ta);
 	int    SLAPI UpdateSuperSessCompleteness(PPID sessID, int use_ta);
 	int    SLAPI AdjustLineTime(TSessLineTbl::Rec * pRec);
-
 	int    SLAPI InitLineEnum(PPID sessID, long * pHandle);
 	int    SLAPI InitLineEnumBySerial(const char * pSerial, int sign, long * pHandle);
 	//
@@ -12655,7 +12653,6 @@ public:
 	//
 	int    SLAPI NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec);
 	int    SLAPI DestroyIter(long enumHandle);
-
 	SEnumImp * SLAPI EnumLines(PPID sessID);
 	SEnumImp * SLAPI EnumLinesBySerial(const char * pSerial, int sign);
 	//
@@ -12881,7 +12878,6 @@ class PredictSalesCore : public PredictSalesTbl, public PPHolidays {
 public:
 	SLAPI  PredictSalesCore();
 	SLAPI ~PredictSalesCore();
-
 	//int    SLAPI MakeSalesRec(PPID locID, PPID goodsID, LDATE dt, double qtty, double amount, PredictSalesTbl::Rec * pRec);
 	int    SLAPI Remove(const PredictSalesTbl::Rec * pRec);
 	int    SLAPI SetValue(PPID locID, PPID goodsID, LDATE dt, double qtty, double amount);
@@ -12949,7 +12945,6 @@ public:
 	int    SLAPI GetFirstDate(PPID locID, PPID goodsID, LDATE *);
 	int    SLAPI GetPeriod(const ObjIdListFilt * pLocList, PPID goodsID, DateRange *);
 	int    SLAPI GetPeriod(const ObjIdListFilt * pLocList, const PPIDArray * pGoodsList, DateRange *);
-
 	int    SLAPI GetTblUpdateDt(LDATE *);
 	int    SLAPI SetTblUpdateDt(LDATE);
 	//
@@ -12982,7 +12977,6 @@ public:
 	int    SLAPI CheckTableStruct();
 	static int FASTCALL ShrinkDate(LDATE dt, int16 * pSDt);
 	static int FASTCALL ExpandDate(int16 sdt, LDATE * pDt);
-
 	int    SLAPI AddLocEntry(PPID locID, int16 * pLocIdx);
 	int    FASTCALL ShrinkLoc(PPID locID, int16 * pLocIdx) const;
 	int    FASTCALL ExpandLoc(int16 locIdx, PPID * pLocID);
@@ -13356,9 +13350,6 @@ public:
 	//
 	int    SLAPI CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm);
 	int    SLAPI CheckUniqueDateTime(PPID superSessID, long posNumber, LDATE * pDt, LTIME * pTm);
-	//
-	//
-	//
 	long   SLAPI GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPID subSessID);
 };
 //
@@ -13666,10 +13657,8 @@ public:
 	int    SLAPI InsertItem_(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
 	int    SLAPI InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
 	int    SLAPI InsertItem(const CCheckItem & rItem);
-
 	double FASTCALL GetItemAmount(const CCheckLineTbl::Rec & rItem) const;
 	double FASTCALL GetItemDiscount(const CCheckLineTbl::Rec & rItem) const;
-
 	int    SLAPI SetupPaymList(const CcAmountList * pList);
 	//
 	// Descr: Флаги функции SetTotalDiscount
@@ -13689,7 +13678,6 @@ public:
 	void   SLAPI SetupAmount(double * pAmt, double * pDscnt);
 	double SLAPI GetFiscalAmount() const;
 	int    SLAPI HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const;
-
 	int    SLAPI SetDlvrAddr(const LocationTbl::Rec * pRec);
 	const  LocationTbl::Rec * SLAPI GetDlvrAddr() const;
 
@@ -13701,15 +13689,8 @@ public:
 
 	SString & SLAPI MakeBarcodeIdent(SString & rBuf) const;
 	static int SLAPI ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult);
-
-	CcAmountList & AL()
-	{
-		return CcAl;
-	}
-	const CcAmountList & AL_Const() const
-	{
-		return CcAl;
-	}
+	CcAmountList & AL() { return CcAl; }
+	const CcAmountList & AL_Const() const { return CcAl; }
 
 	enum {
 		ufCheckInvariant = 0x0001, // Функция CCheckCore::TurnCheck не допускает проведение пакета,
@@ -15752,6 +15733,8 @@ public:
 		long   Ver;
 	};
 
+	const Tick * FASTCALL SearchTickBySymb(const char * pSymb) const;
+
 	AccountInfo Acc;
 	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
 	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
@@ -15805,7 +15788,7 @@ public:
 		SLAPI  Strategy();
 		void   SLAPI Reset();
 		void   FASTCALL SetValue(const StrategyResultValue & rV);
-		double SLAPI CalcSL(double stakeValue, double peak, double bottom) const;
+		double SLAPI CalcSL(double peak) const;
 		enum {
 			bfShort = 0x0001 // Стратегия для short-торговли
 		};
@@ -15815,7 +15798,7 @@ public:
 		};
 		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
-		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
+		uint16 TargetQuant_Unused; // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
 		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
 		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда
@@ -15890,19 +15873,14 @@ public:
 	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsAftershocks();
-	//int    SLAPI AnalyzeStrategies();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
-	//int    SLAPI CalcStrategyResult(const STimeSeries & rTs, const Strategy & rS, uint vecIdx, uint valueIdx, StrategyResultValue & rV) const;
 	int    SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValue & rV) const;
-	int    SLAPI TestStrategy(const STimeSeries & rTs, uint vecIdx, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
 	int    SLAPI TestStrategy2(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
 
 	struct MaxDuckToResultRelation {
 		uint   MaxDuckQuant;
 		double Result;
 	};
-	int    SLAPI FindOptimalMaxDuck(const STimeSeries & rTs, uint vecIdx, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
-		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
 	int    SLAPI FindOptimalMaxDuck2(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
 		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
 private:
@@ -30118,13 +30096,22 @@ public:
 	struct RecadvPacket {
 		SLAPI  RecadvPacket();
 
-		PPBillPacket Bp;
+		//PPBillPacket Bp; // При чтении - RECADV, при отправке DESADV
+		PPBillPacket ABp;
+		PPBillPacket RBp;
 		SString DesadvBillCode;
 		LDATE   DesadvBillDate;
 		int     AllRowsAccepted;
 		PPID    WrOffBillID; // @v10.2.12 Ид документа списания (если Bp - драфт-документ, как и должно быть в большинстве случаев)
 		PPID    OrderBillID; // @v10.2.12 Ид документа заказа, на основании которого был сформирован DESADV, которому соответствует данный RECADV
-		RAssocArray DesadvQttyList;
+		RAssocArray DesadvQttyList; // Отгруженные количества, ассоциированные с индексом строки (1..) в документе this->Bp
+		RAssocArray RecadvQttyList; // @v10.2.12 Принятые количества, ассоциированные с индексом строки (1..) в документе this->Bp
+		//
+		// Заказанные количества, ассоциированные с индексом строки (1..) в документе DESADV.
+		// Так как при отправке RECADV однозначно сопоставить строку заказа со строкой DESADV (теоретически) можеть быть сложно,
+		// то при возникновении неоднозначностей модуль распределяет такие значения пропорционально.
+		//
+		RAssocArray OrderedQttyList; // @v10.3.0
 	};
 	struct Packet {
 		explicit Packet(int docType);

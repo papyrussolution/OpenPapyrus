@@ -3385,7 +3385,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 									MEMSZERO(desadv_bill_rec_pattern);
 									STRNSCPY(desadv_bill_rec_pattern.Code, p_recadv_pack->DesadvBillCode);
 									desadv_bill_rec_pattern.Dt = p_recadv_pack->DesadvBillDate;
-									desadv_bill_rec_pattern.Object = p_recadv_pack->Bp.Rec.Object;
+									desadv_bill_rec_pattern.Object = p_recadv_pack->RBp.Rec.Object;
 									if(P_BObj->P_Tbl->SearchAnalog(&desadv_bill_rec_pattern, BillCore::safCheckEdiOp|BillCore::safIgnoreOp, &desadv_bill_id, &desadv_bill_rec) > 0) {
 										if(p_ref->Ot.GetTagStr(PPOBJ_BILL, desadv_bill_id, PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0) {
 										}
@@ -3393,13 +3393,13 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 											ObjTagItem tag_item;
 											temp_buf.Z();
 											temp_buf.Cat(p_recadv_pack->AllRowsAccepted ? "ACCEPTED" : "CHANGED");
-											temp_buf.Space().Cat(p_recadv_pack->Bp.Rec.Code).Space().Cat(p_recadv_pack->Bp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+											temp_buf.Space().Cat(p_recadv_pack->RBp.Rec.Code).Space().Cat(p_recadv_pack->RBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
 											if(!tag_item.SetStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, desadv_bill_id, &tag_item, 1)) {
 												Logger.LogLastError();
 											}
 											else if(!p_recadv_pack->AllRowsAccepted) {
-												p_recadv_pack->Bp.Rec.LinkBillID = desadv_bill_id;
-												if(!P_BObj->__TurnPacket(&p_recadv_pack->Bp, 0, 0, 1)) {
+												p_recadv_pack->RBp.Rec.LinkBillID = desadv_bill_id;
+												if(!P_BObj->__TurnPacket(&p_recadv_pack->RBp, 0, 0, 1)) {
 													Logger.LogLastError();
 												}
 											}

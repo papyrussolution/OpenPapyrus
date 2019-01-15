@@ -1516,7 +1516,7 @@ CURLcode Curl_retry_request(struct connectdata * conn, char ** url)
  * Curl_setup_transfer() is called to setup some basic properties for the
  * upcoming transfer.
  */
-void Curl_setup_transfer(struct connectdata * conn, /* connection data */
+void FASTCALL Curl_setup_transfer(struct connectdata * conn, /* connection data */
     int sockindex,          /* socket index to read from or -1 */
     curl_off_t size,        /* -1 if unknown at this point */
     bool getheader,         /* TRUE if header parsing is wanted */

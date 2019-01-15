@@ -165,13 +165,103 @@ public:
 		int16  Prec;
 		uint16 Reserve; // @alignment
 	};
+	struct TrendEntry {
+		TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount)
+		{
+			assert(stride > 0 && stride <= 100000);
+			assert(NominalCount > 0 && NominalCount <= 100);
+		}
+		const uint Stride;
+		const uint NominalCount;
+		RealArray TL;
+	};
+	struct TimeSeriesBlock {
+		SLAPI  TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0)
+		{
+		}
+		enum {
+			fDirty = 0x0001
+		};
+		long   Flags;
+		// Следующие 2 поля нужны для расчета среднего спреда
+		uint   SpreadSum; // Накопленная сумма величин спредов
+		uint   SpreadCount; // Количество накопленных величин спредов
+		double VolumeMin;
+		double VolumeMax;
+		double VolumeStep;
+		PPTimeSeries PPTS;
+		STimeSeries T_;
+		//
+		// Descr: Структура, используемая как буфер для управления последним значением
+		//   в последовательности T_. Если самое актуальное значение пришло с тиком (TsStakeEnvironment::Tick), 
+		//   то регулярное последнее значение (если оно старше тика) сбрасывается в TempLastEntry с тегом 1, а
+		//   вместо него в T_ заносится тик.
+		//   При получении регулярной последовательности, если последним элементом в T_ был тик, то он
+		//   переносится в TempLastEntry с тегом 2.
+		//
+		struct TempLastEntry {
+			TempLastEntry() : Tag(0)
+			{
+			}
+			int    Tag; // 0 - empty, 1 - main series value, 2 - tick value
+			STimeSeries::SnapshotEntry Sse;
+		};
+		TempLastEntry TLE;
+		TSCollection <TrendEntry> TrendList;
+		PPObjTimeSeries::StrategyContainer Strategies;
+		const TrendEntry * FASTCALL SearchTrendEntry(uint stride) const
+		{
+			const TrendEntry * p_result = 0;
+			for(uint i = 0; !p_result && i < TrendList.getCount(); i++) {
+				const TrendEntry * p_te = TrendList.at(i);
+				if(p_te && p_te->Stride == stride)
+					p_result = p_te;
+			}
+			return p_result;
+		}
+		void Make_T_Regular()
+		{
+			if(TLE.Tag == 1) { // Если TLE.Tag != 1, то все значения в T_ и так регулярные
+				const uint tsc = T_.GetCount();
+				assert(tsc > 0);
+				STimeSeries::SnapshotEntry actual_entry;
+				T_.GetSnapshotEntry(tsc-1, actual_entry);
+				T_.SetSnapshotEntry(tsc-1, TLE.Sse);
+				int   utcq = 0;
+				if(actual_entry.Tm.Compare(TLE.Sse.Tm, &utcq) > 0) {
+					TLE.Sse = actual_entry;
+					TLE.Tag = 2;
+				}
+				else
+					TLE.Tag = 0; // Последнее регулярное значение новее "актуального" - считаем буфер пустым
+			}
+		}
+		void Make_T_Actual()
+		{
+			if(TLE.Tag == 2) { 
+				const uint tsc = T_.GetCount();
+				if(tsc) { // Если временная серия пустая, то делать нам вообще нЕчего!
+					STimeSeries::SnapshotEntry regular_entry;
+					T_.GetSnapshotEntry(tsc-1, regular_entry);
+					int   utcq = 0;
+					if(regular_entry.Tm.Compare(TLE.Sse.Tm, &utcq) < 0) {
+						T_.SetSnapshotEntry(tsc-1, TLE.Sse);
+						TLE.Sse = regular_entry;
+						TLE.Tag = 1;
+					}
+					else
+						TLE.Tag = 0; // Последнее значение новее "актуального" - ничего делать не надо кроме как пометить буфер TLE как пустой
+				}
+			}
+		}
+	};
 	static int OnQuartz(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	{
 		TimeSeriesCache * p_this = (TimeSeriesCache *)procExtPtr;
 		if(p_this) {
 			LDATETIME cdtm = getcurdatetime_();
 			long sec = diffdatetimesec(cdtm, p_this->LastFlashDtm);
-			if(sec >= 120) {
+			if(sec >= 600) {
 				p_this->Flash();
 			}
 		}
@@ -369,6 +459,157 @@ public:
 		OpL.Unlock();
 		return ok;
 	}
+	int    SLAPI FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, TsStakeEnvironment::StakeRequestBlock & rResult) const
+	{
+		int    ok = -1;
+		const TsStakeEnvironment::Tick * p_tk = StkEnv.SearchTickBySymb(rBlk.T_.GetSymb());
+		if(p_tk && rBlk.T_.GetCount()) {
+			double max_result = 0.0;
+			int    max_result_sidx = -1;
+			for(uint sidx = 0; sidx < rBlk.Strategies.getCount(); sidx++) {
+				const PPObjTimeSeries::Strategy & r_s = rBlk.Strategies.at(sidx);
+				if((rStk.Type == TsStakeEnvironment::ordtBuy && !(r_s.BaseFlags & r_s.bfShort)) || (rStk.Type == TsStakeEnvironment::ordtSell && (r_s.BaseFlags & r_s.bfShort))) {
+					double cr = 0.0;
+					int    is_result = 0;
+					if(r_s.StakeMode) {
+						const TrendEntry * p_te = rBlk.SearchTrendEntry(r_s.InputFrameSize);
+						const uint tlc = p_te ? p_te->TL.getCount() : 0;
+						if(tlc) {
+							if(r_s.StakeMode == 1) {
+								const double t = p_te->TL.at(tlc-1);
+								if(t >= r_s.OptDeltaRange.low && t <= r_s.OptDeltaRange.upp) {
+									cr = r_s.V.GetResultPerDay();
+									is_result = 1;
+								}
+							}
+							else if(r_s.StakeMode == 2) {
+								if(tlc >= r_s.OptDelta2Stride) {
+									const double t = p_te->TL.StrideDifference(tlc-1, r_s.OptDelta2Stride);
+									if(t >= r_s.OptDelta2Range.low && t <= r_s.OptDelta2Range.upp) {
+										cr = r_s.V.GetResultPerDay();
+										is_result = 1;
+									}
+								}
+							}
+						}
+					}
+					else {
+						cr = r_s.V.GetResultPerDay();
+						is_result = 1;
+					}
+					if(is_result && max_result < cr) {
+						max_result = cr;
+						max_result_sidx = (int)sidx;
+					}
+				}
+			}
+			if(max_result_sidx >= 0) {
+				uint   vec_idx = 0;
+				const  int  gvvir = rBlk.T_.GetValueVecIndex("close", &vec_idx);
+				if(gvvir) {
+					double last_value = 0.0;
+					rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
+					const PPObjTimeSeries::Strategy & r_s = rBlk.Strategies.at(max_result_sidx);
+					double sl = r_s.CalcSL(last_value);
+					if(r_s.BaseFlags & r_s.bfShort) {
+						assert(rStk.Type == TsStakeEnvironment::ordtSell);
+						if(rStk.SL == 0.0 || sl < rStk.SL) {
+							TsStakeEnvironment::StakeRequestBlock::Req req;
+							req.Ticket = rStk.Ticket;
+							req.Action = TsStakeEnvironment::traSLTP;
+							req.Type = rStk.Type;
+							req.TsID = rBlk.PPTS.ID;
+							rResult.AddS(rBlk.T_.GetSymb(), &req.SymbolP);
+							req.Volume = 0;
+							req.SL = sl;
+							THROW_SL(rResult.L.insert(&req));
+							ok = 1;
+						}
+					}
+					else {
+						assert(rStk.Type == TsStakeEnvironment::ordtBuy);
+						if(rStk.SL == 0.0 || sl > rStk.SL) {
+							TsStakeEnvironment::StakeRequestBlock::Req req;
+							req.Ticket = rStk.Ticket;
+							req.Action = TsStakeEnvironment::traSLTP;
+							req.Type = rStk.Type;
+							req.TsID = rBlk.PPTS.ID;
+							rResult.AddS(rBlk.T_.GetSymb(), &req.SymbolP);
+							req.Volume = 0;
+							req.SL = sl;
+							THROW_SL(rResult.L.insert(&req));
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	struct PotentialStakeEntry {
+		PotentialStakeEntry(const TimeSeriesBlock & rBlk) : R_Blk(rBlk), StrategyPos(0), Volume(0.0), ResultPerDay(0.0), MarginReq(0.0)
+		{
+		}
+		double ResultPerDay; // @firstmember
+		const  TimeSeriesBlock & R_Blk;
+		uint   StrategyPos;
+		double Volume;
+		double MarginReq; // Размер маржины, необходимый на минимальный объем сделки
+	};
+	int    SLAPI FindOptimalStrategyForStake(PotentialStakeEntry & rPse)
+	{
+		int    ok = -1;
+		const TsStakeEnvironment::Tick * p_tk = StkEnv.SearchTickBySymb(rPse.R_Blk.T_.GetSymb());
+		if(p_tk && rPse.R_Blk.T_.GetCount()) {
+			rPse.MarginReq = p_tk->MarginReq;
+			double margin_available = (StkEnv.Acc.MarginFree - StkEnv.Acc.Balance / 2) / 11.0;
+			if(margin_available >= rPse.MarginReq) {
+				double max_result = 0.0;
+				int    max_result_sidx = -1;
+				for(uint sidx = 0; sidx < rPse.R_Blk.Strategies.getCount(); sidx++) {
+					const PPObjTimeSeries::Strategy & r_s = rPse.R_Blk.Strategies.at(sidx);
+					double cr = 0.0;
+					int    is_result = 0;
+					if(r_s.StakeMode) {
+						const TrendEntry * p_te = rPse.R_Blk.SearchTrendEntry(r_s.InputFrameSize);
+						const uint tlc = p_te ? p_te->TL.getCount() : 0;
+						if(tlc) {
+							if(r_s.StakeMode == 1) {
+								const double t = p_te->TL.at(tlc-1);
+								if(t >= r_s.OptDeltaRange.low && t <= r_s.OptDeltaRange.upp) {
+									cr = r_s.V.GetResultPerDay();
+									is_result = 1;
+								}
+							}
+							else if(r_s.StakeMode == 2) {
+								if(tlc >= r_s.OptDelta2Stride) {
+									const double t = p_te->TL.StrideDifference(tlc-1, r_s.OptDelta2Stride);
+									if(t >= r_s.OptDelta2Range.low && t <= r_s.OptDelta2Range.upp) {
+										cr = r_s.V.GetResultPerDay();
+										is_result = 1;
+									}
+								}
+							}
+						}
+					}
+					if(is_result && max_result < cr) {
+						max_result = cr;
+						max_result_sidx = (int)sidx;
+					}
+				}
+				if(max_result_sidx >= 0) {
+					rPse.StrategyPos = (uint)max_result_sidx;
+					rPse.ResultPerDay = max_result;
+					double sc = round(margin_available / p_tk->MarginReq, 0, 1);
+					rPse.Volume = R0(rPse.R_Blk.VolumeStep * sc);
+					if(rPse.Volume > 0.0)
+						ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
 	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult)
 	{
 		int    ok = -1;
@@ -377,6 +618,8 @@ public:
 		SString tk_symb;
 		SString stk_symb;
 		SString stk_memo;
+		LongArray ex_stake_idx_list; // Список индексов (в StkEnv.SL) уже существующих позиций по символу
+		TSVector <PotentialStakeEntry> potential_stake_list;
 		for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 			const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 			long d = diffdatetimesec(now, r_tk.Dtm);
@@ -386,13 +629,22 @@ public:
 				const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
 				if(p_blk) {
 					int   is_there_stake = 0;
-					uint  stake_idx = 0;
+					//uint  stake_idx = 0;
+					ex_stake_idx_list.clear();
 					for(uint si = 0; si < StkEnv.SL.getCount(); si++) {
 						const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
 						StkEnv.GetS(r_stk.SymbP, stk_symb);
 						if(stk_symb.IsEqiAscii(tk_symb)) {
+							FindOptimalStrategyAtStake(*p_blk, r_stk, rResult);
+							ex_stake_idx_list.add((long)si);
 							is_there_stake = 1;
-							stake_idx = si;
+							//stake_idx = si;
+						}
+					}
+					if(!is_there_stake) {
+						PotentialStakeEntry pse(*p_blk);
+						if(FindOptimalStrategyForStake(pse) > 0) {
+							potential_stake_list.insert(&pse);
 						}
 					}
 					// @debug {
@@ -428,90 +680,44 @@ public:
 				}
 			}
 		}
+		{
+			const uint pslc = potential_stake_list.getCount();
+			if(pslc) {
+				potential_stake_list.sort(PTR_CMPFUNC(double));
+				double margin_available = (StkEnv.Acc.MarginFree - StkEnv.Acc.Balance / 2);
+				if(margin_available > 0.0) {
+					uint _pslp = pslc;
+					do {
+						PotentialStakeEntry & r_pse = potential_stake_list.at(--_pslp);
+						uint   vec_idx = 0;
+						const  int  gvvir = r_pse.R_Blk.T_.GetValueVecIndex("close", &vec_idx);
+						if(gvvir) {
+							const PPObjTimeSeries::Strategy & r_s = r_pse.R_Blk.Strategies.at(r_pse.StrategyPos);
+							{
+								TsStakeEnvironment::StakeRequestBlock::Req req;
+								req.Action = TsStakeEnvironment::traDeal;
+								req.Type = (r_s.BaseFlags & r_s.bfShort) ? TsStakeEnvironment::ordtSell : TsStakeEnvironment::ordtBuy;
+								req.TsID = r_pse.R_Blk.PPTS.ID;
+								rResult.AddS(r_pse.R_Blk.T_.GetSymb(), &req.SymbolP);
+								req.Volume = r_pse.Volume;
+
+								double last_value = 0.0;
+								r_pse.R_Blk.T_.GetValue(r_pse.R_Blk.T_.GetCount()-1, vec_idx, &last_value);
+								double sl = r_s.CalcSL(last_value);
+								req.SL = sl;
+
+								rResult.AddS("PPAT", &req.CommentP);
+								rResult.L.insert(&req);
+							}
+							margin_available -= (r_pse.Volume / r_pse.R_Blk.VolumeStep) * r_pse.MarginReq;
+						}
+					} while(_pslp && margin_available > 0.0);
+				}
+			}
+		}
 		return ok;
 	}
 private:
-	struct TrendEntry {
-		TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount)
-		{
-			assert(stride > 0 && stride <= 100000);
-			assert(NominalCount > 0 && NominalCount <= 100);
-		}
-		const uint Stride;
-		const uint NominalCount;
-		RealArray TL;
-	};
-	struct TimeSeriesBlock {
-		SLAPI  TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0)
-		{
-		}
-		enum {
-			fDirty = 0x0001
-		};
-		long   Flags;
-		// Следующие 2 поля нужны для расчета среднего спреда
-		uint   SpreadSum; // Накопленная сумма величин спредов
-		uint   SpreadCount; // Количество накопленных величин спредов
-		double VolumeMin;
-		double VolumeMax;
-		double VolumeStep;
-		PPTimeSeries PPTS;
-		STimeSeries T_;
-		//
-		// Descr: Структура, используемая как буфер для управления последним значением
-		//   в последовательности T_. Если самое актуальное значение пришло с тиком (TsStakeEnvironment::Tick), 
-		//   то регулярное последнее значение (если оно старше тика) сбрасывается в TempLastEntry с тегом 1, а
-		//   вместо него в T_ заносится тик.
-		//   При получении регулярной последовательности, если последним элементом в T_ был тик, то он
-		//   переносится в TempLastEntry с тегом 2.
-		//
-		struct TempLastEntry {
-			TempLastEntry() : Tag(0)
-			{
-			}
-			int    Tag; // 0 - empty, 1 - main series value, 2 - tick value
-			STimeSeries::SnapshotEntry Sse;
-		};
-		TempLastEntry TLE;
-		TSCollection <TrendEntry> TrendList;
-		PPObjTimeSeries::StrategyContainer Strategies;
-
-		void Make_T_Regular()
-		{
-			if(TLE.Tag == 1) { // Если TLE.Tag != 1, то все значения в T_ и так регулярные
-				const uint tsc = T_.GetCount();
-				assert(tsc > 0);
-				STimeSeries::SnapshotEntry actual_entry;
-				T_.GetSnapshotEntry(tsc-1, actual_entry);
-				T_.SetSnapshotEntry(tsc-1, TLE.Sse);
-				int   utcq = 0;
-				if(actual_entry.Tm.Compare(TLE.Sse.Tm, &utcq) > 0) {
-					TLE.Sse = actual_entry;
-					TLE.Tag = 2;
-				}
-				else
-					TLE.Tag = 0; // Последнее регулярное значение новее "актуального" - считаем буфер пустым
-			}
-		}
-		void Make_T_Actual()
-		{
-			if(TLE.Tag == 2) { 
-				const uint tsc = T_.GetCount();
-				if(tsc) { // Если временная серия пустая, то делать нам вообще нЕчего!
-					STimeSeries::SnapshotEntry regular_entry;
-					T_.GetSnapshotEntry(tsc-1, regular_entry);
-					int   utcq = 0;
-					if(regular_entry.Tm.Compare(TLE.Sse.Tm, &utcq) < 0) {
-						T_.SetSnapshotEntry(tsc-1, TLE.Sse);
-						TLE.Sse = regular_entry;
-						TLE.Tag = 1;
-					}
-					else
-						TLE.Tag = 0; // Последнее значение новее "актуального" - ничего делать не надо кроме как пометить буфер TLE как пустой
-				}
-			}
-		}
-	};
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	TimeSeriesBlock * SLAPI SearchBlockBySymb(const char * pSymb, uint * pIdx) const;

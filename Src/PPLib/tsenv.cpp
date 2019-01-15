@@ -127,3 +127,18 @@ int FASTCALL TsStakeEnvironment::Copy(const TsStakeEnvironment & rS)
 	return ok;
 }
 
+const TsStakeEnvironment::Tick * FASTCALL TsStakeEnvironment::SearchTickBySymb(const char * pSymb) const
+{
+	const Tick * p_result = 0;
+	if(!isempty(pSymb)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		for(uint i = 0; !p_result && i < TL.getCount(); i++) {
+			const Tick & r_tk = TL.at(i);
+			GetS(r_tk.SymbP, r_temp_buf);
+			if(r_temp_buf.IsEqiAscii(pSymb)) {
+				p_result = &r_tk;
+			}
+		}
+	}
+	return p_result;
+}

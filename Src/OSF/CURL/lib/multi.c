@@ -1142,7 +1142,6 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 					    result = CURLE_OK;
 				    break;
 			    }
-
 			    if(!result) {
 				    /* Add this handle to the send or pend pipeline */
 				    result = Curl_add_handle_to_pipeline(data, data->easy_conn);

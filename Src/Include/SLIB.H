@@ -4272,11 +4272,14 @@ struct SVerT { // @persistent Size=4
 #define SSPF_WORDS  0x0001
 #define SSPF_NOCASE 0x0002
 
-typedef struct tagSSrchParam {
+struct SSrchParam {
+	SLAPI  SSrchParam(const char * pPattern, const char * pWordChars, int flags) : P_Pattern(pPattern), P_WordChars(pWordChars), Flags(flags)
+	{
+	}
 	const  char * P_Pattern;
 	const  char * P_WordChars; // Reserved. Must be NULL.
 	int    Flags;
-} SSrchParam;
+};
 
 // short  bioscom(int cmd, char abyte, int port);
 int    getdisk();
@@ -4399,7 +4402,7 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 // @v9.4.10 (unused) char * SLAPI catdiv(char * pStr, int div, int addSpaces);
 
 //get string - used in network @vantonov
-int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
+// @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
 //
 // Функции для классификации и конвертации символов
 //

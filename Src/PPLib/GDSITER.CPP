@@ -1144,10 +1144,7 @@ int SLAPI PPObjGoods::Helper_ReplaceName(PPGoodsPacket * pPack, const PPGoodsRep
 	SString temp_buf;
 	if(pParam->SrchPattern.NotEmpty()) {
 		size_t pos = 0, len = 0;
-		SSrchParam sp;
-		sp.P_Pattern = pParam->SrchPattern;
-		sp.P_WordChars = 0;
-		sp.Flags = 0;
+		SSrchParam sp(pParam->SrchPattern, 0, 0);
 		if(searchstr(pDest, sp, &pos, &len)) {
 			if(pParam->Flags & PPGoodsReplaceNameParam::fRestoreLastHistoryName) {
 				ok = 1;

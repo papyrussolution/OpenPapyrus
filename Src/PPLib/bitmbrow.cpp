@@ -2503,7 +2503,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 						PPErrorByDialog(dlg, sel);
 				}
 				else {
-					rSet.AddNum(0, mark_buf);
+					rSet.AddNum(0, mark_buf, 1);
 					STRNSCPY(rRec.Code, mark_buf);
 					ok = 1;
 				}

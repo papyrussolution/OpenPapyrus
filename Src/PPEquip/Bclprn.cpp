@@ -558,7 +558,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 				if(*s == '\\') {
 					s++;
 					if(toupper(*s) == 'X') {
-						*s++;
+						s++; // @v10.3.0 @fix *s++ --> s++
 						int    hc = 0;
 						if(isxdigit(*s)) {
 							int    h = toupper(*s);

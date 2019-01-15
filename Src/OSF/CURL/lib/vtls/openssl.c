@@ -2880,17 +2880,11 @@ static CURLcode ossl_connect_common(struct connectdata * conn,
 			failf(data, "SSL connection timeout");
 			return CURLE_OPERATION_TIMEDOUT;
 		}
-
 		/* if ssl is expecting something, check if it's available. */
-		if(connssl->connecting_state == ssl_connect_2_reading ||
-		    connssl->connecting_state == ssl_connect_2_writing) {
-			curl_socket_t writefd = ssl_connect_2_writing==
-			    connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;
-			curl_socket_t readfd = ssl_connect_2_reading==
-			    connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;
-
-			what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd,
-			    nonblocking ? 0 : timeout_ms);
+		if(connssl->connecting_state == ssl_connect_2_reading || connssl->connecting_state == ssl_connect_2_writing) {
+			curl_socket_t writefd = ssl_connect_2_writing==connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;
+			curl_socket_t readfd = ssl_connect_2_reading==connssl->connecting_state ? sockfd : CURL_SOCKET_BAD;
+			what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd, nonblocking ? 0 : timeout_ms);
 			if(what < 0) {
 				/* fatal error */
 				failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);

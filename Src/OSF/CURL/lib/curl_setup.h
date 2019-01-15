@@ -897,7 +897,7 @@ struct FILEPROTO {
 // therefore defined here 
 #define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd, curl_socket_t readfd2, curl_socket_t writefd, time_t timeout_ms);
+int FASTCALL Curl_socket_check(curl_socket_t readfd, curl_socket_t readfd2, curl_socket_t writefd, time_t timeout_ms);
 
 #define SOCKET_READABLE(x, z) Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
 #define SOCKET_WRITABLE(x, z) Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
@@ -988,13 +988,13 @@ typedef enum {
 
 int  Curl_pgrsDone(struct connectdata *);
 void Curl_pgrsStartNow(struct Curl_easy * data);
-void Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size);
-void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size);
-void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size);
-void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size);
-int  Curl_pgrsUpdate(struct connectdata *);
+void FASTCALL Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size);
+void FASTCALL Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size);
+void FASTCALL Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size);
+void FASTCALL Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size);
+int  FASTCALL Curl_pgrsUpdate(struct connectdata *);
 void Curl_pgrsResetTimesSizes(struct Curl_easy * data);
-void Curl_pgrsTime(struct Curl_easy * data, timerid timer);
+void FASTCALL Curl_pgrsTime(struct Curl_easy * data, timerid timer);
 long Curl_pgrsLimitWaitTime(curl_off_t cursize, curl_off_t startsize, curl_off_t limit, struct timeval start, struct timeval now);
 
 // Don't show progress for sizes smaller than: 

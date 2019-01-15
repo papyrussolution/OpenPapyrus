@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -1872,7 +1872,7 @@ char * FASTCALL SCharToOem(char * pStr)
 //
 //
 //
-int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
+/* @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 {
 	int    ok = 0;
 	*pBuf = 0;
@@ -1880,7 +1880,7 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 	char * p = pBuf;
 	while(**pStr && **pStr != dStr && p - pBuf < maxBytes - 1) {
 		if(**pStr == '\\')
-			*pStr++;
+			(*pStr)++; // @v10.3.0 @fix *pStr++ --> (*pStr)++
 		*p++ = *(*pStr)++;
 	}
 	*p = 0;
@@ -1889,7 +1889,7 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 		ok = 1;
 	}
 	return ok;
-}
+}*/
 //
 // Descr: копирует сроку from в буфер to и возвращает указатель на
 //   завершающий нулевой символ строки to.
@@ -2323,10 +2323,7 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 	int    digit = -1, base = 0;
 	uint   prcsd_symbs = 0;
 	size_t pos = 0, len = 0, in_buf_len = sstrlen(pInBuf);
-	SSrchParam ss_p;
-	ss_p.P_Pattern = "\\";
-	ss_p.P_WordChars = 0;
-	ss_p.Flags = 0;
+	SSrchParam ss_p("\\", 0, 0);
 	strnzcpy(pOutBuf, pInBuf, outBufSize);
 	while(searchstr(pOutBuf, ss_p, &pos, &len) > 0) {
 		if((pos+1) < in_buf_len)

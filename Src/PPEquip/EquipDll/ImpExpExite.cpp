@@ -1638,12 +1638,8 @@ int ImportCls::ReceiveDoc()
 	int ok = 1;
 	size_t pos = 0;
 	SString read_filename, file_type, box_name, str;
-	SSrchParam srch_param;
-
-	memzero(&srch_param, sizeof(SSrchParam));
-	srch_param.Flags = SSPF_WORDS;
+	SSrchParam srch_param(0, 0, SSPF_WORDS);
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
-
 	if(MessageType == msgOrdRsp) {
 		file_type = "ordRsp";
 		box_name = INBOX;
@@ -1656,7 +1652,6 @@ int ImportCls::ReceiveDoc()
 		file_type = "status";
 		box_name = /*REPORTSBOX*/INBOX; // @vmiller Вроде, у них сюда должен приходить APERAK
 	}
-
 	// Устанавливаем соединение
 	if(!ftp_client.Connect()) {
 		ProcessError("FtpConnect");
