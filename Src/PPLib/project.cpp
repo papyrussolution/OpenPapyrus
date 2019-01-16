@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -370,7 +370,7 @@ int SLAPI PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 //
 class ProjectDialog : public TDialog {
 public:
-	ProjectDialog(uint dlgID) : TDialog(dlgID)
+	explicit ProjectDialog(uint dlgID) : TDialog(dlgID)
 	{
 		SetupCalCtrl(CTLCAL_PRJ_DT, this, CTL_PRJ_DT, 4);
 		SetupCalCtrl(CTLCAL_PRJ_START, this, CTL_PRJ_START, 4);
@@ -1677,7 +1677,7 @@ int SLAPI PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod
 //
 class PrjTaskDialog : public TDialog {
 public:
-	PrjTaskDialog(uint dlgID) : TDialog(/*DLG_TODO*/dlgID)
+	explicit PrjTaskDialog(uint dlgID) : TDialog(/*DLG_TODO*/dlgID)
 	{
 		SetupCalDate(CTLCAL_TODO_DT, CTL_TODO_DT);
 		SetupCalDate(CTLCAL_TODO_START, CTL_TODO_START);
@@ -2091,7 +2091,7 @@ int SLAPI PPObjPrjTask::GetLinkTasks(PPID taskID, PPIDArray * pAry)
 
 class ViewTasksDialog : public PPListDialog {
 public:
-	ViewTasksDialog(StrAssocArray * pData) : PPListDialog(DLG_VIEWTASKS, CTL_VIEWTASKS_LIST), P_Data(pData)
+	explicit ViewTasksDialog(StrAssocArray * pData) : PPListDialog(DLG_VIEWTASKS, CTL_VIEWTASKS_LIST), P_Data(pData)
 	{
 		updateList(-1);
 	}

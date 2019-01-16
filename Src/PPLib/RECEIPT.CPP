@@ -982,7 +982,7 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 				THROW(mark_count > 0);
 			}
 			else {
-				THROW(rResult.AddNum(0, data.Code, 1));
+				THROW(rResult.AddNum(0, pCode, 1));
 			}
 			ok = 1;
 		}

@@ -1484,7 +1484,7 @@ int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int SLAPI PPViewGeoTracking::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	BExtInsert * p_bei = 0;
+	// @v10.3.0 (never used) BExtInsert * p_bei = 0;
 	Counter.Init();
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);

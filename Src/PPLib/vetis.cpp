@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018
+// Copyright (c) A.Sobolev 2017, 2018, 2019
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -1177,7 +1177,7 @@ public:
 		signProcessOutgoingConsignment,
 		signWithdrawVetDocument
 	};
-	VetisApplicationData(long sign) : Sign(sign)
+	explicit VetisApplicationData(long sign) : Sign(sign)
 	{
 	}
 	virtual ~VetisApplicationData()
@@ -5674,18 +5674,18 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 					PPID   en_id = 0;
 					SString en_symb;
 					if(tag_item.GetEnumData(&en_id, 0, 0, &en_symb) > 0) {
-						if(en_symb.IsEqiAscii("frozen")) 
+						if(en_symb.IsEqiAscii("frozen"))
 							tst_goods = vtstFROZEN;
-						else if(en_symb.IsEqiAscii("chilled")) 
+						else if(en_symb.IsEqiAscii("chilled"))
 							tst_goods = vtstCHILLED;
-						else if(en_symb.IsEqiAscii("cooled")) 
+						else if(en_symb.IsEqiAscii("cooled"))
 							tst_goods = vtstCOOLED;
-						else if(en_symb.IsEqiAscii("ventilated")) 
+						else if(en_symb.IsEqiAscii("ventilated"))
 							tst_goods = vtstVENTILATED;
 					}
 				}
 			}
-			// } @v10.2.10 
+			// } @v10.2.10
 			PPFreight freight;
 			if(BillObj->P_Tbl->GetFreight(app_data.VdRec.LinkBillID, &freight) > 0) {
 				PPObjTransport tr_obj;
@@ -5728,7 +5728,7 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 					SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst_goods, temp_buf);
 					app_data.TranspStorageType = temp_buf;
 				}
-				// } @v10.2.10 
+				// } @v10.2.10
 			}
 		}
 		THROW(SubmitRequest(blk, submit_result));
@@ -6476,7 +6476,7 @@ int EditVetisVetDocument(VetisVetDocument & rData)
 {
 	class VetVDocInfoDialog : public TDialog {
 	public:
-		VetVDocInfoDialog(const VetisVetDocument & rData) : TDialog(DLG_VETVDOC), R_Data(rData)
+		explicit VetVDocInfoDialog(const VetisVetDocument & rData) : TDialog(DLG_VETVDOC), R_Data(rData)
 		{
 		}
 	private:
@@ -8072,7 +8072,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 						BillTbl::Rec bill_rec;
 						class MatchCodeBlock {
 						public:
-							MatchCodeBlock(const char * pWayBillNumber) : MaxMatchCodelen(0), MaxMatchID(0), WayBillNumber(pWayBillNumber)
+							explicit MatchCodeBlock(const char * pWayBillNumber) : MaxMatchCodelen(0), MaxMatchID(0), WayBillNumber(pWayBillNumber)
 							{
 							}
 							void ProcessBillCode(PPID billID, const SString & rCode)

@@ -123,7 +123,7 @@ static uint32 FASTCALL PeHashString(const char * pSymb)
 	return BobJencHash(pSymb, len);
 }
 
-SLAPI ProfileEntry::ProfileEntry()
+SLAPI ProfileEntry::ProfileEntry() : P_FileName(0), P_AddedInfo(0)
 {
 	THISZERO();
 }

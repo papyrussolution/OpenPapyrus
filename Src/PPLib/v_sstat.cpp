@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -503,7 +503,7 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			class SStatCrosstab : public Crosstab {
 			public:
-				SLAPI  SStatCrosstab(PPViewSStat * pV) : Crosstab(), P_V(pV)
+				explicit SLAPI  SStatCrosstab(PPViewSStat * pV) : Crosstab(), P_V(pV)
 				{
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)

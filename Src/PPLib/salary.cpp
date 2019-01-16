@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -475,7 +475,7 @@ int SLAPI PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
 
 class SalaryCrosstab : public Crosstab {
 public:
-	SLAPI  SalaryCrosstab(PPViewSalary * pV) : Crosstab(), P_V(pV)
+	explicit SLAPI  SalaryCrosstab(PPViewSalary * pV) : Crosstab(), P_V(pV)
 	{
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
@@ -926,7 +926,7 @@ int SLAPI PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 //
 class SalaryContext : public ExprEvalContext {
 public:
-	SLAPI  SalaryContext(PrcssrSalary * pPrcssr)
+	explicit SLAPI  SalaryContext(PrcssrSalary * pPrcssr)
 		{ P_Prcssr = pPrcssr; }
 	virtual int SLAPI Resolve(const char * pSymb, double * pVal)
 		{ return P_Prcssr ? P_Prcssr->Expr_ResolveSymb(pSymb, pVal) : 0; }
@@ -2226,7 +2226,7 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 {
 	class TestStaffCalDialog : public TDialog {
 	public:
-		TestStaffCalDialog(PrcssrSalary * pPrc) : TDialog(DLG_TESTSTAFFCAL), P_Prc(pPrc)
+		explicit TestStaffCalDialog(PrcssrSalary * pPrc) : TDialog(DLG_TESTSTAFFCAL), P_Prc(pPrc)
 		{
 			SetupCalPeriod(CTLCAL_TESTSTAFFCAL_PERIOD, CTL_TESTSTAFFCAL_PERIOD);
 		}

@@ -1064,7 +1064,7 @@ int SLAPI PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const c
 		uint   c = rList.getCount();
 		if(c) do {
 			const PPID loc_id = rList.get(--c);
-			if(Fetch(loc_id, &loc_rec) <= 0 || loc_rec.Type != locTyp) 
+			if(Fetch(loc_id, &loc_rec) <= 0 || loc_rec.Type != locTyp)
 				rList.atFree(c);
 		} while(c);
 		if(!rList.getCount()) {
@@ -1475,7 +1475,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 {
 	class AddExtFldDialog : public TDialog {
 	public:
-		AddExtFldDialog(TaggedStringArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
+		explicit AddExtFldDialog(TaggedStringArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
 		{
 			if(pFieldNames)
 				FieldNames.copy(*pFieldNames);
@@ -2945,7 +2945,7 @@ private:
 	//
 	class FealArray : public StrAssocArray {
 	public:
-		FealArray(int use) : StrAssocArray(), Use(use), Inited(0)
+		explicit FealArray(int use) : StrAssocArray(), Use(use), Inited(0)
 		{
 		}
 		void   FASTCALL Dirty(PPID cardID)
@@ -3172,7 +3172,7 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
 		// @v10.0.05 {
 		if(!is_enabled)
 			entry.Flags |= LOCF_INTERNAL_DISABLED;
-		// } @v10.0.05 
+		// } @v10.0.05
 		// @v10.0.05 if(ObjRts.CheckLocID(entry.LocID, 0)) {
 			PPObjAccTurn * p_atobj = BillObj->atobj;
 			if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, entry.LocID) > 0)
@@ -4174,7 +4174,7 @@ SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(uint p1, uint p2, int
 {
 }
 
-SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS) : 
+SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS) :
 	P1(rS.P1), P2(rS.P2), Reverse(rS.Reverse), CityStreetList(rS.CityStreetList)
 {
 }
@@ -6335,7 +6335,7 @@ public:
 private:
     class TestDialog : public TDialog {
 	public:
-		TestDialog(TestFiasProcessor * pPrcssr) : TDialog(DLG_TESTFIAS), P(pPrcssr)
+		explicit TestDialog(TestFiasProcessor * pPrcssr) : TDialog(DLG_TESTFIAS), P(pPrcssr)
 		{
 			addGroup(1,  new FiasAddressCtrlGroup(CTL_TESTFIAS_INPUT, CTL_TESTFIAS_INFO));
 		}

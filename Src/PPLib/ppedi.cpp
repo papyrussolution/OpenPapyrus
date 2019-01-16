@@ -267,7 +267,7 @@ public:
 	static int FASTCALL GetPartyqBySymb(const char * pSymb);
 	static int FASTCALL GetIticSymb(int refq, SString & rSymb);
 	static int FASTCALL GetIticBySymb(const char * pSymb);
-	SLAPI  PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi);
+	explicit SLAPI  PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi);
 	SLAPI ~PPEanComDocument();
 	int    SLAPI Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId);
 	int    SLAPI Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId); // @notimplemented
@@ -1659,7 +1659,7 @@ int SLAPI PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, 
 			vect.CalcTI(&rTi, 0 /*opID*/, tiamt);
 			const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 			const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
-			const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+			// @v10.3.0 (never used) const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
 			const double price_with_vat = R5(amount_with_vat / qtty);
 			const double price_without_vat = R5(amount_without_vat / qtty);
 			rTotal.AmountWithTax += amount_with_vat;
@@ -3800,8 +3800,8 @@ PPEdiProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), P_Data
 		case PPEDIOP_ORDER:
 		case PPEDIOP_DESADV:
 		case PPEDIOP_ALCODESADV:
-		case PPEDIOP_INVOIC: 
-			P_Data = new PPBillPacket; 
+		case PPEDIOP_INVOIC:
+			P_Data = new PPBillPacket;
 			break;
 		case PPEDIOP_ORDERRSP:
 			P_Data = new PPBillPacket;
@@ -3990,7 +3990,7 @@ int SLAPI PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & r
 			else
 				wroff_bill_is_ready = 1;
 		}
-		if(wroff_bill_is_ready > 0) 
+		if(wroff_bill_is_ready > 0)
 			ok = 1;
 	}
 	return ok;
@@ -6943,8 +6943,8 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 				total_amount += amount_without_vat;
 				total_amount_with_vat += amount_with_vat;
 			}
-			n_docs.PutInner("TOTALAMOUNT", temp_buf.Z().Cat(total_amount, MKSFMTD(0, 2, 0))); 
-			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 2, 0))); 
+			n_docs.PutInner("TOTALAMOUNT", temp_buf.Z().Cat(total_amount, MKSFMTD(0, 2, 0)));
+			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 2, 0)));
 		}
 		n_docs.PutInner("DOCTYPE", "O");
 		n_docs.PutInner("INFO", (temp_buf = rRaPack.RBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));

@@ -951,7 +951,7 @@ int PosPaymentBlock::EditDialog2()
 			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg >= 0));
 			if(Data.AltCashReg >= 0)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
-			// } @v9.6.9 
+			// } @v9.6.9
 			updateList(-1);
 			return 1;
 		}
@@ -969,7 +969,7 @@ int PosPaymentBlock::EditDialog2()
 				uint16 v = getCtrlUInt16(CTL_CPPAYM_ALTCASHREG);
 				Data.AltCashReg = BIN(v == 1);
 			}
-			// } @v9.6.9 
+			// } @v9.6.9
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -1301,7 +1301,7 @@ int PosPaymentBlock::EditDialog2()
 		}
 		void   SetupKind()
 		{
-			const int prev_kind = Data.Kind;
+			// @v10.3.0 (never used) const int prev_kind = Data.Kind;
 			Data.Kind = (CheckPaymMethod)GetClusterData(CTL_CPPAYM_KIND);
 			if(Data.Kind == cpmCash) {
 				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 1);

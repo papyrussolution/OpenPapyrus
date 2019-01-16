@@ -686,7 +686,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 class PPDialogEditWindow : public PPWhatmanWindow {
 public:
 	friend int EditDialogSpec(DlContext * pCtx, uint dlgId);
-	PPDialogEditWindow(DlContext * pCtx) : PPWhatmanWindow(modeEdit), P_DCtx(pCtx), P_Scope(0)
+	explicit PPDialogEditWindow(DlContext * pCtx) : PPWhatmanWindow(modeEdit), P_DCtx(pCtx), P_Scope(0)
 	{
 	}
 	int    Load(uint dlgId);

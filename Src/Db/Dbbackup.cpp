@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -204,7 +204,7 @@ int SLAPI DBBackup::InfoFile::RemoveRecord(const char * pSet, long id)
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::WriteRecord(FILE * stream, BCopyData * pData)
+int SLAPI DBBackup::InfoFile::WriteRecord(FILE * stream, const BCopyData * pData)
 {
 	int    ok = 1;
 	int    copy_format = BIN(pData->Flags & BCOPYDF_USECOMPRESS);
@@ -332,7 +332,7 @@ static void LogMessage(BackupLogFunc fnLog, int recId, const char * pInfo, long 
 		fnLog(recId, pInfo, initParam);
 }
 
-int SLAPI DBBackup::CheckCopy(BCopyData * pData, CopyParams * pCP, BackupLogFunc fnLog, long initParam)
+int SLAPI DBBackup::CheckCopy(BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -371,13 +371,13 @@ int SLAPI DBBackup::CheckCopy(BCopyData * pData, CopyParams * pCP, BackupLogFunc
 	}
 	// check total size criteria
 	if(!use_compression) {
-		long double diff = (long double)(pCP->TotalSize - cp.TotalSize) * 100;
+		long double diff = (long double)(rCP.TotalSize - cp.TotalSize) * 100;
 		diff = (diff < 0) ? -diff : diff;
 		THROW_V(cp.TotalSize && (diff / (long double)cp.TotalSize) <= 30, SDBERR_BU_COPYINVALID);
 	}
 	// check files count criteria
 	{
-		const uint pcp_ssf_count = pCP->SsFiles.getCount();
+		const uint pcp_ssf_count = rCP.SsFiles.getCount();
 		const uint cp_ssf_count = cp.SsFiles.getCount();
 		double diff = (double)labs((long)pcp_ssf_count - (long)cp_ssf_count) * 100;
 		THROW_V(cp_ssf_count && (diff / (double)cp_ssf_count) <= 30, SDBERR_BU_COPYINVALID);
@@ -509,7 +509,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, long initPara
 	return ok;
 }
 
-int SLAPI DBBackup::GetCopyParams(BCopyData * data, DBBackup::CopyParams * params)
+int SLAPI DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * params)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -691,7 +691,7 @@ int SLAPI DBBackup::Restore(BCopyData * pData, BackupLogFunc fnLog, long initPar
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	THROW(GetCopyParams(pData, &cp));
 	P_Db->GetDataPath(cp.Path);
-	if(CheckAvailableDiskSpace(cp.Path, cp.TotalSize) && CheckCopy(pData, &cp, fnLog, initParam) > 0) {
+	if(CheckAvailableDiskSpace(cp.Path, cp.TotalSize) && CheckCopy(pData, cp, fnLog, initParam) > 0) {
 		SString copy_path;
 		THROW(RemoveDatabase(1));
 		THROW(DoCopy(&cp, -BIN(pData->SrcSize != pData->DestSize), fnLog, initParam));

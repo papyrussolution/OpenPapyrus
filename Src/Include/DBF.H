@@ -1,5 +1,5 @@
 // DBF.H
-// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018
+// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019
 // @codepage windows-1251
 // Номера записей и полей идут от 1 и далее
 //
@@ -179,8 +179,8 @@ public:
 	DbfRecord * SLAPI makeRec() const;
 	int    FASTCALL getRec(DbfRecord *);
 	int    FASTCALL insertRec(DbfRecord *);
-	int    FASTCALL appendRec(DbfRecord *);
-	int    FASTCALL updateRec(DbfRecord *);
+	int    FASTCALL appendRec(const DbfRecord *);
+	int    FASTCALL updateRec(const DbfRecord *);
 	int    SLAPI flush();
 	int    SLAPI initBuffer();
 	int    SLAPI releaseBuffer();

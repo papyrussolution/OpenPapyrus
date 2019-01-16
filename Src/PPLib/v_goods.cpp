@@ -1008,7 +1008,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 //
 class GoodsListDialog : public TDialog {
 public:
-	GoodsListDialog(int disableAutoFill) : TDialog(DLG_GDSLST)
+	explicit GoodsListDialog(int disableAutoFill) : TDialog(DLG_GDSLST)
 	{
 		P_List = (SmartListBox *)getCtrlView(CTL_GDSLST_LIST);
 		setCtrlOption(CTL_GDSLST_LIST, ofFramed, 1);
@@ -3328,7 +3328,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 {
 	class UhttExportGoodsDialog : public TDialog {
 	public:
-		UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS), P_View(pView)
+		explicit UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS), P_View(pView)
 		{
 		}
 		int SLAPI setDTS(const UhttExpGoodsParam * pData)
@@ -4184,7 +4184,7 @@ PPALDD_CONSTRUCTOR(GoodsStruc)
 PPALDD_DESTRUCTOR(GoodsStruc) { Destroy(); }
 
 struct Dl6_GoodsStruc_Support {
-	SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt) : P_Iter(0), IsOwnPtr(0)
+	explicit SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt) : P_Iter(0), IsOwnPtr(0)
 	{
 		if(rFilt.Ptr)
 			P_Iter = (GStrucIterator *)rFilt.Ptr;

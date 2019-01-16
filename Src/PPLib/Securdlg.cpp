@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -32,6 +32,7 @@ class SecurDialog : public TDialog {
 public:
 	SecurDialog(int dlgID, PPID objType, PPID objID) : TDialog(dlgID), ObjType(objType), ObjID(objID)
 	{
+		PTR32(Password)[0] = 0; // @v10.3.0
 	}
 	int    setDTS(const PPSecurPacket * pData)
 	{
@@ -356,7 +357,7 @@ static int SLAPI CfgRoundDialog(PPConfig * pCfg)
 
 class CfgOptionsDialog : public TDialog {
 public:
-	CfgOptionsDialog(PPID obj) : TDialog(obj == PPOBJ_CONFIG ? DLG_MAINCFG : DLG_CFGOPTIONS)
+	explicit CfgOptionsDialog(PPID obj) : TDialog(obj == PPOBJ_CONFIG ? DLG_MAINCFG : DLG_CFGOPTIONS)
 	{
 	}
 	virtual int TransmitData(int dir, void * pData)

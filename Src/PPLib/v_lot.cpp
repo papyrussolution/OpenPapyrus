@@ -297,7 +297,7 @@ public:
 		ctlgroupGoods     = 1,
 		ctlgroupGoodsFilt = 2
 	};
- 	LotFiltDialog(uint dlgID) : TDialog(dlgID)
+ 	explicit LotFiltDialog(uint dlgID) : TDialog(dlgID)
 	{
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_FLTLOT_GOODS, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
 		SetupCalPeriod(CTLCAL_FLTLOT_PERIOD, CTL_FLTLOT_PERIOD);
@@ -361,7 +361,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 			dlg->AddClusterAssoc(CTL_FLTLOT_EXTVIEWATTR, 1, LotFilt::exvaEgaisTags);
 			dlg->AddClusterAssoc(CTL_FLTLOT_EXTVIEWATTR, 2, LotFilt::exvaVetisTags);
 			dlg->SetClusterData(CTL_FLTLOT_EXTVIEWATTR, temp_data.ExtViewAttr);
-			// } @v10.1.4 
+			// } @v10.1.4
 			while(ok < 0 && ExecView(dlg) == cmOK)
 				if(!(temp_data.Flags & LotFilt::fOrders)) {
 					if(!GetPeriodInput(dlg, CTL_FLTLOT_EXPIRY, &temp_data.ExpiryPrd))
@@ -601,7 +601,7 @@ int SLAPI PPViewLot::ViewTotal()
 {
 	class LotTotalDialog : public TDialog {
 	public:
-		LotTotalDialog(PPViewLot * lv) : TDialog(DLG_LOTTOTAL), LV(lv)
+		explicit LotTotalDialog(PPViewLot * lv) : TDialog(DLG_LOTTOTAL), LV(lv)
 		{
 		}
 		int    setup()

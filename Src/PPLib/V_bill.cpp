@@ -4215,8 +4215,8 @@ int SLAPI PPViewBill::UpdateAttributes()
 					PPBillPacket pack;
 					if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
 						int    do_upd = 0;
-						const long org_rec_flags = pack.Rec.Flags;
-						const long org_rec_flags2 = pack.Rec.Flags2;
+						// @v10.3.0 (never used) const long org_rec_flags = pack.Rec.Flags;
+						// @v10.3.0 (never used) const long org_rec_flags2 = pack.Rec.Flags2;
 						if(ua.ObjectID && pack.Rec.Object != ua.ObjectID) {
 							pack.Rec.Object = ua.ObjectID;
 							do_upd = 1;
@@ -6542,7 +6542,8 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	double ext_price = 0.0;
 	double upp = 0.0; // Емкость упаковки
 	long   exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
-	int    tiamt, price_chng = 1;
+	int    tiamt;
+	// @v10.3.0 (never used) int    price_chng = 1;
 	uint   n = (uint)I.nn;
 	PPObjGoods goods_obj;
 	PPObjQuotKind qk_obj;

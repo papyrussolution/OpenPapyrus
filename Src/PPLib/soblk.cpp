@@ -120,15 +120,15 @@ public:
 		cQuotKind,
 
 		cSeparate,
-		cStripSSfx, // 
-		cPhone,     // 
-		cSince,     // 
-		cUUID,      // 
-		cProcessor, // 
-		cPlace,     // 
-		cTSession,  // 
-		cPinCode,   // 
-		cCip,       // 
+		cStripSSfx, //
+		cPhone,     //
+		cSince,     //
+		cUUID,      //
+		cProcessor, //
+		cPlace,     //
+		cTSession,  //
+		cPinCode,   //
+		cCip,       //
 
 		cGeoTracking // @v10.1.5
 	};
@@ -448,7 +448,7 @@ private:
 	PPObjTSession * P_TSesObj;
 	GoodsFilt * P_GoodsF;
 	PersonFilt * P_PsnF;
-	PersonRelFilt * P_PsnRelF; 
+	PersonRelFilt * P_PsnRelF;
 	LocalGoodsGroupFilt * P_GgF;
 	LocalBrandFilt * P_BrF;
 	LocalGlobalAccFilt * P_GaF;
@@ -1216,7 +1216,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 					}
 				}*/
 				// @v10.0.05 {
-				const int criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf); 
+				const int criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf);
 				if(criterion) {
 					crit = temp_buf;
 					(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
@@ -1298,7 +1298,7 @@ struct LocalSelectorDescr {
 	LocalSelectorDescr() : ID(0), Attr(0), Clsf(0), Type(0)
 	{
 	}
-	LocalSelectorDescr(const StrAssocArray::Item & rSi) : ID(rSi.Id), Attr(0), Clsf(0), Type(0), Title(rSi.Txt)
+	explicit LocalSelectorDescr(const StrAssocArray::Item & rSi) : ID(rSi.Id), Attr(0), Clsf(0), Type(0), Title(rSi.Txt)
 	{
 	}
 	void   Set(const char * pCrit, const char * pPart)
@@ -1575,7 +1575,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 												p_new_item->Status = -1;
 											else // —трого говор€, это состо€ние невозможно
 												p_new_item->Status = -1;
-											p_new_item->CipID = r_ci.ID; 
+											p_new_item->CipID = r_ci.ID;
 											p_new_item->RegPersonID = r_ci.GetPerson();
 										}
 									}
@@ -3636,12 +3636,12 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				use_filt = 1;
 				PPObjWorkbook wb_obj;
 				WorkbookTbl::Rec wb_rec;
-				PPIDArray temp_list; // @v10.2.5 
+				PPIDArray temp_list; // @v10.2.5
 				if(IdList.getCount()) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
 						if(wb_obj.Fetch(IdList.at(i), &wb_rec) > 0) {
 							// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5 
+							temp_list.add(wb_rec.ID); // @v10.2.5
 						}
 					}
 					use_filt = 0;
@@ -3659,13 +3659,13 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							if(_ep == 2) {
 								if(wb_obj.SearchBySymb(txt_buf, &(temp_id = 0), &wb_rec) > 0) {
 									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-									temp_list.add(wb_rec.ID); // @v10.2.5 
+									temp_list.add(wb_rec.ID); // @v10.2.5
 								}
 							}
 							else if(_ep == 1) {
 								if(wb_obj.SearchByName(txt_buf, &temp_id, &wb_rec) > 0) {
 									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-									temp_list.add(wb_rec.ID); // @v10.2.5 
+									temp_list.add(wb_rec.ID); // @v10.2.5
 								}
 							}
 						}
@@ -3677,20 +3677,20 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						for(SEnum en = wb_obj.P_Tbl->EnumByParent(P_WorkbookF->ParentID, 0); en.Next(&wb_rec) > 0;) {
 							if(P_WorkbookF->Type == 0 || wb_rec.Type == P_WorkbookF->Type) {
 								// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-								temp_list.add(wb_rec.ID); // @v10.2.5 
+								temp_list.add(wb_rec.ID); // @v10.2.5
 							}
 						}
 					}
 					else if(P_WorkbookF->Type) {
 						for(SEnum en = wb_obj.P_Tbl->EnumByType(P_WorkbookF->Type, 0); en.Next(&wb_rec) > 0;) {
 							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5 
+							temp_list.add(wb_rec.ID); // @v10.2.5
 						}
 					}
 					else {
 						for(SEnum en = wb_obj.P_Tbl->Enum(0); en.Next(&wb_rec) > 0;) {
 							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5 
+							temp_list.add(wb_rec.ID); // @v10.2.5
 						}
 					}
 				}
@@ -3704,7 +3704,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 					}
 				}
-				// } @v10.2.5 
+				// } @v10.2.5
 			}
 			break;
 		case PPOBJ_GEOTRACKING:
@@ -4385,7 +4385,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Tag(int subcriterion, const SString &
 		case scID: id = rArg.ToLong(); break;
 		case scCode: p_ref->SearchSymb(PPOBJ_TAG, &id, rArg, offsetof(PPObjectTag, Symb)); break;
 		case scName: p_ref->SearchName(PPOBJ_TAG, &id, rArg); break;
-		default: 
+		default:
 			PPSetError(PPERR_CMDSEL_INVSUBCRITERION);
 			ASSIGN_PTR(pID, 0);
 			return 0;

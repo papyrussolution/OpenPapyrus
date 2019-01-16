@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2008,11 +2008,11 @@ struct SvdtStrDlgAns {
 
 class SvdtStrDialog : public TDialog {
 public:
-	SvdtStrDialog(uint dlgID) : TDialog(dlgID)
+	explicit SvdtStrDialog(uint dlgID) : TDialog(dlgID)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, FBB_GROUP1, 
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, FBB_GROUP1,
 			PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, FBB_GROUP2, 
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, FBB_GROUP2,
 			0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
 	}
 	int   setDTS(const SvdtStrDlgAns *);
@@ -2057,7 +2057,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 	// @v9.8.9 PPIniFile ini_file;
 	// @v9.8.9 if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path) > 0 && (CrwError == PE_ERR_ERRORINDATABASEDLL)) {
 	// @v9.8.9 {
-	PPGetPath(PPPATH_REPORTDATA, path); 
+	PPGetPath(PPPATH_REPORTDATA, path);
 	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
 	// } @v9.8.9
 		path.SetLastSlash().Cat(pDataName);
@@ -2381,7 +2381,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 								RemoveDir(temp_buf);
 						}
 					}
-					// } @v9.8.9 
+					// } @v9.8.9
 					ep.Flags &= ~DlRtm::ExportParam::fForceDDF;
 				}
 				THROW(p_rtm->Export(ep));

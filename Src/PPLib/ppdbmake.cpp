@@ -139,7 +139,7 @@ int SLAPI CreateByExample(const char * pPath)
 											p_cn->CurDate = ZERODATE;
                                         }
 									}
-									// } @v10.2.0 
+									// } @v10.2.0
 								}
 								if(ins_rec && !p_dst_tbl->insertRec()) {
 									PPSaveErrContext();
@@ -372,9 +372,8 @@ int SLAPI MakeDatabase()
 						{
 							class PPCreateDatabaseSession : public PPThread {
 							public:
-								SLAPI PPCreateDatabaseSession(const char * pDbSymb) : PPThread(PPThread::kUnknown, 0, 0)
+								explicit SLAPI PPCreateDatabaseSession(const char * pDbSymb) : PPThread(PPThread::kUnknown, 0, 0), DbSymb(pDbSymb)
 								{
-									DbSymb = pDbSymb;
 									InitStartupSignal();
 								}
 							private:

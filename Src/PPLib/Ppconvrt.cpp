@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Конвертация файлов данных при изменениях версий
 //
@@ -5961,7 +5961,7 @@ public:
 
 class PPObjWorkbook_Pre813 : public PPObjReference {
 public:
-	SLAPI  PPObjWorkbook_Pre813(void * extraPtr = 0) : PPObjReference(PPOBJ_WORKBOOK_PRE813, extraPtr)
+	explicit SLAPI PPObjWorkbook_Pre813(void * extraPtr = 0) : PPObjReference(PPOBJ_WORKBOOK_PRE813, extraPtr)
 	{
 		ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	}
@@ -6375,7 +6375,7 @@ static int SLAPI ConvertStaffList9003()
 {
 	int    ok = 1;
 	int    db_locked = 0;
-	int    need_conversion = 0;
+	// @v10.3.0 (never used) int    need_conversion = 0;
 	DBTable * p_tbl = 0;
 	DbProvider * p_db = CurDict;
 	SString path;
@@ -6467,7 +6467,7 @@ static int SLAPI ConvertAccount9004()
 {
 	int    ok = 1;
 	int    db_locked = 0;
-	int    need_conversion = 0;
+	// @v10.3.0 (never used) int    need_conversion = 0;
 	DBTable * p_tbl = 0;
 	DbProvider * p_db = CurDict;
 	SString path;
@@ -6590,7 +6590,7 @@ static int SLAPI ConvertBankAccount9004()
 {
 	int    ok = 1;
 	int    db_locked = 0;
-	int    need_conversion = 0;
+	// @v10.3.0 (never used)int    need_conversion = 0;
 	DBTable * p_tbl = 0;
 	DbProvider * p_db = CurDict;
 	SString path;

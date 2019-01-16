@@ -977,7 +977,7 @@ class SrConceptParser {
 public:
 	class Operator {
 	public:
-		Operator(SrConceptParser & rMaster);
+		explicit Operator(SrConceptParser & rMaster);
 		Operator & Z();
 		int    IsEmpty() const;
 		int    Close(int ifNeeded);
@@ -1070,7 +1070,7 @@ public:
 
 	static int FASTCALL _IsWordbreakChar(int c);
 
-	SrConceptParser(SrDatabase & rDb);
+	explicit SrConceptParser(SrDatabase & rDb);
 	~SrConceptParser();
 	int    Run(const char * pFileName);
 	int    _ReadLine();
@@ -2218,7 +2218,7 @@ public:
 	void   Sort() { L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this); }
 private:
 	struct InnerEntry { // @flat
-		InnerEntry(uint gender) : NameP(0), Gender(gender)
+		explicit InnerEntry(uint gender) : NameP(0), Gender(gender)
 		{
 		}
 		uint   NameP;
@@ -2654,8 +2654,8 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 						case 4: entry.DatasetName = temp_buf; break;
 						case 5: entry.AcceptedNameUsageID = temp_buf.ToLong(); break;
 						case 6: entry.ParentNameUsageID = temp_buf.ToLong(); break;
-						case 7: 
-							entry.TaxonomicStatusText = temp_buf; 
+						case 7:
+							entry.TaxonomicStatusText = temp_buf;
 							if(temp_buf.IsEqiAscii("accepted name"))
 								entry.TaxonomicStatusCode = taxstatusAcceptedName;
 							else if(temp_buf.IsEqiAscii("provisionally accepted name"))
@@ -2847,7 +2847,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 							items_per_tx++;
 							THROW(RechargeTransaction(p_ta, items_per_tx, max_items_per_tx));
 							// если rcr == 1, то концепция существовала до вызова ResolveConcept
-							/*if(rDb.GetConceptPropList(cid, cpl) > 0) { 
+							/*if(rDb.GetConceptPropList(cid, cpl) > 0) {
 								for(uint pidx = 0; pidx < cpl.GetCount(); pidx++) {
 									if(cpl.GetByPos(pidx, cp)) {
 										CONCEPTID _val = 0;
@@ -2916,7 +2916,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 					for(uint ssp = 0, ssi = 0; words_to_append.get(&ssp, temp_buf); ssi++) {
 						LEXID  word_id = 0;
 						const  int rwr = rDb.ResolveWord(temp_buf, &word_id);
-						assert(oneof2(rwr, 2, 0)); 
+						assert(oneof2(rwr, 2, 0));
 						THROW(rwr);
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
@@ -3089,7 +3089,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 	Entry entry;
 	SString src_file_name;
 	(src_file_name = P.SrcPath).SetLastSlash().Cat(pFileName); // utf-8
-	// 
+	//
 	SPathStruc ps(src_file_name);
 	ps.Nam.CatChar('-').Cat(pExchangeSymb);
 	ps.Ext = "txt";
@@ -3102,7 +3102,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 		uint   line_count = 0;
 		CONCEPTID cid_genusrerum = 0; // форма собственности предприятия
 		CONCEPTID cid_sector = 0;     //:negotiumtaxonomy_sector::negotiumtaxonomy_category    // сектор бизнеса
-		CONCEPTID cid_indust = 0;    //:negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии 
+		CONCEPTID cid_indust = 0;    //:negotiumtaxonomy_industria::negotiumtaxonomy_category // сектор индустрии
 		CONCEPTID cid_ripae = 0; // класс "банк" (::negotiumtaxonomy_coeptis)
 		CONCEPTID cid_commutationem = 0; // класс "биржа" (::negotium_coeptis_commutationem)
 		CONCEPTID cid_coeptis = 0; // класс "предприятие"

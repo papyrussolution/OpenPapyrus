@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -7,7 +7,7 @@
 #pragma hdrstop
 //
 // @VATBCfg {
-// 
+//
 SLAPI VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasisAtPeriod(0)
 {
 	Period.Z();
@@ -87,7 +87,7 @@ double FASTCALL PPObjVATBook::GetVatRate(int idx)
 		return 0.0;
 }
 
-//static 
+//static
 int FASTCALL PPObjVATBook::IsValidKind(int kind)
 {
 	return oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER) ? 1 : PPSetError(PPERR_INVVATBOOKKIND);
@@ -537,7 +537,7 @@ int VATBookDialog::getDTS(VATBookTbl::Rec * pData)
 //
 class SimpleLedgerDialog : public TDialog {
 public:
-	SimpleLedgerDialog(PPObjVATBook * aPPObj) : TDialog(DLG_SMPLLEDG), ppobj(aPPObj)
+	explicit SimpleLedgerDialog(PPObjVATBook * aPPObj) : TDialog(DLG_SMPLLEDG), ppobj(aPPObj)
 	{
 		SetupCalDate(CTLCAL_SMPLLEDG_DT, CTL_SMPLLEDG_DT);
 	}
@@ -838,7 +838,7 @@ int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 //
 class VATBCfgDialog : public PPListDialog {
 public:
-	VATBCfgDialog(uint rezID) : PPListDialog(rezID, CTL_VATBCFG_LIST), P_List(0)
+	explicit VATBCfgDialog(uint rezID) : PPListDialog(rezID, CTL_VATBCFG_LIST), P_List(0)
 	{
 		updateList(-1);
 	}
@@ -927,7 +927,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 {
 	class VATBItemDlg : public TDialog {
 	public:
-		VATBItemDlg(VATBCfg * pCfg) : TDialog((pCfg->Kind == PPVTB_SIMPLELEDGER) ? DLG_VATBL_SIMPLE : DLG_VATBL), P_Cfg(pCfg)
+		explicit VATBItemDlg(VATBCfg * pCfg) : TDialog((pCfg->Kind == PPVTB_SIMPLELEDGER) ? DLG_VATBL_SIMPLE : DLG_VATBL), P_Cfg(pCfg)
 		{
 		}
 		int    setDTS(const VATBCfg::Item * pItem)
@@ -1871,7 +1871,7 @@ int SLAPI PPViewVatBook::RemoveZeroBillLinks(int use_ta)
 
 class AutoBuildFiltDialog : public WLDialog {
 public:
-	AutoBuildFiltDialog(PPID kind) : WLDialog(DLG_VATBABFLT, CTL_VATBABFLT_WL)
+	explicit AutoBuildFiltDialog(PPID kind) : WLDialog(DLG_VATBABFLT, CTL_VATBABFLT_WL)
 	{
 		SString sub_title;
 		PPGetSubStr(PPTXT_LEDGERKINDTITLES, kind, sub_title);
@@ -2105,7 +2105,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 		if(mrbbf & mrbbfIsNeg) {
 			double local_scale = scale;
 			if(pEbfBlk && pPaymRec && pEbfBlk->CheckPaymOp(pPaymRec->OpID) && pEbfBlk->Period.low) {
-				double amount = MONEYTOLDBL(rec.VAT0);
+				// @v10.3.0 (never used) double amount = MONEYTOLDBL(rec.VAT0);
 				double cost_amt = 0.0;
 				double exp_paym_amt = 0.0;
 				DateRange op_period;
@@ -2120,7 +2120,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 					}
 				}
 				if(cost_amt != 0.0 && exp_paym_amt != 0.0) {
-					double before_exp_part = exp_paym_amt / cost_amt;
+					// @v10.3.0 (never used) double before_exp_part = exp_paym_amt / cost_amt;
 					local_scale = scale * exp_paym_amt / cost_amt;
 					set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, 0, sl_use_cost_vat_addendum);
 				}

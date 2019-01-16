@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -59,10 +59,10 @@ void SLAPI DBQuery::setSearchForUpdateMode(int set)
 	}
 }
 
-static int FASTCALL _search_item(int count, int * array, int item)
+static int FASTCALL _search_item(int count, const int * pArray, int item)
 {
 	for(int i = 0; i < count; i++)
-		if(array[i] == item)
+		if(pArray[i] == item)
 			return i;
 	return -1;
 }
@@ -368,7 +368,7 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 	return q;
 }
 
-DBQuery & FASTCALL selectbycell(int count, DBDataCell * pList)
+DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 {
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
@@ -751,12 +751,8 @@ int SLAPI DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
 int SLAPI DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
 {
 	long   i = 0L;
-	int    next;
 	assert(oneof4(dir, spNext, spFirst, spPrev, spLast));
-	if(dir == spNext || dir == spFirst)
-		next = spNext;
-	else if(dir == spPrev || dir == spLast)
-		next = spPrev;
+	const int next = (dir == spPrev || dir == spLast) ? spPrev : spNext;
 	if(_search(0, dir))
 		do {
 			if(pBuf)

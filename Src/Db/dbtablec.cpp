@@ -291,11 +291,8 @@ int DBLobBlock::GetLocator(uint fldIdx, uint32 * pLoc) const
 //
 //
 //
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const char * pText, int idx, int sp, int sf) : SSqlStmt(pDb, pText)
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const char * pText, int idx, int sp, int sf) : SSqlStmt(pDb, pText), Idx(idx), Sp(sp), Sf(sf)
 {
-	Idx = idx;
-	Sp = sp;
-	Sf = sf;
 }
 
 int SLAPI DBTable::SetStmt(SelectStmt * pStmt)
@@ -345,7 +342,7 @@ int SLAPI DBTable::Init(DbProvider * pDbP)
 	fileName = 0;
 	indexes.setTableRef(offsetof(DBTable, indexes));
 	PageSize = 0;
-	LastLockedRow.SetZero(); // @v8.1.4
+	LastLockedRow.SetZero();
 	return 1;
 }
 

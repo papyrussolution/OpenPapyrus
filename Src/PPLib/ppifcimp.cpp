@@ -1281,7 +1281,7 @@ SString & DL6ICLS_PPUtil::DateRangeToStr(LDATE low, LDATE upp)
 
 LDATE DL6ICLS_PPUtil::StrToDate(SString & str, PpyDateFormat fmt)
 {
-	long   local_fmt = fmt;
+	// @v10.3.0 (never used) long   local_fmt = fmt;
     return strtodate_(str, fmt);
 }
 
@@ -1289,7 +1289,7 @@ ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStr(PpyObjectIdent objType, int32 
 {
 	IUnknown * p = 0;
 	LongArray * p_id_list = 0;
-	ObjTagCore & r_tc = PPRef->Ot;
+	// @v10.3.0 (never used) ObjTagCore & r_tc = PPRef->Ot;
 	THROW(CreateInnerInstance("LongList", "ILongList", (void **)&p));
 	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
 	PPRef->Ot.SearchObjectsByStr(objType, tagID, pattern, p_id_list);
@@ -2193,13 +2193,13 @@ int32 DL6ICLS_PPAmountList::GetCount()
 
 int32 DL6ICLS_PPAmountList::InitIteration()
 {
-	AmtList * p_list = (AmtList*)ExtraPtr;
+	// @v10.3.0 (never used) AmtList * p_list = (AmtList*)ExtraPtr;
 	return FuncNotSupported();
 }
 
 int32 DL6ICLS_PPAmountList::NextIteration(PpyAmountEntry * pEntry)
 {
-	AmtList * p_list = (AmtList*)ExtraPtr;
+	// @v10.3.0 (never used) AmtList * p_list = (AmtList*)ExtraPtr;
 	return FuncNotSupported();
 }
 
@@ -6838,7 +6838,7 @@ int32 DL6ICLS_PPPersonRelTypePacket::Get(SPpyO_PersonRelType * pRec)
 
 IStrAssocList * DL6ICLS_PPPersonRelTypePacket::GetInhRegTypeList()
 {
-	IStrAssocList * p_list = 0;
+	// @v10.3.0 (never used) IStrAssocList * p_list = 0;
 	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)ExtraPtr;
 	StrAssocArray assoc_list;
 	if(p_pack) {

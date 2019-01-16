@@ -1192,7 +1192,7 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		PPCashMachine * p_cm = 0;
+		// @v10.3.0 (never used) PPCashMachine * p_cm = 0;
 		CashNodeParam param;
 		THROW(param.Read(*pParam, 0));
 		THROW(!PPObjCashNode::IsLocked(param.CashNodeID));
@@ -1201,7 +1201,7 @@ public:
 		// @v10.1.1 THROW(p_cm = PPCashMachine::CreateInstance(param.CashNodeID));
 		// @v10.1.1 THROW(p_cm->AsyncCloseSession(0, &param.Period));
 		CATCHZOK
-		delete p_cm;
+		// @v10.3.0 (never used) delete p_cm;
 		return ok;
 	}
 };

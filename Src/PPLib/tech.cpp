@@ -661,7 +661,7 @@ int SLAPI EditCapacity(CalcCapacity * pData)
 
 class TechDialog : public TDialog {
 public:
-	TechDialog(uint dlgID) : TDialog(/*DLG_TECH*/dlgID)
+	explicit TechDialog(uint dlgID) : TDialog(/*DLG_TECH*/dlgID)
 	{
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
 		addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));

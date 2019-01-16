@@ -679,7 +679,7 @@ public:
 		SString FileName;
 	};
 
-	PrcssrDbDump(PPDbEntrySet2 * pDbes);
+	explicit PrcssrDbDump(PPDbEntrySet2 * pDbes);
 	~PrcssrDbDump();
 	int    SLAPI IsValid() const;
 	int    SLAPI GetTableListInFile(const char * pFileName, StrAssocArray * pList);
@@ -723,7 +723,7 @@ private:
 	Param  P;
 };
 
-SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry)), MaxBufLen(1024 * 1024), State(stValid)
+SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry)), MaxBufLen(1024 * 1024), State(stValid), Valid(1)
 {
 	if(pDbes)
 		P_Dbes = pDbes;
@@ -766,7 +766,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 			disableCtrl(CTLSEL_DBDUMP_TBL, Data.SpcOb != spcobNone);
 			DisableClusterItem(CTL_DBDUMP_ACTION, 1, (Data.SpcOb != spcobNone && !DS.GetConstTLA().IsAuth()));
 			DisableClusterItem(CTL_DBDUMP_SPCOB, 0, DS.GetConstTLA().IsAuth());
-			// } @v10.0.05 
+			// } @v10.0.05
 			/*
 			DbLoginBlock blk;
 			if(Dbes.GetBySymb(Data.DbSymb, &blk)) {
@@ -1034,7 +1034,7 @@ int SLAPI PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray
 int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 {
 	int    ok = 1;
-	int    ref_allocated = 0;
+	// @v10.3.0 (never used) int    ref_allocated = 0;
 	uint   pos = 0;
 	SBuffer buffer;
 	THROW(P.Mode == 0);
@@ -3002,7 +3002,6 @@ private:
 	PPIDArray Ref2List; // Список доступных идентификаторов справочника Ref2
 	SRandGenerator G;
 	ulong  TaCount;     // Количество (не точное) записей в таблице TestTa01
-
 	TestRef01Tbl * P_Ref1;
 	TestRef02Tbl * P_Ref2;
 	TestTa01Tbl * P_Ta;

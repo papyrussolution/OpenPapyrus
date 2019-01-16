@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -1507,7 +1507,7 @@ public:
 	enum {
 		ctlgroupGoodsGrp = 1
 	};
-	PListFiltDialog(PPViewPriceList * pV) : TDialog(DLG_PLISTFLT), P_PLV(pV)
+	explicit PListFiltDialog(PPViewPriceList * pV) : TDialog(DLG_PLISTFLT), P_PLV(pV)
 	{
 		addGroup(ctlgroupGoodsGrp, new GoodsFiltCtrlGroup(0, CTLSEL_PLIST_GGRP, cmGoodsFilt));
 	}
@@ -1729,7 +1729,7 @@ public:
 	enum {
 		ctlgroupGoods = 1
 	};
-	PLineDialog(PPViewPriceList * pV) : TDialog(DLG_PLINE), P_PLV(pV)
+	explicit PLineDialog(PPViewPriceList * pV) : TDialog(DLG_PLINE), P_PLV(pV)
 	{
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PLINE_GGRP, CTLSEL_PLINE_GOODS));
 	}

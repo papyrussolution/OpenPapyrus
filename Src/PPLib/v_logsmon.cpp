@@ -27,7 +27,7 @@ public:
 //
 class LogsMonitorFiltDialog : public PPListDialog {
 public:
-	LogsMonitorFiltDialog(uint resID);
+	explicit LogsMonitorFiltDialog(uint resID);
 	int	setDTS(const LogsMonitorFilt *);
 	int	getDTS(LogsMonitorFilt *);
 private:

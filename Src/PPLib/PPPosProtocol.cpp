@@ -167,7 +167,7 @@ public:
 													THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
 													cc_dtm.t = encodetime(h, m, s, hs + 1);
 												}
-												// } @v10.1.10 
+												// } @v10.1.10
 												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
 												if(ccr > 0) { // @v9.9.12
 													for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
@@ -277,7 +277,7 @@ private:
 
 class CM_PAPYRUS : public PPCashMachine {
 public:
-	SLAPI  CM_PAPYRUS(PPID posNodeID) : PPCashMachine(posNodeID)
+	explicit SLAPI CM_PAPYRUS(PPID posNodeID) : PPCashMachine(posNodeID)
 	{
 	}
 	PPAsyncCashSession * SLAPI AsyncInterface()
@@ -577,7 +577,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 									used_qk_list.addUnique(qk_id);
 								}
 							}
-							// } @v10.0.0 
+							// } @v10.0.0
 							/* @v10.0.0 {
 								uint qp = qlist.getCount();
 								if(qp) do {
@@ -610,7 +610,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 								used_qk_list.addUnique(qk_id);
 							}
 						}
-						// } @v10.0.0 
+						// } @v10.0.0
 						/*@v10.0.0 {
 							uint qp = qlist.getCount();
 							if(qp) do {
@@ -651,7 +651,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					LAssocArray scard_quot_list;
 					AsyncCashSCardsIterator acci(nodeID, updOnly, &dls, sinceDlsID);
 					for(PPID ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &scs_rec) > 0;) {
-						const int scs_type = scs_rec.GetType();
+						// @v10.3.0 (never used) const int scs_type = scs_rec.GetType();
 						AsyncCashSCardInfo acci_item;
 						if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
 							SXml::WNode w_s(wb.P_Xw, "scardseries");
@@ -1287,7 +1287,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 				// @v10.1.5 {
 				if(cn_rec.Flags & CASHF_SYNC && cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS)
 					glbs_flags |= CCheckCore::gglfSkipUnprintedChecks;
-				// } @v10.1.5 
+				// } @v10.1.5
 				THROW(WritePosNode(rB, "pos", cn_rec));
 			}
 		}
@@ -1359,13 +1359,13 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 									// @v10.1.12 {
 									if(!is_there_codes)
 										w_w.PutInner("name", CorrectAndEncText(temp_buf = goods_rec.Name));
-									// } @v10.1.12 
+									// } @v10.1.12
 								}
                             }
 							// @v10.0.08 {
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextSerial, temp_buf) > 0 && temp_buf.NotEmpty())
 								w_ccl.PutInner("serial", CorrectAndEncText(temp_buf));
-							// } @v10.0.08 
+							// } @v10.0.08
                             w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
                             w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
                             if(item_discount != 0.0)
@@ -1779,7 +1779,7 @@ int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::Wri
 		temp_buf.Z().Cat(rB.FileDtm, DATF_ISO8601|DATF_CENTURY, 0);
 		w_s.PutInner("timestamp", temp_buf);
 	}
-	// } @v9.9.12 
+	// } @v9.9.12
 	CATCHZOK
 	return ok;
 }
@@ -3102,7 +3102,7 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint ref
 		}
 		THROW(GObj.PutQuotList(native_id, &quot_list, 1));
 	}
-	// } @v10.0.0 
+	// } @v10.0.0
 	ASSIGN_PTR(pID, native_id);
 	CATCHZOK
 	return ok;
@@ -3196,7 +3196,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				if(GObj.Fetch(goods_id, &ex_goods_rec) > 0)
 					pretend_id = ex_goods_rec.ID;
 			} while(!pretend_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, goods_id, &goods_id, 0) > 0);
-			// } @v10.2.1 
+			// } @v10.2.1
 		}
 		for(uint j = 0; j < RdB.GoodsCodeList.getCount(); j++) {
 			const GoodsCode & r_c = RdB.GoodsCodeList.at(j);
@@ -3284,7 +3284,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				//
 				// @v10.2.4 Специальный случай: товар имеет более одного кода по статье rP.SrcArID в числе которых наш.
 				// В этом случае мы отбираем наш код у этого товара и создаем новую товарную позицию. В противном
-				// случае возможны негативные эффекты в виде невозможности правильно идентифицировать товар. 
+				// случае возможны негативные эффекты в виде невозможности правильно идентифицировать товар.
 				//
 				int    is_there_another_arcode = 0;
 				uint   my_arcode_pos = 0;
@@ -3937,7 +3937,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			const uint __count = RdB.GoodsBlkList.getCount();
 			int   is_there_alc = 0; // Если обнаружена ненулевая алкогольная крепость в каком-либо товаре, то !0
 			struct SurrGoodsTypeEntry {
-				SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags)
+				explicit SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags)
 				{
 				}
 				long  NativeID;
@@ -4206,7 +4206,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				; // @ok
 			}
 			else {
-				long   def_counter = 0;
+				// @v10.3.0 (never used) long   def_counter = 0;
 				def_dcard_ser_id = 0;
 				def_dcard_ser_name = "default";
 				while(!def_dcard_ser_id && scs_obj.SearchByName(def_dcard_ser_name, 0, &scs_rec) > 0) {
@@ -4402,7 +4402,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		// Акцепт кассовых сессий
 		//
 		for(uint i = 0; i < RdB.CSessBlkList.getCount(); i++) {
-			CSessionBlock & r_blk = RdB.CSessBlkList.at(i);
+			// @v10.3.0 (never used) CSessionBlock & r_blk = RdB.CSessBlkList.at(i);
 			uint   ref_pos = 0;
 			THROW_PP(RdB.SearchRef(obCSession, i, &ref_pos), PPERR_PPPP_INNERREFNF_CSESS);
 			for(uint ccidx = 0; ccidx < RdB.CcBlkList.getCount(); ccidx++) {
@@ -4648,7 +4648,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 				int   is_rec_ok = 1;
 				for(uint ssp = 0; ss.get(&ssp, temp_buf); fld_n++) {
 					if(fld_n == 0) {
-						if(!new_entry.FileUUID.FromStr(temp_buf.Strip())) 
+						if(!new_entry.FileUUID.FromStr(temp_buf.Strip()))
 							is_rec_ok = 0;
 					}
 					else if(fld_n == 1) {
@@ -4678,7 +4678,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	// @v10.3.0 (never used) Reference * p_ref = PPRef;
 	const char * p_base_name = "pppp";
 	const char * p_done_suffix = "-done";
 	SString temp_buf;
@@ -4749,7 +4749,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
 				ReadPosProtocolFileProcessedList(in_path, processed_file_list);
 			}
-			// } @v10.0.07 
+			// } @v10.0.07
 			//
 			S_GUID this_db_uuid;
 			SString this_db_symb;
@@ -4766,7 +4766,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				if(fep.Get(i, &fep_entry, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) { // @v10.0.02 60000-->6000
 					DestroyReadBlock();
 					PPID   my_cn_id = 0;
-					S_GUID  my_pos_node_uuid; 
+					S_GUID  my_pos_node_uuid;
 					int    pr = SaxParseFile(in_file_name, 1 /* preprocess */, BIN(rPib.Flags & rPib.fSilent));
 					THROW(pr);
 					if(pr > 0) {
@@ -4891,7 +4891,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									//
 									if(!my_pos_node_uuid.IsZero() && !RdB.SrcFileUUID.IsZero()) {
 										TSVector <PosProtocolFileProcessedEntry> local_processed_file_list;
-										ReadPosProtocolFileProcessedList(in_file_name, local_processed_file_list); 
+										ReadPosProtocolFileProcessedList(in_file_name, local_processed_file_list);
 										for(uint didx = 0; all_receipients_processed_file && didx < RdB.DestBlkList.getCount(); didx++) {
 											const RouteObjectBlock & r_dest = RdB.DestBlkList.at(didx);
 											RdB.GetRouteItem(r_dest, root_blk);
@@ -5308,7 +5308,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 	class PosInputProcessThread : public PPThread {
 	public:
 		struct InitBlock {
-			InitBlock(PPID posNodeID) : PosNodeID(posNodeID), ForcePeriodMs(0)
+			explicit InitBlock(PPID posNodeID) : PosNodeID(posNodeID), ForcePeriodMs(0)
 			{
 			}
 			SString DbSymb;
@@ -5317,7 +5317,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			PPID   PosNodeID;
 			uint   ForcePeriodMs; // Период форсированной проверки входящего каталога (ms)
 		};
-		SLAPI PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB), ProcessedFileTab(1024, 0)
+		explicit SLAPI PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB), ProcessedFileTab(1024, 0)
 		{
 			InitStartupSignal();
 		}
@@ -5365,7 +5365,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 					uint   local_force_period_ms = 0;
 					PPPosProtocol pppp;
 					DoProcess(pppp); // Первоначальная обработка входящих данных
-					DirChangeNotification * p_dcn = 0; // new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
+					// DirChangeNotification * p_dcn = 0; // new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
 					//THROW(p_dcn);
 					for(int stop = 0; !stop;) {
 						int    h_count = 0;

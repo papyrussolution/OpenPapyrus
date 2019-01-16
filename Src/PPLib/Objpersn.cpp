@@ -527,7 +527,7 @@ private:
 
 class ExtFldCfgDialog : public TDialog {
 public:
-	ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
+	explicit ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
 	{
 		disableCtrl(CTL_EXTFLDCFG_ID, !isNew);
 	}
@@ -667,7 +667,7 @@ private:
 
 class NewPersMarksFieldDialog : public TDialog {
 public:
-	NewPersMarksFieldDialog(int isNew) : TDialog(DLG_NEWCNTCF)
+	explicit NewPersMarksFieldDialog(int isNew) : TDialog(DLG_NEWCNTCF)
 	{
 	}
 	int setDTS(const PPPersonConfig::NewClientDetectionItem * pData)
@@ -2345,7 +2345,7 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 //
 class ReplPrsnDialog : public TDialog {
 public:
-	ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN), Addr(addr)
+	explicit ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN), Addr(addr)
 	{
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, 0, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, 0, 0, 0);
@@ -3446,7 +3446,7 @@ int SLAPI EditELink(PPELink * pLink); // @prototype(elinkdlg.cpp)
 
 class PersonDialogBase : public TDialog {
 public:
-	PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
+	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
 	{
 	}
 	void   SetupPhoneOnInit(const char * pPhone)
@@ -3464,7 +3464,7 @@ protected:
 
 class PersonDialog : public PersonDialogBase {
 public:
-	PersonDialog(int dlgID) : PersonDialogBase(dlgID), IsCashier(0)
+	explicit PersonDialog(int dlgID) : PersonDialogBase(dlgID), IsCashier(0)
 	{
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
 			enableCommand(cmPersonReg, 0);
@@ -5647,7 +5647,8 @@ int SLAPI PPObjPerson::EditRelationList(PPID id)
 
 int SLAPI PPObjPerson::AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PPID * pRelTypeID, int reverse)
 {
-	int    ok = -1, valid_data = 0, edit = 0;
+	int    ok = -1, valid_data = 0;
+	// @V10.3.0 (never used) int    edit = 0;
 	PersonLink pl_item;
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
@@ -5706,16 +5707,14 @@ int SLAPI PPObjPerson::EditRelation(PPID * pPrmrID, PPID * pScndID, PPID * pRelT
 	PersonLink pl_item;
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
-
 	pl_item.PrmrPersonID = DEREFPTRORZ(pPrmrID);
 	if(pScndID)
 		pl_item.ScndPersonList.add(*pScndID);
 	pl_item.LinkTypeID   = (pRelTypeID) ? *pRelTypeID : 0;
 	SETFLAG(pl_item.Flags, PersonLink::fLockPrmr, pl_item.PrmrPersonID);
 	pl_item.Flags |= PersonLink::fLockScndList;
-
 	if(pl_item.PrmrPersonID && pl_item.ScndPersonList.getSingle()) {
-		long   type_id = 0;
+		// @v10.3.0 (never used) long   type_id = 0;
 		LAssocArray rel_list;
 		THROW(GetPacket(pl_item.PrmrPersonID, &pack, 0) > 0);
 		rel_list = pack.GetRelList();
@@ -6018,7 +6017,7 @@ IMPL_OBJ_FETCH(PPObjPerson, PersonTbl::Rec, PersonCache)
 int FASTCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
 {
 	int    ok = 1;
-	int    create_ctl_grp = 0;
+	// @v10.3.0 (never used) int    create_ctl_grp = 0;
 	if(disableIfZeroPersonKind)
 		dlg->disableCtrl(ctlID, personKindID == 0);
 	//if(personKindID) {
@@ -6072,7 +6071,9 @@ SLAPI PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_P
 
 int SLAPI PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, ta = 0, is_new = 0;
+	int    ok = cmCancel;
+	// @v10.3.0 (never used) int    ta = 0;
+	int    is_new = 0;
 	PPPersonKind psnk;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSNKIND))));

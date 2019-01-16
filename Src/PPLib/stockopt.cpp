@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -77,7 +77,7 @@ PPStockOpt::~PPStockOpt()
 
 class StockOptCfgDialog : public TDialog {
 public:
-	StockOptCfgDialog(uint dlgId) : TDialog(dlgId)
+	explicit StockOptCfgDialog(uint dlgId) : TDialog(dlgId)
 	{
 	}
 	int    setDTS(PPStockOpt::Config * pData)

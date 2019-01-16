@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,7 @@
 //
 class BaseWtmToolDialog : public TDialog {
 public:
-	BaseWtmToolDialog(uint dlgID);
+	explicit BaseWtmToolDialog(uint dlgID);
 	int    setDTS(const TWhatmanToolArray::Item * pData);
 	int    getDTS(TWhatmanToolArray::Item * pData);
 private:
@@ -88,7 +88,7 @@ int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 //
 class WhatmanObjectDrawFigure : public TWhatmanObject {
 public:
-	WhatmanObjectDrawFigure(SDrawFigure * pFig = 0);
+	explicit WhatmanObjectDrawFigure(SDrawFigure * pFig = 0);
 	~WhatmanObjectDrawFigure();
 protected:
 	virtual TWhatmanObject * Dup() const;
@@ -96,7 +96,7 @@ protected:
 	virtual int Draw(TCanvas2 & rCanv);
 	virtual int HandleCommand(int cmd, void * pExt);
 protected:
-	WhatmanObjectDrawFigure(const char * pSymb);
+	explicit WhatmanObjectDrawFigure(const char * pSymb);
 	int    FASTCALL Copy(const WhatmanObjectDrawFigure & rS);
 
 	SDrawFigure * P_Fig;
@@ -510,7 +510,7 @@ private:
 
 IMPLEMENT_WTMOBJ_FACTORY(Processor, "@wtmo_processor");
 
-WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000), PrcID(0), BusyStatus(0), 
+WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000), PrcID(0), BusyStatus(0),
 	AdvCookie(0), BusyDtm(ZERODATETIME)
 {
 	Options |= oSelectable;

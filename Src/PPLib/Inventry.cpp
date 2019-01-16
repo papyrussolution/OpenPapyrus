@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 // Инвентаризация //
@@ -553,7 +553,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
 				// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
-				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11 
+				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11
 				if(r_inv_tbl.SearchIdentical(id, p_ti->GoodsID, serial, &inv_rec) > 0) {
 					inv_rec.WrOffPrice = inv_rec.StockPrice;
 					if(inv_rec.Flags & (INVENTF_WRITEDOFF|INVENTF_GENWROFFLINE)) {
@@ -692,7 +692,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
 					// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
-					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11 
+					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11
 					if(r_inv_tbl.SearchIdentical(bill_id, p_ti->GoodsID, serial, &rec) > 0) {
 						uint   pos = 0;
 						double t_qtty = fabs(p_ti->Qtty());
@@ -996,11 +996,8 @@ int SLAPI PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 //
 class InventoryConversion {
 public:
-	SLAPI  InventoryConversion(PPObjBill * pBObj) : R_Tbl(pBObj->GetInvT())
+	explicit SLAPI InventoryConversion(PPObjBill * pBObj) : R_Tbl(pBObj->GetInvT()), invID(0), P_BObj(pBObj), transaction(0)
 	{
-		invID  = 0;
-		P_BObj = pBObj;
-		transaction = 0;
 	}
 	SLAPI  ~InventoryConversion()
 	{
@@ -1017,13 +1014,11 @@ private:
 	PPObjBill * P_BObj;
 	PPObjGoods  GObj;
 	InventoryCore & R_Tbl;
-
 	PPInventoryOpEx invOpEx;
 	PPID          invID;
 	PPBillPacket  invPack;
 	PPBillPacket  wrDnPack;
 	PPBillPacket  wrUpPack;
-
 	int transaction;
 };
 
@@ -1216,7 +1211,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 										rows.clear();
 										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, ir.Serial)); // @v8.4.4 CILTIF_INHLOTTAGS
 										// @v9.8.11 THROW(wrUpPack.ClbL.AddNumber(&rows, clb));
-										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb)); // @v9.8.11 
+										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb)); // @v9.8.11
 										{
 											double amt = 0.0, t_qtty = 0.0;
 											for(uint rp = 0; rp < rows.getCount(); rp++) {

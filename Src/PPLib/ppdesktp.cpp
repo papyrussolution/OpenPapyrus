@@ -243,7 +243,7 @@ int PPDesktopAssocCmdPool::GetByCode(const char * pCode, uint * pPos, PPDesktopA
 		for(uint i = 0; !ok && i < L.getCount(); i++) {
 			const Item & r_item = L.at(i);
 			P.getnz(r_item.CodeP, temp_buf);
-			const size_t code_len2 = temp_buf.Len();
+			// @v10.3.0 (never used) const size_t code_len2 = temp_buf.Len();
 			if(r_item.Flags & PPDesktopAssocCmd::fSpecCodePrefx) {
 				if(temp_buf.CmpL(pCode, 1) == 0) {
 					if(code_len > temp_buf.Len())
@@ -1329,7 +1329,7 @@ int PPDesktop::WaitCommand()
 {
 	class WaitCmdDialog : public TDialog {
 	public:
-		WaitCmdDialog(long desktopID) : TDialog(DLG_WAITCMD), __Locking(0)
+		explicit WaitCmdDialog(long desktopID) : TDialog(DLG_WAITCMD), __Locking(0)
 		{
 			if(desktopID)
 				AssocList.ReadFromProp(desktopID);

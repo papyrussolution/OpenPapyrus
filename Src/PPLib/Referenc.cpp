@@ -1281,7 +1281,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = 1, r;
-	size_t sz = 1024;
+	// @v10.3.0 (never used) size_t sz = 1024;
 	ulong  chksum = 0;
 	ObjRestrictArray temp_orlist;
 
@@ -1357,8 +1357,8 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 		P_LocList = 0;
 		P_CfgList = 0;
 		P_AccList = 0;
-		P_PosList = 0; // @v8.9.1
-		P_QkList = 0; // @v8.9.1
+		P_PosList = 0;
+		P_QkList = 0;
 	}
 	CATCHZOK
 	return ok;

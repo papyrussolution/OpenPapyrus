@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -483,7 +483,7 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 					else {
 						if(zero_parent_id == 0) {
 							grp_rec.Kind = PPGDSK_GROUP;
-							sprintf(grp_rec.Name, "Group Stub #%05ld", 0);
+							sprintf(grp_rec.Name, "Group Stub #%05ld", 0L);
 							P_Tbl->copyBufFrom(&grp_rec);
 							THROW_DB(P_Tbl->insertRec(0, &zero_parent_id));
 						}
@@ -1503,7 +1503,7 @@ int SLAPI PPObjTransport::Browse(void * extraPtr)
 
 class TransportDialog : public TDialog {
 public:
-	TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
+	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
 	}
@@ -1525,13 +1525,13 @@ public:
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.CountryID, OLW_CANINSERT);
 		// @v10.2.0 {
 		if(Data.TrType == PPTRTYP_CAR) {
-			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.VanType); 
+			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.VanType);
 		}
 		// } @v10.2.0
 		// @v10.2.4 {
 		AddClusterAssoc(CTL_TRANSPORT_FLAGS, 0, GF_PASSIV);
 		SetClusterData(CTL_TRANSPORT_FLAGS, Data.Flags);
-		// } @v10.2.4 
+		// } @v10.2.4
 		LockAutoName = 0;
 		return 1;
 	}
@@ -1579,7 +1579,7 @@ private:
 			getCtrlData(CTLSEL_TRANSPORT_VANTYP, &temp_val);
 			Data.VanType = (int16)temp_val;
 		}
-		// } @v10.2.0 
+		// } @v10.2.0
 		Data.Capacity = (long)(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
 		Data.Flags = (int16)GetClusterData(CTL_TRANSPORT_FLAGS); // @v10.2.4
 	}
@@ -2029,7 +2029,7 @@ int SLAPI PPObjBrand::Browse(void * extraPtr)
 {
 	class BrandView : public ObjViewDialog {
 	public:
-		BrandView(PPObjBrand * pObj) : ObjViewDialog(DLG_BRANDVIEW, pObj, 0)
+		explicit BrandView(PPObjBrand * pObj) : ObjViewDialog(DLG_BRANDVIEW, pObj, 0)
 		{
 		}
 	private:
@@ -2656,7 +2656,7 @@ int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 //
 class SuprWareListDialog : public PPListDialog {
 public:
-	SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST), P_SuprWarePack(*pCompGdsPack)
+	explicit SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST), P_SuprWarePack(*pCompGdsPack)
 	{
 		updateList(-1);
 	}

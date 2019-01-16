@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -996,7 +996,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	{
 		class PrjTaskCrosstab : public Crosstab {
 		public:
-			SLAPI  PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
+			explicit SLAPI PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
 			{
 			}
 			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)

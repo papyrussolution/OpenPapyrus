@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Штатное расписание
 //
@@ -454,7 +454,8 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 				//
 				// Если запись не изменилась, то и суетиться не следует
 				//
-				int    was_updated = 0, was_list_updated = 0;
+				int    was_updated = 0;
+				// @v10.3.0 (never used) int    was_list_updated = 0;
 				if(memcmp(&org_rec, &pPack->Rec, sizeof(PersonPostTbl::Rec)) != 0) {
 					was_updated = 1;
 					//
@@ -487,7 +488,8 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 					StaffAmtList org_list;
 					THROW(ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
 					if(!org_list.IsEqual(pPack->Amounts)) {
-						was_updated = was_list_updated = 1;
+						was_updated = 1;
+						// @v10.3.0 (never used) was_list_updated = 1;
 						THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 					}
 				}
@@ -923,7 +925,7 @@ int SLAPI PPObjStaffList::EditPostAmounts(PPID id)
 
 class PersonPostDialog : public TDialog {
 public:
-	PersonPostDialog() : TDialog(DLG_PERSONPOST), Flags(0), PrevClosedVal(0)
+	PersonPostDialog() : TDialog(DLG_PERSONPOST), Flags(0), PrevClosedVal(0), FixedPost(0)
 	{
 		addGroup(GRP_DIV, new DivisionCtrlGroup(
 			CTLSEL_PERSONPOST_ORG, CTLSEL_PERSONPOST_DIV, CTLSEL_PERSONPOST_POST, 0));

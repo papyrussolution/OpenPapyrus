@@ -1324,7 +1324,7 @@ public:
 	int    SLAPI getFlags(int seg = UNDEF) const;
 	int    SLAPI setFlags(int flags, int seg = UNDEF);
 	int    SLAPI containsField(int fldID, int * pSeg) const;
-	int    SLAPI compareKey(DBTable *, const void *, const void *) const;
+	int    SLAPI compareKey(const DBTable *, const void *, const void *) const;
 private:
 	void   SLAPI destroy();
 	int    SLAPI reset();
@@ -2261,10 +2261,7 @@ public:
 	int    SLAPI GetDataPath(SString & rBuf) const;
 	int    SLAPI GetSysPath(SString & rBuf) const;
 	int    SLAPI GetDbUUID(S_GUID * pUuid) const;
-	int    SLAPI SetupProtectData(char * oldPw, char * newPw);
-	//
-	//
-	//
+	int    SLAPI SetupProtectData(const char * pOldPw, const char * pNewPw);
 	int    SLAPI CreateTableSpec(DBTable *);
 	int    SLAPI GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
 	int    SLAPI GetTableInfo(long tblID, DbTableStat * pStat);
@@ -2484,7 +2481,7 @@ private:
 		int    SLAPI OpenStream(int readOnly);
 		int    SLAPI CloseStream();
 		int    SLAPI MakeFileName(const char *, const char *, char *, size_t);
-		int    SLAPI WriteRecord(FILE *, BCopyData *);
+		int    SLAPI WriteRecord(FILE *, const BCopyData *);
 		int    SLAPI ReadRecord(FILE *, BCopyData *);
 		char   FileName[MAXPATH];
 		FILE * Stream;
@@ -2502,13 +2499,13 @@ private:
 	int    SLAPI ReadCopyData(FILE *, BCopyData *);
 	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
 	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
-	int    SLAPI GetCopyParams(BCopyData *, DBBackup::CopyParams *);
+	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
 	int    SLAPI DoCopy(DBBackup::CopyParams *, long, BackupLogFunc, long initParam);
 	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, long initParam);
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);
 	static int   CopyProgressProc(const SDataMoveProgressInfo *);
-	int    SLAPI CheckCopy(BCopyData * pData, CopyParams * pCP, BackupLogFunc fnLog, long initParam);
+	int    SLAPI CheckCopy(BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam);
 	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, long initParam);
 
 	int64  TotalCopySize;
@@ -2562,7 +2559,6 @@ public:
 	};
 	static const char * FASTCALL GetToken(uint tok);
 	static SString & FASTCALL PrefixName(const char * pName, int prefix, SString & rBuf, int cat = 0);
-
 	Generator_SQL(SqlServerType sqlst, long flags);
 	operator SString & () { return Buf; }
 	int    CreateTable(const DBTable & rTbl, const char * pFileName, int indent = 1);
@@ -2570,7 +2566,6 @@ public:
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);
 	int    GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SString & rBuf);
-
 	Generator_SQL & Reset();
 	Generator_SQL & Cr();
 	Generator_SQL & FASTCALL Tok(int);
@@ -2591,16 +2586,14 @@ public:
 	Generator_SQL & FASTCALL Text(const char * pName);
 	Generator_SQL & FASTCALL QText(const char * pName);
 	Generator_SQL & FASTCALL Param(const char * pParam);
-	Generator_SQL & FASTCALL Select(BNFieldList * pFldList);
+	Generator_SQL & FASTCALL Select(const BNFieldList * pFldList);
 	Generator_SQL & From(const char * pTable, const char * pAlias = 0);
 	Generator_SQL & Eq(const char * pFldName, const char * pVal);
 	Generator_SQL & Eq(const char * pFldName, long val);
 	Generator_SQL & Func(int tok, const char * pArg);
-
 	Generator_SQL & HintBegin();
 	Generator_SQL & HintEnd();
 	Generator_SQL & HintIndex(const DBTable & rTbl, const char * pAlias, uint idxN, int desc);
-
 	SString & GetType(TYPEID typ, SString & rBuf);
 private:
 	static const char * P_Tokens[];
@@ -3479,9 +3472,9 @@ public:
 	int    SLAPI operator++();
 	int    SLAPI operator--();
 	void   SLAPI makeRange(void *, __range &);
-	void   SLAPI rangeToBuf(__range &, void *, int);
+	void   SLAPI rangeToBuf(const __range &, void *, int);
 	int    SLAPI disjunction(void *);                         // OR
-	int    SLAPI conjunction(__range & /*dest*/, __range &, int *, int *);
+	int    SLAPI conjunction(__range & /*dest*/, const __range &, int *, int *);
 	int    SLAPI conjunction(void *, int assign, int *, int *); // AND
 	int    SLAPI link(int logic, KR);
 	int    SLAPI rating();
@@ -3508,7 +3501,7 @@ public:
 
 int FASTCALL compare(KR, KR);
 
-DBQuery & FASTCALL selectbycell(int count, DBDataCell *);
+DBQuery & FASTCALL selectbycell(int count, const DBDataCell *);
 DBQuery & FASTCALL select(const DBFieldList &);
 DBQuery & SLAPIV select(DBField,...);
 DBQuery & SLAPI  selectAll();
@@ -4215,7 +4208,7 @@ public:
 
 	BDbTable(const Config & rCfg, BDbDatabase * pDb);
 	BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdxHandle, BDbTable * pMainTbl);
-	~BDbTable();
+	virtual ~BDbTable();
 	int    operator ! () const;
 	operator DB * ();
 	operator DB_TXN * ();
@@ -4234,7 +4227,6 @@ public:
 	//
 	int    Open(const char * pFileName, int flags);
 	int    Close();
-
 	int    Search(Buffer & rKey, Buffer & rData);
 	int    SearchPair(Buffer & rKey, Buffer & rData);
 	int    Search(int idx, Buffer & rKey, Buffer & rData);

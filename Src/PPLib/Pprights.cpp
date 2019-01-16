@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Права доступа
@@ -127,7 +127,7 @@ int RightsDialog::setDTS(const PPRights * pRt)
 int RightsDialog::getDTS(PPRights * pRt)
 {
 	int    ok = 1;
-	long   rt_desk = 0;
+	// @v10.3.0 (never used) long   rt_desk = 0;
 	PPAccessRestriction accsr;
 	MEMSZERO(accsr);
 	getCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
@@ -283,7 +283,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 {
 	class RtOpItemDialog : public TDialog {
 	public:
-		RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI), P_List(pList)
+		explicit RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI), P_List(pList)
 		{
 		}
 		int setDTS(const ObjRestrictItem * pData)
@@ -1026,7 +1026,7 @@ int SLAPI EditRightsDialog(PPRights & rights)
 //
 class SecurCollection : public SCollection {
 public:
-	SLAPI  SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
+	explicit SLAPI  SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
 	{
 	}
 	SLAPI  SecurCollection(const SecurCollection & src) : SCollection(src)
@@ -1250,7 +1250,7 @@ public:
 		cConfig,
 		cAccessibleAcc
 	};
-	FastEditRightsDlg(int readOnly);
+	explicit FastEditRightsDlg(int readOnly);
 	int    setDTS(const SecurCollection *);
 	int    getDTS(SecurCollection *);
 private:

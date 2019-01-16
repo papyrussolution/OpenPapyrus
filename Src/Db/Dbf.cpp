@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -837,7 +837,7 @@ int FASTCALL DbfTable::getRec(DbfRecord * pRec)
 	return ok;
 }
 
-int FASTCALL DbfTable::updateRec(DbfRecord * pRec)
+int FASTCALL DbfTable::updateRec(const DbfRecord * pRec)
 {
 	int    ok = 1;
 	long   p = ftell(Stream);
@@ -860,7 +860,7 @@ int SLAPI DbfTable::deleteRec()
 	return ok;
 }
 
-int FASTCALL DbfTable::appendRec(DbfRecord * pRec)
+int FASTCALL DbfTable::appendRec(const DbfRecord * pRec)
 {
 	int    ok = 1;
 	long   p = Head.HeadSize + Head.NumRecs * Head.RecSize;

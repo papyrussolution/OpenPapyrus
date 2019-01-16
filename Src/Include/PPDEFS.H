@@ -1787,6 +1787,8 @@
 #define cmFilter                 1166 // @v9.7.10
 #define cmExtParams              1167 // @v9.8.11 команда стала общей (ранее принадлежала только диалогу фильтра товаров)
 #define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
+#define cmCopyToClipboard        1169
+#define cmCopyToClipboardAll     1170
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10429,8 +10431,6 @@
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334
-	#define cmCopyToClipboard         101
-	#define cmCopyToClipboardAll      102
 	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
 #define DLG_GSFILT                1335
@@ -10569,6 +10569,9 @@
 	#define CTLSEL_TSSA_TS            (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_FLAGS            (3 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_CLOSEMODE        (4 + WINDOWS_ID_BIAS)
+#define DLG_LOTXCCKLIST           1354
+	#define CTL_LOTXCCKLIST_LIST      (1 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCCKLIST_INFO      (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -141,7 +141,7 @@ public:
 		grpGoods,
 		grpPallet
 	};
-	LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
+	explicit LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
 	{
 		addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRANSF_LOC, CTL_LOCTRANSF_LOCCODE, 0, 0, 0, LocationCtrlGroup::fWarehouseCell, 0));
 		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRANSF_GGRP, CTLSEL_LOCTRANSF_GOODS));

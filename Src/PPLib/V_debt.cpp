@@ -2227,18 +2227,18 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_VIEWBILLS:   ok = -1; Detail(&hdr, dmDebtOnline); break;
-			case PPVCMD_EDITARTICLE: 
+			case PPVCMD_EDITARTICLE:
 				if(Filt.Sgb.S2.Sgp == sgpNone)
-					ok = hdr.ArID ? ViewArticleInfo(&hdr, 0) : -1; 
+					ok = hdr.ArID ? ViewArticleInfo(&hdr, 0) : -1;
 				else
 					ok = -1;
 				break;
-			case PPVCMD_EDITPERSON:  
+			case PPVCMD_EDITPERSON:
 				if(hdr.ArID) {
 					if(Filt.Sgb.S2.Sgp == sgpNone)
-						ok = ViewArticleInfo(&hdr, 1); 
+						ok = ViewArticleInfo(&hdr, 1);
 					else if(Filt.Sgb.S2.Sgp > sgpFirstRelation)
-						ok = ViewArticleInfo(&hdr, 2); 
+						ok = ViewArticleInfo(&hdr, 2);
 				}
 				else
 					ok = -1;
@@ -3307,7 +3307,7 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 {
 	class DebtRateFiltDialog : public TDialog {
 	public:
-		DebtRateFiltDialog(int isThereDebtRateLic) : TDialog(DLG_DEBTRATE), IsThereDebtRateLic(isThereDebtRateLic)
+		explicit DebtRateFiltDialog(int isThereDebtRateLic) : TDialog(DLG_DEBTRATE), IsThereDebtRateLic(isThereDebtRateLic)
 		{
 		}
 		int setDTS(const PrcssrDebtRate::Param * pData)
@@ -3810,7 +3810,7 @@ int SLAPI PrcssrDebtRate::Run()
 			DateRange period;
 			period = Cfg.Period;
 			period.Actualize(ZERODATE);
-			// } @v9.8.12 
+			// } @v9.8.12
 			THROW(op_obj.GetPayableOpList(P.AccSheetID, &op_list));
 			THROW(ArObj.P_Tbl->GetListBySheet(P.AccSheetID, &ar_list, 0));
 			for(i = 0; i < ar_list.getCount(); i++) {

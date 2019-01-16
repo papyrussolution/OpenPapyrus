@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -30,7 +30,7 @@ union BNKeyCell { // @flat
 //
 // BNKey implementation
 //
-#define SEG(i)   ((BNKeyCell *)data)[i+1].s
+#define SEG(i)   ((BNKeyCell *)data)[(i)+1].s
 #define HEAD     ((BNKeyCell *)data)[0].h
 #define NUMCELLS (data ? (HEAD.numSeg + 1) : 0)
 #define DATALEN  (NUMCELLS * sizeof(BNKeyCell))
@@ -515,7 +515,7 @@ int FASTCALL BNKeyList::compareKey(int key, const void * k1, const void * k2) co
 	return getKey(key).compareKey(table(), k1, k2);
 }
 
-int SLAPI BNKey::compareKey(DBTable * tbl, const void * k1, const void * k2) const
+int SLAPI BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k2) const
 {
 	int    ns = HEAD.numSeg;
 	uint   ofs = 0;

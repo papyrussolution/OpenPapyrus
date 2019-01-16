@@ -26,6 +26,9 @@ struct _PaymentEntry {
 //
 // класс используется только для перечисления оплат
 struct PaymBillFilt {
+	PaymBillFilt() : LinkBillID(0), LinkOpID(0), Kind(0)
+	{
+	}
 	PPID   LinkBillID;
 	PPID   LinkOpID;
 	int    Kind;
@@ -1503,7 +1506,8 @@ int SLAPI PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, P
 	const  LDATE current_date = getcurdate_();
 	const  int by_links = 0;
 	uint   i;
-	double paym = 0.0, amt = 0.0;
+	double paym = 0.0;
+	// @v10.3.0 (never used) double amt = 0.0;
 	PPID   single_op = pOpList ? pOpList->getSingle() : 0L;
 	PayableBillListItem * p_item;
 	PayableBillList tmp_list;

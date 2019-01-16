@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -132,8 +132,7 @@ void FASTCALL DbThreadLocalArea::InitErrFileName(const char * pFileName)
 {
 	if(LastBtrErr && pFileName) {
 		SETIFZ(P_StFileName, new char[MAXPATH]);
-		if(P_StFileName)
-			strnzcpy(P_StFileName, pFileName, MAXPATH);
+		strnzcpy(P_StFileName, pFileName, MAXPATH);
 	}
 }
 

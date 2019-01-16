@@ -1254,6 +1254,7 @@ BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdx
 	ENDCATCH
 }
 
+// virtual
 BDbTable::~BDbTable()
 {
 	Close();

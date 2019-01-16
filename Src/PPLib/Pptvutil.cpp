@@ -8,7 +8,7 @@
 
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
-ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow 
+ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow
 
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView) // @v9.0.4 TView-->TWindow
 {
@@ -2017,8 +2017,8 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	SString temp_buf;
 	SString reg_key_buf;
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
-	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1 
-	StringSet ss_ris; // @v10.2.1 
+	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1
+	StringSet ss_ris; // @v10.2.1
 	file_name[0] = 0;
 	pDlg->getCtrlData(InputCtlId, file_name);
 	SOemToChar(file_name);
@@ -2054,7 +2054,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 					}
 				}
 			}
-			// } @v10.2.1 
+			// } @v10.2.1
 		}
 		if(!InitDir.NotEmptyS())
 			setInitPath(file_name);
@@ -2071,7 +2071,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 			// @v10.2.1 {
 			(temp_buf = InitDir).Transf(CTRANSF_OUTER_TO_UTF8);
 			ris.CheckIn(temp_buf);
-			// } @v10.2.1 
+			// } @v10.2.1
 		}
 		if(Flags & fbcgfPath) {
 			if(sofn.nFileExtension != 0)
@@ -3363,7 +3363,7 @@ int ObjTagSelExtra::Search(long id, SString & rBuf)
 //
 #define MIN_PHONE_LEN 5
 
-PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_ExtraBlock(0, 0, 0, 0, 2), 
+PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_ExtraBlock(0, 0, 0, 0, 2),
 	AccSheetID(accSheetID), PersonKindID(personKindID), SrchRegTypeID(0)
 {
 	{
@@ -3636,7 +3636,7 @@ PersonCtrlGroup::Rec::Rec() : PsnKindID(0), PersonID(0), SCardID(0), Flags(0)
 {
 }
 
-PersonCtrlGroup::PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, PPID psnKindID, long flags) : 
+PersonCtrlGroup::PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, PPID psnKindID, long flags) :
 	CtrlGroup(), Flags(flags), Ctlsel(ctlsel), CtlSCardCode(ctlSCardCode), CtlAnonym(0)
 {
 	Data.PsnKindID = psnKindID;
@@ -3938,7 +3938,7 @@ void PersonListCtrlGroup::Rec::Init(PPID psnKindID, const PPIDArray * pPersonLis
 		List.freeAll();
 }
 
-PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint cmPsnList, long flags) : 
+PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint cmPsnList, long flags) :
 	CtrlGroup(), Ctlsel(ctlsel), CtlselPsnKind(ctlSelPsnKind), CmPsnList(cmPsnList), Flags(flags)
 {
 }
@@ -4952,7 +4952,7 @@ ResolveGoodsItemList & FASTCALL ResolveGoodsItemList::operator = (const PPIDArra
 
 class ResolveGoodsDialog : public PPListDialog {
 public:
-	ResolveGoodsDialog(int flags) : 
+	explicit ResolveGoodsDialog(int flags) :
 		PPListDialog((flags & (RESOLVEGF_SHOWRESOLVED|RESOLVEGF_SHOWEXTDLG)) ? DLG_SUBSTGL : DLG_LBXSEL, CTL_LBXSEL_LIST), Flags(flags), GoodsGrpID(0)
 	{
 		SString subtitle;
@@ -5234,7 +5234,7 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 {
 	class ImageInfoDialog : public TDialog {
 	public:
-		ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
+		explicit ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
 		{
 			if(IsSimple) {
 				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
@@ -6149,7 +6149,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 {
 	class EmailToBlockDialog : public TDialog {
 	public:
-		EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO), Flags(0)
+		explicit EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO), Flags(0)
 		{
 			addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
 		}
@@ -6884,7 +6884,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 {
 	class OpenEditFileDialog : public TDialog {
 	public:
-		OpenEditFileDialog(RecentItemsStorage * pRis) : TDialog(DLG_OPENEDFILE), FileID(0), P_Ris(pRis)
+		explicit OpenEditFileDialog(RecentItemsStorage * pRis) : TDialog(DLG_OPENEDFILE), FileID(0), P_Ris(pRis)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_OPENEDFILE_SELECT, CTL_OPENEDFILE_SELECT, 1, 0,
 				PPTXT_FILPAT_PPYTEXT, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
@@ -6898,7 +6898,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 			// @v10.2.0 {
 			if(FileName.Empty() && !FileID)
 				getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
-			// } @v10.2.0 
+			// } @v10.2.0
 			if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {
 				SString db_path, log_path;
 				PPGetPath(PPPATH_LOG, log_path);

@@ -616,7 +616,7 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 {
 	class SelectObjTagTypeDialog : public TDialog {
 	public:
-		SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP), P_ObjTypeList(0)
+		explicit SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP), P_ObjTypeList(0)
 		{
 			RVALUEPTR(Filt, pObjTagF);
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
@@ -1016,7 +1016,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 {
 	class ObjTagDialog : public TDialog {
 	public:
-		ObjTagDialog(uint rezID) : TDialog(rezID)
+		explicit ObjTagDialog(uint rezID) : TDialog(rezID)
 		{
 		}
 		int    setDTS(PPObjTagPacket * pData)
@@ -1114,7 +1114,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 		ok = -1;
 	}
 	else {
-		int    tagtype = 0;
+		// @v10.3.0 (never used) int    tagtype = 0;
 		ObjTagFilt ot_filt;
 		InitFilt(NZOR(extraPtr, ExtraPtr), ot_filt);
 		PPObjTagPacket pack;
@@ -1664,7 +1664,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 class TagFiltDialog : public PPListDialog {
 public:
-	TagFiltDialog(PPID objType) : PPListDialog(DLG_TAGFLT, CTL_TAGFLT_LIST), ObjType(objType)
+	explicit TagFiltDialog(PPID objType) : PPListDialog(DLG_TAGFLT, CTL_TAGFLT_LIST), ObjType(objType)
 	{
 		SString temp_buf;
 		GetObjectTitle(ObjType, temp_buf);
@@ -1720,14 +1720,12 @@ private:
 };
 
 struct SelTagDialogData {
-	SLAPI  SelTagDialogData(StrAssocArray::Item * pItem = 0)
+	explicit SLAPI  SelTagDialogData(StrAssocArray::Item * pItem = 0) : Id(0)
 	{
 		if(pItem) {
 			Id = pItem->Id;
 			Txt = pItem->Txt;
 		}
-		else
-			Id = 0;
 	}
 	long   Id;
 	SString Txt;
@@ -2447,7 +2445,7 @@ public:
 		const PPIDArray * P_AllowedTags;
 		int    UpdateMode;
 	};
-	TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
+	explicit TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
 	{
 		if(P_Box)
 			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));

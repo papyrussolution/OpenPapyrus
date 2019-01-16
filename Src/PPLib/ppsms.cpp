@@ -283,7 +283,7 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 //
 //
 //
-SmsClient::StSMResults::StSMResults() : BindResult(NO_STATUS), UnbindResult(NO_STATUS), SubmitResult(NO_STATUS), 
+SmsClient::StSMResults::StSMResults() : BindResult(NO_STATUS), UnbindResult(NO_STATUS), SubmitResult(NO_STATUS),
 	DataResult(NO_STATUS), EnquireLinkResult(NO_STATUS), GenericNackResult(NO_STATUS)
 {
 };
@@ -558,7 +558,7 @@ private:
 	uint   AutoSms;
 };
 
-SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr) : 
+SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr) :
 	TDialog(DLG_SENDSMS), AccID(accID), SplitMsg(0), AutoSms(0), ObjTypeId(0)
 {
 	PrsnIdArr.Copy(rPrsnIdArr);
@@ -573,7 +573,7 @@ SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArr
 	DrawList();
 }
 
-SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr) : 
+SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr) :
 	TDialog(/*DLG_SENDSMS*/0), AccID(accID), SplitMsg(0), AutoSms(1), ObjTypeId(objTypeId)
 {
 	PrsnIdArr.Copy(rPrsnIdArr);
@@ -1394,7 +1394,7 @@ void SmsClient::StSubmitSMParam::Clear()
 }
 
 SmsClient::SmsClient(PPLogger * pLogger) : P_UhttCli(0), P_Logger(pLogger), ClientSocket(INVALID_SOCKET), ConnectionState(SMPP_SOCKET_DISCONNECTED),
-	ResendErrLenMsg(0), SequenceNumber(0), ReSendQueueMsgTryNums(0), MessageCount(0), AddStatusCodeNum(0), AddErrorSubmitNum(0), 
+	ResendErrLenMsg(0), SequenceNumber(0), ReSendQueueMsgTryNums(0), MessageCount(0), AddStatusCodeNum(0), AddErrorSubmitNum(0),
 	UndeliverableMessages(0), StartTime(getcurdatetime_())
 {
 	// @v8.5.4 RecvTimeout = WAIT_PACKET_RESPONSE;
@@ -1724,8 +1724,8 @@ void SmsClient::DisconnectSocket()
 {
 	// @v10.2.8 {
 	ClientSocket.Disconnect();
-	ConnectionState = SMPP_SOCKET_DISCONNECTED; 
-	// } @v10.2.8 
+	ConnectionState = SMPP_SOCKET_DISCONNECTED;
+	// } @v10.2.8
 	/* @v10.2.8 if(ClientSocket != INVALID_SOCKET) {
 		ConnectionState = SMPP_SOCKET_DISCONNECTED;
 		shutdown(ClientSocket, 2);
@@ -2667,7 +2667,7 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 {
 	class VerifyPhoneBySmsDialog : public TDialog {
 	public:
-		VerifyPhoneBySmsDialog(int checkCodeInputOnly) : TDialog(DLG_VERIFMPHN), CheckCodeInputOnly(checkCodeInputOnly)
+		explicit VerifyPhoneBySmsDialog(int checkCodeInputOnly) : TDialog(DLG_VERIFMPHN), CheckCodeInputOnly(checkCodeInputOnly)
 		{
 		}
 		int setDTS(const VerifyPhoneNumberBySmsParam * pData)

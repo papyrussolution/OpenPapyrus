@@ -1,5 +1,5 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -94,7 +94,7 @@ Generator_SQL & Generator_SQL::Dot()
 	return *this;
 }
 
-Generator_SQL & FASTCALL Generator_SQL::Select(BNFieldList * pFldList)
+Generator_SQL & FASTCALL Generator_SQL::Select(const BNFieldList * pFldList)
 {
 	Tok(Generator_SQL::tokSelect).Sp();
 	if(pFldList) {

@@ -2088,7 +2088,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	int    unchg = 0;
 	int    items_unchg = 0;
 	int    items_components_updated = 0; // !0 если были добавлены, удалены или изменены товары в строках структуры (изменения остальных атрибутов здесь не важны)
-	int    action = 0;
+	// @v10.3.0 (never used) int    action = 0;
 	int    cleared = 0;
 	{
 		PPTransaction tra(use_ta);
@@ -2152,7 +2152,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 							items_components_updated = 1;
 					}
 				}
-				// } @v10.2.1 
+				// } @v10.2.1
 			}
 			if(!items_unchg)
 				THROW(ref->Assc.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
@@ -2190,7 +2190,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				// @v10.2.1 {
 				if(items_components_updated)
 					DS.LogAction(PPACN_GSTRUCCUPD, Obj, *pID, 0, 0);
-				// } @v10.2.1 
+				// } @v10.2.1
 			}
 		}
 		THROW(tra.Commit());
@@ -2388,7 +2388,7 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 	if(msg == DBMSG_OBJDELETE)
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
-			SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1); 
+			SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1);
 			if(en.Next(&assc_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
 			}
@@ -2587,7 +2587,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;
-				double sum = 0.0;
+				// @v10.3.0 (never used) double sum = 0.0;
 				const  PPGoodsStruc::Ident ident(p_item->GoodsID);
 				gstruc.Init();
 				THROW(goods_obj.LoadGoodsStruc(&ident, &gstruc));
@@ -2983,7 +2983,7 @@ int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAsso
 	PPID   goods_id = 0;
 	SString msg_buf, fmt_buf;
 	double max_amt_restr = 0.0; // Суммовое ограничение последнего найденного подарка
-	double deficit = SMathConst::Max; // Минимальный дефицит (остаток, на который необходимо добрать товара чтобы получить подарок).
+	// @v10.3.0 (never used) double deficit = SMathConst::Max; // Минимальный дефицит (остаток, на который необходимо добрать товара чтобы получить подарок).
 	PPIDArray struc_list;
 	PPIDArray temp_list;
 	RAssocArray check_list;

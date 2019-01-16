@@ -495,7 +495,7 @@ int SLAPI PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok,
 	int    ok = -1, r2;
 	if(pClause->DirObj) {
 		PPID   cal_id = 0;
-		long   dt_val = 0;
+		// @v10.3.0 (never used) long   dt_val = 0;
 		CALDATE cdt;
 		StaffCalendarTbl::Rec entry;
 		PPObjID oi;
@@ -2276,7 +2276,7 @@ private:
 			Data.ScndSCardID = 0;
 		}
 		if(opID && PokObj.GetPacket(opID, &pok_pack) > 0) {
-			int    disable_taglist = 0;
+			// @v10.3.0 (never used) int    disable_taglist = 0;
 			PsnEventDialog::Param param;
 			PsnEventDialog::GetParam(opID, &param);
 			{

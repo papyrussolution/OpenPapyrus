@@ -620,7 +620,7 @@ int SLAPI PPObjBudget::Edit(PPID * pID, void * extraPtr)
 
 class BudgetItemDialog : public TDialog {
 public:
-	BudgetItemDialog(PPObjBudget * pObj) : TDialog(DLG_BUDGITEM), P_Obj(pObj)
+	explicit BudgetItemDialog(PPObjBudget * pObj) : TDialog(DLG_BUDGITEM), P_Obj(pObj)
 	{
 		SetupCalDate(CTLCAL_BUDGITEM_DT, CTL_BUDGITEM_DT);
 	}
@@ -1387,7 +1387,7 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 		{
 			class BudgetItemsCrosstab : public Crosstab {
 			public:
-				SLAPI  BudgetItemsCrosstab(PPViewBudget * pV) : Crosstab(), P_V(pV)
+				explicit SLAPI  BudgetItemsCrosstab(PPViewBudget * pV) : Crosstab(), P_V(pV)
 				{
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
@@ -1542,7 +1542,7 @@ DBQuery * SLAPI PPViewBudget::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 
 class BudgetTotalDialog : public TDialog {
 public:
-	BudgetTotalDialog(RPair * pData) : TDialog(DLG_BUDGTOTAL)
+	explicit BudgetTotalDialog(RPair * pData) : TDialog(DLG_BUDGTOTAL)
 	{
 		SString word;
 		if(!RVALUEPTR(Data, pData))

@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -23,7 +23,7 @@ SLAPI PPViewUserProfile::~PPViewUserProfile()
 
 class UserProfileFiltDialog : public TDialog {
 public:
-	UserProfileFiltDialog(TSArray <PPUserProfileCore::UfpDbEntry> & rUfpDbList) : TDialog(DLG_FLTUSRPROF), R_UfpDbList(rUfpDbList)
+	explicit UserProfileFiltDialog(TSArray <PPUserProfileCore::UfpDbEntry> & rUfpDbList) : TDialog(DLG_FLTUSRPROF), R_UfpDbList(rUfpDbList)
 	{
 		SetupCalCtrl(CTLCAL_FLTUSRPROF_PRD, this, CTL_FLTUSRPROF_PRD, 1);
 	}

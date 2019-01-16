@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -242,7 +242,7 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 class TSessionDialog : public TDialog {
 public:
-	TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0), P_BObj(BillObj)
+	explicit TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0), P_BObj(BillObj)
 	{
 		SetupCalDate(CTLCAL_TSESS_STDT, CTL_TSESS_STDT);
 		SetupCalDate(CTLCAL_TSESS_FNDT, CTL_TSESS_FNDT);
@@ -1472,7 +1472,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 
 class TSessLineDialog : public TDialog {
 public:
-	TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/), PctDis(0.0)
+	explicit TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/), PctDis(0.0)
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));

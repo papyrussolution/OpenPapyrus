@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -439,7 +439,7 @@ int SLAPI PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, lon
 					int    trcr = 0;
 					// @v10.0.01 {
 					if(flags & RTLPF_IGNCONDQUOTS) {
-						if(qk_rec.GetTimeRange(tmr) > 0 || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction()) 
+						if(qk_rec.GetTimeRange(tmr) > 0 || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction())
 							suited = 0;
 					}
 					else {
@@ -460,7 +460,7 @@ int SLAPI PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, lon
 								}
 							}
 						}
-					} // @v10.0.01 
+					} // @v10.0.01
 				}
 				else
 					suited = 0;
@@ -675,7 +675,7 @@ SLAPI QuotKindFilt::QuotKindFilt()
 int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 {
 	int    ok = -1, i;
-	SArray * p_ary = 0;
+	// @v10.3.0 (never used) SArray * p_ary = 0;
 	SString temp_buf;
 	PPIDArray id_list;
 	PPQuotKind qk_rec;
@@ -683,7 +683,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 	PPObjQuotKind::Special spc;
 	GetSpecialKinds(&spc, 1);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
-		/* @v9.8.3 
+		/* @v9.8.3
 		if(Search(spc.SupplDealID, &qk_rec) > 0) {
 			THROW_SL(rec_list.insert(&qk_rec));
 		}
@@ -700,7 +700,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 				THROW_SL(rec_list.insert(&qk_rec));
 			}
 		}
-		// } @v9.8.3 
+		// } @v9.8.3
 	}
 	else if(pFilt->Flags & (QuotKindFilt::fGoodsMatrix|QuotKindFilt::fGoodsMatrixRestrict)) {
 		const int is_matrix = BIN(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
@@ -833,7 +833,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 
 class QuotKindDialog : public TDialog {
 public:
-	QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND), P_Ref(pRef)
+	explicit QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND), P_Ref(pRef)
 	{
 	}
  	int    setDTS(const PPQuotKindPacket * pPack);

@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 // Виды персональных операций
 //
@@ -23,9 +23,8 @@ typedef TSArray <PoClause_Pre780> PoClauseArray_Pre780;
 //
 //
 //
-PoClause_Pre780::PoClause_Pre780()
+PoClause_Pre780::PoClause_Pre780() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
 {
-	THISZERO();
 }
 
 struct VerbObjAssoc {
@@ -1302,7 +1301,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 {
 	class PsnConstrDialog : public TDialog {
 	public:
-		PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC), Scnd(scnd)
+		explicit PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC), Scnd(scnd)
 		{
 		}
 		int    setDTS(PPPsnOpKindPacket::PsnConstr * pc)
@@ -1400,7 +1399,7 @@ int PsnOpDialog::editExtraVal() { DIALOG_PROC_BODYERR(PsnOpExVDialog, &Data); }
 //
 class PoVerbListDialog : public PPListDialog {
 public:
-	PoVerbListDialog(PPPsnOpKindPacket * p) : PPListDialog(DLG_POKACTL, CTL_POKACTL_LIST), pack(p), Data(pack->ClauseList)
+	explicit PoVerbListDialog(PPPsnOpKindPacket * p) : PPListDialog(DLG_POKACTL, CTL_POKACTL_LIST), pack(p), Data(pack->ClauseList)
 	{
 		updateList(-1);
 	}
@@ -1450,7 +1449,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 {
 	class PoClauseDialog : public TDialog {
 	public:
-		PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB), PokPack(pokPack)
+		explicit PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB), PokPack(pokPack)
 		{
 			disableCtrl(CTLSEL_POVERB_LINK, 1);
 		}

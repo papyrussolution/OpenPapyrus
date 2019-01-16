@@ -1960,7 +1960,7 @@ int SLAPI PPViewSCard::ChangeFlags()
 	return ok;
 }
 
-SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFilt) : 
+SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFilt) :
 	TDialog(DLG_FLTSCARDCHNG), P_View(pView), EditSCardFilt(editSCardFilt)
 {
 	enableCommand(cmSCardFilt, EditSCardFilt);
@@ -2102,7 +2102,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 				ZDELETE(p_uhtt_cli);
 				CALLPTRMEMB(pLog, LogLastError());
 			}
-		}		
+		}
 		{
 			SCardViewItem item;
 			for(InitIteration(); NextIteration(&item) > 0;) {
@@ -2163,13 +2163,13 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							sc_pack.Rec.PDis = 0;
 						else if(param.Discount > 0.0 && param.Discount <= 100.0) {
 							// @v10.2.9 sc_pack.Rec.PDis = (long)(R6(param.Discount) * 100.0);
-							sc_pack.Rec.PDis = fmul100i(param.Discount); // @v10.2.9 
+							sc_pack.Rec.PDis = fmul100i(param.Discount); // @v10.2.9
 						}
 						if(sc_pack.Rec.PDis != preserve_pdis) {
 							sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
 							upd = 1;
 							upd_discount = 1;
-						} 
+						}
 					}
 					// @v10.1.7 {
 					if(param.Flags & param.fAppendEan13CD) {
@@ -2187,7 +2187,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 							}
 						}
 					}
-					// } @v10.1.7 
+					// } @v10.1.7
 					if(param.Flags & param.fZeroExpiry && sc_pack.Rec.Expiry) {
 						sc_pack.Rec.Expiry = ZERODATE;
 						sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
@@ -2645,7 +2645,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 {
 	class SCardOpDialog : public TDialog {
 	public:
-		SCardOpDialog(int freezing) : TDialog(freezing ? DLG_SCARDOPFRZ : DLG_SCARDOP), Freezing(freezing), OrgExpiry(ZERODATE), SrcRest(0.0), DestRest(0.0)
+		explicit SCardOpDialog(int freezing) : TDialog(freezing ? DLG_SCARDOPFRZ : DLG_SCARDOP), Freezing(freezing), OrgExpiry(ZERODATE), SrcRest(0.0), DestRest(0.0)
 		{
 			OrgFreezingPeriod.Z();
 			SetupCalDate(CTLCAL_SCARDOP_DT, CTL_SCARDOP_DT);

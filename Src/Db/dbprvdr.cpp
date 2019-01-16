@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -551,7 +551,7 @@ int SLAPI DbProvider::GetProtectData(FILE * f, uint16 * pBuf)
 	return ok;
 }
 
-int SLAPI DbProvider::SetupProtectData(char * pOldPw, char * pNewPw)
+int SLAPI DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 {
 	int    ok = 1, exists = 1;
 	FILE * f = 0;

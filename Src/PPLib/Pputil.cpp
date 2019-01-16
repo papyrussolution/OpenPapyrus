@@ -2347,7 +2347,7 @@ int SLAPI WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =
 {
 	int    ok = 1, stop = 0;
 	if(pDir) {
-		int exists = 0;
+		// @v10.3.0 (never used) int exists = 0;
 		LDATETIME beg_dtm;
 		SString path;
 		DirChangeNotification * p_dc_notify = 0;
@@ -4002,7 +4002,7 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 		UHTTGETWORKBOOKCONTENTBYID_PROC func = (UHTTGETWORKBOOKCONTENTBYID_PROC)P_Lib->GetProcAddr("UhttGetWorkbookContentByID");
 		if(func) {
 			sess.Setup(UrlBase);
-			UhttDocumentPacket * p_result = func(sess, Token, id);
+			/* @v10.3.0 UhttDocumentPacket * */p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				if(!isempty(pFileName)) {
 					SFile f(pFileName, SFile::mWrite|SFile::mBinary);

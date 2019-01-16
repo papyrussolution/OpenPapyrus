@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -283,12 +283,12 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 		SString temp_fname;
 		if(P_StdRptFile) {
 			temp_fname = P_StdRptFile->GetFileName();
-			ZDELETE(P_StdRptFile); // release object before file removing 
+			ZDELETE(P_StdRptFile); // release object before file removing
 			SFile::Remove(temp_fname);
 		}
 		if(P_RptFile) {
 			temp_fname = P_RptFile->GetFileName();
-			ZDELETE(P_RptFile); // release object before file removing 
+			ZDELETE(P_RptFile); // release object before file removing
 			SFile::Remove(temp_fname);
 		}
 	}
@@ -357,7 +357,7 @@ IMPL_CMPFUNC(REPORTNAME, i1, i2)
 
 class ReportFiltDlg : public TDialog {
 public:
-	ReportFiltDlg(PPViewReport * pView) : TDialog(DLG_REPORTFLT)
+	explicit ReportFiltDlg(PPViewReport * pView) : TDialog(DLG_REPORTFLT)
 	{
 		PPWait(1);
 		ReportViewItemArray _list;
@@ -905,7 +905,7 @@ DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 
 class ReportDlg : public TDialog {
 public:
-	ReportDlg(PPViewReport * pView) : TDialog(DLG_REPORT)
+	explicit ReportDlg(PPViewReport * pView) : TDialog(DLG_REPORT)
 	{
 		SetupCalDate(CTLCAL_REPORT_MODIFDATE, CTL_REPORT_MODIFDATE);
 		PPWait(1);

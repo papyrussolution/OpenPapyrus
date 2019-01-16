@@ -624,7 +624,7 @@ public:
 	enum {
 		ctlgroupIBG = 1
 	};
-	Workbook2Dialog(uint dlgID) : TDialog(dlgID), DisableImage(0)
+	explicit Workbook2Dialog(uint dlgID) : TDialog(dlgID), DisableImage(0)
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_WORKBOOK_FILE, CTL_WORKBOOK_FILE, 1, 0, 0,
 			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
@@ -2398,7 +2398,7 @@ int SLAPI PPObjWorkbook::InterchangeUhtt()
 							logger.Log(msg_buf);
 							accept_err_occured = 1;
 						}
-						// } @v10.2.5 
+						// } @v10.2.5
 						ok = 1;
 					}
 					updated_list.sortAndUndup();

@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1191,7 +1191,7 @@ int DivGrpAsscListDialog::setupList()
 		else if(gg_obj.Fetch(p_item->GrpID, &gg_rec) > 0)
 			STRNSCPY(sub, gg_rec.Name);
 		else {
-			if(p_item->GrpID != 0)
+			// @v10.3.0 (always true) if(p_item->GrpID != 0)
 				PotentialyInvalid = 1;
 			ltoa(p_item->GrpID, sub, 10);
 		}
@@ -2130,7 +2130,7 @@ private:
 
 class AsyncCashNodeDialog : public TDialog {
 public:
-	AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA), P_Data(pData)
+	explicit AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA), P_Data(pData)
 	{
 		PPIniFile  ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &UseAltImport);

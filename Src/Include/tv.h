@@ -3882,7 +3882,7 @@ private:
 #define DLG_SHORTCUTS       4096
 #define CTL_SHORTCUTS_ITEMS 1014
 #define SHCTSTAB_MAXTEXTLEN 20
-#define SPEC_TITLEWND_ID    1200 + 100
+#define SPEC_TITLEWND_ID    (1200 + 100)
 
 class TProgram : public TGroup {
 public:

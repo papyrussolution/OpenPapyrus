@@ -980,7 +980,7 @@ int SLAPI Tddo::Helper_RecognizeMetaKeyword()
 				if(m) {
 					if(recogn_result == 200)
 						Scan.Incr(tp+3); // # + { + }
-					else 
+					else
 						Scan.Incr(tp+1); // #
 				}
 			}
@@ -1268,10 +1268,10 @@ static const Tddo2_OpInfo Tddo2_OpInfoList[] = {
 	{ dlopLe,     5, 2, 0, "<=" },
 	{ dlopGe,     5, 2, 0, ">=" },
 	{ dlopEq,     6, 2, 0, "==" },
-	{ dlopNeq,     6, 2, 0, "!=" }, 
+	{ dlopNeq,     6, 2, 0, "!=" },
 	{ dlopNeq,     6, 2, 0, "<>" },
-	{ dlopAnd,  7, 2, 0, "&&" }, 
-	{ dlopOr,   8, 2, 0, "||" }, 
+	{ dlopAnd,  7, 2, 0, "&&" },
+	{ dlopOr,   8, 2, 0, "||" },
 	{ dlopOr,   8, 2, 0, "or" },
 	{ dlopDot,    1, 2, 0, "."  },
 	{ dlopNot,  2, 1, 0, "!"  },
@@ -1292,9 +1292,9 @@ public:
 	//
 	enum {
 		kStart = 1, // Стартовый фиктивный блок
-		kFinish,    // Финишный фиктивный блок 
+		kFinish,    // Финишный фиктивный блок
 		kText,      // Просто текст
-		kExpr,      // Выражение  
+		kExpr,      // Выражение
 		kForEach,   // branch
 		kIf,        // branch
 		kElse,      // branch
@@ -1305,7 +1305,7 @@ public:
 		kSet,       // Установка значения переменной #set($a = 10)
 		kStop,      // stop execution
 		kBreak,     // break loop
-		kInclude    //  
+		kInclude    //
 	};
 	static int FASTCALL IsFirstCharOfIdent(char c);
 	static int FASTCALL IsCharOfIdent(char c);
@@ -1347,7 +1347,7 @@ private:
 			kFormalArg
 		};
 		struct Item {
-			SLAPI  Item(uint16 k);
+			explicit SLAPI  Item(uint16 k);
 			TYPEID GetNumberType() const;
 
 			uint16 K;
@@ -1381,7 +1381,7 @@ private:
 			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
 		};
 
-		SLAPI  ExprSet(TddoContentGraph & rG);
+		explicit SLAPI  ExprSet(TddoContentGraph & rG);
 		SLAPI ~ExprSet();
 		const  Expression * FASTCALL Get(uint p) const
 		{
@@ -1396,7 +1396,7 @@ private:
 		static int FASTCALL CmpOpPrior(int op1, int op2);
 		int    SLAPI Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
 		//
-		// Descr: Ранжирует список выражений rExprList в порядке приоритета операций. 
+		// Descr: Ранжирует список выражений rExprList в порядке приоритета операций.
 		//   Результирующий стек rStack содержит готовое выражение, где все операции исполняются в правильном порядке.
 		//
 		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack); // @recursion
@@ -1415,14 +1415,14 @@ private:
 		uint   BranchP; // Ответвление (if | else | iter)
 		uint   HeadP;   // Головной блок (для ответвления - узел ветвления)
 		uint   TextP;   // Текст
-		uint   ExprP;   // Выражение  
+		uint   ExprP;   // Выражение
 	};
 	struct Current {
 		SLAPI  Current() : LineNo(0), SourceNameP(0), ScanOffs(0), P_Src(0)
 		{
 		}
 		uint   LineNo;
-		uint   SourceNameP; // @*(SetSourceName) Позиция имени текущего источника данных 
+		uint   SourceNameP; // @*(SetSourceName) Позиция имени текущего источника данных
 		uint   ScanOffs;
 		const char * P_Src;
 	};
@@ -1487,9 +1487,9 @@ private:
 	int    SLAPI ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult);
 	int    SLAPI Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
 
-	TSVector <ChunkInner> L; 
+	TSVector <ChunkInner> L;
 	// Блок по индексу 0 всегда стартовый (фиктивный блок)
-	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока 
+	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока
 	ExprSet ES; // Коллекция выражений. На них ссылаются ChunkInner::ExprP
 	//Tddo & R_T;
 	SStrScan Scan;
@@ -1573,7 +1573,7 @@ SLAPI TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *)
 {
 }
 
-//virtual 
+//virtual
 void FASTCALL TddoContentGraph::LocalScope::DataPool::freeItem(void * p)
 {
 	SAlloc::F(p);
@@ -1612,7 +1612,7 @@ int SLAPI TddoContentGraph::LocalScope::GetVar(const char * pName, ExprResult & 
 	}
 	return ok;
 }
-	
+
 uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData)
 {
 	int    ok = 1;
@@ -1678,7 +1678,7 @@ int SLAPI TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const Exp
 	SString temp_buf;
 	const  ExprSet::Item & r_item = rExpr.ES.Get(rExprPointer++);
 	switch(r_item.K) {
-		case ExprSet::kOp: 
+		case ExprSet::kOp:
 			{
 				rResult.Init(CtmExpr::kOp);
 				rResult.U.Op = r_item.Op;
@@ -1706,7 +1706,7 @@ int SLAPI TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const Exp
 			assert(temp_buf.NotEmpty());
 			rResult.InitVar(temp_buf);
 			break;
-		case ExprSet::kString: 
+		case ExprSet::kString:
 			{
 				DlContext * p_ctx = rBlk.P_Rtm->GetContext();
 				DlScope * p_scope = p_ctx->GetCurScope();
@@ -1960,7 +1960,7 @@ int SLAPI TddoContentGraph::ExprSet::Stack::IsSingleOp() const
 	else
 		return 0;
 }
-			
+
 int FASTCALL TddoContentGraph::ExprSet::Stack::Push(const Stack & rS)
 {
 	int    ok = -1;
@@ -1982,7 +1982,7 @@ SLAPI TddoContentGraph::ExprSet::ExprSet(TddoContentGraph & rG) : R_G(rG)
 	// вставить фиктивный элемент по 0-й позиции.
 	//
 	uint   zerop = 0;
-	assert(EL.CreateNewItem(&zerop)); 
+	assert(EL.CreateNewItem(&zerop));
 	assert(zerop == 0);
 }
 
@@ -2049,7 +2049,7 @@ int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGr
 	SStrScan & r_scan = R_G.Scan;
 	//
 	// Локальный список выражений.
-	// Для учета приоритета операторов все операнды, разделенные линейными операторами (+ - . etc) 
+	// Для учета приоритета операторов все операнды, разделенные линейными операторами (+ - . etc)
 	// вносятся в local_expr_list вместе с соответствующими операторами.
 	// Операторы вносятся в список как Stack содержащий единственный элемент - собственно оператор
 	//
@@ -2180,7 +2180,7 @@ int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGr
 	return ok;
 }
 
-//static 
+//static
 int FASTCALL TddoContentGraph::ExprSet::CmpOpPrior(int op1, int op2)
 {
 	if(op1 == op2)
@@ -2317,7 +2317,7 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 				const Item & r_item = p_expr->ES.Get(i);
 				rBuf.Space();
 				switch(r_item.K) {
-					case kOp: 
+					case kOp:
 						rBuf.Cat("op");
 						{
 							int    _f = 0;
@@ -2330,35 +2330,35 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 							if(!_f)
 								rBuf.CatChar('[').Cat("UNKN").CatChar(']');
 						}
-						rBuf.CatParStr(r_item.ArgCount); 
+						rBuf.CatParStr(r_item.ArgCount);
 						break;
-					case kFunc: 
+					case kFunc:
 						rBuf.Cat("func");
 						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						rBuf.CatParStr(r_item.ArgCount);
 						break;
-					case kString: 
-						rBuf.Cat("string"); 
+					case kString:
+						rBuf.Cat("string");
 						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
-					case kNumber: 
-						rBuf.Cat("number"); 
+					case kNumber:
+						rBuf.Cat("number");
 						rBuf.CatChar('[').Cat(r_item.R, MKSFMTD(0, 9, NMBF_NOTRAILZ)).CatChar(']');
 						break;
-					case kVar: 
-						rBuf.Cat("var"); 
+					case kVar:
+						rBuf.Cat("var");
 						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
-					case kFormalArg: 
-						rBuf.Cat("formalarg"); 
+					case kFormalArg:
+						rBuf.Cat("formalarg");
 						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
-					default: 
-						rBuf.Cat("UNKN"); 
+					default:
+						rBuf.Cat("UNKN");
 						break;
 				}
 			}
@@ -2374,7 +2374,7 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 		rBuf.Cat("invalid-expression-pos").CatChar('[').Cat(exprPos).CatChar(']');
 }
 
-SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this), 
+SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this),
 	P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), P_Ctx(DS.GetInterfaceContext(PPSession::ctxtExportData))
 {
 }
@@ -2546,7 +2546,7 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 									assert(expr_p);
 									macro_arg_list.add((long)expr_p);
 								}
-								else 
+								else
 									local_ok = 0;
 								Skip();
 								if(Scan[0] == ',') { // optional ','
@@ -2754,13 +2754,13 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 	return ok;
 }
 
-//static 
+//static
 int FASTCALL TddoContentGraph::IsFirstCharOfIdent(char c)
 {
 	return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
 }
 
-//static 
+//static
 int FASTCALL TddoContentGraph::IsCharOfIdent(char c)
 {
 	return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c));
@@ -2970,7 +2970,7 @@ int FASTCALL TddoContentGraph::Helper_RecognizeMetaKeyword(SString & rAddendum)
 					case PPHS_STOP:      m = Tddo::tStop; break;
 					case PPHS_IF:        m = Tddo::tIf; break;
 					case PPHS_ELSE:      m = Tddo::tElse; break;
-					case PPHS_ELSEIF:  
+					case PPHS_ELSEIF:
 					case PPHS_ELIF:      m = Tddo::tElif; break;
 					case PPHS_FOREACH:   m = Tddo::tForEach; break;
 					case PPHS_ENDIF:     m = Tddo::tEndif; break;
@@ -2993,7 +2993,7 @@ int FASTCALL TddoContentGraph::Helper_RecognizeMetaKeyword(SString & rAddendum)
 				if(m) {
 					if(recogn_result == 200)
 						Scan.Incr(tp+3); // # + { + }
-					else 
+					else
 						Scan.Incr(tp+1); // #
 				}
 			}
@@ -3029,7 +3029,7 @@ int SLAPI TddoContentGraph::ChunkToStr(uint cp, uint tabLevel, SString & rBuf) c
 		case kIf: temp_buf = "kIf"; break;
 		case kElse: temp_buf = "kElse"; break;
 		case kElseIf: temp_buf = "kElseIf"; break;
-		case kIter:temp_buf = "kIter"; break; 
+		case kIter:temp_buf = "kIter"; break;
 		case kMacro: temp_buf = "kMacro"; break;
 		case kSet: temp_buf = "kSet"; break;
 		default: temp_buf = "kUNKNOWN"; break;
@@ -3054,7 +3054,7 @@ int SLAPI TddoContentGraph::ChunkToStr(uint cp, uint tabLevel, SString & rBuf) c
 	}
 	return ok;
 }
-	
+
 uint SLAPI TddoContentGraph::AddBlock(int kind, uint exprP, const SString & rText)
 {
 	uint   result_pos = 0;
@@ -3221,4 +3221,4 @@ SLTEST_R(Tddo)
 }
 
 #endif // } SLTEST_RUNNING
-#endif // } USE_TDDO_2 
+#endif // } USE_TDDO_2

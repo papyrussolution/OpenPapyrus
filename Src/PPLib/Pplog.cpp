@@ -62,7 +62,7 @@ protected:
 //
 class LogListWindowSCI : public TWindow, public SScEditorBase {
 public:
-	LogListWindowSCI(TVMsgLog * pLog);
+	explicit LogListWindowSCI(TVMsgLog * pLog);
 	~LogListWindowSCI()
 	{
 		::DestroyWindow(HwndSci);

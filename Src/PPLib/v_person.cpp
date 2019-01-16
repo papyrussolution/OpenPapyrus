@@ -348,7 +348,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 		{
 			class PersonTagsCrosstab : public Crosstab {
 			public:
-				SLAPI  PersonTagsCrosstab(PPViewPerson * pV) : Crosstab(), P_V(pV)
+				explicit SLAPI  PersonTagsCrosstab(PPViewPerson * pV) : Crosstab(), P_V(pV)
 				{
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
@@ -2098,8 +2098,8 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 						tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
 						dbe_city,             // #6
 						p->Flags,             // #7
-						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8 
-						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9 
+						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8
+						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				}
 				break;

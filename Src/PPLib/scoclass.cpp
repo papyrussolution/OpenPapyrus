@@ -1,5 +1,5 @@
 // SCOCLASS.CPP
-// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018
+// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019
 //
 #pragma hdrstop
 #define DL600R
@@ -25,14 +25,14 @@ int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
 	return ok;
 }
 
-SCoClass::SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt) : P_Ctx(pCtx), P_Scope(pScope), TabCount(0), P_Tab(0), 
+SCoClass::SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt) : P_Ctx(pCtx), P_Scope(pScope), TabCount(0), P_Tab(0),
 	Flags(0), AppFlags(0), AppError(0), ExtraPtr(0)
 {
 	Ref.Assign(1);
 	InitVTable(pVt);
 }
 
-SCoClass::SCoClass(SCoClassConstructor ccc, void * pVt) : P_Ctx(DS.GetInterfaceContext(PPSession::ctxtInterface)), 
+SCoClass::SCoClass(SCoClassConstructor ccc, void * pVt) : P_Ctx(DS.GetInterfaceContext(PPSession::ctxtInterface)),
 	P_Scope(0), TabCount(0), P_Tab(0), Flags(fFactory), AppFlags(0), AppError(0), ExtraPtr(0)
 {
 	Ref.Assign(1);
@@ -296,7 +296,7 @@ HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID) { return (((
 //
 class SCoFactory : public SCoClass {
 public:
-	SLAPI  SCoFactory(REFCLSID);
+	explicit SLAPI  SCoFactory(REFCLSID);
 	HRESULT __stdcall CreateInstance(IUnknown * pUnknownOuter, const IID & iID, void ** ppV);
 	HRESULT __stdcall LockServer(BOOL bLock);
 private:

@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1284,7 +1284,7 @@ int SLAPI PPObjOpCounter::Browse(void * extraPtr)
 {
 	class OpCounterView : public ObjViewDialog {
 	public:
-		OpCounterView(PPObjOpCounter * pObj) : ObjViewDialog(DLG_OPCNTRVIEW, pObj, 0)
+		explicit OpCounterView(PPObjOpCounter * pObj) : ObjViewDialog(DLG_OPCNTRVIEW, pObj, 0)
 		{
 		}
 	private:
@@ -2517,7 +2517,7 @@ int DiffByLocCntrDlg::getDTS(LAssocArray * pData)
 
 class OpCntrDialog : public TDialog {
 public:
-	OpCntrDialog(uint resID) : TDialog(resID)
+	explicit OpCntrDialog(uint resID) : TDialog(resID)
 	{
 	}
 	int    setDTS(const PPOpCounterPacket *);
@@ -2636,7 +2636,7 @@ void OprKindDialog::editPoolOptions()
 {
 	class OpkPoolDialog : public OpListDialog {
 	public:
-		OpkPoolDialog(PPIDArray * pOpTypesList) : OpListDialog(DLG_OPRPOOL, CTL_OPRPOOL_LIST, 0, pOpTypesList), P_Data(0)
+		explicit OpkPoolDialog(PPIDArray * pOpTypesList) : OpListDialog(DLG_OPRPOOL, CTL_OPRPOOL_LIST, 0, pOpTypesList), P_Data(0)
 		{
 		}
 		int    setDTS(PPOprKindPacket * pData)
@@ -3024,7 +3024,7 @@ private:
 	virtual void SLAPI EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
 	int    SLAPI FetchReckonOpList();
 
-	int    IsReckonListInited;
+	// @v10.3.0 (never used) int    IsReckonListInited;
 	enum {
 		stReckonListInited = 0x0001,
 		stOpSymbListInited = 0x0002

@@ -493,7 +493,7 @@ int SLAPI PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					}
 				}
 			}
-			// } @v10.2.5 
+			// } @v10.2.5
 		}
 	}
 	else
@@ -1800,7 +1800,7 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	if(pExtraParam)
 		egbf |= pExtraParam->Flags;
 	// @v10.1.8 SETFLAG(flags, BPLD_FORCESERIALS, (Cfg.Flags & BCF_SHOWSERIALSINGBLINES));
-	flags |= BPLD_FORCESERIALS; // @v10.1.8 
+	flags |= BPLD_FORCESERIALS; // @v10.1.8
 	THROW(ExtractPacketWithFlags(id, &pack, flags));
 	DS.SetLocation(pack.Rec.LocID);
 	if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
@@ -3199,7 +3199,7 @@ int SLAPI PPObjBill::EditConfig()
 {
 	class BillConfigDialog : public TDialog {
 	public:
-		BillConfigDialog(PPBillConfig * pCfg) : TDialog(DLG_BILLCFG), P_Cfg(pCfg)
+		explicit BillConfigDialog(PPBillConfig * pCfg) : TDialog(DLG_BILLCFG), P_Cfg(pCfg)
 		{
 		}
 		TDisCalcMethodParam Tdcmp;
@@ -4035,7 +4035,7 @@ int SLAPI PPObjBill::SetupImportedPrice(const PPBillPacket * pPack, PPTransferIt
 //
 struct AutoCalcPricesParam : public CalcPriceParam {
 public:
-	AutoCalcPricesParam(int strictPriceValuation) : CalcPriceParam(), StrictPriceValuation(strictPriceValuation), _Action(0), SupplID(0)
+	explicit AutoCalcPricesParam(int strictPriceValuation) : CalcPriceParam(), StrictPriceValuation(strictPriceValuation), _Action(0), SupplID(0)
 	{
 	}
 	enum {
@@ -4052,7 +4052,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 {
 	class AutoCalcSelectQuotDialog : public TDialog {
 	public:
-		AutoCalcSelectQuotDialog(PPObjBill * pBObj) : TDialog(DLG_SELQUOT3), Data(0), P_BObj(pBObj)
+		explicit AutoCalcSelectQuotDialog(PPObjBill * pBObj) : TDialog(DLG_SELQUOT3), Data(0), P_BObj(pBObj)
 		{
 			PPObjQuotKind::Special sqk;
 			PPObjQuotKind::GetSpecialKinds(&sqk, 1);
@@ -4745,7 +4745,7 @@ private:
 	};
 	class FslArray : public StrAssocArray {
 	public:
-		FslArray(int use) : StrAssocArray(), Use(use), Inited(0)
+		explicit FslArray(int use) : StrAssocArray(), Use(use), Inited(0)
 		{
 		}
 		void   FASTCALL Dirty(PPID lotID)
@@ -4765,7 +4765,7 @@ private:
 	TSCollection <CrBillEntry> CrBillList;
 	FslArray FullSerialList;
 
-	PPProjectConfig PrjCfg;   // 
+	PPProjectConfig PrjCfg;   //
 	ReadWriteLock PrjCfgLock; // Блокировка конфигурации проектов
 };
 
@@ -7197,7 +7197,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
 		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) { // @v9.8.3
 			// @v10.2.3 THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
-			THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)); // @v10.2.3 
+			THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)); // @v10.2.3
 		}
 		else {
 			THROW(CheckRights(PPR_MOD)); // @v10.2.3
@@ -7625,7 +7625,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 			// @v10.2.3 const int cor = r_rt.CheckOpID(brec.OpID, PPR_DEL);
 			// @v10.2.3 THROW(cor);
 			// @v10.2.3 THROW((cor > 0) || CheckRights(PPR_DEL));
-			// } @v10.1.12 
+			// } @v10.1.12
 			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL)); // @v10.2.3
 			THROW(r_rt.CheckBillDate(brec.Dt));
 			// @v10.1.12 THROW(r_rt.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
@@ -7783,7 +7783,7 @@ int SLAPI PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 	int    ok = -1;
 	if(pPack) {
 		if(pPack->CSessID) {
-			long   pool_type = 0;
+			// @v10.3.0 long   pool_type = 0;
 			/* Временно, инициировать сумму будем только по техн сессиям (но не по кассовым)
 			if(pPack->Rec.Flags & (BILLF_CSESSWROFF|BILLF_CDFCTWROFF)) {
 				PPObjCSession cs_obj;
@@ -8151,7 +8151,7 @@ int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int us
 	uint   i, j;
 	short  rbybill;
 	int    done;
-	int    is_intrexnd = 0; // Признак того, что объединяются документы внутреннего перемещения - сложный случай.
+	// @v10.3.0 int    is_intrexnd = 0; // Признак того, что объединяются документы внутреннего перемещения - сложный случай.
 	DateIter diter;
 	PPBillPacket add_pack;
 	PPTransferItem ti, * pti, * ati;
@@ -8930,7 +8930,7 @@ SLTEST_R(PPBillFormula)
 		for(uint i = 0; i < bill_list.getCount(); i++) {
 			PPBillPacket bpack;
 			if(obj_bill.ExtractPacket(bill_list.at(i), &bpack) > 0) {
-				double bill_amt = bpack.GetAmount();
+				// @v10.3.0 double bill_amt = bpack.GetAmount();
 				for(uint j = 0; j < formulas_count; j++) {
 					const char * p_lformula = l_formula_list.at(j), * p_rformula = r_formula_list.at(j);
 					double left_amt = 0.0, right_amt = 0.0;

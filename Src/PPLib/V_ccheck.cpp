@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1695,7 +1695,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		ImplementFlags |= implChangeFilt;
 	}
 	else if(P_TmpGrpTbl && Filt.CtKind != TrfrAnlzFilt::ctNone) {
-		int    setup_total = 0;
+		// @v10.3.0 (never used) int    setup_total = 0;
 		DBFieldList total_list;
 		StringSet total_title_list;
 		THROW_MEM(P_Ct = new CCheckCrosstab(this));
@@ -2061,7 +2061,11 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				}
 			}
 			if(cc_id && (State & stIterLines) && !(Filt.Flags & CCheckFilt::fCheckLines)) {
-				double qtty = 0.0, amt = 0.0, dscnt = 0.0, t_dscnt = 0.0, pcnt = 0.0;
+				// @v10.3.0 (never used) double qtty = 0.0;
+				double amt = 0.0;
+				double dscnt = 0.0;
+				// @v10.3.0 (never used) double t_dscnt = 0.0;
+				// @v10.3.0 (never used) double pcnt = 0.0;
 				CCheckLineTbl::Rec ln_rec;
 				if(CurLine == 0) {
 					CcPack.ClearLines();
@@ -2465,7 +2469,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
 	if(p_brw && pData && pStyle) {
-		const  BrowserDef * p_def = p_brw->getDef();
+		// @v10.3.0 (never used) const  BrowserDef * p_def = p_brw->getDef();
 		if(col == 3) {
 			struct _E {
 				long  ID;

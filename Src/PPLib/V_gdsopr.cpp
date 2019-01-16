@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1400,7 +1400,7 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 					else if(oneof2(Filt.Sgb.S, SubstGrpBill::sgbDlvrLoc, SubstGrpBill::sgbLocation)) {
 						pItem->SubstLocID = rec.GoodsID;
 					}
-				} 
+				}
 				else /*} @v10.0.0 */ if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
 					pItem->SubstArID  = (rec.GoodsID & ~GOODSSUBSTMASK);
 					pItem->SubstPsnID = ObjectToPerson(pItem->SubstArID, 0);
@@ -1774,15 +1774,21 @@ public:
 		double TotalSum;
 	};
 
-	ABCGrpStorageList(PPObjGoods * pGObj) {P_GObj = pGObj; P_TotalItems = 0; P_StorageList = 0;EnumIdx = 0;}
-	ABCGrpStorageList() {delete[] P_StorageList; ZDELETE(P_TotalItems);}
+	explicit ABCGrpStorageList(PPObjGoods * pGObj) : P_GObj(pGObj), P_TotalItems(0), P_StorageList(0), EnumIdx(0)
+	{
+	}
+	ABCGrpStorageList()
+	{
+		delete[] P_StorageList;
+		ZDELETE(P_TotalItems);
+	}
 	int    Init(const ABCAnlzFilt *);
 	int    InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt);
 	int    CalcBelongToABCGrp(const GoodsOpAnalyzeViewItem *, short * pABCGrp, int finish = 0);
 	int    EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pRec);
-	int IncTotalItem(uint groupBy, GoodsOpAnalyzeViewItem * pItem);
+	int    IncTotalItem(uint groupBy, GoodsOpAnalyzeViewItem * pItem);
 private:
-	long GetGoodsGrpPos(PPID goodsID);
+	long   GetGoodsGrpPos(PPID goodsID);
 	ABCGroupingRecsStorage * ABCGrpStorageList::GetStorage(PPID goodsID);
 
 	uint   EnumIdx;
@@ -1975,7 +1981,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 			}
 		}
 	}
-	// } @v10.2.2 
+	// } @v10.2.2
 	if(ok > 0) {
 		long   subst_bill_val = 0;
 		PPIDArray goods_list;
@@ -2253,7 +2259,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 								is_suite = 1;
 						}
 						else {
-							if(GetOpType(bill_rec.OpID) == PPOPT_GOODSMODIF) 
+							if(GetOpType(bill_rec.OpID) == PPOPT_GOODSMODIF)
 								is_suite = 1;
 						}
 						if(is_suite && CheckBillRec(&bill_rec)) {
@@ -2273,7 +2279,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					}
 				}
 			}
-			else { // } @v10.2.2 
+			else { // } @v10.2.2
 				for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
 					BillTbl::Rec bill_rec;
 					int    is_paym = 0;

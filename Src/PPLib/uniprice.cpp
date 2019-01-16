@@ -1,5 +1,5 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019
 // @codepage windows-1251
 // Унификация цен реализации товара
 //
@@ -115,7 +115,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 
 	class UnifyPriceDialog : public TDialog {
 	public:
-		UnifyPriceDialog(uint dlgID) : TDialog(dlgID)
+		explicit UnifyPriceDialog(uint dlgID) : TDialog(dlgID)
 		{
 			addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_UNIPRICE_GGRP, cmGoodsFilt));
 		}

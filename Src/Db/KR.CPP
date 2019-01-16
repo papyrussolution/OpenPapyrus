@@ -181,7 +181,7 @@ void SLAPI KR::makeRange(void * d, __range & r)
 	}
 }
 
-void SLAPI KR::rangeToBuf(__range & C, void * buf, int equal)
+void SLAPI KR::rangeToBuf(const __range & C, void * buf, int equal)
 {
 	KR::I & ih = *(KR::I*)buf;
 	char * ptr = ((char *)buf)+sizeof(KR::I);
@@ -203,7 +203,7 @@ void SLAPI KR::rangeToBuf(__range & C, void * buf, int equal)
 	}
 }
 
-int SLAPI KR::conjunction(__range & A /*dest*/, __range & B, int * comp, int * eq)
+int SLAPI KR::conjunction(__range & A /*dest*/, const __range & B, int * comp, int * eq)
 {
 	int    c;
 	__range C;

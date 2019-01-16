@@ -130,7 +130,7 @@ public:
 		expWeakAlc,
 		expWoTareBeer
 	};
-	SLAPI  PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb), KegUnitID(-1)
+	explicit SLAPI  PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb), KegUnitID(-1)
 	{
 	}
 	int    SLAPI Init(/*const SupplExpFilt * pFilt*/);
@@ -214,7 +214,7 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 
 class SoapExporter {
 public:
-	SLAPI SoapExporter(bool flatStruc = false) : HeaderRecCount(0), LinesRecCount(0), FilesCount(0), MaxTransmitSize(0), AddedRecType(0), FlatStruc(flatStruc)
+	explicit SLAPI SoapExporter(bool flatStruc = false) : HeaderRecCount(0), LinesRecCount(0), FilesCount(0), MaxTransmitSize(0), AddedRecType(0), FlatStruc(flatStruc)
 	{
 	}
 	void   SetMaxTransmitSize(uint32 maxTransmitSize)
@@ -1618,7 +1618,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 									else*/
 										items_attrs_list.insert(&line_attrs_mirror_rec);
 								}
-								// } @v10.1.9 
+								// } @v10.1.9
 							}
 							count++;
 						}
@@ -2220,7 +2220,7 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 
 	class SupplExpFiltDialog : public TDialog {
 	public:
-		SupplExpFiltDialog(int selOnlySuppl) : TDialog(DLG_SUPLEXPFLT), SelOnlySuppl(selOnlySuppl)
+		explicit SupplExpFiltDialog(int selOnlySuppl) : TDialog(DLG_SUPLEXPFLT), SelOnlySuppl(selOnlySuppl)
 		{
 			SetupCalPeriod(CTLCAL_SUPLEXPFLT_PRD, CTL_SUPLEXPFLT_PRD);
 			addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SUPLEXPFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
